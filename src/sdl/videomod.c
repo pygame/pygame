@@ -157,39 +157,39 @@ _sdl_getvideoinfo (PyObject *self)
         return NULL;
     }
 
-    val = PyInt_FromLong (info->hw_available);
+    val = PyBool_FromLong (info->hw_available);
     PyDict_SetItemString (dict, "hw_available", val);
     Py_DECREF (val);
 
-    val = PyInt_FromLong (info->wm_available);
+    val = PyBool_FromLong (info->wm_available);
     PyDict_SetItemString (dict, "wm_available", val);
     Py_DECREF (val);
 
-    val = PyInt_FromLong (info->blit_hw);
+    val = PyBool_FromLong (info->blit_hw);
     PyDict_SetItemString (dict, "blit_hw", val);
     Py_DECREF (val);
 
-    val = PyInt_FromLong (info->blit_hw_CC);
+    val = PyBool_FromLong (info->blit_hw_CC);
     PyDict_SetItemString (dict, "blit_hw_CC", val);
     Py_DECREF (val);
 
-    val = PyInt_FromLong (info->blit_hw_A);
+    val = PyBool_FromLong (info->blit_hw_A);
     PyDict_SetItemString (dict, "blit_hw_A", val);
     Py_DECREF (val);
 
-    val = PyInt_FromLong (info->blit_sw);
+    val = PyBool_FromLong (info->blit_sw);
     PyDict_SetItemString (dict, "blit_sw", val);
     Py_DECREF (val);
 
-    val = PyInt_FromLong (info->blit_sw_CC);
+    val = PyBool_FromLong (info->blit_sw_CC);
     PyDict_SetItemString (dict, "blit_sw_CC", val);
     Py_DECREF (val);
 
-    val = PyInt_FromLong (info->blit_sw_A);
+    val = PyBool_FromLong (info->blit_sw_A);
     PyDict_SetItemString (dict, "blit_sw_A", val);
     Py_DECREF (val);
 
-    val = PyInt_FromLong (info->blit_fill);
+    val = PyBool_FromLong (info->blit_fill);
     PyDict_SetItemString (dict, "blit_fill", val);
     Py_DECREF (val);
 

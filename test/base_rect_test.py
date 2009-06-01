@@ -331,9 +331,11 @@ class RectTest (unittest.TestCase):
         l = [Rect(50, 50, 1, 1), Rect(5, 5, 10, 10), Rect(15, 15, 1, 1)]
 
         self.assertEqual(r.collidelist(l), 1)
+        self.assertEqual(r.collidelist(l, lambda x, y: x.top < y.top), 0)
 
         f = [Rect(50, 50, 1, 1), Rect(100, 100, 4, 4)]
         self.assertEqual(r.collidelist(f), -1)
+        self.assertEqual(r.collidelist(l, lambda x, y: x.top > y.top), -1)
 
     def test_pygame2_base_Rect_collidelistall(self):
 
@@ -355,6 +357,7 @@ class RectTest (unittest.TestCase):
             Rect(2, 2, 1, 1),
         ]
         self.assertEqual(r.collidelistall(l), [0, 1, 3])
+        self.assertEqual(r.collidelistall(l, lambda x, y: x.top >= y.top), [0,])
 
         f = [Rect(50, 50, 1, 1), Rect(20, 20, 5, 5)]
         self.assertFalse(r.collidelistall(f))

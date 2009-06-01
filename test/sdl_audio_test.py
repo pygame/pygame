@@ -16,6 +16,7 @@ class SDLAudioTest (unittest.TestCase):
         # 
         # Initializes the audio subsystem of the SDL library.
         self.assertEquals (audio.init (), None)
+        audio.quit ()
 
     def test_pygame2_sdl_audio_quit(self):
 
@@ -38,7 +39,6 @@ class SDLAudioTest (unittest.TestCase):
         # 
         # Returns whether the audio subsystem of the SDL library is
         # initialized.
-
         audio.quit ()
         self.assertEquals (audio.was_init (), False)
         audio.init ()

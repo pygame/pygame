@@ -215,47 +215,87 @@
       </desc>
     </method>
     <method name="collidedict">
-      <call>collidedict (dict[, checkvals]) -> key, value</call>
+      <call>collidedict (dict[, checkvals, key]) -> key, value</call>
       <desc>
         Test if one rectangle in a dictionary intersects.
 
         Returns the key and value of the first dictionary value that
         collides with the :class:`FRect`. If no collisions are found,
-        None is returned. Depending on the checkvals argument either the
+        None is returned. Depending on the *checkvals* argument either the
         keys or values of the dict must be :class:`FRect` objects. By
         default, the keys are checked.
+
+        You can provide your own comparision function as *key*
+        argument. The comparision function will take two args, the
+        :class:`FRect` itself and an key or value from the passed
+        dictionary. It must return True or False ::
+        
+          def cmpfunc (rect1, rect2):
+              ...
+              return True
+
       </desc>
     </method>
     <method name="collidedictall">
-      <call>collidedictall (dict[, checkvals]) -> [(key, value), ...]</call>
+      <call>
+        collidedictall (dict[, checkvals, key]) -> [(key, value), ...]
+      </call>
       <desc>
         Test if all rectangles in a dictionary intersect.
 
         Returns a list of all the key and value pairs that intersect
         with the :class:`FRect`. If no collisions are found an empty
-        list is returned. Depending on the checkvals argument either the
+        list is returned. Depending on the *checkvals* argument either the
         keys or values of the dict must be :class:`FRect` objects. By
         default, the keys are checked.
+
+        You can provide your own comparision function as *key*
+        argument. The comparision function will take two args, the
+        :class:`FRect` itself and an key or value from the passed
+        dictionary. It must return True or False ::
+
+          def cmpfunc (rect1, rect2):
+              ...
+              return True
+
       </desc>
     </method>
     <method name="collidelist">
-      <call>collidelist (list) -> index</call>
+      <call>collidelist (rects[, key]) -> index</call>
       <desc>
         Test if one rectangle in a list intersects.
 
         Test whether the rectangle collides with any in a sequence of
         rectangles. The index of the first collision found is
         returned. If no collisions are found an index of -1 is returned.
+
+        You can provide your own comparision function as *key*
+        argument. The comparision function will take two args, the
+        :class:`FRect` itself and an key or value from the passed
+        dictionary. It must return True or False ::
+
+          def cmpfunc (rect1, rect2):
+              ...
+              return True
       </desc>
     </method>
     <method name="collidelistall">
-      <call>collidelistall (list) -> [index, ...]</call>
+      <call>collidelistall (rects[, key]) -> [index, ...]</call>
       <desc>
         Test if all rectangles in a list intersect.
 
         Returns a list of all the indices that contain rectangles that
         collide with the :class:`FRect`. If no intersecting rectangles
         are found, an empty list is returned.
+
+        You can provide your own comparision function as *key*
+        argument. The comparision function will take two args, the
+        :class:`FRect` itself and an key or value from the passed
+        dictionary. It must return True or False ::
+
+          def cmpfunc (rect1, rect2):
+              ...
+              return True
       </desc>
     </method>
     <method name="collidepoint">
@@ -498,53 +538,89 @@
         Crops a rectangle inside another.
 
         Returns a new rectangle that is cropped to be completely inside
-        the argument :class:`Rect`. If the two rectangles do not overlap to begin
-        with, a :class:`Rect` with 0 size is returned. Thus it returns the area, in
-        which both rects overlap.
+        the argument :class:`Rect`. If the two rectangles do not overlap
+        to begin with, a :class:`Rect` with 0 size is returned. Thus it
+        returns the area, in which both rects overlap.
       </desc>
     </method>
     <method name="collidedict">
-      <call>collidedict (dict[, checkvals]) -> key, value</call>
+      <call>collidedict (dict[, checkvals, key]) -> key, value</call>
       <desc>
         Test if one rectangle in a dictionary intersects.
 
         Returns the key and value of the first dictionary value that
         collides with the :class:`Rect`. If no collisions are found,
-        None is returned. Depending on the checkvals argument either the
+        None is returned. Depending on the *checkvals* argument either the
         keys or values of the dict must be :class:`Rect` objects. By
         default, the keys are checked.
+
+        You can provide your own comparision function as *key*
+        argument. The comparision function will take two args, the
+        :class:`FRect` itself and an key or value from the passed
+        dictionary. It must return True or False ::
+
+          def cmpfunc (rect1, rect2):
+              ...
+              return True
       </desc>
     </method>
     <method name="collidedictall">
-      <call>collidedictall (dict[, checkvals]) -> [(key, value), ...]</call>
+      <call>collidedictall (dict[, checkvals, key]) -> [(key, value), ...]</call>
       <desc>
         Test if all rectangles in a dictionary intersect.
 
         Returns a list of all the key and value pairs that intersect
         with the :class:`Rect`. If no collisions are found an empty list
-        is returned. Depending on the checkvals argument either the keys
+        is returned. Depending on the *checkvals* argument either the keys
         or values of the dict must be :class:`Rect` objects. By default,
         the keys are checked.
+
+        You can provide your own comparision function as *key*
+        argument. The comparision function will take two args, the
+        :class:`FRect` itself and an key or value from the passed
+        dictionary. It must return True or False ::
+
+          def cmpfunc (rect1, rect2):
+              ...
+              return True
       </desc>
     </method>
     <method name="collidelist">
-      <call>collidelist (list) -> index</call>
+      <call>collidelist (list[, key]) -> index</call>
       <desc>
         Test if one rectangle in a list intersects.
 
         Test whether the rectangle collides with any in a sequence of
         rectangles. The index of the first collision found is
         returned. If no collisions are found an index of -1 is returned.
+
+        You can provide your own comparision function as *key*
+        argument. The comparision function will take two args, the
+        :class:`FRect` itself and an key or value from the passed
+        dictionary. It must return True or False ::
+
+          def cmpfunc (rect1, rect2):
+              ...
+              return True
       </desc>
     </method>
     <method name="collidelistall">
-      <call>collidelistall (list) -> [index, ...]</call>
+      <call>collidelistall (list[, key]) -> [index, ...]</call>
       <desc>
         Test if all rectangles in a list intersect.
 
         Returns a list of all the indices that contain rectangles that
         collide with the :class:`Rect`. If no intersecting rectangles are found,
         an empty list is returned.
+
+        You can provide your own comparision function as *key*
+        argument. The comparision function will take two args, the
+        :class:`FRect` itself and an key or value from the passed
+        dictionary. It must return True or False ::
+
+          def cmpfunc (rect1, rect2):
+              ...
+              return True
       </desc>
     </method>
     <method name="collidepoint">

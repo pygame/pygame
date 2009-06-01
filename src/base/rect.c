@@ -85,10 +85,14 @@ static PyObject* _rect_fit (PyObject* self, PyObject *args);
 static PyObject* _rect_contains (PyObject* self, PyObject *args);
 static PyObject* _rect_collidepoint (PyObject *self, PyObject *args);
 static PyObject* _rect_colliderect (PyObject *self, PyObject *args);
-static PyObject* _rect_collidelist (PyObject *self, PyObject *args);
-static PyObject* _rect_collidelistall (PyObject *self, PyObject *args);
-static PyObject* _rect_collidedict (PyObject *self, PyObject *args);
-static PyObject* _rect_collidedictall (PyObject *self, PyObject *args);
+static PyObject* _rect_collidelist (PyObject *self, PyObject *args,
+    PyObject *kwds);
+static PyObject* _rect_collidelistall (PyObject *self, PyObject *args,
+    PyObject *kwds);
+static PyObject* _rect_collidedict (PyObject *self, PyObject *args,
+    PyObject *kwds);
+static PyObject* _rect_collidedictall (PyObject *self, PyObject *args,
+    PyObject *kwds);
 
 static int _rect_compare (PyObject *self, PyObject *other);
 static PyObject* _rect_richcompare (PyObject *o1, PyObject *o2, int opid);
@@ -112,14 +116,14 @@ static PyMethodDef _rect_methods[] = {
       DOC_BASE_RECT_COLLIDEPOINT },
     { "colliderect", _rect_colliderect, METH_VARARGS,
       DOC_BASE_RECT_COLLIDERECT },
-    { "collidelist", _rect_collidelist, METH_VARARGS,
-      DOC_BASE_RECT_COLLIDELIST },
-    { "collidelistall", _rect_collidelistall, METH_VARARGS,
-      DOC_BASE_RECT_COLLIDELISTALL },
-    { "collidedict", _rect_collidedict, METH_VARARGS,
-      DOC_BASE_RECT_COLLIDEDICT },
-    { "collidedictall", _rect_collidedictall, METH_VARARGS,
-      DOC_BASE_RECT_COLLIDEDICTALL },
+    { "collidelist", (PyCFunction) _rect_collidelist,
+      METH_VARARGS | METH_KEYWORDS, DOC_BASE_RECT_COLLIDELIST },
+    { "collidelistall", (PyCFunction) _rect_collidelistall,
+      METH_VARARGS | METH_KEYWORDS, DOC_BASE_RECT_COLLIDELISTALL },
+    { "collidedict", (PyCFunction) _rect_collidedict,
+      METH_VARARGS | METH_KEYWORDS, DOC_BASE_RECT_COLLIDEDICT },
+    { "collidedictall", (PyCFunction) _rect_collidedictall,
+      METH_VARARGS | METH_KEYWORDS, DOC_BASE_RECT_COLLIDEDICTALL },
     { NULL, NULL, 0, NULL }
 };
 
@@ -1133,18 +1137,28 @@ _rect_colliderect (PyObject *self, PyObject *args)
 }
 
 static PyObject*
-_rect_collidelist (PyObject *self, PyObject *args)
+_rect_collidelist (PyObject *self, PyObject *args, PyObject *kwds)
 {
     PyRect *rarg, *rself = (PyRect*) self;
-    PyObject *list, *rect;
+    PyObject *list, *rect, *compare = NULL;
     Py_ssize_t i, count;
-    
-    if (!PyArg_ParseTuple (args, "O:collidelist", &list))
+
+    static char *keys[] = { "rects", "key", NULL };
+    if (!PyArg_ParseTupleAndKeywords (args, kwds, "O|O:collidelist", keys,
+            &list, &compare))
         return NULL;
     if (!PySequence_Check (list))
     {
         PyErr_SetString (PyExc_TypeError,
-            "argument must be a sequence of Rect objects");
+            "rects argument must be a sequence of Rect objects");
+        return NULL;
+    }
+    if (compare == Py_None)
+        compare = NULL;
+
+    if (compare && !PyCallable_Check (compare))
+    {
+        PyErr_SetString (PyExc_TypeError, "key argument must be callable");
         return NULL;
     }
 
@@ -1152,41 +1166,84 @@ _rect_collidelist (PyObject *self, PyObject *args)
     if (count == -1)
         return NULL;
 
-    for (i = 0; i < count; i++)
+    if (compare)
     {
-        rect = PySequence_ITEM (list, i);
-        if (!PyRect_Check (rect))
-        {
-            Py_XDECREF (rect);
-            PyErr_SetString (PyExc_TypeError,
-                "argument must be a sequence of Rect objects.");
-            return NULL;
-        }
-        rarg = (PyRect*) rect;
+        PyObject *ret;
+        int retval;
 
-        if (INTERSECT (rself, rarg))
+        for (i = 0; i < count; i++)
         {
+            rect = PySequence_ITEM (list, i);
+            if (!PyRect_Check (rect))
+            {
+                Py_XDECREF (rect);
+                PyErr_SetString (PyExc_TypeError,
+                    "rects argument must be a sequence of Rect objects.");
+                return NULL;
+            }
+
+            ret = PyObject_CallFunctionObjArgs (compare, self, rect, NULL);
             Py_DECREF (rect);
-            return PyInt_FromSsize_t (i);
+            if (!ret)
+                return NULL;
+            
+            retval = PyObject_IsTrue (ret);
+            Py_DECREF (ret);
+            if (retval == 1)
+                return PyInt_FromSsize_t (i);
+            else if (retval == -1)
+                return NULL;
         }
-        Py_DECREF (rect);
+    }
+    else
+    {
+        for (i = 0; i < count; i++)
+        {
+            rect = PySequence_ITEM (list, i);
+            if (!PyRect_Check (rect))
+            {
+                Py_XDECREF (rect);
+                PyErr_SetString (PyExc_TypeError,
+                    "rects argument must be a sequence of Rect objects.");
+                return NULL;
+            }
+            rarg = (PyRect*) rect;
+
+            if (INTERSECT (rself, rarg))
+            {
+                Py_DECREF (rect);
+                return PyInt_FromSsize_t (i);
+            }
+            Py_DECREF (rect);
+        }
     }
     return PyLong_FromLong (-1);
 }
 
 static PyObject*
-_rect_collidelistall (PyObject *self, PyObject *args)
+_rect_collidelistall (PyObject *self, PyObject *args, PyObject *kwds)
 {
     PyRect *rarg, *rself = (PyRect*) self;
-    PyObject *list, *rect, *indices;
+    PyObject *list, *rect, *indices, *compare = NULL;
     Py_ssize_t i, count;
     
-    if (!PyArg_ParseTuple (args, "O:collidelistall", &list))
+    static char *keys[] = { "rects", "key", NULL };
+    if (!PyArg_ParseTupleAndKeywords (args, kwds, "O|O:collidelistall", keys,
+            &list, &compare))
         return NULL;
+
     if (!PySequence_Check (list))
     {
         PyErr_SetString (PyExc_TypeError,
-            "argument must be a sequence of Rect objects");
+            "rects must be a sequence of Rect objects");
+        return NULL;
+    }
+
+    if (compare == Py_None)
+        compare = NULL;
+    if (compare && !PyCallable_Check (compare))
+    {
+        PyErr_SetString (PyExc_TypeError, "key argument must be callable");
         return NULL;
     }
 
@@ -1198,54 +1255,112 @@ _rect_collidelistall (PyObject *self, PyObject *args)
     if (!indices)
         return NULL;
 
-    for (i = 0; i < count; i++)
+    if (compare)
     {
-        rect = PySequence_ITEM (list, i);
-        if (!PyRect_Check (rect))
-        {
-            Py_XDECREF (rect);
-            Py_DECREF (indices);
-            PyErr_SetString (PyExc_TypeError,
-                "argument must be a sequence of Rect objects.");
-            return NULL;
-        }
-        rarg = (PyRect*) rect;
+        PyObject *ret;
+        int retval;
 
-        if (INTERSECT (rself, rarg))
+        for (i = 0; i < count; i++)
         {
-            PyObject *obj =  PyInt_FromSsize_t (i);
-            if (PyList_Append (indices, obj) == -1)
+            rect = PySequence_ITEM (list, i);
+            if (!PyRect_Check (rect))
             {
-                Py_DECREF (obj);
+                Py_XDECREF (rect);
                 Py_DECREF (indices);
-                Py_DECREF (rect);
+                PyErr_SetString (PyExc_TypeError,
+                    "rects argument must be a sequence of Rect objects.");
                 return NULL;
             }
-            Py_DECREF (obj);
+            
+            ret = PyObject_CallFunctionObjArgs (compare, self, rect, NULL);
+            Py_DECREF (rect);
+            if (!ret)
+            {
+                Py_DECREF (indices);
+                return NULL;
+            }
+            retval = PyObject_IsTrue (ret);
+            Py_DECREF (ret);
+
+            if (retval == 1)
+            {
+                PyObject *obj =  PyInt_FromSsize_t (i);
+                if (PyList_Append (indices, obj) == -1)
+                {
+                    Py_DECREF (obj);
+                    Py_DECREF (indices);
+                    return NULL;
+                }
+                Py_DECREF (obj);
+            }
+            else if (retval == -1)
+            {
+                Py_DECREF (indices);
+                return NULL;
+            }
         }
-        Py_DECREF (rect);
+    }
+    else
+    {
+        for (i = 0; i < count; i++)
+        {
+            rect = PySequence_ITEM (list, i);
+            if (!PyRect_Check (rect))
+            {
+                Py_XDECREF (rect);
+                Py_DECREF (indices);
+                PyErr_SetString (PyExc_TypeError,
+                    "rects argument must be a sequence of Rect objects.");
+                return NULL;
+            }
+            rarg = (PyRect*) rect;
+            
+            if (INTERSECT (rself, rarg))
+            {
+                PyObject *obj =  PyInt_FromSsize_t (i);
+                if (PyList_Append (indices, obj) == -1)
+                {
+                    Py_DECREF (obj);
+                    Py_DECREF (indices);
+                    Py_DECREF (rect);
+                    return NULL;
+                }
+                Py_DECREF (obj);
+            }
+            Py_DECREF (rect);
+        }
     }
 
     return indices;
 }
 
 static PyObject*
-_rect_collidedict (PyObject *self, PyObject *args)
+_rect_collidedict (PyObject *self, PyObject *args, PyObject *kwds)
 {
     PyRect *rarg, *rself = (PyRect*) self;
-    PyObject *dict, *key, *val, *check = NULL;
+    PyObject *dict, *key, *val, *check = NULL, *compare = NULL;
     Py_ssize_t pos = 0;
     int cvalues = 0;
 
-    if (!PyArg_ParseTuple (args, "O|O:collidedict", &dict, &check))
+    static char *keys[] = { "rects", "checkvals", "key", NULL };
+    if (!PyArg_ParseTupleAndKeywords (args, kwds, "O|OO:collidedict", keys,
+            &dict, &check, &compare))
         return NULL;
 
     if (!PyDict_Check (dict))
     {
-        PyErr_SetString (PyExc_TypeError,
-            "argument must be a dict with Rect keys.");
+        PyErr_SetString (PyExc_TypeError, "rects argument must be a dict.");
         return NULL;
     }
+
+    if (compare == Py_None)
+        compare = NULL;
+    if (compare && !PyCallable_Check (compare))
+    {
+        PyErr_SetString (PyExc_TypeError, "key argument must be callable");
+        return NULL;
+    }
+
     if (check)
     {
         cvalues = PyObject_IsTrue (check);
@@ -1253,52 +1368,106 @@ _rect_collidedict (PyObject *self, PyObject *args)
             return NULL;
     }
 
-    while (PyDict_Next (dict, &pos, &key, &val))
+    if (compare)
     {
-        if (cvalues)
-        {
-            if (!PyRect_Check (val))
-            {
-                PyErr_SetString (PyExc_TypeError, 
-                    "argument must be a dict with Rect values.");
-                return NULL;
-            }
-            rarg = (PyRect*) val;
-        }
-        else
-        {
-            if (!PyRect_Check (key))
-            {
-                PyErr_SetString (PyExc_TypeError, 
-                    "argument must be a dict with Rect keys.");
-                return NULL;
-            }
-            rarg = (PyRect*) key;
-        }
+        PyObject *ret;
+        int retval;
 
-        if (INTERSECT (rself, rarg))
-            return Py_BuildValue ("(OO)", key, val);
+        while (PyDict_Next (dict, &pos, &key, &val))
+        {
+            if (cvalues)
+            {
+                if (!PyRect_Check (val))
+                {
+                    PyErr_SetString (PyExc_TypeError, 
+                        "rects argument must be a dict with Rect values.");
+                    return NULL;
+                }
+                rarg = (PyRect*) val;
+            }
+            else
+            {
+                if (!PyRect_Check (key))
+                {
+                    PyErr_SetString (PyExc_TypeError, 
+                        "rects argument must be a dict with Rect keys.");
+                    return NULL;
+                }
+                rarg = (PyRect*) key;
+            }
+
+            ret = PyObject_CallFunctionObjArgs (compare, self,
+                (PyObject*)rarg, NULL);
+            if (!ret)
+                return NULL;
+            retval = PyObject_IsTrue (ret);
+            Py_DECREF (ret);
+
+            if (retval == 1)
+                return Py_BuildValue ("(OO)", key, val);
+            else if (retval == -1)
+                return NULL;
+        }
+    }
+    else
+    {
+        while (PyDict_Next (dict, &pos, &key, &val))
+        {
+            if (cvalues)
+            {
+                if (!PyRect_Check (val))
+                {
+                    PyErr_SetString (PyExc_TypeError, 
+                        "rects argument must be a dict with Rect values.");
+                    return NULL;
+                }
+                rarg = (PyRect*) val;
+            }
+            else
+            {
+                if (!PyRect_Check (key))
+                {
+                    PyErr_SetString (PyExc_TypeError, 
+                        "rects argument must be a dict with Rect keys.");
+                    return NULL;
+                }
+                rarg = (PyRect*) key;
+            }
+            
+            if (INTERSECT (rself, rarg))
+                return Py_BuildValue ("(OO)", key, val);
+        }
     }
     Py_RETURN_NONE;
 }
 
 static PyObject*
-_rect_collidedictall (PyObject *self, PyObject *args)
+_rect_collidedictall (PyObject *self, PyObject *args, PyObject *kwds)
 {
     PyRect *rarg, *rself = (PyRect*) self;
-    PyObject *dict, *key, *val, *list, *check = NULL;
+    PyObject *dict, *key, *val, *list, *check = NULL, *compare = NULL;
     Py_ssize_t pos = 0;
     int cvalues = 0;
 
-    if (!PyArg_ParseTuple (args, "O|O:collidedictall", &dict, &check))
+    static char *keys[] = { "rects", "checkvals", "key", NULL };
+    if (!PyArg_ParseTupleAndKeywords (args, kwds, "O|OO:collidedictall", keys,
+            &dict, &check, &compare))
         return NULL;
 
     if (!PyDict_Check (dict))
     {
-        PyErr_SetString (PyExc_TypeError,
-            "argument must be a dict with Rect keys.");
+        PyErr_SetString (PyExc_TypeError, "rects argument must be a dict.");
         return NULL;
     }
+
+    if (compare == Py_None)
+        compare = NULL;
+    if (compare && !PyCallable_Check (compare))
+    {
+        PyErr_SetString (PyExc_TypeError, "key argument must be callable");
+        return NULL;
+    }
+
     if (check)
     {
         cvalues = PyObject_IsTrue (check);
@@ -1310,45 +1479,112 @@ _rect_collidedictall (PyObject *self, PyObject *args)
     if (!list)
         return NULL;
     
-    while (PyDict_Next (dict, &pos, &key, &val))
+    if (compare)
     {
-        if (cvalues)
-        {
-            if (!PyRect_Check (val))
-            {
-                PyErr_SetString (PyExc_TypeError, 
-                    "argument must be a dict with Rect values.");
-                return NULL;
-            }
-            rarg = (PyRect*) val;
-        }
-        else
-        {
-            if (!PyRect_Check (key))
-            {
-                PyErr_SetString (PyExc_TypeError, 
-                    "argument must be a dict with Rect keys.");
-                return NULL;
-            }
-            rarg = (PyRect*) key;
-        }
+        PyObject *ret;
+        int retval;
 
-        if (INTERSECT (rself, rarg))
+        while (PyDict_Next (dict, &pos, &key, &val))
         {
-            PyObject *obj = Py_BuildValue ("(OO)", key, val);
-            if (!obj)
+            if (cvalues)
+            {
+                if (!PyRect_Check (val))
+                {
+                    Py_DECREF (list);
+                    PyErr_SetString (PyExc_TypeError, 
+                        "rects argument must be a dict with Rect values.");
+                    return NULL;
+                }
+                rarg = (PyRect*) val;
+            }
+            else
+            {
+                if (!PyRect_Check (key))
+                {
+                    Py_DECREF (list);
+                    PyErr_SetString (PyExc_TypeError, 
+                        "rects argument must be a dict with Rect keys.");
+                    return NULL;
+                }
+                rarg = (PyRect*) key;
+            }
+
+            ret = PyObject_CallFunctionObjArgs (compare, self, (PyObject*)rarg,
+                NULL);
+            if (!ret)
             {
                 Py_DECREF (list);
                 return NULL;
             }
+            retval = PyObject_IsTrue (ret);
+            Py_DECREF (ret);
 
-            if (PyList_Append (list, obj) == -1)
+            if (retval == -1)
             {
+                Py_DECREF (list);
+                return NULL;
+            }
+            else if (retval == 1)
+            {
+                PyObject *obj = Py_BuildValue ("(OO)", key, val);
+                if (!obj)
+                {
+                    Py_DECREF (list);
+                    return NULL;
+                }
+                
+                if (PyList_Append (list, obj) == -1)
+                {
+                    Py_DECREF (obj);
+                    Py_DECREF (list);
+                    return NULL;
+                }
                 Py_DECREF (obj);
-                Py_DECREF (list);
-                return NULL;
             }
-            Py_DECREF (obj);
+        }
+    }
+    else
+    {
+        while (PyDict_Next (dict, &pos, &key, &val))
+        {
+            if (cvalues)
+            {
+                if (!PyRect_Check (val))
+                {
+                    PyErr_SetString (PyExc_TypeError, 
+                        "rects argument must be a dict with Rect values.");
+                    return NULL;
+                }
+                rarg = (PyRect*) val;
+            }
+            else
+            {
+                if (!PyRect_Check (key))
+                {
+                    PyErr_SetString (PyExc_TypeError, 
+                        "rects argument must be a dict with Rect keys.");
+                    return NULL;
+                }
+                rarg = (PyRect*) key;
+            }
+            
+            if (INTERSECT (rself, rarg))
+            {
+                PyObject *obj = Py_BuildValue ("(OO)", key, val);
+                if (!obj)
+                {
+                    Py_DECREF (list);
+                    return NULL;
+                }
+                
+                if (PyList_Append (list, obj) == -1)
+                {
+                    Py_DECREF (obj);
+                    Py_DECREF (list);
+                    return NULL;
+                }
+                Py_DECREF (obj);
+            }
         }
     }
     return list;

@@ -86,10 +86,14 @@ static PyObject* _frect_fit (PyObject* self, PyObject *args);
 static PyObject* _frect_contains (PyObject* self, PyObject *args);
 static PyObject* _frect_collidepoint (PyObject *self, PyObject *args);
 static PyObject* _frect_colliderect (PyObject *self, PyObject *args);
-static PyObject* _frect_collidelist (PyObject *self, PyObject *args);
-static PyObject* _frect_collidelistall (PyObject *self, PyObject *args);
-static PyObject* _frect_collidedict (PyObject *self, PyObject *args);
-static PyObject* _frect_collidedictall (PyObject *self, PyObject *args);
+static PyObject* _frect_collidelist (PyObject *self, PyObject *args,
+    PyObject *kwds);
+static PyObject* _frect_collidelistall (PyObject *self, PyObject *args,
+    PyObject *kwds);
+static PyObject* _frect_collidedict (PyObject *self, PyObject *args,
+    PyObject *kwds);
+static PyObject* _frect_collidedictall (PyObject *self, PyObject *args,
+    PyObject *kwds);
 static PyObject* _frect_round (PyObject *self);
 static PyObject* _frect_ceil (PyObject *self);
 static PyObject* _frect_floor (PyObject *self);
@@ -118,14 +122,14 @@ static PyMethodDef _frect_methods[] = {
       DOC_BASE_FRECT_COLLIDEPOINT },
     { "colliderect", _frect_colliderect, METH_VARARGS,
       DOC_BASE_FRECT_COLLIDERECT},
-    { "collidelist", _frect_collidelist, METH_VARARGS,
-      DOC_BASE_FRECT_COLLIDELIST},
-    { "collidelistall", _frect_collidelistall, METH_VARARGS,
-      DOC_BASE_FRECT_COLLIDELISTALL },
-    { "collidedict", _frect_collidedict, METH_VARARGS,
-      DOC_BASE_FRECT_COLLIDEDICT },
-    { "collidedictall", _frect_collidedictall, METH_VARARGS,
-      DOC_BASE_FRECT_COLLIDEDICTALL},
+    { "collidelist", (PyCFunction) _frect_collidelist,
+      METH_VARARGS | METH_KEYWORDS, DOC_BASE_FRECT_COLLIDELIST},
+    { "collidelistall", (PyCFunction) _frect_collidelistall,
+      METH_VARARGS | METH_KEYWORDS, DOC_BASE_FRECT_COLLIDELISTALL },
+    { "collidedict", (PyCFunction) _frect_collidedict,
+      METH_VARARGS | METH_KEYWORDS, DOC_BASE_FRECT_COLLIDEDICT },
+    { "collidedictall", (PyCFunction) _frect_collidedictall,
+      METH_VARARGS | METH_KEYWORDS, DOC_BASE_FRECT_COLLIDEDICTALL},
     { "round", (PyCFunction) _frect_round, METH_NOARGS, DOC_BASE_FRECT_ROUND },
     { "ceil", (PyCFunction) _frect_ceil, METH_NOARGS, DOC_BASE_FRECT_CEIL },
     { "floor", (PyCFunction) _frect_floor, METH_NOARGS, DOC_BASE_FRECT_FLOOR },
@@ -1137,18 +1141,30 @@ _frect_colliderect (PyObject *self, PyObject *args)
 }
 
 static PyObject*
-_frect_collidelist (PyObject *self, PyObject *args)
+_frect_collidelist (PyObject *self, PyObject *args, PyObject *kwds)
 {
     PyFRect *rarg, *rself = (PyFRect*) self;
-    PyObject *list, *frect;
+    PyObject *list, *frect, *compare = NULL;
     Py_ssize_t i, count;
     
-    if (!PyArg_ParseTuple (args, "O:collidelist", &list))
+    static char *keys[] = { "rects", "key", NULL };
+    if (!PyArg_ParseTupleAndKeywords (args, kwds, "O|O:collidelist", keys,
+            &list, &compare))
         return NULL;
+
     if (!PySequence_Check (list))
     {
         PyErr_SetString (PyExc_TypeError,
-            "argument must be a sequence of FRect objects");
+            "rects argument must be a sequence of FRect objects");
+        return NULL;
+    }
+
+    if (compare == Py_None)
+        compare = NULL;
+
+    if (compare && !PyCallable_Check (compare))
+    {
+        PyErr_SetString (PyExc_TypeError, "key argument must be callable");
         return NULL;
     }
 
@@ -1156,41 +1172,84 @@ _frect_collidelist (PyObject *self, PyObject *args)
     if (count == -1)
         return NULL;
 
-    for (i = 0; i < count; i++)
+    if (compare)
     {
-        frect = PySequence_ITEM (list, i);
-        if (!PyFRect_Check (frect))
-        {
-            Py_XDECREF (frect);
-            PyErr_SetString (PyExc_TypeError,
-                "argument must be a sequence of FRect objects.");
-            return NULL;
-        }
-        rarg = (PyFRect*) frect;
+        PyObject *ret;
+        int retval;
 
-        if (INTERSECT (rself, rarg))
+        for (i = 0; i < count; i++)
         {
+            frect = PySequence_ITEM (list, i);
+            if (!PyFRect_Check (frect))
+            {
+                Py_XDECREF (frect);
+                PyErr_SetString (PyExc_TypeError,
+                    "rects argument must be a sequence of FRect objects.");
+                return NULL;
+            }
+
+            ret = PyObject_CallFunctionObjArgs (compare, self, frect, NULL);
             Py_DECREF (frect);
-            return PyInt_FromSsize_t (i);
+            if (!ret)
+                return NULL;
+            
+            retval = PyObject_IsTrue (ret);
+            Py_DECREF (ret);
+            if (retval == 1)
+                return PyInt_FromSsize_t (i);
+            else if (retval == -1)
+                return NULL;
         }
-        Py_DECREF (frect);
+    }
+    else
+    {
+        for (i = 0; i < count; i++)
+        {
+            frect = PySequence_ITEM (list, i);
+            if (!PyFRect_Check (frect))
+            {
+                Py_XDECREF (frect);
+                PyErr_SetString (PyExc_TypeError,
+                    "rects argument must be a sequence of FRect objects.");
+                return NULL;
+            }
+            rarg = (PyFRect*) frect;
+            
+            if (INTERSECT (rself, rarg))
+            {
+                Py_DECREF (frect);
+                return PyInt_FromSsize_t (i);
+            }
+            Py_DECREF (frect);
+        }
     }
     return PyFloat_FromDouble (-1.);
 }
 
 static PyObject*
-_frect_collidelistall (PyObject *self, PyObject *args)
+_frect_collidelistall (PyObject *self, PyObject *args, PyObject *kwds)
 {
     PyFRect *rarg, *rself = (PyFRect*) self;
-    PyObject *list, *frect, *indices;
+    PyObject *list, *frect, *indices, *compare = NULL;
     Py_ssize_t i, count;
     
-    if (!PyArg_ParseTuple (args, "O:collidelistall", &list))
+    static char *keys[] = { "rects", "key", NULL };
+    if (!PyArg_ParseTupleAndKeywords (args, kwds, "O|O:collidelistall", keys,
+            &list, &compare))
         return NULL;
+
     if (!PySequence_Check (list))
     {
         PyErr_SetString (PyExc_TypeError,
-            "argument must be a sequence of FRect objects");
+            "rects argument must be a sequence of FRect objects");
+        return NULL;
+    }
+
+    if (compare == Py_None)
+        compare = NULL;
+    if (compare && !PyCallable_Check (compare))
+    {
+        PyErr_SetString (PyExc_TypeError, "key argument must be callable");
         return NULL;
     }
 
@@ -1202,52 +1261,108 @@ _frect_collidelistall (PyObject *self, PyObject *args)
     if (!indices)
         return NULL;
 
-    for (i = 0; i < count; i++)
+    if (compare)
     {
-        frect = PySequence_ITEM (list, i);
-        if (!PyFRect_Check (frect))
-        {
-            Py_XDECREF (frect);
-            Py_DECREF (indices);
-            PyErr_SetString (PyExc_TypeError,
-                "argument must be a sequence of FRect objects.");
-            return NULL;
-        }
-        rarg = (PyFRect*) frect;
+        PyObject *ret;
+        int retval;
 
-        if (INTERSECT (rself, rarg))
+        for (i = 0; i < count; i++)
         {
-            PyObject *obj =  PyInt_FromSsize_t (i);
-            if (PyList_Append (indices, obj) == -1)
+            frect = PySequence_ITEM (list, i);
+            if (!PyFRect_Check (frect))
             {
-                Py_DECREF (obj);
+                Py_XDECREF (frect);
                 Py_DECREF (indices);
-                Py_DECREF (frect);
+                PyErr_SetString (PyExc_TypeError,
+                    "rects argument must be a sequence of FRect objects.");
                 return NULL;
             }
-            Py_DECREF (obj);
-        }
-        Py_DECREF (frect);
-    }
 
+            ret = PyObject_CallFunctionObjArgs (compare, self, frect, NULL);
+            Py_DECREF (frect);
+            if (!ret)
+            {
+                Py_DECREF (indices);
+                return NULL;
+            }
+            retval = PyObject_IsTrue (ret);
+            Py_DECREF (ret);
+
+            if (retval == 1)
+            {
+                PyObject *obj =  PyInt_FromSsize_t (i);
+                if (PyList_Append (indices, obj) == -1)
+                {
+                    Py_DECREF (obj);
+                    Py_DECREF (indices);
+                    return NULL;
+                }
+                Py_DECREF (obj);
+            }
+            else if (retval == -1)
+            {
+                Py_DECREF (indices);
+                return NULL;
+            }
+        }
+    }
+    else
+    {
+        for (i = 0; i < count; i++)
+        {
+            frect = PySequence_ITEM (list, i);
+            if (!PyFRect_Check (frect))
+            {
+                Py_XDECREF (frect);
+                Py_DECREF (indices);
+                PyErr_SetString (PyExc_TypeError,
+                    "rects argument must be a sequence of FRect objects.");
+                return NULL;
+            }
+            rarg = (PyFRect*) frect;
+            
+            if (INTERSECT (rself, rarg))
+            {
+                PyObject *obj =  PyInt_FromSsize_t (i);
+                if (PyList_Append (indices, obj) == -1)
+                {
+                    Py_DECREF (obj);
+                    Py_DECREF (indices);
+                    Py_DECREF (frect);
+                    return NULL;
+                }
+                Py_DECREF (obj);
+            }
+            Py_DECREF (frect);
+        }
+    }
     return indices;
 }
 
 static PyObject*
-_frect_collidedict (PyObject *self, PyObject *args)
+_frect_collidedict (PyObject *self, PyObject *args, PyObject *kwds)
 {
     PyFRect *rarg, *rself = (PyFRect*) self;
-    PyObject *dict, *key, *val, *check = NULL;
+    PyObject *dict, *key, *val, *check = NULL, *compare = NULL;
     Py_ssize_t pos = 0;
     int cvalues = 0;
 
-    if (!PyArg_ParseTuple (args, "O|O:collidedict", &dict, &check))
+    static char *keys[] = { "rects", "checkvals", "key", NULL };
+    if (!PyArg_ParseTupleAndKeywords (args, kwds, "O|OO:collidedict", keys,
+            &dict, &check, &compare))
         return NULL;
 
     if (!PyDict_Check (dict))
     {
-        PyErr_SetString (PyExc_TypeError,
-            "argument must be a dict with FRect keys.");
+        PyErr_SetString (PyExc_TypeError, "rects argument must be a dict.");
+        return NULL;
+    }
+
+    if (compare == Py_None)
+        compare = NULL;
+    if (compare && !PyCallable_Check (compare))
+    {
+        PyErr_SetString (PyExc_TypeError, "key argument must be callable");
         return NULL;
     }
 
@@ -1258,51 +1373,105 @@ _frect_collidedict (PyObject *self, PyObject *args)
             return NULL;
     }
 
-    while (PyDict_Next (dict, &pos, &key, &val))
+    if (compare)
     {
-        if (cvalues)
+        PyObject *ret;
+        int retval;
+
+        while (PyDict_Next (dict, &pos, &key, &val))
         {
-            if (!PyFRect_Check (val))
+            if (cvalues)
             {
-                PyErr_SetString (PyExc_TypeError, 
-                    "argument must be a dict with FRect values.");
-                return NULL;
+                if (!PyFRect_Check (val))
+                {
+                    PyErr_SetString (PyExc_TypeError, 
+                        "rects argument must be a dict with FRect values.");
+                    return NULL;
+                }
+                rarg = (PyFRect*) val;
             }
-            rarg = (PyFRect*) val;
+            else
+            {
+                if (!PyFRect_Check (key))
+                {
+                    PyErr_SetString (PyExc_TypeError, 
+                        "rects argument must be a dict with FRect keys.");
+                    return NULL;
+                }
+                rarg = (PyFRect*) key;
+            }
+        
+            ret = PyObject_CallFunctionObjArgs (compare, self, (PyObject*)rarg,
+                NULL);
+            if (!ret)
+                return NULL;
+            retval = PyObject_IsTrue (ret);
+            Py_DECREF (ret);
+
+            if (retval == 1)
+                return Py_BuildValue ("(OO)", key, val);
+            else if (retval == -1)
+                return NULL;
         }
-        else
+    }
+    else
+    {
+        while (PyDict_Next (dict, &pos, &key, &val))
         {
-            if (!PyFRect_Check (key))
+            if (cvalues)
             {
-                PyErr_SetString (PyExc_TypeError, 
-                    "argument must be a dict with FRect keys.");
-                return NULL;
+                if (!PyFRect_Check (val))
+                {
+                    PyErr_SetString (PyExc_TypeError, 
+                        "argument must be a dict with FRect values.");
+                    return NULL;
+                }
+                rarg = (PyFRect*) val;
             }
-            rarg = (PyFRect*) key;
-        }
-        if (INTERSECT (rself, rarg))
-            return Py_BuildValue ("(OO)", key, val);
+            else
+            {
+                if (!PyFRect_Check (key))
+                {
+                    PyErr_SetString (PyExc_TypeError, 
+                        "argument must be a dict with FRect keys.");
+                    return NULL;
+                }
+                rarg = (PyFRect*) key;
+            }
+            if (INTERSECT (rself, rarg))
+                return Py_BuildValue ("(OO)", key, val);
+    }
     }
     Py_RETURN_NONE;
 }
 
 static PyObject*
-_frect_collidedictall (PyObject *self, PyObject *args)
+_frect_collidedictall (PyObject *self, PyObject *args, PyObject *kwds)
 {
     PyFRect *rarg, *rself = (PyFRect*) self;
-    PyObject *dict, *key, *val, *list, *check = NULL;
+    PyObject *dict, *key, *val, *list, *check = NULL, *compare = NULL;
     Py_ssize_t pos = 0;
     int cvalues = 0;
 
-    if (!PyArg_ParseTuple (args, "O|O:collidedictall", &dict, &check))
+    static char *keys[] = { "rects", "checkvals", "key", NULL };
+    if (!PyArg_ParseTupleAndKeywords (args, kwds, "O|OO:collidedictall", keys,
+            &dict, &check, &compare))
         return NULL;
 
     if (!PyDict_Check (dict))
     {
-        PyErr_SetString (PyExc_TypeError,
-            "argument must be a dict with FRect keys.");
+        PyErr_SetString (PyExc_TypeError, "rects argument must be a dict.");
         return NULL;
     }
+
+    if (compare == Py_None)
+        compare = NULL;
+    if (compare && !PyCallable_Check (compare))
+    {
+        PyErr_SetString (PyExc_TypeError, "key argument must be callable");
+        return NULL;
+    }
+
     if (check)
     {
         cvalues = PyObject_IsTrue (check);
@@ -1314,45 +1483,114 @@ _frect_collidedictall (PyObject *self, PyObject *args)
     if (!list)
         return NULL;
     
-    while (PyDict_Next (dict, &pos, &key, &val))
+    if (compare)
     {
-        if (cvalues)
-        {
-            if (!PyFRect_Check (val))
-            {
-                PyErr_SetString (PyExc_TypeError, 
-                    "argument must be a dict with FRect values.");
-                return NULL;
-            }
-            rarg = (PyFRect*) val;
-        }
-        else
-        {
-            if (!PyFRect_Check (key))
-            {
-                PyErr_SetString (PyExc_TypeError, 
-                    "argument must be a dict with FRect keys.");
-                return NULL;
-            }
-            rarg = (PyFRect*) key;
-        }
+        PyObject *ret;
+        int retval;
 
-        if (INTERSECT (rself, rarg))
+        while (PyDict_Next (dict, &pos, &key, &val))
         {
-            PyObject *obj = Py_BuildValue ("(OO)", key, val);
-            if (!obj)
+            if (cvalues)
+            {
+                if (!PyFRect_Check (val))
+                {
+                    Py_DECREF (list);
+                    PyErr_SetString (PyExc_TypeError, 
+                        "rects argument must be a dict with FRect values.");
+                    return NULL;
+                }
+                rarg = (PyFRect*) val;
+            }
+            else
+            {
+                if (!PyFRect_Check (key))
+                {
+                    Py_DECREF (list);
+                    PyErr_SetString (PyExc_TypeError, 
+                        "rects argument must be a dict with FRect keys.");
+                    return NULL;
+                }
+                rarg = (PyFRect*) key;
+            }
+
+            ret = PyObject_CallFunctionObjArgs (compare, self, (PyObject*)rarg,
+                NULL);
+            if (!ret)
             {
                 Py_DECREF (list);
                 return NULL;
             }
+            retval = PyObject_IsTrue (ret);
+            Py_DECREF (ret);
 
-            if (PyList_Append (list, obj) == -1)
+            if (retval == -1)
             {
+                Py_DECREF (list);
+                return NULL;
+            }
+            else if (retval == 1)
+            {
+                PyObject *obj = Py_BuildValue ("(OO)", key, val);
+                if (!obj)
+                {
+                    Py_DECREF (list);
+                    return NULL;
+                }
+                
+                if (PyList_Append (list, obj) == -1)
+                {
+                    Py_DECREF (obj);
+                    Py_DECREF (list);
+                    return NULL;
+                }
                 Py_DECREF (obj);
-                Py_DECREF (list);
-                return NULL;
             }
-            Py_DECREF (obj);
+        }
+    }
+    else
+    {
+        while (PyDict_Next (dict, &pos, &key, &val))
+        {
+            if (cvalues)
+            {
+                if (!PyFRect_Check (val))
+                {
+                    Py_DECREF (list);
+                    PyErr_SetString (PyExc_TypeError, 
+                        "rects argument must be a dict with FRect values.");
+                    return NULL;
+                }
+                rarg = (PyFRect*) val;
+            }
+            else
+            {
+                if (!PyFRect_Check (key))
+                {
+                    Py_DECREF (list);
+                    PyErr_SetString (PyExc_TypeError, 
+                        "rects argument must be a dict with FRect keys.");
+                    return NULL;
+                }
+                rarg = (PyFRect*) key;
+            }
+            
+            if (INTERSECT (rself, rarg))
+            {
+                PyObject *obj = Py_BuildValue ("(OO)", key, val);
+                if (!obj)
+                {
+                    Py_DECREF (list);
+                    return NULL;
+                }
+                
+                if (PyList_Append (list, obj) == -1)
+                {
+                    Py_DECREF (obj);
+                    Py_DECREF (list);
+                    return NULL;
+                }
+                Py_DECREF (obj);
+            }
         }
     }
     return list;
