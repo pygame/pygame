@@ -14,7 +14,8 @@ if is_pygame_pkg:
     from pygame.tests.test_utils import test_not_implemented, unittest
 else:
     from test.test_utils import test_not_implemented, unittest
-from pygame import Math
+
+from pygame.math import Vector2
 
 
 class Vector2TypeTest(unittest.TestCase):

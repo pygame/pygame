@@ -669,9 +669,56 @@ typedef struct
     }
 #endif /* PYGAMEAPI_COLOR_INTERNAL */
 
+
+/* Math */
+typedef struct
+{
+    PyObject_HEAD
+    PyObject *dict;     /* dict for subclassing */
+    PyObject *weakrefs; /* Weakrefs for subclassing */
+    double *coords;     /* Coordinates */
+    unsigned int dim;   /* Dimension of the vector */
+    double epsilon;     /* Small value for comparisons */
+} PyVector;
+
+#define PYGAMEAPI_MATH_FIRSTSLOT                                       \
+    (PYGAMEAPI_COLOR_FIRSTSLOT + PYGAMEAPI_COLOR_NUMSLOTS)
+#define PYGAMEAPI_MATH_NUMSLOTS 1
+#ifndef PYGAMEAPI_MATH_INTERNAL
+#define PyVector2_Check(x)                                                \
+    ((x)->ob_type == (PyTypeObject*)                                    \
+        PyGAME_C_API[PYGAMEAPI_MATH_FIRSTSLOT + 0])
+/*
+#define PyVector2_New                                             \
+    (*(PyObject*(*)) PyGAME_C_API[PYGAMEAPI_MATH_FIRSTSLOT + 1])
+#define RGBAFromColorObj                                                \
+    (*(int(*)(PyObject*, Uint8*)) PyGAME_C_API[PYGAMEAPI_MATH_FIRSTSLOT + 2])
+*/
+#define import_pygame_math()                                           \
+    {                                                                   \
+        fprintf(stdout, "1\n"); fflush(stdout);                         \
+	PyObject *_module = PyImport_ImportModule (IMPPREFIX "math");     \
+	if (_module != NULL)                                            \
+        {                                                               \
+            PyObject *_dict = PyModule_GetDict (_module);               \
+            PyObject *_c_api = PyDict_GetItemString                     \
+                (_dict, PYGAMEAPI_LOCAL_ENTRY);                         \
+            if (PyCObject_Check (_c_api))                               \
+            {                                                           \
+                int i;                                                  \
+                void** localptr = (void**) PyCObject_AsVoidPtr (_c_api); \
+                for (i = 0; i < PYGAMEAPI_MATH_NUMSLOTS; ++i)          \
+                    PyGAME_C_API[i + PYGAMEAPI_MATH_FIRSTSLOT] =       \
+                        localptr[i];                                    \
+            }                                                           \
+            Py_DECREF (_module);                                        \
+        }                                                               \
+    }
+#endif /* PYGAMEAPI_MATH_INTERNAL */
+
 #ifndef NO_PYGAME_C_API
 #define PYGAMEAPI_TOTALSLOTS                                            \
-    (PYGAMEAPI_COLOR_FIRSTSLOT + PYGAMEAPI_COLOR_NUMSLOTS)
+    (PYGAMEAPI_MATH_FIRSTSLOT + PYGAMEAPI_MATH_NUMSLOTS)
 static void* PyGAME_C_API[PYGAMEAPI_TOTALSLOTS] = { NULL };
 #endif
 
