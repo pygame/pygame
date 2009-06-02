@@ -494,28 +494,35 @@
 
     if (movie->video_st) { /*shouldn't ever even get this far if no video_st*/
 	
-
+		movie->video_current_pts_time = av_gettime();
+		movie->video_current_pts=movie->video_clock;
+		diff = movie->video_current_pts_time - movie->video_last_pts_time;
+		if(diff<=0)
+			diff = 1;
+		movie->video_last_pts_time = movie->video_current_pts_time;
+		movie->timing = diff;
         /* update current video pts */
-        movie->video_current_pts = movie->video_clock;
+        /*movie->video_current_pts = movie->video_clock;
     	movie->video_current_pts_time = av_gettime();
 
         /* compute nominal delay */
-        delay = movie->video_clock - movie->frame_last_pts;
+        /*delay = movie->video_clock - movie->frame_last_pts;
         if (delay <= 0 || delay >= 1.0) {
             /* if incorrect delay, use previous one */
-            delay = movie->frame_last_delay;
+          /*  delay = movie->frame_last_delay;
         }
+        
         movie->frame_last_delay = delay;
         movie->frame_last_pts = movie->video_clock;
 
         /* we try to correct big delays by duplicating or deleting a frame */
-        ref_clock = get_master_clock(movie);
+        /*ref_clock = get_master_clock(movie);
         diff = movie->video_clock - ref_clock;
 
 //printf("get_master_clock = %f\n", (float)(ref_clock/1000000.0));
         /* skip or repeat frame. We take into account the delay to compute
            the threshold. I still don't know if it is the best guess */
-        sync_threshold = AV_SYNC_THRESHOLD;
+        /*sync_threshold = AV_SYNC_THRESHOLD;
         if (delay > sync_threshold)
             sync_threshold = delay;
         if (fabs(diff) < AV_NOSYNC_THRESHOLD) {
@@ -528,21 +535,20 @@
         }
 
         movie->frame_timer += delay;
-        actual_delay = movie->frame_timer - get_master_clock(movie);
-//printf("DELAY: delay=%f, frame_timer=%f, video_clock=%f\n",
-//                (float)delay, (float)movie->frame_timer, (float)movie->video_clock);
-
-		if (actual_delay < 0.010) 
-		{
-     		/* XXX: should skip picture */
-       		actual_delay = 0.010;
+		actual_delay = movie->frame_timer - (av_gettime() / 1000000.0);
+    	if (actual_delay < 0.010) {
+        /* XXX: should skip picture */
+       /* 	actual_delay = 0.010;
     	}
-        movie->dest_showtime = actual_delay*1000 + 0.5;
-//        }
-        //if (skipframe) {
-          //  movie->dest_showtime = 0;
+     
+        if (skipframe) {
+            movie->dest_showtime = 0;
             /*movie->dest_showtime = get_master_clock(movie); this shows every frame*/
-        //}
+      //  }
+    /*    else
+        {
+        	movie->dest_showtime = actual_delay*1000+0.5;
+        }*/
     }
     Py_DECREF(movie);
 }
@@ -563,13 +569,13 @@
     if (movie->dest_overlay) {
         /* get a pointer on the bitmap */
         
-        dst_pix_fmt = PIX_FMT_YUV422;
+        dst_pix_fmt = PIX_FMT_YUV420P;
             
         SDL_LockYUVOverlay(movie->dest_overlay);
 
         pict.data[0] = movie->dest_overlay->pixels[0];
         pict.data[1] = movie->dest_overlay->pixels[2];
-        pict.data[2] = movie->dest_overlay->pixels[1];
+        pict.data[2] = movie->dest_overlay->pixels[1];       
         pict.linesize[0] = movie->dest_overlay->pitches[0];
         pict.linesize[1] = movie->dest_overlay->pitches[2];
         pict.linesize[2] = movie->dest_overlay->pitches[1];
@@ -729,6 +735,7 @@
         delta = (av_gettime() - is->video_current_pts_time) / 1000000.0;
     }
     double temp = is->video_current_pts+delta;
+    PySys_WriteStdout("Video Clock: %f\n", temp);
     Py_DECREF( is);
     return temp;
 }
@@ -1661,6 +1668,7 @@
     if (!is)
         return NULL;
     Py_INCREF(is);
+	is->overlay=1;
     PySys_WriteStdout("stream_open: %10s\n", filename);
     av_strlcpy(is->filename, filename, strlen(filename)+1);
     PySys_WriteStdout("stream_open: %10s\n", is->filename); 
@@ -1676,7 +1684,7 @@
     
     is->paused = 1;
     //is->playing = 0;
-    is->av_sync_type = AV_SYNC_EXTERNAL_CLOCK;
+    is->av_sync_type = AV_SYNC_VIDEO_MASTER;
     PySys_WriteStdout("stream_open: Before launch of decode_thread\n");
 	PyGILState_Release(gstate);
     if(!THREADFREE)
@@ -1798,9 +1806,6 @@ void stream_cycle_channel(PyMovie *is, int codec_type)
  int decoder(PyMovie *is)
 {
     PySys_WriteStdout("decoder: inside.\n"); 
-    PyGILState_STATE gstate;
-	//###PyGILBlock
-    gstate=PyGILState_Ensure();
     Py_INCREF( is);
     AVFormatContext *ic;
     int err, i, ret, video_index, audio_index, subtitle_index;
@@ -1823,24 +1828,12 @@ void stream_cycle_channel(PyMovie *is, int codec_type)
     PySys_WriteStdout("decoder: argument: %s\n", is->filename);
     PySys_WriteStdout("decoder: About to open_input_file\n");
 	
-	if(gstate != PyGILState_UNLOCKED)PyGILState_Release(gstate);
-	//###End PyGILBlock
-	
-	//###PyGILBlock
-	gstate = PyGILState_Ensure();
     err = av_open_input_file(&ic, is->filename, is->iformat, 0, ap);
-	PyGILState_Release(gstate);
-	//###End PyGILBlock
-	
-	//###PyGILBlock
-	gstate = PyGILState_Ensure();
     PySys_WriteStdout("decoder: finished open_input_file\n");
     if (err < 0) {
         PyErr_Format(PyExc_IOError, "There was a problem opening up %s", is->filename);
         //print_error(is->filename, err);
         ret = -1;
-		PyGILState_Release(gstate);
-        //###End PyGILBlock
         goto fail;
     }
     PySys_WriteStdout("decoder: av_open_input_file worked. \n");
@@ -1848,16 +1841,14 @@ void stream_cycle_channel(PyMovie *is, int codec_type)
 	//if(genpts)
     //    ic->flags |= AVFMT_FLAG_GENPTS;
     //PySys_WriteStdout("decode_thread: Before av_find_stream_info\n");
-    //err = av_find_stream_info(ic);
+    err = av_find_stream_info(ic);
     //PySys_WriteStdout("decode_thread: After1 av_find_stream_info\n");
-    //if (err < 0) {
-        //gstate = PyGILState_Ensure();
-      //  PyErr_Format(PyExc_IOError, "%s: could not find codec parameters", is->filename);
-        //fprintf(stderr, "%s: could not find codec parameters\n", is->filename);
-        //PyGILState_Release(gstate);
-        //ret = -1;
-        //goto fail;
-   //}
+   if (err < 0) {
+        PyErr_Format(PyExc_IOError, "%s: could not find codec parameters", is->filename);
+//        fprintf(stderr, "%s: could not find codec parameters\n", is->filename);
+        ret = -1;
+        goto fail;
+   }
     //PySys_WriteStdout("decode_thread: After2 av_find_stream_info\n");
     if(ic->pb)
         ic->pb->eof_reached= 0; //FIXME hack, ffplay maybe should not use url_feof() to test for the end
@@ -1903,8 +1894,6 @@ void stream_cycle_channel(PyMovie *is, int codec_type)
 
 	PySys_WriteStdout("decoder: Opening valid streams...\n");
     /* open the streams */
-	PyGILState_Release(gstate);
-    //###End PyGILBlock
 /*    if (audio_index >= 0) {
 		//###PyGILBlock
 		gstate = PyGILState_Ensure();
@@ -1929,13 +1918,9 @@ void stream_cycle_channel(PyMovie *is, int codec_type)
     	//###End PyGILBlock
     }*/
     if (is->video_stream < 0 && is->audio_stream < 0) {
-        //###PyGILBlock
-        gstate = PyGILState_Ensure();
         PyErr_Format(PyExc_IOError, "%s: could not open codecs", is->filename);
         //fprintf(stderr, "%s: could not open codecs\n", is->filename);
         ret = -1;		
-		PyGILState_Release(gstate);
-        //###End PyGILBlock
         goto fail;
     }
 	PySys_WriteStdout("decoder: Streams opened. Now looping...\n");
@@ -2029,11 +2014,12 @@ void stream_cycle_channel(PyMovie *is, int codec_type)
             av_free_packet(pkt);
         }
         video_render(is);
-        if(is->dest_showtime) {
-            double now = get_master_clock(is);
-            if(now >= is->dest_showtime) {
+        if(is->timing) {
+        	double showtime = is->timing+is->last_showtime;
+            double now = av_gettime();
+            if(now >= showtime) {
                 video_display(is);
-                is->dest_showtime = 0;
+                is->last_showtime = now;
             } else {
 //                printf("showtime not ready, waiting... (%.2f,%.2f)\n",
 //                            (float)now, (float)movie->dest_showtime);
@@ -2042,9 +2028,9 @@ void stream_cycle_channel(PyMovie *is, int codec_type)
         }
     }
     /* wait until the end */
-    while (!is->abort_request) {
-        SDL_Delay(100);
-    }
+    //while (!is->abort_request) {
+    //    SDL_Delay(100);
+    //}
 
     ret = 0;
  fail:
@@ -2127,8 +2113,8 @@ int video_render(PyMovie *movie)
 //                break;
         if (got_picture) {
         	update_video_clock(movie, frame, pts);
-            if (queue_picture(movie, frame) < 0)
-                goto the_end;
+        	if (queue_picture(movie, frame) < 0)
+        		goto the_end;
         }
         av_free_packet(pkt);
     }

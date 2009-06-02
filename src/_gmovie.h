@@ -204,6 +204,9 @@ typedef struct PyMovie {
     double video_current_pts; /* current displayed pts (different from
                                  video_clock if frame fifos are used) */
 	double video_current_pts_time;
+	double video_last_pts_time;
+	double timing;
+	double last_showtime;
 	double pts;	
 	PacketQueue videoq;
 	SDL_mutex *videoq_mutex;
