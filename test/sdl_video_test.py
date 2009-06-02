@@ -24,7 +24,7 @@ class SDLVideoTest (unittest.TestCase):
         video.quit ()
         self.assert_ (video.get_drivername () == None)
 
-    def todo_test_pygame2_sdl_video_get_gammaramp(self):
+    def test_pygame2_sdl_video_get_gammaramp(self):
 
         # __doc__ (as of 2009-05-31) for pygame2.sdl.video.get_gammaramp:
 
@@ -35,8 +35,18 @@ class SDLVideoTest (unittest.TestCase):
         # Gets the color gamma lookup table for the display. This will
         # return three tuples for the red, green and blue gamma values. Each
         # tuple contains 256 values.
-
-        self.fail() 
+        video.init ()
+        r, g, b = video.get_gammaramp ()
+        self.assert_ (len (r) == 256)
+        self.assert_ (len (g) == 256)
+        self.assert_ (len (b) == 256)
+        for v in r:
+            self.assert_ (type (v) == int)
+        for v in g:
+            self.assert_ (type (v) == int)
+        for v in b:
+            self.assert_ (type (v) == int)
+        video.quit ()
 
     def test_pygame2_sdl_video_get_info(self):
 

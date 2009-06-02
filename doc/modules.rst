@@ -30,8 +30,9 @@ Modules
    ref/pygame2_physics.rst
    ref/pygame2_sdl.rst
    ref/pygame2_sdl_audio.rst
-   ref/pygame2_sdl_cursors.rst
    ref/pygame2_sdl_cdrom.rst
+   ref/sdlconstants.rst
+   ref/pygame2_sdl_cursors.rst
    ref/pygame2_sdl_event.rst
    ref/pygame2_sdl_gl.rst
    ref/pygame2_sdl_image.rst

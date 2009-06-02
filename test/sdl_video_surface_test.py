@@ -55,6 +55,7 @@ class SDLVideoSurfaceTest (unittest.TestCase):
         # Gets or sets the current clipping rectangle for
         # operations on the Surface.
         video.init ()
+        video.quit ()
         self.fail() 
 
     def todo_test_pygame2_sdl_video_Surface_convert(self):
@@ -72,7 +73,8 @@ class SDLVideoSurfaceTest (unittest.TestCase):
         # 
         # This creates a new, converted surface and leaves the original one
         # untouched.
-        
+        video.init ()
+        video.quit ()
         self.fail() 
 
     def test_pygame2_sdl_video_Surface_copy(self):
@@ -187,6 +189,7 @@ class SDLVideoSurfaceTest (unittest.TestCase):
         # Gets the (read-only) pygame2.sdl.video.PixelFormat for this
         # Surface.
         video.init ()
+        video.quit ()
         self.fail() 
 
     def todo_test_pygame2_sdl_video_Surface_get_alpha(self):
@@ -201,9 +204,10 @@ class SDLVideoSurfaceTest (unittest.TestCase):
         # surface does not support alpha transparency (SRCALPHA flag not set),
         # None will be returned.
         video.init ()
+        video.quit ()
         self.fail() 
 
-    def todo_test_pygame2_sdl_video_Surface_get_at(self):
+    def test_pygame2_sdl_video_Surface_get_at(self):
 
         # __doc__ (as of 2009-05-15) for pygame2.sdl.video.Surface.get_at:
 
@@ -212,7 +216,19 @@ class SDLVideoSurfaceTest (unittest.TestCase):
         # 
         # Gets the Surface pixel value at the specified point.
         video.init ()
-        self.fail() 
+        sf = video.Surface (10, 10)
+
+        color = pygame2.Color (100, 50, 20)
+        sf.fill (color)
+        color = sf.format.get_rgba (color)
+        rect = pygame2.Rect (0, 0, 3, 7)
+        for x in range (10):
+            for y in range (10):
+                rect.topleft = x, y
+                self.assert_ (sf.get_at (x, y) == color)
+                self.assert_ (sf.get_at ((x, y)) == color)
+                self.assert_ (sf.get_at (rect) == color)
+        video.quit ()
 
     def todo_test_pygame2_sdl_video_Surface_get_colorkey(self):
 
@@ -225,6 +241,7 @@ class SDLVideoSurfaceTest (unittest.TestCase):
         # Gets the colorkey for the Surface or None in case it has no colorkey
         # (SRCCOLORKEY flag not set).
         video.init ()
+        video.quit ()
         self.fail() 
 
     def todo_test_pygame2_sdl_video_Surface_get_palette(self):
@@ -233,6 +250,7 @@ class SDLVideoSurfaceTest (unittest.TestCase):
 
         # get_palette () -> (Color, Color, ...)
         video.init ()
+        video.quit ()
         self.fail() 
 
     def test_pygame2_sdl_video_Surface_h(self):
@@ -314,6 +332,7 @@ class SDLVideoSurfaceTest (unittest.TestCase):
 
         # Get the length of a surface scanline in bytes.
         video.init ()
+        video.quit ()
         self.fail() 
 
     def todo_test_pygame2_sdl_video_Surface_pixels(self):
@@ -322,6 +341,7 @@ class SDLVideoSurfaceTest (unittest.TestCase):
 
         # Gets the pixel buffer of the Surface.
         video.init ()
+        video.quit ()
         self.fail() 
 
     def test_pygame2_sdl_video_Surface_save(self):
@@ -399,6 +419,7 @@ class SDLVideoSurfaceTest (unittest.TestCase):
         # 
         # TODO
         video.init ()
+        video.quit ()
         self.fail() 
 
     def todo_test_pygame2_sdl_video_Surface_set_at(self):
@@ -410,6 +431,7 @@ class SDLVideoSurfaceTest (unittest.TestCase):
         # 
         # Sets the Surface pixel value at the specified point.
         video.init ()
+        video.quit ()
         self.fail() 
 
     def todo_test_pygame2_sdl_video_Surface_set_colorkey(self):
@@ -421,6 +443,7 @@ class SDLVideoSurfaceTest (unittest.TestCase):
         # Adjusts the colorkey of the Surface.
         # 
         # TODO
+        video.quit ()
         video.init ()
         self.fail() 
 
@@ -440,6 +463,7 @@ class SDLVideoSurfaceTest (unittest.TestCase):
         # If any other error occurs, False will be returned and the
         # Surface palette should be inspected for any changes.
         video.init ()
+        video.quit ()
         self.fail() 
 
     def todo_test_pygame2_sdl_video_Surface_set_palette(self):
@@ -458,6 +482,7 @@ class SDLVideoSurfaceTest (unittest.TestCase):
         # If any other error occurs, False will be returned and the
         # Surface palette should be inspected for any changes.
         video.init ()
+        video.quit ()
         self.fail() 
 
     def test_pygame2_sdl_video_Surface_size(self):
@@ -490,7 +515,6 @@ class SDLVideoSurfaceTest (unittest.TestCase):
         self.assert_ (sf.unlock () == None)
         video.quit ()
 
-
     def todo_test_pygame2_sdl_video_Surface_update(self):
 
         # __doc__ (as of 2009-05-15) for pygame2.sdl.video.Surface.update:
@@ -503,6 +527,7 @@ class SDLVideoSurfaceTest (unittest.TestCase):
         # Upates the given area (or areas, if a list of rects is passed)
         # on the Surface.
         video.init ()
+        video.quit ()
         self.fail() 
 
     def test_pygame2_sdl_video_Surface_w(self):

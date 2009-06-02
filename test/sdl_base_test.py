@@ -72,6 +72,7 @@ class SDLTest (unittest.TestCase):
         self.assertEquals (base.init (constants.INIT_CDROM), True)
         self.assertEquals (base.init
                            (constants.INIT_CDROM | constants.INIT_AUDIO), True)
+        base.quit ()
 
     def test_pygame2_sdl_base_init_subsystem(self):
 
@@ -89,6 +90,7 @@ class SDLTest (unittest.TestCase):
         self.assertEquals (base.init_subsystem (constants.INIT_CDROM), True)
         self.assertEquals (base.init_subsystem
                            (constants.INIT_CDROM | constants.INIT_TIMER), True)
+        base.quit ()
 
     def test_pygame2_sdl_base_quit(self):
 
@@ -130,6 +132,7 @@ class SDLTest (unittest.TestCase):
         base.init (constants.INIT_JOYSTICK)
         v = base.was_init (constants.INIT_JOYSTICK) & constants.INIT_JOYSTICK
         self.assert_ (v == constants.INIT_JOYSTICK)
+        base.quit ()
 
 if __name__ == "__main__":
     unittest.main ()
