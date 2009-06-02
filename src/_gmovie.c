@@ -338,10 +338,10 @@
 {
 /*DECODE THREAD - from video_refresh_timer*/
 	Py_INCREF(movie);
-	if (!movie->dest_surface||!movie->dest_overlay)
+	if (!movie->dest_overlay)
         video_open(movie);
 
-    else if (movie->video_stream>0)
+    else if (movie->video_stream>=0)
         video_image_display(movie);
 	Py_DECREF(movie);
 }
@@ -531,13 +531,18 @@
         actual_delay = movie->frame_timer - get_master_clock(movie);
 //printf("DELAY: delay=%f, frame_timer=%f, video_clock=%f\n",
 //                (float)delay, (float)movie->frame_timer, (float)movie->video_clock);
-        if (actual_delay > 0.010) {
-            movie->dest_showtime = movie->frame_timer;
-        }
-        if (skipframe) {
-            movie->dest_showtime = 0;
+
+		if (actual_delay < 0.010) 
+		{
+     		/* XXX: should skip picture */
+       		actual_delay = 0.010;
+    	}
+        movie->dest_showtime = actual_delay*1000 + 0.5;
+//        }
+        //if (skipframe) {
+          //  movie->dest_showtime = 0;
             /*movie->dest_showtime = get_master_clock(movie); this shows every frame*/
-        }
+        //}
     }
     Py_DECREF(movie);
 }
@@ -549,7 +554,7 @@
 	Py_INCREF(movie);
     int dst_pix_fmt;
     AVPicture pict;
-     struct SwsContext *img_convert_ctx;
+    struct SwsContext *img_convert_ctx=NULL;
 
     SDL_LockMutex(movie->dest_mutex);
 
