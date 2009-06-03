@@ -99,7 +99,7 @@
 
  
 
-#define VIDEO_PICTURE_QUEUE_SIZE 1
+#define VIDEO_PICTURE_QUEUE_SIZE 4
 #define SUBPICTURE_QUEUE_SIZE 4
 
 //included from ffmpeg header files, as the header file is not publically available.
@@ -135,6 +135,7 @@ typedef struct PacketQueue {
     SDL_cond *cond;
 } PacketQueue;
 
+
 typedef struct SubPicture {
     double pts;         /* presentation time stamp for this picture */
     AVSubtitle sub;     //contains relevant info about subtitles    
@@ -154,6 +155,16 @@ typedef struct PyMovie {
     int paused;
 	int last_paused;
 
+	/* We create a cumulative average of the time to render and 
+	 * the time to decode a video frame, and add those to the 
+	 * timing value */
+	double ca_render;   //actual cumulative average value
+	double ca_render_i; //need to keep track of how many values we've accumulated
+
+	double ca_decode;  //actual cumulative average value
+	double ca_decode_i;//need to keep track of how many values we've accumulated
+	
+	
 	AVFormatContext *ic;    /* context information about the format of the video file */
     double external_clock; /* external clock base */
     int64_t external_clock_time;
@@ -205,6 +216,7 @@ typedef struct PyMovie {
                                  video_clock if frame fifos are used) */
 	double video_current_pts_time;
 	double video_last_pts_time;
+	double video_last_pts;
 	double timing;
 	double last_showtime;
 	double pts;	
@@ -230,6 +242,8 @@ typedef struct PyMovie {
     SDL_Surface *dest_surface;
     SDL_Rect dest_rect;
 
+	double last_frame_delay;
+	
     double time_offset; /*track paused time*/
     
     int audio_disable;
@@ -268,6 +282,7 @@ void packet_queue_init(PacketQueue *q);
 /* 		Misc*/
  void blend_subrect(AVPicture *dst, const AVSubtitleRect *rect, int imgw, int imgh);
  void free_subpicture(SubPicture *sp);
+ double calc_ca(int64_t diff, double ca, double i);
 
 
 /* 		Video Management */
