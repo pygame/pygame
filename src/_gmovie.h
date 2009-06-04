@@ -99,7 +99,7 @@
 
  
 
-#define VIDEO_PICTURE_QUEUE_SIZE 4
+#define VIDEO_PICTURE_QUEUE_SIZE 16
 #define SUBPICTURE_QUEUE_SIZE 4
 
 //included from ffmpeg header files, as the header file is not publically available.
@@ -141,6 +141,19 @@ typedef struct SubPicture {
     AVSubtitle sub;     //contains relevant info about subtitles    
 } SubPicture;
 
+typedef struct VidPicture{
+	SDL_Overlay *dest_overlay;
+	SDL_Surface *dest_surface;
+	SDL_Rect    dest_rect;
+	int         width;
+	int         height;
+	int         xleft;
+	int         ytop;
+	int         overlay;
+	int         ready;
+} VidPicture;
+
+
 enum {
     AV_SYNC_AUDIO_MASTER, /* default choice */
     AV_SYNC_VIDEO_MASTER, 
@@ -164,6 +177,8 @@ typedef struct PyMovie {
 	double ca_decode;  //actual cumulative average value
 	double ca_decode_i;//need to keep track of how many values we've accumulated
 	
+	VidPicture pictq[VIDEO_PICTURE_QUEUE_SIZE];
+	int pictq_size, pictq_windex, pictq_rindex;
 	
 	AVFormatContext *ic;    /* context information about the format of the video file */
     double external_clock; /* external clock base */
@@ -288,9 +303,9 @@ void packet_queue_init(PacketQueue *q);
 
 
 /* 		Video Management */
- int video_open(PyMovie *is);
+ int video_open(PyMovie *is, int index);
  void video_image_display(PyMovie *is);
- void video_display(PyMovie *is);
+ int video_display(PyMovie *is);
  int video_thread(void *arg);
  int video_render(PyMovie *movie);
  int queue_picture(PyMovie *is, AVFrame *src_frame);

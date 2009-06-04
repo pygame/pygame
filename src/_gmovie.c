@@ -361,30 +361,40 @@ double calc_ca(int64_t diff, double ca, double i)
 	return res;
 }
 
- void video_display(PyMovie *movie)
+ int video_display(PyMovie *movie)
 {
 /*DECODE THREAD - from video_refresh_timer*/
 	Py_INCREF(movie);
-	if (!movie->dest_overlay)
-        video_open(movie);
-
-    else if (movie->video_stream>=0)
+	double ret=1;
+	VidPicture *vp = &movie->pictq[movie->pictq_rindex];
+	if (!vp->dest_overlay)
+    {    
+        video_open(movie, movie->pictq_rindex);
+    	ret=0;
+    }
+    else if (movie->video_stream>=0 && vp->ready)
+    {
         video_image_display(movie);
+    }
+    else if(!vp->ready)
+    	ret= 0;
 	Py_DECREF(movie);
+	return ret;
 }
 
  void video_image_display(PyMovie *is)
 {
     Py_INCREF( is);
     SubPicture *sp;
+    VidPicture *vp;
     AVPicture pict;
     float aspect_ratio;
     int width, height, x, y;
     
     int i;
-
-    
-    if (is->dest_overlay || is->dest_surface) {
+    vp = &is->pictq[is->pictq_rindex];
+    vp->ready =0;
+    if (vp->dest_overlay) {
         /* XXX: use variable in the frame */
         int64_t t_before = av_gettime();
         if (is->video_st->sample_aspect_ratio.num)
@@ -423,7 +433,7 @@ double calc_ca(int64_t diff, double ca, double i)
 
                         for (i = 0; i < sp->sub.num_rects; i++)
                             blend_subrect(&pict, sp->sub.rects[i],
-                                          is->dest_overlay->w, is->dest_overlay->h);
+                                          vp->dest_overlay->w, vp->dest_overlay->h);
 
                         SDL_UnlockYUVOverlay (is->dest_overlay);
                     }
@@ -433,23 +443,23 @@ double calc_ca(int64_t diff, double ca, double i)
 
 
         /* XXX: we suppose the screen has a 1.0 pixel ratio */
-        height = is->height;
+        height = vp->height;
         width = ((int)rint(height * aspect_ratio)) & ~1;
-        if (width > is->width) {
-            width = is->width;
+        if (width > vp->width) {
+            width = vp->width;
             height = ((int)rint(width / aspect_ratio)) & ~1;
         }
-        x = (is->width - width) / 2;
-        y = (is->height - height) / 2;
+        x = (vp->width - width) / 2;
+        y = (vp->height - height) / 2;
        
-        is->dest_rect.x = is->xleft + x;
-        is->dest_rect.y = is->ytop  + y;
-        is->dest_rect.w = width;
-        is->dest_rect.h = height;
+        vp->dest_rect.x = vp->xleft + x;
+        vp->dest_rect.y = vp->ytop  + y;
+        vp->dest_rect.w = width;
+        vp->dest_rect.h = height;
         //int64_t t_before = av_gettime();
-        if(is->overlay>0) 
+        if(vp->overlay>0) 
         {       
-            SDL_DisplayYUVOverlay(is->dest_overlay, &is->dest_rect);
+            SDL_DisplayYUVOverlay(vp->dest_overlay, &vp->dest_rect);
         }
         int64_t t_after = av_gettime();
         double ca = calc_ca((t_after-t_before), is->ca_render, is->ca_render_i);
@@ -457,18 +467,23 @@ double calc_ca(int64_t diff, double ca, double i)
         is->ca_render_i++;
         
     } 
-    
+    is->pictq_rindex= (is->pictq_rindex+1)%VIDEO_PICTURE_QUEUE_SIZE;
+    is->pictq_size--;
+    video_refresh_timer(is);
     Py_DECREF( is);
 }
 
- int video_open(PyMovie *is){
+ int video_open(PyMovie *is, int index){
     int w,h;
     Py_INCREF( is);
     
     w = is->video_st->codec->width;
     h = is->video_st->codec->height;
 
-    if(!is->dest_overlay && is->overlay>0)
+	VidPicture *vp;
+	vp = &is->pictq[index];
+    
+    if(!vp->dest_overlay && is->overlay>0)
     {
         //now we have to open an overlay up
         SDL_Surface *screen;
@@ -483,12 +498,13 @@ double calc_ca(int64_t diff, double ca, double i)
             RAISE (PyExc_SDLError, "Display mode not set");
         	return -1;
 		}
-        is->dest_overlay = SDL_CreateYUVOverlay (w, h, SDL_YV12_OVERLAY, screen);
-        if (!is->dest_overlay)
+        vp->dest_overlay = SDL_CreateYUVOverlay (w, h, SDL_YV12_OVERLAY, screen);
+        if (!vp->dest_overlay)
         {
             RAISE (PyExc_SDLError, "Cannot create overlay");
 			return -1;
         }
+        vp->overlay = is->overlay;
     } 
 #if 0    
     else if (!pvs->out_surf && is->overlay<=0)
@@ -512,7 +528,10 @@ double calc_ca(int64_t diff, double ca, double i)
 #endif
 
     is->width = w;
+    vp->width = w;
     is->height = h;
+    vp->height = h;
+
     Py_DECREF( is);
     return 0;
 }
@@ -538,7 +557,7 @@ double calc_ca(int64_t diff, double ca, double i)
 		}
 		movie->last_frame_delay = delay;
 		
-		aud_diff = movie->video_clock - get_audio_clock(movie);
+		/*aud_diff = movie->video_clock - get_audio_clock(movie);
 		
 		if(fabs(aud_diff) < AV_NOSYNC_THRESHOLD)
 		{
@@ -550,8 +569,8 @@ double calc_ca(int64_t diff, double ca, double i)
 			{
 				delay = 2*delay;
 			}
-		}		
-		movie->frame_timer += delay;
+		}*/		
+		//movie->frame_timer += delay;
 		
 	
 		diff = movie->video_current_pts_time - movie->video_last_pts_time;
@@ -559,14 +578,14 @@ double calc_ca(int64_t diff, double ca, double i)
 		if(diff<=0)
 			diff = 1;
 		
-		diff += (movie->frame_timer*1000000.0) - av_gettime();
+		//diff += (movie->frame_timer*1000000.0) - av_gettime();
 		
 		movie->video_last_pts = movie->video_current_pts;
 		movie->video_last_pts_time = movie->video_current_pts_time;
-		diff = diff+movie->ca_decode + movie->ca_render;
-		//diff *=40;
+		//diff = diff+movie->ca_decode + movie->ca_render;
+		//diff /=100;
 #if 1
-		PySys_WriteStdout("CA Decode: %f\n CA Render: %f\nDiff: %f\n", movie->ca_decode, movie->ca_render, diff);
+		//PySys_WriteStdout("CA Decode: %f\n CA Render: %f\nDiff: %f\n", movie->ca_decode, movie->ca_render, diff);
 #endif
 		
 		movie->timing = diff;
@@ -629,27 +648,35 @@ double calc_ca(int64_t diff, double ca, double i)
 	Py_INCREF(movie);
     int dst_pix_fmt;
     AVPicture pict;
+    VidPicture *vp;
     struct SwsContext *img_convert_ctx=NULL;
 
     SDL_LockMutex(movie->dest_mutex);
-
-    /* if the frame movie not skipped, then display it */
-	if(movie->timing>0)
-		video_display(movie);
-		movie->timing=0;
-    if (movie->dest_overlay) {
+	vp = &movie->pictq[movie->pictq_windex];
+	int c=0;
+	while(vp->ready && c<VIDEO_PICTURE_QUEUE_SIZE)
+	{
+		c++;
+		vp = &movie->pictq[(movie->pictq_windex+c)%VIDEO_PICTURE_QUEUE_SIZE];
+		
+	}
+	if(!vp->dest_overlay)
+	{
+		video_open(movie, movie->pictq_windex);
+	}	
+    if (vp->dest_overlay) {
         /* get a pointer on the bitmap */
         
         dst_pix_fmt = PIX_FMT_YUV420P;
             
-        SDL_LockYUVOverlay(movie->dest_overlay);
+        SDL_LockYUVOverlay(vp->dest_overlay);
 
-        pict.data[0] = movie->dest_overlay->pixels[0];
-        pict.data[1] = movie->dest_overlay->pixels[2];
-        pict.data[2] = movie->dest_overlay->pixels[1];       
-        pict.linesize[0] = movie->dest_overlay->pitches[0];
-        pict.linesize[1] = movie->dest_overlay->pitches[2];
-        pict.linesize[2] = movie->dest_overlay->pitches[1];
+        pict.data[0] = vp->dest_overlay->pixels[0];
+        pict.data[1] = vp->dest_overlay->pixels[2];
+        pict.data[2] = vp->dest_overlay->pixels[1];       
+        pict.linesize[0] = vp->dest_overlay->pitches[0];
+        pict.linesize[1] = vp->dest_overlay->pitches[2];
+        pict.linesize[2] = vp->dest_overlay->pitches[1];
 
 		int sws_flags = SWS_BICUBIC;
         img_convert_ctx = sws_getCachedContext(img_convert_ctx,
@@ -664,12 +691,15 @@ double calc_ca(int64_t diff, double ca, double i)
         sws_scale(img_convert_ctx, src_frame->data, src_frame->linesize,
                   0, movie->video_st->codec->height, pict.data, pict.linesize);
 
-        SDL_UnlockYUVOverlay(movie->dest_overlay);
+        SDL_UnlockYUVOverlay(vp->dest_overlay);
 
-        video_refresh_timer(movie);
+        
     }
     SDL_UnlockMutex(movie->dest_mutex);
 
+	movie->pictq_windex = (movie->pictq_windex+c)%VIDEO_PICTURE_QUEUE_SIZE;
+	movie->pictq_size++;
+	vp->ready=1;
 	Py_DECREF(movie);
     return 0;
 }
@@ -812,7 +842,7 @@ double calc_ca(int64_t diff, double ca, double i)
         delta = (av_gettime() - is->video_current_pts_time) / 1000000.0;
     }
     double temp = is->video_current_pts+delta;
-    PySys_WriteStdout("Video Clock: %f\n", temp);
+    //PySys_WriteStdout("Video Clock: %f\n", temp);
     Py_DECREF( is);
     return temp;
 }
@@ -1291,13 +1321,14 @@ double calc_ca(int64_t diff, double ca, double i)
         break;
     case CODEC_TYPE_VIDEO:
 		
-		PySys_WriteStdout("stream_component_open: Video Stream\n");
+		//PySys_WriteStdout("stream_component_open: Video Stream\n");
         movie->video_stream = stream_index;
         movie->video_st = ic->streams[stream_index];
 
         movie->frame_last_delay = 40e-3;
         movie->frame_timer = (double)av_gettime() / 1000000.0;
         movie->video_current_pts_time = av_gettime();
+        movie->video_last_pts_time=av_gettime();
 
         packet_queue_init(&movie->videoq);
       	if(!THREADFREE)
@@ -1308,7 +1339,7 @@ double calc_ca(int64_t diff, double ca, double i)
 		
         break;
     case CODEC_TYPE_SUBTITLE:
-    	PySys_WriteStdout("stream_component_open: subtitle stream\n");
+    	//PySys_WriteStdout("stream_component_open: subtitle stream\n");
         movie->subtitle_stream = stream_index;
         
         movie->subtitle_st = ic->streams[stream_index];
@@ -1500,7 +1531,7 @@ video_index = -1;
 	gstate=PyGILState_Ensure();
 	int co=0;
 	is->last_showtime = av_gettime();
-    video_open(is);
+    video_open(is, is->pictq_windex);
     PyGILState_Release(gstate);
     for(;;) {
         	gstate=PyGILState_Ensure();
@@ -1660,7 +1691,7 @@ video_index = -1;
 
     /* start video display */
     is->dest_mutex = SDL_CreateMutex();
-
+	
     is->subpq_mutex = SDL_CreateMutex();
     is->subpq_cond = SDL_CreateCond();
     
@@ -1694,18 +1725,23 @@ video_index = -1;
     /* XXX: use a special url_shutdown call to abort parse cleanly */
     is->abort_request = 1;
     SDL_WaitThread(is->parse_tid, NULL);
-
+	VidPicture *vp;
     if(is)
     {
-    		if (is->dest_overlay) {
-            	SDL_FreeYUVOverlay(is->dest_overlay);
-            	is->dest_overlay = NULL;
-        	}
-        	if(is->dest_surface)
-        	{
-            	SDL_FreeSurface(is->dest_surface);
-        	}
-    	
+		int i;    	
+    		for( i =0; i<VIDEO_PICTURE_QUEUE_SIZE; i++)
+    		{
+    			vp = &is->pictq[i];
+    			if (vp->dest_overlay) {
+            		SDL_FreeYUVOverlay(vp->dest_overlay);
+            		vp->dest_overlay = NULL;
+        		}
+        		if(vp->dest_surface)
+        		{
+            		SDL_FreeSurface(vp->dest_surface);
+        			vp->dest_surface=NULL;
+        		}
+    		}
 		SDL_DestroyMutex(is->dest_mutex);
      	SDL_DestroyMutex(is->subpq_mutex);
         SDL_DestroyCond(is->subpq_cond);
@@ -1880,7 +1916,7 @@ void stream_cycle_channel(PyMovie *is, int codec_type)
 	gstate=PyGILState_Ensure();
 	int co=0;
 	is->last_showtime = av_gettime();
-    video_open(is);
+    video_open(is, is->pictq_windex);
     PyGILState_Release(gstate);
     for(;;) {
     	gstate=PyGILState_Ensure();
@@ -1977,13 +2013,23 @@ void stream_cycle_channel(PyMovie *is, int codec_type)
         }
         
         video_render(is);
+        if(co<2)
+        	video_refresh_timer(is);
+        if(co==4.0)
+			PySys_WriteStdout("co=4\n");
         if(is->timing>0) {
         	double showtime = is->timing+is->last_showtime;
             double now = av_gettime();
+            //PySys_WriteStdout("Now:           %f\nShowtime:      %f\nLast Showtime: %f\n", now, showtime, is->last_showtime);
             if(now >= showtime) {
-                video_display(is);
-                is->last_showtime = now;
+            	double temp = is->timing;
                 is->timing =0;
+                if(!video_display(is))
+                {
+                	is->timing=temp;
+                }
+                is->last_showtime = av_gettime();
+                
             } else {
 //                printf("showtime not ready, waiting... (%.2f,%.2f)\n",
 //                            (float)now, (float)movie->dest_showtime);
