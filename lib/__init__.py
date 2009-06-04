@@ -152,7 +152,9 @@ def warn_unwanted_files():
     ext_to_remove = ["camera"]
 
     # here are the .py/.pyo/.pyc files we need to ask to remove.
-    py_to_remove = ["color"]
+    #py_to_remove = ["color"]
+    # color.py from the symbian branch imports color.so
+    py_to_remove = []
     
     if os.name == "e32": # Don't warn on Symbian. The color.py is used as a wrapper.
         py_to_remove = []
@@ -285,6 +287,18 @@ def __rect_reduce(r):
 	assert type(r) == Rect
 	return __rect_constructor, (r.x, r.y, r.w, r.h)
 copy_reg.pickle(Rect, __rect_reduce, __rect_constructor)
+
+
+#make Colors pickleable
+def __color_constructor(r,g,b,a):
+        return pygame.color.Color(r,g,b,a)
+def __color_reduce(c):
+        assert type(c) == pygame.color.Color
+        return __color_constructor, (c.r, c.g, c.b, c.a)
+copy_reg.pickle(pygame.color.Color, __color_reduce, __color_constructor)
+
+
+
 
 #cleanup namespace
 del pygame, os, sys, rwobject, surflock, MissingModule, copy_reg, geterror
