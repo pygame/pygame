@@ -702,6 +702,17 @@ class ColorTypeTest (unittest.TestCase):
         # TODO: test against statically defined verified _correct_ values
         # assert corrected.r == 125 etc.
 
+
+    def test_pickle(self):
+        import pickle
+        c1 = pygame.Color(1,2,3,4)
+        #c2 = pygame.Color(255,254,253,252)
+        pickle_string = pickle.dumps(c1)
+        c1_frompickle = pickle.loads(pickle_string)
+        self.assertEqual(c1,c1_frompickle) 
+
+
+
 ################################################################################
 
 if __name__ == '__main__':
