@@ -370,35 +370,33 @@ _ftfont_getsize(PyObject *self, PyObject* args, PyObject *kwds)
 static PyObject *
 _ftfont_getmetrics(PyObject *self, PyObject* args, PyObject *kwds)
 {
-    PyFreeTypeFont *font = (PyFreeTypeFont *)self;
-    PyObject *text, *list, *bpixel = NULL, *bgrid = NULL;
-    void *buf = NULL;
-    int isunicode = 0, istrue, char_stat;
-    int ptsize = -1, char_id, length, i, pixel_coords, grid_fitted;
-
-
+    /* keyword list */
     static char *kwlist[] = 
     { 
-        "text", "ptsize", "pixel_coords", "grid_fitted", NULL
+        "text", "ptsize", "bbmode", NULL
     };
 
+    PyFreeTypeFont *font = (PyFreeTypeFont *)self;
+
+    /* aux vars */
+    void *buf = NULL;
+    int char_id, length, i, isunicode = 0;
+
+    /* arguments */
+    PyObject *text, *list;
+    int ptsize = -1;
+    int bbmode = FT_BBOX_PIXEL_GRIDFIT;
+
+    /* grab freetype */
     FreeTypeInstance *ft;
     ASSERT_GRAB_FREETYPE(ft, NULL);
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|iOO", kwlist,
-                &text, &ptsize, &bpixel, &bgrid))
+    /* parse args */
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|ii", kwlist,
+                &text, &ptsize, &bbmode))
         return NULL;
 
-    pixel_coords = 1;
-    grid_fitted = 1;
-
-    if (bpixel)
-        pixel_coords = PyObject_IsTrue(bpixel);
-
-    if (bgrid)
-        grid_fitted = PyObject_IsTrue(bgrid);
-
-
+    /* check ptsize */
     if (ptsize == -1)
     {
         if (font->default_ptsize == -1)
@@ -411,7 +409,7 @@ _ftfont_getmetrics(PyObject *self, PyObject* args, PyObject *kwds)
         ptsize = font->default_ptsize;
     }
 
-
+    /* check text */
     if (PyUnicode_Check(text))
     {
         buf = PyUnicode_AsUnicode(text);
@@ -438,64 +436,54 @@ _ftfont_getmetrics(PyObject *self, PyObject* args, PyObject *kwds)
     if (length == 0)
         Py_RETURN_NONE;
 
-    list = PyList_New(length);
-    if (!list)
-        return NULL;
+#define _GET_METRICS(_mt, _tuple_format) {              \
+    for (i = 0; i < length; i++)                        \
+    {                                                   \
+        _mt minx_##_mt, miny_##_mt;                     \
+        _mt maxx_##_mt, maxy_##_mt;                     \
+        _mt advance_##_mt;                              \
+                                                        \
+        if (isunicode) char_id = ((Py_UNICODE *)buf)[i];\
+        else char_id = ((char *)buf)[i];                \
+                                                        \
+        if (PGFT_GetMetrics(ft,                         \
+                (PyFreeTypeFont *)self, char_id,        \
+                ptsize, bbmode,                         \
+                &minx_##_mt, &maxx_##_mt,               \
+                &miny_##_mt, &maxy_##_mt,               \
+                &advance_##_mt) == 0)                   \
+        {                                               \
+            PyList_SetItem (list, i,                    \
+                    Py_BuildValue(_tuple_format,        \
+                        minx_##_mt, maxx_##_mt,         \
+                        miny_##_mt, maxy_##_mt,         \
+                        advance_##_mt));                \
+        }                                               \
+        else                                            \
+        {                                               \
+            Py_INCREF (Py_None);                        \
+            PyList_SetItem (list, i, Py_None);          \
+        }                                               \
+    }}
 
-    if (pixel_coords)
+    /* get metrics */
+    if (bbmode == FT_BBOX_EXACT || bbmode == FT_BBOX_EXACT_GRIDFIT)
     {
-        int minx_int, miny_int, maxx_int, maxy_int, advance_int;
-
-        for (i = 0; i < length; i++)
-        {
-            if (isunicode)
-                char_id = ((Py_UNICODE *)buf)[i];
-            else
-                char_id = ((char *)buf)[i];
-    
-            char_stat = PGFT_GetMetrics(ft, (PyFreeTypeFont *)self, char_id, 
-                    ptsize, 1, grid_fitted, 
-                    &minx_int, &maxx_int, &miny_int, &maxy_int, &advance_int);
-
-            if (char_stat == 0)
-            {
-                PyList_SetItem (list, i, Py_BuildValue("(iiiii)",
-                            minx_int, maxx_int, miny_int, maxy_int, advance_int));
-            }
-            else
-            {
-                Py_INCREF (Py_None);
-                PyList_SetItem (list, i, Py_None); 
-            }
-        }
+        list = PyList_New(length);
+        _GET_METRICS(float, "(fffff)");
+    }
+    else if (bbmode == FT_BBOX_PIXEL || bbmode == FT_BBOX_PIXEL_GRIDFIT)
+    {
+        list = PyList_New(length);
+        _GET_METRICS(int, "(iiiii)");
     }
     else
     {
-        float minx_fl, miny_fl, maxx_fl, maxy_fl, advance_fl;
-
-        for (i = 0; i < length; i++)
-        {
-            if (isunicode)
-                char_id = ((Py_UNICODE *)buf)[i];
-            else
-                char_id = ((char *)buf)[i];
-    
-            char_stat = PGFT_GetMetrics(ft, (PyFreeTypeFont *)self, char_id, 
-                    ptsize, 0, grid_fitted, 
-                    &minx_fl, &maxx_fl, &miny_fl, &maxy_fl, &advance_fl);
-
-            if (char_stat == 0)
-            {
-                PyList_SetItem (list, i, Py_BuildValue("(fffff)",
-                            minx_fl, maxx_fl, miny_fl, maxy_fl, advance_fl));
-            }
-            else
-            {
-                Py_INCREF (Py_None);
-                PyList_SetItem (list, i, Py_None); 
-            }
-        }
+        PyErr_SetString(PyExc_ValueError, "Invalid bbox mode specified");
+        return NULL;
     }
+
+#undef _GET_METRICS
 
     return list;
 }

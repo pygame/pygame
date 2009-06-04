@@ -6,6 +6,7 @@ except:
 
 import pygame2
 import pygame2.freetype as ft
+import pygame2.freetype.constants as ft_const
 
 ft.init()
 
@@ -111,6 +112,14 @@ class FreeTypeFontTest(unittest.TestCase):
         f = self._TEST_FONTS['sans']
         for (ptsize, test_data) in TEST_VALUES_SANS.items():
             self.assertEqual(f.get_metrics('ABCDabcd', ptsize=ptsize), test_data)
+
+        metrics = f.get_metrics('ABCD', ptsize=24, bbmode=ft_const.BBOX_EXACT)
+        self.assertEqual(len(metrics), len('ABCD'))
+        self.assertTrue(isinstance(metrics[0], tuple))
+
+        for m in metrics[0]:
+            self.assertTrue(isinstance(m, float))
+
 
     def todo_test_pygame2_freetype_Font_get_size(self):
 

@@ -284,13 +284,12 @@ void _PGFT_GetMetrics_INTERNAL(FT_Glyph glyph, FT_UInt bbmode,
 
 
 int PGFT_GetMetrics(FreeTypeInstance *ft, PyFreeTypeFont *font,
-        int character, int font_size, int pixel_coords, int grid_fitted,
+        int character, int font_size, int bbmode,
         void *minx, void *maxx, void *miny, void *maxy, void *advance)
 {
     FT_Error error;
     FTC_ScalerRec scale;
     FT_Glyph glyph;
-    FT_UInt bbmode;
 
     _PGFT_BuildScaler(font, &scale, font_size);
 
@@ -302,23 +301,15 @@ int PGFT_GetMetrics(FreeTypeInstance *ft, PyFreeTypeFont *font,
         return error;
     }
 
-    /*
-     * FT_GLYPH_BBOX_SUBPIXELS = 0,
-     * FT_GLYPH_BBOX_GRIDFIT   = 1,
-     * FT_GLYPH_BBOX_TRUNCATE  = 2,
-     * FT_GLYPH_BBOX_PIXELS    = 3
-     */
-    bbmode = (pixel_coords << 1) | grid_fitted;
-
     _PGFT_GetMetrics_INTERNAL(glyph, bbmode, minx, maxx, miny, maxy, advance);
 
-    if (pixel_coords == 0)
+    if (bbmode == FT_BBOX_EXACT || bbmode == FT_BBOX_EXACT_GRIDFIT)
     {
-        *(float *)minx = (float)(FP_266_FLOAT(*(int *)minx));
-        *(float *)miny = (float)(FP_266_FLOAT(*(int *)miny));
-        *(float *)maxx = (float)(FP_266_FLOAT(*(int *)maxx));
-        *(float *)maxy = (float)(FP_266_FLOAT(*(int *)maxy));
-        *(float *)advance = (float)(FP_1616_FLOAT(*(int *)advance));
+        *(float *)minx =    (FP_266_FLOAT(*(int *)minx));
+        *(float *)miny =    (FP_266_FLOAT(*(int *)miny));
+        *(float *)maxx =    (FP_266_FLOAT(*(int *)maxx));
+        *(float *)maxy =    (FP_266_FLOAT(*(int *)maxy));
+        *(float *)advance = (FP_1616_FLOAT(*(int *)advance));
     }
 
     return 0;
