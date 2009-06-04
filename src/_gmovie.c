@@ -118,6 +118,25 @@
     return ret;
 }
 
+uint64_t global_video_pkt_pts = AV_NOPTS_VALUE;
+
+/* These are called whenever we allocate a frame
+ * buffer. We use this to store the global_pts in
+ * a frame at the time it is allocated.
+ */
+int ff_get_buffer(struct AVCodecContext *c, AVFrame *pic) {
+  int ret = avcodec_default_get_buffer(c, pic);
+  uint64_t *pts = av_malloc(sizeof(uint64_t));
+  *pts = global_video_pkt_pts;
+  pic->opaque = pts;
+  return ret;
+}
+void ff_release_buffer(struct AVCodecContext *c, AVFrame *pic) {
+  if(pic) av_freep(&pic->opaque);
+  avcodec_default_release_buffer(c, pic);
+}
+
+
  void blend_subrect(AVPicture *dst, const AVSubtitleRect *rect, int imgw, int imgh)
 {
     int wrap, wrap3, width2, skip2;
@@ -703,8 +722,8 @@ double calc_ca(int64_t diff, double ca, double i)
             SDL_Delay(10);
         }
         int64_t t_before = av_gettime();
-        if (packet_queue_get(&movie->videoq, pkt, 1) < 0)
-            break;
+        if (packet_queue_get(&movie->videoq, pkt, 0) < 0)
+            continue;
 
         if(pkt->data == flush_pkt.data){
             avcodec_flush_buffers(movie->video_st->codec);
@@ -1283,6 +1302,9 @@ double calc_ca(int64_t diff, double ca, double i)
         packet_queue_init(&movie->videoq);
       	if(!THREADFREE)
 	        movie->video_tid = SDL_CreateThread(video_thread, movie);
+		
+		enc->get_buffer = ff_get_buffer;
+    	enc->release_buffer = ff_release_buffer;
 		
         break;
     case CODEC_TYPE_SUBTITLE:
@@ -1945,11 +1967,12 @@ void stream_cycle_channel(PyMovie *is, int codec_type)
         }
         /*if (pkt->stream_index == is->audio_stream) {
             packet_queue_put(&is->audioq, pkt);
-        } else*/ if (pkt->stream_index == is->video_stream) {
+        } else*/ 
+        if (pkt->stream_index == is->video_stream) {
             packet_queue_put(&is->videoq, pkt);
         //} else if (pkt->stream_index == is->subtitle_stream) {
         //    packet_queue_put(&is->subtitleq, pkt);
-        } else {
+        } else if(pkt) {
             av_free_packet(pkt);
         }
         
@@ -2028,9 +2051,9 @@ int video_render(PyMovie *movie)
         //if(movie->timing>0)
         //	break;
         int64_t t_before = av_gettime();
-        if (packet_queue_get(&movie->videoq, pkt, 1) < 0)
+        if (packet_queue_get(&movie->videoq, pkt, 0) <=0)
             break;
-
+		
         if(pkt->data == flush_pkt.data){
             avcodec_flush_buffers(movie->video_st->codec);
             continue;
@@ -2038,6 +2061,7 @@ int video_render(PyMovie *movie)
 
         /* NOTE: ipts is the PTS of the _first_ picture beginning in
            this packet, if any */
+        global_video_pkt_pts = pkt->pts;
         movie->video_st->codec->reordered_opaque= pkt->pts;
 		//int64_t t_before = av_gettime();
         

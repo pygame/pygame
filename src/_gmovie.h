@@ -283,6 +283,8 @@ void packet_queue_init(PacketQueue *q);
  void blend_subrect(AVPicture *dst, const AVSubtitleRect *rect, int imgw, int imgh);
  void free_subpicture(SubPicture *sp);
  double calc_ca(int64_t diff, double ca, double i);
+ int ff_get_buffer(struct AVCodecContext *c, AVFrame *pic);
+ void ff_release_buffer(struct AVCodecContext *c, AVFrame *pic);
 
 
 /* 		Video Management */
