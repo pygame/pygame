@@ -5,6 +5,8 @@
 # BUG    = fixed a bug that was (or could have been) crashing
 #
 #
+[SVN 2311] June 4, 2009
+    Fixed another Color regression... colors are now tasty again when pickled.
 
 [SVN 2295] June 1, 2009
     Added abort() and close() to midi Output/Input. Only close on __dealloc__
