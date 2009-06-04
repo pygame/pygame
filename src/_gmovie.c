@@ -653,12 +653,16 @@ double calc_ca(int64_t diff, double ca, double i)
 
     SDL_LockMutex(movie->dest_mutex);
 	vp = &movie->pictq[movie->pictq_windex];
-	int c=0;
-	while(vp->ready && c<VIDEO_PICTURE_QUEUE_SIZE)
+	int c=1;
+	/*while(vp->ready && c<VIDEO_PICTURE_QUEUE_SIZE)
 	{
 		c++;
 		vp = &movie->pictq[(movie->pictq_windex+c)%VIDEO_PICTURE_QUEUE_SIZE];
 		
+	}*/
+	if(movie->timing)
+	{
+		video_display(movie);
 	}
 	if(!vp->dest_overlay)
 	{
@@ -2133,7 +2137,9 @@ int video_render(PyMovie *movie)
         if (got_picture) {
         	update_video_clock(movie, frame, pts);
         	if (queue_picture(movie, frame) < 0)
+        	{
         		goto the_end;
+        	}
         }
         av_free_packet(pkt);
     }

@@ -99,7 +99,7 @@
 
  
 
-#define VIDEO_PICTURE_QUEUE_SIZE 16
+#define VIDEO_PICTURE_QUEUE_SIZE 32
 #define SUBPICTURE_QUEUE_SIZE 4
 
 //included from ffmpeg header files, as the header file is not publically available.
