@@ -51,11 +51,11 @@ class FontTest(unittest.TestCase):
 
         font1 = TestFont()
         font2 = font1.copy()
-        self.assertEquals(font1.height, font2.height)
+        self.assertEqual(font1.height, font2.height)
 
         font1 = BrokenTestFont()
         font2 = font1.copy()
-        self.assertEquals(font1.height, font2.height)
+        self.assertEqual(font1.height, font2.height)
 
     def test_pygame2_base_Font_get_size(self):
 
@@ -64,7 +64,7 @@ class FontTest(unittest.TestCase):
         # Gets the width and height of the Font typography.
 
         font = TestFont()
-        self.assertEquals(font.get_size("test string"), len("test string"))
+        self.assertEqual(font.get_size("test string"), len("test string"))
 
         font = BrokenTestFont()
         self.assertRaises(NotImplementedError, font.get_size, "test string")
@@ -76,10 +76,10 @@ class FontTest(unittest.TestCase):
         # Gets the standard height of the Font typography.
 
         font = TestFont()
-        self.assertEquals(font.height, 11)
+        self.assertEqual(font.height, 11)
 
         font = BrokenTestFont()
-        self.assertEquals(font.height, 11)
+        self.assertEqual(font.height, 11)
 
     def test_pygame2_base_Font_name(self):
 
@@ -88,7 +88,7 @@ class FontTest(unittest.TestCase):
         # Gets the name of the loaded Font.
 
         font = TestFont()
-        self.assertEquals(font.name, "Arial Black")
+        self.assertEqual(font.name, "Arial Black")
 
         font = BrokenTestFont()
         self.assertRaises(NotImplementedError, getattr, font, "name")
@@ -104,7 +104,7 @@ class FontTest(unittest.TestCase):
         # implementation.
 
         font = TestFont()
-        self.assertEquals(font.render(), "rendered")
+        self.assertEqual(font.render(), "rendered")
 
         font = BrokenTestFont()
         self.assertRaises(NotImplementedError, font.render)
@@ -116,9 +116,9 @@ class FontTest(unittest.TestCase):
         # Gets or sets the style used to render the Font.
 
         font = TestFont()
-        self.assertEquals(font.style, "No style")
+        self.assertEqual(font.style, "No style")
         font.style = "Bold"
-        self.assertEquals(font._style, "Bold")
+        self.assertEqual(font._style, "Bold")
 
         font = BrokenTestFont()
         self.assertRaises(NotImplementedError, getattr, font, "style")

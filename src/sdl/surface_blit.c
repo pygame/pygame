@@ -577,6 +577,36 @@ pyg_sdlsoftware_blit (SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
             blit_blend_rgba_max (&info);
             break;
         }
+        case BLEND_RGBA_AND:
+        {
+            blit_blend_rgba_and (&info);
+            break;
+        }
+        case BLEND_RGBA_OR:
+        {
+            blit_blend_rgba_or (&info);
+            break;
+        }
+        case BLEND_RGBA_XOR:
+        {
+            blit_blend_rgba_xor (&info);
+            break;
+        }
+        case BLEND_RGBA_DIFF:
+        {
+            blit_blend_rgba_diff (&info);
+            break;
+        }
+        case BLEND_RGBA_SCREEN:
+        {
+            blit_blend_rgba_screen (&info);
+            break;
+        }
+        case BLEND_RGBA_AVG:
+        {
+            blit_blend_rgba_avg (&info);
+            break;
+        }
 
         default:
         {

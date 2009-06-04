@@ -26,7 +26,7 @@ redt = pygame2.Color (255, 0, 0, 75)
 yellowt = pygame2.Color (0, 255, 0, 75)
 bluet = pygame2.Color (0, 0, 255, 75)
 
-def blit (screen, sf1, sf2, sf3, args1=None, args2=None, args3=None):
+def screenblit (screen, sf1, sf2, sf3, args1=None, args2=None, args3=None):
     if args1 is not None:
         screen.blit (sf1, dstrect=(10, 10), blendargs=args1)
     else:
@@ -40,209 +40,150 @@ def blit (screen, sf1, sf2, sf3, args1=None, args2=None, args3=None):
     else:
         screen.blit (sf3, (250, 170))
 
-def blit_solid (screen):
-    wm.set_caption ("Solid blit")
+def blit (screen, args1=None, args2=None, args3=None):
     surface1 = video.Surface (300, 300, 32)
     surface1.fill (red)
     surface2 = video.Surface (200, 200, 32)
     surface2.fill (yellow)
     surface3 = video.Surface (240, 100, 32)
     surface3.fill (blue)
-    blit (screen, surface1, surface2, surface3)
+    screenblit (screen, surface1, surface2, surface3, args1, args2, args3)
+
+def rgbablit (screen, args1=None, args2=None, args3=None):
+    surface1 = video.Surface (300, 300, 32, sdlconst.SRCALPHA)
+    surface1.fill (redt)
+    surface2 = video.Surface (200, 200, 32, sdlconst.SRCALPHA)
+    surface2.fill (yellowt)
+    surface3 = video.Surface (240, 100, 32, sdlconst.SRCALPHA)
+    surface3.fill (bluet)
+    screenblit (screen, surface1, surface2, surface3, args1, args2, args3)
+    
+def blit_solid (screen):
+    wm.set_caption ("Solid blit")
+    blit (screen)
 
 def blit_min (screen):
     wm.set_caption ("BLEND_RGB_MIN blit")
-    surface1 = video.Surface (300, 300, 32)
-    surface1.fill (red)
-    surface2 = video.Surface (200, 200, 32)
-    surface2.fill (yellow)
-    surface3 = video.Surface (240, 100, 32)
-    surface3.fill (blue)
-    blit (screen, surface1, surface2, surface3, sdlconst.BLEND_RGB_MIN,
-        sdlconst.BLEND_RGB_MIN, sdlconst.BLEND_RGB_MIN)
+    blit (screen, sdlconst.BLEND_RGB_MIN, sdlconst.BLEND_RGB_MIN,
+          sdlconst.BLEND_RGB_MIN)
 
 def blit_max (screen):
     wm.set_caption ("BLEND_RGB_MAX blit")
-    surface1 = video.Surface (300, 300, 32)
-    surface1.fill (red)
-    surface2 = video.Surface (200, 200, 32)
-    surface2.fill (yellow)
-    surface3 = video.Surface (240, 100, 32)
-    surface3.fill (blue)
-    blit (screen, surface1, surface2, surface3, sdlconst.BLEND_RGB_MAX,
-        sdlconst.BLEND_RGB_MAX, sdlconst.BLEND_RGB_MAX)
+    blit (screen, sdlconst.BLEND_RGB_MAX, sdlconst.BLEND_RGB_MAX,
+          sdlconst.BLEND_RGB_MAX)
 
 def blit_add (screen):
     wm.set_caption ("BLEND_RGB_ADD blit")
-    surface1 = video.Surface (300, 300, 32)
-    surface1.fill (red)
-    surface2 = video.Surface (200, 200, 32)
-    surface2.fill (yellow)
-    surface3 = video.Surface (240, 100, 32)
-    surface3.fill (blue)
-    blit (screen, surface1, surface2, surface3, sdlconst.BLEND_RGB_ADD,
-        sdlconst.BLEND_RGB_ADD, sdlconst.BLEND_RGB_ADD)
+    blit (screen, sdlconst.BLEND_RGB_ADD, sdlconst.BLEND_RGB_ADD,
+          sdlconst.BLEND_RGB_ADD)
 
 def blit_sub (screen):
     wm.set_caption ("BLEND_RGB_SUB blit")
-    surface1 = video.Surface (300, 300, 32)
-    surface1.fill (red)
-    surface2 = video.Surface (200, 200, 32)
-    surface2.fill (yellow)
-    surface3 = video.Surface (240, 100, 32)
-    surface3.fill (blue)
-    blit (screen, surface1, surface2, surface3, sdlconst.BLEND_RGB_SUB,
-        sdlconst.BLEND_RGB_SUB, sdlconst.BLEND_RGB_SUB)
+    blit (screen, sdlconst.BLEND_RGB_SUB, sdlconst.BLEND_RGB_SUB,
+          sdlconst.BLEND_RGB_SUB)
 
 def blit_mult (screen):
     wm.set_caption ("BLEND_RGB_MULT blit")
-    surface1 = video.Surface (300, 300, 32)
-    surface1.fill (red)
-    surface2 = video.Surface (200, 200, 32)
-    surface2.fill (yellow)
-    surface3 = video.Surface (240, 100, 32)
-    surface3.fill (blue)
-    blit (screen, surface1, surface2, surface3, sdlconst.BLEND_RGB_MULT,
-        sdlconst.BLEND_RGB_MULT, sdlconst.BLEND_RGB_MULT)
+    blit (screen, sdlconst.BLEND_RGB_MULT, sdlconst.BLEND_RGB_MULT,
+          sdlconst.BLEND_RGB_MULT)
 
 def blit_and (screen):
     wm.set_caption ("BLEND_RGB_AND blit")
-    surface1 = video.Surface (300, 300, 32)
-    surface1.fill (red)
-    surface2 = video.Surface (200, 200, 32)
-    surface2.fill (yellow)
-    surface3 = video.Surface (240, 100, 32)
-    surface3.fill (blue)
-    blit (screen, surface1, surface2, surface3, sdlconst.BLEND_RGB_AND,
-        sdlconst.BLEND_RGB_AND, sdlconst.BLEND_RGB_AND)
+    blit (screen, sdlconst.BLEND_RGB_AND, sdlconst.BLEND_RGB_AND,
+          sdlconst.BLEND_RGB_AND)
 
 def blit_or (screen):
     wm.set_caption ("BLEND_RGB_OR blit")
-    surface1 = video.Surface (300, 300, 32)
-    surface1.fill (red)
-    surface2 = video.Surface (200, 200, 32)
-    surface2.fill (yellow)
-    surface3 = video.Surface (240, 100, 32)
-    surface3.fill (blue)
-    blit (screen, surface1, surface2, surface3, sdlconst.BLEND_RGB_OR,
-        sdlconst.BLEND_RGB_OR, sdlconst.BLEND_RGB_OR)
+    blit (screen, sdlconst.BLEND_RGB_OR, sdlconst.BLEND_RGB_OR,
+          sdlconst.BLEND_RGB_OR)
 
 def blit_xor (screen):
     wm.set_caption ("BLEND_RGB_XOR blit")
-    surface1 = video.Surface (300, 300, 32)
-    surface1.fill (red)
-    surface2 = video.Surface (200, 200, 32)
-    surface2.fill (yellow)
-    surface3 = video.Surface (240, 100, 32)
-    surface3.fill (blue)
-    blit (screen, surface1, surface2, surface3, sdlconst.BLEND_RGB_XOR,
-        sdlconst.BLEND_RGB_XOR, sdlconst.BLEND_RGB_XOR)
+    blit (screen, sdlconst.BLEND_RGB_XOR, sdlconst.BLEND_RGB_XOR,
+          sdlconst.BLEND_RGB_XOR)
 
 def blit_diff (screen):
     wm.set_caption ("BLEND_RGB_DIFF blit")
-    surface1 = video.Surface (300, 300, 32)
-    surface1.fill (red)
-    surface2 = video.Surface (200, 200, 32)
-    surface2.fill (yellow)
-    surface3 = video.Surface (240, 100, 32)
-    surface3.fill (blue)
-    blit (screen, surface1, surface2, surface3, sdlconst.BLEND_RGB_DIFF,
-        sdlconst.BLEND_RGB_DIFF, sdlconst.BLEND_RGB_DIFF)
+    blit (screen, sdlconst.BLEND_RGB_DIFF, sdlconst.BLEND_RGB_DIFF,
+          sdlconst.BLEND_RGB_DIFF)
 
 def blit_screen (screen):
     wm.set_caption ("BLEND_RGB_SCREEN blit")
-    surface1 = video.Surface (300, 300, 32)
-    surface1.fill (red)
-    surface2 = video.Surface (200, 200, 32)
-    surface2.fill (yellow)
-    surface3 = video.Surface (240, 100, 32)
-    surface3.fill (blue)
-    blit (screen, surface1, surface2, surface3, sdlconst.BLEND_RGB_SCREEN,
-        sdlconst.BLEND_RGB_SCREEN, sdlconst.BLEND_RGB_SCREEN)
+    blit (screen, sdlconst.BLEND_RGB_SCREEN, sdlconst.BLEND_RGB_SCREEN,
+          sdlconst.BLEND_RGB_SCREEN)
 
 def blit_avg (screen):
     wm.set_caption ("BLEND_RGB_AVG blit")
-    surface1 = video.Surface (300, 300, 32)
-    surface1.fill (red)
-    surface2 = video.Surface (200, 200, 32)
-    surface2.fill (yellow)
-    surface3 = video.Surface (240, 100, 32)
-    surface3.fill (blue)
-    blit (screen, surface1, surface2, surface3, sdlconst.BLEND_RGB_AVG,
-        sdlconst.BLEND_RGB_AVG, sdlconst.BLEND_RGB_AVG)
+    blit (screen, sdlconst.BLEND_RGB_AVG, sdlconst.BLEND_RGB_AVG,
+          sdlconst.BLEND_RGB_AVG)
 
 def blit_rgba (screen):
     wm.set_caption ("Solid RGBA blit")
-    surface1 = video.Surface (300, 300, 32, sdlconst.SRCALPHA)
-    surface1.fill (redt)
-    surface2 = video.Surface (200, 200, 32, sdlconst.SRCALPHA)
-    surface2.fill (yellowt)
-    surface3 = video.Surface (240, 100, 32, sdlconst.SRCALPHA)
-    surface3.fill (bluet)
-    blit (screen, surface1, surface2, surface3)
+    rgbablit (screen)
 
 def blit_rgba_min (screen):
     wm.set_caption ("BLEND_RGBA_MIN blit")
-    surface1 = video.Surface (300, 300, 32, sdlconst.SRCALPHA)
-    surface1.fill (redt)
-    surface2 = video.Surface (200, 200, 32, sdlconst.SRCALPHA)
-    surface2.fill (yellowt)
-    surface3 = video.Surface (240, 100, 32, sdlconst.SRCALPHA)
-    surface3.fill (bluet)
-    blit (screen, surface1, surface2, surface3, sdlconst.BLEND_RGBA_MIN,
-        sdlconst.BLEND_RGBA_MIN, sdlconst.BLEND_RGBA_MIN)
+    rgbablit (screen, sdlconst.BLEND_RGBA_MIN, sdlconst.BLEND_RGBA_MIN,
+              sdlconst.BLEND_RGBA_MIN)
 
 def blit_rgba_max (screen):
     wm.set_caption ("BLEND_RGBA_MAX blit")
-    surface1 = video.Surface (300, 300, 32, sdlconst.SRCALPHA)
-    surface1.fill (redt)
-    surface2 = video.Surface (200, 200, 32, sdlconst.SRCALPHA)
-    surface2.fill (yellowt)
-    surface3 = video.Surface (240, 100, 32, sdlconst.SRCALPHA)
-    surface3.fill (bluet)
-    blit (screen, surface1, surface2, surface3, sdlconst.BLEND_RGBA_MAX,
-        sdlconst.BLEND_RGBA_MAX, sdlconst.BLEND_RGBA_MAX)
+    rgbablit (screen, sdlconst.BLEND_RGBA_MAX, sdlconst.BLEND_RGBA_MAX,
+              sdlconst.BLEND_RGBA_MAX)
 
 def blit_rgba_add (screen):
     wm.set_caption ("BLEND_RGBA_ADD blit")
-    surface1 = video.Surface (300, 300, 32, sdlconst.SRCALPHA)
-    surface1.fill (redt)
-    surface2 = video.Surface (200, 200, 32, sdlconst.SRCALPHA)
-    surface2.fill (yellowt)
-    surface3 = video.Surface (240, 100, 32, sdlconst.SRCALPHA)
-    surface3.fill (bluet)
-    blit (screen, surface1, surface2, surface3, sdlconst.BLEND_RGBA_ADD,
-        sdlconst.BLEND_RGBA_ADD, sdlconst.BLEND_RGBA_ADD)
+    rgbablit (screen, sdlconst.BLEND_RGBA_ADD, sdlconst.BLEND_RGBA_ADD,
+              sdlconst.BLEND_RGBA_ADD)
 
 def blit_rgba_sub (screen):
     wm.set_caption ("BLEND_RGBA_SUB blit")
-    surface1 = video.Surface (300, 300, 32, sdlconst.SRCALPHA)
-    surface1.fill (redt)
-    surface2 = video.Surface (200, 200, 32, sdlconst.SRCALPHA)
-    surface2.fill (yellowt)
-    surface3 = video.Surface (240, 100, 32, sdlconst.SRCALPHA)
-    surface3.fill (bluet)
-    blit (screen, surface1, surface2, surface3, sdlconst.BLEND_RGBA_SUB,
-        sdlconst.BLEND_RGBA_SUB, sdlconst.BLEND_RGBA_SUB)
+    rgbablit (screen, sdlconst.BLEND_RGBA_SUB, sdlconst.BLEND_RGBA_SUB,
+              sdlconst.BLEND_RGBA_SUB)
 
 def blit_rgba_mult (screen):
     wm.set_caption ("BLEND_RGBA_MULT blit")
-    surface1 = video.Surface (300, 300, 32, sdlconst.SRCALPHA)
-    surface1.fill (redt)
-    surface2 = video.Surface (200, 200, 32, sdlconst.SRCALPHA)
-    surface2.fill (yellowt)
-    surface3 = video.Surface (240, 100, 32, sdlconst.SRCALPHA)
-    surface3.fill (bluet)
-    blit (screen, surface1, surface2, surface3, sdlconst.BLEND_RGBA_MULT,
-        sdlconst.BLEND_RGBA_MULT, sdlconst.BLEND_RGBA_MULT)
+    rgbablit (screen, sdlconst.BLEND_RGBA_MULT, sdlconst.BLEND_RGBA_MULT,
+          sdlconst.BLEND_RGBA_MULT)
+
+def blit_rgba_and (screen):
+    wm.set_caption ("BLEND_RGBA_AND blit")
+    rgbablit (screen, sdlconst.BLEND_RGBA_AND, sdlconst.BLEND_RGBA_AND,
+          sdlconst.BLEND_RGBA_AND)
+
+def blit_rgba_or (screen):
+    wm.set_caption ("BLEND_RGBA_OR blit")
+    rgbablit (screen, sdlconst.BLEND_RGBA_OR, sdlconst.BLEND_RGBA_OR,
+          sdlconst.BLEND_RGBA_OR)
+
+def blit_rgba_xor (screen):
+    wm.set_caption ("BLEND_RGBA_XOR blit")
+    rgbablit (screen, sdlconst.BLEND_RGBA_XOR, sdlconst.BLEND_RGBA_XOR,
+          sdlconst.BLEND_RGBA_XOR)
+
+def blit_rgba_diff (screen):
+    wm.set_caption ("BLEND_RGBA_DIFF blit")
+    rgbablit (screen, sdlconst.BLEND_RGBA_DIFF, sdlconst.BLEND_RGBA_DIFF,
+          sdlconst.BLEND_RGBA_DIFF)
+
+def blit_rgba_screen (screen):
+    wm.set_caption ("BLEND_RGBA_SCREEN blit")
+    rgbablit (screen, sdlconst.BLEND_RGBA_SCREEN, sdlconst.BLEND_RGBA_SCREEN,
+          sdlconst.BLEND_RGBA_SCREEN)
+
+def blit_rgba_avg (screen):
+    wm.set_caption ("BLEND_RGBA_AVG blit")
+    rgbablit (screen, sdlconst.BLEND_RGBA_AVG, sdlconst.BLEND_RGBA_AVG,
+          sdlconst.BLEND_RGBA_AVG)
 
 def run ():
     blittypes = [ blit_solid, blit_min, blit_max, blit_add, blit_sub,
                   blit_mult, blit_and, blit_or, blit_xor, blit_diff,
                   blit_screen, blit_avg,
-                  blit_rgba,
-                  blit_rgba_min, blit_rgba_max, blit_rgba_add, blit_rgba_sub,
-                  blit_rgba_mult ]
+                  blit_rgba, blit_rgba_min, blit_rgba_max, blit_rgba_add,
+                  blit_rgba_sub, blit_rgba_mult, blit_rgba_and, blit_rgba_or,
+                  blit_rgba_xor, blit_rgba_diff, blit_rgba_screen,
+                  blit_rgba_avg ]
     curtype = 0
     video.init ()
     screen = video.set_mode (640, 480, 32)

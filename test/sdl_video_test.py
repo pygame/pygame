@@ -130,7 +130,7 @@ class SDLVideoTest (unittest.TestCase):
         # init () -> None
         # 
         # Initializes the video subsystem of the SDL library.
-        self.assertEquals (video.init (), None)
+        self.assertEqual (video.init (), None)
         video.quit ()
 
     def todo_test_pygame2_sdl_video_is_mode_ok(self):
@@ -185,9 +185,9 @@ class SDLVideoTest (unittest.TestCase):
         # After calling this function, you should not invoke any class,
         # method or function related to the video subsystem as they are
         # likely to fail or might give unpredictable results.
-        self.assertEquals (video.quit (), None)
+        self.assertEqual (video.quit (), None)
 
-    def todo_test_pygame2_sdl_video_set_gamma(self):
+    def test_pygame2_sdl_video_set_gamma(self):
 
         # __doc__ (as of 2009-05-31) for pygame2.sdl.video.set_gamma:
 
@@ -197,8 +197,17 @@ class SDLVideoTest (unittest.TestCase):
         # 
         # Sets the gamma values for all three color channels. In case
         # adjusting the gamma is not supported, an exception will be raised.
-
-        self.fail() 
+        video.init ()
+        try:
+            video.set_gamma (1, 1, 1)
+        except pygame2.Error:
+            return
+        self.assert_ (video.set_gamma (0, 0, 0) == None)
+        self.assert_ (video.set_gamma (1, 1, 1) == None)
+        self.assert_ (video.set_gamma (10, 1, 1) == None)
+        self.assert_ (video.set_gamma (10, 12.88, 3.385) == None)
+        self.assert_ (video.set_gamma (-10, -12.88, -3.385) == None)
+        video.quit ()
 
     def todo_test_pygame2_sdl_video_set_gammaramp(self):
 
@@ -306,11 +315,11 @@ class SDLVideoTest (unittest.TestCase):
         # Returns, whether the video subsystem of the SDL library is
         # initialized.
         video.quit ()
-        self.assertEquals (video.was_init (), False)
+        self.assertEqual (video.was_init (), False)
         video.init ()
-        self.assertEquals (video.was_init (), True)
+        self.assertEqual (video.was_init (), True)
         video.quit ()
-        self.assertEquals (video.was_init (), False)
+        self.assertEqual (video.was_init (), False)
 
 if __name__ == "__main__":
     unittest.main ()

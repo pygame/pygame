@@ -106,11 +106,11 @@ class FreeTypeFontTest(unittest.TestCase):
 
         f = self._TEST_FONTS['fixed']
         for (ptsize, test_data) in TEST_VALUES_FIXED.items():
-            self.assertEquals(f.get_metrics('ABCDabcd', ptsize=ptsize), test_data)
+            self.assertEqual(f.get_metrics('ABCDabcd', ptsize=ptsize), test_data)
 
         f = self._TEST_FONTS['sans']
         for (ptsize, test_data) in TEST_VALUES_SANS.items():
-            self.assertEquals(f.get_metrics('ABCDabcd', ptsize=ptsize), test_data)
+            self.assertEqual(f.get_metrics('ABCDabcd', ptsize=ptsize), test_data)
 
     def todo_test_pygame2_freetype_Font_get_size(self):
 
@@ -130,10 +130,10 @@ class FreeTypeFontTest(unittest.TestCase):
         # Gets the height of the Font.
 
         f = self._TEST_FONTS['sans']
-        self.assertEquals(f.height, 2355)
+        self.assertEqual(f.height, 2355)
 
         f = self._TEST_FONTS['fixed']
-        self.assertEquals(f.height, 1100)
+        self.assertEqual(f.height, 1100)
         
 
     def test_pygame2_freetype_Font_name(self):
@@ -143,10 +143,10 @@ class FreeTypeFontTest(unittest.TestCase):
         # Gets the name of the font face.
         
         f = self._TEST_FONTS['sans']
-        self.assertEquals(f.name, 'Liberation Sans')
+        self.assertEqual(f.name, 'Liberation Sans')
 
         f = self._TEST_FONTS['fixed']
-        self.assertEquals(f.name, 'Inconsolata')
+        self.assertEqual(f.name, 'Inconsolata')
 
 
     def todo_test_pygame2_freetype_Font_render(self):

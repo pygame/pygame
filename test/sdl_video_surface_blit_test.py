@@ -118,10 +118,10 @@ class SDLVideoSurfaceBlitTest (unittest.TestCase):
             # Solid, destructive blit.
             sf1.blit (sf2)
 
-            self.assert_ (cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5)))
-            self.assert_ (cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5)))
-            self.assert_ (cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5)))
-            self.assert_ (cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5)))
+            self.assertTrue (cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5)))
+            self.assertTrue (cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5)))
+            self.assertTrue (cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5)))
+            self.assertTrue (cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5)))
         video.quit ()
     
     def test_simple_24bpp_blit (self):

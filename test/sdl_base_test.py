@@ -22,9 +22,9 @@ class SDLTest (unittest.TestCase):
         # detect which features may not be available through Pygame, if
         # it is used as precompiled package using a different version of
         # the SDL library.
-        self.assertEquals (len (base.get_compiled_version ()), 3)
-        self.assertEquals (base.get_compiled_version ()[0], 1)
-        self.assertEquals (base.get_compiled_version ()[1], 2)
+        self.assertEqual (len (base.get_compiled_version ()), 3)
+        self.assertEqual (base.get_compiled_version ()[0], 1)
+        self.assertEqual (base.get_compiled_version ()[1], 2)
         self.assert_ (base.get_compiled_version ()[2] >= 10)
 
     def test_pygame2_sdl_base_get_error(self):
@@ -38,7 +38,7 @@ class SDLTest (unittest.TestCase):
         # SDL maintains an internal error message. This message will
         # usually be given to you when a :exc:pygame2.base.Error is
         # raised. You will rarely need to call this function.
-        self.assertEquals (len (base.get_error ()), 0)
+        self.assertEqual (len (base.get_error ()), 0)
 
     def test_pygame2_sdl_base_get_version(self):
 
@@ -51,9 +51,9 @@ class SDLTest (unittest.TestCase):
         # This version is detected at runtime. It can be used to detect which
         # features may not be available through Pygame, if it is used as
         # precompiled package using a different version of the SDL library.
-        self.assertEquals (len (base.get_version ()), 3)
-        self.assertEquals (base.get_version ()[0], 1)
-        self.assertEquals (base.get_version ()[1], 2)
+        self.assertEqual (len (base.get_version ()), 3)
+        self.assertEqual (base.get_version ()[0], 1)
+        self.assertEqual (base.get_version ()[1], 2)
 
     def test_pygame2_sdl_base_init(self):
 
@@ -69,8 +69,8 @@ class SDLTest (unittest.TestCase):
         # constants.  In case an error occured, False will be
         # returned. The detailled error can be received using
         # pygame2.sdl.get_error().
-        self.assertEquals (base.init (constants.INIT_CDROM), True)
-        self.assertEquals (base.init
+        self.assertEqual (base.init (constants.INIT_CDROM), True)
+        self.assertEqual (base.init
                            (constants.INIT_CDROM | constants.INIT_AUDIO), True)
         base.quit ()
 
@@ -87,8 +87,8 @@ class SDLTest (unittest.TestCase):
         # at a later time.  In case an error occured, False will be
         # returned. The detailled error can be received using
         # pygame2.sdl.get_error().
-        self.assertEquals (base.init_subsystem (constants.INIT_CDROM), True)
-        self.assertEquals (base.init_subsystem
+        self.assertEqual (base.init_subsystem (constants.INIT_CDROM), True)
+        self.assertEqual (base.init_subsystem
                            (constants.INIT_CDROM | constants.INIT_TIMER), True)
         base.quit ()
 
@@ -131,7 +131,7 @@ class SDLTest (unittest.TestCase):
         # subsystems.
         base.init (constants.INIT_JOYSTICK)
         v = base.was_init (constants.INIT_JOYSTICK) & constants.INIT_JOYSTICK
-        self.assert_ (v == constants.INIT_JOYSTICK)
+        self.assertEqual (v, constants.INIT_JOYSTICK)
         base.quit ()
 
 if __name__ == "__main__":

@@ -608,3 +608,707 @@ blit_blend_rgba_max (SDL_BlitInfo * info)
         }
     }
 }
+
+
+void
+blit_blend_rgba_and (SDL_BlitInfo * info)
+{
+    int             n;
+    int             width = info->d_width;
+    int             height = info->d_height;
+    Uint8          *src = info->s_pixels;
+    int             srcskip = info->s_skip;
+    Uint8          *dst = info->d_pixels;
+    int             dstskip = info->d_skip;
+    SDL_PixelFormat *srcfmt = info->src;
+    SDL_PixelFormat *dstfmt = info->dst;
+    int             srcbpp = srcfmt->BytesPerPixel;
+    int             dstbpp = dstfmt->BytesPerPixel;
+    Uint8           dR, dG, dB, dA, sR, sG, sB, sA;
+    Uint32          pixel;
+
+    if (srcbpp == 4 && dstbpp == 4)
+    {
+        while (height--)
+        {
+            LOOP_UNROLLED4(
+            {
+                GET_RGB_VALS ((*(Uint32*)src), srcfmt, sR, sG, sB, sA);
+                GET_RGB_VALS ((*(Uint32*)dst), dstfmt, dR, dG, dB, dA);
+                D_BLEND_RGBA_AND (sR, sG, sB, sA, dR, dG, dB, dA);
+                CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
+                src += srcbpp;
+                dst += dstbpp;
+            }, n, width);
+            src += srcskip;
+            dst += dstskip;
+        }
+        return;
+    }
+
+    if (srcbpp == 1)
+    {
+        if (dstbpp == 1)
+        {
+            while (height--)
+            {
+                LOOP_UNROLLED4(
+                {
+                    GET_PALETTE_VALS(src, srcfmt, sR, sG, sB, sA);
+                    GET_PALETTE_VALS(dst, dstfmt, dR, dG, dB, dA);
+                    D_BLEND_RGBA_AND (sR, sG, sB, sA, dR, dG, dB, dA);
+                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
+                    src += srcbpp;
+                    dst += dstbpp;
+                }, n, width);
+                src += srcskip;
+                dst += dstskip;
+            }
+        }
+        else /* dstbpp > 1 */
+        {
+            while (height--)
+            {
+                LOOP_UNROLLED4(
+                {
+                    GET_PALETTE_VALS(src, srcfmt, sR, sG, sB, sA);
+                    GET_PIXEL (pixel, dstbpp, dst);
+                    GET_RGB_VALS (pixel, dstfmt, dR, dG, dB, dA);
+                    D_BLEND_RGBA_AND (sR, sG, sB, sA, dR, dG, dB, dA);
+                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
+                    src += srcbpp;
+                    dst += dstbpp;
+                }, n, width);
+                src += srcskip;
+                dst += dstskip;
+            }
+        }
+    }
+    else /* srcbpp > 1 */
+    {
+        if (dstbpp == 1)
+        {
+            while (height--)
+            {
+                LOOP_UNROLLED4(
+                {
+                    GET_PIXEL(pixel, srcbpp, src);
+                    GET_RGB_VALS (pixel, srcfmt, sR, sG, sB, sA);
+                    GET_PALETTE_VALS(dst, dstfmt, dR, dG, dB, dA);
+                    D_BLEND_RGBA_AND (sR, sG, sB, sA, dR, dG, dB, dA);
+                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
+                    src += srcbpp;
+                    dst += dstbpp;
+                }, n, width);
+                src += srcskip;
+                dst += dstskip;
+            }
+
+        }
+        else /* dstbpp > 1 */
+        {
+            while (height--)
+            {
+                LOOP_UNROLLED4(
+                {
+                    GET_PIXEL(pixel, srcbpp, src);
+                    GET_RGB_VALS (pixel, srcfmt, sR, sG, sB, sA);
+                    GET_PIXEL (pixel, dstbpp, dst);
+                    GET_RGB_VALS (pixel, dstfmt, dR, dG, dB, dA);
+                    D_BLEND_RGBA_AND (sR, sG, sB, sA, dR, dG, dB, dA);
+                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
+                    src += srcbpp;
+                    dst += dstbpp;
+                }, n, width);
+                src += srcskip;
+                dst += dstskip;
+            }
+        }
+    }
+}
+
+
+void
+blit_blend_rgba_or (SDL_BlitInfo * info)
+{
+    int             n;
+    int             width = info->d_width;
+    int             height = info->d_height;
+    Uint8          *src = info->s_pixels;
+    int             srcskip = info->s_skip;
+    Uint8          *dst = info->d_pixels;
+    int             dstskip = info->d_skip;
+    SDL_PixelFormat *srcfmt = info->src;
+    SDL_PixelFormat *dstfmt = info->dst;
+    int             srcbpp = srcfmt->BytesPerPixel;
+    int             dstbpp = dstfmt->BytesPerPixel;
+    Uint8           dR, dG, dB, dA, sR, sG, sB, sA;
+    Uint32          pixel;
+
+    if (srcbpp == 4 && dstbpp == 4)
+    {
+        while (height--)
+        {
+            LOOP_UNROLLED4(
+            {
+                GET_RGB_VALS ((*(Uint32*)src), srcfmt, sR, sG, sB, sA);
+                GET_RGB_VALS ((*(Uint32*)dst), dstfmt, dR, dG, dB, dA);
+                D_BLEND_RGBA_OR (sR, sG, sB, sA, dR, dG, dB, dA);
+                CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
+                src += srcbpp;
+                dst += dstbpp;
+            }, n, width);
+            src += srcskip;
+            dst += dstskip;
+        }
+        return;
+    }
+
+    if (srcbpp == 1)
+    {
+        if (dstbpp == 1)
+        {
+            while (height--)
+            {
+                LOOP_UNROLLED4(
+                {
+                    GET_PALETTE_VALS(src, srcfmt, sR, sG, sB, sA);
+                    GET_PALETTE_VALS(dst, dstfmt, dR, dG, dB, dA);
+                    D_BLEND_RGBA_OR (sR, sG, sB, sA, dR, dG, dB, dA);
+                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
+                    src += srcbpp;
+                    dst += dstbpp;
+                }, n, width);
+                src += srcskip;
+                dst += dstskip;
+            }
+        }
+        else /* dstbpp > 1 */
+        {
+            while (height--)
+            {
+                LOOP_UNROLLED4(
+                {
+                    GET_PALETTE_VALS(src, srcfmt, sR, sG, sB, sA);
+                    GET_PIXEL (pixel, dstbpp, dst);
+                    GET_RGB_VALS (pixel, dstfmt, dR, dG, dB, dA);
+                    D_BLEND_RGBA_OR (sR, sG, sB, sA, dR, dG, dB, dA);
+                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
+                    src += srcbpp;
+                    dst += dstbpp;
+                }, n, width);
+                src += srcskip;
+                dst += dstskip;
+            }
+        }
+    }
+    else /* srcbpp > 1 */
+    {
+        if (dstbpp == 1)
+        {
+            while (height--)
+            {
+                LOOP_UNROLLED4(
+                {
+                    GET_PIXEL(pixel, srcbpp, src);
+                    GET_RGB_VALS (pixel, srcfmt, sR, sG, sB, sA);
+                    GET_PALETTE_VALS(dst, dstfmt, dR, dG, dB, dA);
+                    D_BLEND_RGBA_OR (sR, sG, sB, sA, dR, dG, dB, dA);
+                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
+                    src += srcbpp;
+                    dst += dstbpp;
+                }, n, width);
+                src += srcskip;
+                dst += dstskip;
+            }
+
+        }
+        else /* dstbpp > 1 */
+        {
+            while (height--)
+            {
+                LOOP_UNROLLED4(
+                {
+                    GET_PIXEL(pixel, srcbpp, src);
+                    GET_RGB_VALS (pixel, srcfmt, sR, sG, sB, sA);
+                    GET_PIXEL (pixel, dstbpp, dst);
+                    GET_RGB_VALS (pixel, dstfmt, dR, dG, dB, dA);
+                    D_BLEND_RGBA_OR (sR, sG, sB, sA, dR, dG, dB, dA);
+                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
+                    src += srcbpp;
+                    dst += dstbpp;
+                }, n, width);
+                src += srcskip;
+                dst += dstskip;
+            }
+        }
+    }
+}
+
+void
+blit_blend_rgba_xor (SDL_BlitInfo * info)
+{
+    int             n;
+    int             width = info->d_width;
+    int             height = info->d_height;
+    Uint8          *src = info->s_pixels;
+    int             srcskip = info->s_skip;
+    Uint8          *dst = info->d_pixels;
+    int             dstskip = info->d_skip;
+    SDL_PixelFormat *srcfmt = info->src;
+    SDL_PixelFormat *dstfmt = info->dst;
+    int             srcbpp = srcfmt->BytesPerPixel;
+    int             dstbpp = dstfmt->BytesPerPixel;
+    Uint8           dR, dG, dB, dA, sR, sG, sB, sA;
+    Uint32          pixel;
+
+    if (srcbpp == 4 && dstbpp == 4)
+    {
+        while (height--)
+        {
+            LOOP_UNROLLED4(
+            {
+                GET_RGB_VALS ((*(Uint32*)src), srcfmt, sR, sG, sB, sA);
+                GET_RGB_VALS ((*(Uint32*)dst), dstfmt, dR, dG, dB, dA);
+                D_BLEND_RGBA_XOR (sR, sG, sB, sA, dR, dG, dB, dA);
+                CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
+                src += srcbpp;
+                dst += dstbpp;
+            }, n, width);
+            src += srcskip;
+            dst += dstskip;
+        }
+        return;
+    }
+
+    if (srcbpp == 1)
+    {
+        if (dstbpp == 1)
+        {
+            while (height--)
+            {
+                LOOP_UNROLLED4(
+                {
+                    GET_PALETTE_VALS(src, srcfmt, sR, sG, sB, sA);
+                    GET_PALETTE_VALS(dst, dstfmt, dR, dG, dB, dA);
+                    D_BLEND_RGBA_XOR (sR, sG, sB, sA, dR, dG, dB, dA);
+                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
+                    src += srcbpp;
+                    dst += dstbpp;
+                }, n, width);
+                src += srcskip;
+                dst += dstskip;
+            }
+        }
+        else /* dstbpp > 1 */
+        {
+            while (height--)
+            {
+                LOOP_UNROLLED4(
+                {
+                    GET_PALETTE_VALS(src, srcfmt, sR, sG, sB, sA);
+                    GET_PIXEL (pixel, dstbpp, dst);
+                    GET_RGB_VALS (pixel, dstfmt, dR, dG, dB, dA);
+                    D_BLEND_RGBA_XOR (sR, sG, sB, sA, dR, dG, dB, dA);
+                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
+                    src += srcbpp;
+                    dst += dstbpp;
+                }, n, width);
+                src += srcskip;
+                dst += dstskip;
+            }
+        }
+    }
+    else /* srcbpp > 1 */
+    {
+        if (dstbpp == 1)
+        {
+            while (height--)
+            {
+                LOOP_UNROLLED4(
+                {
+                    GET_PIXEL(pixel, srcbpp, src);
+                    GET_RGB_VALS (pixel, srcfmt, sR, sG, sB, sA);
+                    GET_PALETTE_VALS(dst, dstfmt, dR, dG, dB, dA);
+                    D_BLEND_RGBA_XOR (sR, sG, sB, sA, dR, dG, dB, dA);
+                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
+                    src += srcbpp;
+                    dst += dstbpp;
+                }, n, width);
+                src += srcskip;
+                dst += dstskip;
+            }
+
+        }
+        else /* dstbpp > 1 */
+        {
+            while (height--)
+            {
+                LOOP_UNROLLED4(
+                {
+                    GET_PIXEL(pixel, srcbpp, src);
+                    GET_RGB_VALS (pixel, srcfmt, sR, sG, sB, sA);
+                    GET_PIXEL (pixel, dstbpp, dst);
+                    GET_RGB_VALS (pixel, dstfmt, dR, dG, dB, dA);
+                    D_BLEND_RGBA_XOR (sR, sG, sB, sA, dR, dG, dB, dA);
+                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
+                    src += srcbpp;
+                    dst += dstbpp;
+                }, n, width);
+                src += srcskip;
+                dst += dstskip;
+            }
+        }
+    }
+}
+
+void
+blit_blend_rgba_diff (SDL_BlitInfo * info)
+{
+    int             n;
+    int             width = info->d_width;
+    int             height = info->d_height;
+    Uint8          *src = info->s_pixels;
+    int             srcskip = info->s_skip;
+    Uint8          *dst = info->d_pixels;
+    int             dstskip = info->d_skip;
+    SDL_PixelFormat *srcfmt = info->src;
+    SDL_PixelFormat *dstfmt = info->dst;
+    int             srcbpp = srcfmt->BytesPerPixel;
+    int             dstbpp = dstfmt->BytesPerPixel;
+    Uint8           dR, dG, dB, dA, sR, sG, sB, sA;
+    Uint32          pixel;
+
+    if (srcbpp == 4 && dstbpp == 4)
+    {
+        while (height--)
+        {
+            LOOP_UNROLLED4(
+            {
+                GET_RGB_VALS ((*(Uint32*)src), srcfmt, sR, sG, sB, sA);
+                GET_RGB_VALS ((*(Uint32*)dst), dstfmt, dR, dG, dB, dA);
+                D_BLEND_RGBA_DIFF (sR, sG, sB, sA, dR, dG, dB, dA);
+                CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
+                src += srcbpp;
+                dst += dstbpp;
+            }, n, width);
+            src += srcskip;
+            dst += dstskip;
+        }
+        return;
+    }
+
+    if (srcbpp == 1)
+    {
+        if (dstbpp == 1)
+        {
+            while (height--)
+            {
+                LOOP_UNROLLED4(
+                {
+                    GET_PALETTE_VALS(src, srcfmt, sR, sG, sB, sA);
+                    GET_PALETTE_VALS(dst, dstfmt, dR, dG, dB, dA);
+                    D_BLEND_RGBA_DIFF (sR, sG, sB, sA, dR, dG, dB, dA);
+                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
+                    src += srcbpp;
+                    dst += dstbpp;
+                }, n, width);
+                src += srcskip;
+                dst += dstskip;
+            }
+        }
+        else /* dstbpp > 1 */
+        {
+            while (height--)
+            {
+                LOOP_UNROLLED4(
+                {
+                    GET_PALETTE_VALS(src, srcfmt, sR, sG, sB, sA);
+                    GET_PIXEL (pixel, dstbpp, dst);
+                    GET_RGB_VALS (pixel, dstfmt, dR, dG, dB, dA);
+                    D_BLEND_RGBA_DIFF (sR, sG, sB, sA, dR, dG, dB, dA);
+                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
+                    src += srcbpp;
+                    dst += dstbpp;
+                }, n, width);
+                src += srcskip;
+                dst += dstskip;
+            }
+        }
+    }
+    else /* srcbpp > 1 */
+    {
+        if (dstbpp == 1)
+        {
+            while (height--)
+            {
+                LOOP_UNROLLED4(
+                {
+                    GET_PIXEL(pixel, srcbpp, src);
+                    GET_RGB_VALS (pixel, srcfmt, sR, sG, sB, sA);
+                    GET_PALETTE_VALS(dst, dstfmt, dR, dG, dB, dA);
+                    D_BLEND_RGBA_DIFF (sR, sG, sB, sA, dR, dG, dB, dA);
+                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
+                    src += srcbpp;
+                    dst += dstbpp;
+                }, n, width);
+                src += srcskip;
+                dst += dstskip;
+            }
+
+        }
+        else /* dstbpp > 1 */
+        {
+            while (height--)
+            {
+                LOOP_UNROLLED4(
+                {
+                    GET_PIXEL(pixel, srcbpp, src);
+                    GET_RGB_VALS (pixel, srcfmt, sR, sG, sB, sA);
+                    GET_PIXEL (pixel, dstbpp, dst);
+                    GET_RGB_VALS (pixel, dstfmt, dR, dG, dB, dA);
+                    D_BLEND_RGBA_DIFF (sR, sG, sB, sA, dR, dG, dB, dA);
+                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
+                    src += srcbpp;
+                    dst += dstbpp;
+                }, n, width);
+                src += srcskip;
+                dst += dstskip;
+            }
+        }
+    }
+}
+
+void
+blit_blend_rgba_screen (SDL_BlitInfo * info)
+{
+    int             n;
+    int             width = info->d_width;
+    int             height = info->d_height;
+    Uint8          *src = info->s_pixels;
+    int             srcskip = info->s_skip;
+    Uint8          *dst = info->d_pixels;
+    int             dstskip = info->d_skip;
+    SDL_PixelFormat *srcfmt = info->src;
+    SDL_PixelFormat *dstfmt = info->dst;
+    int             srcbpp = srcfmt->BytesPerPixel;
+    int             dstbpp = dstfmt->BytesPerPixel;
+    Uint8           dR, dG, dB, dA, sR, sG, sB, sA;
+    Uint32          pixel;
+
+    if (srcbpp == 4 && dstbpp == 4)
+    {
+        while (height--)
+        {
+            LOOP_UNROLLED4(
+            {
+                GET_RGB_VALS ((*(Uint32*)src), srcfmt, sR, sG, sB, sA);
+                GET_RGB_VALS ((*(Uint32*)dst), dstfmt, dR, dG, dB, dA);
+                D_BLEND_RGBA_SCREEN (sR, sG, sB, sA, dR, dG, dB, dA);
+                CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
+                src += srcbpp;
+                dst += dstbpp;
+            }, n, width);
+            src += srcskip;
+            dst += dstskip;
+        }
+        return;
+    }
+
+    if (srcbpp == 1)
+    {
+        if (dstbpp == 1)
+        {
+            while (height--)
+            {
+                LOOP_UNROLLED4(
+                {
+                    GET_PALETTE_VALS(src, srcfmt, sR, sG, sB, sA);
+                    GET_PALETTE_VALS(dst, dstfmt, dR, dG, dB, dA);
+                    D_BLEND_RGBA_SCREEN (sR, sG, sB, sA, dR, dG, dB, dA);
+                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
+                    src += srcbpp;
+                    dst += dstbpp;
+                }, n, width);
+                src += srcskip;
+                dst += dstskip;
+            }
+        }
+        else /* dstbpp > 1 */
+        {
+            while (height--)
+            {
+                LOOP_UNROLLED4(
+                {
+                    GET_PALETTE_VALS(src, srcfmt, sR, sG, sB, sA);
+                    GET_PIXEL (pixel, dstbpp, dst);
+                    GET_RGB_VALS (pixel, dstfmt, dR, dG, dB, dA);
+                    D_BLEND_RGBA_SCREEN (sR, sG, sB, sA, dR, dG, dB, dA);
+                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
+                    src += srcbpp;
+                    dst += dstbpp;
+                }, n, width);
+                src += srcskip;
+                dst += dstskip;
+            }
+        }
+    }
+    else /* srcbpp > 1 */
+    {
+        if (dstbpp == 1)
+        {
+            while (height--)
+            {
+                LOOP_UNROLLED4(
+                {
+                    GET_PIXEL(pixel, srcbpp, src);
+                    GET_RGB_VALS (pixel, srcfmt, sR, sG, sB, sA);
+                    GET_PALETTE_VALS(dst, dstfmt, dR, dG, dB, dA);
+                    D_BLEND_RGBA_SCREEN (sR, sG, sB, sA, dR, dG, dB, dA);
+                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
+                    src += srcbpp;
+                    dst += dstbpp;
+                }, n, width);
+                src += srcskip;
+                dst += dstskip;
+            }
+
+        }
+        else /* dstbpp > 1 */
+        {
+            while (height--)
+            {
+                LOOP_UNROLLED4(
+                {
+                    GET_PIXEL(pixel, srcbpp, src);
+                    GET_RGB_VALS (pixel, srcfmt, sR, sG, sB, sA);
+                    GET_PIXEL (pixel, dstbpp, dst);
+                    GET_RGB_VALS (pixel, dstfmt, dR, dG, dB, dA);
+                    D_BLEND_RGBA_SCREEN (sR, sG, sB, sA, dR, dG, dB, dA);
+                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
+                    src += srcbpp;
+                    dst += dstbpp;
+                }, n, width);
+                src += srcskip;
+                dst += dstskip;
+            }
+        }
+    }
+}
+
+void
+blit_blend_rgba_avg (SDL_BlitInfo * info)
+{
+    int             n;
+    int             width = info->d_width;
+    int             height = info->d_height;
+    Uint8          *src = info->s_pixels;
+    int             srcskip = info->s_skip;
+    Uint8          *dst = info->d_pixels;
+    int             dstskip = info->d_skip;
+    SDL_PixelFormat *srcfmt = info->src;
+    SDL_PixelFormat *dstfmt = info->dst;
+    int             srcbpp = srcfmt->BytesPerPixel;
+    int             dstbpp = dstfmt->BytesPerPixel;
+    Uint8           dR, dG, dB, dA, sR, sG, sB, sA;
+    Uint32          pixel;
+
+    if (srcbpp == 4 && dstbpp == 4)
+    {
+        while (height--)
+        {
+            LOOP_UNROLLED4(
+            {
+                GET_RGB_VALS ((*(Uint32*)src), srcfmt, sR, sG, sB, sA);
+                GET_RGB_VALS ((*(Uint32*)dst), dstfmt, dR, dG, dB, dA);
+                D_BLEND_RGBA_AVG (sR, sG, sB, sA, dR, dG, dB, dA);
+                CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
+                src += srcbpp;
+                dst += dstbpp;
+            }, n, width);
+            src += srcskip;
+            dst += dstskip;
+        }
+        return;
+    }
+
+    if (srcbpp == 1)
+    {
+        if (dstbpp == 1)
+        {
+            while (height--)
+            {
+                LOOP_UNROLLED4(
+                {
+                    GET_PALETTE_VALS(src, srcfmt, sR, sG, sB, sA);
+                    GET_PALETTE_VALS(dst, dstfmt, dR, dG, dB, dA);
+                    D_BLEND_RGBA_AVG (sR, sG, sB, sA, dR, dG, dB, dA);
+                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
+                    src += srcbpp;
+                    dst += dstbpp;
+                }, n, width);
+                src += srcskip;
+                dst += dstskip;
+            }
+        }
+        else /* dstbpp > 1 */
+        {
+            while (height--)
+            {
+                LOOP_UNROLLED4(
+                {
+                    GET_PALETTE_VALS(src, srcfmt, sR, sG, sB, sA);
+                    GET_PIXEL (pixel, dstbpp, dst);
+                    GET_RGB_VALS (pixel, dstfmt, dR, dG, dB, dA);
+                    D_BLEND_RGBA_AVG (sR, sG, sB, sA, dR, dG, dB, dA);
+                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
+                    src += srcbpp;
+                    dst += dstbpp;
+                }, n, width);
+                src += srcskip;
+                dst += dstskip;
+            }
+        }
+    }
+    else /* srcbpp > 1 */
+    {
+        if (dstbpp == 1)
+        {
+            while (height--)
+            {
+                LOOP_UNROLLED4(
+                {
+                    GET_PIXEL(pixel, srcbpp, src);
+                    GET_RGB_VALS (pixel, srcfmt, sR, sG, sB, sA);
+                    GET_PALETTE_VALS(dst, dstfmt, dR, dG, dB, dA);
+                    D_BLEND_RGBA_AVG (sR, sG, sB, sA, dR, dG, dB, dA);
+                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
+                    src += srcbpp;
+                    dst += dstbpp;
+                }, n, width);
+                src += srcskip;
+                dst += dstskip;
+            }
+
+        }
+        else /* dstbpp > 1 */
+        {
+            while (height--)
+            {
+                LOOP_UNROLLED4(
+                {
+                    GET_PIXEL(pixel, srcbpp, src);
+                    GET_RGB_VALS (pixel, srcfmt, sR, sG, sB, sA);
+                    GET_PIXEL (pixel, dstbpp, dst);
+                    GET_RGB_VALS (pixel, dstfmt, dR, dG, dB, dA);
+                    D_BLEND_RGBA_AVG (sR, sG, sB, sA, dR, dG, dB, dA);
+                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
+                    src += srcbpp;
+                    dst += dstbpp;
+                }, n, width);
+                src += srcskip;
+                dst += dstskip;
+            }
+        }
+    }
+}

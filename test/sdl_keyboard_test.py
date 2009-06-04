@@ -49,15 +49,15 @@ class SDLKeyboardTest (unittest.TestCase):
         # keyboard events, the *unicode* member of the event will be
         # filled with the corresponding unicode character.
         video.init ()
-        self.assert_ (keyboard.enable_unicode () == True)
-        self.assert_ (keyboard.enable_unicode (True) == True)
-        self.assert_ (keyboard.enable_unicode (False) == True)
-        self.assert_ (keyboard.enable_unicode (True) == False)
-        self.assert_ (keyboard.enable_unicode (True) == True)
-        self.assert_ (keyboard.enable_unicode () == True)
-        self.assert_ (keyboard.enable_unicode (False) == True)
-        self.assert_ (keyboard.enable_unicode (False) == False)
-        self.assert_ (keyboard.enable_unicode () == False)
+        self.assertEqual (keyboard.enable_unicode (), True)
+        self.assertEqual (keyboard.enable_unicode (True), True)
+        self.assertEqual (keyboard.enable_unicode (False), True)
+        self.assertEqual (keyboard.enable_unicode (True), False)
+        self.assertEqual (keyboard.enable_unicode (True), True)
+        self.assertEqual (keyboard.enable_unicode (), True)
+        self.assertEqual (keyboard.enable_unicode (False), True)
+        self.assertEqual (keyboard.enable_unicode (False), False)
+        self.assertEqual (keyboard.enable_unicode (), False)
         video.quit ()
         
     def test_pygame2_sdl_keyboard_get_key_name(self):
@@ -68,13 +68,13 @@ class SDLKeyboardTest (unittest.TestCase):
         # 
         # Get the descriptive name for a key constant.
         video.init ()
-        self.assert_ (keyboard.get_key_name (constants.K_a) == 'a')
-        self.assert_ (keyboard.get_key_name (constants.K_b) == 'b')
-        self.assert_ (keyboard.get_key_name (constants.K_q) == 'q')
-        self.assert_ (keyboard.get_key_name (constants.K_LEFT) == 'left')
-        self.assert_ (keyboard.get_key_name (constants.K_PAGEUP) == 'page up')
-        self.assert_ (keyboard.get_key_name (constants.K_KP4) == '[4]')
-        self.assert_ (keyboard.get_key_name (constants.K_4) == '4')
+        self.assertEqual (keyboard.get_key_name (constants.K_a), 'a')
+        self.assertEqual (keyboard.get_key_name (constants.K_b), 'b')
+        self.assertEqual (keyboard.get_key_name (constants.K_q), 'q')
+        self.assertEqual (keyboard.get_key_name (constants.K_LEFT), 'left')
+        self.assertEqual (keyboard.get_key_name (constants.K_PAGEUP), 'page up')
+        self.assertEqual (keyboard.get_key_name (constants.K_KP4), '[4]')
+        self.assertEqual (keyboard.get_key_name (constants.K_4), '4')
         video.quit ()
 
     def todo_test_pygame2_sdl_keyboard_get_mod_state(self):
@@ -102,15 +102,15 @@ class SDLKeyboardTest (unittest.TestCase):
         # Gets the currently set keyboard repeat delay and interval.
         video.init ()
         keyboard.enable_repeat (0, 0)
-        self.assert_ (keyboard.get_repeat () == (0, 0))
+        self.assertEqual (keyboard.get_repeat (), (0, 0))
         keyboard.enable_repeat (10, 10)
-        self.assert_ (keyboard.get_repeat () == (10, 10))
+        self.assertEqual (keyboard.get_repeat (), (10, 10))
         keyboard.enable_repeat (5, 2)
-        self.assert_ (keyboard.get_repeat () == (5, 2))
+        self.assertEqual (keyboard.get_repeat (), (5, 2))
         keyboard.enable_repeat (0, 5)
-        self.assert_ (keyboard.get_repeat () == (0, 5))
+        self.assertEqual (keyboard.get_repeat (), (0, 5))
         keyboard.enable_repeat (7, 0)
-        self.assert_ (keyboard.get_repeat () == (7, 0))
+        self.assertEqual (keyboard.get_repeat (), (7, 0))
         video.quit ()
 
     def test_pygame2_sdl_keyboard_get_state(self):

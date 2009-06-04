@@ -15,13 +15,13 @@ all: help
 
 rst: clean
 	@$(PYTHON) create_rstref.py
-	-cp -f BuildDarwin.txt builddarwin.rst
-	-cp -f BuildMinGW.txt buildmingw.rst
-	-cp -f BuildVC.txt buildvc.rst
-	-cp -f BuildUnix.txt buildunix.rst
-	-cp -f MODULES.txt newmodules.rst
-	-cp -f MODULE_FAQ.txt module_faq.rst
-	-cp -f ../NEWS.txt news.rst
+	@cp -f BuildDarwin.txt builddarwin.rst
+	@cp -f BuildMinGW.txt buildmingw.rst
+	@cp -f BuildVC.txt buildvc.rst
+	@cp -f BuildUnix.txt buildunix.rst
+	@cp -f MODULES.txt newmodules.rst
+	@cp -f MODULE_FAQ.txt module_faq.rst
+	@cp -f ../NEWS.txt news.rst
 
 help:
 	@echo "Please use \`make <target>' where <target> is one of"
@@ -34,13 +34,13 @@ help:
 	@echo "  linkcheck to check all external links for integrity"
 
 docclean:
-	-rm -rf sphinx/build *~ *.pyc *.orig ref/pygame2_*
-	-rm -f ref/pygame2.rst
-	-rm -f builddarwin.rst buildmingw.rst buildunix.rst buildvc.rst
-	-rm -f newmodules.rst module_faq.rst news.rst
+	@rm -rf sphinx/build *~ *.pyc *.orig ref/pygame2_*
+	@rm -f ref/pygame2.rst ref/*~ ref/*.pyc ref/*.orig
+	@rm -f builddarwin.rst buildmingw.rst buildunix.rst buildvc.rst
+	@rm -f newmodules.rst module_faq.rst news.rst
 
 clean: docclean
-	-rm -rf html
+	@rm -rf html
 
 html: rst
 	mkdir -p sphinx/build/html sphinx/build/doctrees

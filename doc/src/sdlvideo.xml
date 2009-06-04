@@ -222,6 +222,18 @@
         +---------------------------+-----------------------------------------+
         | Blend type                | Effect                                  |
         +===========================+=========================================+
+        | BLEND_RGB_AND             | The bitwise AND combination of both     |
+        |                           | pixel values will beset as resulting    |
+        |                           | pixel.                                  |
+        +---------------------------+-----------------------------------------+
+        | BLEND_RGB_OR              | The bitwise OR combination of both      |
+        |                           | pixel values will beset as resulting    |
+        |                           | pixel.                                  |
+        +---------------------------+-----------------------------------------+
+        | BLEND_RGB_XOR             | The bitwise XOR combination of both     |
+        |                           | pixel values will beset as resulting    |
+        |                           | pixel.                                  |
+        +---------------------------+-----------------------------------------+
         | BLEND_RGBA_ADD            | The sum of both pixel values will be    |
         |                           | set as resulting pixel.                 |
         +---------------------------+-----------------------------------------+
@@ -237,6 +249,15 @@
         |                           | result.                                 |
         +---------------------------+-----------------------------------------+
         | BLEND_RGBA_MULT           | The result of a multiplication of both  |
+        |                           | pixel values will be used.              |
+        +---------------------------+-----------------------------------------+
+        | BLEND_RGB_DIFF            | The real difference of both pixel       |
+        |                           | values will be used.                    |
+        +---------------------------+-----------------------------------------+
+        | BLEND_RGB_SCREEN          | The opposite of the BLEND_RGB_MULT      |
+        |                           | mode. TODO                              |
+        +---------------------------+-----------------------------------------+
+        | BLEND_RGB_AVG             | The average of an addition of both      |
         |                           | pixel values will be used.              |
         +---------------------------+-----------------------------------------+
       </desc>
@@ -324,7 +345,12 @@
     </method>
     <method name="get_palette">
       <call>get_palette () -> (Color, Color, ...)</call>
-      <desc></desc>
+      <desc>
+        Gets the palette colors used by the Surface.
+        
+        Gets the palette colors used by the Surface or None, if the Surface
+        does not use any palette.
+      </desc>
     </method>
     <attr name="h"><desc>Gets the height of the Surface.</desc></attr>
     <attr name="height"><desc>Gets the height of the Surface.</desc></attr>
@@ -404,7 +430,9 @@
       <desc>
         Adjusts the colorkey of the Surface.
         
-        TODO
+        Sets the colorkey of the Surface to the passed value. if *flags* is
+        omitted, SRCCOLORKEY will be used, if *flags* is set to 0, the colorkey
+        will be reset, TODO.
       </desc>
     </method>
     <method name="set_colors">

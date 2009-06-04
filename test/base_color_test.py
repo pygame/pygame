@@ -152,22 +152,22 @@ class ColorTest (unittest.TestCase):
 
     def test_color (self):
         c = Color (10, 20, 30, 40)
-        self.assertEquals (c.r, 10)
-        self.assertEquals (c.g, 20)
-        self.assertEquals (c.b, 30)
-        self.assertEquals (c.a, 40)
+        self.assertEqual (c.r, 10)
+        self.assertEqual (c.g, 20)
+        self.assertEqual (c.b, 30)
+        self.assertEqual (c.a, 40)
 
         c = Color ("indianred3")
-        self.assertEquals (c.r, 205)
-        self.assertEquals (c.g, 85)
-        self.assertEquals (c.b, 85)
-        self.assertEquals (c.a, 255)
+        self.assertEqual (c.r, 205)
+        self.assertEqual (c.g, 85)
+        self.assertEqual (c.b, 85)
+        self.assertEqual (c.a, 255)
 
         c = Color (0xDDAABBCC)
-        self.assertEquals (c.r, 0xAA)
-        self.assertEquals (c.g, 0xBB)
-        self.assertEquals (c.b, 0xCC)
-        self.assertEquals (c.a, 0xDD)
+        self.assertEqual (c.r, 0xAA)
+        self.assertEqual (c.g, 0xBB)
+        self.assertEqual (c.b, 0xCC)
+        self.assertEqual (c.a, 0xDD)
 
         self.assertRaises (ValueError, Color, 257, 10, 105, 44)
         self.assertRaises (ValueError, Color, 10, 257, 105, 44)
@@ -176,237 +176,237 @@ class ColorTest (unittest.TestCase):
         
     def test_rgba (self):
         c = Color (0)
-        self.assertEquals (c.r, 0)
-        self.assertEquals (c.g, 0)
-        self.assertEquals (c.b, 0)
-        self.assertEquals (c.a, 0)
+        self.assertEqual (c.r, 0)
+        self.assertEqual (c.g, 0)
+        self.assertEqual (c.b, 0)
+        self.assertEqual (c.a, 0)
 
         # Test simple assignments
         c.r = 123
-        self.assertEquals (c.r, 123)
+        self.assertEqual (c.r, 123)
         self.assertRaises (ValueError, _assignr, c, 537)
-        self.assertEquals (c.r, 123)
+        self.assertEqual (c.r, 123)
         self.assertRaises (ValueError, _assignr, c, -3)
-        self.assertEquals (c.r, 123)
+        self.assertEqual (c.r, 123)
 
         c.g = 55
-        self.assertEquals (c.g, 55)
+        self.assertEqual (c.g, 55)
         self.assertRaises (ValueError, _assigng, c, 348)
-        self.assertEquals (c.g, 55)
+        self.assertEqual (c.g, 55)
         self.assertRaises (ValueError, _assigng, c, -44)
-        self.assertEquals (c.g, 55)
+        self.assertEqual (c.g, 55)
 
         c.b = 77
-        self.assertEquals (c.b, 77)
+        self.assertEqual (c.b, 77)
         self.assertRaises (ValueError, _assignb, c, 256)
-        self.assertEquals (c.b, 77)
+        self.assertEqual (c.b, 77)
         self.assertRaises (ValueError, _assignb, c, -12)
-        self.assertEquals (c.b, 77)
+        self.assertEqual (c.b, 77)
 
         c.a = 255
-        self.assertEquals (c.a, 255)
+        self.assertEqual (c.a, 255)
         self.assertRaises (ValueError, _assigna, c, 312)
-        self.assertEquals (c.a, 255)
+        self.assertEqual (c.a, 255)
         self.assertRaises (ValueError, _assigna, c, -10)
-        self.assertEquals (c.a, 255)
+        self.assertEqual (c.a, 255)
 
     def test_repr (self):
         c = Color (68, 38, 26, 69)
         t = "(68, 38, 26, 69)"
-        self.assertEquals (repr (c), t)
+        self.assertEqual (repr (c), t)
 
     def test_add (self):
         c1 = Color (0)
-        self.assertEquals (c1.r, 0)
-        self.assertEquals (c1.g, 0)
-        self.assertEquals (c1.b, 0)
-        self.assertEquals (c1.a, 0)
+        self.assertEqual (c1.r, 0)
+        self.assertEqual (c1.g, 0)
+        self.assertEqual (c1.b, 0)
+        self.assertEqual (c1.a, 0)
 
         c2 = Color (20, 33, 82, 193)
-        self.assertEquals (c2.r, 20)
-        self.assertEquals (c2.g, 33)
-        self.assertEquals (c2.b, 82)
-        self.assertEquals (c2.a, 193)
+        self.assertEqual (c2.r, 20)
+        self.assertEqual (c2.g, 33)
+        self.assertEqual (c2.b, 82)
+        self.assertEqual (c2.a, 193)
 
         c3 = c1 + c2
-        self.assertEquals (c3.r, 20)
-        self.assertEquals (c3.g, 33)
-        self.assertEquals (c3.b, 82)
-        self.assertEquals (c3.a, 193)
+        self.assertEqual (c3.r, 20)
+        self.assertEqual (c3.g, 33)
+        self.assertEqual (c3.b, 82)
+        self.assertEqual (c3.a, 193)
 
         c3 = c3 + c2
-        self.assertEquals (c3.r, 40)
-        self.assertEquals (c3.g, 66)
-        self.assertEquals (c3.b, 164)
-        self.assertEquals (c3.a, 255)
+        self.assertEqual (c3.r, 40)
+        self.assertEqual (c3.g, 66)
+        self.assertEqual (c3.b, 164)
+        self.assertEqual (c3.a, 255)
     
     def test_sub (self):
         c1 = Color (0xFFFFFFFF)
-        self.assertEquals (c1.r, 255)
-        self.assertEquals (c1.g, 255)
-        self.assertEquals (c1.b, 255)
-        self.assertEquals (c1.a, 255)
+        self.assertEqual (c1.r, 255)
+        self.assertEqual (c1.g, 255)
+        self.assertEqual (c1.b, 255)
+        self.assertEqual (c1.a, 255)
 
         c2 = Color (20, 33, 82, 193)
-        self.assertEquals (c2.r, 20)
-        self.assertEquals (c2.g, 33)
-        self.assertEquals (c2.b, 82)
-        self.assertEquals (c2.a, 193)
+        self.assertEqual (c2.r, 20)
+        self.assertEqual (c2.g, 33)
+        self.assertEqual (c2.b, 82)
+        self.assertEqual (c2.a, 193)
 
         c3 = c1 - c2
-        self.assertEquals (c3.r, 235)
-        self.assertEquals (c3.g, 222)
-        self.assertEquals (c3.b, 173)
-        self.assertEquals (c3.a, 62)
+        self.assertEqual (c3.r, 235)
+        self.assertEqual (c3.g, 222)
+        self.assertEqual (c3.b, 173)
+        self.assertEqual (c3.a, 62)
 
         c3 = c3 - c2
-        self.assertEquals (c3.r, 215)
-        self.assertEquals (c3.g, 189)
-        self.assertEquals (c3.b, 91)
-        self.assertEquals (c3.a, 0)
+        self.assertEqual (c3.r, 215)
+        self.assertEqual (c3.g, 189)
+        self.assertEqual (c3.b, 91)
+        self.assertEqual (c3.a, 0)
     
     def test_mul (self):
         c1 = Color (0x01010101)
-        self.assertEquals (c1.r, 1)
-        self.assertEquals (c1.g, 1)
-        self.assertEquals (c1.b, 1)
-        self.assertEquals (c1.a, 1)
+        self.assertEqual (c1.r, 1)
+        self.assertEqual (c1.g, 1)
+        self.assertEqual (c1.b, 1)
+        self.assertEqual (c1.a, 1)
 
         c2 = Color (2, 5, 3, 22)
-        self.assertEquals (c2.r, 2)
-        self.assertEquals (c2.g, 5)
-        self.assertEquals (c2.b, 3)
-        self.assertEquals (c2.a, 22)
+        self.assertEqual (c2.r, 2)
+        self.assertEqual (c2.g, 5)
+        self.assertEqual (c2.b, 3)
+        self.assertEqual (c2.a, 22)
 
         c3 = c1 * c2
-        self.assertEquals (c3.r, 2)
-        self.assertEquals (c3.g, 5)
-        self.assertEquals (c3.b, 3)
-        self.assertEquals (c3.a, 22)
+        self.assertEqual (c3.r, 2)
+        self.assertEqual (c3.g, 5)
+        self.assertEqual (c3.b, 3)
+        self.assertEqual (c3.a, 22)
 
         c3 = c3 * c2
-        self.assertEquals (c3.r, 4)
-        self.assertEquals (c3.g, 25)
-        self.assertEquals (c3.b, 9)
-        self.assertEquals (c3.a, 255)
+        self.assertEqual (c3.r, 4)
+        self.assertEqual (c3.g, 25)
+        self.assertEqual (c3.b, 9)
+        self.assertEqual (c3.a, 255)
 
     def test_div (self):
         c1 = Color (0x80808080)
-        self.assertEquals (c1.r, 128)
-        self.assertEquals (c1.g, 128)
-        self.assertEquals (c1.b, 128)
-        self.assertEquals (c1.a, 128)
+        self.assertEqual (c1.r, 128)
+        self.assertEqual (c1.g, 128)
+        self.assertEqual (c1.b, 128)
+        self.assertEqual (c1.a, 128)
 
         c2 = Color (2, 4, 8, 16)
-        self.assertEquals (c2.r, 2)
-        self.assertEquals (c2.g, 4)
-        self.assertEquals (c2.b, 8)
-        self.assertEquals (c2.a, 16)
+        self.assertEqual (c2.r, 2)
+        self.assertEqual (c2.g, 4)
+        self.assertEqual (c2.b, 8)
+        self.assertEqual (c2.a, 16)
 
         c3 = c1 / c2
-        self.assertEquals (c3.r, 64)
-        self.assertEquals (c3.g, 32)
-        self.assertEquals (c3.b, 16)
-        self.assertEquals (c3.a, 8)
+        self.assertEqual (c3.r, 64)
+        self.assertEqual (c3.g, 32)
+        self.assertEqual (c3.b, 16)
+        self.assertEqual (c3.a, 8)
 
         c3 = c3 / c2
-        self.assertEquals (c3.r, 32)
-        self.assertEquals (c3.g, 8)
-        self.assertEquals (c3.b, 2)
-        self.assertEquals (c3.a, 0)
+        self.assertEqual (c3.r, 32)
+        self.assertEqual (c3.g, 8)
+        self.assertEqual (c3.b, 2)
+        self.assertEqual (c3.a, 0)
     
     def test_mod (self):
         c1 = Color (0xFFFFFFFF)
-        self.assertEquals (c1.r, 255)
-        self.assertEquals (c1.g, 255)
-        self.assertEquals (c1.b, 255)
-        self.assertEquals (c1.a, 255)
+        self.assertEqual (c1.r, 255)
+        self.assertEqual (c1.g, 255)
+        self.assertEqual (c1.b, 255)
+        self.assertEqual (c1.a, 255)
 
         c2 = Color (2, 4, 8, 16)
-        self.assertEquals (c2.r, 2)
-        self.assertEquals (c2.g, 4)
-        self.assertEquals (c2.b, 8)
-        self.assertEquals (c2.a, 16)
+        self.assertEqual (c2.r, 2)
+        self.assertEqual (c2.g, 4)
+        self.assertEqual (c2.b, 8)
+        self.assertEqual (c2.a, 16)
 
         c3 = c1 % c2
-        self.assertEquals (c3.r, 1)
-        self.assertEquals (c3.g, 3)
-        self.assertEquals (c3.b, 7)
-        self.assertEquals (c3.a, 15)
+        self.assertEqual (c3.r, 1)
+        self.assertEqual (c3.g, 3)
+        self.assertEqual (c3.b, 7)
+        self.assertEqual (c3.a, 15)
 
     def test_float (self):
         c = Color (0xCC00CC00)
-        self.assertEquals (c.r, 0)
-        self.assertEquals (c.g, 204)
-        self.assertEquals (c.b, 0)
-        self.assertEquals (c.a, 204)
-        self.assertEquals (float (c), float (0xCC00CC00))
+        self.assertEqual (c.r, 0)
+        self.assertEqual (c.g, 204)
+        self.assertEqual (c.b, 0)
+        self.assertEqual (c.a, 204)
+        self.assertEqual (float (c), float (0xCC00CC00))
 
         c = Color (0x33727592)
-        self.assertEquals (c.r, 114)
-        self.assertEquals (c.g, 117)
-        self.assertEquals (c.b, 146)
-        self.assertEquals (c.a, 51)
-        self.assertEquals (float (c), float (0x33727592))
+        self.assertEqual (c.r, 114)
+        self.assertEqual (c.g, 117)
+        self.assertEqual (c.b, 146)
+        self.assertEqual (c.a, 51)
+        self.assertEqual (float (c), float (0x33727592))
 
     def test_oct (self):
         c = Color (0xCC00CC00)
-        self.assertEquals (c.r, 0)
-        self.assertEquals (c.g, 204)
-        self.assertEquals (c.b, 0)
-        self.assertEquals (c.a, 204)
-        self.assertEquals (oct (c), oct (0xCC00CC00))
+        self.assertEqual (c.r, 0)
+        self.assertEqual (c.g, 204)
+        self.assertEqual (c.b, 0)
+        self.assertEqual (c.a, 204)
+        self.assertEqual (oct (c), oct (0xCC00CC00))
 
         c = Color (0x33727592)
-        self.assertEquals (c.r, 114)
-        self.assertEquals (c.g, 117)
-        self.assertEquals (c.b, 146)
-        self.assertEquals (c.a, 51)
-        self.assertEquals (oct (c), oct (0x33727592))
+        self.assertEqual (c.r, 114)
+        self.assertEqual (c.g, 117)
+        self.assertEqual (c.b, 146)
+        self.assertEqual (c.a, 51)
+        self.assertEqual (oct (c), oct (0x33727592))
 
     def test_hex (self):
         c = Color (0xCC00CC00)
-        self.assertEquals (c.r, 0)
-        self.assertEquals (c.g, 204)
-        self.assertEquals (c.b, 0)
-        self.assertEquals (c.a, 204)
-        self.assertEquals (hex (c), hex (0xCC00CC00))
+        self.assertEqual (c.r, 0)
+        self.assertEqual (c.g, 204)
+        self.assertEqual (c.b, 0)
+        self.assertEqual (c.a, 204)
+        self.assertEqual (hex (c), hex (0xCC00CC00))
 
         c = Color (0x33727592)
-        self.assertEquals (c.r, 114)
-        self.assertEquals (c.g, 117)
-        self.assertEquals (c.b, 146)
-        self.assertEquals (c.a, 51)
-        self.assertEquals (hex (c), hex (0x33727592))
+        self.assertEqual (c.r, 114)
+        self.assertEqual (c.g, 117)
+        self.assertEqual (c.b, 146)
+        self.assertEqual (c.a, 51)
+        self.assertEqual (hex (c), hex (0x33727592))
 
     def test_webstyle(self):
         c = Color ("#CC00CC11")
-        self.assertEquals (c.r, 204)
-        self.assertEquals (c.g, 0)
-        self.assertEquals (c.b, 204)
-        self.assertEquals (c.a, 17)
-        self.assertEquals (hex (c), hex (0x11CC00CC))
+        self.assertEqual (c.r, 204)
+        self.assertEqual (c.g, 0)
+        self.assertEqual (c.b, 204)
+        self.assertEqual (c.a, 17)
+        self.assertEqual (hex (c), hex (0x11CC00CC))
 
         c = Color ("#CC00CC")
-        self.assertEquals (c.r, 204)
-        self.assertEquals (c.g, 0)
-        self.assertEquals (c.b, 204)
-        self.assertEquals (c.a, 255)
-        self.assertEquals (hex (c), hex (0xFFCC00CC))
+        self.assertEqual (c.r, 204)
+        self.assertEqual (c.g, 0)
+        self.assertEqual (c.b, 204)
+        self.assertEqual (c.a, 255)
+        self.assertEqual (hex (c), hex (0xFFCC00CC))
 
         c = Color ("0xCC00CC11")
-        self.assertEquals (c.r, 204)
-        self.assertEquals (c.g, 0)
-        self.assertEquals (c.b, 204)
-        self.assertEquals (c.a, 17)
-        self.assertEquals (hex (c), hex (0x11CC00CC))
+        self.assertEqual (c.r, 204)
+        self.assertEqual (c.g, 0)
+        self.assertEqual (c.b, 204)
+        self.assertEqual (c.a, 17)
+        self.assertEqual (hex (c), hex (0x11CC00CC))
 
         c = Color ("0xCC00CC")
-        self.assertEquals (c.r, 204)
-        self.assertEquals (c.g, 0)
-        self.assertEquals (c.b, 204)
-        self.assertEquals (c.a, 255)
-        self.assertEquals (hex (c), hex (0xFFCC00CC))
+        self.assertEqual (c.r, 204)
+        self.assertEqual (c.g, 0)
+        self.assertEqual (c.b, 204)
+        self.assertEqual (c.a, 255)
+        self.assertEqual (hex (c), hex (0xFFCC00CC))
 
         self.assertRaises (ValueError, Color, "#cc00qq")
         self.assertRaises (ValueError, Color, "0xcc00qq")
@@ -418,43 +418,43 @@ class ColorTest (unittest.TestCase):
     def test_int (self):
         # This will be a long
         c = Color (0xCC00CC00)
-        self.assertEquals (c.r, 0)
-        self.assertEquals (c.g, 204)
-        self.assertEquals (c.b, 0)
-        self.assertEquals (c.a, 204)
-        self.assertEquals (int (c), int (0xCC00CC00))
+        self.assertEqual (c.r, 0)
+        self.assertEqual (c.g, 204)
+        self.assertEqual (c.b, 0)
+        self.assertEqual (c.a, 204)
+        self.assertEqual (int (c), int (0xCC00CC00))
 
         # This will be an int
         c = Color (0x33727592)
-        self.assertEquals (c.r, 114)
-        self.assertEquals (c.g, 117)
-        self.assertEquals (c.b, 146)
-        self.assertEquals (c.a, 51)
-        self.assertEquals (int (c), int (0x33727592))
+        self.assertEqual (c.r, 114)
+        self.assertEqual (c.g, 117)
+        self.assertEqual (c.b, 146)
+        self.assertEqual (c.a, 51)
+        self.assertEqual (int (c), int (0x33727592))
 
     def test_long (self):
         # This will be a long
         c = Color (0xCC00CC00)
-        self.assertEquals (c.r, 0)
-        self.assertEquals (c.g, 204)
-        self.assertEquals (c.b, 0)
-        self.assertEquals (c.a, 204)
-        self.assertEquals (long (c), long (0xCC00CC00))
+        self.assertEqual (c.r, 0)
+        self.assertEqual (c.g, 204)
+        self.assertEqual (c.b, 0)
+        self.assertEqual (c.a, 204)
+        self.assertEqual (long (c), long (0xCC00CC00))
 
         # This will be an int
         c = Color (0x33727592)
-        self.assertEquals (c.r, 114)
-        self.assertEquals (c.g, 117)
-        self.assertEquals (c.b, 146)
-        self.assertEquals (c.a, 51)
-        self.assertEquals (long (c), long (0x33727592))
+        self.assertEqual (c.r, 114)
+        self.assertEqual (c.g, 117)
+        self.assertEqual (c.b, 146)
+        self.assertEqual (c.a, 51)
+        self.assertEqual (long (c), long (0x33727592))
 
     def test_normalize (self):
         c = Color (204, 38, 194, 55)
-        self.assertEquals (c.r, 204)
-        self.assertEquals (c.g, 38)
-        self.assertEquals (c.b, 194)
-        self.assertEquals (c.a, 55)
+        self.assertEqual (c.r, 204)
+        self.assertEqual (c.g, 38)
+        self.assertEqual (c.b, 194)
+        self.assertEqual (c.a, 55)
 
         t = c.normalize ()
 
@@ -465,36 +465,36 @@ class ColorTest (unittest.TestCase):
 
     def test_len (self):
         c = Color (204, 38, 194, 55)
-        self.assertEquals (len (c), 4)
+        self.assertEqual (len (c), 4)
 
     def test_get_item (self):
         c = Color (204, 38, 194, 55)
-        self.assertEquals (c[0], 204)
-        self.assertEquals (c[1], 38)
-        self.assertEquals (c[2], 194)
-        self.assertEquals (c[3], 55)
+        self.assertEqual (c[0], 204)
+        self.assertEqual (c[1], 38)
+        self.assertEqual (c[2], 194)
+        self.assertEqual (c[3], 55)
 
     def test_set_item (self):
         c = Color (204, 38, 194, 55)
-        self.assertEquals (c[0], 204)
-        self.assertEquals (c[1], 38)
-        self.assertEquals (c[2], 194)
-        self.assertEquals (c[3], 55)
+        self.assertEqual (c[0], 204)
+        self.assertEqual (c[1], 38)
+        self.assertEqual (c[2], 194)
+        self.assertEqual (c[3], 55)
 
         c[0] = 33
-        self.assertEquals (c[0], 33)
+        self.assertEqual (c[0], 33)
         c[1] = 48
-        self.assertEquals (c[1], 48)
+        self.assertEqual (c[1], 48)
         c[2] = 173
-        self.assertEquals (c[2], 173)
+        self.assertEqual (c[2], 173)
         c[3] = 213
-        self.assertEquals (c[3], 213)
+        self.assertEqual (c[3], 213)
 
         # Now try some 'invalid' ones
         self.assertRaises (ValueError, _assign_item, c, 1, -83)
-        self.assertEquals (c[1], 48)
+        self.assertEqual (c[1], 48)
         self.assertRaises (TypeError, _assign_item, c, 2, "Hello")
-        self.assertEquals (c[2], 173)
+        self.assertEqual (c[2], 173)
 
 ########## HSLA, HSVA, CMY, I1I2I3 ALL ELEMENTS WITHIN SPECIFIED RANGE #########
 
@@ -547,7 +547,7 @@ class ColorTest (unittest.TestCase):
                 fails += 1
 
         self.assert_(x > 0, "x is combination counter, 0 means no tests!")
-        self.assert_((fails, x) == (0, x))
+        self.assertEqual((fails, x), (0, x))
 
     def test_hsla__sanity_testing_converted_should_not_raise (self):
         self.colorspaces_converted_should_not_raise('hsla')
@@ -624,33 +624,33 @@ class ColorTest (unittest.TestCase):
 
         # Gets or sets the alpha value of the Color.
         c = Color (100, 100, 100)
-        self.assertEquals (c.a, 255)
+        self.assertEqual (c.a, 255)
         
         c = Color (100, 100, 100, 100)
-        self.assertEquals (c.a, 100)
+        self.assertEqual (c.a, 100)
         
         c = Color (100, 100, 100)
-        self.assertEquals (c.a, 255)
+        self.assertEqual (c.a, 255)
         c.a = 200
-        self.assertEquals (c.a, 200)
+        self.assertEqual (c.a, 200)
         c.a += 22
-        self.assertEquals (c.a, 222)
+        self.assertEqual (c.a, 222)
         
         c = Color (0xAABBCCDD)
-        self.assertEquals (c.a, 0xAA)
+        self.assertEqual (c.a, 0xAA)
         
         c = Color ("0xBBCCDD")
-        self.assertEquals (c.a, 0xFF)
+        self.assertEqual (c.a, 0xFF)
         c = Color ("0xAABBCCDD")
-        self.assertEquals (c.a, 0xDD)
+        self.assertEqual (c.a, 0xDD)
         
         c = Color ("#AABBCCDD")
-        self.assertEquals (c.a, 0xDD)
+        self.assertEqual (c.a, 0xDD)
         c = Color ("#BBCCDD")
-        self.assertEquals (c.a, 0xFF)
+        self.assertEqual (c.a, 0xFF)
         
         c = Color ("red")
-        self.assertEquals (c.a, 255)
+        self.assertEqual (c.a, 255)
 
     def test_pygame2_base_Color_b(self):
 
@@ -658,35 +658,35 @@ class ColorTest (unittest.TestCase):
 
         # Gets or sets the blue value of the Color.
         c = Color (100, 100, 100)
-        self.assertEquals (c.b, 100)
+        self.assertEqual (c.b, 100)
         
         c = Color (100, 100, 100, 100)
-        self.assertEquals (c.b, 100)
+        self.assertEqual (c.b, 100)
         
         c = Color (100, 100, 100)
-        self.assertEquals (c.b, 100)
+        self.assertEqual (c.b, 100)
         c.b = 200
-        self.assertEquals (c.b, 200)
+        self.assertEqual (c.b, 200)
         c.b += 22
-        self.assertEquals (c.b, 222)
+        self.assertEqual (c.b, 222)
         
         c = Color (0xAABBCCDD)
-        self.assertEquals (c.b, 0xDD)
+        self.assertEqual (c.b, 0xDD)
         
         c = Color ("0xBBCCDD")
-        self.assertEquals (c.b, 0xDD)
+        self.assertEqual (c.b, 0xDD)
         c = Color ("0xAABBCCDD")
-        self.assertEquals (c.b, 0xCC)
+        self.assertEqual (c.b, 0xCC)
         
         c = Color ("#AABBCCDD")
-        self.assertEquals (c.b, 0xCC)
+        self.assertEqual (c.b, 0xCC)
         c = Color ("#BBCCDD")
-        self.assertEquals (c.b, 0xDD)
+        self.assertEqual (c.b, 0xDD)
         
         c = Color ("red")
-        self.assertEquals (c.b, 0)
+        self.assertEqual (c.b, 0)
         c = Color ("blue")
-        self.assertEquals (c.b, 255)
+        self.assertEqual (c.b, 255)
 
     def todo_test_pygame2_base_Color_cmy(self):
 
@@ -721,35 +721,35 @@ class ColorTest (unittest.TestCase):
         # Gets or sets the green value of the Color.
 
         c = Color (100, 100, 100)
-        self.assertEquals (c.g, 100)
+        self.assertEqual (c.g, 100)
         
         c = Color (100, 100, 100, 100)
-        self.assertEquals (c.g, 100)
+        self.assertEqual (c.g, 100)
         
         c = Color (100, 100, 100)
-        self.assertEquals (c.g, 100)
+        self.assertEqual (c.g, 100)
         c.g = 200
-        self.assertEquals (c.g, 200)
+        self.assertEqual (c.g, 200)
         c.g += 22
-        self.assertEquals (c.g, 222)
+        self.assertEqual (c.g, 222)
         
         c = Color (0xAABBCCDD)
-        self.assertEquals (c.g, 0xCC)
+        self.assertEqual (c.g, 0xCC)
         
         c = Color ("0xBBCCDD")
-        self.assertEquals (c.g, 0xCC)
+        self.assertEqual (c.g, 0xCC)
         c = Color ("0xAABBCCDD")
-        self.assertEquals (c.g, 0xBB)
+        self.assertEqual (c.g, 0xBB)
         
         c = Color ("#AABBCCDD")
-        self.assertEquals (c.g, 0xBB)
+        self.assertEqual (c.g, 0xBB)
         c = Color ("#BBCCDD")
-        self.assertEquals (c.g, 0xCC)
+        self.assertEqual (c.g, 0xCC)
         
         c = Color ("red")
-        self.assertEquals (c.g, 0)
+        self.assertEqual (c.g, 0)
         c = Color ("green")
-        self.assertEquals (c.g, 255)
+        self.assertEqual (c.g, 255)
 
     def todo_test_pygame2_base_Color_hsla(self):
 
@@ -801,9 +801,9 @@ class ColorTest (unittest.TestCase):
         # Returns the normalized RGBA values of the Color as floating
         # point values.
         c = Color (255, 255, 255, 255)
-        self.assertEquals (c.normalize (), (1.0, 1.0, 1.0, 1.0))
+        self.assertEqual (c.normalize (), (1.0, 1.0, 1.0, 1.0))
         c = Color (0, 0, 0, 0)
-        self.assertEquals (c.normalize (), (0.0, 0.0, 0.0, 0.0))
+        self.assertEqual (c.normalize (), (0.0, 0.0, 0.0, 0.0))
         c = Color (128, 128, 128, 128)
         t = c.normalize ()
         for v in t:
@@ -812,8 +812,8 @@ class ColorTest (unittest.TestCase):
         c = Color (128, 255, 0, 52)
         t = c.normalize ()
         self.assertAlmostEquals (t[0], 0.5, 2)
-        self.assertEquals (t[1], 1.0)
-        self.assertEquals (t[2], 0.0)
+        self.assertEqual (t[1], 1.0)
+        self.assertEqual (t[2], 0.0)
         # 52 / 255 ~= .20
         self.assertAlmostEquals (t[3], 0.2, 2)
 
@@ -824,35 +824,35 @@ class ColorTest (unittest.TestCase):
         # Gets or sets the red value of the Color.
         
         c = Color (100, 100, 100)
-        self.assertEquals (c.r, 100)
+        self.assertEqual (c.r, 100)
         
         c = Color (100, 100, 100, 100)
-        self.assertEquals (c.r, 100)
+        self.assertEqual (c.r, 100)
         
         c = Color (100, 100, 100)
-        self.assertEquals (c.r, 100)
+        self.assertEqual (c.r, 100)
         c.r = 200
-        self.assertEquals (c.r, 200)
+        self.assertEqual (c.r, 200)
         c.r += 22
-        self.assertEquals (c.r, 222)
+        self.assertEqual (c.r, 222)
         
         c = Color (0xAABBCCDD)
-        self.assertEquals (c.r, 0xBB)
+        self.assertEqual (c.r, 0xBB)
         
         c = Color ("0xBBCCDD")
-        self.assertEquals (c.r, 0xBB)
+        self.assertEqual (c.r, 0xBB)
         c = Color ("0xAABBCCDD")
-        self.assertEquals (c.r, 0xAA)
+        self.assertEqual (c.r, 0xAA)
         
         c = Color ("#AABBCCDD")
-        self.assertEquals (c.r, 0xAA)
+        self.assertEqual (c.r, 0xAA)
         c = Color ("#BBCCDD")
-        self.assertEquals (c.r, 0xBB)
+        self.assertEqual (c.r, 0xBB)
         
         c = Color ("red")
-        self.assertEquals (c.r, 255)
+        self.assertEqual (c.r, 255)
         c = Color ("blue")
-        self.assertEquals (c.r, 0)
+        self.assertEqual (c.r, 0)
 
 if __name__ == "__main__":
     unittest.main ()

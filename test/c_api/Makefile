@@ -47,4 +47,4 @@ sdl_tests: sdl_tests.o
 	$(CC) sdl_tests.o -o sdl_tests $(LDFLAGS) $(SDLLDFLAGS)
 
 clean:
-	rm -f *.o *.core *~ $(TARGETS)
+	@rm -f *.o *.orig *.core *~ $(TARGETS)

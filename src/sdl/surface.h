@@ -1,6 +1,6 @@
 /*
   pygame - Python Game Library
-  Copyright (C) 2000-2001 Pete Shinners, 2007-2008 Marcus von Appen
+  Copyright (C) 2000-2001 Pete Shinners, 2007-2009 Marcus von Appen
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Library General Public
@@ -41,7 +41,13 @@ typedef enum
     BLEND_RGBA_SUB,
     BLEND_RGBA_MULT,
     BLEND_RGBA_MIN,
-    BLEND_RGBA_MAX
+    BLEND_RGBA_MAX,
+    BLEND_RGBA_AND,
+    BLEND_RGBA_OR,
+    BLEND_RGBA_XOR,
+    BLEND_RGBA_DIFF,
+    BLEND_RGBA_SCREEN,
+    BLEND_RGBA_AVG
 } BlendMode;
 
 #define RGB2FORMAT(rgb,format)                                          \
@@ -334,6 +340,42 @@ typedef enum
     if(sG > dG) { dG = sG; }                                \
     if(sB > dB) { dB = sB; }                                \
     if(sA > dA) { dA = sA; }
+
+#define D_BLEND_RGBA_XOR(sR, sG, sB, sA, dR, dG, dB, dA) \
+    dR = MIN (255, MAX(sR ^ dR, 0));                     \
+    dG = MIN (255, MAX(sG ^ dG, 0));                     \
+    dB = MIN (255, MAX(sB ^ dB, 0));                     \
+    dA = MIN (255, MAX(sA ^ dA, 0));
+
+#define D_BLEND_RGBA_AND(sR, sG, sB, sA, dR, dG, dB, dA) \
+    dR = MIN (255, MAX(sR & dR, 0));                     \
+    dG = MIN (255, MAX(sG & dG, 0));                     \
+    dB = MIN (255, MAX(sB & dB, 0));                     \
+    dA = MIN (255, MAX(sA & dA, 0));
+
+#define D_BLEND_RGBA_OR(sR, sG, sB, sA, dR, dG, dB, dA) \
+    dR = MIN (255, MAX(sR | dR, 0));                    \
+    dG = MIN (255, MAX(sG | dG, 0));                    \
+    dB = MIN (255, MAX(sB | dB, 0));                    \
+    dA = MIN (255, MAX(sA | dA, 0));
+
+#define D_BLEND_RGBA_DIFF(sR, sG, sB, sA, dR, dG, dB, dA)        \
+    dR = ABS((int)dR - (int)sR);                                 \
+    dG = ABS((int)dG - (int)sG);                                 \
+    dB = ABS((int)dB - (int)sB);                                 \
+    dA = ABS((int)dA - (int)sA);
+
+#define D_BLEND_RGBA_SCREEN(sR, sG, sB, sA, dR, dG, dB, dA) \
+    dR = 255 - ((255 - sR) * (255 - dR) >> 8);              \
+    dG = 255 - ((255 - sG) * (255 - dG) >> 8);              \
+    dB = 255 - ((255 - sB) * (255 - dB) >> 8);              \
+    dA = 255 - ((255 - sA) * (255 - dA) >> 8);
+
+#define D_BLEND_RGBA_AVG(sR, sG, sB, sA, dR, dG, dB, dA)   \
+    dR = (sR + dR) >> 1;                                   \
+    dG = (sG + dG) >> 1;                                   \
+    dB = (sB + dB) >> 1;                                   \
+    dA = (sA + dA) >> 1;
 
 #if 1
 /* Choose an alpha blend equation. If the sign is preserved on a right shift

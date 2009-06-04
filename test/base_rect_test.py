@@ -843,13 +843,13 @@ class RectTest (unittest.TestCase):
 
         # Gets or sets the horizontal top left position of the Rect.
         r = Rect (1, 2, 3, 4)
-        self.assertEquals (r.x, 1)
+        self.assertEqual (r.x, 1)
         r.topleft = 32, 10
-        self.assertEquals (r.x, 32)
+        self.assertEqual (r.x, 32)
         r.left = -44
-        self.assertEquals (r.x, -44)
+        self.assertEqual (r.x, -44)
         r.move_ip (10, 33)
-        self.assertEquals (r.x, -34)
+        self.assertEqual (r.x, -34)
 
     def test_pygame2_base_Rect_y(self):
 
@@ -857,13 +857,13 @@ class RectTest (unittest.TestCase):
 
         # Gets or sets the vertical top left position of the Rect.
         r = Rect (1, 2, 3, 4)
-        self.assertEquals (r.y, 2)
+        self.assertEqual (r.y, 2)
         r.topleft = 32, 10
-        self.assertEquals (r.y, 10)
+        self.assertEqual (r.y, 10)
         r.top = -44
-        self.assertEquals (r.y, -44)
+        self.assertEqual (r.y, -44)
         r.move_ip (10, 33)
-        self.assertEquals (r.y, -11)
+        self.assertEqual (r.y, -11)
 
 if __name__ == "__main__":
     unittest.main ()

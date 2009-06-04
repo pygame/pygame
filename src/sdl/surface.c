@@ -691,26 +691,28 @@ _surface_getcolorkey (PyObject *self)
     if (!(surface->flags & SDL_SRCCOLORKEY))
         Py_RETURN_NONE;
 
-    SDL_GetRGBA (surface->format->colorkey, surface->format, &rgba[0],
-        &rgba[1], &rgba[2], &rgba[3]);
+    GET_RGB_VALS (surface->format->colorkey, surface->format, rgba[0],
+        rgba[1], rgba[2], rgba[3]);
     return PyColor_New ((pgbyte*)rgba);
 }
 
 static PyObject*
 _surface_setcolorkey (PyObject *self, PyObject *args)
 {
-    Uint32 flags = 0, key;
+    Uint32 flags = SDL_SRCCOLORKEY, key;
     PyObject *colorkey;
 
     if (!PyArg_ParseTuple (args, "O|l:set_colorkey", &colorkey, &flags))
         return NULL;
 
     if (PyColor_Check (colorkey))
+    {
         key = (Uint32) PyColor_AsNumber (colorkey);
+        RGB2FORMAT (key, ((PySDLSurface*)self)->surface->format);
+    }
     else if (!Uint32FromObj (colorkey, &key))
         return NULL;
-
-    RGB2FORMAT (key, ((PySDLSurface*)self)->surface->format);
+    
     if (SDL_SetColorKey (((PySDLSurface*)self)->surface, flags, key) == -1)
         Py_RETURN_FALSE;
     Py_RETURN_TRUE;
@@ -854,8 +856,11 @@ _surface_setat (PyObject *self, PyObject *args)
 
     if (!Uint32FromObj (color, &value))
         return NULL;
-    ARGB2FORMAT (value, surface->format);
-    
+    if (PyColor_Check (color))
+    {
+        ARGB2FORMAT (value, surface->format);
+    }
+
     if (fmt->BytesPerPixel < 1 || fmt->BytesPerPixel > 4)
     {
         PyErr_SetString (PyExc_TypeError, "invalid bit depth for surface");
@@ -1307,8 +1312,11 @@ PySDLSurface_Copy (PyObject *source)
     /* TODO: does this really copy anything? */
     newsurface = SDL_ConvertSurface (surface, surface->format, surface->flags);
     if (!newsurface)
+    {
+        printf ("NOES!\n");
+        PyErr_SetString (PyExc_PyGameError, SDL_GetError ());
         return NULL;
-
+    }
     surfobj = PySDLSurface_NewFromSDLSurface (newsurface);
     if (!surfobj)
     {

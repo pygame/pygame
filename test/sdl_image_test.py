@@ -30,7 +30,7 @@ class SDLImageTest (unittest.TestCase):
         video.init ()
         imgdir = os.path.dirname (os.path.abspath (__file__))
         sf = image.load_bmp (os.path.join (imgdir, "test.bmp"))
-        self.assert_ (sf.size == (16, 16))
+        self.assertEqual (sf.size, (16, 16))
         video.quit ()
 
     def test_pygame2_sdl_image_save_bmp(self):
@@ -53,7 +53,7 @@ class SDLImageTest (unittest.TestCase):
         else:
             buf = stringio.StringIO ()
         self.assert_ (image.save_bmp (sf, buf) == None)
-        self.assertEquals (os.stat (os.path.join (imgdir, "test.bmp")).st_size,
+        self.assertEqual (os.stat (os.path.join (imgdir, "test.bmp")).st_size,
                            len (buf.getvalue ()))
         video.quit ()
 

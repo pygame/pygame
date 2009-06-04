@@ -47,7 +47,7 @@ class SurfaceTest (unittest.TestCase):
 
         sf = TestSurface ()
         sf2 = PartialSurface ()
-        self.assertEquals (sf.blit (), "blit")
+        self.assertEqual (sf.blit (), "blit")
         self.assertRaises (NotImplementedError, sf2.blit)
 
     def test_pygame2_base_Surface_copy(self):
@@ -60,11 +60,11 @@ class SurfaceTest (unittest.TestCase):
 
         sf = TestSurface ()
         sf2 = sf.copy()
-        self.assertEquals (sf.size, sf2.size)
+        self.assertEqual (sf.size, sf2.size)
         
         sf = PartialSurface ()
         sf2 = sf.copy ()
-        self.assertEquals (sf.size, sf2.size)
+        self.assertEqual (sf.size, sf2.size)
 
     def test_pygame2_base_Surface_height(self):
 
@@ -72,7 +72,7 @@ class SurfaceTest (unittest.TestCase):
 
         # Gets the height of the Surface.
         sf = TestSurface ()
-        self.assertEquals (sf.height, 10)
+        self.assertEqual (sf.height, 10)
         
         sf = PartialSurface ()
         self.assertRaises (NotImplementedError, getattr, sf, "height")
@@ -83,11 +83,11 @@ class SurfaceTest (unittest.TestCase):
 
         # Gets a buffer with the pixels of the Surface.
         sf = TestSurface ()
-        self.assertEquals (sf.pixels, 'pixels')
+        self.assertEqual (sf.pixels, 'pixels')
         sf = PartialSurface ()
         self.assertRaises (NotImplementedError, getattr, sf, "pixels")
         
-        #self.assertEquals (sf.pixels, 10)
+        #self.assertEqual (sf.pixels, 10)
 
     def test_pygame2_base_Surface_size(self):
 
@@ -95,9 +95,9 @@ class SurfaceTest (unittest.TestCase):
 
         # Gets the width and height of the Surface.
         sf = TestSurface ()
-        self.assertEquals (sf.size, (20, 10))
+        self.assertEqual (sf.size, (20, 10))
         sf = PartialSurface ()
-        self.assertEquals (sf.size, (10, 10))
+        self.assertEqual (sf.size, (10, 10))
 
     def test_pygame2_base_Surface_width(self):
 
@@ -105,7 +105,7 @@ class SurfaceTest (unittest.TestCase):
 
         # Gets the width of the Surface.
         sf = TestSurface ()
-        self.assertEquals (sf.width, 20)
+        self.assertEqual (sf.width, 20)
         sf = PartialSurface ()
         self.assertRaises (NotImplementedError, getattr, sf, "width")
 

@@ -18,8 +18,8 @@ class FreeTypeTest(unittest.TestCase):
         # the 'freetype' module.
 
         version = base.get_version()
-        self.assertEquals(len(version), 3)
-        self.assertEquals(version[0], 2)
+        self.assertEqual(len(version), 3)
+        self.assertEqual(version[0], 2)
 
     def test_pygame2_freetype_base_init(self):
 
@@ -33,11 +33,11 @@ class FreeTypeTest(unittest.TestCase):
 
         # init()
         base.init()
-        self.assertEquals(base.was_init(), True)
+        self.assertEqual(base.was_init(), True)
 
         # quit
         base.quit()
-        self.assertEquals(base.was_init(), False)
+        self.assertEqual(base.was_init(), False)
 
 if __name__ == '__main__':
     unittest.main()
