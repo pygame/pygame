@@ -291,11 +291,11 @@ copy_reg.pickle(Rect, __rect_reduce, __rect_constructor)
 
 #make Colors pickleable
 def __color_constructor(r,g,b,a):
-        return pygame.color.Color(r,g,b,a)
+        return Color(r,g,b,a)
 def __color_reduce(c):
-        assert type(c) == pygame.color.Color
+        assert type(c) == Color
         return __color_constructor, (c.r, c.g, c.b, c.a)
-copy_reg.pickle(pygame.color.Color, __color_reduce, __color_constructor)
+copy_reg.pickle(Color, __color_reduce, __color_constructor)
 
 
 
