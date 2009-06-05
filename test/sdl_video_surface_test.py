@@ -10,32 +10,12 @@ except ImportError:
     import io as stringio
 
 import pygame2
+from pygame2.colorpalettes import CGAPALETTE
 from pygame2 import Rect, Color
 import pygame2.sdl.video as video
 import pygame2.sdl.image as image
 import pygame2.sdlimage as sdlimage
 import pygame2.sdl.constants as constants
-
-def get_cga_palette ():
-    return [
-        Color ("#000000"), # black
-        Color ("#0000AA"), # blue
-        Color ("#00AA00"), # green
-        Color ("#00AAAA"), # cyan
-        Color ("#AA0000"), # red
-        Color ("#AA00AA"), # magenta
-        Color ("#AA5500"), # brown
-        Color ("#AAAAAA"), # white
-        
-        Color ("#555555"), # gray
-        Color ("#5555FF"), # blue
-        Color ("#55FF55"), # green
-        Color ("#55FFFF"), # cyan
-        Color ("#FF5555"), # red
-        Color ("#FF55FF"), # magenta
-        Color ("#FFFF55"), # yellow
-        Color ("#FFFFFF"), # white
-    ]
 
 class SDLVideoSurfaceTest (unittest.TestCase):
 
@@ -112,7 +92,7 @@ class SDLVideoSurfaceTest (unittest.TestCase):
         for bpp in modes:
             sf = video.Surface (10, 10, bpp)
             if bpp == 8:
-                sf.set_palette (get_cga_palette ())
+                sf.set_palette (CGAPALETTE)
             sfcopy = sf.copy ()
         
             self.assertEqual (sf.size, sfcopy.size)
@@ -147,7 +127,7 @@ class SDLVideoSurfaceTest (unittest.TestCase):
         for bpp in modes:
             sf = video.Surface (10, 20, bpp)
             if bpp == 8:
-                sf.set_palette (get_cga_palette ())
+                sf.set_palette (CGAPALETTE)
 
             self._cmpcolor (sf, Color ("black"))
             sf.fill (Color ("cyan"))
@@ -256,7 +236,7 @@ class SDLVideoSurfaceTest (unittest.TestCase):
         for bpp in modes:
             sf = video.Surface (10, 10, bpp)
             if bpp == 8:
-                sf.set_palette (get_cga_palette ())
+                sf.set_palette (CGAPALETTE)
 
             color = Color (100, 50, 20)
             sf.fill (color)
@@ -287,16 +267,16 @@ class SDLVideoSurfaceTest (unittest.TestCase):
         for bpp in modes:
             sf = video.Surface (10, 10, bpp)
             if bpp == 8:
-                sf.set_palette (get_cga_palette ())
+                sf.set_palette (CGAPALETTE)
             self.assertEqual (sf.get_colorkey (), None)
             sf = video.Surface (10, 10, bpp, flags=constants.SRCCOLORKEY)
             if bpp == 8:
-                sf.set_palette (get_cga_palette ())
+                sf.set_palette (CGAPALETTE)
             self.assertEqual (sf.get_colorkey (), None)
         
             sf = video.Surface (10, 10, bpp)
             if bpp == 8:
-                sf.set_palette (get_cga_palette ())
+                sf.set_palette (CGAPALETTE)
             color = Color (255, 0, 0)
             key = sf.format.get_rgba (color)
             self.assertTrue (sf.set_colorkey (color))
@@ -464,7 +444,7 @@ class SDLVideoSurfaceTest (unittest.TestCase):
         for bpp in modes:
             sf1 = video.Surface (16, 16, bpp)
             if bpp == 8:
-                sf1.set_palette (get_cga_palette ())
+                sf1.set_palette (CGAPALETTE)
             sf1.fill (pygame2.Color ("red"))
             bufcreat = None
             if sys.version_info[0] >= 3:

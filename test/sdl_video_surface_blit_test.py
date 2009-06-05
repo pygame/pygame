@@ -5,30 +5,10 @@ except:
     import pgunittest as unittest
 
 import pygame2
+from pygame2.colorpalettes import CGAPALETTE
 from pygame2 import Color, Rect
 import pygame2.sdl.video as video
 import pygame2.sdl.constants as constants
-
-def get_cga_palette ():
-    return [
-        Color ("#000000"), # black
-        Color ("#0000AA"), # blue
-        Color ("#00AA00"), # green
-        Color ("#00AAAA"), # cyan
-        Color ("#AA0000"), # red
-        Color ("#AA00AA"), # magenta
-        Color ("#AA5500"), # brown
-        Color ("#AAAAAA"), # white
-        
-        Color ("#555555"), # gray
-        Color ("#5555FF"), # blue
-        Color ("#55FF55"), # green
-        Color ("#55FFFF"), # cyan
-        Color ("#FF5555"), # red
-        Color ("#FF55FF"), # magenta
-        Color ("#FFFF55"), # yellow
-        Color ("#FFFFFF"), # white
-    ]
 
 class SDLVideoSurfaceBlitTest (unittest.TestCase):
     # __doc__ (as of 2009-05-15) for pygame2.sdl.video.Surface.blit:
@@ -124,7 +104,7 @@ class SDLVideoSurfaceBlitTest (unittest.TestCase):
         for bpp in modes:
             sf2 = video.Surface (5,  5, bpp)
             if bpp == 8:
-                sf2.set_palette (get_cga_palette())
+                sf2.set_palette (CGAPALETTE)
 
             sf1.fill (color1)
             sf2.fill (color2)
@@ -153,7 +133,7 @@ class SDLVideoSurfaceBlitTest (unittest.TestCase):
         for bpp in modes:
             sf2 = video.Surface ( 5,  5, bpp)
             if bpp == 8:
-                sf2.set_palette (get_cga_palette())
+                sf2.set_palette (CGAPALETTE)
         
             sf1.fill (color1)
             sf2.fill (color2)
@@ -183,7 +163,7 @@ class SDLVideoSurfaceBlitTest (unittest.TestCase):
         for bpp in modes:
             sf2 = video.Surface ( 5,  5, bpp)
             if bpp == 8:
-                sf2.set_palette (get_cga_palette())
+                sf2.set_palette (CGAPALETTE)
         
             sf1.fill (color1)
             sf2.fill (color2)
@@ -204,11 +184,11 @@ class SDLVideoSurfaceBlitTest (unittest.TestCase):
         color1 = Color (127, 0, 0)
         color2 = Color (0, 127, 0)
         sf1 = video.Surface (10, 10, 8)
-        sf1.set_palette (get_cga_palette())
+        sf1.set_palette (CGAPALETTE)
         for bpp in modes:
             sf2 = video.Surface ( 5,  5, 8)
             if bpp == 8:
-                sf2.set_palette (get_cga_palette())
+                sf2.set_palette (CGAPALETTE)
         
             sf1.fill (color1)
             sf2.fill (color2)
@@ -231,7 +211,7 @@ class SDLVideoSurfaceBlitTest (unittest.TestCase):
         for bpp in modes:
             sf2 = video.Surface ( 5,  5, bpp)
             if bpp == 8:
-                sf2.set_palette (get_cga_palette())
+                sf2.set_palette (CGAPALETTE)
         
             sf1.fill (color1)
             sf2.fill (color2)
@@ -281,7 +261,7 @@ class SDLVideoSurfaceBlitTest (unittest.TestCase):
         for bpp in modes:
             sf2 = video.Surface ( 5,  5, bpp)
             if bpp == 8:
-                sf2.set_palette (get_cga_palette())
+                sf2.set_palette (CGAPALETTE)
         
             sf1.fill (color1)
             sf2.fill (color2)
@@ -331,7 +311,7 @@ class SDLVideoSurfaceBlitTest (unittest.TestCase):
         for bpp in modes:
             sf2 = video.Surface (5, 5, bpp)
             if bpp == 8:
-                sf2.set_palette (get_cga_palette())
+                sf2.set_palette (CGAPALETTE)
         
             sf1.fill (color1)
             sf2.fill (color2)
@@ -378,11 +358,11 @@ class SDLVideoSurfaceBlitTest (unittest.TestCase):
         color1 = Color (127, 0, 0)
         color2 = Color (0, 127, 0)
         sf1 = video.Surface (10, 10, 8)
-        sf1.set_palette (get_cga_palette())
+        sf1.set_palette (CGAPALETTE)
         for bpp in modes:
             sf2 = video.Surface ( 5,  5, bpp)
             if bpp == 8:
-                sf2.set_palette (get_cga_palette())
+                sf2.set_palette (CGAPALETTE)
         
             sf1.fill (color1)
             sf2.fill (color2)
@@ -431,7 +411,7 @@ class SDLVideoSurfaceBlitTest (unittest.TestCase):
         for bpp in modes:
             sf2 = video.Surface ( 5,  5, bpp)
             if bpp == 8:
-                sf2.set_palette (get_cga_palette())
+                sf2.set_palette (CGAPALETTE)
         
             sf1.fill (color1)
             sf2.fill (color2)
@@ -482,7 +462,7 @@ class SDLVideoSurfaceBlitTest (unittest.TestCase):
         for bpp in modes:
             sf2 = video.Surface ( 5,  5, bpp)
             if bpp == 8:
-                sf2.set_palette (get_cga_palette())
+                sf2.set_palette (CGAPALETTE)
         
             sf1.fill (color1)
             sf2.fill (color2)
@@ -533,7 +513,7 @@ class SDLVideoSurfaceBlitTest (unittest.TestCase):
         for bpp in modes:
             sf2 = video.Surface ( 5,  5, bpp)
             if bpp == 8:
-                sf2.set_palette (get_cga_palette())
+                sf2.set_palette (CGAPALETTE)
         
             sf1.fill (color1)
             sf2.fill (color2)
@@ -581,11 +561,11 @@ class SDLVideoSurfaceBlitTest (unittest.TestCase):
         color1 = Color (255, 255, 255)
         color2 = Color (0, 127, 0)
         sf1 = video.Surface (10, 10, 8)
-        sf1.set_palette (get_cga_palette())
+        sf1.set_palette (CGAPALETTE)
         for bpp in modes:
             sf2 = video.Surface ( 5,  5, bpp)
             if bpp == 8:
-                sf2.set_palette (get_cga_palette())
+                sf2.set_palette (CGAPALETTE)
         
             sf1.fill (color1)
             sf2.fill (color2)
@@ -636,7 +616,7 @@ class SDLVideoSurfaceBlitTest (unittest.TestCase):
         for bpp in modes:
             sf2 = video.Surface ( 5,  5, bpp)
             if bpp == 8:
-                sf2.set_palette (get_cga_palette())
+                sf2.set_palette (CGAPALETTE)
         
             sf1.fill (color1)
             sf2.fill (color2)
@@ -692,7 +672,7 @@ class SDLVideoSurfaceBlitTest (unittest.TestCase):
         for bpp in modes:
             sf2 = video.Surface ( 5,  5, bpp)
             if bpp == 8:
-                sf2.set_palette (get_cga_palette())
+                sf2.set_palette (CGAPALETTE)
         
             sf1.fill (color1)
             sf2.fill (color2)
@@ -747,7 +727,7 @@ class SDLVideoSurfaceBlitTest (unittest.TestCase):
         for bpp in modes:
             sf2 = video.Surface ( 5,  5, bpp)
             if bpp == 8:
-                sf2.set_palette (get_cga_palette())
+                sf2.set_palette (CGAPALETTE)
         
             sf1.fill (color1)
             sf2.fill (color2)
@@ -799,11 +779,11 @@ class SDLVideoSurfaceBlitTest (unittest.TestCase):
         color1 = Color (30, 10, 100)
         color2 = Color (0, 127, 24)
         sf1 = video.Surface (10, 10, 8)
-        sf1.set_palette (get_cga_palette())
+        sf1.set_palette (CGAPALETTE)
         for bpp in modes:
             sf2 = video.Surface ( 5,  5, bpp)
             if bpp == 8:
-                sf2.set_palette (get_cga_palette())
+                sf2.set_palette (CGAPALETTE)
         
             sf1.fill (color1)
             sf2.fill (color2)
@@ -858,7 +838,7 @@ class SDLVideoSurfaceBlitTest (unittest.TestCase):
         for bpp in modes:
             sf2 = video.Surface ( 5,  5, bpp)
             if bpp == 8:
-                sf2.set_palette (get_cga_palette())
+                sf2.set_palette (CGAPALETTE)
         
             sf1.fill (color1)
             sf2.fill (color2)
@@ -913,7 +893,7 @@ class SDLVideoSurfaceBlitTest (unittest.TestCase):
         for bpp in modes:
             sf2 = video.Surface ( 5,  5, bpp)
             if bpp == 8:
-                sf2.set_palette (get_cga_palette())
+                sf2.set_palette (CGAPALETTE)
         
             sf1.fill (color1)
             sf2.fill (color2)
@@ -969,7 +949,7 @@ class SDLVideoSurfaceBlitTest (unittest.TestCase):
         for bpp in modes:
             sf2 = video.Surface ( 5,  5, bpp)
             if bpp == 8:
-                sf2.set_palette (get_cga_palette())
+                sf2.set_palette (CGAPALETTE)
         
             sf1.fill (color1)
             sf2.fill (color2)
@@ -1021,11 +1001,11 @@ class SDLVideoSurfaceBlitTest (unittest.TestCase):
         color1 = Color (255, 100, 12)
         color2 = Color (133, 127, 16)
         sf1 = video.Surface (10, 10, 8)
-        sf1.set_palette (get_cga_palette())
+        sf1.set_palette (CGAPALETTE)
         for bpp in modes:
             sf2 = video.Surface ( 5,  5, bpp)
             if bpp == 8:
-                sf2.set_palette (get_cga_palette())
+                sf2.set_palette (CGAPALETTE)
         
             sf1.fill (color1)
             sf2.fill (color2)
@@ -1081,7 +1061,7 @@ class SDLVideoSurfaceBlitTest (unittest.TestCase):
         for bpp in modes:
             sf2 = video.Surface (5, 5, bpp)
             if bpp == 8:
-                sf2.set_palette (get_cga_palette())
+                sf2.set_palette (CGAPALETTE)
         
             sf1.fill (color1)
             sf2.fill (color2)
@@ -1109,7 +1089,8 @@ class SDLVideoSurfaceBlitTest (unittest.TestCase):
             
             # Color (1, 3, 0)
             ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
-            c2 = Color ((ca.r * cb.r) >> 8, (ca.g * cb.g) >> 8, (ca.b * cb.b) >> 8)
+            c2 = Color ((ca.r * cb.r) >> 8, (ca.g * cb.g) >> 8,
+                        (ca.b * cb.b) >> 8)
             sf1.blit (sf2, blendargs=constants.BLEND_RGB_MULT)
             self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
             self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
@@ -1119,7 +1100,8 @@ class SDLVideoSurfaceBlitTest (unittest.TestCase):
             # Color (0, 0, 0)
             sf2.fill (Color (0, 0, 0))
             ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
-            c2 = Color ((ca.r * cb.r) >> 8, (ca.g * cb.g) >> 8, (ca.b * cb.b) >> 8)
+            c2 = Color ((ca.r * cb.r) >> 8, (ca.g * cb.g) >> 8,
+                        (ca.b * cb.b) >> 8)
             sf1.blit (sf2, blendargs=constants.BLEND_RGB_MULT)
             self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
             self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
@@ -1136,12 +1118,13 @@ class SDLVideoSurfaceBlitTest (unittest.TestCase):
         for bpp in modes:
             sf2 = video.Surface (5, 5, bpp)
             if bpp == 8:
-                sf2.set_palette (get_cga_palette())
+                sf2.set_palette (CGAPALETTE)
         
             sf1.fill (color1)
             sf2.fill (color2)
             ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
-            c2 = Color ((ca.r * cb.r) >> 8, (ca.g * cb.g) >> 8, (ca.b * cb.b) >> 8)
+            c2 = Color ((ca.r * cb.r) >> 8, (ca.g * cb.g) >> 8,
+                        (ca.b * cb.b) >> 8)
         
             # Solid, multiply blit.
             
@@ -1155,7 +1138,8 @@ class SDLVideoSurfaceBlitTest (unittest.TestCase):
             # Color (2, 5, 0)
             sf2.fill (Color (255, 178, 177))
             ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
-            c2 = Color ((ca.r * cb.r) >> 8, (ca.g * cb.g) >> 8, (ca.b * cb.b) >> 8)
+            c2 = Color ((ca.r * cb.r) >> 8, (ca.g * cb.g) >> 8,
+                        (ca.b * cb.b) >> 8)
             sf1.blit (sf2, blendargs=constants.BLEND_RGB_MULT)
             self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
             self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
@@ -1164,7 +1148,8 @@ class SDLVideoSurfaceBlitTest (unittest.TestCase):
             
             # Color (1, 3, 0)
             ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
-            c2 = Color ((ca.r * cb.r) >> 8, (ca.g * cb.g) >> 8, (ca.b * cb.b) >> 8)
+            c2 = Color ((ca.r * cb.r) >> 8, (ca.g * cb.g) >> 8,
+                        (ca.b * cb.b) >> 8)
             sf1.blit (sf2, blendargs=constants.BLEND_RGB_MULT)
             self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
             self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
@@ -1174,7 +1159,8 @@ class SDLVideoSurfaceBlitTest (unittest.TestCase):
             # Color (0, 0, 0)
             sf2.fill (Color (0, 0, 0))
             ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
-            c2 = Color ((ca.r * cb.r) >> 8, (ca.g * cb.g) >> 8, (ca.b * cb.b) >> 8)
+            c2 = Color ((ca.r * cb.r) >> 8, (ca.g * cb.g) >> 8,
+                        (ca.b * cb.b) >> 8)
             sf1.blit (sf2, blendargs=constants.BLEND_RGB_MULT)
             self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
             self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
@@ -1191,12 +1177,13 @@ class SDLVideoSurfaceBlitTest (unittest.TestCase):
         for bpp in modes:
             sf2 = video.Surface (5, 5, bpp)
             if bpp == 8:
-                sf2.set_palette (get_cga_palette())
+                sf2.set_palette (CGAPALETTE)
         
             sf1.fill (color1)
             sf2.fill (color2)
             ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
-            c2 = Color ((ca.r * cb.r) >> 8, (ca.g * cb.g) >> 8, (ca.b * cb.b) >> 8)
+            c2 = Color ((ca.r * cb.r) >> 8, (ca.g * cb.g) >> 8,
+                        (ca.b * cb.b) >> 8)
         
             # Solid, multiply blit.
             
@@ -1210,7 +1197,8 @@ class SDLVideoSurfaceBlitTest (unittest.TestCase):
             # Color (2, 5, 0)
             sf2.fill (Color (255, 178, 177))
             ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
-            c2 = Color ((ca.r * cb.r) >> 8, (ca.g * cb.g) >> 8, (ca.b * cb.b) >> 8)
+            c2 = Color ((ca.r * cb.r) >> 8, (ca.g * cb.g) >> 8,
+                        (ca.b * cb.b) >> 8)
             sf1.blit (sf2, blendargs=constants.BLEND_RGB_MULT)
             self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
             self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
@@ -1219,7 +1207,8 @@ class SDLVideoSurfaceBlitTest (unittest.TestCase):
             
             # Color (1, 3, 0)
             ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
-            c2 = Color ((ca.r * cb.r) >> 8, (ca.g * cb.g) >> 8, (ca.b * cb.b) >> 8)
+            c2 = Color ((ca.r * cb.r) >> 8, (ca.g * cb.g) >> 8,
+                        (ca.b * cb.b) >> 8)
             sf1.blit (sf2, blendargs=constants.BLEND_RGB_MULT)
             self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
             self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
@@ -1229,7 +1218,8 @@ class SDLVideoSurfaceBlitTest (unittest.TestCase):
             # Color (0, 0, 0)
             sf2.fill (Color (0, 0, 0))
             ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
-            c2 = Color ((ca.r * cb.r) >> 8, (ca.g * cb.g) >> 8, (ca.b * cb.b) >> 8)
+            c2 = Color ((ca.r * cb.r) >> 8, (ca.g * cb.g) >> 8,
+                        (ca.b * cb.b) >> 8)
             sf1.blit (sf2, blendargs=constants.BLEND_RGB_MULT)
             self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
             self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
@@ -1243,16 +1233,17 @@ class SDLVideoSurfaceBlitTest (unittest.TestCase):
         color1 = Color (8, 50, 10)
         color2 = Color (127, 44, 12)
         sf1 = video.Surface (10, 10, 8)
-        sf1.set_palette (get_cga_palette())
+        sf1.set_palette (CGAPALETTE)
         for bpp in modes:
             sf2 = video.Surface (5, 5, bpp)
             if bpp == 8:
-                sf2.set_palette (get_cga_palette())
+                sf2.set_palette (CGAPALETTE)
         
             sf1.fill (color1)
             sf2.fill (color2)
             ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
-            c2 = Color ((ca.r * cb.r) >> 8, (ca.g * cb.g) >> 8, (ca.b * cb.b) >> 8)
+            c2 = Color ((ca.r * cb.r) >> 8, (ca.g * cb.g) >> 8,
+                        (ca.b * cb.b) >> 8)
         
             # Solid, multiply blit.
             
@@ -1266,7 +1257,8 @@ class SDLVideoSurfaceBlitTest (unittest.TestCase):
             # Color (2, 5, 0)
             sf2.fill (Color (255, 178, 177))
             ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
-            c2 = Color ((ca.r * cb.r) >> 8, (ca.g * cb.g) >> 8, (ca.b * cb.b) >> 8)
+            c2 = Color ((ca.r * cb.r) >> 8, (ca.g * cb.g) >> 8,
+                        (ca.b * cb.b) >> 8)
             sf1.blit (sf2, blendargs=constants.BLEND_RGB_MULT)
             self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
             self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
@@ -1275,7 +1267,8 @@ class SDLVideoSurfaceBlitTest (unittest.TestCase):
             
             # Color (1, 3, 0)
             ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
-            c2 = Color ((ca.r * cb.r) >> 8, (ca.g * cb.g) >> 8, (ca.b * cb.b) >> 8)
+            c2 = Color ((ca.r * cb.r) >> 8, (ca.g * cb.g) >> 8,
+                        (ca.b * cb.b) >> 8)
             sf1.blit (sf2, blendargs=constants.BLEND_RGB_MULT)
             self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
             self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
@@ -1285,7 +1278,8 @@ class SDLVideoSurfaceBlitTest (unittest.TestCase):
             # Color (0, 0, 0)
             sf2.fill (Color (0, 0, 0))
             ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
-            c2 = Color ((ca.r * cb.r) >> 8, (ca.g * cb.g) >> 8, (ca.b * cb.b) >> 8)
+            c2 = Color ((ca.r * cb.r) >> 8, (ca.g * cb.g) >> 8,
+                        (ca.b * cb.b) >> 8)
             sf1.blit (sf2, blendargs=constants.BLEND_RGB_MULT)
             self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
             self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
