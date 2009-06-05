@@ -22,11 +22,39 @@
 
 """
 Various, indexed color palettes.
+
+Indexed color palettes. The following palettes are currently available:
+
++--------------------+---------------------------------------------------+
+| MONOPALETTE        | 1-bit monochrome palette (black and white).       |
++--------------------+---------------------------------------------------+
+| GRAY2PALETTE       | 2-bit grayscale palette with black, white and two |
+|                    | shades of gray.                                   |
++--------------------+---------------------------------------------------+
+| GRAY4PALETTE       | 4-bit grayscale palette with black, white and     |
+|                    | 14 shades shades of gray.                         |
++--------------------+---------------------------------------------------+
+| GRAY8PALETTE       | 8-bit grayscale palette with black, white and     |
+|                    | 254 shades shades of gray.                        |
++--------------------+---------------------------------------------------+
+| RGB3PALETTE        | 3-bit RGB color palette with pure red, green and  |
+|                    | blue and their complementary colors as well as    |
+|                    | black and white.                                  |
++--------------------+---------------------------------------------------+
+| CGAPALETTE         | CGA color palette.                                |
++--------------------+---------------------------------------------------+
+| EGAPALETTE         | EGA color palette.                                |
++--------------------+---------------------------------------------------+
+| VGAPALETTE         | 8-bit VGA color palette.                          |
++--------------------+---------------------------------------------------+
+| WEBPALETTE         | "Safe" web color palette with 225 colors.         |
++--------------------+---------------------------------------------------+
 """
 
 from pygame2.base import Color
 
 def _create_8bpp_gray ():
+    """Creates a 8 bit grayscale color palette."""
     l = []
     for x in range (0x00, 0xF1, 0x10):
         for y in range (0x00, 0x10, 0x01):
