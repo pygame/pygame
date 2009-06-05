@@ -9,9 +9,14 @@
 /* packet queue handling */
  void packet_queue_init(PacketQueue *q)
 {
-    q=(PacketQueue *)PyMem_Malloc(sizeof(PacketQueue));
-    q->mutex = SDL_CreateMutex();
+    if(!q)
+    	q=(PacketQueue *)PyMem_Malloc(sizeof(PacketQueue));
+    if(!q->mutex)
+	    q->mutex = SDL_CreateMutex();
+    if(!q->cond)
     q->cond = SDL_CreateCond();
+    q->abort_request=0;
+
 }
 
 
@@ -19,7 +24,6 @@
 {
     AVPacketList *pkt, *pkt1;
 
-    SDL_LockMutex(q->mutex);
     for(pkt = q->first_pkt; pkt != NULL; pkt = pkt1) {
         pkt1 = pkt->next;
         av_free_packet(&pkt->pkt);
@@ -29,7 +33,6 @@
     q->first_pkt = NULL;
     q->nb_packets = 0;
     q->size = 0;
-    SDL_UnlockMutex(q->mutex);
 }
 
  void packet_queue_end(PacketQueue *q)
@@ -54,7 +57,6 @@
     pkt1->pkt = *pkt;
     pkt1->next = NULL;
 
-    SDL_LockMutex(q->mutex);
 
     if (!q->last_pkt)
 
@@ -65,21 +67,13 @@
     q->nb_packets++;
     q->size += pkt1->pkt.size;
     /* XXX: should duplicate packet data in DV case */
-    SDL_CondSignal(q->cond);
 
-    SDL_UnlockMutex(q->mutex);
     return 0;
 }
 
  void packet_queue_abort(PacketQueue *q)
 {
-    SDL_LockMutex(q->mutex);
-
     q->abort_request = 1;
-
-    SDL_CondSignal(q->cond);
-
-    SDL_UnlockMutex(q->mutex);
 }
 
 /* return < 0 if aborted, 0 if no packet and > 0 if packet.  */
@@ -88,7 +82,6 @@
     AVPacketList *pkt1;
     int ret;
 
-    SDL_LockMutex(q->mutex);
 
     for(;;) {
         if (q->abort_request) {
@@ -111,10 +104,10 @@
             ret = 0;
             break;
         } else {
-            SDL_CondWait(q->cond, q->mutex);
+            ret=0;
+            break;
         }
     }
-    SDL_UnlockMutex(q->mutex);
     return ret;
 }
 
@@ -574,7 +567,7 @@ double calc_ca(int64_t diff, double ca, double i)
 	        /* XXX: should skip picture */
 	        actual_delay = 0.010;
 	    }	
-		movie->timing = (actual_delay*1000.0)+0.5;
+		movie->timing = (actual_delay*500.0)+0.5;
     }
     Py_DECREF(movie);
 }
@@ -1628,7 +1621,7 @@ video_index = -1;
     
     is->paused = 1;
     is->av_sync_type = AV_SYNC_VIDEO_MASTER;
-    if(!THREADFREE)
+    /*if(!THREADFREE)
 	{
 	    is->parse_tid = SDL_CreateThread(decode_thread, is);
 	}
@@ -1636,14 +1629,14 @@ video_index = -1;
         PyErr_SetString(PyExc_MemoryError, "Could not spawn a new thread.");
         Py_DECREF( is);
         return NULL;
-    }
+    }*/
     
 	Py_DECREF(is);
-    if(THREADFREE)
+    /*if(THREADFREE)
     {
     	is->paused=0;
     	decoder(is);
-    }
+    }*/
     return is;
 }
 
@@ -1851,7 +1844,7 @@ void stream_cycle_channel(PyMovie *is, int codec_type)
     PyGILState_Release(gstate);
     for(;;) {
     	gstate=PyGILState_Ensure();
-		PySys_WriteStdout("decoder: loop %i.\n", co);
+		//PySys_WriteStdout("decoder: loop %i.\n", co);
 		co++;
 		
         //SDL_LockMutex(is->_mutex);        
@@ -1943,8 +1936,6 @@ void stream_cycle_channel(PyMovie *is, int codec_type)
         video_render(is);
         if(co<2)
         	video_refresh_timer(is);
-        if(co>=3605.0)
-			PySys_WriteStdout("co=3606\n");
         if(is->timing>0) {
         	double showtime = is->timing+is->last_showtime;
             double now = av_gettime()/1000.0;
@@ -1995,15 +1986,9 @@ void stream_cycle_channel(PyMovie *is, int codec_type)
 	{
 		//throw python error
 	}
-/*    if(is->loops<0)
-    {
-        is->parse_tid = SDL_CreateThread(decode_thread, is);
-    }
-    else if (is->loops>0)
-    {   
-        is->loops--;
-        is->parse_tid = SDL_CreateThread(decode_thread, is);
-    }*/
+	is->pictq_size=is->pictq_rindex=is->pictq_windex=0;
+	packet_queue_flush(&is->videoq);
+		
     Py_DECREF( is);
     return 0;
 }

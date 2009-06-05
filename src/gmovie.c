@@ -25,7 +25,7 @@
         Py_DECREF(self);
         Py_RETURN_NONE;
     }	
-	PySys_WriteStdout("Movie->filename: %s\n", (PyMovie *)self->filename);
+	PySys_WriteStdout("Movie->filename: %s\n", self->filename);
 	Py_DECREF(self);
 	return self;
 }
@@ -40,7 +40,7 @@
         //Py_RETURN_NONE;
     	return -1;
     }	
-	self = _movie_init_internal((PyMovie *)self, c, NULL);
+	self = _movie_init_internal(self, c, NULL);
 	PyGILState_STATE gstate;
 	gstate = PyGILState_Ensure();
 	PyObject *er;
@@ -92,9 +92,17 @@
     }
     SDL_LockMutex(movie->dest_mutex);
     movie->loops =loops;
-    movie->paused = ~movie->paused;
+    movie->paused = 0;
     movie->playing = 1;
     SDL_UnlockMutex(movie->dest_mutex);
+    while(loops>-1)
+    {
+    	decoder(movie);
+    	PySys_WriteStdout("Loops: %i\n", loops);
+    	loops--;
+    	movie=stream_open(movie, movie->filename, NULL);
+    	movie->paused=0;
+    }
     Py_DECREF(movie);
     Py_RETURN_NONE;
 }
