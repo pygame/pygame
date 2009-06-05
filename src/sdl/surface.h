@@ -213,6 +213,9 @@ typedef enum
 #define CREATE_PIXEL(buf, r, g, b, a, bp, ft)                   \
     switch (bp)                                                 \
     {                                                           \
+    case 1:                                                     \
+        *((Uint8 *)buf) = (Uint8) SDL_MapRGB (ft, r, g, b);     \
+        break;                                                  \
     case 2:                                                     \
         *((Uint16 *) (buf)) =                                   \
             ((r >> ft->Rloss) << ft->Rshift) |                  \

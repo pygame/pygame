@@ -39,6 +39,7 @@ Things to FIX:
   how not to do it)
 * SDL_gfx has to set the correct errors (SDL_SetError()). Fix that and
   merge it back to the SDL_gfx upstream
+* Speed up blits using fast lookup tables for 8bpp to 8bpp.
 
 Things to WRAP:
 ===============

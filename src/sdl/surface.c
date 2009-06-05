@@ -613,9 +613,9 @@ _surface_setpalette (PyObject *self, PyObject *args)
     PyObject *colorlist, *item;
     Py_ssize_t count, i;
     SDL_Color *palette;
-    int ret, flags, first = 0;
+    int ret, flags = SDL_LOGPAL | SDL_PHYSPAL, first = 0;
 
-    if (!PyArg_ParseTuple (args, "Oi|i:set_palette", &colorlist, &flags,
+    if (!PyArg_ParseTuple (args, "O|ii:set_palette", &colorlist, &flags,
             &first))
         return NULL;
 
@@ -757,7 +757,7 @@ _surface_convert (PyObject *self, PyObject *args, PyObject *kwds)
 
     if (pxfmt && !PyPixelFormat_Check (pxfmt))
     {
-        PyErr_SetString (PyExc_TypeError, "pxfmt must be a PixelFormat");
+        PyErr_SetString (PyExc_TypeError, "format must be a PixelFormat");
         return NULL;
     }
     
@@ -777,7 +777,10 @@ _surface_convert (PyObject *self, PyObject *args, PyObject *kwds)
     }
 
     if (!surface)
+    {
+        PyErr_SetString (PyExc_PyGameError, SDL_GetError ());
         return NULL;
+    }
     
     sf = PySDLSurface_NewFromSDLSurface (surface);
     if (!sf)
@@ -1313,7 +1316,6 @@ PySDLSurface_Copy (PyObject *source)
     newsurface = SDL_ConvertSurface (surface, surface->format, surface->flags);
     if (!newsurface)
     {
-        printf ("NOES!\n");
         PyErr_SetString (PyExc_PyGameError, SDL_GetError ());
         return NULL;
     }

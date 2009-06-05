@@ -54,7 +54,7 @@ class SDLImageTest (unittest.TestCase):
             buf = stringio.StringIO ()
         self.assert_ (image.save_bmp (sf, buf) == None)
         self.assertEqual (os.stat (os.path.join (imgdir, "test.bmp")).st_size,
-                           len (buf.getvalue ()))
+                          len (buf.getvalue ()))
         video.quit ()
 
 if __name__ == "__main__":

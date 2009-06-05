@@ -450,17 +450,22 @@
       </desc>
     </method>
     <method name="set_palette">
-      <call>set_palette ((color1, color2, ...), flags[, first]) -> bool</call>
+      <call>set_palette ((color1, color2, ...)[, flags, first]) -> bool</call>
       <desc>
         Sets a portion of the palette for the given 8-bit surface.
 
         Sets a portion of the color palette for the 8-bit Surface,
-        starting at the desired first position. If the first position
+        starting at the desired *first* position. If the *first* position
         plus length of the passed colormap exceeds the Surface palette
         size, the palette will be unchanged and False returned.
 
-        If any other error occurs, False will be returned and the
-        Surface palette should be inspected for any changes.
+        If *flags* is omitted and a Surface with hardware palette used, both
+        the physical and logical palettes will be modified. Otherwise, *flags*
+        can be set to LOGPAL or PHYSPAL or a combination to modify either the
+        logical, physical or both palettes.
+        
+        If any other  error occurs, False will be returned and the Surface
+        palette should be inspected for any changes.
       </desc>
     </method>
     <attr name="size">

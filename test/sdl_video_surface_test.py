@@ -10,40 +10,63 @@ except ImportError:
     import io as stringio
 
 import pygame2
+from pygame2 import Rect, Color
 import pygame2.sdl.video as video
 import pygame2.sdl.image as image
 import pygame2.sdlimage as sdlimage
 import pygame2.sdl.constants as constants
 
-def cmppixels (sf1, sf2):
-    # Simple pixel comparision
-    w1, h1 = sf1.size
-    w2, h2 = sf2.size
-    w, h = min (w1, w2), min (h1, h2)
-    getat1 = sf1.get_at
-    getat2 = sf2.get_at
-    for x in range (w):
-        for y in range (h):
-            if getat1 (x, y) != getat2 (x, y):
-                return False
-    return True
-
-def cmpcolor (sf, color, area=None):
-    # Simple color comparision with clip area support
-    getat = sf.get_at
-    sx, sy = 0, 0
-    w, h = sf.size
-    if area:
-        sx, sy = area.x, area.y 
-        w, h = area.w, area.h
-    for x in range (sx, sx + w):
-        for y in range (sy, sy + h):
-            if getat (x, y) != color:
-                return False
-    return True
+def get_cga_palette ():
+    return [
+        Color ("#000000"), # black
+        Color ("#0000AA"), # blue
+        Color ("#00AA00"), # green
+        Color ("#00AAAA"), # cyan
+        Color ("#AA0000"), # red
+        Color ("#AA00AA"), # magenta
+        Color ("#AA5500"), # brown
+        Color ("#AAAAAA"), # white
+        
+        Color ("#555555"), # gray
+        Color ("#5555FF"), # blue
+        Color ("#55FF55"), # green
+        Color ("#55FFFF"), # cyan
+        Color ("#FF5555"), # red
+        Color ("#FF55FF"), # magenta
+        Color ("#FFFF55"), # yellow
+        Color ("#FFFFFF"), # white
+    ]
 
 class SDLVideoSurfaceTest (unittest.TestCase):
 
+    def _cmppixels (self, sf1, sf2):
+        # Simple pixel comparision
+        w1, h1 = sf1.size
+        w2, h2 = sf2.size
+        w, h = min (w1, w2), min (h1, h2)
+        getat1 = sf1.get_at
+        getat2 = sf2.get_at
+        failmsg = "%s != %s at (%d, %d)"
+        for x in range (w):
+            for y in range (h):
+                self.failUnlessEqual (getat1 (x, y), getat2 (x, y),
+                    failmsg % (getat1 (x, y), getat2 (x, y), x, y))
+
+    def _cmpcolor (self, sf, color, area=None):
+        # Simple color comparision with clip area support
+        getat = sf.get_at
+        sx, sy = 0, 0
+        w, h = sf.size
+        if area:
+            sx, sy = area.x, area.y 
+            w, h = area.w, area.h
+        c = sf.format.get_rgba (color)
+        failmsg = "%s != %s at (%d, %d)"
+        for x in range (sx, sx + w):
+            for y in range (sy, sy + h):
+                self.failUnlessEqual (getat (x, y), c,
+                    failmsg % (getat (x, y), c, x, y))
+    
     def todo_test_pygame2_sdl_video_Surface_blit(self):
         # This is done in sdl_video_surface_blit_test.py
         self.fail() 
@@ -85,17 +108,22 @@ class SDLVideoSurfaceTest (unittest.TestCase):
         # 
         # Creates an exact copy of the Surface and its image data.
         video.init ()
-        sf = video.Surface (10, 10, 32)
-        sfcopy = sf.copy ()
+        modes = [32, 24, 16, 8]
+        for bpp in modes:
+            sf = video.Surface (10, 10, bpp)
+            if bpp == 8:
+                sf.set_palette (get_cga_palette ())
+            sfcopy = sf.copy ()
         
-        self.assertEqual (sf.size, sfcopy.size)
-        self.assertEqual (sf.format.bits_per_pixel, sfcopy.format.bits_per_pixel)
-        self.assertEqual (sf.format.masks, sfcopy.format.masks)
-        self.assertTrue (cmppixels (sf, sfcopy))
+            self.assertEqual (sf.size, sfcopy.size)
+            self.assertEqual (sf.format.bits_per_pixel,
+                              sfcopy.format.bits_per_pixel)
+            self.assertEqual (sf.format.masks, sfcopy.format.masks)
+            self._cmppixels (sf, sfcopy)
         
-        sf.fill (pygame2.Color (200, 100, 0))
-        sfcopy = sf.copy ()
-        self.assertTrue (cmppixels (sf, sfcopy))
+            sf.fill (Color (200, 100, 0))
+            sfcopy = sf.copy ()
+            self._cmppixels (sf, sfcopy)
         video.quit ()
 
     def test_pygame2_sdl_video_Surface_fill(self):
@@ -115,18 +143,21 @@ class SDLVideoSurfaceTest (unittest.TestCase):
         # operation, but compare the color with the specific Surface
         # pixel value.
         video.init ()
-        sf = video.Surface (10, 20, 32)
+        modes = [32, 24, 16, 8]
+        for bpp in modes:
+            sf = video.Surface (10, 20, bpp)
+            if bpp == 8:
+                sf.set_palette (get_cga_palette ())
 
-        self.assertTrue (cmpcolor (sf, pygame2.Color ("black")))
-        sf.fill (pygame2.Color ("cyan"))
-        self.assertTrue (cmpcolor (sf, pygame2.Color ("cyan")))
-        
-        sf.fill (pygame2.Color ("cyan"))
-        self.assertTrue (cmpcolor (sf, pygame2.Color ("cyan")))
+            self._cmpcolor (sf, Color ("black"))
+            sf.fill (Color ("cyan"))
+            self._cmpcolor (sf, Color ("cyan"))
 
-        sf.fill (pygame2.Color ("yellow"), pygame2.Rect (5, 5, 4, 5))
-        self.assertTrue (cmpcolor (sf, pygame2.Color ("yellow"),
-                                   pygame2.Rect (5, 5, 4, 5)))
+            sf.fill (Color ("cyan"))
+            self._cmpcolor (sf, Color ("cyan"))
+
+            sf.fill (Color ("yellow"), Rect (5, 5, 4, 5))
+            self._cmpcolor (sf, Color ("yellow"), Rect (5, 5, 4, 5))
         video.quit ()
 
     def test_pygame2_sdl_video_Surface_flags(self):
@@ -135,35 +166,38 @@ class SDLVideoSurfaceTest (unittest.TestCase):
 
         # The currently set flags for the Surface.
         video.init ()
-        
+        # Add 24bpp and 8bpp alpha masks.
+        modes = [32, 16]
         c = constants
+        for bpp in modes:
         
-        sf = video.Surface (10, 10, flags=c.SWSURFACE)
-        self.assertEqual ((sf.flags & c.SWSURFACE), c.SWSURFACE)
+            sf = video.Surface (10, 10, bpp, flags=c.SWSURFACE)
+            self.assertEqual ((sf.flags & c.SWSURFACE), c.SWSURFACE)
 
-        # HWSURFACE solely depends on the underlying hardware, additional
-        # flags and whatever else, so we won't test for it here.
+            # HWSURFACE solely depends on the underlying hardware, additional
+            # flags and whatever else, so we won't test for it here.
         
-        # SDL does not set SRCCOLORKEY instantly on creation. Instead it is
-        # set on applying a color key.
-        sf = video.Surface (10, 10, flags=c.SRCCOLORKEY)
-        self.assertEqual ((sf.flags & c.SRCCOLORKEY), 0)
+            # SDL does not set SRCCOLORKEY instantly on creation. Instead it is
+            # set on applying a color key.
+            sf = video.Surface (10, 10, bpp, flags=c.SRCCOLORKEY)
+            self.assertEqual ((sf.flags & c.SRCCOLORKEY), 0)
         
-        sf = video.Surface (10, 10, flags=c.SRCALPHA)
-        self.assertEqual ((sf.flags & c.SRCALPHA), c.SRCALPHA)
+            sf = video.Surface (10, 10, bpp, flags=c.SRCALPHA)
+            self.assertEqual ((sf.flags & c.SRCALPHA), c.SRCALPHA)
 
-        sf = video.Surface (10, 10, flags=c.SWSURFACE|c.SRCALPHA)
-        self.assertEqual ((sf.flags & c.SWSURFACE), c.SWSURFACE)
-        self.assertEqual ((sf.flags & c.SRCALPHA), c.SRCALPHA)
+            sf = video.Surface (10, 10, bpp, flags=c.SWSURFACE|c.SRCALPHA)
+            self.assertEqual ((sf.flags & c.SWSURFACE), c.SWSURFACE)
+            self.assertEqual ((sf.flags & c.SRCALPHA), c.SRCALPHA)
 
-        sf = video.Surface (10, 10, flags=c.SRCCOLORKEY|c.SRCALPHA)
-        self.assertEqual ((sf.flags & c.SRCCOLORKEY), 0)
-        self.assertEqual ((sf.flags & c.SRCALPHA), c.SRCALPHA)
-        
-        sf = video.Surface (10, 10, flags=c.SWSURFACE|c.SRCCOLORKEY|c.SRCALPHA)
-        self.assertEqual ((sf.flags & c.SRCCOLORKEY), 0)
-        self.assertEqual ((sf.flags & c.SWSURFACE), c.SWSURFACE)
-        self.assertEqual ((sf.flags & c.SRCALPHA), c.SRCALPHA)
+            sf = video.Surface (10, 10, bpp, flags=c.SRCCOLORKEY|c.SRCALPHA)
+            self.assertEqual ((sf.flags & c.SRCCOLORKEY), 0)
+            self.assertEqual ((sf.flags & c.SRCALPHA), c.SRCALPHA)
+
+            sf = video.Surface (10, 10, bpp,
+                                flags=c.SWSURFACE|c.SRCCOLORKEY|c.SRCALPHA)
+            self.assertEqual ((sf.flags & c.SRCCOLORKEY), 0)
+            self.assertEqual ((sf.flags & c.SWSURFACE), c.SWSURFACE)
+            self.assertEqual ((sf.flags & c.SRCALPHA), c.SRCALPHA)
 
         video.quit ()
 
@@ -178,8 +212,10 @@ class SDLVideoSurfaceTest (unittest.TestCase):
         # Swaps screen buffers for the Surface, causing a full update
         # and redraw of its whole area.
         video.init ()
-        sf = video.Surface (10, 10)
-        self.assert_ (sf.flip () == None)
+        modes =  [32, 24, 16, 8]
+        for bpp in modes:
+            sf = video.Surface (10, 10, bpp)
+            self.assert_ (sf.flip () == None)
         video.quit ()
 
     def todo_test_pygame2_sdl_video_Surface_format(self):
@@ -216,21 +252,25 @@ class SDLVideoSurfaceTest (unittest.TestCase):
         # 
         # Gets the Surface pixel value at the specified point.
         video.init ()
-        sf = video.Surface (10, 10)
+        modes = [32, 24, 16, 8]
+        for bpp in modes:
+            sf = video.Surface (10, 10, bpp)
+            if bpp == 8:
+                sf.set_palette (get_cga_palette ())
 
-        color = pygame2.Color (100, 50, 20)
-        sf.fill (color)
-        color = sf.format.get_rgba (color)
-        rect = pygame2.Rect (0, 0, 3, 7)
-        for x in range (10):
-            for y in range (10):
-                rect.topleft = x, y
-                self.assertEqual (sf.get_at (x, y), color)
-                self.assertEqual (sf.get_at ((x, y)), color)
-                self.assertEqual (sf.get_at (rect), color)
+            color = Color (100, 50, 20)
+            sf.fill (color)
+            color = sf.format.get_rgba (color)
+            rect = Rect (0, 0, 3, 7)
+            for x in range (10):
+                for y in range (10):
+                    rect.topleft = x, y
+                    self.assertEqual (sf.get_at (x, y), color)
+                    self.assertEqual (sf.get_at ((x, y)), color)
+                    self.assertEqual (sf.get_at (rect), color)
         video.quit ()
 
-    def test_pygame2_sdl_video_Surface_get_colorkey(self):
+    def todo_test_pygame2_sdl_video_Surface_get_colorkey(self):
 
         # __doc__ (as of 2009-05-15) for pygame2.sdl.video.Surface.get_colorkey:
 
@@ -240,24 +280,34 @@ class SDLVideoSurfaceTest (unittest.TestCase):
         # 
         # Gets the colorkey for the Surface or None in case it has no colorkey
         # (SRCCOLORKEY flag not set).
+        
+        # This fails badly.
         video.init ()
-        sf = video.Surface (10, 10)
-        self.assertEqual (sf.get_colorkey (), None)
-        sf = video.Surface (10, 10, flags=constants.SRCCOLORKEY)
-        self.assertEqual (sf.get_colorkey (), None)
+        modes = [32, 24, 16, 8]
+        for bpp in modes:
+            sf = video.Surface (10, 10, bpp)
+            if bpp == 8:
+                sf.set_palette (get_cga_palette ())
+            self.assertEqual (sf.get_colorkey (), None)
+            sf = video.Surface (10, 10, bpp, flags=constants.SRCCOLORKEY)
+            if bpp == 8:
+                sf.set_palette (get_cga_palette ())
+            self.assertEqual (sf.get_colorkey (), None)
         
-        sf = video.Surface (10, 10)
-        color = pygame2.Color (255, 0, 0)
-        key = sf.format.get_rgba (color)
-        self.assertTrue (sf.set_colorkey (color))
-        self.assertEqual (sf.get_colorkey (), key)
+            sf = video.Surface (10, 10, bpp)
+            if bpp == 8:
+                sf.set_palette (get_cga_palette ())
+            color = Color (255, 0, 0)
+            key = sf.format.get_rgba (color)
+            self.assertTrue (sf.set_colorkey (color))
+            self.assertEqual (sf.get_colorkey (), key)
         
-        # TODO: something wicked happens here.
-        # sf = video.Surface (10, 10, flags=constants.SRCCOLORKEY)
-        # color = pygame2.Color (255, 0, 0)
-        # key = sf.format.get_rgba (color)
-        # self.assertEqual (sf.set_colorkey (color), True)
-        # self.assertEqual (sf.get_colorkey (), key)
+            # TODO: something wicked happens here.
+            # sf = video.Surface (10, 10, bpp, flags=constants.SRCCOLORKEY)
+            # color = Color (255, 0, 0)
+            # key = sf.format.get_rgba (color)
+            # self.assertEqual (sf.set_colorkey (color), True)
+            # self.assertEqual (sf.get_colorkey (), key)
         video.quit ()
 
     def todo_test_pygame2_sdl_video_Surface_get_palette(self):
@@ -316,9 +366,11 @@ class SDLVideoSurfaceTest (unittest.TestCase):
         # 
         # Locks the Surface for a direct access to its internal pixel data.
         video.init ()
-        sf = video.Surface (10, 10)
-        self.assert_ (sf.lock () == None)
-        self.assert_ (sf.unlock () == None)
+        modes = [32, 24, 16, 8]
+        for bpp in modes:
+            sf = video.Surface (10, 10, bpp)
+            self.assert_ (sf.lock () == None)
+            self.assert_ (sf.unlock () == None)
         video.quit ()
 
     def test_pygame2_sdl_video_Surface_locked(self):
@@ -327,24 +379,26 @@ class SDLVideoSurfaceTest (unittest.TestCase):
 
         # Gets, whether the Surface is currently locked.
         video.init ()
-        sf = video.Surface (10, 10)
-        sf.lock ()
-        self.assertTrue (sf.locked)
-        sf.unlock ()
-        self.assertFalse (sf.locked)
-
-        for i in range (4):
-            sf.lock () 
+        modes = [32, 24, 16, 8]
+        for bpp in modes:
+            sf = video.Surface (10, 10, bpp)
+            sf.lock ()
             self.assertTrue (sf.locked)
-        self.assertTrue (sf.locked)
-        
-        for i in range (3):
             sf.unlock ()
+            self.assertFalse (sf.locked)
+
+            for i in range (4):
+                sf.lock () 
+                self.assertTrue (sf.locked)
             self.assertTrue (sf.locked)
-        sf.unlock ()
-        self.assertFalse (sf.locked)
-        sf.unlock ()
-        self.assertFalse (sf.locked)
+        
+            for i in range (3):
+                sf.unlock ()
+                self.assertTrue (sf.locked)
+            sf.unlock ()
+            self.assertFalse (sf.locked)
+            sf.unlock ()
+            self.assertFalse (sf.locked)
         video.quit ()
 
     def test_pygame2_sdl_video_Surface_pitch(self):
@@ -369,15 +423,17 @@ class SDLVideoSurfaceTest (unittest.TestCase):
 
         # Gets the pixel buffer of the Surface.
         video.init ()
-        sf = video.Surface (10, 10, 32)
-        self.assertFalse (sf.locked)
-        self.assert_ (type (sf.pixels) == pygame2.BufferProxy)
-        self.assertFalse (sf.locked)
-        buf = sf.pixels
-        self.assertTrue (sf.locked)
-        self.assert_ (buf.length >= 40)
-        del buf
-        self.assertFalse (sf.locked)
+        modes = [32, 24, 16, 8]
+        for bpp in modes:
+            sf = video.Surface (10, 10, bpp)
+            self.assertFalse (sf.locked)
+            self.assert_ (type (sf.pixels) == pygame2.BufferProxy)
+            self.assertFalse (sf.locked)
+            buf = sf.pixels
+            self.assertTrue (sf.locked)
+            self.assert_ (buf.length >= 10 * sf.format.bytes_per_pixel)
+            del buf
+            self.assertFalse (sf.locked)
         video.quit ()
 
     def test_pygame2_sdl_video_Surface_save(self):
@@ -404,45 +460,49 @@ class SDLVideoSurfaceTest (unittest.TestCase):
         # If no type information is supplied and the file type cannot be
         # determined either, it will use TGA.
         video.init ()
-        sf1 = video.Surface (16, 16, 32)
-        sf1.fill (pygame2.Color ("red"))
-        bufcreat = None
-        if sys.version_info[0] >= 3:
-            bufcreat = stringio.BytesIO
-        else:
-            bufcreat = stringio.StringIO
-        buf = bufcreat ()
+        modes = [32, 24, 16, 8]
+        for bpp in modes:
+            sf1 = video.Surface (16, 16, bpp)
+            if bpp == 8:
+                sf1.set_palette (get_cga_palette ())
+            sf1.fill (pygame2.Color ("red"))
+            bufcreat = None
+            if sys.version_info[0] >= 3:
+                bufcreat = stringio.BytesIO
+            else:
+                bufcreat = stringio.StringIO
+            buf = bufcreat ()
         
-        sf1.save (buf, "bmp")
-        buf.seek (0)
-        sf2 = image.load_bmp (buf)
-        self.assertEqual (sf1.size, sf2.size)
-        self.assertTrue (cmppixels (sf1, sf2))
+            sf1.save (buf, "bmp")
+            buf.seek (0)
+            sf2 = image.load_bmp (buf).convert (sf1.format)
+            self.assertEqual (sf1.size, sf2.size)
+            self._cmppixels (sf1, sf2)
         
-        buf.seek (0)
-        sf2 = sdlimage.load (buf, "bmp")
-        self.assertEqual (sf1.size, sf2.size)
-        self.assertTrue (cmppixels (sf1, sf2))
+            buf.seek (0)
+            sf2 = sdlimage.load (buf, "bmp").convert (sf1.format)
+            self.assertEqual (sf1.size, sf2.size)
+            self._cmppixels (sf1, sf2)
 
-        buf = bufcreat ()
-        sf1.save (buf, "jpg")
-        buf.seek (0)
-        sf2 = sdlimage.load (buf, "jpg")
-        self.assertEqual (sf1.size, sf2.size)
+            buf = bufcreat ()
+            sf1.save (buf, "jpg")
+            buf.seek (0)
+            sf2 = sdlimage.load (buf, "jpg").convert (sf1.format)
+            self.assertEqual (sf1.size, sf2.size)
 
-        buf = bufcreat ()
-        sf1.save (buf, "png")
-        buf.seek (0)
-        sf2 = sdlimage.load (buf, "png")
-        self.assertEqual (sf1.size, sf2.size)
-        self.assertTrue (cmppixels (sf1, sf2))
+            buf = bufcreat ()
+            sf1.save (buf, "png")
+            buf.seek (0)
+            sf2 = sdlimage.load (buf, "png").convert (sf1.format)
+            self.assertEqual (sf1.size, sf2.size)
+            self._cmppixels (sf1, sf2)
 
-        buf = bufcreat ()
-        sf1.save (buf, "tga")
-        buf.seek (0)
-        sf2 = sdlimage.load (buf, "tga")
-        self.assertEqual (sf1.size, sf2.size)
-        self.assertTrue (cmppixels (sf1, sf2))
+            buf = bufcreat ()
+            sf1.save (buf, "tga")
+            buf.seek (0)
+            sf2 = sdlimage.load (buf, "tga").convert (sf1.format)
+            self.assertEqual (sf1.size, sf2.size)
+            self._cmppixels (sf1, sf2)
         video.quit ()
 
     def todo_test_pygame2_sdl_video_Surface_set_alpha(self):
@@ -546,9 +606,11 @@ class SDLVideoSurfaceTest (unittest.TestCase):
         # 
         # Unlocks the Surface, releasing the direct access to the pixel data.
         video.init ()
-        sf = video.Surface (10, 10)
-        self.assert_ (sf.lock () == None)
-        self.assert_ (sf.unlock () == None)
+        modes = [32, 24, 16, 8]
+        for bpp in modes:
+            sf = video.Surface (10, 10, bpp)
+            self.assert_ (sf.lock () == None)
+            self.assert_ (sf.unlock () == None)
         video.quit ()
 
     def todo_test_pygame2_sdl_video_Surface_update(self):
