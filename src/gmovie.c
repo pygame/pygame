@@ -25,7 +25,7 @@
         Py_DECREF(self);
         Py_RETURN_NONE;
     }	
-		
+	PySys_WriteStdout("Movie->filename: %s\n", (PyMovie *)self->filename);
 	Py_DECREF(self);
 	return self;
 }

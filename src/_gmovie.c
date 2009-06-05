@@ -118,24 +118,6 @@
     return ret;
 }
 
-uint64_t global_video_pkt_pts = AV_NOPTS_VALUE;
-
-/* These are called whenever we allocate a frame
- * buffer. We use this to store the global_pts in
- * a frame at the time it is allocated.
- */
-int ff_get_buffer(struct AVCodecContext *c, AVFrame *pic) {
-  int ret = avcodec_default_get_buffer(c, pic);
-  uint64_t *pts = av_malloc(sizeof(uint64_t));
-  *pts = global_video_pkt_pts;
-  pic->opaque = pts;
-  return ret;
-}
-void ff_release_buffer(struct AVCodecContext *c, AVFrame *pic) {
-  if(pic) av_freep(&pic->opaque);
-  avcodec_default_release_buffer(c, pic);
-}
-
 
  void blend_subrect(AVPicture *dst, const AVSubtitleRect *rect, int imgw, int imgh)
 {
@@ -542,101 +524,57 @@ double calc_ca(int64_t diff, double ca, double i)
 /*moving to DECODE THREAD, from queue_frame*/
 	
 	Py_INCREF(movie);
-    double diff, aud_diff, delay;
-
+    double actual_delay, delay, sync_threshold, ref_clock, diff;
+	VidPicture *vp;
+	
     if (movie->video_st) { /*shouldn't ever even get this far if no video_st*/
-		
-		movie->video_current_pts_time = av_gettime();
-		movie->video_current_pts=movie->video_clock;
-	
-		
-		delay = movie->video_current_pts - movie->video_last_pts;
-		if(delay <=0 || delay >=1.0)
-		{
-			delay = movie->last_frame_delay;
-		}
-		movie->last_frame_delay = delay;
-		
-		/*aud_diff = movie->video_clock - get_audio_clock(movie);
-		
-		if(fabs(aud_diff) < AV_NOSYNC_THRESHOLD)
-		{
-			if(aud_diff <= -AV_SYNC_THRESHOLD)
-			{
-				delay = 0;
-			}
-			else if (aud_diff >=AV_SYNC_THRESHOLD)
-			{
-				delay = 2*delay;
-			}
-		}*/		
-		//movie->frame_timer += delay;
-		
-	
-		diff = movie->video_current_pts_time - movie->video_last_pts_time;
-		
-		if(diff<=0)
-			diff = 1;
-		
-		//diff += (movie->frame_timer*1000000.0) - av_gettime();
-		
-		movie->video_last_pts = movie->video_current_pts;
-		movie->video_last_pts_time = movie->video_current_pts_time;
-		//diff = diff+movie->ca_decode + movie->ca_render;
-		//diff /=100;
-#if 1
-		//PySys_WriteStdout("CA Decode: %f\n CA Render: %f\nDiff: %f\n", movie->ca_decode, movie->ca_render, diff);
-#endif
-		
-		movie->timing = diff;
+
+        /* dequeue the picture */
+        vp = &movie->pictq[movie->pictq_rindex];
+
         /* update current video pts */
-        /*movie->video_current_pts = movie->video_clock;
-    	movie->video_current_pts_time = av_gettime();
-
-        /* compute nominal delay */
-        /*delay = movie->video_clock - movie->frame_last_pts;
-        if (delay <= 0 || delay >= 1.0) {
-            /* if incorrect delay, use previous one */
-          /*  delay = movie->frame_last_delay;
-        }
-        
-        movie->frame_last_delay = delay;
-        movie->frame_last_pts = movie->video_clock;
-
-        /* we try to correct big delays by duplicating or deleting a frame */
-        /*ref_clock = get_master_clock(movie);
-        diff = movie->video_clock - ref_clock;
-
-//printf("get_master_clock = %f\n", (float)(ref_clock/1000000.0));
-        /* skip or repeat frame. We take into account the delay to compute
-           the threshold. I still don't know if it is the best guess */
-        /*sync_threshold = AV_SYNC_THRESHOLD;
-        if (delay > sync_threshold)
-            sync_threshold = delay;
-        if (fabs(diff) < AV_NOSYNC_THRESHOLD) {
-            if (diff <= -sync_threshold) {
-                skipframe = 1;
-                delay = 0;
-            } else if (diff >= sync_threshold) {
-                delay = 2 * delay;
-            }
-        }
-
-        movie->frame_timer += delay;
-		actual_delay = movie->frame_timer - (av_gettime() / 1000000.0);
-    	if (actual_delay < 0.010) {
-        /* XXX: should skip picture */
-       /* 	actual_delay = 0.010;
-    	}
-     
-        if (skipframe) {
-            movie->dest_showtime = 0;
-            /*movie->dest_showtime = get_master_clock(movie); this shows every frame*/
-      //  }
-    /*    else
-        {
-        	movie->dest_showtime = actual_delay*1000+0.5;
-        }*/
+        movie->video_current_pts = vp->pts;
+        movie->video_current_pts_time = av_gettime();
+		
+	    /* compute nominal delay */
+	    delay = movie->video_current_pts - movie->frame_last_pts;
+	    if (delay <= 0 || delay >= 10.0) {
+	        /* if incorrect delay, use previous one */
+	        delay = movie->frame_last_delay;
+	    } else {
+	        movie->frame_last_delay = delay;
+	    }
+	    movie->frame_last_pts = movie->video_current_pts;
+	
+	    /* update delay to follow master synchronisation source */
+	    if (((movie->av_sync_type == AV_SYNC_AUDIO_MASTER && movie->audio_st) ||
+	         movie->av_sync_type == AV_SYNC_EXTERNAL_CLOCK)) {
+	        /* if video is slave, we try to correct big delays by
+	           duplicating or deleting a frame */
+	        ref_clock = get_master_clock(movie);
+	        diff = movie->video_current_pts - ref_clock;
+	
+	        /* skip or repeat frame. We take into account the
+	           delay to compute the threshold. I still don't know
+	           if it is the best guess */
+	        sync_threshold = FFMAX(AV_SYNC_THRESHOLD, delay);
+	        if (fabs(diff) < AV_NOSYNC_THRESHOLD) {
+	            if (diff <= -sync_threshold)
+	                delay = 0;
+	            else if (diff >= sync_threshold)
+	                delay = 2 * delay;
+	        }
+	    }
+	
+	    movie->frame_timer += delay;
+	    /* compute the REAL delay (we need to do that to avoid
+	       long term errors */
+	    actual_delay = movie->frame_timer - (av_gettime() / 1000000.0);
+	    if (actual_delay < 0.010) {
+	        /* XXX: should skip picture */
+	        actual_delay = 0.010;
+	    }	
+		movie->timing = (actual_delay*1000.0)+0.5;
     }
     Py_DECREF(movie);
 }
@@ -654,16 +592,11 @@ double calc_ca(int64_t diff, double ca, double i)
     SDL_LockMutex(movie->dest_mutex);
 	vp = &movie->pictq[movie->pictq_windex];
 	int c=1;
-	/*while(vp->ready && c<VIDEO_PICTURE_QUEUE_SIZE)
-	{
-		c++;
-		vp = &movie->pictq[(movie->pictq_windex+c)%VIDEO_PICTURE_QUEUE_SIZE];
-		
-	}*/
-	if(movie->timing)
+	
+	/*if(movie->timing)
 	{
 		video_display(movie);
-	}
+	}*/
 	if(!vp->dest_overlay)
 	{
 		video_open(movie, movie->pictq_windex);
@@ -697,40 +630,37 @@ double calc_ca(int64_t diff, double ca, double i)
 
         SDL_UnlockYUVOverlay(vp->dest_overlay);
 
-        
+        vp->pts = movie->pts;  
+    	movie->pictq_windex = (movie->pictq_windex+c)%VIDEO_PICTURE_QUEUE_SIZE;
+		movie->pictq_size++;
+		vp->ready=1;
     }
     SDL_UnlockMutex(movie->dest_mutex);
-
-	movie->pictq_windex = (movie->pictq_windex+c)%VIDEO_PICTURE_QUEUE_SIZE;
-	movie->pictq_size++;
-	vp->ready=1;
+	
 	Py_DECREF(movie);
     return 0;
 }
 
 
- void update_video_clock(PyMovie *movie, AVFrame* frame, double pts) {
-    /* if B frames are present, and if the current picture is a I
-       or P frame, we use the last pts */
-    if (movie->video_st->codec->has_b_frames &&
-        frame->pict_type != FF_B_TYPE) {
+ void update_video_clock(PyMovie *movie, AVFrame* frame, double pts1) {
+	double frame_delay, pts;
 
-        double last_P_pts = movie->video_last_P_pts;
-        movie->video_last_P_pts = pts;
-        pts = last_P_pts;
-    }
+    pts = pts1;
 
-    /* update video clock with pts, if present */
     if (pts != 0) {
+        /* update video clock with pts, if present */
         movie->video_clock = pts;
     } else {
-        movie->video_clock += movie->frame_delay;
-        /* for MPEG2, the frame can be repeated, update accordingly */
-        if (frame->repeat_pict) {
-            movie->video_clock += frame->repeat_pict *
-                    (movie->frame_delay * 0.5);
-        }
+        pts = movie->video_clock;
     }
+    /* update video clock for next frame */
+    frame_delay = av_q2d(movie->video_st->codec->time_base);
+    /* for MPEG2, the frame can be repeated, so we update the
+       clock accordingly */
+    frame_delay += frame->repeat_pict * (frame_delay * 0.5);
+    movie->video_clock += frame_delay;
+
+	movie->pts = pts;
 }
 
  int video_thread(void *arg)
@@ -1338,9 +1268,6 @@ double calc_ca(int64_t diff, double ca, double i)
       	if(!THREADFREE)
 	        movie->video_tid = SDL_CreateThread(video_thread, movie);
 		
-		enc->get_buffer = ff_get_buffer;
-    	enc->release_buffer = ff_release_buffer;
-		
         break;
     case CODEC_TYPE_SUBTITLE:
     	//PySys_WriteStdout("stream_component_open: subtitle stream\n");
@@ -1534,7 +1461,7 @@ video_index = -1;
 	PyGILState_Release(gstate);
 	gstate=PyGILState_Ensure();
 	int co=0;
-	is->last_showtime = av_gettime();
+	is->last_showtime = av_gettime()/1000.0;
     video_open(is, is->pictq_windex);
     PyGILState_Release(gstate);
     for(;;) {
@@ -1919,7 +1846,7 @@ void stream_cycle_channel(PyMovie *is, int codec_type)
 	PyGILState_Release(gstate);
 	gstate=PyGILState_Ensure();
 	int co=0;
-	is->last_showtime = av_gettime();
+	is->last_showtime = av_gettime()/1000.0;
     video_open(is, is->pictq_windex);
     PyGILState_Release(gstate);
     for(;;) {
@@ -1952,15 +1879,10 @@ void stream_cycle_channel(PyMovie *is, int codec_type)
                 seek_target= av_rescale_q(seek_target, AV_TIME_BASE_Q, ic->streams[stream_index]->time_base);
             }
 
-    
-
             ret = av_seek_frame(is->ic, stream_index, seek_target, is->seek_flags);
             if (ret < 0) {
                 PyErr_Format(PyExc_IOError, "%s: error while seeking", is->ic->filename);
-                //fprintf(stderr, "%s: error while seeking\n", is->ic->filename);
             }else{
-                
-                
                 if (is->audio_stream >= 0) {
                     packet_queue_flush(&is->audioq);
                     packet_queue_put(&is->audioq, &flush_pkt);
@@ -1993,37 +1915,39 @@ void stream_cycle_channel(PyMovie *is, int codec_type)
             PyGILState_Release(gstate);
             continue;
         }
-        ret = av_read_frame(ic, pkt);
-        if (ret < 0) {
-            if (ret != AVERROR_EOF && url_ferror(ic->pb) == 0) {
-                SDL_Delay(100); /* wait for user event */
-                PyGILState_Release(gstate);
-                continue;
-            } else
-            {
-            	PyGILState_Release(gstate);
-                break;
-            }
-        }
-        /*if (pkt->stream_index == is->audio_stream) {
-            packet_queue_put(&is->audioq, pkt);
-        } else*/ 
-        if (pkt->stream_index == is->video_stream) {
-            packet_queue_put(&is->videoq, pkt);
-        //} else if (pkt->stream_index == is->subtitle_stream) {
-        //    packet_queue_put(&is->subtitleq, pkt);
-        } else if(pkt) {
-            av_free_packet(pkt);
-        }
-        
+		if(is->pictq_size<VIDEO_PICTURE_QUEUE_SIZE)
+		{
+	        ret = av_read_frame(ic, pkt);
+	        if (ret < 0) {
+	            if (ret != AVERROR_EOF && url_ferror(ic->pb) == 0) {
+	                SDL_Delay(100); /* wait for user event */
+	                PyGILState_Release(gstate);
+	                continue;
+	            } else
+	            {
+	            	PyGILState_Release(gstate);
+	                break;
+	            }
+	        }
+	        /*if (pkt->stream_index == is->audio_stream) {
+	            packet_queue_put(&is->audioq, pkt);
+	        } else*/ 
+	        if (pkt->stream_index == is->video_stream) {
+	            packet_queue_put(&is->videoq, pkt);
+	        //} else if (pkt->stream_index == is->subtitle_stream) {
+	        //    packet_queue_put(&is->subtitleq, pkt);
+	        } else if(pkt) {
+	            av_free_packet(pkt);
+	        }
+		}
         video_render(is);
         if(co<2)
         	video_refresh_timer(is);
-        if(co==4.0)
-			PySys_WriteStdout("co=4\n");
+        if(co>=3605.0)
+			PySys_WriteStdout("co=3606\n");
         if(is->timing>0) {
         	double showtime = is->timing+is->last_showtime;
-            double now = av_gettime();
+            double now = av_gettime()/1000.0;
             //PySys_WriteStdout("Now:           %f\nShowtime:      %f\nLast Showtime: %f\n", now, showtime, is->last_showtime);
             if(now >= showtime) {
             	double temp = is->timing;
@@ -2032,7 +1956,7 @@ void stream_cycle_channel(PyMovie *is, int codec_type)
                 {
                 	is->timing=temp;
                 }
-                is->last_showtime = av_gettime();
+                is->last_showtime = av_gettime()/1000.0;
                 
             } else {
 //                printf("showtime not ready, waiting... (%.2f,%.2f)\n",
@@ -2111,10 +2035,8 @@ int video_render(PyMovie *movie)
 
         /* NOTE: ipts is the PTS of the _first_ picture beginning in
            this packet, if any */
-        global_video_pkt_pts = pkt->pts;
+
         movie->video_st->codec->reordered_opaque= pkt->pts;
-		//int64_t t_before = av_gettime();
-        
         len1 = avcodec_decode_video(movie->video_st->codec,
                                     frame, &got_picture,
                                     pkt->data, pkt->size);
