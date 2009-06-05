@@ -516,7 +516,19 @@ class RectTest (unittest.TestCase):
         self.assertEqual( new_height, r.height )
         self.assertEqual( old_width, r.width )
         self.assertEqual( old_topleft, r.topleft )
+    
+    def test_pygame2_base_Rect_h(self):
 
+        r = Rect( 1, 2, 3, 4 )
+        new_height = 10
+        old_topleft = r.topleft
+        old_width = r.width
+        
+        r.h = new_height
+        self.assertEqual( new_height, r.h )
+        self.assertEqual( old_width, r.width )
+        self.assertEqual( old_topleft, r.topleft )
+    
     def todo_test_pygame2_base_Rect_inflate(self):
 
         # __doc__ (as of 2008-10-17) for pygame2.base.Rect.inflate:
@@ -836,7 +848,17 @@ class RectTest (unittest.TestCase):
         self.assertEqual( new_width, r.width )
         self.assertEqual( old_height, r.height )
         self.assertEqual( old_topleft, r.topleft )
-
+    
+    def test_pygame2_base_Rect_w(self):
+        r = Rect( 1, 2, 3, 4 )
+        new_width = 10
+        old_topleft = r.topleft
+        old_height = r.height
+        
+        r.w = new_width
+        self.assertEqual( new_width, r.w )
+        self.assertEqual( old_height, r.height )
+        self.assertEqual( old_topleft, r.topleft )
     def test_pygame2_base_Rect_x(self):
 
         # __doc__ (as of 2008-10-17) for pygame2.base.Rect.x:

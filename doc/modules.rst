@@ -23,8 +23,8 @@ Modules
    :maxdepth: 2
 
    ref/pygame2.rst
-   ref/examples.rst
    ref/pygame2_colorpalettes.rst
+   ref/examples.rst
    ref/pygame2_font.rst
    ref/pygame2_freetype_base.rst
    ref/pygame2_mask.rst

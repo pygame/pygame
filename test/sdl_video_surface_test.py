@@ -47,19 +47,47 @@ class SDLVideoSurfaceTest (unittest.TestCase):
                 self.failUnlessEqual (getat (x, y), c,
                     failmsg % (getat (x, y), c, x, y))
     
-    def todo_test_pygame2_sdl_video_Surface_blit(self):
+    def test_pygame2_sdl_video_Surface_blit(self):
         # This is done in sdl_video_surface_blit_test.py
-        self.fail() 
+        pass
 
-    def todo_test_pygame2_sdl_video_Surface_clip_rect(self):
+    def test_pygame2_sdl_video_Surface_clip_rect(self):
 
         # __doc__ (as of 2009-05-15) for pygame2.sdl.video.Surface.clip_rect:
 
         # Gets or sets the current clipping rectangle for
         # operations on the Surface.
         video.init ()
+        modes = [32, 24, 16, 8]
+        for bpp in modes:
+            sf = video.Surface (10, 10, bpp)
+            sf.fill (Color (255, 255, 255))
+            sf.clip_rect = Rect (3, 3, 3, 3)
+            self.assertEqual (sf.clip_rect, Rect (3, 3, 3, 3))
+            
+            sf.fill (Color (255, 0, 0))
+            self._cmpcolor (sf, Color (255, 255, 255), Rect (0, 0,  3, 10))
+            self._cmpcolor (sf, Color (255, 255, 255), Rect (0, 0, 10,  2))
+            self._cmpcolor (sf, Color (255, 255, 255), Rect (6, 0,  4, 10))
+            self._cmpcolor (sf, Color (255, 255, 255), Rect (0, 6, 10,  4))
+            self._cmpcolor (sf, Color (255, 0, 0), Rect (3, 3, 3, 3))
+            
+            sf.clip_rect = None
+            sf.fill (Color (255, 255, 255))
+            self._cmpcolor (sf, Color (255, 255, 255))
+            
+            sf.clip_rect = Rect (3, 3, 3, 3)
+            sf.fill (Color (255, 0, 0))
+            sf.fill (Color (0, 255, 0), Rect (4, 5, 10, 10))
+            self._cmpcolor (sf, Color (255, 255, 255), Rect (0, 0,  3, 10))
+            self._cmpcolor (sf, Color (255, 255, 255), Rect (0, 0, 10,  2))
+            self._cmpcolor (sf, Color (255, 0, 0), Rect (3, 3, 3, 2))
+            self._cmpcolor (sf, Color (255, 0, 0), Rect (3, 3, 1, 3))
+            self._cmpcolor (sf, Color (0, 255, 0), Rect (4, 5, 2, 1))
+            self._cmpcolor (sf, Color (255, 255, 255), Rect (6, 0,  4, 10))
+            self._cmpcolor (sf, Color (255, 255, 255), Rect (0, 6, 10,  4))
+        
         video.quit ()
-        self.fail() 
 
     def todo_test_pygame2_sdl_video_Surface_convert(self):
 
@@ -498,7 +526,7 @@ class SDLVideoSurfaceTest (unittest.TestCase):
         video.quit ()
         self.fail() 
 
-    def todo_test_pygame2_sdl_video_Surface_set_at(self):
+    def test_pygame2_sdl_video_Surface_set_at(self):
 
         # __doc__ (as of 2009-05-15) for pygame2.sdl.video.Surface.set_at:
 
@@ -507,8 +535,25 @@ class SDLVideoSurfaceTest (unittest.TestCase):
         # 
         # Sets the Surface pixel value at the specified point.
         video.init ()
+        modes = [32, 24, 16, 8]
+        for bpp in modes:
+            sf = video.Surface (10, 10, bpp)
+            if bpp == 8:
+                sf.set_palette (CGAPALETTE)
+
+            color = Color (255, 255, 255)
+            sf.fill (color)
+            color = Color (100, 37, 44)
+            cc = sf.format.get_rgba (color)
+            rect = Rect (4, 4, 3, 6)
+            for x in range (rect.x, rect.x + rect.w):
+                for y in range (rect.y, rect.y + rect.h):
+                    sf.set_at (x, y, color)
+                    self.assertEqual (sf.get_at (x, y), cc)
+                    sf.set_at ((x, y), color)
+                    self.assertEqual (sf.get_at (x, y), cc)
+            self._cmpcolor (sf, color, rect)
         video.quit ()
-        self.fail() 
 
     def todo_test_pygame2_sdl_video_Surface_set_colorkey(self):
 

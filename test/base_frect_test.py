@@ -540,7 +540,18 @@ class FRectTest (unittest.TestCase):
         self.assertEqual( new_height, r.height )
         self.assertEqual( old_width, r.width )
         self.assertEqual( old_topleft, r.topleft )
+    
+    def test_pygame2_base_FRect_h(self):
 
+        r = FRect( 1, 2, 3, 4 )
+        new_height = 10
+        old_topleft = r.topleft
+        old_width = r.width
+        
+        r.h = new_height
+        self.assertEqual( new_height, r.h )
+        self.assertEqual( old_width, r.width )
+        self.assertEqual( old_topleft, r.topleft )
     def test_inflate__larger( self ):
         "The inflate method inflates around the center of the rectangle"
         r = FRect( 2, 4, 6, 8 )
@@ -885,7 +896,17 @@ class FRectTest (unittest.TestCase):
         self.assertEqual( new_width, r.width )
         self.assertEqual( old_height, r.height )
         self.assertEqual( old_topleft, r.topleft )
-
+    
+    def test_pygame2_base_FRect_w(self):
+        r = FRect( 1, 2, 3, 4 )
+        new_width = 10
+        old_topleft = r.topleft
+        old_height = r.height
+        
+        r.w = new_width
+        self.assertEqual( new_width, r.w )
+        self.assertEqual( old_height, r.height )
+        self.assertEqual( old_topleft, r.topleft )
     def todo_test_pygame2_base_FRect_x(self):
 
         # __doc__ (as of 2008-10-17) for pygame2.base.FRect.x:
