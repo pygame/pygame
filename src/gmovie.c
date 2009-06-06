@@ -95,11 +95,15 @@
     movie->paused = 0;
     movie->playing = 1;
     SDL_UnlockMutex(movie->dest_mutex);
-    while(loops>-1)
+    while((loops-1)!=-1)
     {
     	decoder(movie);
     	PySys_WriteStdout("Loops: %i\n", loops);
     	loops--;
+    	if(loops==1)
+    	{
+    		PySys_WriteStdout("Second Loop Around\n");
+    	}
     	movie=stream_open(movie, movie->filename, NULL);
     	movie->paused=0;
     }

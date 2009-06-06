@@ -14,7 +14,7 @@
     if(!q->mutex)
 	    q->mutex = SDL_CreateMutex();
     if(!q->cond)
-    q->cond = SDL_CreateCond();
+    	q->cond = SDL_CreateCond();
     q->abort_request=0;
 
 }
