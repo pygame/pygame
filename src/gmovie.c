@@ -21,7 +21,6 @@
 	if(!self)
 	{
 		PyErr_SetString(PyExc_IOError, "stream_open failed");
-        //printf(stdout, "stream_open failed.\n");
         Py_DECREF(self);
         Py_RETURN_NONE;
     }	
@@ -37,12 +36,9 @@
 	if (!PyArg_ParseTuple (args, "s", &c))
     {
         PyErr_SetString(PyExc_TypeError, "No valid arguments");
-        //Py_RETURN_NONE;
     	return -1;
     }	
 	self = _movie_init_internal(self, c, NULL);
-	PyGILState_STATE gstate;
-	gstate = PyGILState_Ensure();
 	PyObject *er;
     er = PyErr_Occurred();
     if(er)
@@ -54,22 +50,17 @@
         PyErr_SetString(PyExc_IOError, "No movie object created.");
         PyErr_Print();
         Py_DECREF(self);
-		PyGILState_Release(gstate);
         return -1;
     }
     Py_DECREF(self);
     PySys_WriteStdout("Returning from _movie_init\n");
-	if(gstate!=PyGILState_UNLOCKED)PyGILState_Release(gstate);
     return 0;
 }   
 
  void _movie_dealloc(PyMovie *movie)
 {
- 	PyGILState_STATE gstate;
- 	gstate=PyGILState_Ensure();
     stream_close(movie);
     movie->ob_type->tp_free((PyObject *) movie);
-	PyGILState_Release(gstate);
 }
 
  PyObject* _movie_repr (PyMovie *movie)
@@ -140,10 +131,24 @@
 {
     return PyInt_FromLong((long)movie->paused);
 }
- PyObject* _movie_get_playing (PyMovie *movie, void *closure)
+PyObject* _movie_get_playing (PyMovie *movie, void *closure)
 {
     PyObject *pyo;
     pyo= PyInt_FromLong((long)movie->playing);
+    return pyo;
+}
+
+PyObject* _movie_get_width (PyMovie *movie, void *closure)
+{
+    PyObject *pyo;
+    pyo= PyInt_FromLong((long)movie->width);
+    return pyo;
+}
+
+PyObject* _movie_get_height (PyMovie *movie, void *closure)
+{
+    PyObject *pyo;
+    pyo= PyInt_FromLong((long)movie->height);
     return pyo;
 }
 
@@ -163,6 +168,8 @@
 {
     { "paused", (getter) _movie_get_paused, NULL, NULL, NULL },
     { "playing", (getter) _movie_get_playing, NULL, NULL, NULL },
+    { "height", (getter) _movie_get_height, NULL, NULL, NULL },
+    { "width", (getter) _movie_get_width, NULL, NULL, NULL },
     { NULL, NULL, NULL, NULL, NULL }
 };
 

@@ -1,15 +1,14 @@
 #ifndef _GMOVIE_H_
 #define _GMOVIE_H_
 
-/* includes */
+/* local includes */
 #include "pygamedocs.h"
 #include "pygame.h"
 #include "pgcompat.h"
 #include "audioconvert.h"
 #include "surface.h"
-//#include "_ffmovie_vid.h"
-//#include "_ffmovie_aud.h"
 
+/* Library includes */
 #include <Python.h>
 #include <SDL.h>
 #include <SDL_thread.h>
@@ -86,19 +85,15 @@
 {\
     ((uint32_t *)(d))[0] = (a << 24) | (y << 16) | (u << 8) | v;\
 }
-
+//sets the module to single-thread mode.
 #define THREADFREE 1
 
+//backwards compatibility with blend_subrect
 #define BPP 1
 
-#define FF_ALLOC_EVENT   (SDL_USEREVENT)
-#define FF_REFRESH_EVENT (SDL_USEREVENT + 1)
-#define FF_QUIT_EVENT    (SDL_USEREVENT + 2)
+AVPacket flush_pkt;
 
- AVPacket flush_pkt;
-
- 
-
+/* Queues for already-loaded pictures, for rapid display */
 #define VIDEO_PICTURE_QUEUE_SIZE 16
 #define SUBPICTURE_QUEUE_SIZE 4
 
@@ -125,7 +120,7 @@
 
 
 /* structure definitions */
-
+/* PacketQueue to hold incoming ffmpeg packets from the stream */
 typedef struct PacketQueue {
     AVPacketList *first_pkt, *last_pkt;
     int nb_packets;
@@ -135,23 +130,26 @@ typedef struct PacketQueue {
     SDL_cond *cond;
 } PacketQueue;
 
-
+/* Holds the subtitles for a specific timestamp */
 typedef struct SubPicture {
     double pts;         /* presentation time stamp for this picture */
     AVSubtitle sub;     //contains relevant info about subtitles    
 } SubPicture;
 
+/* Holds already loaded pictures, so that decoding, and writing to a overlay/surface can happen while waiting
+ * the <strong> very </strong> long time(in computer terms) to show the next frame. 
+ */
 typedef struct VidPicture{
-	SDL_Overlay *dest_overlay;
-	SDL_Surface *dest_surface;
-	SDL_Rect    dest_rect;
-	int         width;
+	SDL_Overlay *dest_overlay; /* Overlay for fast speedy yuv-rendering of the video */
+	SDL_Surface *dest_surface; /* Surface for other desires, for example, rendering a video in a small portion of the screen */ 
+	SDL_Rect    dest_rect;	   /* Dest-rect, which tells where to locate the video */
+	int         width;         /* Width and height */
 	int         height;
-	int         xleft;
-	int         ytop;
-	int         overlay;
-	int         ready;
-	double      pts;
+	int         xleft;		   /* Where left border of video is located */
+	int         ytop;		   /* Where top border of video is located */
+	int         overlay;	   /* Whether or not to use the overlay */
+	int         ready; 		   /* Boolean to indicate this picture is ready to be used. After displaying the contents, it changes to False */
+	double      pts;		   /* presentation time-stamp of the picture */
 } VidPicture;
 
 
@@ -164,29 +162,35 @@ enum {
 
 typedef struct PyMovie {
 	PyObject_HEAD
-    SDL_Thread *parse_tid;
-    int abort_request;
-    int paused;
-	int last_paused;
-
-	/* We create a cumulative average of the time to render and 
-	 * the time to decode a video frame, and add those to the 
-	 * timing value */
-	double ca_render;   //actual cumulative average value
-	double ca_render_i; //need to keep track of how many values we've accumulated
-
-	double ca_decode;  //actual cumulative average value
-	double ca_decode_i;//need to keep track of how many values we've accumulated
-	
-	VidPicture pictq[VIDEO_PICTURE_QUEUE_SIZE];
-	int pictq_size, pictq_windex, pictq_rindex;
-	
+    /* General purpose members */
+    SDL_Thread *parse_tid; /* Thread id for the decode_thread call */
+    int abort_request;     /* Tells whether or not to stop playing and return */
+    int paused; 		   /* Boolean for communicating to the threads to pause playback */
+	int last_paused;       /* For comparing the state of paused to what it was last time around. */
+    char filename[1024];
+    int overlay; //>0 if we are to use the overlay, otherwise <=0
+    int playing;
+    int height;
+    int width;
+    int ytop;
+    int xleft;
+    int loops;
+	int64_t start_time;
+	AVInputFormat *iformat;
+	SDL_mutex *dest_mutex;
+	int av_sync_type;
 	AVFormatContext *ic;    /* context information about the format of the video file */
-    double external_clock; /* external clock base */
+	
+	/* Seek-info */
+    int seek_req;
+    int seek_flags;
+    int64_t seek_pos;
+
+	/* external clock members */
+	double external_clock; /* external clock base */
     int64_t external_clock_time;
 
-	SDL_Thread *video_tid;
-
+	/* Audio stream members */
     double audio_clock;
     double audio_diff_cum; /* used for AV difference average computation */
     double audio_diff_avg_coef;
@@ -208,19 +212,15 @@ typedef struct PyMovie {
     int audio_volume; /*must self implement*/
 	enum SampleFormat audio_src_fmt;
     AVAudioConvert *reformat_ctx;
-    
-	AVInputFormat *iformat;
-
-	int audio_stream;
-	int video_stream;
-
-    int16_t sample_array[SAMPLE_ARRAY_SIZE];
-    int sample_array_index;
-
+    int audio_stream;
+	int audio_disable;
+	
+	/* Frame/Video Management members */
     int frame_count;
     double frame_timer;
     double frame_last_pts;
     double frame_last_delay;
+    double last_frame_delay;
     double frame_delay; /*display time of each frame, based on fps*/
     double video_clock; /*seconds of video frame decoded*/
     AVStream *video_st;
@@ -236,12 +236,23 @@ typedef struct PyMovie {
 	double timing;
 	double last_showtime;
 	double pts;	
+	int video_stream;
+    SDL_Overlay *dest_overlay;
+    SDL_Surface *dest_surface;
+    SDL_Rect dest_rect;
+	
+	/* simple ring_buffer queue for holding VidPicture structs */
+	VidPicture pictq[VIDEO_PICTURE_QUEUE_SIZE];
+	int pictq_size, pictq_windex, pictq_rindex;
+
+	/* Thread id for the video_thread, when used in threaded mode */
+	SDL_Thread *video_tid;
+
 	PacketQueue videoq;
 	SDL_mutex *videoq_mutex;
 	SDL_cond *videoq_cond;
 
-	int av_sync_type;
-	
+	/* subtitle members */	
     SDL_Thread *subtitle_tid;                    //thread id for subtitle decode thread
     int subtitle_stream;                         //which subtitle thread we want
     int subtitle_stream_changed;                 //if the subtitle-stream has changed
@@ -252,95 +263,60 @@ typedef struct PyMovie {
     SDL_mutex *subpq_mutex;
     SDL_cond *subpq_cond;
 
-    SDL_mutex *dest_mutex;
-    double dest_showtime; /*when to next show the dest_overlay*/
-    SDL_Overlay *dest_overlay;
-    SDL_Surface *dest_surface;
-    SDL_Rect dest_rect;
-
-	double last_frame_delay;
-	
-    double time_offset; /*track paused time*/
-    
-    int audio_disable;
-    
-    char filename[1024];
-    
-    int overlay; //>0 if we are to use the overlay, otherwise <=0
- 
-    int playing;
-    int height;
-    int width;
-    
-    int ytop;
-    int xleft;
-    
-    int loops;
-
-	int64_t start_time;
-	
-    int seek_req;
-    int seek_flags;
-    int64_t seek_pos;
-
 } PyMovie;
 /* end of struct definitions */
 /* function definitions */
 
 /* 		PacketQueue Management */
 void packet_queue_init(PacketQueue *q);
- void packet_queue_flush(PacketQueue *q);
- void packet_queue_end(PacketQueue *q);
- int packet_queue_put(PacketQueue *q, AVPacket *pkt);
- void packet_queue_abort(PacketQueue *q);
- int packet_queue_get(PacketQueue *q, AVPacket *pkt, int block);
+void packet_queue_flush(PacketQueue *q);
+void packet_queue_end(PacketQueue *q, int end);
+int packet_queue_put(PacketQueue *q, AVPacket *pkt);
+void packet_queue_abort(PacketQueue *q);
+int packet_queue_get(PacketQueue *q, AVPacket *pkt, int block);
 
 /* 		Misc*/
- void blend_subrect(AVPicture *dst, const AVSubtitleRect *rect, int imgw, int imgh);
- void free_subpicture(SubPicture *sp);
- double calc_ca(int64_t diff, double ca, double i);
- int ff_get_buffer(struct AVCodecContext *c, AVFrame *pic);
- void ff_release_buffer(struct AVCodecContext *c, AVFrame *pic);
-
+void blend_subrect(AVPicture *dst, const AVSubtitleRect *rect, int imgw, int imgh);
+void free_subpicture(SubPicture *sp);
+double calc_ca(int64_t diff, double ca, double i);
+int ff_get_buffer(struct AVCodecContext *c, AVFrame *pic);
+void ff_release_buffer(struct AVCodecContext *c, AVFrame *pic);
 
 /* 		Video Management */
- int video_open(PyMovie *is, int index);
- void video_image_display(PyMovie *is);
- int video_display(PyMovie *is);
- int video_thread(void *arg);
- int video_render(PyMovie *movie);
- int queue_picture(PyMovie *is, AVFrame *src_frame);
- void update_video_clock(PyMovie *movie, AVFrame* frame, double pts);
- void video_refresh_timer(PyMovie *movie); //unlike in ffplay, this does the job of compute_frame_delay
-
+int video_open(PyMovie *is, int index);
+void video_image_display(PyMovie *is);
+int video_display(PyMovie *is);
+int video_thread(void *arg);
+int video_render(PyMovie *movie);
+int queue_picture(PyMovie *is, AVFrame *src_frame);
+void update_video_clock(PyMovie *movie, AVFrame* frame, double pts);
+void video_refresh_timer(PyMovie *movie); //unlike in ffplay, this does the job of compute_frame_delay
 
 /* 		Audio management */
- int audio_write_get_buf_size(PyMovie *is);
- int synchronize_audio(PyMovie *is, short *samples, int samples_size1, double pts);
- int audio_decode_frame(PyMovie *is, double *pts_ptr);
- void sdl_audio_callback(void *opaque, Uint8 *stream, int len);
-
+int audio_write_get_buf_size(PyMovie *is);
+int synchronize_audio(PyMovie *is, short *samples, int samples_size1, double pts);
+int audio_decode_frame(PyMovie *is, double *pts_ptr);
+void sdl_audio_callback(void *opaque, Uint8 *stream, int len);
 
 /* 		Subtitle management */
- int subtitle_thread(void *arg);
-
+int subtitle_thread(void *arg);
 
 /* 		General Movie Management */
- void stream_seek(PyMovie *is, int64_t pos, int rel);
- void stream_pause(PyMovie *is);
- int stream_component_open(PyMovie *is, int stream_index); //TODO: break down into separate functions
- void stream_component_close(PyMovie *is, int stream_index);
- int decode_thread(void *arg);
- int decoder(PyMovie *is);
- PyMovie *stream_open(PyMovie *is, const char *filename, AVInputFormat *iformat);
- void stream_close(PyMovie *is);
- void stream_cycle_channel(PyMovie *is, int codec_type);
+void stream_seek(PyMovie *is, int64_t pos, int rel);
+void stream_pause(PyMovie *is);
+int stream_component_open(PyMovie *is, int stream_index); //TODO: break down into separate functions
+void stream_component_close(PyMovie *is, int stream_index);
+int decode_thread(void *arg);
+int decoder(PyMovie *is);
+PyMovie *stream_open(PyMovie *is, const char *filename, AVInputFormat *iformat);
+void stream_close(PyMovie *is);
+void stream_cycle_channel(PyMovie *is, int codec_type);
 
 /* 		Clock Management */
- double get_audio_clock(PyMovie *is);
- double get_video_clock(PyMovie *is);
- double get_external_clock(PyMovie *is);
- double get_master_clock(PyMovie *is);
+double get_audio_clock(PyMovie *is);
+double get_video_clock(PyMovie *is);
+double get_external_clock(PyMovie *is);
+double get_master_clock(PyMovie *is);
 
 /*		Frame Management */
 // double compute_frame_delay(double frame_current_pts, PyMovie *is);
