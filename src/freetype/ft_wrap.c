@@ -32,11 +32,14 @@
 #define FP_248_FLOAT(i)     ((float)((int)(i) / 256.0f))
 #define FP_266_FLOAT(i)     ((float)((int)(i) / 64.0f))
 
+#define UNICODE_BOM_NATIVE	0xFEFF
+#define UNICODE_BOM_SWAPPED	0xFFFE
+
 void    _PGFT_SetError(FreeTypeInstance *, const char *, FT_Error);
 FT_Face _PGFT_GetFace(FreeTypeInstance *, PyFreeTypeFont *);
 FT_Face _PGFT_GetFaceSized(FreeTypeInstance *, PyFreeTypeFont *, int);
 void    _PGFT_BuildScaler(PyFreeTypeFont *, FTC_Scaler, int);
-int     _PGFT_LoadGlyph(FreeTypeInstance *, PyFreeTypeFont *, 
+int     _PGFT_LoadGlyph(FreeTypeInstance *, PyFreeTypeFont *, int,
                         FTC_Scaler, int, FT_Glyph *, FT_UInt32 *);
 void    _PGFT_GetMetrics_INTERNAL(FT_Glyph, FT_UInt, int *, int *, int *, int *, int *);
 
@@ -233,6 +236,7 @@ _PGFT_GetFaceSized(FreeTypeInstance *ft,
 int
 _PGFT_LoadGlyph(FreeTypeInstance *ft, 
         PyFreeTypeFont *font,
+        int do_render,
         FTC_Scaler scale, 
         int character, 
         FT_Glyph *glyph, 
@@ -240,6 +244,10 @@ _PGFT_LoadGlyph(FreeTypeInstance *ft,
 {
     FT_Error error = 0;
     FT_UInt32 char_index;
+
+    FT_ULong render_mode = do_render ? 
+        (FT_ULong)FT_LOAD_RENDER : 
+        (FT_ULong)FT_LOAD_DEFAULT;
 
     char_index = FTC_CMapCache_Lookup(
             ft->cache_charmap, 
@@ -257,7 +265,7 @@ _PGFT_LoadGlyph(FreeTypeInstance *ft,
         error = FTC_ImageCache_LookupScaler(
                 ft->cache_img,
                 scale,
-                FT_LOAD_DEFAULT, /* TODO: proper load flags */
+                render_mode,
                 char_index,
                 glyph, NULL);
     }
@@ -293,7 +301,7 @@ int PGFT_GetMetrics(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
     _PGFT_BuildScaler(font, &scale, font_size);
 
-    error = _PGFT_LoadGlyph(ft, font, &scale, character, &glyph, NULL);
+    error = _PGFT_LoadGlyph(ft, font, 0, &scale, character, &glyph, NULL);
 
     if (error)
     {
@@ -301,7 +309,7 @@ int PGFT_GetMetrics(FreeTypeInstance *ft, PyFreeTypeFont *font,
         return error;
     }
 
-    _PGFT_GetMetrics_INTERNAL(glyph, bbmode, minx, maxx, miny, maxy, advance);
+    _PGFT_GetMetrics_INTERNAL(glyph, (FT_UInt)bbmode, minx, maxx, miny, maxy, advance);
 
     if (bbmode == FT_BBOX_EXACT || bbmode == FT_BBOX_EXACT_GRIDFIT)
     {
@@ -319,9 +327,6 @@ int
 PGFT_GetTextSize(FreeTypeInstance *ft, PyFreeTypeFont *font,
         const FT_UInt16 *text, int font_size, int *w, int *h)
 {
-#define UNICODE_BOM_NATIVE	0xFEFF
-#define UNICODE_BOM_SWAPPED	0xFFFE
-
     const FT_UInt16 *ch;
     int swapped, use_kerning;
     FTC_ScalerRec scale;
@@ -364,7 +369,7 @@ PGFT_GetTextSize(FreeTypeInstance *ft, PyFreeTypeFont *font,
         if (swapped)
             c = (FT_UInt16)((c << 8) | (c >> 8));
 
-        if (_PGFT_LoadGlyph(ft, font, &scale, c, &glyph, &cur_index) != 0)
+        if (_PGFT_LoadGlyph(ft, font, 0, &scale, c, &glyph, &cur_index) != 0)
             continue;
 
         _PGFT_GetMetrics_INTERNAL(glyph, FT_GLYPH_BBOX_PIXELS,
@@ -403,6 +408,94 @@ PGFT_GetTextSize(FreeTypeInstance *ft, PyFreeTypeFont *font,
      * height based on ascent/descent of all glyphs.
      */
     *h = (maxy - miny);
+    return 0;
+}
+
+int PGFT_RenderSolid(FreeTypeInstance *ft, PyFreeTypeFont *font, 
+        const FT_UInt16 *text, int font_size)
+{
+    const FT_UInt16 *ch;
+    int swapped, use_kerning;
+    FTC_ScalerRec scale;
+    FT_Face face;
+    FT_Glyph glyph;
+    FT_Bitmap *bitmap;
+    FT_UInt32 prev_index, cur_index;
+
+	int width, height;
+	int pen_x, pen_y;
+    int x_advance;
+
+    // Buffer where the text will be drawn
+    // TODO: Actually draw the text on a proper surface
+    FT_Byte *_buffer = 0; 
+    FT_Byte *_buffer_cap;
+
+    _PGFT_BuildScaler(font, &scale, font_size);
+    face = _PGFT_GetFace(ft, font);
+
+    if (!face)
+        return -1;
+
+    if (PGFT_GetTextSize(ft, font, text, font_size, &width, &height) != 0 || 
+            width == 0)
+    {
+        _PGFT_SetError(ft, "Text has zero width", 0);
+        return -1;
+    }
+
+    /* TODO: create a proper surface */
+	_buffer = calloc((size_t)(width * height), sizeof(FT_Byte));
+	if (_buffer)
+		return -1;
+
+	_buffer_cap = _buffer + (width * height);
+	use_kerning = FT_HAS_KERNING(face);
+    pen_x = pen_y = 0;
+
+    /* FIXME: Some way to set the system's default ? */
+    swapped = 0;
+
+    for (ch = text; *ch; ++ch)
+    {
+        FT_UInt16 c = *ch;
+
+        if (c == UNICODE_BOM_NATIVE || c == UNICODE_BOM_SWAPPED)
+        {
+            swapped = (c == UNICODE_BOM_SWAPPED);
+            if (text == ch)
+                ++text;
+
+            continue;
+        }
+
+        if (swapped)
+            c = (FT_UInt16)((c << 8) | (c >> 8));
+
+        if (_PGFT_LoadGlyph(ft, font, 1 /* RENDER! */, &scale, c, &glyph, &cur_index) != 0)
+            continue; /* FIXME: fail if we cannot find a char? */
+
+        assert(glyph->format == FT_GLYPH_FORMAT_BITMAP);
+        bitmap = &((FT_BitmapGlyph)glyph)->bitmap;
+
+        if (use_kerning && prev_index)
+        {
+			FT_Vector delta;
+			FT_Get_Kerning(face, prev_index, cur_index, ft_kerning_default, &delta); 
+			pen_x += delta.x >> 6;
+		}
+
+        x_advance = (glyph->advance.x + 0x8000) >> 16;
+
+        /*
+         * TODO: Render bitmap on the surface at coords:
+         *      pen_x + bitmap->left, pen_y - bitmap->top
+         */
+
+        pen_x += x_advance + 1;
+		prev_index = cur_index;
+    }
+
     return 0;
 }
 
