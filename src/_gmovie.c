@@ -1241,7 +1241,8 @@ int subtitle_thread(void *arg)
         break;
     }
 
-    if(is->ob_refcnt!=0)Py_DECREF( is);
+    if(is->ob_refcnt!=0){
+    	Py_DECREF( is);}
 }
 
 
@@ -1480,7 +1481,6 @@ PyMovie *stream_open(PyMovie *is, const char *filename, AVInputFormat *iformat)
     Py_INCREF(is);
 	AVFormatContext *ic;
     int err, i, ret, video_index, audio_index, subtitle_index;
-    AVPacket pkt1, *pkt = &pkt1;
     AVFormatParameters params, *ap = &params;
     
 	is->overlay=1;
@@ -1588,12 +1588,12 @@ PyMovie *stream_open(PyMovie *is, const char *filename, AVInputFormat *iformat)
 	if(ret!=0)
 	{
 		//throw python error
-		PyObject *er;
-		er=PyErr_Occurred();
-		if(er)
+		if(PyErr_Occurred())
+		{
 			PyErr_Print();
+		}
 		Py_DECREF(is);
-		Py_RETURN_NONE;
+		return is;
 	}
 
 	Py_DECREF(is);
@@ -1711,9 +1711,8 @@ void stream_cycle_channel(PyMovie *is, int codec_type)
 {
     Py_INCREF( is);
     AVFormatContext *ic;
-    int err, i, ret, video_index, audio_index, subtitle_index;
+    int ret;
     AVPacket pkt1, *pkt = &pkt1;
-    AVFormatParameters params, *ap = &params;
 
 	ic=is->ic;
 	int co=0;
@@ -1786,7 +1785,7 @@ void stream_cycle_channel(PyMovie *is, int codec_type)
 	        ret = av_read_frame(ic, pkt);
 	        if (ret < 0) {
 	            if (ret != AVERROR_EOF && url_ferror(ic->pb) == 0) {
-	                SDL_Delay(100); /* wait for user event */
+	                goto fail;
 	                continue;
 	            } else
 	            {
