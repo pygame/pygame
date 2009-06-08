@@ -1588,10 +1588,14 @@ PyMovie *stream_open(PyMovie *is, const char *filename, AVInputFormat *iformat)
 	if(ret!=0)
 	{
 		//throw python error
-		if(PyErr_Occurred())
+		PyObject *er;
+		er=PyErr_Occurred();
+		Py_INCREF(er);
+		if(er)
 		{
 			PyErr_Print();
 		}
+		Py_DECREF(er);
 		Py_DECREF(is);
 		return is;
 	}
