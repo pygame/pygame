@@ -73,6 +73,7 @@ int     PGFT_GetMetrics(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
 
 int PGFT_RenderSolid(FreeTypeInstance *ft, PyFreeTypeFont *font, 
-        const FT_UInt16 *text, int font_size);
+        const FT_UInt16 *text, int font_size, 
+        FT_Byte **buffer, int *width, int *height);
 
 #endif

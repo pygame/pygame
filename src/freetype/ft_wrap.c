@@ -412,22 +412,24 @@ PGFT_GetTextSize(FreeTypeInstance *ft, PyFreeTypeFont *font,
 }
 
 int PGFT_RenderSolid(FreeTypeInstance *ft, PyFreeTypeFont *font, 
-        const FT_UInt16 *text, int font_size)
+        const FT_UInt16 *text, int font_size, 
+        FT_Byte **_out_buffer, int *_width, int *_height)
 {
     const FT_UInt16 *ch;
-    int swapped, use_kerning;
+
     FTC_ScalerRec scale;
     FT_Face face;
     FT_Glyph glyph;
     FT_Bitmap *bitmap;
+    FT_Size fontsize;
+
     FT_UInt32 prev_index, cur_index;
 
-	int width, height;
+    int swapped, use_kerning;
+	int width, height, pitch;
 	int pen_x, pen_y;
     int x_advance;
 
-    // Buffer where the text will be drawn
-    // TODO: Actually draw the text on a proper surface
     FT_Byte *_buffer = 0; 
     FT_Byte *_buffer_cap;
 
@@ -435,26 +437,45 @@ int PGFT_RenderSolid(FreeTypeInstance *ft, PyFreeTypeFont *font,
     face = _PGFT_GetFace(ft, font);
 
     if (!face)
-        return -1;
-
-    if (PGFT_GetTextSize(ft, font, text, font_size, &width, &height) != 0 || 
-            width == 0)
     {
-        _PGFT_SetError(ft, "Text has zero width", 0);
+        _PGFT_SetError(ft, "Failed to cache font face", 0);
         return -1;
     }
 
-    /* TODO: create a proper surface */
+    if (FTC_Manager_LookupSize(ft->cache_manager, &scale, &fontsize) != 0 ||
+        PGFT_GetTextSize(ft, font, text, font_size, &width, &height) != 0 || 
+        width == 0)
+    {
+        _PGFT_SetError(ft, "Error when building text size", 0);
+        return -1;
+    }
+
+    height = (fontsize->metrics.height + 63) >> 6;
+
+    /* 
+     * FIXME: width and height *may* not be accurate,
+     * specially height since we use the 'real' one
+     *
+     * maybe we should use the height from the loaded metrics??
+     */
 	_buffer = calloc((size_t)(width * height), sizeof(FT_Byte));
-	if (_buffer)
+	if (!_buffer)
 		return -1;
 
+    *_out_buffer = _buffer;
+    *_width = width;
+    *_height = height;
+
+    pitch = width;
 	_buffer_cap = _buffer + (width * height);
 	use_kerning = FT_HAS_KERNING(face);
-    pen_x = pen_y = 0;
+    prev_index = 0;
 
     /* FIXME: Some way to set the system's default ? */
     swapped = 0;
+
+    pen_x = 0;
+    pen_y = height;
 
     for (ch = text; *ch; ++ch)
     {
@@ -488,9 +509,38 @@ int PGFT_RenderSolid(FreeTypeInstance *ft, PyFreeTypeFont *font,
         x_advance = (glyph->advance.x + 0x8000) >> 16;
 
         /*
-         * TODO: Render bitmap on the surface at coords:
+         * Render bitmap on the surface at coords:
          *      pen_x + bitmap->left, pen_y - bitmap->top
          */
+        {
+            const int left = ((FT_BitmapGlyph)glyph)->left;
+            const int top = ((FT_BitmapGlyph)glyph)->top;
+            int j;
+
+            FT_Byte *dst = _buffer + 
+                pen_x + left +
+                (pen_y - top) * pitch;
+
+            FT_Byte *src = bitmap->buffer;
+
+            for (j = 0; j < bitmap->rows; ++j)
+            {
+                if (dst < _buffer || dst + bitmap->width > _buffer_cap)
+                {
+                    fprintf(stderr, 
+                            "HEAP CORRUPTION rendering '%c': "
+                            "text size(%d, %d) | left %d | top %d | pen_x %d | pen_y %d |\n",
+                            c, width, height, left, top, pen_x, pen_y);
+                    continue;
+                }
+
+                memcpy(dst, src, (size_t)bitmap->width);
+
+                dst += pitch;
+                src += bitmap->pitch;
+            }
+        }
+
 
         pen_x += x_advance + 1;
 		prev_index = cur_index;

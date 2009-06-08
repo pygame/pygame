@@ -491,7 +491,74 @@ _ftfont_getmetrics(PyObject *self, PyObject* args, PyObject *kwds)
 static PyObject*
 _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
 {
-    /* TODO */
+    /* keyword list */
+    static char *kwlist[] = 
+    { 
+        "text", "ptsize", "surface", NULL
+    };
+
+    PyFreeTypeFont *font = (PyFreeTypeFont *)self;
+
+    /* input arguments */
+    PyObject *text = NULL; 
+    int ptsize = -1;
+    PyObject *surface = NULL;
+
+    /* output arguments */
+    PyObject *rtuple = NULL;
+    int width, height;
+    FT_Byte *pixel_buffer = NULL;
+
+    int free_buffer;
+    FT_Error error;
+    FT_UInt16 *text_buffer = NULL;
+
+    FreeTypeInstance *ft;
+    ASSERT_GRAB_FREETYPE(ft, NULL);
+
+    /* parse args */
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|iO", kwlist,
+                &text, &ptsize, &surface))
+        return NULL;
+
+    if (ptsize == -1)
+    {
+        if (font->default_ptsize == -1)
+        {
+            PyErr_SetString(PyExc_ValueError,
+                    "Missing font size argument and no default size specified");
+            return NULL;
+        }
+        
+        ptsize = font->default_ptsize;
+    }
+
+    text_buffer = PGFT_BuildUnicodeString(text, &free_buffer);
+
+    if (!text_buffer)
+    {
+        PyErr_SetString(PyExc_ValueError, "Expecting unicode/bytes string");
+        return NULL;
+    }
+
+    error = PGFT_RenderSolid(ft, font, text_buffer, ptsize, 
+            &pixel_buffer, &width, &height);
+
+    if (error)
+        PyErr_SetString(PyExc_RuntimeError, PGFT_GetError(ft));
+    else
+    {
+        rtuple = Py_BuildValue("(iiO)", 
+                width, height,
+                Bytes_FromStringAndSize(pixel_buffer, width * height));
+    }
+
+    if (free_buffer)
+        free(text_buffer);
+
+    free(pixel_buffer);
+
+    return rtuple;
 }
 
 /****************************************************
