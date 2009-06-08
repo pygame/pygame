@@ -1186,7 +1186,7 @@ int subtitle_thread(void *arg)
 
  void stream_component_close(PyMovie *is, int stream_index)
 {
-    Py_INCREF( is);
+    if(is->ob_refcnt!=0)Py_INCREF( is);
     AVFormatContext *ic = is->ic;
     AVCodecContext *enc;
 
@@ -1241,7 +1241,7 @@ int subtitle_thread(void *arg)
         break;
     }
 
-    Py_DECREF( is);
+    if(is->ob_refcnt!=0)Py_DECREF( is);
 }
 
 
@@ -1478,6 +1478,11 @@ PyMovie *stream_open(PyMovie *is, const char *filename, AVInputFormat *iformat)
     if (!is)
         return NULL;
     Py_INCREF(is);
+	AVFormatContext *ic;
+    int err, i, ret, video_index, audio_index, subtitle_index;
+    AVPacket pkt1, *pkt = &pkt1;
+    AVFormatParameters params, *ap = &params;
+    
 	is->overlay=1;
     av_strlcpy(is->filename, filename, strlen(filename)+1);
     is->iformat = iformat;
@@ -1490,7 +1495,107 @@ PyMovie *stream_open(PyMovie *is, const char *filename, AVInputFormat *iformat)
     
     is->paused = 1;
     is->av_sync_type = AV_SYNC_VIDEO_MASTER;
+	
+    video_index = -1;
+    audio_index = -1;
+    subtitle_index = -1;
+    is->video_stream = -1;
+    is->audio_stream = -1;
+    is->subtitle_stream = -1;
+
+    int wanted_video_stream=1;
+    int wanted_audio_stream=1;
+    memset(ap, 0, sizeof(*ap));
+    ap->width = 0;
+    ap->height= 0;
+    ap->time_base= (AVRational){1, 25};
+    ap->pix_fmt = PIX_FMT_NONE;
+	
+    err = av_open_input_file(&ic, is->filename, is->iformat, 0, ap);
+    if (err < 0) {
+        PyErr_Format(PyExc_IOError, "There was a problem opening up %s", is->filename);
+        ret = -1;
+        goto fail;
+    }
+    is->ic = ic;
+    err = av_find_stream_info(ic);
+    if (err < 0) {
+        PyErr_Format(PyExc_IOError, "%s: could not find codec parameters", is->filename);
+        ret = -1;
+        goto fail;
+    }
+    if(ic->pb)
+        ic->pb->eof_reached= 0; //FIXME hack, ffplay maybe should not use url_feof() to test for the end
+	
+    /* if seeking requested, we execute it */
+    if (is->start_time != AV_NOPTS_VALUE) {
+        int64_t timestamp;
+
+        timestamp = is->start_time;
+        /* add the stream start time */
+        if (ic->start_time != AV_NOPTS_VALUE)
+            timestamp += ic->start_time;
+        ret = av_seek_frame(ic, -1, timestamp, AVSEEK_FLAG_BACKWARD);
+        if (ret < 0) {
+            PyErr_Format(PyExc_IOError, "%s: could not seek to position %0.3f", is->filename, (double)timestamp/AV_TIME_BASE);
+        }
+    }
+    for(i = 0; i < ic->nb_streams; i++) {
+        AVCodecContext *enc = ic->streams[i]->codec;
+        ic->streams[i]->discard = AVDISCARD_ALL;
+        switch(enc->codec_type) {
+        case CODEC_TYPE_AUDIO:
+            if (wanted_audio_stream-- >= 0 && !audio_disable)
+                audio_index = i;
+            break;
+        case CODEC_TYPE_VIDEO:
+            if (wanted_video_stream-- >= 0 && !video_disable)
+                video_index = i;
+            break;
+        case CODEC_TYPE_SUBTITLE:
+            //if (wanted_subtitle_stream-- >= 0 && !video_disable)
+            //    subtitle_index = i;
+            break;
+        default:
+            break;
+        }
+    }
+
+    /* open the streams */
+    /*if (audio_index >= 0) {
+		stream_component_open(is, audio_index);
+   	}*/
+	
+    if (video_index >= 0) {
+    	stream_component_open(is, video_index);
+    } 
+
+/*    if (subtitle_index >= 0) {
+        stream_component_open(is, subtitle_index);
+    }*/
+    if (is->video_stream < 0 && is->audio_stream < 0) {
+        PyErr_Format(PyExc_IOError, "%s: could not open codecs", is->filename);
+        ret = -1;		
+		goto fail;
+    }
     
+	is->frame_delay = av_q2d(is->video_st->codec->time_base);
+    
+   ret = 0;
+ fail:
+    /* disable interrupting */
+
+	if(ret!=0)
+	{
+		//throw python error
+		PyObject *er;
+		er=PyErr_Occurred();
+		if(er)
+			PyErr_Print();
+		Py_DECREF(is);
+		Py_RETURN_NONE;
+	}
+
 	Py_DECREF(is);
     return is;
 }
@@ -1502,6 +1607,7 @@ PyMovie *stream_open(PyMovie *is, const char *filename, AVInputFormat *iformat)
     is->abort_request = 1;
     SDL_WaitThread(is->parse_tid, NULL);
 	VidPicture *vp;
+    
     if(is)
     {
 		int i;    	
@@ -1522,6 +1628,24 @@ PyMovie *stream_open(PyMovie *is, const char *filename, AVInputFormat *iformat)
      	SDL_DestroyMutex(is->subpq_mutex);
         SDL_DestroyCond(is->subpq_cond);
     }
+    /* close each stream */
+    if (is->audio_stream >= 0)
+    {
+        stream_component_close(is, is->audio_stream);
+    }
+    if (is->video_stream >= 0)
+    {
+        stream_component_close(is, is->video_stream);
+    }
+    if (is->subtitle_stream >= 0)
+    {
+        stream_component_close(is, is->subtitle_stream);
+    }
+    if (is->ic) {
+        av_close_input_file(is->ic);
+        is->ic = NULL; /* safety */
+    }
+    
     if(is->ob_refcnt!=0)
     { 
     	Py_DECREF(is);
@@ -1591,90 +1715,7 @@ void stream_cycle_channel(PyMovie *is, int codec_type)
     AVPacket pkt1, *pkt = &pkt1;
     AVFormatParameters params, *ap = &params;
 
-    video_index = -1;
-    audio_index = -1;
-    subtitle_index = -1;
-    is->video_stream = -1;
-    is->audio_stream = -1;
-    is->subtitle_stream = -1;
-
-    int wanted_video_stream=1;
-    int wanted_audio_stream=1;
-    memset(ap, 0, sizeof(*ap));
-    ap->width = 0;
-    ap->height= 0;
-    ap->time_base= (AVRational){1, 25};
-    ap->pix_fmt = PIX_FMT_NONE;
-	
-    err = av_open_input_file(&ic, is->filename, is->iformat, 0, ap);
-    if (err < 0) {
-        PyErr_Format(PyExc_IOError, "There was a problem opening up %s", is->filename);
-        ret = -1;
-        goto fail;
-    }
-    is->ic = ic;
-    err = av_find_stream_info(ic);
-   if (err < 0) {
-        PyErr_Format(PyExc_IOError, "%s: could not find codec parameters", is->filename);
-        ret = -1;
-        goto fail;
-   }
-    if(ic->pb)
-        ic->pb->eof_reached= 0; //FIXME hack, ffplay maybe should not use url_feof() to test for the end
-	
-    /* if seeking requested, we execute it */
-    if (is->start_time != AV_NOPTS_VALUE) {
-        int64_t timestamp;
-
-        timestamp = is->start_time;
-        /* add the stream start time */
-        if (ic->start_time != AV_NOPTS_VALUE)
-            timestamp += ic->start_time;
-        ret = av_seek_frame(ic, -1, timestamp, AVSEEK_FLAG_BACKWARD);
-        if (ret < 0) {
-            PyErr_Format(PyExc_IOError, "%s: could not seek to position %0.3f", is->filename, (double)timestamp/AV_TIME_BASE);
-        }
-    }
-    for(i = 0; i < ic->nb_streams; i++) {
-        AVCodecContext *enc = ic->streams[i]->codec;
-        ic->streams[i]->discard = AVDISCARD_ALL;
-        switch(enc->codec_type) {
-        case CODEC_TYPE_AUDIO:
-            if (wanted_audio_stream-- >= 0 && !audio_disable)
-                audio_index = i;
-            break;
-        case CODEC_TYPE_VIDEO:
-            if (wanted_video_stream-- >= 0 && !video_disable)
-                video_index = i;
-            break;
-        case CODEC_TYPE_SUBTITLE:
-            //if (wanted_subtitle_stream-- >= 0 && !video_disable)
-            //    subtitle_index = i;
-            break;
-        default:
-            break;
-        }
-    }
-
-    /* open the streams */
-    /*if (audio_index >= 0) {
-		stream_component_open(is, audio_index);
-   	}*/
-	
-    if (video_index >= 0) {
-    	stream_component_open(is, video_index);
-    } 
-
-/*    if (subtitle_index >= 0) {
-        stream_component_open(is, subtitle_index);
-    }*/
-    if (is->video_stream < 0 && is->audio_stream < 0) {
-        PyErr_Format(PyExc_IOError, "%s: could not open codecs", is->filename);
-        ret = -1;		
-        goto fail;
-    }
-    
-	is->frame_delay = av_q2d(is->video_st->codec->time_base);
+	ic=is->ic;
 	int co=0;
 	is->last_showtime = av_gettime()/1000.0;
     video_open(is, is->pictq_windex);
@@ -1787,24 +1828,6 @@ void stream_cycle_channel(PyMovie *is, int codec_type)
     ret = 0;
  fail:
     /* disable interrupting */
-
-    /* close each stream */
-    if (is->audio_stream >= 0)
-    {
-        stream_component_close(is, is->audio_stream);
-    }
-    if (is->video_stream >= 0)
-    {
-        stream_component_close(is, is->video_stream);
-    }
-    if (is->subtitle_stream >= 0)
-    {
-        stream_component_close(is, is->subtitle_stream);
-    }
-    if (is->ic) {
-        av_close_input_file(is->ic);
-        is->ic = NULL; /* safety */
-    }
 
 	if(ret!=0)
 	{

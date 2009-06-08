@@ -79,7 +79,7 @@
     int loops;
     if(!PyArg_ParseTuple(args, "i", &loops))
     {
-    	loops = 0;
+    	loops = 1;
     }
     SDL_LockMutex(movie->dest_mutex);
     movie->loops =loops;
@@ -141,14 +141,28 @@ PyObject* _movie_get_playing (PyMovie *movie, void *closure)
 PyObject* _movie_get_width (PyMovie *movie, void *closure)
 {
     PyObject *pyo;
-    pyo= PyInt_FromLong((long)movie->width);
+    if(movie->video_st)
+    {
+    	pyo= PyInt_FromLong((long)movie->video_st->codec->width);
+    }
+    else
+    {
+		pyo = PyInt_FromLong((long)0);    	
+    }
     return pyo;
 }
 
 PyObject* _movie_get_height (PyMovie *movie, void *closure)
 {
     PyObject *pyo;
-    pyo= PyInt_FromLong((long)movie->height);
+    if(movie->video_st)
+    {
+    	pyo= PyInt_FromLong((long)movie->video_st->codec->height);
+    }
+    else
+    {
+		pyo = PyInt_FromLong((long)0);    	
+    }
     return pyo;
 }
 
