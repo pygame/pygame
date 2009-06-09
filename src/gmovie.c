@@ -3,10 +3,7 @@
 
  PyMovie*  _movie_init_internal(PyMovie *self, const char *filename, SDL_Surface *surf)
 {
-	DECLAREGIL
-	GRABGIL
 	Py_INCREF(self);
-	RELEASEGIL
 	//already malloced memory for PyMovie.
 	if(!surf)
 	{
@@ -22,36 +19,25 @@
 	self=stream_open(self, filename, NULL);
 	if(!self)
 	{
-		GRABGIL
 		PyErr_SetString(PyExc_IOError, "stream_open failed");
         Py_DECREF(self);
-		RELEASEGIL
         return self;
     }
-    GRABGIL	
 	PySys_WriteStdout("Movie->filename: %s\n", self->filename);
 	Py_DECREF(self);
-	RELEASEGIL
 	return self;
 }
 
  int _movie_init(PyObject *self, PyObject *args, PyObject *kwds)
 {
-	DECLAREGIL
-	GRABGIL
 	Py_INCREF(self);
-	RELEASEGIL
 	const char *c;
-	GRABGIL
 	if (!PyArg_ParseTuple (args, "s", &c))
     {
         PyErr_SetString(PyExc_TypeError, "No valid arguments");
-    	RELEASEGIL
     	return -1;
     }	
-    RELEASEGIL
 	self = _movie_init_internal(self, c, NULL);
-	GRABGIL
 	PyObject *er;
     er = PyErr_Occurred();
     Py_XINCREF(er);
@@ -60,20 +46,15 @@
         PyErr_Print();
     }
     Py_XDECREF(er);
-    RELEASEGIL
     if(!self)
     {
-    	GRABGIL
         PyErr_SetString(PyExc_IOError, "No movie object created.");
         PyErr_Print();
         Py_DECREF(self);
-        RELEASEGIL
         return -1;
     }
-    GRABGIL
     Py_DECREF(self);
     PySys_WriteStdout("Returning from _movie_init\n");
-    RELEASEGIL
     return 0;
 }   
 
@@ -98,7 +79,8 @@
 }
  PyObject* _movie_play(PyMovie *movie, PyObject* args)
 {
-//	DECLAREGIL
+	PyEval_InitThreads();
+	DECLAREGIL
 	Py_INCREF(movie);
     int loops;
     if(!PyArg_ParseTuple(args, "i", &loops))
@@ -111,27 +93,26 @@
     movie->playing = 1;
     SDL_UnlockMutex(movie->dest_mutex);
  	int state;
-	//GRABGIL
 	movie->parse_tid = SDL_CreateThread(decoder, movie);
+    GRABGIL
     Py_DECREF(movie);
-    //RELEASEGIL
+    RELEASEGIL
     Py_RETURN_NONE;
 }
 
  PyObject* _movie_stop(PyMovie *movie)
 {
-	//DECLAREGIL
-	//GRABGIL
+	DECLAREGIL
+	GRABGIL
     Py_INCREF(movie);
-    //SDL_LockMutex(movie->dest_mutex);
-    //RELEASEGIL
+    SDL_LockMutex(movie->dest_mutex);
     stream_pause(movie);
     movie->seek_req = 1;
     movie->seek_pos = 0;
     movie->seek_flags =AVSEEK_FLAG_BACKWARD;
-    //SDL_UnlockMutex(movie->dest_mutex);  
+    SDL_UnlockMutex(movie->dest_mutex);  
     Py_DECREF(movie);
-	//RELEASEGIL
+	RELEASEGIL
     Py_RETURN_NONE;
 }  
 
