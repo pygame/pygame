@@ -93,7 +93,7 @@
 #if THREADFREE!=1
 	#define DECLAREGIL PyGILState_STATE gstate;
 	#define GRABGIL    gstate=PyGILState_Ensure();
-	#define RELEASEGIL PyGILState_Release(gstate);
+	#define RELEASEGIL if(gstate!=PyGILState_UNLOCKED) PyGILState_Release(gstate);
 #else
 	#define DECLAREGIL 
 	#define GRABGIL   
