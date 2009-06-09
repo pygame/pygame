@@ -20,6 +20,11 @@
 
 #define PYGAME_FREETYPE_INTERNAL
 
+#ifdef HAVE_PYGAME_SDL_VIDEO
+#   include <SDL.h>
+#   include "pgsdl.h"
+#endif
+
 #include "ft_mod.h"
 #include "ft_wrap.h"
 #include "pgfreetype.h"
@@ -35,6 +40,8 @@
 #define UNICODE_BOM_NATIVE	0xFEFF
 #define UNICODE_BOM_SWAPPED	0xFFFE
 
+#define METRICS_RETURN_AVERAGED_HEIGHT
+
 void    _PGFT_SetError(FreeTypeInstance *, const char *, FT_Error);
 FT_Face _PGFT_GetFace(FreeTypeInstance *, PyFreeTypeFont *);
 FT_Face _PGFT_GetFaceSized(FreeTypeInstance *, PyFreeTypeFont *, int);
@@ -42,6 +49,9 @@ void    _PGFT_BuildScaler(PyFreeTypeFont *, FTC_Scaler, int);
 int     _PGFT_LoadGlyph(FreeTypeInstance *, PyFreeTypeFont *, int,
                         FTC_Scaler, int, FT_Glyph *, FT_UInt32 *);
 void    _PGFT_GetMetrics_INTERNAL(FT_Glyph, FT_UInt, int *, int *, int *, int *, int *);
+int     _PGFT_Render_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font, 
+            const FT_UInt16 *text, int font_size, 
+            FT_Byte *_buffer, int width, int height, int pitch);
 
 
 static FT_Error
@@ -92,6 +102,19 @@ _PGFT_SetError(FreeTypeInstance *ft, const char *error_msg, FT_Error error_id)
     else
         strcpy(ft->_error_msg, error_msg);
 }
+
+
+#ifdef HAVE_SDL_VIDEO
+PyObject *
+PGFT_BuildSDLSurface(FT_Byte *buffer, int width, int height)
+{
+    SDL_Surface *surf;
+
+    surf = 
+
+    return PySDLSurface_NewFromSDLSurface(surf);
+}
+#endif
 
 
 FT_UInt16 *
@@ -329,10 +352,12 @@ PGFT_GetTextSize(FreeTypeInstance *ft, PyFreeTypeFont *font,
 {
     const FT_UInt16 *ch;
     int swapped, use_kerning;
+    FT_UInt32 prev_index, cur_index;
+
     FTC_ScalerRec scale;
     FT_Face face;
     FT_Glyph glyph;
-    FT_UInt32 prev_index, cur_index;
+    FT_Size fontsize;
 
     int minx, maxx, miny, maxy, x, z;
     int gl_maxx, gl_maxy, gl_minx, gl_miny, gl_advance;
@@ -392,8 +417,10 @@ PGFT_GetTextSize(FreeTypeInstance *ft, PyFreeTypeFont *font,
 		if (maxx < z)
 			maxx = z;
 
+#ifndef METRICS_RETURN_AVERAGED_HEIGHT
         miny = MIN(gl_miny, miny);
         maxy = MAX(gl_maxy, maxy);
+#endif
 
 		x += gl_advance;
         prev_index = cur_index;
@@ -401,19 +428,93 @@ PGFT_GetTextSize(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
     *w = (maxx - minx);
 
-    /* 
-     * FIXME: According to SDL_TTF, the *real* height for the 
-     * text seems to break some applications (?) but it seems
-     * more sane to me having the real height than the max
-     * height based on ascent/descent of all glyphs.
-     */
+#ifdef METRICS_RETURN_AVERAGED_HEIGHT
+    if (FTC_Manager_LookupSize(ft->cache_manager, &scale, &fontsize) != 0)
+        return -1;
+
+    *h = (fontsize->metrics.height + 63) >> 6;
+#else
     *h = (maxy - miny);
+#endif
+
     return 0;
 }
 
-int PGFT_RenderSolid(FreeTypeInstance *ft, PyFreeTypeFont *font, 
+#ifdef HAVE_PYGAME_SDL_VIDEO
+PyObject *PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
+        const FT_UInt16 *text, int font_size, int *_width, int *_height)
+{
+    int width, height;
+    SDL_Surface *surface = NULL;
+
+    if (PGFT_GetTextSize(ft, font, text, font_size, &width, &height) != 0 ||
+        width == 0)
+    {
+        _PGFT_SetError(ft, "Error when building text size", 0);
+        return NULL;
+    }
+
+    surface = SDL_CreateRGBSurface(SDL_SWSURFACE,
+				    width, height, 8, 0, 0, 0, 0);
+
+    if (!surface)
+        return NULL;
+
+    if (_PGFT_Render_INTERNAL(ft, font, text, font_size, 
+                surface->pixels,
+                surface->w, surface->h, surface->pitch) != 0)
+    {
+        _PGFT_SetError(ft, "Failed to render text", 0);
+        SDL_FreeSurface(surface);
+        return NULL;
+    }
+
+    *_width = width;
+    *_height = height;
+
+    return PySDLSurface_NewFromSDLSurface(surface);
+}
+#endif
+
+PyObject *PGFT_Render_PixelArray(FreeTypeInstance *ft, PyFreeTypeFont *font,
+        const FT_UInt16 *text, int font_size, int *_width, int *_height)
+{
+    int width, height;
+    FT_Byte *buffer = NULL;
+    PyObject *array = NULL;
+
+    if (PGFT_GetTextSize(ft, font, text, font_size, &width, &height) != 0 ||
+        width == 0)
+    {
+        _PGFT_SetError(ft, "Error when building text size", 0);
+        goto cleanup;
+    }
+
+	buffer = calloc((size_t)(width * height), sizeof(FT_Byte));
+	if (!buffer)
+		goto cleanup;
+
+    if (_PGFT_Render_INTERNAL(ft, font, text, 
+                font_size, buffer, width, height, width) != 0)
+    {
+        _PGFT_SetError(ft, "Failed to render text", 0);
+        goto cleanup;
+    }
+
+    *_width = width;
+    *_height = height;
+
+    array = Bytes_FromStringAndSize(buffer, width * height);
+
+cleanup:
+    free(buffer);
+
+    return array;
+}
+
+int _PGFT_Render_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font, 
         const FT_UInt16 *text, int font_size, 
-        FT_Byte **_out_buffer, int *_width, int *_height)
+        FT_Byte *_buffer, int width, int height, int pitch)
 {
     const FT_UInt16 *ch;
 
@@ -421,16 +522,13 @@ int PGFT_RenderSolid(FreeTypeInstance *ft, PyFreeTypeFont *font,
     FT_Face face;
     FT_Glyph glyph;
     FT_Bitmap *bitmap;
-    FT_Size fontsize;
 
     FT_UInt32 prev_index, cur_index;
 
     int swapped, use_kerning;
-	int width, height, pitch;
 	int pen_x, pen_y;
     int x_advance;
 
-    FT_Byte *_buffer = 0; 
     FT_Byte *_buffer_cap;
 
     _PGFT_BuildScaler(font, &scale, font_size);
@@ -442,31 +540,6 @@ int PGFT_RenderSolid(FreeTypeInstance *ft, PyFreeTypeFont *font,
         return -1;
     }
 
-    if (FTC_Manager_LookupSize(ft->cache_manager, &scale, &fontsize) != 0 ||
-        PGFT_GetTextSize(ft, font, text, font_size, &width, &height) != 0 || 
-        width == 0)
-    {
-        _PGFT_SetError(ft, "Error when building text size", 0);
-        return -1;
-    }
-
-    height = (fontsize->metrics.height + 63) >> 6;
-
-    /* 
-     * FIXME: width and height *may* not be accurate,
-     * specially height since we use the 'real' one
-     *
-     * maybe we should use the height from the loaded metrics??
-     */
-	_buffer = calloc((size_t)(width * height), sizeof(FT_Byte));
-	if (!_buffer)
-		return -1;
-
-    *_out_buffer = _buffer;
-    *_width = width;
-    *_height = height;
-
-    pitch = width;
 	_buffer_cap = _buffer + (width * height);
 	use_kerning = FT_HAS_KERNING(face);
     prev_index = 0;

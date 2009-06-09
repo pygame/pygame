@@ -63,6 +63,7 @@ int     PGFT_Face_IsFixedWidth(FreeTypeInstance *ft, PyFreeTypeFont *);
 const char * PGFT_Face_GetName(FreeTypeInstance *ft, PyFreeTypeFont *);
 
 FT_UInt16 *PGFT_BuildUnicodeString(PyObject *, int *);
+PyObject  *PGFT_BuildSDLSurface(FT_Byte *buffer, int width, int height);
 
 int     PGFT_GetTextSize(FreeTypeInstance *, PyFreeTypeFont *,
             const FT_UInt16 *, int, int *, int *);
@@ -71,9 +72,9 @@ int     PGFT_GetMetrics(FreeTypeInstance *ft, PyFreeTypeFont *font,
             int character, int font_size, int bbmode, 
             void *minx, void *maxx, void *miny, void *maxy, void *advance);
 
-
-int PGFT_RenderSolid(FreeTypeInstance *ft, PyFreeTypeFont *font, 
-        const FT_UInt16 *text, int font_size, 
-        FT_Byte **buffer, int *width, int *height);
+PyObject *PGFT_Render_PixelArray(FreeTypeInstance *ft, PyFreeTypeFont *font,
+        const FT_UInt16 *text, int font_size, int *_width, int *_height);
+PyObject *PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
+        const FT_UInt16 *text, int font_size, int *_width, int *_height);
 
 #endif

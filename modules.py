@@ -308,7 +308,8 @@ modules = [
         ],
         instheaders = ["src/freetype/pgfreetype.h"],
         docfile = "freetypebase.xml",
-        depends = ['freetype']),
+        depends = ['freetype'],
+        optional_dep = ['SDL']),
 
     Module ("freetype.constants",
         sources = [ "src/freetype/ft_constants.c" ],

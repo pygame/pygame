@@ -494,7 +494,7 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
     /* keyword list */
     static char *kwlist[] = 
     { 
-        "text", "ptsize", "surface", NULL
+        "text", "ptsize", "target_surface", NULL
     };
 
     PyFreeTypeFont *font = (PyFreeTypeFont *)self;
@@ -502,15 +502,17 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
     /* input arguments */
     PyObject *text = NULL; 
     int ptsize = -1;
-    PyObject *surface = NULL;
+    PyObject *render_on = NULL;
+
+    /* default render mode */
+    int render_mode = FT_RENDER_NEWBYTEARRAY;
 
     /* output arguments */
     PyObject *rtuple = NULL;
     int width, height;
-    FT_Byte *pixel_buffer = NULL;
+    PyObject *r_pixels = NULL;
 
     int free_buffer;
-    FT_Error error;
     FT_UInt16 *text_buffer = NULL;
 
     FreeTypeInstance *ft;
@@ -518,7 +520,7 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
 
     /* parse args */
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|iO", kwlist,
-                &text, &ptsize, &surface))
+                &text, &ptsize, &render_on))
         return NULL;
 
     if (ptsize == -1)
@@ -541,22 +543,55 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
         return NULL;
     }
 
-    error = PGFT_RenderSolid(ft, font, text_buffer, ptsize, 
-            &pixel_buffer, &width, &height);
-
-    if (error)
-        PyErr_SetString(PyExc_RuntimeError, PGFT_GetError(ft));
-    else
+    if (render_on)
     {
-        rtuple = Py_BuildValue("(iiO)", 
-                width, height,
-                Bytes_FromStringAndSize(pixel_buffer, width * height));
+        if (PyInt_Check(render_on))
+            render_mode = PyInt_AsLong(render_on);
+        else
+            render_mode = FT_RENDER_EXISTINGSURFACE;
     }
+
+    switch (render_mode)
+    {
+    case FT_RENDER_NEWBYTEARRAY:
+        r_pixels = PGFT_Render_PixelArray(ft, font, text_buffer, 
+                ptsize, &width, &height);
+        break;
+
+    /*
+     * Rendering on SDL surfaces only works if we have built
+     * Pgreloaded with support for SDL Video
+     */
+#ifdef HAVE_PYGAME_SDL_VIDEO
+
+    case FT_RENDER_NEWSURFACE:
+        r_pixels = PGFT_Render_NewSurface(ft, font, text_buffer,
+                ptsize, &width, &height);
+        break;
+
+    case FT_RENDER_EXISTINGSURFACE:
+        /* TODO: Check that 'render_on' is actually a SDL surface */
+        /* TODO: render on surface */
+        PyErr_SetString(PyExc_RuntimeError, "Not implemented");
+        break;
+
+#endif
+
+
+    default:
+        printf("Trying to render with %d\n", render_mode);
+        PyErr_SetString(PyExc_RuntimeError, "Invalid render mode");
+    }
+
+    if (!r_pixels)
+        goto cleanup;
+
+    rtuple = Py_BuildValue("(iiO)", width, height, r_pixels);
+
+cleanup:
 
     if (free_buffer)
         free(text_buffer);
-
-    free(pixel_buffer);
 
     return rtuple;
 }
