@@ -20,7 +20,7 @@
 #ifndef _PYGAME_SDLEXTMOD_H_
 #define _PYGAME_SDLEXTMOD_H_
 
-#include <Python.h>
+#include "pgcompat.h"
 #include <SDL.h>
 
 #define PYGAME_SDLEXTPIXELARRAY_INTERNAL

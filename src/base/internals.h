@@ -20,7 +20,6 @@
 #ifndef _PYGAME_BASE_INTERNALS_H_
 #define _PYGAME_BASE_INTERNALS_H_
 
-#include <Python.h>
 #include "pgcompat.h"
 #include "pgtypes.h"
 

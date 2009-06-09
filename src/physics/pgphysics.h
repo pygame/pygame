@@ -22,8 +22,6 @@
 #define _PHYSICS_H_
 
 #include <math.h>
-#include <Python.h>
-#include "pgcompat.h"
 #include "pgbase.h"
 
 #ifdef __cplusplus

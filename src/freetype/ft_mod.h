@@ -20,7 +20,7 @@
 #ifndef _PYGAME_FREETYPEMOD_H_
 #define _PYGAME_FREETYPEMOD_H_
 
-#include <Python.h>
+#include "pgcompat.h"
 
 #define PYGAME_FREETYPE_INTERNAL
 #define PYGAME_FREETYPE_FONT_INTERNAL

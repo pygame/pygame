@@ -20,7 +20,6 @@
 #ifndef _PYGAME_SDLGFX_H_
 #define _PYGAME_SDLGFX_H_
 
-#include <Python.h>
 #include <SDL.h>
 #include <SDL_framerate.h>
 

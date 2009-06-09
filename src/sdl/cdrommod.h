@@ -20,7 +20,7 @@
 #ifndef _PYGAME_SDLCDROM_H_
 #define _PYGAME_SDLCDROM_H_
 
-#include <Python.h>
+#include "pgcompat.h"
 #include <SDL.h>
 
 #define PYGAME_SDLCDROM_INTERNAL

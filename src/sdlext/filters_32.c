@@ -206,7 +206,7 @@ pyg_filter_shrink_Y_MMX(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch,
     templine = (Uint16 *) malloc((size_t)(dstpitch * 2));
     if (templine == 0)
         return;
-    memset(templine, 0, dstpitch * 2);
+    memset(templine, 0, (size_t)(dstpitch * 2));
 
     asm __volatile__(" /* MMX code for Y-shrink area average filter */ "
         " movl             %5,      %%ecx;           " /* ecx == ycounter */
@@ -314,7 +314,7 @@ pyg_filter_shrink_Y_SSE(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch,
     templine = (Uint16 *) malloc((size_t)(dstpitch * 2));
     if (templine == 0)
         return;
-    memset(templine, 0, dstpitch * 2);
+    memset(templine, 0, (size_t)(dstpitch * 2));
     asm __volatile__(" /* MMX code for Y-shrink area average filter */ "
         " movl             %5,      %%ecx;           " /* ecx == ycounter */
         " pxor          %%mm0,      %%mm0;           "

@@ -20,7 +20,7 @@
 #ifndef _PYGAME_SDLMIXERMOD_H_
 #define _PYGAME_SDLMIXERMOD_H_
 
-#include <Python.h>
+#include "pgcompat.h"
 #include <SDL_mixer.h>
 
 #define PYGAME_SDLMIXER_INTERNAL

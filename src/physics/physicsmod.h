@@ -21,7 +21,7 @@
 #ifndef _PHYSICS_PHYSICSMOD_H_
 #define _PHYSICS_PHYSICSMOD_H_
 
-#include <Python.h>
+#include "pgcompat.h"
 #include <structmember.h>
 
 #define PHYSICS_MATH_INTERNAL

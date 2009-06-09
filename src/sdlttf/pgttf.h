@@ -20,12 +20,10 @@
 #ifndef _PYGAME_SDLTTF_H_
 #define _PYGAME_SDLTTF_H_
 
-#include <Python.h>
 #include <SDL.h>
 #include <SDL_ttf.h>
 
 #include "pgbase.h"
-
 
 #ifdef __cplusplus
 extern "C" {

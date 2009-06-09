@@ -24,8 +24,8 @@
 
 #define PYGAME_MASK_INTERNAL
 
-#include <Python.h>
 #include <math.h>
+#include "pgcompat.h"
 #include "pgdefines.h"
 #include "bitmask.h"
 

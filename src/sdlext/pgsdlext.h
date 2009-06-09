@@ -20,7 +20,6 @@
 #ifndef _PYGAME_SDLEXT_H_
 #define _PYGAME_SDLEXT_H_
 
-#include <Python.h>
 #include <SDL.h>
 
 #include "pgbase.h"

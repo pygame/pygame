@@ -20,7 +20,6 @@
 #ifndef _PYGAME_MASK_H_
 #define _PYGAME_MASK_H_
 
-#include <Python.h>
 #include "bitmask.h"
 #include "pgbase.h"
 

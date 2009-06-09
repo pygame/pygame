@@ -20,7 +20,6 @@
 #ifndef _PYGAME_SDLMIXER_H_
 #define _PYGAME_SDLMIXER_H_
 
-#include <Python.h>
 #include <SDL.h>
 #include <SDL_mixer.h>
 

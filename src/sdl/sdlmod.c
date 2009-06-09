@@ -29,26 +29,6 @@ typedef struct {
     int initialized : 1;
 } _SDLState;
 
-#ifdef IS_PYTHON_3
-static struct PyModuleDef _sdlmodule = {
-    PyModuleDef_HEAD_INIT,
-    "base",
-    DOC_BASE,
-    sizeof (_SDLState),
-    _sdl_methods,
-    NULL,
-    NULL,
-    NULL,
-    NULL
-};
-#define SDL_MOD_STATE(mod) ((_BaseState*)PyModule_GetState(mod))
-#define SDL_STATE SDL_MOD_STATE(PyState_FindModule(&_sdlmodule))
-#else
-_SDLState _modstate;
-#define SDL_MOD_STATE(mod) (&_modstate)
-#define SDL_STATE SDL_MOD_STATE(NULL)
-#endif
-
 static void _quit (void);
 static int _check_sdl (void);
 
@@ -77,6 +57,26 @@ static PyMethodDef _sdl_methods[] = {
       DOC_BASE_GET_VERSION },
     { NULL, NULL, 0, NULL },
 };
+
+#ifdef IS_PYTHON_3
+static struct PyModuleDef _sdlmodule = {
+    PyModuleDef_HEAD_INIT,
+    "base",
+    DOC_BASE,
+    sizeof (_SDLState),
+    _sdl_methods,
+    NULL,
+    NULL,
+    NULL,
+    NULL
+};
+#define SDL_MOD_STATE(mod) ((_SDLState*)PyModule_GetState(mod))
+#define SDL_STATE SDL_MOD_STATE(PyState_FindModule(&_sdlmodule))
+#else
+_SDLState _modstate;
+#define SDL_MOD_STATE(mod) (&_modstate)
+#define SDL_STATE SDL_MOD_STATE(NULL)
+#endif
 
 static void
 _quit (void)

@@ -20,7 +20,7 @@
 #ifndef _PYGAME_SDLGFXMOD_H_
 #define _PYGAME_SDLGFXMOD_H_
 
-#include <Python.h>
+#include "pgcompat.h"
 #include <SDL.h>
 
 #define PYGAME_SDLGFXFPS_INTERNAL
