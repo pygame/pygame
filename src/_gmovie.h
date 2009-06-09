@@ -85,9 +85,20 @@
 {\
     ((uint32_t *)(d))[0] = (a << 24) | (y << 16) | (u << 8) | v;\
 }
-//sets the module to single-thread mode.
-#define THREADFREE 1
 
+
+//sets the module to single-thread mode.
+#define THREADFREE 0
+
+#if THREADFREE!=1
+	#define DECLAREGIL PyGILState_STATE gstate;
+	#define GRABGIL    gstate=PyGILState_Ensure();
+	#define RELEASEGIL PyGILState_Release(gstate);
+#else
+	#define DECLAREGIL 
+	#define GRABGIL   
+	#define RELEASEGIL
+#endif
 //backwards compatibility with blend_subrect
 #define BPP 1
 
@@ -307,7 +318,7 @@ void stream_pause(PyMovie *is);
 int stream_component_open(PyMovie *is, int stream_index); //TODO: break down into separate functions
 void stream_component_close(PyMovie *is, int stream_index);
 int decode_thread(void *arg);
-int decoder(PyMovie *is);
+int decoder(void *arg);
 PyMovie *stream_open(PyMovie *is, const char *filename, AVInputFormat *iformat);
 void stream_close(PyMovie *is);
 void stream_cycle_channel(PyMovie *is, int codec_type);
