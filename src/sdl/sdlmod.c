@@ -22,6 +22,8 @@
 #include "pgsdl.h"
 #include "sdlbase_doc.h"
 
+static int _sdl_traverse (PyObject *mod, visitproc visit, void *arg);
+static int _sdl_clear (PyObject *mod);
 
 typedef struct {
     int initialized : 1;
@@ -35,8 +37,8 @@ static struct PyModuleDef _sdlmodule = {
     sizeof (_SDLState),
     _sdl_methods,
     NULL,
-    _sdl_traverse,
-    _sdl_clear,
+    NULL,
+    NULL,
     NULL
 };
 #define SDL_MOD_STATE(mod) ((_BaseState*)PyModule_GetState(mod))
@@ -158,9 +160,9 @@ _sdl_quitsubsystem (PyObject *self, PyObject *args)
 static PyObject*
 _sdl_wasinit (PyObject *self, PyObject *args)
 {
-    Uint32 flags, retval;
+    Uint32 flags = SDL_INIT_EVERYTHING, retval;
 
-    if (!PyArg_ParseTuple (args, "l:was_init", &flags))
+    if (!PyArg_ParseTuple (args, "|l:was_init", &flags))
         return NULL;
     retval = SDL_WasInit (flags);
     return PyLong_FromLong ((long)retval);

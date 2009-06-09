@@ -103,12 +103,13 @@
     </desc>
   </func>
   <func name="was_init">
-    <call>was_init () -> long</call>
+    <call>was_init ([flags]) -> long</call>
     <desc>
       Gets a bitwise OR'ed combination of the initialized SDL subsystems.
 
       Returns a bitwise combination of the currently initialized SDL
-      subsystems.
+      subsystems. If *flags* is passed, only the listed subsystems in
+      *flags* will be passed and the initialized ones of those returned.
     </desc>
   </func>
 </module>
