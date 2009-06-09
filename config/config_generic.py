@@ -104,27 +104,26 @@ class Dependency (object):
         for d in self._searchdirs:
             for g in self._libdirs:
                 p = os.path.join (d, g)
-                f = os.path.join (p, name)
-                if filter (os.path.isfile, glob.glob (f + '*')):
-                    return p
+                gl = glob.glob(os.path.join(p, name) + '*')
+
+                for f in gl:
+                    if os.path.isfile(f): return p
+
+        return None
 
     def _find_incdir(self, name):
         """
             Recursively search all include dirs for the specified
             header file.
         """
-        def _fi_recurse(top):
-            for (path, dirnames, filenames) in os.walk(top):
-                if name in filenames:
-                    return path
-
-                for subfolder in dirnames:
-                    _fi_recurse(os.path.join(path, subfolder))
-
         for d in self._searchdirs:
             for g in self._incdirs:
-                p = _fi_recurse(os.path.join(d, g))
-                if p: return p
+                path = os.path.join(d, g)
+                for (path, dirnames, filenames) in os.walk(path):
+                    if name in filenames:
+                        return path
+
+        return None
 
     def _configure_guess(self):
         """
