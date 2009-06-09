@@ -1606,6 +1606,27 @@ void stream_cycle_channel(PyMovie *is, int codec_type)
 	RELEASEGIL
 }
 
+int decoder_wrapper(void *arg)
+{
+	PyMovie *movie = arg;
+	DECLAREGIL
+	GRABGIL	
+	Py_INCREF(movie);
+	RELEASEGIL
+	int state=0;
+	movie->loops--;
+	while((movie->loops!=-1) && state==0)
+	{
+		GRABGIL
+		PySys_WriteStdout("Loops: %i\n", movie->loops);
+		RELEASEGIL
+		movie->loops--;
+		movie=stream_open(movie, movie->filename, NULL);
+		movie->paused=0;
+		state =decoder(movie);	
+	}	
+	return state;
+}
 
 /* this thread gets the stream from the disk or the network */
  int decoder(void *arg)
@@ -1739,19 +1760,12 @@ void stream_cycle_channel(PyMovie *is, int codec_type)
 	}
 	is->pictq_size=is->pictq_rindex=is->pictq_windex=0;
 	packet_queue_flush(&is->videoq);
-	is->loops--;
-	if(is->loops<=-2 || is->loops>-1)
-	{
-		//is=stream_open(is, is->filename, NULL);
-		is->paused=0;
-		GRABGIL
-		Py_DECREF(is);
-		RELEASEGIL
-		return decoder(is);	
-	}
+	
 	GRABGIL		
     Py_DECREF( is);
     RELEASEGIL
+    if(is->abort_request)
+    {	return -1;}
     return 0;
 }
 

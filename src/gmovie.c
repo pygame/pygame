@@ -92,8 +92,7 @@
     movie->paused = 0;
     movie->playing = 1;
     SDL_UnlockMutex(movie->dest_mutex);
- 	int state;
-	movie->parse_tid = SDL_CreateThread(decoder, movie);
+	movie->parse_tid = SDL_CreateThread(decoder_wrapper, movie);
     GRABGIL
     Py_DECREF(movie);
     RELEASEGIL

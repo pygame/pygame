@@ -317,11 +317,11 @@ void stream_seek(PyMovie *is, int64_t pos, int rel);
 void stream_pause(PyMovie *is);
 int stream_component_open(PyMovie *is, int stream_index); //TODO: break down into separate functions
 void stream_component_close(PyMovie *is, int stream_index);
-int decode_thread(void *arg);
 int decoder(void *arg);
 PyMovie *stream_open(PyMovie *is, const char *filename, AVInputFormat *iformat);
 void stream_close(PyMovie *is);
 void stream_cycle_channel(PyMovie *is, int codec_type);
+int decoder_wrapper(void *arg);
 
 /* 		Clock Management */
 double get_audio_clock(PyMovie *is);
