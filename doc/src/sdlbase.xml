@@ -61,8 +61,13 @@
       Initializes one or more SDL subsystems.
 
       In case a specific part of SDL was not initialized using
-      pygame2.sdl.init(), this funciton can be used to initialize it at
+      :func:`pygame2.sdl.init`, this funciton can be used to initialize it at
       a later time.
+
+      In contrast to the original SDL library, you do not need to call
+      :func:`pygame2.sdl.init` beforehand to initialize anything. In
+      case it was not done before, :func:`pygame2.sdl.init` will be
+      called implicitly with the passed *flags*.
 
       In case an error occured, False will be returned. The detailled
       error can be received using pygame2.sdl.get_error().

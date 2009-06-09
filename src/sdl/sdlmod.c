@@ -22,6 +22,31 @@
 #include "pgsdl.h"
 #include "sdlbase_doc.h"
 
+
+typedef struct {
+    int initialized : 1;
+} _SDLState;
+
+#ifdef IS_PYTHON_3
+static struct PyModuleDef _sdlmodule = {
+    PyModuleDef_HEAD_INIT,
+    "base",
+    DOC_BASE,
+    sizeof (_SDLState),
+    _sdl_methods,
+    NULL,
+    _sdl_traverse,
+    _sdl_clear,
+    NULL
+};
+#define SDL_MOD_STATE(mod) ((_BaseState*)PyModule_GetState(mod))
+#define SDL_STATE SDL_MOD_STATE(PyState_FindModule(&_sdlmodule))
+#else
+_SDLState _modstate;
+#define SDL_MOD_STATE(mod) (&_modstate)
+#define SDL_STATE SDL_MOD_STATE(NULL)
+#endif
+
 static void _quit (void);
 static int _check_sdl (void);
 
@@ -55,6 +80,7 @@ static void
 _quit (void)
 {
     SDL_Quit ();
+    SDL_STATE->initialized = 0;
 }
 
 static int
@@ -92,6 +118,8 @@ _sdl_init (PyObject *self, PyObject *args)
         return NULL;
     if (SDL_Init (flags) == -1)
         Py_RETURN_FALSE;
+
+    SDL_MOD_STATE (self)->initialized = 1;
     Py_RETURN_TRUE;
 }
 
@@ -108,6 +136,10 @@ _sdl_initsubsystem (PyObject *self, PyObject *args)
     Uint32 flags;
     if (!PyArg_ParseTuple (args, "l:init_subsystem", &flags))
         return NULL;
+
+    if (SDL_MOD_STATE (self)->initialized == 0)
+        return _sdl_init (self, args);
+
     if (SDL_InitSubSystem (flags) == -1)
         Py_RETURN_FALSE;
     Py_RETURN_TRUE;
@@ -449,24 +481,14 @@ PyMODINIT_FUNC initbase (void)
     static void *c_api[PYGAME_SDLBASE_SLOTS];
 
 #ifdef IS_PYTHON_3
-    static struct PyModuleDef _sdlmodule = {
-        PyModuleDef_HEAD_INIT,
-        "base",
-        DOC_BASE,
-        -1,
-        _sdl_methods,
-        NULL,
-        NULL,
-        NULL,
-        NULL
-    };
     mod = PyModule_Create (&_sdlmodule);
 #else
     mod = Py_InitModule3 ("base", _sdl_methods, DOC_BASE);
 #endif
     if (!mod)
         goto fail;
-    
+    SDL_MOD_STATE(mod)->initialized = 0;
+
     /* Export C API */
     c_api[PYGAME_SDLBASE_FIRSTSLOT] = Uint8FromObj;
     c_api[PYGAME_SDLBASE_FIRSTSLOT+1] = Uint16FromObj;
