@@ -25,7 +25,10 @@ typedef getcharbufferproc charbufferproc;
 
 /* Python 3.x compatibility */
 #if PY_VERSION_HEX >= 0x03000000
-#define IS_PYTHON_3
+
+#ifndef IS_PYTHON_3
+#   define IS_PYTHON_3
+#endif
 
 /* Define some aliases for the removed PyInt_* functions */
 #define PyInt_Check(op) PyLong_Check(op)

@@ -113,7 +113,7 @@ static int
 _cdrom_clear (PyObject *mod)
 {
     int i;
-    _SDLCDromState *state = SDLCDROM_MOD_STATE(self);
+    _SDLCDromState *state = SDLCDROM_MOD_STATE(mod);
     for (i = 0; i < MAX_CDROMS; i++)
     {
         /* Close all open cdroms. */

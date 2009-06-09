@@ -663,11 +663,11 @@ _event_clear (PyObject *mod)
 }
 
 #ifdef IS_PYTHON_3
-struct PyModuleDef _module = {
+struct PyModuleDef _eventmodule = {
     PyModuleDef_HEAD_INIT,
     "event",
     DOC_EVENT,
-    -1,
+    sizeof(_SDLEventState),
     _event_methods,
     NULL,
     _event_traverse,
@@ -695,7 +695,7 @@ PyMODINIT_FUNC initevent (void)
     Py_INCREF (&PyEvent_Type);
 
 #ifdef IS_PYTHON_3
-    mod = PyModule_Create (&_module);
+    mod = PyModule_Create (&_eventmodule);
 #else
     mod = Py_InitModule3 ("event", _event_methods, DOC_EVENT);
 #endif

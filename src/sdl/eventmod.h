@@ -23,13 +23,6 @@
 #include <Python.h>
 #include <SDL.h>
 
-/*
- * HACK: The 'IS_PYTHON_3' define is somehow
- * not declared when compiling this module.
- * We need to manually include pgcompat.h
- */
-#include "pgcompat.h"
-
 #define PYGAME_SDLEVENT_INTERNAL
 
 typedef struct {
