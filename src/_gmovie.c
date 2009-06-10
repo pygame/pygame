@@ -530,11 +530,15 @@ int video_open(PyMovie *is, int index){
         screen = SDL_GetVideoSurface ();
         if (!screen)
 		{
-			GRABGIL
-            RAISE (PyExc_SDLError, "Display mode not set");
-        	Py_DECREF(is);
-        	RELEASEGIL
-        	return -1;
+			screen = SDL_SetVideoMode(w, h, 0, SDL_SWSURFACE);
+			if(!screen)
+			{
+				GRABGIL
+	        	RAISE(PyExc_SDLError, "Could not initialize a new video surface.");
+	        	Py_DECREF(is);
+	        	RELEASEGIL
+	        	return -1;	
+			}
 		}
         vp->dest_overlay = SDL_CreateYUVOverlay (w, h, SDL_YV12_OVERLAY, screen);
         if (!vp->dest_overlay)
@@ -635,7 +639,7 @@ int video_open(PyMovie *is, int index){
     int dst_pix_fmt;
     AVPicture pict;
     VidPicture *vp;
-    struct SwsContext *img_convert_ctx=NULL;
+    struct SwsContext *img_convert_ctx=movie->img_convert_ctx;
 
 	vp = &movie->pictq[movie->pictq_windex];
 	
@@ -667,6 +671,7 @@ int video_open(PyMovie *is, int index){
             fprintf(stderr, "Cannot initialize the conversion context\n");
             exit(1);
         }
+        movie->img_convert_ctx = img_convert_ctx;
         sws_scale(img_convert_ctx, src_frame->data, src_frame->linesize,
                   0, movie->video_st->codec->height, pict.data, pict.linesize);
 
@@ -1176,8 +1181,8 @@ int subtitle_thread(void *arg)
         RELEASEGIL
         return -1;
     }
+    
     enc = ic->streams[stream_index]->codec;
-
     /* prepare audio output */
     if (enc->codec_type == CODEC_TYPE_AUDIO) {
         if (enc->channels > 0) {
@@ -1370,7 +1375,7 @@ PyMovie *stream_open(PyMovie *is, const char *filename, AVInputFormat *iformat)
     is->dest_mutex = SDL_CreateMutex();
 	
     is->subpq_mutex = SDL_CreateMutex();
-    is->subpq_cond = SDL_CreateCond();
+    //is->subpq_cond = SDL_CreateCond();
     
     is->paused = 1;
     is->av_sync_type = AV_SYNC_VIDEO_MASTER;
@@ -1398,7 +1403,6 @@ PyMovie *stream_open(PyMovie *is, const char *filename, AVInputFormat *iformat)
         ret = -1;
         goto fail;
     }
-    is->ic = ic;
     err = av_find_stream_info(ic);
     if (err < 0) {
     	GRABGIL
@@ -1410,6 +1414,8 @@ PyMovie *stream_open(PyMovie *is, const char *filename, AVInputFormat *iformat)
     if(ic->pb)
         ic->pb->eof_reached= 0; //FIXME hack, ffplay maybe should not use url_feof() to test for the end
 	
+
+	is->ic = ic;
     /* if seeking requested, we execute it */
     if (is->start_time != AV_NOPTS_VALUE) {
         int64_t timestamp;
@@ -1472,6 +1478,8 @@ PyMovie *stream_open(PyMovie *is, const char *filename, AVInputFormat *iformat)
  fail:
     /* disable interrupting */
 
+	//if(ap)
+	//	av_freep(params);
 	if(ret!=0)
 	{
 		GRABGIL
@@ -1486,6 +1494,7 @@ PyMovie *stream_open(PyMovie *is, const char *filename, AVInputFormat *iformat)
 		RELEASEGIL
 		return is;
 	}
+	
 	GRABGIL
 	Py_DECREF(is);
     RELEASEGIL
@@ -1520,7 +1529,12 @@ PyMovie *stream_open(PyMovie *is, const char *filename, AVInputFormat *iformat)
     		}
 		SDL_DestroyMutex(is->dest_mutex);
      	SDL_DestroyMutex(is->subpq_mutex);
-        SDL_DestroyCond(is->subpq_cond);
+        //SDL_DestroyCond(is->subpq_cond);
+    	if(is->img_convert_ctx)
+    	{
+    		sws_freeContext(is->img_convert_ctx);
+    		is->img_convert_ctx=NULL;
+    	}
     }
     /* close each stream */
     if (is->audio_stream >= 0)
@@ -1621,8 +1635,10 @@ int decoder_wrapper(void *arg)
 		movie->loops--;
 		movie=stream_open(movie, movie->filename, NULL);
 		movie->paused=0;
-		state =decoder(movie);	
-	}	
+		state =decoder(movie);
+		stream_component_close(movie, movie->video_st->index);
+	}
+	if(gstate==PyGILState_LOCKED) RELEASEGIL	
 	return state;
 }
 
@@ -1641,7 +1657,7 @@ int decoder_wrapper(void *arg)
 	ic=is->ic;
 	int co=0;
 	is->last_showtime = av_gettime()/1000.0;
-    video_open(is, is->pictq_windex);
+    //video_open(is, is->pictq_windex);
     for(;;) {
 		//PySys_WriteStdout("decoder: loop %i.\n", co);
 		co++;
@@ -1710,7 +1726,6 @@ int decoder_wrapper(void *arg)
 	        if (ret < 0) {
 	            if (ret != AVERROR_EOF && url_ferror(ic->pb) == 0) {
 	                goto fail;
-	                continue;
 	            } else
 	            {
 	                break;

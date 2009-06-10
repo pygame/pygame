@@ -82,6 +82,7 @@
 	PyEval_InitThreads();
 	DECLAREGIL
 	Py_INCREF(movie);
+    PySys_WriteStdout("Inside .play\n");
     int loops;
     if(!PyArg_ParseTuple(args, "i", &loops))
     {

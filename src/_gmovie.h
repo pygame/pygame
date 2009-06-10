@@ -262,6 +262,7 @@ typedef struct PyMovie {
 	PacketQueue videoq;
 	SDL_mutex *videoq_mutex;
 	SDL_cond *videoq_cond;
+	struct SwsContext *img_convert_ctx;
 
 	/* subtitle members */	
     SDL_Thread *subtitle_tid;                    //thread id for subtitle decode thread
