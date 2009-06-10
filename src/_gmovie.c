@@ -1626,8 +1626,12 @@ int decoder_wrapper(void *arg)
 	Py_INCREF(movie);
 	RELEASEGIL
 	int state=0;
-	movie->loops--;
-	while((movie->loops!=-1) && state==0)
+	int eternity =0;
+	if(movie->loops==-1)
+	{
+		eternity=1;
+	}
+	while((movie->loops>-1||eternity) )
 	{
 		GRABGIL
 		PySys_WriteStdout("Loops: %i\n", movie->loops);
