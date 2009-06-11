@@ -1009,11 +1009,6 @@ int subtitle_thread(void *arg)
                         samples_size = wanted_size;
                     }
                 }
-#if 0
-                printf("diff=%f adiff=%f sample_diff=%d apts=%0.3f vpts=%0.3f %f\n",
-                       diff, avg_diff, samples_size - samples_size1,
-                       is->audio_clock, is->video_clock, is->audio_diff_threshold);
-#endif
             }
         } else {
             /* too big difference : may be initial PTS errors, so
@@ -1026,140 +1021,104 @@ int subtitle_thread(void *arg)
     return samples_size;
 }
 
-/* decode one audio frame and returns its uncompressed size */
- int audio_decode_frame(PyMovie *is, double *pts_ptr)
-{
-    Py_INCREF( is);
-    
-    AVPacket *pkt = &is->audio_pkt;
-    AVCodecContext *dec= is->audio_st->codec;
-    int n, len1, data_size;
-    double pts;
 
-    for(;;) {
-        /* NOTE: the audio packet can contain several frames */
-        while (is->audio_pkt_size > 0) {
-            data_size = sizeof(is->audio_buf1);
-            len1 = avcodec_decode_audio2(dec,
-                                        (int16_t *)is->audio_buf1, &data_size,
-                                        is->audio_pkt_data, is->audio_pkt_size);
+
+
+int audio_thread(void *arg)
+{
+	PyMovie *movie = arg;
+	DECLAREGIL
+	GRABGIL
+	Py_INCREF(movie);
+	PySys_WriteStdout("Inside audio_thread\n");
+	RELEASEGIL
+
+    double pts;
+	AVPacket *pkt = &movie->audio_pkt;
+    AVCodecContext *dec= movie->audio_st->codec;
+    int n, len1, data_size;	
+	int filled =0;
+	len1=0;
+	int co = 0;
+	for(;;)
+	{
+		//GRABGIL
+		PySys_WriteStdout("audio_thread: infinite looping(%i)...\n", co);
+		co++;
+		if(co>10000)
+			PySys_WriteStdout("blah\n");
+		//RELEASEGIL
+		//fill up the buffer
+		while(movie->audio_pkt_size > 0)
+        {
+        	PySys_WriteStdout("audio_thread: filling up the buffer...\n");
+			data_size = sizeof(movie->audio_buf1);
+            len1 += avcodec_decode_audio2(dec, (int16_t *)movie->audio_buf1, &data_size, movie->audio_pkt_data, movie->audio_pkt_size);
             if (len1 < 0) {
                 /* if error, we skip the frame */
-                is->audio_pkt_size = 0;
+                movie->audio_pkt_size = 0;
                 break;
             }
 
-            is->audio_pkt_data += len1;
-            is->audio_pkt_size -= len1;
+            movie->audio_pkt_data += len1;
+            movie->audio_pkt_size -= len1;
             if (data_size <= 0)
                 continue;
-
-            if (dec->sample_fmt != is->audio_src_fmt) {
-                if (is->reformat_ctx)
-                    av_audio_convert_free(is->reformat_ctx);
-                is->reformat_ctx= av_audio_convert_alloc(SAMPLE_FMT_S16, 1,
-                                                         dec->sample_fmt, 1, NULL, 0);
-                if (!is->reformat_ctx) {
-					//TODO: python error
-                    fprintf(stderr, "Cannot convert %s sample format to %s sample format\n",
-                        avcodec_get_sample_fmt_name(dec->sample_fmt),
-                        avcodec_get_sample_fmt_name(SAMPLE_FMT_S16));
-                        break;
-                }
-                is->audio_src_fmt= dec->sample_fmt;
-            }
-
-            if (is->reformat_ctx) {
-                const void *ibuf[6]= {is->audio_buf1};
-                void *obuf[6]= {is->audio_buf2};
-                int istride[6]= {av_get_bits_per_sample_format(dec->sample_fmt)/8};
-                int ostride[6]= {2};
-                int len= data_size/istride[0];
-                if (av_audio_convert(is->reformat_ctx, obuf, ostride, ibuf, istride, len)<0) {
-                    PyErr_WarnEx(NULL, "av_audio_convert() failed", 1);
-                    break;
-                }
-                is->audio_buf= is->audio_buf2;
-                /* FIXME: existing code assume that data_size equals framesize*channels*2
-                          remove this legacy cruft */
-                data_size= len*2;
-            }else{
-                is->audio_buf= is->audio_buf1;
-            }
-
+            //reformat_ctx here, but deleted    
             /* if no pts, then compute it */
-            pts = is->audio_clock;
-            *pts_ptr = pts;
+            pts = movie->audio_clock;
             n = 2 * dec->channels;
-            is->audio_clock += (double)data_size /
-                (double)(n * dec->sample_rate);
-            Py_DECREF(is);
-            return data_size;
+            movie->audio_clock += (double)data_size / (double)(n * dec->sample_rate);
+            filled=1;
+        	   
         }
-
+        //either buffer filled or no packets yet
         /* free the current packet */
         if (pkt->data)
             av_free_packet(pkt);
 
-        if (is->paused || is->audioq.abort_request) {
-            Py_DECREF(is);
-            return -1;
-        }
-
+        //if (movie->paused) {
+        //    continue;
+        //}
+        //check if the movie has ended
+		if(movie->stop)
+			goto closing;
         /* read next packet */
-        if (packet_queue_get(&is->audioq, pkt, 1) < 0)
-        {
-            Py_DECREF(is);
-            return -1;
-        }
+        if (packet_queue_get(&movie->audioq, pkt, 1) < 0)
+            continue;
         if(pkt->data == flush_pkt.data){
             avcodec_flush_buffers(dec);
             continue;
         }
 
-        is->audio_pkt_data = pkt->data;
-        is->audio_pkt_size = pkt->size;
+        movie->audio_pkt_data = pkt->data;
+        movie->audio_pkt_size = pkt->size;
 
         /* if update the audio clock with the pts */
         if (pkt->pts != AV_NOPTS_VALUE) {
-            is->audio_clock = av_q2d(is->audio_st->time_base)*pkt->pts;
+            movie->audio_clock = av_q2d(movie->audio_st->time_base)*pkt->pts;
         }
-    }
-
-    Py_DECREF( is);
-}
-
-/* prepare a new audio buffer */
- void sdl_audio_callback(void *opaque, Uint8 *stream, int len)
-{
-    PyMovie *movie = opaque;
-    Py_INCREF( movie);
-    int audio_size, len1;
-    double pts;
-
-    while (len > 0) {
-        if (movie->audio_buf_index >= movie->audio_buf_size) {
-           audio_size = audio_decode_frame(movie, &pts);
-           if (audio_size < 0) {
-                /* if error, just output silence */
-               movie->audio_buf = movie->audio_buf1;
-               movie->audio_buf_size = 1024;
-               memset(movie->audio_buf, 0, movie->audio_buf_size);
-           } else {
-               audio_size = synchronize_audio(movie, (int16_t *)movie->audio_buf, audio_size, pts);
-               movie->audio_buf_size = audio_size;
-           }
-           movie->audio_buf_index = 0;
+        if(filled && len1>=512)
+        {
+        	/* Buffer is filled up with a new frame, we spin lock/wait for a signal, where we then call playBuffer */
+        	SDL_LockMutex(movie->audio_mutex);
+        	SDL_CondWait(movie->audio_sig, movie->audio_mutex);
+        	playBuffer(movie->audio_buf, data_size);
+        	filled=0;
+        	len1=0;
+        	SDL_UnlockMutex(movie->audio_mutex);
         }
-        len1 = movie->audio_buf_size - movie->audio_buf_index;
-        if (len1 > len)
-            len1 = len;
-        memcpy(stream, (uint8_t *)movie->audio_buf + movie->audio_buf_index, len1);
-        len -= len1;
-        stream += len1;
-        movie->audio_buf_index += len1;
+        else
+        {
+        	filled=0;
+        }
+
     }
-    Py_DECREF( movie);
+closing:
+    GRABGIL
+	Py_DECREF(movie);
+	RELEASEGIL
+	return 0;
 }
 
 /* open a given stream. Return 0 if OK */
@@ -1172,8 +1131,7 @@ int subtitle_thread(void *arg)
     AVFormatContext *ic = movie->ic;
     AVCodecContext *enc;
     AVCodec *codec;
-    SDL_AudioSpec wanted_spec, spec;
-
+	int freq, channels;
     if (stream_index < 0 || stream_index >= ic->nb_streams)
     {
     	GRABGIL
@@ -1216,18 +1174,13 @@ int subtitle_thread(void *arg)
     /* prepare audio output */
     if (enc->codec_type == CODEC_TYPE_AUDIO) {
         
-        wanted_spec.freq = enc->sample_rate;
-        wanted_spec.format = AUDIO_S16SYS;
-        wanted_spec.channels = enc->channels;
-        wanted_spec.silence = 0;
-        wanted_spec.samples = SDL_AUDIO_BUFFER_SIZE;
-        wanted_spec.callback = sdl_audio_callback;
-        wanted_spec.userdata = movie;
-        if (SDL_OpenAudio(&wanted_spec, &spec) < 0) {
+        freq = enc->sample_rate;
+        channels = enc->channels;
+        if (soundInit  (freq, NULL, channels, 1024, movie->audio_sig) < 0) {
             RAISE(PyExc_SDLError, SDL_GetError ());
         }
-        movie->audio_hw_buf_size = spec.size;
-        movie->audio_src_fmt= SAMPLE_FMT_S16;
+        movie->audio_hw_buf_size = 1024;
+        movie->audio_src_fmt= AUDIO_S16SYS;
     }
 
     enc->thread_count= 1;
@@ -1249,7 +1202,10 @@ int subtitle_thread(void *arg)
         
         memset(&movie->audio_pkt, 0, sizeof(movie->audio_pkt));
         packet_queue_init(&movie->audioq);
-        SDL_PauseAudio(0);
+		movie->audio_sig = SDL_CreateCond();
+		movie->audio_mutex = SDL_CreateMutex();
+		movie->audio_tid = SDL_CreateThread(audio_thread, movie);
+        
         break;
     case CODEC_TYPE_VIDEO:
         movie->video_stream = stream_index;
@@ -1303,7 +1259,8 @@ void stream_component_close(PyMovie *is, int stream_index)
     switch(enc->codec_type) {
     case CODEC_TYPE_AUDIO:
         packet_queue_abort(&is->audioq);
-        SDL_CloseAudio();
+        soundQuit();
+        SDL_WaitThread(is->audio_tid, NULL);
         packet_queue_end(&is->audioq, end);
         if (is->reformat_ctx)
             av_audio_convert_free(is->reformat_ctx);
@@ -1453,9 +1410,9 @@ PyMovie *stream_open(PyMovie *is, const char *filename, AVInputFormat *iformat)
     }
 
     /* open the streams */
-    /*if (audio_index >= 0) {
+    if (audio_index >= 0) {
 		stream_component_open(is, audio_index);
-   	}*/
+   	}
 	
     if (video_index >= 0) {
     	stream_component_open(is, video_index);
@@ -1641,6 +1598,7 @@ int decoder_wrapper(void *arg)
 		movie->paused=0;
 		state =decoder(movie);
 		stream_component_close(movie, movie->video_st->index);
+		stream_component_close(movie, movie->audio_st->index);
 	}
 	if(gstate==PyGILState_LOCKED) RELEASEGIL	
 	return state;
@@ -1735,10 +1693,9 @@ int decoder_wrapper(void *arg)
 	                break;
 	            }
 	        }
-	        /*if (pkt->stream_index == is->audio_stream) {
+	        if (pkt->stream_index == is->audio_stream) {
 	            packet_queue_put(&is->audioq, pkt);
-	        } else*/ 
-	        if (pkt->stream_index == is->video_stream) {
+	        } else if (pkt->stream_index == is->video_stream) {
 	            packet_queue_put(&is->videoq, pkt);
 	        //} else if (pkt->stream_index == is->subtitle_stream) {
 	        //    packet_queue_put(&is->subtitleq, pkt);
@@ -1781,6 +1738,7 @@ int decoder_wrapper(void *arg)
 	GRABGIL		
     Py_DECREF( is);
     RELEASEGIL
+    is->stop =1;
     if(is->abort_request)
     {	return -1;}
     return 0;

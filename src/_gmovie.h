@@ -7,6 +7,7 @@
 #include "pgcompat.h"
 #include "audioconvert.h"
 #include "surface.h"
+#include "_gsound.h"
 
 /* Library includes */
 #include <Python.h>
@@ -191,6 +192,8 @@ typedef struct PyMovie {
 	SDL_mutex *dest_mutex;
 	int av_sync_type;
 	AVFormatContext *ic;    /* context information about the format of the video file */
+	int stop;
+	
 	
 	/* Seek-info */
     int seek_req;
@@ -225,6 +228,9 @@ typedef struct PyMovie {
     AVAudioConvert *reformat_ctx;
     int audio_stream;
 	int audio_disable;
+	SDL_cond *audio_sig;
+	SDL_mutex *audio_mutex;
+	SDL_Thread *audio_tid;
 	
 	/* Frame/Video Management members */
     int frame_count;
