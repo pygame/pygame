@@ -17,6 +17,7 @@ CRITICAL:
   freetype.Font.get_metrics (text, ptsize, FT_GLYPH_XXX)
 * Mark methods, which are limited to certain bpp ranges.
 * Add doc notes about quit() behaviour of the various modules.
+* add pgcompat.h to *mod.h internal headers.
 
 Things to ADD:
 ==============

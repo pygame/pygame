@@ -7,7 +7,7 @@ Windows Registry Editor Version 5.00
 [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\VisualStudio\7.1\VC\VC_OBJECTS_PLATFORM_INFO\Win32]
 
 [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\VisualStudio\7.1\VC\VC_OBJECTS_PLATFORM_INFO\Win32\Directories]
-"Path Dirs"="C:\\Program Files\\Microsoft Visual C++ Toolkit 2003\\bin;C:\\Program Files\\Microsoft Platform SDK \\bin"
+"Path Dirs"="C:\\Program Files\\Microsoft Visual C++ Toolkit 2003\\bin;C:\\Program Files\\Microsoft Platform SDK\\bin"
 "Library Dirs"="C:\\Program Files\\Microsoft Visual C++ Toolkit 2003\\lib;C:\\Program Files\\Microsoft Platform SDK\\Lib;C:\\Program Files\\Microsoft Visual Studio .NET 2003\\Vc7\\lib"
 "Include Dirs"="C:\\Program Files\\Microsoft Visual C++ Toolkit 2003\\include;C:\\Program Files\\Microsoft Platform SDK\\Include"
 

@@ -104,9 +104,6 @@ if __name__ == "__main__":
     if buildsystem == "darwin":
         os.environ["CFLAGS"] += " -arch i386 -arch ppc"
 
-    if helpers.getversion() >= (3, 0):
-        os.environ["CFLAGS"] += " -DIS_PYTHON_3"
-
     packages = [ "pygame2",
                  "pygame2.examples",
                  "pygame2.examples.physics",

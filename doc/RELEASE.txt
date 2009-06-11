@@ -120,6 +120,18 @@ part.
 * *MAJOR* should be increased, whenever outstanding additions or changes to the
   API were made, which legitimate it.
 
+Why is that *MINOR*/*BUGFIX* diversion important? Pygame2 is basically some
+sort of library. As such, people can write software with it while not
+necessarily including the library code (Pygame2 itself). So what happens, if a
+user has some version installed, where certain API interfaces changed and behave
+differently from the version, the developer worked with? The program is most
+likely to fail and the user will blame either the developer or the library.
+
+With a consistent versioning scheme, developers can test against versions
+explicitly to guarantee the functionality with those. User can receive an
+explicit notice, if their installed version might be incompatible and react
+upon that accordingly.
+
 How does that look like in practice? ::
 
   Event/Action                     Version number
