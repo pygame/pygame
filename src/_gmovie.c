@@ -1110,7 +1110,7 @@ int audio_thread(void *arg)
         	/* Buffer is filled up with a new frame, we spin lock/wait for a signal, where we then call playBuffer */
         	SDL_LockMutex(movie->audio_mutex);
         	//SDL_CondWait(movie->audio_sig, movie->audio_mutex);
-        	playBuffer(movie->audio_buf1, data_size);
+        	playBuffer(movie->audio_buf1, len1);
         	filled=0;
         	len1=0;
         	SDL_UnlockMutex(movie->audio_mutex);
@@ -1418,9 +1418,9 @@ PyMovie *stream_open(PyMovie *is, const char *filename, AVInputFormat *iformat)
     }
 
     /* open the streams */
-    if (audio_index >= 0) {
+    /*if (audio_index >= 0) {
 		stream_component_open(is, audio_index);
-   	}
+   	}*/
 	
     if (video_index >= 0) {
     	stream_component_open(is, video_index);
@@ -1608,7 +1608,7 @@ int decoder_wrapper(void *arg)
 		movie->paused=0;
 		state =decoder(movie);
 		stream_component_close(movie, movie->video_st->index);
-		stream_component_close(movie, movie->audio_st->index);
+		//stream_component_close(movie, movie->audio_st->index);
 	}
 	if(gstate==PyGILState_LOCKED) RELEASEGIL	
 	return state;
@@ -1704,9 +1704,9 @@ int decoder_wrapper(void *arg)
 	                break;
 	            }
 	        }
-	        if (pkt->stream_index == is->audio_stream) {
+	        /*if (pkt->stream_index == is->audio_stream) {
 	            packet_queue_put(&is->audioq, pkt);
-	        } else if (pkt->stream_index == is->video_stream) {
+	        } else*/ if (pkt->stream_index == is->video_stream) {
 	            packet_queue_put(&is->videoq, pkt);
 	        //} else if (pkt->stream_index == is->subtitle_stream) {
 	        //    packet_queue_put(&is->subtitleq, pkt);
@@ -1714,8 +1714,9 @@ int decoder_wrapper(void *arg)
 	            av_free_packet(pkt);
 	        }
 		}
-        video_render(is);
-        audio_thread(is);
+		if(is->video_st)
+	        video_render(is);
+        //audio_thread(is);
         if(co<2)
         	video_refresh_timer(is);
         if(is->timing>0) {
