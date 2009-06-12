@@ -59,20 +59,64 @@
     return 0;
 }   
 
- void _movie_dealloc(PyMovie *movie)
+void _movie_dealloc(PyMovie *movie)
 {
     stream_close(movie);
     movie->ob_type->tp_free((PyObject *) movie);
 }
 
- PyObject* _movie_repr (PyMovie *movie)
+char *format_timestamp(double pts, char *buf)
+{
+	int h, m;
+	double s;
+	if(pts/60 > 60)
+	{
+		h = (int)pts/3600;
+		pts = pts-h*3600;
+	}
+	else
+	{
+		h=0;
+	}
+	m=(int)pts/60;
+	if(m>0)
+	{
+		s = pts-m*60;
+	}
+	else
+	{
+		s = pts;
+		m=0;
+	}
+	//char buf[50];
+	if(h>0 && m>0)
+	{
+		PyOS_snprintf(buf, sizeof(buf), "%ih, %im, %fs", h, m, s);
+	}	
+	else if (m>0)
+	{
+		PyOS_snprintf(buf, sizeof(buf), "%im, %fs", m, s);
+	}
+	else if(s>0)
+	{
+		PyOS_snprintf(buf, sizeof(buf), "%fs", s);
+	}
+	else
+	{
+		PyOS_snprintf(buf, sizeof(buf), "0.0s");
+	}
+	return buf;
+}
+
+PyObject* _movie_repr (PyMovie *movie)
 {
     /*Eventually add a time-code call */
     DECLAREGIL
     GRABGIL
     Py_INCREF(movie);
-    char buf[100];
-    PyOS_snprintf(buf, sizeof(buf), "(Movie: %s)", movie->filename);
+    char buf[150];
+    char buf2[50];
+    PyOS_snprintf(buf, sizeof(buf), "(Movie: %s, %s)", movie->filename, format_timestamp(movie->pts, buf2));
     Py_DECREF(movie);
     PyObject *buffer = PyString_FromString(buf);
     RELEASEGIL

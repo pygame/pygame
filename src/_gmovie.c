@@ -1363,7 +1363,7 @@ PyMovie *stream_open(PyMovie *is, const char *filename, AVInputFormat *iformat)
     err = av_open_input_file(&ic, is->filename, is->iformat, 0, ap);
     if (err < 0) {
     	GRABGIL
-        PyErr_Format(PyExc_IOError, "There was a problem opening up %s", is->filename);
+        PyErr_Format(PyExc_IOError, "There was a problem opening up %s, due to %i", is->filename, err);
         RELEASEGIL
         ret = -1;
         goto fail;
