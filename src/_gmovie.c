@@ -26,6 +26,7 @@
 
  void packet_queue_flush(PacketQueue *q)
 {
+	DECLAREGIL
     AVPacketList *pkt, *pkt1;
 #if THREADFREE!=1
 	if(q->mutex)
@@ -34,7 +35,9 @@
     for(pkt = q->first_pkt; pkt != NULL; pkt = pkt1) {
         pkt1 = pkt->next;
         av_free_packet(&pkt->pkt);
+        GRABGIL
         PyMem_Free(pkt);
+    	RELEASEGIL
     }
     q->last_pkt = NULL;
     q->first_pkt = NULL;
@@ -74,7 +77,7 @@
 	DECLAREGIL
 	GRABGIL
     pkt1 = PyMem_Malloc(sizeof(AVPacketList));
-    RELEASEGIL
+    
     if (!pkt1)
         return -1;
     pkt1->pkt = *pkt;
@@ -84,6 +87,7 @@
 	if(q->mutex)
 		SDL_LockMutex(q->mutex);	
 #endif
+    RELEASEGIL //Grab GIL first, then mutex.
     if (!q->last_pkt)
 
         q->first_pkt = pkt1;
@@ -117,6 +121,8 @@ void packet_queue_abort(PacketQueue *q)
 /* return < 0 if aborted, 0 if no packet and > 0 if packet.  */
 int packet_queue_get(PacketQueue *q, AVPacket *pkt, int block)
 {
+	DECLAREGIL
+	GRABGIL
     AVPacketList *pkt1;
     int ret;
     
@@ -124,6 +130,7 @@ int packet_queue_get(PacketQueue *q, AVPacket *pkt, int block)
 	if(q->mutex)
 		SDL_LockMutex(q->mutex);
 #endif
+	RELEASEGIL
     for(;;) {
         if (q->abort_request) {
             ret = -1;
@@ -138,7 +145,6 @@ int packet_queue_get(PacketQueue *q, AVPacket *pkt, int block)
             q->nb_packets--;
             q->size -= pkt1->pkt.size;
             *pkt = pkt1->pkt;
-            DECLAREGIL
             GRABGIL
             PyMem_Free(pkt1);
             RELEASEGIL
@@ -1030,9 +1036,8 @@ int audio_thread(void *arg)
 	DECLAREGIL
 	GRABGIL
 	Py_INCREF(movie);
-	PySys_WriteStdout("Inside audio_thread\n");
+	//PySys_WriteStdout("Inside audio_thread\n");
 	RELEASEGIL
-
     double pts;
 	AVPacket *pkt = &movie->audio_pkt;
     AVCodecContext *dec= movie->audio_st->codec;
@@ -1040,18 +1045,17 @@ int audio_thread(void *arg)
 	int filled =0;
 	len1=0;
 	int co = 0;
-	for(;;)
+	for(;co<10;co++)
 	{
-		//GRABGIL
+		/*GRABGIL
 		PySys_WriteStdout("audio_thread: infinite looping(%i)...\n", co);
-		co++;
-		if(co>10000)
-			PySys_WriteStdout("blah\n");
-		//RELEASEGIL
+		RELEASEGIL*/
 		//fill up the buffer
 		while(movie->audio_pkt_size > 0)
         {
+        	GRABGIL
         	PySys_WriteStdout("audio_thread: filling up the buffer...\n");
+			RELEASEGIL
 			data_size = sizeof(movie->audio_buf1);
             len1 += avcodec_decode_audio2(dec, (int16_t *)movie->audio_buf1, &data_size, movie->audio_pkt_data, movie->audio_pkt_size);
             if (len1 < 0) {
@@ -1085,7 +1089,10 @@ int audio_thread(void *arg)
 			goto closing;
         /* read next packet */
         if (packet_queue_get(&movie->audioq, pkt, 1) < 0)
+        {
+			SDL_Delay(10);         
             continue;
+        }
         if(pkt->data == flush_pkt.data){
             avcodec_flush_buffers(dec);
             continue;
@@ -1093,20 +1100,21 @@ int audio_thread(void *arg)
 
         movie->audio_pkt_data = pkt->data;
         movie->audio_pkt_size = pkt->size;
-
+        
         /* if update the audio clock with the pts */
         if (pkt->pts != AV_NOPTS_VALUE) {
             movie->audio_clock = av_q2d(movie->audio_st->time_base)*pkt->pts;
         }
-        if(filled && len1>=512)
+        if(filled)
         {
         	/* Buffer is filled up with a new frame, we spin lock/wait for a signal, where we then call playBuffer */
         	SDL_LockMutex(movie->audio_mutex);
-        	SDL_CondWait(movie->audio_sig, movie->audio_mutex);
-        	playBuffer(movie->audio_buf, data_size);
+        	//SDL_CondWait(movie->audio_sig, movie->audio_mutex);
+        	playBuffer(movie->audio_buf1, data_size);
         	filled=0;
         	len1=0;
         	SDL_UnlockMutex(movie->audio_mutex);
+        	goto closing;
         }
         else
         {
@@ -1176,7 +1184,7 @@ closing:
         
         freq = enc->sample_rate;
         channels = enc->channels;
-        if (soundInit  (freq, NULL, channels, 1024, movie->audio_sig) < 0) {
+        if (soundInit  (freq, (int)NULL, channels, 1024, movie->audio_sig) < 0) {
             RAISE(PyExc_SDLError, SDL_GetError ());
         }
         movie->audio_hw_buf_size = 1024;
@@ -1204,7 +1212,7 @@ closing:
         packet_queue_init(&movie->audioq);
 		movie->audio_sig = SDL_CreateCond();
 		movie->audio_mutex = SDL_CreateMutex();
-		movie->audio_tid = SDL_CreateThread(audio_thread, movie);
+		//movie->audio_tid = SDL_CreateThread(audio_thread, movie);
         
         break;
     case CODEC_TYPE_VIDEO:
@@ -1595,6 +1603,8 @@ int decoder_wrapper(void *arg)
 		RELEASEGIL
 		movie->loops--;
 		movie=stream_open(movie, movie->filename, NULL);
+		/*if(movie->audio_st)
+			movie->audio_tid = SDL_CreateThread(audio_thread, movie);*/
 		movie->paused=0;
 		state =decoder(movie);
 		stream_component_close(movie, movie->video_st->index);
@@ -1615,10 +1625,11 @@ int decoder_wrapper(void *arg)
     AVFormatContext *ic;
     int ret;
     AVPacket pkt1, *pkt = &pkt1;
-
+	is->stop=0;
 	ic=is->ic;
 	int co=0;
 	is->last_showtime = av_gettime()/1000.0;
+	RELEASEGIL
     //video_open(is, is->pictq_windex);
     for(;;) {
 		//PySys_WriteStdout("decoder: loop %i.\n", co);
@@ -1704,6 +1715,7 @@ int decoder_wrapper(void *arg)
 	        }
 		}
         video_render(is);
+        audio_thread(is);
         if(co<2)
         	video_refresh_timer(is);
         if(is->timing>0) {
@@ -1722,6 +1734,13 @@ int decoder_wrapper(void *arg)
                 SDL_Delay(10);
             }
         }
+        /*
+        if(is->video_clock >=4.5)
+        {
+        	GRABGIL
+        	PySys_WriteStdout("PTS: %f\n", is->video_clock);
+        	RELEASEGIL
+        }*/
     }
 
     ret = 0;
