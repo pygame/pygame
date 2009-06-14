@@ -170,14 +170,14 @@ int playBuffer (uint8_t *buf, uint32_t len)
 			BufferNode *node;
 			node = (BufferNode *)PyMem_Malloc(sizeof(BufferNode));
 			node->buf = (uint8_t *)PyMem_Malloc((size_t)len);
-			memcpy(&node->buf, &buf, (size_t)len-1);
+			memcpy(&node->buf, &buf, (size_t)len);
 			node->len = len;
 			node->next =NULL;
-			queue_put(queue, node);
+			queue_put(&queue, &node);
 		}
 		BufferNode *new;
-		queue_get(queue, new);
-		memcpy(&buf, &new->buf, new->len-1);
+		queue_get(&queue, &new);
+		memcpy(&buf, &new->buf, new->len);
 		len=new->len;
 		PyMem_Free(&new->buf);
 		PyMem_Free(&new);
@@ -189,10 +189,10 @@ int playBuffer (uint8_t *buf, uint32_t len)
 			BufferNode *node;
 			node = (BufferNode *)PyMem_Malloc(sizeof(BufferNode));
 			node->buf = (uint8_t *)PyMem_Malloc((size_t)len);
-			memcpy(&node->buf, &buf, (size_t)len-1);
+			memcpy(&node->buf, &buf, (size_t)len);
 			node->len = len;
 			node->next =NULL;
-			queue_put(queue, node);
+			queue_put(&queue, &node);
 		}
 		return 0;
 	}
@@ -201,7 +201,7 @@ int playBuffer (uint8_t *buf, uint32_t len)
 	if(queue->size==0)
 	{
 		mix->abuf = (Uint8 *)PyMem_Malloc((size_t)len);
-		memcpy(&mix->abuf, &buf, len-1);
+		memcpy(&mix->abuf, &buf, len);
 	}
 	else
 	{
