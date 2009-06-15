@@ -9,19 +9,19 @@
 SDL_cond *audio_sig;
 BufferQueue queue;
 int playing =0;
-int queue_get(BufferQueue *q, BufferNode *node)
+int queue_get(BufferQueue *q, BufferNode **pkt1)
 {
-	BufferNode *pkt1;
+	//BufferNode *pkt1;
 	int ret;
  
 	for(;;) {
-        pkt1 = q->first;
-        if (pkt1) {
-            q->first = pkt1->next;
+        *pkt1 = q->first;
+        if (*pkt1) {
+            q->first = (*pkt1)->next;
             if (!q->first)
                 q->last = NULL;
             q->size--;
-            node = pkt1;
+            //node = pkt1;
             //PyMem_Free(pkt1);
             ret = 1;
             break;
@@ -46,13 +46,33 @@ int queue_put(BufferQueue *q, BufferNode *pkt)
     q->size++;
     return 0;
 }
+void queue_flush(BufferQueue *q)
+{
+	while(q->size>0)
+	{
+		BufferNode *node;
+		queue_get(q, &node);
+		PyMem_Free(node->buf);
+		node->buf=NULL; //safety
+		PyMem_Free(node);
+		node=NULL;//safety		
+	}
+	
+}
 
 void cb_mixer(int channel)
 {
-	PyGILState_STATE gstate;
-	gstate=PyGILState_Ensure();
+	//PyGILState_STATE gstate;
+	//gstate=PyGILState_Ensure();
+	Mix_Chunk *mix = Mix_GetChunk(channel);
+	PyMem_Free(mix->abuf);
+	mix->abuf=NULL;
+	PyMem_Free(mix);
+	mix=NULL;
+	PySys_WriteStdout("Callback called.\n");
 	playBuffer(NULL, (uint32_t) 0);
-	PyGILState_Release(gstate);
+	PySys_WriteStdout("Callback finished.\n");
+	//PyGILState_Release(gstate);
 }
 
 //initialize the mixer audio subsystem, code cribbed from mixer.c
@@ -152,6 +172,7 @@ int soundInit  (int freq, int size, int channels, int chunksize, SDL_cond *cond)
 
 int soundQuit(void)
 {
+	queue_flush(&queue);
 	Mix_CloseAudio();
 	return 0;
 }
@@ -160,59 +181,60 @@ int soundQuit(void)
 int playBuffer (uint8_t *buf, uint32_t len)
 {
 	Mix_Chunk *mix;
-	uint8_t *newbuf;
-	if(queue.size>0)
+	int allocated=0;
+	if(queue.size>0||playing)
 	{
 		if(buf)
 		{
+			//not a callback call, so we copy the buffer into a buffernode and add it to the queue.
 			BufferNode *node;
 			node = (BufferNode *)PyMem_Malloc(sizeof(BufferNode));
 			node->buf = (uint8_t *)PyMem_Malloc((size_t)len);
-			memcpy(&node->buf, &buf, (size_t)len);
+			memcpy(node->buf, buf, (size_t)len);
 			node->len = len;
 			node->next =NULL;
 			queue_put(&queue, node);
+			return 0;
 		}
-		BufferNode *new;
-		queue_get(&queue, new);
-		newbuf = (uint8_t *)PyMem_Malloc((size_t)new->len);
-		memcpy(&newbuf, &new->buf, new->len);
-		len=new->len;
-		PyMem_Free(&new->buf);
-		PyMem_Free(&new);
-	}
-	else if(playing)
-	{
-		if(buf)
+		else if(!buf && queue.size==0)
 		{
-			BufferNode *node;
-			node = (BufferNode *)PyMem_Malloc(sizeof(BufferNode));
-			node->buf = (uint8_t *)PyMem_Malloc((size_t)len);
-			memcpy(&node->buf, &buf, (size_t)len);
-			node->len = len;
-			node->next =NULL;
-			queue_put(&queue, node);
+			//callback call but when the queue is empty, so we just load a short empty sound.
+			buf = (uint8_t *) PyMem_Malloc((size_t)128);
+			memset(buf, 0, (size_t)128);
+			len=128;
+			allocated =1;	
 		}
-		return 0;
-	}
-	mix= (Mix_Chunk *)PyMem_Malloc(sizeof(Mix_Chunk));
-	mix->allocated=1;
-	if(queue.size==0)
-	{
-		mix->abuf = (Uint8 *)PyMem_Malloc((size_t)len);
-		if(newbuf)
-			memcpy(&mix->abuf, &newbuf, len);
 		else
-			memcpy(&mix->abuf, &buf, len);
+		{
+			//callback call, and convenienty enough, the queue has a buffer ready to go, so we copy it into buf
+			BufferNode *new;
+			queue_get(&queue, &new);
+			if(!new)
+				return -1;
+			buf = (uint8_t *)PyMem_Malloc((size_t)new->len);
+			memcpy(buf, new->buf, new->len);
+			len=new->len;
+			PyMem_Free(new->buf);
+			new->buf=NULL;
+			PyMem_Free(new);
+			new=NULL;
+			allocated=1;
+		}	
 	}
-	else
-	{
-		mix->abuf = (Uint8 *)buf;
-	}
+	//regardless of 1st call, or a callback, we load the data from buf into a newly allocated block.
+	mix= (Mix_Chunk *)PyMem_Malloc(sizeof(Mix_Chunk));
+	mix->allocated=0;
+	mix->abuf = (Uint8 *)PyMem_Malloc((size_t)len);
+	memcpy(mix->abuf, buf, len);
 	mix->alen = (Uint32 )len;
 	mix->volume = 127;
 	playing = 1;
 	int ret = Mix_PlayChannel(-1, mix, 0);
+	//if buffer was allocated, we gotta clean it up.
+	if(allocated)
+	{
+		PyMem_Free(buf);
+	}
 	return ret;
 }
 int stopBuffer (int channel)
