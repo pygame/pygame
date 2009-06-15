@@ -1054,7 +1054,7 @@ int audio_thread(void *arg)
 		while(movie->audio_pkt_size > 0)
         {
         	GRABGIL
-        	PySys_WriteStdout("audio_thread: filling up the buffer...\n");
+//        	PySys_WriteStdout("audio_thread: filling up the buffer...\n");
 			RELEASEGIL
 			data_size = sizeof(movie->audio_buf1);
             len1 += avcodec_decode_audio2(dec, (int16_t *)movie->audio_buf1, &data_size, movie->audio_pkt_data, movie->audio_pkt_size);
@@ -1607,8 +1607,10 @@ int decoder_wrapper(void *arg)
 			movie->audio_tid = SDL_CreateThread(audio_thread, movie);*/
 		movie->paused=0;
 		state =decoder(movie);
-		stream_component_close(movie, movie->video_st->index);
-		//stream_component_close(movie, movie->audio_st->index);
+		if(movie->video_st)
+			stream_component_close(movie, movie->video_st->index);
+		if(movie->audio_st)
+			stream_component_close(movie, movie->audio_st->index);
 	}
 	if(gstate==PyGILState_LOCKED) RELEASEGIL	
 	return state;

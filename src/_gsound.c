@@ -69,9 +69,9 @@ void cb_mixer(int channel)
 	mix->abuf=NULL;
 	PyMem_Free(mix);
 	mix=NULL;
-	PySys_WriteStdout("Callback called.\n");
+	//PySys_WriteStdout("Callback called.\n");
 	playBuffer(NULL, (uint32_t) 0);
-	PySys_WriteStdout("Callback finished.\n");
+	//PySys_WriteStdout("Callback finished.\n");
 	//PyGILState_Release(gstate);
 }
 
