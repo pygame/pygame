@@ -7,7 +7,7 @@
 #define _MIXER_DEFAULT_CHUNKSIZE 4096
 
 SDL_cond *audio_sig;
-BufferQueue *queue;
+BufferQueue queue;
 int playing =0;
 int queue_get(BufferQueue *q, BufferNode *node)
 {
@@ -144,12 +144,9 @@ int soundInit  (int freq, int size, int channels, int chunksize, SDL_cond *cond)
 	{
 		SDL_CondSignal(audio_sig);
 	}
-	if(!queue)
-	{
-		queue = (BufferQueue *)PyMem_Malloc(sizeof(BufferQueue));
-		queue->size=0;
-		queue->first=queue->last=NULL;	
-	}
+	
+	queue.size=0;
+	queue.first=queue.last=NULL;	
     return 0;
 }
 
@@ -163,7 +160,8 @@ int soundQuit(void)
 int playBuffer (uint8_t *buf, uint32_t len)
 {
 	Mix_Chunk *mix;
-	if(queue->size>0)
+	uint8_t *newbuf;
+	if(queue.size>0)
 	{
 		if(buf)
 		{
@@ -173,11 +171,12 @@ int playBuffer (uint8_t *buf, uint32_t len)
 			memcpy(&node->buf, &buf, (size_t)len);
 			node->len = len;
 			node->next =NULL;
-			queue_put(&queue, &node);
+			queue_put(&queue, node);
 		}
 		BufferNode *new;
-		queue_get(&queue, &new);
-		memcpy(&buf, &new->buf, new->len);
+		queue_get(&queue, new);
+		newbuf = (uint8_t *)PyMem_Malloc((size_t)new->len);
+		memcpy(&newbuf, &new->buf, new->len);
 		len=new->len;
 		PyMem_Free(&new->buf);
 		PyMem_Free(&new);
@@ -192,16 +191,19 @@ int playBuffer (uint8_t *buf, uint32_t len)
 			memcpy(&node->buf, &buf, (size_t)len);
 			node->len = len;
 			node->next =NULL;
-			queue_put(&queue, &node);
+			queue_put(&queue, node);
 		}
 		return 0;
 	}
 	mix= (Mix_Chunk *)PyMem_Malloc(sizeof(Mix_Chunk));
 	mix->allocated=1;
-	if(queue->size==0)
+	if(queue.size==0)
 	{
 		mix->abuf = (Uint8 *)PyMem_Malloc((size_t)len);
-		memcpy(&mix->abuf, &buf, len);
+		if(newbuf)
+			memcpy(&mix->abuf, &newbuf, len);
+		else
+			memcpy(&mix->abuf, &buf, len);
 	}
 	else
 	{
