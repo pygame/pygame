@@ -1053,9 +1053,9 @@ int audio_thread(void *arg)
 		//fill up the buffer
 		while(movie->audio_pkt_size > 0)
         {
-        	GRABGIL
-//        	PySys_WriteStdout("audio_thread: filling up the buffer...\n");
-			RELEASEGIL
+        	//GRABGIL
+	        //PySys_WriteStdout("audio_thread: filling up the buffer...\n");
+			//RELEASEGIL
 			data_size = sizeof(movie->audio_buf1);
             len1 += avcodec_decode_audio2(dec, (int16_t *)movie->audio_buf1, &data_size, movie->audio_pkt_data, movie->audio_pkt_size);
             if (len1 < 0) {
@@ -1598,9 +1598,9 @@ int decoder_wrapper(void *arg)
 	}
 	while((movie->loops>-1||eternity) )
 	{
-		GRABGIL
+		/*GRABGIL
 		PySys_WriteStdout("Loops: %i\n", movie->loops);
-		RELEASEGIL
+		RELEASEGIL*/
 		movie->loops--;
 		movie=stream_open(movie, movie->filename, NULL);
 		/*if(movie->audio_st)

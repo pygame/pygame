@@ -23,7 +23,7 @@
         Py_DECREF(self);
         return self;
     }
-	PySys_WriteStdout("Movie->filename: %s\n", self->filename);
+	//PySys_WriteStdout("Movie->filename: %s\n", self->filename);
 	Py_DECREF(self);
 	return self;
 }
@@ -55,7 +55,7 @@
         return -1;
     }
     Py_DECREF(self);
-    PySys_WriteStdout("Returning from _movie_init\n");
+    //PySys_WriteStdout("Returning from _movie_init\n");
     return 0;
 }   
 
@@ -127,11 +127,11 @@ PyObject* _movie_repr (PyMovie *movie)
 	PyEval_InitThreads();
 	DECLAREGIL
 	Py_INCREF(movie);
-    PySys_WriteStdout("Inside .play\n");
+    //PySys_WriteStdout("Inside .play\n");
     int loops;
     if(!PyArg_ParseTuple(args, "i", &loops))
     {
-    	loops = 1;
+    	loops = 0;
     }
     SDL_LockMutex(movie->dest_mutex);
     movie->loops =loops;

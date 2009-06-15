@@ -15,7 +15,7 @@ else:
     is_pygame_pkg = __name__.startswith('pygame.tests.')
 
 if is_pygame_pkg:
-    from pygame.tests.test_utils import test_not_implemented, unittest
+    from pygame.tests.test_utils import test_not_implemented, unittest, trunk_relative_path
 else:
     from test.test_utils import test_not_implemented, unittest
 
@@ -29,7 +29,7 @@ import sys
 import time
 
 ################################### CONSTANTS ##################################
-filename = "dhs.avi"
+filename = "War3.avi"
 
 """
 	(1) init(filename), init(file-like object), init(filename, surface), init(file-like object, surface)	
@@ -47,27 +47,28 @@ filename = "dhs.avi"
 		(1) pause
 		(1) stop
 		(1) rewind(), (2) rewind(time_pos) <- rewinds to time-pos, accepts a float, does not guarantee exact positioning.
-        (1) type()->audio, video, or subtitle
+        (1) type()->audio, Movie, or subtitle
 """
 
 class MovieTypeTest( unittest.TestCase ): 
     def test_init(self):     
         pygame.display.init()    
-        movie_file = test_utils.trunk_relative_path('examples/data/blue.mpg')
-        movie = pygame.gmovie.Video(movie_file)
+        pygame.mixer.quit()
+        movie_file = trunk_relative_path('examples/data/blue.mpg')
+        movie = pygame.gmovie.Movie(filename)
         self.assertEqual(movie, True)
         
-        screen = pygame.display.get_surface()
-        movie = pygame.gmovie.Video(movie_file, screen)
-        self.assertEqual(movie, True)
+        #screen = pygame.display.get_surface()
+        #movie = pygame.gmovie.Movie(filename, screen)
+        #self.assertEqual(movie, True)
         
         del movie
         
     def test_play_pause(self):
         pygame.display.init()
-        screen = pygame.display.get_surface()
-        movie_file = test_utils.trunk_relative_path('examples/data/blue.mpg')
-        movie = pygame.gmovie.Video(movie_file, screen)
+        pygame.mixer.quit()
+        movie_file = trunk_relative_path('examples/data/blue.mpg')
+        movie = pygame.gmovie.Movie(filename)
         
         self.assertEqual(movie.playing, False)
 
@@ -81,13 +82,18 @@ class MovieTypeTest( unittest.TestCase ):
         self.assertEqual(movie.playing, False)
         self.assertEqual(movie.paused, True)
         
+        movie.pause()
+    
+        self.assertEqual(movie.playing, True)
+        self.assertEqual(movie.paused, False)
+        
         del movie
         
     def test_stop(self):
         pygame.display.init()
-        screen = pygame.display.get_surface()
-        movie_file = test_utils.trunk_relative_path('examples/data/blue.mpg')
-        movie = pygame.gmovie.Video(movie_file, screen)
+        pygame.mixer.quit()
+        movie_file = trunk_relative_path('examples/data/blue.mpg')
+        movie = pygame.gmovie.Movie(filename)
         
         self.assertEqual(movie.playing, False)
         movie.play(-1)
@@ -101,9 +107,9 @@ class MovieTypeTest( unittest.TestCase ):
         
     def test_rewind(self):
         pygame.display.init()
-        screen = pygame.display.get_surface()
-        movie_file = test_utils.trunk_relative_path('examples/data/blue.mpg')
-        movie = pygame.gmovie.Video(movie_file, screen)
+        pygame.mixer.quit()
+        movie_file = trunk_relative_path('examples/data/blue.mpg')
+        movie = pygame.gmovie.Movie(filename)
         
         movie.play(-1)
         time.sleep(2)
@@ -112,40 +118,7 @@ class MovieTypeTest( unittest.TestCase ):
         self.assertEqual(movie.playing, False)
         self.assertEqual(movie.paused, False)
         
-        
-    def test_surface(self):
-        pygame.display.init()
-        screen = pygame.display.get_surface()
-        movie_file = test_utils.trunk_relative_path('examples/data/blue.mpg')
-        movie = pygame.gmovie.Video(movie_file, screen)
-        
-        surf = pygame.Surface((600, 400))
-        movie.surface = surf
-        
-        movie.play(-1)
-        self.assertEqual(movie.playing, True)
-        self.assertEqual(movie.paused, False)
-        self.assertEqual(surf.get_locked(), True) #surface should be locked while being used
-        
-        movie.pause()
-        self.assertEqual(movie.playing, False)
-        self.assertEqual(movie.paused, True)
-        self.assertEqual(surf.get_locked(), False) #surface is unlocked when paused/stopped.
-        
-
-        del surf
         del movie
-        
-    def test_streams(self):
-        pygame.display.init()
-        screen = pygame.display.get_surface()
-        movie_file = test_utils.trunk_relative_path('examples/data/blue.mpg')
-        movie = pygame.gmovie.Video(movie_file, screen)
-        
-        self.assertEqual(movie.streams, True)
-        self.assertTrue(len(movie.streams)>0)
-        
-    
 
         
         
