@@ -296,10 +296,8 @@ int packet_queue_get(PacketQueue *q, AVPacket *pkt, int block);
 /* 		Misc*/
 void blend_subrect(AVPicture *dst, const AVSubtitleRect *rect, int imgw, int imgh);
 void free_subpicture(SubPicture *sp);
-double calc_ca(int64_t diff, double ca, double i);
-int ff_get_buffer(struct AVCodecContext *c, AVFrame *pic);
-void ff_release_buffer(struct AVCodecContext *c, AVFrame *pic);
-
+void ConvertYUV420PtoRGBA( AVFrame *YUV420P, SDL_Surface *OUTPUT, int interlaced );
+void initializeLookupTables(void);
 /* 		Video Management */
 int video_open(PyMovie *is, int index);
 void video_image_display(PyMovie *is);

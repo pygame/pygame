@@ -327,7 +327,7 @@ initgmovie(void)
    avcodec_register_all();
    avdevice_register_all();
    av_register_all();
-
+   initializeLookupTables();
    av_init_packet(&flush_pkt);
    uint8_t *s = (uint8_t *)"FLUSH";
    flush_pkt.data= s;

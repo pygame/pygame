@@ -6,6 +6,35 @@
 #undef main /* We don't want SDL to override our main() */
 #endif
 
+
+int __Y[256];
+int __CrtoR[256];
+int __CrtoG[256];
+int __CbtoG[256];
+int __CbtoB[256];
+
+void initializeLookupTables(void) {
+
+    float f;
+    int i;
+
+    for(i=0; i<256; i++) {
+
+        f = ( float)i;
+
+        __Y[i] = (int)( 1.164 * ( f-16.0) );
+
+        __CrtoR[i] = (int)( 1.596 * ( f-128.0) );
+
+        __CrtoG[i] = (int)( 0.813 * ( f-128.0) );
+        __CbtoG[i] = (int)( 0.392 * ( f-128.0) );
+
+        __CbtoB[i] = (int)( 2.017 * ( f-128.0) );
+    }
+}
+
+
+
 /* packet queue handling */
  void packet_queue_init(PacketQueue *q)
 {
@@ -381,6 +410,59 @@ void blend_subrect(AVPicture *dst, const AVSubtitleRect *rect, int imgw, int img
 
     memset(&sp->sub, 0, sizeof(AVSubtitle));
 }
+inline int clamp0_255(int x) {
+	x &= (~x) >> 31;
+	x -= 255;
+	x &= x >> 31;
+	return x + 255;
+}
+
+
+void ConvertYUV420PtoRGBA( AVFrame *YUV420P, SDL_Surface *OUTPUT, int interlaced ) {
+
+    uint8_t *Y, *U, *V;
+	uint32_t *RGBA = OUTPUT->pixels;
+    int x, y;
+
+    for(y=0; y<OUTPUT->h; y++){
+
+        Y = YUV420P->data[0] + YUV420P->linesize[0] * y;
+        U = YUV420P->data[1] + YUV420P->linesize[1] * (y/2);
+        V = YUV420P->data[2] + YUV420P->linesize[2] * (y/2);
+
+		/* make sure we deinterlace before upsampling */
+		if( interlaced ) {
+            /* y & 3 means y % 3, but this should be faster */
+			/* on scanline 2 and 3 we need to look at different lines */
+            if( (y & 3) == 1 ) {
+				U += YUV420P->linesize[1];
+				V += YUV420P->linesize[2];
+            } else if( (y & 3) == 2 ) {
+				U -= YUV420P->linesize[1];
+				V -= YUV420P->linesize[2];
+			}
+		}
+
+        for(x=0; x<OUTPUT->w; x++){
+
+			/* shift components to the correct place in pixel */
+			*RGBA =   clamp0_255( __Y[*Y] + __CrtoR[*V] )							| /* red */
+					( clamp0_255( __Y[*Y] - __CrtoG[*V] - __CbtoG[*U] )	<<  8 )		| /* green */
+					( clamp0_255( __Y[*Y] + __CbtoB[*U] )				<< 16 )		| /* blue */
+					0xFF000000;
+
+			/* goto next pixel */
+			RGBA++;
+
+            /* full resolution luma, so we increment at every pixel */
+            Y++;
+
+			/* quarter resolution chroma, increment every other pixel */
+            U += x&1;
+			V += x&1;
+        }
+    }
+}
 
 int video_display(PyMovie *movie)
 {
@@ -394,7 +476,7 @@ int video_display(PyMovie *movie)
 #endif
 	VidPicture *vp = &movie->pictq[movie->pictq_rindex];
     RELEASEGIL
-    if(!vp->dest_overlay)
+    if((!vp->dest_overlay&& vp->overlay>0)||(!vp->dest_surface && vp->overlay<=0))
     {
     	video_open(movie, movie->pictq_rindex);
     	ret=0;
@@ -649,11 +731,11 @@ int video_open(PyMovie *is, int index){
 
 	vp = &movie->pictq[movie->pictq_windex];
 	
-	if(!vp->dest_overlay)
+	if(!vp->dest_overlay||!vp->dest_surface)
 	{
 		video_open(movie, movie->pictq_windex);
 	}	
-    if (vp->dest_overlay) {
+    if (vp->dest_overlay && vp->overlay>0) {
         /* get a pointer on the bitmap */
         
         dst_pix_fmt = PIX_FMT_YUV420P;
@@ -688,6 +770,22 @@ int video_open(PyMovie *is, int index){
 		movie->pictq_size++;
 		vp->ready=1;
     }
+    else if(vp->dest_surface)
+    {
+    	   /* get a pointer on the bitmap */
+        
+        dst_pix_fmt = PIX_FMT_YUV420P;
+           
+        SDL_LockSurface(vp->dest_surface);
+		ConvertYUV420PtoRGBA(src_frame, vp->dest_surface, 0 );
+
+        SDL_UnlockSurface(vp->dest_surface);
+
+        vp->pts = movie->pts;  
+    	movie->pictq_windex = (movie->pictq_windex+1)%VIDEO_PICTURE_QUEUE_SIZE;
+		movie->pictq_size++;
+		vp->ready=1;
+    }	
 	GRABGIL
 	Py_DECREF(movie);
     RELEASEGIL
