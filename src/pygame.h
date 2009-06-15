@@ -357,7 +357,7 @@ typedef struct {
      PyGAME_C_API[PYGAMEAPI_DISPLAY_FIRSTSLOT + 0])
 
 #define PyVidInfo_Type                                                  \
-    (*(PyTypeObject*)PyGAME_C_API[PYGAMEAPI_SURFACE_FIRSTSLOT + 0])
+    (*(PyTypeObject*)PyGAME_C_API[PYGAMEAPI_DISPLAY_FIRSTSLOT + 0])
 #define PyVidInfo_New                                   \
     (*(PyObject*(*)(SDL_VideoInfo*))                    \
      PyGAME_C_API[PYGAMEAPI_DISPLAY_FIRSTSLOT + 1])

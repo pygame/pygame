@@ -800,7 +800,6 @@ static PyMethodDef _math_methods[] =
 
 MODINIT_DEFINE (math)
 {
-    fprintf(stdout, "init\n"); fflush(stdout);
     PyObject *module, *apiobj;
     static void *c_api[PYGAMEAPI_MATH_NUMSLOTS];
 
@@ -860,11 +859,9 @@ MODINIT_DEFINE (math)
     }
 
     if (PyModule_AddObject(module, PYGAMEAPI_LOCAL_ENTRY, apiobj) != 0) {
-        Py_DECREF (apiobj);
         DECREF_MOD (module);
         MODINIT_ERROR;
     }
-    Py_DECREF (apiobj);
 
     MODINIT_RETURN (module);
 }

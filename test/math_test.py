@@ -64,48 +64,48 @@ class Vector2TypeTest(unittest.TestCase):
         v2 = Vector2(5.6, 7.8)
         v3 = v1 + v2
         self.assert_(isinstance(v3, Vector2))
-        self.assertEquacl(v3.x, 6.8)
-        self.assertEquacl(v3.y, 11.2)
+        self.assertEqual(v3.x, 6.8)
+        self.assertEqual(v3.y, 11.2)
         v3 = v1 + (5.6, 7.8)
         self.assert_(isinstance(v3, Vector2))
-        self.assertEquacl(v3.x, 6.8)
-        self.assertEquacl(v3.y, 11.2)
+        self.assertEqual(v3.x, 6.8)
+        self.assertEqual(v3.y, 11.2)
         v3 = v1 + [5.6, 7.8]
         self.assert_(isinstance(v3, Vector2))
-        self.assertEquacl(v3.x, 6.8)
-        self.assertEquacl(v3.y, 11.2)
+        self.assertEqual(v3.x, 6.8)
+        self.assertEqual(v3.y, 11.2)
         v3 = (1.2, 3.4) + v2
         self.assert_(isinstance(v3, Vector2))
-        self.assertEquacl(v3.x, 6.8)
-        self.assertEquacl(v3.y, 11.2)
+        self.assertEqual(v3.x, 6.8)
+        self.assertEqual(v3.y, 11.2)
         v3 = [1.2, 3.4] + v2
         self.assert_(isinstance(v3, Vector2))
-        self.assertEquacl(v3.x, 6.8)
-        self.assertEquacl(v3.y, 11.2)
+        self.assertEqual(v3.x, 6.8)
+        self.assertEqual(v3.y, 11.2)
 
     def testSub(self):
         v1 = Vector2(1.2, 3.4)
         v2 = Vector2(5.6, 7.9)
         v3 = v1 - v2
         self.assert_(isinstance(v3, Vector2))
-        self.assertEquacl(v3.x, -4.4)
-        self.assertEquacl(v3.y, -4.5)
-        v3 = v1 + (5.6, 7.9)
+        self.assertEqual(v3.x, 1.2 - 5.6)
+        self.assertEqual(v3.y, 3.4 - 7.9)
+        v3 = v1 - (5.6, 7.9)
         self.assert_(isinstance(v3, Vector2))
-        self.assertEquacl(v3.x, -4.4)
-        self.assertEquacl(v3.y, -4.5)
-        v3 = v1 + [5.6, 7.9]
+        self.assertEqual(v3.x, 1.2 - 5.6)
+        self.assertEqual(v3.y, 3.4 - 7.9)
+        v3 = v1 - [5.6, 7.9]
         self.assert_(isinstance(v3, Vector2))
-        self.assertEquacl(v3.x, -4.4)
-        self.assertEquacl(v3.y, -4.5)
-        v3 = (1.2, 3.4) + v2
+        self.assertEqual(v3.x, 1.2 - 5.6)
+        self.assertEqual(v3.y, 3.4 - 7.9)
+        v3 = (1.2, 3.4) - v2
         self.assert_(isinstance(v3, Vector2))
-        self.assertEquacl(v3.x, -4.4)
-        self.assertEquacl(v3.y, -4.5)
-        v3 = [1.2, 3.4] + v2
+        self.assertEqual(v3.x, 1.2 - 5.6)
+        self.assertEqual(v3.y, 3.4 - 7.9)
+        v3 = [1.2, 3.4] - v2
         self.assert_(isinstance(v3, Vector2))
-        self.assertEquacl(v3.x, -4.4)
-        self.assertEquacl(v3.y, -4.5)
+        self.assertEqual(v3.x, 1.2 - 5.6)
+        self.assertEqual(v3.y, 3.4 - 7.9)
 
     def testScalarMultiplication(self):
         v1 = Vector2(1.2, 3.4)
@@ -119,8 +119,8 @@ class Vector2TypeTest(unittest.TestCase):
     def testScalarDivision(self):
         v1 = Vector2(1.2, 3.4)
         v2 = v1 / 5.6
-        self.assertEqual(v2.x, 1.2 / 5.6)
-        self.assertEqual(v2.y, 3.4 / 5.6)
+        self.assertAlmostEqual(v2.x, 1.2 / 5.6)
+        self.assertAlmostEqual(v2.y, 3.4 / 5.6)
         v2 = v1 // -1.2
         self.assertEqual(v2.x, 1.2 // -1.2)
         self.assertEqual(v2.y, 3.4 // -1.2)
@@ -140,8 +140,8 @@ class Vector2TypeTest(unittest.TestCase):
         self.assertEqual(v2.y, 3.4)
         self.assertNotEqual(id(v1), id(v2))
         v3 = -v1
-        self.assertEqual(v2.x, -1.2)
-        self.assertEqual(v2.y, -3.4)
+        self.assertEqual(v3.x, -1.2)
+        self.assertEqual(v3.y, -3.4)
         self.assertNotEqual(id(v1), id(v3))
         
     def testCompare(self):
