@@ -4,14 +4,9 @@ reads a svn log, and generates output for the WHATSNEW.
 Should still edit the WHATSNEW to make it more human readable.
 
 
-TODO: 
-- group the changes on one day into a group.
-- for many changes on one day list the svn as ranges [SVN 2000-2005]
-
-
 
 """
-import sys,os,glob
+import sys,os,glob,textwrap
 lines = sys.stdin.readlines()
 
 out= []
@@ -39,16 +34,59 @@ import pprint
 #pprint.pprint(out)
 
 
-for o in out:
-    day, month, year = o['day_month_year']
-    print "[SVN %s] %s %s, %s" % (o['revision'], day, month, year)
-    msg = o['message'][2:]
+# group revisions on the same day into one block.
+previous = []
+for o in (out + [None]):
 
-    for i in range(4):
-        if msg and msg[-1] == "\n":
-            msg = msg[:-1]
+    if o and previous and o['day_month_year'] == previous[-1]['day_month_year']:
+        previous.append(o)
+        continue
+    else:
 
-    print msg + "\n"
+        if not previous:
+            previous.append(o)
+            continue
+
+        day, month, year = previous[-1]['day_month_year']
+        revs = [int(p['revision']) for p in previous]
+        if len(revs) == 1:
+            revisions = revs[0]
+        else:
+            revisions = "%s-%s" % (min(revs), max(revs))
+
+        print "[SVN %s] %s %s, %s" % (revisions, day, month, year)
+
+        # uniqify the messages, keep order.
+        messages = [p['message'][2:] for p in previous]
+        unique_messages = []
+        for m in messages:
+            if m not in unique_messages:
+                unique_messages.append(m)
+            
+
+
+        for msg in reversed(unique_messages):
+            #msg = p['message'][2:]
+
+            for i in range(4):
+                if msg and msg[-1] == "\n":
+                    msg = msg[:-1]
+
+            lines = textwrap.wrap(msg, 74)
+            if lines:
+                if lines[-1][-1:] != ".":
+                    lines[-1] += "."
+
+            for i, l in enumerate(lines):
+                if i == 0:
+                    print "    %s" % (l[:1].upper() + l[1:])
+                if i != 0:
+                    print "      %s" % l
+
+        print ""
+
+        previous  = [o]
+
 
 
 
