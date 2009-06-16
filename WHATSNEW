@@ -5,6 +5,13 @@
 # BUG    = fixed a bug that was (or could have been) crashing
 #
 #
+
+[SVN 2366] Jun 17, 2009
+    [BUG] Memory leak in a few modules.  Thanks Lorenz Quack.
+
+[SVN 2365] Jun 16, 2009
+    Started to add basic slice support to Color type.
+
 [SVN 2311] Jun 4, 2009
     Fixed another Color regression... colors are now tasty again when pickled.
 
