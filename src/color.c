@@ -97,6 +97,11 @@ static Py_ssize_t _color_length (PyColor *color);
 static PyObject* _color_item (PyColor *color, Py_ssize_t _index);
 static int _color_ass_item (PyColor *color, Py_ssize_t _index, PyObject *value);
 
+static PyObject * _color_slice(register PyColor *a, 
+                               register Py_ssize_t ilow, 
+                               register Py_ssize_t ihigh);
+
+
 /* Comparison */
 static PyObject* _color_richcompare(PyObject *o1, PyObject *o2, int opid);
 
@@ -199,13 +204,15 @@ static PySequenceMethods _color_as_sequence =
     NULL,                              /* sq_concat */
     NULL,                              /* sq_repeat */
     (ssizeargfunc) _color_item,        /* sq_item */
-    NULL,                              /* sq_slice */
+    (ssizessizeargfunc)_color_slice,    /* sq_slice */
     (ssizeobjargproc) _color_ass_item, /* sq_ass_item */
-    NULL,                              /* sq_ass_slice */
+    NULL, /* sq_ass_slice */
     NULL,                              /* sq_contains */
     NULL,                              /* sq_inplace_concat */
     NULL,                              /* sq_inplace_repeat */
 };
+
+#define DEFERRED_ADDRESS(ADDR) 0
 
 static PyTypeObject PyColor_Type =
 {
@@ -239,7 +246,7 @@ static PyTypeObject PyColor_Type =
     _color_methods,             /* tp_methods */
     0,                          /* tp_members */
     _color_getsets,             /* tp_getset */
-    0,                          /* tp_base */
+    DEFERRED_ADDRESS(&PyTuple_Type),              /* tp_base */
     0,                          /* tp_dict */
     0,                          /* tp_descr_get */
     0,                          /* tp_descr_set */
@@ -546,6 +553,8 @@ _color_new_internal (PyTypeObject *type, Uint8 rgba[])
 
     return color;
 }
+
+
 
 /**
  * Creates a new PyColor.
@@ -1535,6 +1544,92 @@ _color_ass_item (PyColor *color, Py_ssize_t _index, PyObject *value)
     }
     return -1;
 }
+
+
+
+static PyObject *
+_color_slice(register PyColor *a, register Py_ssize_t ilow, 
+           register Py_ssize_t ihigh)
+{
+/*
+        register PyColor *np;
+        PyObject **src, **dest;
+        register Py_ssize_t i;
+        Py_ssize_t len;
+        Uint8 anrgba[4];
+        anrgba[0] = 0;
+        anrgba[1] = 0;
+        anrgba[2] = 0;
+        anrgba[3] = 0;
+
+        if (ilow < 0)
+                ilow = 0;
+        if (ihigh > a->ob_size)
+                ihigh = a->ob_size;
+        if (ihigh < ilow)
+                ihigh = ilow;
+        if (ilow == 0 && ihigh == a->ob_size && PyTuple_CheckExact(a)) {
+                Py_INCREF(a);
+                return (PyObject *)a;
+        }
+        len = ihigh - ilow;
+        np = (PyColor *)PyColor_New(anrgba);
+        if (np == NULL)
+                return NULL;
+        src = a->ob_item + ilow;
+        dest = np->ob_item;
+        for (i = 0; i < len; i++) {
+                PyObject *v = src[i];
+                Py_INCREF(v);
+                dest[i] = v;
+        }
+        return (PyObject *)np;
+
+*/
+
+        register PyTupleObject *np;
+        PyObject **src, **dest;
+        register Py_ssize_t i;
+        Py_ssize_t len;
+        PyColor *color;
+
+        color = a;
+
+        if (ilow < 0)
+                ilow = 0;
+        if (ihigh > 3)
+                ihigh = 4;
+        if (ihigh < ilow)
+                ihigh = ilow;
+        if (ilow == 0 && ihigh == 4 && PyTuple_CheckExact(a)) {
+                Py_INCREF(a);
+                return (PyObject *)a;
+        }
+        len = ihigh - ilow;
+        
+        /* TODO: this isn't right... need to take into account high and low
+        */
+        if(len == 4) {
+            return Py_BuildValue ("(iiii)",color->r,color->g,color->b,color->a);
+        } else if(len == 3) {
+            return Py_BuildValue ("(iii)",color->r,color->g,color->b);
+        } else if(len == 2) {
+            return Py_BuildValue ("(ii)",color->r,color->g);
+        } else if(len == 1) {
+            return Py_BuildValue ("(i)",color->r);
+        } else {
+            return Py_BuildValue ("(i)",color->r);
+        }
+
+
+}
+
+
+
+
+
+
+
 
 /*
  * colorA == colorB
