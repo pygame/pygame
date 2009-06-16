@@ -54,7 +54,7 @@ for o in (out + [None]):
         else:
             revisions = "%s-%s" % (min(revs), max(revs))
 
-        print "[SVN %s] %s %s, %s" % (revisions, day, month, year)
+        print "[SVN %s] %s %s, %s" % (revisions, month, day, year)
 
         # uniqify the messages, keep order.
         messages = [p['message'][2:] for p in previous]
