@@ -1,6 +1,6 @@
 # This is a list of changes in pygame's history.
 #
-# CVS tag names are placed before the date
+# SVN revision numbers, and CVS tag names are placed before the date
 # BREAK = change breaks existing code
 # BUG    = fixed a bug that was (or could have been) crashing
 #
@@ -547,6 +547,11 @@ Dec 05, 2008
 Aug 30, 2008
     [BUG] Fixed CREATE_PIXEL macro's use of Aloss
     which was making surface.fill with surfaces with no alpha go green 
+
+
+release_1_8_1release
+[SVN 1537] Jul 28, 2008
+    pygame 1.8.1release released.
 
 Jul 18, 2008
     Added Surface.set_masks and .set_shifts useful for using data in
