@@ -246,7 +246,7 @@ static PyTypeObject PyColor_Type =
     _color_methods,             /* tp_methods */
     0,                          /* tp_members */
     _color_getsets,             /* tp_getset */
-    DEFERRED_ADDRESS(&PyTuple_Type),              /* tp_base */
+    0,                          /* tp_base */
     0,                          /* tp_dict */
     0,                          /* tp_descr_get */
     0,                          /* tp_descr_set */
