@@ -226,9 +226,9 @@ void blend_subrect(AVPicture *dst, const AVSubtitleRect *rect, int imgw, int img
 
         if (dstx & 1) {
             YUVA_IN(y, u, v, a, p, pal);
-            lum[0] = ALPHA_BLEND(a, lum[0], y, 0);
-            cb[0] = ALPHA_BLEND(a >> 2, cb[0], u, 0);
-            cr[0] = ALPHA_BLEND(a >> 2, cr[0], v, 0);
+            lum[0] = _ALPHA_BLEND(a, lum[0], y, 0);
+            cb[0] = _ALPHA_BLEND(a >> 2, cb[0], u, 0);
+            cr[0] = _ALPHA_BLEND(a >> 2, cr[0], v, 0);
             cb++;
             cr++;
             lum++;
@@ -239,15 +239,15 @@ void blend_subrect(AVPicture *dst, const AVSubtitleRect *rect, int imgw, int img
             u1 = u;
             v1 = v;
             a1 = a;
-            lum[0] = ALPHA_BLEND(a, lum[0], y, 0);
+            lum[0] = _ALPHA_BLEND(a, lum[0], y, 0);
 
             YUVA_IN(y, u, v, a, p + BPP, pal);
             u1 += u;
             v1 += v;
             a1 += a;
-            lum[1] = ALPHA_BLEND(a, lum[1], y, 0);
-            cb[0] = ALPHA_BLEND(a1 >> 2, cb[0], u1, 1);
-            cr[0] = ALPHA_BLEND(a1 >> 2, cr[0], v1, 1);
+            lum[1] = _ALPHA_BLEND(a, lum[1], y, 0);
+            cb[0] = _ALPHA_BLEND(a1 >> 2, cb[0], u1, 1);
+            cr[0] = _ALPHA_BLEND(a1 >> 2, cr[0], v1, 1);
             cb++;
             cr++;
             p += 2 * BPP;
@@ -255,9 +255,9 @@ void blend_subrect(AVPicture *dst, const AVSubtitleRect *rect, int imgw, int img
         }
         if (w) {
             YUVA_IN(y, u, v, a, p, pal);
-            lum[0] = ALPHA_BLEND(a, lum[0], y, 0);
-            cb[0] = ALPHA_BLEND(a >> 2, cb[0], u, 0);
-            cr[0] = ALPHA_BLEND(a >> 2, cr[0], v, 0);
+            lum[0] = _ALPHA_BLEND(a, lum[0], y, 0);
+            cb[0] = _ALPHA_BLEND(a >> 2, cb[0], u, 0);
+            cr[0] = _ALPHA_BLEND(a >> 2, cr[0], v, 0);
             p++;
             lum++;
         }
@@ -276,16 +276,16 @@ void blend_subrect(AVPicture *dst, const AVSubtitleRect *rect, int imgw, int img
             u1 = u;
             v1 = v;
             a1 = a;
-            lum[0] = ALPHA_BLEND(a, lum[0], y, 0);
+            lum[0] = _ALPHA_BLEND(a, lum[0], y, 0);
             p += wrap3;
             lum += wrap;
             YUVA_IN(y, u, v, a, p, pal);
             u1 += u;
             v1 += v;
             a1 += a;
-            lum[0] = ALPHA_BLEND(a, lum[0], y, 0);
-            cb[0] = ALPHA_BLEND(a1 >> 2, cb[0], u1, 1);
-            cr[0] = ALPHA_BLEND(a1 >> 2, cr[0], v1, 1);
+            lum[0] = _ALPHA_BLEND(a, lum[0], y, 0);
+            cb[0] = _ALPHA_BLEND(a1 >> 2, cb[0], u1, 1);
+            cr[0] = _ALPHA_BLEND(a1 >> 2, cr[0], v1, 1);
             cb++;
             cr++;
             p += -wrap3 + BPP;
@@ -296,13 +296,13 @@ void blend_subrect(AVPicture *dst, const AVSubtitleRect *rect, int imgw, int img
             u1 = u;
             v1 = v;
             a1 = a;
-            lum[0] = ALPHA_BLEND(a, lum[0], y, 0);
+            lum[0] = _ALPHA_BLEND(a, lum[0], y, 0);
 
             YUVA_IN(y, u, v, a, p + BPP, pal);
             u1 += u;
             v1 += v;
             a1 += a;
-            lum[1] = ALPHA_BLEND(a, lum[1], y, 0);
+            lum[1] = _ALPHA_BLEND(a, lum[1], y, 0);
             p += wrap3;
             lum += wrap;
 
@@ -310,16 +310,16 @@ void blend_subrect(AVPicture *dst, const AVSubtitleRect *rect, int imgw, int img
             u1 += u;
             v1 += v;
             a1 += a;
-            lum[0] = ALPHA_BLEND(a, lum[0], y, 0);
+            lum[0] = _ALPHA_BLEND(a, lum[0], y, 0);
 
             YUVA_IN(y, u, v, a, p + BPP, pal);
             u1 += u;
             v1 += v;
             a1 += a;
-            lum[1] = ALPHA_BLEND(a, lum[1], y, 0);
+            lum[1] = _ALPHA_BLEND(a, lum[1], y, 0);
 
-            cb[0] = ALPHA_BLEND(a1 >> 2, cb[0], u1, 2);
-            cr[0] = ALPHA_BLEND(a1 >> 2, cr[0], v1, 2);
+            cb[0] = _ALPHA_BLEND(a1 >> 2, cb[0], u1, 2);
+            cr[0] = _ALPHA_BLEND(a1 >> 2, cr[0], v1, 2);
 
             cb++;
             cr++;
@@ -331,16 +331,16 @@ void blend_subrect(AVPicture *dst, const AVSubtitleRect *rect, int imgw, int img
             u1 = u;
             v1 = v;
             a1 = a;
-            lum[0] = ALPHA_BLEND(a, lum[0], y, 0);
+            lum[0] = _ALPHA_BLEND(a, lum[0], y, 0);
             p += wrap3;
             lum += wrap;
             YUVA_IN(y, u, v, a, p, pal);
             u1 += u;
             v1 += v;
             a1 += a;
-            lum[0] = ALPHA_BLEND(a, lum[0], y, 0);
-            cb[0] = ALPHA_BLEND(a1 >> 2, cb[0], u1, 1);
-            cr[0] = ALPHA_BLEND(a1 >> 2, cr[0], v1, 1);
+            lum[0] = _ALPHA_BLEND(a, lum[0], y, 0);
+            cb[0] = _ALPHA_BLEND(a1 >> 2, cb[0], u1, 1);
+            cr[0] = _ALPHA_BLEND(a1 >> 2, cr[0], v1, 1);
             cb++;
             cr++;
             p += -wrap3 + BPP;
@@ -359,9 +359,9 @@ void blend_subrect(AVPicture *dst, const AVSubtitleRect *rect, int imgw, int img
 
         if (dstx & 1) {
             YUVA_IN(y, u, v, a, p, pal);
-            lum[0] = ALPHA_BLEND(a, lum[0], y, 0);
-            cb[0] = ALPHA_BLEND(a >> 2, cb[0], u, 0);
-            cr[0] = ALPHA_BLEND(a >> 2, cr[0], v, 0);
+            lum[0] = _ALPHA_BLEND(a, lum[0], y, 0);
+            cb[0] = _ALPHA_BLEND(a >> 2, cb[0], u, 0);
+            cr[0] = _ALPHA_BLEND(a >> 2, cr[0], v, 0);
             cb++;
             cr++;
             lum++;
@@ -372,15 +372,15 @@ void blend_subrect(AVPicture *dst, const AVSubtitleRect *rect, int imgw, int img
             u1 = u;
             v1 = v;
             a1 = a;
-            lum[0] = ALPHA_BLEND(a, lum[0], y, 0);
+            lum[0] = _ALPHA_BLEND(a, lum[0], y, 0);
 
             YUVA_IN(y, u, v, a, p + BPP, pal);
             u1 += u;
             v1 += v;
             a1 += a;
-            lum[1] = ALPHA_BLEND(a, lum[1], y, 0);
-            cb[0] = ALPHA_BLEND(a1 >> 2, cb[0], u, 1);
-            cr[0] = ALPHA_BLEND(a1 >> 2, cr[0], v, 1);
+            lum[1] = _ALPHA_BLEND(a, lum[1], y, 0);
+            cb[0] = _ALPHA_BLEND(a1 >> 2, cb[0], u, 1);
+            cr[0] = _ALPHA_BLEND(a1 >> 2, cr[0], v, 1);
             cb++;
             cr++;
             p += 2 * BPP;
@@ -388,9 +388,9 @@ void blend_subrect(AVPicture *dst, const AVSubtitleRect *rect, int imgw, int img
         }
         if (w) {
             YUVA_IN(y, u, v, a, p, pal);
-            lum[0] = ALPHA_BLEND(a, lum[0], y, 0);
-            cb[0] = ALPHA_BLEND(a >> 2, cb[0], u, 0);
-            cr[0] = ALPHA_BLEND(a >> 2, cr[0], v, 0);
+            lum[0] = _ALPHA_BLEND(a, lum[0], y, 0);
+            cb[0] = _ALPHA_BLEND(a >> 2, cb[0], u, 0);
+            cr[0] = _ALPHA_BLEND(a >> 2, cr[0], v, 0);
         }
     }
 }
@@ -418,7 +418,7 @@ inline int clamp0_255(int x) {
 }
 
 
-void ConvertYUV420PtoRGBA( AVFrame *YUV420P, SDL_Surface *OUTPUT, int interlaced ) {
+void ConvertYUV420PtoRGBA( AVPicture *YUV420P, SDL_Surface *OUTPUT, int interlaced ) {
 
     uint8_t *Y, *U, *V;
 	uint32_t *RGBA = OUTPUT->pixels;
@@ -514,7 +514,7 @@ void video_image_display(PyMovie *is)
     int i;
     vp = &is->pictq[is->pictq_rindex];
     vp->ready =0;
-    if (vp->dest_overlay) {
+    if (vp->dest_overlay && vp->overlay>0) {
         /* XXX: use variable in the frame */
         if (is->video_st->sample_aspect_ratio.num)
             aspect_ratio = av_q2d(is->video_st->sample_aspect_ratio);
@@ -583,6 +583,42 @@ void video_image_display(PyMovie *is)
         }
         
     } 
+    else if(vp->dest_surface && vp->overlay<=0)
+    {
+    	/* XXX: use variable in the frame */
+        if (is->video_st->sample_aspect_ratio.num)
+            aspect_ratio = av_q2d(is->video_st->sample_aspect_ratio);
+        else if (is->video_st->codec->sample_aspect_ratio.num)
+            aspect_ratio = av_q2d(is->video_st->codec->sample_aspect_ratio);
+        else
+            aspect_ratio = 0;
+        if (aspect_ratio <= 0.0)
+            aspect_ratio = 1.0;
+        aspect_ratio *= (float)is->video_st->codec->width / is->video_st->codec->height;
+        /* if an active format is indicated, then it overrides the
+           mpeg format */
+    	
+    	height = vp->height;
+        width = ((int)rint(height * aspect_ratio)) & ~1;
+        if (width > vp->width) {
+            width = vp->width;
+            height = ((int)rint(width / aspect_ratio)) & ~1;
+        }
+        x = (vp->width - width) / 2;
+        y = (vp->height - height) / 2;
+       
+        vp->dest_rect.x = vp->xleft + x;
+        vp->dest_rect.y = vp->ytop  + y;
+        vp->dest_rect.w = width;
+        vp->dest_rect.h = height;
+        //GRABGIL
+        //PySys_WriteStdout("Just before blitting...\n");
+        //pygame_Blit (vp->dest_surface, &vp->dest_rect,
+        //     is->canon_surf, &vp->dest_rect, 0);
+    	SDL_BlitSurface(vp->dest_surface, &vp->dest_rect, is->canon_surf, &vp->dest_rect);
+    	//PySys_WriteStdout("After blitting...\n");
+    	//RELEASEGIL
+    }
     is->pictq_rindex= (is->pictq_rindex+1)%VIDEO_PICTURE_QUEUE_SIZE;
     is->pictq_size--;
     video_refresh_timer(is);
@@ -639,6 +675,44 @@ int video_open(PyMovie *is, int index){
         }
         vp->overlay = is->overlay;
     } 
+    else if (!vp->dest_surface && is->overlay<=0)
+    {
+    	//now we have to open an overlay up
+        SDL_Surface *screen = is->canon_surf;
+        if (!SDL_WasInit (SDL_INIT_VIDEO))
+        {
+        	GRABGIL
+        	RAISE(PyExc_SDLError,"cannot create surfaces without pygame.display initialized");
+        	Py_DECREF(is);
+        	RELEASEGIL
+        	return -1;
+        }
+        if (!screen)
+		{
+			GRABGIL
+        	RAISE(PyExc_SDLError, "No video surface given."); //ideally this should have 
+        	Py_DECREF(is);									  //been caught at init, but this could feasibly 
+        	RELEASEGIL										  // happen if there's some cleaning up.
+        	return -1;	
+		}
+        vp->dest_surface = SDL_CreateRGBSurface(screen->flags, 
+        										screen->w, 
+        										screen->h, 
+        										screen->format->BitsPerPixel, 
+        										screen->format->Rmask, 
+        										screen->format->Gmask, 
+        										screen->format->Bmask, 
+        										screen->format->Amask);
+        if (!vp->dest_surface)
+        {
+        	GRABGIL
+            RAISE (PyExc_SDLError, "Cannot create new surface.");
+			Py_DECREF(is);
+			RELEASEGIL
+			return -1;
+        }
+        vp->overlay = is->overlay;
+    }
 
     is->width = w;
     vp->width = w;
@@ -775,16 +849,34 @@ int video_open(PyMovie *is, int index){
     	   /* get a pointer on the bitmap */
         
         dst_pix_fmt = PIX_FMT_YUV420P;
-           
+
+		avpicture_alloc(&pict, dst_pix_fmt, vp->width, vp->height);
         SDL_LockSurface(vp->dest_surface);
-		ConvertYUV420PtoRGBA(src_frame, vp->dest_surface, 0 );
+		int sws_flags = SWS_BICUBIC;
+        img_convert_ctx = sws_getCachedContext(img_convert_ctx,
+            								   movie->video_st->codec->width, 
+            								   movie->video_st->codec->height,
+            								   movie->video_st->codec->pix_fmt,
+            								   vp->width,
+            								   vp->height,
+            								   dst_pix_fmt, 
+            								   sws_flags, 
+            								   NULL, NULL, NULL);
+        if (img_convert_ctx == NULL) {
+            fprintf(stderr, "Cannot initialize the conversion context\n");
+            exit(1);
+        }
+        movie->img_convert_ctx = img_convert_ctx;
+        sws_scale(img_convert_ctx, src_frame->data, src_frame->linesize,
+                  0, movie->video_st->codec->height, pict.data, pict.linesize);
 
-        SDL_UnlockSurface(vp->dest_surface);
-
+		ConvertYUV420PtoRGBA(&pict,vp->dest_surface, src_frame->interlaced_frame );
+		SDL_UnlockSurface(vp->dest_surface);
         vp->pts = movie->pts;  
     	movie->pictq_windex = (movie->pictq_windex+1)%VIDEO_PICTURE_QUEUE_SIZE;
 		movie->pictq_size++;
 		vp->ready=1;
+		avpicture_free(&pict);
     }	
 	GRABGIL
 	Py_DECREF(movie);
@@ -1430,7 +1522,7 @@ PyMovie *stream_open(PyMovie *is, const char *filename, AVInputFormat *iformat)
     int err, i, ret, video_index, audio_index, subtitle_index;
     AVFormatParameters params, *ap = &params;
     
-	is->overlay=1;
+	//is->overlay=1;
     av_strlcpy(is->filename, filename, strlen(filename)+1);
     is->iformat = iformat;
 
@@ -1696,13 +1788,8 @@ int decoder_wrapper(void *arg)
 	}
 	while((movie->loops>-1||eternity) )
 	{
-		/*GRABGIL
-		PySys_WriteStdout("Loops: %i\n", movie->loops);
-		RELEASEGIL*/
 		movie->loops--;
 		movie=stream_open(movie, movie->filename, NULL);
-		/*if(movie->audio_st)
-			movie->audio_tid = SDL_CreateThread(audio_thread, movie);*/
 		movie->paused=0;
 		state =decoder(movie);
 		if(movie->video_st)
@@ -1782,9 +1869,9 @@ int decoder_wrapper(void *arg)
             (is->videoq.size > MAX_VIDEOQ_SIZE )||
             (is->subtitleq.size > MAX_SUBTITLEQ_SIZE)) {
             /* wait 10 ms */
-            if(is->video_st)
+            if(is->videoq.size > MAX_VIDEOQ_SIZE && is->video_st)
             	video_render(is);
-            if(is->audio_st)
+            if(is->audioq.size > MAX_AUDIOQ_SIZE && is->audio_st)
 	            audio_thread(is);
             SDL_Delay(10);
             continue;

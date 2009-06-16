@@ -105,7 +105,7 @@ class Dependency:
 class DebugDependency(Dependency):
     def __init__(self, name, checkhead, checklib, libs):
         Dependency.__init__(self, name, checkhead, checklib, libs)
-        self.cflags="-Xcompiler -ggdb -Xlinker -fPIC"
+        self.cflags=""
 
 class DependencyPython:
     def __init__(self, name, module, header):
@@ -153,11 +153,6 @@ def main():
         Dependency('PORTMIDI', 'portmidi.h', 'libportmidi.so', ['portmidi']),
         Dependency('PORTTIME', 'porttime.h', 'libporttime.so', ['porttime']),
         DebugDependency('FFMPEG', 'libavformat/avformat.h', 'libavformat.a', ['avformat', 'avdevice', 'avcodec',  'avutil', 'swscale', 'SDL_mixer']),        
-        #Dependency('FFMPEG', 'ffmpeg/avformat.h',  'libavformat.so', ['avformat']) ,
-        #Dependency('FFMPEG', 'ffmpeg/avstring.h',  'libavstring.so', ['avstring']) ,
-        #Dependency('FFMPEG', 'ffmpeg/swscale.h',  'libswscale.so', ['swscale']) ,
-        #Dependency('FFMPEG', 'ffmpeg/avcodec.h',  'libavcodec.so', ['avcodec']) ,
-        #Dependency('FFMPEG', 'libavdevice/avdevice.h',  'libavdevice.so', ['avdevice']) ,
         #Dependency('GFX', 'SDL_gfxPrimitives.h', 'libSDL_gfx.so', ['SDL_gfx']),
     ]
     if not DEPS[0].found:

@@ -17,5 +17,6 @@ PyObject* _movie_get_paused  (PyMovie *movie, void *closure);
 PyObject* _movie_get_playing (PyMovie *movie, void *closure);
 PyObject* _movie_get_width   (PyMovie *movie, void *closure);
 PyObject* _movie_get_height  (PyMovie *movie, void *closure);
+int _movie_set_surface       (PyObject *movie, PyObject *surface, void *closure);
 
 #endif /*GMOVIE_H_*/

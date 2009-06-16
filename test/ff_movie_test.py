@@ -21,7 +21,7 @@ else:
 
 
 import pygame
-import pygame.gmovie
+import pygame._movie as gmovie
 from pygame.locals import *
 
 import os

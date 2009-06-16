@@ -61,7 +61,7 @@
 (((FIX(0.50000*224.0/255.0) * r1 - FIX(0.41869*224.0/255.0) * g1 -           \
    FIX(0.08131*224.0/255.0) * b1 + (ONE_HALF << shift) - 1) >> (SCALEBITS + shift)) + 128)
 
-#define ALPHA_BLEND(a, oldp, newp, s)\
+#define _ALPHA_BLEND(a, oldp, newp, s)\
 ((((oldp << s) * (255 - (a))) + (newp * (a))) / (255 << s))
 
 #define RGBA_IN(r, g, b, a, s)\
@@ -193,7 +193,7 @@ typedef struct PyMovie {
 	int av_sync_type;
 	AVFormatContext *ic;    /* context information about the format of the video file */
 	int stop;
-	
+	SDL_Surface *canon_surf;	
 	
 	/* Seek-info */
     int seek_req;
@@ -296,7 +296,7 @@ int packet_queue_get(PacketQueue *q, AVPacket *pkt, int block);
 /* 		Misc*/
 void blend_subrect(AVPicture *dst, const AVSubtitleRect *rect, int imgw, int imgh);
 void free_subpicture(SubPicture *sp);
-void ConvertYUV420PtoRGBA( AVFrame *YUV420P, SDL_Surface *OUTPUT, int interlaced );
+void ConvertYUV420PtoRGBA( AVPicture *YUV420P, SDL_Surface *OUTPUT, int interlaced );
 void initializeLookupTables(void);
 /* 		Video Management */
 int video_open(PyMovie *is, int index);

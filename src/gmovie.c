@@ -12,8 +12,9 @@
 	}
 	else
 	{
+		PySys_WriteStdout("Found a surface...\n");
 		self->overlay = 0;
-		self->dest_surface=surf;
+		self->canon_surf=surf;
 	}
 	self->start_time = AV_NOPTS_VALUE;
 	self=stream_open(self, filename, NULL);
@@ -33,12 +34,26 @@
 {
 	Py_INCREF(self);
 	const char *c;
-	if (!PyArg_ParseTuple (args, "s", &c))
+	PyObject *surf;
+	if (!PyArg_ParseTuple (args, "s|O", &c, &surf))
     {
         PyErr_SetString(PyExc_TypeError, "No valid arguments");
     	return -1;
-    }	
-	self = _movie_init_internal(self, c, NULL);
+    }
+    PySys_WriteStdout("Value of surf: %i\n", surf ? 1 : 0);
+    PySys_WriteStdout("Value of PySurface_Check(surf): %i\n", PySurface_Check(surf));
+    
+    if(surf)
+    {
+    	PySys_WriteStdout("Found a valid surface...\n");
+    	SDL_Surface *target = PySurface_AsSurface(surf);
+    	self= _movie_init_internal((PyMovie *)self, c, target);	
+    }
+    else
+    {
+    	PySys_WriteStdout("Did not find a surface... wonder why?\n");
+		self = _movie_init_internal((PyMovie *)self, c, NULL);
+    }
 	PyObject *er;
     er = PyErr_Occurred();
     Py_XINCREF(er);
@@ -213,6 +228,28 @@ PyObject* _movie_get_height (PyMovie *movie, void *closure)
     return pyo;
 }
 
+PyObject *_movie_get_surface(PyMovie *movie, void *closure)
+{
+	if(movie->canon_surf)
+	{
+		return (PyObject *)PySurface_New(movie->canon_surf);
+	}
+	Py_RETURN_NONE;
+}
+
+int _movie_set_surface(PyObject *mov, PyObject *surface, void *closure)
+{
+	PyMovie *movie = (PyMovie *)mov;
+	if(movie->canon_surf)
+	{
+		SDL_FreeSurface(movie->canon_surf);	
+	}
+	//PySurface_Check doesn't really work right for some reason... so we skip it for now.
+	movie->canon_surf=PySurface_AsSurface(surface);
+	movie->overlay=0;
+	return 1;
+}
+
  static PyMethodDef _movie_methods[] = {
    { "play",    (PyCFunction) _movie_play, METH_VARARGS,
                "Play the movie file from current time-mark. If loop<0, then it will loop infinitely. If there is no loop value, then it will play once." },
@@ -227,11 +264,12 @@ PyObject* _movie_get_height (PyMovie *movie, void *closure)
 
  static PyGetSetDef _movie_getsets[] =
 {
-    { "paused", (getter) _movie_get_paused, NULL, NULL, NULL },
-    { "playing", (getter) _movie_get_playing, NULL, NULL, NULL },
-    { "height", (getter) _movie_get_height, NULL, NULL, NULL },
-    { "width", (getter) _movie_get_width, NULL, NULL, NULL },
-    { NULL, NULL, NULL, NULL, NULL }
+    { "paused",  (getter) _movie_get_paused,  NULL,                        NULL, NULL },
+    { "playing", (getter) _movie_get_playing, NULL,                        NULL, NULL },
+    { "height",  (getter) _movie_get_height,  NULL,                        NULL, NULL },
+    { "width",   (getter) _movie_get_width,   NULL,                        NULL, NULL },
+    { "surface", (getter) _movie_get_surface, (setter) _movie_set_surface, NULL, NULL },
+    { NULL,      NULL,                        NULL,                        NULL, NULL }
 };
 
  static PyTypeObject PyMovie_Type =
@@ -287,7 +325,7 @@ PyObject* _movie_get_height (PyMovie *movie, void *closure)
 
 
 PyMODINIT_FUNC
-initgmovie(void)
+init_movie(void)
 {
     PyObject* module;
 
@@ -315,7 +353,7 @@ initgmovie(void)
    }*/
    // Create the module
    
-   module = Py_InitModule3 ("gmovie", NULL, "pygame.gmovie plays movies and streams."); //movie doc needed
+   module = Py_InitModule3 ("_movie", NULL, "pygame._movie plays movies and streams."); //movie doc needed
 
    if (module == NULL) {
       return;
@@ -327,7 +365,11 @@ initgmovie(void)
    avcodec_register_all();
    avdevice_register_all();
    av_register_all();
+   //initialize lookup tables for YUV-to-RGB conversion
    initializeLookupTables();
+   //import stuff we need
+   import_pygame_surface();
+   //initialize our flush marker for the queues.
    av_init_packet(&flush_pkt);
    uint8_t *s = (uint8_t *)"FLUSH";
    flush_pkt.data= s;
@@ -336,10 +378,6 @@ initgmovie(void)
 
    // Add the type to the module.
    Py_INCREF(&PyMovie_Type);
-   //Py_INCREF(&PyAudioStream_Type);
-   //Py_INCREF(&PyVideoStream_Type);
    PyModule_AddObject(module, "Movie", (PyObject*)&PyMovie_Type);
-   //PyModule_AddObject(module, "AudioStream", (PyObject *)&PyAudioStream_Type);
-   //PyModule_AddObject(module, "VideoStream", (PyObject *)&PyVideoStream_Type);
 }
 
