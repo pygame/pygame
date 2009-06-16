@@ -217,6 +217,12 @@ class ColorTypeTest (unittest.TestCase):
     def test_ignore_whitespace(self):
         self.assertEquals(pygame.color.Color('red'), pygame.color.Color(' r e d '))
 
+    def test_slice(self):
+        #TODO: do all sorts of slice combinations.
+        c = pygame.Color(1,2,3,4)
+        parts = c[:-1]
+        self.assertEquals((1,2,3), parts)
+
     def test_case_insensitivity_of_string_args(self):
         self.assertEquals(pygame.color.Color('red'), pygame.color.Color('Red'))
     
