@@ -40,11 +40,30 @@ class FontModuleTest( unittest.TestCase ):
     def test_get_default_font(self):
         self.failUnlessEqual(pygame.font.get_default_font(), 'freesansbold.ttf')
 
-    def Xtest_get_fonts(self):
+    def test_get_fonts_returns_something(self):
         fnts = pygame.font.get_fonts()
         self.failUnless(fnts)
+
+
+    def test_get_fonts(self):
+        fnts = pygame.font.get_fonts()
+        
+        if not fnts:
+            raise Exception(repr(fnts))
+
+        self.failUnless(fnts)
+
+        # strange python 2.x bug... if you assign to unicode, 
+        #   all sorts of weirdness happens.
+        if sys.version_info <= (3, 0, 0):
+            unicod = unicode
+        else:
+            unicod = str
+
         for name in fnts:
-            self.failUnless(isinstance(name, str))
+            # note, on ubuntu 2.6 they are all unicode strings.
+
+            self.failUnless(isinstance(name, (str, unicod)))
             self.failUnless(name.islower(), name)
             self.failUnless(name.isalnum(), name)
 
@@ -56,7 +75,7 @@ class FontModuleTest( unittest.TestCase ):
     def test_init(self):
         pygame.font.init()
 
-    def Xtest_match_font(self):
+    def test_match_font_all_exist(self):
         fonts = pygame.font.get_fonts()
 
         # Ensure all listed fonts are in fact available, and the returned file
@@ -66,6 +85,10 @@ class FontModuleTest( unittest.TestCase ):
             self.failIf(path is None)
             self.failUnless(os.path.isabs(path))
 
+    def test_match_font_bold(self):
+
+        fonts = pygame.font.get_fonts()
+ 
         # Look for a bold font.
         for font in fonts:
             if pygame.font.match_font(font, bold=True) is not None:
@@ -73,12 +96,21 @@ class FontModuleTest( unittest.TestCase ):
         else:
             self.fail()
 
+    def test_match_font_italic(self):
+
+        fonts = pygame.font.get_fonts()
+
         # Look for an italic font.
         for font in fonts:
             if pygame.font.match_font(font, italic=True) is not None:
                 break
         else:
             self.fail()
+
+
+    def test_match_font_comma_separated(self):
+
+        fonts = pygame.font.get_fonts()
 
         # Check for not found.
         self.failUnless(pygame.font.match_font('thisisnotafont') is None)
@@ -89,62 +121,56 @@ class FontModuleTest( unittest.TestCase ):
         names = ','.join(['thisisnotafont1', 'thisisnotafont2', 'thisisnotafont3'])
         self.failUnless(pygame.font.match_font(names) is None)
 
+
+
     def test_quit(self):
         pygame.font.quit()
 
 
 class FontTypeTest( unittest.TestCase ):
-    def todo_test_get_ascent(self):
+    def setUp(self):
+        pygame.font.init()
 
-        # __doc__ (as of 2008-08-02) for pygame.font.Font.get_ascent:
+    def tearDown(self):
+        pygame.font.quit()
 
-          # Font.get_ascent(): return int
-          # get the ascent of the font
-          # 
-          # Return the height in pixels for the font ascent. The ascent is the
-          # number of pixels from the font baseline to the top of the font.
-          # 
+    def test_get_ascent(self):
+        # Ckecking ascent would need a custom test font to do properly.
+        f = pygame.font.Font(None, 20)
+        ascent = f.get_ascent()
+        self.failUnless(isinstance(ascent, int))
+        self.failUnless(ascent > 0)
+        s = f.render("X", False, (255, 255, 255))
+        self.failUnless(s.get_size()[1] > ascent)
 
-        self.fail() 
+    def test_get_descent(self):
+        # Ckecking descent would need a custom test font to do properly.
+        f = pygame.font.Font(None, 20)
+        descent = f.get_descent()
+        self.failUnless(isinstance(descent, int))
+        self.failUnless(descent < 0)
 
-    def todo_test_get_descent(self):
+    def test_get_height(self):
+        # Ckecking height would need a custom test font to do properly.
+        f = pygame.font.Font(None, 20)
+        height = f.get_height()
+        self.failUnless(isinstance(height, int))
+        self.failUnless(height > 0)
+        s = f.render("X", False, (255, 255, 255))
+        self.failUnless(s.get_size()[1] == height)
 
-        # __doc__ (as of 2008-08-02) for pygame.font.Font.get_descent:
-
-          # Font.get_descent(): return int
-          # get the descent of the font
-          # 
-          # Return the height in pixels for the font descent. The descent is the
-          # number of pixels from the font baseline to the bottom of the font.
-
-        self.fail() 
-
-    def todo_test_get_height(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.font.Font.get_height:
-
-          # Font.get_height(): return int
-          # get the height of the font
-          # 
-          # Return the height in pixels of the actual rendered text. This is the
-          # average size for each glyph in the font.
-
-        self.fail() 
-
-    def todo_test_get_linesize(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.font.Font.get_linesize:
-
-          # Font.get_linesize(): return int
-          # get the line space of the font text
-          # 
-          # Return the height in pixels for a line of text with the font. When
-          # rendering multiple lines of text this is the recommended amount of
-          # space between lines.
-
-        self.fail() 
+    def test_get_linesize(self):
+        # Ckecking linesize would need a custom test font to do properly.
+        # Questions: How do linesize, height and descent relate?
+        f = pygame.font.Font(None, 20)
+        linesize = f.get_linesize()
+        self.failUnless(isinstance(linesize, int))
+        self.failUnless(linesize > 0)
 
     def todo_test_metrics(self):
+        # The documentation is useless here. How large a list?
+        # How do list positions relate to character codes?
+        # What about unicode characters?
 
         # __doc__ (as of 2008-08-02) for pygame.font.Font.metrics:
 
@@ -159,7 +185,7 @@ class FontTypeTest( unittest.TestCase ):
 
         self.fail() 
 
-    def todo_test_render(self):
+    def test_render(self):
         """ 
         """
 
@@ -175,6 +201,9 @@ class FontTypeTest( unittest.TestCase ):
         # null text should be 1 pixel wide.
         s = f.render("", False, [0, 0, 0], [255, 255, 255])
         self.assertEqual(s.get_size()[0], 1)
+        # is background transparent for antialiasing?
+        s = f.render(".", True, [255, 255, 255])
+        self.failUnlessEqual(s.get_at((0, 0))[3], 0)
 
         # __doc__ (as of 2008-08-02) for pygame.font.Font.render:
 
@@ -244,23 +273,14 @@ class FontTypeTest( unittest.TestCase ):
         f.set_underline(False)
         self.failIf(f.get_underline())
 
-    def todo_test_size(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.font.Font.size:
-
-          # Font.size(text): return (width, height)
-          # determine the amount of space needed to render text
-          # 
-          # Returns the dimensions needed to render the text. This can be used
-          # to help determine the positioning needed for text before it is
-          # rendered. It can also be used for wordwrapping and other layout
-          # effects.
-          # 
-          # Be aware that most fonts use kerning which adjusts the widths for
-          # specific letter pairs. For example, the width for "ae" will not
-          # always match the width for "a" + "e".
-
-        self.fail() 
+    def test_size(self):
+        f = pygame.font.Font(None, 20)
+        text = "Xg"
+        size = f.size(text)
+        w, h = size
+        self.failUnless(isinstance(w, int) and isinstance(h, int))
+        s = f.render(text, False, (255, 255, 255))
+        self.failUnlessEqual(size, s.get_size())
 
     def test_font_file_not_found(self):
         # A per BUG reported by Bo Jangeborg on pygame-user mailing list,
@@ -271,7 +291,95 @@ class FontTypeTest( unittest.TestCase ):
         def fetch():
             font = pygame.font.Font('some-fictional-font.ttf', 20)
         self.failUnlessRaises(IOError, fetch)
-        
+
+
+class VisualTests( unittest.TestCase ):
+    __tags__ = ['interactive']
+    
+    screen = None
+    aborted = False
+    
+    def setUp(self):
+        if self.screen is None:
+            pygame.init()
+            self.screen = pygame.display.set_mode((600, 200))
+            self.screen.fill((255, 255, 255))
+            pygame.display.flip()
+            self.f = pygame.font.Font(None, 32)
+
+    def abort(self):
+        if self.screen is not None:
+            pygame.quit()
+        self.aborted = True
+
+    def query(self,
+              bold=False, italic=False, underline=False, antialiase=False):
+        if self.aborted:
+            return False
+        spacing = 10
+        offset = 20
+        y = spacing
+        f = self.f
+        screen = self.screen
+        screen.fill((255, 255, 255))
+        pygame.display.flip()
+        if not (bold or italic or underline or antialiase):
+            text = "normal"
+        else:
+            modes = []
+            if bold:
+                modes.append("bold")
+            if italic:
+                modes.append("italic")
+            if underline:
+                modes.append("underlined")
+            if antialiase:
+                modes.append("antialiased")
+            text = "%s (y/n):" % ('-'.join(modes),)
+        f.set_bold(bold)
+        f.set_italic(italic)
+        f.set_underline(underline)
+        s = f.render(text, antialiase, (0, 0, 0))
+        screen.blit(s, (offset, y))
+        y += s.get_size()[1] + spacing
+        f.set_bold(False)
+        f.set_italic(False)
+        f.set_underline(False)
+        s = f.render("(some comparison text)", False, (0, 0, 0))
+        screen.blit(s, (offset, y))
+        pygame.display.flip()
+        while 1:
+            for evt in pygame.event.get():
+                if evt.type == pygame.KEYDOWN:
+                    if evt.key == pygame.K_ESCAPE:
+                        self.abort()
+                        return False
+                    if evt.key == pygame.K_y:
+                        return True
+                    if evt.key == pygame.K_n:
+                        return False
+                if evt.type == pygame.QUIT:
+                    self.abort()
+                    return False
+
+    def test_bold(self):
+        self.failUnless(self.query(bold=True))
+
+    def test_italic(self):
+        self.failUnless(self.query(italic=True))
+
+    def test_underline(self):
+        self.failUnless(self.query(underline=True))
+
+    def test_antialiase(self):
+        self.failUnless(self.query(antialiase=True))
+
+    def test_bold_antialiase(self):
+        self.failUnless(self.query(bold=True, antialiase=True))
+
+    def test_italic_underline(self):
+        self.failUnless(self.query(italic=True, underline=True))
+
 
 if __name__ == '__main__':
     unittest.main()

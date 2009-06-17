@@ -217,6 +217,33 @@ class ColorTypeTest (unittest.TestCase):
     def test_ignore_whitespace(self):
         self.assertEquals(pygame.color.Color('red'), pygame.color.Color(' r e d '))
 
+    def test_slice(self):
+        # slicing a color gives you back a tuple.
+        # do all sorts of slice combinations.
+        c = pygame.Color(1,2,3,4)
+        
+        self.assertEquals((1,2,3,4), c[:])
+        self.assertEquals((1,2,3), c[:-1])
+        
+        self.assertEquals((), c[:-5])
+        
+        self.assertEquals((1,2,3,4), c[:4])
+        self.assertEquals((1,2,3,4), c[:5])
+        self.assertEquals((1,2), c[:2])
+        self.assertEquals((1,), c[:1])
+        self.assertEquals((), c[:0])
+        
+        
+        self.assertEquals((2,), c[1:-2])
+        self.assertEquals((3, 4), c[-2:])
+        self.assertEquals((4,), c[-1:])
+        
+        
+        # NOTE: assigning to a slice is currently unsupported.
+        
+        
+        
+        
     def test_case_insensitivity_of_string_args(self):
         self.assertEquals(pygame.color.Color('red'), pygame.color.Color('Red'))
     
@@ -701,6 +728,17 @@ class ColorTypeTest (unittest.TestCase):
 
         # TODO: test against statically defined verified _correct_ values
         # assert corrected.r == 125 etc.
+
+
+    def test_pickle(self):
+        import pickle
+        c1 = pygame.Color(1,2,3,4)
+        #c2 = pygame.Color(255,254,253,252)
+        pickle_string = pickle.dumps(c1)
+        c1_frompickle = pickle.loads(pickle_string)
+        self.assertEqual(c1,c1_frompickle) 
+
+
 
 ################################################################################
 

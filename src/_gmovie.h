@@ -187,6 +187,7 @@ typedef struct PyMovie {
     int ytop;
     int xleft;
     int loops;
+    int resize;
 	int64_t start_time;
 	AVInputFormat *iformat;
 	SDL_mutex *dest_mutex;

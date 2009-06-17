@@ -2164,6 +2164,7 @@ MODINIT_DEFINE (pixelarray)
     if (PyModule_AddObject (module, "PixelArray",
                             (PyObject *) &PyPixelArray_Type) == -1)
     {
+        Py_DECREF ((PyObject *) &PyPixelArray_Type);
         DECREF_MOD (module);
         MODINIT_ERROR;
     }

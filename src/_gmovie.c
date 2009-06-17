@@ -410,6 +410,38 @@ void blend_subrect(AVPicture *dst, const AVSubtitleRect *rect, int imgw, int img
 
     memset(&sp->sub, 0, sizeof(AVSubtitle));
 }
+void inline get_width(PyMovie *movie, int *width)
+{
+	if(movie->resize)
+	{
+		*width=movie->width;
+	}
+	else
+	{
+		if(movie->video_st)
+			*width=movie->video_st->codec->width;
+	}
+}
+
+void inline get_height(PyMovie *movie, int *height)
+{
+	if(movie->resize)
+	{
+		*height=movie->height;
+	}
+	else
+	{
+		if(movie->video_st)
+			*height=movie->video_st->codec->height;
+	}
+}
+
+void get_height_width(PyMovie *movie, int *height, int*width)
+{
+	get_height(movie, height);
+	get_width(movie, width);
+}
+
 inline int clamp0_255(int x) {
 	x &= (~x) >> 31;
 	x -= 255;
@@ -505,76 +537,42 @@ void video_image_display(PyMovie *is)
     GRABGIL
     Py_INCREF( is);
     RELEASEGIL
-    SubPicture *sp;
     VidPicture *vp;
-    AVPicture pict;
     float aspect_ratio;
     int width, height, x, y;
     
-    int i;
     vp = &is->pictq[is->pictq_rindex];
     vp->ready =0;
+    if (is->video_st->sample_aspect_ratio.num)
+        aspect_ratio = av_q2d(is->video_st->sample_aspect_ratio);
+    else if (is->video_st->codec->sample_aspect_ratio.num)
+        aspect_ratio = av_q2d(is->video_st->codec->sample_aspect_ratio);
+    else
+        aspect_ratio = 0;
+    if (aspect_ratio <= 0.0)
+        aspect_ratio = 1.0;
+	int w=0;
+	int h=0;
+	get_height_width(is, &h, &w);
+    aspect_ratio *= (float)w / h;
+	/* XXX: we suppose the screen has a 1.0 pixel ratio */
+    height = vp->height;
+    width = ((int)rint(height * aspect_ratio)) & ~1;
+    if (width > vp->width) {
+        width = vp->width;
+        height = ((int)rint(width / aspect_ratio)) & ~1;
+    }
+    x = (vp->width - width) / 2;
+    y = (vp->height - height) / 2;
+   
+    vp->dest_rect.x = vp->xleft + x;
+    vp->dest_rect.y = vp->ytop  + y;
+    vp->dest_rect.w = width;
+    vp->dest_rect.h = height;
+    
     if (vp->dest_overlay && vp->overlay>0) {
-        /* XXX: use variable in the frame */
-        if (is->video_st->sample_aspect_ratio.num)
-            aspect_ratio = av_q2d(is->video_st->sample_aspect_ratio);
-        else if (is->video_st->codec->sample_aspect_ratio.num)
-            aspect_ratio = av_q2d(is->video_st->codec->sample_aspect_ratio);
-        else
-            aspect_ratio = 0;
-        if (aspect_ratio <= 0.0)
-            aspect_ratio = 1.0;
-        aspect_ratio *= (float)is->video_st->codec->width / is->video_st->codec->height;
-        /* if an active format is indicated, then it overrides the
-           mpeg format */
         
-        if (is->subtitle_stream>-1)
-        {
-            
-            if (is->subpq_size > 0)
-            {
-                sp = &is->subpq[is->subpq_rindex];
 
-                if (is->pts >= is->pts + ((float) sp->sub.start_display_time / 1000))
-                {
-
-                    if(is->overlay>0)
-                    {
-                        SDL_LockYUVOverlay (is->dest_overlay);
-
-                        pict.data[0] = is->dest_overlay->pixels[0];
-                        pict.data[1] = is->dest_overlay->pixels[2];
-                        pict.data[2] = is->dest_overlay->pixels[1];
-
-                        pict.linesize[0] = is->dest_overlay->pitches[0];
-                        pict.linesize[1] = is->dest_overlay->pitches[2];
-                        pict.linesize[2] = is->dest_overlay->pitches[1];
-
-                        for (i = 0; i < sp->sub.num_rects; i++)
-                            blend_subrect(&pict, sp->sub.rects[i],
-                                          vp->dest_overlay->w, vp->dest_overlay->h);
-
-                        SDL_UnlockYUVOverlay (is->dest_overlay);
-                    }
-                }
-            }
-        }
-
-
-        /* XXX: we suppose the screen has a 1.0 pixel ratio */
-        height = vp->height;
-        width = ((int)rint(height * aspect_ratio)) & ~1;
-        if (width > vp->width) {
-            width = vp->width;
-            height = ((int)rint(width / aspect_ratio)) & ~1;
-        }
-        x = (vp->width - width) / 2;
-        y = (vp->height - height) / 2;
-       
-        vp->dest_rect.x = vp->xleft + x;
-        vp->dest_rect.y = vp->ytop  + y;
-        vp->dest_rect.w = width;
-        vp->dest_rect.h = height;
         if(vp->overlay>0) 
         {      
         	SDL_LockYUVOverlay(vp->dest_overlay); 
@@ -585,40 +583,12 @@ void video_image_display(PyMovie *is)
     } 
     else if(vp->dest_surface && vp->overlay<=0)
     {
-    	/* XXX: use variable in the frame */
-        if (is->video_st->sample_aspect_ratio.num)
-            aspect_ratio = av_q2d(is->video_st->sample_aspect_ratio);
-        else if (is->video_st->codec->sample_aspect_ratio.num)
-            aspect_ratio = av_q2d(is->video_st->codec->sample_aspect_ratio);
-        else
-            aspect_ratio = 0;
-        if (aspect_ratio <= 0.0)
-            aspect_ratio = 1.0;
-        aspect_ratio *= (float)is->video_st->codec->width / is->video_st->codec->height;
-        /* if an active format is indicated, then it overrides the
-           mpeg format */
     	
-    	height = vp->height;
-        width = ((int)rint(height * aspect_ratio)) & ~1;
-        if (width > vp->width) {
-            width = vp->width;
-            height = ((int)rint(width / aspect_ratio)) & ~1;
-        }
-        x = (vp->width - width) / 2;
-        y = (vp->height - height) / 2;
-       
-        vp->dest_rect.x = vp->xleft + x;
-        vp->dest_rect.y = vp->ytop  + y;
-        vp->dest_rect.w = width;
-        vp->dest_rect.h = height;
-        //GRABGIL
-        //PySys_WriteStdout("Just before blitting...\n");
         //pygame_Blit (vp->dest_surface, &vp->dest_rect,
         //     is->canon_surf, &vp->dest_rect, 0);
     	SDL_BlitSurface(vp->dest_surface, &vp->dest_rect, is->canon_surf, &vp->dest_rect);
-    	//PySys_WriteStdout("After blitting...\n");
-    	//RELEASEGIL
     }
+
     is->pictq_rindex= (is->pictq_rindex+1)%VIDEO_PICTURE_QUEUE_SIZE;
     is->pictq_size--;
     video_refresh_timer(is);
@@ -628,19 +598,22 @@ void video_image_display(PyMovie *is)
 }
 
 int video_open(PyMovie *is, int index){
-    int w,h;
+    int w=0;
+    int h=0;
     DECLAREGIL
     GRABGIL
     Py_INCREF( is);
     RELEASEGIL
-    w = is->video_st->codec->width;
-    h = is->video_st->codec->height;
-
-	VidPicture *vp;
+ 	get_height_width(is, &h, &w);
+ 	VidPicture *vp;
 	vp = &is->pictq[index];
-    
-    if(!vp->dest_overlay && is->overlay>0)
+   
+    if((!vp->dest_overlay && is->overlay>0) || (is->resize && vp->dest_overlay && (vp->height!=h || vp->width!=w)))
     {
+    	if(is->resize)
+    	{
+    		SDL_FreeYUVOverlay(vp->dest_overlay);
+    	}
         //now we have to open an overlay up
         SDL_Surface *screen;
         if (!SDL_WasInit (SDL_INIT_VIDEO))
@@ -652,7 +625,7 @@ int video_open(PyMovie *is, int index){
         	return -1;
         }
         screen = SDL_GetVideoSurface ();
-        if (!screen)
+        if (!screen || (screen && (screen->w!=w || screen->h !=h)))
 		{
 			screen = SDL_SetVideoMode(w, h, 0, SDL_SWSURFACE);
 			if(!screen)
@@ -664,6 +637,8 @@ int video_open(PyMovie *is, int index){
 	        	return -1;	
 			}
 		}
+		
+		
         vp->dest_overlay = SDL_CreateYUVOverlay (w, h, SDL_YV12_OVERLAY, screen);
         if (!vp->dest_overlay)
         {
@@ -675,9 +650,13 @@ int video_open(PyMovie *is, int index){
         }
         vp->overlay = is->overlay;
     } 
-    else if (!vp->dest_surface && is->overlay<=0)
+    else if ((!vp->dest_surface && is->overlay<=0) || (is->resize && vp->dest_surface && (vp->height!=h || vp->width!=w)))
     {
     	//now we have to open an overlay up
+    	if(is->resize)
+    	{
+    		SDL_FreeSurface(vp->dest_surface);
+    	}
         SDL_Surface *screen = is->canon_surf;
         if (!SDL_WasInit (SDL_INIT_VIDEO))
         {
@@ -695,9 +674,16 @@ int video_open(PyMovie *is, int index){
         	RELEASEGIL										  // happen if there's some cleaning up.
         	return -1;	
 		}
+		int tw=w;
+		int th=h;
+		if(!is->resize)
+		{
+			tw=screen->w;
+			th=screen->h;
+		}
         vp->dest_surface = SDL_CreateRGBSurface(screen->flags, 
-        										screen->w, 
-        										screen->h, 
+        										tw, 
+        										th, 
         										screen->format->BitsPerPixel, 
         										screen->format->Rmask, 
         										screen->format->Gmask, 
@@ -713,10 +699,7 @@ int video_open(PyMovie *is, int index){
         }
         vp->overlay = is->overlay;
     }
-
-    is->width = w;
-    vp->width = w;
-    is->height = h;
+	vp->width = w;
     vp->height = h;
 	GRABGIL
     Py_DECREF( is);
@@ -805,15 +788,17 @@ int video_open(PyMovie *is, int index){
 
 	vp = &movie->pictq[movie->pictq_windex];
 	
-	if(!vp->dest_overlay||!vp->dest_surface)
+	int w=0;
+	int h=0;
+	get_height_width(movie, &h, &w);
+	
+	if(!vp->dest_overlay||!vp->dest_surface||vp->width!=movie->width||vp->height!=movie->height)
 	{
 		video_open(movie, movie->pictq_windex);
 	}	
+	dst_pix_fmt = PIX_FMT_YUV420P;
     if (vp->dest_overlay && vp->overlay>0) {
         /* get a pointer on the bitmap */
-        
-        dst_pix_fmt = PIX_FMT_YUV420P;
-           
         SDL_LockYUVOverlay(vp->dest_overlay);
 
         pict.data[0] = vp->dest_overlay->pixels[0];
@@ -822,62 +807,51 @@ int video_open(PyMovie *is, int index){
         pict.linesize[0] = vp->dest_overlay->pitches[0];
         pict.linesize[1] = vp->dest_overlay->pitches[2];
         pict.linesize[2] = vp->dest_overlay->pitches[1];
-
-		int sws_flags = SWS_BICUBIC;
-        img_convert_ctx = sws_getCachedContext(img_convert_ctx,
-            movie->video_st->codec->width, movie->video_st->codec->height,
-            movie->video_st->codec->pix_fmt,
-            movie->video_st->codec->width, movie->video_st->codec->height,
-            dst_pix_fmt, sws_flags, NULL, NULL, NULL);
-        if (img_convert_ctx == NULL) {
-            fprintf(stderr, "Cannot initialize the conversion context\n");
-            exit(1);
-        }
-        movie->img_convert_ctx = img_convert_ctx;
-        sws_scale(img_convert_ctx, src_frame->data, src_frame->linesize,
-                  0, movie->video_st->codec->height, pict.data, pict.linesize);
-
-        SDL_UnlockYUVOverlay(vp->dest_overlay);
-
-        vp->pts = movie->pts;  
-    	movie->pictq_windex = (movie->pictq_windex+1)%VIDEO_PICTURE_QUEUE_SIZE;
-		movie->pictq_size++;
-		vp->ready=1;
     }
     else if(vp->dest_surface)
     {
-    	   /* get a pointer on the bitmap */
-        
-        dst_pix_fmt = PIX_FMT_YUV420P;
-
-		avpicture_alloc(&pict, dst_pix_fmt, vp->width, vp->height);
+    	/* get a pointer on the bitmap */
+		avpicture_alloc(&pict, dst_pix_fmt, w, h);
         SDL_LockSurface(vp->dest_surface);
-		int sws_flags = SWS_BICUBIC;
-        img_convert_ctx = sws_getCachedContext(img_convert_ctx,
-            								   movie->video_st->codec->width, 
-            								   movie->video_st->codec->height,
-            								   movie->video_st->codec->pix_fmt,
-            								   vp->width,
-            								   vp->height,
-            								   dst_pix_fmt, 
-            								   sws_flags, 
-            								   NULL, NULL, NULL);
-        if (img_convert_ctx == NULL) {
-            fprintf(stderr, "Cannot initialize the conversion context\n");
-            exit(1);
-        }
-        movie->img_convert_ctx = img_convert_ctx;
-        sws_scale(img_convert_ctx, src_frame->data, src_frame->linesize,
-                  0, movie->video_st->codec->height, pict.data, pict.linesize);
-
+    }
+    int sws_flags = SWS_BICUBIC;
+	img_convert_ctx = sws_getCachedContext(img_convert_ctx,
+        								   movie->video_st->codec->width, 
+        								   movie->video_st->codec->height,
+        								   movie->video_st->codec->pix_fmt,
+        								   w,
+        								   h,
+        								   dst_pix_fmt, 
+        								   sws_flags, 
+        								   NULL, NULL, NULL);
+    if (img_convert_ctx == NULL) {
+        fprintf(stderr, "Cannot initialize the conversion context\n");
+        exit(1);
+    }
+    movie->img_convert_ctx = img_convert_ctx;
+    if(movie->resize)
+    {
+    	sws_scale(img_convert_ctx, src_frame->data, src_frame->linesize,
+        	      0, h, pict.data, pict.linesize);
+    }
+    else
+    {
+    	sws_scale(img_convert_ctx, src_frame->data, src_frame->linesize,
+              0, movie->video_st->codec->height, pict.data, pict.linesize);
+    }
+    if (vp->dest_overlay && vp->overlay>0) {
+    	SDL_UnlockYUVOverlay(vp->dest_overlay);
+    }
+    else if(vp->dest_surface)
+    {
 		ConvertYUV420PtoRGBA(&pict,vp->dest_surface, src_frame->interlaced_frame );
 		SDL_UnlockSurface(vp->dest_surface);
-        vp->pts = movie->pts;  
-    	movie->pictq_windex = (movie->pictq_windex+1)%VIDEO_PICTURE_QUEUE_SIZE;
-		movie->pictq_size++;
-		vp->ready=1;
 		avpicture_free(&pict);
-    }	
+    }
+    vp->pts = movie->pts;  
+	movie->pictq_windex = (movie->pictq_windex+1)%VIDEO_PICTURE_QUEUE_SIZE;
+	movie->pictq_size++;
+	vp->ready=1;	
 	GRABGIL
 	Py_DECREF(movie);
     RELEASEGIL
@@ -1816,10 +1790,8 @@ int decoder_wrapper(void *arg)
 	ic=is->ic;
 	int co=0;
 	is->last_showtime = av_gettime()/1000.0;
-	RELEASEGIL
-    //video_open(is, is->pictq_windex);
+	//RELEASEGIL
     for(;;) {
-		//PySys_WriteStdout("decoder: loop %i.\n", co);
 		co++;
 		
         if (is->abort_request)
@@ -1949,6 +1921,7 @@ int decoder_wrapper(void *arg)
 	
 	GRABGIL		
     Py_DECREF( is);
+    RELEASEGIL
     RELEASEGIL
     is->stop =1;
     if(is->abort_request)

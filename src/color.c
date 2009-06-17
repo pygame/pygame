@@ -97,6 +97,11 @@ static Py_ssize_t _color_length (PyColor *color);
 static PyObject* _color_item (PyColor *color, Py_ssize_t _index);
 static int _color_ass_item (PyColor *color, Py_ssize_t _index, PyObject *value);
 
+static PyObject * _color_slice(register PyColor *a, 
+                               register Py_ssize_t ilow, 
+                               register Py_ssize_t ihigh);
+
+
 /* Comparison */
 static PyObject* _color_richcompare(PyObject *o1, PyObject *o2, int opid);
 
@@ -199,13 +204,15 @@ static PySequenceMethods _color_as_sequence =
     NULL,                              /* sq_concat */
     NULL,                              /* sq_repeat */
     (ssizeargfunc) _color_item,        /* sq_item */
-    NULL,                              /* sq_slice */
+    (ssizessizeargfunc)_color_slice,    /* sq_slice */
     (ssizeobjargproc) _color_ass_item, /* sq_ass_item */
-    NULL,                              /* sq_ass_slice */
+    NULL, /* sq_ass_slice */
     NULL,                              /* sq_contains */
     NULL,                              /* sq_inplace_concat */
     NULL,                              /* sq_inplace_repeat */
 };
+
+#define DEFERRED_ADDRESS(ADDR) 0
 
 static PyTypeObject PyColor_Type =
 {
@@ -546,6 +553,8 @@ _color_new_internal (PyTypeObject *type, Uint8 rgba[])
 
     return color;
 }
+
+
 
 /**
  * Creates a new PyColor.
@@ -1536,6 +1545,71 @@ _color_ass_item (PyColor *color, Py_ssize_t _index, PyObject *value)
     return -1;
 }
 
+
+
+static PyObject *
+_color_slice(register PyColor *a, 
+             register Py_ssize_t ilow, 
+             register Py_ssize_t ihigh)
+{
+
+        Py_ssize_t len;
+        Py_ssize_t c1, c2, c3, c4;
+        c1=0;c2=0;c3=0;c4=0;
+
+        /* printf("ilow :%d:, ihigh:%d:\n", ilow, ihigh); */
+
+        if (ilow < 0)
+                ilow = 0;
+        if (ihigh > 3)
+                ihigh = 4;
+        if (ihigh < ilow)
+                ihigh = ilow;
+
+        len = ihigh - ilow;
+        /* printf("2 ilow :%d:, ihigh:%d: len:%d:\n", ilow, ihigh, len); */
+        
+        if(ilow == 0) {
+            c1 = a->r;
+            c2 = a->g;
+            c3 = a->b;
+            c4 = a->a;
+        } else if(ilow == 1) {
+            c1 = a->g;
+            c2 = a->b;
+            c3 = a->a;
+
+        } else if(ilow == 2) {
+            c1 = a->b;
+            c2 = a->a;
+
+        } else if(ilow == 3) {
+            c1 = a->a;
+        }
+
+
+
+        /* return a tuple depending on which elements are wanted.  */
+        if(len == 4) {
+            return Py_BuildValue ("(iiii)",c1,c2,c3,c4);
+        } else if(len == 3) {
+            return Py_BuildValue ("(iii)",c1,c2,c3);
+        } else if(len == 2) {
+            return Py_BuildValue ("(ii)",c1,c2);
+        } else if(len == 1) {
+            return Py_BuildValue ("(i)",c1);
+        } else {
+            return Py_BuildValue ("()");
+        }
+}
+
+
+
+
+
+
+
+
 /*
  * colorA == colorB
  * colorA != colorB
@@ -1608,7 +1682,6 @@ MODINIT_DEFINE (color)
 {
     PyObject *colordict;
     PyObject *module;
-    PyObject *dict;
     PyObject *apiobj;
     static void* c_api[PYGAMEAPI_COLOR_NUMSLOTS];
     
@@ -1677,7 +1750,6 @@ MODINIT_DEFINE (color)
         DECREF_MOD(module);
         MODINIT_ERROR;
     }
-    dict = PyModule_GetDict (module);
 
     c_api[0] = &PyColor_Type;
     c_api[1] = PyColor_New;
@@ -1689,11 +1761,11 @@ MODINIT_DEFINE (color)
         DECREF_MOD(module);
         MODINIT_ERROR;
     }
-    if (PyDict_SetItemString (dict, PYGAMEAPI_LOCAL_ENTRY, apiobj)) {
+    if (PyModule_AddObject (module, PYGAMEAPI_LOCAL_ENTRY, apiobj)) {
+        Py_DECREF (apiobj);
         Py_DECREF (_COLORDICT);
         DECREF_MOD(module);
         MODINIT_ERROR;
     }
-    Py_DECREF (apiobj);
     MODINIT_RETURN (module);
 }

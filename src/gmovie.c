@@ -171,6 +171,7 @@ PyObject* _movie_repr (PyMovie *movie)
     movie->seek_req = 1;
     movie->seek_pos = 0;
     movie->seek_flags =AVSEEK_FLAG_BACKWARD;
+    movie->stop = 1;
     SDL_UnlockMutex(movie->dest_mutex);  
     Py_DECREF(movie);
 	RELEASEGIL
@@ -189,6 +190,24 @@ PyObject* _movie_repr (PyMovie *movie)
     return _movie_stop(movie);
 }
 
+
+PyObject* _movie_resize       (PyMovie *movie, PyObject* args)
+{
+	int w, h;
+	if(PyArg_ParseTuple(args, "ii", &w, &h)<0)
+	{
+		return NULL;
+	}
+	if(w<0 || h<0)
+	{
+		return RAISE (PyExc_SDLError, "Cannot set negative sized display mode");
+	}
+	movie->height = h;
+	movie->width  = w;
+	movie->resize = 1;	
+	Py_RETURN_NONE;
+	
+}
  PyObject* _movie_get_paused (PyMovie *movie, void *closure)
 {
     return PyInt_FromLong((long)movie->paused);
@@ -205,7 +224,10 @@ PyObject* _movie_get_width (PyMovie *movie, void *closure)
     PyObject *pyo;
     if(movie->video_st)
     {
-    	pyo= PyInt_FromLong((long)movie->video_st->codec->width);
+    	if(movie->width)
+    		{pyo = PyInt_FromLong((long)movie->width);}
+    	else
+    		{pyo= PyInt_FromLong((long)movie->video_st->codec->width);}
     }
     else
     {
@@ -214,12 +236,32 @@ PyObject* _movie_get_width (PyMovie *movie, void *closure)
     return pyo;
 }
 
+int _movie_set_width (PyMovie *movie, PyObject *width, void *closure)
+{
+	int w;
+	if(PyInt_Check(width))
+	{
+		w = (int)PyInt_AsLong(width);
+		movie->resize=1;
+		movie->width=w;
+		return 0;
+	}
+	else
+	{
+		return -1;
+	}
+	
+}
+
 PyObject* _movie_get_height (PyMovie *movie, void *closure)
 {
     PyObject *pyo;
     if(movie->video_st)
     {
-    	pyo= PyInt_FromLong((long)movie->video_st->codec->height);
+    	if(movie->height)
+    		{pyo=PyInt_FromLong((long)movie->height);}
+    	else
+    		{pyo= PyInt_FromLong((long)movie->video_st->codec->height);}
     }
     else
     {
@@ -227,6 +269,23 @@ PyObject* _movie_get_height (PyMovie *movie, void *closure)
     }
     return pyo;
 }
+int _movie_set_height (PyMovie *movie, PyObject *height, void *closure)
+{
+	int h;
+	if(PyInt_Check(height))
+	{
+		h = (int)PyInt_AsLong(height);
+		movie->resize=1;
+		movie->height=h;
+		return 0;
+	}
+	else
+	{
+		return -1;
+	}
+	
+}
+
 
 PyObject *_movie_get_surface(PyMovie *movie, void *closure)
 {
@@ -259,6 +318,8 @@ int _movie_set_surface(PyObject *mov, PyObject *surface, void *closure)
                 "Pause movie."},
    { "rewind", (PyCFunction) _movie_rewind, METH_VARARGS,
                 "Rewind movie to time_pos. If there is no time_pos, same as stop."},
+   { "resize", (PyCFunction) _movie_resize, METH_VARARGS,
+   				"Resize video to  specified width and height, in that order."},
    { NULL, NULL, 0, NULL }
 };
 
@@ -266,8 +327,8 @@ int _movie_set_surface(PyObject *mov, PyObject *surface, void *closure)
 {
     { "paused",  (getter) _movie_get_paused,  NULL,                        NULL, NULL },
     { "playing", (getter) _movie_get_playing, NULL,                        NULL, NULL },
-    { "height",  (getter) _movie_get_height,  NULL,                        NULL, NULL },
-    { "width",   (getter) _movie_get_width,   NULL,                        NULL, NULL },
+    { "height",  (getter) _movie_get_height,  (setter) _movie_set_height,  NULL, NULL },
+    { "width",   (getter) _movie_get_width,   (setter) _movie_set_width,   NULL, NULL },
     { "surface", (getter) _movie_get_surface, (setter) _movie_set_surface, NULL, NULL },
     { NULL,      NULL,                        NULL,                        NULL, NULL }
 };

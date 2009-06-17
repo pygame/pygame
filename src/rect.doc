@@ -56,7 +56,7 @@ edge of pixels. If one Rect's bottom border is another Rect's top border
 but do not overlap, and rect1.colliderect(rect2) returns false.
 
 Though Rect can be subclassed, methods that return new rectangles are not
-subclass aware. That is, move or copy with return a new pygame.Rect instance,
+subclass aware. That is, move or copy return a new pygame.Rect instance,
 not an instance of the subclass. This may change. To make subclass awareness
 work though, subclasses may have to maintain the same constructor signature
 as Rect.
