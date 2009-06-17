@@ -210,12 +210,12 @@ PyObject* _movie_resize       (PyMovie *movie, PyObject* args)
 }
  PyObject* _movie_get_paused (PyMovie *movie, void *closure)
 {
-    return PyInt_FromLong((long)movie->paused);
+    return PyBool_FromLong((long)movie->paused);
 }
 PyObject* _movie_get_playing (PyMovie *movie, void *closure)
 {
     PyObject *pyo;
-    pyo= PyInt_FromLong((long)movie->playing);
+    pyo= PyBool_FromLong((long)movie->playing);
     return pyo;
 }
 
@@ -310,34 +310,29 @@ int _movie_set_surface(PyObject *mov, PyObject *surface, void *closure)
 }
 
  static PyMethodDef _movie_methods[] = {
-   { "play",    (PyCFunction) _movie_play, METH_VARARGS,
-               "Play the movie file from current time-mark. If loop<0, then it will loop infinitely. If there is no loop value, then it will play once." },
-   { "stop", (PyCFunction) _movie_stop, METH_NOARGS,
-                "Stop the movie, and set time-mark to 0:0"},
-   { "pause", (PyCFunction) _movie_pause, METH_NOARGS,
-                "Pause movie."},
-   { "rewind", (PyCFunction) _movie_rewind, METH_VARARGS,
-                "Rewind movie to time_pos. If there is no time_pos, same as stop."},
-   { "resize", (PyCFunction) _movie_resize, METH_VARARGS,
-   				"Resize video to  specified width and height, in that order."},
-   { NULL, NULL, 0, NULL }
+   { "play",   (PyCFunction) _movie_play,   METH_VARARGS, DOC_GMOVIEMOVIEPLAY},
+   { "stop",   (PyCFunction) _movie_stop,   METH_NOARGS,  DOC_GMOVIEMOVIESTOP},
+   { "pause",  (PyCFunction) _movie_pause,  METH_NOARGS,  DOC_GMOVIEMOVIEPAUSE},
+   { "rewind", (PyCFunction) _movie_rewind, METH_VARARGS, DOC_GMOVIEMOVIEREWIND},
+   { "resize", (PyCFunction) _movie_resize, METH_VARARGS, DOC_GMOVIEMOVIERESIZE},
+   { NULL,     NULL,                        0,            NULL }
 };
 
  static PyGetSetDef _movie_getsets[] =
 {
-    { "paused",  (getter) _movie_get_paused,  NULL,                        NULL, NULL },
-    { "playing", (getter) _movie_get_playing, NULL,                        NULL, NULL },
-    { "height",  (getter) _movie_get_height,  (setter) _movie_set_height,  NULL, NULL },
-    { "width",   (getter) _movie_get_width,   (setter) _movie_set_width,   NULL, NULL },
-    { "surface", (getter) _movie_get_surface, (setter) _movie_set_surface, NULL, NULL },
-    { NULL,      NULL,                        NULL,                        NULL, NULL }
+    { "paused",  (getter) _movie_get_paused,  NULL,                        DOC_GMOVIEMOVIEPAUSE,   NULL },
+    { "playing", (getter) _movie_get_playing, NULL,                        DOC_GMOVIEMOVIEPLAYING, NULL },
+    { "height",  (getter) _movie_get_height,  (setter) _movie_set_height,  DOC_GMOVIEMOVIEHEIGHT,  NULL },
+    { "width",   (getter) _movie_get_width,   (setter) _movie_set_width,   DOC_GMOVIEMOVIEWIDTH,   NULL },
+    { "surface", (getter) _movie_get_surface, (setter) _movie_set_surface, DOC_GMOVIEMOVIESURFACE, NULL },
+    { NULL,      NULL,                        NULL,                        NULL,                   NULL }
 };
 
  static PyTypeObject PyMovie_Type =
 {
     PyObject_HEAD_INIT(NULL)
     0, 
-    "pygame.gmovie.Movie",          /* tp_name */
+    "pygame._movie.Movie",          /* tp_name */
     sizeof (PyMovie),           /* tp_basicsize */
     0,                          /* tp_itemsize */
     (destructor) _movie_dealloc,/* tp_dealloc */
@@ -356,7 +351,7 @@ int _movie_set_surface(PyObject *mov, PyObject *surface, void *closure)
     0,                          /* tp_setattro */
     0,                          /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
-    0,                          /* tp_doc */
+    DOC_GMOVIE,                 /* tp_doc */
     0,                          /* tp_traverse */
     0,                          /* tp_clear */
     0,                          /* tp_richcompare */
@@ -383,7 +378,8 @@ int _movie_set_surface(PyObject *mov, PyObject *surface, void *closure)
     0,                          /* tp_weaklist */
     0                           /* tp_del */
 };
-
+/*DOC*/ static char _movie_doc[] =
+/*DOC*/    "ffmpeg wrapper module for pygame";
 
 PyMODINIT_FUNC
 init_movie(void)
@@ -414,7 +410,7 @@ init_movie(void)
    }*/
    // Create the module
    
-   module = Py_InitModule3 ("_movie", NULL, "pygame._movie plays movies and streams."); //movie doc needed
+   module = Py_InitModule3 ("_movie", NULL, _movie_doc); //movie doc needed
 
    if (module == NULL) {
       return;
@@ -435,8 +431,6 @@ init_movie(void)
    uint8_t *s = (uint8_t *)"FLUSH";
    flush_pkt.data= s;
    
-   
-
    // Add the type to the module.
    Py_INCREF(&PyMovie_Type);
    PyModule_AddObject(module, "Movie", (PyObject*)&PyMovie_Type);
