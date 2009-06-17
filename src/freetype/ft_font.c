@@ -179,7 +179,7 @@ _ftfont_dealloc(PyFreeTypeFont *self)
 {
     /* Always try to unload the font even if we cannot grab
      * a freetype instance. */
-    PGFT_UnloadFont(_get_freetype(), self);
+    PGFT_UnloadFont(FREETYPE_STATE->freetype, self);
 
     ((PyObject*)self)->ob_type->tp_free((PyObject *)self);
 }

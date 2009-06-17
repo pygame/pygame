@@ -25,10 +25,8 @@
 #include "pgfreetype.h"
 #include "freetypebase_doc.h"
 
-static FreeTypeInstance *__freetype = NULL;
-
-static int _init(void);
-static void _quit(void);
+static int _ft_traverse (PyObject *mod, visitproc visit, void *arg);
+static int _ft_clear (PyObject *mod);
 
 static PyObject *_ft_quit(PyObject *self);
 static PyObject *_ft_init(PyObject *self);
@@ -69,48 +67,6 @@ static PyMethodDef _ft_methods[] =
     { NULL, NULL, 0, NULL },
 };
 
-/*
- * Get a pointer to the active FT library
- *
- * TODO: Someday this should automatically handle returning
- * libraries based on the active thread to prevent multi-
- * threading issues.
- */
-FreeTypeInstance *
-_get_freetype(void)
-{
-    return __freetype;
-}
-
-/*
- * Deinitialize the FreeType library.
- */
-static void
-_quit(void)
-{
-    if (__freetype)
-    {
-        PGFT_Quit(__freetype);
-        __freetype = NULL;
-    }
-}
-
-/*
- * Initialize the FreeType library.
- */
-static int
-_init(void)
-{
-    FT_Error error;
-
-    if (__freetype)
-        return 0;
-
-    error = PGFT_Init(&__freetype);
-
-    return (error);
-}
-
 /***************************************************************
  *
  * Bindings for initialization/cleanup functions
@@ -127,14 +83,24 @@ _init(void)
 static PyObject *
 _ft_quit(PyObject *self)
 {
-    _quit();
+    if (FREETYPE_MOD_STATE (self)->freetype)
+    {
+        PGFT_Quit(FREETYPE_MOD_STATE (self)->freetype);
+        FREETYPE_MOD_STATE (self)->freetype = NULL;
+    }
     Py_RETURN_NONE;
 }
 
 static PyObject *
 _ft_init(PyObject *self)
 {
-    if (_init() != 0)
+    FT_Error error;
+
+    if (FREETYPE_MOD_STATE (self)->freetype)
+        Py_RETURN_NONE;
+
+    error = PGFT_Init(&(FREETYPE_MOD_STATE (self)->freetype));
+    if (error != 0)
     {
         /* TODO: More accurate error message */
         PyErr_SetString(PyExc_PyGameError, 
@@ -156,8 +122,42 @@ _ft_get_version(PyObject *self)
 static PyObject *
 _ft_was_init(PyObject *self)
 {
-    return PyBool_FromLong((__freetype != 0));
+    return PyBool_FromLong((FREETYPE_MOD_STATE (self)->freetype != NULL));
 }
+
+
+static int
+_ft_traverse (PyObject *mod, visitproc visit, void *arg)
+{
+    return 0;
+}
+
+static int
+_ft_clear (PyObject *mod)
+{
+    if (FREETYPE_MOD_STATE(mod)->freetype)
+    {
+        PGFT_Quit(FREETYPE_MOD_STATE(mod)->freetype);
+        FREETYPE_MOD_STATE(mod)->freetype = NULL;
+    }
+    return 0;
+}
+
+#ifdef IS_PYTHON_3
+struct PyModuleDef _freetypemodule = {
+    PyModuleDef_HEAD_INIT,
+    "base",
+    DOC_BASE, 
+    sizeof (_FreeTypeState),
+    _ft_methods,
+    NULL,
+    _ft_traverse,
+    _ft_clear,
+    NULL
+};
+#else
+_FreeTypeState _modstate;
+#endif
 
 PyMODINIT_FUNC
 #ifdef IS_PYTHON_3
@@ -171,29 +171,15 @@ PyMODINIT_FUNC
     static void *c_api[PYGAME_FREETYPE_SLOTS];
 
 #ifdef IS_PYTHON_3
-
-    /* Python 3 module initialization needs a PyModuleDef struct */
-    static struct PyModuleDef _module = {
-        PyModuleDef_HEAD_INIT,
-        "base",
-        DOC_BASE,
-        -1,
-        _ft_methods,
-        NULL, NULL, NULL, NULL
-    };
-
-    mod = PyModule_Create(&_module);
-
+    mod = PyModule_Create(&_freetypemodule);
 #else
-
     /* Standard init for 2.x module */
     mod = Py_InitModule3 ("base", _ft_methods, DOC_BASE);
-
 #endif
 
     if (!mod)
         goto fail;
-
+    FREETYPE_MOD_STATE(mod)->freetype = NULL;
 
     /* Import Pygame2 Base API to access PyFont_Type */
     if (import_pygame2_base() < 0)
@@ -216,6 +202,13 @@ PyMODINIT_FUNC
 
     if (c_api_obj)
         PyModule_AddObject(mod, PYGAME_FREETYPE_ENTRY, c_api_obj);    
+
+#ifdef HAVE_PYGAME_SDL_VIDEO
+    if (import_pygame2_sdl_base () < 0)
+        goto fail;
+    if (import_pygame2_sdl_video () < 0)
+        goto fail;
+#endif /* HAVE_PYGAME_SDL_VIDEO */
 
     MODINIT_RETURN(mod);
 

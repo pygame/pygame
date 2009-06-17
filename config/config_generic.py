@@ -241,7 +241,7 @@ class Dependency (object):
         if not self.configured:
             module.canbuild = optional
             return
-        
+
         # update compiler/linker args for the module
         module.cflags += self.cflags
         module.lflags += self.lflags

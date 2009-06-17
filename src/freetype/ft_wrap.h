@@ -24,6 +24,10 @@
 #define PYGAME_FREETYPE_INTERNAL
 #include "pgfreetype.h"
 
+#ifdef HAVE_PYGAME_SDL_VIDEO
+#   include "pgsdl.h"
+#endif
+
 typedef struct
 {
     FT_Library library;
@@ -35,10 +39,23 @@ typedef struct
     char *_error_msg;
 } FreeTypeInstance;
 
-FreeTypeInstance *_get_freetype(void);
+
+typedef struct {
+    FreeTypeInstance *freetype;
+} _FreeTypeState;
+
+#ifdef IS_PYTHON_3
+extern struct PyModuleDef _freetypemodule;
+#define FREETYPE_MOD_STATE(mod) ((_FreeTypeState*)PyModule_GetState(mod))
+#define FREETYPE_STATE FREETYPE_MOD_STATE(PyState_FindModule(&_freetypemodule))
+#else
+extern _FreeTypeState _modstate;
+#define FREETYPE_MOD_STATE(mod) (&_modstate)
+#define FREETYPE_STATE FREETYPE_MOD_STATE(NULL)
+#endif
 
 #define ASSERT_GRAB_FREETYPE(ft_ptr, rvalue)                    \
-    ft_ptr = _get_freetype();                                   \
+    ft_ptr = FREETYPE_STATE->freetype;                          \
     if (ft_ptr == NULL)                                         \
     {                                                           \
         PyErr_SetString(PyExc_PyGameError,                      \

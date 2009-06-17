@@ -41,6 +41,9 @@ class Module:
         self.depends = list (depends or [])
         self.optional_dep = list(optional_dep or [])
 
+    def __repr__ (self):
+        return "<Module '%s'>" % self.name
+
 modules = [
 
     Module ("base",
@@ -313,7 +316,8 @@ modules = [
 
     Module ("freetype.constants",
         sources = [ "src/freetype/ft_constants.c" ],
-        depends = ['freetype']),
+        depends = ['freetype'],
+        optional_dep = ['SDL']),
 
     ]
 

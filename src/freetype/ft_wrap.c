@@ -20,11 +20,6 @@
 
 #define PYGAME_FREETYPE_INTERNAL
 
-#ifdef HAVE_PYGAME_SDL_VIDEO
-#   include <SDL.h>
-#   include "pgsdl.h"
-#endif
-
 #include "ft_mod.h"
 #include "ft_wrap.h"
 #include "pgfreetype.h"
@@ -47,11 +42,11 @@ FT_Face _PGFT_GetFace(FreeTypeInstance *, PyFreeTypeFont *);
 FT_Face _PGFT_GetFaceSized(FreeTypeInstance *, PyFreeTypeFont *, int);
 void    _PGFT_BuildScaler(PyFreeTypeFont *, FTC_Scaler, int);
 int     _PGFT_LoadGlyph(FreeTypeInstance *, PyFreeTypeFont *, int,
-                        FTC_Scaler, int, FT_Glyph *, FT_UInt32 *);
+    FTC_Scaler, int, FT_Glyph *, FT_UInt32 *);
 void    _PGFT_GetMetrics_INTERNAL(FT_Glyph, FT_UInt, int *, int *, int *, int *, int *);
 int     _PGFT_Render_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font, 
-            const FT_UInt16 *text, int font_size, 
-            FT_Byte *_buffer, int width, int height, int pitch);
+    const FT_UInt16 *text, int font_size, 
+    FT_Byte *_buffer, int width, int height, int pitch);
 
 
 static FT_Error
@@ -64,7 +59,7 @@ _PGFT_face_request(FTC_FaceID face_id,
     FT_Error error;
     
     Py_BEGIN_ALLOW_THREADS;
-        error = FT_Open_Face(library, &id->open_args, id->face_index, aface);
+    error = FT_Open_Face(library, &id->open_args, id->face_index, aface);
     Py_END_ALLOW_THREADS;
 
     return error;
@@ -103,20 +98,6 @@ _PGFT_SetError(FreeTypeInstance *ft, const char *error_msg, FT_Error error_id)
         strcpy(ft->_error_msg, error_msg);
 }
 
-
-#ifdef HAVE_SDL_VIDEO
-PyObject *
-PGFT_BuildSDLSurface(FT_Byte *buffer, int width, int height)
-{
-    SDL_Surface *surf;
-
-    surf = 
-
-    return PySDLSurface_NewFromSDLSurface(surf);
-}
-#endif
-
-
 FT_UInt16 *
 PGFT_BuildUnicodeString(PyObject *obj, int *must_free)
 {
@@ -135,34 +116,34 @@ PGFT_BuildUnicodeString(PyObject *obj, int *must_free)
     } else
 #endif
 
-    /*
-     * If we pass a Bytes array, we assume it's standard
-     * text encoded in Latin1 (SDL_TTF does the same).
-     * We need to expand each character into 2 bytes because
-     * FreeType expects UTF16 encodings.
-     *
-     * TODO: What happens if the user passes a byte array
-     * representing e.g. a UTF8 string? He would be mostly
-     * stupid, yes, but we should probably handle it.
-     */
-    if (Bytes_Check(obj))
-    {
-        const char *latin1_buffer;
-        size_t i, len;
+        /*
+         * If we pass a Bytes array, we assume it's standard
+         * text encoded in Latin1 (SDL_TTF does the same).
+         * We need to expand each character into 2 bytes because
+         * FreeType expects UTF16 encodings.
+         *
+         * TODO: What happens if the user passes a byte array
+         * representing e.g. a UTF8 string? He would be mostly
+         * stupid, yes, but we should probably handle it.
+         */
+        if (Bytes_Check(obj))
+        {
+            const char *latin1_buffer;
+            size_t i, len;
 
-        latin1_buffer = (const char *)Bytes_AsString(obj);
-        len = strlen(latin1_buffer);
+            latin1_buffer = (const char *)Bytes_AsString(obj);
+            len = strlen(latin1_buffer);
 
-        utf16_buffer = malloc((len + 1) * sizeof(FT_UInt16));
-        if (!utf16_buffer)
-            return NULL;
+            utf16_buffer = malloc((len + 1) * sizeof(FT_UInt16));
+            if (!utf16_buffer)
+                return NULL;
 
-        for (i = 0; i < len; ++i)
-            utf16_buffer[i] = (FT_UInt16)latin1_buffer[i];
+            for (i = 0; i < len; ++i)
+                utf16_buffer[i] = (FT_UInt16)latin1_buffer[i];
 
-        utf16_buffer[i] = 0;
-        *must_free = 1;
-    }
+            utf16_buffer[i] = 0;
+            *must_free = 1;
+        }
 
     return utf16_buffer;
 }
@@ -202,14 +183,14 @@ PGFT_Face_GetHeight(FreeTypeInstance *ft, PyFreeTypeFont *font)
 
 FT_Face
 _PGFT_GetFace(FreeTypeInstance *ft,
-        PyFreeTypeFont *font)
+    PyFreeTypeFont *font)
 {
     FT_Error error;
     FT_Face face;
 
     error = FTC_Manager_LookupFace(ft->cache_manager,
-            (FTC_FaceID)(&font->id),
-            &face);
+        (FTC_FaceID)(&font->id),
+        &face);
 
     if (error)
     {
@@ -231,8 +212,8 @@ _PGFT_BuildScaler(PyFreeTypeFont *font, FTC_Scaler scale, int size)
 
 FT_Face
 _PGFT_GetFaceSized(FreeTypeInstance *ft,
-        PyFreeTypeFont *font,
-        int face_size)
+    PyFreeTypeFont *font,
+    int face_size)
 {
     FT_Error error;
     FTC_ScalerRec scale;
@@ -245,7 +226,7 @@ _PGFT_GetFaceSized(FreeTypeInstance *ft,
      */
 
     error = FTC_Manager_LookupSize(ft->cache_manager, 
-            &scale, &_fts);
+        &scale, &_fts);
 
     if (error)
     {
@@ -258,12 +239,12 @@ _PGFT_GetFaceSized(FreeTypeInstance *ft,
 
 int
 _PGFT_LoadGlyph(FreeTypeInstance *ft, 
-        PyFreeTypeFont *font,
-        int do_render,
-        FTC_Scaler scale, 
-        int character, 
-        FT_Glyph *glyph, 
-        FT_UInt32 *_index)
+    PyFreeTypeFont *font,
+    int do_render,
+    FTC_Scaler scale, 
+    int character, 
+    FT_Glyph *glyph, 
+    FT_UInt32 *_index)
 {
     FT_Error error = 0;
     FT_UInt32 char_index;
@@ -273,7 +254,7 @@ _PGFT_LoadGlyph(FreeTypeInstance *ft,
         (FT_ULong)FT_LOAD_DEFAULT;
 
     char_index = FTC_CMapCache_Lookup(
-            ft->cache_charmap, 
+        ft->cache_charmap, 
             (FTC_FaceID)(&font->id),
             -1, (FT_UInt32)character);
 
@@ -286,7 +267,7 @@ _PGFT_LoadGlyph(FreeTypeInstance *ft,
     if (glyph)
     {
         error = FTC_ImageCache_LookupScaler(
-                ft->cache_img,
+            ft->cache_img,
                 scale,
                 render_mode,
                 char_index,
@@ -297,7 +278,7 @@ _PGFT_LoadGlyph(FreeTypeInstance *ft,
 }
 
 void _PGFT_GetMetrics_INTERNAL(FT_Glyph glyph, FT_UInt bbmode,
-        int *minx, int *maxx, int *miny, int *maxy, int *advance)
+    int *minx, int *maxx, int *miny, int *maxy, int *advance)
 {
     FT_BBox box;
     FT_Glyph_Get_CBox(glyph, bbmode, &box);
@@ -315,8 +296,8 @@ void _PGFT_GetMetrics_INTERNAL(FT_Glyph glyph, FT_UInt bbmode,
 
 
 int PGFT_GetMetrics(FreeTypeInstance *ft, PyFreeTypeFont *font,
-        int character, int font_size, int bbmode,
-        void *minx, void *maxx, void *miny, void *maxy, void *advance)
+    int character, int font_size, int bbmode,
+    void *minx, void *maxx, void *miny, void *maxy, void *advance)
 {
     FT_Error error;
     FTC_ScalerRec scale;
@@ -348,7 +329,7 @@ int PGFT_GetMetrics(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
 int
 PGFT_GetTextSize(FreeTypeInstance *ft, PyFreeTypeFont *font,
-        const FT_UInt16 *text, int font_size, int *w, int *h)
+    const FT_UInt16 *text, int font_size, int *w, int *h)
 {
     const FT_UInt16 *ch;
     int swapped, use_kerning;
@@ -398,31 +379,31 @@ PGFT_GetTextSize(FreeTypeInstance *ft, PyFreeTypeFont *font,
             continue;
 
         _PGFT_GetMetrics_INTERNAL(glyph, FT_GLYPH_BBOX_PIXELS,
-                &gl_minx, &gl_maxx, &gl_miny, &gl_maxy, &gl_advance);
+            &gl_minx, &gl_maxx, &gl_miny, &gl_maxy, &gl_advance);
 
         if (use_kerning && prev_index)
         {
-			FT_Vector delta;
-			FT_Get_Kerning(face, prev_index, cur_index, ft_kerning_default, &delta); 
-			x += delta.x >> 6;
-		}
+            FT_Vector delta;
+            FT_Get_Kerning(face, prev_index, cur_index, ft_kerning_default, &delta); 
+            x += delta.x >> 6;
+        }
 
         z = x + gl_minx;
-		if (minx > z)
-			minx = z;
+        if (minx > z)
+            minx = z;
 		
         /* TODO: Handle bold fonts */
 
         z = x + MAX(gl_maxx, gl_advance);
-		if (maxx < z)
-			maxx = z;
+        if (maxx < z)
+            maxx = z;
 
 #ifndef METRICS_RETURN_AVERAGED_HEIGHT
         miny = MIN(gl_miny, miny);
         maxy = MAX(gl_maxy, maxy);
 #endif
 
-		x += gl_advance;
+        x += gl_advance;
         prev_index = cur_index;
     }
 
@@ -442,9 +423,9 @@ PGFT_GetTextSize(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
 #ifdef HAVE_PYGAME_SDL_VIDEO
 PyObject *PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
-        const FT_UInt16 *text, int font_size, int *_width, int *_height)
+    const FT_UInt16 *text, int font_size, int *_width, int *_height)
 {
-    int width, height;
+    int width, height, locked = 0;
     SDL_Surface *surface = NULL;
 
     if (PGFT_GetTextSize(ft, font, text, font_size, &width, &height) != 0 ||
@@ -455,14 +436,28 @@ PyObject *PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
     }
 
     surface = SDL_CreateRGBSurface(SDL_SWSURFACE,
-				    width, height, 8, 0, 0, 0, 0);
+        width, height, 8, 0, 0, 0, 0);
 
     if (!surface)
+    {
+        _PGFT_SetError(ft, SDL_GetError (), 0);
         return NULL;
+    }
+
+    if (SDL_MUSTLOCK (surface))
+    {
+        if (SDL_LockSurface (surface) == -1)
+        {
+            _PGFT_SetError(ft, SDL_GetError (), 0);
+            SDL_FreeSurface (surface);
+            return NULL;
+        }
+        locked = 1;
+    }
 
     if (_PGFT_Render_INTERNAL(ft, font, text, font_size, 
-                surface->pixels,
-                surface->w, surface->h, surface->pitch) != 0)
+            surface->pixels,
+            surface->w, surface->h, surface->pitch) != 0)
     {
         _PGFT_SetError(ft, "Failed to render text", 0);
         SDL_FreeSurface(surface);
@@ -472,12 +467,15 @@ PyObject *PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
     *_width = width;
     *_height = height;
 
+    if (locked)
+        SDL_UnlockSurface (surface);
+
     return PySDLSurface_NewFromSDLSurface(surface);
 }
 #endif
 
 PyObject *PGFT_Render_PixelArray(FreeTypeInstance *ft, PyFreeTypeFont *font,
-        const FT_UInt16 *text, int font_size, int *_width, int *_height)
+    const FT_UInt16 *text, int font_size, int *_width, int *_height)
 {
     int width, height;
     FT_Byte *buffer = NULL;
@@ -490,12 +488,15 @@ PyObject *PGFT_Render_PixelArray(FreeTypeInstance *ft, PyFreeTypeFont *font,
         goto cleanup;
     }
 
-	buffer = calloc((size_t)(width * height), sizeof(FT_Byte));
-	if (!buffer)
-		goto cleanup;
+    buffer = calloc((size_t)(width * height), sizeof(FT_Byte));
+    if (!buffer)
+    {
+        _PGFT_SetError(ft, "Could not allocate memory", 0);
+        goto cleanup;
+    }
 
     if (_PGFT_Render_INTERNAL(ft, font, text, 
-                font_size, buffer, width, height, width) != 0)
+            font_size, buffer, width, height, width) != 0)
     {
         _PGFT_SetError(ft, "Failed to render text", 0);
         goto cleanup;
@@ -507,14 +508,15 @@ PyObject *PGFT_Render_PixelArray(FreeTypeInstance *ft, PyFreeTypeFont *font,
     array = Bytes_FromStringAndSize(buffer, width * height);
 
 cleanup:
-    free(buffer);
+    if (buffer)
+        free(buffer);
 
     return array;
 }
 
 int _PGFT_Render_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font, 
-        const FT_UInt16 *text, int font_size, 
-        FT_Byte *_buffer, int width, int height, int pitch)
+    const FT_UInt16 *text, int font_size, 
+    FT_Byte *_buffer, int width, int height, int pitch)
 {
     const FT_UInt16 *ch;
 
@@ -526,7 +528,7 @@ int _PGFT_Render_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font,
     FT_UInt32 prev_index, cur_index;
 
     int swapped, use_kerning;
-	int pen_x, pen_y;
+    int pen_x, pen_y;
     int x_advance;
 
     FT_Byte *_buffer_cap;
@@ -540,8 +542,8 @@ int _PGFT_Render_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font,
         return -1;
     }
 
-	_buffer_cap = _buffer + (width * height);
-	use_kerning = FT_HAS_KERNING(face);
+    _buffer_cap = _buffer + (width * height);
+    use_kerning = FT_HAS_KERNING(face);
     prev_index = 0;
 
     /* FIXME: Some way to set the system's default ? */
@@ -574,10 +576,10 @@ int _PGFT_Render_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
         if (use_kerning && prev_index)
         {
-			FT_Vector delta;
-			FT_Get_Kerning(face, prev_index, cur_index, ft_kerning_default, &delta); 
-			pen_x += delta.x >> 6;
-		}
+            FT_Vector delta;
+            FT_Get_Kerning(face, prev_index, cur_index, ft_kerning_default, &delta); 
+            pen_x += delta.x >> 6;
+        }
 
         x_advance = (glyph->advance.x + 0x8000) >> 16;
 
@@ -601,9 +603,9 @@ int _PGFT_Render_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font,
                 if (dst < _buffer || dst + bitmap->width > _buffer_cap)
                 {
                     fprintf(stderr, 
-                            "HEAP CORRUPTION rendering '%c': "
-                            "text size(%d, %d) | left %d | top %d | pen_x %d | pen_y %d |\n",
-                            c, width, height, left, top, pen_x, pen_y);
+                        "HEAP CORRUPTION rendering '%c': "
+                        "text size(%d, %d) | left %d | top %d | pen_x %d | pen_y %d |\n",
+                        c, width, height, left, top, pen_x, pen_y);
                     continue;
                 }
 
@@ -616,7 +618,7 @@ int _PGFT_Render_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
 
         pen_x += x_advance + 1;
-		prev_index = cur_index;
+        prev_index = cur_index;
     }
 
     return 0;
@@ -625,15 +627,20 @@ int _PGFT_Render_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
 int
 PGFT_TryLoadFont_Filename(FreeTypeInstance *ft, 
-        PyFreeTypeFont *font, 
-        const char *filename, 
-        int face_index)
+    PyFreeTypeFont *font, 
+    const char *filename, 
+    int face_index)
 {
     char *filename_alloc;
     size_t file_len;
 
     file_len = strlen(filename);
     filename_alloc = malloc(file_len + 1);
+    if (!filename_alloc)
+    {
+        _PGFT_SetError(ft, "Could not allocate memory", 0);
+        return -1;
+    }
 
     strcpy(filename_alloc, filename);
     filename_alloc[file_len] = 0;
