@@ -1548,52 +1548,16 @@ _color_ass_item (PyColor *color, Py_ssize_t _index, PyObject *value)
 
 
 static PyObject *
-_color_slice(register PyColor *a, register Py_ssize_t ilow, 
-           register Py_ssize_t ihigh)
+_color_slice(register PyColor *a, 
+             register Py_ssize_t ilow, 
+             register Py_ssize_t ihigh)
 {
-/*
-        register PyColor *np;
-        PyObject **src, **dest;
-        register Py_ssize_t i;
+
         Py_ssize_t len;
-        Uint8 anrgba[4];
-        anrgba[0] = 0;
-        anrgba[1] = 0;
-        anrgba[2] = 0;
-        anrgba[3] = 0;
+        Py_ssize_t c1, c2, c3, c4;
+        c1=0;c2=0;c3=0;c4=0;
 
-        if (ilow < 0)
-                ilow = 0;
-        if (ihigh > a->ob_size)
-                ihigh = a->ob_size;
-        if (ihigh < ilow)
-                ihigh = ilow;
-        if (ilow == 0 && ihigh == a->ob_size && PyTuple_CheckExact(a)) {
-                Py_INCREF(a);
-                return (PyObject *)a;
-        }
-        len = ihigh - ilow;
-        np = (PyColor *)PyColor_New(anrgba);
-        if (np == NULL)
-                return NULL;
-        src = a->ob_item + ilow;
-        dest = np->ob_item;
-        for (i = 0; i < len; i++) {
-                PyObject *v = src[i];
-                Py_INCREF(v);
-                dest[i] = v;
-        }
-        return (PyObject *)np;
-
-*/
-
-        register PyTupleObject *np;
-        PyObject **src, **dest;
-        register Py_ssize_t i;
-        Py_ssize_t len;
-        PyColor *color;
-
-        color = a;
+        /* printf("ilow :%d:, ihigh:%d:\n", ilow, ihigh); */
 
         if (ilow < 0)
                 ilow = 0;
@@ -1601,27 +1565,42 @@ _color_slice(register PyColor *a, register Py_ssize_t ilow,
                 ihigh = 4;
         if (ihigh < ilow)
                 ihigh = ilow;
-        if (ilow == 0 && ihigh == 4 && PyTuple_CheckExact(a)) {
-                Py_INCREF(a);
-                return (PyObject *)a;
-        }
+
         len = ihigh - ilow;
+        /* printf("2 ilow :%d:, ihigh:%d: len:%d:\n", ilow, ihigh, len); */
         
-        /* TODO: this isn't right... need to take into account high and low
-        */
-        if(len == 4) {
-            return Py_BuildValue ("(iiii)",color->r,color->g,color->b,color->a);
-        } else if(len == 3) {
-            return Py_BuildValue ("(iii)",color->r,color->g,color->b);
-        } else if(len == 2) {
-            return Py_BuildValue ("(ii)",color->r,color->g);
-        } else if(len == 1) {
-            return Py_BuildValue ("(i)",color->r);
-        } else {
-            return Py_BuildValue ("(i)",color->r);
+        if(ilow == 0) {
+            c1 = a->r;
+            c2 = a->g;
+            c3 = a->b;
+            c4 = a->a;
+        } else if(ilow == 1) {
+            c1 = a->g;
+            c2 = a->b;
+            c3 = a->a;
+
+        } else if(ilow == 2) {
+            c1 = a->b;
+            c2 = a->a;
+
+        } else if(ilow == 3) {
+            c1 = a->a;
         }
 
 
+
+        /* return a tuple depending on which elements are wanted.  */
+        if(len == 4) {
+            return Py_BuildValue ("(iiii)",c1,c2,c3,c4);
+        } else if(len == 3) {
+            return Py_BuildValue ("(iii)",c1,c2,c3);
+        } else if(len == 2) {
+            return Py_BuildValue ("(ii)",c1,c2);
+        } else if(len == 1) {
+            return Py_BuildValue ("(i)",c1);
+        } else {
+            return Py_BuildValue ("()");
+        }
 }
 
 
