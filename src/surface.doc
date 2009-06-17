@@ -348,13 +348,15 @@ get_at
 get the color value at a single pixel
 Surface.get_at((x, y)): return Color
 
-Return the RGBA color value at the given pixel. If the Surface has no per
-pixel alpha, then the alpha value will always be 255 (opaque). If the pixel
-position is outside the area of the Surface an IndexError exception will
-be raised.
+Return a copy of the RGBA Color value at the given pixel. If the Surface has 
+no per pixel alpha, then the alpha value will always be 255 (opaque). 
+If the pixel position is outside the area of the Surface an IndexError 
+exception will be raised.
 
 Getting and setting pixels one at a time is generally too slow to be used
-in a game or realtime situation.
+in a game or realtime situation.  It is better to use methods which operate 
+on many pixels at a time like with the blit, fill and draw methods - 
+or by using surfarray/PixelArray.
 
 This function will temporarily lock and unlock the Surface as needed.
 
