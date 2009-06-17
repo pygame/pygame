@@ -17,7 +17,7 @@
 		self->canon_surf=surf;
 	}
 	self->start_time = AV_NOPTS_VALUE;
-	self=stream_open(self, filename, NULL);
+	self=stream_open(self, filename, NULL, 0);
 	if(!self)
 	{
 		PyErr_SetString(PyExc_IOError, "stream_open failed");
@@ -40,18 +40,13 @@
         PyErr_SetString(PyExc_TypeError, "No valid arguments");
     	return -1;
     }
-    PySys_WriteStdout("Value of surf: %i\n", surf ? 1 : 0);
-    PySys_WriteStdout("Value of PySurface_Check(surf): %i\n", PySurface_Check(surf));
-    
-    if(surf)
+    if(surf && PySurface_Check(surf))
     {
-    	PySys_WriteStdout("Found a valid surface...\n");
     	SDL_Surface *target = PySurface_AsSurface(surf);
     	self= _movie_init_internal((PyMovie *)self, c, target);	
     }
     else
     {
-    	PySys_WriteStdout("Did not find a surface... wonder why?\n");
 		self = _movie_init_internal((PyMovie *)self, c, NULL);
     }
 	PyObject *er;
@@ -126,21 +121,21 @@ char *format_timestamp(double pts, char *buf)
 PyObject* _movie_repr (PyMovie *movie)
 {
     /*Eventually add a time-code call */
-    DECLAREGIL
-    GRABGIL
     Py_INCREF(movie);
     char buf[150];
     char buf2[50];
     PyOS_snprintf(buf, sizeof(buf), "(Movie: %s, %s)", movie->filename, format_timestamp(movie->pts, buf2));
-    Py_DECREF(movie);
     PyObject *buffer = PyString_FromString(buf);
-    RELEASEGIL
     return buffer;
 }
  PyObject* _movie_play(PyMovie *movie, PyObject* args)
 {
 	PyEval_InitThreads();
-	DECLAREGIL
+	PyInterpreterState *interp;
+	PyThreadState *thread;
+	thread=PyThreadState_Get();
+	interp = thread->interp;
+	movie->_tstate = PyThreadState_New(interp);
 	Py_INCREF(movie);
     //PySys_WriteStdout("Inside .play\n");
     int loops;
@@ -153,18 +148,14 @@ PyObject* _movie_repr (PyMovie *movie)
     movie->paused = 0;
     movie->playing = 1;
     SDL_UnlockMutex(movie->dest_mutex);
-    if(gstate==PyGILState_LOCKED) RELEASEGIL	
+	PyEval_ReleaseLock();	
 	movie->parse_tid = SDL_CreateThread(decoder_wrapper, movie);
-    GRABGIL
     Py_DECREF(movie);
-    RELEASEGIL
     Py_RETURN_NONE;
 }
 
  PyObject* _movie_stop(PyMovie *movie)
 {
-	DECLAREGIL
-	GRABGIL
     Py_INCREF(movie);
     SDL_LockMutex(movie->dest_mutex);
     stream_pause(movie);
@@ -174,7 +165,6 @@ PyObject* _movie_repr (PyMovie *movie)
     movie->stop = 1;
     SDL_UnlockMutex(movie->dest_mutex);  
     Py_DECREF(movie);
-	RELEASEGIL
     Py_RETURN_NONE;
 }  
 
@@ -204,7 +194,7 @@ PyObject* _movie_resize       (PyMovie *movie, PyObject* args)
 	}
 	movie->height = h;
 	movie->width  = w;
-	movie->resize = 1;	
+	movie->resize_w =  movie->resize_h= 1;	
 	Py_RETURN_NONE;
 	
 }
@@ -242,7 +232,7 @@ int _movie_set_width (PyMovie *movie, PyObject *width, void *closure)
 	if(PyInt_Check(width))
 	{
 		w = (int)PyInt_AsLong(width);
-		movie->resize=1;
+		movie->resize_w=1;
 		movie->width=w;
 		return 0;
 	}
@@ -275,7 +265,7 @@ int _movie_set_height (PyMovie *movie, PyObject *height, void *closure)
 	if(PyInt_Check(height))
 	{
 		h = (int)PyInt_AsLong(height);
-		movie->resize=1;
+		movie->resize_h=1;
 		movie->height=h;
 		return 0;
 	}
@@ -389,7 +379,7 @@ init_movie(void)
     /* imported needed apis; Do this first so if there is an error
        the module is not loaded.
     */
-    //import_pygame_base ();
+    import_pygame_base ();
     if (PyErr_Occurred ()) {
         MODINIT_ERROR;
     }

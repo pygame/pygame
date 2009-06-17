@@ -92,9 +92,9 @@
 #define THREADFREE 0
 
 #if THREADFREE!=1
-	#define DECLAREGIL PyGILState_STATE gstate;
-	#define GRABGIL    gstate=PyGILState_Ensure();
-	#define RELEASEGIL if(gstate!=PyGILState_UNLOCKED) {PyGILState_Release(gstate);}
+	#define DECLAREGIL PyThreadState *_oldtstate;
+	#define GRABGIL    PyEval_AcquireLock();_oldtstate = PyThreadState_Swap(movie->_tstate);
+	#define RELEASEGIL PyThreadState_Swap(_oldtstate); PyEval_ReleaseLock(); 
 #else
 	#define DECLAREGIL 
 	#define GRABGIL   
@@ -187,14 +187,16 @@ typedef struct PyMovie {
     int ytop;
     int xleft;
     int loops;
-    int resize;
+    int resize_h;
+    int resize_w;
 	int64_t start_time;
 	AVInputFormat *iformat;
 	SDL_mutex *dest_mutex;
 	int av_sync_type;
 	AVFormatContext *ic;    /* context information about the format of the video file */
 	int stop;
-	SDL_Surface *canon_surf;	
+	SDL_Surface *canon_surf;
+	PyThreadState *_tstate; //really do not touch this unless you have to.	
 	
 	/* Seek-info */
     int seek_req;
@@ -321,10 +323,10 @@ int subtitle_thread(void *arg);
 /* 		General Movie Management */
 void stream_seek(PyMovie *is, int64_t pos, int rel);
 void stream_pause(PyMovie *is);
-int stream_component_open(PyMovie *is, int stream_index); //TODO: break down into separate functions
+int stream_component_open(PyMovie *is, int stream_index, int threaded); //TODO: break down into separate functions
 void stream_component_close(PyMovie *is, int stream_index);
 int decoder(void *arg);
-PyMovie *stream_open(PyMovie *is, const char *filename, AVInputFormat *iformat);
+PyMovie *stream_open(PyMovie *is, const char *filename, AVInputFormat *iformat, int threaded);
 void stream_close(PyMovie *is);
 void stream_cycle_channel(PyMovie *is, int codec_type);
 int decoder_wrapper(void *arg);
