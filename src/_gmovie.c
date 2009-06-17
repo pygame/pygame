@@ -462,13 +462,12 @@ void ConvertYUV420PtoRGBA( AVPicture *YUV420P, SDL_Surface *OUTPUT, int interlac
 		}
 
         for(x=0; x<OUTPUT->w; x++){
-
+			//endianess issue here... red has to be shifted by 16, green by 8, and blue gets no shift. 
 			/* shift components to the correct place in pixel */
-			*RGBA =   clamp0_255( __Y[*Y] + __CrtoR[*V] )							| /* red */
-					( clamp0_255( __Y[*Y] - __CrtoG[*V] - __CbtoG[*U] )	<<  8 )		| /* green */
-					( clamp0_255( __Y[*Y] + __CbtoB[*U] )				<< 16 )		| /* blue */
+			*RGBA =   (clamp0_255( __Y[*Y] + __CrtoR[*V])  << (long) 16)						| /* red */
+					( clamp0_255( __Y[*Y] - __CrtoG[*V] - __CbtoG[*U] )	<<  (long)8 )		| /* green */
+					( clamp0_255( __Y[*Y] + __CbtoB[*U] )				/*<<  (long)16*/ )		| /* blue */
 					0xFF000000;
-
 			/* goto next pixel */
 			RGBA++;
 
@@ -666,6 +665,10 @@ int video_open(PyMovie *movie, int index){
 			{tw=screen->w;}
 		if(!movie->resize_h)
 			{th=screen->h;}
+		/*GRABGIL
+		PySys_WriteStdout("screen->BitsPerPixel: %i\nscreen->RMask: %i\nscreen->Gmask: %i\nscreen->Bmask: %i\nscreen->Amask: %i\n",
+		 screen->format->BitsPerPixel, screen->format->Rmask, screen->format->Gmask, screen->format->Bmask, screen->format->Amask);
+		RELEASEGIL*/
         vp->dest_surface = SDL_CreateRGBSurface(screen->flags, 
         										tw, 
         										th, 
