@@ -218,11 +218,32 @@ class ColorTypeTest (unittest.TestCase):
         self.assertEquals(pygame.color.Color('red'), pygame.color.Color(' r e d '))
 
     def test_slice(self):
-        #TODO: do all sorts of slice combinations.
+        # slicing a color gives you back a tuple.
+        # do all sorts of slice combinations.
         c = pygame.Color(1,2,3,4)
-        parts = c[:-1]
-        self.assertEquals((1,2,3), parts)
-
+        
+        self.assertEquals((1,2,3,4), c[:])
+        self.assertEquals((1,2,3), c[:-1])
+        
+        self.assertEquals((), c[:-5])
+        
+        self.assertEquals((1,2,3,4), c[:4])
+        self.assertEquals((1,2,3,4), c[:5])
+        self.assertEquals((1,2), c[:2])
+        self.assertEquals((1,), c[:1])
+        self.assertEquals((), c[:0])
+        
+        
+        self.assertEquals((2,), c[1:-2])
+        self.assertEquals((3, 4), c[-2:])
+        self.assertEquals((4,), c[-1:])
+        
+        
+        # NOTE: assigning to a slice is currently unsupported.
+        
+        
+        
+        
     def test_case_insensitivity_of_string_args(self):
         self.assertEquals(pygame.color.Color('red'), pygame.color.Color('Red'))
     
