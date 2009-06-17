@@ -462,13 +462,27 @@ void ConvertYUV420PtoRGBA( AVPicture *YUV420P, SDL_Surface *OUTPUT, int interlac
 		}
 
         for(x=0; x<OUTPUT->w; x++){
-			//endianess issue here... red has to be shifted by 16, green by 8, and blue gets no shift. 
-			/* shift components to the correct place in pixel */
-			*RGBA =   (clamp0_255( __Y[*Y] + __CrtoR[*V])  << (long) 16)						| /* red */
-					( clamp0_255( __Y[*Y] - __CrtoG[*V] - __CbtoG[*U] )	<<  (long)8 )		| /* green */
-					( clamp0_255( __Y[*Y] + __CbtoB[*U] )				/*<<  (long)16*/ )		| /* blue */
-					0xFF000000;
-			/* goto next pixel */
+        	if(SDL_BYTEORDER==SDL_LIL_ENDIAN)
+        	{
+				//endianess issue here... red has to be shifted by 16, green by 8, and blue gets no shift. 
+				/* shift components to the correct place in pixel */
+				*RGBA =   (clamp0_255( __Y[*Y] + __CrtoR[*V])  << (long) 16)						| /* red */
+						( clamp0_255( __Y[*Y] - __CrtoG[*V] - __CbtoG[*U] )	<<  (long)8 )		| /* green */
+						( clamp0_255( __Y[*Y] + __CbtoB[*U] )				/*<<  (long)16*/ )		| /* blue */
+						0xFF000000;
+				/* goto next pixel */
+        	}
+        	else
+        	{
+        		//endianess issue here... red has to be shifted by 16, green by 8, and blue gets no shift. 
+				/* shift components to the correct place in pixel */
+				*RGBA =   clamp0_255( __Y[*Y] + __CrtoR[*V])  						       | /* red */
+						( clamp0_255( __Y[*Y] - __CrtoG[*V] - __CbtoG[*U] )	<<  (long)8 )  | /* green */
+						( clamp0_255( __Y[*Y] + __CbtoB[*U] )				<<  (long)16 ) | /* blue */
+						0xFF000000;
+				/* goto next pixel */
+        	}
+        	
 			RGBA++;
 
             /* full resolution luma, so we increment at every pixel */
