@@ -8,6 +8,7 @@
 #include "audioconvert.h"
 #include "surface.h"
 #include "_gsound.h"
+#include "structmember.h"
 
 /* Library includes */
 #include <Python.h>
@@ -180,6 +181,7 @@ typedef struct PyMovie {
     int paused; 		   /* Boolean for communicating to the threads to pause playback */
 	int last_paused;       /* For comparing the state of paused to what it was last time around. */
     char filename[1024];
+    char *_backend;  //"FFMPEG_WRAPPER";
     int overlay; //>0 if we are to use the overlay, otherwise <=0
     int playing;
     int height;

@@ -5,6 +5,7 @@
 {
 	Py_INCREF(self);
 	//already malloced memory for PyMovie.
+	self->_backend="FFMPEG_WRAPPER";
 	if(!surf)
 	{
 		//set overlay to true
@@ -40,6 +41,7 @@
         PyErr_SetString(PyExc_TypeError, "No valid arguments");
     	return -1;
     }
+   
     if(surf && PySurface_Check(surf))
     {
     	SDL_Surface *target = PySurface_AsSurface(surf);
@@ -299,7 +301,7 @@ int _movie_set_surface(PyObject *mov, PyObject *surface, void *closure)
 	return 1;
 }
 
- static PyMethodDef _movie_methods[] = {
+static PyMethodDef _movie_methods[] = {
    { "play",   (PyCFunction) _movie_play,   METH_VARARGS, DOC_GMOVIEMOVIEPLAY},
    { "stop",   (PyCFunction) _movie_stop,   METH_NOARGS,  DOC_GMOVIEMOVIESTOP},
    { "pause",  (PyCFunction) _movie_pause,  METH_NOARGS,  DOC_GMOVIEMOVIEPAUSE},
@@ -308,6 +310,11 @@ int _movie_set_surface(PyObject *mov, PyObject *surface, void *closure)
    { NULL,     NULL,                        0,            NULL }
 };
 
+static PyMemberDef _movie_members[] = {
+	{ "_backend", T_STRING, offsetof(struct PyMovie, _backend), 0,    "Lists which backend this movie object belongs to."},
+	{ NULL}
+};
+	
  static PyGetSetDef _movie_getsets[] =
 {
     { "paused",  (getter) _movie_get_paused,  NULL,                        DOC_GMOVIEMOVIEPAUSE,   NULL },
@@ -349,7 +356,7 @@ int _movie_set_surface(PyObject *mov, PyObject *surface, void *closure)
     0,                          /* tp_iter */
     0,                          /* tp_iternext */
     _movie_methods,             /* tp_methods */
-    0,                          /* tp_members */
+    _movie_members,             /* tp_members */
     _movie_getsets,             /* tp_getset */
     0,                          /* tp_base */
     0,                          /* tp_dict */
