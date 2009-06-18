@@ -82,7 +82,6 @@ static void
 _quit (void)
 {
     SDL_Quit ();
-    SDL_STATE->initialized = 0;
 }
 
 static int
@@ -129,6 +128,7 @@ static PyObject*
 _sdl_quit (PyObject *self)
 {
     _quit ();
+    SDL_STATE->initialized = 0;
     Py_RETURN_NONE;
 }
 
