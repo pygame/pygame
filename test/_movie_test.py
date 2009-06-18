@@ -55,7 +55,7 @@ class MovieTypeTest( unittest.TestCase ):
         pygame.display.init()    
         pygame.mixer.quit()
         movie_file = trunk_relative_path('examples/data/blue.mpg')
-        movie = pygame.gmovie.Movie(filename)
+        movie = gmovie.Movie(filename)
         self.assertEqual(movie, True)
         
         #screen = pygame.display.get_surface()
@@ -68,7 +68,7 @@ class MovieTypeTest( unittest.TestCase ):
         pygame.display.init()
         pygame.mixer.quit()
         movie_file = trunk_relative_path('examples/data/blue.mpg')
-        movie = pygame.gmovie.Movie(filename)
+        movie = gmovie.Movie(filename)
         
         self.assertEqual(movie.playing, False)
 
@@ -93,7 +93,7 @@ class MovieTypeTest( unittest.TestCase ):
         pygame.display.init()
         pygame.mixer.quit()
         movie_file = trunk_relative_path('examples/data/blue.mpg')
-        movie = pygame.gmovie.Movie(filename)
+        movie = gmovie.Movie(filename)
         
         self.assertEqual(movie.playing, False)
         movie.play(-1)
@@ -109,7 +109,7 @@ class MovieTypeTest( unittest.TestCase ):
         pygame.display.init()
         pygame.mixer.quit()
         movie_file = trunk_relative_path('examples/data/blue.mpg')
-        movie = pygame.gmovie.Movie(filename)
+        movie = gmovie.Movie(filename)
         
         movie.play(-1)
         time.sleep(2)
