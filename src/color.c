@@ -32,6 +32,7 @@ typedef struct
     Uint8 g;
     Uint8 b;
     Uint8 a;
+    Uint8 len;
 } PyColor;
 
 typedef enum {
@@ -49,12 +50,15 @@ static tristate _hexcolor (PyObject *color, Uint8 rgba[]);
 static int _coerce_obj(PyObject *obj, Uint8 rgba[]);
 
 static PyColor* _color_new_internal (PyTypeObject *type, Uint8 rgba[]);
+static PyColor* _color_new_internal_length (PyTypeObject *type, Uint8 rgba[], Uint8 length);
+
 static PyObject* _color_new (PyTypeObject *type, PyObject *args,
     PyObject *kwds);
 static void _color_dealloc (PyColor *color);
 static PyObject* _color_repr (PyColor *color);
 static PyObject* _color_normalize (PyColor *color);
 static PyObject* _color_correct_gamma (PyColor *color, PyObject *args);
+static PyObject* _color_set_length (PyColor *color, PyObject *args);
 
 /* Getters/setters */
 static PyObject* _color_get_r (PyColor *color, void *closure);
@@ -107,6 +111,7 @@ static PyObject* _color_richcompare(PyObject *o1, PyObject *o2, int opid);
 
 /* C API interfaces */
 static PyObject* PyColor_New (Uint8 rgba[]);
+static PyObject* PyColor_NewLength (Uint8 rgba[], Uint8 length);
 static int RGBAFromColorObj (PyObject *color, Uint8 rgba[]);
 
 /**
@@ -118,6 +123,8 @@ static PyMethodDef _color_methods[] =
       DOC_COLORNORMALIZE },
     { "correct_gamma", (PyCFunction) _color_correct_gamma, METH_VARARGS,
       DOC_COLORCORRECTGAMMA },
+    { "set_length", (PyCFunction) _color_set_length, METH_VARARGS,
+      DOC_COLORSETLENGTH },
     { NULL, NULL, 0, NULL }
 };
 
@@ -542,6 +549,14 @@ _coerce_obj (PyObject *obj, Uint8 rgba[])
 static PyColor*
 _color_new_internal (PyTypeObject *type, Uint8 rgba[])
 {
+    /* default length of 4 - r,g,b,a. */
+    return _color_new_internal_length(type, rgba, 4);
+}
+
+
+static PyColor*
+_color_new_internal_length (PyTypeObject *type, Uint8 rgba[], Uint8 length)
+{
     PyColor *color = (PyColor *) type->tp_alloc (type, 0);
     if (!color)
         return NULL;
@@ -550,11 +565,10 @@ _color_new_internal (PyTypeObject *type, Uint8 rgba[])
     color->g = rgba[1];
     color->b = rgba[2];
     color->a = rgba[3];
+    color->len = length;
 
     return color;
 }
-
-
 
 /**
  * Creates a new PyColor.
@@ -1498,8 +1512,32 @@ _color_hex (PyColor *color)
 static Py_ssize_t
 _color_length (PyColor *color)
 {
-    return 4;
+    return color->len;
 }
+
+/**
+ * color.set_length(3)
+ */
+
+static PyObject*
+_color_set_length (PyColor *color, PyObject *args)
+{
+    Py_ssize_t clength;
+
+    if (!PyArg_ParseTuple (args, "k", &clength))
+        return NULL;
+
+    if (clength > 4 || clength < 1) {
+        return RAISE (PyExc_ValueError, "Length needs to be 1,2,3, or 4.");
+    }
+
+    color->len = clength;
+
+    Py_RETURN_NONE;
+}
+
+
+
 
 /**
  * color[x]
@@ -1507,6 +1545,11 @@ _color_length (PyColor *color)
 static PyObject*
 _color_item (PyColor *color, Py_ssize_t _index)
 {
+
+    if((_index > (color->len-1)) ) {
+        return RAISE (PyExc_IndexError, "invalid index");
+    }
+
     switch (_index)
     {
     case 0:
@@ -1528,6 +1571,7 @@ _color_item (PyColor *color, Py_ssize_t _index)
 static int
 _color_ass_item (PyColor *color, Py_ssize_t _index, PyObject *value)
 {
+
     switch (_index)
     {
     case 0:
@@ -1660,6 +1704,19 @@ PyColor_New (Uint8 rgba[])
     return (PyObject *) _color_new_internal (&PyColor_Type, rgba);
 }
 
+static PyObject*
+PyColor_NewLength (Uint8 rgba[], Uint8 length)
+{
+    if(length < 1 || length > 4) {
+        return NULL;
+    }
+
+    return (PyObject *) _color_new_internal_length (&PyColor_Type, rgba, length);
+}
+
+
+
+
 static int
 RGBAFromColorObj (PyObject *color, Uint8 rgba[])
 {
@@ -1754,6 +1811,7 @@ MODINIT_DEFINE (color)
     c_api[0] = &PyColor_Type;
     c_api[1] = PyColor_New;
     c_api[2] = RGBAFromColorObj;
+    c_api[3] = PyColor_NewLength;
 
     apiobj = PyCObject_FromVoidPtr (c_api, NULL);
     if (apiobj == NULL) {

@@ -119,6 +119,8 @@
 
 #define DOC_COLORCORRECTGAMMA "Color.correct_gamma (gamma): Return Color\nApplies a certain gamma value to the Color."
 
+#define DOC_COLORSETLENGTH "Color.set_length(len)\nSet the number of elements in the Color to 1,2,3, or 4."
+
 #define DOC_PYGAMECURSORS "pygame module for cursor resources"
 
 #define DOC_PYGAMECURSORSCOMPILE "pygame.cursor.compile(strings, black='X', white='.', xor='o'): return data, mask\ncreate binary cursor data from simple strings"
@@ -1456,6 +1458,12 @@ Returns the normalized RGBA values of the Color.
 Color.correct_gamma
  Color.correct_gamma (gamma): Return Color
 Applies a certain gamma value to the Color.
+
+
+
+Color.set_length
+ Color.set_length(len)
+Set the number of elements in the Color to 1,2,3, or 4.
 
 
 

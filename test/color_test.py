@@ -242,6 +242,46 @@ class ColorTypeTest (unittest.TestCase):
         # NOTE: assigning to a slice is currently unsupported.
         
         
+    def test_unpack(self):
+        # should be able to unpack to r,g,b,a and r,g,b
+        c = pygame.Color(1,2,3,4)
+        r,g,b,a = c
+        self.assertEquals((1,2,3,4), (r,g,b,a))
+        self.assertEquals(c, (r,g,b,a))
+        
+        c.set_length(3)
+        r,g,b = c
+        self.assertEquals((1,2,3), (r,g,b))
+
+
+
+        
+
+
+    def test_length(self):
+        # should be able to unpack to r,g,b,a and r,g,b
+        c = pygame.Color(1,2,3,4)
+        self.assertEquals(len(c), 4)
+
+        c.set_length(3)
+        self.assertEquals(len(c), 3)
+
+        # it keeps the old alpha anyway...
+        self.assertEquals(c.a, 4)
+
+        # however you can't get the alpha in this way:
+        self.assertRaises (IndexError, lambda x:c[x], 4)
+
+
+
+        c.set_length(4)
+        self.assertEquals(len(c), 4)
+        self.assertEquals(len(c), 4)
+
+        self.assertRaises (ValueError, c.set_length, 5)
+        self.assertRaises (ValueError, c.set_length, -1)
+        self.assertRaises (ValueError, c.set_length, 0)
+        self.assertRaises (ValueError, c.set_length, pow(2,33L))
         
         
     def test_case_insensitivity_of_string_args(self):
