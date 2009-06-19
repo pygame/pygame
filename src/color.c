@@ -50,6 +50,8 @@ static tristate _hexcolor (PyObject *color, Uint8 rgba[]);
 static int _coerce_obj(PyObject *obj, Uint8 rgba[]);
 
 static PyColor* _color_new_internal (PyTypeObject *type, Uint8 rgba[]);
+static PyColor* _color_new_internal_length (PyTypeObject *type, Uint8 rgba[], Uint8 length);
+
 static PyObject* _color_new (PyTypeObject *type, PyObject *args,
     PyObject *kwds);
 static void _color_dealloc (PyColor *color);
@@ -109,6 +111,7 @@ static PyObject* _color_richcompare(PyObject *o1, PyObject *o2, int opid);
 
 /* C API interfaces */
 static PyObject* PyColor_New (Uint8 rgba[]);
+static PyObject* PyColor_NewLength (Uint8 rgba[], Uint8 length);
 static int RGBAFromColorObj (PyObject *color, Uint8 rgba[]);
 
 /**
@@ -546,6 +549,14 @@ _coerce_obj (PyObject *obj, Uint8 rgba[])
 static PyColor*
 _color_new_internal (PyTypeObject *type, Uint8 rgba[])
 {
+    /* default length of 4 - r,g,b,a. */
+    return _color_new_internal_length(type, rgba, 4);
+}
+
+
+static PyColor*
+_color_new_internal_length (PyTypeObject *type, Uint8 rgba[], Uint8 length)
+{
     PyColor *color = (PyColor *) type->tp_alloc (type, 0);
     if (!color)
         return NULL;
@@ -554,13 +565,10 @@ _color_new_internal (PyTypeObject *type, Uint8 rgba[])
     color->g = rgba[1];
     color->b = rgba[2];
     color->a = rgba[3];
-    /* default length of 4 - r,g,b,a. */
-    color->len = 4;
+    color->len = length;
 
     return color;
 }
-
-
 
 /**
  * Creates a new PyColor.
@@ -1696,6 +1704,19 @@ PyColor_New (Uint8 rgba[])
     return (PyObject *) _color_new_internal (&PyColor_Type, rgba);
 }
 
+static PyObject*
+PyColor_NewLength (Uint8 rgba[], Uint8 length)
+{
+    if(length < 1 || length > 4) {
+        return NULL;
+    }
+
+    return (PyObject *) _color_new_internal_length (&PyColor_Type, rgba, length);
+}
+
+
+
+
 static int
 RGBAFromColorObj (PyObject *color, Uint8 rgba[])
 {
@@ -1790,6 +1811,7 @@ MODINIT_DEFINE (color)
     c_api[0] = &PyColor_Type;
     c_api[1] = PyColor_New;
     c_api[2] = RGBAFromColorObj;
+    c_api[3] = PyColor_NewLength;
 
     apiobj = PyCObject_FromVoidPtr (c_api, NULL);
     if (apiobj == NULL) {
