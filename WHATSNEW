@@ -3,11 +3,10 @@
 # SVN revision numbers, and CVS tag names are placed before the date
 # BREAK = change breaks existing code
 # BUG    = fixed a bug that was (or could have been) crashing
-#
-#
 
-[SVN 2380] Jun 19, 2009
+[SVN 2380-2381] Jun 19, 2009
     Color.set_length method... to change Color length to 1,2,3 or 4.
+    Surface.get_palette(_at) return Color with length 3.
 
 [SVN 2366] Jun 17, 2009
     [BUG] Memory leak in a few modules.  Thanks Lorenz Quack.
