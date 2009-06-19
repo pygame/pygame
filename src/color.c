@@ -32,6 +32,7 @@ typedef struct
     Uint8 g;
     Uint8 b;
     Uint8 a;
+    Uint8 len;
 } PyColor;
 
 typedef enum {
@@ -55,6 +56,7 @@ static void _color_dealloc (PyColor *color);
 static PyObject* _color_repr (PyColor *color);
 static PyObject* _color_normalize (PyColor *color);
 static PyObject* _color_correct_gamma (PyColor *color, PyObject *args);
+static PyObject* _color_set_length (PyColor *color, PyObject *args);
 
 /* Getters/setters */
 static PyObject* _color_get_r (PyColor *color, void *closure);
@@ -118,6 +120,8 @@ static PyMethodDef _color_methods[] =
       DOC_COLORNORMALIZE },
     { "correct_gamma", (PyCFunction) _color_correct_gamma, METH_VARARGS,
       DOC_COLORCORRECTGAMMA },
+    { "set_length", (PyCFunction) _color_set_length, METH_VARARGS,
+      DOC_COLORSETLENGTH },
     { NULL, NULL, 0, NULL }
 };
 
@@ -550,6 +554,8 @@ _color_new_internal (PyTypeObject *type, Uint8 rgba[])
     color->g = rgba[1];
     color->b = rgba[2];
     color->a = rgba[3];
+    /* default length of 4 - r,g,b,a. */
+    color->len = 4;
 
     return color;
 }
@@ -1498,8 +1504,32 @@ _color_hex (PyColor *color)
 static Py_ssize_t
 _color_length (PyColor *color)
 {
-    return 4;
+    return color->len;
 }
+
+/**
+ * color.set_length(3)
+ */
+
+static PyObject*
+_color_set_length (PyColor *color, PyObject *args)
+{
+    Py_ssize_t clength;
+
+    if (!PyArg_ParseTuple (args, "k", &clength))
+        return NULL;
+
+    if (clength > 4 || clength < 1) {
+        return RAISE (PyExc_ValueError, "Length needs to be 1,2,3, or 4.");
+    }
+
+    color->len = clength;
+
+    Py_RETURN_NONE;
+}
+
+
+
 
 /**
  * color[x]
@@ -1507,6 +1537,11 @@ _color_length (PyColor *color)
 static PyObject*
 _color_item (PyColor *color, Py_ssize_t _index)
 {
+
+    if((_index > (color->len-1)) ) {
+        return RAISE (PyExc_IndexError, "invalid index");
+    }
+
     switch (_index)
     {
     case 0:
@@ -1528,6 +1563,7 @@ _color_item (PyColor *color, Py_ssize_t _index)
 static int
 _color_ass_item (PyColor *color, Py_ssize_t _index, PyObject *value)
 {
+
     switch (_index)
     {
     case 0:

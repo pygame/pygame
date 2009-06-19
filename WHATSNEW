@@ -6,6 +6,9 @@
 #
 #
 
+[SVN 2380] Jun 19, 2009
+    Color.set_length method... to change Color length to 1,2,3 or 4.
+
 [SVN 2366] Jun 17, 2009
     [BUG] Memory leak in a few modules.  Thanks Lorenz Quack.
 

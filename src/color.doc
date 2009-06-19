@@ -16,10 +16,13 @@ alpha aa is optional. A hex number string has the form '0xrrggbbaa',
 where aa is optional.
 
 Color objects support equality comparison with other color objects
-and 3 or 4 element tuples of integers (New in 1.9.0).
+and 3 or 4 element tuples of integers (New in 1.9.0).  There was a bug in
+pygame 1.8.1 where the default alpha was 0, not 255 like previously.
 
-New in pygame 1.8.1.
+New implementation of Color was done in pygame 1.8.1.
 <SECTION>
+
+
 
 r
 Gets or sets the red value of the Color.
@@ -28,12 +31,16 @@ Color.r: Return int
 The red value of the Color.
 <END>
 
+
+
 g
 Gets or sets the green value of the Color.
 Color.g: Return int
 
 The green value of the Color.
 <END>
+
+
 
 b
 Gets or sets the blue value of the Color.
@@ -42,12 +49,16 @@ Color.b: Return int
 The blue value of the Color.
 <END>
 
+
+
 a
 Gets or sets the alpha value of the Color.
 Color.a: Return int
 
 The alpha value of the Color.
 <END>
+
+
 
 cmy
 Gets or sets the CMY representation of the Color.
@@ -61,6 +72,8 @@ rounding errors may cause the CMY values to differ slightly from what
 you might expect.
 <END>
 
+
+
 hsva
 Gets or sets the HSVA representation of the Color.
 Color.hsva: Return tuple
@@ -72,6 +85,8 @@ values in all cases. Due to the RGB mapping from 0-255 and the HSV
 mapping from 0-100 and 0-360 rounding errors may cause the HSV values to
 differ slightly from what you might expect.
 <END>
+
+
 
 hsla
 Gets or sets the HSLA representation of the Color.
@@ -85,6 +100,8 @@ mapping from 0-100 and 0-360 rounding errors may cause the HSL values to
 differ slightly from what you might expect.
 <END>
 
+
+
 i1i2i3
 Gets or sets the I1I2I3 representation of the Color.
 Color.i1i2i3: Return tuple
@@ -97,6 +114,8 @@ mapping from 0-1 rounding errors may cause the I1I2I3 values to differ
 slightly from what you might expect.
 <END>
 
+
+
 normalize
 Returns the normalized RGBA values of the Color.
 Color.normalize(): Return tuple
@@ -105,10 +124,25 @@ Returns the normalized RGBA values of the Color as floating point
 values.
 <END>
 
+
+
 correct_gamma
 Applies a certain gamma value to the Color.
 Color.correct_gamma (gamma): Return Color
 
 Applies a certain gamma value to the Color and returns a new Color with
 the adjusted RGBA values.
+<END>
+
+
+
+set_length
+Set the number of elements in the Color to 1,2,3, or 4.
+Color.set_length(len)
+
+The default Color length is 4.  Colors can have lengths 1,2,3 or 4.
+This is useful if you want to unpack to r,g,b and not r,g,b,a.
+If you want to get the length of a Color do len(acolor).
+
+New in pygame 1.9.0.
 <END>
