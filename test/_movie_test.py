@@ -31,33 +31,15 @@ import time
 ################################### CONSTANTS ##################################
 filename = "War3.avi"
 
-"""
-	(1) init(filename), init(file-like object), init(filename, surface), init(file-like object, surface)	
-	(1) play(int loops) if loops<0, infinite play.
-	(1) stop
-	(1) pause
-	(1) rewind(), (2) rewind(time_pos)
-    (1) surface member, which refers to which surface to place an overlay on. 
-    (1) playing member, true or false
-    (1) paused member, true or false
-    (1) _dealloc
-    streams member list, with Stream objects
-		(1) Stream
-		(1) play(int loops) if loops<0, infinite play.
-		(1) pause
-		(1) stop
-		(1) rewind(), (2) rewind(time_pos) <- rewinds to time-pos, accepts a float, does not guarantee exact positioning.
-        (1) type()->audio, Movie, or subtitle
-"""
 
 class MovieTypeTest( unittest.TestCase ): 
     def test_init(self):     
         pygame.display.init()    
         pygame.mixer.quit()
         movie_file = trunk_relative_path('examples/data/blue.mpg')
-        movie = gmovie.Movie(filename)
+        movie = gmovie.Movie(movie_file)
         self.assertEqual(movie, True)
-        
+
         #screen = pygame.display.get_surface()
         #movie = pygame.gmovie.Movie(filename, screen)
         #self.assertEqual(movie, True)
@@ -68,7 +50,7 @@ class MovieTypeTest( unittest.TestCase ):
         pygame.display.init()
         pygame.mixer.quit()
         movie_file = trunk_relative_path('examples/data/blue.mpg')
-        movie = gmovie.Movie(filename)
+        movie = gmovie.Movie(movie_file)
         
         self.assertEqual(movie.playing, False)
 
@@ -93,7 +75,7 @@ class MovieTypeTest( unittest.TestCase ):
         pygame.display.init()
         pygame.mixer.quit()
         movie_file = trunk_relative_path('examples/data/blue.mpg')
-        movie = gmovie.Movie(filename)
+        movie = gmovie.Movie(movie_file)
         
         self.assertEqual(movie.playing, False)
         movie.play(-1)
@@ -109,7 +91,7 @@ class MovieTypeTest( unittest.TestCase ):
         pygame.display.init()
         pygame.mixer.quit()
         movie_file = trunk_relative_path('examples/data/blue.mpg')
-        movie = gmovie.Movie(filename)
+        movie = gmovie.Movie(movie_file)
         
         movie.play(-1)
         time.sleep(2)
