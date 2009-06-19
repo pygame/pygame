@@ -806,7 +806,8 @@ surf_get_palette (PyObject *self)
         rgba[0] = c->r;
         rgba[1] = c->g;
         rgba[2] = c->b;
-        color = PyColor_New (rgba);
+        color = PyColor_NewLength (rgba, 3);
+
         if (!color)
         {
             Py_DECREF (list);
@@ -842,7 +843,8 @@ surf_get_palette_at (PyObject * self, PyObject * args)
     rgba[1] = c->g;
     rgba[2] = c->b;
     rgba[3] = 255;
-    return PyColor_New (rgba);
+
+    return PyColor_NewLength (rgba, 3);
 }
 
 static PyObject*
