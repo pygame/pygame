@@ -103,11 +103,11 @@ char *format_timestamp(double pts, char *buf)
 	//char buf[50];
 	if(h>0 && m>0)
 	{
-		PyOS_snprintf(buf, sizeof(buf), "%ih, %im, %fs", h, m, s);
+		PyOS_snprintf(buf, sizeof(buf), "%i:%i:%fs", h, m, s);
 	}	
 	else if (m>0)
 	{
-		PyOS_snprintf(buf, sizeof(buf), "%im, %fs", m, s);
+		PyOS_snprintf(buf, sizeof(buf), "%i:%fs", m, s);
 	}
 	else if(s>0)
 	{
@@ -296,9 +296,13 @@ int _movie_set_surface(PyObject *mov, PyObject *surface, void *closure)
 		SDL_FreeSurface(movie->canon_surf);	
 	}
 	//PySurface_Check doesn't really work right for some reason... so we skip it for now.
-	movie->canon_surf=PySurface_AsSurface(surface);
-	movie->overlay=0;
-	return 1;
+	if(PySurface_Check(surface))
+	{
+		movie->canon_surf=PySurface_AsSurface(surface);
+		movie->overlay=0;
+		return 1;
+	}
+	return -1;
 }
 
 static PyMethodDef _movie_methods[] = {
