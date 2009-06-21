@@ -25,10 +25,14 @@
 #include <float.h>
 #include <math.h>
 
+#define STRING_BUF_SIZE (100)
 
 static PyTypeObject PyVector2_Type;
 #define PyVector2_Check(x) ((x)->ob_type == &PyVector2_Type)
 #define PyVector_Check(x) (PyVector2_Check(x))
+
+#define DEG2RAD(angle) ((angle) * M_PI / 180.)
+#define RAD2DEG(angle) ((angle) * 180. / M_PI)
 
 
 
@@ -52,8 +56,9 @@ PySequence_GetItem_AsDouble(PyObject *seq, Py_ssize_t index)
 {
     PyObject *item;
     double value;
-    assert(PySequence_Check(seq));
     item = PySequence_GetItem(seq, index);
+    if (PyErr_Occurred())
+        return 0;
     value = PyFloat_AsDouble(item);
     Py_XDECREF(item);
     return value;
@@ -481,8 +486,8 @@ static PyObject *
 vector_GetItem(PyVector *self, Py_ssize_t index)
 {
     if (index < 0 || index >= self->dim) {
-        PyErr_SetString(PyExc_ValueError, "subscript out of range.");
-        Py_RETURN_NONE;
+        PyErr_SetString(PyExc_IndexError, "subscript out of range.");
+        return NULL;
     }
     return PyFloat_FromDouble(self->coords[index]);
 }
@@ -490,28 +495,85 @@ vector_GetItem(PyVector *self, Py_ssize_t index)
 static int
 vector_SetItem(PyVector *self, Py_ssize_t index, PyObject *value)
 {
-/*
-    if (!checkRealNumber(value)) {
-        PyErr_SetString(PyExc_TypeError, "cannot assign a non float.");
-        return -1;
-    }
-*/
     if (index < 0 || index >= self->dim) {
-        PyErr_SetString(PyExc_TypeError, "subscript out of range.");
+        PyErr_SetString(PyExc_IndexError, "subscript out of range.");
         return -1;
     }
     self->coords[index] = PyFloat_AsDouble(value);
     return 0;
 }
 
+
+static PyObject *
+vector_GetSlice(PyVector *self, Py_ssize_t ilow, Py_ssize_t ihigh)
+{
+    /* some code was taken from the CPython source listobject.c */
+    PyListObject *slice;
+    Py_ssize_t i, len;
+    double *src;
+    PyObject **dest;
+
+    /* make sure boundaries are sane */
+    if (ilow < 0)
+        ilow = 0;
+    else if (ilow > self->dim)
+        ilow = self->dim;
+    if (ihigh < ilow)
+        ihigh = ilow;
+    else if (ihigh > self->dim)
+        ihigh = self->dim;
+    
+    len = ihigh - ilow;
+    slice = (PyListObject *) PyList_New(len);
+    if (slice == NULL)
+        return NULL;
+    
+    src = self->coords + ilow;
+    dest = slice->ob_item;
+    for (i = 0; i < len; i++) {
+        dest[i] = PyFloat_FromDouble(src[i]);
+    }
+    return (PyObject *)slice;
+}
+
+static int
+vector_SetSlice(PyVector *self, Py_ssize_t ilow, Py_ssize_t ihigh, PyObject *v)
+{
+    Py_ssize_t i, len;
+
+    if (ilow < 0)
+        ilow = 0;
+    else if (ilow > self->dim)
+        ilow = self->dim;
+    if (ihigh < ilow)
+        ihigh = ilow;
+    else if (ihigh > self->dim)
+        ihigh = self->dim;
+    
+    len = ihigh - ilow;
+    if (len != PySequence_Length(v)) {
+        PyErr_SetString(PyExc_ValueError, 
+                        "Cannot assign slice of different length.");
+        return -1;
+    }
+    
+    /* TODO: better error checking. for example if v is not a 
+             sequence or doesn't numbers. */
+    for (i = 0; i < len; ++i) {
+        self->coords[i + ilow] = PySequence_GetItem_AsDouble(v, i);
+    }
+    return 0;
+}
+
+
 PySequenceMethods vector_as_sequence = {
     (lenfunc)vector_len,             /* sq_length;    __len__ */
     (binaryfunc)0,                   /* sq_concat;    __add__ */
     (ssizeargfunc)0,                 /* sq_repeat;    __mul__ */
     (ssizeargfunc)vector_GetItem,    /* sq_item;      __getitem__ */
-    (ssizessizeargfunc)0,            /* sq_slice;     __getslice__ */
+    (ssizessizeargfunc)vector_GetSlice, /* sq_slice;     __getslice__ */
     (ssizeobjargproc)vector_SetItem, /* sq_ass_item;  __setitem__ */
-    (ssizessizeobjargproc)0,         /* sq_ass_slice; __setslice__ */
+    (ssizessizeobjargproc)vector_SetSlice, /* sq_ass_slice; __setslice__ */
 };
 
 static PyObject*
@@ -621,7 +683,7 @@ vector2_init(PyVector *self, PyObject *args, PyObject *kwds)
     PyObject *xOrSequence=NULL, *y=NULL, *z=NULL;
     static char *kwlist[] = {"x", "y", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OO", kwlist,
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OO:Vector2", kwlist,
                                       &xOrSequence, &y))
         return -1;
 
@@ -632,12 +694,30 @@ vector2_init(PyVector *self, PyObject *args, PyObject *kwds)
         else if (checkPyVectorCompatible(xOrSequence, self->dim)) {
             self->coords[0] = PySequence_GetItem_AsDouble(xOrSequence, 0);
             self->coords[1] = PySequence_GetItem_AsDouble(xOrSequence, 1);
+            /* successful initialization from sequence type */
             return 0;
         } 
+        else if (PyString_Check(xOrSequence)) {
+            /* This should make "Vector2(Vector2().__repr__())" possible */
+            char buffer[STRING_BUF_SIZE];
+            char *endptr;
+            char *str = PyString_AsString(xOrSequence);
+            if (strncmp(str, "<Vector2(", strlen("<Vector2(")) != 0)
+                goto error;
+            str += strlen("<Vector2(");
+            self->coords[0] = PyOS_ascii_strtod(str, &endptr);
+            if (endptr == str) {
+                goto error;
+            }
+            str = endptr + strlen(", ");
+            self->coords[1] = PyOS_ascii_strtod(str, &endptr);
+            if (endptr == str)
+                goto error;
+            /* successful conversion from string */
+            return 0;
+        }
         else {
-            PyErr_SetString(PyExc_ValueError,
-                            "Vector2d must be initialized with 2 real numbers or a sequence of 2 real numbers");
-            return -1;
+            goto error;
         }
     } 
     else {
@@ -649,61 +729,283 @@ vector2_init(PyVector *self, PyObject *args, PyObject *kwds)
             self->coords[1] = PyFloat_AsDouble(y);
         } 
         else {
-            PyErr_SetString(PyExc_ValueError,
-                            "Vector2d must be initialized with 2 real numbers or a sequence of 2 real numbers");
-            return -1;
+            goto error;
         }
     } 
     else {
         self->coords[1] = 0.;
     }
-
+    /* success initialization */
     return 0;
+error:
+    PyErr_SetString(PyExc_ValueError,
+                    "Vector2d must be initialized with 2 real numbers or a sequence of 2 real numbers");
+    return -1;
+}
+
+
+static void
+vector2_do_rotate(double *dst_coords, const double *src_coords, double angle)
+{
+    /* make sure angle is in range [0, 360) */
+    angle = fmod(angle, 360.);
+    if (angle < 0)
+        angle += 360.;
+
+    /* special-case rotation by 0, 90, 180 and 270 degrees */
+    if (angle == 0.) {
+        dst_coords[0] = src_coords[0];
+        dst_coords[1] = src_coords[1];
+    }
+    else if (angle == 90.) {
+        dst_coords[0] = -src_coords[1];
+        dst_coords[1] = src_coords[0];
+    }
+    else if (angle == 180.) {
+        dst_coords[0] = -src_coords[0];
+        dst_coords[1] = -src_coords[1];
+    }
+    else if (angle == 270.) {
+        dst_coords[0] = src_coords[1];
+        dst_coords[1] = -src_coords[0];
+    }
+    else {
+        double sinValue, cosValue;
+
+        angle = DEG2RAD(angle);
+        sinValue = sin(angle);
+        cosValue = cos(angle);
+
+        dst_coords[0] = cosValue * src_coords[0] - sinValue * src_coords[1];
+        dst_coords[1] = sinValue * src_coords[0] + cosValue * src_coords[1];
+    }
+}
+
+static PyObject *
+vector2_rotate(PyVector *self, PyObject *args)
+{
+    double angle;
+    PyVector *ret;
+
+    if (!PyArg_ParseTuple(args, "d:rotate", &angle)) {
+        return NULL;
+    }
+
+    ret = (PyVector*)PyVector_NEW(self->dim);
+    vector2_do_rotate(ret->coords, self->coords, angle);
+    return (PyObject*)ret;
+}
+
+static PyObject *
+vector2_rotate_ip(PyVector *self, PyObject *args)
+{
+    double angle;
+    double tmp[2];
+    
+    if (!PyArg_ParseTuple(args, "d:rotate_ip", &angle)) {
+        return NULL;
+    }
+
+    tmp[0] = self->coords[0];
+    tmp[1] = self->coords[1];
+    vector2_do_rotate(self->coords, tmp, angle);
+    Py_RETURN_NONE;
+}
+
+
+static PyObject *
+vector_normalize(PyVector *self)
+{
+    int i;
+    double sum, length;
+    PyVector *ret;
+    
+    sum = 0;
+    for (i = 0; i < self->dim; ++i)
+        sum += self->coords[i] * self->coords[i];
+    length = sqrt(sum);
+
+    if (length == 0) {
+        PyErr_SetString(PyExc_ZeroDivisionError, 
+                        "Can't normalize Vector of length Zero");
+        return NULL;
+    }
+
+    ret = (PyVector*)PyVector_NEW(self->dim);
+    for (i = 0; i < self->dim; ++i)
+        ret->coords[i] = self->coords[i] / length;
+
+    return (PyObject *)ret;
+}
+
+static PyObject *
+vector_normalize_ip(PyVector *self)
+{
+    int i;
+    double sum, length;
+    
+    sum = 0;
+    for (i = 0; i < self->dim; ++i)
+        sum += self->coords[i] * self->coords[i];
+    length = sqrt(sum);
+
+    if (length == 0) {
+        PyErr_SetString(PyExc_ZeroDivisionError, 
+                        "Can't normalize Vector of length Zero");
+        return NULL;
+    }
+
+    for (i = 0; i < self->dim; ++i)
+        self->coords[i] /= length;
+
+    Py_RETURN_NONE;
+}
+
+static PyObject *
+vector_is_normalized(PyVector *self)
+{
+    int i;
+    double sum;
+
+    sum = 0;
+    for (i = 0; i < self->dim; ++i)
+        sum += self->coords[i] * self->coords[i];
+
+    if (fabs(sum - 1) < self->epsilon)
+        Py_RETURN_TRUE;
+    else
+        Py_RETURN_FALSE;
+}
+
+static PyObject *
+vector2_cross(PyVector *self, PyObject *other)
+{
+    if (!checkPyVectorCompatible(other, self->dim)) {
+        PyErr_SetString(PyExc_TypeError, "cannot calculate cross Product");
+        return NULL;
+    }
+    
+    if (PyVector_Check(other)) {
+        return PyFloat_FromDouble((self->coords[0] * ((PyVector *)other)->coords[1]) -
+                                  (self->coords[1] * ((PyVector *)other)->coords[0]));
+    }
+    else {
+        return PyFloat_FromDouble((self->coords[0] * PySequence_GetItem_AsDouble(other, 1)) -
+                                  (self->coords[1] * PySequence_GetItem_AsDouble(other, 0)));
+    }
+}
+
+static PyObject *
+vector_dot(PyVector *self, PyObject *other)
+{
+    int i;
+    double ret;
+    if (!checkPyVectorCompatible(other, self->dim)) {
+        PyErr_SetString(PyExc_TypeError, "Cannot perform dot product with this type.");
+        return NULL;
+    }
+
+    ret = 0.;
+    for (i = 0; i < self->dim; ++i) {
+        ret += self->coords[i] * PySequence_GetItem_AsDouble(other, i);
+    }
+    return PyFloat_FromDouble(ret);
+}
+
+static PyObject *
+vector_angle_to(PyVector *self, PyObject *other)
+{
+    double angle;
+    if (!checkPyVectorCompatible(other, self->dim)) {
+        PyErr_SetString(PyExc_TypeError, "expected an vector.");
+        return NULL;
+    }
+    
+    angle = (atan2(PySequence_GetItem_AsDouble(other, 1),
+                   PySequence_GetItem_AsDouble(other, 0)) - 
+             atan2(self->coords[1], self->coords[0]));
+    return PyFloat_FromDouble(RAD2DEG(angle));
+}
+
+static PyObject *
+vector_scale_to_length(PyVector *self, PyObject *length)
+{
+    int i;
+    double new_length, old_length;
+    double fraction;
+
+    if (!checkRealNumber(length)) {
+        PyErr_SetString(PyExc_ValueError, "new length must be a number");
+        return NULL;
+    }
+    new_length = PyFloat_AsDouble(length);
+
+    old_length = 0;
+    for (i = 0; i < self->dim; ++i)
+        old_length += self->coords[i] * self->coords[i];
+    old_length = sqrt(old_length);
+
+    if (old_length < self->epsilon) {
+        PyErr_SetString(PyExc_ZeroDivisionError, "Cannot scale a vector with zero length");
+        return NULL;
+    }
+
+    fraction = new_length / old_length;
+    for (i = 0; i < self->dim; ++i)
+        self->coords[i] *= fraction;
+
+    Py_RETURN_NONE;
 }
 
 
 static PyMethodDef vector2_methods[] = {
-/*
-    {"rotate", (PyCFunction)PyVector2d_rotate, METH_VARARGS,
-     "rotates the vector around the given axis by the amount given by angle."
+    {"rotate", (PyCFunction)vector2_rotate, METH_VARARGS,
+     "returns a new vector rotated counterclockwise by the angle given in degrees."
     },
-    {"rotated", (PyCFunction)PyVector2d_rotated, METH_VARARGS,
-     "returns a vector rotated around the given axis by the amount given by angle."
+    {"rotate_ip", (PyCFunction)vector2_rotate_ip, METH_VARARGS,
+     "rotates the vector counterclockwise by the angle given in degrees."
     },
-    {"normalized", (PyCFunction)PyVectorNd_normalized, METH_NOARGS,
+    {"normalize", (PyCFunction)vector_normalize, METH_NOARGS,
      "returns a vector that has length == 1 and the same direction as self."
     },
-    {"normalize", (PyCFunction)PyVectorNd_normalize, METH_NOARGS,
+    {"normalize_ip", (PyCFunction)vector_normalize_ip, METH_NOARGS,
      "Normalizes the vector so that it has length == 1."
     },
-    {"isNormalized", (PyCFunction)PyVectorNd_isNormalized, METH_NOARGS,
+    {"is_normalized", (PyCFunction)vector_is_normalized, METH_NOARGS,
      "returns True if the vector has length == 1. otherwise it returns False."
     },
-    {"cross", (PyCFunction)PyVector2d_cross, METH_O,
+    {"cross", (PyCFunction)vector2_cross, METH_O,
      "calculates the cross product."
     },
-    {"dot", (PyCFunction)PyVectorNd_dot, METH_O,
+    {"dot", (PyCFunction)vector_dot, METH_O,
      "calculates the dot product."
     },
-    {"angleTo", (PyCFunction)PyVector2d_angleTo, METH_O,
+    {"angle_to", (PyCFunction)vector_angle_to, METH_O,
      "returns the angle between self and the given vector."
     },
-*/
+    {"scale_to_length", (PyCFunction)vector_scale_to_length, METH_O,
+     "scalesthe vector to the given length."
+    },
+    
     {NULL}  /* Sentinel */
 };
 
 static PyObject *
 vector2_repr(PyVector *self)
 {
-    return PyString_FromFormat("<Vector2d(%g, %g)>", 
-                               self->coords[0], self->coords[1]);
+    char buffer[STRING_BUF_SIZE];
+    PyOS_snprintf(buffer, STRING_BUF_SIZE, "<Vector2(%g, %g)>",
+                  self->coords[0], self->coords[1]);
+    return PyString_FromString(buffer); 
 }
 
 static PyObject *
 vector2_str(PyVector *self)
 {
-    return PyString_FromFormat("(%g, %g)", 
-                               self->coords[0], self->coords[1]);
+    char buffer[STRING_BUF_SIZE];
+    PyOS_snprintf(buffer, STRING_BUF_SIZE, "[%g, %g]",
+                  self->coords[0], self->coords[1]);
+    return PyString_FromString(buffer); 
 }
 
 
@@ -859,6 +1161,7 @@ MODINIT_DEFINE (math)
     }
 
     if (PyModule_AddObject(module, PYGAMEAPI_LOCAL_ENTRY, apiobj) != 0) {
+        Py_DECREF (apiobj);
         DECREF_MOD (module);
         MODINIT_ERROR;
     }

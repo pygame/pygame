@@ -58,6 +58,21 @@ class Vector2TypeTest(unittest.TestCase):
         self.assertEqual(v[:1], [1.2])
         self.assertEqual(list(v), [1.2, 3.4])
         self.assertEqual(tuple(v), (1.2, 3.4))
+        v[0] = 5.6
+        v[1] = 7.8
+        self.assertEqual(v.x, 5.6)
+        self.assertEqual(v.y, 7.8)
+        v[:] = [9.1, 11.12]
+        self.assertEqual(v.x, 9.1)
+        self.assertEqual(v.y, 11.12)
+        def overpopulate():
+            v = Vector2()
+            v[:] = [1, 2, 3]
+        self.assertRaises(ValueError, overpopulate)
+        def underpopulate():
+            v = Vector2()
+            v[:] = [1]
+        self.assertRaises(ValueError, underpopulate)
 
     def testAdd(self):
         v1 = Vector2(1.2, 3.4)
@@ -161,6 +176,15 @@ class Vector2TypeTest(unittest.TestCase):
         self.assertEqual(int_vec != [3, -2, 0], True)
         self.assertEqual(int_vec == [3, -2, 0], False)
 
+    def testStr(self):
+        v = Vector2(1.2, 3.4)
+        self.assertEqual(str(v), "[1.2, 3.4]")
+
+    def testRepr(self):
+        v = Vector2(1.2, 3.4)
+        self.assertEqual(v.__repr__(), "<Vector2(1.2, 3.4)>")
+        self.assertEqual(v, Vector2(v.__repr__()))
+        
     def test_rotate(self):
         v1 = Vector2(1, 0)
         v2 = v1.rotate(90)
@@ -173,8 +197,8 @@ class Vector2TypeTest(unittest.TestCase):
         self.assertEqual(v3.y, v2.y)
         v1 = Vector2(-1, -1)
         v2 = v1.rotate(-90)
-        self.assertEqual(v2.x, 1)
-        self.assertEqual(v2.y, -1)
+        self.assertEqual(v2.x, -1)
+        self.assertEqual(v2.y, 1)
         v2 = v1.rotate(360)
         self.assertEqual(v1.x, v2.x)
         self.assertEqual(v1.y, v2.y)
@@ -189,9 +213,71 @@ class Vector2TypeTest(unittest.TestCase):
         self.assertEqual(v.y, 1)
         v = Vector2(-1, -1)
         v.rotate_ip(-90)
-        self.assertEqual(v.x, 1)
-        self.assertEqual(v.y, -1)
+        self.assertEqual(v.x, -1)
+        self.assertEqual(v.y, 1)
 
+    def test_normalize(self):
+        v1 = Vector2(1.2, 3.4)
+        v2 = v1.normalize()
+        # length is 1
+        self.assertEqual(v2.x * v2.x + v2.y * v2.y, 1.)
+        # v1 is unchanged
+        self.assertEqual(v1.x, 1.2)
+        self.assertEqual(v1.y, 3.4)
+        # v2 is paralell to v1
+        self.assertEqual(v1.x * v2.y - v1.y * v2.x, 0.)
+        self.assertRaises(ZeroDivisionError, lambda : Vector2().normalize())
+        
+    def test_normalize_ip(self):
+        v1 = Vector2(1.2, 3.4)
+        v2 = v1
+        self.assertEqual(v2.normalize_ip(), None)
+        # length is 1
+        self.assertEqual(v2.x * v2.x + v2.y * v2.y, 1.)
+        # v2 is paralell to v1
+        self.assertEqual(v1.x * v2.y - v1.y * v2.x, 0.)
+        self.assertRaises(ZeroDivisionError, lambda : Vector2().normalize_ip())
+
+    def test_is_normalized(self):
+        v1 = Vector2(1.2, 3.4)
+        self.assertEqual(v1.is_normalized(), False)
+        v2 = v1.normalize()
+        self.assertEqual(v2.is_normalized(), True)
+        v3 = Vector2(1, 0)
+        self.assertEqual(v3.is_normalized(), True)
+        self.assertEqual(Vector2().is_normalized(), False)
+        
+    def test_cross(self):
+        v1 = Vector2(1.2, 3.4)
+        v2 = Vector2(5.6, 7.8)
+        self.assertEqual(v1.cross(v2), 1.2 * 7.8 - 3.4 * 5.6)
+        self.assertEqual(v1.cross(v2), -v2.cross(v1))
+        self.assertEqual(v1.cross(v1), 0)
+
+    def test_dot(self):
+        v1 = Vector2(1.2, 3.4)
+        v2 = Vector2(5.6, 7.8)
+        self.assertEqual(v1.dot(v2), 1.2 * 5.6 + 3.4 * 7.8)
+        self.assertEqual(v1.dot(v2), v2.dot(v1))
+        self.assertEqual(v1.dot(v2), v1 * v2)
+
+    def test_angle_to(self):
+        v1 = Vector2(1.2, 3.4)
+        v2 = Vector2(5.6, 7.8)
+        self.assertEqual(v1.rotate(v1.angle_to(v2)).normalize(), v2.normalize())
+        self.assertEqual(Vector2(1, 1).angle_to((-1, 1)), 90)
+        self.assertEqual(Vector2(1, 0).angle_to((0, -1)), -90)
+        self.assertEqual(Vector2(1, 0).angle_to((-1, 1)), 135)
+        self.assertEqual(abs(Vector2(1, 0).angle_to((-1, 0))), 180)
+
+    def test_scale_to_length(self):
+        import math
+        v1 = Vector2(1, 1)
+        v1.scale_to_length(2.5)
+        self.assertEqual(v1, Vector2(2.5, 2.5) / math.sqrt(2))
+        self.assertRaises(ZeroDivisionError, lambda : Vector2().scale_to_length(1))
+        self.assertEqual(v1.scale_to_length(0), None)
+        self.assertEqual(v1, Vector2())
         
 if __name__ == '__main__':
     unittest.main()

@@ -1608,7 +1608,6 @@ MODINIT_DEFINE (color)
 {
     PyObject *colordict;
     PyObject *module;
-    PyObject *dict;
     PyObject *apiobj;
     static void* c_api[PYGAMEAPI_COLOR_NUMSLOTS];
     
@@ -1677,7 +1676,6 @@ MODINIT_DEFINE (color)
         DECREF_MOD(module);
         MODINIT_ERROR;
     }
-    dict = PyModule_GetDict (module);
 
     c_api[0] = &PyColor_Type;
     c_api[1] = PyColor_New;
@@ -1689,11 +1687,11 @@ MODINIT_DEFINE (color)
         DECREF_MOD(module);
         MODINIT_ERROR;
     }
-    if (PyDict_SetItemString (dict, PYGAMEAPI_LOCAL_ENTRY, apiobj)) {
+    if (PyModule_AddObject (module, PYGAMEAPI_LOCAL_ENTRY, apiobj)) {
+        Py_DECREF (apiobj);
         Py_DECREF (_COLORDICT);
         DECREF_MOD(module);
         MODINIT_ERROR;
     }
-    Py_DECREF (apiobj);
     MODINIT_RETURN (module);
 }
