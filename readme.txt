@@ -1,9 +1,9 @@
 
    Pygame Readme
-   Version 1.9.0pre Python Game Development
+   Version 1.9.0rc1 Python Game Development
    Originally by Pete Shinners, now an open source community project.
    http://www.pygame.org
-   pete@shinners.org
+   pygame@seul.org
 
    About
 
@@ -127,18 +127,7 @@
      Numeric package for its multidimensional numeric arrays.
 
    Todo / Ideas (feel free to submit)
-     * transform.skew() function
-     * transform.scroll() function
-     * image filtering (colors,blurs,etc)
-     * quake-like console with python interpreter
-     * game lobby. client, simple server, and protocol
-     * surfarrays should be able to do RGBA along with RGB
-     * draw with transparancy
-     * draw large sets of primitives with a single call
-     * drawing offsets, perhaps as subsurfaces
-     * new scale2x, scale3x, and scale4x from hiend3d
-     * switch Numeric to numarray (see docs on how to do both)
-     * audio resampling
+       http://www.pygame.org/wiki/todo/
 
    License
 
