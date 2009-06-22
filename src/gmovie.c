@@ -145,6 +145,16 @@ PyObject* _movie_repr (PyMovie *movie)
     {
     	loops = 0;
     }
+	//movie has been stopped, need to close down streams and that.
+    if(movie->stop)
+    {
+    	if(movie->video_st)
+			stream_component_close(movie, movie->video_st->index);
+		if(movie->audio_st)
+			stream_component_close(movie, movie->audio_st->index);
+		movie->stop = 0;
+    }
+    
     SDL_LockMutex(movie->dest_mutex);
     movie->loops =loops;
     movie->paused = 0;
@@ -160,7 +170,10 @@ PyObject* _movie_repr (PyMovie *movie)
 {
     Py_INCREF(movie);
     SDL_LockMutex(movie->dest_mutex);
+	//PyThreadState_Swap(NULL);
+    PyEval_ReleaseLock();
     stream_pause(movie);
+    PyEval_AcquireLock();
     movie->seek_req = 1;
     movie->seek_pos = 0;
     movie->seek_flags =AVSEEK_FLAG_BACKWARD;
@@ -300,7 +313,7 @@ int _movie_set_surface(PyObject *mov, PyObject *surface, void *closure)
 	{
 		movie->canon_surf=PySurface_AsSurface(surface);
 		movie->overlay=0;
-		return 1;
+		return 0;
 	}
 	return -1;
 }

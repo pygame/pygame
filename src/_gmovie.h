@@ -236,6 +236,7 @@ typedef struct PyMovie {
 	SDL_cond *audio_sig;
 	SDL_mutex *audio_mutex;
 	SDL_Thread *audio_tid;
+	int channel;
 	
 	/* Frame/Video Management members */
     int frame_count;

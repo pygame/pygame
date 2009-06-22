@@ -932,7 +932,10 @@ int video_open(PyMovie *movie, int index){
 /* get the current video clock value */
  double get_video_clock(PyMovie *movie)
 {
+    DECLAREGIL
+	GRABGIL
     Py_INCREF( movie);
+    RELEASEGIL
     double delta;
     
     if (movie->paused) {
@@ -941,7 +944,9 @@ int video_open(PyMovie *movie, int index){
         delta = (av_gettime() - movie->video_current_pts_time) / 1000000.0;
     }
     double temp = movie->video_current_pts+delta;
+    GRABGIL
     Py_DECREF( movie);
+    RELEASEGIL
     return temp;
 }
 
@@ -1014,13 +1019,14 @@ void stream_pause(PyMovie *movie)
 	GRABGIL
     Py_INCREF( movie);
     RELEASEGIL
+    int paused = movie->paused;
     movie->paused = !movie->paused;
-    if (!movie->paused) {
-
-       movie->video_current_pts = get_video_clock(movie);
-        
-        movie->frame_timer += (av_gettime() - movie->video_current_pts_time) / 1000000.0;
+    if (!movie->paused) 
+    {
+    	movie->video_current_pts = get_video_clock(movie);
+		movie->frame_timer += (av_gettime() - movie->video_current_pts_time) / 1000000.0;
     }
+    movie->last_paused=paused;
     GRABGIL
     Py_DECREF( movie);
 	RELEASEGIL
@@ -1202,7 +1208,6 @@ int audio_thread(void *arg)
 	DECLAREGIL
 	GRABGIL
 	Py_INCREF(movie);
-	//PySys_WriteStdout("Inside audio_thread\n");
 	RELEASEGIL
     double pts;
 	AVPacket *pkt = &movie->audio_pkt;
@@ -1213,15 +1218,9 @@ int audio_thread(void *arg)
 	int co = 0;
 	for(;co<10;co++)
 	{
-		/*GRABGIL
-		PySys_WriteStdout("audio_thread: infinite looping(%i)...\n", co);
-		RELEASEGIL*/
 		//fill up the buffer
 		while(movie->audio_pkt_size > 0)
         {
-        	//GRABGIL
-	        //PySys_WriteStdout("audio_thread: filling up the buffer...\n");
-			//RELEASEGIL
 			data_size = sizeof(movie->audio_buf1);
             len1 += avcodec_decode_audio2(dec, (int16_t *)movie->audio_buf1, &data_size, movie->audio_pkt_data, movie->audio_pkt_size);
             if (len1 < 0) {
@@ -1247,21 +1246,24 @@ int audio_thread(void *arg)
         if (pkt->data)
             av_free_packet(pkt);
 
-        //if (movie->paused) {
-        //    continue;
-        //}
+        if (movie->paused) {
+        	pauseBuffer(movie->channel);
+            goto closing;
+        }
         //check if the movie has ended
 		if(movie->stop)
+		{
+			stopBuffer(movie->channel);
 			goto closing;
+		}
         /* read next packet */
         if (packet_queue_get(&movie->audioq, pkt, 1) < 0)
         {
-			SDL_Delay(10);         
-            continue;
+            goto closing;
         }
         if(pkt->data == flush_pkt.data){
             avcodec_flush_buffers(dec);
-            continue;
+            goto closing;
         }
 
         movie->audio_pkt_data = pkt->data;
@@ -1276,7 +1278,8 @@ int audio_thread(void *arg)
         	/* Buffer is filled up with a new frame, we spin lock/wait for a signal, where we then call playBuffer */
         	SDL_LockMutex(movie->audio_mutex);
         	//SDL_CondWait(movie->audio_sig, movie->audio_mutex);
-        	playBuffer(movie->audio_buf1, data_size);
+        	int chan = playBuffer(movie->audio_buf1, data_size);
+        	movie->channel = chan;
         	filled=0;
         	len1=0;
         	SDL_UnlockMutex(movie->audio_mutex);
@@ -1528,6 +1531,8 @@ PyMovie *stream_open(PyMovie *movie, const char *filename, AVInputFormat *iforma
     //movie->subpq_cond = SDL_CreateCond();
     
     movie->paused = 1;
+    //in case we've called stream open once before...
+    movie->abort_request = 0;
     movie->av_sync_type = AV_SYNC_VIDEO_MASTER;
 	
     video_index = -1;
@@ -1785,6 +1790,7 @@ int decoder_wrapper(void *arg)
 	DECLAREGIL
 	GRABGIL	
 	Py_INCREF(movie);
+	//PySys_WriteStdout("Inside decoder_wrapper\n");
 	RELEASEGIL
 	int state=0;
 	int eternity =0;
@@ -1792,7 +1798,7 @@ int decoder_wrapper(void *arg)
 	{
 		eternity=1;
 	}
-	while((movie->loops>-1||eternity) )
+	while((movie->loops>-1||eternity) && !movie->stop )
 	{
 		movie->loops--;
 		movie=stream_open(movie, movie->filename, NULL, 1);
@@ -1829,6 +1835,10 @@ int decoder_wrapper(void *arg)
         { 
             break;
         }
+        if(movie->stop)
+        {
+        	break;
+        }
         if (movie->paused != movie->last_paused) {
             movie->last_paused = movie->paused;
             if (movie->paused)
@@ -1848,22 +1858,25 @@ int decoder_wrapper(void *arg)
                 seek_target= av_rescale_q(seek_target, AV_TIME_BASE_Q, ic->streams[stream_index]->time_base);
             }
 
-            ret = av_seek_frame(movie->ic, stream_index, seek_target, movie->seek_flags);
+            ret = av_seek_frame(movie->ic, stream_index, seek_target, movie->seek_flags|AVSEEK_FLAG_ANY);
             if (ret < 0) {
                 PyErr_Format(PyExc_IOError, "%s: error while seeking", movie->ic->filename);
             }else{
-                if (movie->audio_stream >= 0) {
+            	//this is done because for some reason, the movie "loses" the values in these variables
+            	int aud_stream = movie->audio_stream;
+            	int vid_stream = movie->video_stream;
+            	
+                if (aud_stream >= 0) {
                     packet_queue_flush(&movie->audioq);
                     packet_queue_put(&movie->audioq, &flush_pkt);
                 }
-                if (movie->subtitle_stream >= 0) {
-		            packet_queue_flush(&movie->subtitleq);
-                    packet_queue_put(&movie->subtitleq, &flush_pkt);
-                }
-                if (movie->video_stream >= 0) {
+                if (vid_stream >= 0) {
                     packet_queue_flush(&movie->videoq);
                     packet_queue_put(&movie->videoq, &flush_pkt);
                 }
+                movie->audio_stream = aud_stream;
+            	movie->video_stream = vid_stream;
+            	
             }
             movie->seek_req = 0;
         }

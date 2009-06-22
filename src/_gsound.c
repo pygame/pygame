@@ -239,6 +239,8 @@ int playBuffer (uint8_t *buf, uint32_t len)
 }
 int stopBuffer (int channel)
 {
+	if(!channel)
+		return 0;
 	Mix_Chunk *mix;
 	mix = Mix_GetChunk(channel);
 	Mix_HaltChannel(channel);
@@ -255,6 +257,8 @@ int stopBuffer (int channel)
 }
 int pauseBuffer(int channel)
 {
+	if(!channel)
+		return 0;
 	int paused = Mix_Paused(channel);
 	if(paused)
 	{
