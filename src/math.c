@@ -744,6 +744,26 @@ error:
 }
 
 
+static PyObject *
+vector_length(PyVector *self)
+{
+    int i;
+    double length = 0;
+    for (i = 0; i < self->dim; ++i)
+        length += self->coords[i] * self->coords[i];
+    return PyFloat_FromDouble(sqrt(length));
+}
+
+static PyObject *
+vector_length_squared(PyVector *self)
+{
+    int i;
+    double length_squared = 0;
+    for (i = 0; i < self->dim; ++i)
+        length_squared += self->coords[i] * self->coords[i];
+    return PyFloat_FromDouble(length_squared);
+}
+
 static void
 vector2_do_rotate(double *dst_coords, const double *src_coords, double angle)
 {
@@ -957,8 +977,97 @@ vector_scale_to_length(PyVector *self, PyObject *length)
     Py_RETURN_NONE;
 }
 
+static PyObject *
+vector_reflect(PyVector *self, PyObject *normal)
+{
+    int i, dim = self->dim;
+    PyVector *ret;
+    double dot_product;
+    double norm_length;
+    /* allocate enough space for 2, 3 and 4 dim vectors */
+    double norm_coords[4];
+
+    if (!checkPyVectorCompatible(normal, dim)) {
+        PyErr_SetString(PyExc_TypeError, "Expected a vector.");
+        return NULL;
+    }
+
+    /* normalize the normal */
+    norm_length = 0;
+    for (i = 0; i < dim; ++i) {
+        norm_coords[i] = PySequence_GetItem_AsDouble(normal, i);
+        norm_length += norm_coords[i] * norm_coords[i];
+    }
+    if (norm_length < self->epsilon) {
+        PyErr_SetString(PyExc_ZeroDivisionError, "Normal must not be of length zero.");
+        return NULL;
+    }
+    if (norm_length != 1) {
+        norm_length = sqrt(norm_length);
+        for (i = 0; i < dim; ++i)
+            norm_coords[i] /= norm_length;
+    }
+    
+    /* calculate the dot_product for the projection */
+    dot_product = 0;
+    for (i = 0; i < dim; ++i)
+        dot_product += self->coords[i] * norm_coords[i];
+    
+    ret = (PyVector *)PyVector_NEW(dim);
+    for (i = 0; i < dim; ++i)
+        ret->coords[i] = self->coords[i] - 2 * norm_coords[i] * dot_product;
+
+    return (PyObject *)ret;
+}
+
+static PyObject *
+vector_reflect_ip(PyVector *self, PyObject *normal)
+{
+    int i, dim = self->dim;
+    double dot_product;
+    double norm_length;
+    /* allocate enough space for 2, 3 and 4 dim vectors */
+    double norm_coords[4];
+
+    if (!checkPyVectorCompatible(normal, dim)) {
+        PyErr_SetString(PyExc_TypeError, "Expected a vector.");
+        return NULL;
+    }
+
+    /* normalize the normal */
+    norm_length = 0;
+    for (i = 0; i < dim; ++i) {
+        norm_coords[i] = PySequence_GetItem_AsDouble(normal, i);
+        norm_length += norm_coords[i] * norm_coords[i];
+    }
+    if (norm_length < self->epsilon) {
+        PyErr_SetString(PyExc_ZeroDivisionError, "Normal must not be of length zero.");
+        return NULL;
+    }
+    if (norm_length != 1) {
+        norm_length = sqrt(norm_length);
+        for (i = 0; i < dim; ++i)
+            norm_coords[i] /= norm_length;
+    }
+    
+    /* calculate the dot_product for the projection */
+    dot_product = 0;
+    for (i = 0; i < dim; ++i)
+        dot_product += self->coords[i] * norm_coords[i];
+    
+    for (i = 0; i < dim; ++i)
+        self->coords[i] -= 2 * norm_coords[i] * dot_product;
+
+    Py_RETURN_NONE;
+}
 
 static PyMethodDef vector2_methods[] = {
+    {"length", (PyCFunction)vector_length, METH_NOARGS,
+     "returns the length/magnitude of the vector."
+    },
+    {"length_squared", (PyCFunction)vector_length_squared, METH_NOARGS,
+     "returns the length/magnitude of the vector."
+    },
     {"rotate", (PyCFunction)vector2_rotate, METH_VARARGS,
      "returns a new vector rotated counterclockwise by the angle given in degrees."
     },
@@ -984,7 +1093,13 @@ static PyMethodDef vector2_methods[] = {
      "returns the angle between self and the given vector."
     },
     {"scale_to_length", (PyCFunction)vector_scale_to_length, METH_O,
-     "scalesthe vector to the given length."
+     "scales the vector to the given length."
+    },
+    {"reflect", (PyCFunction)vector_reflect, METH_O,
+     "reflects the vector on the surface characterized by the given normal."
+    },
+    {"reflect_ip", (PyCFunction)vector_reflect_ip, METH_O,
+     "reflects the vector in-place on the surface characterized by the given normal."
     },
     
     {NULL}  /* Sentinel */
@@ -1017,7 +1132,7 @@ static PyGetSetDef vector2_getsets[] = {
 
 
 /********************************
- * PyVector2d type definition
+ * PyVector2 type definition
  ********************************/
 
 static PyTypeObject PyVector2_Type = {
@@ -1086,6 +1201,7 @@ static PyTypeObject PyVector2_Type = {
     0,                         /* tp_subclasses */
     0,                         /* tp_weaklist */
 };
+
 
 
 static PyMethodDef _math_methods[] =

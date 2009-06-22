@@ -16,7 +16,7 @@ else:
     from test.test_utils import test_not_implemented, unittest
 
 from pygame.math import Vector2
-
+from time import clock
 
 class Vector2TypeTest(unittest.TestCase):
     def testConstructionDefault(self):
@@ -278,6 +278,49 @@ class Vector2TypeTest(unittest.TestCase):
         self.assertRaises(ZeroDivisionError, lambda : Vector2().scale_to_length(1))
         self.assertEqual(v1.scale_to_length(0), None)
         self.assertEqual(v1, Vector2())
+
+    def test_length(self):
+        self.assertEqual(Vector2(3, 4).length(), 5)
+        self.assertEqual(Vector2(-3, 4).length(), 5)
+        self.assertEqual(Vector2().length(), 0)
+        
+    def test_length_squared(self):
+        self.assertEqual(Vector2(3, 4).length_squared(), 25)
+        self.assertEqual(Vector2(-3, 4).length_squared(), 25)
+        self.assertEqual(Vector2().length_squared(), 0)
+
+    def test_reflect(self):
+        v = Vector2(1, -1)
+        n = Vector2(0, 1)
+        self.assertEqual(v.reflect(n), Vector2(1, 1))
+        self.assertEqual(v.reflect(3*n), v.reflect(n))
+        self.assertEqual(v.reflect(-v), -v)
+        self.assertRaises(ZeroDivisionError, lambda : v.reflect(Vector2()))
+        
+    def test_reflect_ip(self):
+        v1 = Vector2(1, -1)
+        v2 = Vector2(v1)
+        n = Vector2(0, 1)
+        self.assertEqual(v2.reflect_ip(n), None)
+        self.assertEqual(v2, Vector2(1, 1))
+        v2 = Vector2(v1)
+        v2.reflect_ip(3*n)
+        self.assertEqual(v2, v1.reflect(n))
+        v2 = Vector2(v1)
+        v2.reflect_ip(-v1)
+        self.assertEqual(v2, -v1)
+        self.assertRaises(ZeroDivisionError, lambda : v2.reflect_ip(Vector2()))
+
+    def testIterProc(self):
+        v = Vector2(1.2, 3.4)
+        it = v.__iter__()
+        self.assertEqual(it.next(), 1.2)
+        self.assertEqual(it.next(), 3.4)
+        self.assertRaises(StopIteration, lambda : it.next())
+        idx = 0
+        for val in v:
+            self.assertEqual(val, v[idx])
+            idx += 1
         
 if __name__ == '__main__':
     unittest.main()
