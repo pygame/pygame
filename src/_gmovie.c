@@ -1505,10 +1505,10 @@ void stream_component_close(PyMovie *movie, int stream_index)
 	RELEASEGIL
 }
 
-PyMovie *stream_open(PyMovie *movie, const char *filename, AVInputFormat *iformat, int threaded)
+void stream_open(PyMovie *movie, const char *filename, AVInputFormat *iformat, int threaded)
 {
     if (!movie)
-        return NULL;
+        return;
     DECLAREGIL
     if(threaded)
 	{
@@ -1660,14 +1660,14 @@ PyMovie *stream_open(PyMovie *movie, const char *filename, AVInputFormat *iforma
 		Py_DECREF(movie);
 		if(threaded)
 			RELEASEGIL
-		return movie;
+		return;
 	}
 	if(threaded)
 		{GRABGIL}
 	Py_DECREF(movie);
     if(threaded)
 	    {RELEASEGIL}
-    return movie;
+    return;
 }
 
  void stream_close(PyMovie *movie)
@@ -1804,7 +1804,7 @@ int decoder_wrapper(void *arg)
 	while((movie->loops>-1||eternity) && !movie->stop )
 	{
 		movie->loops--;
-		movie=stream_open(movie, movie->filename, NULL, 1);
+		stream_open(movie, movie->filename, NULL, 1);
 		movie->paused=0;
 		state =decoder(movie);
 		if(movie->video_st)

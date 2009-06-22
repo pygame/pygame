@@ -18,7 +18,7 @@
 		self->canon_surf=surf;
 	}
 	self->start_time = AV_NOPTS_VALUE;
-	self=stream_open(self, filename, NULL, 0);
+	stream_open(self, filename, NULL, 0);
 	if(!self)
 	{
 		PyErr_SetString(PyExc_IOError, "stream_open failed");
