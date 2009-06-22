@@ -257,7 +257,7 @@ int stopBuffer (int channel)
 }
 int pauseBuffer(int channel)
 {
-	if(!channel)
+	if(channel<=-1)
 		return 0;
 	int paused = Mix_Paused(channel);
 	if(paused)

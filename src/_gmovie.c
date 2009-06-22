@@ -1020,6 +1020,7 @@ void stream_pause(PyMovie *movie)
     Py_INCREF( movie);
     RELEASEGIL
     int paused = movie->paused;
+    //SDL_LockMutex(movie->dest_mutex);
     movie->paused = !movie->paused;
     if (!movie->paused) 
     {
@@ -1027,6 +1028,7 @@ void stream_pause(PyMovie *movie)
 		movie->frame_timer += (av_gettime() - movie->video_current_pts_time) / 1000000.0;
     }
     movie->last_paused=paused;
+    //SDL_UnlockMutex(movie->dest_mutex);
     GRABGIL
     Py_DECREF( movie);
 	RELEASEGIL
@@ -1218,6 +1220,16 @@ int audio_thread(void *arg)
 	int co = 0;
 	for(;co<10;co++)
 	{
+		if (movie->paused) {
+        	pauseBuffer(movie->channel);
+            goto closing;
+        }
+        //check if the movie has ended
+		if(movie->stop)
+		{
+			stopBuffer(movie->channel);
+			goto closing;
+		}
 		//fill up the buffer
 		while(movie->audio_pkt_size > 0)
         {
@@ -1246,16 +1258,7 @@ int audio_thread(void *arg)
         if (pkt->data)
             av_free_packet(pkt);
 
-        if (movie->paused) {
-        	pauseBuffer(movie->channel);
-            goto closing;
-        }
-        //check if the movie has ended
-		if(movie->stop)
-		{
-			stopBuffer(movie->channel);
-			goto closing;
-		}
+        
         /* read next packet */
         if (packet_queue_get(&movie->audioq, pkt, 1) < 0)
         {
@@ -1988,7 +1991,8 @@ int video_render(PyMovie *movie)
     do {
     	
         if (movie->paused && !movie->videoq.abort_request) {
-            return 0;
+            if(movie->paused)
+	            return 0;
         }
         if (packet_queue_get(&movie->videoq, pkt, 0) <=0)
             break;
