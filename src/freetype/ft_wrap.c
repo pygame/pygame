@@ -530,6 +530,8 @@ int _PGFT_Render_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font,
         return -1;
     }
 
+    memset(_buffer, 0xFF, height * pitch);
+
     _buffer_cap = _buffer + (width * height);
     use_kerning = FT_HAS_KERNING(face);
     prev_index = 0;
