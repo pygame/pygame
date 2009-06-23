@@ -316,9 +316,9 @@ static PyObject*
 _frect_repr (PyObject *self)
 {
     PyFRect *r = (PyFRect*) self;
-    char buf[256];
-    /* TODO: overflow possible? */
-    PyOS_snprintf (buf, sizeof (buf), "(%.3f, %.3f, %.3f, %.3f)",
+    /* TODO */
+    char buf[512];
+    PyOS_snprintf (buf, sizeof (buf), "FRect(%.3f, %.3f, %.3f, %.3f)",
         r->x, r->y, r->w, r->h);
     return Text_FromUTF8 (buf);
 }

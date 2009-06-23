@@ -450,7 +450,27 @@ _font_render (PyObject *self, PyObject* args, PyObject *kwds)
     if (render < RENDER_SOLID || render > RENDER_BLENDED)
         render = RENDER_SOLID;
 
-    if (PyUnicode_Check (text))
+    if (!PyObject_IsTrue (text))
+    {
+        /* Empty text. */
+        surface = SDL_CreateRGBSurface (SDL_SWSURFACE, 1,
+            TTF_FontHeight (font->font), 32, 0, 0, 0, 0);
+        if (!surface)
+        {
+            PyErr_SetString (PyExc_PyGameError, SDL_GetError ());
+            return NULL;
+        }
+
+        if (render == RENDER_SHADED)
+        {
+            Uint32 c = SDL_MapRGB (surface->format, bgcolor.r, bgcolor.g,
+                bgcolor.b);
+            SDL_FillRect (surface, NULL, c);
+        }
+        else
+            SDL_SetColorKey (surface, SDL_SRCCOLORKEY, 0);
+    }
+    else if (PyUnicode_Check (text))
     {
         PyObject* strob = PyUnicode_AsEncodedString (text, "utf-8", "replace");
         char *string = Bytes_AS_STRING (strob);

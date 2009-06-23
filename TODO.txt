@@ -16,6 +16,7 @@ CRITICAL:
 * Mark methods, which are limited to certain bpp ranges.
 * Add doc notes about quit() behaviour of the various modules.
 * add pgcompat.h to *mod.h internal headers.
+* Fix eval(repr(xyz)) for most types.
 
 Things to ADD:
 ==============

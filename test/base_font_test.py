@@ -122,7 +122,11 @@ class FontTest(unittest.TestCase):
 
         font = BrokenTestFont()
         self.assertRaises(NotImplementedError, getattr, font, "style")
-        
+
+    def test_pygame2_base_Font___repr__(self):
+        font = TestFont()
+        text = "<Generic Font>"
+        self.assertEqual (repr (font), text)
 
 if __name__ == '__main__':
     unittest.main()

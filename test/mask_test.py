@@ -252,7 +252,8 @@ class MaskTest (unittest.TestCase):
         
         r = m.get_bounding_rects()
 
-        self.assertEqual(repr(r), "[(0, 0, 2, 2), (0, 3, 1, 1), (3, 3, 1, 1)]")
+        self.assertEqual(repr(r),
+            "[Rect(0, 0, 2, 2), Rect(0, 3, 1, 1), Rect(3, 3, 1, 1)]")
 
         #1100
         #1111
@@ -268,7 +269,7 @@ class MaskTest (unittest.TestCase):
         m.set_at(3,1, 1)
  
         r = m.get_bounding_rects()
-        self.assertEqual(repr(r), "[(0, 0, 4, 2)]")
+        self.assertEqual(repr(r), "[Rect(0, 0, 4, 2)]")
 
         #00100
         #01110
@@ -293,7 +294,7 @@ class MaskTest (unittest.TestCase):
         m.set_at(4,2, 0)
 
         r = m.get_bounding_rects()
-        self.assertEqual(repr(r), "[(1, 0, 3, 3)]")
+        self.assertEqual(repr(r), "[Rect(1, 0, 3, 3)]")
 
         #00010
         #00100
@@ -318,7 +319,7 @@ class MaskTest (unittest.TestCase):
         m.set_at(4,2, 0)
 
         r = m.get_bounding_rects()
-        self.assertEqual(repr(r), "[(1, 0, 3, 3)]")
+        self.assertEqual(repr(r), "[Rect(1, 0, 3, 3)]")
 
         #00011
         #11111
@@ -336,7 +337,7 @@ class MaskTest (unittest.TestCase):
         m.set_at(3,1, 1)
  
         r = m.get_bounding_rects()
-        self.assertEqual(repr(r), "[(0, 0, 5, 2)]")
+        self.assertEqual(repr(r), "[Rect(0, 0, 5, 2)]")
 
     def todo_test_pygame2_mask_Mask_height(self):
 
@@ -634,6 +635,11 @@ class MaskTest (unittest.TestCase):
         self.assertEqual(full.convolve(full, None, ( 0,  2)).count, 3)
         self.assertEqual(full.convolve(full, None, (-2, -2)).count, 1)
         self.assertEqual(full.convolve(full, None, (-3, -3)).count, 0)
+
+    def test_pygame2_mask_Mask___repr__(self):
+        mask = Mask (10, 10)
+        text = "<Mask(10, 10)>"
+        self.assertEqual (repr (mask), text)
 
 if __name__ == "__main__":
     unittest.main ()

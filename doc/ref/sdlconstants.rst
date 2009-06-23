@@ -296,7 +296,7 @@ function:
    The default interval for raising :data:`KEYDOWN` events on pressing a key
    down.
 
-The following cosntants are used by the :func:`pygame2.sdl.keyboard.get_state`
+The following constants are used by the :func:`pygame2.sdl.keyboard.get_state`
 and :func:`pygame2.sdl.keyboard.get_key_name` functions and the :data:`KEYDOWN`
 and :data:`KEYUP` events.
 
@@ -381,7 +381,9 @@ and :data:`KEYUP` events.
 +-------------------+-------------------------------------------------------+
 
 The following constants are keyboard modifer states, used as bitwise
-combinations to check, whether they were hold down on keyboard input.
+combinations to check, whether they were hold down on keyboard
+input. They are used by the :func:`pygame2.sdl.keyboard.get_mod_state` and
+:func:`pygame2.sdl.keyboard.set_mod_state` functions.
 
 +-------------------+-------------------------------------------------------+
 | Constant          | Meaning and Value                                     |

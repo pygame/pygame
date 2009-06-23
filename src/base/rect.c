@@ -303,10 +303,11 @@ static PyObject*
 _rect_repr (PyObject *self)
 {
     PyRect *r = (PyRect*) self;
-    char buf[256];
-    PyOS_snprintf (buf, sizeof (buf), "(%d, %d, %u, %u)",
-        r->x, r->y, r->w, r->h);
-    return Text_FromUTF8 (buf);
+#if PY_VERSION_HEX < 0x02050000
+    return Text_FromFormat ("Rect(%d, %d, %ld, %ld)", r->x, r->y, r->w, r->h);
+#else
+    return Text_FromFormat ("Rect(%d, %d, %u, %u)", r->x, r->y, r->w, r->h);
+#endif
 }
 
 /* Rect getters/setters */

@@ -190,7 +190,7 @@ _font_init(PyObject *self, PyObject *args, PyObject *kwds)
 static PyObject*
 _font_repr(PyObject *self)
 {
-    return Text_FromUTF8("Generic Font");
+    return Text_FromUTF8("<Generic Font>");
 }
 
 /* Font getters/setters */

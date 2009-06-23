@@ -312,7 +312,7 @@ def _initunix ():
         retcode = p.returncode
         if sys.version_info[0] >= 3:
             output = str (output, "ascii")
-    except OSError, msg:
+    except OSError:
         _fonts[None] = None
 
     try:
@@ -341,7 +341,7 @@ def _initunix ():
             ftype = _gettype (filename)
             bold, italic = _getstyle (style)
             _addfont (filename, name, ftype, family, bold, italic)
-    except Exception, msg:
+    except Exception:
         _fonts[None] = None
 
 def _initfonts ():
@@ -392,23 +392,22 @@ def find_font (name, bold=False, italic=False, ftype=None):
     #
     for fname in _families.get (name, []):
         fullname, filetype, fbold, fitalic = _fonts[fname]
-        if ftype:
-            if ftype == filetype:
-                # The user requires a certain font filetype.
-                candidates.append ((fname, fbold, fitalic, 0))
+        if ftype and ftype != filetype:
+            # The user requires a certain font filetype.
+            continue
+
+        if bold == fbold and italic == fitalic:
+            # Exact style match
+            candidates.append ((fname, fbold, fitalic, 0))
+        elif italic and italic == fitalic:
+            # Italic matches
+            candidates.append ((fname, fbold, fitalic, 1))
+        elif bold and bold == fbold:
+            # Bold matches
+            candidates.append ((fname, fbold, fitalic, 2))
         else:
-            if bold == fbold and italic == fitalic:
-                # Exact style match
-                candidates.append ((fname, fbold, fitalic, 0))
-            elif italic and italic == fitalic:
-                # Italic matches
-                candidates.append ((fname, fbold, fitalic, 1))
-            elif bold and bold == fbold:
-                # Bold matches
-                candidates.append ((fname, fbold, fitalic, 2))
-            else:
-                # None matches
-                candidates.append ((fname, fbold, fitalic, 3))
+            # None matches
+            candidates.append ((fname, fbold, fitalic, 3))
     if candidates:
         candidates.sort(key=lambda x: x[3])
         return candidates[0][0], candidates[0][1], candidates[0][2]
@@ -417,24 +416,26 @@ def find_font (name, bold=False, italic=False, ftype=None):
         fname = items[0]
         fullname, filetype, fbold, fitalic = items[1]
         if fullname != name and name not in fname:
+            nl = name.lower ()
+            fl = fullname.lower ()
+            if nl not in fl and nl not in fname.lower():
+                continue
+        if ftype and ftype != filetype:
+            # The user requires a certain font filetype.
             continue
-        if ftype:
-            if ftype == filetype:
-                # The user requires a certain font filetype.
-                candidates.append ((fname, fbold, fitalic, 0))
+
+        if bold == fbold and italic == fitalic:
+            # Exact style match
+            candidates.append ((fname, fbold, fitalic, 0))
+        elif italic and italic == fitalic:
+            # Italic matches
+            candidates.append ((fname, fbold, fitalic, 1))
+        elif bold and bold == fbold:
+            # Bold matches
+            candidates.append ((fname, fbold, fitalic, 2))
         else:
-            if bold == fbold and italic == fitalic:
-                # Exact style match
-                candidates.append ((fname, fbold, fitalic, 0))
-            elif italic and italic == fitalic:
-                # Italic matches
-                candidates.append ((fname, fbold, fitalic, 1))
-            elif bold and bold == fbold:
-                # Bold matches
-                candidates.append ((fname, fbold, fitalic, 2))
-            else:
-                # None matches
-                candidates.append ((fname, fbold, fitalic, 3))
+            # None matches
+            candidates.append ((fname, fbold, fitalic, 3))
     if candidates:
         candidates.sort(key=lambda x: x[3])
         return candidates[0][0], candidates[0][1], candidates[0][2]

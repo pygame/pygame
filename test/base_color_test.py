@@ -212,7 +212,7 @@ class ColorTest (unittest.TestCase):
 
     def test_repr (self):
         c = Color (68, 38, 26, 69)
-        t = "(68, 38, 26, 69)"
+        t = "Color(68, 38, 26, 69)"
         self.assertEqual (repr (c), t)
 
     def test_add (self):

@@ -638,11 +638,9 @@ _color_dealloc (PyColor *color)
 static PyObject*
 _color_repr (PyColor *color)
 {
-    /* Max. would be (255, 255, 255, 255) */
-    char buf[21];
-    PyOS_snprintf (buf, sizeof (buf), "(%d, %d, %d, %d)",
+    /* Max. would be Color(255, 255, 255, 255) */
+    return Text_FromFormat("Color(%d, %d, %d, %d)",
         color->r, color->g, color->b, color->a);
-    return Text_FromUTF8 (buf);
 }
 
 /**

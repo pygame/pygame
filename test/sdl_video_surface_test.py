@@ -687,5 +687,21 @@ class SDLVideoSurfaceTest (unittest.TestCase):
         self.assertRaises (pygame2.Error, video.Surface, 68000, 10)
         video.quit ()
 
+    def test_pygame2_sdl_video_Surface___repr__(self):
+        video.init ()
+        sf = video.Surface (10, 10, 8)
+        text = "<Surface 10x10@8bpp>"
+        self.assertEqual (repr (sf), text)
+        sf = video.Surface (0, 0, 16)
+        text = "<Surface 0x0@16bpp>"
+        self.assertEqual (repr (sf), text)
+        sf = video.Surface (34, 728, 24)
+        text = "<Surface 34x728@24bpp>"
+        self.assertEqual (repr (sf), text)
+        sf = video.Surface (1, 1, 32)
+        text = "<Surface 1x1@32bpp>"
+        self.assertEqual (repr (sf), text)
+        video.quit ()
+
 if __name__ == "__main__":
     unittest.main ()

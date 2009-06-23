@@ -109,5 +109,10 @@ class SurfaceTest (unittest.TestCase):
         sf = PartialSurface ()
         self.assertRaises (NotImplementedError, getattr, sf, "width")
 
+    def test_pygame2_base_Surface___repr__(self):
+        sf = TestSurface ()
+        text = "<Generic Surface>"
+        self.assertEqual (repr (sf), text)
+
 if __name__ == "__main__":
     unittest.main ()

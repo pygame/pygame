@@ -428,6 +428,21 @@ typedef enum
     } while(0)
 #endif
 
+
+#define CLIP_RECT_TO_SURFACE(sf,r)                                      \
+    if ((r)->x > (sf)->w || (r)->y > (sf)->h ||                         \
+        ((r)->x + (r)->w) <= 0 || ((r)->y + (r)->h) <= 0)               \
+    {                                                                   \
+        (r)->x = (r)->y = (r)->w = (r)->h = 0;                          \
+    }                                                                   \
+    else                                                                \
+    {                                                                   \
+        (r)->x = MAX((r)->x, 0);                                        \
+        (r)->y = MAX((r)->y, 0);                                        \
+        (r)->w = (Uint16) MIN((r)->x + (r)->w, (sf)->w) - (r)->x;       \
+        (r)->h = (Uint16) MIN((r)->y + (r)->h, (sf)->h) - (r)->y;       \
+    }
+
 int
 pyg_sdlsurface_fill_blend (SDL_Surface *surface, SDL_Rect *rect, Uint32 color,
     int blendargs);

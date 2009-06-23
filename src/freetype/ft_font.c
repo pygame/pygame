@@ -265,8 +265,7 @@ static PyObject*
 _ftfont_repr(PyObject *self)
 {
     PyFreeTypeFont *font = (PyFreeTypeFont *)self;
-    return Text_FromFormat("FreeType Font (%s)", 
-            font->id.open_args.pathname);
+    return Text_FromFormat("Font('%s')", font->id.open_args.pathname);
 }
 
 

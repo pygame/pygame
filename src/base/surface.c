@@ -155,7 +155,7 @@ _surface_init (PyObject *self, PyObject *args, PyObject *kwds)
 static PyObject*
 _surface_repr (PyObject *self)
 {
-    return Text_FromUTF8 ("Surface");
+    return Text_FromUTF8 ("<Generic Surface>");
 }
 
 /* Surface getters/setters */

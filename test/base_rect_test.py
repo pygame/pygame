@@ -887,5 +887,10 @@ class RectTest (unittest.TestCase):
         r.move_ip (10, 33)
         self.assertEqual (r.y, -11)
 
+    def test_pygame2_base_Rect___repr__(self):
+        r = Rect (10, 4, 7, 99)
+        text = "Rect(10, 4, 7, 99)"
+        self.assertEqual (repr (r), text)
+
 if __name__ == "__main__":
     unittest.main ()

@@ -324,7 +324,7 @@ _pixelarray_repr (PyPixelArray *array)
     bpp = surface->format->BytesPerPixel;
     pixels = (Uint8 *) surface->pixels;
 
-    string = Text_FromUTF8 ("PixelArray(");
+    string = Text_FromUTF8 ("<PixelArray(");
 
     absxstep = ABS (array->xstep);
     absystep = ABS (array->ystep);
@@ -560,14 +560,14 @@ _pixelarray_repr (PyPixelArray *array)
     }
 #ifdef IS_PYTHON_3
     tmp1 = string;
-    tmp2 = Text_FromUTF8 ("\n)");
+    tmp2 = Text_FromUTF8 ("\n)>");
     string = PyUnicode_Concat (tmp1, tmp2);
     Py_XDECREF (tmp1);
     Py_XDECREF (tmp2);
     if (!string)
         return NULL;
 #else
-    PyString_ConcatAndDel (&string, PyString_FromString ("\n)"));
+    PyString_ConcatAndDel (&string, PyString_FromString ("\n)>"));
 #endif
     return string;
 }

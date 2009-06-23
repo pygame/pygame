@@ -53,6 +53,17 @@
       The bitmask will consist of the various KMOD_* flags as specified
       in the constants.
     </desc>
+    <example>
+      ...
+      import pygame2.sdl.keyboard as keyboard
+      import pygame2.sdl.constants as constants
+      ...
+      
+      # Check, whether any control ar alt key was pressed.
+      if (keyboard.get_mod_state () &amp; (constants.KMOD_CTRL | constants.KMOD_ALT)) != 0:
+          print ("A control or alt key is pressed")
+      ...
+    </example>
   </func>
   <func name="get_repeat">
     <call>get_repeat () -> delay, interval</call>
@@ -79,6 +90,16 @@
       combination of the KMOD_* flags as they are specified in the
       constants.
     </desc>
+    <example>
+      ...
+      import pygame2.sdl.keyboard as keyboard
+      import pygame2.sdl.constants as constants
+      ...
+      
+      # Enable numlock.
+      keyboard.set_mod_state (constants.KMOD_NUM)
+      ...
+    </example>
   </func>
 </module>
 

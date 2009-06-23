@@ -33,6 +33,7 @@ static PyObject* _event_new (PyTypeObject *type, PyObject *args,
     PyObject *kwds);
 static int _event_init (PyObject *event, PyObject *args, PyObject *kwds);
 static void _event_dealloc (PyEvent *self);
+static PyObject *_event_repr (PyObject *self);
 
 static PyObject* _event_gettype (PyObject *self, void *closure);
 static PyObject* _event_getname (PyObject *self, void *closure);
@@ -68,7 +69,7 @@ PyTypeObject PyEvent_Type =
     0,                          /* tp_getattr */
     0,                          /* tp_setattr */
     0,                          /* tp_compare */
-    0,                          /* tp_repr */
+    (reprfunc) _event_repr,     /* tp_repr */
     0,                          /* tp_as_number */
     0,                          /* tp_as_sequence */
     0,                          /* tp_as_mapping */
@@ -158,6 +159,30 @@ _event_init (PyObject *self, PyObject *args, PyObject *kwds)
     }
 
     return 0;
+}
+
+static PyObject*
+_event_repr (PyObject *self)
+{
+    int ret;
+    char *dicttext;
+    PyObject *str, *tmp;
+    PyEvent *ev = (PyEvent*)self;
+
+    str = PyObject_Str (ev->dict);
+    if (!str)
+        return NULL;
+    ret = UTF8FromObject (str, &dicttext, &tmp);
+    Py_DECREF (str);
+    if (!ret)
+    {
+        Py_XDECREF (tmp);
+        return NULL;
+    }
+
+    str = Text_FromFormat ("Event(%d, %s)", ev->type, dicttext);
+    Py_XDECREF (tmp);
+    return str;
 }
 
 static int
@@ -279,9 +304,9 @@ _create_dict_from_event (SDL_Event *event, int release)
             return NULL;
         PyTuple_SET_ITEM (val, 0,
             PyBool_FromLong (event->motion.state & SDL_BUTTON(1)));
-        PyTuple_SET_ITEM (val, 0,
+        PyTuple_SET_ITEM (val, 1,
             PyBool_FromLong (event->motion.state & SDL_BUTTON(2)));
-        PyTuple_SET_ITEM (val, 0,
+        PyTuple_SET_ITEM (val, 2,
             PyBool_FromLong (event->motion.state & SDL_BUTTON(3)));
         if (!_set_item (dict, "buttons", val))
             goto failed;

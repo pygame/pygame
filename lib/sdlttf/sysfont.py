@@ -17,12 +17,12 @@ def get_sys_font (name, size, style=constants.STYLE_NORMAL):
     """
     if style is None:
         style = constants.STYLE_NORMAL
-    bold = style & constants.STYLE_BOLD
-    italic = style & constants.STYLE_ITALIC
+    bold = (style & constants.STYLE_BOLD) == constants.STYLE_BOLD
+    italic = (style & constants.STYLE_ITALIC) == constants.STYLE_ITALIC
     
     if name:
         fontname, gotbold, gotitalic = \
-            pygame2.font.find_font (name, bold, italic)
+            pygame2.font.find_font (name, bold, italic, "ttf")
     if not fontname:
         return None
         

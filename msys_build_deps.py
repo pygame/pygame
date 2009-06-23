@@ -22,7 +22,7 @@ The recognized, and optional, environment variables are:
 
 To get a list of command line options run
 
-python build_deps.py --help
+python msys_build_deps.py --help
 
 This program has been tested against the following libraries:
 
@@ -31,7 +31,6 @@ SDL_image 1.2.6
 SDL_mixer 1.2 (.8) revision 3942 from SVN
 SDL_ttf 2.0.9
 SDL_gfx 2.0.18
-smpeg revision 370 from SVN
 freetype 2.3.7
 libogg 1.1.3
 libvorbis 1.2.0
@@ -731,36 +730,6 @@ fi
 
 if [ x$BDSTRIP == x1 ]; then
   strip --strip-all /usr/local/bin/SDL_image.dll
-fi
-
-if [ x$BDCLEAN == x1 ]; then
-  set +e
-  make clean
-fi
-"""),
-    Dependency('SMPEG', ['smpeg-[0-9].*', 'smpeg'], ['smpeg.dll'], """
-
-set -e
-cd $BDWD
-
-if [ x$BDCONF == x1 ]; then
-  # This comes straight from SVN so has no configure script
-  if [ ! -f "./configure" ]; then
-    ./autogen.sh
-  fi
-  ./configure --disable-gtk-player --disable-opengl-player --disable-gtktest
-fi
-
-if [ x$BDCOMP == x1 ]; then
-  make CXXLD='$(CXX) -no-undefined'
-fi
-
-if [ x$BDINST == x1 ]; then
-  make install
-fi
-
-if [ x$BDSTRIP == x1 ]; then
-  strip --strip-all /usr/local/bin/smpeg.dll
 fi
 
 if [ x$BDCLEAN == x1 ]; then
