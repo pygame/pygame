@@ -1219,7 +1219,7 @@ int audio_thread(void *arg)
 	int filled =0;
 	len1=0;
 	int co = 0;
-	for(;co<10;co++)
+	for(;co<2;co++)
 	{
 		if(movie->audio_paused && !movie->paused)
 		{

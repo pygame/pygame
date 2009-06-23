@@ -6,9 +6,9 @@
 #define _MIXER_DEFAULT_CHANNELS 2
 #define _MIXER_DEFAULT_CHUNKSIZE 4096
 
-SDL_cond *audio_sig;
 BufferQueue queue;
 int playing =0;
+int s_channel;
 int queue_get(BufferQueue *q, BufferNode **pkt1)
 {
 	//BufferNode *pkt1;
@@ -76,7 +76,7 @@ void cb_mixer(int channel)
 }
 
 //initialize the mixer audio subsystem, code cribbed from mixer.c
-int soundInit  (int freq, int size, int channels, int chunksize, SDL_cond *cond)
+int soundInit  (int freq, int size, int channels, int chunksize)
 {
 	Uint16 fmt = 0;
     int i;
@@ -139,7 +139,7 @@ int soundInit  (int freq, int size, int channels, int chunksize, SDL_cond *cond)
             SDL_QuitSubSystem (SDL_INIT_AUDIO);
             return -1;
         }
-
+		s_channel = 0;
         /* A bug in sdl_mixer where the stereo is reversed for 8 bit.
            So we use this CPU hogging effect to reverse it for us.
            Hopefully this bug is fixed in SDL_mixer 1.2.9
@@ -159,11 +159,7 @@ int soundInit  (int freq, int size, int channels, int chunksize, SDL_cond *cond)
         Mix_VolumeMusic (127);
         Mix_ChannelFinished(&cb_mixer);
     }
-    audio_sig=cond;
-    if(audio_sig)
-	{
-		SDL_CondSignal(audio_sig);
-	}
+    
 	
 	queue.size=0;
 	queue.first=queue.last=NULL;	
@@ -229,7 +225,8 @@ int playBuffer (uint8_t *buf, uint32_t len, int channel)
 	mix->alen = (Uint32 )len;
 	mix->volume = 127;
 	playing = 1;
-	int ret = Mix_PlayChannel(-1, mix, 0);
+	int ret = Mix_PlayChannel(s_channel, mix, 0);
+	s_channel = ret;
 	//if buffer was allocated, we gotta clean it up.
 	if(allocated)
 	{

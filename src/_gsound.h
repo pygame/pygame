@@ -15,7 +15,7 @@ typedef struct BufferQueue{
 	int size;
 } BufferQueue;
 
-int soundInit  (int freq, int size, int channels, int chunksize, SDL_cond *cond);
+int soundInit  (int freq, int size, int channels, int chunksize);
 int soundQuit  (void);
 int playBuffer (uint8_t *buf, uint32_t len, int channel);
 int stopBuffer (int channel);
