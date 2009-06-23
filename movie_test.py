@@ -77,7 +77,7 @@ screen = pygame.display.set_mode((m.width, m.height))
 # time.
 
 counter = 0
-actions = {5: lambda x: x.pause(), 10: lambda x: x.pause(), 15: lambda x: x.resize(x.width/2, x.height/2), 20:lambda x: x.stop(), 22: lambda x: x.play(-1)}
+actions = {1: lambda x: x.paused, 5: lambda x: x.pause(), 10: lambda x: x.pause(), 15: lambda x: x.resize(x.width/2, x.height/2), 20:lambda x: x.stop(), 22: lambda x: x.play(-1)}
 prev_time = time.time()
 m.surface = screen
 print "About to do surface gymnastics..."
@@ -98,7 +98,9 @@ while(1):
         actions[counter](m)
         counter +=1
     #print "updating"
-    pygame.display.update() #we can do this because we're blitting each frame of the movie to the main screen we instantiated.
+    time.sleep(0.1) #we need to let go of the gil occassionally...
+    if(not screen.get_locked()):
+        pygame.display.update() #we can do this because we're blitting each frame of the movie to the main screen we instantiated.
     
 m.stop()
 del m

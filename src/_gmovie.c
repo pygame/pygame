@@ -1540,7 +1540,7 @@ void stream_open(PyMovie *movie, const char *filename, AVInputFormat *iformat, i
     movie->subpq_mutex = SDL_CreateMutex();
     //movie->subpq_cond = SDL_CreateCond();
     
-    movie->paused = 1;
+    //movie->paused = 1;
     //in case we've called stream open once before...
     movie->abort_request = 0;
     movie->av_sync_type = AV_SYNC_VIDEO_MASTER;

@@ -133,11 +133,23 @@ PyObject* _movie_repr (PyMovie *movie)
 PyObject* _movie_play(PyMovie *movie, PyObject* args)
 {
 	PyEval_InitThreads();
-	PyInterpreterState *interp;
-	PyThreadState *thread;
-	thread=PyThreadState_Get();
-	interp = thread->interp;
-	movie->_tstate = PyThreadState_New(interp);
+	if(movie->playing)
+	{
+		if(movie->paused)
+		{
+			//if we've called this after we paused n times where n is odd, then we unpause the movie
+			_movie_pause(movie);
+		}
+		//indicating we've called play again before its finished		
+	}
+	else
+	{
+		PyInterpreterState *interp;
+		PyThreadState *thread;
+		thread=PyThreadState_Get();
+		interp = thread->interp;
+		movie->_tstate = PyThreadState_New(interp);
+	}
 	Py_INCREF(movie);
     //PySys_WriteStdout("Inside .play\n");
     int loops;
