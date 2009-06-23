@@ -23,7 +23,13 @@ print m.height  # They can be modified on the fly, as will be demonstrated.
 
 print m         #calls __repr__, which will show the filename, and the current 
                 # timestamp. 
+#print "repeated looping plays.."
+#m.play(10)
+#time.sleep(10*30)
+
+
 print "Playing infinitely"
+
 m.play(-1)      #We're going to use infinite play, so we can demonstrate all 
                 # the features.
 time.sleep(10)  #sleep for ten seconds to let one see the video play, and hear 
@@ -60,7 +66,7 @@ print "Unpausing..."
 m.pause()
 print m.paused
 print m.playing
-time.sleep(10)
+time.sleep(20)
 #Here is the stop function. Right now, rewind is the exact same as stop.
 print "Stopping..."
 m.stop()

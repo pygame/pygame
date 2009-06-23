@@ -101,6 +101,7 @@ void initializeLookupTables(void) {
     
     if (!pkt1)
         return -1;
+    av_dup_packet(pkt);
     pkt1->pkt = *pkt;
     pkt1->next = NULL;
 
@@ -1980,7 +1981,7 @@ int decoder(void *arg)
     Py_DECREF( movie);
     RELEASEGIL
     //RELEASEGIL
-    movie->stop =1;
+    //movie->stop =1;
     if(movie->abort_request)
     {	return -1;}
     return 0;
