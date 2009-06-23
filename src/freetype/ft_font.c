@@ -583,7 +583,10 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
     }
 
     if (!r_pixels)
+    {
+        PyErr_SetString (PyExc_PyGameError, PGFT_GetError (ft));
         goto cleanup;
+    }
 
     rtuple = Py_BuildValue("(iiO)", width, height, r_pixels);
 

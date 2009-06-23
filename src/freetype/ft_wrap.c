@@ -104,7 +104,6 @@ PGFT_BuildUnicodeString(PyObject *obj, int *must_free)
     FT_UInt16 *utf16_buffer = NULL;
     *must_free = 0;
 
-#ifdef IS_PYTHON_3
     /* 
      * If this is Python 3 and we pass an unicode string,
      * we can access directly its internal contents, as
@@ -113,37 +112,26 @@ PGFT_BuildUnicodeString(PyObject *obj, int *must_free)
     if (PyUnicode_Check(obj))
     {
         utf16_buffer = (FT_UInt16 *)PyUnicode_AS_UNICODE(obj);
-    } else
-#endif
+    }
+    else if (Bytes_Check(obj))
+    {
+    
+        const char *latin1_buffer;
+        size_t i, len;
 
-        /*
-         * If we pass a Bytes array, we assume it's standard
-         * text encoded in Latin1 (SDL_TTF does the same).
-         * We need to expand each character into 2 bytes because
-         * FreeType expects UTF16 encodings.
-         *
-         * TODO: What happens if the user passes a byte array
-         * representing e.g. a UTF8 string? He would be mostly
-         * stupid, yes, but we should probably handle it.
-         */
-        if (Bytes_Check(obj))
-        {
-            const char *latin1_buffer;
-            size_t i, len;
+        latin1_buffer = (const char *)Bytes_AsString(obj);
+        len = strlen(latin1_buffer);
 
-            latin1_buffer = (const char *)Bytes_AsString(obj);
-            len = strlen(latin1_buffer);
+        utf16_buffer = malloc((len + 1) * sizeof(FT_UInt16));
+        if (!utf16_buffer)
+            return NULL;
 
-            utf16_buffer = malloc((len + 1) * sizeof(FT_UInt16));
-            if (!utf16_buffer)
-                return NULL;
+        for (i = 0; i < len; ++i)
+            utf16_buffer[i] = (FT_UInt16)latin1_buffer[i];
 
-            for (i = 0; i < len; ++i)
-                utf16_buffer[i] = (FT_UInt16)latin1_buffer[i];
-
-            utf16_buffer[i] = 0;
-            *must_free = 1;
-        }
+        utf16_buffer[i] = 0;
+        *must_free = 1;
+    }
 
     return utf16_buffer;
 }

@@ -737,6 +737,36 @@ if [ x$BDCLEAN == x1 ]; then
   make clean
 fi
 """),
+    Dependency('SMPEG', ['smpeg-[0-9].*', 'smpeg'], ['smpeg.dll'], """
+
+set -e
+cd $BDWD
+
+if [ x$BDCONF == x1 ]; then
+  # This comes straight from SVN so has no configure script
+  if [ ! -f "./configure" ]; then
+    ./autogen.sh
+  fi
+  ./configure --disable-gtk-player --disable-opengl-player --disable-gtktest
+fi
+
+if [ x$BDCOMP == x1 ]; then
+  make CXXLD='$(CXX) -no-undefined'
+fi
+
+if [ x$BDINST == x1 ]; then
+  make install
+fi
+
+if [ x$BDSTRIP == x1 ]; then
+  strip --strip-all /usr/local/bin/smpeg.dll
+fi
+
+if [ x$BDCLEAN == x1 ]; then
+  set +e
+  make clean
+fi
+"""),
     Dependency('OGG', ['libogg-[1-9].*'], ['libogg-0.dll'], """
 
 set -e

@@ -21,6 +21,7 @@ rst: clean
 	@cp -f BuildUnix.txt buildunix.rst
 	@cp -f MODULES.txt newmodules.rst
 	@cp -f MODULE_FAQ.txt module_faq.rst
+	@cp -f RELEASE.txt release.rst
 	@cp -f ../NEWS.txt news.rst
 
 help:
@@ -37,7 +38,7 @@ docclean:
 	@rm -rf sphinx/build *~ *.pyc *.orig ref/pygame2_*
 	@rm -f ref/pygame2.rst ref/*~ ref/*.pyc ref/*.orig
 	@rm -f builddarwin.rst buildmingw.rst buildunix.rst buildvc.rst
-	@rm -f newmodules.rst module_faq.rst news.rst
+	@rm -f newmodules.rst module_faq.rst news.rst release.rst
 
 clean: docclean
 	@rm -rf html

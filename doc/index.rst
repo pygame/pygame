@@ -23,6 +23,7 @@ Contents:
    modules.rst
    capi.rst
    extending.rst
+   release.rst
 
 .. todolist::
 

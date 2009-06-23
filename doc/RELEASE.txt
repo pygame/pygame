@@ -56,7 +56,14 @@ Before a new release takes place, the following steps have to be made:
 * Update README.txt and doc/BuildXXX.txt to point to the latest required
   dependency versions.
 
-* Make sure, all tests for all supported Python versions work.
+* Make sure, all tests for all supported Python versions work on all
+  platforms. ::
+
+  make clean
+  make purge_installs
+  make installall
+  make testall
+  make testall2
 
 Editing News
 ============
@@ -101,7 +108,41 @@ tracker id should be added. ::
 Releasing
 =========
 Once anything's tested, updated written down, the required packages have to be
-built. TODO
+built. First of all, the source packages are required as the binary packages
+will be built using them. ::
+
+    make release
+
+This also will create a set of bundled docs to be distributed.
+
+Win32 installers
+----------------
+For Win32 platforms, binary builds (MSI packages) for the Python versions
+*2.4*, *2.5*, *2.6* and *3.0* have to be made, based on one of the source
+packages, which were just created. ::
+
+  # For Python 2.4
+  c:\PythonXX\python.exe setup.py build bdist_wininst
+  
+  # For Python > 2.4
+  c:\PythonXX\python.exe setup.py build bdist_msi
+
+Once all installers are available, make sure they work and ship anything
+required by running the unit tests: ::
+
+  # Under Msys:
+  make testall
+  
+  # Win32 CMD prompt (do that for all versions):
+  c:\PythonXX\python.exe -c "import pygame2.test; pygame2.test.run ()"
+
+Mac OS X installers
+-------------------
+*TODO: Instructions for Mac OS X platforms*
+
+Once all packages are built the revision control tree can be tagged with the
+new version, the packages be published and an announcement sent to the mailing
+list.
 
 Postprocessing
 ==============
@@ -128,7 +169,7 @@ differently from the version, the developer worked with? The program is most
 likely to fail and the user will blame either the developer or the library.
 
 With a consistent versioning scheme, developers can test against versions
-explicitly to guarantee the functionality with those. User can receive an
+explicitly to guarantee the functionality with those. Users can receive an
 explicit notice, if their installed version might be incompatible and react
 upon that accordingly.
 
