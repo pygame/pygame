@@ -70,7 +70,7 @@ void cb_mixer(int channel)
 	PyMem_Free(mix);
 	mix=NULL;
 	//PySys_WriteStdout("Callback called.\n");
-	playBuffer(NULL, (uint32_t) 0);
+	playBuffer(NULL, (uint32_t) 0, channel);
 	//PySys_WriteStdout("Callback finished.\n");
 	//PyGILState_Release(gstate);
 }
@@ -178,7 +178,7 @@ int soundQuit(void)
 }
 	
 /* Play a sound buffer, with a given length */
-int playBuffer (uint8_t *buf, uint32_t len)
+int playBuffer (uint8_t *buf, uint32_t len, int channel)
 {
 	Mix_Chunk *mix;
 	int allocated=0;
@@ -194,7 +194,7 @@ int playBuffer (uint8_t *buf, uint32_t len)
 			node->len = len;
 			node->next =NULL;
 			queue_put(&queue, node);
-			return 0;
+			return channel;
 		}
 		else if(!buf && queue.size==0)
 		{
@@ -271,10 +271,16 @@ int pauseBuffer(int channel)
 	return 0;
 }
 		
+int getPaused (int channel)
+{
+	if(channel<=-1)
+		return 0;
+	return Mix_Paused(channel);
+}
 int seekBuffer (uint8_t *buf, uint32_t len, int channel)
 {
 	stopBuffer(channel);
-	return playBuffer(buf, len);
+	return playBuffer(buf, len, channel);
 }
 
 int setCallback(void (*callback)(int channel))

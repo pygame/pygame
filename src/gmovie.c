@@ -1,7 +1,7 @@
 #include "gmovie.h"
 
 
- PyMovie*  _movie_init_internal(PyMovie *self, const char *filename, SDL_Surface *surf)
+PyMovie*  _movie_init_internal(PyMovie *self, const char *filename, SDL_Surface *surf)
 {
 	Py_INCREF(self);
 	//already malloced memory for PyMovie.
@@ -31,7 +31,7 @@
 }
 
 
- int _movie_init(PyObject *self, PyObject *args, PyObject *kwds)
+int _movie_init(PyObject *self, PyObject *args, PyObject *kwds)
 {
 	Py_INCREF(self);
 	const char *c;
@@ -130,7 +130,7 @@ PyObject* _movie_repr (PyMovie *movie)
     PyObject *buffer = PyString_FromString(buf);
     return buffer;
 }
- PyObject* _movie_play(PyMovie *movie, PyObject* args)
+PyObject* _movie_play(PyMovie *movie, PyObject* args)
 {
 	PyEval_InitThreads();
 	PyInterpreterState *interp;
@@ -160,36 +160,38 @@ PyObject* _movie_repr (PyMovie *movie)
     movie->paused = 0;
     movie->playing = 1;
     SDL_UnlockMutex(movie->dest_mutex);
-	PyEval_ReleaseLock();	
+	Py_BEGIN_ALLOW_THREADS	
 	movie->parse_tid = SDL_CreateThread(decoder_wrapper, movie);
+	Py_END_ALLOW_THREADS
     Py_DECREF(movie);
     Py_RETURN_NONE;
 }
 
- PyObject* _movie_stop(PyMovie *movie)
+PyObject* _movie_stop(PyMovie *movie)
 {
     Py_INCREF(movie);
+    Py_BEGIN_ALLOW_THREADS
     SDL_LockMutex(movie->dest_mutex);
-	//PyThreadState_Swap(NULL);
-    PyEval_ReleaseLock();
     stream_pause(movie);
-    PyEval_AcquireLock();
     movie->seek_req = 1;
     movie->seek_pos = 0;
     movie->seek_flags =AVSEEK_FLAG_BACKWARD;
     movie->stop = 1;
+    Py_END_ALLOW_THREADS
     SDL_UnlockMutex(movie->dest_mutex);  
     Py_DECREF(movie);
     Py_RETURN_NONE;
 }  
 
- PyObject* _movie_pause(PyMovie *movie)
+PyObject* _movie_pause(PyMovie *movie)
 {
+	Py_BEGIN_ALLOW_THREADS
     stream_pause(movie); 
+    Py_END_ALLOW_THREADS
     Py_RETURN_NONE;
 }
 
- PyObject* _movie_rewind(PyMovie *movie, PyObject* args)
+PyObject* _movie_rewind(PyMovie *movie, PyObject* args)
 {
     /* For now, just alias rewind to stop */
     return _movie_stop(movie);
@@ -213,7 +215,7 @@ PyObject* _movie_resize       (PyMovie *movie, PyObject* args)
 	Py_RETURN_NONE;
 	
 }
- PyObject* _movie_get_paused (PyMovie *movie, void *closure)
+PyObject* _movie_get_paused (PyMovie *movie, void *closure)
 {
     return PyBool_FromLong((long)movie->paused);
 }
@@ -232,7 +234,12 @@ PyObject* _movie_get_width (PyMovie *movie, void *closure)
     	if(movie->width)
     		{pyo = PyInt_FromLong((long)movie->width);}
     	else
-    		{pyo= PyInt_FromLong((long)movie->video_st->codec->width);}
+    	{
+    		if(movie->video_st->codec)
+	    		{pyo= PyInt_FromLong((long)movie->video_st->codec->width);}
+    		else
+    			{pyo = PyInt_FromLong((long)0);}
+    	}
     }
     else
     {
@@ -332,7 +339,7 @@ static PyMemberDef _movie_members[] = {
 	{ NULL}
 };
 	
- static PyGetSetDef _movie_getsets[] =
+static PyGetSetDef _movie_getsets[] =
 {
     { "paused",  (getter) _movie_get_paused,  NULL,                        DOC_GMOVIEMOVIEPAUSE,   NULL },
     { "playing", (getter) _movie_get_playing, NULL,                        DOC_GMOVIEMOVIEPLAYING, NULL },
@@ -342,7 +349,7 @@ static PyMemberDef _movie_members[] = {
     { NULL,      NULL,                        NULL,                        NULL,                   NULL }
 };
 
- static PyTypeObject PyMovie_Type =
+static PyTypeObject PyMovie_Type =
 {
     PyObject_HEAD_INIT(NULL)
     0, 

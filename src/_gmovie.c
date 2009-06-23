@@ -1015,10 +1015,10 @@ int video_open(PyMovie *movie, int index){
 /* pause or resume the video */
 void stream_pause(PyMovie *movie)
 {
-	DECLAREGIL
-	GRABGIL
+	/*DECLAREGIL
+	GRABGIL*/
     Py_INCREF( movie);
-    RELEASEGIL
+    //RELEASEGIL
     int paused = movie->paused;
     //SDL_LockMutex(movie->dest_mutex);
     movie->paused = !movie->paused;
@@ -1029,9 +1029,9 @@ void stream_pause(PyMovie *movie)
     }
     movie->last_paused=paused;
     //SDL_UnlockMutex(movie->dest_mutex);
-    GRABGIL
+    //GRABGIL
     Py_DECREF( movie);
-	RELEASEGIL
+	//RELEASEGIL
 }
 
 
@@ -1220,10 +1220,17 @@ int audio_thread(void *arg)
 	int co = 0;
 	for(;co<10;co++)
 	{
-		if (movie->paused) {
+		if(movie->audio_paused && !movie->paused)
+		{
+			pauseBuffer(movie->channel);
+			movie->audio_paused = 0;	
+		}
+		if (movie->paused && !movie->audio_paused) {
         	pauseBuffer(movie->channel);
+        	movie->audio_paused = 1;
             goto closing;
         }
+       
         //check if the movie has ended
 		if(movie->stop)
 		{
@@ -1281,7 +1288,7 @@ int audio_thread(void *arg)
         	/* Buffer is filled up with a new frame, we spin lock/wait for a signal, where we then call playBuffer */
         	SDL_LockMutex(movie->audio_mutex);
         	//SDL_CondWait(movie->audio_sig, movie->audio_mutex);
-        	int chan = playBuffer(movie->audio_buf1, data_size);
+        	int chan = playBuffer(movie->audio_buf1, data_size, movie->channel);
         	movie->channel = chan;
         	filled=0;
         	len1=0;
@@ -1816,7 +1823,7 @@ int decoder_wrapper(void *arg)
 }
 
 /* this thread gets the stream from the disk or the network */
- int decoder(void *arg)
+int decoder(void *arg)
 {
 	PyMovie *movie = arg;
 	DECLAREGIL
@@ -1888,11 +1895,15 @@ int decoder_wrapper(void *arg)
             (movie->videoq.size > MAX_VIDEOQ_SIZE )||
             (movie->subtitleq.size > MAX_SUBTITLEQ_SIZE)) {
             /* wait 10 ms */
-            if(movie->videoq.size > MAX_VIDEOQ_SIZE && movie->video_st)
-            	video_render(movie);
-            if(movie->audioq.size > MAX_AUDIOQ_SIZE && movie->audio_st)
-	            audio_thread(movie);
-            SDL_Delay(10);
+			if(!movie->paused)
+			{
+				//we only forcefully pull a packet of the queues when the queue is too large and the video file is not paused.
+				// The simple reason is that video_render and audio_thread do nothing, so its a waste of cycles.
+	            if(movie->videoq.size > MAX_VIDEOQ_SIZE && movie->video_st)
+	            	{video_render(movie);}
+	            if(movie->audioq.size > MAX_AUDIOQ_SIZE && movie->audio_st)
+		            {audio_thread(movie);}
+			}
             continue;
         }
         if(url_feof(ic->pb)) {
@@ -1943,8 +1954,6 @@ int decoder_wrapper(void *arg)
                 }
                 movie->last_showtime = av_gettime()/1000.0;
                 
-            } else {
-                SDL_Delay(10);
             }
         }
         /*
@@ -1991,9 +2000,8 @@ int video_render(PyMovie *movie)
     do {
     	
         if (movie->paused && !movie->videoq.abort_request) {
-            if(movie->paused)
-	            return 0;
-        }
+	    	goto the_end;
+	    }
         if (packet_queue_get(&movie->videoq, pkt, 0) <=0)
             break;
 		
@@ -2010,8 +2018,7 @@ int video_render(PyMovie *movie)
                                     frame, &got_picture,
                                     pkt->data, pkt->size);
 		
-        if(   ( pkt->dts == AV_NOPTS_VALUE)
-           && frame->reordered_opaque != AV_NOPTS_VALUE)
+        if(( pkt->dts == AV_NOPTS_VALUE) && (frame->reordered_opaque != AV_NOPTS_VALUE))
         {
             pts= frame->reordered_opaque;
         }

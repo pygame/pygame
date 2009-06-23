@@ -37,18 +37,22 @@ print m
 # the same time.
 print "Resizing..."
 m.resize(m.width/2, m.height*2)
+print "sleeping..."
 time.sleep(10) #another ten second nap.
 print "Resizing again..."
-m.width = m.width*4 
+m.width = m.width*4
+print "sleeping again" 
 time.sleep(10)
 print "Back to normal!"
 m.width=m.width/2
 m.height = m.height/2
+print "and again, sleeping..."
 #back to our original size
 time.sleep(10)
 #Here we demonstrate the use of pause. You pause, then call pause again to play
 print "Pausing..."
 m.pause()
+print "done pausing..."
 print m.paused
 print m.playing
 time.sleep(2)
@@ -65,8 +69,8 @@ time.sleep(3)
 print "Playing again..."
 m.play(-1)
 
-print "Surface time..."
 time.sleep(10)
+print "Surface time..."
 screen = pygame.display.set_mode((m.width, m.height))
 #This will move the movie player from overlay mode to blitting to the surface 
 # we've given it. This means it is our responsibility to update the display on 
@@ -84,12 +88,16 @@ while(1):
         counter+=1
         print counter
         prev_time=new_time
+    #print "testing counter"
     if counter==30:
+        #print "breaking"
         break
+    #print "has_key"
     if actions.has_key(counter):
         print "Performing action at counter value: %d" % counter
         actions[counter](m)
         counter +=1
+    #print "updating"
     pygame.display.update() #we can do this because we're blitting each frame of the movie to the main screen we instantiated.
     
 m.stop()
