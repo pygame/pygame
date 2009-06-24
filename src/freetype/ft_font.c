@@ -352,8 +352,11 @@ _ftfont_getsize(PyObject *self, PyObject* args, PyObject *kwds)
         return NULL;
     }
 
+    /*
+     * FIXME: Return real height or average height? 
+     */
     error = PGFT_GetTextSize(ft, (PyFreeTypeFont *)self, 
-            text_buffer, ptsize, &width, &height);
+            text_buffer, ptsize, &width, NULL, &height);
 
     if (error)
         PyErr_SetString(PyExc_RuntimeError, PGFT_GetError(ft));
@@ -493,15 +496,17 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
     /* keyword list */
     static char *kwlist[] = 
     { 
-        "text", "ptsize", "target_surface", NULL
+        "text", "ptsize", "target_surface", "fgcolor", "bgcolor", NULL
     };
 
     PyFreeTypeFont *font = (PyFreeTypeFont *)self;
 
     /* input arguments */
-    PyObject *text = NULL; 
+    PyObject *text = NULL;
     int ptsize = -1;
     PyObject *render_on = NULL;
+    PyObject *fg_color = NULL;
+    PyObject *bg_color = NULL;
 
     /* default render mode */
     int render_mode = FT_RENDER_NEWBYTEARRAY;
@@ -518,8 +523,8 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
     ASSERT_GRAB_FREETYPE(ft, NULL);
 
     /* parse args */
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|iO", kwlist,
-                &text, &ptsize, &render_on))
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|iOOO", kwlist,
+                &text, &ptsize, &render_on, &fg_color, &bg_color))
         return NULL;
 
     if (ptsize == -1)
@@ -532,6 +537,18 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
         }
         
         ptsize = font->default_ptsize;
+    }
+
+    if (fg_color && !PyColor_Check(fg_color))
+    {
+        PyErr_SetString (PyExc_TypeError, "fgcolor must be a Color");
+        return NULL;
+    }
+
+    if (bg_color && !PyColor_Check(bg_color))
+    {
+        PyErr_SetString (PyExc_TypeError, "bgcolor must be a Color");
+        return NULL;
     }
 
     text_buffer = PGFT_BuildUnicodeString(text, &free_buffer);
@@ -565,7 +582,8 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
 
     case FT_RENDER_NEWSURFACE:
         r_pixels = PGFT_Render_NewSurface(ft, font, text_buffer,
-                ptsize, &width, &height);
+                ptsize, &width, &height, 
+                (PyColor *)fg_color, (PyColor *)bg_color);
         break;
 
     case FT_RENDER_EXISTINGSURFACE:

@@ -83,7 +83,7 @@ FT_UInt16 *PGFT_BuildUnicodeString(PyObject *, int *);
 PyObject  *PGFT_BuildSDLSurface(FT_Byte *buffer, int width, int height);
 
 int     PGFT_GetTextSize(FreeTypeInstance *, PyFreeTypeFont *,
-            const FT_UInt16 *, int, int *, int *);
+            const FT_UInt16 *, int, int *, int *, int *);
 
 int     PGFT_GetMetrics(FreeTypeInstance *ft, PyFreeTypeFont *font,
             int character, int font_size, int bbmode, 
@@ -92,6 +92,7 @@ int     PGFT_GetMetrics(FreeTypeInstance *ft, PyFreeTypeFont *font,
 PyObject *PGFT_Render_PixelArray(FreeTypeInstance *ft, PyFreeTypeFont *font,
         const FT_UInt16 *text, int font_size, int *_width, int *_height);
 PyObject *PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
-        const FT_UInt16 *text, int font_size, int *_width, int *_height);
+        const FT_UInt16 *text, int font_size, int *_width, int *_height,
+        PyColor *fg_color, PyColor *bg_color);
 
 #endif
