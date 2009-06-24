@@ -176,6 +176,8 @@ int soundInit  (int freq, int size, int channels, int chunksize)
 int soundQuit(void)
 {
 	queue_flush(&queue);
+	stopBuffer(s_channel);
+	Mix_ChannelFinished(NULL);
 	Mix_CloseAudio();
 	return 0;
 }

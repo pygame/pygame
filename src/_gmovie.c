@@ -97,11 +97,14 @@ void initializeLookupTables(void) {
 {
     AVPacketList *pkt1;
 
+	/* duplicate the packet */
+    if (pkt!=&flush_pkt && av_dup_packet(pkt) < 0)
+        return -1;
+
     pkt1 = PyMem_Malloc(sizeof(AVPacketList));
     
     if (!pkt1)
         return -1;
-    av_dup_packet(pkt);
     pkt1->pkt = *pkt;
     pkt1->next = NULL;
 
@@ -795,7 +798,7 @@ int video_open(PyMovie *movie, int index){
 	int h=0;
 	get_height_width(movie, &h, &w);
 	
-	if(!vp->dest_overlay||!vp->dest_surface||vp->width!=movie->width||vp->height!=movie->height)
+	if((!vp->dest_overlay && vp->overlay>0)||(!vp->dest_surface && vp->overlay<=0)||vp->width!=movie->width||vp->height!=movie->height)
 	{
 		video_open(movie, movie->pictq_windex);
 	}	
@@ -1016,12 +1019,8 @@ int video_open(PyMovie *movie, int index){
 /* pause or resume the video */
 void stream_pause(PyMovie *movie)
 {
-	/*DECLAREGIL
-	GRABGIL*/
     Py_INCREF( movie);
-    //RELEASEGIL
     int paused = movie->paused;
-    //SDL_LockMutex(movie->dest_mutex);
     movie->paused = !movie->paused;
     if (!movie->paused) 
     {
@@ -1029,10 +1028,7 @@ void stream_pause(PyMovie *movie)
 		movie->frame_timer += (av_gettime() - movie->video_current_pts_time) / 1000000.0;
     }
     movie->last_paused=paused;
-    //SDL_UnlockMutex(movie->dest_mutex);
-    //GRABGIL
     Py_DECREF( movie);
-	//RELEASEGIL
 }
 
 
@@ -1221,12 +1217,13 @@ int audio_thread(void *arg)
 	int co = 0;
 	for(;co<2;co++)
 	{
-		if(movie->audio_paused && !movie->paused)
+		if      (!movie->paused && movie->audio_paused)
 		{
 			pauseBuffer(movie->channel);
 			movie->audio_paused = 0;	
 		}
-		if (movie->paused && !movie->audio_paused) {
+		else if (movie->paused && !movie->audio_paused)  
+        {
         	pauseBuffer(movie->channel);
         	movie->audio_paused = 1;
             goto closing;
@@ -2001,7 +1998,7 @@ int video_render(PyMovie *movie)
     do {
     	
         if (movie->paused && !movie->videoq.abort_request) {
-	    	goto the_end;
+	    	break;
 	    }
         if (packet_queue_get(&movie->videoq, pkt, 0) <=0)
             break;
