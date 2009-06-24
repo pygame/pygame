@@ -65,6 +65,13 @@ void cb_mixer(int channel)
 	//PyGILState_STATE gstate;
 	//gstate=PyGILState_Ensure();
 	Mix_Chunk *mix = Mix_GetChunk(channel);
+	if(!mix || !mix->abuf)
+	{
+		playBuffer(NULL, (uint32_t) 0, channel);
+		return;
+	}
+
+		
 	PyMem_Free(mix->abuf);
 	mix->abuf=NULL;
 	PyMem_Free(mix);

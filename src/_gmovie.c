@@ -1375,7 +1375,7 @@ closing:
         
         freq = enc->sample_rate;
         channels = enc->channels;
-        if (soundInit  (freq, -16, channels, 1024, NULL) < 0) {
+        if (soundInit  (freq, -16, channels, 1024) < 0) {
             RAISE(PyExc_SDLError, SDL_GetError ());
         }
         movie->audio_hw_buf_size = 1024;
