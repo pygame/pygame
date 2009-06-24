@@ -496,7 +496,7 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
     /* keyword list */
     static char *kwlist[] = 
     { 
-        "text", "ptsize", "target_surface", "fgcolor", "bgcolor", NULL
+        "text", "ptsize", "target_surface", "fgcolor", "bgcolor", "xpos", "ypos", NULL
     };
 
     PyFreeTypeFont *font = (PyFreeTypeFont *)self;
@@ -507,6 +507,7 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
     PyObject *render_on = NULL;
     PyObject *fg_color = NULL;
     PyObject *bg_color = NULL;
+    int xpos = 0, ypos = 0;
 
     /* default render mode */
     int render_mode = FT_RENDER_NEWBYTEARRAY;
@@ -523,8 +524,8 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
     ASSERT_GRAB_FREETYPE(ft, NULL);
 
     /* parse args */
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|iOOO", kwlist,
-                &text, &ptsize, &render_on, &fg_color, &bg_color))
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|iOOOii", kwlist,
+                &text, &ptsize, &render_on, &fg_color, &bg_color, &xpos, &ypos))
         return NULL;
 
     if (ptsize == -1)
@@ -587,9 +588,20 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
         break;
 
     case FT_RENDER_EXISTINGSURFACE:
-        /* TODO: Check that 'render_on' is actually a SDL surface */
-        /* TODO: render on surface */
-        PyErr_SetString(PyExc_RuntimeError, "Not implemented");
+        if (!PySurface_Check(render_on))
+        {
+            PyErr_SetString(PyExc_RuntimeError, "The given target is not a valid SDL surface");
+            goto cleanup;
+        }
+
+        if (PGFT_Render_ExistingSurface(ft, font, text_buffer, 
+                ptsize, render_on, &width, &height, xpos, ypos, 
+                (PyColor *)fg_color) == 0)
+        {
+            r_pixels = render_on;
+            Py_INCREF(render_on);
+        }
+
         break;
 
 #endif
@@ -602,7 +614,7 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
 
     if (!r_pixels)
     {
-        PyErr_SetString (PyExc_PyGameError, PGFT_GetError (ft));
+        PyErr_SetString(PyExc_PyGameError, PGFT_GetError(ft));
         goto cleanup;
     }
 

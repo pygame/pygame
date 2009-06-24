@@ -94,5 +94,9 @@ PyObject *PGFT_Render_PixelArray(FreeTypeInstance *ft, PyFreeTypeFont *font,
 PyObject *PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
         const FT_UInt16 *text, int font_size, int *_width, int *_height,
         PyColor *fg_color, PyColor *bg_color);
+int PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
+    const FT_UInt16 *text, int font_size, PySDLSurface *_surface,
+    int *_width, int *_height, int x, int y,
+    PyColor *py_fgcolor);
 
 #endif
