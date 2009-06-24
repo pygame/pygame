@@ -37,6 +37,9 @@
 
 #define METRICS_RETURN_AVERAGED_HEIGHT
 
+typedef void (*RenderPtr)(void *buffer, int offset, 
+    int max_offset, int pitch, FT_Bitmap *bitmap);
+
 void    _PGFT_SetError(FreeTypeInstance *, const char *, FT_Error);
 FT_Face _PGFT_GetFace(FreeTypeInstance *, PyFreeTypeFont *);
 FT_Face _PGFT_GetFaceSized(FreeTypeInstance *, PyFreeTypeFont *, int);
@@ -46,7 +49,11 @@ int     _PGFT_LoadGlyph(FreeTypeInstance *, PyFreeTypeFont *, int,
 void    _PGFT_GetMetrics_INTERNAL(FT_Glyph, FT_UInt, int *, int *, int *, int *, int *);
 int     _PGFT_Render_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font, 
     const FT_UInt16 *text, int font_size, 
-    FT_Byte *_buffer, int width, int height, int pitch);
+    void *_buffer, int width, int height, int pitch, RenderPtr _blit);
+
+/* blitters */
+void __render_glyph_SDL32(void *buffer, int offset, int max_offset, int pitch, FT_Bitmap *bitmap);
+void __render_glyph_ByteArray(void *buffer, int offset, int max_offset, int pitch, FT_Bitmap *bitmap);
 
 
 static FT_Error
@@ -410,10 +417,53 @@ PGFT_GetTextSize(FreeTypeInstance *ft, PyFreeTypeFont *font,
 }
 
 #ifdef HAVE_PYGAME_SDL_VIDEO
+void __render_glyph_SDL32(void *buffer, int offset, int max_offset, int pitch, FT_Bitmap *bitmap)
+{
+    FT_UInt32 *dst = ((FT_UInt32 *)buffer) + offset;
+    FT_UInt32 *dst_cpy;
+    FT_UInt32 *buffer_cap = ((FT_UInt32 *)buffer) + max_offset;
+
+    const FT_Byte *src = bitmap->buffer;
+    const FT_Byte *src_cpy;
+
+    int j, i;
+
+    for (j = 0; j < bitmap->rows; ++j)
+    {
+        if (dst < (FT_UInt32 *)buffer || dst + bitmap->width > buffer_cap)
+        {
+            fprintf(stderr, "HEAP CORRUPTION rendering @ off %d", offset);
+            continue;
+        }
+
+        i = bitmap->width;
+        src_cpy = src;
+        dst_cpy = dst;
+
+        while (i--)
+        {
+            const FT_Byte b = *src_cpy++;
+            FT_UInt32 c;
+
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+            c = (FT_UInt32)((b << 8) | (b << 16) | (b << 24));
+#else
+            c = (FT_UInt32)(b | (b << 8) | (b << 16));
+#endif 
+
+            *dst_cpy++ = ~c;
+        }
+
+        dst += pitch;
+        src += bitmap->pitch;
+    }
+}
+
 PyObject *PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
     const FT_UInt16 *text, int font_size, int *_width, int *_height)
 {
     int width, height, locked = 0;
+    FT_UInt32 rmask, gmask, bmask, amask;
     SDL_Surface *surface = NULL;
 
     if (PGFT_GetTextSize(ft, font, text, font_size, &width, &height) != 0 ||
@@ -423,8 +473,18 @@ PyObject *PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
         return NULL;
     }
 
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+    rmask = 0xff000000;
+    gmask = 0x00ff0000;
+    bmask = 0x0000ff00;
+#else
+    rmask = 0x000000ff;
+    gmask = 0x0000ff00;
+    bmask = 0x00ff0000;
+#endif
+
     surface = SDL_CreateRGBSurface(SDL_SWSURFACE,
-        width, height, 8, 0, 0, 0, 0);
+        width, height, 32, rmask, gmask, bmask, 0);
 
     if (!surface)
     {
@@ -443,9 +503,13 @@ PyObject *PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
         locked = 1;
     }
 
+    SDL_FillRect(surface, NULL, 0xFFFFFFFFU);
+
     if (_PGFT_Render_INTERNAL(ft, font, text, font_size, 
             surface->pixels,
-            surface->w, surface->h, surface->pitch) != 0)
+            surface->w, surface->h, 
+            surface->pitch / sizeof(FT_UInt32), 
+            __render_glyph_SDL32) != 0)
     {
         _PGFT_SetError(ft, "Failed to render text", 0);
         SDL_FreeSurface(surface);
@@ -462,6 +526,29 @@ PyObject *PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
 }
 #endif
 
+void __render_glyph_ByteArray(void *buffer, int offset, int max_offset, int pitch, FT_Bitmap *bitmap)
+{
+    FT_Byte *dst = ((FT_Byte *)buffer) + offset;
+    FT_Byte *buffer_cap = ((FT_Byte *)buffer) + max_offset;
+    const FT_Byte *src = bitmap->buffer;
+
+    int j;
+
+    for (j = 0; j < bitmap->rows; ++j)
+    {
+        if (dst < (FT_Byte *)buffer || dst + bitmap->width > buffer_cap)
+        {
+            fprintf(stderr, "HEAP CORRUPTION rendering @ off %d", offset);
+            continue;
+        }
+
+        memcpy(dst, src, (size_t)bitmap->width);
+
+        dst += pitch;
+        src += bitmap->pitch;
+    }
+}
+
 PyObject *PGFT_Render_PixelArray(FreeTypeInstance *ft, PyFreeTypeFont *font,
     const FT_UInt16 *text, int font_size, int *_width, int *_height)
 {
@@ -476,15 +563,17 @@ PyObject *PGFT_Render_PixelArray(FreeTypeInstance *ft, PyFreeTypeFont *font,
         goto cleanup;
     }
 
-    buffer = calloc((size_t)(width * height), sizeof(FT_Byte));
+    buffer = malloc((size_t)(width * height));
     if (!buffer)
     {
         _PGFT_SetError(ft, "Could not allocate memory", 0);
         goto cleanup;
     }
 
+    memset(buffer, 0xFF, width * height);
+
     if (_PGFT_Render_INTERNAL(ft, font, text, 
-            font_size, buffer, width, height, width) != 0)
+            font_size, buffer, width, height, width, __render_glyph_ByteArray) != 0)
     {
         _PGFT_SetError(ft, "Failed to render text", 0);
         goto cleanup;
@@ -493,7 +582,7 @@ PyObject *PGFT_Render_PixelArray(FreeTypeInstance *ft, PyFreeTypeFont *font,
     *_width = width;
     *_height = height;
 
-    array = Bytes_FromStringAndSize(buffer, width * height);
+    array = Bytes_FromStringAndSize((char *)buffer, width * height);
 
 cleanup:
     if (buffer)
@@ -504,7 +593,7 @@ cleanup:
 
 int _PGFT_Render_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font, 
     const FT_UInt16 *text, int font_size, 
-    FT_Byte *_buffer, int width, int height, int pitch)
+    void *_buffer, int width, int height, int pitch, RenderPtr _render)
 {
     const FT_UInt16 *ch;
 
@@ -519,7 +608,7 @@ int _PGFT_Render_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font,
     int pen_x, pen_y;
     int x_advance;
 
-    FT_Byte *_buffer_cap;
+    int max_offset;
 
     _PGFT_BuildScaler(font, &scale, font_size);
     face = _PGFT_GetFace(ft, font);
@@ -530,9 +619,7 @@ int _PGFT_Render_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font,
         return -1;
     }
 
-    memset(_buffer, 0xFF, height * pitch);
-
-    _buffer_cap = _buffer + (width * height);
+    max_offset = (height * pitch);
     use_kerning = FT_HAS_KERNING(face);
     prev_index = 0;
 
@@ -580,34 +667,13 @@ int _PGFT_Render_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font,
         {
             const int left = ((FT_BitmapGlyph)glyph)->left;
             const int top = ((FT_BitmapGlyph)glyph)->top;
-            int j;
+            const int offset = pen_x + left + (pen_y - top) * pitch;
 
-            FT_Byte *dst = _buffer + 
-                pen_x + left +
-                (pen_y - top) * pitch;
-
-            FT_Byte *src = bitmap->buffer;
-
-            for (j = 0; j < bitmap->rows; ++j)
-            {
-                if (dst < _buffer || dst + bitmap->width > _buffer_cap)
-                {
-                    fprintf(stderr, 
-                        "HEAP CORRUPTION rendering '%c': "
-                        "text size(%d, %d) | left %d | top %d | pen_x %d | pen_y %d |\n",
-                        c, width, height, left, top, pen_x, pen_y);
-                    continue;
-                }
-
-                memcpy(dst, src, (size_t)bitmap->width);
-
-                dst += pitch;
-                src += bitmap->pitch;
-            }
+            _render(_buffer, offset, max_offset, pitch, bitmap);
         }
 
-
-        pen_x += x_advance + 1;
+        /* FIXME: Why the extra pixel? */
+        pen_x += x_advance; /* + 1; */
         prev_index = cur_index;
     }
 
