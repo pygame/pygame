@@ -184,222 +184,6 @@ int packet_queue_get(PacketQueue *q, AVPacket *pkt, int block)
     return ret;
 }
 
-
-void blend_subrect(AVPicture *dst, const AVSubtitleRect *rect, int imgw, int imgh)
-{
-    int wrap, wrap3, width2, skip2;
-    int y, u, v, a, u1, v1, a1, w, h;
-    uint8_t *lum, *cb, *cr;
-    const uint8_t *p;
-    const uint32_t *pal;
-    int dstx, dsty, dstw, dsth;
-
-    dstw = av_clip(rect->w, 0, imgw);
-    dsth = av_clip(rect->h, 0, imgh);
-    dstx = av_clip(rect->x, 0, imgw - dstw);
-    dsty = av_clip(rect->y, 0, imgh - dsth);
-    lum = dst->data[0] + dsty * dst->linesize[0];
-    cb = dst->data[1] + (dsty >> 1) * dst->linesize[1];
-    cr = dst->data[2] + (dsty >> 1) * dst->linesize[2];
-
-    width2 = ((dstw + 1) >> 1) + (dstx & ~dstw & 1);
-    skip2 = dstx >> 1;
-    wrap = dst->linesize[0];
-    wrap3 = rect->pict.linesize[0];
-    p = rect->pict.data[0];
-    pal = (const uint32_t *)rect->pict.data[1];  /* Now in YCrCb! */
-
-    if (dsty & 1) {
-        lum += dstx;
-        cb += skip2;
-        cr += skip2;
-
-        if (dstx & 1) {
-            YUVA_IN(y, u, v, a, p, pal);
-            lum[0] = _ALPHA_BLEND(a, lum[0], y, 0);
-            cb[0] = _ALPHA_BLEND(a >> 2, cb[0], u, 0);
-            cr[0] = _ALPHA_BLEND(a >> 2, cr[0], v, 0);
-            cb++;
-            cr++;
-            lum++;
-            p += BPP;
-        }
-        for(w = dstw - (dstx & 1); w >= 2; w -= 2) {
-            YUVA_IN(y, u, v, a, p, pal);
-            u1 = u;
-            v1 = v;
-            a1 = a;
-            lum[0] = _ALPHA_BLEND(a, lum[0], y, 0);
-
-            YUVA_IN(y, u, v, a, p + BPP, pal);
-            u1 += u;
-            v1 += v;
-            a1 += a;
-            lum[1] = _ALPHA_BLEND(a, lum[1], y, 0);
-            cb[0] = _ALPHA_BLEND(a1 >> 2, cb[0], u1, 1);
-            cr[0] = _ALPHA_BLEND(a1 >> 2, cr[0], v1, 1);
-            cb++;
-            cr++;
-            p += 2 * BPP;
-            lum += 2;
-        }
-        if (w) {
-            YUVA_IN(y, u, v, a, p, pal);
-            lum[0] = _ALPHA_BLEND(a, lum[0], y, 0);
-            cb[0] = _ALPHA_BLEND(a >> 2, cb[0], u, 0);
-            cr[0] = _ALPHA_BLEND(a >> 2, cr[0], v, 0);
-            p++;
-            lum++;
-        }
-        p += wrap3 - dstw * BPP;
-        lum += wrap - dstw - dstx;
-        cb += dst->linesize[1] - width2 - skip2;
-        cr += dst->linesize[2] - width2 - skip2;
-    }
-    for(h = dsth - (dsty & 1); h >= 2; h -= 2) {
-        lum += dstx;
-        cb += skip2;
-        cr += skip2;
-
-        if (dstx & 1) {
-            YUVA_IN(y, u, v, a, p, pal);
-            u1 = u;
-            v1 = v;
-            a1 = a;
-            lum[0] = _ALPHA_BLEND(a, lum[0], y, 0);
-            p += wrap3;
-            lum += wrap;
-            YUVA_IN(y, u, v, a, p, pal);
-            u1 += u;
-            v1 += v;
-            a1 += a;
-            lum[0] = _ALPHA_BLEND(a, lum[0], y, 0);
-            cb[0] = _ALPHA_BLEND(a1 >> 2, cb[0], u1, 1);
-            cr[0] = _ALPHA_BLEND(a1 >> 2, cr[0], v1, 1);
-            cb++;
-            cr++;
-            p += -wrap3 + BPP;
-            lum += -wrap + 1;
-        }
-        for(w = dstw - (dstx & 1); w >= 2; w -= 2) {
-            YUVA_IN(y, u, v, a, p, pal);
-            u1 = u;
-            v1 = v;
-            a1 = a;
-            lum[0] = _ALPHA_BLEND(a, lum[0], y, 0);
-
-            YUVA_IN(y, u, v, a, p + BPP, pal);
-            u1 += u;
-            v1 += v;
-            a1 += a;
-            lum[1] = _ALPHA_BLEND(a, lum[1], y, 0);
-            p += wrap3;
-            lum += wrap;
-
-            YUVA_IN(y, u, v, a, p, pal);
-            u1 += u;
-            v1 += v;
-            a1 += a;
-            lum[0] = _ALPHA_BLEND(a, lum[0], y, 0);
-
-            YUVA_IN(y, u, v, a, p + BPP, pal);
-            u1 += u;
-            v1 += v;
-            a1 += a;
-            lum[1] = _ALPHA_BLEND(a, lum[1], y, 0);
-
-            cb[0] = _ALPHA_BLEND(a1 >> 2, cb[0], u1, 2);
-            cr[0] = _ALPHA_BLEND(a1 >> 2, cr[0], v1, 2);
-
-            cb++;
-            cr++;
-            p += -wrap3 + 2 * BPP;
-            lum += -wrap + 2;
-        }
-        if (w) {
-            YUVA_IN(y, u, v, a, p, pal);
-            u1 = u;
-            v1 = v;
-            a1 = a;
-            lum[0] = _ALPHA_BLEND(a, lum[0], y, 0);
-            p += wrap3;
-            lum += wrap;
-            YUVA_IN(y, u, v, a, p, pal);
-            u1 += u;
-            v1 += v;
-            a1 += a;
-            lum[0] = _ALPHA_BLEND(a, lum[0], y, 0);
-            cb[0] = _ALPHA_BLEND(a1 >> 2, cb[0], u1, 1);
-            cr[0] = _ALPHA_BLEND(a1 >> 2, cr[0], v1, 1);
-            cb++;
-            cr++;
-            p += -wrap3 + BPP;
-            lum += -wrap + 1;
-        }
-        p += wrap3 + (wrap3 - dstw * BPP);
-        lum += wrap + (wrap - dstw - dstx);
-        cb += dst->linesize[1] - width2 - skip2;
-        cr += dst->linesize[2] - width2 - skip2;
-    }
-    /* handle odd height */
-    if (h) {
-        lum += dstx;
-        cb += skip2;
-        cr += skip2;
-
-        if (dstx & 1) {
-            YUVA_IN(y, u, v, a, p, pal);
-            lum[0] = _ALPHA_BLEND(a, lum[0], y, 0);
-            cb[0] = _ALPHA_BLEND(a >> 2, cb[0], u, 0);
-            cr[0] = _ALPHA_BLEND(a >> 2, cr[0], v, 0);
-            cb++;
-            cr++;
-            lum++;
-            p += BPP;
-        }
-        for(w = dstw - (dstx & 1); w >= 2; w -= 2) {
-            YUVA_IN(y, u, v, a, p, pal);
-            u1 = u;
-            v1 = v;
-            a1 = a;
-            lum[0] = _ALPHA_BLEND(a, lum[0], y, 0);
-
-            YUVA_IN(y, u, v, a, p + BPP, pal);
-            u1 += u;
-            v1 += v;
-            a1 += a;
-            lum[1] = _ALPHA_BLEND(a, lum[1], y, 0);
-            cb[0] = _ALPHA_BLEND(a1 >> 2, cb[0], u, 1);
-            cr[0] = _ALPHA_BLEND(a1 >> 2, cr[0], v, 1);
-            cb++;
-            cr++;
-            p += 2 * BPP;
-            lum += 2;
-        }
-        if (w) {
-            YUVA_IN(y, u, v, a, p, pal);
-            lum[0] = _ALPHA_BLEND(a, lum[0], y, 0);
-            cb[0] = _ALPHA_BLEND(a >> 2, cb[0], u, 0);
-            cr[0] = _ALPHA_BLEND(a >> 2, cr[0], v, 0);
-        }
-    }
-}
-
- void free_subpicture(SubPicture *sp)
-{
-    int i;
-
-    for (i = 0; i < sp->sub.num_rects; i++)
-    {
-        av_freep(&sp->sub.rects[i]->pict.data[0]);
-        av_freep(&sp->sub.rects[i]->pict.data[1]);
-        av_freep(&sp->sub.rects[i]);
-    }
-
-    av_free(sp->sub.rects);
-
-    memset(&sp->sub, 0, sizeof(AVSubtitle));
-}
 void inline get_width(PyMovie *movie, int *width)
 {
 	if(movie->resize_w)
@@ -506,11 +290,11 @@ int video_display(PyMovie *movie)
 	GRABGIL
 	Py_INCREF(movie);
 	double ret=1;
+	RELEASEGIL
 #if THREADFREE!=1
 	SDL_LockMutex(movie->dest_mutex);
 #endif
 	VidPicture *vp = &movie->pictq[movie->pictq_rindex];
-    RELEASEGIL
     if((!vp->dest_overlay&& vp->overlay>0)||(!vp->dest_surface && vp->overlay<=0))
     {
     	video_open(movie, movie->pictq_rindex);
@@ -714,7 +498,7 @@ int video_open(PyMovie *movie, int index){
 }
 
 /* called to display each frame */
- void video_refresh_timer(PyMovie* movie)
+void video_refresh_timer(PyMovie* movie)
 {
 /*moving to DECODE THREAD, from queue_frame*/
 	DECLAREGIL
@@ -893,7 +677,7 @@ int video_open(PyMovie *movie, int index){
 	RELEASEGIL
 }
 
- int audio_write_get_buf_size(PyMovie *movie)
+int audio_write_get_buf_size(PyMovie *movie)
 {
 	DECLAREGIL
 	GRABGIL
@@ -908,7 +692,7 @@ int video_open(PyMovie *movie, int index){
 }
 
 /* get the current audio clock value */
- double get_audio_clock(PyMovie *movie)
+double get_audio_clock(PyMovie *movie)
 {
 	DECLAREGIL
 	GRABGIL
@@ -1031,176 +815,6 @@ void stream_pause(PyMovie *movie)
     Py_DECREF( movie);
 }
 
-
-int subtitle_thread(void *arg)
-{
-	DECLAREGIL
-    PyMovie *movie = arg;
-    GRABGIL
-    Py_INCREF( movie);
-	RELEASEGIL
-	    
-    SubPicture *sp;
-    AVPacket pkt1, *pkt = &pkt1;
-    int len1, got_subtitle;
-    double pts;
-    int i, j;
-    int r, g, b, y, u, v, a;
-
-    
-    for(;;) {
-        while (movie->paused && !movie->subtitleq.abort_request) {
-            SDL_Delay(10);
-	    }
-        if (packet_queue_get(&movie->subtitleq, pkt, 1) < 0)
-        {    
-            break;
-        }
-        if(pkt->data == flush_pkt.data){
-            avcodec_flush_buffers(movie->subtitle_st->codec);
-            continue;
-        }
-        SDL_LockMutex(movie->subpq_mutex);
-        while (movie->subpq_size >= SUBPICTURE_QUEUE_SIZE &&
-               !movie->subtitleq.abort_request) {
-            SDL_CondWait(movie->subpq_cond, movie->subpq_mutex);
-        }
-        SDL_UnlockMutex(movie->subpq_mutex);
-
-        if (movie->subtitleq.abort_request)
-        {
-            goto the_end;
-        }
-        sp = &movie->subpq[movie->subpq_windex];
-
-       /* NOTE: ipts is the PTS of the _first_ picture beginning in
-           this packet, if any */
-        pts = 0;
-        if (pkt->pts != AV_NOPTS_VALUE)
-            pts = av_q2d(movie->subtitle_st->time_base)*pkt->pts;
-
-        len1 = avcodec_decode_subtitle(movie->subtitle_st->codec,
-                                    &sp->sub, &got_subtitle,
-                                    pkt->data, pkt->size);
-//            if (len1 < 0)
-//                break;
-        if (got_subtitle && sp->sub.format == 0) {
-            sp->pts = pts;
-
-            for (i = 0; i < sp->sub.num_rects; i++)
-            {
-                for (j = 0; j < sp->sub.rects[i]->nb_colors; j++)
-                {
-                    RGBA_IN(r, g, b, a, (uint32_t*)sp->sub.rects[i]->pict.data[1] + j);
-                    y = RGB_TO_Y_CCIR(r, g, b);
-                    u = RGB_TO_U_CCIR(r, g, b, 0);
-                    v = RGB_TO_V_CCIR(r, g, b, 0);
-                    YUVA_OUT((uint32_t*)sp->sub.rects[i]->pict.data[1] + j, y, u, v, a);
-                }
-            }
-
-            /* now we can update the picture count */
-            if (++movie->subpq_windex == SUBPICTURE_QUEUE_SIZE)
-                movie->subpq_windex = 0;
-            SDL_LockMutex(movie->subpq_mutex);
-            movie->subpq_size++;
-            SDL_UnlockMutex(movie->subpq_mutex);
-        }
-        av_free_packet(pkt);
-//        if (step)
-//            if (cur_stream)
-//                stream_pause(cur_stream);
-	
-    }
- 
- the_end:
-	GRABGIL
-    Py_DECREF( movie);
-	RELEASEGIL
-    return 0;
-}
-
-
-/* return the new audio buffer size (samples can be added or deleted
-   to get better sync if video or external master clock) */
- int synchronize_audio(PyMovie *movie, short *samples,
-                             int samples_size1, double pts)
-{
-	
-    Py_INCREF( movie);
-    
-    int n, samples_size;
-    double ref_clock;
-
-
-    n = 2 * movie->audio_st->codec->channels;
-    samples_size = samples_size1;
-
-    /* if not master, then we try to remove or add samples to correct the clock */
-    if (((movie->av_sync_type == AV_SYNC_VIDEO_MASTER && movie->video_st) ||
-         movie->av_sync_type == AV_SYNC_EXTERNAL_CLOCK)) {
-        double diff, avg_diff;
-        int wanted_size, min_size, max_size, nb_samples;
-
-        ref_clock = get_master_clock(movie);
-        diff = get_audio_clock(movie) - ref_clock;
-
-        if (diff < AV_NOSYNC_THRESHOLD) {
-            movie->audio_diff_cum = diff + movie->audio_diff_avg_coef * movie->audio_diff_cum;
-            if (movie->audio_diff_avg_count < AUDIO_DIFF_AVG_NB) {
-                /* not enough measures to have a correct estimate */
-                movie->audio_diff_avg_count++;
-            } else {
-                /* estimate the A-V difference */
-                avg_diff = movie->audio_diff_cum * (1.0 - movie->audio_diff_avg_coef);
-
-                if (fabs(avg_diff) >= movie->audio_diff_threshold) {
-                    wanted_size = samples_size + ((int)(diff * movie->audio_st->codec->sample_rate) * n);
-                    nb_samples = samples_size / n;
-
-                    min_size = ((nb_samples * (100 - SAMPLE_CORRECTION_PERCENT_MAX)) / 100) * n;
-                    max_size = ((nb_samples * (100 + SAMPLE_CORRECTION_PERCENT_MAX)) / 100) * n;
-                    if (wanted_size < min_size)
-                        wanted_size = min_size;
-                    else if (wanted_size > max_size)
-                        wanted_size = max_size;
-
-                    /* add or remove samples to correction the synchro */
-                    if (wanted_size < samples_size) {
-                        /* remove samples */
-                        samples_size = wanted_size;
-                    } else if (wanted_size > samples_size) {
-                        uint8_t *samples_end, *q;
-                        int nb;
-
-                        /* add samples */
-                        nb = (samples_size - wanted_size);
-                        samples_end = (uint8_t *)samples + samples_size - n;
-                        q = samples_end + n;
-                        while (nb > 0) {
-                           
-                            memcpy(q, samples_end, n);
-                            q += n;
-                            nb -= n;
-                        }
-                        samples_size = wanted_size;
-                    }
-                }
-            }
-        } else {
-            /* too big difference : may be initial PTS errors, so
-               reset A-V filter */
-            movie->audio_diff_avg_count = 0;
-            movie->audio_diff_cum = 0;
-        }
-    }
-    Py_DECREF( movie);
-    return samples_size;
-}
-
-
-
-
 int audio_thread(void *arg)
 {
 	PyMovie *movie = arg;
@@ -1228,7 +842,6 @@ int audio_thread(void *arg)
         	movie->audio_paused = 1;
             goto closing;
         }
-       
         //check if the movie has ended
 		if(movie->stop)
 		{
@@ -1245,7 +858,6 @@ int audio_thread(void *arg)
                 movie->audio_pkt_size = 0;
                 break;
             }
-
             movie->audio_pkt_data += len1;
             movie->audio_pkt_size -= len1;
             if (data_size <= 0)
@@ -1312,7 +924,6 @@ closing:
 	DECLAREGIL
 	if(threaded)
  	{
-    	
     	GRABGIL
  	}
     Py_INCREF( movie);
@@ -1375,7 +986,7 @@ closing:
         if (soundInit  (freq, -16, channels, 1024) < 0) {
             RAISE(PyExc_SDLError, SDL_GetError ());
         }
-        movie->audio_hw_buf_size = 1024;
+        //movie->audio_hw_buf_size = 1024;
         movie->audio_src_fmt= AUDIO_S16SYS;
     }
 
@@ -1389,16 +1000,8 @@ closing:
         movie->audio_buf_size = 0;
         movie->audio_buf_index = 0;
 
-        /* init averaging filter */
-        movie->audio_diff_avg_coef = exp(log(0.01) / AUDIO_DIFF_AVG_NB);
-        movie->audio_diff_avg_count = 0;
-        /* since we do not have a precmoviee anough audio fifo fullness,
-           we correct audio sync only if larger than thmovie threshold */
-        movie->audio_diff_threshold = 2.0 * SDL_AUDIO_BUFFER_SIZE / enc->sample_rate;
-        
         memset(&movie->audio_pkt, 0, sizeof(movie->audio_pkt));
         packet_queue_init(&movie->audioq);
-		movie->audio_sig = SDL_CreateCond();
 		movie->audio_mutex = SDL_CreateMutex();
 		//movie->audio_tid = SDL_CreateThread(audio_thread, movie);
         
@@ -1410,18 +1013,10 @@ closing:
         movie->frame_last_delay = 40e-3;
         movie->frame_timer = (double)av_gettime() / 1000000.0;
         movie->video_current_pts_time = av_gettime();
-        movie->video_last_pts_time=av_gettime();
+        //movie->video_last_pts_time=av_gettime();
 
         packet_queue_init(&movie->videoq);
       	break;
-    case CODEC_TYPE_SUBTITLE:
-        movie->subtitle_stream = stream_index;
-        
-        movie->subtitle_st = ic->streams[stream_index];
-        packet_queue_init(&movie->subtitleq);
-
-        movie->subtitle_tid = SDL_CreateThread(subtitle_thread, movie);
-        break;
     default:
         break;
     }
@@ -1468,17 +1063,6 @@ void stream_component_close(PyMovie *movie, int stream_index)
         SDL_WaitThread(movie->video_tid, NULL);
         packet_queue_end(&movie->videoq, end);
         break;
-    case CODEC_TYPE_SUBTITLE:
-        packet_queue_abort(&movie->subtitleq);
-        /* note: we also signal thmovie mutex to make sure we deblock the
-           video thread in all cases */
-        SDL_LockMutex(movie->subpq_mutex);
-        movie->subtitle_stream_changed = 1;
-        SDL_CondSignal(movie->subpq_cond);
-        SDL_UnlockMutex(movie->subpq_mutex);
-        SDL_WaitThread(movie->subtitle_tid, NULL);
-        packet_queue_end(&movie->subtitleq, end);
-        break;
     default:
         break;
     }
@@ -1493,10 +1077,6 @@ void stream_component_close(PyMovie *movie, int stream_index)
     case CODEC_TYPE_VIDEO:
         movie->video_st = NULL;
         movie->video_stream = -1;
-        break;
-    case CODEC_TYPE_SUBTITLE:
-        movie->subtitle_st = NULL;
-        movie->subtitle_stream = -1;
         break;
     default:
         break;
@@ -1529,16 +1109,12 @@ void stream_open(PyMovie *movie, const char *filename, AVInputFormat *iformat, i
     AVFormatParameters params, *ap = &params;
     
 	//movie->overlay=1;
-    av_strlcpy(movie->filename, filename, strlen(filename)+1);
+    strncpy(movie->filename, filename, strlen(filename)+1);
     movie->iformat = iformat;
 
     /* start video dmovieplay */
     movie->dest_mutex = SDL_CreateMutex();
 	
-    movie->subpq_mutex = SDL_CreateMutex();
-    //movie->subpq_cond = SDL_CreateCond();
-    
-    //movie->paused = 1;
     //in case we've called stream open once before...
     movie->abort_request = 0;
     movie->av_sync_type = AV_SYNC_VIDEO_MASTER;
@@ -1548,7 +1124,6 @@ void stream_open(PyMovie *movie, const char *filename, AVInputFormat *iformat, i
     subtitle_index = -1;
     movie->video_stream = -1;
     movie->audio_stream = -1;
-    movie->subtitle_stream = -1;
 
     int wanted_video_stream=1;
     int wanted_audio_stream=1;
@@ -1605,11 +1180,11 @@ void stream_open(PyMovie *movie, const char *filename, AVInputFormat *iformat, i
         ic->streams[i]->discard = AVDISCARD_ALL;
         switch(enc->codec_type) {
         case CODEC_TYPE_AUDIO:
-            if (wanted_audio_stream-- >= 0 && !audio_disable)
+            if (wanted_audio_stream-- >= 0 && !movie->audio_disable)
                 audio_index = i;
             break;
         case CODEC_TYPE_VIDEO:
-            if (wanted_video_stream-- >= 0 && !video_disable)
+            if (wanted_video_stream-- >= 0 && !movie->video_disable)
                 video_index = i;
             break;
         case CODEC_TYPE_SUBTITLE:
@@ -1702,8 +1277,6 @@ void stream_open(PyMovie *movie, const char *filename, AVInputFormat *iformat, i
         		}
     		}
 		SDL_DestroyMutex(movie->dest_mutex);
-     	SDL_DestroyMutex(movie->subpq_mutex);
-        //SDL_DestroyCond(movie->subpq_cond);
     	if(movie->img_convert_ctx)
     	{
     		sws_freeContext(movie->img_convert_ctx);
@@ -1718,10 +1291,6 @@ void stream_open(PyMovie *movie, const char *filename, AVInputFormat *iformat, i
     if (movie->video_stream >= 0)
     {
         stream_component_close(movie, movie->video_stream);
-    }
-    if (movie->subtitle_stream >= 0)
-    {
-        stream_component_close(movie, movie->subtitle_stream);
     }
     if (movie->ic) {
         av_close_input_file(movie->ic);
@@ -1739,7 +1308,8 @@ void stream_open(PyMovie *movie, const char *filename, AVInputFormat *iformat, i
 void stream_cycle_channel(PyMovie *movie, int codec_type)
 {
     AVFormatContext *ic = movie->ic;
-    int start_index, stream_index;
+    int start_index=0;
+    int stream_index;
     AVStream *st;
 	DECLAREGIL
 	GRABGIL
@@ -1750,20 +1320,11 @@ void stream_cycle_channel(PyMovie *movie, int codec_type)
         start_index = movie->video_stream;
     else if (codec_type == CODEC_TYPE_AUDIO)
         start_index = movie->audio_stream;
-    else
-        start_index = movie->subtitle_stream;
-    if (start_index < (codec_type == CODEC_TYPE_SUBTITLE ? -1 : 0))
-        return;
     stream_index = start_index;
     for(;;) {
         if (++stream_index >= movie->ic->nb_streams)
         {
-            if (codec_type == CODEC_TYPE_SUBTITLE)
-            {
-                stream_index = -1;
-                goto the_end;
-            } else
-                stream_index = 0;
+        	stream_index = 0;
         }
         if (stream_index == start_index)
             return;
@@ -1777,8 +1338,6 @@ void stream_cycle_channel(PyMovie *movie, int codec_type)
                     goto the_end;
                 break;
             case CODEC_TYPE_VIDEO:
-            case CODEC_TYPE_SUBTITLE:
-                goto the_end;
             default:
                 break;
             }
@@ -1817,6 +1376,11 @@ int decoder_wrapper(void *arg)
 		if(movie->audio_st)
 			stream_component_close(movie, movie->audio_st->index);
 	}
+	GRABGIL
+	Py_INCREF(movie);
+	RELEASEGIL
+	movie->playing=0;
+	movie->paused=0;
 	return state;
 }
 
@@ -1860,7 +1424,6 @@ int decoder(void *arg)
 
             if     (movie->   video_stream >= 0)    stream_index= movie->   video_stream;
             else if(movie->   audio_stream >= 0)    stream_index= movie->   audio_stream;
-            else if(movie->   subtitle_stream >= 0) stream_index= movie->   subtitle_stream;
 
             if(stream_index>=0){
                 seek_target= av_rescale_q(seek_target, AV_TIME_BASE_Q, ic->streams[stream_index]->time_base);
@@ -1890,8 +1453,7 @@ int decoder(void *arg)
         }
         /* if the queue are full, no need to read more */
         if ((movie->audioq.size > MAX_AUDIOQ_SIZE) || //yay for short circuit logic testing
-            (movie->videoq.size > MAX_VIDEOQ_SIZE )||
-            (movie->subtitleq.size > MAX_SUBTITLEQ_SIZE)) {
+            (movie->videoq.size > MAX_VIDEOQ_SIZE )) {
             /* wait 10 ms */
 			if(!movie->paused)
 			{
@@ -1977,7 +1539,6 @@ int decoder(void *arg)
 	GRABGIL		
     Py_DECREF( movie);
     RELEASEGIL
-    //RELEASEGIL
     //movie->stop =1;
     if(movie->abort_request)
     {	return -1;}

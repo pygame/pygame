@@ -3,7 +3,7 @@
 #include "_gmovie.h"
 
 /*class methods and internals */
-PyMovie*  _movie_init_internal(PyMovie *self, const char *filename, SDL_Surface *surf);
+void      _movie_init_internal(PyMovie *self, const char *filename, SDL_Surface *surf);
 int       _movie_init         (PyObject *self, PyObject *args, PyObject *kwds);
 void      _movie_dealloc      (PyMovie *movie);
 PyObject* _movie_repr         (PyMovie *movie);

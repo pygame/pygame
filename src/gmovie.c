@@ -1,7 +1,7 @@
 #include "gmovie.h"
 
 
-PyMovie*  _movie_init_internal(PyMovie *self, const char *filename, SDL_Surface *surf)
+void _movie_init_internal(PyMovie *self, const char *filename, SDL_Surface *surf)
 {
 	Py_INCREF(self);
 	//already malloced memory for PyMovie.
@@ -13,7 +13,6 @@ PyMovie*  _movie_init_internal(PyMovie *self, const char *filename, SDL_Surface 
 	}
 	else
 	{
-		PySys_WriteStdout("Found a surface...\n");
 		self->overlay = 0;
 		self->canon_surf=surf;
 	}
@@ -23,11 +22,11 @@ PyMovie*  _movie_init_internal(PyMovie *self, const char *filename, SDL_Surface 
 	{
 		PyErr_SetString(PyExc_IOError, "stream_open failed");
         Py_DECREF(self);
-        return self;
+        return;
     }
 	//PySys_WriteStdout("Movie->filename: %s\n", self->filename);
 	Py_DECREF(self);
-	return self;
+	return;
 }
 
 
@@ -45,11 +44,11 @@ int _movie_init(PyObject *self, PyObject *args, PyObject *kwds)
     if(surf && PySurface_Check(surf))
     {
     	SDL_Surface *target = PySurface_AsSurface(surf);
-    	self= _movie_init_internal((PyMovie *)self, c, target);	
+    	 _movie_init_internal((PyMovie *)self, c, target);	
     }
     else
     {
-		self = _movie_init_internal((PyMovie *)self, c, NULL);
+		_movie_init_internal((PyMovie *)self, c, NULL);
     }
 	PyObject *er;
     er = PyErr_Occurred();
@@ -197,6 +196,7 @@ PyObject* _movie_stop(PyMovie *movie)
 
 PyObject* _movie_pause(PyMovie *movie)
 {
+	
 	Py_BEGIN_ALLOW_THREADS
     stream_pause(movie); 
     Py_END_ALLOW_THREADS
@@ -453,7 +453,6 @@ init_movie(void)
    
    //Register all the fun stuff for movies.
    avcodec_register_all();
-   avdevice_register_all();
    av_register_all();
    //initialize lookup tables for YUV-to-RGB conversion
    initializeLookupTables();

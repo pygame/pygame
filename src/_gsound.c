@@ -70,7 +70,6 @@ void cb_mixer(int channel)
 		playBuffer(NULL, (uint32_t) 0, channel);
 		return;
 	}
-
 		
 	PyMem_Free(mix->abuf);
 	mix->abuf=NULL;
@@ -175,10 +174,14 @@ int soundInit  (int freq, int size, int channels, int chunksize)
 
 int soundQuit(void)
 {
-	queue_flush(&queue);
-	stopBuffer(s_channel);
-	Mix_ChannelFinished(NULL);
-	Mix_CloseAudio();
+	if (SDL_WasInit (SDL_INIT_AUDIO))
+    {
+        Mix_HaltMusic ();
+		queue_flush(&queue);
+		Mix_ChannelFinished(NULL);
+		Mix_CloseAudio ();
+        SDL_QuitSubSystem (SDL_INIT_AUDIO);
+    }
 	return 0;
 }
 	

@@ -13,7 +13,8 @@ filename="/home/tyler/dhs1.avi"
 # frame will be blitted to that surface. It is the programmer's responsibility
 # to be on time for rendering that surface.
 # Without a surface argument, the ffmpeg-wrapper uses the sdl_overlay library. 
-m = movie.Movie(filename)
+screen=pygame.display.set_mode((640, 368))
+m = movie.Movie(filename, screen)
 print m.paused  #always False, unless .pause has been called
 print m.playing #False until play has been called. Will return to false when
                 # .stop() has been called.
@@ -32,6 +33,9 @@ print "Playing infinitely"
 
 m.play(-1)      #We're going to use infinite play, so we can demonstrate all 
                 # the features.
+while(1):
+    time.sleep(0.01)
+    pygame.display.update()
 time.sleep(10)  #sleep for ten seconds to let one see the video play, and hear 
                 # the audio
 print m.paused
@@ -55,6 +59,7 @@ m.height = m.height/2
 print "and again, sleeping..."
 #back to our original size
 time.sleep(10)
+import sys;sys.quit()
 #Here we demonstrate the use of pause. You pause, then call pause again to play
 print "Pausing..."
 m.pause()
@@ -83,10 +88,43 @@ screen = pygame.display.set_mode((m.width, m.height))
 # time.
 
 counter = 0
-actions = {1: lambda x: x.paused, 5: lambda x: x.pause(), 10: lambda x: x.pause(), 15: lambda x: x.resize(x.width/2, x.height/2), 20:lambda x: x.stop(), 22: lambda x: x.play(-1)}
+actions = {1: lambda x: x.paused, 15: lambda x: x.resize(x.width/2, x.height/2), 20:lambda x: x.stop(), 22: lambda x: x.play(-1)}
+##prev_time = time.time()
+##m.surface = screen
+##print "About to do surface gymnastics..."
+##while(1):
+##    new_time=time.time()
+##    diff = int(new_time-prev_time)
+##    if(diff>=1):
+##        counter+=1
+##        print counter
+##        prev_time=new_time
+##    #print "testing counter"
+##    if counter==30:
+##        #print "breaking"
+##        break
+##    #print "has_key"
+##    if actions.has_key(counter):
+##        print "Performing action at counter value: %d" % counter
+##        actions[counter](m)
+##        counter +=1
+##    #print "updating"
+##    time.sleep(0.1) #we need to let go of the gil occassionally...
+##    if(not screen.get_locked()):
+##        try:
+##            pygame.display.update() #we can do this because we're blitting each frame of the movie to the main screen we instantiated.
+##        except pygame.error:
+##            break
+##        
+##print "Ending trial one..."
+m.stop()
+del m
+#the end
+
+m=movie.Movie(filename, screen)
 prev_time = time.time()
-m.surface = screen
 print "About to do surface gymnastics..."
+counter = 0
 while(1):
     new_time=time.time()
     diff = int(new_time-prev_time)
@@ -96,7 +134,7 @@ while(1):
         prev_time=new_time
     #print "testing counter"
     if counter==30:
-        #print "breaking"
+        print "breaking"
         break
     #print "has_key"
     if actions.has_key(counter):
@@ -106,10 +144,10 @@ while(1):
     #print "updating"
     time.sleep(0.1) #we need to let go of the gil occassionally...
     if(not screen.get_locked()):
-        pygame.display.update() #we can do this because we're blitting each frame of the movie to the main screen we instantiated.
-    
-m.stop()
+        try:
+            pygame.display.update() #we can do this because we're blitting each frame of the movie to the main screen we instantiated.
+        except pygame.error:
+            break
+
 del m
-#the end
-
-
+print "the end"

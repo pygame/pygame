@@ -15,13 +15,7 @@
 #include <SDL.h>
 #include <SDL_thread.h>
 #include <libavformat/avformat.h>
-#include <libavcodec/avcodec.h>
-#include <libavutil/avutil.h>
-#include <libavutil/random.h>
-#include <libavutil/avstring.h>
 #include <libswscale/swscale.h>
-#include <libavdevice/avdevice.h>
-
 
 /*constant definitions */
 #define MAX_VIDEOQ_SIZE (5 * 256 * 1024)
@@ -39,55 +33,6 @@
 
 /* maximum audio speed change to get correct sync */
 #define SAMPLE_CORRECTION_PERCENT_MAX 10
-
-/* we use about AUDIO_DIFF_AVG_NB A-V differences to make the average */
-#define AUDIO_DIFF_AVG_NB   20
-
-/* NOTE: the size must be big enough to compensate the hardware audio buffersize size */
-#define SAMPLE_ARRAY_SIZE (2*65536)
-
-#define SCALEBITS 10
-#define ONE_HALF  (1 << (SCALEBITS - 1))
-#define FIX(x)    ((int) ((x) * (1<<SCALEBITS) + 0.5))
-
-#define RGB_TO_Y_CCIR(r, g, b) \
-((FIX(0.29900*219.0/255.0) * (r) + FIX(0.58700*219.0/255.0) * (g) + \
-  FIX(0.11400*219.0/255.0) * (b) + (ONE_HALF + (16 << SCALEBITS))) >> SCALEBITS)
-
-#define RGB_TO_U_CCIR(r1, g1, b1, shift)\
-(((- FIX(0.16874*224.0/255.0) * r1 - FIX(0.33126*224.0/255.0) * g1 +         \
-     FIX(0.50000*224.0/255.0) * b1 + (ONE_HALF << shift) - 1) >> (SCALEBITS + shift)) + 128)
-
-#define RGB_TO_V_CCIR(r1, g1, b1, shift)\
-(((FIX(0.50000*224.0/255.0) * r1 - FIX(0.41869*224.0/255.0) * g1 -           \
-   FIX(0.08131*224.0/255.0) * b1 + (ONE_HALF << shift) - 1) >> (SCALEBITS + shift)) + 128)
-
-#define _ALPHA_BLEND(a, oldp, newp, s)\
-((((oldp << s) * (255 - (a))) + (newp * (a))) / (255 << s))
-
-#define RGBA_IN(r, g, b, a, s)\
-{\
-    unsigned int v = ((const uint32_t *)(s))[0];\
-    a = (v >> 24) & 0xff;\
-    r = (v >> 16) & 0xff;\
-    g = (v >> 8) & 0xff;\
-    b = v & 0xff;\
-}
-
-#define YUVA_IN(y, u, v, a, s, pal)\
-{\
-    unsigned int val = ((const uint32_t *)(pal))[*(const uint8_t*)(s)];\
-    a = (val >> 24) & 0xff;\
-    y = (val >> 16) & 0xff;\
-    u = (val >> 8) & 0xff;\
-    v = val & 0xff;\
-}
-
-#define YUVA_OUT(d, y, u, v, a)\
-{\
-    ((uint32_t *)(d))[0] = (a << 24) | (y << 16) | (u << 8) | v;\
-}
-
 
 //sets the module to single-thread mode.
 #define THREADFREE 0
@@ -108,7 +53,6 @@ AVPacket flush_pkt;
 
 /* Queues for already-loaded pictures, for rapid display */
 #define VIDEO_PICTURE_QUEUE_SIZE 16
-#define SUBPICTURE_QUEUE_SIZE 4
 
 //included from ffmpeg header files, as the header file is not publically available.
 #if defined(__ICC) || defined(__SUNPRO_C)
@@ -127,11 +71,6 @@ AVPacket flush_pkt;
     #define DECLARE_ASM_CONST(n,t,v)    static const t v
 #endif
 
-
- int audio_disable;
- int video_disable;
-
-
 /* structure definitions */
 /* PacketQueue to hold incoming ffmpeg packets from the stream */
 typedef struct PacketQueue {
@@ -142,12 +81,6 @@ typedef struct PacketQueue {
     SDL_mutex *mutex;
     SDL_cond *cond;
 } PacketQueue;
-
-/* Holds the subtitles for a specific timestamp */
-typedef struct SubPicture {
-    double pts;         /* presentation time stamp for this picture */
-    AVSubtitle sub;     //contains relevant info about subtitles    
-} SubPicture;
 
 /* Holds already loaded pictures, so that decoding, and writing to a overlay/surface can happen while waiting
  * the <strong> very </strong> long time(in computer terms) to show the next frame. 
@@ -211,13 +144,8 @@ typedef struct PyMovie {
 
 	/* Audio stream members */
     double audio_clock;
-    double audio_diff_cum; /* used for AV difference average computation */
-    double audio_diff_avg_coef;
-    double audio_diff_threshold;
-    int audio_diff_avg_count;
     AVStream *audio_st;
     PacketQueue audioq;
-    int audio_hw_buf_size;
     /* samples output by the codec. we reserve more space for avsync compensation */
     DECLARE_ALIGNED(16,uint8_t,audio_buf1[(AVCODEC_MAX_AUDIO_FRAME_SIZE * 3) / 2]);
     DECLARE_ALIGNED(16,uint8_t,audio_buf2[(AVCODEC_MAX_AUDIO_FRAME_SIZE * 3) / 2]);
@@ -227,43 +155,30 @@ typedef struct PyMovie {
     AVPacket audio_pkt;
     uint8_t *audio_pkt_data;
     int audio_pkt_size;
-    int64_t audio_pkt_ipts;
-    int audio_volume; /*must self implement*/
+    //int audio_volume; /*must self implement*/
 	enum SampleFormat audio_src_fmt;
     AVAudioConvert *reformat_ctx;
     int audio_stream;
 	int audio_disable;
-	SDL_cond *audio_sig;
 	SDL_mutex *audio_mutex;
 	SDL_Thread *audio_tid;
 	int channel;
 	int audio_paused;
 	/* Frame/Video Management members */
-    int frame_count;
     double frame_timer;
     double frame_last_pts;
     double frame_last_delay;
-    double last_frame_delay;
     double frame_delay; /*display time of each frame, based on fps*/
     double video_clock; /*seconds of video frame decoded*/
     AVStream *video_st;
-    int64_t vidpkt_timestamp;
-    int vidpkt_start;
-    double video_last_P_pts; /* pts of the last P picture (needed if B
-                                frames are present) */
     double video_current_pts; /* current displayed pts (different from
                                  video_clock if frame fifos are used) */
 	double video_current_pts_time;
-	double video_last_pts_time;
-	double video_last_pts;
 	double timing;
 	double last_showtime;
 	double pts;	
 	int video_stream;
-    SDL_Overlay *dest_overlay;
-    SDL_Surface *dest_surface;
-    SDL_Rect dest_rect;
-	
+	int video_disable;
 	/* simple ring_buffer queue for holding VidPicture structs */
 	VidPicture pictq[VIDEO_PICTURE_QUEUE_SIZE];
 	int pictq_size, pictq_windex, pictq_rindex;
@@ -275,17 +190,6 @@ typedef struct PyMovie {
 	SDL_mutex *videoq_mutex;
 	SDL_cond *videoq_cond;
 	struct SwsContext *img_convert_ctx;
-
-	/* subtitle members */	
-    SDL_Thread *subtitle_tid;                    //thread id for subtitle decode thread
-    int subtitle_stream;                         //which subtitle thread we want
-    int subtitle_stream_changed;                 //if the subtitle-stream has changed
-    AVStream *subtitle_st;                       //subtitle stream
-    PacketQueue subtitleq;                       //packet queue for decoded subtitle packets
-    SubPicture subpq[SUBPICTURE_QUEUE_SIZE];     //Picture objects for displaying the subtitle info
-    int subpq_size, subpq_rindex, subpq_windex;  
-    SDL_mutex *subpq_mutex;
-    SDL_cond *subpq_cond;
 
 } PyMovie;
 /* end of struct definitions */
@@ -300,10 +204,9 @@ void packet_queue_abort(PacketQueue *q);
 int packet_queue_get(PacketQueue *q, AVPacket *pkt, int block);
 
 /* 		Misc*/
-void blend_subrect(AVPicture *dst, const AVSubtitleRect *rect, int imgw, int imgh);
-void free_subpicture(SubPicture *sp);
 void ConvertYUV420PtoRGBA( AVPicture *YUV420P, SDL_Surface *OUTPUT, int interlaced );
 void initializeLookupTables(void);
+
 /* 		Video Management */
 int video_open(PyMovie *is, int index);
 void video_image_display(PyMovie *is);
