@@ -216,7 +216,7 @@ void get_height_width(PyMovie *movie, int *height, int*width)
 	get_width(movie, width);
 }
 
-inline int clamp0_255(int x) {
+int clamp0_255(int x) {
 	x &= (~x) >> 31;
 	x -= 255;
 	x &= x >> 31;
@@ -254,15 +254,15 @@ void ConvertYUV420PtoRGBA( AVPicture *YUV420P, SDL_Surface *OUTPUT, int interlac
         	{
 				//endianess issue here... red has to be shifted by 16, green by 8, and blue gets no shift. 
 				/* shift components to the correct place in pixel */
-				*RGBA =   (clamp0_255( __Y[*Y] + __CrtoR[*V])  << (long) 16)						| /* red */
-						( clamp0_255( __Y[*Y] - __CrtoG[*V] - __CbtoG[*U] )	<<  (long)8 )		| /* green */
-						( clamp0_255( __Y[*Y] + __CbtoB[*U] )				/*<<  (long)16*/ )		| /* blue */
+				*RGBA = ( clamp0_255( __Y[*Y] + __CrtoR[*V])                << (long) 16) | /* red */
+						( clamp0_255( __Y[*Y] - __CrtoG[*V] - __CbtoG[*U] )	<< (long) 8 ) | /* green */
+						( clamp0_255( __Y[*Y] + __CbtoB[*U] ))                            | /* blue */
 						0xFF000000;
 				/* goto next pixel */
         	}
         	else
         	{
-        		//endianess issue here... red has to be shifted by 16, green by 8, and blue gets no shift. 
+        		//endianess issue here... red has to be shifted by 0, green by 8, and blue shifted by 16. 
 				/* shift components to the correct place in pixel */
 				*RGBA =   clamp0_255( __Y[*Y] + __CrtoR[*V])  						       | /* red */
 						( clamp0_255( __Y[*Y] - __CrtoG[*V] - __CbtoG[*U] )	<<  (long)8 )  | /* green */

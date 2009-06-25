@@ -65,16 +65,22 @@ void cb_mixer(int channel)
 	//PyGILState_STATE gstate;
 	//gstate=PyGILState_Ensure();
 	Mix_Chunk *mix = Mix_GetChunk(channel);
-	if(!mix || !mix->abuf)
+	if(mix==NULL)
 	{
 		playBuffer(NULL, (uint32_t) 0, channel);
 		return;
 	}
-		
-	PyMem_Free(mix->abuf);
-	mix->abuf=NULL;
-	PyMem_Free(mix);
-	mix=NULL;
+	if(mix->abuf==NULL)
+	{
+		PyMem_Free(mix);
+		mix=NULL;
+		playBuffer(NULL, (uint32_t) 0, channel);
+		return;
+	}
+	//PyMem_Free(mix->abuf);
+	//mix->abuf=NULL;
+	//PyMem_Free(mix);
+	//mix=NULL;
 	//PySys_WriteStdout("Callback called.\n");
 	playBuffer(NULL, (uint32_t) 0, channel);
 	//PySys_WriteStdout("Callback finished.\n");

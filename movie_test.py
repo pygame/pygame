@@ -8,13 +8,13 @@ import pygame.nmovie as movie
 
 print "Please give an (absolute)filename of a movie file you'd like to play: ",
 #filename = raw_input()
-filename="/home/tyler/dhs1.avi"
+filename="/home/tyler/War3.avi"
 #initialization. It could also have a surface as a second argument, and every 
 # frame will be blitted to that surface. It is the programmer's responsibility
 # to be on time for rendering that surface.
 # Without a surface argument, the ffmpeg-wrapper uses the sdl_overlay library. 
-screen=pygame.display.set_mode((640, 368))
-m = movie.Movie(filename, screen)
+#screen=pygame.display.set_mode((640, 368))
+m = movie.Movie(filename)
 print m.paused  #always False, unless .pause has been called
 print m.playing #False until play has been called. Will return to false when
                 # .stop() has been called.
@@ -33,9 +33,9 @@ print "Playing infinitely"
 
 m.play(-1)      #We're going to use infinite play, so we can demonstrate all 
                 # the features.
-while(1):
-    time.sleep(0.01)
-    pygame.display.update()
+#while(1):
+#    time.sleep(0.01)
+#    pygame.display.update()
 time.sleep(10)  #sleep for ten seconds to let one see the video play, and hear 
                 # the audio
 print m.paused
@@ -59,7 +59,7 @@ m.height = m.height/2
 print "and again, sleeping..."
 #back to our original size
 time.sleep(10)
-import sys;sys.quit()
+import sys;sys.exit(1)
 #Here we demonstrate the use of pause. You pause, then call pause again to play
 print "Pausing..."
 m.pause()
