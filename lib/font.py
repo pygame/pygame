@@ -311,9 +311,11 @@ def _initunix ():
         output = p.communicate()[0]
         retcode = p.returncode
         if sys.version_info[0] >= 3:
-            output = str (output, "ascii")
+            output = str (output, "utf-8")
     except OSError:
+        _families[None] = None
         _fonts[None] = None
+        return
 
     try:
         for line in output.split ("\n"):
@@ -342,6 +344,9 @@ def _initunix ():
             bold, italic = _getstyle (style)
             _addfont (filename, name, ftype, family, bold, italic)
     except Exception:
+        _families.clear ()
+        _fonts.clear ()
+        _families[None] = None
         _fonts[None] = None
 
 def _initfonts ():
@@ -366,6 +371,8 @@ def get_families ():
     """
     if not _fonts:
         _initfonts ()
+    if None in _fonts:
+        return None
     return list (_families.keys ())
 
 def find_font (name, bold=False, italic=False, ftype=None):
@@ -382,6 +389,8 @@ def find_font (name, bold=False, italic=False, ftype=None):
     """
     if not _fonts:
         _initfonts ()
+    if None in _fonts:
+        return None
 
     if ftype:
         ftype = ftype.lower ()
