@@ -494,10 +494,21 @@ static PyObject*
 _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
 {
     /* keyword list */
-    static char *kwlist[] = 
+    static char *kwlist_existingsurf[] = 
     { 
-        "text", "ptsize", "target_surface", "fgcolor", "bgcolor", "xpos", "ypos", NULL
+        "text", "target_surface", "xpos", "ypos", "fgcolor", "ptsize", NULL
     };
+
+    static char *kwlist_newsurf[] = 
+    { 
+        "text", "fgcolor", "bgcolor", "ptsize", NULL
+    };
+
+    static char *kwlist_bytearray[] = 
+    { 
+        "text", "ptsize", NULL
+    };
+
 
     PyFreeTypeFont *font = (PyFreeTypeFont *)self;
 
@@ -510,7 +521,7 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
     int xpos = 0, ypos = 0;
 
     /* default render mode */
-    int render_mode = FT_RENDER_NEWBYTEARRAY;
+    int render_mode = -1;
 
     /* output arguments */
     PyObject *rtuple = NULL;
@@ -523,10 +534,41 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
     FreeTypeInstance *ft;
     ASSERT_GRAB_FREETYPE(ft, NULL);
 
-    /* parse args */
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|iOOOii", kwlist,
-                &text, &ptsize, &render_on, &fg_color, &bg_color, &xpos, &ypos))
-        return NULL;
+    /*
+     * Spaghetti code which performs method overloading...
+     * Not very pythonic per-se but it would be nice to have a single
+     * render() method instead of having a differend method for
+     * each function.
+     */
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOiiO|i", kwlist_existingsurf,
+                &text, &render_on, &xpos, &ypos, &fg_color, &ptsize))
+    {
+        PyErr_Clear();
+
+        if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOO|i", kwlist_newsurf,
+                    &text, &fg_color, &bg_color, &ptsize))
+        {
+            PyErr_Clear();
+
+            if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist_bytearray,
+                        &text, &ptsize))
+            {
+                return NULL;
+            }
+            else
+            {
+                render_mode = FT_RENDER_NEWBYTEARRAY;
+            }
+        }
+        else
+        {
+            render_mode = FT_RENDER_NEWSURFACE;
+        }
+    }
+    else
+    {
+        render_mode = FT_RENDER_EXISTINGSURFACE;
+    }
 
     if (ptsize == -1)
     {
@@ -558,14 +600,6 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
     {
         PyErr_SetString(PyExc_ValueError, "Expecting unicode/bytes string");
         return NULL;
-    }
-
-    if (render_on)
-    {
-        if (PyInt_Check(render_on))
-            render_mode = PyInt_AsLong(render_on);
-        else
-            render_mode = FT_RENDER_EXISTINGSURFACE;
     }
 
     switch (render_mode)
@@ -608,8 +642,8 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
 
 
     default:
-        printf("Trying to render with %d\n", render_mode);
         PyErr_SetString(PyExc_RuntimeError, "Invalid render mode");
+        goto cleanup;
     }
 
     if (!r_pixels)
