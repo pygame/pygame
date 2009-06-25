@@ -633,7 +633,7 @@ PyObject *PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
     PyColor *fgcolor, PyColor *bgcolor)
 {
     int width, glyph_height, height, locked = 0;
-    FT_UInt32 fillcolor;
+    FT_UInt32 fillcolor, rmask, gmask, bmask, amask;
     SDL_Surface *surface = NULL;
 
     FontSurface font_surf;
@@ -645,7 +645,20 @@ PyObject *PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
         return NULL;
     }
 
-    surface = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, 32, 0, 0, 0, 0);
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+    rmask = 0xff000000;
+    gmask = 0x00ff0000;
+    bmask = 0x0000ff00;
+    amask = 0x000000ff;
+#else
+    rmask = 0x000000ff;
+    gmask = 0x0000ff00;
+    bmask = 0x00ff0000;
+    amask = 0xff000000;
+#endif
+
+    surface = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, 
+            32, rmask, gmask, bmask, amask);
 
     if (!surface)
     {
@@ -664,7 +677,16 @@ PyObject *PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
         locked = 1;
     }
 
-    fillcolor = SDL_MapRGB(surface->format, bgcolor->r, bgcolor->g, bgcolor->b);
+    if (bgcolor)
+    {
+        fillcolor = SDL_MapRGBA(surface->format, 
+                bgcolor->r, bgcolor->g, bgcolor->b, 255);
+    }
+    else
+    {
+        fillcolor = SDL_MapRGBA(surface->format, 0, 0, 0, 0);
+    }
+
     SDL_FillRect(surface, NULL, fillcolor);
 
     font_surf.buffer = surface->pixels;

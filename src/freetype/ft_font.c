@@ -619,7 +619,13 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
 
     if (!PyColor_Check(fg_color))
     {
-        PyErr_SetString (PyExc_TypeError, "fgcolor must be a Color");
+        PyErr_SetString(PyExc_TypeError, "fgcolor must be a Color");
+        goto _finish;
+    }
+
+    if (bg_color && !PyColor_Check(bg_color))
+    {
+        PyErr_SetString(PyExc_TypeError, "bgcolor must be a Color");
         goto _finish;
     }
 
@@ -634,12 +640,6 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
     if (!target_surf || target_surf == Py_None)
     {
         PyObject *r_surface = NULL;
-
-        if (!bg_color || !PyColor_Check(bg_color))
-        {
-            PyErr_SetString (PyExc_TypeError, "Missing required background color");
-            goto _finish;
-        }
 
         r_surface = PGFT_Render_NewSurface(ft, font, text_buffer,
                 ptsize, &width, &height, 
