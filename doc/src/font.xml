@@ -7,6 +7,22 @@
 
   <example></example>
   <func name="find_font">
+    <call>find_fonts (name, bold=False, italic=False, ftype=None) -> [ (str, bool, bool), ... ]</call>
+    <desc>
+      Finds all fonts matching a certain family or font filename.
+
+      Tries to find all fonts that match the passed requirements best. The
+      *name* argument denotes a specific font or font family name. If multiple
+      fonts match that name, the *bold* and *italic* arguments are used to find
+      the fonts that match the requirements best. *ftype* is an optional font
+      filetype argument to request specific font file types, such as bdf or ttf
+      fonts.
+
+      All found fonts are returned as list
+    </desc>
+    <example></example>
+  </func>
+  <func name="find_font">
     <call>find_font (name, bold=False, italic=False, ftype=None) -> str, bool, bool</call>
     <desc>
       Finds a font matching a certain family or font filename.

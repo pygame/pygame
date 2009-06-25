@@ -375,14 +375,14 @@ def get_families ():
     return list (_families.keys ())
 
 def find_fonts (name, bold=False, italic=False, ftype=None):
-    """find_fonts(name, bold=False, italic=False, ftype=None) -> [ str, bool, bool, ... ]
+    """find_fonts(name, bold=False, italic=False, ftype=None) -> [ (str, bool, bool), ... ]
 
     Finds all fonts matching a certain family or font filename.
 
     Tries to find all fonts that match the passed requirements best. The
     *name* argument denotes a specific font or font family name. If
     multiple fonts match that name, the *bold* and *italic* arguments
-    are used to find a font that matches the requirements best. *ftype*
+    are used to find the fonts that match the requirements best. *ftype*
     is an optional font filetype argument to request specific font file
     types, such as bdf or ttf fonts.
 
