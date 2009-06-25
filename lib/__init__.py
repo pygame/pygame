@@ -152,9 +152,7 @@ def warn_unwanted_files():
     ext_to_remove = ["camera"]
 
     # here are the .py/.pyo/.pyc files we need to ask to remove.
-    #py_to_remove = ["color"]
-    # color.py from the symbian branch imports color.so
-    py_to_remove = []
+    py_to_remove = ["color"]
     
     if os.name == "e32": # Don't warn on Symbian. The color.py is used as a wrapper.
         py_to_remove = []
@@ -193,8 +191,10 @@ def warn_unwanted_files():
             warnings.warn(message, RuntimeWarning, level)
         except ImportError:
             print (message)
-        
-warn_unwanted_files()
+
+
+# disable, because we hopefully don't need it.
+#warn_unwanted_files()
 
 
 
