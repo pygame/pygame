@@ -20,7 +20,7 @@ Contents:
    news.rst
    building.rst
    tutorial/index.rst
-   modules.rst
+   ref/pygame2_modules.rst
    capi.rst
    extending.rst
    release.rst

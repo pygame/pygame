@@ -59,11 +59,11 @@ Before a new release takes place, the following steps have to be made:
 * Make sure, all tests for all supported Python versions work on all
   platforms. ::
 
-  make clean
-  make purge_installs
-  make installall
-  make testall
-  make testall2
+    make clean
+    make purge_installs
+    make installall
+    make testall
+    make testall2
 
 Editing News
 ============

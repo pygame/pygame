@@ -41,10 +41,10 @@
       <desc>
         Writes raw data to the :class:`BufferProxy`.
 
-        Writes the raw data from buffer to the :class:`BufferProxy` object,
-        starting at the specified offset within the :class:`BufferProxy`. If
-        the length of the passed buffer exceeds the length of the
-        :class:`BufferProxy` (reduced by the offset), an :exc:`IndexError` will
+        Writes the raw data from *buffer* to the :class:`BufferProxy` object,
+        starting at the specified *offset* within the :class:`BufferProxy`. If
+        the length of the passed *buffer* exceeds the length of the
+        :class:`BufferProxy` (reduced by *offset*), an :exc:`IndexError` will
         be raised.
       </desc>
     </method>
@@ -125,7 +125,7 @@
       values to differ slightly from what you might expect.</desc>
     </attr>
     <method name="normalize">
-      <call>normalize() -> tuple</call>
+      <call>normalize() -> (float, float, float, float)</call>
       <desc>
         Returns the normalized RGBA values of the :class:`Color`.
 
@@ -141,7 +141,7 @@
   <class name="Error">
     <constructor>Error (...) -> Error</constructor>
     <desc>
-      A specialized exception class that indicates a misbehaviour within the
+      A specialized exception class that indicates a misbehavior within the
       pygame2 modules.
     </desc>
   </class>
@@ -185,7 +185,7 @@
       :class:`FRect`.</desc>
     </attr>
     <method name="clamp">
-      <call>clamp (FRect) -> FRect</call>
+      <call>clamp (frect) -> FRect</call>
       <desc>
         Moves the rectangle inside another.
 
@@ -196,15 +196,15 @@
       </desc>
     </method>
     <method name="clamp_ip">
-      <call>clamp_ip (FRect) -> None</call>
+      <call>clamp_ip (frect) -> None</call>
       <desc>
         Moves the rectangle inside another, in place.
 
-        Same as FRect.clamp(FRect), but operates in place.
+        Same as :meth:`clamp`, but operates in place.
       </desc>
     </method>
     <method name="clip">
-      <call>clip (FRect) -> FRect</call>
+      <call>clip (frect) -> FRect</call>
       <desc>
         Crops a rectangle inside another.
 
@@ -219,15 +219,15 @@
       <desc>
         Test if one rectangle in a dictionary intersects.
 
-        Returns the key and value of the first dictionary value that
+        Returns the key and value of the first dictionary entry that
         collides with the :class:`FRect`. If no collisions are found,
         None is returned. Depending on the *checkvals* argument either the
-        keys or values of the dict must be :class:`FRect` objects. By
-        default, the keys are checked.
+        keys or values of *dict* must be :class:`FRect` objects. By default,
+        the keys are checked.
 
         You can provide your own comparision function as *key*
-        argument. The comparision function will take two args, the
-        :class:`FRect` itself and an key or value from the passed
+        argument. The comparision function will take two arguments, the
+        :class:`FRect` itself and a key or value from the passed
         dictionary. It must return True or False ::
         
           def cmpfunc (rect1, rect2):
@@ -250,8 +250,8 @@
         default, the keys are checked.
 
         You can provide your own comparision function as *key*
-        argument. The comparision function will take two args, the
-        :class:`FRect` itself and an key or value from the passed
+        argument. The comparision function will take two arguments, the
+        :class:`FRect` itself and a key or value from the passed
         dictionary. It must return True or False ::
 
           def cmpfunc (rect1, rect2):
@@ -261,7 +261,7 @@
       </desc>
     </method>
     <method name="collidelist">
-      <call>collidelist (rects[, key]) -> index</call>
+      <call>collidelist (rects[, key]) -> int</call>
       <desc>
         Test if one rectangle in a list intersects.
 
@@ -270,8 +270,8 @@
         returned. If no collisions are found an index of -1 is returned.
 
         You can provide your own comparision function as *key*
-        argument. The comparision function will take two args, the
-        :class:`FRect` itself and an key or value from the passed
+        argument. The comparision function will take two arguments, the
+        :class:`FRect` itself and a key or value from the passed
         dictionary. It must return True or False ::
 
           def cmpfunc (rect1, rect2):
@@ -280,7 +280,7 @@
       </desc>
     </method>
     <method name="collidelistall">
-      <call>collidelistall (rects[, key]) -> [index, ...]</call>
+      <call>collidelistall (rects[, key]) -> [int, ...]</call>
       <desc>
         Test if all rectangles in a list intersect.
 
@@ -289,8 +289,8 @@
         are found, an empty list is returned.
 
         You can provide your own comparision function as *key*
-        argument. The comparision function will take two args, the
-        :class:`FRect` itself and an key or value from the passed
+        argument. The comparision function will take two arguments, the
+        :class:`FRect` itself and a key or value from the passed
         dictionary. It must return True or False ::
 
           def cmpfunc (rect1, rect2):
@@ -299,30 +299,31 @@
       </desc>
     </method>
     <method name="collidepoint">
-      <call>collidepoint (x, y) -> bool</call>
+      <call>collidepoint (x, y) -> bool
+        collidepoint (point) -> bool</call>
       <desc>
         Test if a point is inside a rectangle.
 
-        Returns true if the given point is inside the rectangle. A point
+        Returns True if the given *point* is inside the rectangle. A point
         along the right or bottom edge is not considered to be inside
         the rectangle.
       </desc>
     </method>
     <method name="colliderect">
-      <call>colliderect (FRect) -> bool</call>
+      <call>colliderect (frect) -> bool</call>
       <desc>
         Test if two rectangles overlap.
 
-        Returns true if any portion of either rectangle overlap (except
+        Returns True if any portion of either rectangle overlap (except
         the top+bottom or left+right edges).
       </desc>
     </method>
     <method name="contains">
-      <call>contains (FRect) -> bool</call>
+      <call>contains (frect) -> bool</call>
       <desc>
         Test if one rectangle is inside another.
 
-        Returns true when the argument rectangle is completely inside
+        Returns True when the argument rectangle is completely inside
         the :class:`FRect`.
       </desc>
     </method>
@@ -336,7 +337,7 @@
       </desc>
     </method>
     <method name="fit">
-      <call>fit (FRect) -> FRect</call>
+      <call>fit (frect) -> FRect</call>
       <desc>
         Resize and move a rectangle with aspect ratio.
 
@@ -362,7 +363,8 @@
       <desc>Gets or sets the height of the :class:`FRect`.</desc>
     </attr>
     <method name="inflate">
-      <call>inflate (x, y) -> FRect</call>
+      <call>inflate (x, y) -> FRect
+        inflate (size) -> FRect</call>
       <desc>
         Grow or shrink the rectangle size.
 
@@ -372,11 +374,12 @@
       </desc>
     </method>
     <method name="inflate_ip">
-      <call>inflate_ip (x, y) -> None</call>
+      <call>inflate_ip (x, y) -> None
+        inflate_ip (size) -> None</call>
       <desc>
         Grow or shrink the rectangle size, in place.
 
-        Same as FRect.inflate(x, y), but operates in place.
+        Same as :meth:`inflate`, but operates in place.
       </desc>
     </method>
     <attr name="left">
@@ -398,20 +401,23 @@
       <desc>Gets or sets the mid top edge position of the :class:`FRect`.</desc>
     </attr>
     <method name="move">
-      <call>move (x, y) -> FRect</call>
+      <call>move (x, y) -> FRect
+        move (point) -> FRect</call>
       <desc>
         Moves the rectangle.
 
-        Returns a new rectangle that is moved by the given offset. The x
-        and y arguments can be any integer value, positive or negative.
+        Returns a new rectangle that is moved by the given offset. The *x*
+        and *y* arguments can be any float or integer value, positive or
+        negative.
       </desc>
     </method>
     <method name="move_ip">
-      <call>move_ip (x, y) -> None</call>
+      <call>move_ip (x, y) -> None
+        move_ip (point) -> FRect</call>
       <desc>
         Moves the rectangle, in place.
 
-        Same as FRect.move (x, y), but operates in place.
+        Same as :meth:`move`, but operates in place.
       </desc>
     </method>
     <attr name="right">
@@ -451,7 +457,7 @@
       </desc>
     </method>
     <method name="union">
-      <call>union (FRect) -> FRect</call>
+      <call>union (frect) -> FRect</call>
       <desc>
         Joins two rectangles into one.
 
@@ -461,11 +467,11 @@
       </desc>
     </method>
     <method name="union_ip">
-      <call>union_ip (FRect) -> FRect</call>
+      <call>union_ip (frect) -> FRect</call>
       <desc>
         Joins two rectangles into one, in place.
 
-        Same as FRect.union(FRect), but operates in place.
+        Same as :meth:`union`, but operates in place.
       </desc>
     </method>
     <attr name="w">
@@ -488,8 +494,7 @@
     <constructor>Rect (...) -> Rect</constructor>
     <desc>A class for storing rectangular coordinates.
 
-    A :class:`Rect` is used to store and manipulate rectangular
-    coordinates.
+      A :class:`Rect` is used to store and manipulate rectangular coordinates.
     </desc>
     <attr name="bottom">
       <desc>Gets or sets the bottom edge position of the :class:`Rect`.</desc>
@@ -514,7 +519,7 @@
       :class:`Rect`.</desc>
     </attr>
     <method name="clamp">
-      <call>clamp (Rect) -> Rect</call>
+      <call>clamp (rect) -> Rect</call>
       <desc>
         Moves the rectangle inside another.
 
@@ -525,15 +530,15 @@
       </desc>
     </method>
     <method name="clamp_ip">
-      <call>clamp_ip (Rect) -> None</call>
+      <call>clamp_ip (rect) -> None</call>
       <desc>
         Moves the rectangle inside another, in place.
 
-        Same as Rect.clamp(Rect), but operates in place.
+        Same as :meth:`clamp`, but operates in place.
       </desc>
     </method>
     <method name="clip">
-      <call>clip (Rect) -> Rect</call>
+      <call>clip (rect) -> Rect</call>
       <desc>
         Crops a rectangle inside another.
 
@@ -548,15 +553,15 @@
       <desc>
         Test if one rectangle in a dictionary intersects.
 
-        Returns the key and value of the first dictionary value that
+        Returns the key and value of the first dictionary entry that
         collides with the :class:`Rect`. If no collisions are found,
         None is returned. Depending on the *checkvals* argument either the
-        keys or values of the dict must be :class:`Rect` objects. By
+        keys or values of the *dict* must be :class:`Rect` objects. By
         default, the keys are checked.
 
         You can provide your own comparision function as *key*
-        argument. The comparision function will take two args, the
-        :class:`FRect` itself and an key or value from the passed
+        argument. The comparision function will take two arguments, the
+        :class:`Rect` itself and a key or value from the passed
         dictionary. It must return True or False ::
 
           def cmpfunc (rect1, rect2):
@@ -572,12 +577,12 @@
         Returns a list of all the key and value pairs that intersect
         with the :class:`Rect`. If no collisions are found an empty list
         is returned. Depending on the *checkvals* argument either the keys
-        or values of the dict must be :class:`Rect` objects. By default,
+        or values of the *dict* must be :class:`Rect` objects. By default,
         the keys are checked.
 
         You can provide your own comparision function as *key*
-        argument. The comparision function will take two args, the
-        :class:`FRect` itself and an key or value from the passed
+        argument. The comparision function will take two arguments, the
+        :class:`Rect` itself and an key or value from the passed
         dictionary. It must return True or False ::
 
           def cmpfunc (rect1, rect2):
@@ -586,7 +591,7 @@
       </desc>
     </method>
     <method name="collidelist">
-      <call>collidelist (list[, key]) -> index</call>
+      <call>collidelist (list[, key]) -> int</call>
       <desc>
         Test if one rectangle in a list intersects.
 
@@ -595,8 +600,8 @@
         returned. If no collisions are found an index of -1 is returned.
 
         You can provide your own comparision function as *key*
-        argument. The comparision function will take two args, the
-        :class:`FRect` itself and an key or value from the passed
+        argument. The comparision function will take two arguments, the
+        :class:`Rect` itself and an key or value from the passed
         dictionary. It must return True or False ::
 
           def cmpfunc (rect1, rect2):
@@ -605,7 +610,7 @@
       </desc>
     </method>
     <method name="collidelistall">
-      <call>collidelistall (list[, key]) -> [index, ...]</call>
+      <call>collidelistall (list[, key]) -> [int, ...]</call>
       <desc>
         Test if all rectangles in a list intersect.
 
@@ -614,8 +619,8 @@
         an empty list is returned.
 
         You can provide your own comparision function as *key*
-        argument. The comparision function will take two args, the
-        :class:`FRect` itself and an key or value from the passed
+        argument. The comparision function will take two arguments, the
+        :class:`Rect` itself and an key or value from the passed
         dictionary. It must return True or False ::
 
           def cmpfunc (rect1, rect2):
@@ -624,30 +629,31 @@
       </desc>
     </method>
     <method name="collidepoint">
-      <call>collidepoint (x, y) -> bool</call>
+      <call>collidepoint (x, y) -> bool
+        collidepoint (point) -> bool</call>
       <desc>
         Test if a point is inside a rectangle.
 
-        Returns true if the given point is inside the rectangle. A point
+        Returns True if the given point is inside the rectangle. A point
         along the right or bottom edge is not considered to be inside
         the rectangle.
       </desc>
     </method>
     <method name="colliderect">
-      <call>colliderect (Rect) -> bool</call>
+      <call>colliderect (rect) -> bool</call>
       <desc>
         Test if two rectangles overlap.
 
-        Returns true if any portion of either rectangle overlap (except
+        Returns True if any portion of either rectangle overlap (except
         the top+bottom or left+right edges).
       </desc>
     </method>
     <method name="contains">
-      <call>contains (Rect) -> bool</call>
+      <call>contains (rect) -> bool</call>
       <desc>
         Test if one rectangle is inside another.
 
-        Returns true when the argument rectangle is completely inside
+        Returns True when the argument rectangle is completely inside
         the :class:`Rect`.
       </desc>
     </method>
@@ -661,7 +667,7 @@
       </desc>
     </method>
     <method name="fit">
-      <call>fit (Rect) -> Rect</call>
+      <call>fit (rect) -> Rect</call>
       <desc>
         Resize and move a rectangle with aspect ratio.
 
@@ -678,7 +684,8 @@
       <desc>Gets or sets the height of the :class:`Rect`.</desc>
     </attr>
     <method name="inflate">
-      <call>inflate (x, y) -> Rect</call>
+      <call>inflate (x, y) -> Rect
+        inflate (size) -> Rect</call>
       <desc>
         Grow or shrink the rectangle size.
 
@@ -688,11 +695,12 @@
       </desc>
     </method>
     <method name="inflate_ip">
-      <call>inflate_ip (x, y) -> None</call>
+      <call>inflate_ip (x, y) -> None
+        inflate_ip (size) -> Rect</call>
       <desc>
         Grow or shrink the rectangle size, in place.
 
-        Same as Rect.inflate(x, y), but operates in place.
+        Same as :meth:`inflate`, but operates in place.
       </desc>
     </method>
     <attr name="left">
@@ -714,20 +722,22 @@
       :class:`Rect`.</desc>
     </attr>
     <method name="move">
-      <call>move (x, y) -> Rect</call>
+      <call>move (x, y) -> Rect
+        move (point) -> Rect</call>
       <desc>
         Moves the rectangle.
 
-        Returns a new rectangle that is moved by the given offset. The x
-        and y arguments can be any integer value, positive or negative.
+        Returns a new rectangle that is moved by the given offset. The *x*
+        and *y* arguments can be any integer value, positive or negative.
       </desc>
     </method>
     <method name="move_ip">
-      <call>move_ip (x, y) -> None</call>
+      <call>move_ip (x, y) -> None
+        move_ip (point) -> None</call>
       <desc>
         Moves the rectangle, in place.
 
-        Same as Rect.move (x, y), but operates in place.
+        Same as :meth:`move`, but operates in place.
       </desc>
     </method>
     <attr name="right">
@@ -749,7 +759,7 @@
       :class:`Rect`.</desc>
     </attr>
     <method name="union">
-      <call>union (Rect) -> Rect</call>
+      <call>union (rect) -> Rect</call>
       <desc>
         Joins two rectangles into one.
 
@@ -759,11 +769,11 @@
       </desc>
     </method>
     <method name="union_ip">
-      <call>union_ip (Rect) -> Rect</call>
+      <call>union_ip (rect) -> Rect</call>
       <desc>
         Joins two rectangles into one, in place.
 
-        Same as Rect.union(Rect), but operates in place.
+        Same as :meth:`union`, but operates in place.
       </desc>
     </method>
     <attr name="w">
@@ -794,7 +804,7 @@
       <desc>
         Performs a blit operation on the :class:`Surface`.
 
-        The behaviour, arguments and return value depend on the concrete
+        The behavior, arguments and return value depend on the concrete
         :class:`Surface` implementation.
       </desc>
     </method>

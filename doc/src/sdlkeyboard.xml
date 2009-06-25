@@ -10,12 +10,12 @@
     <desc>
       Enables or disables the keyboard repeat rate.
 
-      Enables or disables the keyboard repeat rate. delay specifies how
-      long a key must be pressed before the repeat begins. interval is
-      the speed with which it repeats. delay and interval are expressed
+      Enables or disables the keyboard repeat rate. *delay* specifies how
+      long a key must be pressed before the repeat begins. *interval* is
+      the speed with which it repeats. *delay* and *interval* are expressed
       as milliseconds. Thus, after the initial delay has passed,
-      repeated KEYDOWN events are sent through the event queue, using
-      the specified interval.
+      repeated :const:`KEYDOWN` events are sent through the event queue, using
+      the specified *interval*.
 
       Setting delay to 0 will disable repeating completely.
     </desc>
@@ -41,7 +41,7 @@
     </desc>
   </func>
   <func name="get_mod_state">
-    <call>get_mod_state () -> state</call>
+    <call>get_mod_state () -> int</call>
     <desc>
       Returns the current state of the modifier keys (CTRL, ALT, etc.).
 
@@ -50,8 +50,8 @@
       specific shift keys are pressed, the state of the capslock button,
       and more.
 
-      The bitmask will consist of the various KMOD_* flags as specified
-      in the constants.
+      The bitmask will consist of the various keyboard modifier flags as
+      specified in the :mod:`pygame2.sdl.constants` module.
     </desc>
     <example>
       ...
@@ -87,8 +87,8 @@
       Sets the current modifier key state.
 
       Sets the current modifier key state. mod has to be a bitwise OR'd
-      combination of the KMOD_* flags as they are specified in the
-      constants.
+      combination of the keyboard modifier flags as specified in the
+      :mod:`pygame2.sdl.constants` module.
     </desc>
     <example>
       ...

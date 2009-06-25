@@ -14,13 +14,13 @@
     <desc>
       Creates a new Font from a TTF font file.
       
-      Creates a new Font from a TTF font file using the specified size in
+      Creates a new Font from a TTF font *file* using the specified *size* in
       points. If the font features different faces, they can be chosen using
-      the optional index.
+      the optional *index*.
 
       .. note::
 
-        The file object *must* support binary read and write
+        The *file* object *must* support binary read and write
         access. This is especially important for Python 3.x users.
     </desc>
     <attr name="ascent">
@@ -61,8 +61,7 @@
       <desc>Gets the height of the Font.</desc>
     </attr>
     <attr name="is_fixed_width">
-      <desc>Gets whether the chosen font face is a fixed width
-      one.</desc>
+      <desc>Gets whether the chosen font face is a fixed width one.</desc>
     </attr>
     <attr name="line_skip">
       <desc>Gets the line skip of the Font.</desc>
@@ -72,37 +71,20 @@
       <desc>
         Renders a text to a Surface.
         
-        Renders the specified text to a Surface. The text will have the chosen
-        foreground color for the glyphs. The optional bgcolor argument denotes
+        Renders the specified *text* to a Surface. The text will have the chosen
+        foreground color for the glyphs. The optional *bgcolor* argument denotes
         the background color to use for the returned Surface, if - and only if -
-        the renderflag is RENDER_SHADED (the default). Otherwise the Surface
+        the *renderflag* is RENDER_SHADED (the default). Otherwise the Surface
         will be transparent except for the rendered glyphs.
         
-        The renderflag argument can be set to the following constants:
-        
-        +----------------+-------------------------------------------------+
-        | Render flag    | Description                                     |
-        +================+=================================================+
-        | RENDER_SOLID   | Creates an 8-bit palettized surface and renders |
-        |                | the given text at fast quality with the given   |
-        |                | color. The 0 pixel is the colorkey, giving a    |
-        |                | transparent background, and the 1 pixel is set  |
-        |                | to the text color.                              |
-        +----------------+-------------------------------------------------+
-        | RENDER_SHADED  | Creates an 8-bit palettized surface and renders |
-        |                | the given text at high quality with the given   |
-        |                | colors. The 0 pixel is background, other pixels |
-        |                | have varying degrees of the foreground color.   |
-        +----------------+-------------------------------------------------+
-        | RENDER_BLENDED | Creates a 32-bit ARGB surface and renders the   |
-        |                | given text at high quality, alpha blending to   |
-        |                | dither the font with the given color.           |
-        +----------------+-------------------------------------------------+
+        The *renderflag argument* can be set to one of the rendering constants
+        of the :mod:`pygame2.sdlttf.constants` module.
       </desc>
     </method>
     <attr name="style">
       <desc>Gets or sets the style of the font. The style can be a valid
-      value of the STYLE_*** constants.</desc>
+      value of the style constants in the :mod:`pygame2.sdlttf.constants`
+      module.</desc>
     </attr>
     <attr name="style_name">
       <desc>Gets the currently set font style name.</desc>

@@ -11,8 +11,8 @@
   <class name="Mask">
     <constructor>Mask (width, height) -> Mask
     Mask (size) -> Mask</constructor>
-    <desc>Creates a new :class:`Mask` object with the specified width
-    and height
+    <desc>
+      Creates a new :class:`Mask` object with the specified width and height.
     </desc>
     <attr name="angle">
       <desc>Gets the orientation of the pixels. Finds the approximate
@@ -21,10 +21,12 @@
       of pixels. It will return 0.0 on an empty :class:`Mask`.</desc>
     </attr>
     <attr name="centroid">
-      <desc>Gets the centroid, the center of pixel mass, of the pixels
-      in a :class:`Mask`.  Returns a coordinate tuple for the centroid
-      of the :class:`Mask`. if the :class:`Mask` is empty, it will
-      return (0,0).</desc>
+      <desc>
+        Gets the centroid, the center of pixel mass, of the pixels
+        in a :class:`Mask`. Returns a coordinate tuple for the centroid
+        of the :class:`Mask`. If the :class:`Mask` is empty, it will return
+        (0, 0).
+      </desc>
     </attr>
     <method name="clear">
       <call>clear () -> None</call>
@@ -68,7 +70,7 @@
 
         Returns a :class:`Mask` with the [x-offset[0], y-offset[1]] bit
         set if shifting *mask* so that it's lower right corner pixel is
-        at (x, y) would cause it to overlap with self.
+        at (*x*, *y*) would cause it to overlap with self.
 
         If an *outputmask* is specified, the output is drawn onto
         *outputmask* and *outputmask* is returned. Otherwise a mask of
@@ -85,8 +87,8 @@
         Draws the passed :class:`Mask` onto the :class:`Mask`.
         
         This performs a bitwise OR operation upon the calling
-        :class:`Mask`. The passed mask's start offset for the draw
-        operation will be the x and y offset passed to the method.
+        :class:`Mask`. The passed *mask*'s start offset for the draw
+        operation will be the *x* and *y* offset passed to the method.
       </desc>
     </method>
     <method name="erase">
@@ -96,8 +98,8 @@
         Erases the passed :class:`Mask` from the :class:`Mask`.
 
         This performs a bitwise NAND operation upon the calling
-        :class:`Mask`. The passed mask's start offset for the erase
-        operation will be the x and y offset passed to the method.
+        :class:`Mask`. The passed *mask*'s start offset for the erase
+        operation will be the *x* and *y* offset passed to the method.
       </desc>
     </method>
     <method name="fill">
@@ -137,7 +139,7 @@
         Gets the points outlining an object on the mask.
         
         Returns a list of points of the outline of the first object it
-        comes across in the :class:`Mask`.  For this to be useful, there
+        comes across in the :class:`Mask`. For this to be useful, there
         should probably only be one connected component of pixels in the
         :class:`Mask`. The *skip* option allows you to skip pixels in
         the outline. For example, setting it to 10 would return a list
@@ -168,7 +170,7 @@
       <desc>
         Returns the number of overlapping bits of two Masks.
 
-        This returns how many pixels overlap with the other mask given. It
+        This returns how many pixels overlap with the other *mask* given. It
         can be used to see in which direction things collide, or to see how
         much the two masks collide.
       </desc>
@@ -177,18 +179,19 @@
       <call>overlap_mask (mask, x, y) -> Mask
       overlap_mask (mask, point) -> Mask</call>
       <desc>
-        Returns a mask with the overlap of two other masks. A bitwise AND.
+        Returns a :class:`Mask` with the overlap of two other masks. A bitwise
+        AND.
       </desc>
     </method>
     <method name="scale">
       <call>scale (width, height) -> Mask
       scale (size) -> Mask</call>
       <desc>
-        Creates a new scaled :class:`Mask` with the given width and height.
+        Creates a new scaled :class:`Mask` with the given *width* and *height*.
 
         The quality of the scaling may not be perfect for all circumstances,
-        but it should be reasonable. If either w or h is 0 a clear 1x1 mask is
-        returned.
+        but it should be reasonable. If either *width* or *height* is 0 a clear
+        1x1 mask is returned.
       </desc>
     </method>
     <method name="set_at">
@@ -209,11 +212,12 @@
   <func name="from_surface">
     <call>from_surface (surface, threshold) -> Mask</call>
     <desc>
-      Returns a :class:`Mask` from the given pygame2.sdl.video.Surface.
+      Returns a :class:`Mask` from the given :class:`pygame2.sdl.video.Surface`.
 
-      Makes the transparent parts of the Surface not set, and the opaque parts
-      set. The alpha of each pixel is checked to see if it is greater than the
-      given threshold. If the Surface is color keyed, then threshold is not
+      Makes the transparent parts of the :class:`pygame2.sdl.video.Surface` not
+      set, and the opaque parts set. The alpha of each pixel is checked to see
+      if it is greater than the given *threshold*. If the
+      :class:`pygame2.sdl.video.Surface` is color keyed, then *threshold* is not
       used.
 
       This requires pygame2 to be built with SDL support enabled.
@@ -222,16 +226,15 @@
   <func name="from_threshold">
     <call>from_threshold (surface, color[, threshold, thressurface]) -> Mask</call>
     <desc>
-      Creates a mask by thresholding surfaces.
-
+      Creates a :class:`Mask` by thresholding surfaces.
 
       This is a more featureful method of getting a :class:`Mask` from a
-      Surface.  If supplied with only one Surface, all pixels within the
-      threshold of the supplied *color* are set in the Mask. If given
-      the optional *thressurface*, all pixels in *surface* that are
-      within the *threshold* of the corresponding pixel in
-      *thressurface* are set in the :class:`Mask`.
+      :class:`pygame2.sdl.video.Surface`. If supplied with only one
+      :class:`pygame2.sdl.video.Surface`, all pixels within the *threshold* of
+      the supplied *color* are set in the :class`Mask`. If given
+      the optional *thressurface*, all pixels in *surface* that are within the
+      *threshold* of the corresponding pixel in *thressurface* are set in the
+      :class:`Mask`.
     </desc>
   </func>
 </module>
-

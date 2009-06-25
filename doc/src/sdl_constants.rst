@@ -52,93 +52,126 @@ Blending Constants
 Those constants are used by the :meth:`pygame2.sdl.video.Surface.blit`
 and :meth:`pygame2.sdl.video.Surface.fill` methods.
 
+If not stated otherwise, each of the modes will work on a per-channel basis,
+so that the described operation is performed on each RGB(A) color component.
+This means that e.g. BLEND_RGB_ADD performs some operation similar to
+(R1 + R1, G1 + G2, B1 + B2).
+
 .. data:: BLEND_RGB_ADD
 
-   Used for an additive blend, ignoring the per-pixel alpha value.
+   Used for an additive blend, ignoring the per-pixel alpha value. The sum of
+   the both RGB values will used for the result.
 
 .. data:: BLEND_RGB_SUB
 
-   Used for an subtractive blend, ignoring the per-pixel alpha value.
+   Used for an subtractive blend, ignoring the per-pixel alpha value. The
+   difference of both RGB values will be used for the result. If the difference
+   is smaller than 0, it will be set to 0.
 
 .. data:: BLEND_RGB_MULT
 
-   Used for an multiply blend, ignoring the per-pixel alpha value.
+   Used for an multiply blend, ignoring the per-pixel alpha value. The
+   both RGB values will be multiplied with each other, causing the result
+   to be darker.
 
 .. data:: BLEND_RGB_AND
 
    Used for a binary AND'd blend, ignoring the per-pixel alpha value.
+   The bitwise AND combination of both RGB values will be used for the result.
 
 .. data:: BLEND_RGB_OR
 
    Used for a binary OR'd  blend, ignoring the per-pixel alpha value.
+   The bitwise OR combination of both RGB values will be used for the result.
 
 .. data:: BLEND_RGB_XOR
 
    Used for a binary XOR'd blend, ignoring the per-pixel alpha value.
-
+   The bitwise XOR combination of both RGB values will be used for the result.
+   
 .. data:: BLEND_RGB_MIN
 
-   Used for a minimum blend, ignoring the per-pixel alpha value.
+   Used for a minimum blend, ignoring the per-pixel alpha value. The minimum
+   of both RGB values will be used for the result.
 
 .. data:: BLEND_RGB_MAX
 
-   Used for a maximum blend, ignoring the per-pixel alpha value.
+   Used for a maximum blend, ignoring the per-pixel alpha value. The maximum
+   of both RGB values will be used for the result.
 
 .. data:: BLEND_RGB_AVG
 
-   Used for an average blend, ignoring the per-pixel alpha value.
+   Used for an average blend, ignoring the per-pixel alpha value. The average
+   of an addition of both RGB values will be used for the result.
 
 .. data:: BLEND_RGB_DIFF
 
-   Used for a difference blend, ignoring the per-pixel alpha value.
+   Used for a difference blend, ignoring the per-pixel alpha value. The real
+   difference of both RGB values will be used for the result.
 
 .. data:: BLEND_RGB_SCREEN
 
-   Used for a screen blend, ignoring the per-pixel alpha value.
+   Used for a screen blend, ignoring the per-pixel alpha value. The
+   inverted multiplication result of the inverted RGB values will be used,
+   causing the result to be brighter.
 
 .. data:: BLEND_RGBA_ADD
 
-   Used for an additive blend, with the per-pixel alpha value.
+   Used for an additive blend, with the per-pixel alpha value. The sum of
+   the both RGBA values will used for the result.
 
 .. data:: BLEND_RGBA_SUB
 
-   Used for an subtractive blend, with the per-pixel alpha value.
+   Used for an subtractive blend, with the per-pixel alpha value. The
+   difference of both RGBA values will be used for the result. If the difference
+   is smaller than 0, it will be set to 0.
 
 .. data:: BLEND_RGBA_MULT
 
-   Used for an multiply blend, with the per-pixel alpha value.
+   Used for an multiply blend, with the per-pixel alpha value. The
+   both RGBA values will be multiplied with each other, causing the result
+   to be darker.
 
 .. data:: BLEND_RGBA_AND
 
    Used for a binary AND'd blend, with the per-pixel alpha value.
+   The bitwise AND combination of both RGBA values will be used for the result.
 
 .. data:: BLEND_RGBA_OR
 
    Used for a binary OR'd  blend, with the per-pixel alpha value.
+   The bitwise OR combination of both RGBA values will be used for the result.
 
 .. data:: BLEND_RGBA_XOR
 
    Used for a binary XOR'd blend, with the per-pixel alpha value.
+   The bitwise XOR combination of both RGBA values will be used for the result.
 
 .. data:: BLEND_RGBA_MIN
 
-   Used for a minimum blend, with the per-pixel alpha value.
+   Used for a minimum blend, with the per-pixel alpha value. The minimum
+   of both RGBA values will be used for the result.
 
 .. data:: BLEND_RGBA_MAX
 
-   Used for a maximum blend, with the per-pixel alpha value.
+   Used for a maximum blend, with the per-pixel alpha value. The maximum
+   of both RGBA values will be used for the result.
 
 .. data:: BLEND_RGBA_AVG
 
-   Used for an average blend, with the per-pixel alpha value.
+   Used for an average blend, with the per-pixel alpha value. The average
+   of an addition of both RGBA values will be used for the result.
 
 .. data:: BLEND_RGBA_DIFF
 
-   Used for a difference blend, with the per-pixel alpha value.
+   Used for a difference blend, with the per-pixel alpha value. The real
+   difference of both RGBA values will be used for the result.
 
 .. data:: BLEND_RGBA_SCREEN
 
-   Used for a screen blend, with the per-pixel alpha value.
+   Used for a screen blend, with the per-pixel alpha value. The
+   inverted multiplication result of the inverted RGBA values will be used,
+   causing the result to be brighter.
 
 CD-ROM Constants
 ----------------
@@ -410,6 +443,138 @@ input. They are used by the :func:`pygame2.sdl.keyboard.get_mod_state` and
 | KMOD_CAPS,        |                                                       |
 | KMOD_MODE         |                                                       |
 +-------------------+-------------------------------------------------------+
+
+Surface Flags
+-------------
+
+The flags explained below are used by the :class:`pygame2.sdl.video.Surface`
+class and various :mod:`pygame2.sdl.video` functions. Not all of them are
+however used or applicable to both, the module functions and the class itself.
+Using them, although not supported by the one or other, will not result in an
+error, instead the inappropriate flags are silently ignored.
+
+.. data:: SWSURFACE
+
+   The surface is held in system memory. 
+
+.. data:: HWSURFACE
+
+   The surface is held in video memory.
+
+.. data:: PREALLOC
+
+   The surface uses preallocated memory.
+
+.. data:: SRCCOLORKEY
+
+   This flag turns on colorkeying for blits from this surface. If
+   :data:`HWSURFACE` is also specified and colorkeyed blits are
+   hardware-accelerated, then SDL will attempt to place the surface in video
+   memory. Use :meth:`pygame2.sdl.video.Surface.set_colorkey` to set or clear
+   this flag after surface creation.
+
+.. data:: SRCALPHA
+
+   This flag turns on alpha-blending for blits from this surface. If
+   :data:`HWSURFACE` is also specified and alpha-blending blits are
+   hardware-accelerated, then the surface will be placed in video memory if
+   possible. Use :meth:`pygame2.sdl.video.Surface.set_alpha` to set or clear
+   this flag after surface creation.
+
+.. data:: ASYNCBLIT
+  
+   Enables the use of asynchronous updates of the surface. This will usually
+   slow down blitting on single CPU machines, but may provide a speedincrease
+   on SMP systems.
+   
+   This is only available for the :mod:`pygame2.sdl.video` functions and the
+   display surface set by :meth:`pygame2.sdl.video.set_mode`.
+
+.. data:: ANYFORMAT
+
+   Normally, if a video surface of the requested bits-per-pixel (bpp) is not
+   available, SDL will emulate one with a shadow surface. Passing ANYFORMAT
+   prevents this and causes SDL to use the video surface, regardless of its
+   pixel depth.
+
+   This is only available for the :mod:`pygame2.sdl.video` functions and the
+   display surface set by :meth:`pygame2.sdl.video.set_mode`.
+
+.. data:: HWPALETTE 
+
+   Give SDL exclusive palette access. Without this flag you may not always get
+   the colors you request with :meth:`pygame2.sdl.video.Surface.set_colors` or 
+   :meth:`pygame2.sdl.video.Surface.set_palette`.
+
+.. data:: DOUBLEBUF
+
+   Enable hardware double buffering; only valid with HWSURFACE. Calling
+   :meth:`pygame2.sdl.video.Surface.flip` will flip the buffers and update
+   the screen. All drawing will take place on the surface that is not displayed
+   at the moment. If double buffering could not be enabled then
+   :meth:`pygame2.sdl.video.Surface.flip` will just perform a
+   :meth:`pygame2.sdl.video.Surface.update` on the entire screen.
+
+   This is only available for the :mod:`pygame2.sdl.video` functions and the
+   display surface set by :meth:`pygame2.sdl.video.set_mode`.
+
+.. data:: FULLSCREEN
+
+   SDL will attempt to use a fullscreen mode. If a hardware resolution change
+   is not possible (for whatever reason), the next higher resolution will be
+   used and the display window centered on a black background.
+
+   This is only available for the :mod:`pygame2.sdl.video` functions and the
+   display surface set by :meth:`pygame2.sdl.video.set_mode`.
+
+.. data:: OPENGL
+
+   Create an OpenGL rendering context. You should have previously set OpenGL
+   video attributes with :meth:`pygame2.sdl.gl.set_attribute`.
+
+   This is only available for the :mod:`pygame2.sdl.video` functions and the
+   display surface set by :meth:`pygame2.sdl.video.set_mode`.
+
+.. data:: OPENGLBLIT
+
+   Create an OpenGL rendering context, like above, but allow normal blitting
+   operations. The screen (2D) surface may have an alpha channel, and
+   :meth:`pygame2.sdl.video.Surface.update` must be used for updating changes
+   to the screen surface.
+
+   .. note::
+      
+      This option is kept for compatibility only, and is not recommended for
+      new code.
+
+   This is only available for the :mod:`pygame2.sdl.video` functions and the
+   display surface set by :meth:`pygame2.sdl.video.set_mode`.
+
+.. data:: HWACCEL
+
+   Surface blits uses hardware acceleration.
+
+.. data:: RLEACCEL
+
+   Colorkey blitting is accelerated with RLE.
+
+.. data:: RESIZABLE
+
+   Create a resizable window. When the window is resized by the user a
+   :data:`VIDEORESIZE` event is generated and :meth:`pygame2.sdl.video.set_mode`
+   can be called again with the new size.
+
+   This is only available for the :mod:`pygame2.sdl.video` functions and the
+   display surface set by :meth:`pygame2.sdl.video.set_mode`.
+
+.. data:: NOFRAME
+
+   If possible, NOFRAME causes SDL to create a window with no title bar or
+   frame decoration. Fullscreen modes automatically have this flag set.
+   
+   This is only available for the :mod:`pygame2.sdl.video` functions and the
+   display surface set by :meth:`pygame2.sdl.video.set_mode`.
+
 
 Various Constants
 -----------------

@@ -25,10 +25,9 @@
     <call>load (file[, type]) -> :class:`pygame2.sdl.video.Surface`</call>
     <desc>Loads an image file and creates a :class:`pygame2.sdl.video.Surface` from it.
     
-      Loads an image file and creates a
-      :class:`pygame2.sdl.video.Surface` from it. The file argument can
-      be a file object or filename. type is an optional argument
-      indicating the image type as string.
+      Loads an image file and creates a :class:`pygame2.sdl.video.Surface` from
+      it. The *file* argument can be a file object or filename. *type* is an
+      optional argument indicating the image type as string.
 
       .. note::
       
@@ -42,7 +41,7 @@
     <desc>Creates a :class:`pygame2.sdl.video.Surface` from a XPM buffer.
     
       Creates a :class:`pygame2.sdl.video.Surface` from a XPM
-      buffer. The buffer can be any type that can be used as character
+      buffer. The *buffer* can be any type that can be used as character
       buffer.
     </desc>
   </func>

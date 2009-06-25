@@ -19,7 +19,7 @@
       underlying physical device, such as the axes, hats and button
       states.
       
-      The index must be in the range [0,
+      The *index* must be in the range [0,
       :meth:`pygame2.sdl.joystick.num_joysticks` - 1].  This will also
       open the Joystick initially.
     </desc>
@@ -39,9 +39,8 @@
       <desc>
         Gets the current position of the specified axis.
         
-        Gets the current position of the specified axis. The axis index
-        must be a valid value within the range [0, :attr:`num_axes` -
-        1].
+        Gets the current position of the specified axis. The axis *index*
+        must be a valid value within the range [0, :attr:`num_axes` - 1].
       </desc>
     </method>
     <method name="get_ball">
@@ -50,7 +49,7 @@
         Gets the relative movement of a trackball.
 
         Gets the relative movement of a trackball since the last call to
-        get_ball. The ball index must be a valid value within the range
+        get_ball. The ball *index* must be a valid value within the range
         [0, :attr:`num_balls` - 1].
       </desc>
     </method>
@@ -59,9 +58,8 @@
       <desc>
         Gets the state of a button.
         
-        Gets the current pressed state of a button. The button index
-        must be a valid value within the range [0, :attr:`num_buttons` -
-        1].
+        Gets the current pressed state of a button. The button *index* 
+        must be a valid value within the range [0, :attr:`num_buttons` - 1].
       </desc>
     </method>
     <method name="get_hat">
@@ -70,9 +68,9 @@
         Gets the state of a hat.
         
         Gets the current state of a hat. The return value will be a
-        bitwise OR'd combination of the HAT_*** constants. The hat index
-        must be a valid value within the range [0, :attr:`num_hats` -
-        1].
+        bitwise OR'd combination of the hat constants as specified in the 
+        :mod:`pygame2.sdl.constants` module. The hat *index* must be a valid
+        value within the range [0, :attr:`num_hats` - 1].
       </desc>
     </method>
     <attr name="index">
@@ -112,7 +110,7 @@
     <desc>
       Gets the physical device name of a Joystick.
       
-      Gets the physical device name of a Joystick. The index specifies
+      Gets the physical device name of a Joystick. The *index* specifies
       the device to get the name for and must be in the range [0,
       :meth:`num_joysticks` - 1].
     </desc>
@@ -135,7 +133,7 @@
       Gets, whether the specified Joystick is opened for access or not.
       
       Gets, whether the specified Joystick is opened for access or
-      not. The index specifies the joystick device to get the state for
+      not. The *index* specifies the joystick device to get the state for
       and must be in the range [0, :meth:`num_joysticks` - 1].
     </desc>
   </func>
@@ -164,9 +162,10 @@
       joystick events are consumed and process by the
       :mod:`pygame2.sdl.event` module.
       
-      The state argument can be ENABLE or IGNORE for enabling or
-      disabling the event processing or QUERY to receive the current
-      state. The return value also will be one of those three constants.
+      The *state* argument can be :const:`ENABLE` or :const:`IGNORE` for
+      enabling or disabling the event processing or :const:`QUERY` to receive
+      the current state. The return value also will be one of those three
+      constants.
     </desc>
   </func>
   <func name="update">

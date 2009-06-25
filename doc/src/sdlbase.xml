@@ -48,11 +48,11 @@
 
       Initializes the underlying SDL library using the passed SDL
       flags. The flags indicate, which subsystems of SDL should be
-      initialized and can be a bitwise combination of the INIT_*
-      constants.
+      initialized and can be a bitwise combination of the initialization
+      constants of the :mod:`pygame2.sdl.constants` module.
 
       In case an error occured, False will be returned. The detailled
-      error can be received using pygame2.sdl.get_error().
+      error can be received using :func:`get_error`.
     </desc>
   </func>
   <func name="init_subsystem">
@@ -70,7 +70,7 @@
       called implicitly with the passed *flags*.
 
       In case an error occured, False will be returned. The detailled
-      error can be received using pygame2.sdl.get_error().
+      error can be received using :func:`get_error`.
     </desc>
   </func>
   <func name="quit">
@@ -91,15 +91,6 @@
       After calling this function, you should not invoke any class,
       method or function related to the specified subsystems as they are
       likely to fail or might give unpredictable results.
-      
-      .. note::
-      
-        *Never* call :meth:`quit_subsystem()`, if you did not initialise the
-        specified subsystem with :meth:`init_subsystem()`. The specialised
-        sdl modules (such as e.g. :mod:`pygame2.sdl.video`) register own
-        quit hooks to be called on quittintg the module. Using
-        :meth:`quit_subsystem()` however will prevent this and can lead to
-        errors.
     </desc>
   </func>
   <func name="was_init">

@@ -4,7 +4,7 @@
 <module name="pygame2.sdlext.draw">
   <short>extended SDL drawing methods</short>
   <desc>Extension module containing simple 2D drawing methods for the pygame2
-    SDL modules. Several methods utilise code from the SDL_gfx library, and 
+    SDL modules. Several methods utilize code from the SDL_gfx library, and 
     were optimised and changed in several ways.
    </desc>
 
@@ -13,7 +13,7 @@
     aaline (surface, color, point1, point2[, blend]) -> Rect</call>
     <desc>Draws a fine anti-aliased line.
       
-      Draws an anti-aliased line on a *surface*. If *blend* is true, the
+      Draws an anti-aliased line on a *surface*. If *blend* is True, the
       shades will be be blended with existing pixel shades instead of
       overwriting them.
       
@@ -27,7 +27,7 @@
     <desc>Draws multiple contiguous anti-aliased line segments on a surface.
     
       Draws a sequence of anti-aliased lines with a fixed width of 1px
-      on a *surface*. If *blend* is true, the shades will be be blended
+      on a *surface*. If *blend* is True, the shades will be be blended
       with existing pixel shades instead of overwriting them.
 
       The returned :class:`pygame2.Rect` describes the area affected by

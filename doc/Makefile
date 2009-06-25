@@ -35,10 +35,9 @@ help:
 	@echo "  linkcheck to check all external links for integrity"
 
 docclean:
-	@rm -rf sphinx/build *~ *.pyc *.orig ref/pygame2_*
-	@rm -f ref/pygame2.rst ref/*~ ref/*.pyc ref/*.orig
-	@rm -f builddarwin.rst buildmingw.rst buildunix.rst buildvc.rst
-	@rm -f newmodules.rst module_faq.rst news.rst release.rst
+	@rm -rf sphinx/build *~ *.pyc *.orig ref
+	@rm -rf builddarwin.rst buildmingw.rst buildvc.rst buildunix.rst
+	@rm -rf newmodules.rst module_faq.rst release.rst news.rst
 
 clean: docclean
 	@rm -rf html

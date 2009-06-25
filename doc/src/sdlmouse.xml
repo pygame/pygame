@@ -12,8 +12,8 @@
     <desc>
       Creates a new mouse cursor pointer.
 
-      Creates a new mouse cursor pointer from the specified pixel data
-      and pixel mask. The mask is used for applying transparency to the
+      Creates a new mouse cursor pointer from the specified pixel *data*
+      and pixel *mask*. The *mask* is used for applying transparency to the
       data defining the mouse cursor.
     </desc>
   </class>
@@ -29,8 +29,7 @@
     <desc>
       Gets the relative mouse movement.
 
-      Gets the relative mouse movement since the last call to this
-      function.
+      Gets the relative mouse movement since the last call to this function.
     </desc>
   </func>
   <func name="get_rel_state">
@@ -38,8 +37,7 @@
     <desc>
       Gets the relative mouse state.
       
-      Gets the relative mouse state since the last call to this
-      function.
+      Gets the relative mouse state since the last call to this function.
     </desc>
   </func>
   <func name="get_state">
@@ -66,8 +64,8 @@
     <desc>
       Sets the position of the mouse cursor.
     
-    Sets the position of the mouse cursor on the main screen. This
-    behaves exactly as the :meth:`warp` method.
+      Sets the position of the mouse cursor on the main screen. This
+      behaves exactly as the :meth:`warp` method.
     </desc>
   </func>
   <func name="set_visible">
@@ -84,13 +82,13 @@
     <desc>
       Toggles whether the cursor is shown on the screen.
       
-      Toggles whether the cursor is shown on the screen. show can be a
-      boolean or one a value of ENABLE, DISABLE and QUERY. QUERY will
-      not change the visibility state but query, if the cursor is
-      currently shown or not.
+      Toggles whether the cursor is shown on the screen. *show* can be a
+      boolean or one a value of :const:`ENABLE`, :const:`DISABLE` and
+      :const:`QUERY`. :const:`QUERY` will not change the visibility state but
+      query, if the cursor is currently shown or not.
       
-      The state returned is a value of ENABLE and DISABLE, indicating,
-      whether the cursor is currently shown or not.
+      The state returned is a value of :const:`ENABLE` and :const:`DISABLE`,
+      indicating, whether the cursor is currently shown or not.
     </desc>
   </func>
   <func name="warp">

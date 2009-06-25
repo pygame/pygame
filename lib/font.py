@@ -23,7 +23,6 @@ import glob, os, sys, subprocess
 #
 
 _fonts = {}
-_aliases = {}
 _families = {}
 
 # Fonts on windows
@@ -375,17 +374,19 @@ def get_families ():
         return None
     return list (_families.keys ())
 
-def find_font (name, bold=False, italic=False, ftype=None):
-    """find_font (name, bold=False, italic=False, ftype=None) -> str, bool, bool
+def find_fonts (name, bold=False, italic=False, ftype=None):
+    """find_fonts(name, bold=False, italic=False, ftype=None) -> [ str, bool, bool, ... ]
 
-    Finds a font matching a certain family or font filename.
+    Finds all fonts matching a certain family or font filename.
 
-    Tries to find a font that matches the passed requirements best. The
+    Tries to find all fonts that match the passed requirements best. The
     *name* argument denotes a specific font or font family name. If
     multiple fonts match that name, the *bold* and *italic* arguments
     are used to find a font that matches the requirements best. *ftype*
     is an optional font filetype argument to request specific font file
     types, such as bdf or ttf fonts.
+
+    All found fonts are returned as list
     """
     if not _fonts:
         _initfonts ()
@@ -396,6 +397,7 @@ def find_font (name, bold=False, italic=False, ftype=None):
         ftype = ftype.lower ()
 
     candidates = []
+    added = []
     #
     # font styles consist of (fullname, filetype, bold, italic)
     #
@@ -408,22 +410,27 @@ def find_font (name, bold=False, italic=False, ftype=None):
         if bold == fbold and italic == fitalic:
             # Exact style match
             candidates.append ((fname, fbold, fitalic, 0))
+            added.append (fullname)
         elif italic and italic == fitalic:
             # Italic matches
             candidates.append ((fname, fbold, fitalic, 1))
+            added.append (fullname)
         elif bold and bold == fbold:
             # Bold matches
             candidates.append ((fname, fbold, fitalic, 2))
+            added.append (fullname)
         else:
             # None matches
             candidates.append ((fname, fbold, fitalic, 3))
-    if candidates:
-        candidates.sort(key=lambda x: x[3])
-        return candidates[0][0], candidates[0][1], candidates[0][2]
+            added.append (fullname)
 
     for items in _fonts.items():
         fname = items[0]
         fullname, filetype, fbold, fitalic = items[1]
+        if fullname in added:
+            # Skip already added fonts.
+            continue
+
         if fullname != name and name not in fname:
             nl = name.lower ()
             fl = fullname.lower ()
@@ -445,7 +452,25 @@ def find_font (name, bold=False, italic=False, ftype=None):
         else:
             # None matches
             candidates.append ((fname, fbold, fitalic, 3))
+
     if candidates:
         candidates.sort(key=lambda x: x[3])
-        return candidates[0][0], candidates[0][1], candidates[0][2]
+        return [ (x[0], x[1], x[2]) for x in candidates ]
+    return None
+
+def find_font (name, bold=False, italic=False, ftype=None):
+    """find_fonts(name, bold=False, italic=False, ftype=None) -> str, bool, bool
+
+    Finds a font matching a certain family or font filename best.
+
+    Tries to find a font that matches the passed requirements best. The
+    *name* argument denotes a specific font or font family name. If
+    multiple fonts match that name, the *bold* and *italic* arguments
+    are used to find a font that matches the requirements best. *ftype*
+    is an optional font filetype argument to request specific font file
+    types, such as bdf or ttf fonts.
+    """
+    fonts = find_fonts (name, bold, italic, ftype)
+    if fonts:
+        return fonts[0]
     return None

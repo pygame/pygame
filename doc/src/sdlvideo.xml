@@ -30,7 +30,7 @@
       * UYVY_OVERLAY
       * YVYU_OVERLAY
 
-      The width and height arguments control the size for the overlay image
+      The *width* and *height* arguments control the size for the overlay image
       data. The overlay image can be displayed at any size, not just the
       resolution of the overlay and are always visible, and always show above
       the regular display contents.
@@ -61,8 +61,7 @@
       Overlay.</desc>
     </attr>
     <attr name="pixels">
-      <desc>Gets the pixel buffers for all planes of the
-      Overlay.</desc>
+      <desc>Gets the pixel buffers for all planes of the Overlay.</desc>
     </attr>
     <attr name="planes">
       <desc>Get the amount of planes for the Overlay.</desc>
@@ -105,10 +104,10 @@
     <method name="get_rgba">
       <call>get_rgba (color) -> Color</call>
       <desc>
-        Gets the best matching Color for the color.
+        Gets the best matching Color for the passed color.
 
         Gets a color value, which fits the PixelFormat best. This means
-        that an internal conversion is done on demand to match the
+        that an internal conversion is done (on demand) to match the
         passed color to the PixelFormat's supported value ranges. If the
         PixelFormat does not have alpha transparency support, the
         Color's alpha value will be set to fully opaque (255).
@@ -125,11 +124,15 @@
       <desc>
         Converts a color to the best value matching the format.
         
-        TODO
+        Gets a color value, which fits the PixelFormat best. This means
+        that an internal conversion is done (on demand) to match the
+        passed color to the PixelFormat's supported value ranges. Instead of
+        returning a Color as in :meth:`get_rgba`, an integer value matching the
+        PixelFormat's supported value ranges will be returned.
       </desc>
     </method>
     <attr name="masks">
-      <desc>Gets or sets the binary mask used to retrieve individual
+      <desc>Gets or sets the binary masks used to retrieve individual
       color values.</desc>
     </attr>
     <attr name="palette">
@@ -138,7 +141,7 @@
       returned.</desc>
     </attr>
     <attr name="readonly">
-      <desc>Gets, whether the PixelFormat is read-only (cannot be
+      <desc>Gets, whether the PixelFormat is read-only (this cannot be
       changed).</desc>
     </attr>
     <attr name="shifts">
@@ -161,105 +164,20 @@
       <desc>
         Draws the passed source surface onto this surface.
         
-        Draws the passed source surface onto this surface. The dstrect and
-        srcrect arguments are used for clipping the destionation area (on this
+        Draws the passed source surface onto this surface. The *dstrect* and
+        *srcrect* arguments are used for clipping the destination area (on this
         surface) and source area (on the source surface). For the destination 
         rectangle, the width and height are ignored, only the position is taken
         into account. For the source rectangle, all values, position as well as
         the size are used for clipping.
         
-        The optional blending arguments for the drawing operation perform
-        certain specialised pixel manipulations. For those, pixels on the same
+        The optional *blendargs* for the drawing operation perform  certain
+        specialised pixel manipulations. For those, pixels on the same
         position are evaluated and the result manipulated according to the
         argument.
         
-        +---------------------------+-----------------------------------------+
-        | Blend type                | Effect                                  |
-        +===========================+=========================================+
-        | BLEND_RGB_AND             | The bitwise AND combination of both     |
-        |                           | pixel values will beset as resulting    |
-        |                           | pixel.                                  |
-        +---------------------------+-----------------------------------------+
-        | BLEND_RGB_OR              | The bitwise OR combination of both      |
-        |                           | pixel values will beset as resulting    |
-        |                           | pixel.                                  |
-        +---------------------------+-----------------------------------------+
-        | BLEND_RGB_XOR             | The bitwise XOR combination of both     |
-        |                           | pixel values will beset as resulting    |
-        |                           | pixel.                                  |
-        +---------------------------+-----------------------------------------+
-        | BLEND_RGB_ADD             | The sum of both pixel values will be    |
-        |                           | set as resulting pixel.                 |
-        +---------------------------+-----------------------------------------+
-        | BLEND_RGB_SUB             | The difference of both pixel values     |
-        |                           | will be set as resulting pixel,         |
-        |                           | truncated to 0 on demand.               |
-        +---------------------------+-----------------------------------------+
-        | BLEND_RGB_MULT            | The result of a multiplication of both  |
-        |                           | pixel values will be used.              |
-        +---------------------------+-----------------------------------------+
-        | BLEND_RGB_MIN             | The minimum of each R, G and B channel  |
-        |                           | of the pixels will be set as result.    |
-        +---------------------------+-----------------------------------------+
-        | BLEND_RGB_MAX             | The maximum of each R, G and B channel  |
-        |                           | of the pixels will be set as result.    |
-        +---------------------------+-----------------------------------------+
-        | BLEND_RGB_DIFF            | The real difference of both pixel       |
-        |                           | values will be used.                    |
-        +---------------------------+-----------------------------------------+
-        | BLEND_RGB_SCREEN          | The opposite of the BLEND_RGB_MULT      |
-        |                           | mode. TODO                              |
-        +---------------------------+-----------------------------------------+
-        | BLEND_RGB_AVG             | The average of an addition of both      |
-        |                           | pixel values will be used.              |
-        +---------------------------+-----------------------------------------+
-        
-        The BLEND_RGB_*** flags do not take the alpha channel into account and
-        thus are much faster for most blit operations without alpha
-        transparency. Whenever alpha transparency has to be taken into account,
-        the blending flags below should be used.
-        
-        +---------------------------+-----------------------------------------+
-        | Blend type                | Effect                                  |
-        +===========================+=========================================+
-        | BLEND_RGB_AND             | The bitwise AND combination of both     |
-        |                           | pixel values will beset as resulting    |
-        |                           | pixel.                                  |
-        +---------------------------+-----------------------------------------+
-        | BLEND_RGB_OR              | The bitwise OR combination of both      |
-        |                           | pixel values will beset as resulting    |
-        |                           | pixel.                                  |
-        +---------------------------+-----------------------------------------+
-        | BLEND_RGB_XOR             | The bitwise XOR combination of both     |
-        |                           | pixel values will beset as resulting    |
-        |                           | pixel.                                  |
-        +---------------------------+-----------------------------------------+
-        | BLEND_RGBA_ADD            | The sum of both pixel values will be    |
-        |                           | set as resulting pixel.                 |
-        +---------------------------+-----------------------------------------+
-        | BLEND_RGBA_SUB            | The difference of both pixel values     |
-        |                           | will be set as resulting pixel.         |
-        +---------------------------+-----------------------------------------+
-        | BLEND_RGBA_MIN            | The minimum of each R, G, B and A       |
-        |                           | channel of the pixels will be set as    |
-        |                           | result.                                 |
-        +---------------------------+-----------------------------------------+
-        | BLEND_RGBA_MAX            | The maximum of each R, G, B and A       |
-        |                           | channel of the pixels will be set as    |
-        |                           | result.                                 |
-        +---------------------------+-----------------------------------------+
-        | BLEND_RGBA_MULT           | The result of a multiplication of both  |
-        |                           | pixel values will be used.              |
-        +---------------------------+-----------------------------------------+
-        | BLEND_RGB_DIFF            | The real difference of both pixel       |
-        |                           | values will be used.                    |
-        +---------------------------+-----------------------------------------+
-        | BLEND_RGB_SCREEN          | The opposite of the BLEND_RGB_MULT      |
-        |                           | mode. TODO                              |
-        +---------------------------+-----------------------------------------+
-        | BLEND_RGB_AVG             | The average of an addition of both      |
-        |                           | pixel values will be used.              |
-        +---------------------------+-----------------------------------------+
+        For all supported blending operations take a look at the blending
+        constants in the :mod:`pygame2.sdl.constants` module.
       </desc>
     </method>
     <attr name="clip_rect">
@@ -484,7 +402,9 @@
         Updates the given area on the Surface.
 
         Upates the given area (or areas, if a list of rects is passed)
-        on the Surface.
+        on the Surface, performing partial screen buffer swaps.
+        For smaller portions of the Surface, this is much faster than running
+        :meth:`flip`.
       </desc>
     </method>
     <attr name="w"><desc>Gets the width of the Surface.</desc></attr>
@@ -569,11 +489,11 @@
     <desc>
       Checks, whether the requested video mode is supported.
 
-      Checks, whether the video mode is supported for the passed size,
-      bit depth and flags. If the bit depth (bpp) argument is omitted,
+      Checks, whether the video mode is supported for the passed *size*,
+      bit depth and *flags*. If the bit depth (*bpp*) argument is omitted,
       the current screen bit depth will be used. 
       
-      The optional flags argument is the same as for :meth:`set_mode`.
+      The optional *flags* argument is the same as for :meth:`set_mode`.
     </desc>
   </func>
   <func name="list_modes">
@@ -581,12 +501,12 @@
     <desc>
       Returns the supported modes for a specific format and flags.
 
-      Returns the supported modes for a specific format and flags.
-      The optional format argument must be a :class:`PixelFormat`
-      instance with the desired mode information. The optional flags
+      Returns the supported modes for a specific *format* and *flags*.
+      The optional *format* argument must be a :class:`PixelFormat`
+      instance with the desired mode information. The optional *flags*
       argument is the same as for :meth:`set_mode`.
       
-      If both, the format and flags are omitted, all supported screen
+      If both, the *format* and *flags* are omitted, all supported screen
       resolutions for all supported formats and flags are returned.
     </desc>
   </func>
@@ -626,77 +546,12 @@
     <desc>
       Creates the main display Surface.
 
-      Creates the main display Surface using the specified size, bit
-      depth and flags. If the bit depth (bpp) argument is omitted, the
+      Creates the main display Surface using the specified *size*, bit
+      depth and *flags*. If the bit depth (*bpp*) argument is omitted, the
       current screen bit depth will be used.
 
-      The optional flags argument can be a bitwise OR'd combination of
-      the constants below.
-
-      +-------------------+-----------------------------------------------+
-      | Flag              | Description                                   |
-      +===================+===============================================+
-      | SWSURFACE         | Create the video surface in system memory     |
-      +-------------------+-----------------------------------------------+
-      | HWSURFACE         | Create the video surface in video memory      |
-      +-------------------+-----------------------------------------------+
-      | ASYNCBLIT         | Enables the use of asynchronous updates of    |
-      |                   | the display surface. This will usually slow   |
-      |                   | down blitting on single CPU machines, but may |
-      |                   | provide a speed increase on SMP systems.      |
-      +-------------------+-----------------------------------------------+
-      | ANYFORMAT         | Normally, if a video surface of the requested |
-      |                   | bits-per-pixel (bpp) is not available, SDL    |
-      |                   | will emulate one with a shadow surface.       |
-      |                   | Passing ANYFORMAT prevents this and causes    |
-      |                   | SDL to use the video surface, regardless of   |
-      |                   | its pixel depth.                              |
-      +-------------------+-----------------------------------------------+
-      | HWPALETTE         | Give SDL exclusive palette access. Without    |
-      |                   | this flag you may not always get the the      |
-      |                   | colors you request with                       |
-      |                   | :meth:`Surface.set_colors` or                 |
-      |                   | :meth:`Surface.set_palette`.                  |
-      +-------------------+-----------------------------------------------+
-      | DOUBLEBUF         | Enable hardware double buffering; only valid  |
-      |                   | with HWSURFACE. Calling :meth:`Surface.flip`  |
-      |                   | will flip the buffers and update the screen.  |
-      |                   | All drawing will take place on the surface    |
-      |                   | that is not displayed at the moment. If       |
-      |                   | double buffering could not be enabled then    |
-      |                   | :meth:`Surface.flip` will just perform a      |
-      |                   | :meth:`Surface.update` on the entire screen.  |
-      +-------------------+-----------------------------------------------+
-      | FULLSCREEN        | SDL will attempt to use a fullscreen mode. If |
-      |                   | a hardware resolution change is not possible  |
-      |                   | (for whatever reason), the next higher        |
-      |                   | resolution will be used and the display       |
-      |                   | window centered on a black background.        |
-      +-------------------+-----------------------------------------------+
-      | OPENGL            | Create an OpenGL rendering context. You       |
-      |                   | should have previously set OpenGL video       |
-      |                   | attributes with                               |
-      |                   | :meth:`pygame2.sdl.gl.set_attribute`.         |
-      +-------------------+-----------------------------------------------+
-      | OPENGLBLIT        | Create an OpenGL rendering context, like      |
-      |                   | above, but allow normal blitting operations.  |
-      |                   | The screen (2D) surface may have an alpha     |
-      |                   | channel, and :meth:`Surface.update` must be   |
-      |                   | used for updating changes to the screen       |
-      |                   | surface. NOTE: This option is kept for        |
-      |                   | compatibility only, and is not recommended    |
-      |                   | for new code.                                 |
-      +-------------------+-----------------------------------------------+
-      | RESIZABLE         | Create a resizable window. When the window is |
-      |                   | resized by the user a VIDEORESIZE event is    |
-      |                   | generated and :meth:`set_mode` can be called  |
-      |                   | again with the new size.                      |
-      +-------------------+-----------------------------------------------+
-      | NOFRAME           | If possible, NOFRAME causes SDL to create a   |
-      |                   | window with no title bar or frame decoration. |
-      |                   | Fullscreen modes automatically have this flag |
-      |                   | set.                                          |
-      +-------------------+-----------------------------------------------+
+      The optional *flags* argument can be a bitwise OR'd combination of
+      the surface flags from the :mod:`pygame2.sdl.constants`.
     </desc>
   </func>
   <func name="was_init">

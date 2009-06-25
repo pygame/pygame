@@ -5,27 +5,27 @@
   <short>SDL CD-ROM management wrapper</short>
   <desc>
     The cdrom module manages the CD and DVD drives on a computer. It can
-    also control the playback of audio cd's.
+    also control the playback of audio CDs.
   </desc>
 
   <class name="CD">
     <constructor>CD (index) -> CD</constructor>
     <desc>
-      Creates a new CD object for the CD- or DVD-ROM specified by the
-      passed index. The index identifies the matching system CD/DVD-ROM
+      Creates a new :class:`CD` object for the CD- or DVD-ROM specified by the
+      passed *index*. The *index* identifies the matching system CD/DVD-ROM
       number as returned by cdrom.num_drives ().
 
-      The CD itself provides access to the track data on the CD/DVD,
+      The :class:`CD` itself provides access to the track data on the CD/DVD,
       playing audio tracks, opening and closing the drive tray and so
       forth.
     </desc>
     <method name="close">
       <call>close () -> None</call>
       <desc>
-        Releases the CD internals. Useful for e.g. switching CDs within
-        the drive without the need to recreate the CD object. CD.open()
-        will reinitialise the CD internals. You should not use any other
-        method or attribute until a call to CD.open().
+        Releases the :class:`CD` internals. Useful for e.g. switching CDs within
+        the drive without the need to recreate the :class:`CD` object. CD.open()
+        will reinitialize the:class:`CD` internals. You should not use any other
+        method or attribute until a call to :meth:`open`.
       </desc>
     </method>
     <attr name="cur_frame">
@@ -48,34 +48,34 @@
     <method name="open">
       <call>open () -> None</call>
       <desc>
-        (Re-)Opens the CD and initialises the CD object internals after
-        a CD.close() call.
+        (Re-)Opens the :class:`CD` and initialises the :class:`CD` internals
+        after a :meth:`close` call.
       </desc>
     </method>
     <method name="pause">
       <call>pause () -> None</call>
       <desc>
-        Pauses the actual CD playback.
+        Pauses the actual :class:`CD` playback.
       </desc>
     </method>
     <method name="play">
       <call>play (start, length[, asfps]) -> None</call>
       <desc>
-        Starts playing the current CD beginning at the give start time
-        for a maximum of length seconds. The start and length arguments
-        are handled as seconds. To use an exact frame offset instead of
-        seconds, pass True as third asfps parameter.
+        Starts playing the current :class:`CD` beginning at the give *start*
+        time for a maximum of *length* seconds. The *start* and *length*
+        arguments are handled as seconds by default. To use an exact frame
+        offset instead ofseconds, pass True as third *asfps* parameter.
       </desc>
     </method>
     <method name="play_tracks">
       <call>play_tracks ([starttrack, ntracks, start, length, asfps]) -> None</call>
       <desc>
         Plays a certain number of tracks beginning at the passed start
-        track. If start and length are not 0, start determines the
-        offset of starttrack to begin the playback at and length
+        track. If *start* and *length* are not 0, *start* determines the
+        offset of *starttrack* to begin the playback at and *length*
         specifies the amount of seconds to play from the last track
         within the track list. To use an exact frame offset instead of
-        seconds for the start and length parameters, pass True as asfps
+        seconds for the *start* and *length* parameters, pass True as *asfps*
         parameter.
       </desc>
     </method>
@@ -83,21 +83,22 @@
       <call>resume () -> None</call>
       <desc>Resumes a previously paused playback.</desc>
     </method>
-    <attr name="status"><desc>Gets the current CD status.</desc></attr>
+    <attr name="status"><desc>Gets the current :class:`CD` status.</desc></attr>
     <method name="stop">
       <call>stop () -> None</call>
       <desc>Stops the current playback.</desc>
     </method>
     <attr name="tracks">
-      <desc>Gets a list of CDTrack objects with the CD track information.</desc>
+      <desc>Gets a list of :class:`CDTrack` objects with the CD track
+        information.</desc>
     </attr>
   </class>
 
   <class name="CDTrack">
     <constructor>CDTrack() -> CDTrack</constructor>
     <desc>
-      The CDTrack class provides information about the track contents of
-      a CD or DVD. it should not be created within user code.
+      The :class:`CDTrack` class provides information about the track contents
+      of a CD or DVD. It should not be created within user code.
     </desc>
     <attr name="id"><desc>Gets the CD track id.</desc></attr>
     <attr name="length">
@@ -127,12 +128,12 @@
       Gets the name of the specified CD- or DVD-ROM drive.
 
       Gets the system-dependent drive name (e.g. "/dev/cdrom" or "D:")
-      for the CD- or DVD-Rom specified by the passed index.
+      for the CD- or DVD-Rom specified by the passed *index*.
     </desc>
   </func>
   <func name="init">
     <call>init () -> None</call>
-    <desc>Initialises the CD-ROM subsystem of the SDL library.</desc>
+    <desc>Initializes the CD-ROM subsystem of the SDL library.</desc>
   </func>
   <func name="num_drives">
     <call>num_drives () -> int</call>

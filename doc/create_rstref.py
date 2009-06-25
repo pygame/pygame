@@ -1,5 +1,5 @@
 from xml.dom.minidom import parse
-import os, glob, sys
+import os, glob, sys, shutil
 
 RST_HEADER = """"""
 
@@ -342,16 +342,27 @@ def create_rst (docs):
         print ("Now writing RST for %s...." % doc.modulename)
         doc.create_rst ()
 
-def get_doc_files ():
+def get_xml_files ():
     docs = []
     files = glob.glob (os.path.join ("src", "*.xml"))
     for fname in files:
         docs.append (Doc (fname))
     return docs
 
+def get_rst_files ():
+    return glob.glob (os.path.join ("src", "*.rst"))
+
 if __name__ == "__main__":
-    docs = get_doc_files ()
+    docs = get_xml_files ()
     for doc in docs:
         print ("Parsing file %s..." % doc.filename)
         doc.parse_content ()
     create_rst (docs)
+
+    # Simply copy all other rst files
+    docs = get_rst_files ()
+    if not os.path.exists ("ref"):
+        os.mkdir ("ref")
+    for doc in docs:
+        fname = os.path.basename (doc)
+        shutil.copyfile (doc, os.path.join ("ref", "pygame2_%s" % fname))

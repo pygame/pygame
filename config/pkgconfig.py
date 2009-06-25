@@ -16,7 +16,7 @@ def run_command (cmd):
             output = p.communicate()[0]
             retcode = p.returncode
         if helpers.getversion()[0] >= 3:
-            output = str (output, "ascii")
+            output = str (output, "utf-8")
         return retcode, output
     except OSError:
         return -1, None

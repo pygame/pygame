@@ -11,12 +11,12 @@
     <desc>
       Finds a font matching a certain family or font filename.
 
-      Tries to find a font that matches the passed requirements
-      best. The *name* argument denotes a specific font or font family
-      name. If multiple fonts match that name, the *bold* and *italic*
-      arguments are used to find a font that matches the requirements
-      best. *ftype* is an optional font filetype argument to request
-      specific font file types, such as bdf or ttf fonts.
+      Tries to find a font that matches the passed requirements best. The
+      *name* argument denotes a specific font or font family name. If multiple
+      fonts match that name, the *bold* and *italic* arguments are used to find
+      a font that matches the requirements best. *ftype* is an optional font
+      filetype argument to request specific font file types, such as bdf or ttf
+      fonts.
     </desc>
     <example></example>
   </func>

@@ -68,7 +68,7 @@ release = '2.0.0-alpha2'
 
 # List of directories, relative to source directory, that shouldn't be searched
 # for source files.
-exclude_trees = ['sphinx/build']
+exclude_trees = ['sphinx/build', 'src']
 
 # The reST default role (used for this markup: `text`) to use for all documents.
 #default_role = None

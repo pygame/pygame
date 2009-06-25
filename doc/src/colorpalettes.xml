@@ -5,8 +5,8 @@
   <alias>pygame2.colorpalettes</alias>
   <short>Various, indexed color palettes</short>
   <desc>
-    Indexed color palettes. The following palettes are currently
-    available:
+    Indexed color palettes. Each palette is a tuple of :class:`pygame2.Color`.
+    The following palettes are currently available:
 
     +--------------------+---------------------------------------------------+
     | MONOPALETTE        | 1-bit monochrome palette (black and white).       |

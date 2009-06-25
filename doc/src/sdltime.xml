@@ -8,11 +8,11 @@
   <func name="add_timer">
     <call>add_timer (interval, callable[, data]) -> CObject</call>
     <desc>
-      Adds a timer callback to be called peridiocally.
+      Adds a timer callback to be called periodically.
       
-      Adds a timer callback to be called peridiocally using the specified
-      interval. callable can be any callable objet, method or function. On
-      invocation, the optional data will be passed to the callable.
+      Adds a timer callback to be called periodically using the specified
+      *interval*. *callable* can be any callable objet, method or function. On
+      invocation, the optional *data* will be passed to the callable.
       
       This will return an CObject that acts as unique id for the timer callback.
     </desc>
@@ -22,17 +22,17 @@
     <desc>
       Delays the execution for a specific time.
       
-      Delays the program execution for a specific time. The time is expressed
-      in milliseconds.
+      Delays the program execution for a specific *time*. The *time* is
+      expressed in milliseconds.
     </desc>
   </func>
   <func name="get_ticks">
     <call>get_ticks () -> long</call>
     <desc>
-      Gets the number of milliseconds since the initialisation of the underlying
+      Gets the number of milliseconds since the initialization of the underlying
       SDL library.
       
-      Gets the number of milliseconds since the initialisation of the underlying
+      Gets the number of milliseconds since the initialization of the underlying
       SDL library. The value will wrap if the program runs for more than ~49
       days.
     </desc>
@@ -40,7 +40,7 @@
   <func name="init">
     <call>init () -> None</call>
     <desc>
-      Initialises the timer subsystem of the SDL library.
+      Initializes the timer subsystem of the SDL library.
     </desc>
   </func>
   <func name="quit">
@@ -65,11 +65,11 @@
   <func name="set_timer">
     <call>set_timer (interval, callable) -> None</call>
     <desc>
-      Sets a single timer callback to be called peridiocally.
+      Sets a single timer callback to be called periodically.
       
-      Sets a single timer callback to be called peridiocally using the specified
-      interval in milliseconds. The timer callback can be reset by passing None
-      as callable object.
+      Sets a single timer callback to be called periodically using the specified
+      *interval* in milliseconds. The timer callback can be reset by passing
+      None as *callable* object.
     </desc>
   </func>
   <func name="was_init">

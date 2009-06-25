@@ -4,7 +4,7 @@
 Examples package for Pygame2.
 
 This package contains code snippets demonstrating the aspects of the
-various Pygame2 modules. Each example is an module of its own and can be
+various Pygame2 modules. Each example is a module of its own and can be
 easily executed using ::
 
     python -m pygame2.examples.<module>.<example>

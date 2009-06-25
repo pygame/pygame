@@ -17,7 +17,7 @@
     </desc>
   </func>
   <func name="grab_input">
-    <call>grab_input (mode) -> mode</call>
+    <call>grab_input (mode) -> int</call>
     <desc>
       Advices the window manager to let the window grab the mouse and keyboard
       input focus (or release it). The function returns the previously set mode.
@@ -36,7 +36,11 @@
   </func>
   <func name="set_icon">
     <call>set_icon (surface[, mask]) -> None</call>
-    <desc>Sets window manager icon to be used by the window.</desc>
+    <desc>
+      Sets the window manager icon to be used by the window.
+      
+      TODO: not fully implemented.
+    </desc>
   </func>
   <func name="toggle_fullscreen">
     <call>toggle_fullscren (bool) -> bool</call>
