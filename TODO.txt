@@ -18,15 +18,9 @@ CRITICAL:
 * add pgcompat.h to *mod.h internal headers.
 * Fix eval(repr(xyz)) for most types.
 
-* freetype: colored text rendering for SDL (with background color, alpha
-  transparency, alpha to alpha operations (fgcolor) for existing
-  surfaces, colorkey handling(?), ...)
 * freetype: rotated text rendering and proper support for vertical fonts
-* freetype: proper surface support for all (existing surface) bit depths
 * freetype: render to buffer buffer support (like new bytearray, but
   write to a buffer instead)
-* freetype: well-designed argument overloading (see e.g. sdlgfx.primitives
-  functions) for byte arrays and SDL surfaces
 * freetype: support different rendering modes (antialiased, aliased, ...)?
 * freetype: add style support (bold, italic, underlined)
 * freetype: correct error messages (e.g. on trying to scale pcf fonts)

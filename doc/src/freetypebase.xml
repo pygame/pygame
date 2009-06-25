@@ -106,11 +106,36 @@
       <desc>Gets the height of the Font.</desc>
     </attr>
     <method name="render">
-      <call>render(text, fgcolor[, bgcolor, renderflag]) -> Surface</call>
+      <call>render(text, fgcolor[, bgcolor, target_surface, xpos, ypos, ptsize]) -> (int, int [, Surface])</call>
       <desc>
-        Renders a text to a Surface.
+          Renders the string 'text' to a SDL Surface, using the color 'fgcolor'.
 
-        *TODO*
+          If 'target_surface' exists and is a valid SDL surface (independently of its BPP), 
+          the text will be rendered directly on top of it at coordinates (xpos, ypos). 
+          The width and height of the rendered text will be returned in a tuple.
+
+          If there is no target surface, a new surface will be created with the required 
+          size to contain the drawn text, using 'bgcolor' as its background color.
+          The width and height of the rendered text, together with the new Surface, will
+          be returned in a tuple.
+
+          The rendering is done using the font's default size in points.
+          Optionally you may specify another point size to use.
+
+        This function is only available when PyGame 2 has been compiled with SDL support.
+      </desc>
+    </method>
+    <method name="render_raw">
+      <call>render_raw(text [, ptsize]) -> (int, int, Bytes)</call>
+      <desc>
+          Renders the string 'text' to a raw buffer of bytes, each byte representing
+          the opacity of the glyph's raster image in grayscale.
+
+          The width (pitch) and height of the rendered text, together with the Bytes
+          buffer, will be returned in a tuple.
+
+          The rendering is done using the font's default size in points.
+          Optionally you may specify another point size to use.
       </desc>
     </method>
     <attr name="style">

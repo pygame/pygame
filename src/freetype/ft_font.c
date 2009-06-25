@@ -38,8 +38,10 @@ static PyObject *_ftfont_repr(PyObject *self);
  * Main methods
  */
 static PyObject* _ftfont_getsize(PyObject *self, PyObject* args, PyObject *kwds);
-static PyObject* _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds);
 static PyObject* _ftfont_getmetrics(PyObject *self, PyObject* args, PyObject *kwds);
+static PyObject* _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds);
+static PyObject* _ftfont_render_raw(PyObject *self, PyObject* args, PyObject *kwds);
+
 /* static PyObject* _ftfont_copy(PyObject *self); */
 
 /*
@@ -73,6 +75,12 @@ static PyMethodDef _ftfont_methods[] =
         (PyCFunction)_ftfont_render, 
         METH_VARARGS | METH_KEYWORDS,
         DOC_BASE_FONT_RENDER 
+    },
+    { 
+        "render_raw", 
+        (PyCFunction)_ftfont_render_raw, 
+        METH_VARARGS | METH_KEYWORDS,
+        DOC_BASE_FONT_RENDER_RAW
     },
     { NULL, NULL, 0, NULL }
 };
@@ -491,84 +499,33 @@ _ftfont_getmetrics(PyObject *self, PyObject* args, PyObject *kwds)
 }
 
 static PyObject*
-_ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
+_ftfont_render_raw(PyObject *self, PyObject* args, PyObject *kwds)
 {
     /* keyword list */
-    static char *kwlist_existingsurf[] = 
-    { 
-        "text", "target_surface", "xpos", "ypos", "fgcolor", "ptsize", NULL
-    };
-
-    static char *kwlist_newsurf[] = 
-    { 
-        "text", "fgcolor", "bgcolor", "ptsize", NULL
-    };
-
-    static char *kwlist_bytearray[] = 
+    static char *kwlist[] = 
     { 
         "text", "ptsize", NULL
     };
-
 
     PyFreeTypeFont *font = (PyFreeTypeFont *)self;
 
     /* input arguments */
     PyObject *text = NULL;
     int ptsize = -1;
-    PyObject *render_on = NULL;
-    PyObject *fg_color = NULL;
-    PyObject *bg_color = NULL;
-    int xpos = 0, ypos = 0;
-
-    /* default render mode */
-    int render_mode = -1;
 
     /* output arguments */
     PyObject *rtuple = NULL;
+    PyObject *rbuffer = NULL;
     int width, height;
-    PyObject *r_pixels = NULL;
 
-    int free_buffer;
+    int free_buffer = 0;
     FT_UInt16 *text_buffer = NULL;
 
     FreeTypeInstance *ft;
     ASSERT_GRAB_FREETYPE(ft, NULL);
 
-    /*
-     * Spaghetti code which performs method overloading...
-     * Not very pythonic per-se but it would be nice to have a single
-     * render() method instead of having a differend method for
-     * each function.
-     */
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOiiO|i", kwlist_existingsurf,
-                &text, &render_on, &xpos, &ypos, &fg_color, &ptsize))
-    {
-        PyErr_Clear();
-
-        if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOO|i", kwlist_newsurf,
-                    &text, &fg_color, &bg_color, &ptsize))
-        {
-            PyErr_Clear();
-
-            if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist_bytearray,
-                        &text, &ptsize))
-            {
-                return NULL;
-            }
-            else
-            {
-                render_mode = FT_RENDER_NEWBYTEARRAY;
-            }
-        }
-        else
-        {
-            render_mode = FT_RENDER_NEWSURFACE;
-        }
-    }
-    else
-    {
-        render_mode = FT_RENDER_EXISTINGSURFACE;
-    }
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &text, &ptsize))
+        goto _finish;
 
     if (ptsize == -1)
     {
@@ -576,22 +533,10 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
         {
             PyErr_SetString(PyExc_ValueError,
                     "Missing font size argument and no default size specified");
-            return NULL;
+            goto _finish;
         }
         
         ptsize = font->default_ptsize;
-    }
-
-    if (fg_color && !PyColor_Check(fg_color))
-    {
-        PyErr_SetString (PyExc_TypeError, "fgcolor must be a Color");
-        return NULL;
-    }
-
-    if (bg_color && !PyColor_Check(bg_color))
-    {
-        PyErr_SetString (PyExc_TypeError, "bgcolor must be a Color");
-        return NULL;
     }
 
     text_buffer = PGFT_BuildUnicodeString(text, &free_buffer);
@@ -599,67 +544,143 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
     if (!text_buffer)
     {
         PyErr_SetString(PyExc_ValueError, "Expecting unicode/bytes string");
-        return NULL;
+        goto _finish;
     }
 
-    switch (render_mode)
-    {
-    case FT_RENDER_NEWBYTEARRAY:
-        r_pixels = PGFT_Render_PixelArray(ft, font, text_buffer, 
-                ptsize, &width, &height);
-        break;
+    rbuffer = PGFT_Render_PixelArray(ft, font, text_buffer, 
+            ptsize, &width, &height);
 
-    /*
-     * Rendering on SDL surfaces only works if we have built
-     * Pgreloaded with support for SDL Video
-     */
-#ifdef HAVE_PYGAME_SDL_VIDEO
-
-    case FT_RENDER_NEWSURFACE:
-        r_pixels = PGFT_Render_NewSurface(ft, font, text_buffer,
-                ptsize, &width, &height, 
-                (PyColor *)fg_color, (PyColor *)bg_color);
-        break;
-
-    case FT_RENDER_EXISTINGSURFACE:
-        if (!PySurface_Check(render_on))
-        {
-            PyErr_SetString(PyExc_RuntimeError, "The given target is not a valid SDL surface");
-            goto cleanup;
-        }
-
-        if (PGFT_Render_ExistingSurface(ft, font, text_buffer, 
-                ptsize, render_on, &width, &height, xpos, ypos, 
-                (PyColor *)fg_color) == 0)
-        {
-            r_pixels = render_on;
-            Py_INCREF(render_on);
-        }
-
-        break;
-
-#endif
-
-
-    default:
-        PyErr_SetString(PyExc_RuntimeError, "Invalid render mode");
-        goto cleanup;
-    }
-
-    if (!r_pixels)
+    if (!rbuffer)
     {
         PyErr_SetString(PyExc_PyGameError, PGFT_GetError(ft));
-        goto cleanup;
+        goto _finish;
     }
 
-    rtuple = Py_BuildValue("(iiO)", width, height, r_pixels);
+    rtuple = Py_BuildValue("(iiO)", width, height, rbuffer);
 
-cleanup:
+_finish:
 
     if (free_buffer)
         free(text_buffer);
 
     return rtuple;
+}
+
+static PyObject*
+_ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
+{
+#ifndef HAVE_PYGAME_SDL_VIDEO
+
+    PyErr_SetString(PyExc_RuntimeError, "SDL support is missing. Cannot render on surfaces");
+    return NULL;
+
+#else
+    /* keyword list */
+    static char *kwlist[] = 
+    { 
+        "text", "fgcolor", "bgcolor", "target_surface", "xpos", "ypos", "ptsize", NULL
+    };
+
+    PyFreeTypeFont *font = (PyFreeTypeFont *)self;
+
+    /* input arguments */
+    PyObject *text = NULL;
+    int ptsize = -1;
+    PyObject *target_surf = NULL;
+    PyObject *fg_color = NULL;
+    PyObject *bg_color = NULL;
+    int xpos = 0, ypos = 0;
+
+    /* output arguments */
+    PyObject *rtuple = NULL;
+    int width, height;
+
+    int free_buffer = 0;
+    FT_UInt16 *text_buffer = NULL;
+
+    FreeTypeInstance *ft;
+    ASSERT_GRAB_FREETYPE(ft, NULL);
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OO|OOiii", kwlist,
+                &text, &fg_color, &bg_color, &target_surf, &xpos, &ypos, &ptsize))
+        goto _finish;
+
+    if (ptsize == -1)
+    {
+        if (font->default_ptsize == -1)
+        {
+            PyErr_SetString(PyExc_ValueError,
+                    "Missing font size argument and no default size specified");
+            goto _finish;
+        }
+        
+        ptsize = font->default_ptsize;
+    }
+
+    if (!PyColor_Check(fg_color))
+    {
+        PyErr_SetString (PyExc_TypeError, "fgcolor must be a Color");
+        goto _finish;
+    }
+
+    text_buffer = PGFT_BuildUnicodeString(text, &free_buffer);
+
+    if (!text_buffer)
+    {
+        PyErr_SetString(PyExc_ValueError, "Expecting unicode/bytes string");
+        goto _finish;
+    }
+
+    if (!target_surf || target_surf == Py_None)
+    {
+        PyObject *r_surface = NULL;
+
+        if (!bg_color || !PyColor_Check(bg_color))
+        {
+            PyErr_SetString (PyExc_TypeError, "Missing required background color");
+            goto _finish;
+        }
+
+        r_surface = PGFT_Render_NewSurface(ft, font, text_buffer,
+                ptsize, &width, &height, 
+                (PyColor *)fg_color, (PyColor *)bg_color);
+
+        if (!r_surface)
+        {
+            PyErr_SetString(PyExc_PyGameError, PGFT_GetError(ft));
+            goto _finish;
+        }
+
+        rtuple = Py_BuildValue("(iiO)", width, height, r_surface);
+    }
+    else if (PySurface_Check(target_surf))
+    {
+        if (PGFT_Render_ExistingSurface(ft, font, text_buffer, 
+                ptsize, (PySDLSurface *)target_surf, 
+                &width, &height, xpos, ypos, 
+                (PyColor *)fg_color) != 0)
+        {
+            PyErr_SetString(PyExc_PyGameError, PGFT_GetError(ft));
+            goto _finish;
+        }
+
+        rtuple = Py_BuildValue("(ii)", width, height);
+    }
+    else
+    {
+        PyErr_SetString(PyExc_ValueError, "The given target is not a valid SDL surface");
+        goto _finish;
+    }
+
+
+_finish:
+
+    if (free_buffer)
+        free(text_buffer);
+
+    return rtuple;
+
+#endif // HAVE_PYGAME_SDL_VIDEO
 }
 
 /****************************************************
