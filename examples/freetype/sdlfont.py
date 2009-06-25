@@ -1,5 +1,6 @@
 import sys, os
 import pygame2
+import pygame2.font
 try:
     import pygame2.sdl.constants as constants
     import pygame2.sdl.event as event
@@ -21,13 +22,17 @@ def run():
     freetype.init ()
 
     fontdir = os.path.dirname (os.path.abspath (__file__))
-    font = freetype.Font (os.path.join (fontdir, "sans.ttf"))
+    font1 = freetype.Font (os.path.join (fontdir, "sans.ttf"))
+    font2 = freetype.Font (pygame2.font.find_font ("times", ftype="ttf")[0])
 
     screen = video.set_mode (320, 240)
     screen.fill (pygame2.Color (255, 255, 255))
-    w, h, buf = font.render ("Hello", 12, ftconstants.RENDER_NEWSURFACE)
-    print (type (buf), buf)
-    screen.blit (buf, (5, 5))
+    w, h, buf = font1.render ("Hello", 12, screen, xpos=10, ypos=10,
+                              fgcolor=pygame2.Color(100, 100, 100))
+
+    w, h, buf = font2.render ("Hello", 28, screen, xpos=10, ypos=40,
+                              bgcolor=pygame2.Color(100, 100, 100))
+    #screen.blit (buf, (5, 5))
     screen.flip ()
 
     okay = True

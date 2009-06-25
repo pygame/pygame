@@ -7,24 +7,23 @@
 
   <example></example>
   <func name="find_font">
-    <call>find_font (name, bold=False, italic=False) -> str, bool, bool</call>
+    <call>find_font (name, bold=False, italic=False, ftype=None) -> str, bool, bool</call>
     <desc>
-      Find the filename for the named system font.
-      
-      This performs a font search and it returns the path to the TTF
-      file. The font name can be a comma separated list of font names to
-      try. If no match is found, None is returned as fontname.
+      Finds a font matching a certain family or font filename.
+
+      Tries to find a font that matches the passed requirements
+      best. The *name* argument denotes a specific font or font family
+      name. If multiple fonts match that name, the *bold* and *italic*
+      arguments are used to find a font that matches the requirements
+      best. *ftype* is an optional font filetype argument to request
+      specific font file types, such as bdf or ttf fonts.
     </desc>
     <example></example>
   </func>
   <func name="get_fonts">
-    <call>get_fonts () -> list</call>
+    <call>get_fonts () -> [str, str, ...]</call>
     <desc>
-      Get a list of system font names.
-
-      Returns the list of all found system fonts. Note that the names of
-      the fonts will be all lowercase with spaces removed. This is how
-      pygame2 internally stores the font names for matching.
+      Gets the list of available font families.
     </desc>
     <example></example>
   </func>

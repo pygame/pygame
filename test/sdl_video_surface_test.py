@@ -687,6 +687,35 @@ class SDLVideoSurfaceTest (unittest.TestCase):
         self.assertRaises (pygame2.Error, video.Surface, 68000, 10)
         video.quit ()
 
+    def test_pygame2_sdl_video_Surface_scroll (self):
+
+        # __doc__ (as of 2009-06-24) for pygame2.sdl.video.Surface.width:
+
+        # Scrolls the Surface in place.
+
+        # Move the Surface contents by *dx* pixels right and *dy* pixels
+        # down. dx and dy may be negative for left and up scrolls
+        # respectively. Areas of the surface that are not overwritten
+        # retain their original pixel values. Scrolling is contained by
+        # the Surface clip area. It is safe to have *dx* and *dy* values
+        # that exceed the surface size.
+        video.init ()
+        sf = video.Surface (20, 20)
+        sf.fill (Color (255, 0, 0), Rect (10, 10, 20, 20))
+        self._cmpcolor (sf, Color (255, 0, 0), Rect (10, 10, 10, 10))
+        sf.scroll (0, -5)
+        self._cmpcolor (sf, Color (255, 0, 0), Rect (10, 5, 10, 15))
+        sf.scroll (-10, 0)
+        self._cmpcolor (sf, Color (255, 0, 0), Rect (0, 5, 10, 15))
+        self._cmpcolor (sf, Color (255, 0, 0), Rect (10, 10, 10, 10))
+
+        sf.fill (Color (0))
+        sf.fill (Color (255, 0, 0), Rect (0, 0, 5, 5))
+        sf.scroll (-10, -10)
+        self._cmpcolor (sf, Color (0, 0, 0))
+        # TODO: incomplete!
+        video.quit ()
+        
     def test_pygame2_sdl_video_Surface___repr__(self):
         video.init ()
         sf = video.Surface (10, 10, 8)

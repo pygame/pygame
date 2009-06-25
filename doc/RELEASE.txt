@@ -43,7 +43,7 @@ Preparations
 ============
 Before a new release takes place, the following steps have to be made:
 
-* Increase version number (see :ref:`Postprocessing`) in ::
+* Increase version number (see `Postprocessing`) in ::
   
     setup.py
     doc/conf.py
@@ -51,7 +51,7 @@ Before a new release takes place, the following steps have to be made:
     
 * Update NEWS.txt with the changes since the last version (only for final
   releases - alpha and rc should contain the information, but not be tagged
-  explicitly). See :ref:`Editing News` for more information.
+  explicitly). See `Editing News` for more information.
 
 * Update README.txt and doc/BuildXXX.txt to point to the latest required
   dependency versions.

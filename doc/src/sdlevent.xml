@@ -25,33 +25,110 @@
       +--------------------------+-------------------------------------------+
       | Event type               | Attributes                                |
       +==========================+===========================================+
-      | :const:`ACTIVEEVENT`     | `state`, `gain`                           |
+      | :const:`ACTIVEEVENT`     | | `state`: The activation state. This will|
+      |                          |   be APPMOUSEFOCUS for the mouse focus,   |
+      |                          |   APPINPUTFOCUS for keyboard input focus  |
+      |                          |   and APPACTIVE on iconifying (`gain` = 0)|
+      |                          |   or restoring (`gain` = 1) the window.   |
+      |                          | | `gain`: 1 on gain, 0 on loss            |
       +--------------------------+-------------------------------------------+
-      | :const:`KEYDOWN`         | `state`, `scancode`, `sym`, `key`, `mod`, |
-      |                          | `unicode`                                 |
+      | :const:`KEYDOWN`         | | `state`: will always be PRESSED         | 
+      |                          | | `scancode`: The hardware scancode       |
+      |                          | | `sym`: same as `key`                    | 
+      |                          | | `key`: The sdl constant of the key (e.g.|
+      |                          |   K_a, K_TAB, ...)                        |
+      |                          | | `mod`:  The currently pressed modifier  |
+      |                          |   keys (e.g. KMOD_SHIFT)                  |
+      |                          | | `unicode`: The unicode represenation of |
+      |                          |   the key.                                |
       +--------------------------+-------------------------------------------+
-      | :const:`KEYUP`           | `state`, `scancode`, `sym`, `key`, `mod`, |
-      |                          | `unicode`                                 |
+      | :const:`KEYUP`           | | `state`: will always be RELEASED        |
+      |                          | | `scancode`: The hardware scancode       |
+      |                          | | `sym`: same as `key`                    |
+      |                          | | `key`: The sdl constant of the key (e.g.|
+      |                          |   K_a, K_TAB, ...)                        |
+      |                          | | `mod`:  The currently pressed modifier  |
+      |                          |   keys (e.g. KMOD_SHIFT)                  |
+      |                          | | `unicode`: The unicode represenation of |
+      |                          |   the key.                                |
       +--------------------------+-------------------------------------------+
-      | :const:`MOUSEMOTION`     | `state`, `x`, `y`, `xrel`, `yrel`, `pos`, |
-      |                          | `rel`, `buttons`                          |
+      | :const:`MOUSEMOTION`     | | `state`: Bit-wise combination of the    |
+      |                          |   button states (see `buttons`)           |
+      |                          | | `x`: The current x-coordinate on the    |
+      |                          |   window.                                 |
+      |                          | | `y`: The current y-coordinate on the    |
+      |                          |   window.                                 |
+      |                          | | `xrel`: relative motion in x direction  |
+      |                          |   since the last event poll               |
+      |                          | | `yrel`: relative motion in y direction  |
+      |                          |   since the last event poll               |
+      |                          | | `pos`: The x/y coordinate as tuple      |
+      |                          | | `rel`: the relative x/y motion as tuple |
+      |                          | | `buttons`: 3-value tuple containing the |
+      |                          |   mouse button states for the first three |
+      |                          |   mouse buttons. Each of the values is    |
+      |                          |   either *True* or *False*, indicating    |
+      |                          |   whether the button is pressed or not    |
       +--------------------------+-------------------------------------------+
-      | :const:`MOUSEBUTTONDOWN` | `state`, `x`, `y`, `pos`, `button`        |
+      | :const:`MOUSEBUTTONDOWN` | | `state`: will always be PRESSED         |
+      |                          | | `x`: The current x-coordinate on the    |
+      |                          |   window.                                 |
+      |                          | | `y`: The current y-coordinate on the    |
+      |                          |   window.                                 |
+      |                          | | `pos`: The x/y coordinate as tuple      |
+      |                          | | `button`: The pressed button (will be   |
+      |                          |   either BUTTON_LEFT, BUTTON_MIDDLE or    |
+      |                          |   BUTTON_RIGHT                            |
       +--------------------------+-------------------------------------------+
-      | :const:`MOUSEBUTTONUP`   | `state`, `x`, `y`, `pos`, `button`        |
+      | :const:`MOUSEBUTTONUP`   | | `state`: will always be RELEASED        |
+      |                          | | `x`: The current x-coordinate on the    |
+      |                          |   window.                                 |
+      |                          | | `y`: The current y-coordinate on the    |
+      |                          |   window.                                 |
+      |                          | | `pos`: The x/y coordinate as tuple      |
+      |                          | | `button`: The pressed button (will be   |
+      |                          |   either BUTTON_LEFT, BUTTON_MIDDLE or    |
+      |                          |   BUTTON_RIGHT                            |
       +--------------------------+-------------------------------------------+
-      | :const:`JOYAXISMOTION`   | `which`, `joy`, `axis`, `value`           |
+      | :const:`JOYAXISMOTION`   | | `which`: The device index of the        |
+      |                          |   joystick                                |
+      |                          | | `joy`: same as `which`                  |
+      |                          | | `axis`: The joystick axis index         |
+      |                          | | `value`: The current position of the    |
+      |                          |   axis (between -32768 and 32767)         |
       +--------------------------+-------------------------------------------+
-      | :const:`JOYBALLMOTION`   | `which`, `joy`, `ball`, `xrel`, `yrel`,   |
-      |                          | `rel`                                     |
+      | :const:`JOYBALLMOTION`   | | `which`: The device index of the        |
+      |                          |   joystick                                |
+      |                          | | `joy`: same as `which`                  |
+      |                          | | `ball`: The trackball index             |
+      |                          | | `xrel`: The relative motion in x        |
+      |                          |   direction since the last event poll     |
+      |                          | | `yrel`: The relative motion in y        |
+      |                          |   direction since the last event poll     |
+      |                          | | `rel`: The relative x/y motion as tuple |
       +--------------------------+-------------------------------------------+
-      | :const:`JOYHATMOTION`    | `which`, `joy`, `hat`, `value`            |
+      | :const:`JOYHATMOTION`    | | `which`: The device index of the        |
+      |                          |   joystick                                |
+      |                          | | `joy`: same as `which`                  |
+      |                          | | `hat`: The hat index                    |
+      |                          | | `value`: The current hat position as    |
+      |                          |   bit-wise combination (e.g. HAT_LEFTUP)  |
       +--------------------------+-------------------------------------------+
-      | :const:`JOYBUTTONDOWN`   | `which`, `joy`, `button`, `state`         |
+      | :const:`JOYBUTTONDOWN`   | | `which`: The device index of the        |
+      |                          |   joystick                                |
+      |                          | | `joy`: same as `which`                  |
+      |                          | | `button`: The button index              |
+      |                          | | `state`: wil always be PRESSED          |
       +--------------------------+-------------------------------------------+
-      | :const:`JOYBUTTONUP`     | `which`, `joy`, `button`, `state`         |
+      | :const:`JOYBUTTONUP`     | | `which`: The device index of the        |
+      |                          |   joystick                                |
+      |                          | | `joy`: same as `which`                  |
+      |                          | | `button`: The button index              |
+      |                          | | `state`: Will always be RELEASED        |
       +--------------------------+-------------------------------------------+
-      | :const:`VIDEORESIZE`     |  `w`, `h`, `size`                         | 
+      | :const:`VIDEORESIZE`     | | `w`: The width to resize to             |
+      |                          | | `h`: The height to resize to            |
+      |                          | | `size`: The width and height as tuple   |
       +--------------------------+-------------------------------------------+
       | :const:`VIDEOEXPOSE`     | no attributes                             |
       +--------------------------+-------------------------------------------+

@@ -251,9 +251,6 @@ def compile(strings, black='X', white='.',xor='o'):
                step = 8
    return tuple(filldata), tuple(maskdata)
 
-
-
-
 def load_xbm(curs, mask):
     """load_xbm(cursorfile, maskfile) -> cursor_args
 
