@@ -68,6 +68,8 @@ int     _PGFT_Render_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font,
     const FT_UInt16 *text, int font_size, PyColor *fg_color, FontSurface *surf);
 
 /* blitters */
+void __render_glyph_SDL8(int x, int y, FontSurface *surface, FT_Bitmap *bitmap, PyColor *color);
+void __render_glyph_SDL16(int x, int y, FontSurface *surface, FT_Bitmap *bitmap, PyColor *color);
 void __render_glyph_SDL32(int x, int y, FontSurface *surface, FT_Bitmap *bitmap, PyColor *color);
 void __render_glyph_ByteArray(int x, int y, FontSurface *surface, FT_Bitmap *bitmap, PyColor *color);
 
@@ -433,57 +435,69 @@ PGFT_GetTextSize(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
 #ifdef HAVE_PYGAME_SDL_VIDEO
 
-void __render_glyph_SDL32(int x, int y, FontSurface *surface, 
-    FT_Bitmap *bitmap, PyColor *fg_color)
-{
-    const int rx = (x + surface->x_offset);
-    const int ry = (y + surface->y_offset);
-
-    const int max_x = MIN(rx + bitmap->width, surface->width);
-    const int max_y = MIN(ry + bitmap->rows, surface->height);
-
-    FT_UInt32 *dst = ((FT_UInt32 *)surface->buffer) + rx + (ry * surface->pitch);
-    FT_UInt32 *dst_cpy;
-
-    const FT_Byte *src = bitmap->buffer;
-    const FT_Byte *src_cpy;
-
-    FT_UInt32 bgR, bgG, bgB, bgA;
-
-    int j, i;
-
-    if (rx < 0 || ry < 0)
-        return;
-
-    for (j = ry; j < max_y; ++j)
-    {
-        src_cpy = src;
-        dst_cpy = dst;
-
-        for (i = rx; i < max_x; ++i)
-        {
-            const FT_Byte alpha = *src_cpy++;
-            if (alpha > 0)
-            {
-                GET_RGB_VALS(*dst_cpy, surface->format, bgR, bgG, bgB, bgA);
-                ALPHA_BLEND(fg_color->r, fg_color->g, fg_color->b, alpha,
-                            bgR, bgG, bgB, bgA);
-
-                *dst_cpy = 
-                    ((bgR >> surface->format->Rloss) << surface->format->Rshift) |
-                    ((bgG >> surface->format->Gloss) << surface->format->Gshift) |
-                    ((bgB >> surface->format->Bloss) << surface->format->Bshift) |
-                    ((255  >> surface->format->Aloss) << surface->format->Ashift & 
-                     surface->format->Amask);
-            }
-
-            dst_cpy++;
-        }
-
-        dst += surface->pitch;
-        src += bitmap->pitch;
+#define _CREATE_SDL_RENDER(bpp, T, _build_pixel)                    \
+    void __render_glyph_SDL##bpp(int x, int y, FontSurface *surface,\
+        FT_Bitmap *bitmap, PyColor *color)                          \
+    {                                                               \
+        const int rx = (x + surface->x_offset);                     \
+        const int ry = (y + surface->y_offset);                     \
+                                                                    \
+        const int max_x = MIN(rx + bitmap->width, surface->width);  \
+        const int max_y = MIN(ry + bitmap->rows, surface->height);  \
+                                                                    \
+        T *dst = ((T*)surface->buffer) + rx + (ry * surface->pitch);\
+        T *dst_cpy;                                                 \
+                                                                    \
+        const FT_Byte *src = bitmap->buffer;                        \
+        const FT_Byte *src_cpy;                                     \
+                                                                    \
+        FT_UInt32 bgR, bgG, bgB, bgA;                               \
+        int j, i;                                                   \
+                                                                    \
+        if (rx < 0 || ry < 0)                                       \
+            return;                                                 \
+                                                                    \
+        for (j = ry; j < max_y; ++j)                                \
+        {                                                           \
+            src_cpy = src;                                          \
+            dst_cpy = dst;                                          \
+                                                                    \
+            for (i = rx; i < max_x; ++i, ++dst_cpy)                 \
+            {                                                       \
+                const FT_Byte alpha = *src_cpy++;                   \
+                if (alpha > 0)                                      \
+                {                                                   \
+                    GET_RGB_VALS(                                   \
+                            *dst_cpy, surface->format,              \
+                            bgR, bgG, bgB, bgA);                    \
+                                                                    \
+                    ALPHA_BLEND(                                    \
+                            color->r, color->g, color->b, alpha,    \
+                            bgR, bgG, bgB, bgA);                    \
+                                                                    \
+                    *dst_cpy = (T)(_build_pixel);                   \
+                }                                                   \
+            }                                                       \
+                                                                    \
+            dst += surface->pitch;                                  \
+            src += bitmap->pitch;                                   \
+        }                                                           \
     }
-}
+
+#define BUILD_PIXEL_TRUECOLOR (                                     \
+    ((bgR >> surface->format->Rloss) << surface->format->Rshift) |  \
+    ((bgG >> surface->format->Gloss) << surface->format->Gshift) |  \
+    ((bgB >> surface->format->Bloss) << surface->format->Bshift) |  \
+    ((255 >> surface->format->Aloss) << surface->format->Ashift  &  \
+     surface->format->Amask)                                        )
+
+#define BUILD_PIXEL_GENERIC (                           \
+        SDL_MapRGB(surface->format,                     \
+            (FT_Byte)bgR, (FT_Byte)bgG, (FT_Byte)bgB)   )
+
+_CREATE_SDL_RENDER(32,  FT_UInt32,  BUILD_PIXEL_TRUECOLOR)
+_CREATE_SDL_RENDER(16,  FT_UInt16,  BUILD_PIXEL_TRUECOLOR)
+_CREATE_SDL_RENDER(8,   FT_Byte,    BUILD_PIXEL_GENERIC)
 
 int PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
     const FT_UInt16 *text, int font_size, PySDLSurface *_surface,
@@ -528,8 +542,11 @@ int PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
     switch (surface->format->BytesPerPixel)
     {
     case 1:
+        font_surf.render = __render_glyph_SDL8;
+        break;
+
     case 2:
-        _PGFT_SetError(ft, "The target surface has unsupported BPP", 0);
+        font_surf.render = __render_glyph_SDL16;
         break;
 
     case 4:
@@ -637,9 +654,7 @@ void __render_glyph_ByteArray(int x, int y, FontSurface *surface,
         src_cpy = src;
         dst_cpy = dst;
 
-        /* TODO: 4x unroll in words? */
-        for (i = 0; i < bitmap->width; ++i)
-            *dst_cpy++ = (FT_Byte)(~(*src_cpy++));
+        LOOP_UNROLLED4({ *dst_cpy++ = (FT_Byte)(~(*src_cpy++)); }, i, bitmap->width);
 
         dst += surface->pitch;
         src += bitmap->pitch;
