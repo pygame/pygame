@@ -670,6 +670,11 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
             goto _finish;
         }
 
+        /* 
+         * If we return a new reference to our target surface, we
+         * need to increase it's refcount first.
+         */
+        Py_INCREF(target_surf); 
         rtuple = Py_BuildValue("(iiO)", width, height, target_surf);
     }
     else
