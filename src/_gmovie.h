@@ -209,7 +209,7 @@ int  packet_queue_get   (PacketQueue *q, AVPacket *pkt, int block);
 /* 		Misc*/
 void ConvertYUV420PtoRGBA   (AVPicture *YUV420P, SDL_Surface *OUTPUT, int interlaced );
 void initializeLookupTables (void);
-
+int  initialize_context(PyMovie *movie, int threaded);
 /* 		Video Management */
 int  video_open          (PyMovie *is, int index);
 void video_image_display (PyMovie *is);

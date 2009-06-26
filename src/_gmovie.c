@@ -1040,6 +1040,11 @@ int stream_component_start(PyMovie *movie, int stream_index, int threaded)
     enc = ic->streams[stream_index]->codec;
 	switch(enc->codec_type) {
     case CODEC_TYPE_AUDIO:
+    	if(movie->replay)
+		{
+    		movie->audio_st = ic->streams[stream_index];
+        	movie->audio_stream = stream_index;
+		}
         movie->audio_buf_size = 0;
         movie->audio_buf_index = 0;
 
@@ -1049,13 +1054,16 @@ int stream_component_start(PyMovie *movie, int stream_index, int threaded)
         soundStart(); 
         break;
     case CODEC_TYPE_VIDEO:
+    	if(movie->replay)
+    	{
+	        movie->video_stream = stream_index;
+	        movie->video_st = ic->streams[stream_index];
+    	}
         movie->frame_last_delay = 40e-3;
         movie->frame_timer = (double)av_gettime() / 1000000.0;
         movie->video_current_pts_time = av_gettime();
 
         packet_queue_init(&movie->videoq);
-		if(movie->replay)
-			stream_seek(movie, 0, -1);
       	break;
     default:
         break;
@@ -1095,6 +1103,8 @@ void stream_component_end(PyMovie *movie, int stream_index)
     case CODEC_TYPE_AUDIO:
         packet_queue_abort(&movie->audioq);
         soundEnd();
+        memset(&movie->audio_buf1, 0, sizeof(movie->audio_buf1));
+        movie->replay=1;
         break;
     case CODEC_TYPE_VIDEO:
         for(i=0;i<VIDEO_PICTURE_QUEUE_SIZE;i++)
@@ -1190,9 +1200,7 @@ void stream_open(PyMovie *movie, const char *filename, AVInputFormat *iformat, i
 	{
 		RELEASEGIL
 	}
-	AVFormatContext *ic;
-    int err, i, ret, video_index, audio_index, subtitle_index;
-    AVFormatParameters params, *ap = &params;
+    int  i, ret, video_index, audio_index, subtitle_index;
     
 	//movie->overlay=1;
     strncpy(movie->filename, filename, strlen(filename)+1);
@@ -1211,48 +1219,19 @@ void stream_open(PyMovie *movie, const char *filename, AVInputFormat *iformat, i
     movie->video_stream = -1;
     movie->audio_stream = -1;
 
+	initialize_context(movie, threaded); //moved a bunch of convenience stuff out of here for access at other times
+
     int wanted_video_stream=1;
     int wanted_audio_stream=1;
-    memset(ap, 0, sizeof(*ap));
-    ap->width = 0;
-    ap->height= 0;
-    ap->time_base= (AVRational){1, 25};
-    ap->pix_fmt = PIX_FMT_NONE;
-	
-    err = av_open_input_file(&ic, movie->filename, movie->iformat, 0, ap);
-    if (err < 0) {
-    	if(threaded)
-	    	GRABGIL
-        PyErr_Format(PyExc_IOError, "There was a problem opening up %s, due to %i", movie->filename, err);
-    	if(threaded)
-	        RELEASEGIL
-        ret = -1;
-        goto fail;
-    }
-    err = av_find_stream_info(ic);
-    if (err < 0) {
-    	if(threaded)
-	    	GRABGIL
-        PyErr_Format(PyExc_IOError, "%s: could not find codec parameters", movie->filename);
-    	if(threaded)
-	        RELEASEGIL
-        ret = -1;
-        goto fail;
-    }
-    if(ic->pb)
-        ic->pb->eof_reached= 0; //FIXME hack, ffplay maybe should not use url_feof() to test for the end
-	
-
-	movie->ic = ic;
-    /* if seeking requested, we execute it */
+     /* if seeking requested, we execute it */
     if (movie->start_time != AV_NOPTS_VALUE) {
         int64_t timestamp;
 
         timestamp = movie->start_time;
         /* add the stream start time */
-        if (ic->start_time != AV_NOPTS_VALUE)
-            timestamp += ic->start_time;
-        ret = av_seek_frame(ic, -1, timestamp, AVSEEK_FLAG_BACKWARD);
+        if (movie->ic->start_time != AV_NOPTS_VALUE)
+            timestamp += movie->ic->start_time;
+        ret = av_seek_frame(movie->ic, -1, timestamp, AVSEEK_FLAG_BACKWARD);
         if (ret < 0) {
     		if(threaded)
 	        	GRABGIL
@@ -1261,9 +1240,9 @@ void stream_open(PyMovie *movie, const char *filename, AVInputFormat *iformat, i
 	        	RELEASEGIL
         }
     }
-    for(i = 0; i < ic->nb_streams; i++) {
-        AVCodecContext *enc = ic->streams[i]->codec;
-        ic->streams[i]->discard = AVDISCARD_ALL;
+    for(i = 0; i < movie->ic->nb_streams; i++) {
+        AVCodecContext *enc = movie->ic->streams[i]->codec;
+        movie->ic->streams[i]->discard = AVDISCARD_ALL;
         switch(enc->codec_type) {
         case CODEC_TYPE_AUDIO:
             if (wanted_audio_stream-- >= 0 && !movie->audio_disable)
@@ -1336,6 +1315,55 @@ void stream_open(PyMovie *movie, const char *filename, AVInputFormat *iformat, i
     return;
 }
 
+
+int initialize_context(PyMovie *movie, int threaded)
+{
+	DECLAREGIL
+	AVFormatContext *ic;
+	AVFormatParameters params, *ap = &params;
+	int ret, err;
+	
+    memset(ap, 0, sizeof(*ap));
+    ap->width = 0;
+    ap->height= 0;
+    ap->time_base= (AVRational){1, 25};
+    ap->pix_fmt = PIX_FMT_NONE;
+	
+	if (movie->ic) {
+        av_close_input_file(movie->ic);
+        movie->ic = NULL; /* safety */
+    }
+    
+    err = av_open_input_file(&ic, movie->filename, movie->iformat, 0, ap);
+    if (err < 0) {
+    	if(threaded)
+	    	GRABGIL
+        PyErr_Format(PyExc_IOError, "There was a problem opening up %s, due to %i", movie->filename, err);
+    	if(threaded)
+	        RELEASEGIL
+        ret = -1;
+        goto fail;
+    }
+    err = av_find_stream_info(ic);
+    if (err < 0) {
+    	if(threaded)
+	    	GRABGIL
+        PyErr_Format(PyExc_IOError, "%s: could not find codec parameters", movie->filename);
+    	if(threaded)
+	        RELEASEGIL
+        ret = -1;
+        goto fail;
+    }
+	if(ic->pb)
+        ic->pb->eof_reached= 0; //FIXME hack, ffplay maybe should not use url_feof() to test for the end
+	
+
+	movie->ic = ic;
+	ret=0;
+fail:
+	return ret;	    
+    	
+}
  void stream_close(PyMovie *movie)
 {
 	DECLAREGIL
@@ -1455,6 +1483,9 @@ int decoder_wrapper(void *arg)
 	{
 		movie->loops--;
 		movie->paused=0;
+	
+		if(movie->replay)
+			initialize_context(movie, 1);
 		if(movie->video_st)
 			stream_component_start(movie, movie->video_st->index, 1);
 		if(movie->audio_st)
@@ -1511,32 +1542,52 @@ int decoder(void *arg)
             int stream_index= -1;
             int64_t seek_target= movie->seek_pos;
 
-            if     (movie->   video_stream >= 0)    stream_index= movie->   video_stream;
-            else if(movie->   audio_stream >= 0)    stream_index= movie->   audio_stream;
-
-            if(stream_index>=0){
-                seek_target= av_rescale_q(seek_target, AV_TIME_BASE_Q, ic->streams[stream_index]->time_base);
+            if     (movie->   video_stream >= 0)
+            {
+           		stream_index= movie->   video_stream;
+				if(stream_index>=0){
+	                seek_target= av_rescale_q(seek_target, AV_TIME_BASE_Q, ic->streams[stream_index]->time_base);
+	            }
+	
+	            ret = av_seek_frame(movie->ic, stream_index, seek_target, movie->seek_flags|AVSEEK_FLAG_ANY);
+	            if (ret < 0) {
+	                PyErr_Format(PyExc_IOError, "%s: error while seeking", movie->ic->filename);
+	            }else{
+	            	//this is done because for some reason, the movie "loses" the values in these variables
+	            	int vid_stream = movie->video_stream;
+	            	
+	                if (vid_stream >= 0) {
+	                    packet_queue_flush(&movie->videoq);
+	                    packet_queue_put(&movie->videoq, &flush_pkt);
+	                }
+	            	movie->video_stream = vid_stream;
+	            	
+	            }
+				
+            
             }
+            if(movie->   audio_stream >= 0)
+            {
+           		stream_index= movie->   audio_stream;
 
-            ret = av_seek_frame(movie->ic, stream_index, seek_target, movie->seek_flags|AVSEEK_FLAG_ANY);
-            if (ret < 0) {
-                PyErr_Format(PyExc_IOError, "%s: error while seeking", movie->ic->filename);
-            }else{
-            	//this is done because for some reason, the movie "loses" the values in these variables
-            	int aud_stream = movie->audio_stream;
-            	int vid_stream = movie->video_stream;
-            	
-                if (aud_stream >= 0) {
-                    packet_queue_flush(&movie->audioq);
-                    packet_queue_put(&movie->audioq, &flush_pkt);
-                }
-                if (vid_stream >= 0) {
-                    packet_queue_flush(&movie->videoq);
-                    packet_queue_put(&movie->videoq, &flush_pkt);
-                }
-                movie->audio_stream = aud_stream;
-            	movie->video_stream = vid_stream;
-            	
+	            if(stream_index>=0){
+	                seek_target= av_rescale_q(seek_target, AV_TIME_BASE_Q, ic->streams[stream_index]->time_base);
+	            }
+	
+	            ret = av_seek_frame(movie->ic, stream_index, seek_target, movie->seek_flags|AVSEEK_FLAG_ANY);
+	            if (ret < 0) {
+	                PyErr_Format(PyExc_IOError, "%s: error while seeking", movie->ic->filename);
+	            }else{
+	            	//this is done because for some reason, the movie "loses" the values in these variables
+	            	int aud_stream = movie->audio_stream;
+	            	
+	                if (aud_stream >= 0) {
+	                    packet_queue_flush(&movie->audioq);
+	                    packet_queue_put(&movie->audioq, &flush_pkt);
+	                }
+	                movie->audio_stream = aud_stream;
+	            	
+	            }
             }
             movie->seek_req = 0;
         }
