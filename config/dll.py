@@ -14,7 +14,8 @@ import re
 # name, File regex, Dependency list of file root names
 libraries = [
     ('SDL', r'(lib){0,1}SDL\.dll$', []),
-    ('SDL_mixer', r'(lib){0,1}SDL_mixer\.dll$', ['SDL', 'vorbisenc', 'vorbisfile', 'smpeg']),
+    ('SDL_mixer', r'(lib){0,1}SDL_mixer\.dll$', ['SDL', 'vorbisenc',
+                                                 'vorbisfile', 'smpeg']),
     ('SDL_image', r'(lib){0,1}SDL_image\.dll$', ['SDL', 'jpeg', 'png', 'tiff']),
     ('SDL_ttf', r'(lib){0,1}SDL_ttf\.dll$', ['SDL', 'z', 'freetype']),
     ('SDL_gfx', r'(lib){0,1}SDL_gfx\.dll$', ['SDL']),

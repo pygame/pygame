@@ -5,14 +5,12 @@ rem and .NET Framework SDK 1.1 VC++ library paths of your system, in case they
 rem are not already.
 rem
 
-Set PATH=%VCToolkitInstallDir%\bin;%MSSdk%\Bin;%PATH%
+Set MSSdk=C:\Program Files\Microsoft Platform SDK
+Set NETSdk=C:\Program Files\Microsoft Visual Studio .NET 2003
+
+Set PATH=%VCToolkitInstallDir%\bin;%MSSdk%\Bin;%MSSdk%\Bin\win64;%PATH%
 Set INCLUDE=%VCToolkitInstallDir%\include;%MSSdk%\Include;%INCLUDE%
-
-rem German defaults below
-rem Set LIB=C:\Programme\Microsoft Visual Studio .NET 2003\Vc7\lib;%VCToolkitInstallDir%\lib;%MSSdk%\Lib;%LIB%
-
-rem English defaults below
-Set LIB=C:\Program files\Microsoft Visual Studio .NET 2003\Vc7\lib;%VCToolkitInstallDir%\lib;%MSSdk%\Lib;%LIB%
+Set LIB=%NETSdk%\Vc7\lib;%VCToolkitInstallDir%\lib;%MSSdk%\Lib;%LIB%
 
 rem Delete the previous builds
 del /S /Q build
