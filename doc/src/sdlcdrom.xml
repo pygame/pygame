@@ -11,20 +11,20 @@
   <class name="CD">
     <constructor>CD (index) -> CD</constructor>
     <desc>
-      Creates a new :class:`CD` object for the CD- or DVD-ROM specified by the
+      Creates a new CD object for the CD- or DVD-ROM specified by the
       passed *index*. The *index* identifies the matching system CD/DVD-ROM
       number as returned by cdrom.num_drives ().
 
-      The :class:`CD` itself provides access to the track data on the CD/DVD,
+      The CD itself provides access to the track data on the CD/DVD,
       playing audio tracks, opening and closing the drive tray and so
       forth.
     </desc>
     <method name="close">
       <call>close () -> None</call>
       <desc>
-        Releases the :class:`CD` internals. Useful for e.g. switching CDs within
-        the drive without the need to recreate the :class:`CD` object. CD.open()
-        will reinitialize the:class:`CD` internals. You should not use any other
+        Releases the CD internals. Useful for e.g. switching CDs within
+        the drive without the need to recreate the CD object. :meth:`open`
+        will reinitialize the CD internals. You should not use any other
         method or attribute until a call to :meth:`open`.
       </desc>
     </method>
@@ -48,20 +48,20 @@
     <method name="open">
       <call>open () -> None</call>
       <desc>
-        (Re-)Opens the :class:`CD` and initialises the :class:`CD` internals
+        (Re-)Opens the CD and initialises the CD internals
         after a :meth:`close` call.
       </desc>
     </method>
     <method name="pause">
       <call>pause () -> None</call>
       <desc>
-        Pauses the actual :class:`CD` playback.
+        Pauses the actual CD playback.
       </desc>
     </method>
     <method name="play">
       <call>play (start, length[, asfps]) -> None</call>
       <desc>
-        Starts playing the current :class:`CD` beginning at the give *start*
+        Starts playing the current CD beginning at the give *start*
         time for a maximum of *length* seconds. The *start* and *length*
         arguments are handled as seconds by default. To use an exact frame
         offset instead ofseconds, pass True as third *asfps* parameter.
@@ -83,7 +83,7 @@
       <call>resume () -> None</call>
       <desc>Resumes a previously paused playback.</desc>
     </method>
-    <attr name="status"><desc>Gets the current :class:`CD` status.</desc></attr>
+    <attr name="status"><desc>Gets the current CD status.</desc></attr>
     <method name="stop">
       <call>stop () -> None</call>
       <desc>Stops the current playback.</desc>
@@ -97,7 +97,7 @@
   <class name="CDTrack">
     <constructor>CDTrack() -> CDTrack</constructor>
     <desc>
-      The :class:`CDTrack` class provides information about the track contents
+      The CDTrack class provides information about the track contents
       of a CD or DVD. It should not be created within user code.
     </desc>
     <attr name="id"><desc>Gets the CD track id.</desc></attr>

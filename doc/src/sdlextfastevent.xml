@@ -19,7 +19,7 @@
   </class>
 
   <func name="get">
-    <call>get () -> list</call>
+    <call>get () -> [:class:`Event`, :class:`Event`, ...]</call>
     <desc>
       Gets the events from the event queue.
     </desc>
@@ -27,7 +27,7 @@
   <func name="init">
     <call>init () -> None</call>
     <desc>
-      Initialises the underlying fastevents system.
+      Initializes the underlying fastevents system.
     </desc>
   </func>
   <func name="poll">

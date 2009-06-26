@@ -10,7 +10,7 @@
   </desc>
 
   <func name="get_version">
-    <call>get_version () -> tuple</call>
+    <call>get_version () -> (int, int, int)</call>
     <desc>
         Gets the version of the FreeType2 library which was used to build
         the 'freetype' module.
@@ -20,6 +20,7 @@
     <call>init () -> None</call>
     <desc>
       Initializes the underlying FreeType 2 library.
+      
       This method must be called before trying to use any of the functionality
       of the 'freetype' module.
     </desc>
@@ -43,7 +44,7 @@
 
 
   <class name="Font">
-    <constructor>Font(file [, ptsize, index]) -> Font</constructor>
+    <constructor>Font (file [, ptsize, index]) -> Font</constructor>
     <desc>
         Creates a new Font from a supported font file.
 
@@ -71,8 +72,8 @@
           Gets the size in pixels which 'text' will occupy when rendered using 
           this Font.
 
-          Returns a tuple containing the width/height of the text's bounding
-          box. 
+          Returns a tuple containing the width and height of the text's
+          bounding box. 
           
           The calculations are done using the font's default size in points.
           Optionally you may specify another point size to use.
@@ -104,7 +105,7 @@
       <desc>Gets the height of the Font.</desc>
     </attr>
     <method name="render">
-      <call>render(text, fgcolor[, bgcolor, dstsurface, xpos, ypos, ptsize]) -> (int, int, surface)</call>
+      <call>render(text, fgcolor[, bgcolor, dstsurface, xpos, ypos, ptsize]) -> (int, int, :class:`pygame2.sdl.video.Surface`)</call>
       <desc>
         Renders a text on a SDL surface.
 
@@ -114,7 +115,7 @@
         If a destination surface *dstsurface*' exists and is a
         :class:`pygame2.sdl.video.Surface` (independently of its bit
         depth), the text will be rendered directly on top of it at the
-        passed coordinates (*xpos*, *ypos*).  The width and height of
+        passed coordinates (*xpos*, *ypos*). The width and height of
         the rendered text as well as the surface will be returned in a
         tuple.
 
@@ -149,15 +150,23 @@
       </desc>
     </method>
     <attr name="style">
-      <desc>Gets or sets the style of the font. *TODO*</desc>
+      <desc>Gets or sets the style of the Font.
+      
+      .. todo::
+      
+        TODO
+      </desc>
     </attr>
     <attr name="fixed_width">
       <desc>
-        Returns whether this font is a fixed-width (bitmap) font.
+        Returns whether this Font is a fixed-width (bitmap) font.
         
-        Note that scalable fonts whose glyphs are all the same width 
-        (i.e. TTF fonts used for programming) are not considered fixed width.
-        </desc>
+        .. note::
+        
+          Note that scalable fonts whose glyphs are all the same width 
+          (i.e. monospace TTF fonts used for programming) are not considered
+          fixed width.
+      </desc>
     </attr>
   </class>
   

@@ -322,7 +322,7 @@ struct PyModuleDef _scrapmodule = {
     PyModuleDef_HEAD_INIT,
     "scrap",
     "",
-    -1,
+    sizeof (_ScrapState),
     _scrap_methods,
     NULL,
     _scrap_traverse,

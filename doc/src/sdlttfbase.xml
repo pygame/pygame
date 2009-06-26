@@ -67,15 +67,17 @@
       <desc>Gets the line skip of the Font.</desc>
     </attr>
     <method name="render">
-      <call>render (text, fgcolor[, bgcolor, renderflag]) -> Surface</call>
+      <call>render (text, fgcolor[, bgcolor, renderflag]) -> :class:`pygame2.sdl.video.Surface`</call>
       <desc>
-        Renders a text to a Surface.
+        Renders a text to a :class:`pygame2.sdl.video.Surface`.
         
-        Renders the specified *text* to a Surface. The text will have the chosen
-        foreground color for the glyphs. The optional *bgcolor* argument denotes
-        the background color to use for the returned Surface, if - and only if -
-        the *renderflag* is RENDER_SHADED (the default). Otherwise the Surface
-        will be transparent except for the rendered glyphs.
+        Renders the specified *text* to a :class:`pygame2.sdl.video.Surface`.
+        The text will have the chosen foreground color for the glyphs. The
+        optional *bgcolor* argument denotes the background color to use for the
+        returned :class:`pygame2.sdl.video.Surface`, if - and only if -
+        the *renderflag* is RENDER_SHADED (the default). Otherwise the
+        :class:`pygame2.sdl.video.Surface` will be transparent except for the
+        rendered glyphs.
         
         The *renderflag argument* can be set to one of the rendering constants
         of the :mod:`pygame2.sdlttf.constants` module.
@@ -92,7 +94,7 @@
   </class>
 
   <func name="get_compiled_version">
-    <call>get_compiled_version () -> tuple</call>
+    <call>get_compiled_version () -> (int, int, int)</call>
     <desc>
       Gets the SDL_ttf version pygame2 was compiled against as
       three-value tuple.
@@ -104,7 +106,7 @@
     </desc>
   </func>
   <func name="get_error">
-    <call>get_error () -> pygame2.Error</call>
+    <call>get_error () -> :exc:`pygame2.Error`</call>
     <desc>
       Gets the last :exc:`pygame2.Error` occured.
 
@@ -114,7 +116,7 @@
     </desc>
   </func>
   <func name="get_version">
-    <call>get_version () -> tuple</call>
+    <call>get_version () -> (int, int, int)</call>
     <desc>
       Gets the SDL version pygame2 currently uses as three-value tuple.
 

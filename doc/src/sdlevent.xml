@@ -176,7 +176,7 @@
     </desc>
   </func>
   <func name="get">
-    <call>get ([events]) -> list</call>
+    <call>get ([events]) -> [:class:`Event`, :class:`Event`, ... ]</call>
     <desc>
       Gets events from the event queue.
 
@@ -186,7 +186,7 @@
       sequence or a bitmask combination of event types to receive from
       the queue.
 
-      If no matching events are found on the queue, None will be
+      If no matching events are found on the queue, an empty list will be
       returned.
     </desc>
   </func>
@@ -232,7 +232,7 @@
     </desc>
   </func>
   <func name="peep">
-    <call>peep (num, action, mask[, events]) -> int or list</call>
+    <call>peep (num, action, mask[, events]) -> int or [:class:`Event`, ...]</call>
     <desc>
       Checks the event queue for events and optionally returns them.
 
@@ -244,7 +244,7 @@
     </desc>
   </func>
   <func name="poll">
-    <call>poll () -> Event</call>
+    <call>poll () -> :class:`Event`</call>
     <desc>
       Gets a single event from the event queue.
 
@@ -336,7 +336,7 @@
     </desc>
   </func>
   <func name="wait">
-    <call>wait () -> Event</call>
+    <call>wait () -> :class:`Event`</call>
     <desc>
       Waits indefinitely for the next available event.
 

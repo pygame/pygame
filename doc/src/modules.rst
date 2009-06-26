@@ -45,6 +45,7 @@ Modules
    pygame2_sdl_video.rst
    pygame2_sdl_wm.rst
    pygame2_sdlext.rst
+   pygame2_sdlext_constants.rst
    pygame2_sdlext_draw.rst
    pygame2_sdlext_fastevent.rst
    pygame2_sdlext_font.rst
@@ -54,6 +55,7 @@ Modules
    pygame2_sdlext_surfarray.rst
    pygame2_sdlext_transform.rst
    pygame2_sdlgfx.rst
+   pygame2_sdlgfx_constants.rst
    pygame2_sdlgfx_primitives.rst
    pygame2_sdlgfx_rotozoom.rst
    pygame2_sdlimage.rst

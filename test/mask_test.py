@@ -138,7 +138,7 @@ class MaskTest (unittest.TestCase):
 
         # Gets the amount of bits in the Mask.
 
-        self.fail() 
+        self.fail()
 
     def test_pygame2_mask_Mask_convolve(self):
 
@@ -220,16 +220,30 @@ class MaskTest (unittest.TestCase):
         m.fill()
         self.assertEqual(m.count, 10000)
 
-    def todo_test_pygame2_mask_Mask_get_at(self):
+    def test_pygame2_mask_Mask_get_at(self):
 
         # __doc__ (as of 2008-11-03) for pygame2.mask.Mask.get_at:
 
         # Mask.get_at (x, y) -> int
         # 
         # Gets the bit value at the desired location.
-
-        self.fail() 
-
+        m = Mask (100, 100)
+        for x in range (100):
+            for y in range (100):
+                self.assertEqual (m.get_at (x, y), 0)
+        
+        m = random_mask ()
+        pair = (0, 1)
+        for x in range (100):
+            for y in range (100):
+                self.assert_ (m.get_at (x, y) in pair)
+        
+        self.assertRaises (IndexError, m.get_at, -1, 0)
+        self.assertRaises (IndexError, m.get_at, -7, 3)
+        self.assertRaises (IndexError, m.get_at, -1, -1)
+        self.assertRaises (IndexError, m.get_at, 0, -1)
+        self.assertRaises (IndexError, m.get_at, 8, -10)
+        
     def test_pygame2_mask_Mask_get_bounding_rects(self):
 
         # __doc__ (as of 2008-11-03) for pygame2.mask.Mask.get_bounding_rects:
@@ -339,13 +353,17 @@ class MaskTest (unittest.TestCase):
         r = m.get_bounding_rects()
         self.assertEqual(repr(r), "[Rect(0, 0, 5, 2)]")
 
-    def todo_test_pygame2_mask_Mask_height(self):
+    def test_pygame2_mask_Mask_height(self):
 
         # __doc__ (as of 2008-11-03) for pygame2.mask.Mask.height:
 
         # Gets the height of the Mask.
-
-        self.fail() 
+        m = Mask (1, 1)
+        self.assertEqual (m.height, 1)
+        m = Mask (1, 10)
+        self.assertEqual (m.height, 10)
+        m = Mask (100, 343)
+        self.assertEqual (m.height, 343)
 
     def todo_test_pygame2_mask_Mask_invert(self):
 
@@ -451,7 +469,7 @@ class MaskTest (unittest.TestCase):
         self.assertRaises(IndexError, lambda : m.set_at (10, 0, 1) )
         self.assertRaises(IndexError, lambda : m.set_at (0, 10, 1) )
 
-    def todo_test_pygame2_mask_Mask_size(self):
+    def test_pygame2_mask_Mask_size(self):
 
         # __doc__ (as of 2008-11-03) for pygame2.mask.Mask.size:
 
@@ -462,16 +480,27 @@ class MaskTest (unittest.TestCase):
         # The Mask is a 2D array using single bits to represent states
         # within a x,y matrix. This makes it suitable for pixel-perfect
         # overlap handling of image buffers.
-
-        self.fail() 
-
-    def todo_test_pygame2_mask_Mask_width(self):
+        
+        m = Mask (1, 1)
+        self.assertEqual (m.size, (1, 1))
+        m = Mask (10, 1)
+        self.assertEqual (m.size, (10, 1))
+        m = Mask (322, 7)
+        self.assertEqual (m.size, (322, 7))
+        m = Mask (322, 177)
+        self.assertEqual (m.size, (322, 177))
+    
+    def test_pygame2_mask_Mask_width(self):
 
         # __doc__ (as of 2008-11-03) for pygame2.mask.Mask.width:
 
         # Gets the width of the Mask
-
-        self.fail() 
+        m = Mask (1, 1)
+        self.assertEqual (m.width, 1)
+        m = Mask (10, 1)
+        self.assertEqual (m.width, 10)
+        m = Mask (322, 7)
+        self.assertEqual (m.width, 322)
 
     def test_pygame2_mask_from_surface(self):
 

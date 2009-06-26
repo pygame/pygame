@@ -29,7 +29,7 @@
       
       Loads the desired OpenGL library specified by the passed full qualified
       path. This must be called before any first call to
-      :meth:`pygame2.sdl.video.set_mode()` to have any effect.
+      :meth:`pygame2.sdl.video.set_mode` to have any effect.
     </desc>
   </func>
   <func name="set_attribute">
@@ -45,4 +45,3 @@
     <desc>Swap the OpenGL buffers, if double-buffering is supported.</desc>
   </func>
 </module>
-

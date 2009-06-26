@@ -12,16 +12,16 @@
     <desc>
       Creates a new Overlay for a surface.
       
-      The Overlay objects provide support for accessing hardware video overlays.
-      Video overlays do not use standard RGB pixel formats, and can use
-      multiple resolutions of data to create a single image.
+      The Overlay objects provide support for accessing hardware video
+      overlays. Video overlays do not use standard RGB pixel formats, and can
+      use multiple resolutions of data to create a single image.
       
-      The Overlay objects represent lower level access to the display hardware.
-      To use the object you should understand the technical details of video
-      overlays.
+      The Overlay objects represent lower level access to the display
+      hardware. To use the object you should understand the technical details
+      of video overlays.
 
-      The Overlay format determines the type of pixel data used. Not all
-      hardware will support all types of overlay formats. Supported format
+      The Overlay format determines the type of pixel data used. Not
+      all hardware will support all types of overlay formats. Supported format
       types are
 
       * YV12_OVERLAY
@@ -84,7 +84,9 @@
     <desc>
       Creates a new, empty PixelFormat.
       
-      TODO
+      The PixelFormat typically describes a :class:`Surface`'s pixel buffer
+      representation. It contains information about the bit depth, RGBA masks,
+      the palette and transparency information.
     </desc>
     <attr name="alpha">
       <desc>Gets or sets the overall surface alpha value in the
@@ -102,15 +104,15 @@
       <desc>Gets or sets the RGBA value of transparent pixels.</desc>
     </attr>
     <method name="get_rgba">
-      <call>get_rgba (color) -> Color</call>
+      <call>get_rgba (color) -> :class:`pygame2.Color`</call>
       <desc>
-        Gets the best matching Color for the passed color.
+        Gets the best matching :class:`pygame2.Color` for the passed color.
 
         Gets a color value, which fits the PixelFormat best. This means
         that an internal conversion is done (on demand) to match the
-        passed color to the PixelFormat's supported value ranges. If the
-        PixelFormat does not have alpha transparency support, the
-        Color's alpha value will be set to fully opaque (255).
+        passed color to the PixelFormat's supported value ranges. If
+        the PixelFormat does not have alpha transparency support, the
+        color's alpha value will be set to fully opaque (255).
       </desc>
     </method>
     <attr name="losses">
@@ -126,9 +128,10 @@
         
         Gets a color value, which fits the PixelFormat best. This means
         that an internal conversion is done (on demand) to match the
-        passed color to the PixelFormat's supported value ranges. Instead of
-        returning a Color as in :meth:`get_rgba`, an integer value matching the
-        PixelFormat's supported value ranges will be returned.
+        passed color to the PixelFormat's supported value ranges.
+        Instead of returning a color as in :meth:`get_rgba`, an integer value
+        matching the PixelFormat's supported value ranges will be
+        returned.
       </desc>
     </method>
     <attr name="masks">
@@ -136,9 +139,8 @@
       color values.</desc>
     </attr>
     <attr name="palette">
-      <desc>Gets the color palette (if any) used by the
-      PixelFormat. If the PixelFormat does not have any palette, None will be
-      returned.</desc>
+      <desc>Gets the color palette (if any) used by the PixelFormat. If the
+      PixelFormat does not have any palette, None will be returned.</desc>
     </attr>
     <attr name="readonly">
       <desc>Gets, whether the PixelFormat is read-only (this cannot be
@@ -155,16 +157,24 @@
       Surface (size[, depth, flags, masks]) -> Surface
     </constructor>
     <desc>
-      Creates a new Surface to represent images.
+      Creates a new Surface to represent image data.
       
-      TODO
+      Creates a new Surface which represents a rectangular area of pixel
+      information, typically displaying some sort of image data. The Surface is
+      the central element of the :mod:`pygame2.sdl.video` module and used to
+      display image information on an SDL screen window.
+      
+      .. todo::
+        
+        TODO
+      
     </desc>
     <method name="blit">
       <call>blit (srcsurface[, destrect, srcrect, blendargs]) -> Rect</call>
       <desc>
         Draws the passed source surface onto this surface.
         
-        Draws the passed source surface onto this surface. The *dstrect* and
+        Draws the passed source surface onto this surface. The *destrect* and
         *srcrect* arguments are used for clipping the destination area (on this
         surface) and source area (on the source surface). For the destination 
         rectangle, the width and height are ignored, only the position is taken
@@ -195,9 +205,9 @@
       <desc>
         Converts the Surface to the desired pixel format.
         
-        Converts the Surface to the desired pixel format. If no format is
-        given, the active display format is used, which will be the fastest for
-        blit operations to the screen. The flags are the same as for surface
+        Converts the Surface to the desired pixel format. If no format
+        is given, the active display format is used, which will be the fastest
+        for blit operations to the screen. The flags are the same as for surface
         creation.
         
         This creates a new, converted surface and leaves the original one
@@ -209,9 +219,9 @@
       <desc>
         Fills the Surface with a color.
         
-        Fills the Surface with the desired color. The color does not need to
-        match the Surface's format, it will be converted implicitly to the
-        nearest appropriate color for its format.
+        Fills the Surface with the desired color. The color does not
+        need to  match the Surface's format, it will be converted
+        implicitly to the nearest appropriate color for its format.
         
         The optional destination rectangle limits the color fill to the
         specified area. The blendargs are the same as for the :meth:`blit`
@@ -231,8 +241,7 @@
       </desc>
     </method>
     <attr name="format">
-      <desc>Gets the (read-only)
-      :class:`pygame2.sdl.video.PixelFormat` for this Surface.</desc>
+      <desc>Gets the (read-only) :class:`PixelFormat` for this Surface.</desc>
     </attr>
     <method name="get_alpha">
       <call>get_alpha () -> int</call>
@@ -344,13 +353,17 @@
       </desc>
     </method>
     <method name="set_colorkey">
-      <call>set_colorkey (colorkey[, flags]) -> None</call>
+      <call>set_colorkey (color[, flags]) -> None</call>
       <desc>
         Adjusts the colorkey of the Surface.
         
         Sets the colorkey of the Surface to the passed value. if *flags* is
         omitted, SRCCOLORKEY will be used, if *flags* is set to 0, the colorkey
-        will be reset, TODO.
+        will be reset.
+        
+        The colorkey denotes a certain :class:`pygame2.Color`, which will be
+        used for emulating transparency. Each pixel on the Surface matching the
+        set color will be ignored on blit operations.
       </desc>
     </method>
     <method name="set_colors">

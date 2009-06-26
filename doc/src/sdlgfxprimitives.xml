@@ -10,7 +10,7 @@
     aacircle (surface, point, radius, color) -> None</call>
     <desc>Draws an anti-aliased circular shape on a surface.
     
-      Draws a anti-aliased circular shape on a surface with a fixed line
+      Draws a anti-aliased circular shape on a *surface* with a fixed line
       width of 1px. The *x*, *y* point denotes the center of the circle.
     </desc>
   </func>
@@ -19,7 +19,7 @@
     aaellipse (surface, point, radius, color) -> None</call>
     <desc>Draws an anti-aliased elliptical shape on a surface.
     
-      Draws an anti-aliased elliptical shape on a surface with a fixed
+      Draws an anti-aliased elliptical shape on a *surface* with a fixed
       line width of 1px. The *x*, *y* tuple denotes the center of the
       ellipse, *rx*, *ry* the radius for the x- and y-axis.
     </desc>
@@ -28,7 +28,7 @@
     <call>aapolygon (surface, (point1, point2, ...), color) -> None</call>
     <desc>Draws an anti-aliased polygonal shape on a surface.
     
-      Draws an anti-aliased polygonal shape on a surface with an fixed line
+      Draws an anti-aliased polygonal shape on a *surface* with an fixed line
       width of 1px.
     </desc>
   </func>
@@ -37,7 +37,7 @@
     aatrigon (surface, point1, point2, point3, color) -> None</call>
     <desc>Draws an anti-aliased triangular shape on a surface.
       
-      Draws an anti-aliased triangular shape on a surface with an fixed
+      Draws an anti-aliased triangular shape on a *surface* with an fixed
       line width of 1px. The three *x*, *y* points denote the edges of
       the triangle.
     </desc>
@@ -47,7 +47,7 @@
     arc (surface, point, radius, startangle, stopangle, color) -> None</call>
     <desc>Draws an elliptical arc on a surface.
     
-      Draws an elliptical arc on a surface. The *startangle* and
+      Draws an elliptical arc on a *surface*. The *startangle* and
       *stopangle* arguments are the initial and final angle in degrees.
     </desc>
   </func>
@@ -56,8 +56,8 @@
     </call>
     <desc>Draws a bezier curve on a surface.
       
-      Draws a bezier curve through the given points on a surface. steps denotes
-      the amount of steps to perform for interpolating the curve.
+      Draws a bezier curve through the given points on a *surface*. *steps*
+      denotes the amount of steps to perform for interpolating the curve.
     </desc>
   </func>
   <func name="box">
@@ -72,7 +72,7 @@
     circle (surface, point, radius, color) -> None</call>
     <desc>Draws a circular shape on a surface.
     
-      Draws a circular shape on a surface with a fixed line width of
+      Draws a circular shape on a *surface* with a fixed line width of
       1px. The *x*, *y* point denotes the center of the circle.
     </desc>
   </func>
@@ -81,7 +81,7 @@
     ellipse (surface, point, radius, color) -> None</call>
     <desc>Draws an elliptical shape on a surface.
     
-      Draws an elliptical shape on a surface with a fixed line width of
+      Draws an elliptical shape on a *surface* with a fixed line width of
       1px.  The *x*, *y* point denotes the center of the ellipse, *rx*,
       *ry* the radius for the x- and y-axis.
     </desc>
@@ -91,7 +91,7 @@
     filled_circle (surface, point, radius, color) -> None</call>
     <desc>Draws a filled circular shape on a surface.
     
-      Draws a filled circular shape on a surface. The *x*, *y* point
+      Draws a filled circular shape on a *surface*. The *x*, *y* point
       denotes the center of the circle.
     </desc>
   </func>
@@ -100,7 +100,7 @@
     filled_ellipse (surface, point, radius, color) -> None</call>
     <desc>Draws a filled elliptical shape on a surface.
     
-      Draws a filled elliptical shape on a surface. The *x*, *y* point
+      Draws a filled elliptical shape on a *surface*. The *x*, *y* point
       denotes the center of the ellipse, *rx*, *ry* the radius for the
       x- and y-axis.
     </desc>
@@ -111,7 +111,7 @@
     </call>
     <desc>Draws a filled pie-like shape on a surface.
     
-      Draws a filled pie-like shape on a surface. The *x*, *y* point
+      Draws a filled pie-like shape on a *surface*. The *x*, *y* point
       denotes the center of the pie segment, *startangle* and
       *stopangle* the initial and final angle in degrees.
     </desc>
@@ -121,7 +121,7 @@
     </call>
     <desc>Draws a filled polygonal shape on a surface.
     
-      Draws a filled polygonal shape on a surface.
+      Draws a filled polygonal shape on a *surface*.
     </desc>
   </func>
   <func name="filled_trigon">
@@ -129,7 +129,7 @@
     filled_trigon (surface, point1, point2, point3, color) -> None</call>
     <desc>Draws a filled triangular shape on a surface.
     
-      Draws a filled triangular shape on a surface. The three *x*, *y*
+      Draws a filled triangular shape on a *surface*. The three *x*, *y*
       points denote the edges of the triangle.
     </desc>
   </func>
@@ -137,7 +137,7 @@
     <call>hline (surface, x1, x2, y, color) -> None</call>
     <desc>Draws a horizontal line on a surface.
     
-      Draws a horizontal line on a surface with the fixed width of 1 px.
+      Draws a horizontal line on a *surface* with the fixed width of 1 px.
       *x1* and *x2* denote the start and end position on the x-axis, *y*
       the vertical position of the line on the y-axis.
     </desc>
@@ -147,7 +147,7 @@
     line (surface, point1, point2, color) -> None</call>
     <desc>Draws a line on a surface.
     
-      Draws a line on a surface with a fixed width of 1px. *x1*, *y1*
+      Draws a line on a *surface* with a fixed width of 1px. *x1*, *y1*
       and *x2*, *y2* denote the start and end position of the line.
     </desc>
   </func>
@@ -156,7 +156,7 @@
     pie (surface, point, r, startangle, stopangle, color) -> None</call>
     <desc>Draws a pie-like shape on a surface.
     
-      Draws a pie-like shape on a surface with a fixed width of 1px. The
+      Draws a pie-like shape on a *surface* with a fixed width of 1px. The
       *x*, *y* point denotes the center of the pie segment, *startangle*
       and *stopangle* the initial and final angle in degrees.
     </desc>
@@ -166,21 +166,21 @@
     pixel (surface, point, color) -> None</call>
     <desc>Draws a single pixel on a surface.
       
-      Draws a single pixel on a surface.
+      Draws a single pixel on a *surface*.
     </desc>
   </func>
   <func name="polygon">
     <call>polygon (surface, ((x1, y1), (x2, y2), ...), color) -> None</call>
     <desc>Draws a polygonal shape on a surface.
     
-      Draws a polygonal shape on a surface.
+      Draws a polygonal shape on a *surface*.
     </desc>
   </func>
   <func name="rectangle">
     <call>rectangle (surface, rect, color) -> None</call>
     <desc>Draws a rectangular shape on a surface.
       
-      Draws a rectangular shape on a surface.
+      Draws a rectangular shape on a *surface*.
     </desc>
   </func>
   <func name="textured_polygon">
@@ -189,7 +189,7 @@
     </call>
     <desc>Draws a textured polygonal shape on a surface.
     
-      Draws a textured polygonal shape on a surface. texture is a
+      Draws a textured polygonal shape on a *surface*. *texture* is a
       :class:`pygame2.sdl.video.Surface` to be used for filling the shape,
       *tx*, *ty* are the offset of the texture relative to the screen.
     </desc>
@@ -199,7 +199,7 @@
     trigon (surface, point1, point2, point3, color) -> None</call>
     <desc>Draws a triangular shape on a surface.
     
-      Draws a filled triangular shape on a surface with a fixed line
+      Draws a filled triangular shape on a *surface* with a fixed line
       width of 1px. The three *x*, *y* points denote the edges of the
       triangle.
     </desc>
@@ -208,7 +208,7 @@
     <call>vline (surface, x, y1, y2, color) -> None</call>
     <desc>Draws a vertical line on a surface.
     
-      Draws a vertical line on a surface with a fixed width of 1px. *y1*
+      Draws a vertical line on a *surface* with a fixed width of 1px. *y1*
       and *y2* denote the start and end position on the y-axis, *x* the
       horizontal position of the line on the x-axis.
     </desc>

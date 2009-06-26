@@ -49,8 +49,8 @@
         Gets the relative movement of a trackball.
 
         Gets the relative movement of a trackball since the last call to
-        get_ball. The ball *index* must be a valid value within the range
-        [0, :attr:`num_balls` - 1].
+        :meth:`get_ball`. The ball *index* must be a valid value within the
+        range [0, :attr:`num_balls` - 1].
       </desc>
     </method>
     <method name="get_button">
@@ -96,8 +96,8 @@
       <desc>
         Opens the (closed) Joystick.
         
-        Opens the (closed) Joystick. If the Joystick is already open,
-        this method will have no effect.
+        Opens the (closed) Joystick. If the Joystick is already open, this
+        method will have no effect.
       </desc>
     </method>
     <attr name="opened">
@@ -110,8 +110,8 @@
     <desc>
       Gets the physical device name of a Joystick.
       
-      Gets the physical device name of a Joystick. The *index* specifies
-      the device to get the name for and must be in the range [0,
+      Gets the physical device name of a Joystick. The *index*
+      specifies the device to get the name for and must be in the range [0,
       :meth:`num_joysticks` - 1].
     </desc>
   </func>
@@ -130,9 +130,9 @@
   <func name="opened">
     <call>opened (index) -> bool</call>
     <desc>
-      Gets, whether the specified Joystick is opened for access or not.
+      Gets, whether the specified joystick is opened for access or not.
       
-      Gets, whether the specified Joystick is opened for access or
+      Gets, whether the specified joystick is opened for access or
       not. The *index* specifies the joystick device to get the state for
       and must be in the range [0, :meth:`num_joysticks` - 1].
     </desc>

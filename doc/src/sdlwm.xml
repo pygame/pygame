@@ -7,13 +7,13 @@
 
   <func name="get_caption">
     <call>get_caption () -> str</call>
-    <desc>Gets the caption of the current pygame2.sdl window.</desc>
+    <desc>Gets the caption of the current SDL window.</desc>
   </func>
   <func name="get_info">
     <call>get_info () -> dict</call>
     <desc>
       Gets operating system and window manager specific information about the
-      current pygame2.sdl window .
+      current SDL window .
     </desc>
   </func>
   <func name="grab_input">
@@ -32,20 +32,22 @@
   </func>
   <func name="set_caption">
     <call>set_caption (str) -> None</call>
-    <desc>Sets the caption of the current pygame2.sdl window.</desc>
+    <desc>Sets the caption of the current SDL window.</desc>
   </func>
   <func name="set_icon">
     <call>set_icon (surface[, mask]) -> None</call>
     <desc>
       Sets the window manager icon to be used by the window.
       
-      TODO: not fully implemented.
+      .. todo::
+        
+         Not fully implemented.
     </desc>
   </func>
   <func name="toggle_fullscreen">
     <call>toggle_fullscren (bool) -> bool</call>
     <desc>
-      Tries to toggle the fullscreen mode for the pygame2.sdl window and
+      Tries to toggle the fullscreen mode for the SDL window and
       returns, whether the operation was successful or not.
     </desc>
   </func>

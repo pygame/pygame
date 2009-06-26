@@ -20,17 +20,17 @@
   </desc>
 
   <func name="average_color">
-    <call>average_color (surface[, rect]) -> Color</call>
+    <call>average_color (surface[, rect]) -> :class:`pygame2.Color`</call>
     <desc>
       Finds the average color of a surface.
       
       Finds the average color of a :class:`pygame2.sdl.video.Surface` and
-      returns it. The optional rect argument can be used to find the average
+      returns it. The optional *rect* argument can be used to find the average
       color for a specific region on the :class:`pygame2.sdl.video.Surface`.
     </desc>
   </func>
   <func name="average_surfaces">
-    <call>average_surfaces ((surface1, surface2, ...)[, destsurface]) -> Surface</call>
+    <call>average_surfaces ((surface1, surface2, ...)[, destsurface]) -> :class:`pygame2.sdl.video.Surface`</call>
     <desc>
       Creates a new surface with the average colors from a list of surfaces.
       
@@ -39,30 +39,34 @@
       destination surface is passed, it will be used instead of creating a new
       :class:`pygame2.sdl.video.Surface`.
 
-      NOTE: the destination surface must have the same size as the largest
-      :class:`pygame2.sdl.video.Surface` of the passed list.
+      .. note::
+      
+        The destination surface must have the same size as the largest
+        :class:`pygame2.sdl.video.Surface` of the passed list.
     </desc>
   </func>
   <func name="chop">
-    <call>chop (surface, rect) -> Surface</call>
+    <call>chop (surface, rect) -> :class:`pygame2.sdl.video.Surface`</call>
     <desc>
       Extracts a portion of a surface.
 
-      Extracts a portion of a surface. All vertical and horizontal pixels
+      Extracts a portion of a *surface*. All vertical and horizontal pixels
       surrounding the given rectangle area are removed. The corner areas
-      (diagonal to the rect) are then brought together. and the result will be
+      (diagonal to the *rect*) are then brought together and the result will be
       returned as a new :class:`pygame2.sdl.video.Surface`
 
-      NOTE: If you want a "crop" that returns the part of an image within a
-      rect, you can blit with a rect to a new surface.
+      .. note::
+      
+        If you want a "crop" that returns the part of an image within a
+        rect, you can blit with a rect to a new surface.
     </desc>
   </func>
   <func name="flip">
-    <call>flip (surface, flipx, flipy) -> Surface</call>
+    <call>flip (surface, flipx, flipy) -> :class:`pygame2.sdl.video.Surface`</call>
     <desc>
       Flips a surface horizontically, vertically or over both axes.
       
-      This can flip a surface either vertically, horizontally, or both.
+      This can flip a *surface* either vertically, horizontally, or both.
       Flipping a Surface is nondestructive and returns a new
       :class:`pygame2.sdl.video.Surface` with the same dimensions. 
     </desc>
@@ -76,62 +80,73 @@
   <func name="set_filtertype">
     <call>set_filtertype (type) -> int</call>
     <desc>
-      Sets the filters to use to one of the supported filter types.
+      Tries to apply a certain filter mechanism to use.
       
-      TODO
+      Tries to apply a certain filter mechanism for the :func:`smoothscale`
+      function. Depending on which architecture and how Pygame2 was built,
+      not all available filters from :mod:`pygame2.sdlext.constants` might
+      be supported. In case the passed *type* is not supported for the
+      executing system, the filter type will be automatically set back to
+      :const:`FILTER_C`.
+      
+      The return value will be the effective filter type used.
     </desc>
   </func>
   <func name="laplacian">
-    <call>laplacian (surface[, destsurface]) -> Surface</call>
+    <call>laplacian (surface[, destsurface]) -> :class:`pygame2.sdl.video.Surface`</call>
     <desc>
       Finds the edges in a surface using the laplacian algorithm.
       
-      Finds the edges in a surface using the laplacian algorithm. If a
+      Finds the edges in a *surface* using the laplacian algorithm. If a
       destination surface is provided, it will be used for drawing the results
       instead of creating a new :class:`pygame2.sdl.video.Surface`.
       
-      NOTE: the destination surface must have the same size as the surface to
-      find the edges in..
+      .. note::
+        
+        The destination surface must have the same size as the *surface* to
+        find the edges in.
     </desc>
   </func>
   <func name="rotate">
-    <call>rotate (surface, angle) -> Surface</call>
+    <call>rotate (surface, angle) -> :class:`pygame2.sdl.video.Surface`</call>
     <desc>
       Rotates a surface.
       
-      Rotates a surface using the specified angle in degrees. For positive
+      Rotates a *surface* using the specified *angle* in degrees. For positive
       angles, the rotation will be counterclockwise, negative angles will cause
       a clockwise rotation. 
       
-      Unless rotating by 90 degree increments, the surface will be padded
+      Unless rotating by 90 degree increments, the *surface* will be padded
       larger to hold the new size. If the image has pixel alphas, the padded
       area will be transparent. Otherwise a color will picked that matches the
       surface colorkey or the topleft pixel value.
     </desc>
   </func>
   <func name="scale">
-    <call>scale (surface, width, height[, destsurface]) -> Surface
-      scale (surface, size[, destsurface]) -> Surface
+    <call>scale (surface, width, height[, destsurface]) -> :class:`pygame2.sdl.video.Surface`
+      scale (surface, size[, destsurface]) -> :class:`pygame2.sdl.video.Surface`
     </call>
     <desc>
-        Resizes the surface to a new resolution.
+       Resizes the surface to a new resolution.
 
        This is a fast scale operation that does not sample the results. An
        optional destination surface can be used, rather than have it create a
        new one. This is faster if you want to repeatedly scale something.
        
-       NOTE: The destination surface must cover the size of the scaled result
-       and feature the same format.
+       .. note:: 
+         
+         The destination surface must cover the size of the scaled result
+         and feature the same format.
     </desc>
   </func>
   <func name="scale2x">
-    <call>scale (surface[, destsurface]) -> Surface</call>
+    <call>scale (surface[, destsurface]) -> :class:`pygame2.sdl.video.Surface`</call>
     <desc>
       Scales a surface to the double of its original size.
       
-      This will return a new surface that is double the size of the original.
-      It uses the AdvanceMAME Scale2X algorithm which does a 'jaggie-less'
-      scale of bitmap graphics.
+      This will return a new :class:`pygame2.sdl.video.Surface` that is double
+      the size of the original. It uses the AdvanceMAME Scale2X algorithm which
+      does a 'jaggie-less' scale of bitmap graphics.
       
       This really only has an effect on simple images with solid colors. On
       photographic and antialiased images it will look like a regular
@@ -139,13 +154,15 @@
       than to have it create a new one. This is faster if you want to
       repeatedly scale something.
 
-       NOTE: The destination surface must be twice the size of the surface
-       passed in and feature the same format.
+      .. note:: 
+         
+         The destination surface must be twice the size of the *surface*
+         passed in and feature the same format.
     </desc>
   </func>
   <func name="smoothscale">
-    <call>smoothscale (surface, width, height[, destsurface]) -> Surface
-      smoothscale (surface, size[, destsurface]) -> Surface
+    <call>smoothscale (surface, width, height[, destsurface]) -> :class:`pygame2.sdl.video.Surface`
+      smoothscale (surface, size[, destsurface]) -> :class:`pygame2.sdl.video.Surface`
     </call>
     <desc>
       Resizes the surface to a new resolution using smoothing algorithms.
@@ -153,19 +170,25 @@
       Uses one of two different algorithms for scaling each dimension of the
       input surface as required. For shrinkage, the output pixels are area
       averages of the colors they cover. For expansion, a bilinear filter is
-      used. For the amd64 and i686 architectures, optimized MMX routines are
-      included and will run much faster than other machine types.
+      used.
+
+      For AMD64 and i686 architectures, optimized MMX and SSE filter routines
+      are included and will run much faster than other machine types. The filter
+      routines can be get and set using :func:`get_filtertype` and
+      :func:`set_filtertype`
 
       This function only works for 24-bit or 32-bit surfaces. An exception will
       be thrown if the input surface bit depth is less than 24.       
 
-       NOTE: The destination surface must cover the size of the scaled result
-       and feature the same format.
+      .. note::
+        
+        The destination surface must cover the size of the scaled result
+        and feature the same format.
     </desc>
   </func>
   <func name="threshold">
-    <call>threshold (surface, color, threscolor[, destsurface]) -> Surface
-      threshold (surface, colorsurface, threscolor[, destsurface]) -> Surface
+    <call>threshold (surface, color, threscolor[, destsurface]) -> :class:`pygame2.sdl.video.Surface`
+      threshold (surface, colorsurface, threscolor[, destsurface]) -> :class:`pygame2.sdl.video.Surface`
     </call>
     <desc>TODO</desc>
   </func>

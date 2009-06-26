@@ -15,18 +15,17 @@
       Creates a new PixelArray from the specified
       :class:`pygame2.sdl.video.Surface`.
 
-      The :class:`PixelArray` wraps up a
-      :class:`pygame2.sdl.video.Surface` and provides a direct 2D array
-      access to its pixels using the surface's columns as first and its
-      rows as second axis. It supports slicing and row and pixel
+      The PixelArray wraps up a :class:`pygame2.sdl.video.Surface` and provides
+      a direct 2D array access to its pixels using the surface's columns as
+      first and its rows as second axis. It supports slicing and row and pixel
       manipluation while in place operations such as addition, subtraction,
       multiplication, division and so forth are not allowed.
 
       While it is possible to assign both, integer color values and RGB(A)
-      color tuples, the :class:`PixelArray` will only use integers for the
+      color tuples, the PixelArray will only use integers for the
       color representation. Thus, checking for certain colors has to be done
       using the :meth:`pygame2.sdl.video.Surface.map_rgb` method of the surface,
-      the :class:`PixelArray` was created for. ::
+      the PixelArray was created for. ::
 
         pxarray = pygame.PixelArray (surface)
         # Check, if the first pixel at the topleft corner is blue
@@ -34,8 +33,8 @@
             ...
       
       If you operate on a slice, you also can use arbitrary sequences or
-      other :class:`PixelArray` objects to modify the pixels. They have to match
-      the size of the :class:`PixelArray` however. ::
+      other PixelArray objects to modify the pixels. They have to match
+      the size of the PixelArray however. ::
 
         pxarray[a:b] = 0xFF00FF                   # set all pixels to 0xFF00FF
         pxarray[a:b] = (0xFF00FF, 0xAACCEE, ... ) # first pixel = 0xFF00FF,
@@ -59,7 +58,7 @@
         pxarray[3][3:5] = ...
 
       If you want to make a rectangular manipulation or create a view of
-      a part of the :class:`PixelArray`, you also can use the subscript
+      a part of the PixelArray, you also can use the subscript
       abilities. You can easily create different views by creating
       'subarrays' using the subscripts. ::
 
@@ -73,19 +72,19 @@
 
         pxarray[::2,:] = (0, 0, 0)                # Make each second column black.
 
-      During its lifetime, the :class:`PixelArray` locks the surface, thus you
+      During its lifetime, the PixelArray locks the surface, thus you
       explicitly have to delete it once it is not used anymore and the
       surface should perform operations in the same scope.
     </desc>
     <method name="compare">
       <call>compare (array, distance=0, weights=(0.299, 0.587, 0.114)) -> PixelArray</call>
       <desc>
-        Compares the :class:`PixelArray` with another one.
+        Compares the PixelArray with another one.
 
-        Compares the contents of the :class:`PixelArray` with those from the
-        passed :class:`PixelArray`. It returns a new :class:`PixelArray` with a
+        Compares the contents of the PixelArray with those from the
+        passed PixelArray. It returns a new PixelArray with a
         black/white color mask that indicates the differences (white) of
-        both arrays. Both :class:`PixelArray` objects must have indentical bit
+        both arrays. Both PixelArray objects must have indentical bit
         depths and dimensions.
 
         It uses a simple weighted euclidian distance formula to
@@ -98,11 +97,11 @@
     <method name="extract">
       <call>extract (color, distance=0, weights=(0.299, 0.587, 0.114)) -> PixelArray</call>
       <desc>
-        Extracts the passed color from the :class:`PixelArray`.
+        Extracts the passed color from the PixelArray.
 
         Extracts the passed *color* by changing all matching pixels to
         white, while non-matching pixels are changed to black. This
-        returns a new :class:`PixelArray` with the black/white color mask.
+        returns a new PixelArray with the black/white color mask.
 
         It uses a simple weighted euclidian distance formula to calculate
         the distance between the colors. The *distance* space ranges from
@@ -115,11 +114,11 @@
       <call>make_surface () -> :class:`pygame2.sdl.video.Surface`</call>
       <desc>
         Creates a new :class:`pygame2.sdl.video.Surface` from the current
-        :class:`PixelArray`.
+        PixelArray.
 
         Creates a new :class:`pygame2.sdl.video.Surface` from the current
-        :class:`PixelArray`. Depending on the current :class:`PixelArray` the
-        size, pixel order etc. will be different from the original
+        PixelArray. Depending on the current PixelArray the size, pixel order
+        etc. will be different from the original
         :class:`pygame2.sdl.video.Surface`. ::
 
           # Create a new surface flipped around the vertical axis.
@@ -129,9 +128,9 @@
     <method name="replace">
       <call>replace (color, repcolor, distance=0, weights=(0.299, 0.587, 0.114)) -> None</call>
       <desc>
-        Replaces the passed color in the :class:`PixelArray` with another one.
+        Replaces the passed color in the PixelArray with another one.
 
-        Replaces the pixels with the passed *color* in the :class:`PixelArray`
+        Replaces the pixels with the passed *color* in the PixelArray
         by changing them them to the passed replacement color.
 
         It uses a simple weighted euclidian distance formula to calculate
@@ -141,11 +140,11 @@
         exactly identical color, into account as well.
 
         This is an in place operation that directly affects the pixels
-        of the :class:`PixelArray`.
+        of the PixelArray.
       </desc>
     </method>
     <attr name="surface">
-      <desc>Gets the Surface the :class:`PixelArray` uses.</desc>
+      <desc>Gets the :class:`pygame2.sdl.video.Surface` the PixelArray uses.</desc>
     </attr>
   </class>
 

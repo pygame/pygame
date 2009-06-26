@@ -6,7 +6,7 @@
   <desc>
     .. note::
 
-      You should favour the usage :mod:`pygame2.sdlext.surfarray` over
+      You should favor the usage :mod:`pygame2.sdlext.surfarray` over
       directly using the numpy or Numeric surfarray modules, if you do
       not require any special features of one of the packages. This
       allows you to write compatible code for various platforms having

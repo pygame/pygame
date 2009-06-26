@@ -10,7 +10,7 @@
   </desc>
 
   <func name="get_compiled_version">
-    <call>get_compiled_version () -> tuple</call>
+    <call>get_compiled_version () -> (int, int, int)</call>
     <desc>
       Gets the SDL version pygame2 was compiled against as three-value tuple.
 
@@ -21,7 +21,7 @@
     </desc>
   </func>
   <func name="get_error">
-    <call>get_error () -> pygame2.Error</call>
+    <call>get_error () -> :exc:`pygame2.Error`</call>
     <desc>
       Gets the last :exc:`pygame2.Error` occured.
 
@@ -32,7 +32,7 @@
     </desc>
   </func>
   <func name="get_version">
-    <call>get_version () -> tuple</call>
+    <call>get_version () -> (int, int, int)</call>
     <desc>
       Gets the SDL version pygame2 currently uses as three-value tuple.
 
@@ -61,7 +61,7 @@
       Initializes one or more SDL subsystems.
 
       In case a specific part of SDL was not initialized using
-      :func:`pygame2.sdl.init`, this funciton can be used to initialize it at
+      :func:`pygame2.sdl.init`, this function can be used to initialize it at
       a later time.
 
       In contrast to the original SDL library, you do not need to call

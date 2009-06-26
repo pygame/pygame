@@ -2,6 +2,13 @@ def run ():
     import sys, os
 
     import pygame2
+
+    try:
+        import pygame2.freetype
+        import pygame2.freetype.constants
+    except ImportError:
+        print (sys.exc_info()[1])
+
     import pygame2.mask
     import pygame2.physics
 
@@ -75,8 +82,8 @@ def run ():
     except ImportError:
         print (sys.exc_info()[1])
 
-        import pygame2.sprite
-        import pygame2.threads
+    import pygame2.sprite
+    import pygame2.threads
 
 if __name__ == "__main__":
     run ()

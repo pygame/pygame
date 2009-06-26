@@ -226,15 +226,21 @@ class SDLVideoSurfaceTest (unittest.TestCase):
             self.assert_ (sf.flip () == None)
         video.quit ()
 
-    def todo_test_pygame2_sdl_video_Surface_format(self):
+    def test_pygame2_sdl_video_Surface_format(self):
 
         # __doc__ (as of 2009-05-15) for pygame2.sdl.video.Surface.format:
 
         # Gets the (read-only) pygame2.sdl.video.PixelFormat for this
         # Surface.
         video.init ()
+        modes =  [32, 24, 16, 8]
+        for bpp in modes:
+            sf = video.Surface (10, 10, bpp)
+            fmt = sf.format
+            self.assertEqual (type (fmt), video.PixelFormat)
+            self.assertEqual (fmt.bits_per_pixel, bpp)
+            self.assertEqual (fmt.bytes_per_pixel, bpp // 8)
         video.quit ()
-        self.fail() 
 
     def todo_test_pygame2_sdl_video_Surface_get_alpha(self):
 

@@ -17,7 +17,7 @@
       repeated :const:`KEYDOWN` events are sent through the event queue, using
       the specified *interval*.
 
-      Setting delay to 0 will disable repeating completely.
+      Setting *delay* to 0 will disable repeating completely.
     </desc>
   </func>
   <func name="enable_unicode">
@@ -66,7 +66,7 @@
     </example>
   </func>
   <func name="get_repeat">
-    <call>get_repeat () -> delay, interval</call>
+    <call>get_repeat () -> int, int</call>
     <desc>
       Gets the currently set keyboard repeat delay and interval.
     </desc>

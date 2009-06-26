@@ -10,7 +10,7 @@
   </desc>
 
   <func name="get_error">
-    <call>get_error () -> pygame2.Error</call>
+    <call>get_error () -> :exc:`pygame2.Error`</call>
     <desc>
       Gets the last :exc:`pygame2.Error` occured.
 
@@ -23,7 +23,9 @@
   </func>
   <func name="load">
     <call>load (file[, type]) -> :class:`pygame2.sdl.video.Surface`</call>
-    <desc>Loads an image file and creates a :class:`pygame2.sdl.video.Surface` from it.
+    <desc>
+      Loads an image file and creates a :class:`pygame2.sdl.video.Surface` from
+      it.
     
       Loads an image file and creates a :class:`pygame2.sdl.video.Surface` from
       it. The *file* argument can be a file object or filename. *type* is an

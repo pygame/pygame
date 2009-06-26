@@ -138,7 +138,10 @@ required by running the unit tests: ::
 
 Mac OS X installers
 -------------------
-*TODO: Instructions for Mac OS X platforms*
+
+.. todo::
+  
+  Instructions for Mac OS X platforms*
 
 Once all packages are built the revision control tree can be tagged with the
 new version, the packages be published and an announcement sent to the mailing

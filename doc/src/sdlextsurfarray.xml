@@ -6,43 +6,45 @@
     module for accessing surface pixel data using numeric array interfaces
   </short>
   <desc>
-  Functions to convert pixel data between pygame Surfaces and arrays. This
-  module will only be functional when pygame can use the external Numpy or
-  Numeric packages.
+    Functions to convert pixel data between pygame Surfaces and arrays. This
+    module will only be functional when pygame can use the external Numpy or
+    Numeric packages.
   
-  Every pixel is stored as a single integer value to represent the red,
-  green, and blue colors. The 8bit images use a value that looks into a
-  colormap. Pixels with higher depth use a bit packing process to place
-  three or four values into a single number.
+    Every pixel is stored as a single integer value to represent the red,
+    green, and blue colors. The 8bit images use a value that looks into a
+    colormap. Pixels with higher depth use a bit packing process to place
+    three or four values into a single number.
   
-  The arrays are indexed by the X axis first, followed by the Y
-  axis. Arrays that treat the pixels as a single integer are referred to
-  as 2D arrays. This module can also separate the red, green, and blue
-  color values into separate indices. These types of arrays are referred
-  to as 3D arrays, and the last index is 0 for red, 1 for green, and 2 for
-  blue.
+    The arrays are indexed by the X axis first, followed by the Y
+    axis. Arrays that treat the pixels as a single integer are referred to
+    as 2D arrays. This module can also separate the red, green, and blue
+    color values into separate indices. These types of arrays are referred
+    to as 3D arrays, and the last index is 0 for red, 1 for green, and 2 for
+    blue.
 
-  Supported array types are
+    Supported array types are
   
-  * numeric
-  * numpy
+    * numeric
+    * numpy
 
-  The default will be Numeric, if installed. Otherwise, numpy will be set
-  as default if installed. If neither Numeric nor numpy are installed, the
-  module will raise an ImportError.
+    The default will be Numeric, if installed. Otherwise, numpy will be set
+    as default if installed. If neither Numeric nor numpy are installed, the
+    module will raise an ImportError.
   
-  The array type to use can be changed at runtime using the use_arraytype()
-  method, which requires one of the above types as string.
+    The array type to use can be changed at runtime using the use_arraytype()
+    method, which requires one of the above types as string.
   
-  Note: numpy and Numeric are not completely compatible. Certain array
-  manipulations, which work for one type, might behave differently or even
-  completely break for the other.
+    .. note:: 
+      
+      numpy and Numeric are not completely compatible. Certain array
+      manipulations, which work for one type, might behave differently or even
+      completely break for the other.
   
-  Additionally, in contrast to Numeric numpy does use unsigned 16-bit
-  integers. Images with 16-bit data will be treated as unsigned
-  integers. Numeric instead uses signed integers for the representation,
-  which is important to keep in mind, if you use the module's functions
-  and wonder about the values.
+      Additionally, in contrast to Numeric numpy does use unsigned 16-bit
+      integers. Images with 16-bit data will be treated as unsigned
+      integers. Numeric instead uses signed integers for the representation,
+      which is important to keep in mind, if you use the module's functions
+      and wonder about the values.
   </desc>
   <example></example>
 

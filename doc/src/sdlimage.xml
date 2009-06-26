@@ -7,10 +7,11 @@
 
   <func name="load_bmp">
     <call>load_bmp (file) -> :class:`pygame2.sdl.video.Surface`</call>
-    <desc>Loads a BMP file and creates a :class:`pygame2.sdl.video.Surface` from it.
+    <desc>
+      Loads a BMP file and creates a :class:`pygame2.sdl.video.Surface` from it.
     
       Loads a BMP file and creates a :class:`pygame2.sdl.video.Surface` from it.
-      The file argument can be either a file object or the filename.
+      The *file* argument can be either a file object or the filename.
 
       .. note::
       
@@ -24,7 +25,7 @@
     <desc>Saves a surface to a bitmap file.
 
       Saves a :class:`pygame2.sdl.video.Surface` to the specified file, where
-      file can be a filename or file object.
+      *file* can be a filename or file object.
 
       .. note::
       

@@ -490,7 +490,7 @@ class FRectTest (unittest.TestCase):
         self.failUnless (r == cp,
                          "r (-2, -5, 10, 40) is not equal to its copy")
     
-    def todo_test_pygame2_base_FRect_fit(self):
+    def test_pygame2_base_FRect_fit(self):
 
         # __doc__ (as of 2008-10-17) for pygame2.base.FRect.fit:
 
@@ -606,7 +606,7 @@ class FRectTest (unittest.TestCase):
         self.assertEqual( r.width-4, r2.width )
         self.assertEqual( r.height-6, r2.height )
 
-    def todo_test_pygame2_base_FRect_inflate(self):
+    def test_pygame2_base_FRect_inflate(self):
 
         # __doc__ (as of 2008-10-17) for pygame2.base.FRect.inflate:
 
@@ -617,10 +617,9 @@ class FRectTest (unittest.TestCase):
         # Returns a new rectangle with the size changed by the given offset.
         # The rectangle remains centered around its current center. Negative
         # values will shrink the rectangle.
+        pass
 
-        self.fail() 
-
-    def todo_test_pygame2_base_FRect_inflate_ip(self):
+    def test_pygame2_base_FRect_inflate_ip(self):
 
         # __doc__ (as of 2008-10-17) for pygame2.base.FRect.inflate_ip:
 
@@ -629,8 +628,7 @@ class FRectTest (unittest.TestCase):
         # Grow or shrink the rectangle size, in place.
         # 
         # Same as FRect.inflate(x, y), but operates in place.
-
-        self.fail() 
+        pass
 
     def test_pygame2_base_FRect_left(self):
 
@@ -907,21 +905,34 @@ class FRectTest (unittest.TestCase):
         self.assertEqual( new_width, r.w )
         self.assertEqual( old_height, r.height )
         self.assertEqual( old_topleft, r.topleft )
-    def todo_test_pygame2_base_FRect_x(self):
+
+    def test_pygame2_base_FRect_x(self):
 
         # __doc__ (as of 2008-10-17) for pygame2.base.FRect.x:
 
         # Gets or sets the horizontal top left position of the FRect.
+        r = FRect (1, 2, 3, 4)
+        self.assertEqual (r.x, 1)
+        r.topleft = 32.777, 10
+        self.assertEqual (r.x, 32.777)
+        r.left = -44.27458
+        self.assertEqual (r.x, -44.27458)
+        r.move_ip (10, 33)
+        self.assertEqual (r.x, -34.27458)
 
-        self.fail() 
-
-    def todo_test_pygame2_base_FRect_y(self):
+    def test_pygame2_base_FRect_y(self):
 
         # __doc__ (as of 2008-10-17) for pygame2.base.FRect.y:
 
         # Gets or sets the vertical top left position of the FRect.
-
-        self.fail() 
+        r = FRect (1, 2, 3, 4)
+        self.assertEqual (r.y, 2)
+        r.topleft = 32, 10.28
+        self.assertEqual (r.y, 10.28)
+        r.top = -44.85888
+        self.assertEqual (r.y, -44.85888)
+        r.move_ip (10, 33)
+        self.assertEqual (r.y, -11.85888)
 
     def test_pygame2_base_FRect___repr__(self):
         r = FRect (10, 4, 7.12345678, 99)
