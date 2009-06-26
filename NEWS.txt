@@ -13,4 +13,4 @@ Released on 2009-XX-XX.
 Test releases:
 
 * alpha1 (rev. 2176)
-* alpha2 (rev. )
+* alpha2 (rev. 2430)
