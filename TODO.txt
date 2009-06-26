@@ -18,6 +18,10 @@ CRITICAL:
 * add pgcompat.h to *mod.h internal headers.
 * Fix eval(repr(xyz)) for most types.
 
+* freetype: bgcolor needs to be respected on rendering to an existing surface.
+* freetype: bgcolor with alpha transparency needs to be respected on rendering
+* freetype: width and height's not exactly correct (box extents are not
+  fitted to the visible character)
 * freetype: rotated text rendering and proper support for vertical fonts
 * freetype: render to buffer buffer support (like new bytearray, but
   write to a buffer instead)

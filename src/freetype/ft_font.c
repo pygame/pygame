@@ -578,7 +578,7 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
     /* keyword list */
     static char *kwlist[] = 
     { 
-        "text", "fgcolor", "bgcolor", "target_surface", "xpos", "ypos", "ptsize", NULL
+        "text", "fgcolor", "bgcolor", "dstsurface", "xpos", "ypos", "ptsize", NULL
     };
 
     PyFreeTypeFont *font = (PyFreeTypeFont *)self;
@@ -653,7 +653,7 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
 
         rtuple = Py_BuildValue("(iiO)", width, height, r_surface);
     }
-    else if (PySurface_Check(target_surf))
+    else if (PySDLSurface_Check(target_surf))
     {
         if (PGFT_Render_ExistingSurface(ft, font, text_buffer, 
                 ptsize, (PySDLSurface *)target_surf, 
@@ -664,7 +664,7 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
             goto _finish;
         }
 
-        rtuple = Py_BuildValue("(ii)", width, height);
+        rtuple = Py_BuildValue("(iiO)", width, height, target_surf);
     }
     else
     {

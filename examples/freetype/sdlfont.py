@@ -26,12 +26,19 @@ def run():
     font2 = freetype.Font (pygame2.font.find_font ("times", ftype="ttf")[0])
 
     screen = video.set_mode (320, 240)
-    screen.fill (pygame2.Color (255, 255, 255))
-    w, h, buf = font1.render ("Hello", 12, screen, xpos=10, ypos=10,
-                              fgcolor=pygame2.Color(100, 100, 100))
+    screen.fill (pygame2.Color (200, 200, 200))
+    w, h, surface = font1.render ("Hello", pygame2.Color(100, 100, 100),
+                                  ptsize=12, dstsurface=screen,
+                                  xpos=10, ypos=10)
 
-    w, h, buf = font2.render ("Hello", 28, screen, xpos=10, ypos=40,
-                              bgcolor=pygame2.Color(100, 100, 100))
+    w, h, surface = font2.render ("Hello", pygame2.Color(80, 210, 170),
+                                  ptsize=28, dstsurface=screen,
+                                  xpos=10, ypos=40)
+
+    w, h, surface = font1.render ("Hello", pygame2.Color(0, 0, 0),
+                                  bgcolor= pygame2.Color(100, 210, 170),
+                                  ptsize=40)
+    screen.blit (surface, (10, 80))
     #screen.blit (buf, (5, 5))
     screen.flip ()
 

@@ -5,12 +5,8 @@
   <alias>pygame2.freetype</alias>
   <short>Wrapping module for the FreeType 2 font library</short>
   <desc>
-      This module wraps the FreeType 2 font library to add
-      improvent font drawing capabilities to PyGame2, such as
-      new font formats, etc.
-  
-    All classes and functions listed here are incorporated from the
-    :mod:`pygame2.freetype.base` module.
+    This module wraps the FreeType 2 font library to add improvent font
+    drawing capabilities to PyGame2, such as new font formats, etc.
   </desc>
 
   <func name="get_version">
@@ -49,21 +45,22 @@
   <class name="Font">
     <constructor>Font(file [, ptsize, index]) -> Font</constructor>
     <desc>
-        Creates a new Font from a supported font file. File can be
-        either a string representing the font's filename or a file-like
-        object containing the font.
+        Creates a new Font from a supported font file.
 
-        Optionally, a 'ptsize' argument may be specified to set the
+        *file* can be either a string representing the font's filename or
+        a file-like object containing the font.
+
+        Optionally, a *ptsize* argument may be specified to set the
         default size in points which will be used to render the font. 
         Such size can also be specified manually on each method call.
         Because of the way the caching system works, specifying a
         default size on the constructor doesn't imply a performance
         gain over manually passing the size on each function call.
 
-        If the font file has more than one face, the 'index'
-        parameter may be specified to specify which face index to load.
-        Defaults to 0; font loading will fail if the given index is
-        not contained in the font.
+        If the font file has more than one face, the *index* argument
+        may be specified to specify which face index to load. Defaults
+        to 0; font loading will fail if the given index is not contained
+        in the font.
     </desc>
     <attr name="name">
       <desc>Gets the name of the font face.</desc>
@@ -84,21 +81,22 @@
     <method name="get_metrics">
       <call>get_metrics(text, [, ptsize, pixel_coords, grid_fitted]) -> [(...), ...]</call>
       <desc>
-          Returns the glyph metrics for each character in 'text'.
+        Returns the glyph metrics for each character in 'text'.
 
-          The glyph metrics are returned inside a list; each character will
-          be represented as a tuple inside the list with the following values:
+        The glyph metrics are returned inside a list; each character will
+        be represented as a tuple inside the list with the following values:
 
-                (min_x, max_x, min_y, max_y, horizontal_advance)
+          (min_x, max_x, min_y, max_y, horizontal_advance)
 
-            By default, these values are returned as grid-fitted pixel coordinates
-            (ints). More precision can be obtained by setting pixel_coords to False,
-            to obtain decimal numbers instead of ints, and by setting grid_fitted
-            to False, which will return unfitted coordinates (i.e. the ones used by
-            the subhinting engine).
+        By default, these values are returned as grid-fitted pixel
+        coordinates (ints). More precision can be obtained by setting
+        *pixel_coords* to False, to obtain decimal numbers instead of
+        ints, and by setting *grid_fitted* to False, which will return
+        unfitted coordinates (i.e. the ones used by the subhinting
+        engine).
         
-          The calculations are done using the font's default size in points.
-          Optionally you may specify another point size to use.
+        The calculations are done using the font's default size in points.
+        Optionally you may specify another point size to use.
 
       </desc>
     </method>
@@ -106,47 +104,59 @@
       <desc>Gets the height of the Font.</desc>
     </attr>
     <method name="render">
-      <call>render(text, fgcolor[, bgcolor, target_surface, xpos, ypos, ptsize]) -> (int, int [, Surface])</call>
+      <call>render(text, fgcolor[, bgcolor, dstsurface, xpos, ypos, ptsize]) -> (int, int, surface)</call>
       <desc>
-          Renders the string 'text' to a SDL Surface, using the color 'fgcolor'.
+        Renders a text on a SDL surface.
 
-          If 'target_surface' exists and is a valid SDL surface (independently of its BPP), 
-          the text will be rendered directly on top of it at coordinates (xpos, ypos). 
-          The width and height of the rendered text will be returned in a tuple.
+        Renders the string *text* to a
+        :class:`pygame2.sdl.video.Surface`, using the color *fgcolor*.
 
-          If there is no target surface, a new surface will be created with the required 
-          size to contain the drawn text, using 'bgcolor' as its background color.
-          The width and height of the rendered text, together with the new Surface, will
-          be returned in a tuple.
+        If a destination surface *dstsurface*' exists and is a
+        :class:`pygame2.sdl.video.Surface` (independently of its bit
+        depth), the text will be rendered directly on top of it at the
+        passed coordinates (*xpos*, *ypos*).  The width and height of
+        the rendered text as well as the surface will be returned in a
+        tuple.
 
-          The rendering is done using the font's default size in points.
-          Optionally you may specify another point size to use.
+        If there is no destination surface, a new
+        :class:`pygame2.sdl.video.Surface` will be created with the
+        required size to contain the drawn text, using *bgcolor* as its
+        background color. The width and height of the rendered text,
+        together with the new :class:`pygame2.sdl.video.Surface`, will
+        be returned in a tuple.
 
-        This function is only available when PyGame 2 has been compiled with SDL support.
+        The rendering is done using the font's default size in points.
+        Optionally you may specify another point size to use.
+
+        This function is only available when PyGame 2 has been compiled
+        with SDL support.
       </desc>
     </method>
     <method name="render_raw">
-      <call>render_raw(text [, ptsize]) -> (int, int, Bytes)</call>
+      <call>render_raw(text [, ptsize]) -> (int, int, bytes)</call>
       <desc>
-          Renders the string 'text' to a raw buffer of bytes, each byte representing
-          the opacity of the glyph's raster image in grayscale.
+        Renders a text to a byte buffer.
 
-          The width (pitch) and height of the rendered text, together with the Bytes
-          buffer, will be returned in a tuple.
+        Renders the string *text* to a raw buffer of bytes, each byte
+        representing the opacity of the glyph's raster image in
+        grayscale.
+        
+        The width (pitch) and height of the rendered text, together with
+        the bytes buffer, will be returned in a tuple.
 
-          The rendering is done using the font's default size in points.
-          Optionally you may specify another point size to use.
+        The rendering is done using the font's default size in points.
+        Optionally you may specify another point size to use.
       </desc>
     </method>
     <attr name="style">
       <desc>Gets or sets the style of the font. *TODO*</desc>
     </attr>
     <attr name="fixed_width">
-        <desc>
-            Returns whether this font is a fixed-width (bitmap) font.
-            
-            Note that scalable fonts whose glyphs are all the same width 
-            (i.e. TTF fonts used for programming) are not considered fixed width.
+      <desc>
+        Returns whether this font is a fixed-width (bitmap) font.
+        
+        Note that scalable fonts whose glyphs are all the same width 
+        (i.e. TTF fonts used for programming) are not considered fixed width.
         </desc>
     </attr>
   </class>
