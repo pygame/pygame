@@ -31,11 +31,12 @@ print m         #calls __repr__, which will show the filename, and the current
 
 print "Playing infinitely"
 
-m.play(-1)      #We're going to use infinite play, so we can demonstrate all 
+m.play(3)       #We're going to use infinite play, so we can demonstrate all 
                 # the features.
-#while(1):
+while(1):
 #    time.sleep(0.01)
 #    pygame.display.update()
+    pass
 time.sleep(10)  #sleep for ten seconds to let one see the video play, and hear 
                 # the audio
 print m.paused

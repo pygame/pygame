@@ -168,8 +168,7 @@ int soundInit  (int freq, int size, int channels, int chunksize)
             }
         }
 #endif
-        Mix_VolumeMusic (127);
-        Mix_ChannelFinished(&cb_mixer);
+       
     }
     
 	
@@ -188,6 +187,21 @@ int soundQuit(void)
 		Mix_CloseAudio ();
         SDL_QuitSubSystem (SDL_INIT_AUDIO);
     }
+	return 0;
+}
+
+int soundStart (void)
+{
+	Mix_VolumeMusic (127);
+    Mix_ChannelFinished(&cb_mixer);
+	return 0;
+}
+	
+int soundEnd   (void)
+{
+	Mix_Volume(-1, 0);
+	Mix_ChannelFinished(NULL);
+	Mix_HaltChannel(-1);
 	return 0;
 }
 	

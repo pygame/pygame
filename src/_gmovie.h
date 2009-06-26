@@ -109,76 +109,79 @@ enum {
 typedef struct PyMovie {
 	PyObject_HEAD
     /* General purpose members */
-    SDL_Thread *parse_tid; /* Thread id for the decode_thread call */
-    int abort_request;     /* Tells whether or not to stop playing and return */
-    int paused; 		   /* Boolean for communicating to the threads to pause playback */
-	int last_paused;       /* For comparing the state of paused to what it was last time around. */
-    char filename[1024];
-    char *_backend;  //"FFMPEG_WRAPPER";
-    int overlay; //>0 if we are to use the overlay, otherwise <=0
-    int playing;
-    int height;
-    int width;
-    int ytop;
-    int xleft;
-    int loops;
-    int resize_h;
-    int resize_w;
-	int64_t start_time;
-	AVInputFormat *iformat;
-	SDL_mutex *dest_mutex;
-	int av_sync_type;
+    SDL_Thread      *parse_tid; /* Thread id for the decode_thread call */
+    int              abort_request;     /* Tells whether or not to stop playing and return */
+    int              paused; 		   /* Boolean for communicating to the threads to pause playback */
+	int              last_paused;       /* For comparing the state of paused to what it was last time around. */
+    char             filename[1024];
+    char            *_backend;  //"FFMPEG_WRAPPER";
+    int              overlay; //>0 if we are to use the overlay, otherwise <=0
+    int              playing;
+    int              height;
+    int              width;
+    int              ytop;
+    int              xleft;
+    int              loops;
+    int              resize_h;
+    int              resize_w;
+	int 		     replay;
+	int64_t          start_time;
+	AVInputFormat   *iformat;
+	SDL_mutex       *dest_mutex;
+	int              av_sync_type;
 	AVFormatContext *ic;    /* context information about the format of the video file */
-	int stop;
-	SDL_Surface *canon_surf;
-	PyThreadState *_tstate; //really do not touch this unless you have to.	
+	int              stop;
+	SDL_Surface     *canon_surf;
+	PyThreadState   *_tstate; //really do not touch this unless you have to.
+		
 	
 	/* Seek-info */
-    int seek_req;
-    int seek_flags;
+    int     seek_req;
+    int     seek_flags;
     int64_t seek_pos;
 
 	/* external clock members */
-	double external_clock; /* external clock base */
+	double  external_clock; /* external clock base */
     int64_t external_clock_time;
 
 	/* Audio stream members */
-    double audio_clock;
-    AVStream *audio_st;
+    double      audio_clock;
+    AVStream   *audio_st;
     PacketQueue audioq;
     /* samples output by the codec. we reserve more space for avsync compensation */
     DECLARE_ALIGNED(16,uint8_t,audio_buf1[(AVCODEC_MAX_AUDIO_FRAME_SIZE * 3) / 2]);
     DECLARE_ALIGNED(16,uint8_t,audio_buf2[(AVCODEC_MAX_AUDIO_FRAME_SIZE * 3) / 2]);
     uint8_t *audio_buf;
-    int audio_buf_size; /* in bytes */
-    int audio_buf_index; /* in bytes */
+    int      audio_buf_size; /* in bytes */
+    int      audio_buf_index; /* in bytes */
     AVPacket audio_pkt;
     uint8_t *audio_pkt_data;
-    int audio_pkt_size;
+    int      audio_pkt_size;
     //int audio_volume; /*must self implement*/
 	enum SampleFormat audio_src_fmt;
     AVAudioConvert *reformat_ctx;
-    int audio_stream;
-	int audio_disable;
-	SDL_mutex *audio_mutex;
-	SDL_Thread *audio_tid;
-	int channel;
-	int audio_paused;
+    int             audio_stream;
+	int             audio_disable;
+	SDL_mutex      *audio_mutex;
+	SDL_Thread     *audio_tid;
+	int             channel;
+	int             audio_paused;
+	
 	/* Frame/Video Management members */
-    double frame_timer;
-    double frame_last_pts;
-    double frame_last_delay;
-    double frame_delay; /*display time of each frame, based on fps*/
-    double video_clock; /*seconds of video frame decoded*/
-    AVStream *video_st;
-    double video_current_pts; /* current displayed pts (different from
+    double     frame_timer;
+    double     frame_last_pts;
+    double     frame_last_delay;
+    double     frame_delay; /*display time of each frame, based on fps*/
+    double     video_clock; /*seconds of video frame decoded*/
+    AVStream  *video_st;
+    double     video_current_pts; /* current displayed pts (different from
                                  video_clock if frame fifos are used) */
-	double video_current_pts_time;
-	double timing;
-	double last_showtime;
-	double pts;	
-	int video_stream;
-	int video_disable;
+	double     video_current_pts_time;
+	double     timing;
+	double     last_showtime;
+	double     pts;	
+	int        video_stream;
+	int        video_disable;
 	/* simple ring_buffer queue for holding VidPicture structs */
 	VidPicture pictq[VIDEO_PICTURE_QUEUE_SIZE];
 	int pictq_size, pictq_windex, pictq_rindex;
@@ -187,63 +190,58 @@ typedef struct PyMovie {
 	SDL_Thread *video_tid;
 
 	PacketQueue videoq;
-	SDL_mutex *videoq_mutex;
-	SDL_cond *videoq_cond;
+	SDL_mutex  *videoq_mutex;
+	SDL_cond   *videoq_cond;
 	struct SwsContext *img_convert_ctx;
 
 } PyMovie;
 /* end of struct definitions */
 /* function definitions */
-
+      
 /* 		PacketQueue Management */
-void packet_queue_init(PacketQueue *q);
-void packet_queue_flush(PacketQueue *q);
-void packet_queue_end(PacketQueue *q, int end);
-int packet_queue_put(PacketQueue *q, AVPacket *pkt);
-void packet_queue_abort(PacketQueue *q);
-int packet_queue_get(PacketQueue *q, AVPacket *pkt, int block);
+void packet_queue_init  (PacketQueue *q);
+void packet_queue_flush (PacketQueue *q);
+void packet_queue_end   (PacketQueue *q, int end);
+int  packet_queue_put   (PacketQueue *q, AVPacket *pkt);
+void packet_queue_abort (PacketQueue *q);
+int  packet_queue_get   (PacketQueue *q, AVPacket *pkt, int block);
 
 /* 		Misc*/
-void ConvertYUV420PtoRGBA( AVPicture *YUV420P, SDL_Surface *OUTPUT, int interlaced );
-void initializeLookupTables(void);
+void ConvertYUV420PtoRGBA   (AVPicture *YUV420P, SDL_Surface *OUTPUT, int interlaced );
+void initializeLookupTables (void);
 
 /* 		Video Management */
-int video_open(PyMovie *is, int index);
-void video_image_display(PyMovie *is);
-int video_display(PyMovie *is);
-int video_thread(void *arg);
-int video_render(PyMovie *movie);
-int queue_picture(PyMovie *is, AVFrame *src_frame);
-void update_video_clock(PyMovie *movie, AVFrame* frame, double pts);
-void video_refresh_timer(PyMovie *movie); //unlike in ffplay, this does the job of compute_frame_delay
+int  video_open          (PyMovie *is, int index);
+void video_image_display (PyMovie *is);
+int  video_display       (PyMovie *is);
+int  video_render        (PyMovie *movie);
+int  queue_picture       (PyMovie *is, AVFrame *src_frame);
+void update_video_clock  (PyMovie *movie, AVFrame* frame, double pts);
+void video_refresh_timer (PyMovie *movie); //unlike in ffplay, this does the job of compute_frame_delay
 
 /* 		Audio management */
-int audio_write_get_buf_size(PyMovie *is);
-int synchronize_audio(PyMovie *is, short *samples, int samples_size1, double pts);
-int audio_decode_frame(PyMovie *is, double *pts_ptr);
-void sdl_audio_callback(void *opaque, Uint8 *stream, int len);
-
-/* 		Subtitle management */
-int subtitle_thread(void *arg);
+int  audio_write_get_buf_size (PyMovie *is);
+int  synchronize_audio        (PyMovie *is, short *samples, int samples_size1, double pts);
+int  audio_decode_frame       (PyMovie *is, double *pts_ptr);
 
 /* 		General Movie Management */
-void stream_seek(PyMovie *is, int64_t pos, int rel);
-void stream_pause(PyMovie *is);
-int stream_component_open(PyMovie *is, int stream_index, int threaded); //TODO: break down into separate functions
-void stream_component_close(PyMovie *is, int stream_index);
-int decoder(void *arg);
-void stream_open(PyMovie *is, const char *filename, AVInputFormat *iformat, int threaded);
-void stream_close(PyMovie *is);
-void stream_cycle_channel(PyMovie *is, int codec_type);
-int decoder_wrapper(void *arg);
+void stream_seek            (PyMovie *is, int64_t pos, int rel);
+void stream_pause           (PyMovie *is);
+int  stream_component_open  (PyMovie *is, int stream_index, int threaded); //TODO: break down into separate functions
+int  stream_component_start (PyMovie *is, int stream_index, int threaded);
+void stream_component_end   (PyMovie *is, int stream_index);
+void stream_component_close (PyMovie *is, int stream_index);
+int  decoder                (void *arg);
+void stream_open            (PyMovie *is, const char *filename, AVInputFormat *iformat, int threaded);
+void stream_close           (PyMovie *is);
+void stream_cycle_channel   (PyMovie *is, int codec_type);
+int  decoder_wrapper        (void *arg);
 
 /* 		Clock Management */
-double get_audio_clock(PyMovie *is);
-double get_video_clock(PyMovie *is);
-double get_external_clock(PyMovie *is);
-double get_master_clock(PyMovie *is);
+double get_audio_clock    (PyMovie *is);
+double get_video_clock    (PyMovie *is);
+double get_external_clock (PyMovie *is);
+double get_master_clock   (PyMovie *is);
 
-/*		Frame Management */
-// double compute_frame_delay(double frame_current_pts, PyMovie *is);
 
 #endif /*_GMOVIE_H_*/

@@ -216,7 +216,7 @@ void get_height_width(PyMovie *movie, int *height, int*width)
 	get_width(movie, width);
 }
 
-int clamp0_255(int x) {
+int inline clamp0_255(int x) {
 	x &= (~x) >> 31;
 	x -= 255;
 	x &= x >> 31;
@@ -997,25 +997,65 @@ closing:
     case CODEC_TYPE_AUDIO:
         movie->audio_stream = stream_index;
         movie->audio_st = ic->streams[stream_index];
+        break;
+    case CODEC_TYPE_VIDEO:
+        movie->video_stream = stream_index;
+        movie->video_st = ic->streams[stream_index];
+      	break;
+    default:
+        break;
+    }
+    if(threaded)
+		{GRABGIL}
+    Py_DECREF( movie);
+    if(threaded)
+    	{RELEASEGIL}
+    return 0;
+}
+/* open a given stream. Return 0 if OK */
+int stream_component_start(PyMovie *movie, int stream_index, int threaded)
+{
+	DECLAREGIL
+	if(threaded)
+ 	{
+    	GRABGIL
+ 	}
+    Py_INCREF( movie);
+    if(threaded)
+    {
+	    RELEASEGIL
+    }
+    AVFormatContext *ic = movie->ic;
+    AVCodecContext *enc;
+    if (stream_index < 0 || stream_index >= ic->nb_streams)
+    {
+    	if(threaded)
+	    	GRABGIL
+    	Py_DECREF(movie);
+    	if(threaded)
+	        RELEASEGIL
+        return -1;
+    }
+    
+    enc = ic->streams[stream_index]->codec;
+	switch(enc->codec_type) {
+    case CODEC_TYPE_AUDIO:
         movie->audio_buf_size = 0;
         movie->audio_buf_index = 0;
 
         memset(&movie->audio_pkt, 0, sizeof(movie->audio_pkt));
         packet_queue_init(&movie->audioq);
 		movie->audio_mutex = SDL_CreateMutex();
-		//movie->audio_tid = SDL_CreateThread(audio_thread, movie);
-        
+        soundStart(); 
         break;
     case CODEC_TYPE_VIDEO:
-        movie->video_stream = stream_index;
-        movie->video_st = ic->streams[stream_index];
-
         movie->frame_last_delay = 40e-3;
         movie->frame_timer = (double)av_gettime() / 1000000.0;
         movie->video_current_pts_time = av_gettime();
-        //movie->video_last_pts_time=av_gettime();
 
         packet_queue_init(&movie->videoq);
+		if(movie->replay)
+			stream_seek(movie, 0, -1);
       	break;
     default:
         break;
@@ -1028,6 +1068,56 @@ closing:
     return 0;
 }
 
+
+void stream_component_end(PyMovie *movie, int stream_index)
+{
+	DECLAREGIL
+	GRABGIL
+    if(movie->ob_refcnt!=0)Py_INCREF( movie);
+	RELEASEGIL
+    AVFormatContext *ic = movie->ic;
+    AVCodecContext *enc;
+
+    if (stream_index < 0 || stream_index >= ic->nb_streams)
+    {
+    	GRABGIL
+    	if(movie->ob_refcnt!=0)
+    	{
+    		Py_DECREF(movie);
+    	}
+    	RELEASEGIL
+        return;
+    }
+    enc = ic->streams[stream_index]->codec;
+	int i;
+	VidPicture *vp;
+    switch(enc->codec_type) {
+    case CODEC_TYPE_AUDIO:
+        packet_queue_abort(&movie->audioq);
+        soundEnd();
+        break;
+    case CODEC_TYPE_VIDEO:
+        for(i=0;i<VIDEO_PICTURE_QUEUE_SIZE;i++)
+		{
+			vp = &movie->pictq[i];
+			vp->ready=0;
+		}
+		movie->replay = 1;
+        packet_queue_abort(&movie->videoq);
+        break;
+    default:
+        break;
+    }
+
+    ic->streams[stream_index]->discard = AVDISCARD_ALL;
+
+	GRABGIL
+    if(movie->ob_refcnt!=0)
+    {
+    	Py_DECREF( movie);
+    }
+	RELEASEGIL
+}
 void stream_component_close(PyMovie *movie, int stream_index)
 {
 	DECLAREGIL
@@ -1051,16 +1141,12 @@ void stream_component_close(PyMovie *movie, int stream_index)
 	int end = movie->loops;
     switch(enc->codec_type) {
     case CODEC_TYPE_AUDIO:
-        packet_queue_abort(&movie->audioq);
         soundQuit();
-        SDL_WaitThread(movie->audio_tid, NULL);
         packet_queue_end(&movie->audioq, end);
         if (movie->reformat_ctx)
             av_audio_convert_free(movie->reformat_ctx);
         break;
     case CODEC_TYPE_VIDEO:
-        packet_queue_abort(&movie->videoq);
-        SDL_WaitThread(movie->video_tid, NULL);
         packet_queue_end(&movie->videoq, end);
         break;
     default:
@@ -1368,13 +1454,16 @@ int decoder_wrapper(void *arg)
 	while((movie->loops>-1||eternity) && !movie->stop )
 	{
 		movie->loops--;
-		stream_open(movie, movie->filename, NULL, 1);
 		movie->paused=0;
+		if(movie->video_st)
+			stream_component_start(movie, movie->video_st->index, 1);
+		if(movie->audio_st)
+			stream_component_start(movie, movie->audio_st->index, 1);
 		state =decoder(movie);
 		if(movie->video_st)
-			stream_component_close(movie, movie->video_st->index);
+			stream_component_end(movie, movie->video_st->index);
 		if(movie->audio_st)
-			stream_component_close(movie, movie->audio_st->index);
+			stream_component_end(movie, movie->audio_st->index);
 	}
 	GRABGIL
 	Py_INCREF(movie);
