@@ -931,10 +931,9 @@ closing:
     {
 	    RELEASEGIL
     }
+
     AVFormatContext *ic = movie->ic;
     AVCodecContext *enc;
-    AVCodec *codec;
-	int freq, channels;
     if (stream_index < 0 || stream_index >= ic->nb_streams)
     {
     	if(threaded)
@@ -945,54 +944,9 @@ closing:
         return -1;
     }
     
-    enc = ic->streams[stream_index]->codec;
-    /* prepare audio output */
-    if (enc->codec_type == CODEC_TYPE_AUDIO) {
-        if (enc->channels > 0) {
-            enc->request_channels = FFMIN(2, enc->channels);
-        } else {
-            enc->request_channels = 2;
-        }
-    }
-    codec = avcodec_find_decoder(enc->codec_id);
-    enc->debug_mv = 0;
-    enc->debug = 0;
-    enc->workaround_bugs = 1;
-    enc->lowres = 0;
-    enc->idct_algo= FF_IDCT_AUTO;
-    if(0)enc->flags2 |= CODEC_FLAG2_FAST;
-    enc->skip_frame= AVDISCARD_DEFAULT;
-    enc->skip_idct= AVDISCARD_DEFAULT;
-    enc->skip_loop_filter= AVDISCARD_DEFAULT;
-    enc->error_recognition= FF_ER_CAREFUL;
-    enc->error_concealment= 3;
-
-
-	//TODO:proper error reporting here please
-    if (avcodec_open(enc, codec) < 0)
-    {
-    	if(threaded)
-	    	GRABGIL
-    	Py_DECREF(movie);
-    	if(threaded)
-	    	RELEASEGIL
-        return -1;
-    }
-    /* prepare audio output */
-    if (enc->codec_type == CODEC_TYPE_AUDIO) {
-        
-        freq = enc->sample_rate;
-        channels = enc->channels;
-        if (soundInit  (freq, -16, channels, 1024) < 0) {
-            RAISE(PyExc_SDLError, SDL_GetError ());
-        }
-        //movie->audio_hw_buf_size = 1024;
-        movie->audio_src_fmt= AUDIO_S16SYS;
-    }
-
-    enc->thread_count= 1;
-    ic->streams[stream_index]->discard = AVDISCARD_DEFAULT;
+    initialize_codec(movie, stream_index, threaded);
     
+	enc = ic->streams[stream_index]->codec;
     switch(enc->codec_type) {
     case CODEC_TYPE_AUDIO:
         movie->audio_stream = stream_index;
@@ -1039,7 +993,7 @@ int stream_component_start(PyMovie *movie, int stream_index, int threaded)
 	        RELEASEGIL
         return -1;
     }
-    
+    initialize_codec(movie, stream_index, threaded);
     enc = ic->streams[stream_index]->codec;
 	switch(enc->codec_type) {
     case CODEC_TYPE_AUDIO:
@@ -1366,6 +1320,73 @@ int initialize_context(PyMovie *movie, int threaded)
 fail:
 	return ret;	    
     	
+}
+
+int initialize_codec(PyMovie *movie, int stream_index, int threaded)
+{
+	DECLAREGIL
+	if(threaded)
+		{GRABGIL}
+	Py_INCREF(movie);
+	if(threaded)
+		{RELEASEGIL}
+	AVFormatContext *ic = movie->ic;
+    AVCodecContext *enc;
+    AVCodec *codec;
+    int freq, channels;
+    enc = ic->streams[stream_index]->codec;
+    /* prepare audio output */
+    if (enc->codec_type == CODEC_TYPE_AUDIO) {
+        if (enc->channels > 0) {
+            enc->request_channels = FFMIN(2, enc->channels);
+        } else {
+            enc->request_channels = 2;
+        }
+    }
+    codec = avcodec_find_decoder(enc->codec_id);
+    enc->debug_mv = 0;
+    enc->debug = 0;
+    enc->workaround_bugs = 1;
+    enc->lowres = 0;
+    enc->idct_algo= FF_IDCT_AUTO;
+    if(0)enc->flags2 |= CODEC_FLAG2_FAST;
+    enc->skip_frame= AVDISCARD_DEFAULT;
+    enc->skip_idct= AVDISCARD_DEFAULT;
+    enc->skip_loop_filter= AVDISCARD_DEFAULT;
+    enc->error_recognition= FF_ER_CAREFUL;
+    enc->error_concealment= 3;
+
+
+	//TODO:proper error reporting here please
+    if (avcodec_open(enc, codec) < 0)
+    {
+    	if(threaded)
+	    	GRABGIL
+    	Py_DECREF(movie);
+    	if(threaded)
+	    	RELEASEGIL
+        return -1;
+    }
+    /* prepare audio output */
+    if (enc->codec_type == CODEC_TYPE_AUDIO) {
+        
+        freq = enc->sample_rate;
+        channels = enc->channels;
+        if (soundInit  (freq, -16, channels, 1024) < 0) {
+            RAISE(PyExc_SDLError, SDL_GetError ());
+        }
+        //movie->audio_hw_buf_size = 1024;
+        movie->audio_src_fmt= AUDIO_S16SYS;
+    }
+
+    enc->thread_count= 1;
+    ic->streams[stream_index]->discard = AVDISCARD_DEFAULT;
+	if(threaded)
+		{GRABGIL}
+	Py_DECREF(movie);
+	if(threaded)
+		{RELEASEGIL}	
+	return 0;
 }
  void stream_close(PyMovie *movie)
 {
