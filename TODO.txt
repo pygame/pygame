@@ -32,7 +32,6 @@ CRITICAL:
 * freetype: description/markup language for rendering text (like e.g. pango
    has)?
 
-
 Things to ADD:
 ==============
 * (re)add tests
