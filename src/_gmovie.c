@@ -1027,6 +1027,9 @@ int stream_component_start(PyMovie *movie, int stream_index, int threaded)
     }
     AVFormatContext *ic = movie->ic;
     AVCodecContext *enc;
+    
+    ic->streams[stream_index]->discard = AVDISCARD_DEFAULT;
+    
     if (stream_index < 0 || stream_index >= ic->nb_streams)
     {
     	if(threaded)
@@ -1333,7 +1336,7 @@ int initialize_context(PyMovie *movie, int threaded)
         av_close_input_file(movie->ic);
         movie->ic = NULL; /* safety */
     }
-    
+    movie->iformat = NULL;
     err = av_open_input_file(&ic, movie->filename, movie->iformat, 0, ap);
     if (err < 0) {
     	if(threaded)
@@ -1483,7 +1486,6 @@ int decoder_wrapper(void *arg)
 	{
 		movie->loops--;
 		movie->paused=0;
-	
 		if(movie->replay)
 			initialize_context(movie, 1);
 		if(movie->video_st)
