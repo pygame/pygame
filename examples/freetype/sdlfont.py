@@ -22,24 +22,20 @@ def run():
     freetype.init ()
 
     fontdir = os.path.dirname (os.path.abspath (__file__))
-    font1 = freetype.Font (os.path.join (fontdir, "sans.ttf"))
-    font2 = freetype.Font (pygame2.font.find_font ("times", ftype="ttf")[0])
+    font = freetype.Font (os.path.join (fontdir, "sans.ttf"))
 
     screen = video.set_mode (320, 240)
     screen.fill (pygame2.Color (200, 200, 200))
-    w, h, surface = font1.render ("Hello", pygame2.Color(100, 100, 100),
-                                  ptsize=12, dstsurface=screen,
-                                  xpos=10, ypos=10)
+    w, h = font.render("Hello", pygame2.Color(100, 100, 100), None, screen, 10, 10, 24)
 
-    w, h, surface = font2.render ("Hello", pygame2.Color(80, 210, 170),
-                                  ptsize=28, dstsurface=screen,
-                                  xpos=10, ypos=40)
+    w, h = font.render("Hello", pygame2.Color(100, 100, 100), None, screen, 10, 40, 48)
 
-    w, h, surface = font1.render ("Hello", pygame2.Color(0, 0, 0),
-                                  bgcolor= pygame2.Color(100, 210, 170),
-                                  ptsize=40)
-    screen.blit (surface, (10, 80))
-    #screen.blit (buf, (5, 5))
+    w, g, buf = font.render("Hello World, Jay",
+            pygame2.Color(100, 200, 32),
+            pygame2.Color(240, 40, 100),
+            None, ptsize = 32)
+
+    screen.blit (buf, (5, 100))
     screen.flip ()
 
     okay = True

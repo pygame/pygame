@@ -623,10 +623,16 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
         goto _finish;
     }
 
-    if (bg_color && !PyColor_Check(bg_color))
+    if (bg_color)
     {
-        PyErr_SetString(PyExc_TypeError, "bgcolor must be a Color");
-        goto _finish;
+        if (bg_color == Py_None)
+            bg_color = NULL;
+        
+        else if (!PyColor_Check(bg_color))
+        {
+            PyErr_SetString(PyExc_TypeError, "bgcolor must be a Color");
+            goto _finish;
+        }
     }
 
     text_buffer = PGFT_BuildUnicodeString(text, &free_buffer);
