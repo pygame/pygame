@@ -80,7 +80,7 @@
       </desc>
     </method>
     <method name="get_metrics">
-      <call>get_metrics(text, [, ptsize, pixel_coords, grid_fitted]) -> [(...), ...]</call>
+      <call>get_metrics(text, [bbmode, ptsize]) -> [(...), ...]</call>
       <desc>
         Returns the glyph metrics for each character in 'text'.
 
@@ -90,11 +90,18 @@
           (min_x, max_x, min_y, max_y, horizontal_advance)
 
         By default, these values are returned as grid-fitted pixel
-        coordinates (ints). More precision can be obtained by setting
-        *pixel_coords* to False, to obtain decimal numbers instead of
-        ints, and by setting *grid_fitted* to False, which will return
-        unfitted coordinates (i.e. the ones used by the subhinting
-        engine).
+        coordinates (ints). Optionally, one of the following constants
+        (which can be found on the FreeType constants module) may be passed
+        as the bbmode argument:
+
+            BBOX_EXACT: Return accurate floating point values.
+
+            BBOX_EXACT_GRIDFIT: Return accurate floating point values aligned
+            to the drawing grid.
+
+            BBOX_PIXEL: Return pixel coordinates (ints).
+
+            BBOX_PIXEL_GRIDFIT (default): Return grid-aligned pixel coordinates.
         
         The calculations are done using the font's default size in points.
         Optionally you may specify another point size to use.
