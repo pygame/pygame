@@ -722,7 +722,7 @@ class SDLVideoSurfaceTest (unittest.TestCase):
         for bitsize, dx, dy in scrolls:
             if bitsize == 8:
                 masks = (0xFF >> 6 << 5, 0xFF >> 5 << 2, 0xFF >> 6, 0)
-                surf = video.Surface((10, 10), bitsize)
+                surf = video.Surface((10, 10), bitsize, masks=masks)
             else:
                 surf = video.Surface((10, 10), bitsize)
             surf.fill(Color(255, 0, 0))

@@ -395,6 +395,7 @@ _sdl_setvideomode (PyObject *self, PyObject *args, PyObject *kwds)
     PyObject *sf;
 
     static char *kwlist[] = { "width", "height", "bpp", "flags", NULL };
+    static char *kwlist2[] = { "size", "bpp", "flags", NULL };
     
     /* Not necessary usually. SDL_SetVideoMode() seems to do that
      * implicitly for recent versions of SDL. Though we'll force users
@@ -406,7 +407,8 @@ _sdl_setvideomode (PyObject *self, PyObject *args, PyObject *kwds)
     {
         PyObject *size;
         PyErr_Clear ();
-        if (!PyArg_ParseTuple (args, "O|il:set_mode", &size, &bpp, &flags))
+        if (!PyArg_ParseTupleAndKeywords (args, kwds, "O|il:set_mode", kwlist2,
+                &size, &bpp, &flags))
             return NULL;
         if (!SizeFromObject (size, (pgint32*)&width, (pgint32*)&height))
             return NULL;
