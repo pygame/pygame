@@ -157,6 +157,7 @@ typedef struct PyMovie {
     AVPacket audio_pkt;
     uint8_t *audio_pkt_data;
     int      audio_pkt_size;
+    int64_t  audio_pts;
     //int audio_volume; /*must self implement*/
 	enum SampleFormat audio_src_fmt;
     AVAudioConvert *reformat_ctx;

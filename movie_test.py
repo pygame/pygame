@@ -8,7 +8,7 @@ import pygame.nmovie as movie
 
 print "Please give an (absolute)filename of a movie file you'd like to play: ",
 #filename = raw_input()
-filename="/home/tyler/War3.avi"
+filename="/home/tyler/dhs1.avi"
 #initialization. It could also have a surface as a second argument, and every 
 # frame will be blitted to that surface. It is the programmer's responsibility
 # to be on time for rendering that surface.
@@ -31,12 +31,8 @@ print m         #calls __repr__, which will show the filename, and the current
 
 print "Playing infinitely"
 
-m.play(3)       #We're going to use infinite play, so we can demonstrate all 
+m.play(-1)       #We're going to use infinite play, so we can demonstrate all 
                 # the features.
-while(1):
-#    time.sleep(0.01)
-#    pygame.display.update()
-    pass
 time.sleep(10)  #sleep for ten seconds to let one see the video play, and hear 
                 # the audio
 print m.paused
@@ -60,14 +56,13 @@ m.height = m.height/2
 print "and again, sleeping..."
 #back to our original size
 time.sleep(10)
-import sys;sys.exit(1)
 #Here we demonstrate the use of pause. You pause, then call pause again to play
 print "Pausing..."
 m.pause()
 print "done pausing..."
 print m.paused
 print m.playing
-time.sleep(2)
+time.sleep(10)
 print "Unpausing..."
 m.pause()
 print m.paused

@@ -3,11 +3,13 @@
 #include <SDL/SDL_mixer.h>
 #include <SDL.h>
 #include <SDL_thread.h>
-
+#include <libavformat/avformat.h>
 typedef struct BufferNode{
 	uint8_t *buf;
 	int      len;
-	struct BufferNode *next;
+	int64_t  pts;
+	struct BufferNode 
+			*next;
 } BufferNode;
 
 typedef struct BufferQueue{
@@ -15,15 +17,30 @@ typedef struct BufferQueue{
 	int size;
 } BufferQueue;
 
-int soundInit  (int freq, int size, int channels, int chunksize);
-int soundQuit  (void);
-int soundStart (void);
-int soundEnd   (void);
-int playBuffer (uint8_t *buf, uint32_t len, int channel);
-int stopBuffer (int channel);
-int pauseBuffer(int channel);
-int getPaused  (int channel);
-int seekBuffer (uint8_t *buf, uint32_t len, int channel );
-int setCallback(void (*callback) (int channel));
+typedef struct AudioInfo{
+	double      audio_clock;        //keeps track of our PTS, in seconds
+	int         channels;           //data for keeping track of the fraction of a second the current frame will take
+	int         sample_rate;        //''
+	int         current_frame_size; //''
+	int         pts;                //current pts
+	int         playing;            //if we've started playing any buffers
+	int         channel;            //what channel the last buffer played on
+	int         ended;              //whether or not we've "ended", so we know to output silence.
+	double      time_base;          //the base 1/frames per second value
+	BufferQueue queue;              //queue of our buffers
 
+} AudioInfo;
+
+int soundInit     (int freq, int size, int channels, int chunksize, double time_base);
+int soundQuit     (void);
+int soundStart    (void);
+int soundEnd      (void);
+int playBuffer    (uint8_t *buf, uint32_t len, int channel, int64_t pts);
+int stopBuffer    (int channel);
+int pauseBuffer   (int channel);
+int getPaused     (int channel);
+int getAudioClock (void);
+int seekBuffer    (uint8_t *buf, uint32_t len, int channel );
+int setCallback   (void (*callback) (int channel));
+int resetAudioInfo(void);
 #endif /*_GSOUND_H_*/

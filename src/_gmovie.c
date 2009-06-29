@@ -322,12 +322,18 @@ void video_image_display(PyMovie *movie)
 	/* Wrapped by video_display, which has a lock on the movie object */
     DECLAREGIL
     GRABGIL
+    //PySys_WriteStdout("Blitting...\n");
     Py_INCREF( movie);
     RELEASEGIL
     VidPicture *vp;
     float aspect_ratio;
     int width, height, x, y;
-    
+	//we do this so that unpausing works. The problem is that when we pause, we end up invalidating all the frames in the queue.
+    // so we must short-circuit any checking or manipulation of frames... 
+	/*if(movie->paused)
+	{
+		goto closing;
+	}*/    
     vp = &movie->pictq[movie->pictq_rindex];
     vp->ready =0;
     if (movie->video_st->sample_aspect_ratio.num)
@@ -379,6 +385,7 @@ void video_image_display(PyMovie *movie)
     movie->pictq_rindex= (movie->pictq_rindex+1)%VIDEO_PICTURE_QUEUE_SIZE;
     movie->pictq_size--;
     video_refresh_timer(movie);
+closing:
     GRABGIL
     Py_DECREF( movie);
 	RELEASEGIL
@@ -698,19 +705,9 @@ double get_audio_clock(PyMovie *movie)
 	GRABGIL
     Py_INCREF( movie);
     RELEASEGIL
-    double pts;
-    int hw_buf_size, bytes_per_sec;
-
     
-    pts = movie->audio_clock;
-    hw_buf_size = audio_write_get_buf_size(movie);
-    bytes_per_sec = 0;
-    if (movie->audio_st) {
-        bytes_per_sec = movie->audio_st->codec->sample_rate *
-            2 * movie->audio_st->codec->channels;
-    }
-    if (bytes_per_sec)
-        pts -= (double)hw_buf_size / bytes_per_sec;
+    double pts= getAudioClock();
+    
     GRABGIL
     Py_DECREF( movie);
     RELEASEGIL
@@ -804,7 +801,7 @@ double get_audio_clock(PyMovie *movie)
 void stream_pause(PyMovie *movie)
 {
     Py_INCREF( movie);
-    int paused = movie->paused;
+    int paused=movie->paused;
     movie->paused = !movie->paused;
     if (!movie->paused) 
     {
@@ -864,10 +861,10 @@ int audio_thread(void *arg)
                 continue;
             //reformat_ctx here, but deleted    
             /* if no pts, then compute it */
-            pts = movie->audio_clock;
+            /*pts = movie->audio_clock;
             n = 2 * dec->channels;
             movie->audio_clock += (double)data_size / (double)(n * dec->sample_rate);
-            filled=1;
+            */filled=1;
         	   
         }
         //either buffer filled or no packets yet
@@ -885,20 +882,16 @@ int audio_thread(void *arg)
             avcodec_flush_buffers(dec);
             goto closing;
         }
-
+		movie->audio_pts      = pkt->pts;
         movie->audio_pkt_data = pkt->data;
         movie->audio_pkt_size = pkt->size;
         
-        /* if update the audio clock with the pts */
-        if (pkt->pts != AV_NOPTS_VALUE) {
-            movie->audio_clock = av_q2d(movie->audio_st->time_base)*pkt->pts;
-        }
         if(filled)
         {
         	/* Buffer is filled up with a new frame, we spin lock/wait for a signal, where we then call playBuffer */
         	SDL_LockMutex(movie->audio_mutex);
         	//SDL_CondWait(movie->audio_sig, movie->audio_mutex);
-        	int chan = playBuffer(movie->audio_buf1, data_size, movie->channel);
+        	int chan = playBuffer(movie->audio_buf1, data_size, movie->channel, movie->audio_pts);
         	movie->channel = chan;
         	filled=0;
         	len1=0;
@@ -1168,7 +1161,7 @@ void stream_open(PyMovie *movie, const char *filename, AVInputFormat *iformat, i
 	
     //in case we've called stream open once before...
     movie->abort_request = 0;
-    movie->av_sync_type = AV_SYNC_VIDEO_MASTER;
+    movie->av_sync_type = AV_SYNC_AUDIO_MASTER;
 	
     video_index = -1;
     audio_index = -1;
@@ -1372,7 +1365,7 @@ int initialize_codec(PyMovie *movie, int stream_index, int threaded)
         
         freq = enc->sample_rate;
         channels = enc->channels;
-        if (soundInit  (freq, -16, channels, 1024) < 0) {
+        if (soundInit  (freq, -16, channels, 1024, av_q2d(enc->time_base)) < 0) {
             RAISE(PyExc_SDLError, SDL_GetError ());
         }
         //movie->audio_hw_buf_size = 1024;
@@ -1554,12 +1547,18 @@ int decoder(void *arg)
         {
         	break;
         }
+        
         if (movie->paused != movie->last_paused) {
             movie->last_paused = movie->paused;
             if (movie->paused)
                 av_read_pause(ic);
             else
                 av_read_play(ic);
+        }
+        if(movie->paused)
+        {
+        	SDL_Delay(10);
+        	continue;
         }
         if (movie->seek_req) {
             int stream_index= -1;

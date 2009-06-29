@@ -243,7 +243,7 @@ PyObject* _movie_get_width (PyMovie *movie, void *closure)
     PyObject *pyo;
     if(movie->video_st)
     {
-    	if(movie->width)
+    	if(movie->resize_w)
     		{pyo = PyInt_FromLong((long)movie->width);}
     	else
     	{
@@ -282,7 +282,7 @@ PyObject* _movie_get_height (PyMovie *movie, void *closure)
     PyObject *pyo;
     if(movie->video_st)
     {
-    	if(movie->height)
+    	if(movie->resize_h)
     		{pyo=PyInt_FromLong((long)movie->height);}
     	else
     		{pyo= PyInt_FromLong((long)movie->video_st->codec->height);}
