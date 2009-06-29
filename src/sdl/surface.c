@@ -235,6 +235,7 @@ _surface_init (PyObject *self, PyObject *args, PyObject *kwds)
     
     static char *keys[] = { "width", "height", "depth", "flags", "masks",
                             NULL };
+    static char *keys2[] = { "size", "depth", "flags", "masks", NULL };
 
     /* The SDL docs require SDL_SetVideoMode() to be called beforehand. It
      * works nicely without for SDL >= 1.2.10, though */
@@ -250,7 +251,8 @@ _surface_init (PyObject *self, PyObject *args, PyObject *kwds)
         PyObject *size;
 
         PyErr_Clear ();
-        if (!PyArg_ParseTuple (args, "O|ilO", &size, &depth, &flags, &masks))
+        if (!PyArg_ParseTupleAndKeywords (args, kwds, "O|ilO", keys2, &size,
+                &depth, &flags, &masks))
             return -1;
         if (!SizeFromObject (size, (pgint32*)&width, (pgint32*)&height))
             return -1;

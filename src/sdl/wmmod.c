@@ -94,8 +94,11 @@ _sdl_wmseticon (PyObject *self, PyObject *args)
     }
 
     if (mask)
-        sfmask = ((PySDLSurface*)mask)->surface;
-    /* TODO */
+    {
+        PyErr_SetString (PyExc_NotImplementedError,
+            "icon masks are not supported yet");
+    }
+    /* TODO: support the mask */
     SDL_WM_SetIcon (((PySDLSurface*)surface)->surface, NULL);
     Py_RETURN_NONE;
 }

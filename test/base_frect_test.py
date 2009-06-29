@@ -936,7 +936,7 @@ class FRectTest (unittest.TestCase):
 
     def test_pygame2_base_FRect___repr__(self):
         r = FRect (10, 4, 7.12345678, 99)
-        text = "FRect(10.000, 4.000, 7.123, 99.000)"
+        text = "FRect(10.00000000, 4.00000000, 7.12345678, 99.00000000)"
         self.assertEqual (repr (r), text)
 
 if __name__ == "__main__":

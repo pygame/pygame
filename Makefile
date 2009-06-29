@@ -3,6 +3,7 @@ top_srcdir = `pwd`
 SUBDIRS = \
 	$(top_srcdir)/config \
 	$(top_srcdir)/examples \
+	$(top_srcdir)/examples/freetype \
 	$(top_srcdir)/examples/physics \
 	$(top_srcdir)/examples/sdl \
 	$(top_srcdir)/examples/sdlext \

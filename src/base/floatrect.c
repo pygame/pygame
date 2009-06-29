@@ -316,11 +316,14 @@ static PyObject*
 _frect_repr (PyObject *self)
 {
     PyFRect *r = (PyFRect*) self;
-    /* TODO */
-    char buf[512];
-    PyOS_snprintf (buf, sizeof (buf), "FRect(%.3f, %.3f, %.3f, %.3f)",
-        r->x, r->y, r->w, r->h);
-    return Text_FromUTF8 (buf);
+    char b1[32], b2[32], b3[32], b4[32];
+
+    if (!PyOS_ascii_formatd (b1, 32, "%.8f", r->x) ||
+        !PyOS_ascii_formatd (b2, 32, "%.8f", r->y) ||
+        !PyOS_ascii_formatd (b3, 32, "%.8f", r->w) ||
+        !PyOS_ascii_formatd (b4, 32, "%.8f", r->h))
+        return Text_FromUTF8 ("FRect(???)");
+    return Text_FromFormat ("FRect(%s, %s, %s, %s)", b1, b2, b3, b4);
 }
 
 /* FRect getters/setters */

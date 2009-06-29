@@ -706,6 +706,68 @@ class SDLVideoSurfaceTest (unittest.TestCase):
         # the Surface clip area. It is safe to have *dx* and *dy* values
         # that exceed the surface size.
         video.init ()
+
+        scrolls = [(8, 2, 3),
+                   (16, 2, 3),
+                   (24, 2, 3),
+                   (32, 2, 3),
+                   (32, -1, -3),
+                   (32, 0, 0),
+                   (32, 11, 0),
+                   (32, 0, 11),
+                   (32, -11, 0),
+                   (32, 0, -11),
+                   (32, -11, 2),
+                   (32, 2, -11)]
+        for bitsize, dx, dy in scrolls:
+            if bitsize == 8:
+                masks = (0xFF >> 6 << 5, 0xFF >> 5 << 2, 0xFF >> 6, 0)
+                surf = video.Surface((10, 10), bitsize)
+            else:
+                surf = video.Surface((10, 10), bitsize)
+            surf.fill(Color(255, 0, 0))
+            surf.fill(Color(0, 255, 0), (2, 2, 2, 2,))
+            comp = surf.copy()
+            comp.blit(surf, (dx, dy))
+            surf.scroll(dx, dy)
+            w, h = surf.size
+            for x in range(w):
+                for y in range(h):
+                    self.failUnlessEqual(surf.get_at((x, y)),
+                                         comp.get_at((x, y)),
+                                         "%s != %s, bpp:, %i, x: %i, y: %i" %
+                                         (surf.get_at((x, y)),
+                                          comp.get_at((x, y)),
+                                          bitsize, dx, dy))
+        # Confirm clip rect containment
+        surf = video.Surface((20, 13), 32)
+        surf.fill(Color(255, 0, 0))
+        surf.fill(Color(0, 255, 0), (7, 1, 6, 6))
+        comp = surf.copy()
+        clip = Rect(3, 1, 8, 14)
+        surf.clip_rect = clip
+        comp.clip_rect = clip
+        comp.blit(surf, (clip.x + 2, clip.y + 3), surf.clip_rect)
+        surf.scroll(2, 3)
+        w, h = surf.size
+        for x in range(w):
+            for y in range(h):
+                self.failUnlessEqual(surf.get_at((x, y)),
+                                     comp.get_at((x, y)))
+        # Confirm keyword arguments and per-pixel alpha
+        spot_color = Color(0, 255, 0, 128)
+        surf = video.Surface((4, 4), 32, constants.SRCALPHA)
+        surf.fill(Color(255, 0, 0, 255))
+        surf.set_at((1, 1), spot_color)
+        surf.scroll(dx=1)
+        self.failUnlessEqual(surf.get_at((2, 1)), spot_color)
+        surf.scroll(dy=1)
+        self.failUnlessEqual(surf.get_at((2, 2)), spot_color)
+        surf.scroll(dy=1, dx=1)
+        self.failUnlessEqual(surf.get_at((3, 3)), spot_color)
+        surf.scroll(dx=-3, dy=-3)
+        self.failUnlessEqual(surf.get_at((0, 0)), spot_color)
+        
         sf = video.Surface (20, 20)
         sf.fill (Color (255, 0, 0), Rect (10, 10, 20, 20))
         self._cmpcolor (sf, Color (255, 0, 0), Rect (10, 10, 10, 10))
@@ -719,7 +781,6 @@ class SDLVideoSurfaceTest (unittest.TestCase):
         sf.fill (Color (255, 0, 0), Rect (0, 0, 5, 5))
         sf.scroll (-10, -10)
         self._cmpcolor (sf, Color (0, 0, 0))
-        # TODO: incomplete!
         video.quit ()
         
     def test_pygame2_sdl_video_Surface___repr__(self):
