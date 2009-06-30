@@ -44,6 +44,9 @@
 #define UNICODE_BOM_NATIVE	0xFEFF
 #define UNICODE_BOM_SWAPPED	0xFFFE
 
+#define FONT_RENDER_HORIZONTAL  0
+#define FONT_RENDER_VERTICAL    1
+
 #define MAX_GLYPHS      64
 
 typedef struct __fontsurface
@@ -85,6 +88,9 @@ int     _PGFT_Render_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font,
 int _PGFT_Render_NEW(FreeTypeInstance *ft, PyFreeTypeFont *font, 
     FontText *text, int font_size, PyColor *fg_color, FontSurface *surface, 
     FontRenderMode *render);
+
+
+void _PGFT_BuildRenderMode(FontRenderMode *mode, float center, int vertical, int hinted, int rotation);
 
 /* blitters */
 void __render_glyph_SDL8(int x, int y, FontSurface *surface, FT_Bitmap *bitmap, PyColor *color);
@@ -144,7 +150,7 @@ _PGFT_SetError(FreeTypeInstance *ft, const char *error_msg, FT_Error error_id)
 }
 
 FontText *
-PGFT_BuildFontText(FreeTypeInstance *ft, PyFreeTypeFont *font, PyObject *text, int pt_size)
+PGFT_BuildFontText(FreeTypeInstance *ft, PyFreeTypeFont *font, PyObject *text, int pt_size, FontRenderMode *render)
 {
     /*
      * TODO:
@@ -154,7 +160,7 @@ PGFT_BuildFontText(FreeTypeInstance *ft, PyFreeTypeFont *font, PyObject *text, i
      * - return existing ones if available
      */
 
-    const FT_UInt32 load_flags = FT_LOAD_RENDER; /* TODO */
+    FT_Int32 load_flags = FT_LOAD_DEFAULT; 
 
     int         must_free;
     int         swapped = 0;
@@ -170,6 +176,23 @@ PGFT_BuildFontText(FreeTypeInstance *ft, PyFreeTypeFont *font, PyObject *text, i
     FontGlyph * glyph = NULL;
 
     FT_Face     face;
+
+    /* compute proper load flags */
+    load_flags |= FT_LOAD_IGNORE_GLOBAL_ADVANCE_WIDTH;
+
+    if (render->autohint)
+        load_flags |= FT_LOAD_FORCE_AUTOHINT;
+
+    if (render->hinted)
+    {
+        load_flags |=   render->antialias ?
+                        FT_LOAD_TARGET_NORMAL :
+                        FT_LOAD_TARGET_MONO;
+    }
+    else
+    {
+        load_flags |= FT_LOAD_NO_HINTING;
+    }
 
     /* load our sized face */
     face = _PGFT_GetFaceSized(ft, font, pt_size);
@@ -214,6 +237,7 @@ PGFT_BuildFontText(FreeTypeInstance *ft, PyFreeTypeFont *font, PyObject *text, i
             (FTC_FaceID)(&font->id),
             -1, (FT_UInt32)c);
 
+        /* FIXME: leaks memory, needs to use the cache */
         if (!FT_Load_Glyph(face, glyph->glyph_index, load_flags)  &&
             !FT_Get_Glyph(face->glyph, &glyph->image))
         {
@@ -295,7 +319,6 @@ _PGFT_RenderFontText(FreeTypeInstance *ft, PyFreeTypeFont *font, int pt_size,
                 {
                     FT_Vector  kern;
 
-
                     FT_Get_Kerning(face, prev_index, glyph->glyph_index,
                             FT_KERNING_UNFITTED, &kern);
 
@@ -339,6 +362,8 @@ _PGFT_RenderFontText(FreeTypeInstance *ft, PyFreeTypeFont *font, int pt_size,
     /* store the extent in the last slot */
     i = text->length - 1;
     advances[i] = extent;
+
+    fprintf(stderr, "Text size: %dx%d\n", PGFT_TRUNC(extent.x), PGFT_TRUNC(extent.y));
 
     return 0;
 }
@@ -441,6 +466,41 @@ _PGFT_BuildScaler(PyFreeTypeFont *font, FTC_Scaler scale, int size)
     scale->x_res = scale->y_res = 0;
 }
 
+void 
+_PGFT_BuildRenderMode(FontRenderMode *mode, float center, int vertical, int antialias, int rotation)
+{
+    double      radian;
+    FT_Fixed    cosinus;
+    FT_Fixed    sinus;
+    int         angle;
+
+    angle = rotation % 360;
+    while (angle < 0) angle += 360;
+
+    mode->kerning_mode = 1;
+    mode->kerning_degree = 0;
+    mode->center = (FT_Fixed)(center * (1 << 16));
+    mode->vertical = (FT_Byte)vertical;
+    mode->hinted = (FT_Byte)1;
+    mode->autohint = 0;
+    mode->antialias = (FT_Byte)antialias;
+    mode->matrix = NULL;
+
+    if (angle != 0)
+    {
+        radian  = angle * 3.14159 / 180.0;
+        cosinus = (FT_Fixed)( cos( radian ) * 65536.0 );
+        sinus   = (FT_Fixed)( sin( radian ) * 65536.0 );
+
+        mode->_rotation_matrix.xx = cosinus;
+        mode->_rotation_matrix.yx = sinus;
+        mode->_rotation_matrix.xy = -sinus;
+        mode->_rotation_matrix.yy = cosinus;
+
+        mode->matrix = &mode->_rotation_matrix;
+    }
+}
+
 FT_Face
 _PGFT_GetFaceSized(FreeTypeInstance *ft,
     PyFreeTypeFont *font,
@@ -471,7 +531,7 @@ _PGFT_GetFaceSized(FreeTypeInstance *ft,
 int
 _PGFT_LoadGlyph(FreeTypeInstance *ft, 
     PyFreeTypeFont *font,
-    int do_render,
+    int load_flags,
     FTC_Scaler scale, 
     int character, 
     FT_Glyph *glyph, 
@@ -479,10 +539,6 @@ _PGFT_LoadGlyph(FreeTypeInstance *ft,
 {
     FT_Error error = 0;
     FT_UInt32 char_index;
-
-    FT_ULong render_mode = do_render ? 
-        (FT_ULong)FT_LOAD_RENDER : 
-        (FT_ULong)FT_LOAD_DEFAULT;
 
     char_index = FTC_CMapCache_Lookup(
         ft->cache_charmap, 
@@ -500,7 +556,7 @@ _PGFT_LoadGlyph(FreeTypeInstance *ft,
         error = FTC_ImageCache_LookupScaler(
             ft->cache_img,
                 scale,
-                render_mode,
+                load_flags,
                 char_index,
                 glyph, NULL);
     }
@@ -800,22 +856,19 @@ int PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
         locked = 1;
     }
 
-    font_text = PGFT_BuildFontText(ft, font, text, font_size);
+    /*
+     * Setup render mode
+     * TODO: get render mode from FT instance
+     */
+    _PGFT_BuildRenderMode(&render_mode, 0.0f, FONT_RENDER_HORIZONTAL, 1, 45);
+
+    /* build font text */
+    font_text = PGFT_BuildFontText(ft, font, text, font_size, &render_mode);
 
     if (!font_text)
     {
         return -1;
     }
-
-    /*
-     * Setup render mode
-     * TODO: get render mode from FT instance
-     */
-    render_mode.kerning_mode = 0;
-    render_mode.center = 0; //(1L << 15); /* FIXME: Center by default? */
-    render_mode.vertical = 0;
-    render_mode.matrix = NULL;
-    render_mode.hinted = 1;
 
     /*
      * Setup target surface struct
@@ -1144,7 +1197,21 @@ int _PGFT_Render_NEW(FreeTypeInstance *ft, PyFreeTypeFont *font,
             FT_Bitmap*  source;
             FT_BitmapGlyph  bitmap;
 
-            assert(image->format == FT_GLYPH_FORMAT_BITMAP);
+            if (image->format == FT_GLYPH_FORMAT_OUTLINE)
+            {
+                FT_Render_Mode render_mode = 
+                    render->antialias ?
+                    FT_RENDER_MODE_NORMAL :
+                    FT_RENDER_MODE_MONO;
+
+                /* render the glyph to a bitmap, don't destroy original */
+                error = FT_Glyph_To_Bitmap(&image, render_mode, NULL, 0);
+                if (error)
+                    return error;
+            }
+
+            if (image->format != FT_GLYPH_FORMAT_BITMAP)
+                fprintf(stderr, "Format is not bitmap!\n");
 
             bitmap = (FT_BitmapGlyph)image;
             source = &bitmap->bitmap;

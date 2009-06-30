@@ -41,12 +41,17 @@ typedef struct
 
 typedef struct __rendermode
 {
-    int         kerning_mode;
     int         kerning_degree;
     FT_Fixed    center;            /* 0..1 */
-    int         vertical;          /* displayed vertically? */
     FT_Matrix*  matrix;            /* string transformation */
-    int         hinted;
+
+    FT_Matrix   _rotation_matrix;
+
+    FT_Byte     hinted;
+    FT_Byte     vertical;
+    FT_Byte     antialias;
+    FT_Byte     kerning_mode;
+    FT_Byte     autohint;
 } FontRenderMode;
 
 typedef struct  FontGlyph_
@@ -129,7 +134,7 @@ int PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
     int *_width, int *_height, int x, int y, PyColor *py_fgcolor);
 
 FontText *PGFT_BuildFontText(FreeTypeInstance *ft, PyFreeTypeFont *font, 
-    PyObject *text, int pt_size);
+    PyObject *text, int pt_sizem, FontRenderMode *mode);
 
 
 #endif
