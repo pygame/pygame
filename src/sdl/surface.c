@@ -713,8 +713,8 @@ _surface_getcolorkey (PyObject *self)
     if (!(surface->flags & SDL_SRCCOLORKEY))
         Py_RETURN_NONE;
 
-    GET_RGB_VALS (surface->format->colorkey, surface->format, rgba[0],
-        rgba[1], rgba[2], rgba[3]);
+    SDL_GetRGBA (surface->format->colorkey, surface->format,
+        &(rgba[0]), &(rgba[1]), &(rgba[2]), &(rgba[3]));
     return PyColor_New ((pgbyte*)rgba);
 }
 
@@ -730,7 +730,7 @@ _surface_setcolorkey (PyObject *self, PyObject *args)
     if (PyColor_Check (colorkey))
     {
         key = (Uint32) PyColor_AsNumber (colorkey);
-        RGB2FORMAT (key, PySDLSurface_AsSDLSurface (self)->format);
+        ARGB2FORMAT (key, PySDLSurface_AsSDLSurface (self)->format);
     }
     else if (!Uint32FromObj (colorkey, &key))
         return NULL;

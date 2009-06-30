@@ -133,7 +133,7 @@ class SDLVideoTest (unittest.TestCase):
         self.assertEqual (video.init (), None)
         video.quit ()
 
-    def todo_test_pygame2_sdl_video_is_mode_ok(self):
+    def test_pygame2_sdl_video_is_mode_ok(self):
 
         # __doc__ (as of 2009-05-31) for pygame2.sdl.video.is_mode_ok:
 
@@ -147,8 +147,13 @@ class SDLVideoTest (unittest.TestCase):
         # the current screen bit depth will be used.
         # 
         # The optional flags argument is the same as for set_mode.
-
-        self.fail() 
+        self.assertRaises (pygame2.Error, video.is_mode_ok)
+        video.init ()
+        modes = video.list_modes ()
+        for r in modes:
+            self.assert_ (video.is_mode_ok (r.size) == True)
+        video.quit ()
+        self.assertRaises (pygame2.Error, video.is_mode_ok)
 
     def test_pygame2_sdl_video_list_modes(self):
 

@@ -17,6 +17,8 @@ CRITICAL:
 * Add doc notes about quit() behaviour of the various modules.
 * add pgcompat.h to *mod.h internal headers.
 * Fix eval(repr(xyz)) for most types.
+* >8 bpp surfaces with palettes - it is supported (although it might be
+  pointless) by SDL and so should we.
 
 * freetype: bgcolor needs to be respected on rendering to an existing surface.
 * freetype: bgcolor with alpha transparency needs to be respected on rendering

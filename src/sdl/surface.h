@@ -51,83 +51,94 @@ typedef enum
 } BlendMode;
 
 #define RGB2FORMAT(rgb,format)                                          \
-    if (format->palette == NULL)                                        \
+    if ((format)->palette == NULL)                                      \
     {                                                                   \
         Uint8 _r,_g,_b;                                                 \
-        _r = (Uint8) ((rgb & 0xff0000) >> 16);                          \
-        _g = (Uint8) ((rgb & 0x00ff00) >> 8);                           \
-        _b = (Uint8)  (rgb & 0x0000ff);                                 \
-        rgb = (_r >> format->Rloss) << format->Rshift |                 \
-            (_g >> format->Gloss) << format->Gshift |                   \
-            (_b >> format->Bloss) << format->Bshift | format->Amask;    \
+        _r = (Uint8) (((rgb) & 0xff0000) >> 16);                        \
+        _g = (Uint8) (((rgb) & 0x00ff00) >> 8);                         \
+        _b = (Uint8)  ((rgb) & 0x0000ff);                               \
+        (rgb) = (_r >> (format)->Rloss) << (format)->Rshift |           \
+            (_g >> (format)->Gloss) << (format)->Gshift |               \
+            (_b >> (format)->Bloss) << (format)->Bshift |               \
+            (format)->Amask;                                            \
     }                                                                   \
     else                                                                \
     {                                                                   \
         rgb = SDL_MapRGB (format,                                       \
-            ((Uint8)((rgb & 0xff0000) >> 16)),                          \
-            ((Uint8)((rgb & 0x00ff00) >>  8)),                          \
-            ((Uint8)(rgb & 0x0000ff)));                                 \
+            ((Uint8)(((rgb) & 0xff0000) >> 16)),                        \
+            ((Uint8)(((rgb) & 0x00ff00) >>  8)),                        \
+            ((Uint8)((rgb) & 0x0000ff)));                               \
     }
 
 #define ARGB2FORMAT(argb,format)                                        \
-    if (format->palette == NULL)                                        \
+    if ((format)->palette == NULL)                                      \
     {                                                                   \
         Uint8 _r,_g,_b, _a;                                             \
-        _a = (Uint8) ((argb & 0xff000000) >> 24);                       \
-        _r = (Uint8) ((argb & 0x00ff0000) >> 16);                       \
-        _g = (Uint8) ((argb & 0x0000ff00) >> 8);                        \
-        _b = (Uint8)  (argb & 0x000000ff);                              \
-        argb = (_r >> format->Rloss) << format->Rshift |                \
-            (_g >> format->Gloss) << format->Gshift |                   \
-            (_b >> format->Bloss) << format->Bshift |                   \
-            ((_a >> format->Aloss) << format->Ashift & format->Amask);  \
+        _a = (Uint8) (((argb) & 0xff000000) >> 24);                     \
+        _r = (Uint8) (((argb) & 0x00ff0000) >> 16);                     \
+        _g = (Uint8) (((argb) & 0x0000ff00) >> 8);                      \
+        _b = (Uint8)  ((argb) & 0x000000ff);                            \
+        (argb) = (_r >> (format)->Rloss) << (format)->Rshift |          \
+            (_g >> (format)->Gloss) << (format)->Gshift |               \
+            (_b >> (format)->Bloss) << (format)->Bshift |               \
+            ((_a >> (format)->Aloss) << (format)->Ashift & (format)->Amask); \
     }                                                                   \
     else                                                                \
     {                                                                   \
         argb = SDL_MapRGBA (format,                                     \
-            ((Uint8)((argb & 0x00ff0000) >> 16)),                       \
-            ((Uint8)((argb & 0x0000ff00) >>  8)),                       \
-            ((Uint8) (argb & 0x000000ff)),                              \
-            ((Uint8)((argb & 0xff000000) >> 24)));                      \
+            ((Uint8)(((argb) & 0x00ff0000) >> 16)),                     \
+            ((Uint8)(((argb) & 0x0000ff00) >>  8)),                     \
+            ((Uint8) ((argb) & 0x000000ff)),                            \
+            ((Uint8)(((argb) & 0xff000000) >> 24)));                    \
     }
 
 #define GET_RGB_VALS(pixel, fmt, r, g, b, a)                            \
-        r = (pixel & fmt->Rmask) >> fmt->Rshift;                        \
-        r = (r << fmt->Rloss) + (r >> (8 - (fmt->Rloss << 1)));         \
-        g = (pixel & fmt->Gmask) >> fmt->Gshift;                        \
-        g = (g << fmt->Gloss) + (g >> (8 - (fmt->Gloss << 1)));         \
-        b = (pixel & fmt->Bmask) >> fmt->Bshift;                        \
-        b = (b << fmt->Bloss) + (b >> (8 - (fmt->Bloss << 1)));         \
-        if (fmt->Amask)                                                 \
-        {                                                               \
-            a = (pixel & fmt->Amask) >> fmt->Ashift;                    \
-            a = (a << fmt->Aloss) + (a >> (8 - (fmt->Aloss << 1)));     \
-        }                                                               \
-        else                                                            \
-            a = 255;
+    (r) = ((pixel) & (fmt)->Rmask) >> (fmt)->Rshift;                    \
+    (r) = ((r) << (fmt)->Rloss) + ((r) >> (8 - ((fmt)->Rloss << 1)));   \
+    (g) = ((pixel) & (fmt)->Gmask) >> (fmt)->Gshift;                    \
+    (g) = ((g) << (fmt)->Gloss) + ((g) >> (8 - ((fmt)->Gloss << 1)));   \
+    (b) = ((pixel) & (fmt)->Bmask) >> (fmt)->Bshift;                    \
+    (b) = ((b) << (fmt)->Bloss) + ((b) >> (8 - ((fmt)->Bloss << 1)));   \
+    if ((fmt)->Amask)                                                   \
+    {                                                                   \
+        (a) = ((pixel) & (fmt)->Amask) >> (fmt)->Ashift;                \
+        (a) = ((a) << (fmt)->Aloss) + ((a) >> (8 - ((fmt)->Aloss << 1))); \
+    }                                                                   \
+    else                                                                \
+        (a) = 255;
 
-#define GET_PALETTE_VALS(pixel, fmt, sr, sg, sb, sa)       \
-    sr = fmt->palette->colors[*((Uint8 *) (pixel))].r;     \
-    sg = fmt->palette->colors[*((Uint8 *) (pixel))].g;     \
-    sb = fmt->palette->colors[*((Uint8 *) (pixel))].b;     \
-    sa = 255;
+#define GET_PALETTE_VALS(pixel, fmt, sr, sg, sb, sa)                    \
+    (sr) = (fmt)->palette->colors[*((Uint8 *) (pixel))].r;              \
+    (sg) = (fmt)->palette->colors[*((Uint8 *) (pixel))].g;              \
+    (sb) = (fmt)->palette->colors[*((Uint8 *) (pixel))].b;              \
+    (sa) = 255;
+
+#define GET_PIXEL_VALS(pixel, fmt, r, g, b, a)          \
+    if ((fmt)->palette == NULL)                         \
+    {                                                   \
+        GET_RGB_VALS(pixel, fmt, r, g, b, a);           \
+    }                                                   \
+    else                                                \
+    {                                                   \
+        GET_PALETTE_VALS (pixel, fmt, r, g, b, a);      \
+    }
 
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
-#define GET_PIXEL24(b) (b[0] + (b[1] << 8) + (b[2] << 16))
+#define GET_PIXEL24(b) ((b)[0] + ((b)[1] << 8) + ((b)[2] << 16))
 #define SET_PIXEL24_RGB(buf,format,r,g,b)                               \
-    *((buf) + ((format)->Rshift >> 3)) = r;                             \
-    *((buf) + ((format)->Gshift >> 3)) = g;                             \
-    *((buf) + ((format)->Bshift >> 3)) = b;
+    *((buf) + ((format)->Rshift >> 3)) = (r);                           \
+    *((buf) + ((format)->Gshift >> 3)) = (g);                           \
+    *((buf) + ((format)->Bshift >> 3)) = (b);
 #define SET_PIXEL24(buf,format,rgb)                                     \
     *((buf) + ((format)->Rshift >> 3)) = (rgb)[0];                      \
     *((buf) + ((format)->Gshift >> 3)) = (rgb)[1];                      \
     *((buf) + ((format)->Bshift >> 3)) = (rgb)[2];
 #else
-#define GET_PIXEL24(b) (b[2] + (b[1] << 8) + (b[0] << 16))
+#define GET_PIXEL24(b) ((b)[2] + ((b)[1] << 8) + ((b)[0] << 16))
 #define SET_PIXEL24_RGB(buf,format,r,g,b)                               \
-    *((buf) + 2 - ((format)->Rshift >> 3)) = r;                         \
-    *((buf) + 2 - ((format)->Gshift >> 3)) = g;                         \
-    *((buf) + 2 - ((format)->Bshift >> 3)) = b;
+    *((buf) + 2 - ((format)->Rshift >> 3)) = (r);                       \
+    *((buf) + 2 - ((format)->Gshift >> 3)) = (g);                       \
+    *((buf) + 2 - ((format)->Bshift >> 3)) = (b);
 #define SET_PIXEL24(buf,format,rgb)                                     \
     *((buf) + 2 - ((format)->Rshift >> 3)) = (rgb)[0];                  \
     *((buf) + 2 - ((format)->Gshift >> 3)) = (rgb)[1];                  \
@@ -194,58 +205,58 @@ typedef enum
     switch (bpp)                                  \
     {                                             \
     case 1:                                       \
-        pxl = *((Uint8 *)(source));               \
+        (pxl) = *((Uint8 *)(source));             \
         break;                                    \
     case 2:                                       \
-        pxl = *((Uint16 *) (source));             \
+        (pxl) = *((Uint16 *) (source));           \
         break;                                    \
     case 4:                                       \
-        pxl = *((Uint32 *) (source));             \
+        (pxl) = *((Uint32 *) (source));           \
         break;                                    \
     default:                                      \
     {                                             \
-        Uint8 *b = (Uint8 *) source;              \
-        pxl = GET_PIXEL24(b);                     \
+        Uint8 *b = (Uint8 *) (source);            \
+        (pxl) = GET_PIXEL24(b);                   \
         break;                                    \
     }                                             \
     }
 
-#define CREATE_PIXEL(buf, r, g, b, a, bp, ft)                   \
-    switch (bp)                                                 \
-    {                                                           \
-    case 1:                                                     \
-        *((Uint8 *)buf) = (Uint8) SDL_MapRGB (ft, r, g, b);     \
-        break;                                                  \
-    case 2:                                                     \
-        *((Uint16 *) (buf)) =                                   \
-            ((r >> ft->Rloss) << ft->Rshift) |                  \
-            ((g >> ft->Gloss) << ft->Gshift) |                  \
-            ((b >> ft->Bloss) << ft->Bshift) |                  \
-            ((a >> ft->Aloss) << ft->Ashift & ft->Amask);       \
-        break;                                                  \
-    case 4:                                                     \
-        *((Uint32 *) (buf)) =                                   \
-            ((r >> ft->Rloss) << ft->Rshift) |                  \
-            ((g >> ft->Gloss) << ft->Gshift) |                  \
-            ((b >> ft->Bloss) << ft->Bshift) |                  \
-            ((a >> ft->Aloss) << ft->Ashift & ft->Amask);       \
-        break;                                                  \
-    default:                                                    \
-    {                                                           \
-        SET_PIXEL24_RGB(buf, ft, r,g,b);                        \
-        break;                                                  \
-    }                                                           \
+#define CREATE_PIXEL(buf, r, g, b, a, bp, ft)                           \
+    switch (bp)                                                         \
+    {                                                                   \
+    case 1:                                                             \
+        *((Uint8 *)(buf)) = (Uint8) SDL_MapRGB (ft, r, g, b);           \
+        break;                                                          \
+    case 2:                                                             \
+        *((Uint16 *) (buf)) =                                           \
+            (((r) >> (ft)->Rloss) << (ft)->Rshift) |                    \
+            (((g) >> (ft)->Gloss) << (ft)->Gshift) |                    \
+            (((b) >> (ft)->Bloss) << (ft)->Bshift) |                    \
+            (((a) >> (ft)->Aloss) << (ft)->Ashift & (ft)->Amask);       \
+        break;                                                          \
+    case 4:                                                             \
+        *((Uint32 *) (buf)) =                                           \
+            (((r) >> (ft)->Rloss) << (ft)->Rshift) |                    \
+            (((g) >> (ft)->Gloss) << (ft)->Gshift) |                    \
+            (((b) >> (ft)->Bloss) << (ft)->Bshift) |                    \
+            (((a) >> (ft)->Aloss) << (ft)->Ashift & (ft)->Amask);       \
+        break;                                                          \
+    default:                                                            \
+    {                                                                   \
+        SET_PIXEL24_RGB(buf, ft, r,g,b);                                \
+        break;                                                          \
+    }                                                                   \
     }
 
 #define LOOP_UNROLLED4(code, n, width) \
-    n = (width + 3) / 4;               \
-    switch (width & 3)                 \
+    n = ((width) + 3) / 4;             \
+    switch ((width) & 3)               \
     {                                  \
     case 0: do { code;                 \
         case 3: code;                  \
         case 2: code;                  \
         case 1: code;                  \
-        } while (--n > 0);             \
+        } while (--(n) > 0);           \
     }
 
 #define REPEAT_4(code) \

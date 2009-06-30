@@ -284,7 +284,7 @@ class SDLVideoSurfaceTest (unittest.TestCase):
                     self.assertEqual (sf.get_at (rect), color)
         video.quit ()
 
-    def todo_test_pygame2_sdl_video_Surface_get_colorkey(self):
+    def test_pygame2_sdl_video_Surface_get_colorkey(self):
 
         # __doc__ (as of 2009-05-15) for pygame2.sdl.video.Surface.get_colorkey:
 
@@ -315,13 +315,6 @@ class SDLVideoSurfaceTest (unittest.TestCase):
             key = sf.format.get_rgba (color)
             self.assertTrue (sf.set_colorkey (color))
             self.assertEqual (sf.get_colorkey (), key)
-        
-            # TODO: something wicked happens here.
-            # sf = video.Surface (10, 10, bpp, flags=constants.SRCCOLORKEY)
-            # color = Color (255, 0, 0)
-            # key = sf.format.get_rgba (color)
-            # self.assertEqual (sf.set_colorkey (color), True)
-            # self.assertEqual (sf.get_colorkey (), key)
         video.quit ()
 
     def todo_test_pygame2_sdl_video_Surface_get_palette(self):
