@@ -40,10 +40,10 @@
 #if THREADFREE!=1
 	#define DECLAREGIL PyThreadState *_oldtstate;
 	#define GRABGIL    PyEval_AcquireLock();_oldtstate = PyThreadState_Swap(movie->_tstate);
-	#define RELEASEGIL PyThreadState_Swap(_oldtstate); PyEval_ReleaseLock(); 
+	#define RELEASEGIL PyThreadState_Swap(_oldtstate); PyEval_ReleaseLock();
 #else
-	#define DECLAREGIL 
-	#define GRABGIL   
+	#define DECLAREGIL
+	#define GRABGIL
 	#define RELEASEGIL
 #endif
 //backwards compatibility with blend_subrect
@@ -73,46 +73,51 @@ AVPacket flush_pkt;
 
 /* structure definitions */
 /* PacketQueue to hold incoming ffmpeg packets from the stream */
-typedef struct PacketQueue {
+typedef struct PacketQueue
+{
     AVPacketList *first_pkt, *last_pkt;
     int nb_packets;
     int size;
     int abort_request;
     SDL_mutex *mutex;
     SDL_cond *cond;
-} PacketQueue;
+}
+PacketQueue;
 
 /* Holds already loaded pictures, so that decoding, and writing to a overlay/surface can happen while waiting
  * the <strong> very </strong> long time(in computer terms) to show the next frame. 
  */
-typedef struct VidPicture{
-	SDL_Overlay *dest_overlay; /* Overlay for fast speedy yuv-rendering of the video */
-	SDL_Surface *dest_surface; /* Surface for other desires, for example, rendering a video in a small portion of the screen */ 
-	SDL_Rect    dest_rect;	   /* Dest-rect, which tells where to locate the video */
-	int         width;         /* Width and height */
-	int         height;
-	int         xleft;		   /* Where left border of video is located */
-	int         ytop;		   /* Where top border of video is located */
-	int         overlay;	   /* Whether or not to use the overlay */
-	int         ready; 		   /* Boolean to indicate this picture is ready to be used. After displaying the contents, it changes to False */
-	double      pts;		   /* presentation time-stamp of the picture */
-} VidPicture;
+typedef struct VidPicture
+{
+    SDL_Overlay *dest_overlay; /* Overlay for fast speedy yuv-rendering of the video */
+    SDL_Surface *dest_surface; /* Surface for other desires, for example, rendering a video in a small portion of the screen */
+    SDL_Rect    dest_rect;	   /* Dest-rect, which tells where to locate the video */
+    int         width;         /* Width and height */
+    int         height;
+    int         xleft;		   /* Where left border of video is located */
+    int         ytop;		   /* Where top border of video is located */
+    int         overlay;	   /* Whether or not to use the overlay */
+    int         ready; 		   /* Boolean to indicate this picture is ready to be used. After displaying the contents, it changes to False */
+    double      pts;		   /* presentation time-stamp of the picture */
+}
+VidPicture;
 
 
 enum {
     AV_SYNC_AUDIO_MASTER, /* default choice */
-    AV_SYNC_VIDEO_MASTER, 
-    AV_SYNC_SUB_MASTER, 
+    AV_SYNC_VIDEO_MASTER,
+    AV_SYNC_SUB_MASTER,
     AV_SYNC_EXTERNAL_CLOCK, /* synchronize to an external clock */
 };
 
-typedef struct PyMovie {
-	PyObject_HEAD
+typedef struct PyMovie
+{
+    PyObject_HEAD
     /* General purpose members */
     SDL_Thread      *parse_tid; /* Thread id for the decode_thread call */
     int              abort_request;     /* Tells whether or not to stop playing and return */
     int              paused; 		   /* Boolean for communicating to the threads to pause playback */
-	int              last_paused;       /* For comparing the state of paused to what it was last time around. */
+    int              last_paused;       /* For comparing the state of paused to what it was last time around. */
     char             filename[1024];
     char            *_backend;  //"FFMPEG_WRAPPER";
     int              overlay; //>0 if we are to use the overlay, otherwise <=0
@@ -124,27 +129,28 @@ typedef struct PyMovie {
     int              loops;
     int              resize_h;
     int              resize_w;
-	int 		     replay;
-	int64_t          start_time;
-	AVInputFormat   *iformat;
-	SDL_mutex       *dest_mutex;
-	int              av_sync_type;
-	AVFormatContext *ic;    /* context information about the format of the video file */
-	int              stop;
-	SDL_Surface     *canon_surf;
-	PyThreadState   *_tstate; //really do not touch this unless you have to.
-		
-	
-	/* Seek-info */
+    int 		     replay;
+    int64_t          start_time;
+    AVInputFormat   *iformat;
+    SDL_mutex       *dest_mutex;
+    int              av_sync_type;
+    AVFormatContext *ic;    /* context information about the format of the video file */
+    int              stop;
+    SDL_Surface     *canon_surf;
+    PyThreadState   *_tstate; //really do not touch this unless you have to.
+
+    int diff_co; //counter
+
+    /* Seek-info */
     int     seek_req;
     int     seek_flags;
     int64_t seek_pos;
 
-	/* external clock members */
-	double  external_clock; /* external clock base */
+    /* external clock members */
+    double  external_clock; /* external clock base */
     int64_t external_clock_time;
 
-	/* Audio stream members */
+    /* Audio stream members */
     double      audio_clock;
     AVStream   *audio_st;
     PacketQueue audioq;
@@ -159,16 +165,16 @@ typedef struct PyMovie {
     int      audio_pkt_size;
     int64_t  audio_pts;
     //int audio_volume; /*must self implement*/
-	enum SampleFormat audio_src_fmt;
+    enum SampleFormat audio_src_fmt;
     AVAudioConvert *reformat_ctx;
     int             audio_stream;
-	int             audio_disable;
-	SDL_mutex      *audio_mutex;
-	SDL_Thread     *audio_tid;
-	int             channel;
-	int             audio_paused;
-	
-	/* Frame/Video Management members */
+    int             audio_disable;
+    SDL_mutex      *audio_mutex;
+    SDL_Thread     *audio_tid;
+    int             channel;
+    int             audio_paused;
+
+    /* Frame/Video Management members */
     double     frame_timer;
     double     frame_last_pts;
     double     frame_last_delay;
@@ -176,29 +182,30 @@ typedef struct PyMovie {
     double     video_clock; /*seconds of video frame decoded*/
     AVStream  *video_st;
     double     video_current_pts; /* current displayed pts (different from
-                                 video_clock if frame fifos are used) */
-	double     video_current_pts_time;
-	double     timing;
-	double     last_showtime;
-	double     pts;	
-	int        video_stream;
-	int        video_disable;
-	/* simple ring_buffer queue for holding VidPicture structs */
-	VidPicture pictq[VIDEO_PICTURE_QUEUE_SIZE];
-	int pictq_size, pictq_windex, pictq_rindex;
+                                     video_clock if frame fifos are used) */
+    double     video_current_pts_time;
+    double     timing;
+    double     last_showtime;
+    double     pts;
+    int        video_stream;
+    int        video_disable;
+    /* simple ring_buffer queue for holding VidPicture structs */
+    VidPicture pictq[VIDEO_PICTURE_QUEUE_SIZE];
+    int pictq_size, pictq_windex, pictq_rindex;
 
-	/* Thread id for the video_thread, when used in threaded mode */
-	SDL_Thread *video_tid;
+    /* Thread id for the video_thread, when used in threaded mode */
+    SDL_Thread *video_tid;
 
-	PacketQueue videoq;
-	SDL_mutex  *videoq_mutex;
-	SDL_cond   *videoq_cond;
-	struct SwsContext *img_convert_ctx;
+    PacketQueue videoq;
+    SDL_mutex  *videoq_mutex;
+    SDL_cond   *videoq_cond;
+    struct SwsContext *img_convert_ctx;
 
-} PyMovie;
+}
+PyMovie;
 /* end of struct definitions */
 /* function definitions */
-      
+
 /* 		PacketQueue Management */
 void packet_queue_init  (PacketQueue *q);
 void packet_queue_flush (PacketQueue *q);
