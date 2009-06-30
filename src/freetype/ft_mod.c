@@ -31,6 +31,7 @@ static int _ft_clear (PyObject *mod);
 static PyObject *_ft_quit(PyObject *self);
 static PyObject *_ft_init(PyObject *self);
 static PyObject *_ft_get_version(PyObject *self);
+static PyObject *_ft_get_error(PyObject *self);
 static PyObject *_ft_was_init(PyObject *self);
 
 /***************************************************************
@@ -57,6 +58,12 @@ static PyMethodDef _ft_methods[] =
         (PyCFunction) _ft_was_init, 
         METH_NOARGS, 
         DOC_BASE_WAS_INIT 
+    },
+    { 
+        "get_error", 
+        (PyCFunction) _ft_get_error, 
+        METH_NOARGS,
+        DOC_BASE_GET_ERROR 
     },
     { 
         "get_version", 
@@ -111,6 +118,20 @@ _ft_init(PyObject *self)
     Py_RETURN_NONE;
 }
 
+
+static PyObject *
+_ft_get_error(PyObject *self)
+{
+    FreeTypeInstance *ft;
+    ASSERT_GRAB_FREETYPE(ft, NULL);
+
+    if (ft->_error_msg[0])
+    {
+        return Text_FromUTF8(ft->_error_msg);
+    }
+
+    Py_RETURN_NONE;
+}
 
 static PyObject *
 _ft_get_version(PyObject *self)

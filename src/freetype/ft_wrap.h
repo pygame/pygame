@@ -40,6 +40,29 @@ typedef struct
 } FreeTypeInstance;
 
 
+typedef struct  FontGlyph_
+{
+    FT_UInt    glyph_index;
+    FT_Glyph   image;    
+
+    FT_Pos     delta;    
+    FT_Vector  vvector;  
+    FT_Vector  vadvance; 
+
+} FontGlyph;
+
+
+typedef struct FontText_
+{
+    FontGlyph *glyphs;
+    int length;
+
+    FT_UInt render_mode;
+
+    FT_UInt32 _hash;
+
+} FontText;
+
 typedef struct {
     FreeTypeInstance *freetype;
 } _FreeTypeState;
@@ -98,5 +121,9 @@ int PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
     const FT_UInt16 *text, int font_size, PySDLSurface *_surface,
     int *_width, int *_height, int x, int y,
     PyColor *py_fgcolor);
+
+FontText *PGFT_BuildFontText(FreeTypeInstance *ft, PyFreeTypeFont *font, 
+    PyObject *text, int pt_size);
+
 
 #endif

@@ -36,8 +36,15 @@
 #define FP_248_FLOAT(i)     ((float)((int)(i) / 256.0f))
 #define FP_266_FLOAT(i)     ((float)((int)(i) / 64.0f))
 
+#define PGFT_FLOOR(x)  (   (x)        & -64 )
+#define PGFT_CEIL(x)   ( ( (x) + 63 ) & -64 )
+#define PGFT_ROUND(x)  ( ( (x) + 32 ) & -64 )
+#define PGFT_TRUNC(x)  (   (x) >> 6 )
+
 #define UNICODE_BOM_NATIVE	0xFEFF
 #define UNICODE_BOM_SWAPPED	0xFFFE
+
+#define MAX_GLYPHS      64
 
 typedef struct __fontsurface
 {
@@ -57,6 +64,16 @@ typedef struct __fontsurface
 
 } FontSurface;
 
+typedef struct __rendermode
+{
+    int         kerning_mode;
+    int         kerning_degree;
+    FT_Fixed    center;            /* 0..1 */
+    int         vertical;          /* displayed vertically? */
+    FT_Matrix*  matrix;            /* string transformation */
+    int         hinted;
+} FontRenderMode;
+
 
 typedef void (* FontRenderPtr)(int, int, FontSurface *, FT_Bitmap *, PyColor *);
 
@@ -68,8 +85,16 @@ void    _PGFT_BuildScaler(PyFreeTypeFont *, FTC_Scaler, int);
 int     _PGFT_LoadGlyph(FreeTypeInstance *, PyFreeTypeFont *, int,
     FTC_Scaler, int, FT_Glyph *, FT_UInt32 *);
 void    _PGFT_GetMetrics_INTERNAL(FT_Glyph, FT_UInt, int *, int *, int *, int *, int *);
+int _PGFT_RenderFontText(FreeTypeInstance *ft, PyFreeTypeFont *font, int pt_size, 
+        FontRenderMode *render, FontText *text, FT_Vector *advances);
+
+
 int     _PGFT_Render_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font, 
     const FT_UInt16 *text, int font_size, PyColor *fg_color, FontSurface *surf);
+
+int _PGFT_Render_NEW(FreeTypeInstance *ft, PyFreeTypeFont *font, 
+    FontText *text, int font_size, PyColor *fg_color, FontSurface *surface, 
+    FontRenderMode *render);
 
 /* blitters */
 void __render_glyph_SDL8(int x, int y, FontSurface *surface, FT_Bitmap *bitmap, PyColor *color);
@@ -128,6 +153,196 @@ _PGFT_SetError(FreeTypeInstance *ft, const char *error_msg, FT_Error error_id)
         strcpy(ft->_error_msg, error_msg);
 }
 
+FontText *
+PGFT_BuildFontText(FreeTypeInstance *ft, PyFreeTypeFont *font, PyObject *text, int pt_size)
+{
+    const FT_UInt32 load_flags = 0; /* TODO */
+
+    int         must_free;
+    int         swapped = 0;
+    int         string_length = 0;
+
+    FT_UInt16 * buffer = NULL;
+    FT_UInt16 * orig_buffer;
+    FT_UInt16 * ch;
+
+    FT_Pos      prev_rsb_delta = 0;
+
+    FontText  * ftext = NULL;
+    FontGlyph * glyph = NULL;
+
+    FT_Face     face;
+
+    /* load our sized face */
+    face = _PGFT_GetFaceSized(ft, font, pt_size);
+
+    if (!face)
+        return NULL;
+
+    /* get the text as an unicode string */
+    orig_buffer = buffer = PGFT_BuildUnicodeString(text, &must_free);
+
+    /* get the length of the text */
+    for (ch = buffer; *ch; ++ch)
+        string_length++;
+
+
+    /* create the text struct */
+    ftext = malloc(sizeof(FontText));
+    ftext->length = string_length;
+    ftext->glyphs = calloc((size_t)string_length, sizeof(FontGlyph));
+
+
+    /* fill it with the glyphs */
+    glyph = &(ftext->glyphs[0]);
+
+    for (ch = buffer; *ch; ++ch, ++glyph)
+    {
+        FT_UInt16 c = *ch;
+
+        if (c == UNICODE_BOM_NATIVE || c == UNICODE_BOM_SWAPPED)
+        {
+            swapped = (c == UNICODE_BOM_SWAPPED);
+            if (buffer == ch)
+                ++buffer;
+
+            continue;
+        }
+
+        if (swapped)
+            c = (FT_UInt16)((c << 8) | (c >> 8));
+
+        glyph->glyph_index = c;
+
+        if (!FT_Load_Glyph(face, glyph->glyph_index, load_flags)  &&
+            !FT_Get_Glyph(face->glyph, &glyph->image))
+        {
+            FT_Glyph_Metrics *metrics = &face->glyph->metrics;
+
+            /* note that in vertical layout, y-positive goes downwards */
+            glyph->vvector.x  = metrics->vertBearingX - metrics->horiBearingX;
+            glyph->vvector.y  = -metrics->vertBearingY - metrics->horiBearingY;
+
+            glyph->vadvance.x = 0;
+            glyph->vadvance.y = -metrics->vertAdvance;
+
+            if ( prev_rsb_delta - face->glyph->lsb_delta >= 32 )
+                glyph->delta = -1 << 6;
+            else if ( prev_rsb_delta - face->glyph->lsb_delta < -32 )
+                glyph->delta = 1 << 6;
+            else
+                glyph->delta = 0;
+        }
+
+    }
+
+    if (must_free)
+        free(orig_buffer);
+
+    return ftext;
+}
+
+int
+_PGFT_RenderFontText(FreeTypeInstance *ft, PyFreeTypeFont *font, int pt_size, 
+        FontRenderMode *render, FontText *text, FT_Vector *advances)
+{
+    FT_Face     face;
+    FontGlyph   *glyph;
+    FT_Pos      track_kern   = 0;
+    FT_UInt     prev_index   = 0;
+    FT_Vector*  prev_advance = NULL;
+    FT_Vector   extent       = {0, 0};
+    FT_Int      i;
+
+    face = _PGFT_GetFaceSized(ft, font, pt_size);
+
+    if (!face)
+        return -1;
+
+    if (!render->vertical && render->kerning_degree)
+    {
+        FT_Fixed  ptsize;
+
+        ptsize = FT_MulFix(face->units_per_EM, face->size->metrics.x_scale);
+
+        if (FT_Get_Track_Kerning(face, ptsize << 10, 
+                    -render->kerning_degree, &track_kern))
+            track_kern = 0;
+        else
+            track_kern >>= 10;
+    }
+
+    for (i = 0; i < text->length; i++)
+    {
+        glyph = &(text->glyphs[i]);
+
+        if (!glyph->image)
+            continue;
+
+        if (render->vertical)
+            advances[i] = glyph->vadvance;
+        else
+        {
+            advances[i] = glyph->image->advance;
+            advances[i].x >>= 10;
+            advances[i].y >>= 10;
+
+            if (prev_advance)
+            {
+                prev_advance->x += track_kern;
+
+                if (render->kerning_mode)
+                {
+                    FT_Vector  kern;
+
+
+                    FT_Get_Kerning(face, prev_index, glyph->glyph_index,
+                            FT_KERNING_UNFITTED, &kern);
+
+                    prev_advance->x += kern.x;
+                    prev_advance->y += kern.y;
+
+                    if (render->kerning_mode > 1) /* KERNING_MODE_NORMAL */
+                        prev_advance->x += glyph->delta;
+                }
+            }
+        }
+
+        if (prev_advance)
+        {
+            if (render->hinted)
+            {
+                prev_advance->x = PGFT_ROUND(prev_advance->x);
+                prev_advance->y = PGFT_ROUND(prev_advance->y);
+            }
+
+            extent.x += prev_advance->x;
+            extent.y += prev_advance->y;
+        }
+
+        prev_index   = glyph->glyph_index;
+        prev_advance = advances + i;
+    }
+
+    if (prev_advance)
+    {
+        if (render->hinted)
+        {
+            prev_advance->x = PGFT_ROUND(prev_advance->x);
+            prev_advance->y = PGFT_ROUND(prev_advance->y);
+        }
+
+        extent.x += prev_advance->x;
+        extent.y += prev_advance->y;
+    }
+
+    /* store the extent in the last slot */
+    i = text->length - 1;
+    advances[i] = extent;
+
+    return 0;
+}
+
 FT_UInt16 *
 PGFT_BuildUnicodeString(PyObject *obj, int *must_free)
 {
@@ -145,14 +360,12 @@ PGFT_BuildUnicodeString(PyObject *obj, int *must_free)
     }
     else if (Bytes_Check(obj))
     {
-    
-        const char *latin1_buffer;
-        size_t i, len;
+        char *latin1_buffer;
+        int i, len;
 
-        latin1_buffer = (const char *)Bytes_AsString(obj);
-        len = strlen(latin1_buffer);
+        Bytes_AsStringAndSize(obj, &latin1_buffer, &len);
 
-        utf16_buffer = malloc((len + 1) * sizeof(FT_UInt16));
+        utf16_buffer = malloc((size_t)(len + 1) * sizeof(FT_UInt16));
         if (!utf16_buffer)
             return NULL;
 
@@ -791,6 +1004,155 @@ cleanup:
     return array;
 }
 
+int _PGFT_Render_NEW(FreeTypeInstance *ft, PyFreeTypeFont *font, 
+    FontText *text, int font_size, PyColor *fg_color, FontSurface *surface, 
+    FontRenderMode *render)
+{
+    int n;
+    FT_Vector pen, advances[MAX_GLYPHS];
+    FT_Face face;
+    FT_Error error;
+
+    int x = surface->x_offset;
+    int y = surface->y_offset;
+
+    /* TODO: return if drawing outside surface */
+
+
+    /******************************************************
+     * Load scaler, size & face
+     ******************************************************/
+    face = _PGFT_GetFaceSized(ft, font, font_size);
+
+    if (!face)
+    {
+        _PGFT_SetError(ft, "Failed to resize face", 0);
+        return -1;
+    }
+
+    /******************************************************
+     * Load advance information
+     ******************************************************/
+
+    error = _PGFT_RenderFontText(ft, font, font_size, render, text, advances);
+
+    if (error)
+    {
+        _PGFT_SetError(ft, "Failed to load advance glyph advances", error);
+        return error;
+    }
+
+    /******************************************************
+     * Prepare pen for drawing 
+     ******************************************************/
+
+    /* change to Cartesian coordinates */
+    y = surface->height - y;
+
+    /* get the extent, which we store in the last slot */
+    pen = advances[text->length - 1];
+
+    pen.x = FT_MulFix(pen.x, render->center); /* TODO: What is sc->center? */
+    pen.y = FT_MulFix(pen.y, render->center);
+
+    /* get pen position */
+    if (render->matrix && FT_IS_SCALABLE(face))
+    {
+        FT_Vector_Transform(&pen, render->matrix);
+        pen.x = (x << 6) - pen.x;
+        pen.y = (y << 6) - pen.y;
+    }
+    else
+    {
+        pen.x = PGFT_ROUND(( x << 6 ) - pen.x);
+        pen.y = PGFT_ROUND(( y << 6 ) - pen.y);
+    }
+
+
+    /******************************************************
+     * Draw text
+     ******************************************************/
+
+    for (n = 0; n < text->length; ++n)
+    {
+        FT_Glyph image;
+        FT_BBox bbox;
+
+        FontGlyph *glyph = &(text->glyphs[n]);
+
+        if (!glyph->image)
+            continue;
+
+        /* copy image */
+        error = FT_Glyph_Copy(glyph->image, &image);
+        if (error)
+            continue;
+
+        if (image->format != FT_GLYPH_FORMAT_BITMAP)
+        {
+            if (render->vertical)
+                error = FT_Glyph_Transform(image, NULL, &glyph->vvector);
+
+            if (!error)
+                error = FT_Glyph_Transform(image, render->matrix, &pen);
+
+            if (error)
+            {
+                FT_Done_Glyph(image);
+                continue;
+            }
+        }
+        else
+        {
+            FT_BitmapGlyph  bitmap = (FT_BitmapGlyph)image;
+
+            if (render->vertical)
+            {
+                bitmap->left += (glyph->vvector.x + pen.x) >> 6;
+                bitmap->top  += (glyph->vvector.x + pen.y) >> 6;
+            }
+            else
+            {
+                bitmap->left += pen.x >> 6;
+                bitmap->top  += pen.y >> 6;
+            }
+        }
+
+        if (render->matrix)
+            FT_Vector_Transform(advances + n, render->matrix);
+
+        pen.x += advances[n].x;
+        pen.y += advances[n].y;
+
+        FT_Glyph_Get_CBox(image, FT_GLYPH_BBOX_PIXELS, &bbox);
+
+        if (bbox.xMax > 0 && bbox.yMax > 0 &&
+            bbox.xMin < surface->width &&
+            bbox.yMin < surface->height)
+        {
+            int         left, top;
+            FT_Bitmap*  source;
+            FT_BitmapGlyph  bitmap;
+
+            assert(image->format == FT_GLYPH_FORMAT_BITMAP);
+
+            bitmap = (FT_BitmapGlyph)image;
+            source = &bitmap->bitmap;
+
+            left = bitmap->left;
+            top = bitmap->top;
+
+            top = surface->height - top;
+
+            surface->render(left, top, surface, source, fg_color);
+        }
+
+        FT_Done_Glyph(image);
+    } /* END OF RENDERING LOOP */
+
+    return error;
+}
+
 int _PGFT_Render_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font, 
     const FT_UInt16 *text, int font_size, PyColor *fg_color, FontSurface *surface)
 {
@@ -943,7 +1305,7 @@ PGFT_Init(FreeTypeInstance **_instance)
         goto error_cleanup;
 
     memset(inst, 0, sizeof(FreeTypeInstance));
-    inst->_error_msg = malloc(1024);
+    inst->_error_msg = calloc(1024, sizeof(char));
     
     if (FT_Init_FreeType(&inst->library) != 0)
         goto error_cleanup;

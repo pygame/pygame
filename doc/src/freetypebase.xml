@@ -8,6 +8,13 @@
     This module wraps the FreeType 2 font library to add improvent font
     drawing capabilities to PyGame2, such as new font formats, etc.
   </desc>
+  <func name="get_error">
+    <call>get_version () -> (int, int, int)</call>
+    <desc>
+        Returns the description of the last error which occurred in the
+        FreeType library, or None if no error have occurred.
+    </desc>
+  </func>
 
   <func name="get_version">
     <call>get_version () -> (int, int, int)</call>
