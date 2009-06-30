@@ -39,6 +39,15 @@ typedef struct
     char *_error_msg;
 } FreeTypeInstance;
 
+typedef struct __rendermode
+{
+    int         kerning_mode;
+    int         kerning_degree;
+    FT_Fixed    center;            /* 0..1 */
+    int         vertical;          /* displayed vertically? */
+    FT_Matrix*  matrix;            /* string transformation */
+    int         hinted;
+} FontRenderMode;
 
 typedef struct  FontGlyph_
 {
@@ -56,9 +65,6 @@ typedef struct FontText_
 {
     FontGlyph *glyphs;
     int length;
-
-    FT_UInt render_mode;
-
     FT_UInt32 _hash;
 
 } FontText;
@@ -117,10 +123,10 @@ PyObject *PGFT_Render_PixelArray(FreeTypeInstance *ft, PyFreeTypeFont *font,
 PyObject *PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
         const FT_UInt16 *text, int font_size, int *_width, int *_height,
         PyColor *fg_color, PyColor *bg_color);
+
 int PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
-    const FT_UInt16 *text, int font_size, PySDLSurface *_surface,
-    int *_width, int *_height, int x, int y,
-    PyColor *py_fgcolor);
+    PyObject *text, int font_size, PySDLSurface *_surface,
+    int *_width, int *_height, int x, int y, PyColor *py_fgcolor);
 
 FontText *PGFT_BuildFontText(FreeTypeInstance *ft, PyFreeTypeFont *font, 
     PyObject *text, int pt_size);

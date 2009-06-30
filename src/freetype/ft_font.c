@@ -635,16 +635,9 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
         }
     }
 
-    text_buffer = PGFT_BuildUnicodeString(text, &free_buffer);
-
-    if (!text_buffer)
-    {
-        PyErr_SetString(PyExc_ValueError, "Expecting unicode/bytes string");
-        goto _finish;
-    }
-
     if (!target_surf || target_surf == Py_None)
     {
+#if 0
         PyObject *r_surface = NULL;
 
         r_surface = PGFT_Render_NewSurface(ft, font, text_buffer,
@@ -658,10 +651,11 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
         }
 
         rtuple = Py_BuildValue("(iiO)", width, height, r_surface);
+#endif
     }
     else if (PySDLSurface_Check(target_surf))
     {
-        if (PGFT_Render_ExistingSurface(ft, font, text_buffer, 
+        if (PGFT_Render_ExistingSurface(ft, font, text, 
                 ptsize, (PySDLSurface *)target_surf, 
                 &width, &height, xpos, ypos, 
                 (PyColor *)fg_color) != 0)
