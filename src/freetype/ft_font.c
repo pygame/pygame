@@ -327,17 +327,29 @@ _ftfont_getfixedwidth(PyObject *self, void *closure)
 static PyObject*
 _ftfont_getsize(PyObject *self, PyObject* args, PyObject *kwds)
 {
+    /* keyword list */
+    static char *kwlist[] = 
+    { 
+        "text", "vertical", "rotation", "ptsize", NULL
+    };
+
     PyFreeTypeFont *font = (PyFreeTypeFont *)self;
     PyObject *text, *rtuple = NULL;
     FT_Error error;
-    int ptsize = -1, free_buffer;
+    int ptsize = -1;
     int width, height;
-    FT_UInt16 *text_buffer = NULL;
+
+    FontRenderMode render;
+    int vertical = 0;
+    int rotation = 0;
+
+    PyObject *vertical_obj = NULL;
 
     FreeTypeInstance *ft;
     ASSERT_GRAB_FREETYPE(ft, NULL);
 
-    if (!PyArg_ParseTuple(args, "O|i", &text, &ptsize))
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|Oii", kwlist, 
+                &text, &vertical_obj, &rotation, &ptsize))
         return NULL;
 
     if (ptsize == -1)
@@ -352,27 +364,18 @@ _ftfont_getsize(PyObject *self, PyObject* args, PyObject *kwds)
         ptsize = font->default_ptsize;
     }
 
-    text_buffer = PGFT_BuildUnicodeString(text, &free_buffer);
+    if (vertical_obj && PyObject_IsTrue(vertical_obj))
+        vertical = 1;
 
-    if (!text_buffer)
-    {
-        PyErr_SetString(PyExc_ValueError, "Expecting unicode/bytes string");
-        return NULL;
-    }
+    PGFT_BuildRenderMode(&render, 0.0f, vertical, FONT_RENDER_ANTIALIAS, rotation);
 
-    /*
-     * FIXME: Return real height or average height? 
-     */
-    error = PGFT_GetTextSize(ft, (PyFreeTypeFont *)self, 
-            text_buffer, ptsize, &width, NULL, &height);
+    error = PGFT_GetTextSize(ft, (PyFreeTypeFont *)self, ptsize, &render,
+            text, &width, &height);
 
     if (error)
         PyErr_SetString(PyExc_RuntimeError, PGFT_GetError(ft));
     else
         rtuple = Py_BuildValue ("(ii)", width, height);
-
-    if (free_buffer)
-        free(text_buffer);
 
     return rtuple;
 }
@@ -514,18 +517,14 @@ _ftfont_render_raw(PyObject *self, PyObject* args, PyObject *kwds)
     int ptsize = -1;
 
     /* output arguments */
-    PyObject *rtuple = NULL;
     PyObject *rbuffer = NULL;
     int width, height;
-
-    int free_buffer = 0;
-    FT_UInt16 *text_buffer = NULL;
 
     FreeTypeInstance *ft;
     ASSERT_GRAB_FREETYPE(ft, NULL);
 
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &text, &ptsize))
-        goto _finish;
+        return NULL;
 
     if (ptsize == -1)
     {
@@ -533,37 +532,21 @@ _ftfont_render_raw(PyObject *self, PyObject* args, PyObject *kwds)
         {
             PyErr_SetString(PyExc_ValueError,
                     "Missing font size argument and no default size specified");
-            goto _finish;
+            return NULL;
         }
         
         ptsize = font->default_ptsize;
     }
 
-    text_buffer = PGFT_BuildUnicodeString(text, &free_buffer);
-
-    if (!text_buffer)
-    {
-        PyErr_SetString(PyExc_ValueError, "Expecting unicode/bytes string");
-        goto _finish;
-    }
-
-    rbuffer = PGFT_Render_PixelArray(ft, font, text_buffer, 
-            ptsize, &width, &height);
+    rbuffer = PGFT_Render_PixelArray(ft, font, ptsize, text, &width, &height);
 
     if (!rbuffer)
     {
         PyErr_SetString(PyExc_PyGameError, PGFT_GetError(ft));
-        goto _finish;
+        return NULL;
     }
 
-    rtuple = Py_BuildValue("(iiO)", width, height, rbuffer);
-
-_finish:
-
-    if (free_buffer)
-        free(text_buffer);
-
-    return rtuple;
+    return Py_BuildValue("(iiO)", width, height, rbuffer);
 }
 
 static PyObject*
@@ -578,7 +561,8 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
     /* keyword list */
     static char *kwlist[] = 
     { 
-        "text", "fgcolor", "bgcolor", "dstsurface", "xpos", "ypos", "ptsize", NULL
+        "text", "fgcolor", "bgcolor", "dstsurface", 
+        "xpos", "ypos", "vertical", "rotation", "ptsize", NULL
     };
 
     PyFreeTypeFont *font = (PyFreeTypeFont *)self;
@@ -589,21 +573,24 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
     PyObject *target_surf = NULL;
     PyObject *fg_color = NULL;
     PyObject *bg_color = NULL;
+    PyObject *vertical_obj = NULL;
+    int rotation = 0;
     int xpos = 0, ypos = 0;
 
     /* output arguments */
     PyObject *rtuple = NULL;
     int width, height;
 
-    int free_buffer = 0;
-    FT_UInt16 *text_buffer = NULL;
+    FontRenderMode render;
+    int vertical = 0;
 
     FreeTypeInstance *ft;
     ASSERT_GRAB_FREETYPE(ft, NULL);
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OO|OOiii", kwlist,
-                &text, &fg_color, &bg_color, &target_surf, &xpos, &ypos, &ptsize))
-        goto _finish;
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OO|OOiiOii", kwlist,
+                &text, &fg_color, &bg_color, &target_surf, &xpos, &ypos, 
+                &vertical_obj, &rotation, &ptsize))
+        return NULL;
 
     if (ptsize == -1)
     {
@@ -611,7 +598,7 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
         {
             PyErr_SetString(PyExc_ValueError,
                     "Missing font size argument and no default size specified");
-            goto _finish;
+            return NULL;
         }
         
         ptsize = font->default_ptsize;
@@ -620,7 +607,7 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
     if (!PyColor_Check(fg_color))
     {
         PyErr_SetString(PyExc_TypeError, "fgcolor must be a Color");
-        goto _finish;
+        return NULL;
     }
 
     if (bg_color)
@@ -631,57 +618,51 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
         else if (!PyColor_Check(bg_color))
         {
             PyErr_SetString(PyExc_TypeError, "bgcolor must be a Color");
-            goto _finish;
+            return NULL;
         }
     }
 
+    if (vertical_obj && PyObject_IsTrue(vertical_obj))
+        vertical = 1;
+
+    /* TODO: handle antialiasing */
+    PGFT_BuildRenderMode(&render, 0.0f, vertical, FONT_RENDER_ANTIALIAS, rotation);
+
+
     if (!target_surf || target_surf == Py_None)
     {
-#if 0
+        /* TODO! */
         PyObject *r_surface = NULL;
 
-        r_surface = PGFT_Render_NewSurface(ft, font, text_buffer,
-                ptsize, &width, &height, 
-                (PyColor *)fg_color, (PyColor *)bg_color);
+        r_surface = PGFT_Render_NewSurface(ft, font, ptsize, &render, text,
+                (PyColor *)fg_color, (PyColor *)bg_color, &width, &height);
 
         if (!r_surface)
         {
             PyErr_SetString(PyExc_PyGameError, PGFT_GetError(ft));
-            goto _finish;
+            return NULL;
         }
 
         rtuple = Py_BuildValue("(iiO)", width, height, r_surface);
-#endif
     }
     else if (PySDLSurface_Check(target_surf))
     {
-        if (PGFT_Render_ExistingSurface(ft, font, text, 
-                ptsize, (PySDLSurface *)target_surf, 
-                &width, &height, xpos, ypos, 
-                (PyColor *)fg_color) != 0)
+        if (PGFT_Render_ExistingSurface(ft, font, ptsize, &render, 
+                text, (PySDLSurface *)target_surf,
+                xpos, ypos, (PyColor *)fg_color, &width, &height) != 0)
         {
             PyErr_SetString(PyExc_PyGameError, PGFT_GetError(ft));
-            goto _finish;
+            return NULL;
         }
 
-        /* 
-         * If we return a new reference to our target surface, we
-         * need to increase it's refcount first.
-         */
         Py_INCREF(target_surf); 
         rtuple = Py_BuildValue("(iiO)", width, height, target_surf);
     }
     else
     {
         PyErr_SetString(PyExc_ValueError, "The given target is not a valid SDL surface");
-        goto _finish;
+        return NULL;
     }
-
-
-_finish:
-
-    if (free_buffer)
-        free(text_buffer);
 
     return rtuple;
 

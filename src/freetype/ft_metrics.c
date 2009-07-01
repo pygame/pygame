@@ -80,7 +80,7 @@ int PGFT_GetMetrics(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
 
 int
-PGFT_GetTextSize_NEW(FreeTypeInstance *ft, PyFreeTypeFont *font, 
+_PGFT_GetTextSize_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font, 
     int pt_size, FontRenderMode *render, FontText *text, int *w, int *h)
 {
     FT_Vector   extent, advances[MAX_GLYPHS];
@@ -111,94 +111,15 @@ PGFT_GetTextSize_NEW(FreeTypeInstance *ft, PyFreeTypeFont *font,
 }
 
 int
-PGFT_GetTextSize(FreeTypeInstance *ft, PyFreeTypeFont *font,
-    const FT_UInt16 *text, int font_size, int *w, int *h, int *h_avg)
+PGFT_GetTextSize(FreeTypeInstance *ft, PyFreeTypeFont *font, int pt_size,
+    FontRenderMode *render, PyObject *text, int *w, int *h)
 {
-    const FT_UInt16 *ch;
-    int swapped, use_kerning;
-    FT_UInt32 prev_index, cur_index;
+    FontText *font_text;
 
-    FTC_ScalerRec scale;
-    FT_Face face;
-    FT_Glyph glyph;
-    FT_Size fontsize;
+    font_text = PGFT_LoadFontText(ft, font, pt_size, render, text);
 
-    int minx, maxx, miny, maxy, x, z;
-    int gl_maxx, gl_maxy, gl_minx, gl_miny, gl_advance;
-
-    _PGFT_BuildScaler(font, &scale, font_size);
-
-    /* FIXME: Some way to set the system's default ? */
-    swapped = 0;
-    x = 0;
-    face = _PGFT_GetFace(ft, font);
-
-    if (!face)
+    if (!font_text)
         return -1;
 
-    minx = maxx = 0;
-    miny = maxy = 0;
-    prev_index = 0;
-
-    use_kerning = FT_HAS_KERNING(face);
-
-    for (ch = text; *ch; ++ch)
-    {
-        FT_UInt16 c = *ch;
-
-        if (c == UNICODE_BOM_NATIVE || c == UNICODE_BOM_SWAPPED)
-        {
-            swapped = (c == UNICODE_BOM_SWAPPED);
-            if (text == ch)
-                ++text;
-
-            continue;
-        }
-
-        if (swapped)
-            c = (FT_UInt16)((c << 8) | (c >> 8));
-
-        if (_PGFT_LoadGlyph(ft, font, 0, &scale, c, &glyph, &cur_index) != 0)
-            continue;
-
-        _PGFT_GetMetrics_INTERNAL(glyph, FT_GLYPH_BBOX_PIXELS,
-            &gl_minx, &gl_maxx, &gl_miny, &gl_maxy, &gl_advance);
-
-        if (use_kerning && prev_index)
-        {
-            FT_Vector delta;
-            FT_Get_Kerning(face, prev_index, cur_index, ft_kerning_default, &delta); 
-            x += delta.x >> 6;
-        }
-
-        z = x + gl_minx;
-        if (minx > z)
-            minx = z;
-		
-        /* TODO: Handle bold fonts */
-
-        z = x + MAX(gl_maxx, gl_advance);
-        if (maxx < z)
-            maxx = z;
-
-        miny = MIN(gl_miny, miny);
-        maxy = MAX(gl_maxy, maxy);
-
-        x += gl_advance;
-        prev_index = cur_index;
-    }
-
-    if (w) *w = (maxx - minx);
-
-    if (h) *h = (maxy - miny);
-
-    if (h_avg)
-    {
-        if (FTC_Manager_LookupSize(ft->cache_manager, &scale, &fontsize) != 0)
-            return -1;
-
-        *h_avg = (fontsize->metrics.height + 63) >> 6;
-    }
-
-    return 0;
+    return _PGFT_GetTextSize_INTERNAL(ft, font, pt_size, render, font_text, w, h);
 }

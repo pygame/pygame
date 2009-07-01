@@ -42,7 +42,7 @@ void __render_glyph_SDL32(int x, int y, FontSurface *surface, FT_Bitmap *bitmap,
 void __render_glyph_ByteArray(int x, int y, FontSurface *surface, FT_Bitmap *bitmap, PyColor *color);
 
 void 
-_PGFT_BuildRenderMode(FontRenderMode *mode, float center, int vertical, int antialias, int rotation)
+PGFT_BuildRenderMode(FontRenderMode *mode, float center, int vertical, int antialias, int rotation)
 {
     double      radian;
     FT_Fixed    cosinus;
@@ -200,9 +200,8 @@ _CREATE_SDL_RENDER(16,  FT_UInt16,  BUILD_PIXEL_TRUECOLOR)
 _CREATE_SDL_RENDER(8,   FT_Byte,    BUILD_PIXEL_GENERIC)
 
 int PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
-    PyObject *text, int font_size, PySDLSurface *_surface,
-    int *_width, int *_height, int x, int y,
-    PyColor *fgcolor)
+    int font_size, FontRenderMode *render, PyObject *text, PySDLSurface *_surface, 
+    int x, int y, PyColor *fgcolor, int *_width, int *_height)
 {
     static const FontRenderPtr __renderFuncs[] =
     {
@@ -217,7 +216,6 @@ int PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
     SDL_Surface *surface = PySDLSurface_AsSDLSurface(_surface);
     FontSurface font_surf;
-    FontRenderMode render_mode;
     FontText *font_text;
 
     if (SDL_MUSTLOCK(surface))
@@ -231,26 +229,20 @@ int PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
         locked = 1;
     }
 
-    /*
-     * Setup render mode
-     * TODO: get render mode from FT instance
-     */
-    _PGFT_BuildRenderMode(&render_mode, 0.0f, FONT_RENDER_HORIZONTAL, 1, 0);
-
     /* build font text */
-    font_text = PGFT_LoadFontText(ft, font, font_size, &render_mode, text);
+    font_text = PGFT_LoadFontText(ft, font, font_size, render, text);
 
     if (!font_text)
-    {
         return -1;
-    }
 
-    PGFT_GetTextSize_NEW(ft, font, font_size, &render_mode, font_text, &width, &height);
+    _PGFT_GetTextSize_INTERNAL(ft, font, font_size, render, font_text, &width, &height);
+
+#if 0
     fprintf(stderr, "Drawing @ (%d, %d, %d, %d)\n", x, y, width, height);
 
     SDL_Rect fill = {x, y, width, height};
     SDL_FillRect(surface, &fill, 0x00FFAA00);
-
+#endif
 
     /*
      * Setup target surface struct
@@ -262,7 +254,6 @@ int PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
     font_surf.width = surface->w;
     font_surf.height = surface->h;
-    font_surf.glyph_height = glyph_height;
     font_surf.pitch = surface->pitch / surface->format->BytesPerPixel;
 
     font_surf.format = surface->format;
@@ -271,14 +262,11 @@ int PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
     /*
      * Render!
      */
-    if (_PGFT_Render_NEW(ft, font, font_text, font_size, fgcolor, &font_surf, &render_mode) != 0)
-    {
-        _PGFT_SetError(ft, "Failed to render text", 0);
+    if (_PGFT_Render_NEW(ft, font, font_text, font_size, fgcolor, &font_surf, render) != 0)
         return -1;
-    }
 
-    *_width = 0;
-    *_height = 0;
+    *_width = width;
+    *_height = height;
 
     if (locked)
         SDL_UnlockSurface(surface);
@@ -286,22 +274,26 @@ int PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
     return 0;
 }
 
-PyObject *PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
-    const FT_UInt16 *text, int font_size, int *_width, int *_height, 
-    PyColor *fgcolor, PyColor *bgcolor)
+PyObject *PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font, 
+    int ptsize, FontRenderMode *render, PyObject *text,
+    PyColor *fgcolor, PyColor *bgcolor, int *_width, int *_height)
 {
-    int width, glyph_height, height, locked = 0;
+    int width, height, locked = 0;
     FT_UInt32 fillcolor, rmask, gmask, bmask, amask;
     SDL_Surface *surface = NULL;
 
     FontSurface font_surf;
+    FontText *font_text;
 
-    if (PGFT_GetTextSize(ft, font, text, font_size, &width, &glyph_height, &height) != 0 ||
-        width == 0)
-    {
-        _PGFT_SetError(ft, "Error when building text size", 0);
+    /* build font text */
+    font_text = PGFT_LoadFontText(ft, font, ptsize, render, text);
+
+    if (!font_text)
         return NULL;
-    }
+
+    if (_PGFT_GetTextSize_INTERNAL(ft, font, ptsize, render, 
+                font_text, &width, &height) != 0)
+        return NULL;
 
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
     rmask = 0xff000000;
@@ -353,15 +345,13 @@ PyObject *PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
     font_surf.width = surface->w;
     font_surf.height = surface->h;
-    font_surf.glyph_height = glyph_height;
     font_surf.pitch = surface->pitch / sizeof(FT_UInt32);
 
     font_surf.format = surface->format;
     font_surf.render = __render_glyph_SDL32;
 
-    if (_PGFT_Render_INTERNAL(ft, font, text, font_size, fgcolor, &font_surf) != 0)
+    if (_PGFT_Render_NEW(ft, font, font_text, ptsize, fgcolor, &font_surf, render) != 0)
     {
-        _PGFT_SetError(ft, "Failed to render text", 0);
         SDL_FreeSurface(surface);
         return NULL;
     }
@@ -408,19 +398,28 @@ void __render_glyph_ByteArray(int x, int y, FontSurface *surface,
 }
 
 PyObject *PGFT_Render_PixelArray(FreeTypeInstance *ft, PyFreeTypeFont *font,
-    const FT_UInt16 *text, int font_size, int *_width, int *_height)
+    int ptsize, PyObject *text, int *_width, int *_height)
 {
     int width, height, glyph_height;
     FT_Byte *buffer = NULL;
     PyObject *array = NULL;
     FontSurface surf;
 
-    if (PGFT_GetTextSize(ft, font, text, font_size, &width, &glyph_height, &height) != 0 ||
-        width == 0)
-    {
-        _PGFT_SetError(ft, "Error when building text size", 0);
+    FontText *font_text;
+    FontRenderMode render;
+
+    PGFT_BuildRenderMode(&render, 0.0f, 
+            FONT_RENDER_HORIZONTAL, FONT_RENDER_ANTIALIAS, 0);
+
+    /* build font text */
+    font_text = PGFT_LoadFontText(ft, font, ptsize, &render, text);
+
+    if (!font_text)
         goto cleanup;
-    }
+
+    if (_PGFT_GetTextSize_INTERNAL(ft, font, ptsize, &render, 
+                font_text, &width, &height) != 0)
+        goto cleanup;
 
     buffer = malloc((size_t)(width * height));
     if (!buffer)
@@ -434,16 +433,12 @@ PyObject *PGFT_Render_PixelArray(FreeTypeInstance *ft, PyFreeTypeFont *font,
     surf.buffer = buffer;
     surf.width = surf.pitch = width;
     surf.height = height;
-    surf.glyph_height = glyph_height;
 
     surf.format = NULL;
     surf.render = __render_glyph_ByteArray;
 
-    if (_PGFT_Render_INTERNAL(ft, font, text, font_size, 0x0, &surf) != 0)
-    {
-        _PGFT_SetError(ft, "Failed to render text", 0);
+    if (_PGFT_Render_NEW(ft, font, font_text, ptsize, 0x0, &surf, &render) != 0)
         goto cleanup;
-    }
 
     *_width = width;
     *_height = height;
@@ -529,8 +524,6 @@ int _PGFT_Render_NEW(FreeTypeInstance *ft, PyFreeTypeFont *font,
         pen.y = PGFT_ROUND(( y << 6 ) - pen.y);
     }
 
-    printf("Pen starts @ (%d, %d)\n", PGFT_TRUNC(pen.x), PGFT_TRUNC(pen.y));
-
 
     /******************************************************
      * Draw text
@@ -605,9 +598,7 @@ int _PGFT_Render_NEW(FreeTypeInstance *ft, PyFreeTypeFont *font,
                     FT_RENDER_MODE_MONO;
 
                 /* render the glyph to a bitmap, don't destroy original */
-                error = FT_Glyph_To_Bitmap(&image, render_mode, NULL, 0);
-                if (error)
-                    return error;
+                FT_Glyph_To_Bitmap(&image, render_mode, NULL, 0);
             }
 
             if (image->format != FT_GLYPH_FORMAT_BITMAP)

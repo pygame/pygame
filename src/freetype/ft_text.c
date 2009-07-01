@@ -80,10 +80,19 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
     face = _PGFT_GetFaceSized(ft, font, pt_size);
 
     if (!face)
+    {
+        _PGFT_SetError(ft, "Failed to scale the given face", 0);
         return NULL;
+    }
 
     /* get the text as an unicode string */
     orig_buffer = buffer = PGFT_BuildUnicodeString(text, &must_free);
+
+    if (!buffer)
+    {
+        _PGFT_SetError(ft, "Invalid text string specified", 0);
+        return NULL;
+    }
 
     /* get the length of the text */
     for (ch = buffer; *ch; ++ch)
