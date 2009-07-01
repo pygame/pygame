@@ -98,13 +98,13 @@ _PGFT_GetTextSize_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
     if (render->vertical)
     {
-        *w = text->max_w;
+        *w = PGFT_TRUNC(text->size.x);
         *h = PGFT_TRUNC(extent.y);
     }
     else
     {
         *w = PGFT_TRUNC(extent.x);
-        *h = text->max_h;
+        *h = PGFT_TRUNC(text->size.y);
     }
 
     return 0;

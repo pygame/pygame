@@ -237,7 +237,7 @@ int PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
     _PGFT_GetTextSize_INTERNAL(ft, font, font_size, render, font_text, &width, &height);
 
-#if 0
+#if 1
     fprintf(stderr, "Drawing @ (%d, %d, %d, %d)\n", x, y, width, height);
 
     SDL_Rect fill = {x, y, width, height};
@@ -471,6 +471,15 @@ int _PGFT_Render_NEW(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
     int x = surface->x_offset;
     int y = surface->y_offset;
+
+    if (render->vertical)
+        x += PGFT_TRUNC(PGFT_ROUND(text->size.x / 2));
+    else
+    {
+        y += PGFT_TRUNC(text->size.y);
+        y -= PGFT_TRUNC(text->baseline_offset.y);
+    }
+
 
     /* TODO: return if drawing outside surface */
 

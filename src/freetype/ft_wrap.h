@@ -98,7 +98,6 @@ typedef struct  FontGlyph_
     FT_Glyph    image;    
 
     FT_Pos      delta;    
-    FT_Fixed    bearing;
     FT_Vector   vvector;  
     FT_Vector   vadvance; 
 
@@ -110,8 +109,8 @@ typedef struct FontText_
     int length;
     FT_UInt32 _hash;
 
-    int max_w;
-    int max_h;
+    FT_Vector size;
+    FT_Vector baseline_offset;
 
 } FontText;
 

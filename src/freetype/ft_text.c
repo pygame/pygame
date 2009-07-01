@@ -46,18 +46,20 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
     int         swapped = 0;
     int         string_length = 0;
 
-    int         maxw = 0, maxh = 0;
-
     FT_UInt16 * buffer = NULL;
     FT_UInt16 * orig_buffer;
     FT_UInt16 * ch;
 
     FT_Pos      prev_rsb_delta = 0;
+    FT_Fixed    baseline;
 
     FontText  * ftext = NULL;
     FontGlyph * glyph = NULL;
 
     FT_Face     face;
+
+    FTC_ScalerRec scale;
+    FT_Size fontsize;
 
     /* compute proper load flags */
     load_flags |= FT_LOAD_IGNORE_GLOBAL_ADVANCE_WIDTH;
@@ -98,12 +100,12 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
     for (ch = buffer; *ch; ++ch)
         string_length++;
 
-
     /* create the text struct */
     ftext = malloc(sizeof(FontText));
     ftext->length = string_length;
     ftext->glyphs = calloc((size_t)string_length, sizeof(FontGlyph));
-
+    ftext->size.x = ftext->size.y = 0;
+    ftext->baseline_offset.x = ftext->baseline_offset.y = 0;
 
     /* fill it with the glyphs */
     glyph = &(ftext->glyphs[0]);
@@ -141,14 +143,16 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
             glyph->vadvance.x = 0;
             glyph->vadvance.y = -metrics->vertAdvance;
 
-            /* TODO: Fix for vert drawing */
-            glyph->bearing = metrics->horiBearingY;
+            baseline = metrics->height - metrics->horiBearingY;
 
-            if (metrics->width > maxw)
-                maxw = metrics->width;
+            if (baseline > ftext->baseline_offset.y)
+                ftext->baseline_offset.y = baseline;
 
-            if (metrics->height > maxh)
-                maxh = metrics->height;
+            if (metrics->width > ftext->size.x)
+                ftext->size.x = metrics->width;
+
+            if (metrics->height > ftext->size.y)
+                ftext->size.y = metrics->height;
 
             if (prev_rsb_delta - face->glyph->lsb_delta >= 32)
                 glyph->delta = -1 << 6;
@@ -159,9 +163,6 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
         }
 
     }
-
-    ftext->max_w = PGFT_TRUNC(maxw);
-    ftext->max_h = PGFT_TRUNC(maxh);
 
     if (must_free)
         free(orig_buffer);
