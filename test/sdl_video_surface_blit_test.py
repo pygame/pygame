@@ -202,1089 +202,578 @@ class SDLVideoSurfaceBlitTest (unittest.TestCase):
             self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
         video.quit ()
 
-    def test_32bpp_BLEND_RGB_ADD (self):
+    def test_BLEND_RGB_ADD (self):
         video.init ()
         modes = [32, 24, 16, 8]
         color1 = Color (127, 0, 0)
         color2 = Color (0, 127, 0)
-        sf1 = video.Surface (10, 10, 32)
         for bpp in modes:
-            sf2 = video.Surface ( 5,  5, bpp)
+            sf1 = video.Surface (10, 10, bpp)
             if bpp == 8:
-                sf2.set_palette (CGAPALETTE)
+                sf1.set_palette (CGAPALETTE)
+            for bpp2 in modes:
+                sf2 = video.Surface ( 5,  5, bpp2)
+                if bpp2 == 8:
+                    sf2.set_palette (CGAPALETTE)
         
-            sf1.fill (color1)
-            sf2.fill (color2)
-            c2 = sf1.get_at (0, 0) + sf2.get_at (0, 0)
+                sf1.fill (color1)
+                sf2.fill (color2)
+                c2 = sf1.get_at (0, 0) + sf2.get_at (0, 0)
         
-            # Solid, additive blit.
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_ADD)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
+                # Solid, additive blit.
+                sf1.blit (sf2, blendargs=constants.BLEND_RGB_ADD)
+                self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
         
-            sf2.fill (Color (50, 127, 0))
-            # Color (177, 254, 0)
-            c2 = sf1.get_at (0, 0) + sf2.get_at (0, 0)
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_ADD)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-            
-            # Color (227, 255, 0)
-            c2 = sf1.get_at (0, 0) + sf2.get_at (0, 0)
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_ADD)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
+                sf2.fill (Color (50, 127, 0))
+                # Color (177, 254, 0)
+                c2 = sf1.get_at (0, 0) + sf2.get_at (0, 0)
+                sf1.blit (sf2, blendargs=constants.BLEND_RGB_ADD)
+                self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
+                
+                # Color (227, 255, 0)
+                c2 = sf1.get_at (0, 0) + sf2.get_at (0, 0)
+                sf1.blit (sf2, blendargs=constants.BLEND_RGB_ADD)
+                self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
         
-            sf2.fill (Color (0, 0, 0))
-            # Color (227, 254, 0)
-            c2 = sf1.get_at (0, 0) + sf2.get_at (0, 0)
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_ADD)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-        
-        video.quit ()
-    
-    def test_24bpp_BLEND_RGB_ADD (self):
-        video.init ()
-        modes = [32, 24, 16, 8]
-        color1 = Color (127, 0, 0)
-        color2 = Color (0, 127, 0)
-        sf1 = video.Surface (10, 10, 24)
-        for bpp in modes:
-            sf2 = video.Surface ( 5,  5, bpp)
-            if bpp == 8:
-                sf2.set_palette (CGAPALETTE)
-        
-            sf1.fill (color1)
-            sf2.fill (color2)
-            c2 = sf1.get_at (0, 0) + sf2.get_at (0, 0)
-            
-            # Solid, additive blit.
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_ADD)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-        
-            sf2.fill (Color (50, 127, 0))
-            # Color(177, 254, 0)
-            c2 = sf1.get_at (0, 0) + sf2.get_at (0, 0)
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_ADD)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-
-            # Color(227, 255, 0)
-            c2 = sf1.get_at (0, 0) + sf2.get_at (0, 0)
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_ADD)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-        
-            sf2.fill (Color (0, 0, 0))
-            # Color(227, 255, 0)
-            c2 = sf1.get_at (0, 0) + sf2.get_at (0, 0)
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_ADD)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-        
-        video.quit ()
-    
-    def test_16bpp_BLEND_RGB_ADD (self):
-        video.init ()
-        modes = [32, 24, 16, 8]
-        color1 = Color (127, 0, 0)
-        color2 = Color (0, 127, 0)
-        sf1 = video.Surface (10, 10, 16)
-        for bpp in modes:
-            sf2 = video.Surface (5, 5, bpp)
-            if bpp == 8:
-                sf2.set_palette (CGAPALETTE)
-        
-            sf1.fill (color1)
-            sf2.fill (color2)
-            c2 = sf1.get_at (0, 0) + sf2.get_at (0, 0)
-        
-            # Solid, additive blit.
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_ADD)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-        
-            sf2.fill (Color (50, 127, 0))
-            # Color (177, 254, 0)
-            c2 = sf1.get_at (0, 0) + sf2.get_at (0, 0)
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_ADD)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-            
-            # Color (227, 255, 0)
-            c2 = sf1.get_at (0, 0) + sf2.get_at (0, 0)
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_ADD)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-        
-            sf2.fill (Color (0, 0, 0))
-            # Color (227, 255, 0)
-            c2 = sf1.get_at (0, 0) + sf2.get_at (0, 0)
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_ADD)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
+                sf2.fill (Color (0, 0, 0))
+                # Color (227, 254, 0)
+                c2 = sf1.get_at (0, 0) + sf2.get_at (0, 0)
+                sf1.blit (sf2, blendargs=constants.BLEND_RGB_ADD)
+                self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
         
         video.quit ()
 
-    def test_8bpp_BLEND_RGB_ADD (self):
-        video.init ()
-        modes = [32, 24, 16, 8]
-        color1 = Color (127, 0, 0)
-        color2 = Color (0, 127, 0)
-        sf1 = video.Surface (10, 10, 8)
-        sf1.set_palette (CGAPALETTE)
-        for bpp in modes:
-            sf2 = video.Surface ( 5,  5, bpp)
-            if bpp == 8:
-                sf2.set_palette (CGAPALETTE)
-        
-            sf1.fill (color1)
-            sf2.fill (color2)
-            c2 = sf1.get_at (0, 0) + sf2.get_at (0, 0)
-            # Solid, additive blit.
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_ADD)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-        
-            sf2.fill (Color (50, 127, 0))
-            # Color (177, 254, 0)
-            c2 = sf1.get_at (0, 0) + sf2.get_at (0, 0)
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_ADD)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-            
-            # Color (227, 255, 0)
-            c2 = sf1.get_at (0, 0) + sf2.get_at (0, 0)
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_ADD)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-        
-            sf2.fill (Color (0, 0, 0))
-            # Color (227, 255, 0)
-            c2 = sf1.get_at (0, 0) + sf2.get_at (0, 0)
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_ADD)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-        
-        video.quit ()
-
-    def test_32bpp_BLEND_RGB_SUB (self):
+    def test_BLEND_RGB_SUB (self):
         video.init ()
         modes = [32, 24, 16, 8]
         color1 = Color (255, 255, 255)
         color2 = Color (0, 127, 0)
-        sf1 = video.Surface (10, 10, 32)
         for bpp in modes:
-            sf2 = video.Surface ( 5,  5, bpp)
+            sf1 = video.Surface (10, 10, bpp)
             if bpp == 8:
-                sf2.set_palette (CGAPALETTE)
+                sf1.set_palette (CGAPALETTE)
+            for bpp2 in modes:
+                sf2 = video.Surface ( 5,  5, bpp2)
+                if bpp2 == 8:
+                    sf2.set_palette (CGAPALETTE)
         
-            sf1.fill (color1)
-            sf2.fill (color2)
-            c2 = sf1.get_at (0, 0) - sf2.get_at (0, 0)
+                sf1.fill (color1)
+                sf2.fill (color2)
+                c2 = sf1.get_at (0, 0) - sf2.get_at (0, 0)
         
-            # Solid, subtractive blit.
-            
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_SUB)
-            # Color (255, 128, 255)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-        
-            sf2.fill (Color (128, 20, 0))
-            # Color (127, 108, 255)
-            c2 = sf1.get_at (0, 0) - sf2.get_at (0, 0)
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_SUB)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-            
-            # Color (0, 88, 255)
-            c2 = sf1.get_at (0, 0) - sf2.get_at (0, 0)
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_SUB)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-        
-            sf2.fill (Color (0, 0, 0))
-            # Color (0, 88, 255)
-            c2 = sf1.get_at (0, 0) - sf2.get_at (0, 0)
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_SUB)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
+                # Solid, subtractive blit.
+                
+                sf1.blit (sf2, blendargs=constants.BLEND_RGB_SUB)
+                # Color (255, 128, 255)
+                self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
+                
+                sf2.fill (Color (128, 20, 0))
+                # Color (127, 108, 255)
+                c2 = sf1.get_at (0, 0) - sf2.get_at (0, 0)
+                sf1.blit (sf2, blendargs=constants.BLEND_RGB_SUB)
+                self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
+                
+                # Color (0, 88, 255)
+                c2 = sf1.get_at (0, 0) - sf2.get_at (0, 0)
+                sf1.blit (sf2, blendargs=constants.BLEND_RGB_SUB)
+                self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
+                
+                sf2.fill (Color (0, 0, 0))
+                # Color (0, 88, 255)
+                c2 = sf1.get_at (0, 0) - sf2.get_at (0, 0)
+                sf1.blit (sf2, blendargs=constants.BLEND_RGB_SUB)
+                self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
         video.quit ()
 
-    def test_24bpp_BLEND_RGB_SUB (self):
-        video.init ()
-        modes = [32, 24, 16, 8]
-        color1 = Color (255, 255, 255)
-        color2 = Color (0, 127, 0)
-        sf1 = video.Surface (10, 10, 24)
-        for bpp in modes:
-            sf2 = video.Surface ( 5,  5, bpp)
-            if bpp == 8:
-                sf2.set_palette (CGAPALETTE)
-        
-            sf1.fill (color1)
-            sf2.fill (color2)
-            c2 = sf1.get_at (0, 0) - sf2.get_at (0, 0)
-        
-            # Solid, subtractive blit.
-            
-            # Color (255, 128, 255)
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_SUB)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-        
-            sf2.fill (Color (128, 20, 0))
-            # Color (127, 108, 255)
-            c2 = sf1.get_at (0, 0) - sf2.get_at (0, 0)
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_SUB)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-            
-            # Color (0, 88, 255)
-            c2 = sf1.get_at (0, 0) - sf2.get_at (0, 0)
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_SUB)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-        
-            sf2.fill (Color (0, 0, 0))
-            # Color (0, 88, 255)
-            c2 = sf1.get_at (0, 0) - sf2.get_at (0, 0)
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_SUB)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-        video.quit ()
-
-    def test_16bpp_BLEND_RGB_SUB (self):
-        video.init ()
-        modes = [32, 24, 16, 8]
-        color1 = Color (255, 255, 255)
-        color2 = Color (0, 127, 0)
-        sf1 = video.Surface (10, 10, 16)
-        for bpp in modes:
-            sf2 = video.Surface ( 5,  5, bpp)
-            if bpp == 8:
-                sf2.set_palette (CGAPALETTE)
-        
-            sf1.fill (color1)
-            sf2.fill (color2)
-            c2 = sf1.get_at (0, 0) - sf2.get_at (0, 0)
-            
-            # Solid, subtractive blit.
-            
-            # Color (255, 128, 255)
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_SUB)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-        
-            sf2.fill (Color (128, 20, 0))
-            # Color (127, 108, 255)
-            c2 = sf1.get_at (0, 0) - sf2.get_at (0, 0)
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_SUB)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-            
-            # Color (0, 88, 255)
-            c2 = sf1.get_at (0, 0) - sf2.get_at (0, 0)
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_SUB)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-        
-            sf2.fill (Color (0, 0, 0))
-            c2 = sf1.get_at (0, 0) - sf2.get_at (0, 0)
-            # Color (0, 88, 255)
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_SUB)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-        video.quit ()
-
-    def test_8bpp_BLEND_RGB_SUB (self):
-        video.init ()
-        modes = [32, 24, 16, 8]
-        color1 = Color (255, 255, 255)
-        color2 = Color (0, 127, 0)
-        sf1 = video.Surface (10, 10, 8)
-        sf1.set_palette (CGAPALETTE)
-        for bpp in modes:
-            sf2 = video.Surface ( 5,  5, bpp)
-            if bpp == 8:
-                sf2.set_palette (CGAPALETTE)
-        
-            sf1.fill (color1)
-            sf2.fill (color2)
-            c2 = sf1.get_at (0, 0) - sf2.get_at (0, 0)
-            
-            # Solid, subtractive blit.
-            
-            # Color (255, 128, 255)
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_SUB)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-        
-            sf2.fill (Color (128, 20, 0))
-            # Color (127, 108, 255)
-            c2 = sf1.get_at (0, 0) - sf2.get_at (0, 0)
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_SUB)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-            
-            # Color (0, 88, 255)
-            c2 = sf1.get_at (0, 0) - sf2.get_at (0, 0)
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_SUB)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-        
-            sf2.fill (Color (0, 0, 0))
-            # Color (0, 88, 255)
-            c2 = sf1.get_at (0, 0) - sf2.get_at (0, 0)
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_SUB)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-        video.quit ()
-
-    def test_32bpp_BLEND_RGB_MAX (self):
+    def test_BLEND_RGB_MAX (self):
         video.init ()
         modes = [32, 24, 16, 8]
         color1 = Color (30, 10, 100)
         color2 = Color (0, 127, 24)
-        sf1 = video.Surface (10, 10, 32)
         for bpp in modes:
-            sf2 = video.Surface ( 5,  5, bpp)
+            sf1 = video.Surface (10, 10, bpp)
             if bpp == 8:
-                sf2.set_palette (CGAPALETTE)
+                sf1.set_palette (CGAPALETTE)
+            for bpp2 in modes:
+                sf2 = video.Surface ( 5,  5, bpp2)
+                if bpp2 == 8:
+                    sf2.set_palette (CGAPALETTE)
         
-            sf1.fill (color1)
-            sf2.fill (color2)
+                sf1.fill (color1)
+                sf2.fill (color2)
             
-            ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
-            c2 = Color (max(ca.r, cb.r), max(ca.g, cb.g), max(ca.b, cb.b))
+                ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
+                c2 = Color (max(ca.r, cb.r), max(ca.g, cb.g), max(ca.b, cb.b))
+                
+                # Solid, maximum blit.
+                
+                # Color (30, 127, 100)
+                sf1.blit (sf2, blendargs=constants.BLEND_RGB_MAX)
+                self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
             
-            # Solid, maximum blit.
+                # Color (128, 127, 144)
+                sf2.fill (Color (128, 20, 144))
+                ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
+                c2 = Color (max(ca.r, cb.r), max(ca.g, cb.g), max(ca.b, cb.b))
+                sf1.blit (sf2, blendargs=constants.BLEND_RGB_MAX)
+                self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
             
-            # Color (30, 127, 100)
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_MAX)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-            
-            # Color (128, 127, 144)
-            sf2.fill (Color (128, 20, 144))
-            ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
-            c2 = Color (max(ca.r, cb.r), max(ca.g, cb.g), max(ca.b, cb.b))
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_MAX)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-            
-            # Color (128, 127, 144)
-            ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
-            c2 = Color (max(ca.r, cb.r), max(ca.g, cb.g), max(ca.b, cb.b))
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_MAX)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
+                # Color (128, 127, 144)
+                ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
+                c2 = Color (max(ca.r, cb.r), max(ca.g, cb.g), max(ca.b, cb.b))
+                sf1.blit (sf2, blendargs=constants.BLEND_RGB_MAX)
+                self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
         
-            # Color (128, 127, 144)
-            sf2.fill (Color (0, 0, 0))
-            ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
-            c2 = Color (max(ca.r, cb.r), max(ca.g, cb.g), max(ca.b, cb.b))
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_MAX)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
+                # Color (128, 127, 144)
+                sf2.fill (Color (0, 0, 0))
+                ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
+                c2 = Color (max(ca.r, cb.r), max(ca.g, cb.g), max(ca.b, cb.b))
+                sf1.blit (sf2, blendargs=constants.BLEND_RGB_MAX)
+                self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
         video.quit ()
 
-    def test_24bpp_BLEND_RGB_MAX (self):
-        video.init ()
-        modes = [32, 24, 16, 8]
-        color1 = Color (30, 10, 100)
-        color2 = Color (0, 127, 24)
-        sf1 = video.Surface (10, 10, 24)
-        for bpp in modes:
-            sf2 = video.Surface ( 5,  5, bpp)
-            if bpp == 8:
-                sf2.set_palette (CGAPALETTE)
-        
-            sf1.fill (color1)
-            sf2.fill (color2)
-            ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
-            c2 = Color (max(ca.r, cb.r), max(ca.g, cb.g), max(ca.b, cb.b))
-        
-            # Solid, maximum blit.
-            
-            # Color (30, 127, 100)
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_MAX)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-            
-            # Color (128, 127, 144)
-            sf2.fill (Color (128, 20, 144))
-            ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
-            c2 = Color (max(ca.r, cb.r), max(ca.g, cb.g), max(ca.b, cb.b))
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_MAX)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-            
-            # Color (128, 127, 144)
-            ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
-            c2 = Color (max(ca.r, cb.r), max(ca.g, cb.g), max(ca.b, cb.b))
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_MAX)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-        
-            # Color (128, 127, 144)
-            sf2.fill (Color (0, 0, 0))
-            ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
-            c2 = Color (max(ca.r, cb.r), max(ca.g, cb.g), max(ca.b, cb.b))
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_MAX)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-        video.quit ()
-
-    def test_16bpp_BLEND_RGB_MAX (self):
-        video.init ()
-        modes = [32, 24, 16, 8]
-        color1 = Color (30, 10, 100)
-        color2 = Color (0, 127, 24)
-        sf1 = video.Surface (10, 10, 16)
-        for bpp in modes:
-            sf2 = video.Surface ( 5,  5, bpp)
-            if bpp == 8:
-                sf2.set_palette (CGAPALETTE)
-        
-            sf1.fill (color1)
-            sf2.fill (color2)
-            ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
-            c2 = Color (max(ca.r, cb.r), max(ca.g, cb.g), max(ca.b, cb.b))
-        
-            # Solid, maximum blit.
-            
-            # Color (30, 127, 100)
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_MAX)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-            
-            # Color (128, 127, 144)
-            sf2.fill (Color (128, 20, 144))
-            ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
-            c2 = Color (max(ca.r, cb.r), max(ca.g, cb.g), max(ca.b, cb.b))
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_MAX)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-            
-            # Color (128, 127, 144)
-            ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
-            c2 = Color (max(ca.r, cb.r), max(ca.g, cb.g), max(ca.b, cb.b))
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_MAX)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-        
-            # Color (128, 127, 144)
-            sf2.fill (Color (0, 0, 0))
-            ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
-            c2 = Color (max(ca.r, cb.r), max(ca.g, cb.g), max(ca.b, cb.b))
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_MAX)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-        video.quit ()
-
-    def test_8bpp_BLEND_RGB_MAX (self):
-        video.init ()
-        modes = [32, 24, 16, 8]
-        color1 = Color (30, 10, 100)
-        color2 = Color (0, 127, 24)
-        sf1 = video.Surface (10, 10, 8)
-        sf1.set_palette (CGAPALETTE)
-        for bpp in modes:
-            sf2 = video.Surface ( 5,  5, bpp)
-            if bpp == 8:
-                sf2.set_palette (CGAPALETTE)
-        
-            sf1.fill (color1)
-            sf2.fill (color2)
-            ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
-            c2 = Color (max(ca.r, cb.r), max(ca.g, cb.g), max(ca.b, cb.b))
-        
-            # Solid, maximum blit.
-            
-            # Color (30, 127, 100)
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_MAX)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-            
-            # Color (128, 127, 144)
-            sf2.fill (Color (128, 20, 144))
-            ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
-            c2 = Color (max(ca.r, cb.r), max(ca.g, cb.g), max(ca.b, cb.b))
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_MAX)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-            
-            # Color (128, 127, 144)
-            ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
-            c2 = Color (max(ca.r, cb.r), max(ca.g, cb.g), max(ca.b, cb.b))
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_MAX)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-        
-            # Color (128, 127, 144)
-            sf2.fill (Color (0, 0, 0))
-            ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
-            c2 = Color (max(ca.r, cb.r), max(ca.g, cb.g), max(ca.b, cb.b))
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_MAX)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-        video.quit ()
-
-    def test_32bpp_BLEND_RGB_MIN (self):
+    def test_BLEND_RGB_MIN (self):
         video.init ()
         modes = [32, 24, 16, 8]
         color1 = Color (255, 100, 12)
         color2 = Color (133, 127, 16)
-        sf1 = video.Surface (10, 10, 32)
         for bpp in modes:
-            sf2 = video.Surface ( 5,  5, bpp)
+            sf1 = video.Surface (10, 10, bpp)
             if bpp == 8:
-                sf2.set_palette (CGAPALETTE)
+                sf1.set_palette (CGAPALETTE)
+            for bpp2 in modes:
+                sf2 = video.Surface ( 5,  5, bpp2)
+                if bpp2 == 8:
+                    sf2.set_palette (CGAPALETTE)
         
-            sf1.fill (color1)
-            sf2.fill (color2)
-            ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
-            c2 = Color (min(ca.r, cb.r), min(ca.g, cb.g), min(ca.b, cb.b))
+                sf1.fill (color1)
+                sf2.fill (color2)
+                ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
+                c2 = Color (min(ca.r, cb.r), min(ca.g, cb.g), min(ca.b, cb.b))
             
-            # Solid, minimum blit.
-            
-            # Color (133, 100, 12)
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_MIN)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
+                # Solid, minimum blit.
+                
+                # Color (133, 100, 12)
+                sf1.blit (sf2, blendargs=constants.BLEND_RGB_MIN)
+                self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
         
-            # Color (128, 20, 12)
-            sf2.fill (Color (128, 20, 144))
-            ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
-            c2 = Color (min(ca.r, cb.r), min(ca.g, cb.g), min(ca.b, cb.b))
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_MIN)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
+                # Color (128, 20, 12)
+                sf2.fill (Color (128, 20, 144))
+                ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
+                c2 = Color (min(ca.r, cb.r), min(ca.g, cb.g), min(ca.b, cb.b))
+                sf1.blit (sf2, blendargs=constants.BLEND_RGB_MIN)
+                self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
             
-            # Color (128, 20, 12)
-            ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
-            c2 = Color (min(ca.r, cb.r), min(ca.g, cb.g), min(ca.b, cb.b))
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_MIN)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
+                # Color (128, 20, 12)
+                ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
+                c2 = Color (min(ca.r, cb.r), min(ca.g, cb.g), min(ca.b, cb.b))
+                sf1.blit (sf2, blendargs=constants.BLEND_RGB_MIN)
+                self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
         
-            # Color (0, 0, 0)
-            sf2.fill (Color (0, 0, 0))
-            ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
-            c2 = Color (min(ca.r, cb.r), min(ca.g, cb.g), min(ca.b, cb.b))
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_MIN)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
+                # Color (0, 0, 0)
+                sf2.fill (Color (0, 0, 0))
+                ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
+                c2 = Color (min(ca.r, cb.r), min(ca.g, cb.g), min(ca.b, cb.b))
+                sf1.blit (sf2, blendargs=constants.BLEND_RGB_MIN)
+                self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
         video.quit ()
 
-    def test_24bpp_BLEND_RGB_MIN (self):
-        video.init ()
-        modes = [32, 24, 16, 8]
-        color1 = Color (255, 100, 12)
-        color2 = Color (133, 127, 16)
-        sf1 = video.Surface (10, 10, 24)
-        for bpp in modes:
-            sf2 = video.Surface ( 5,  5, bpp)
-            if bpp == 8:
-                sf2.set_palette (CGAPALETTE)
-        
-            sf1.fill (color1)
-            sf2.fill (color2)
-            ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
-            c2 = Color (min(ca.r, cb.r), min(ca.g, cb.g), min(ca.b, cb.b))
-            
-            # Solid, minimum blit.
-            
-            # Color (133, 100, 12)
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_MIN)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-        
-            # Color (128, 20, 12)
-            sf2.fill (Color (128, 20, 144))
-            ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
-            c2 = Color (min(ca.r, cb.r), min(ca.g, cb.g), min(ca.b, cb.b))
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_MIN)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-            
-            # Color (128, 20, 12)
-            ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
-            c2 = Color (min(ca.r, cb.r), min(ca.g, cb.g), min(ca.b, cb.b))
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_MIN)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-        
-            # Color (0, 0, 0)
-            sf2.fill (Color (0, 0, 0))
-            ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
-            c2 = Color (min(ca.r, cb.r), min(ca.g, cb.g), min(ca.b, cb.b))
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_MIN)
-            self._cmpcolor (sf1, sf2, Color (0, 0, 0),
-                                    Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-        video.quit ()
-
-    def test_16bpp_BLEND_RGB_MIN (self):
-        video.init ()
-        modes = [32, 24, 16, 8]
-        color1 = Color (255, 100, 12)
-        color2 = Color (133, 127, 16)
-        sf1 = video.Surface (10, 10, 16)
-        for bpp in modes:
-            sf2 = video.Surface ( 5,  5, bpp)
-            if bpp == 8:
-                sf2.set_palette (CGAPALETTE)
-        
-            sf1.fill (color1)
-            sf2.fill (color2)
-            ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
-            c2 = Color (min(ca.r, cb.r), min(ca.g, cb.g), min(ca.b, cb.b))
-            
-            # Solid, minimum blit.
-            
-            # Color (133, 100, 12)
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_MIN)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-        
-            # Color (128, 20, 12)
-            sf2.fill (Color (128, 20, 144))
-            ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
-            c2 = Color (min(ca.r, cb.r), min(ca.g, cb.g), min(ca.b, cb.b))
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_MIN)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-            
-            # Color (128, 20, 12)
-            ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
-            c2 = Color (min(ca.r, cb.r), min(ca.g, cb.g), min(ca.b, cb.b))
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_MIN)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-        
-            # Color (0, 0, 0)
-            sf2.fill (Color (0, 0, 0))
-            ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
-            c2 = Color (min(ca.r, cb.r), min(ca.g, cb.g), min(ca.b, cb.b))
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_MIN)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-        video.quit ()
-
-    def test_8bpp_BLEND_RGB_MIN (self):
-        video.init ()
-        modes = [32, 24, 16, 8]
-        color1 = Color (255, 100, 12)
-        color2 = Color (133, 127, 16)
-        sf1 = video.Surface (10, 10, 8)
-        sf1.set_palette (CGAPALETTE)
-        for bpp in modes:
-            sf2 = video.Surface ( 5,  5, bpp)
-            if bpp == 8:
-                sf2.set_palette (CGAPALETTE)
-        
-            sf1.fill (color1)
-            sf2.fill (color2)
-            ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
-            c2 = Color (min(ca.r, cb.r), min(ca.g, cb.g), min(ca.b, cb.b))
-            
-            # Solid, minimum blit.
-            
-            # Color (133, 100, 12)
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_MIN)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-        
-            # Color (128, 20, 12)
-            sf2.fill (Color (128, 20, 144))
-            ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
-            c2 = Color (min(ca.r, cb.r), min(ca.g, cb.g), min(ca.b, cb.b))
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_MIN)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-            
-            # Color (128, 20, 12)
-            ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
-            c2 = Color (min(ca.r, cb.r), min(ca.g, cb.g), min(ca.b, cb.b))
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_MIN)
-            self._cmpcolor (sf1, sf2, c2,
-                                    Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-        
-            # Color (0, 0, 0)
-            sf2.fill (Color (0, 0, 0))
-            ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
-            c2 = Color (min(ca.r, cb.r), min(ca.g, cb.g), min(ca.b, cb.b))
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_MIN)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-        video.quit ()
-
-    def test_32bpp_BLEND_RGB_MULT (self):
+    def test_BLEND_RGB_MULT (self):
         video.init ()
         modes = [32, 24, 16, 8]
         color1 = Color (8, 50, 10)
         color2 = Color (127, 44, 12)
-        sf1 = video.Surface (10, 10, 32)
         for bpp in modes:
-            sf2 = video.Surface (5, 5, bpp)
+            sf1 = video.Surface (10, 10, bpp)
             if bpp == 8:
-                sf2.set_palette (CGAPALETTE)
+                sf1.set_palette (CGAPALETTE)
+            for bpp2 in modes:
+                sf2 = video.Surface (5, 5, bpp2)
+                if bpp2 == 8:
+                    sf2.set_palette (CGAPALETTE)
         
-            sf1.fill (color1)
-            sf2.fill (color2)
-            ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
-            c2 = Color ((ca.r * cb.r) >> 8, (ca.g * cb.g) >> 8, (ca.b * cb.b) >> 8)
+                sf1.fill (color1)
+                sf2.fill (color2)
+                ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
+                c2 = Color ((ca.r * cb.r) >> 8, (ca.g * cb.g) >> 8,
+                            (ca.b * cb.b) >> 8)
             
-            # Solid, multiply blit.
-            
-            # Color (3, 8, 0)
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_MULT)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
+                # Solid, multiply blit.
+                
+                # Color (3, 8, 0)
+                sf1.blit (sf2, blendargs=constants.BLEND_RGB_MULT)
+                self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
         
-            # Color (2, 5, 0)
-            sf2.fill (Color (255, 178, 177))
-            ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
-            c2 = Color ((ca.r * cb.r) >> 8, (ca.g * cb.g) >> 8, (ca.b * cb.b) >> 8)
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_MULT)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
+                # Color (2, 5, 0)
+                sf2.fill (Color (255, 178, 177))
+                ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
+                c2 = Color ((ca.r * cb.r) >> 8, (ca.g * cb.g) >> 8,
+                            (ca.b * cb.b) >> 8)
+                sf1.blit (sf2, blendargs=constants.BLEND_RGB_MULT)
+                self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
             
-            # Color (1, 3, 0)
-            ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
-            c2 = Color ((ca.r * cb.r) >> 8, (ca.g * cb.g) >> 8,
-                        (ca.b * cb.b) >> 8)
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_MULT)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
+                # Color (1, 3, 0)
+                ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
+                c2 = Color ((ca.r * cb.r) >> 8, (ca.g * cb.g) >> 8,
+                            (ca.b * cb.b) >> 8)
+                sf1.blit (sf2, blendargs=constants.BLEND_RGB_MULT)
+                self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
         
-            # Color (0, 0, 0)
-            sf2.fill (Color (0, 0, 0))
-            ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
-            c2 = Color ((ca.r * cb.r) >> 8, (ca.g * cb.g) >> 8,
-                        (ca.b * cb.b) >> 8)
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_MULT)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
+                # Color (0, 0, 0)
+                sf2.fill (Color (0, 0, 0))
+                ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
+                c2 = Color ((ca.r * cb.r) >> 8, (ca.g * cb.g) >> 8,
+                            (ca.b * cb.b) >> 8)
+                sf1.blit (sf2, blendargs=constants.BLEND_RGB_MULT)
+                self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
         video.quit ()
 
-    def test_24bpp_BLEND_RGB_MULT (self):
+    def test_BLEND_RGB_OR (self):
         video.init ()
         modes = [32, 24, 16, 8]
         color1 = Color (8, 50, 10)
         color2 = Color (127, 44, 12)
-        sf1 = video.Surface (10, 10, 24)
         for bpp in modes:
-            sf2 = video.Surface (5, 5, bpp)
+            sf1 = video.Surface (10, 10, bpp)
             if bpp == 8:
-                sf2.set_palette (CGAPALETTE)
+                sf1.set_palette (CGAPALETTE)
+            for bpp2 in modes:
+                sf2 = video.Surface (5, 5, bpp2)
+                if bpp2 == 8:
+                    sf2.set_palette (CGAPALETTE)
+
+                sf1.fill (color1)
+                sf2.fill (color2)
+                ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
+                c2 = Color (ca.r | cb.r, ca.g | cb.g, ca.b | cb.b)
+
+                # Solid OR blit.
+                
+                sf1.blit (sf2, blendargs=constants.BLEND_RGB_OR)
+                self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
         
-            sf1.fill (color1)
-            sf2.fill (color2)
-            ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
-            c2 = Color ((ca.r * cb.r) >> 8, (ca.g * cb.g) >> 8,
-                        (ca.b * cb.b) >> 8)
-        
-            # Solid, multiply blit.
+                sf2.fill (Color (255, 178, 177))
+                ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
+                c2 = Color (ca.r | cb.r, ca.g | cb.g, ca.b | cb.b)
+                sf1.blit (sf2, blendargs=constants.BLEND_RGB_OR)
+                self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
             
-            # Color (3, 8, 0)
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_MULT)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-        
-            # Color (2, 5, 0)
-            sf2.fill (Color (255, 178, 177))
-            ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
-            c2 = Color ((ca.r * cb.r) >> 8, (ca.g * cb.g) >> 8,
-                        (ca.b * cb.b) >> 8)
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_MULT)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-            
-            # Color (1, 3, 0)
-            ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
-            c2 = Color ((ca.r * cb.r) >> 8, (ca.g * cb.g) >> 8,
-                        (ca.b * cb.b) >> 8)
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_MULT)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-        
-            # Color (0, 0, 0)
-            sf2.fill (Color (0, 0, 0))
-            ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
-            c2 = Color ((ca.r * cb.r) >> 8, (ca.g * cb.g) >> 8,
-                        (ca.b * cb.b) >> 8)
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_MULT)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
+                sf2.fill (Color (0, 0, 0))
+                ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
+                c2 = Color (ca.r | cb.r, ca.g | cb.g, ca.b | cb.b)
+                sf1.blit (sf2, blendargs=constants.BLEND_RGB_OR)
+                self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
         video.quit ()
 
-    def test_16bpp_BLEND_RGB_MULT (self):
+    def test_BLEND_RGB_AND (self):
         video.init ()
         modes = [32, 24, 16, 8]
         color1 = Color (8, 50, 10)
         color2 = Color (127, 44, 12)
-        sf1 = video.Surface (10, 10, 16)
         for bpp in modes:
-            sf2 = video.Surface (5, 5, bpp)
+            sf1 = video.Surface (10, 10, bpp)
             if bpp == 8:
-                sf2.set_palette (CGAPALETTE)
+                sf1.set_palette (CGAPALETTE)
+            for bpp2 in modes:
+                sf2 = video.Surface (5, 5, bpp2)
+                if bpp2 == 8:
+                    sf2.set_palette (CGAPALETTE)
+
+                sf1.fill (color1)
+                sf2.fill (color2)
+                ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
+                c2 = Color (ca.r & cb.r, ca.g & cb.g, ca.b & cb.b)
+
+                # Solid, AND blit.
+                
+                sf1.blit (sf2, blendargs=constants.BLEND_RGB_AND)
+                self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
         
-            sf1.fill (color1)
-            sf2.fill (color2)
-            ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
-            c2 = Color ((ca.r * cb.r) >> 8, (ca.g * cb.g) >> 8,
-                        (ca.b * cb.b) >> 8)
-        
-            # Solid, multiply blit.
+                sf2.fill (Color (255, 178, 177))
+                ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
+                c2 = Color (ca.r & cb.r, ca.g & cb.g, ca.b & cb.b)
+                sf1.blit (sf2, blendargs=constants.BLEND_RGB_AND)
+                self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
             
-            # Color (3, 8, 0)
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_MULT)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-        
-            # Color (2, 5, 0)
-            sf2.fill (Color (255, 178, 177))
-            ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
-            c2 = Color ((ca.r * cb.r) >> 8, (ca.g * cb.g) >> 8,
-                        (ca.b * cb.b) >> 8)
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_MULT)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-            
-            # Color (1, 3, 0)
-            ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
-            c2 = Color ((ca.r * cb.r) >> 8, (ca.g * cb.g) >> 8,
-                        (ca.b * cb.b) >> 8)
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_MULT)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-        
-            # Color (0, 0, 0)
-            sf2.fill (Color (0, 0, 0))
-            ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
-            c2 = Color ((ca.r * cb.r) >> 8, (ca.g * cb.g) >> 8,
-                        (ca.b * cb.b) >> 8)
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_MULT)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
+                sf2.fill (Color (0, 0, 0))
+                ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
+                c2 = Color (ca.r & cb.r, ca.g & cb.g, ca.b & cb.b)
+                sf1.blit (sf2, blendargs=constants.BLEND_RGB_AND)
+                self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
         video.quit ()
 
-    def test_8bpp_BLEND_RGB_MULT (self):
+    def test_BLEND_RGB_XOR (self):
         video.init ()
         modes = [32, 24, 16, 8]
         color1 = Color (8, 50, 10)
         color2 = Color (127, 44, 12)
-        sf1 = video.Surface (10, 10, 8)
-        sf1.set_palette (CGAPALETTE)
         for bpp in modes:
-            sf2 = video.Surface (5, 5, bpp)
+            sf1 = video.Surface (10, 10, bpp)
             if bpp == 8:
-                sf2.set_palette (CGAPALETTE)
+                sf1.set_palette (CGAPALETTE)
+            for bpp2 in modes:
+                sf2 = video.Surface (5, 5, bpp2)
+                if bpp2 == 8:
+                    sf2.set_palette (CGAPALETTE)
+
+                sf1.fill (color1)
+                sf2.fill (color2)
+                ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
+                c2 = Color (ca.r ^ cb.r, ca.g ^ cb.g, ca.b ^ cb.b)
+
+                # Solid XOR blit.
+                
+                sf1.blit (sf2, blendargs=constants.BLEND_RGB_XOR)
+                self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
         
-            sf1.fill (color1)
-            sf2.fill (color2)
-            ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
-            c2 = Color ((ca.r * cb.r) >> 8, (ca.g * cb.g) >> 8,
-                        (ca.b * cb.b) >> 8)
-        
-            # Solid, multiply blit.
+                sf2.fill (Color (255, 178, 177))
+                ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
+                c2 = Color (ca.r ^ cb.r, ca.g ^ cb.g, ca.b ^ cb.b)
+                sf1.blit (sf2, blendargs=constants.BLEND_RGB_XOR)
+                self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
             
-            # Color (3, 8, 0)
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_MULT)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
+                sf2.fill (Color (0, 0, 0))
+                ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
+                c2 = Color (ca.r ^ cb.r, ca.g ^ cb.g, ca.b ^ cb.b)
+                sf1.blit (sf2, blendargs=constants.BLEND_RGB_XOR)
+                self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
+        video.quit ()
+
+    def test_BLEND_RGB_DIFF (self):
+        video.init ()
+        modes = [32, 24, 16, 8]
+        color1 = Color (8, 50, 10)
+        color2 = Color (127, 44, 12)
+        for bpp in modes:
+            sf1 = video.Surface (10, 10, bpp)
+            if bpp == 8:
+                sf1.set_palette (CGAPALETTE)
+            for bpp2 in modes:
+                sf2 = video.Surface (5, 5, bpp2)
+                if bpp2 == 8:
+                    sf2.set_palette (CGAPALETTE)
+
+                sf1.fill (color1)
+                sf2.fill (color2)
+                ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
+                c2 = Color (abs(cb.r - ca.r), abs(cb.g - ca.g),
+                            abs(cb.b - ca.b))
+
+                # Solid DIFF blit.
+                
+                sf1.blit (sf2, blendargs=constants.BLEND_RGB_DIFF)
+                self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
         
-            # Color (2, 5, 0)
-            sf2.fill (Color (255, 178, 177))
-            ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
-            c2 = Color ((ca.r * cb.r) >> 8, (ca.g * cb.g) >> 8,
-                        (ca.b * cb.b) >> 8)
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_MULT)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
+                sf2.fill (Color (255, 178, 177))
+                ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
+                c2 = Color (abs(cb.r - ca.r), abs(cb.g - ca.g),
+                            abs(cb.b - ca.b))
+                sf1.blit (sf2, blendargs=constants.BLEND_RGB_DIFF)
+                self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
             
-            # Color (1, 3, 0)
-            ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
-            c2 = Color ((ca.r * cb.r) >> 8, (ca.g * cb.g) >> 8,
-                        (ca.b * cb.b) >> 8)
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_MULT)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
+                sf2.fill (Color (0, 0, 0))
+                ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
+                c2 = Color (abs(cb.r - ca.r), abs(cb.g - ca.g),
+                            abs(cb.b - ca.b))
+                sf1.blit (sf2, blendargs=constants.BLEND_RGB_DIFF)
+                self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
+        video.quit ()
+
+    def test_BLEND_RGB_AVG (self):
+        video.init ()
+        modes = [32, 24, 16, 8]
+        color1 = Color (8, 50, 10)
+        color2 = Color (127, 44, 12)
+        for bpp in modes:
+            sf1 = video.Surface (10, 10, bpp)
+            if bpp == 8:
+                sf1.set_palette (CGAPALETTE)
+            for bpp2 in modes:
+                sf2 = video.Surface (5, 5, bpp2)
+                if bpp2 == 8:
+                    sf2.set_palette (CGAPALETTE)
+
+                sf1.fill (color1)
+                sf2.fill (color2)
+                ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
+                c2 = Color ((ca.r + cb.r) >> 1, (ca.g + cb.g) >> 1,
+                            (ca.b + cb.b) >> 1)
+
+                # Solid AVG blit.
+                
+                sf1.blit (sf2, blendargs=constants.BLEND_RGB_AVG)
+                self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
         
-            # Color (0, 0, 0)
-            sf2.fill (Color (0, 0, 0))
-            ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
-            c2 = Color ((ca.r * cb.r) >> 8, (ca.g * cb.g) >> 8,
-                        (ca.b * cb.b) >> 8)
-            sf1.blit (sf2, blendargs=constants.BLEND_RGB_MULT)
-            self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
-            self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
+                sf2.fill (Color (255, 178, 177))
+                ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
+                c2 = Color ((ca.r + cb.r) >> 1, (cb.g + ca.g) >> 1,
+                            (ca.b + cb.b) >> 1)
+                sf1.blit (sf2, blendargs=constants.BLEND_RGB_AVG)
+                self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
+            
+                sf2.fill (Color (0, 0, 0))
+                ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
+                c2 = Color ((ca.r + cb.r) >> 1, (ca.g + cb.g) >> 1,
+                            (ca.b + cb.b) >> 1)
+                sf1.blit (sf2, blendargs=constants.BLEND_RGB_AVG)
+                self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
+        video.quit ()
+
+    def test_BLEND_RGB_SCREEN (self):
+        video.init ()
+        modes = [32, 24, 16, 8]
+        color1 = Color (8, 50, 10)
+        color2 = Color (127, 44, 12)
+        for bpp in modes:
+            sf1 = video.Surface (10, 10, bpp)
+            if bpp == 8:
+                sf1.set_palette (CGAPALETTE)
+            for bpp2 in modes:
+                sf2 = video.Surface (5, 5, bpp2)
+                if bpp2 == 8:
+                    sf2.set_palette (CGAPALETTE)
+
+                sf1.fill (color1)
+                sf2.fill (color2)
+                ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
+                c2 = Color (255 - ((255 - ca.r) * (255 - cb.r) >> 8),
+                            255 - ((255 - ca.g) * (255 - cb.g) >> 8),
+                            255 - ((255 - ca.b) * (255 - cb.b) >> 8))
+
+                # Solid SCREEN blit.
+                
+                sf1.blit (sf2, blendargs=constants.BLEND_RGB_SCREEN)
+                self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
+        
+                sf2.fill (Color (255, 178, 177))
+                ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
+                c2 = Color (255 - ((255 - ca.r) * (255 - cb.r) >> 8),
+                            255 - ((255 - ca.g) * (255 - cb.g) >> 8),
+                            255 - ((255 - ca.b) * (255 - cb.b) >> 8))
+                sf1.blit (sf2, blendargs=constants.BLEND_RGB_SCREEN)
+                self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
+            
+                sf2.fill (Color (0, 0, 0))
+                ca, cb = sf1.get_at (0, 0), sf2.get_at (0, 0)
+                c2 = Color (255 - ((255 - ca.r) * (255 - cb.r) >> 8),
+                            255 - ((255 - ca.g) * (255 - cb.g) >> 8),
+                            255 - ((255 - ca.b) * (255 - cb.b) >> 8))
+                sf1.blit (sf2, blendargs=constants.BLEND_RGB_SCREEN)
+                self._cmpcolor (sf1, sf2, c2, Rect (0, 0, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
+                self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
         video.quit ()
 
 if __name__ == "__main__":
