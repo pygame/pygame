@@ -4,6 +4,10 @@
 # BREAK = change breaks existing code
 # BUG    = fixed a bug that was (or could have been) crashing
 
+[SVN 2454] July 2, 2009
+    Patch to work around cpu detection bugs in SDL 64bit from Lenard.  
+      Thanks to Lorenz for bug hunting.
+
 [SVN 2380-2381] Jun 19, 2009
     Color.set_length method... to change Color length to 1,2,3 or 4.
     Surface.get_palette(_at) return Color with length 3.
