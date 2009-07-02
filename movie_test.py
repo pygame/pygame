@@ -8,7 +8,7 @@ import pygame.nmovie as movie
 
 print "Please give an (absolute)filename of a movie file you'd like to play: ",
 #filename = raw_input()
-filename="/home/tyler/dhs1.avi"
+filename="/home/tyler/War3.avi"
 #initialization. It could also have a surface as a second argument, and every 
 # frame will be blitted to that surface. It is the programmer's responsibility
 # to be on time for rendering that surface.
@@ -25,8 +25,8 @@ print m.height  # They can be modified on the fly, as will be demonstrated.
 print m         #calls __repr__, which will show the filename, and the current 
                 # timestamp. 
 #print "repeated looping plays.."
-#m.play(10)
-#time.sleep(10*30)
+m.play(10)
+time.sleep(10*30)
 
 
 print "Playing infinitely"
@@ -69,13 +69,13 @@ print m.paused
 print m.playing
 time.sleep(20)
 #Here is the stop function. Right now, rewind is the exact same as stop.
-print "Stopping..."
+print "Stopping..., sleeping for 3 seconds"
 m.stop()
 time.sleep(3)
 #And now we restart playing.
 print "Playing again..."
 m.play(-1)
-
+print "done restart play..."
 time.sleep(10)
 print "Surface time..."
 screen = pygame.display.set_mode((m.width, m.height))

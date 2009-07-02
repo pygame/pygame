@@ -18,7 +18,7 @@ void _movie_init_internal(PyMovie *self, const char *filename, SDL_Surface *surf
     }
     self->start_time = AV_NOPTS_VALUE;
     stream_open(self, filename, NULL, 0);
-    PySys_WriteStdout("Time-base-a: %f\n", av_q2d(self->audio_st->codec->time_base));
+    //PySys_WriteStdout("Time-base-a: %f\n", av_q2d(self->audio_st->codec->time_base));
     if(!self)
     {
         PyErr_SetString(PyExc_IOError, "stream_open failed");

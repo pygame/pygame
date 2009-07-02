@@ -191,6 +191,7 @@ int soundStart (void)
     ainfo.ended=0;
     ainfo.audio_clock =0.0;
     ainfo.playing=0;
+    ainfo.channel=0;
     ainfo.current_frame_size=1;
     //playBuffer(NULL, 0, 0, 0);
     return 0;
@@ -199,6 +200,7 @@ int soundStart (void)
 int soundEnd   (void)
 {
     ainfo.ended = 1;
+    queue_flush(&ainfo.queue);
     return 0;
 }
 
@@ -277,13 +279,14 @@ int playBuffer (uint8_t *buf, uint32_t len, int channel, int64_t pts)
     mix->alen = (Uint32 )len;
     mix->volume = 127;
     ainfo.playing = 1;
- 	if(!ainfo.paused)
+ 	if(!ainfo.ended)
 	{
     	int bytes_per_sec = ainfo.channels*ainfo.sample_rate*2;
     	ainfo.audio_clock+= (double) len/(double) bytes_per_sec;
 	}
     ainfo.current_frame_size =len;
-    int ret = Mix_PlayChannel(ainfo.channel, mix, 0);
+    int chan = ainfo.channel;
+    int ret = Mix_PlayChannel(chan, mix, 0);
     ainfo.channel = ret;
     //if buffer was allocated, we gotta clean it up.
     if(allocated)
@@ -307,12 +310,12 @@ int pauseBuffer(int channel)
     int paused = Mix_Paused(channel);
     if(paused)
     {
-    	ainfo.paused=0;
+    	ainfo.ended=0;
         Mix_Resume(-1);
     }
     else
     {
-    	ainfo.paused=1;
+    	ainfo.ended=1;
         Mix_Pause(-1);
     }
     return 0;

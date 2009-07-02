@@ -1041,7 +1041,7 @@ int stream_component_start(PyMovie *movie, int stream_index, int threaded)
     AVFormatContext *ic = movie->ic;
     AVCodecContext *enc;
 
-    ic->streams[stream_index]->discard = AVDISCARD_DEFAULT;
+    //ic->streams[stream_index]->discard = AVDISCARD_DEFAULT;
 
     if (stream_index < 0 || stream_index >= ic->nb_streams)
     {
@@ -1128,6 +1128,7 @@ void stream_component_end(PyMovie *movie, int stream_index)
         soundEnd();
         memset(&movie->audio_buf1, 0, sizeof(movie->audio_buf1));
         movie->replay=1;
+        packet_queue_flush(&movie->audioq);
         break;
     case CODEC_TYPE_VIDEO:
         for(i=0;i<VIDEO_PICTURE_QUEUE_SIZE;i++)
@@ -1137,6 +1138,7 @@ void stream_component_end(PyMovie *movie, int stream_index)
         }
         movie->replay = 1;
         packet_queue_abort(&movie->videoq);
+        packet_queue_flush(&movie->videoq);
         break;
     default:
         break;
@@ -1620,10 +1622,16 @@ int decoder_wrapper(void *arg)
         movie->paused=0;
         if(movie->replay)
             initialize_context(movie, 1);
+        GRABGIL
+        PySys_WriteStdout("Video Stream: %i\nAudio Stream: %i\n", movie->video_stream, movie->audio_stream);
+        RELEASEGIL
         if(movie->video_st)
-            stream_component_start(movie, movie->video_st->index, 1);
+            stream_component_start(movie, movie->video_stream, 1);
         if(movie->audio_st)
-            stream_component_start(movie, movie->audio_st->index, 1);
+            stream_component_start(movie, movie->audio_stream, 1);
+        GRABGIL
+        PySys_WriteStdout("Video Stream: %i\nAudio Stream: %i\n", movie->video_stream, movie->audio_stream);
+        RELEASEGIL
         state =decoder(movie);
         if(movie->video_st)
             stream_component_end(movie, movie->video_st->index);
@@ -1657,7 +1665,9 @@ int decoder(void *arg)
     for(;;)
     {
         co++;
-
+		GRABGIL
+		PySys_WriteStdout("Counter: %i\n", co);
+		RELEASEGIL
         if (movie->abort_request)
         {
             break;
