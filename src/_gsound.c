@@ -330,15 +330,15 @@ int setCallback(void (*callback)(int channel))
     return 1;
 }
 
-int getAudioClock(void)
+double getAudioClock(void)
 {
     SDL_mutexP(ainfo.mutex);//lock
     int bytes_per_sec = ainfo.channels*ainfo.sample_rate*2;
-    int pts = ainfo.audio_clock;
-    /*if(ainfo.current_frame_size!=1)
-{
-    	pts -= (double) ainfo.current_frame_size/bytes_per_sec;
-}*/
+    double pts = ainfo.audio_clock;
+    //if(ainfo.current_frame_size!=1)
+	//{
+    	pts -= (double) ainfo.current_frame_size/(double) bytes_per_sec;
+	//}
     SDL_mutexV(ainfo.mutex);
     return pts;
 }

@@ -49,7 +49,7 @@ int playBuffer    (uint8_t *buf, uint32_t len, int channel, int64_t pts);
 int stopBuffer    (int channel);
 int pauseBuffer   (int channel);
 int getPaused     (int channel);
-int getAudioClock (void);
+double getAudioClock (void);
 int seekBuffer    (uint8_t *buf, uint32_t len, int channel );
 int setCallback   (void (*callback) (int channel));
 int resetAudioInfo(void);

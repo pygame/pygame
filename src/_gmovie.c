@@ -585,11 +585,11 @@ void video_refresh_timer(PyMovie* movie)
             /* if video is slave, we try to correct big delays by
                duplicating or deleting a frame */
             ref_clock = get_master_clock(movie);
-            //GRABGIL
-			//PySys_WriteStdout("Audio Clock: %f\n", ref_clock);
+            GRABGIL
+			PySys_WriteStdout("Audio Clock: %f\n", ref_clock);
             diff = movie->video_current_pts - ref_clock;
-            //PySys_WriteStdout("diff at call %i: %f\n", movie->diff_co, diff);
-            //RELEASEGIL
+            PySys_WriteStdout("diff at call %i: %f\n", movie->diff_co, diff);
+            RELEASEGIL
             /* skip or repeat frame. We take into account the
                delay to compute the threshold. I still don't know
                if it is the best guess */
@@ -613,7 +613,7 @@ void video_refresh_timer(PyMovie* movie)
             actual_delay = 0.010;
         }
         GRABGIL
-        //PySys_WriteStdout("frame_timer: %f\ndelay: %f\n",movie->frame_timer, delay);
+        PySys_WriteStdout("frame_timer: %f\ndelay: %f\n",movie->frame_timer, delay);
         movie->timing = (actual_delay*1000.0)+0.5;
         RELEASEGIL
     }
@@ -759,8 +759,7 @@ int audio_write_get_buf_size(PyMovie *movie)
 /* get the current audio clock value */
 double get_audio_clock(PyMovie *movie)
 {
-    double pts= getAudioClock();
-    return pts;
+    return getAudioClock();
 }
 
 /* get the current video clock value */
@@ -928,9 +927,9 @@ int audio_thread(void *arg)
         }
 		if(filled)
         {
-            //GRABGIL
-            //PySys_WriteStdout("movie->audio_pts: %i\n", (int)movie->audio_pts);
-            //RELEASEGIL
+            GRABGIL
+            PySys_WriteStdout("movie->audio_pts: %i\n", (int)movie->audio_pts);
+            RELEASEGIL
             /* Buffer is filled up with a new frame, we spin lock/wait for a signal, where we then call playBuffer */
             SDL_LockMutex(movie->audio_mutex);
             //SDL_CondWait(movie->audio_sig, movie->audio_mutex);
@@ -1817,22 +1816,19 @@ int decoder(void *arg)
             if(now >= showtime)
             {
                 double temp = movie->timing;
+                double temp_showtime = movie->last_showtime;
                 movie->timing =0;
                 if(!video_display(movie))
                 {
                     movie->timing=temp;
+                    movie->last_showtime=temp_showtime;
                 }
-                movie->last_showtime = av_gettime()/1000.0;
-
+                else
+                {
+                	movie->last_showtime = av_gettime()/1000.0;
+                }
             }
         }
-        /*
-        if(movie->video_clock >=4.5)
-    {
-        	GRABGIL
-        	PySys_WriteStdout("PTS: %f\n", movie->video_clock);
-        	RELEASEGIL
-    }*/
     }
 
     ret = 0;
