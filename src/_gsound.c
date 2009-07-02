@@ -268,6 +268,7 @@ int playBuffer (uint8_t *buf, uint32_t len, int channel, int64_t pts)
         len=128;
         allocated =1;
     }
+    
     //regardless of 1st call, or a callback, we load the data from buf into a newly allocated block.
     mix= (Mix_Chunk *)PyMem_Malloc(sizeof(Mix_Chunk));
     mix->allocated=0;
@@ -276,8 +277,11 @@ int playBuffer (uint8_t *buf, uint32_t len, int channel, int64_t pts)
     mix->alen = (Uint32 )len;
     mix->volume = 127;
     ainfo.playing = 1;
-    int bytes_per_sec = ainfo.channels*ainfo.sample_rate*2;
-    ainfo.audio_clock+= (double) len/(double) bytes_per_sec;
+ 	if(!ainfo.paused)
+	{
+    	int bytes_per_sec = ainfo.channels*ainfo.sample_rate*2;
+    	ainfo.audio_clock+= (double) len/(double) bytes_per_sec;
+	}
     ainfo.current_frame_size =len;
     int ret = Mix_PlayChannel(ainfo.channel, mix, 0);
     ainfo.channel = ret;
@@ -303,10 +307,12 @@ int pauseBuffer(int channel)
     int paused = Mix_Paused(channel);
     if(paused)
     {
+    	ainfo.paused=0;
         Mix_Resume(-1);
     }
     else
     {
+    	ainfo.paused=1;
         Mix_Pause(-1);
     }
     return 0;
