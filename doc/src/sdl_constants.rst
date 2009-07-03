@@ -444,6 +444,32 @@ input. They are used by the :func:`pygame2.sdl.keyboard.get_mod_state` and
 | KMOD_MODE         |                                                       |
 +-------------------+-------------------------------------------------------+
 
+Overlay Types
+-------------
+
+The :class:`pygame2.sdl.video.Overlay` class supports the following
+video overlay types.
+
+.. data:: YV12_OVERLAY
+      
+   Planar mode: Y + V + U
+
+.. data:: IYUV_OVERLAY
+  
+   Planar mode: Y + U + V
+
+.. data:: YUY2_OVERLAY
+
+   Packed mode: Y0 + U0 + Y1 + V0
+
+.. data:: UYVY_OVERLAY
+
+   Packed mode: U0 + Y0 + V0 + Y1
+
+.. data:: YVYU_OVERLAY
+
+   Packed mode: Y0 + V0 + Y1 + U0
+
 Surface Flags
 -------------
 
@@ -574,7 +600,6 @@ error, instead the inappropriate flags are silently ignored.
    
    This is only available for the :mod:`pygame2.sdl.video` functions and the
    display surface set by :meth:`pygame2.sdl.video.set_mode`.
-
 
 Various Constants
 -----------------

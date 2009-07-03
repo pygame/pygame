@@ -20,15 +20,10 @@
       hardware. To use the object you should understand the technical details
       of video overlays.
 
-      The Overlay format determines the type of pixel data used. Not
-      all hardware will support all types of overlay formats. Supported format
-      types are
-
-      * YV12_OVERLAY
-      * IYUV_OVERLAY
-      * YUV2_OVERLAY
-      * UYVY_OVERLAY
-      * YVYU_OVERLAY
+      The Overlay *format* determines the type of pixel data used. Not all
+      hardware will support all types of overlay formats. Supported
+      *format* types are listed in the :mod:`pygame2.sdl.constants`
+      module.
 
       The *width* and *height* arguments control the size for the overlay image
       data. The overlay image can be displayed at any size, not just the
