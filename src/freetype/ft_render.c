@@ -65,6 +65,7 @@ PGFT_BuildRenderMode(FontRenderMode *mode, int vertical, int antialias, int rota
     mode->autohint = 0;
     mode->antialias = (FT_Byte)antialias;
     mode->matrix = NULL;
+    mode->_rotation_angle = 0;
 
     if (angle != 0)
     {
@@ -557,8 +558,7 @@ int _PGFT_Render_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font,
     assert(text->text_size.x);
     assert(text->text_size.y);
 
-
-    if (render->_rotation_angle)
+    if (render->matrix)
     {
         x += ((text->text_size.x + 1) & ~1) / 2;
         y += ((text->text_size.y + 1) & ~1) / 2;

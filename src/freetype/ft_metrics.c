@@ -107,7 +107,8 @@ _PGFT_GetTextSize_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
     if (render->matrix)
     {   
-        FT_Vector_Rotate(&size, render->_rotation_angle);
+        size.x = MAX(size.x, size.y);
+        size.y = MAX(size.x, size.y);
     }
 
     text->text_size.x = PGFT_TRUNC(PGFT_ROUND(ABS(size.x)));
