@@ -367,7 +367,7 @@ _ftfont_getsize(PyObject *self, PyObject* args, PyObject *kwds)
     if (vertical_obj && PyObject_IsTrue(vertical_obj))
         vertical = 1;
 
-    PGFT_BuildRenderMode(&render, 0.0f, vertical, FONT_RENDER_ANTIALIAS, rotation);
+    PGFT_BuildRenderMode(&render, vertical, FONT_RENDER_ANTIALIAS, rotation);
 
     error = PGFT_GetTextSize(ft, (PyFreeTypeFont *)self, ptsize, &render,
             text, &width, &height);
@@ -626,7 +626,7 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
         vertical = 1;
 
     /* TODO: handle antialiasing */
-    PGFT_BuildRenderMode(&render, 0.0f, vertical, FONT_RENDER_ANTIALIAS, rotation);
+    PGFT_BuildRenderMode(&render, vertical, FONT_RENDER_ANTIALIAS, rotation);
 
 
     if (!target_surf || target_surf == Py_None)
@@ -649,7 +649,8 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
     {
         if (PGFT_Render_ExistingSurface(ft, font, ptsize, &render, 
                 text, (PySDLSurface *)target_surf,
-                xpos, ypos, (PyColor *)fg_color, &width, &height) != 0)
+                xpos, ypos, (PyColor *)fg_color, (PyColor *)bg_color,
+                &width, &height) != 0)
         {
             PyErr_SetString(PyExc_PyGameError, PGFT_GetError(ft));
             return NULL;

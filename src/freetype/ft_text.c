@@ -58,9 +58,6 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
     FT_Face     face;
 
-    FTC_ScalerRec scale;
-    FT_Size fontsize;
-
     /* compute proper load flags */
     load_flags |= FT_LOAD_IGNORE_GLOBAL_ADVANCE_WIDTH;
 
@@ -104,7 +101,8 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
     ftext = malloc(sizeof(FontText));
     ftext->length = string_length;
     ftext->glyphs = calloc((size_t)string_length, sizeof(FontGlyph));
-    ftext->size.x = ftext->size.y = 0;
+    ftext->glyph_size.x = ftext->glyph_size.y = 0;
+    ftext->text_size.x = ftext->text_size.y = 0;
     ftext->baseline_offset.x = ftext->baseline_offset.y = 0;
 
     /* fill it with the glyphs */
@@ -148,11 +146,11 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
             if (baseline > ftext->baseline_offset.y)
                 ftext->baseline_offset.y = baseline;
 
-            if (metrics->width > ftext->size.x)
-                ftext->size.x = metrics->width;
+            if (metrics->width > ftext->glyph_size.x)
+                ftext->glyph_size.x = metrics->width;
 
-            if (metrics->height > ftext->size.y)
-                ftext->size.y = metrics->height;
+            if (metrics->height > ftext->glyph_size.y)
+                ftext->glyph_size.y = metrics->height;
 
             if (prev_rsb_delta - face->glyph->lsb_delta >= 32)
                 glyph->delta = -1 << 6;

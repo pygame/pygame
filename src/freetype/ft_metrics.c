@@ -81,31 +81,37 @@ int PGFT_GetMetrics(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
 int
 _PGFT_GetTextSize_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font, 
-    int pt_size, FontRenderMode *render, FontText *text, int *w, int *h)
+    int pt_size, FontRenderMode *render, FontText *text)
 {
     FT_Vector   extent, advances[MAX_GLYPHS];
     FT_Error    error;
+    FT_Vector   size;
 
     error = PGFT_GetTextAdvances(ft, font, pt_size, render, text, advances);
 
     if (error)
-    {
-        _PGFT_SetError(ft, "Failed to load glyph advances", error);
         return error;
-    }
 
     extent = advances[text->length - 1];
 
     if (render->vertical)
     {
-        *w = PGFT_TRUNC(text->size.x);
-        *h = PGFT_TRUNC(extent.y);
+        size.x = text->glyph_size.x;
+        size.y = ABS(extent.y);
     }
     else
     {
-        *w = PGFT_TRUNC(extent.x);
-        *h = PGFT_TRUNC(text->size.y);
+        size.x = extent.x;
+        size.y = text->glyph_size.y;
     }
+
+    if (render->matrix)
+    {   
+        FT_Vector_Rotate(&size, render->_rotation_angle);
+    }
+
+    text->text_size.x = PGFT_TRUNC(PGFT_ROUND(ABS(size.x)));
+    text->text_size.y = PGFT_TRUNC(PGFT_ROUND(ABS(size.y)));
 
     return 0;
 }
@@ -121,5 +127,10 @@ PGFT_GetTextSize(FreeTypeInstance *ft, PyFreeTypeFont *font, int pt_size,
     if (!font_text)
         return -1;
 
-    return _PGFT_GetTextSize_INTERNAL(ft, font, pt_size, render, font_text, w, h);
+    if (_PGFT_GetTextSize_INTERNAL(ft, font, pt_size, render, font_text) != 0)
+        return -1;
+
+    *w = font_text->text_size.x;
+    *h = font_text->text_size.y;
+    return 0;
 }
