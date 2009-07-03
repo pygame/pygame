@@ -117,6 +117,7 @@ typedef struct __rendermode
     FT_Byte     antialias;
     FT_Byte     kerning_mode;
     FT_Byte     autohint;
+    FT_Byte     style;
 } FontRenderMode;
 
 typedef struct  FontGlyph_
@@ -212,13 +213,16 @@ int         PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *fo
                 PySDLSurface *_surface, int x, int y, PyColor *fgcolor, PyColor *bgcolor,
                 int *_width, int *_height);
 
-void        PGFT_BuildRenderMode(FontRenderMode *mode, int vertical, 
+void        PGFT_BuildRenderMode(FontRenderMode *mode, int style, int vertical, 
                 int antialias, int rotation);
 
 int         _PGFT_Render_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font, 
                 FontText *text, int font_size, PyColor *fg_color, 
                 FontSurface *surface, FontRenderMode *render);
 
+
+/******************************************************************* Fake styles ****/
+int PGFT_Style_MakeBold(FT_Face face);
 
 
 /******************************************************** Font text management ****/

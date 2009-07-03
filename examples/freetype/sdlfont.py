@@ -26,7 +26,7 @@ def run():
 
     screen = video.set_mode (640, 480)
     screen.fill (pygame2.Color (200, 200, 200))
-    w, h, _ = font.render("Hello", pygame2.Color(100, 100, 100), None, screen, 100, 100, ptsize=48)
+    w, h, _ = font.render("Hello", pygame2.Color(100, 100, 100), None, screen, 100, 100, ptsize=48, style=ftconstants.STYLE_BOLD)
 
     w, h, _ = font.render("World", pygame2.Color(200, 100, 100), pygame2.Color(255, 0xCC, 0), screen, 100, 200, ptsize=48, vertical = False, rotation = 0, antialias = True)
 

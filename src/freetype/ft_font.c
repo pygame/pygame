@@ -330,7 +330,7 @@ _ftfont_getsize(PyObject *self, PyObject* args, PyObject *kwds)
     /* keyword list */
     static char *kwlist[] = 
     { 
-        "text", "vertical", "rotation", "ptsize", NULL
+        "text", "style", "vertical", "rotation", "ptsize", NULL
     };
 
     PyFreeTypeFont *font = (PyFreeTypeFont *)self;
@@ -342,20 +342,21 @@ _ftfont_getsize(PyObject *self, PyObject* args, PyObject *kwds)
     FontRenderMode render;
     int vertical = 0;
     int rotation = 0;
+    int style = FT_STYLE_NORMAL;
 
     PyObject *vertical_obj = NULL;
 
     FreeTypeInstance *ft;
     ASSERT_GRAB_FREETYPE(ft, NULL);
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|Oii", kwlist, 
-                &text, &vertical_obj, &rotation, &ptsize))
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|iOii", kwlist, 
+                &text, &style, &vertical_obj, &rotation, &ptsize))
         return NULL;
 
     PGFT_CHECK_PTSIZE();
     PGFT_CHECK_BOOL(vertical_obj, vertical);
 
-    PGFT_BuildRenderMode(&render, vertical, FONT_RENDER_ANTIALIAS, rotation);
+    PGFT_BuildRenderMode(&render, style, vertical, FONT_RENDER_ANTIALIAS, rotation);
 
     error = PGFT_GetTextSize(ft, (PyFreeTypeFont *)self, ptsize, &render,
             text, &width, &height);
@@ -530,7 +531,7 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
     static char *kwlist[] = 
     { 
         "text", "fgcolor", "bgcolor", "dstsurface", 
-        "xpos", "ypos", "vertical", "rotation", "antialias", "ptsize", NULL
+        "xpos", "ypos", "style", "vertical", "rotation", "antialias", "ptsize", NULL
     };
 
     PyFreeTypeFont *font = (PyFreeTypeFont *)self;
@@ -545,6 +546,7 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
     PyObject *antialias_obj = NULL;
     int rotation = 0;
     int xpos = 0, ypos = 0;
+    int style = FT_STYLE_NORMAL;
 
     /* output arguments */
     PyObject *rtuple = NULL;
@@ -557,9 +559,9 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
     FreeTypeInstance *ft;
     ASSERT_GRAB_FREETYPE(ft, NULL);
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OO|OOiiOiOi", kwlist,
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OO|OOiiiOiOi", kwlist,
                 &text, &fg_color, &bg_color, &target_surf, &xpos, &ypos, 
-                &vertical_obj, &rotation, &antialias_obj, &ptsize))
+                &style, &vertical_obj, &rotation, &antialias_obj, &ptsize))
         return NULL;
 
     PGFT_CHECK_PTSIZE();
@@ -586,7 +588,7 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
     PGFT_CHECK_BOOL(antialias_obj, antialias);
 
     /* TODO: handle antialiasing */
-    PGFT_BuildRenderMode(&render, vertical, antialias, rotation);
+    PGFT_BuildRenderMode(&render, style, vertical, antialias, rotation);
 
     if (!target_surf || target_surf == Py_None)
     {

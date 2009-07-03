@@ -47,7 +47,7 @@ void __render_glyph_SDL32(int x, int y, FontSurface *surface, FT_Bitmap *bitmap,
 void __render_glyph_ByteArray(int x, int y, FontSurface *surface, FT_Bitmap *bitmap, PyColor *color);
 
 void 
-PGFT_BuildRenderMode(FontRenderMode *mode, int vertical, int antialias, int rotation)
+PGFT_BuildRenderMode(FontRenderMode *mode, int style, int vertical, int antialias, int rotation)
 {
     double      radian;
     FT_Fixed    cosinus;
@@ -59,6 +59,8 @@ PGFT_BuildRenderMode(FontRenderMode *mode, int vertical, int antialias, int rota
 
     mode->kerning_mode = 1;
     mode->kerning_degree = 0;
+
+    mode->style = (FT_Byte)style;
 
     mode->vertical = (FT_Byte)vertical;
     mode->hinted = (FT_Byte)1;
@@ -490,7 +492,8 @@ PyObject *PGFT_Render_PixelArray(FreeTypeInstance *ft, PyFreeTypeFont *font,
     FontRenderMode render;
     int array_size;
 
-    PGFT_BuildRenderMode(&render, 
+    /* TODO: pixel arrays must also take custom rendering styles */
+    PGFT_BuildRenderMode(&render, FT_STYLE_NORMAL,
             FONT_RENDER_HORIZONTAL, FONT_RENDER_ANTIALIAS, 0);
 
     /* build font text */
