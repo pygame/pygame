@@ -882,12 +882,6 @@ int audio_thread(void *arg)
     int filled =0;
     len1=0;
     int co = 0;
-    if(movie->replay)
-        {
-        	GRABGIL
-        	PySys_WriteStdout("Before loop\n");
-        	RELEASEGIL
-        }
     for(;co<2;co++)
     {
         if      (!movie->paused && movie->audio_paused)
@@ -908,21 +902,9 @@ int audio_thread(void *arg)
             stopBuffer(movie->channel);
             goto closing;
         }
-        if(movie->replay)
-        {
-        	GRABGIL
-        	PySys_WriteStdout("after pause and stop checks...\n");
-        	RELEASEGIL
-        }
         //fill up the buffer
         while(movie->audio_pkt_size > 0)
         {
-        	if(movie->replay)
-	        {
-	        	GRABGIL
-	        	PySys_WriteStdout("inside while loop\n");
-	        	RELEASEGIL
-	        }
             data_size = sizeof(movie->audio_buf1);
             len1 += avcodec_decode_audio2(dec, (int16_t *)movie->audio_buf1, &data_size, movie->audio_pkt_data, movie->audio_pkt_size);
             if (len1 < 0)
@@ -944,30 +926,11 @@ int audio_thread(void *arg)
             filled=1;
 
         }
-        if(movie->replay)
-        {
-        	GRABGIL
-        	PySys_WriteStdout("after while loop\n");
-        	RELEASEGIL
-        }
 		if(filled)
         {
             /* Buffer is filled up with a new frame, we spin lock/wait for a signal, where we then call playBuffer */
-            if(movie->replay)
-	        {
-	        	GRABGIL
-	        	PySys_WriteStdout("inside filled\n");
-	        	RELEASEGIL
-	        }
             SDL_LockMutex(movie->audio_mutex);
             //SDL_CondWait(movie->audio_sig, movie->audio_mutex);
-            int channel = ainfo.channel;
-            if(movie->replay)
-	        {
-	        	GRABGIL
-	        	PySys_WriteStdout("before playBuffer... %i\n", movie->channel);
-	        	RELEASEGIL
-	        }
 	        SDL_UnlockMutex(movie->audio_mutex);
             int chan = playBuffer(movie->audio_buf1, data_size, movie->channel, movie->audio_pts);
 			SDL_LockMutex(movie->audio_mutex);
@@ -977,22 +940,10 @@ int audio_thread(void *arg)
 				PySys_WriteStdout("%s\n", Mix_GetError());
 				RELEASEGIL	
 			}
-			if(movie->replay)
-	        {
-	        	GRABGIL
-	        	PySys_WriteStdout("after playBuffer... %i\n", channel);
-	        	RELEASEGIL
-	        }
             movie->channel = chan;
             filled=0;
             len1=0;
             SDL_UnlockMutex(movie->audio_mutex);
-            if(movie->replay)
-	        {
-	        	GRABGIL
-	        	PySys_WriteStdout("after playBuffer... %i\n", chan);
-	        	RELEASEGIL
-	        }
             goto closing;
         }
 		
@@ -1017,12 +968,6 @@ int audio_thread(void *arg)
         movie->audio_pkt_data = pkt->data;
         movie->audio_pkt_size = pkt->size;
 
-		if(movie->replay)
-        {
-        	GRABGIL
-        	PySys_WriteStdout("after packet load...\n");
-        	RELEASEGIL
-        }
     }
 closing:
     GRABGIL
@@ -1870,34 +1815,10 @@ int decoder(void *arg)
                 av_free_packet(pkt);
             }
         }
-        if(movie->replay)
-        {
-        	GRABGIL
-        	PySys_WriteStdout("Before Video Render\n");
-        	RELEASEGIL
-        }
         if(movie->video_st)
             video_render(movie);
-        if(movie->replay)
-        {
-        	GRABGIL
-        	PySys_WriteStdout("After Video Render\n");
-        	RELEASEGIL
-        }
-        if(movie->replay)
-        {
-        	GRABGIL
-        	PySys_WriteStdout("Before audio Render\n");
-        	RELEASEGIL
-        }
         if(movie->audio_st)
             audio_thread(movie);
-       	if(movie->replay)
-        {
-        	GRABGIL
-        	PySys_WriteStdout("after audio Render\n");
-        	RELEASEGIL
-        }
         if(co<2)
             video_refresh_timer(movie);
         if(movie->timing>0)
