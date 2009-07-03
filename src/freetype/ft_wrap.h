@@ -37,6 +37,34 @@
 #define PGFT_ROUND(x)  ( ( (x) + 32 ) & -64 )
 #define PGFT_TRUNC(x)  (   (x) >> 6 )
 
+
+#define PGFT_CHECK_PTSIZE()                             \
+    if (ptsize == -1)                                   \
+    {                                                   \
+        if (font->default_ptsize == -1)                 \
+        {                                               \
+            PyErr_SetString(PyExc_ValueError,           \
+                    "Missing font size argument "       \
+                    "and no default size specified");   \
+            return NULL;                                \
+        }                                               \
+                                                        \
+        ptsize = font->default_ptsize;                  \
+    }
+
+#define PGFT_CHECK_BOOL(_pyobj, _var)               \
+    if (_pyobj)                                     \
+    {                                               \
+        if (!PyBool_Check(_pyobj))                  \
+        {                                           \
+            PyErr_SetString(PyExc_TypeError,        \
+                #_var " must be a boolean value");  \
+            return NULL;                            \
+        }                                           \
+                                                    \
+        _var = PyObject_IsTrue(_pyobj);             \
+    }
+
 #define UNICODE_BOM_NATIVE	0xFEFF
 #define UNICODE_BOM_SWAPPED	0xFFFE
 

@@ -352,20 +352,8 @@ _ftfont_getsize(PyObject *self, PyObject* args, PyObject *kwds)
                 &text, &vertical_obj, &rotation, &ptsize))
         return NULL;
 
-    if (ptsize == -1)
-    {
-        if (font->default_ptsize == -1)
-        {
-            PyErr_SetString(PyExc_ValueError,
-                    "Missing font size argument and no default size specified");
-            return NULL;
-        }
-        
-        ptsize = font->default_ptsize;
-    }
-
-    if (vertical_obj && PyObject_IsTrue(vertical_obj))
-        vertical = 1;
+    PGFT_CHECK_PTSIZE();
+    PGFT_CHECK_BOOL(vertical_obj, vertical);
 
     PGFT_BuildRenderMode(&render, vertical, FONT_RENDER_ANTIALIAS, rotation);
 
@@ -410,17 +398,7 @@ _ftfont_getmetrics(PyObject *self, PyObject* args, PyObject *kwds)
         return NULL;
 
     /* check ptsize */
-    if (ptsize == -1)
-    {
-        if (font->default_ptsize == -1)
-        {
-            PyErr_SetString(PyExc_ValueError,
-                    "Missing font size argument and no default size specified");
-            return NULL;
-        }
-        
-        ptsize = font->default_ptsize;
-    }
+    PGFT_CHECK_PTSIZE();
 
     /* check text */
     if (PyUnicode_Check(text))
@@ -526,17 +504,7 @@ _ftfont_render_raw(PyObject *self, PyObject* args, PyObject *kwds)
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &text, &ptsize))
         return NULL;
 
-    if (ptsize == -1)
-    {
-        if (font->default_ptsize == -1)
-        {
-            PyErr_SetString(PyExc_ValueError,
-                    "Missing font size argument and no default size specified");
-            return NULL;
-        }
-        
-        ptsize = font->default_ptsize;
-    }
+    PGFT_CHECK_PTSIZE();
 
     rbuffer = PGFT_Render_PixelArray(ft, font, ptsize, text, &width, &height);
 
@@ -562,7 +530,7 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
     static char *kwlist[] = 
     { 
         "text", "fgcolor", "bgcolor", "dstsurface", 
-        "xpos", "ypos", "vertical", "rotation", "ptsize", NULL
+        "xpos", "ypos", "vertical", "rotation", "antialias", "ptsize", NULL
     };
 
     PyFreeTypeFont *font = (PyFreeTypeFont *)self;
@@ -574,6 +542,7 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
     PyObject *fg_color = NULL;
     PyObject *bg_color = NULL;
     PyObject *vertical_obj = NULL;
+    PyObject *antialias_obj = NULL;
     int rotation = 0;
     int xpos = 0, ypos = 0;
 
@@ -583,26 +552,17 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
 
     FontRenderMode render;
     int vertical = 0;
+    int antialias = 1;
 
     FreeTypeInstance *ft;
     ASSERT_GRAB_FREETYPE(ft, NULL);
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OO|OOiiOii", kwlist,
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OO|OOiiOiOi", kwlist,
                 &text, &fg_color, &bg_color, &target_surf, &xpos, &ypos, 
-                &vertical_obj, &rotation, &ptsize))
+                &vertical_obj, &rotation, &antialias_obj, &ptsize))
         return NULL;
 
-    if (ptsize == -1)
-    {
-        if (font->default_ptsize == -1)
-        {
-            PyErr_SetString(PyExc_ValueError,
-                    "Missing font size argument and no default size specified");
-            return NULL;
-        }
-        
-        ptsize = font->default_ptsize;
-    }
+    PGFT_CHECK_PTSIZE();
 
     if (!PyColor_Check(fg_color))
     {
@@ -622,12 +582,11 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
         }
     }
 
-    if (vertical_obj && PyObject_IsTrue(vertical_obj))
-        vertical = 1;
+    PGFT_CHECK_BOOL(vertical_obj, vertical);
+    PGFT_CHECK_BOOL(antialias_obj, antialias);
 
     /* TODO: handle antialiasing */
-    PGFT_BuildRenderMode(&render, vertical, FONT_RENDER_ANTIALIAS, rotation);
-
+    PGFT_BuildRenderMode(&render, vertical, antialias, rotation);
 
     if (!target_surf || target_surf == Py_None)
     {

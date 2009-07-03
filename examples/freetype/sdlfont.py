@@ -28,7 +28,7 @@ def run():
     screen.fill (pygame2.Color (200, 200, 200))
     w, h, _ = font.render("Hello", pygame2.Color(100, 100, 100), None, screen, 100, 100, ptsize=48)
 
-    w, h, _ = font.render("World", pygame2.Color(200, 100, 100), pygame2.Color(255, 0xCC, 0), screen, 100, 200, ptsize=48, vertical = True, rotation = 45)
+    w, h, _ = font.render("World", pygame2.Color(200, 100, 100), pygame2.Color(255, 0xCC, 0), screen, 100, 200, ptsize=48, vertical = True, rotation = 45, antialias = False)
 
 #    w, g, buf = font.render("Hello World, Jay",
 #            pygame2.Color(100, 200, 32),

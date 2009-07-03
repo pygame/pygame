@@ -35,10 +35,15 @@
 typedef void (* FontRenderPtr)(int, int, FontSurface *, FT_Bitmap *, PyColor *);
 
 /* blitters */
+void __render_glyph_MONO1(int x, int y, FontSurface *surface, FT_Bitmap *bitmap, PyColor *color);
+void __render_glyph_MONO2(int x, int y, FontSurface *surface, FT_Bitmap *bitmap, PyColor *color);
+void __render_glyph_MONO4(int x, int y, FontSurface *surface, FT_Bitmap *bitmap, PyColor *color);
+
 void __render_glyph_SDL8(int x, int y, FontSurface *surface, FT_Bitmap *bitmap, PyColor *color);
 void __render_glyph_SDL16(int x, int y, FontSurface *surface, FT_Bitmap *bitmap, PyColor *color);
 void __render_glyph_SDL24(int x, int y, FontSurface *surface, FT_Bitmap *bitmap, PyColor *color);
 void __render_glyph_SDL32(int x, int y, FontSurface *surface, FT_Bitmap *bitmap, PyColor *color);
+
 void __render_glyph_ByteArray(int x, int y, FontSurface *surface, FT_Bitmap *bitmap, PyColor *color);
 
 void 
@@ -138,6 +143,47 @@ void __render_glyph_SDL24(int rx, int ry, FontSurface *surface,
     }                                                           
 } 
 
+#define _CREATE_MONO_RENDER(_bpp, T)                                    \
+    void __render_glyph_MONO##_bpp(int rx, int ry, FontSurface *surface,\
+            FT_Bitmap *bitmap, PyColor *color)                          \
+    {                                                                   \
+        int             x, y;                                           \
+        unsigned char*  src;                                            \
+        unsigned char*  dst;                                            \
+        FT_UInt32       tcolor;                                         \
+                                                                        \
+        src  = bitmap->buffer;                                          \
+        dst = (unsigned char *)surface->buffer + (rx * _bpp) +          \
+                    (ry * _bpp * surface->pitch);                       \
+                                                                        \
+        tcolor = (T)SDL_MapRGB(surface->format,                         \
+            (FT_Byte)color->r, (FT_Byte)color->g, (FT_Byte)color->b);   \
+                                                                        \
+        y = bitmap->rows;                                               \
+        do                                                              \
+        {                                                               \
+            unsigned char*  _src = src;                                 \
+            unsigned char*  _dst = dst;                                 \
+            FT_UInt32       val = (FT_UInt32)(*_src++ | 0x100);         \
+                                                                        \
+            x = bitmap->width;                                          \
+            do                                                          \
+            {                                                           \
+                if (val & 0x10000)                                      \
+                    val = (FT_UInt32)(*_src++ | 0x100);                 \
+                                                                        \
+                if (val & 0x80)                                         \
+                    *(T *)_dst = (T)tcolor;                             \
+                                                                        \
+                val   <<= 1;                                            \
+                _dst += _bpp;                                           \
+            } while (--x > 0);                                          \
+                                                                        \
+            src  += bitmap->pitch;                                      \
+            dst += surface->pitch * _bpp;                               \
+        } while (--y > 0);                                              \
+    }
+
 #define _CREATE_SDL_RENDER(bpp, T, _build_pixel)                    \
     void __render_glyph_SDL##bpp(int rx, int ry, FontSurface *surface,\
         FT_Bitmap *bitmap, PyColor *color)                          \
@@ -200,17 +246,30 @@ _CREATE_SDL_RENDER(32,  FT_UInt32,  BUILD_PIXEL_TRUECOLOR)
 _CREATE_SDL_RENDER(16,  FT_UInt16,  BUILD_PIXEL_TRUECOLOR)
 _CREATE_SDL_RENDER(8,   FT_Byte,    BUILD_PIXEL_GENERIC)
 
+_CREATE_MONO_RENDER(4,  FT_UInt32)
+_CREATE_MONO_RENDER(2,  FT_UInt16)
+_CREATE_MONO_RENDER(1,   FT_Byte)
+
 int PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
     int font_size, FontRenderMode *render, PyObject *text, PySDLSurface *_surface, 
     int x, int y, PyColor *fgcolor, PyColor *bgcolor, int *_width, int *_height)
 {
-    static const FontRenderPtr __renderFuncs[] =
+    static const FontRenderPtr __SDLrenderFuncs[] =
     {
         NULL,
         __render_glyph_SDL8,
         __render_glyph_SDL16,
         __render_glyph_SDL24,
         __render_glyph_SDL32
+    };
+
+    static const FontRenderPtr __MONOrenderFuncs[] =
+    {
+        NULL,
+        __render_glyph_MONO1,
+        __render_glyph_MONO2,
+        NULL,
+        __render_glyph_MONO4,
     };
 
     int         locked = 0;
@@ -270,7 +329,15 @@ int PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
     font_surf.pitch = surface->pitch / surface->format->BytesPerPixel;
 
     font_surf.format = surface->format;
-    font_surf.render = __renderFuncs[surface->format->BytesPerPixel];
+
+    if (render->antialias == FONT_RENDER_ANTIALIAS)
+    {
+        font_surf.render = __SDLrenderFuncs[surface->format->BytesPerPixel];
+    }
+    else
+    {
+        font_surf.render = __MONOrenderFuncs[surface->format->BytesPerPixel];
+    }
 
     /*
      * Render!
