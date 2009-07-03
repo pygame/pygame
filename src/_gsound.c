@@ -68,7 +68,7 @@ void cb_mixer(int channel)
 }
 
 //initialize the mixer audio subsystem, code cribbed from mixer.c
-int soundInit  (int freq, int size, int channels, int chunksize, double time_base)
+int soundInit  (int freq, int size, int channels, int chunksize, PyThreadState *_tstate)
 {
     Uint16 fmt = 0;
     int i;
@@ -164,10 +164,10 @@ int soundInit  (int freq, int size, int channels, int chunksize, double time_bas
     ainfo.queue.size=0;
     ainfo.queue.first=ainfo.queue.last=NULL;
     ainfo.sample_rate=freq;
-    ainfo.time_base = time_base;
     ainfo.mutex = SDL_CreateMutex();
     ainfo.queue.mutex = SDL_CreateMutex();
     ainfo.ended=1;
+    ainfo._tstate = _tstate;
     return 0;
 }
 
@@ -200,20 +200,39 @@ int soundStart (void)
 int soundEnd   (void)
 {
     ainfo.ended = 1;
+    //temp
+    ainfo.restart=1;
     queue_flush(&ainfo.queue);
     return 0;
 }
-
+//	#define DECLAREGIL PyThreadState *_oldtstate;
+//	#define GRABGIL    PyEval_AcquireLock();_oldtstate = PyThreadState_Swap(movie->_tstate);
+//	#define RELEASEGIL PyThreadState_Swap(_oldtstate); PyEval_ReleaseLock();
 /* Play a sound buffer, with a given length */
 int playBuffer (uint8_t *buf, uint32_t len, int channel, int64_t pts)
 {
+	//temp
+	PyThreadState *_oldtstate;
     Mix_Chunk *mix;
+    //temp
+    if(ainfo.restart)
+    {
+    	PyEval_AcquireLock();_oldtstate = PyThreadState_Swap(ainfo._tstate);
+    	//PySys_WriteStdout("Inside playBuffer\n");
+    	PyThreadState_Swap(_oldtstate); PyEval_ReleaseLock();
+    }
     SDL_mutexP(ainfo.mutex);
     int allocated=0;
     if(!ainfo.ended && (ainfo.queue.size>0||ainfo.playing))
     {
         if(buf)
         {
+        	if(ainfo.restart)
+		    {
+		    	PyEval_AcquireLock();_oldtstate = PyThreadState_Swap(ainfo._tstate);
+		    	PySys_WriteStdout("Inside queue>0 and a buffer exists\n");
+		    	PyThreadState_Swap(_oldtstate); PyEval_ReleaseLock();
+		    }
             //not a callback call, so we copy the buffer into a buffernode and add it to the queue.
             BufferNode *node;
             node = (BufferNode *)PyMem_Malloc(sizeof(BufferNode));
@@ -224,6 +243,12 @@ int playBuffer (uint8_t *buf, uint32_t len, int channel, int64_t pts)
             node->pts = pts;
             queue_put(&ainfo.queue, node);
             SDL_mutexV(ainfo.mutex);
+            if(ainfo.restart)
+		    {
+		    	PyEval_AcquireLock();_oldtstate = PyThreadState_Swap(ainfo._tstate);
+		    	PySys_WriteStdout("returning from queue>0 and a buffer exists\n");
+		    	PyThreadState_Swap(_oldtstate); PyEval_ReleaseLock();
+		    }
             return ainfo.channel;
         }
         else if(!buf && ainfo.queue.size==0)

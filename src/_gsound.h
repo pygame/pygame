@@ -34,14 +34,14 @@ typedef struct AudioInfo
     int         channel;            //what channel the last buffer played on
     int         ended;              //whether or not we've "ended", so we know to output silence.
 	int			paused;
-    double      time_base;          //the base 1/frames per second value
     BufferQueue queue;              //queue of our buffers
     SDL_mutex   *mutex;
-
+	PyThreadState *_tstate;
+	int restart;
 }
 AudioInfo;
 
-int soundInit     (int freq, int size, int channels, int chunksize, double time_base);
+int soundInit     (int freq, int size, int channels, int chunksize, PyThreadState *_tstate);
 int soundQuit     (void);
 int soundStart    (void);
 int soundEnd      (void);

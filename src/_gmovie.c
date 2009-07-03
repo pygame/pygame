@@ -882,8 +882,10 @@ int audio_thread(void *arg)
     int filled =0;
     len1=0;
     int co = 0;
+    int state = 0;
     for(;co<2;co++)
     {
+    	state=0;
         if      (!movie->paused && movie->audio_paused)
         {
             pauseBuffer(movie->channel);
@@ -895,12 +897,16 @@ int audio_thread(void *arg)
             movie->audio_paused = 1;
             goto closing;
         }
+        state|=1;
+       
         //check if the movie has ended
         if(movie->stop)
         {
             stopBuffer(movie->channel);
             goto closing;
         }
+        state |=2;
+       
         //fill up the buffer
         while(movie->audio_pkt_size > 0)
         {
@@ -925,49 +931,77 @@ int audio_thread(void *arg)
             filled=1;
 
         }
+        state |= 4;
+       
 		if(filled)
         {
             //GRABGIL
             //PySys_WriteStdout("movie->audio_pts: %i\n", (int)movie->audio_pts);
             //RELEASEGIL
             /* Buffer is filled up with a new frame, we spin lock/wait for a signal, where we then call playBuffer */
+           
             SDL_LockMutex(movie->audio_mutex);
+            /*if(movie->replay)
+	    	{
+	        	GRABGIL
+	        	PySys_WriteStdout("Preprint\n");
+	        	PySys_WriteStdout("Data_Size: %i\tChannel %i\tPTS: %i\n", data_size, movie->channel, (int)movie->audio_pts);
+	    		RELEASEGIL
+	    	}*/
             //SDL_CondWait(movie->audio_sig, movie->audio_mutex);
             int chan = playBuffer(movie->audio_buf1, data_size, movie->channel, movie->audio_pts);
+            if(movie->replay)
+	    	{
+	        	GRABGIL
+	        	PySys_WriteStdout("State-K: %i\n", state);
+	    		RELEASEGIL
+	    	}
             movie->channel = chan;
             filled=0;
             len1=0;
             SDL_UnlockMutex(movie->audio_mutex);
+            
             goto closing;
         }
-
+		state|=8;
+		
         //either buffer filled or no packets yet
         /* free the current packet */
         if (pkt->data)
             av_free_packet(pkt);
-
-
+		state|=16;
+		
         /* read next packet */
         if (packet_queue_get(&movie->audioq, pkt, 1) <= 0)
         {
             goto closing;
         }
+        state|=32;
+        
         if(pkt->data == flush_pkt.data)
         {
             avcodec_flush_buffers(dec);
             goto closing;
         }
+        state|=64;
+      
         movie->audio_pts      = pkt->pts;
         movie->audio_pkt_data = pkt->data;
         movie->audio_pkt_size = pkt->size;
+		state |=128;
 
-		
 
     }
 closing:
     GRABGIL
     Py_DECREF(movie);
     RELEASEGIL
+    if(movie->replay)
+    	{
+        	GRABGIL
+        	PySys_WriteStdout("StateF: %i\n", state);
+    		RELEASEGIL
+    	}
     return 0;
 }
 
@@ -1474,9 +1508,12 @@ int initialize_codec(PyMovie *movie, int stream_index, int threaded)
 
         freq = enc->sample_rate;
         channels = enc->channels;
-        if (soundInit  (freq, -16, channels, 1024, av_q2d(enc->time_base)) < 0)
+        if(!movie->replay)
         {
-            RAISE(PyExc_SDLError, SDL_GetError ());
+	        if (soundInit  (freq, -16, channels, 1024, movie->_tstate) < 0)
+	        {
+	            RAISE(PyExc_SDLError, SDL_GetError ());
+	        }
         }
         //movie->audio_hw_buf_size = 1024;
         movie->audio_src_fmt= AUDIO_S16SYS;
@@ -1661,22 +1698,21 @@ int decoder(void *arg)
     ic=movie->ic;
     int co=0;
     movie->last_showtime = av_gettime()/1000.0;
+    int state = 0;
     //RELEASEGIL
     for(;;)
     {
         co++;
-		GRABGIL
-		PySys_WriteStdout("Counter: %i\n", co);
-		RELEASEGIL
         if (movie->abort_request)
         {
             break;
         }
+        state |= 1;
         if(movie->stop)
         {
             break;
         }
-
+		state |= 2;
         if (movie->paused != movie->last_paused)
         {
             movie->last_paused = movie->paused;
@@ -1690,11 +1726,13 @@ int decoder(void *arg)
                 av_read_play(ic);
             }
         }
+        state |=4;
         if(movie->paused)
         {
             SDL_Delay(10);
             continue;
         }
+        state|=8;
         if (movie->seek_req)
         {
             int stream_index= -1;
@@ -1759,6 +1797,7 @@ int decoder(void *arg)
             }
             movie->seek_req = 0;
         }
+        state|=16;
         /* if the queue are full, no need to read more */
         if ((movie->audioq.size > MAX_AUDIOQ_SIZE) || //yay for short circuit logic testing
                 (movie->videoq.size > MAX_VIDEOQ_SIZE ))
@@ -1779,6 +1818,8 @@ int decoder(void *arg)
             }
             continue;
         }
+        
+        state|=32;
         if(url_feof(ic->pb))
         {
             av_init_packet(pkt);
@@ -1788,6 +1829,7 @@ int decoder(void *arg)
             packet_queue_put(&movie->videoq, pkt);
             continue;
         }
+        state|=64;
         if(movie->pictq_size<VIDEO_PICTURE_QUEUE_SIZE)
         {
             ret = av_read_frame(ic, pkt);
@@ -1815,11 +1857,19 @@ int decoder(void *arg)
                 av_free_packet(pkt);
             }
         }
-
+		state|=128;
         if(movie->video_st)
             video_render(movie);
+        state |= 256;
         if(movie->audio_st)
             audio_thread(movie);
+        state |= 512;
+        if(movie->replay)
+    	{
+        	GRABGIL
+        	PySys_WriteStdout("State: %i\n", state);
+    		RELEASEGIL
+    	}
         if(co<2)
             video_refresh_timer(movie);
         if(movie->timing>0)
@@ -1842,6 +1892,14 @@ int decoder(void *arg)
                 }
             }
         }
+        state |= 1024;
+        if(movie->replay)
+    	{
+        	GRABGIL
+        	PySys_WriteStdout("State: %i\n", state);
+    		RELEASEGIL
+    	}
+    	
     }
 
     ret = 0;
