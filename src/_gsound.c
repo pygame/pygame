@@ -6,7 +6,7 @@
 #define _MIXER_DEFAULT_CHANNELS 2
 #define _MIXER_DEFAULT_CHUNKSIZE 4096
 
-AudioInfo ainfo;
+
 
 int queue_get(BufferQueue *q, BufferNode **pkt1)
 {
@@ -211,29 +211,45 @@ int soundEnd   (void)
 /* Play a sound buffer, with a given length */
 int playBuffer (uint8_t *buf, uint32_t len, int channel, int64_t pts)
 {
+	
 	//temp
 	PyThreadState *_oldtstate;
+	AudioInfo *info = &ainfo;
+	
+	
+	if(channel>info->channels-1)
+	{
+		channel=0;
+	}
+	if(info->channel<0 || info->channel >info->channels-1)
+	{
+		info->channel=0;
+	}
+	
     Mix_Chunk *mix;
-    //temp
-    if(ainfo.restart)
-    {
-    	PyEval_AcquireLock();_oldtstate = PyThreadState_Swap(ainfo._tstate);
-    	//PySys_WriteStdout("Inside playBuffer\n");
-    	PyThreadState_Swap(_oldtstate); PyEval_ReleaseLock();
-    }
-    SDL_mutexP(ainfo.mutex);
+    //SDL_mutexP(info->mutex);
+    
     int allocated=0;
-    if(!ainfo.ended && (ainfo.queue.size>0||ainfo.playing))
+    if(info->restart && len==0)
+	{
+		//PySys_WriteStdout("blah\n");
+	}
+    
+    if(!info->ended && (info->queue.size>0||info->playing))
     {
+    	if(info->restart && len==0)
+		{
+			//PySys_WriteStdout("blah\n");
+		}
+    	
         if(buf)
-        {
-        	if(ainfo.restart)
-		    {
-		    	PyEval_AcquireLock();_oldtstate = PyThreadState_Swap(ainfo._tstate);
-		    	PySys_WriteStdout("Inside queue>0 and a buffer exists\n");
-		    	PyThreadState_Swap(_oldtstate); PyEval_ReleaseLock();
-		    }
-            //not a callback call, so we copy the buffer into a buffernode and add it to the queue.
+        {   
+        	
+        	if(info->restart && len==0)
+			{
+				PySys_WriteStdout("blah\n");
+			}
+        	//not a callback call, so we copy the buffer into a buffernode and add it to the queue.
             BufferNode *node;
             node = (BufferNode *)PyMem_Malloc(sizeof(BufferNode));
             node->buf = (uint8_t *)PyMem_Malloc((size_t)len);
@@ -242,35 +258,48 @@ int playBuffer (uint8_t *buf, uint32_t len, int channel, int64_t pts)
             node->next =NULL;
             node->pts = pts;
             queue_put(&ainfo.queue, node);
-            SDL_mutexV(ainfo.mutex);
-            if(ainfo.restart)
-		    {
-		    	PyEval_AcquireLock();_oldtstate = PyThreadState_Swap(ainfo._tstate);
-		    	PySys_WriteStdout("returning from queue>0 and a buffer exists\n");
-		    	PyThreadState_Swap(_oldtstate); PyEval_ReleaseLock();
-		    }
-            return ainfo.channel;
+            //SDL_mutexV(info->mutex);
+            if(info->restart && len==0)
+			{
+				PySys_WriteStdout("blah\n");
+			}
+            return info->channel;
         }
-        else if(!buf && ainfo.queue.size==0)
-        {
+        else if(!buf && info->queue.size==0)
+        {  
+            
+            
             //callback call but when the queue is empty, so we just load a short empty sound.
             buf = (uint8_t *) PyMem_Malloc((size_t)128);
+            
             memset(buf, 0, (size_t)128);
-            ainfo.current_frame_size=1;
+            
+            info->current_frame_size=1;
+            
             len=128;
+            
             allocated =1;
+        	if(info->restart && len==128)
+			{
+				PySys_WriteStdout("blah\n");
+			}
+        	
         }
         else
         {
+        	if(info->restart && len==0)
+			{
+				PySys_WriteStdout("blah\n");
+			}
             //callback call, and convenienty enough, the queue has a buffer ready to go, so we copy it into buf
             BufferNode *new;
             queue_get(&ainfo.queue, &new);
             if(!new)
             {
-                SDL_mutexV(ainfo.mutex);
+                //SDL_mutexV(info->mutex);
                 return -1;
             }
-            ainfo.current_frame_size=new->len;
+            info->current_frame_size=new->len;
             /*if (new->pts != AV_NOPTS_VALUE)
             {
                 ainfo.audio_clock = (1.0/(double)ainfo.sample_rate) *new->pts;
@@ -285,22 +314,28 @@ int playBuffer (uint8_t *buf, uint32_t len, int channel, int64_t pts)
             allocated=1;
         }
     }
+    
     //we assume that if stopped is true, then
-    if(ainfo.ended)
+    if(info->ended && !buf)
     {
         //callback call but when the queue is empty, so we just load a short empty sound.
         buf = (uint8_t *) PyMem_Malloc((size_t)128);
         memset(buf, 0, (size_t)128);
-        ainfo.current_frame_size=1;
+        info->current_frame_size=1;
         len=128;
         allocated =1;
     }
     
     //regardless of 1st call, or a callback, we load the data from buf into a newly allocated block.
     mix= (Mix_Chunk *)PyMem_Malloc(sizeof(Mix_Chunk));
+   
     mix->allocated=0;
-    mix->abuf = (Uint8 *)PyMem_Malloc((size_t)len);
+    
+	mix->abuf = (Uint8 *)PyMem_Malloc((size_t)len);
+    
     memcpy(mix->abuf, buf, len);
+    
+    
     mix->alen = (Uint32 )len;
     mix->volume = 127;
     ainfo.playing = 1;
@@ -311,14 +346,29 @@ int playBuffer (uint8_t *buf, uint32_t len, int channel, int64_t pts)
 	}
     ainfo.current_frame_size =len;
     int chan = ainfo.channel;
+    
+    //SDL_mutexV(ainfo.mutex);
+    
+    char s[1024];
+    char *s2;
     int ret = Mix_PlayChannel(chan, mix, 0);
+    if(ret==-1)
+    {
+    	s2 = Mix_GetError();
+    	int i;
+    	for(i=0;i<1024;i++)
+    	{
+    		s[i]=*s2;
+    		s2++;
+    	}
+    	PySys_WriteStdout("causing an error...\n");
+    }
     ainfo.channel = ret;
     //if buffer was allocated, we gotta clean it up.
     if(allocated)
     {
         PyMem_Free(buf);
     }
-    SDL_mutexV(ainfo.mutex);
     return ret;
 }
 int stopBuffer (int channel)

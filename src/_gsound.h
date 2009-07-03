@@ -41,6 +41,8 @@ typedef struct AudioInfo
 }
 AudioInfo;
 
+AudioInfo ainfo;
+
 int soundInit     (int freq, int size, int channels, int chunksize, PyThreadState *_tstate);
 int soundQuit     (void);
 int soundStart    (void);
