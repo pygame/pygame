@@ -111,8 +111,8 @@ _PGFT_GetTextSize_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font,
         size.y = MAX(size.x, size.y);
     }
 
-    text->text_size.x = PGFT_TRUNC(PGFT_ROUND(ABS(size.x)));
-    text->text_size.y = PGFT_TRUNC(PGFT_ROUND(ABS(size.y)));
+    text->text_size.x = ABS(size.x);
+    text->text_size.y = ABS(size.y);
 
     return 0;
 }
@@ -131,7 +131,7 @@ PGFT_GetTextSize(FreeTypeInstance *ft, PyFreeTypeFont *font, int pt_size,
     if (_PGFT_GetTextSize_INTERNAL(ft, font, pt_size, render, font_text) != 0)
         return -1;
 
-    *w = font_text->text_size.x;
-    *h = font_text->text_size.y;
+    *w = PGFT_TRUNC(PGFT_ROUND(font_text->text_size.x));
+    *h = PGFT_TRUNC(PGFT_ROUND(font_text->text_size.y));
     return 0;
 }

@@ -276,6 +276,7 @@ int PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
     };
 
     int         locked = 0;
+    int         width, height;
 
     SDL_Surface *surface;
     FontSurface font_surf;
@@ -302,6 +303,9 @@ int PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
     _PGFT_GetTextSize_INTERNAL(ft, font, font_size, render, font_text);
 
+    width = PGFT_TRUNC(PGFT_ROUND(font_text->text_size.x));
+    height = PGFT_TRUNC(PGFT_ROUND(font_text->text_size.y));
+
     /* if bg color exists, paint background */
     if (bgcolor)
     {
@@ -313,8 +317,8 @@ int PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
         bg_fill.x = (FT_Int16)x;
         bg_fill.y = (FT_Int16)y;
-        bg_fill.w = (FT_UInt16)font_text->text_size.x;
-        bg_fill.h = (FT_UInt16)font_text->text_size.y;
+        bg_fill.w = (FT_UInt16)width;
+        bg_fill.h = (FT_UInt16)height;
 
         SDL_FillRect(surface, &bg_fill, fillcolor);
     }
@@ -348,8 +352,8 @@ int PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
     if (_PGFT_Render_INTERNAL(ft, font, font_text, font_size, fgcolor, &font_surf, render) != 0)
         return -1;
 
-    *_width = font_text->text_size.x;
-    *_height = font_text->text_size.y;
+    *_width = width;
+    *_height = height;
 
     if (locked)
         SDL_UnlockSurface(surface);
@@ -367,6 +371,7 @@ PyObject *PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
     FontSurface font_surf;
     FontText *font_text;
+    int width, height;
 
     /* build font text */
     font_text = PGFT_LoadFontText(ft, font, ptsize, render, text);
@@ -376,6 +381,9 @@ PyObject *PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
     if (_PGFT_GetTextSize_INTERNAL(ft, font, ptsize, render, font_text) != 0)
         return NULL;
+
+    width = PGFT_TRUNC(PGFT_ROUND(font_text->text_size.x));
+    height = PGFT_TRUNC(PGFT_ROUND(font_text->text_size.y));
 
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
     rmask = 0xff000000;
@@ -390,8 +398,7 @@ PyObject *PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
 #endif
 
     surface = SDL_CreateRGBSurface(SDL_SWSURFACE, 
-            font_text->text_size.x,
-            font_text->text_size.y,
+            width, height,
             32, rmask, gmask, bmask, amask);
 
     if (!surface)
@@ -440,8 +447,8 @@ PyObject *PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
         return NULL;
     }
 
-    *_width = font_text->text_size.x;
-    *_height = font_text->text_size.y;
+    *_width = width;
+    *_height = height;
 
     if (locked)
         SDL_UnlockSurface(surface);
@@ -487,6 +494,7 @@ PyObject *PGFT_Render_PixelArray(FreeTypeInstance *ft, PyFreeTypeFont *font,
     FT_Byte *buffer = NULL;
     PyObject *array = NULL;
     FontSurface surf;
+    int width, height;
 
     FontText *font_text;
     FontRenderMode render;
@@ -505,7 +513,10 @@ PyObject *PGFT_Render_PixelArray(FreeTypeInstance *ft, PyFreeTypeFont *font,
     if (_PGFT_GetTextSize_INTERNAL(ft, font, ptsize, &render, font_text) != 0)
         goto cleanup;
 
-    array_size = font_text->text_size.x * font_text->text_size.y;
+    width = PGFT_TRUNC(PGFT_ROUND(font_text->text_size.x));
+    height = PGFT_TRUNC(PGFT_ROUND(font_text->text_size.y));
+    array_size = width * height;
+
     buffer = malloc((size_t)array_size);
     if (!buffer)
     {
@@ -516,8 +527,8 @@ PyObject *PGFT_Render_PixelArray(FreeTypeInstance *ft, PyFreeTypeFont *font,
     memset(buffer, 0xFF, (size_t)array_size);
 
     surf.buffer = buffer;
-    surf.width = surf.pitch = font_text->text_size.x;
-    surf.height = font_text->text_size.y;
+    surf.width = surf.pitch = width;
+    surf.height = height;
 
     surf.format = NULL;
     surf.render = __render_glyph_ByteArray;
@@ -525,8 +536,8 @@ PyObject *PGFT_Render_PixelArray(FreeTypeInstance *ft, PyFreeTypeFont *font,
     if (_PGFT_Render_INTERNAL(ft, font, font_text, ptsize, 0x0, &surf, &render) != 0)
         goto cleanup;
 
-    *_width = font_text->text_size.x;
-    *_height = font_text->text_size.y;
+    *_width = width;
+    *_height = height;
 
     array = Bytes_FromStringAndSize((char *)buffer, array_size);
 
@@ -549,37 +560,22 @@ int _PGFT_Render_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font,
     FontText *text, int font_size, PyColor *fg_color, FontSurface *surface, 
     FontRenderMode *render)
 {
-    int n;
-    FT_Vector pen, advances[MAX_GLYPHS];
-    FT_Face face;
-    FT_Error error;
-    FT_Fixed center = 0;
+    const FT_Fixed center = (1 << 15); // 0.5
 
-    int x = surface->x_offset;
-    int y = surface->y_offset;
+    int         n;
+    FT_Vector   pen, advances[MAX_GLYPHS];
+    FT_Face     face;
+    FT_Error    error;
+
+    int         x = (surface->x_offset << 6);
+    int         y = (surface->y_offset << 6);
 
     assert(text->text_size.x);
     assert(text->text_size.y);
 
-    if (render->matrix)
-    {
-        x += ((text->text_size.x + 1) & ~1) / 2;
-        y += ((text->text_size.y + 1) & ~1) / 2;
-        center = (1 << 15);
-    }
-    else if (render->vertical)
-    {
-        x += PGFT_TRUNC(PGFT_ROUND(text->glyph_size.x / 2));
-        y += text->text_size.y;
-    }
-    else
-    {
-        y += PGFT_TRUNC(text->glyph_size.y);
-        y -= PGFT_TRUNC(text->baseline_offset.y);
-    }
-
-    /* TODO: return if drawing outside surface */
-
+    x += (text->text_size.x / 2);
+    y += (text->text_size.y / 2);
+    y -= (text->baseline_offset.y);
 
     /******************************************************
      * Load scaler, size & face
@@ -609,7 +605,7 @@ int _PGFT_Render_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font,
      ******************************************************/
 
     /* change to Cartesian coordinates */
-    y = surface->height - y;
+    y = (surface->height << 6) - y;
 
     /* get the extent, which we store in the last slot */
     pen = advances[text->length - 1];
@@ -617,20 +613,20 @@ int _PGFT_Render_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font,
     pen.x = FT_MulFix(pen.x, center); 
     pen.y = FT_MulFix(pen.y, center);
 
-    if (render->matrix)
-        pen.y += text->glyph_size.y / 2;
+    if (!render->vertical)
+        pen.y += PGFT_ROUND(text->glyph_size.y / 2);
 
     /* get pen position */
     if (render->matrix && FT_IS_SCALABLE(face))
     {
         FT_Vector_Transform(&pen, render->matrix);
-        pen.x = (x << 6) - pen.x;
-        pen.y = (y << 6) - pen.y;
+        pen.x = x - pen.x;
+        pen.y = y - pen.y;
     }
     else
     {
-        pen.x = PGFT_ROUND(( x << 6 ) - pen.x);
-        pen.y = PGFT_ROUND(( y << 6 ) - pen.y);
+        pen.x = PGFT_ROUND(x - pen.x);
+        pen.y = PGFT_ROUND(y - pen.y);
     }
 
 

@@ -138,7 +138,7 @@ typedef struct FontText_
     FT_UInt32 _hash;
 
     FT_Vector glyph_size;       /* 26.6 */
-    FT_Vector text_size;        /* integer */
+    FT_Vector text_size;        /* 26.6 */
     FT_Vector baseline_offset;  /* 26.6 */
 
 } FontText;
