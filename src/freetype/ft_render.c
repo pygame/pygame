@@ -617,6 +617,9 @@ int _PGFT_Render_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font,
     pen.x = FT_MulFix(pen.x, center); 
     pen.y = FT_MulFix(pen.y, center);
 
+    if (render->matrix)
+        pen.y += text->glyph_size.y / 2;
+
     /* get pen position */
     if (render->matrix && FT_IS_SCALABLE(face))
     {
