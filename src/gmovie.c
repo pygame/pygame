@@ -160,10 +160,13 @@ PyObject* _movie_play(PyMovie *movie, PyObject* args)
     //movie has been stopped, need to close down streams and that.
     if(movie->stop)
     {
+    	//first we release the GIL, then we release all the resources associated with the streams, if they exist.
+    	PyEval_ReleaseLock();
         if(movie->video_st)
-            stream_component_close(movie, movie->video_st->index);
+            stream_component_end(movie, movie->video_st->index);
         if(movie->audio_st)
-            stream_component_close(movie, movie->audio_st->index);
+            stream_component_end(movie, movie->audio_st->index);
+        PyEval_AcquireLock();
         movie->stop = 0;
     }
 
@@ -185,9 +188,6 @@ PyObject* _movie_stop(PyMovie *movie)
     Py_BEGIN_ALLOW_THREADS
     SDL_LockMutex(movie->dest_mutex);
     stream_pause(movie);
-    movie->seek_req = 1;
-    movie->seek_pos = 0;
-    movie->seek_flags =AVSEEK_FLAG_BACKWARD;
     movie->stop = 1;
     Py_END_ALLOW_THREADS
     SDL_UnlockMutex(movie->dest_mutex);
@@ -224,6 +224,7 @@ PyObject* _movie_resize       (PyMovie *movie, PyObject* args)
     }
     movie->height = h;
     movie->width  = w;
+    //status indicators for rendering and that. Very important!
     movie->resize_w =  movie->resize_h= 1;
     Py_RETURN_NONE;
 
@@ -338,7 +339,6 @@ int _movie_set_surface(PyObject *mov, PyObject *surface, void *closure)
     {
         SDL_FreeSurface(movie->canon_surf);
     }
-    //PySurface_Check doesn't really work right for some reason... so we skip it for now.
     if(PySurface_Check(surface))
     {
         movie->canon_surf=PySurface_AsSurface(surface);

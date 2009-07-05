@@ -52,7 +52,7 @@
 AVPacket flush_pkt;
 
 /* Queues for already-loaded pictures, for rapid display */
-#define VIDEO_PICTURE_QUEUE_SIZE 16
+#define VIDEO_PICTURE_QUEUE_SIZE 8
 
 //included from ffmpeg header files, as the header file is not publically available.
 #if defined(__ICC) || defined(__SUNPRO_C)

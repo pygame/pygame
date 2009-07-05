@@ -24,9 +24,9 @@ print m.height  # They can be modified on the fly, as will be demonstrated.
 
 print m         #calls __repr__, which will show the filename, and the current 
                 # timestamp. 
-#print "repeated looping plays.."
-m.play(10)
-time.sleep(10*30)
+#print "repeated looping plays.."#
+#m.play(10)
+#time.sleep(10*30)
 
 
 print "Playing infinitely"
@@ -38,6 +38,14 @@ time.sleep(10)  #sleep for ten seconds to let one see the video play, and hear
 print m.paused
 print m.playing
 print m
+
+m.pause()
+time.sleep(4)
+m.pause()
+time.sleep(4)
+m.pause()
+time.sleep(4)
+m.pause()
 
 #Now we're going to play with the size of the window, affecting the video on 
 # the fly. resize(width, height) is the main function, changes them both at
@@ -73,7 +81,7 @@ print "Stopping..., sleeping for 3 seconds"
 m.stop()
 time.sleep(3)
 #And now we restart playing.
-print "Playing again..."
+print "Playing again..." 
 m.play(-1)
 print "done restart play..."
 time.sleep(10)

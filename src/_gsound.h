@@ -15,6 +15,7 @@ typedef struct BufferNode
 }
 BufferNode;
 
+
 typedef struct BufferQueue
 {
     BufferNode *first, *last;
@@ -26,6 +27,7 @@ BufferQueue;
 typedef struct AudioInfo
 {
     double      audio_clock;        //keeps track of our PTS, in seconds
+    double      old_clock;          //for when the video is paused
     int         channels;           //data for keeping track of the fraction of a second the current frame will take
     int         sample_rate;        //''
     int         current_frame_size; //''

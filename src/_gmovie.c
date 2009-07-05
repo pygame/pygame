@@ -585,11 +585,11 @@ void video_refresh_timer(PyMovie* movie)
             /* if video is slave, we try to correct big delays by
                duplicating or deleting a frame */
             ref_clock = get_master_clock(movie);
-            //GRABGIL
-			//PySys_WriteStdout("Audio Clock: %f\n", ref_clock);
+            GRABGIL
+			PySys_WriteStdout("Audio Clock: %f\n", ref_clock);
             diff = movie->video_current_pts - ref_clock;
-            //PySys_WriteStdout("diff at call %i: %f\n", movie->diff_co, diff);
-            //RELEASEGIL
+            PySys_WriteStdout("diff at call %i: %f\n", movie->diff_co, diff);
+            RELEASEGIL
             /* skip or repeat frame. We take into account the
                delay to compute the threshold. I still don't know
                if it is the best guess */
@@ -613,7 +613,7 @@ void video_refresh_timer(PyMovie* movie)
             actual_delay = 0.010;
         }
         GRABGIL
-        //PySys_WriteStdout("frame_timer: %f\ndelay: %f\n",movie->frame_timer, delay);
+        PySys_WriteStdout("frame_timer: %f\ndelay: %f\n",movie->frame_timer, delay);
         movie->timing = (actual_delay*1000.0)+0.5;
         RELEASEGIL
     }
@@ -884,7 +884,7 @@ int audio_thread(void *arg)
     int co = 0;
     for(;co<2;co++)
     {
-        if      (!movie->paused && movie->audio_paused)
+        if (!movie->paused && movie->audio_paused)
         {
             pauseBuffer(movie->channel);
             movie->audio_paused = 0;
@@ -1663,7 +1663,6 @@ int decoder(void *arg)
     ic=movie->ic;
     int co=0;
     movie->last_showtime = av_gettime()/1000.0;
-    int state = 0;
     //RELEASEGIL
     for(;;)
     {
@@ -1679,8 +1678,14 @@ int decoder(void *arg)
         if (movie->paused != movie->last_paused)
         {
             movie->last_paused = movie->paused;
+            if(!movie->audio_paused)
+            {
+            	//we do this in case we haven't reached the audio thread yet... which will cause this function to just loop without ever touching the audio_thread function.
+	            pauseBuffer(movie->channel);
+            }
             if (movie->paused)
             {
+            	
                 av_read_pause(ic);
             }
             else

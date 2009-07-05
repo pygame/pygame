@@ -6,8 +6,6 @@
 #define _MIXER_DEFAULT_CHANNELS 2
 #define _MIXER_DEFAULT_CHUNKSIZE 4096
 
-
-
 int queue_get(BufferQueue *q, BufferNode **pkt1)
 {
     int ret;
@@ -301,39 +299,23 @@ int playBuffer (uint8_t *buf, uint32_t len, int channel, int64_t pts)
     mix->alen = (Uint32 )len;
     mix->volume = 127;
     ainfo.playing = 1;
-    if(mix->alen==0)
-    {
-    	PySys_WriteStdout("hahahah");	
-    }
- 	if(!ainfo.ended)
+ 	if(!info->ended)
 	{
-    	int bytes_per_sec = ainfo.channels*ainfo.sample_rate*2;
-    	ainfo.audio_clock+= (double) len/(double) bytes_per_sec;
+    	int bytes_per_sec = info->channels*info->sample_rate*2;
+    	info->audio_clock+= (double) len/(double) bytes_per_sec;
 	}
     ainfo.current_frame_size =len;
     int chan = ainfo.channel;
     
     //SDL_mutexV(ainfo.mutex);
     
-    char s[1024];
-    char *s2;
     int playing = Mix_Playing(chan);
     if(playing && allocated &&false)
     {
     	return chan;
     }
     int ret = Mix_PlayChannel(chan, mix, 0);
-    if(ret==-1)
-    {
-    	s2 = Mix_GetError();
-    	int i;
-    	for(i=0;i<1024;i++)
-    	{
-    		s[i]=*s2;
-    		s2++;
-    	}
-    	PySys_WriteStdout(s2);
-    }
+
     ainfo.channel = ret;
     //if buffer was allocated, we gotta clean it up.
     if(allocated)
@@ -349,18 +331,22 @@ int stopBuffer (int channel)
     //Mix_HaltChannel(channel);
     return 0;
 }
+
 int pauseBuffer(int channel)
 {
+	AudioInfo *info = &ainfo;
     if(channel<=-1)
         return 0;
     int paused = Mix_Paused(channel);
     if(paused)
     {
-    	ainfo.ended=0;
+    	info->audio_clock=info->old_clock;
+    	info->ended=0;
         Mix_Resume(-1);
     }
     else
     {
+    	ainfo.old_clock = ainfo.audio_clock;
     	ainfo.ended=1;
         Mix_Pause(-1);
     }
