@@ -444,97 +444,115 @@ int video_open(PyMovie *movie, int index)
         {
             SDL_FreeYUVOverlay(vp->dest_overlay);
         }
-        //now we have to open an overlay up
-        SDL_Surface *screen;
-        if (!SDL_WasInit (SDL_INIT_VIDEO))
-        {
-            GRABGIL
-            RAISE(PyExc_SDLError,"cannot create overlay without pygame.display initialized");
-            Py_DECREF(movie);
-            RELEASEGIL
-            return -1;
-        }
-        screen = SDL_GetVideoSurface ();
-        if (!screen || (screen && (screen->w!=w || screen->h !=h)))
-        {
-            screen = SDL_SetVideoMode(w, h, 0, SDL_SWSURFACE);
-            if(!screen)
-            {
-                GRABGIL
-                RAISE(PyExc_SDLError, "Could not initialize a new video surface.");
-                Py_DECREF(movie);
-                RELEASEGIL
-                return -1;
-            }
-        }
-
-
-        vp->dest_overlay = SDL_CreateYUVOverlay (w, h, SDL_YV12_OVERLAY, screen);
-        if (!vp->dest_overlay)
-        {
-            GRABGIL
-            RAISE (PyExc_SDLError, "Cannot create overlay");
-            Py_DECREF(movie);
-            RELEASEGIL
-            return -1;
-        }
-        vp->overlay = movie->overlay;
+        if(movie->overlay>0)
+    	{
+	        //now we have to open an overlay up
+	        SDL_Surface *screen;
+	        if (!SDL_WasInit (SDL_INIT_VIDEO))
+	        {
+	            GRABGIL
+	            RAISE(PyExc_SDLError,"cannot create overlay without pygame.display initialized");
+	            Py_DECREF(movie);
+	            RELEASEGIL
+	            return -1;
+	        }
+	        screen = SDL_GetVideoSurface ();
+	        if (!screen || (screen && (screen->w!=w || screen->h !=h)))
+	        {
+	            screen = SDL_SetVideoMode(w, h, 0, SDL_SWSURFACE);
+	            if(!screen)
+	            {
+	                GRABGIL
+	                RAISE(PyExc_SDLError, "Could not initialize a new video surface.");
+	                Py_DECREF(movie);
+	                RELEASEGIL
+	                return -1;
+	            }
+	        }
+	
+	        vp->dest_overlay = SDL_CreateYUVOverlay (w, h, SDL_YV12_OVERLAY, screen);
+	        if (!vp->dest_overlay)
+	        {
+	            GRABGIL
+	            RAISE (PyExc_SDLError, "Cannot create overlay");
+	            Py_DECREF(movie);
+	            RELEASEGIL
+	            return -1;
+	        }
+	        vp->overlay = movie->overlay;
+    	}
     }
-    else if ((!vp->dest_surface && movie->overlay<=0) || ((movie->resize_w||movie->resize_h) && vp->dest_surface && (vp->height!=h || vp->width!=w)))
+    if ((!vp->dest_surface && movie->overlay<=0) || ((movie->resize_w||movie->resize_h) && vp->dest_surface && (vp->height!=h || vp->width!=w)))
     {
         //now we have to open an overlay up
         if(movie->resize_w||movie->resize_h)
         {
             SDL_FreeSurface(vp->dest_surface);
         }
-        SDL_Surface *screen = movie->canon_surf;
-        if (!SDL_WasInit (SDL_INIT_VIDEO))
-        {
-            GRABGIL
-            RAISE(PyExc_SDLError,"cannot create surfaces without pygame.display initialized");
-            Py_DECREF(movie);
-            RELEASEGIL
-            return -1;
-        }
-        if (!screen)
-        {
-            GRABGIL
-            RAISE(PyExc_SDLError, "No video surface given."); //ideally this should have
-            Py_DECREF(movie);									  //been caught at init, but this could feasibly
-            RELEASEGIL										  // happen if there's some cleaning up.
-            return -1;
-        }
-        int tw=w;
-        int th=h;
-        if(!movie->resize_w)
-        {
-            tw=screen->w;
-        }
-        if(!movie->resize_h)
-        {
-            th=screen->h;
-        }
-        /*GRABGIL
-        PySys_WriteStdout("screen->BitsPerPixel: %i\nscreen->RMask: %i\nscreen->Gmask: %i\nscreen->Bmask: %i\nscreen->Amask: %i\n",
-         screen->format->BitsPerPixel, screen->format->Rmask, screen->format->Gmask, screen->format->Bmask, screen->format->Amask);
-        RELEASEGIL*/
-        vp->dest_surface = SDL_CreateRGBSurface(screen->flags,
-                                                tw,
-                                                th,
-                                                screen->format->BitsPerPixel,
-                                                screen->format->Rmask,
-                                                screen->format->Gmask,
-                                                screen->format->Bmask,
-                                                screen->format->Amask);
-        if (!vp->dest_surface)
-        {
-            GRABGIL
-            RAISE (PyExc_SDLError, "Cannot create new surface.");
-            Py_DECREF(movie);
-            RELEASEGIL
-            return -1;
-        }
-        vp->overlay = movie->overlay;
+        if(movie->overlay<=0)
+		{
+	        SDL_Surface *screen = movie->canon_surf;
+	        if (!SDL_WasInit (SDL_INIT_VIDEO))
+	        {
+	            GRABGIL
+	            RAISE(PyExc_SDLError,"cannot create surfaces without pygame.display initialized");
+	            Py_DECREF(movie);
+	            RELEASEGIL
+	            return -1;
+	        }
+	        if (!screen)
+	        {
+	            GRABGIL
+	            RAISE(PyExc_SDLError, "No video surface given."); //ideally this should have
+	            Py_DECREF(movie);									  //been caught at init, but this could feasibly
+	            RELEASEGIL										  // happen if there's some cleaning up.
+	            return -1;
+	        }
+	        SDL_Surface *display = SDL_GetVideoSurface ();
+	        if (!display || (display && (display->w!=w || display->h !=h)))
+	        {
+	            display = SDL_SetVideoMode(w, h, 0, SDL_SWSURFACE);
+	            if(!display)
+	            {
+	                GRABGIL
+	                RAISE(PyExc_SDLError, "Could not initialize a new video surface.");
+	                Py_DECREF(movie);
+	                RELEASEGIL
+	                return -1;
+	            }
+	        }
+	        int tw=w;
+	        int th=h;
+	        if(!movie->resize_w)
+	        {
+	            tw=screen->w;
+	        }
+	        if(!movie->resize_h)
+	        {
+	            th=screen->h;
+	        }
+	        /*GRABGIL
+	        PySys_WriteStdout("screen->BitsPerPixel: %i\nscreen->RMask: %i\nscreen->Gmask: %i\nscreen->Bmask: %i\nscreen->Amask: %i\n",
+	         screen->format->BitsPerPixel, screen->format->Rmask, screen->format->Gmask, screen->format->Bmask, screen->format->Amask);
+	        RELEASEGIL*/
+	        vp->dest_surface = SDL_CreateRGBSurface(screen->flags,
+	                                                tw,
+	                                                th,
+	                                                screen->format->BitsPerPixel,
+	                                                screen->format->Rmask,
+	                                                screen->format->Gmask,
+	                                                screen->format->Bmask,
+	                                                screen->format->Amask);
+	        if (!vp->dest_surface)
+	        {
+	            GRABGIL
+	            RAISE (PyExc_SDLError, "Cannot create new surface.");
+	            Py_DECREF(movie);
+	            RELEASEGIL
+	            return -1;
+	        }
+	        vp->overlay = movie->overlay;
+		}
     }
     vp->width = w;
     vp->height = h;
@@ -585,11 +603,11 @@ void video_refresh_timer(PyMovie* movie)
             /* if video is slave, we try to correct big delays by
                duplicating or deleting a frame */
             ref_clock = get_master_clock(movie);
-            GRABGIL
-			PySys_WriteStdout("Audio Clock: %f\n", ref_clock);
+            //GRABGIL
+			//PySys_WriteStdout("Audio Clock: %f\n", ref_clock);
             diff = movie->video_current_pts - ref_clock;
-            PySys_WriteStdout("diff at call %i: %f\n", movie->diff_co, diff);
-            RELEASEGIL
+            //PySys_WriteStdout("diff at call %i: %f\n", movie->diff_co, diff);
+            //RELEASEGIL
             /* skip or repeat frame. We take into account the
                delay to compute the threshold. I still don't know
                if it is the best guess */
@@ -613,7 +631,7 @@ void video_refresh_timer(PyMovie* movie)
             actual_delay = 0.010;
         }
         GRABGIL
-        PySys_WriteStdout("frame_timer: %f\ndelay: %f\n",movie->frame_timer, delay);
+        //PySys_WriteStdout("frame_timer: %f\ndelay: %f\n",movie->frame_timer, delay);
         movie->timing = (actual_delay*1000.0)+0.5;
         RELEASEGIL
     }
