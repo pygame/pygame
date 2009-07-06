@@ -126,6 +126,10 @@ def run(*args, **kwds):
         option_exclude += ('subprocess_ignore',)
     elif 'ignore' not in option_exclude:
         option_exclude += ('ignore',)
+    if sys.version_info < (3, 0, 0):
+        option_exclude += ('python2_ignore',)
+    else:
+        option_exclude += ('python3_ignore',)
 
     main_dir, test_subdir, fake_test_subdir = prepare_test_env()
     test_runner_py = os.path.join(test_subdir, "test_utils", "test_runner.py")
