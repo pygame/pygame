@@ -5,7 +5,7 @@
 # BUG    = fixed a bug that was (or could have been) crashing
 
 
-[SVN 2454] July 6, 2009
+[SVN 2472] July 6, 2009
     [BUG]Fixed some failing tests for Color and LONG_MAX on 64bit python.
 
 [SVN 2454] July 2, 2009
