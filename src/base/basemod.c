@@ -33,7 +33,6 @@ static PyMethodDef _base_methods[] = {
 int
 DoubleFromObj (PyObject* obj, double* val)
 {
-    PyObject* floatobj;
     double tmp;
 
     if (!obj || !val)
@@ -42,18 +41,11 @@ DoubleFromObj (PyObject* obj, double* val)
         return 0;
     }
 
-    if (PyNumber_Check (obj))
-    {
-        if (!(floatobj = PyNumber_Float (obj)))
-            return 0;
-        tmp = PyFloat_AsDouble (floatobj);
-        Py_DECREF (floatobj);
-        if (tmp == -1 && PyErr_Occurred ())
-            return 0;
-        *val = tmp;
-        return 1;
-    }
-    return 0;
+    tmp = PyFloat_AsDouble (obj);
+    if (tmp == -1 && PyErr_Occurred ())
+        return 0;
+    *val = tmp;
+    return 1;
 }
 
 int
