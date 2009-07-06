@@ -4,8 +4,12 @@
 # BREAK = change breaks existing code
 # BUG    = fixed a bug that was (or could have been) crashing
 
+
+[SVN 2454] July 6, 2009
+    [BUG]Fixed some failing tests for Color and LONG_MAX on 64bit python.
+
 [SVN 2454] July 2, 2009
-    Patch to work around cpu detection bugs in SDL 64bit from Lenard.  
+    [BUG] Patch to work around cpu detection bugs in SDL 64bit from Lenard.  
       Thanks to Lorenz for bug hunting.
 
 [SVN 2380-2381] Jun 19, 2009
