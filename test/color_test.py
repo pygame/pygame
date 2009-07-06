@@ -218,6 +218,7 @@ class ColorTypeTest (unittest.TestCase):
         self.assertEquals(pygame.color.Color('red'), pygame.color.Color(' r e d '))
 
     def test_slice(self):
+        """|tags: python3_ignore|"""
         # slicing a color gives you back a tuple.
         # do all sorts of slice combinations.
         c = pygame.Color(1,2,3,4)
