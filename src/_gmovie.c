@@ -559,18 +559,28 @@ int video_open(PyMovie *movie, int index)
 	        {
 	            th=screen->h;
 	        }
-	        GRABGIL
-	        PySys_WriteStdout("screen->BitsPerPixel: %i\nscreen->RMask: %i\nscreen->Gmask: %i\nscreen->Bmask: %i\nscreen->Amask: %i\n",
-	         screen->format->BitsPerPixel, screen->format->Rmask, screen->format->Gmask, screen->format->Bmask, screen->format->Amask);
-	        RELEASEGIL
-	        vp->dest_surface = SDL_CreateRGBSurface(screen->flags,
-	                                                tw,
-	                                                th,
-	                                                screen->format->BitsPerPixel,
-	                                                screen->format->Rmask,
-	                                                screen->format->Gmask,
-	                                                screen->format->Bmask,
-	                                                screen->format->Amask);
+	        //GRABGIL
+	        //PySys_WriteStdout("screen->BitsPerPixel: %i\nscreen->RMask: %i\nscreen->Gmask: %i\nscreen->Bmask: %i\nscreen->Amask: %i\n",
+	        // screen->format->BitsPerPixel, screen->format->Rmask, screen->format->Gmask, screen->format->Bmask, screen->format->Amask);
+	        //RELEASEGIL
+	        /*if(movie->resize_w||movie->resize_h)
+			{*/
+		        vp->dest_surface = SDL_CreateRGBSurface(screen->flags,
+		                                                tw,
+		                                                th,
+		                                                screen->format->BitsPerPixel,
+		                                                screen->format->Rmask,
+		                                                screen->format->Gmask,
+		                                                screen->format->Bmask,
+		                                                screen->format->Amask);
+		                                                
+			/*}
+			else
+	        {
+	        	SDL_PixelFormat *format = screen->format;
+	        	vp->dest_surface = SDL_ConvertSurface(screen, format, screen->flags);
+	        }*/
+	        
 	        if (!vp->dest_surface)
 	        {
 	            GRABGIL

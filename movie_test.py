@@ -14,30 +14,30 @@ filename="/home/tyler/War3.avi"
 # to be on time for rendering that surface.
 # Without a surface argument, the ffmpeg-wrapper uses the sdl_overlay library. 
 #screen=pygame.display.set_mode((640, 368))
-m = movie.Movie(filename)
-print m.paused  #always False, unless .pause has been called
-print m.playing #False until play has been called. Will return to false when
-                # .stop() has been called.
-                
-print m.width   #default size values of the video file
-print m.height  # They can be modified on the fly, as will be demonstrated.
-
-print m         #calls __repr__, which will show the filename, and the current 
-                # timestamp. 
-#print "repeated looping plays.."#
-#m.play(10)
-#time.sleep(10*30)
-
-
-print "Playing infinitely"
-
-m.play(-1)       #We're going to use infinite play, so we can demonstrate all 
-                # the features.
-time.sleep(2)  #sleep for ten seconds to let one see the video play, and hear 
-                # the audio
-print m.paused
-print m.playing
-print m
+##m = movie.Movie(filename)
+##print m.paused  #always False, unless .pause has been called
+##print m.playing #False until play has been called. Will return to false when
+##                # .stop() has been called.
+##                
+##print m.width   #default size values of the video file
+##print m.height  # They can be modified on the fly, as will be demonstrated.
+##
+##print m         #calls __repr__, which will show the filename, and the current 
+##                # timestamp. 
+###print "repeated looping plays.."#
+###m.play(10)
+###time.sleep(10*30)
+##
+##
+##print "Playing infinitely"
+##
+##m.play(-1)       #We're going to use infinite play, so we can demonstrate all 
+##                # the features.
+##time.sleep(2)  #sleep for ten seconds to let one see the video play, and hear 
+##                # the audio
+##print m.paused
+##print m.playing
+##print m
 
 #Now we're going to play with the size of the window, affecting the video on 
 # the fly. resize(width, height) is the main function, changes them both at
@@ -78,15 +78,17 @@ print m
 ##print "done restart play..."
 ##time.sleep(10)
 print "Surface time..."
-screen = pygame.display.set_mode((m.width, m.height))
+screen = pygame.display.set_mode((640, 348))
 #This will move the movie player from overlay mode to blitting to the surface 
 # we've given it. This means it is our responsibility to update the display on 
 # time.
 
+m=movie.Movie(filename, screen)
 counter = 0
-actions = {1: lambda x: x.paused, 6: lambda x:x.pause(), 11: lambda x:x.pause(), 15: lambda x: x.resize(x.width*2, x.height*2), 2000:lambda x: x.stop(), 3000: lambda x: x.play(-1)}
+actions = {1: lambda x: x.paused, 6: lambda x:x.pause(), 11: lambda x:x.pause(), 15: lambda x: x.resize(int(x.width*0.9), int(x.height*0.9)), 2000:lambda x: x.stop(), 3000: lambda x: x.play(-1)}
+m.play(-1)
 prev_time = time.time()
-m.surface = screen
+#m.surface = screen
 print "About to do surface gymnastics..."
 while(1):
     new_time=time.time()
