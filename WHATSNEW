@@ -5,7 +5,10 @@
 # BUG    = fixed a bug that was (or could have been) crashing
 
 
-[SVN 2472-2476] July 6, 2009
+[SVN 2481] July 7, 2009
+    [BUG] typo in examples/sound_array_demos.py Thanks Evan Kroske!
+
+[SVN 2472] July 6, 2009
     [BUG]Fixed some failing tests for Color and LONG_MAX on 64bit python.
     From Campbell Barton.FloatFromObj speedup. 
       register_quit cleanup.
