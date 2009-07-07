@@ -84,7 +84,7 @@ screen = pygame.display.set_mode((m.width, m.height))
 # time.
 
 counter = 0
-actions = {1: lambda x: x.paused, 6: lambda x:x.pause(), 11: lambda x:x.pause(), 15: lambda x: x.resize(x.width/2, x.height/2), 2000:lambda x: x.stop(), 3000: lambda x: x.play(-1)}
+actions = {1: lambda x: x.paused, 6: lambda x:x.pause(), 11: lambda x:x.pause(), 15: lambda x: x.resize(x.width*2, x.height*2), 2000:lambda x: x.stop(), 3000: lambda x: x.play(-1)}
 prev_time = time.time()
 m.surface = screen
 print "About to do surface gymnastics..."

@@ -1432,10 +1432,10 @@ _color_coerce (PyObject **pv, PyObject **pw)
 static PyObject*
 _color_int (PyColor *color)
 {
-    unsigned long tmp = (color->r << 24) + (color->g << 16) + (color->b << 8) +
-        color->a;
+    Uint32 tmp = (color->r << 24) + (color->g << 16) + 
+                 (color->b << 8) + color->a;
 #if !PY3
-    if (tmp < INT_MAX)
+    if (tmp < LONG_MAX)
         return PyInt_FromLong ((long) tmp);
 #endif
     return PyLong_FromUnsignedLong (tmp);
@@ -1447,7 +1447,7 @@ _color_int (PyColor *color)
 static PyObject*
 _color_long (PyColor *color)
 {
-    unsigned long tmp = (color->r << 24) + (color->g << 16) + (color->b << 8) +
+    Uint32 tmp = (color->r << 24) + (color->g << 16) + (color->b << 8) +
         color->a;
     return PyLong_FromUnsignedLong (tmp);
 }
@@ -1458,7 +1458,7 @@ _color_long (PyColor *color)
 static PyObject*
 _color_float (PyColor *color)
 {
-    unsigned long tmp = (color->r << 24) + (color->g << 16) + (color->b << 8) +
+    Uint32 tmp = (color->r << 24) + (color->g << 16) + (color->b << 8) +
         color->a;
     return PyFloat_FromDouble ((double) tmp);
 }
@@ -1471,12 +1471,13 @@ static PyObject*
 _color_oct (PyColor *color)
 {
     char buf[100];
-    unsigned long tmp = (color->r << 24) + (color->g << 16) + (color->b << 8) +
+    Uint32 tmp = (color->r << 24) + (color->g << 16) + (color->b << 8) +
         color->a;
-    if (tmp < INT_MAX)
-        PyOS_snprintf (buf, sizeof (buf), "0%lo", tmp);
+
+    if (tmp < LONG_MAX)
+        PyOS_snprintf (buf, sizeof (buf), "0%lo", (unsigned long) tmp);
     else
-        PyOS_snprintf (buf, sizeof (buf), "0%loL", tmp);
+        PyOS_snprintf (buf, sizeof (buf), "0%loL", (unsigned long) tmp);
     return PyString_FromString (buf);
 }
 
@@ -1487,17 +1488,17 @@ static PyObject*
 _color_hex (PyColor *color)
 {
     char buf[100];
-    unsigned long tmp = (color->r << 24) + (color->g << 16) + (color->b << 8) +
+    Uint32 tmp = (color->r << 24) + (color->g << 16) + (color->b << 8) +
         color->a;
-    if (tmp < INT_MAX)
-        PyOS_snprintf (buf, sizeof (buf), "0x%lx", tmp);
+    if (tmp < LONG_MAX)
+        PyOS_snprintf (buf, sizeof (buf), "0x%lx", (unsigned long) tmp);
     else
     {
 #if PY_VERSION_HEX >= 0x02050000
-        PyOS_snprintf (buf, sizeof (buf), "0x%lxL", tmp);
+        PyOS_snprintf (buf, sizeof (buf), "0x%lxL", (unsigned long) tmp);
 #else
         /* <= 2.4 uses capitalised hex chars. */
-        PyOS_snprintf (buf, sizeof (buf), "0x%lXL", tmp);
+        PyOS_snprintf (buf, sizeof (buf), "0x%lXL", (unsigned long) tmp);
 #endif
     }
     return Text_FromUTF8 (buf);

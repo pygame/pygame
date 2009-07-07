@@ -239,6 +239,34 @@ void get_height_width(PyMovie *movie, int *height, int*width)
     get_width(movie, width);
 }
 
+void WritePicture2Surface(AVPicture *picture, SDL_Surface *surface)
+{
+	/* AVPicture initialized with PIX_FMT_RGBA only fills pict->data[0]
+	 *  This however is only in {R,G,B, A} format. So we just copy the data over. 
+	 */
+	uint32_t *RGBA = surface->pixels;
+	int64_t size = surface->w*surface->h*surface->format->BytesPerPixel;
+	//memcpy(surface->pixels, picture->data[0], size-1);
+	int64_t ix=0;
+	
+	while(ix<size)
+	{
+		uint8_t red   = picture->data[0][ix]; 
+		uint8_t green = picture->data[0][ix+1];
+		uint8_t blue  = picture->data[0][ix+2];
+		//skip the alpha... we don't care
+        //endianess issue here... red has to be shifted by 16, green by 8, and blue gets no shift.
+        /* shift components to the correct place in pixel */
+        *RGBA = ( red   << (long) surface->format->Rshift) | /* red */
+                ( blue  << (long) surface->format->Bshift ) | /* green */
+                ( green << (long) surface->format->Gshift ) | /* blue */
+                ( 0   << (long) surface->format->Ashift);
+        /* goto next pixel */
+        RGBA++;
+        ix+=4;
+	}
+}
+
 int inline clamp0_255(int x)
 {
     x &= (~x) >> 31;
@@ -531,10 +559,10 @@ int video_open(PyMovie *movie, int index)
 	        {
 	            th=screen->h;
 	        }
-	        /*GRABGIL
+	        GRABGIL
 	        PySys_WriteStdout("screen->BitsPerPixel: %i\nscreen->RMask: %i\nscreen->Gmask: %i\nscreen->Bmask: %i\nscreen->Amask: %i\n",
 	         screen->format->BitsPerPixel, screen->format->Rmask, screen->format->Gmask, screen->format->Bmask, screen->format->Amask);
-	        RELEASEGIL*/
+	        RELEASEGIL
 	        vp->dest_surface = SDL_CreateRGBSurface(screen->flags,
 	                                                tw,
 	                                                th,
@@ -678,6 +706,7 @@ int queue_picture(PyMovie *movie, AVFrame *src_frame)
     else if(vp->dest_surface)
     {
         /* get a pointer on the bitmap */
+        dst_pix_fmt = PIX_FMT_RGBA;
         avpicture_alloc(&pict, dst_pix_fmt, w, h);
         SDL_LockSurface(vp->dest_surface);
     }
@@ -713,7 +742,8 @@ int queue_picture(PyMovie *movie, AVFrame *src_frame)
     }
     else if(vp->dest_surface)
     {
-        ConvertYUV420PtoRGBA(&pict,vp->dest_surface, src_frame->interlaced_frame );
+        //ConvertYUV420PtoRGBA(&pict,vp->dest_surface, src_frame->interlaced_frame );
+        WritePicture2Surface(&pict, vp->dest_surface);
         SDL_UnlockSurface(vp->dest_surface);
         avpicture_free(&pict);
     }
