@@ -175,7 +175,7 @@ def main(arraytype=None):
         if 'numpy' in sndarray.get_arraytypes():
             sndarray.use_arraytype('numpy')
         elif 'numeric' in sndarray.get_arraytype():
-            sndfarray.use_arraytype('numeric')
+            sndarray.use_arraytype('numeric')
         else:
             raise ImportError('No array package is installed')
     else:
