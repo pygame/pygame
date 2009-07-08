@@ -1712,7 +1712,7 @@ surf_get_masks (PyObject *self)
 
     if (!surf)
         return RAISE (PyExc_SDLError, "display Surface quit");
-    return Py_BuildValue ("(iiii)", surf->format->Rmask, surf->format->Gmask,
+    return Py_BuildValue ("(IIII)", surf->format->Rmask, surf->format->Gmask,
                           surf->format->Bmask, surf->format->Amask);
 }
 

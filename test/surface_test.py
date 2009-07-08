@@ -22,12 +22,12 @@ from pygame.compat import xrange_
 
 def intify(i):
     """If i is a long, cast to an int while preserving the bits"""
-    if 0x10000000 & i:
-        return int(~(0xFFFFFFFF ^ i))
+    if 0x80000000 & i:
+        return int((0xFFFFFFFF & i))
     return i
 
 def longify(i):
-    """If i in an int, cast to a long while preserving the bits"""
+    """If i is an int, cast to a long while preserving the bits"""
     if i < 0:
         return 0xFFFFFFFF & i
     return long(i)
@@ -96,12 +96,12 @@ class SurfaceTypeTest(unittest.TestCase):
         if surf2.get_bitsize() == 32:
             self.assertEqual(surf2.get_flags() & SRCALPHA, SRCALPHA)
 
-    def test_flags(self):
+    def test_masks(self):
         def make_surf(bpp, flags, masks):
             pygame.Surface((10, 10), flags, bpp, masks)
         # With some masks SDL_CreateRGBSurface does not work properly.
         masks = (0xFF000000, 0xFF0000, 0xFF00, 0)
-        self.failUnlessRaises(ValueError, make_surf, 32, 0, masks)
+        self.assertEqual(make_surf(32, 0, masks), None)
         # For 24 and 32 bit surfaces Pygame assumes no losses.
         masks = (0x7F0000, 0xFF00, 0xFF, 0)
         self.failUnlessRaises(ValueError, make_surf, 24, 0, masks)
