@@ -1,6 +1,5 @@
 #include "_gsound.h"
 
-
 #define _MIXER_DEFAULT_FREQUENCY 22050
 #define _MIXER_DEFAULT_SIZE -16
 #define _MIXER_DEFAULT_CHANNELS 2
@@ -92,8 +91,6 @@ int soundInit  (int freq, int size, int channels, int chunksize, PyThreadState *
     else
         channels = 1;
 
-    /* printf("size:%d:\n", size); */
-
     switch (size)
     {
     case 8:
@@ -112,8 +109,6 @@ int soundInit  (int freq, int size, int channels, int chunksize, PyThreadState *
         PyErr_Format(PyExc_ValueError, "unsupported size %i", size);
         return -1;
     }
-
-    /* printf("size:%d:\n", size); */
 
     /*make chunk a power of 2*/
     for (i = 0; 1 << i < chunksize; ++i)
@@ -191,42 +186,26 @@ int soundStart (void)
     ainfo.playing=0;
     ainfo.channel=0;
     ainfo.current_frame_size=1;
-    //playBuffer(NULL, 0, 0, 0);
     return 0;
 }
 
 int soundEnd   (void)
 {
     ainfo.ended = 1;
-    //temp
     ainfo.restart=1;
     queue_flush(&ainfo.queue);
     return 0;
 }
-//	#define DECLAREGIL PyThreadState *_oldtstate;
-//	#define GRABGIL    PyEval_AcquireLock();_oldtstate = PyThreadState_Swap(movie->_tstate);
-//	#define RELEASEGIL PyThreadState_Swap(_oldtstate); PyEval_ReleaseLock();
+
 /* Play a sound buffer, with a given length */
 int playBuffer (uint8_t *buf, uint32_t len, int channel, int64_t pts)
 {
-	
-	//temp
-	AudioInfo *info = &ainfo;
-	
-	if(channel>info->channels-1)
-	{
-		channel=0;
-	}
-	if(info->channel<0 || info->channel >info->channels-1)
-	{
-		info->channel=0;
-	}
-	//SDL_mutexP(info->mutex);
+	//SDL_mutexP(ainfo.mutex);
     Mix_Chunk *mix;
     int false=0;
     int allocated=0;
     
-    if(!info->ended && (info->queue.size>0||info->playing))
+    if(!ainfo.ended && (ainfo.queue.size>0||ainfo.playing))
     {
         if(buf)
         {   
@@ -239,16 +218,16 @@ int playBuffer (uint8_t *buf, uint32_t len, int channel, int64_t pts)
             node->next =NULL;
             node->pts = pts;
             queue_put(&ainfo.queue, node);
-            //SDL_mutexV(info->mutex);
-            return info->channel;
+            //SDL_mutexV(ainfo.mutex);
+            return ainfo.channel;
         }
-        else if(!buf && info->queue.size==0)
+        else if(!buf && ainfo.queue.size==0)
         {  
             
             //callback call but when the queue is empty, so we just load a short empty sound.
             buf = (uint8_t *) PyMem_Malloc((size_t)1024);
             memset(buf, 0, (size_t)1024);
-            info->current_frame_size=1;
+            ainfo.current_frame_size=1;
             len=1024;
             allocated =1;
         	false=1;
@@ -260,14 +239,10 @@ int playBuffer (uint8_t *buf, uint32_t len, int channel, int64_t pts)
             queue_get(&ainfo.queue, &new);
             if(!new)
             {
-                //SDL_mutexV(info->mutex);
+                //SDL_mutexV(ainfo.mutex);
                 return -1;
             }
-            info->current_frame_size=new->len;
-            /*if (new->pts != AV_NOPTS_VALUE)
-            {
-                ainfo.audio_clock = (1.0/(double)ainfo.sample_rate) *new->pts;
-            }*/
+            ainfo.current_frame_size=new->len;
             buf = (uint8_t *)PyMem_Malloc((size_t)new->len);
             memcpy(buf, new->buf, new->len);
             len=new->len;
@@ -280,12 +255,12 @@ int playBuffer (uint8_t *buf, uint32_t len, int channel, int64_t pts)
     }
     
     //we assume that if stopped is true, then
-    if(info->ended && !buf)
+    if(ainfo.ended && !buf)
     {
         //callback call but when the queue is empty, so we just load a short empty sound.
         buf = (uint8_t *) PyMem_Malloc((size_t)1024);
         memset(buf, 0, (size_t)1024);
-        info->current_frame_size=1;
+        ainfo.current_frame_size=1;
         len=1024;
         allocated =1;
         false=1;
@@ -299,10 +274,10 @@ int playBuffer (uint8_t *buf, uint32_t len, int channel, int64_t pts)
     mix->alen = (Uint32 )len;
     mix->volume = 127;
     ainfo.playing = 1;
- 	if(!info->ended)
+ 	if(!ainfo.ended)
 	{
-    	int bytes_per_sec = info->channels*info->sample_rate*2;
-    	info->audio_clock+= (double) len/(double) bytes_per_sec;
+    	int bytes_per_sec = ainfo.channels*ainfo.sample_rate*2;
+    	ainfo.audio_clock+= (double) len/(double) bytes_per_sec;
 	}
     ainfo.current_frame_size =len;
     int chan = ainfo.channel;
@@ -317,31 +292,29 @@ int playBuffer (uint8_t *buf, uint32_t len, int channel, int64_t pts)
     int ret = Mix_PlayChannel(chan, mix, 0);
 
     ainfo.channel = ret;
-    //if buffer was allocated, we gotta clean it up.
     if(allocated)
     {
         PyMem_Free(buf);
     }
     return ret;
 }
+
 int stopBuffer (int channel)
 {
     if(!channel)
         return 0;
-    //Mix_HaltChannel(channel);
     return 0;
 }
 
 int pauseBuffer(int channel)
 {
-	AudioInfo *info = &ainfo;
     if(channel<=-1)
         return 0;
     int paused = Mix_Paused(channel);
     if(paused)
     {
-    	info->audio_clock=info->old_clock;
-    	info->ended=0;
+    	ainfo.audio_clock=ainfo.old_clock;
+    	ainfo.ended=0;
         Mix_Resume(-1);
     }
     else
@@ -376,10 +349,7 @@ double getAudioClock(void)
     SDL_mutexP(ainfo.mutex);//lock
     int bytes_per_sec = ainfo.channels*ainfo.sample_rate*2;
     double pts = ainfo.audio_clock;
-    //if(ainfo.current_frame_size!=1)
-	//{
-    	pts -= (double) ainfo.current_frame_size/(double) bytes_per_sec;
-	//}
+    pts -= (double) ainfo.current_frame_size/(double) bytes_per_sec;
     SDL_mutexV(ainfo.mutex);
     return pts;
 }

@@ -469,8 +469,6 @@ init_movie(void)
     //Register all the fun stuff for movies.
     avcodec_register_all();
     av_register_all();
-    //initialize lookup tables for YUV-to-RGB conversion
-    initializeLookupTables();
     //import stuff we need
     import_pygame_surface();
     //initialize our flush marker for the queues.

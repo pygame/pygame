@@ -4,7 +4,7 @@ pygame.init() #or we could just call pygame.display.init() as thats all we need
 pygame.mixer.quit() #This needs to be done, as the default sound system of the 
                     # ffmpeg-wrapper uses SDL_mixer, and this would cause major
                     # conflicts with the mixer module.
-import pygame.nmovie as movie
+import pygame._movie as movie
 
 print "Please give an (absolute)filename of a movie file you'd like to play: ",
 #filename = raw_input()

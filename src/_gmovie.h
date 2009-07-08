@@ -11,6 +11,7 @@
 #include "structmember.h"
 
 /* Library includes */
+/* This is as small as I could make it... */
 #include <Python.h>
 #include <SDL.h>
 #include <SDL_thread.h>
@@ -20,23 +21,16 @@
 /*constant definitions */
 #define MAX_VIDEOQ_SIZE (5 * 256 * 1024)
 #define MAX_AUDIOQ_SIZE (5 * 16 * 1024)
-#define MAX_SUBTITLEQ_SIZE (5 * 16 * 1024)
-
-/* SDL audio buffer size, in samples. Should be small to have precise
-   A/V sync as SDL does not have hardware buffer fullness info. */
-#define SDL_AUDIO_BUFFER_SIZE 1024
 
 /* no AV sync correction is done if below the AV sync threshold */
 #define AV_SYNC_THRESHOLD 0.01
 /* no AV correction is done if too big error */
 #define AV_NOSYNC_THRESHOLD 10.0
 
-/* maximum audio speed change to get correct sync */
-#define SAMPLE_CORRECTION_PERCENT_MAX 10
-
 //sets the module to single-thread mode.
 #define THREADFREE 0
 
+/*Thread management macros to save me a load of typing...*/
 #if THREADFREE!=1
 	#define DECLAREGIL PyThreadState *_oldtstate;
 	#define GRABGIL    PyEval_AcquireLock();_oldtstate = PyThreadState_Swap(movie->_tstate);
@@ -46,13 +40,17 @@
 	#define GRABGIL
 	#define RELEASEGIL
 #endif
-//backwards compatibility with blend_subrect
-#define BPP 1
 
+/* Used to indicate when to flush the queues for seeking */
 AVPacket flush_pkt;
 
 /* Queues for already-loaded pictures, for rapid display */
 #define VIDEO_PICTURE_QUEUE_SIZE 8
+
+/* RGB24 or RGBA... */
+/* In this case I've chosen RGB24 because its smaller */
+#define RGB24 1
+#define RGBA  0
 
 //included from ffmpeg header files, as the header file is not publically available.
 #if defined(__ICC) || defined(__SUNPRO_C)
@@ -80,7 +78,6 @@ typedef struct PacketQueue
     int size;
     int abort_request;
     SDL_mutex *mutex;
-    SDL_cond *cond;
 }
 PacketQueue;
 
@@ -114,65 +111,62 @@ typedef struct PyMovie
 {
     PyObject_HEAD
     /* General purpose members */
-    SDL_Thread      *parse_tid; /* Thread id for the decode_thread call */
-    int              abort_request;     /* Tells whether or not to stop playing and return */
-    int              paused; 		   /* Boolean for communicating to the threads to pause playback */
-    int              last_paused;       /* For comparing the state of paused to what it was last time around. */
+    SDL_Thread      *parse_tid;      /* Thread id for the decode_thread call */
+    int              abort_request;  /* Tells whether or not to stop playing and return */
+    int              paused; 		 /* Boolean for communicating to the threads to pause playback */
+    int              last_paused;    /* For comparing the state of paused to what it was last time around. */
     char             filename[1024];
-    char            *_backend;  //"FFMPEG_WRAPPER";
-    int              overlay; //>0 if we are to use the overlay, otherwise <=0
+    char            *_backend;       //"FFMPEG_WRAPPER";
+    int              overlay;        //>0 if we are to use the overlay, otherwise <=0
     int              playing;
     int              height;
     int              width;
-    int              ytop;
+    int              ytop;           //For use with SDL_Rect
     int              xleft;
-    int              loops;
-    int              resize_h;
+    int              loops;          //Number of times to play the video
+    int              resize_h;       //Indicator values that we have resized the video screen from the default
     int              resize_w;
-    int 		     replay;
-    int64_t          start_time;
-    AVInputFormat   *iformat;
-    SDL_mutex       *dest_mutex;
-    int              av_sync_type;
-    AVFormatContext *ic;    /* context information about the format of the video file */
-    int              stop;
-    SDL_Surface     *canon_surf;
-    PyThreadState   *_tstate; //really do not touch this unless you have to.
+    int 		     replay;         //we've played this once before, we're playing it again.
+    AVInputFormat   *iformat;        //Format of the file
+    SDL_mutex       *dest_mutex;     //mutex to control access to important info
+    int              av_sync_type;   //determines the clock type we use
+    AVFormatContext *ic;             /* context information about the format of the video file */
+    int              stop;           //whether we're in a stop state...
+    SDL_Surface     *canon_surf;     //pointer to the surface given by the programmer. We do NOT free this... it is not ours. We just write to it.
+    PyThreadState   *_tstate;        //really do not touch this unless you have to. This is used for threading control and primitives.
 
     int diff_co; //counter
 
     /* Seek-info */
-    int     seek_req;
-    int     seek_flags;
-    int64_t seek_pos;
-
+    int      seek_req;
+    int      seek_flags; 
+    int64_t  seek_pos;
+	int64_t  start_time;     //used for seeking
+    
     /* external clock members */
     double  external_clock; /* external clock base */
     int64_t external_clock_time;
 
     /* Audio stream members */
-    double      audio_clock;
-    AVStream   *audio_st;
-    PacketQueue audioq;
+    double      audio_clock; 
+    AVStream   *audio_st;    //audio stream struct
+    PacketQueue audioq;      //audio packets
     /* samples output by the codec. we reserve more space for avsync compensation */
     DECLARE_ALIGNED(16,uint8_t,audio_buf1[(AVCODEC_MAX_AUDIO_FRAME_SIZE * 3) / 2]);
-    DECLARE_ALIGNED(16,uint8_t,audio_buf2[(AVCODEC_MAX_AUDIO_FRAME_SIZE * 3) / 2]);
-    uint8_t *audio_buf;
-    int      audio_buf_size; /* in bytes */
-    int      audio_buf_index; /* in bytes */
-    AVPacket audio_pkt;
-    uint8_t *audio_pkt_data;
-    int      audio_pkt_size;
-    int64_t  audio_pts;
+    uint8_t *audio_buf;      //pointer to a buffer
+    AVPacket audio_pkt;      //current packet
+    uint8_t *audio_pkt_data; //current packet data
+    int      audio_pkt_size; //current packet size
+    int64_t  audio_pts;      
     //int audio_volume; /*must self implement*/
     enum SampleFormat audio_src_fmt;
-    AVAudioConvert *reformat_ctx;
-    int             audio_stream;
-    int             audio_disable;
-    SDL_mutex      *audio_mutex;
-    SDL_Thread     *audio_tid;
-    int             channel;
-    int             audio_paused;
+    AVAudioConvert   *reformat_ctx;
+    int               audio_stream;
+    int               audio_disable;
+    SDL_mutex        *audio_mutex;
+    SDL_Thread       *audio_tid;
+    int               channel;
+    int               audio_paused;
 
     /* Frame/Video Management members */
     double     frame_timer;
@@ -215,8 +209,6 @@ void packet_queue_abort (PacketQueue *q);
 int  packet_queue_get   (PacketQueue *q, AVPacket *pkt, int block);
 
 /* 		Misc*/
-void ConvertYUV420PtoRGBA   (AVPicture *YUV420P, SDL_Surface *OUTPUT, int interlaced );
-void initializeLookupTables (void);
 int  initialize_context     (PyMovie *movie, int threaded);
 int  initialize_codec       (PyMovie *movie, int stream_index, int threaded);
 /* 		Video Management */
