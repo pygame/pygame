@@ -100,10 +100,12 @@ static PyObject* _color_hex (PyColor *color);
 static Py_ssize_t _color_length (PyColor *color);
 static PyObject* _color_item (PyColor *color, Py_ssize_t _index);
 static int _color_ass_item (PyColor *color, Py_ssize_t _index, PyObject *value);
-
 static PyObject * _color_slice(register PyColor *a, 
                                register Py_ssize_t ilow, 
                                register Py_ssize_t ihigh);
+
+/* Mapping protocol methods. */
+static PyObject * _color_subscript(PyColor* self, PyObject* item);
 
 
 /* Comparison */
@@ -219,6 +221,20 @@ static PySequenceMethods _color_as_sequence =
     NULL,                              /* sq_inplace_repeat */
 };
 
+
+
+static PyMappingMethods _color_as_mapping = {
+        (lenfunc) _color_length,
+        (binaryfunc)_color_subscript,
+        NULL
+};
+
+
+
+
+
+
+
 #define DEFERRED_ADDRESS(ADDR) 0
 
 static PyTypeObject PyColor_Type =
@@ -235,7 +251,7 @@ static PyTypeObject PyColor_Type =
     (reprfunc) _color_repr,     /* tp_repr */
     &_color_as_number,          /* tp_as_number */
     &_color_as_sequence,        /* tp_as_sequence */
-    0,                          /* tp_as_mapping */
+    &_color_as_mapping,          /* tp_as_mapping */
     0,                          /* tp_hash */
     0,                          /* tp_call */
     0,                          /* tp_str */
@@ -1565,6 +1581,55 @@ _color_item (PyColor *color, Py_ssize_t _index)
         return RAISE (PyExc_IndexError, "invalid index");
     }
 }
+
+
+
+
+
+
+
+static PyObject * _color_subscript(PyColor* self, PyObject* item) {
+
+    if (PyIndex_Check(item)) {
+        Py_ssize_t i;
+        i = PyNumber_AsSsize_t(item, PyExc_IndexError);
+        if (i == -1 && PyErr_Occurred())
+            return NULL;
+        /*
+        if (i < 0)
+            i += PyList_GET_SIZE(self);
+        */
+        return _color_item(self, i);
+    }
+    if (PySlice_Check(item)) {
+        int len= 4;
+        Py_ssize_t start, stop, step, slicelength;
+
+        if (PySlice_GetIndicesEx((PySliceObject*)item, len, &start, &stop, &step, &slicelength) < 0)
+            return NULL;
+
+        if (slicelength <= 0) {
+            return PyTuple_New(0);
+        }
+        else if (step == 1) {
+            return _color_slice(self, start, stop);
+        }
+        else {
+            PyErr_SetString(PyExc_TypeError, "slice steps not supported");
+            return NULL;
+        }
+    }
+    else {
+        PyErr_Format(PyExc_TypeError,
+                     "Color indices must be integers, not %.200s",
+                     item->ob_type->tp_name);
+        return NULL;
+    }
+}
+
+
+
+
 
 /**
  * color[x] = y
