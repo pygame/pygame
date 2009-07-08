@@ -326,20 +326,20 @@ TwoFloatsFromObj (PyObject* obj, float* val1, float* val2)
 static int
 UintFromObj (PyObject* obj, Uint32* val)
 {
-    PyObject* intobj;
+    PyObject* longobj;
 
     if (PyNumber_Check (obj))
     {
-        if (!(intobj = PyNumber_Int (obj)))
+        if (!(longobj = PyNumber_Long (obj)))
             return 0;
-        *val = (Uint32) PyInt_AsLong (intobj);
-        Py_DECREF (intobj);
+        *val = (Uint32) PyLong_AsUnsignedLong (longobj);
+        Py_DECREF (longobj);
         return 1;
     }
     return 0;
 }
 
-static Uint32
+static int
 UintFromObjIndex (PyObject* obj, int _index, Uint32* val)
 {
     int result = 0;
