@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG    = fixed a bug that was (or could have been) crashing
 
+[SVN 2486]
+    [BUG] 64bit issues with Surface.get_masks and UintFromObj. 
+        thanks Lorenz Quack!
 
 [SVN 2481] July 7, 2009
     [BUG] typo in examples/sound_array_demos.py Thanks Evan Kroske!
