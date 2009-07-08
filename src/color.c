@@ -251,7 +251,11 @@ static PyTypeObject PyColor_Type =
     (reprfunc) _color_repr,     /* tp_repr */
     &_color_as_number,          /* tp_as_number */
     &_color_as_sequence,        /* tp_as_sequence */
+#if PY_VERSION_HEX < 0x02050000
+    0,
+#else
     &_color_as_mapping,          /* tp_as_mapping */
+#endif
     0,                          /* tp_hash */
     0,                          /* tp_call */
     0,                          /* tp_str */
@@ -1590,9 +1594,17 @@ _color_item (PyColor *color, Py_ssize_t _index)
 
 static PyObject * _color_subscript(PyColor* self, PyObject* item) {
 
+
+#if PY_VERSION_HEX < 0x02050000
+    if (PyInt_Check(item)) {
+        Py_ssize_t i;
+        i = 0;
+#else
     if (PyIndex_Check(item)) {
         Py_ssize_t i;
         i = PyNumber_AsSsize_t(item, PyExc_IndexError);
+#endif
+
         if (i == -1 && PyErr_Occurred())
             return NULL;
         /*
