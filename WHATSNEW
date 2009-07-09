@@ -4,9 +4,13 @@
 # BREAK = change breaks existing code
 # BUG    = fixed a bug that was (or could have been) crashing
 
-[SVN 2486]
+[SVN 2491] July 9, 2009
+    [BUG] Fixed up quit bug in eventlist.py example.  Thanks Evan Kroske!
+
+[SVN 2486-2488] July 8, 2009
     [BUG] 64bit issues with Surface.get_masks and UintFromObj. 
         thanks Lorenz Quack!
+    [BUG] Color slicing works with python3 now too.
 
 [SVN 2481] July 7, 2009
     [BUG] typo in examples/sound_array_demos.py Thanks Evan Kroske!
