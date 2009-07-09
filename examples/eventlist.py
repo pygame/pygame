@@ -116,7 +116,7 @@ def main():
         display.flip()
         time.wait(10)
 
-    pygame.quit()
+    quit()
 
 
 if __name__ == '__main__':
