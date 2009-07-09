@@ -210,12 +210,13 @@ void WritePicture2Surface(AVPicture *picture, SDL_Surface *surface)
 	 *  This however is only in {R,G,B, A} format. So we just copy the data over. 
 	 */
 	uint32_t *rgb = surface->pixels;
-	int64_t size = surface->w*surface->h*surface->format->BytesPerPixel;
-	int64_t ix=0;
+	int BytesPerPixel =0;
 	if(RGBA)
-		size-=4;
+		BytesPerPixel=4;
 	else
-		size-=3;
+		BytesPerPixel=3;
+	int64_t size = surface->w*surface->h*BytesPerPixel;
+	int64_t ix=0;
 	while(ix<size)
 	{
 		uint8_t red   = picture->data[0][ix]; 

@@ -24,11 +24,11 @@ filename="/home/tyler/War3.avi"
 ##
 ##print m         #calls __repr__, which will show the filename, and the current 
 ##                # timestamp. 
-###print "repeated looping plays.."#
-###m.play(10)
-###time.sleep(10*30)
-##
-##
+#print "repeated looping plays.."#
+#m.play(10)
+#time.sleep(10*30)
+
+
 ##print "Playing infinitely"
 ##
 ##m.play(-1)       #We're going to use infinite play, so we can demonstrate all 
@@ -38,9 +38,9 @@ filename="/home/tyler/War3.avi"
 ##print m.paused
 ##print m.playing
 ##print m
-
+##
 #Now we're going to play with the size of the window, affecting the video on 
-# the fly. resize(width, height) is the main function, changes them both at
+#the fly. resize(width, height) is the main function, changes them both at
 # the same time.
 ##print "Resizing..."
 ##m.resize(m.width/2, m.height*2)
@@ -54,9 +54,9 @@ filename="/home/tyler/War3.avi"
 ##m.width=m.width/2
 ##m.height = m.height/2
 ##print "and again, sleeping..."
-###back to our original size
+#back to our original size
 ##time.sleep(10)
-###Here we demonstrate the use of pause. You pause, then call pause again to play
+#Here we demonstrate the use of pause. You pause, then call pause again to play
 ##print "Pausing..."
 ##m.pause()
 ##print "done pausing..."
@@ -72,12 +72,12 @@ filename="/home/tyler/War3.avi"
 ##print "Stopping..., sleeping for 3 seconds"
 ##m.stop()
 ##time.sleep(3)
-###And now we restart playing.
+#And now we restart playing.
 ##print "Playing again..." 
 ##m.play(-1)
 ##print "done restart play..."
 ##time.sleep(10)
-print "Surface time..."
+##print "Surface time..."
 screen = pygame.display.set_mode((640, 348))
 #This will move the movie player from overlay mode to blitting to the surface 
 # we've given it. This means it is our responsibility to update the display on 
