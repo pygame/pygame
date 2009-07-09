@@ -151,7 +151,7 @@ def errorHandling(key):
 ################################################################################
 
 def printErrorList(self, flavour, errors):
-    for test, err in ((e[0], e[1]) for e in errors):
+    for test, err in [(e[0], e[1]) for e in errors]:
         self.stream.writeln(self.separator1)
         self.stream.writeln("%s: %s" % (flavour, test))
         self.stream.writeln(self.separator2)
@@ -195,8 +195,8 @@ class TestTags:
             for tags in (module_tags, class_tags, test_tags):
                 if not tags: continue
         
-                add    = set(t for t in tags if not t.startswith('-'))
-                remove = set(t[1:] for t in tags if t not in add)
+                add    = set([t for t in tags if not t.startswith('-')])
+                remove = set([t[1:] for t in tags if t not in add])
         
                 if add:     combined.update(add)
                 if remove:  combined.difference_update(remove)

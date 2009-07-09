@@ -147,10 +147,10 @@ def rect_perimeter_pts(rect):
 
     """
     clock_wise_from_top_left = (
-      ((l,       rect.top) for l in xrange_(rect.left,      rect.right)      ),
-      ((rect.right -1,  t) for t in xrange_(rect.top   + 1, rect.bottom)     ),
-      ((l, rect.bottom -1) for l in xrange_(rect.right  -2, rect.left -1, -1)), 
-      ((rect.left,      t) for t in xrange_(rect.bottom -2, rect.top,     -1))
+      [(l,       rect.top) for l in xrange_(rect.left,      rect.right)      ],
+      [(rect.right -1,  t) for t in xrange_(rect.top   + 1, rect.bottom)     ],
+      [(l, rect.bottom -1) for l in xrange_(rect.right  -2, rect.left -1, -1)], 
+      [(rect.left,      t) for t in xrange_(rect.bottom -2, rect.top,     -1)]
     )
     
     for line in clock_wise_from_top_left:
