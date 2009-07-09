@@ -18,7 +18,7 @@ class Dependency:
 
     def configure(self, incdirs, libdirs):
         incname = self.checkhead
-        libnames = self.checklib, string.lower(self.name)
+        libnames = self.checklib, self.name.lower()
         for dir in incdirs:
             path = os.path.join(dir, incname)
             if os.path.isfile(path):
@@ -31,10 +31,10 @@ class Dependency:
                     self.lib_dir = dir
                     break
         if self.lib_dir and self.inc_dir:
-            print self.name + '        '[len(self.name):] + ': found'
+            print (self.name + '        '[len(self.name):] + ': found')
             self.found = 1
         else:
-            print self.name + '        '[len(self.name):] + ': not found'
+            print (self.name + '        '[len(self.name):] + ': not found')
 
 class FrameworkDependency(Dependency):
     def configure(self, incdirs, libdirs):
@@ -43,7 +43,7 @@ class FrameworkDependency(Dependency):
             n += 'Library/Frameworks/'
             fmwk = n + self.libs + '.framework/Versions/Current/'
             if os.path.isfile(fmwk + self.libs):
-                print 'Framework ' + self.libs + ' found'
+                print ('Framework ' + self.libs + ' found')
                 self.found = 1
                 self.inc_dir = fmwk + 'Headers'
                 self.cflags = (
@@ -52,7 +52,7 @@ class FrameworkDependency(Dependency):
                 self.origlib = self.libs
                 self.libs = ''
                 return
-        print 'Framework ' + self.libs + ' not found'
+        print ('Framework ' + self.libs + ' not found')
 
 
 class DependencyPython:
@@ -81,9 +81,9 @@ class DependencyPython:
             else:
                 self.inc_dir = os.path.split(fullpath)[0]
         if self.found:
-            print self.name + '        '[len(self.name):] + ': found', self.ver
+            print (self.name + '        '[len(self.name):] + ': found', self.ver)
         else:
-            print self.name + '        '[len(self.name):] + ': not found'
+            print (self.name + '        '[len(self.name):] + ': not found')
 
 DEPS = [
     FrameworkDependency('SDL', 'SDL.h', 'libSDL', 'SDL'),
@@ -102,7 +102,7 @@ DEPS = [
 def main():
     global DEPS
 
-    print 'Hunting dependencies...'
+    print ('Hunting dependencies...')
     incdirs = ['/usr/local/include','/opt/local/include']
     libdirs = ['/usr/local/lib','/opt/local/lib']
     newconfig = []
@@ -113,5 +113,5 @@ def main():
 
 
 if __name__ == '__main__':
-    print """This is the configuration subscript for OSX Darwin.
-             Please run "config.py" for full configuration."""
+    print ("""This is the configuration subscript for OSX Darwin.
+             Please run "config.py" for full configuration.""")
