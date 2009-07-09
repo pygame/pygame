@@ -266,7 +266,6 @@ MODINIT_DEFINE (sdlmain_osx)
 #if PY3
     module = PyModule_Create (&_module);
 #else
-    #error "hi";
     module = Py_InitModule3 (MODPREFIX "sdlmain_osx", macosx_builtins, NULL);
 #endif
 
