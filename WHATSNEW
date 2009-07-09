@@ -4,9 +4,10 @@
 # BREAK = change breaks existing code
 # BUG    = fixed a bug that was (or could have been) crashing
 
-[SVN 2491-2492] July 9, 2009
+[SVN 2491-2495] July 9, 2009
     [BUG] Fixed up quit bug in eventlist.py example.  Thanks Evan Kroske!
     [BUG] Made the test code more compatible with python2.3.
+    [BUG] python3.1 support for OSX.
 
 [SVN 2486-2488] July 8, 2009
     [BUG] 64bit issues with Surface.get_masks and UintFromObj. 
