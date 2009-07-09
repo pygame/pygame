@@ -209,7 +209,7 @@ def make_complete_failure_error(result):
 # For combined results, plural
 def test_failures(results):
     errors = {}
-    total =  sum(v.get('num_tests', 0) for v in results.values())
+    total =  sum([v.get('num_tests', 0) for v in results.values()])
     for module, result in results.items():
         num_errors = (
             len(result.get('failures', [])) + len(result.get('errors', []))
@@ -234,8 +234,8 @@ def test_failures(results):
 
 def from_namespace(ns, template):
     if isinstance(template, dict):
-        return dict((i, ns.get(i, template[i])) for i in template)
-    return dict((i, ns[i]) for i in template)
+        return dict([(i, ns.get(i, template[i])) for i in template])
+    return dict([(i, ns[i]) for i in template])
 
 RESULTS_TEMPLATE = {
     'output'     :  '',
