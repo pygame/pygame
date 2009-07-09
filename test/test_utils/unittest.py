@@ -98,6 +98,15 @@ __all__ = ['TestResult', 'TestCase', 'TestSuite', 'TextTestRunner',
 __all__.extend(['getTestCaseNames', 'makeSuite', 'findTestCases'])
 
 
+
+
+def _sort_using_key(seq, key_func):
+    deco = [ (key_func(word), i, word) for i, word in enumerate(seq) ]
+    deco.sort()
+    new_words = [ word for _, _, word in deco ]
+    return new_words
+
+
 ##############################################################################
 # Backward compatibility
 ##############################################################################
@@ -622,8 +631,11 @@ class TestLoader:
                 if testFnName not in testFnNames:  # handle overridden methods
                     testFnNames.append(testFnName)
         if self.sortTestMethodsUsing:
-            testFnNames.sort(key=CmpToKey(self.sortTestMethodsUsing))
+            #testFnNames.sort(key=CmpToKey(self.sortTestMethodsUsing))
+            testFnNames = _sort_using_key(testFnNames, CmpToKey(self.sortTestMethodsUsing))
         return testFnNames
+
+
 
 
 
