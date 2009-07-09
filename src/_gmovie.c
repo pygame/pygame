@@ -170,6 +170,224 @@ int packet_queue_get(PacketQueue *q, AVPacket *pkt, int block)
 
     return ret;
 }
+
+void blend_subrect(AVPicture *dst, const AVSubtitleRect *rect, int imgw, int imgh)
+{
+    int wrap, wrap3, width2, skip2;
+    int y, u, v, a, u1, v1, a1, w, h;
+    uint8_t *lum, *cb, *cr;
+    const uint8_t *p;
+    const uint32_t *pal;
+    int dstx, dsty, dstw, dsth;
+
+    dstw = av_clip(rect->w, 0, imgw);
+    dsth = av_clip(rect->h, 0, imgh);
+    dstx = av_clip(rect->x, 0, imgw - dstw);
+    dsty = av_clip(rect->y, 0, imgh - dsth);
+    lum = dst->data[0] + dsty * dst->linesize[0];
+    cb = dst->data[1] + (dsty >> 1) * dst->linesize[1];
+    cr = dst->data[2] + (dsty >> 1) * dst->linesize[2];
+
+    width2 = ((dstw + 1) >> 1) + (dstx & ~dstw & 1);
+    skip2 = dstx >> 1;
+    wrap = dst->linesize[0];
+    wrap3 = rect->pict.linesize[0];
+    p = rect->pict.data[0];
+    pal = (const uint32_t *)rect->pict.data[1];  /* Now in YCrCb! */
+
+    if (dsty & 1) {
+        lum += dstx;
+        cb += skip2;
+        cr += skip2;
+
+        if (dstx & 1) {
+            YUVA_IN(y, u, v, a, p, pal);
+            lum[0] = _ALPHA_BLEND(a, lum[0], y, 0);
+            cb[0] = _ALPHA_BLEND(a >> 2, cb[0], u, 0);
+            cr[0] = _ALPHA_BLEND(a >> 2, cr[0], v, 0);
+            cb++;
+            cr++;
+            lum++;
+            p += BPP;
+        }
+        for(w = dstw - (dstx & 1); w >= 2; w -= 2) {
+            YUVA_IN(y, u, v, a, p, pal);
+            u1 = u;
+            v1 = v;
+            a1 = a;
+            lum[0] = _ALPHA_BLEND(a, lum[0], y, 0);
+
+            YUVA_IN(y, u, v, a, p + BPP, pal);
+            u1 += u;
+            v1 += v;
+            a1 += a;
+            lum[1] = _ALPHA_BLEND(a, lum[1], y, 0);
+            cb[0] = _ALPHA_BLEND(a1 >> 2, cb[0], u1, 1);
+            cr[0] = _ALPHA_BLEND(a1 >> 2, cr[0], v1, 1);
+            cb++;
+            cr++;
+            p += 2 * BPP;
+            lum += 2;
+        }
+        if (w) {
+            YUVA_IN(y, u, v, a, p, pal);
+            lum[0] = _ALPHA_BLEND(a, lum[0], y, 0);
+            cb[0] = _ALPHA_BLEND(a >> 2, cb[0], u, 0);
+            cr[0] = _ALPHA_BLEND(a >> 2, cr[0], v, 0);
+            p++;
+            lum++;
+        }
+        p += wrap3 - dstw * BPP;
+        lum += wrap - dstw - dstx;
+        cb += dst->linesize[1] - width2 - skip2;
+        cr += dst->linesize[2] - width2 - skip2;
+    }
+    for(h = dsth - (dsty & 1); h >= 2; h -= 2) {
+        lum += dstx;
+        cb += skip2;
+        cr += skip2;
+
+        if (dstx & 1) {
+            YUVA_IN(y, u, v, a, p, pal);
+            u1 = u;
+            v1 = v;
+            a1 = a;
+            lum[0] = _ALPHA_BLEND(a, lum[0], y, 0);
+            p += wrap3;
+            lum += wrap;
+            YUVA_IN(y, u, v, a, p, pal);
+            u1 += u;
+            v1 += v;
+            a1 += a;
+            lum[0] = _ALPHA_BLEND(a, lum[0], y, 0);
+            cb[0] = _ALPHA_BLEND(a1 >> 2, cb[0], u1, 1);
+            cr[0] = _ALPHA_BLEND(a1 >> 2, cr[0], v1, 1);
+            cb++;
+            cr++;
+            p += -wrap3 + BPP;
+            lum += -wrap + 1;
+        }
+        for(w = dstw - (dstx & 1); w >= 2; w -= 2) {
+            YUVA_IN(y, u, v, a, p, pal);
+            u1 = u;
+            v1 = v;
+            a1 = a;
+            lum[0] = _ALPHA_BLEND(a, lum[0], y, 0);
+
+            YUVA_IN(y, u, v, a, p + BPP, pal);
+            u1 += u;
+            v1 += v;
+            a1 += a;
+            lum[1] = _ALPHA_BLEND(a, lum[1], y, 0);
+            p += wrap3;
+            lum += wrap;
+
+            YUVA_IN(y, u, v, a, p, pal);
+            u1 += u;
+            v1 += v;
+            a1 += a;
+            lum[0] = _ALPHA_BLEND(a, lum[0], y, 0);
+
+            YUVA_IN(y, u, v, a, p + BPP, pal);
+            u1 += u;
+            v1 += v;
+            a1 += a;
+            lum[1] = _ALPHA_BLEND(a, lum[1], y, 0);
+
+            cb[0] = _ALPHA_BLEND(a1 >> 2, cb[0], u1, 2);
+            cr[0] = _ALPHA_BLEND(a1 >> 2, cr[0], v1, 2);
+
+            cb++;
+            cr++;
+            p += -wrap3 + 2 * BPP;
+            lum += -wrap + 2;
+        }
+        if (w) {
+            YUVA_IN(y, u, v, a, p, pal);
+            u1 = u;
+            v1 = v;
+            a1 = a;
+            lum[0] = _ALPHA_BLEND(a, lum[0], y, 0);
+            p += wrap3;
+            lum += wrap;
+            YUVA_IN(y, u, v, a, p, pal);
+            u1 += u;
+            v1 += v;
+            a1 += a;
+            lum[0] = _ALPHA_BLEND(a, lum[0], y, 0);
+            cb[0] = _ALPHA_BLEND(a1 >> 2, cb[0], u1, 1);
+            cr[0] = _ALPHA_BLEND(a1 >> 2, cr[0], v1, 1);
+            cb++;
+            cr++;
+            p += -wrap3 + BPP;
+            lum += -wrap + 1;
+        }
+        p += wrap3 + (wrap3 - dstw * BPP);
+        lum += wrap + (wrap - dstw - dstx);
+        cb += dst->linesize[1] - width2 - skip2;
+        cr += dst->linesize[2] - width2 - skip2;
+    }
+    /* handle odd height */
+    if (h) {
+        lum += dstx;
+        cb += skip2;
+        cr += skip2;
+
+        if (dstx & 1) {
+            YUVA_IN(y, u, v, a, p, pal);
+            lum[0] = _ALPHA_BLEND(a, lum[0], y, 0);
+            cb[0] = _ALPHA_BLEND(a >> 2, cb[0], u, 0);
+            cr[0] = _ALPHA_BLEND(a >> 2, cr[0], v, 0);
+            cb++;
+            cr++;
+            lum++;
+            p += BPP;
+        }
+        for(w = dstw - (dstx & 1); w >= 2; w -= 2) {
+            YUVA_IN(y, u, v, a, p, pal);
+            u1 = u;
+            v1 = v;
+            a1 = a;
+            lum[0] = _ALPHA_BLEND(a, lum[0], y, 0);
+
+            YUVA_IN(y, u, v, a, p + BPP, pal);
+            u1 += u;
+            v1 += v;
+            a1 += a;
+            lum[1] = _ALPHA_BLEND(a, lum[1], y, 0);
+            cb[0] = _ALPHA_BLEND(a1 >> 2, cb[0], u, 1);
+            cr[0] = _ALPHA_BLEND(a1 >> 2, cr[0], v, 1);
+            cb++;
+            cr++;
+            p += 2 * BPP;
+            lum += 2;
+        }
+        if (w) {
+            YUVA_IN(y, u, v, a, p, pal);
+            lum[0] = _ALPHA_BLEND(a, lum[0], y, 0);
+            cb[0] = _ALPHA_BLEND(a >> 2, cb[0], u, 0);
+            cr[0] = _ALPHA_BLEND(a >> 2, cr[0], v, 0);
+        }
+    }
+}
+
+void free_subpicture(SubPicture *sp)
+{
+    int i;
+
+    for (i = 0; i < sp->sub.num_rects; i++)
+    {
+        av_freep(&sp->sub.rects[i]->pict.data[0]);
+        av_freep(&sp->sub.rects[i]->pict.data[1]);
+        av_freep(&sp->sub.rects[i]);
+    }
+
+    av_free(sp->sub.rects);
+
+    memset(&sp->sub, 0, sizeof(AVSubtitle));
+}
+
+
 /* Sets the value of the variable width. Acts like a macro */
 void inline get_width(PyMovie *movie, int *width)
 {
@@ -287,6 +505,7 @@ void video_image_display(PyMovie *movie)
     Py_INCREF( movie);
     RELEASEGIL
     VidPicture *vp;
+    SubPicture *sp;
     float aspect_ratio;
     int width, height, x, y;
     vp = &movie->pictq[movie->pictq_rindex];
@@ -325,6 +544,35 @@ void video_image_display(PyMovie *movie)
 
     if (vp->dest_overlay && vp->overlay>0)
     {
+        if (movie->sub_st)
+        {
+            if (movie->subpq_size > 0)
+            {
+                sp = &movie->subpq[movie->subpq_rindex];
+				AVPicture pict;
+				int i;
+				
+                if (vp->pts >= sp->pts + ((float) sp->sub.start_display_time / 1000))
+                {
+                    SDL_LockYUVOverlay (vp->dest_overlay);
+
+                    pict.data[0] = vp->dest_overlay->pixels[0];
+                    pict.data[1] = vp->dest_overlay->pixels[2];
+                    pict.data[2] = vp->dest_overlay->pixels[1];
+
+                    pict.linesize[0] = vp->dest_overlay->pitches[0];
+                    pict.linesize[1] = vp->dest_overlay->pitches[2];
+                    pict.linesize[2] = vp->dest_overlay->pitches[1];
+
+                    for (i = 0; i < sp->sub.num_rects; i++)
+                        blend_subrect(&pict, sp->sub.rects[i],
+                                      vp->dest_overlay->w, vp->dest_overlay->h);
+
+                    SDL_UnlockYUVOverlay (vp->dest_overlay);
+                }
+            }
+        }
+        
         if(vp->overlay>0)
         {
             SDL_LockYUVOverlay(vp->dest_overlay);
@@ -963,6 +1211,9 @@ int stream_component_open(PyMovie *movie, int stream_index, int threaded)
         movie->video_stream = stream_index;
         movie->video_st = ic->streams[stream_index];
         break;
+	case CODEC_TYPE_SUBTITLE:
+		movie->sub_stream = stream_index;
+		movie->sub_st     = ic->streams[stream_index];
     default:
         break;
     }
@@ -1028,6 +1279,13 @@ int stream_component_start(PyMovie *movie, int stream_index, int threaded)
         movie->video_current_pts_time = av_gettime();
         packet_queue_init(&movie->videoq);
         break;
+	case CODEC_TYPE_SUBTITLE:
+		if(movie->replay)
+		{
+			movie->sub_stream = stream_index;
+			movie->sub_st     = ic->streams[stream_index];
+		}
+		packet_queue_init(&movie->subq);
     default:
         break;
     }
@@ -1067,6 +1325,7 @@ void stream_component_end(PyMovie *movie, int stream_index)
     enc = ic->streams[stream_index]->codec;
     int i;
     VidPicture *vp;
+    SubPicture *sp;
     switch(enc->codec_type)
     {
     case CODEC_TYPE_AUDIO:
@@ -1084,6 +1343,11 @@ void stream_component_end(PyMovie *movie, int stream_index)
         packet_queue_abort(&movie->videoq);
         packet_queue_flush(&movie->videoq);
         break;
+    case CODEC_TYPE_SUBTITLE:
+        packet_queue_abort(&movie->subq);
+        packet_queue_flush(&movie->subq);
+        break;
+        
     default:
         break;
     }
@@ -1130,6 +1394,8 @@ void stream_component_close(PyMovie *movie, int stream_index)
     case CODEC_TYPE_VIDEO:
         packet_queue_end(&movie->videoq, end);
         break;
+    case CODEC_TYPE_SUBTITLE:
+    	packet_queue_end(&movie->subq, end);
     default:
         break;
     }
@@ -1146,6 +1412,9 @@ void stream_component_close(PyMovie *movie, int stream_index)
         movie->video_st = NULL;
         movie->video_stream = -1;
         break;
+    case CODEC_TYPE_SUBTITLE:
+    	movie->sub_st=NULL;
+    	movie->sub_stream = -1;
     default:
         break;
     }
@@ -1189,11 +1458,13 @@ void stream_open(PyMovie *movie, const char *filename, AVInputFormat *iformat, i
     subtitle_index = -1;
     movie->video_stream = -1;
     movie->audio_stream = -1;
+    movie->sub_stream = -1;
 
     initialize_context(movie, threaded); //moved a bunch of convenience stuff out of here for access at other times
 
     int wanted_video_stream=1;
     int wanted_audio_stream=1;
+    int wanted_subti_stream=1;
     /* if seeking requested, we execute it */
     if (movie->start_time != AV_NOPTS_VALUE)
     {
@@ -1227,6 +1498,9 @@ void stream_open(PyMovie *movie, const char *filename, AVInputFormat *iformat, i
             if (wanted_video_stream-- >= 0 && !movie->video_disable)
                 video_index = i;
             break;
+        case CODEC_TYPE_SUBTITLE:
+        	if(wanted_subti_stream -- >= 0 && !movie->subtitle_disable)
+        		subtitle_index=i;
         default:
             break;
         }
@@ -1241,6 +1515,10 @@ void stream_open(PyMovie *movie, const char *filename, AVInputFormat *iformat, i
     if (video_index >= 0)
     {
         stream_component_open(movie, video_index, threaded);
+    }
+    if(subtitle_index >= 0)
+    {
+    	stream_component_open(movie, subtitle_index, threaded);
     }
 
     if (movie->video_stream < 0 && movie->audio_stream < 0)
@@ -1464,6 +1742,10 @@ void stream_close(PyMovie *movie)
     if (movie->video_stream >= 0)
     {
         stream_component_close(movie, movie->video_stream);
+    }
+    if (movie->sub_stream >= 0)
+    {
+        stream_component_close(movie, movie->sub_stream);
     }
     if (movie->ic)
     {
@@ -1765,6 +2047,49 @@ int decoder(void *arg)
                 av_free_packet(pkt);
             }
         }
+        SubPicture *sp;
+        SubPicture *sp2;
+        if(movie->sub_stream>=0) {
+                if (movie->sub_stream_changed) {
+                    SDL_LockMutex(movie->subpq_mutex);
+
+                    while (movie->subpq_size) {
+                        free_subpicture(&movie->subpq[movie->subpq_rindex]);
+
+                        // update queue size and signal for next picture 
+                        if (++movie->subpq_rindex == SUBPICTURE_QUEUE_SIZE)
+                            movie->subpq_rindex = 0;
+
+                        movie->subpq_size--;
+                    }
+                    movie->sub_stream_changed = 0;
+
+                    SDL_UnlockMutex(movie->subpq_mutex);
+                } else {
+                    if (movie->subpq_size > 0) {
+                        sp = &movie->subpq[movie->subpq_rindex];
+
+                        if (movie->subpq_size > 1)
+                            sp2 = &movie->subpq[(movie->subpq_rindex + 1) % SUBPICTURE_QUEUE_SIZE];
+                        else
+                            sp2 = NULL;
+
+                        if ((movie->video_current_pts > (sp->pts + ((float) sp->sub.end_display_time / 1000)))
+                                || (sp2 && movie->video_current_pts > (sp2->pts + ((float) sp2->sub.start_display_time / 1000))))
+                        {
+                            free_subpicture(sp);
+
+                            // update queue size and signal for next picture 
+                            if (++movie->subpq_rindex == SUBPICTURE_QUEUE_SIZE)
+                                movie->subpq_rindex = 0;
+
+                            SDL_LockMutex(movie->subpq_mutex);
+                            movie->subpq_size--;
+                            SDL_UnlockMutex(movie->subpq_mutex);
+                        }
+                    }
+                }
+            }
         if(movie->video_st)
             video_render(movie);
         if(movie->audio_st)

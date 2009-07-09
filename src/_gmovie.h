@@ -46,11 +46,13 @@ AVPacket flush_pkt;
 
 /* Queues for already-loaded pictures, for rapid display */
 #define VIDEO_PICTURE_QUEUE_SIZE 8
-
+#define SUBPICTURE_QUEUE_SIZE    4
 /* RGB24 or RGBA... */
 /* In this case I've chosen RGB24 because its smaller */
 #define RGB24 1
 #define RGBA  0
+
+#define BPP 1
 
 //included from ffmpeg header files, as the header file is not publically available.
 #if defined(__ICC) || defined(__SUNPRO_C)
@@ -68,6 +70,49 @@ AVPacket flush_pkt;
     #define DECLARE_ALIGNED(n,t,v)      t v
     #define DECLARE_ASM_CONST(n,t,v)    static const t v
 #endif
+
+#define SCALEBITS 10
+#define ONE_HALF  (1 << (SCALEBITS - 1))
+#define FIX(x)    ((int) ((x) * (1<<SCALEBITS) + 0.5))
+
+#define RGB_TO_Y_CCIR(r, g, b) \
+((FIX(0.29900*219.0/255.0) * (r) + FIX(0.58700*219.0/255.0) * (g) + \
+  FIX(0.11400*219.0/255.0) * (b) + (ONE_HALF + (16 << SCALEBITS))) >> SCALEBITS)
+
+#define RGB_TO_U_CCIR(r1, g1, b1, shift)\
+(((- FIX(0.16874*224.0/255.0) * r1 - FIX(0.33126*224.0/255.0) * g1 +         \
+     FIX(0.50000*224.0/255.0) * b1 + (ONE_HALF << shift) - 1) >> (SCALEBITS + shift)) + 128)
+
+#define RGB_TO_V_CCIR(r1, g1, b1, shift)\
+(((FIX(0.50000*224.0/255.0) * r1 - FIX(0.41869*224.0/255.0) * g1 -           \
+   FIX(0.08131*224.0/255.0) * b1 + (ONE_HALF << shift) - 1) >> (SCALEBITS + shift)) + 128)
+
+#define _ALPHA_BLEND(a, oldp, newp, s)\
+((((oldp << s) * (255 - (a))) + (newp * (a))) / (255 << s))
+
+#define RGBA_IN(r, g, b, a, s)\
+{\
+    unsigned int v = ((const uint32_t *)(s))[0];\
+    a = (v >> 24) & 0xff;\
+    r = (v >> 16) & 0xff;\
+    g = (v >> 8) & 0xff;\
+    b = v & 0xff;\
+}
+
+#define YUVA_IN(y, u, v, a, s, pal)\
+{\
+    unsigned int val = ((const uint32_t *)(pal))[*(const uint8_t*)(s)];\
+    a = (val >> 24) & 0xff;\
+    y = (val >> 16) & 0xff;\
+    u = (val >> 8) & 0xff;\
+    v = val & 0xff;\
+}
+
+#define YUVA_OUT(d, y, u, v, a)\
+{\
+    ((uint32_t *)(d))[0] = (a << 24) | (y << 16) | (u << 8) | v;\
+}
+
 
 /* structure definitions */
 /* PacketQueue to hold incoming ffmpeg packets from the stream */
@@ -99,6 +144,11 @@ typedef struct VidPicture
 }
 VidPicture;
 
+typedef struct SubPicture
+{
+	double pts;
+	AVSubtitle sub;
+} SubPicture;
 
 enum {
     AV_SYNC_AUDIO_MASTER, /* default choice */
@@ -195,6 +245,15 @@ typedef struct PyMovie
     SDL_cond   *videoq_cond;
     struct SwsContext *img_convert_ctx;
 
+	/*subtitle */
+	int sub_stream;
+	int sub_stream_changed;
+	AVStream *sub_st;
+	PacketQueue subq;
+	SubPicture subpq[SUBPICTURE_QUEUE_SIZE];
+	int subpq_rindex, subpq_windex, subpq_size;
+	SDL_mutex *subpq_mutex;
+	int subtitle_disable;
 }
 PyMovie;
 /* end of struct definitions */
@@ -221,7 +280,6 @@ void update_video_clock  (PyMovie *movie, AVFrame* frame, double pts);
 void video_refresh_timer (PyMovie *movie); //unlike in ffplay, this does the job of compute_frame_delay
 
 /* 		Audio management */
-int  audio_write_get_buf_size (PyMovie *is);
 int  synchronize_audio        (PyMovie *is, short *samples, int samples_size1, double pts);
 int  audio_decode_frame       (PyMovie *is, double *pts_ptr);
 
@@ -245,4 +303,8 @@ double get_external_clock (PyMovie *is);
 double get_master_clock   (PyMovie *is);
 
 
+/*		Subtitle Management*/
+void subtitle_render(PyMovie *movie);
+void blend_subrect(AVPicture *dst, const AVSubtitleRect *rect, int imgw, int imgh);
+void free_subpicture(SubPicture *sp);
 #endif /*_GMOVIE_H_*/
