@@ -105,7 +105,7 @@ class Dependency:
 class DebugDependency(Dependency):
     def __init__(self, name, checkhead, checklib, libs):
         Dependency.__init__(self, name, checkhead, checklib, libs)
-        self.cflags="-Xcompiler -O0"
+        self.cflags=""
 
 class DependencyPython:
     def __init__(self, name, module, header):

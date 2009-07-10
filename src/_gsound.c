@@ -200,7 +200,7 @@ int soundEnd   (void)
 /* Play a sound buffer, with a given length */
 int playBuffer (uint8_t *buf, uint32_t len, int channel, int64_t pts)
 {
-	//SDL_mutexP(ainfo.mutex);
+	SDL_mutexP(ainfo.mutex);
     Mix_Chunk *mix;
     int false=0;
     int allocated=0;
@@ -218,7 +218,7 @@ int playBuffer (uint8_t *buf, uint32_t len, int channel, int64_t pts)
             node->next =NULL;
             node->pts = pts;
             queue_put(&ainfo.queue, node);
-            //SDL_mutexV(ainfo.mutex);
+            SDL_mutexV(ainfo.mutex);
             return ainfo.channel;
         }
         else if(!buf && ainfo.queue.size==0)
@@ -239,7 +239,7 @@ int playBuffer (uint8_t *buf, uint32_t len, int channel, int64_t pts)
             queue_get(&ainfo.queue, &new);
             if(!new)
             {
-                //SDL_mutexV(ainfo.mutex);
+                SDL_mutexV(ainfo.mutex);
                 return -1;
             }
             ainfo.current_frame_size=new->len;
@@ -282,7 +282,7 @@ int playBuffer (uint8_t *buf, uint32_t len, int channel, int64_t pts)
     ainfo.current_frame_size =len;
     int chan = ainfo.channel;
     
-    //SDL_mutexV(ainfo.mutex);
+    SDL_mutexV(ainfo.mutex);
     
     int playing = Mix_Playing(chan);
     if(playing && allocated &&false)

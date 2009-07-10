@@ -304,7 +304,7 @@ double get_master_clock   (PyMovie *is);
 
 
 /*		Subtitle Management*/
-void subtitle_render(PyMovie *movie);
+int subtitle_render(void *arg);
 void blend_subrect(AVPicture *dst, const AVSubtitleRect *rect, int imgw, int imgh);
 void free_subpicture(SubPicture *sp);
 #endif /*_GMOVIE_H_*/

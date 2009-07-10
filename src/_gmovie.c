@@ -1126,10 +1126,7 @@ int audio_thread(void *arg)
 		if(filled)
         {
             /* Buffer is filled up with a new frame, we spin lock/wait for a signal, where we then call playBuffer */
-            SDL_LockMutex(movie->audio_mutex);
-	        SDL_UnlockMutex(movie->audio_mutex);
             int chan = playBuffer(movie->audio_buf1, data_size, movie->channel, movie->audio_pts);
-			SDL_LockMutex(movie->audio_mutex);
 			if(chan==-1)
 			{
 				GRABGIL
@@ -1139,7 +1136,6 @@ int audio_thread(void *arg)
             movie->channel = chan;
             filled=0;
             len1=0;
-            SDL_UnlockMutex(movie->audio_mutex);
             goto closing;
         }
 		
@@ -1325,7 +1321,7 @@ void stream_component_end(PyMovie *movie, int stream_index)
     enc = ic->streams[stream_index]->codec;
     int i;
     VidPicture *vp;
-    SubPicture *sp;
+    //SubPicture *sp;
     switch(enc->codec_type)
     {
     case CODEC_TYPE_AUDIO:
@@ -1351,7 +1347,6 @@ void stream_component_end(PyMovie *movie, int stream_index)
     default:
         break;
     }
-
     ic->streams[stream_index]->discard = AVDISCARD_ALL;
 
     GRABGIL
@@ -1941,8 +1936,8 @@ int decoder(void *arg)
             int64_t seek_target= movie->seek_pos;
 			int aud_stream_index=-1;
 			int vid_stream_index=-1;
-			int64_t vid_seek_target;
-			int64_t aud_seek_target;
+			int64_t vid_seek_target=0;
+			int64_t aud_seek_target=0;
             if (movie->video_stream >= 0)
                 vid_stream_index= movie->video_stream;
 
@@ -2042,6 +2037,10 @@ int decoder(void *arg)
             {
                 packet_queue_put(&movie->videoq, pkt);
             }
+            else if (pkt->stream_index == movie->sub_stream)
+            {
+            	packet_queue_put(&movie->subq, pkt);
+            }
             else if(pkt)
             {
                 av_free_packet(pkt);
@@ -2094,6 +2093,8 @@ int decoder(void *arg)
             video_render(movie);
         if(movie->audio_st)
             audio_thread(movie);
+        if(movie->sub_st)
+        	subtitle_render(movie);
         if(co<2)
             video_refresh_timer(movie);
         if(movie->timing>0)
@@ -2208,5 +2209,84 @@ the_end:
     Py_DECREF(movie);
     RELEASEGIL
     av_free(frame);
+    return 0;
+}
+
+int subtitle_render(void *arg){
+	PyMovie *movie = arg;
+	DECLAREGIL
+	GRABGIL
+	Py_INCREF(movie);
+	RELEASEGIL
+    SubPicture *sp;
+    AVPacket pkt1, *pkt = &pkt1;
+    int len1, got_subtitle;
+    double pts;
+    int i, j;
+    int r, g, b, y, u, v, a;
+	int co;
+	
+    for(co=0;co<2;co++) {
+        if (movie->paused && !movie->subq.abort_request) {
+            SDL_Delay(10);
+        	goto the_end;
+        }
+        if (packet_queue_get(&movie->subq, pkt, 1) < 0)
+            break;
+
+        if(pkt->data == flush_pkt.data){
+            avcodec_flush_buffers(movie->sub_st->codec);
+            goto the_end;
+        }
+        SDL_LockMutex(movie->subpq_mutex);
+        if (movie->subpq_size >= SUBPICTURE_QUEUE_SIZE &&
+               !movie->subq.abort_request) {
+			SDL_UnlockMutex(movie->subpq_mutex);
+			goto the_end;
+        }
+        SDL_UnlockMutex(movie->subpq_mutex);
+
+        if (movie->subq.abort_request)
+            goto the_end;
+
+        sp = &movie->subpq[movie->subpq_windex];
+
+       /* NOTE: ipts is the PTS of the _first_ picture beginning in
+           this packet, if any */
+        pts = 0;
+        if (pkt->pts != AV_NOPTS_VALUE)
+             pts = av_q2d(movie->sub_st->time_base)*pkt->pts;
+
+        len1 = avcodec_decode_subtitle(movie->sub_st->codec,
+                                    &sp->sub, &got_subtitle,
+                                    pkt->data, pkt->size);
+        if (got_subtitle && sp->sub.format == 0) {
+            sp->pts = pts;
+
+            for (i = 0; i < sp->sub.num_rects; i++)
+            {
+                for (j = 0; j < sp->sub.rects[i]->nb_colors; j++)
+                {
+                    RGBA_IN(r, g, b, a, (uint32_t*)sp->sub.rects[i]->pict.data[1] + j);
+                    y = RGB_TO_Y_CCIR(r, g, b);
+                    u = RGB_TO_U_CCIR(r, g, b, 0);
+                    v = RGB_TO_V_CCIR(r, g, b, 0);
+                    YUVA_OUT((uint32_t*)sp->sub.rects[i]->pict.data[1] + j, y, u, v, a);
+                }
+            }
+
+            /* now we can update the picture count */
+            if (++movie->subpq_windex == SUBPICTURE_QUEUE_SIZE)
+                movie->subpq_windex = 0;
+            SDL_LockMutex(movie->subpq_mutex);
+            movie->subpq_size++;
+            SDL_UnlockMutex(movie->subpq_mutex);
+        }
+        av_free_packet(pkt);
+    }
+ the_end:
+ 	GRABGIL
+ 	Py_DECREF(movie);
+ 	RELEASEGIL
     return 0;
 }
