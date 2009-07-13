@@ -184,6 +184,7 @@ typedef struct PyMovie
     int              stop;           //whether we're in a stop state...
     SDL_Surface     *canon_surf;     //pointer to the surface given by the programmer. We do NOT free this... it is not ours. We just write to it.
     PyThreadState   *_tstate;        //really do not touch this unless you have to. This is used for threading control and primitives.
+	int decode_profile[10];
 
     int diff_co; //counter
 
@@ -217,6 +218,7 @@ typedef struct PyMovie
     SDL_Thread       *audio_tid;
     int               channel;
     int               audio_paused;
+	int audio_profile[10]; 
 
     /* Frame/Video Management members */
     double     frame_timer;
@@ -244,7 +246,7 @@ typedef struct PyMovie
     SDL_mutex  *videoq_mutex;
     SDL_cond   *videoq_cond;
     struct SwsContext *img_convert_ctx;
-
+	int video_profile[10];
 	/*subtitle */
 	int sub_stream;
 	int sub_stream_changed;
@@ -254,6 +256,7 @@ typedef struct PyMovie
 	int subpq_rindex, subpq_windex, subpq_size;
 	SDL_mutex *subpq_mutex;
 	int subtitle_disable;
+	SDL_Thread *sub_tid;
 }
 PyMovie;
 /* end of struct definitions */
@@ -274,7 +277,7 @@ int  initialize_codec       (PyMovie *movie, int stream_index, int threaded);
 int  video_open          (PyMovie *is, int index);
 void video_image_display (PyMovie *is);
 int  video_display       (PyMovie *is);
-int  video_render        (PyMovie *movie);
+int  video_render        (void *arg);
 int  queue_picture       (PyMovie *is, AVFrame *src_frame);
 void update_video_clock  (PyMovie *movie, AVFrame* frame, double pts);
 void video_refresh_timer (PyMovie *movie); //unlike in ffplay, this does the job of compute_frame_delay
