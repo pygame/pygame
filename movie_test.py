@@ -8,76 +8,77 @@ import pygame._movie as movie
 
 print "Please give an (absolute)filename of a movie file you'd like to play: ",
 #filename = raw_input()
-filename="/home/tyler/War3.avi"
+filename="/home/tyler/avatar.avi"
 #initialization. It could also have a surface as a second argument, and every 
 # frame will be blitted to that surface. It is the programmer's responsibility
 # to be on time for rendering that surface.
 # Without a surface argument, the ffmpeg-wrapper uses the sdl_overlay library. 
 #screen=pygame.display.set_mode((640, 368))
-##m = movie.Movie(filename)
-##print m.paused  #always False, unless .pause has been called
-##print m.playing #False until play has been called. Will return to false when
-##                # .stop() has been called.
-##                
-##print m.width   #default size values of the video file
-##print m.height  # They can be modified on the fly, as will be demonstrated.
-##
-##print m         #calls __repr__, which will show the filename, and the current 
-##                # timestamp. 
+
+m = movie.Movie(filename)
+print m.paused  #always False, unless .pause has been called
+print m.playing #False until play has been called. Will return to false when
+                # .stop() has been called.
+                
+print m.width   #default size values of the video file
+print m.height  # They can be modified on the fly, as will be demonstrated.
+
+print m         #calls __repr__, which will show the filename, and the current 
+                # timestamp. 
 #print "repeated looping plays.."#
 #m.play(10)
 #time.sleep(10*30)
 
 
-##print "Playing infinitely"
-##
-##m.play(-1)       #We're going to use infinite play, so we can demonstrate all 
-##                # the features.
-##time.sleep(2)  #sleep for ten seconds to let one see the video play, and hear 
-##                # the audio
-##print m.paused
-##print m.playing
-##print m
-##
+print "Playing infinitely"
+
+m.play(-1)       #We're going to use infinite play, so we can demonstrate all 
+                # the features.
+time.sleep(2)  #sleep for ten seconds to let one see the video play, and hear 
+                # the audio
+print m.paused
+print m.playing
+print m
+
 #Now we're going to play with the size of the window, affecting the video on 
 #the fly. resize(width, height) is the main function, changes them both at
 # the same time.
-##print "Resizing..."
-##m.resize(m.width/2, m.height*2)
-##print "sleeping..."
-##time.sleep(10) #another ten second nap.
-##print "Resizing again..."
-##m.width = m.width*4
-##print "sleeping again" 
-##time.sleep(10)
-##print "Back to normal!"
-##m.width=m.width/2
-##m.height = m.height/2
-##print "and again, sleeping..."
+print "Resizing..."
+m.resize(m.width/2, m.height*2)
+print "sleeping..."
+time.sleep(10) #another ten second nap.
+print "Resizing again..."
+m.width = m.width*4
+print "sleeping again" 
+time.sleep(10)
+print "Back to normal!"
+m.width=m.width/2
+m.height = m.height/2
+print "and again, sleeping..."
 #back to our original size
-##time.sleep(10)
+time.sleep(10)
 #Here we demonstrate the use of pause. You pause, then call pause again to play
-##print "Pausing..."
-##m.pause()
-##print "done pausing..."
-##print m.paused
-##print m.playing
-##time.sleep(10)
-##print "Unpausing..."
-##m.pause()
-##print m.paused
-##print m.playing
-##time.sleep(20)
+print "Pausing..."
+m.pause()
+print "done pausing..."
+print m.paused
+print m.playing
+time.sleep(10)
+print "Unpausing..."
+m.pause()
+print m.paused
+print m.playing
+time.sleep(10)
 #Here is the stop function. Right now, rewind is the exact same as stop.
-##print "Stopping..., sleeping for 3 seconds"
-##m.stop()
-##time.sleep(3)
+print "Stopping..., sleeping for 3 seconds"
+m.stop()
+time.sleep(3)
 #And now we restart playing.
-##print "Playing again..." 
-##m.play(-1)
-##print "done restart play..."
-##time.sleep(10)
-##print "Surface time..."
+print "Playing again..." 
+m.play(-1)
+print "done restart play..."
+time.sleep(10)
+print "Surface time..."
 screen = pygame.display.set_mode((640, 348))
 #This will move the movie player from overlay mode to blitting to the surface 
 # we've given it. This means it is our responsibility to update the display on 

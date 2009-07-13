@@ -73,7 +73,15 @@ int _movie_init(PyObject *self, PyObject *args, PyObject *kwds)
 
 void _movie_dealloc(PyMovie *movie)
 {
-    stream_close(movie);
+	PySys_WriteStdout("Deleting\n");
+	if(movie->_tstate)
+	{
+		PyThreadState_Clear(movie->_tstate);
+		//PyThreadState_Delete(movie->_tstate);
+	}
+	if(!movie->stop)
+		movie=(PyMovie *)_movie_stop(movie);
+	stream_close(movie, 0);
     movie->ob_type->tp_free((PyObject *) movie);
 }
 
@@ -128,6 +136,7 @@ PyObject* _movie_repr (PyMovie *movie)
     char buf2[50];
     PyOS_snprintf(buf, sizeof(buf), "(Movie: %s, %s)", movie->filename, format_timestamp(movie->pts, buf2));
     PyObject *buffer = PyString_FromString(buf);
+    Py_DECREF(movie);
     return buffer;
 }
 PyObject* _movie_play(PyMovie *movie, PyObject* args)
@@ -142,7 +151,7 @@ PyObject* _movie_play(PyMovie *movie, PyObject* args)
         }
         //indicating we've called play again before its finished
     }
-    else
+    else if(movie->_tstate==NULL)
     {
         PyInterpreterState *interp;
         PyThreadState *thread;
@@ -163,9 +172,9 @@ PyObject* _movie_play(PyMovie *movie, PyObject* args)
     	//first we release the GIL, then we release all the resources associated with the streams, if they exist.
     	PyEval_ReleaseLock();
         if(movie->video_st)
-            stream_component_end(movie, movie->video_st->index);
+            stream_component_end(movie, movie->video_st->index, 0);
         if(movie->audio_st)
-            stream_component_end(movie, movie->audio_st->index);
+            stream_component_end(movie, movie->audio_st->index, 0);
         PyEval_AcquireLock();
         movie->stop = 0;
     }

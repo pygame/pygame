@@ -288,11 +288,11 @@ void stream_seek            (PyMovie *is, int64_t pos, int rel);
 void stream_pause           (PyMovie *is);
 int  stream_component_open  (PyMovie *is, int stream_index, int threaded); //TODO: break down into separate functions
 int  stream_component_start (PyMovie *is, int stream_index, int threaded);
-void stream_component_end   (PyMovie *is, int stream_index);
-void stream_component_close (PyMovie *is, int stream_index);
+void stream_component_end   (PyMovie *is, int stream_index, int threaded);
+void stream_component_close (PyMovie *is, int stream_index, int threaded);
 int  decoder                (void *arg);
 void stream_open            (PyMovie *is, const char *filename, AVInputFormat *iformat, int threaded);
-void stream_close           (PyMovie *is);
+void stream_close           (PyMovie *is, int threaded);
 void stream_cycle_channel   (PyMovie *is, int codec_type);
 int  decoder_wrapper        (void *arg);
 

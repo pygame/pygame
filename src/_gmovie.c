@@ -1297,24 +1297,24 @@ int stream_component_start(PyMovie *movie, int stream_index, int threaded)
     return 0;
 }
 
-void stream_component_end(PyMovie *movie, int stream_index)
+void stream_component_end(PyMovie *movie, int stream_index, int threaded)
 {
     DECLAREGIL
-    GRABGIL
+    if(threaded) GRABGIL
     if(movie->ob_refcnt!=0)
         Py_INCREF( movie);
-    RELEASEGIL
+    if(threaded) RELEASEGIL
     AVFormatContext *ic = movie->ic;
     AVCodecContext *enc;
 
     if (stream_index < 0 || stream_index >= ic->nb_streams)
     {
-        GRABGIL
+        if(threaded) GRABGIL
         if(movie->ob_refcnt!=0)
         {
             Py_DECREF(movie);
         }
-        RELEASEGIL
+        if(threaded) RELEASEGIL
         return;
     }
     movie->replay=1;
@@ -1349,31 +1349,31 @@ void stream_component_end(PyMovie *movie, int stream_index)
     }
     ic->streams[stream_index]->discard = AVDISCARD_ALL;
 
-    GRABGIL
+    if(threaded) GRABGIL
     if(movie->ob_refcnt!=0)
     {
         Py_DECREF( movie);
     }
-    RELEASEGIL
+    if(threaded) RELEASEGIL
 }
-void stream_component_close(PyMovie *movie, int stream_index)
+void stream_component_close(PyMovie *movie, int stream_index, int threaded)
 {
     DECLAREGIL
-    GRABGIL
+    if(threaded) GRABGIL
     if(movie->ob_refcnt!=0)
         Py_INCREF( movie);
-    RELEASEGIL
+    if(threaded) RELEASEGIL
     AVFormatContext *ic = movie->ic;
     AVCodecContext *enc;
 
     if (stream_index < 0 || stream_index >= ic->nb_streams)
     {
-        GRABGIL
+        if(threaded) GRABGIL
         if(movie->ob_refcnt!=0)
         {
             Py_DECREF(movie);
         }
-        RELEASEGIL
+        if(threaded) RELEASEGIL
         return;
     }
     enc = ic->streams[stream_index]->codec;
@@ -1414,12 +1414,12 @@ void stream_component_close(PyMovie *movie, int stream_index)
         break;
     }
 
-    GRABGIL
+	if(threaded) GRABGIL
     if(movie->ob_refcnt!=0)
     {
         Py_DECREF( movie);
     }
-    RELEASEGIL
+    if(threaded) RELEASEGIL
 }
 
 void stream_open(PyMovie *movie, const char *filename, AVInputFormat *iformat, int threaded)
@@ -1694,7 +1694,7 @@ int initialize_codec(PyMovie *movie, int stream_index, int threaded)
     }
     return 0;
 }
-void stream_close(PyMovie *movie)
+void stream_close(PyMovie *movie, int threaded)
 {
     DECLAREGIL
     GRABGIL
@@ -1721,6 +1721,7 @@ void stream_close(PyMovie *movie)
                 SDL_FreeSurface(vp->dest_surface);
                 vp->dest_surface=NULL;
             }
+            
         }
         SDL_DestroyMutex(movie->dest_mutex);
         if(movie->img_convert_ctx)
@@ -1732,15 +1733,15 @@ void stream_close(PyMovie *movie)
     /* close each stream */
     if (movie->audio_stream >= 0)
     {
-        stream_component_close(movie, movie->audio_stream);
+        stream_component_close(movie, movie->audio_stream, threaded);
     }
     if (movie->video_stream >= 0)
     {
-        stream_component_close(movie, movie->video_stream);
+        stream_component_close(movie, movie->video_stream, threaded);
     }
     if (movie->sub_stream >= 0)
     {
-        stream_component_close(movie, movie->sub_stream);
+        stream_component_close(movie, movie->sub_stream, threaded);
     }
     if (movie->ic)
     {
@@ -1798,7 +1799,7 @@ void stream_cycle_channel(PyMovie *movie, int codec_type)
         }
     }
 the_end:
-    stream_component_close(movie, start_index);
+    stream_component_close(movie, start_index, 1);
     stream_component_open(movie, stream_index, 1);
     GRABGIL
     Py_DECREF(movie);
@@ -1835,6 +1836,8 @@ int decoder_wrapper(void *arg)
             stream_component_start(movie, movie->video_stream, 1);
         if(movie->audio_st)
             stream_component_start(movie, movie->audio_stream, 1);
+        if(movie->sub_st)
+        	stream_component_start(movie, movie->sub_stream, 1);
         /* Now we call the function that does the ACTUAL work. Just like us to loaf 
          * around while we make decoder work so hard...
          */
@@ -1850,12 +1853,14 @@ int decoder_wrapper(void *arg)
          * electronic tree saved!
          */  
         if(movie->video_st)
-            stream_component_end(movie, movie->video_st->index);
+            stream_component_end(movie, movie->video_st->index, 1);
         if(movie->audio_st)
-            stream_component_end(movie, movie->audio_st->index);
+            stream_component_end(movie, movie->audio_st->index, 1);
+    	if(movie->sub_st)
+    		stream_component_end(movie, movie->sub_st->index, 1);
     }
     GRABGIL
-    Py_INCREF(movie);
+    Py_DECREF(movie);
     RELEASEGIL
     movie->playing=0;
     movie->paused=0;

@@ -65,7 +65,7 @@ void cb_mixer(int channel)
 }
 
 //initialize the mixer audio subsystem, code cribbed from mixer.c
-int soundInit  (int freq, int size, int channels, int chunksize, PyThreadState *_tstate)
+int soundInit  (int freq, int size, int channels, int chunksize)
 {
     Uint16 fmt = 0;
     int i;
@@ -160,7 +160,7 @@ int soundInit  (int freq, int size, int channels, int chunksize, PyThreadState *
     ainfo.mutex = SDL_CreateMutex();
     ainfo.queue.mutex = SDL_CreateMutex();
     ainfo.ended=1;
-    ainfo._tstate = _tstate;
+    //ainfo._tstate = _tstate;
     return 0;
 }
 

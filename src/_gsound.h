@@ -38,14 +38,14 @@ typedef struct AudioInfo
 	int			paused;
     BufferQueue queue;              //queue of our buffers
     SDL_mutex   *mutex;
-	PyThreadState *_tstate;
+	//PyThreadState *_tstate;
 	int restart;
 }
 AudioInfo;
 
 AudioInfo ainfo;
 
-int soundInit     (int freq, int size, int channels, int chunksize, PyThreadState *_tstate);
+int soundInit     (int freq, int size, int channels, int chunksize);
 int soundQuit     (void);
 int soundStart    (void);
 int soundEnd      (void);
