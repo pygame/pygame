@@ -4,10 +4,11 @@
 # BREAK = change breaks existing code
 # BUG    = fixed a bug that was (or could have been) crashing
 
-[SVN 2503-2504] July 13, 2009
+[SVN 2503-2505] July 13, 2009
     [BUG] bugzilla 29, patch to use SDL_VIDEO_DRIVER_X11 DISABLE_X11.  Thanks Robert A. Lerche.
         So can compile pygame without X11 again.
     [BUG] fixed bad midi test.
+    [BUG] pygame.gfxdraw docstrings were not there.  Now... they... are.
 
 [SVN 2491-2495] July 9, 2009
     [BUG] Fixed up quit bug in eventlist.py example.  Thanks Evan Kroske!
