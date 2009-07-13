@@ -33,6 +33,7 @@
 #define PYGAME_SDLGFXPRIM_INTERNAL
 
 #include "pygame.h"
+#include "pygamedocs.h"
 #include "surface.h"
 #include "pgcompat.h"
 #include "SDL_gfx/SDL_gfxPrimitives.h"
@@ -62,28 +63,28 @@ static PyObject* _gfx_texturedpolygon (PyObject *self, PyObject* args);
 static PyObject* _gfx_beziercolor (PyObject *self, PyObject* args);
 
 static PyMethodDef _gfxdraw_methods[] = {
-    { "pixel", _gfx_pixelcolor, METH_VARARGS, "" },
-    { "hline", _gfx_hlinecolor, METH_VARARGS, "" },
-    { "vline", _gfx_vlinecolor, METH_VARARGS, "" },
-    { "rectangle", _gfx_rectanglecolor, METH_VARARGS, "" },
-    { "box", _gfx_boxcolor, METH_VARARGS, "" },
-    { "line", _gfx_linecolor, METH_VARARGS, "" },
-    { "arc", _gfx_arccolor, METH_VARARGS, "" },
-    { "circle", _gfx_circlecolor, METH_VARARGS, "" },
-    { "aacircle", _gfx_aacirclecolor, METH_VARARGS, "" },
-    { "filled_circle", _gfx_filledcirclecolor, METH_VARARGS, "" },
-    { "ellipse", _gfx_ellipsecolor, METH_VARARGS, "" },
-    { "aaellipse", _gfx_aaellipsecolor, METH_VARARGS, "" },
-    { "filled_ellipse", _gfx_filledellipsecolor, METH_VARARGS, "" },
-    { "pie", _gfx_piecolor, METH_VARARGS, "" },
-    { "trigon", _gfx_trigoncolor, METH_VARARGS, "" },
-    { "aatrigon", _gfx_aatrigoncolor, METH_VARARGS, "" },
-    { "filled_trigon", _gfx_filledtrigoncolor, METH_VARARGS, "" },
-    { "polygon", _gfx_polygoncolor, METH_VARARGS, "" },
-    { "aapolygon", _gfx_aapolygoncolor, METH_VARARGS, "" },
-    { "filled_polygon", _gfx_filledpolygoncolor, METH_VARARGS, "" },
-    { "textured_polygon", _gfx_texturedpolygon, METH_VARARGS, "" },
-    { "bezier", _gfx_beziercolor, METH_VARARGS, "" },
+    { "pixel", _gfx_pixelcolor, METH_VARARGS, DOC_PYGAMEGFXDRAWPIXEL },
+    { "hline", _gfx_hlinecolor, METH_VARARGS, DOC_PYGAMEGFXDRAWHLINE },
+    { "vline", _gfx_vlinecolor, METH_VARARGS, DOC_PYGAMEGFXDRAWVLINE },
+    { "rectangle", _gfx_rectanglecolor, METH_VARARGS, DOC_PYGAMEGFXDRAWRECTANGLE },
+    { "box", _gfx_boxcolor, METH_VARARGS, DOC_PYGAMEGFXDRAWRECTANGLE },
+    { "line", _gfx_linecolor, METH_VARARGS, DOC_PYGAMEGFXDRAWLINE },
+    { "circle", _gfx_circlecolor, METH_VARARGS, DOC_PYGAMEGFXDRAWCIRCLE },
+    { "arc", _gfx_arccolor, METH_VARARGS, DOC_PYGAMEGFXDRAWARC },
+    { "aacircle", _gfx_aacirclecolor, METH_VARARGS, DOC_PYGAMEGFXDRAWAACIRCLE },
+    { "filled_circle", _gfx_filledcirclecolor, METH_VARARGS, DOC_PYGAMEGFXDRAWFILLEDCIRCLE },
+    { "ellipse", _gfx_ellipsecolor, METH_VARARGS, DOC_PYGAMEGFXDRAWELLIPSE },
+    { "aaellipse", _gfx_aaellipsecolor, METH_VARARGS, DOC_PYGAMEGFXDRAWAAELLIPSE },
+    { "filled_ellipse", _gfx_filledellipsecolor, METH_VARARGS, DOC_PYGAMEGFXDRAWFILLEDELLIPSE },
+    { "pie", _gfx_piecolor, METH_VARARGS, DOC_PYGAMEGFXDRAWPIE },
+    { "trigon", _gfx_trigoncolor, METH_VARARGS, DOC_PYGAMEGFXDRAWTRIGON },
+    { "aatrigon", _gfx_aatrigoncolor, METH_VARARGS, DOC_PYGAMEGFXDRAWAATRIGON },
+    { "filled_trigon", _gfx_filledtrigoncolor, METH_VARARGS, DOC_PYGAMEGFXDRAWFILLEDTRIGON },
+    { "polygon", _gfx_polygoncolor, METH_VARARGS, DOC_PYGAMEGFXDRAWPOLYGON },
+    { "aapolygon", _gfx_aapolygoncolor, METH_VARARGS, DOC_PYGAMEGFXDRAWAAPOLYGON },
+    { "filled_polygon", _gfx_filledpolygoncolor, METH_VARARGS, DOC_PYGAMEGFXDRAWFILLEDPOLYGON },
+    { "textured_polygon", _gfx_texturedpolygon, METH_VARARGS, DOC_PYGAMEGFXDRAWTEXTUREDPOLYGON },
+    { "bezier", _gfx_beziercolor, METH_VARARGS, DOC_PYGAMEGFXDRAWBEZIER },
     { NULL, NULL, 0, NULL },
 };
 
@@ -1156,8 +1157,8 @@ MODINIT_DEFINE(gfxdraw)
 #if PY3
     static struct PyModuleDef _module = {
         PyModuleDef_HEAD_INIT,
-        "gfxdraw",
-        "",
+        MODPREFIX "gfxdraw",
+        DOC_PYGAMEGFXDRAW,
         -1,
         _gfxdraw_methods,
         NULL, NULL, NULL, NULL
@@ -1187,7 +1188,7 @@ MODINIT_DEFINE(gfxdraw)
 #if PY3
     module = PyModule_Create (&_module);
 #else
-    module = Py_InitModule3 (MODPREFIX "gfxdraw", _gfxdraw_methods, "");
+    module = Py_InitModule3 (MODPREFIX "gfxdraw", _gfxdraw_methods, DOC_PYGAMEGFXDRAW);
 #endif
 
     MODINIT_RETURN (module);
