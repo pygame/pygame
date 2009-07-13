@@ -346,7 +346,7 @@ dict_from_event (SDL_Event* event)
          */
 #if (defined(unix) || defined(__unix__) || defined(_AIX)        \
      || defined(__OpenBSD__)) &&                                \
-    (!defined(DISABLE_X11) && !defined(__CYGWIN32__) &&         \
+    (defined(SDL_VIDEO_DRIVER_X11) && !defined(__CYGWIN32__) &&         \
      !defined(ENABLE_NANOX) && !defined(__QNXNTO__))
 
         //printf("asdf :%d:", event->syswm.msg->event.xevent.type);
