@@ -338,7 +338,7 @@ get_wm_info (PyObject* self)
 /*scary #ifdef's match SDL_syswm.h*/
 #if (defined(unix) || defined(__unix__) ||              \
      defined(_AIX) || defined(__OpenBSD__)) &&          \
-    (!defined(DISABLE_X11) && !defined(__CYGWIN32__) && \
+    (defined(SDL_VIDEO_DRIVER_X11) && !defined(__CYGWIN32__) && \
      !defined(ENABLE_NANOX) && !defined(__QNXNTO__))
 
     tmp = PyInt_FromLong (info.info.x11.window);
