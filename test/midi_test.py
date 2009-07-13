@@ -375,8 +375,8 @@ class MidiTest( unittest.TestCase ):
           # returns (interf, name, input, output, opened)
           # pygame.midi.get_device_info(an_id): return (interf, name, input,
           # output, opened)
-          # 
-          # 
+          #
+          #
           # If the id is out of range, the function returns None.
 
         an_id = pygame.midi.get_default_output_id()
@@ -391,10 +391,11 @@ class MidiTest( unittest.TestCase ):
             self.assertEqual(opened, 0)
 
 
-        an_in_id = pygame.midi.get_default_input_id() 
-        if an_id != -1:
+        an_in_id = pygame.midi.get_default_input_id()
+        if an_in_id != -1:
+            r = pygame.midi.get_device_info(an_in_id)
+            # if r is None, it means that the id is out of range.
             try:
-                r = pygame.midi.get_device_info(an_in_id)
                 interf, name, input, output, opened = r
             except TypeError:
                 raise Exception(repr(r))
