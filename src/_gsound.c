@@ -346,11 +346,11 @@ int setCallback(void (*callback)(int channel))
 
 double getAudioClock(void)
 {
-    SDL_mutexP(ainfo.mutex);//lock
+    //SDL_mutexP(ainfo.mutex);//lock
     int bytes_per_sec = ainfo.channels*ainfo.sample_rate*2;
     double pts = ainfo.audio_clock;
     pts -= (double) ainfo.current_frame_size/(double) bytes_per_sec;
-    SDL_mutexV(ainfo.mutex);
+    //SDL_mutexV(ainfo.mutex);
     return pts;
 }
 

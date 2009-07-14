@@ -421,42 +421,49 @@ void get_height_width(PyMovie *movie, int *height, int*width)
     get_width(movie, width);
 }
 
+inline void jamPixels(int ix, AVPicture *picture, uint32_t *rgb, SDL_Surface *surface)
+{
+	//uint32_t *rgb           = surface->pixels;
+	uint8_t red   = picture->data[0][ix]; 
+	uint8_t green = picture->data[0][ix+1];
+	uint8_t blue  = picture->data[0][ix+2];
+	//skip the alpha... we don't care
+    /* shift components to the correct place in pixel */
+    *rgb = ( red   << (long) surface->format->Rshift) | /* red */
+            ( blue  << (long) surface->format->Bshift ) | /* green */
+            ( green << (long) surface->format->Gshift ) | /* blue */
+            ( 0   << (long) surface->format->Ashift);
+}
+
 //transfers data from the AVPicture written to by swscale to a surface
 void WritePicture2Surface(AVPicture *picture, SDL_Surface *surface)
 {
 	/* AVPicture initialized with PIX_FMT_RGBA only fills pict->data[0]
 	 *  This however is only in {R,G,B, A} format. So we just copy the data over. 
 	 */
-	uint32_t *rgb = surface->pixels;
-	int BytesPerPixel =0;
-	if(RGBA)
-		BytesPerPixel=4;
-	else
-		BytesPerPixel=3;
-	int64_t size = surface->w*surface->h*BytesPerPixel;
-	int64_t ix=0;
-	while(ix<size)
+	/* Loop unrolling:
+	 * 	We define a blocksize, and so we increment the index counter by blocksize*rgbstep
+	 * 	All common resolutions are nicely divisible by 8(because 8 is a power of 2...)
+	 *  An uncommon resolution  could have between 1 and 7 bytes left to convert... 
+	 *   which I guess we'll leave alone. Its just 1-2 pixels in the lower right corner.
+	 *  So we repeat the same actions blocksize times.  
+	 */
+	int64_t   blocksize     = 8;
+	uint32_t *rgb           = surface->pixels;
+	int       BytesPerPixel = RGBSTEP;
+	int64_t   size          = surface->w*surface->h*BytesPerPixel;
+	int64_t   ix            = 0;
+	int64_t   blocklimit    = (size/blocksize)*blocksize;  
+	while(ix<blocklimit)
 	{
-		uint8_t red   = picture->data[0][ix]; 
-		uint8_t green = picture->data[0][ix+1];
-		uint8_t blue  = picture->data[0][ix+2];
-		//skip the alpha... we don't care
-        /* shift components to the correct place in pixel */
-        *rgb = ( red   << (long) surface->format->Rshift) | /* red */
-                ( blue  << (long) surface->format->Bshift ) | /* green */
-                ( green << (long) surface->format->Gshift ) | /* blue */
-                ( 0   << (long) surface->format->Ashift);
-        /* goto next pixel */
-        rgb++;
-        /* this increments our index value, depending on the format we use*/
-		if(RGB24)
-	    {
-	        ix+=3;
-	    }
-	    else if(RGBA)
-	    {
-	    	ix+=4;
-	    }	    
+		//this will be unrolled by the compiler, meaning that we do less comparisons by a factor of blocksize
+		int i =0;
+		for(;i<blocksize;i++)
+		{
+			jamPixels(ix, picture, rgb, surface);
+			rgb++;
+			ix+=RGBSTEP;
+		}	
 	}
 }
 
@@ -1088,22 +1095,28 @@ int audio_thread(void *arg)
     int filled =0;
     len1=0;
     int co = 0;
-    for(;co<2;co++)
+    for(;;)
     {
     	if(movie->paused!=movie->audio_paused)
     	{
     		pauseBuffer(movie->channel);
     		movie->audio_paused=movie->paused;
     		if(movie->audio_paused)
-    			goto closing;
+    			continue;
     	}
-       
+        if(movie->paused)
+        {
+        	SDL_Delay(10);
+        	continue;
+        }
         //check if the movie has ended
-        if(movie->stop)
+        if(movie->stop || movie->audioq.abort_request)
         {
             stopBuffer(movie->channel);
             goto closing;
         }
+        
+        
         //fill up the buffer
         while(movie->audio_pkt_size > 0)
         {
@@ -1136,7 +1149,6 @@ int audio_thread(void *arg)
             movie->channel = chan;
             filled=0;
             len1=0;
-            goto closing;
         }
 		
         //either buffer filled or no packets yet
@@ -1147,13 +1159,15 @@ int audio_thread(void *arg)
         /* read next packet */
         if (packet_queue_get(&movie->audioq, pkt, 1) <= 0)
         {
-            goto closing;
+        	SDL_Delay(10);
+            continue;
         }
         
         if(pkt->data == flush_pkt.data)
         {
             avcodec_flush_buffers(dec);
-            goto closing;
+            SDL_Delay(10);
+            continue;
         }
       
         movie->audio_pts      = pkt->pts;
@@ -1263,6 +1277,7 @@ int stream_component_start(PyMovie *movie, int stream_index, int threaded)
         packet_queue_init(&movie->audioq);
         movie->audio_mutex = SDL_CreateMutex();
         soundStart();
+        movie->audio_tid = SDL_CreateThread(audio_thread, movie);
         break;
     case CODEC_TYPE_VIDEO:
         if(movie->replay)
@@ -1326,6 +1341,7 @@ void stream_component_end(PyMovie *movie, int stream_index, int threaded)
     {
     case CODEC_TYPE_AUDIO:
         packet_queue_abort(&movie->audioq);
+        SDL_WaitThread(movie->audio_tid, NULL);
         soundEnd();
         memset(&movie->audio_buf1, 0, sizeof(movie->audio_buf1));
         packet_queue_flush(&movie->audioq);
@@ -1673,7 +1689,7 @@ int initialize_codec(PyMovie *movie, int stream_index, int threaded)
         channels = enc->channels;
         if(!movie->replay)
         {
-	        if (soundInit  (freq, -16, channels, 1024, movie->_tstate) < 0)
+	        if (soundInit  (freq, -16, channels, 1024) < 0)
 	        {
 	            RAISE(PyExc_SDLError, SDL_GetError ());
 	        }
@@ -1991,7 +2007,7 @@ int decoder(void *arg)
             movie->seek_req = 0;
         }
         /* if the queue are full, no need to read more */
-        if ((movie->audioq.size > MAX_AUDIOQ_SIZE) || //yay for short circuit logic testing
+        if ( //yay for short circuit logic testing
                 (movie->videoq.size > MAX_VIDEOQ_SIZE ))
         {
             /* wait 10 ms */
@@ -2003,10 +2019,10 @@ int decoder(void *arg)
                 {
                     video_render(movie);
                 }
-                if(movie->audioq.size > MAX_AUDIOQ_SIZE && movie->audio_st)
+                /*if(movie->audioq.size > MAX_AUDIOQ_SIZE && movie->audio_st)
                 {
                     audio_thread(movie);
-                }
+                }*/
             }
             continue;
         }
@@ -2096,8 +2112,8 @@ int decoder(void *arg)
             }
         if(movie->video_st)
             video_render(movie);
-        if(movie->audio_st)
-            audio_thread(movie);
+        /*if(movie->audio_st)
+            audio_thread(movie);*/
         if(movie->sub_st)
         	subtitle_render(movie);
         if(co<2)

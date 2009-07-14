@@ -52,6 +52,12 @@ AVPacket flush_pkt;
 #define RGB24 1
 #define RGBA  0
 
+#if RGB24
+	#define RGBSTEP 3
+#else
+	#define RGBSTEP 4
+#endif
+
 #define BPP 1
 
 //included from ffmpeg header files, as the header file is not publically available.
