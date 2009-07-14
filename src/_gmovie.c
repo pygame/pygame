@@ -463,17 +463,19 @@ void WritePicture2Surface(AVPicture *picture, SDL_Surface *surface)
 
 int video_display(PyMovie *movie)
 {
-    
+    DECLAREGIL
+    GRABGIL
+    Py_INCREF(movie);
     double ret=1;
+    RELEASEGIL
 #if THREADFREE!=1
-    //SDL_LockMutex(movie->dest_mutex);
+    SDL_LockMutex(movie->dest_mutex);
 #endif
 
     VidPicture *vp = &movie->pictq[movie->pictq_rindex];
     if((!vp->dest_overlay&& vp->overlay>0)||(!vp->dest_surface && vp->overlay<=0))
     {
-        //video_open(movie, movie->pictq_rindex);
-        //we assume the video thread will get around to this...
+        video_open(movie, movie->pictq_rindex);
         ret=0;
     }
     else if (movie->video_stream>=0 && vp->ready)
@@ -485,9 +487,12 @@ int video_display(PyMovie *movie)
         ret=0;
     }
 #if THREADFREE !=1
-    //SDL_UnlockMutex(movie->dest_mutex);
+    SDL_UnlockMutex(movie->dest_mutex);
 #endif
 
+    GRABGIL
+    Py_DECREF(movie);
+    RELEASEGIL
     /* If we didn't actually display the image, we need to not clear our timer out in decoder */
     return ret;
 }
@@ -495,6 +500,10 @@ int video_display(PyMovie *movie)
 void video_image_display(PyMovie *movie)
 {
     /* Wrapped by video_display, which has a lock on the movie object */
+    DECLAREGIL
+    GRABGIL
+    Py_INCREF( movie);
+    RELEASEGIL
     VidPicture *vp;
     SubPicture *sp;
     float aspect_ratio;
@@ -579,12 +588,19 @@ void video_image_display(PyMovie *movie)
     movie->pictq_rindex= (movie->pictq_rindex+1)%VIDEO_PICTURE_QUEUE_SIZE;
     movie->pictq_size--;
     video_refresh_timer(movie);
+    GRABGIL
+    Py_DECREF( movie);
+    RELEASEGIL
 }
 
 int video_open(PyMovie *movie, int index)
 {
     int w=0;
     int h=0;
+    DECLAREGIL
+    GRABGIL
+    Py_INCREF( movie);
+    RELEASEGIL
     get_height_width(movie, &h, &w);
     VidPicture *vp;
     vp = &movie->pictq[index];
@@ -614,9 +630,9 @@ int video_open(PyMovie *movie, int index)
 	        SDL_Surface *screen;
 	        if (!SDL_WasInit (SDL_INIT_VIDEO))
 	        {
-				DECLAREGIL
 	            GRABGIL
 	            RAISE(PyExc_SDLError,"cannot create overlay without pygame.display initialized");
+	            Py_DECREF(movie);
 	            RELEASEGIL
 	            return -1;
 	        }
@@ -627,9 +643,9 @@ int video_open(PyMovie *movie, int index)
 	            screen = SDL_SetVideoMode(w, h, 0, SDL_SWSURFACE);
 	            if(!screen)
 	            {
-	            	DECLAREGIL
 	                GRABGIL
 	                RAISE(PyExc_SDLError, "Could not initialize a new video surface.");
+	                Py_DECREF(movie);
 	                RELEASEGIL
 	                return -1;
 	            }
@@ -638,9 +654,9 @@ int video_open(PyMovie *movie, int index)
 	        vp->dest_overlay = SDL_CreateYUVOverlay (w, h, SDL_YV12_OVERLAY, screen);
 	        if (!vp->dest_overlay)
 	        {
-	        	DECLAREGIL
 	            GRABGIL
 	            RAISE (PyExc_SDLError, "Cannot create overlay");
+	            Py_DECREF(movie);
 	            RELEASEGIL
 	            return -1;
 	        }
@@ -666,18 +682,17 @@ int video_open(PyMovie *movie, int index)
 	        SDL_Surface *screen = movie->canon_surf;
 	        if (!SDL_WasInit (SDL_INIT_VIDEO))
 	        {
-				DECLAREGIL
 	            GRABGIL
 	            RAISE(PyExc_SDLError,"cannot create surfaces without pygame.display initialized");
+	            Py_DECREF(movie);
 	            RELEASEGIL
 	            return -1;
 	        }
 	        if (!screen)
 	        {
-				DECLAREGIL
 	            GRABGIL
 	            RAISE(PyExc_SDLError, "No video surface given."); //ideally this should have
-	            //Py_DECREF(movie);									  //been caught at init, but this could feasibly
+	            Py_DECREF(movie);									  //been caught at init, but this could feasibly
 	            RELEASEGIL										  // happen if there's some cleaning up.
 	            return -1;
 	        }
@@ -687,9 +702,9 @@ int video_open(PyMovie *movie, int index)
 	            display = SDL_SetVideoMode(w, h, 0, SDL_SWSURFACE);
 	            if(!display)
 	            {
-					DECLAREGIL
 	                GRABGIL
 	                RAISE(PyExc_SDLError, "Could not initialize a new video surface.");
+	                Py_DECREF(movie);
 	                RELEASEGIL
 	                return -1;
 	            }
@@ -716,9 +731,9 @@ int video_open(PyMovie *movie, int index)
 	                                                
 	        if (!vp->dest_surface)
 	        {
-				DECLAREGIL
 	            GRABGIL
 	            RAISE (PyExc_SDLError, "Cannot create new surface.");
+	            Py_DECREF(movie);
 	            RELEASEGIL
 	            return -1;
 	        }
@@ -727,12 +742,19 @@ int video_open(PyMovie *movie, int index)
     }
     vp->width = w;
     vp->height = h;
+    GRABGIL
+    Py_DECREF( movie);
+    RELEASEGIL
     return 0;
 }
 
 /* called to determine a time to show each frame */
 void video_refresh_timer(PyMovie* movie)
 {
+    DECLAREGIL
+    GRABGIL
+    Py_INCREF(movie);
+    RELEASEGIL
     double actual_delay, delay, sync_threshold, ref_clock, diff;
     VidPicture *vp;
 
@@ -789,16 +811,21 @@ void video_refresh_timer(PyMovie* movie)
             /* XXX: should skip picture */
             actual_delay = 0.010;
         }
-        SDL_LockMutex(movie->dest_mutex);
-        //GRABGIL
+        GRABGIL
         movie->timing = (actual_delay*1000.0)+0.5;
-        //RELEASEGIL
-        SDL_UnlockMutex(movie->dest_mutex);
+        RELEASEGIL
     }
+    GRABGIL
+    Py_DECREF(movie);
+    RELEASEGIL
 }
 
 int queue_picture(PyMovie *movie, AVFrame *src_frame)
 {
+    DECLAREGIL
+    GRABGIL
+    Py_INCREF(movie);
+    RELEASEGIL
     int dst_pix_fmt;
     AVPicture pict;
     VidPicture *vp;
@@ -896,12 +923,19 @@ int queue_picture(PyMovie *movie, AVFrame *src_frame)
     movie->pictq_windex = (movie->pictq_windex+1)%VIDEO_PICTURE_QUEUE_SIZE;
     movie->pictq_size++;
     vp->ready=1;
+    GRABGIL
+    Py_DECREF(movie);
+    RELEASEGIL
     return 0;
 }
 
 
 void update_video_clock(PyMovie *movie, AVFrame* frame, double pts1)
 {
+    DECLAREGIL
+    GRABGIL
+    Py_INCREF(movie);
+    RELEASEGIL
     double frame_delay, pts;
 
     pts = pts1;
@@ -923,6 +957,9 @@ void update_video_clock(PyMovie *movie, AVFrame* frame, double pts1)
     movie->video_clock += frame_delay;
 
     movie->pts = pts;
+    GRABGIL
+    Py_DECREF(movie);
+    RELEASEGIL
 }
 
 /* get the current audio clock value */
@@ -934,6 +971,10 @@ double get_audio_clock(PyMovie *movie)
 /* get the current video clock value */
 double get_video_clock(PyMovie *movie)
 {
+    DECLAREGIL
+    GRABGIL
+    Py_INCREF( movie);
+    RELEASEGIL
     double delta;
 
     if (movie->paused)
@@ -945,21 +986,35 @@ double get_video_clock(PyMovie *movie)
         delta = (av_gettime() - movie->video_current_pts_time) / 1000000.0;
     }
     double temp = movie->video_current_pts+delta;
+    GRABGIL
+    Py_DECREF( movie);
+    RELEASEGIL
     return temp;
 }
 
 /* get the current external clock value */
 double get_external_clock(PyMovie *movie)
 {
+    DECLAREGIL
+    GRABGIL
+    Py_INCREF( movie);
+    RELEASEGIL
     int64_t ti;
     ti = av_gettime();
     double res = movie->external_clock + ((ti - movie->external_clock_time) * 1e-6);
+    GRABGIL
+    Py_DECREF( movie);
+    RELEASEGIL
     return res;
 }
 
 /* get the current master clock value */
 double get_master_clock(PyMovie *movie)
 {
+    DECLAREGIL
+    GRABGIL
+    Py_INCREF( movie);
+    RELEASEGIL
     double val;
 
     if (movie->av_sync_type == AV_SYNC_VIDEO_MASTER)
@@ -980,12 +1035,19 @@ double get_master_clock(PyMovie *movie)
     {
         val = get_external_clock(movie);
     }
+    GRABGIL
+    Py_DECREF( movie);
+    RELEASEGIL
     return val;
 }
 
 /* seek in the stream */
 void stream_seek(PyMovie *movie, int64_t pos, int rel)
 {
+    DECLAREGIL
+    GRABGIL
+    Py_INCREF( movie);
+    RELEASEGIL
     if (!movie->seek_req)
     {
         movie->seek_pos = pos;
@@ -993,6 +1055,9 @@ void stream_seek(PyMovie *movie, int64_t pos, int rel)
 
         movie->seek_req = 1;
     }
+    GRABGIL
+    Py_DECREF( movie);
+    RELEASEGIL
 }
 
 /* pause or resume the video */
@@ -1013,26 +1078,31 @@ void stream_pause(PyMovie *movie)
 int audio_thread(void *arg)
 {
     PyMovie *movie = arg;
+    DECLAREGIL
+    GRABGIL
+    Py_INCREF(movie);
+    RELEASEGIL
     AVPacket *pkt = &movie->audio_pkt;
     AVCodecContext *dec= movie->audio_st->codec;
     int len1, data_size;
     int filled =0;
     len1=0;
-    for(;;)
+    int co = 0;
+    for(;co<2;co++)
     {
     	if(movie->paused!=movie->audio_paused)
     	{
     		pauseBuffer(movie->channel);
     		movie->audio_paused=movie->paused;
     		if(movie->audio_paused)
-    			continue;
+    			goto closing;
     	}
        
         //check if the movie has ended
         if(movie->stop)
         {
             stopBuffer(movie->channel);
-           	break;
+            goto closing;
         }
         //fill up the buffer
         while(movie->audio_pkt_size > 0)
@@ -1059,7 +1129,6 @@ int audio_thread(void *arg)
             int chan = playBuffer(movie->audio_buf1, data_size, movie->channel, movie->audio_pts);
 			if(chan==-1)
 			{
-				DECLAREGIL
 				GRABGIL
 				PySys_WriteStdout("%s\n", Mix_GetError());
 				RELEASEGIL	
@@ -1067,7 +1136,7 @@ int audio_thread(void *arg)
             movie->channel = chan;
             filled=0;
             len1=0;
-            
+            goto closing;
         }
 		
         //either buffer filled or no packets yet
@@ -1078,13 +1147,13 @@ int audio_thread(void *arg)
         /* read next packet */
         if (packet_queue_get(&movie->audioq, pkt, 1) <= 0)
         {
-            continue;
+            goto closing;
         }
         
         if(pkt->data == flush_pkt.data)
         {
             avcodec_flush_buffers(dec);
-            continue;
+            goto closing;
         }
       
         movie->audio_pts      = pkt->pts;
@@ -1092,16 +1161,36 @@ int audio_thread(void *arg)
         movie->audio_pkt_size = pkt->size;
 
     }
+closing:
+    GRABGIL
+    Py_DECREF(movie);
+    RELEASEGIL
     return 0;
 }
 
 /* open a given stream. Return 0 if OK */
 int stream_component_open(PyMovie *movie, int stream_index, int threaded)
 {
+    DECLAREGIL
+    if(threaded)
+    {
+        GRABGIL
+    }
+    Py_INCREF( movie);
+    if(threaded)
+    {
+        RELEASEGIL
+    }
+
     AVFormatContext *ic = movie->ic;
     AVCodecContext *enc;
     if (stream_index < 0 || stream_index >= ic->nb_streams)
     {
+        if(threaded)
+            GRABGIL
+            Py_DECREF(movie);
+        if(threaded)
+            RELEASEGIL
             return -1;
     }
 
@@ -1124,17 +1213,40 @@ int stream_component_open(PyMovie *movie, int stream_index, int threaded)
     default:
         break;
     }
+    if(threaded)
+    {
+        GRABGIL
+    }
+    Py_DECREF( movie);
+    if(threaded)
+    {
+        RELEASEGIL
+    }
     return 0;
 }
 /* open a given stream. Return 0 if OK */
 int stream_component_start(PyMovie *movie, int stream_index, int threaded)
 {
-    //Py_INCREF( movie);
+    DECLAREGIL
+    if(threaded)
+    {
+        GRABGIL
+    }
+    Py_INCREF( movie);
+    if(threaded)
+    {
+        RELEASEGIL
+    }
     AVFormatContext *ic = movie->ic;
     AVCodecContext *enc;
 
     if (stream_index < 0 || stream_index >= ic->nb_streams)
     {
+        if(threaded)
+            GRABGIL
+            Py_DECREF(movie);
+        if(threaded)
+            RELEASEGIL
             return -1;
     }
     initialize_codec(movie, stream_index, threaded);
@@ -1151,7 +1263,6 @@ int stream_component_start(PyMovie *movie, int stream_index, int threaded)
         packet_queue_init(&movie->audioq);
         movie->audio_mutex = SDL_CreateMutex();
         soundStart();
-        movie->audio_tid = SDL_CreateThread(audio_thread, movie);
         break;
     case CODEC_TYPE_VIDEO:
         if(movie->replay)
@@ -1163,7 +1274,6 @@ int stream_component_start(PyMovie *movie, int stream_index, int threaded)
         movie->frame_timer = (double)av_gettime() / 1000000.0;
         movie->video_current_pts_time = av_gettime();
         packet_queue_init(&movie->videoq);
-        movie->video_tid = SDL_CreateThread(video_render, movie);
         break;
 	case CODEC_TYPE_SUBTITLE:
 		if(movie->replay)
@@ -1172,20 +1282,39 @@ int stream_component_start(PyMovie *movie, int stream_index, int threaded)
 			movie->sub_st     = ic->streams[stream_index];
 		}
 		packet_queue_init(&movie->subq);
-		movie->sub_tid = SDL_CreateThread(subtitle_render, movie);
     default:
         break;
+    }
+    if(threaded)
+    {
+        GRABGIL
+    }
+    Py_DECREF( movie);
+    if(threaded)
+    {
+        RELEASEGIL
     }
     return 0;
 }
 
 void stream_component_end(PyMovie *movie, int stream_index, int threaded)
 {
+    DECLAREGIL
+    if(threaded) GRABGIL
+    if(movie->ob_refcnt!=0)
+        Py_INCREF( movie);
+    if(threaded) RELEASEGIL
     AVFormatContext *ic = movie->ic;
     AVCodecContext *enc;
 
     if (stream_index < 0 || stream_index >= ic->nb_streams)
     {
+        if(threaded) GRABGIL
+        if(movie->ob_refcnt!=0)
+        {
+            Py_DECREF(movie);
+        }
+        if(threaded) RELEASEGIL
         return;
     }
     movie->replay=1;
@@ -1196,8 +1325,7 @@ void stream_component_end(PyMovie *movie, int stream_index, int threaded)
     switch(enc->codec_type)
     {
     case CODEC_TYPE_AUDIO:
-    	packet_queue_abort(&movie->audioq);
-        SDL_WaitThread(movie->audio_tid, NULL);
+        packet_queue_abort(&movie->audioq);
         soundEnd();
         memset(&movie->audio_buf1, 0, sizeof(movie->audio_buf1));
         packet_queue_flush(&movie->audioq);
@@ -1209,12 +1337,10 @@ void stream_component_end(PyMovie *movie, int stream_index, int threaded)
             vp->ready=0;
         }
         packet_queue_abort(&movie->videoq);
-        SDL_WaitThread(movie->video_tid, NULL);
         packet_queue_flush(&movie->videoq);
         break;
     case CODEC_TYPE_SUBTITLE:
         packet_queue_abort(&movie->subq);
-		SDL_WaitThread(movie->sub_tid, NULL);
         packet_queue_flush(&movie->subq);
         break;
         
@@ -1223,14 +1349,31 @@ void stream_component_end(PyMovie *movie, int stream_index, int threaded)
     }
     ic->streams[stream_index]->discard = AVDISCARD_ALL;
 
+    if(threaded) GRABGIL
+    if(movie->ob_refcnt!=0)
+    {
+        Py_DECREF( movie);
+    }
+    if(threaded) RELEASEGIL
 }
 void stream_component_close(PyMovie *movie, int stream_index, int threaded)
 {
+    DECLAREGIL
+    if(threaded) GRABGIL
+    if(movie->ob_refcnt!=0)
+        Py_INCREF( movie);
+    if(threaded) RELEASEGIL
     AVFormatContext *ic = movie->ic;
     AVCodecContext *enc;
 
     if (stream_index < 0 || stream_index >= ic->nb_streams)
     {
+        if(threaded) GRABGIL
+        if(movie->ob_refcnt!=0)
+        {
+            Py_DECREF(movie);
+        }
+        if(threaded) RELEASEGIL
         return;
     }
     enc = ic->streams[stream_index]->codec;
@@ -1271,13 +1414,28 @@ void stream_component_close(PyMovie *movie, int stream_index, int threaded)
         break;
     }
 
+	if(threaded) GRABGIL
+    if(movie->ob_refcnt!=0)
+    {
+        Py_DECREF( movie);
+    }
+    if(threaded) RELEASEGIL
 }
 
 void stream_open(PyMovie *movie, const char *filename, AVInputFormat *iformat, int threaded)
 {
     if (!movie)
         return;
+    DECLAREGIL
+    if(threaded)
+    {
+        GRABGIL
+    }
     Py_INCREF(movie);
+    if(threaded)
+    {
+        RELEASEGIL
+    }
     int  i, ret, video_index, audio_index, subtitle_index;
 
     strncpy(movie->filename, filename, strlen(filename)+1);
@@ -1303,7 +1461,6 @@ void stream_open(PyMovie *movie, const char *filename, AVInputFormat *iformat, i
     int wanted_audio_stream=1;
     int wanted_subti_stream=1;
     /* if seeking requested, we execute it */
-	DECLAREGIL
     if (movie->start_time != AV_NOPTS_VALUE)
     {
         int64_t timestamp;
@@ -1377,11 +1534,20 @@ fail:
         PyObject *er;
         er=PyErr_Occurred();
         if(er) {PyErr_Print();}
+        Py_DECREF(movie);
         if(threaded)
             {RELEASEGIL}
         return;
     }
-    
+    if(threaded)
+    {
+        GRABGIL
+    }
+    Py_DECREF(movie);
+    if(threaded)
+    {
+        RELEASEGIL
+    }
     return;
 }
 
@@ -1443,6 +1609,16 @@ fail:
 
 int initialize_codec(PyMovie *movie, int stream_index, int threaded)
 {
+    DECLAREGIL
+    if(threaded)
+    {
+        GRABGIL
+    }
+    Py_INCREF(movie);
+    if(threaded)
+    {
+        RELEASEGIL
+    }
     AVFormatContext *ic = movie->ic;
     AVCodecContext *enc;
     AVCodec *codec;
@@ -1478,6 +1654,15 @@ int initialize_codec(PyMovie *movie, int stream_index, int threaded)
     //TODO:proper error reporting here please
     if (avcodec_open(enc, codec) < 0)
     {
+        if(threaded)
+        {
+        	GRABGIL
+        }
+        Py_DECREF(movie);
+        if(threaded)
+        {
+            RELEASEGIL
+        }
         return -1;
     }
     /* prepare audio output */
@@ -1488,7 +1673,7 @@ int initialize_codec(PyMovie *movie, int stream_index, int threaded)
         channels = enc->channels;
         if(!movie->replay)
         {
-	        if (soundInit  (freq, -16, channels, 1024) < 0)
+	        if (soundInit  (freq, -16, channels, 1024, movie->_tstate) < 0)
 	        {
 	            RAISE(PyExc_SDLError, SDL_GetError ());
 	        }
@@ -1498,10 +1683,24 @@ int initialize_codec(PyMovie *movie, int stream_index, int threaded)
 
     enc->thread_count= 1;
     ic->streams[stream_index]->discard = AVDISCARD_DEFAULT;
+    if(threaded)
+    {
+        GRABGIL
+    }
+    Py_DECREF(movie);
+    if(threaded)
+    {
+        RELEASEGIL
+    }
     return 0;
 }
 void stream_close(PyMovie *movie, int threaded)
 {
+    DECLAREGIL
+    GRABGIL
+    if(movie->ob_refcnt!=0)
+        Py_INCREF(movie);
+    RELEASEGIL
     movie->abort_request = 1;
     SDL_WaitThread(movie->parse_tid, NULL);
     VidPicture *vp;
@@ -1550,6 +1749,12 @@ void stream_close(PyMovie *movie, int threaded)
         movie->ic = NULL; /* safety */
     }
 
+    if(movie->ob_refcnt!=0)
+    {
+        GRABGIL
+        Py_DECREF(movie);
+        RELEASEGIL
+    }
 }
 
 void stream_cycle_channel(PyMovie *movie, int codec_type)
@@ -1558,6 +1763,10 @@ void stream_cycle_channel(PyMovie *movie, int codec_type)
     int start_index=0;
     int stream_index;
     AVStream *st;
+    DECLAREGIL
+    GRABGIL
+    Py_INCREF(movie);
+    RELEASEGIL
 
     if (codec_type == CODEC_TYPE_VIDEO)
         start_index = movie->video_stream;
@@ -1592,6 +1801,9 @@ void stream_cycle_channel(PyMovie *movie, int codec_type)
 the_end:
     stream_component_close(movie, start_index, 1);
     stream_component_open(movie, stream_index, 1);
+    GRABGIL
+    Py_DECREF(movie);
+    RELEASEGIL
 }
 
 int decoder_wrapper(void *arg)
@@ -1679,6 +1891,9 @@ int decoder(void *arg)
 	 */
     PyMovie *movie = arg;
     DECLAREGIL
+    GRABGIL
+    Py_INCREF( movie);
+    RELEASEGIL
     AVFormatContext *ic;
     int ret;
     AVPacket pkt1, *pkt = &pkt1;
@@ -1688,23 +1903,26 @@ int decoder(void *arg)
     movie->last_showtime = av_gettime()/1000.0;
     for(;;)
     {
-        movie->decode_profile[5]++;
         co++;
         if (movie->abort_request)
         {
-        	movie->decode_profile[0]++;
             break;
         }
         if(movie->stop)
         {
-        	movie->decode_profile[1]++;
             break;
         }
         if (movie->paused != movie->last_paused)
         {
             movie->last_paused = movie->paused;
+            if(!movie->audio_paused)
+            {
+            	//we do this in case we haven't reached the audio thread yet... which will cause this function to just loop without ever touching the audio_thread function.
+	            pauseBuffer(movie->channel);
+            }
             if (movie->paused)
             {
+            	
                 av_read_pause(ic);
             }
             else
@@ -1715,7 +1933,6 @@ int decoder(void *arg)
         }
         if(movie->paused)
         {
-        	movie->decode_profile[2]++;
             SDL_Delay(10);
             continue;
         }
@@ -1778,8 +1995,19 @@ int decoder(void *arg)
                 (movie->videoq.size > MAX_VIDEOQ_SIZE ))
         {
             /* wait 10 ms */
-            movie->decode_profile[3]++;
-			SDL_Delay(10);
+            if(!movie->paused)
+            {
+                //we only forcefully pull a packet of the queues when the queue is too large and the video file is not paused.
+                // The simple reason is that video_render and audio_thread do nothing, so its a waste of cycles to call them otherwise
+                if(movie->videoq.size > MAX_VIDEOQ_SIZE && movie->video_st)
+                {
+                    video_render(movie);
+                }
+                if(movie->audioq.size > MAX_AUDIOQ_SIZE && movie->audio_st)
+                {
+                    audio_thread(movie);
+                }
+            }
             continue;
         }
         
@@ -1792,34 +2020,36 @@ int decoder(void *arg)
             packet_queue_put(&movie->videoq, pkt);
             continue;
         }
-        
-        ret = av_read_frame(ic, pkt);
-        if (ret < 0)
+        if(movie->pictq_size<VIDEO_PICTURE_QUEUE_SIZE)
         {
-            if (ret != AVERROR_EOF && url_ferror(ic->pb) == 0)
+            ret = av_read_frame(ic, pkt);
+            if (ret < 0)
             {
-                goto fail;
+                if (ret != AVERROR_EOF && url_ferror(ic->pb) == 0)
+                {
+                    goto fail;
+                }
+                else
+                {
+                    break;
+                }
             }
-            else
+            if (pkt->stream_index == movie->audio_stream)
             {
-                break;
+                packet_queue_put(&movie->audioq, pkt);
             }
-        }
-        if (pkt->stream_index == movie->audio_stream)
-        {
-            packet_queue_put(&movie->audioq, pkt);
-        }
-        else if (pkt->stream_index == movie->video_stream)
-        {
-            packet_queue_put(&movie->videoq, pkt);
-        }
-        else if (pkt->stream_index == movie->sub_stream)
-        {
-        	packet_queue_put(&movie->subq, pkt);
-        }
-        else if(pkt)
-        {
-            av_free_packet(pkt);
+            else if (pkt->stream_index == movie->video_stream)
+            {
+                packet_queue_put(&movie->videoq, pkt);
+            }
+            else if (pkt->stream_index == movie->sub_stream)
+            {
+            	packet_queue_put(&movie->subq, pkt);
+            }
+            else if(pkt)
+            {
+                av_free_packet(pkt);
+            }
         }
         SubPicture *sp;
         SubPicture *sp2;
@@ -1864,33 +2094,27 @@ int decoder(void *arg)
                     }
                 }
             }
-        /*if(movie->video_st)
+        if(movie->video_st)
             video_render(movie);
         if(movie->audio_st)
             audio_thread(movie);
         if(movie->sub_st)
-        	subtitle_render(movie);*/
+        	subtitle_render(movie);
         if(co<2)
             video_refresh_timer(movie);
-        //GRABGIL
-        SDL_LockMutex(movie->dest_mutex);
         if(movie->timing>0)
         {
-        	movie->decode_profile[4]++;
             double showtime = movie->timing+movie->last_showtime;
             double now = av_gettime()/1000.0;
-            
             if(now >= showtime)
             {
                 double temp = movie->timing;
-                SDL_UnlockMutex(movie->dest_mutex);
                 double temp_showtime = movie->last_showtime;
                 movie->timing =0;
                 if(!video_display(movie))
                 {
                     //we do this because we haven't shown a frame yet, so we need to preserve the timings, etc.
                     // other we end up with slowdowns and speedups. Not good!
-                    movie->decode_profile[6]++;;
                     movie->timing=temp;
                     movie->last_showtime=temp_showtime;
                 }
@@ -1899,10 +2123,7 @@ int decoder(void *arg)
                 	movie->last_showtime = av_gettime()/1000.0;
                 }
             }
-            continue;
         }
-        SDL_UnlockMutex(movie->dest_mutex);
-        //RELEASEGIL
     	
     }
 
@@ -1927,10 +2148,12 @@ fail:
     return 0;
 }
 
-int video_render(void *arg)
+int video_render(PyMovie *movie)
 {
-	PyMovie *movie = (PyMovie *)arg;
-	DECLAREGIL
+    DECLAREGIL
+    GRABGIL
+    Py_INCREF( movie);
+    RELEASEGIL
     AVPacket pkt1, *pkt = &pkt1;
     int len1, got_picture;
     AVFrame *frame= avcodec_alloc_frame();
@@ -1941,19 +2164,11 @@ int video_render(void *arg)
 
         if (movie->paused && !movie->videoq.abort_request)
         {
-            SDL_Delay(100);
-            continue;
-        }
-        if(movie->pictq_size>=VIDEO_PICTURE_QUEUE_SIZE)
-        {
-        	SDL_Delay(10);
-        	continue;
+            break;
         }
         if (packet_queue_get(&movie->videoq, pkt, 0) <=0)
-        {
-        	SDL_Delay(10);
-            continue;
-        }
+            break;
+
         if(pkt->data == flush_pkt.data)
         {
             avcodec_flush_buffers(movie->video_st->codec);
@@ -1987,40 +2202,55 @@ int video_render(void *arg)
             update_video_clock(movie, frame, pts);
             if (queue_picture(movie, frame) < 0)
             {
-                break;
+                goto the_end;
             }
         }
         av_free_packet(pkt);
     }
-    while(1);
+    while(0);
 
+the_end:
+    GRABGIL
+    Py_DECREF(movie);
+    RELEASEGIL
     av_free(frame);
     return 0;
 }
 
 int subtitle_render(void *arg){
 	PyMovie *movie = arg;
+	DECLAREGIL
+	GRABGIL
+	Py_INCREF(movie);
+	RELEASEGIL
     SubPicture *sp;
     AVPacket pkt1, *pkt = &pkt1;
     int len1, got_subtitle;
     double pts;
     int i, j;
     int r, g, b, y, u, v, a;
+	int co;
 	
-    for(;;) {
+    for(co=0;co<2;co++) {
         if (movie->paused && !movie->subq.abort_request) {
             SDL_Delay(10);
-        	continue;
+        	goto the_end;
         }
         if (packet_queue_get(&movie->subq, pkt, 1) < 0)
-        {
-         	SDL_Delay(10);
-            continue;
-        }
+            break;
+
         if(pkt->data == flush_pkt.data){
             avcodec_flush_buffers(movie->sub_st->codec);
-            continue;
+            goto the_end;
         }
+        SDL_LockMutex(movie->subpq_mutex);
+        if (movie->subpq_size >= SUBPICTURE_QUEUE_SIZE &&
+               !movie->subq.abort_request) {
+			SDL_UnlockMutex(movie->subpq_mutex);
+			goto the_end;
+        }
+        SDL_UnlockMutex(movie->subpq_mutex);
+
         if (movie->subq.abort_request)
             goto the_end;
 
@@ -2060,5 +2290,8 @@ int subtitle_render(void *arg){
         av_free_packet(pkt);
     }
  the_end:
+ 	GRABGIL
+ 	Py_DECREF(movie);
+ 	RELEASEGIL
     return 0;
 }
