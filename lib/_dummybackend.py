@@ -10,6 +10,7 @@ class Movie:
         self._backend = "DUMMY"
         self.width=0
         self.height=0
+        self.finished = 1
     def play(self, loops=0):
         self.playing= not self.playing
         

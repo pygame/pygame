@@ -101,6 +101,7 @@ class Movie(object):
         self.comm = Communicator(player, remote, extra, port, hostname)
         self.width = 0
         self.height =0
+        self.finished =0
     def getSurface(self):
         #special stuff here
         return self._surface
@@ -157,6 +158,7 @@ class Movie(object):
             self.commd.logout()
             self.process.terminate()
             self.process=None
+            self.finished  = 1
             
     def __repr__(self):
         if self.process:
