@@ -1897,7 +1897,7 @@ int decoder(void *arg)
 	 * 		read frame
 	 * 		load frame into A/V queue
 	 * 		video_render()
-	 * 		audio_thread()
+	 * 		//audio_thread()
 	 * 		first two loops:
 	 * 			video_refresh_timer <--- we do this or else we'd never start display frames
 	 * 		if timing AND timing >=now:
@@ -1914,6 +1914,7 @@ int decoder(void *arg)
     int ret;
     AVPacket pkt1, *pkt = &pkt1;
     movie->stop=0;
+    movie->finished =0;
     ic=movie->ic;
     int co=0;
     movie->last_showtime = av_gettime()/1000.0;
@@ -2153,7 +2154,7 @@ fail:
     }
     movie->pictq_size=movie->pictq_rindex=movie->pictq_windex=0;
     packet_queue_flush(&movie->videoq);
-
+	movie->finished=1;
     GRABGIL
     Py_DECREF( movie);
     RELEASEGIL

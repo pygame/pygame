@@ -18,7 +18,7 @@ filename="/home/tyler/War3.avi"
 m = movie.Movie(filename)
 print m.paused  #always False, unless .pause has been called
 print m.playing #False until play has been called. Will return to false when
-                # .stop() has been called.
+print m.finished# .stop() has been called.
                 
 print m.width   #default size values of the video file
 print m.height  # They can be modified on the fly, as will be demonstrated.
@@ -89,8 +89,13 @@ counter = 0
 actions = {1: lambda x: x.paused, 6: lambda x:x.pause(), 11: lambda x:x.pause(), 15: lambda x: x.resize(int(x.width*0.9), int(x.height*0.9)), 2000:lambda x: x.stop(), 3000: lambda x: x.play(-1)}
 m.play(-1)
 prev_time = time.time()
+#m.resize(m.width*2, m.height*2)
 #m.surface = screen
 print "About to do surface gymnastics..."
+##while 1:
+##    time.sleep(0.1)
+##    pygame.display.update()
+
 while(1):
     new_time=time.time()
     diff = int(new_time-prev_time)

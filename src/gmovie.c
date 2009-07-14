@@ -249,6 +249,11 @@ PyObject* _movie_get_playing (PyMovie *movie, void *closure)
     return pyo;
 }
 
+PyObject* _movie_get_finished(PyMovie *movie,  void *closure)
+{
+	return PyBool_FromLong((long)movie->finished);	
+}
+
 PyObject* _movie_get_width (PyMovie *movie, void *closure)
 {
     PyObject *pyo;
@@ -373,12 +378,13 @@ static PyMemberDef _movie_members[] = {
 
 static PyGetSetDef _movie_getsets[] =
     {
-        { "paused",  (getter) _movie_get_paused,  NULL,                        DOC_GMOVIEMOVIEPAUSE,   NULL },
-        { "playing", (getter) _movie_get_playing, NULL,                        DOC_GMOVIEMOVIEPLAYING, NULL },
-        { "height",  (getter) _movie_get_height,  (setter) _movie_set_height,  DOC_GMOVIEMOVIEHEIGHT,  NULL },
-        { "width",   (getter) _movie_get_width,   (setter) _movie_set_width,   DOC_GMOVIEMOVIEWIDTH,   NULL },
-        { "surface", (getter) _movie_get_surface, (setter) _movie_set_surface, DOC_GMOVIEMOVIESURFACE, NULL },
-        { NULL,      NULL,                        NULL,                        NULL,                   NULL }
+        { "paused",   (getter) _movie_get_paused,   NULL,                       DOC_GMOVIEMOVIEPAUSE,   NULL },
+        { "playing",  (getter) _movie_get_playing,  NULL,                       DOC_GMOVIEMOVIEPLAYING, NULL },
+        { "finished", (getter) _movie_get_finished, NULL,                       NULL,                   NULL },
+        { "height",   (getter) _movie_get_height,  (setter) _movie_set_height,  DOC_GMOVIEMOVIEHEIGHT,  NULL },
+        { "width",    (getter) _movie_get_width,   (setter) _movie_set_width,   DOC_GMOVIEMOVIEWIDTH,   NULL },
+        { "surface",  (getter) _movie_get_surface, (setter) _movie_set_surface, DOC_GMOVIEMOVIESURFACE, NULL },
+        { NULL,       NULL,                        NULL,                        NULL,                   NULL }
     };
 
 static PyTypeObject PyMovie_Type =
