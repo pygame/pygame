@@ -21,6 +21,7 @@
 /*constant definitions */
 #define MAX_VIDEOQ_SIZE (5 * 256 * 1024)
 #define MAX_AUDIOQ_SIZE (5 * 16 * 1024)
+#define MAX_SUBTITLEQ_SIZE (5 * 16 * 1024)
 
 /* no AV sync correction is done if below the AV sync threshold */
 #define AV_SYNC_THRESHOLD 0.01
@@ -60,6 +61,31 @@ AVPacket flush_pkt;
 
 #define BPP 1
 
+//enables profiling info to be gathered
+#define PROFILE 1
+
+#ifdef PROFILE
+#include <math.h>
+	typedef struct TimeSampleNode
+	{
+		int64_t sample;
+		struct TimeSampleNode *next;
+	}TimeSampleNode;
+	typedef struct ImageScaleStats
+	{
+		double mean;
+		int64_t max;
+		int64_t min;
+		double stdev;
+		double median;
+		double firstqu;
+		double thirdqu;
+		double serror;
+		int64_t n_samples;
+		struct TimeSampleNode *first;
+		struct TimeSampleNode *last;
+	}ImageScaleStats;
+#endif
 //included from ffmpeg header files, as the header file is not publically available.
 #if defined(__ICC) || defined(__SUNPRO_C)
     #define DECLARE_ALIGNED(n,t,v)      t v __attribute__ ((aligned (n)))
@@ -260,6 +286,10 @@ typedef struct PyMovie
 	int subpq_rindex, subpq_windex, subpq_size;
 	SDL_mutex *subpq_mutex;
 	int subtitle_disable;
+#ifdef PROFILE
+	ImageScaleStats *istats;
+#endif
+
 }
 PyMovie;
 /* end of struct definitions */

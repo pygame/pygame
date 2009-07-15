@@ -86,7 +86,6 @@ int packet_queue_put(PacketQueue *q, AVPacket *pkt)
 #endif
 
     if (!q->last_pkt)
-
         q->first_pkt = pkt1;
     else
         q->last_pkt->next = pkt1;
@@ -854,6 +853,9 @@ int queue_picture(PyMovie *movie, AVFrame *src_frame)
         video_open(movie, movie->pictq_windex);
     }
     dst_pix_fmt = PIX_FMT_YUV420P;
+    #ifdef PROFILE
+    	int64_t before = av_gettime();
+    #endif
     if (vp->dest_overlay && vp->overlay>0)
     {
         /* get a pointer on the bitmap */
@@ -896,6 +898,7 @@ int queue_picture(PyMovie *movie, AVFrame *src_frame)
         exit(1);
     }
     movie->img_convert_ctx = img_convert_ctx;
+	
     if(movie->resize_w||movie->resize_h)
     {
         sws_scale(img_convert_ctx, 
@@ -916,6 +919,7 @@ int queue_picture(PyMovie *movie, AVFrame *src_frame)
                   pict.data, 
                   pict.linesize);
     }
+    
     if (vp->dest_overlay && vp->overlay>0)
     {
         SDL_UnlockYUVOverlay(vp->dest_overlay);
@@ -926,6 +930,17 @@ int queue_picture(PyMovie *movie, AVFrame *src_frame)
         SDL_UnlockSurface(vp->dest_surface);
         avpicture_free(&pict);
     }
+    #ifdef PROFILE
+    	TimeSampleNode *sample = (TimeSampleNode *)PyMem_Malloc(sizeof(TimeSampleNode));
+    	sample->next=NULL;
+	    sample->sample = av_gettime()-before;
+	    if (!movie->istats->last || movie->istats->first->sample==0)
+	        movie->istats->first = sample;
+	    else
+	        movie->istats->last->next = sample;
+	    movie->istats->last = sample;
+    	movie->istats->n_samples++;
+    #endif
     vp->pts = movie->pts;
     movie->pictq_windex = (movie->pictq_windex+1)%VIDEO_PICTURE_QUEUE_SIZE;
     movie->pictq_size++;
@@ -1070,7 +1085,7 @@ void stream_seek(PyMovie *movie, int64_t pos, int rel)
 /* pause or resume the video */
 void stream_pause(PyMovie *movie)
 {
-    Py_INCREF( movie);
+    if(movie->ob_refcnt !=0)Py_INCREF( movie);
     int paused=movie->paused;
     movie->paused = !movie->paused;
     if (!movie->paused)
@@ -1079,7 +1094,7 @@ void stream_pause(PyMovie *movie)
         movie->frame_timer += (av_gettime() - movie->video_current_pts_time) / 1000000.0;
     }
     movie->last_paused=paused;
-    Py_DECREF( movie);
+    if(movie->ob_refcnt !=0) {Py_DECREF( movie);}
 }
 
 int audio_thread(void *arg)
@@ -1908,6 +1923,9 @@ int decoder(void *arg)
     PyMovie *movie = arg;
     DECLAREGIL
     GRABGIL
+	#ifdef PROFILE
+		movie->istats = (ImageScaleStats *)PyMem_Malloc(sizeof(ImageScaleStats));
+	#endif
     Py_INCREF( movie);
     RELEASEGIL
     AVFormatContext *ic;
@@ -2155,7 +2173,36 @@ fail:
     movie->pictq_size=movie->pictq_rindex=movie->pictq_windex=0;
     packet_queue_flush(&movie->videoq);
 	movie->finished=1;
+    
     GRABGIL
+    #ifdef PROFILE
+    	//mean
+    	int64_t sum =0;
+    	int64_t max = 0;
+    	int64_t min = 2<<24;
+    	TimeSampleNode *cur = movie->istats->first;
+    	while(cur!=NULL) 
+    	{
+    		sum+= cur->sample;
+    		if(cur->sample>max) max=cur->sample;
+    		if(cur->sample<min) min=cur->sample;
+    		if(cur->next==NULL) break; 
+    		cur=cur->next;
+    	}
+    	movie->istats->mean = (double)sum/movie->istats->n_samples;
+    	movie->istats->max = max;
+    	movie->istats->min = min;
+    	double total = 0;
+    	double mean = movie->istats->mean;
+    	cur = movie->istats->first;
+    	while(cur->next!=NULL) 
+    	{
+    		total+= pow(((double)cur->sample-mean), (double)2);
+    		cur=cur->next;
+    	}
+    	movie->istats->stdev = sqrt(total/mean);	
+    	PySys_WriteStdout("Mean: %f\nMin: %i\nMax: %i\nStDev: %f\n", mean, (int)min, (int)max, movie->istats->stdev);
+    #endif
     Py_DECREF( movie);
     RELEASEGIL
     if(movie->abort_request)

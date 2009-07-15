@@ -73,14 +73,31 @@ int _movie_init(PyObject *self, PyObject *args, PyObject *kwds)
 
 void _movie_dealloc(PyMovie *movie)
 {
-	PySys_WriteStdout("Deleting\n");
+	//PySys_WriteStdout("Deleting\n");
 	if(movie->_tstate)
 	{
 		PyThreadState_Clear(movie->_tstate);
-		//PyThreadState_Delete(movie->_tstate);
 	}
 	if(!movie->stop)
-		movie=(PyMovie *)_movie_stop(movie);
+	{
+		Py_BEGIN_ALLOW_THREADS
+	    SDL_LockMutex(movie->dest_mutex);
+	    stream_pause(movie);
+	    movie->stop = 1;
+	    Py_END_ALLOW_THREADS
+	    SDL_UnlockMutex(movie->dest_mutex);
+	}
+	#ifdef PROFILE
+		TimeSampleNode *cur = movie->istats->first;
+		TimeSampleNode *prev;
+		while(cur!=NULL) 
+    	{
+    		prev=cur;
+    		cur=cur->next;
+			PyMem_Free(prev);
+    	}
+    	PyMem_Free(movie->istats);
+    #endif
 	stream_close(movie, 0);
     movie->ob_type->tp_free((PyObject *) movie);
 }
