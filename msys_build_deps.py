@@ -40,6 +40,7 @@ tiff 3.8.2
 libpng 1.2.32
 jpeg 6b
 zlib 1.2.3
+PortMidi release 82
 
 The build environment used:
 
@@ -463,6 +464,9 @@ def main(dependencies, msvcr71_preparation, msys_preparation):
 # corresponding action is performed. When '0' it is skipped. A final variable,
 # DBWD, is the root directory of the source code. A script will cd to it before
 # doing anything else.
+#
+# None of these scripts end with an "exit". Exit, possibly, leads to Msys
+# freezing on some versions of Windows (98).
 # 
 # The list order corresponds to build order. It is critical.
 dependencies = [
@@ -495,6 +499,8 @@ fi
 
 if [ x$BDINST == x1 ]; then
   make install
+  # Make SDL_config_win32.h available for prebuilt and MSVC
+  cp -f "$BDWD/include/SDL_config_win32.h" "/usr/local/include/SDL"
 fi
 
 if [ x$BDSTRIP == x1 ]; then
@@ -1045,8 +1051,6 @@ if [ x$BDCLEAN == x1 ]; then
   make clean
   rm -f GNUmakefile portmidi.def
 fi
-
-exit 0
 """),
     ]  # End dependencies = [.
 
