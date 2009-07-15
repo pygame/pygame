@@ -4,6 +4,11 @@
 # BREAK = change breaks existing code
 # BUG    = fixed a bug that was (or could have been) crashing
 
+[SVN 2516] July 16, 2009
+    Pygame dependency build now replaces the configure
+    generated SDL_config.py, which MSVC can not use,  with 
+    SDL_config_win32.py
+
 [SVN 2515] July 15, 2009
     [BUG] surface docs typo patch submitted by Lorenz Quack
 
