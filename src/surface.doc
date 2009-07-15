@@ -28,8 +28,9 @@ each color. Normal Surfaces should not require the masks argument.
 
 Surfaces can have many extra attributes like alpha planes, colorkeys, source
 rectangle clipping. These functions mainly effect how the Surface is blitted
-to other Surfaces. The blit routines will attempt to use hardware acceleratio
- when possible, otherwise will use highly optimized software blitting methods.
+to other Surfaces. The blit routines will attempt to use hardware acceleration
+when possible, otherwise they will use highly optimized software blitting
+methods.
 
 There are three types of transparency supported in Pygame: colorkeys, 
 surface alphas, and pixel alphas. Surface alphas can be mixed with colorkeys,
