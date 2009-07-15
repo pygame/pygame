@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG    = fixed a bug that was (or could have been) crashing
 
+[SVN 2515] July 15, 2009
+    [BUG] surface docs typo patch submitted by Lorenz Quack
+
 [SVN 2503-2505] July 13, 2009
     [BUG] bugzilla 29, patch to use SDL_VIDEO_DRIVER_X11 DISABLE_X11.  Thanks Robert A. Lerche.
         So can compile pygame without X11 again.
