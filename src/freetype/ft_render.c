@@ -32,6 +32,9 @@
 #   include "surface.h"
 #endif
 
+#define BOLD_FACTOR     0.08
+#define SLANT_FACTOR    0.22
+
 typedef void (* FontRenderPtr)(int, int, FontSurface *, FT_Bitmap *, PyColor *);
 
 /* blitters */
@@ -582,6 +585,9 @@ int _PGFT_Render_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font,
     FT_Face     face;
     FT_Error    error;
 
+    FT_Fixed    bold_str;
+    FT_Matrix   shear_matrix;
+
     int         x = (surface->x_offset << 6);
     int         y = (surface->y_offset << 6);
 
@@ -644,6 +650,23 @@ int _PGFT_Render_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font,
         pen.y = PGFT_ROUND(y - pen.y);
     }
 
+    /******************************************************
+     * Prepare data for glyph transformations
+     ******************************************************/
+
+    if (render->style & FT_STYLE_ITALIC)
+    {
+        shear_matrix.xx = (1<< 16);
+        shear_matrix.xy = (FT_Fixed)(SLANT_FACTOR * (1 << 16));
+        shear_matrix.yx = 0;
+        shear_matrix.yy = (1 << 16);
+    }
+
+    if (render->style & FT_STYLE_BOLD)
+    {
+        bold_str = FT_MulFix(face->units_per_EM, face->size->metrics.y_scale);
+        bold_str = (FT_Fixed)(bold_str * BOLD_FACTOR);
+    }
 
     /******************************************************
      * Draw text
@@ -664,8 +687,22 @@ int _PGFT_Render_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font,
         if (error)
             continue;
 
-        if (image->format != FT_GLYPH_FORMAT_BITMAP)
+        if (image->format == FT_GLYPH_FORMAT_OUTLINE)
         {
+            if (render->style & FT_STYLE_BOLD)
+            {
+                FT_OutlineGlyph outline;
+                outline = (FT_OutlineGlyph)image;
+                FT_Outline_Embolden(&(outline->outline), bold_str);
+            }
+
+            if (render->style & FT_STYLE_ITALIC)
+            {
+                FT_OutlineGlyph outline;
+                outline = (FT_OutlineGlyph)image;
+                FT_Outline_Transform(&(outline->outline), &shear_matrix);
+            }
+
             if (render->vertical)
                 error = FT_Glyph_Transform(image, NULL, &glyph->vvector);
 

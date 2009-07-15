@@ -134,10 +134,6 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
         {
             FT_Glyph_Metrics *metrics = &face->glyph->metrics;
 
-            if (render->style & FT_STYLE_BOLD)
-            {
-                PGFT_Style_MakeBold(face);
-            }
 
             /* note that in vertical layout, y-positive goes downwards */
             glyph->vvector.x  = metrics->vertBearingX - metrics->horiBearingX;

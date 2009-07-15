@@ -29,6 +29,7 @@
 #include FT_MODULE_H
 #include FT_OUTLINE_H 
  
+
 #define BOLD_FACTOR     0.08
 #define SLANT_FACTOR    0.22
 
@@ -81,3 +82,5 @@ PGFT_Style_MakeBold(FT_Face face)
     slot->metrics.vertAdvance  += ystr;
     return 0;
 }
+
+
