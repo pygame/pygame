@@ -4,7 +4,7 @@
 # BREAK = change breaks existing code
 # BUG    = fixed a bug that was (or could have been) crashing
 
-[SVN 2517] July 17, 2009
+[SVN 2517-2518] July 17, 2009
     [BUG] unit test framework fails for Python 3.1 on Windows due
           to str/bytes confusion
 
