@@ -4,6 +4,10 @@
 # BREAK = change breaks existing code
 # BUG    = fixed a bug that was (or could have been) crashing
 
+[SVN 2517] July 17, 2009
+    [BUG] unit test framework fails for Python 3.1 on Windows due
+          to str/bytes confusion
+
 [SVN 2516] July 16, 2009
     Pygame dependency build now replaces the configure
     generated SDL_config.py, which MSVC can not use,  with 
