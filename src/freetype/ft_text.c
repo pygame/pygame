@@ -52,6 +52,7 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
     FT_Pos      prev_rsb_delta = 0;
     FT_Fixed    baseline;
+    FT_Fixed    bold_str = 0;
 
     FontText  * ftext = NULL;
     FontGlyph * glyph = NULL;
@@ -108,6 +109,9 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
     /* fill it with the glyphs */
     glyph = &(ftext->glyphs[0]);
 
+    if (render->style & FT_STYLE_BOLD)
+        bold_str = PGFT_GetBoldStrength(face);
+
     for (ch = buffer; *ch; ++ch, ++glyph)
     {
         FT_UInt16 c = *ch;
@@ -134,24 +138,23 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
         {
             FT_Glyph_Metrics *metrics = &face->glyph->metrics;
 
-
             /* note that in vertical layout, y-positive goes downwards */
-            glyph->vvector.x  = metrics->vertBearingX - metrics->horiBearingX;
-            glyph->vvector.y  = -metrics->vertBearingY - metrics->horiBearingY;
+            glyph->vvector.x  = (metrics->vertBearingX - bold_str / 2) - metrics->horiBearingX;
+            glyph->vvector.y  = -(metrics->vertBearingY + bold_str) - (metrics->horiBearingY + bold_str);
 
             glyph->vadvance.x = 0;
-            glyph->vadvance.y = -metrics->vertAdvance;
+            glyph->vadvance.y = -(metrics->vertAdvance + bold_str);
 
             baseline = metrics->height - metrics->horiBearingY;
 
             if (baseline > ftext->baseline_offset.y)
                 ftext->baseline_offset.y = baseline;
 
-            if (metrics->width > ftext->glyph_size.x)
-                ftext->glyph_size.x = metrics->width;
+            if (metrics->width + bold_str > ftext->glyph_size.x)
+                ftext->glyph_size.x = metrics->width + bold_str;
 
-            if (metrics->height > ftext->glyph_size.y)
-                ftext->glyph_size.y = metrics->height;
+            if (metrics->height + bold_str > ftext->glyph_size.y)
+                ftext->glyph_size.y = metrics->height + bold_str;
 
             if (prev_rsb_delta - face->glyph->lsb_delta >= 32)
                 glyph->delta = -1 << 6;
@@ -180,11 +183,15 @@ PGFT_GetTextAdvances(FreeTypeInstance *ft, PyFreeTypeFont *font, int pt_size,
     FT_Vector*  prev_advance = NULL;
     FT_Vector   extent       = {0, 0};
     FT_Int      i;
+    FT_Fixed    bold_str    = 0;
 
     face = _PGFT_GetFaceSized(ft, font, pt_size);
 
     if (!face)
         return -1;
+
+    if (render->style & FT_STYLE_BOLD)
+        bold_str = PGFT_GetBoldStrength(face);
 
     if (!render->vertical && render->kerning_degree)
     {
@@ -211,8 +218,17 @@ PGFT_GetTextAdvances(FreeTypeInstance *ft, PyFreeTypeFont *font, int pt_size,
         else
         {
             advances[i] = glyph->image->advance;
+
+            /* Convert to 26.6 */
             advances[i].x >>= 10;
             advances[i].y >>= 10;
+
+            /* Apply BOLD transformation */
+            if (advances[i].x)
+                advances[i].x += bold_str;
+
+            if (advances[i].y)
+                advances[i].y += bold_str;
 
             if (prev_advance)
             {

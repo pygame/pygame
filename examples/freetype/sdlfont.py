@@ -31,7 +31,7 @@ def run():
     fontdir = os.path.dirname (os.path.abspath (__file__))
     font = freetype.Font (os.path.join (fontdir, "sans.ttf"))
 
-    screen = video.set_mode (800, 600)
+    screen = video.set_mode (300, 200)
     screen.fill (colors["grey_light"])
 
     font.render("Hello World", colors["red"], None, screen, 32, 32, ptsize=64, style=ftconstants.STYLE_BOLD)
@@ -43,7 +43,8 @@ def run():
     font.render("or BLAND!", pygame2.Color(0, 0xCC, 28, 128), None, screen, 258, 237, ptsize=64)
     font.render("I \u2665 Unicode", pygame2.Color(0, 0xCC, 0xDD), None, screen, 298, 320, ptsize=64)
     font.render("\u2665", colors["grey_light"], colors["red"], screen, 480, 32, ptsize=148)
-    font.render("...yes, this is a SDL surface", pygame2.Color(0, 0, 0), None, screen, 380, 380, ptsize=24, style=ftconstants.STYLE_BOLD)
+    font.render("...yes, this is a SDL surface", pygame2.Color(0, 0, 0), None, screen, 380, 380, ptsize=24,
+            style=ftconstants.STYLE_BOLD)
 
 
     screen.flip ()

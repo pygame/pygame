@@ -32,9 +32,6 @@
 #   include "surface.h"
 #endif
 
-#define BOLD_FACTOR     0.08
-#define SLANT_FACTOR    0.22
-
 typedef void (* FontRenderPtr)(int, int, FontSurface *, FT_Bitmap *, PyColor *);
 
 /* blitters */
@@ -49,6 +46,25 @@ void __render_glyph_RGB3(int x, int y, FontSurface *surface, FT_Bitmap *bitmap, 
 void __render_glyph_RGB4(int x, int y, FontSurface *surface, FT_Bitmap *bitmap, PyColor *color);
 
 void __render_glyph_ByteArray(int x, int y, FontSurface *surface, FT_Bitmap *bitmap, PyColor *color);
+
+
+#define SLANT_FACTOR    0.22
+FT_Matrix PGFT_SlantMatrix = 
+{
+    (1 << 16),  (FT_Fixed)(SLANT_FACTOR * (1 << 16)),
+    0,          (1 << 16) 
+};
+
+FT_Fixed PGFT_GetBoldStrength(FT_Face face)
+{
+    const float bold_factor = 0.06;
+    FT_Fixed bold_str;
+
+    bold_str = FT_MulFix(face->units_per_EM, face->size->metrics.y_scale);
+    bold_str = (FT_Fixed)(bold_str * bold_factor);
+
+    return bold_str;
+}
 
 void 
 PGFT_BuildRenderMode(FontRenderMode *mode, int style, int vertical, int antialias, int rotation)
@@ -585,8 +601,7 @@ int _PGFT_Render_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font,
     FT_Face     face;
     FT_Error    error;
 
-    FT_Fixed    bold_str;
-    FT_Matrix   shear_matrix;
+    FT_Fixed    bold_str = 0;
 
     int         x = (surface->x_offset << 6);
     int         y = (surface->y_offset << 6);
@@ -653,19 +668,9 @@ int _PGFT_Render_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font,
     /******************************************************
      * Prepare data for glyph transformations
      ******************************************************/
-
-    if (render->style & FT_STYLE_ITALIC)
-    {
-        shear_matrix.xx = (1<< 16);
-        shear_matrix.xy = (FT_Fixed)(SLANT_FACTOR * (1 << 16));
-        shear_matrix.yx = 0;
-        shear_matrix.yy = (1 << 16);
-    }
-
     if (render->style & FT_STYLE_BOLD)
     {
-        bold_str = FT_MulFix(face->units_per_EM, face->size->metrics.y_scale);
-        bold_str = (FT_Fixed)(bold_str * BOLD_FACTOR);
+        bold_str = PGFT_GetBoldStrength(face);
     }
 
     /******************************************************
@@ -689,18 +694,17 @@ int _PGFT_Render_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
         if (image->format == FT_GLYPH_FORMAT_OUTLINE)
         {
+            FT_OutlineGlyph outline;
+            outline = (FT_OutlineGlyph)image;
+
             if (render->style & FT_STYLE_BOLD)
             {
-                FT_OutlineGlyph outline;
-                outline = (FT_OutlineGlyph)image;
                 FT_Outline_Embolden(&(outline->outline), bold_str);
             }
 
             if (render->style & FT_STYLE_ITALIC)
             {
-                FT_OutlineGlyph outline;
-                outline = (FT_OutlineGlyph)image;
-                FT_Outline_Transform(&(outline->outline), &shear_matrix);
+                FT_Outline_Transform(&(outline->outline), &PGFT_SlantMatrix);
             }
 
             if (render->vertical)

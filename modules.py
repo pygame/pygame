@@ -311,7 +311,6 @@ modules = [
             "src/freetype/ft_render.c",
             "src/freetype/ft_metrics.c",
             "src/freetype/ft_text.c",
-            "src/freetype/ft_style.c"
         ],
         instheaders = ["src/freetype/pgfreetype.h"],
         docfile = "freetypebase.xml",
