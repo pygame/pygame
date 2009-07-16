@@ -166,8 +166,6 @@ class Popen(subprocess.Popen):
                     nAvail = maxsize
                 if nAvail > 0:
                     (errCode, read) = ReadFile(x, nAvail, None)
-                if isinstance(read, bytes):
-                    read = read.decode('ascii')
             except ValueError:
                 return self._close(which)
             except (subprocess.pywintypes.error, Exception):
@@ -178,7 +176,6 @@ class Popen(subprocess.Popen):
             if self.universal_newlines:
                 # Translate newlines. For Python 3.x assume read is text.
                 # If bytes then another solution is needed.
-##                read = self._translate_newlines(read)
                 read = read.replace("\r\n", "\n").replace("\r", "\n")
             return read
 
