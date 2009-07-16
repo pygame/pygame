@@ -199,9 +199,9 @@ def initsysfonts_win32():
     except ImportError:
         import winreg as _winreg
 
-    if os.environ.has_key('WINDIR'):
+    if 'WINDIR' in os.environ:
         windir = os.environ['WINDIR']
-    elif os.environ.has_key('windir'):
+    elif 'windir' in os.environ:
         windir = os.environ['windir']
     else:
         windir = "C:\\Windows\\"
