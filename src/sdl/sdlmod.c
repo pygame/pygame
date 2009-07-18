@@ -219,6 +219,11 @@ Uint8FromObj (PyObject *item, Uint8 *val)
             PyErr_SetString (PyExc_ValueError, "value must not be negative");
             return 0;
         }
+        if (tmp > UCHAR_MAX)
+        {
+            PyErr_SetString (PyExc_ValueError, "value exceeds allowed range");
+            return 0;
+        }
         *val = (Uint8)tmp;
         return 1;
     }
@@ -251,6 +256,11 @@ Uint16FromObj (PyObject *item, Uint16 *val)
             PyErr_SetString (PyExc_ValueError, "value must not be negative");
             return 0;
         }
+        if (tmp > USHRT_MAX)
+        {
+            PyErr_SetString (PyExc_ValueError, "value exceeds allowed range");
+            return 0;
+        }
         *val = (Uint16)tmp;
         return 1;
     }
@@ -278,6 +288,11 @@ Sint16FromObj (PyObject *item, Sint16 *val)
         Py_DECREF (intobj);
         if (tmp == -1 && PyErr_Occurred ())
             return 0;
+        if (tmp > SHRT_MAX || tmp < SHRT_MIN)
+        {
+            PyErr_SetString (PyExc_ValueError, "value exceeds allowed range");
+            return 0;
+        }
         *val = (Sint16)tmp;
         return 1;
     }
@@ -305,6 +320,12 @@ Uint32FromObj (PyObject *item, Uint32 *val)
         Py_DECREF (longobj);
         if (PyErr_Occurred ())
             return 0;
+        if (tmp > ULONG_MAX)
+        {
+            PyErr_SetString (PyExc_ValueError, "value exceeds allowed range");
+            return 0;
+        }
+
         *val = (Uint32)tmp;
         return 1;
     }

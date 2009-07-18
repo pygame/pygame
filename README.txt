@@ -93,7 +93,7 @@ the only absolutely necessary dependency is a working Python
 installation. Additionally other libraries are needed, if you want to
 enable certain features of Pygame2.
 
-* Python 2.4, 2.5, 2.6, 3.0 supported   (http://www.python.org)
+* Python 2.4, 2.5, 2.6, 3.0, 3.1 supported   (http://www.python.org)
 
 [Optional dependencies]
 * SDL >= 1.2.10             (http://www.libsdl.org)

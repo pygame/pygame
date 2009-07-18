@@ -31,7 +31,7 @@ def run():
     fontdir = os.path.dirname (os.path.abspath (__file__))
     font = freetype.Font (os.path.join (fontdir, "sans.ttf"))
 
-    screen = video.set_mode (300, 200)
+    screen = video.set_mode (640, 480)
     screen.fill (colors["grey_light"])
 
     font.render("Hello World", colors["red"], None, screen, 32, 32, ptsize=64, style=ftconstants.STYLE_BOLD)

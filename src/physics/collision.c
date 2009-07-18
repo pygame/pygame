@@ -272,12 +272,28 @@ _collide_rect_rect (PyShape* shape1, PyVector2 pos1, double rot1,
         retval = NULL;
         goto back;
     }
+
     /* TODO: problem here! */
-    PyVector2_TransformMultiple (vertices2, inpos2, count2, pos1, rot1, pos2,
-        rot2);
     PyVector2_TransformMultiple (vertices1, inpos1, count1, pos2, rot2, pos1,
         rot1);
-  
+    PyVector2_TransformMultiple (vertices2, inpos2, count2, pos1, rot1, pos2,
+        rot2);
+
+/*
+    for (i = 0; i < count1; i++)
+    {
+        printf ("vertices1, %d: %.3f, %.3f\n", i, inpos1[i].real,
+            inpos1[i].imag);
+    }
+    puts ("---");
+    for (i = 0; i < count2; i++)
+    {
+        printf ("vertices2, %d: %.3f, %.3f\n", i, vertices2[i].real,
+            vertices2[i].imag);
+    }
+    puts ("---");
+*/
+
     if (!_clip_test (&box1, inpos2, count2, &collision))
     {
         retval = Py_None;
@@ -285,14 +301,15 @@ _collide_rect_rect (PyShape* shape1, PyVector2 pos1, double rot1,
         goto back;
     }
 
-/*     if (AABBox_Contains (&box2, &vertices1[0], 0.f)) */
-/*         collision.contacts[collision.contact_size++] = rsh1->bottomleft; */
-/*     if (AABBox_Contains (&box2, &vertices1[1], 0.f)) */
-/*         collision.contacts[collision.contact_size++] = rsh1->bottomright; */
-/*     if (AABBox_Contains (&box2, &vertices1[2], 0.f)) */
-/*         collision.contacts[collision.contact_size++] = rsh1->topright; */
-/*     if (AABBox_Contains (&box2, &vertices1[3], 0.f)) */
-/*         collision.contacts[collision.contact_size++] = rsh1->topleft; */
+    puts ("DSA");
+    if (AABBox_Contains (&box2, &vertices1[0], 0.f))
+        collision.contacts[collision.contact_size++] = rsh1->bottomleft;
+    if (AABBox_Contains (&box2, &vertices1[1], 0.f))
+        collision.contacts[collision.contact_size++] = rsh1->bottomright;
+    if (AABBox_Contains (&box2, &vertices1[2], 0.f))
+        collision.contacts[collision.contact_size++] = rsh1->topright;
+    if (AABBox_Contains (&box2, &vertices1[3], 0.f))
+        collision.contacts[collision.contact_size++] = rsh1->topleft;
 
     _sat_collision (&pos1, rot1, &pos2, rot2, &box1, &box2, &collision);
 
