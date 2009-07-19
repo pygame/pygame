@@ -143,6 +143,9 @@ typedef struct FontText_
     FT_Vector text_size;        /* 26.6 */
     FT_Vector baseline_offset;  /* 26.6 */
 
+    FT_Int16 underline_pos;
+    FT_Int16 underline_h;
+
 } FontText;
 
 typedef struct {

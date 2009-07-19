@@ -593,6 +593,13 @@ int _PGFT_Render_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font,
         FT_Done_Glyph(image);
     } /* END OF RENDERING LOOP */
 
+    if (render->style & FT_STYLE_UNDERLINE)
+    {
+        surface->fill(surface->x_offset, surface->y_offset + text->baseline_offset.y + text->underline_pos, 
+                text->text_size.x >> 6, text->underline_h, 
+                surface, fg_color);
+    }
+
     return error;
 }
 

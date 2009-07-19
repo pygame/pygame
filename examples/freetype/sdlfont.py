@@ -34,7 +34,7 @@ def run():
     screen = video.set_mode (800, 600)
     screen.fill (colors["grey_light"])
 
-    font.render("Hello World", colors["red"], None, screen, 32, 32, ptsize=64, style=ftconstants.STYLE_BOLD)
+    font.render("Hello World", colors["red"], None, screen, 32, 32, ptsize=64, style=ftconstants.STYLE_UNDERLINE|ftconstants.STYLE_BOLD)
     font.render("do it now with this...", colors["grey_dark"], colors["green"], screen, 32, 128, ptsize=64)
     font.render("Vertical?", colors["blue"], None, screen, 32, 190, ptsize=32, vertical=True)
     font.render("Let's spin!", colors["red"], None, screen, 64, 190, ptsize=48, rotation=55)
