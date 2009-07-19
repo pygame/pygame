@@ -1238,7 +1238,8 @@ class Application(object):
 def start():
     """ Start pygame launcher """
          
-    pygame.init() 
+    pygame.display.init()
+    pygame.font.init() 
     while True:
         
         # Don't handle events given for launched application
