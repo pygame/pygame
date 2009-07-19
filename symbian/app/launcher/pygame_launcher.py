@@ -30,6 +30,9 @@ ITEM_SELECTED = TITLE_BG
 
 THISDIR = os.path.dirname(__file__)
 
+def make_surface(rect, flags=0, depth=16):
+    return pygame.Surface(rect, flags, depth)
+
 def load_image(name, colorkey=None):
     """ Image loading utility from chimp.py """
     fullname = os.path.join(THISDIR, name)
@@ -153,19 +156,47 @@ class Effects(object):
         """
         This creates an effect where the surface is scaled and moved 
         so that it looks like the surface moves to the distance.
+        
+        @param surf: The surface containing the result of the effect.
+        @param surfold: The surface to be zoomed.
+        @param surfnew: The next surface acting as a background.
+        @param v: The tween value. Position of the animation.
         """
         
         r = surf.get_rect()
         
-        w = int(r.width * (1 - v))
-        h = int(r.height * (1 - v))
+        # Define size of the scaling
+        w, h = int(r.width * (1 - v)), int(r.height * (1 - v))
+        x, y = int(r.width / 2 * (v)), int(r.height / 2 * (v))
         
-        s = pygame.transform.scale(surfold, (w, h))
+        _x = max(0,x)
+        _y = max(0,y)
+        _w = min(r.width,w)
+        _h = min(r.height,h)
+        target_subsurf = surf.subsurface((_x, _y, _w, _h))
         
+        # Scale full or only partial if scaling larger
+        use_subsurf = (v < 0)
+        if use_subsurf:
+            # Full size - exceeding size
+            if w > r.width:
+                w -= ( w - r.width ) * 2
+            if h > r.height:
+                h -= ( h - r.height) * 2
+            if x < 0:
+                x *= -1
+            if y < 0:
+                y *= -1
+            
+            source_subsurf = surfold.subsurface( ( x, y, w, h) )
+        else:
+            source_subsurf = surfold
+            
+        # The new surface is the background
         surf.blit(surfnew,(0,0))
-
-        surf.blit(s, (r.width / 2 * (v), r.height / 2 * (v)))        
         
+        s = pygame.transform.scale(source_subsurf, (_w, _h), target_subsurf)
+       
         return surf, 0,0
     
     def do(self, effect_tween, duration):
@@ -194,7 +225,7 @@ class Effects(object):
         now = time.time()
         
         # The animation buffer
-        #surf = pygame.Surface(self.surf1.get_size(), )
+        #surf = make_surface(self.surf1.get_size(), )
         
         while True: 
             t = now - start
@@ -335,7 +366,7 @@ class BackgroundBase(pygame.sprite.Sprite):
         self.sysdata = sysdata
         self.screen = sysdata.screen
         screen_size = self.screen.get_size()
-        self.surface = pygame.Surface(screen_size, )
+        self.surface = make_surface(screen_size, )
 
 class BackgroundTransparent(BackgroundBase):
     
@@ -364,7 +395,7 @@ class Background(BackgroundBase):
         self.img_pos = [ c[0] - r.w / 2, c[1] - r.h / 2 ]
         
         #: Make alpha the same size as the image
-        #self.alpha = pygame.Surface(r.size, )
+        #self.alpha = make_surface(r.size, )
         
         self.alphaval = 0.
         self.alphaprev = -1
@@ -436,7 +467,7 @@ class TextField(pygame.sprite.Sprite):
         
         psize = self.bg.surface.get_size()
         size = (psize[0], psize[1] - startposy)
-        surf = pygame.Surface(size, )
+        surf = make_surface(size, )
         
         # Create text contents
         DrawUtils.drawRectWithText(surf, size, TITLE_BG, TITLE_STROKE,
@@ -474,7 +505,7 @@ class TextField(pygame.sprite.Sprite):
         size = (size[0], 40)
 
         # Draw the surrounding rect
-        surf = titlebg = pygame.Surface(size, )
+        surf = titlebg = make_surface(size, )
         DrawUtils.drawRectWithText(surf, size, TITLE_BG, TITLE_STROKE,
                                     textsurf=text, textpos=textpos)
         
@@ -753,7 +784,7 @@ class Menu(pygame.sprite.Sprite):
     
     def _create_list_bg(self, size):
         
-        surf = pygame.Surface(size, )
+        surf = make_surface(size, )
         DrawUtils.drawRectWithText(surf, size, TITLE_BG, TITLE_STROKE, textsurf=None)
         self.itemsurface = surf
         return surf
@@ -870,7 +901,7 @@ class Menu(pygame.sprite.Sprite):
         size = (size[0], 40)
 
         # Render the final title surface with combined background and text 
-        surf = pygame.Surface(size, )
+        surf = make_surface(size, )
         DrawUtils.drawRectWithText(surf, size , TITLE_BG, TITLE_STROKE, text, textpos)
         
         # Update data
@@ -896,7 +927,7 @@ class Application(object):
             size = pygame.display.list_modes(16)[0]
             self.screen = pygame.display.set_mode(size, )
         else:
-            self.screen = pygame.display.set_mode(DISPLAY_SIZE, 16) 
+            self.screen = pygame.display.set_mode(DISPLAY_SIZE, 0, 16) 
         
         self.sysdata = SystemData()
         self.sysdata.screen = self.screen
@@ -935,7 +966,7 @@ class Application(object):
         self.initialize()       
         
         # From black
-        black = pygame.Surface(self.screen.get_size(), )
+        black = make_surface(self.screen.get_size(), )
         self.sprites.update()
         self.screen.blit(self.bg.surface, (0, 0))
             
@@ -997,7 +1028,7 @@ class Application(object):
             return
         
         # Start the tween animation
-        blacksurf = pygame.Surface(self.screen.get_size(), )
+        blacksurf = make_surface(self.screen.get_size(), )
         blacksurf.fill(BLACK)
         e = Effects(self.screen, self.clock, self.focused.bg.surface, blacksurf,
                     render_callback=None)
@@ -1084,7 +1115,7 @@ class Application(object):
         self.running = 0
         
         # Fade to black
-        black = pygame.Surface(self.screen.get_size(), )
+        black = make_surface(self.screen.get_size(), )
         
         # Start the tween animation
         e = Effects(self.screen, self.clock, self.bg.surface, black )
