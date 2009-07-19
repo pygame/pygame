@@ -41,27 +41,55 @@ static PyTypeObject PyVector2_Type;
  ********************************/
 
 static int
-checkRealNumber(PyObject *obj)
+RealNumber_Check(PyObject *obj)
 {
-    if (PyNumber_Check(obj)) {
-        if (!PyComplex_Check(obj)) {
-            return 1;
-        }
-    }
+    if (PyNumber_Check(obj) && !PyComplex_Check(obj))
+        return 1;
     return 0;
 }
 
 static double
 PySequence_GetItem_AsDouble(PyObject *seq, Py_ssize_t index)
 {
-    PyObject *item;
+    PyObject *item, *fltobj;
     double value;
+
     item = PySequence_GetItem(seq, index);
-    if (PyErr_Occurred())
-        return 0;
-    value = PyFloat_AsDouble(item);
+    fltobj = PyNumber_Float(item);
     Py_XDECREF(item);
+    if (!fltobj) {
+        PyErr_SetString(PyExc_TypeError, "a float is required");
+        return -1;
+    }
+    value = PyFloat_AsDouble(fltobj);
+    Py_DECREF(fltobj);
     return value;
+}
+
+static int
+PySequence_AsVectorCoords(PyObject *seq, double *coords, const int size)
+{
+    int i;
+    PyObject *item;
+    PyObject *fltobj;
+
+    if (PyVector_Check(seq)) {
+        memcpy(coords, ((PyVector *)seq)->coords, sizeof(double) * size);
+        return 1;
+    }
+    if (!PySequence_Check(seq) || PySequence_Length(seq) != size) {
+        coords = NULL;
+        return 0;
+    }
+
+    for (i = 0; i < size; ++i) {
+        coords[i] = PySequence_GetItem_AsDouble(seq, i);
+        if (PyErr_Occurred()) {
+            coords = NULL;
+            return 0;
+        }
+    }
+    return 1;
 }
 
 static int 
@@ -100,13 +128,23 @@ checkPyVectorCompatible(PyObject *obj, int dim)
 
     for (i = 0; i < dim; ++i) {
         tmp = PySequence_GetItem(obj, i);
-        if (!checkRealNumber(tmp)) {
+        if (!RealNumber_Check(tmp)) {
             Py_DECREF(tmp);
             return 0;
         }
         Py_DECREF(tmp);
     }
     return 1;
+}
+
+static double
+_scalar_product(const double *coords1, const double *coords2, int size)
+{
+    int i;
+    double product = 0;
+    for (i = 0; i < size; ++i)
+        product += coords1[i] * coords2[i];
+    return product;
 }
 
 
@@ -273,7 +311,7 @@ vector_mul(PyObject *o1, PyObject *o2)
             return PyFloat_FromDouble(ret);
         }
         /* vector * scalar ? */
-        else if (checkRealNumber(o2)) {
+        else if (RealNumber_Check(o2)) {
             PyVector *ret = (PyVector*)PyVector_NEW(dim);
             double scalar = PyFloat_AsDouble(o2);
             for (i = 0; i < dim; i++) {
@@ -293,7 +331,7 @@ vector_mul(PyObject *o1, PyObject *o2)
             return PyFloat_FromDouble(ret);
         }
         /* scalar * vector ? */
-        else if (checkRealNumber(o1)) {
+        else if (RealNumber_Check(o1)) {
             PyVector *ret = (PyVector*)PyVector_NEW(dim);
             double scalar = PyFloat_AsDouble(o1);
             for (i = 0; i < dim; i++) {
@@ -313,7 +351,7 @@ vector_inplace_mul(PyVector *self, PyObject *other)
     int i, row, col, dim;
     dim = self->dim;
     /* vector * scalar ? */
-    if (checkRealNumber(other)) {
+    if (RealNumber_Check(other)) {
         double scalar = PyFloat_AsDouble(other);
         for (i = 0; i < dim; i++) {
             self->coords[i] *= scalar;
@@ -330,7 +368,7 @@ static PyObject *
 vector_div(PyVector *self, PyObject *other)
 {
     int i;
-    if (checkRealNumber(other)) {
+    if (RealNumber_Check(other)) {
         double tmp = 1. / PyFloat_AsDouble(other);
         PyVector *ret = (PyVector*)PyVector_NEW(self->dim);
         for (i = 0; i < self->dim; i++) {
@@ -346,7 +384,7 @@ static PyObject *
 vector_inplace_div(PyVector *self, PyObject *other)
 {
     int i;
-    if (checkRealNumber(other)) {
+    if (RealNumber_Check(other)) {
         double tmp = 1. / PyFloat_AsDouble(other);
         for (i = 0; i < self->dim; i++) {
             self->coords[i] *= tmp;
@@ -362,7 +400,7 @@ static PyObject *
 vector_floor_div(PyVector *self, PyObject *other)
 {
     int i;
-    if (checkRealNumber(other)) {
+    if (RealNumber_Check(other)) {
         double tmp = 1. / PyFloat_AsDouble(other);
         PyVector *ret = (PyVector*)PyVector_NEW(self->dim);
         for (i = 0; i < self->dim; i++) {
@@ -378,7 +416,7 @@ static PyObject *
 vector_inplace_floor_div(PyVector *self, PyObject *other)
 {
     int i;
-    if (checkRealNumber(other)) {
+    if (RealNumber_Check(other)) {
         double tmp = 1. / PyFloat_AsDouble(other);
         for (i = 0; i < self->dim; i++) {
             self->coords[i] = floor(self->coords[i] * tmp);
@@ -688,7 +726,7 @@ vector2_init(PyVector *self, PyObject *args, PyObject *kwds)
         return -1;
 
     if (xOrSequence) {
-        if (checkRealNumber(xOrSequence)) {
+        if (RealNumber_Check(xOrSequence)) {
             self->coords[0] = PyFloat_AsDouble(xOrSequence);
         } 
         else if (checkPyVectorCompatible(xOrSequence, self->dim)) {
@@ -725,7 +763,7 @@ vector2_init(PyVector *self, PyObject *args, PyObject *kwds)
     }
 
     if (y) {
-        if (checkRealNumber(y)) {
+        if (RealNumber_Check(y)) {
             self->coords[1] = PyFloat_AsDouble(y);
         } 
         else {
@@ -739,7 +777,7 @@ vector2_init(PyVector *self, PyObject *args, PyObject *kwds)
     return 0;
 error:
     PyErr_SetString(PyExc_ValueError,
-                    "Vector2d must be initialized with 2 real numbers or a sequence of 2 real numbers");
+                    "Vector2 must be initialized with 2 real numbers or a sequence of 2 real numbers");
     return -1;
 }
 
@@ -747,20 +785,16 @@ error:
 static PyObject *
 vector_length(PyVector *self)
 {
-    int i;
-    double length = 0;
-    for (i = 0; i < self->dim; ++i)
-        length += self->coords[i] * self->coords[i];
-    return PyFloat_FromDouble(sqrt(length));
+    double length_squared = _scalar_product(self->coords, self->coords, 
+                                            self->dim);
+    return PyFloat_FromDouble(sqrt(length_squared));
 }
 
 static PyObject *
 vector_length_squared(PyVector *self)
 {
-    int i;
-    double length_squared = 0;
-    for (i = 0; i < self->dim; ++i)
-        length_squared += self->coords[i] * self->coords[i];
+    double length_squared = _scalar_product(self->coords, self->coords, 
+                                            self->dim);
     return PyFloat_FromDouble(length_squared);
 }
 
@@ -832,19 +866,14 @@ vector2_rotate_ip(PyVector *self, PyObject *args)
     Py_RETURN_NONE;
 }
 
-
 static PyObject *
 vector_normalize(PyVector *self)
 {
     int i;
-    double sum, length;
+    double length;
     PyVector *ret;
     
-    sum = 0;
-    for (i = 0; i < self->dim; ++i)
-        sum += self->coords[i] * self->coords[i];
-    length = sqrt(sum);
-
+    length = sqrt(_scalar_product(self->coords, self->coords, self->dim));
     if (length == 0) {
         PyErr_SetString(PyExc_ZeroDivisionError, 
                         "Can't normalize Vector of length Zero");
@@ -862,12 +891,9 @@ static PyObject *
 vector_normalize_ip(PyVector *self)
 {
     int i;
-    double sum, length;
+    double length;
     
-    sum = 0;
-    for (i = 0; i < self->dim; ++i)
-        sum += self->coords[i] * self->coords[i];
-    length = sqrt(sum);
+    length = sqrt(_scalar_product(self->coords, self->coords, self->dim));
 
     if (length == 0) {
         PyErr_SetString(PyExc_ZeroDivisionError, 
@@ -884,14 +910,9 @@ vector_normalize_ip(PyVector *self)
 static PyObject *
 vector_is_normalized(PyVector *self)
 {
-    int i;
-    double sum;
-
-    sum = 0;
-    for (i = 0; i < self->dim; ++i)
-        sum += self->coords[i] * self->coords[i];
-
-    if (fabs(sum - 1) < self->epsilon)
+    double length_squared = _scalar_product(self->coords, self->coords, 
+                                            self->dim);
+    if (fabs(length_squared - 1) < self->epsilon)
         Py_RETURN_TRUE;
     else
         Py_RETURN_FALSE;
@@ -918,18 +939,13 @@ vector2_cross(PyVector *self, PyObject *other)
 static PyObject *
 vector_dot(PyVector *self, PyObject *other)
 {
-    int i;
-    double ret;
-    if (!checkPyVectorCompatible(other, self->dim)) {
+    double other_coords[4];
+    if (!PySequence_AsVectorCoords(other, other_coords, self->dim)) {
         PyErr_SetString(PyExc_TypeError, "Cannot perform dot product with this type.");
         return NULL;
     }
-
-    ret = 0.;
-    for (i = 0; i < self->dim; ++i) {
-        ret += self->coords[i] * PySequence_GetItem_AsDouble(other, i);
-    }
-    return PyFloat_FromDouble(ret);
+    return PyFloat_FromDouble(_scalar_product(self->coords, other_coords, 
+                                              self->dim));
 }
 
 static PyObject *
@@ -954,7 +970,7 @@ vector_scale_to_length(PyVector *self, PyObject *length)
     double new_length, old_length;
     double fraction;
 
-    if (!checkRealNumber(length)) {
+    if (!RealNumber_Check(length)) {
         PyErr_SetString(PyExc_ValueError, "new length must be a number");
         return NULL;
     }
@@ -1061,6 +1077,37 @@ vector_reflect_ip(PyVector *self, PyObject *normal)
     Py_RETURN_NONE;
 }
 
+static PyObject *
+vector_distance_to(PyVector *self, PyObject *other)
+{
+    int i;
+    double distance_squared;
+
+    distance_squared = 0;
+    for (i = 0; i < self->dim; ++i) {
+        double tmp = PySequence_GetItem_AsDouble(other, i) - self->coords[i];
+        distance_squared +=  tmp * tmp;
+    }
+    
+    return PyFloat_FromDouble(sqrt(distance_squared));
+}
+
+static PyObject *
+vector_distance_squared_to(PyVector *self, PyObject *other)
+{
+    int i;
+    double distance_squared;
+
+    distance_squared = 0;
+    for (i = 0; i < self->dim; ++i) {
+        double tmp = PySequence_GetItem_AsDouble(other, i) - self->coords[i];
+        distance_squared +=  tmp * tmp;
+    }
+    
+    return PyFloat_FromDouble(distance_squared);
+}
+
+
 static PyMethodDef vector2_methods[] = {
     {"length", (PyCFunction)vector_length, METH_NOARGS,
      "returns the length/magnitude of the vector."
@@ -1101,19 +1148,69 @@ static PyMethodDef vector2_methods[] = {
     {"reflect_ip", (PyCFunction)vector_reflect_ip, METH_O,
      "reflects the vector in-place on the surface characterized by the given normal."
     },
+    {"distance_to", (PyCFunction)vector_distance_to, METH_O,
+     "returns the distance to the given vector."
+    },
+    {"distance_squared_to", (PyCFunction)vector_distance_squared_to, METH_O,
+     "returns the squared distance to the given vector."
+    },
     
     {NULL}  /* Sentinel */
 };
 
 static PyObject *
+vector_repr(PyVector *self)
+{
+    int i;
+    int bufferIdx;
+    char buffer[2][STRING_BUF_SIZE];
+    
+    bufferIdx = 1;
+    PyOS_snprintf(buffer[0], STRING_BUF_SIZE, "<Vector%d(", self->dim);
+    for (i = 0; i < self->dim - 1; ++i)
+    {
+        PyOS_snprintf(buffer[bufferIdx % 2], STRING_BUF_SIZE, "%s%g, ", 
+                      buffer[(bufferIdx + 1) % 2], self->coords[i]);
+        bufferIdx++;
+    }
+    PyOS_snprintf(buffer[bufferIdx % 2], STRING_BUF_SIZE, "%s%g)>", 
+                  buffer[(bufferIdx + 1) % 2], self->coords[i]);
+    return PyString_FromString(buffer[bufferIdx % 2]); 
+}
+
+/*
+static PyObject *
 vector2_repr(PyVector *self)
 {
     char buffer[STRING_BUF_SIZE];
+
     PyOS_snprintf(buffer, STRING_BUF_SIZE, "<Vector2(%g, %g)>",
                   self->coords[0], self->coords[1]);
     return PyString_FromString(buffer); 
 }
+*/
 
+static PyObject *
+vector_str(PyVector *self)
+{
+    int i;
+    int bufferIdx;
+    char buffer[2][STRING_BUF_SIZE];
+    
+    bufferIdx = 1;
+    PyOS_snprintf(buffer[0], STRING_BUF_SIZE, "[", self->dim);
+    for (i = 0; i < self->dim - 1; ++i)
+    {
+        PyOS_snprintf(buffer[bufferIdx % 2], STRING_BUF_SIZE, "%s%g, ", 
+                      buffer[(bufferIdx + 1) % 2], self->coords[i]);
+        bufferIdx++;
+    }
+    PyOS_snprintf(buffer[bufferIdx % 2], STRING_BUF_SIZE, "%s%g]", 
+                  buffer[(bufferIdx + 1) % 2], self->coords[i]);
+    return PyString_FromString(buffer[bufferIdx % 2]); 
+}
+
+/*
 static PyObject *
 vector2_str(PyVector *self)
 {
@@ -1122,6 +1219,7 @@ vector2_str(PyVector *self)
                   self->coords[0], self->coords[1]);
     return PyString_FromString(buffer); 
 }
+*/
 
 
 static PyGetSetDef vector2_getsets[] = {
@@ -1134,36 +1232,38 @@ static PyGetSetDef vector2_getsets[] = {
 /********************************
  * PyVector2 type definition
  ********************************/
+static PyObject *vector_iter(PyObject *vec);
 
 static PyTypeObject PyVector2_Type = {
     PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
-    "pygame.math.Vector2",         /*tp_name*/
-    sizeof(PyVector),          /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
+    0,                         /* ob_size */
+    "pygame.math.Vector2",     /* tp_name */
+    sizeof(PyVector),          /* tp_basicsize */
+    0,                         /* tp_itemsize */
     /* Methods to implement standard operations */
-    (destructor)vector_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
-    (reprfunc)vector2_repr,   /*tp_repr*/
+    (destructor)vector_dealloc, /* tp_dealloc */
+    0,                         /* tp_print */
+    0,                         /* tp_getattr */
+    0,                         /* tp_setattr */
+    0,                         /* tp_compare */
+    (reprfunc)vector_repr,     /* tp_repr */
     /* Method suites for standard classes */
-    &vector_as_number,       /*tp_as_number*/
-    &vector_as_sequence,     /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
+    &vector_as_number,         /* tp_as_number */
+    &vector_as_sequence,       /* tp_as_sequence */
+    0,                         /* tp_as_mapping */
     /* More standard operations (here for binary compatibility) */
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    (reprfunc)vector2_str,    /*tp_str*/
-    PyObject_GenericGetAttr,   /*tp_getattro*/
-    0,                         /*tp_setattro*/
+    0,                         /* tp_hash */
+    0,                         /* tp_call */
+    (reprfunc)vector_str,      /* tp_str */
+    PyObject_GenericGetAttr,   /* tp_getattro */
+    0,                         /* tp_setattro */
     /* Functions to access object as input/output buffer */
-    0,                         /*tp_as_buffer*/
+    0,                         /* tp_as_buffer */
     /* Flags to define presence of optional/expanded features */
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_CHECKTYPES | Py_TPFLAGS_HAVE_INPLACEOPS, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | 
+    Py_TPFLAGS_CHECKTYPES | Py_TPFLAGS_HAVE_INPLACEOPS, /* tp_flags */
     /* Documentation string */
-    DOC_PYGAMEVECTOR2,               /* tp_doc */
+    DOC_PYGAMEVECTOR2,         /* tp_doc */
 
     /* Assigned meaning in release 2.0 */
     /* call function for all accessible objects */
@@ -1179,20 +1279,20 @@ static PyTypeObject PyVector2_Type = {
 
     /* Added in release 2.2 */
     /* Iterators */
-    0,                         /* tp_iter */
+    vector_iter,               /* tp_iter */
     0,                         /* tp_iternext */
     /* Attribute descriptor and subclassing stuff */
-    vector2_methods,          /* tp_methods */
-    vector_members,          /* tp_members */
-    vector2_getsets,        /* tp_getset */
+    vector2_methods,           /* tp_methods */
+    vector_members,            /* tp_members */
+    vector2_getsets,           /* tp_getset */
     0,                         /* tp_base */
     0,                         /* tp_dict */
     0,                         /* tp_descr_get */
     0,                         /* tp_descr_set */
     0,                         /* tp_dictoffset */
-    (initproc)vector2_init,   /* tp_init */
+    (initproc)vector2_init,    /* tp_init */
     0,                         /* tp_alloc */
-    (newfunc)vector2_new,     /* tp_new */
+    (newfunc)vector2_new,      /* tp_new */
     0,                         /* tp_free */
     0,                         /* tp_is_gc */
     0,                         /* tp_bases */
@@ -1201,6 +1301,113 @@ static PyTypeObject PyVector2_Type = {
     0,                         /* tp_subclasses */
     0,                         /* tp_weaklist */
 };
+
+
+/********************************
+ * PyVector2Iterator type definition
+ ********************************/
+
+typedef struct {
+    PyObject_HEAD
+    long it_index;
+    PyVector *vec;
+} vectoriter;
+
+static void
+vectoriter_dealloc(vectoriter *it)
+{
+    Py_XDECREF(it->vec);
+    PyObject_Del(it);
+}
+
+static PyObject *
+vectoriter_next(vectoriter *it)
+{
+    assert(it != NULL);
+    if (it->vec == NULL)
+        return NULL;
+    assert(PyVector_Check(it->vec));
+
+    if (it->it_index < it->vec->dim) {
+        double item = it->vec->coords[it->it_index];
+        ++(it->it_index);
+        return PyFloat_FromDouble(item);
+    }
+    
+    Py_DECREF(it->vec);
+    it->vec = NULL;
+    return NULL;
+}
+
+static PyObject *
+vectoriter_len(vectoriter *it)
+{
+    Py_ssize_t len;
+    if (it && it->vec) {
+        len = it->vec->dim - it->it_index;
+        if (len >= 0)
+            return PyInt_FromSsize_t(len);
+    }
+    return PyInt_FromLong(0);
+}
+
+static PyMethodDef vectoriter_methods[] = {
+    {"__length_hint__", (PyCFunction)vectoriter_len, METH_NOARGS,
+    },
+    {NULL, NULL} /* sentinel */
+};
+
+static PyTypeObject PyVectorIter_Type = {
+    PyObject_HEAD_INIT(NULL)
+    0,                         /* ob_size */
+    "pygame.math.VectorIterator", /* tp_name */
+    sizeof(vectoriter),        /* tp_basicsize */
+    0,                         /* tp_itemsize */
+    (destructor)vectoriter_dealloc, /* tp_dealloc */
+    0,                         /* tp_print */
+    0,                         /* tp_getattr */
+    0,                         /* tp_setattr */
+    0,                         /* tp_compare */
+    0,                         /* tp_repr */
+    0,                         /* tp_as_number */
+    0,                         /* tp_as_sequence */
+    0,                         /* tp_as_mapping */
+    0,                         /* tp_hash */
+    0,                         /* tp_call */
+    0,                         /* tp_str */
+    PyObject_GenericGetAttr,   /* tp_getattro */
+    0,                         /* tp_setattro */
+    0,                         /* tp_as_buffer */
+    Py_TPFLAGS_DEFAULT,        /* tp_flags */
+    0,                         /* tp_doc */
+    0,                         /* tp_traverse */
+    0,                         /* tp_clear */
+    0,                         /* tp_richcompare */
+    0,                         /* tp_weaklistoffset */
+    PyObject_SelfIter,         /* tp_iter */
+    (iternextfunc)vectoriter_next, /* tp_iternext */
+    vectoriter_methods,        /* tp_methods */
+    0,                         /* tp_members */
+};
+
+static PyObject *
+vector_iter(PyObject *vec)
+{
+    vectoriter *it;
+    if (!PyVector_Check(vec)) {
+        PyErr_BadInternalCall();
+        return NULL;
+    }
+
+    it = PyObject_New(vectoriter, &PyVectorIter_Type);
+    if (it == NULL)
+        return NULL;
+    it->it_index = 0;
+    Py_INCREF(vec);
+    it->vec = (PyVector *)vec;
+    return (PyObject *)it;
+}
+
 
 
 

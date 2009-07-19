@@ -184,6 +184,23 @@ class Vector2TypeTest(unittest.TestCase):
         v = Vector2(1.2, 3.4)
         self.assertEqual(v.__repr__(), "<Vector2(1.2, 3.4)>")
         self.assertEqual(v, Vector2(v.__repr__()))
+
+    def testIter(self):
+        v = Vector2(1.2, 3.4)
+        it = v.__iter__()
+        self.assertEqual(it.next(), 1.2)
+        self.assertEqual(it.next(), 3.4)
+        self.assertRaises(StopIteration, lambda : it.next())
+        it1 = v.__iter__()
+        it2 = v.__iter__()
+        self.assertNotEqual(id(it1), id(it2))
+        self.assertEqual(id(it1), id(it1.__iter__()))
+        self.assertEqual(list(it1), list(it2));
+        self.assertEqual(list(v.__iter__()), [1.2, 3.4])
+        idx = 0
+        for val in v:
+            self.assertEqual(val, v[idx])
+            idx += 1
         
     def test_rotate(self):
         v1 = Vector2(1, 0)
@@ -258,6 +275,7 @@ class Vector2TypeTest(unittest.TestCase):
         v1 = Vector2(1.2, 3.4)
         v2 = Vector2(5.6, 7.8)
         self.assertEqual(v1.dot(v2), 1.2 * 5.6 + 3.4 * 7.8)
+        self.assertEqual(v1.dot([5.6, 7.8]), 1.2 * 5.6 + 3.4 * 7.8)
         self.assertEqual(v1.dot(v2), v2.dot(v1))
         self.assertEqual(v1.dot(v2), v1 * v2)
 
@@ -311,16 +329,22 @@ class Vector2TypeTest(unittest.TestCase):
         self.assertEqual(v2, -v1)
         self.assertRaises(ZeroDivisionError, lambda : v2.reflect_ip(Vector2()))
 
-    def testIterProc(self):
-        v = Vector2(1.2, 3.4)
-        it = v.__iter__()
-        self.assertEqual(it.next(), 1.2)
-        self.assertEqual(it.next(), 3.4)
-        self.assertRaises(StopIteration, lambda : it.next())
-        idx = 0
-        for val in v:
-            self.assertEqual(val, v[idx])
-            idx += 1
+    def test_distance_to(self):
+        v1 = Vector2(1, 0)
+        v2 = Vector2(0, 1)
+        import math
+        self.assertEqual(v1.distance_to(v2), math.sqrt(2))
+        self.assertEqual(v1.distance_to(v1), 0)
+        self.assertEqual(v1.distance_to(v2), v2.distance_to(v1))
+
+    def test_distance_squared_to(self):
+        v1 = Vector2(1, 0)
+        v2 = Vector2(0, 1)
+        self.assertEqual(v1.distance_squared_to(v2), 2)
+        self.assertEqual(v1.distance_squared_to(v1), 0)
+        self.assertEqual(v1.distance_squared_to(v2), v2.distance_squared_to(v1))
+
+
         
 if __name__ == '__main__':
     unittest.main()
