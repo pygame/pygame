@@ -309,6 +309,7 @@ modules = [
             "src/freetype/ft_font.c",
             "src/freetype/ft_wrap.c",
             "src/freetype/ft_render.c",
+            "src/freetype/ft_render_cb.c",
             "src/freetype/ft_metrics.c",
             "src/freetype/ft_text.c",
         ],

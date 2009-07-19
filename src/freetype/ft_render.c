@@ -33,20 +33,7 @@
 #endif
 
 typedef void (* FontRenderPtr)(int, int, FontSurface *, FT_Bitmap *, PyColor *);
-
-/* blitters */
-void __render_glyph_MONO1(int x, int y, FontSurface *surface, FT_Bitmap *bitmap, PyColor *color);
-void __render_glyph_MONO2(int x, int y, FontSurface *surface, FT_Bitmap *bitmap, PyColor *color);
-void __render_glyph_MONO3(int x, int y, FontSurface *surface, FT_Bitmap *bitmap, PyColor *color);
-void __render_glyph_MONO4(int x, int y, FontSurface *surface, FT_Bitmap *bitmap, PyColor *color);
-
-void __render_glyph_RGB1(int x, int y, FontSurface *surface, FT_Bitmap *bitmap, PyColor *color);
-void __render_glyph_RGB2(int x, int y, FontSurface *surface, FT_Bitmap *bitmap, PyColor *color);
-void __render_glyph_RGB3(int x, int y, FontSurface *surface, FT_Bitmap *bitmap, PyColor *color);
-void __render_glyph_RGB4(int x, int y, FontSurface *surface, FT_Bitmap *bitmap, PyColor *color);
-
-void __render_glyph_ByteArray(int x, int y, FontSurface *surface, FT_Bitmap *bitmap, PyColor *color);
-
+typedef void (* FontFillPtr)(int, int, int, int, FontSurface *, PyColor *);
 
 #define SLANT_FACTOR    0.22
 FT_Matrix PGFT_SlantMatrix = 
@@ -57,7 +44,7 @@ FT_Matrix PGFT_SlantMatrix =
 
 FT_Fixed PGFT_GetBoldStrength(FT_Face face)
 {
-    const float bold_factor = 0.06;
+    const float bold_factor = 0.06f;
     FT_Fixed bold_str;
 
     bold_str = FT_MulFix(face->units_per_EM, face->size->metrics.y_scale);
@@ -112,181 +99,6 @@ PGFT_BuildRenderMode(FontRenderMode *mode, int style, int vertical, int antialia
  *
  *********************************************************/
 #ifdef HAVE_PYGAME_SDL_VIDEO
-
-#define __MONO_RENDER_INNER_LOOP(_bpp, _code)                       \
-    for (j = ry; j < max_y; ++j)                                    \
-    {                                                               \
-        unsigned char*  _src = src;                                 \
-        unsigned char*  _dst = dst;                                 \
-        FT_UInt32       val = (FT_UInt32)(*_src++ | 0x100) << shift;\
-                                                                    \
-        for (i = rx; i < max_x; ++i, _dst += _bpp)                  \
-        {                                                           \
-            if (val & 0x10000)                                      \
-                val = (FT_UInt32)(*_src++ | 0x100);                 \
-                                                                    \
-            if (val & 0x80)                                         \
-            {                                                       \
-                _code;                                              \
-            }                                                       \
-                                                                    \
-            val   <<= 1;                                            \
-        }                                                           \
-                                                                    \
-        src += bitmap->pitch;                                       \
-        dst += surface->pitch * _bpp;                               \
-    }                                                               \
-
-#define _CREATE_MONO_RENDER(_bpp, _getp, _setp, _blendp)                \
-    void __render_glyph_MONO##_bpp(int x, int y, FontSurface *surface,  \
-            FT_Bitmap *bitmap, PyColor *color)                          \
-    {                                                                   \
-        const int off_x = (x < 0) ? -x : 0;                             \
-        const int off_y = (y < 0) ? -y : 0;                             \
-                                                                        \
-        const int max_x = MIN(x + bitmap->width, surface->width);       \
-        const int max_y = MIN(y + bitmap->rows, surface->height);       \
-                                                                        \
-        const int rx = MAX(0, x);                                       \
-        const int ry = MAX(0, y);                                       \
-                                                                        \
-        int             i, j, shift;                                    \
-        unsigned char*  src;                                            \
-        unsigned char*  dst;                                            \
-        FT_UInt32       full_color;                                     \
-        FT_UInt32 bgR, bgG, bgB, bgA;                                   \
-                                                                        \
-        src  = bitmap->buffer + (off_y * bitmap->pitch) + (off_x >> 3); \
-        dst = (unsigned char *)surface->buffer + (rx * _bpp) +          \
-                    (ry * _bpp * surface->pitch);                       \
-                                                                        \
-        full_color = SDL_MapRGBA(surface->format, (FT_Byte)color->r,    \
-                (FT_Byte)color->g, (FT_Byte)color->b, 255);             \
-                                                                        \
-        shift = off_x & 7;                                              \
-                                                                        \
-        if (color->a == 0xFF)                                           \
-        {                                                               \
-            __MONO_RENDER_INNER_LOOP(_bpp,                              \
-            {                                                           \
-                _setp;                                                  \
-            });                                                         \
-        }                                                               \
-        else if (color->a > 0)                                          \
-        {                                                               \
-            __MONO_RENDER_INNER_LOOP(_bpp,                              \
-            {                                                           \
-                FT_UInt32 pixel = (FT_UInt32)_getp;                     \
-                                                                        \
-                GET_RGB_VALS(                                           \
-                        pixel, surface->format,                         \
-                        bgR, bgG, bgB, bgA);                            \
-                                                                        \
-                ALPHA_BLEND(                                            \
-                        color->r, color->g, color->b, color->a,         \
-                        bgR, bgG, bgB, bgA);                            \
-                                                                        \
-                _blendp;                                                \
-            });                                                         \
-        }                                                               \
-    }
-
-#define _CREATE_RGB_RENDER(_bpp, _getp, _setp, _blendp)                 \
-    void __render_glyph_RGB##_bpp(int x, int y, FontSurface *surface,   \
-        FT_Bitmap *bitmap, PyColor *color)                              \
-    {                                                                   \
-        const int off_x = (x < 0) ? -x : 0;                             \
-        const int off_y = (y < 0) ? -y : 0;                             \
-                                                                        \
-        const int max_x = MIN(x + bitmap->width, surface->width);       \
-        const int max_y = MIN(y + bitmap->rows, surface->height);       \
-                                                                        \
-        const int rx = MAX(0, x);                                       \
-        const int ry = MAX(0, y);                                       \
-                                                                        \
-        FT_Byte *dst = ((FT_Byte*)surface->buffer) + (rx * _bpp) +      \
-                        (ry * _bpp * surface->pitch);                   \
-        FT_Byte *_dst;                                                  \
-                                                                        \
-        const FT_Byte *src = bitmap->buffer + off_x +                   \
-                                (off_y * bitmap->pitch);                \
-        const FT_Byte *_src;                                            \
-                                                                        \
-        const FT_UInt32 full_color =                                    \
-            SDL_MapRGBA(surface->format, (FT_Byte)color->r,             \
-                    (FT_Byte)color->g, (FT_Byte)color->b, 255);         \
-                                                                        \
-        FT_UInt32 bgR, bgG, bgB, bgA;                                   \
-        int j, i;                                                       \
-                                                                        \
-        for (j = ry; j < max_y; ++j)                                    \
-        {                                                               \
-            _src = src;                                                 \
-            _dst = dst;                                                 \
-                                                                        \
-            for (i = rx; i < max_x; ++i, _dst += _bpp)                  \
-            {                                                           \
-                FT_UInt32 alpha = (*_src++);                            \
-                alpha = (alpha * color->a) / 255;                       \
-                                                                        \
-                if (alpha == 0xFF)                                      \
-                {                                                       \
-                    _setp;                                              \
-                }                                                       \
-                else if (alpha > 0)                                     \
-                {                                                       \
-                    FT_UInt32 pixel = (FT_UInt32)_getp;                 \
-                                                                        \
-                    GET_RGB_VALS(                                       \
-                            pixel, surface->format,                     \
-                            bgR, bgG, bgB, bgA);                        \
-                                                                        \
-                    ALPHA_BLEND(                                        \
-                            color->r, color->g, color->b, alpha,        \
-                            bgR, bgG, bgB, bgA);                        \
-                                                                        \
-                    _blendp;                                            \
-                }                                                       \
-            }                                                           \
-                                                                        \
-            dst += surface->pitch * _bpp;                               \
-            src += bitmap->pitch;                                       \
-        }                                                               \
-    }
-
-
-#define _SET_PIXEL_24   \
-    SET_PIXEL24_RGB(_dst, surface->format, color->r, color->g, color->b);
-
-#define _BLEND_PIXEL_24 \
-    SET_PIXEL24_RGB(_dst, surface->format, bgR, bgG, bgB);
-
-#define _SET_PIXEL(T) \
-    *(T*)_dst = (T)full_color;
-
-#define _BLEND_PIXEL(T) *((T*)_dst) = (T)(                          \
-    ((bgR >> surface->format->Rloss) << surface->format->Rshift) |  \
-    ((bgG >> surface->format->Gloss) << surface->format->Gshift) |  \
-    ((bgB >> surface->format->Bloss) << surface->format->Bshift) |  \
-    ((255 >> surface->format->Aloss) << surface->format->Ashift  &  \
-     surface->format->Amask)                                        )
-
-#define _BLEND_PIXEL_GENERIC(T) *(T*)_dst = (T)(    \
-    SDL_MapRGB(surface->format,                     \
-        (FT_Byte)bgR, (FT_Byte)bgG, (FT_Byte)bgB)   )
-
-#define _GET_PIXEL(T)    (*((T*)_dst))
-
-_CREATE_RGB_RENDER(4,  _GET_PIXEL(FT_UInt32),   _SET_PIXEL(FT_UInt32),  _BLEND_PIXEL(FT_UInt32))
-_CREATE_RGB_RENDER(3,  GET_PIXEL24(_dst),       _SET_PIXEL_24,          _BLEND_PIXEL_24)
-_CREATE_RGB_RENDER(2,  _GET_PIXEL(FT_UInt16),   _SET_PIXEL(FT_UInt16),  _BLEND_PIXEL(FT_UInt16))
-_CREATE_RGB_RENDER(1,  _GET_PIXEL(FT_Byte),     _SET_PIXEL(FT_Byte),    _BLEND_PIXEL_GENERIC(FT_Byte))
-
-_CREATE_MONO_RENDER(4,  _GET_PIXEL(FT_UInt32),   _SET_PIXEL(FT_UInt32),  _BLEND_PIXEL(FT_UInt32))
-_CREATE_MONO_RENDER(3,  GET_PIXEL24(_dst),       _SET_PIXEL_24,          _BLEND_PIXEL_24)
-_CREATE_MONO_RENDER(2,  _GET_PIXEL(FT_UInt16),   _SET_PIXEL(FT_UInt16),  _BLEND_PIXEL(FT_UInt16))
-_CREATE_MONO_RENDER(1,  _GET_PIXEL(FT_Byte),     _SET_PIXEL(FT_Byte),    _BLEND_PIXEL_GENERIC(FT_Byte))
-
 int PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
     int font_size, FontRenderMode *render, PyObject *text, PySDLSurface *_surface, 
     int x, int y, PyColor *fgcolor, PyColor *bgcolor, int *_width, int *_height)
@@ -306,7 +118,16 @@ int PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
         __render_glyph_MONO1,
         __render_glyph_MONO2,
         __render_glyph_MONO3,
-        __render_glyph_MONO4,
+        __render_glyph_MONO4
+    };
+
+    static const FontFillPtr __RGBfillFuncs[] =
+    {
+        NULL,
+        __fill_glyph_RGB1,
+        __fill_glyph_RGB2,
+        __fill_glyph_RGB3,
+        __fill_glyph_RGB4
     };
 
     int         locked = 0;
@@ -340,22 +161,6 @@ int PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
     width = PGFT_TRUNC(PGFT_ROUND(font_text->text_size.x));
     height = PGFT_TRUNC(PGFT_ROUND(font_text->text_size.y));
 
-    /* if bg color exists, paint background */
-    if (bgcolor)
-    {
-        SDL_Rect    bg_fill; 
-        FT_UInt32   fillcolor;
-
-        fillcolor = SDL_MapRGBA(surface->format, 
-                bgcolor->r, bgcolor->g, bgcolor->b, 255);
-
-        bg_fill.x = (FT_Int16)x;
-        bg_fill.y = (FT_Int16)y;
-        bg_fill.w = (FT_UInt16)width;
-        bg_fill.h = (FT_UInt16)height;
-
-        SDL_FillRect(surface, &bg_fill, fillcolor);
-    }
 
     /*
      * Setup target surface struct
@@ -372,12 +177,36 @@ int PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
     font_surf.format = surface->format;
 
     if (render->antialias == FONT_RENDER_ANTIALIAS)
-    {
         font_surf.render = __SDLrenderFuncs[surface->format->BytesPerPixel];
-    }
     else
-    {
         font_surf.render = __MONOrenderFuncs[surface->format->BytesPerPixel];
+
+    font_surf.fill = __RGBfillFuncs[surface->format->BytesPerPixel];
+
+    /* 
+     * if bg color exists, paint background 
+     */
+    if (bgcolor)
+    {
+        if (bgcolor->a == 0xFF)
+        {
+            SDL_Rect    bg_fill; 
+            FT_UInt32   fillcolor;
+
+            fillcolor = SDL_MapRGBA(surface->format, 
+                    bgcolor->r, bgcolor->g, bgcolor->b, bgcolor->a);
+
+            bg_fill.x = (FT_Int16)x;
+            bg_fill.y = (FT_Int16)y;
+            bg_fill.w = (FT_UInt16)width;
+            bg_fill.h = (FT_UInt16)height;
+
+            SDL_FillRect(surface, &bg_fill, fillcolor);
+        }
+        else
+        {
+            font_surf.fill(x, y, width, height, &font_surf, bgcolor);
+        }
     }
 
     /*
@@ -452,18 +281,6 @@ PyObject *PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
         locked = 1;
     }
 
-    if (bgcolor)
-    {
-        fillcolor = SDL_MapRGBA(surface->format, 
-                bgcolor->r, bgcolor->g, bgcolor->b, 255);
-    }
-    else
-    {
-        fillcolor = SDL_MapRGBA(surface->format, 0, 0, 0, 0);
-    }
-
-    SDL_FillRect(surface, NULL, fillcolor);
-
     font_surf.buffer = surface->pixels;
     font_surf.buffer_cap = ((FT_Byte *)surface->pixels) + (surface->pitch * surface->h);
     font_surf.x_offset = font_surf.y_offset = 0;
@@ -474,7 +291,26 @@ PyObject *PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
     font_surf.format = surface->format;
     font_surf.render = __render_glyph_RGB4;
+    font_surf.fill = __fill_glyph_RGB4;
 
+    /*
+     * Fill our texture with the required bg color
+     */
+    if (bgcolor)
+    {
+        fillcolor = SDL_MapRGBA(surface->format, 
+                bgcolor->r, bgcolor->g, bgcolor->b, bgcolor->a);
+    }
+    else
+    {
+        fillcolor = SDL_MapRGBA(surface->format, 0, 0, 0, 0);
+    }
+
+    SDL_FillRect(surface, NULL, fillcolor);
+
+    /*
+     * Render the text!
+     */
     if (_PGFT_Render_INTERNAL(ft, font, font_text, ptsize, fgcolor, &font_surf, render) != 0)
     {
         SDL_FreeSurface(surface);
@@ -499,28 +335,6 @@ PyObject *PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
  * Rendering on generic arrays
  *
  *********************************************************/
-void __render_glyph_ByteArray(int x, int y, FontSurface *surface,
-    FT_Bitmap *bitmap, PyColor *fg_color)
-{
-    FT_Byte *dst = ((FT_Byte *)surface->buffer) + x + (y * surface->pitch);
-    FT_Byte *dst_cpy;
-
-    const FT_Byte *src = bitmap->buffer;
-    const FT_Byte *src_cpy;
-
-    int j, i;
-
-    for (j = 0; j < bitmap->rows; ++j)
-    {
-        src_cpy = src;
-        dst_cpy = dst;
-
-        LOOP_UNROLLED4({ *dst_cpy++ = (FT_Byte)(~(*src_cpy++)); }, i, bitmap->width);
-
-        dst += surface->pitch;
-        src += bitmap->pitch;
-    }
-}
 
 PyObject *PGFT_Render_PixelArray(FreeTypeInstance *ft, PyFreeTypeFont *font,
     int ptsize, PyObject *text, int *_width, int *_height)
@@ -591,8 +405,8 @@ cleanup:
  *
  *********************************************************/
 int _PGFT_Render_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font, 
-    FontText *text, int font_size, PyColor *fg_color, FontSurface *surface, 
-    FontRenderMode *render)
+    FontText *text, int font_size, PyColor *fg_color,
+    FontSurface *surface, FontRenderMode *render)
 {
     const FT_Fixed center = (1 << 15); // 0.5
 

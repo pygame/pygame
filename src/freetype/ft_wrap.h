@@ -100,7 +100,9 @@ typedef struct __fontsurface
     int pitch;
 
     SDL_PixelFormat *format;
-    void (* render)(int, int, struct __fontsurface *, FT_Bitmap *, PyColor *);
+
+    void (* render) (int, int, struct __fontsurface *, FT_Bitmap *, PyColor *);
+    void (* fill)   (int, int, int, int, struct __fontsurface *, PyColor *);
 
 } FontSurface;
 
@@ -221,6 +223,26 @@ FT_Fixed    PGFT_GetBoldStrength(FT_Face face);
 int         _PGFT_Render_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font, 
                 FontText *text, int font_size, PyColor *fg_color, 
                 FontSurface *surface, FontRenderMode *render);
+
+
+/******************************************************************* Render callbacks ****/
+
+void __fill_glyph_RGB1(int x, int y, int w, int h, FontSurface *surface, PyColor *color);
+void __fill_glyph_RGB2(int x, int y, int w, int h, FontSurface *surface, PyColor *color);
+void __fill_glyph_RGB3(int x, int y, int w, int h, FontSurface *surface, PyColor *color);
+void __fill_glyph_RGB4(int x, int y, int w, int h, FontSurface *surface, PyColor *color);
+
+void __render_glyph_MONO1(int x, int y, FontSurface *surface, FT_Bitmap *bitmap, PyColor *color);
+void __render_glyph_MONO2(int x, int y, FontSurface *surface, FT_Bitmap *bitmap, PyColor *color);
+void __render_glyph_MONO3(int x, int y, FontSurface *surface, FT_Bitmap *bitmap, PyColor *color);
+void __render_glyph_MONO4(int x, int y, FontSurface *surface, FT_Bitmap *bitmap, PyColor *color);
+
+void __render_glyph_RGB1(int x, int y, FontSurface *surface, FT_Bitmap *bitmap, PyColor *color);
+void __render_glyph_RGB2(int x, int y, FontSurface *surface, FT_Bitmap *bitmap, PyColor *color);
+void __render_glyph_RGB3(int x, int y, FontSurface *surface, FT_Bitmap *bitmap, PyColor *color);
+void __render_glyph_RGB4(int x, int y, FontSurface *surface, FT_Bitmap *bitmap, PyColor *color);
+
+void __render_glyph_ByteArray(int x, int y, FontSurface *surface, FT_Bitmap *bitmap, PyColor *color);
 
 
 /******************************************************************* Fake styles ****/

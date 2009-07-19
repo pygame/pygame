@@ -20,11 +20,9 @@ CRITICAL:
 * >8 bpp surfaces with palettes - it is supported (although it might be
   pointless) by SDL and so should we.
 
-* freetype: bgcolor with alpha transparency needs to be respected on rendering
 * freetype: render to buffer buffer support (like new bytearray, but
   write to a buffer instead)
-* freetype: support different rendering modes (antialiased, aliased, ...)?
-* freetype: add style support (bold, italic, underlined)
+* freetype: add style support (underlined)
 * freetype: correct error messages (e.g. on trying to scale pcf fonts)
 * freetype: brush up docs and examples
 * freetype: description/markup language for rendering text (like e.g. pango
