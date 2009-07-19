@@ -64,6 +64,7 @@
 <li><a href="color.html#Color.i1i2i3">Color.i1i2i3</a> - <font size=-1>Gets or sets the I1I2I3 representation of the Color.</font></li>
 <li><a href="color.html#Color.normalize">Color.normalize</a> - <font size=-1>Returns the normalized RGBA values of the Color.</font></li>
 <li><a href="color.html#Color.r">Color.r</a> - <font size=-1>Gets or sets the red value of the Color.</font></li>
+<li><a href="color.html#Color.set_length">Color.set_length</a> - <font size=-1>Set the number of elements in the Color to 1,2,3, or 4.</font></li>
 </ul>
 <li><a href="overlay.html#pygame.Overlay">pygame.Overlay</a> - <font size=-1>pygame object for video overlay graphics</font></li>
 <ul>
@@ -416,12 +417,15 @@
 <ul>
 <li><a href="midi.html#pygame.midi.Input">pygame.midi.Input</a> - <font size=-1>Input is used to get midi input from midi devices.</font></li>
 <ul>
+<li><a href="midi.html#Input.close">Input.close</a> - <font size=-1> closes a midi stream, flushing any pending buffers.</font></li>
 <li><a href="midi.html#Input.poll">Input.poll</a> - <font size=-1>returns true if there's data, or false if not.</font></li>
 <li><a href="midi.html#Input.read">Input.read</a> - <font size=-1>reads num_events midi events from the buffer.</font></li>
 </ul>
 <li><a href="midi.html#pygame.midi.MidiException">pygame.midi.MidiException</a> - <font size=-1>exception that pygame.midi functions and classes can raise</font></li>
 <li><a href="midi.html#pygame.midi.Output">pygame.midi.Output</a> - <font size=-1>Output is used to send midi to an output device</font></li>
 <ul>
+<li><a href="midi.html#Output.abort">Output.abort</a> - <font size=-1> terminates outgoing messages immediately</font></li>
+<li><a href="midi.html#Output.close">Output.close</a> - <font size=-1> closes a midi stream, flushing any pending buffers.</font></li>
 <li><a href="midi.html#Output.note_off">Output.note_off</a> - <font size=-1>turns a midi note off.  Note must be on.</font></li>
 <li><a href="midi.html#Output.note_on">Output.note_on</a> - <font size=-1>turns a midi note on.  Note must be off.</font></li>
 <li><a href="midi.html#Output.set_instrument">Output.set_instrument</a> - <font size=-1>select an instrument, with a value between 0 and 127</font></li>

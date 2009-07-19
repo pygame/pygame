@@ -70,11 +70,9 @@ CheckSDLVersions (void) /*compare compiled to linked*/
 
     if (compiled.major != linked->major || compiled.minor != linked->minor)
     {
-        char err[1024];
-        sprintf (err, "SDL compiled with version %d.%d.%d, linked to %d.%d.%d",
+		PyErr_Format(PyExc_RuntimeError, "SDL compiled with version %d.%d.%d, linked to %d.%d.%d",
                  compiled.major, compiled.minor, compiled.patch,
                  linked->major, linked->minor, linked->patch);
-        PyErr_SetString (PyExc_RuntimeError, err);
         return 0;
     }
     return 1;
@@ -99,20 +97,15 @@ PyGame_RegisterQuit (void(*func)(void))
 }
 
 static PyObject*
-register_quit (PyObject* self, PyObject* arg)
+register_quit (PyObject* self, PyObject* value)
 {
-    PyObject* quitfunc;
-
-    if (!PyArg_ParseTuple (arg, "O", &quitfunc))
-        return NULL;
-
     if (!quitfunctions)
     {
         quitfunctions = PyList_New (0);
         if (!quitfunctions)
             return NULL;
     }
-    PyList_Append (quitfunctions, quitfunc);
+    PyList_Append (quitfunctions, value);
 
     Py_RETURN_NONE;
 }
@@ -287,19 +280,18 @@ TwoIntsFromObj (PyObject* obj, int* val1, int* val2)
     return 1;
 }
 
-static int FloatFromObj (PyObject* obj, float* val)
+static int
+FloatFromObj (PyObject* obj, float* val)
 {
-    PyObject* floatobj;
+    float f= (float)PyFloat_AsDouble (obj);
 
-    if (PyNumber_Check (obj))
-    {
-        if (!(floatobj = PyNumber_Float (obj)))
-            return 0;
-        *val = (float) PyFloat_AsDouble (floatobj);
-        Py_DECREF (floatobj);
-        return 1;
-    }
-    return 0;
+    if (f==-1 && PyErr_Occurred()) {
+		PyErr_Clear ();
+        return 0;
+	}
+    
+    *val = f;
+    return 1;
 }
 
 static int
@@ -334,20 +326,20 @@ TwoFloatsFromObj (PyObject* obj, float* val1, float* val2)
 static int
 UintFromObj (PyObject* obj, Uint32* val)
 {
-    PyObject* intobj;
+    PyObject* longobj;
 
     if (PyNumber_Check (obj))
     {
-        if (!(intobj = PyNumber_Int (obj)))
+        if (!(longobj = PyNumber_Long (obj)))
             return 0;
-        *val = (Uint32) PyInt_AsLong (intobj);
-        Py_DECREF (intobj);
+        *val = (Uint32) PyLong_AsUnsignedLong (longobj);
+        Py_DECREF (longobj);
         return 1;
     }
     return 0;
 }
 
-static Uint32
+static int
 UintFromObjIndex (PyObject* obj, int _index, Uint32* val)
 {
     int result = 0;
@@ -595,7 +587,7 @@ static PyMethodDef _base_methods[] =
 {
     { "init", (PyCFunction) init, METH_NOARGS, DOC_PYGAMEINIT },
     { "quit", (PyCFunction) quit, METH_NOARGS, DOC_PYGAMEQUIT },
-    { "register_quit", register_quit, METH_VARARGS, DOC_PYGAMEREGISTERQUIT },
+    { "register_quit", register_quit, METH_O, DOC_PYGAMEREGISTERQUIT },
     { "get_error", (PyCFunction) get_error, METH_NOARGS, DOC_PYGAMEGETERROR },
     { "set_error", (PyCFunction) set_error, METH_VARARGS, DOC_PYGAMESETERROR },
     { "get_sdl_version", (PyCFunction) get_sdl_version, METH_NOARGS,

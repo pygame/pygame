@@ -32,6 +32,7 @@ typedef struct
     Uint8 g;
     Uint8 b;
     Uint8 a;
+    Uint8 len;
 } PyColor;
 
 typedef enum {
@@ -49,12 +50,15 @@ static tristate _hexcolor (PyObject *color, Uint8 rgba[]);
 static int _coerce_obj(PyObject *obj, Uint8 rgba[]);
 
 static PyColor* _color_new_internal (PyTypeObject *type, Uint8 rgba[]);
+static PyColor* _color_new_internal_length (PyTypeObject *type, Uint8 rgba[], Uint8 length);
+
 static PyObject* _color_new (PyTypeObject *type, PyObject *args,
     PyObject *kwds);
 static void _color_dealloc (PyColor *color);
 static PyObject* _color_repr (PyColor *color);
 static PyObject* _color_normalize (PyColor *color);
 static PyObject* _color_correct_gamma (PyColor *color, PyObject *args);
+static PyObject* _color_set_length (PyColor *color, PyObject *args);
 
 /* Getters/setters */
 static PyObject* _color_get_r (PyColor *color, void *closure);
@@ -96,12 +100,20 @@ static PyObject* _color_hex (PyColor *color);
 static Py_ssize_t _color_length (PyColor *color);
 static PyObject* _color_item (PyColor *color, Py_ssize_t _index);
 static int _color_ass_item (PyColor *color, Py_ssize_t _index, PyObject *value);
+static PyObject * _color_slice(register PyColor *a, 
+                               register Py_ssize_t ilow, 
+                               register Py_ssize_t ihigh);
+
+/* Mapping protocol methods. */
+static PyObject * _color_subscript(PyColor* self, PyObject* item);
+
 
 /* Comparison */
 static PyObject* _color_richcompare(PyObject *o1, PyObject *o2, int opid);
 
 /* C API interfaces */
 static PyObject* PyColor_New (Uint8 rgba[]);
+static PyObject* PyColor_NewLength (Uint8 rgba[], Uint8 length);
 static int RGBAFromColorObj (PyObject *color, Uint8 rgba[]);
 
 /**
@@ -113,6 +125,8 @@ static PyMethodDef _color_methods[] =
       DOC_COLORNORMALIZE },
     { "correct_gamma", (PyCFunction) _color_correct_gamma, METH_VARARGS,
       DOC_COLORCORRECTGAMMA },
+    { "set_length", (PyCFunction) _color_set_length, METH_VARARGS,
+      DOC_COLORSETLENGTH },
     { NULL, NULL, 0, NULL }
 };
 
@@ -199,13 +213,29 @@ static PySequenceMethods _color_as_sequence =
     NULL,                              /* sq_concat */
     NULL,                              /* sq_repeat */
     (ssizeargfunc) _color_item,        /* sq_item */
-    NULL,                              /* sq_slice */
+    (ssizessizeargfunc)_color_slice,    /* sq_slice */
     (ssizeobjargproc) _color_ass_item, /* sq_ass_item */
-    NULL,                              /* sq_ass_slice */
+    NULL, /* sq_ass_slice */
     NULL,                              /* sq_contains */
     NULL,                              /* sq_inplace_concat */
     NULL,                              /* sq_inplace_repeat */
 };
+
+
+
+static PyMappingMethods _color_as_mapping = {
+        (lenfunc) _color_length,
+        (binaryfunc)_color_subscript,
+        NULL
+};
+
+
+
+
+
+
+
+#define DEFERRED_ADDRESS(ADDR) 0
 
 static PyTypeObject PyColor_Type =
 {
@@ -221,7 +251,11 @@ static PyTypeObject PyColor_Type =
     (reprfunc) _color_repr,     /* tp_repr */
     &_color_as_number,          /* tp_as_number */
     &_color_as_sequence,        /* tp_as_sequence */
-    0,                          /* tp_as_mapping */
+#if PY_VERSION_HEX < 0x02050000
+    0,
+#else
+    &_color_as_mapping,          /* tp_as_mapping */
+#endif
     0,                          /* tp_hash */
     0,                          /* tp_call */
     0,                          /* tp_str */
@@ -535,6 +569,14 @@ _coerce_obj (PyObject *obj, Uint8 rgba[])
 static PyColor*
 _color_new_internal (PyTypeObject *type, Uint8 rgba[])
 {
+    /* default length of 4 - r,g,b,a. */
+    return _color_new_internal_length(type, rgba, 4);
+}
+
+
+static PyColor*
+_color_new_internal_length (PyTypeObject *type, Uint8 rgba[], Uint8 length)
+{
     PyColor *color = (PyColor *) type->tp_alloc (type, 0);
     if (!color)
         return NULL;
@@ -543,6 +585,7 @@ _color_new_internal (PyTypeObject *type, Uint8 rgba[])
     color->g = rgba[1];
     color->b = rgba[2];
     color->a = rgba[3];
+    color->len = length;
 
     return color;
 }
@@ -1409,10 +1452,10 @@ _color_coerce (PyObject **pv, PyObject **pw)
 static PyObject*
 _color_int (PyColor *color)
 {
-    unsigned long tmp = (color->r << 24) + (color->g << 16) + (color->b << 8) +
-        color->a;
+    Uint32 tmp = (color->r << 24) + (color->g << 16) + 
+                 (color->b << 8) + color->a;
 #if !PY3
-    if (tmp < INT_MAX)
+    if (tmp < LONG_MAX)
         return PyInt_FromLong ((long) tmp);
 #endif
     return PyLong_FromUnsignedLong (tmp);
@@ -1424,7 +1467,7 @@ _color_int (PyColor *color)
 static PyObject*
 _color_long (PyColor *color)
 {
-    unsigned long tmp = (color->r << 24) + (color->g << 16) + (color->b << 8) +
+    Uint32 tmp = (color->r << 24) + (color->g << 16) + (color->b << 8) +
         color->a;
     return PyLong_FromUnsignedLong (tmp);
 }
@@ -1435,7 +1478,7 @@ _color_long (PyColor *color)
 static PyObject*
 _color_float (PyColor *color)
 {
-    unsigned long tmp = (color->r << 24) + (color->g << 16) + (color->b << 8) +
+    Uint32 tmp = (color->r << 24) + (color->g << 16) + (color->b << 8) +
         color->a;
     return PyFloat_FromDouble ((double) tmp);
 }
@@ -1448,12 +1491,13 @@ static PyObject*
 _color_oct (PyColor *color)
 {
     char buf[100];
-    unsigned long tmp = (color->r << 24) + (color->g << 16) + (color->b << 8) +
+    Uint32 tmp = (color->r << 24) + (color->g << 16) + (color->b << 8) +
         color->a;
-    if (tmp < INT_MAX)
-        PyOS_snprintf (buf, sizeof (buf), "0%lo", tmp);
+
+    if (tmp < LONG_MAX)
+        PyOS_snprintf (buf, sizeof (buf), "0%lo", (unsigned long) tmp);
     else
-        PyOS_snprintf (buf, sizeof (buf), "0%loL", tmp);
+        PyOS_snprintf (buf, sizeof (buf), "0%loL", (unsigned long) tmp);
     return PyString_FromString (buf);
 }
 
@@ -1464,17 +1508,17 @@ static PyObject*
 _color_hex (PyColor *color)
 {
     char buf[100];
-    unsigned long tmp = (color->r << 24) + (color->g << 16) + (color->b << 8) +
+    Uint32 tmp = (color->r << 24) + (color->g << 16) + (color->b << 8) +
         color->a;
-    if (tmp < INT_MAX)
-        PyOS_snprintf (buf, sizeof (buf), "0x%lx", tmp);
+    if (tmp < LONG_MAX)
+        PyOS_snprintf (buf, sizeof (buf), "0x%lx", (unsigned long) tmp);
     else
     {
 #if PY_VERSION_HEX >= 0x02050000
-        PyOS_snprintf (buf, sizeof (buf), "0x%lxL", tmp);
+        PyOS_snprintf (buf, sizeof (buf), "0x%lxL", (unsigned long) tmp);
 #else
         /* <= 2.4 uses capitalised hex chars. */
-        PyOS_snprintf (buf, sizeof (buf), "0x%lXL", tmp);
+        PyOS_snprintf (buf, sizeof (buf), "0x%lXL", (unsigned long) tmp);
 #endif
     }
     return Text_FromUTF8 (buf);
@@ -1489,8 +1533,32 @@ _color_hex (PyColor *color)
 static Py_ssize_t
 _color_length (PyColor *color)
 {
-    return 4;
+    return color->len;
 }
+
+/**
+ * color.set_length(3)
+ */
+
+static PyObject*
+_color_set_length (PyColor *color, PyObject *args)
+{
+    Py_ssize_t clength;
+
+    if (!PyArg_ParseTuple (args, "k", &clength))
+        return NULL;
+
+    if (clength > 4 || clength < 1) {
+        return RAISE (PyExc_ValueError, "Length needs to be 1,2,3, or 4.");
+    }
+
+    color->len = clength;
+
+    Py_RETURN_NONE;
+}
+
+
+
 
 /**
  * color[x]
@@ -1498,6 +1566,11 @@ _color_length (PyColor *color)
 static PyObject*
 _color_item (PyColor *color, Py_ssize_t _index)
 {
+
+    if((_index > (color->len-1)) ) {
+        return RAISE (PyExc_IndexError, "invalid index");
+    }
+
     switch (_index)
     {
     case 0:
@@ -1513,12 +1586,70 @@ _color_item (PyColor *color, Py_ssize_t _index)
     }
 }
 
+
+
+
+
+
+
+static PyObject * _color_subscript(PyColor* self, PyObject* item) {
+
+
+#if PY_VERSION_HEX < 0x02050000
+    if (PyInt_Check(item)) {
+        Py_ssize_t i;
+        i = 0;
+#else
+    if (PyIndex_Check(item)) {
+        Py_ssize_t i;
+        i = PyNumber_AsSsize_t(item, PyExc_IndexError);
+#endif
+
+        if (i == -1 && PyErr_Occurred())
+            return NULL;
+        /*
+        if (i < 0)
+            i += PyList_GET_SIZE(self);
+        */
+        return _color_item(self, i);
+    }
+    if (PySlice_Check(item)) {
+        int len= 4;
+        Py_ssize_t start, stop, step, slicelength;
+
+        if (PySlice_GetIndicesEx((PySliceObject*)item, len, &start, &stop, &step, &slicelength) < 0)
+            return NULL;
+
+        if (slicelength <= 0) {
+            return PyTuple_New(0);
+        }
+        else if (step == 1) {
+            return _color_slice(self, start, stop);
+        }
+        else {
+            PyErr_SetString(PyExc_TypeError, "slice steps not supported");
+            return NULL;
+        }
+    }
+    else {
+        PyErr_Format(PyExc_TypeError,
+                     "Color indices must be integers, not %.200s",
+                     item->ob_type->tp_name);
+        return NULL;
+    }
+}
+
+
+
+
+
 /**
  * color[x] = y
  */
 static int
 _color_ass_item (PyColor *color, Py_ssize_t _index, PyObject *value)
 {
+
     switch (_index)
     {
     case 0:
@@ -1535,6 +1666,71 @@ _color_ass_item (PyColor *color, Py_ssize_t _index, PyObject *value)
     }
     return -1;
 }
+
+
+
+static PyObject *
+_color_slice(register PyColor *a, 
+             register Py_ssize_t ilow, 
+             register Py_ssize_t ihigh)
+{
+
+        Py_ssize_t len;
+        Py_ssize_t c1, c2, c3, c4;
+        c1=0;c2=0;c3=0;c4=0;
+
+        /* printf("ilow :%d:, ihigh:%d:\n", ilow, ihigh); */
+
+        if (ilow < 0)
+                ilow = 0;
+        if (ihigh > 3)
+                ihigh = 4;
+        if (ihigh < ilow)
+                ihigh = ilow;
+
+        len = ihigh - ilow;
+        /* printf("2 ilow :%d:, ihigh:%d: len:%d:\n", ilow, ihigh, len); */
+        
+        if(ilow == 0) {
+            c1 = a->r;
+            c2 = a->g;
+            c3 = a->b;
+            c4 = a->a;
+        } else if(ilow == 1) {
+            c1 = a->g;
+            c2 = a->b;
+            c3 = a->a;
+
+        } else if(ilow == 2) {
+            c1 = a->b;
+            c2 = a->a;
+
+        } else if(ilow == 3) {
+            c1 = a->a;
+        }
+
+
+
+        /* return a tuple depending on which elements are wanted.  */
+        if(len == 4) {
+            return Py_BuildValue ("(iiii)",c1,c2,c3,c4);
+        } else if(len == 3) {
+            return Py_BuildValue ("(iii)",c1,c2,c3);
+        } else if(len == 2) {
+            return Py_BuildValue ("(ii)",c1,c2);
+        } else if(len == 1) {
+            return Py_BuildValue ("(i)",c1);
+        } else {
+            return Py_BuildValue ("()");
+        }
+}
+
+
+
+
+
+
+
 
 /*
  * colorA == colorB
@@ -1585,6 +1781,19 @@ PyColor_New (Uint8 rgba[])
 {
     return (PyObject *) _color_new_internal (&PyColor_Type, rgba);
 }
+
+static PyObject*
+PyColor_NewLength (Uint8 rgba[], Uint8 length)
+{
+    if(length < 1 || length > 4) {
+        return NULL;
+    }
+
+    return (PyObject *) _color_new_internal_length (&PyColor_Type, rgba, length);
+}
+
+
+
 
 static int
 RGBAFromColorObj (PyObject *color, Uint8 rgba[])
@@ -1680,6 +1889,7 @@ MODINIT_DEFINE (color)
     c_api[0] = &PyColor_Type;
     c_api[1] = PyColor_New;
     c_api[2] = RGBAFromColorObj;
+    c_api[3] = PyColor_NewLength;
 
     apiobj = PyCObject_FromVoidPtr (c_api, NULL);
     if (apiobj == NULL) {

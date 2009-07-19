@@ -52,7 +52,7 @@ static PyObject* _scrap_lost_scrap (PyObject* self, PyObject* args);
 static PyObject* _scrap_set_mode (PyObject* self, PyObject* args);
 
 /* Determine what type of clipboard we are using */
-#if defined(__unix__) && !defined(DISABLE_X11)
+#if defined(__unix__) && defined(SDL_VIDEO_DRIVER_X11)
 /*!defined(__QNXNTO__) &&*/
     #define X11_SCRAP
     #include <time.h> /* Needed for clipboard timeouts. */

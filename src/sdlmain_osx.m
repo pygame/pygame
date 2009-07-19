@@ -20,6 +20,7 @@
 /* Mac OS X functions to accommodate the fact SDLMain.m is not included */
 
 #include "pygame.h"
+
 #include <Carbon/Carbon.h>
 #include <Foundation/Foundation.h>
 #include <AppKit/NSApplication.h>
@@ -28,6 +29,8 @@
 #include <AppKit/NSEvent.h>
 #include <Foundation/NSData.h>
 #include <AppKit/NSImage.h>
+
+#include "pgcompat.h"
 
 struct CPSProcessSerNum
 {
@@ -240,14 +243,39 @@ static PyMethodDef macosx_builtins[] =
     { NULL, NULL, 0, NULL}
 };
 
-PYGAME_EXPORT
-void initsdlmain_osx (void)
+
+
+MODINIT_DEFINE (sdlmain_osx)
 {
-    PyObject *mod;
+    PyObject *module;
 
     /* create the module */
-    mod = Py_InitModule3 ("sdlmain_osx", macosx_builtins, NULL);
+
+#if PY3
+    static struct PyModuleDef _module = {
+        PyModuleDef_HEAD_INIT,
+        MODPREFIX "sdlmain_osx",
+        NULL,
+        -1,
+        macosx_builtins,
+        NULL, NULL, NULL, NULL
+    };
+#endif
+
+
+#if PY3
+    module = PyModule_Create (&_module);
+#else
+    module = Py_InitModule3 (MODPREFIX "sdlmain_osx", macosx_builtins, NULL);
+#endif
+
 
     /*imported needed apis*/
     import_pygame_base ();
+    if (PyErr_Occurred ()) {
+        MODINIT_ERROR;
+    }
+
+
+    MODINIT_RETURN (module);
 }

@@ -194,8 +194,10 @@ def warn_unwanted_files():
             warnings.warn(message, RuntimeWarning, level)
         except ImportError:
             print (message)
-        
-warn_unwanted_files()
+
+
+# disable, because we hopefully don't need it.
+#warn_unwanted_files()
 
 
 
@@ -288,6 +290,18 @@ def __rect_reduce(r):
 	assert type(r) == Rect
 	return __rect_constructor, (r.x, r.y, r.w, r.h)
 copy_reg.pickle(Rect, __rect_reduce, __rect_constructor)
+
+
+#make Colors pickleable
+def __color_constructor(r,g,b,a):
+        return Color(r,g,b,a)
+def __color_reduce(c):
+        assert type(c) == Color
+        return __color_constructor, (c.r, c.g, c.b, c.a)
+copy_reg.pickle(Color, __color_reduce, __color_constructor)
+
+
+
 
 #cleanup namespace
 del pygame, os, sys, rwobject, surflock, MissingModule, copy_reg, geterror

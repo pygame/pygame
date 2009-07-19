@@ -67,11 +67,12 @@
   <tr><td><a href="color.html#Color.i1i2i3">Color.i1i2i3</a> - <font size=-1>Gets or sets the I1I2I3 representation of the Color.</font></td><td>Gets or sets the I1I2I3 representation of the Color.</td></tr>
   <tr><td><a href="color.html#Color.normalize">Color.normalize</a> - <font size=-1>Returns the normalized RGBA values of the Color.</font></td><td>Returns the normalized RGBA values of the Color.</td></tr>
   <tr><td><a href="color.html#Color.correct_gamma">Color.correct_gamma</a> - <font size=-1>Applies a certain gamma value to the Color.</font></td><td>Applies a certain gamma value to the Color.</td></tr>
+  <tr><td><a href="color.html#Color.set_length">Color.set_length</a> - <font size=-1>Set the number of elements in the Color to 1,2,3, or 4.</font></td><td>Set the number of elements in the Color to 1,2,3, or 4.</td></tr>
 </table></small></ul>
 <p>The Color class represents <tt>RGBA</tt> color values using a value range of 0-255. It allows basic arithmetic operations to create new colors, supports conversions to other color spaces such as <tt>HSV</tt> or <tt>HSL</tt> and lets you adjust single color channels. Alpha defaults to 255 when not given. </p>
 <p>'rgbvalue' can be either a color name, an <tt>HTML</tt> color format string, a hex number string, or an integer pixel value. The <tt>HTML</tt> format is '#rrggbbaa', where rr, gg, bb, and aa are 2 digit hex numbers. The alpha aa is optional. <tt>A</tt> hex number string has the form '0xrrggbbaa', where aa is optional. </p>
-<p>Color objects support equality comparison with other color objects and 3 or 4 element tuples of integers (New in <tt>1.9.0)</tt>. </p>
-<p>New in pygame <tt>1.8.1</tt>. </p>
+<p>Color objects support equality comparison with other color objects and 3 or 4 element tuples of integers (New in <tt>1.9.0)</tt>. There was a bug in pygame <tt>1.8.1</tt> where the default alpha was 0, not 255 like previously. </p>
+<p>New implementation of Color was done in pygame <tt>1.8.1</tt>. </p>
 <!--COMMENTS:pygame.Color--> &nbsp;<br> 
 
 
@@ -162,6 +163,16 @@
   <tt>Color.correct_gamma (gamma): Return Color</tt><br>
 <p>Applies a certain gamma value to the Color and returns a new Color with the adjusted <tt>RGBA</tt> values. </p>
 <!--COMMENTS:Color.correct_gamma--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="Color.set_length">
+<big><b>Color.set_length</big></b><br><ul>
+  <i>Set the number of elements in the Color to 1,2,3, or 4.</i><br>
+  <tt>Color.set_length(len)</tt><br>
+<p>The default Color length is 4. Colors can have lengths 1,2,3 or 4. This is useful if you want to unpack to r,g,b and not r,g,b,a. If you want to get the length of a Color do len(acolor). </p>
+<p>New in pygame <tt>1.9.0</tt>. </p>
+<!--COMMENTS:Color.set_length--> &nbsp;<br> 
 <br></ul>
 <br></ul>
 

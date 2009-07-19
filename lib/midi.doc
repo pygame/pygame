@@ -10,7 +10,7 @@ It uses the portmidi library.  Is portable to which ever platforms
 portmidi supports (currently windows, OSX, and linux).
 
 This uses pyportmidi for now, but may use its own bindings at some
-point in the future.
+point in the future.  The pyportmidi bindings are included with pygame.
 
 New in pygame 1.9.0.
 
@@ -26,6 +26,16 @@ Input(device_id, buffer_size)
 buffer_size -the number of input events to be buffered waiting to 
   be read using Input.read() 
 <SECTION>
+
+
+
+close
+ closes a midi stream, flushing any pending buffers.
+Input.close(): return None
+
+PortMidi attempts to close open streams when the application
+exits -- this is particularly difficult under Windows.
+<END>
 
 
 
@@ -83,6 +93,29 @@ along to the device driver or hardware. Latency may also help you
 to synchronize midi data to audio data by matching midi latency to 
 the audio buffer latency.
 <SECTION>
+
+
+
+abort
+ terminates outgoing messages immediately
+Output.abort(): return None
+
+The caller should immediately close the output port;
+this call may result in transmission of a partial midi message.
+There is no abort for Midi input because the user can simply
+ignore messages in the buffer and close an input device at
+any time.
+<END>
+
+
+
+close
+ closes a midi stream, flushing any pending buffers.
+Output.close(): return None
+
+PortMidi attempts to close open streams when the application
+exits -- this is particularly difficult under Windows.
+<END>
 
 
 

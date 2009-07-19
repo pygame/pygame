@@ -19,6 +19,21 @@ def geterror ():
     return sys.exc_info()[1]
 
 if subprocess.mswindows:
+    if sys.version_info >= (3,):
+        # Test date should be in ascii.
+        def encode(s):
+            return s.encode('ascii')
+        
+        def decode(b):
+            return b.decode('ascii')
+    else:
+        # Strings only; do nothing
+        def encode(s):
+            return s
+        
+        def decode(b):
+            return b
+        
     try:
         import ctypes
         from ctypes.wintypes import DWORD
@@ -26,14 +41,14 @@ if subprocess.mswindows:
         TerminateProcess = ctypes.windll.kernel32.TerminateProcess
         def WriteFile(handle, data, ol = None):
             c_written = DWORD()
-            success = ctypes.windll.kernel32.WriteFile(handle, ctypes.create_string_buffer(data), len(data), ctypes.byref(c_written), ol)
+            success = ctypes.windll.kernel32.WriteFile(handle, ctypes.create_string_buffer(encode(data)), len(data), ctypes.byref(c_written), ol)
             return ctypes.windll.kernel32.GetLastError(), c_written.value
         def ReadFile(handle, desired_bytes, ol = None):
             c_read = DWORD()
             buffer = ctypes.create_string_buffer(desired_bytes+1)
             success = ctypes.windll.kernel32.ReadFile(handle, buffer, desired_bytes, ctypes.byref(c_read), ol)
             buffer[c_read.value] = '\0'
-            return ctypes.windll.kernel32.GetLastError(), buffer.value
+            return ctypes.windll.kernel32.GetLastError(), decode(buffer.value)
         def PeekNamedPipe(handle, desired_bytes):
             c_avail = DWORD()
             c_message = DWORD()
@@ -42,7 +57,7 @@ if subprocess.mswindows:
                 buffer = ctypes.create_string_buffer(desired_bytes+1)
                 success = ctypes.windll.kernel32.PeekNamedPipe(handle, buffer, desired_bytes, ctypes.byref(c_read), ctypes.byref(c_avail), ctypes.byref(c_message))
                 buffer[c_read.value] = '\0'
-                return buffer.value, c_avail.value, c_message.value
+                return decode(buffer.value), c_avail.value, c_message.value
             else:
                 success = ctypes.windll.kernel32.PeekNamedPipe(handle, None, desired_bytes, None, ctypes.byref(c_avail), ctypes.byref(c_message))
                 return "", c_avail.value, c_message.value
@@ -161,7 +176,6 @@ class Popen(subprocess.Popen):
             if self.universal_newlines:
                 # Translate newlines. For Python 3.x assume read is text.
                 # If bytes then another solution is needed.
-##                read = self._translate_newlines(read)
                 read = read.replace("\r\n", "\n").replace("\r", "\n")
             return read
 

@@ -1538,6 +1538,7 @@ MODINIT_DEFINE (mask)
         MODINIT_ERROR;
     }
     if (PyModule_AddObject (module, PYGAMEAPI_LOCAL_ENTRY, apiobj) == -1) {
+        Py_DECREF (apiobj);
         DECREF_MOD (module);
         MODINIT_ERROR;
     }

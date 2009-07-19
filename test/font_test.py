@@ -40,11 +40,30 @@ class FontModuleTest( unittest.TestCase ):
     def test_get_default_font(self):
         self.failUnlessEqual(pygame.font.get_default_font(), 'freesansbold.ttf')
 
-    def test_get_fonts(self):
+    def test_get_fonts_returns_something(self):
         fnts = pygame.font.get_fonts()
         self.failUnless(fnts)
+
+
+    def test_get_fonts(self):
+        fnts = pygame.font.get_fonts()
+        
+        if not fnts:
+            raise Exception(repr(fnts))
+
+        self.failUnless(fnts)
+
+        # strange python 2.x bug... if you assign to unicode, 
+        #   all sorts of weirdness happens.
+        if sys.version_info <= (3, 0, 0):
+            unicod = unicode
+        else:
+            unicod = str
+
         for name in fnts:
-            self.failUnless(isinstance(name, str))
+            # note, on ubuntu 2.6 they are all unicode strings.
+
+            self.failUnless(isinstance(name, (str, unicod)))
             self.failUnless(name.islower(), name)
             self.failUnless(name.isalnum(), name)
 
@@ -56,7 +75,7 @@ class FontModuleTest( unittest.TestCase ):
     def test_init(self):
         pygame.font.init()
 
-    def test_match_font(self):
+    def test_match_font_all_exist(self):
         fonts = pygame.font.get_fonts()
 
         # Ensure all listed fonts are in fact available, and the returned file
@@ -66,6 +85,10 @@ class FontModuleTest( unittest.TestCase ):
             self.failIf(path is None)
             self.failUnless(os.path.isabs(path))
 
+    def test_match_font_bold(self):
+
+        fonts = pygame.font.get_fonts()
+ 
         # Look for a bold font.
         for font in fonts:
             if pygame.font.match_font(font, bold=True) is not None:
@@ -73,12 +96,21 @@ class FontModuleTest( unittest.TestCase ):
         else:
             self.fail()
 
+    def test_match_font_italic(self):
+
+        fonts = pygame.font.get_fonts()
+
         # Look for an italic font.
         for font in fonts:
             if pygame.font.match_font(font, italic=True) is not None:
                 break
         else:
             self.fail()
+
+
+    def test_match_font_comma_separated(self):
+
+        fonts = pygame.font.get_fonts()
 
         # Check for not found.
         self.failUnless(pygame.font.match_font('thisisnotafont') is None)
@@ -88,6 +120,8 @@ class FontModuleTest( unittest.TestCase ):
         self.failIf(pygame.font.match_font(names) is None)
         names = ','.join(['thisisnotafont1', 'thisisnotafont2', 'thisisnotafont3'])
         self.failUnless(pygame.font.match_font(names) is None)
+
+
 
     def test_quit(self):
         pygame.font.quit()

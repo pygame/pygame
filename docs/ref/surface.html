@@ -109,9 +109,8 @@
   SRCALPHA, the pixel format will include a per-pixel alpha
 </pre><p>Both flags are only a request, and may not be possible for all displays and formats. </p>
 <p>Advance users can combine a set of bitmasks with a depth value. The masks are a set of 4 integers representing which bits in a pixel will represent each color. Normal Surfaces should not require the masks argument. </p>
-<p>Surfaces can have many extra attributes like alpha planes, colorkeys, source rectangle clipping. These functions mainly effect how the Surface is blitted to other Surfaces. The blit routines will attempt to use hardware acceleratio </p>
-<pre> when possible, otherwise will use highly optimized software blitting methods.
-</pre><p>There are three types of transparency supported in Pygame: colorkeys, surface alphas, and pixel alphas. Surface alphas can be mixed with colorkeys, but an image with per pixel alphas cannot use the other modes. Colorkey transparency makes a single color value transparent. Any pixels matching the colorkey will not be drawn. The surface alpha value is a single value that changes the transparency for the entire image. <tt>A</tt> surface alpha of 255 is opaque, and a value of 0 is completely transparent. </p>
+<p>Surfaces can have many extra attributes like alpha planes, colorkeys, source rectangle clipping. These functions mainly effect how the Surface is blitted to other Surfaces. The blit routines will attempt to use hardware acceleration when possible, otherwise they will use highly optimized software blitting methods. </p>
+<p>There are three types of transparency supported in Pygame: colorkeys, surface alphas, and pixel alphas. Surface alphas can be mixed with colorkeys, but an image with per pixel alphas cannot use the other modes. Colorkey transparency makes a single color value transparent. Any pixels matching the colorkey will not be drawn. The surface alpha value is a single value that changes the transparency for the entire image. <tt>A</tt> surface alpha of 255 is opaque, and a value of 0 is completely transparent. </p>
 <p>Per pixel alphas are different because they store a transparency value for every pixel. This allows for the most precise transparency effects, but it also the slowest. Per pixel alphas cannot be mixed with surface alpha and colorkeys. </p>
 <p>There is support for pixel access for the Surfaces. Pixel access on hardware surfaces is slow and not recommended. Pixels can be accessed using the get_at() and set_at() functions. These methods are fine for simple access, but will be considerably slow when doing of pixel work with them. If you plan on doing a lot of pixel level work, it is recommended to use the <tt>pygame.surfarray</tt> module, which can treat the surfaces like large multidimensional arrays (and it's quite quick). </p>
 <p>Any functions that directly access a surface's pixel data will need that surface to be lock()'ed. These functions can lock() and unlock() the surfaces themselves without assistance. But, if a function will be called many times, there will be a lot of overhead for multiple locking and unlocking of the surface. It is best to lock the surface manually before making the function call many times, and then unlocking when you are finished. All functions that need a locked surface will say so in their docs. Remember to leave the Surface locked only while necessary. </p>
@@ -289,9 +288,10 @@
 <big><b>Surface.get_at</big></b><br><ul>
   <i>get the color value at a single pixel</i><br>
   <tt>Surface.get_at((x, y)): return Color</tt><br>
-<p>Return the <tt>RGBA</tt> color value at the given pixel. If the Surface has no per pixel alpha, then the alpha value will always be 255 (opaque). If the pixel position is outside the area of the Surface an IndexError exception will be raised. </p>
-<p>Getting and setting pixels one at a time is generally too slow to be used in a game or realtime situation. </p>
+<p>Return a copy of the <tt>RGBA</tt> Color value at the given pixel. If the Surface has no per pixel alpha, then the alpha value will always be 255 (opaque). If the pixel position is outside the area of the Surface an IndexError exception will be raised. </p>
+<p>Getting and setting pixels one at a time is generally too slow to be used in a game or realtime situation. It is better to use methods which operate on many pixels at a time like with the blit, fill and draw methods - or by using surfarray/PixelArray. </p>
 <p>This function will temporarily lock and unlock the Surface as needed. </p>
+<p>Returning a Color instead of tuple, New in pygame <tt>1.9.0</tt>. Use <tt>tuple(surf.get_at((x,y)))</tt> if you want a tuple, and not a Color. This should only matter if you want to use the color as a key in a dict. </p>
 <!--COMMENTS:Surface.get_at--> &nbsp;<br> 
 <br></ul>
 
@@ -312,6 +312,7 @@
   <i>get the color index palette for an 8bit Surface</i><br>
   <tt>Surface.get_palette(): return [RGB, RGB, RGB, ...]</tt><br>
 <p>Return a list of up to 256 color elements that represent the indexed colors used in an 8bit Surface. The returned list is a copy of the palette, and changes will have no effect on the Surface. </p>
+<p>Returning a list of Color(with length 3) instances instead of tuples, New in pygame <tt>1.9.0</tt> </p>
 <!--COMMENTS:Surface.get_palette--> &nbsp;<br> 
 <br></ul>
 
@@ -321,6 +322,7 @@
   <i>get the color for a single entry in a palette</i><br>
   <tt>Surface.get_palette_at(index): return RGB</tt><br>
 <p>Returns the red, green, and blue color values for a single index in a Surface palette. The index should be a value from 0 to 255. </p>
+<p>Returning Color(with length 3) instance instead of a tuple, New in pygame <tt>1.9.0</tt> </p>
 <!--COMMENTS:Surface.get_palette_at--> &nbsp;<br> 
 <br></ul>
 

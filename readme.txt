@@ -1,9 +1,9 @@
 
    Pygame Readme
-   Version 1.9.0pre Python Game Development
+   Version 1.9.0rc3 Python Game Development
    Originally by Pete Shinners, now an open source community project.
    http://www.pygame.org
-   pete@shinners.org
+   pygame@seul.org
 
    About
 
@@ -52,7 +52,7 @@
 
      Marcus Von Appen - many changes, and fixes, 1.7.1+ freebsd maintainer.
 
-     Lenard Lindstrom - the 1.8+ windows maintainer.
+     Lenard Lindstrom - the 1.8+ windows maintainer, many changes, and fixes.
      
      Brian Fisher - for svn auto builder, bug tracker and many contributions.
 
@@ -97,7 +97,9 @@
    Spiller, Bo Jangeborg, Dmitry Borisov, Campbell Barton, Diego Essaya,
    Eyal Lotem, Regis Desgroppes, Emmanuel Hainry, Randy Kaelber
    Matthew L Daniel, Nirav Patel, Forrest Voight, Charlie Nolan, 
-   Frankie Robertson, John Krukoff, Lorenz Quack, Nick Irvine
+   Frankie Robertson, John Krukoff, Lorenz Quack, Nick Irvine,
+   Michael George, Saul Spatz, Thomas Ibbotson, Tom Rothamel, Evan Kroske,
+   Cambell Barton.
 
      And our bug hunters above and beyond: Angus, Guillaume Proux, Frank
    Raiser, Austin Henry, Kaweh Kazemi, Arturo Aldama, Mike Mulcheck, 
@@ -112,8 +114,12 @@
    Also many thanks for people creating games and putting them on the 
    pygame.org website for others to learn from and enjoy.
 
+   Lots of thanks to James Paige for hosting the pygame bugzilla.
+
    Also a big thanks to Roger Dingledine and the crew at SEUL.ORG for our
    excellent hosting.
+
+
 
    Dependencies
 
@@ -127,18 +133,7 @@
      Numeric package for its multidimensional numeric arrays.
 
    Todo / Ideas (feel free to submit)
-     * transform.skew() function
-     * transform.scroll() function
-     * image filtering (colors,blurs,etc)
-     * quake-like console with python interpreter
-     * game lobby. client, simple server, and protocol
-     * surfarrays should be able to do RGBA along with RGB
-     * draw with transparancy
-     * draw large sets of primitives with a single call
-     * drawing offsets, perhaps as subsurfaces
-     * new scale2x, scale3x, and scale4x from hiend3d
-     * switch Numeric to numarray (see docs on how to do both)
-     * audio resampling
+       http://www.pygame.org/wiki/todo/
 
    License
 

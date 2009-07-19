@@ -97,7 +97,7 @@
 <p>The coordinates for Rect objects are all integers. The size values can be programmed to have negative values, but these are considered illegal Rects for most operations. </p>
 <p>There are several collision tests between other rectangles. Most python containers can be searched for collisions against a single Rect. </p>
 <p>The area covered by a Rect does not include the right- and bottom-most edge of pixels. If one Rect's bottom border is another Rect's top border <tt>(i.e.</tt>, <tt>rect1.bottom=rect2.top)</tt>, the two meet exactly on the screen but do not overlap, and <tt>rect1.colliderect(rect2)</tt> returns false. </p>
-<p>Though Rect can be subclassed, methods that return new rectangles are not subclass aware. That is, move or copy with return a new <tt>pygame.Rect</tt> instance, not an instance of the subclass. This may change. To make subclass awareness work though, subclasses may have to maintain the same constructor signature as Rect. </p>
+<p>Though Rect can be subclassed, methods that return new rectangles are not subclass aware. That is, move or copy return a new <tt>pygame.Rect</tt> instance, not an instance of the subclass. This may change. To make subclass awareness work though, subclasses may have to maintain the same constructor signature as Rect. </p>
 <!--COMMENTS:pygame.Rect--> &nbsp;<br> 
 
 

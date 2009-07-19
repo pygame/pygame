@@ -639,13 +639,16 @@ typedef struct
 /* Color */
 #define PYGAMEAPI_COLOR_FIRSTSLOT                                       \
     (PYGAMEAPI_PIXELARRAY_FIRSTSLOT + PYGAMEAPI_PIXELARRAY_NUMSLOTS)
-#define PYGAMEAPI_COLOR_NUMSLOTS 3
+#define PYGAMEAPI_COLOR_NUMSLOTS 4
 #ifndef PYGAMEAPI_COLOR_INTERNAL
 #define PyColor_Check(x)                                                \
     ((x)->ob_type == (PyTypeObject*)                                    \
         PyGAME_C_API[PYGAMEAPI_COLOR_FIRSTSLOT + 0])
 #define PyColor_New                                                     \
-    (*(PyObject*(*)) PyGAME_C_API[PYGAMEAPI_COLOR_FIRSTSLOT + 1])
+    (*(PyObject *(*)(Uint8*)) PyGAME_C_API[PYGAMEAPI_COLOR_FIRSTSLOT + 1])
+#define PyColor_NewLength                                               \
+    (*(PyObject *(*)(Uint8*, Uint8)) PyGAME_C_API[PYGAMEAPI_COLOR_FIRSTSLOT + 3])
+
 #define RGBAFromColorObj                                                \
     (*(int(*)(PyObject*, Uint8*)) PyGAME_C_API[PYGAMEAPI_COLOR_FIRSTSLOT + 2])
 #define import_pygame_color()                                           \

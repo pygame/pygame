@@ -28,8 +28,9 @@ each color. Normal Surfaces should not require the masks argument.
 
 Surfaces can have many extra attributes like alpha planes, colorkeys, source
 rectangle clipping. These functions mainly effect how the Surface is blitted
-to other Surfaces. The blit routines will attempt to use hardware acceleratio
- when possible, otherwise will use highly optimized software blitting methods.
+to other Surfaces. The blit routines will attempt to use hardware acceleration
+when possible, otherwise they will use highly optimized software blitting
+methods.
 
 There are three types of transparency supported in Pygame: colorkeys, 
 surface alphas, and pixel alphas. Surface alphas can be mixed with colorkeys,
@@ -348,15 +349,21 @@ get_at
 get the color value at a single pixel
 Surface.get_at((x, y)): return Color
 
-Return the RGBA color value at the given pixel. If the Surface has no per
-pixel alpha, then the alpha value will always be 255 (opaque). If the pixel
-position is outside the area of the Surface an IndexError exception will
-be raised.
+Return a copy of the RGBA Color value at the given pixel. If the Surface has 
+no per pixel alpha, then the alpha value will always be 255 (opaque). 
+If the pixel position is outside the area of the Surface an IndexError 
+exception will be raised.
 
 Getting and setting pixels one at a time is generally too slow to be used
-in a game or realtime situation.
+in a game or realtime situation.  It is better to use methods which operate 
+on many pixels at a time like with the blit, fill and draw methods - 
+or by using surfarray/PixelArray.
 
 This function will temporarily lock and unlock the Surface as needed.
+
+Returning a Color instead of tuple, New in pygame 1.9.0.
+Use tuple(surf.get_at((x,y))) if you want a tuple, and not a Color.
+This should only matter if you want to use the color as a key in a dict.
 <END>
 
 
@@ -384,6 +391,8 @@ Surface.get_palette(): return [RGB, RGB, RGB, ...]
 Return a list of up to 256 color elements that represent the indexed colors
 used in an 8bit Surface. The returned list is a copy of the palette, and 
 changes will have no effect on the Surface.
+
+Returning a list of Color(with length 3) instances instead of tuples, New in pygame 1.9.0
 <END>
 
 
@@ -394,6 +403,8 @@ Surface.get_palette_at(index): return RGB
 
 Returns the red, green, and blue color values for a single index in a Surface
 palette. The index should be a value from 0 to 255.
+
+Returning Color(with length 3) instance instead of a tuple, New in pygame 1.9.0
 <END>
 
 

@@ -81,6 +81,7 @@
 <p><tt>EXPERIMENTAL!:</tt> meaning this api may change, or dissapear in later pygame releases. If you use this, your code will break with the next pygame release. </p>
 <p>Most of the functions accept a color argument that is an <tt>RGB</tt> triplet. These can also accept an <tt>RGBA</tt> quadruplet. The color argument can also be an integer pixel value that is already mapped to the Surface's pixel format. </p>
 <p>For all functions the arguments are strictly positional. Only integers are accepted for coordinates and radii. </p>
+<p>For functions like rectangle that accept a rect argument any (x, y, w, h) sequence is accepted, though <tt>pygame.Rect</tt> instances are prefered. Note that for a <tt>pygame.Rect</tt> the drawing will not include <tt>Rect.bottomright</tt>. The right and bottom attributes of a Rect lie one pixel outside of the Rect's boarder. </p>
 <p>New in pygame <tt>1.9.0</tt>. </p>
 <!--COMMENTS:pygame.gfxdraw--> &nbsp;<br> 
 
@@ -269,7 +270,7 @@
 <big><b>pygame.gfxdraw.textured_polygon</big></b><br><ul>
   <i>draw a textured polygon</i><br>
   <tt>pgyame.gfxdraw.textured_polygon(surface, points, texture, tx, ty): return None</tt><br>
- &nbsp;<br> 
+<p><tt>A</tt> per-pixel alpha texture blit to a per-pixel alpha surface will differ from a <tt><a href="surface.html#Surface.blit">Surface.blit</a> - <font size=-1>draw one image onto another</font></tt> blit. Also, a per-pixel alpha texture cannot be used with an 8-bit per pixel destination. </p>
 <!--COMMENTS:pygame.gfxdraw.textured_polygon--> &nbsp;<br> 
 <br></ul>
 

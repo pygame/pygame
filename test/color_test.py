@@ -217,6 +217,75 @@ class ColorTypeTest (unittest.TestCase):
     def test_ignore_whitespace(self):
         self.assertEquals(pygame.color.Color('red'), pygame.color.Color(' r e d '))
 
+    def test_slice(self):
+        #"""|tags: python3_ignore|"""
+
+        # slicing a color gives you back a tuple.
+        # do all sorts of slice combinations.
+        c = pygame.Color(1,2,3,4)
+        
+        self.assertEquals((1,2,3,4), c[:])
+        self.assertEquals((1,2,3), c[:-1])
+        
+        self.assertEquals((), c[:-5])
+        
+        self.assertEquals((1,2,3,4), c[:4])
+        self.assertEquals((1,2,3,4), c[:5])
+        self.assertEquals((1,2), c[:2])
+        self.assertEquals((1,), c[:1])
+        self.assertEquals((), c[:0])
+        
+        
+        self.assertEquals((2,), c[1:-2])
+        self.assertEquals((3, 4), c[-2:])
+        self.assertEquals((4,), c[-1:])
+        
+        
+        # NOTE: assigning to a slice is currently unsupported.
+        
+        
+    def test_unpack(self):
+        # should be able to unpack to r,g,b,a and r,g,b
+        c = pygame.Color(1,2,3,4)
+        r,g,b,a = c
+        self.assertEquals((1,2,3,4), (r,g,b,a))
+        self.assertEquals(c, (r,g,b,a))
+        
+        c.set_length(3)
+        r,g,b = c
+        self.assertEquals((1,2,3), (r,g,b))
+
+
+
+        
+
+
+    def test_length(self):
+        # should be able to unpack to r,g,b,a and r,g,b
+        c = pygame.Color(1,2,3,4)
+        self.assertEquals(len(c), 4)
+
+        c.set_length(3)
+        self.assertEquals(len(c), 3)
+
+        # it keeps the old alpha anyway...
+        self.assertEquals(c.a, 4)
+
+        # however you can't get the alpha in this way:
+        self.assertRaises (IndexError, lambda x:c[x], 4)
+
+
+
+        c.set_length(4)
+        self.assertEquals(len(c), 4)
+        self.assertEquals(len(c), 4)
+
+        self.assertRaises (ValueError, c.set_length, 5)
+        self.assertRaises (ValueError, c.set_length, -1)
+        self.assertRaises (ValueError, c.set_length, 0)
+        self.assertRaises (ValueError, c.set_length, pow(2,long_(33)))
+        
+        
     def test_case_insensitivity_of_string_args(self):
         self.assertEquals(pygame.color.Color('red'), pygame.color.Color('Red'))
     
@@ -701,6 +770,17 @@ class ColorTypeTest (unittest.TestCase):
 
         # TODO: test against statically defined verified _correct_ values
         # assert corrected.r == 125 etc.
+
+
+    def test_pickle(self):
+        import pickle
+        c1 = pygame.Color(1,2,3,4)
+        #c2 = pygame.Color(255,254,253,252)
+        pickle_string = pickle.dumps(c1)
+        c1_frompickle = pickle.loads(pickle_string)
+        self.assertEqual(c1,c1_frompickle) 
+
+
 
 ################################################################################
 

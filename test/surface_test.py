@@ -22,15 +22,16 @@ from pygame.compat import xrange_
 
 def intify(i):
     """If i is a long, cast to an int while preserving the bits"""
-    if 0x10000000 & i:
-        return int(~(0xFFFFFFFF ^ i))
+    if 0x80000000 & i:
+        return int((0xFFFFFFFF & i))
     return i
 
 def longify(i):
-    """If i in an int, cast to a long while preserving the bits"""
+    """If i is an int, cast to a long while preserving the bits"""
     if i < 0:
         return 0xFFFFFFFF & i
     return long(i)
+
 
 class SurfaceTypeTest(unittest.TestCase):
     def test_set_clip( self ):
@@ -72,6 +73,7 @@ class SurfaceTypeTest(unittest.TestCase):
         # set it with a tuple.
         s.set_at((0,0), (10,10,10, 255))
         r = s.get_at((0,0))
+        self.failUnless(isinstance(r, pygame.Color))
         self.assertEqual(r, (10,10,10, 255))
 
         # try setting a color with a single integer.
@@ -94,12 +96,12 @@ class SurfaceTypeTest(unittest.TestCase):
         if surf2.get_bitsize() == 32:
             self.assertEqual(surf2.get_flags() & SRCALPHA, SRCALPHA)
 
-    def test_flags(self):
+    def test_masks(self):
         def make_surf(bpp, flags, masks):
             pygame.Surface((10, 10), flags, bpp, masks)
         # With some masks SDL_CreateRGBSurface does not work properly.
         masks = (0xFF000000, 0xFF0000, 0xFF00, 0)
-        self.failUnlessRaises(ValueError, make_surf, 32, 0, masks)
+        self.assertEqual(make_surf(32, 0, masks), None)
         # For 24 and 32 bit surfaces Pygame assumes no losses.
         masks = (0x7F0000, 0xFF00, 0xFF, 0)
         self.failUnlessRaises(ValueError, make_surf, 24, 0, masks)
@@ -483,23 +485,23 @@ class SurfaceTypeTest(unittest.TestCase):
         self.fail() 
 
     def todo_test_get_at(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.surface.Surface.get_at:
-
-          # Surface.get_at((x, y)): return Color
-          # get the color value at a single pixel
-          # 
-          # Return the RGBA color value at the given pixel. If the Surface has
-          # no per pixel alpha, then the alpha value will always be 255
-          # (opaque). If the pixel position is outside the area of the Surface
-          # an IndexError exception will be raised.
-          # 
-          # Getting and setting pixels one at a time is generally too slow to be
-          # used in a game or realtime situation.
-          # 
-          # This function will temporarily lock and unlock the Surface as needed. 
-
-        self.fail() 
+        surf = pygame.Surface((2, 2), 0, 24)
+        c00 = pygame.Color((1, 2, 3))
+        c01 = pygame.Color((5, 10, 15))
+        c10 = pygame.Color((100, 50, 0))
+        c11 = pygame.Color((4, 5, 6))
+        surf.set_at((0, 0), c00)
+        surf.set_at((0, 1), c01)
+        surf.set_at((1, 0), c10)
+        surf.set_at((1, 1), c11)
+        c = surf.get_at((0, 0))
+        self.failUnless(isinstance(c, pygame.Color))
+        self.failUnlessEqual(c, c00)
+        self.failUnlessEqual(surf.get_at((0, 1)), c01)
+        self.failUnlessEqual(surf.get_at((1, 0)), c10)
+        self.failUnlessEqual(surf.get_at((1, 1)), c11)
+        for p in [(-1, 0), (0, -1), (2, 0), (0, 2)]:
+            self.failUnlessRaises(IndexError, surf.get_at, p, "%s" % (p,))
 
     def todo_test_get_bitsize(self):
 
@@ -532,17 +534,13 @@ class SurfaceTypeTest(unittest.TestCase):
         self.fail() 
 
     def todo_test_get_colorkey(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.surface.Surface.get_colorkey:
-
-          # Surface.get_colorkey(): return RGB or None
-          # Get the current transparent colorkey
-          # 
-          # Return the current colorkey value for the Surface. If the colorkey
-          # is not set then None is returned.
-          # 
-
-        self.fail() 
+        surf = pygame.surface((2, 2), 0, 24)
+        self.failUnless(surf.get_colorykey() is None)
+        colorkey = pygame.Color(20, 40, 60)
+        surf.set_colorkey(colorkey)
+        ck = surf.get_colorkey()
+        self.failUnless(isinstance(ck, pygame.Color))
+        self.failUnlessEqual(ck, colorkey)
 
     def todo_test_get_height(self):
 
@@ -618,32 +616,39 @@ class SurfaceTypeTest(unittest.TestCase):
 
         self.fail() 
 
-    def todo_test_get_palette(self):
+    def test_get_palette(self):
+        pygame.init()
+        try:
+            palette = [Color(i, i, i) for i in range(256)]
+            pygame.display.set_mode((100, 50))
+            surf = pygame.Surface((2, 2), 0, 8)
+            surf.set_palette(palette)
+            palette2 = surf.get_palette()
+            r,g,b = palette2[0]
 
-        # __doc__ (as of 2008-08-02) for pygame.surface.Surface.get_palette:
+            self.failUnlessEqual(len(palette2), len(palette))
+            for c2, c in zip(palette2, palette):
+                self.failUnlessEqual(c2, c)
+            for c in palette2:
+                self.failUnless(isinstance(c, pygame.Color))
+        finally:
+            pygame.quit()
 
-          # Surface.get_palette(): return [RGB, RGB, RGB, ...]
-          # get the color index palette for an 8bit Surface
-          # 
-          # Return a list of up to 256 color elements that represent the indexed
-          # colors used in an 8bit Surface. The returned list is a copy of the
-          # palette, and changes will have no effect on the Surface.
-          # 
-
-        self.fail() 
-
-    def todo_test_get_palette_at(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.surface.Surface.get_palette_at:
-
-          # Surface.get_palette_at(index): return RGB
-          # get the color for a single entry in a palette
-          # 
-          # Returns the red, green, and blue color values for a single index in
-          # a Surface palette. The index should be a value from 0 to 255.
-          # 
-
-        self.fail() 
+    def test_get_palette_at(self):
+        # See also test_get_palette
+        pygame.init()
+        try:
+            pygame.display.set_mode((100, 50))
+            surf = pygame.Surface((2, 2), 0, 8)
+            color = pygame.Color(1, 2, 3, 255)
+            surf.set_palette_at(0, color)
+            color2 = surf.get_palette_at(0)
+            self.failUnless(isinstance(color2, pygame.Color))
+            self.failUnlessEqual(color2, color)
+            self.failUnlessRaises(IndexError, surf.get_palette_at, -1)
+            self.failUnlessRaises(IndexError, surf.get_palette_at, 256)
+        finally:
+            pygame.quit()
 
     def todo_test_get_pitch(self):
 
@@ -717,7 +722,6 @@ class SurfaceTypeTest(unittest.TestCase):
         self.fail() 
 
     def test_map_rgb(self):
-
         color = Color(0, 128, 255, 64)
         surf = pygame.Surface((5, 5), SRCALPHA, 32)
         c = surf.map_rgb(color)
@@ -782,34 +786,65 @@ class SurfaceTypeTest(unittest.TestCase):
         self.failUnlessEqual(s.get_at((0, 0)), (1, 2, 3, 255))
         self.fail() 
 
-    def todo_test_set_palette(self):
+    def test_set_palette(self):
+        palette = [pygame.Color(i, i, i) for i in range(256)]
+        palette[10] = tuple(palette[10])      # 4 element tuple
+        palette[11] = tuple(palette[11])[0:3] # 3 element tuple
 
-        # __doc__ (as of 2008-08-02) for pygame.surface.Surface.set_palette:
+        surf = pygame.Surface((2, 2), 0, 8)
+        pygame.init()
+        try:
+            pygame.display.set_mode((100, 50))
+            surf.set_palette(palette)
+            for i in range(256):
+                self.failUnlessEqual(surf.map_rgb(palette[i]), i,
+                                     "palette color %i" % (i,))
+                c = palette[i]
+                surf.fill(c)
+                self.failUnlessEqual(surf.get_at((0, 0)), c,
+                                     "palette color %i" % (i,))
+            for i in range(10):
+                palette[i] = pygame.Color(255 - i, 0, 0)
+            surf.set_palette(palette[0:10])
+            for i in range(256):
+                self.failUnlessEqual(surf.map_rgb(palette[i]), i,
+                                     "palette color %i" % (i,))
+                c = palette[i]
+                surf.fill(c)
+                self.failUnlessEqual(surf.get_at((0, 0)), c,
+                                     "palette color %i" % (i,))
+            self.failUnlessRaises(ValueError, surf.set_palette,
+                                  [Color(1, 2, 3, 254)])
+            self.failUnlessRaises(ValueError, surf.set_palette,
+                                  (1, 2, 3, 254))
+        finally:
+            pygame.quit()
 
-          # Surface.set_palette([RGB, RGB, RGB, ...]): return None
-          # set the color palette for an 8bit Surface
-          # 
-          # Set the full palette for an 8bit Surface. This will replace the
-          # colors in the existing palette. A partial palette can be passed and
-          # only the first colors in the original palette will be changed.
-          # 
-          # This function has no effect on a Surface with more than 8bits per pixel. 
-
-        self.fail() 
-
-    def todo_test_set_palette_at(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.surface.Surface.set_palette_at:
-
-          # Surface.set_at(index, RGB): return None
-          # set the color for a single index in an 8bit Surface palette
-          # 
-          # Set the palette value for a single entry in a Surface palette. The
-          # index should be a value from 0 to 255.
-          # 
-          # This function has no effect on a Surface with more than 8bits per pixel. 
-
-        self.fail() 
+    def test_set_palette_at(self):
+        pygame.init()
+        try:
+            pygame.display.set_mode((100, 50))
+            surf = pygame.Surface((2, 2), 0, 8)
+            original = surf.get_palette_at(10)
+            replacement = Color(1, 1, 1, 255)
+            if replacement == original:
+                replacement = Color(2, 2, 2, 255)
+            surf.set_palette_at(10, replacement)
+            self.failUnlessEqual(surf.get_palette_at(10), replacement)
+            next = tuple(original)
+            surf.set_palette_at(10, next)
+            self.failUnlessEqual(surf.get_palette_at(10), next)
+            next = tuple(original)[0:3]
+            surf.set_palette_at(10, next)
+            self.failUnlessEqual(surf.get_palette_at(10), next)
+            self.failUnlessRaises(IndexError,
+                                  surf.set_palette_at,
+                                  256, replacement)
+            self.failUnlessRaises(IndexError,
+                                  surf.set_palette_at,
+                                  -1, replacement)
+        finally:
+            pygame.quit()
 
     def test_subsurface(self):
 
@@ -877,23 +912,36 @@ class SurfaceTypeTest(unittest.TestCase):
 
         self.fail() 
 
-    def todo_test_unmap_rgb(self):
+    def test_unmap_rgb(self):
+        # Special case, 8 bit-per-pixel surface (has a palette).
+        surf = pygame.Surface((2, 2), 0, 8)
+        c = (1, 1, 1)  # Unlikely to be in a default palette.
+        i = 67
+        pygame.init()
+        try:
+            pygame.display.set_mode((100, 50))
+            surf.set_palette_at(i, c)
+            unmapped_c = surf.unmap_rgb(i)
+            self.failUnlessEqual(unmapped_c, c)
+            # Confirm it is a Color instance
+            self.failUnless(isinstance(unmapped_c, pygame.Color))
+        finally:
+            pygame.quit()
 
-        # __doc__ (as of 2008-08-02) for pygame.surface.Surface.unmap_rgb:
-
-          # Surface.map_rgb(mapped_int): return Color
-          # convert a mapped integer color value into a Color
-          # 
-          # Convert an mapped integer color into the RGB color components for
-          # this Surface. Mapped color values are not often used inside Pygame,
-          # but can be passed to most functions that require a Surface and a
-          # color.
-          # 
-          # See the Surface object documentation for more information about
-          # colors and pixel formats.
-          # 
-
-        self.fail()
+        # Remaining, non-pallete, cases.
+        c = (128, 64, 12, 255)
+        formats = [(0, 16), (0, 24), (0, 32),
+                   (SRCALPHA, 16), (SRCALPHA, 32)]
+        for flags, bitsize in formats:
+            surf = pygame.Surface((2, 2), flags, bitsize)
+            unmapped_c = surf.unmap_rgb(surf.map_rgb(c))
+            surf.fill(c)
+            comparison_c = surf.get_at((0, 0))
+            self.failUnlessEqual(unmapped_c, comparison_c,
+                                 "%s != %s, flags: %i, bitsize: %i" %
+                                 (unmapped_c, comparison_c, flags, bitsize))
+            # Confirm it is a Color instance
+            self.failUnless(isinstance(unmapped_c, pygame.Color))
 
     def test_scroll(self):
         scrolls = [(8, 2, 3),

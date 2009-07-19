@@ -122,7 +122,7 @@ def main():
     elif sys.platform == 'darwin':
         print_('Using Darwin configuration...\n')
         import config_darwin as CFG
-        additional_platform_setup = file("Setup_Darwin.in", "r").readlines()
+        additional_platform_setup = open("Setup_Darwin.in", "r").readlines()
     else:
         print_('Using UNIX configuration...\n')
         import config_unix as CFG

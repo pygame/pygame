@@ -1,92 +1,400 @@
 # This is a list of changes in pygame's history.
 #
-# CVS tag names are placed before the date
+# SVN revision numbers, and CVS tag names are placed before the date
 # BREAK = change breaks existing code
 # BUG    = fixed a bug that was (or could have been) crashing
-#
-#
-[SVN 2268] May 27, 2009
-    updated docs for cursors.load_xbm, thanks Saul Spatz, and Thomas Ibbotson
 
-[SVN 2259] May 26, 2009
+[SVN 2519] July 17, 2009
+    [BUG] fix pygame.font.get_fonts() bug for Python 3.1 and Windows.
+
+[SVN 2517-2518] July 17, 2009
+    [BUG] unit test framework fails for Python 3.1 on Windows due
+          to str/bytes confusion
+
+[SVN 2516] July 16, 2009
+    Pygame dependency build now replaces the configure
+    generated SDL_config.py, which MSVC can not use,  with 
+    SDL_config_win32.py
+
+[SVN 2515] July 15, 2009
+    [BUG] surface docs typo patch submitted by Lorenz Quack
+
+[SVN 2503-2505] July 13, 2009
+    [BUG] bugzilla 29, patch to use SDL_VIDEO_DRIVER_X11 DISABLE_X11.  Thanks Robert A. Lerche.
+        So can compile pygame without X11 again.
+    [BUG] fixed bad midi test.
+    [BUG] pygame.gfxdraw docstrings were not there.  Now... they... are.
+
+[SVN 2491-2495] July 9, 2009
+    [BUG] Fixed up quit bug in eventlist.py example.  Thanks Evan Kroske!
+    [BUG] Made the test code more compatible with python2.3.
+    [BUG] python3.1 support for OSX.
+
+[SVN 2486-2488] July 8, 2009
+    [BUG] 64bit issues with Surface.get_masks and UintFromObj. 
+        thanks Lorenz Quack!
+    [BUG] Color slicing works with python3 now too.
+
+[SVN 2481] July 7, 2009
+    [BUG] typo in examples/sound_array_demos.py Thanks Evan Kroske!
+
+[SVN 2472] July 6, 2009
+    [BUG]Fixed some failing tests for Color and LONG_MAX on 64bit python.
+    From Campbell Barton.FloatFromObj speedup. 
+      register_quit cleanup.
+      PyErr_Format used in CheckSDLVersions.
+
+[SVN 2454] July 2, 2009
+    [BUG] Patch to work around cpu detection bugs in SDL 64bit from Lenard.  
+      Thanks to Lorenz for bug hunting.
+
+[SVN 2380-2381] Jun 19, 2009
+    Color.set_length method... to change Color length to 1,2,3 or 4.
+    Surface.get_palette(_at) return Color with length 3.
+
+[SVN 2366] Jun 17, 2009
+    [BUG] Memory leak in a few modules.  Thanks Lorenz Quack.
+
+[SVN 2365] Jun 16, 2009
+    Started to add basic slice support to Color type.
+
+[SVN 2311] Jun 4, 2009
+    Fixed another Color regression... colors are now tasty again when pickled.
+
+[SVN 2305] Jun 2, 2009
+    Make pygame.tests.__init__.py import __main__.py. This is done
+      consistently with other pygame.tests modules.
+
+[SVN 2294-2303] Jun 1, 2009
+    Added some notes about Color instead of tuple for some Surface functions.
+    Midi, no abort on dealloc by default. have explicit close/abort available.
+    Updated midi docs.
+    Sysfont tests pass ok on OSX now(and windows+linux etc).
+    Sysfont on OSX more resiliant. Broke up tests to find broken ones more
+      easily.
+    Updated test/README.TXT for tags files... eg: some_module_tags.py.
+    Added a little tool to help with creating WHATSNEW from svn logs.
+    Add a little TODO to svn_log_to_whatsnew.py to make its WHATSNEW output
+      nicer.
+
+[SVN 2289-2293] May 31, 2009
+    Fix midi_test.py so Python3 compiles it without errors.
+    Let Surface methods accept and return Color instances.
+    Minor type correction in Rect docs.
+    Extend background unit test default timeout to 2 minutes.
+    Add gfxdraw unit tests and fix uncovered bugs.
+
+[SVN 2284-2287] May 30, 2009
+    Sysfont, added fallback for OSX that doesn't have X11.
+    Tests and fixes for midi. Better validation Input/Output to avoid crashes.
+    Fixed up test which was failing on ubuntu with python2.x.
+
+[SVN 2278] May 29, 2009
+    Fixed test to not fail on OSX which doesn't have midi devices by default.
+
+[SVN 2264-2269] May 27, 2009
+    Enable font_test.py on Windows.
+    Add svn properties to track which files are converted to Python 3.x.
+    Updated docs for cursors.load_xbm, thanks Saul Spatz, and Thomas Ibbotson.
+    Cursors update note.
+
+[SVN 2248-2261] May 26, 2009
+    Disable debug printing for Windows build of portmidi.
+    Symbian Launcher:
+      - Removed unneeded buffer to save memory   
+      - Removed fade from slide animations to improve performance   
+      - Increased heap size to 100k,4Mb   
+      - Don't byte compile regular scripts so they can be easily edited.    
+    Symbian other:
+      - The pygame library is now zipped as well for better performance.
+    Removed color.py warning from Symbian. It is used as wrapper for the
+      native module.
+    Camera module and computer vision tutorial.
+    Cleaning camera module documentation and makeref on transform.
+    Added palette_colors to mask.from_threshold.  TODO notes to some
+      functions.
     [BUG] surflock.c PySurface_LockBy was leaking weakrefs.
-    Thanks Tom Rothamel for the patch!
+      Thanks Tom Rothamel.
 
-[SVN 2118] May 12, 2009
+[SVN 2242-2245] May 25, 2009
+    Added a palette_colors option to average_surfaces... which doesn't handle
+      palette using surfaces correctly(yet).
+    Fixed possible memory leak.  Made some comments about return values.
+    Recompile pymp.pyx with Cython. Enable Python 3.x support of midi module.
+    Enable midi_test.py for Python 3.x.
+
+[SVN 2230-2237] May 24, 2009
+    Added some more midi tests.
+    Python 3.x: disable midi_test.py and clean out movieext from setup.py.
+    A tool for generating .doc docs from .py docstrings, and new midi.doc.
+    Shortened midi.get_default_*_device_id to get_default_*_id.
+    Fixed up create_doc_from_py and updated a few documentation items.
+    Updated a doc for pygame.midi.time.
+
+[SVN 2216-2219] May 23, 2009
+    Simplified sysfont.initsysfonts_win() fonts directory scan.
+    In init functions: fix minor Python 3.x related memory leaks and clean up
+      indentation.
+    Fix sndarray_test.py problem where failed to detect unsupported formats.
+
+[SVN 2201-2212] May 22, 2009
+    Added missing gfxdraw wrapper for Symbian.
+    Fixed to work on PyS60 1.9.4  The pygame python files are compiled into
+      byte-code. Feature of scons-for-symbian.
+    Have sysfont.py search the Windows font directory default fonts before
+      checking the registry.
+    Added another possible registry key where there might be fonts on win.
+    Fix possible problem with WINDIR, windir environment variable name.
+
+[SVN 2193-2199] May 21, 2009
+    Small svn prop tweak with run_tests.py and ignore font_test.py for Python
+      3.x on Windows.
+    More font unit tests and a unit test bug fix.
+    Add some interactive font unit tests to fill in some holes.
+    Move locals.doc and remove redundant constant descriptions. instead refer
+      to other module pages.
+    Add TIMER_RESOLUTION description to time.doc.
+
+[SVN 2183-2189] May 20, 2009
+    Remove defunct movieext.c (ancient non-working ffmpeg movie module).
+    Clean up props/modes on lib/midi.py.
+    Undo unintended changes in r 2184.
+    Partial support for OSX sysfont... 10.5.x onwards.  just use unix method.
+    Additions to font_test.py and sysfont.py.
+
+[SVN 2165-2180] May 19, 2009
+    Minor doc corrections to midi example's output_main.
+    Add setmods script missing from r 2129.
+    Added -x on lib files...  Should this be moved into the setup.py ?.
+    Make python -m pygame.docs bring up the docs in a browser. also fix Python
+      3 issues with executable packages.
+    Add gfxdraw docs.
+    Marked camera, gfxdraw, and scrap as experimental in the docs.
+    House_lo.mp3 crashes smpeg on Debian Linux. Remove from unit tests and add
+      MP3 warning to docs.
+    Finished midi docs.
+    Added the start of some midi tests... all stubs.
+    Updated generated docs.
+
+[SVN 2163] May 18, 2009
+    Fix midi.py examples quit() bug.
+
+[SVN 2154-2161] May 17, 2009
+    Added channel argument to note_on and note_off methods.
+    Fixing up spacing between functions.
+    Fix midi.py example init bug for --list option.
+    Fix midi channels  changed default channel to 0  added to note_on and
+      set_instrument.
+    Starting to add docs in the pygame style to midi module.
+
+[SVN 2126-2132] May 14, 2009
+    Add pygame.examples.go shortcut.
+    Add movieplayer example to the documents.
+    Some doc updates for test tags and python -m option.
+    Remove svn:executable tags and add setmods script to set executable
+      permissions.
+    Allowed the use of python -m pygame.tests.
+
+[SVN 2117-2122] May 13, 2009
+    A little tag test with the examples.
+    Undo prop change in rev 2120 test.
     [BUG] Fixed bug in font.c where pygame.font.Font returned the wrong
-    exception type and message when a font file was not found.
-    Thanks Bo Jangeborg.
+      exception type and message when a font file was not found.
+      Thanks Bo Jangeborg.
 
-[SVN 2114] May 10, 2009
+[SVN 2113-2115] May 11, 2009
+    Fixed color.c for Symbian  Updated Symbian build instructions  Updated
+      makeref.py with '--no-code-docs' feature to set empty module docstrings.
     Add <module>_tags.py modules to pygame.tests. This is an alternative
-    module level __tags__ globals in the unit test <module>_test.py files
-    themselves. The __tags__ global is placed in the corresponding
-    <module>_tags.py file instead. This means test modules can be skipped
-    by the pygame.tests.go test framework without actually loading the
-    test module and running possibly problematic code. It also means
-    the test framework can report on which test modules were skipped
-    and why.
+      module level __tags__ globals in the unit test <module>_test.py files
+      themselves. The __tags__ global is placed in the corresponding
+      <module>_tags.py file instead. This means test modules can be skipped
+      by the pygame.tests.go test framework without actually loading the
+      test module and running possibly problematic code. It also means
+      the test framework can report on which test modules were skipped
+      and why.
 
-[SVN 2104] May 9, 2009
+[SVN 2110-2112] May 10, 2009
+    Adapt run_tests.py test framework to Python 3.1.
+    Add automatic skip of unimplemented modules to run_tests.py framework.
+    Undo broken rev 2111.
+
+[SVN 2103-2106] May 9, 2009
+    Minor fixes for symbian merge.
+    Merging from symbian branch.
     [BUG] pygame.transform.threshold behaved incorrectly when passed a
-    Python long for the threshold argument.
+      Python long for the threshold argument.
 
-[SVN 2112] May 9, 2009
+[SVN 2078-2102] May 8, 2009
+    Starting to merge in sybian_s60 branch.
     Pygame unit test framework now works with Python 3.1. This includes the
-    run_tests__tests submodule.
-
-[SVN 2080] May 7, 2009
+      run_tests__tests submodule.
     Increase timeout limit to 2 min. for run_tests.py subprocesses.
-    This allows surface_test.py more time to complete (timed out on
-    automated build sites Mac.)
-
-[SVN 2078] May 7, 2009
+      This allows surface_test.py more time to complete (timed out on
+      automated build sites Mac.)
     All standard Pygame extension modules compile and run with Python 3.
-    For a Python 3 build setup.py skips unsupported modules.
+      For a Python 3 build setup.py skips unsupported modules.
 
-[SVN 2075] May 6, 2009
-    For OS X Skip scrap test in base_test.py which was causing some unit
-    tests to fail. scrap not properly supported on OS X anyway.
- 
+[SVN 2074-2077] May 7, 2009
+    Just skip the scrap not-init test completely; Figure out how to test for
+      OS X later.  scrap not properly supported on OS X anyway
+    Fix string comprehension bug in sndarray_test.py.
+    Try to allow scrap test in base_test.py on non-OS X platforms.
+
+[SVN 2065-2073] May 06, 2009
+    Adapt fastevent module for Python 3.1.
+    OS X now passes tests. See if the problem in base_test.py is with scrap.
+    Allow all Python modules to install with Python 3.1, though some may not
+      work correctly.
+    Update python 3.1 README to reflect current status.
+    Adapt overlay for python 3.1; untested though importing doesn't crash
+      anything.
+    OS X problem with base_test.py isolated to scrap module. Try a temporary
+      workaround.
+    Adapt joystick and cdrom modules for Python 3.1.
+    Try again with OS X and base_test.py.
+
+[SVN 2058-2064] May 05, 2009
+    Why does base_test.py fail on OS X?.
+    Yet more OS X testing with base_test.py.
+    More OS X testing of base_test.py.
+    Adapt mask module for Python 3.1.
+    Fix font.c problem with Python 3.1.
+    Undo accidental changes to Setup.in and __init__.py.
+    Add scroll.py example to Python 3.1 adapted programs.
+
+[SVN 2055-2057] May 04, 2009
+    More code fixes to transform.c for non-MMX machines.
+    Clean up METH_NOARG functions which were accidently given a second C
+      argument in display.c.
+    Make scrap test in base_test.py conditional on the presence of scrap.
+
+[SVN 2052] May 03, 2009
+    Fix compiler error in transform.c for non-MMX machines.
+
+[SVN 2049-2050] May 02, 2009
+    Merging with python3 branch r 2048.
+    Port Python 3 specific files from python3 branch.
+
 [SVN 2047] May 1, 2009
     Merge python3 branch back into trunk. This allows a minimal Pygame
     system to be built for Python 3. It also improves error checking
     in module init functions.
 
-[SVN 2040] Apr 24, 2009
-    SDL_gfx module officially added to Pygame. 
-   
-[SVN 2046]
+[SVN 2046] Apr 30, 2009
     [BUG] SDL_gfx used WIN32 macro instead of _WIN32 to detected Windows.
 
-[SVN 2017] Apr 13, 2009
+[SVN 2040] Apr 24, 2009
+    SDL_gfx module officially added to Pygame. 
+
+[SVN 2024] Apr 18, 2009
+    A quick fix for jpeg saving not checking color order in 24 bit surfaces
+      Note that there is a similar bug remaining in the camera module.
+
+[SVN 2019] Apr 15, 2009
+    Merge src/__init__.py from python3 branch back into trunk.
+
+[SVN 2009-2017] Apr 13, 2009
     Add equality/inequality Event comparison as per mailing list request.
+    Patch from Sean Berry updating missing tests for Rects.
 
-[SVN 1953] Feb 22, 2009
+[SVN 1997] Apr 11, 2009
+    Make gfxdraw build on Windows.
+
+[SVN 1993] Apr 06, 2009
+    Bmp gives out of memory error... so use png instead.
+
+[SVN 1983-1985] Mar 30, 2009
+    Oops... hopefully this will work with mac/win.
+    Trying to move the source around to fix the compile bug...
+    Removing gfxdraw from compiling by default until get a chance to fix...
+
+[SVN 1980-1982] Mar 29, 2009
+    Included a couple of files from SDL_gfx for the gfxdraw module.
+    Added some more documentation, and a TODO note to the top of the file.
+    A tool for finding out what is documented, and what isn't.
+
+[SVN 1974-1976] Mar 26, 2009
+    Fixes gfxdraw.filled_polygon bug involving the point list.
+    More point list bug fixes.
+
+[SVN 1973] Mar 25, 2009
+    Adds tentative SDL_gfx module.
+
+[SVN 1969] Mar 24, 2009
+    Some minor comment corrections.
+
+[SVN 1967] Mar 16, 2009
+    Yuv420 reimplemented with formulas from libv4l.
+
+[SVN 1966] Mar 13, 2009
+    Re-add yuyv to rgb based on libv4l by Hans de Goede, licensed LGPL.
+
+[SVN 1965] Mar 12, 2009
+    Licensing problems in the Camera module.    Fixes the licensing for the
+      Bayer to RGB function.  Removes YUYV to RGB and YUV420 to YUV and RGB
+      functions until they are properly licensed.
+
+[SVN 1962] Mar 05, 2009
+    Fix bug that let the example scroll past the bottom.
+
+[SVN 1960] Mar 03, 2009
+    Don't need aliens_bootstrap.py as far as I can see.  Updated checks for
+      music module.  Made README.txt instructions correct.
+
+[SVN 1956-1957] Mar 01, 2009
+    Fixed some typos.
+    Started adding documentation for pygame.midi module.
+
+[SVN 1954] Feb 25, 2009
+    Allowed holding down the mouse, or key to scroll.
+
+[SVN 1940-1953] Feb 22, 2009
     Add 8 bit-per-pixel support to Surface.blit blends.
-
-[SVN 1952] Feb 22, 2009
     Added Surface.scroll method along with the scroll.py example.
-
-[SVN 1947] Feb 21, 2009
-    Made colorkey and blanket alpha blits handle a surface blit to self.
-    This addresses Bugzilla bug 19.
+    Added a runtime check for old unneeded files.
+    Made the error message nicer... and added checks for old py files too.
+    Removed debug print from warn_unwanted_files().
+    Add some comments, and a doc string to warn_unwanted_files.
+    Camera.init tries to detect correct platform camera module to use.
+    Added a few empty methods to opencv camera class that _camera uses.
+    Fixed dest_surf on opencv camera driver, added missing methods to vidcap
+      one.
+    [BUG]Made colorkey and blanket alpha blits handle a surface blit to self.
+      This addresses Bugzilla bug 19.
 
 [SVN 1937] Feb 19, 2009
     Add self-blit capacity to Pygame surfaces.
 
 [SVN 1934] Feb 18, 2009
     Surface raises a ValueError if the mask argument is rejected by SDL.
-    Before this the mangled, and invalid, SDL value was used.
+      Before this the mangled, and invalid, SDL value was used.
 
-[SVN 1924] Feb 12, 2009
+[SVN 1931-1932] Feb 16, 2009
+    Fixed to work with new test file layout.  Also imports modules if not
+      found.
+    Moved camera.c _camera.c .  created a lib/camera.py.
+
+[SVN 1928-1929] Feb 15, 2009
+    Made it use the pygame.examples.camera to test it.  Filled in missing
+      methods.
+    Fix erroneous ALPHA_BLEND macro argument.
+
+[SVN 1926-1927] Feb 14, 2009
+    Add psuedo-import to __init__.py atexit, required by pygame.base.
+    Remove an accidental colordict import introduced into __init__.py.
+
+[SVN 1924-1925] Feb 12, 2009
     Add Rect.copy method as per Bugzilla feature request 25.
+    Adding another import declaration for py2app/py2exe.
+      This makes using py2exe easy again.
 
-[SVN 1923] Feb 11, 2009
+[SVN 1922-1923] Feb 11, 2009
     [BUG] Fix per-pixel-alpha unpacking in surface fill-blends.
-
-[SVN 1922] Feb 11, 2009
     [BUG] Fix 24 bit-per-pixel fill-blends.
+    BLEND_RGBA_xxx and more BLEND_xxx tests; related bug fixes  (mostly 24 bit
+      surface related).
+    Fix per-pixel alpha bug involving pixel unpacking.
 
 [SVN 1920] Feb 11, 2009
     The Pygame documents and examples are now part of the Pygame package,
@@ -97,9 +405,9 @@
 
 [SVN 1912] Feb 6, 2009
     [BUG] Extension modules failed to raise an error when required modules
-    failed to import, as can happen with an incomplete py2exe/py2app
-    executable. This would later lead to mysterious segfaults. Extension
-    modules now forward import errors in the init function.
+      failed to import, as can happen with an incomplete py2exe/py2app
+      executable. This would later lead to mysterious segfaults. Extension
+      modules now forward import errors in the init function.
 
 [SVN 1903] Feb 3, 2009
     [BUG] _numpysurfarray.array_alpha() when a per-pixel alpha surface also
@@ -107,56 +415,196 @@
 
 [SVN 1893] Jan 29, 2009
     [BUG] Documentation infers that mixer.init and mixer.pre_init have keyword
-    arguments. Added as per Bugzilla issue 6.
+      arguments. Added as per Bugzilla issue 6.
     [BUG] Documentation states that mixer buffer sizes must be a power of 2.
-    New default buffer size is 4096. This was the implicit size anyway as
-    buffer size values were rounded up the the nearest power of 2.
+      New default buffer size is 4096. This was the implicit size anyway as
+      buffer size values were rounded up the the nearest power of 2.
 
-[SVN 1889] Jan 29, 2009
+[SVN 1888-1889] Jan 29, 2009
     sound_array_demos.py now uses either NumPy or Numeric.
+    _numpysndarray.py bug fix submitted by Nicholas Dudfield.
 
-[SVN 1881] Jan 26, 2009
+[SVN 1886] Jan 28, 2009
+    Updated msys config to use a fake PORTTIME variable... so it builds again
+      with mingw.
+
+[SVN 1881-1883] Jan 27, 2009
+    Add array_alpha and array_colorkey tests to surfarray_test.py.
+      array_alpha values incompatible with unmap_rgb for 16 bit surfaces -
+      fixed in _numpysurfarray.py, ignored in deprecated _numericsurfarray.c.
     For 16 bit surfaces make surfarray.array_alpha values consistent with those
-    returned by Surface.unmap_rgb.
+      returned by Surface.unmap_rgb.
+    Revert unintended change to surface.rgb_map in rev 1875.
+    Surfarray tests for make_surface, map_array, pixels2d and pixels_alpha,
+      Finished surfarray_test.py.
 
-[SVN 1859] Jan 22, 2009
-    NumPy now preferred over Numeric by surfarray and sndarray.
+[SVN 1880] Jan 26, 2009
+    Made it so we can use ctypes, instead of requiring win32 modules for the
+      windows test runner.
+
+[SVN 1871-1879] Jan 25, 2009
+    Completing the process to actually have numpy be the default.
+    Make subprocesses mode default for test runner.
+    Small fix for the nosubprocess change.
+    Fix pygame.init() problem in surfarray_test.py.
+    Surface.unmap_rgb now METH_O.
+    Add surface.map_rgb unit test.
+    Add surfarray.array2d, array3d, pixels2d and pixels3d unit tests.
+    Make surfarray_test skip tests known to fail with Numeric.
+    Making mac build with portmidi lib linked in.
+
+[SVN 1863-1870] Jan 24, 2009
+    Add array2d test to surfarray_test.py.
+    Move surfarray surface lock test to surfarray_test.py.
+    Surfarray.array3d unit test and 16 bitsize bug fix.
+    Surfarray get_arraytype, get_arraytypes and use_arraytype tests.
+    Edit tests module docs.
+    Another small tests doc typo.
+    Making it so we don't swallow exceptions...
+
+[SVN 1854-1861] Jan 23, 2009
+    Making it so we won't try to re-enter application installation.
+    Fix VC compiler error and make small code tweaks.
+    Add blit_array test for surface shifts.
+    Surfarray_test does nothing if no array module installed.
+    Add array tags to tests requiring NumPy or Numeric.
+    Numpy now takes priority over Numeric in sndarry and surfarray.
+    Fixed __hasnumpy/__hasnumeric confusion in sndarray.
 
 [SVN 1852] Jan 22, 2009
     [BUG] Fix Bugzilla bug 24 where surfarray.blit_array fails with a
     24 bit surface. A new blit_array, using the array structure interface,
     was added to a new _arraysurfarray extension module.
 
-[SVN 1846] Jan 18, 2009
+[SVN 1849-1853] Jan 22, 2009
+    [BUG] Fix Bugzilla bug 24 where surfarray.blit_array fails with a
+      24 bit surface. A new blit_array, using the array structure interface,
+      was added to a new _arraysurfarray extension module.
+    Fix NumPy bug in arraydemo.py and add an array choice command line
+      arguemnt.
+    Removed PyObjC dependency on OSX.
+
+[SVN 1845-1848] Jan 19, 2009
+    Make the main function consistent accross examples, taking arguments
+      where the programs except command line arguments.
+    Add examples module document page.
+    Minor change to usage message in test_runner.py.
+    Make some hyperlinks in the examples doc work.
     The Pygame examples is now a Pygame subpackage. Example programs can be
-    imported as modules and run by their main functions. The package
-    documentation is now part of the Pygame module docs.
+      imported as modules and run by their main functions. The package
+      documentation is now part of the Pygame module docs.
 
-[SVN 1839] Jan 14, 2009
+[SVN 1841-1843] Jan 16, 2009
+    Add pygame/tests/fixtures to installation (broken in previous setup.py
+      changes).
+    Add arguments to pygame.tests.run().
+    Add addition fake tests to installation.
+
+[SVN 1839-1840] Jan 15, 2009
     Color objects now support equality/inequality comparison with other
-    Color objects and color tuples.
+      Color objects and color tuples.
+    Jpeg image saving is not thread safe on windows after all.
 
-[SVN 1820] Jan 11, 2009
+[SVN 1834-1838] Jan 14, 2009
+    Examples\midi.py: add list option and main() function.
+    Remove absolete Windows doc installer stuff.
+    Remove old default Windows setup info.
+    Fix porttime Setup.in change.
+
+[SVN 1829-1833] Jan 13, 2009
+    Added argv arguments to main() too, and used pygame.quit.
+    Updated portmidi config for unix and darwin.  tested on ubuntu, not osx.
+    Added libporttime dependency, as required by ubuntu.
+    Added get_device_info function.
+    Printed out device info.  Allowed setting device id on the cmd line.
+
+[SVN 1819-1827] Jan 12, 2009
+    Pygame docs: fixed some links.
+    Docs added to Pygame package.
+    Added __init__.py to make examples a package.
+    Examples can be run from outside the examples directory.
+    Corrects some terminology in the tests package doc.
+    Call pygame.quit to clean up things.  closes window when called from
+      pygame.examples.chimp.main() finishes, and for when run from idle.
+    Update setup.py to reflect examples becoming a package.
+    Updated examples so that they all have a main() and use pygame.quit.
     Pygame documents now installed as part of the pygame package directory.
 
-[SVN 1814] Jan 09, 2009
+[SVN 1816-1817] Jan 11, 2009
+    Pygame.tests: prepare run_tests__tests for addition.
+    Pygame.examples: completely installs.
+
+[SVN 1813-1815] Jan 10, 2009
     Pygame unit test suite is now the pygame.tests package. For Pygame
     development the unit tests still run from test in the installation
     directory without conflicts.
 
-[SVN 1803] Jan 6, 2009
-    Add midi.py keyboard example.
+[SVN 1802-1804] Jan 07, 2009
+    Refactored midi.py example and added comments.
+    Finished midi.py keyboard example, added velocity.
+    Added test command to setup.py.  so you can do 'python setup.py test'.
 
-[SVN 1794] Jan 3, 2009
+[SVN 1796-1798] Jan 05, 2009
+    Mask convolve function and tests from Michael George.
+    Update docs for pygame.mixer.music.load: thanks Forrest Voight.
+    Clean up some carriage return confusion in the docs.
+
+[SVN 1793-1794] Jan 04, 2009
+    Update midi example to add animated keyboard keys.
     Add scripts to build Python 2.6/3.0 Windows dependencies linked to msvcr90.
+
+[SVN 1776-1777] Dec 27, 2008
+    Add get default device functions for midi module.
+    Expand midi output example into a musical keyboard demo.
+
+[SVN 1772-1775] Dec 24, 2008
+    Pypm: temporary Setup.in fix to add header and library paths for Windows
+      prebuilt.
+    Added Output class and atexit stuff similar to Lenards code.
+    Added output example from Lenard, and moved input example out of midi
+      module into the midi example.
+
+[SVN 1764-1771] Dec 23, 2008
+    Windows prebuilts: Python 2.6 preparation.
+    Added pygame.mixer_music fake import in function to maybe help with py2app.
+    Undo fake import for py2app.
+    Try rearranging stuff for py2app.
+    Add portmidi to Windows build.
+    Added code from pyportmidi to be used from pygame.midi.
+    Added pyportmidi 0.0.4 changes from Tim Thompson.  Thanks!.
+
+[SVN 1759-1760] Dec 22, 2008
+    The freetype dll was not being copied into the site-packages/pygame dir on
+      windows.
+    Added start of midi module which uses portmidi.
+
+[SVN 1755-1758] Dec 19, 2008
+    Added in an extra debugging line... for testing with py2app.
+    Fixed error for msvc compiler.
+    Moved brackets closer... suspecting possible dodgey introspection in
+      py2app.
+    Missed freeing surface on malloc out of memory error for saving jpegs.
+
+[SVN 1751-1754] Dec 18, 2008
+    Added some debugging notes for py2app mixer_music issue.
+    Msys_build_deps.py: added portmidi.
+    Setup_Win.in: add portmidi.
+
+[SVN 1749-1750] Dec 17, 2008
+    Add program to list Pygame modules accessed by a unit test module.
+    [BUG] Bug 28: possible fix.
 
 Dec 05, 2008
     exposed mask C API from Michael George.  Thanks!
 
-
 Aug 30, 2008
     [BUG] Fixed CREATE_PIXEL macro's use of Aloss
     which was making surface.fill with surfaces with no alpha go green 
+
+
+release_1_8_1release
+[SVN 1537] Jul 28, 2008
+    pygame 1.8.1release released.
 
 Jul 18, 2008
     Added Surface.set_masks and .set_shifts useful for using data in

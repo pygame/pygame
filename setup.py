@@ -14,7 +14,7 @@ EXTRAS = {}
 
 METADATA = {
     "name":             "pygame",
-    "version":          "1.9.0pre",
+    "version":          "1.9.0rc3",
     "license":          "LGPL",
     "url":              "http://www.pygame.org",
     "author":           "Pete Shinners, Rene Dudfield, Marcus von Appen, Bob Pendleton, others...",
@@ -403,6 +403,7 @@ if "bdist_msi" in sys.argv:
                         "SURFAR~1.PYD|surfarray.pyd", prop, 1),
                        ("sndarray.pyd", comp,
                         "SNDARRAY.PYD|sndarray.pyd", prop, 1),
+                       ("camera.pyd", comp, "CAMERA.PYD|camera.pyd", prop, 1),
                        ("color.py", comp, "COLOR.PY|color.py", prop, 1),
                        ("color.pyc", comp, "COLOR.PYC|color.pyc", prop, 1),
                        ("color.pyo", comp, "COLOR.PYO|color.pyo", prop, 1)]
@@ -416,6 +417,8 @@ if "bdist_msi" in sys.argv:
             self.db.Commit()
     
     cmdclass['bdist_msi'] = bdist_msi_overwrite_on_install
+
+
 
 
 
@@ -486,3 +489,90 @@ PACKAGEDATA = {
 PACKAGEDATA.update(METADATA)
 PACKAGEDATA.update(EXTRAS)
 setup(**PACKAGEDATA)
+
+
+def remove_old_files():
+
+    # try and figure out where we are installed.
+
+    #pygame could be installed in a weird location because of 
+    #  setuptools or something else.  The only sane way seems to be by trying
+    #  first to import it, and see where the imported one is.
+    # 
+    # Otherwise we might delete some files from another installation.
+    try:
+        import pygame.base
+        use_pygame = 1
+    except:
+        use_pygame = 0
+
+    if use_pygame:
+        install_path= os.path.split(pygame.base.__file__)[0]
+        extension_ext = os.path.splitext(pygame.base.__file__)[1]
+    else:
+        if not os.path.exists(data_path):
+            return
+
+        install_path = data_path
+
+        base_file = glob.glob(os.path.join(data_path, "base*"))
+        if not base_file:
+            return
+        
+        extension_ext = os.path.splitext(base_file[0])[1]
+
+
+
+    # here are the .so/.pyd files we need to ask to remove.
+    ext_to_remove = ["camera"]
+
+    # here are the .py/.pyo/.pyc files we need to ask to remove.
+    py_to_remove = ["color"]
+
+    os.path.join(data_path, 'color.py')
+    if os.name == "e32": # Don't warn on Symbian. The color.py is used as a wrapper.
+        py_to_remove = []
+
+
+
+    # See if any of the files are there.
+    extension_files = ["%s%s" % (x, extension_ext) for x in ext_to_remove]
+
+    py_files = ["%s%s" % (x, py_ext)
+                for py_ext in [".py", ".pyc", ".pyo"]
+                for x in py_to_remove]
+
+    files = py_files + extension_files
+
+    unwanted_files = []
+    for f in files:
+        unwanted_files.append( os.path.join( install_path, f ) )
+
+
+
+    ask_remove = []
+    for f in unwanted_files:
+        if os.path.exists(f):
+            ask_remove.append(f)
+
+    for f in ask_remove:
+        try:
+            print("trying to remove old file :%s: ..." %f)
+            os.remove(f)
+            print("Successfully removed :%s:." % f)
+        except:
+            print("FAILED to remove old file :%s:" % f)
+
+
+
+if "install" in sys.argv:
+    # remove some old files.
+    # only call after a successful install.  Should only reach here if there is
+    #   a successful install... otherwise setup() raises an error.
+    try:
+        remove_old_files()
+    except:
+        pass
+
+
+

@@ -102,6 +102,14 @@ For class and module level tagging assign a tag attribute __tags__ = []
 Module Level Tags
 -----------------
 
+Include the module level tags in: 'some_module_tags.py'
+
+Where the module name is 'some_module' which has its tests in some_module_test.py
+
+This allows some modules to be excluded without loading some code in the first place.
+
+
+
 # some_module_test.py
 __tags__ = ['display', 'interactive']
 
@@ -129,11 +137,19 @@ def test_something__about_something(self):
 
     """
 
+
+
 *** NOTE *** 
 
 By default 'interactive' tags are not run
 
 run_tests.py --exclude display,slow for exclusion of tags
+
+However if you do python test/some_module_test.py all of the tests will run.
+
+See run_tests.py --help for more details.
+
+
 
 ================================================================================
 = test_utils.py =

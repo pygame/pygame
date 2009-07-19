@@ -50,7 +50,7 @@ def _addfont(name, bold, italic, font, fontdict):
 # with extra files added from:
 # http://www.ampsoft.net/webdesign-l/windows-fonts-by-version.html
 # File name, family, (Bold, Italic)
-XP_default_font_files = [
+_XP_default_font_files = [
     ('ahronbd.ttf', 'Aharoni', True, False),
     ('andlso.ttf', 'Andalus', False, False),
     ('angsa.ttf', 'Angsana New', False, False),
@@ -190,15 +190,18 @@ XP_default_font_files = [
     ('batang.ttc', 'Batang', False, False),
     ]
 
+
+
+
 def initsysfonts_win32():
     try:
         import _winreg
     except ImportError:
         import winreg as _winreg
 
-    if os.environ.has_key('WINDIR'):
+    if 'WINDIR' in os.environ:
         windir = os.environ['WINDIR']
-    elif os.environ.has_key('windir'):
+    elif 'windir' in os.environ:
         windir = os.environ['windir']
     else:
         windir = "C:\\Windows\\"
@@ -216,7 +219,7 @@ def initsysfonts_win32():
     #fonts may not be entered in the registry.
     win_font_files_mapping = dict(
         [(file_name.lower(), (_simplename(name), bold, italic))
-         for file_name, name, bold, italic in XP_default_font_files])
+         for file_name, name, bold, italic in _XP_default_font_files])
 
     font_dir_path = os.path.join(windir, 'fonts')
     try:
@@ -298,13 +301,131 @@ def initsysfonts_win32():
     return fonts
 
 
-#read of the fonts on osx (fill me in!)
+
+
+
+_OSX_default_font_files = {
+ 'albayan': {(False, False): '/Library/Fonts/AlBayan.ttf',
+             (True, False): '/Library/Fonts/AlBayanBold.ttf'},
+ 'andalemono': {(False, False): '/Library/Fonts/Andale Mono.ttf'},
+ 'applebraille': {(False, False): '/System/Library/Fonts/Apple Braille Outline 6 Dot.ttf'},
+ 'applegothic': {(False, False): '/System/Library/Fonts/AppleGothic.ttf'},
+ 'applesymbols': {(False, False): '/System/Library/Fonts/Apple Symbols.ttf'},
+ 'arial': {(False, False): '/Library/Fonts/Arial.ttf',
+           (False, True): '/Library/Fonts/Arial Italic.ttf',
+           (True, False): '/Library/Fonts/Arial Bold.ttf',
+           (True, True): '/Library/Fonts/Arial Bold Italic.ttf'},
+ 'arialblack': {(False, False): '/Library/Fonts/Arial Black.ttf'},
+ 'arialhebrew': {(False, False): '/Library/Fonts/ArialHB.ttf',
+                 (True, False): '/Library/Fonts/ArialHBBold.ttf'},
+ 'arialnarrow': {(False, False): '/Library/Fonts/Arial Narrow.ttf',
+                 (False, True): '/Library/Fonts/Arial Narrow Italic.ttf',
+                 (True, False): '/Library/Fonts/Arial Narrow Bold.ttf',
+                 (True, True): '/Library/Fonts/Arial Narrow Bold Italic.ttf'},
+ 'arialroundedmtbold': {(False, False): '/Library/Fonts/Arial Rounded Bold.ttf'},
+ 'arialunicodems': {(False, False): '/Library/Fonts/Arial Unicode.ttf'},
+ 'ayuthaya': {(False, False): '/Library/Fonts/Ayuthaya.ttf'},
+ 'baghdad': {(False, False): '/Library/Fonts/Baghdad.ttf'},
+ 'brushscriptmt': {(False, True): '/Library/Fonts/Brush Script.ttf'},
+ 'chalkboard': {(False, False): '/Library/Fonts/Chalkboard.ttf',
+                (True, False): '/Library/Fonts/ChalkboardBold.ttf'},
+ 'comicsansms': {(False, False): '/Library/Fonts/Comic Sans MS.ttf',
+                 (True, False): '/Library/Fonts/Comic Sans MS Bold.ttf'},
+ 'corsivahebrew': {(False, False): '/Library/Fonts/Corsiva.ttf',
+                   (True, False): '/Library/Fonts/CorsivaBold.ttf'},
+ 'couriernew': {(False, False): '/Library/Fonts/Courier New.ttf',
+                (False, True): '/Library/Fonts/Courier New Italic.ttf',
+                (True, False): '/Library/Fonts/Courier New Bold.ttf',
+                (True, True): '/Library/Fonts/Courier New Bold Italic.ttf'},
+ 'decotypenaskh': {(False, False): '/Library/Fonts/DecoTypeNaskh.ttf'},
+ 'devanagarimt': {(False, False): '/Library/Fonts/DevanagariMT.ttf',
+                  (True, False): '/Library/Fonts/DevanagariMTBold.ttf'},
+ 'euphemiaucas': {(False, False): '/Library/Fonts/EuphemiaCASRegular.ttf',
+                  (False, True): '/Library/Fonts/EuphemiaCASItalic.ttf',
+                  (True, False): '/Library/Fonts/EuphemiaCASBold.ttf'},
+ 'gb18030bitmap': {(False, False): '/Library/Fonts/NISC18030.ttf'},
+ 'geezapro': {(False, False): '/System/Library/Fonts/Geeza Pro.ttf',
+              (True, False): '/System/Library/Fonts/Geeza Pro Bold.ttf'},
+ 'georgia': {(False, False): '/Library/Fonts/Georgia.ttf',
+             (False, True): '/Library/Fonts/Georgia Italic.ttf',
+             (True, False): '/Library/Fonts/Georgia Bold.ttf',
+             (True, True): '/Library/Fonts/Georgia Bold Italic.ttf'},
+ 'gujaratimt': {(False, False): '/Library/Fonts/GujaratiMT.ttf',
+                (True, False): '/Library/Fonts/GujaratiMTBold.ttf'},
+ 'gurmukhimt': {(False, False): '/Library/Fonts/Gurmukhi.ttf'},
+ 'impact': {(False, False): '/Library/Fonts/Impact.ttf'},
+ 'inaimathi': {(False, False): '/Library/Fonts/InaiMathi.ttf'},
+ 'kailasa': {(False, False): '/Library/Fonts/Kailasa.ttf'},
+ 'kokonor': {(False, False): '/Library/Fonts/Kokonor.ttf'},
+ 'krungthep': {(False, False): '/Library/Fonts/Krungthep.ttf'},
+ 'kufistandardgk': {(False, False): '/Library/Fonts/KufiStandardGK.ttf'},
+ 'liheipro': {(False, False): '/System/Library/Fonts/ Pro.ttf'},
+ 'lisongpro': {(False, False): '/Library/Fonts/ Pro.ttf'},
+ 'microsoftsansserif': {(False, False): '/Library/Fonts/Microsoft Sans Serif.ttf'},
+ 'mshtakan': {(False, False): '/Library/Fonts/MshtakanRegular.ttf',
+              (False, True): '/Library/Fonts/MshtakanOblique.ttf',
+              (True, False): '/Library/Fonts/MshtakanBold.ttf',
+              (True, True): '/Library/Fonts/MshtakanBoldOblique.ttf'},
+ 'nadeem': {(False, False): '/Library/Fonts/Nadeem.ttf'},
+ 'newpeninimmt': {(False, False): '/Library/Fonts/NewPeninimMT.ttf',
+                  (True, False): '/Library/Fonts/NewPeninimMTBoldInclined.ttf'},
+ 'plantagenetcherokee': {(False, False): '/Library/Fonts/PlantagenetCherokee.ttf'},
+ 'raanana': {(False, False): '/Library/Fonts/Raanana.ttf',
+             (True, False): '/Library/Fonts/RaananaBold.ttf'},
+ 'sathu': {(False, False): '/Library/Fonts/Sathu.ttf'},
+ 'silom': {(False, False): '/Library/Fonts/Silom.ttf'},
+ 'stfangsong': {(False, False): '/Library/Fonts/.ttf'},
+ 'stheiti': {(False, False): '/System/Library/Fonts/.ttf'},
+ 'stkaiti': {(False, False): '/Library/Fonts/.ttf'},
+ 'stsong': {(False, False): '/Library/Fonts/.ttf'},
+ 'tahoma': {(False, False): '/Library/Fonts/Tahoma.ttf',
+            (True, False): '/Library/Fonts/Tahoma Bold.ttf'},
+ 'thonburi': {(False, False): '/System/Library/Fonts/Thonburi.ttf',
+              (True, False): '/System/Library/Fonts/ThonburiBold.ttf'},
+ 'timesnewroman': {(False, False): '/Library/Fonts/Times New Roman.ttf',
+                   (False, True): '/Library/Fonts/Times New Roman Italic.ttf',
+                   (True, False): '/Library/Fonts/Times New Roman Bold.ttf',
+                   (True, True): '/Library/Fonts/Times New Roman Bold Italic.ttf'},
+ 'trebuchetms': {(False, False): '/Library/Fonts/Trebuchet MS.ttf',
+                 (False, True): '/Library/Fonts/Trebuchet MS Italic.ttf',
+                 (True, False): '/Library/Fonts/Trebuchet MS Bold.ttf',
+                 (True, True): '/Library/Fonts/Trebuchet MS Bold Italic.ttf'},
+ 'verdana': {(False, False): '/Library/Fonts/Verdana.ttf',
+             (False, True): '/Library/Fonts/Verdana Italic.ttf',
+             (True, False): '/Library/Fonts/Verdana Bold.ttf',
+             (True, True): '/Library/Fonts/Verdana Bold Italic.ttf'},
+ 'webdings': {(False, False): '/Library/Fonts/Webdings.ttf'},
+ 'wingdings': {(False, False): '/Library/Fonts/Wingdings.ttf'},
+ 'wingdings2': {(False, False): '/Library/Fonts/Wingdings 2.ttf'},
+ 'wingdings3': {(False, False): '/Library/Fonts/Wingdings 3.ttf'}}
+
+
+def _search_osx_font_paths(fonts):
+
+    for name, details in _OSX_default_font_files.items():
+        for k, apath in details.items():
+            if os.path.exists(apath):
+                bold, italic = k
+                _addfont(name, bold, italic, apath, fonts) 
+
+
 def initsysfonts_darwin():
+    """ read the fonts on OSX.
+    """
     # if the X11 binary exists... try and use that.
-    #  TODO: Not likely to be there on pre 10.4.x ...
-    #    so still need to do other OSX specific method.
+    #  Not likely to be there on pre 10.4.x ...
+    #    so still need to do other OSX specific method below.
     if os.path.exists("/usr/X11/bin/fc-list"):
-        return initsysfonts_unix()
+        fonts = initsysfonts_unix()
+    
+    # we look for the default paths.
+    _search_osx_font_paths(fonts)
+    
+    return fonts
+    
+
+
+
 
     paths = ['/Library/Fonts',
              '~/Library/Fonts',
@@ -366,13 +487,13 @@ def initsysfonts_unix():
 def create_aliases():
     aliases = (
         ('monospace', 'misc-fixed', 'courier', 'couriernew', 'console',
-                'fixed', 'mono', 'freemono', 'bitstreamverasansmono',
-                'verasansmono', 'monotype', 'lucidaconsole'),
+         'fixed', 'mono', 'freemono', 'bitstreamverasansmono',
+         'verasansmono', 'monotype', 'lucidaconsole'),
         ('sans', 'arial', 'helvetica', 'swiss', 'freesans',
-                'bitstreamverasans', 'verasans', 'verdana', 'tahoma'),
+         'bitstreamverasans', 'verasans', 'verdana', 'tahoma'),
         ('serif', 'times', 'freeserif', 'bitstreamveraserif', 'roman',
-                'timesroman', 'timesnewroman', 'dutch', 'veraserif',
-                'georgia'),
+         'timesroman', 'timesnewroman', 'dutch', 'veraserif',
+         'georgia'),
         ('wingdings', 'wingbats'),
     )
     for set in aliases:

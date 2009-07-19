@@ -122,7 +122,8 @@
 <a name="pygame.cursors.load_xbm">
 <big><b>pygame.cursors.load_xbm</big></b><br><ul>
   <i>load cursor data from an xbm file</i><br>
-  <tt>pygame.cursors.load_xbm(cursorfile, maskfile=None): return cursor_args</tt><br>
+  <tt>pygame.cursors.load_xbm(cursorfile): return cursor_args</tt><br>
+  <tt>pygame.cursors.load_xbm(cursorfile, maskfile): return cursor_args</tt><br>
 <p>This loads cursors for a simple subset of <tt>XBM</tt> files. <tt>XBM</tt> files are traditionally used to store cursors on unix systems, they are an ascii format used to represent simple images. </p>
 <p>Sometimes the black and white color values will be split into two separate <tt>XBM</tt> files. You can pass a second maskfile argument to load the two images into a single cursor. </p>
 <p>The cursorfile and maskfile arguments can either be filenames or filelike object with the readlines method. </p>

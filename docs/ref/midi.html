@@ -69,7 +69,7 @@
 <p>The midi module can send output to midi devices, and get input from midi devices. It can also list midi devices on the system. </p>
 <p>Including real midi devices, and virtual ones. </p>
 <p>It uses the portmidi library. Is portable to which ever platforms portmidi supports (currently windows, <tt>OSX</tt>, and linux). </p>
-<p>This uses pyportmidi for now, but may use its own bindings at some point in the future. </p>
+<p>This uses pyportmidi for now, but may use its own bindings at some point in the future. The pyportmidi bindings are included with pygame. </p>
 <p>New in pygame <tt>1.9.0</tt>. </p>
 <!--COMMENTS:pygame.midi--> &nbsp;<br> 
 
@@ -80,6 +80,7 @@
   <tt>Input(device_id)</tt><br>
   <tt>Input(device_id, buffer_size)</tt><br>
 <ul><small><table>
+  <tr><td><a href="midi.html#Input.close">Input.close</a> - <font size=-1> closes a midi stream, flushing any pending buffers.</font></td><td> closes a midi stream, flushing any pending buffers.</td></tr>
   <tr><td><a href="midi.html#Input.poll">Input.poll</a> - <font size=-1>returns true if there's data, or false if not.</font></td><td>returns true if there's data, or false if not.</td></tr>
   <tr><td><a href="midi.html#Input.read">Input.read</a> - <font size=-1>reads num_events midi events from the buffer.</font></td><td>reads num_events midi events from the buffer.</td></tr>
 </table></small></ul>
@@ -87,6 +88,15 @@
 <pre>  be read using Input.read()
 </pre>
 <!--COMMENTS:pygame.midi.Input--> &nbsp;<br> 
+
+
+<a name="Input.close">
+<big><b>Input.close</big></b><br><ul>
+  <i> closes a midi stream, flushing any pending buffers.</i><br>
+  <tt>Input.close(): return None</tt><br>
+<p>PortMidi attempts to close open streams when the application exits -- this is particularly difficult under Windows. </p>
+<!--COMMENTS:Input.close--> &nbsp;<br> 
+<br></ul>
 
 
 <a name="Input.poll">
@@ -127,6 +137,8 @@
   <tt>Output(device_id, buffer_size = 4096)</tt><br>
   <tt>Output(device_id, latency, buffer_size)</tt><br>
 <ul><small><table>
+  <tr><td><a href="midi.html#Output.abort">Output.abort</a> - <font size=-1> terminates outgoing messages immediately</font></td><td> terminates outgoing messages immediately</td></tr>
+  <tr><td><a href="midi.html#Output.close">Output.close</a> - <font size=-1> closes a midi stream, flushing any pending buffers.</font></td><td> closes a midi stream, flushing any pending buffers.</td></tr>
   <tr><td><a href="midi.html#Output.note_off">Output.note_off</a> - <font size=-1>turns a midi note off.  Note must be on.</font></td><td>turns a midi note off.  Note must be on.</td></tr>
   <tr><td><a href="midi.html#Output.note_on">Output.note_on</a> - <font size=-1>turns a midi note on.  Note must be off.</font></td><td>turns a midi note on.  Note must be off.</td></tr>
   <tr><td><a href="midi.html#Output.set_instrument">Output.set_instrument</a> - <font size=-1>select an instrument, with a value between 0 and 127</font></td><td>select an instrument, with a value between 0 and 127</td></tr>
@@ -138,6 +150,24 @@
 <p>latency is the delay in milliseconds applied to timestamps to determine when the output should actually occur. (If latency is < 0, 0 is <tt>assumed.)</tt> </p>
 <p>If latency is zero, timestamps are ignored and all output is delivered immediately. If latency is greater than zero, output is delayed until the message timestamp plus the latency. <tt>(NOTE:</tt> time is measured relative to the time source indicated by time_proc. Timestamps are absolute, not relative delays or <tt>offsets.)</tt> In some cases, PortMidi can obtain better timing than your application by passing timestamps along to the device driver or hardware. Latency may also help you to synchronize midi data to audio data by matching midi latency to the audio buffer latency. </p>
 <!--COMMENTS:pygame.midi.Output--> &nbsp;<br> 
+
+
+<a name="Output.abort">
+<big><b>Output.abort</big></b><br><ul>
+  <i> terminates outgoing messages immediately</i><br>
+  <tt>Output.abort(): return None</tt><br>
+<p>The caller should immediately close the output port; this call may result in transmission of a partial midi message. There is no abort for Midi input because the user can simply ignore messages in the buffer and close an input device at any time. </p>
+<!--COMMENTS:Output.abort--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="Output.close">
+<big><b>Output.close</big></b><br><ul>
+  <i> closes a midi stream, flushing any pending buffers.</i><br>
+  <tt>Output.close(): return None</tt><br>
+<p>PortMidi attempts to close open streams when the application exits -- this is particularly difficult under Windows. </p>
+<!--COMMENTS:Output.close--> &nbsp;<br> 
+<br></ul>
 
 
 <a name="Output.note_off">

@@ -558,7 +558,7 @@ surf_get_at (PyObject *self, PyObject *args)
     int x, y;
     Uint32 color;
     Uint8 *pix;
-    Uint8 r, g, b, a;
+    Uint8 rgba[4];
 
     if (!PyArg_ParseTuple (args, "(ii)", &x, &y))
         return NULL;
@@ -602,8 +602,8 @@ surf_get_at (PyObject *self, PyObject *args)
     if (!PySurface_Unlock (self))
         return NULL;
 
-    SDL_GetRGBA (color, format, &r, &g, &b, &a);
-    return Py_BuildValue ("(bbbb)", r, g, b, a);
+    SDL_GetRGBA (color, format, rgba, rgba+1, rgba+2, rgba+3);
+    return PyColor_New (rgba);
 }
 
 static PyObject*
@@ -708,7 +708,7 @@ surf_unmap_rgb (PyObject *self, PyObject *arg)
 {
     SDL_Surface *surf = PySurface_AsSurface (self);
     Uint32 col;
-    Uint8 r, g, b, a;
+    Uint8  rgba[4];
 
     col = (Uint32)PyInt_AsLong (arg);
     if (col == (Uint32) -1 && PyErr_Occurred()) {
@@ -718,9 +718,9 @@ surf_unmap_rgb (PyObject *self, PyObject *arg)
     if (!surf)
         return RAISE (PyExc_SDLError, "display Surface quit");
 
-    SDL_GetRGBA (col, surf->format, &r, &g, &b, &a);
+    SDL_GetRGBA (col, surf->format, rgba, rgba+1, rgba+2, rgba+3);
 
-    return Py_BuildValue ("(bbbb)", r, g, b, a);
+    return PyColor_New (rgba);
 }
 
 static PyObject*
@@ -788,6 +788,7 @@ surf_get_palette (PyObject *self)
     int i;
     PyObject *color;
     SDL_Color *c;
+    Uint8 rgba[4] = {0, 0, 0, 255};
 
     if (!surf)
         return RAISE (PyExc_SDLError, "display Surface quit");
@@ -802,7 +803,11 @@ surf_get_palette (PyObject *self)
     for (i = 0; i < pal->ncolors; i++)
     {
         c = &pal->colors[i];
-        color = Py_BuildValue ("(bbb)", c->r, c->g, c->b);
+        rgba[0] = c->r;
+        rgba[1] = c->g;
+        rgba[2] = c->b;
+        color = PyColor_NewLength (rgba, 3);
+
         if (!color)
         {
             Py_DECREF (list);
@@ -821,6 +826,7 @@ surf_get_palette_at (PyObject * self, PyObject * args)
     SDL_Palette *pal = surf->format->palette;
     SDL_Color *c;
     int _index;
+    Uint8 rgba[4];
 
     if (!PyArg_ParseTuple (args, "i", &_index))
         return NULL;
@@ -833,7 +839,12 @@ surf_get_palette_at (PyObject * self, PyObject * args)
         return RAISE (PyExc_IndexError, "index out of bounds");
 
     c = &pal->colors[_index];
-    return Py_BuildValue ("(bbb)", c->r, c->g, c->b);
+    rgba[0] = c->r;
+    rgba[1] = c->g;
+    rgba[2] = c->b;
+    rgba[3] = 255;
+
+    return PyColor_NewLength (rgba, 3);
 }
 
 static PyObject*
@@ -844,7 +855,8 @@ surf_set_palette (PyObject *self, PyObject *args)
     SDL_Color *colors;
     PyObject *list, *item;
     int i, len;
-    int r, g, b;
+    Uint8 rgba[4];
+    int ecode;
 
     if (!PyArg_ParseTuple (args, "O", &list))
         return NULL;
@@ -870,25 +882,23 @@ surf_set_palette (PyObject *self, PyObject *args)
     {
         item = PySequence_GetItem (list, i);
 
-        if (!PySequence_Check (item) || PySequence_Length (item) != 3)
-        {
-            Py_DECREF (item);
-            free (colors);
-            return RAISE (PyExc_TypeError,
-                          "takes a sequence of sequence of RGB");
-        }
-        if (!IntFromObjIndex (item, 0, &r) || !IntFromObjIndex (item, 1, &g)
-            || !IntFromObjIndex (item, 2, &b))
-        {
-            Py_DECREF (item);
-            free (colors);
-            return RAISE (PyExc_TypeError,
-                          "RGB sequence must contain numeric values");
-        }
-        colors[i].r = (unsigned char) r;
-        colors[i].g = (unsigned char) g;
-        colors[i].b = (unsigned char) b;
+        ecode = RGBAFromObj (item, rgba);
         Py_DECREF (item);
+        if (!ecode)
+        {
+            free (colors);
+            return RAISE (PyExc_ValueError,
+                          "takes a sequence of integers of RGB");
+        }
+        if (rgba[3] != 255)
+        {
+            free (colors);
+            return RAISE (PyExc_ValueError,
+                          "takes an alpha value of 255");
+        }
+        colors[i].r = (unsigned char) rgba[0];
+        colors[i].g = (unsigned char) rgba[1];
+        colors[i].b = (unsigned char) rgba[2];
     }
 
     SDL_SetColors (surf, colors, 0, len);
@@ -903,13 +913,20 @@ surf_set_palette_at (PyObject *self, PyObject *args)
     SDL_Palette *pal = surf->format->palette;
     SDL_Color color;
     int _index;
-    Uint8 r, g, b;
+    PyObject *color_obj;
+    Uint8 rgba[4];
 
-    if (!PyArg_ParseTuple (args, "i(bbb)", &_index, &r, &g, &b))
+    if (!PyArg_ParseTuple (args, "iO", &_index, &color_obj))
         return NULL;
     if (!surf)
         return RAISE (PyExc_SDLError, "display Surface quit");
 
+    if (!RGBAFromObj (color_obj, rgba))
+    {
+        return RAISE (PyExc_ValueError,
+                      "takes a sequence of integers of RGB for argument 2");
+    }
+    
     if (!pal)
     {
         PyErr_SetString (PyExc_SDLError, "Surface is not palettized\n");
@@ -926,9 +943,9 @@ surf_set_palette_at (PyObject *self, PyObject *args)
         return RAISE (PyExc_SDLError,
                       "cannot set palette without pygame.display initialized");
 
-    color.r = r;
-    color.g = g;
-    color.b = b;
+    color.r = rgba[0];
+    color.g = rgba[1];
+    color.b = rgba[2];
 
     SDL_SetColors (surf, &color, _index, 1);
 
@@ -1695,7 +1712,7 @@ surf_get_masks (PyObject *self)
 
     if (!surf)
         return RAISE (PyExc_SDLError, "display Surface quit");
-    return Py_BuildValue ("(iiii)", surf->format->Rmask, surf->format->Gmask,
+    return Py_BuildValue ("(IIII)", surf->format->Rmask, surf->format->Gmask,
                           surf->format->Bmask, surf->format->Amask);
 }
 
