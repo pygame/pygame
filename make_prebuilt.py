@@ -158,6 +158,12 @@ def main(dest_dir=None):
                 if not src_header_dir in copied_dirs:
                     copy_dir(src_header_dir, dest_header_dir)
                     copied_dirs.add(src_header_dir)
+    if 'SDL' in have_dlls:
+        # For MSVC use SDL_config_win32.h in place of configure
+        # generated SDL_config.h.
+        file_copy(
+            os.path.join(src_dir, 'include', 'SDL', 'SDL_config_win32.h'),
+            os.path.join(dest_dir, 'include', 'SDL', 'SDL_config.h'))
 
     # msvcr71.dll linking support.
     src_msvcr71_dir = os.path.join(src_dir, 'lib', 'msvcr71')
