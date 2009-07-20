@@ -34,6 +34,11 @@ libraries = [
     ('SDL', 'SDL', r'SDL\.dll$', []),
     ('PORTMIDI', 'portmidi', r'portmidi\.dll', []),
     ('PORTTIME', 'portmidi', r'portmidi\.dll', []),
+    ('AVCODEC', 'avcodec', r'avcodec-50\.dll', []),
+    ('AVFORMAT', 'avformat', r'avformat-52\.dll', []),
+    ('AVDEVICE', 'avdevice', r'avdevice-52\.dll', []),
+    ('AVUTIL', 'avutil', r'avutil-50\.dll', []),
+    ('SWSCALE', 'swscale', r'swscale-0.\dll', []),
 ]
 
 # regexs: Maps name to DLL file name regex.
