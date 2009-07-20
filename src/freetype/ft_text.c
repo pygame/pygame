@@ -308,35 +308,44 @@ PGFT_GetTextAdvances(FreeTypeInstance *ft, PyFreeTypeFont *font, int pt_size,
 FT_UInt16 *
 PGFT_BuildUnicodeString(PyObject *obj, int *must_free)
 {
+    int i, len, expand = 0;
     FT_UInt16 *utf16_buffer = NULL;
-    *must_free = 0;
+    char *tmp_buffer;
 
-    /* 
-     * If this is Python 3 and we pass an unicode string,
-     * we can access directly its internal contents, as
-     * they are in UCS-2
-     */
+    *must_free = 1;
+
     if (PyUnicode_Check(obj))
     {
-        utf16_buffer = (FT_UInt16 *)PyUnicode_AS_UNICODE(obj);
+        obj = PyUnicode_AsUTF16String(obj);
+        Bytes_AsStringAndSize(obj, &tmp_buffer, &len);
     }
     else if (Bytes_Check(obj))
     {
-        char *latin1_buffer;
-        int i, len;
+        Bytes_AsStringAndSize(obj, &tmp_buffer, &len);
+        Py_INCREF(obj);
 
-        Bytes_AsStringAndSize(obj, &latin1_buffer, &len);
-
-        utf16_buffer = malloc((size_t)(len + 1) * sizeof(FT_UInt16));
-        if (!utf16_buffer)
-            return NULL;
-
-        for (i = 0; i < len; ++i)
-            utf16_buffer[i] = (FT_UInt16)latin1_buffer[i];
-
-        utf16_buffer[i] = 0;
-        *must_free = 1;
+        expand = 1;
+        len = (int)(len * sizeof(FT_UInt16));
+    }
+    else
+    {
+        return NULL;
     }
 
+    utf16_buffer = calloc((size_t)len + 2, sizeof(FT_Byte));
+    if (!utf16_buffer)
+        return NULL;
+
+    if (expand)
+    {
+        for (i = 0; i < len; ++i)
+            utf16_buffer[i] = (FT_UInt16)tmp_buffer[i];
+    }
+    else
+    {
+        memcpy(utf16_buffer, tmp_buffer, (size_t)len);
+    }
+
+    Py_DECREF(obj);
     return utf16_buffer;
 }
