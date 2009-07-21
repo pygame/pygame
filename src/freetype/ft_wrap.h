@@ -247,11 +247,6 @@ void __render_glyph_RGB4(int x, int y, FontSurface *surface, FT_Bitmap *bitmap, 
 
 void __render_glyph_ByteArray(int x, int y, FontSurface *surface, FT_Bitmap *bitmap, PyColor *color);
 
-
-/******************************************************************* Fake styles ****/
-int PGFT_Style_MakeBold(FT_Face face);
-
-
 /******************************************************** Font text management ****/
 FontText *  PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font, int pt_size, 
                 FontRenderMode *render, PyObject *text);
@@ -259,7 +254,7 @@ FontText *  PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font, int pt
 int         PGFT_GetTextAdvances(FreeTypeInstance *ft, PyFreeTypeFont *font, int pt_size, 
                 FontRenderMode *render, FontText *text, FT_Vector *advances);
 
-FT_UInt16 * PGFT_BuildUnicodeString(PyObject *, int *);
+FT_UInt16 * PGFT_BuildUnicodeString(PyObject *);
 
 
 

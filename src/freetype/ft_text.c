@@ -42,7 +42,6 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
     FT_Int32 load_flags = FT_LOAD_DEFAULT; 
 
-    int         must_free;
     int         swapped = 0;
     int         string_length = 0;
 
@@ -87,7 +86,7 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
     }
 
     /* get the text as an unicode string */
-    orig_buffer = buffer = PGFT_BuildUnicodeString(text, &must_free);
+    orig_buffer = buffer = PGFT_BuildUnicodeString(text);
 
     if (!buffer)
     {
@@ -122,8 +121,11 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
      * on most cases. We manually adjust for this by increasing the offset
      * a proportional amount to the bold strength.
      */
-    ftext->underline_pos = PGFT_FLOOR(FT_MulFix(face->underline_position + bold_str / 2, y_scale)) >> 6;
-    ftext->underline_h = (bold_str + PGFT_FLOOR(FT_MulFix(face->underline_thickness, y_scale))) >> 6;
+    ftext->underline_pos = (FT_Int16)(
+            PGFT_FLOOR(FT_MulFix(face->underline_position + bold_str / 2, y_scale)) >> 6);
+
+    ftext->underline_h = (FT_Int16)(
+            (bold_str + PGFT_FLOOR(FT_MulFix(face->underline_thickness, y_scale))) >> 6);
 
     /* fill it with the glyphs */
     glyph = &(ftext->glyphs[0]);
@@ -182,13 +184,12 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
     }
 
-    /* FIXME:
+    /* 
+     * FIXME:
      * Take into account the extra height added by underlines
      */
 
-    if (must_free)
-        free(orig_buffer);
-
+    free(orig_buffer);
     return ftext;
 }
 
@@ -306,46 +307,48 @@ PGFT_GetTextAdvances(FreeTypeInstance *ft, PyFreeTypeFont *font, int pt_size,
 }
 
 FT_UInt16 *
-PGFT_BuildUnicodeString(PyObject *obj, int *must_free)
+PGFT_BuildUnicodeString(PyObject *obj)
 {
-    int i, len, expand = 0;
+    size_t len;
     FT_UInt16 *utf16_buffer = NULL;
     char *tmp_buffer;
 
-    *must_free = 1;
-
     if (PyUnicode_Check(obj))
     {
-        obj = PyUnicode_AsUTF16String(obj);
-        Bytes_AsStringAndSize(obj, &tmp_buffer, &len);
+        /*
+         * For unicode objects, create a new Bytes object
+         * with the unicode contents as UTF16 and copy
+         * the raw contents of that object.
+         */
+        PyObject *utf_bytes;
+
+        utf_bytes = PyUnicode_AsUTF16String(obj);
+        Bytes_AsStringAndSize(utf_bytes, &tmp_buffer, (int *)&len);
+        utf16_buffer = malloc(len + 2);
+
+        memcpy(utf16_buffer, tmp_buffer, len);
+        utf16_buffer[len / sizeof(FT_UInt16)] = 0;
+
+        Py_DECREF(utf_bytes);
     }
     else if (Bytes_Check(obj))
     {
-        Bytes_AsStringAndSize(obj, &tmp_buffer, &len);
-        Py_INCREF(obj);
+        /*
+         * For bytes objects, assume the bytes are
+         * Latin1 text (who would manually enter bytes as
+         * UTF8 anyway?), so manually copy the raw contents
+         * of the object expanding each byte to 16 bits.
+         */
+        size_t i;
 
-        expand = 1;
-        len = (int)(len * sizeof(FT_UInt16));
-    }
-    else
-    {
-        return NULL;
-    }
+        Bytes_AsStringAndSize(obj, &tmp_buffer, (int *)&len);
+        utf16_buffer = malloc((size_t)(len + 1) * sizeof(FT_UInt16));
 
-    utf16_buffer = calloc((size_t)len + 2, sizeof(FT_Byte));
-    if (!utf16_buffer)
-        return NULL;
-
-    if (expand)
-    {
         for (i = 0; i < len; ++i)
             utf16_buffer[i] = (FT_UInt16)tmp_buffer[i];
-    }
-    else
-    {
-        memcpy(utf16_buffer, tmp_buffer, (size_t)len);
+
+        utf16_buffer[len] = 0;
     }
 
-    Py_DECREF(obj);
     return utf16_buffer;
 }
