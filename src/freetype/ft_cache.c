@@ -142,10 +142,15 @@ FontGlyph *PGFT_Cache_FindGlyph(PGFT_Cache *cache,
         glyph = &cache->nodes[hash & cache->size_mask];
 
         if (*glyph == NULL)
-            *glyph = _PGFT_Cache_AllocateGlyph(cache, render, glyph_index);
+        {
+           *glyph = _PGFT_Cache_AllocateGlyph(cache, render, glyph_index);
+           return *glyph;
+        }
         
         if ((*glyph)->glyph_index == glyph_index)
+        {
             return *glyph;
+        }
 
     } while (cuckoo_hash++ < 2);
 

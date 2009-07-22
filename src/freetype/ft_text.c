@@ -30,16 +30,8 @@
 
 FontText *
 PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font, 
-        int pt_size, FontRenderMode *render, PyObject *text)
+        const FontRenderMode *render, PyObject *text)
 {
-    /*
-     * TODO:
-     * - Hash the text string and size
-     * - store it in the ft instance
-     * - automatically free the previous one
-     * - return existing ones if available
-     */
-
     FT_Int32 load_flags = FT_LOAD_DEFAULT; 
 
     int         swapped = 0;
@@ -77,7 +69,7 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
     }
 
     /* load our sized face */
-    face = _PGFT_GetFaceSized(ft, font, pt_size);
+    face = _PGFT_GetFaceSized(ft, font, render->pt_size);
 
     if (!face)
     {
@@ -194,8 +186,8 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
 }
 
 int
-PGFT_GetTextAdvances(FreeTypeInstance *ft, PyFreeTypeFont *font, int pt_size, 
-        FontRenderMode *render, FontText *text, FT_Vector *advances)
+PGFT_GetTextAdvances(FreeTypeInstance *ft, PyFreeTypeFont *font, 
+        const FontRenderMode *render, FontText *text, FT_Vector *advances)
 {
     FT_Face     face;
     FontGlyph   *glyph;
@@ -206,7 +198,7 @@ PGFT_GetTextAdvances(FreeTypeInstance *ft, PyFreeTypeFont *font, int pt_size,
     FT_Int      i;
     FT_Fixed    bold_str    = 0;
 
-    face = _PGFT_GetFaceSized(ft, font, pt_size);
+    face = _PGFT_GetFaceSized(ft, font, render->pt_size);
 
     if (!face)
         return -1;

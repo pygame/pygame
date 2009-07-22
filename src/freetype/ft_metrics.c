@@ -47,13 +47,21 @@ void _PGFT_GetMetrics_INTERNAL(FT_Glyph glyph, FT_UInt bbmode,
 
 
 int PGFT_GetMetrics(FreeTypeInstance *ft, PyFreeTypeFont *font,
-    int character, int font_size, int bbmode,
+    int character, const FontRenderMode *render, int bbmode,
     void *minx, void *maxx, void *miny, void *maxy, void *advance)
 {
     FT_Error error;
     FTC_ScalerRec scale;
     FT_Glyph glyph;
 
+    /*
+     * TODO:
+     * Load the glyph information from the cache
+     */
+
+    return -1;
+
+#if 0
     _PGFT_BuildScaler(font, &scale, font_size);
 
     error = _PGFT_LoadGlyph(ft, font, 0, &scale, character, &glyph, NULL);
@@ -63,6 +71,7 @@ int PGFT_GetMetrics(FreeTypeInstance *ft, PyFreeTypeFont *font,
         _PGFT_SetError(ft, "Failed to load glyph metrics", error);
         return error;
     }
+#endif
 
     _PGFT_GetMetrics_INTERNAL(glyph, (FT_UInt)bbmode, minx, maxx, miny, maxy, advance);
 
@@ -81,13 +90,13 @@ int PGFT_GetMetrics(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
 int
 _PGFT_GetTextSize_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font, 
-    int pt_size, FontRenderMode *render, FontText *text)
+    const FontRenderMode *render, FontText *text)
 {
     FT_Vector   extent, advances[MAX_GLYPHS];
     FT_Error    error;
     FT_Vector   size;
 
-    error = PGFT_GetTextAdvances(ft, font, pt_size, render, text, advances);
+    error = PGFT_GetTextAdvances(ft, font, render, text, advances);
 
     if (error)
         return error;
@@ -118,17 +127,17 @@ _PGFT_GetTextSize_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font,
 }
 
 int
-PGFT_GetTextSize(FreeTypeInstance *ft, PyFreeTypeFont *font, int pt_size,
-    FontRenderMode *render, PyObject *text, int *w, int *h)
+PGFT_GetTextSize(FreeTypeInstance *ft, PyFreeTypeFont *font,
+    const FontRenderMode *render, PyObject *text, int *w, int *h)
 {
     FontText *font_text;
 
-    font_text = PGFT_LoadFontText(ft, font, pt_size, render, text);
+    font_text = PGFT_LoadFontText(ft, font, render, text);
 
     if (!font_text)
         return -1;
 
-    if (_PGFT_GetTextSize_INTERNAL(ft, font, pt_size, render, font_text) != 0)
+    if (_PGFT_GetTextSize_INTERNAL(ft, font, render, font_text) != 0)
         return -1;
 
     *w = PGFT_TRUNC(PGFT_ROUND(font_text->text_size.x));

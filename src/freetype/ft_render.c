@@ -53,11 +53,26 @@ FT_Fixed PGFT_GetBoldStrength(FT_Face face)
     return bold_str;
 }
 
-void 
-PGFT_BuildRenderMode(FontRenderMode *mode, int style, int vertical, int antialias, int rotation)
+int 
+PGFT_BuildRenderMode(FreeTypeInstance *ft, 
+        PyFreeTypeFont *font, FontRenderMode *mode, 
+        int pt_size, int style, int vertical, int antialias, int rotation)
 {
     int angle;
 
+    if (pt_size == -1)
+    {
+        if (font->default_ptsize == -1)
+        {
+            _PGFT_SetError(ft, "No font point size specified"
+                    " and no default font size in typeface", 0);
+            return -1;
+        }
+
+        pt_size = font->default_ptsize;
+    }
+
+    mode->pt_size = (FT_UInt16)pt_size;
     mode->style = (FT_Byte)style;
     mode->render_flags = FT_RFLAG_DEFAULTS;
 
@@ -70,6 +85,9 @@ PGFT_BuildRenderMode(FontRenderMode *mode, int style, int vertical, int antialia
     angle = rotation % 360;
     while (angle < 0) angle += 360;
     mode->rotation_angle = (FT_UInt16)angle;
+
+    /* TODO: handle error returns on function calls */
+    return 0;
 }
 
 
@@ -80,7 +98,7 @@ PGFT_BuildRenderMode(FontRenderMode *mode, int style, int vertical, int antialia
  *********************************************************/
 #ifdef HAVE_PYGAME_SDL_VIDEO
 int PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
-    int font_size, FontRenderMode *render, PyObject *text, PySDLSurface *_surface, 
+    const FontRenderMode *render, PyObject *text, PySDLSurface *_surface, 
     int x, int y, PyColor *fgcolor, PyColor *bgcolor, int *_width, int *_height)
 {
     static const FontRenderPtr __SDLrenderFuncs[] =
@@ -131,12 +149,12 @@ int PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
     }
 
     /* build font text */
-    font_text = PGFT_LoadFontText(ft, font, font_size, render, text);
+    font_text = PGFT_LoadFontText(ft, font, render, text);
 
     if (!font_text)
         return -1;
 
-    _PGFT_GetTextSize_INTERNAL(ft, font, font_size, render, font_text);
+    _PGFT_GetTextSize_INTERNAL(ft, font, render, font_text);
 
     width = PGFT_TRUNC(PGFT_ROUND(font_text->text_size.x));
     height = PGFT_TRUNC(PGFT_ROUND(font_text->text_size.y));
@@ -191,7 +209,7 @@ int PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
     /*
      * Render!
      */
-    if (_PGFT_Render_INTERNAL(ft, font, font_text, font_size, fgcolor, &font_surf, render) != 0)
+    if (_PGFT_Render_INTERNAL(ft, font, font_text, render, fgcolor, &font_surf) != 0)
         return -1;
 
     *_width = width;
@@ -204,7 +222,7 @@ int PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
 }
 
 PyObject *PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font, 
-    int ptsize, FontRenderMode *render, PyObject *text,
+    const FontRenderMode *render, PyObject *text,
     PyColor *fgcolor, PyColor *bgcolor, int *_width, int *_height)
 {
     int locked = 0;
@@ -216,12 +234,12 @@ PyObject *PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
     int width, height;
 
     /* build font text */
-    font_text = PGFT_LoadFontText(ft, font, ptsize, render, text);
+    font_text = PGFT_LoadFontText(ft, font, render, text);
 
     if (!font_text)
         return NULL;
 
-    if (_PGFT_GetTextSize_INTERNAL(ft, font, ptsize, render, font_text) != 0)
+    if (_PGFT_GetTextSize_INTERNAL(ft, font, render, font_text) != 0)
         return NULL;
 
     width = PGFT_TRUNC(PGFT_ROUND(font_text->text_size.x));
@@ -289,7 +307,7 @@ PyObject *PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
     /*
      * Render the text!
      */
-    if (_PGFT_Render_INTERNAL(ft, font, font_text, ptsize, fgcolor, &font_surf, render) != 0)
+    if (_PGFT_Render_INTERNAL(ft, font, font_text, render, fgcolor, &font_surf) != 0)
     {
         SDL_FreeSurface(surface);
         return NULL;
@@ -315,7 +333,7 @@ PyObject *PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
  *********************************************************/
 
 PyObject *PGFT_Render_PixelArray(FreeTypeInstance *ft, PyFreeTypeFont *font,
-    int ptsize, PyObject *text, int *_width, int *_height)
+    const FontRenderMode *render, PyObject *text, int *_width, int *_height)
 {
     FT_Byte *buffer = NULL;
     PyObject *array = NULL;
@@ -323,22 +341,15 @@ PyObject *PGFT_Render_PixelArray(FreeTypeInstance *ft, PyFreeTypeFont *font,
     int width, height;
 
     FontText *font_text;
-    FontRenderMode render;
     int array_size;
 
-    /* 
-     * TODO: pixel arrays must also take custom rendering styles
-     * ... or should them?
-     */
-    PGFT_BuildRenderMode(&render, FT_STYLE_NORMAL, 0, 1, 0);
-
     /* build font text */
-    font_text = PGFT_LoadFontText(ft, font, ptsize, &render, text);
+    font_text = PGFT_LoadFontText(ft, font, render, text);
 
     if (!font_text)
         goto cleanup;
 
-    if (_PGFT_GetTextSize_INTERNAL(ft, font, ptsize, &render, font_text) != 0)
+    if (_PGFT_GetTextSize_INTERNAL(ft, font, render, font_text) != 0)
         goto cleanup;
 
     width = PGFT_TRUNC(PGFT_ROUND(font_text->text_size.x));
@@ -361,7 +372,7 @@ PyObject *PGFT_Render_PixelArray(FreeTypeInstance *ft, PyFreeTypeFont *font,
     surf.format = NULL;
     surf.render = __render_glyph_ByteArray;
 
-    if (_PGFT_Render_INTERNAL(ft, font, font_text, ptsize, 0x0, &surf, &render) != 0)
+    if (_PGFT_Render_INTERNAL(ft, font, font_text, render, 0x0, &surf) != 0)
         goto cleanup;
 
     *_width = width;
@@ -385,8 +396,8 @@ cleanup:
  *
  *********************************************************/
 int _PGFT_Render_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font, 
-    FontText *text, int font_size, PyColor *fg_color,
-    FontSurface *surface, FontRenderMode *render)
+    FontText *text, const FontRenderMode *render, PyColor *fg_color,
+    FontSurface *surface)
 {
     const FT_Fixed center = (1 << 15); // 0.5
 
@@ -411,7 +422,7 @@ int _PGFT_Render_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font,
     /******************************************************
      * Load scaler, size & face
      ******************************************************/
-    face = _PGFT_GetFaceSized(ft, font, font_size);
+    face = _PGFT_GetFaceSized(ft, font, render->pt_size);
 
     if (!face)
     {
@@ -422,7 +433,7 @@ int _PGFT_Render_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font,
     /******************************************************
      * Load advance information
      ******************************************************/
-    error = PGFT_GetTextAdvances(ft, font, font_size, render, text, advances);
+    error = PGFT_GetTextAdvances(ft, font, render, text, advances);
 
     if (error)
     {

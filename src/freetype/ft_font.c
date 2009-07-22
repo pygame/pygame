@@ -353,14 +353,17 @@ _ftfont_getsize(PyObject *self, PyObject* args, PyObject *kwds)
                 &text, &style, &vertical_obj, &rotation, &ptsize))
         return NULL;
 
-    PGFT_CHECK_PTSIZE();
     PGFT_CHECK_BOOL(vertical_obj, vertical);
 
     /* Build rendering mode, always anti-aliased by default */
-    PGFT_BuildRenderMode(&render, style, vertical, 1, rotation);
+    if (PGFT_BuildRenderMode(ft, font, 
+            &render, ptsize, style, vertical, 1, rotation) != 0)
+    {
+        PyErr_SetString(PyExc_PyGameError, PGFT_GetError(ft));
+        return NULL;
+    }
 
-    error = PGFT_GetTextSize(ft, (PyFreeTypeFont *)self, ptsize, &render,
-            text, &width, &height);
+    error = PGFT_GetTextSize(ft, font, &render,text, &width, &height);
 
     if (error)
         PyErr_SetString(PyExc_RuntimeError, PGFT_GetError(ft));
@@ -380,6 +383,7 @@ _ftfont_getmetrics(PyObject *self, PyObject* args, PyObject *kwds)
     };
 
     PyFreeTypeFont *font = (PyFreeTypeFont *)self;
+    FontRenderMode render;
 
     /* aux vars */
     void *buf = NULL;
@@ -399,8 +403,16 @@ _ftfont_getmetrics(PyObject *self, PyObject* args, PyObject *kwds)
                 &text, &ptsize, &bbmode))
         return NULL;
 
-    /* check ptsize */
-    PGFT_CHECK_PTSIZE();
+    /*
+     * Build the render mode with the given size and no
+     * rotation/styles/vertical text
+     */
+    if (PGFT_BuildRenderMode(ft, font, 
+                &render, ptsize, FT_STYLE_NORMAL, 0, 1, 0) != 0)
+    {
+        PyErr_SetString(PyExc_PyGameError, PGFT_GetError(ft));
+        return NULL;
+    }
 
     /* check text */
     if (PyUnicode_Check(text))
@@ -441,7 +453,7 @@ _ftfont_getmetrics(PyObject *self, PyObject* args, PyObject *kwds)
                                                         \
         if (PGFT_GetMetrics(ft,                         \
                 (PyFreeTypeFont *)self, char_id,        \
-                ptsize, bbmode,                         \
+                &render, bbmode,                        \
                 &minx_##_mt, &maxx_##_mt,               \
                 &miny_##_mt, &maxy_##_mt,               \
                 &advance_##_mt) == 0)                   \
@@ -491,6 +503,7 @@ _ftfont_render_raw(PyObject *self, PyObject* args, PyObject *kwds)
     };
 
     PyFreeTypeFont *font = (PyFreeTypeFont *)self;
+    FontRenderMode render;
 
     /* input arguments */
     PyObject *text = NULL;
@@ -506,9 +519,18 @@ _ftfont_render_raw(PyObject *self, PyObject* args, PyObject *kwds)
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &text, &ptsize))
         return NULL;
 
-    PGFT_CHECK_PTSIZE();
+    /*
+     * Build the render mode with the given size and no
+     * rotation/styles/vertical text
+     */
+    if (PGFT_BuildRenderMode(ft, font, 
+                &render, ptsize, FT_STYLE_NORMAL, 0, 1, 0) != 0)
+    {
+        PyErr_SetString(PyExc_PyGameError, PGFT_GetError(ft));
+        return NULL;
+    }
 
-    rbuffer = PGFT_Render_PixelArray(ft, font, ptsize, text, &width, &height);
+    rbuffer = PGFT_Render_PixelArray(ft, font, &render, text, &width, &height);
 
     if (!rbuffer)
     {
@@ -565,8 +587,6 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
                 &style, &vertical_obj, &rotation, &antialias_obj, &ptsize))
         return NULL;
 
-    PGFT_CHECK_PTSIZE();
-
     if (!PyColor_Check(fg_color))
     {
         PyErr_SetString(PyExc_TypeError, "fgcolor must be a Color");
@@ -588,15 +608,19 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
     PGFT_CHECK_BOOL(vertical_obj, vertical);
     PGFT_CHECK_BOOL(antialias_obj, antialias);
 
-    /* TODO: handle antialiasing */
-    PGFT_BuildRenderMode(&render, style, vertical, antialias, rotation);
+    if (PGFT_BuildRenderMode(ft, font, 
+                &render, ptsize, style, vertical, antialias, rotation) != 0)
+    {
+        PyErr_SetString(PyExc_PyGameError, PGFT_GetError(ft));
+        return NULL;
+    }
 
     if (!target_surf || target_surf == Py_None)
     {
         /* TODO! */
         PyObject *r_surface = NULL;
 
-        r_surface = PGFT_Render_NewSurface(ft, font, ptsize, &render, text,
+        r_surface = PGFT_Render_NewSurface(ft, font, &render, text,
                 (PyColor *)fg_color, (PyColor *)bg_color, &width, &height);
 
         if (!r_surface)
@@ -609,7 +633,7 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
     }
     else if (PySDLSurface_Check(target_surf))
     {
-        if (PGFT_Render_ExistingSurface(ft, font, ptsize, &render, 
+        if (PGFT_Render_ExistingSurface(ft, font, &render, 
                 text, (PySDLSurface *)target_surf,
                 xpos, ypos, (PyColor *)fg_color, (PyColor *)bg_color,
                 &width, &height) != 0)
