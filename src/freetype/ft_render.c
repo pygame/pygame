@@ -48,7 +48,7 @@ FT_Fixed PGFT_GetBoldStrength(FT_Face face)
     FT_Fixed bold_str;
 
     bold_str = FT_MulFix(face->units_per_EM, face->size->metrics.y_scale);
-    bold_str = (FT_Fixed)(bold_str * bold_factor);
+    bold_str = (FT_Fixed)((float)bold_str * bold_factor);
 
     return bold_str;
 }
@@ -56,40 +56,20 @@ FT_Fixed PGFT_GetBoldStrength(FT_Face face)
 void 
 PGFT_BuildRenderMode(FontRenderMode *mode, int style, int vertical, int antialias, int rotation)
 {
-    double      radian;
-    FT_Fixed    cosinus;
-    FT_Fixed    sinus;
-    int         angle;
+    int angle;
+
+    mode->style = (FT_Byte)style;
+    mode->render_flags = FT_RFLAG_DEFAULTS;
+
+    if (vertical)
+        mode->render_flags |= FT_RFLAG_VERTICAL;
+
+    if (antialias)
+        mode->render_flags |= FT_RFLAG_ANTIALIAS;
 
     angle = rotation % 360;
     while (angle < 0) angle += 360;
-
-    mode->kerning_mode = 1;
-    mode->kerning_degree = 0;
-
-    mode->style = (FT_Byte)style;
-
-    mode->vertical = (FT_Byte)vertical;
-    mode->hinted = (FT_Byte)1;
-    mode->autohint = 0;
-    mode->antialias = (FT_Byte)antialias;
-    mode->matrix = NULL;
-    mode->_rotation_angle = 0;
-
-    if (angle != 0)
-    {
-        radian  = angle * 3.14159 / 180.0;
-        cosinus = (FT_Fixed)(cos(radian) * 65536.0);
-        sinus   = (FT_Fixed)(sin(radian) * 65536.0);
-
-        mode->_rotation_matrix.xx = cosinus;
-        mode->_rotation_matrix.yx = sinus;
-        mode->_rotation_matrix.xy = -sinus;
-        mode->_rotation_matrix.yy = cosinus;
-        mode->_rotation_angle = (angle << 16);
-
-        mode->matrix = &mode->_rotation_matrix;
-    }
+    mode->rotation_angle = (FT_UInt16)angle;
 }
 
 
@@ -166,7 +146,6 @@ int PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
      * Setup target surface struct
      */
     font_surf.buffer = surface->pixels;
-    font_surf.buffer_cap = ((FT_Byte *)surface->pixels) + (surface->pitch * surface->h);
     font_surf.x_offset = x;
     font_surf.y_offset = y;
 
@@ -176,7 +155,7 @@ int PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
     font_surf.format = surface->format;
 
-    if (render->antialias == FONT_RENDER_ANTIALIAS)
+    if (render->render_flags & FT_RFLAG_ANTIALIAS)
         font_surf.render = __SDLrenderFuncs[surface->format->BytesPerPixel];
     else
         font_surf.render = __MONOrenderFuncs[surface->format->BytesPerPixel];
@@ -282,7 +261,6 @@ PyObject *PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
     }
 
     font_surf.buffer = surface->pixels;
-    font_surf.buffer_cap = ((FT_Byte *)surface->pixels) + (surface->pitch * surface->h);
     font_surf.x_offset = font_surf.y_offset = 0;
 
     font_surf.width = surface->w;
@@ -348,9 +326,11 @@ PyObject *PGFT_Render_PixelArray(FreeTypeInstance *ft, PyFreeTypeFont *font,
     FontRenderMode render;
     int array_size;
 
-    /* TODO: pixel arrays must also take custom rendering styles */
-    PGFT_BuildRenderMode(&render, FT_STYLE_NORMAL,
-            FONT_RENDER_HORIZONTAL, FONT_RENDER_ANTIALIAS, 0);
+    /* 
+     * TODO: pixel arrays must also take custom rendering styles
+     * ... or should them?
+     */
+    PGFT_BuildRenderMode(&render, FT_STYLE_NORMAL, 0, 1, 0);
 
     /* build font text */
     font_text = PGFT_LoadFontText(ft, font, ptsize, &render, text);
@@ -412,6 +392,7 @@ int _PGFT_Render_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
     int         n;
     FT_Vector   pen, advances[MAX_GLYPHS];
+    FT_Matrix   rotation_matrix;
     FT_Face     face;
     FT_Error    error;
 
@@ -441,13 +422,31 @@ int _PGFT_Render_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font,
     /******************************************************
      * Load advance information
      ******************************************************/
-
     error = PGFT_GetTextAdvances(ft, font, font_size, render, text, advances);
 
     if (error)
     {
         _PGFT_SetError(ft, "Failed to load advance glyph advances", error);
         return error;
+    }
+
+    /******************************************************
+     * Build rotation matrix for rotated text
+     ******************************************************/
+    if (render->rotation_angle != 0)
+    {
+        double      radian;
+        FT_Fixed    cosinus;
+        FT_Fixed    sinus;
+
+        radian  = render->rotation_angle * 3.14159 / 180.0;
+        cosinus = (FT_Fixed)(cos(radian) * 65536.0);
+        sinus   = (FT_Fixed)(sin(radian) * 65536.0);
+
+        rotation_matrix.xx = cosinus;
+        rotation_matrix.yx = sinus;
+        rotation_matrix.xy = -sinus;
+        rotation_matrix.yy = cosinus;
     }
 
     /******************************************************
@@ -463,13 +462,13 @@ int _PGFT_Render_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font,
     pen.x = FT_MulFix(pen.x, center); 
     pen.y = FT_MulFix(pen.y, center);
 
-    if (!render->vertical)
+    if ((render->render_flags & FT_RFLAG_VERTICAL) == 0)
         pen.y += PGFT_ROUND(text->glyph_size.y / 2);
 
     /* get pen position */
-    if (render->matrix && FT_IS_SCALABLE(face))
+    if (render->rotation_angle && FT_IS_SCALABLE(face))
     {
-        FT_Vector_Transform(&pen, render->matrix);
+        FT_Vector_Transform(&pen, &rotation_matrix);
         pen.x = x - pen.x;
         pen.y = y - pen.y;
     }
@@ -509,25 +508,25 @@ int _PGFT_Render_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font,
         if (image->format == FT_GLYPH_FORMAT_OUTLINE)
         {
             FT_OutlineGlyph outline;
+            FT_Vector *trans_vector = NULL;
+            FT_Matrix *trans_matrix = NULL;
+
             outline = (FT_OutlineGlyph)image;
 
             if (render->style & FT_STYLE_BOLD)
-            {
                 FT_Outline_Embolden(&(outline->outline), bold_str);
-            }
 
             if (render->style & FT_STYLE_ITALIC)
-            {
                 FT_Outline_Transform(&(outline->outline), &PGFT_SlantMatrix);
-            }
 
-            if (render->vertical)
-                error = FT_Glyph_Transform(image, NULL, &glyph->vvector);
+            if (render->render_flags & FT_RFLAG_VERTICAL)
+                trans_vector = &glyph->vvector;
 
-            if (!error)
-                error = FT_Glyph_Transform(image, render->matrix, &pen);
+            if (render->rotation_angle)
+                trans_matrix = &rotation_matrix;
 
-            if (error)
+            if (FT_Glyph_Transform(image, NULL, trans_vector) != 0 ||
+                FT_Glyph_Transform(image, trans_matrix, &pen) != 0)
             {
                 FT_Done_Glyph(image);
                 continue;
@@ -537,7 +536,7 @@ int _PGFT_Render_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font,
         {
             FT_BitmapGlyph  bitmap = (FT_BitmapGlyph)image;
 
-            if (render->vertical)
+            if (render->render_flags & FT_RFLAG_VERTICAL)
             {
                 bitmap->left += (glyph->vvector.x + pen.x) >> 6;
                 bitmap->top  += (glyph->vvector.x + pen.y) >> 6;
@@ -549,8 +548,8 @@ int _PGFT_Render_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font,
             }
         }
 
-        if (render->matrix)
-            FT_Vector_Transform(advances + n, render->matrix);
+        if (render->rotation_angle)
+            FT_Vector_Transform(advances + n, &rotation_matrix);
 
         pen.x += advances[n].x;
         pen.y += advances[n].y;
@@ -568,7 +567,7 @@ int _PGFT_Render_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font,
             if (image->format == FT_GLYPH_FORMAT_OUTLINE)
             {
                 FT_Render_Mode render_mode = 
-                    render->antialias ?
+                    (render->render_flags & FT_RFLAG_ANTIALIAS) ?
                     FT_RENDER_MODE_NORMAL :
                     FT_RENDER_MODE_MONO;
 
@@ -595,7 +594,9 @@ int _PGFT_Render_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
     if (render->style & FT_STYLE_UNDERLINE)
     {
-        surface->fill(surface->x_offset, surface->y_offset + text->baseline_offset.y + text->underline_pos, 
+        surface->fill(
+                surface->x_offset, 
+                surface->y_offset + text->baseline_offset.y + text->underline_pos, 
                 text->text_size.x >> 6, text->underline_h, 
                 surface, fg_color);
     }

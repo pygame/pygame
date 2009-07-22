@@ -68,11 +68,22 @@
 #define UNICODE_BOM_NATIVE	0xFEFF
 #define UNICODE_BOM_SWAPPED	0xFFFE
 
-#define FONT_RENDER_HORIZONTAL  0
-#define FONT_RENDER_VERTICAL    1
+#define FT_KERNING_MODE 1 /* KERNING_MODE_DEFAULT */
 
-#define FONT_RENDER_ALIASED     0
-#define FONT_RENDER_ANTIALIAS   1
+#define FT_RFLAG_NONE           (0)
+#define FT_RFLAG_ANTIALIAS      (1 << 0)
+#define FT_RFLAG_AUTOHINT       (1 << 1)
+#define FT_RFLAG_VERTICAL       (1 << 2)
+#define FT_RFLAG_HINTED         (1 << 3)
+
+/*
+ * Default render flags:
+ *      - Antialiasing off
+ *      - Autohint off
+ *      - Vertical text off
+ *      - Hinted on
+ */
+#define FT_RFLAG_DEFAULTS       (FT_RFLAG_NONE | FT_RFLAG_HINTED)
 
 #define MAX_GLYPHS      64
 
@@ -90,7 +101,6 @@ typedef struct
 typedef struct __fontsurface
 {
     void *buffer;
-    void *buffer_cap;
 
     int x_offset;
     int y_offset;
@@ -108,17 +118,8 @@ typedef struct __fontsurface
 
 typedef struct __rendermode
 {
-    int         kerning_degree;
-    FT_Matrix*  matrix;
-
-    FT_Matrix   _rotation_matrix;
-    FT_Fixed    _rotation_angle;
-
-    FT_Byte     hinted;
-    FT_Byte     vertical;
-    FT_Byte     antialias;
-    FT_Byte     kerning_mode;
-    FT_Byte     autohint;
+    FT_UInt16   rotation_angle;
+    FT_Byte     render_flags;
     FT_Byte     style;
 } FontRenderMode;
 

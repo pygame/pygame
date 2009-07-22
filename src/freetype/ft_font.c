@@ -356,7 +356,8 @@ _ftfont_getsize(PyObject *self, PyObject* args, PyObject *kwds)
     PGFT_CHECK_PTSIZE();
     PGFT_CHECK_BOOL(vertical_obj, vertical);
 
-    PGFT_BuildRenderMode(&render, style, vertical, FONT_RENDER_ANTIALIAS, rotation);
+    /* Build rendering mode, always anti-aliased by default */
+    PGFT_BuildRenderMode(&render, style, vertical, 1, rotation);
 
     error = PGFT_GetTextSize(ft, (PyFreeTypeFont *)self, ptsize, &render,
             text, &width, &height);

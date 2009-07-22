@@ -94,7 +94,7 @@ _PGFT_GetTextSize_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
     extent = advances[text->length - 1];
 
-    if (render->vertical)
+    if (render->render_flags & FT_RFLAG_VERTICAL)
     {
         size.x = text->glyph_size.x;
         size.y = ABS(extent.y);
@@ -105,7 +105,7 @@ _PGFT_GetTextSize_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font,
         size.y = text->glyph_size.y;
     }
 
-    if (render->matrix)
+    if (render->rotation_angle)
     {   
         size.x = MAX(size.x, size.y);
         size.y = MAX(size.x, size.y);

@@ -62,12 +62,12 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
     /* compute proper load flags */
     load_flags |= FT_LOAD_IGNORE_GLOBAL_ADVANCE_WIDTH;
 
-    if (render->autohint)
+    if (render->render_flags & FT_RFLAG_AUTOHINT)
         load_flags |= FT_LOAD_FORCE_AUTOHINT;
 
-    if (render->hinted)
+    if (render->render_flags & FT_RFLAG_HINTED)
     {
-        load_flags |=   render->antialias ?
+        load_flags |=   (render->render_flags & FT_RFLAG_ANTIALIAS) ?
                         FT_LOAD_TARGET_NORMAL :
                         FT_LOAD_TARGET_MONO;
     }
@@ -214,7 +214,8 @@ PGFT_GetTextAdvances(FreeTypeInstance *ft, PyFreeTypeFont *font, int pt_size,
     if (render->style & FT_STYLE_BOLD)
         bold_str = PGFT_GetBoldStrength(face);
 
-    if (!render->vertical && render->kerning_degree)
+#if 0
+    if (!(render->render_flags & FT_RFLAG_VERTICAL) && render->kerning_degree)
     {
         FT_Fixed  ptsize;
 
@@ -226,6 +227,7 @@ PGFT_GetTextAdvances(FreeTypeInstance *ft, PyFreeTypeFont *font, int pt_size,
         else
             track_kern >>= 10;
     }
+#endif
 
     for (i = 0; i < text->length; i++)
     {
@@ -234,7 +236,7 @@ PGFT_GetTextAdvances(FreeTypeInstance *ft, PyFreeTypeFont *font, int pt_size,
         if (!glyph->image)
             continue;
 
-        if (render->vertical)
+        if (render->render_flags & FT_RFLAG_VERTICAL)
             advances[i] = glyph->vadvance;
         else
         {
@@ -255,7 +257,7 @@ PGFT_GetTextAdvances(FreeTypeInstance *ft, PyFreeTypeFont *font, int pt_size,
             {
                 prev_advance->x += track_kern;
 
-                if (render->kerning_mode)
+                if (FT_KERNING_MODE > 0)
                 {
                     FT_Vector  kern;
 
@@ -265,7 +267,7 @@ PGFT_GetTextAdvances(FreeTypeInstance *ft, PyFreeTypeFont *font, int pt_size,
                     prev_advance->x += kern.x;
                     prev_advance->y += kern.y;
 
-                    if (render->kerning_mode > 1) /* KERNING_MODE_NORMAL */
+                    if (FT_KERNING_MODE > 1) /* KERNING_MODE_NORMAL */
                         prev_advance->x += glyph->delta;
                 }
             }
@@ -273,7 +275,7 @@ PGFT_GetTextAdvances(FreeTypeInstance *ft, PyFreeTypeFont *font, int pt_size,
 
         if (prev_advance)
         {
-            if (render->hinted)
+            if (render->render_flags & FT_RFLAG_HINTED)
             {
                 prev_advance->x = PGFT_ROUND(prev_advance->x);
                 prev_advance->y = PGFT_ROUND(prev_advance->y);
@@ -289,7 +291,7 @@ PGFT_GetTextAdvances(FreeTypeInstance *ft, PyFreeTypeFont *font, int pt_size,
 
     if (prev_advance)
     {
-        if (render->hinted)
+        if (render->render_flags & FT_RFLAG_HINTED)
         {
             prev_advance->x = PGFT_ROUND(prev_advance->x);
             prev_advance->y = PGFT_ROUND(prev_advance->y);
