@@ -119,9 +119,10 @@ typedef struct __fontsurface
 
 typedef struct __rendermode
 {
+    FT_UInt16   pt_size;
     FT_UInt16   rotation_angle;
-    FT_Byte     render_flags;
-    FT_Byte     style;
+    FT_UInt16   render_flags;
+    FT_UInt16   style;
 } FontRenderMode;
 
 typedef struct  FontGlyph_
@@ -136,6 +137,8 @@ typedef struct  FontGlyph_
     FT_Fixed    baseline;
     FT_Vector   size;
     FT_Int      lsb_delta;
+
+    FT_UInt32   hashes[2];
 
 } FontGlyph;
 
@@ -271,6 +274,12 @@ int         PGFT_GetTextAdvances(FreeTypeInstance *ft, PyFreeTypeFont *font, int
 
 FT_UInt16 * PGFT_BuildUnicodeString(PyObject *);
 
+
+/******************************************************** Glyph cache management ****/
+PGFT_Cache* PGFT_Cache_Create(FT_Face parent);
+void        PGFT_Cache_Destroy(PGFT_Cache *cache);
+FontGlyph * PGFT_Cache_FindGlyph(PGFT_Cache *cache, FT_UInt glyph_index, 
+                const FontRenderMode *render);
 
 
 /******************************************************************* Internals ****/
