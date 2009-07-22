@@ -87,6 +87,7 @@
 
 #define MAX_GLYPHS      64
 
+
 typedef struct
 {
     FT_Library library;
@@ -132,6 +133,10 @@ typedef struct  FontGlyph_
     FT_Vector   vvector;  
     FT_Vector   vadvance; 
 
+    FT_Fixed    baseline;
+    FT_Vector   size;
+    FT_Int      lsb_delta;
+
 } FontGlyph;
 
 typedef struct FontText_
@@ -148,6 +153,15 @@ typedef struct FontText_
     FT_Int16 underline_h;
 
 } FontText;
+
+typedef struct __glyphcache
+{
+    FontGlyph   **nodes;
+    FT_UInt32   size_mask;
+
+    FT_Face     face;
+} PGFT_Cache;
+
 
 typedef struct {
     FreeTypeInstance *freetype;
