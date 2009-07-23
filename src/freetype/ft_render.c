@@ -506,9 +506,9 @@ int _PGFT_Render_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font,
         FT_Glyph image;
         FT_BBox bbox;
 
-        FontGlyph *glyph = &(text->glyphs[n]);
+        FontGlyph *glyph = text->glyphs[n];
 
-        if (!glyph->image)
+        if (!glyph || !glyph->image)
             continue;
 
         /* copy image */

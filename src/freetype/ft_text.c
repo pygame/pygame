@@ -32,8 +32,6 @@ FontText *
 PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font, 
         const FontRenderMode *render, PyObject *text)
 {
-    FT_Int32 load_flags = FT_LOAD_DEFAULT; 
-
     int         swapped = 0;
     int         string_length = 0;
 
@@ -41,32 +39,14 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
     FT_UInt16 * orig_buffer;
     FT_UInt16 * ch;
 
-    FT_Pos      prev_rsb_delta = 0;
-    FT_Fixed    baseline;
-    FT_Fixed    bold_str = 0;
     FT_Fixed    y_scale;
+    FT_Fixed    bold_str = 0;
 
-    FontText  * ftext = NULL;
-    FontGlyph * glyph = NULL;
+    FontText    *ftext = NULL;
+    FontGlyph   *glyph = NULL;
+    FontGlyph   **glyph_array = NULL;
 
     FT_Face     face;
-
-    /* compute proper load flags */
-    load_flags |= FT_LOAD_IGNORE_GLOBAL_ADVANCE_WIDTH;
-
-    if (render->render_flags & FT_RFLAG_AUTOHINT)
-        load_flags |= FT_LOAD_FORCE_AUTOHINT;
-
-    if (render->render_flags & FT_RFLAG_HINTED)
-    {
-        load_flags |=   (render->render_flags & FT_RFLAG_ANTIALIAS) ?
-                        FT_LOAD_TARGET_NORMAL :
-                        FT_LOAD_TARGET_MONO;
-    }
-    else
-    {
-        load_flags |= FT_LOAD_NO_HINTING;
-    }
 
     /* load our sized face */
     face = _PGFT_GetFaceSized(ft, font, render->pt_size);
@@ -88,15 +68,19 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
     /* get the length of the text */
     for (ch = buffer; *ch; ++ch)
-        string_length++;
-
-    if (render->style & FT_STYLE_BOLD)
-        bold_str = PGFT_GetBoldStrength(face);
+    {
+        if (*ch != UNICODE_BOM_NATIVE &&
+            *ch != UNICODE_BOM_SWAPPED)
+            string_length++;
+    }
 
     /* create the text struct */
-    ftext = malloc(sizeof(FontText));
+    ftext = &(PGFT_INTERNALS(font)->active_text);
+
+    free(ftext->glyphs);
+    ftext->glyphs = calloc((size_t)string_length, sizeof(FontGlyph *));
+
     ftext->length = string_length;
-    ftext->glyphs = calloc((size_t)string_length, sizeof(FontGlyph));
     ftext->glyph_size.x = ftext->glyph_size.y = 0;
     ftext->text_size.x = ftext->text_size.y = 0;
     ftext->baseline_offset.x = ftext->baseline_offset.y = 0;
@@ -113,6 +97,9 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
      * on most cases. We manually adjust for this by increasing the offset
      * a proportional amount to the bold strength.
      */
+    if (render->style & FT_STYLE_BOLD)
+        bold_str = PGFT_GetBoldStrength(face);
+
     ftext->underline_pos = (FT_Int16)(
             PGFT_FLOOR(FT_MulFix(face->underline_position + bold_str / 2, y_scale)) >> 6);
 
@@ -120,12 +107,15 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
             (bold_str + PGFT_FLOOR(FT_MulFix(face->underline_thickness, y_scale))) >> 6);
 
     /* fill it with the glyphs */
-    glyph = &(ftext->glyphs[0]);
+    glyph_array = ftext->glyphs;
 
-    for (ch = buffer; *ch; ++ch, ++glyph)
+    for (ch = buffer; *ch; ++ch)
     {
         FT_UInt16 c = *ch;
 
+        /*
+         * Handle byte-order markers in the unicode string
+         */
         if (c == UNICODE_BOM_NATIVE || c == UNICODE_BOM_SWAPPED)
         {
             swapped = (c == UNICODE_BOM_SWAPPED);
@@ -138,42 +128,28 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
         if (swapped)
             c = (FT_UInt16)((c << 8) | (c >> 8));
 
-        glyph->glyph_index = FTC_CMapCache_Lookup(ft->cache_charmap, 
-            (FTC_FaceID)(&font->id),
-            -1, (FT_UInt32)c);
+        /*
+         * Load the corresponding glyph from the cache
+         */
+        glyph = PGFT_Cache_FindGlyph(ft, &PGFT_INTERNALS(font)->cache, 
+                (FT_UInt)c, render);
 
-        /* FIXME: leaks memory, needs to use the cache */
-        if (!FT_Load_Glyph(face, glyph->glyph_index, load_flags)  &&
-            !FT_Get_Glyph(face->glyph, &glyph->image))
-        {
-            FT_Glyph_Metrics *metrics = &face->glyph->metrics;
+        if (!glyph)
+            continue;
+           
+        /*
+         * Do size calculations for all the glyphs in the text
+         */
+        if (glyph->baseline > ftext->baseline_offset.y)
+            ftext->baseline_offset.y = glyph->baseline;
 
-            /* note that in vertical layout, y-positive goes downwards */
-            glyph->vvector.x  = (metrics->vertBearingX - bold_str / 2) - metrics->horiBearingX;
-            glyph->vvector.y  = -(metrics->vertBearingY + bold_str) - (metrics->horiBearingY + bold_str);
+        if (glyph->size.x > ftext->glyph_size.x)
+            ftext->glyph_size.x = glyph->size.x;
 
-            glyph->vadvance.x = 0;
-            glyph->vadvance.y = -(metrics->vertAdvance + bold_str);
+        if (glyph->size.y > ftext->glyph_size.y)
+            ftext->glyph_size.y = glyph->size.y;
 
-            baseline = metrics->height - metrics->horiBearingY;
-
-            if (baseline > ftext->baseline_offset.y)
-                ftext->baseline_offset.y = baseline;
-
-            if (metrics->width + bold_str > ftext->glyph_size.x)
-                ftext->glyph_size.x = metrics->width + bold_str;
-
-            if (metrics->height + bold_str > ftext->glyph_size.y)
-                ftext->glyph_size.y = metrics->height + bold_str;
-
-            if (prev_rsb_delta - face->glyph->lsb_delta >= 32)
-                glyph->delta = -1 << 6;
-            else if (prev_rsb_delta - face->glyph->lsb_delta < -32)
-                glyph->delta = 1 << 6;
-            else
-                glyph->delta = 0;
-        }
-
+        *glyph_array++ = glyph;
     }
 
     /* 
@@ -223,9 +199,9 @@ PGFT_GetTextAdvances(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
     for (i = 0; i < text->length; i++)
     {
-        glyph = &(text->glyphs[i]);
+        glyph = text->glyphs[i];
 
-        if (!glyph->image)
+        if (!glyph || !glyph->image)
             continue;
 
         if (render->render_flags & FT_RFLAG_VERTICAL)

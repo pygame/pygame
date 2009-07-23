@@ -183,47 +183,6 @@ _PGFT_BuildScaler(PyFreeTypeFont *font, FTC_Scaler scale, int size)
 
 
 
-/*********************************************************
- *
- * Glyph loading
- *
- *********************************************************/
-int
-_PGFT_LoadGlyph(FreeTypeInstance *ft, 
-    PyFreeTypeFont *font,
-    int load_flags,
-    FTC_Scaler scale, 
-    int character, 
-    FT_Glyph *glyph, 
-    FT_UInt32 *_index)
-{
-    FT_Error error = 0;
-    FT_UInt32 char_index;
-
-    char_index = FTC_CMapCache_Lookup(
-        ft->cache_charmap, 
-            (FTC_FaceID)(&font->id),
-            -1, (FT_UInt32)character);
-
-    if (_index)
-        *_index = char_index;
-
-    if (char_index == 0)
-        return -1;
-
-    if (glyph)
-    {
-        error = FTC_ImageCache_LookupScaler(
-            ft->cache_img,
-                scale,
-                load_flags,
-                char_index,
-                glyph, NULL);
-    }
-
-    return error;
-}
-
 
 
 
@@ -276,6 +235,11 @@ PGFT_TryLoadFont_Filename(FreeTypeInstance *ft,
     font->id.open_args.flags = FT_OPEN_PATHNAME;
     font->id.open_args.pathname = filename_alloc;
 
+    font->_internals = malloc(sizeof(FontInternals));
+    memset(font->_internals, 0x0, sizeof(FontInternals));
+    
+    PGFT_Cache_Init(&PGFT_INTERNALS(font)->cache, font);
+
     return _PGFT_GetFace(ft, font) ? 0 : -1;
 }
 
@@ -284,6 +248,10 @@ PGFT_UnloadFont(FreeTypeInstance *ft, PyFreeTypeFont *font)
 {
     if (ft != NULL)
         FTC_Manager_RemoveFaceID(ft->cache_manager, (FTC_FaceID)(&font->id));
+
+    PGFT_Cache_Destroy(&PGFT_INTERNALS(font)->cache);
+    free(PGFT_INTERNALS(font)->active_text.glyphs);
+    free(PGFT_INTERNALS(font));
 
     free(font->id.open_args.pathname);
 }
@@ -319,14 +287,6 @@ PGFT_Init(FreeTypeInstance **_instance)
 
     if (FTC_CMapCache_New(inst->cache_manager, 
             &inst->cache_charmap) != 0)
-        goto error_cleanup;
-
-    if (FTC_SBitCache_New(inst->cache_manager,
-            &inst->cache_sbit) != 0)
-        goto error_cleanup;
-
-    if (FTC_ImageCache_New(inst->cache_manager,
-            &inst->cache_img) != 0)
         goto error_cleanup;
 
     *_instance = inst;

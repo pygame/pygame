@@ -37,21 +37,6 @@
 #define PGFT_ROUND(x)  ( ( (x) + 32 ) & -64 )
 #define PGFT_TRUNC(x)  (   (x) >> 6 )
 
-
-#define PGFT_CHECK_PTSIZE()                             \
-    if (ptsize == -1)                                   \
-    {                                                   \
-        if (font->default_ptsize == -1)                 \
-        {                                               \
-            PyErr_SetString(PyExc_ValueError,           \
-                    "Missing font size argument "       \
-                    "and no default size specified");   \
-            return NULL;                                \
-        }                                               \
-                                                        \
-        ptsize = font->default_ptsize;                  \
-    }
-
 #define PGFT_CHECK_BOOL(_pyobj, _var)               \
     if (_pyobj)                                     \
     {                                               \
@@ -92,8 +77,6 @@ typedef struct
 {
     FT_Library library;
     FTC_Manager cache_manager;
-    FTC_SBitCache cache_sbit;
-    FTC_ImageCache cache_img;
     FTC_CMapCache cache_charmap;
 
     char *_error_msg;
@@ -136,17 +119,15 @@ typedef struct  FontGlyph_
 
     FT_Fixed    baseline;
     FT_Vector   size;
-    FT_Int      lsb_delta;
 
-    FT_UInt32   hashes[2];
-
+    FT_UInt32   lru;
+    FT_UInt32   hash;
 } FontGlyph;
 
 typedef struct FontText_
 {
-    FontGlyph *glyphs;
+    FontGlyph **glyphs;
     int length;
-    FT_UInt32 _hash;
 
     FT_Vector glyph_size;       /* 26.6 */
     FT_Vector text_size;        /* 26.6 */
@@ -154,7 +135,6 @@ typedef struct FontText_
 
     FT_Int16 underline_pos;
     FT_Int16 underline_h;
-
 } FontText;
 
 typedef struct __glyphcache
@@ -162,8 +142,20 @@ typedef struct __glyphcache
     FontGlyph   **nodes;
     FT_UInt32   size_mask;
 
-    FT_Face     face;
+    FT_UInt32   lru_counter;
+
+    PyFreeTypeFont  *font;
 } PGFT_Cache;
+
+typedef struct FontInternals_
+{
+    PGFT_Cache  cache;
+    FontText    active_text;
+
+    /* TODO */
+} FontInternals;
+
+#define PGFT_INTERNALS(f) ((FontInternals *)(f->_internals))
 
 
 typedef struct {
@@ -277,9 +269,9 @@ FT_UInt16 * PGFT_BuildUnicodeString(PyObject *);
 
 
 /******************************************************** Glyph cache management ****/
-PGFT_Cache* PGFT_Cache_Create(FT_Face parent);
+void        PGFT_Cache_Init(PGFT_Cache *cache, PyFreeTypeFont *parent);
 void        PGFT_Cache_Destroy(PGFT_Cache *cache);
-FontGlyph * PGFT_Cache_FindGlyph(PGFT_Cache *cache, FT_UInt glyph_index, 
+FontGlyph * PGFT_Cache_FindGlyph(FreeTypeInstance *ft, PGFT_Cache *cache, FT_UInt character, 
                 const FontRenderMode *render);
 
 
@@ -288,8 +280,6 @@ void        _PGFT_SetError(FreeTypeInstance *, const char *, FT_Error);
 FT_Face     _PGFT_GetFace(FreeTypeInstance *, PyFreeTypeFont *);
 FT_Face     _PGFT_GetFaceSized(FreeTypeInstance *, PyFreeTypeFont *, int);
 void        _PGFT_BuildScaler(PyFreeTypeFont *, FTC_Scaler, int);
-int         _PGFT_LoadGlyph(FreeTypeInstance *, PyFreeTypeFont *, int,
-                FTC_Scaler, int, FT_Glyph *, FT_UInt32 *);
 
 
 #endif

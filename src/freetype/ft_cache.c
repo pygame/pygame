@@ -28,10 +28,13 @@
 
 #include FT_MODULE_H
 
-FT_UInt32 _PGFT_Cache_Hash(const FontRenderMode *, FT_UInt, int);
+#define PGFT_DEBUG_CACHE
+
+FT_UInt32 _PGFT_Cache_Hash(const FontRenderMode *, FT_UInt);
 FT_UInt32 _PGFT_GetLoadFlags(const FontRenderMode *);
 
-FontGlyph *_PGFT_Cache_AllocateGlyph(PGFT_Cache *, const FontRenderMode *, FT_UInt);
+FontGlyph *_PGFT_Cache_AllocateGlyph(FreeTypeInstance *, 
+        PGFT_Cache *, const FontRenderMode *, FT_UInt);
 void _PGFT_Cache_FreeGlyph(FontGlyph *);
 
 
@@ -58,14 +61,8 @@ FT_UInt32 _PGFT_GetLoadFlags(const FontRenderMode *render)
     return load_flags;
 }
 
-FT_UInt32 _PGFT_Cache_Hash(const FontRenderMode *render, FT_UInt glyph_index, int hash_mode)
+FT_UInt32 _PGFT_Cache_Hash(const FontRenderMode *render, FT_UInt glyph_index)
 {
-    static const FT_UInt32 _CUCKOO_HASHES[] =
-    {
-        0xDEADC0DE,
-        0xBEEF1234
-    };
-
 	const FT_UInt32 m = 0x5bd1e995;
 	const int r = 24;
 
@@ -76,7 +73,7 @@ FT_UInt32 _PGFT_Cache_Hash(const FontRenderMode *render, FT_UInt glyph_index, in
      * Assumes sizeof(FontRenderMode) == 8
      */
 
-    h = (glyph_index << 8) | _CUCKOO_HASHES[hash_mode];
+    h = (glyph_index << 12) ^ glyph_index;
 
     k = *(const FT_UInt32 *)render;
     k *= m; k ^= k >> r; 
@@ -93,25 +90,18 @@ FT_UInt32 _PGFT_Cache_Hash(const FontRenderMode *render, FT_UInt glyph_index, in
 	return h;
 } 
 
-PGFT_Cache *PGFT_Cache_Create(FT_Face parent)
+void PGFT_Cache_Init(PGFT_Cache *cache, PyFreeTypeFont *parent)
 {
     /* 
      * TODO: Let user specify the desired
      * size for the cache?
      */
     const int cache_size = 64;
-    PGFT_Cache *cache = NULL;
 
-    cache = malloc(sizeof(PGFT_Cache));
-
-    if (!cache)
-        return NULL;
-
-    cache->face = parent;
+    cache->font = parent;
     cache->nodes = calloc(cache_size, sizeof(FontGlyph *));
     cache->size_mask = (cache_size - 1);
-
-    return cache;
+    cache->lru_counter = 0;
 }
 
 void PGFT_Cache_Destroy(PGFT_Cache *cache)
@@ -125,64 +115,65 @@ void PGFT_Cache_Destroy(PGFT_Cache *cache)
         _PGFT_Cache_FreeGlyph(cache->nodes[i]);
 
     free(cache->nodes);
-    free(cache);
 }
 
-FontGlyph *PGFT_Cache_FindGlyph(PGFT_Cache *cache, 
-        FT_UInt glyph_index, const FontRenderMode *render)
+FontGlyph *PGFT_Cache_FindGlyph(FreeTypeInstance *ft, PGFT_Cache *cache, 
+        FT_UInt character, const FontRenderMode *render)
 {
-    const int MAX_CUCKOO_ITER = 6;
-    FontGlyph **glyph = NULL, *next_glyph, *aux, *alloc;
-    int cuckoo_hash = 0;
-    FT_UInt32 hashes[2];
+    FontGlyph **nodes = cache->nodes;
+    FT_UInt32 lowest, current, first, i;
 
-    do
-    {
-        FT_UInt32 hash = _PGFT_Cache_Hash(render, glyph_index, cuckoo_hash & 1);
-        glyph = &cache->nodes[hash & cache->size_mask];
-
-        if (*glyph == NULL)
-        {
-           *glyph = _PGFT_Cache_AllocateGlyph(cache, render, glyph_index);
-           return *glyph;
-        }
-        
-        if ((*glyph)->glyph_index == glyph_index)
-        {
-            return *glyph;
-        }
-
-    } while (cuckoo_hash++ < 2);
+    const FT_UInt32 hash = _PGFT_Cache_Hash(render, character);
+    FT_UInt32 perturb;
+    
+    i = hash;
+    current = first = lowest = hash & cache->size_mask;
+    perturb = hash;
 
     /*
-     * Glyph is not cached.
-     * Place it on the cache!
+     * Browse the whole cache with linear probing until either:
+     *
+     *  a) we find an empty spot for the glyph
+     *      => we load our glyph and store it there
+     *
+     *  b) we find the glyph already on the cache
+     *      => we return the reference to that glyph
+     *
+     *  c) we find no glyphs, and no empty spots
+     *      => we kick the LRU glyph from the cache,
+     *      and store the new one there
      */
-    cuckoo_hash = 0;
-
-    next_glyph = *glyph;
-    *glyph = _PGFT_Cache_AllocateGlyph(cache, render, glyph_index);
-    alloc = *glyph;
-
-    while (next_glyph != NULL && cuckoo_hash++ < MAX_CUCKOO_ITER)
+    do
     {
-        hashes[0] = next_glyph->hashes[0];
-        hashes[1] = next_glyph->hashes[1];
+        if (nodes[current] == NULL)
+        {
+            /* A: found empty spot */
+            return (nodes[current] = 
+                   _PGFT_Cache_AllocateGlyph(ft, cache, render, character));
+        }
+        
+        if (nodes[current]->hash == hash)
+        {
+            /* B: found glyph on cache */
+            nodes[current]->lru = ++cache->lru_counter;
+            return nodes[current];
+        }
 
-        if (glyph == &cache->nodes[hashes[0] & cache->size_mask])
-            glyph = &cache->nodes[hashes[1] & cache->size_mask];
-        else
-            glyph = &cache->nodes[hashes[0] & cache->size_mask];
+        if (nodes[current]->lru < nodes[lowest]->lru)
+            lowest = current;
 
-        aux = *glyph;
-        *glyph = next_glyph;
-        next_glyph = aux;
-    }
+        i = (5 * i) + 1 + perturb;
+        perturb <<= 5;
 
-    if (next_glyph)
-        _PGFT_Cache_FreeGlyph(next_glyph);
+        current = i & cache->size_mask;
 
-    return alloc;
+    } while (current != first);
+
+    /* C: kick glyph from cache */
+    _PGFT_Cache_FreeGlyph(nodes[lowest]);
+
+    return (nodes[lowest] = 
+            _PGFT_Cache_AllocateGlyph(ft, cache, render, character));
 }
 
 void _PGFT_Cache_FreeGlyph(FontGlyph *glyph)
@@ -194,43 +185,69 @@ void _PGFT_Cache_FreeGlyph(FontGlyph *glyph)
     free(glyph);
 }
 
-FontGlyph *_PGFT_Cache_AllocateGlyph(PGFT_Cache *cache, 
-        const FontRenderMode *render, FT_UInt glyph_index)
+FontGlyph *_PGFT_Cache_AllocateGlyph(FreeTypeInstance *ft, 
+        PGFT_Cache *cache, const FontRenderMode *render, FT_UInt character)
 {
     FT_Glyph_Metrics *metrics;
     FontGlyph *glyph = NULL;
     FT_UInt32 load_flags;
     FT_Fixed bold_str = 0;
+    int gindex;
+
+    FT_Face face;
+
+    /*
+     * Grab face reference
+     */
+    face = _PGFT_GetFaceSized(ft, cache->font, render->pt_size);
+
+    if (!face)
+    {
+        _PGFT_SetError(ft, "Failed to resize face", 0);
+        goto cleanup;
+    }
 
     /* 
      * Allocate cache node 
      */
     glyph = malloc(sizeof(FontGlyph));
 
-    glyph->glyph_index = glyph_index;
-    glyph->hashes[0] = _PGFT_Cache_Hash(render, glyph_index, 0);
-    glyph->hashes[1] = _PGFT_Cache_Hash(render, glyph_index, 1);
 
     /*
-     * Loading information
+     * Calculate the corresponding glyph index for the char
+     */
+    gindex = FTC_CMapCache_Lookup(ft->cache_charmap, 
+            (FTC_FaceID)&(cache->font->id), -1, character);
+
+    if (gindex < 0)
+    {
+        _PGFT_SetError(ft, "Glyph character not found in font", 0);
+        goto cleanup;
+    }
+
+    glyph->glyph_index = (FT_UInt)gindex;
+
+
+    /*
+     * Get loading information
      */
     load_flags = _PGFT_GetLoadFlags(render);
 
     if (render->style & FT_STYLE_BOLD)
-        bold_str = PGFT_GetBoldStrength(cache->face);
+        bold_str = PGFT_GetBoldStrength(face);
 
     /*
      * Load the glyph into the glyph slot
      * TODO: error handling
      */
-    if (FT_Load_Glyph(cache->face, glyph_index, (FT_Int)load_flags) != 0 ||
-        FT_Get_Glyph(cache->face->glyph, &(glyph->image)) != 0)
-        return NULL;
+    if (FT_Load_Glyph(face, glyph->glyph_index, (FT_Int)load_flags) != 0 ||
+        FT_Get_Glyph(face->glyph, &(glyph->image)) != 0)
+        goto cleanup;
 
     /*
      * Precalculate useful metric values
      */
-    metrics = &cache->face->glyph->metrics;
+    metrics = &face->glyph->metrics;
 
     glyph->vvector.x  = (metrics->vertBearingX - bold_str / 2) - metrics->horiBearingX;
     glyph->vvector.y  = -(metrics->vertBearingY + bold_str) - (metrics->horiBearingY + bold_str);
@@ -243,7 +260,22 @@ FontGlyph *_PGFT_Cache_AllocateGlyph(PGFT_Cache *cache,
     glyph->size.x = metrics->width + bold_str;
     glyph->size.y = metrics->height + bold_str;
 
-    glyph->lsb_delta = cache->face->glyph->lsb_delta;
+
+    /*
+     * Update cache internals
+     */
+    glyph->lru = ++cache->lru_counter;
+    glyph->hash = _PGFT_Cache_Hash(render, character);
 
     return glyph;
+
+    /*
+     * Cleanup on error
+     */
+cleanup:
+    if (glyph && glyph->image)
+        FT_Done_Glyph(glyph->image);
+
+    free(glyph);
+    return NULL;
 }
