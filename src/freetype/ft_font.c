@@ -216,16 +216,23 @@ _ftfont_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static int
 _ftfont_init(PyObject *self, PyObject *args, PyObject *kwds)
 {
+    static char *kwlist[] = 
+    { 
+        "font", "ptsize", "style", "face_index", NULL
+    };
+
     PyFreeTypeFont *font = (PyFreeTypeFont *)self;
     
     PyObject *file;
     int face_index = 0;
     int ptsize = -1;
+    int font_style = FT_STYLE_NORMAL;
 
     FreeTypeInstance *ft;
     ASSERT_GRAB_FREETYPE(ft, -1);
 
-    if (!PyArg_ParseTuple(args, "O|ii", &file, &ptsize, &face_index))
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|iii", kwlist, 
+                &file, &ptsize, &font_style, &face_index))
         return -1;
 
     if (face_index < 0)
@@ -235,6 +242,7 @@ _ftfont_init(PyObject *self, PyObject *args, PyObject *kwds)
     }
 
     font->default_ptsize = (ptsize <= 0) ? -1 : ptsize;
+    font->default_style = font_style;
 
     /*
      * TODO: Handle file-like objects
@@ -283,13 +291,24 @@ _ftfont_repr(PyObject *self)
 static PyObject*
 _ftfont_getstyle (PyObject *self, void *closure)
 {
-    /* TODO */
+    PyFreeTypeFont *font = (PyFreeTypeFont *)self;
+
+    return PyInt_FromLong(font->default_style);
 }
 
 static int
 _ftfont_setstyle(PyObject *self, PyObject *value, void *closure)
 {
-    /* TODO */
+    PyFreeTypeFont *font = (PyFreeTypeFont *)self;
+
+    if (!PyInt_Check(value))
+    {
+        PyErr_SetString(PyExc_TypeError, "Invalid style value");
+        return -1;
+    }
+
+    font->default_style = PyInt_AsLong(value);
+    return 0;
 }
 
 static PyObject*
@@ -342,7 +361,7 @@ _ftfont_getsize(PyObject *self, PyObject* args, PyObject *kwds)
     FontRenderMode render;
     int vertical = 0;
     int rotation = 0;
-    int style = FT_STYLE_NORMAL;
+    int style = 0;
 
     PyObject *vertical_obj = NULL;
 
@@ -569,7 +588,7 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
     PyObject *antialias_obj = NULL;
     int rotation = 0;
     int xpos = 0, ypos = 0;
-    int style = FT_STYLE_NORMAL;
+    int style = FT_STYLE_DEFAULT;
 
     /* output arguments */
     PyObject *rtuple = NULL;
@@ -678,6 +697,7 @@ PyFreeTypeFont_New(const char *filename, int face_index)
 
     /* TODO: Create a constructor for fonts with default sizes? */
     font->default_ptsize = -1;
+    font->default_style = FT_STYLE_NORMAL;
 
     if (PGFT_TryLoadFont_Filename(ft, font, filename, face_index) != 0)
     {

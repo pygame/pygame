@@ -87,25 +87,6 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
     y_scale = face->size->metrics.y_scale;
 
-    /*
-     * Calculate the position for the underline.
-     * underline_pos is the offset of the underline based on top of the
-     * font's baseline.
-     *
-     * HACK: When emboldening the font, the baseline nor the offset change,
-     * however the font is indeed thicker and the type overlays the underline
-     * on most cases. We manually adjust for this by increasing the offset
-     * a proportional amount to the bold strength.
-     */
-    if (render->style & FT_STYLE_BOLD)
-        bold_str = PGFT_GetBoldStrength(face);
-
-    ftext->underline_pos = (FT_Int16)(
-            PGFT_FLOOR(FT_MulFix(face->underline_position + bold_str / 2, y_scale)) >> 6);
-
-    ftext->underline_h = (FT_Int16)(
-            (bold_str + PGFT_FLOOR(FT_MulFix(face->underline_thickness, y_scale))) >> 6);
-
     /* fill it with the glyphs */
     glyph_array = ftext->glyphs;
 

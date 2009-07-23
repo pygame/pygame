@@ -73,7 +73,12 @@ PGFT_BuildRenderMode(FreeTypeInstance *ft,
     }
 
     mode->pt_size = (FT_UInt16)pt_size;
-    mode->style = (FT_Byte)style;
+
+    if (style == FT_STYLE_DEFAULT)
+        mode->style = font->default_style;
+    else
+        mode->style = (FT_Byte)style;
+
     mode->render_flags = FT_RFLAG_DEFAULTS;
 
     if (vertical)
@@ -603,12 +608,44 @@ int _PGFT_Render_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font,
         FT_Done_Glyph(image);
     } /* END OF RENDERING LOOP */
 
-    if (render->style & FT_STYLE_UNDERLINE)
+    if (render->style & FT_STYLE_UNDERLINE &&
+        (render->render_flags & FT_RFLAG_VERTICAL) == 0 &&
+        (render->rotation_angle == 0))
     {
+        FT_Fixed scale;
+        FT_Fixed underline_pos;
+        FT_Fixed underline_size;
+        
+        scale = face->size->metrics.y_scale;
+
+        underline_pos = FT_MulFix(face->underline_position, scale);
+        underline_size = FT_MulFix(face->underline_thickness, scale) + bold_str;
+
+        /*
+         * HACK HACK HACK
+         *
+         * According to the FT documentation, 'underline_pos' is the offset 
+         * to draw the underline in 26.6 FP, based on the text's baseline 
+         * (negative values mean below the baseline).
+         *
+         * However, after scaling the underline position, the values for all
+         * fonts are WAY off (e.g. fonts with 32pt size get underline offsets
+         * of -14 pixels).
+         *
+         * Dividing the offset by 4, somehow, returns very sane results for
+         * all kind of fonts; the underline seems to fit perfectly between
+         * the baseline and bottom of the glyphs.
+         *
+         * We'll leave it like this until we can figure out what's wrong
+         * with it...
+         *
+         */
+
         surface->fill(
-                surface->x_offset, 
-                surface->y_offset + text->baseline_offset.y + text->underline_pos, 
-                text->text_size.x >> 6, text->underline_h, 
+                surface->x_offset,
+                surface->y_offset + PGFT_TRUNC(text->text_size.y) -
+                PGFT_TRUNC(text->baseline_offset.y) - PGFT_TRUNC(underline_pos)/4,
+                PGFT_TRUNC(text->text_size.x), PGFT_TRUNC(underline_size),
                 surface, fg_color);
     }
 

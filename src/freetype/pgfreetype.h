@@ -35,6 +35,7 @@ extern "C" {
 #define FT_STYLE_BOLD		0x01
 #define FT_STYLE_ITALIC     0x02
 #define FT_STYLE_UNDERLINE  0x04
+#define FT_STYLE_DEFAULT    0xFF
 
 /* Sane constant names */
 #define FT_BBOX_EXACT           FT_GLYPH_BBOX_SUBPIXELS
@@ -64,9 +65,10 @@ typedef struct
     PyFont pyfont;
     FontId id;
 
-    void *_internals;
     int default_ptsize;
+    int default_style;
 
+    void *_internals;
 } PyFreeTypeFont;
 
 #define PyFreeTypeFont_AsFont(x) (((PyFreeTypeFont *)x)->font)

@@ -237,7 +237,7 @@ PGFT_TryLoadFont_Filename(FreeTypeInstance *ft,
 
     font->_internals = malloc(sizeof(FontInternals));
     memset(font->_internals, 0x0, sizeof(FontInternals));
-    
+
     PGFT_Cache_Init(&PGFT_INTERNALS(font)->cache, font);
 
     return _PGFT_GetFace(ft, font) ? 0 : -1;
@@ -249,9 +249,12 @@ PGFT_UnloadFont(FreeTypeInstance *ft, PyFreeTypeFont *font)
     if (ft != NULL)
         FTC_Manager_RemoveFaceID(ft->cache_manager, (FTC_FaceID)(&font->id));
 
-    PGFT_Cache_Destroy(&PGFT_INTERNALS(font)->cache);
-    free(PGFT_INTERNALS(font)->active_text.glyphs);
-    free(PGFT_INTERNALS(font));
+    if (PGFT_INTERNALS(font))
+    {
+        PGFT_Cache_Destroy(&PGFT_INTERNALS(font)->cache);
+        free(PGFT_INTERNALS(font)->active_text.glyphs);
+        free(PGFT_INTERNALS(font));
+    }
 
     free(font->id.open_args.pathname);
 }
