@@ -238,7 +238,7 @@ PGFT_TryLoadFont_Filename(FreeTypeInstance *ft,
     font->_internals = malloc(sizeof(FontInternals));
     memset(font->_internals, 0x0, sizeof(FontInternals));
 
-    PGFT_Cache_Init(&PGFT_INTERNALS(font)->cache, font);
+    PGFT_Cache_Init(ft, &PGFT_INTERNALS(font)->cache, font);
 
     return _PGFT_GetFace(ft, font) ? 0 : -1;
 }
@@ -268,7 +268,7 @@ PGFT_UnloadFont(FreeTypeInstance *ft, PyFreeTypeFont *font)
  *
  *********************************************************/
 int
-PGFT_Init(FreeTypeInstance **_instance)
+PGFT_Init(FreeTypeInstance **_instance, int cache_size)
 {
     FreeTypeInstance *inst = NULL;
 
@@ -279,6 +279,7 @@ PGFT_Init(FreeTypeInstance **_instance)
 
     memset(inst, 0, sizeof(FreeTypeInstance));
     inst->_error_msg = calloc(1024, sizeof(char));
+    inst->cache_size = cache_size;
     
     if (FT_Init_FreeType(&inst->library) != 0)
         goto error_cleanup;

@@ -29,7 +29,7 @@ static int _ft_traverse (PyObject *mod, visitproc visit, void *arg);
 static int _ft_clear (PyObject *mod);
 
 static PyObject *_ft_quit(PyObject *self);
-static PyObject *_ft_init(PyObject *self);
+static PyObject *_ft_init(PyObject *self, PyObject *args);
 static PyObject *_ft_get_version(PyObject *self);
 static PyObject *_ft_get_error(PyObject *self);
 static PyObject *_ft_was_init(PyObject *self);
@@ -44,7 +44,7 @@ static PyMethodDef _ft_methods[] =
     { 
         "init", 
         (PyCFunction) _ft_init, 
-        METH_NOARGS, 
+        METH_VARARGS, 
         DOC_BASE_INIT 
     },
     { 
@@ -99,14 +99,18 @@ _ft_quit(PyObject *self)
 }
 
 static PyObject *
-_ft_init(PyObject *self)
+_ft_init(PyObject *self, PyObject *args)
 {
     FT_Error error;
+    FT_Int cache_size = PGFT_DEFAULT_CACHE_SIZE;
 
     if (FREETYPE_MOD_STATE (self)->freetype)
         Py_RETURN_NONE;
 
-    error = PGFT_Init(&(FREETYPE_MOD_STATE (self)->freetype));
+    if (!PyArg_ParseTuple(args, "|i", &cache_size))
+        return NULL;
+
+    error = PGFT_Init(&(FREETYPE_MOD_STATE (self)->freetype), cache_size);
     if (error != 0)
     {
         /* TODO: More accurate error message */

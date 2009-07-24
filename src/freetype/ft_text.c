@@ -74,6 +74,9 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
             string_length++;
     }
 
+    /* cleanup the cache */
+    PGFT_Cache_Cleanup(&PGFT_INTERNALS(font)->cache);
+
     /* create the text struct */
     ftext = &(PGFT_INTERNALS(font)->active_text);
 

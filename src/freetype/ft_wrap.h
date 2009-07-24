@@ -71,6 +71,9 @@
 #define FT_RFLAG_DEFAULTS       (FT_RFLAG_NONE | FT_RFLAG_HINTED)
 
 #define MAX_GLYPHS      64
+#define PGFT_DEFAULT_CACHE_SIZE 64
+#define PGFT_MIN_CACHE_SIZE 32
+#define PGFT_DEBUG_CACHE
 
 
 typedef struct
@@ -79,6 +82,7 @@ typedef struct
     FTC_Manager cache_manager;
     FTC_CMapCache cache_charmap;
 
+    int cache_size;
     char *_error_msg;
 } FreeTypeInstance;
 
@@ -119,9 +123,6 @@ typedef struct  FontGlyph_
 
     FT_Fixed    baseline;
     FT_Vector   size;
-
-    FT_UInt32   lru;
-    FT_UInt32   hash;
 } FontGlyph;
 
 typedef struct FontText_
@@ -134,13 +135,30 @@ typedef struct FontText_
     FT_Vector baseline_offset;  /* 26.6 */
 } FontText;
 
+typedef struct __cachenode
+{
+    FontGlyph   glyph;
+    struct __cachenode *next;
+    FT_UInt32 hash;
+
+} PGFT_CacheNode;
+
 typedef struct __glyphcache
 {
-    FontGlyph   **nodes;
+    PGFT_CacheNode  **nodes;
+    PGFT_CacheNode  *free_nodes;
+
+    FT_Byte    *depths;
+
+#ifdef PGFT_DEBUG_CACHE
+    FT_UInt32   count;
+    FT_UInt32   _debug_delete_count;
+    FT_UInt32   _debug_access;
+    FT_UInt32   _debug_hit;
+    FT_UInt32   _debug_miss;
+#endif
+
     FT_UInt32   size_mask;
-
-    FT_UInt32   lru_counter;
-
     PyFreeTypeFont  *font;
 } PGFT_Cache;
 
@@ -186,7 +204,7 @@ extern _FreeTypeState _modstate;
 /********************************************************* General functions ****/
 const char *PGFT_GetError(FreeTypeInstance *);
 void        PGFT_Quit(FreeTypeInstance *);
-int         PGFT_Init(FreeTypeInstance **);
+int         PGFT_Init(FreeTypeInstance **, int cache_size);
 int         PGFT_TryLoadFont_Filename(FreeTypeInstance *, 
                 PyFreeTypeFont *, const char *, int);
 void        PGFT_UnloadFont(FreeTypeInstance *, PyFreeTypeFont *);
@@ -266,8 +284,9 @@ FT_UInt16 * PGFT_BuildUnicodeString(PyObject *);
 
 
 /******************************************************** Glyph cache management ****/
-void        PGFT_Cache_Init(PGFT_Cache *cache, PyFreeTypeFont *parent);
+void        PGFT_Cache_Init(FreeTypeInstance *ft, PGFT_Cache *cache, PyFreeTypeFont *parent);
 void        PGFT_Cache_Destroy(PGFT_Cache *cache);
+void        PGFT_Cache_Cleanup(PGFT_Cache *cache);
 FontGlyph * PGFT_Cache_FindGlyph(FreeTypeInstance *ft, PGFT_Cache *cache, FT_UInt character, 
                 const FontRenderMode *render);
 

@@ -26,7 +26,7 @@ colors = {
 
 def run():
     video.init ()
-    freetype.init ()
+    freetype.init (8)
 
     fontdir = os.path.dirname (os.path.abspath (__file__))
     font = freetype.Font (os.path.join (fontdir, "sans.ttf"))

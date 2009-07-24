@@ -22,7 +22,6 @@ CRITICAL:
 
 * freetype: render to buffer buffer support (like new bytearray, but
   write to a buffer instead)
-* freetype: add style support (underlined)
 * freetype: correct error messages (e.g. on trying to scale pcf fonts)
 * freetype: brush up docs and examples
 * freetype: description/markup language for rendering text (like e.g. pango

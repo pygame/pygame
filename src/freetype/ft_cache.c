@@ -28,14 +28,13 @@
 
 #include FT_MODULE_H
 
-#define PGFT_DEBUG_CACHE
 
 FT_UInt32 _PGFT_Cache_Hash(const FontRenderMode *, FT_UInt);
 FT_UInt32 _PGFT_GetLoadFlags(const FontRenderMode *);
 
-FontGlyph *_PGFT_Cache_AllocateGlyph(FreeTypeInstance *, 
+PGFT_CacheNode *_PGFT_Cache_AllocateNode(FreeTypeInstance *, 
         PGFT_Cache *, const FontRenderMode *, FT_UInt);
-void _PGFT_Cache_FreeGlyph(FontGlyph *);
+void _PGFT_Cache_FreeNode(PGFT_Cache *, PGFT_CacheNode *);
 
 
 FT_UInt32 _PGFT_GetLoadFlags(const FontRenderMode *render)
@@ -90,111 +89,178 @@ FT_UInt32 _PGFT_Cache_Hash(const FontRenderMode *render, FT_UInt glyph_index)
 	return h;
 } 
 
-void PGFT_Cache_Init(PGFT_Cache *cache, PyFreeTypeFont *parent)
+void PGFT_Cache_Init(FreeTypeInstance *ft, 
+        PGFT_Cache *cache, PyFreeTypeFont *parent)
 {
-    /* 
-     * TODO: Let user specify the desired
-     * size for the cache?
-     */
-    const int cache_size = 64;
+    int cache_size = MAX(ft->cache_size - 1, PGFT_MIN_CACHE_SIZE - 1);
 
+    /*
+     * Make sure this is a power of 2.
+     */
+    cache_size = cache_size | (cache_size >> 1);
+    cache_size = cache_size | (cache_size >> 2);
+    cache_size = cache_size | (cache_size >> 4);
+    cache_size = cache_size | (cache_size >> 8);
+    cache_size = cache_size | (cache_size >>16);
+
+    cache_size = cache_size + 1;
+
+    cache->nodes = calloc((size_t)cache_size, sizeof(FontGlyph *));
+    cache->depths = calloc((size_t)cache_size, sizeof(FT_Byte));
     cache->font = parent;
-    cache->nodes = calloc(cache_size, sizeof(FontGlyph *));
-    cache->size_mask = (cache_size - 1);
-    cache->lru_counter = 0;
+    cache->free_nodes = NULL;
+    cache->size_mask = (FT_UInt32)(cache_size - 1);
+
+#ifdef PGFT_DEBUG_CACHE
+    cache->count = 0;
+    cache->_debug_delete_count = 0;
+    cache->_debug_access = 0;
+    cache->_debug_hit = 0;
+    cache->_debug_miss = 0;
+#endif
 }
 
 void PGFT_Cache_Destroy(PGFT_Cache *cache)
 {
     FT_UInt i;
+    PGFT_CacheNode *node, *next;
 
     if (cache == NULL)
         return;
 
+#ifdef PGFT_DEBUG_CACHE
+    fprintf(stderr, "Cache stats:\n");
+    fprintf(stderr, "\t%d accesses in total\n", cache->_debug_access);
+    fprintf(stderr, "\t%d hits / %d misses\n", cache->_debug_hit, cache->_debug_miss);
+    fprintf(stderr, "\t%f hit ratio\n", (float)cache->_debug_hit/(float)cache->_debug_access);
+    fprintf(stderr, "\t%d nodes kicked\n", cache->_debug_delete_count);
+#endif
+
     for (i = 0; i <= cache->size_mask; ++i)
-        _PGFT_Cache_FreeGlyph(cache->nodes[i]);
+    {
+        node = cache->nodes[i];
+
+        while (node)
+        {
+            next = node->next;
+            _PGFT_Cache_FreeNode(cache, node);
+            node = next;
+        }
+    }
 
     free(cache->nodes);
+    free(cache->depths);
+}
+
+void PGFT_Cache_Cleanup(PGFT_Cache *cache)
+{
+    const FT_Byte MAX_BUCKET_DEPTH = 2;
+    PGFT_CacheNode *node, *prev;
+    FT_UInt32 i;
+
+    for (i = 0; i <= cache->size_mask; ++i)
+    {
+        if (cache->depths[i] > MAX_BUCKET_DEPTH)
+        {
+            node = cache->nodes[i];
+            prev = NULL;
+
+            for (;;)
+            {
+                if (!node->next)
+                {
+#ifdef PGFT_DEBUG_CACHE
+                    cache->_debug_delete_count++;
+#endif
+
+                    prev->next = NULL; 
+                    _PGFT_Cache_FreeNode(cache, node);
+                    break;
+                }
+
+                prev = node;
+                node = node->next;
+            }
+        }
+    }
+
 }
 
 FontGlyph *PGFT_Cache_FindGlyph(FreeTypeInstance *ft, PGFT_Cache *cache, 
         FT_UInt character, const FontRenderMode *render)
 {
-    FontGlyph **nodes = cache->nodes;
-    FT_UInt32 lowest, current, first, i;
+    PGFT_CacheNode **nodes = cache->nodes;
+    PGFT_CacheNode *node, *prev;
 
-    const FT_UInt32 hash = _PGFT_Cache_Hash(render, character);
-    FT_UInt32 perturb;
+    FT_UInt32 hash = _PGFT_Cache_Hash(render, character);
+    FT_UInt32 bucket = hash & cache->size_mask;
     
-    i = hash;
-    current = first = lowest = hash & cache->size_mask;
-    perturb = hash;
+    node = nodes[bucket];
+    prev = NULL;
 
-    /*
-     * Browse the whole cache with linear probing until either:
-     *
-     *  a) we find an empty spot for the glyph
-     *      => we load our glyph and store it there
-     *
-     *  b) we find the glyph already on the cache
-     *      => we return the reference to that glyph
-     *
-     *  c) we find no glyphs, and no empty spots
-     *      => we kick the LRU glyph from the cache,
-     *      and store the new one there
-     */
-    do
-    {
-        if (nodes[current] == NULL)
-        {
-            /* A: found empty spot */
-            return (nodes[current] = 
-                   _PGFT_Cache_AllocateGlyph(ft, cache, render, character));
-        }
+#ifdef PGFT_DEBUG_CACHE
+    cache->_debug_access++;
+#endif
         
-        if (nodes[current]->hash == hash)
+    while (node)
+    {
+        if (node->hash == hash)
         {
-            /* B: found glyph on cache */
-            nodes[current]->lru = ++cache->lru_counter;
-            return nodes[current];
+            if (prev)
+            {
+                prev->next = node->next;
+                node->next = nodes[bucket];
+                nodes[bucket] = node;
+            }
+
+#ifdef PGFT_DEBUG_CACHE
+            cache->_debug_hit++;
+#endif
+
+            return &node->glyph;
         }
 
-        if (nodes[current]->lru < nodes[lowest]->lru)
-            lowest = current;
+        prev = node;
+        node = node->next;
+    }
 
-        i = (5 * i) + 1 + perturb;
-        perturb <<= 5;
+    node = _PGFT_Cache_AllocateNode(ft, cache, render, character);
 
-        current = i & cache->size_mask;
+#ifdef PGFT_DEBUG_CACHE
+    cache->_debug_miss++;
+#endif
 
-    } while (current != first);
-
-    /* C: kick glyph from cache */
-    _PGFT_Cache_FreeGlyph(nodes[lowest]);
-
-    return (nodes[lowest] = 
-            _PGFT_Cache_AllocateGlyph(ft, cache, render, character));
+    return &node->glyph;
 }
 
-void _PGFT_Cache_FreeGlyph(FontGlyph *glyph)
+void _PGFT_Cache_FreeNode(PGFT_Cache *cache, PGFT_CacheNode *node)
 {
-    if (glyph == NULL)
+    if (node == NULL)
         return;
 
-    FT_Done_Glyph(glyph->image);
-    free(glyph);
+#ifdef PGFT_DEBUG_CACHE
+    cache->count--;
+#endif
+
+    cache->depths[node->hash & cache->size_mask]--;
+
+    FT_Done_Glyph(node->glyph.image);
+    free(node);
 }
 
-FontGlyph *_PGFT_Cache_AllocateGlyph(FreeTypeInstance *ft, 
+PGFT_CacheNode *_PGFT_Cache_AllocateNode(FreeTypeInstance *ft, 
         PGFT_Cache *cache, const FontRenderMode *render, FT_UInt character)
 {
-    FT_Glyph_Metrics *metrics;
+    PGFT_CacheNode *node = NULL;
     FontGlyph *glyph = NULL;
+
+    FT_Glyph_Metrics *metrics;
+    FT_Face face;
+
     FT_UInt32 load_flags;
     FT_Fixed bold_str = 0;
     int gindex;
-
-    FT_Face face;
+    FT_UInt32 bucket;
 
     /*
      * Grab face reference
@@ -210,8 +276,8 @@ FontGlyph *_PGFT_Cache_AllocateGlyph(FreeTypeInstance *ft,
     /* 
      * Allocate cache node 
      */
-    glyph = malloc(sizeof(FontGlyph));
-
+    node = malloc(sizeof(PGFT_CacheNode));
+    glyph = &node->glyph;
 
     /*
      * Calculate the corresponding glyph index for the char
@@ -226,7 +292,6 @@ FontGlyph *_PGFT_Cache_AllocateGlyph(FreeTypeInstance *ft,
     }
 
     glyph->glyph_index = (FT_UInt)gindex;
-
 
     /*
      * Get loading information
@@ -264,10 +329,18 @@ FontGlyph *_PGFT_Cache_AllocateGlyph(FreeTypeInstance *ft,
     /*
      * Update cache internals
      */
-    glyph->lru = ++cache->lru_counter;
-    glyph->hash = _PGFT_Cache_Hash(render, character);
+    node->hash = _PGFT_Cache_Hash(render, character);
+    bucket = node->hash & cache->size_mask;
+    node->next = cache->nodes[bucket];
+    cache->nodes[bucket] = node;
 
-    return glyph;
+    cache->depths[bucket]++;
+
+#ifdef PGFT_DEBUG_CACHE
+    cache->count++;
+#endif
+
+    return node;
 
     /*
      * Cleanup on error
@@ -276,6 +349,6 @@ cleanup:
     if (glyph && glyph->image)
         FT_Done_Glyph(glyph->image);
 
-    free(glyph);
+    free(node);
     return NULL;
 }
