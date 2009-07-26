@@ -26,6 +26,9 @@
 #include <math.h>
 
 #define STRING_BUF_SIZE (100)
+#define SWIZZLE_ERR_NO_ERR         0
+#define SWIZZLE_ERR_DOUBLE_IDX     1
+#define SWIZZLE_ERR_EXTRACTION_ERR 2
 
 static PyTypeObject PyVector2_Type;
 #define PyVector2_Check(x) ((x)->ob_type == &PyVector2_Type)
@@ -55,8 +58,12 @@ PySequence_GetItem_AsDouble(PyObject *seq, Py_ssize_t index)
     double value;
 
     item = PySequence_GetItem(seq, index);
+    if (item == NULL) {
+        PyErr_SetString(PyExc_TypeError, "a sequence is expected");
+        return -1;
+    }
     fltobj = PyNumber_Float(item);
-    Py_XDECREF(item);
+    Py_DECREF(item);
     if (!fltobj) {
         PyErr_SetString(PyExc_TypeError, "a float is required");
         return -1;
@@ -623,6 +630,7 @@ vector_getx (PyVector *self, void *closure)
 static int
 vector_setx (PyVector *self, PyObject *value, void *closure)
 {
+    /* NOTE: this is never called when swizzling is enabled */
     if (value == NULL) {
         PyErr_SetString(PyExc_TypeError, "Cannot delete the x attribute");
         return -1;
@@ -641,6 +649,7 @@ vector_gety (PyVector *self, void *closure)
 static int
 vector_sety (PyVector *self, PyObject *value, void *closure)
 {
+    /* NOTE: this is never called when swizzling is enabled */
     if (value == NULL) {
         PyErr_SetString(PyExc_TypeError, "Cannot delete the y attribute");
         return -1;
@@ -1108,7 +1117,36 @@ vector_distance_squared_to(PyVector *self, PyObject *other)
 }
 
 
+static int 
+vector_setAttr_swizzle(PyVector *self, PyObject *attr_name, PyObject *val);
+static PyObject *
+vector_getAttr_swizzle(PyVector *self, PyObject *attr_name);
+
+static PyObject *
+vector_enable_swizzle(PyVector *self)
+{
+    self->ob_type->tp_getattro = (getattrofunc)vector_getAttr_swizzle;
+    self->ob_type->tp_setattro = (setattrofunc)vector_setAttr_swizzle;
+    Py_RETURN_NONE;
+}
+
+static PyObject *
+vector_disable_swizzle(PyVector *self)
+{
+    self->ob_type->tp_getattro = PyObject_GenericGetAttr;
+    self->ob_type->tp_setattro = PyObject_GenericSetAttr;
+    Py_RETURN_NONE;
+}
+
+
+
 static PyMethodDef vector2_methods[] = {
+    {"enable_swizzle", (PyCFunction)vector_enable_swizzle, METH_NOARGS,
+     "enables swizzling."
+    },
+    {"disable_swizzle", (PyCFunction)vector_disable_swizzle, METH_NOARGS,
+     "disables swizzling."
+    },
     {"length", (PyCFunction)vector_length, METH_NOARGS,
      "returns the length/magnitude of the vector."
     },
@@ -1167,8 +1205,7 @@ vector_repr(PyVector *self)
     
     bufferIdx = 1;
     PyOS_snprintf(buffer[0], STRING_BUF_SIZE, "<Vector%d(", self->dim);
-    for (i = 0; i < self->dim - 1; ++i)
-    {
+    for (i = 0; i < self->dim - 1; ++i) {
         PyOS_snprintf(buffer[bufferIdx % 2], STRING_BUF_SIZE, "%s%g, ", 
                       buffer[(bufferIdx + 1) % 2], self->coords[i]);
         bufferIdx++;
@@ -1199,8 +1236,7 @@ vector_str(PyVector *self)
     
     bufferIdx = 1;
     PyOS_snprintf(buffer[0], STRING_BUF_SIZE, "[", self->dim);
-    for (i = 0; i < self->dim - 1; ++i)
-    {
+    for (i = 0; i < self->dim - 1; ++i) {
         PyOS_snprintf(buffer[bufferIdx % 2], STRING_BUF_SIZE, "%s%g, ", 
                       buffer[(bufferIdx + 1) % 2], self->coords[i]);
         bufferIdx++;
@@ -1220,6 +1256,97 @@ vector2_str(PyVector *self)
     return PyString_FromString(buffer); 
 }
 */
+
+static PyObject*
+vector_getAttr_swizzle(PyVector *self, PyObject *attr_name)
+{
+    PyObject *res = PyObject_GenericGetAttr(self, attr_name);
+    /* if normal lookup failed try to swizzle */
+    if (PyErr_Occurred() && PyErr_ExceptionMatches(PyExc_AttributeError)) {
+        Py_ssize_t len = PySequence_Length(attr_name);
+        const char *attr = PyString_AsString(attr_name);
+        double *coords = self->coords;
+        Py_ssize_t i;
+        res = (PyObject*)PyTuple_New(len);
+        for (i = 0; i < len; i++) {
+            switch (attr[i]) {
+            case 'x':
+                PyTuple_SetItem(res, i, PyFloat_FromDouble(coords[0]));
+                break;
+            case 'y':
+                PyTuple_SetItem(res, i, PyFloat_FromDouble(coords[1]));
+                break;
+            default:
+                /* swizzling failed! clean up and return NULL
+                 * the exception from PyObject_GenericGetAttr is still set */
+                Py_DECREF(res);
+                return NULL;
+            }
+        }
+        /* swizzling succeeded! clear the error and return result */
+        PyErr_Clear();
+    }
+    return res;
+}
+
+static int
+vector_setAttr_swizzle(PyVector *self, PyObject *attr_name, PyObject *val)
+{
+    // first try swizzle
+    const char *attr = PyString_AsString(attr_name);
+    Py_ssize_t len = PySequence_Length(attr_name);
+    double entry[self->dim];
+    int entry_was_set[self->dim];
+    int swizzle_err = SWIZZLE_ERR_NO_ERR;
+    int i;
+
+    for (i = 0; i < self->dim; ++i)
+        entry_was_set[i] = 0;
+
+    for (i = 0; i < len; ++i) {
+        int idx;
+        switch (attr[i]) {
+        case 'x':
+        case 'y':
+/*        case 'z': */
+            idx = attr[i] - 'x';
+            break;
+/*        case 'w':
+            idx = 3;
+            break; */
+        default:
+            // swizzle failed. attempt normal attribute setting
+            return PyObject_GenericSetAttr((PyObject*)self, attr_name, val);
+        }
+        if (entry_was_set[idx]) 
+            swizzle_err = SWIZZLE_ERR_DOUBLE_IDX;
+        if (swizzle_err == SWIZZLE_ERR_NO_ERR) {
+            entry_was_set[idx] = 1;
+            entry[idx] = PySequence_GetItem_AsDouble(val, i);
+            if (PyErr_Occurred())
+                swizzle_err = SWIZZLE_ERR_EXTRACTION_ERR;
+        }
+    }
+    switch (swizzle_err) {
+    case SWIZZLE_ERR_NO_ERR:
+        /* swizzle successful */
+        for (i = 0; i < self->dim; ++i)
+            if (entry_was_set[i])
+                self->coords[i] = entry[i];
+        return 0;
+    case SWIZZLE_ERR_DOUBLE_IDX:
+        PyErr_SetString(PyExc_AttributeError, 
+                        "Attribute assignment conflicts with swizzling.");
+        return -1;
+    case SWIZZLE_ERR_EXTRACTION_ERR:
+        /* exception was set by PySequence_GetItem_AsDouble */
+        return -1;
+    default:
+        /* this should NOT happen */
+        PyErr_SetString(PyExc_RuntimeError, "Unhandled error in swizzle code");
+        return -1;
+    }
+} 
 
 
 static PyGetSetDef vector2_getsets[] = {
@@ -1255,13 +1382,13 @@ static PyTypeObject PyVector2_Type = {
     0,                         /* tp_hash */
     0,                         /* tp_call */
     (reprfunc)vector_str,      /* tp_str */
-    PyObject_GenericGetAttr,   /* tp_getattro */
-    0,                         /* tp_setattro */
+    (getattrofunc)PyObject_GenericGetAttr, /* tp_getattro */
+    (setattrofunc)PyObject_GenericSetAttr, /* tp_setattro */
     /* Functions to access object as input/output buffer */
     0,                         /* tp_as_buffer */
     /* Flags to define presence of optional/expanded features */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | 
-    Py_TPFLAGS_CHECKTYPES | Py_TPFLAGS_HAVE_INPLACEOPS, /* tp_flags */
+    Py_TPFLAGS_CHECKTYPES, /* tp_flags */
     /* Documentation string */
     DOC_PYGAMEVECTOR2,         /* tp_doc */
 

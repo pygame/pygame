@@ -15,6 +15,7 @@ if is_pygame_pkg:
 else:
     from test.test_utils import test_not_implemented, unittest
 
+import math
 from pygame.math import Vector2
 from time import clock
 
@@ -330,21 +331,51 @@ class Vector2TypeTest(unittest.TestCase):
         self.assertRaises(ZeroDivisionError, lambda : v2.reflect_ip(Vector2()))
 
     def test_distance_to(self):
-        v1 = Vector2(1, 0)
-        v2 = Vector2(0, 1)
-        import math
-        self.assertEqual(v1.distance_to(v2), math.sqrt(2))
+        v1 = Vector2(1.2, 3.4)
+        v2 = Vector2(3.4, 4.5)
+        diff = v1 - v2
+        self.assertEqual(Vector2(1, 0).distance_to(Vector2(0, 1)), math.sqrt(2))
+        self.assertEqual(v1.distance_to(v2),
+                         math.sqrt(diff.x * diff.x + diff.y * diff.y))
         self.assertEqual(v1.distance_to(v1), 0)
         self.assertEqual(v1.distance_to(v2), v2.distance_to(v1))
 
     def test_distance_squared_to(self):
-        v1 = Vector2(1, 0)
-        v2 = Vector2(0, 1)
-        self.assertEqual(v1.distance_squared_to(v2), 2)
+        v1 = Vector2(1, 3)
+        v2 = Vector2(0, -1)
+        diff = v1 - v2
+        self.assertEqual(Vector2(1, 0).distance_squared_to(Vector2(0, 1)), 2)
+        self.assertEqual(v1.distance_squared_to(v2),
+                         diff.x * diff.x + diff.y * diff.y)
         self.assertEqual(v1.distance_squared_to(v1), 0)
         self.assertEqual(v1.distance_squared_to(v2), v2.distance_squared_to(v1))
-
+                         
+    def testSwizzle(self):
+        v1 = Vector2(1, 2)
+        self.assertEquals(hasattr(v1, "enable_swizzle"), True)
+        self.assertEquals(hasattr(v1, "disable_swizzle"), True)
+        # swizzling disabled by default
+        self.assertRaises(AttributeError, lambda : v1.yx)
+        v1.enable_swizzle()
+        
+        self.assertEqual(v1.yx, (v1.y, v1.x))
+        self.assertEqual(v1.xxyyxy, (v1.x, v1.x, v1.y, v1.y, v1.x, v1.y))
+        v1.xy = (3, -4.5)
+        self.assertEqual(v1, Vector2(3, -4.5))
+        v1.yx = (3, -4.5)
+        self.assertEqual(v1, Vector2(-4.5, 3))
+        self.assertEqual(type(v1), Vector2)
+        def invalidSwizzleX():
+            Vector2().xx = (1, 2)
+        def invalidSwizzleY():
+            Vector2().yy = (1, 2)
+        self.assertRaises(AttributeError, invalidSwizzleX)
+        self.assertRaises(AttributeError, invalidSwizzleY)
+        def invalidAssignment():
+            Vector2().xy = 3
+        self.assertRaises(TypeError, invalidAssignment)
 
         
+
 if __name__ == '__main__':
     unittest.main()

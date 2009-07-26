@@ -677,8 +677,6 @@ typedef struct
 typedef struct
 {
     PyObject_HEAD
-    PyObject *dict;     /* dict for subclassing */
-    PyObject *weakrefs; /* Weakrefs for subclassing */
     double *coords;     /* Coordinates */
     unsigned int dim;   /* Dimension of the vector */
     double epsilon;     /* Small value for comparisons */
