@@ -353,6 +353,63 @@ int _movie_set_height (PyMovie *movie, PyObject *height, void *closure)
 
 }
 
+PyObject* _movie_get_ytop (PyMovie *movie, void *closure)
+{
+    PyObject *pyo;
+    if(movie->video_st)
+    {
+        pyo= PyInt_FromLong((long)movie->ytop);
+    }
+    else
+    {
+        pyo = PyInt_FromLong((long)0);
+    }
+    return pyo;
+}
+int _movie_set_ytop (PyMovie *movie, PyObject *ytop, void *closure)
+{
+    int y;
+    if(PyInt_Check(ytop))
+    {
+        y = (int)PyInt_AsLong(ytop);
+        movie->ytop=y;
+        return 0;
+    }
+    else
+    {
+        return -1;
+    }
+
+}
+
+PyObject* _movie_get_xleft (PyMovie *movie, void *closure)
+{
+    PyObject *pyo;
+    if(movie->video_st)
+    {
+        pyo= PyInt_FromLong((long)movie->xleft);
+    }
+    else
+    {
+        pyo = PyInt_FromLong((long)0);
+    }
+    return pyo;
+}
+int _movie_set_xleft (PyMovie *movie, PyObject *xleft, void *closure)
+{
+    int x;
+    if(PyInt_Check(xleft))
+    {
+        x = (int)PyInt_AsLong(xleft);
+        movie->xleft=x;
+        return 0;
+    }
+    else
+    {
+        return -1;
+    }
+
+}
 
 PyObject *_movie_get_surface(PyMovie *movie, void *closure)
 {
@@ -401,6 +458,8 @@ static PyGetSetDef _movie_getsets[] =
         { "height",   (getter) _movie_get_height,  (setter) _movie_set_height,  DOC_GMOVIEMOVIEHEIGHT,  NULL },
         { "width",    (getter) _movie_get_width,   (setter) _movie_set_width,   DOC_GMOVIEMOVIEWIDTH,   NULL },
         { "surface",  (getter) _movie_get_surface, (setter) _movie_set_surface, DOC_GMOVIEMOVIESURFACE, NULL },
+        { "ytop",     (getter) _movie_get_ytop,    (setter) _movie_set_ytop,    NULL,                   NULL },
+        { "xleft",    (getter) _movie_get_xleft,   (setter) _movie_set_xleft,   NULL,                   NULL },
         { NULL,       NULL,                        NULL,                        NULL,                   NULL }
     };
 

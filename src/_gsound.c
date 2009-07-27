@@ -160,6 +160,8 @@ int soundInit  (int freq, int size, int channels, int chunksize)
     ainfo.mutex = SDL_CreateMutex();
     ainfo.queue.mutex = SDL_CreateMutex();
     ainfo.ended=1;
+    Mix_VolumeMusic (127);
+    
     //ainfo._tstate = _tstate;
     return 0;
 }
@@ -179,7 +181,6 @@ int soundQuit(void)
 
 int soundStart (void)
 {
-    Mix_VolumeMusic (127);
     Mix_ChannelFinished(&cb_mixer);
     ainfo.ended=0;
     ainfo.audio_clock =0.0;
@@ -200,7 +201,7 @@ int soundEnd   (void)
 /* Play a sound buffer, with a given length */
 int playBuffer (uint8_t *buf, uint32_t len, int channel, int64_t pts)
 {
-	SDL_mutexP(ainfo.mutex);
+	//SDL_mutexP(ainfo.mutex);
     Mix_Chunk *mix;
     int false=0;
     int allocated=0;
@@ -218,7 +219,9 @@ int playBuffer (uint8_t *buf, uint32_t len, int channel, int64_t pts)
             node->next =NULL;
             node->pts = pts;
             queue_put(&ainfo.queue, node);
-            SDL_mutexV(ainfo.mutex);
+            //SDL_mutexV(ainfo.mutex);
+            if(ainfo.channel<0)
+            	ainfo.channel=channel;
             return ainfo.channel;
         }
         else if(!buf && ainfo.queue.size==0)
@@ -239,7 +242,7 @@ int playBuffer (uint8_t *buf, uint32_t len, int channel, int64_t pts)
             queue_get(&ainfo.queue, &new);
             if(!new)
             {
-                SDL_mutexV(ainfo.mutex);
+                //SDL_mutexV(ainfo.mutex);
                 return -1;
             }
             ainfo.current_frame_size=new->len;
@@ -282,15 +285,24 @@ int playBuffer (uint8_t *buf, uint32_t len, int channel, int64_t pts)
     ainfo.current_frame_size =len;
     int chan = ainfo.channel;
     
-    SDL_mutexV(ainfo.mutex);
+    //SDL_mutexV(ainfo.mutex);
     
     int playing = Mix_Playing(chan);
     if(playing && allocated &&false)
     {
     	return chan;
     }
+    if(mix==NULL)
+    {
+    	return chan;
+    }
     int ret = Mix_PlayChannel(chan, mix, 0);
-
+	if(ret<0)
+	{
+		ainfo.holder+=10;
+		char *s = SDL_GetError();
+		ainfo.error = s;
+	}
     ainfo.channel = ret;
     if(allocated)
     {
@@ -354,3 +366,7 @@ double getAudioClock(void)
     return pts;
 }
 
+int getBufferQueueSize(void)
+{
+	return ainfo.queue.size;
+}

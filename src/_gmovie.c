@@ -748,6 +748,8 @@ int video_open(PyMovie *movie, int index)
     }
     vp->width = w;
     vp->height = h;
+    vp->ytop=movie->ytop;
+    vp->xleft=movie->xleft;
     GRABGIL
     Py_DECREF( movie);
     RELEASEGIL
@@ -1130,7 +1132,11 @@ int audio_thread(void *arg)
             stopBuffer(movie->channel);
             goto closing;
         }
-        
+        if(getBufferQueueSize()>100)
+        {
+        	SDL_Delay(100);
+        	continue;
+        }
         
         //fill up the buffer
         while(movie->audio_pkt_size > 0)
@@ -1158,7 +1164,8 @@ int audio_thread(void *arg)
 			if(chan==-1)
 			{
 				GRABGIL
-				PySys_WriteStdout("%s\n", Mix_GetError());
+				char *s = Mix_GetError();
+				PySys_WriteStdout("%s\n", s);
 				RELEASEGIL	
 			}
             movie->channel = chan;
@@ -1490,7 +1497,7 @@ void stream_open(PyMovie *movie, const char *filename, AVInputFormat *iformat, i
 
     int wanted_video_stream=1;
     int wanted_audio_stream=1;
-    int wanted_subti_stream=1;
+    int wanted_subti_stream=-1;
     /* if seeking requested, we execute it */
     if (movie->start_time != AV_NOPTS_VALUE)
     {
@@ -1924,7 +1931,8 @@ int decoder(void *arg)
     DECLAREGIL
     GRABGIL
 	#ifdef PROFILE
-		movie->istats = (ImageScaleStats *)PyMem_Malloc(sizeof(ImageScaleStats));
+		if(movie->istats==NULL)
+			movie->istats = (ImageScaleStats *)PyMem_Malloc(sizeof(ImageScaleStats));
 	#endif
     Py_INCREF( movie);
     RELEASEGIL
@@ -2201,7 +2209,18 @@ fail:
     		cur=cur->next;
     	}
     	movie->istats->stdev = sqrt(total/mean);	
-    	PySys_WriteStdout("Mean: %f\nMin: %i\nMax: %i\nStDev: %f\n", mean, (int)min, (int)max, movie->istats->stdev);
+    	PySys_WriteStdout("# Samples: %i\nMean: %f\nMin: %i\nMax: %i\nStDev: %f\n", (int)movie->istats->n_samples, mean, (int)min, (int)max, movie->istats->stdev);
+    	cur = movie->istats->first;
+    	TimeSampleNode *prev;
+    	while(cur->next!=NULL) 
+    	{
+    		prev=cur;
+    		cur=cur->next;
+    		PyMem_Free(prev);
+    	}
+    	movie->istats->first=NULL;
+    	movie->istats->last=NULL;
+    	movie->istats->n_samples=0;
     #endif
     Py_DECREF( movie);
     RELEASEGIL
