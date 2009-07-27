@@ -4,6 +4,36 @@
 # BREAK = change breaks existing code
 # BUG    = fixed a bug that was (or could have been) crashing
 
+[SVN 2519] July 17, 2009
+    [BUG] fix pygame.font.get_fonts() bug for Python 3.1 and Windows.
+
+[SVN 2517-2518] July 17, 2009
+    [BUG] unit test framework fails for Python 3.1 on Windows due
+          to str/bytes confusion
+
+[SVN 2516] July 16, 2009
+    Pygame dependency build now replaces the configure
+    generated SDL_config.py, which MSVC can not use,  with 
+    SDL_config_win32.py
+
+[SVN 2515] July 15, 2009
+    [BUG] surface docs typo patch submitted by Lorenz Quack
+
+[SVN 2503-2505] July 13, 2009
+    [BUG] bugzilla 29, patch to use SDL_VIDEO_DRIVER_X11 DISABLE_X11.  Thanks Robert A. Lerche.
+        So can compile pygame without X11 again.
+    [BUG] fixed bad midi test.
+    [BUG] pygame.gfxdraw docstrings were not there.  Now... they... are.
+
+[SVN 2491-2495] July 9, 2009
+    [BUG] Fixed up quit bug in eventlist.py example.  Thanks Evan Kroske!
+    [BUG] Made the test code more compatible with python2.3.
+    [BUG] python3.1 support for OSX.
+
+[SVN 2486-2488] July 8, 2009
+    [BUG] 64bit issues with Surface.get_masks and UintFromObj. 
+        thanks Lorenz Quack!
+    [BUG] Color slicing works with python3 now too.
 
 [SVN 2481] July 7, 2009
     [BUG] typo in examples/sound_array_demos.py Thanks Evan Kroske!

@@ -28,7 +28,6 @@ import pygame.threads
 import sys
 import os
 import re
-import subprocess
 import time
 import optparse
 import random

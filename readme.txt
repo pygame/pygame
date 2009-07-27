@@ -1,6 +1,6 @@
 
    Pygame Readme
-   Version 1.9.0rc2 Python Game Development
+   Version 1.9.0rc4 Python Game Development
    Originally by Pete Shinners, now an open source community project.
    http://www.pygame.org
    pygame@seul.org
@@ -98,7 +98,8 @@
    Eyal Lotem, Regis Desgroppes, Emmanuel Hainry, Randy Kaelber
    Matthew L Daniel, Nirav Patel, Forrest Voight, Charlie Nolan, 
    Frankie Robertson, John Krukoff, Lorenz Quack, Nick Irvine,
-   Michael George, Saul Spatz, Thomas Ibbotson, Tom Rothamel.
+   Michael George, Saul Spatz, Thomas Ibbotson, Tom Rothamel, Evan Kroske,
+   Cambell Barton.
 
      And our bug hunters above and beyond: Angus, Guillaume Proux, Frank
    Raiser, Austin Henry, Kaweh Kazemi, Arturo Aldama, Mike Mulcheck, 

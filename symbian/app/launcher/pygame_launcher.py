@@ -30,6 +30,9 @@ ITEM_SELECTED = TITLE_BG
 
 THISDIR = os.path.dirname(__file__)
 
+def make_surface(rect, flags=0, depth=16):
+    return pygame.Surface(rect, flags, depth)
+
 def load_image(name, colorkey=None):
     """ Image loading utility from chimp.py """
     fullname = os.path.join(THISDIR, name)
@@ -106,7 +109,11 @@ class Effects(object):
     def tweenEaseInBack(self, t, b, c, d, s=1.7158):
         t /= d
         return c * (t) * t * ((s + 1) * t - s) + b;
-
+    
+    def easeNone(self, t, b, c, d, s=1.7158):
+        v = c*t/d + b;
+        return v
+        
     def _slide_and_replace(self, direction, surf, surfold, surfnew, v):
         
         r = surf.get_rect()
@@ -153,19 +160,47 @@ class Effects(object):
         """
         This creates an effect where the surface is scaled and moved 
         so that it looks like the surface moves to the distance.
+        
+        @param surf: The surface containing the result of the effect.
+        @param surfold: The surface to be zoomed.
+        @param surfnew: The next surface acting as a background.
+        @param v: The tween value. Position of the animation.
         """
         
         r = surf.get_rect()
         
-        w = int(r.width * (1 - v))
-        h = int(r.height * (1 - v))
+        # Define size of the scaling
+        w, h = int(r.width * (1 - v)), int(r.height * (1 - v))
+        x, y = int(r.width / 2 * (v)), int(r.height / 2 * (v))
         
-        s = pygame.transform.scale(surfold, (w, h))
+        _x = max(0,x)
+        _y = max(0,y)
+        _w = min(r.width,w)
+        _h = min(r.height,h)
+        target_subsurf = surf.subsurface((_x, _y, _w, _h))
         
+        # Scale full or only partial if scaling larger
+        use_subsurf = (v < 0)
+        if use_subsurf:
+            # Full size - exceeding size and scale that instead of full surface
+            if w > r.width:
+                w -= ( w - r.width ) * 2
+            if h > r.height:
+                h -= ( h - r.height) * 2
+            if x < 0:
+                x *= -1
+            if y < 0:
+                y *= -1
+            
+            source_subsurf = surfold.subsurface( ( x, y, w, h) )
+        else:
+            source_subsurf = surfold
+            
+        # The new surface is the background
         surf.blit(surfnew,(0,0))
-
-        surf.blit(s, (r.width / 2 * (v), r.height / 2 * (v)))        
         
+        s = pygame.transform.scale(source_subsurf, (_w, _h), target_subsurf)
+       
         return surf, 0,0
     
     def do(self, effect_tween, duration):
@@ -194,7 +229,7 @@ class Effects(object):
         now = time.time()
         
         # The animation buffer
-        #surf = pygame.Surface(self.surf1.get_size(), )
+        #surf = make_surface(self.surf1.get_size(), )
         
         while True: 
             t = now - start
@@ -335,7 +370,7 @@ class BackgroundBase(pygame.sprite.Sprite):
         self.sysdata = sysdata
         self.screen = sysdata.screen
         screen_size = self.screen.get_size()
-        self.surface = pygame.Surface(screen_size, )
+        self.surface = make_surface(screen_size, )
 
 class BackgroundTransparent(BackgroundBase):
     
@@ -357,27 +392,29 @@ class Background(BackgroundBase):
         self.rect = self.surface.get_rect()
         
         #: The logo
-        self.img_logo, r = load_image("logo.jpg")
-        
-        # Position the logo on middle of the screen.
-        c = self.rect.center
-        self.img_pos = [ c[0] - r.w / 2, c[1] - r.h / 2 ]
-        
-        #: Make alpha the same size as the image
-        #self.alpha = pygame.Surface(r.size, )
+        self.img_logo, self.img_size = load_image("logo.jpg")
         
         self.alphaval = 0.
         self.alphaprev = -1
-        self.alphadir = - 1. # per second
+        self.alphadir = - 2. # per second
         
+        self.updateAlphaValue()
+        # Position the logo on middle of the screen.
+        self.draw()
+        
+    def draw(self):
+        c = self.rect.center
+        r = self.img_size
+        self.img_pos = [ c[0] - r.w / 2, c[1] - r.h / 2 ]
+
         self.surface.fill(BLACK)
         self.surface.blit(self.img_logo, self.img_pos)
         self.surface.set_alpha(10)
         
     def updateAlphaValue(self):
         """ Update the visibility of the logo """
-        min = 6.
-        max = 12.
+        min = 12.
+        max = 24.
         
         s = self.sysdata.ticdiff / 1000.
         
@@ -390,15 +427,11 @@ class Background(BackgroundBase):
         if self.alphaval < min:
             self.alphaval = min
             self.alphadir = - self.alphadir
+            
         return self.alphaval
     
     def update(self):
         self.surface.set_alpha(self.updateAlphaValue())
-        #print a
-        #a = self.alphaval
-        #self.surface.fill(BLACK)
-        #self.surface.blit(self.img_logo, self.img_pos)
-        #self.surface.fill( (a,a,a), None, BLEND_RGB_MULT )
         
 class TextField(pygame.sprite.Sprite):
     """ Handles text rendering and updating when necessary """
@@ -436,12 +469,12 @@ class TextField(pygame.sprite.Sprite):
         
         psize = self.bg.surface.get_size()
         size = (psize[0], psize[1] - startposy)
-        surf = pygame.Surface(size, )
+        surf = make_surface(size, )
         
         # Create text contents
         DrawUtils.drawRectWithText(surf, size, TITLE_BG, TITLE_STROKE,
                                     textsurf=None)
-        #text = textwrap.dedent(text)
+        
         font = self.sysdata.getFontSmall()
         
         lines = text.split("\n")
@@ -474,7 +507,7 @@ class TextField(pygame.sprite.Sprite):
         size = (size[0], 40)
 
         # Draw the surrounding rect
-        surf = titlebg = pygame.Surface(size, )
+        surf = titlebg = make_surface(size, )
         DrawUtils.drawRectWithText(surf, size, TITLE_BG, TITLE_STROKE,
                                     textsurf=text, textpos=textpos)
         
@@ -753,7 +786,7 @@ class Menu(pygame.sprite.Sprite):
     
     def _create_list_bg(self, size):
         
-        surf = pygame.Surface(size, )
+        surf = make_surface(size, )
         DrawUtils.drawRectWithText(surf, size, TITLE_BG, TITLE_STROKE, textsurf=None)
         self.itemsurface = surf
         return surf
@@ -870,7 +903,7 @@ class Menu(pygame.sprite.Sprite):
         size = (size[0], 40)
 
         # Render the final title surface with combined background and text 
-        surf = pygame.Surface(size, )
+        surf = make_surface(size, )
         DrawUtils.drawRectWithText(surf, size , TITLE_BG, TITLE_STROKE, text, textpos)
         
         # Update data
@@ -893,16 +926,19 @@ class Application(object):
     def __init__(self):
         
         if sys.platform == "symbian_s60":
-            size = pygame.display.list_modes(16)[0]
-            self.screen = pygame.display.set_mode(size, )
+            modes = pygame.display.list_modes(16)
+            print "Available display modes:", modes
+            size = modes[0]
+            self.screen = pygame.display.set_mode(size, 0, 16)
         else:
-            self.screen = pygame.display.set_mode(DISPLAY_SIZE, 16) 
+            self.screen = pygame.display.set_mode(DISPLAY_SIZE, 0, 16) 
         
         self.sysdata = SystemData()
         self.sysdata.screen = self.screen
         
         self.mainbg = Background(self.sysdata)
-        self.bg = BackgroundTransparent(self.sysdata)
+        self.bg     = BackgroundTransparent(self.sysdata)
+        self.bganim = self.mainbg#BackgroundTransparent(self.sysdata)
         
         items = [("Applications", self.mhApplications, ()),
                  # TODO: Disabled settings for now...
@@ -926,29 +962,31 @@ class Application(object):
         
         #: Updated by foreground event
         self.is_foreground = True
-        
-    def initialize(self):
-        pass
-    
+         
     def run(self):
-        """ Main application loop """
-        self.initialize()       
-        
+        """ Main application loop """ 
         # From black
-        black = pygame.Surface(self.screen.get_size(), )
-        self.sprites.update()
-        self.screen.blit(self.bg.surface, (0, 0))
+        def anim():
+            self.bganim.surface.fill(BLACK)
+            #black = make_surface(self.screen.get_size())
+            self.sprites.update()
+            self.screen.blit(self.bganim.surface, (0, 0))
             
-        # Start the tween animation
-        e = Effects(self.screen, self.clock, black, self.bg.surface )
-        
-        # Blocks for the duration of the animation
-        e.do( [
-               (e.effectFadeTo, e.tweenEaseOutSine),
-               #(e.effectSlideRightReplace, e.tweenEaseInBack),
-               ], 0.5)
-        
-        self.sysdata.tics = pygame.time.get_ticks()
+            # Start the tween animation
+            e = Effects(self.screen, self.clock, self.bganim.surface, self.bg.surface )
+            
+            # Blocks for the duration of the animation
+            e.do( [
+                   (e.effectFadeTo, e.tweenEaseOutSine),
+                   #(e.effectSlideRightReplace, e.tweenEaseInBack),
+                   ], 0.5)
+            
+            self.sysdata.tics = pygame.time.get_ticks()
+            
+            # Restore alpha
+            self.mainbg.surface.set_alpha(255)
+            self.mainbg.draw()
+        anim()
         
         eventhandler = self.handleEvent
         while self.running:
@@ -966,7 +1004,6 @@ class Application(object):
             self.screen.blit(self.mainbg.surface, (0, 0))
             self.bg.surface.set_alpha(96) # This creates a nice fade effect for menu items
             self.screen.blit(self.bg.surface, (0, 0))
-            
             
             pygame.display.flip()
             
@@ -987,7 +1024,6 @@ class Application(object):
         
         if app_path is None:
             # Restore pygame launcher menu
-            
             self.__handle_transition_animation(self.focused, self._main_menu, effect=1)
             
             self.focused.clear()
@@ -997,14 +1033,27 @@ class Application(object):
             return
         
         # Start the tween animation
-        blacksurf = pygame.Surface(self.screen.get_size(), )
-        blacksurf.fill(BLACK)
-        e = Effects(self.screen, self.clock, self.focused.bg.surface, blacksurf,
+        #self.bganim.surface.fill(BLACK)
+        self.bganim.surface.set_alpha(255)
+        self.bg.surface.set_alpha(96)
+        e = Effects(self.screen, self.clock, self.focused.bg.surface, self.bganim.surface,
                     render_callback=None)
 
         # Blocks for the duration of the animation
-        effect = e.effectZoomOut
-        e.do((effect, e.tweenEaseInBack), 0.75)
+        effect =  [
+           (e.effectZoomOut, e.tweenEaseInBack),
+        ]
+        
+        e.do(effect, 0.5)
+        
+        # Fade the logo
+        self.bg.surface.fill(BLACK)
+        e = Effects(self.screen, self.clock, self.bganim.surface, self.bg.surface )
+        
+        # Blocks for the duration of the animation
+        e.do( [
+               (e.effectFadeTo, e.easeNone),
+               ], 0.5)
         
         # Remove so it won't flash at the end
         self.sprites.remove(self.focused)
@@ -1014,18 +1063,25 @@ class Application(object):
         self.running = 0
     
     def __handle_transition_animation(self, menu1, menu2, effect):
-        bg1 = BackgroundTransparent(self.sysdata)
-        bg2 = BackgroundTransparent(self.sysdata)
-        menu1.bg = bg1
-        menu2.bg = bg2
         
-        def render_callback(surf): 
-            menu1.update()
-            menu2.update()
+        # We use the mainbg as temporary buffer during animation
+        self.mainbg.surface.set_alpha(255)
         
+        menu2.bg = self.bganim
+        menu1.update()
+        menu2.update()
+        
+        bg1 = menu1.bg
+        bg2 = menu2.bg
+        
+        # This makes the logo appear from behind
+        bg2.surface.set_alpha(96)
+        
+        #def render_callback(s):
+            # Make the logo appear on both
+            #menu2.bg.surface.fill(WHITE)
         # Start the tween animation
-        e = Effects(self.screen, self.clock, bg1.surface, bg2.surface,
-                    render_callback=render_callback)
+        e = Effects(self.screen, self.clock, bg1.surface, bg2.surface)#, render_callback)
         
         # Blocks for the duration of the animation
         effect = [e.effectSlideLeftReplace, e.effectSlideRightReplace, e.effectFadeTo][effect]
@@ -1038,7 +1094,8 @@ class Application(object):
         menu2.bg = self.bg
         menu2.update()
         
-        bg1.surface.blit(bg2.surface, (0, 0))
+        # Restore the background logo
+        self.mainbg.draw()
         
     def mhApplications(self):
         """ Menu handler for 'Applications' item """
@@ -1065,15 +1122,15 @@ class Application(object):
         self.sprites.remove(self.focused)
         
         # Create tween effect for transition
-        background = Background(self.sysdata)
-        
+        background = self.bganim
         menu = Menu(background, self.sysdata,
                         title="Applications",
                         items=items,
                         cancel_callback=(self.mhLaunchApplication, (None,)),
                         )
-        menu.textcache.max_size = 24
+        menu.textcache.max_size = 12
         menu.update()
+        
         self.__handle_transition_animation(self.focused, menu, effect=0)
         
         self.focused = menu
@@ -1083,16 +1140,21 @@ class Application(object):
         """ Menu handler for exit item """
         self.running = 0
         
-        # Fade to black
-        black = pygame.Surface(self.screen.get_size(), )
-        
+        # Fade to logo and then to black
         # Start the tween animation
-        e = Effects(self.screen, self.clock, self.bg.surface, black )
+        e = Effects(self.screen, self.clock, self.bg.surface, self.bganim.surface )
         
         # Blocks for the duration of the animation
         e.do( [
-               (e.effectFadeTo, e.tweenEaseOutSine),
-               (e.effectZoomOut, lambda t, b, c, d, s=3.70158:e.tweenEaseInBack(t,0,0.5,d,s)),
+               (e.effectFadeTo, e.easeNone),
+               ], 0.5)
+        
+        self.bg.surface.fill(BLACK)
+        e = Effects(self.screen, self.clock, self.bganim.surface, self.bg.surface )
+        
+        # Blocks for the duration of the animation
+        e.do( [
+               (e.effectFadeTo, e.easeNone),
                ], 0.5)
         
         self.focused = None
@@ -1102,7 +1164,7 @@ class Application(object):
         """ Menu handler for settings item """
         
         self.sprites.remove(self.focused)
-        tf = TextField(self.bg, self.sysdata,
+        tf = TextField(self.bganim, self.sysdata,
                         exit_callback=self._exit_to_main,
                         title="Settings",
                         text="Begone! Nothing to see here!",
@@ -1115,7 +1177,6 @@ class Application(object):
         
     def _exit_to_main(self):
         """ Callback to exit back to main menu """
-        
         self.__handle_transition_animation(self.focused, self._main_menu, effect=1)
         
         self.sprites.remove(self.focused)
@@ -1136,7 +1197,7 @@ class Application(object):
         """
         
         self.sprites.remove(self.focused)
-        self.focused = TextField(self.bg.surface, self.sysdata,
+        self.focused = TextField(self.bganim, self.sysdata,
                         exit_callback=self._exit_to_main,
                         title="About",
                         text=text,
@@ -1177,7 +1238,8 @@ class Application(object):
 def start():
     """ Start pygame launcher """
          
-    pygame.init() 
+    pygame.display.init()
+    pygame.font.init() 
     while True:
         
         # Don't handle events given for launched application
