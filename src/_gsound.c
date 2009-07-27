@@ -297,12 +297,6 @@ int playBuffer (uint8_t *buf, uint32_t len, int channel, int64_t pts)
     	return chan;
     }
     int ret = Mix_PlayChannel(chan, mix, 0);
-	if(ret<0)
-	{
-		ainfo.holder+=10;
-		char *s = SDL_GetError();
-		ainfo.error = s;
-	}
     ainfo.channel = ret;
     if(allocated)
     {

@@ -43,10 +43,11 @@ print "Y Top:",m.ytop
 print "X Left:",m.xleft
 time.sleep(2)
 print "Altering xleft and ytop..."
-#m.xleft += 10
-#m.ytop  +=10
-time.sleep(100)
-
+m.xleft += 10
+m.ytop  +=10
+time.sleep(10)
+m.xleft -= 10
+m.ytop -=10
 #Now we're going to play with the size of the window, affecting the video on 
 #the fly. resize(width, height) is the main function, changes them both at
 # the same time.

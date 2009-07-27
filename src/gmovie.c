@@ -236,7 +236,6 @@ PyObject* _movie_rewind(PyMovie *movie, PyObject* args)
     return _movie_stop(movie);
 }
 
-
 PyObject* _movie_resize       (PyMovie *movie, PyObject* args)
 {
     int w, h;
@@ -254,6 +253,12 @@ PyObject* _movie_resize       (PyMovie *movie, PyObject* args)
     movie->resize_w =  movie->resize_h= 1;
     Py_RETURN_NONE;
 
+}
+
+PyObject* _movie_seek (PyMovie *movie, PyObject* args)
+{
+	int64_t pos;
+	return (PyObject *) movie;
 }
 PyObject* _movie_get_paused (PyMovie *movie, void *closure)
 {

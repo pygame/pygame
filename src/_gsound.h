@@ -40,8 +40,6 @@ typedef struct AudioInfo
     SDL_mutex   *mutex;
 	//PyThreadState *_tstate;
 	int restart;
-	int holder;
-	char *error;
 }
 AudioInfo;
 

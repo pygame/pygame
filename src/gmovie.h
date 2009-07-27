@@ -12,6 +12,7 @@ PyObject* _movie_stop         (PyMovie *movie);
 PyObject* _movie_pause        (PyMovie *movie);
 PyObject* _movie_rewind       (PyMovie *movie, PyObject* args);
 PyObject* _movie_resize       (PyMovie *movie, PyObject* args);
+PyObject* _movie_seek         (PyMovie *movie, PyObject* args);
 
 /* Getters/setters */
 PyObject* _movie_get_paused  (PyMovie *movie, void *closure);
