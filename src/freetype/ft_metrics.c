@@ -50,30 +50,19 @@ int PGFT_GetMetrics(FreeTypeInstance *ft, PyFreeTypeFont *font,
     int character, const FontRenderMode *render, int bbmode,
     void *minx, void *maxx, void *miny, void *maxy, void *advance)
 {
-    FT_Error error;
-    FTC_ScalerRec scale;
-    FT_Glyph glyph;
+    FT_Error        error;
+    FTC_ScalerRec   scale;
+    FontGlyph *     glyph = NULL;
 
-    /*
-     * TODO:
-     * Load the glyph information from the cache
-     */
 
-    return -1;
+    glyph = PGFT_Cache_FindGlyph(ft, &PGFT_INTERNALS(font)->cache, 
+            (FT_UInt)character, render);
 
-#if 0
-    _PGFT_BuildScaler(font, &scale, font_size);
+    if (!glyph)
+        return -1;
 
-    error = _PGFT_LoadGlyph(ft, font, 0, &scale, character, &glyph, NULL);
-
-    if (error)
-    {
-        _PGFT_SetError(ft, "Failed to load glyph metrics", error);
-        return error;
-    }
-#endif
-
-    _PGFT_GetMetrics_INTERNAL(glyph, (FT_UInt)bbmode, minx, maxx, miny, maxy, advance);
+    _PGFT_GetMetrics_INTERNAL(glyph->image, (FT_UInt)bbmode, 
+            minx, maxx, miny, maxy, advance);
 
     if (bbmode == FT_BBOX_EXACT || bbmode == FT_BBOX_EXACT_GRIDFIT)
     {

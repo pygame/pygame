@@ -127,10 +127,6 @@ _PGFT_GetFaceSized(FreeTypeInstance *ft,
 
     _PGFT_BuildScaler(font, &scale, face_size);
 
-    /*
-     * TODO: Check if face has already been sized?
-     */
-
     error = FTC_Manager_LookupSize(ft->cache_manager, 
         &scale, &_fts);
 
@@ -308,8 +304,6 @@ PGFT_Quit(FreeTypeInstance *ft)
 {
     if (ft == NULL)
         return;
-
-    /* TODO: Free caches */
 
     if (ft->cache_manager)
         FTC_Manager_Done(ft->cache_manager);

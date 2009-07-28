@@ -113,7 +113,6 @@ _ft_init(PyObject *self, PyObject *args)
     error = PGFT_Init(&(FREETYPE_MOD_STATE (self)->freetype), cache_size);
     if (error != 0)
     {
-        /* TODO: More accurate error message */
         PyErr_SetString(PyExc_PyGameError, 
                 "Failed to initialize the FreeType2 library");
         return NULL;

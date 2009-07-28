@@ -166,8 +166,6 @@ typedef struct FontInternals_
 {
     PGFT_Cache  cache;
     FontText    active_text;
-
-    /* TODO */
 } FontInternals;
 
 #define PGFT_INTERNALS(f) ((FontInternals *)(f->_internals))

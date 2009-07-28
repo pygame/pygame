@@ -160,7 +160,7 @@ void PGFT_Cache_Cleanup(PGFT_Cache *cache)
 
     for (i = 0; i <= cache->size_mask; ++i)
     {
-        if (cache->depths[i] > MAX_BUCKET_DEPTH)
+        while (cache->depths[i] > MAX_BUCKET_DEPTH)
         {
             node = cache->nodes[i];
             prev = NULL;
@@ -303,7 +303,6 @@ PGFT_CacheNode *_PGFT_Cache_AllocateNode(FreeTypeInstance *ft,
 
     /*
      * Load the glyph into the glyph slot
-     * TODO: error handling
      */
     if (FT_Load_Glyph(face, glyph->glyph_index, (FT_Int)load_flags) != 0 ||
         FT_Get_Glyph(face->glyph, &(glyph->image)) != 0)

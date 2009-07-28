@@ -91,7 +91,6 @@ PGFT_BuildRenderMode(FreeTypeInstance *ft,
     while (angle < 0) angle += 360;
     mode->rotation_angle = (FT_UInt16)angle;
 
-    /* TODO: handle error returns on function calls */
     return 0;
 }
 

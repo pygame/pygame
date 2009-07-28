@@ -636,7 +636,6 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
 
     if (!target_surf || target_surf == Py_None)
     {
-        /* TODO! */
         PyObject *r_surface = NULL;
 
         r_surface = PGFT_Render_NewSurface(ft, font, &render, text,
@@ -666,7 +665,8 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
     }
     else
     {
-        PyErr_SetString(PyExc_ValueError, "The given target is not a valid SDL surface");
+        PyErr_SetString(PyExc_TypeError, 
+                "The given target is not a valid SDL surface");
         return NULL;
     }
 
@@ -695,7 +695,6 @@ PyFreeTypeFont_New(const char *filename, int face_index)
     if (!font)
         return NULL;
 
-    /* TODO: Create a constructor for fonts with default sizes? */
     font->default_ptsize = -1;
     font->default_style = FT_STYLE_NORMAL;
 
