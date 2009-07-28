@@ -8,7 +8,7 @@ import pygame._movie as movie
 
 print "Please give an (absolute)filename of a movie file you'd like to play: ",
 #filename = raw_input()
-filename="/home/tyler/War3.avi"
+filename="/home/tyler/dhs1.avi"
 #initialization. It could also have a surface as a second argument, and every 
 # frame will be blitted to that surface. It is the programmer's responsibility
 # to be on time for rendering that surface.
@@ -36,12 +36,16 @@ m.play(-1)       #We're going to use infinite play, so we can demonstrate all
                 # the features.
 time.sleep(2)  #sleep for ten seconds to let one see the video play, and hear 
                 # the audio
-print "Paused:",m.paused
-print "Playing:",m.playing
-print "Movie:",m
-print "Y Top:",m.ytop
-print "X Left:",m.xleft
-time.sleep(2)
+##print "Paused:",m.paused
+##print "Playing:",m.playing
+##print "Movie:",m
+##print "Y Top:",m.ytop
+##print "X Left:",m.xleft
+time.sleep(30)
+print "Testing seek..."
+m.easy_seek(second=10, minute=5, reverse=0)
+time.sleep(5)
+
 print "Altering xleft and ytop..."
 m.xleft += 10
 m.ytop  +=10

@@ -62,7 +62,7 @@ AVPacket flush_pkt;
 #define BPP 1
 
 //enables profiling info to be gathered
-#define PROFILE 1
+//#define PROFILE 1
 
 #ifdef PROFILE
 #include <math.h>

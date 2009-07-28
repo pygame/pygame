@@ -255,11 +255,43 @@ PyObject* _movie_resize       (PyMovie *movie, PyObject* args)
 
 }
 
-PyObject* _movie_seek (PyMovie *movie, PyObject* args)
+PyObject* _movie_easy_seek (PyMovie *movie, PyObject* args, PyObject *kwds)
 {
-	int64_t pos;
-	return (PyObject *) movie;
+	int64_t pos=0;
+	int hour=0;
+	int minute=0;
+	int second=0;
+	int reverse=0;
+	char *keywords[4] = {"second", "minute", "hour", "reverse"};
+	if(!PyArg_ParseTupleAndKeywords(args, kwds, "|iiii", keywords, &second, &minute, &hour, &reverse))
+	{
+		Py_RETURN_NONE;
+	}
+	if(second)
+	{
+		pos+=(int64_t)second;
+	}
+	if(minute)
+	{
+		pos+=60*(int64_t)minute;
+	}
+	if(hour)
+	{
+		pos+=3600*(int64_t)hour;
+	}
+	if(reverse)
+	{
+		reverse=-1;
+	}
+	else
+	{
+		reverse=1;
+	}
+	pos *= AV_TIME_BASE;
+	stream_seek(movie, pos, reverse);
+	Py_RETURN_NONE;
 }
+
 PyObject* _movie_get_paused (PyMovie *movie, void *closure)
 {
     return PyBool_FromLong((long)movie->paused);
@@ -442,11 +474,12 @@ int _movie_set_surface(PyObject *mov, PyObject *surface, void *closure)
 }
 
 static PyMethodDef _movie_methods[] = {
-                                          { "play",   (PyCFunction) _movie_play,   METH_VARARGS, DOC_GMOVIEMOVIEPLAY},
-                                          { "stop",   (PyCFunction) _movie_stop,   METH_NOARGS,  DOC_GMOVIEMOVIESTOP},
-                                          { "pause",  (PyCFunction) _movie_pause,  METH_NOARGS,  DOC_GMOVIEMOVIEPAUSE},
-                                          { "rewind", (PyCFunction) _movie_rewind, METH_VARARGS, DOC_GMOVIEMOVIEREWIND},
-                                          { "resize", (PyCFunction) _movie_resize, METH_VARARGS, DOC_GMOVIEMOVIERESIZE},
+                                          { "play",      (PyCFunction) _movie_play,      METH_VARARGS,               DOC_GMOVIEMOVIEPLAY},
+                                          { "stop",      (PyCFunction) _movie_stop,      METH_NOARGS,                DOC_GMOVIEMOVIESTOP},
+                                          { "pause",     (PyCFunction) _movie_pause,     METH_NOARGS,                DOC_GMOVIEMOVIEPAUSE},
+                                          { "rewind",    (PyCFunction) _movie_rewind,    METH_VARARGS,               DOC_GMOVIEMOVIEREWIND},
+                                          { "resize",    (PyCFunction) _movie_resize,    METH_VARARGS,               DOC_GMOVIEMOVIERESIZE},
+                                          { "easy_seek", (PyCFunction) _movie_easy_seek, METH_VARARGS|METH_KEYWORDS, NULL},
                                           { NULL,     NULL,                        0,            NULL }
                                       };
 

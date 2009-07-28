@@ -820,7 +820,8 @@ void video_refresh_timer(PyMovie* movie)
             actual_delay = 0.010;
         }
         GRABGIL
-        movie->timing = (actual_delay*1000.0)+0.5;
+        PySys_WriteStdout("Actual Delay: %f\ndelay: %f\ndiff: %f\n", actual_delay, delay, diff);
+        movie->timing = (actual_delay*1000.0)+1;
         RELEASEGIL
     }
     GRABGIL
@@ -1068,10 +1069,10 @@ double get_master_clock(PyMovie *movie)
 /* seek in the stream */
 void stream_seek(PyMovie *movie, int64_t pos, int rel)
 {
-    DECLAREGIL
-    GRABGIL
-    Py_INCREF( movie);
-    RELEASEGIL
+    //DECLAREGIL
+    //GRABGIL
+    //Py_INCREF( movie);
+    //RELEASEGIL
     if (!movie->seek_req)
     {
         movie->seek_pos = pos;
@@ -1079,9 +1080,9 @@ void stream_seek(PyMovie *movie, int64_t pos, int rel)
 
         movie->seek_req = 1;
     }
-    GRABGIL
-    Py_DECREF( movie);
-    RELEASEGIL
+    //GRABGIL
+    //Py_DECREF( movie);
+    //RELEASEGIL
 }
 
 /* pause or resume the video */
@@ -1984,20 +1985,20 @@ int decoder(void *arg)
             int64_t seek_target= movie->seek_pos;
 			int aud_stream_index=-1;
 			int vid_stream_index=-1;
-			int64_t vid_seek_target=0;
-			int64_t aud_seek_target=0;
-            if (movie->video_stream >= 0)
+			int64_t vid_seek_target=seek_target;
+			int64_t aud_seek_target=seek_target;
+            if (movie->video_stream >= 0){
                 vid_stream_index= movie->video_stream;
-
-			if (movie->audio_stream >=0)
+            }
+			else if (movie->audio_stream >=0){
 				aud_stream_index = movie->audio_stream;
-
+			}
             if(vid_stream_index>=0)
                 vid_seek_target= av_rescale_q(seek_target, AV_TIME_BASE_Q, ic->streams[vid_stream_index]->time_base);
 
             if(aud_stream_index>=0)
 				aud_seek_target= av_rescale_q(seek_target, AV_TIME_BASE_Q, ic->streams[vid_stream_index]->time_base);
-
+			
 			if(vid_stream_index>=0)
 			{
             	ret = av_seek_frame(movie->ic, vid_stream_index, vid_seek_target, movie->seek_flags|AVSEEK_FLAG_ANY);
@@ -2005,32 +2006,26 @@ int decoder(void *arg)
 	            {
 	                PyErr_Format(PyExc_IOError, "%s: error while seeking", movie->ic->filename);
 	            }
-	            else
-	            {
-	                if (movie->video_stream >= 0)
-	                {
-	                    packet_queue_flush(&movie->videoq);
-	                    packet_queue_put(&movie->videoq, &flush_pkt);
-	                }
-	            }
 			}
-			if(aud_stream_index>=0)
+			else if(aud_stream_index>=0)
 			{
 				ret = av_seek_frame(movie->ic, aud_stream_index, aud_seek_target, movie->seek_flags|AVSEEK_FLAG_ANY);
 	            if (ret < 0)
 	            {
 	                PyErr_Format(PyExc_IOError, "%s: error while seeking", movie->ic->filename);
 	            }
-	            else
-	            {
-	                if (movie->audio_stream >= 0)
-	                {
-	                    packet_queue_flush(&movie->audioq);
-	                    packet_queue_put(&movie->audioq, &flush_pkt);
-	                }
-	            }
 			}
-
+			if (movie->video_stream >= 0)
+            {
+                packet_queue_flush(&movie->videoq);
+                packet_queue_put(&movie->videoq, &flush_pkt);
+            }
+            if (movie->audio_stream >= 0)
+            {
+                packet_queue_flush(&movie->audioq);
+                packet_queue_put(&movie->audioq, &flush_pkt);
+            }
+     
             movie->seek_req = 0;
         }
         /* if the queue are full, no need to read more */
