@@ -31,28 +31,39 @@
 extern "C" {
 #endif
 
+/**********************************************************
+ * Global module constants
+ **********************************************************/
+
+/* Render styles */
 #define FT_STYLE_NORMAL     0x00
 #define FT_STYLE_BOLD		0x01
 #define FT_STYLE_ITALIC     0x02
 #define FT_STYLE_UNDERLINE  0x04
 #define FT_STYLE_DEFAULT    0xFF
 
-/* Sane constant names */
+/* Bounding box modes */
 #define FT_BBOX_EXACT           FT_GLYPH_BBOX_SUBPIXELS
 #define FT_BBOX_EXACT_GRIDFIT   FT_GLYPH_BBOX_GRIDFIT
 #define FT_BBOX_PIXEL           FT_GLYPH_BBOX_TRUNCATE
 #define FT_BBOX_PIXEL_GRIDFIT   FT_GLYPH_BBOX_PIXELS
+
+/* Rendering flags */
+#define FT_RFLAG_NONE           (0)
+#define FT_RFLAG_ANTIALIAS      (1 << 0)
+#define FT_RFLAG_AUTOHINT       (1 << 1)
+#define FT_RFLAG_VERTICAL       (1 << 2)
+#define FT_RFLAG_HINTED         (1 << 3)
+#define FT_RFLAG_DEFAULTS       (FT_RFLAG_NONE | FT_RFLAG_HINTED)
 
 
 #define FT_RENDER_NEWBYTEARRAY      0x0
 #define FT_RENDER_NEWSURFACE        0x1
 #define FT_RENDER_EXISTINGSURFACE   0x2
 
-#define PYGAME_FREETYPE_FIRSTSLOT 0
-#define PYGAME_FREETYPE_NUMSLOTS 0
-
-#ifndef PYGAME_FREETYPE_INTERNAL
-#endif /* PYGAME_FREETYPE_INTERNAL */
+/**********************************************************
+ * Global module types
+ **********************************************************/
 
 typedef struct
 {
@@ -70,6 +81,13 @@ typedef struct
 
     void *_internals;
 } PyFreeTypeFont;
+
+
+/**********************************************************
+ * Module declaration
+ **********************************************************/
+#define PYGAME_FREETYPE_FIRSTSLOT 0
+#define PYGAME_FREETYPE_NUMSLOTS 0
 
 #define PyFreeTypeFont_AsFont(x) (((PyFreeTypeFont *)x)->font)
 
@@ -90,9 +108,10 @@ typedef struct
     (*(PyObject*(*)(const char*,int))PyGameFreeType_C_API[PYGAME_FREETYPE_FONT_FIRSTSLOT + 1])
 #endif /* PYGAME_FREETYPE_FONT_INTERNAL */
 
-/*
- * C API export.
- */
+
+/**********************************************************
+ * C API export
+ **********************************************************/
 #ifdef PYGAME_INTERNAL
     void **PyGameFreeType_C_API;
 #else

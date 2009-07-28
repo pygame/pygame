@@ -28,54 +28,27 @@
 #   include "pgsdl.h"
 #endif
 
-#define FP_1616_FLOAT(i)    ((float)((int)(i) / 65536.0f))
-#define FP_248_FLOAT(i)     ((float)((int)(i) / 256.0f))
-#define FP_266_FLOAT(i)     ((float)((int)(i) / 64.0f))
 
+/**********************************************************
+ * Internal module defines
+ **********************************************************/
+
+/* Fixed point (26.6) math macros */
 #define PGFT_FLOOR(x)  (   (x)        & -64 )
 #define PGFT_CEIL(x)   ( ( (x) + 63 ) & -64 )
 #define PGFT_ROUND(x)  ( ( (x) + 32 ) & -64 )
 #define PGFT_TRUNC(x)  (   (x) >> 6 )
 
-#define PGFT_CHECK_BOOL(_pyobj, _var)               \
-    if (_pyobj)                                     \
-    {                                               \
-        if (!PyBool_Check(_pyobj))                  \
-        {                                           \
-            PyErr_SetString(PyExc_TypeError,        \
-                #_var " must be a boolean value");  \
-            return NULL;                            \
-        }                                           \
-                                                    \
-        _var = PyObject_IsTrue(_pyobj);             \
-    }
-
-#define UNICODE_BOM_NATIVE	0xFEFF
-#define UNICODE_BOM_SWAPPED	0xFFFE
-
-#define FT_KERNING_MODE 1 /* KERNING_MODE_DEFAULT */
-
-#define FT_RFLAG_NONE           (0)
-#define FT_RFLAG_ANTIALIAS      (1 << 0)
-#define FT_RFLAG_AUTOHINT       (1 << 1)
-#define FT_RFLAG_VERTICAL       (1 << 2)
-#define FT_RFLAG_HINTED         (1 << 3)
-
-/*
- * Default render flags:
- *      - Antialiasing off
- *      - Autohint off
- *      - Vertical text off
- *      - Hinted on
- */
-#define FT_RFLAG_DEFAULTS       (FT_RFLAG_NONE | FT_RFLAG_HINTED)
-
-#define MAX_GLYPHS      64
+/* Internal configuration variables */
+#define PGFT_MAX_GLYPHS         64
 #define PGFT_DEFAULT_CACHE_SIZE 64
-#define PGFT_MIN_CACHE_SIZE 32
-#define PGFT_DEBUG_CACHE
+#define PGFT_MIN_CACHE_SIZE     32
+#undef  PGFT_DEBUG_CACHE
 
 
+/**********************************************************
+ * Internal data structures
+ **********************************************************/
 typedef struct
 {
     FT_Library library;
@@ -112,7 +85,7 @@ typedef struct __rendermode
     FT_UInt16   style;
 } FontRenderMode;
 
-typedef struct  FontGlyph_
+typedef struct  __fontglyph
 {
     FT_UInt     glyph_index;
     FT_Glyph    image;    
@@ -125,7 +98,7 @@ typedef struct  FontGlyph_
     FT_Vector   size;
 } FontGlyph;
 
-typedef struct FontText_
+typedef struct __fonttext
 {
     FontGlyph **glyphs;
     int length;
@@ -141,12 +114,12 @@ typedef struct __cachenode
     struct __cachenode *next;
     FT_UInt32 hash;
 
-} PGFT_CacheNode;
+} FontCacheNode;
 
-typedef struct __glyphcache
+typedef struct __fontcache
 {
-    PGFT_CacheNode  **nodes;
-    PGFT_CacheNode  *free_nodes;
+    FontCacheNode  **nodes;
+    FontCacheNode  *free_nodes;
 
     FT_Byte    *depths;
 
@@ -160,29 +133,32 @@ typedef struct __glyphcache
 
     FT_UInt32   size_mask;
     PyFreeTypeFont  *font;
-} PGFT_Cache;
+} FontCache;
 
+#define PGFT_INTERNALS(f) ((FontInternals *)(f->_internals))
 typedef struct FontInternals_
 {
-    PGFT_Cache  cache;
+    FontCache  cache;
     FontText    active_text;
 } FontInternals;
 
-#define PGFT_INTERNALS(f) ((FontInternals *)(f->_internals))
 
 
+/**********************************************************
+ * Module state
+ **********************************************************/
 typedef struct {
     FreeTypeInstance *freetype;
 } _FreeTypeState;
 
 #ifdef IS_PYTHON_3
-extern struct PyModuleDef _freetypemodule;
-#define FREETYPE_MOD_STATE(mod) ((_FreeTypeState*)PyModule_GetState(mod))
-#define FREETYPE_STATE FREETYPE_MOD_STATE(PyState_FindModule(&_freetypemodule))
+    extern struct PyModuleDef _freetypemodule;
+#   define FREETYPE_MOD_STATE(mod) ((_FreeTypeState*)PyModule_GetState(mod))
+#   define FREETYPE_STATE FREETYPE_MOD_STATE(PyState_FindModule(&_freetypemodule))
 #else
-extern _FreeTypeState _modstate;
-#define FREETYPE_MOD_STATE(mod) (&_modstate)
-#define FREETYPE_STATE FREETYPE_MOD_STATE(NULL)
+    extern _FreeTypeState _modstate;
+#   define FREETYPE_MOD_STATE(mod) (&_modstate)
+#   define FREETYPE_STATE FREETYPE_MOD_STATE(NULL)
 #endif
 
 #define ASSERT_GRAB_FREETYPE(ft_ptr, rvalue)                    \
@@ -194,10 +170,12 @@ extern _FreeTypeState _modstate;
         return (rvalue);                                        \
     }
 
-#define GET_FONT_ID(f) (&((PyFreeTypeFont *)f)->id)
 
-#define FT_FLOOR(X)	((X & -64) / 64)
-#define FT_CEIL(X)	(((X + 63) & -64) / 64)
+
+
+/**********************************************************
+ * Internal API
+ **********************************************************/
 
 /********************************************************* General functions ****/
 const char *PGFT_GetError(FreeTypeInstance *);
@@ -282,10 +260,10 @@ FT_UInt16 * PGFT_BuildUnicodeString(PyObject *);
 
 
 /******************************************************** Glyph cache management ****/
-void        PGFT_Cache_Init(FreeTypeInstance *ft, PGFT_Cache *cache, PyFreeTypeFont *parent);
-void        PGFT_Cache_Destroy(PGFT_Cache *cache);
-void        PGFT_Cache_Cleanup(PGFT_Cache *cache);
-FontGlyph * PGFT_Cache_FindGlyph(FreeTypeInstance *ft, PGFT_Cache *cache, FT_UInt character, 
+void        PGFT_Cache_Init(FreeTypeInstance *ft, FontCache *cache, PyFreeTypeFont *parent);
+void        PGFT_Cache_Destroy(FontCache *cache);
+void        PGFT_Cache_Cleanup(FontCache *cache);
+FontGlyph * PGFT_Cache_FindGlyph(FreeTypeInstance *ft, FontCache *cache, FT_UInt character, 
                 const FontRenderMode *render);
 
 

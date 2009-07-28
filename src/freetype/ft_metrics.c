@@ -50,10 +50,7 @@ int PGFT_GetMetrics(FreeTypeInstance *ft, PyFreeTypeFont *font,
     int character, const FontRenderMode *render, int bbmode,
     void *minx, void *maxx, void *miny, void *maxy, void *advance)
 {
-    FT_Error        error;
-    FTC_ScalerRec   scale;
     FontGlyph *     glyph = NULL;
-
 
     glyph = PGFT_Cache_FindGlyph(ft, &PGFT_INTERNALS(font)->cache, 
             (FT_UInt)character, render);
@@ -66,14 +63,21 @@ int PGFT_GetMetrics(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
     if (bbmode == FT_BBOX_EXACT || bbmode == FT_BBOX_EXACT_GRIDFIT)
     {
-        *(float *)minx =    (FP_266_FLOAT(*(int *)minx));
-        *(float *)miny =    (FP_266_FLOAT(*(int *)miny));
-        *(float *)maxx =    (FP_266_FLOAT(*(int *)maxx));
-        *(float *)maxy =    (FP_266_FLOAT(*(int *)maxy));
-        *(float *)advance = (FP_1616_FLOAT(*(int *)advance));
+#       define FP16_16(i)   ((float)((int)(i) / 65536.0f))
+#       define FP26_6(i)    ((float)((int)(i) / 64.0f))
+
+        *(float *)minx =    FP26_6(*(int *)minx);
+        *(float *)miny =    FP26_6(*(int *)miny);
+        *(float *)maxx =    FP26_6(*(int *)maxx);
+        *(float *)maxy =    FP26_6(*(int *)maxy);
+        *(float *)advance = FP16_16(*(int *)advance);
+
+#       undef FP16_16
+#       undef FP26_6
     }
 
     return 0;
+
 }
 
 
@@ -81,7 +85,7 @@ int
 _PGFT_GetTextSize_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font, 
     const FontRenderMode *render, FontText *text)
 {
-    FT_Vector   extent, advances[MAX_GLYPHS];
+    FT_Vector   extent, advances[PGFT_MAX_GLYPHS];
     FT_Error    error;
     FT_Vector   size;
 

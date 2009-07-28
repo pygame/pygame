@@ -32,6 +32,9 @@ FontText *
 PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font, 
         const FontRenderMode *render, PyObject *text)
 {
+    const FT_UInt16 UNICODE_BOM_NATIVE  = 0xFEFF;
+    const FT_UInt16 UNICODE_BOM_SWAPPED = 0xFFFE;
+
     int         swapped = 0;
     int         string_length = 0;
 
@@ -149,6 +152,9 @@ int
 PGFT_GetTextAdvances(FreeTypeInstance *ft, PyFreeTypeFont *font, 
         const FontRenderMode *render, FontText *text, FT_Vector *advances)
 {
+    /* Default kerning mode for all text */
+    const int FT_KERNING_MODE = 1;
+
     FT_Face     face;
     FontGlyph   *glyph;
     FT_Pos      track_kern   = 0;

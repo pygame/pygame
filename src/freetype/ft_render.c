@@ -75,7 +75,7 @@ PGFT_BuildRenderMode(FreeTypeInstance *ft,
     mode->pt_size = (FT_UInt16)pt_size;
 
     if (style == FT_STYLE_DEFAULT)
-        mode->style = font->default_style;
+        mode->style = (FT_Byte)font->default_style;
     else
         mode->style = (FT_Byte)style;
 
@@ -406,7 +406,7 @@ int _PGFT_Render_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font,
     const FT_Fixed center = (1 << 15); // 0.5
 
     int         n;
-    FT_Vector   pen, advances[MAX_GLYPHS];
+    FT_Vector   pen, advances[PGFT_MAX_GLYPHS];
     FT_Matrix   rotation_matrix;
     FT_Face     face;
     FT_Error    error;

@@ -27,6 +27,22 @@
 #include "freetypebase_doc.h"
 
 /*
+ * Auxiliar defines
+ */
+#define PGFT_CHECK_BOOL(_pyobj, _var)               \
+    if (_pyobj)                                     \
+    {                                               \
+        if (!PyBool_Check(_pyobj))                  \
+        {                                           \
+            PyErr_SetString(PyExc_TypeError,        \
+                #_var " must be a boolean value");  \
+            return NULL;                            \
+        }                                           \
+                                                    \
+        _var = PyObject_IsTrue(_pyobj);             \
+    }
+
+/*
  * Constructor/init/destructor
  */
 static PyObject *_ftfont_new(PyTypeObject *type, PyObject *args, PyObject *kwds);
