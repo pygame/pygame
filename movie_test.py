@@ -45,6 +45,12 @@ time.sleep(30)
 print "Testing seek..."
 m.easy_seek(second=10, minute=5, reverse=0)
 time.sleep(5)
+m.easy_seek(second=10, minute=5, reverse=0)
+time.sleep(1)
+m.pause()
+time.sleep(5)
+m.pause()
+time.sleep(10000)
 
 print "Altering xleft and ytop..."
 m.xleft += 10

@@ -5,7 +5,7 @@
 #include "pygamedocs.h"
 #include "pygame.h"
 #include "pgcompat.h"
-#include "audioconvert.h"
+//#include "audioconvert.h"
 #include "surface.h"
 #include "_gsound.h"
 #include "structmember.h"
@@ -176,12 +176,13 @@ typedef struct VidPicture
 }
 VidPicture;
 
+#if 0
 typedef struct SubPicture
 {
 	double pts;
 	AVSubtitle sub;
 } SubPicture;
-
+#endif
 enum {
     AV_SYNC_AUDIO_MASTER, /* default choice */
     AV_SYNC_VIDEO_MASTER,
@@ -242,7 +243,7 @@ typedef struct PyMovie
     int64_t  audio_pts;      
     //int audio_volume; /*must self implement*/
     enum SampleFormat audio_src_fmt;
-    AVAudioConvert   *reformat_ctx;
+    //AVAudioConvert   *reformat_ctx;
     int               audio_stream;
     int               audio_disable;
     SDL_mutex        *audio_mutex;
@@ -276,7 +277,7 @@ typedef struct PyMovie
     SDL_mutex  *videoq_mutex;
     SDL_cond   *videoq_cond;
     struct SwsContext *img_convert_ctx;
-
+#if 0
 	/*subtitle */
 	int sub_stream;
 	int sub_stream_changed;
@@ -286,6 +287,7 @@ typedef struct PyMovie
 	int subpq_rindex, subpq_windex, subpq_size;
 	SDL_mutex *subpq_mutex;
 	int subtitle_disable;
+#endif
 #ifdef PROFILE
 	ImageScaleStats *istats;
 #endif
@@ -338,9 +340,10 @@ double get_video_clock    (PyMovie *is);
 double get_external_clock (PyMovie *is);
 double get_master_clock   (PyMovie *is);
 
-
+#if 0
 /*		Subtitle Management*/
 int subtitle_render(void *arg);
 void blend_subrect(AVPicture *dst, const AVSubtitleRect *rect, int imgw, int imgh);
 void free_subpicture(SubPicture *sp);
+#endif
 #endif /*_GMOVIE_H_*/

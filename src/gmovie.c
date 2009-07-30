@@ -262,6 +262,7 @@ PyObject* _movie_easy_seek (PyMovie *movie, PyObject* args, PyObject *kwds)
 	int minute=0;
 	int second=0;
 	int reverse=0;
+	//int relative=0;
 	char *keywords[4] = {"second", "minute", "hour", "reverse"};
 	if(!PyArg_ParseTupleAndKeywords(args, kwds, "|iiii", keywords, &second, &minute, &hour, &reverse))
 	{

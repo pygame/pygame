@@ -15,7 +15,6 @@ typedef struct BufferNode
 }
 BufferNode;
 
-
 typedef struct BufferQueue
 {
     BufferNode *first, *last;
@@ -43,7 +42,7 @@ typedef struct AudioInfo
 }
 AudioInfo;
 
-AudioInfo ainfo;
+AudioInfo *ainfo;
 
 int soundInit     (int freq, int size, int channels, int chunksize);
 int soundQuit     (void);

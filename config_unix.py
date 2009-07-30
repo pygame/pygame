@@ -16,7 +16,7 @@ localbase = os.environ.get('LOCALBASE', '')
 
 #these get prefixes with '/usr' and '/usr/local' or the $LOCALBASE
 origincdirs = ['/include', '/include/SDL', '/include/SDL',
-               '/include/smpeg', ]
+               '/include/smpeg' ]
 origlibdirs = ['/lib','/lib64','/X11R6/lib']
 
 def confirm(message):
