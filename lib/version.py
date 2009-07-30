@@ -27,5 +27,5 @@ The python version information should always compare greater than any previous
 releases. (hmm, until we get to versions > 10)
 """
 
-ver =   '1.9.0rc4'
+ver =   '1.9.0release'
 vernum = 1,9,0
