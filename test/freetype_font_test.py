@@ -26,6 +26,7 @@ class FreeTypeFontTest(unittest.TestCase):
     }
 
     def test_pygame2_freetype_Font_init(self):
+
         self.assertRaises(RuntimeError, ft.Font, os.path.join (FONTDIR, 'nonexistant.ttf'))
 
         f = self._TEST_FONTS['sans']
@@ -39,10 +40,6 @@ class FreeTypeFontTest(unittest.TestCase):
 
     def test_pygame2_freetype_Font_fixed_width(self):
 
-        # __doc__ (as of 2009-05-25) for pygame2.freetype.Font.fixed_width:
-
-        # Returns whether this font is a fixed-width (bitmap) font
-
         f = self._TEST_FONTS['sans']
         self.assertFalse(f.fixed_width)
 
@@ -53,90 +50,78 @@ class FreeTypeFontTest(unittest.TestCase):
 
     def test_pygame2_freetype_Font_get_metrics(self):
 
-        # __doc__ (as of 2009-05-25) for pygame2.freetype.Font.get_metrics:
+        font = self._TEST_FONTS['sans']
 
-        # get_metrics(pt, text) -> [(int, int, int ...), ...]
-        # 
-        # Returns the glyph metrics for each character in 'text'.
-
-        TEST_VALUES_FIXED = {
-            12 : [
-                (0, 6, 0, 8, 6), (0, 6, 0, 8, 6), (0, 6, 0, 8, 6),
-                (0, 6, 0, 8, 6), (0, 6, 0, 6, 6), (0, 6, 0, 8, 6),
-                (0, 6, 0, 6, 6), (0, 6, 0, 8, 6)],
-            18 : [
-                (0, 9, 0, 12, 9), (0, 9, 0, 12, 9), (0, 9, 0, 12, 9),
-                (0, 9, 0, 12, 9), (0, 8, 0, 9, 9), (1, 9, 0, 12, 9),
-                (0, 9, 0, 9, 9), (0, 8, 0, 12, 9)],
-            24 : [
-                (0, 12, 0, 16, 12), (1, 11, 0, 15, 12), (0, 12, 0, 15, 12),
-                (1, 12, 0, 15, 12), (1, 11, 0, 11, 12), (1, 11, 0, 16, 12),
-                (1, 11, 0, 11, 12), (1, 11, 0, 16, 12)],
-            32 : [
-                (0, 16, 0, 21, 16), (1, 15, 0, 20, 16), (1, 15, 0, 20, 16),
-                (1, 15, 0, 20, 16), (1, 14, 0, 15, 16), (1, 15, 0, 22, 16),
-                (1, 15, 0, 15, 16), (1, 15, 0, 22, 16)],
-            48 : [
-                (0, 24, -1, 31, 24), (2, 22, 0, 30, 24), (1, 23, -1, 31, 24),
-                (2, 23, -1, 30, 24), (2, 21, -1, 23, 24), (2, 22, -1, 32, 24),
-                (2, 22, -1, 23, 24), (2, 22, -1, 32, 24)],
-        }
-
-        TEST_VALUES_SANS = {
-            12 : [
-                (0, 7, 0, 9, 7), (1, 7, 0, 9, 8), (1, 8, 0, 9, 9),
-                (1, 8, 0, 9, 9), (1, 7, 0, 7, 7), (0, 6, 0, 9, 7),
-                (1, 5, 0, 7, 6), (1, 7, 0, 9, 7)],
-            18 : [
-                (0, 11, 0, 12, 11), (1, 11, 0, 12, 12), (1, 12, 0, 12, 13),
-                (1, 12, 0, 12, 13), (1, 10, 0, 10, 10), (0, 9, 0, 13, 10),
-                (1, 8, 0, 10, 9), (1, 10, 0, 13, 10)],
-            24 : [
-                (0, 15, 0, 17, 15), (2, 15, 0, 17, 16), (1, 16, 0, 17, 17),
-                (2, 16, 0, 17, 17), (1, 13, 0, 13, 13), (1, 13, 0, 17, 14),
-                (1, 11, 0, 13, 12), (1, 13, 0, 17, 14)],
-            32 : [
-                (0, 21, 0, 22, 21), (3, 19, 0, 22, 21), (2, 22, 0, 22, 23),
-                (3, 21, 0, 22, 23), (1, 18, 0, 17, 17), (1, 16, 0, 23, 17),
-                (1, 15, 0, 17, 16), (1, 16, 0, 23, 17)],
-            48 : [
-                (0, 32, 0, 33, 32), (4, 29, 0, 33, 32), (2, 33, 0, 33, 35),
-                (4, 32, 0, 33, 35), (2, 27, 0, 26, 27), (2, 25, 0, 35, 27),
-                (2, 22, 0, 26, 24), (2, 25, 0, 35, 27)],
-        }
-
-        f = self._TEST_FONTS['fixed']
-        for (ptsize, test_data) in TEST_VALUES_FIXED.items():
-            self.assertEqual(f.get_metrics('ABCDabcd', ptsize=ptsize), test_data)
-
-        f = self._TEST_FONTS['sans']
-        for (ptsize, test_data) in TEST_VALUES_SANS.items():
-            self.assertEqual(f.get_metrics('ABCDabcd', ptsize=ptsize), test_data)
-
-        metrics = f.get_metrics('ABCD', ptsize=24, bbmode=ft_const.BBOX_EXACT)
+        # test for floating point values (BBOX_EXACT)
+        metrics = font.get_metrics('ABCD', ptsize=24, bbmode=ft_const.BBOX_EXACT)
         self.assertEqual(len(metrics), len('ABCD'))
-        self.assertTrue(isinstance(metrics[0], tuple))
+        self.assertTrue(isinstance(metrics, list))
 
-        for m in metrics[0]:
-            self.assertTrue(isinstance(m, float))
+        for metrics_tuple in metrics:
+            self.assertTrue(isinstance(metrics_tuple, tuple))
+            self.assertEqual(len(metrics_tuple), 5)
+            for m in metrics_tuple:
+                self.assertTrue(isinstance(m, float))
 
+        # test for integer values (BBOX_PIXEL)
+        metrics = font.get_metrics('foobar', ptsize=24, bbmode=ft_const.BBOX_PIXEL)
+        self.assertEqual(len(metrics), len('foobar'))
+        self.assertTrue(isinstance(metrics, list))
 
-    def todo_test_pygame2_freetype_Font_get_size(self):
+        for metrics_tuple in metrics:
+            self.assertTrue(isinstance(metrics_tuple, tuple))
+            self.assertEqual(len(metrics_tuple), 5)
+            for m in metrics_tuple:
+                self.assertTrue(isinstance(m, int))
 
-        # __doc__ (as of 2009-05-25) for pygame2.freetype.Font.get_size:
+        # test for empty string
+        metrics = font.get_metrics('', ptsize=24)
+        self.assertEqual(metrics, [])
 
-        # get_size(pt, text) -> int, int
-        # 
-        # Gets the size which 'text' will occupy when rendered using
-        # this Font.
+        # test for invalid string
+        self.assertRaises(TypeError, font.get_metrics, 24, 24)
 
-        self.fail() 
+    def test_pygame2_freetype_Font_get_size(self):
+
+        font = self._TEST_FONTS['sans']
+
+        def test_size(s):
+            self.assertTrue(isinstance(s, tuple))
+            self.assertEqual(len(s), 2)
+            self.assertTrue(isinstance(s[0], int))
+            self.assertTrue(isinstance(s[1], int))
+
+        size_default = font.get_size("ABCDabcd", ptsize=24)
+        test_size(size_default)
+        self.assertTrue(size_default > (0, 0))
+        self.assertTrue(size_default[0] > size_default[1])
+
+        size_bigger = font.get_size("ABCDabcd", ptsize=32)
+        test_size(size_bigger)
+        self.assertTrue(size_bigger > size_default)
+
+        size_bolden = font.get_size("ABCDabcd", ptsize=24, style=ft_const.STYLE_BOLD)
+        test_size(size_bolden)
+        self.assertTrue(size_bolden > size_default)
+
+        size_vert = font.get_size("ABCDabcd", ptsize=24, vertical=True)
+        test_size(size_vert)
+        self.assertTrue(size_vert[0] < size_vert[1])
+
+        # TODO: Slanted text is slightly wider!
+        size_italic = font.get_size("ABCDabcd", ptsize=24, style=ft_const.STYLE_ITALIC)
+        test_size(size_italic)
+        self.assertTrue(size_italic[0] > size_default[0])
+        self.assertTrue(size_italic[1] == size_default[1])
+
+        # TODO: Text size must consider the underline!
+        size_under = font.get_size("ABCDabcd", ptsize=24, style=ft_const.STYLE_UNDERLINE)
+        test_size(size_under)
+        self.assertTrue(size_under[0] == size_default[0])
+        self.assertTrue(size_under[1] > size_default[1])
+
 
     def test_pygame2_freetype_Font_height(self):
-
-        # __doc__ (as of 2009-05-25) for pygame2.freetype.Font.height:
-
-        # Gets the height of the Font.
 
         f = self._TEST_FONTS['sans']
         self.assertEqual(f.height, 2355)
@@ -147,10 +132,6 @@ class FreeTypeFontTest(unittest.TestCase):
 
     def test_pygame2_freetype_Font_name(self):
 
-        # __doc__ (as of 2009-05-25) for pygame2.freetype.Font.name:
-
-        # Gets the name of the font face.
-        
         f = self._TEST_FONTS['sans']
         self.assertEqual(f.name, 'Liberation Sans')
 
@@ -158,25 +139,90 @@ class FreeTypeFontTest(unittest.TestCase):
         self.assertEqual(f.name, 'Inconsolata')
 
 
-    def todo_test_pygame2_freetype_Font_render(self):
+    def test_pygame2_freetype_Font_render(self):
 
-        # __doc__ (as of 2009-05-25) for pygame2.freetype.Font.render:
+        font = self._TEST_FONTS['sans']
 
-        # render(text, fgcolor[, bgcolor, renderflag]) -> Surface
-        # 
-        # Renders a text to a Surface.
-        # 
-        # *TODO*
+        pygame2.sdl.video.init()
+        surf = pygame2.sdl.video.Surface(800, 600)
+        color = pygame2.base.Color(0, 0, 0)
 
-        self.fail() 
+        # make sure we always have a valid fg color
+        self.assertRaises(TypeError, font.render, 'FoobarBaz')
+        self.assertRaises(TypeError, font.render, 'FoobarBaz', None)
 
-    def todo_test_pygame2_freetype_Font_style(self):
+        # render to new surface
+        rend = font.render('FoobarBaz', pygame2.base.Color(0, 0, 0), None, None, ptsize=24)
+        self.assertTrue(isinstance(rend, tuple))
+        self.assertTrue(isinstance(rend[0], int))
+        self.assertTrue(isinstance(rend[1], int))
+        self.assertTrue(isinstance(rend[2], pygame2.base.Surface))
 
-        # __doc__ (as of 2009-05-25) for pygame2.freetype.Font.style:
+        # render to existing surface
+        rend = font.render('FoobarBaz', color, None, surf, ptsize=24)
+        self.assertTrue(isinstance(rend, tuple))
+        self.assertTrue(isinstance(rend[0], int))
+        self.assertTrue(isinstance(rend[1], int))
+        self.assertTrue(isinstance(rend[2], pygame2.base.Surface))
+        self.assertEqual(rend[2], surf)
 
-        # Gets or sets the style of the font. *TODO*
+        # misc parameter test
+        self.assertRaises(pygame2.base.Error, font.render, 'foobar', color)
+        self.assertRaises(TypeError, font.render, 'foobar', color, "", ptsize=24)
+        self.assertRaises(TypeError, font.render, 'foobar', color,
+                None, 42, ptsize=24)
+        self.assertRaises(TypeError, font.render, 'foobar', color,
+                None, None, antialias=3, ptsize=24)
+        self.assertRaises(TypeError, font.render, 'foobar', color,
+                None, None, rotation=23.5, ptsize=24)
+        self.assertRaises(TypeError, font.render, 'foobar', color,
+                None, None, style=None, ptsize=24)
+        self.assertRaises(pygame2.base.Error, font.render, 'foobar', color,
+                None, None, style=97, ptsize=24)
 
-        self.fail()
+        pygame2.sdl.video.quit()
+
+
+
+    def test_pygame2_freetype_Font_style(self):
+
+        font = self._TEST_FONTS['sans']
+
+        # make sure STYLE_NORMAL is the default value
+        self.assertEqual(ft_const.STYLE_NORMAL, font.style)
+
+        # make sure we check for style type
+        try:    font.style = "None"
+        except TypeError: pass
+        else:   self.fail("Failed style assignement")
+
+        try:    font.style = None
+        except TypeError: pass
+        else:   self.fail("Failed style assignement")
+
+        # make sure we only accept valid constants
+        try:    font.style = 112
+        except ValueError: pass
+        else:   self.fail("Failed style assignement")
+
+        # make assure no assignements happened
+        self.assertEqual(ft_const.STYLE_NORMAL, font.style)
+
+        # test assignement
+        font.style = ft_const.STYLE_UNDERLINE
+        self.assertEqual(ft_const.STYLE_UNDERLINE, font.style)
+
+        # test complex styles
+        st = (  ft_const.STYLE_BOLD | ft_const.STYLE_UNDERLINE |
+                ft_const.STYLE_ITALIC )
+
+        font.style = st
+        self.assertEqual(st, font.style)
+
+        # revert changes
+        font.style = ft_const.STYLE_NORMAL
+        self.assertEqual(ft_const.STYLE_NORMAL, font.style)
+
 
 if __name__ == '__main__':
     unittest.main()

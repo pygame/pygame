@@ -53,6 +53,17 @@ FT_Fixed PGFT_GetBoldStrength(FT_Face face)
     return bold_str;
 }
 
+int PGFT_CheckStyle(FT_UInt32 style)
+{
+    const FT_UInt32 max_style =
+        FT_STYLE_NORMAL |
+        FT_STYLE_BOLD   |
+        FT_STYLE_ITALIC |
+        FT_STYLE_UNDERLINE;
+
+    return (style > max_style);
+}
+
 int 
 PGFT_BuildRenderMode(FreeTypeInstance *ft, 
         PyFreeTypeFont *font, FontRenderMode *mode, 
@@ -72,12 +83,28 @@ PGFT_BuildRenderMode(FreeTypeInstance *ft,
         pt_size = font->default_ptsize;
     }
 
+    if (pt_size <= 0)
+    {
+        _PGFT_SetError(ft, "Invalid point size for font.", 0);
+        return -1;
+    }
+
     mode->pt_size = (FT_UInt16)pt_size;
 
     if (style == FT_STYLE_DEFAULT)
+    {
         mode->style = (FT_Byte)font->default_style;
+    }
     else
+    {
+        if (PGFT_CheckStyle((FT_UInt32)style) != 0)
+        {
+            _PGFT_SetError(ft, "Invalid style value", 0);
+            return -1;
+        }
+
         mode->style = (FT_Byte)style;
+    }
 
     mode->render_flags = FT_RFLAG_DEFAULTS;
 

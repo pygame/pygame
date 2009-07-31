@@ -229,6 +229,8 @@ int         _PGFT_Render_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font,
                 FontText *text, const FontRenderMode *render, PyColor *fg_color, 
                 FontSurface *surface);
 
+int PGFT_CheckStyle(FT_UInt32 style);
+
 
 /******************************************************************* Render callbacks ****/
 

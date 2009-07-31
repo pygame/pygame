@@ -316,14 +316,25 @@ static int
 _ftfont_setstyle(PyObject *self, PyObject *value, void *closure)
 {
     PyFreeTypeFont *font = (PyFreeTypeFont *)self;
+    FT_UInt32 style;
 
     if (!PyInt_Check(value))
     {
-        PyErr_SetString(PyExc_TypeError, "Invalid style value");
+        PyErr_SetString(PyExc_TypeError, 
+                "The style value must be an integer"
+                " from the FT constants module");
         return -1;
     }
 
-    font->default_style = PyInt_AsLong(value);
+    style = (FT_UInt32)PyInt_AsLong(value);
+
+    if (PGFT_CheckStyle(style) != 0)
+    {
+        PyErr_SetString(PyExc_ValueError, "Invalid style value");
+        return -1;
+    }
+
+    font->default_style = style;
     return 0;
 }
 
@@ -472,9 +483,6 @@ _ftfont_getmetrics(PyObject *self, PyObject* args, PyObject *kwds)
         length = PyUnicode_GetSize(text);
     else
         length = Bytes_Size(text);
-
-    if (length == 0)
-        Py_RETURN_NONE;
 
 #define _GET_METRICS(_mt, _tuple_format) {              \
     for (i = 0; i < length; i++)                        \
