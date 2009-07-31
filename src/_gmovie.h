@@ -9,6 +9,7 @@
 #include "surface.h"
 #include "_gsound.h"
 #include "structmember.h"
+#include "_gcommand.h"
 
 /* Library includes */
 /* This is as small as I could make it... */
