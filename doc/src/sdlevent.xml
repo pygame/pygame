@@ -161,7 +161,7 @@
       +--------------------+--------------------------+
     </desc>
     <attr name="name"><desc>Gets the name of the Event.</desc></attr>
-    <attr name="type"><desc>Gets type id of the Event.</desc></attr>
+    <attr name="type"><desc>Gets the type id of the Event.</desc></attr>
   </class>
 
   <func name="clear">

@@ -258,7 +258,7 @@ _pixelformat_setbytes (PyObject *self, PyObject *value, void *closure)
     if (!Uint8FromObj (value, &bpp))
     {
         PyErr_SetString (PyExc_ValueError,
-            "bpp must be an integer in the range 0-255");
+            "bytes must be an integer in the range 0-255");
         return -1;
     }
     fmt->BytesPerPixel = bpp;

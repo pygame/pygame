@@ -51,7 +51,7 @@ class Dependency (config_generic.Dependency):
         self.lflags += pkgconfig.get_lflags(pkg)
         return True
 
-    _configure_pkgconfig.priority = 1
+    _configure_pkgconfig.priority = 2
 
     def _configure_libconfig(self):
         """
@@ -68,5 +68,5 @@ class Dependency (config_generic.Dependency):
         self.lflags += libconfig.get_lflags(lc)
         return True
 
-    _configure_libconfig.priority = 2
+    _configure_libconfig.priority = 1
 

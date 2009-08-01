@@ -45,7 +45,7 @@ def get_dependencies(buildsystem, cfg):
         'sdl_gfx' : dep(
             ['SDL_framerate.h'], 'SDL_gfx',
             config_program='sdl-config',
-            pkgconfig_name='sdl',
+            pkgconfig_name='SDL_gfx',
             extra_include_dirs = [pygame_sdl_path]),
 
         'sdl_image' : dep(
