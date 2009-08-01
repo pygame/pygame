@@ -106,6 +106,9 @@ typedef struct __fonttext
     FT_Vector glyph_size;       /* 26.6 */
     FT_Vector text_size;        /* 26.6 */
     FT_Vector baseline_offset;  /* 26.6 */
+
+    FT_Fixed underline_size;
+    FT_Fixed underline_pos;
 } FontText;
 
 typedef struct __cachenode
@@ -199,10 +202,9 @@ int         PGFT_GetMetrics(FreeTypeInstance *ft, PyFreeTypeFont *font,
                 int character, const FontRenderMode *render, int bbmode, 
                 void *minx, void *maxx, void *miny, void *maxy, void *advance);
 
-int         _PGFT_GetTextSize_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font, 
-                const FontRenderMode *render, FontText *text);
-
-void        _PGFT_GetMetrics_INTERNAL(FT_Glyph, FT_UInt, int *, int *, int *, int *, int *);
+int         PGFT_GetSurfaceSize(FreeTypeInstance *ft, PyFreeTypeFont *font,
+                const FontRenderMode *render, FontText *text, 
+                int *width, int *height);
 
 
 

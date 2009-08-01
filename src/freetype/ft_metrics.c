@@ -28,6 +28,15 @@
 
 #include FT_MODULE_H
 
+extern FT_Matrix PGFT_SlantMatrix;
+
+/* Declarations */
+void _PGFT_GetMetrics_INTERNAL(FT_Glyph, FT_UInt, int *, int *, int *, int *, int *);
+int  _PGFT_GetTextSize_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font, 
+        const FontRenderMode *render, FontText *text);
+
+
+/* Real text metrics */
 void _PGFT_GetMetrics_INTERNAL(FT_Glyph glyph, FT_UInt bbmode,
     int *minx, int *maxx, int *miny, int *maxy, int *advance)
 {
@@ -120,6 +129,38 @@ _PGFT_GetTextSize_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font,
 }
 
 int
+PGFT_GetSurfaceSize(FreeTypeInstance *ft, PyFreeTypeFont *font,
+        const FontRenderMode *render, FontText *text, 
+        int *width, int *height)
+{
+    int w, h;
+
+    if (text == NULL || 
+        _PGFT_GetTextSize_INTERNAL(ft, font, render, text) != 0)
+        return -1;
+
+    w = text->text_size.x;
+    h = text->text_size.y;
+
+    if (text->underline_size > 0)
+    {
+        h = MAX(h, text->underline_pos + text->underline_size);
+    }
+
+    if (render->style & FT_STYLE_ITALIC)
+    {
+        FT_Vector s = {w, h};
+
+        FT_Vector_Transform(&s, &PGFT_SlantMatrix);
+        w = s.x; h = s.y;
+    }
+
+    *width = PGFT_TRUNC(PGFT_CEIL(w));
+    *height = PGFT_TRUNC(PGFT_CEIL(h));
+    return 0;
+}
+
+int
 PGFT_GetTextSize(FreeTypeInstance *ft, PyFreeTypeFont *font,
     const FontRenderMode *render, PyObject *text, int *w, int *h)
 {
@@ -130,10 +171,5 @@ PGFT_GetTextSize(FreeTypeInstance *ft, PyFreeTypeFont *font,
     if (!font_text)
         return -1;
 
-    if (_PGFT_GetTextSize_INTERNAL(ft, font, render, font_text) != 0)
-        return -1;
-
-    *w = PGFT_TRUNC(PGFT_ROUND(font_text->text_size.x));
-    *h = PGFT_TRUNC(PGFT_ROUND(font_text->text_size.y));
-    return 0;
+    return PGFT_GetSurfaceSize(ft, font, render, font_text, w, h);
 }

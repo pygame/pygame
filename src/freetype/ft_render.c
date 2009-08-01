@@ -185,11 +185,8 @@ int PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
     if (!font_text)
         return -1;
 
-    _PGFT_GetTextSize_INTERNAL(ft, font, render, font_text);
-
-    width = PGFT_TRUNC(PGFT_ROUND(font_text->text_size.x));
-    height = PGFT_TRUNC(PGFT_ROUND(font_text->text_size.y));
-
+    if (PGFT_GetSurfaceSize(ft, font, render, font_text, &width, &height) != 0)
+        return -1;
 
     /*
      * Setup target surface struct
@@ -270,11 +267,8 @@ PyObject *PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
     if (!font_text)
         return NULL;
 
-    if (_PGFT_GetTextSize_INTERNAL(ft, font, render, font_text) != 0)
+    if (PGFT_GetSurfaceSize(ft, font, render, font_text, &width, &height) != 0)
         return NULL;
-
-    width = PGFT_TRUNC(PGFT_ROUND(font_text->text_size.x));
-    height = PGFT_TRUNC(PGFT_ROUND(font_text->text_size.y));
 
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
     rmask = 0xff000000;
@@ -380,11 +374,9 @@ PyObject *PGFT_Render_PixelArray(FreeTypeInstance *ft, PyFreeTypeFont *font,
     if (!font_text)
         goto cleanup;
 
-    if (_PGFT_GetTextSize_INTERNAL(ft, font, render, font_text) != 0)
+    if (PGFT_GetSurfaceSize(ft, font, render, font_text, &width, &height) != 0)
         goto cleanup;
 
-    width = PGFT_TRUNC(PGFT_ROUND(font_text->text_size.x));
-    height = PGFT_TRUNC(PGFT_ROUND(font_text->text_size.y));
     array_size = width * height;
 
     buffer = malloc((size_t)array_size);
@@ -634,44 +626,12 @@ int _PGFT_Render_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font,
         FT_Done_Glyph(image);
     } /* END OF RENDERING LOOP */
 
-    if (render->style & FT_STYLE_UNDERLINE &&
-        (render->render_flags & FT_RFLAG_VERTICAL) == 0 &&
-        (render->rotation_angle == 0))
+    if (text->underline_size > 0)
     {
-        FT_Fixed scale;
-        FT_Fixed underline_pos;
-        FT_Fixed underline_size;
-        
-        scale = face->size->metrics.y_scale;
-
-        underline_pos = FT_MulFix(face->underline_position, scale);
-        underline_size = FT_MulFix(face->underline_thickness, scale) + bold_str;
-
-        /*
-         * HACK HACK HACK
-         *
-         * According to the FT documentation, 'underline_pos' is the offset 
-         * to draw the underline in 26.6 FP, based on the text's baseline 
-         * (negative values mean below the baseline).
-         *
-         * However, after scaling the underline position, the values for all
-         * fonts are WAY off (e.g. fonts with 32pt size get underline offsets
-         * of -14 pixels).
-         *
-         * Dividing the offset by 4, somehow, returns very sane results for
-         * all kind of fonts; the underline seems to fit perfectly between
-         * the baseline and bottom of the glyphs.
-         *
-         * We'll leave it like this until we can figure out what's wrong
-         * with it...
-         *
-         */
-
         surface->fill(
                 surface->x_offset,
-                surface->y_offset + PGFT_TRUNC(text->text_size.y) -
-                PGFT_TRUNC(text->baseline_offset.y) - PGFT_TRUNC(underline_pos)/4,
-                PGFT_TRUNC(text->text_size.x), PGFT_TRUNC(underline_size),
+                surface->y_offset + PGFT_TRUNC(text->underline_pos),
+                PGFT_TRUNC(text->text_size.x), PGFT_TRUNC(text->underline_size),
                 surface, fg_color);
     }
 

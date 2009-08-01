@@ -90,6 +90,7 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
     ftext->glyph_size.x = ftext->glyph_size.y = 0;
     ftext->text_size.x = ftext->text_size.y = 0;
     ftext->baseline_offset.x = ftext->baseline_offset.y = 0;
+    ftext->underline_pos = ftext->underline_size = 0;
 
     y_scale = face->size->metrics.y_scale;
 
@@ -139,10 +140,44 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
         *glyph_array++ = glyph;
     }
 
-    /* 
-     * FIXME:
-     * Take into account the extra height added by underlines
-     */
+    if (render->style & FT_STYLE_UNDERLINE &&
+        (render->render_flags & FT_RFLAG_VERTICAL) == 0 &&
+        (render->rotation_angle == 0))
+    {
+        FT_Fixed scale;
+        FT_Fixed underline_pos;
+        FT_Fixed underline_size;
+        
+        scale = face->size->metrics.y_scale;
+
+        underline_pos = FT_MulFix(face->underline_position, scale);
+        underline_size = FT_MulFix(face->underline_thickness, scale) + bold_str;
+
+        /*
+         * HACK HACK HACK
+         *
+         * According to the FT documentation, 'underline_pos' is the offset 
+         * to draw the underline in 26.6 FP, based on the text's baseline 
+         * (negative values mean below the baseline).
+         *
+         * However, after scaling the underline position, the values for all
+         * fonts are WAY off (e.g. fonts with 32pt size get underline offsets
+         * of -14 pixels).
+         *
+         * Dividing the offset by 4, somehow, returns very sane results for
+         * all kind of fonts; the underline seems to fit perfectly between
+         * the baseline and bottom of the glyphs.
+         *
+         * We'll leave it like this until we can figure out what's wrong
+         * with it...
+         *
+         */
+
+        ftext->underline_pos =
+            ftext->glyph_size.y - ftext->baseline_offset.y - (underline_pos / 4);
+
+        ftext->underline_size = underline_size;
+    }
 
     free(orig_buffer);
     return ftext;
