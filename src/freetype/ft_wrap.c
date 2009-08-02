@@ -20,14 +20,8 @@
 
 #define PYGAME_FREETYPE_INTERNAL
 
-#include "ft_mod.h"
 #include "ft_wrap.h"
-#include "pgfreetype.h"
-#include "pgtypes.h"
-#include "freetypebase_doc.h"
-
 #include FT_MODULE_H
-
 
 /*********************************************************
  *
@@ -171,7 +165,7 @@ void
 _PGFT_BuildScaler(PyFreeTypeFont *font, FTC_Scaler scale, int size)
 {
     scale->face_id = (FTC_FaceID)(&font->id);
-    scale->width = scale->height = (pguint32)(size * 64);
+    scale->width = scale->height = (FT_UInt32)(size * 64);
     scale->pixel = 0;
     scale->x_res = scale->y_res = 0;
 }

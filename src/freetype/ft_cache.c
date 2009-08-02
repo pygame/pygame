@@ -20,14 +20,10 @@
 
 #define PYGAME_FREETYPE_INTERNAL
 
-#include "ft_mod.h"
 #include "ft_wrap.h"
 #include "pgfreetype.h"
-#include "pgtypes.h"
-#include "freetypebase_doc.h"
 
 #include FT_MODULE_H
-
 
 FT_UInt32 _PGFT_Cache_Hash(const FontRenderMode *, FT_UInt);
 FT_UInt32 _PGFT_GetLoadFlags(const FontRenderMode *);

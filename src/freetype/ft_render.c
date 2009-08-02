@@ -20,20 +20,11 @@
 
 #define PYGAME_FREETYPE_INTERNAL
 
-#include "ft_mod.h"
 #include "ft_wrap.h"
-#include "pgfreetype.h"
-#include "pgtypes.h"
-#include "freetypebase_doc.h"
-
 #include FT_MODULE_H
 
-#ifdef HAVE_PYGAME_SDL_VIDEO
-#   include "surface.h"
-#endif
-
-typedef void (* FontRenderPtr)(int, int, FontSurface *, FT_Bitmap *, PyColor *);
-typedef void (* FontFillPtr)(int, int, int, int, FontSurface *, PyColor *);
+typedef void (* FontRenderPtr)(int, int, FontSurface *, FT_Bitmap *, FontColor *);
+typedef void (* FontFillPtr)(int, int, int, int, FontSurface *, FontColor *);
 
 #define SLANT_FACTOR    0.22
 FT_Matrix PGFT_SlantMatrix = 
@@ -129,8 +120,8 @@ PGFT_BuildRenderMode(FreeTypeInstance *ft,
  *********************************************************/
 #ifdef HAVE_PYGAME_SDL_VIDEO
 int PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
-    const FontRenderMode *render, PyObject *text, PySDLSurface *_surface, 
-    int x, int y, PyColor *fgcolor, PyColor *bgcolor, int *_width, int *_height)
+    const FontRenderMode *render, PyObject *text, SDL_Surface *surface, 
+    int x, int y, FontColor *fgcolor, FontColor *bgcolor, int *_width, int *_height)
 {
     static const FontRenderPtr __SDLrenderFuncs[] =
     {
@@ -162,11 +153,8 @@ int PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
     int         locked = 0;
     int         width, height;
 
-    SDL_Surface *surface;
     FontSurface font_surf;
     FontText    *font_text;
-
-    surface = PySDLSurface_AsSDLSurface(_surface);
 
     if (SDL_MUSTLOCK(surface))
     {
@@ -249,9 +237,9 @@ int PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
     return 0;
 }
 
-PyObject *PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font, 
+SDL_Surface *PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font, 
     const FontRenderMode *render, PyObject *text,
-    PyColor *fgcolor, PyColor *bgcolor, int *_width, int *_height)
+    FontColor *fgcolor, FontColor *bgcolor, int *_width, int *_height)
 {
     int locked = 0;
     FT_UInt32 fillcolor, rmask, gmask, bmask, amask;
@@ -344,7 +332,7 @@ PyObject *PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
     if (locked)
         SDL_UnlockSurface(surface);
 
-    return PySDLSurface_NewFromSDLSurface(surface);
+    return surface;
 }
 #endif
 
@@ -419,7 +407,7 @@ cleanup:
  *
  *********************************************************/
 int _PGFT_Render_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font, 
-    FontText *text, const FontRenderMode *render, PyColor *fg_color,
+    FontText *text, const FontRenderMode *render, FontColor *fg_color,
     FontSurface *surface)
 {
     const FT_Fixed center = (1 << 15); // 0.5

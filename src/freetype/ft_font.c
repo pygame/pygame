@@ -21,10 +21,10 @@
 #define PYGAME_FREETYPE_INTERNAL
 #define PYGAME_FREETYPE_FONT_INTERNAL
 
-#include "ft_mod.h"
 #include "ft_wrap.h"
 #include "pgfreetype.h"
 #include "freetypebase_doc.h"
+
 
 /*
  * Auxiliar defines
@@ -334,7 +334,7 @@ _ftfont_setstyle(PyObject *self, PyObject *value, void *closure)
         return -1;
     }
 
-    font->default_style = style;
+    font->default_style = (int)style;
     return 0;
 }
 
@@ -606,8 +606,8 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
     PyObject *text = NULL;
     int ptsize = -1;
     PyObject *target_surf = NULL;
-    PyObject *fg_color = NULL;
-    PyObject *bg_color = NULL;
+    PyObject *fg_color_obj = NULL;
+    PyObject *bg_color_obj = NULL;
     PyObject *vertical_obj = NULL;
     PyObject *antialias_obj = NULL;
     int rotation = 0;
@@ -619,6 +619,8 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
     int width, height;
 
     FontRenderMode render;
+    FontColor fg_color;
+    FontColor bg_color;
     int vertical = 0;
     int antialias = 1;
 
@@ -626,22 +628,39 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
     ASSERT_GRAB_FREETYPE(ft, NULL);
 
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "OO|OOiiiOiOi", kwlist,
-                &text, &fg_color, &bg_color, &target_surf, &xpos, &ypos, 
+                &text, &fg_color_obj, &bg_color_obj, &target_surf, &xpos, &ypos, 
                 &style, &vertical_obj, &rotation, &antialias_obj, &ptsize))
         return NULL;
 
-    if (!PyColor_Check(fg_color))
+    if (PyColor_Check(fg_color_obj))
+    {
+        PyColor *c = (PyColor *)fg_color_obj;
+        fg_color.r = c->r;
+        fg_color.g = c->g;
+        fg_color.b = c->b;
+        fg_color.a = c->a;
+    }
+    else
     {
         PyErr_SetString(PyExc_TypeError, "fgcolor must be a Color");
         return NULL;
     }
 
-    if (bg_color)
+    if (bg_color_obj)
     {
-        if (bg_color == Py_None)
-            bg_color = NULL;
-        
-        else if (!PyColor_Check(bg_color))
+        if (bg_color_obj == Py_None)
+        {
+            bg_color_obj = NULL;
+        }
+        else if (PyColor_Check(bg_color_obj))
+        {
+            PyColor *c = (PyColor *)bg_color_obj;
+            bg_color.r = c->r;
+            bg_color.g = c->g;
+            bg_color.b = c->b;
+            bg_color.a = c->a;
+        }
+        else
         {
             PyErr_SetString(PyExc_TypeError, "bgcolor must be a Color");
             return NULL;
@@ -660,10 +679,10 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
 
     if (!target_surf || target_surf == Py_None)
     {
-        PyObject *r_surface = NULL;
+        SDL_Surface *r_surface = NULL;
 
         r_surface = PGFT_Render_NewSurface(ft, font, &render, text,
-                (PyColor *)fg_color, (PyColor *)bg_color, &width, &height);
+                &fg_color, bg_color_obj ? &bg_color : NULL, &width, &height);
 
         if (!r_surface)
         {
@@ -671,13 +690,17 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
             return NULL;
         }
 
-        rtuple = Py_BuildValue("(iiO)", width, height, r_surface);
+        rtuple = Py_BuildValue("(iiO)", width, height, 
+                PySDLSurface_NewFromSDLSurface(r_surface));
     }
     else if (PySDLSurface_Check(target_surf))
     {
+        SDL_Surface *surface = NULL;
+        surface = PySDLSurface_AsSDLSurface(target_surf);
+            
         if (PGFT_Render_ExistingSurface(ft, font, &render, 
-                text, (PySDLSurface *)target_surf,
-                xpos, ypos, (PyColor *)fg_color, (PyColor *)bg_color,
+                text, surface, xpos, ypos, 
+                &fg_color, bg_color_obj ? &bg_color : NULL,
                 &width, &height) != 0)
         {
             PyErr_SetString(PyExc_PyGameError, PGFT_GetError(ft));

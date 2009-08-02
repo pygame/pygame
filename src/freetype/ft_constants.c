@@ -18,7 +18,6 @@
 
 */
 
-#include "ft_mod.h"
 #include "ft_wrap.h"
 #include "pgfreetype.h"
 #include "pgtypes.h"

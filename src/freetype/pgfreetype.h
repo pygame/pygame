@@ -22,6 +22,11 @@
 
 #include "pgbase.h"
 
+#ifdef HAVE_PYGAME_SDL_VIDEO
+#   include <SDL.h>
+#   include "pgsdl.h"
+#endif
+
 #include <ft2build.h>  
 #include FT_FREETYPE_H 
 #include FT_CACHE_H

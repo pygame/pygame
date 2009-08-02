@@ -20,20 +20,17 @@
 
 #define PYGAME_FREETYPE_INTERNAL
 
-#include "ft_mod.h"
 #include "ft_wrap.h"
-#include "pgfreetype.h"
-#include "pgtypes.h"
-#include "freetypebase_doc.h"
-
 #include FT_MODULE_H
 
-#ifdef HAVE_PYGAME_SDL_VIDEO
+#if defined (PGFT_PYGAME1_COMPAT)
+#   include "ft_pixel.h"
+#elif defined (HAVE_PYGAME_SDL_VIDEO)
 #   include "surface.h"
 #endif
 
 void __render_glyph_ByteArray(int x, int y, FontSurface *surface,
-    FT_Bitmap *bitmap, PyColor *fg_color)
+    FT_Bitmap *bitmap, FontColor *fg_color)
 {
     FT_Byte *dst = ((FT_Byte *)surface->buffer) + x + (y * surface->pitch);
     FT_Byte *dst_cpy;
@@ -48,7 +45,8 @@ void __render_glyph_ByteArray(int x, int y, FontSurface *surface,
         src_cpy = src;
         dst_cpy = dst;
 
-        LOOP_UNROLLED4({ *dst_cpy++ = (FT_Byte)(~(*src_cpy++)); }, i, bitmap->width);
+        for (i = 0; i < bitmap->width; ++i)
+            *dst_cpy++ = (FT_Byte)(~(*src_cpy++));
 
         dst += surface->pitch;
         src += bitmap->pitch;
@@ -59,7 +57,7 @@ void __render_glyph_ByteArray(int x, int y, FontSurface *surface,
 
 #define _CREATE_RGB_FILLER(_bpp, _getp, _setp, _blendp)     \
     void __fill_glyph_RGB##_bpp(int x, int y, int w, int h, \
-            FontSurface *surface, PyColor *color)           \
+            FontSurface *surface, FontColor *color)           \
     {                                                       \
         int i, j;                                           \
         unsigned char *dst;                                 \
@@ -126,7 +124,7 @@ void __render_glyph_ByteArray(int x, int y, FontSurface *surface,
 
 #define _CREATE_MONO_RENDER(_bpp, _getp, _setp, _blendp)                \
     void __render_glyph_MONO##_bpp(int x, int y, FontSurface *surface,  \
-            FT_Bitmap *bitmap, PyColor *color)                          \
+            FT_Bitmap *bitmap, FontColor *color)                          \
     {                                                                   \
         const int off_x = (x < 0) ? -x : 0;                             \
         const int off_y = (y < 0) ? -y : 0;                             \
@@ -180,7 +178,7 @@ void __render_glyph_ByteArray(int x, int y, FontSurface *surface,
 
 #define _CREATE_RGB_RENDER(_bpp, _getp, _setp, _blendp)                 \
     void __render_glyph_RGB##_bpp(int x, int y, FontSurface *surface,   \
-        FT_Bitmap *bitmap, PyColor *color)                              \
+        FT_Bitmap *bitmap, FontColor *color)                              \
     {                                                                   \
         const int off_x = (x < 0) ? -x : 0;                             \
         const int off_y = (y < 0) ? -y : 0;                             \
