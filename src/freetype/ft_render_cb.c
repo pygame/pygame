@@ -83,9 +83,19 @@ void __render_glyph_ByteArray(int x, int y, FontSurface *surface,
             {                                               \
                 FT_UInt32 pixel = (FT_UInt32)_getp;         \
                                                             \
-                GET_RGB_VALS(                               \
-                        pixel, surface->format,             \
-                        bgR, bgG, bgB, bgA);                \
+                if (_bpp == 1)                              \
+                {                                           \
+                    GET_PALETTE_VALS(                       \
+                            pixel, surface->format,         \
+                            bgR, bgG, bgB, bgA);            \
+                }                                           \
+                else                                        \
+                {                                           \
+                    GET_RGB_VALS(                           \
+                            pixel, surface->format,         \
+                            bgR, bgG, bgB, bgA);            \
+                                                            \
+                }                                           \
                                                             \
                 ALPHA_BLEND(                                \
                         color->r, color->g, color->b,       \
@@ -163,9 +173,19 @@ void __render_glyph_ByteArray(int x, int y, FontSurface *surface,
             {                                                           \
                 FT_UInt32 pixel = (FT_UInt32)_getp;                     \
                                                                         \
-                GET_RGB_VALS(                                           \
-                        pixel, surface->format,                         \
-                        bgR, bgG, bgB, bgA);                            \
+                if (_bpp == 1)                                          \
+                {                                                       \
+                    GET_PALETTE_VALS(                                   \
+                            pixel, surface->format,                     \
+                            bgR, bgG, bgB, bgA);                        \
+                }                                                       \
+                else                                                    \
+                {                                                       \
+                    GET_RGB_VALS(                                       \
+                            pixel, surface->format,                     \
+                            bgR, bgG, bgB, bgA);                        \
+                                                                        \
+                }                                                       \
                                                                         \
                 ALPHA_BLEND(                                            \
                         color->r, color->g, color->b, color->a,         \
@@ -178,7 +198,7 @@ void __render_glyph_ByteArray(int x, int y, FontSurface *surface,
 
 #define _CREATE_RGB_RENDER(_bpp, _getp, _setp, _blendp)                 \
     void __render_glyph_RGB##_bpp(int x, int y, FontSurface *surface,   \
-        FT_Bitmap *bitmap, FontColor *color)                              \
+        FT_Bitmap *bitmap, FontColor *color)                            \
     {                                                                   \
         const int off_x = (x < 0) ? -x : 0;                             \
         const int off_y = (y < 0) ? -y : 0;                             \
@@ -222,9 +242,19 @@ void __render_glyph_ByteArray(int x, int y, FontSurface *surface,
                 {                                                       \
                     FT_UInt32 pixel = (FT_UInt32)_getp;                 \
                                                                         \
+                if (_bpp == 1)                                          \
+                {                                                       \
+                    GET_PALETTE_VALS(                                   \
+                            pixel, surface->format,                     \
+                            bgR, bgG, bgB, bgA);                        \
+                }                                                       \
+                else                                                    \
+                {                                                       \
                     GET_RGB_VALS(                                       \
                             pixel, surface->format,                     \
                             bgR, bgG, bgB, bgA);                        \
+                                                                        \
+                }                                                       \
                                                                         \
                     ALPHA_BLEND(                                        \
                             color->r, color->g, color->b, alpha,        \
@@ -276,5 +306,4 @@ _CREATE_RGB_FILLER(4,  _GET_PIXEL(FT_UInt32),   _SET_PIXEL(FT_UInt32),  _BLEND_P
 _CREATE_RGB_FILLER(3,  GET_PIXEL24(_dst),       _SET_PIXEL_24,          _BLEND_PIXEL_24)
 _CREATE_RGB_FILLER(2,  _GET_PIXEL(FT_UInt16),   _SET_PIXEL(FT_UInt16),  _BLEND_PIXEL(FT_UInt16))
 _CREATE_RGB_FILLER(1,  _GET_PIXEL(FT_Byte),     _SET_PIXEL(FT_Byte),    _BLEND_PIXEL_GENERIC(FT_Byte))
-
 #endif

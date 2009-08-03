@@ -171,7 +171,7 @@ typedef struct {
     ft_ptr = FREETYPE_STATE->freetype;                          \
     if (ft_ptr == NULL)                                         \
     {                                                           \
-        PyErr_SetString(PyExc_PyGameError,                      \
+        PyErr_SetString(PyExc_RuntimeError,                     \
             "The FreeType 2 library hasn't been initialized");  \
         return (rvalue);                                        \
     }
@@ -221,7 +221,7 @@ SDL_Surface *PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
 int         PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
                 const FontRenderMode *render, PyObject *text, 
-                SDL_Surface *surface, int x, int y, FontColor *fgcolor, FontColor *bgcolor,
+                SDL_Surface *_surface, int x, int y, FontColor *fgcolor, FontColor *bgcolor,
                 int *_width, int *_height);
 
 int         PGFT_BuildRenderMode(FreeTypeInstance *ft, 

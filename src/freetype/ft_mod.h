@@ -20,11 +20,6 @@
 #ifndef _PYGAME_FREETYPEMOD_H_
 #define _PYGAME_FREETYPEMOD_H_
 
-#include "pgcompat.h"
-
-#define PYGAME_FREETYPE_INTERNAL
-#define PYGAME_FREETYPE_FONT_INTERNAL
-
 extern PyTypeObject PyFreeTypeFont_Type;
 #define PyFreeTypeFont_Check(x) (PyObject_TypeCheck(x, &PyFreeTypeFont_Type))
 PyObject* PyFreeTypeFont_New(const char *file, int face_index);

@@ -19,10 +19,11 @@
 */
 
 #define PYGAME_FREETYPE_INTERNAL
+#define PYGAME_FREETYPE_FONT_INTERNAL
 
-#include "ft_mod.h"
-#include "ft_wrap.h"
 #include "pgfreetype.h"
+#include "ft_wrap.h"
+#include "ft_mod.h"
 #include "freetypebase_doc.h"
 
 static int _ft_traverse (PyObject *mod, visitproc visit, void *arg);

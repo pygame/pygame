@@ -21,6 +21,7 @@
 #define _PYGAME_FREETYPE_H_
 
 #include "pgbase.h"
+#include "pgcompat.h"
 
 #ifdef HAVE_PYGAME_SDL_VIDEO
 #   include <SDL.h>
