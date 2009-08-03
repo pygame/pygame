@@ -4,12 +4,21 @@
 #include <SDL_thread.h>
 #include <Python.h>
 
+#define COMMON_COMMAND \
+	int type;\
+	size_t size; 
+
+
 typedef struct Command
 {
-	int type;
+	COMMON_COMMAND
 	struct Command *next;
-	size_t size;
 } Command;
+
+#define FULL COMMAND \
+	int type;\
+	size_t size;\
+	struct Command *next;
 
 typedef struct CommandQueue
 {
@@ -17,6 +26,8 @@ typedef struct CommandQueue
 	SDL_mutex *q_mutex;
 	Command *first;
 	Command *last;
+	int registry[1024];
+	int reg_ix;
 } CommandQueue;
 
 
@@ -24,5 +35,7 @@ void addCommand(CommandQueue *q, Command *comm);
 Command *getCommand(CommandQueue *q);
 int hasCommand(CommandQueue *q);
 void flushCommands(CommandQueue *q);
+
+int registerCommand(CommandQueue *q);
 
 #endif /*_GCOMMAND_H_*/

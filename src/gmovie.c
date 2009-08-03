@@ -6,6 +6,12 @@ void _movie_init_internal(PyMovie *self, const char *filename, SDL_Surface *surf
     Py_INCREF(self);
     //already malloced memory for PyMovie.
     self->_backend="FFMPEG_WRAPPER";
+    self->commands = (CommandQueue *)PyMem_Malloc(sizeof(CommandQueue));
+    self->commands->q_mutex = SDL_CreateMutex();
+	self->commands->size=0;
+	self->commands->reg_ix=0;
+	registerCommands(self);
+    self->commands->size=0;
     if(!surf)
     {
         //set overlay to true
@@ -41,7 +47,7 @@ int _movie_init(PyObject *self, PyObject *args, PyObject *kwds)
         PyErr_SetString(PyExc_TypeError, "No valid arguments");
         return -1;
     }
-
+	
     if(surf && PySurface_Check(surf))
     {
         SDL_Surface *target = PySurface_AsSurface(surf);
@@ -188,12 +194,7 @@ PyObject* _movie_play(PyMovie *movie, PyObject* args)
     {
     	//first we release the GIL, then we release all the resources associated with the streams, if they exist.
     	PyEval_ReleaseLock();
-        if(movie->video_st)
-            stream_component_end(movie, movie->video_st->index, 0);
-        if(movie->audio_st)
-            stream_component_end(movie, movie->audio_st->index, 0);
-        PyEval_AcquireLock();
-        movie->stop = 0;
+		_movie_stop(movie);
     }
 
     SDL_LockMutex(movie->dest_mutex);
@@ -210,7 +211,7 @@ PyObject* _movie_play(PyMovie *movie, PyObject* args)
 
 PyObject* _movie_stop(PyMovie *movie)
 {
-    Py_INCREF(movie);
+    /*Py_INCREF(movie);
     Py_BEGIN_ALLOW_THREADS
     SDL_LockMutex(movie->dest_mutex);
     stream_pause(movie);
@@ -218,15 +219,20 @@ PyObject* _movie_stop(PyMovie *movie)
     Py_END_ALLOW_THREADS
     SDL_UnlockMutex(movie->dest_mutex);
     Py_DECREF(movie);
+    Py_RETURN_NONE;*/
+    stream_pause(movie);
+    stopCommand *stop = (stopCommand *)PyMem_Malloc(sizeof(stopCommand));
+    stop->type = movie->stopCommandType;
+    addCommand(movie->commands, (Command *)stop);
     Py_RETURN_NONE;
 }
 
 PyObject* _movie_pause(PyMovie *movie)
 {
 
-    Py_BEGIN_ALLOW_THREADS
+    //Py_BEGIN_ALLOW_THREADS
     stream_pause(movie);
-    Py_END_ALLOW_THREADS
+    //Py_END_ALLOW_THREADS
     Py_RETURN_NONE;
 }
 
@@ -247,10 +253,14 @@ PyObject* _movie_resize       (PyMovie *movie, PyObject* args)
     {
         return RAISE (PyExc_SDLError, "Cannot set negative sized display mode");
     }
-    movie->height = h;
-    movie->width  = w;
+    resizeCommand *resize = (resizeCommand *)PyMem_Malloc(sizeof(resizeCommand));
+    resize->type = movie->resizeCommandType;
+    
+    resize->h = h;
+    resize->w  = w;
+    addCommand(movie->commands, (Command *)resize);
     //status indicators for rendering and that. Very important!
-    movie->resize_w =  movie->resize_h= 1;
+    //movie->resize_w =  movie->resize_h= 1;
     Py_RETURN_NONE;
 
 }
@@ -343,8 +353,12 @@ int _movie_set_width (PyMovie *movie, PyObject *width, void *closure)
     if(PyInt_Check(width))
     {
         w = (int)PyInt_AsLong(width);
-        movie->resize_w=1;
-        movie->width=w;
+        resizeCommand *resize = (resizeCommand *)PyMem_Malloc(sizeof(resizeCommand));
+    	resize->type = movie->resizeCommandType;
+    
+    	resize->h = 0;
+    	resize->w  = w;
+		addCommand(movie->commands, (Command *)resize);
         return 0;
     }
     else
@@ -380,8 +394,12 @@ int _movie_set_height (PyMovie *movie, PyObject *height, void *closure)
     if(PyInt_Check(height))
     {
         h = (int)PyInt_AsLong(height);
-        movie->resize_h=1;
-        movie->height=h;
+    	resizeCommand *resize = (resizeCommand *)PyMem_Malloc(sizeof(resizeCommand));
+    	resize->type = movie->resizeCommandType;
+    
+    	resize->h = h;
+    	resize->w  = 0;
+		addCommand(movie->commands, (Command *)resize);
         return 0;
     }
     else

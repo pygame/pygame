@@ -1,17 +1,17 @@
 #include "_gcommand.h"
 
-
 void addCommand(CommandQueue *q, Command *comm)
 {
 	SDL_LockMutex(q->q_mutex);
-	if(!q->first)
+	q->registry[comm->type]++;
+	if(!q->size)
 	{
 		q->first=comm;
 		q->size++;
 		SDL_UnlockMutex(q->q_mutex);
 		return;
 	}
-	if(!q->last)
+	if(q->size==1)
 	{
 		q->last=comm;
 		q->first->next=comm;
@@ -69,4 +69,14 @@ void flushCommands(CommandQueue *q)
 		q->size--;
 	}
 	SDL_UnlockMutex(q->q_mutex);
+}
+
+int registerCommand(CommandQueue *q)
+{
+	//int cur = q->reg_ix;
+	if(q->reg_ix>=1024)
+		q->reg_ix=0;
+	q->registry[q->reg_ix]=0;
+	q->reg_ix++;
+	return q->reg_ix-1;
 }

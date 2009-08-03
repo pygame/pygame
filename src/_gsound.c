@@ -291,6 +291,12 @@ int playBuffer (uint8_t *buf, uint32_t len, int channel, int64_t pts)
     int chan = ainfo->channel;
     
     //SDL_mutexV(ainfo->mutex);
+    int paused = Mix_Paused(channel);
+    if(paused)
+    {
+    	ainfo->ended=0;
+        Mix_Resume(-1);
+    }
     
     int playing = Mix_Playing(chan);
     if(playing && allocated &&false)

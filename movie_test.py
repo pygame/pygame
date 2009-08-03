@@ -41,40 +41,40 @@ time.sleep(2)  #sleep for ten seconds to let one see the video play, and hear
 ##print "Movie:",m
 ##print "Y Top:",m.ytop
 ##print "X Left:",m.xleft
-time.sleep(30)
-print "Testing seek..."
-m.easy_seek(second=10, minute=5, reverse=0)
-time.sleep(5)
-m.easy_seek(second=10, minute=5, reverse=0)
-time.sleep(1)
-m.pause()
-time.sleep(5)
-m.pause()
-time.sleep(10000)
-
-print "Altering xleft and ytop..."
-m.xleft += 10
-m.ytop  +=10
-time.sleep(10)
-m.xleft -= 10
-m.ytop -=10
+##time.sleep(30)
+##print "Testing seek..."
+##m.easy_seek(second=10, minute=5, reverse=0)
+##time.sleep(5)
+##m.easy_seek(second=10, minute=5, reverse=0)
+##time.sleep(1)
+##m.pause()
+##time.sleep(5)
+##m.pause()
+##time.sleep(10)
+##
+##print "Altering xleft and ytop..."
+##m.xleft += 10
+##m.ytop  +=10
+##time.sleep(10)
+##m.xleft -= 10
+##m.ytop -=10
 #Now we're going to play with the size of the window, affecting the video on 
 #the fly. resize(width, height) is the main function, changes them both at
 # the same time.
-print "Resizing..."
-m.resize(m.width/2, m.height*2)
-print "sleeping..."
-time.sleep(10) #another ten second nap.
-print "Resizing again..."
-m.width = m.width*4
-print "sleeping again" 
-time.sleep(10)
-print "Back to normal!"
-m.width=m.width/2
-m.height = m.height/2
-print "and again, sleeping..."
+##print "Resizing..."
+##m.resize(m.width/2, m.height*2)
+##print "sleeping..."
+##time.sleep(10) #another ten second nap.
+##print "Resizing again..."
+##m.width = m.width*4
+##print "sleeping again" 
+##time.sleep(10)
+##print "Back to normal!"
+##m.width=m.width/2
+##m.height = m.height/2
+##print "and again, sleeping..."
 #back to our original size
-time.sleep(10)
+##time.sleep(10)
 
 
 #Here we demonstrate the use of pause. You pause, then call pause again to play
@@ -89,20 +89,27 @@ time.sleep(10)
 ##print m.paused
 ##print m.playing
 ##time.sleep(10)
-###Here is the stop function. Right now, rewind is the exact same as stop.
-##print "Stopping..., sleeping for 3 seconds"
-##m.stop()
-##time.sleep(3)
-###And now we restart playing.
-##print "Playing again..." 
-##m.play(-1)
-##print "done restart play..."
-##time.sleep(10)
+#Here is the stop function. Right now, rewind is the exact same as stop.
+print "Stopping..., sleeping for 3 seconds"
+m.stop()
+time.sleep(5)
+#And now we restart playing.
+del m
+print "Playing again..." 
+m=movie.Movie(filename)
+m.play(-1)
+print "done restart play..."
+time.sleep(10)
 print "Surface time..."
 screen = pygame.display.set_mode((640, 348))
 #This will move the movie player from overlay mode to blitting to the surface 
 # we've given it. This means it is our responsibility to update the display on 
 # time.
+while not m.finished:
+    time.sleep(0.1)
+    pygame.display.update()
+
+
 
 m=movie.Movie(filename, screen)
 counter = 0

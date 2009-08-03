@@ -199,6 +199,7 @@ typedef struct PyMovie
     int              abort_request;  /* Tells whether or not to stop playing and return */
     int              paused; 		 /* Boolean for communicating to the threads to pause playback */
     int              last_paused;    /* For comparing the state of paused to what it was last time around. */
+    int 			 working;
     char             filename[1024];
     char            *_backend;       //"FFMPEG_WRAPPER";
     int              overlay;        //>0 if we are to use the overlay, otherwise <=0
@@ -219,6 +220,13 @@ typedef struct PyMovie
     SDL_Surface     *canon_surf;     //pointer to the surface given by the programmer. We do NOT free this... it is not ours. We just write to it.
     PyThreadState   *_tstate;        //really do not touch this unless you have to. This is used for threading control and primitives.
 	int finished;
+	
+	/* command queue stuff */
+    CommandQueue *commands;
+	int seekCommandType;   
+	int pauseCommandType; 
+    int stopCommandType;
+    int resizeCommandType;
     int diff_co; //counter
 
     /* Seek-info */
@@ -295,6 +303,37 @@ typedef struct PyMovie
 
 }
 PyMovie;
+
+/*command definitions */
+typedef struct seekCommand
+{
+	COMMON_COMMAND
+	struct Command *next;
+	int64_t pos;
+	int rel;
+} seekCommand;
+
+
+typedef struct pauseCommand
+{
+	COMMON_COMMAND
+	struct Command *next;
+} pauseCommand;
+
+typedef struct stopCommand
+{
+	COMMON_COMMAND
+	struct Command *next;
+} stopCommand;
+
+typedef struct resizeCommand
+{
+	COMMON_COMMAND
+	struct Command *next;
+	int h;
+	int w;
+} resizeCommand;
+
 /* end of struct definitions */
 /* function definitions */
 
@@ -340,6 +379,9 @@ double get_audio_clock    (PyMovie *is);
 double get_video_clock    (PyMovie *is);
 double get_external_clock (PyMovie *is);
 double get_master_clock   (PyMovie *is);
+
+/* 		Command management */
+void registerCommands(PyMovie *movie);
 
 #if 0
 /*		Subtitle Management*/

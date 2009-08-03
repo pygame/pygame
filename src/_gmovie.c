@@ -1074,29 +1074,29 @@ double get_master_clock(PyMovie *movie)
     return val;
 }
 
+void registerCommands(PyMovie *self)
+{
+	self->seekCommandType=registerCommand(self->commands);
+    self->pauseCommandType=registerCommand(self->commands);
+    self->stopCommandType=registerCommand(self->commands);
+    self->resizeCommandType=registerCommand(self->commands);
+}
+
 /* seek in the stream */
 void stream_seek(PyMovie *movie, int64_t pos, int rel)
 {
-    //DECLAREGIL
-    //GRABGIL
-    //Py_INCREF( movie);
-    //RELEASEGIL
-    if (!movie->seek_req)
-    {
-        movie->seek_pos = pos;
-        movie->seek_flags = rel < 0 ? AVSEEK_FLAG_BACKWARD : 0;
-
-        movie->seek_req = 1;
-    }
-    //GRABGIL
-    //Py_DECREF( movie);
-    //RELEASEGIL
+    seekCommand *seek = (seekCommand *) PyMem_Malloc(sizeof(seekCommand));
+    seek->type = movie->seekCommandType;
+    seek->size = sizeof(seekCommand);
+    seek->pos = pos;
+    seek->rel = rel;
+    addCommand(movie->commands, (Command *)seek);
 }
 
 /* pause or resume the video */
 void stream_pause(PyMovie *movie)
 {
-    if(movie->ob_refcnt !=0)Py_INCREF( movie);
+    /*if(movie->ob_refcnt !=0)Py_INCREF( movie);
     int paused=movie->paused;
     movie->paused = !movie->paused;
     if (!movie->paused)
@@ -1106,6 +1106,11 @@ void stream_pause(PyMovie *movie)
     }
     movie->last_paused=paused;
     if(movie->ob_refcnt !=0) {Py_DECREF( movie);}
+	*/
+	pauseCommand *pause = (pauseCommand *) PyMem_Malloc(sizeof(pauseCommand));
+	pause->type = movie->pauseCommandType;
+	pause->size = sizeof(pauseCommand);
+	addCommand(movie->commands, (Command *)pause);
 }
 
 int audio_thread(void *arg)
@@ -1128,8 +1133,12 @@ int audio_thread(void *arg)
     		pauseBuffer(movie->channel);
     		movie->audio_paused=movie->paused;
     		if(movie->audio_paused)
+    		{
+    			movie->working=0;
     			continue;
+    		}
     	}
+    	
         if(movie->paused)
         {
         	SDL_Delay(10);
@@ -1922,6 +1931,27 @@ int decoder_wrapper(void *arg)
     	if(movie->sub_st)
     		stream_component_end(movie, movie->sub_st->index, 1);
     	#endif
+    	if(movie->stop)
+    	{
+    		VidPicture *vp;
+
+	        int i;
+	        for( i =0; i<VIDEO_PICTURE_QUEUE_SIZE; i++)
+	        {
+	            vp = &movie->pictq[i];
+	            if (vp->dest_overlay)
+	            {
+	                SDL_FreeYUVOverlay(vp->dest_overlay);
+	                vp->dest_overlay = NULL;
+	            }
+	            if(vp->dest_surface)
+	            {
+	                SDL_FreeSurface(vp->dest_surface);
+	                vp->dest_surface=NULL;
+	            }
+	            
+	        }	
+    	}
     }
     GRABGIL
     Py_DECREF(movie);
@@ -1967,12 +1997,69 @@ int decoder(void *arg)
     AVPacket pkt1, *pkt = &pkt1;
     movie->stop=0;
     movie->finished =0;
+    movie->playing=1;
     ic=movie->ic;
     int co=0;
     SDL_Delay(150);
     movie->last_showtime = av_gettime()/1000.0;
     for(;;)
     {
+    	if(hasCommand(movie->commands) && !movie->working)
+    	{
+    		Command *comm = getCommand(movie->commands);
+    		if(comm->type==movie->seekCommandType)
+    		{
+    			seekCommand *seek = (seekCommand *)comm;
+    			movie->seek_req=1;
+    			movie->seek_pos = seek->pos;
+    			movie->seek_flags |= seek->rel;
+    			/* clear stuff away now */
+    			comm = NULL;
+    			//GRABGIL
+    			PyMem_Free(seek);
+				//RELEASEGIL
+    			movie->working=1;
+    		}
+    		else if(comm->type==movie->pauseCommandType)
+    		{
+    			pauseCommand *pause = (pauseCommand *)comm;
+    			movie->paused = !movie->paused;
+    			movie->working = movie->paused;
+			    if (!movie->paused)
+			    {
+			        movie->video_current_pts = get_video_clock(movie);
+			        movie->frame_timer += (av_gettime() - movie->video_current_pts_time) / 1000000.0;
+			    }
+			    comm=NULL;
+			    PyMem_Free(pause);			    
+    		}
+    		else if (comm->type ==movie->stopCommandType)
+    		{
+    			stopCommand *stop = (stopCommand *)comm;
+    			movie->stop=1;
+    			comm=NULL;
+    			PyMem_Free(stop);
+    			movie->working=1;
+    		}
+    		else if (comm->type == movie->resizeCommandType)
+    		{
+    			resizeCommand *resize=(resizeCommand *)comm;
+    			if (resize->h)
+    			{
+    				movie->resize_h=1;
+    				movie->height=resize->h;
+    			}
+    			if(resize->w)
+    			{
+    				movie->resize_w=1;
+    				movie->width= resize->w;
+    			}	
+    			comm=NULL;
+    			PyMem_Free(resize);
+    		}	
+    		
+    	}
+    	
         co++;
         if (movie->abort_request)
         {
@@ -1985,14 +2072,8 @@ int decoder(void *arg)
         if (movie->paused != movie->last_paused)
         {
             movie->last_paused = movie->paused;
-            if(!movie->audio_paused)
-            {
-            	//we do this in case we haven't reached the audio thread yet... which will cause this function to just loop without ever touching the audio_thread function.
-	            pauseBuffer(movie->channel);
-            }
             if (movie->paused)
-            {
-            	
+            {            	
                 av_read_pause(ic);
             }
             else
@@ -2071,6 +2152,7 @@ int decoder(void *arg)
          		}
          		av_free_packet(pkt);
          	}
+         	movie->working=0;
         }
         /* if the queue are full, no need to read more */
         if ( //yay for short circuit logic testing
@@ -2269,6 +2351,7 @@ fail:
     #endif
     Py_DECREF( movie);
     RELEASEGIL
+    movie->playing=0;
     if(movie->abort_request)
     {
         return -1;
