@@ -252,6 +252,22 @@ PyObject* _movie_resize       (PyMovie *movie, PyObject* args)
 
 }
 
+PyObject *_movie_shift(PyMovie *movie, PyObject*args)
+{
+	int x=0;
+	int y=0;
+	if(PyArg_ParseTuple(args, "ii", &x, &y)<0)
+	{
+		return NULL;	
+	}
+	shiftCommand *shift = (shiftCommand *)PyMem_Malloc(sizeof(shiftCommand));
+	shift->type = movie->shiftCommandType;
+	shift->xleft=x;
+	shift->ytop=y;
+	addCommand(movie->commands, (Command *)shift);
+	Py_RETURN_NONE;
+}
+
 PyObject* _movie_easy_seek (PyMovie *movie, PyObject* args, PyObject *kwds)
 {
 	int64_t pos=0;
@@ -416,6 +432,7 @@ int _movie_set_ytop (PyMovie *movie, PyObject *ytop, void *closure)
     {
         y = (int)PyInt_AsLong(ytop);
         shiftCommand *shift = (shiftCommand *)PyMem_Malloc(sizeof(shiftCommand));
+        shift->type = movie->shiftCommandType;
         shift->ytop = y;
         shift->xleft = 0;
         addCommand(movie->commands, (Command *)shift);
@@ -447,6 +464,7 @@ int _movie_set_xleft (PyMovie *movie, PyObject *xleft, void *closure)
     {
         x = (int)PyInt_AsLong(xleft);
         shiftCommand *shift = (shiftCommand *)PyMem_Malloc(sizeof(shiftCommand));
+        shift->type = movie->shiftCommandType;
         shift->ytop = 0;
         shift->xleft = x;
         addCommand(movie->commands, (Command *)shift);
@@ -471,18 +489,21 @@ PyObject *_movie_get_surface(PyMovie *movie, void *closure)
 int _movie_set_surface(PyObject *mov, PyObject *surface, void *closure)
 {
     PyMovie *movie = (PyMovie *)mov;
+    surfaceCommand *surf;
     if(PySurface_Check(surface))
     {
         /*movie->canon_surf=PySurface_AsSurface(surface);
         movie->overlay=0;*/
-        surfaceCommand *surf = (surfaceCommand *)PyMem_Malloc(sizeof(surfaceCommand));
+        surf = (surfaceCommand *)PyMem_Malloc(sizeof(surfaceCommand));
+        surf->type = movie->surfaceCommandType;
         surf->surface = PySurface_AsSurface(surface);
         addCommand(movie->commands, (Command *)surf);
         return 0;
     }
     else if(surface == Py_None)
     {
-    	surfaceCommand *surf = (surfaceCommand *)PyMem_Malloc(sizeof(surfaceCommand));
+    	surf = (surfaceCommand *)PyMem_Malloc(sizeof(surfaceCommand));
+        surf->type = movie->surfaceCommandType;
         surf->surface = NULL;
         addCommand(movie->commands, (Command *)surf);
     	return 0;
@@ -497,6 +518,7 @@ static PyMethodDef _movie_methods[] = {
                                           { "rewind",    (PyCFunction) _movie_rewind,    METH_VARARGS,               DOC_GMOVIEMOVIEREWIND},
                                           { "resize",    (PyCFunction) _movie_resize,    METH_VARARGS,               DOC_GMOVIEMOVIERESIZE},
                                           { "easy_seek", (PyCFunction) _movie_easy_seek, METH_VARARGS|METH_KEYWORDS, NULL},
+                                          { "shift",     (PyCFunction) _movie_shift, METH_VARARGS, NULL},
                                           { NULL,     NULL,                        0,            NULL }
                                       };
 

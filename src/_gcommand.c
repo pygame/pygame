@@ -3,6 +3,7 @@
 void addCommand(CommandQueue *q, Command *comm)
 {
 	SDL_LockMutex(q->q_mutex);
+	comm->next=NULL;
 	q->registry[comm->type]++;
 	if(!q->size)
 	{

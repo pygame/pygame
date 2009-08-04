@@ -51,8 +51,8 @@ AVPacket flush_pkt;
 #define SUBPICTURE_QUEUE_SIZE    4
 /* RGB24 or RGBA... */
 /* In this case I've chosen RGB24 because its smaller */
-#define RGB24 0
-#define RGBA  1
+#define RGB24 1
+#define RGBA  0
 
 #if RGB24
 	#define RGBSTEP 3
@@ -335,6 +335,7 @@ typedef struct resizeCommand
 typedef struct shiftCommand
 {
 	FULL_COMMAND
+	int barrier;
 	int ytop;
 	int xleft;	
 } shiftCommand;

@@ -14,6 +14,7 @@ PyObject* _movie_rewind       (PyMovie *movie, PyObject* args);
 PyObject* _movie_resize       (PyMovie *movie, PyObject* args);
 PyObject* _movie_seek         (PyMovie *movie, PyObject* args);
 PyObject* _movie_easy_seek    (PyMovie *movie, PyObject* args, PyObject *kwds);
+PyObject *_movie_shift(PyMovie *movie, PyObject*args);
 
 /* Getters/setters */
 PyObject* _movie_get_paused  (PyMovie *movie, void *closure);

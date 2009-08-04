@@ -451,14 +451,8 @@ void WritePicture2Surface(AVPicture *picture, SDL_Surface *surface)
 
 int video_display(PyMovie *movie)
 {
-    DECLAREGIL
-    GRABGIL
-    Py_INCREF(movie);
     double ret=1;
-    RELEASEGIL
-#if THREADFREE!=1
     SDL_LockMutex(movie->dest_mutex);
-#endif
 
     VidPicture *vp = &movie->pictq[movie->pictq_rindex];
     if((!vp->dest_overlay&& vp->overlay>0)||(!vp->dest_surface && vp->overlay<=0))
@@ -474,13 +468,8 @@ int video_display(PyMovie *movie)
     {
         ret=0;
     }
-#if THREADFREE !=1
     SDL_UnlockMutex(movie->dest_mutex);
-#endif
 
-    GRABGIL
-    Py_DECREF(movie);
-    RELEASEGIL
     /* If we didn't actually display the image, we need to not clear our timer out in decoder */
     return ret;
 }
@@ -489,9 +478,6 @@ void video_image_display(PyMovie *movie)
 {
     /* Wrapped by video_display, which has a lock on the movie object */
     DECLAREGIL
-    GRABGIL
-    Py_INCREF( movie);
-    RELEASEGIL
     VidPicture *vp;
     //SubPicture *sp;
     float aspect_ratio;
@@ -583,9 +569,6 @@ void video_image_display(PyMovie *movie)
     movie->pictq_rindex= (movie->pictq_rindex+1)%VIDEO_PICTURE_QUEUE_SIZE;
     movie->pictq_size--;
     video_refresh_timer(movie);
-    GRABGIL
-    Py_DECREF( movie);
-    RELEASEGIL
 }
 
 int video_open(PyMovie *movie, int index)
@@ -593,9 +576,6 @@ int video_open(PyMovie *movie, int index)
     int w=0;
     int h=0;
     DECLAREGIL
-    GRABGIL
-    Py_INCREF( movie);
-    RELEASEGIL
     get_height_width(movie, &h, &w);
     VidPicture *vp;
     vp = &movie->pictq[index];
@@ -627,7 +607,6 @@ int video_open(PyMovie *movie, int index)
 	        {
 	            GRABGIL
 	            RAISE(PyExc_SDLError,"cannot create overlay without pygame.display initialized");
-	            Py_DECREF(movie);
 	            RELEASEGIL
 	            return -1;
 	        }
@@ -640,7 +619,6 @@ int video_open(PyMovie *movie, int index)
 	            {
 	                GRABGIL
 	                RAISE(PyExc_SDLError, "Could not initialize a new video surface.");
-	                Py_DECREF(movie);
 	                RELEASEGIL
 	                return -1;
 	            }
@@ -651,7 +629,6 @@ int video_open(PyMovie *movie, int index)
 	        {
 	            GRABGIL
 	            RAISE (PyExc_SDLError, "Cannot create overlay");
-	            Py_DECREF(movie);
 	            RELEASEGIL
 	            return -1;
 	        }
@@ -679,7 +656,6 @@ int video_open(PyMovie *movie, int index)
 	        {
 	            GRABGIL
 	            RAISE(PyExc_SDLError,"cannot create surfaces without pygame.display initialized");
-	            Py_DECREF(movie);
 	            RELEASEGIL
 	            return -1;
 	        }
@@ -687,7 +663,6 @@ int video_open(PyMovie *movie, int index)
 	        {
 	            GRABGIL
 	            RAISE(PyExc_SDLError, "No video surface given."); //ideally this should have
-	            Py_DECREF(movie);									  //been caught at init, but this could feasibly
 	            RELEASEGIL										  // happen if there's some cleaning up.
 	            return -1;
 	        }
@@ -699,7 +674,6 @@ int video_open(PyMovie *movie, int index)
 	            {
 	                GRABGIL
 	                RAISE(PyExc_SDLError, "Could not initialize a new video surface.");
-	                Py_DECREF(movie);
 	                RELEASEGIL
 	                return -1;
 	            }
@@ -728,7 +702,6 @@ int video_open(PyMovie *movie, int index)
 	        {
 	            GRABGIL
 	            RAISE (PyExc_SDLError, "Cannot create new surface.");
-	            Py_DECREF(movie);
 	            RELEASEGIL
 	            return -1;
 	        }
@@ -739,9 +712,6 @@ int video_open(PyMovie *movie, int index)
     vp->height = h;
     vp->ytop=movie->ytop;
     vp->xleft=movie->xleft;
-    GRABGIL
-    Py_DECREF( movie);
-    RELEASEGIL
     return 0;
 }
 
@@ -749,9 +719,6 @@ int video_open(PyMovie *movie, int index)
 void video_refresh_timer(PyMovie* movie)
 {
     DECLAREGIL
-    GRABGIL
-    Py_INCREF(movie);
-    RELEASEGIL
     double actual_delay, delay, sync_threshold, ref_clock, diff;
     VidPicture *vp;
 
@@ -813,17 +780,11 @@ void video_refresh_timer(PyMovie* movie)
         movie->timing = (actual_delay*1000.0)+1;
         RELEASEGIL
     }
-    GRABGIL
-    Py_DECREF(movie);
-    RELEASEGIL
 }
 
 int queue_picture(PyMovie *movie, AVFrame *src_frame)
 {
     DECLAREGIL
-    GRABGIL
-    Py_INCREF(movie);
-    RELEASEGIL
     int dst_pix_fmt;
     AVPicture pict;
     VidPicture *vp;
@@ -871,7 +832,6 @@ int queue_picture(PyMovie *movie, AVFrame *src_frame)
 	    {
 	    	dst_pix_fmt = PIX_FMT_RGBA;
 	    }
-	    //pict.data = (uint8_t *)vp->dest_surface->pixels;
         avpicture_alloc(&pict, dst_pix_fmt, w, h);
         SDL_LockSurface(vp->dest_surface);
     }
@@ -938,19 +898,12 @@ int queue_picture(PyMovie *movie, AVFrame *src_frame)
     movie->pictq_windex = (movie->pictq_windex+1)%VIDEO_PICTURE_QUEUE_SIZE;
     movie->pictq_size++;
     vp->ready=1;
-    GRABGIL
-    Py_DECREF(movie);
-    RELEASEGIL
     return 0;
 }
 
 
 void update_video_clock(PyMovie *movie, AVFrame* frame, double pts1)
 {
-    DECLAREGIL
-    GRABGIL
-    Py_INCREF(movie);
-    RELEASEGIL
     double frame_delay, pts;
 
     pts = pts1;
@@ -972,9 +925,6 @@ void update_video_clock(PyMovie *movie, AVFrame* frame, double pts1)
     movie->video_clock += frame_delay;
 
     movie->pts = pts;
-    GRABGIL
-    Py_DECREF(movie);
-    RELEASEGIL
 }
 
 /* get the current audio clock value */
@@ -1027,9 +977,6 @@ double get_external_clock(PyMovie *movie)
 double get_master_clock(PyMovie *movie)
 {
     DECLAREGIL
-    GRABGIL
-    Py_INCREF( movie);
-    RELEASEGIL
     double val;
 
     if (movie->av_sync_type == AV_SYNC_VIDEO_MASTER)
@@ -1050,9 +997,6 @@ double get_master_clock(PyMovie *movie)
     {
         val = get_external_clock(movie);
     }
-    GRABGIL
-    Py_DECREF( movie);
-    RELEASEGIL
     return val;
 }
 
@@ -1063,6 +1007,7 @@ void registerCommands(PyMovie *self)
     self->stopCommandType=registerCommand(self->commands);
     self->resizeCommandType=registerCommand(self->commands);
     self->shiftCommandType = registerCommand(self->commands);
+	self->surfaceCommandType = registerCommand(self->commands);
 }
 
 /* seek in the stream */
@@ -2013,12 +1958,12 @@ int decoder(void *arg)
     		else if (comm->type == movie->resizeCommandType)
     		{
     			resizeCommand *resize=(resizeCommand *)comm;
-    			if (resize->h)
+    			if (resize->h!=0)
     			{
     				movie->resize_h=1;
     				movie->height=resize->h;
     			}
-    			if(resize->w)
+    			if(resize->w!=0)
     			{
     				movie->resize_w=1;
     				movie->width= resize->w;
@@ -2029,14 +1974,9 @@ int decoder(void *arg)
     		else if (comm->type == movie->shiftCommandType)
     		{
     			shiftCommand *shift = (shiftCommand *)comm;
-    			if(shift->ytop)
-    			{
-    				movie->ytop=shift->ytop;
-    			}
-    			if(shift->xleft)
-    			{
-    				movie->xleft=shift->xleft;
-    			}
+    			
+				movie->xleft=shift->xleft;
+    			movie->ytop=shift->ytop;
     			comm=NULL;
     			PyMem_Free(shift);
     			
@@ -2092,6 +2032,7 @@ int decoder(void *arg)
         }
         if (movie->seek_req)
         {
+            movie->working=0;
             int64_t seek_target= movie->seek_pos;
 			seek_target-=1*AV_TIME_BASE;
 			int aud_stream_index=-1;
@@ -2155,7 +2096,7 @@ int decoder(void *arg)
          		}
          		av_free_packet(pkt);
          	}
-         	movie->working=0;
+         	
         }
         /* if the queue are full, no need to read more */
         if ( //yay for short circuit logic testing
@@ -2311,7 +2252,7 @@ fail:
     movie->pictq_size=movie->pictq_rindex=movie->pictq_windex=0;
     packet_queue_flush(&movie->videoq);
 	movie->finished=1;
-    
+    movie->working=0;
     GRABGIL
     #ifdef PROFILE
     	//mean
@@ -2365,9 +2306,6 @@ fail:
 int video_render(PyMovie *movie)
 {
     DECLAREGIL
-    GRABGIL
-    Py_INCREF( movie);
-    RELEASEGIL
     AVPacket pkt1, *pkt = &pkt1;
     int len1, got_picture;
     AVFrame *frame= avcodec_alloc_frame();
@@ -2432,9 +2370,6 @@ int video_render(PyMovie *movie)
     while(0);
 
 the_end:
-    GRABGIL
-    Py_DECREF(movie);
-    RELEASEGIL
     av_free(frame);
     return 0;
 }

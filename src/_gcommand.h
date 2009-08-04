@@ -32,7 +32,7 @@ typedef struct Command
 
 #define FULL_COMMAND \
 	int type;\
-	Command *next;
+	struct Command *next;
 
 typedef struct CommandQueue
 {
