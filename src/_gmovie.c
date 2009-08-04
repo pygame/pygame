@@ -1013,8 +1013,10 @@ void registerCommands(PyMovie *self)
 /* seek in the stream */
 void stream_seek(PyMovie *movie, int64_t pos, int rel)
 {
-    seekCommand *seek = (seekCommand *) PyMem_Malloc(sizeof(seekCommand));
-    seek->type = movie->seekCommandType;
+    /*seekCommand *seek = (seekCommand *) PyMem_Malloc(sizeof(seekCommand));
+    seek->type = movie->seekCommandType;*/
+    //int type = movie->seekCommandType;
+    ALLOC_COMMAND(seekCommand, seek)
     seek->pos = pos;
     seek->rel = rel;
     addCommand(movie->commands, (Command *)seek);
@@ -1023,8 +1025,7 @@ void stream_seek(PyMovie *movie, int64_t pos, int rel)
 /* pause or resume the video */
 void stream_pause(PyMovie *movie)
 {
-	pauseCommand *pause = (pauseCommand *) PyMem_Malloc(sizeof(pauseCommand));
-	pause->type = movie->pauseCommandType;
+	ALLOC_COMMAND(pauseCommand, pause);
 	addCommand(movie->commands, (Command *)pause);
 }
 

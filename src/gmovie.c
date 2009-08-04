@@ -1,6 +1,5 @@
 #include "gmovie.h"
 
-
 void _movie_init_internal(PyMovie *self, const char *filename, SDL_Surface *surf)
 {
     Py_INCREF(self);
@@ -212,8 +211,7 @@ PyObject* _movie_play(PyMovie *movie, PyObject* args)
 PyObject* _movie_stop(PyMovie *movie)
 {
     stream_pause(movie);
-    stopCommand *stop = (stopCommand *)PyMem_Malloc(sizeof(stopCommand));
-    stop->type = movie->stopCommandType;
+    ALLOC_COMMAND(stopCommand, stop);
     addCommand(movie->commands, (Command *)stop);
     Py_RETURN_NONE;
 }
@@ -242,8 +240,7 @@ PyObject* _movie_resize       (PyMovie *movie, PyObject* args)
     {
         return RAISE (PyExc_SDLError, "Cannot set negative sized display mode");
     }
-    resizeCommand *resize = (resizeCommand *)PyMem_Malloc(sizeof(resizeCommand));
-    resize->type = movie->resizeCommandType;
+    ALLOC_COMMAND(resizeCommand, resize);
     
     resize->h = h;
     resize->w  = w;
@@ -260,15 +257,14 @@ PyObject *_movie_shift(PyMovie *movie, PyObject*args)
 	{
 		return NULL;	
 	}
-	shiftCommand *shift = (shiftCommand *)PyMem_Malloc(sizeof(shiftCommand));
-	shift->type = movie->shiftCommandType;
+	ALLOC_COMMAND(shiftCommand, shift);
 	shift->xleft=x;
 	shift->ytop=y;
 	addCommand(movie->commands, (Command *)shift);
 	Py_RETURN_NONE;
 }
 
-PyObject* _movie_easy_seek (PyMovie *movie, PyObject* args, PyObject *kwds)
+PyObject* _movie_easy_seek (PyMovie *movie, PyObject* args)
 {
 	int64_t pos=0;
 	int hour=0;
@@ -276,8 +272,8 @@ PyObject* _movie_easy_seek (PyMovie *movie, PyObject* args, PyObject *kwds)
 	int second=0;
 	int reverse=0;
 	//int relative=0;
-	char *keywords[4] = {"second", "minute", "hour", "reverse"};
-	if(!PyArg_ParseTupleAndKeywords(args, kwds, "|iiii", keywords, &second, &minute, &hour, &reverse))
+	//char *keywords[4] = {"second", "minute", "hour", "reverse"};
+	if(!PyArg_ParseTuple(args, "iiii", &second, &minute, &hour, &reverse))
 	{
 		Py_RETURN_NONE;
 	}
@@ -356,8 +352,7 @@ int _movie_set_width (PyMovie *movie, PyObject *width, void *closure)
     if(PyInt_Check(width))
     {
         w = (int)PyInt_AsLong(width);
-        resizeCommand *resize = (resizeCommand *)PyMem_Malloc(sizeof(resizeCommand));
-    	resize->type = movie->resizeCommandType;
+        ALLOC_COMMAND(resizeCommand, resize);
     
     	resize->h = 0;
     	resize->w  = w;
@@ -397,9 +392,8 @@ int _movie_set_height (PyMovie *movie, PyObject *height, void *closure)
     if(PyInt_Check(height))
     {
         h = (int)PyInt_AsLong(height);
-    	resizeCommand *resize = (resizeCommand *)PyMem_Malloc(sizeof(resizeCommand));
-    	resize->type = movie->resizeCommandType;
-    
+    	
+        ALLOC_COMMAND(resizeCommand, resize);
     	resize->h = h;
     	resize->w  = 0;
 		addCommand(movie->commands, (Command *)resize);
@@ -431,8 +425,7 @@ int _movie_set_ytop (PyMovie *movie, PyObject *ytop, void *closure)
     if(PyInt_Check(ytop))
     {
         y = (int)PyInt_AsLong(ytop);
-        shiftCommand *shift = (shiftCommand *)PyMem_Malloc(sizeof(shiftCommand));
-        shift->type = movie->shiftCommandType;
+        ALLOC_COMMAND(shiftCommand, shift);
         shift->ytop = y;
         shift->xleft = 0;
         addCommand(movie->commands, (Command *)shift);
@@ -463,8 +456,7 @@ int _movie_set_xleft (PyMovie *movie, PyObject *xleft, void *closure)
     if(PyInt_Check(xleft))
     {
         x = (int)PyInt_AsLong(xleft);
-        shiftCommand *shift = (shiftCommand *)PyMem_Malloc(sizeof(shiftCommand));
-        shift->type = movie->shiftCommandType;
+        ALLOC_COMMAND(shiftCommand, shift);
         shift->ytop = 0;
         shift->xleft = x;
         addCommand(movie->commands, (Command *)shift);
@@ -517,7 +509,7 @@ static PyMethodDef _movie_methods[] = {
                                           { "pause",     (PyCFunction) _movie_pause,     METH_NOARGS,                DOC_GMOVIEMOVIEPAUSE},
                                           { "rewind",    (PyCFunction) _movie_rewind,    METH_VARARGS,               DOC_GMOVIEMOVIEREWIND},
                                           { "resize",    (PyCFunction) _movie_resize,    METH_VARARGS,               DOC_GMOVIEMOVIERESIZE},
-                                          { "easy_seek", (PyCFunction) _movie_easy_seek, METH_VARARGS|METH_KEYWORDS, NULL},
+                                          { "easy_seek", (PyCFunction) _movie_easy_seek, METH_VARARGS, NULL},
                                           { "shift",     (PyCFunction) _movie_shift, METH_VARARGS, NULL},
                                           { NULL,     NULL,                        0,            NULL }
                                       };

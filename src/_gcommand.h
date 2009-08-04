@@ -49,7 +49,8 @@ void addCommand(CommandQueue *q, Command *comm);
 Command *getCommand(CommandQueue *q);
 int hasCommand(CommandQueue *q);
 void flushCommands(CommandQueue *q);
-
 int registerCommand(CommandQueue *q);
+
+#define ALLOC_COMMAND(command, name) command* name = (command *)PyMem_Malloc(sizeof(command)); name->type=movie->command##Type;
 
 #endif /*_GCOMMAND_H_*/

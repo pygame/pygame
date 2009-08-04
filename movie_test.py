@@ -15,92 +15,92 @@ filename="/home/tyler/dhs1.avi"
 # Without a surface argument, the ffmpeg-wrapper uses the sdl_overlay library. 
 #screen=pygame.display.set_mode((640, 368))
 
-##m = movie.Movie(filename)
-##print m.paused  #always False, unless .pause has been called
-##print m.playing #False until play has been called. Will return to false when
-##print m.finished# .stop() has been called.
-##                
-##print m.width   #default size values of the video file
-##print m.height  # They can be modified on the fly, as will be demonstrated.
-##
-##print m         #calls __repr__, which will show the filename, and the current 
-##                # timestamp. 
-###print "repeated looping plays.."#
-###m.play(10)
-###time.sleep(10*30)
-##
-##
-##print "Playing infinitely"
-##
-##m.play(-1)       #We're going to use infinite play, so we can demonstrate all 
-##                # the features.
-##time.sleep(2)  #sleep for ten seconds to let one see the video play, and hear 
-##                # the audio
-####print "Paused:",m.paused
-####print "Playing:",m.playing
-####print "Movie:",m
-####print "Y Top:",m.ytop
-####print "X Left:",m.xleft
-##time.sleep(30)
-####print "Testing seek..."
-####m.easy_seek(second=10, minute=5, reverse=0)
-####time.sleep(5)
-####m.easy_seek(second=10, minute=5, reverse=0)
-####time.sleep(1)
-####m.pause()
-####time.sleep(5)
-####m.pause()
-####time.sleep(10)
-##
-##print "Altering xleft and ytop..."
-##m.shift(10, 10)
-##time.sleep(10)
-##m.shift(0, 0)
-###Now we're going to play with the size of the window, affecting the video on 
-###the fly. resize(width, height) is the main function, changes them both at
-### the same time.
-##print "Resizing..."
-##m.resize(m.width/2, m.height*2)
-##print "sleeping..."
-##time.sleep(10) #another ten second nap.
-##print "Resizing again..."
-##m.width = m.width*4
-##print "sleeping again" 
-##time.sleep(10)
-##print "Back to normal!"
-##m.resize(m.width/2, m.height/2)
-##print "and again, sleeping..."
-###back to our original size
-##time.sleep(10)
-##
-##
-###Here we demonstrate the use of pause. You pause, then call pause again to play
-##print "Pausing..."
-##m.pause()
-##print "done pausing..."
-##print m.paused
-##print m.playing
-##time.sleep(10)
-##print "Unpausing..."
-##m.pause()
-##print m.paused
-##print m.playing
-##time.sleep(10)
-###Here is the stop function. Right now, rewind is the exact same as stop.
-##print "Stopping..., sleeping for 3 seconds"
-##m.stop()
-##time.sleep(5)
-###And now we restart playing.
-##del m
-##print "Playing again..." 
-##m=movie.Movie(filename)
-##m.play(-1)
-##print "done restart play..."
-##time.sleep(10)
-##print "Surface time..."
+m = movie.Movie(filename)
+print m.paused  #always False, unless .pause has been called
+print m.playing #False until play has been called. Will return to false when
+print m.finished# .stop() has been called.
+                
+print m.width   #default size values of the video file
+print m.height  # They can be modified on the fly, as will be demonstrated.
+
+print m         #calls __repr__, which will show the filename, and the current 
+                # timestamp. 
+#print "repeated looping plays.."#
+#m.play(10)
+#time.sleep(10*30)
+
+
+print "Playing infinitely"
+
+m.play(-1)       #We're going to use infinite play, so we can demonstrate all 
+                # the features.
+time.sleep(2)  #sleep for ten seconds to let one see the video play, and hear 
+                # the audio
+##print "Paused:",m.paused
+##print "Playing:",m.playing
+##print "Movie:",m
+##print "Y Top:",m.ytop
+##print "X Left:",m.xleft
+time.sleep(30)
+print "Testing seek..."
+m.easy_seek(10, 5, 0, 0)
+time.sleep(5)
+m.easy_seek(10, 5, 0, 0)
+time.sleep(1)
+m.pause()
+time.sleep(5)
+m.pause()
+time.sleep(10)
+
+print "Altering xleft and ytop..."
+m.shift(10, 10)
+time.sleep(10)
+m.shift(0, 0)
+#Now we're going to play with the size of the window, affecting the video on 
+#the fly. resize(width, height) is the main function, changes them both at
+# the same time.
+print "Resizing..."
+m.resize(m.width/2, m.height*2)
+print "sleeping..."
+time.sleep(10) #another ten second nap.
+print "Resizing again..."
+m.width = m.width*4
+print "sleeping again" 
+time.sleep(10)
+print "Back to normal!"
+m.resize(m.width/2, m.height/2)
+print "and again, sleeping..."
+#back to our original size
+time.sleep(10)
+
+
+#Here we demonstrate the use of pause. You pause, then call pause again to play
+print "Pausing..."
+m.pause()
+print "done pausing..."
+print m.paused
+print m.playing
+time.sleep(10)
+print "Unpausing..."
+m.pause()
+print m.paused
+print m.playing
+time.sleep(10)
+#Here is the stop function. Right now, rewind is the exact same as stop.
+print "Stopping..., sleeping for 3 seconds"
+m.stop()
+time.sleep(5)
+#And now we restart playing.
+del m
+print "Playing again..." 
+m=movie.Movie(filename)
+m.play(-1)
+print "done restart play..."
+time.sleep(10)
+print "Surface time..."
 screen = pygame.display.set_mode((640, 348))
-##m.surface=screen
-##time.sleep(1)
+m.surface=screen
+time.sleep(1)
 #This will move the movie player from overlay mode to blitting to the surface 
 # we've given it. This means it is our responsibility to update the display on 
 # time.
