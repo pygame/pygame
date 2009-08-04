@@ -23,6 +23,7 @@
 
 #include "ft_wrap.h"
 #include "pgfreetype.h"
+#include "ft_mod.h"
 #include "freetypebase_doc.h"
 
 
@@ -68,6 +69,14 @@ static int _ftfont_setstyle(PyObject *self, PyObject *value, void *closure);
 static PyObject* _ftfont_getheight(PyObject *self, void *closure);
 static PyObject* _ftfont_getname(PyObject *self, void *closure);
 static PyObject* _ftfont_getfixedwidth(PyObject *self, void *closure);
+
+static PyObject* _ftfont_getvertical(PyObject *self, void *closure);
+static int _ftfont_setvertical(PyObject *self, PyObject *value, void *closure);
+static PyObject* _ftfont_getantialias(PyObject *self, void *closure);
+static int _ftfont_setantialias(PyObject *self, PyObject *value, void *closure);
+
+static PyObject* _ftfont_getstyle_flag(PyObject *self, void *closure);
+static int _ftfont_setstyle_flag(PyObject *self, PyObject *value, void *closure);
 
 /*
  * FREETYPE FONT METHODS TABLE
@@ -133,6 +142,41 @@ static PyGetSetDef _ftfont_getsets[] =
         NULL,
         DOC_BASE_FONT_FIXED_WIDTH,
         NULL
+    },
+    {
+        "antialiased",
+        _ftfont_getantialias,
+        _ftfont_setantialias,
+        "TODO",
+        NULL
+    },
+    {
+        "vertical",
+        _ftfont_getvertical,
+        _ftfont_setvertical,
+        "TODO",
+        NULL
+    },
+    {
+        "italic",
+        _ftfont_getstyle_flag,
+        _ftfont_setstyle_flag,
+        "TODO", /* TODO: Doc */
+        (void *)FT_STYLE_ITALIC
+    },
+    {
+        "bold",
+        _ftfont_getstyle_flag,
+        _ftfont_setstyle_flag,
+        "TODO", /* TODO: Doc */
+        (void *)FT_STYLE_BOLD
+    },
+    {
+        "underline",
+        _ftfont_getstyle_flag,
+        _ftfont_setstyle_flag,
+        "TODO", /* TODO: Doc */
+        (void *)FT_STYLE_UNDERLINE
     },
     { NULL, NULL, NULL, NULL, NULL }
 };
@@ -257,8 +301,10 @@ _ftfont_init(PyObject *self, PyObject *args, PyObject *kwds)
         return -1;
     }
 
-    font->default_ptsize = (ptsize <= 0) ? -1 : ptsize;
-    font->default_style = font_style;
+    font->ptsize = (FT_Int16)((ptsize <= 0) ? -1 : ptsize);
+    font->style = (FT_Byte)font_style;
+    font->antialias = 1;
+    font->vertical = 0;
 
     /*
      * TODO: Handle file-like objects
@@ -304,12 +350,94 @@ _ftfont_repr(PyObject *self)
 /****************************************************
  * GETTERS/SETTERS
  ****************************************************/
+
+/** Vertical attribute */
 static PyObject*
-_ftfont_getstyle (PyObject *self, void *closure)
+_ftfont_getvertical(PyObject *self, void *closure)
+{
+    PyFreeTypeFont *font = (PyFreeTypeFont *)self;
+    return PyBool_FromLong(font->vertical);
+}
+
+static int
+_ftfont_setvertical(PyObject *self, PyObject *value, void *closure)
+{
+    PyFreeTypeFont *font = (PyFreeTypeFont *)self;
+    if (!PyBool_Check(value))
+    {   
+        PyErr_SetString(PyExc_TypeError, "Expecting 'bool' type");
+        return -1;
+    }
+    font->vertical = (FT_Byte)PyObject_IsTrue(value);
+    return 0;
+}
+
+
+/** Antialias attribute */
+static PyObject*
+_ftfont_getantialias(PyObject *self, void *closure)
+{
+    PyFreeTypeFont *font = (PyFreeTypeFont *)self;
+    return PyBool_FromLong(font->antialias);
+}
+
+static int
+_ftfont_setantialias(PyObject *self, PyObject *value, void *closure)
+{
+    PyFreeTypeFont *font = (PyFreeTypeFont *)self;
+    if (!PyBool_Check(value))
+    {   
+        PyErr_SetString(PyExc_TypeError, "Expecting 'bool' type");
+        return -1;
+    }
+    font->antialias = (FT_Byte)PyObject_IsTrue(value);
+    return 0;
+}
+
+
+/** Generic style attributes */
+static PyObject*
+_ftfont_getstyle_flag(PyObject *self, void *closure)
+{
+    const int style_flag = (int)closure;
+    PyFreeTypeFont *font = (PyFreeTypeFont *)self;
+
+    return PyBool_FromLong(font->style & style_flag);
+}
+
+static int
+_ftfont_setstyle_flag(PyObject *self, PyObject *value, void *closure)
+{
+    const int style_flag = (int)closure;
+    PyFreeTypeFont *font = (PyFreeTypeFont *)self;
+
+    if (!PyBool_Check(value))
+    {   
+        PyErr_SetString(PyExc_TypeError,
+                "The style value must be a boolean");
+        return -1;
+    }
+
+    if (PyObject_IsTrue(value))
+    {
+        font->style |= (FT_Byte)style_flag;
+    }
+    else
+    {
+        font->style &= (FT_Byte)(~style_flag);
+    }
+
+    return 0;
+}
+
+
+/** Style attribute */
+static PyObject*
+_ftfont_getstyle(PyObject *self, void *closure)
 {
     PyFreeTypeFont *font = (PyFreeTypeFont *)self;
 
-    return PyInt_FromLong(font->default_style);
+    return PyInt_FromLong(font->style);
 }
 
 static int
@@ -334,10 +462,12 @@ _ftfont_setstyle(PyObject *self, PyObject *value, void *closure)
         return -1;
     }
 
-    font->default_style = (int)style;
+    font->style = (FT_Byte)style;
     return 0;
 }
 
+
+/** Height attribute */
 static PyObject*
 _ftfont_getheight(PyObject *self, void *closure)
 {
@@ -376,7 +506,7 @@ _ftfont_getsize(PyObject *self, PyObject* args, PyObject *kwds)
     /* keyword list */
     static char *kwlist[] = 
     { 
-        "text", "style", "vertical", "rotation", "ptsize", NULL
+        "text", "style", "rotation", "ptsize", NULL
     };
 
     PyFreeTypeFont *font = (PyFreeTypeFont *)self;
@@ -386,24 +516,19 @@ _ftfont_getsize(PyObject *self, PyObject* args, PyObject *kwds)
     int width, height;
 
     FontRenderMode render;
-    int vertical = 0;
     int rotation = 0;
     int style = 0;
-
-    PyObject *vertical_obj = NULL;
 
     FreeTypeInstance *ft;
     ASSERT_GRAB_FREETYPE(ft, NULL);
 
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|iOii", kwlist, 
-                &text, &style, &vertical_obj, &rotation, &ptsize))
+                &text, &style, &rotation, &ptsize))
         return NULL;
 
-    PGFT_CHECK_BOOL(vertical_obj, vertical);
-
     /* Build rendering mode, always anti-aliased by default */
-    if (PGFT_BuildRenderMode(ft, font, 
-            &render, ptsize, style, vertical, 1, rotation) != 0)
+    if (PGFT_BuildRenderMode(ft, font, &render, 
+                ptsize, style, rotation) != 0)
     {
         PyErr_SetString(PyExc_PyGameError, PGFT_GetError(ft));
         return NULL;
@@ -454,7 +579,7 @@ _ftfont_getmetrics(PyObject *self, PyObject* args, PyObject *kwds)
      * rotation/styles/vertical text
      */
     if (PGFT_BuildRenderMode(ft, font, 
-                &render, ptsize, FT_STYLE_NORMAL, 0, 1, 0) != 0)
+                &render, ptsize, FT_STYLE_NORMAL, 0) != 0)
     {
         PyErr_SetString(PyExc_PyGameError, PGFT_GetError(ft));
         return NULL;
@@ -567,7 +692,7 @@ _ftfont_render_raw(PyObject *self, PyObject* args, PyObject *kwds)
      * rotation/styles/vertical text
      */
     if (PGFT_BuildRenderMode(ft, font, 
-                &render, ptsize, FT_STYLE_NORMAL, 0, 1, 0) != 0)
+                &render, ptsize, FT_STYLE_NORMAL, 0) != 0)
     {
         PyErr_SetString(PyExc_PyGameError, PGFT_GetError(ft));
         return NULL;
@@ -596,8 +721,8 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
     /* keyword list */
     static char *kwlist[] = 
     { 
-        "text", "fgcolor", "bgcolor", "dstsurface", 
-        "xpos", "ypos", "style", "vertical", "rotation", "antialias", "ptsize", NULL
+        "dest", "text", "fgcolor", "bgcolor", 
+        "style", "rotation", "ptsize", NULL
     };
 
     PyFreeTypeFont *font = (PyFreeTypeFont *)self;
@@ -605,32 +730,30 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
     /* input arguments */
     PyObject *text = NULL;
     int ptsize = -1;
-    PyObject *target_surf = NULL;
+    PyObject *target_tuple = NULL;
     PyObject *fg_color_obj = NULL;
     PyObject *bg_color_obj = NULL;
-    PyObject *vertical_obj = NULL;
-    PyObject *antialias_obj = NULL;
+
     int rotation = 0;
-    int xpos = 0, ypos = 0;
     int style = FT_STYLE_DEFAULT;
 
     /* output arguments */
     PyObject *rtuple = NULL;
     int width, height;
 
+    /* parsed vars */
     FontRenderMode render;
     FontColor fg_color;
     FontColor bg_color;
-    int vertical = 0;
-    int antialias = 1;
 
     FreeTypeInstance *ft;
     ASSERT_GRAB_FREETYPE(ft, NULL);
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OO|OOiiiOiOi", kwlist,
-                &text, &fg_color_obj, &bg_color_obj, &target_surf, &xpos, &ypos, 
-                &style, &vertical_obj, &rotation, &antialias_obj, &ptsize))
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOO|Oiii", kwlist,
+                &target_tuple, &text, &fg_color_obj, /* required */
+                &bg_color_obj, &style, &rotation, &ptsize)) /* optional */
         return NULL;
+
 
     if (PyColor_Check(fg_color_obj))
     {
@@ -667,17 +790,13 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
         }
     }
 
-    PGFT_CHECK_BOOL(vertical_obj, vertical);
-    PGFT_CHECK_BOOL(antialias_obj, antialias);
-
-    if (PGFT_BuildRenderMode(ft, font, 
-                &render, ptsize, style, vertical, antialias, rotation) != 0)
+    if (PGFT_BuildRenderMode(ft, font, &render, ptsize, style, rotation) != 0)
     {
         PyErr_SetString(PyExc_PyGameError, PGFT_GetError(ft));
         return NULL;
     }
 
-    if (!target_surf || target_surf == Py_None)
+    if (target_tuple == Py_None)
     {
         SDL_Surface *r_surface = NULL;
 
@@ -690,13 +809,26 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
             return NULL;
         }
 
-        rtuple = Py_BuildValue("(iiO)", width, height, 
-                PySDLSurface_NewFromSDLSurface(r_surface));
+        rtuple = Py_BuildValue("(Oii)", 
+                PySDLSurface_NewFromSDLSurface(r_surface), 
+                width, height);
     }
-    else if (PySDLSurface_Check(target_surf))
+    else
     {
         SDL_Surface *surface = NULL;
-        surface = PySDLSurface_AsSDLSurface(target_surf);
+        PyObject *surface_obj = NULL;
+        int xpos = 0, ypos = 0;
+
+        if (!PyArg_ParseTuple(target_tuple, "Oii", &surface_obj, &xpos, &ypos))
+            return NULL;
+
+        if (!PySDLSurface_Check(surface_obj))
+        {
+            PyErr_SetString(PyExc_TypeError, "Target surface must be a SDL surface");
+            return NULL;
+        }
+
+        surface = PySDLSurface_AsSDLSurface(surface_obj);
             
         if (PGFT_Render_ExistingSurface(ft, font, &render, 
                 text, surface, xpos, ypos, 
@@ -707,14 +839,7 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
             return NULL;
         }
 
-        Py_INCREF(target_surf); 
-        rtuple = Py_BuildValue("(iiO)", width, height, target_surf);
-    }
-    else
-    {
-        PyErr_SetString(PyExc_TypeError, 
-                "The given target is not a valid SDL surface");
-        return NULL;
+        rtuple = Py_BuildValue("(ii)", width, height);
     }
 
     return rtuple;
@@ -742,8 +867,10 @@ PyFreeTypeFont_New(const char *filename, int face_index)
     if (!font)
         return NULL;
 
-    font->default_ptsize = -1;
-    font->default_style = FT_STYLE_NORMAL;
+    font->ptsize = -1;
+    font->style = FT_STYLE_NORMAL;
+    font->antialias = 1;
+    font->vertical = 0;
 
     if (PGFT_TryLoadFont_Filename(ft, font, filename, face_index) != 0)
     {

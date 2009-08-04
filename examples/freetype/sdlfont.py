@@ -34,18 +34,36 @@ def run():
     screen = video.set_mode (800, 600)
     screen.fill (colors["grey_light"])
 
-    font.render("Hello World", colors["red"], colors['grey_dark'], screen, 32, 32, ptsize=64, style=ftconstants.STYLE_UNDERLINE|ftconstants.STYLE_ITALIC)
-    font.render("abcdefghijklm", colors["grey_dark"], colors["green"], screen, 32, 128, ptsize=64)
-    font.render("Vertical?", colors["blue"], None, screen, 32, 190, ptsize=32, vertical=True)
-    font.render("Let's spin!", colors["red"], None, screen, 64, 190, ptsize=48, rotation=55)
-    font.render("All around!", colors["green"], None, screen, 150, 270, ptsize=48, rotation=-55)
-    font.render("and BLEND", pygame2.Color(255, 0, 0, 128), None, screen, 250, 220, ptsize=64)
-    font.render("or BLAND!", pygame2.Color(0, 0xCC, 28, 128), None, screen, 258, 237, ptsize=64)
-    font.render("I \u2665 Unicode", pygame2.Color(0, 0xCC, 0xDD), None, screen, 298, 320, ptsize=64)
-    font.render("\u2665", colors["grey_light"], colors["red"], screen, 480, 32, ptsize=148)
-    font.render("...yes, this is a SDL surface", pygame2.Color(0, 0, 0), None, screen, 380, 380, ptsize=24,
-            style=ftconstants.STYLE_BOLD)
+    font.render((screen, 32, 32), "Hello World", colors["red"], colors['grey_dark'],
+            ptsize=64, style=ftconstants.STYLE_UNDERLINE|ftconstants.STYLE_ITALIC)
 
+    font.render((screen, 32, 128), "abcdefghijklm", colors["grey_dark"], colors["green"],
+            ptsize=64)
+
+    font.vertical = True
+    font.render((screen, 32, 190), "Vertical?", colors["blue"], None, ptsize=32)
+    font.vertical = False
+
+    font.render((screen, 64, 190), "Let's spin!", colors["red"], None,
+            ptsize=48, rotation=55)
+
+    font.render((screen, 150, 270), "All around!", colors["green"], None,
+            ptsize=48, rotation=-55)
+
+    font.render((screen, 250, 220), "and BLEND", pygame2.Color(255, 0, 0, 128), None,
+            ptsize=64)
+
+    font.render((screen, 258, 237), "or BLAND!", pygame2.Color(0, 0xCC, 28, 128), None,
+            ptsize=64)
+
+    font.render((screen, 298, 320), "I \u2665 Unicode", pygame2.Color(0, 0xCC, 0xDD), None,
+            ptsize=64)
+
+    font.render((screen, 480, 32), "\u2665", colors["grey_light"], colors["red"],
+            ptsize=148)
+
+    font.render((screen, 380, 380), "...yes, this is a SDL surface", pygame2.Color(0, 0, 0), None,
+            ptsize=24, style=ftconstants.STYLE_BOLD)
 
     screen.flip ()
 

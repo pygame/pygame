@@ -82,8 +82,10 @@ typedef struct
     PyFont pyfont;
     FontId id;
 
-    int default_ptsize;
-    int default_style;
+    FT_Int16 ptsize;
+    FT_Byte style;
+    FT_Byte vertical;
+    FT_Byte antialias;
 
     void *_internals;
 } PyFreeTypeFont;

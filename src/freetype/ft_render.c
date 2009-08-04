@@ -58,20 +58,20 @@ int PGFT_CheckStyle(FT_UInt32 style)
 int 
 PGFT_BuildRenderMode(FreeTypeInstance *ft, 
         PyFreeTypeFont *font, FontRenderMode *mode, 
-        int pt_size, int style, int vertical, int antialias, int rotation)
+        int pt_size, int style, int rotation)
 {
     int angle;
 
     if (pt_size == -1)
     {
-        if (font->default_ptsize == -1)
+        if (font->ptsize == -1)
         {
             _PGFT_SetError(ft, "No font point size specified"
                     " and no default font size in typeface", 0);
             return -1;
         }
 
-        pt_size = font->default_ptsize;
+        pt_size = font->ptsize;
     }
 
     if (pt_size <= 0)
@@ -84,7 +84,7 @@ PGFT_BuildRenderMode(FreeTypeInstance *ft,
 
     if (style == FT_STYLE_DEFAULT)
     {
-        mode->style = (FT_Byte)font->default_style;
+        mode->style = (FT_Byte)font->style;
     }
     else
     {
@@ -99,10 +99,10 @@ PGFT_BuildRenderMode(FreeTypeInstance *ft,
 
     mode->render_flags = FT_RFLAG_DEFAULTS;
 
-    if (vertical)
+    if (font->vertical)
         mode->render_flags |= FT_RFLAG_VERTICAL;
 
-    if (antialias)
+    if (font->antialias)
         mode->render_flags |= FT_RFLAG_ANTIALIAS;
 
     angle = rotation % 360;
