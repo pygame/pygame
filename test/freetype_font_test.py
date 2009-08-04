@@ -174,8 +174,6 @@ class FreeTypeFontTest(unittest.TestCase):
         self.assertRaises(TypeError, font.render, 'foobar', color,
                 None, None, antialias=3, ptsize=24)
         self.assertRaises(TypeError, font.render, 'foobar', color,
-                None, None, rotation=23.5, ptsize=24)
-        self.assertRaises(TypeError, font.render, 'foobar', color,
                 None, None, style=None, ptsize=24)
         self.assertRaises(pygame2.base.Error, font.render, 'foobar', color,
                 None, None, style=97, ptsize=24)
