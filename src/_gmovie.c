@@ -16,17 +16,14 @@ void packet_queue_init(PacketQueue *q)
     if(!q->mutex)
         q->mutex = SDL_CreateMutex();
     q->abort_request=0;
-
 }
 
 void packet_queue_flush(PacketQueue *q)
 {
     AVPacketList *pkt, *pkt1;
-#if THREADFREE!=1
 
     if(q->mutex)
         SDL_LockMutex(q->mutex);
-#endif
 
     for(pkt = q->first_pkt; pkt != NULL; pkt = pkt1)
     {
@@ -38,11 +35,9 @@ void packet_queue_flush(PacketQueue *q)
     q->first_pkt = NULL;
     q->nb_packets = 0;
     q->size = 0;
-#if THREADFREE!=1
 
     if(q->mutex)
         SDL_UnlockMutex(q->mutex);
-#endif
 }
 
 void packet_queue_end(PacketQueue *q, int end)
@@ -79,11 +74,8 @@ int packet_queue_put(PacketQueue *q, AVPacket *pkt)
     pkt1->pkt = *pkt;
     pkt1->next = NULL;
 
-#if THREADFREE!=1
-
     if(q->mutex)
         SDL_LockMutex(q->mutex);
-#endif
 
     if (!q->last_pkt)
         q->first_pkt = pkt1;
@@ -94,28 +86,22 @@ int packet_queue_put(PacketQueue *q, AVPacket *pkt)
     q->size += pkt1->pkt.size;
     /* XXX: should duplicate packet data in DV case */
 
-#if THREADFREE!=1
 
     if(q->mutex)
         SDL_UnlockMutex(q->mutex);
-#endif
 
     return 0;
 }
 
 void packet_queue_abort(PacketQueue *q)
 {
-#if THREADFREE!=1
     if(q->mutex)
         SDL_LockMutex(q->mutex);
-#endif
 
     q->abort_request = 1;
-#if THREADFREE!=1
 
     if(q->mutex)
         SDL_UnlockMutex(q->mutex);
-#endif
 }
 
 /* return < 0 if aborted, 0 if no packet and > 0 if packet.  */
@@ -124,11 +110,8 @@ int packet_queue_get(PacketQueue *q, AVPacket *pkt, int block)
     AVPacketList *pkt1;
     int ret;
 
-#if THREADFREE!=1
-
     if(q->mutex)
         SDL_LockMutex(q->mutex);
-#endif
 
     for(;;)
     {
@@ -162,10 +145,8 @@ int packet_queue_get(PacketQueue *q, AVPacket *pkt, int block)
             break;
         }
     }
-#if THREADFREE!=1
     if(q->mutex)
         SDL_UnlockMutex(q->mutex);
-#endif
 
     return ret;
 }
@@ -890,6 +871,7 @@ int queue_picture(PyMovie *movie, AVFrame *src_frame)
 	    {
 	    	dst_pix_fmt = PIX_FMT_RGBA;
 	    }
+	    //pict.data = (uint8_t *)vp->dest_surface->pixels;
         avpicture_alloc(&pict, dst_pix_fmt, w, h);
         SDL_LockSurface(vp->dest_surface);
     }
@@ -1080,6 +1062,7 @@ void registerCommands(PyMovie *self)
     self->pauseCommandType=registerCommand(self->commands);
     self->stopCommandType=registerCommand(self->commands);
     self->resizeCommandType=registerCommand(self->commands);
+    self->shiftCommandType = registerCommand(self->commands);
 }
 
 /* seek in the stream */
@@ -1087,7 +1070,6 @@ void stream_seek(PyMovie *movie, int64_t pos, int rel)
 {
     seekCommand *seek = (seekCommand *) PyMem_Malloc(sizeof(seekCommand));
     seek->type = movie->seekCommandType;
-    seek->size = sizeof(seekCommand);
     seek->pos = pos;
     seek->rel = rel;
     addCommand(movie->commands, (Command *)seek);
@@ -1096,20 +1078,8 @@ void stream_seek(PyMovie *movie, int64_t pos, int rel)
 /* pause or resume the video */
 void stream_pause(PyMovie *movie)
 {
-    /*if(movie->ob_refcnt !=0)Py_INCREF( movie);
-    int paused=movie->paused;
-    movie->paused = !movie->paused;
-    if (!movie->paused)
-    {
-        movie->video_current_pts = get_video_clock(movie);
-        movie->frame_timer += (av_gettime() - movie->video_current_pts_time) / 1000000.0;
-    }
-    movie->last_paused=paused;
-    if(movie->ob_refcnt !=0) {Py_DECREF( movie);}
-	*/
 	pauseCommand *pause = (pauseCommand *) PyMem_Malloc(sizeof(pauseCommand));
 	pause->type = movie->pauseCommandType;
-	pause->size = sizeof(pauseCommand);
 	addCommand(movie->commands, (Command *)pause);
 }
 
@@ -2007,6 +1977,7 @@ int decoder(void *arg)
     	if(hasCommand(movie->commands) && !movie->working)
     	{
     		Command *comm = getCommand(movie->commands);
+    		
     		if(comm->type==movie->seekCommandType)
     		{
     			seekCommand *seek = (seekCommand *)comm;
@@ -2015,9 +1986,7 @@ int decoder(void *arg)
     			movie->seek_flags |= seek->rel;
     			/* clear stuff away now */
     			comm = NULL;
-    			//GRABGIL
     			PyMem_Free(seek);
-				//RELEASEGIL
     			movie->working=1;
     		}
     		else if(comm->type==movie->pauseCommandType)
@@ -2057,6 +2026,40 @@ int decoder(void *arg)
     			comm=NULL;
     			PyMem_Free(resize);
     		}	
+    		else if (comm->type == movie->shiftCommandType)
+    		{
+    			shiftCommand *shift = (shiftCommand *)comm;
+    			if(shift->ytop)
+    			{
+    				movie->ytop=shift->ytop;
+    			}
+    			if(shift->xleft)
+    			{
+    				movie->xleft=shift->xleft;
+    			}
+    			comm=NULL;
+    			PyMem_Free(shift);
+    			
+    		}
+    		else if(comm->type == movie->surfaceCommandType)
+    		{
+    			surfaceCommand *surf = (surfaceCommand *)comm;
+    			if(movie->canon_surf)
+    			{
+    				SDL_FreeSurface(movie->canon_surf);
+    				movie->canon_surf=NULL;
+    			}
+    			if(surf->surface)
+    			{
+    				movie->canon_surf=surf->surface;
+    				movie->overlay=0;
+    			}
+    			else
+    			{
+    				movie->overlay=1;
+    			}
+    			
+    		}
     		
     	}
     	

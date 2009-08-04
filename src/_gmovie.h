@@ -51,8 +51,8 @@ AVPacket flush_pkt;
 #define SUBPICTURE_QUEUE_SIZE    4
 /* RGB24 or RGBA... */
 /* In this case I've chosen RGB24 because its smaller */
-#define RGB24 1
-#define RGBA  0
+#define RGB24 0
+#define RGBA  1
 
 #if RGB24
 	#define RGBSTEP 3
@@ -227,6 +227,8 @@ typedef struct PyMovie
 	int pauseCommandType; 
     int stopCommandType;
     int resizeCommandType;
+    int shiftCommandType;
+    int surfaceCommandType;
     int diff_co; //counter
 
     /* Seek-info */
@@ -307,8 +309,7 @@ PyMovie;
 /*command definitions */
 typedef struct seekCommand
 {
-	COMMON_COMMAND
-	struct Command *next;
+	FULL_COMMAND
 	int64_t pos;
 	int rel;
 } seekCommand;
@@ -316,23 +317,33 @@ typedef struct seekCommand
 
 typedef struct pauseCommand
 {
-	COMMON_COMMAND
-	struct Command *next;
+	FULL_COMMAND
 } pauseCommand;
 
 typedef struct stopCommand
 {
-	COMMON_COMMAND
-	struct Command *next;
+	FULL_COMMAND
 } stopCommand;
 
 typedef struct resizeCommand
 {
-	COMMON_COMMAND
-	struct Command *next;
+	FULL_COMMAND
 	int h;
 	int w;
 } resizeCommand;
+
+typedef struct shiftCommand
+{
+	FULL_COMMAND
+	int ytop;
+	int xleft;	
+} shiftCommand;
+
+typedef struct surfaceCommand
+{
+	FULL_COMMAND
+	SDL_Surface *surface;	
+} surfaceCommand;
 
 /* end of struct definitions */
 /* function definitions */

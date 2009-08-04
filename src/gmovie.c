@@ -211,15 +211,6 @@ PyObject* _movie_play(PyMovie *movie, PyObject* args)
 
 PyObject* _movie_stop(PyMovie *movie)
 {
-    /*Py_INCREF(movie);
-    Py_BEGIN_ALLOW_THREADS
-    SDL_LockMutex(movie->dest_mutex);
-    stream_pause(movie);
-    movie->stop = 1;
-    Py_END_ALLOW_THREADS
-    SDL_UnlockMutex(movie->dest_mutex);
-    Py_DECREF(movie);
-    Py_RETURN_NONE;*/
     stream_pause(movie);
     stopCommand *stop = (stopCommand *)PyMem_Malloc(sizeof(stopCommand));
     stop->type = movie->stopCommandType;
@@ -230,9 +221,7 @@ PyObject* _movie_stop(PyMovie *movie)
 PyObject* _movie_pause(PyMovie *movie)
 {
 
-    //Py_BEGIN_ALLOW_THREADS
     stream_pause(movie);
-    //Py_END_ALLOW_THREADS
     Py_RETURN_NONE;
 }
 
@@ -259,8 +248,6 @@ PyObject* _movie_resize       (PyMovie *movie, PyObject* args)
     resize->h = h;
     resize->w  = w;
     addCommand(movie->commands, (Command *)resize);
-    //status indicators for rendering and that. Very important!
-    //movie->resize_w =  movie->resize_h= 1;
     Py_RETURN_NONE;
 
 }
@@ -428,14 +415,16 @@ int _movie_set_ytop (PyMovie *movie, PyObject *ytop, void *closure)
     if(PyInt_Check(ytop))
     {
         y = (int)PyInt_AsLong(ytop);
-        movie->ytop=y;
+        shiftCommand *shift = (shiftCommand *)PyMem_Malloc(sizeof(shiftCommand));
+        shift->ytop = y;
+        shift->xleft = 0;
+        addCommand(movie->commands, (Command *)shift);
         return 0;
     }
     else
     {
         return -1;
     }
-
 }
 
 PyObject* _movie_get_xleft (PyMovie *movie, void *closure)
@@ -457,7 +446,10 @@ int _movie_set_xleft (PyMovie *movie, PyObject *xleft, void *closure)
     if(PyInt_Check(xleft))
     {
         x = (int)PyInt_AsLong(xleft);
-        movie->xleft=x;
+        shiftCommand *shift = (shiftCommand *)PyMem_Malloc(sizeof(shiftCommand));
+        shift->ytop = 0;
+        shift->xleft = x;
+        addCommand(movie->commands, (Command *)shift);
         return 0;
     }
     else
@@ -479,15 +471,21 @@ PyObject *_movie_get_surface(PyMovie *movie, void *closure)
 int _movie_set_surface(PyObject *mov, PyObject *surface, void *closure)
 {
     PyMovie *movie = (PyMovie *)mov;
-    if(movie->canon_surf)
-    {
-        SDL_FreeSurface(movie->canon_surf);
-    }
     if(PySurface_Check(surface))
     {
-        movie->canon_surf=PySurface_AsSurface(surface);
-        movie->overlay=0;
+        /*movie->canon_surf=PySurface_AsSurface(surface);
+        movie->overlay=0;*/
+        surfaceCommand *surf = (surfaceCommand *)PyMem_Malloc(sizeof(surfaceCommand));
+        surf->surface = PySurface_AsSurface(surface);
+        addCommand(movie->commands, (Command *)surf);
         return 0;
+    }
+    else if(surface == Py_None)
+    {
+    	surfaceCommand *surf = (surfaceCommand *)PyMem_Malloc(sizeof(surfaceCommand));
+        surf->surface = NULL;
+        addCommand(movie->commands, (Command *)surf);
+    	return 0;
     }
     return -1;
 }
