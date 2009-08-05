@@ -21,6 +21,28 @@ void _movie_init_internal(PyMovie *self, const char *filename, SDL_Surface *surf
         self->overlay = 0;
         self->canon_surf=surf;
     }
+    /* filename checking... */
+    PyObject *path = PyImport_ImportModule("os.path");
+    Py_INCREF(path);
+    PyObject *dict = PyModule_GetDict(path);
+    PyObject *key = Py_BuildValue("s", "exists");
+    Py_INCREF(key);
+	PyObject *existsFunc  = PyDict_GetItem(dict, key);
+	PyObject *boolean = PyObject_CallFunction(existsFunc, "s", filename);
+	Py_INCREF(boolean);
+	if(boolean==Py_False)
+	{
+		Py_DECREF(boolean);
+		Py_DECREF(key);
+		Py_DECREF(path);
+		RAISE(PyExc_ValueError, "This filename does not exist.");
+		return;
+		//Py_RETURN_NONE;
+	}
+	Py_DECREF(boolean);
+	Py_DECREF(key);
+	Py_DECREF(path);    
+    
     self->start_time = AV_NOPTS_VALUE;
     stream_open(self, filename, NULL, 0);
     //PySys_WriteStdout("Time-base-a: %f\n", av_q2d(self->audio_st->codec->time_base));

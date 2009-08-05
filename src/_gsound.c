@@ -206,7 +206,6 @@ int playBuffer (uint8_t *buf, uint32_t len, int channel, int64_t pts)
     Mix_Chunk *mix;
     int false=0;
     int allocated=0;
-    
     if(!ainfo->ended && (ainfo->queue.size>0||ainfo->playing))
     {
         if(buf)
@@ -239,21 +238,22 @@ int playBuffer (uint8_t *buf, uint32_t len, int channel, int64_t pts)
         else
         {
             //callback call, and convenienty enough, the queue has a buffer ready to go, so we copy it into buf
-            BufferNode *new;
-            queue_get(&ainfo->queue, &new);
-            if(!new)
+            BufferNode *newNode;
+            queue_get(&ainfo->queue, &newNode);
+            if(!newNode)
             {
                 //SDL_mutexV(ainfo->mutex);
                 return -1;
             }
-            ainfo->current_frame_size=new->len;
-            buf = (uint8_t *)PyMem_Malloc((size_t)new->len);
-            memcpy(buf, new->buf, new->len);
-            len=new->len;
-            PyMem_Free(new->buf);
-            new->buf=NULL;
-            PyMem_Free(new);
-            new=NULL;
+            ainfo->current_frame_size=newNode->len;
+            pts=newNode->pts;
+            buf = (uint8_t *)PyMem_Malloc((size_t)newNode->len);
+            memcpy(buf, newNode->buf, newNode->len);
+            len=newNode->len;
+            PyMem_Free(newNode->buf);
+            newNode->buf=NULL;
+            PyMem_Free(newNode);
+            newNode=NULL;
             allocated=1;
         }
     }
@@ -286,6 +286,12 @@ int playBuffer (uint8_t *buf, uint32_t len, int channel, int64_t pts)
 	{
     	int bytes_per_sec = ainfo->channels*ainfo->sample_rate*2;
     	ainfo->audio_clock+= (double) len/(double) bytes_per_sec;
+    	int n_pkts = bytes_per_sec/len;
+    	double change = (double)pts/(double)n_pkts;
+    	if((change-ainfo->audio_clock)> 0.1)
+    	{
+    		ainfo->audio_clock = change;
+    	}
 	}
     ainfo->current_frame_size =len;
     int chan = ainfo->channel;
@@ -351,8 +357,10 @@ int getPaused (int channel)
 }
 int seekBuffer (uint8_t *buf, uint32_t len, int channel)
 {
-    stopBuffer(channel);
-    return playBuffer(buf, len, channel, 0);
+	/*we need to flush our buffer */
+	queue_flush(&ainfo->queue);
+	ainfo->ended=1;
+	return 1;
 }
 
 int setCallback(void (*callback)(int channel))

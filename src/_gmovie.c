@@ -522,7 +522,7 @@ void video_image_display(PyMovie *movie)
     vp->dest_rect.w = width;
     vp->dest_rect.h = height;
 
-    if (vp->dest_overlay && vp->overlay>0)
+    if (vp->dest_overlay && vp->overlay>0 && !movie->skip_frame)
     {
      #if 0 
         if (movie->sub_st)
@@ -561,13 +561,14 @@ void video_image_display(PyMovie *movie)
             SDL_UnlockYUVOverlay(vp->dest_overlay);
         }
     }
-    else if(vp->dest_surface && vp->overlay<=0)
+    else if(vp->dest_surface && vp->overlay<=0 && !movie->skip_frame)
     {
         SDL_BlitSurface(vp->dest_surface, &vp->dest_rect, movie->canon_surf, &vp->dest_rect);
     }
 
     movie->pictq_rindex= (movie->pictq_rindex+1)%VIDEO_PICTURE_QUEUE_SIZE;
     movie->pictq_size--;
+    if(movie->skip_frame) movie->skip_frame=0;
     video_refresh_timer(movie);
 }
 
@@ -725,6 +726,7 @@ void video_refresh_timer(PyMovie* movie)
     if (movie->video_st)
     { /*shouldn't ever even get this far if no video_st*/
         movie->diff_co ++;
+       
         /* dequeue the picture */
         vp = &movie->pictq[movie->pictq_rindex];
 
@@ -756,11 +758,15 @@ void video_refresh_timer(PyMovie* movie)
             /* skip or repeat frame. We take into account the
                delay to compute the threshold. I still don't know
                if it is the best guess */
+          
             sync_threshold = FFMAX(AV_SYNC_THRESHOLD, delay);
             if (fabs(diff) < AV_NOSYNC_THRESHOLD)
             {
                 if (diff <= -sync_threshold)
+                {
+                    movie->skip_frame=1;
                     delay = 0;
+                }
                 else if (diff >= sync_threshold)
                     delay = 2 * delay;
             }
@@ -776,9 +782,14 @@ void video_refresh_timer(PyMovie* movie)
             actual_delay = 0.010;
         }
         GRABGIL
-        //PySys_WriteStdout("Actual Delay: %f\ndelay: %f\ndiff: %f\n", actual_delay, delay, diff);
+        PySys_WriteStdout("Actual Delay: %f\tdelay: %f\tdiff: %f\tSync_threshold: %f\n", actual_delay, delay, diff, sync_threshold);
         movie->timing = (actual_delay*1000.0)+1;
         RELEASEGIL
+    }
+    if(movie->diff_co==2)
+    {
+    	int fun = movie->diff_co;
+    	fun+=200;	
     }
 }
 
@@ -1916,6 +1927,7 @@ int decoder(void *arg)
     movie->playing=1;
     ic=movie->ic;
     int co=0;
+    int video_packet=0;
     SDL_Delay(150);
     movie->last_showtime = av_gettime()/1000.0;
     for(;;)
@@ -2150,6 +2162,7 @@ int decoder(void *arg)
             else if (pkt->stream_index == movie->video_stream)
             {
                 packet_queue_put(&movie->videoq, pkt);
+            	video_packet=1;
             }
             #if 0
             else if (pkt->stream_index == movie->sub_stream)
@@ -2207,8 +2220,11 @@ int decoder(void *arg)
                 }
             }
          #endif
-        if(movie->video_st)
+        if(movie->video_st && video_packet)
+        {
             video_render(movie);
+        	video_packet=0;
+        }
         /*if(movie->audio_st)
             audio_thread(movie);*/
         #if 0
@@ -2216,7 +2232,9 @@ int decoder(void *arg)
         	subtitle_render(movie);
         #endif
         if(co<2)
+        {
             video_refresh_timer(movie);
+        }
         if(movie->timing>0)
         {
             double showtime = movie->timing+movie->last_showtime;

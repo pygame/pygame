@@ -15,6 +15,14 @@ filename="/home/tyler/dhs1.avi"
 # Without a surface argument, the ffmpeg-wrapper uses the sdl_overlay library. 
 #screen=pygame.display.set_mode((640, 368))
 
+try:
+    #this is to test that the movie module tests filenames to make sure they exist
+    m=movie.Movie("gsdsjgsdj")
+except Exception, e:
+    print e
+    del m
+
+
 m = movie.Movie(filename)
 print m.paused  #always False, unless .pause has been called
 print m.playing #False until play has been called. Will return to false when

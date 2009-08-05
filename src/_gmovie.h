@@ -220,6 +220,7 @@ typedef struct PyMovie
     SDL_Surface     *canon_surf;     //pointer to the surface given by the programmer. We do NOT free this... it is not ours. We just write to it.
     PyThreadState   *_tstate;        //really do not touch this unless you have to. This is used for threading control and primitives.
 	int finished;
+	int skip_frame;
 	
 	/* command queue stuff */
     CommandQueue *commands;
