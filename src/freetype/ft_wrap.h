@@ -228,7 +228,7 @@ int         PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *fo
 
 int         PGFT_BuildRenderMode(FreeTypeInstance *ft, 
                 PyFreeTypeFont *font, FontRenderMode *mode, int pt_size, 
-                int style, int vertical, int antialias, int rotation);
+                int style, int rotation);
 
 FT_Fixed    PGFT_GetBoldStrength(FT_Face face);
 

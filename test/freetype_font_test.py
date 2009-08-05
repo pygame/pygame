@@ -114,9 +114,11 @@ class FreeTypeFontTest(unittest.TestCase):
         test_size(size_bolden)
         self.assertTrue(size_bolden > size_default)
 
-        size_vert = font.get_size("ABCDabcd", ptsize=24, vertical=True)
+        font.vertical = True
+        size_vert = font.get_size("ABCDabcd", ptsize=24)
         test_size(size_vert)
         self.assertTrue(size_vert[0] < size_vert[1])
+        font.vertical = False
 
         size_italic = font.get_size("ABCDabcd", ptsize=24, style=ft.STYLE_ITALIC)
         test_size(size_italic)
@@ -156,36 +158,32 @@ class FreeTypeFontTest(unittest.TestCase):
         color = pygame.Color(0, 0, 0)
 
         # make sure we always have a valid fg color
-        self.assertRaises(TypeError, font.render, 'FoobarBaz')
-        self.assertRaises(TypeError, font.render, 'FoobarBaz', None)
+        self.assertRaises(TypeError, font.render, None, 'FoobarBaz')
+        self.assertRaises(TypeError, font.render, None, 'FoobarBaz', None)
 
         # render to new surface
-        rend = font.render('FoobarBaz', pygame.Color(0, 0, 0), None, None, ptsize=24)
+        rend = font.render(None, 'FoobarBaz', pygame.Color(0, 0, 0), None, ptsize=24)
         self.assertTrue(isinstance(rend, tuple))
-        self.assertTrue(isinstance(rend[0], int))
+        self.assertTrue(isinstance(rend[0], pygame.Surface))
         self.assertTrue(isinstance(rend[1], int))
-        self.assertTrue(isinstance(rend[2], pygame.Surface))
+        self.assertTrue(isinstance(rend[2], int))
 
         # render to existing surface
-        rend = font.render('FoobarBaz', color, None, surf, ptsize=24)
+        rend = font.render((surf, 32, 32), 'FoobarBaz', color, None, ptsize=24)
         self.assertTrue(isinstance(rend, tuple))
         self.assertTrue(isinstance(rend[0], int))
         self.assertTrue(isinstance(rend[1], int))
-        self.assertTrue(isinstance(rend[2], pygame.Surface))
-        self.assertEqual(rend[2], surf)
 
         # misc parameter test
-        self.assertRaises(RuntimeError, font.render, 'foobar', color)
-        self.assertRaises(TypeError, font.render, 'foobar', color, "", ptsize=24)
-        self.assertRaises(TypeError, font.render, 'foobar', color,
-                None, 42, ptsize=24)
-        self.assertRaises(TypeError, font.render, 'foobar', color,
-                None, None, antialias=3, ptsize=24)
-        self.assertRaises(TypeError, font.render, 'foobar', color,
-                None, None, style=None, ptsize=24)
-        self.assertRaises(RuntimeError, font.render, 'foobar', color,
-                None, None, style=97, ptsize=24)
-
+        self.assertRaises(ValueError, font.render, None, 'foobar', color)
+        self.assertRaises(TypeError, font.render, None, 'foobar', color, "",
+                ptsize=24)
+        self.assertRaises(ValueError, font.render, None, 'foobar', color, None,
+                style=42, ptsize=24)
+        self.assertRaises(TypeError, font.render, None, 'foobar', color, None,
+                style=None, ptsize=24)
+        self.assertRaises(ValueError, font.render, None, 'foobar', color, None,
+                style=97, ptsize=24)
         pygame.quit()
 
 

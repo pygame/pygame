@@ -60,7 +60,7 @@ _PGFT_SetError(FreeTypeInstance *ft, const char *error_msg, FT_Error error_id)
         }
     }
 
-    if (ft_msg)
+    if (error_id && ft_msg)
         sprintf(ft->_error_msg, "%s: %s", error_msg, ft_msg);
     else
         strcpy(ft->_error_msg, error_msg);
