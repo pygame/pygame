@@ -522,7 +522,7 @@ _ftfont_getsize(PyObject *self, PyObject* args, PyObject *kwds)
     FreeTypeInstance *ft;
     ASSERT_GRAB_FREETYPE(ft, NULL);
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|iOii", kwlist, 
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|iii", kwlist, 
                 &text, &style, &rotation, &ptsize))
         return NULL;
 
@@ -530,7 +530,7 @@ _ftfont_getsize(PyObject *self, PyObject* args, PyObject *kwds)
     if (PGFT_BuildRenderMode(ft, font, &render, 
                 ptsize, style, rotation) != 0)
     {
-        PyErr_SetString(PyExc_PyGameError, PGFT_GetError(ft));
+        PyErr_SetString(PyExc_ValueError, PGFT_GetError(ft));
         return NULL;
     }
 
@@ -581,7 +581,7 @@ _ftfont_getmetrics(PyObject *self, PyObject* args, PyObject *kwds)
     if (PGFT_BuildRenderMode(ft, font, 
                 &render, ptsize, FT_STYLE_NORMAL, 0) != 0)
     {
-        PyErr_SetString(PyExc_PyGameError, PGFT_GetError(ft));
+        PyErr_SetString(PyExc_ValueError, PGFT_GetError(ft));
         return NULL;
     }
 
@@ -694,7 +694,7 @@ _ftfont_render_raw(PyObject *self, PyObject* args, PyObject *kwds)
     if (PGFT_BuildRenderMode(ft, font, 
                 &render, ptsize, FT_STYLE_NORMAL, 0) != 0)
     {
-        PyErr_SetString(PyExc_PyGameError, PGFT_GetError(ft));
+        PyErr_SetString(PyExc_ValueError, PGFT_GetError(ft));
         return NULL;
     }
 
@@ -792,7 +792,7 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
 
     if (PGFT_BuildRenderMode(ft, font, &render, ptsize, style, rotation) != 0)
     {
-        PyErr_SetString(PyExc_PyGameError, PGFT_GetError(ft));
+        PyErr_SetString(PyExc_ValueError, PGFT_GetError(ft));
         return NULL;
     }
 
@@ -805,7 +805,7 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
 
         if (!r_surface)
         {
-            PyErr_SetString(PyExc_PyGameError, PGFT_GetError(ft));
+            PyErr_SetString(PyExc_ValueError, PGFT_GetError(ft));
             return NULL;
         }
 
