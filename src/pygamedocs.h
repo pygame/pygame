@@ -323,6 +323,46 @@
 
 #define DOC_FONTGETDESCENT "Font.get_descent(): return int\nget the descent of the font"
 
+#define DOC_PYGAMEFREETYPE "Enhanced Pygame module for loading and rendering fonts"
+
+#define DOC_PYGAMEFREETYPEGETERROR "pygame.freetype.get_error(): return str\nGet the latest error"
+
+#define DOC_PYGAMEFREETYPEGETVERSION "pygame.freetype.get_version(): return (int, int, int)\nGet the FreeType version"
+
+#define DOC_PYGAMEFREETYPEINIT "pygame.freetype.init(default_cache_size=64): return None\nInitialize the underlying FreeType 2 library."
+
+#define DOC_PYGAMEFREETYPEQUIT "pygame.freetype.quit(): return None\nShuts down the underlying FreeType 2 library."
+
+#define DOC_PYGAMEFREETYPEWASINIT "pygame.freetype.quit(): return bool\nReturns whether the the FreeType 2 library is initialized."
+
+#define DOC_PYGAMEFREETYPEFREETYPEFONT "pygame.freetype.Font(file, style=STYLE_NONE, ptsize=-1, face_index=0): return Font\nCreates a new Font from a supported font file."
+
+#define DOC_FREETYPEFONTNAME "Font.name: return string\nGets the name of the font face."
+
+#define DOC_FREETYPEFONTGETSIZE "Font.get_size(text, style=STYLE_DEFAULT, rotation=0, ptsize=default): return (int, int)\nGets the size of rendered text"
+
+#define DOC_FREETYPEFONTGETMETRICS "Font.get_metrics(text, bbmode=BBOX_PIXEL_GRIDFIT, ptsize=default): return [(...), ...]\nGets glyph metrics for the font's characters"
+
+#define DOC_FREETYPEFONTHEIGHT "Font.height: return int\nGets the height of the Font"
+
+#define DOC_FREETYPEFONTRENDER "Font.render(dest, text, fgcolor, bgcolor=None, style=STYLE_DEFAULT, rotation=0, ptsize=default): return (Surface, int, int)\nRenders text on a surface"
+
+#define DOC_FREETYPEFONTSTYLE "Font.style: return int\nGets or sets the font's style"
+
+#define DOC_FREETYPEFONTUNDERLINE "Font.underline: return bool\nGets or sets the font's underline style"
+
+#define DOC_FREETYPEFONTBOLD "Font.bold: return bool\nGets or sets the font's bold style"
+
+#define DOC_FREETYPEFONTITALIC "Font.italic: return bool\nGets or sets the font's italic style"
+
+#define DOC_FREETYPEFONTFIXEDWIDTH "Font.fixed_width: return bool\nGets whether the font is fixed-width"
+
+#define DOC_FREETYPEFONTANTIALIASED "Font.antialiased: return bool\nFont antialiasing mode"
+
+#define DOC_FREETYPEFONTVERTICAL "Font.vertical: return bool\nFont vertical mode"
+
+#define DOC_ ""
+
 #define DOC_PYGAMEGFXDRAW "pygame module for drawing shapes"
 
 #define DOC_PYGAMEGFXDRAWPIXEL "pygame.gfxdraw.pixel(surface, x, y, color): return None\nplace a pixel"
@@ -2055,6 +2095,124 @@ get the ascent of the font
 Font.get_descent
  Font.get_descent(): return int
 get the descent of the font
+
+
+
+pygame.freetype
+ Enhanced Pygame module for loading and rendering fonts
+
+
+
+pygame.freetype.get_error
+ pygame.freetype.get_error(): return str
+Get the latest error
+
+
+
+pygame.freetype.get_version
+ pygame.freetype.get_version(): return (int, int, int)
+Get the FreeType version
+
+
+
+pygame.freetype.init
+ pygame.freetype.init(default_cache_size=64): return None
+Initialize the underlying FreeType 2 library.
+
+
+
+pygame.freetype.quit
+ pygame.freetype.quit(): return None
+Shuts down the underlying FreeType 2 library.
+
+
+
+pygame.freetype.was_init
+ pygame.freetype.quit(): return bool
+Returns whether the the FreeType 2 library is initialized.
+
+
+
+pygame.freetype.FreeTypeFont
+ pygame.freetype.Font(file, style=STYLE_NONE, ptsize=-1, face_index=0): return Font
+Creates a new Font from a supported font file.
+
+
+
+FreeTypeFont.name
+ Font.name: return string
+Gets the name of the font face.
+
+
+
+FreeTypeFont.get_size
+ Font.get_size(text, style=STYLE_DEFAULT, rotation=0, ptsize=default): return (int, int)
+Gets the size of rendered text
+
+
+
+FreeTypeFont.get_metrics
+ Font.get_metrics(text, bbmode=BBOX_PIXEL_GRIDFIT, ptsize=default): return [(...), ...]
+Gets glyph metrics for the font's characters
+
+
+
+FreeTypeFont.height
+ Font.height: return int
+Gets the height of the Font
+
+
+
+FreeTypeFont.render
+ Font.render(dest, text, fgcolor, bgcolor=None, style=STYLE_DEFAULT, rotation=0, ptsize=default): return (Surface, int, int)
+Renders text on a surface
+
+
+
+FreeTypeFont.style
+ Font.style: return int
+Gets or sets the font's style
+
+
+
+FreeTypeFont.underline
+ Font.underline: return bool
+Gets or sets the font's underline style
+
+
+
+FreeTypeFont.bold
+ Font.bold: return bool
+Gets or sets the font's bold style
+
+
+
+FreeTypeFont.italic
+ Font.italic: return bool
+Gets or sets the font's italic style
+
+
+
+FreeTypeFont.fixed_width
+ Font.fixed_width: return bool
+Gets whether the font is fixed-width
+
+
+
+FreeTypeFont.antialiased
+ Font.antialiased: return bool
+Font antialiasing mode
+
+
+
+FreeTypeFont.vertical
+ Font.vertical: return bool
+Font vertical mode
+
+
+
+
+ 
 
 
 

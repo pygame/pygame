@@ -23,6 +23,7 @@
 
 #include "ft_wrap.h"
 #include "pgfreetype.h"
+#include "../pygamedocs.h"
 
 /*
  * Auxiliar defines
@@ -148,31 +149,31 @@ static PyMethodDef _ft_methods[] =
         "init", 
         (PyCFunction) _ft_init, 
         METH_VARARGS, 
-        "TODO"
+        DOC_PYGAMEFREETYPEINIT
     },
     { 
         "quit", 
         (PyCFunction) _ft_quit, 
         METH_NOARGS, 
-        "TODO"
+        DOC_PYGAMEFREETYPEQUIT
     },
     { 
         "was_init", 
         (PyCFunction) _ft_was_init, 
         METH_NOARGS, 
-        "TODO"
+        DOC_PYGAMEFREETYPEWASINIT
     },
     { 
         "get_error", 
         (PyCFunction) _ft_get_error, 
         METH_NOARGS,
-        "TODO"
+        DOC_PYGAMEFREETYPEGETERROR
     },
     { 
         "get_version", 
         (PyCFunction) _ft_get_version, 
         METH_NOARGS,
-        "TODO"
+        DOC_PYGAMEFREETYPEGETVERSION
     },
     { NULL, NULL, 0, NULL },
 };
@@ -187,26 +188,26 @@ static PyMethodDef _ftfont_methods[] =
         "get_size", 
         (PyCFunction) _ftfont_getsize,
         METH_VARARGS | METH_KEYWORDS,
-        "TODO" 
+        DOC_FREETYPEFONTGETSIZE
     },
     {
         "get_metrics", 
         (PyCFunction) _ftfont_getmetrics,
         METH_VARARGS | METH_KEYWORDS,
-        "TODO" 
+        DOC_FREETYPEFONTGETMETRICS
     },
     { 
         "render", 
         (PyCFunction)_ftfont_render, 
         METH_VARARGS | METH_KEYWORDS,
-        "TODO" 
+        DOC_FREETYPEFONTRENDER
     },
-    { 
+/*    { 
         "render_raw", 
         (PyCFunction)_ftfont_render_raw, 
         METH_VARARGS | METH_KEYWORDS,
-        "TODO"
-    },
+        DOC_PYGAMEFREETYPEFONTRENDERRAW
+    }, */
     { NULL, NULL, 0, NULL }
 };
 
@@ -219,63 +220,63 @@ static PyGetSetDef _ftfont_getsets[] =
         "style",    
         _ftfont_getstyle,   
         _ftfont_setstyle, 
-        "TODO",
+        DOC_FREETYPEFONTSTYLE,
         NULL 
     },
     { 
         "height",
         _ftfont_getheight,  
         NULL,
-        "TODO",   
+        DOC_FREETYPEFONTHEIGHT,
         NULL
     },
     { 
         "name", 
         _ftfont_getname, 
         NULL,
-        "TODO", 
+        DOC_FREETYPEFONTNAME,
         NULL 
     },
     {
         "fixed_width",
         _ftfont_getfixedwidth,
         NULL,
-        "TODO",
+        DOC_FREETYPEFONTFIXEDWIDTH,
         NULL
     },
     {
         "antialiased",
         _ftfont_getantialias,
         _ftfont_setantialias,
-        "TODO",
+        DOC_FREETYPEFONTANTIALIASED,
         NULL
     },
     {
         "vertical",
         _ftfont_getvertical,
         _ftfont_setvertical,
-        "TODO",
+        DOC_FREETYPEFONTVERTICAL,
         NULL
     },
     {
         "italic",
         _ftfont_getstyle_flag,
         _ftfont_setstyle_flag,
-        "TODO", /* TODO: Doc */
+        DOC_FREETYPEFONTITALIC,
         (void *)FT_STYLE_ITALIC
     },
     {
         "bold",
         _ftfont_getstyle_flag,
         _ftfont_setstyle_flag,
-        "TODO", /* TODO: Doc */
+        DOC_FREETYPEFONTBOLD,
         (void *)FT_STYLE_BOLD
     },
     {
         "underline",
         _ftfont_getstyle_flag,
         _ftfont_setstyle_flag,
-        "TODO", /* TODO: Doc */
+        DOC_FREETYPEFONTUNDERLINE,
         (void *)FT_STYLE_UNDERLINE
     },
     { NULL, NULL, NULL, NULL, NULL }
@@ -306,7 +307,7 @@ PyTypeObject PyFreeTypeFont_Type =
     0,                          /* tp_setattro */
     0,                          /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags */
-    "TODO",                     /* docstring */
+    DOC_PYGAMEFREETYPEFREETYPEFONT, /* docstring */
     0,                          /* tp_traverse */
     0,                          /* tp_clear */
     0,                          /* tp_richcompare */
@@ -1094,7 +1095,7 @@ struct PyModuleDef _freetypemodule =
 {
     PyModuleDef_HEAD_INIT,
     "freetype",
-    "TODO", /* TODO: DOC */
+    DOC_PYGAMEFREETYPE,
     sizeof(_FreeTypeState),
     _ft_methods,
     NULL, 
@@ -1149,7 +1150,7 @@ MODINIT_DEFINE (freetype)
     module = PyModule_Create(&_freetypemodule);
 #else
     /* TODO: DOC */
-    module = Py_InitModule3("freetype", _ft_methods, "TODO"); 
+    module = Py_InitModule3("freetype", _ft_methods, DOC_PYGAMEFREETYPE); 
 #endif
 
     if (module == NULL) 
