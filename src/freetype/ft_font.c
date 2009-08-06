@@ -147,35 +147,35 @@ static PyGetSetDef _ftfont_getsets[] =
         "antialiased",
         _ftfont_getantialias,
         _ftfont_setantialias,
-        "TODO",
+        DOC_BASE_FONT_ANTIALIASED,
         NULL
     },
     {
         "vertical",
         _ftfont_getvertical,
         _ftfont_setvertical,
-        "TODO",
+        DOC_BASE_FONT_VERTICAL,
         NULL
     },
     {
         "italic",
         _ftfont_getstyle_flag,
         _ftfont_setstyle_flag,
-        "TODO", /* TODO: Doc */
+        DOC_BASE_FONT_ITALIC, 
         (void *)FT_STYLE_ITALIC
     },
     {
         "bold",
         _ftfont_getstyle_flag,
         _ftfont_setstyle_flag,
-        "TODO", /* TODO: Doc */
+        DOC_BASE_FONT_BOLD, 
         (void *)FT_STYLE_BOLD
     },
     {
         "underline",
         _ftfont_getstyle_flag,
         _ftfont_setstyle_flag,
-        "TODO", /* TODO: Doc */
+        DOC_BASE_FONT_UNDERLINE, 
         (void *)FT_STYLE_UNDERLINE
     },
     { NULL, NULL, NULL, NULL, NULL }
@@ -805,7 +805,7 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
 
         if (!r_surface)
         {
-            PyErr_SetString(PyExc_ValueError, PGFT_GetError(ft));
+            PyErr_SetString(PyExc_RuntimeError, PGFT_GetError(ft));
             return NULL;
         }
 

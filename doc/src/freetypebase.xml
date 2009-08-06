@@ -5,45 +5,72 @@
   <alias>pygame2.freetype</alias>
   <short>Wrapping module for the FreeType 2 font library</short>
   <desc>
-    This module wraps the FreeType 2 font library to add improvent font
-    drawing capabilities to PyGame2, such as new font formats, etc.
+      This module allows for rendering all font formats supported by FreeType, namely
+      TTF, Type1, CFF, OpenType, SFNT, PCF, FNT, BDF, PFR and Type42 fonts.
+
+      This module is optional, and replaces all of the functionality of the
+      original 'font' module, whilst expanding it. This module depends in no
+      way on the SDL_ttf library.
+
+      You should test that pygame.freetype is initialized before attempting
+      to use the module; if the module is available and loaded, it will be
+      automatically initialized by pygame.init()
+
+      Most of the work done with fonts is done by using the actual Font objects.
+      The module by itself only has routines to initialize itself and create
+      Font objects with pygame.freetype.Font().
+
+      You can load fonts from the system by using the pygame.freetype.SysFont()
+      function. There are a few other functions to help lookup the system fonts.
+
+      Pygame comes with a builtin default font. This can always be accessed by
+      passing None as the font name to the Font constructor.
   </desc>
   <func name="get_error">
-    <call>get_version () -> (int, int, int)</call>
+    <call>get_error() -> string</call>
     <desc>
         Returns the description of the last error which occurred in the
-        FreeType library, or None if no error have occurred.
+        FreeType library, or None if no errors have occurred.
     </desc>
   </func>
 
   <func name="get_version">
-    <call>get_version () -> (int, int, int)</call>
+    <call>get_version() -> (int, int, int)</call>
     <desc>
         Gets the version of the FreeType2 library which was used to build
         the 'freetype' module.
+
+        Note that the FreeType module depends on the FreeType 2 library,
+        and will not compile with the original FreeType 1.0, hence the first
+        element of the tuple will always be 2.
     </desc>
   </func>
   <func name="init">
-    <call>init () -> None</call>
+    <call>init(default_cache_size=64) -> None</call>
     <desc>
       Initializes the underlying FreeType 2 library.
       
-      This method must be called before trying to use any of the functionality
-      of the 'freetype' module.
+      This function must be called before trying to use any of the functionality
+      of the 'freetype' module. It is safe to call this function more than once.
+
+      Optionally, you may specify a default size for the Glyph cache: this is the
+      maximum amount of glyphs that will be cached at any given time by the module.
+      Exceedingly small values will be automatically tuned for performance.
     </desc>
   </func>
   <func name="quit">
-    <call>quit () -> None</call>
+    <call>quit() -> None</call>
     <desc>
       Shuts down the underlying FreeType 2 library.
 
       After calling this function, you should not invoke any class,
       method or function related to the 'freetype' module as they are likely to
-      fail or might give unpredictable results.
+      fail or might give unpredictable results. It is safe to call this function
+      even if the module hasn't been initialized yet.
     </desc>
   </func>
   <func name="was_init">
-    <call>was_init () -> bool</call>
+    <call>was_init() -> bool</call>
     <desc>
       Returns whether the the FreeType 2 library is initialized.
     </desc>
@@ -51,12 +78,13 @@
 
 
   <class name="Font">
-    <constructor>Font (file [, ptsize, index]) -> Font</constructor>
+    <constructor>Font (file [, ptsize, style, index]) -> Font</constructor>
     <desc>
         Creates a new Font from a supported font file.
 
-        *file* can be either a string representing the font's filename or
-        a file-like object containing the font.
+        *file* can be either a string representing the font's filename,
+        a file-like object containing the font, or None; in this last case
+        the default, built-in font will be used.
 
         Optionally, a *ptsize* argument may be specified to set the
         default size in points which will be used to render the font. 
@@ -69,21 +97,30 @@
         may be specified to specify which face index to load. Defaults
         to 0; font loading will fail if the given index is not contained
         in the font.
+
+        The 'style' argument will set the default style (italic,
+        underline, bold) used to draw this font. This style may be
+        overriden on any Font.render() call.
     </desc>
     <attr name="name">
-      <desc>Gets the name of the font face.</desc>
+      <desc>Read only. Gets the name of the font face.</desc>
     </attr>
     <method name="get_size">
-      <call>get_size(text [, ptsize]) -> int, int</call>
+      <call>get_size(text [, style, rotation, ptsize]) -> int, int</call>
       <desc>
           Gets the size in pixels which 'text' will occupy when rendered using 
-          this Font.
+          this Font. The calculations will take into account the font's default style
+          (e.g. underlined fonts take extra height for the underline), or the
+          style may be overriden by the 'style' parameter. 
 
           Returns a tuple containing the width and height of the text's
           bounding box. 
           
-          The calculations are done using the font's default size in points.
-          Optionally you may specify another point size to use.
+          The calculations are done using the font's default size in points,
+          without any rotation, and taking into account fonts which are set
+          to be drawn vertically via the Font.vertical attribute.
+          Optionally you may specify another point size to use via the
+          'ptsize' argument, or a text rotation via the 'rotation' argument.
       </desc>
     </method>
     <method name="get_metrics">
@@ -116,32 +153,43 @@
       </desc>
     </method>
     <attr name="height">
-      <desc>Gets the height of the Font.</desc>
+      <desc>Read only. Gets the height of the Font. This is the average value of all glyphs in the font.</desc>
     </attr>
     <method name="render">
-      <call>render(text, fgcolor[, bgcolor, dstsurface, xpos, ypos, ptsize]) -> (int, int, :class:`pygame2.sdl.video.Surface`)</call>
+      <call>render(dest, text, fgcolor [, bgcolor, style, rotation, ptsize]) -> (:class:`pygame2.sdl.video.Surface`, int, int)</call>
       <desc>
         Renders a text on a SDL surface.
 
         Renders the string *text* to a
         :class:`pygame2.sdl.video.Surface`, using the color *fgcolor*.
 
-        If a destination surface *dstsurface*' exists and is a
+        The *dest* parameter is supposed to be a tuple containing
+        the surface and the coordinates at which the text will be rendered,
+        in that order.
+
+        If such tuple exists, and the destination surface is a valid
         :class:`pygame2.sdl.video.Surface` (independently of its bit
         depth), the text will be rendered directly on top of it at the
-        passed coordinates (*xpos*, *ypos*). The width and height of
-        the rendered text as well as the surface will be returned in a
-        tuple.
+        passed coordinates, using the given *fgcolor*, and painting
+        the background of the text with the given 'bgcolor', if available. 
+        The alpha values for both colors are always taken into account.
+        The width and height of the rendered text will be returned in a tuple.
 
-        If there is no destination surface, a new
+        If 'None' is passed instead of the destination tuple, a new 32 bit
         :class:`pygame2.sdl.video.Surface` will be created with the
-        required size to contain the drawn text, using *bgcolor* as its
-        background color. The width and height of the rendered text,
+        required size to contain the drawn text, and using *bgcolor* as its
+        background color. If a background color is not available, the 
+        surface will be filled with zero alpha opacity.
+        The width and height of the rendered text,
         together with the new :class:`pygame2.sdl.video.Surface`, will
         be returned in a tuple.
 
-        The rendering is done using the font's default size in points.
-        Optionally you may specify another point size to use.
+        The rendering is done using the font's default size in points and
+        its default style, without any rotation, and taking into account 
+        fonts which are set to be drawn vertically via the Font.vertical attribute.
+        Optionally you may specify another point size to use via the
+        'ptsize' argument, a text rotation via the 'rotation' argument,
+        or a new text style via the 'style' argument.
 
         This function is only available when PyGame 2 has been compiled
         with SDL support.
@@ -164,22 +212,87 @@
       </desc>
     </method>
     <attr name="style">
-      <desc>Gets or sets the style of the Font.
-      
-      .. todo::
-      
-        TODO
+        <desc>
+            Gets or sets the default style of the Font. This default style
+            will be used for all text rendering and size calculations unless
+            overriden specifically in the `render()` or `get_size()` calls.
+            The style value may be a bitwise OR of one or more of the following
+            constants:
+                
+                STYLE_NONE
+                STYLE_UNDERLINE
+                STYLE_ITALIC
+                STYLE_BOLD
+
+            These constants may be found on the FreeType constants module.
+            Optionally, the default style can be modified or obtained
+            accessing the individual style attributes (underline, italic,
+            bold).
+      </desc>
+    </attr>
+    <attr name="underline">
+      <desc>
+        Gets or sets whether the font will be underlined when drawing text.
+        This default style value will be used for all text rendering and 
+        size calculations unless overriden specifically in the `render()` 
+        or `get_size()` calls, via the 'style' parameter.
+      </desc>
+    </attr>
+    <attr name="bold">
+      <desc>
+        Gets or sets whether the font will be bold when drawing text.
+        This default style value will be used for all text rendering and 
+        size calculations unless overriden specifically in the `render()` 
+        or `get_size()` calls, via the 'style' parameter.
+      </desc>
+    </attr>
+    <attr name="italic">
+      <desc>
+        Gets or sets whether the font will be slanted when drawing text.
+        This default style value will be used for all text rendering and 
+        size calculations unless overriden specifically in the `render()` 
+        or `get_size()` calls, via the 'style' parameter.
       </desc>
     </attr>
     <attr name="fixed_width">
       <desc>
-        Returns whether this Font is a fixed-width (bitmap) font.
+        Read only. Returns whether this Font is a fixed-width (bitmap) font.
         
         .. note::
         
           Note that scalable fonts whose glyphs are all the same width 
           (i.e. monospace TTF fonts used for programming) are not considered
           fixed width.
+      </desc>
+    </attr>
+    <attr name="antialiased">
+      <desc>
+          Gets or sets the font's antialiasing mode. This defaults to True
+          on all fonts, which will be rendered by default antialiased.
+
+          Setting this to true will change all rendering methods to use
+          glyph bitmaps without antialiasing, which supposes a small speed gain
+          and a significant memory gain because of the way glyphs are cached.
+      </desc>
+    </attr>
+    <attr name="vertical">
+      <desc>
+          Gets or sets whether the font is a vertical font such as fonts
+          representing Kanji glyphs or other styles of vertical writing.
+
+          Changing this attribute will cause the font to be rendering
+          vertically, and affects all other methods which manage glyphs
+          or text layouts to use vertical metrics accordingly.
+
+          Note that the FreeType library doesn't automatically detect
+          whether a font contains glyphs which are always supposed to
+          be drawn vertically, so this attribute must be set manually
+          by the user.
+
+          Also note that several font formats (specially bitmap based
+          ones) don't contain the necessary metrics to draw glyphs
+          vertically, so drawing in those cases will give unspecified
+          results.
       </desc>
     </attr>
   </class>
