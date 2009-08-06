@@ -22,6 +22,7 @@
 
 #define PGFT_PYGAME1_COMPAT
 #define HAVE_PYGAME_SDL_VIDEO
+#define HAVE_PYGAME_SDL_RWOPS
 
 #include "../pygame.h"
 #include "../pgcompat.h"

@@ -205,20 +205,6 @@ _PGFT_face_request(FTC_FaceID face_id,
     return error;
 }
 
-static unsigned long 
-_RWops_read(FT_Stream stream, unsigned long offset,
-	unsigned char *buffer, unsigned long count)
-{
-	SDL_RWops *src;
-
-	src = (SDL_RWops *)stream->descriptor.pointer;
-	SDL_RWseek(src, (int)offset, SEEK_SET);
-
-	if (count == 0)
-		return 0;
-
-	return SDL_RWread(src, buffer, 1, (int)count);
-}
 
 
 int _PGFT_Init_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font)
@@ -261,9 +247,24 @@ PGFT_TryLoadFont_Filename(FreeTypeInstance *ft,
     return _PGFT_Init_INTERNAL(ft, font);
 }
 
+#ifdef HAVE_PYGAME_SDL_RWOPS
+static unsigned long 
+_RWops_read(FT_Stream stream, unsigned long offset,
+	unsigned char *buffer, unsigned long count)
+{
+	SDL_RWops *src;
+
+	src = (SDL_RWops *)stream->descriptor.pointer;
+	SDL_RWseek(src, (int)offset, SEEK_SET);
+
+	if (count == 0)
+		return 0;
+
+	return SDL_RWread(src, buffer, 1, (int)count);
+}
+
 int PGFT_TryLoadFont_RWops(FreeTypeInstance *ft, 
-        PyFreeTypeFont *font, SDL_RWops *src, int free_src,
-        int face_index)
+        PyFreeTypeFont *font, SDL_RWops *src, int face_index)
 {
     FT_Stream stream;
     int position;
@@ -299,6 +300,7 @@ int PGFT_TryLoadFont_RWops(FreeTypeInstance *ft,
 
     return _PGFT_Init_INTERNAL(ft, font);
 }
+#endif
 
 void
 PGFT_UnloadFont(FreeTypeInstance *ft, PyFreeTypeFont *font)
@@ -313,7 +315,14 @@ PGFT_UnloadFont(FreeTypeInstance *ft, PyFreeTypeFont *font)
         free(PGFT_INTERNALS(font));
     }
 
-    free(font->id.open_args.pathname);
+    if (font->id.open_args.flags == FT_OPEN_STREAM)
+    {
+        free(font->id.open_args.pathname);
+    }
+    else if (font->id.open_args.flags == FT_OPEN_PATHNAME)
+    {
+        free(font->id.open_args.stream);
+    }
 }
 
 
