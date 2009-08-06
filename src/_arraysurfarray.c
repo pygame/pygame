@@ -23,7 +23,7 @@
 #include <stddef.h>
 #include "pygame.h"
 #include "pgcompat.h"
-#include "pygamedocs.h"
+#include "doc/surfarray_doc.h"
 #include "pgarrinter.h"
 #include <SDL_byteorder.h>
 

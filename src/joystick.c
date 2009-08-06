@@ -23,7 +23,7 @@
 #define PYGAMEAPI_JOYSTICK_INTERNAL
 #include "pygame.h"
 #include "pgcompat.h"
-#include "pygamedocs.h"
+#include "doc/joystick_doc.h"
 
 #define JOYSTICK_MAXSTICKS 32
 static SDL_Joystick* joystick_stickdata[JOYSTICK_MAXSTICKS] = {NULL};

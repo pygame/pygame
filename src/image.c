@@ -26,7 +26,7 @@
  */
 #include "pygame.h"
 #include "pgcompat.h"
-#include "pygamedocs.h"
+#include "doc/image_doc.h"
 #include "pgopengl.h"
 
 struct _module_state {

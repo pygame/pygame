@@ -18,7 +18,7 @@
 */
 
 #include "pygame.h"
-#include "pygamedocs.h"
+#include "doc/camera_doc.h"
 
 #if defined(__unix__)
     #include <structmember.h>

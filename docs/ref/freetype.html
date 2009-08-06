@@ -60,12 +60,12 @@
   <tr><td><a href="freetype.html#pygame.freetype.init">pygame.freetype.init</a> - <font size=-1>Initialize the underlying FreeType 2 library.</font></td><td>Initialize the underlying FreeType 2 library.</td></tr>
   <tr><td><a href="freetype.html#pygame.freetype.quit">pygame.freetype.quit</a> - <font size=-1>Shuts down the underlying FreeType 2 library.</font></td><td>Shuts down the underlying FreeType 2 library.</td></tr>
   <tr><td><a href="freetype.html#pygame.freetype.was_init">pygame.freetype.was_init</a> - <font size=-1>Returns whether the the FreeType 2 library is initialized.</font></td><td>Returns whether the the FreeType 2 library is initialized.</td></tr>
-  <tr><td><a href="freetype.html#pygame.freetype.FreeTypeFont">pygame.freetype.FreeTypeFont</a> - <font size=-1>Creates a new Font from a supported font file.</font></td><td>Creates a new Font from a supported font file.</td></tr>
+  <tr><td><a href="freetype.html#pygame.freetype.Font">pygame.freetype.Font</a> - <font size=-1>Creates a new Font from a supported font file.</font></td><td>Creates a new Font from a supported font file.</td></tr>
 </table></small></ul>
 <p>This module allows for rendering all font formats supported by FreeType, namely <tt>TTF</tt>, Type1, <tt>CFF</tt>, OpenType, <tt>SFNT</tt>, <tt>PCF</tt>, <tt>FNT</tt>, <tt>BDF</tt>, <tt>PFR</tt> and Type42 fonts. </p>
 <p>This module is optional, and replaces all of the functionality of the original 'font' module, whilst expanding it. This module depends in no way on the SDL_ttf library. </p>
 <p>You should test that <tt>pygame.freetype</tt> is initialized before attempting to use the module; if the module is available and loaded, it will be automatically initialized by <tt><a href="pygame.html#pygame.init">pygame.init</a> - <font size=-1>initialize all imported pygame modules</font></tt> </p>
-<p>Most of the work done with fonts is done by using the actual Font objects. The module by itself only has routines to initialize itself and create Font objects with <tt>pygame.freetype.Font()</tt>. </p>
+<p>Most of the work done with fonts is done by using the actual Font objects. The module by itself only has routines to initialize itself and create Font objects with <tt><a href="freetype.html#pygame.freetype.Font">pygame.freetype.Font</a> - <font size=-1>Creates a new Font from a supported font file.</font></tt>. </p>
 <p>You can load fonts from the system by using the <tt>pygame.freetype.SysFont()</tt> function. There are a few other functions to help lookup the system fonts. </p>
 <p>Pygame comes with a builtin default font. This can always be accessed by passing None as the font name to the Font constructor. </p>
 <!--COMMENTS:pygame.freetype--> &nbsp;<br> 
@@ -119,54 +119,54 @@
 <br></ul>
 
 
-<a name="pygame.freetype.FreeTypeFont">
-<big><b>pygame.freetype.FreeTypeFont</big></b><br><ul>
+<a name="pygame.freetype.Font">
+<big><b>pygame.freetype.Font</big></b><br><ul>
   <i>Creates a new Font from a supported font file.</i><br>
   <tt>pygame.freetype.Font(file, style=STYLE_NONE, ptsize=-1, face_index=0): return Font</tt><br>
 <ul><small><table>
-  <tr><td><a href="freetype.html#FreeTypeFont.name">FreeTypeFont.name</a> - <font size=-1>Gets the name of the font face.</font></td><td>Gets the name of the font face.</td></tr>
-  <tr><td><a href="freetype.html#FreeTypeFont.get_size">FreeTypeFont.get_size</a> - <font size=-1>Gets the size of rendered text</font></td><td>Gets the size of rendered text</td></tr>
-  <tr><td><a href="freetype.html#FreeTypeFont.get_metrics">FreeTypeFont.get_metrics</a> - <font size=-1>Gets glyph metrics for the font's characters</font></td><td>Gets glyph metrics for the font's characters</td></tr>
-  <tr><td><a href="freetype.html#FreeTypeFont.height">FreeTypeFont.height</a> - <font size=-1>Gets the height of the Font</font></td><td>Gets the height of the Font</td></tr>
-  <tr><td><a href="freetype.html#FreeTypeFont.render">FreeTypeFont.render</a> - <font size=-1>Renders text on a surface</font></td><td>Renders text on a surface</td></tr>
-  <tr><td><a href="freetype.html#FreeTypeFont.style">FreeTypeFont.style</a> - <font size=-1>Gets or sets the font's style</font></td><td>Gets or sets the font's style</td></tr>
-  <tr><td><a href="freetype.html#FreeTypeFont.underline">FreeTypeFont.underline</a> - <font size=-1>Gets or sets the font's underline style</font></td><td>Gets or sets the font's underline style</td></tr>
-  <tr><td><a href="freetype.html#FreeTypeFont.bold">FreeTypeFont.bold</a> - <font size=-1>Gets or sets the font's bold style</font></td><td>Gets or sets the font's bold style</td></tr>
-  <tr><td><a href="freetype.html#FreeTypeFont.italic">FreeTypeFont.italic</a> - <font size=-1>Gets or sets the font's italic style</font></td><td>Gets or sets the font's italic style</td></tr>
-  <tr><td><a href="freetype.html#FreeTypeFont.fixed_width">FreeTypeFont.fixed_width</a> - <font size=-1>Gets whether the font is fixed-width</font></td><td>Gets whether the font is fixed-width</td></tr>
-  <tr><td><a href="freetype.html#FreeTypeFont.antialiased">FreeTypeFont.antialiased</a> - <font size=-1>Font antialiasing mode</font></td><td>Font antialiasing mode</td></tr>
-  <tr><td><a href="freetype.html#FreeTypeFont.vertical">FreeTypeFont.vertical</a> - <font size=-1>Font vertical mode</font></td><td>Font vertical mode</td></tr>
+  <tr><td><a href="freetype.html#Font.name">Font.name</a> - <font size=-1>Gets the name of the font face.</font></td><td>Gets the name of the font face.</td></tr>
+  <tr><td><a href="freetype.html#Font.get_size">Font.get_size</a> - <font size=-1>Gets the size of rendered text</font></td><td>Gets the size of rendered text</td></tr>
+  <tr><td><a href="freetype.html#Font.get_metrics">Font.get_metrics</a> - <font size=-1>Gets glyph metrics for the font's characters</font></td><td>Gets glyph metrics for the font's characters</td></tr>
+  <tr><td><a href="freetype.html#Font.height">Font.height</a> - <font size=-1>Gets the height of the Font</font></td><td>Gets the height of the Font</td></tr>
+  <tr><td><a href="freetype.html#Font.render">Font.render</a> - <font size=-1>Renders text on a surface</font></td><td>Renders text on a surface</td></tr>
+  <tr><td><a href="freetype.html#Font.style">Font.style</a> - <font size=-1>Gets or sets the font's style</font></td><td>Gets or sets the font's style</td></tr>
+  <tr><td><a href="freetype.html#Font.underline">Font.underline</a> - <font size=-1>Gets or sets the font's underline style</font></td><td>Gets or sets the font's underline style</td></tr>
+  <tr><td><a href="freetype.html#Font.bold">Font.bold</a> - <font size=-1>Gets or sets the font's bold style</font></td><td>Gets or sets the font's bold style</td></tr>
+  <tr><td><a href="freetype.html#Font.italic">Font.italic</a> - <font size=-1>Gets or sets the font's italic style</font></td><td>Gets or sets the font's italic style</td></tr>
+  <tr><td><a href="freetype.html#Font.fixed_width">Font.fixed_width</a> - <font size=-1>Gets whether the font is fixed-width</font></td><td>Gets whether the font is fixed-width</td></tr>
+  <tr><td><a href="freetype.html#Font.antialiased">Font.antialiased</a> - <font size=-1>Font antialiasing mode</font></td><td>Font antialiasing mode</td></tr>
+  <tr><td><a href="freetype.html#Font.vertical">Font.vertical</a> - <font size=-1>Font vertical mode</font></td><td>Font vertical mode</td></tr>
   <tr><td>None</td><td></td></tr>
 </table></small></ul>
 <p>'file' can be either a string representing the font's filename, a file-like object containing the font, or None; in this last case the default, built-in font will be used. </p>
 <p>Optionally, a *ptsize* argument may be specified to set the default size in points which will be used to render the font. Such size can also be specified manually on each method call. Because of the way the caching system works, specifying a default size on the constructor doesn't imply a performance gain over manually passing the size on each function call. </p>
 <p>If the font file has more than one face, the *index* argument may be specified to specify which face index to load. Defaults to 0; font loading will fail if the given index is not contained in the font. </p>
-<p>The 'style' argument will set the default style (italic, underline, bold) used to draw this font. This style may be overriden on any <tt><a href="font.html#Font.render">Font.render</a> - <font size=-1>draw text on a new Surface</font></tt> call. </p>
-<!--COMMENTS:pygame.freetype.FreeTypeFont--> &nbsp;<br> 
+<p>The 'style' argument will set the default style (italic, underline, bold) used to draw this font. This style may be overriden on any <tt><a href="freetype.html#Font.render">Font.render</a> - <font size=-1>Renders text on a surface</font></tt> call. </p>
+<!--COMMENTS:pygame.freetype.Font--> &nbsp;<br> 
 
 
-<a name="FreeTypeFont.name">
-<big><b>FreeTypeFont.name</big></b><br><ul>
+<a name="Font.name">
+<big><b>Font.name</big></b><br><ul>
   <i>Gets the name of the font face.</i><br>
   <tt>Font.name: return string</tt><br>
 <p>Read only. Returns the real (long) name of the font type face, as specified on the font file. </p>
-<!--COMMENTS:FreeTypeFont.name--> &nbsp;<br> 
+<!--COMMENTS:Font.name--> &nbsp;<br> 
 <br></ul>
 
 
-<a name="FreeTypeFont.get_size">
-<big><b>FreeTypeFont.get_size</big></b><br><ul>
+<a name="Font.get_size">
+<big><b>Font.get_size</big></b><br><ul>
   <i>Gets the size of rendered text</i><br>
   <tt>Font.get_size(text, style=STYLE_DEFAULT, rotation=0, ptsize=default): return (int, int)</tt><br>
 <p>Gets the size in pixels which 'text' will occupy when rendered using this Font. The calculations will take into account the font's default style <tt>(e.g</tt>. underlined fonts take extra height for the underline), or the style may be overridden by the 'style' parameter. </p>
 <p>Returns a tuple containing the width and height of the text's bounding box. </p>
 <p>The calculations are done using the font's default size in points, without any rotation, and taking into account fonts which are set to be drawn vertically via the <tt>Font.vertical</tt> attribute. Optionally you may specify another point size to use via the 'ptsize' argument, or a text rotation via the 'rotation' argument. </p>
-<!--COMMENTS:FreeTypeFont.get_size--> &nbsp;<br> 
+<!--COMMENTS:Font.get_size--> &nbsp;<br> 
 <br></ul>
 
 
-<a name="FreeTypeFont.get_metrics">
-<big><b>FreeTypeFont.get_metrics</big></b><br><ul>
+<a name="Font.get_metrics">
+<big><b>Font.get_metrics</big></b><br><ul>
   <i>Gets glyph metrics for the font's characters</i><br>
   <tt>Font.get_metrics(text, bbmode=BBOX_PIXEL_GRIDFIT, ptsize=default): return [(...), ...]</tt><br>
 <p>Returns the glyph metrics for each character in 'text'. </p>
@@ -179,21 +179,21 @@
     BBOX_PIXEL: Return pixel coordinates (ints).
     BBOX_PIXEL_GRIDFIT (default): Return grid-aligned pixel coordinates.
 </pre><p>The calculations are done using the font's default size in points. Optionally you may specify another point size to use. </p>
-<!--COMMENTS:FreeTypeFont.get_metrics--> &nbsp;<br> 
+<!--COMMENTS:Font.get_metrics--> &nbsp;<br> 
 <br></ul>
 
 
-<a name="FreeTypeFont.height">
-<big><b>FreeTypeFont.height</big></b><br><ul>
+<a name="Font.height">
+<big><b>Font.height</big></b><br><ul>
   <i>Gets the height of the Font</i><br>
   <tt>Font.height: return int</tt><br>
 <p>Read only. Gets the height of the Font. This is the average value of all glyphs in the font. </p>
-<!--COMMENTS:FreeTypeFont.height--> &nbsp;<br> 
+<!--COMMENTS:Font.height--> &nbsp;<br> 
 <br></ul>
 
 
-<a name="FreeTypeFont.render">
-<big><b>FreeTypeFont.render</big></b><br><ul>
+<a name="Font.render">
+<big><b>Font.render</big></b><br><ul>
   <i>Renders text on a surface</i><br>
   <tt>Font.render(dest, text, fgcolor, bgcolor=None, style=STYLE_DEFAULT, rotation=0, ptsize=default): return (Surface, int, int)</tt><br>
 <p>Renders the string 'text' to a <tt>pygame.Surface</tt>, using the color 'fgcolor'. </p>
@@ -201,12 +201,12 @@
 <p>If such tuple exists, and the destination surface is a valid <tt>pygame.Surface</tt> (independently of its bit depth), the text will be rendered directly on top of it at the passed coordinates, using the given 'fgcolor', and painting the background of the text with the given 'bgcolor', if available. The alpha values for both colors are always taken into account. The width and height of the rendered text will be returned in a tuple. </p>
 <p>If 'None' is passed instead of the destination tuple, a new 32 bit <tt>pygame.Surface</tt> will be created with the required size to contain the drawn text, and using *bgcolor* as its background color. If a background color is not available, the surface will be filled with zero alpha opacity. The width and height of the rendered text, together with the new <tt>:class:`pygame2.sdl.video.Surface`</tt>, will be returned in a tuple. </p>
 <p>The rendering is done using the font's default size in points and its default style, without any rotation, and taking into account fonts which are set to be drawn vertically via the <tt>Font.vertical</tt> attribute. Optionally you may specify another point size to use via the 'ptsize' argument, a text rotation via the 'rotation' argument, or a new text style via the 'style' argument. </p>
-<!--COMMENTS:FreeTypeFont.render--> &nbsp;<br> 
+<!--COMMENTS:Font.render--> &nbsp;<br> 
 <br></ul>
 
 
-<a name="FreeTypeFont.style">
-<big><b>FreeTypeFont.style</big></b><br><ul>
+<a name="Font.style">
+<big><b>Font.style</big></b><br><ul>
   <i>Gets or sets the font's style</i><br>
   <tt>Font.style: return int</tt><br>
 <p>Gets or sets the default style of the Font. This default style will be used for all text rendering and size calculations unless overriden specifically in the `render()` or `get_size()` calls. The style value may be a bitwise <tt>OR</tt> of one or more of the following constants: </p>
@@ -215,66 +215,66 @@
     STYLE_ITALIC
     STYLE_BOLD
 </pre><p>These constants may be found on the FreeType constants module. Optionally, the default style can be modified or obtained accessing the individual style attributes (underline, italic, bold). </p>
-<!--COMMENTS:FreeTypeFont.style--> &nbsp;<br> 
+<!--COMMENTS:Font.style--> &nbsp;<br> 
 <br></ul>
 
 
-<a name="FreeTypeFont.underline">
-<big><b>FreeTypeFont.underline</big></b><br><ul>
+<a name="Font.underline">
+<big><b>Font.underline</big></b><br><ul>
   <i>Gets or sets the font's underline style</i><br>
   <tt>Font.underline: return bool</tt><br>
 <p>Gets or sets whether the font will be underlined when drawing text. This default style value will be used for all text rendering and size calculations unless overriden specifically in the `render()` or `get_size()` calls, via the 'style' parameter. </p>
-<!--COMMENTS:FreeTypeFont.underline--> &nbsp;<br> 
+<!--COMMENTS:Font.underline--> &nbsp;<br> 
 <br></ul>
 
 
-<a name="FreeTypeFont.bold">
-<big><b>FreeTypeFont.bold</big></b><br><ul>
+<a name="Font.bold">
+<big><b>Font.bold</big></b><br><ul>
   <i>Gets or sets the font's bold style</i><br>
   <tt>Font.bold: return bool</tt><br>
 <p>Gets or sets whether the font will be bold when drawing text. This default style value will be used for all text rendering and size calculations unless overriden specifically in the `render()` or `get_size()` calls, via the 'style' parameter. </p>
-<!--COMMENTS:FreeTypeFont.bold--> &nbsp;<br> 
+<!--COMMENTS:Font.bold--> &nbsp;<br> 
 <br></ul>
 
 
-<a name="FreeTypeFont.italic">
-<big><b>FreeTypeFont.italic</big></b><br><ul>
+<a name="Font.italic">
+<big><b>Font.italic</big></b><br><ul>
   <i>Gets or sets the font's italic style</i><br>
   <tt>Font.italic: return bool</tt><br>
 <p>Gets or sets whether the font will be in italics when drawing text. This default style value will be used for all text rendering and size calculations unless overriden specifically in the `render()` or `get_size()` calls, via the 'style' parameter. </p>
-<!--COMMENTS:FreeTypeFont.italic--> &nbsp;<br> 
+<!--COMMENTS:Font.italic--> &nbsp;<br> 
 <br></ul>
 
 
-<a name="FreeTypeFont.fixed_width">
-<big><b>FreeTypeFont.fixed_width</big></b><br><ul>
+<a name="Font.fixed_width">
+<big><b>Font.fixed_width</big></b><br><ul>
   <i>Gets whether the font is fixed-width</i><br>
   <tt>Font.fixed_width: return bool</tt><br>
 <p>Read only. Returns whether this Font is a fixed-width (bitmap) font. </p>
 <p>Note that scalable fonts whose glyphs are all the same width <tt>(i.e</tt>. monospace <tt>TTF</tt> fonts used for programming) are not considered fixed width. </p>
-<!--COMMENTS:FreeTypeFont.fixed_width--> &nbsp;<br> 
+<!--COMMENTS:Font.fixed_width--> &nbsp;<br> 
 <br></ul>
 
 
-<a name="FreeTypeFont.antialiased">
-<big><b>FreeTypeFont.antialiased</big></b><br><ul>
+<a name="Font.antialiased">
+<big><b>Font.antialiased</big></b><br><ul>
   <i>Font antialiasing mode</i><br>
   <tt>Font.antialiased: return bool</tt><br>
 <p>Gets or sets the font's antialiasing mode. This defaults to True on all fonts, which will be rendered by default antialiased. </p>
 <p>Setting this to true will change all rendering methods to use glyph bitmaps without antialiasing, which supposes a small speed gain and a significant memory gain because of the way glyphs are cached. </p>
-<!--COMMENTS:FreeTypeFont.antialiased--> &nbsp;<br> 
+<!--COMMENTS:Font.antialiased--> &nbsp;<br> 
 <br></ul>
 
 
-<a name="FreeTypeFont.vertical">
-<big><b>FreeTypeFont.vertical</big></b><br><ul>
+<a name="Font.vertical">
+<big><b>Font.vertical</big></b><br><ul>
   <i>Font vertical mode</i><br>
   <tt>Font.vertical: return bool</tt><br>
 <p>Gets or sets whether the font is a vertical font such as fonts representing Kanji glyphs or other styles of vertical writing. </p>
 <p>Changing this attribute will cause the font to be rendering vertically, and affects all other methods which manage glyphs or text layouts to use vertical metrics accordingly. </p>
 <p>Note that the FreeType library doesn't automatically detect whether a font contains glyphs which are always supposed to be drawn vertically, so this attribute must be set manually by the user. </p>
 <p>Also note that several font formats (specially bitmap based ones) don't contain the necessary metrics to draw glyphs vertically, so drawing in those cases will give unspecified results. </p>
-<!--COMMENTS:FreeTypeFont.vertical--> &nbsp;<br> 
+<!--COMMENTS:Font.vertical--> &nbsp;<br> 
 <br></ul>
 
 

@@ -26,7 +26,7 @@
 #define PYGAMEAPI_DISPLAY_INTERNAL
 #include "pygame.h"
 #include "pgcompat.h"
-#include "pygamedocs.h"
+#include "doc/display_doc.h"
 #include <SDL_syswm.h>
 
 

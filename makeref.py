@@ -87,20 +87,14 @@ def Run():
         HtmlOut(doc, index, outFile)
         outFile.write(HTMLFinish)
         outFile.close()
- 
-    outFile = open(os.path.join("src", "pygamedocs.h"), "w")
-    outFile.write("/* Auto generated file: with makeref.py .  Docs go in src/ *.doc . */\n")
-    for doc in justDocs:
+
+    for name, doc in docs:
+        outFile = open(os.path.join("src", "doc", "%s_doc.h") % name, "w")
+        outFile.write("/* Auto generated file: with makeref.py .  Docs go in src/ *.doc . */\n")
         WriteDocHeader(outFile, doc, options.have_code_docs)
-
-
-    outFile.write("\n\n/* Docs in a comments... slightly easier to read. */\n\n\n/*")
-    # add the docs as comments to the header file.
-    for doc in justDocs:
+        outFile.write("\n\n/* Docs in a comments... slightly easier to read. */\n\n\n/*")
         WriteDocHeaderComments(outFile, doc)
-
-    outFile.write("\n\n*/\n\n")
-
+        outFile.write("\n\n*/\n\n")
 
     topDoc = LayoutDocs(justDocs)
 
@@ -119,7 +113,7 @@ def HtmlOut(doc, index, f):
     f.write('\n\n<a name="%s">\n' % doc.fullname)
     f.write("<big><b>%s</big></b><br><ul>\n" % doc.fullname)
     if doc.descr:
-        f.write("  <i>%s</i><br>\n" % doc.descr) 
+        f.write("  <i>%s</i><br>\n" % doc.descr)
     if doc.protos:
         for p in doc.protos:
             f.write("  <tt>%s</tt><br>\n" % p)

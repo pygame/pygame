@@ -79,7 +79,7 @@ Returns whether the the FreeType 2 library is initialized.
 <END>
 
 
-FreeTypeFont
+Font
 Creates a new Font from a supported font file.
 pygame.freetype.Font(file, style=STYLE_NONE, ptsize=-1, face_index=0): return Font
 

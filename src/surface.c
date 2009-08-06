@@ -24,7 +24,7 @@
 #define PYGAMEAPI_SURFACE_INTERNAL
 
 #include "surface.h"
-#include "pygamedocs.h"
+#include "doc/surface_doc.h"
 #include "structmember.h"
 #include "pgcompat.h"
 

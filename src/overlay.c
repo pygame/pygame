@@ -26,7 +26,7 @@
 #include <Python.h>
 #include "pygame.h"
 #include "pgcompat.h"
-#include "pygamedocs.h"
+#include "doc/overlay_doc.h"
 
 typedef struct
 {

@@ -26,7 +26,7 @@
 #define PYGAMEAPI_MUSIC_INTERNAL
 #include "pygame.h"
 #include "pgcompat.h"
-#include "pygamedocs.h"
+#include "doc/music_doc.h"
 #include "mixer.h"
 
 static Mix_Music* current_music = NULL;

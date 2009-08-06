@@ -23,7 +23,7 @@
 
 #include "ft_wrap.h"
 #include "pgfreetype.h"
-#include "../pygamedocs.h"
+#include "../doc/freetype_doc.h"
 
 /*
  * Auxiliar defines
@@ -188,19 +188,19 @@ static PyMethodDef _ftfont_methods[] =
         "get_size", 
         (PyCFunction) _ftfont_getsize,
         METH_VARARGS | METH_KEYWORDS,
-        DOC_FREETYPEFONTGETSIZE
+        DOC_FONTGETSIZE
     },
     {
         "get_metrics", 
         (PyCFunction) _ftfont_getmetrics,
         METH_VARARGS | METH_KEYWORDS,
-        DOC_FREETYPEFONTGETMETRICS
+        DOC_FONTGETMETRICS
     },
     { 
         "render", 
         (PyCFunction)_ftfont_render, 
         METH_VARARGS | METH_KEYWORDS,
-        DOC_FREETYPEFONTRENDER
+        DOC_FONTRENDER
     },
 /*    { 
         "render_raw", 
@@ -220,63 +220,63 @@ static PyGetSetDef _ftfont_getsets[] =
         "style",    
         _ftfont_getstyle,   
         _ftfont_setstyle, 
-        DOC_FREETYPEFONTSTYLE,
+        DOC_FONTSTYLE,
         NULL 
     },
     { 
         "height",
         _ftfont_getheight,  
         NULL,
-        DOC_FREETYPEFONTHEIGHT,
+        DOC_FONTHEIGHT,
         NULL
     },
     { 
         "name", 
         _ftfont_getname, 
         NULL,
-        DOC_FREETYPEFONTNAME,
+        DOC_FONTNAME,
         NULL 
     },
     {
         "fixed_width",
         _ftfont_getfixedwidth,
         NULL,
-        DOC_FREETYPEFONTFIXEDWIDTH,
+        DOC_FONTFIXEDWIDTH,
         NULL
     },
     {
         "antialiased",
         _ftfont_getantialias,
         _ftfont_setantialias,
-        DOC_FREETYPEFONTANTIALIASED,
+        DOC_FONTANTIALIASED,
         NULL
     },
     {
         "vertical",
         _ftfont_getvertical,
         _ftfont_setvertical,
-        DOC_FREETYPEFONTVERTICAL,
+        DOC_FONTVERTICAL,
         NULL
     },
     {
         "italic",
         _ftfont_getstyle_flag,
         _ftfont_setstyle_flag,
-        DOC_FREETYPEFONTITALIC,
+        DOC_FONTITALIC,
         (void *)FT_STYLE_ITALIC
     },
     {
         "bold",
         _ftfont_getstyle_flag,
         _ftfont_setstyle_flag,
-        DOC_FREETYPEFONTBOLD,
+        DOC_FONTBOLD,
         (void *)FT_STYLE_BOLD
     },
     {
         "underline",
         _ftfont_getstyle_flag,
         _ftfont_setstyle_flag,
-        DOC_FREETYPEFONTUNDERLINE,
+        DOC_FONTUNDERLINE,
         (void *)FT_STYLE_UNDERLINE
     },
     { NULL, NULL, NULL, NULL, NULL }
@@ -307,7 +307,7 @@ PyTypeObject PyFreeTypeFont_Type =
     0,                          /* tp_setattro */
     0,                          /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags */
-    DOC_PYGAMEFREETYPEFREETYPEFONT, /* docstring */
+    DOC_PYGAMEFREETYPEFONT, 	/* docstring */
     0,                          /* tp_traverse */
     0,                          /* tp_clear */
     0,                          /* tp_richcompare */

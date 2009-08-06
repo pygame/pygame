@@ -33,7 +33,7 @@
 #define PYGAME_SDLGFXPRIM_INTERNAL
 
 #include "pygame.h"
-#include "pygamedocs.h"
+#include "doc/gfxdraw_doc.h"
 #include "surface.h"
 #include "pgcompat.h"
 #include "SDL_gfx/SDL_gfxPrimitives.h"

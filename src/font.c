@@ -30,7 +30,7 @@
 #include <string.h>
 #include "pygame.h"
 #include "pgcompat.h"
-#include "pygamedocs.h"
+#include "doc/font_doc.h"
 #include "structmember.h"
 
 static PyTypeObject PyFont_Type;
