@@ -22,6 +22,7 @@
 
 #include "ft_wrap.h"
 #include FT_MODULE_H
+#include FT_OUTLINE_H
 
 typedef void (* FontRenderPtr)(int, int, FontSurface *, FT_Bitmap *, FontColor *);
 typedef void (* FontFillPtr)(int, int, int, int, FontSurface *, FontColor *);
