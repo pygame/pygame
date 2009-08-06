@@ -78,8 +78,14 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
     /* create the text struct */
     ftext = &(PGFT_INTERNALS(font)->active_text);
 
-    free(ftext->glyphs);
-    ftext->glyphs = calloc((size_t)string_length, sizeof(FontGlyph *));
+    if (string_length > ftext->length)
+    {
+        free(ftext->glyphs);
+        ftext->glyphs = malloc((size_t)string_length * sizeof(FontGlyph *));
+
+        free(ftext->advances);
+        ftext->advances = malloc((size_t)string_length * sizeof(FT_Vector));
+    }
 
     ftext->length = string_length;
     ftext->glyph_size.x = ftext->glyph_size.y = 0;
@@ -179,8 +185,8 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
 }
 
 int
-PGFT_GetTextAdvances(FreeTypeInstance *ft, PyFreeTypeFont *font, 
-        const FontRenderMode *render, FontText *text, FT_Vector *advances)
+PGFT_LoadTextAdvances(FreeTypeInstance *ft, PyFreeTypeFont *font, 
+        const FontRenderMode *render, FontText *text)
 {
     /* Default kerning mode for all text */
     const int FT_KERNING_MODE = 1;
@@ -193,11 +199,14 @@ PGFT_GetTextAdvances(FreeTypeInstance *ft, PyFreeTypeFont *font,
     FT_Vector   extent       = {0, 0};
     FT_Int      i;
     FT_Fixed    bold_str    = 0;
+    FT_Vector   *advances   = NULL;
 
     face = _PGFT_GetFaceSized(ft, font, render->pt_size);
 
     if (!face)
         return -1;
+
+    advances = text->advances;
 
     if (render->style & FT_STYLE_BOLD)
         bold_str = PGFT_GetBoldStrength(face);

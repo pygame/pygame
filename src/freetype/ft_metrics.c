@@ -89,16 +89,16 @@ int
 _PGFT_GetTextSize_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font, 
     const FontRenderMode *render, FontText *text)
 {
-    FT_Vector   extent, advances[PGFT_MAX_GLYPHS];
+    FT_Vector   extent;
     FT_Error    error;
     FT_Vector   size;
 
-    error = PGFT_GetTextAdvances(ft, font, render, text, advances);
+    error = PGFT_LoadTextAdvances(ft, font, render, text);
 
     if (error)
         return error;
 
-    extent = advances[text->length - 1];
+    extent = text->advances[text->length - 1];
 
     if (render->render_flags & FT_RFLAG_VERTICAL)
     {

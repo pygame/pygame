@@ -104,6 +104,7 @@ typedef struct  __fontglyph
 typedef struct __fonttext
 {
     FontGlyph **glyphs;
+    FT_Vector *advances;
     int length;
 
     FT_Vector glyph_size;       /* 26.6 */
@@ -267,8 +268,8 @@ void __render_glyph_ByteArray(int x, int y, FontSurface *surface, FT_Bitmap *bit
 FontText *  PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font, 
                 const FontRenderMode *render, PyObject *text);
 
-int         PGFT_GetTextAdvances(FreeTypeInstance *ft, PyFreeTypeFont *font, 
-                const FontRenderMode *render, FontText *text, FT_Vector *advances);
+int         PGFT_LoadTextAdvances(FreeTypeInstance *ft, PyFreeTypeFont *font, 
+                const FontRenderMode *render, FontText *text);
 
 FT_UInt16 * PGFT_BuildUnicodeString(PyObject *);
 

@@ -413,10 +413,11 @@ int _PGFT_Render_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font,
     const FT_Fixed center = (1 << 15); // 0.5
 
     int         n;
-    FT_Vector   pen, advances[PGFT_MAX_GLYPHS];
+    FT_Vector   pen; 
     FT_Matrix   rotation_matrix;
     FT_Face     face;
     FT_Error    error;
+    FT_Vector   *advances = NULL;
 
     FT_Fixed    bold_str = 0;
 
@@ -444,13 +445,15 @@ int _PGFT_Render_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font,
     /******************************************************
      * Load advance information
      ******************************************************/
-    error = PGFT_GetTextAdvances(ft, font, render, text, advances);
+    error = PGFT_LoadTextAdvances(ft, font, render, text);
 
     if (error)
     {
         _PGFT_SetError(ft, "Failed to load advance glyph advances", error);
         return error;
     }
+
+    advances = text->advances;
 
     /******************************************************
      * Build rotation matrix for rotated text
