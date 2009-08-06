@@ -282,13 +282,14 @@ int playBuffer (uint8_t *buf, uint32_t len, int channel, int64_t pts)
     mix->alen = (Uint32 )len;
     mix->volume = 127;
     ainfo->playing = 1;
- 	if(!ainfo->ended)
+ 	if(!ainfo->ended && len!=0)
 	{
     	int bytes_per_sec = ainfo->channels*ainfo->sample_rate*2;
     	ainfo->audio_clock+= (double) len/(double) bytes_per_sec;
     	int n_pkts = bytes_per_sec/len;
     	double change = (double)pts/(double)n_pkts;
-    	if((change-ainfo->audio_clock)> 0.1)
+    	double clock = ainfo->audio_clock;
+    	if(((change-clock)> 0.1 ) && (change-clock)<3.0)
     	{
     		ainfo->audio_clock = change;
     	}

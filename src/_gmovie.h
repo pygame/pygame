@@ -363,7 +363,7 @@ int  initialize_context     (PyMovie *movie, int threaded);
 int  initialize_codec       (PyMovie *movie, int stream_index, int threaded);
 /* 		Video Management */
 int  video_open          (PyMovie *is, int index);
-void video_image_display (PyMovie *is);
+int  video_image_display (PyMovie *is);
 int  video_display       (PyMovie *is);
 int  video_render        (PyMovie *movie);
 int  queue_picture       (PyMovie *is, AVFrame *src_frame);

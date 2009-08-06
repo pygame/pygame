@@ -42,7 +42,7 @@ print "Playing infinitely"
 
 m.play(-1)       #We're going to use infinite play, so we can demonstrate all 
                 # the features.
-time.sleep(2)  #sleep for ten seconds to let one see the video play, and hear 
+time.sleep(200)  #sleep for ten seconds to let one see the video play, and hear 
                 # the audio
 ##print "Paused:",m.paused
 ##print "Playing:",m.playing
