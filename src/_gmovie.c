@@ -478,9 +478,9 @@ int video_image_display(PyMovie *movie)
     int width, height, x, y;
     vp = &movie->pictq[movie->pictq_rindex];
     vp->ready =0;
-	GRABGIL
-    PySys_WriteStdout("video_current_pts: %f\tvp->pts: %f\ttime: %f\n", movie->video_current_pts, vp->pts, (av_gettime()/1000.0)-(movie->timing+movie->last_showtime));
-    RELEASEGIL
+	//GRABGIL
+    //PySys_WriteStdout("video_current_pts: %f\tvp->pts: %f\ttime: %f\n", movie->video_current_pts, vp->pts, (av_gettime()/1000.0)-(movie->timing+movie->last_showtime));
+    //RELEASEGIL
 	//set up the aspect ratio values..
 	if(LIBAVFORMAT_VERSION_INT>= 3415808)
 	{
@@ -521,6 +521,7 @@ int video_image_display(PyMovie *movie)
 
     if (vp->dest_overlay && vp->overlay>0 && !movie->skip_frame)
     {
+    	//SDL_Delay(10);
      #if 0 
         if (movie->sub_st)
         {
@@ -723,17 +724,19 @@ void video_refresh_timer(PyMovie* movie)
     DECLAREGIL
     double actual_delay, delay, sync_threshold, ref_clock, diff;
     VidPicture *vp;
+	
+	double cur_time=av_gettime();
 
     if (movie->video_st)
     { /*shouldn't ever even get this far if no video_st*/
         movie->diff_co ++;
-       
+		       
         /* dequeue the picture */
         vp = &movie->pictq[movie->pictq_rindex];
 
         /* update current video pts */
         movie->video_current_pts = vp->pts;
-        movie->video_current_pts_time = av_gettime();
+        movie->video_current_pts_time = cur_time;
 
         /* compute nominal delay */
         delay = movie->video_current_pts - movie->frame_last_pts;
@@ -776,23 +779,23 @@ void video_refresh_timer(PyMovie* movie)
         movie->frame_timer += delay;
         /* compute the REAL delay (we need to do that to avoid
            long term errors */
-        actual_delay = movie->frame_timer - (av_gettime() / 1000000.0);
+        actual_delay = movie->frame_timer - (cur_time / 1000000.0);
         if (actual_delay < 0.010)
         {
             /* XXX: should skip picture */
             actual_delay = 0.010;
         }
+       
         GRABGIL
-        //PySys_WriteStdout("Actual Delay: %f\tdelay: %f\tdiff: %f\tSync_threshold: %f\n", actual_delay, delay, diff, sync_threshold);
-        //PySys_WriteStdout("Audio_Clock: %f\tVideo_Clock: %f\n", getAudioClock(), movie->video_current_pts);
-        movie->timing = (actual_delay*1000.0)+10;
+	        PySys_WriteStdout("Actual Delay: %f\tdelay: %f\tdiff: %f\tpts: %f\tFrame-timer: %f\tCurrent_time: %f\tsync_thres: %f\n", (actual_delay*1000.0)+10, delay, diff, movie->video_current_pts, movie->frame_timer, (cur_time / 1000000.0), sync_threshold);
+        //double audio = getAudioClock();
+        //PySys_WriteStdout("Audio_Clock: %f\tVideo_Clock: %f\tDiff: %f\n", ref_clock, movie->video_current_pts, ref_clock-movie->video_current_pts);
+        /*if((actual_delay*1000.0)>250.0)
+        	movie->skip_frame=1;
+        */movie->timing = (actual_delay*1000.0)+10;
         RELEASEGIL
     }
-    if(movie->diff_co==2)
-    {
-    	int fun = movie->diff_co;
-    	fun+=200;	
-    }
+    
 }
 
 int queue_picture(PyMovie *movie, AVFrame *src_frame)
@@ -924,18 +927,18 @@ void update_video_clock(PyMovie *movie, AVFrame* frame, double pts1)
     if (pts != 0)
     {
         /* update video clock with pts, if present */
-        movie->video_clock = pts;
+        movie->video_current_pts = pts;
     }
     else
     {
-        pts = movie->video_clock;
+        pts = movie->video_current_pts;
     }
     /* update video clock for next frame */
     frame_delay = av_q2d(movie->video_st->codec->time_base);
     /* for MPEG2, the frame can be repeated, so we update the
        clock accordingly */
     frame_delay += frame->repeat_pict * (frame_delay * 0.5);
-    movie->video_clock += frame_delay;
+    movie->video_current_pts += frame_delay;
 
     movie->pts = pts;
 }
@@ -1934,6 +1937,7 @@ int decoder(void *arg)
     //SDL_Delay(150);
     video_open(movie, 0);
     movie->last_showtime = av_gettime()/1000.0;
+    double start_time=av_gettime();
     for(;;)
     {
     	if(hasCommand(movie->commands) && !movie->working)
@@ -1997,7 +2001,7 @@ int decoder(void *arg)
     			movie->ytop=shift->ytop;
     			comm=NULL;
     			PyMem_Free(shift);
-    			
+    			video_open(movie, 0);
     		}
     		else if(comm->type == movie->surfaceCommandType)
     		{
@@ -2021,7 +2025,6 @@ int decoder(void *arg)
     		
     	}
     	
-        co++;
         if (movie->abort_request)
         {
             break;
@@ -2225,6 +2228,7 @@ int decoder(void *arg)
                 }
             }
          #endif
+        
         if(movie->video_st && video_packet)
         {
             video_render(movie);
@@ -2232,14 +2236,10 @@ int decoder(void *arg)
         }
         /*if(movie->audio_st)
             audio_thread(movie);*/
-        #if 0
-        if(movie->sub_st)
-        	subtitle_render(movie);
-        #endif
-        if(co<2)
-        {
-            video_refresh_timer(movie);
-        }
+        if(co<1)
+        	movie->timing=40;
+        co++;
+        
         if(movie->timing>0)
         {
                 
