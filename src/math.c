@@ -25,6 +25,7 @@
 #include <float.h>
 #include <math.h>
 
+#define VECTOR_MAX_SIZE (4)
 #define STRING_BUF_SIZE (100)
 #define SWIZZLE_ERR_NO_ERR         0
 #define SWIZZLE_ERR_DOUBLE_IDX     1
@@ -955,7 +956,7 @@ vector2_cross(PyVector *self, PyObject *other)
 static PyObject *
 vector_dot(PyVector *self, PyObject *other)
 {
-    double other_coords[4];
+    double other_coords[VECTOR_MAX_SIZE];
     if (!PySequence_AsVectorCoords(other, other_coords, self->dim)) {
         PyErr_SetString(PyExc_TypeError, "Cannot perform dot product with this type.");
         return NULL;
@@ -1575,225 +1576,138 @@ vector_elementwiseproxy_dealloc(vector_elementwiseproxy *it)
     Py_XDECREF(it->vec);
     PyObject_Del(it);
 }
-    
-
-
 
 static PyObject *
 vector_elementwiseproxy_richcompare(PyObject *o1, PyObject *o2, int op)
 {
     int i, dim;
-    double value, diff;
+    double diff;
     PyVector *vec;
+    PyObject *other;
+
     if (vector_elementwiseproxy_Check(o1)) {
-        vec = (PyVector*)((vector_elementwiseproxy*)o1)->vec;
-        dim = vec->dim;
-        // use diff == diff to check for NaN;
-        // TODO: how should NaN be handled with LT/LE/GT/GE?
-        if (checkPyVectorCompatible(o2, dim)) {
-            switch (op) {
-            case Py_EQ:
-                for (i = 0; i < dim; i++) {
-                    diff = vec->coords[i] - PySequence_GetItem_AsDouble(o2, i);
-                    if ((diff != diff) || (fabs(diff) >= vec->epsilon)) {
-                        Py_RETURN_FALSE;
-                    }
-                }
-                Py_RETURN_TRUE;
-            case Py_NE:
-                for (i = 0; i < dim; i++) {
-                    diff = vec->coords[i] - PySequence_GetItem_AsDouble(o2, i);
-                    if ((diff == diff) && (fabs(diff) < vec->epsilon)) {
-                        Py_RETURN_FALSE;
-                    }
-                }
-                Py_RETURN_TRUE;
-            case Py_LT:
-                for (i = 0; i < dim; i++) {
-                    if (vec->coords[i] >= PySequence_GetItem_AsDouble(o2, i))
-                        Py_RETURN_FALSE;
-                }
-                Py_RETURN_TRUE;
-            case Py_LE:
-                for (i = 0; i < dim; i++) {
-                    if (vec->coords[i] > PySequence_GetItem_AsDouble(o2, i))
-                        Py_RETURN_FALSE;
-                }
-                Py_RETURN_TRUE;
-            case Py_GT:
-                for (i = 0; i < dim; i++) {
-                    if (vec->coords[i] <= PySequence_GetItem_AsDouble(o2, i))
-                        Py_RETURN_FALSE;
-                }
-                Py_RETURN_TRUE;
-            case Py_GE:
-                for (i = 0; i < dim; i++) {
-                    if (vec->coords[i] < PySequence_GetItem_AsDouble(o2, i))
-                        Py_RETURN_FALSE;
-                }
-                Py_RETURN_TRUE;
-            default:
-                Py_INCREF(Py_NotImplemented);
-                return Py_NotImplemented;
-            }
-        }
-        else if (RealNumber_Check(o2)) {
-            value = PyFloat_AsDouble(o2);
-            switch (op) {
-            case Py_EQ:
-                for (i = 0; i < dim; i++) {
-                    diff = vec->coords[i] - value;
-                    if (diff != diff || fabs(diff) >= vec->epsilon) {
-                        Py_RETURN_FALSE;
-                    }
-                }
-                Py_RETURN_TRUE;
-            case Py_NE:
-                for (i = 0; i < dim; i++) {
-                    diff = vec->coords[i] - value;
-                    if (diff == diff && fabs(diff) < vec->epsilon) {
-                        Py_RETURN_FALSE;
-                    }
-                }
-                Py_RETURN_TRUE;
-            case Py_LT:
-                for (i = 0; i < dim; i++) {
-                    if (vec->coords[i] >= value) 
-                        Py_RETURN_FALSE;
-                }
-                Py_RETURN_TRUE;
-            case Py_LE:
-                for (i = 0; i < dim; i++) {
-                    if (vec->coords[i] > value) 
-                        Py_RETURN_FALSE;
-                }
-                Py_RETURN_TRUE;
-            case Py_GT:
-                for (i = 0; i < dim; i++) {
-                    if (vec->coords[i] <= value) 
-                        Py_RETURN_FALSE;
-                }
-                Py_RETURN_TRUE;
-            case Py_GE:
-                for (i = 0; i < dim; i++) {
-                    if (vec->coords[i] < value) 
-                        Py_RETURN_FALSE;
-                }
-                Py_RETURN_TRUE;
-            default:
-                Py_INCREF(Py_NotImplemented);
-                return Py_NotImplemented;
-            }
-                
-        }
+        vec = ((vector_elementwiseproxy*)o1)->vec;
+        other = o2;
     }
     else {
-        vec = (PyVector*)((vector_elementwiseproxy*)o2)->vec;
-        dim = vec->dim;
-        if (checkPyVectorCompatible(o1, dim)) {
-            switch (op) {
-            case Py_EQ:
-                for (i = 0; i < dim; i++) {
-                    diff = PySequence_GetItem_AsDouble(o1, i) - vec->coords[i];
-                    if (diff != diff || fabs(diff) >= vec->epsilon) {
-                        Py_RETURN_FALSE;
-                    }
+        vec = ((vector_elementwiseproxy*)o2)->vec;
+        other = o1;
+        /* flip op */
+        if (op == Py_LT)
+            op = Py_GE;
+        else if (op == Py_LE)
+            op = Py_GT;
+        else if (op == Py_GT)
+            op = Py_LE;
+        else if (op == Py_GE)
+            op = Py_LT;
+    }
+    if (vector_elementwiseproxy_Check(other))
+        other = (PyObject*)((vector_elementwiseproxy*)o2)->vec;
+    dim = vec->dim;
+
+    if (checkPyVectorCompatible(other, dim)) {
+        /* use diff == diff to check for NaN */
+        /* TODO: how should NaN be handled with LT/LE/GT/GE? */
+        switch (op) {
+        case Py_EQ:
+            for (i = 0; i < dim; i++) {
+                diff = vec->coords[i] - PySequence_GetItem_AsDouble(other, i);
+                if ((diff != diff) || (fabs(diff) >= vec->epsilon)) {
+                    Py_RETURN_FALSE;
                 }
-                Py_RETURN_TRUE;
-            case Py_NE:
-                for (i = 0; i < dim; i++) {
-                    diff = PySequence_GetItem_AsDouble(o1, i) - vec->coords[i];
-                    if (diff == diff && fabs(diff) < vec->epsilon) {
-                        Py_RETURN_FALSE;
-                    }
-                }
-                Py_RETURN_TRUE;
-            case Py_LT:
-                for (i = 0; i < dim; i++) {
-                    if (PySequence_GetItem_AsDouble(o1, i) >= vec->coords[i])
-                        Py_RETURN_FALSE;
-                }
-                Py_RETURN_TRUE;
-            case Py_LE:
-                for (i = 0; i < dim; i++) {
-                    if (PySequence_GetItem_AsDouble(o1, i) > vec->coords[i])
-                        Py_RETURN_FALSE;
-                }
-                Py_RETURN_TRUE;
-            case Py_GT:
-                for (i = 0; i < dim; i++) {
-                    if (PySequence_GetItem_AsDouble(o1, i) <= vec->coords[i])
-                        Py_RETURN_FALSE;
-                }
-                Py_RETURN_TRUE;
-            case Py_GE:
-                for (i = 0; i < dim; i++) {
-                    if (PySequence_GetItem_AsDouble(o1, i) < vec->coords[i])
-                        Py_RETURN_FALSE;
-                }
-                Py_RETURN_TRUE;
-            default:
-                Py_INCREF(Py_NotImplemented);
-                return Py_NotImplemented;
             }
-        }
-        else if (RealNumber_Check(o1)) {
-            value = PyFloat_AsDouble(o1);
-            switch (op) {
-            case Py_EQ:
-                for (i = 0; i < dim; i++) {
-                    diff = value - vec->coords[i];
-                    if (diff != diff || fabs(diff) >= vec->epsilon) {
-                        Py_RETURN_FALSE;
-                    }
+            Py_RETURN_TRUE;
+        case Py_NE:
+            for (i = 0; i < dim; i++) {
+                diff = vec->coords[i] - PySequence_GetItem_AsDouble(other, i);
+                if ((diff == diff) && (fabs(diff) < vec->epsilon)) {
+                    Py_RETURN_FALSE;
                 }
-                Py_RETURN_TRUE;
-            case Py_NE:
-                for (i = 0; i < dim; i++) {
-                    diff = value - vec->coords[i];
-                    if (diff == diff && fabs(diff) >= vec->epsilon) {
-                        Py_RETURN_TRUE;
-                    }
-                }
-                Py_RETURN_FALSE;
-            case Py_LT:
-                for (i = 0; i < dim; i++) {
-                    if (value >= vec->coords[i])
-                        Py_RETURN_FALSE;
-                }
-                Py_RETURN_TRUE;
-            case Py_LE:
-                for (i = 0; i < dim; i++) {
-                    if (value > vec->coords[i]) 
-                        Py_RETURN_FALSE;
-                }
-                Py_RETURN_TRUE;
-            case Py_GT:
-                for (i = 0; i < dim; i++) {
-                    if (value <= vec->coords[i]) 
-                        Py_RETURN_FALSE;
-                }
-                Py_RETURN_TRUE;
-            case Py_GE:
-                for (i = 0; i < dim; i++) {
-                    if (value < vec->coords[i]) 
-                        Py_RETURN_FALSE;
-                }
-                Py_RETURN_TRUE;
-            default:
-                Py_INCREF(Py_NotImplemented);
-                return Py_NotImplemented;
             }
+            Py_RETURN_TRUE;
+        case Py_LT:
+            for (i = 0; i < dim; i++) {
+                if (vec->coords[i] >= PySequence_GetItem_AsDouble(other, i))
+                    Py_RETURN_FALSE;
+            }
+            Py_RETURN_TRUE;
+        case Py_LE:
+            for (i = 0; i < dim; i++) {
+                if (vec->coords[i] > PySequence_GetItem_AsDouble(other, i))
+                    Py_RETURN_FALSE;
+            }
+            Py_RETURN_TRUE;
+        case Py_GT:
+            for (i = 0; i < dim; i++) {
+                if (vec->coords[i] <= PySequence_GetItem_AsDouble(other, i))
+                    Py_RETURN_FALSE;
+            }
+            Py_RETURN_TRUE;
+        case Py_GE:
+            for (i = 0; i < dim; i++) {
+                if (vec->coords[i] < PySequence_GetItem_AsDouble(other, i))
+                    Py_RETURN_FALSE;
+            }
+            Py_RETURN_TRUE;
         }
     }
+    else if (RealNumber_Check(other)) {
+        double value = PyFloat_AsDouble(other);
+        switch (op) {
+        case Py_EQ:
+            for (i = 0; i < dim; i++) {
+                diff = vec->coords[i] - value;
+                if (diff != diff || fabs(diff) >= vec->epsilon) {
+                    Py_RETURN_FALSE;
+                }
+            }
+            Py_RETURN_TRUE;
+        case Py_NE:
+            for (i = 0; i < dim; i++) {
+                diff = vec->coords[i] - value;
+                if (diff == diff && fabs(diff) < vec->epsilon) {
+                    Py_RETURN_FALSE;
+                }
+            }
+            Py_RETURN_TRUE;
+        case Py_LT:
+            for (i = 0; i < dim; i++) {
+                if (vec->coords[i] >= value) 
+                    Py_RETURN_FALSE;
+            }
+            Py_RETURN_TRUE;
+        case Py_LE:
+            for (i = 0; i < dim; i++) {
+                if (vec->coords[i] > value) 
+                    Py_RETURN_FALSE;
+            }
+            Py_RETURN_TRUE;
+        case Py_GT:
+            for (i = 0; i < dim; i++) {
+                if (vec->coords[i] <= value) 
+                    Py_RETURN_FALSE;
+            }
+            Py_RETURN_TRUE;
+        case Py_GE:
+            for (i = 0; i < dim; i++) {
+                if (vec->coords[i] < value) 
+                    Py_RETURN_FALSE;
+            }
+            Py_RETURN_TRUE;
+        }
+    }
+
+    Py_INCREF(Py_NotImplemented);
+    return Py_NotImplemented;
 }
 
 
 
 
-/**********************************************
- * Generic vector PyNumber emulation routines
- **********************************************/
+/*******************************************************
+ * vector_elementwiseproxy PyNumber emulation routines
+ *******************************************************/
 
 
 static PyObject *
@@ -1801,26 +1715,28 @@ vector_elementwiseproxy_add(PyObject *o1, PyObject *o2)
 {
     int i, dim;
     double value;
-    vector_elementwiseproxy *proxy;
     PyObject *other;
-    PyVector *ret;
+    PyVector *vec, *ret;
     if (vector_elementwiseproxy_Check(o1)) {
-        proxy = (vector_elementwiseproxy*)o1;
+        vec = ((vector_elementwiseproxy*)o1)->vec;
         other = o2;
     }
     else {
         other = o1;
-        proxy = (vector_elementwiseproxy*)o2;
+        vec = ((vector_elementwiseproxy*)o2)->vec;
     }
-    dim = ((PyVector*)proxy->vec)->dim;
+    if (vector_elementwiseproxy_Check(other))
+        other = (PyObject*)((vector_elementwiseproxy*)other)->vec;
+    dim = vec->dim;
+
     if (checkPyVectorCompatible(other, dim)) {
-        return vector_add((PyObject*)proxy->vec, other);
+        return vector_add((PyObject*)vec, other);
     }
     else if (RealNumber_Check(other)) {
         value = PyFloat_AsDouble(other);
         ret = (PyVector*)PyVector_NEW(dim);
         for (i = 0; i < dim; i++) {
-            ret->coords[i] = proxy->vec->coords[i] + value;
+            ret->coords[i] = vec->coords[i] + value;
         }
         return (PyObject*)ret;
     }
@@ -1833,36 +1749,38 @@ vector_elementwiseproxy_add(PyObject *o1, PyObject *o2)
 static PyObject *
 vector_elementwiseproxy_sub(PyObject *o1, PyObject *o2)
 {
-    int i, dim;
+    int i, dim, reverse;
     double value;
-    PyVector *ret;
+    PyVector *vec, *ret;
+    PyObject *other;
+
     if (vector_elementwiseproxy_Check(o1)) {
-        dim = ((PyVector*)((vector_elementwiseproxy*)o1)->vec)->dim;
-        if (checkPyVectorCompatible(o2, dim)) {
-            return vector_sub((PyObject*)((vector_elementwiseproxy*)o1)->vec, o2);
-        }
-        else if (RealNumber_Check(o2)) {
-            value = PyFloat_AsDouble(o2);
-            ret = (PyVector*)PyVector_NEW(dim);
-            for (i = 0; i < dim; i++) {
-                ret->coords[i] = ((PyVector*)((vector_elementwiseproxy*)o1)->vec)->coords[i] - value;
-            }
-            return (PyObject*)ret;
-        }
+        vec = ((vector_elementwiseproxy*)o1)->vec;
+        other = o2;
+        reverse = 0;
     }
     else {
-        dim = ((PyVector*)((vector_elementwiseproxy*)o2)->vec)->dim;
-        if (checkPyVectorCompatible(o1, dim)) {
-            return vector_sub(o1, (PyObject*)((vector_elementwiseproxy*)o2)->vec);
+        vec = ((vector_elementwiseproxy*)o2)->vec;
+        other = o1;
+        reverse = 1;
+    }
+    if (vector_elementwiseproxy_Check(other))
+        other = (PyObject*)((vector_elementwiseproxy*)other)->vec;
+    dim = vec->dim;
+    
+    if (checkPyVectorCompatible(other, dim)) {
+        if (reverse)
+            return vector_sub(other, (PyObject*)vec);
+        else
+            return vector_sub((PyObject*)vec, other);
+    }
+    else if (RealNumber_Check(other)) {
+        value = PyFloat_AsDouble(other);
+        ret = (PyVector*)PyVector_NEW(dim);
+        for (i = 0; i < dim; i++) {
+            ret->coords[i] = (vec->coords[i] - value) * (reverse ? -1 : 1);
         }
-        else if (RealNumber_Check(o1)) {
-            value = PyFloat_AsDouble(o1);
-            ret = (PyVector*)PyVector_NEW(dim);
-            for (i = 0; i < dim; i++) {
-                ret->coords[i] = value - ((PyVector*)((vector_elementwiseproxy*)o2)->vec)->coords[i];
-            }
-            return (PyObject*)ret;
-        }
+        return (PyObject*)ret;
     }
 
     Py_INCREF(Py_NotImplemented);
@@ -1873,31 +1791,33 @@ vector_elementwiseproxy_sub(PyObject *o1, PyObject *o2)
 static PyObject *
 vector_elementwiseproxy_mul(PyObject *o1, PyObject *o2)
 {
-    int i, row, col, dim;
-    PyVector *ret;
-    vector_elementwiseproxy *proxy;
+    int i;
+    PyVector *vec, *ret;
     PyObject *other;
+
     if (vector_elementwiseproxy_Check(o1)) {
-        proxy = (vector_elementwiseproxy*)o1;
+        vec = ((vector_elementwiseproxy*)o1)->vec;
         other = o2;
     }
     else {
         other = o1;
-        proxy = (vector_elementwiseproxy*)o2;
+        vec = ((vector_elementwiseproxy*)o2)->vec;
     }
-    dim = ((PyVector*)proxy->vec)->dim;
-    // elementwiseproxy * vector ?
-    if (checkPyVectorCompatible(other, dim)) {
-        ret = (PyVector*)PyVector_NEW(dim);
-        for (i = 0; i < dim; i++) {
-            ret->coords[i] = (((PyVector*)proxy->vec)->coords[i] * 
+    if (vector_elementwiseproxy_Check(other))
+        other = (PyObject*)((vector_elementwiseproxy*)other)->vec;
+
+    /* elementwiseproxy * vector ? */
+    if (checkPyVectorCompatible(other, vec->dim)) {
+        ret = (PyVector*)PyVector_NEW(vec->dim);
+        for (i = 0; i < vec->dim; i++) {
+            ret->coords[i] = (vec->coords[i] * 
                               PySequence_GetItem_AsDouble(other, i));
         }
         return (PyObject*)ret;
     }
-    // elementwise * scalar ?
+    /* elementwise * scalar ? */
     else if (RealNumber_Check(other)) {
-        return vector_mul((PyObject*)proxy->vec, other);
+        return vector_mul((PyObject*)vec, other);
     }
 
     Py_INCREF(Py_NotImplemented);
@@ -1908,36 +1828,40 @@ vector_elementwiseproxy_mul(PyObject *o1, PyObject *o2)
 static PyObject *
 vector_elementwiseproxy_div(PyObject *o1, PyObject *o2)
 {
-    int i, dim;
-    double value;
-    PyVector *ret;
+    int i;
+    PyVector *vec, *ret;
+
     if (vector_elementwiseproxy_Check(o1)) {
-        dim = ((PyVector*)((vector_elementwiseproxy*)o1)->vec)->dim;
-        if (checkPyVectorCompatible(o2, dim)) {
-            ret = (PyVector*)PyVector_NEW(dim);
-            for (i = 0; i < dim; i++) {
-                ret->coords[i] = ((PyVector*)((vector_elementwiseproxy*)o1)->vec)->coords[i] / PySequence_GetItem_AsDouble(o2, i);
+        vec = ((vector_elementwiseproxy*)o1)->vec;
+        if (vector_elementwiseproxy_Check(o2))
+            o2 = (PyObject*)((vector_elementwiseproxy*)o2)->vec;
+        if (checkPyVectorCompatible(o2, vec->dim)) {
+            ret = (PyVector*)PyVector_NEW(vec->dim);
+            for (i = 0; i < vec->dim; i++) {
+                ret->coords[i] = (vec->coords[i] /
+                                  PySequence_GetItem_AsDouble(o2, i));
             }
             return (PyObject*)ret;
         }
         else if (RealNumber_Check(o2)) {
-            return vector_div(((vector_elementwiseproxy*)o1)->vec, o2);
+            return vector_div(vec, o2);
         }
     }
     else {
-        dim = ((PyVector*)((vector_elementwiseproxy*)o2)->vec)->dim;
-        if (checkPyVectorCompatible(o1, dim)) {
-            ret = (PyVector*)PyVector_NEW(dim);
-            for (i = 0; i < dim; i++) {
-                ret->coords[i] = PySequence_GetItem_AsDouble(o1, i) / ((PyVector*)((vector_elementwiseproxy*)o2)->vec)->coords[i];
+        vec = ((vector_elementwiseproxy*)o2)->vec;
+        if (checkPyVectorCompatible(o1, vec->dim)) {
+            ret = (PyVector*)PyVector_NEW(vec->dim);
+            for (i = 0; i < vec->dim; i++) {
+                ret->coords[i] = (PySequence_GetItem_AsDouble(o1, i) /
+                                  vec->coords[i]);
             }
             return (PyObject*)ret;
         }
         else if (RealNumber_Check(o1)) {
-            value = PyFloat_AsDouble(o1);
-            ret = (PyVector*)PyVector_NEW(dim);
-            for (i = 0; i < dim; i++) {
-                ret->coords[i] = value / ((PyVector*)((vector_elementwiseproxy*)o2)->vec)->coords[i];
+            double value = PyFloat_AsDouble(o1);
+            ret = (PyVector*)PyVector_NEW(vec->dim);
+            for (i = 0; i < vec->dim; i++) {
+                ret->coords[i] = value / vec->coords[i];
             }
             return (PyObject*)ret;
         }
@@ -1950,36 +1874,40 @@ vector_elementwiseproxy_div(PyObject *o1, PyObject *o2)
 static PyObject *
 vector_elementwiseproxy_floor_div(PyObject *o1, PyObject *o2)
 {
-    int i, dim;
-    double value;
-    PyVector *ret;
+    int i;
+    PyVector *vec, *ret;
+
     if (vector_elementwiseproxy_Check(o1)) {
-        dim = ((PyVector*)((vector_elementwiseproxy*)o1)->vec)->dim;
-        if (checkPyVectorCompatible(o2, dim)) {
-            ret = (PyVector*)PyVector_NEW(dim);
-            for (i = 0; i < dim; i++) {
-                ret->coords[i] = floor(((PyVector*)((vector_elementwiseproxy*)o1)->vec)->coords[i] / PySequence_GetItem_AsDouble(o2, i));
+        vec = ((vector_elementwiseproxy*)o1)->vec;
+        if (vector_elementwiseproxy_Check(o2))
+            o2 = (PyObject*)((vector_elementwiseproxy*)o2)->vec;
+        if (checkPyVectorCompatible(o2, vec->dim)) {
+            ret = (PyVector*)PyVector_NEW(vec->dim);
+            for (i = 0; i < vec->dim; i++) {
+                ret->coords[i] = floor(vec->coords[i] / 
+                                       PySequence_GetItem_AsDouble(o2, i));
             }
             return (PyObject*)ret;
         }
         else if (RealNumber_Check(o2)) {
-            return vector_floor_div(((vector_elementwiseproxy*)o1)->vec, o2);
+            return vector_floor_div(vec, o2);
         }
     }
     else {
-        dim = ((PyVector*)((vector_elementwiseproxy*)o2)->vec)->dim;
-        if (checkPyVectorCompatible(o1, dim)) {
-            ret = (PyVector*)PyVector_NEW(dim);
-            for (i = 0; i < dim; i++) {
-                ret->coords[i] = floor(PySequence_GetItem_AsDouble(o1, i) / ((PyVector*)((vector_elementwiseproxy*)o2)->vec)->coords[i]);
+        vec = ((vector_elementwiseproxy*)o2)->vec;
+        if (checkPyVectorCompatible(o1, vec->dim)) {
+            ret = (PyVector*)PyVector_NEW(vec->dim);
+            for (i = 0; i < vec->dim; i++) {
+                ret->coords[i] = floor(PySequence_GetItem_AsDouble(o1, i) /
+                                       vec->coords[i]);
             }
             return (PyObject*)ret;
         }
         else if (RealNumber_Check(o1)) {
-            value = PyFloat_AsDouble(o1);
-            ret = (PyVector*)PyVector_NEW(dim);
-            for (i = 0; i < dim; i++) {
-                ret->coords[i] = floor(value / ((PyVector*)((vector_elementwiseproxy*)o2)->vec)->coords[i]);
+            double value = PyFloat_AsDouble(o1);
+            ret = (PyVector*)PyVector_NEW(vec->dim);
+            for (i = 0; i < vec->dim; i++) {
+                ret->coords[i] = floor(value / vec->coords[i]);
             }
             return (PyObject*)ret;
         }
@@ -1990,35 +1918,73 @@ vector_elementwiseproxy_floor_div(PyObject *o1, PyObject *o2)
 }
 
 static PyObject *
-vector_elementwiseproxy_pow(vector_elementwiseproxy *self, PyObject *expoObj, 
-                            PyObject *modulo)
+vector_elementwiseproxy_pow(PyObject *baseObj, PyObject *expoObj, PyObject *mod)
 {
-    int i;
-    double expo;
-    PyVector *ret;
-    if (modulo != Py_None) {
-        PyErr_SetString(PyExc_SystemError, "__pow__ with third argument was not implemented for vectors, yet.");
+    int i, dim;
+    double tmp;
+    double bases[VECTOR_MAX_SIZE];
+    double expos[VECTOR_MAX_SIZE];
+    PyVector *ret, *vec;
+    PyObject *base, *expo, *result;
+    if (mod != Py_None) {
+        PyErr_SetString(PyExc_TypeError, "pow() 3rd argument not "
+                        "allowed for vectors");
         return NULL;
     }
-    if (!RealNumber_Check(expoObj)) {
-        PyErr_SetString(PyExc_TypeError, "expected a float as second argument.");
-        return NULL;
-    }
-    /* if exponent is fractional all entries must be positive */
-    if (!PyInt_Check(expoObj)) {
-        for (i = 0; i < self->vec->dim; i++) {
-            if (self->vec->coords[i] < 0) {
-                PyErr_SetString(PyExc_ValueError, "negative numbers cannot be raised to a fractional power");
-                return NULL;
-            }
+
+    if (vector_elementwiseproxy_Check(baseObj)) {
+        dim = ((vector_elementwiseproxy*)baseObj)->vec->dim;
+        memcpy(bases, ((vector_elementwiseproxy*)baseObj)->vec->coords,
+               sizeof(double) * dim);
+        if (vector_elementwiseproxy_Check(expoObj)) {
+            memcpy(expos, ((vector_elementwiseproxy*)expoObj)->vec->coords,
+                   sizeof(double) * dim);
         }
+        else if (checkPyVectorCompatible(expoObj, dim)) {
+            PySequence_AsVectorCoords(expoObj, expos, dim);
+        }
+        else if (RealNumber_Check(expoObj)) {
+            tmp = PyFloat_AsDouble(expoObj);
+            for (i = 0; i < dim; i++)
+                expos[i] = tmp;
+        }
+        else
+            goto NOT_IMPLEMENTED;
     }
-    expo = PyFloat_AsDouble(expoObj);
-    ret = (PyVector*)PyVector_NEW(self->vec->dim);
-    for (i = 0; i < self->vec->dim; i++) {
-        ret->coords[i] = pow(self->vec->coords[i], expo);
+    else {
+        dim = ((vector_elementwiseproxy*)expoObj)->vec->dim;
+        memcpy(expos, ((vector_elementwiseproxy*)expoObj)->vec->coords,
+               sizeof(double) * dim);
+        if (checkPyVectorCompatible(baseObj, dim)) {
+            PySequence_AsVectorCoords(baseObj, bases, dim);
+        }
+        else if (RealNumber_Check(baseObj)) {
+            tmp = PyFloat_AsDouble(baseObj);
+            for (i = 0; i < dim; i++)
+                bases[i] = tmp;
+        }
+        else
+            goto NOT_IMPLEMENTED;
+    }
+
+    ret = (PyVector*)PyVector_NEW(dim);
+    /* there are many special cases so we let python do the work for now */
+    for (i = 0; i < dim; i++) {
+        base = PyFloat_FromDouble(bases[i]);
+        expo = PyFloat_FromDouble(expos[i]);
+        result = PyNumber_Power(base, expo, Py_None);
+        if (!result)
+            return NULL;
+        ret->coords[i] = PyFloat_AsDouble(result);
+        Py_DECREF(result);
+        Py_DECREF(expo);
+        Py_DECREF(base);
     }
     return (PyObject*)ret;
+
+NOT_IMPLEMENTED:
+    Py_INCREF(Py_NotImplemented);
+    return Py_NotImplemented;
 }
 
 static PyObject *
@@ -2031,6 +1997,8 @@ vector_elementwiseproxy_mod(PyObject *o1, PyObject *o2)
     PyVector *res, *vec;
     if (vector_elementwiseproxy_Check(o1)) {
         vec = ((vector_elementwiseproxy*)o1)->vec;
+        if (vector_elementwiseproxy_Check(o2))
+            o2 = (PyObject*)((vector_elementwiseproxy*)o2)->vec;
         if (checkPyVectorCompatible(o2, vec->dim)) { 
             res = (PyVector*)PyVector_NEW(vec->dim);
             for (i = 0; i < vec->dim; i++) {
@@ -2182,6 +2150,7 @@ PyNumberMethods vector_elementwiseproxy_as_number = {
 
 
 
+
 static PyTypeObject PyVectorElementwiseProxy_Type = {
     PyObject_HEAD_INIT(NULL)
     0,                         /* ob_size */
@@ -2196,7 +2165,7 @@ static PyTypeObject PyVectorElementwiseProxy_Type = {
     0,                         /* tp_compare */
     (reprfunc)0,               /* tp_repr */
     /* Method suites for standard classes */
-    &vector_elementwiseproxy_as_number,         /* tp_as_number */
+    &vector_elementwiseproxy_as_number, /* tp_as_number */
     0,                         /* tp_as_sequence */
     0,                         /* tp_as_mapping */
     /* More standard operations (here for binary compatibility) */
