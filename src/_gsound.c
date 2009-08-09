@@ -287,12 +287,12 @@ int playBuffer (uint8_t *buf, uint32_t len, int channel, int64_t pts)
     	int bytes_per_sec = ainfo->channels*ainfo->sample_rate*2;
     	ainfo->audio_clock+= (double) len/(double) bytes_per_sec;
     	int n_pkts = bytes_per_sec/len;
-    	double change = (double)pts/(double)n_pkts;
-    	double clock = ainfo->audio_clock;
-    	if(((change-clock)> 0.2 ) && (change-clock)<5.0)
+    	//double change = (double)pts/(double)n_pkts;
+    	//double clock = ainfo->audio_clock;
+    	/*if(((change-clock)> 0.2 ) && (change-clock)<5.0)
     	{
     		ainfo->audio_clock = change;
-    	}
+    	}*/
 	}
     ainfo->current_frame_size =len;
     int chan = ainfo->channel;

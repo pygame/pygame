@@ -47,7 +47,7 @@
 AVPacket flush_pkt;
 
 /* Queues for already-loaded pictures, for rapid display */
-#define VIDEO_PICTURE_QUEUE_SIZE 8
+#define VIDEO_PICTURE_QUEUE_SIZE 2
 #define SUBPICTURE_QUEUE_SIZE    4
 /* RGB24 or RGBA... */
 /* In this case I've chosen RGB24 because its smaller */
