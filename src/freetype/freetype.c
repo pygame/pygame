@@ -441,7 +441,7 @@ _ftfont_init(PyObject *self, PyObject *args, PyObject *kwds)
             goto end;
         }
 
-        if (PGFT_TryLoadFont_RWops(ft, font, source, 0, face_index) != 0);
+        if (PGFT_TryLoadFont_RWops(ft, font, source, face_index) != 0);
         {
             PyErr_SetString(PyExc_RuntimeError, PGFT_GetError(ft));
             goto end;
@@ -455,8 +455,11 @@ _ftfont_init(PyObject *self, PyObject *args, PyObject *kwds)
     }
 
 end:
+
     if (file != original_file)
+    {
         Py_XDECREF(file);
+    }
 
     return PyErr_Occurred() ? -1 : 0;
 }
@@ -1066,7 +1069,6 @@ _ft_was_init(PyObject *self)
 {
     return PyBool_FromLong((FREETYPE_MOD_STATE (self)->freetype != NULL));
 }
-
 
 static int
 _ft_traverse (PyObject *mod, visitproc visit, void *arg)
