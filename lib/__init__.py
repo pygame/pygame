@@ -228,6 +228,16 @@ try:
     pygame.font.match_font = pygame.sysfont.match_font
 except (ImportError,IOError):font=MissingModule("font", geterror(), 0)
 
+#import the optional FreeType module too, and add links
+#to the SysFont functions
+try:
+    import pygame.freetype
+    import pygame.sysfont
+    pygame.freetype.SysFont = pygame.sysfont.SysFont
+    pygame.freetype.get_fonts = pygame.sysfont.get_fonts
+    pygame.freetype.match_font = pygame.sysfont.match_font
+except (ImportError,IOError):freetype=MissingModule("freetype", geterror(), 0)
+
 # try and load pygame.mixer_music before mixer, for py2app...
 try:
     import pygame.mixer_music

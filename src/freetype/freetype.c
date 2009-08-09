@@ -105,6 +105,8 @@ static PyObject *_ft_init(PyObject *self, PyObject *args);
 static PyObject *_ft_get_version(PyObject *self);
 static PyObject *_ft_get_error(PyObject *self);
 static PyObject *_ft_was_init(PyObject *self);
+static PyObject* _ft_autoinit(PyObject* self);
+static void _ft_autoquit(void);
 
 /*
  * Constructor/init/destructor
@@ -145,6 +147,13 @@ static int _ftfont_setstyle_flag(PyObject *self, PyObject *value, void *closure)
  */
 static PyMethodDef _ft_methods[] = 
 {
+
+    {   
+        "__PYGAMEinit__", 
+        (PyCFunction) _ft_autoinit, 
+        METH_NOARGS,
+        "auto initialize function for font" 
+    },
     { 
         "init", 
         (PyCFunction) _ft_init, 
@@ -1008,37 +1017,59 @@ PyFreeTypeFont_New(const char *filename, int face_index)
  * support is in place.
  *
  ***************************************************************/
+
+static void 
+_ft_autoquit(void)
+{
+    if (FREETYPE_MOD_STATE(self)->freetype != NULL)
+    {
+        PGFT_Quit(FREETYPE_MOD_STATE(self)->freetype);
+        FREETYPE_MOD_STATE(self)->freetype = NULL;
+    }
+}
+
+static PyObject*
+_ft_autoinit(PyObject* self)
+{
+    FT_Error result = 1;
+
+    if (FREETYPE_MOD_STATE(self)->freetype == NULL)
+    {
+        result = (PGFT_Init(&(FREETYPE_MOD_STATE(self)->freetype), 
+                    PGFT_DEFAULT_CACHE_SIZE) == 0);
+
+        PyGame_RegisterQuit(_ft_autoquit);
+    }
+
+    return PyInt_FromLong(result);
+}
+
 static PyObject *
 _ft_quit(PyObject *self)
 {
-    if (FREETYPE_MOD_STATE (self)->freetype)
-    {
-        PGFT_Quit(FREETYPE_MOD_STATE (self)->freetype);
-        FREETYPE_MOD_STATE (self)->freetype = NULL;
-    }
+    _ft_autoquit();
     Py_RETURN_NONE;
 }
 
 static PyObject *
 _ft_init(PyObject *self, PyObject *args)
 {
-    FT_Error error;
+    PyObject *result;
     FT_Int cache_size = PGFT_DEFAULT_CACHE_SIZE;
-
-    if (FREETYPE_MOD_STATE (self)->freetype)
-        Py_RETURN_NONE;
 
     if (!PyArg_ParseTuple(args, "|i", &cache_size))
         return NULL;
 
-    error = PGFT_Init(&(FREETYPE_MOD_STATE (self)->freetype), cache_size);
-    if (error != 0)
+    result = _ft_autoinit(self);
+
+    if (!PyObject_IsTrue(result))
     {
         PyErr_SetString(PyExc_RuntimeError, 
                 "Failed to initialize the FreeType2 library");
         return NULL;
     }
 
+    FREETYPE_MOD_STATE(self)->freetype->cache_size = cache_size;
     Py_RETURN_NONE;
 }
 
