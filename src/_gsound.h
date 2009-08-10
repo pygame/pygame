@@ -39,12 +39,13 @@ typedef struct AudioInfo
     SDL_mutex   *mutex;
 	//PyThreadState *_tstate;
 	int restart;
+	double time_base;
 }
 AudioInfo;
 
 AudioInfo *ainfo;
 
-int soundInit     (int freq, int size, int channels, int chunksize);
+int soundInit     (int freq, int size, int channels, int chunksize, double time_base);
 int soundQuit     (void);
 int soundStart    (void);
 int soundEnd      (void);
@@ -54,7 +55,7 @@ int pauseBuffer   (int channel);
 int getPaused     (int channel);
 double getAudioClock (void);
 int getBufferQueueSize(void);
-int seekBuffer    (uint8_t *buf, uint32_t len, int channel );
+int seekBuffer    (double pts);
 int setCallback   (void (*callback) (int channel));
 int resetAudioInfo(void);
 #endif /*_GSOUND_H_*/

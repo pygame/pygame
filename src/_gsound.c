@@ -65,7 +65,7 @@ void cb_mixer(int channel)
 }
 
 //initialize the mixer audio subsystem, code cribbed from mixer.c
-int soundInit  (int freq, int size, int channels, int chunksize)
+int soundInit  (int freq, int size, int channels, int chunksize, double time_base)
 {
     Uint16 fmt = 0;
     int i;
@@ -161,6 +161,7 @@ int soundInit  (int freq, int size, int channels, int chunksize)
     ainfo->mutex = SDL_CreateMutex();
     ainfo->queue.mutex = SDL_CreateMutex();
     ainfo->ended=1;
+    ainfo->time_base=time_base;
     Mix_VolumeMusic (127);
     
     //ainfo->_tstate = _tstate;
@@ -286,13 +287,7 @@ int playBuffer (uint8_t *buf, uint32_t len, int channel, int64_t pts)
 	{
     	int bytes_per_sec = ainfo->channels*ainfo->sample_rate*2;
     	ainfo->audio_clock+= (double) len/(double) bytes_per_sec;
-    	int n_pkts = bytes_per_sec/len;
-    	//double change = (double)pts/(double)n_pkts;
-    	//double clock = ainfo->audio_clock;
-    	/*if(((change-clock)> 0.2 ) && (change-clock)<5.0)
-    	{
-    		ainfo->audio_clock = change;
-    	}*/
+    	
 	}
     ainfo->current_frame_size =len;
     int chan = ainfo->channel;
@@ -356,11 +351,15 @@ int getPaused (int channel)
         return 0;
     return Mix_Paused(channel);
 }
-int seekBuffer (uint8_t *buf, uint32_t len, int channel)
+int seekBuffer (double pts)
 {
 	/*we need to flush our buffer */
 	queue_flush(&ainfo->queue);
-	ainfo->ended=1;
+	if (pts != AV_NOPTS_VALUE) 
+	{
+            ainfo->audio_clock = ainfo->time_base*pts;
+    }
+	//ainfo->ended=1;
 	return 1;
 }
 

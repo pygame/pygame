@@ -50,7 +50,7 @@ Command *getCommand(CommandQueue *q)
 	return comm;
 }
 
-int hasCommand(CommandQueue *q)
+inline int hasCommand(CommandQueue *q)
 {
 	if(q->size>0)
 		return 1;
