@@ -306,11 +306,14 @@ void
 PGFT_UnloadFont(FreeTypeInstance *ft, PyFreeTypeFont *font)
 {
     if (ft != NULL)
+    {
         FTC_Manager_RemoveFaceID(ft->cache_manager, (FTC_FaceID)(&font->id));
+        if (PGFT_INTERNALS(font))
+            PGFT_Cache_Destroy(&PGFT_INTERNALS(font)->cache);
+    }
 
     if (PGFT_INTERNALS(font))
     {
-        PGFT_Cache_Destroy(&PGFT_INTERNALS(font)->cache);
         free(PGFT_INTERNALS(font)->active_text.glyphs);
         free(PGFT_INTERNALS(font));
     }
