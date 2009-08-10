@@ -24,8 +24,8 @@
 #define HAVE_PYGAME_SDL_VIDEO
 #define HAVE_PYGAME_SDL_RWOPS
 
-#include "../pygame.h"
-#include "../pgcompat.h"
+#include "pygame.h"
+#include "pgcompat.h"
 
 #if PY3
 #   define IS_PYTHON_3

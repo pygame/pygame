@@ -18,7 +18,6 @@ colors = {
 
 def run():
     pygame.init()
-    freetype.init()
 
     fontdir = os.path.dirname(os.path.abspath (__file__))
     font = freetype.Font(os.path.join (fontdir, "sans.ttf"))

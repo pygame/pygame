@@ -47,7 +47,7 @@ freetype    src/freetype/ft_cache.c \
             src/freetype/ft_render.c \
             src/freetype/ft_render_cb.c \
             src/freetype/ft_text.c \
-            src/freetype/freetype.c \
+            src/freetype.c \
             $(SDL) $(FREETYPE) $(DEBUG)
 
 #these modules are required for pygame to run. they only require

@@ -15,25 +15,30 @@ if is_pygame_pkg:
                                         geterror
 else:
     from test.test_utils import test_not_implemented, unittest, geterror
+
 import pygame
 import pygame.freetype as ft
-import pygame.font
 
-ft.init()
 FONTDIR = os.path.dirname (os.path.abspath (__file__))
 
 class FreeTypeFontTest(unittest.TestCase):
-    _TEST_FONTS = {
+
+    _TEST_FONTS = {}
+
+    def setUp(self):
+        ft.init()
+
+        if 'fixed' not in self._TEST_FONTS:
             # Inconsolata is an open-source font designed by Raph Levien
             # Licensed under the Open Font License
             # http://www.levien.com/type/myfonts/inconsolata.html
-            'fixed' : ft.Font(os.path.join (FONTDIR, 'test_fixed.otf')),
+            self._TEST_FONTS['fixed'] = ft.Font(os.path.join (FONTDIR, 'test_fixed.otf'))
 
+        if 'sans' not in self._TEST_FONTS:
             # Liberation Sans is an open-source font designed by Steve Matteson
             # Licensed under the GNU GPL
             # https://fedorahosted.org/liberation-fonts/
-            'sans'  : ft.Font(os.path.join (FONTDIR, 'test_sans.ttf')),
-    }
+            self._TEST_FONTS['sans'] = ft.Font(os.path.join (FONTDIR, 'test_sans.ttf'))
 
     def test_freetype_defaultfont(self):
         font = ft.Font(None)
@@ -153,7 +158,6 @@ class FreeTypeFontTest(unittest.TestCase):
 
         font = self._TEST_FONTS['sans']
 
-        pygame.init()
         surf = pygame.Surface((800, 600))
         color = pygame.Color(0, 0, 0)
 
@@ -184,8 +188,6 @@ class FreeTypeFontTest(unittest.TestCase):
                 style=None, ptsize=24)
         self.assertRaises(ValueError, font.render, None, 'foobar', color, None,
                 style=97, ptsize=24)
-        pygame.quit()
-
 
 
     def test_freetype_Font_style(self):

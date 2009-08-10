@@ -22,7 +22,7 @@
 #define _PYGAME_FREETYPE_WRAP_H_
 
 #define PYGAME_FREETYPE_INTERNAL
-#include "pgfreetype.h"
+#include "../freetype.h"
 
 /**********************************************************
  * Internal module defines
@@ -35,7 +35,6 @@
 #define PGFT_TRUNC(x)  (   (x) >> 6 )
 
 /* Internal configuration variables */
-#define PGFT_MAX_GLYPHS         64
 #define PGFT_DEFAULT_CACHE_SIZE 64
 #define PGFT_MIN_CACHE_SIZE     32
 #undef  PGFT_DEBUG_CACHE

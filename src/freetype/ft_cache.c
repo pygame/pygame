@@ -21,8 +21,6 @@
 #define PYGAME_FREETYPE_INTERNAL
 
 #include "ft_wrap.h"
-#include "pgfreetype.h"
-
 #include FT_MODULE_H
 
 FT_UInt32 _PGFT_Cache_Hash(const FontRenderMode *, FT_UInt);

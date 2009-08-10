@@ -21,9 +21,9 @@
 #define PYGAME_FREETYPE_INTERNAL
 #define PYGAME_FREETYPE_FONT_INTERNAL
 
-#include "ft_wrap.h"
-#include "pgfreetype.h"
-#include "../doc/freetype_doc.h"
+#include "freetype.h"
+#include "freetype/ft_wrap.h"
+#include "doc/freetype_doc.h"
 
 /*
  * Auxiliar defines
