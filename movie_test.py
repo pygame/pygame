@@ -8,7 +8,7 @@ import pygame._movie as movie
 
 print "Please give an (absolute)filename of a movie file you'd like to play: ",
 #filename = raw_input()
-filename="/home/tyler/War3.avi"
+filename="/home/tyler/tos.avi"
 #initialization. It could also have a surface as a second argument, and every 
 # frame will be blitted to that surface. It is the programmer's responsibility
 # to be on time for rendering that surface.
@@ -51,9 +51,9 @@ time.sleep(2)  #sleep for ten seconds to let one see the video play, and hear
 ##print "X Left:",m.xleft
 time.sleep(10)
 print "Testing seek..."
-m.easy_seek(10, 0, 0, 0)
+m.easy_seek(10, 5, 0, 0)
 time.sleep(5)
-m.easy_seek(10, 0, 0, 0)
+m.easy_seek(10, 10, 0, 0)
 time.sleep(1)
 m.pause()
 time.sleep(5)
@@ -122,7 +122,7 @@ del m
 
 m=movie.Movie(filename, screen)
 counter = 0
-actions = {1: lambda x: x.paused, 6: lambda x:x.pause(), 11: lambda x:x.pause(), 15: lambda x: x.resize(int(x.width*0.9), int(x.height*0.9)), 2000:lambda x: x.stop(), 3000: lambda x: x.play(-1)}
+actions = {1: lambda x: x.paused, 6: lambda x:x.pause(), 11: lambda x:x.pause(), 2000:lambda x: x.stop(), 3000: lambda x: x.play(-1)}
 m.play(0)
 prev_time = time.time()
 #m.resize(m.width*2, m.height*2)

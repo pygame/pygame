@@ -559,7 +559,7 @@ int video_image_display(PyMovie *movie)
             SDL_UnlockYUVOverlay(vp->dest_overlay);
         }
     }
-    else if(vp->dest_surface && vp->overlay<=0 && !movie->skip_frame)
+    else if(vp->dest_surface && vp->overlay<=0)
     {
         SDL_BlitSurface(vp->dest_surface, &vp->dest_rect, movie->canon_surf, &vp->dest_rect);
     }
