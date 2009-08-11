@@ -1053,8 +1053,7 @@ if [ x$BDCLEAN == x1 ]; then
 fi
 """),
     Dependency('FFMPEG', ['ffmpeg'],
-    ['avcodec-52.dll', 'avformat-52.dll', 'avdevice-52.dll',
-     'avutil-50.dll', 'swscale-0.dll'], """
+    ['avformat-52.dll', 'swscale-0.dll', 'SDL_mixer.dll'], """
 
 set -e
 cd $BDWD
@@ -1075,12 +1074,21 @@ if [ x$BDSTRIP == x1 ]; then
   strip --strip-all /usr/local/bin/SDL_ttf.dll
 fi
 
+if [ x$BDINST == x1 ]; then
+  cd libswscale/
+  make
+  make install
+  cd ..
+fi
+
 if [ x$BDCLEAN == x1 ]; then
   set +e
   make clean
 fi
 """),
-    ]  # End dependencies = [.
+
+	
+	]  # End dependencies = [.
 
 
 msys_prep = Preparation('/usr/local', """

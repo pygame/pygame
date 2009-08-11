@@ -235,6 +235,7 @@ def main():
         Dependency('JPEG', 'jpeglib.h', 'libjpeg.dll.a'),
         Dependency('PORTMIDI', 'portmidi.h', 'libportmidi.dll.a'),
         Dependency('PORTTIME', 'portmidi.h', 'libportmidi.dll.a'),
+		Dependency('FFMPEG', 'libavformat/avformat.h', 'libavformat.a', ['avformat', 'swscale', 'SDL_mixer']),     
         DependencyDLL('TIFF'),
         DependencyDLL('VORBISFILE'),
         DependencyDLL('VORBIS'),

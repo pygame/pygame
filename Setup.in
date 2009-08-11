@@ -17,7 +17,7 @@ JPEG = -ljpeg
 SCRAP = -lX11
 PORTMIDI = -lportmidi
 PORTTIME = -lporttime
-FFMPEG   = -lavcodec -lavdevice -lavformat -lavutil -lswscale -lSDL_mixer
+FFMPEG   = -lavformat -lswscale -lSDL_mixer
 #--EndConfig
 
 #DEBUG = -C-W -C-Wall
