@@ -2418,11 +2418,11 @@ int video_render(PyMovie *movie)
             }
         }
         av_free_packet(pkt);
+	    av_free(frame);
     }
     while(0);
 
 the_end:
-    av_free(frame);
     return 0;
 }
 #if 0

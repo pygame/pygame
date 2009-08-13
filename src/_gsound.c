@@ -61,7 +61,14 @@ void queue_flush(BufferQueue *q)
 
 void cb_mixer(int channel)
 {
-    playBuffer(NULL, (uint32_t) 0, channel, 0);
+	Mix_Chunk *mix;
+	mix= Mix_GetChunk(channel);
+	if(mix->abuf)
+		PyMem_Free(mix->abuf);
+	if(mix)
+		PyMem_Free(mix);
+    playBufferQueue();
+    
 }
 
 //initialize the mixer audio subsystem, code cribbed from mixer.c
@@ -205,79 +212,25 @@ int playBuffer (uint8_t *buf, uint32_t len, int channel, int64_t pts)
 {
 	//SDL_mutexP(ainfo->mutex);
     Mix_Chunk *mix;
-    int false=0;
-    int allocated=0;
     if(!ainfo->ended && (ainfo->queue.size>0||ainfo->playing))
     {
-        if(buf)
-        {   
-        	//not a callback call, so we copy the buffer into a buffernode and add it to the queue.
-            BufferNode *node;
-            node = (BufferNode *)PyMem_Malloc(sizeof(BufferNode));
-            node->buf = (uint8_t *)PyMem_Malloc((size_t)len);
-            memcpy(node->buf, buf, (size_t)len);
-            node->len = len;
-            node->next =NULL;
-            node->pts = pts;
-            queue_put(&ainfo->queue, node);
-            //SDL_mutexV(ainfo->mutex);
-            if(ainfo->channel<0)
-            	ainfo->channel=channel;
-            return ainfo->channel;
-        }
-        else if(!buf && ainfo->queue.size==0)
-        {  
-            
-            //callback call but when the queue is empty, so we just load a short empty sound.
-            buf = (uint8_t *) PyMem_Malloc((size_t)1024);
-            memset(buf, 0, (size_t)1024);
-            ainfo->current_frame_size=1;
-            len=1024;
-            allocated =1;
-        	false=1;
-        }
-        else
-        {
-            //callback call, and convenienty enough, the queue has a buffer ready to go, so we copy it into buf
-            BufferNode *newNode;
-            queue_get(&ainfo->queue, &newNode);
-            if(!newNode)
-            {
-                //SDL_mutexV(ainfo->mutex);
-                return -1;
-            }
-            ainfo->current_frame_size=newNode->len;
-            pts=newNode->pts;
-            buf = (uint8_t *)PyMem_Malloc((size_t)newNode->len);
-            memcpy(buf, newNode->buf, newNode->len);
-            len=newNode->len;
-            PyMem_Free(newNode->buf);
-            newNode->buf=NULL;
-            PyMem_Free(newNode);
-            newNode=NULL;
-            allocated=1;
-        }
-    }
-    
-    //we assume that if stopped is true, then
-    if(ainfo->ended && !buf)
-    {
-        //callback call but when the queue is empty, so we just load a short empty sound.
-        buf = (uint8_t *) PyMem_Malloc((size_t)1024);
-        memset(buf, 0, (size_t)1024);
-        ainfo->current_frame_size=1;
-        len=1024;
-        allocated =1;
-        false=1;
-    }
-    else if(ainfo->ended && buf)
-    {
-    	//toss the buffer out. we don't need it.
-    	return ainfo->channel;
-    }
+    	//not a callback call, so we copy the buffer into a buffernode and add it to the queue.
+        BufferNode *node;
+        node = (BufferNode *)PyMem_Malloc(sizeof(BufferNode));
+        node->buf = (uint8_t *)PyMem_Malloc((size_t)len);
+        memcpy(node->buf, buf, (size_t)len);
+        node->len = len;
+        node->next =NULL;
+        node->pts = pts;
+        queue_put(&ainfo->queue, node);
+        //SDL_mutexV(ainfo->mutex);
+        if(ainfo->channel<0)
+        	ainfo->channel=channel;
+        return ainfo->channel;
+    }     
     //regardless of 1st call, or a callback, we load the data from buf into a newly allocated block.
     mix= (Mix_Chunk *)PyMem_Malloc(sizeof(Mix_Chunk));
-    mix->allocated=0;
+    mix->allocated=1;
 	mix->abuf = (Uint8 *)PyMem_Malloc((size_t)len);
     memcpy(mix->abuf, buf, len);
     mix->alen = (Uint32 )len;
@@ -290,31 +243,13 @@ int playBuffer (uint8_t *buf, uint32_t len, int channel, int64_t pts)
     	
 	}
     ainfo->current_frame_size =len;
-    int chan = ainfo->channel;
-    
-    //SDL_mutexV(ainfo->mutex);
-    int paused = Mix_Paused(channel);
-    if(paused)
+    int playing = Mix_Playing(channel);
+    if(playing)
     {
-    	ainfo->ended=0;
-        Mix_Resume(-1);
+    	return channel;
     }
-    
-    int playing = Mix_Playing(chan);
-    if(playing && allocated &&false)
-    {
-    	return chan;
-    }
-    if(mix==NULL)
-    {
-    	return chan;
-    }
-    int ret = Mix_PlayChannel(chan, mix, 0);
+    int ret = Mix_PlayChannel(channel, mix, 0);
     ainfo->channel = ret;
-    if(allocated)
-    {
-        PyMem_Free(buf);
-    }
     return ret;
 }
 
@@ -323,6 +258,67 @@ int stopBuffer (int channel)
     if(!channel)
         return 0;
     return 0;
+}
+
+void playBufferQueue(void)
+{
+	uint8_t *buf;
+	int len=0;
+	int64_t pts;
+	if(!ainfo->ended && ainfo->queue.size<=0)
+	{            
+        //callback call but when the queue is empty, so we just load a short empty sound.
+        buf = (uint8_t *) PyMem_Malloc((size_t)128);
+        memset(buf, 0, (size_t)128);
+        ainfo->current_frame_size=1;
+        len=128;
+    }
+    else if(!ainfo->ended && ainfo->queue.size>0)
+    {
+        //callback call, and convenienty enough, the queue has a buffer ready to go, so we copy it into buf
+        BufferNode *newNode;
+        queue_get(&ainfo->queue, &newNode);
+        if(!newNode)
+        {
+            //SDL_mutexV(ainfo->mutex);
+            return;
+        }
+        ainfo->current_frame_size=newNode->len;
+        pts=newNode->pts;
+        buf = (uint8_t *)newNode->buf;
+        ainfo->current_frame_size=newNode->len;
+        len=newNode->len;
+        PyMem_Free(newNode);
+        newNode=NULL;
+    }
+    
+    //we assume that if stopped is true, then
+    if(ainfo->ended && !buf)
+    {
+        //callback call but when the queue is empty, so we just load a short empty sound.
+        buf = (uint8_t *) PyMem_Malloc((size_t)1024);
+        memset(buf, 0, (size_t)1024);
+        ainfo->current_frame_size=1;
+        len=1024;
+    }
+    //regardless of 1st call, or a callback, we load the data from buf into a newly allocated block.
+    Mix_Chunk *mix;
+    mix= (Mix_Chunk *)PyMem_Malloc(sizeof(Mix_Chunk));
+    mix->allocated=1;
+	mix->abuf = buf;
+    mix->alen = (Uint32 )len;
+    mix->volume = 127;
+ 	if(!ainfo->ended && len!=0)
+	{
+    	int bytes_per_sec = ainfo->channels*ainfo->sample_rate*2;
+    	ainfo->audio_clock+= (double) len/(double) bytes_per_sec;    	
+	}
+    ainfo->current_frame_size =len;
+    int chan = ainfo->channel;
+    
+    int ret = Mix_PlayChannel(chan, mix, 0);
+    ainfo->channel = ret;
+    return;
 }
 
 int pauseBuffer(int channel)

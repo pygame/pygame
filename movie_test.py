@@ -8,7 +8,7 @@ import pygame._movie as movie
 
 print "Please give an (absolute)filename of a movie file you'd like to play: ",
 #filename = raw_input()
-filename="./video.flv"
+filename="/home/tyler/video.flv"
 #initialization. It could also have a surface as a second argument, and every 
 # frame will be blitted to that surface. It is the programmer's responsibility
 # to be on time for rendering that surface.
