@@ -5,6 +5,7 @@
 #include <SDL.h>
 #include <SDL_thread.h>
 #include <libavformat/avformat.h>
+
 typedef struct BufferNode
 {
     uint8_t *buf;

@@ -945,6 +945,8 @@ def = portmidi.def
 IHDR := -I$(pmcom) -I$(pmwin) -I$(pt)
 LIBS := $(LOADLIBES) $(LDLIBS) -lwinmm
 
+
+
 all : $(pmdll)
 .PHONY : all
 
@@ -952,12 +954,12 @@ $(pmwin)/pmwinmm_.c : $(pmwin)/pmwinmm.c
 \tsed 's_#define DEBUG.*$$_/*&*/_' < "$<" > "$@"
 
 $(pmlib) : $(src) $(hdr)
-\t$(CC) $(CPPFLAGS) $(IHDR) -c $(CFLAGS) $(src)
+\tc++ $(CPPFLAGS) $(IHDR) -c $(CFLAGS) $(src)
 \tar rc $(pmlib) $(obj)
 \tranlib $(pmlib)
 
 $(pmdll) : $(pmlib) $(def)
-\t$(CC) -shared $(LDFLAGS) -def $(def) $(pmlib) $(LIBS) -o $@
+\tc++ -shared $(LDFLAGS) -def $(def) $(pmlib) $(LIBS) -o $@
 \tdlltool -D $(pmdll) -d $(def) -l $(pmimplib)
 \tranlib $(pmimplib)
 

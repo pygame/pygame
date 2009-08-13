@@ -8,7 +8,7 @@ import pygame._movie as movie
 
 print "Please give an (absolute)filename of a movie file you'd like to play: ",
 #filename = raw_input()
-filename="/home/tyler/tos.avi"
+filename="./video.flv"
 #initialization. It could also have a surface as a second argument, and every 
 # frame will be blitted to that surface. It is the programmer's responsibility
 # to be on time for rendering that surface.
@@ -34,8 +34,8 @@ print m.height  # They can be modified on the fly, as will be demonstrated.
 print m         #calls __repr__, which will show the filename, and the current 
                 # timestamp. 
 #print "repeated looping plays.."#
-#m.play(10)
-#time.sleep(10*30)
+m.play(9)
+time.sleep(9*130)
 
 
 print "Playing infinitely"
