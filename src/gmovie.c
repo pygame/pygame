@@ -227,7 +227,7 @@ PyObject* _movie_play(PyMovie *movie, PyObject* args)
 
 PyObject* _movie_stop(PyMovie *movie)
 {
-    stream_pause(movie);
+    //stream_pause(movie);
     ALLOC_COMMAND(stopCommand, stop);
     addCommand(movie->commands, (Command *)stop);
     Py_RETURN_NONE;

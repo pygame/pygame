@@ -1064,7 +1064,7 @@ int audio_thread(void *arg)
         }
         //check if the movie has ended
         
-        if(getBufferQueueSize()>10)
+        if(getBufferQueueSize()>20)
         {
         	SDL_Delay(100);
         	continue;
@@ -1679,10 +1679,10 @@ int initialize_codec(PyMovie *movie, int stream_index, int threaded)
 void stream_close(PyMovie *movie, int threaded)
 {
     DECLAREGIL
-    GRABGIL
+    if(threaded)GRABGIL
     if(movie->ob_refcnt!=0)
         Py_INCREF(movie);
-    RELEASEGIL
+    if(threaded)RELEASEGIL
     movie->abort_request = 1;
     SDL_WaitThread(movie->parse_tid, NULL);
     VidPicture *vp;
@@ -1735,9 +1735,9 @@ void stream_close(PyMovie *movie, int threaded)
 
     if(movie->ob_refcnt!=0)
     {
-        GRABGIL
+        if(threaded)GRABGIL
         Py_DECREF(movie);
-        RELEASEGIL
+        if(threaded)RELEASEGIL
     }
 }
 
@@ -1865,7 +1865,9 @@ int decoder_wrapper(void *arg)
 	                vp->dest_surface=NULL;
 	            }
 	            
-	        }	
+	        }
+	        if (SDL_WasInit (SDL_INIT_VIDEO))
+        		SDL_QuitSubSystem (SDL_INIT_VIDEO);	
     	}
     }
     GRABGIL

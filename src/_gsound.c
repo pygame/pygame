@@ -204,6 +204,7 @@ int soundEnd   (void)
     ainfo->ended = 1;
     ainfo->restart=1;
     queue_flush(&ainfo->queue);
+    ainfo->queue.size=0;
     return 0;
 }
 
@@ -255,8 +256,7 @@ int playBuffer (uint8_t *buf, uint32_t len, int channel, int64_t pts)
 
 int stopBuffer (int channel)
 {
-    if(!channel)
-        return 0;
+	queue_flush(&ainfo->queue);
     return 0;
 }
 
