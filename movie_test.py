@@ -51,9 +51,9 @@ time.sleep(2)  #sleep for ten seconds to let one see the video play, and hear
 ##print "X Left:",m.xleft
 time.sleep(10)
 print "Testing seek..."
-m.easy_seek(10, 5, 0, 0)
+m.easy_seek(10, 1, 0, 0)
 time.sleep(5)
-m.easy_seek(10, 10, 0, 0)
+m.easy_seek(10, 0, 0, 0)
 time.sleep(1)
 m.pause()
 time.sleep(5)
@@ -105,6 +105,8 @@ m=movie.Movie(filename)
 m.play(-1)
 print "done restart play..."
 time.sleep(10)
+import sys
+#sys.exit()
 print "Surface time..."
 screen = pygame.display.set_mode((640, 348))
 m.surface=screen

@@ -107,12 +107,7 @@ void _movie_dealloc(PyMovie *movie)
 	}
 	if(!movie->stop)
 	{
-		Py_BEGIN_ALLOW_THREADS
-	    SDL_LockMutex(movie->dest_mutex);
-	    stream_pause(movie);
-	    movie->stop = 1;
-	    Py_END_ALLOW_THREADS
-	    SDL_UnlockMutex(movie->dest_mutex);
+		_movie_stop(movie);	
 	}
 	#ifdef PROFILE
 		TimeSampleNode *cur = movie->istats->first;
@@ -262,6 +257,10 @@ PyObject* _movie_resize       (PyMovie *movie, PyObject* args)
     {
         return RAISE (PyExc_SDLError, "Cannot set negative sized display mode");
     }
+    if(movie->canon_surf)
+    {
+    	Py_RETURN_NONE;
+    }
     ALLOC_COMMAND(resizeCommand, resize);
     
     resize->h = h;
@@ -371,7 +370,7 @@ PyObject* _movie_get_width (PyMovie *movie, void *closure)
 int _movie_set_width (PyMovie *movie, PyObject *width, void *closure)
 {
     int w;
-    if(PyInt_Check(width))
+    if(PyInt_Check(width) && !movie->canon_surf)
     {
         w = (int)PyInt_AsLong(width);
         ALLOC_COMMAND(resizeCommand, resize);
@@ -411,7 +410,7 @@ PyObject* _movie_get_height (PyMovie *movie, void *closure)
 int _movie_set_height (PyMovie *movie, PyObject *height, void *closure)
 {
     int h;
-    if(PyInt_Check(height))
+    if(PyInt_Check(height)  && !movie->canon_surf)
     {
         h = (int)PyInt_AsLong(height);
     	

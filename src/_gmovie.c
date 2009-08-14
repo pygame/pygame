@@ -417,7 +417,7 @@ inline void jamPixels(int ix, AVPicture *picture, uint32_t *rgb, SDL_Surface *su
 }
 
 //transfers data from the AVPicture written to by swscale to a surface
-void WritePicture2Surface(AVPicture *picture, SDL_Surface *surface)
+void WritePicture2Surface(AVPicture *picture, SDL_Surface *surface, int w, int h)
 {
 	/* AVPicture initialized with PIX_FMT_RGBA only fills pict->data[0]
 	 *  This however is only in {R,G,B, A} format. So we just copy the data over. 
@@ -432,7 +432,7 @@ void WritePicture2Surface(AVPicture *picture, SDL_Surface *surface)
 	int64_t   blocksize     = 8;
 	uint32_t *rgb           = surface->pixels;
 	int       BytesPerPixel = RGBSTEP;
-	int64_t   size          = surface->w*surface->h*BytesPerPixel;
+	int64_t   size          = w*h*BytesPerPixel;
 	int64_t   ix            = 0;
 	int64_t   blocklimit    = (size/blocksize)*blocksize;  
 	while(ix<blocklimit)
@@ -575,8 +575,11 @@ int video_open(PyMovie *movie, int index)
 {
     int w=0;
     int h=0;
+    
     DECLAREGIL
     get_height_width(movie, &h, &w);
+    int tw=w;
+	int th=h;
     VidPicture *vp;
 	for(index=0;index<VIDEO_PICTURE_QUEUE_SIZE; index++)
 	{
@@ -636,20 +639,9 @@ int video_open(PyMovie *movie, int index)
 		        vp->overlay = movie->overlay;
 	    	}
 	    }
-	    if (
-	    	(!vp->dest_surface && movie->overlay<=0) || 
-	    	(
-	    		(movie->resize_w||movie->resize_h) && 
-	    		vp->dest_surface && 
-	    		(vp->height!=h || vp->width!=w)
-	    	)
-	    )
+	    if (!vp->dest_surface && movie->overlay<=0)
 	    {
 	        //now we have to open an overlay up
-	        if(movie->resize_w||movie->resize_h)
-	        {
-	            SDL_FreeSurface(vp->dest_surface);
-	        }
 	        if(movie->overlay<=0)
 			{
 		        SDL_Surface *screen = movie->canon_surf;
@@ -667,29 +659,11 @@ int video_open(PyMovie *movie, int index)
 		            RELEASEGIL										  // happen if there's some cleaning up.
 		            return -1;
 		        }
-		        SDL_Surface *display = SDL_GetVideoSurface ();
-		        if (!display || (display && (display->w!=w || display->h !=h)))
-		        {
-		            display = SDL_SetVideoMode(w, h, 0, SDL_SWSURFACE);
-		            if(!display)
-		            {
-		                GRABGIL
-		                RAISE(PyExc_SDLError, "Could not initialize a new video surface.");
-		                RELEASEGIL
-		                return -1;
-		            }
-		        }
-		        
-		        int tw=w;
-		        int th=h;
-		        if(!movie->resize_w)
-		        {
-		            tw=screen->w;
-		        }
-		        if(!movie->resize_h)
-		        {
-		            th=screen->h;
-		        }
+		        if(screen->h!=h)
+		        	{th=screen->h;}
+		        if(screen->w!=w)
+		        	{tw=screen->w;}
+		        	
 			    vp->dest_surface = SDL_CreateRGBSurface(screen->flags,
 		                                                tw,
 		                                                th,
@@ -709,8 +683,8 @@ int video_open(PyMovie *movie, int index)
 		        vp->overlay = movie->overlay;
 			}
 	    }
-	    vp->width = w;
-    	vp->height = h;
+	    vp->width = tw;
+    	vp->height = th;
     	vp->ytop=movie->ytop;
     	vp->xleft=movie->xleft;
     
@@ -895,7 +869,13 @@ int queue_picture(PyMovie *movie, AVFrame *src_frame)
     }
     else if(vp->dest_surface)
     {
-        WritePicture2Surface(&pict, vp->dest_surface);
+    	int pw=vp->dest_surface->w;
+    	int ph=vp->dest_surface->h;
+    	if(w<vp->dest_surface->w)
+    		{pw=w;}
+    	if(h<vp->dest_surface->h)
+    		{ph=h;}
+        WritePicture2Surface(&pict, vp->dest_surface, pw, ph);
         SDL_UnlockSurface(vp->dest_surface);
         avpicture_free(&pict);
     }
@@ -1060,6 +1040,12 @@ int audio_thread(void *arg)
     int co = 0;
     for(;;)
     {
+    	if(movie->stop || movie->audioq.abort_request)
+        {
+         	pauseBuffer(movie->channel);
+            stopBuffer(movie->channel);
+            goto closing;
+        }
     	if(movie->paused!=movie->audio_paused)
     	{
     		pauseBuffer(movie->channel);
@@ -1077,11 +1063,7 @@ int audio_thread(void *arg)
         	continue;
         }
         //check if the movie has ended
-        if(movie->stop || movie->audioq.abort_request)
-        {
-            stopBuffer(movie->channel);
-            goto closing;
-        }
+        
         if(getBufferQueueSize()>10)
         {
         	SDL_Delay(100);
@@ -2110,27 +2092,30 @@ int decoder(void *arg)
      
             movie->seek_req = 0;
             //now we need to seek to a keyframe...
-         	while(av_read_frame(ic, pkt)>=0)
-         	{
-         		if(pkt->stream_index == movie->video_stream)
-         		{
-         			int bytesDecoded, frameFinished;
-         			AVFrame *frame;
-         			frame=avcodec_alloc_frame();
-         			bytesDecoded = avcodec_decode_video(movie->video_st->codec, frame, &frameFinished, pkt->data, pkt->size);
-         			if(frameFinished)
-         			{
-         				if((pkt->pts >= vid_seek_target) || (pkt->dts >= vid_seek_target))
-         				{
-         					av_free(frame);
-         					break;
-         				}
-         			}
-         			av_free(frame);
-         		}
-         		av_free_packet(pkt);
-         	}
-         	av_free_packet(pkt);
+            if(ic->streams[vid_stream_index]->duration>0)
+            {
+	         	while(av_read_frame(ic, pkt)>=0)
+	         	{
+	         		if(pkt->stream_index == movie->video_stream)
+	         		{
+	         			int bytesDecoded, frameFinished;
+	         			AVFrame *frame;
+	         			frame=avcodec_alloc_frame();
+	         			bytesDecoded = avcodec_decode_video(movie->video_st->codec, frame, &frameFinished, pkt->data, pkt->size);
+	         			if(frameFinished)
+	         			{
+	         				if((pkt->pts >= vid_seek_target) || (pkt->dts >= vid_seek_target))
+	         				{
+	         					av_free(frame);
+	         					break;
+	         				}
+	         			}
+	         			av_free(frame);
+	         		}
+	         		av_free_packet(pkt);
+	         	}
+	         	av_free_packet(pkt);
+            }
          	        	
         }
         /* if the queue are full, no need to read more */
