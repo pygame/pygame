@@ -525,13 +525,13 @@ int _movie_set_surface(PyObject *mov, PyObject *surface, void *closure)
 }
 
 static PyMethodDef _movie_methods[] = {
-                                          { "play",      (PyCFunction) _movie_play,      METH_VARARGS,               DOC_GMOVIEMOVIEPLAY},
-                                          { "stop",      (PyCFunction) _movie_stop,      METH_NOARGS,                DOC_GMOVIEMOVIESTOP},
-                                          { "pause",     (PyCFunction) _movie_pause,     METH_NOARGS,                DOC_GMOVIEMOVIEPAUSE},
-                                          { "rewind",    (PyCFunction) _movie_rewind,    METH_VARARGS,               DOC_GMOVIEMOVIEREWIND},
-                                          { "resize",    (PyCFunction) _movie_resize,    METH_VARARGS,               DOC_GMOVIEMOVIERESIZE},
-                                          { "easy_seek", (PyCFunction) _movie_easy_seek, METH_VARARGS, NULL},
-                                          { "shift",     (PyCFunction) _movie_shift, METH_VARARGS, NULL},
+                                          { "play",      (PyCFunction) _movie_play,      METH_VARARGS, DOC_GMOVIEMOVIEPLAY},
+                                          { "stop",      (PyCFunction) _movie_stop,      METH_NOARGS,  DOC_GMOVIEMOVIESTOP},
+                                          { "pause",     (PyCFunction) _movie_pause,     METH_NOARGS,  DOC_GMOVIEMOVIEPAUSE},
+                                          { "rewind",    (PyCFunction) _movie_rewind,    METH_VARARGS, DOC_GMOVIEMOVIEREWIND},
+                                          { "resize",    (PyCFunction) _movie_resize,    METH_VARARGS, DOC_GMOVIEMOVIERESIZE},
+                                          { "easy_seek", (PyCFunction) _movie_easy_seek, METH_VARARGS, DOC_GMOVIEMOVIEEASY_SEEK},
+                                          { "shift",     (PyCFunction) _movie_shift,     METH_VARARGS, DOC_GMOVIEMOVIESHIFT},
                                           { NULL,     NULL,                        0,            NULL }
                                       };
 
@@ -542,15 +542,15 @@ static PyMemberDef _movie_members[] = {
 
 static PyGetSetDef _movie_getsets[] =
     {
-        { "paused",   (getter) _movie_get_paused,   NULL,                       DOC_GMOVIEMOVIEPAUSE,   NULL },
-        { "playing",  (getter) _movie_get_playing,  NULL,                       DOC_GMOVIEMOVIEPLAYING, NULL },
-        { "finished", (getter) _movie_get_finished, NULL,                       NULL,                   NULL },
-        { "height",   (getter) _movie_get_height,  (setter) _movie_set_height,  DOC_GMOVIEMOVIEHEIGHT,  NULL },
-        { "width",    (getter) _movie_get_width,   (setter) _movie_set_width,   DOC_GMOVIEMOVIEWIDTH,   NULL },
-        { "surface",  (getter) _movie_get_surface, (setter) _movie_set_surface, DOC_GMOVIEMOVIESURFACE, NULL },
-        { "ytop",     (getter) _movie_get_ytop,    (setter) _movie_set_ytop,    NULL,                   NULL },
-        { "xleft",    (getter) _movie_get_xleft,   (setter) _movie_set_xleft,   NULL,                   NULL },
-        { NULL,       NULL,                        NULL,                        NULL,                   NULL }
+        { "paused",   (getter) _movie_get_paused,   NULL,                       DOC_GMOVIEMOVIEPAUSE,    NULL },
+        { "playing",  (getter) _movie_get_playing,  NULL,                       DOC_GMOVIEMOVIEPLAYING,  NULL },
+        { "finished", (getter) _movie_get_finished, NULL,                       DOC_GMOVIEMOVIEFINISHED, NULL },
+        { "height",   (getter) _movie_get_height,  (setter) _movie_set_height,  DOC_GMOVIEMOVIEHEIGHT,   NULL },
+        { "width",    (getter) _movie_get_width,   (setter) _movie_set_width,   DOC_GMOVIEMOVIEWIDTH,    NULL },
+        { "surface",  (getter) _movie_get_surface, (setter) _movie_set_surface, DOC_GMOVIEMOVIESURFACE,  NULL },
+        { "ytop",     (getter) _movie_get_ytop,    (setter) _movie_set_ytop,    DOC_GMOVIEMOVIEYTOP,     NULL },
+        { "xleft",    (getter) _movie_get_xleft,   (setter) _movie_set_xleft,   DOC_GMOVIEMOVIEXLEFT,    NULL },
+        { NULL,       NULL,                        NULL,                        NULL,                    NULL }
     };
 
 static PyTypeObject PyMovie_Type =

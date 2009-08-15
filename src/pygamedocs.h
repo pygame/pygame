@@ -1073,29 +1073,6 @@
 
 #define DOC_PYGAMETRANSFORMTHRESHOLD "pygame.transform.threshold(DestSurface, Surface, color, threshold = (0,0,0,0), diff_color = (0,0,0,0), change_return = 1, Surface = None, inverse = False): return num_threshold_pixels\nfinds which, and how many pixels in a surface are within a threshold of a color."
 
-#define DOC_GMOVIE "pygame backend module that wraps the ffmpeg library to play video files"
-
-#define DOC_GMOVIEMOVIE "pygame._movie.Movie(filename, surface=None): returns Movie or None\nIf the optional surface argument is a surface, then the movie will output to that surface instead of using overlays."
-
-#define DOC_GMOVIEMOVIEPLAY "pygame._movie.Movie.play(loops=0): return None\nplays the video file loops+1 times."
-
-#define DOC_GMOVIEMOVIESTOP "pygame._movie.Movie.stop(): return None\nstops the video file and returns it to timestamp o."
-
-#define DOC_GMOVIEMOVIEPAUSE "pygame._movie.Movie.pause(): return None\npauses video file at that very moment or unpauses the video file."
-
-#define DOC_GMOVIEMOVIEREWIND "pygame._movie.Movie.rewind(): return None\nsame as stop()"
-
-#define DOC_GMOVIEMOVIERESIZE "pygame._movie.Movie.resize(width, height): return None\nresizes the video screen"
-
-#define DOC_GMOVIEMOVIEPAUSED "pygame._movie.Movie.paused: return bool\nchecks if the movie file has been paused"
-
-#define DOC_GMOVIEMOVIEPLAYING "pygame._movie.Movie.playing: return bool\nchecks if the movie file is playing. True even when paused, but false when stop has been called."
-
-#define DOC_GMOVIEMOVIEWIDTH   "pygame._movie.Movie.width: Gets or sets the width\nGet or set the width of the screen for the video playback"
-
-#define DOC_GMOVIEMOVIEHEIGHT  "pygame._movie.Movie.height: Gets or sets the height\nGet or set the height of the screen for the video playback"
-
-#define DOC_GMOVIEMOVIESURFACE "pygame._movie.Movie.surface: Gets or sets the surface to which the video is displayed on"
 
 /* Docs in a comments... slightly easier to read. */
 

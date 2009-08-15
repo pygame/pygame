@@ -1,10 +1,46 @@
+/*
+  pygame - Python Game Library
+
+  This library is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Library General Public
+  License as published by the Free Software Foundation; either
+  version 2 of the License, or (at your option) any later version.
+
+  This library is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Library General Public License for more details.
+
+  You should have received a copy of the GNU Library General Public
+  License along with this library; if not, write to the Free
+  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+  
+*/
+
+/*
+ * _movie - movie support for pygame with ffmpeg
+ * Author: Tyler Laing
+ *
+ * This module allows for the loading of, playing, pausing, stopping, and so on
+ *  of a video file. Any format supported by ffmpeg is supported by this
+ *  video player. Any bugs, please email trinioler@gmail.com :)
+ */
+
+/* Sound module:
+ *  We use SDL_mixer to manage things, and provide a simple callback.
+ *  The interface is simple, to avoid the mess of dealing with sound and
+ *  channel management within _gmovie.c which was getting long enough as it was.
+ */ 
+
 #include "_gsound.h"
 
+/* Default values if none given */
 #define _MIXER_DEFAULT_FREQUENCY 22050
 #define _MIXER_DEFAULT_SIZE -16
 #define _MIXER_DEFAULT_CHANNELS 2
 #define _MIXER_DEFAULT_CHUNKSIZE 4096
 
+/* queue management functions */
 int queue_get(BufferQueue *q, BufferNode **pkt1)
 {
     int ret;
@@ -59,6 +95,11 @@ void queue_flush(BufferQueue *q)
     }
 }
 
+/* SDL mixer callback function:
+ *  The idea is to get the next sound sample played as quickly as possible. 
+ *  We free the last played chunk, then call playBufferQueue, explained '
+ *  below. 
+ */
 void cb_mixer(int channel)
 {
 	Mix_Chunk *mix;
@@ -158,6 +199,7 @@ int soundInit  (int freq, int size, int channels, int chunksize, double time_bas
 #endif
 
     }
+    /* global struct initialization */
     ainfo = (AudioInfo *)PyMem_Malloc(sizeof(AudioInfo));
     ainfo->channel = 0;
     ainfo->channels = channels;
@@ -175,6 +217,7 @@ int soundInit  (int freq, int size, int channels, int chunksize, double time_bas
     return 0;
 }
 
+/* basic sound quit routine */
 int soundQuit(void)
 {
     if (SDL_WasInit (SDL_INIT_AUDIO))
@@ -188,6 +231,7 @@ int soundQuit(void)
     return 0;
 }
 
+/* basic sound start routine */
 int soundStart (void)
 {
     Mix_ChannelFinished(&cb_mixer);
@@ -198,7 +242,8 @@ int soundStart (void)
     ainfo->current_frame_size=1;
     return 0;
 }
-
+/*basic sound end routine, used for pauses, the movie object ends, but the 
+ * movie object isn't deallocated yet, etc */
 int soundEnd   (void)
 {
     ainfo->ended = 1;
@@ -208,7 +253,9 @@ int soundEnd   (void)
     return 0;
 }
 
-/* Play a sound buffer, with a given length */
+/* Play a sound buffer, with a given length 
+ *  This will place the buffer on the queue, if a sound is already playing. 
+ */
 int playBuffer (uint8_t *buf, uint32_t len, int channel, int64_t pts)
 {
 	//SDL_mutexP(ainfo->mutex);
@@ -280,7 +327,6 @@ void playBufferQueue(void)
         queue_get(&ainfo->queue, &newNode);
         if(!newNode)
         {
-            //SDL_mutexV(ainfo->mutex);
             return;
         }
         ainfo->current_frame_size=newNode->len;
@@ -367,11 +413,9 @@ int setCallback(void (*callback)(int channel))
 
 double getAudioClock(void)
 {
-    //SDL_mutexP(ainfo->mutex);//lock
     int bytes_per_sec = ainfo->channels*ainfo->sample_rate*2;
     double pts = ainfo->audio_clock;
     pts -= (double) ainfo->current_frame_size/(double) bytes_per_sec;
-    //SDL_mutexV(ainfo->mutex);
     return pts;
 }
 
