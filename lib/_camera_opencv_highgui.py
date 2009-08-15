@@ -23,7 +23,7 @@ def quit():
 
 class Camera:
 
-    def __init__(self, device =0, size = (640,480), mode = "RGB"):
+    def __init__(self, device = 0, size = (640,480), mode = "RGB"):
         """
         """
         self.camera = highgui.cvCreateCameraCapture(device)

@@ -41,6 +41,8 @@
 
     #include <linux/videodev.h>
     #include <linux/videodev2.h>
+#elif define(__APPLE__)
+
 #endif
 
 #define CLEAR(x) memset (&(x), 0, sizeof (x))
@@ -115,4 +117,12 @@ int v4l2_open_device (PyCameraObject* self);
 int v4l_open_device (PyCameraObject* self);
 int v4l_init_device(PyCameraObject* self);
 int v4l_start_capturing(PyCameraObject* self);
+#elif define(__APPLE__)
+char** mac_list_cameras(int* num_devices);
+int mac_open_device (PyCameraObject* self);
+int mac_init_device(PyCameraObject* self);
+int mac_close_device (PyCameraObject* self);
+
+int mac_start_capturing(PyCameraObject* self);
+int mac_stop_capturing (PyCameraObject* self);
 #endif
