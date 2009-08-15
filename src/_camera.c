@@ -150,7 +150,7 @@ PyObject* list_cameras (PyObject* self, PyObject* arg)
     free(devices);
     
     return ret_list;
-#else
+#else /* Hier komt apple gedoe... */
 	Py_RETURN_NONE;
 #endif
 }
