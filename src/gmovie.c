@@ -104,10 +104,7 @@ void _movie_dealloc(PyMovie *movie)
 	if(movie->_tstate)
 	{
 		PyThreadState_Clear(movie->_tstate);
-	}
-	if(!movie->stop)
-	{
-		_movie_stop(movie);	
+		//PyThreadState_Delete(movie->_tstate);
 	}
 	#ifdef PROFILE
 		TimeSampleNode *cur = movie->istats->first;
@@ -120,6 +117,9 @@ void _movie_dealloc(PyMovie *movie)
     	}
     	PyMem_Free(movie->istats);
     #endif
+    SDL_DestroyMutex(movie->commands->q_mutex);
+    PyMem_Free(movie->commands);
+    movie->commands=NULL;
 	stream_close(movie, 0);
     movie->ob_type->tp_free((PyObject *) movie);
 }

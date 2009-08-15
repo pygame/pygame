@@ -410,6 +410,7 @@ inline void jamPixels(int ix, AVPicture *picture, uint32_t *rgb, SDL_Surface *su
 	uint8_t blue  = picture->data[0][ix+2];
 	//skip the alpha... we don't care
     /* shift components to the correct place in pixel */
+    	
     *rgb = ( red   << (long) surface->format->Rshift) | /* red */
             ( blue  << (long) surface->format->Bshift ) | /* green */
             ( green << (long) surface->format->Gshift ) | /* blue */
@@ -512,13 +513,14 @@ int video_image_display(PyMovie *movie)
     }
     x = (vp->width - width) / 2;
     y = (vp->height - height) / 2;
-
+	
 	//we set the rect to have the values we need for blitting/overlay display
     vp->dest_rect.x = vp->xleft + x;
     vp->dest_rect.y = vp->ytop  + y;
-    vp->dest_rect.w = width;
-    vp->dest_rect.h = height;
-
+  
+	vp->dest_rect.w=w;
+	vp->dest_rect.h=h;
+	
     if (vp->dest_overlay && vp->overlay>0 && !movie->skip_frame)
     {
     	//SDL_Delay(10);
@@ -785,7 +787,14 @@ int queue_picture(PyMovie *movie, AVFrame *src_frame)
     int w=0;
     int h=0;
     get_height_width(movie, &h, &w);
-
+    int pw, ph;
+    
+    if(vp->dest_surface)
+	{
+		pw=vp->dest_surface->w;
+		ph=vp->dest_surface->h;
+	}
+   
     /*if(
     	( !vp->dest_overlay && vp->overlay>0 )  ||
     	( !vp->dest_surface && vp->overlay<=0 ) ||
@@ -822,7 +831,7 @@ int queue_picture(PyMovie *movie, AVFrame *src_frame)
 	    {
 	    	dst_pix_fmt = PIX_FMT_RGBA;
 	    }
-        avpicture_alloc(&pict, dst_pix_fmt, w, h);
+        avpicture_alloc(&pict, dst_pix_fmt, pw, ph);
         SDL_LockSurface(vp->dest_surface);
     }
     int sws_flags = SWS_BICUBIC;
@@ -842,7 +851,7 @@ int queue_picture(PyMovie *movie, AVFrame *src_frame)
     }
     movie->img_convert_ctx = img_convert_ctx;
 	
-    if(movie->resize_w||movie->resize_h)
+    if((movie->resize_w||movie->resize_h) && !vp->dest_surface)
     {
         sws_scale(img_convert_ctx, 
         		  src_frame->data, 
@@ -852,13 +861,13 @@ int queue_picture(PyMovie *movie, AVFrame *src_frame)
                   pict.data, 
                   pict.linesize);
     }
-    else
+    else if(vp->dest_surface)
     {
-        sws_scale(img_convert_ctx, 
+    	sws_scale(img_convert_ctx, 
         		  src_frame->data, 
         		  src_frame->linesize,
                   0, 
-                  movie->video_st->codec->height, 
+                  ph, 
                   pict.data, 
                   pict.linesize);
     }
@@ -869,15 +878,9 @@ int queue_picture(PyMovie *movie, AVFrame *src_frame)
     }
     else if(vp->dest_surface)
     {
-    	int pw=vp->dest_surface->w;
-    	int ph=vp->dest_surface->h;
-    	if(w<vp->dest_surface->w)
-    		{pw=w;}
-    	if(h<vp->dest_surface->h)
-    		{ph=h;}
-        WritePicture2Surface(&pict, vp->dest_surface, pw, ph);
+    	 WritePicture2Surface(&pict, vp->dest_surface, pw, ph);
         SDL_UnlockSurface(vp->dest_surface);
-        avpicture_free(&pict);
+        //avpicture_free(&pict);
     }
     #ifdef PROFILE
     	TimeSampleNode *sample = (TimeSampleNode *)PyMem_Malloc(sizeof(TimeSampleNode));
@@ -1866,8 +1869,8 @@ int decoder_wrapper(void *arg)
 	            }
 	            
 	        }
-	        if (SDL_WasInit (SDL_INIT_VIDEO))
-        		SDL_QuitSubSystem (SDL_INIT_VIDEO);	
+	        /*if (SDL_WasInit (SDL_INIT_VIDEO))
+        		SDL_QuitSubSystem (SDL_INIT_VIDEO);*/	
     	}
     }
     GRABGIL

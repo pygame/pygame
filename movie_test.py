@@ -108,19 +108,18 @@ time.sleep(10)
 import sys
 #sys.exit()
 print "Surface time..."
-screen = pygame.display.set_mode((640, 348))
-m.surface=screen
-time.sleep(1)
-#This will move the movie player from overlay mode to blitting to the surface 
-# we've given it. This means it is our responsibility to update the display on 
-# time.
-#while not m.finished:
-#    time.sleep(0.1)
-#    pygame.display.update()
-m.stop()
-time.sleep(5)
-del m
-
+screen = pygame.display.set_mode((800, 340))
+##m.surface=screen
+##time.sleep(1)
+###This will move the movie player from overlay mode to blitting to the surface 
+### we've given it. This means it is our responsibility to update the display on 
+### time.
+###while not m.finished:
+###    time.sleep(0.1)
+###    pygame.display.update()
+##m.stop()
+##time.sleep(5)
+##del m
 
 m=movie.Movie(filename, screen)
 counter = 0
