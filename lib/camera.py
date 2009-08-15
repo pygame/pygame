@@ -19,7 +19,8 @@ def init():
 
     elif "linux" in sys.platform:
         use__camera = True
-
+    elif "darwin" in sys.platform:
+        use__camera = True
     else:
         use_opencv = True
 
