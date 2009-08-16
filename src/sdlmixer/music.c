@@ -81,7 +81,7 @@ PyTypeObject PyMusic_Type =
     0,                          /* tp_weaklistoffset */
     0,                          /* tp_iter */
     0,                          /* tp_iternext */
-    0,                          /* tp_methods */
+    _music_methods,             /* tp_methods */
     0,                          /* tp_members */
     _music_getsets,             /* tp_getset */
     0,                          /* tp_base */
