@@ -25,7 +25,7 @@
  */
 #include "pygame.h"
 #include "pgcompat.h"
-#include "pygamedocs.h"
+#include "doc/key_doc.h"
 
 /* keyboard module functions */
 static PyObject*

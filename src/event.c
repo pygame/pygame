@@ -26,7 +26,7 @@
 #define PYGAMEAPI_EVENT_INTERNAL
 #include "pygame.h"
 #include "pgcompat.h"
-#include "pygamedocs.h"
+#include "doc/event_doc.h"
 
 // FIXME: The system message code is only tested on windows, so only
 //          include it there for now.

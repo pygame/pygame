@@ -27,7 +27,7 @@ def confirm(message):
     return 1
 
 class DependencyProg:
-    def __init__(self, name, envname, exename, minver, defaultlibs):
+    def __init__(self, name, envname, exename, minver, defaultlibs, version_flag="--version"):
         self.name = name
         command = os.environ.get(envname, exename)
         self.lib_dir = ''
@@ -35,7 +35,7 @@ class DependencyProg:
         self.libs = []
         self.cflags = ''
         try:
-            config = os.popen(command + ' --version --cflags --libs').readlines()
+            config = os.popen(command + ' ' + version_flag + ' --cflags --libs').readlines()
             flags = ' '.join(config[1:]).split()
 
             # remove this GNU_SOURCE if there... since python has it already,
@@ -153,7 +153,8 @@ def main():
         Dependency('PORTMIDI', 'portmidi.h', 'libportmidi.so', ['portmidi']),
         Dependency('PORTTIME', 'porttime.h', 'libporttime.so', ['porttime']),
         DebugDependency('AVFORMAT', 'libavformat/avformat.h', 'libavformat.a', ['avformat']),
-        DebugDependency('SWSCALE', 'libswscale/swscale.h', 'libswscale.a', ['swscale']),        
+        DebugDependency('SWSCALE', 'libswscale/swscale.h', 'libswscale.a', ['swscale']),
+        DependencyProg('FREETYPE', 'FREETYPE_CONFIG', 'freetype-config', '2.0', ['freetype'], '--ftversion'),
         #Dependency('GFX', 'SDL_gfxPrimitives.h', 'libSDL_gfx.so', ['SDL_gfx']),
     ]
     if not DEPS[0].found:

@@ -30,7 +30,7 @@
 #include "mask.h"
 #include "pygame.h"
 #include "pgcompat.h"
-#include "pygamedocs.h"
+#include "doc/mask_doc.h"
 #include "structmember.h"
 #include "bitmask.h"
 #include <math.h>

@@ -22,7 +22,6 @@
 
 #include "pygame.h"
 #include "pgcompat.h"
-#include "pygamedocs.h"
 
 static PyObject* _bufferproxy_new (PyTypeObject *type, PyObject *args,
                                    PyObject *kwds);

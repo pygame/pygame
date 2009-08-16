@@ -22,7 +22,7 @@
 
 #include "pygame.h"
 #include "pgcompat.h"
-#include "pygamedocs.h"
+#include "doc/time_doc.h"
 
 #define WORST_CLOCK_ACCURACY 12
 static SDL_TimerID event_timers[SDL_NUMEVENTS] = {NULL};
