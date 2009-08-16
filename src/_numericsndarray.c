@@ -21,7 +21,7 @@
 */
 
 #include "pygame.h"
-#include "pygamedocs.h"
+#include "doc/sndarray_doc.h"
 #include "mixer.h"
 #include "numeric_arrayobject.h"
 #include <SDL_byteorder.h>

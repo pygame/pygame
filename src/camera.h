@@ -18,7 +18,7 @@
 */
 
 #include "pygame.h"
-#include "pygamedocs.h"
+#include "doc/camera_doc.h"
 
 #if defined(__unix__)
     #include <structmember.h>
@@ -41,7 +41,7 @@
 
     #include <linux/videodev.h>
     #include <linux/videodev2.h>
-#elif define(__APPLE__)
+#elif defined(__APPLE__)
 
 #endif
 
@@ -117,7 +117,7 @@ int v4l2_open_device (PyCameraObject* self);
 int v4l_open_device (PyCameraObject* self);
 int v4l_init_device(PyCameraObject* self);
 int v4l_start_capturing(PyCameraObject* self);
-#elif define(__APPLE__)
+#elif defined(__APPLE__)
 char** mac_list_cameras(int* num_devices);
 int mac_open_device (PyCameraObject* self);
 int mac_init_device(PyCameraObject* self);

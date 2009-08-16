@@ -23,7 +23,7 @@
 #define PYGAMEAPI_BASE_INTERNAL
 #include "pygame.h"
 #include "pgcompat.h"
-#include "pygamedocs.h"
+#include "doc/pygame_doc.h"
 #include <signal.h>
 
 

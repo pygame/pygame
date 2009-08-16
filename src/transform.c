@@ -26,7 +26,7 @@
  */
 #include "pygame.h"
 #include "pgcompat.h"
-#include "pygamedocs.h"
+#include "doc/transform_doc.h"
 #include <math.h>
 #include <string.h>
 #include "scale.h"

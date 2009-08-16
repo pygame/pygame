@@ -23,6 +23,7 @@
 <a href="event.html">Event</a>&nbsp;||&nbsp;
 <a href="examples.html">Examples</a>&nbsp;||&nbsp;
 <a href="font.html">Font</a>&nbsp;||&nbsp;
+<a href="freetype.html">Freetype</a>&nbsp;||&nbsp;
 <a href="gfxdraw.html">Gfxdraw</a>&nbsp;||&nbsp;
 <a href="image.html">Image</a>&nbsp;||&nbsp;
 <a href="joystick.html">Joystick</a>&nbsp;||&nbsp;
@@ -147,7 +148,7 @@
   <tt>pygame.font.Font(filename, size): return Font</tt><br>
   <tt>pygame.font.Font(object, size): return Font</tt><br>
 <ul><small><table>
-  <tr><td><a href="font.html#Font.render">Font.render</a> - <font size=-1>draw text on a new Surface</font></td><td>draw text on a new Surface</td></tr>
+  <tr><td><a href="freetype.html#Font.render">Font.render</a> - <font size=-1>Renders text on a surface</font></td><td>draw text on a new Surface</td></tr>
   <tr><td><a href="font.html#Font.size">Font.size</a> - <font size=-1>determine the amount of space needed to render text</font></td><td>determine the amount of space needed to render text</td></tr>
   <tr><td><a href="font.html#Font.set_underline">Font.set_underline</a> - <font size=-1>control if text is rendered with an underline</font></td><td>control if text is rendered with an underline</td></tr>
   <tr><td><a href="font.html#Font.get_underline">Font.get_underline</a> - <font size=-1>check if text will be rendered with an underline</font></td><td>check if text will be rendered with an underline</td></tr>
@@ -170,7 +171,7 @@
 <big><b>Font.render</big></b><br><ul>
   <i>draw text on a new Surface</i><br>
   <tt>Font.render(text, antialias, color, background=None): return Surface</tt><br>
-<p>This creates a new Surface with the specified text rendered on it. Pygame provides no way to directly draw text on an existing Surface: instead you must use <tt><a href="font.html#Font.render">Font.render</a> - <font size=-1>draw text on a new Surface</font></tt> to create an image (Surface) of the text, then blit this image onto another Surface. </p>
+<p>This creates a new Surface with the specified text rendered on it. Pygame provides no way to directly draw text on an existing Surface: instead you must use <tt><a href="freetype.html#Font.render">Font.render</a> - <font size=-1>Renders text on a surface</font></tt> to create an image (Surface) of the text, then blit this image onto another Surface. </p>
 <p>The text can only be a single line: newline characters are not rendered. The antialias argument is a boolean: if true the characters will have smooth edges. The color argument is the color of the text <tt>[e.g.:</tt> (0,0,255) for blue]. The optional background argument is a color to use for the text background. If no background is passed the area outside the text will be transparent. </p>
 <p>The Surface returned will be of the dimensions required to hold the text. (the same as those returned by <tt>Font.size())</tt>. If an empty string is passed for the text, a blank surface will be returned that is one pixel wide and the height of the font. </p>
 <p>Depending on the type of background and antialiasing used, this returns different types of Surfaces. For performance reasons, it is good to know what type of image will be used. If antialiasing is not used, the return image will always be an 8bit image with a two color palette. If the background is transparent a colorkey will be set. Antialiased images are rendered to 24-bit <tt>RGB</tt> images. If the background is transparent a pixel alpha will be included. </p>

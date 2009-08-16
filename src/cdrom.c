@@ -23,7 +23,7 @@
 #define PYGAMEAPI_CDROM_INTERNAL
 #include "pygame.h"
 #include "pgcompat.h"
-#include "pygamedocs.h"
+#include "doc/cdrom_doc.h"
 
 #define CDROM_MAXDRIVES 32
 static SDL_CD* cdrom_drivedata[CDROM_MAXDRIVES] = {NULL};

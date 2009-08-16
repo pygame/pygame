@@ -22,7 +22,7 @@
 
 #include "pygame.h"
 #include "pgcompat.h"
-#include "pygamedocs.h"
+#include "doc/pixelarray_doc.h"
 #include "surface.h"
 
 #if PY_VERSION_HEX < 0x02050000

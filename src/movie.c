@@ -25,7 +25,7 @@
  */
 #include "pygame.h"
 #include "pgcompat.h"
-#include "pygamedocs.h"
+#include "doc/movie_doc.h"
 #include "smpeg.h"
 
 typedef struct
