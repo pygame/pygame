@@ -108,7 +108,7 @@ void cb_mixer(int channel)
 		PyMem_Free(mix->abuf);
 	if(mix)
 		PyMem_Free(mix);
-    playBufferQueue();
+    playBufferQueue(channel);
     
 }
 
@@ -307,11 +307,14 @@ int stopBuffer (int channel)
     return 0;
 }
 
-void playBufferQueue(void)
+void playBufferQueue(int channel)
 {
 	uint8_t *buf;
 	int len=0;
 	int64_t pts;
+	int playing = Mix_Playing(channel);
+	if (playing)
+		return;
 	if(!ainfo->ended && ainfo->queue.size<=0)
 	{            
         //callback call but when the queue is empty, so we just load a short empty sound.

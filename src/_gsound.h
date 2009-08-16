@@ -95,5 +95,5 @@ int getBufferQueueSize(void);
 int seekBuffer    (double pts);
 int setCallback   (void (*callback) (int channel));
 int resetAudioInfo(void);
-void playBufferQueue(void);
+void playBufferQueue(int channel);
 #endif /*_GSOUND_H_*/

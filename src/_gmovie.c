@@ -557,12 +557,13 @@ int video_image_display(PyMovie *movie)
     y = (vp->height - height) / 2;
 
     //we set the rect to have the values we need for blitting/overlay display
-    vp->dest_rect.x = vp->xleft + x;
-    vp->dest_rect.y = vp->ytop  + y;
+    	
+	    vp->dest_rect.x = vp->xleft + x;
+    	vp->dest_rect.y = vp->ytop  + y;
 
-    vp->dest_rect.w=w;
-    vp->dest_rect.h=h;
-
+    	vp->dest_rect.w=width;
+ 	   	vp->dest_rect.h=height;
+	
     if (vp->dest_overlay && vp->overlay>0 && !movie->skip_frame)
     {
         //SDL_Delay(10);
@@ -813,9 +814,7 @@ void video_refresh_timer(PyMovie* movie)
         //PySys_WriteStdout("Actual Delay: %f\tdelay: %f\tdiff: %f\tpts: %f\tFrame-timer: %f\tCurrent_time: %f\tsync_thres: %f\n", (actual_delay*1000.0)+10, delay, diff, movie->video_current_pts, movie->frame_timer, (cur_time / 1000000.0), sync_threshold);
         //double audio = getAudioClock();
         //PySys_WriteStdout("Audio_Clock: %f\tVideo_Clock: %f\tDiff: %f\n", ref_clock, movie->video_current_pts, ref_clock-movie->video_current_pts);
-        /*if((actual_delay*1000.0)>250.0)
-        	movie->skip_frame=1;
-        */movie->timing = (actual_delay*1000.0)+10;
+        movie->timing = (actual_delay*1000.0)+10;
         RELEASEGIL
     }
 
@@ -842,15 +841,6 @@ int queue_picture(PyMovie *movie, AVFrame *src_frame)
         ph=vp->dest_surface->h;
     }
 
-    /*if(
-    	( !vp->dest_overlay && vp->overlay>0 )  ||
-    	( !vp->dest_surface && vp->overlay<=0 ) ||
-    	   vp->width        != movie->width     ||
-    	   vp->height       != movie->height
-    )
-{
-        video_open(movie, movie->pictq_windex);
-}*/
     dst_pix_fmt = PIX_FMT_YUV420P;
 #ifdef PROFILE
 
@@ -900,7 +890,7 @@ int queue_picture(PyMovie *movie, AVFrame *src_frame)
     }
     movie->img_convert_ctx = img_convert_ctx;
 
-    if((movie->resize_w||movie->resize_h) && !vp->dest_surface)
+    if((movie->resize_w||movie->resize_h) || vp->dest_overlay)
     {
         sws_scale(img_convert_ctx,
                   src_frame->data,
@@ -985,10 +975,6 @@ double get_audio_clock(PyMovie *movie)
 /* get the current video clock value */
 double get_video_clock(PyMovie *movie)
 {
-    DECLAREGIL
-    GRABGIL
-    Py_INCREF( movie);
-    RELEASEGIL
     double delta;
 
     if (movie->paused)
@@ -1000,32 +986,21 @@ double get_video_clock(PyMovie *movie)
         delta = (av_gettime() - movie->video_current_pts_time) / 1000000.0;
     }
     double temp = movie->video_current_pts+delta;
-    GRABGIL
-    Py_DECREF( movie);
-    RELEASEGIL
     return temp;
 }
 
 /* get the current external clock value */
 double get_external_clock(PyMovie *movie)
 {
-    DECLAREGIL
-    GRABGIL
-    Py_INCREF( movie);
-    RELEASEGIL
     int64_t ti;
     ti = av_gettime();
     double res = movie->external_clock + ((ti - movie->external_clock_time) * 1e-6);
-    GRABGIL
-    Py_DECREF( movie);
-    RELEASEGIL
     return res;
 }
 
 /* get the current master clock value */
 double get_master_clock(PyMovie *movie)
 {
-    DECLAREGIL
     double val;
 
     if (movie->av_sync_type == AV_SYNC_VIDEO_MASTER)
@@ -1062,9 +1037,6 @@ void registerCommands(PyMovie *self)
 /* seek in the stream */
 void stream_seek(PyMovie *movie, int64_t pos, int rel)
 {
-    /*seekCommand *seek = (seekCommand *) PyMem_Malloc(sizeof(seekCommand));
-    seek->type = movie->seekCommandType;*/
-    //int type = movie->seekCommandType;
     ALLOC_COMMAND(seekCommand, seek)
     seek->pos = pos;
     seek->rel = rel;
@@ -1090,7 +1062,6 @@ int audio_thread(void *arg)
     int len1, data_size;
     int filled =0;
     len1=0;
-    int co = 0;
     for(;;)
     {
         if(movie->stop || movie->audioq.abort_request)
@@ -1208,11 +1179,11 @@ int stream_component_open(PyMovie *movie, int stream_index, int threaded)
     if (stream_index < 0 || stream_index >= ic->nb_streams)
     {
         if(threaded)
-            GRABGIL
-            Py_DECREF(movie);
+            {GRABGIL}
+        Py_DECREF(movie);
         if(threaded)
-            RELEASEGIL
-            return -1;
+            {RELEASEGIL}
+        return -1;
     }
 
     initialize_codec(movie, stream_index, threaded);
@@ -1429,14 +1400,10 @@ void stream_component_close(PyMovie *movie, int stream_index, int threaded)
     case CODEC_TYPE_AUDIO:
         soundQuit();
         packet_queue_end(&movie->audioq, end);
-        //if (movie->reformat_ctx)
-        //    av_audio_convert_free(movie->reformat_ctx);
         break;
     case CODEC_TYPE_VIDEO:
         packet_queue_end(&movie->videoq, end);
         break;
-    case CODEC_TYPE_SUBTITLE:
-        //packet_queue_end(&movie->subq, end);
     default:
         break;
     }
@@ -1721,7 +1688,8 @@ int initialize_codec(PyMovie *movie, int stream_index, int threaded)
 
 
     //TODO:proper error reporting here please
-    if (avcodec_open(enc, codec) < 0)
+    int ret =avcodec_open(enc, codec);
+    if(ret < 0)
     {
         if(threaded)
         {
@@ -1963,6 +1931,14 @@ int decoder_wrapper(void *arg)
             /*if (SDL_WasInit (SDL_INIT_VIDEO))
             	SDL_QuitSubSystem (SDL_INIT_VIDEO);*/
         }
+        if(state==-1)
+        {
+        	if(PyErr_Occurred())
+        	{
+        		PyErr_Print();
+        	}
+        	break;
+        }
     }
     GRABGIL
     Py_DECREF(movie);
@@ -2013,10 +1989,9 @@ int decoder(void *arg)
     ic=movie->ic;
     int co=0;
     int video_packet=0;
-    //SDL_Delay(150);
+	//we do video open as a batch, instead of on-demand. Much better performance that way.
     video_open(movie, 0);
     movie->last_showtime = av_gettime()/1000.0;
-    double start_time=av_gettime();
     int seeking =0;
     for(;;)
     {
@@ -2139,7 +2114,6 @@ int decoder(void *arg)
             int aud_stream_index=-1;
             int vid_stream_index=-1;
             int64_t vid_seek_target=seek_target;
-            int64_t aud_seek_target=seek_target;
             if (movie->video_stream >= 0)
             {
                 vid_stream_index= movie->video_stream;
@@ -2151,10 +2125,6 @@ int decoder(void *arg)
             if(vid_stream_index>=0)
                 vid_seek_target= av_rescale_q(seek_target, AV_TIME_BASE_Q, ic->streams[vid_stream_index]->time_base);
 
-            if(aud_stream_index>=0)
-                aud_seek_target= av_rescale_q(seek_target, AV_TIME_BASE_Q, ic->streams[vid_stream_index]->time_base);
-
-            //int64_t end = av_rescale_q(movie->video_st->duration, AV_TIME_BASE_Q, movie->video_st->time_base);
             if(vid_stream_index>=0)
             {
                 if(vid_seek_target > movie->video_st->duration)
@@ -2163,14 +2133,6 @@ int decoder(void *arg)
                 }
                 ret = av_seek_frame(movie->ic, vid_stream_index, vid_seek_target, movie->seek_flags);
 
-                if (ret < 0)
-                {
-                    PyErr_Format(PyExc_IOError, "%s: error while seeking", movie->ic->filename);
-                }
-            }
-            else if(aud_stream_index>=0)
-            {
-                ret = av_seek_frame(movie->ic, aud_stream_index, aud_seek_target, movie->seek_flags);
                 if (ret < 0)
                 {
                     PyErr_Format(PyExc_IOError, "%s: error while seeking", movie->ic->filename);
@@ -2230,10 +2192,6 @@ int decoder(void *arg)
                 {
                     video_render(movie);
                 }
-                /*if(movie->audioq.size > MAX_AUDIOQ_SIZE && movie->audio_st)
-            {
-                    audio_thread(movie);
-            }*/
             }
             continue;
         }
@@ -2344,15 +2302,16 @@ int decoder(void *arg)
             video_render(movie);
             video_packet=0;
         }
-        /*if(movie->audio_st)
-            audio_thread(movie);*/
+		/*This is very important: without this if check, 
+		 * The video frames will not be displayed, ever. */
         if(co<1)
             movie->timing=40;
         co++;
 
         if(movie->timing>0)
         {
-
+			/* Here, we check if the current time in milliseconds exceeds the scheduled time 
+			 * and if so, we display the frame. */ 
             double showtime = movie->timing+movie->last_showtime;
             double now = av_gettime()/1000.0;
             if(now >= showtime)
@@ -2373,23 +2332,19 @@ int decoder(void *arg)
                     movie->last_showtime = av_gettime()/1000.0;
                 }
             }
-            /*else
-        {
-            	GRABGIL
-            	PySys_WriteStdout("Diff: %f\n", showtime-now);
-            	RELEASEGIL
-        }*/
         }
 
     }
 
     ret = 0;
 fail:
-    /* disable interrupting */
 
     if(ret!=0)
     {
-        //throw python error
+        GRABGIL
+        RAISE(PyExc_Exception, "Something went wrong, so I'm throwing this error.");
+        RELEASEGIL
+        movie->abort_request=1;
     }
     movie->pictq_size=movie->pictq_rindex=movie->pictq_windex=0;
     packet_queue_flush(&movie->videoq);
@@ -2451,7 +2406,9 @@ fail:
 
 int video_render(PyMovie *movie)
 {
-    DECLAREGIL
+	/* Video render function. Only executed when there is a packet to decode. 
+	 *  Here, we get the packet, check it, decode the packet, and queue it up.
+	 */
     AVPacket pkt1, *pkt = &pkt1;
     int len1, got_picture;
     AVFrame *frame= avcodec_alloc_frame();
