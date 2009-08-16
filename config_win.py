@@ -55,7 +55,7 @@ class Dependency(object):
                 print ('Too bad that is a requirement! Hand-fix the "Setup"')
         elif len(self.paths) == 1:
             self.path = self.paths[0]
-            print ("Path for %s:' % self.name")
+            print ("Path for %s:%s" % (self.name, self.path))
         else:
             print ("Select path for %s:" % self.name)
             for i in range(len(self.paths)):
@@ -210,6 +210,12 @@ DEPS.add('SMPEG', 'smpeg', ['smpeg-[0-9].*', 'smpeg'], r'smpeg\.dll$', ['SDL'])
 DEPS.add('PNG', 'png', ['libpng-[1-9].*'], r'(png|libpng13)\.dll$', ['z'])
 DEPS.add('JPEG', 'jpeg', ['jpeg-[6-9]*'], r'(lib){0,1}jpeg\.dll$')
 DEPS.add('PORTMIDI', 'portmidi', ['portmidi'], r'portmidi\.dll$')
+#DEPS.add('FFMPEG', 'libavformat/avformat.h', 'libavformat.a', ['avformat', 'swscale', 'SDL_mixer'], r'avformat-52\.dll')   
+dep = Dependency('FFMPEG', [r'avformat\.dll', r'swscale\.dll', r'SDL_mixer-[1-9].*'], ['avformat', 'swscale', 'SDL_mixer'], required=0)
+DEPS.dependencies.append(dep)
+DEPS.dlls.append(DependencyDLL(r'avformat\.dll', link=dep, libs=['avformat']))
+DEPS.dlls.append(DependencyDLL(r'swscale\.dll', link=dep, libs=['swscale']))
+DEPS.dlls.append(DependencyDLL(r'(lib){0,1}SDL_mixer\.dll$', link=dep, libs=['SDL', 'vorbisfile', 'smpeg']))
 #DEPS.add('PORTTIME', 'porttime', ['porttime'], r'porttime\.dll$')
 DEPS.add_dll(r'(lib){0,1}tiff\.dll$', 'tiff', ['tiff-[3-9].*'], ['jpeg', 'z'])
 DEPS.add_dll(r'(z|zlib1)\.dll$', 'z', ['zlib-[1-9].*'])

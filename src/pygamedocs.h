@@ -1074,7 +1074,6 @@
 #define DOC_PYGAMETRANSFORMTHRESHOLD "pygame.transform.threshold(DestSurface, Surface, color, threshold = (0,0,0,0), diff_color = (0,0,0,0), change_return = 1, Surface = None, inverse = False): return num_threshold_pixels\nfinds which, and how many pixels in a surface are within a threshold of a color."
 
 
-
 /* Docs in a comments... slightly easier to read. */
 
 
@@ -4313,7 +4312,10 @@ pygame.transform.threshold
  pygame.transform.threshold(DestSurface, Surface, color, threshold = (0,0,0,0), diff_color = (0,0,0,0), change_return = 1, Surface = None, inverse = False): return num_threshold_pixels
 finds which, and how many pixels in a surface are within a threshold of a color.
 
+pygame._movie
+ pygame wrapper around ffmpeg library to play video files
 
-
+pygame._movie.Movie
+ Python Object to represent and control a movie being played
 */
 
