@@ -102,6 +102,11 @@ class Dependency:
         else:
             print (self.name + '        '[len(self.name):] + ': not found')
 
+class DebugDependency(Dependency):
+    def __init__(self, name, checkhead, checklib, libs):
+        Dependency.__init__(self, name, checkhead, checklib, libs)
+        self.cflags="-Xcompiler -O0"
+
 class DependencyPython:
     def __init__(self, name, module, header):
         self.name = name
@@ -147,6 +152,8 @@ def main():
         Dependency('SCRAP', '', 'libX11', ['X11']),
         Dependency('PORTMIDI', 'portmidi.h', 'libportmidi.so', ['portmidi']),
         Dependency('PORTTIME', 'porttime.h', 'libporttime.so', ['porttime']),
+        DebugDependency('AVFORMAT', 'libavformat/avformat.h', 'libavformat.a', ['avformat']),
+        DebugDependency('SWSCALE', 'libswscale/swscale.h', 'libswscale.a', ['swscale']),        
         #Dependency('GFX', 'SDL_gfxPrimitives.h', 'libSDL_gfx.so', ['SDL_gfx']),
     ]
     if not DEPS[0].found:

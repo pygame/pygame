@@ -14,6 +14,7 @@ VORBIS = -Iprebuilt/include/vorbis -lvorbis
 OGG = -Iprebuilt/include/ogg -logg
 PORTMIDI = -lportmidi
 PORTTIME =
+FFMPEG   = -lavcodec -lavformat -lavdevice -lavutil -lswscale -lSDL_mixer 
 COPYLIB_SDL -Lprebuilt/lib/SDL.dll
 COPYLIB_SDL_ttf -lSDL -lfreetype -Lprebuilt/lib/SDL_ttf.dll
 COPYLIB_SDL_image -lSDL -ljpef -lpng -ltiff -Lprebuilt/lib/SDL_image.dll
