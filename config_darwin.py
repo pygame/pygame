@@ -3,6 +3,7 @@
 import os, sys, string
 from glob import glob
 from distutils.sysconfig import get_python_inc
+from config_unix import DependencyProg
 
 class Dependency:
     libext = '.a'
@@ -96,6 +97,7 @@ DEPS = [
     Dependency('SCRAP', '','',[]),
     Dependency('PORTMIDI', 'portmidi.h', 'libportmidi', ['portmidi']),
     FrameworkDependency('PORTTIME', 'CoreMidi.h', 'CoreMidi', 'CoreMidi'),
+    DependencyProg('FREETYPE', 'FREETYPE_CONFIG', 'freetype-config', '2.0', ['freetype'], '--ftversion')
 ]
 
 
@@ -103,7 +105,7 @@ def main():
     global DEPS
 
     print ('Hunting dependencies...')
-    incdirs = ['/usr/local/include','/opt/local/include']
+    incdirs = ['/usr/local/include','/opt/local/include', '/opt/local/include/freetype2/freetype']
     libdirs = ['/usr/local/lib','/opt/local/lib']
     newconfig = []
     for d in DEPS:

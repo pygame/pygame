@@ -29,7 +29,7 @@
 
 #include "scrap.h"
 #include "pygame.h"
-#include "pygamedocs.h"
+#include "doc/scrap_doc.h"
 
 /**
  * Indicates, whether pygame.scrap was initialized or not.
