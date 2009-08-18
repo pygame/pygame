@@ -14,7 +14,8 @@ VORBIS = -Iprebuilt/include/vorbis -lvorbis
 OGG = -Iprebuilt/include/ogg -logg
 PORTMIDI = -lportmidi
 PORTTIME =
-FFMPEG   = -lavcodec -lavformat -lavdevice -lavutil -lswscale -lSDL_mixer 
+AVFORMAT = -Iprebuilt/include -lavformat -lavcodec -lavutil -lws2_32
+SWSCALE = -Iprebuilt/include -lswscale -lavutil
 COPYLIB_SDL -Lprebuilt/lib/SDL.dll
 COPYLIB_SDL_ttf -lSDL -lfreetype -Lprebuilt/lib/SDL_ttf.dll
 COPYLIB_SDL_image -lSDL -ljpef -lpng -ltiff -Lprebuilt/lib/SDL_image.dll
@@ -29,4 +30,8 @@ COPYLIB_vorbisfile -lvorbis -Lprebuilt/lib/libvorbisfile-3.dll
 COPYLIB_vorbis -logg -Lprebuilt/lib/libvorbis-0.dll
 COPYLIB_ogg -Lprebuilt/lib/libogg-0.dll
 COPYLIB_portmidi -Lprebuilt/lib/portmidi.dll
+COPYLIB_avformat -lavcodec -lavutil -Lprebuilt/lib/avformat-52.dll
+COPYLIB_swscale -lavutil -Lprebuilt/lib/swscale-0.dll
+COPYLIB_avcodec -lavutil -Lprebuilt/lib/avcodec-52.dll
+COPYLIB_avutil -Lprebuilt/lib/avutil-50.dll
 
