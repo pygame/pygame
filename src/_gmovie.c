@@ -525,8 +525,8 @@ int video_image_display(PyMovie *movie)
     //PySys_WriteStdout("video_current_pts: %f\tvp->pts: %f\ttime: %f\n", movie->video_current_pts, vp->pts, (av_gettime()/1000.0)-(movie->timing+movie->last_showtime));
     //RELEASEGIL
     //set up the aspect ratio values..
-    if(LIBAVFORMAT_VERSION_INT>= 3415808)
-    {
+#if LIBAVFORMAT_VERSION_INT>= 3415808
+    
         if (movie->video_st->sample_aspect_ratio.num)
             aspect_ratio = av_q2d(movie->video_st->sample_aspect_ratio);
         else if (movie->video_st->codec->sample_aspect_ratio.num)
@@ -535,11 +535,12 @@ int video_image_display(PyMovie *movie)
             aspect_ratio = 0;
         if (aspect_ratio <= 0.0)
             aspect_ratio = 1.0;
-    }
-    else
-    {
+    
+#else
+    
         aspect_ratio = 1.0;
-    }
+    
+#endif
     //then we load in width and height values based on the aspect ration and w/h.
     int w=0;
     int h=0;
@@ -1680,10 +1681,10 @@ int initialize_codec(PyMovie *movie, int stream_index, int threaded)
     enc->skip_frame= AVDISCARD_DEFAULT;
     enc->skip_idct= AVDISCARD_DEFAULT;
     enc->skip_loop_filter= AVDISCARD_DEFAULT;
-    if(LIBAVCODEC_VERSION_INT>=3412992) //(52<<16)+(20<<8)+0 ie 52.20.0
-    {
+#if LIBAVCODEC_VERSION_INT>=3412992 //(52<<16)+(20<<8)+0 ie 52.20.0
+    
         enc->error_recognition= FF_ER_CAREFUL;
-    }
+#endif
     enc->error_concealment= 3;
 
 
@@ -2210,7 +2211,8 @@ int decoder(void *arg)
             ret = av_read_frame(ic, pkt);
             if (ret < 0)
             {
-                if (ret != AVERROR_EOF && url_ferror(ic->pb) == 0)
+#if LIBAVCODEC_VERSION_INT>=3412992
+				if (ret != AVERROR_EOF && url_ferror(ic->pb) == 0)
                 {
                     goto fail;
                 }
@@ -2218,7 +2220,10 @@ int decoder(void *arg)
                 {
                     break;
                 }
-            }
+#else
+				goto fail;
+#endif
+				}
             if (pkt->stream_index == movie->audio_stream)
             {
                 if(seeking)
@@ -2433,23 +2438,25 @@ int video_render(PyMovie *movie)
         /* NOTE: ipts is the PTS of the _first_ picture beginning in
            this packet, if any */
         int64_t opaque;
-        if(LIBAVCODEC_VERSION_INT<3412992) //(52<<16)+(20<<8)+0 ie 52.20.0
-        {
+#if LIBAVCODEC_VERSION_INT<3412992 //(52<<16)+(20<<8)+0 ie 52.20.0
             opaque=pkt->pts;
-        }
+#endif
         movie->video_st->codec->reordered_opaque= pkt->pts;
         len1 = avcodec_decode_video(movie->video_st->codec,
                                     frame, &got_picture,
                                     pkt->data, pkt->size);
-        if((LIBAVCODEC_VERSION_INT<3412992) && (pkt->dts == AV_NOPTS_VALUE)) //(52<<16)+(20<<8)+0 ie 52.20.0
+#if LIBAVCODEC_VERSION_INT<3412992
+		if((pkt->dts == AV_NOPTS_VALUE)) //(52<<16)+(20<<8)+0 ie 52.20.0
         {
             //due to short circuiting this checks first, then if that fails it does the invalid old checks. :)
             pts=opaque;
         }
-        else if(( pkt->dts == AV_NOPTS_VALUE) && (frame->reordered_opaque != AV_NOPTS_VALUE))
+#else
+        if(( pkt->dts == AV_NOPTS_VALUE) && (frame->reordered_opaque != AV_NOPTS_VALUE))
         {
             pts= frame->reordered_opaque;
         }
+#endif
         else if(pkt->dts != AV_NOPTS_VALUE)
         {
             pts= pkt->dts;
