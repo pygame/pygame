@@ -21,7 +21,13 @@ else:
 
 
 import pygame
-import pygame._movie as gmovie
+try:
+    import pygame._movie as gmovie
+except:
+    gmovie = None
+
+
+
 from pygame.locals import *
 
 import os
