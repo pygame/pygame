@@ -1,7 +1,7 @@
 __tags__ = []
 import sys
 
-exclude = True
+exclude = False
 
 if exclude:
     __tags__.extend(['ignore', 'subprocess_ignore'])
