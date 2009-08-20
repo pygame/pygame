@@ -16,7 +16,7 @@ localbase = os.environ.get('LOCALBASE', '')
 
 #these get prefixes with '/usr' and '/usr/local' or the $LOCALBASE
 origincdirs = ['/include', '/include/SDL', '/include/SDL',
-               '/include/smpeg' ]
+               '/include/smpeg']
 origlibdirs = ['/lib','/lib64','/X11R6/lib']
 
 def confirm(message):
@@ -102,11 +102,40 @@ class Dependency:
         else:
             print (self.name + '        '[len(self.name):] + ': not found')
 
-class DebugDependency(Dependency):
-    def __init__(self, name, checkhead, checklib, libs):
+        
+class FFMPEGDependency(Dependency):
+    def __init__(self, name, checkhead, checklib, libs, dirs):
+        self.dirs=dirs
         Dependency.__init__(self, name, checkhead, checklib, libs)
-        self.cflags="-Xcompiler -O0"
+        self.cflags=""
+        
+    def configure(self, incdirs, libdirs):
+        incname = self.checkhead
+        libnames = self.checklib, self.name.lower()
+        
+        dirs=self.dirs[:]
+        self.dirs = ["/usr"+d for d in dirs]
+        self.dirs += ["/usr/local"+d for d in dirs]
+        loc_incdirs = incdirs[:]+self.dirs
+        if incname:
+            for dir in loc_incdirs:
+                path = os.path.join(dir, incname)
+                if os.path.isfile(path):
+                    self.inc_dir = dir
 
+        for dir in libdirs:
+            for name in libnames:
+                path = os.path.join(dir, name)
+                if filter(os.path.isfile, glob(path+'*')):
+                    self.lib_dir = dir
+
+        if (incname and self.lib_dir and self.inc_dir) or (not incname and self.lib_dir):
+            print (self.name + '        '[len(self.name):] + ': found')
+            self.found = 1
+        else:
+            print (self.name + '        '[len(self.name):] + ': not found')
+        
+        
 class DependencyPython:
     def __init__(self, name, module, header):
         self.name = name
@@ -152,8 +181,8 @@ def main():
         Dependency('SCRAP', '', 'libX11', ['X11']),
         Dependency('PORTMIDI', 'portmidi.h', 'libportmidi.so', ['portmidi']),
         Dependency('PORTTIME', 'porttime.h', 'libporttime.so', ['porttime']),
-        DebugDependency('AVFORMAT', 'libavformat/avformat.h', 'libavformat.a', ['avformat']),
-        DebugDependency('SWSCALE', 'libswscale/swscale.h', 'libswscale.a', ['swscale']),
+        FFMPEGDependency('AVFORMAT', 'avformat.h', 'libavformat.a', ['avformat'], ['/include/libavformat', '/include/ffmpeg']),
+        FFMPEGDependency('SWSCALE', 'swscale.h', 'libswscale.a', ['swscale'], ['/include/libswscale', '/include/ffmpeg']),
         DependencyProg('FREETYPE', 'FREETYPE_CONFIG', 'freetype-config', '2.0', ['freetype'], '--ftversion'),
         #Dependency('GFX', 'SDL_gfxPrimitives.h', 'libSDL_gfx.so', ['SDL_gfx']),
     ]
