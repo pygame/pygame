@@ -37,6 +37,13 @@ print m         #calls __repr__, which will show the filename, and the current
 #m.play(9)
 #time.sleep(9*130)
 
+surf = pygame.surface.Surface((100, 100))
+#this should cause an error:
+try:
+    m.surface = surf
+except Exception, e:
+    print e
+    del e
 
 print "Playing infinitely"
 
@@ -108,6 +115,8 @@ time.sleep(10)
 import sys
 #sys.exit()
 print "Surface time..."
+
+
 screen = pygame.display.set_mode((800, 340))
 ##m.surface=screen
 ##time.sleep(1)
@@ -120,6 +129,7 @@ screen = pygame.display.set_mode((800, 340))
 ##m.stop()
 ##time.sleep(5)
 ##del m
+
 
 m=movie.Movie(filename, screen)
 counter = 0

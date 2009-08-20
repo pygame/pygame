@@ -17,7 +17,9 @@ JPEG = -ljpeg
 SCRAP = -lX11
 PORTMIDI = -lportmidi
 PORTTIME = -lporttime
-FREETYPE = -lfreetype 
+FREETYPE = -lfreetype
+AVFORMAT  = -lavformat 
+SWSCALE   = -lswscale 
 #--EndConfig
 
 DEBUG = 
@@ -33,6 +35,7 @@ mixer_music src/music.c $(SDL) $(MIXER) $(DEBUG)
 _numericsurfarray src/_numericsurfarray.c $(SDL) $(DEBUG)
 _numericsndarray src/_numericsndarray.c $(SDL) $(MIXER) $(DEBUG)
 movie src/movie.c $(SDL) $(SMPEG) $(DEBUG)
+_movie src/_gsound.c src/_gmovie.c src/_gcommand.c src/gmovie.c $(SDL)  $(AVFORMAT) $(SWSCALE) $(MIXER) $(DEBUG)
 scrap src/scrap.c $(SDL) $(SCRAP) $(DEBUG)
 _camera src/_camera.c src/camera_v4l2.c src/camera_v4l.c $(SDL) $(DEBUG)
 pypm src/pypm.c $(SDL) $(PORTMIDI) $(PORTTIME) $(DEBUG)

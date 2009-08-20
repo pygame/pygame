@@ -52,6 +52,22 @@ void _movie_init_internal(PyMovie *self, const char *filename, SDL_Surface *surf
         Py_DECREF(self);
         return;
     }
+	if(self->canon_surf)
+	{
+		/*Here we check if the surface's dimensions match the aspect ratio of the video. If not, 
+		 * we throw an error. 
+		 */
+		int width = self->canon_surf->w;
+		int height = self->canon_surf->h;
+		double aspect_ratio = (double)self->video_st->codec->width/(double)self->video_st->codec->height;
+		double surf_ratio = (double)width/(double)height;
+		if (surf_ratio!=aspect_ratio)
+		{
+			PyErr_SetString(PyExc_ValueError, "surface does not have the same aspect ratio as the video. This would cause surface corruption.");
+			Py_DECREF(self);
+			return;
+		}
+	}
     //PySys_WriteStdout("Movie->filename: %s\n", self->filename);
     Py_DECREF(self);
     return;
@@ -505,11 +521,21 @@ int _movie_set_surface(PyObject *mov, PyObject *surface, void *closure)
     surfaceCommand *surf;
     if(PySurface_Check(surface))
     {
-        /*movie->canon_surf=PySurface_AsSurface(surface);
+		SDL_Surface *surfa = PySurface_AsSurface(surface);
+        int width = surfa->w;
+		int height = surfa->h;
+		double aspect_ratio = (double)movie->video_st->codec->width/(double)movie->video_st->codec->height;
+		double surf_ratio = (double)width/(double)height;
+		if (surf_ratio!=aspect_ratio)
+		{
+			RAISE(PyExc_ValueError, "surface does not have the same aspect ratio as the video. This would cause surface corruption.");
+			return -1;
+		}
+		/*movie->canon_surf=PySurface_AsSurface(surface);
         movie->overlay=0;*/
         surf = (surfaceCommand *)PyMem_Malloc(sizeof(surfaceCommand));
         surf->type = movie->surfaceCommandType;
-        surf->surface = PySurface_AsSurface(surface);
+        surf->surface = surfa;
         addCommand(movie->commands, (Command *)surf);
         return 0;
     }
