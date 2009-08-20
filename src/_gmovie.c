@@ -2440,8 +2440,9 @@ int video_render(PyMovie *movie)
         int64_t opaque;
 #if LIBAVCODEC_VERSION_INT<3412992 //(52<<16)+(20<<8)+0 ie 52.20.0
             opaque=pkt->pts;
-#endif
+#else
         movie->video_st->codec->reordered_opaque= pkt->pts;
+#endif
         len1 = avcodec_decode_video(movie->video_st->codec,
                                     frame, &got_picture,
                                     pkt->data, pkt->size);
