@@ -45,6 +45,21 @@ class FontModuleTest( unittest.TestCase ):
         self.failUnless(fnts)
 
 
+
+    def test_has_file_osx_10_5_sdk(self):
+        import os
+        f = "/Developer/SDKs/MacOSX10.5.sdk/usr/X11/include/ft2build.h"
+        self.assertEqual(os.path.exists(f), True)
+
+    def test_has_file_osx_10_4_sdk(self):
+        import os
+        f = "/Developer/SDKs/MacOSX10.4u.sdk/usr/X11R6/include/ft2build.h"
+        self.assertEqual(os.path.exists(f), True)
+
+
+
+
+
     def test_get_fonts(self):
         fnts = pygame.font.get_fonts()
         
