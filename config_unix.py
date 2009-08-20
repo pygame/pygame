@@ -35,7 +35,12 @@ class DependencyProg:
         self.libs = []
         self.cflags = ''
         try:
-            config = os.popen(command + ' ' + version_flag + ' --cflags --libs').readlines()
+            # freetype-config for freetype2 version 2.3.7 on Debian lenny
+            # does not recognize multiple command line options. So execute
+            # 'command' separately for each option.
+            config = (os.popen(command + ' ' + version_flag).readlines() +
+                      os.popen(command + ' --cflags').readlines() +
+                      os.popen(command + ' --libs').readlines())
             flags = ' '.join(config[1:]).split()
 
             # remove this GNU_SOURCE if there... since python has it already,
