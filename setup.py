@@ -189,7 +189,9 @@ add_datafiles(data_files, 'pygame/tests',
               ['test',
                   [['fixtures',
                       [['xbm_cursors',
-                          ['*.xbm']]]]]])
+                          ['*.xbm']],
+                       ['fonts',
+                          ['*.ttf', '*.otf']]]]]])
 
 #examples
 add_datafiles(data_files, 'pygame/examples',
