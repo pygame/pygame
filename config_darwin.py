@@ -97,7 +97,10 @@ DEPS = [
     Dependency('SCRAP', '','',[]),
     Dependency('PORTMIDI', 'portmidi.h', 'libportmidi', ['portmidi']),
     FrameworkDependency('PORTTIME', 'CoreMidi.h', 'CoreMidi', 'CoreMidi'),
-    DependencyProg('FREETYPE', 'FREETYPE_CONFIG', 'freetype-config', '2.0', ['freetype'], '--ftversion')
+    DependencyProg('FREETYPE', 'FREETYPE_CONFIG', 'freetype-config', '2.0',
+                   ['freetype'], '--ftversion'),
+    Dependency('AVFORMAT', '','',[]),
+    Dependency('SWSCALE', '','',[]),
 ]
 
 
