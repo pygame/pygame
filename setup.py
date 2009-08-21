@@ -154,6 +154,8 @@ perhaps make a clean copy from "Setup.in".""")
 if sys.version_info >= (3, 0, 0):
     python3_skip = ['scrap',
                     '_camera',
+                    'freetype',
+                    '_movie',
                     '_numericsurfarray',
                     '_numericsndarray',
                     ]
