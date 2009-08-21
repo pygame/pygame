@@ -19,7 +19,8 @@ else:
 import pygame
 import pygame.freetype as ft
 
-FONTDIR = os.path.dirname (os.path.abspath (__file__))
+FONTDIR = os.path.join(os.path.dirname (os.path.abspath (__file__)),
+                       'fixtures', 'fonts')
 
 class FreeTypeFontTest(unittest.TestCase):
 
