@@ -9,17 +9,40 @@ Basic requirements:
 
 Run 'makeref.py --no-code-docs'
 - This regenerates pygame module documentation without documentation in code.
+-- Not very useful on the phone.
 
-Create symbian/deps directory
+- The build scripts use SCons for Symbian. 
+-- http://code.google.com/p/scons-for-symbian/
+-- Follow the installation instructions
 
-Get PyS60 SDK from Maemo Garage
+
+The used libraries are stored in pygame-for-s60 project page at code.google.com.
+They must be copied to symbian/deps directory.
+
+Go to the symbian folder and execute SVN checkout:
+
+svn checkout http://pygame-symbian-s60.googlecode.com/svn/trunk/deps deps
+
+== Install PyS60 stuff ==
+
+- Make sure your EPOCROOT environment variable points to your Symbian SDK
+- Run: 
+    deps\misc\get_pys60.py --tools-path=deps
+
+-- This gets the latest PyS60 release and unzips it into your EPOCROOT
+
+Or do it manually:
+
+Get latest PyS60 & OpenC SDKs from Maemo Garage
 - https://garage.maemo.org/frs/?group_id=854&release_id=2673
 -- Unzip the stuff to your Symbian epocroot
 
-Get PyS60 packaging tool
-- Use the installer or get the tar.gz package.
+Get PyS60 packaging tool( from maemo )
+- Get the tar.gz package.
 -- Copy the PythonForS60 folder to 'deps'
 
+
+== The original sources of external libraries ==
 
 Checkout ogg to symbian/deps/ogg
 - IMPORTANT: Revision 7524
@@ -63,10 +86,6 @@ Checkout jpeg library to symbian/deps/jpeg
 
 Checkout PNG library to symbian/deps/libpng
 - http://pamp.svn.sourceforge.net/svnroot/pamp/libpng/trunk/libpng-1.2.18
-
-- The build scripts use SCons for Symbian. 
--- http://code.google.com/p/scons-for-symbian/
--- Follow the installation instructions
 
 
 === Building ===
