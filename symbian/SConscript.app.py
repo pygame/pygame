@@ -10,36 +10,42 @@ python_includes = [ PYTHON_INCLUDE ]
 pygame_rss = File("app/pygame.rss")
 pygame_reg_rss = File( "app/pygame_reg.rss")
 
+defines = [
+    #"__LOGMAN_ENABLED__", 
+]
+sources = [
+    "app/pygame_app.cpp", 
+    "app/pygame_main.cpp",                                          
+]
+
+if HAVE_STATIC_MODULES:
+    sources += [ "common/builtins.c" ]
+    defines += [ "HAVE_STATIC_MODULES=1"]
+    
 SymbianProgram( "pygame", TARGETTYPE_EXE,
                 resources = [pygame_rss, pygame_reg_rss],
-                sources = ["app/pygame_app.cpp", 
-                           "app/pygame_main.cpp"                           
-                           ],
-                includes = ["app", "common",
+                sources   = sources, 
+                includes  = ["app", "common",
                             join( "deps", "SDL", "include"),                              
                             join( "deps", "SDL", "symbian", "inc"),
-                            C_INCLUDE ] + python_includes
-                            
-                ,
-                defines = [
-                    #"__LOGMAN_ENABLED__", 
-                ],
+                            C_INCLUDE ] 
+                         + python_includes,
+                defines   = defines,
                 libraries = C_LIBRARY + ["euser", "avkon", "apparc", 
                              "cone","eikcore", "libGLES_CM", 
                              "bafl", # arrays and command line                            
                              PYTHON_LIB_NAME,
-                             SDL_DLL_NAME,
-                             "pygame.lib",
+                             SDL_DLL_NAME,                             
                              'pygame_libjpeg',
                              #"LogMan"
-                             ],
-                uid3=UID_PYGAMEAPP,
-                icons = [ ("../lib/pygame_icon.svg", "pygame") ],
-                package=PACKAGE_NAME,
+                             ] + PYGAME_STATIC_MODULES, # Add static pygame modules
+                uid3         = UID_PYGAMEAPP,
+                icons        = [ ("../lib/pygame_icon.svg", "pygame") ],
+                package      = PACKAGE_NAME,
                 capabilities = CAPABILITIES,
                 # 100k, 4MB
-                epocheapsize = ( 0x19000, 0x400000 ),
-                epocstacksize = 0x14000,
+                epocheapsize   = ( 0x19000, 0x400000 ),
+                epocstacksize  = 0x14000,
                 winscw_options = "-w noempty",
 )
 

@@ -34,7 +34,9 @@ int main(int argc, char** argv)
 	Py_Initialize();
 
 	// Add built-in pygame modules
+#ifdef HAVE_STATIC_MODULES
 	PyImport_ExtendInittab(_PyGame_Inittab);
+#endif
 
 	LOGMAN_SENDLOG( "Entering interpreter");
 #if PY_MAJOR_VERSION == 2 && PY_MINOR_VERSION == 2
