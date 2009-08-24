@@ -1018,16 +1018,6 @@ PyFreeTypeFont_New(const char *filename, int face_index)
  *
  ***************************************************************/
 
-static void 
-_ft_autoquit(void)
-{
-    if (FREETYPE_MOD_STATE(self)->freetype != NULL)
-    {
-        PGFT_Quit(FREETYPE_MOD_STATE(self)->freetype);
-        FREETYPE_MOD_STATE(self)->freetype = NULL;
-    }
-}
-
 static PyObject*
 _ft_autoinit(PyObject* self)
 {
@@ -1037,8 +1027,6 @@ _ft_autoinit(PyObject* self)
     {
         result = (PGFT_Init(&(FREETYPE_MOD_STATE(self)->freetype), 
                     PGFT_DEFAULT_CACHE_SIZE) == 0);
-
-        PyGame_RegisterQuit(_ft_autoquit);
     }
 
     return PyInt_FromLong(result);
@@ -1047,7 +1035,11 @@ _ft_autoinit(PyObject* self)
 static PyObject *
 _ft_quit(PyObject *self)
 {
-    _ft_autoquit();
+    if (FREETYPE_MOD_STATE(self)->freetype != NULL)
+    {
+        PGFT_Quit(FREETYPE_MOD_STATE(self)->freetype);
+        FREETYPE_MOD_STATE(self)->freetype = NULL;
+    }
     Py_RETURN_NONE;
 }
 
@@ -1142,7 +1134,7 @@ _FreeTypeState _modstate;
 
 MODINIT_DEFINE (freetype)
 {
-    PyObject *module, *apiobj;
+    PyObject *module, *apiobj, *base, *base_register_quit, *quit, *rval;
     static void* c_api[PYGAMEAPI_FREETYPE_NUMSLOTS];
 
     PyFREETYPE_C_API[0] = PyFREETYPE_C_API[0]; 
@@ -1171,9 +1163,23 @@ MODINIT_DEFINE (freetype)
 	    MODINIT_ERROR;
     }
 
+    /* import needed modules. Do this first so if there is an error
+       the module is not loaded.
+    */
+    base = PyImport_ImportModule ("base");
+    if (!base) {
+        MODINIT_ERROR;
+    }
+    base_register_quit = PyObject_GetAttrString (base, "register_quit");
+    Py_DECREF (base);
+    if (!base_register_quit) {
+        MODINIT_ERROR;
+    }
+
     /* type preparation */
     if (PyType_Ready(&PyFreeTypeFont_Type) < 0) 
     {
+        Py_DECREF(base_register_quit);
         MODINIT_ERROR;
     }
 
@@ -1188,12 +1194,14 @@ MODINIT_DEFINE (freetype)
 
     if (module == NULL) 
     {
+        Py_DECREF(base_register_quit);
         MODINIT_ERROR;
     }
 
     Py_INCREF((PyObject *)&PyFreeTypeFont_Type);
     if (PyModule_AddObject(module, "Font", (PyObject *)&PyFreeTypeFont_Type) == -1) 
     {
+        Py_DECREF(base_register_quit);
         Py_DECREF((PyObject *) &PyFreeTypeFont_Type);
         DECREF_MOD(module);
         MODINIT_ERROR;
@@ -1218,16 +1226,33 @@ MODINIT_DEFINE (freetype)
     apiobj = PyCObject_FromVoidPtr(c_api, NULL);
     if (apiobj == NULL) 
     {
+        Py_DECREF (base_register_quit);
         DECREF_MOD(module);
         MODINIT_ERROR;
     }
 
     if (PyModule_AddObject(module, PYGAMEAPI_LOCAL_ENTRY, apiobj) == -1) 
     {
+        Py_DECREF(base_register_quit);
         Py_DECREF(apiobj);
         DECREF_MOD(module);
         MODINIT_ERROR;
     }
+
+    quit = PyObject_GetAttrString (module, "quit");
+    if (quit == NULL) {  /* assertion */
+        Py_DECREF (base_register_quit);
+        DECREF_MOD (module);
+        MODINIT_ERROR;
+    }
+    rval = PyObject_CallFunctionObjArgs (base_register_quit, quit, NULL);
+    Py_DECREF (base_register_quit);
+    Py_DECREF (quit);
+    if (rval == NULL) {
+        DECREF_MOD (module);
+        MODINIT_ERROR;
+    }
+    Py_DECREF (rval);
 
     MODINIT_RETURN(module);
 }
