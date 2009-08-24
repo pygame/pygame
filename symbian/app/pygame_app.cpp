@@ -13,9 +13,6 @@
 
 #include "logmanutils.h"
 
-const TUid KUidPygameApp =
-{ __UID3__ };
-
 TInt Ticks;
 TInt Frames;
 TInt Done;
@@ -310,7 +307,8 @@ CEikAppUi* CSdlAppDocument::CreateAppUiL()
 
 TUid CSdlApplication::AppDllUid() const
 {
-	return KUidPygameApp;
+    // Get the uid from process	
+	return  RProcess().SecureId();
 }
 
 CApaDocument* CSdlApplication::CreateDocumentL()
