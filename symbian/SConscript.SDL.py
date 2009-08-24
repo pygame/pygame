@@ -37,7 +37,7 @@ libraries  = C_LIBRARY + ['euser',
  'cone',
  'bitgdi',
  'scdv',
- 'hal',
+ 'hal', 
 # 'libc',
 # 'libm',
  ]

@@ -1,4 +1,5 @@
-""" Full build configuration for pygame 
+""" Full build configuration for pygame.
+Reads configuration and creates appropriate parameters for SCons build scripts.
 For SVN support, install pysvn.
 """
 
@@ -26,9 +27,7 @@ def getuid():
 UID_PYGAMEAPP = getuid()
 UID_SDL       = getuid()
 UID_JPEG      = getuid()
-
-#: Base uid for PyS60 CE scripts
-UID_BASE = getuid()
+UID_BASE      = getuid()
 
 #: Capability configuration
 CAPABILITIES = CAPS_SELF_SIGNED[:]
@@ -104,13 +103,16 @@ def build():
     # Build pygame
     args["pythonsis"]  = sisname
     args["pythonsis"]  = sisname
-    args["sisappname"] = '"pygame for S60"' 
+    args["sisappname"] = '"pygame"' 
     args['sisversion'] = '1,%d,%d%s' % ( int(version[2:4]), int( version[4:6]),version[6:])
     args['sisuid'] = hex(UID_PACKAGE).replace("L","")
     args['appuid'] = hex(UID_PYGAMEAPP).replace("L","")
     args['sdluid'] = hex(UID_SDL).replace("L","")
     args['jpeguid']= hex(UID_JPEG).replace("L","")
     args['pythoninclude'] = config.pythoninclude
+    args["staticmods"]    = config.staticmods
+    args["modbaseuid"]    = hex(UID_BASE).replace("L","")
+    args["build_libs"]    = config.build_libs
     #args['defines'] = "STDERR_TO_STDOUT"
     args['winscw_options'] = "-nostderr" # Don't show the stdioserver output
     dobuild(args)

@@ -2,8 +2,7 @@ import time
 from scons_symbian import *
 
 constants.SIGNSIS_OUTPUT_EXTENSION = ".sisx"
-gcce.GCCE_OPTIMIZATION_FLAGS = "-O2 -fno-unit-at-a-time"
-
+gcce.GCCE_OPTIMIZATION_FLAGS = "-O3 -fno-unit-at-a-time -ffast-math"
 
 SVNREVISION = ""
 
@@ -38,6 +37,9 @@ JPEG_DLL_NAME = ARGUMENTS.get( "jpegdll", "pygame_libjpeg" )
 
 #: Name of the used libpng.dll
 PNG_DLL_NAME = ARGUMENTS.get( "pngdll", "pygame_libpng" )
+
+#: Create static modules or dynamic modules( pyds )
+HAVE_STATIC_MODULES = eval( ARGUMENTS.get( "staticmods", False ) )
 
 #: Using OpenC or estlib?
 USE_OPENC = ARGUMENTS.get( "openc", True )
@@ -78,8 +80,14 @@ UID_PACKAGE    = ARGUMENTS["sisuid"]
 UID_PYGAMEAPP  = ARGUMENTS["appuid"] 
 UID_SDL        = ARGUMENTS["sdluid"] 
 UID_JPEG       = ARGUMENTS["jpeguid"]
-UID_PNG        = 0#ARGUMENTS["pnguid"] 
-
+UID_PNG        = 0#ARGUMENTS["pnguid"]
+#: The base uid for all pygame modules. 
+UID_MODBASE    = ARGUMENTS["modbaseuid"]
+__uid = int(UID_MODBASE, 16)
+def getUID(): 
+    global __uid
+    __uid += 1
+    return __uid 
 
 EMBEDDED_PYTHON_SIS = ARGUMENTS.get( "pythonsis", "none" )
 if EMBEDDED_PYTHON_SIS.lower() != "none" and COMPILER != COMPILER_WINSCW:
@@ -97,10 +105,14 @@ else:
     EMBEDDED_PYTHON_SIS = None
     EMBEDDED_PYTHON_SIS_UID = 0x0
       
-Export("PACKAGE_NAME PYTHON_LIB_NAME PATH_PY_LIBS SDL_DLL_NAME CAPABILITIES PYTHON_INCLUDE USE_OPENC C_LIBRARY C_INCLUDE")
+Export("PACKAGE_NAME PYTHON_LIB_NAME"
+       " PATH_PY_LIBS SDL_DLL_NAME"
+       " CAPABILITIES PYTHON_INCLUDE"
+       " USE_OPENC C_LIBRARY C_INCLUDE"
+       " HAVE_STATIC_MODULES getUID")
 
 # Build external libraries. Conditional because needed only once and takes extra time after that.
-if ARGUMENTS.get( "buildlibs", True ):
+if eval( ARGUMENTS.get( "build_libs", "True" ) ):    
     SConscript( "SConscript.sft2.py" )
     SConscript( "SConscript.Ogg.py" )    
     SConscript( "SConscript.Vorbis.py" )
