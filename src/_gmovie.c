@@ -1240,11 +1240,15 @@ int stream_component_start(PyMovie *movie, int stream_index, int threaded)
     if (stream_index < 0 || stream_index >= ic->nb_streams)
     {
         if(threaded)
-            GRABGIL
-            Py_DECREF(movie);
+        {
+	    GRABGIL
+	} 
+        Py_DECREF(movie);
         if(threaded)
+	{
             RELEASEGIL
-            return -1;
+	}
+        return -1;
     }
     initialize_codec(movie, stream_index, threaded);
     enc = ic->streams[stream_index]->codec;
@@ -1303,25 +1307,33 @@ void stream_component_end(PyMovie *movie, int stream_index, int threaded)
 {
     DECLAREGIL
     if(threaded)
+    {
         GRABGIL
-        if(movie->ob_refcnt!=0)
-            Py_INCREF( movie);
+    }
+    if(movie->ob_refcnt!=0)
+        Py_INCREF( movie);
     if(threaded)
+    {
         RELEASEGIL
-        AVFormatContext *ic = movie->ic;
+    }
+    AVFormatContext *ic = movie->ic;
     AVCodecContext *enc;
 
     if (stream_index < 0 || stream_index >= ic->nb_streams)
     {
         if(threaded)
+        {
             GRABGIL
-            if(movie->ob_refcnt!=0)
-            {
-                Py_DECREF(movie);
-            }
+        }
+        if(movie->ob_refcnt!=0)
+        {
+            Py_DECREF(movie);
+        }
         if(threaded)
+        {        
             RELEASEGIL
-            return;
+	}
+        return;
     }
     movie->replay=1;
     enc = ic->streams[stream_index]->codec;
@@ -1362,37 +1374,49 @@ void stream_component_end(PyMovie *movie, int stream_index, int threaded)
     ic->streams[stream_index]->discard = AVDISCARD_ALL;
 
     if(threaded)
+    {
         GRABGIL
-        if(movie->ob_refcnt!=0)
-        {
-            Py_DECREF( movie);
-        }
-    if(threaded)
-        RELEASEGIL
+    }    
+    if(movie->ob_refcnt!=0)
+    {
+        Py_DECREF( movie);
     }
+    if(threaded)
+    {    
+    	RELEASEGIL
+    }    
+}
 void stream_component_close(PyMovie *movie, int stream_index, int threaded)
 {
     DECLAREGIL
     if(threaded)
+    {
         GRABGIL
-        if(movie->ob_refcnt!=0)
-            Py_INCREF( movie);
+    }
+    if(movie->ob_refcnt!=0)
+    {        Py_INCREF( movie);}
     if(threaded)
+    {
         RELEASEGIL
-        AVFormatContext *ic = movie->ic;
+    }
+    AVFormatContext *ic = movie->ic;
     AVCodecContext *enc;
 
     if (stream_index < 0 || stream_index >= ic->nb_streams)
     {
         if(threaded)
-            GRABGIL
-            if(movie->ob_refcnt!=0)
-            {
-                Py_DECREF(movie);
-            }
+	{
+		GRABGIL
+	}
+    	if(movie->ob_refcnt!=0)
+    	{
+     	   Py_DECREF(movie);
+    	}
         if(threaded)
-            RELEASEGIL
-            return;
+    	{
+        	RELEASEGIL
+    	}
+        return;
     }
     enc = ic->streams[stream_index]->codec;
     int end = movie->loops;
@@ -1433,14 +1457,18 @@ void stream_component_close(PyMovie *movie, int stream_index, int threaded)
     }
 
     if(threaded)
+    {
         GRABGIL
+    }
         if(movie->ob_refcnt!=0)
         {
             Py_DECREF( movie);
         }
     if(threaded)
+    {
         RELEASEGIL
-    }
+    }    
+}
 
 void stream_open(PyMovie *movie, const char *filename, AVInputFormat *iformat, int threaded)
 {
@@ -1493,11 +1521,15 @@ void stream_open(PyMovie *movie, const char *filename, AVInputFormat *iformat, i
         if (ret < 0)
         {
             if(threaded)
+            {
                 GRABGIL
-                PyErr_Format(PyExc_IOError, "%s: could not seek to position %0.3f", movie->filename, (double)timestamp/AV_TIME_BASE);
+ 	    }           
+	    PyErr_Format(PyExc_IOError, "%s: could not seek to position %0.3f", movie->filename, (double)timestamp/AV_TIME_BASE);
             if(threaded)
+	    {
                 RELEASEGIL
-            }
+ 	    }           
+	}
     }
     for(i = 0; i < movie->ic->nb_streams; i++)
     {
@@ -1612,22 +1644,30 @@ int initialize_context(PyMovie *movie, int threaded)
     if (err < 0)
     {
         if(threaded)
+        {
             GRABGIL
-            PyErr_Format(PyExc_IOError, "There was a problem opening up %s, due to %i", movie->filename, err);
+        }
+        PyErr_Format(PyExc_IOError, "There was a problem opening up %s, due to %i", movie->filename, err);
         if(threaded)
-            RELEASEGIL
-            ret = -1;
+ 	{       
+	    RELEASEGIL
+	}           
+	ret = -1;
         goto fail;
     }
     err = av_find_stream_info(ic);
     if (err < 0)
     {
         if(threaded)
+        {
             GRABGIL
+        }
             PyErr_Format(PyExc_IOError, "%s: could not find codec parameters", movie->filename);
         if(threaded)
-            RELEASEGIL
-            ret = -1;
+ 	{       
+	    RELEASEGIL
+	}           
+        ret = -1;
         goto fail;
     }
     if(ic->pb)
@@ -1736,12 +1776,16 @@ void stream_close(PyMovie *movie, int threaded)
 {
     DECLAREGIL
     if(threaded)
+    {
         GRABGIL
-        if(movie->ob_refcnt!=0)
-            Py_INCREF(movie);
+    }
+    if(movie->ob_refcnt!=0)
+        Py_INCREF(movie);
     if(threaded)
+    {
         RELEASEGIL
-        movie->abort_request = 1;
+    }
+    movie->abort_request = 1;
     SDL_WaitThread(movie->parse_tid, NULL);
     VidPicture *vp;
 
@@ -1794,11 +1838,15 @@ void stream_close(PyMovie *movie, int threaded)
     if(movie->ob_refcnt!=0)
     {
         if(threaded)
+        {
             GRABGIL
-            Py_DECREF(movie);
+    	}    
+        Py_DECREF(movie);
         if(threaded)
-            RELEASEGIL
+	{        
+    	    RELEASEGIL
         }
+     }
 }
 
 void stream_cycle_channel(PyMovie *movie, int codec_type)
