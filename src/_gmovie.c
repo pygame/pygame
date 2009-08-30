@@ -1507,7 +1507,7 @@ void stream_open(PyMovie *movie, const char *filename, AVInputFormat *iformat, i
 
     int wanted_video_stream=1;
     int wanted_audio_stream=1;
-    int wanted_subti_stream=-1;
+    
     /* if seeking requested, we execute it */
     if (movie->start_time != AV_NOPTS_VALUE)
     {
