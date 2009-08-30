@@ -336,6 +336,23 @@ typedef struct PyMovie
 }
 PyMovie;
 
+typedef struct PyMovieInfo
+{
+    PyObject_HEAD
+    /* General purpose members */
+    double duration; //check
+    int width;//check
+    int height;//check
+    int sample_rate;//check
+    int channels;//check
+    char *vid_codec;//check
+    char *aud_codec;//check
+    char *filename;//check
+    double aspect_ratio;//check
+} PyMovieInfo;
+    
+
+
 /*command definitions */
 typedef struct seekCommand
 {
@@ -424,6 +441,21 @@ double get_master_clock   (PyMovie *is);
 
 /* 		Command management */
 void registerCommands(PyMovie *movie);
+
+/* 		MovieInfo management*/
+int _info_init(PyObject *self, PyObject *args, PyObject *kwds);
+void _info_init_internal(PyMovieInfo *self, const char *filename);
+void _info_dealloc(PyMovieInfo *info);
+PyObject* _info_get_duration (PyMovieInfo *info, void *closure);
+PyObject* _info_get_aspect_ratio (PyMovieInfo *info, void *closure);
+PyObject* _info_get_width (PyMovieInfo *info, void *closure);
+PyObject* _info_get_height (PyMovieInfo *info, void *closure);
+PyObject* _info_get_sample_rate(PyMovieInfo *info, void *closure);
+PyObject* _info_get_channels(PyMovieInfo *info, void *closure);
+PyObject* _info_get_video_codec(PyMovieInfo *info, void *closure);
+PyObject* _info_get_audio_codec(PyMovieInfo *info, void *closure);
+PyObject* _info_get_filename(PyMovieInfo *info, void *closure);
+
 
 #if 0
 /*		Subtitle Management*/
