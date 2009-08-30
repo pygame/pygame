@@ -15,6 +15,15 @@ filename="/home/tyler/War3.avi"
 # Without a surface argument, the ffmpeg-wrapper uses the sdl_overlay library. 
 #screen=pygame.display.set_mode((640, 368))
 
+info = movie.MovieInfo(filename)
+print 
+print info.width, info.height
+print info.filename
+print info.aspect_ratio
+print info.duration
+print info.audio_codec
+print info.video_codec
+
 try:
     #this is to test that the movie module tests filenames to make sure they exist
     m=movie.Movie("gsdsjgsdj")
