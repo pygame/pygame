@@ -31,7 +31,7 @@
 #define _GMOVIE_H_
 
 /* local includes */
-#include "docs/_movie_doc.h"
+#include "doc/_movie_doc.h"
 #include "pygame.h"
 #include "pgcompat.h"
 #include "surface.h"

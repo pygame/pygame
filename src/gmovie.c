@@ -639,6 +639,9 @@ static char _movie_doc[] =
 void _info_init_internal(PyMovieInfo *self, const char *filename)
 {
 	/* filename checking... */
+    self->vid_codec = "";
+    self->aud_codec = "";
+    
     PyObject *path = PyImport_ImportModule("os.path");
     Py_INCREF(path);
     PyObject *dict = PyModule_GetDict(path);
