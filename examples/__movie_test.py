@@ -124,9 +124,12 @@ time.sleep(10)
 import sys
 #sys.exit()
 print "Surface time..."
+m.stop()
+time.sleep(5)
 
+del m
 
-screen = pygame.display.set_mode((800, 340))
+screen = pygame.display.set_mode((info.width, info.height))
 ##m.surface=screen
 ##time.sleep(1)
 ###This will move the movie player from overlay mode to blitting to the surface 

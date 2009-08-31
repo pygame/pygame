@@ -1670,9 +1670,10 @@ int initialize_context(PyMovie *movie, int threaded)
         ret = -1;
         goto fail;
     }
+#if LIBAVCODEC_VERSION_INT>=3412992 //(52<<16)+(20<<8)+0 ie 52.20.0
     if(ic->pb)
         ic->pb->eof_reached= 0; //FIXME hack, ffplay maybe should not use url_feof() to test for the end
-
+#endif
 
     movie->ic = ic;
     ret=0;
@@ -1701,6 +1702,7 @@ int initialize_codec(PyMovie *movie, int stream_index, int threaded)
     /* prepare audio output */
     if (enc->codec_type == CODEC_TYPE_AUDIO)
     {
+#if LIBAVCODEC_VERSION_INT>=3412992 //(52<<16)+(20<<8)+0 ie 52.20.0
         if (enc->channels > 0)
         {
             enc->request_channels = FFMIN(2, enc->channels);
@@ -1709,6 +1711,7 @@ int initialize_codec(PyMovie *movie, int stream_index, int threaded)
         {
             enc->request_channels = 2;
         }
+#endif
     }
     codec = avcodec_find_decoder(enc->codec_id);
     enc->debug_mv = 0;
@@ -2244,7 +2247,7 @@ int decoder(void *arg)
             }
             continue;
         }
-
+#if LIBAVCODEC_VERSION_INT>=3412992 //(52<<16)+(20<<8)+0 ie 52.20.0
         if(url_feof(ic->pb))
         {
             av_init_packet(pkt);
@@ -2254,6 +2257,7 @@ int decoder(void *arg)
             packet_queue_put(&movie->videoq, pkt);
             continue;
         }
+#endif
         if(movie->pictq_size<VIDEO_PICTURE_QUEUE_SIZE)
         {
             ret = av_read_frame(ic, pkt);
