@@ -17,7 +17,7 @@ else:
 if is_pygame_pkg:
     from pygame.tests.test_utils import test_not_implemented, unittest, trunk_relative_path
 else:
-    from test.test_utils import test_not_implemented, unittest
+    from test.test_utils import test_not_implemented, unittest, trunk_relative_path
 
 
 import pygame
@@ -38,10 +38,15 @@ import time
 filename = "War3.avi"
 
 
-class MovieTypeTest( unittest.TestCase ): 
-    def test_init(self):     
-        pygame.display.init()    
+class MovieTypeTest( unittest.TestCase ):
+    def setUp(self):
+        pygame.display.init()
         pygame.mixer.quit()
+
+    def tearDown(self):
+        pygame.quit()
+
+    def test_init(self):
         movie_file = trunk_relative_path('examples/data/blue.mpg')
         movie = gmovie.Movie(movie_file)
         self.assertEqual(movie, True)
@@ -53,11 +58,9 @@ class MovieTypeTest( unittest.TestCase ):
         del movie
         
     def test_play_pause(self):
-        pygame.display.init()
-        pygame.mixer.quit()
         movie_file = trunk_relative_path('examples/data/blue.mpg')
         movie = gmovie.Movie(movie_file)
-        
+
         self.assertEqual(movie.playing, False)
 
         movie.play(-1)
@@ -69,17 +72,15 @@ class MovieTypeTest( unittest.TestCase ):
 
         self.assertEqual(movie.playing, False)
         self.assertEqual(movie.paused, True)
-        
+
         movie.pause()
     
         self.assertEqual(movie.playing, True)
         self.assertEqual(movie.paused, False)
-        
+
         del movie
         
     def test_stop(self):
-        pygame.display.init()
-        pygame.mixer.quit()
         movie_file = trunk_relative_path('examples/data/blue.mpg')
         movie = gmovie.Movie(movie_file)
         
@@ -94,8 +95,6 @@ class MovieTypeTest( unittest.TestCase ):
         del movie
         
     def test_rewind(self):
-        pygame.display.init()
-        pygame.mixer.quit()
         movie_file = trunk_relative_path('examples/data/blue.mpg')
         movie = gmovie.Movie(movie_file)
         
@@ -109,30 +108,21 @@ class MovieTypeTest( unittest.TestCase ):
         del movie
 
     def test_width(self):
-        pygame.display.init()
-        pygame.mixer.quit()
         movie_file = trunk_relative_path('examples/data/blue.mpg')
         movie = gmovie.Movie(movie_file)
-        print movie.width
         self.assertEqual(movie.width, 200)
         
         del movie
         
     def test_height(self):
-        pygame.display.init()
-        pygame.mixer.quit()
         movie_file = trunk_relative_path('examples/data/blue.mpg')
         movie = gmovie.Movie(movie_file)
-        print movie.height
         self.assertEqual(movie.height, 200)
         
         del movie
 
         
     def test_resize(self):
-        
-        pygame.display.init()
-        pygame.mixer.quit()
         movie_file = trunk_relative_path('examples/data/blue.mpg')
         movie = gmovie.Movie(movie_file)
         
@@ -142,7 +132,10 @@ class MovieTypeTest( unittest.TestCase ):
         
         self.assertEqual(movie.height, 100)
         self.assertEqual(movie.width, 100)
-        
+
         del movie
         
         
+if __name__ == '__main__':
+    unittest.main()
+
