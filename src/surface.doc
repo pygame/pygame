@@ -195,6 +195,8 @@ for left and up scrolls respectively. Areas of the surface that are not
 overwritten retain their original pixel values. Scrolling is contained
 by the Surface clip area. It is safe to have dx and dy values that exceed
 the surface size.
+
+New in Pygame 1.9
 <END>
 
 
