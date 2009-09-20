@@ -68,6 +68,8 @@ copy the rectangle
 Rect.copy(): return Rect
 
 Returns a new rectangle having the same position and size as the orginal.
+
+New in pygame 1.9
 <END>
 
 
