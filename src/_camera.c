@@ -62,8 +62,7 @@ PyObject* camera_get_raw(PyCameraObject* self);
  */
 
 /* colorspace() - Surface colorspace conversion */
-PyObject* surf_colorspace (PyObject* self, PyObject* arg)
-{
+PyObject* surf_colorspace (PyObject* self, PyObject* arg) {
     PyObject *surfobj, *surfobj2;
     SDL_Surface* surf, *newsurf;
     char* color;
@@ -125,9 +124,8 @@ PyObject* surf_colorspace (PyObject* self, PyObject* arg)
 }
 
 /* list_cameras() - lists cameras available on the computer */
-PyObject* list_cameras (PyObject* self, PyObject* arg)
-{
-#if defined(__unix__)
+PyObject* list_cameras (PyObject* self, PyObject* arg) {
+#if defined(__unix__) || defined (__APPLE__)
     PyObject* ret_list;
     PyObject* string;
     char** devices;
@@ -138,8 +136,12 @@ PyObject* list_cameras (PyObject* self, PyObject* arg)
     ret_list = PyList_New (0);
     if (!ret_list)
         return NULL;
-
+    
+    #if defined(__unix__)
     devices = v4l2_list_cameras(&num_devices);
+    # elif defined(__APPLE__)
+    devices = mac_list_cameras(&num_devices);
+    # endif
     
     for(i = 0; i < num_devices; i++) {
         string = PyString_FromString(devices[i]);
@@ -150,17 +152,13 @@ PyObject* list_cameras (PyObject* self, PyObject* arg)
     free(devices);
     
     return ret_list;
-#elif defined(__APPLE__)
-    /* Hier komt apple gedoe... */
-    Py_RETURN_NONE;
 #else
 	Py_RETURN_NONE;
 #endif
 }
 
 /* start() - opens, inits, and starts capturing on the camera */
-PyObject* camera_start (PyCameraObject* self)
-{
+PyObject* camera_start (PyCameraObject* self) {
 #if defined(__unix__)
     if (v4l2_open_device(self) == 0) {
         if (v4l_open_device(self) == 0) {
@@ -188,13 +186,17 @@ PyObject* camera_start (PyCameraObject* self)
             return NULL;
         }
     }
+#elif defined(__APPLE__)
+    if (! (mac_open_device(self) == 1 && mac_init_device(self) == 1 && mac_start_capturing(self) == 1)) {
+        mac_close_device(self);
+        return NULL;
+    }
 #endif
     Py_RETURN_NONE;
 }
 
 /* stop() - stops capturing, uninits, and closes the camera */
-PyObject* camera_stop (PyCameraObject* self)
-{
+PyObject* camera_stop (PyCameraObject* self) {
 #if defined(__unix__)
     if (v4l2_stop_capturing(self) == 0)
         return NULL;
@@ -202,14 +204,18 @@ PyObject* camera_stop (PyCameraObject* self)
         return NULL;
     if (v4l2_close_device(self) == 0)
         return NULL;
+#elif defined(__APPLE__)
+    if (mac_stop_capturing(self) == 0)
+        return NULL;
+    if (mac_close_device(self) == 0)
+        return NULL;
 #endif
     Py_RETURN_NONE;
 }
 
 /* get_controls() - gets current values of user controls */
 /* TODO: Support brightness, contrast, and other common controls */
-PyObject* camera_get_controls (PyCameraObject* self)
-{
+PyObject* camera_get_controls (PyCameraObject* self) {
     int value;
 #if defined(__unix__)    
     if (v4l2_get_control(self->fd, V4L2_CID_HFLIP, &value))
@@ -220,13 +226,17 @@ PyObject* camera_get_controls (PyCameraObject* self)
 
     if (v4l2_get_control(self->fd, V4L2_CID_BRIGHTNESS, &value))
         self->brightness = value;
-#endif    
+    
     return Py_BuildValue ("(NNN)", PyBool_FromLong(self->hflip), PyBool_FromLong(self->vflip), PyInt_FromLong(self->brightness));
+#elif defined(__APPLE__)
+    return Py_BuildValue ("(NNN)", PyBool_FromLong(self->hflip), PyBool_FromLong(self->vflip), PyInt_FromLong(-1));
+#endif
+    Py_RETURN_NONE;
 }
 
 /* set_controls() - changes camera settings if supported by the camera */
-PyObject* camera_set_controls (PyCameraObject* self, PyObject* arg, PyObject *kwds)
-{
+PyObject* camera_set_controls (PyCameraObject* self, PyObject* arg, PyObject *kwds) {
+#if defined(__unix__)
     int hflip = 0, vflip = 0, brightness = 0;
     char *kwids[] = {"hflip", "vflip", "brightness", NULL};
 
@@ -237,7 +247,8 @@ PyObject* camera_set_controls (PyCameraObject* self, PyObject* arg, PyObject *kw
     
     if (!PyArg_ParseTupleAndKeywords(arg, kwds, "|iii", kwids, &hflip, &vflip, &brightness))
         return NULL;
-#if defined(__unix__)        
+        
+//#if defined(__unix__)        
     if (v4l2_set_control(self->fd, V4L2_CID_HFLIP, hflip))
         self->hflip = hflip;
         
@@ -246,29 +257,51 @@ PyObject* camera_set_controls (PyCameraObject* self, PyObject* arg, PyObject *kw
         
     if (v4l2_set_control(self->fd, V4L2_CID_BRIGHTNESS, brightness))
         self->brightness = brightness;
-#endif    
+           
     return Py_BuildValue ("(NNN)", PyBool_FromLong(self->hflip), PyBool_FromLong(self->vflip), PyInt_FromLong(self->brightness));
-}
 
-/* get_size() - returns the dimensions of the images being recorded */
-PyObject* camera_get_size (PyCameraObject* self)
-{
-    return Py_BuildValue ("(ii)", self->width, self->height);
-}
+#elif defined(__APPLE__)
+    int hflip = 0, vflip = 0, brightness = 0;
+    char *kwids[] = {"hflip", "vflip", "brightness", NULL};
 
-/* query_image() - checks if a frame is ready */
-PyObject* camera_query_image (PyCameraObject* self)
-{
-#if defined(__unix__)
-    return PyBool_FromLong(v4l2_query_buffer(self));
+    camera_get_controls(self);
+    hflip = self->hflip;
+    vflip = self->vflip;
+    brightness = -1;
+    
+    if (!PyArg_ParseTupleAndKeywords(arg, kwds, "|iii", kwids, &hflip, &vflip, &brightness))
+        return NULL;
+        
+    self->hflip = hflip;
+    self->vflip = vflip;
+           
+    return Py_BuildValue ("(NNN)", PyBool_FromLong(self->hflip), PyBool_FromLong(self->vflip), PyInt_FromLong(-1));
 #endif
     Py_RETURN_NONE;
 }
 
+/* get_size() - returns the dimensions of the images being recorded */
+PyObject* camera_get_size (PyCameraObject* self) {
+#if defined(__unix__)
+    return Py_BuildValue ("(ii)", self->width, self->height);
+#elif defined(__APPLE__)
+    return Py_BuildValue ("(ii)", self->boundsRect.right, self->boundsRect.bottom);
+#endif
+    Py_RETURN_NONE;
+}
+
+/* query_image() - checks if a frame is ready */
+PyObject* camera_query_image(PyCameraObject* self) {
+#if defined(__unix__)
+    return PyBool_FromLong(v4l2_query_buffer(self));
+#endif
+    Py_RETURN_TRUE;
+}
+
 /* get_image() - returns an RGB Surface */
 /* code to reuse Surface from René Dudfield */
-PyObject* camera_get_image (PyCameraObject* self, PyObject* arg)
-{
+PyObject* camera_get_image (PyCameraObject* self, PyObject* arg) {
+#if defined(__unix__)
     SDL_Surface* surf = NULL;
     PyObject *surfobj = NULL;
     
@@ -289,12 +322,12 @@ PyObject* camera_get_image (PyCameraObject* self, PyObject* arg)
         return RAISE (PyExc_ValueError, 
                       "Destination surface not the correct width or height.");
     }
-#if defined(__unix__)
+    
     Py_BEGIN_ALLOW_THREADS;
     if (!v4l2_read_frame(self, surf))
         return NULL;
     Py_END_ALLOW_THREADS;
-#endif
+    
     if (!surf)
         return NULL;
         
@@ -304,13 +337,59 @@ PyObject* camera_get_image (PyCameraObject* self, PyObject* arg)
     } else {
         return PySurface_New (surf);
     }
+#elif defined(__APPLE__)
+        SDL_Surface* surf = NULL;
+        PyObject *surfobj = NULL;
+
+        if (!PyArg_ParseTuple (arg, "|O!", &PySurface_Type, &surfobj))
+            return NULL;
+
+        if (!surfobj) {
+            surf = SDL_CreateRGBSurface(
+                0,
+                self->boundsRect.right,
+                self->boundsRect.bottom,
+                24,
+                0xFF<<16,
+                0xFF<<8,
+                0xFF,
+                0);
+            
+        } else {
+            surf = PySurface_AsSurface(surfobj);
+        }
+
+        if (!surf)
+            return NULL;
+
+        if (surf->w != self->boundsRect.right || surf->h != self->boundsRect.bottom) {
+            return RAISE (PyExc_ValueError, 
+                          "Destination surface not the correct width or height.");
+        }
+        Py_BEGIN_ALLOW_THREADS; //is dit nodig op osx...
+        
+        if (!mac_read_frame(self, surf))
+            return NULL;
+        Py_END_ALLOW_THREADS;
+        if (!surf)
+            return NULL;
+
+        if (surfobj) {
+            Py_INCREF (surfobj);
+            return surfobj;
+        } else {
+            return PySurface_New (surf);
+        }
+#endif
+    Py_RETURN_NONE;
 }
 
 /* get_raw() - returns an unmodified image as a string from the buffer */
-PyObject* camera_get_raw(PyCameraObject* self)
-{
+PyObject* camera_get_raw(PyCameraObject* self) {
 #if defined(__unix__)
     return v4l2_read_raw(self);
+#elif defined(__APPLE__)
+    return mac_read_raw(self);
 #endif
     Py_RETURN_NONE;
 }
@@ -321,8 +400,7 @@ PyObject* camera_get_raw(PyCameraObject* self)
  
 /* converts from rgb Surface to yuv or hsv */
 /* TODO: Allow for conversion from yuv and hsv to all */
-void colorspace (SDL_Surface *src, SDL_Surface *dst, int cspace)
-{   
+void colorspace (SDL_Surface *src, SDL_Surface *dst, int cspace) {   
     switch (cspace) {
         case YUV_OUT:
             rgb_to_yuv (src->pixels, dst->pixels, src->h * src->w, 0, src->format);
@@ -674,8 +752,7 @@ void rgb_to_yuv (const void* src, void* dst, int length,
 }
 
 /* Converts from rgb444 (R444) to rgb24 (RGB3) */
-void rgb444_to_rgb (const void* src, void* dst, int length, SDL_PixelFormat* format)
-{
+void rgb444_to_rgb (const void* src, void* dst, int length, SDL_PixelFormat* format) {
     Uint8 *s, *d8;
     Uint16 *d16;
     Uint32 *d32;
@@ -734,8 +811,7 @@ void rgb444_to_rgb (const void* src, void* dst, int length, SDL_PixelFormat* for
 /* convert from 4:2:2 YUYV interlaced to RGB */
 /* colorspace conversion routine from libv4l. Licensed LGPL 2.1
    (C) 2008 Hans de Goede <j.w.r.degoede@hhs.nl> */
-void yuyv_to_rgb (const void* src, void* dst, int length, SDL_PixelFormat* format)
-{
+void yuyv_to_rgb (const void* src, void* dst, int length, SDL_PixelFormat* format) {
     Uint8 *s, *d8;
     Uint16 *d16;
     Uint32 *d32;
@@ -805,8 +881,7 @@ void yuyv_to_rgb (const void* src, void* dst, int length, SDL_PixelFormat* forma
 }
 
 /* turn yuyv into packed yuv. */
-void yuyv_to_yuv (const void* src, void* dst, int length, SDL_PixelFormat* format)
-{
+void yuyv_to_yuv (const void* src, void* dst, int length, SDL_PixelFormat* format) {
     Uint8 *s, *d8;
     Uint8 y1, u, y2, v;
     Uint16 *d16;
@@ -899,8 +974,7 @@ void yuyv_to_yuv (const void* src, void* dst, int length, SDL_PixelFormat* forma
 /* FIXME: Seems to be grayscale and kind of dark on the OLPC XO
           Maybe the result of a different Bayer color order on the screen? */
 /* TODO: Certainly not the most efficient way of doing this conversion. */
-void sbggr8_to_rgb (const void* src, void* dst, int width, int height, SDL_PixelFormat* format)
-{
+void sbggr8_to_rgb (const void* src, void* dst, int width, int height, SDL_PixelFormat* format) {
     Uint8 *rawpt, *d8;
     Uint16 *d16;
     Uint32 *d32;
@@ -1002,8 +1076,7 @@ void sbggr8_to_rgb (const void* src, void* dst, int width, int height, SDL_Pixel
 
 /* convert from YUV 4:2:0 (YU12) to RGB24 */
 /* based on v4lconvert_yuv420_to_rgb24 in libv4l (C) 2008 Hans de Goede. LGPL */
-void yuv420_to_rgb (const void* src, void* dst, int width, int height, SDL_PixelFormat* format)
-{
+void yuv420_to_rgb (const void* src, void* dst, int width, int height, SDL_PixelFormat* format) {
     int rshift, gshift, bshift, rloss, gloss, bloss, i, j, u1, v1, rg, y;
     const Uint8 *y1, *y2, *u, *v;
     Uint8 *d8_1, *d8_2;
@@ -1193,8 +1266,7 @@ void yuv420_to_rgb (const void* src, void* dst, int width, int height, SDL_Pixel
 }
 
 /* turn yuv420 into packed yuv. */
-void yuv420_to_yuv (const void* src, void* dst, int width, int height, SDL_PixelFormat* format)
-{   
+void yuv420_to_yuv (const void* src, void* dst, int width, int height, SDL_PixelFormat* format) {   
     const Uint8 *y1, *y2, *u, *v;
     Uint8 *d8_1, *d8_2;
     Uint16 *d16_1, *d16_2;
@@ -1293,12 +1365,58 @@ void yuv420_to_yuv (const void* src, void* dst, int width, int height, SDL_Pixel
 
 }
 
+/* Flips the image array horizontally and/or vertically by reverse copying
+ * a 'depth' number of bytes to flipped_image.*/
+/* todo speed up... */
+void flip_image(const void* image, void* flipped_image, int width, int height, short depth, bool hflip, bool vflip) {
+    if (hflip == false && vflip == true) {
+        int i, j;
+        int width_size = width*depth;
+        void* tmp_image = image;
+        
+        for(i=0; i<=height-1; i++) {
+            for(j=0; j<=width; j++) {
+                memcpy(flipped_image+width_size-j*depth-3,
+                       tmp_image+j*depth,
+                       depth);
+            }
+            tmp_image += width_size;
+            flipped_image += width_size;
+        }
+    } else if (hflip == true && vflip == false) {
+        int i;
+        int width_size = width*depth;
+        void* tmp_image = flipped_image+width_size*height;
+        
+        for(i=0; i<height; i++) {
+            tmp_image -= width_size;
+            memcpy(tmp_image, image+i*width_size, width_size);
+        }
+    } else if (hflip == true && vflip == true) {
+        int i, j;
+        int width_size = width*depth;
+        void* tmp_image = flipped_image + width_size*height;
+    
+        for(i=0; i<=height-1; i++) {
+            for(j=0; j<=width; j++) {
+                memcpy(tmp_image-j*depth-3,
+                       image+j*depth,
+                       depth);
+            }
+            tmp_image -= width_size;
+            image += width_size;
+        }
+    } else {
+        memcpy(flipped_image, image, height*width*depth);
+    }
+}
+
 /*
  * Python API stuff
  */
- 
-PyMethodDef cameraobj_builtins[] =
-{
+
+/* Camera class definition */
+PyMethodDef cameraobj_builtins[] = {
     { "start", (PyCFunction) camera_start, METH_NOARGS, DOC_CAMERASTART },
     { "stop", (PyCFunction) camera_stop, METH_NOARGS, DOC_CAMERASTOP },
     { "get_controls", (PyCFunction) camera_get_controls, METH_NOARGS, DOC_CAMERAGETCONTROLS },
@@ -1310,19 +1428,16 @@ PyMethodDef cameraobj_builtins[] =
     { NULL, NULL, 0, NULL }
 };
 
-void camera_dealloc (PyObject* self)
-{
+void camera_dealloc (PyObject* self) {
     free(((PyCameraObject*) self)->device_name);
     PyObject_DEL (self);
 }
 
-PyObject* camera_getattr(PyObject* self, char* attrname)
-{
+PyObject* camera_getattr(PyObject* self, char* attrname) {
     return Py_FindMethod(cameraobj_builtins, self, attrname);
 }
 
-PyTypeObject PyCamera_Type =
-{
+PyTypeObject PyCamera_Type = {
     PyObject_HEAD_INIT(NULL)
     0,
     "Camera",
@@ -1331,21 +1446,21 @@ PyTypeObject PyCamera_Type =
     camera_dealloc,
     0,
     camera_getattr,
-    NULL,			/*setattr*/
-    NULL,			/*compare*/
-    NULL,			/*repr*/
-    NULL,			/*as_number*/
-    NULL,			/*as_sequence*/
-    NULL,			/*as_mapping*/
+    NULL,			        /*setattr*/
+    NULL,			        /*compare*/
+    NULL,			        /*repr*/
+    NULL,			        /*as_number*/
+    NULL,			        /*as_sequence*/
+    NULL,			        /*as_mapping*/
     (hashfunc)NULL, 		/*hash*/
     (ternaryfunc)NULL,		/*call*/
     (reprfunc)NULL, 		/*str*/
     0L,0L,0L,0L,
-    DOC_PYGAMECAMERACAMERA /* Documentation string */
+    DOC_PYGAMECAMERACAMERA  /* Documentation string */
 };
 
-PyObject* Camera (PyCameraObject* self, PyObject* arg)
-{
+PyObject* Camera (PyCameraObject* self, PyObject* arg) {
+# if defined(__unix__)
     int w, h;
     char* dev_name = NULL;
     char* color = NULL;
@@ -1387,36 +1502,79 @@ PyObject* Camera (PyCameraObject* self, PyObject* arg)
     }
     
     return (PyObject*)cameraobj;
+    
+# elif defined(__APPLE__)
+    int w, h;
+    char* dev_name = NULL;
+    char* color = NULL;
+    PyCameraObject *cameraobj;
+    
+    w = DEFAULT_WIDTH;
+    h = DEFAULT_HEIGHT;
+    
+    if (!PyArg_ParseTuple(arg, "s|(ii)s", &dev_name, &w, &h, &color))
+        return NULL;
+    
+    cameraobj = PyObject_NEW (PyCameraObject, &PyCamera_Type);
+    
+    if (cameraobj) {
+        cameraobj->device_name = (char*) malloc((strlen(dev_name)+1)*sizeof(char));
+        strcpy(cameraobj->device_name, dev_name);
+        if (color) {
+            if (!strcmp(color, "YUV")) {
+                cameraobj->color_out = YUV_OUT;
+            } else if (!strcmp(color, "HSV")) {
+                cameraobj->color_out = HSV_OUT;
+            } else {
+                cameraobj->color_out = RGB_OUT;
+            }
+        } else {
+            cameraobj->color_out = RGB_OUT;
+        }
+        cameraobj->component = NULL;
+        cameraobj->channel = NULL;
+        cameraobj->gworld = NULL;
+        cameraobj->boundsRect.top = 0;                   
+        cameraobj->boundsRect.left = 0;
+        cameraobj->boundsRect.bottom = h;
+        cameraobj->boundsRect.right = w;
+        cameraobj->size =  w * h;
+        cameraobj->hflip = false;
+        cameraobj->vflip = false;
+    }
+    
+    return (PyObject*)cameraobj;    
+    # endif
 }
 
-PyMethodDef camera_builtins[] =
-{
-    { "colorspace", surf_colorspace, METH_VARARGS, DOC_PYGAMECAMERACOLORSPACE },
-    { "list_cameras", list_cameras, METH_NOARGS, DOC_PYGAMECAMERALISTCAMERAS },
-    { "Camera", (PyCFunction) Camera, METH_VARARGS, DOC_PYGAMECAMERACAMERA },
-    { NULL, NULL, 0, NULL }
+/* Camera module definition */
+PyMethodDef camera_builtins[] = {
+    {"colorspace", surf_colorspace, METH_VARARGS, DOC_PYGAMECAMERACOLORSPACE },
+    {"list_cameras", list_cameras, METH_NOARGS, DOC_PYGAMECAMERALISTCAMERAS },
+    {"Camera", (PyCFunction) Camera, METH_VARARGS, DOC_PYGAMECAMERACAMERA },
+    {NULL, NULL, 0, NULL }
 };
  
-void init_camera(void)
-{
-  PyObject *module, *dict;
-  /* imported needed apis; Do this first so if there is an error
-     the module is not loaded.
-  */
-  import_pygame_base ();
-  if (PyErr_Occurred ()) {
-    return;
-  }
-  import_pygame_surface ();
-  if (PyErr_Occurred ()) {
-    return;
-  }
+void init_camera(void) {
+    printf("==============================>\n");
+    PyObject *module, *dict;
+    /* imported needed apis; Do this first so if there is an error
+     * the module is not loaded.
+     */
+    import_pygame_base();
+    if (PyErr_Occurred()) {
+        return;
+    }
+    import_pygame_surface();
+    if (PyErr_Occurred()) {
+        return;
+    }
 
-  /* type preparation */
-  PyType_Init(PyCamera_Type);
+    /* type preparation */
+    PyType_Init(PyCamera_Type);
   
-  /* create the module */
-  module = Py_InitModule3("_camera", camera_builtins, DOC_PYGAMECAMERA);
-  dict = PyModule_GetDict(module);
-  PyDict_SetItemString(dict, "CameraType", (PyObject *)&PyCamera_Type);
+    /* create the module */
+    module = Py_InitModule3("_camera", camera_builtins, DOC_PYGAMECAMERA);
+    dict = PyModule_GetDict(module);
+    PyDict_SetItemString(dict, "CameraType", (PyObject *)&PyCamera_Type);
 }
