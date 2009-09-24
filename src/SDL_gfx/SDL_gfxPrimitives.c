@@ -776,7 +776,7 @@ int hlineColorStore(SDL_Surface * dst, Sint16 x1, Sint16 x2, Sint16 y, Uint32 co
 	 */
 	switch (dst->format->BytesPerPixel) {
 	case 1:
-	    memset(pixel, color, dx);
+	    memset(pixel, color, dx+1);
 	    break;
 	case 2:
 	    pixellast = pixel + dx + dx;
