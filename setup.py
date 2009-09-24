@@ -366,7 +366,9 @@ if sys.platform == 'win32':
                     if e.sources[i].endswith('scale_mmx.c'):
                         del e.sources[i]
                         return
-    replace_scale_mmx()
+    # linking to 64-bit mingw generated scale_mmx.obj fails
+    if not '64 bit' in sys.version:
+        replace_scale_mmx()
 
 
 #clean up the list of extensions

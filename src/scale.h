@@ -29,7 +29,7 @@
 #if !defined(SCALE_HEADER)
 #define SCALE_HEADER
 
-#if (defined(__GNUC__) && ((defined(__x86_64__) && !defined(_NO_MMX_FOR_X86_64)) || defined(__i386__))) || defined(MS_WIN32)
+#if (defined(__GNUC__) && ((defined(__x86_64__) && !defined(_NO_MMX_FOR_X86_64)) || defined(__i386__))) || (defined(MS_WIN32) && !(defined(_M_X64) && defined(_NO_MMX_FOR_X86_64)))
 #define SCALE_MMX_SUPPORT
 
 /* These functions implement an area-averaging shrinking filter in the X-dimension.
