@@ -35,11 +35,14 @@
  
 #include "camera.h"
 
-#if defined(__unix__)
+/*
+#if defined(__unix__) || !defined(__APPLE__)
 #else
     #define V4L2_PIX_FMT_RGB24 1
     #define V4L2_PIX_FMT_RGB444 1
 #endif
+*/
+
 
 /* functions available to pygame users */
 PyObject* surf_colorspace (PyObject* self, PyObject* arg);
@@ -216,8 +219,8 @@ PyObject* camera_stop (PyCameraObject* self) {
 /* get_controls() - gets current values of user controls */
 /* TODO: Support brightness, contrast, and other common controls */
 PyObject* camera_get_controls (PyCameraObject* self) {
-    int value;
 #if defined(__unix__)    
+    int value;
     if (v4l2_get_control(self->fd, V4L2_CID_HFLIP, &value))
         self->hflip = value;
     
@@ -248,7 +251,7 @@ PyObject* camera_set_controls (PyCameraObject* self, PyObject* arg, PyObject *kw
     if (!PyArg_ParseTupleAndKeywords(arg, kwds, "|iii", kwids, &hflip, &vflip, &brightness))
         return NULL;
         
-//#if defined(__unix__)        
+/* #if defined(__unix__)         */
     if (v4l2_set_control(self->fd, V4L2_CID_HFLIP, hflip))
         self->hflip = hflip;
         
@@ -366,7 +369,8 @@ PyObject* camera_get_image (PyCameraObject* self, PyObject* arg) {
             return RAISE (PyExc_ValueError, 
                           "Destination surface not the correct width or height.");
         }
-        Py_BEGIN_ALLOW_THREADS; //is dit nodig op osx...
+        /*is dit nodig op osx... */
+        Py_BEGIN_ALLOW_THREADS;
         
         if (!mac_read_frame(self, surf))
             return NULL;
@@ -1365,14 +1369,21 @@ void yuv420_to_yuv (const void* src, void* dst, int width, int height, SDL_Pixel
 
 }
 
+
 /* Flips the image array horizontally and/or vertically by reverse copying
  * a 'depth' number of bytes to flipped_image.*/
 /* todo speed up... */
-void flip_image(const void* image, void* flipped_image, int width, int height, short depth, bool hflip, bool vflip) {
+void flip_image(const void* image, 
+                void* flipped_image, 
+                int width, int height,
+                short depth, 
+                int hflip, int vflip) 
+{
+
     if (hflip == false && vflip == true) {
         int i, j;
         int width_size = width*depth;
-        void* tmp_image = image;
+        const void* tmp_image = image;
         
         for(i=0; i<=height-1; i++) {
             for(j=0; j<=width; j++) {
