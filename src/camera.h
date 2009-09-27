@@ -42,7 +42,13 @@
     #include <linux/videodev.h>
     #include <linux/videodev2.h>
 #elif defined(__APPLE__)
-
+    #include <QuickTime/QuickTime.h>
+    #include <QuickTime/Movies.h>
+    #include <QuickTime/ImageCompression.h>
+    
+    #define V4L2_PIX_FMT_RGB24 'RGB3'
+    #define V4L2_PIX_FMT_RGB444 'R444'
+    #define V4L2_PIX_FMT_YUYV 'YUYV'
 #endif
 
 #define CLEAR(x) memset (&(x), 0, sizeof (x))
@@ -56,14 +62,13 @@
 #define CAM_V4L 1
 #define CAM_V4L2 2
 
-struct buffer 
-{
+struct buffer {
     void * start;
     size_t length;
 };
 
-typedef struct
-{
+#if defined(__unix__)
+typedef struct {
     PyObject_HEAD
     char* device_name;
     int camera_type;
@@ -79,6 +84,24 @@ typedef struct
     int brightness;
     int fd;
 } PyCameraObject;
+#elif defined(__APPLE__)
+typedef struct {
+    PyObject_HEAD
+    char* device_name;              // unieke name of the device
+    OSType pixelformat;
+    unsigned int color_out;
+    SeqGrabComponent component;     // A type used by the Sequence Grabber API
+    SGChannel channel;              // Channel of the Sequence Grabber
+    GWorldPtr gworld;               // Pointer to the struct that holds the data of the captured image
+    Rect boundsRect;                // bounds of the image frame
+    long size;                      // size of the image in our buffer to draw
+    int hflip;
+    int vflip;
+    short depth;                    //
+    struct buffer pixels;           //
+    //struct buffer tmp_pixels        // place where the flipped image in temporarly stored if hflip or vflip is true.
+} PyCameraObject;
+#endif
 
 /* internal functions for colorspace conversion */
 void colorspace (SDL_Surface *src, SDL_Surface *dst, int cspace);
@@ -90,9 +113,14 @@ void rgb_to_hsv (const void* src, void* dst, int length,
                  unsigned long source, SDL_PixelFormat* format);
 void yuyv_to_rgb (const void* src, void* dst, int length, SDL_PixelFormat* format);
 void yuyv_to_yuv (const void* src, void* dst, int length, SDL_PixelFormat* format);
-void sbggr8_to_rgb (const void* src, void* dst, int width, int height, SDL_PixelFormat* format);
-void yuv420_to_rgb (const void* src, void* dst, int width, int height, SDL_PixelFormat* format);
-void yuv420_to_yuv (const void* src, void* dst, int width, int height, SDL_PixelFormat* format);
+void sbggr8_to_rgb (const void* src, void* dst, int width, int height, 
+                    SDL_PixelFormat* format);
+void yuv420_to_rgb (const void* src, void* dst, int width, int height, 
+                    SDL_PixelFormat* format);
+void yuv420_to_yuv (const void* src, void* dst, int width, int height, 
+                    SDL_PixelFormat* format);
+void flip_image(const void* image, void* flipped_image, int width, int height,
+                short depth, int hflip, int vflip);
 
 #if defined(__unix__)
 /* internal functions specific to v4l2 */
@@ -118,11 +146,19 @@ int v4l_open_device (PyCameraObject* self);
 int v4l_init_device(PyCameraObject* self);
 int v4l_start_capturing(PyCameraObject* self);
 #elif defined(__APPLE__)
+/* internal functions specific to mac */
 char** mac_list_cameras(int* num_devices);
 int mac_open_device (PyCameraObject* self);
 int mac_init_device(PyCameraObject* self);
 int mac_close_device (PyCameraObject* self);
-
 int mac_start_capturing(PyCameraObject* self);
 int mac_stop_capturing (PyCameraObject* self);
+
+int mac_get_control(PyCameraObject* self, int id, int* value);
+int mac_set_control(PyCameraObject* self, int id, int value);
+
+PyObject* mac_read_raw(PyCameraObject *self);
+int mac_read_frame(PyCameraObject* self, SDL_Surface* surf);
+int mac_camera_idle(PyCameraObject* self);
+int mac_copy_gworld_to_surface(PyCameraObject* self, SDL_Surface* surf);
 #endif
