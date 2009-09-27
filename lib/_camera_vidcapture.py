@@ -18,8 +18,13 @@ def list_cameras():
 
 def init():
     global vidcap
-    import vidcap as vc
     vidcap = vc
+
+    try:
+        import vidcap as vc
+    except ImportError:
+        from VideoCapture import vidcap as vc
+
 
 def quit():
     global vidcap
