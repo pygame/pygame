@@ -1380,7 +1380,7 @@ void flip_image(const void* image,
                 int hflip, int vflip) 
 {
 
-    if (hflip == false && vflip == true) {
+    if (!hflip && vflip) {
         int i, j;
         int width_size = width*depth;
         const void* tmp_image = image;
@@ -1394,7 +1394,7 @@ void flip_image(const void* image,
             tmp_image += width_size;
             flipped_image += width_size;
         }
-    } else if (hflip == true && vflip == false) {
+    } else if (hflip && !vflip) {
         int i;
         int width_size = width*depth;
         void* tmp_image = flipped_image+width_size*height;
@@ -1403,7 +1403,7 @@ void flip_image(const void* image,
             tmp_image -= width_size;
             memcpy(tmp_image, image+i*width_size, width_size);
         }
-    } else if (hflip == true && vflip == true) {
+    } else if (hflip && vflip) {
         int i, j;
         int width_size = width*depth;
         void* tmp_image = flipped_image + width_size*height;
@@ -1550,8 +1550,8 @@ PyObject* Camera (PyCameraObject* self, PyObject* arg) {
         cameraobj->boundsRect.bottom = h;
         cameraobj->boundsRect.right = w;
         cameraobj->size =  w * h;
-        cameraobj->hflip = false;
-        cameraobj->vflip = false;
+        cameraobj->hflip = 0;
+        cameraobj->vflip = 0;
     }
     
     return (PyObject*)cameraobj;    
