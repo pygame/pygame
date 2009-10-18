@@ -30,12 +30,13 @@
 #define SWIZZLE_ERR_NO_ERR         0
 #define SWIZZLE_ERR_DOUBLE_IDX     1
 #define SWIZZLE_ERR_EXTRACTION_ERR 2
+#define RETURN_ERROR 0
+#define RETURN_NO_ERROR 1
 
 static PyTypeObject PyVector2_Type;
 static PyTypeObject PyVector3_Type;
 static PyTypeObject PyVectorElementwiseProxy_Type;
 static PyTypeObject PyVectorIter_Type;
-static PyObject *vector_iter(PyObject *vec);
 
 #define PyVector2_Check(x) ((x)->ob_type == &PyVector2_Type)
 #define PyVector3_Check(x) ((x)->ob_type == &PyVector3_Type)
@@ -46,6 +47,119 @@ static PyObject *vector_iter(PyObject *vec);
 #define DEG2RAD(angle) ((angle) * M_PI / 180.)
 #define RAD2DEG(angle) ((angle) * 180. / M_PI)
 
+typedef struct {
+    PyObject_HEAD
+    long it_index;
+    PyVector *vec;
+} vectoriter;
+
+typedef struct {
+    PyObject_HEAD
+    PyVector *vec;
+} vector_elementwiseproxy;
+
+
+/* further forward declerations */
+/* generic helper functions */
+static int RealNumber_Check(PyObject *obj);
+static double PySequence_GetItem_AsDouble(PyObject *seq, Py_ssize_t index);
+static int PySequence_AsVectorCoords(PyObject *seq, double *coords, const size_t size);
+static int PyVectorCompatible_Check(PyObject *obj, int dim);
+static double _scalar_product(const double *coords1, const double *coords2, int size);
+
+/* generic vector functions */
+static PyObject *PyVector_NEW(int dim);
+static void vector_dealloc(PyVector* self);
+static PyObject *vector_add(PyObject *o1, PyObject *o2);
+static PyObject *vector_sub(PyObject *o1, PyObject *o2);
+static PyObject *vector_mul(PyObject *o1, PyObject *o2);
+static PyObject *vector_div(PyVector *self, PyObject *other);
+static PyObject *vector_floor_div(PyVector *self, PyObject *other);
+static PyObject *vector_inplace_add(PyVector *self, PyObject *other);
+static PyObject *vector_inplace_sub(PyVector *self, PyObject *other);
+static PyObject *vector_inplace_mul(PyVector *self, PyObject *other);
+static PyObject *vector_inplace_div(PyVector *self, PyObject *other);
+static PyObject *vector_inplace_floor_div(PyVector *self, PyObject *other);
+static PyObject *vector_neg(PyVector *self);
+static PyObject *vector_pos(PyVector *self);
+static int vector_nonzero(PyVector *self);
+static Py_ssize_t vector_len(PyVector *self);
+static PyObject *vector_GetItem(PyVector *self, Py_ssize_t index);
+static int vector_SetItem(PyVector *self, Py_ssize_t index, PyObject *value);
+static PyObject *vector_GetSlice(PyVector *self, Py_ssize_t ilow, Py_ssize_t ihigh);
+static int vector_SetSlice(PyVector *self, Py_ssize_t ilow, Py_ssize_t ihigh, PyObject *v);
+static PyObject *vector_getx (PyVector *self, void *closure);
+static PyObject *vector_gety (PyVector *self, void *closure);
+static PyObject *vector_getz (PyVector *self, void *closure);
+static PyObject *vector_getw (PyVector *self, void *closure);
+static int vector_setx (PyVector *self, PyObject *value, void *closure);
+static int vector_sety (PyVector *self, PyObject *value, void *closure);
+static int vector_setz (PyVector *self, PyObject *value, void *closure);
+static int vector_setw (PyVector *self, PyObject *value, void *closure);
+static PyObject *vector_richcompare(PyVector *self, PyObject *other, int op);
+static PyObject *vector_length(PyVector *self);
+static PyObject *vector_length_squared(PyVector *self);
+static PyObject *vector_normalize(PyVector *self);
+static PyObject *vector_normalize_ip(PyVector *self);
+static PyObject *vector_dot(PyVector *self, PyObject *other);
+static PyObject *vector_scale_to_length(PyVector *self, PyObject *length);
+static int _vector_reflect_helper(double *dst_coords, const double *src_coords, 
+                                  PyObject *normal, int dim, double epsilon);
+static PyObject *vector_reflect(PyVector *self, PyObject *normal);
+static PyObject *vector_reflect_ip(PyVector *self, PyObject *normal);
+static PyObject *vector_distance_to(PyVector *self, PyObject *other);
+static PyObject *vector_distance_squared_to(PyVector *self, PyObject *other);
+static PyObject *vector_getAttr_swizzle(PyVector *self, PyObject *attr_name);
+static int vector_setAttr_swizzle(PyVector *self, PyObject *attr_name, PyObject *val);
+static PyObject *vector_elementwise(PyVector *self);
+static PyObject *vector_repr(PyVector *self);
+static PyObject *vector_str(PyVector *self);
+
+/* vector2 specific functions */
+static PyObject *vector2_new(PyTypeObject *type, PyObject *args, PyObject *kwds);
+static int vector2_init(PyVector *self, PyObject *args, PyObject *kwds);
+static void _vector2_do_rotate(double *dst_coords, const double *src_coords,
+                               double angle, double epsilon);
+static PyObject *vector2_rotate(PyVector *self, PyObject *args);
+static PyObject *vector2_rotate_ip(PyVector *self, PyObject *args);
+static PyObject *vector2_cross(PyVector *self, PyObject *other);
+static PyObject *vector2_angle_to(PyVector *self, PyObject *other);
+
+/* vector3 specific functions */
+static PyObject *vector3_new(PyTypeObject *type, PyObject *args, PyObject *kwds);
+static int vector3_init(PyVector *self, PyObject *args, PyObject *kwds);
+static void _vector3_do_rotate(double *dst_coords, const double *src_coords,
+                               const double *axis_coords, 
+                               double angle, double epsilon);
+static PyObject *vector3_rotate(PyVector *self, PyObject *args);
+static PyObject *vector3_rotate_ip(PyVector *self, PyObject *args);
+static PyObject *vector3_cross(PyVector *self, PyObject *other);
+static PyObject *vector3_angle_to(PyVector *self, PyObject *other);
+
+/* vector iterator functions */
+static void vectoriter_dealloc(vectoriter *it);
+static PyObject *vectoriter_next(vectoriter *it);
+static PyObject *vectoriter_len(vectoriter *it);
+static PyObject *vector_iter(PyObject *vec);
+
+/* elementwiseproxy */
+static void vector_elementwiseproxy_dealloc(vector_elementwiseproxy *it);
+static PyObject *vector_elementwiseproxy_richcompare(PyObject *o1, PyObject *o2, int op);
+static PyObject *vector_elementwiseproxy_add(PyObject *o1, PyObject *o2);
+static PyObject *vector_elementwiseproxy_sub(PyObject *o1, PyObject *o2);
+static PyObject *vector_elementwiseproxy_mul(PyObject *o1, PyObject *o2);
+static PyObject *vector_elementwiseproxy_div(PyObject *o1, PyObject *o2);
+static PyObject *vector_elementwiseproxy_floor_div(PyObject *o1, PyObject *o2);
+static PyObject *vector_elementwiseproxy_pow(PyObject *baseObj, PyObject *expoObj, PyObject *mod);
+static PyObject *vector_elementwiseproxy_mod(PyObject *o1, PyObject *o2);
+static PyObject *vector_elementwiseproxy_abs(vector_elementwiseproxy *self);
+static PyObject *vector_elementwiseproxy_neg(vector_elementwiseproxy *self);
+static PyObject *vector_elementwiseproxy_pos(vector_elementwiseproxy *self);
+static int vector_elementwiseproxy_nonzero(vector_elementwiseproxy *self);
+static PyObject *vector_elementwise(PyVector *vec);
+
+
+static int swizzling_enabled = 0;
 
 
 /********************************
@@ -109,7 +223,7 @@ PySequence_AsVectorCoords(PyObject *seq, double *coords, const size_t size)
 }
 
 static int 
-checkPyVectorCompatible(PyObject *obj, int dim)
+PyVectorCompatible_Check(PyObject *obj, int dim)
 {
     int i;
     PyObject *tmp;
@@ -121,20 +235,20 @@ checkPyVectorCompatible(PyObject *obj, int dim)
         }
         break;
     case 3:
-        if (PyVector3d_Check(obj)) {
+        if (PyVector3_Check(obj)) {
             return 1;
         }
         break;
 /*
     case 4:
-        if (PyVector4d_Check(obj)) {
+        if (PyVector4_Check(obj)) {
             return 1;
         }
         break;
 */
     default:
         PyErr_SetString(PyExc_SystemError, 
-                        "Wrong internal call to checkPyVectorCompatible.");
+                        "Wrong internal call to PyVectorCompatible_Check.");
         return 0;
     }
 
@@ -229,7 +343,7 @@ vector_add(PyObject *o1, PyObject *o2)
     int i;
     if (PyVector_Check(o1)) {
         int dim = ((PyVector*)o1)->dim;
-        if (checkPyVectorCompatible(o2, dim)) {
+        if (PyVectorCompatible_Check(o2, dim)) {
             PyVector *ret = (PyVector*)PyVector_NEW(dim);
             for (i = 0; i < dim; i++) {
                 ret->coords[i] = ((PyVector*)o1)->coords[i] + PySequence_GetItem_AsDouble(o2, i);
@@ -239,7 +353,7 @@ vector_add(PyObject *o1, PyObject *o2)
     }
     else {
         int dim = ((PyVector*)o2)->dim;
-        if (checkPyVectorCompatible(o1, dim)) {
+        if (PyVectorCompatible_Check(o1, dim)) {
             PyVector *ret = (PyVector*)PyVector_NEW(dim);
             for (i = 0; i < dim; i++) {
                 ret->coords[i] = PySequence_GetItem_AsDouble(o1, i) + ((PyVector*)o2)->coords[i];
@@ -256,7 +370,7 @@ static PyObject *
 vector_inplace_add(PyVector *self, PyObject *other)
 {
     int i;
-    if (checkPyVectorCompatible(other, self->dim)) {
+    if (PyVectorCompatible_Check(other, self->dim)) {
         for (i = 0; i < self->dim; i++) {
             self->coords[i] += PySequence_GetItem_AsDouble(other, i);
         }
@@ -274,7 +388,7 @@ vector_sub(PyObject *o1, PyObject *o2)
     int i;
     if (PyVector_Check(o1)) {
         int dim = ((PyVector*)o1)->dim;
-        if (checkPyVectorCompatible(o2, dim)) {
+        if (PyVectorCompatible_Check(o2, dim)) {
             PyVector *ret = (PyVector*)PyVector_NEW(dim);
             for (i = 0; i < dim; i++) {
                 ret->coords[i] = ((PyVector*)o1)->coords[i] - PySequence_GetItem_AsDouble(o2, i);
@@ -284,7 +398,7 @@ vector_sub(PyObject *o1, PyObject *o2)
     }
     else {
         int dim = ((PyVector*)o2)->dim;
-        if (checkPyVectorCompatible(o1, dim)) {
+        if (PyVectorCompatible_Check(o1, dim)) {
             PyVector *ret = (PyVector*)PyVector_NEW(dim);
             for (i = 0; i < dim; i++) {
                 ret->coords[i] = PySequence_GetItem_AsDouble(o1, i) - ((PyVector*)o2)->coords[i];
@@ -301,7 +415,7 @@ static PyObject *
 vector_inplace_sub(PyVector *self, PyObject *other)
 {
     int i;
-    if (checkPyVectorCompatible(other, self->dim)) {
+    if (PyVectorCompatible_Check(other, self->dim)) {
         for (i = 0; i < self->dim; i++) {
             self->coords[i] += PySequence_GetItem_AsDouble(other, i);
         }
@@ -319,7 +433,7 @@ vector_mul(PyObject *o1, PyObject *o2)
     if (PyVector_Check(o1)) {
         dim = ((PyVector*)o1)->dim;
         /* vector * vector ? */
-        if (checkPyVectorCompatible(o2, dim)) {
+        if (PyVectorCompatible_Check(o2, dim)) {
             double ret = 0.;
             for (i = 0; i < dim; i++) {
                 ret += ((PyVector*)o1)->coords[i] * PySequence_GetItem_AsDouble(o2, i);
@@ -339,7 +453,7 @@ vector_mul(PyObject *o1, PyObject *o2)
     else {
         dim = ((PyVector*)o2)->dim;
         /* vector * vector ? */
-        if (checkPyVectorCompatible(o1, dim)) {
+        if (PyVectorCompatible_Check(o1, dim)) {
             double ret = 0.;
             for (i = 0; i < dim; i++) {
                 ret += PySequence_GetItem_AsDouble(o1, i) * ((PyVector*)o2)->coords[i];
@@ -476,7 +590,7 @@ vector_nonzero(PyVector *self)
     return 0;
 }
 
-PyNumberMethods vector_as_number = {
+static PyNumberMethods vector_as_number = {
     (binaryfunc)vector_add,         /* nb_add;       __add__ */
     (binaryfunc)vector_sub,         /* nb_subtract;  __sub__ */
     (binaryfunc)vector_mul,         /* nb_multiply;  __mul__ */
@@ -620,7 +734,7 @@ vector_SetSlice(PyVector *self, Py_ssize_t ilow, Py_ssize_t ihigh, PyObject *v)
 }
 
 
-PySequenceMethods vector_as_sequence = {
+static PySequenceMethods vector_as_sequence = {
     (lenfunc)vector_len,             /* sq_length;    __len__ */
     (binaryfunc)0,                   /* sq_concat;    __add__ */
     (ssizeargfunc)0,                 /* sq_repeat;    __mul__ */
@@ -713,7 +827,7 @@ vector_richcompare(PyVector *self, PyObject *other, int op)
 {
     int i;
     double diff;
-    if (!checkPyVectorCompatible(other, self->dim)) {
+    if (!PyVectorCompatible_Check(other, self->dim)) {
         if (op == Py_EQ)
             Py_RETURN_FALSE;
         else if (op == Py_NE)
@@ -757,6 +871,362 @@ vector_richcompare(PyVector *self, PyObject *other, int op)
 
 
 
+
+static PyObject *
+vector_length(PyVector *self)
+{
+    double length_squared = _scalar_product(self->coords, self->coords, 
+                                            self->dim);
+    return PyFloat_FromDouble(sqrt(length_squared));
+}
+
+static PyObject *
+vector_length_squared(PyVector *self)
+{
+    double length_squared = _scalar_product(self->coords, self->coords, 
+                                            self->dim);
+    return PyFloat_FromDouble(length_squared);
+}
+
+static PyObject *
+vector_normalize(PyVector *self)
+{
+    int i;
+    double length;
+    PyVector *ret;
+    
+    length = sqrt(_scalar_product(self->coords, self->coords, self->dim));
+    if (length == 0) {
+        PyErr_SetString(PyExc_ZeroDivisionError, 
+                        "Can't normalize Vector of length Zero");
+        return NULL;
+    }
+
+    ret = (PyVector*)PyVector_NEW(self->dim);
+    for (i = 0; i < self->dim; ++i)
+        ret->coords[i] = self->coords[i] / length;
+
+    return (PyObject *)ret;
+}
+
+static PyObject *
+vector_normalize_ip(PyVector *self)
+{
+    int i;
+    double length;
+    
+    length = sqrt(_scalar_product(self->coords, self->coords, self->dim));
+
+    if (length == 0) {
+        PyErr_SetString(PyExc_ZeroDivisionError, 
+                        "Can't normalize Vector of length Zero");
+        return NULL;
+    }
+
+    for (i = 0; i < self->dim; ++i)
+        self->coords[i] /= length;
+
+    Py_RETURN_NONE;
+}
+
+static PyObject *
+vector_is_normalized(PyVector *self)
+{
+    double length_squared = _scalar_product(self->coords, self->coords, 
+                                            self->dim);
+    if (fabs(length_squared - 1) < self->epsilon)
+        Py_RETURN_TRUE;
+    else
+        Py_RETURN_FALSE;
+}
+
+static PyObject *
+vector_dot(PyVector *self, PyObject *other)
+{
+    double other_coords[VECTOR_MAX_SIZE];
+    if (!PySequence_AsVectorCoords(other, other_coords, self->dim)) {
+        PyErr_SetString(PyExc_TypeError, "Cannot perform dot product with this type.");
+        return NULL;
+    }
+    return PyFloat_FromDouble(_scalar_product(self->coords, other_coords, 
+                                              self->dim));
+}
+
+static PyObject *
+vector_scale_to_length(PyVector *self, PyObject *length)
+{
+    int i;
+    double new_length, old_length;
+    double fraction;
+
+    if (!RealNumber_Check(length)) {
+        PyErr_SetString(PyExc_ValueError, "new length must be a number");
+        return NULL;
+    }
+    new_length = PyFloat_AsDouble(length);
+
+    old_length = 0;
+    for (i = 0; i < self->dim; ++i)
+        old_length += self->coords[i] * self->coords[i];
+    old_length = sqrt(old_length);
+
+    if (old_length < self->epsilon) {
+        PyErr_SetString(PyExc_ZeroDivisionError, "Cannot scale a vector with zero length");
+        return NULL;
+    }
+
+    fraction = new_length / old_length;
+    for (i = 0; i < self->dim; ++i)
+        self->coords[i] *= fraction;
+
+    Py_RETURN_NONE;
+}
+
+static int 
+_vector_reflect_helper(double *dst_coords, const double *src_coords, 
+                       PyObject *normal, int dim, double epsilon)
+{
+    int i;
+    double dot_product;
+    double norm_length;
+    /* allocate enough space for 2, 3 and 4 dim vectors */
+    double norm_coords[VECTOR_MAX_SIZE];
+
+    if (!PyVectorCompatible_Check(normal, dim)) {
+        PyErr_SetString(PyExc_TypeError, "Expected a vector.");
+        return RETURN_ERROR;
+    }
+
+    /* normalize the normal */
+    norm_length = 0;
+    for (i = 0; i < dim; ++i) {
+        norm_coords[i] = PySequence_GetItem_AsDouble(normal, i);
+        norm_length += norm_coords[i] * norm_coords[i];
+    }
+    if (norm_length < epsilon) {
+        PyErr_SetString(PyExc_ZeroDivisionError, "Normal must not be of length zero.");
+        return RETURN_ERROR;;
+    }
+    if (norm_length != 1) {
+        norm_length = sqrt(norm_length);
+        for (i = 0; i < dim; ++i)
+            norm_coords[i] /= norm_length;
+    }
+    
+    /* calculate the dot_product for the projection */
+    dot_product = 0;
+    for (i = 0; i < dim; ++i)
+        dot_product += src_coords[i] * norm_coords[i];
+
+    for (i = 0; i < dim; ++i)
+        dst_coords[i] = src_coords[i] - 2 * norm_coords[i] * dot_product;
+    return RETURN_NO_ERROR;
+}
+
+static PyObject *
+vector_reflect(PyVector *self, PyObject *normal)
+{
+    int error_code;
+    PyVector *ret = (PyVector *)PyVector_NEW(self->dim);
+
+    error_code = _vector_reflect_helper(ret->coords, self->coords,
+                                        normal, self->dim, self->epsilon);
+    if (error_code == RETURN_ERROR)
+        return NULL;
+
+    return (PyObject *)ret;
+}
+
+static PyObject *
+vector_reflect_ip(PyVector *self, PyObject *normal)
+{
+    int error_code;
+    double tmp_coords[VECTOR_MAX_SIZE];
+
+    error_code = _vector_reflect_helper(tmp_coords, self->coords, 
+                                        normal, self->dim, self->epsilon);
+    if (error_code == RETURN_ERROR)
+        return NULL;
+
+    memcpy(self->coords, tmp_coords, self->dim * sizeof(tmp_coords[0]));
+    Py_RETURN_NONE;
+}
+
+static PyObject *
+vector_distance_to(PyVector *self, PyObject *other)
+{
+    int i;
+    double distance_squared;
+
+    distance_squared = 0;
+    for (i = 0; i < self->dim; ++i) {
+        double tmp = PySequence_GetItem_AsDouble(other, i) - self->coords[i];
+        distance_squared += tmp * tmp;
+    }
+    
+    return PyFloat_FromDouble(sqrt(distance_squared));
+}
+
+static PyObject *
+vector_distance_squared_to(PyVector *self, PyObject *other)
+{
+    int i;
+    double distance_squared;
+
+    distance_squared = 0;
+    for (i = 0; i < self->dim; ++i) {
+        double tmp = PySequence_GetItem_AsDouble(other, i) - self->coords[i];
+        distance_squared +=  tmp * tmp;
+    }
+    
+    return PyFloat_FromDouble(distance_squared);
+}
+
+
+
+static PyObject *
+vector_repr(PyVector *self)
+{
+    int i;
+    int bufferIdx;
+    char buffer[2][STRING_BUF_SIZE];
+    
+    bufferIdx = 1;
+    PyOS_snprintf(buffer[0], STRING_BUF_SIZE, "<Vector%d(", self->dim);
+    for (i = 0; i < self->dim - 1; ++i) {
+        PyOS_snprintf(buffer[bufferIdx % 2], STRING_BUF_SIZE, "%s%g, ", 
+                      buffer[(bufferIdx + 1) % 2], self->coords[i]);
+        bufferIdx++;
+    }
+    PyOS_snprintf(buffer[bufferIdx % 2], STRING_BUF_SIZE, "%s%g)>", 
+                  buffer[(bufferIdx + 1) % 2], self->coords[i]);
+    return PyString_FromString(buffer[bufferIdx % 2]); 
+}
+
+static PyObject *
+vector_str(PyVector *self)
+{
+    int i;
+    int bufferIdx;
+    char buffer[2][STRING_BUF_SIZE];
+    
+    bufferIdx = 1;
+    PyOS_snprintf(buffer[0], STRING_BUF_SIZE, "[", self->dim);
+    for (i = 0; i < self->dim - 1; ++i) {
+        PyOS_snprintf(buffer[bufferIdx % 2], STRING_BUF_SIZE, "%s%g, ", 
+                      buffer[(bufferIdx + 1) % 2], self->coords[i]);
+        bufferIdx++;
+    }
+    PyOS_snprintf(buffer[bufferIdx % 2], STRING_BUF_SIZE, "%s%g]", 
+                  buffer[(bufferIdx + 1) % 2], self->coords[i]);
+    return PyString_FromString(buffer[bufferIdx % 2]); 
+}
+
+static PyObject*
+vector_getAttr_swizzle(PyVector *self, PyObject *attr_name)
+{
+    PyObject *res = PyObject_GenericGetAttr((PyObject*)self, attr_name);
+    /* if normal lookup failed try to swizzle */
+    if (swizzling_enabled && PyErr_Occurred() && PyErr_ExceptionMatches(PyExc_AttributeError)) {
+        Py_ssize_t len = PySequence_Length(attr_name);
+        const char *attr = PyString_AsString(attr_name);
+        double *coords = self->coords;
+        Py_ssize_t i;
+        res = (PyObject*)PyTuple_New(len);
+        for (i = 0; i < len; i++) {
+            switch (attr[i]) {
+            case 'x':
+                PyTuple_SetItem(res, i, PyFloat_FromDouble(coords[0]));
+                break;
+            case 'y':
+                PyTuple_SetItem(res, i, PyFloat_FromDouble(coords[1]));
+                break;
+            default:
+                /* swizzling failed! clean up and return NULL
+                 * the exception from PyObject_GenericGetAttr is still set */
+                Py_DECREF(res);
+                return NULL;
+            }
+        }
+        /* swizzling succeeded! clear the error and return result */
+        PyErr_Clear();
+    }
+    return res;
+}
+
+static int
+vector_setAttr_swizzle(PyVector *self, PyObject *attr_name, PyObject *val)
+{
+    const char *attr = PyString_AsString(attr_name);
+    Py_ssize_t len = PySequence_Length(attr_name);
+    double entry[self->dim];
+    int entry_was_set[self->dim];
+    int swizzle_err = SWIZZLE_ERR_NO_ERR;
+    int i;
+
+    /* if swizzling is disabled always default to generic implementation */
+    if (!swizzling_enabled)
+        return PyObject_GenericSetAttr((PyObject*)self, attr_name, val);
+
+    /* if swizzling is enabled first try swizzle */
+    for (i = 0; i < self->dim; ++i)
+        entry_was_set[i] = 0;
+
+    for (i = 0; i < len; ++i) {
+        int idx;
+        switch (attr[i]) {
+        case 'x':
+        case 'y':
+        case 'z':
+            idx = attr[i] - 'x';
+            break;
+        case 'w':
+            idx = 3;
+            break;
+        default:
+            /* swizzle failed. attempt generic attribute setting */
+            return PyObject_GenericSetAttr((PyObject*)self, attr_name, val);
+        }
+        if (idx >= self->dim)
+            /* swizzle failed. attempt generic attribute setting */
+            return PyObject_GenericSetAttr((PyObject*)self, attr_name, val);
+        if (entry_was_set[idx]) 
+            swizzle_err = SWIZZLE_ERR_DOUBLE_IDX;
+        if (swizzle_err == SWIZZLE_ERR_NO_ERR) {
+            entry_was_set[idx] = 1;
+            entry[idx] = PySequence_GetItem_AsDouble(val, i);
+            if (PyErr_Occurred())
+                swizzle_err = SWIZZLE_ERR_EXTRACTION_ERR;
+        }
+    }
+    switch (swizzle_err) {
+    case SWIZZLE_ERR_NO_ERR:
+        /* swizzle successful */
+        for (i = 0; i < self->dim; ++i)
+            if (entry_was_set[i])
+                self->coords[i] = entry[i];
+        return 0;
+    case SWIZZLE_ERR_DOUBLE_IDX:
+        PyErr_SetString(PyExc_AttributeError, 
+                        "Attribute assignment conflicts with swizzling.");
+        return -1;
+    case SWIZZLE_ERR_EXTRACTION_ERR:
+        /* exception was set by PySequence_GetItem_AsDouble */
+        return -1;
+    default:
+        /* this should NOT happen */
+        PyErr_SetString(PyExc_RuntimeError, "Unhandled error in swizzle code");
+        return -1;
+    }
+} 
+
+
+
+/*********************************************************************
+ * vector2 specific functions
+ *********************************************************************/
+
+
 static PyObject *
 vector2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
@@ -789,7 +1259,7 @@ vector2_init(PyVector *self, PyObject *args, PyObject *kwds)
         if (RealNumber_Check(xOrSequence)) {
             self->coords[0] = PyFloat_AsDouble(xOrSequence);
         } 
-        else if (checkPyVectorCompatible(xOrSequence, self->dim)) {
+        else if (PyVectorCompatible_Check(xOrSequence, self->dim)) {
             self->coords[0] = PySequence_GetItem_AsDouble(xOrSequence, 0);
             self->coords[1] = PySequence_GetItem_AsDouble(xOrSequence, 1);
             /* successful initialization from sequence type */
@@ -839,23 +1309,6 @@ error:
     PyErr_SetString(PyExc_ValueError,
                     "Vector2 must be initialized with 2 real numbers or a sequence of 2 real numbers");
     return -1;
-}
-
-
-static PyObject *
-vector_length(PyVector *self)
-{
-    double length_squared = _scalar_product(self->coords, self->coords, 
-                                            self->dim);
-    return PyFloat_FromDouble(sqrt(length_squared));
-}
-
-static PyObject *
-vector_length_squared(PyVector *self)
-{
-    double length_squared = _scalar_product(self->coords, self->coords, 
-                                            self->dim);
-    return PyFloat_FromDouble(length_squared);
 }
 
 static void
@@ -928,61 +1381,9 @@ vector2_rotate_ip(PyVector *self, PyObject *args)
 }
 
 static PyObject *
-vector_normalize(PyVector *self)
-{
-    int i;
-    double length;
-    PyVector *ret;
-    
-    length = sqrt(_scalar_product(self->coords, self->coords, self->dim));
-    if (length == 0) {
-        PyErr_SetString(PyExc_ZeroDivisionError, 
-                        "Can't normalize Vector of length Zero");
-        return NULL;
-    }
-
-    ret = (PyVector*)PyVector_NEW(self->dim);
-    for (i = 0; i < self->dim; ++i)
-        ret->coords[i] = self->coords[i] / length;
-
-    return (PyObject *)ret;
-}
-
-static PyObject *
-vector_normalize_ip(PyVector *self)
-{
-    int i;
-    double length;
-    
-    length = sqrt(_scalar_product(self->coords, self->coords, self->dim));
-
-    if (length == 0) {
-        PyErr_SetString(PyExc_ZeroDivisionError, 
-                        "Can't normalize Vector of length Zero");
-        return NULL;
-    }
-
-    for (i = 0; i < self->dim; ++i)
-        self->coords[i] /= length;
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-vector_is_normalized(PyVector *self)
-{
-    double length_squared = _scalar_product(self->coords, self->coords, 
-                                            self->dim);
-    if (fabs(length_squared - 1) < self->epsilon)
-        Py_RETURN_TRUE;
-    else
-        Py_RETURN_FALSE;
-}
-
-static PyObject *
 vector2_cross(PyVector *self, PyObject *other)
 {
-    if (!checkPyVectorCompatible(other, self->dim)) {
+    if (!PyVectorCompatible_Check(other, self->dim)) {
         PyErr_SetString(PyExc_TypeError, "cannot calculate cross Product");
         return NULL;
     }
@@ -998,22 +1399,10 @@ vector2_cross(PyVector *self, PyObject *other)
 }
 
 static PyObject *
-vector_dot(PyVector *self, PyObject *other)
-{
-    double other_coords[VECTOR_MAX_SIZE];
-    if (!PySequence_AsVectorCoords(other, other_coords, self->dim)) {
-        PyErr_SetString(PyExc_TypeError, "Cannot perform dot product with this type.");
-        return NULL;
-    }
-    return PyFloat_FromDouble(_scalar_product(self->coords, other_coords, 
-                                              self->dim));
-}
-
-static PyObject *
 vector2_angle_to(PyVector *self, PyObject *other)
 {
     double angle;
-    if (!checkPyVectorCompatible(other, self->dim)) {
+    if (!PyVectorCompatible_Check(other, self->dim)) {
         PyErr_SetString(PyExc_TypeError, "expected an vector.");
         return NULL;
     }
@@ -1024,182 +1413,7 @@ vector2_angle_to(PyVector *self, PyObject *other)
     return PyFloat_FromDouble(RAD2DEG(angle));
 }
 
-static PyObject *
-vector_scale_to_length(PyVector *self, PyObject *length)
-{
-    int i;
-    double new_length, old_length;
-    double fraction;
-
-    if (!RealNumber_Check(length)) {
-        PyErr_SetString(PyExc_ValueError, "new length must be a number");
-        return NULL;
-    }
-    new_length = PyFloat_AsDouble(length);
-
-    old_length = 0;
-    for (i = 0; i < self->dim; ++i)
-        old_length += self->coords[i] * self->coords[i];
-    old_length = sqrt(old_length);
-
-    if (old_length < self->epsilon) {
-        PyErr_SetString(PyExc_ZeroDivisionError, "Cannot scale a vector with zero length");
-        return NULL;
-    }
-
-    fraction = new_length / old_length;
-    for (i = 0; i < self->dim; ++i)
-        self->coords[i] *= fraction;
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-vector_reflect(PyVector *self, PyObject *normal)
-{
-    int i, dim = self->dim;
-    PyVector *ret;
-    double dot_product;
-    double norm_length;
-    /* allocate enough space for 2, 3 and 4 dim vectors */
-    double norm_coords[VECTOR_MAX_SIZE];
-
-    if (!checkPyVectorCompatible(normal, dim)) {
-        PyErr_SetString(PyExc_TypeError, "Expected a vector.");
-        return NULL;
-    }
-
-    /* normalize the normal */
-    norm_length = 0;
-    for (i = 0; i < dim; ++i) {
-        norm_coords[i] = PySequence_GetItem_AsDouble(normal, i);
-        norm_length += norm_coords[i] * norm_coords[i];
-    }
-    if (norm_length < self->epsilon) {
-        PyErr_SetString(PyExc_ZeroDivisionError, "Normal must not be of length zero.");
-        return NULL;
-    }
-    if (norm_length != 1) {
-        norm_length = sqrt(norm_length);
-        for (i = 0; i < dim; ++i)
-            norm_coords[i] /= norm_length;
-    }
-    
-    /* calculate the dot_product for the projection */
-    dot_product = 0;
-    for (i = 0; i < dim; ++i)
-        dot_product += self->coords[i] * norm_coords[i];
-    
-    ret = (PyVector *)PyVector_NEW(dim);
-    for (i = 0; i < dim; ++i)
-        ret->coords[i] = self->coords[i] - 2 * norm_coords[i] * dot_product;
-
-    return (PyObject *)ret;
-}
-
-static PyObject *
-vector_reflect_ip(PyVector *self, PyObject *normal)
-{
-    int i, dim = self->dim;
-    double dot_product;
-    double norm_length;
-    /* allocate enough space for 2, 3 and 4 dim vectors */
-    double norm_coords[VECTOR_MAX_SIZE];
-
-    if (!checkPyVectorCompatible(normal, dim)) {
-        PyErr_SetString(PyExc_TypeError, "Expected a vector.");
-        return NULL;
-    }
-
-    /* normalize the normal */
-    norm_length = 0;
-    for (i = 0; i < dim; ++i) {
-        norm_coords[i] = PySequence_GetItem_AsDouble(normal, i);
-        norm_length += norm_coords[i] * norm_coords[i];
-    }
-    if (norm_length < self->epsilon) {
-        PyErr_SetString(PyExc_ZeroDivisionError, "Normal must not be of length zero.");
-        return NULL;
-    }
-    if (norm_length != 1) {
-        norm_length = sqrt(norm_length);
-        for (i = 0; i < dim; ++i)
-            norm_coords[i] /= norm_length;
-    }
-    
-    /* calculate the dot_product for the projection */
-    dot_product = 0;
-    for (i = 0; i < dim; ++i)
-        dot_product += self->coords[i] * norm_coords[i];
-    
-    for (i = 0; i < dim; ++i)
-        self->coords[i] -= 2 * norm_coords[i] * dot_product;
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-vector_distance_to(PyVector *self, PyObject *other)
-{
-    int i;
-    double distance_squared;
-
-    distance_squared = 0;
-    for (i = 0; i < self->dim; ++i) {
-        double tmp = PySequence_GetItem_AsDouble(other, i) - self->coords[i];
-        distance_squared +=  tmp * tmp;
-    }
-    
-    return PyFloat_FromDouble(sqrt(distance_squared));
-}
-
-static PyObject *
-vector_distance_squared_to(PyVector *self, PyObject *other)
-{
-    int i;
-    double distance_squared;
-
-    distance_squared = 0;
-    for (i = 0; i < self->dim; ++i) {
-        double tmp = PySequence_GetItem_AsDouble(other, i) - self->coords[i];
-        distance_squared +=  tmp * tmp;
-    }
-    
-    return PyFloat_FromDouble(distance_squared);
-}
-
-
-static int 
-vector_setAttr_swizzle(PyVector *self, PyObject *attr_name, PyObject *val);
-static PyObject *
-vector_getAttr_swizzle(PyVector *self, PyObject *attr_name);
-
-static PyObject *
-vector_enable_swizzle(PyVector *self)
-{
-    self->ob_type->tp_getattro = (getattrofunc)vector_getAttr_swizzle;
-    self->ob_type->tp_setattro = (setattrofunc)vector_setAttr_swizzle;
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-vector_disable_swizzle(PyVector *self)
-{
-    self->ob_type->tp_getattro = PyObject_GenericGetAttr;
-    self->ob_type->tp_setattro = PyObject_GenericSetAttr;
-    Py_RETURN_NONE;
-}
-
-
-static PyObject *vector_elementwise(PyVector *self);
-
 static PyMethodDef vector2_methods[] = {
-    {"enable_swizzle", (PyCFunction)vector_enable_swizzle, METH_NOARGS,
-     "enables swizzling."
-    },
-    {"disable_swizzle", (PyCFunction)vector_disable_swizzle, METH_NOARGS,
-     "disables swizzling."
-    },
     {"length", (PyCFunction)vector_length, METH_NOARGS,
      "returns the length/magnitude of the vector."
     },
@@ -1252,158 +1466,6 @@ static PyMethodDef vector2_methods[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyObject *
-vector_repr(PyVector *self)
-{
-    int i;
-    int bufferIdx;
-    char buffer[2][STRING_BUF_SIZE];
-    
-    bufferIdx = 1;
-    PyOS_snprintf(buffer[0], STRING_BUF_SIZE, "<Vector%d(", self->dim);
-    for (i = 0; i < self->dim - 1; ++i) {
-        PyOS_snprintf(buffer[bufferIdx % 2], STRING_BUF_SIZE, "%s%g, ", 
-                      buffer[(bufferIdx + 1) % 2], self->coords[i]);
-        bufferIdx++;
-    }
-    PyOS_snprintf(buffer[bufferIdx % 2], STRING_BUF_SIZE, "%s%g)>", 
-                  buffer[(bufferIdx + 1) % 2], self->coords[i]);
-    return PyString_FromString(buffer[bufferIdx % 2]); 
-}
-
-/*
-static PyObject *
-vector2_repr(PyVector *self)
-{
-    char buffer[STRING_BUF_SIZE];
-
-    PyOS_snprintf(buffer, STRING_BUF_SIZE, "<Vector2(%g, %g)>",
-                  self->coords[0], self->coords[1]);
-    return PyString_FromString(buffer); 
-}
-*/
-
-static PyObject *
-vector_str(PyVector *self)
-{
-    int i;
-    int bufferIdx;
-    char buffer[2][STRING_BUF_SIZE];
-    
-    bufferIdx = 1;
-    PyOS_snprintf(buffer[0], STRING_BUF_SIZE, "[", self->dim);
-    for (i = 0; i < self->dim - 1; ++i) {
-        PyOS_snprintf(buffer[bufferIdx % 2], STRING_BUF_SIZE, "%s%g, ", 
-                      buffer[(bufferIdx + 1) % 2], self->coords[i]);
-        bufferIdx++;
-    }
-    PyOS_snprintf(buffer[bufferIdx % 2], STRING_BUF_SIZE, "%s%g]", 
-                  buffer[(bufferIdx + 1) % 2], self->coords[i]);
-    return PyString_FromString(buffer[bufferIdx % 2]); 
-}
-
-/*
-static PyObject *
-vector2_str(PyVector *self)
-{
-    char buffer[STRING_BUF_SIZE];
-    PyOS_snprintf(buffer, STRING_BUF_SIZE, "[%g, %g]",
-                  self->coords[0], self->coords[1]);
-    return PyString_FromString(buffer); 
-}
-*/
-
-static PyObject*
-vector_getAttr_swizzle(PyVector *self, PyObject *attr_name)
-{
-    PyObject *res = PyObject_GenericGetAttr((PyObject*)self, attr_name);
-    /* if normal lookup failed try to swizzle */
-    if (PyErr_Occurred() && PyErr_ExceptionMatches(PyExc_AttributeError)) {
-        Py_ssize_t len = PySequence_Length(attr_name);
-        const char *attr = PyString_AsString(attr_name);
-        double *coords = self->coords;
-        Py_ssize_t i;
-        res = (PyObject*)PyTuple_New(len);
-        for (i = 0; i < len; i++) {
-            switch (attr[i]) {
-            case 'x':
-                PyTuple_SetItem(res, i, PyFloat_FromDouble(coords[0]));
-                break;
-            case 'y':
-                PyTuple_SetItem(res, i, PyFloat_FromDouble(coords[1]));
-                break;
-            default:
-                /* swizzling failed! clean up and return NULL
-                 * the exception from PyObject_GenericGetAttr is still set */
-                Py_DECREF(res);
-                return NULL;
-            }
-        }
-        /* swizzling succeeded! clear the error and return result */
-        PyErr_Clear();
-    }
-    return res;
-}
-
-static int
-vector_setAttr_swizzle(PyVector *self, PyObject *attr_name, PyObject *val)
-{
-    /* first try swizzle */
-    const char *attr = PyString_AsString(attr_name);
-    Py_ssize_t len = PySequence_Length(attr_name);
-    double entry[self->dim];
-    int entry_was_set[self->dim];
-    int swizzle_err = SWIZZLE_ERR_NO_ERR;
-    int i;
-
-    for (i = 0; i < self->dim; ++i)
-        entry_was_set[i] = 0;
-
-    for (i = 0; i < len; ++i) {
-        int idx;
-        switch (attr[i]) {
-        case 'x':
-        case 'y':
-/*        case 'z': */
-            idx = attr[i] - 'x';
-            break;
-/*        case 'w':
-            idx = 3;
-            break; */
-        default:
-            /* swizzle failed. attempt normal attribute setting */
-            return PyObject_GenericSetAttr((PyObject*)self, attr_name, val);
-        }
-        if (entry_was_set[idx]) 
-            swizzle_err = SWIZZLE_ERR_DOUBLE_IDX;
-        if (swizzle_err == SWIZZLE_ERR_NO_ERR) {
-            entry_was_set[idx] = 1;
-            entry[idx] = PySequence_GetItem_AsDouble(val, i);
-            if (PyErr_Occurred())
-                swizzle_err = SWIZZLE_ERR_EXTRACTION_ERR;
-        }
-    }
-    switch (swizzle_err) {
-    case SWIZZLE_ERR_NO_ERR:
-        /* swizzle successful */
-        for (i = 0; i < self->dim; ++i)
-            if (entry_was_set[i])
-                self->coords[i] = entry[i];
-        return 0;
-    case SWIZZLE_ERR_DOUBLE_IDX:
-        PyErr_SetString(PyExc_AttributeError, 
-                        "Attribute assignment conflicts with swizzling.");
-        return -1;
-    case SWIZZLE_ERR_EXTRACTION_ERR:
-        /* exception was set by PySequence_GetItem_AsDouble */
-        return -1;
-    default:
-        /* this should NOT happen */
-        PyErr_SetString(PyExc_RuntimeError, "Unhandled error in swizzle code");
-        return -1;
-    }
-} 
-
 
 static PyGetSetDef vector2_getsets[] = {
     { "x", (getter)vector_getx, (setter)vector_setx, NULL, NULL },
@@ -1437,8 +1499,8 @@ static PyTypeObject PyVector2_Type = {
     0,                         /* tp_hash */
     0,                         /* tp_call */
     (reprfunc)vector_str,      /* tp_str */
-    (getattrofunc)PyObject_GenericGetAttr, /* tp_getattro */
-    (setattrofunc)PyObject_GenericSetAttr, /* tp_setattro */
+    (getattrofunc)vector_getAttr_swizzle, /* tp_getattro */
+    (setattrofunc)vector_setAttr_swizzle, /* tp_setattro */
     /* Functions to access object as input/output buffer */
     0,                         /* tp_as_buffer */
     /* Flags to define presence of optional/expanded features */
@@ -1531,7 +1593,7 @@ vector3_init(PyVector *self, PyObject *args, PyObject *kwds)
         if (RealNumber_Check(xOrSequence)) {
             self->coords[0] = PyFloat_AsDouble(xOrSequence);
         } 
-        else if (checkPyVectorCompatible(xOrSequence, self->dim)) {
+        else if (PyVectorCompatible_Check(xOrSequence, self->dim)) {
             self->coords[0] = PySequence_GetItem_AsDouble(xOrSequence, 0);
             self->coords[1] = PySequence_GetItem_AsDouble(xOrSequence, 1);
             self->coords[2] = PySequence_GetItem_AsDouble(xOrSequence, 2);
@@ -1601,7 +1663,6 @@ error:
 }
 
 
-
 static void
 _vector3_do_rotate(double *dst_coords, const double *src_coords, 
                    const double *axis_coords, 
@@ -1630,9 +1691,10 @@ _vector3_do_rotate(double *dst_coords, const double *src_coords,
             axis[i] *= normalizationFactor;
     }
 
+    fprintf(stderr, "tja: %f\n", angle); fflush(stderr);
     if (angle < epsilon)
         memcpy(dst_coords, src_coords, 3 * sizeof(src_coords[0]));
-    else if (angle - 180 < epsilon) {
+    else if (abs(angle - 90) < epsilon) {
         dst_coords[0] = (src_coords[0] * (axis[0] * axis[0]) +
                          src_coords[1] * (axis[0] * axis[1] - axis[2]) +
                          src_coords[2] * (axis[0] * axis[2] + axis[1]));
@@ -1688,20 +1750,20 @@ vector3_rotate(PyVector *self, PyObject *args)
 {
     PyVector *ret;
     PyObject *axis;
-    double axisCoords[3];
+    double axis_coords[3];
     double angle;
 
     if (!PyArg_ParseTuple(args, "dO:rotate", &angle, &axis)) {
         return NULL;
     }
-    if (!checkPyVectorCompatible(axis, self->dim)) {
+    if (!PyVectorCompatible_Check(axis, self->dim)) {
         PyErr_SetString(PyExc_TypeError, "axis must be a 3D Vector");
         return NULL;
     }
     
-    PySequence_AsVectorCoords(axis, axisCoords, 3);
+    PySequence_AsVectorCoords(axis, axis_coords, 3);
     ret = (PyVector*)PyVector_NEW(self->dim);
-    _vector3_do_rotate(ret->coords, self->coords, axisCoords,
+    _vector3_do_rotate(ret->coords, self->coords, axis_coords,
                        angle, self->epsilon);
     return (PyObject*)ret;
 }
@@ -1710,49 +1772,183 @@ static PyObject *
 vector3_rotate_ip(PyVector *self, PyObject *args)
 {
     PyObject *axis;
-    double axisCoords[3];
+    double axis_coords[3];
     double angle;
     double tmp[3];
     
     if (!PyArg_ParseTuple(args, "dO:rotate_ip", &angle, &axis)) {
         return NULL;
     }
-    if (!checkPyVectorCompatible(axis, self->dim)) {
+    if (!PyVectorCompatible_Check(axis, self->dim)) {
         PyErr_SetString(PyExc_TypeError, "axis must be a 3D Vector");
         return NULL;
     }
 
-    PySequence_AsVectorCoords(axis, axisCoords, 3);
+    PySequence_AsVectorCoords(axis, axis_coords, 3);
     memcpy(tmp, self->coords, 3 * sizeof(self->coords[0]));
-    _vector3_do_rotate(self->coords, tmp, axisCoords, angle, self->epsilon);
+    _vector3_do_rotate(self->coords, tmp, axis_coords, angle, self->epsilon);
     Py_RETURN_NONE;
+}
+
+static PyObject *
+vector3_rotate_x(PyVector *self, PyObject *angleObject)
+{
+    PyVector *ret;
+    double sinValue, cosValue;
+    double angle;
+
+    if (!RealNumber_Check(angleObject)) {
+        PyErr_SetString(PyExc_TypeError, "angle must be a real number");
+        return NULL;
+    }
+    angle = DEG2RAD(PyFloat_AsDouble(angleObject));
+    sinValue = sin(angle);
+    cosValue = cos(angle);
+
+    ret = (PyVector*)PyVector_NEW(self->dim);
+    ret->coords[0] = self->coords[0];
+    ret->coords[1] = self->coords[1] * cosValue - self->coords[2] * sinValue;
+    ret->coords[2] = self->coords[1] * sinValue + self->coords[2] * cosValue;
+    return (PyObject*)ret;
+}
+
+static PyObject *
+vector3_rotate_x_ip(PyVector *self, PyObject *angleObject)
+{
+    PyVector *ret;
+    double tmp_coords[3];
+    double sinValue, cosValue;
+    double angle;
+
+    if (!RealNumber_Check(angleObject)) {
+        PyErr_SetString(PyExc_TypeError, "angle must be a real number");
+        return NULL;
+    }
+    angle = DEG2RAD(PyFloat_AsDouble(angleObject));
+    sinValue = sin(angle);
+    cosValue = cos(angle);
+    memcpy(tmp_coords, self->coords, 3 * sizeof(tmp_coords[0]));
+
+    self->coords[1] = tmp_coords[1] * cosValue - tmp_coords[2] * sinValue;
+    self->coords[2] = tmp_coords[1] * sinValue + tmp_coords[2] * cosValue;
+    return (PyObject*)ret;
+}
+
+static PyObject *
+vector3_rotate_y(PyVector *self, PyObject *angleObject)
+{
+    PyVector *ret;
+    double sinValue, cosValue;
+    double angle;
+
+    if (!RealNumber_Check(angleObject)) {
+        PyErr_SetString(PyExc_TypeError, "angle must be a real number");
+        return NULL;
+    }
+    angle = DEG2RAD(PyFloat_AsDouble(angleObject));
+    sinValue = sin(angle);
+    cosValue = cos(angle);
+
+    ret = (PyVector*)PyVector_NEW(self->dim);
+    ret->coords[0] = self->coords[0] * cosValue + self->coords[2] * sinValue;
+    ret->coords[1] = self->coords[1];
+    ret->coords[2] = -self->coords[0] * sinValue + self->coords[2] * cosValue;
+
+    return (PyObject*)ret;
+}
+
+static PyObject *
+vector3_rotate_y_ip(PyVector *self, PyObject *angleObject)
+{
+    PyVector *ret;
+    double tmp_coords[3];
+    double sinValue, cosValue;
+    double angle;
+
+    if (!RealNumber_Check(angleObject)) {
+        PyErr_SetString(PyExc_TypeError, "angle must be a real number");
+        return NULL;
+    }
+    angle = DEG2RAD(PyFloat_AsDouble(angleObject));
+    sinValue = sin(angle);
+    cosValue = cos(angle);
+    memcpy(tmp_coords, self->coords, 3 * sizeof(tmp_coords[0]));
+
+    self->coords[0] = tmp_coords[0] * cosValue + tmp_coords[2] * sinValue;
+    self->coords[2] = -tmp_coords[0] * sinValue + tmp_coords[2] * cosValue;
+    return (PyObject*)ret;
+}
+
+static PyObject *
+vector3_rotate_z(PyVector *self, PyObject *angleObject)
+{
+    PyVector *ret;
+    double sinValue, cosValue;
+    double angle;
+
+    if (!RealNumber_Check(angleObject)) {
+        PyErr_SetString(PyExc_TypeError, "angle must be a real number");
+        return NULL;
+    }
+    angle = DEG2RAD(PyFloat_AsDouble(angleObject));
+    sinValue = sin(angle);
+    cosValue = cos(angle);
+
+    ret = (PyVector*)PyVector_NEW(self->dim);
+    ret->coords[0] = self->coords[0] * cosValue - self->coords[1] * sinValue;
+    ret->coords[1] = self->coords[0] * sinValue + self->coords[1] * cosValue;
+    ret->coords[2] = self->coords[2];
+
+    return (PyObject*)ret;
+}
+
+static PyObject *
+vector3_rotate_z_ip(PyVector *self, PyObject *angleObject)
+{
+    PyVector *ret;
+    double tmp_coords[3];
+    double sinValue, cosValue;
+    double angle;
+
+    if (!RealNumber_Check(angleObject)) {
+        PyErr_SetString(PyExc_TypeError, "angle must be a real number");
+        return NULL;
+    }
+    angle = DEG2RAD(PyFloat_AsDouble(angleObject));
+    sinValue = sin(angle);
+    cosValue = cos(angle);
+    memcpy(tmp_coords, self->coords, 3 * sizeof(tmp_coords[0]));
+
+    self->coords[0] = tmp_coords[0] * cosValue - tmp_coords[1] * sinValue;
+    self->coords[1] = tmp_coords[0] * sinValue + tmp_coords[1] * cosValue;
+    return (PyObject*)ret;
 }
 
 static PyObject *
 vector3_cross(PyVector *self, PyObject *other)
 {
     PyVector *ret;
-    double *retCoords;
+    double *ret_coords;
 
-    if (!checkPyVectorCompatible(other, self->dim)) {
+    if (!PyVectorCompatible_Check(other, self->dim)) {
         PyErr_SetString(PyExc_TypeError, "cannot calculate cross Product");
         return NULL;
     }
     
     ret = (PyVector*)PyVector_NEW(self->dim);
-    retCoords = ret->coords;
+    ret_coords = ret->coords;
     if (PyVector_Check(other)) {
-        double *otherCoords = ((PyVector *)other)->coords;
-        retCoords[0] = (self->coords[1] * otherCoords[2]) - (self->coords[2] * otherCoords[1]);
-        retCoords[1] = (self->coords[2] * otherCoords[0]) - (self->coords[0] * otherCoords[2]);
-        retCoords[2] = (self->coords[0] * otherCoords[1]) - (self->coords[1] * otherCoords[0]);
+        double *other_coords = ((PyVector *)other)->coords;
+        ret_coords[0] = (self->coords[1] * other_coords[2]) - (self->coords[2] * other_coords[1]);
+        ret_coords[1] = (self->coords[2] * other_coords[0]) - (self->coords[0] * other_coords[2]);
+        ret_coords[2] = (self->coords[0] * other_coords[1]) - (self->coords[1] * other_coords[0]);
     }
     else {
-        double otherCoords[3];
-        PySequence_AsVectorCoords(other, otherCoords, 3);
-        retCoords[0] = (self->coords[1] * otherCoords[2]) - (self->coords[2] * otherCoords[1]);
-        retCoords[1] = (self->coords[2] * otherCoords[0]) - (self->coords[0] * otherCoords[2]);
-        retCoords[2] = (self->coords[0] * otherCoords[1]) - (self->coords[1] * otherCoords[0]);
+        double other_coords[3];
+        PySequence_AsVectorCoords(other, other_coords, 3);
+        ret_coords[0] = (self->coords[1] * other_coords[2]) - (self->coords[2] * other_coords[1]);
+        ret_coords[1] = (self->coords[2] * other_coords[0]) - (self->coords[0] * other_coords[2]);
+        ret_coords[2] = (self->coords[0] * other_coords[1]) - (self->coords[1] * other_coords[0]);
     }
     return (PyObject*)ret;
 }
@@ -1760,27 +1956,30 @@ vector3_cross(PyVector *self, PyObject *other)
 static PyObject *
 vector3_angle_to(PyVector *self, PyObject *other)
 {
-    double angle;
-    double otherCoords[VECTOR_MAX_SIZE];
+    int i;
+    double angle, tmp1, tmp2;
+    double other_coords[VECTOR_MAX_SIZE];
 
-    if (!checkPyVectorCompatible(other, self->dim)) {
+    if (!PyVectorCompatible_Check(other, self->dim)) {
         PyErr_SetString(PyExc_TypeError, "expected an vector.");
         return NULL;
     }
     
-    PySequence_AsVectorCoords(other, otherCoords, self->dim);
-    angle = acos(_scalar_product(self->coords, otherCoords, self->dim));
+    PySequence_AsVectorCoords(other, other_coords, self->dim);
+    tmp1 = _scalar_product(self->coords, self->coords, self->dim);
+    tmp2 = _scalar_product(other_coords, other_coords, self->dim);
+    angle = acos(_scalar_product(self->coords, other_coords, self->dim) /
+                 sqrt(tmp1 * tmp2));
     return PyFloat_FromDouble(RAD2DEG(angle));
 }
 
+static PyObject *
+vector3_as_spherical(PyVector *self)
+{
+    
+}
 
 static PyMethodDef vector3_methods[] = {
-    {"enable_swizzle", (PyCFunction)vector_enable_swizzle, METH_NOARGS,
-     "enables swizzling."
-    },
-    {"disable_swizzle", (PyCFunction)vector_disable_swizzle, METH_NOARGS,
-     "disables swizzling."
-    },
     {"length", (PyCFunction)vector_length, METH_NOARGS,
      "returns the length/magnitude of the vector."
     },
@@ -1792,6 +1991,24 @@ static PyMethodDef vector3_methods[] = {
     },
     {"rotate_ip", (PyCFunction)vector3_rotate_ip, METH_VARARGS,
      "rotates the vector counterclockwise by the angle given in degrees."
+    },
+    {"rotate_x", (PyCFunction)vector3_rotate_x, METH_VARARGS,
+     "returns a new vector rotated counterclockwise around the x-axis by the angle given in degrees."
+    },
+    {"rotate_x_ip", (PyCFunction)vector3_rotate_x_ip, METH_VARARGS,
+     "rotates the vector counterclockwise around the x-axis by the angle given in degrees."
+    },
+    {"rotate_y", (PyCFunction)vector3_rotate_y, METH_VARARGS,
+     "returns a new vector rotated counterclockwise around the y-axis by the angle given in degrees."
+    },
+    {"rotate_y_ip", (PyCFunction)vector3_rotate_y_ip, METH_VARARGS,
+     "rotates the vector counterclockwise around the y-axis by the angle given in degrees."
+    },
+    {"rotate_z", (PyCFunction)vector3_rotate_z, METH_VARARGS,
+     "returns a new vector rotated counterclockwise around the z-axis by the angle given in degrees."
+    },
+    {"rotate_z_ip", (PyCFunction)vector3_rotate_z_ip, METH_VARARGS,
+     "rotates the vector counterclockwise around the z-axis by the angle given in degrees."
     },
     {"normalize", (PyCFunction)vector_normalize, METH_NOARGS,
      "returns a vector that has length == 1 and the same direction as self."
@@ -1865,8 +2082,8 @@ static PyTypeObject PyVector3_Type = {
     0,                         /* tp_hash */
     0,                         /* tp_call */
     (reprfunc)vector_str,      /* tp_str */
-    (getattrofunc)PyObject_GenericGetAttr, /* tp_getattro */
-    (setattrofunc)PyObject_GenericSetAttr, /* tp_setattro */
+    (getattrofunc)vector_getAttr_swizzle, /* tp_getattro */
+    (setattrofunc)vector_setAttr_swizzle, /* tp_setattro */
     /* Functions to access object as input/output buffer */
     0,                         /* tp_as_buffer */
     /* Flags to define presence of optional/expanded features */
@@ -1923,15 +2140,9 @@ static PyTypeObject PyVector3_Type = {
 
 
 
-/********************************
+/********************************************
  * PyVectorIterator type definition
- ********************************/
-
-typedef struct {
-    PyObject_HEAD
-    long it_index;
-    PyVector *vec;
-} vectoriter;
+ ********************************************/
 
 static void
 vectoriter_dealloc(vectoriter *it)
@@ -2041,15 +2252,11 @@ vector_iter(PyObject *vec)
 
 
 
+/*****************************************
+ * elementwiseproxy
+ *****************************************/
 
 
-
-
-
-typedef struct {
-    PyObject_HEAD
-    PyVector *vec;
-} vector_elementwiseproxy;
 
 static void
 vector_elementwiseproxy_dealloc(vector_elementwiseproxy *it)
@@ -2087,7 +2294,7 @@ vector_elementwiseproxy_richcompare(PyObject *o1, PyObject *o2, int op)
         other = (PyObject*)((vector_elementwiseproxy*)o2)->vec;
     dim = vec->dim;
 
-    if (checkPyVectorCompatible(other, dim)) {
+    if (PyVectorCompatible_Check(other, dim)) {
         /* use diff == diff to check for NaN */
         /* TODO: how should NaN be handled with LT/LE/GT/GE? */
         switch (op) {
@@ -2210,7 +2417,7 @@ vector_elementwiseproxy_add(PyObject *o1, PyObject *o2)
         other = (PyObject*)((vector_elementwiseproxy*)other)->vec;
     dim = vec->dim;
 
-    if (checkPyVectorCompatible(other, dim)) {
+    if (PyVectorCompatible_Check(other, dim)) {
         return vector_add((PyObject*)vec, other);
     }
     else if (RealNumber_Check(other)) {
@@ -2249,7 +2456,7 @@ vector_elementwiseproxy_sub(PyObject *o1, PyObject *o2)
         other = (PyObject*)((vector_elementwiseproxy*)other)->vec;
     dim = vec->dim;
     
-    if (checkPyVectorCompatible(other, dim)) {
+    if (PyVectorCompatible_Check(other, dim)) {
         if (reverse)
             return vector_sub(other, (PyObject*)vec);
         else
@@ -2288,7 +2495,7 @@ vector_elementwiseproxy_mul(PyObject *o1, PyObject *o2)
         other = (PyObject*)((vector_elementwiseproxy*)other)->vec;
 
     /* elementwiseproxy * vector ? */
-    if (checkPyVectorCompatible(other, vec->dim)) {
+    if (PyVectorCompatible_Check(other, vec->dim)) {
         ret = (PyVector*)PyVector_NEW(vec->dim);
         for (i = 0; i < vec->dim; i++) {
             ret->coords[i] = (vec->coords[i] * 
@@ -2316,7 +2523,7 @@ vector_elementwiseproxy_div(PyObject *o1, PyObject *o2)
         vec = ((vector_elementwiseproxy*)o1)->vec;
         if (vector_elementwiseproxy_Check(o2))
             o2 = (PyObject*)((vector_elementwiseproxy*)o2)->vec;
-        if (checkPyVectorCompatible(o2, vec->dim)) {
+        if (PyVectorCompatible_Check(o2, vec->dim)) {
             ret = (PyVector*)PyVector_NEW(vec->dim);
             for (i = 0; i < vec->dim; i++) {
                 ret->coords[i] = (vec->coords[i] /
@@ -2330,7 +2537,7 @@ vector_elementwiseproxy_div(PyObject *o1, PyObject *o2)
     }
     else {
         vec = ((vector_elementwiseproxy*)o2)->vec;
-        if (checkPyVectorCompatible(o1, vec->dim)) {
+        if (PyVectorCompatible_Check(o1, vec->dim)) {
             ret = (PyVector*)PyVector_NEW(vec->dim);
             for (i = 0; i < vec->dim; i++) {
                 ret->coords[i] = (PySequence_GetItem_AsDouble(o1, i) /
@@ -2362,7 +2569,7 @@ vector_elementwiseproxy_floor_div(PyObject *o1, PyObject *o2)
         vec = ((vector_elementwiseproxy*)o1)->vec;
         if (vector_elementwiseproxy_Check(o2))
             o2 = (PyObject*)((vector_elementwiseproxy*)o2)->vec;
-        if (checkPyVectorCompatible(o2, vec->dim)) {
+        if (PyVectorCompatible_Check(o2, vec->dim)) {
             ret = (PyVector*)PyVector_NEW(vec->dim);
             for (i = 0; i < vec->dim; i++) {
                 ret->coords[i] = floor(vec->coords[i] / 
@@ -2376,7 +2583,7 @@ vector_elementwiseproxy_floor_div(PyObject *o1, PyObject *o2)
     }
     else {
         vec = ((vector_elementwiseproxy*)o2)->vec;
-        if (checkPyVectorCompatible(o1, vec->dim)) {
+        if (PyVectorCompatible_Check(o1, vec->dim)) {
             ret = (PyVector*)PyVector_NEW(vec->dim);
             for (i = 0; i < vec->dim; i++) {
                 ret->coords[i] = floor(PySequence_GetItem_AsDouble(o1, i) /
@@ -2421,7 +2628,7 @@ vector_elementwiseproxy_pow(PyObject *baseObj, PyObject *expoObj, PyObject *mod)
             memcpy(expos, ((vector_elementwiseproxy*)expoObj)->vec->coords,
                    sizeof(double) * dim);
         }
-        else if (checkPyVectorCompatible(expoObj, dim)) {
+        else if (PyVectorCompatible_Check(expoObj, dim)) {
             PySequence_AsVectorCoords(expoObj, expos, dim);
         }
         else if (RealNumber_Check(expoObj)) {
@@ -2436,7 +2643,7 @@ vector_elementwiseproxy_pow(PyObject *baseObj, PyObject *expoObj, PyObject *mod)
         dim = ((vector_elementwiseproxy*)expoObj)->vec->dim;
         memcpy(expos, ((vector_elementwiseproxy*)expoObj)->vec->coords,
                sizeof(double) * dim);
-        if (checkPyVectorCompatible(baseObj, dim)) {
+        if (PyVectorCompatible_Check(baseObj, dim)) {
             PySequence_AsVectorCoords(baseObj, bases, dim);
         }
         else if (RealNumber_Check(baseObj)) {
@@ -2480,7 +2687,7 @@ vector_elementwiseproxy_mod(PyObject *o1, PyObject *o2)
         vec = ((vector_elementwiseproxy*)o1)->vec;
         if (vector_elementwiseproxy_Check(o2))
             o2 = (PyObject*)((vector_elementwiseproxy*)o2)->vec;
-        if (checkPyVectorCompatible(o2, vec->dim)) { 
+        if (PyVectorCompatible_Check(o2, vec->dim)) { 
             res = (PyVector*)PyVector_NEW(vec->dim);
             for (i = 0; i < vec->dim; i++) {
                 entry = PyFloat_FromDouble(vec->coords[i]);
@@ -2507,7 +2714,7 @@ vector_elementwiseproxy_mod(PyObject *o1, PyObject *o2)
     }
     else {
         vec = ((vector_elementwiseproxy*)o2)->vec;
-        if (checkPyVectorCompatible(o1, vec->dim)) { 
+        if (PyVectorCompatible_Check(o1, vec->dim)) { 
             res = (PyVector*)PyVector_NEW(vec->dim);
             for (i = 0; i < vec->dim; i++) {
                 divisor = PyFloat_FromDouble(vec->coords[i]);
@@ -2581,7 +2788,7 @@ vector_elementwiseproxy_nonzero(vector_elementwiseproxy *self)
     return 0;
 }
 
-PyNumberMethods vector_elementwiseproxy_as_number = {
+static PyNumberMethods vector_elementwiseproxy_as_number = {
     (binaryfunc)vector_elementwiseproxy_add,      /* nb_add;       __add__ */
     (binaryfunc)vector_elementwiseproxy_sub,      /* nb_subtract;  __sub__ */
     (binaryfunc)vector_elementwiseproxy_mul,      /* nb_multiply;  __mul__ */
@@ -2725,11 +2932,37 @@ vector_elementwise(PyVector *vec)
 
 
 
+static PyObject *
+math_enable_swizzling(PyVector *self)
+{
+    fprintf(stderr, "enableing swizzle C\n"); fflush(stderr);
+    swizzling_enabled = 1;
+/*
+    self->ob_type->tp_getattro = (getattrofunc)vector_getAttr_swizzle;
+    self->ob_type->tp_setattro = (setattrofunc)vector_setAttr_swizzle;
+*/
+    Py_RETURN_NONE;
+}
 
-
+static PyObject *
+math_disable_swizzling(PyVector *self)
+{
+    swizzling_enabled = 0;
+/*
+    self->ob_type->tp_getattro = PyObject_GenericGetAttr;
+    self->ob_type->tp_setattro = PyObject_GenericSetAttr;
+*/
+    Py_RETURN_NONE;
+}
 
 static PyMethodDef _math_methods[] =
 {
+    {"enable_swizzling", (PyCFunction)math_enable_swizzling, METH_NOARGS,
+     "enables swizzling."
+    },
+    {"disable_swizzling", (PyCFunction)math_disable_swizzling, METH_NOARGS,
+     "disables swizzling."
+    },
     {NULL, NULL, 0, NULL}
 };
 
@@ -2793,7 +3026,7 @@ MODINIT_DEFINE (math)
     c_api[1] = &PyVector3_Type;
 //    c_api[2] = &PyVector4_Type;
 //    c_api[3] = PyVector_NEW;
-//    c_api[4] = checkPyVectorCompatible;
+//    c_api[4] = PyVectorCompatible_Check;
     apiobj = PyCObject_FromVoidPtr(c_api, NULL);
     if (apiobj == NULL) {
         DECREF_MOD (module);
