@@ -684,20 +684,20 @@ typedef struct
 
 #define PYGAMEAPI_MATH_FIRSTSLOT                                       \
     (PYGAMEAPI_COLOR_FIRSTSLOT + PYGAMEAPI_COLOR_NUMSLOTS)
-#define PYGAMEAPI_MATH_NUMSLOTS 1
+#define PYGAMEAPI_MATH_NUMSLOTS 2
 #ifndef PYGAMEAPI_MATH_INTERNAL
 #define PyVector2_Check(x)                                                \
     ((x)->ob_type == (PyTypeObject*)                                    \
         PyGAME_C_API[PYGAMEAPI_MATH_FIRSTSLOT + 0])
+#define PyVector3_Check(x)                                                \
+    ((x)->ob_type == (PyTypeObject*)                                    \
+        PyGAME_C_API[PYGAMEAPI_MATH_FIRSTSLOT + 1])
 /*
 #define PyVector2_New                                             \
     (*(PyObject*(*)) PyGAME_C_API[PYGAMEAPI_MATH_FIRSTSLOT + 1])
-#define RGBAFromColorObj                                                \
-    (*(int(*)(PyObject*, Uint8*)) PyGAME_C_API[PYGAMEAPI_MATH_FIRSTSLOT + 2])
 */
 #define import_pygame_math()                                           \
     {                                                                   \
-        fprintf(stdout, "1\n"); fflush(stdout);                         \
 	PyObject *_module = PyImport_ImportModule (IMPPREFIX "math");     \
 	if (_module != NULL)                                            \
         {                                                               \

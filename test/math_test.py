@@ -19,9 +19,11 @@ import math
 from pygame.math import Vector2
 from time import clock
 from random import random
+import gc
 
 class Vector2TypeTest(unittest.TestCase):
     def setUp(self):
+#        gc.collect()
         self.zeroVec = Vector2()
         self.e1 = Vector2(1, 0)
         self.e2 = Vector2(0, 1)

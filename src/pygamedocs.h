@@ -1074,6 +1074,7 @@
 #define DOC_PYGAMETRANSFORMTHRESHOLD "pygame.transform.threshold(DestSurface, Surface, color, threshold = (0,0,0,0), diff_color = (0,0,0,0), change_return = 1, Surface = None, inverse = False): return num_threshold_pixels\nfinds which, and how many pixels in a surface are within a threshold of a color."
 
 #define DOC_PYGAMEVECTOR2 "pygame.math.Vector2(x=0, y=0): return Vector2\nA two-dimensional vector"
+#define DOC_PYGAMEVECTOR3 "pygame.math.Vector3(x=0, y=0, z=0): return Vector3\nA three-dimensional vector"
 
 /* Docs in a comments... slightly easier to read. */
 

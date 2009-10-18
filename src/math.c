@@ -32,9 +32,14 @@
 #define SWIZZLE_ERR_EXTRACTION_ERR 2
 
 static PyTypeObject PyVector2_Type;
+static PyTypeObject PyVector3_Type;
 static PyTypeObject PyVectorElementwiseProxy_Type;
+static PyTypeObject PyVectorIter_Type;
+static PyObject *vector_iter(PyObject *vec);
+
 #define PyVector2_Check(x) ((x)->ob_type == &PyVector2_Type)
-#define PyVector_Check(x) (PyVector2_Check(x))
+#define PyVector3_Check(x) ((x)->ob_type == &PyVector3_Type)
+#define PyVector_Check(x) (PyVector2_Check(x) || PyVector3_Check(x))
 #define vector_elementwiseproxy_Check(x) \
     ((x)->ob_type == &PyVectorElementwiseProxy_Type)
 
@@ -78,7 +83,7 @@ PySequence_GetItem_AsDouble(PyObject *seq, Py_ssize_t index)
 }
 
 static int
-PySequence_AsVectorCoords(PyObject *seq, double *coords, const int size)
+PySequence_AsVectorCoords(PyObject *seq, double *coords, const size_t size)
 {
     int i;
     PyObject *item;
@@ -115,12 +120,12 @@ checkPyVectorCompatible(PyObject *obj, int dim)
             return 1;
         }
         break;
-/*
     case 3:
         if (PyVector3d_Check(obj)) {
             return 1;
         }
         break;
+/*
     case 4:
         if (PyVector4d_Check(obj)) {
             return 1;
@@ -174,10 +179,10 @@ PyVector_NEW(int dim)
     case 2:
         vec = PyObject_New(PyVector, &PyVector2_Type);
         break;
-/*
     case 3:
         vec = PyObject_New(PyVector, &PyVector3_Type);
         break;
+/*
     case 4:
         vec = PyObject_New(PyVector, &PyVector4_Type);
         break;
@@ -663,6 +668,44 @@ vector_sety (PyVector *self, PyObject *value, void *closure)
     return 0;
 }
 
+static PyObject*
+vector_getz (PyVector *self, void *closure)
+{
+    return PyFloat_FromDouble(self->coords[2]);
+}
+
+static int
+vector_setz (PyVector *self, PyObject *value, void *closure)
+{
+    /* NOTE: this is never called when swizzling is enabled */
+    if (value == NULL) {
+        PyErr_SetString(PyExc_TypeError, "Cannot delete the z attribute");
+        return -1;
+    }
+
+    self->coords[2] = PyFloat_AsDouble(value);
+    return 0;
+}
+
+static PyObject*
+vector_getw (PyVector *self, void *closure)
+{
+    return PyFloat_FromDouble(self->coords[3]);
+}
+
+static int
+vector_setw (PyVector *self, PyObject *value, void *closure)
+{
+    /* NOTE: this is never called when swizzling is enabled */
+    if (value == NULL) {
+        PyErr_SetString(PyExc_TypeError, "Cannot delete the w attribute");
+        return -1;
+    }
+
+    self->coords[3] = PyFloat_AsDouble(value);
+    return 0;
+}
+
 
 
 static PyObject *
@@ -816,7 +859,8 @@ vector_length_squared(PyVector *self)
 }
 
 static void
-vector2_do_rotate(double *dst_coords, const double *src_coords, double angle)
+_vector2_do_rotate(double *dst_coords, const double *src_coords,
+                   double angle, double epsilon)
 {
     /* make sure angle is in range [0, 360) */
     angle = fmod(angle, 360.);
@@ -824,19 +868,19 @@ vector2_do_rotate(double *dst_coords, const double *src_coords, double angle)
         angle += 360.;
 
     /* special-case rotation by 0, 90, 180 and 270 degrees */
-    if (angle == 0.) {
+    if (angle < epsilon) {
         dst_coords[0] = src_coords[0];
         dst_coords[1] = src_coords[1];
     }
-    else if (angle == 90.) {
+    else if (abs(angle - 90.) < epsilon) {
         dst_coords[0] = -src_coords[1];
         dst_coords[1] = src_coords[0];
     }
-    else if (angle == 180.) {
+    else if (abs(angle - 180.) < epsilon) {
         dst_coords[0] = -src_coords[0];
         dst_coords[1] = -src_coords[1];
     }
-    else if (angle == 270.) {
+    else if (abs(angle - 270.) < epsilon) {
         dst_coords[0] = src_coords[1];
         dst_coords[1] = -src_coords[0];
     }
@@ -863,7 +907,7 @@ vector2_rotate(PyVector *self, PyObject *args)
     }
 
     ret = (PyVector*)PyVector_NEW(self->dim);
-    vector2_do_rotate(ret->coords, self->coords, angle);
+    _vector2_do_rotate(ret->coords, self->coords, angle, self->epsilon);
     return (PyObject*)ret;
 }
 
@@ -879,7 +923,7 @@ vector2_rotate_ip(PyVector *self, PyObject *args)
 
     tmp[0] = self->coords[0];
     tmp[1] = self->coords[1];
-    vector2_do_rotate(self->coords, tmp, angle);
+    _vector2_do_rotate(self->coords, tmp, angle, self->epsilon);
     Py_RETURN_NONE;
 }
 
@@ -966,7 +1010,7 @@ vector_dot(PyVector *self, PyObject *other)
 }
 
 static PyObject *
-vector_angle_to(PyVector *self, PyObject *other)
+vector2_angle_to(PyVector *self, PyObject *other)
 {
     double angle;
     if (!checkPyVectorCompatible(other, self->dim)) {
@@ -1018,7 +1062,7 @@ vector_reflect(PyVector *self, PyObject *normal)
     double dot_product;
     double norm_length;
     /* allocate enough space for 2, 3 and 4 dim vectors */
-    double norm_coords[4];
+    double norm_coords[VECTOR_MAX_SIZE];
 
     if (!checkPyVectorCompatible(normal, dim)) {
         PyErr_SetString(PyExc_TypeError, "Expected a vector.");
@@ -1060,7 +1104,7 @@ vector_reflect_ip(PyVector *self, PyObject *normal)
     double dot_product;
     double norm_length;
     /* allocate enough space for 2, 3 and 4 dim vectors */
-    double norm_coords[4];
+    double norm_coords[VECTOR_MAX_SIZE];
 
     if (!checkPyVectorCompatible(normal, dim)) {
         PyErr_SetString(PyExc_TypeError, "Expected a vector.");
@@ -1183,7 +1227,7 @@ static PyMethodDef vector2_methods[] = {
     {"dot", (PyCFunction)vector_dot, METH_O,
      "calculates the dot product."
     },
-    {"angle_to", (PyCFunction)vector_angle_to, METH_O,
+    {"angle_to", (PyCFunction)vector2_angle_to, METH_O,
      "returns the angle between self and the given vector."
     },
     {"scale_to_length", (PyCFunction)vector_scale_to_length, METH_O,
@@ -1304,7 +1348,7 @@ vector_getAttr_swizzle(PyVector *self, PyObject *attr_name)
 static int
 vector_setAttr_swizzle(PyVector *self, PyObject *attr_name, PyObject *val)
 {
-    // first try swizzle
+    /* first try swizzle */
     const char *attr = PyString_AsString(attr_name);
     Py_ssize_t len = PySequence_Length(attr_name);
     double entry[self->dim];
@@ -1327,7 +1371,7 @@ vector_setAttr_swizzle(PyVector *self, PyObject *attr_name, PyObject *val)
             idx = 3;
             break; */
         default:
-            // swizzle failed. attempt normal attribute setting
+            /* swizzle failed. attempt normal attribute setting */
             return PyObject_GenericSetAttr((PyObject*)self, attr_name, val);
         }
         if (entry_was_set[idx]) 
@@ -1371,7 +1415,6 @@ static PyGetSetDef vector2_getsets[] = {
 /********************************
  * PyVector2 type definition
  ********************************/
-static PyObject *vector_iter(PyObject *vec);
 
 static PyTypeObject PyVector2_Type = {
     PyObject_HEAD_INIT(NULL)
@@ -1442,8 +1485,446 @@ static PyTypeObject PyVector2_Type = {
 };
 
 
+
+
+
+
+
+
+
+
+/*************************************************************
+ *  PyVector3 specific functions
+ *************************************************************/
+
+
+
+static PyObject *
+vector3_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    PyVector *vec = (PyVector *)type->tp_alloc(type, 0);
+
+    if (vec != NULL) {
+        vec->dim = 3;
+        vec->epsilon = FLT_EPSILON;
+        vec->coords = PyMem_New(double, vec->dim);
+        if (vec->coords == NULL) {
+            vec->ob_type->tp_free((PyObject*)vec);
+            return NULL;
+        }
+    }
+
+    return (PyObject *)vec;
+}
+
+static int
+vector3_init(PyVector *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *xOrSequence=NULL, *y=NULL, *z=NULL;
+    static char *kwlist[] = {"x", "y", "z", NULL};
+
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOO:Vector3", kwlist,
+                                      &xOrSequence, &y, &z))
+        return -1;
+
+    if (xOrSequence) {
+        if (RealNumber_Check(xOrSequence)) {
+            self->coords[0] = PyFloat_AsDouble(xOrSequence);
+        } 
+        else if (checkPyVectorCompatible(xOrSequence, self->dim)) {
+            self->coords[0] = PySequence_GetItem_AsDouble(xOrSequence, 0);
+            self->coords[1] = PySequence_GetItem_AsDouble(xOrSequence, 1);
+            self->coords[2] = PySequence_GetItem_AsDouble(xOrSequence, 2);
+            /* successful initialization from sequence type */
+            return 0;
+        } 
+        else if (PyString_Check(xOrSequence)) {
+            /* This should make "Vector3(Vector3().__repr__())" possible */
+            char buffer[STRING_BUF_SIZE];
+            char *endptr;
+            char *str = PyString_AsString(xOrSequence);
+            if (strncmp(str, "<Vector3(", strlen("<Vector3(")) != 0)
+                goto error;
+            str += strlen("<Vector3(");
+            self->coords[0] = PyOS_ascii_strtod(str, &endptr);
+            if (endptr == str) {
+                goto error;
+            }
+            str = endptr + strlen(", ");
+            self->coords[1] = PyOS_ascii_strtod(str, &endptr);
+            if (endptr == str)
+                goto error;
+            str = endptr + strlen(", ");
+            self->coords[2] = PyOS_ascii_strtod(str, &endptr);
+            if (endptr == str)
+                goto error;
+            /* successful conversion from string */
+            return 0;
+        }
+        else {
+            goto error;
+        }
+    } 
+    else {
+        self->coords[0] = 0.;
+    }
+
+    if (y) {
+        if (RealNumber_Check(y)) {
+            self->coords[1] = PyFloat_AsDouble(y);
+        } 
+        else {
+            goto error;
+        }
+    } 
+    else {
+        self->coords[1] = 0.;
+    }
+
+    if (z) {
+        if (RealNumber_Check(z)) {
+            self->coords[2] = PyFloat_AsDouble(z);
+        } 
+        else {
+            goto error;
+        }
+    } 
+    else {
+        self->coords[2] = 0.;
+    }
+    /* success initialization */
+    return 0;
+error:
+    PyErr_SetString(PyExc_ValueError,
+                    "Vector3 must be initialized with 3 real numbers or a sequence of 3 real numbers");
+    return -1;
+}
+
+
+
+static void
+_vector3_do_rotate(double *dst_coords, const double *src_coords, 
+                   const double *axis_coords, 
+                   double angle, double epsilon)
+{
+    double sinValue, cosValue, cosComplement;
+    double normalizationFactor;
+    double axisLength2 = 0;
+    double axis[3];
+    int i;
+
+    /* make sure angle is in range [0, 360) */
+    angle = fmod(angle, 360.);
+    if (angle < 0)
+        angle += 360.;
+
+    for (i = 0; i < 3; ++i) {
+        axisLength2 += axis_coords[i] * axis_coords[i];
+        axis[i] = axis_coords[i];
+    }
+
+    /* normalize the axis */
+    if (axisLength2 - 1 > epsilon) {
+        normalizationFactor = 1. / sqrt(axisLength2);
+        for (i = 0; i < 3; ++i)
+            axis[i] *= normalizationFactor;
+    }
+
+    if (angle < epsilon)
+        memcpy(dst_coords, src_coords, 3 * sizeof(src_coords[0]));
+    else if (angle - 180 < epsilon) {
+        dst_coords[0] = (src_coords[0] * (axis[0] * axis[0]) +
+                         src_coords[1] * (axis[0] * axis[1] - axis[2]) +
+                         src_coords[2] * (axis[0] * axis[2] + axis[1]));
+        dst_coords[1] = (src_coords[0] * (axis[0] * axis[1] + axis[2]) +
+                         src_coords[1] * (axis[1] * axis[1]) +
+                         src_coords[2] * (axis[1] * axis[2] - axis[0]));
+        dst_coords[2] = (src_coords[0] * (axis[0] * axis[2] - axis[1]) +
+                         src_coords[1] * (axis[1] * axis[2] + axis[0]) +
+                         src_coords[2] * (axis[2] * axis[2]));
+    }
+    else if (abs(angle - 180) < epsilon) {
+        dst_coords[0] = (src_coords[0] * (-1 + axis[0] * axis[0] * 2) +
+                         src_coords[1] * (axis[0] * axis[1] * 2) +
+                         src_coords[2] * (axis[0] * axis[2] * 2));
+        dst_coords[1] = (src_coords[0] * (axis[0] * axis[1] * 2) +
+                         src_coords[1] * (-1 + axis[1] * axis[1] * 2) +
+                         src_coords[2] * (axis[1] * axis[2] * 2));
+        dst_coords[2] = (src_coords[0] * (axis[0] * axis[2] * 2) +
+                         src_coords[1] * (axis[1] * axis[2] * 2) +
+                         src_coords[2] * (-1 + axis[2] * axis[2] * 2));
+    }
+    else if (abs(angle - 270) < epsilon){
+        dst_coords[0] = (src_coords[0] * (axis[0] * axis[0]) +
+                         src_coords[1] * (axis[0] * axis[1] + axis[2]) +
+                         src_coords[2] * (axis[0] * axis[2] - axis[1]));
+        dst_coords[1] = (src_coords[0] * (axis[0] * axis[1] - axis[2]) +
+                         src_coords[1] * (axis[1] * axis[1]) +
+                         src_coords[2] * (axis[1] * axis[2] + axis[0]));
+        dst_coords[2] = (src_coords[0] * (axis[0] * axis[2] + axis[1]) +
+                         src_coords[1] * (axis[1] * axis[2] - axis[0]) +
+                         src_coords[2] * (axis[2] * axis[2]));
+    }
+    else {
+        angle = DEG2RAD(angle);
+        sinValue = sin(angle);
+        cosValue = cos(angle);
+        cosComplement = 1 - cosValue;
+
+        dst_coords[0] = (src_coords[0] * (cosValue + axis[0] * axis[0] * cosComplement) +
+                         src_coords[1] * (axis[0] * axis[1] * cosComplement - axis[2] * sinValue) +
+                         src_coords[2] * (axis[0] * axis[2] * cosComplement + axis[1] * sinValue));
+        dst_coords[1] = (src_coords[0] * (axis[0] * axis[1] * cosComplement + axis[2] * sinValue) +
+                         src_coords[1] * (cosValue + axis[1] * axis[1] * cosComplement) +
+                         src_coords[2] * (axis[1] * axis[2] * cosComplement - axis[0] * sinValue));
+        dst_coords[2] = (src_coords[0] * (axis[0] * axis[2] * cosComplement - axis[1] * sinValue) +
+                         src_coords[1] * (axis[1] * axis[2] * cosComplement + axis[0] * sinValue) +
+                         src_coords[2] * (cosValue + axis[2] * axis[2] * cosComplement));
+    }
+}
+
+static PyObject *
+vector3_rotate(PyVector *self, PyObject *args)
+{
+    PyVector *ret;
+    PyObject *axis;
+    double axisCoords[3];
+    double angle;
+
+    if (!PyArg_ParseTuple(args, "dO:rotate", &angle, &axis)) {
+        return NULL;
+    }
+    if (!checkPyVectorCompatible(axis, self->dim)) {
+        PyErr_SetString(PyExc_TypeError, "axis must be a 3D Vector");
+        return NULL;
+    }
+    
+    PySequence_AsVectorCoords(axis, axisCoords, 3);
+    ret = (PyVector*)PyVector_NEW(self->dim);
+    _vector3_do_rotate(ret->coords, self->coords, axisCoords,
+                       angle, self->epsilon);
+    return (PyObject*)ret;
+}
+
+static PyObject *
+vector3_rotate_ip(PyVector *self, PyObject *args)
+{
+    PyObject *axis;
+    double axisCoords[3];
+    double angle;
+    double tmp[3];
+    
+    if (!PyArg_ParseTuple(args, "dO:rotate_ip", &angle, &axis)) {
+        return NULL;
+    }
+    if (!checkPyVectorCompatible(axis, self->dim)) {
+        PyErr_SetString(PyExc_TypeError, "axis must be a 3D Vector");
+        return NULL;
+    }
+
+    PySequence_AsVectorCoords(axis, axisCoords, 3);
+    memcpy(tmp, self->coords, 3 * sizeof(self->coords[0]));
+    _vector3_do_rotate(self->coords, tmp, axisCoords, angle, self->epsilon);
+    Py_RETURN_NONE;
+}
+
+static PyObject *
+vector3_cross(PyVector *self, PyObject *other)
+{
+    PyVector *ret;
+    double *retCoords;
+
+    if (!checkPyVectorCompatible(other, self->dim)) {
+        PyErr_SetString(PyExc_TypeError, "cannot calculate cross Product");
+        return NULL;
+    }
+    
+    ret = (PyVector*)PyVector_NEW(self->dim);
+    retCoords = ret->coords;
+    if (PyVector_Check(other)) {
+        double *otherCoords = ((PyVector *)other)->coords;
+        retCoords[0] = (self->coords[1] * otherCoords[2]) - (self->coords[2] * otherCoords[1]);
+        retCoords[1] = (self->coords[2] * otherCoords[0]) - (self->coords[0] * otherCoords[2]);
+        retCoords[2] = (self->coords[0] * otherCoords[1]) - (self->coords[1] * otherCoords[0]);
+    }
+    else {
+        double otherCoords[3];
+        PySequence_AsVectorCoords(other, otherCoords, 3);
+        retCoords[0] = (self->coords[1] * otherCoords[2]) - (self->coords[2] * otherCoords[1]);
+        retCoords[1] = (self->coords[2] * otherCoords[0]) - (self->coords[0] * otherCoords[2]);
+        retCoords[2] = (self->coords[0] * otherCoords[1]) - (self->coords[1] * otherCoords[0]);
+    }
+    return (PyObject*)ret;
+}
+
+static PyObject *
+vector3_angle_to(PyVector *self, PyObject *other)
+{
+    double angle;
+    double otherCoords[VECTOR_MAX_SIZE];
+
+    if (!checkPyVectorCompatible(other, self->dim)) {
+        PyErr_SetString(PyExc_TypeError, "expected an vector.");
+        return NULL;
+    }
+    
+    PySequence_AsVectorCoords(other, otherCoords, self->dim);
+    angle = acos(_scalar_product(self->coords, otherCoords, self->dim));
+    return PyFloat_FromDouble(RAD2DEG(angle));
+}
+
+
+static PyMethodDef vector3_methods[] = {
+    {"enable_swizzle", (PyCFunction)vector_enable_swizzle, METH_NOARGS,
+     "enables swizzling."
+    },
+    {"disable_swizzle", (PyCFunction)vector_disable_swizzle, METH_NOARGS,
+     "disables swizzling."
+    },
+    {"length", (PyCFunction)vector_length, METH_NOARGS,
+     "returns the length/magnitude of the vector."
+    },
+    {"length_squared", (PyCFunction)vector_length_squared, METH_NOARGS,
+     "returns the length/magnitude of the vector."
+    },
+    {"rotate", (PyCFunction)vector3_rotate, METH_VARARGS,
+     "returns a new vector rotated counterclockwise by the angle given in degrees."
+    },
+    {"rotate_ip", (PyCFunction)vector3_rotate_ip, METH_VARARGS,
+     "rotates the vector counterclockwise by the angle given in degrees."
+    },
+    {"normalize", (PyCFunction)vector_normalize, METH_NOARGS,
+     "returns a vector that has length == 1 and the same direction as self."
+    },
+    {"normalize_ip", (PyCFunction)vector_normalize_ip, METH_NOARGS,
+     "Normalizes the vector so that it has length == 1."
+    },
+    {"is_normalized", (PyCFunction)vector_is_normalized, METH_NOARGS,
+     "returns True if the vector has length == 1. otherwise it returns False."
+    },
+    {"cross", (PyCFunction)vector3_cross, METH_O,
+     "calculates the cross product."
+    },
+    {"dot", (PyCFunction)vector_dot, METH_O,
+     "calculates the dot product."
+    },
+    {"angle_to", (PyCFunction)vector3_angle_to, METH_O,
+     "returns the angle between self and the given vector."
+    },
+    {"scale_to_length", (PyCFunction)vector_scale_to_length, METH_O,
+     "scales the vector to the given length."
+    },
+    {"reflect", (PyCFunction)vector_reflect, METH_O,
+     "reflects the vector on the surface characterized by the given normal."
+    },
+    {"reflect_ip", (PyCFunction)vector_reflect_ip, METH_O,
+     "reflects the vector in-place on the surface characterized by the given normal."
+    },
+    {"distance_to", (PyCFunction)vector_distance_to, METH_O,
+     "returns the distance to the given vector."
+    },
+    {"distance_squared_to", (PyCFunction)vector_distance_squared_to, METH_O,
+     "returns the squared distance to the given vector."
+    },
+    {"elementwise", (PyCFunction)vector_elementwise, METH_NOARGS,
+     "applies the following operation to each element of the vector."
+    },
+    
+    {NULL}  /* Sentinel */
+};
+
+static PyGetSetDef vector3_getsets[] = {
+    { "x", (getter)vector_getx, (setter)vector_setx, NULL, NULL },
+    { "y", (getter)vector_gety, (setter)vector_sety, NULL, NULL },
+    { "z", (getter)vector_getz, (setter)vector_setz, NULL, NULL },
+    { NULL, 0, NULL, NULL, NULL }  /* Sentinel */
+};
+
 /********************************
- * PyVector2Iterator type definition
+ * PyVector3 type definition
+ ********************************/
+
+static PyTypeObject PyVector3_Type = {
+    PyObject_HEAD_INIT(NULL)
+    0,                         /* ob_size */
+    "pygame.math.Vector3",     /* tp_name */
+    sizeof(PyVector),          /* tp_basicsize */
+    0,                         /* tp_itemsize */
+    /* Methods to implement standard operations */
+    (destructor)vector_dealloc, /* tp_dealloc */
+    0,                         /* tp_print */
+    0,                         /* tp_getattr */
+    0,                         /* tp_setattr */
+    0,                         /* tp_compare */
+    (reprfunc)vector_repr,     /* tp_repr */
+    /* Method suites for standard classes */
+    &vector_as_number,         /* tp_as_number */
+    &vector_as_sequence,       /* tp_as_sequence */
+    0,                         /* tp_as_mapping */
+    /* More standard operations (here for binary compatibility) */
+    0,                         /* tp_hash */
+    0,                         /* tp_call */
+    (reprfunc)vector_str,      /* tp_str */
+    (getattrofunc)PyObject_GenericGetAttr, /* tp_getattro */
+    (setattrofunc)PyObject_GenericSetAttr, /* tp_setattro */
+    /* Functions to access object as input/output buffer */
+    0,                         /* tp_as_buffer */
+    /* Flags to define presence of optional/expanded features */
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | 
+    Py_TPFLAGS_CHECKTYPES, /* tp_flags */
+    /* Documentation string */
+    DOC_PYGAMEVECTOR3,         /* tp_doc */
+
+    /* Assigned meaning in release 2.0 */
+    /* call function for all accessible objects */
+    0,                         /* tp_traverse */
+    /* delete references to contained objects */
+    0,                         /* tp_clear */
+
+    /* Assigned meaning in release 2.1 */
+    /* rich comparisons */
+    (richcmpfunc)vector_richcompare, /* tp_richcompare */
+    /* weak reference enabler */
+    0,                         /* tp_weaklistoffset */
+
+    /* Added in release 2.2 */
+    /* Iterators */
+    vector_iter,               /* tp_iter */
+    0,                         /* tp_iternext */
+    /* Attribute descriptor and subclassing stuff */
+    vector3_methods,           /* tp_methods */
+    vector_members,            /* tp_members */
+    vector3_getsets,           /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    (initproc)vector3_init,    /* tp_init */
+    0,                         /* tp_alloc */
+    (newfunc)vector3_new,      /* tp_new */
+    0,                         /* tp_free */
+    0,                         /* tp_is_gc */
+    0,                         /* tp_bases */
+    0,                         /* tp_mro */
+    0,                         /* tp_cache */
+    0,                         /* tp_subclasses */
+    0,                         /* tp_weaklist */
+};
+
+
+
+
+
+
+
+
+
+
+
+
+/********************************
+ * PyVectorIterator type definition
  ********************************/
 
 typedef struct {
@@ -2276,8 +2757,8 @@ MODINIT_DEFINE (math)
 #endif
 
     /* initialize the extension types */
-    if ((PyType_Ready(&PyVector2_Type) < 0) /*|| 
-        (PyType_Ready(&PyVector3_Type) < 0) ||
+    if ((PyType_Ready(&PyVector2_Type) < 0) || 
+        (PyType_Ready(&PyVector3_Type) < 0) /*||
         (PyType_Ready(&PyVector4_Type) < 0)*/) {
         MODINIT_ERROR;
     }
@@ -2295,13 +2776,13 @@ MODINIT_DEFINE (math)
 
     /* add extension types to module */
     Py_INCREF(&PyVector2_Type);
-//    Py_INCREF(&PyVector3_Type);
+    Py_INCREF(&PyVector3_Type);
 //    Py_INCREF(&PyVector4_Type);
-    if ((PyModule_AddObject(module, "Vector2", (PyObject *)&PyVector2_Type) != 0) /*||
-        (PyModule_AddObject(module, "Vector3", (PyObject *)&PyVector3_Type) != 0) ||
+    if ((PyModule_AddObject(module, "Vector2", (PyObject *)&PyVector2_Type) != 0) ||
+        (PyModule_AddObject(module, "Vector3", (PyObject *)&PyVector3_Type) != 0) /*||
         (PyModule_AddObject(module, "Vector4", (PyObject *)&PyVector4_Type) != 0)*/) {
         Py_DECREF(&PyVector2_Type);
-//        Py_DECREF(&PyVector3_Type);
+        Py_DECREF(&PyVector3_Type);
 //        Py_DECREF(&PyVector4_Type);
         DECREF_MOD (module);
         MODINIT_ERROR;
@@ -2309,7 +2790,7 @@ MODINIT_DEFINE (math)
 
     /* export the C api */
     c_api[0] = &PyVector2_Type;
-//    c_api[1] = &PyVector3_Type;
+    c_api[1] = &PyVector3_Type;
 //    c_api[2] = &PyVector4_Type;
 //    c_api[3] = PyVector_NEW;
 //    c_api[4] = checkPyVectorCompatible;
