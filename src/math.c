@@ -37,6 +37,7 @@ static PyTypeObject PyVector2_Type;
 static PyTypeObject PyVector3_Type;
 static PyTypeObject PyVectorElementwiseProxy_Type;
 static PyTypeObject PyVectorIter_Type;
+static PyTypeObject PyVector_SlerpIter_Type;
 
 #define PyVector2_Check(x) ((x)->ob_type == &PyVector2_Type)
 #define PyVector3_Check(x) ((x)->ob_type == &PyVector3_Type)
@@ -55,6 +56,16 @@ typedef struct {
 
 typedef struct {
     PyObject_HEAD
+    long it_index;
+    long steps;
+    long dim;
+    double coords[VECTOR_MAX_SIZE];
+    double matrix[VECTOR_MAX_SIZE][VECTOR_MAX_SIZE];
+    double radial_factor;
+} vector_slerpiter;
+
+typedef struct {
+    PyObject_HEAD
     PyVector *vec;
 } vector_elementwiseproxy;
 
@@ -66,6 +77,14 @@ static double PySequence_GetItem_AsDouble(PyObject *seq, Py_ssize_t index);
 static int PySequence_AsVectorCoords(PyObject *seq, double *coords, const size_t size);
 static int PyVectorCompatible_Check(PyObject *obj, int dim);
 static double _scalar_product(const double *coords1, const double *coords2, int size);
+static void _make_vector2_slerp_matrix(vector_slerpiter *it, 
+                                       const double *vec1_coords,
+                                       const double *vec2_coords,
+                                       double angle);
+static void _make_vector3_slerp_matrix(vector_slerpiter *it, 
+                                       const double *vec1_coords,
+                                       const double *vec2_coords,
+                                       double angle);
 
 /* generic vector functions */
 static PyObject *PyVector_NEW(int dim);
@@ -112,8 +131,14 @@ static PyObject *vector_distance_squared_to(PyVector *self, PyObject *other);
 static PyObject *vector_getAttr_swizzle(PyVector *self, PyObject *attr_name);
 static int vector_setAttr_swizzle(PyVector *self, PyObject *attr_name, PyObject *val);
 static PyObject *vector_elementwise(PyVector *self);
+static PyObject *vector_slerp(PyVector *self, PyObject *args);
 static PyObject *vector_repr(PyVector *self);
 static PyObject *vector_str(PyVector *self);
+/*
+static Py_ssize_t vector_readbuffer(PyVector *self, Py_ssize_t segment, void **ptrptr);
+static Py_ssize_t vector_writebuffer(PyVector *self, Py_ssize_t segment, void **ptrptr);
+static Py_ssize_t vector_segcount(PyVector *self, Py_ssize_t *lenp);
+*/
 
 /* vector2 specific functions */
 static PyObject *vector2_new(PyTypeObject *type, PyObject *args, PyObject *kwds);
@@ -124,6 +149,8 @@ static PyObject *vector2_rotate(PyVector *self, PyObject *args);
 static PyObject *vector2_rotate_ip(PyVector *self, PyObject *args);
 static PyObject *vector2_cross(PyVector *self, PyObject *other);
 static PyObject *vector2_angle_to(PyVector *self, PyObject *other);
+static PyObject *vector2_as_polar(PyVector *self);
+static PyObject *vector2_from_polar(PyVector *self, PyObject *args);
 
 /* vector3 specific functions */
 static PyObject *vector3_new(PyTypeObject *type, PyObject *args, PyObject *kwds);
@@ -135,6 +162,8 @@ static PyObject *vector3_rotate(PyVector *self, PyObject *args);
 static PyObject *vector3_rotate_ip(PyVector *self, PyObject *args);
 static PyObject *vector3_cross(PyVector *self, PyObject *other);
 static PyObject *vector3_angle_to(PyVector *self, PyObject *other);
+static PyObject *vector3_as_spherical(PyVector *self);
+static PyObject *vector3_from_spherical(PyVector *self, PyObject *args);
 
 /* vector iterator functions */
 static void vectoriter_dealloc(vectoriter *it);
@@ -200,8 +229,6 @@ static int
 PySequence_AsVectorCoords(PyObject *seq, double *coords, const size_t size)
 {
     int i;
-    PyObject *item;
-    PyObject *fltobj;
 
     if (PyVector_Check(seq)) {
         memcpy(coords, ((PyVector *)seq)->coords, sizeof(double) * size);
@@ -1220,7 +1247,73 @@ vector_setAttr_swizzle(PyVector *self, PyObject *attr_name, PyObject *val)
     }
 } 
 
+/*
+static Py_ssize_t
+vector_readbuffer(PyVector *self, Py_ssize_t segment, void **ptrptr)
+{
+    if (segment != 0) {
+        PyErr_SetString(PyExc_SystemError, 
+                        "accessing non-existent vector segment");
+        return -1;
+    }
+    *ptrptr = self->coords;
+    return self->dim;
+}
 
+static Py_ssize_t
+vector_writebuffer(PyVector *self, Py_ssize_t segment, void **ptrptr)
+{
+    if (segment != 0) {
+        PyErr_SetString(PyExc_SystemError, 
+                        "accessing non-existent vector segment");
+        return -1;
+    }
+    *ptrptr = self->coords;
+    return self->dim;
+}
+
+static Py_ssize_t
+vector_segcount(PyVector *self, Py_ssize_t *lenp)
+{
+    if (lenp) {
+        *lenp = self->dim * sizeof(self->coords[0]);
+    }
+    return 1;
+}
+
+static int
+vector_getbuffer(PyVector *self, Py_buffer *view, int flags)
+{
+    int ret;
+    void *ptr;
+    if (view == NULL) {
+        self->ob_exports++;
+        return 0;
+    }
+    ptr = self->coords;
+    ret = PyBuffer_FillInfo(view, (PyObject*)self, ptr, Py_SIZE(self), 0, flags);
+    if (ret >= 0) {
+        obj->ob_exports++;
+    }
+    return ret;
+}
+
+static void
+vector_releasebuffer(PyVector *self, Py_buffer *view)
+{
+    self->ob_exports--;
+}
+
+
+static PyBufferProcs vector_as_buffer = {
+    (readbufferproc)vector_readbuffer,
+    (writebufferproc)vector_writebuffer,
+    (segcountproc)vector_segcount,
+    (charbufferproc)0,
+    (getbufferproc)vector_getbuffer,
+    (releasebufferproc)vector_releasebuffer,
+};
+*/
 
 /*********************************************************************
  * vector2 specific functions
@@ -1413,6 +1506,51 @@ vector2_angle_to(PyVector *self, PyObject *other)
     return PyFloat_FromDouble(RAD2DEG(angle));
 }
 
+static PyObject *
+vector2_as_polar(PyVector *self)
+{
+    double r, phi;
+    r = sqrt(_scalar_product(self->coords, self->coords, self->dim));
+    phi = atan2(self->coords[1], self->coords[0]);
+    return Py_BuildValue("(dd)", r, phi);
+}
+
+static PyObject *
+vector2_from_polar(PyVector *self, PyObject *args)
+{
+    PyObject *polar_obj, *r_obj, *phi_obj;
+    double r, phi;
+    if (!PyArg_ParseTuple(args, "O:Vector2.from_polar", &polar_obj)) {
+        PyErr_SetString(PyExc_TypeError, 
+                        "2-tuple containing r and phi is expected.");
+        return NULL;
+    }
+    if (!PySequence_Check(polar_obj) || PySequence_Length(polar_obj) != 2) {
+        PyErr_SetString(PyExc_TypeError, 
+                        "2-tuple containing r and phi is expected.");
+        return NULL;
+    }
+    r_obj = PySequence_GetItem(polar_obj, 0);
+    phi_obj = PySequence_GetItem(polar_obj, 1);
+    if (!PyNumber_Check(r_obj) || !PyNumber_Check(phi_obj)) {
+        PyErr_SetString(PyExc_TypeError, 
+                        "expected numerical values");
+        Py_DECREF(r_obj);
+        Py_DECREF(phi_obj);
+        return NULL;
+    }
+    r = PyFloat_AsDouble(r_obj);
+    phi = PyFloat_AsDouble(phi_obj);
+    Py_DECREF(r_obj);
+    Py_DECREF(phi_obj);
+    self->coords[0] = r * cos(phi);
+    self->coords[1] = r * sin(phi);
+    
+    Py_RETURN_NONE;
+}
+
+
+
 static PyMethodDef vector2_methods[] = {
     {"length", (PyCFunction)vector_length, METH_NOARGS,
      "returns the length/magnitude of the vector."
@@ -1425,6 +1563,9 @@ static PyMethodDef vector2_methods[] = {
     },
     {"rotate_ip", (PyCFunction)vector2_rotate_ip, METH_VARARGS,
      "rotates the vector counterclockwise by the angle given in degrees."
+    },
+    {"slerp", (PyCFunction)vector_slerp, METH_VARARGS,
+     "Interpolates to a given vector in a given number of steps."
     },
     {"normalize", (PyCFunction)vector_normalize, METH_NOARGS,
      "returns a vector that has length == 1 and the same direction as self."
@@ -1461,6 +1602,12 @@ static PyMethodDef vector2_methods[] = {
     },
     {"elementwise", (PyCFunction)vector_elementwise, METH_NOARGS,
      "applies the following operation to each element of the vector."
+    },
+    {"as_polar", (PyCFunction)vector2_as_polar, METH_NOARGS,
+     "returns a 2-tuple (r, phi) where r is the radial distance and phi is the angle to the positive x-axis."
+    },
+    {"from_polar", (PyCFunction)vector2_from_polar, METH_VARARGS,
+     "sets x and y from a 2-tuple (r, phi) where r is the radial distance and phi is the angle to the positive x-axis."
     },
     
     {NULL}  /* Sentinel */
@@ -1691,7 +1838,6 @@ _vector3_do_rotate(double *dst_coords, const double *src_coords,
             axis[i] *= normalizationFactor;
     }
 
-    fprintf(stderr, "tja: %f\n", angle); fflush(stderr);
     if (angle < epsilon)
         memcpy(dst_coords, src_coords, 3 * sizeof(src_coords[0]));
     else if (abs(angle - 90) < epsilon) {
@@ -1924,6 +2070,7 @@ vector3_rotate_z_ip(PyVector *self, PyObject *angleObject)
     return (PyObject*)ret;
 }
 
+
 static PyObject *
 vector3_cross(PyVector *self, PyObject *other)
 {
@@ -1976,7 +2123,53 @@ vector3_angle_to(PyVector *self, PyObject *other)
 static PyObject *
 vector3_as_spherical(PyVector *self)
 {
+    double r, theta, phi;
+    r = sqrt(_scalar_product(self->coords, self->coords, self->dim));
+    theta = acos(self->coords[2] / r);
+    phi = atan2(self->coords[1], self->coords[0]);
+    return Py_BuildValue("(ddd)", r, theta, phi);
+}
+
+static PyObject *
+vector3_from_spherical(PyVector *self, PyObject *args)
+{
+    PyObject *spherical_obj, *r_obj, *theta_obj, *phi_obj;
+    double r, theta, phi;
+    theta_obj = NULL;
+    phi_obj = NULL;
+    if (!PyArg_ParseTuple(args, "O:Vector3.from_spherical", &spherical_obj)) {
+        PyErr_SetString(PyExc_TypeError, "3-tuple containing r, theta and phi is expected.");
+        return NULL;
+    }
     
+    if (!PySequence_Check(spherical_obj) || PySequence_Length(spherical_obj) != 3) {
+        PyErr_SetString(PyExc_TypeError, "3-tuple containing r, theta and phi is expected.");
+        return NULL;
+    }
+    r_obj = PySequence_GetItem(spherical_obj, 0);
+    theta_obj = PySequence_GetItem(spherical_obj, 1);
+    phi_obj = PySequence_GetItem(spherical_obj, 2);
+    if (!PyNumber_Check(r_obj) || !PyNumber_Check(theta_obj) ||
+        !PyNumber_Check(phi_obj)) {
+        PyErr_SetString(PyExc_TypeError, 
+                        "expected numerical values");
+        Py_DECREF(r_obj);
+        Py_DECREF(theta_obj);
+        Py_DECREF(phi_obj);
+        return NULL;
+    }
+    r = PyFloat_AsDouble(r_obj);
+    theta = PyFloat_AsDouble(theta_obj);
+    phi = PyFloat_AsDouble(phi_obj);
+    Py_DECREF(r_obj);
+    Py_DECREF(theta_obj);
+    Py_DECREF(phi_obj);
+
+    self->coords[0] = r * sin(theta) * cos(phi);
+    self->coords[1] = r * sin(theta) * sin(phi);
+    self->coords[2] = r * cos(theta);
+
+    Py_RETURN_NONE;
 }
 
 static PyMethodDef vector3_methods[] = {
@@ -2009,6 +2202,9 @@ static PyMethodDef vector3_methods[] = {
     },
     {"rotate_z_ip", (PyCFunction)vector3_rotate_z_ip, METH_VARARGS,
      "rotates the vector counterclockwise around the z-axis by the angle given in degrees."
+    },
+    {"slerp", (PyCFunction)vector_slerp, METH_VARARGS,
+     "Interpolates to a given vector in a given number of steps."
     },
     {"normalize", (PyCFunction)vector_normalize, METH_NOARGS,
      "returns a vector that has length == 1 and the same direction as self."
@@ -2045,6 +2241,12 @@ static PyMethodDef vector3_methods[] = {
     },
     {"elementwise", (PyCFunction)vector_elementwise, METH_NOARGS,
      "applies the following operation to each element of the vector."
+    },
+    {"as_spherical", (PyCFunction)vector3_as_spherical, METH_NOARGS,
+     "returns a tuple (r, theta, phi) where r is the radial distance, theta is the inclination angle and phi is the azimutal angle."
+    },
+    {"from_spherical", (PyCFunction)vector3_from_spherical, METH_VARARGS,
+     "sets x, y and z from a tuple (r, theta, phi) where r is the radial distance, theta is the inclination angle and phi is the azimutal angle."
     },
     
     {NULL}  /* Sentinel */
@@ -2173,13 +2375,11 @@ vectoriter_next(vectoriter *it)
 static PyObject *
 vectoriter_len(vectoriter *it)
 {
-    Py_ssize_t len;
+    Py_ssize_t len = 0;
     if (it && it->vec) {
         len = it->vec->dim - it->it_index;
-        if (len >= 0)
-            return PyInt_FromSsize_t(len);
     }
-    return PyInt_FromLong(0);
+    return PyInt_FromSsize_t(len);
 }
 
 static PyMethodDef vectoriter_methods[] = {
@@ -2241,8 +2441,206 @@ vector_iter(PyObject *vec)
 
 
 
+/********************************************
+ * PyVector_SlerpIterator type definition
+ ********************************************/
+static void
+vector_slerpiter_dealloc(vector_slerpiter *it)
+{
+    PyObject_Del(it);
+}
 
+static PyObject *
+vector_slerpiter_next(vector_slerpiter *it)
+{
+    int i, j;
+    PyVector *ret;
+    double tmp;
+    assert(it != NULL);
 
+    if (it->it_index < it->steps) {
+        ret = (PyVector*)PyVector_NEW(it->dim);
+        for (i = 0; i < it->dim; ++i)
+        {
+            tmp = 0;
+            for (j = 0; j < it->dim; ++j)
+                tmp += it->coords[j] * it->matrix[j][i];
+            ret->coords[i] = tmp * it->radial_factor;
+        }
+        ++(it->it_index);
+        memcpy(it->coords, ret->coords, sizeof(it->coords[0]) * it->dim);
+        return (PyObject*)ret;
+    }
+    
+    return NULL;
+}
+
+static PyObject *
+vector_slerpiter_len(vector_slerpiter *it)
+{
+    Py_ssize_t len = 0;
+    if (it) {
+        len = it->steps - it->it_index;
+    }
+    return PyInt_FromSsize_t(len);
+}
+
+static PyMethodDef vector_slerpiter_methods[] = {
+    {"__length_hint__", (PyCFunction)vector_slerpiter_len, METH_NOARGS,
+    },
+    {NULL, NULL} /* sentinel */
+};
+
+static PyTypeObject PyVector_SlerpIter_Type = {
+    PyObject_HEAD_INIT(NULL)
+    0,                         /* ob_size */
+    "pygame.math.VectorSlerpIterator", /* tp_name */
+    sizeof(vector_slerpiter),        /* tp_basicsize */
+    0,                         /* tp_itemsize */
+    (destructor)vector_slerpiter_dealloc, /* tp_dealloc */
+    0,                         /* tp_print */
+    0,                         /* tp_getattr */
+    0,                         /* tp_setattr */
+    0,                         /* tp_compare */
+    0,                         /* tp_repr */
+    0,                         /* tp_as_number */
+    0,                         /* tp_as_sequence */
+    0,                         /* tp_as_mapping */
+    0,                         /* tp_hash */
+    0,                         /* tp_call */
+    0,                         /* tp_str */
+    PyObject_GenericGetAttr,   /* tp_getattro */
+    0,                         /* tp_setattro */
+    0,                         /* tp_as_buffer */
+    Py_TPFLAGS_DEFAULT,        /* tp_flags */
+    0,                         /* tp_doc */
+    0,                         /* tp_traverse */
+    0,                         /* tp_clear */
+    0,                         /* tp_richcompare */
+    0,                         /* tp_weaklistoffset */
+    PyObject_SelfIter,         /* tp_iter */
+    (iternextfunc)vector_slerpiter_next, /* tp_iternext */
+    vector_slerpiter_methods,        /* tp_methods */
+    0,                         /* tp_members */
+};
+
+static PyObject *
+vector_slerp(PyVector *self, PyObject *args)
+{
+    vector_slerpiter *it;
+    PyObject *other, *steps_object;
+    long int steps;
+    double vec1_coords[VECTOR_MAX_SIZE], vec2_coords[VECTOR_MAX_SIZE];
+    double angle, length1, length2;
+
+    if (!PyArg_ParseTuple(args, "OO:Vector2.slerp", &other, &steps_object))
+    {
+        PyErr_SetString(PyExc_TypeError, "parsing args failed");
+        return NULL;
+    }
+    if (!PyInt_Check(steps_object)) {
+        PyErr_SetString(PyExc_TypeError, "Expected Int as argument 2");
+        return NULL;
+    }
+    if (!PySequence_AsVectorCoords((PyObject*)self, vec1_coords, self->dim))
+    {
+        PyErr_BadInternalCall();
+        return NULL;
+    }
+    if (!PySequence_AsVectorCoords(other, vec2_coords, self->dim))
+    {
+        PyErr_SetString(PyExc_TypeError, "Expected Vector as argument 1");
+        return NULL;
+    }
+
+    it = PyObject_New(vector_slerpiter, &PyVector_SlerpIter_Type);
+    if (it == NULL)
+        return NULL;
+    it->it_index = 0;
+    it->dim = self->dim;
+    memcpy(it->coords, vec1_coords, sizeof(vec1_coords[0]) * it->dim);
+
+    length1 = sqrt(_scalar_product(vec1_coords, vec1_coords, it->dim));
+    length2 = sqrt(_scalar_product(vec2_coords, vec2_coords, it->dim));
+    if ((length1 < self->epsilon) || (length2 < self->epsilon))
+    {
+        PyErr_SetString(PyExc_ZeroDivisionError,
+                        "can't use slerp with Zero-Vector");
+        Py_DECREF(it);
+        return NULL;
+    }
+    angle = acos(_scalar_product(vec1_coords, vec2_coords, self->dim) /
+                 (length1 * length2));
+    it->steps = PyInt_AsLong(steps_object);
+    if (it->steps < 0)
+    {
+        angle -= 2 * M_PI;
+        it->steps = -it->steps;
+    }
+    angle /= it->steps;
+
+    it->radial_factor = pow(length2 / length1, 1./it->steps);
+    switch (self->dim) {
+    case 2:
+        _make_vector2_slerp_matrix(it, vec1_coords, vec2_coords, angle);
+        break;
+    case 3:
+        _make_vector3_slerp_matrix(it, vec1_coords, vec2_coords, angle);
+        break;
+    default:
+        PyErr_BadInternalCall();
+        Py_DECREF(it);
+        return NULL;        
+    }
+    return (PyObject *)it;
+}
+
+static void
+_make_vector2_slerp_matrix(vector_slerpiter *it,
+                           const double *vec1_coords, const double *vec2_coords,
+                           double angle)
+{
+    double sin_value, cos_value;
+    cos_value = cos(angle);
+    sin_value = sin(angle);
+    it->matrix[0][0] = cos_value;
+    it->matrix[0][1] = sin_value;
+    it->matrix[1][0] = -sin_value;
+    it->matrix[1][1] = cos_value;
+}
+
+static void
+_make_vector3_slerp_matrix(vector_slerpiter *it, 
+                           const double *vec1_coords, const double *vec2_coords,
+                           double angle)
+{
+    int i;
+    double axis[3];
+    double norm_factor, sin_value, cos_value, cos_complement;
+
+    /* calculate rotation axis via cross-product */
+    for (i = 0; i < 3; ++i)
+        axis[i] = ((vec1_coords[(i+1)%3] * vec2_coords[(i+2)%3]) -
+                   (vec1_coords[(i+2)%3] * vec2_coords[(i+1)%3]));
+    /* normalize the rotation axis */
+    norm_factor = 1. / sqrt(_scalar_product(axis, axis, 3));
+    for (i = 0; i < 3; ++i)
+        axis[i] *= norm_factor;
+
+    sin_value = sin(angle);
+    cos_value = cos(angle);
+    cos_complement = 1 - cos_value;
+    /* calculate the rotation matrix */
+    it->matrix[0][0] = cos_value + axis[0] * axis[0] * cos_complement;
+    it->matrix[0][1] = axis[0] * axis[1] * cos_complement + axis[2] * sin_value;
+    it->matrix[0][2] = axis[0] * axis[2] * cos_complement - axis[1] * sin_value;
+    it->matrix[1][0] = axis[0] * axis[1] * cos_complement - axis[2] * sin_value;
+    it->matrix[1][1] = cos_value + axis[1] * axis[1] * cos_complement;
+    it->matrix[1][2] = axis[1] * axis[2] * cos_complement + axis[0] * sin_value;
+    it->matrix[2][0] = axis[0] * axis[2] * cos_complement + axis[1] * sin_value;
+    it->matrix[2][1] = axis[1] * axis[2] * cos_complement - axis[0] * sin_value;
+    it->matrix[2][2] = cos_value + axis[2] * axis[2] * cos_complement;
+}
 
 
 
@@ -2935,12 +3333,7 @@ vector_elementwise(PyVector *vec)
 static PyObject *
 math_enable_swizzling(PyVector *self)
 {
-    fprintf(stderr, "enableing swizzle C\n"); fflush(stderr);
     swizzling_enabled = 1;
-/*
-    self->ob_type->tp_getattro = (getattrofunc)vector_getAttr_swizzle;
-    self->ob_type->tp_setattro = (setattrofunc)vector_setAttr_swizzle;
-*/
     Py_RETURN_NONE;
 }
 
@@ -2948,10 +3341,6 @@ static PyObject *
 math_disable_swizzling(PyVector *self)
 {
     swizzling_enabled = 0;
-/*
-    self->ob_type->tp_getattro = PyObject_GenericGetAttr;
-    self->ob_type->tp_setattro = PyObject_GenericSetAttr;
-*/
     Py_RETURN_NONE;
 }
 
@@ -2991,7 +3380,10 @@ MODINIT_DEFINE (math)
 
     /* initialize the extension types */
     if ((PyType_Ready(&PyVector2_Type) < 0) || 
-        (PyType_Ready(&PyVector3_Type) < 0) /*||
+        (PyType_Ready(&PyVector3_Type) < 0) ||
+        (PyType_Ready(&PyVectorElementwiseProxy_Type) < 0) ||
+        (PyType_Ready(&PyVectorIter_Type) < 0) ||
+        (PyType_Ready(&PyVector_SlerpIter_Type) < 0) /*||
         (PyType_Ready(&PyVector4_Type) < 0)*/) {
         MODINIT_ERROR;
     }
@@ -3010,12 +3402,22 @@ MODINIT_DEFINE (math)
     /* add extension types to module */
     Py_INCREF(&PyVector2_Type);
     Py_INCREF(&PyVector3_Type);
+    Py_INCREF(&PyVector3_Type);
+    Py_INCREF(&PyVectorElementwiseProxy_Type);
+    Py_INCREF(&PyVectorIter_Type);
+    Py_INCREF(&PyVector_SlerpIter_Type);
 //    Py_INCREF(&PyVector4_Type);
     if ((PyModule_AddObject(module, "Vector2", (PyObject *)&PyVector2_Type) != 0) ||
-        (PyModule_AddObject(module, "Vector3", (PyObject *)&PyVector3_Type) != 0) /*||
+        (PyModule_AddObject(module, "Vector3", (PyObject *)&PyVector3_Type) != 0) ||
+        (PyModule_AddObject(module, "VectorElementwiseProxy", (PyObject *)&PyVectorElementwiseProxy_Type) != 0) ||
+        (PyModule_AddObject(module, "VectorIterator", (PyObject *)&PyVectorIter_Type) != 0) ||
+        (PyModule_AddObject(module, "Vector_SlerpIterator", (PyObject *)&PyVector_SlerpIter_Type) != 0) /*||
         (PyModule_AddObject(module, "Vector4", (PyObject *)&PyVector4_Type) != 0)*/) {
         Py_DECREF(&PyVector2_Type);
         Py_DECREF(&PyVector3_Type);
+        Py_DECREF(&PyVectorElementwiseProxy_Type);
+        Py_DECREF(&PyVectorIter_Type);
+        Py_DECREF(&PyVector_SlerpIter_Type);
 //        Py_DECREF(&PyVector4_Type);
         DECREF_MOD (module);
         MODINIT_ERROR;

@@ -589,8 +589,45 @@ class Vector2TypeTest(unittest.TestCase):
         self.assertRaises(ValueError, lambda : pow(Vector2(-1, 0).elementwise(), 1.2))
         self.assertRaises(ZeroDivisionError, lambda : self.zeroVec.elementwise() ** -1)
 
+    def test_slerp(self):
+        steps = 10
+        self.assertRaises(ZeroDivisionError,
+                          lambda : self.zeroVec.slerp(self.v1, steps))
+        self.assertRaises(ZeroDivisionError,
+                          lambda : self.v1.slerp(self.zeroVec, steps))
+        self.assertRaises(ZeroDivisionError,
+                          lambda : self.zeroVec.slerp(self.zeroVec, steps))
+        v1 = Vector2(1, 0)
+        v2 = Vector2(0, 1)
+        angle_step = v1.angle_to(v2) / steps
+        for i, u in enumerate(v1.slerp(v2, steps)):
+            self.assertAlmostEqual(u.length(), 1)
+            self.assertAlmostEqual(v1.angle_to(u), (i + 1) * angle_step)
+        self.assertEqual(u, v2)
+        
+        v1 = Vector2(100, 0)
+        v2 = Vector2(0, 10)
+        radial_factor = v2.length() / v1.length()
+        for i, u in enumerate(v1.slerp(v2, -steps)):
+            self.assertAlmostEqual(u.length(), v1.length() * radial_factor**(float(i+1)/steps))
+        self.assertEqual(u, v2)
 
-
+    def test_polar(self):
+        v = Vector2()
+        v.from_polar(self.v1.as_polar())
+        self.assertEqual(self.v1, v)
+        self.assertEqual(self.e1.as_polar(), (1, 0))
+        self.assertEqual(self.e2.as_polar(), (1, math.pi / 2))
+        self.assertEqual((2 * self.e2).as_polar(),
+                         (2, math.pi / 2))
+        self.assertRaises(TypeError, lambda : v.from_polar((None, None)))
+        self.assertRaises(TypeError, lambda : v.from_polar("ab"))
+        self.assertRaises(TypeError, lambda : v.from_polar((None, 1)))
+        self.assertRaises(TypeError, lambda : v.from_polar((1, 2, 3)))
+        self.assertRaises(TypeError, lambda : v.from_polar((1,)))
+        self.assertRaises(TypeError, lambda : v.from_polar(1, 2))
+        v.from_polar((.5, math.pi / 2.))
+        self.assertEqual(v, .5 * self.e2)
 
 
 
@@ -915,14 +952,14 @@ class Vector3TypeTest(unittest.TestCase):
         self.assertEqual(self.v1.cross(self.v1), self.zeroVec)
 
     def test_dot(self):
-        self.assertEqual(self.v1.dot(self.v2),
-                         self.v1.x * self.v2.x + self.v1.y * self.v2.y + self.v1.z * self.v2.z)
-        self.assertEqual(self.v1.dot(self.l2),
-                         self.v1.x * self.l2[0] + self.v1.y * self.l2[1] + self.v1.z * self.l2[2])
-        self.assertEqual(self.v1.dot(self.t2),
+        self.assertAlmostEqual(self.v1.dot(self.v2),
+                               self.v1.x * self.v2.x + self.v1.y * self.v2.y + self.v1.z * self.v2.z)
+        self.assertAlmostEqual(self.v1.dot(self.l2),
+                               self.v1.x * self.l2[0] + self.v1.y * self.l2[1] + self.v1.z * self.l2[2])
+        self.assertAlmostEqual(self.v1.dot(self.t2),
                          self.v1.x * self.t2[0] + self.v1.y * self.t2[1] + self.v1.z * self.t2[2])
-        self.assertEqual(self.v1.dot(self.v2), self.v2.dot(self.v1))
-        self.assertEqual(self.v1.dot(self.v2), self.v1 * self.v2)
+        self.assertAlmostEqual(self.v1.dot(self.v2), self.v2.dot(self.v1))
+        self.assertAlmostEqual(self.v1.dot(self.v2), self.v1 * self.v2)
 
     def test_angle_to(self):
         self.assertEqual(Vector3(1, 1, 0).angle_to((-1, 1, 0)), 90)
@@ -1132,11 +1169,50 @@ class Vector3TypeTest(unittest.TestCase):
         self.assertEqual(-self.v1.elementwise(), -self.v1)
         self.assertEqual(+self.v1.elementwise(), +self.v1)
         self.assertEqual(bool(self.v1.elementwise()), bool(self.v1))
-        self.assertEqual(bool(Vector2().elementwise()), bool(Vector2()))
+        self.assertEqual(bool(Vector3().elementwise()), bool(Vector3()))
         self.assertEqual(self.zeroVec.elementwise() ** 0, (1, 1, 1))
         self.assertRaises(ValueError, lambda : pow(Vector3(-1, 0, 0).elementwise(), 1.2))
         self.assertRaises(ZeroDivisionError, lambda : self.zeroVec.elementwise() ** -1)
 
+    def test_slerp(self):
+        steps = 10
+        self.assertRaises(ZeroDivisionError,
+                          lambda : self.zeroVec.slerp(self.v1, steps))
+        self.assertRaises(ZeroDivisionError,
+                          lambda : self.v1.slerp(self.zeroVec, steps))
+        self.assertRaises(ZeroDivisionError,
+                          lambda : self.zeroVec.slerp(self.zeroVec, steps))
+        angle_step = self.e1.angle_to(self.e2) / steps
+        for i, u in enumerate(self.e1.slerp(self.e2, steps)):
+            self.assertAlmostEqual(u.length(), 1)
+            self.assertAlmostEqual(self.e1.angle_to(u), (i + 1) * angle_step)
+        self.assertEqual(u, self.e2)
+        
+        v1 = Vector3(100, 0, 0)
+        v2 = Vector3(0, 10, 7)
+        radial_factor = v2.length() / v1.length()
+        for i, u in enumerate(v1.slerp(v2, -steps)):
+            self.assertAlmostEqual(u.length(), v1.length() * radial_factor**(float(i+1)/steps))
+        self.assertEqual(u, v2)
+
+    def test_spherical(self):
+        v = Vector3()
+        v.from_spherical(self.v1.as_spherical())
+        self.assertEqual(self.v1, v)
+        self.assertEqual(self.e1.as_spherical(), (1, math.pi / 2., 0))
+        self.assertEqual(self.e2.as_spherical(), (1, math.pi / 2., math.pi / 2))
+        self.assertEqual(self.e3.as_spherical(), (1, 0, 0))
+        self.assertEqual((2 * self.e2).as_spherical(),
+                         (2, math.pi / 2., math.pi / 2))
+        self.assertRaises(TypeError, lambda : v.from_spherical((None, None, None)))
+        self.assertRaises(TypeError, lambda : v.from_spherical("abc"))
+        self.assertRaises(TypeError, lambda : v.from_spherical((None, 1, 2)))
+        self.assertRaises(TypeError, lambda : v.from_spherical((1, 2, 3, 4)))
+        self.assertRaises(TypeError, lambda : v.from_spherical((1, 2)))
+        self.assertRaises(TypeError, lambda : v.from_spherical(1, 2, 3))
+        v.from_spherical((.5, math.pi / 2., math.pi / 2.))
+        self.assertEqual(v, .5 * self.e2)
+        
 
 
 
