@@ -48,6 +48,14 @@ static PyTypeObject PyVector_SlerpIter_Type;
 #define DEG2RAD(angle) ((angle) * M_PI / 180.)
 #define RAD2DEG(angle) ((angle) * 180. / M_PI)
 
+typedef struct
+{
+    PyObject_HEAD
+    double *coords;     /* Coordinates */
+    unsigned int dim;   /* Dimension of the vector */
+    double epsilon;     /* Small value for comparisons */
+} PyVector;
+
 typedef struct {
     PyObject_HEAD
     long it_index;
@@ -63,6 +71,15 @@ typedef struct {
     double matrix[VECTOR_MAX_SIZE][VECTOR_MAX_SIZE];
     double radial_factor;
 } vector_slerpiter;
+
+typedef struct {
+    PyObject_HEAD
+    long it_index;
+    long steps;
+    long dim;
+    double coords[VECTOR_MAX_SIZE];
+    double step_vec[VECTOR_MAX_SIZE];
+} vector_lerpiter;
 
 typedef struct {
     PyObject_HEAD
@@ -132,6 +149,7 @@ static PyObject *vector_getAttr_swizzle(PyVector *self, PyObject *attr_name);
 static int vector_setAttr_swizzle(PyVector *self, PyObject *attr_name, PyObject *val);
 static PyObject *vector_elementwise(PyVector *self);
 static PyObject *vector_slerp(PyVector *self, PyObject *args);
+static PyObject *vector_lerp(PyVector *self, PyObject *args);
 static PyObject *vector_repr(PyVector *self);
 static PyObject *vector_str(PyVector *self);
 /*
@@ -1521,8 +1539,6 @@ vector2_from_polar(PyVector *self, PyObject *args)
     PyObject *polar_obj, *r_obj, *phi_obj;
     double r, phi;
     if (!PyArg_ParseTuple(args, "O:Vector2.from_polar", &polar_obj)) {
-        PyErr_SetString(PyExc_TypeError, 
-                        "2-tuple containing r and phi is expected.");
         return NULL;
     }
     if (!PySequence_Check(polar_obj) || PySequence_Length(polar_obj) != 2) {
@@ -1565,7 +1581,10 @@ static PyMethodDef vector2_methods[] = {
      "rotates the vector counterclockwise by the angle given in degrees."
     },
     {"slerp", (PyCFunction)vector_slerp, METH_VARARGS,
-     "Interpolates to a given vector in a given number of steps."
+     "Interpolates spherically to a given vector in a given number of steps."
+    },
+    {"lerp", (PyCFunction)vector_lerp, METH_VARARGS,
+     "Interpolates linear to a given vector in a given number of steps."
     },
     {"normalize", (PyCFunction)vector_normalize, METH_NOARGS,
      "returns a vector that has length == 1 and the same direction as self."
@@ -2138,7 +2157,6 @@ vector3_from_spherical(PyVector *self, PyObject *args)
     theta_obj = NULL;
     phi_obj = NULL;
     if (!PyArg_ParseTuple(args, "O:Vector3.from_spherical", &spherical_obj)) {
-        PyErr_SetString(PyExc_TypeError, "3-tuple containing r, theta and phi is expected.");
         return NULL;
     }
     
@@ -2204,7 +2222,10 @@ static PyMethodDef vector3_methods[] = {
      "rotates the vector counterclockwise around the z-axis by the angle given in degrees."
     },
     {"slerp", (PyCFunction)vector_slerp, METH_VARARGS,
-     "Interpolates to a given vector in a given number of steps."
+     "Interpolates spherically to a given vector in a given number of steps."
+    },
+    {"lerp", (PyCFunction)vector_lerp, METH_VARARGS,
+     "Interpolates linear to a given vector in a given number of steps."
     },
     {"normalize", (PyCFunction)vector_normalize, METH_NOARGS,
      "returns a vector that has length == 1 and the same direction as self."
@@ -2460,15 +2481,16 @@ vector_slerpiter_next(vector_slerpiter *it)
 
     if (it->it_index < it->steps) {
         ret = (PyVector*)PyVector_NEW(it->dim);
-        for (i = 0; i < it->dim; ++i)
-        {
-            tmp = 0;
-            for (j = 0; j < it->dim; ++j)
-                tmp += it->coords[j] * it->matrix[j][i];
-            ret->coords[i] = tmp * it->radial_factor;
+        if (ret != NULL) {
+            for (i = 0; i < it->dim; ++i) {
+                tmp = 0;
+                for (j = 0; j < it->dim; ++j)
+                    tmp += it->coords[j] * it->matrix[j][i];
+                ret->coords[i] = tmp * it->radial_factor;
+            }
+            memcpy(it->coords, ret->coords, sizeof(it->coords[0]) * it->dim);
         }
         ++(it->it_index);
-        memcpy(it->coords, ret->coords, sizeof(it->coords[0]) * it->dim);
         return (PyObject*)ret;
     }
     
@@ -2533,22 +2555,18 @@ vector_slerp(PyVector *self, PyObject *args)
     double vec1_coords[VECTOR_MAX_SIZE], vec2_coords[VECTOR_MAX_SIZE];
     double angle, length1, length2;
 
-    if (!PyArg_ParseTuple(args, "OO:Vector2.slerp", &other, &steps_object))
-    {
-        PyErr_SetString(PyExc_TypeError, "parsing args failed");
+    if (!PyArg_ParseTuple(args, "OO:Vector.slerp", &other, &steps_object)) {
         return NULL;
     }
     if (!PyInt_Check(steps_object)) {
         PyErr_SetString(PyExc_TypeError, "Expected Int as argument 2");
         return NULL;
     }
-    if (!PySequence_AsVectorCoords((PyObject*)self, vec1_coords, self->dim))
-    {
+    if (!PySequence_AsVectorCoords((PyObject*)self, vec1_coords, self->dim)) {
         PyErr_BadInternalCall();
         return NULL;
     }
-    if (!PySequence_AsVectorCoords(other, vec2_coords, self->dim))
-    {
+    if (!PySequence_AsVectorCoords(other, vec2_coords, self->dim)) {
         PyErr_SetString(PyExc_TypeError, "Expected Vector as argument 1");
         return NULL;
     }
@@ -2562,8 +2580,7 @@ vector_slerp(PyVector *self, PyObject *args)
 
     length1 = sqrt(_scalar_product(vec1_coords, vec1_coords, it->dim));
     length2 = sqrt(_scalar_product(vec2_coords, vec2_coords, it->dim));
-    if ((length1 < self->epsilon) || (length2 < self->epsilon))
-    {
+    if ((length1 < self->epsilon) || (length2 < self->epsilon)) {
         PyErr_SetString(PyExc_ZeroDivisionError,
                         "can't use slerp with Zero-Vector");
         Py_DECREF(it);
@@ -2572,14 +2589,17 @@ vector_slerp(PyVector *self, PyObject *args)
     angle = acos(_scalar_product(vec1_coords, vec2_coords, self->dim) /
                  (length1 * length2));
     it->steps = PyInt_AsLong(steps_object);
-    if (it->steps < 0)
-    {
+    if (it->steps < 0) {
         angle -= 2 * M_PI;
         it->steps = -it->steps;
     }
     angle /= it->steps;
 
-    it->radial_factor = pow(length2 / length1, 1./it->steps);
+    if (abs(length1 - length2) > self->epsilon)
+        it->radial_factor = pow(length2 / length1, 1./it->steps);
+    else
+        it->radial_factor = 1;
+
     switch (self->dim) {
     case 2:
         _make_vector2_slerp_matrix(it, vec1_coords, vec2_coords, angle);
@@ -2601,6 +2621,8 @@ _make_vector2_slerp_matrix(vector_slerpiter *it,
                            double angle)
 {
     double sin_value, cos_value;
+    if (vec1_coords[0] * vec2_coords[1] < vec1_coords[1] * vec2_coords[0])
+        angle *= -1;
     cos_value = cos(angle);
     sin_value = sin(angle);
     it->matrix[0][0] = cos_value;
@@ -2640,6 +2662,127 @@ _make_vector3_slerp_matrix(vector_slerpiter *it,
     it->matrix[2][0] = axis[0] * axis[2] * cos_complement + axis[1] * sin_value;
     it->matrix[2][1] = axis[1] * axis[2] * cos_complement - axis[0] * sin_value;
     it->matrix[2][2] = cos_value + axis[2] * axis[2] * cos_complement;
+}
+
+
+
+
+/********************************************
+ * PyVector_LerpIterator type definition
+ ********************************************/
+static void
+vector_lerpiter_dealloc(vector_lerpiter *it)
+{
+    PyObject_Del(it);
+}
+
+static PyObject *
+vector_lerpiter_next(vector_lerpiter *it)
+{
+    int i;
+    PyVector *ret;
+    assert(it != NULL);
+
+    if (it->it_index < it->steps) {
+        ret = (PyVector*)PyVector_NEW(it->dim);
+        if (ret != NULL) {
+            for (i = 0; i < it->dim; ++i) {
+                it->coords[i] += it->step_vec[i];
+                ret->coords[i] = it->coords[i];
+            }
+        }
+        ++(it->it_index);
+        return (PyObject*)ret;
+    }
+    
+    return NULL;
+}
+
+static PyObject *
+vector_lerpiter_len(vector_lerpiter *it)
+{
+    Py_ssize_t len = 0;
+    if (it) {
+        len = it->steps - it->it_index;
+    }
+    return PyInt_FromSsize_t(len);
+}
+
+static PyMethodDef vector_lerpiter_methods[] = {
+    {"__length_hint__", (PyCFunction)vector_lerpiter_len, METH_NOARGS,
+    },
+    {NULL, NULL} /* sentinel */
+};
+
+static PyTypeObject PyVector_LerpIter_Type = {
+    PyObject_HEAD_INIT(NULL)
+    0,                         /* ob_size */
+    "pygame.math.VectorLerpIterator", /* tp_name */
+    sizeof(vector_lerpiter),        /* tp_basicsize */
+    0,                         /* tp_itemsize */
+    (destructor)vector_lerpiter_dealloc, /* tp_dealloc */
+    0,                         /* tp_print */
+    0,                         /* tp_getattr */
+    0,                         /* tp_setattr */
+    0,                         /* tp_compare */
+    0,                         /* tp_repr */
+    0,                         /* tp_as_number */
+    0,                         /* tp_as_sequence */
+    0,                         /* tp_as_mapping */
+    0,                         /* tp_hash */
+    0,                         /* tp_call */
+    0,                         /* tp_str */
+    PyObject_GenericGetAttr,   /* tp_getattro */
+    0,                         /* tp_setattro */
+    0,                         /* tp_as_buffer */
+    Py_TPFLAGS_DEFAULT,        /* tp_flags */
+    0,                         /* tp_doc */
+    0,                         /* tp_traverse */
+    0,                         /* tp_clear */
+    0,                         /* tp_richcompare */
+    0,                         /* tp_weaklistoffset */
+    PyObject_SelfIter,         /* tp_iter */
+    (iternextfunc)vector_lerpiter_next, /* tp_iternext */
+    vector_lerpiter_methods,        /* tp_methods */
+    0,                         /* tp_members */
+};
+
+
+static PyObject *
+vector_lerp(PyVector *self, PyObject *args)
+{
+    vector_lerpiter *it;
+    PyObject *other, *steps_object;
+    long int i, steps;
+    double vec1_coords[VECTOR_MAX_SIZE], vec2_coords[VECTOR_MAX_SIZE];
+
+    if (!PyArg_ParseTuple(args, "OO:Vector.lerp", &other, &steps_object)) {
+        return NULL;
+    }
+    if (!PyInt_Check(steps_object)) {
+        PyErr_SetString(PyExc_TypeError, "Expected Int as argument 2");
+        return NULL;
+    }
+    if (!PySequence_AsVectorCoords((PyObject*)self, vec1_coords, self->dim)) {
+        PyErr_BadInternalCall();
+        return NULL;
+    }
+    if (!PySequence_AsVectorCoords(other, vec2_coords, self->dim)) {
+        PyErr_SetString(PyExc_TypeError, "Expected Vector as argument 1");
+        return NULL;
+    }
+
+    it = PyObject_New(vector_lerpiter, &PyVector_LerpIter_Type);
+    if (it == NULL)
+        return NULL;
+    it->it_index = 0;
+    it->dim = self->dim;
+    it->steps = PyInt_AsLong(steps_object);
+    memcpy(it->coords, vec1_coords, sizeof(vec1_coords[0]) * it->dim);
+
+    for (i = 0; i < it->dim; ++i)
+        it->step_vec[i] = (vec2_coords[i] - vec1_coords[i]) / it->steps;
+    return (PyObject *)it;
 }
 
 

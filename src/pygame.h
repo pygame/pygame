@@ -674,14 +674,6 @@ typedef struct
 
 
 /* Math */
-typedef struct
-{
-    PyObject_HEAD
-    double *coords;     /* Coordinates */
-    unsigned int dim;   /* Dimension of the vector */
-    double epsilon;     /* Small value for comparisons */
-} PyVector;
-
 #define PYGAMEAPI_MATH_FIRSTSLOT                                       \
     (PYGAMEAPI_COLOR_FIRSTSLOT + PYGAMEAPI_COLOR_NUMSLOTS)
 #define PYGAMEAPI_MATH_NUMSLOTS 2

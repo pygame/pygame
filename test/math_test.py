@@ -612,6 +612,9 @@ class Vector2TypeTest(unittest.TestCase):
             self.assertAlmostEqual(u.length(), v1.length() * radial_factor**(float(i+1)/steps))
         self.assertEqual(u, v2)
 
+    def test_lerp(self):
+        pass
+        
     def test_polar(self):
         v = Vector2()
         v.from_polar(self.v1.as_polar())
