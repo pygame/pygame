@@ -17,7 +17,12 @@ else:
     from test.test_utils import test_not_implemented, unittest, geterror
 
 import pygame
-import pygame.freetype as ft
+try:
+    import pygame.freetype as ft
+except ImportError:
+    ft = None
+
+
 
 FONTDIR = os.path.join(os.path.dirname (os.path.abspath (__file__)),
                        'fixtures', 'fonts')
