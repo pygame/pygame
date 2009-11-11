@@ -46,10 +46,16 @@
     #include <QuickTime/Movies.h>
     #include <QuickTime/ImageCompression.h>
     
+#endif
+
+/* some constants used which are not defined on non-v4l machines. */
+#ifndef V4L2_PIX_FMT_RGB24
     #define V4L2_PIX_FMT_RGB24 'RGB3'
     #define V4L2_PIX_FMT_RGB444 'R444'
     #define V4L2_PIX_FMT_YUYV 'YUYV'
 #endif
+
+
 
 #define CLEAR(x) memset (&(x), 0, sizeof (x))
 #define SAT(c) if (c & (~255)) { if (c < 0) c = 0; else c = 255; }
