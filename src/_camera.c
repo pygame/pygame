@@ -1567,7 +1567,6 @@ PyMethodDef camera_builtins[] = {
 };
  
 void init_camera(void) {
-    printf("==============================>\n");
     PyObject *module, *dict;
     /* imported needed apis; Do this first so if there is an error
      * the module is not loaded.
