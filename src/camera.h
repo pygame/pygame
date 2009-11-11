@@ -68,7 +68,7 @@ struct buffer {
 };
 
 #if defined(__unix__)
-typedef struct {
+typedef struct PyCameraObject {
     PyObject_HEAD
     char* device_name;
     int camera_type;
@@ -85,21 +85,29 @@ typedef struct {
     int fd;
 } PyCameraObject;
 #elif defined(__APPLE__)
-typedef struct {
+typedef struct PyCameraObject {
     PyObject_HEAD
-    char* device_name;              // unieke name of the device
+    char* device_name;              /* unieke name of the device */
     OSType pixelformat;
     unsigned int color_out;
-    SeqGrabComponent component;     // A type used by the Sequence Grabber API
-    SGChannel channel;              // Channel of the Sequence Grabber
-    GWorldPtr gworld;               // Pointer to the struct that holds the data of the captured image
-    Rect boundsRect;                // bounds of the image frame
-    long size;                      // size of the image in our buffer to draw
+    SeqGrabComponent component;     /* A type used by the Sequence Grabber API */
+    SGChannel channel;              /* Channel of the Sequence Grabber */
+    GWorldPtr gworld;               /* Pointer to the struct that holds the data of the captured image */
+    Rect boundsRect;                /* bounds of the image frame */
+    long size;                      /* size of the image in our buffer to draw */
     int hflip;
     int vflip;
-    short depth;                    //
-    struct buffer pixels;           //
-    //struct buffer tmp_pixels        // place where the flipped image in temporarly stored if hflip or vflip is true.
+    short depth;                    
+    struct buffer pixels;           
+    //struct buffer tmp_pixels        /* place where the flipped image in temporarly stored if hflip or vflip is true.*/
+} PyCameraObject;
+
+#else
+/* generic definition.
+*/
+
+typedef struct PyCameraObject {
+    PyObject_HEAD
 } PyCameraObject;
 #endif
 
