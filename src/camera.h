@@ -133,8 +133,6 @@ void yuv420_to_rgb (const void* src, void* dst, int width, int height,
                     SDL_PixelFormat* format);
 void yuv420_to_yuv (const void* src, void* dst, int width, int height, 
                     SDL_PixelFormat* format);
-void flip_image(const void* image, void* flipped_image, int width, int height,
-                short depth, int hflip, int vflip);
 
 #if defined(__unix__)
 /* internal functions specific to v4l2 */
@@ -175,4 +173,8 @@ PyObject* mac_read_raw(PyCameraObject *self);
 int mac_read_frame(PyCameraObject* self, SDL_Surface* surf);
 int mac_camera_idle(PyCameraObject* self);
 int mac_copy_gworld_to_surface(PyCameraObject* self, SDL_Surface* surf);
+
+void flip_image(const void* image, void* flipped_image, int width, int height,
+                short depth, int hflip, int vflip);
+
 #endif
