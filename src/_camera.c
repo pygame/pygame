@@ -1370,57 +1370,6 @@ void yuv420_to_yuv (const void* src, void* dst, int width, int height, SDL_Pixel
 }
 
 
-/* Flips the image array horizontally and/or vertically by reverse copying
- * a 'depth' number of bytes to flipped_image.*/
-/* todo speed up... */
-void flip_image(const void* image, 
-                void* flipped_image, 
-                int width, int height,
-                short depth, 
-                int hflip, int vflip) 
-{
-
-    if (!hflip && vflip) {
-        int i, j;
-        int width_size = width*depth;
-        const void* tmp_image = image;
-        
-        for(i=0; i<=height-1; i++) {
-            for(j=0; j<=width; j++) {
-                memcpy(flipped_image+width_size-j*depth-3,
-                       tmp_image+j*depth,
-                       depth);
-            }
-            tmp_image += width_size;
-            flipped_image += width_size;
-        }
-    } else if (hflip && !vflip) {
-        int i;
-        int width_size = width*depth;
-        void* tmp_image = flipped_image+width_size*height;
-        
-        for(i=0; i<height; i++) {
-            tmp_image -= width_size;
-            memcpy(tmp_image, image+i*width_size, width_size);
-        }
-    } else if (hflip && vflip) {
-        int i, j;
-        int width_size = width*depth;
-        void* tmp_image = flipped_image + width_size*height;
-    
-        for(i=0; i<=height-1; i++) {
-            for(j=0; j<=width; j++) {
-                memcpy(tmp_image-j*depth-3,
-                       image+j*depth,
-                       depth);
-            }
-            tmp_image -= width_size;
-            image += width_size;
-        }
-    } else {
-        memcpy(flipped_image, image, height*width*depth);
-    }
-}
 
 /*
  * Python API stuff
