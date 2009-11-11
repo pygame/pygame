@@ -114,6 +114,19 @@ typedef struct PyCameraObject {
 
 typedef struct PyCameraObject {
     PyObject_HEAD
+    char* device_name;
+    int camera_type;
+    unsigned long pixelformat;
+    unsigned int color_out;
+    struct buffer* buffers;
+    unsigned int n_buffers;
+    int width;
+    int height;
+    int size;
+    int hflip;
+    int vflip;
+    int brightness;
+    int fd;
 } PyCameraObject;
 #endif
 
