@@ -97,7 +97,26 @@ def writesetupfile(deps, basepath, additional_lines):
         newsetup.write(d.line + '\n')
 
     lines = origsetup.readlines()
-    lines.extend(additional_lines)
+    
+    # overwrite lines which already exist with new ones.
+    new_lines = []
+    for l in lines:
+        addit = 1
+        parts = l.split()
+        for al in additional_lines:
+            aparts = al.split()
+            if aparts and parts:
+                if aparts[0] == parts[0]:
+                    #print ('the same!' + repr(aparts) + repr(parts))
+                    #the same, we should not add the old one.  
+                    #It will be overwritten by the new one.
+                    addit = 0
+        if addit:
+            new_lines.append(l)
+
+    new_lines.extend(additional_lines)
+    lines = new_lines
+
     for line in lines:
         useit = 1
         if not line.startswith('COPYLIB'):

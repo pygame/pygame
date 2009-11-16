@@ -4,6 +4,10 @@
 # BREAK = change breaks existing code
 # BUG    = fixed a bug that was (or could have been) crashing
 
+[SVN 2573] August 6, 2009
+    [BUG] missing readme.html in MANIFEST.in causes install to fail
+        on pythons with setuptools installed.
+
 [SVN 2519] July 17, 2009
     [BUG] fix pygame.font.get_fonts() bug for Python 3.1 and Windows.
 

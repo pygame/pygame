@@ -26,7 +26,7 @@
 #define PYGAMEAPI_MIXER_INTERNAL
 #include "pygame.h"
 #include "pgcompat.h"
-#include "pygamedocs.h"
+#include "doc/mixer_doc.h"
 #include "mixer.h"
 
 

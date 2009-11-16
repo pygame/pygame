@@ -3,6 +3,7 @@
 import os, sys, string
 from glob import glob
 from distutils.sysconfig import get_python_inc
+from config_unix import DependencyProg
 
 class Dependency:
     libext = '.a'
@@ -91,11 +92,16 @@ DEPS = [
     FrameworkDependency('IMAGE', 'SDL_image.h', 'libSDL_image', 'SDL_image'),
     FrameworkDependency('MIXER', 'SDL_mixer.h', 'libSDL_mixer', 'SDL_mixer'),
     FrameworkDependency('SMPEG', 'smpeg.h', 'libsmpeg', 'smpeg'),
+    FrameworkDependency('PORTTIME', 'CoreMidi.h', 'CoreMidi', 'CoreMidi'),
+    FrameworkDependency('QUICKTIME', 'QuickTime.h', 'QuickTime', 'QuickTime'),
     Dependency('PNG', 'png.h', 'libpng', ['png']),
     Dependency('JPEG', 'jpeglib.h', 'libjpeg', ['jpeg']),
     Dependency('SCRAP', '','',[]),
     Dependency('PORTMIDI', 'portmidi.h', 'libportmidi', ['portmidi']),
-    FrameworkDependency('PORTTIME', 'CoreMidi.h', 'CoreMidi', 'CoreMidi'),
+    DependencyProg('FREETYPE', 'FREETYPE_CONFIG', '/usr/X11R6/bin/freetype-config', '2.0',
+                   ['freetype'], '--ftversion'),
+    Dependency('AVFORMAT', '','',[]),
+    Dependency('SWSCALE', '','',[]),
 ]
 
 
@@ -103,7 +109,7 @@ def main():
     global DEPS
 
     print ('Hunting dependencies...')
-    incdirs = ['/usr/local/include','/opt/local/include']
+    incdirs = ['/usr/local/include','/opt/local/include', '/opt/local/include/freetype2/freetype']
     libdirs = ['/usr/local/lib','/opt/local/lib']
     newconfig = []
     for d in DEPS:

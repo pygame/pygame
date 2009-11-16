@@ -50,7 +50,7 @@ binutils-2.17.50
 mingwrt-3.15.1
 win32api-3.12
 mingw32-make-3.81-20080326
-MSYS-1.0.10
+MSYS-1.0.11
 msysDTK-1.0.1
 msys-automake-1.8.2
 msys-autocont-2.59
@@ -945,6 +945,8 @@ def = portmidi.def
 IHDR := -I$(pmcom) -I$(pmwin) -I$(pt)
 LIBS := $(LOADLIBES) $(LDLIBS) -lwinmm
 
+
+
 all : $(pmdll)
 .PHONY : all
 
@@ -952,12 +954,12 @@ $(pmwin)/pmwinmm_.c : $(pmwin)/pmwinmm.c
 \tsed 's_#define DEBUG.*$$_/*&*/_' < "$<" > "$@"
 
 $(pmlib) : $(src) $(hdr)
-\t$(CC) $(CPPFLAGS) $(IHDR) -c $(CFLAGS) $(src)
+\tc++ $(CPPFLAGS) $(IHDR) -c $(CFLAGS) $(src)
 \tar rc $(pmlib) $(obj)
 \tranlib $(pmlib)
 
 $(pmdll) : $(pmlib) $(def)
-\t$(CC) -shared $(LDFLAGS) -def $(def) $(pmlib) $(LIBS) -o $@
+\tc++ -shared $(LDFLAGS) -def $(def) $(pmlib) $(LIBS) -o $@
 \tdlltool -D $(pmdll) -d $(def) -l $(pmimplib)
 \tranlib $(pmimplib)
 
@@ -1052,7 +1054,43 @@ if [ x$BDCLEAN == x1 ]; then
   rm -f GNUmakefile portmidi.def
 fi
 """),
-    ]  # End dependencies = [.
+    Dependency('FFMPEG', ['ffmpeg'],
+    ['avformat-52.dll', 'swscale-0.dll', 'SDL_mixer.dll'], """
+
+set -e
+cd $BDWD
+
+if [ x$BDCONF == x1 ]; then
+  ./configure --enable-shared --enable-memalign-hack
+fi
+
+if [ x$BDCOMP == x1 ]; then
+  make
+fi
+
+if [ x$BDINST == x1 ]; then
+  make install
+fi
+
+if [ x$BDSTRIP == x1 ]; then
+  strip --strip-all /usr/local/bin/SDL_ttf.dll
+fi
+
+if [ x$BDINST == x1 ]; then
+  cd libswscale/
+  make
+  make install
+  cd ..
+fi
+
+if [ x$BDCLEAN == x1 ]; then
+  set +e
+  make clean
+fi
+"""),
+
+	
+	]  # End dependencies = [.
 
 
 msys_prep = Preparation('/usr/local', """

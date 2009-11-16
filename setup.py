@@ -14,7 +14,7 @@ EXTRAS = {}
 
 METADATA = {
     "name":             "pygame",
-    "version":          "1.9.0rc3",
+    "version":          "1.9.2pre",
     "license":          "LGPL",
     "url":              "http://www.pygame.org",
     "author":           "Pete Shinners, Rene Dudfield, Marcus von Appen, Bob Pendleton, others...",
@@ -154,6 +154,7 @@ perhaps make a clean copy from "Setup.in".""")
 if sys.version_info >= (3, 0, 0):
     python3_skip = ['scrap',
                     '_camera',
+                    '_movie',
                     '_numericsurfarray',
                     '_numericsndarray',
                     ]
@@ -187,7 +188,9 @@ add_datafiles(data_files, 'pygame/tests',
               ['test',
                   [['fixtures',
                       [['xbm_cursors',
-                          ['*.xbm']]]]]])
+                          ['*.xbm']],
+                       ['fonts',
+                          ['*.ttf', '*.otf']]]]]])
 
 #examples
 add_datafiles(data_files, 'pygame/examples',
@@ -363,7 +366,9 @@ if sys.platform == 'win32':
                     if e.sources[i].endswith('scale_mmx.c'):
                         del e.sources[i]
                         return
-    replace_scale_mmx()
+    # linking to 64-bit mingw generated scale_mmx.obj fails
+    if not '64 bit' in sys.version:
+        replace_scale_mmx()
 
 
 #clean up the list of extensions

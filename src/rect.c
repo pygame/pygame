@@ -25,7 +25,7 @@
  */
 #define PYGAMEAPI_RECT_INTERNAL
 #include "pygame.h"
-#include "pygamedocs.h"
+#include "doc/rect_doc.h"
 #include "structmember.h"
 #include "pgcompat.h"
 

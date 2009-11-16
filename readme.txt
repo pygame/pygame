@@ -1,6 +1,6 @@
 
    Pygame Readme
-   Version 1.9.0rc3 Python Game Development
+   Version 1.9.2pre Python Game Development
    Originally by Pete Shinners, now an open source community project.
    http://www.pygame.org
    pygame@seul.org

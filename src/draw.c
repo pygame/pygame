@@ -25,7 +25,7 @@
  */
 #include "pygame.h"
 #include "pgcompat.h"
-#include "pygamedocs.h"
+#include "doc/draw_doc.h"
 #include <math.h>
 
 /* Many C libraries seem to lack the trunc call (added in C99) */

@@ -776,7 +776,7 @@ int hlineColorStore(SDL_Surface * dst, Sint16 x1, Sint16 x2, Sint16 y, Uint32 co
 	 */
 	switch (dst->format->BytesPerPixel) {
 	case 1:
-	    memset(pixel, color, dx);
+	    memset(pixel, color, dx+1);
 	    break;
 	case 2:
 	    pixellast = pixel + dx + dx;
@@ -3029,6 +3029,12 @@ int ellipseRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, Uin
 
 #if defined(_WIN32) && !defined(__MINGW_H) && !defined(__SYMBIAN32__)
 
+#ifdef _M_X64
+#include <emmintrin.h>
+static __inline long lrint(float f) {
+    return _mm_cvtss_si32(_mm_load_ss(&f)); 
+}
+#else
 __inline long int
 lrint (double flt)
 {	
@@ -3040,8 +3046,11 @@ lrint (double flt)
   };
   return intgr;
 }
+#endif
 
 #endif
+
+
 
 /* Based on code from Anders Lindstroem, based on code from SGE, based on code from TwinLib */
 

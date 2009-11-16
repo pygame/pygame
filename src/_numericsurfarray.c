@@ -21,7 +21,7 @@
 */
 
 #include "pygame.h"
-#include "pygamedocs.h"
+#include "doc/surfarray_doc.h"
 #include "numeric_arrayobject.h"
 #include <SDL_byteorder.h>
 
