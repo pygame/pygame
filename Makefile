@@ -15,6 +15,9 @@ Setup:
 check tests:
 	$(PYTHON) run_tests.py
 
+test: build test src
+	$(PYTHON) run_tests.py
+
 docs:	install
 	cd docs/utils
 	$(PYTHON) makedocs.py
