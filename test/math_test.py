@@ -69,6 +69,18 @@ class Vector2TypeTest(unittest.TestCase):
         self.assertEqual(v.x, 1.2)
         self.assertEqual(v.y, 3.4)
 
+    def testAttributAccess(self):
+        tmp = self.v1.x
+        self.assertEqual(tmp, self.v1.x)
+        self.assertEqual(tmp, self.v1[0])
+        tmp = self.v1.y
+        self.assertEqual(tmp, self.v1.y)
+        self.assertEqual(tmp, self.v1[1])
+        self.v1.x = 3.141
+        self.assertEqual(self.v1.x, 3.141)
+        self.v1.y = 3.141
+        self.assertEqual(self.v1.y, 3.141)
+        
     def testSequence(self):
         v = Vector2(1.2, 3.4)
         self.assertEqual(len(v), 2)
@@ -686,6 +698,23 @@ class Vector3TypeTest(unittest.TestCase):
         self.assertEqual(v.x, 1.2)
         self.assertEqual(v.y, 3.4)
         self.assertEqual(v.z, -9.6)
+
+    def testAttributAccess(self):
+        tmp = self.v1.x
+        self.assertEqual(tmp, self.v1.x)
+        self.assertEqual(tmp, self.v1[0])
+        tmp = self.v1.y
+        self.assertEqual(tmp, self.v1.y)
+        self.assertEqual(tmp, self.v1[1])
+        tmp = self.v1.z
+        self.assertEqual(tmp, self.v1.z)
+        self.assertEqual(tmp, self.v1[2])
+        self.v1.x = 3.141
+        self.assertEqual(self.v1.x, 3.141)
+        self.v1.y = 3.141
+        self.assertEqual(self.v1.y, 3.141)
+        self.v1.z = 3.141
+        self.assertEqual(self.v1.z, 3.141)
 
     def testSequence(self):
         v = Vector3(1.2, 3.4, -9.6)
