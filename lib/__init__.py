@@ -105,6 +105,9 @@ __version__ = ver
 
 #next, the "standard" modules
 #we still allow them to be missing for stripped down pygame distributions
+try: import pygame.math
+except (ImportError,IOError):math=MissingModule("math", geterror(), 1)
+
 try: import pygame.cdrom
 except (ImportError,IOError):cdrom=MissingModule("cdrom", geterror(), 1)
 
