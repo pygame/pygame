@@ -672,9 +672,46 @@ typedef struct
     }
 #endif /* PYGAMEAPI_COLOR_INTERNAL */
 
+
+/* Math */
+#define PYGAMEAPI_MATH_FIRSTSLOT                                       \
+    (PYGAMEAPI_COLOR_FIRSTSLOT + PYGAMEAPI_COLOR_NUMSLOTS)
+#define PYGAMEAPI_MATH_NUMSLOTS 2
+#ifndef PYGAMEAPI_MATH_INTERNAL
+#define PyVector2_Check(x)                                                \
+    ((x)->ob_type == (PyTypeObject*)                                    \
+        PyGAME_C_API[PYGAMEAPI_MATH_FIRSTSLOT + 0])
+#define PyVector3_Check(x)                                                \
+    ((x)->ob_type == (PyTypeObject*)                                    \
+        PyGAME_C_API[PYGAMEAPI_MATH_FIRSTSLOT + 1])
+/*
+#define PyVector2_New                                             \
+    (*(PyObject*(*)) PyGAME_C_API[PYGAMEAPI_MATH_FIRSTSLOT + 1])
+*/
+#define import_pygame_math()                                           \
+    {                                                                   \
+	PyObject *_module = PyImport_ImportModule (IMPPREFIX "math");     \
+	if (_module != NULL)                                            \
+        {                                                               \
+            PyObject *_dict = PyModule_GetDict (_module);               \
+            PyObject *_c_api = PyDict_GetItemString                     \
+                (_dict, PYGAMEAPI_LOCAL_ENTRY);                         \
+            if (PyCObject_Check (_c_api))                               \
+            {                                                           \
+                int i;                                                  \
+                void** localptr = (void**) PyCObject_AsVoidPtr (_c_api); \
+                for (i = 0; i < PYGAMEAPI_MATH_NUMSLOTS; ++i)          \
+                    PyGAME_C_API[i + PYGAMEAPI_MATH_FIRSTSLOT] =       \
+                        localptr[i];                                    \
+            }                                                           \
+            Py_DECREF (_module);                                        \
+        }                                                               \
+    }
+#endif /* PYGAMEAPI_MATH_INTERNAL */
+
 #ifndef NO_PYGAME_C_API
 #define PYGAMEAPI_TOTALSLOTS                                            \
-    (PYGAMEAPI_COLOR_FIRSTSLOT + PYGAMEAPI_COLOR_NUMSLOTS)
+    (PYGAMEAPI_MATH_FIRSTSLOT + PYGAMEAPI_MATH_NUMSLOTS)
 static void* PyGAME_C_API[PYGAMEAPI_TOTALSLOTS] = { NULL };
 #endif
 
