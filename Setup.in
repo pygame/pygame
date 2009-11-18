@@ -74,5 +74,5 @@ mask src/mask.c src/bitmask.c $(SDL) $(DEBUG)
 bufferproxy src/bufferproxy.c $(SDL) $(DEBUG)
 pixelarray src/pixelarray.c $(SDL) $(DEBUG)
 _arraysurfarray src/_arraysurfarray.c $(SDL) $(DEBUG)
-#math src/math.c $(SDL) $(DEBUG)
+math src/math.c $(SDL) $(DEBUG)
 
