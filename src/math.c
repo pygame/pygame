@@ -2475,7 +2475,11 @@ vector_slerpiter_len(vector_slerpiter *it)
     if (it) {
         len = it->steps - it->it_index;
     }
+#if PY_VERSION_HEX >= 0x02050000
     return PyInt_FromSsize_t(len);
+#else
+    return PyInt_FromLong((long unsigned int)len);
+#endif
 }
 
 static PyMethodDef vector_slerpiter_methods[] = {
@@ -2735,7 +2739,11 @@ vector_lerpiter_len(vector_lerpiter *it)
     if (it) {
         len = it->steps - it->it_index;
     }
+#if PY_VERSION_HEX >= 0x02050000
     return PyInt_FromSsize_t(len);
+#else
+    return PyInt_FromLong((long unsigned int)len);
+#endif
 }
 
 static PyMethodDef vector_lerpiter_methods[] = {
