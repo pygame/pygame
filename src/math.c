@@ -24,6 +24,7 @@
 #include "pgcompat.h"
 #include <float.h>
 #include <math.h>
+#include <stddef.h>
 
 #define VECTOR_MAX_SIZE (4)
 #define STRING_BUF_SIZE (100)
@@ -570,7 +571,6 @@ vector_neg(PyVector *self)
 static PyObject *
 vector_pos(PyVector *self)
 {
-    int i;
     PyVector *ret = (PyVector*)PyVector_NEW(self->dim);
     memcpy(ret->coords, self->coords, sizeof(ret->coords[0]) * ret->dim);
     return (PyObject*)ret;
@@ -1102,7 +1102,7 @@ vector_str(PyVector *self)
     char buffer[2][STRING_BUF_SIZE];
     
     bufferIdx = 1;
-    PyOS_snprintf(buffer[0], STRING_BUF_SIZE, "[", self->dim);
+    PyOS_snprintf(buffer[0], STRING_BUF_SIZE, "[");
     for (i = 0; i < self->dim - 1; ++i) {
         PyOS_snprintf(buffer[bufferIdx % 2], STRING_BUF_SIZE, "%s%g, ", 
                       buffer[(bufferIdx + 1) % 2], self->coords[i]);
@@ -1306,7 +1306,7 @@ vector2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static int
 vector2_init(PyVector *self, PyObject *args, PyObject *kwds)
 {
-    PyObject *xOrSequence=NULL, *y=NULL, *z=NULL;
+    PyObject *xOrSequence=NULL, *y=NULL;
     static char *kwlist[] = {"x", "y", NULL};
 
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OO:Vector2", kwlist,
@@ -1325,7 +1325,6 @@ vector2_init(PyVector *self, PyObject *args, PyObject *kwds)
         } 
         else if (PyString_Check(xOrSequence)) {
             /* This should make "Vector2(Vector2().__repr__())" possible */
-            char buffer[STRING_BUF_SIZE];
             char *endptr;
             char *str = PyString_AsString(xOrSequence);
             if (strncmp(str, "<Vector2(", strlen("<Vector2(")) != 0)
@@ -1723,7 +1722,6 @@ vector3_init(PyVector *self, PyObject *args, PyObject *kwds)
         } 
         else if (PyString_Check(xOrSequence)) {
             /* This should make "Vector3(Vector3().__repr__())" possible */
-            char buffer[STRING_BUF_SIZE];
             char *endptr;
             char *str = PyString_AsString(xOrSequence);
             if (strncmp(str, "<Vector3(", strlen("<Vector3(")) != 0)
@@ -1941,7 +1939,6 @@ vector3_rotate_x(PyVector *self, PyObject *angleObject)
 static PyObject *
 vector3_rotate_x_ip(PyVector *self, PyObject *angleObject)
 {
-    PyVector *ret;
     double tmp_coords[3];
     double sinValue, cosValue;
     double angle;
@@ -1957,7 +1954,7 @@ vector3_rotate_x_ip(PyVector *self, PyObject *angleObject)
 
     self->coords[1] = tmp_coords[1] * cosValue - tmp_coords[2] * sinValue;
     self->coords[2] = tmp_coords[1] * sinValue + tmp_coords[2] * cosValue;
-    return (PyObject*)ret;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1986,7 +1983,6 @@ vector3_rotate_y(PyVector *self, PyObject *angleObject)
 static PyObject *
 vector3_rotate_y_ip(PyVector *self, PyObject *angleObject)
 {
-    PyVector *ret;
     double tmp_coords[3];
     double sinValue, cosValue;
     double angle;
@@ -2002,7 +1998,7 @@ vector3_rotate_y_ip(PyVector *self, PyObject *angleObject)
 
     self->coords[0] = tmp_coords[0] * cosValue + tmp_coords[2] * sinValue;
     self->coords[2] = -tmp_coords[0] * sinValue + tmp_coords[2] * cosValue;
-    return (PyObject*)ret;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2031,7 +2027,6 @@ vector3_rotate_z(PyVector *self, PyObject *angleObject)
 static PyObject *
 vector3_rotate_z_ip(PyVector *self, PyObject *angleObject)
 {
-    PyVector *ret;
     double tmp_coords[3];
     double sinValue, cosValue;
     double angle;
@@ -2047,7 +2042,7 @@ vector3_rotate_z_ip(PyVector *self, PyObject *angleObject)
 
     self->coords[0] = tmp_coords[0] * cosValue - tmp_coords[1] * sinValue;
     self->coords[1] = tmp_coords[0] * sinValue + tmp_coords[1] * cosValue;
-    return (PyObject*)ret;
+    Py_RETURN_NONE;
 }
 
 
@@ -2083,7 +2078,6 @@ vector3_cross(PyVector *self, PyObject *other)
 static PyObject *
 vector3_angle_to(PyVector *self, PyObject *other)
 {
-    int i;
     double angle, tmp1, tmp2;
     double other_coords[VECTOR_MAX_SIZE];
 
@@ -2164,22 +2158,22 @@ static PyMethodDef vector3_methods[] = {
     {"rotate_ip", (PyCFunction)vector3_rotate_ip, METH_VARARGS,
      "rotates the vector counterclockwise by the angle given in degrees."
     },
-    {"rotate_x", (PyCFunction)vector3_rotate_x, METH_VARARGS,
+    {"rotate_x", (PyCFunction)vector3_rotate_x, METH_O,
      "returns a new vector rotated counterclockwise around the x-axis by the angle given in degrees."
     },
-    {"rotate_x_ip", (PyCFunction)vector3_rotate_x_ip, METH_VARARGS,
+    {"rotate_x_ip", (PyCFunction)vector3_rotate_x_ip, METH_O,
      "rotates the vector counterclockwise around the x-axis by the angle given in degrees."
     },
-    {"rotate_y", (PyCFunction)vector3_rotate_y, METH_VARARGS,
+    {"rotate_y", (PyCFunction)vector3_rotate_y, METH_O,
      "returns a new vector rotated counterclockwise around the y-axis by the angle given in degrees."
     },
-    {"rotate_y_ip", (PyCFunction)vector3_rotate_y_ip, METH_VARARGS,
+    {"rotate_y_ip", (PyCFunction)vector3_rotate_y_ip, METH_O,
      "rotates the vector counterclockwise around the y-axis by the angle given in degrees."
     },
-    {"rotate_z", (PyCFunction)vector3_rotate_z, METH_VARARGS,
+    {"rotate_z", (PyCFunction)vector3_rotate_z, METH_O,
      "returns a new vector rotated counterclockwise around the z-axis by the angle given in degrees."
     },
-    {"rotate_z_ip", (PyCFunction)vector3_rotate_z_ip, METH_VARARGS,
+    {"rotate_z_ip", (PyCFunction)vector3_rotate_z_ip, METH_O,
      "rotates the vector counterclockwise around the z-axis by the angle given in degrees."
     },
     {"slerp", (PyCFunction)vector_slerp, METH_VARARGS,
@@ -2512,7 +2506,6 @@ vector_slerp(PyVector *self, PyObject *args)
 {
     vector_slerpiter *it;
     PyObject *other, *steps_object;
-    long int steps;
     double vec1_coords[VECTOR_MAX_SIZE], vec2_coords[VECTOR_MAX_SIZE];
     double angle, length1, length2;
 
@@ -2774,7 +2767,7 @@ vector_lerp(PyVector *self, PyObject *args)
 {
     vector_lerpiter *it;
     PyObject *other, *steps_object;
-    long int i, steps;
+    long int i;
     double vec1_coords[VECTOR_MAX_SIZE], vec2_coords[VECTOR_MAX_SIZE];
 
     if (!PyArg_ParseTuple(args, "OO:Vector.lerp", &other, &steps_object)) {
@@ -3165,7 +3158,7 @@ vector_elementwiseproxy_pow(PyObject *baseObj, PyObject *expoObj, PyObject *mod)
     double tmp;
     double bases[VECTOR_MAX_SIZE];
     double expos[VECTOR_MAX_SIZE];
-    PyVector *ret, *vec;
+    PyVector *ret;
     PyObject *base, *expo, *result;
     if (mod != Py_None) {
         PyErr_SetString(PyExc_TypeError, "pow() 3rd argument not "
@@ -3254,7 +3247,6 @@ vector_elementwiseproxy_neg(vector_elementwiseproxy *self)
 static PyObject *
 vector_elementwiseproxy_pos(vector_elementwiseproxy *self)
 {
-    int i;
     PyVector *ret = (PyVector*)PyVector_NEW(self->vec->dim);
     memcpy(ret->coords, self->vec->coords, sizeof(ret->coords[0]) * ret->dim);
     return (PyObject*)ret;
