@@ -26,6 +26,11 @@
 #include <math.h>
 #include <stddef.h>
 
+/* on some windows platforms math.h doesn't define M_PI */
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
 #define VECTOR_MAX_SIZE (4)
 #define STRING_BUF_SIZE (100)
 #define SWIZZLE_ERR_NO_ERR         0
@@ -56,11 +61,11 @@ static PyTypeObject PyVectorElementwiseProxy_Type;
 static PyTypeObject PyVectorIter_Type;
 static PyTypeObject PyVector_SlerpIter_Type;
 
-#define PyVector2_Check(x) ((x)->ob_type == &PyVector2_Type)
-#define PyVector3_Check(x) ((x)->ob_type == &PyVector3_Type)
+#define PyVector2_Check(x) (Py_TYPE(x) == &PyVector2_Type)
+#define PyVector3_Check(x) (Py_TYPE(x) == &PyVector3_Type)
 #define PyVector_Check(x) (PyVector2_Check(x) || PyVector3_Check(x))
 #define vector_elementwiseproxy_Check(x) \
-    ((x)->ob_type == &PyVectorElementwiseProxy_Type)
+    (Py_TYPE(x) == &PyVectorElementwiseProxy_Type)
 
 #define DEG2RAD(angle) ((angle) * M_PI / 180.)
 #define RAD2DEG(angle) ((angle) * 180. / M_PI)
@@ -389,7 +394,7 @@ static void
 vector_dealloc(PyVector* self)
 {
     PyMem_Del(self->coords);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 
@@ -606,7 +611,9 @@ static PyNumberMethods vector_as_number = {
     (binaryfunc)0,                  /* nb_and;       __and__ */
     (binaryfunc)0,                  /* nb_xor;       __xor__ */
     (binaryfunc)0,                  /* nb_or;        __or__ */
+#if !PY3
     (coercion)0,                    /* nb_coerce;    __coerce__ */
+#endif
     (unaryfunc)0,                   /* nb_int;       __int__ */
     (unaryfunc)0,                   /* nb_long;      __long__ */
     (unaryfunc)0,                   /* nb_float;     __float__ */
@@ -631,9 +638,6 @@ static PyNumberMethods vector_as_number = {
     (binaryfunc)vector_div,         /* nb_true_divide;          __truediv__ */
     (binaryfunc)vector_inplace_floor_div, /* nb_inplace_floor_divide; __ifloor__ */
     (binaryfunc)vector_inplace_div, /* nb_inplace_true_divide;  __itruediv__ */
-
-    /* Added in release 2.5 */
-    (unaryfunc)0,                   /* nb_index;  __index__ */
 };
 
 
@@ -836,7 +840,7 @@ vector_richcompare(PyVector *self, PyObject *other, int op)
     case Py_EQ:
         for (i = 0; i < self->dim; i++) {
             diff = self->coords[i] - PySequence_GetItem_AsDouble(other, i);
-            // test diff != diff to catch NaN
+            /* test diff != diff to catch NaN */
             if ((diff != diff) || (fabs(diff) >= self->epsilon)) {
                 Py_RETURN_FALSE;
             }
@@ -1151,8 +1155,8 @@ vector_setAttr_swizzle(PyVector *self, PyObject *attr_name, PyObject *val)
 {
     const char *attr = PyString_AsString(attr_name);
     Py_ssize_t len = PySequence_Length(attr_name);
-    double entry[self->dim];
-    int entry_was_set[self->dim];
+    double entry[VECTOR_MAX_SIZE];
+    int entry_was_set[VECTOR_MAX_SIZE];
     int swizzle_err = SWIZZLE_ERR_NO_ERR;
     int i;
 
@@ -1295,7 +1299,7 @@ vector2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         vec->epsilon = FLT_EPSILON;
         vec->coords = PyMem_New(double, vec->dim);
         if (vec->coords == NULL) {
-            vec->ob_type->tp_free((PyObject*)vec);
+            Py_TYPE(vec)->tp_free((PyObject*)vec);
             return NULL;
         }
     }
@@ -1624,8 +1628,12 @@ static PyTypeObject PyVector2_Type = {
     /* Functions to access object as input/output buffer */
     0,                         /* tp_as_buffer */
     /* Flags to define presence of optional/expanded features */
+#if PY3
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+#else
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | 
     Py_TPFLAGS_CHECKTYPES, /* tp_flags */
+#endif
     /* Documentation string */
     DOC_PYGAMEMATHVECTOR2,     /* tp_doc */
 
@@ -1691,7 +1699,7 @@ vector3_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         vec->epsilon = FLT_EPSILON;
         vec->coords = PyMem_New(double, vec->dim);
         if (vec->coords == NULL) {
-            vec->ob_type->tp_free((PyObject*)vec);
+            Py_TYPE(vec)->tp_free((PyObject*)vec);
             return NULL;
         }
     }
@@ -2265,8 +2273,12 @@ static PyTypeObject PyVector3_Type = {
     /* Functions to access object as input/output buffer */
     0,                         /* tp_as_buffer */
     /* Flags to define presence of optional/expanded features */
+#if PY3
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+#else
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | 
     Py_TPFLAGS_CHECKTYPES, /* tp_flags */
+#endif
     /* Documentation string */
     DOC_PYGAMEMATHVECTOR3,         /* tp_doc */
 
@@ -2355,7 +2367,11 @@ vectoriter_len(vectoriter *it)
     if (it && it->vec) {
         len = it->vec->dim - it->it_index;
     }
+#if PY_VERSION_HEX >= 0x02050000
     return PyInt_FromSsize_t(len);
+#else
+    return PyInt_FromLong((long unsigned int)len);
+#endif
 }
 
 static PyMethodDef vectoriter_methods[] = {
@@ -3282,7 +3298,9 @@ static PyNumberMethods vector_elementwiseproxy_as_number = {
     (binaryfunc)0,                  /* nb_and;       __and__ */
     (binaryfunc)0,                  /* nb_xor;       __xor__ */
     (binaryfunc)0,                  /* nb_or;        __or__ */
+#if !PY3
     (coercion)0,                    /* nb_coerce;    __coerce__ */
+#endif
     (unaryfunc)0,                   /* nb_int;       __int__ */
     (unaryfunc)0,                   /* nb_long;      __long__ */
     (unaryfunc)0,                   /* nb_float;     __float__ */
@@ -3307,9 +3325,6 @@ static PyNumberMethods vector_elementwiseproxy_as_number = {
     (binaryfunc)vector_elementwiseproxy_div, /* nb_true_divide;          __truediv__ */
     (binaryfunc)0,                  /* nb_inplace_floor_divide; __ifloor__ */
     (binaryfunc)0,                  /* nb_inplace_true_divide;  __itruediv__ */
-
-    /* Added in release 2.5 */
-    (unaryfunc)0,                   /* nb_index;  __index__ */
 };
 
 
@@ -3341,7 +3356,11 @@ static PyTypeObject PyVectorElementwiseProxy_Type = {
     /* Functions to access object as input/output buffer */
     0,                         /* tp_as_buffer */
     /* Flags to define presence of optional/expanded features */
+#if PY3
+    Py_TPFLAGS_DEFAULT,
+#else
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_CHECKTYPES, /* tp_flags */
+#endif
     /* Documentation string */
     0,                         /* tp_doc */
 
