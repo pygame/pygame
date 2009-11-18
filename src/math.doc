@@ -1,0 +1,67 @@
+pygame.math
+pygame module for vector classes
+
+The pygame math module currently provides Vector classes in two and three
+dimensions, Vector2 and Vector3 respetively.
+
+New in Pygame 1.10
+ 
+<SECTION>
+
+Vector2
+a 2-Dimensional Vector
+pygame.math.Vector2(): return Vector2
+pygame.math.Vector2(Vector2): return Vector2
+pygame.math.Vector2(x, y): return Vector2
+pygame.math.Vector2((x, y)): return Vector2
+
+
+<SECTION>
+
+
+dot
+calculates the dot- or scalar-product with the other vector
+Vector2.dot(Vector2): return float
+
+<END>
+
+
+
+cross
+calculates the cross- or vector-product
+Vector2.cross(Vector2): return float
+
+calculates the third component of the cross-product.
+<END>
+
+<END>
+<END>
+
+Vector3
+a 3-Dimensional Vector
+pygame.math.Vector3(): return Vector3
+pygame.math.Vector3(Vector3): return Vector3
+pygame.math.Vector3(x, y, z): return Vector3
+pygame.math.Vector3((x, y, z)): return Vector3
+
+
+<SECTION>
+
+
+dot
+calculates the dot- or scalar-product with the other vector
+Vector3.dot(Vector3): return float
+
+<END>
+
+
+
+cross
+calculates the cross- or vector-product
+Vector3.cross(Vector3): return float
+
+calculates the cross-product.
+<END>
+
+<END>
+<END>

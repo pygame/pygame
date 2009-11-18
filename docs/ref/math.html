@@ -1,0 +1,151 @@
+
+<html>
+<title>math - Pygame Documentation</title>
+<body bgcolor=#aaeebb text=#000000 link=#331111 vlink=#331111>
+
+
+<table cellpadding=0 cellspacing=0 border=0 style='border: 3px solid black;' width='100%'>
+<tr>
+<td bgcolor='#c2fc20' style='padding: 6px;' align=center valign=center><a href='http://www.pygame.org/'><img src='../pygame_tiny.gif' border=0 width=200 height=60></a><br><b>pygame documentation</b></td>
+<td bgcolor='#6aee28' style='border-left: 3px solid black; padding: 6px;' align=center valign=center>
+	||&nbsp;
+	<a href=http://www.pygame.org>Pygame Home</a> &nbsp;||&nbsp;
+	<a href=../index.html>Help Contents</a> &nbsp;||
+	<a href=index.html>Reference Index</a> &nbsp;||
+	<br>&nbsp;<br>
+	
+<a href="camera.html">Camera</a>&nbsp;||&nbsp;
+<a href="cdrom.html">Cdrom</a>&nbsp;||&nbsp;
+<a href="color.html">Color</a>&nbsp;||&nbsp;
+<a href="cursors.html">Cursors</a>&nbsp;||&nbsp;
+<a href="display.html">Display</a>&nbsp;||&nbsp;
+<a href="draw.html">Draw</a>&nbsp;||&nbsp;
+<a href="event.html">Event</a>&nbsp;||&nbsp;
+<a href="examples.html">Examples</a>&nbsp;||&nbsp;
+<a href="font.html">Font</a>&nbsp;||&nbsp;
+<a href="freetype.html">Freetype</a>&nbsp;||&nbsp;
+<a href="gfxdraw.html">Gfxdraw</a>&nbsp;||&nbsp;
+<a href="image.html">Image</a>&nbsp;||&nbsp;
+<a href="joystick.html">Joystick</a>&nbsp;||&nbsp;
+<a href="key.html">Key</a>&nbsp;||&nbsp;
+<a href="locals.html">Locals</a>&nbsp;||&nbsp;
+<a href="mask.html">Mask</a>&nbsp;||&nbsp;
+<a href="math.html">Math</a>&nbsp;||&nbsp;
+<a href="midi.html">Midi</a>&nbsp;||&nbsp;
+<a href="mixer.html">Mixer</a>&nbsp;||&nbsp;
+<a href="mouse.html">Mouse</a>&nbsp;||&nbsp;
+<a href="movie.html">Movie</a>&nbsp;||&nbsp;
+<a href="music.html">Music</a>&nbsp;||&nbsp;
+<a href="overlay.html">Overlay</a>&nbsp;||&nbsp;
+<a href="pixelarray.html">Pixelarray</a>&nbsp;||&nbsp;
+<a href="pygame.html">Pygame</a>&nbsp;||&nbsp;
+<a href="rect.html">Rect</a>&nbsp;||&nbsp;
+<a href="scrap.html">Scrap</a>&nbsp;||&nbsp;
+<a href="sndarray.html">Sndarray</a>&nbsp;||&nbsp;
+<a href="sprite.html">Sprite</a>&nbsp;||&nbsp;
+<a href="surface.html">Surface</a>&nbsp;||&nbsp;
+<a href="surfarray.html">Surfarray</a>&nbsp;||&nbsp;
+<a href="tests.html">Tests</a>&nbsp;||&nbsp;
+<a href="time.html">Time</a>&nbsp;||&nbsp;
+<a href="transform.html">Transform</a>
+</td></tr></table>
+<br>
+
+
+<a name="pygame.math">
+<big><b>pygame.math</big></b><br><ul>
+  <i>pygame module for vector classes</i><br>
+<ul><small><table>
+  <tr><td><a href="math.html#pygame.math.Vector2">pygame.math.Vector2</a> - <font size=-1>a 2-Dimensional Vector</font></td><td>a 2-Dimensional Vector</td></tr>
+  <tr><td><a href="math.html#pygame.math.Vector3">pygame.math.Vector3</a> - <font size=-1>a 3-Dimensional Vector</font></td><td>a 3-Dimensional Vector</td></tr>
+</table></small></ul>
+<p>The pygame math module currently provides Vector classes in two and three dimensions, Vector2 and Vector3 respetively. </p>
+<p>New in Pygame <tt>1.10</tt> </p>
+<!--COMMENTS:pygame.math--> &nbsp;<br> 
+
+
+<a name="pygame.math.Vector2">
+<big><b>pygame.math.Vector2</big></b><br><ul>
+  <i>a 2-Dimensional Vector</i><br>
+  <tt>pygame.math.Vector2(): return Vector2</tt><br>
+  <tt>pygame.math.Vector2(Vector2): return Vector2</tt><br>
+  <tt>pygame.math.Vector2(x, y): return Vector2</tt><br>
+  <tt>pygame.math.Vector2((x, y)): return Vector2</tt><br>
+<ul><small><table>
+  <tr><td><a href="math.html#Vector2.dot">Vector2.dot</a> - <font size=-1>calculates the dot- or scalar-product with the other vector</font></td><td>calculates the dot- or scalar-product with the other vector</td></tr>
+  <tr><td><a href="math.html#Vector2.cross">Vector2.cross</a> - <font size=-1>calculates the cross- or vector-product</font></td><td>calculates the cross- or vector-product</td></tr>
+  <tr><td>None</td><td></td></tr>
+</table></small></ul>
+ &nbsp;<br> 
+<!--COMMENTS:pygame.math.Vector2--> &nbsp;<br> 
+
+
+<a name="Vector2.dot">
+<big><b>Vector2.dot</big></b><br><ul>
+  <i>calculates the dot- or scalar-product with the other vector</i><br>
+  <tt>Vector2.dot(Vector2): return float</tt><br>
+ &nbsp;<br> 
+<!--COMMENTS:Vector2.dot--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="Vector2.cross">
+<big><b>Vector2.cross</big></b><br><ul>
+  <i>calculates the cross- or vector-product</i><br>
+  <tt>Vector2.cross(Vector2): return float</tt><br>
+<p>calculates the third component of the cross-product. </p>
+<!--COMMENTS:Vector2.cross--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="">
+<big><b></big></b><br><ul>
+ &nbsp;<br> 
+<!--COMMENTS:--> &nbsp;<br> 
+<br></ul>
+<br></ul>
+
+
+<a name="pygame.math.Vector3">
+<big><b>pygame.math.Vector3</big></b><br><ul>
+  <i>a 3-Dimensional Vector</i><br>
+  <tt>pygame.math.Vector3(): return Vector3</tt><br>
+  <tt>pygame.math.Vector3(Vector3): return Vector3</tt><br>
+  <tt>pygame.math.Vector3(x, y, z): return Vector3</tt><br>
+  <tt>pygame.math.Vector3((x, y, z)): return Vector3</tt><br>
+<ul><small><table>
+  <tr><td><a href="math.html#Vector3.dot">Vector3.dot</a> - <font size=-1>calculates the dot- or scalar-product with the other vector</font></td><td>calculates the dot- or scalar-product with the other vector</td></tr>
+  <tr><td><a href="math.html#Vector3.cross">Vector3.cross</a> - <font size=-1>calculates the cross- or vector-product</font></td><td>calculates the cross- or vector-product</td></tr>
+  <tr><td>None</td><td></td></tr>
+</table></small></ul>
+ &nbsp;<br> 
+<!--COMMENTS:pygame.math.Vector3--> &nbsp;<br> 
+
+
+<a name="Vector3.dot">
+<big><b>Vector3.dot</big></b><br><ul>
+  <i>calculates the dot- or scalar-product with the other vector</i><br>
+  <tt>Vector3.dot(Vector3): return float</tt><br>
+ &nbsp;<br> 
+<!--COMMENTS:Vector3.dot--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="Vector3.cross">
+<big><b>Vector3.cross</big></b><br><ul>
+  <i>calculates the cross- or vector-product</i><br>
+  <tt>Vector3.cross(Vector3): return float</tt><br>
+<p>calculates the cross-product. </p>
+<!--COMMENTS:Vector3.cross--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="">
+<big><b></big></b><br><ul>
+ &nbsp;<br> 
+<!--COMMENTS:--> &nbsp;<br> 
+<br></ul>
+<br></ul>
+<br></ul>
+
+</body></html>
