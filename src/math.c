@@ -1129,12 +1129,11 @@ vector_getAttr_swizzle(PyVector *self, PyObject *attr_name)
     /* if normal lookup failed try to swizzle */
     if (swizzling_enabled && 
         PyErr_Occurred() && PyErr_ExceptionMatches(PyExc_AttributeError)) {
-        Py_ssize_t len = PySequence_Length(attr_name);
+        Py_ssize_t i, len = PySequence_Length(attr_name);
+        double *coords = self->coords;
         const char *attr = Bytes_AsString(attr_name);
         if (attr == NULL)
             return NULL;
-        double *coords = self->coords;
-        Py_ssize_t i;
         res = (PyObject*)PyTuple_New(len);
         for (i = 0; i < len; i++) {
             switch (attr[i]) {
