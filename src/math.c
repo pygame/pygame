@@ -1098,7 +1098,7 @@ vector_repr(PyVector *self)
     }
     PyOS_snprintf(buffer[bufferIdx % 2], STRING_BUF_SIZE, "%s%g)>", 
                   buffer[(bufferIdx + 1) % 2], self->coords[i]);
-    return PyString_FromString(buffer[bufferIdx % 2]); 
+    return Text_FromUTF8(buffer[bufferIdx % 2]); 
 }
 
 static PyObject *
@@ -1117,7 +1117,7 @@ vector_str(PyVector *self)
     }
     PyOS_snprintf(buffer[bufferIdx % 2], STRING_BUF_SIZE, "%s%g]", 
                   buffer[(bufferIdx + 1) % 2], self->coords[i]);
-    return PyString_FromString(buffer[bufferIdx % 2]); 
+    return Text_FromUTF8(buffer[bufferIdx % 2]); 
 }
 
 static PyObject*
@@ -1128,7 +1128,7 @@ vector_getAttr_swizzle(PyVector *self, PyObject *attr_name)
     if (swizzling_enabled && 
         PyErr_Occurred() && PyErr_ExceptionMatches(PyExc_AttributeError)) {
         Py_ssize_t len = PySequence_Length(attr_name);
-        const char *attr = PyString_AsString(attr_name);
+        const char *attr = Bytes_AsString(attr_name);
         double *coords = self->coords;
         Py_ssize_t i;
         res = (PyObject*)PyTuple_New(len);
@@ -1156,7 +1156,7 @@ vector_getAttr_swizzle(PyVector *self, PyObject *attr_name)
 static int
 vector_setAttr_swizzle(PyVector *self, PyObject *attr_name, PyObject *val)
 {
-    const char *attr = PyString_AsString(attr_name);
+    const char *attr = Bytes_AsString(attr_name);
     Py_ssize_t len = PySequence_Length(attr_name);
     double entry[VECTOR_MAX_SIZE];
     int entry_was_set[VECTOR_MAX_SIZE];
@@ -1330,10 +1330,10 @@ vector2_init(PyVector *self, PyObject *args, PyObject *kwds)
             /* successful initialization from sequence type */
             return 0;
         } 
-        else if (PyString_Check(xOrSequence)) {
+        else if (Text_Check(xOrSequence)) {
             /* This should make "Vector2(Vector2().__repr__())" possible */
             char *endptr;
-            char *str = PyString_AsString(xOrSequence);
+            char *str = Bytes_AsString(xOrSequence);
             if (strncmp(str, "<Vector2(", strlen("<Vector2(")) != 0)
                 goto error;
             str += strlen("<Vector2(");
@@ -1731,10 +1731,10 @@ vector3_init(PyVector *self, PyObject *args, PyObject *kwds)
             /* successful initialization from sequence type */
             return 0;
         } 
-        else if (PyString_Check(xOrSequence)) {
+        else if (Text_Check(xOrSequence)) {
             /* This should make "Vector3(Vector3().__repr__())" possible */
             char *endptr;
-            char *str = PyString_AsString(xOrSequence);
+            char *str = Bytes_AsString(xOrSequence);
             if (strncmp(str, "<Vector3(", strlen("<Vector3(")) != 0)
                 goto error;
             str += strlen("<Vector3(");
