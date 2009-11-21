@@ -597,7 +597,9 @@ static PyNumberMethods vector_as_number = {
     (binaryfunc)vector_add,         /* nb_add;       __add__ */
     (binaryfunc)vector_sub,         /* nb_subtract;  __sub__ */
     (binaryfunc)vector_mul,         /* nb_multiply;  __mul__ */
+#if !PY3
     (binaryfunc)vector_div,         /* nb_divide;    __div__ */
+#endif
     (binaryfunc)0,                  /* nb_remainder; __mod__ */
     (binaryfunc)0,                  /* nb_divmod;    __divmod__ */
     (ternaryfunc)0,                 /* nb_power;     __pow__ */
@@ -1129,6 +1131,8 @@ vector_getAttr_swizzle(PyVector *self, PyObject *attr_name)
         PyErr_Occurred() && PyErr_ExceptionMatches(PyExc_AttributeError)) {
         Py_ssize_t len = PySequence_Length(attr_name);
         const char *attr = Bytes_AsString(attr_name);
+        if (attr == NULL)
+            return NULL;
         double *coords = self->coords;
         Py_ssize_t i;
         res = (PyObject*)PyTuple_New(len);
@@ -1166,6 +1170,9 @@ vector_setAttr_swizzle(PyVector *self, PyObject *attr_name, PyObject *val)
     /* if swizzling is disabled always default to generic implementation */
     if (!swizzling_enabled)
         return PyObject_GenericSetAttr((PyObject*)self, attr_name, val);
+
+    if (attr == NULL)
+        return -1;
 
     /* if swizzling is enabled first try swizzle */
     for (i = 0; i < self->dim; ++i)
@@ -1334,6 +1341,8 @@ vector2_init(PyVector *self, PyObject *args, PyObject *kwds)
             /* This should make "Vector2(Vector2().__repr__())" possible */
             char *endptr;
             char *str = Bytes_AsString(xOrSequence);
+            if (str == NULL)
+                return -1;
             if (strncmp(str, "<Vector2(", strlen("<Vector2(")) != 0)
                 goto error;
             str += strlen("<Vector2(");
@@ -1530,64 +1539,64 @@ vector2_from_polar(PyVector *self, PyObject *args)
 
 static PyMethodDef vector2_methods[] = {
     {"length", (PyCFunction)vector_length, METH_NOARGS,
-     "returns the length/magnitude of the vector."
+     DOC_VECTOR2LENGTH
     },
     {"length_squared", (PyCFunction)vector_length_squared, METH_NOARGS,
-     "returns the length/magnitude of the vector."
+     DOC_VECTOR2LENGTHSQUARED
     },
     {"rotate", (PyCFunction)vector2_rotate, METH_VARARGS,
-     "returns a new vector rotated counterclockwise by the angle given in degrees."
+     DOC_VECTOR2ROTATE
     },
     {"rotate_ip", (PyCFunction)vector2_rotate_ip, METH_VARARGS,
-     "rotates the vector counterclockwise by the angle given in degrees."
+     DOC_VECTOR2ROTATEIP
     },
     {"slerp", (PyCFunction)vector_slerp, METH_VARARGS,
-     "Interpolates spherically to a given vector in a given number of steps."
+     DOC_VECTOR2SLERP
     },
     {"lerp", (PyCFunction)vector_lerp, METH_VARARGS,
-     "Interpolates linear to a given vector in a given number of steps."
+     DOC_VECTOR2LERP
     },
     {"normalize", (PyCFunction)vector_normalize, METH_NOARGS,
-     "returns a vector that has length == 1 and the same direction as self."
+     DOC_VECTOR2NORMALIZE
     },
     {"normalize_ip", (PyCFunction)vector_normalize_ip, METH_NOARGS,
-     "Normalizes the vector so that it has length == 1."
+     DOC_VECTOR2NORMALIZEIP
     },
     {"is_normalized", (PyCFunction)vector_is_normalized, METH_NOARGS,
-     "returns True if the vector has length == 1. otherwise it returns False."
+     DOC_VECTOR2ISNORMALIZED
     },
     {"cross", (PyCFunction)vector2_cross, METH_O,
-     "calculates the cross product."
+     DOC_VECTOR2CROSS
     },
     {"dot", (PyCFunction)vector_dot, METH_O,
-     "calculates the dot product."
+     DOC_VECTOR2DOT
     },
     {"angle_to", (PyCFunction)vector2_angle_to, METH_O,
-     "returns the angle between self and the given vector."
+     DOC_VECTOR2ANGLETO
     },
     {"scale_to_length", (PyCFunction)vector_scale_to_length, METH_O,
-     "scales the vector to the given length."
+     DOC_VECTOR2SCALETOLENGTH
     },
     {"reflect", (PyCFunction)vector_reflect, METH_O,
-     "reflects the vector on the surface characterized by the given normal."
+     DOC_VECTOR2REFLECT
     },
     {"reflect_ip", (PyCFunction)vector_reflect_ip, METH_O,
-     "reflects the vector in-place on the surface characterized by the given normal."
+     DOC_VECTOR2REFLECTIP
     },
     {"distance_to", (PyCFunction)vector_distance_to, METH_O,
-     "returns the distance to the given vector."
+     DOC_VECTOR2DISTANCETO
     },
     {"distance_squared_to", (PyCFunction)vector_distance_squared_to, METH_O,
-     "returns the squared distance to the given vector."
+     DOC_VECTOR2DISTANCESQUAREDTO
     },
     {"elementwise", (PyCFunction)vector_elementwise, METH_NOARGS,
-     "applies the following operation to each element of the vector."
+     DOC_VECTOR2ELEMENTWISE
     },
     {"as_polar", (PyCFunction)vector2_as_polar, METH_NOARGS,
-     "returns a 2-tuple (r, phi) where r is the radial distance and phi is the angle to the positive x-axis."
+     DOC_VECTOR2ASPOLAR
     },
     {"from_polar", (PyCFunction)vector2_from_polar, METH_VARARGS,
-     "sets x and y from a 2-tuple (r, phi) where r is the radial distance and phi is the angle to the positive x-axis."
+     DOC_VECTOR2FROMPOLAR
     },
     
     {NULL}  /* Sentinel */
@@ -1606,8 +1615,7 @@ static PyGetSetDef vector2_getsets[] = {
  ********************************/
 
 static PyTypeObject PyVector2_Type = {
-    PyObject_HEAD_INIT(NULL)
-    0,                         /* ob_size */
+    TYPE_HEAD(NULL, 0)
     "pygame.math.Vector2",     /* tp_name */
     sizeof(PyVector),          /* tp_basicsize */
     0,                         /* tp_itemsize */
@@ -1735,6 +1743,8 @@ vector3_init(PyVector *self, PyObject *args, PyObject *kwds)
             /* This should make "Vector3(Vector3().__repr__())" possible */
             char *endptr;
             char *str = Bytes_AsString(xOrSequence);
+            if (str == NULL)
+                return -1;
             if (strncmp(str, "<Vector3(", strlen("<Vector3(")) != 0)
                 goto error;
             str += strlen("<Vector3(");
@@ -2158,82 +2168,82 @@ vector3_from_spherical(PyVector *self, PyObject *args)
 
 static PyMethodDef vector3_methods[] = {
     {"length", (PyCFunction)vector_length, METH_NOARGS,
-     "returns the length/magnitude of the vector."
+     DOC_VECTOR3LENGTH
     },
     {"length_squared", (PyCFunction)vector_length_squared, METH_NOARGS,
-     "returns the length/magnitude of the vector."
+     DOC_VECTOR3LENGTHSQUARED
     },
     {"rotate", (PyCFunction)vector3_rotate, METH_VARARGS,
-     "returns a new vector rotated counterclockwise by the angle given in degrees."
+     DOC_VECTOR3ROTATE
     },
     {"rotate_ip", (PyCFunction)vector3_rotate_ip, METH_VARARGS,
-     "rotates the vector counterclockwise by the angle given in degrees."
+     DOC_VECTOR3ROTATEIP
     },
     {"rotate_x", (PyCFunction)vector3_rotate_x, METH_O,
-     "returns a new vector rotated counterclockwise around the x-axis by the angle given in degrees."
+     DOC_VECTOR3ROTATEX
     },
     {"rotate_x_ip", (PyCFunction)vector3_rotate_x_ip, METH_O,
-     "rotates the vector counterclockwise around the x-axis by the angle given in degrees."
+     DOC_VECTOR3ROTATEXIP
     },
     {"rotate_y", (PyCFunction)vector3_rotate_y, METH_O,
-     "returns a new vector rotated counterclockwise around the y-axis by the angle given in degrees."
+     DOC_VECTOR3ROTATEY
     },
     {"rotate_y_ip", (PyCFunction)vector3_rotate_y_ip, METH_O,
-     "rotates the vector counterclockwise around the y-axis by the angle given in degrees."
+     DOC_VECTOR3ROTATEYIP
     },
     {"rotate_z", (PyCFunction)vector3_rotate_z, METH_O,
-     "returns a new vector rotated counterclockwise around the z-axis by the angle given in degrees."
+     DOC_VECTOR3ROTATEZ
     },
     {"rotate_z_ip", (PyCFunction)vector3_rotate_z_ip, METH_O,
-     "rotates the vector counterclockwise around the z-axis by the angle given in degrees."
+     DOC_VECTOR3ROTATEZIP
     },
     {"slerp", (PyCFunction)vector_slerp, METH_VARARGS,
-     "Interpolates spherically to a given vector in a given number of steps."
+     DOC_VECTOR3SLERP
     },
     {"lerp", (PyCFunction)vector_lerp, METH_VARARGS,
-     "Interpolates linear to a given vector in a given number of steps."
+     DOC_VECTOR3LERP
     },
     {"normalize", (PyCFunction)vector_normalize, METH_NOARGS,
-     "returns a vector that has length == 1 and the same direction as self."
+     DOC_VECTOR3NORMALIZE
     },
     {"normalize_ip", (PyCFunction)vector_normalize_ip, METH_NOARGS,
-     "Normalizes the vector so that it has length == 1."
+     DOC_VECTOR3NORMALIZEIP
     },
     {"is_normalized", (PyCFunction)vector_is_normalized, METH_NOARGS,
-     "returns True if the vector has length == 1. otherwise it returns False."
+     DOC_VECTOR3ISNORMALIZED
     },
     {"cross", (PyCFunction)vector3_cross, METH_O,
-     "calculates the cross product."
+     DOC_VECTOR3CROSS
     },
     {"dot", (PyCFunction)vector_dot, METH_O,
-     "calculates the dot product."
+     DOC_VECTOR3DOT
     },
     {"angle_to", (PyCFunction)vector3_angle_to, METH_O,
-     "returns the angle between self and the given vector."
+     DOC_VECTOR3ANGLETO
     },
     {"scale_to_length", (PyCFunction)vector_scale_to_length, METH_O,
-     "scales the vector to the given length."
+     DOC_VECTOR3SCALETOLENGTH
     },
     {"reflect", (PyCFunction)vector_reflect, METH_O,
-     "reflects the vector on the surface characterized by the given normal."
+     DOC_VECTOR3REFLECT
     },
     {"reflect_ip", (PyCFunction)vector_reflect_ip, METH_O,
-     "reflects the vector in-place on the surface characterized by the given normal."
+     DOC_VECTOR3REFLECTIP
     },
     {"distance_to", (PyCFunction)vector_distance_to, METH_O,
-     "returns the distance to the given vector."
+     DOC_VECTOR3DISTANCETO
     },
     {"distance_squared_to", (PyCFunction)vector_distance_squared_to, METH_O,
-     "returns the squared distance to the given vector."
+     DOC_VECTOR3DISTANCESQUAREDTO
     },
     {"elementwise", (PyCFunction)vector_elementwise, METH_NOARGS,
-     "applies the following operation to each element of the vector."
+     DOC_VECTOR3ELEMENTWISE
     },
     {"as_spherical", (PyCFunction)vector3_as_spherical, METH_NOARGS,
-     "returns a tuple (r, theta, phi) where r is the radial distance, theta is the inclination angle and phi is the azimutal angle."
+     DOC_VECTOR3ASSPHERICAL
     },
     {"from_spherical", (PyCFunction)vector3_from_spherical, METH_VARARGS,
-     "sets x, y and z from a tuple (r, theta, phi) where r is the radial distance, theta is the inclination angle and phi is the azimutal angle."
+     DOC_VECTOR3FROMSPHERICAL
     },
     
     {NULL}  /* Sentinel */
@@ -2251,8 +2261,7 @@ static PyGetSetDef vector3_getsets[] = {
  ********************************/
 
 static PyTypeObject PyVector3_Type = {
-    PyObject_HEAD_INIT(NULL)
-    0,                         /* ob_size */
+    TYPE_HEAD (NULL, 0)
     "pygame.math.Vector3",     /* tp_name */
     sizeof(PyVector),          /* tp_basicsize */
     0,                         /* tp_itemsize */
@@ -2384,8 +2393,7 @@ static PyMethodDef vectoriter_methods[] = {
 };
 
 static PyTypeObject PyVectorIter_Type = {
-    PyObject_HEAD_INIT(NULL)
-    0,                         /* ob_size */
+    TYPE_HEAD (NULL, 0)
     "pygame.math.VectorIterator", /* tp_name */
     sizeof(vectoriter),        /* tp_basicsize */
     0,                         /* tp_itemsize */
@@ -2492,8 +2500,7 @@ static PyMethodDef vector_slerpiter_methods[] = {
 };
 
 static PyTypeObject PyVector_SlerpIter_Type = {
-    PyObject_HEAD_INIT(NULL)
-    0,                         /* ob_size */
+    TYPE_HEAD (NULL, 0)
     "pygame.math.VectorSlerpIterator", /* tp_name */
     sizeof(vector_slerpiter),        /* tp_basicsize */
     0,                         /* tp_itemsize */
@@ -2756,8 +2763,7 @@ static PyMethodDef vector_lerpiter_methods[] = {
 };
 
 static PyTypeObject PyVector_LerpIter_Type = {
-    PyObject_HEAD_INIT(NULL)
-    0,                         /* ob_size */
+    TYPE_HEAD (NULL, 0)
     "pygame.math.VectorLerpIterator", /* tp_name */
     sizeof(vector_lerpiter),        /* tp_basicsize */
     0,                         /* tp_itemsize */
@@ -3295,7 +3301,9 @@ static PyNumberMethods vector_elementwiseproxy_as_number = {
     (binaryfunc)vector_elementwiseproxy_add,      /* nb_add;       __add__ */
     (binaryfunc)vector_elementwiseproxy_sub,      /* nb_subtract;  __sub__ */
     (binaryfunc)vector_elementwiseproxy_mul,      /* nb_multiply;  __mul__ */
+#if !PY3
     (binaryfunc)vector_elementwiseproxy_div,      /* nb_divide;    __div__ */
+#endif
     (binaryfunc)vector_elementwiseproxy_mod,      /* nb_remainder; __mod__ */
     (binaryfunc)0,                                /* nb_divmod;    __divmod__ */
     (ternaryfunc)vector_elementwiseproxy_pow,     /* nb_power;     __pow__ */
@@ -3315,14 +3323,17 @@ static PyNumberMethods vector_elementwiseproxy_as_number = {
     (unaryfunc)0,                   /* nb_int;       __int__ */
     (unaryfunc)0,                   /* nb_long;      __long__ */
     (unaryfunc)0,                   /* nb_float;     __float__ */
+#if !PY3
     (unaryfunc)0,                   /* nb_oct;       __oct__ */
     (unaryfunc)0,                   /* nb_hex;       __hex__ */
-
+#endif
     /* Added in release 2.0 */
     (binaryfunc)0,                  /* nb_inplace_add;       __iadd__ */
     (binaryfunc)0,                  /* nb_inplace_subtract;  __isub__ */
     (binaryfunc)0,                  /* nb_inplace_multiply;  __imul__ */
+#if !PY3
     (binaryfunc)0,                  /* nb_inplace_divide;    __idiv__ */
+#endif
     (binaryfunc)0,                  /* nb_inplace_remainder; __imod__ */
     (ternaryfunc)0,                 /* nb_inplace_power;     __pow__ */
     (binaryfunc)0,                  /* nb_inplace_lshift;    __ilshift__ */
@@ -3342,8 +3353,7 @@ static PyNumberMethods vector_elementwiseproxy_as_number = {
 
 
 static PyTypeObject PyVectorElementwiseProxy_Type = {
-    PyObject_HEAD_INIT(NULL)
-    0,                         /* ob_size */
+    TYPE_HEAD (NULL, 0)
     "pygame.math.VectorElementwiseProxy", /* tp_name */
     sizeof(vector_elementwiseproxy), /* tp_basicsize */
     0,                         /* tp_itemsize */
