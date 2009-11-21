@@ -617,14 +617,17 @@ static PyNumberMethods vector_as_number = {
     (unaryfunc)0,                   /* nb_int;       __int__ */
     (unaryfunc)0,                   /* nb_long;      __long__ */
     (unaryfunc)0,                   /* nb_float;     __float__ */
+#if !PY3
     (unaryfunc)0,                   /* nb_oct;       __oct__ */
     (unaryfunc)0,                   /* nb_hex;       __hex__ */
-
+#endif
     /* Added in release 2.0 */
     (binaryfunc)vector_inplace_add, /* nb_inplace_add;       __iadd__ */
     (binaryfunc)vector_inplace_sub, /* nb_inplace_subtract;  __isub__ */
     (binaryfunc)vector_inplace_mul, /* nb_inplace_multiply;  __imul__ */
+#if !PY3
     (binaryfunc)vector_inplace_div, /* nb_inplace_divide;    __idiv__ */
+#endif
     (binaryfunc)0,                  /* nb_inplace_remainder; __imod__ */
     (ternaryfunc)0,                 /* nb_inplace_power;     __pow__ */
     (binaryfunc)0,                  /* nb_inplace_lshift;    __ilshift__ */
