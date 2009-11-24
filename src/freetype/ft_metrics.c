@@ -93,6 +93,14 @@ _PGFT_GetTextSize_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font,
     FT_Error    error;
     FT_Vector   size;
 
+    if (text->length == 0)
+    {
+        /* Empty string */
+        text->text_size.x = 0;
+        text->text_size.y = 0;
+        return 0;
+    }
+    
     error = PGFT_LoadTextAdvances(ft, font, render, text);
 
     if (error)
@@ -136,7 +144,15 @@ PGFT_GetSurfaceSize(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
     w = text->text_size.x;
     h = text->text_size.y;
-
+    
+    if (text->length == 0 && w == 0 && h == 0)
+    {
+        /* Empty string */
+        *width = 0;
+        *height = 0;
+        return 0;
+    }
+    
     if (text->underline_size > 0)
     {
         h = MAX(h, text->underline_pos + text->underline_size);

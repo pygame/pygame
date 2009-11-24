@@ -117,8 +117,8 @@ class SDLTest (unittest.TestCase):
         # or function related to the specified subsystems as they are likely
         # to fail or might give unpredictable results.
         self.assert_ (base.quit_subsystem (constants.INIT_AUDIO) == None)
-        self.assert_ (base.quit_subsystem (constants.INIT_CDROM) == None)
-
+        #self.assert_ (base.quit_subsystem (constants.INIT_CDROM) == None)
+    
     def test_pygame2_sdl_base_was_init(self):
 
         # __doc__ (as of 2009-04-01) for pygame2.sdl.base.was_init:

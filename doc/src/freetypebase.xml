@@ -5,8 +5,9 @@
   <alias>pygame2.freetype</alias>
   <short>Wrapping module for the FreeType 2 font library</short>
   <desc>
-      This module allows for rendering all font formats supported by FreeType, namely
-      TTF, Type1, CFF, OpenType, SFNT, PCF, FNT, BDF, PFR and Type42 fonts.
+      This module allows for rendering all font formats supported by
+      FreeType, namely TTF, Type1, CFF, OpenType, SFNT, PCF, FNT, BDF,
+      PFR and Type42 fonts.
 
       This module is optional, and replaces all of the functionality of the
       original 'font' module, whilst expanding it. This module depends in no
@@ -53,8 +54,9 @@
       This function must be called before trying to use any of the functionality
       of the 'freetype' module. It is safe to call this function more than once.
 
-      Optionally, you may specify a default size for the Glyph cache: this is the
-      maximum amount of glyphs that will be cached at any given time by the module.
+      Optionally, you may specify a default size for the Glyph cache:
+      this is the maximum amount of glyphs that will be cached at any
+      given time by the module.
       Exceedingly small values will be automatically tuned for performance.
     </desc>
   </func>
@@ -108,10 +110,11 @@
     <method name="get_size">
       <call>get_size(text [, style, rotation, ptsize]) -> int, int</call>
       <desc>
-          Gets the size in pixels which 'text' will occupy when rendered using 
-          this Font. The calculations will take into account the font's default style
-          (e.g. underlined fonts take extra height for the underline), or the
-          style may be overriden by the 'style' parameter. 
+          Gets the size in pixels which 'text' will occupy when rendered
+          using this Font. The calculations will take into account the
+          font's default style (e.g. underlined fonts take extra height
+          for the underline), or the style may be overriden by the
+          'style' parameter.
 
           Returns a tuple containing the width and height of the text's
           bounding box. 
@@ -153,10 +156,11 @@
       </desc>
     </method>
     <attr name="height">
-      <desc>Read only. Gets the height of the Font. This is the average value of all glyphs in the font.</desc>
+      <desc>Read only. Gets the height of the Font. This is the average
+      value of all glyphs in the font.</desc>
     </attr>
     <method name="render">
-      <call>render(dest, text, fgcolor [, bgcolor, style, rotation, ptsize]) -> (:class:`pygame2.sdl.video.Surface`, int, int)</call>
+      <call>render(dest, text, fgcolor [, bgcolor, style, rotation, ptsize]) -> int, int[, :class:`pygame2.sdl.video.Surface`]</call>
       <desc>
         Renders a text on a SDL surface.
 
@@ -184,9 +188,11 @@
         together with the new :class:`pygame2.sdl.video.Surface`, will
         be returned in a tuple.
 
-        The rendering is done using the font's default size in points and
-        its default style, without any rotation, and taking into account 
-        fonts which are set to be drawn vertically via the Font.vertical attribute.
+        The rendering is done using the font's default size in points
+        and its default style, without any rotation, and taking into
+        account fonts which are set to be drawn vertically via the
+        Font.vertical attribute.
+        
         Optionally you may specify another point size to use via the
         'ptsize' argument, a text rotation via the 'rotation' argument,
         or a new text style via the 'style' argument.
@@ -196,7 +202,7 @@
       </desc>
     </method>
     <method name="render_raw">
-      <call>render_raw(text [, ptsize]) -> (int, int, bytes)</call>
+      <call>render_raw(text [, ptsize]) -> int, int, bytes</call>
       <desc>
         Renders a text to a byte buffer.
 

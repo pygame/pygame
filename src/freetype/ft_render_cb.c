@@ -232,8 +232,8 @@ void __render_glyph_ByteArray(int x, int y, FontSurface *surface,
             for (i = rx; i < max_x; ++i, _dst += _bpp)                  \
             {                                                           \
                 FT_UInt32 alpha = (*_src++);                            \
+                FT_UInt32 tmpa = alpha;                                 \
                 alpha = (alpha * color->a) / 255;                       \
-                                                                        \
                 if (alpha == 0xFF)                                      \
                 {                                                       \
                     _setp;                                              \
@@ -242,24 +242,21 @@ void __render_glyph_ByteArray(int x, int y, FontSurface *surface,
                 {                                                       \
                     FT_UInt32 pixel = (FT_UInt32)_getp;                 \
                                                                         \
-                if (_bpp == 1)                                          \
-                {                                                       \
-                    GET_PALETTE_VALS(                                   \
+                    if (_bpp == 1)                                      \
+                    {                                                   \
+                        GET_PALETTE_VALS(                               \
                             pixel, surface->format,                     \
-                            bgR, bgG, bgB, bgA);                        \
-                }                                                       \
-                else                                                    \
-                {                                                       \
-                    GET_RGB_VALS(                                       \
+                                bgR, bgG, bgB, bgA);                    \
+                    }                                                   \
+                    else                                                \
+                    {                                                   \
+                        GET_RGB_VALS(                                   \
                             pixel, surface->format,                     \
-                            bgR, bgG, bgB, bgA);                        \
-                                                                        \
-                }                                                       \
-                                                                        \
+                                bgR, bgG, bgB, bgA);                    \
+                    }                                                   \
                     ALPHA_BLEND(                                        \
-                            color->r, color->g, color->b, alpha,        \
+                        color->r, color->g, color->b, alpha,            \
                             bgR, bgG, bgB, bgA);                        \
-                                                                        \
                     _blendp;                                            \
                 }                                                       \
             }                                                           \
@@ -283,7 +280,7 @@ void __render_glyph_ByteArray(int x, int y, FontSurface *surface,
     ((bgR >> surface->format->Rloss) << surface->format->Rshift) |  \
     ((bgG >> surface->format->Gloss) << surface->format->Gshift) |  \
     ((bgB >> surface->format->Bloss) << surface->format->Bshift) |  \
-    ((255 >> surface->format->Aloss) << surface->format->Ashift  &  \
+    ((bgA >> surface->format->Aloss) << surface->format->Ashift  &  \
      surface->format->Amask)                                        )
 
 #define _BLEND_PIXEL_GENERIC(T) *(T*)_dst = (T)(    \

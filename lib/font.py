@@ -459,7 +459,7 @@ def find_fonts (name, bold=False, italic=False, ftype=None):
     return None
 
 def find_font (name, bold=False, italic=False, ftype=None):
-    """find_fonts(name, bold=False, italic=False, ftype=None) -> str, bool, bool
+    """find_font (name, bold=False, italic=False, ftype=None) -> str, bool, bool
 
     Finds a font matching a certain family or font filename best.
 

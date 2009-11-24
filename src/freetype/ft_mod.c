@@ -147,7 +147,7 @@ _ft_get_version(PyObject *self)
 static PyObject *
 _ft_was_init(PyObject *self)
 {
-    return PyBool_FromLong((FREETYPE_MOD_STATE (self)->freetype != NULL));
+    return PyBool_FromLong((long)(FREETYPE_MOD_STATE (self)->freetype != NULL));
 }
 
 

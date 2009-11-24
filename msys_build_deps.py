@@ -37,8 +37,9 @@ libvorbis 1.2.0
 FLAC 1.2.1
 tiff 3.8.2
 libpng 1.2.32
-jpeg 6b
+jpeg 7
 zlib 1.2.3
+smpeg rev. 384
 
 The build environment used:
 
@@ -462,6 +463,36 @@ def main(dependencies, msvcr71_preparation, msys_preparation):
 # 
 # The list order corresponds to build order. It is critical.
 dependencies = [
+    Dependency('SDL13', ['SDL-1.3[0-9].*'], ['SDL.dll'], """
+
+set -e
+cd $BDWD
+
+if [ x$BDCONF == x1 ]; then
+  # This comes straight from SVN so has no configure script
+  if [ ! -f "./configure" ]; then
+    ./autogen.sh
+  fi
+  ./configure
+fi
+
+if [ x$BDCOMP == x1 ]; then
+  make
+fi
+
+if [ x$BDINST == x1 ]; then
+  make install
+fi
+
+if [ x$BDSTRIP == x1 ]; then
+  strip --strip-all /usr/local/bin/SDL.dll
+fi
+
+if [ x$BDCLEAN == x1 ]; then
+  set +e
+  make clean
+fi
+"""),
     Dependency('SDL', ['SDL-[1-9].*'], ['SDL.dll'], """
 
 set -e
@@ -637,16 +668,16 @@ fi
 
 if [ x$BDCOMP == x1 ]; then
   make
-  dlltool --export-all-symbols -D jpeg.dll -l libjpeg.dll.a -z in.def libjpeg.a
+  dlltool --export-all-symbols -D jpeg.dll -l libjpeg.dll.a -z in.def .libs/libjpeg.a
   ranlib libjpeg.dll.a
-  gcc -shared -s $LDFLAGS -def in.def -o jpeg.dll libjpeg.a
+  gcc -shared -s $LDFLAGS -def in.def -o jpeg.dll .libs/libjpeg.a
 fi
 
 if [ x$BDINST == x1 ]; then
   # Only install the headers and import library, otherwise SDL_image will
   # statically link to jpeg.
-  make install-headers
-  cp -fp libjpeg.a /usr/local/lib
+  make install-includeHEADERS
+  cp -fp .libs/libjpeg.a /usr/local/lib
   cp -fp libjpeg.dll.a /usr/local/lib
   cp -fp jpeg.dll /usr/local/bin
   if [ x$? != x0 ]; then exit $?; fi
@@ -862,17 +893,6 @@ set -e
 cd $BDWD
 
 if [ x$BDCONF == x1 ]; then
-  # This comes straight from SVN so has no configure script
-  if [ ! -f "./configure" ]; then
-    ./autogen.sh
-  fi
-  # Need to add Ws2_32 library for FLAC.
-  cp -f configure configure_
-  sed '
-s/\\(EXTRA_LDFLAGS="$EXTRA_LDFLAGS -lFLAC\\)"/\\1 -lWs2_32"/
-s/\\(LIBS="-lFLAC\\)\\(  $LIBS"\\)/\\1 -lWs2_32\\2/' \
-    configure_ >configure
-  rm configure_
   # No dynamic loading of dependent libraries.
   ./configure --disable-music-ogg-shared --disable-music-mp3-shared \
     --disable-music-flac-shared

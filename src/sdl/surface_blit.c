@@ -42,9 +42,9 @@ alphablit_alpha (SDL_BlitInfo * info)
     int             dR, dG, dB, dA, sR, sG, sB, sA;
     Uint32          pixel;
 
-    /*
+/*    
     printf ("Alpha blit with %d and %d\n", srcbpp, dstbpp);
-    */
+*/
 
     if (srcbpp == 1)
     {
@@ -146,9 +146,9 @@ alphablit_colorkey (SDL_BlitInfo * info)
     Uint32          colorkey = srcfmt->colorkey;
     Uint32          pixel;
 
-    /*
+/*    
     printf ("Colorkey blit with %d and %d\n", srcbpp, dstbpp);
-    */
+*/  
 
     if (srcbpp == 1)
     {
@@ -253,9 +253,9 @@ alphablit_solid (SDL_BlitInfo * info)
     int             alpha = srcfmt->alpha;
     int             pixel;
 
-    /*
+/*    
     printf ("Solid blit with %d and %d\n", srcbpp, dstbpp);
-    */
+*/    
 
     if (srcbpp == 1)
     {

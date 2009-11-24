@@ -40,6 +40,7 @@ And you will need the dependency packages for the packages above:
 * libvorbis >= 1.2.0         (http://www.xiph.org/vorbis/)
 * libogg >= 1.1.3            (http://www.xiph.org/ogg/)
 * FLAC >= 1.2.1              (http://flac.sourceforge.net)
+* smpeg >= rev. 370          (http://icculus.org/smpeg/)
 
 The next step would be to build and install those dependencies in the
 correct order as required by your specific operating system. Once done

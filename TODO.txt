@@ -20,6 +20,7 @@ CRITICAL:
 * >8 bpp surfaces with palettes - it is supported (although it might be
   pointless) by SDL and so should we.
 
+* Fix issues with new and existing surface rendering (e.g. blending)
 * freetype: render to buffer buffer support (like new bytearray, but
   write to a buffer instead)
 * freetype: correct error messages (e.g. on trying to scale pcf fonts)

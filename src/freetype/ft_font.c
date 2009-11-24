@@ -535,7 +535,7 @@ _ftfont_getsize(PyObject *self, PyObject* args, PyObject *kwds)
     }
 
     error = PGFT_GetTextSize(ft, font, &render,text, &width, &height);
-
+    
     if (error)
         PyErr_SetString(PyExc_RuntimeError, PGFT_GetError(ft));
     else
@@ -809,9 +809,8 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
             return NULL;
         }
 
-        rtuple = Py_BuildValue("(Oii)", 
-                PySDLSurface_NewFromSDLSurface(r_surface), 
-                width, height);
+        rtuple = Py_BuildValue("(iiO)", width, height,
+                PySDLSurface_NewFromSDLSurface(r_surface));
     }
     else
     {

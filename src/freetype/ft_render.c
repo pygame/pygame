@@ -157,6 +157,15 @@ int PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
     FontSurface font_surf;
     FontText    *font_text;
 
+    /* build font text */
+    font_text = PGFT_LoadFontText(ft, font, render, text);
+
+    if (!font_text)
+        return -1;
+
+    if (PGFT_GetSurfaceSize(ft, font, render, font_text, &width, &height) != 0)
+        return -1;
+
     if (SDL_MUSTLOCK(surface))
     {
         if (SDL_LockSurface(surface) == -1)
@@ -167,15 +176,6 @@ int PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
         }
         locked = 1;
     }
-
-    /* build font text */
-    font_text = PGFT_LoadFontText(ft, font, render, text);
-
-    if (!font_text)
-        return -1;
-
-    if (PGFT_GetSurfaceSize(ft, font, render, font_text, &width, &height) != 0)
-        return -1;
 
     /*
      * Setup target surface struct
@@ -227,8 +227,11 @@ int PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
      * Render!
      */
     if (_PGFT_Render_INTERNAL(ft, font, font_text, render, fgcolor, &font_surf) != 0)
+    {
+        if (locked)
+            SDL_UnlockSurface(surface);
         return -1;
-
+    }
     *_width = width;
     *_height = height;
 
@@ -259,17 +262,10 @@ SDL_Surface *PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
     if (PGFT_GetSurfaceSize(ft, font, render, font_text, &width, &height) != 0)
         return NULL;
 
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-    rmask = 0xff000000;
-    gmask = 0x00ff0000;
-    bmask = 0x0000ff00;
-    amask = 0x000000ff;
-#else
-    rmask = 0x000000ff;
-    gmask = 0x0000ff00;
-    bmask = 0x00ff0000;
     amask = 0xff000000;
-#endif
+    rmask = 0x00ff0000;
+    gmask = 0x0000ff00;
+    bmask = 0x000000ff;
 
     surface = SDL_CreateRGBSurface(SDL_SWSURFACE, 
             width, height,
@@ -297,7 +293,7 @@ SDL_Surface *PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
     font_surf.width = surface->w;
     font_surf.height = surface->h;
-    font_surf.pitch = surface->pitch / sizeof(FT_UInt32);
+    font_surf.pitch = surface->pitch / surface->format->BytesPerPixel; /*sizeof(FT_UInt32);*/
 
     font_surf.format = surface->format;
     font_surf.render = __render_glyph_RGB4;
@@ -425,9 +421,14 @@ int _PGFT_Render_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font,
     int         x = (surface->x_offset << 6);
     int         y = (surface->y_offset << 6);
 
+    if (text->length == 0)
+        return 0;
+    
+    /*
     assert(text->text_size.x);
     assert(text->text_size.y);
-
+    */
+    
     x += (text->text_size.x / 2);
     y += (text->text_size.y / 2);
     y -= (text->baseline_offset.y);

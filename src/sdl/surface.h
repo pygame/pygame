@@ -396,6 +396,7 @@ typedef enum
  * then use a specialized, faster, equation. Otherwise a more general form,
  * where all additions are done before the shift, is needed.
 */
+
 #if (-1 >> 1) < 0
 #define ALPHA_BLEND_COMP(sC, dC, sA) ((((sC - dC) * sA + sC) >> 8) + dC)
 #else

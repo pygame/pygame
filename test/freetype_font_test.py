@@ -51,7 +51,7 @@ class FreeTypeFontTest(unittest.TestCase):
     def test_pygame2_freetype_Font_get_metrics(self):
 
         font = self._TEST_FONTS['sans']
-
+        
         # test for floating point values (BBOX_EXACT)
         metrics = font.get_metrics('ABCD', ptsize=24, bbmode=ft_const.BBOX_EXACT)
         self.assertEqual(len(metrics), len('ABCD'))
@@ -77,6 +77,10 @@ class FreeTypeFontTest(unittest.TestCase):
         # test for empty string
         metrics = font.get_metrics('', ptsize=24)
         self.assertEqual(metrics, [])
+        metrics = font.get_metrics('', ptsize=24, bbmode=ft_const.BBOX_EXACT)
+        self.assertEqual(metrics, [])
+        metrics = font.get_metrics('', ptsize=24, bbmode=ft_const.BBOX_PIXEL)
+        self.assertEqual(metrics, [])
 
         # test for invalid string
         self.assertRaises(TypeError, font.get_metrics, 24, 24)
@@ -93,7 +97,7 @@ class FreeTypeFontTest(unittest.TestCase):
 
         size_default = font.get_size("ABCDabcd", ptsize=24)
         test_size(size_default)
-        self.assertTrue(size_default > (0, 0))
+        self.assertTrue(size_default > (0, 0), size_default)
         self.assertTrue(size_default[0] > size_default[1])
 
         size_bigger = font.get_size("ABCDabcd", ptsize=32)
@@ -122,7 +126,20 @@ class FreeTypeFontTest(unittest.TestCase):
         self.assertTrue(size_under[0] == size_default[0])
         self.assertTrue(size_under[1] > size_default[1])
 
-
+        # Empty strings.
+        size_null = font.get_size("", ptsize=24, style=ft_const.STYLE_UNDERLINE)
+        test_size (size_null)
+        self.assertTrue (size_null[0] == size_null[1] == 0)
+        size_null = font.get_size("", ptsize=24, style=ft_const.STYLE_BOLD)
+        test_size (size_null)
+        self.assertTrue (size_null[0] == size_null[1] == 0)
+        size_null = font.get_size("", ptsize=24, style=ft_const.STYLE_ITALIC)
+        test_size (size_null)
+        self.assertTrue (size_null[0] == size_null[1] == 0)
+        size_null = font.get_size("", ptsize=24)
+        test_size (size_null)
+        self.assertTrue (size_null[0] == size_null[1] == 0)
+        
     def test_pygame2_freetype_Font_height(self):
 
         f = self._TEST_FONTS['sans']
@@ -156,9 +173,9 @@ class FreeTypeFontTest(unittest.TestCase):
         # render to new surface
         rend = font.render(None, 'FoobarBaz', pygame2.base.Color(0, 0, 0), None, ptsize=24)
         self.assertTrue(isinstance(rend, tuple))
-        self.assertTrue(isinstance(rend[0], pygame2.base.Surface))
+        self.assertTrue(isinstance(rend[0], int))
         self.assertTrue(isinstance(rend[1], int))
-        self.assertTrue(isinstance(rend[2], int))
+        self.assertTrue(isinstance(rend[2], pygame2.base.Surface))
 
         # render to existing surface
         rend = font.render((surf, 32, 32), 'FoobarBaz', color, None, ptsize=24)
@@ -166,6 +183,20 @@ class FreeTypeFontTest(unittest.TestCase):
         self.assertTrue(isinstance(rend[0], int))
         self.assertTrue(isinstance(rend[1], int))
 
+        # render empty to new surface
+        rend = font.render(None, '', pygame2.base.Color(0, 0, 0), None, ptsize=24)
+        self.assertTrue(isinstance(rend, tuple))
+        self.assertTrue(isinstance(rend[0], int) and rend[0] == 0)
+        self.assertTrue(isinstance(rend[1], int) and rend[1] == 0)
+        self.assertTrue(isinstance(rend[2], pygame2.base.Surface))
+        self.assertTrue(rend[2].size == (0, 0))
+        
+        # render empty to existing surface
+        rend = font.render((surf, 32, 32), '', color, None, ptsize=24)
+        self.assertTrue(isinstance(rend, tuple))
+        self.assertTrue(isinstance(rend[0], int) and rend[0] == 0)
+        self.assertTrue(isinstance(rend[1], int) and rend[1] == 0)
+        
         # misc parameter test
         self.assertRaises(ValueError, font.render, None, 'foobar', color)
         self.assertRaises(TypeError, font.render, None, 'foobar', color, "",

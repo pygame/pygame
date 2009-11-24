@@ -153,7 +153,9 @@ _sdl_quitsubsystem (PyObject *self, PyObject *args)
     Uint32 flags;
     if (!PyArg_ParseTuple (args, "l:quit_subsystem", &flags))
         return NULL;
+    puts ("quitsubsystem 0");
     SDL_QuitSubSystem (flags);
+    puts ("quitsubsystem 1");
     Py_RETURN_NONE;
 }
 
