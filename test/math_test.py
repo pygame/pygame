@@ -602,29 +602,30 @@ class Vector2TypeTest(unittest.TestCase):
         self.assertRaises(ZeroDivisionError, lambda : self.zeroVec.elementwise() ** -1)
 
     def test_slerp(self):
-        steps = 10
         self.assertRaises(ZeroDivisionError,
-                          lambda : self.zeroVec.slerp(self.v1, steps))
+                          lambda : self.zeroVec.slerp(self.v1, .5))
         self.assertRaises(ZeroDivisionError,
-                          lambda : self.v1.slerp(self.zeroVec, steps))
+                          lambda : self.v1.slerp(self.zeroVec, .5))
         self.assertRaises(ZeroDivisionError,
-                          lambda : self.zeroVec.slerp(self.zeroVec, steps))
+                          lambda : self.zeroVec.slerp(self.zeroVec, .5))
         v1 = Vector2(1, 0)
         v2 = Vector2(0, 1)
+        steps = 10
         angle_step = v1.angle_to(v2) / steps
-        for i, u in enumerate(v1.slerp(v2, steps)):
+        for i, u in ((i, v1.slerp(v2, i/float(steps))) for i in xrange(steps+1)):
             self.assertAlmostEqual(u.length(), 1)
-            self.assertAlmostEqual(v1.angle_to(u), (i + 1) * angle_step)
+            self.assertAlmostEqual(v1.angle_to(u), i * angle_step)
         self.assertEqual(u, v2)
         
         v1 = Vector2(100, 0)
         v2 = Vector2(0, 10)
         radial_factor = v2.length() / v1.length()
-        for i, u in enumerate(v1.slerp(v2, -steps)):
-            self.assertAlmostEqual(u.length(), v1.length() * radial_factor**(float(i+1)/steps))
+        for i, u in ((i, v1.slerp(v2, -i/float(steps))) for i in xrange(steps+1)):
+            self.assertAlmostEqual(u.length(), (v2.length() - v1.length()) * (float(i)/steps) + v1.length())
         self.assertEqual(u, v2)
 
     def test_lerp(self):
+        """TODO"""
         pass
         
     def test_polar(self):
@@ -1324,25 +1325,29 @@ class Vector3TypeTest(unittest.TestCase):
         self.assertRaises(ZeroDivisionError, lambda : self.zeroVec.elementwise() ** -1)
 
     def test_slerp(self):
+        self.assertRaises(ZeroDivisionError,
+                          lambda : self.zeroVec.slerp(self.v1, .5))
+        self.assertRaises(ZeroDivisionError,
+                          lambda : self.v1.slerp(self.zeroVec, .5))
+        self.assertRaises(ZeroDivisionError,
+                          lambda : self.zeroVec.slerp(self.zeroVec, .5))
         steps = 10
-        self.assertRaises(ZeroDivisionError,
-                          lambda : self.zeroVec.slerp(self.v1, steps))
-        self.assertRaises(ZeroDivisionError,
-                          lambda : self.v1.slerp(self.zeroVec, steps))
-        self.assertRaises(ZeroDivisionError,
-                          lambda : self.zeroVec.slerp(self.zeroVec, steps))
         angle_step = self.e1.angle_to(self.e2) / steps
-        for i, u in enumerate(self.e1.slerp(self.e2, steps)):
+        for i, u in ((i, self.e1.slerp(self.e2, i/float(steps))) for i in xrange(steps+1)):
             self.assertAlmostEqual(u.length(), 1)
-            self.assertAlmostEqual(self.e1.angle_to(u), (i + 1) * angle_step)
+            self.assertAlmostEqual(self.e1.angle_to(u), i * angle_step)
         self.assertEqual(u, self.e2)
         
         v1 = Vector3(100, 0, 0)
         v2 = Vector3(0, 10, 7)
         radial_factor = v2.length() / v1.length()
-        for i, u in enumerate(v1.slerp(v2, -steps)):
-            self.assertAlmostEqual(u.length(), v1.length() * radial_factor**(float(i+1)/steps))
+        for i, u in ((i, v1.slerp(v2, -i/float(steps))) for i in xrange(steps+1)):
+            self.assertAlmostEqual(u.length(), (v2.length() - v1.length()) * (float(i)/steps) + v1.length())
         self.assertEqual(u, v2)
+
+    def test_lerp(self):
+        """TODO"""
+        pass
 
     def test_spherical(self):
         v = Vector3()

@@ -230,8 +230,8 @@
 <a name="Vector2.lerp">
 <big><b>Vector2.lerp</big></b><br><ul>
   <i>returns a linear interpolation to the given vector.</i><br>
-  <tt>Vector2.lerp(Vector2): return Vector2</tt><br>
- &nbsp;<br> 
+  <tt>Vector2.lerp(Vector2, float): return Vector2</tt><br>
+<p>Returns a Vector which is a linear interpolation between self and the given Vector. The second parameter determines how far between self an other the result is going to be. It must be a value between 0 and 1 where 0 means self an 1 means other will be returned. </p>
 <!--COMMENTS:Vector2.lerp--> &nbsp;<br> 
 <br></ul>
 
@@ -239,8 +239,8 @@
 <a name="Vector2.slerp">
 <big><b>Vector2.slerp</big></b><br><ul>
   <i>returns a spherical interpolation to the given vector.</i><br>
-  <tt>Vector2.slerp(Vector2): return Vector2</tt><br>
- &nbsp;<br> 
+  <tt>Vector2.slerp(Vector2, float): return Vector2</tt><br>
+<p>Calculates the spherical interpolation from self to the given Vector. The second argument - often called t - must be in the range [-1, 1]. It parametrizes where - in between the two vectors - the result should be. If a negative value is given the interpolation will not take the complement of the shortest path. </p>
 <!--COMMENTS:Vector2.slerp--> &nbsp;<br> 
 <br></ul>
 
@@ -451,8 +451,8 @@
 <a name="Vector3.lerp">
 <big><b>Vector3.lerp</big></b><br><ul>
   <i>returns a linear interpolation to the given vector.</i><br>
-  <tt>Vector3.lerp(Vector3): return Vector3</tt><br>
- &nbsp;<br> 
+  <tt>Vector3.lerp(Vector3, float): return Vector3</tt><br>
+<p>Returns a Vector which is a linear interpolation between self and the given Vector. The second parameter determines how far between self an other the result is going to be. It must be a value between 0 and 1 where 0 means self an 1 means other will be returned. </p>
 <!--COMMENTS:Vector3.lerp--> &nbsp;<br> 
 <br></ul>
 
@@ -460,8 +460,8 @@
 <a name="Vector3.slerp">
 <big><b>Vector3.slerp</big></b><br><ul>
   <i>returns a spherical interpolation to the given vector.</i><br>
-  <tt>Vector3.slerp(Vector3): return Vector3</tt><br>
- &nbsp;<br> 
+  <tt>Vector3.slerp(Vector3, float): return Vector3</tt><br>
+<p>Calculates the spherical interpolation from self to the given Vector. The second argument - often called t - must be in the range [-1, 1]. It parametrizes where - in between the two vectors - the result should be. If a negative value is given the interpolation will not take the complement of the shortest path. </p>
 <!--COMMENTS:Vector3.slerp--> &nbsp;<br> 
 <br></ul>
 
