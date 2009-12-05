@@ -179,7 +179,12 @@ Vector2.distance_squared_to(Vector2): return float
 
 lerp
 returns a linear interpolation to the given vector.
-Vector2.lerp(Vector2): return Vector2
+Vector2.lerp(Vector2, float): return Vector2
+
+Returns a Vector which is a linear interpolation between self and
+the given Vector. The second parameter determines how far between 
+self an other the result is going to be. It must be a value between
+0 and 1 where 0 means self an 1 means other will be returned.
 
 <END>
 
@@ -187,7 +192,13 @@ Vector2.lerp(Vector2): return Vector2
 
 slerp
 returns a spherical interpolation to the given vector.
-Vector2.slerp(Vector2): return Vector2
+Vector2.slerp(Vector2, float): return Vector2
+
+Calculates the spherical interpolation from self to the given Vector. 
+The second argument - often called t - must be in the range [-1, 1]. 
+It parametrizes where - in between the two vectors - the result should 
+be. If a negative value is given the interpolation will not take the 
+complement of the shortest path.
 
 <END>
 
@@ -382,7 +393,12 @@ Vector3.distance_squared_to(Vector3): return float
 
 lerp
 returns a linear interpolation to the given vector.
-Vector3.lerp(Vector3): return Vector3
+Vector3.lerp(Vector3, float): return Vector3
+
+Returns a Vector which is a linear interpolation between self and
+the given Vector. The second parameter determines how far between 
+self an other the result is going to be. It must be a value between
+0 and 1 where 0 means self an 1 means other will be returned.
 
 <END>
 
@@ -390,7 +406,13 @@ Vector3.lerp(Vector3): return Vector3
 
 slerp
 returns a spherical interpolation to the given vector.
-Vector3.slerp(Vector3): return Vector3
+Vector3.slerp(Vector3, float): return Vector3
+
+Calculates the spherical interpolation from self to the given Vector. 
+The second argument - often called t - must be in the range [-1, 1]. 
+It parametrizes where - in between the two vectors - the result should 
+be. If a negative value is given the interpolation will not take the 
+complement of the shortest path.
 
 <END>
 
