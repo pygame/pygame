@@ -31,9 +31,9 @@
 
 #define DOC_VECTOR2DISTANCESQUAREDTO "Vector2.distance_squared_to(Vector2): return float\ncalculates the squared euclidic distance to a given vector."
 
-#define DOC_VECTOR2LERP "Vector2.lerp(Vector2): return Vector2\nreturns a linear interpolation to the given vector."
+#define DOC_VECTOR2LERP "Vector2.lerp(Vector2, float): return Vector2\nreturns a linear interpolation to the given vector."
 
-#define DOC_VECTOR2SLERP "Vector2.slerp(Vector2): return Vector2\nreturns a spherical interpolation to the given vector."
+#define DOC_VECTOR2SLERP "Vector2.slerp(Vector2, float): return Vector2\nreturns a spherical interpolation to the given vector."
 
 #define DOC_VECTOR2ELEMENTWISE "Vector2.elementwise(): return VectorElementwizeProxy\nThe next operation will be performed elementwize."
 
@@ -73,9 +73,9 @@
 
 #define DOC_VECTOR3DISTANCESQUAREDTO "Vector3.distance_squared_to(Vector3): return float\ncalculates the squared euclidic distance to a given vector."
 
-#define DOC_VECTOR3LERP "Vector3.lerp(Vector3): return Vector3\nreturns a linear interpolation to the given vector."
+#define DOC_VECTOR3LERP "Vector3.lerp(Vector3, float): return Vector3\nreturns a linear interpolation to the given vector."
 
-#define DOC_VECTOR3SLERP "Vector3.slerp(Vector3): return Vector3\nreturns a spherical interpolation to the given vector."
+#define DOC_VECTOR3SLERP "Vector3.slerp(Vector3, float): return Vector3\nreturns a spherical interpolation to the given vector."
 
 #define DOC_VECTOR3ELEMENTWISE "Vector3.elementwise(): return VectorElementwizeProxy\nThe next operation will be performed elementwize."
 
@@ -209,13 +209,13 @@ calculates the squared euclidic distance to a given vector.
 
 
 Vector2.lerp
- Vector2.lerp(Vector2): return Vector2
+ Vector2.lerp(Vector2, float): return Vector2
 returns a linear interpolation to the given vector.
 
 
 
 Vector2.slerp
- Vector2.slerp(Vector2): return Vector2
+ Vector2.slerp(Vector2, float): return Vector2
 returns a spherical interpolation to the given vector.
 
 
@@ -338,13 +338,13 @@ calculates the squared euclidic distance to a given vector.
 
 
 Vector3.lerp
- Vector3.lerp(Vector3): return Vector3
+ Vector3.lerp(Vector3, float): return Vector3
 returns a linear interpolation to the given vector.
 
 
 
 Vector3.slerp
- Vector3.slerp(Vector3): return Vector3
+ Vector3.slerp(Vector3, float): return Vector3
 returns a spherical interpolation to the given vector.
 
 

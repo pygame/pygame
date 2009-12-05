@@ -59,7 +59,6 @@ static PyTypeObject PyVector2_Type;
 static PyTypeObject PyVector3_Type;
 static PyTypeObject PyVectorElementwiseProxy_Type;
 static PyTypeObject PyVectorIter_Type;
-static PyTypeObject PyVector_SlerpIter_Type;
 
 #define PyVector2_Check(x) (Py_TYPE(x) == &PyVector2_Type)
 #define PyVector3_Check(x) (Py_TYPE(x) == &PyVector3_Type)
@@ -86,25 +85,6 @@ typedef struct {
 
 typedef struct {
     PyObject_HEAD
-    long it_index;
-    long steps;
-    long dim;
-    double coords[VECTOR_MAX_SIZE];
-    double matrix[VECTOR_MAX_SIZE][VECTOR_MAX_SIZE];
-    double radial_factor;
-} vector_slerpiter;
-
-typedef struct {
-    PyObject_HEAD
-    long it_index;
-    long steps;
-    long dim;
-    double coords[VECTOR_MAX_SIZE];
-    double step_vec[VECTOR_MAX_SIZE];
-} vector_lerpiter;
-
-typedef struct {
-    PyObject_HEAD
     PyVector *vec;
 } vector_elementwiseproxy;
 
@@ -116,14 +96,6 @@ static double PySequence_GetItem_AsDouble(PyObject *seq, Py_ssize_t index);
 static int PySequence_AsVectorCoords(PyObject *seq, double *coords, const size_t size);
 static int PyVectorCompatible_Check(PyObject *obj, int dim);
 static double _scalar_product(const double *coords1, const double *coords2, int size);
-static void _make_vector2_slerp_matrix(vector_slerpiter *it, 
-                                       const double *vec1_coords,
-                                       const double *vec2_coords,
-                                       double angle);
-static void _make_vector3_slerp_matrix(vector_slerpiter *it, 
-                                       const double *vec1_coords,
-                                       const double *vec2_coords,
-                                       double angle);
 
 /* generic vector functions */
 static PyObject *PyVector_NEW(int dim);
@@ -162,6 +134,8 @@ static PyObject *vector_normalize(PyVector *self);
 static PyObject *vector_normalize_ip(PyVector *self);
 static PyObject *vector_dot(PyVector *self, PyObject *other);
 static PyObject *vector_scale_to_length(PyVector *self, PyObject *length);
+static PyObject *vector_slerp(PyVector *self, PyObject *args);
+static PyObject *vector_lerp(PyVector *self, PyObject *args);
 static int _vector_reflect_helper(double *dst_coords, const double *src_coords, 
                                   PyObject *normal, int dim, double epsilon);
 static PyObject *vector_reflect(PyVector *self, PyObject *normal);
@@ -171,8 +145,6 @@ static PyObject *vector_distance_squared_to(PyVector *self, PyObject *other);
 static PyObject *vector_getAttr_swizzle(PyVector *self, PyObject *attr_name);
 static int vector_setAttr_swizzle(PyVector *self, PyObject *attr_name, PyObject *val);
 static PyObject *vector_elementwise(PyVector *self);
-static PyObject *vector_slerp(PyVector *self, PyObject *args);
-static PyObject *vector_lerp(PyVector *self, PyObject *args);
 static PyObject *vector_repr(PyVector *self);
 static PyObject *vector_str(PyVector *self);
 /*
@@ -980,6 +952,76 @@ vector_scale_to_length(PyVector *self, PyObject *length)
         self->coords[i] *= fraction;
 
     Py_RETURN_NONE;
+}
+
+static PyObject *
+vector_slerp(PyVector *self, PyObject *args)
+{
+    int i;
+    PyObject *other;
+    PyVector *ret;
+    double other_coords[VECTOR_MAX_SIZE];
+    double angle, t, length1, length2, f0, f1, f2;
+
+    if (!PyArg_ParseTuple(args, "Od:slerp", &other, &t)) {
+        return NULL;
+    }
+    if (!PySequence_AsVectorCoords(other, other_coords, self->dim)) {
+        PyErr_SetString(PyExc_TypeError, "Argument 1 must be a vector.");
+        return NULL;
+    }
+    if (fabs(t) > 1) {
+        PyErr_SetString(PyExc_ValueError, "Argument 2 must be in range [-1, 1].");
+        return NULL;
+    }
+    
+    length1 = sqrt(_scalar_product(self->coords, self->coords, self->dim));
+    length2 = sqrt(_scalar_product(other_coords, other_coords, self->dim));
+    if ((length1 < self->epsilon) || (length2 < self->epsilon)) {
+        PyErr_SetString(PyExc_ZeroDivisionError,
+                        "can't use slerp with Zero-Vector");
+        return NULL;
+    }
+    angle = acos(_scalar_product(self->coords, other_coords, self->dim) /
+                 (length1 * length2));
+    if (t < 0) {
+        angle -= 2 * M_PI;
+        t = -t;
+    }
+    if (self->coords[0] * other_coords[1] < self->coords[1] * other_coords[0])
+        angle *= -1;
+
+    ret = (PyVector*)PyVector_NEW(self->dim);
+    f0 = ((length2 - length1) * t + length1) / sin(angle);
+    f1 = sin(angle * (1-t)) / length1;
+    f2 = sin(angle * t) / length2;
+    for (i = 0; i < self->dim; ++i)
+        ret->coords[i] = (self->coords[i] * f1 + other_coords[i] * f2) * f0;
+    return (PyObject*)ret;
+}
+
+static PyObject *
+vector_lerp(PyVector *self, PyObject *args)
+{
+    int i;
+    PyObject *other;
+    PyVector *ret;
+    double t;
+    double other_coords[VECTOR_MAX_SIZE];
+
+    if (!PyArg_ParseTuple(args, "Od:Vector.lerp", &other, &t)) {
+        return NULL;
+    }
+    if (!PySequence_AsVectorCoords(other, other_coords, self->dim)) {
+        PyErr_SetString(PyExc_TypeError, "Expected Vector as argument 1");
+        return NULL;
+    }
+    /* TODO: check that t is in range [0, 1] */
+
+    ret = (PyVector*)PyVector_NEW(self->dim);
+    for (i = 0; i < self->dim; ++i)
+        ret->coords[i] = self->coords[i] * (1 - t) + other_coords[i] * t;
+    return (PyObject *)ret;
 }
 
 static int 
@@ -2443,393 +2485,8 @@ vector_iter(PyObject *vec)
 
 
 
-/********************************************
- * PyVector_SlerpIterator type definition
- ********************************************/
-static void
-vector_slerpiter_dealloc(vector_slerpiter *it)
-{
-    PyObject_Del(it);
-}
-
-static PyObject *
-vector_slerpiter_next(vector_slerpiter *it)
-{
-    int i, j;
-    PyVector *ret;
-    double tmp;
-    assert(it != NULL);
-
-    if (it->it_index < it->steps) {
-        ret = (PyVector*)PyVector_NEW(it->dim);
-        if (ret != NULL) {
-            for (i = 0; i < it->dim; ++i) {
-                tmp = 0;
-                for (j = 0; j < it->dim; ++j)
-                    tmp += it->coords[j] * it->matrix[j][i];
-                ret->coords[i] = tmp * it->radial_factor;
-            }
-            memcpy(it->coords, ret->coords, sizeof(it->coords[0]) * it->dim);
-        }
-        ++(it->it_index);
-        return (PyObject*)ret;
-    }
-    
-    return NULL;
-}
-
-static PyObject *
-vector_slerpiter_len(vector_slerpiter *it)
-{
-    Py_ssize_t len = 0;
-    if (it) {
-        len = it->steps - it->it_index;
-    }
-#if PY_VERSION_HEX >= 0x02050000
-    return PyInt_FromSsize_t(len);
-#else
-    return PyInt_FromLong((long unsigned int)len);
-#endif
-}
-
-static PyMethodDef vector_slerpiter_methods[] = {
-    {"__length_hint__", (PyCFunction)vector_slerpiter_len, METH_NOARGS,
-    },
-    {NULL, NULL} /* sentinel */
-};
-
-static PyTypeObject PyVector_SlerpIter_Type = {
-    TYPE_HEAD (NULL, 0)
-    "pygame.math.VectorSlerpIterator", /* tp_name */
-    sizeof(vector_slerpiter),        /* tp_basicsize */
-    0,                         /* tp_itemsize */
-    (destructor)vector_slerpiter_dealloc, /* tp_dealloc */
-    0,                         /* tp_print */
-    0,                         /* tp_getattr */
-    0,                         /* tp_setattr */
-    0,                         /* tp_compare */
-    0,                         /* tp_repr */
-    0,                         /* tp_as_number */
-    0,                         /* tp_as_sequence */
-    0,                         /* tp_as_mapping */
-    0,                         /* tp_hash */
-    0,                         /* tp_call */
-    0,                         /* tp_str */
-    PyObject_GenericGetAttr,   /* tp_getattro */
-    0,                         /* tp_setattro */
-    0,                         /* tp_as_buffer */
-    Py_TPFLAGS_DEFAULT,        /* tp_flags */
-    0,                         /* tp_doc */
-    0,                         /* tp_traverse */
-    0,                         /* tp_clear */
-    0,                         /* tp_richcompare */
-    0,                         /* tp_weaklistoffset */
-    PyObject_SelfIter,         /* tp_iter */
-    (iternextfunc)vector_slerpiter_next, /* tp_iternext */
-    vector_slerpiter_methods,        /* tp_methods */
-    0,                         /* tp_members */
-};
-
-static PyObject *
-vector_slerp(PyVector *self, PyObject *args)
-{
-    vector_slerpiter *it;
-    PyObject *other, *steps_object;
-    double vec1_coords[VECTOR_MAX_SIZE], vec2_coords[VECTOR_MAX_SIZE];
-    double angle, length1, length2;
-
-    if (!PyArg_ParseTuple(args, "OO:Vector.slerp", &other, &steps_object)) {
-        return NULL;
-    }
-    if (!PyInt_Check(steps_object)) {
-        PyErr_SetString(PyExc_TypeError, "Expected Int as argument 2");
-        return NULL;
-    }
-    if (!PySequence_AsVectorCoords((PyObject*)self, vec1_coords, self->dim)) {
-        PyErr_BadInternalCall();
-        return NULL;
-    }
-    if (!PySequence_AsVectorCoords(other, vec2_coords, self->dim)) {
-        PyErr_SetString(PyExc_TypeError, "Expected Vector as argument 1");
-        return NULL;
-    }
-
-    it = PyObject_New(vector_slerpiter, &PyVector_SlerpIter_Type);
-    if (it == NULL)
-        return NULL;
-    it->it_index = 0;
-    it->dim = self->dim;
-    memcpy(it->coords, vec1_coords, sizeof(vec1_coords[0]) * it->dim);
-
-    length1 = sqrt(_scalar_product(vec1_coords, vec1_coords, it->dim));
-    length2 = sqrt(_scalar_product(vec2_coords, vec2_coords, it->dim));
-    if ((length1 < self->epsilon) || (length2 < self->epsilon)) {
-        PyErr_SetString(PyExc_ZeroDivisionError,
-                        "can't use slerp with Zero-Vector");
-        Py_DECREF(it);
-        return NULL;
-    }
-    angle = acos(_scalar_product(vec1_coords, vec2_coords, self->dim) /
-                 (length1 * length2));
-    it->steps = PyInt_AsLong(steps_object);
-    if (it->steps < 0) {
-        angle -= 2 * M_PI;
-        it->steps = -it->steps;
-    }
-    angle /= it->steps;
-
-    if (fabs(length1 - length2) > self->epsilon)
-        it->radial_factor = pow(length2 / length1, 1./it->steps);
-    else
-        it->radial_factor = 1;
-
-    switch (self->dim) {
-    case 2:
-        _make_vector2_slerp_matrix(it, vec1_coords, vec2_coords, angle);
-        break;
-    case 3:
-        _make_vector3_slerp_matrix(it, vec1_coords, vec2_coords, angle);
-        break;
-    default:
-        PyErr_BadInternalCall();
-        Py_DECREF(it);
-        return NULL;        
-    }
-    return (PyObject *)it;
-}
-
-static void
-_make_vector2_slerp_matrix(vector_slerpiter *it,
-                           const double *vec1_coords, const double *vec2_coords,
-                           double angle)
-{
-    double sin_value, cos_value;
-    if (vec1_coords[0] * vec2_coords[1] < vec1_coords[1] * vec2_coords[0])
-        angle *= -1;
-    cos_value = cos(angle);
-    sin_value = sin(angle);
-    it->matrix[0][0] = cos_value;
-    it->matrix[0][1] = sin_value;
-    it->matrix[1][0] = -sin_value;
-    it->matrix[1][1] = cos_value;
-}
-
-static void
-_make_vector3_slerp_matrix(vector_slerpiter *it, 
-                           const double *vec1_coords, const double *vec2_coords,
-                           double angle)
-{
-    int i;
-    double axis[3];
-    double norm_factor, sin_value, cos_value, cos_complement;
-
-    /* calculate rotation axis via cross-product */
-    for (i = 0; i < 3; ++i)
-        axis[i] = ((vec1_coords[(i+1)%3] * vec2_coords[(i+2)%3]) -
-                   (vec1_coords[(i+2)%3] * vec2_coords[(i+1)%3]));
-    /* normalize the rotation axis */
-    norm_factor = 1. / sqrt(_scalar_product(axis, axis, 3));
-    for (i = 0; i < 3; ++i)
-        axis[i] *= norm_factor;
-
-    sin_value = sin(angle);
-    cos_value = cos(angle);
-    cos_complement = 1 - cos_value;
-    /* calculate the rotation matrix */
-    it->matrix[0][0] = cos_value + axis[0] * axis[0] * cos_complement;
-    it->matrix[0][1] = axis[0] * axis[1] * cos_complement + axis[2] * sin_value;
-    it->matrix[0][2] = axis[0] * axis[2] * cos_complement - axis[1] * sin_value;
-    it->matrix[1][0] = axis[0] * axis[1] * cos_complement - axis[2] * sin_value;
-    it->matrix[1][1] = cos_value + axis[1] * axis[1] * cos_complement;
-    it->matrix[1][2] = axis[1] * axis[2] * cos_complement + axis[0] * sin_value;
-    it->matrix[2][0] = axis[0] * axis[2] * cos_complement + axis[1] * sin_value;
-    it->matrix[2][1] = axis[1] * axis[2] * cos_complement - axis[0] * sin_value;
-    it->matrix[2][2] = cos_value + axis[2] * axis[2] * cos_complement;
-}
-
-/*
-static PyObject *
-vector2_slerp(PyVector *self, PyObject *args)
-{
-    PyObject *other;
-    PyVector *ret;
-    double *other_coords;
-    double t;
-    if (!PyArg_ParseTuple("Od:slerp", &other, &t)) {
-        return NULL;
-    }
-    if (!PyVectorCompatible_Check(end_vector, self->dim)) {
-        PyErr_SetString(PyExc_TypeError, "Argument 1 must be a vector.");
-        return NULL;
-    }
-    if (!PySequence_AsVectorCoords(other, other_coords, self->dim)) {
-        PyErr_SetString(PyExc_TypeError, "Argument 1 must be a vector.");
-        return NULL;
-    }
-    if (fabs(t) > 1) {
-        PyErr_SetString(PyExc_ValueError, "Argument 2 must be in range [-1, 1].");
-        return NULL;
-    }
-    
-    length1 = sqrt(_scalar_product(self->coords, self->coords, self->dim));
-    length2 = sqrt(_scalar_product(other_coords, other_coords, self->dim));
-    if ((length1 < self->epsilon) || (length2 < self->epsilon)) {
-        PyErr_SetString(PyExc_ZeroDivisionError,
-                        "can't use slerp with Zero-Vector");
-        return NULL;
-    }
-    angle = acos(_scalar_product(self->coords, other_coords, self->dim) /
-                 (length1 * length2));
-    if (t < 0) {
-        angle -= 2 * M_PI;
-        t = -t;
-    }
-    angle *= t;
-    if (vec1_coords[0] * vec2_coords[1] < vec1_coords[1] * vec2_coords[0])
-        angle *= -1;
-
-    if (fabs(length1 - length2) > self->epsilon)
-        it->radial_factor = t * length2 / length1;
-    else
-        it->radial_factor = 1;
-
-    ret = PyVector_NEW(self->dim);
-    cos_value = cos(angle);
-    sin_value = sin(angle);
-    ret->coords[0] = cos_value * self->coords[0] - sin_value * self->coords[1];
-    ret->coords[1] = sin_value * self->coords[0] + cos_value * self->coords[1];
-    n1 = 1. / length1;
-    n2 = 1. / length2;
-    s0 = 1. / sin(angle);
-    s1 = sin(angle * t);
-    s2 = sin(angle * (1-t));
-    for (i = 0; i < self->dim; ++i)
-        ret->coords[i] = (self->coords[i] * s1 + other_coords[i] * s2) * s0;
-    return ret;
-}
-*/
 
 
-/********************************************
- * PyVector_LerpIterator type definition
- ********************************************/
-static void
-vector_lerpiter_dealloc(vector_lerpiter *it)
-{
-    PyObject_Del(it);
-}
-
-static PyObject *
-vector_lerpiter_next(vector_lerpiter *it)
-{
-    int i;
-    PyVector *ret;
-    assert(it != NULL);
-
-    if (it->it_index < it->steps) {
-        ret = (PyVector*)PyVector_NEW(it->dim);
-        if (ret != NULL) {
-            for (i = 0; i < it->dim; ++i) {
-                it->coords[i] += it->step_vec[i];
-                ret->coords[i] = it->coords[i];
-            }
-        }
-        ++(it->it_index);
-        return (PyObject*)ret;
-    }
-    
-    return NULL;
-}
-
-static PyObject *
-vector_lerpiter_len(vector_lerpiter *it)
-{
-    Py_ssize_t len = 0;
-    if (it) {
-        len = it->steps - it->it_index;
-    }
-#if PY_VERSION_HEX >= 0x02050000
-    return PyInt_FromSsize_t(len);
-#else
-    return PyInt_FromLong((long unsigned int)len);
-#endif
-}
-
-static PyMethodDef vector_lerpiter_methods[] = {
-    {"__length_hint__", (PyCFunction)vector_lerpiter_len, METH_NOARGS,
-    },
-    {NULL, NULL} /* sentinel */
-};
-
-static PyTypeObject PyVector_LerpIter_Type = {
-    TYPE_HEAD (NULL, 0)
-    "pygame.math.VectorLerpIterator", /* tp_name */
-    sizeof(vector_lerpiter),        /* tp_basicsize */
-    0,                         /* tp_itemsize */
-    (destructor)vector_lerpiter_dealloc, /* tp_dealloc */
-    0,                         /* tp_print */
-    0,                         /* tp_getattr */
-    0,                         /* tp_setattr */
-    0,                         /* tp_compare */
-    0,                         /* tp_repr */
-    0,                         /* tp_as_number */
-    0,                         /* tp_as_sequence */
-    0,                         /* tp_as_mapping */
-    0,                         /* tp_hash */
-    0,                         /* tp_call */
-    0,                         /* tp_str */
-    PyObject_GenericGetAttr,   /* tp_getattro */
-    0,                         /* tp_setattro */
-    0,                         /* tp_as_buffer */
-    Py_TPFLAGS_DEFAULT,        /* tp_flags */
-    0,                         /* tp_doc */
-    0,                         /* tp_traverse */
-    0,                         /* tp_clear */
-    0,                         /* tp_richcompare */
-    0,                         /* tp_weaklistoffset */
-    PyObject_SelfIter,         /* tp_iter */
-    (iternextfunc)vector_lerpiter_next, /* tp_iternext */
-    vector_lerpiter_methods,        /* tp_methods */
-    0,                         /* tp_members */
-};
-
-
-static PyObject *
-vector_lerp(PyVector *self, PyObject *args)
-{
-    vector_lerpiter *it;
-    PyObject *other, *steps_object;
-    long int i;
-    double vec1_coords[VECTOR_MAX_SIZE], vec2_coords[VECTOR_MAX_SIZE];
-
-    if (!PyArg_ParseTuple(args, "OO:Vector.lerp", &other, &steps_object)) {
-        return NULL;
-    }
-    if (!PyInt_Check(steps_object)) {
-        PyErr_SetString(PyExc_TypeError, "Expected Int as argument 2");
-        return NULL;
-    }
-    if (!PySequence_AsVectorCoords((PyObject*)self, vec1_coords, self->dim)) {
-        PyErr_BadInternalCall();
-        return NULL;
-    }
-    if (!PySequence_AsVectorCoords(other, vec2_coords, self->dim)) {
-        PyErr_SetString(PyExc_TypeError, "Expected Vector as argument 1");
-        return NULL;
-    }
-
-    it = PyObject_New(vector_lerpiter, &PyVector_LerpIter_Type);
-    if (it == NULL)
-        return NULL;
-    it->it_index = 0;
-    it->dim = self->dim;
-    it->steps = PyInt_AsLong(steps_object);
-    memcpy(it->coords, vec1_coords, sizeof(vec1_coords[0]) * it->dim);
-
-    for (i = 0; i < it->dim; ++i)
-        it->step_vec[i] = (vec2_coords[i] - vec1_coords[i]) / it->steps;
-    return (PyObject *)it;
-}
 
 
 
@@ -3496,9 +3153,8 @@ MODINIT_DEFINE (math)
     /* initialize the extension types */
     if ((PyType_Ready(&PyVector2_Type) < 0) || 
         (PyType_Ready(&PyVector3_Type) < 0) ||
-        (PyType_Ready(&PyVectorElementwiseProxy_Type) < 0) ||
         (PyType_Ready(&PyVectorIter_Type) < 0) ||
-        (PyType_Ready(&PyVector_SlerpIter_Type) < 0) /*||
+        (PyType_Ready(&PyVectorElementwiseProxy_Type) < 0) /*||
         (PyType_Ready(&PyVector4_Type) < 0)*/) {
         MODINIT_ERROR;
     }
@@ -3517,22 +3173,18 @@ MODINIT_DEFINE (math)
     /* add extension types to module */
     Py_INCREF(&PyVector2_Type);
     Py_INCREF(&PyVector3_Type);
-    Py_INCREF(&PyVector3_Type);
-    Py_INCREF(&PyVectorElementwiseProxy_Type);
     Py_INCREF(&PyVectorIter_Type);
-    Py_INCREF(&PyVector_SlerpIter_Type);
+    Py_INCREF(&PyVectorElementwiseProxy_Type);
 //    Py_INCREF(&PyVector4_Type);
     if ((PyModule_AddObject(module, "Vector2", (PyObject *)&PyVector2_Type) != 0) ||
         (PyModule_AddObject(module, "Vector3", (PyObject *)&PyVector3_Type) != 0) ||
         (PyModule_AddObject(module, "VectorElementwiseProxy", (PyObject *)&PyVectorElementwiseProxy_Type) != 0) ||
-        (PyModule_AddObject(module, "VectorIterator", (PyObject *)&PyVectorIter_Type) != 0) ||
-        (PyModule_AddObject(module, "VectorSlerpIterator", (PyObject *)&PyVector_SlerpIter_Type) != 0) /*||
+        (PyModule_AddObject(module, "VectorIterator", (PyObject *)&PyVectorIter_Type) != 0) /*||
         (PyModule_AddObject(module, "Vector4", (PyObject *)&PyVector4_Type) != 0)*/) {
         Py_DECREF(&PyVector2_Type);
         Py_DECREF(&PyVector3_Type);
         Py_DECREF(&PyVectorElementwiseProxy_Type);
         Py_DECREF(&PyVectorIter_Type);
-        Py_DECREF(&PyVector_SlerpIter_Type);
 //        Py_DECREF(&PyVector4_Type);
         DECREF_MOD (module);
         MODINIT_ERROR;
