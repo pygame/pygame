@@ -1,7 +1,6 @@
 CRITICAL:
 =========
 * recheck and redesign X11 implementation for pygame.sdlext.scrap
-* complete physics collision and contacts and merge it back to the branch
 * make LayeredGroups class independent from sdl surfaces, where possible
 * check anything for possible integer/float overflows
 * use copy.copy and copy.deepcopy for consistent object copies
@@ -20,7 +19,6 @@ CRITICAL:
 * >8 bpp surfaces with palettes - it is supported (although it might be
   pointless) by SDL and so should we.
 
-* Fix issues with new and existing surface rendering (e.g. blending)
 * freetype: render to buffer buffer support (like new bytearray, but
   write to a buffer instead)
 * freetype: correct error messages (e.g. on trying to scale pcf fonts)

@@ -77,22 +77,6 @@ modules = [
         docfile = "mask.xml",
         optional_dep = ['SDL']),
 
-    Module ("physics",
-        sources = [
-            "src/physics/aabbox.c",
-            "src/physics/body.c",
-            "src/physics/collision.c",
-            "src/physics/contact.c",
-            "src/physics/joint.c",
-            "src/physics/physicsmod.c",
-            "src/physics/rectshape.c",
-            "src/physics/shape.c",
-            "src/physics/vector.c",
-            "src/physics/world.c" ],
-
-        instheaders = [ "src/physics/pgphysics.h" ],
-        docfile = "physics.xml"),
-
     Module ("sdl.base",
         sources = [ "src/sdl/sdlmod.c" ],
         instheaders = [ "src/sdl/pgsdl.h" ],
