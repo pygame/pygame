@@ -83,6 +83,7 @@ class Vector2TypeTest(unittest.TestCase):
         
     def testSequence(self):
         v = Vector2(1.2, 3.4)
+        Vector2()[:]
         self.assertEqual(len(v), 2)
         self.assertEqual(v[0], 1.2)
         self.assertEqual(v[1], 3.4)
@@ -110,6 +111,42 @@ class Vector2TypeTest(unittest.TestCase):
             v = Vector2()
             v[:] = [1]
         self.assertRaises(ValueError, underpopulate)
+
+    def testExtendedSlicing(self):
+        #  deletion
+        def delSlice(vec, start=None, stop=None, step=None):
+            if start is not None and stop is not None and step is not None:
+                del vec[start:stop:step]
+            elif start is not None and stop is None and step is not None:
+                del vec[start::step]
+            elif start is None and stop is None and step is not None:
+                del vec[::step]
+        v = Vector2(self.v1)
+        self.assertRaises(ValueError, delSlice, v, None, None, 2)
+        self.assertRaises(ValueError, delSlice, v, 1, None, 2)
+        self.assertRaises(ValueError, delSlice, v, 1, 2, 1)
+
+        #  assignment
+        v = Vector2(self.v1)
+        v[::2] = [-1]
+        self.assertEqual(v, [-1, self.v1.y])
+        v = Vector2(self.v1)
+        v[::-2] = [10]
+        self.assertEqual(v, [self.v1.x, 10])
+        v = Vector2(self.v1)
+        v[::-1] = v
+        self.assertEqual(v, [self.v1.y, self.v1.x])
+        a = Vector2(self.v1)
+        b = Vector2(self.v1)
+        c = Vector2(self.v1)
+        a[1:2] = [2.2]
+        b[slice(1,2)] = [2.2]
+        c[1:2:] = (2.2,)
+        self.assertEqual(a, b)
+        self.assertEqual(a, c)
+        self.assertEqual(type(a), type(self.v1))
+        self.assertEqual(type(b), type(self.v1))
+        self.assertEqual(type(c), type(self.v1))
 
     def testAdd(self):
         v3 = self.v1 + self.v2
@@ -220,9 +257,16 @@ class Vector2TypeTest(unittest.TestCase):
 
     def testIter(self):
         it = self.v1.__iter__()
-        self.assertEqual(it.next(), self.v1[0])
-        self.assertEqual(it.next(), self.v1[1])
-        self.assertRaises(StopIteration, lambda : it.next())
+        # support py2.x and 3.x
+        if hasattr(it, "next"):
+            next_ = it.next
+        elif hasattr(it, "__next__"):
+            next_ = it.__next__
+        else:
+            self.fail("Iterator has neither a 'next' nor a '__next__' method.")
+        self.assertEqual(next_(), self.v1[0])
+        self.assertEqual(next_(), self.v1[1])
+        self.assertRaises(StopIteration, lambda : next_())
         it1 = self.v1.__iter__()
         it2 = self.v1.__iter__()
         self.assertNotEqual(id(it1), id(it2))
@@ -612,7 +656,7 @@ class Vector2TypeTest(unittest.TestCase):
         v2 = Vector2(0, 1)
         steps = 10
         angle_step = v1.angle_to(v2) / steps
-        for i, u in ((i, v1.slerp(v2, i/float(steps))) for i in xrange(steps+1)):
+        for i, u in ((i, v1.slerp(v2, i/float(steps))) for i in range(steps+1)):
             self.assertAlmostEqual(u.length(), 1)
             self.assertAlmostEqual(v1.angle_to(u), i * angle_step)
         self.assertEqual(u, v2)
@@ -620,7 +664,7 @@ class Vector2TypeTest(unittest.TestCase):
         v1 = Vector2(100, 0)
         v2 = Vector2(0, 10)
         radial_factor = v2.length() / v1.length()
-        for i, u in ((i, v1.slerp(v2, -i/float(steps))) for i in xrange(steps+1)):
+        for i, u in ((i, v1.slerp(v2, -i/float(steps))) for i in range(steps+1)):
             self.assertAlmostEqual(u.length(), (v2.length() - v1.length()) * (float(i)/steps) + v1.length())
         self.assertEqual(u, v2)
 
@@ -754,6 +798,42 @@ class Vector3TypeTest(unittest.TestCase):
             v[:] = [1]
         self.assertRaises(ValueError, underpopulate)
 
+    def testExtendedSlicing(self):
+        #  deletion
+        def delSlice(vec, start=None, stop=None, step=None):
+            if start is not None and stop is not None and step is not None:
+                del vec[start:stop:step]
+            elif start is not None and stop is None and step is not None:
+                del vec[start::step]
+            elif start is None and stop is None and step is not None:
+                del vec[::step]
+        v = Vector3(self.v1)
+        self.assertRaises(ValueError, delSlice, v, None, None, 2)
+        self.assertRaises(ValueError, delSlice, v, 1, None, 2)
+        self.assertRaises(ValueError, delSlice, v, 1, 2, 1)
+
+        #  assignment
+        v = Vector3(self.v1)
+        v[::2] = [-1.1, -2.2]
+        self.assertEqual(v, [-1.1, self.v1.y, -2.2])
+        v = Vector3(self.v1)
+        v[::-2] = [10, 20]
+        self.assertEqual(v, [20, self.v1.y, 10])
+        v = Vector3(self.v1)
+        v[::-1] = v
+        self.assertEqual(v, [self.v1.z, self.v1.y, self.v1.x])
+        a = Vector3(self.v1)
+        b = Vector3(self.v1)
+        c = Vector3(self.v1)
+        a[1:2] = [2.2]
+        b[slice(1,2)] = [2.2]
+        c[1:2:] = (2.2,)
+        self.assertEqual(a, b)
+        self.assertEqual(a, c)
+        self.assertEqual(type(a), type(self.v1))
+        self.assertEqual(type(b), type(self.v1))
+        self.assertEqual(type(c), type(self.v1))
+
     def testAdd(self):
         v3 = self.v1 + self.v2
         self.assert_(isinstance(v3, type(self.v1)))
@@ -879,10 +959,17 @@ class Vector3TypeTest(unittest.TestCase):
 
     def testIter(self):
         it = self.v1.__iter__()
-        self.assertEqual(it.next(), self.v1[0])
-        self.assertEqual(it.next(), self.v1[1])
-        self.assertEqual(it.next(), self.v1[2])
-        self.assertRaises(StopIteration, lambda : it.next())
+        # support py2.x and 3.x
+        if hasattr(it, "next"):
+            next_ = it.next
+        elif hasattr(it, "__next__"):
+            next_ = it.__next__
+        else:
+            self.fail("Iterator has neither a 'next' nor a '__next__' method.")
+        self.assertEqual(next_(), self.v1[0])
+        self.assertEqual(next_(), self.v1[1])
+        self.assertEqual(next_(), self.v1[2])
+        self.assertRaises(StopIteration, lambda : next_())
         it1 = self.v1.__iter__()
         it2 = self.v1.__iter__()
         self.assertNotEqual(id(it1), id(it2))
@@ -1333,7 +1420,7 @@ class Vector3TypeTest(unittest.TestCase):
                           lambda : self.zeroVec.slerp(self.zeroVec, .5))
         steps = 10
         angle_step = self.e1.angle_to(self.e2) / steps
-        for i, u in ((i, self.e1.slerp(self.e2, i/float(steps))) for i in xrange(steps+1)):
+        for i, u in ((i, self.e1.slerp(self.e2, i/float(steps))) for i in range(steps+1)):
             self.assertAlmostEqual(u.length(), 1)
             self.assertAlmostEqual(self.e1.angle_to(u), i * angle_step)
         self.assertEqual(u, self.e2)
@@ -1341,7 +1428,7 @@ class Vector3TypeTest(unittest.TestCase):
         v1 = Vector3(100, 0, 0)
         v2 = Vector3(0, 10, 7)
         radial_factor = v2.length() / v1.length()
-        for i, u in ((i, v1.slerp(v2, -i/float(steps))) for i in xrange(steps+1)):
+        for i, u in ((i, v1.slerp(v2, -i/float(steps))) for i in range(steps+1)):
             self.assertAlmostEqual(u.length(), (v2.length() - v1.length()) * (float(i)/steps) + v1.length())
         self.assertEqual(u, v2)
 
