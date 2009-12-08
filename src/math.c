@@ -3153,13 +3153,29 @@ vector_elementwiseproxy_pow(PyObject *baseObj, PyObject *expoObj, PyObject *mod)
     }
 
     ret = (PyVector*)PyVector_NEW(dim);
+    if (ret == NULL)
+        return NULL;
     /* there are many special cases so we let python do the work for now */
     for (i = 0; i < dim; i++) {
         base = PyFloat_FromDouble(bases[i]);
         expo = PyFloat_FromDouble(expos[i]);
-        result = PyNumber_Power(base, expo, Py_None);
-        if (!result)
+        if (base == NULL || expo == NULL) {
+            Py_XDECREF(base);
+            Py_XDECREF(expo);
+            Py_DECREF(ret);
             return NULL;
+        }
+        result = PyNumber_Power(base, expo, Py_None);
+        if (!RealNumber_Check(result)) {
+            Py_XDECREF(result);
+            Py_DECREF(expo);
+            Py_DECREF(base);
+            Py_DECREF(ret);
+            if (!PyErr_Occurred())
+                PyErr_SetString(PyExc_ValueError, "negative number "
+                                "cannot be raised to a fractional power");
+            return NULL;
+        }
         ret->coords[i] = PyFloat_AsDouble(result);
         Py_DECREF(result);
         Py_DECREF(expo);
