@@ -1336,9 +1336,11 @@ vector_getAttr_swizzle(PyVector *self, PyObject *attr_name)
         Py_ssize_t i, len = PySequence_Length(attr_name);
         double *coords = self->coords;
         PyObject *attr_unicode = PyUnicode_FromObject(attr_name);
-        if (attr_unicode == NULL)
-            return NULL;
         Py_UNICODE *attr = PyUnicode_AsUnicode(attr_unicode);
+        if (attr_unicode == NULL || attr == NULL) {
+            Py_XDECREF(attr_unicode);
+            return NULL;
+        }
         res = (PyObject*)PyTuple_New(len);
         for (i = 0; i < len; i++) {
             switch (attr[i]) {
