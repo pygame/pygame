@@ -1,3 +1,4 @@
+
 /*
   pygame - Python Game Library
 
@@ -96,6 +97,9 @@ static double PySequence_GetItem_AsDouble(PyObject *seq, Py_ssize_t index);
 static int PySequence_AsVectorCoords(PyObject *seq, double *coords, const size_t size);
 static int PyVectorCompatible_Check(PyObject *obj, int dim);
 static double _scalar_product(const double *coords1, const double *coords2, int size);
+static int get_double_from_unicode_slice(PyObject *unicode_obj,
+                                         Py_ssize_t idx1, Py_ssize_t idx2,
+                                         double *val);
 
 /* generic vector functions */
 static PyObject *PyVector_NEW(int dim);
@@ -317,6 +321,31 @@ _scalar_product(const double *coords1, const double *coords2, int size)
     for (i = 0; i < size; ++i)
         product += coords1[i] * coords2[i];
     return product;
+}
+
+
+static int
+get_double_from_unicode_slice(PyObject *unicode_obj,
+                              Py_ssize_t idx1, Py_ssize_t idx2, double *val)
+{
+    PyObject *float_obj;
+    PyObject *slice = PySequence_GetSlice (unicode_obj, idx1, idx2);
+    if (slice == NULL) {
+        PyErr_SetString (PyExc_SystemError,
+                         "internal error while converting str slice to float");
+        return -1;
+    }
+#if PY3
+    float_obj = PyFloat_FromString (slice);
+#else
+    float_obj = PyFloat_FromString (slice, NULL);
+#endif
+    Py_DECREF (slice);
+    if (float_obj == NULL)
+        return RETURN_ERROR;
+    *val = PyFloat_AsDouble(float_obj);
+    Py_DECREF (float_obj);
+    return RETURN_NO_ERROR;
 }
 
 
@@ -722,6 +751,139 @@ static PySequenceMethods vector_as_sequence = {
     (ssizeobjargproc)vector_SetItem, /* sq_ass_item;  __setitem__ */
     (ssizessizeobjargproc)vector_SetSlice, /* sq_ass_slice; __setslice__ */
 };
+
+
+/***************************************************************************
+ * Generic vector PyMapping emulation routines to support extended slicing
+ ***************************************************************************/
+
+/* Great parts of this function are adapted from python's list_subscript */
+static PyObject*
+vector_subscript (PyVector *self, PyObject *key)
+{
+#if PY3
+    if (PyIndex_Check (key)) {
+#else
+    if (PyInt_Check (key) || PyLong_Check (key)) {
+#endif
+        Py_ssize_t idx;
+        idx = PyNumber_AsSsize_t (key, PyExc_IndexError);
+        if (idx == -1 && PyErr_Occurred())
+            return NULL;
+        if (idx < 0)
+            idx += self->dim;
+        return vector_GetItem (self, idx);
+    }
+    else if (PySlice_Check (key)) {
+        Py_ssize_t start, stop, step, slicelength, cur, i;
+        PyObject *result;
+        PyObject *it;
+        PyObject **dest;
+
+        if (PySlice_GetIndicesEx ((PySliceObject*)key, self->dim,
+                 &start, &stop, &step, &slicelength) < 0) {
+            return NULL;
+        }
+
+        if (slicelength <= 0) {
+            return PyList_New(0);
+        }
+        else if (step == 1) {
+            return vector_GetSlice (self, start, stop);
+        }
+        else {
+            result = PyList_New (slicelength);
+            if (!result) 
+                return NULL;
+
+            dest = ((PyListObject *)result)->ob_item;
+            for (cur = start, i = 0; i < slicelength; cur += step, i++) {
+                it = PyFloat_FromDouble (self->coords[cur]);
+                if (it == NULL) {
+                    Py_DECREF (result);
+                    return NULL;
+                }
+                dest[i] = it;
+            }
+            return result;
+        }
+    }
+    else {
+        PyErr_Format(PyExc_TypeError,
+                     "vector indices must be integers, not %.200s",
+                     key->ob_type->tp_name);
+        return NULL;
+    }
+}
+
+/* Parts of this function are adapted from python's list_ass_subscript */
+static int
+vector_ass_subscript (PyVector *self, PyObject *key, PyObject *value)
+{
+#if PY3
+    if (PyIndex_Check (key)) {
+#else
+    if (PyInt_Check (key) || PyLong_Check (key)) {
+#endif
+        Py_ssize_t idx = PyNumber_AsSsize_t (key, PyExc_IndexError);
+        if (idx == -1 && PyErr_Occurred())
+            return -1;
+        if (idx < 0)
+            idx += self->dim;
+        return vector_SetItem (self, idx, value);
+    }
+    else if (PySlice_Check (key)) {
+        Py_ssize_t start, stop, step, slicelength;
+
+        if (PySlice_GetIndicesEx ((PySliceObject*)key, self->dim,
+                                  &start, &stop, &step, &slicelength) < 0) {
+            return -1;
+        }
+
+        if (step == 1)
+            return vector_SetSlice(self, start, stop, value);
+
+        /* Make sure s[5:2] = [..] inserts at the right place:
+           before 5, not before 2. */
+        if ((step < 0 && start < stop) ||
+            (step > 0 && start > stop))
+            stop = start;
+
+        if (value == NULL) {
+            /* delete slice not supported */
+            PyErr_SetString (PyExc_ValueError,
+                             "Deletion of vector components is not supported.");
+            return -1;
+        }
+        else {
+            /* assign slice */
+            double seqitems[VECTOR_MAX_SIZE];
+            Py_ssize_t cur, i;
+
+            if (!PySequence_AsVectorCoords (value, seqitems, slicelength))
+                return -1;
+            for (cur = start, i = 0; i < slicelength;
+                 cur += step, i++) {
+                self->coords[cur] = seqitems[i];
+            }
+            return 0;
+        }
+    }
+    else {
+        PyErr_Format (PyExc_TypeError,
+                      "list indices must be integers, not %.200s",
+                      key->ob_type->tp_name);
+        return -1;
+    }
+}
+
+static PyMappingMethods vector_as_mapping = {
+    (lenfunc)vector_len,                 /* mp_length */
+    (binaryfunc)vector_subscript,        /* mp_subscript */
+    (objobjargproc)vector_ass_subscript  /* mp_ass_subscript */
+};
+
+
 
 static PyObject*
 vector_getx (PyVector *self, void *closure)
@@ -1173,9 +1335,10 @@ vector_getAttr_swizzle(PyVector *self, PyObject *attr_name)
         PyErr_Occurred() && PyErr_ExceptionMatches(PyExc_AttributeError)) {
         Py_ssize_t i, len = PySequence_Length(attr_name);
         double *coords = self->coords;
-        const char *attr = Bytes_AsString(attr_name);
-        if (attr == NULL)
+        PyObject *attr_unicode = PyUnicode_FromObject(attr_name);
+        if (attr_unicode == NULL)
             return NULL;
+        Py_UNICODE *attr = PyUnicode_AsUnicode(attr_unicode);
         res = (PyObject*)PyTuple_New(len);
         for (i = 0; i < len; i++) {
             switch (attr[i]) {
@@ -1189,11 +1352,13 @@ vector_getAttr_swizzle(PyVector *self, PyObject *attr_name)
                 /* swizzling failed! clean up and return NULL
                  * the exception from PyObject_GenericGetAttr is still set */
                 Py_DECREF(res);
+                Py_DECREF(attr_unicode);
                 return NULL;
             }
         }
         /* swizzling succeeded! clear the error and return result */
         PyErr_Clear();
+        Py_DECREF(attr_unicode);
     }
     return res;
 }
@@ -1201,7 +1366,8 @@ vector_getAttr_swizzle(PyVector *self, PyObject *attr_name)
 static int
 vector_setAttr_swizzle(PyVector *self, PyObject *attr_name, PyObject *val)
 {
-    const char *attr = Bytes_AsString(attr_name);
+    Py_UNICODE *attr;
+    PyObject *attr_unicode;
     Py_ssize_t len = PySequence_Length(attr_name);
     double entry[VECTOR_MAX_SIZE];
     int entry_was_set[VECTOR_MAX_SIZE];
@@ -1219,6 +1385,12 @@ vector_setAttr_swizzle(PyVector *self, PyObject *attr_name, PyObject *val)
     for (i = 0; i < self->dim; ++i)
         entry_was_set[i] = 0;
 
+    /* handle string and unicode uniformly */
+    attr_unicode = PyUnicode_FromObject(attr_name);
+    if (attr_unicode == NULL)
+        return -1;
+    attr = PyUnicode_AsUnicode(attr_unicode);
+
     for (i = 0; i < len; ++i) {
         int idx;
         switch (attr[i]) {
@@ -1232,11 +1404,14 @@ vector_setAttr_swizzle(PyVector *self, PyObject *attr_name, PyObject *val)
             break;
         default:
             /* swizzle failed. attempt generic attribute setting */
+            Py_DECREF(attr_unicode);
             return PyObject_GenericSetAttr((PyObject*)self, attr_name, val);
         }
-        if (idx >= self->dim)
+        if (idx >= self->dim) {
             /* swizzle failed. attempt generic attribute setting */
+            Py_DECREF(attr_unicode);
             return PyObject_GenericSetAttr((PyObject*)self, attr_name, val);
+        }
         if (entry_was_set[idx]) 
             swizzle_err = SWIZZLE_ERR_DOUBLE_IDX;
         if (swizzle_err == SWIZZLE_ERR_NO_ERR) {
@@ -1246,6 +1421,8 @@ vector_setAttr_swizzle(PyVector *self, PyObject *attr_name, PyObject *val)
                 swizzle_err = SWIZZLE_ERR_EXTRACTION_ERR;
         }
     }
+    Py_DECREF(attr_unicode);
+
     switch (swizzle_err) {
     case SWIZZLE_ERR_NO_ERR:
         /* swizzle successful */
@@ -1358,6 +1535,7 @@ vector2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     return (PyObject *)vec;
 }
 
+
 static int
 vector2_init(PyVector *self, PyObject *args, PyObject *kwds)
 {
@@ -1372,30 +1550,66 @@ vector2_init(PyVector *self, PyObject *args, PyObject *kwds)
         if (RealNumber_Check(xOrSequence)) {
             self->coords[0] = PyFloat_AsDouble(xOrSequence);
         } 
-        else if (PyVectorCompatible_Check(xOrSequence, self->dim)) {
+        else if (PyVectorCompatible_Check (xOrSequence, self->dim)) {
             self->coords[0] = PySequence_GetItem_AsDouble(xOrSequence, 0);
             self->coords[1] = PySequence_GetItem_AsDouble(xOrSequence, 1);
             /* successful initialization from sequence type */
             return 0;
         } 
-        else if (Text_Check(xOrSequence)) {
-            /* This should make "Vector2(Vector2().__repr__())" possible */
-            char *endptr;
-            char *str = Bytes_AsString(xOrSequence);
-            if (str == NULL)
+#if PY3
+        else if (PyUnicode_Check (xOrSequence)) {
+#else
+        else if (PyUnicode_Check (xOrSequence) || 
+                 PyString_Check (xOrSequence)) {
+#endif
+            /* This is implemented using Python's Unicode C-API rather than
+             * plain C to handle both char* and wchar_t* especially because
+             * wchar.h was only added to the standard in 95 and we want to be
+             * ISO C 90 compatible.
+             */
+            int pos, endpos, length, tmp_length;
+            PyObject *tmp, *tmpStr, *slice;
+            PyObject *vector_string;
+            vector_string = PyUnicode_FromObject (xOrSequence);
+            length = PySequence_Length (vector_string);
+            /* find the starting point of the first coordinate in the string */
+            tmpStr = PyUnicode_FromString ("<Vector2(");
+            tmp_length = PySequence_Length (tmpStr);
+            pos = PyUnicode_Find (vector_string, tmpStr, 0, length, 1);
+            Py_XDECREF (tmpStr);
+            if (pos == -1)
+                goto error;
+            else if (pos == -2)
                 return -1;
-            if (strncmp(str, "<Vector2(", strlen("<Vector2(")) != 0)
+            pos += tmp_length;
+            /* find the ending point of the first coordinate in the string */
+            tmpStr = PyUnicode_FromString (", ");
+            tmp_length = PySequence_Length (tmpStr);
+            endpos = PyUnicode_Find (vector_string, tmpStr, pos, length, 1);
+            Py_XDECREF (tmpStr);
+            if (endpos == -1)
                 goto error;
-            str += strlen("<Vector2(");
-            self->coords[0] = PyOS_ascii_strtod(str, &endptr);
-            if (endptr == str) {
+            else if (endpos == -2)
+                return -1;
+            /* try to convert coordinate string to double */
+            if (!get_double_from_unicode_slice (vector_string, pos, endpos,
+                                                &(self->coords[0])))
                 goto error;
-            }
-            str = endptr + strlen(", ");
-            self->coords[1] = PyOS_ascii_strtod(str, &endptr);
-            if (endptr == str)
+            
+            /* starting point for second coord is calculatable */
+            pos = endpos + tmp_length;
+            /* find ending point of the second coordinate in the string */
+            tmpStr = PyUnicode_FromString (")>");
+            endpos = PyUnicode_Find (vector_string, tmpStr, pos, length, 1);
+            Py_XDECREF (tmpStr);
+            if (endpos == -1)
                 goto error;
-            /* successful conversion from string */
+            else if (endpos == -2)
+                return -1;
+            /* try to convert coordinate string to double */
+            if (!get_double_from_unicode_slice (vector_string, pos, endpos,
+                                                &(self->coords[1])))
+                goto error;
             return 0;
         }
         else {
@@ -1670,7 +1884,7 @@ static PyTypeObject PyVector2_Type = {
     /* Method suites for standard classes */
     &vector_as_number,         /* tp_as_number */
     &vector_as_sequence,       /* tp_as_sequence */
-    0,                         /* tp_as_mapping */
+    &vector_as_mapping,        /* tp_as_mapping */
     /* More standard operations (here for binary compatibility) */
     0,                         /* tp_hash */
     0,                         /* tp_call */
@@ -1780,26 +1994,74 @@ vector3_init(PyVector *self, PyObject *args, PyObject *kwds)
             /* successful initialization from sequence type */
             return 0;
         } 
-        else if (Text_Check(xOrSequence)) {
-            /* This should make "Vector3(Vector3().__repr__())" possible */
-            char *endptr;
-            char *str = Bytes_AsString(xOrSequence);
-            if (str == NULL)
+#if PY3
+        else if (PyUnicode_Check (xOrSequence)) {
+#else
+        else if (PyUnicode_Check (xOrSequence) || 
+                 PyString_Check (xOrSequence)) {
+#endif
+            /* This is implemented using Python's Unicode C-API rather than
+             * plain C to handle both char* and wchar_t* especially because
+             * wchar.h was only added to the standard in 95 and we want to be
+             * ISO C 90 compatible.
+             */
+            int pos, endpos, length, tmp_length;
+            PyObject *tmp, *tmpStr, *slice;
+            PyObject *vector_string;
+            vector_string = PyUnicode_FromObject (xOrSequence);
+            length = PySequence_Length (vector_string);
+            /* find the starting point of the first coordinate in the string */
+            tmpStr = PyUnicode_FromString ("<Vector3(");
+            tmp_length = PySequence_Length (tmpStr);
+            pos = PyUnicode_Find (vector_string, tmpStr, 0, length, 1);
+            Py_XDECREF (tmpStr);
+            if (pos == -1)
+                goto error;
+            else if (pos == -2)
                 return -1;
-            if (strncmp(str, "<Vector3(", strlen("<Vector3(")) != 0)
+            pos += tmp_length;
+            /* find the ending point of the first coordinate in the string */
+            tmpStr = PyUnicode_FromString (", ");
+            tmp_length = PySequence_Length (tmpStr);
+            endpos = PyUnicode_Find (vector_string, tmpStr, pos, length, 1);
+            Py_XDECREF (tmpStr);
+            if (endpos == -1)
                 goto error;
-            str += strlen("<Vector3(");
-            self->coords[0] = PyOS_ascii_strtod(str, &endptr);
-            if (endptr == str) {
+            else if (endpos == -2)
+                return -1;
+            /* try to convert coordinate string to double */
+            if (!get_double_from_unicode_slice (vector_string, pos, endpos,
+                                                &(self->coords[0])))
                 goto error;
-            }
-            str = endptr + strlen(", ");
-            self->coords[1] = PyOS_ascii_strtod(str, &endptr);
-            if (endptr == str)
+            
+            /* starting point for second coord is calculatable */
+            pos = endpos + tmp_length;
+            /* find ending point of the second coordinate in the string */
+            tmpStr = PyUnicode_FromString (", ");
+            endpos = PyUnicode_Find (vector_string, tmpStr, pos, length, 1);
+            Py_XDECREF (tmpStr);
+            if (endpos == -1)
                 goto error;
-            str = endptr + strlen(", ");
-            self->coords[2] = PyOS_ascii_strtod(str, &endptr);
-            if (endptr == str)
+            else if (endpos == -2)
+                return -1;
+            /* try to convert coordinate string to double */
+            if (!get_double_from_unicode_slice (vector_string, pos, endpos,
+                                                &(self->coords[1])))
+                goto error;
+            
+            /* starting point for third coord is calculatable */
+            pos = endpos + tmp_length;
+            /* find ending point of the second coordinate in the string */
+            tmpStr = PyUnicode_FromString (")>");
+            endpos = PyUnicode_Find (vector_string, tmpStr, pos, length, 1);
+            Py_XDECREF (tmpStr);
+            if (endpos == -1)
+                goto error;
+            else if (endpos == -2)
+                return -1;
+            /* try to convert coordinate string to double */
+            if (!get_double_from_unicode_slice (vector_string, pos, endpos,
+                                                &(self->coords[2])))
                 goto error;
             /* successful conversion from string */
             return 0;
@@ -2316,7 +2578,7 @@ static PyTypeObject PyVector3_Type = {
     /* Method suites for standard classes */
     &vector_as_number,         /* tp_as_number */
     &vector_as_sequence,       /* tp_as_sequence */
-    0,                         /* tp_as_mapping */
+    &vector_as_mapping,        /* tp_as_mapping */
     /* More standard operations (here for binary compatibility) */
     0,                         /* tp_hash */
     0,                         /* tp_call */
