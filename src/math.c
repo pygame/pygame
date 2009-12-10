@@ -761,21 +761,25 @@ static PySequenceMethods vector_as_sequence = {
 static PyObject*
 vector_subscript (PyVector *self, PyObject *key)
 {
-#if PY3
+    Py_ssize_t i;
+#if PY_VERSION_HEX >= 0x02050000
     if (PyIndex_Check (key)) {
+        i = PyNumber_AsSsize_t (key, PyExc_IndexError);
 #else
     if (PyInt_Check (key) || PyLong_Check (key)) {
+        if (PyInt_Check (key))
+            i = PyInt_AsLong (key);
+        else
+            i = PyLong_AsLong (key);
 #endif
-        Py_ssize_t idx;
-        idx = PyNumber_AsSsize_t (key, PyExc_IndexError);
-        if (idx == -1 && PyErr_Occurred())
+        if (i == -1 && PyErr_Occurred())
             return NULL;
-        if (idx < 0)
-            idx += self->dim;
-        return vector_GetItem (self, idx);
+        if (i < 0)
+            i += self->dim;
+        return vector_GetItem (self, i);
     }
     else if (PySlice_Check (key)) {
-        Py_ssize_t start, stop, step, slicelength, cur, i;
+        Py_ssize_t start, stop, step, slicelength, cur;
         PyObject *result;
         PyObject *it;
         PyObject **dest;
@@ -820,17 +824,22 @@ vector_subscript (PyVector *self, PyObject *key)
 static int
 vector_ass_subscript (PyVector *self, PyObject *key, PyObject *value)
 {
-#if PY3
+    Py_ssize_t i;
+#if PY_VERSION_HEX >= 0x02050000
     if (PyIndex_Check (key)) {
+        i = PyNumber_AsSsize_t (key, PyExc_IndexError);
 #else
     if (PyInt_Check (key) || PyLong_Check (key)) {
+        if (PyInt_Check (key))
+            i = PyInt_AsLong (key);
+        else
+            i = PyLong_AsLong (key);
 #endif
-        Py_ssize_t idx = PyNumber_AsSsize_t (key, PyExc_IndexError);
-        if (idx == -1 && PyErr_Occurred())
+        if (i == -1 && PyErr_Occurred())
             return -1;
-        if (idx < 0)
-            idx += self->dim;
-        return vector_SetItem (self, idx, value);
+        if (i < 0)
+            i += self->dim;
+        return vector_SetItem (self, i, value);
     }
     else if (PySlice_Check (key)) {
         Py_ssize_t start, stop, step, slicelength;
@@ -1380,9 +1389,6 @@ vector_setAttr_swizzle(PyVector *self, PyObject *attr_name, PyObject *val)
     if (!swizzling_enabled)
         return PyObject_GenericSetAttr((PyObject*)self, attr_name, val);
 
-    if (attr == NULL)
-        return -1;
-
     /* if swizzling is enabled first try swizzle */
     for (i = 0; i < self->dim; ++i)
         entry_was_set[i] = 0;
@@ -1392,6 +1398,10 @@ vector_setAttr_swizzle(PyVector *self, PyObject *attr_name, PyObject *val)
     if (attr_unicode == NULL)
         return -1;
     attr = PyUnicode_AsUnicode(attr_unicode);
+    if (attr == NULL) {
+        Py_DECREF (attr_unicode);
+        return -1;
+    }
 
     for (i = 0; i < len; ++i) {
         int idx;
@@ -1570,12 +1580,20 @@ vector2_init(PyVector *self, PyObject *args, PyObject *kwds)
              * ISO C 90 compatible.
              */
             int pos, endpos, length, tmp_length;
-            PyObject *tmp, *tmpStr, *slice;
+            PyObject *tmpStr, *tmp;
             PyObject *vector_string;
             vector_string = PyUnicode_FromObject (xOrSequence);
             length = PySequence_Length (vector_string);
             /* find the starting point of the first coordinate in the string */
+#if PY_VERSION_HEX >= 0x02060000
             tmpStr = PyUnicode_FromString ("<Vector2(");
+#else
+            tmp = PyString_FromString ("<Vector2(");
+            if (tmp == NULL)
+                goto error;
+            tmpStr = PyUnicode_FromObject (tmp);
+            Py_DECREF (tmp);
+#endif
             tmp_length = PySequence_Length (tmpStr);
             pos = PyUnicode_Find (vector_string, tmpStr, 0, length, 1);
             Py_XDECREF (tmpStr);
@@ -1585,7 +1603,15 @@ vector2_init(PyVector *self, PyObject *args, PyObject *kwds)
                 return -1;
             pos += tmp_length;
             /* find the ending point of the first coordinate in the string */
+#if PY_VERSION_HEX >= 0x02060000
             tmpStr = PyUnicode_FromString (", ");
+#else
+            tmp = PyString_FromString (", ");
+            if (tmp == NULL)
+                goto error;
+            tmpStr = PyUnicode_FromObject (tmp);
+            Py_DECREF (tmp);
+#endif
             tmp_length = PySequence_Length (tmpStr);
             endpos = PyUnicode_Find (vector_string, tmpStr, pos, length, 1);
             Py_XDECREF (tmpStr);
@@ -1601,7 +1627,15 @@ vector2_init(PyVector *self, PyObject *args, PyObject *kwds)
             /* starting point for second coord is calculatable */
             pos = endpos + tmp_length;
             /* find ending point of the second coordinate in the string */
+#if PY_VERSION_HEX >= 0x02060000
             tmpStr = PyUnicode_FromString (")>");
+#else
+            tmp = PyString_FromString (")>");
+            if (tmp == NULL)
+                goto error;
+            tmpStr = PyUnicode_FromObject (tmp);
+            Py_DECREF (tmp);
+#endif
             endpos = PyUnicode_Find (vector_string, tmpStr, pos, length, 1);
             Py_XDECREF (tmpStr);
             if (endpos == -1)
@@ -2008,12 +2042,20 @@ vector3_init(PyVector *self, PyObject *args, PyObject *kwds)
              * ISO C 90 compatible.
              */
             int pos, endpos, length, tmp_length;
-            PyObject *tmp, *tmpStr, *slice;
+            PyObject *tmpStr;
             PyObject *vector_string;
             vector_string = PyUnicode_FromObject (xOrSequence);
             length = PySequence_Length (vector_string);
             /* find the starting point of the first coordinate in the string */
+#if PY_VERSION_HEX >= 0x02060000
             tmpStr = PyUnicode_FromString ("<Vector3(");
+#else
+            tmp = PyString_FromString ("<Vector3(");
+            if (tmp == NULL)
+                goto error;
+            tmpStr = PyUnicode_FromObject (tmp);
+            Py_DECREF (tmp);
+#endif
             tmp_length = PySequence_Length (tmpStr);
             pos = PyUnicode_Find (vector_string, tmpStr, 0, length, 1);
             Py_XDECREF (tmpStr);
@@ -2023,7 +2065,15 @@ vector3_init(PyVector *self, PyObject *args, PyObject *kwds)
                 return -1;
             pos += tmp_length;
             /* find the ending point of the first coordinate in the string */
+#if PY_VERSION_HEX >= 0x02060000
             tmpStr = PyUnicode_FromString (", ");
+#else
+            tmp = PyString_FromString (", ");
+            if (tmp == NULL)
+                goto error;
+            tmpStr = PyUnicode_FromObject (tmp);
+            Py_DECREF (tmp);
+#endif
             tmp_length = PySequence_Length (tmpStr);
             endpos = PyUnicode_Find (vector_string, tmpStr, pos, length, 1);
             Py_XDECREF (tmpStr);
@@ -2039,7 +2089,15 @@ vector3_init(PyVector *self, PyObject *args, PyObject *kwds)
             /* starting point for second coord is calculatable */
             pos = endpos + tmp_length;
             /* find ending point of the second coordinate in the string */
+#if PY_VERSION_HEX >= 0x02060000
             tmpStr = PyUnicode_FromString (", ");
+#else
+            tmp = PyString_FromString (", ");
+            if (tmp == NULL)
+                goto error;
+            tmpStr = PyUnicode_FromObject (tmp);
+            Py_DECREF (tmp);
+#endif
             endpos = PyUnicode_Find (vector_string, tmpStr, pos, length, 1);
             Py_XDECREF (tmpStr);
             if (endpos == -1)
@@ -2054,7 +2112,15 @@ vector3_init(PyVector *self, PyObject *args, PyObject *kwds)
             /* starting point for third coord is calculatable */
             pos = endpos + tmp_length;
             /* find ending point of the second coordinate in the string */
+#if PY_VERSION_HEX >= 0x02060000
             tmpStr = PyUnicode_FromString (")>");
+#else
+            tmp = PyString_FromString (")>");
+            if (tmp == NULL)
+                goto error;
+            tmpStr = PyUnicode_FromObject (tmp);
+            Py_DECREF (tmp);
+#endif
             endpos = PyUnicode_Find (vector_string, tmpStr, pos, length, 1);
             Py_XDECREF (tmpStr);
             if (endpos == -1)
