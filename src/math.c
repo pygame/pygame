@@ -2042,7 +2042,7 @@ vector3_init(PyVector *self, PyObject *args, PyObject *kwds)
              * ISO C 90 compatible.
              */
             int pos, endpos, length, tmp_length;
-            PyObject *tmpStr;
+            PyObject *tmpStr, *tmp;
             PyObject *vector_string;
             vector_string = PyUnicode_FromObject (xOrSequence);
             length = PySequence_Length (vector_string);
