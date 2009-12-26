@@ -71,7 +71,7 @@ class SDLTest (unittest.TestCase):
         # pygame2.sdl.get_error().
         self.assertEqual (base.init (constants.INIT_CDROM), True)
         self.assertEqual (base.init
-                           (constants.INIT_CDROM | constants.INIT_AUDIO), True)
+                          (constants.INIT_CDROM | constants.INIT_AUDIO), True)
         base.quit ()
 
     def test_pygame2_sdl_base_init_subsystem(self):
@@ -117,7 +117,7 @@ class SDLTest (unittest.TestCase):
         # or function related to the specified subsystems as they are likely
         # to fail or might give unpredictable results.
         self.assert_ (base.quit_subsystem (constants.INIT_AUDIO) == None)
-        #self.assert_ (base.quit_subsystem (constants.INIT_CDROM) == None)
+        self.assert_ (base.quit_subsystem (constants.INIT_CDROM) == None)
     
     def test_pygame2_sdl_base_was_init(self):
 

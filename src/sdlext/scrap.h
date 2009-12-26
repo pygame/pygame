@@ -45,18 +45,18 @@ typedef enum
 #define SCRAP_FORMAT_PBM "image/pbm"
 
 /**
- * \brief Checks, whether the scrap module was initialized.
+ * \brief Initializes the scrap module internals. Call this before any
+ * other method.
  *
- * \return 1 if the module was initialized, 0 otherwise.
+ * \return 1 on successful initialization, 0 otherwise.
  */
 int
 pyg_scrap_init (void);
 
 /**
- * \brief Initializes the scrap module internals. Call this before any
- * other method.
+ * \brief Checks, whether the scrap module was initialized.
  *
- * \return 1 on successful initialization, 0 otherwise.
+ * \return 1 if the module was initialized, 0 otherwise.
  */
 int
 pyg_scrap_was_init (void);

@@ -82,9 +82,21 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
     {
         free(ftext->glyphs);
         ftext->glyphs = malloc((size_t)string_length * sizeof(FontGlyph *));
+        if (!ftext->glyphs)
+        {
+            free (orig_buffer);
+            _PGFT_SetError (ft, "Could not allocate memory", 0);
+            return NULL;
+        }
 
         free(ftext->advances);
         ftext->advances = malloc((size_t)string_length * sizeof(FT_Vector));
+        if (!ftext->advances)
+        {
+            free (orig_buffer);
+            _PGFT_SetError (ft, "Could not allocate memory", 0);
+            return NULL;
+        }
     }
 
     ftext->length = string_length;
@@ -322,9 +334,21 @@ PGFT_BuildUnicodeString(PyObject *obj)
         PyObject *utf_bytes;
 
         utf_bytes = PyUnicode_AsUTF16String(obj);
-        Bytes_AsStringAndSize(utf_bytes, &tmp_buffer, (int *)&len);
-        utf16_buffer = malloc(len + 2);
+        if (!utf_bytes)
+            return NULL;
 
+        if (Bytes_AsStringAndSize(utf_bytes, &tmp_buffer, (int *)&len) == -1)
+        {
+            Py_DECREF (utf_bytes);
+            return NULL;
+        }
+
+        utf16_buffer = malloc(len + 2);
+        if (!utf16_buffer)
+        {
+            Py_DECREF (utf_bytes);
+            return NULL;
+        }
         memcpy(utf16_buffer, tmp_buffer, len);
         utf16_buffer[len / sizeof(FT_UInt16)] = 0;
 
@@ -340,12 +364,15 @@ PGFT_BuildUnicodeString(PyObject *obj)
          */
         size_t i;
 
-        Bytes_AsStringAndSize(obj, &tmp_buffer, (int *)&len);
-        utf16_buffer = malloc((size_t)(len + 1) * sizeof(FT_UInt16));
+        if (Bytes_AsStringAndSize(obj, &tmp_buffer, (int *)&len) == -1)
+            return NULL;
+
+        utf16_buffer = malloc((len + 1) * sizeof(FT_UInt16));
+        if (!utf16_buffer)
+            return NULL;
 
         for (i = 0; i < len; ++i)
             utf16_buffer[i] = (FT_UInt16)tmp_buffer[i];
-
         utf16_buffer[len] = 0;
     }
 

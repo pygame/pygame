@@ -7,11 +7,12 @@ import pygame2
 import pygame2.font as font
 
 class FontTest (unittest.TestCase):
+    
     def todo_test_pygame2_font_find_font(self):
 
-        # __doc__ (as of 2009-06-26) for pygame2.font.find_font:
+        # __doc__ (as of 2009-12-10) for pygame2.font.find_font:
 
-        # find_fonts(name, bold=False, italic=False, ftype=None) -> str, bool, bool
+        # find_font (name, bold=False, italic=False, ftype=None) -> str, bool, bool
         # 
         # Finds a font matching a certain family or font filename best.
         # 
@@ -22,11 +23,12 @@ class FontTest (unittest.TestCase):
         # is an optional font filetype argument to request specific font file
         # types, such as bdf or ttf fonts.
 
-        self.fail ()
+        # name, bold, italic = font.find_font ('sans')
+        self.fail() 
 
     def todo_test_pygame2_font_find_fonts(self):
 
-        # __doc__ (as of 2009-06-26) for pygame2.font.find_fonts:
+        # __doc__ (as of 2009-12-10) for pygame2.font.find_fonts:
 
         # find_fonts(name, bold=False, italic=False, ftype=None) -> [ (str, bool, bool), ... ]
         # 
@@ -45,7 +47,7 @@ class FontTest (unittest.TestCase):
 
     def todo_test_pygame2_font_get_families(self):
 
-        # __doc__ (as of 2009-06-26) for pygame2.font.get_families:
+        # __doc__ (as of 2009-12-10) for pygame2.font.get_families:
 
         # get_families () -> [str, str, str, ...]
         # 

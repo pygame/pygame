@@ -17,6 +17,9 @@
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
+#ifndef _PYGAME_SURFACEBLIT_H_
+#define _PYGAME_SURFACEBLIT_H_
+
 #include "surface.h"
 
 /* The structure passed to the low level blit functions */
@@ -59,3 +62,5 @@ void blit_blend_rgba_xor (SDL_BlitInfo* info);
 void blit_blend_rgba_diff (SDL_BlitInfo* info);
 void blit_blend_rgba_screen (SDL_BlitInfo* info);
 void blit_blend_rgba_avg (SDL_BlitInfo* info);
+
+#endif /* _PYGAME_SURFACEBLIT_H_ */

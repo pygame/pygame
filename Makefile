@@ -28,7 +28,6 @@ SUBDIRS = \
 	$(top_srcdir)/src/base \
 	$(top_srcdir)/src/freetype \
 	$(top_srcdir)/src/mask \
-	$(top_srcdir)/src/physics \
 	$(top_srcdir)/src/sdl \
 	$(top_srcdir)/src/sdlext \
 	$(top_srcdir)/src/sdlgfx \
@@ -89,42 +88,30 @@ runtest:
 # purposes only!
 
 buildall: clean
-	@python2.4 setup.py build
 	@python2.5 setup.py build
 	@python2.6 setup.py build
-	@python3.0 setup.py build
 	@python3.1 setup.py build
 
 installall:
-	@python2.4 setup.py install
 	@python2.5 setup.py install
 	@python2.6 setup.py install
-	@python3.0 setup.py install
 	@python3.1 setup.py install
 
 testall:
-	@python2.4 test/run_tests.py
 	@python2.5 test/run_tests.py
 	@python2.6 test/run_tests.py
-	@python3.0 test/run_tests.py
 	@python3.1 test/run_tests.py
 
 testall2:
-	@python2.4 -c "import pygame2.test; pygame2.test.run ()"
 	@python2.5 -c "import pygame2.test; pygame2.test.run ()"
 	@python2.6 -c "import pygame2.test; pygame2.test.run ()"
-	@python3.0 -c "import pygame2.test; pygame2.test.run ()"
 	@python3.1 -c "import pygame2.test; pygame2.test.run ()"
 
 purge_installs:
-	rm -rf /usr/local/include/python2.4/pygame2*
 	rm -rf /usr/local/include/python2.5/pygame2*
 	rm -rf /usr/local/include/python2.6/pygame2*
-	rm -rf /usr/local/include/python3.0/pygame2*
 	rm -rf /usr/local/include/python3.1/pygame2*
-	rm -rf /usr/local/lib/python2.4/site-packages/pygame2*
 	rm -rf /usr/local/lib/python2.5/site-packages/pygame2*
 	rm -rf /usr/local/lib/python2.6/site-packages/pygame2*
-	rm -rf /usr/local/lib/python3.0/site-packages/pygame2*
 	rm -rf /usr/local/lib/python3.1/site-packages/pygame2*
 

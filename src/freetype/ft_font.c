@@ -526,6 +526,13 @@ _ftfont_getsize(PyObject *self, PyObject* args, PyObject *kwds)
                 &text, &style, &rotation, &ptsize))
         return NULL;
 
+    if (!IsTextObj (text))
+    {
+        PyErr_SetString (PyExc_TypeError,
+            "text must be a string or unicode object");
+        return NULL;
+    }
+
     /* Build rendering mode, always anti-aliased by default */
     if (PGFT_BuildRenderMode(ft, font, &render, 
                 ptsize, style, rotation) != 0)
@@ -533,8 +540,8 @@ _ftfont_getsize(PyObject *self, PyObject* args, PyObject *kwds)
         PyErr_SetString(PyExc_ValueError, PGFT_GetError(ft));
         return NULL;
     }
-
-    error = PGFT_GetTextSize(ft, font, &render,text, &width, &height);
+    
+    error = PGFT_GetTextSize(ft, font, &render, text, &width, &height);
     
     if (error)
         PyErr_SetString(PyExc_RuntimeError, PGFT_GetError(ft));

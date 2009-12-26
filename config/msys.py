@@ -9,13 +9,17 @@ exports msys_raw_input, MsysException, Msys
 #from config.helpers import *
 from config.msysio import raw_input_ as msys_raw_input, print_ as msys_print
 from config.msysio import is_msys
+from config import helpers
 import os
 import time
 import subprocess
 import re
 import glob
 try:
-    import _winreg
+    if helpers.getversion()[0] >= 3:
+        import winreg as _winreg
+    else:
+        import _winreg
 except:
     _winreg = None
 
@@ -93,7 +97,10 @@ def find_msys_registry():
     try:
         key = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE, subkey)
         try:
-            return _winreg.QueryValueEx(key, 'Inno Setup: App Path')[0].encode()
+            output = _winreg.QueryValueEx(key, 'Inno Setup: App Path')[0].encode()
+            if helpers.getversion()[0] >= 3:
+                output = str (output, "utf-8")
+            return output 
         except WindowsError:
             raise LookupError("MSYS not found in the registry")
     finally:

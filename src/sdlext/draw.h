@@ -22,6 +22,10 @@
 
 #include <SDL.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define LOCK_SURFACE(x,ret)                                             \
     if (SDL_MUSTLOCK (x))                                               \
     {                                                                   \
@@ -73,5 +77,9 @@ pyg_draw_polygon (SDL_Surface *surface, SDL_Rect *cliprect, Uint32 color,
 int
 pyg_draw_filled_polygon (SDL_Surface *surface, SDL_Rect *cliprect, Uint32 color,
     int *xpts, int *ypts, unsigned int count, SDL_Rect *area);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _PYGAME_DRAW_H_ */

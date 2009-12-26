@@ -18,6 +18,9 @@
 
 */
 
+#ifndef _PYGAME_SCRAPX11_H_
+#define _PYGAME_SCRAPX11_H_
+
 #include "scrap.h"
 
 #ifdef SDL_VIDEO_DRIVER_X11
@@ -49,3 +52,5 @@ int
 scrap_get_types_x11 (char** types);
 
 #endif /* SDL_VIDEO_DRIVER_X11 */
+
+#endif /* _PYGAME_SCRAPX11_H_ */

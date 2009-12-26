@@ -232,7 +232,6 @@ void __render_glyph_ByteArray(int x, int y, FontSurface *surface,
             for (i = rx; i < max_x; ++i, _dst += _bpp)                  \
             {                                                           \
                 FT_UInt32 alpha = (*_src++);                            \
-                FT_UInt32 tmpa = alpha;                                 \
                 alpha = (alpha * color->a) / 255;                       \
                 if (alpha == 0xFF)                                      \
                 {                                                       \

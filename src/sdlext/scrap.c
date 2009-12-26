@@ -97,6 +97,7 @@ pyg_scrap_quit (void)
     if (!_initialized)
         return;
     _initialized = 0;
+    _scrapinfo.quit ();
 }
 
 int

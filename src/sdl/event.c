@@ -144,6 +144,13 @@ _event_init (PyObject *self, PyObject *args, PyObject *kwds)
     if (!PyArg_ParseTuple (args, "i|O", &eventid, &dict))
         return -1;
 
+    if (eventid < 0 || eventid > 255)
+    {
+        PyErr_SetString (PyExc_ValueError,
+            "type must be an integer in the range 0-255");
+        return -1;
+    }
+
     if (dict && !PyDict_Check (dict))
     {
         PyErr_SetString (PyExc_TypeError, "dict must be a dict");

@@ -88,8 +88,8 @@ type: ::
 This will build and install Pygame2 in one step.
 
 You also can use the small build.bat batch script, which optionally can
-set up the VC++ include and library paths. Change it to your needs and
-then execute it using ::
+set up the VC++ include and library paths for the VC Toolkit 2003. Change it to
+your needs and then execute it using ::
 
     build.bat
 

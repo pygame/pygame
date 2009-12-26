@@ -18,6 +18,9 @@
 
 */
 
+#ifndef _PYGAME_SCRAPWIN_H_
+#define _PYGAME_SCRAPWIN_H_
+
 #include "scrap.h"
 
 #if defined(SDL_VIDEO_DRIVER_WINDIB) || defined(SDL_VIDEO_DRIVER_DDRAW) || defined(SDL_VIDEO_DRIVER_GAPI)
@@ -50,3 +53,5 @@ int
 scrap_get_types_win (char** types);
 
 #endif /* SDL_VIDEO_DRIVER_WINDIB || SDL_VIDEO_DRIVER_DDRAW || SDL_VIDEO_DRIVER_GAPI */
+
+#endif /* _PYGAME_SCRAPWIN_H_ */

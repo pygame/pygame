@@ -159,7 +159,8 @@ part.
   between two releases.
 
 * *MINOR* should be increased, whenever changes or additions to the API were
-  made. This also will cause *BUGFIX* to be set back to 0.
+  made (which do **not** break backwards compatibility). This also will cause
+  *BUGFIX* to be set back to 0.
 
 * *MAJOR* should be increased, whenever outstanding additions or changes to the
   API were made, which legitimate it.

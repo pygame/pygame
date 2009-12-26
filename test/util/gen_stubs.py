@@ -69,9 +69,6 @@ def init_optparser ():
         "-t",  "--test_names", action = 'store_true',
         help   = "list test names not stubs" )
 
-    opt_parser.add_option (
-        "-d",  "--docs", action = 'store_true',
-        help   = "get (more detailed) docs using makeref.py" )
     opt_parser.set_usage("""$ %prog ROOT\n\neg.\n\n$ %prog sprite.Sprite""")
     return opt_parser
 

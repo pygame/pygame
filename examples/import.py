@@ -10,7 +10,6 @@ def run ():
         print (sys.exc_info()[1])
 
     import pygame2.mask
-    import pygame2.physics
 
     try:
         import pygame2.sdl

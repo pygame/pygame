@@ -8,49 +8,29 @@ import pygame2
 import pygame2.freetype as ft
 import pygame2.freetype.constants as ft_const
 
-ft.init()
-
 FONTDIR = os.path.dirname (os.path.abspath (__file__))
 
 class FreeTypeFontTest(unittest.TestCase):
-    _TEST_FONTS = {
-            # Inconsolata is an open-source font designed by Raph Levien
-            # Licensed under the Open Font License
-            # http://www.levien.com/type/myfonts/inconsolata.html
-            'fixed' : ft.Font(os.path.join (FONTDIR, 'test_fixed.otf')),
 
-            # Liberation Sans is an open-source font designed by Steve Matteson
-            # Licensed under the GNU GPL
-            # https://fedorahosted.org/liberation-fonts/
-            'sans'  : ft.Font(os.path.join (FONTDIR, 'test_sans.ttf')),
-    }
-
-    def test_pygame2_freetype_Font_init(self):
-
-        self.assertRaises(RuntimeError, ft.Font, os.path.join (FONTDIR, 'nonexistant.ttf'))
-
-        f = self._TEST_FONTS['sans']
-        self.assertTrue(isinstance(f, pygame2.base.Font))
-        self.assertTrue(isinstance(f, ft.Font))
-
-        f = self._TEST_FONTS['fixed']
-        self.assertTrue(isinstance(f, pygame2.base.Font))
-        self.assertTrue(isinstance(f, ft.Font))
-
+    def get_fixed_font (self):
+        return ft.Font(os.path.join (FONTDIR, 'test_fixed.otf'))
+    def get_sans_font (self):
+        return ft.Font(os.path.join (FONTDIR, 'test_sans.ttf'))
 
     def test_pygame2_freetype_Font_fixed_width(self):
-
-        f = self._TEST_FONTS['sans']
+        ft.init ()
+        f = self.get_sans_font ()
         self.assertFalse(f.fixed_width)
 
-        f = self._TEST_FONTS['fixed']
+        f = self.get_fixed_font ()
         self.assertFalse(f.fixed_width)
 
         # TODO: Find a real fixed width font to test with
-
+        ft.quit ()
+        
     def test_pygame2_freetype_Font_get_metrics(self):
-
-        font = self._TEST_FONTS['sans']
+        ft.init ()
+        font = self.get_sans_font ()
         
         # test for floating point values (BBOX_EXACT)
         metrics = font.get_metrics('ABCD', ptsize=24, bbmode=ft_const.BBOX_EXACT)
@@ -84,10 +64,11 @@ class FreeTypeFontTest(unittest.TestCase):
 
         # test for invalid string
         self.assertRaises(TypeError, font.get_metrics, 24, 24)
+        ft.quit ()
 
     def test_pygame2_freetype_Font_get_size(self):
-
-        font = self._TEST_FONTS['sans']
+        ft.init()
+        font = self.get_sans_font ()
 
         def test_size(s):
             self.assertTrue(isinstance(s, tuple))
@@ -139,29 +120,30 @@ class FreeTypeFontTest(unittest.TestCase):
         size_null = font.get_size("", ptsize=24)
         test_size (size_null)
         self.assertTrue (size_null[0] == size_null[1] == 0)
-        
-    def test_pygame2_freetype_Font_height(self):
+        ft.quit ()
 
-        f = self._TEST_FONTS['sans']
+    def test_pygame2_freetype_Font_height(self):
+        ft.init ()
+        f = self.get_sans_font ()
         self.assertEqual(f.height, 2355)
 
-        f = self._TEST_FONTS['fixed']
+        f = self.get_fixed_font ()
         self.assertEqual(f.height, 1100)
+        ft.quit ()
         
-
     def test_pygame2_freetype_Font_name(self):
-
-        f = self._TEST_FONTS['sans']
+        ft.init ()
+        f = self.get_sans_font ()
         self.assertEqual(f.name, 'Liberation Sans')
 
-        f = self._TEST_FONTS['fixed']
+        f = self.get_fixed_font ()
         self.assertEqual(f.name, 'Inconsolata')
-
-
+        ft.quit ()
+        
     def test_pygame2_freetype_Font_render(self):
-
-        font = self._TEST_FONTS['sans']
-
+        ft.init ()
+        font = self.get_sans_font ()
+        
         pygame2.sdl.video.init()
         surf = pygame2.sdl.video.Surface(800, 600)
         color = pygame2.base.Color(0, 0, 0)
@@ -209,12 +191,11 @@ class FreeTypeFontTest(unittest.TestCase):
                 style=97, ptsize=24)
 
         pygame2.sdl.video.quit()
-
-
+        ft.quit ()
 
     def test_pygame2_freetype_Font_style(self):
-
-        font = self._TEST_FONTS['sans']
+        ft.init ()
+        font = self.get_sans_font ()
 
         # make sure STYLE_NORMAL is the default value
         self.assertEqual(ft_const.STYLE_NORMAL, font.style)
@@ -250,7 +231,96 @@ class FreeTypeFontTest(unittest.TestCase):
         # revert changes
         font.style = ft_const.STYLE_NORMAL
         self.assertEqual(ft_const.STYLE_NORMAL, font.style)
+        ft.quit ()
+        
+    def todo_test_pygame2_freetype_Font_antialiased(self):
 
+        # __doc__ (as of 2009-12-14) for pygame2.freetype.Font.antialiased:
+
+        # Gets or sets the font's antialiasing mode. This defaults to True
+        # on all fonts, which will be rendered by default antialiased.
+        # 
+        # Setting this to true will change all rendering methods to use
+        # glyph bitmaps without antialiasing, which supposes a small speed gain
+        # and a significant memory gain because of the way glyphs are cached.
+
+        self.fail() 
+
+    def todo_test_pygame2_freetype_Font_bold(self):
+
+        # __doc__ (as of 2009-12-14) for pygame2.freetype.Font.bold:
+
+        # Gets or sets whether the font will be bold when drawing text.
+        # This default style value will be used for all text rendering and
+        # size calculations unless overriden specifically in the render()
+        # or get_size() calls, via the 'style' parameter.
+
+        self.fail() 
+
+    def todo_test_pygame2_freetype_Font_italic(self):
+
+        # __doc__ (as of 2009-12-14) for pygame2.freetype.Font.italic:
+
+        # Gets or sets whether the font will be slanted when drawing text.
+        # This default style value will be used for all text rendering and
+        # size calculations unless overriden specifically in the render()
+        # or get_size() calls, via the 'style' parameter.
+
+        self.fail() 
+
+    def todo_test_pygame2_freetype_Font_render_raw(self):
+
+        # __doc__ (as of 2009-12-14) for pygame2.freetype.Font.render_raw:
+
+        # render_raw(text [, ptsize]) -> int, int, bytes
+        # 
+        # Renders a text to a byte buffer.
+        # 
+        # Renders the string *text* to a raw buffer of bytes, each byte
+        # representing the opacity of the glyph's raster image in
+        # grayscale.
+        # 
+        # The width (pitch) and height of the rendered text, together with
+        # the bytes buffer, will be returned in a tuple.
+        # 
+        # The rendering is done using the font's default size in points.
+        # Optionally you may specify another point size to use.
+
+        self.fail() 
+
+    def todo_test_pygame2_freetype_Font_underline(self):
+
+        # __doc__ (as of 2009-12-14) for pygame2.freetype.Font.underline:
+
+        # Gets or sets whether the font will be underlined when drawing text.
+        # This default style value will be used for all text rendering and
+        # size calculations unless overriden specifically in the render()
+        # or get_size() calls, via the 'style' parameter.
+
+        self.fail() 
+
+    def todo_test_pygame2_freetype_Font_vertical(self):
+
+        # __doc__ (as of 2009-12-14) for pygame2.freetype.Font.vertical:
+
+        # Gets or sets whether the font is a vertical font such as fonts
+        # representing Kanji glyphs or other styles of vertical writing.
+        # 
+        # Changing this attribute will cause the font to be rendering
+        # vertically, and affects all other methods which manage glyphs
+        # or text layouts to use vertical metrics accordingly.
+        # 
+        # Note that the FreeType library doesn't automatically detect
+        # whether a font contains glyphs which are always supposed to
+        # be drawn vertically, so this attribute must be set manually
+        # by the user.
+        # 
+        # Also note that several font formats (specially bitmap based
+        # ones) don't contain the necessary metrics to draw glyphs
+        # vertically, so drawing in those cases will give unspecified
+        # results.
+
+        self.fail() 
 
 if __name__ == '__main__':
     unittest.main()
