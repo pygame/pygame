@@ -39,7 +39,7 @@ base/pgdefines.h contains some useful numeric macros:
   +----------------+--------------------------------------------+
   | ADD_LIMIT(x,y) | Variable addition using overflow limits    |
   +----------------+--------------------------------------------+
-  |SUB_LIMIT(x,y)  | variable subtraction using overflow limits |
+  | SUB_LIMIT(x,y) | variable subtraction using overflow limits |
   +----------------+--------------------------------------------+
 
 Besides that it contains various ready-to-use macros for signed/unsigned

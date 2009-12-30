@@ -429,14 +429,84 @@ Functions
   *func* is the unlock func to release any pending locks and references on the
   buffered object. On failure, this returns NULL.
 
+PyFont
+------
+.. ctype:: PyFont
+.. ctype:: PyFont_Type
+
+The PyFont object an abstract base class, to be used by inheriting classes
+and other interfaces, so it is guaranteed that font-like objects contain a
+set of same attributes and methods.
+
+Members
+^^^^^^^
+PyFont only defines a set of function pointer bindings to access and set by
+inheriting classes and interfaces. Those are
+
+.. cfunction:: PyObject* (*get_height) (PyObject *self, void *closure)
+
+  Gets the height of the :ctype:`PyFont` instance. *self* is the
+  :ctype:`PyFont` itself, the *closure* argument is the same as for the
+  Python C API getter definition.
+
+.. cfunction:: PyObject* (*get_name) (PyObject *self, void *closure)
+
+  Gets the name of the :ctype:`PyFont` instance. *self* is the :ctype:`PyFont`
+  itself, the *closure* argument is the same as for the Python C API
+  getter definition.
+
+.. cfunction:: PyObject* (*get_style) (PyObject *self, void *closure)
+
+  Gets the currently applied style of the :ctype:`PyFont`
+  instance. *self* is the :ctype:`PyFont` itself, the *closure* argument
+  is the same as for the Python C API getter definition.
+
+.. cfunction:: int (*set_style) (PyObject *self, PyObject *attr, void *closure)
+
+  Applies a style to the :ctype:`PyFont` instance. *self* is the
+  :ctype:`PyFont` itself, *attr* the style to apply, the *closure*
+  argument is the same as for the Python C API getter definition.
+
+.. cfunction:: PyObject* (*get_size) (PyObject *self, PyObject *args, PyObject *kwds)
+
+  Gets the size of the :ctype:`PyFont` instance. *self* is the
+  :ctype:`PyFont` itself, the *closure* argument is the same as for the
+  Python C API getter definition.
+
+.. cfunction:: PyObject* (*render) (PyObject *self, PyObject *args, PyObject *kwds)
+
+  Renders the :ctype:`PyFont` onto some :ctype:`PySurface` or whatever
+  is appropriate for the concrete implementation. *self* is the
+  :ctype:`PyFont` itself, the *args* and *kwds* arguments are the same as for
+  the Python C API method definition.
+
+.. cfunction:: PyObject* (*copy) (PyObject *self);
+
+  Creates an exact copy of the :ctype:`PyFont`. *self* is the
+  :ctype:`PyFont` itself.
+
+Functions
+^^^^^^^^^
+
+.. cfunction:: int PyFont_Check (PyObject *obj)
+
+  Returns true, if the argument is a :ctype:`PyFont` or a subclass of
+  :ctype:`PyFont`.
+
+.. cfunction:: PyObject* PyFont_New (void)
+
+  Creates a new, empty :ctype:`PyFont` object, which's members are set to
+  NULL. On failure, this returns NULL.
+
+
 PySurface
 ---------
 .. ctype:: PySurface
 .. ctype:: PySurface_Type
 
-The PySurface object is some sort of abstract base class, to be used by
-inheriting classes and other interfaces, so it is guaranteed that surface-like
-objects contain a set of same attributes and methods.
+The PySurface object an abstract base class, to be used by inheriting classes
+and other interfaces, so it is guaranteed that surface-like objects contain a
+set of same attributes and methods.
 
 Members
 ^^^^^^^

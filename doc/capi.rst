@@ -25,6 +25,7 @@ API Reference
 .. toctree::
 
   capi/base.rst
+  capi/freetype.rst
   capi/mask.rst
   capi/sdlbase.rst
   capi/sdlcdrom.rst
@@ -36,4 +37,3 @@ API Reference
   capi/sdlext.rst
   capi/sdlgfx.rst
   capi/sdlttf.rst
-

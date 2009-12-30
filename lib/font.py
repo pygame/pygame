@@ -171,6 +171,102 @@ _win32_fontfiles = [
     ('batang.ttc', 'Batang', False, False),
     ]
 
+_osx_font_files = {
+    'albayan': {(False, False): '/Library/Fonts/AlBayan.ttf',
+                (True, False): '/Library/Fonts/AlBayanBold.ttf'},
+    'andalemono': {(False, False): '/Library/Fonts/Andale Mono.ttf'},
+    'applebraille': {(False, False): '/System/Library/Fonts/Apple Braille Outline 6 Dot.ttf'},
+    'applegothic': {(False, False): '/System/Library/Fonts/AppleGothic.ttf'},
+    'applesymbols': {(False, False): '/System/Library/Fonts/Apple Symbols.ttf'},
+    'arial': {(False, False): '/Library/Fonts/Arial.ttf',
+              (False, True): '/Library/Fonts/Arial Italic.ttf',
+              (True, False): '/Library/Fonts/Arial Bold.ttf',
+              (True, True): '/Library/Fonts/Arial Bold Italic.ttf'},
+    'arialblack': {(False, False): '/Library/Fonts/Arial Black.ttf'},
+    'arialhebrew': {(False, False): '/Library/Fonts/ArialHB.ttf',
+                    (True, False): '/Library/Fonts/ArialHBBold.ttf'},
+    'arialnarrow': {(False, False): '/Library/Fonts/Arial Narrow.ttf',
+                    (False, True): '/Library/Fonts/Arial Narrow Italic.ttf',
+                    (True, False): '/Library/Fonts/Arial Narrow Bold.ttf',
+                    (True, True): '/Library/Fonts/Arial Narrow Bold Italic.ttf'},
+    'arialroundedmtbold': {(False, False): '/Library/Fonts/Arial Rounded Bold.ttf'},
+    'arialunicodems': {(False, False): '/Library/Fonts/Arial Unicode.ttf'},
+    'ayuthaya': {(False, False): '/Library/Fonts/Ayuthaya.ttf'},
+    'baghdad': {(False, False): '/Library/Fonts/Baghdad.ttf'},
+    'brushscriptmt': {(False, True): '/Library/Fonts/Brush Script.ttf'},
+    'chalkboard': {(False, False): '/Library/Fonts/Chalkboard.ttf',
+                   (True, False): '/Library/Fonts/ChalkboardBold.ttf'},
+    'comicsansms': {(False, False): '/Library/Fonts/Comic Sans MS.ttf',
+                    (True, False): '/Library/Fonts/Comic Sans MS Bold.ttf'},
+    'corsivahebrew': {(False, False): '/Library/Fonts/Corsiva.ttf',
+                      (True, False): '/Library/Fonts/CorsivaBold.ttf'},
+    'couriernew': {(False, False): '/Library/Fonts/Courier New.ttf',
+                   (False, True): '/Library/Fonts/Courier New Italic.ttf',
+                   (True, False): '/Library/Fonts/Courier New Bold.ttf',
+                   (True, True): '/Library/Fonts/Courier New Bold Italic.ttf'},
+    'decotypenaskh': {(False, False): '/Library/Fonts/DecoTypeNaskh.ttf'},
+    'devanagarimt': {(False, False): '/Library/Fonts/DevanagariMT.ttf',
+                     (True, False): '/Library/Fonts/DevanagariMTBold.ttf'},
+    'euphemiaucas': {(False, False): '/Library/Fonts/EuphemiaCASRegular.ttf',
+                     (False, True): '/Library/Fonts/EuphemiaCASItalic.ttf',
+                     (True, False): '/Library/Fonts/EuphemiaCASBold.ttf'},
+    'gb18030bitmap': {(False, False): '/Library/Fonts/NISC18030.ttf'},
+    'geezapro': {(False, False): '/System/Library/Fonts/Geeza Pro.ttf',
+                 (True, False): '/System/Library/Fonts/Geeza Pro Bold.ttf'},
+    'georgia': {(False, False): '/Library/Fonts/Georgia.ttf',
+                (False, True): '/Library/Fonts/Georgia Italic.ttf',
+                (True, False): '/Library/Fonts/Georgia Bold.ttf',
+                (True, True): '/Library/Fonts/Georgia Bold Italic.ttf'},
+    'gujaratimt': {(False, False): '/Library/Fonts/GujaratiMT.ttf',
+                   (True, False): '/Library/Fonts/GujaratiMTBold.ttf'},
+    'gurmukhimt': {(False, False): '/Library/Fonts/Gurmukhi.ttf'},
+    'impact': {(False, False): '/Library/Fonts/Impact.ttf'},
+    'inaimathi': {(False, False): '/Library/Fonts/InaiMathi.ttf'},
+    'kailasa': {(False, False): '/Library/Fonts/Kailasa.ttf'},
+    'kokonor': {(False, False): '/Library/Fonts/Kokonor.ttf'},
+    'krungthep': {(False, False): '/Library/Fonts/Krungthep.ttf'},
+    'kufistandardgk': {(False, False): '/Library/Fonts/KufiStandardGK.ttf'},
+    'liheipro': {(False, False): '/System/Library/Fonts/ Pro.ttf'},
+    'lisongpro': {(False, False): '/Library/Fonts/ Pro.ttf'},
+    'microsoftsansserif': {(False, False): '/Library/Fonts/Microsoft Sans Serif.ttf'},
+    'mshtakan': {(False, False): '/Library/Fonts/MshtakanRegular.ttf',
+                 (False, True): '/Library/Fonts/MshtakanOblique.ttf',
+                 (True, False): '/Library/Fonts/MshtakanBold.ttf',
+                 (True, True): '/Library/Fonts/MshtakanBoldOblique.ttf'},
+    'nadeem': {(False, False): '/Library/Fonts/Nadeem.ttf'},
+    'newpeninimmt': {(False, False): '/Library/Fonts/NewPeninimMT.ttf',
+                     (True, False): '/Library/Fonts/NewPeninimMTBoldInclined.ttf'},
+    'plantagenetcherokee': {(False, False): '/Library/Fonts/PlantagenetCherokee.ttf'},
+    'raanana': {(False, False): '/Library/Fonts/Raanana.ttf',
+                (True, False): '/Library/Fonts/RaananaBold.ttf'},
+    'sathu': {(False, False): '/Library/Fonts/Sathu.ttf'},
+    'silom': {(False, False): '/Library/Fonts/Silom.ttf'},
+    'stfangsong': {(False, False): '/Library/Fonts/.ttf'},
+    'stheiti': {(False, False): '/System/Library/Fonts/.ttf'},
+    'stkaiti': {(False, False): '/Library/Fonts/.ttf'},
+    'stsong': {(False, False): '/Library/Fonts/.ttf'},
+    'tahoma': {(False, False): '/Library/Fonts/Tahoma.ttf',
+               (True, False): '/Library/Fonts/Tahoma Bold.ttf'},
+    'thonburi': {(False, False): '/System/Library/Fonts/Thonburi.ttf',
+                 (True, False): '/System/Library/Fonts/ThonburiBold.ttf'},
+    'timesnewroman': {(False, False): '/Library/Fonts/Times New Roman.ttf',
+                      (False, True): '/Library/Fonts/Times New Roman Italic.ttf',
+                      (True, False): '/Library/Fonts/Times New Roman Bold.ttf',
+                      (True, True): '/Library/Fonts/Times New Roman Bold Italic.ttf'},
+    'trebuchetms': {(False, False): '/Library/Fonts/Trebuchet MS.ttf',
+                    (False, True): '/Library/Fonts/Trebuchet MS Italic.ttf',
+                    (True, False): '/Library/Fonts/Trebuchet MS Bold.ttf',
+                    (True, True): '/Library/Fonts/Trebuchet MS Bold Italic.ttf'},
+    'verdana': {(False, False): '/Library/Fonts/Verdana.ttf',
+                (False, True): '/Library/Fonts/Verdana Italic.ttf',
+                (True, False): '/Library/Fonts/Verdana Bold.ttf',
+                (True, True): '/Library/Fonts/Verdana Bold Italic.ttf'},
+    'webdings': {(False, False): '/Library/Fonts/Webdings.ttf'},
+    'wingdings': {(False, False): '/Library/Fonts/Wingdings.ttf'},
+    'wingdings2': {(False, False): '/Library/Fonts/Wingdings 2.ttf'},
+    'wingdings3': {(False, False): '/Library/Fonts/Wingdings 3.ttf'}
+} 
+
 def _simplename (name):
     """_simplename (name) -> str
 
@@ -296,6 +392,24 @@ def _initwin32 ():
             if name.find ("(") != -1:
                 name = name[:name.find ("(")].rstrip ()
             name = name.lower ()
+            bold = " bold" in name # The whitespace is important!
+            italic = " italic" in name # The whitespace is important!
+            ftype = _gettype (font)
+            _addfont (font, name, ftype, "", bold, italic)
+
+def _initdarwin ():
+    """_initdarwin () -> None
+    
+    Initializes the darwin-based font cache.
+    """
+    if os.path.exists("/usr/X11/bin/fc-list"):
+        _initunix()
+    for name, details in _osx_font_files.items ():
+        for k, apath in details.items ():
+            if os.path.exists (apath):
+                bold, italic = k
+                ftype = _gettype (font)
+                _addfont(apath, name, dtype, "", bold, italic) 
 
 def _initunix ():
     """_initunix () -> None
@@ -358,8 +472,7 @@ def _initfonts ():
     if sys.platform == "win32":
         _initwin32 ()
     elif sys.platform == "darwin":
-        # TODO
-        pass
+        _initdarwin ()
     else:
         _initunix ()
 

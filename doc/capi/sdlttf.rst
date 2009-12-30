@@ -24,33 +24,37 @@ Macros
   not, this will set a :exc:`PyExc_PyGameError` and return *retval*.
 
 
-PyFont
-------
-.. ctype:: PyFont
-.. ctype:: PyFont_Type
+PySDLFont_TTF
+-------------
+.. ctype:: PySDLFont_TTF
+.. ctype:: PySDLFont_TTF_Type
 
-The PyFont object is used for rendering text to a :ctype:`PySDLSurface`.
+The PySDLFont_TTF object is used for rendering text to a :ctype:`PySDLSurface`.
 
 Members
 ^^^^^^^
-.. cmember:: TTF_Font* PyFont.font
+.. cmember:: PyFont PySDLFont_TTF.pyfont
+
+  The parent :ctype:`PyFont` class the PySDLFont_TTF inherits from.
+
+.. cmember:: TTF_Font* PySDLFont_TTF.font
 
   The TTF_Font pointer to access the underlying font.
 
 Functions
 ^^^^^^^^^^
-.. cfunction:: int PyFont_Check (PyObject *obj)
+.. cfunction:: int PySDLFont_TTF_Check (PyObject *obj)
 
-  Returns true, if the argument is a :ctype:`PyFont` or a subclass of
-  :ctype:`PyFont`.
+  Returns true, if the argument is a :ctype:`PySDLFont_TTF` or a subclass of
+  :ctype:`PySDLFont_TTF`.
 
-.. cfunction:: PyObject* PyFont_New (char *filename, int ptsize)
+.. cfunction:: PyObject* PySDLFont_TTF_New (char *filename, int ptsize)
 
-  Creates a new :ctype:`PyFont` object from the passed TrueType font
+  Creates a new :ctype:`PySDLFont_TTF` object from the passed TrueType font
   file. *ptsize* specifies the font size (height) in points. On failure,
   this returns NULL.
 
-.. cfunction:: TTF_Font* PyFont_AsFont (PyObject *obj)
+.. cfunction:: TTF_Font* PySDLFont_TTF_AsFont (PyObject *obj)
 
   Macro for accessing the *font* member of the :ctype:`PyFont`. This
   does not perform any type or argument checks.
