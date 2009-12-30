@@ -6,7 +6,7 @@ This describes the latest changes between the Pygame2 releases.
 
 2.0.0
 =====
-Released on 2009-XX-XX.
+Released on 2010-XX-XX.
 
 * Initial Release
 
@@ -14,3 +14,4 @@ Test releases:
 
 * alpha1 (rev. 2176)
 * alpha2 (rev. 2430)
+* alpha3 (rev. 2703)
