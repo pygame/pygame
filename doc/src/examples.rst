@@ -26,8 +26,6 @@ Currently the following examples exists:
 +------------------------------------+----------------------------------------+
 | pygame2.examples.freetype.sdlfont  | Simple freetype example                |
 +------------------------------------+----------------------------------------+
-| pygame2.examples.physics.simple    | Simple physics example                 |
-+------------------------------------+----------------------------------------+
 | pygame2.examples.sdl.cdrom         | Demonstrates the features of the       |
 |                                    | :mod:`pygame2.sdl.cdrom` module.       |
 +------------------------------------+----------------------------------------+

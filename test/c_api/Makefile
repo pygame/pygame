@@ -1,11 +1,10 @@
 SOURCES = \
 	base_tests.c \
 	mask_tests.c \
-	physics_tests.c \
 	sdl_tests.c
 
 OBJECTS = $(SOURCES:%.c=%.o)
-TARGETS = base_tests mask_tests physics_tests sdl_tests
+TARGETS = base_tests mask_tests sdl_tests
 
 CC ?= gcc
 CFLAGS = -W -Wall -g 
@@ -35,11 +34,6 @@ mask_tests.o: mask_tests.c
 	$(CC) $(CFLAGS) -c -o $@ $*.c
 mask_tests: mask_tests.o
 	$(CC) mask_tests.o -o mask_tests $(LDFLAGS) 
-
-physics_tests.o: physics_tests.c
-	$(CC) $(CFLAGS) -c -o $@ $*.c
-physics_tests: physics_tests.o
-	$(CC) physics_tests.o -o physics_tests $(LDFLAGS) 
 
 sdl_tests.o: sdl_tests.c
 	$(CC) $(CFLAGS) $(SDLCFLAGS) -c -o $@ $*.c

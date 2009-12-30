@@ -106,7 +106,7 @@ if __name__ == "__main__":
 
     packages = [ "pygame2",
                  "pygame2.examples",
-                 "pygame2.examples.physics",
+                 "pygame2.examples.freetype",
                  "pygame2.examples.sdl",
                  "pygame2.examples.sdlext",
                  "pygame2.sprite",
