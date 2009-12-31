@@ -37,7 +37,6 @@ def run():
     w,h, sf = font.render(None, "Hello World", colors["red"],
                 colors['grey_dark'], ptsize=64,
                 style=ftconstants.STYLE_UNDERLINE|ftconstants.STYLE_ITALIC)
-    print screen.format.bits_per_pixel, screen.format.masks, screen.flags
     screen.blit (sf, (32, 32))
 
     font.render((screen, 32, 128), "abcdefghijklm", colors["grey_dark"],
