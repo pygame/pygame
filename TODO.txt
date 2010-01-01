@@ -31,7 +31,9 @@ Things to ADD:
 * (re)add tests
 * add examples
 * reorganise and add camera module
-* add portmidi wrapper.
+* add portmidi wrapper
+* add math module
+* add movie module
 * subsurfaces via surface[x:y,a:b]? Brought up by ctgPi via IRC
 
 Things to FIX:

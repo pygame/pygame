@@ -111,13 +111,18 @@ static PyObject*
 _sdl_init (PyObject *self, PyObject *args)
 {
     Uint32 flags;
-    
+    int retval;
+
     if (!_check_sdl ())
         return NULL;
 
     if (!PyArg_ParseTuple (args, "l:init", &flags))
         return NULL;
-    if (SDL_Init (flags) == -1)
+    
+    Py_BEGIN_ALLOW_THREADS;
+    retval = SDL_Init (flags);
+    Py_END_ALLOW_THREADS;
+    if (retval == -1)
         Py_RETURN_FALSE;
 
     SDL_MOD_STATE (self)->initialized = 1;
@@ -136,13 +141,18 @@ static PyObject*
 _sdl_initsubsystem (PyObject *self, PyObject *args)
 {
     Uint32 flags;
+    int retval;
+
     if (!PyArg_ParseTuple (args, "l:init_subsystem", &flags))
         return NULL;
 
     if (SDL_MOD_STATE (self)->initialized == 0)
         return _sdl_init (self, args);
 
-    if (SDL_InitSubSystem (flags) == -1)
+    Py_BEGIN_ALLOW_THREADS;
+    retval = SDL_InitSubSystem (flags);
+    Py_END_ALLOW_THREADS;
+    if (retval == -1)
         Py_RETURN_FALSE;
     Py_RETURN_TRUE;
 }
@@ -153,7 +163,9 @@ _sdl_quitsubsystem (PyObject *self, PyObject *args)
     Uint32 flags;
     if (!PyArg_ParseTuple (args, "l:quit_subsystem", &flags))
         return NULL;
+    Py_BEGIN_ALLOW_THREADS;
     SDL_QuitSubSystem (flags);
+    Py_END_ALLOW_THREADS;
     Py_RETURN_NONE;
 }
 
