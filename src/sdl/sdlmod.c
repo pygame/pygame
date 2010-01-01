@@ -172,11 +172,13 @@ _sdl_quitsubsystem (PyObject *self, PyObject *args)
 static PyObject*
 _sdl_wasinit (PyObject *self, PyObject *args)
 {
-    Uint32 flags = SDL_INIT_EVERYTHING, retval;
+    Uint32 flags = SDL_INIT_EVERYTHING, retval = 0;
 
     if (!PyArg_ParseTuple (args, "|l:was_init", &flags))
         return NULL;
+    Py_BEGIN_ALLOW_THREADS;
     retval = SDL_WasInit (flags);
+    Py_END_ALLOW_THREADS;
     return PyLong_FromLong ((long)retval);
 }
 

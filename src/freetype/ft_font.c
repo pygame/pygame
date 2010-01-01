@@ -544,7 +544,10 @@ _ftfont_getsize(PyObject *self, PyObject* args, PyObject *kwds)
     error = PGFT_GetTextSize(ft, font, &render, text, &width, &height);
     
     if (error)
-        PyErr_SetString(PyExc_RuntimeError, PGFT_GetError(ft));
+    {
+        if (!PyErr_Occurred ())
+            PyErr_SetString(PyExc_RuntimeError, PGFT_GetError(ft));
+    }
     else
         rtuple = Py_BuildValue ("(ii)", width, height);
 

@@ -271,7 +271,7 @@ FontText *  PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
 int         PGFT_LoadTextAdvances(FreeTypeInstance *ft, PyFreeTypeFont *font, 
                 const FontRenderMode *render, FontText *text);
 
-FT_UInt16 * PGFT_BuildUnicodeString(PyObject *);
+FT_UInt16 * PGFT_BuildUnicodeString(FreeTypeInstance *ft, PyObject *text);
 
 
 /******************************************************** Glyph cache management ****/

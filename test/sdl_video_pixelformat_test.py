@@ -168,9 +168,13 @@ class SDLVideoPixelFormatTest (unittest.TestCase):
         
         def _setr (format, readonly):
             format.readonly = readonly
-        
-        self.assertRaises (AttributeError, _setr, format, True)
-        self.assertRaises (AttributeError, _setr, format, False)
+
+        if sys.version_info < (2, 5):
+            self.assertRaises (TypeError, _setr, format, True)
+            self.assertRaises (TypeError, _setr, format, False)
+        else:
+            self.assertRaises (AttributeError, _setr, format, True)
+            self.assertRaises (AttributeError, _setr, format, False)
         
         video.quit ()
 

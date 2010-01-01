@@ -56,14 +56,11 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
     }
 
     /* get the text as an unicode string */
-    orig_buffer = buffer = PGFT_BuildUnicodeString(text);
+    orig_buffer = buffer = PGFT_BuildUnicodeString(ft, text);
 
     if (!buffer)
-    {
-        _PGFT_SetError(ft, "Invalid text string specified", 0);
         return NULL;
-    }
-
+    
     /* get the length of the text */
     for (ch = buffer; *ch; ++ch)
     {
@@ -318,9 +315,9 @@ PGFT_LoadTextAdvances(FreeTypeInstance *ft, PyFreeTypeFont *font,
 }
 
 FT_UInt16 *
-PGFT_BuildUnicodeString(PyObject *obj)
+PGFT_BuildUnicodeString(FreeTypeInstance *ft, PyObject *obj)
 {
-    size_t len;
+    Py_ssize_t len;
     FT_UInt16 *utf16_buffer = NULL;
     char *tmp_buffer;
 
@@ -337,19 +334,21 @@ PGFT_BuildUnicodeString(PyObject *obj)
         if (!utf_bytes)
             return NULL;
 
-        if (Bytes_AsStringAndSize(utf_bytes, &tmp_buffer, (int *)&len) == -1)
+        if (Bytes_AsStringAndSize
+            (utf_bytes, &tmp_buffer, &len) == -1)
         {
             Py_DECREF (utf_bytes);
             return NULL;
         }
 
-        utf16_buffer = malloc(len + 2);
+        utf16_buffer = malloc((size_t)len + 2);
         if (!utf16_buffer)
         {
             Py_DECREF (utf_bytes);
+            _PGFT_SetError(ft, "Could not allocate memory", 0);
             return NULL;
         }
-        memcpy(utf16_buffer, tmp_buffer, len);
+        memcpy(utf16_buffer, tmp_buffer, (size_t) len);
         utf16_buffer[len / sizeof(FT_UInt16)] = 0;
 
         Py_DECREF(utf_bytes);
@@ -362,17 +361,22 @@ PGFT_BuildUnicodeString(PyObject *obj)
          * UTF8 anyway?), so manually copy the raw contents
          * of the object expanding each byte to 16 bits.
          */
-        size_t i;
+        Py_ssize_t i;
 
-        if (Bytes_AsStringAndSize(obj, &tmp_buffer, (int *)&len) == -1)
+        if (Bytes_AsStringAndSize(obj, &tmp_buffer, &len) == -1)
             return NULL;
 
-        utf16_buffer = malloc((len + 1) * sizeof(FT_UInt16));
+        utf16_buffer = malloc(((size_t)len + 1) * sizeof(FT_UInt16));
         if (!utf16_buffer)
+        {
+            _PGFT_SetError(ft, "Could not allocate memory", 0);
             return NULL;
+        }
 
         for (i = 0; i < len; ++i)
-            utf16_buffer[i] = (FT_UInt16)tmp_buffer[i];
+        {
+            utf16_buffer[i] = (FT_UInt16)(tmp_buffer[i]);
+        }
         utf16_buffer[len] = 0;
     }
 
