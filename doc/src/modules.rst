@@ -58,6 +58,7 @@ Modules
    pygame2_sdlgfx_primitives.rst
    pygame2_sdlgfx_rotozoom.rst
    pygame2_sdlimage.rst
+   pygame2_sdlimage_constants.rst
    pygame2_sdlmixer.rst
    pygame2_sdlmixer_channel.rst
    pygame2_sdlmixer_music.rst

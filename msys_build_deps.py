@@ -4,7 +4,7 @@
 
 """Build Pygame dependencies using MinGW and MSYS
 
-Configured for Pygame 1.9.0 and Python 2.4 and up.
+Configured for Pygame2 2.0.0 and Python 2.4 and up.
 
 The libraries are installed in /usr/local of the MSYS directory structure.
 
@@ -26,9 +26,9 @@ python msys_build_deps.py --help
 
 This program has been tested against the following libraries:
 
-SDL 1.2 (.13) revision 4114 from SVN 
-SDL_image 1.2.6
-SDL_mixer 1.2 (.8) revision 3942 from SVN
+SDL 1.2.14
+SDL_image 1.2.11
+SDL_mixer 1.2.10
 SDL_ttf 2.0.9
 SDL_gfx 2.0.18
 freetype 2.3.7

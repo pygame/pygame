@@ -23,11 +23,15 @@
 #include "pgsdl.h"
 #include "sdlimagebase_doc.h"
 
+static PyObject* _image_init (PyObject *self, PyObject *args);
+static PyObject* _image_quit (PyObject *self);
 static PyObject* _image_geterror (PyObject *self);
 static PyObject* _image_load (PyObject *self, PyObject *args);
 static PyObject* _image_readxpmfromarray (PyObject *self, PyObject *args);
 
 static PyMethodDef _image_methods[] = {
+    { "init", _image_init, METH_VARARGS, DOC_BASE_INIT },
+    { "quit", _image_quit, METH_VARARGS, DOC_BASE_QUIT },
     { "get_error", (PyCFunction) _image_geterror, METH_NOARGS,
       DOC_BASE_GET_ERROR },
     { "load", _image_load, METH_VARARGS, DOC_BASE_LOAD },
@@ -37,6 +41,25 @@ static PyMethodDef _image_methods[] = {
 };
 
 static PyObject*
+_image_init (PyObject *self, PyObject *args)
+{
+    long flags = IMG_INIT_JPG | IMG_INIT_PNG | IMG_INIT_TIF;
+    long retval = 0;
+
+    if (!PyArg_ParseTuple (args, "|l:init", &flags))
+        return NULL;
+    retval = IMG_Init (flags);
+    return PyInt_FromLong (flags);
+}
+
+static PyObject*
+_image_quit (PyObject *self)
+{
+    IMG_Quit ();
+    Py_RETURN_NONE;
+}
+
+static PyObject*
 _image_geterror (PyObject *self)
 {
     char *err = IMG_GetError ();
@@ -44,6 +67,7 @@ _image_geterror (PyObject *self)
         Py_RETURN_NONE;
     return Text_FromUTF8 (err);
 }
+
 
 static PyObject*
 _image_load (PyObject *self, PyObject *args)

@@ -51,7 +51,7 @@ def get_dependencies(buildsystem, cfg):
         'sdl_image' : dep(
             ['SDL_image.h'], 'SDL_image',
             config_program='sdl-config',
-            pkgconfig_name='sdl',
+            pkgconfig_name='SDL_image',
             extra_include_dirs = [pygame_sdl_path]),
 
         'png' : dep(

@@ -9,6 +9,18 @@
     Basic SDL_image wrapper module
   </desc>
 
+  <func name="init">
+    <call>init (flags) -> int</call>
+    <desc>
+      Initializes the library bindings of the underlying SDL_image library.
+
+      Initializes the library bindings of the underlying SDL_image
+      library. This loads the dynamic libraries for PNG, JPG and TIF
+      images and avoid multiple library loading/unloading calls.
+
+      *NOTE:* The call is optional.
+    </desc>
+  </func>
   <func name="get_error">
     <call>get_error () -> :exc:`pygame2.Error`</call>
     <desc>
@@ -36,6 +48,16 @@
         The file object *must* support binary read and write
         access. This is especially important for Python 3.x users.
 
+    </desc>
+  </func>
+  <func name="quit">
+    <call>quit () -> None</call>
+    <desc>
+      Deinitializes the library bindings of the underlying SDL_image library.
+
+      Deinitializes the library bindings of the underlying SDL_image
+      library. This releases the loaded dynamic libraries for PNG, JPG
+      and TIF images.
     </desc>
   </func>
   <func name="read_xpm_from_array">

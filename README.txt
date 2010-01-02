@@ -97,9 +97,9 @@ enable certain features of Pygame2.
 
 [Optional dependencies]
 * SDL >= 1.2.10             (http://www.libsdl.org)
-* SDL_mixer >= 1.2.8        (http://www.libsdl.org/projects/SDL_mixer/)
+* SDL_mixer >= 1.2.11       (http://www.libsdl.org/projects/SDL_mixer/)
 * SDL_ttf >= 2.0.9          (http://www.libsdl.org/projects/SDL_ttf/)
-* SDL_image >= 1.2.6        (http://www.libsdl.org/projects/SDL_image/)
+* SDL_image >= 1.2.10       (http://www.libsdl.org/projects/SDL_image/)
 * SDL_gfx >= 2.0.18         (http://www.ferzkopp.net/Software/SDL_gfx-2.0/)
 * libpng >= 1.2.24          (http://www.libpng.org)
 * libjpeg >= 6b             (http://www.ijg.org/)

@@ -264,6 +264,10 @@ modules = [
         docfile = "sdlimagebase.xml",
         depends = ['SDL', 'SDL_image']),
 
+    Module ("sdlimage.constants",
+        sources = [ "src/sdlimage/constantsmod.c" ],
+        depends = ['SDL', 'SDL_image']),
+
     Module ("sdlgfx.base",
         sources = [
             "src/sdlgfx/fpsmanager.c",

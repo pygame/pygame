@@ -24,7 +24,7 @@
 #include "pgsdl.h"
 #include "sdlmixerbase_doc.h"
 
-static PyObject* _mixer_init (PyObject *self);
+static PyObject* _mixer_init (PyObject *self, PyObject *args);
 static PyObject* _mixer_wasinit (PyObject *self);
 static PyObject* _mixer_quit (PyObject *self);
 static PyObject* _mixer_getcompiledversion (PyObject *self);
@@ -35,7 +35,7 @@ static PyObject* _mixer_closeaudio (PyObject *self);
 static PyObject* _mixer_queryspec (PyObject *self);
 
 static PyMethodDef _mixer_methods[] = {
-    { "init", (PyCFunction) _mixer_init, METH_NOARGS, DOC_BASE_INIT },
+    { "init", _mixer_init, METH_VARARGS, DOC_BASE_INIT },
     { "was_init", (PyCFunction) _mixer_wasinit, METH_NOARGS,
       DOC_BASE_WAS_INIT },
     { "quit", (PyCFunction) _mixer_quit, METH_NOARGS, DOC_BASE_QUIT },
@@ -54,17 +54,24 @@ static PyMethodDef _mixer_methods[] = {
 };
 
 static PyObject*
-_mixer_init (PyObject *self)
+_mixer_init (PyObject *self, PyObject *args)
 {
+    long flags = MIX_INIT_FLAC | MIX_INIT_MOD | MIX_INIT_MP3 | MIX_INIT_OGG;
+    long retval = 0;
+
     if (SDL_WasInit (SDL_INIT_AUDIO))
-        Py_RETURN_NONE;
-        
+    {
+        retval = Mix_Init (flags);
+        return PyLong_FromLong (retval);
+    }
+
     if (SDL_InitSubSystem (SDL_INIT_AUDIO) == -1)
     {
         PyErr_SetString (PyExc_PyGameError, SDL_GetError ());
         return NULL;
     }
-    Py_RETURN_NONE;
+    retval = Mix_Init (flags);
+    return PyLong_FromLong (retval);
 }
 
 static PyObject*
@@ -80,6 +87,7 @@ _mixer_quit (PyObject *self)
 {
     if (SDL_WasInit (SDL_INIT_AUDIO))
         SDL_QuitSubSystem (SDL_INIT_AUDIO);
+    Mix_Quit ();
     Py_RETURN_NONE;
 }
 
