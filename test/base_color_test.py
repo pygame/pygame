@@ -596,7 +596,6 @@ class ColorTest (unittest.TestCase):
 ################################################################################
 
     def test_correct_gamma__verified_against_python_implementation(self):
-        "|tags:slow|"
         # gamma_correct defined at top of page
 
         gammas = list (map(lambda i: i / 10.0, range(1, 31))) # [0.1 .. 3.0]

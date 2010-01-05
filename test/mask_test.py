@@ -18,7 +18,7 @@ def random_mask(size = (100,100)):
     m = Mask(size)
     for i in range(size[0] * size[1] // 2):
         x, y = random.randint(0,size[0] - 1), random.randint(0, size[1] - 1)
-        m.set_at((x,y))
+        m.set_at(x, y)
     return m
 
 class MaskTest (unittest.TestCase):
@@ -27,7 +27,7 @@ class MaskTest (unittest.TestCase):
         self.assertEqual(m1.size, m2.size)
         for i in range(m1.size[0]):
             for j in range(m1.size[1]):
-                self.assertEqual(m1.get_at((i,j)), m2.get_at((i,j)))
+                self.assertEqual(m1.get_at(i, j), m2.get_at(i, j))
 
     def todo_test_pygame2_mask_Mask_angle(self):
 
@@ -50,7 +50,7 @@ class MaskTest (unittest.TestCase):
 
         self.fail() 
 
-    def todo_test_pygame2_mask_Mask_clear(self):
+    def test_pygame2_mask_Mask_clear(self):
 
         # __doc__ (as of 2008-11-03) for pygame2.mask.Mask.clear:
 
@@ -58,9 +58,11 @@ class MaskTest (unittest.TestCase):
         # 
         # Clears all bits in the Mask.
         # 
-        # Resets the state of all bits in the Mask to 0..
-
-        self.fail() 
+        # Resets the state of all bits in the Mask to 0.
+        m = random_mask ()
+        self.assertNotEqual (m.count, 0)
+        m.clear ()
+        self.assertEqual (m.count, 0)
 
     def todo_test_pygame2_mask_Mask_connected_component(self):
 
@@ -78,7 +80,7 @@ class MaskTest (unittest.TestCase):
         # returned. In the event the pixel at that location is not set,
         # the returned Mask will be empty. The Mask returned is the same
         # size as the original Mask.
-
+        
         self.fail() 
 
     def test_pygame2_mask_Mask_connected_components(self):
@@ -132,13 +134,18 @@ class MaskTest (unittest.TestCase):
         self.assertEqual(len(comps3), 0)
 
 
-    def todo_test_pygame2_mask_Mask_count(self):
+    def test_pygame2_mask_Mask_count(self):
 
         # __doc__ (as of 2008-11-03) for pygame2.mask.Mask.count:
 
         # Gets the amount of bits in the Mask.
-
-        self.fail()
+        m = Mask (10, 10)
+        for x in range (10):
+            for y in range (10):
+                m.set_at (x, y)
+        self.assertEqual (m.count, 100)
+        m.clear ()
+        self.assertEqual (m.count, 0)
 
     def test_pygame2_mask_Mask_convolve(self):
 
@@ -214,7 +221,7 @@ class MaskTest (unittest.TestCase):
         # Mask.fill () -> None
         # 
         # Sets all bits to 1 within the Mask.
-        m = Mask((100,100))
+        m = Mask(100, 100)
         self.assertEqual(m.count, 0)
         
         m.fill()
@@ -365,15 +372,30 @@ class MaskTest (unittest.TestCase):
         m = Mask (100, 343)
         self.assertEqual (m.height, 343)
 
-    def todo_test_pygame2_mask_Mask_invert(self):
+    def test_pygame2_mask_Mask_invert(self):
 
         # __doc__ (as of 2008-11-03) for pygame2.mask.Mask.invert:
 
         # Mask.invert () -> None
         # 
         # Inverts all bits in the Mask.
-
-        self.fail() 
+        m = Mask (10, 10)
+        for x in range (10):
+            for y in range (10):
+                m.set_at (x, y)
+        self.assertEqual (m.count, 100)
+        m.invert ()
+        self.assertEqual (m.count, 0)
+        m.set_at (4, 4)
+        m.invert ()
+        self.assertEqual (m.count, 99)
+        self.assertEqual (m.get_at (4, 4), 0)
+        for x in range (10):
+            for y in range (10):
+                if x == y == 4:
+                    self.assertEqual (m.get_at (x, y), 0)
+                else:
+                    self.assertEqual (m.get_at (x, y), 1)
 
     def test_pygame2_mask_Mask_outline(self):
 

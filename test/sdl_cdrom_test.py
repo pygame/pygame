@@ -1,11 +1,13 @@
 import sys
 try:
     import pygame2.test.pgunittest as unittest
+    from pygame2.test.pgunittest import doprint, interactive
 except:
     import pgunittest as unittest
+    from pgunittest import doprint, interactive
 
 import pygame2
-import pygame2.sdl.wm as wm
+import pygame2.sdl.cdrom as cdrom
 import pygame2.sdl.constants as constants
 
 class SDLCDRomTest (unittest.TestCase):
@@ -217,8 +219,9 @@ class SDLCDRomTest (unittest.TestCase):
 
         self.fail() 
 
-    def todo_test_pygame2_sdl_cdrom_get_name(self):
-
+    @interactive ("Are the shown CD/DVD drive names correct?")
+    def test_pygame2_sdl_cdrom_get_name(self):
+        #
         # __doc__ (as of 2009-12-14) for pygame2.sdl.cdrom.get_name:
 
         # get_name (index) -> str
@@ -227,30 +230,38 @@ class SDLCDRomTest (unittest.TestCase):
         # 
         # Gets the system-dependent drive name (e.g. "/dev/cdrom" or "D:")
         # for the CD- or DVD-Rom specified by the passed *index*.
+        cdrom.init ()
+        self.assertRaises (ValueError, cdrom.get_name, -4)
+        self.assertRaises (ValueError, cdrom.get_name, cdrom.num_drives ())
+        
+        for i in range (cdrom.num_drives ()):
+            doprint ("Drive %d: %s" % (i, cdrom.get_name (i)))
+        cdrom.quit ()
 
-        self.fail() 
-
-    def todo_test_pygame2_sdl_cdrom_init(self):
+    def test_pygame2_sdl_cdrom_init(self):
 
         # __doc__ (as of 2009-12-14) for pygame2.sdl.cdrom.init:
 
         # init () -> None
         # 
         # Initializes the CD-ROM subsystem of the SDL library.
+        self.assertEqual (cdrom.init (), None)
+        self.assertTrue (cdrom.was_init ())
+        self.assertEqual (cdrom.quit (), None)
+        self.assertFalse (cdrom.was_init ())
 
-        self.fail() 
-
-    def todo_test_pygame2_sdl_cdrom_num_drives(self):
-
+    @interactive ("Does the shown number match your CD and DVD drives?")
+    def test_pygame2_sdl_cdrom_num_drives(self):
         # __doc__ (as of 2009-12-14) for pygame2.sdl.cdrom.num_drives:
 
-        # um_drives () -> int
+        # num_drives () -> int
         # 
         # Gets the number of accessible CD- and DVD-ROM drives for the system.
+        cdrom.init ()
+        doprint ("Found CD/DVD drives: %d" % cdrom.num_drives ())
+        cdrom.quit ()
 
-        self.fail() 
-
-    def todo_test_pygame2_sdl_cdrom_quit(self):
+    def test_pygame2_sdl_cdrom_quit(self):
 
         # __doc__ (as of 2009-12-14) for pygame2.sdl.cdrom.quit:
 
@@ -261,18 +272,20 @@ class SDLCDRomTest (unittest.TestCase):
         # After calling this function, you should not invoke any class,
         # method or function related to the CD-ROM subsystem as they are
         # likely to fail or might give unpredictable results.
+        self.assertEqual (cdrom.quit (), None)
 
-        self.fail() 
-
-    def todo_test_pygame2_sdl_cdrom_was_init(self):
+    def test_pygame2_sdl_cdrom_was_init(self):
 
         # __doc__ (as of 2009-12-14) for pygame2.sdl.cdrom.was_init:
 
         # was_init () -> bool
         # 
         # Returns, whether the CD-ROM subsystem of the SDL library is initialized.
-
-        self.fail() 
+        self.assertFalse (cdrom.was_init ())
+        self.assertEqual (cdrom.init (), None)
+        self.assertTrue (cdrom.was_init ())
+        self.assertEqual (cdrom.quit (), None)
+        self.assertFalse (cdrom.was_init ())
 
 if __name__ == "__main__":
     unittest.main ()

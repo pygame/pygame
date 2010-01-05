@@ -8,7 +8,7 @@ import pygame2.font as font
 
 class FontTest (unittest.TestCase):
     
-    def todo_test_pygame2_font_find_font(self):
+    def test_pygame2_font_find_font(self):
 
         # __doc__ (as of 2009-12-10) for pygame2.font.find_font:
 
@@ -24,7 +24,14 @@ class FontTest (unittest.TestCase):
         # types, such as bdf or ttf fonts.
 
         # name, bold, italic = font.find_font ('sans')
-        self.fail() 
+        retval = font.find_font ("invalidfont")
+        self.assertEqual (retval, None)
+        
+        retval = font.find_font ("sans")
+        self.assertEqual (len (retval), 3)
+        self.assertEqual (type (retval[0]), str)
+        self.assertEqual (type (retval[1]), bool)
+        self.assertEqual (type (retval[2]), bool)
 
     def todo_test_pygame2_font_find_fonts(self):
 
@@ -54,3 +61,6 @@ class FontTest (unittest.TestCase):
         # Gets the list of available font families.
 
         self.fail() 
+
+if __name__ == '__main__':
+    unittest.main()

@@ -1,7 +1,9 @@
 try:
     import pygame2.test.pgunittest as unittest
+    from pygame2.test.pgunittest import doprint, interactive
 except:
     import pgunittest as unittest
+    from pgunittest import doprint, interactive
 
 import pygame2
 import pygame2.sdl.keyboard as keyboard
@@ -77,7 +79,7 @@ class SDLKeyboardTest (unittest.TestCase):
         self.assertEqual (keyboard.get_key_name (constants.K_4), '4')
         video.quit ()
 
-    def todo_test_pygame2_sdl_keyboard_get_mod_state(self):
+    def test_pygame2_sdl_keyboard_get_mod_state(self):
 
         # __doc__ (as of 2009-05-13) for pygame2.sdl.keyboard.get_mod_state:
 
@@ -90,8 +92,16 @@ class SDLKeyboardTest (unittest.TestCase):
         # if specific shift keys are pressed, the state of the capslock
         # button, and more.  The bitmask will consist of the various
         # KMOD_* flags as specified in the constants.
-
-        self.fail() 
+        video.init ()
+        self.assertEqual (keyboard.get_mod_state (), 0)
+        kstate = constants.KMOD_LALT|constants.KMOD_NUM
+        keyboard.set_mod_state (kstate)
+        self.assertEqual (keyboard.get_mod_state (), kstate)
+        keyboard.set_mod_state (constants.KMOD_CAPS)
+        self.assertEqual (keyboard.get_mod_state (), constants.KMOD_CAPS)
+        keyboard.set_mod_state (kstate)
+        self.assertEqual (keyboard.get_mod_state (), kstate)
+        video.quit ()
 
     def test_pygame2_sdl_keyboard_get_repeat(self):
 
@@ -133,7 +143,7 @@ class SDLKeyboardTest (unittest.TestCase):
         self.assert_ (constants.K_KP4 in keyboard.get_state ().keys ())
         video.quit ()
 
-    def todo_test_pygame2_sdl_keyboard_set_mod_state(self):
+    def test_pygame2_sdl_keyboard_set_mod_state(self):
 
         # __doc__ (as of 2009-05-13) for pygame2.sdl.keyboard.set_mod_state:
 
@@ -144,8 +154,16 @@ class SDLKeyboardTest (unittest.TestCase):
         # Sets the current modifier key state. mod has to be a bitwise OR'd
         # combination of the KMOD_* flags as they are specified in the
         # constants.
-
-        self.fail() 
+        video.init ()
+        self.assertEqual (keyboard.get_mod_state (), 0)
+        kstate = constants.KMOD_LALT|constants.KMOD_NUM
+        keyboard.set_mod_state (kstate)
+        self.assertEqual (keyboard.get_mod_state (), kstate)
+        keyboard.set_mod_state (constants.KMOD_CAPS)
+        self.assertEqual (keyboard.get_mod_state (), constants.KMOD_CAPS)
+        keyboard.set_mod_state (kstate)
+        self.assertEqual (keyboard.get_mod_state (), kstate)
+        video.quit ()
 
 if __name__ == "__main__":
     unittest.main ()

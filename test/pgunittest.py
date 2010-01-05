@@ -55,6 +55,18 @@ import traceback
 import os
 import types
 
+#
+# pygame specific enhancement
+#
+try:
+    from pygame2.test.pgtestutils import *
+except:
+    from pgtestutils import *
+
+#
+# pygame specific enhancement END
+#
+
 ##############################################################################
 # Exported classes and functions
 ##############################################################################

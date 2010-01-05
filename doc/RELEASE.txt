@@ -115,10 +115,14 @@ will be built using them. ::
 
 This also will create a set of bundled docs to be distributed.
 
+Once all packages are built (see below) the revision control tree can be tagged
+with the new version, the packages be published and an announcement sent to the
+mailing list.
+
 Win32 installers
 ----------------
 For Win32 platforms, binary builds (MSI packages) for the Python versions
-*2.4*, *2.5*, *2.6* and *3.0* have to be made, based on one of the source
+*2.4*, *2.5*, *2.6* and *3.1* have to be made, based on one of the source
 packages, which were just created. ::
 
   # For Python 2.4
@@ -142,10 +146,6 @@ Mac OS X installers
 .. todo::
   
   Instructions for Mac OS X platforms*
-
-Once all packages are built the revision control tree can be tagged with the
-new version, the packages be published and an announcement sent to the mailing
-list.
 
 Postprocessing
 ==============

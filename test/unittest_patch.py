@@ -184,22 +184,28 @@ class TestTags:
             parent_class  = obj.__class__
             parent_module = self.get_parent_module(parent_class)
 
+            obj_tags = getattr (obj, '__tags__', [])
             module_tags = getattr(parent_module, '__tags__', [])
             class_tags  = getattr(parent_class,  '__tags__', [])
 
             tags = TAGS_RE.search(getdoc(obj) or '')
-            if tags: test_tags = [t.strip() for t in tags.group(1).split(',')]
-            else:    test_tags = []
+            if tags:
+                test_tags = [t.strip() for t in tags.group(1).split(',')]
+            else:
+                test_tags = []
         
             combined = set()
-            for tags in (module_tags, class_tags, test_tags):
-                if not tags: continue
+            for tags in (obj_tags, module_tags, class_tags, test_tags):
+                if not tags:
+                    continue
         
                 add    = set(t for t in tags if not t.startswith('-'))
                 remove = set(t[1:] for t in tags if t not in add)
         
-                if add:     combined.update(add)
-                if remove:  combined.difference_update(remove)
+                if add:
+                    combined.update(add)
+                if remove:
+                    combined.difference_update(remove)
     
             self.memoized[obj] = combined
 
@@ -212,8 +218,9 @@ get_tags = TestTags()
 #
 def getTestCaseNames(self, testCaseClass):
     def test_wanted(attrname, testCaseClass=testCaseClass,
-                              prefix=self.testMethodPrefix):
-        if not attrname.startswith(prefix): return False
+                    prefix=self.testMethodPrefix):
+        if not attrname.startswith(prefix):
+            return False
         else:
             actual_attr = getattr(testCaseClass, attrname)
             if sys.version_info >= (3, 0, 0):
@@ -263,11 +270,6 @@ def getTestCaseNames(self, testCaseClass):
 ################################################################################
 
 def patch(options):
-    # Incomplete todo_xxx tests
-    if options.incomplete:
-        unittest.TestLoader.testMethodPrefix = (
-            unittest.TestLoader.testMethodPrefix, 'todo_'
-        )
     
     # Randomizing    
     unittest.TestLoader.randomize_tests = options.randomize or options.seed

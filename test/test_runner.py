@@ -41,10 +41,6 @@ main_dir, test_subdir, fake_test_subdir = \
 opt_parser = optparse.OptionParser()
 
 opt_parser.add_option (
-     "-i",  "--incomplete", action = 'store_true',
-     help   = "fail incomplete tests" )
-
-opt_parser.add_option (
      "-s",  "--subprocess", action = 'store_true',
      help   = "run everything in an own subprocess (default: single process)" )
 

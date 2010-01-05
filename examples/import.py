@@ -12,6 +12,11 @@ def run ():
     import pygame2.mask
 
     try:
+        import pygame2.midi
+    except ImportError:
+        print (sys.exc_info()[1])
+    
+    try:
         import pygame2.sdl
         import pygame2.sdl.audio
         import pygame2.sdl.cdrom

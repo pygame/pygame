@@ -36,17 +36,6 @@ def run ():
     # Defaults:
     #    See optparse options below for more options (test_runner.py)
     #
-
-    # Any tests in IGNORE will not be ran
-    IGNORE = set ([
-        "scrap_test",
-        ])
-
-    # Subprocess has less of a need to worry about interference between tests
-    SUBPROCESS_IGNORE = set ([
-        "scrap_test",
-        ])
-
     #######################################################################
     # Set the command line options
     #
@@ -98,16 +87,11 @@ def run ():
             m.endswith('_test') and m or ('%s_test' % m) for m in args
             ]
     else:
-        if options.subprocess:
-            ignore = SUBPROCESS_IGNORE
-        else:
-            ignore = IGNORE
 
         test_modules = []
         for f in sorted(os.listdir(test_subdir)):
             for match in TEST_MODULE_RE.findall(f):
-                if match not in ignore:
-                    test_modules.append(match)
+                test_modules.append(match)
 
     #######################################################################
     # Meta results
