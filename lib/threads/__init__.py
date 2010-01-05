@@ -1,11 +1,9 @@
 """
-* Experimental *
+Experimental threaded map function
 
 Like the map function, but can use a pool of threads.
-
 Really easy to use threads.  eg.  tmap(f, alist)
-
-If you know how to use the map function, you can use threads.
+If you know how to use the map function, you now can use threads.
 """
 
 __author__ = "Rene Dudfield"

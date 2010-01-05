@@ -50,3 +50,6 @@ build['JPEG'] = istrue (os.getenv ("WITH_JPEG", True))
 
 # freetype (module) support
 build['FREETYPE'] = istrue (os.getenv ("WITH_FREETYPE", True))
+
+# midi (module) support
+build['PORTMIDI'] = istrue (os.getenv ("WITH_PORTMIDI", True))

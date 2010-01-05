@@ -16,6 +16,10 @@
 ##    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ##
 
+"""
+Named colors.
+"""
+
 THECOLORS = {
     'gray17' : (43, 43, 43, 255) ,
     'gold' : (255, 215, 0, 255) ,

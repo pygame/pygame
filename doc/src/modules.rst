@@ -28,6 +28,7 @@ Modules
    pygame2_font.rst
    pygame2_freetype_base.rst
    pygame2_mask.rst
+   pygame2_midi.rst
    pygame2_sdl.rst
    pygame2_sdl_audio.rst
    pygame2_sdl_cdrom.rst

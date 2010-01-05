@@ -86,6 +86,11 @@ WITH_FREETYPE=[yes|no|1|True]   Example: make -WITH_FREETYPE=False
     Build and install the pygame2.freetype module. This wraps the
     FreeType2 library.
 
+WITH_PORTMIDI=[yes|no|1|True]   Example: make -WITH_PORTMIDI=False
+    
+    Build and install the pygame2.midi module. This wraps the
+    portmidi library and gives access to the pygame2.midi module.
+
 1.1 Dependencies
 ----------------
 Pygame2 is designed to run in as many environments as possible. As such,
@@ -104,6 +109,7 @@ enable certain features of Pygame2.
 * libpng >= 1.2.24          (http://www.libpng.org)
 * libjpeg >= 6b             (http://www.ijg.org/)
 * freetype >= 2.3.5         (http://www.freetype.org)
+* portmidi >= 199           (http://portmedia.sourceforge.net/)
 
 1.2 Notes on SVN usage
 ----------------------

@@ -48,6 +48,7 @@ packages:
 * libpng >= 1.2.24           (http://www.libpng.org)
 * libjpeg >= 6b              (http://www.ijg.org/)
 * freetype >= 2.3.5          (http://www.freetype.org)
+* portmidi >= 199            (http://portmedia.sourceforge.net/)
 
 The Win32 build chain for Pygame2 does not support building all
 dependencies from scratch. Instead it relies on already built libraries,

@@ -15,6 +15,7 @@ SUBDIRS = \
 	$(top_srcdir)/test/util \
 	$(top_srcdir)/lib \
 	$(top_srcdir)/lib/freetype \
+	$(top_srcdir)/lib/midi \
 	$(top_srcdir)/lib/sdl \
 	$(top_srcdir)/lib/sdlext \
 	$(top_srcdir)/lib/sdlgfx \
@@ -27,6 +28,7 @@ SUBDIRS = \
 	$(top_srcdir)/src/base \
 	$(top_srcdir)/src/freetype \
 	$(top_srcdir)/src/mask \
+	$(top_srcdir)/src/midi \
 	$(top_srcdir)/src/sdl \
 	$(top_srcdir)/src/sdlext \
 	$(top_srcdir)/src/sdlgfx \
@@ -119,4 +121,3 @@ purge_installs:
 	rm -rf /usr/local/lib/python2.5/site-packages/pygame2*
 	rm -rf /usr/local/lib/python2.6/site-packages/pygame2*
 	rm -rf /usr/local/lib/python3.1/site-packages/pygame2*
-

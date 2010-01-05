@@ -74,3 +74,8 @@ Build with JPEG format saving support for
 
 Build and install the :mod:`pygame2.freetype` module. This wraps the
 FreeType2 library.
+
+  WITH_PORTMIDI=[yes|no|1|True]           Example: make -DWITH_PORTMIDI=False
+
+Build and install the :mod:`pygame2.pypm` and :mod:`pygame2.midi` modules. This
+wraps the portmidi library and gives access to the :mod:`pygame2.midi` module.

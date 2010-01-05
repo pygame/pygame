@@ -66,6 +66,8 @@ def get_dependencies(buildsystem, cfg):
             ['freetype.h', 'ft2build.h'], 'freetype',
             pkgconfig_name='freetype2',
             config_program='freetype-config'),
+        
+        'portmidi' : dep(['portmidi.h'], 'portmidi'),
     }
 
     OS_MODULES[buildsystem].update_sys_deps (DEPENDENCIES)

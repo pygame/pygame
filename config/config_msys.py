@@ -74,6 +74,10 @@ def get_install_libs (cfg):
         libraries.update (_hunt_libs ("png", dirs))
     if cfg.build['JPEG']:
         libraries.update (_hunt_libs ("jpeg", dirs))
+    if cfg.build['FREETYPE']:
+        libraries.update (_hunt_libs ("freetype", dirs))
+    if cfg.build['PORTMIDI']:
+        libraries.update (_hunt_libs ("portmidi", dirs))
 
     return [ k.replace ("/", os.sep) for k in libraries.keys() ]
 

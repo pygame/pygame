@@ -31,7 +31,6 @@ Things to ADD:
 * (re)add tests
 * add examples
 * reorganise and add camera module
-* add portmidi wrapper
 * add math module
 * add movie module
 * subsurfaces via surface[x:y,a:b]? Brought up by ctgPi via IRC
@@ -50,6 +49,7 @@ Things to FIX:
 * SDL_gfx has to set the correct errors (SDL_SetError()). Fix that and
   merge it back to the SDL_gfx upstream
 * Speed up blits using fast lookup tables for 8bpp to 8bpp.
+* Brush up documentation for pygame2.midi.
 
 Things to WRAP:
 ===============

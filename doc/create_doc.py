@@ -46,7 +46,7 @@ def document_class (cls, buf):
             continue # Skip invalid ones
         if isgetsetdescriptor (obj) or ismemberdescriptor (obj):
             document_attr (obj, buf, 4)
-        elif ismethod (obj) or ismethoddescriptor (obj):
+        elif ismethod (obj) or ismethoddescriptor (obj) or isfunction (obj):
             document_method (obj, buf, 4)
         else:
             pass

@@ -73,6 +73,7 @@ packages:
 * libpng >= 1.2.24           (http://www.libpng.org)
 * libjpeg >= 6b              (http://www.ijg.org/)
 * freetype >= 2.3.5          (http://www.freetype.org)
+* portmidi >= 199            (http://portmedia.sourceforge.net/)
 
 And you will need the dependency packages for the packages above:
 

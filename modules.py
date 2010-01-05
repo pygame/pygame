@@ -312,6 +312,10 @@ modules = [
         depends = ['freetype'],
         optional_dep = ['SDL']),
 
+    Module ("midi.pypm",
+        sources = [ "src/midi/pypm.c" ],
+        depends = ['portmidi']),
+
     ]
 
 if helpers.getversion() < (3, 0, 0):
@@ -384,4 +388,3 @@ def update_packages (modules, packages, package_dir, package_data):
         if os.path.isdir(pkg_dir):
             packages.append(pkg_name)
             package_dir[pkg_name] = pkg_dir
-

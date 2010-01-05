@@ -16,7 +16,8 @@
 ##    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ##
 
-"""pygame module with basic game object classes
+"""
+Basic game object classes.
 
 This module contains several simple classes to be used within games. There
 is the main Sprite class and several Group classes that contain Sprites.
