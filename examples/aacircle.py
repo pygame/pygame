@@ -10,7 +10,13 @@ def main():
     screen = pygame.display.set_mode((500,500))
     screen.fill((255, 0, 0))
     s = pygame.Surface(screen.get_size(), pygame.SRCALPHA, 32)
-    pygame.gfxdraw.aacircle(s, 250, 250, 200, (0, 0, 0))
+    pygame.draw.line(s, (0,0,0), (250, 250), (250+200,250))
+
+    width = 1
+    for a_radius in range(width):
+        radius = 200
+        pygame.gfxdraw.aacircle(s, 250, 250, radius-a_radius, (0, 0, 0))
+
     screen.blit(s, (0, 0))
     pygame.display.flip()
     try:
