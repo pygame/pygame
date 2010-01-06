@@ -200,6 +200,7 @@ _sdl_timequit (PyObject *self)
 static PyObject*
 _sdl_timegetticks (PyObject *self)
 {
+    ASSERT_TIME_INIT(NULL);
     return PyLong_FromUnsignedLong (SDL_GetTicks ());
 }
 
