@@ -10,16 +10,18 @@
   </desc>
 
   <class name="FPSmanager">
-    <constructor>FPSManager (framerate) -> FPSManager</constructor>
+    <constructor>FPSManager ([framerate]) -> FPSManager</constructor>
     <desc>
       Creates a new FPSManager using the specified frame rate.
       
       The FPSManager takes care of measuring and keeping constant frame
       rates  for the application it is used with. On demand it automatically
       delays the execution to keep the required frame rate.
-      
+
       The desired frame rate must be within the range of
-      :const:`FPS_LOWER_LIMIT` and const:`FPS_UPPER_LIMIT`.
+      :const:`FPS_LOWER_LIMIT` and const:`FPS_UPPER_LIMIT`. If the
+      *framerate* argument is omitted, :const:`FPS_DEFAULT` is assumed
+      for it.
     </desc>
     <method name="delay">
       <call>delay () -> None</call>

@@ -11,3 +11,9 @@ To run the drawing pygame2.sdlext example, you would type
     python -m pygame2.examples.sdlext.draw
 
 """
+
+import os
+
+_filepath = os.path.abspath (__file__)
+RESOURCEDIR = os.path.join (os.path.dirname (_filepath), "resources")
+FONTDIR = os.path.join (os.path.dirname (_filepath), "resources")

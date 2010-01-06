@@ -109,6 +109,7 @@ if __name__ == "__main__":
                  "pygame2.examples.freetype",
                  "pygame2.examples.sdl",
                  "pygame2.examples.sdlext",
+                 "pygame2.examples.sdlgfx",
                  "pygame2.sprite",
                  "pygame2.threads",
                  "pygame2.test",

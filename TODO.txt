@@ -25,6 +25,7 @@ CRITICAL:
 * freetype: brush up docs and examples
 * freetype: description/markup language for rendering text (like e.g. pango
    has)?
+* freetype: fix returned height and surface height for fonts!
 
 Things to ADD:
 ==============

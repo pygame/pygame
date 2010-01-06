@@ -115,16 +115,16 @@ _fps_new (PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (!fps)
         return NULL;
     fps->fps = NULL;
-    return 0;
+    return (PyObject *) fps;
 }
 
 static int
 _fps_init (PyObject *self, PyObject *args, PyObject *kwds)
 {
-    int rate = -1;
+    int rate = FPS_DEFAULT;
     FPSmanager *manager;
 
-    if (!PyArg_ParseTuple (args, "i", &rate))
+    if (!PyArg_ParseTuple (args, "|i", &rate))
         return -1;
 
     if (rate > FPS_UPPER_LIMIT || rate < FPS_LOWER_LIMIT)
@@ -144,6 +144,7 @@ _fps_init (PyObject *self, PyObject *args, PyObject *kwds)
         PyErr_SetString (PyExc_PyGameError, SDL_GetError ());
         return -1;
     }
+
     ((PyFPSmanager*)self)->fps = manager;
     return 0;
 }

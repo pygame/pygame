@@ -200,7 +200,6 @@ _sdl_timequit (PyObject *self)
 static PyObject*
 _sdl_timegetticks (PyObject *self)
 {
-    ASSERT_TIME_INIT(NULL);
     return PyLong_FromUnsignedLong (SDL_GetTicks ());
 }
 
@@ -209,8 +208,6 @@ _sdl_timedelay (PyObject *self, PyObject *args)
 {
     Uint32 ms;
 
-    ASSERT_TIME_INIT(NULL);
-    
     if (!PyArg_ParseTuple (args, "l:delay", &ms))
         return NULL;
     Py_BEGIN_ALLOW_THREADS;
