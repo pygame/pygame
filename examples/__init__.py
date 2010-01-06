@@ -17,3 +17,4 @@ import os
 _filepath = os.path.abspath (__file__)
 RESOURCEDIR = os.path.join (os.path.dirname (_filepath), "resources")
 FONTDIR = os.path.join (os.path.dirname (_filepath), "resources")
+IMAGEDIR = os.path.join (os.path.dirname (_filepath), "resources")

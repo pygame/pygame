@@ -1,5 +1,6 @@
 import sys, os
 import pygame2
+import pygame2.examples
 try:
     import pygame2.sdl.constants as sdlconst
     import pygame2.sdl.event as event
@@ -187,7 +188,8 @@ def run ():
     
     screen = video.set_mode (760, 300, 32)
     imgdir = os.path.dirname (os.path.abspath (__file__))
-    surface = image.load_bmp (os.path.join (imgdir, "logo.bmp"))
+    surface = image.load_bmp (os.path.join
+                              (pygame2.examples.IMAGEDIR, "logo.bmp"))
     surface = surface.convert (flags=sdlconst.SRCALPHA)
     
     color = white

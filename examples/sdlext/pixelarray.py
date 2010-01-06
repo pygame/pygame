@@ -1,5 +1,6 @@
 import sys, os
 import pygame2
+import pygame2.examples
 try:
     import pygame2.sdl.constants as sdlconst
     import pygame2.sdl.event as event
@@ -91,7 +92,8 @@ def run ():
     screen.fill (black)
     
     imgdir = os.path.dirname (os.path.abspath (__file__))
-    surface = image.load_bmp (os.path.join (imgdir, "array.bmp"))
+    surface = image.load_bmp (os.path.join
+                              (pygame2.examples.IMAGEDIR, "array.bmp"))
     surface = surface.convert (flags=sdlconst.SRCALPHA)
     screen.blit (surface)
     screen.flip ()

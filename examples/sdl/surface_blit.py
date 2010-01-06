@@ -1,5 +1,6 @@
 import os, sys
 import pygame2
+import pygame2.examples
 try:
     import pygame2.sdl.constants as sdlconst
     import pygame2.sdl.event as event
@@ -191,9 +192,10 @@ def run ():
     imgdir = os.path.dirname (os.path.abspath (__file__))
     logo = None
     if hassdlimage:
-        logo = image.load (os.path.join (imgdir, "logo.gif"))
+        logo = image.load (os.path.join (pygame2.examples.IMAGEDIR, "logo.gif"))
     else:
-        logo = image.load_bmp (os.path.join (imgdir, "logo.bmp"))
+        logo = image.load_bmp (os.path.join
+                               (pygame2.examples.IMAGEDIR, "logo.bmp"))
     
     screen.fill (color)
     screen.blit (logo, (-10, 140))

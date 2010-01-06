@@ -1,5 +1,6 @@
 import sys, os
 import pygame2
+import pygame2.examples
 try:
     import pygame2.sdl.constants as constants
     import pygame2.sdl.event as event
@@ -18,12 +19,13 @@ except ImportError:
 def run():
     video.init ()
 
-    imgdir = os.path.dirname (os.path.abspath (__file__))
     surface = None
     if hassdlimage:
-        surface = image.load (os.path.join (imgdir, "logo.gif"))
+        surface = image.load (os.path.join
+                              (pygame2.examples.IMAGEDIR, "logo.gif"))
     else:
-        surface = image.load_bmp (os.path.join (imgdir, "logo.bmp"))
+        surface = image.load_bmp (os.path.join
+                                  (pygame2.examples.IMAGEDIR, "logo.bmp"))
 
     screen = video.set_mode (surface.w + 10, surface.h + 10)
     screen.fill (pygame2.Color (255, 255, 255))

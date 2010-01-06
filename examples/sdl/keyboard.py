@@ -1,6 +1,6 @@
 import sys, os
 import pygame2
-
+import pygame2.examples
 try:
     import pygame2.sdl.constants as sdlconst
     import pygame2.sdl.event as event
@@ -28,8 +28,8 @@ def run ():
 
     video.init ()
 
-    imgdir = os.path.dirname (os.path.abspath (__file__))
-    imgfont = image.load_bmp (os.path.join (imgdir, "font.bmp"))
+    imgfont = image.load_bmp (os.path.join
+                              (pygame2.examples.IMAGEDIR, "font.bmp"))
     bmpfont = BitmapFont (imgfont, (32, 32), fontmap)
     
     screen = video.set_mode (640, 480)
