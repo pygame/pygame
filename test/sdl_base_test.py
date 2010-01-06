@@ -31,14 +31,14 @@ class SDLTest (unittest.TestCase):
 
         # __doc__ (as of 2009-04-01) for pygame2.sdl.base.get_error:
 
-        # get_error () -> pygame2.Error
+        # get_error () -> str
         # 
-        # Gets the last :exc:pygame2.base.Error occured.
+        # Gets the last SDL error message occured.
         # 
         # SDL maintains an internal error message. This message will
         # usually be given to you when a :exc:pygame2.base.Error is
         # raised. You will rarely need to call this function.
-        self.assertEqual (len (base.get_error ()), 0)
+        self.assert_ (type (base.get_error ()), str)
 
     def test_pygame2_sdl_base_get_version(self):
 

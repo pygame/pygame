@@ -62,7 +62,6 @@ try:
     from pygame2.test.pgtestutils import *
 except:
     from pgtestutils import *
-
 #
 # pygame specific enhancement END
 #

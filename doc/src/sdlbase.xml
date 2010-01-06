@@ -21,9 +21,9 @@
     </desc>
   </func>
   <func name="get_error">
-    <call>get_error () -> :exc:`pygame2.Error`</call>
+    <call>get_error () -> str</call>
     <desc>
-      Gets the last :exc:`pygame2.Error` occured.
+      Gets the last SDL error message occured.
 
       SDL maintains an internal error message. This message will usually
       be given to you when a :exc:`pygame2.Error` is raised.

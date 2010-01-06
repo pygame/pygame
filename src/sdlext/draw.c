@@ -1426,7 +1426,6 @@ pyg_draw_aapolygon (SDL_Surface *surface, SDL_Rect *cliprect, Uint32 color,
 
         if (_clipaaline (cliprect, xa, ya, xb, yb, pts))
         {
-            printf ("pts: %f, %f, %f, %f\n", pts[0],pts[1],pts[2],pts[3]);
             _drawaaline (surface, color, (int)pts[0], (int)pts[1], (int)pts[2],
                 (int)pts[3], blendargs);
             anydrawn = 1;

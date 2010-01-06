@@ -362,7 +362,7 @@ _draw_ellipse (PyObject* self, PyObject* args)
     PyObject *surfobj, *colorobj, *rectobj;
     SDL_Surface* surface;
     Uint32 color;
-    int width = 1, loop;
+    int width = 0, loop;
     pgint16 l, t, r, b;
     pguint16 w, h;
     SDL_Rect rect;
