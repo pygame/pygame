@@ -10,7 +10,7 @@ CRITICAL:
   different return variables.
 * Argument parsing must handle 64-bit conversions correctly.
 * Add palette color support to sdlext.transform (trunk rev. 2242).
-* Check trunk rev. 1918, 1921, 1922, 1933, 1953 (blit blend operations).
+* Check trunk 1953 (blit blend operations).
 * Check trunk rev. 1937, 1947 (blit blend for self).
 * Mark methods, which are limited to certain bpp ranges.
 * Add doc notes about quit() behaviour of the various modules.

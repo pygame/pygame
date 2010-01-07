@@ -1118,6 +1118,9 @@ _color_set_hsla (PyColor *color, PyObject *value, void *closure)
     return 0;
 }
 
+/**
+ * color.i1i2i3
+ */
 static PyObject*
 _color_get_i1i2i3 (PyColor *color, void *closure)
 {
@@ -1136,6 +1139,9 @@ _color_get_i1i2i3 (PyColor *color, void *closure)
     return Py_BuildValue ("(fff)", i1i2i3[0], i1i2i3[1], i1i2i3[2]);
 }
 
+/**
+ * color.i1i2i3 = x
+ */
 static int
 _color_set_i1i2i3 (PyColor *color, PyObject *value, void *closure)
 {
@@ -1177,6 +1183,9 @@ _color_set_i1i2i3 (PyColor *color, PyObject *value, void *closure)
     return 0;
 }
 
+/**
+ * color.cmy
+ */
 static PyObject*
 _color_get_cmy (PyColor *color, void *closure)
 {
@@ -1195,6 +1204,9 @@ _color_get_cmy (PyColor *color, void *closure)
     return Py_BuildValue ("(fff)", cmy[0], cmy[1], cmy[2]);
 }
 
+/**
+ * color.cmy = x
+ */
 static int
 _color_set_cmy (PyColor *color, PyObject *value, void *closure)
 {

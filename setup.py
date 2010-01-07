@@ -7,7 +7,7 @@ import os, sys, glob, time, re
 import modules, cfg
 from config import helpers, msys, config_modules
 
-VERSION = "2.0.0-alpha3"
+VERSION = "2.0.0-alpha4"
 DEBUG = True
 
 # Minimum requirements.

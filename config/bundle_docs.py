@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-"""Tar-zip the Pygame documents and examples
+"""Tar-zip the Pygame documents.
 
 Run this script from the Pygame source root directory.
 """
@@ -38,7 +38,6 @@ def add_directory (bundle, root, alias, iszip):
         add_files (bundle, sub_root, sub_alias, files, iszip)
 
 def main():
-    bundle_name_elements = ['pygame', 'docs']
     fp = open ("setup.py", "r")
     try:
         match = re.search (r'VERSION = "([0-9]+\.[0-9]+\.[0-9]+(\-\w+){0,1})"',
@@ -51,10 +50,8 @@ def main():
     else:
         version = '-%s' % match.group(1)
 
-    bundle_name = os.path.join ("dist",
-                                "pygame2%s-docs-and-examples.tar.gz" % version)
-    zip_name = os.path.join ("dist",
-                             "pygame2%s-docs-and-examples.zip" % version)
+    bundle_name = os.path.join ("dist", "pygame2%s-docs.tar.gz" % version)
+    zip_name = os.path.join ("dist", "pygame2%s-docs.zip" % version)
     print ("Creating bundle %s" % bundle_name)
 
     if not os.path.exists ("dist"):
@@ -72,8 +69,6 @@ def main():
                        os.path.join(alias, 'doc'), False)
         add_directory (zipbundle, os.path.join(root, 'doc'),
                        os.path.join(alias, 'doc'), True)
-        add_directory (bundle, os.path.join(root, 'examples'),
-                       os.path.join(alias, 'examples'), False)
         add_directory (zipbundle, os.path.join(root, 'examples'),
                        os.path.join(alias, 'examples'), True)
         print ("\nFinished: %s\n          %s\n" % (bundle_name, zip_name))

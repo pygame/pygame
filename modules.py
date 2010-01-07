@@ -316,6 +316,14 @@ modules = [
         sources = [ "src/midi/pypm.c" ],
         depends = ['portmidi']),
 
+    Module ("math.base",
+        sources = [ "src/math/mathmod.c",
+                    "src/math/vector.c",
+                    "src/math/vector2.c",
+                    "src/math/vector3.c" ],
+        instheaders = ["src/math/pgmath.h"],
+        docfile = "mathbase.xml"),
+
     ]
 
 if helpers.getversion() < (3, 0, 0):

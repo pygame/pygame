@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE module SYSTEM "api.dtd">
+
+<module name="pygame2.math">
+  <alias>pygame2.math</alias>
+  <short>Vector math features used by pygame2</short>
+  <desc>
+    TODO
+  </desc>
+
+  <include>pygame2_math_base.rst</include>
+</module>

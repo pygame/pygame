@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE module SYSTEM "api.dtd">
+
+<module name="pygame2.math.base">
+  <show>0</show>
+  <alias>pygame2.math</alias>
+  <short>Vector math module for Pygame2</short>
+  <desc>
+    TODO
+  </desc>
+  <class name="Vector">
+    <constructor>Vector () -> Vector</constructor>
+    <desc>Creates a new Vector.
+    </desc>
+    <attr name="dimension">
+      <desc>Gets the dimensions of the :class:`Vector`.</desc>
+    </attr>
+    <attr name="length">
+      <desc>Gets the length of the :class:`Vector`.</desc>
+    </attr>
+    <attr name="length_squared">
+      <desc>Gets the length of the :class:`Vector`.</desc>
+    </attr>
+    <attr name="epsilon">
+      <desc>Gets or sets the exactness delta of the :class:`Vector`.</desc>
+    </attr>
+    <attr name="elements">
+      <desc>Gets or sets the elements of the :class:`Vector`.
+    
+      This will only set a maximum of :attr:`dimension` values.
+      </desc>
+    </attr>
+    <method name="normalize">
+      <call>normalize () -> Vector</call>
+      <desc></desc>
+    </method>
+    <method name="normalize_ip">
+      <call>normalize_ip () -> None</call>
+      <desc></desc>
+    </method>
+  </class>
+  
+  <class name="Vector2">
+    <constructor>Vector2 () -> Vector2</constructor>
+    <desc>Creates a new Vector2.
+    
+      A simple 2D vector containing only two elements.
+    </desc>
+    <attr name="dimension">
+      <desc>Gets the dimensions of the :class:`Vector2`.</desc>
+    </attr>
+    <attr name="elements">
+      <desc>Gets or sets the elements of the :class:`Vector2`.
+    
+        This will only set a maximum of two values.
+      </desc>
+    </attr>
+    <attr name="x">
+      <desc>Gets or sets first element of the :class:`Vector2`.</desc>
+    </attr>
+    <attr name="y">
+      <desc>Gets or sets second element of the :class:`Vector2`.</desc>
+    </attr>
+  </class>
+
+  <class name="Vector3">
+    <constructor>Vector3 () -> Vector3</constructor>
+    <desc>Creates a new Vector3.
+    
+      A simple 3D vector containing only three elements.
+    </desc>
+    <attr name="dimension">
+      <desc>Gets the dimensions of the :class:`Vector3`.</desc>
+    </attr>
+    <attr name="elements">
+      <desc>Gets or sets the elements of the :class:`Vector3`.
+    
+        This will only set a maximum of three values.
+      </desc>
+    </attr>
+    <attr name="x">
+      <desc>Gets or sets first element of the :class:`Vector3`.</desc>
+    </attr>
+    <attr name="y">
+      <desc>Gets or sets second element of the :class:`Vector3`.</desc>
+    </attr>
+    <attr name="z">
+      <desc>Gets or sets third element of the :class:`Vector3`.</desc>
+    </attr>
+  </class>
+
+</module>
+

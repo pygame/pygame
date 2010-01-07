@@ -29,7 +29,7 @@
     ((A->y >= B->y && A->y < B->y + B->h)   ||       \
      (B->y >= A->y && B->y < A->y + A->h)))
 
-static int _frect_init (PyObject *cursor, PyObject *args, PyObject *kwds);
+static int _frect_init (PyObject *self, PyObject *args, PyObject *kwds);
 static void _frect_dealloc (PyFRect *self);
 static PyObject* _frect_repr (PyObject *self);
 

@@ -7,6 +7,7 @@ except:
     from pgunittest import doprint, interactive
 
 import pygame2
+import pygame2.sdl as sdl
 import pygame2.sdl.time as sdltime
 import pygame2.sdl.constants as constants
 
@@ -25,8 +26,21 @@ class SDLTimeTest (unittest.TestCase):
         # invocation, the optional *data* will be passed to the callable.
         # 
         # This will return an CObject that acts as unique id for the timer callback.
+        setargs = []
+        def _timercb (l, arg1, arg2):
+            print ("CB")
+            l.append (arg1)
+            l.append (arg2)
+            return 10
+        
+        sdltime.init ()
+        sdltime.add_timer (10, _timercb, (setargs, "Hello", "World"))
+        t1 = t2 = sdltime.get_ticks ()
+        while (t2 - t1 < 100):
+            sdltime.delay (1)
+            t2 = sdltime.get_ticks ()
 
-        self.fail() 
+        sdltime.quit ()
 
     def test_pygame2_sdl_time_delay(self):
 
@@ -61,11 +75,13 @@ class SDLTimeTest (unittest.TestCase):
         # Gets the number of milliseconds since the initialization of
         # the underlying SDL library. The value will wrap if the program
         # runs for more than ~49 days.
+
+        # Can't test this with useful information...
         self.assertRaises (pygame2.Error, sdltime.get_ticks)
         sdltime.init ()
-        self.assert_ (0 <= sdltime.get_ticks () < 10)
-        sdltime.delay (50)
-        self.assert_ (45 < sdltime.get_ticks () < 55)
+        sdltime.delay (20)
+        self.assert_ (sdltime.get_ticks () > 0)
+        sdltime.quit ()
         
     def test_pygame2_sdl_time_init(self):
 

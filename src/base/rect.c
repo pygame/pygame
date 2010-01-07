@@ -29,7 +29,7 @@
         ((A->y >= B->y && A->y < (pgint32) (B->y + B->h))   ||  \
             (B->y >= A->y && B->y < (pgint32)(A->y + A->h))))
 
-static int _rect_init (PyObject *cursor, PyObject *args, PyObject *kwds);
+static int _rect_init (PyObject *self, PyObject *args, PyObject *kwds);
 static void _rect_dealloc (PyRect *self);
 static PyObject* _rect_repr (PyObject *self);
 
