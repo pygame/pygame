@@ -23,10 +23,27 @@
 #include "pgmath.h"
 #include "mathbase_doc.h"
 
+static PyObject* _frompolar (PyObject* mod, PyObject *args);
+
 static PyMethodDef _math_methods[] = {
+    { "vector_from_polar", _frompolar, METH_VARARGS,
+      DOC_BASE_VECTOR_FROM_POLAR },
     { NULL, NULL, 0, NULL },
 };
 
+static PyObject*
+_frompolar (PyObject* mod, PyObject *args)
+{
+    double r, phi, c1, c2;
+
+    if (!PyArg_ParseTuple (args, "dd:vector_from_polar", &r, &phi))
+        return NULL;
+    c1 = r * cos (phi);
+    c2 = r * sin (phi);
+    return PyVector2_New (c1, c2);
+}
+
+/* Internally used methods */
 double
 _ScalarProduct (const double *coords1, const double *coords2, Py_ssize_t size)
 {

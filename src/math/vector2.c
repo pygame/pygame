@@ -37,6 +37,9 @@ static void _do_rotate (double *dst_coords, double *src_coords, double angle,
 
 static PyObject* _vector2_rotate (PyObject *self, PyObject *args);
 static PyObject* _vector2_rotate_ip (PyObject *self, PyObject *args);
+static PyObject* _vector2_cross (PyObject *self, PyObject *args);
+static PyObject* _vector2_angleto (PyObject *self, PyObject *args);
+static PyObject* _vector2_aspolar (PyVector *self);
 
 /**
  * Methods for the PyVector2.
@@ -46,6 +49,9 @@ static PyMethodDef _vector2_methods[] =
     { "rotate", _vector2_rotate, METH_VARARGS, DOC_BASE_VECTOR2_ROTATE },
     { "rotate_ip", _vector2_rotate_ip, METH_VARARGS,
       DOC_BASE_VECTOR2_ROTATE_IP },
+    { "cross", _vector2_cross, METH_VARARGS, DOC_BASE_VECTOR2_CROSS },
+    { "angle_to", _vector2_angleto, METH_VARARGS, DOC_BASE_VECTOR2_ANGLE_TO },
+    { "as_polar", _vector2_aspolar, METH_VARARGS, DOC_BASE_VECTOR2_AS_POLAR },
     { NULL, NULL, 0, NULL },
 };
 
@@ -271,6 +277,68 @@ _vector2_rotate_ip (PyObject *self, PyObject *args)
     tmp[1] = v->coords[1];
     _do_rotate (v->coords, tmp, angle, v->epsilon);
     Py_RETURN_NONE;
+}
+
+static PyObject*
+_vector2_cross (PyObject *self, PyObject *args)
+{
+    PyObject *other;
+    PyVector *v = (PyVector*) self;
+    double retval, *othercoords;
+    Py_ssize_t otherdim;
+
+    if (!PyArg_ParseTuple (args, "O:cross", &other))
+        return NULL;
+
+    if (!IsVectorCompatible (other))
+    {
+        PyErr_SetString (PyExc_TypeError, "other must be a vector compatible");
+        return NULL;
+    }
+
+    othercoords = VectorCoordsFromObj (other, &otherdim);
+    if (!othercoords)
+        return NULL;
+    retval = v->coords[0] * othercoords[1] - v->coords[1] * othercoords[0];
+    PyMem_Free (othercoords);
+    return PyFloat_FromDouble (retval);
+}
+
+static PyObject*
+_vector2_angleto (PyObject *self, PyObject *args)
+{
+    double angle;
+    PyObject *other;
+    PyVector *v = (PyVector*) self;
+    double retval, *othercoords;
+    Py_ssize_t otherdim;
+
+    if (!PyArg_ParseTuple (args, "O:cross", &other))
+        return NULL;
+
+    if (!IsVectorCompatible (other))
+    {
+        PyErr_SetString (PyExc_TypeError, "other must be a vector compatible");
+        return NULL;
+    }
+
+    othercoords = VectorCoordsFromObj (other, &otherdim);
+    if (!othercoords)
+        return NULL;
+    angle = atan2 (othercoords[1], othercoords[0]) -
+        atan2 (v->coords[1], v->coords[0]);
+    PyMem_Free (othercoords);
+    return PyFloat_FromDouble (RAD2DEG (angle));
+}
+
+
+static PyObject *
+_vector2_aspolar (PyVector *self)
+{
+    double r, phi;
+    r = sqrt(_ScalarProduct (self->coords, self->coords, self->dim));
+    phi = atan2 (self->coords[1], self->coords[0]);
+    return Py_BuildValue ("(dd)", r, phi);
 }
 
 /* C API */

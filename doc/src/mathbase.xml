@@ -8,6 +8,12 @@
   <desc>
     TODO
   </desc>
+  <func name="vector_from_polar">
+    <call>vector_from_polar (p1, p2) -> Vector2</call>
+    <desc></desc>
+  </func>
+
+
   <class name="Vector">
     <constructor>Vector () -> Vector</constructor>
     <desc>Creates a new Vector.
@@ -30,6 +36,9 @@
       This will only set a maximum of :attr:`dimension` values.
       </desc>
     </attr>
+    <attr name="normalized">
+      <desc>Gets whether the :class:`Vector` is normalized.</desc>
+    </attr>
     <method name="normalize">
       <call>normalize () -> Vector</call>
       <desc></desc>
@@ -40,6 +49,34 @@
     </method>
     <method name="slerp">
       <call>slerp () -> Vector</call>
+      <desc></desc>
+    </method>
+    <method name="lerp">
+      <call>lerp () -> Vector</call>
+      <desc></desc>
+    </method>
+    <method name="dot">
+      <call>dot () -> float</call>
+      <desc></desc>
+    </method>
+    <method name="scale_to">
+      <call>scale_to (v) -> Vector</call>
+      <desc></desc>
+    </method>
+    <method name="reflect">
+      <call>reflect () -> Vector</call>
+      <desc></desc>
+    </method>
+    <method name="reflect_ip">
+      <call>reflect_ip () -> None</call>
+      <desc></desc>
+    </method>
+    <method name="distance">
+      <call>distance () -> None</call>
+      <desc></desc>
+    </method>
+    <method name="distance_squared">
+      <call>distance_squared () -> None</call>
       <desc></desc>
     </method>
   </class>
@@ -71,6 +108,18 @@
     </method>
     <method name="rotate_ip">
       <call>rotate_ip () -> Vector2</call>
+      <desc></desc>
+    </method>
+    <method name="as_polar">
+      <call>as_polar () -> float, float</call>
+      <desc></desc>
+    </method>
+    <method name="angle_to">
+      <call>angle_to (v) -> float</call>
+      <desc></desc>
+    </method>
+    <method name="cross">
+      <call>cross (v) -> Vector</call>
       <desc></desc>
     </method>
   </class>
