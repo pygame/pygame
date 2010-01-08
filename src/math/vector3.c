@@ -37,7 +37,8 @@ static int _vector3_set_z (PyObject *self, PyObject *value, void *closure);
 /**
  * Methods for the PyVector3.
  */
-static PyMethodDef _vector3_methods[] = {
+static PyMethodDef _vector3_methods[] =
+{
     { NULL, NULL, 0, NULL },
 };
 

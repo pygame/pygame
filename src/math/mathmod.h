@@ -62,6 +62,7 @@ PyObject* PyVector3_New (double x, double y, double z);
 
 double _ScalarProduct (const double *coords1, const double *coords2,
     Py_ssize_t size);
+double* VectorCoordsFromObj (PyObject *object, Py_ssize_t *dims);
 
 void vector_export_capi (void **capi);
 void vector2_export_capi (void **capi);

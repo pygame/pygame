@@ -27,6 +27,7 @@ Modules
    pygame2_examples.rst
    pygame2_font.rst
    pygame2_freetype_base.rst
+   pygame2_freetype_constants.rst
    pygame2_math.rst
    pygame2_mask.rst
    pygame2_midi.rst

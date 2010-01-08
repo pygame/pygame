@@ -284,7 +284,7 @@
 
       This will block a single or multiple event types from being
       processed by the event system and thus will exactly behave like
-      ``:func:`state`(type, :const:`IGNORE`)``.
+      ``state(type, IGNORE)``.
 
       In case other event types are already blocked, the block for them
       will be reset.

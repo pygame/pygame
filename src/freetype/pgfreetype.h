@@ -62,11 +62,6 @@ extern "C" {
 #define FT_RFLAG_HINTED         (1 << 3)
 #define FT_RFLAG_DEFAULTS       (FT_RFLAG_NONE | FT_RFLAG_HINTED)
 
-
-#define FT_RENDER_NEWBYTEARRAY      0x0
-#define FT_RENDER_NEWSURFACE        0x1
-#define FT_RENDER_EXISTINGSURFACE   0x2
-
 /**********************************************************
  * Global module types
  **********************************************************/

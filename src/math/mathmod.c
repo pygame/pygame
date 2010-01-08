@@ -37,6 +37,59 @@ _ScalarProduct (const double *coords1, const double *coords2, Py_ssize_t size)
     return ret;
 }
 
+/* C API */
+double*
+VectorCoordsFromObj (PyObject *object, Py_ssize_t *dims)
+{
+    double *coords;
+
+    if (!object || !dims)
+    {
+        PyErr_SetString (PyExc_ValueError, "arguments must not be NULL");
+        return NULL;
+    }
+    if (PyVector_Check (object))
+    {
+        *dims = ((PyVector*)object)->dim;
+        coords = PyMem_New (double, *dims);
+        if (!coords)
+            return NULL;
+        memcpy (coords, ((PyVector*)object)->coords, sizeof (double) * (*dims));
+        return coords;
+    }
+    else if (PySequence_Check (object))
+    {
+        Py_ssize_t i;
+
+        *dims = PySequence_Size (object);
+        if ((*dims) < 2)
+        {
+            PyErr_SetString (PyExc_ValueError,
+                "sequence must be greater than 1");
+            return NULL;
+        }
+        coords = PyMem_New (double, *dims);
+        if (!coords)
+            return NULL;
+
+        for (i = 0; i < (*dims); i++)
+        {
+            if (!DoubleFromSeqIndex (object, i, &(coords[i])))
+            {
+                PyMem_Free (coords);
+                return NULL;
+            }
+        }
+        return coords;
+    }
+    else
+    {
+        PyErr_SetString (PyExc_TypeError,
+            "object must be a Vector or sequence");
+        return NULL;
+    }
+}
+
 #ifdef IS_PYTHON_3
 PyMODINIT_FUNC PyInit_base (void)
 #else
@@ -83,6 +136,8 @@ PyMODINIT_FUNC initbase (void)
     PyModule_AddObject (mod, "Vector3", (PyObject *) &PyVector3_Type);
 
     /* Export C API */
+    c_api[PYGAME_MATH_FIRSTSLOT] = &VectorCoordsFromObj;
+
     vector_export_capi (c_api);
     vector2_export_capi (c_api);
     vector3_export_capi (c_api);

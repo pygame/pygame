@@ -3,7 +3,7 @@
 
 <module name="pygame2.sdlimage.base">
   <show>0</show>
-  <alias>pygame2.sdlimage.base</alias>
+  <alias>pygame2.sdlimage</alias>
   <short>basic SDL_image wrapper module</short>
   <desc>
     Basic SDL_image wrapper module

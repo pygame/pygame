@@ -3,7 +3,7 @@
 
 <module name="pygame2.sdlmixer.base">
   <show>0</show>
-  <alias>pygame2.sdlmixer.base</alias>
+  <alias>pygame2.sdlmixer</alias>
   <short>basic SDL_mixer wrapper module</short>
   <desc>
     .. note::

@@ -9,26 +9,12 @@
       FreeType, namely TTF, Type1, CFF, OpenType, SFNT, PCF, FNT, BDF,
       PFR and Type42 fonts.
 
-      This module is optional, and replaces all of the functionality of the
-      original 'font' module, whilst expanding it. This module depends in no
-      way on the SDL_ttf library.
-
-      You should test that pygame.freetype is initialized before attempting
-      to use the module; if the module is available and loaded, it will be
-      automatically initialized by pygame.init()
-
-      Most of the work done with fonts is done by using the actual Font objects.
-      The module by itself only has routines to initialize itself and create
-      Font objects with pygame.freetype.Font().
-
-      You can load fonts from the system by using the pygame.freetype.SysFont()
-      function. There are a few other functions to help lookup the system fonts.
-
-      Pygame comes with a builtin default font. This can always be accessed by
-      passing None as the font name to the Font constructor.
+      Most of the work done with fonts is done by using the actual :class:`Font`
+      objects. The module by itself only has routines to initialize itself and
+      create :class:`Font` objects.
   </desc>
   <func name="get_error">
-    <call>get_error() -> string</call>
+    <call>get_error() -> str</call>
     <desc>
         Returns the description of the last error which occurred in the
         FreeType library, or None if no errors have occurred.
@@ -54,7 +40,7 @@
       This function must be called before trying to use any of the functionality
       of the 'freetype' module. It is safe to call this function more than once.
 
-      Optionally, you may specify a default size for the Glyph cache:
+      Optionally, you may specify a default size for the glyph cache:
       this is the maximum amount of glyphs that will be cached at any
       given time by the module.
       Exceedingly small values will be automatically tuned for performance.
@@ -78,7 +64,6 @@
     </desc>
   </func>
 
-
   <class name="Font">
     <constructor>Font (file [, ptsize, style, index]) -> Font</constructor>
     <desc>
@@ -100,9 +85,9 @@
         to 0; font loading will fail if the given index is not contained
         in the font.
 
-        The 'style' argument will set the default style (italic,
+        The *style* argument will set the default style (italic,
         underline, bold) used to draw this font. This style may be
-        overriden on any Font.render() call.
+        overriden on any :meth:`render` call.
     </desc>
     <attr name="name">
       <desc>Read only. Gets the name of the font face.</desc>
@@ -110,26 +95,26 @@
     <method name="get_size">
       <call>get_size(text [, style, rotation, ptsize]) -> int, int</call>
       <desc>
-          Gets the size in pixels which 'text' will occupy when rendered
+          Gets the size in pixels which *text* will occupy when rendered
           using this Font. The calculations will take into account the
           font's default style (e.g. underlined fonts take extra height
           for the underline), or the style may be overriden by the
-          'style' parameter.
+          *style* parameter.
 
           Returns a tuple containing the width and height of the text's
           bounding box. 
           
           The calculations are done using the font's default size in points,
           without any rotation, and taking into account fonts which are set
-          to be drawn vertically via the Font.vertical attribute.
+          to be drawn vertically via the :attr:`vertical` attribute.
           Optionally you may specify another point size to use via the
-          'ptsize' argument, or a text rotation via the 'rotation' argument.
+          *ptsize* argument, or a text rotation via the 'rotation' argument.
       </desc>
     </method>
     <method name="get_metrics">
       <call>get_metrics(text, [bbmode, ptsize]) -> [(...), ...]</call>
       <desc>
-        Returns the glyph metrics for each character in 'text'.
+        Returns the glyph metrics for each character in *text*.
 
         The glyph metrics are returned inside a list; each character will
         be represented as a tuple inside the list with the following values:
@@ -137,22 +122,12 @@
           (min_x, max_x, min_y, max_y, horizontal_advance)
 
         By default, these values are returned as grid-fitted pixel
-        coordinates (ints). Optionally, one of the following constants
-        (which can be found on the FreeType constants module) may be passed
-        as the bbmode argument:
+        coordinates (ints). Optionally, one of the bounding box constants
+        of the :mod:`pygame2.freetype.constants` module  may be passed
+        as the *bbmode* argument.
 
-            BBOX_EXACT: Return accurate floating point values.
-
-            BBOX_EXACT_GRIDFIT: Return accurate floating point values aligned
-            to the drawing grid.
-
-            BBOX_PIXEL: Return pixel coordinates (ints).
-
-            BBOX_PIXEL_GRIDFIT (default): Return grid-aligned pixel coordinates.
-        
         The calculations are done using the font's default size in points.
         Optionally you may specify another point size to use.
-
       </desc>
     </method>
     <attr name="height">
@@ -175,7 +150,7 @@
         :class:`pygame2.sdl.video.Surface` (independently of its bit
         depth), the text will be rendered directly on top of it at the
         passed coordinates, using the given *fgcolor*, and painting
-        the background of the text with the given 'bgcolor', if available. 
+        the background of the text with the given *bgcolor*, if available. 
         The alpha values for both colors are always taken into account.
         The width and height of the rendered text will be returned in a tuple.
 
@@ -194,10 +169,10 @@
         Font.vertical attribute.
         
         Optionally you may specify another point size to use via the
-        'ptsize' argument, a text rotation via the 'rotation' argument,
-        or a new text style via the 'style' argument.
+        *ptsize* argument, a text rotation via the *rotation* argument,
+        or a new text style via the *style* argument.
 
-        This function is only available when PyGame 2 has been compiled
+        This function is only available when PyGame2 has been compiled
         with SDL support.
       </desc>
     </method>
@@ -221,16 +196,17 @@
         <desc>
             Gets or sets the default style of the Font. This default style
             will be used for all text rendering and size calculations unless
-            overriden specifically in the `render()` or `get_size()` calls.
-            The style value may be a bitwise OR of one or more of the following
-            constants:
+            overriden specifically in the :meth:`render()` or :meth:`get_size()`
+            calls. The style value may be a bitwise OR of one or more of the
+            following constants:
                 
-                STYLE_NONE
-                STYLE_UNDERLINE
-                STYLE_ITALIC
-                STYLE_BOLD
+                * STYLE_NONE
+                * STYLE_UNDERLINE
+                * STYLE_ITALIC
+                * STYLE_BOLD
 
-            These constants may be found on the FreeType constants module.
+            These constants may be found in the
+            :mod:`pygame2.freetype.constants` module.
             Optionally, the default style can be modified or obtained
             accessing the individual style attributes (underline, italic,
             bold).
@@ -240,24 +216,24 @@
       <desc>
         Gets or sets whether the font will be underlined when drawing text.
         This default style value will be used for all text rendering and 
-        size calculations unless overriden specifically in the `render()` 
-        or `get_size()` calls, via the 'style' parameter.
+        size calculations unless overriden specifically in the :meth:`render()` 
+        or :meth:`get_size()` calls, via the *style* parameter.
       </desc>
     </attr>
     <attr name="bold">
       <desc>
         Gets or sets whether the font will be bold when drawing text.
         This default style value will be used for all text rendering and 
-        size calculations unless overriden specifically in the `render()` 
-        or `get_size()` calls, via the 'style' parameter.
+        size calculations unless overriden specifically in the :meth:`render()` 
+        or :meth:`get_size()` calls, via the *style* parameter.
       </desc>
     </attr>
     <attr name="italic">
       <desc>
         Gets or sets whether the font will be slanted when drawing text.
         This default style value will be used for all text rendering and 
-        size calculations unless overriden specifically in the `render()` 
-        or `get_size()` calls, via the 'style' parameter.
+        size calculations unless overriden specifically in the :meth:`render()` 
+        or :meth:`get_size()` calls, via the *style* parameter.
       </desc>
     </attr>
     <attr name="fixed_width">

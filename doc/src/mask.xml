@@ -73,7 +73,7 @@
 
         If an *outputmask* is specified, the output is drawn onto
         *outputmask* and *outputmask* is returned. Otherwise a mask of
-        size :attr:`size` + *mask*.:attr:`size` - (1, 1) is created.
+        size :attr:`size` + :attr:`size` - (1, 1) is created.
       </desc>
     </method>
     <attr name="count">

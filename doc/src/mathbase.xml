@@ -38,6 +38,10 @@
       <call>normalize_ip () -> None</call>
       <desc></desc>
     </method>
+    <method name="slerp">
+      <call>slerp () -> Vector</call>
+      <desc></desc>
+    </method>
   </class>
   
   <class name="Vector2">
@@ -61,6 +65,14 @@
     <attr name="y">
       <desc>Gets or sets second element of the :class:`Vector2`.</desc>
     </attr>
+    <method name="rotate">
+      <call>rotate () -> Vector2</call>
+      <desc></desc>
+    </method>
+    <method name="rotate_ip">
+      <call>rotate_ip () -> Vector2</call>
+      <desc></desc>
+    </method>
   </class>
 
   <class name="Vector3">

@@ -13,7 +13,7 @@ import pygame2.sdl.constants as constants
 
 class SDLTimeTest (unittest.TestCase):
 
-    def todo_test_pygame2_sdl_time_add_timer(self):
+    def test_pygame2_sdl_time_add_timer(self):
 
         # __doc__ (as of 2010-01-06) for pygame2.sdl.time.add_timer:
 
@@ -27,20 +27,25 @@ class SDLTimeTest (unittest.TestCase):
         # 
         # This will return an CObject that acts as unique id for the timer callback.
         setargs = []
+        
         def _timercb (l, arg1, arg2):
-            print ("CB")
             l.append (arg1)
             l.append (arg2)
             return 10
         
+        self.assertRaises (pygame2.Error, sdltime.add_timer, _timercb)
+        
         sdltime.init ()
-        sdltime.add_timer (10, _timercb, (setargs, "Hello", "World"))
+        tobj = sdltime.add_timer (10, _timercb, (setargs, "Hello", "World"))
+        self.assert_ (tobj != None)
         t1 = t2 = sdltime.get_ticks ()
         while (t2 - t1 < 100):
             sdltime.delay (1)
             t2 = sdltime.get_ticks ()
-
+        self.assert_ (len (setargs) > 10)
         sdltime.quit ()
+        
+        self.assertRaises (pygame2.Error, sdltime.add_timer, _timercb)
 
     def test_pygame2_sdl_time_delay(self):
 
@@ -61,7 +66,7 @@ class SDLTimeTest (unittest.TestCase):
             sdltime.delay (20)
             last = time.time ()
             delaytime = (last - prev) * 1000
-            self.assert_ (15 < delaytime < 25)
+            self.assert_ (10 < delaytime < 50)
 
     def test_pygame2_sdl_time_get_ticks(self):
 
@@ -108,7 +113,7 @@ class SDLTimeTest (unittest.TestCase):
         # likely to fail or might give unpredictable results.
         self.assertEqual (sdltime.quit (), None)
 
-    def todo_test_pygame2_sdl_time_remove_timer(self):
+    def test_pygame2_sdl_time_remove_timer(self):
 
         # __doc__ (as of 2010-01-06) for pygame2.sdl.time.remove_timer:
 
@@ -118,8 +123,38 @@ class SDLTimeTest (unittest.TestCase):
         # 
         # Removes a previously added timer callback and throws an exception, if the
         # passed object is not a matching timer object.
-
-        self.fail() 
+        
+        def _timercb (flag):
+            flag.append (1)
+            return 10;
+        
+        self.assertRaises (pygame2.Error, sdltime.remove_timer, _timercb)
+        sdltime.init ()
+        self.assertRaises (TypeError, sdltime.remove_timer, None)
+        
+        flag = []
+        tobj = sdltime.add_timer (10, _timercb, (flag,))
+        self.assert_ (tobj != None)
+        t1 = t2 = sdltime.get_ticks ()
+        while (t2 - t1 < 50):
+            sdltime.delay (1)
+            t2 = sdltime.get_ticks ()
+        self.assertTrue (len (flag) != 0)
+        sdltime.remove_timer (tobj)
+        self.assertRaises (ValueError, sdltime.remove_timer, tobj)
+        
+        flag = []
+        tobj = sdltime.add_timer (10, _timercb, (flag,))
+        sdltime.remove_timer (tobj)
+        self.assertRaises (ValueError, sdltime.remove_timer, tobj)
+        self.assert_ (tobj != None)
+        t1 = t2 = sdltime.get_ticks ()
+        while (t2 - t1 < 50):
+            sdltime.delay (1)
+            t2 = sdltime.get_ticks ()
+        self.assert_ (len (flag) == 0)
+        sdltime.quit ()
+        self.assertRaises (pygame2.Error, sdltime.remove_timer, _timercb)
 
     def todo_test_pygame2_sdl_time_set_timer(self):
 

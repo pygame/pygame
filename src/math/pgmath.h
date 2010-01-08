@@ -27,8 +27,10 @@ extern "C" {
 #endif
 
 #define PYGAME_MATH_FIRSTSLOT 0
-#define PYGAME_MATH_NUMSLOTS 0
+#define PYGAME_MATH_NUMSLOTS 1
 #ifndef PYGAME_MATH_INTERNAL
+#define VectorCoordsFromObj                                             \
+    (*(double*(*)(PyObject*,Py_ssize_t*))PyGameMath_C_API[PYGAME_MATH_FIRSTSLOT+0])
 #endif /* PYGAME_MATH_INTERNAL */
 
 typedef struct

@@ -31,11 +31,13 @@ static PyObject* _vector_get_dimension (PyObject *self, void *closure);
 static PyObject* _vector_get_epsilon (PyObject *self, void *closure);
 static int _vector_set_epsilon (PyObject *self, PyObject *value, void *closure);
 static PyObject* _vector_get_elements (PyObject *self, void *closure);
-static int _vector_set_elements (PyObject *self, PyObject *value, void *closure);
+static int _vector_set_elements (PyObject *self, PyObject *value,
+    void *closure);
 static PyObject* _vector_get_length (PyVector *self, void *closure);
 static PyObject* _vector_get_length_squared (PyVector *self, void *closure);
 static PyObject* _vector_normalize (PyVector *self);
 static PyObject* _vector_normalize_ip (PyVector *self);
+static PyObject* _vector_slerp (PyVector *self, PyObject *args);
 
 /* Generic math operations for vectors. */
 static PyObject* _vector_generic_math (PyObject *o1, PyObject *o2, int op);
@@ -59,7 +61,8 @@ static PyObject* _vector_richcompare (PyObject *o1, PyObject *o2, int op);
 /* Sequence protocol methods */
 static Py_ssize_t _vector_len (PyVector *self);
 static PyObject* _vector_item (PyVector *self, Py_ssize_t _index);
-static int _vector_ass_item (PyVector *self, Py_ssize_t _index, PyObject *value);
+static int _vector_ass_item (PyVector *self, Py_ssize_t _index,
+    PyObject *value);
 static PyObject* _vector_slice (PyVector *self, Py_ssize_t ilow,
     Py_ssize_t ihigh);
 static int _vector_ass_slice (PyVector *self, Py_ssize_t ilow, Py_ssize_t ihigh,
@@ -73,11 +76,14 @@ static int _vector_ass_subscript (PyVector *self, PyObject *op,
 /**
  * Methods for the PyVector.
  */
-static PyMethodDef _vector_methods[] = {
+static PyMethodDef _vector_methods[] =
+{
     { "normalize", (PyCFunction) _vector_normalize, METH_NOARGS,
       DOC_BASE_VECTOR_NORMALIZE },
     { "normalize_ip", (PyCFunction) _vector_normalize_ip, METH_NOARGS,
       DOC_BASE_VECTOR_NORMALIZE_IP },
+    { "slerp", (PyCFunction) _vector_slerp, METH_VARARGS,
+      DOC_BASE_VECTOR_SLERP },
     { NULL, NULL, 0, NULL },
 };
 
@@ -145,8 +151,8 @@ static PyNumberMethods _vector_as_number =
     (binaryfunc)0,                    /* nb_inplace_or;        __ior__ */
     (binaryfunc) _vector_floor_div,   /* nb_floor_divide;         __floor__ */
     (binaryfunc) _vector_div,         /* nb_true_divide;          __truediv__ */
-    (binaryfunc) _vector_inplace_floor_div, /* nb_inplace_floor_divide; __ifloor__ */
-    (binaryfunc) _vector_inplace_div, /* nb_inplace_true_divide;  __itruediv__ */
+    (binaryfunc) _vector_inplace_floor_div, /* nb_inplace_floor_divide; */
+    (binaryfunc) _vector_inplace_div, /* nb_inplace_true_divide; */
 #if PY_VERSION_HEX >= 0x02050000
     (unaryfunc)0,                     /* nb_index */
 #endif
@@ -304,7 +310,7 @@ _vector_repr (PyObject *self)
 {
     PyVector *v = (PyVector*) self;
     /* TODO */
-    return Text_FromFormat ("Vector%dd()", v->dim);
+    return Text_FromFormat ("Vector%d()", v->dim);
 }
 
 /* Vector getters/setters */
@@ -402,7 +408,7 @@ _vector_set_elements (PyObject *self, PyObject *value, void *closure)
 static PyObject*
 _vector_get_length (PyVector *self, void *closure)
 {
-    double length_squared = _ScalarProduct(self->coords, self->coords,
+    double length_squared = _ScalarProduct (self->coords, self->coords,
         self->dim);
     return PyFloat_FromDouble (sqrt (length_squared));
 }
@@ -413,7 +419,7 @@ _vector_get_length (PyVector *self, void *closure)
 static PyObject*
 _vector_get_length_squared (PyVector *self, void *closure)
 {
-    double length_squared = _ScalarProduct(self->coords, self->coords,
+    double length_squared = _ScalarProduct (self->coords, self->coords,
         self->dim);
     return PyFloat_FromDouble (length_squared);
 }
@@ -447,7 +453,7 @@ _vector_normalize_ip(PyVector *self)
     double length;
     PyVector *ret;
     
-    length = sqrt (_ScalarProduct(self->coords, self->coords, self->dim));
+    length = sqrt (_ScalarProduct (self->coords, self->coords, self->dim));
     if (length == 0)
     {
         PyErr_SetString (PyExc_ZeroDivisionError,
@@ -459,6 +465,81 @@ _vector_normalize_ip(PyVector *self)
         self->coords[i] /= length;
     Py_RETURN_NONE;
 }
+
+static PyObject*
+_vector_slerp (PyVector *self, PyObject *args)
+{
+    Py_ssize_t i, otherdim;
+    PyObject *other;
+    PyVector *ret;
+    double *othercoords;
+    double angle, t, length1, length2, f0, f1, f2;
+
+    if (!PyArg_ParseTuple(args, "Od:slerp", &other, &t))
+        return NULL;
+
+    if (!IsVectorCompatible (other))
+    {
+        PyErr_SetString (PyExc_TypeError, "other must be a vector compatible");
+        return NULL;
+    }
+
+    othercoords = VectorCoordsFromObj (other, &otherdim);
+    if (!othercoords)
+        return NULL;
+    if (otherdim != self->dim)
+    {
+        /* TODO: is it okay to fail here? */
+        PyErr_SetString (PyExc_TypeError, "other must have the same dimension");
+        PyMem_Free (othercoords);
+        return NULL;
+    }
+
+    if (fabs (t) > 1)
+    {
+        PyErr_SetString(PyExc_ValueError, "t must be in range [-1, 1]");
+        PyMem_Free (othercoords);
+        return NULL;
+    }
+    
+    length1 = sqrt(_ScalarProduct (self->coords, self->coords, self->dim));
+    length2 = sqrt(_ScalarProduct (othercoords, othercoords, self->dim));
+
+    if ((length1 < self->epsilon) || (length2 < self->epsilon))
+    {
+        PyErr_SetString (PyExc_ZeroDivisionError,
+            "can not use slerp with zero-Vector");
+        PyMem_Free (othercoords);
+        return NULL;
+    }
+    angle = acos (_ScalarProduct (self->coords, othercoords, self->dim) /
+        (length1 * length2));
+
+    if (t < 0)
+    {
+        angle -= 2 * M_PI;
+        t = -t;
+    }
+
+    if (self->coords[0] * othercoords[1] < self->coords[1] * othercoords[0])
+        angle *= -1;
+
+    ret = (PyVector *) PyVector_NewSpecialized (self->dim);
+    if (!ret)
+    {
+        PyMem_Free (othercoords);
+        return NULL;
+    }
+    f0 = ((length2 - length1) * t + length1) / sin (angle);
+    f1 = sin (angle * (1 - t)) / length1;
+    f2 = sin (angle * t) / length2;
+    for (i = 0; i < self->dim; ++i)
+        ret->coords[i] = (self->coords[i] * f1 + othercoords[i] * f2) * f0;
+
+    PyMem_Free (othercoords);
+    return (PyObject*) ret;
+}
+
 
 static PyObject*
 _vector_generic_math (PyObject *o1, PyObject *o2, int op)
@@ -499,7 +580,7 @@ _vector_generic_math (PyObject *o1, PyObject *o2, int op)
         if (otherdim > dim)
         {
             PyErr_SetString (PyExc_TypeError,
-                "right-hand argument must not have more dimensions than left-hand argument");
+                "right op must not have more dimensions than left op");
             return NULL;
         }
     }

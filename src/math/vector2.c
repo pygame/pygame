@@ -32,10 +32,20 @@ static int _vector2_set_x (PyObject *self, PyObject *value, void *closure);
 static PyObject* _vector2_get_y (PyObject *self, void *closure);
 static int _vector2_set_y (PyObject *self, PyObject *value, void *closure);
 
+static void _do_rotate (double *dst_coords, double *src_coords, double angle,
+    double epsilon);
+
+static PyObject* _vector2_rotate (PyObject *self, PyObject *args);
+static PyObject* _vector2_rotate_ip (PyObject *self, PyObject *args);
+
 /**
  * Methods for the PyVector2.
  */
-static PyMethodDef _vector2_methods[] = {
+static PyMethodDef _vector2_methods[] =
+{
+    { "rotate", _vector2_rotate, METH_VARARGS, DOC_BASE_VECTOR2_ROTATE },
+    { "rotate_ip", _vector2_rotate_ip, METH_VARARGS,
+      DOC_BASE_VECTOR2_ROTATE_IP },
     { NULL, NULL, 0, NULL },
 };
 
@@ -133,7 +143,7 @@ _vector2_init (PyObject *self, PyObject *args, PyObject *kwds)
     return 0;
 }
 
-/* Vector getters/setters */
+/* Vector2 getters/setters */
 
 /**
  * x = Vector2.x
@@ -179,6 +189,89 @@ _vector2_set_y (PyObject *self, PyObject *value, void *closure)
     return 0;
 }
 
+/* Vector2 methods */
+
+static void
+_do_rotate (double *dst_coords, double *src_coords, double angle,
+    double epsilon)
+{
+    /* make sure angle is in range [0, 360) */
+    angle = fmod (angle, 360.);
+    if (angle < 0)
+        angle += 360.;
+
+    /* special-case rotation by 0, 90, 180 and 270 degrees */
+    if (fmod (angle + epsilon, 90.) < 2 * epsilon)
+    {
+        switch ((int)((angle + epsilon) / 90))
+        {
+        case 0: /* 0 degrees */
+            dst_coords[0] = src_coords[0];
+            dst_coords[1] = src_coords[1];
+            break;
+        case 1: /* 90 degrees */
+            dst_coords[0] = -src_coords[1];
+            dst_coords[1] = src_coords[0];
+            break;
+        case 2: /* 180 degrees */
+            dst_coords[0] = -src_coords[0];
+            dst_coords[1] = -src_coords[1];
+            break;
+        case 3: /* 270 degrees */
+            dst_coords[0] = src_coords[1];
+            dst_coords[1] = -src_coords[0];
+            break;
+        default:
+            /* this should NEVER happen and means a bug in the code */
+            PyErr_SetString (PyExc_RuntimeError,
+               "Please report this bug in vector2_do_rotate to the developers");
+            break;
+        }
+    }
+    else
+    {
+        double sinv, cosv;
+
+        angle = DEG2RAD (angle);
+        sinv = sin (angle);
+        cosv = cos (angle);
+
+        dst_coords[0] = cosv * src_coords[0] - sinv * src_coords[1];
+        dst_coords[1] = sinv * src_coords[0] + cosv * src_coords[1];
+    }
+}
+
+static PyObject*
+_vector2_rotate (PyObject *self, PyObject *args)
+{
+    double angle;
+    PyVector *v = (PyVector *) self;
+    PyVector *ret;
+
+    if (!PyArg_ParseTuple (args, "d:rotate", &angle))
+        return NULL;
+
+    ret = (PyVector*) PyVector2_New (0., 0.);
+    if (!ret)
+        return NULL;
+    _do_rotate (ret->coords, v->coords, angle, v->epsilon);
+    return (PyObject*)ret;
+}
+
+static PyObject*
+_vector2_rotate_ip (PyObject *self, PyObject *args)
+{
+    double angle, tmp[2];
+    PyVector *v = (PyVector *) self;
+
+    if (!PyArg_ParseTuple (args, "d:rotate_ip", &angle))
+        return NULL;
+
+    tmp[0] = v->coords[0];
+    tmp[1] = v->coords[1];
+    _do_rotate (v->coords, tmp, angle, v->epsilon);
+    Py_RETURN_NONE;
+}
 
 /* C API */
 PyObject*

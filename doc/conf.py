@@ -64,7 +64,16 @@ release = '2.0.0-alpha4'
 #today_fmt = '%B %d, %Y'
 
 # List of documents that shouldn't be included in the build.
-#unused_docs = []
+unused_docs = [ 'ref/pygame2_base',
+                'ref/pygame2_math_base',
+                'ref/pygame2_midi_base',
+                'ref/pygame2_sdl_base',
+                'ref/pygame2_sdlext_base',
+                'ref/pygame2_sdlgfx_base',
+                'ref/pygame2_sdlimage_base',
+                'ref/pygame2_sdlmixer_base',
+                'ref/pygame2_sdlttf_base',
+                ]
 
 # List of directories, relative to source directory, that shouldn't be searched
 # for source files.

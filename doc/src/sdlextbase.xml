@@ -3,7 +3,7 @@
 
 <module name="pygame2.sdlext.base">
   <show>0</show>
-  <alias>pygame2.sdlext.base</alias>
+  <alias>pygame2.sdlext</alias>
   <short>basic extensions for SDL modules</short>
   <desc>
     Basic extensions for the pygame2 SDL wrapper.

@@ -277,6 +277,8 @@ class Doc(object):
             fp.write ("%s" % self.create_desc_rst (self.description))
             fp.write (".. module:: %s\n" % (name))
             fp.write ("   :synopsis: %s\n\n" % (self.shortdesc))
+        else:
+            fp.write (".. currentmodule:: %s\n\n" % (name))
 
         if len (self.example) > 0:
             fp.write (self.create_example_rst (self.example, True))

@@ -11,10 +11,16 @@
       Adds a timer callback to be called periodically.
       
       Adds a timer callback to be called periodically using the specified
-      *interval*. *callable* can be any callable objet, method or function. On
-      invocation, the optional *data* will be passed to the callable.
-      
+      *interval*. *callable* can be any callable objet, method or function.
+      On invocation, the optional *data* will be passed to the callable. If
+      *data* is a sequence, each item of it will be passed as single argument
+      to tha callable.
+            
       This will return an CObject that acts as unique id for the timer callback.
+
+      .. note::
+      
+        Any added timer will be removed automatically on calling :func:`quit`.
     </desc>
   </func>
   <func name="delay">
@@ -27,7 +33,7 @@
 
       .. note::
 
-        This does *not* require :meth:`init` to be called before.
+        This does *not* require :func:`init` to be called before.
     </desc>
   </func>
   <func name="get_ticks">
@@ -55,6 +61,11 @@
       After calling this function, you should not invoke any class,
       method or function related to the timer subsystem as they are
       likely to fail or might give unpredictable results.
+      
+      .. note::
+      
+        Any timer set by :func:`set_timer` or :func:`add_timer` will be removed
+        automatically on calling :func:`quit`.
     </desc>
   </func>
   <func name="remove_timer">
@@ -74,6 +85,10 @@
       Sets a single timer callback to be called periodically using the specified
       *interval* in milliseconds. The timer callback can be reset by passing
       None as *callable* object.
+      
+      .. note::
+      
+        Any set timer will be removed automatically on calling :func:`quit`.
     </desc>
   </func>
   <func name="was_init">

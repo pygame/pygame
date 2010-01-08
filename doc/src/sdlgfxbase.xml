@@ -3,7 +3,7 @@
 
 <module name="pygame2.sdlgfx.base">
   <show>0</show>
-  <alias>pygame2.sdlgfx.base</alias>
+  <alias>pygame2.sdlgfx</alias>
   <short>basic SDL_gfx wrapper module</short>
   <desc>
     Basic SDL_gfx library wrapper module

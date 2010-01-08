@@ -3,7 +3,7 @@
 
 <module name="pygame2.sdl.base">
   <show>0</show>
-  <alias>pygame2.sdl.base</alias>
+  <alias>pygame2.sdl</alias>
   <short>basic SDL wrapper module</short>
   <desc>
     Basic Pygame2 SDL wrapper functions.
@@ -61,12 +61,12 @@
       Initializes one or more SDL subsystems.
 
       In case a specific part of SDL was not initialized using
-      :func:`pygame2.sdl.init`, this function can be used to initialize it at
+      :func:`init`, this function can be used to initialize it at
       a later time.
 
       In contrast to the original SDL library, you do not need to call
-      :func:`pygame2.sdl.init` beforehand to initialize anything. In
-      case it was not done before, :func:`pygame2.sdl.init` will be
+      :func:`init` beforehand to initialize anything. In
+      case it was not done before, :func:`init` will be
       called implicitly with the passed *flags*.
 
       In case an error occured, False will be returned. The detailled
