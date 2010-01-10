@@ -1338,40 +1338,54 @@ vector_str(PyVector *self)
 static PyObject*
 vector_getAttr_swizzle(PyVector *self, PyObject *attr_name)
 {
+    PyObject *attr_unicode;
+    Py_UNICODE *attr;
     PyObject *res = PyObject_GenericGetAttr((PyObject*)self, attr_name);
     /* if normal lookup failed try to swizzle */
     if (swizzling_enabled && 
         PyErr_Occurred() && PyErr_ExceptionMatches(PyExc_AttributeError)) {
         Py_ssize_t i, len = PySequence_Length(attr_name);
         double *coords = self->coords;
-        PyObject *attr_unicode = PyUnicode_FromObject(attr_name);
-        Py_UNICODE *attr = PyUnicode_AsUnicode(attr_unicode);
+        attr_unicode = PyUnicode_FromObject(attr_name);
+        attr = PyUnicode_AsUnicode(attr_unicode);
         if (attr_unicode == NULL || attr == NULL) {
             Py_XDECREF(attr_unicode);
             return NULL;
         }
         res = (PyObject*)PyTuple_New(len);
         for (i = 0; i < len; i++) {
+            Py_ssize_t idx;
             switch (attr[i]) {
             case 'x':
-                PyTuple_SetItem(res, i, PyFloat_FromDouble(coords[0]));
-                break;
             case 'y':
-                PyTuple_SetItem(res, i, PyFloat_FromDouble(coords[1]));
+            case 'z':
+                idx = attr[i] - 'x';
+                break;
+            case 'w':
+                idx = 3;
                 break;
             default:
-                /* swizzling failed! clean up and return NULL
-                 * the exception from PyObject_GenericGetAttr is still set */
-                Py_DECREF(res);
-                Py_DECREF(attr_unicode);
-                return NULL;
+                goto swizzle_failed;
             }
+            if (idx < self->dim) {
+                PyTuple_SetItem(res, i, PyFloat_FromDouble(coords[idx]));
+            }
+            else {
+                goto swizzle_failed;
+            }                
         }
         /* swizzling succeeded! clear the error and return result */
         PyErr_Clear();
         Py_DECREF(attr_unicode);
     }
     return res;
+
+swizzle_failed:
+    /* swizzling failed! clean up and return NULL
+     * the exception from PyObject_GenericGetAttr should still set */
+    Py_XDECREF(res);
+    Py_XDECREF(attr_unicode);
+    return NULL;
 }
 
 static int
