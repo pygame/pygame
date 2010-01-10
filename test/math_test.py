@@ -1274,9 +1274,10 @@ class Vector3TypeTest(unittest.TestCase):
         self.assertRaises(AttributeError, lambda : self.v1.yx)
         pygame.math.enable_swizzling()
         
-        self.assertEqual(self.v1.yx, (self.v1.y, self.v1.x))
-        self.assertEqual(self.v1.xxyyxy, (self.v1.x, self.v1.x, self.v1.y,
-                                          self.v1.y, self.v1.x, self.v1.y))
+        self.assertEqual(self.v1.yxz, (self.v1.y, self.v1.x, self.v1.z))
+        self.assertEqual(self.v1.xxyyzzxyz, (self.v1.x, self.v1.x, self.v1.y,
+                                             self.v1.y, self.v1.z, self.v1.z,
+                                             self.v1.x, self.v1.y, self.v1.z))
         self.v1.xyz = self.t2
         self.assertEqual(self.v1, self.t2)
         self.v1.zxy = self.t2
