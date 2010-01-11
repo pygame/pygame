@@ -24,10 +24,13 @@
 #include "mathbase_doc.h"
 
 static PyObject* _frompolar (PyObject* mod, PyObject *args);
+static PyObject* _fromspherical (PyObject* mod, PyObject *args);
 
 static PyMethodDef _math_methods[] = {
     { "vector_from_polar", _frompolar, METH_VARARGS,
       DOC_BASE_VECTOR_FROM_POLAR },
+    { "vector_from_spherical", _fromspherical, METH_VARARGS,
+      DOC_BASE_VECTOR_FROM_SPHERICAL },
     { NULL, NULL, 0, NULL },
 };
 
@@ -41,6 +44,21 @@ _frompolar (PyObject* mod, PyObject *args)
     c1 = r * cos (phi);
     c2 = r * sin (phi);
     return PyVector2_New (c1, c2);
+}
+
+static PyObject*
+_fromspherical (PyObject* mod, PyObject *args)
+{
+    double r, phi, theta, c1, c2, c3;
+
+    if (!PyArg_ParseTuple (args, "ddd:vector_from_spherical", &r, &theta, &phi))
+        return NULL;
+
+    c1 = r * sin (theta) * cos (phi);
+    c3 = r * sin (theta) * sin (phi);
+    c2 = r * cos (theta);
+
+    return PyVector3_New (c1, c2, c3);
 }
 
 /* Internally used methods */
@@ -58,13 +76,14 @@ _ScalarProduct (const double *coords1, const double *coords2, Py_ssize_t size)
 double*
 VectorCoordsFromObj (PyObject *object, Py_ssize_t *dims)
 {
-    double *coords;
+    double *coords= NULL;
 
     if (!object || !dims)
     {
         PyErr_SetString (PyExc_ValueError, "arguments must not be NULL");
         return NULL;
     }
+
     if (PyVector_Check (object))
     {
         *dims = ((PyVector*)object)->dim;
@@ -102,7 +121,7 @@ VectorCoordsFromObj (PyObject *object, Py_ssize_t *dims)
     else
     {
         PyErr_SetString (PyExc_TypeError,
-            "object must be a Vector or sequence");
+            "object must be a vector or sequence");
         return NULL;
     }
 }
@@ -127,7 +146,6 @@ PyMODINIT_FUNC initbase (void)
         NULL, NULL, NULL, NULL
     };
 #endif
-    PyVector_Type.tp_new = PyType_GenericNew;
     if (PyType_Ready (&PyVector_Type) < 0)
         goto fail;
     Py_INCREF (&PyVector_Type);

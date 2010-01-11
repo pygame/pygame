@@ -32,8 +32,8 @@ static int _vector2_set_x (PyObject *self, PyObject *value, void *closure);
 static PyObject* _vector2_get_y (PyObject *self, void *closure);
 static int _vector2_set_y (PyObject *self, PyObject *value, void *closure);
 
-static void _do_rotate (double *dst_coords, double *src_coords, double angle,
-    double epsilon);
+static void _do_rotate (double *dst_coords, const double *src_coords,
+    double angle, double epsilon);
 
 static PyObject* _vector2_rotate (PyObject *self, PyObject *args);
 static PyObject* _vector2_rotate_ip (PyObject *self, PyObject *args);
@@ -51,7 +51,7 @@ static PyMethodDef _vector2_methods[] =
       DOC_BASE_VECTOR2_ROTATE_IP },
     { "cross", _vector2_cross, METH_VARARGS, DOC_BASE_VECTOR2_CROSS },
     { "angle_to", _vector2_angleto, METH_VARARGS, DOC_BASE_VECTOR2_ANGLE_TO },
-    { "as_polar", _vector2_aspolar, METH_VARARGS, DOC_BASE_VECTOR2_AS_POLAR },
+    { "as_polar", _vector2_aspolar, METH_NOARGS, DOC_BASE_VECTOR2_AS_POLAR },
     { NULL, NULL, 0, NULL },
 };
 
@@ -132,7 +132,7 @@ _vector2_new (PyTypeObject *type, PyObject *args, PyObject *kwds)
         return NULL;
     }
     vector->vector.coords[0] = vector->vector.coords[1] = 0.f;
-    vector->vector.epsilon = DBL_EPSILON;
+    vector->vector.epsilon = VEC_EPSILON;
     return (PyObject *) vector;
 }
 
@@ -140,10 +140,25 @@ static int
 _vector2_init (PyObject *self, PyObject *args, PyObject *kwds)
 {
     PyVector2 *vector = (PyVector2 *) self;
-    double x, y;
+    double x = 0.f, y = 0.f;
 
-    if (!PyArg_ParseTuple (args, "dd", &x, &y))
-        return -1;
+    if (!PyArg_ParseTuple (args, "|dd", &x, &y))
+    {
+        PyObject *seq;
+        Py_ssize_t dim;
+        double *coords;
+
+        PyErr_Clear ();
+        if (!PyArg_ParseTuple (args, "O", &seq))
+            return -1;
+        coords = VectorCoordsFromObj (seq, &dim);
+        if (!coords)
+            return -1;
+        x = coords[0];
+        y = coords[1];
+        PyMem_Free (coords);
+    }
+
     vector->vector.coords[0] = x;
     vector->vector.coords[1] = y;
     return 0;
@@ -198,7 +213,7 @@ _vector2_set_y (PyObject *self, PyObject *value, void *closure)
 /* Vector2 methods */
 
 static void
-_do_rotate (double *dst_coords, double *src_coords, double angle,
+_do_rotate (double *dst_coords, const double *src_coords, double angle,
     double epsilon)
 {
     /* make sure angle is in range [0, 360) */
@@ -310,10 +325,10 @@ _vector2_angleto (PyObject *self, PyObject *args)
     double angle;
     PyObject *other;
     PyVector *v = (PyVector*) self;
-    double retval, *othercoords;
+    double *othercoords;
     Py_ssize_t otherdim;
 
-    if (!PyArg_ParseTuple (args, "O:cross", &other))
+    if (!PyArg_ParseTuple (args, "O:angleto", &other))
         return NULL;
 
     if (!IsVectorCompatible (other))

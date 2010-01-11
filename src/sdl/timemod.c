@@ -360,6 +360,7 @@ _sdl_addtimer (PyObject *self, PyObject *args)
     if (!id)
     {
         Py_DECREF (retval);
+        _free_timerdata (timerdata);
         PyErr_SetString (PyExc_PyGameError, SDL_GetError ());
         return NULL;
     }
@@ -367,7 +368,8 @@ _sdl_addtimer (PyObject *self, PyObject *args)
 
     if (PyList_Append (state->timerlist, retval) == -1)
     {
-        Py_DECREF (retval); /* Takes care of freeing. */
+        Py_DECREF (retval);
+        _free_timerdata (timerdata);
         SDL_RemoveTimer (id);
         return NULL;
     }

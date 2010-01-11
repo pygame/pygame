@@ -46,6 +46,8 @@ typedef getcharbufferproc charbufferproc;
 
 /* Weakrefs flags changed in 3.x */
 #define Py_TPFLAGS_HAVE_WEAKREFS 0
+/* No more type checks */
+#define Py_TPFLAGS_CHECKTYPES 0
 
 /* Module creation and type heads differ a lot. */
 #define MODINIT_RETURN(x) return(x)

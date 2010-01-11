@@ -12,7 +12,10 @@
     <call>vector_from_polar (p1, p2) -> Vector2</call>
     <desc></desc>
   </func>
-
+  <func name="vector_from_spherical">
+    <call>vector_from_spherical (p1, p2, p3) -> Vector2</call>
+    <desc></desc>
+  </func>
 
   <class name="Vector">
     <constructor>Vector () -> Vector</constructor>
@@ -119,7 +122,7 @@
       <desc></desc>
     </method>
     <method name="cross">
-      <call>cross (v) -> Vector</call>
+      <call>cross (v) -> Vector2</call>
       <desc></desc>
     </method>
   </class>
@@ -148,6 +151,50 @@
     <attr name="z">
       <desc>Gets or sets third element of the :class:`Vector3`.</desc>
     </attr>
+    <method name="rotate_x">
+      <call>rotate_x () -> Vector3</call>
+      <desc></desc>
+    </method>
+    <method name="rotate_x_ip">
+      <call>rotate_x_ip () -> None</call>
+      <desc></desc>
+    </method>
+    <method name="rotate_y">
+      <call>rotate_y () -> Vector3</call>
+      <desc></desc>
+    </method>
+    <method name="rotate_y_ip">
+      <call>rotate_y_ip () -> None</call>
+      <desc></desc>
+    </method>
+    <method name="rotate_z">
+      <call>rotate_z () -> Vector3</call>
+      <desc></desc>
+    </method>
+    <method name="rotate_z_ip">
+      <call>rotate_z_ip () -> None</call>
+      <desc></desc>
+    </method>
+    <method name="rotate">
+      <call>rotate () -> Vector3</call>
+      <desc></desc>
+    </method>
+    <method name="rotate_ip">
+      <call>rotate_ip () -> Vector3</call>
+      <desc></desc>
+    </method>
+    <method name="angle_to">
+      <call>angle_to (v) -> float</call>
+      <desc></desc>
+    </method>
+    <method name="cross">
+      <call>cross (v) -> Vector3</call>
+      <desc></desc>
+    </method>
+    <method name="as_spherical">
+      <call>as_spherical () -> float, float, float</call>
+      <desc></desc>
+    </method>
   </class>
 
 </module>

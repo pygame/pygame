@@ -23,6 +23,8 @@
 #include "pgmath.h"
 #include "mathbase_doc.h"
 
+static PyObject* _vector_new (PyTypeObject *type, PyObject *args,
+    PyObject *kwds);
 static int _vector_init (PyObject *self, PyObject *args, PyObject *kwds);
 static void _vector_dealloc (PyVector *self);
 static PyObject* _vector_repr (PyObject *self);
@@ -40,6 +42,7 @@ static PyObject* _vector_normalize (PyVector *self);
 static PyObject* _vector_normalize_ip (PyVector *self);
 static PyObject* _vector_slerp (PyVector *self, PyObject *args);
 static PyObject* _vector_lerp (PyVector *self, PyObject *args);
+static PyObject* _vector_dot (PyVector *self, PyObject *args);
 static PyObject* _vector_scaletolength (PyVector *self, PyObject *args);
 static PyObject* _vector_reflect (PyVector *self, PyObject *args);
 static PyObject* _vector_reflect_ip (PyVector *self, PyObject *args);
@@ -80,6 +83,79 @@ static PyObject* _vector_subscript (PyVector *self, PyObject *op);
 static int _vector_ass_subscript (PyVector *self, PyObject *op,
     PyObject *value);
 
+/* Iterator support. */
+typedef struct
+{
+    PyObject_HEAD
+    long it_index;
+    PyVector *vec;
+} _vectoriter;
+/* vector iterator functions */
+static void _vectoriter_dealloc (_vectoriter *it);
+static PyObject *_vectoriter_next (_vectoriter *it);
+static PyObject *_vectoriter_len (_vectoriter *it);
+static PyObject *_vector_iter (PyObject *vec);
+
+static PyMethodDef _vectoriter_methods[] =
+{
+    {"__length_hint__", (PyCFunction)_vectoriter_len, METH_NOARGS, NULL},
+    { NULL, NULL, 0, NULL} /* sentinel */
+};
+
+static PyTypeObject _PyVectorIter_Type =
+{
+    TYPE_HEAD (NULL,0)
+    "VectorIterator",          /* tp_name */
+    sizeof(_vectoriter),       /* tp_basicsize */
+    0,                         /* tp_itemsize */
+    (destructor)_vectoriter_dealloc, /* tp_dealloc */
+    0,                         /* tp_print */
+    0,                         /* tp_getattr */
+    0,                         /* tp_setattr */
+    0,                         /* tp_compare */
+    0,                         /* tp_repr */
+    0,                         /* tp_as_number */
+    0,                         /* tp_as_sequence */
+    0,                         /* tp_as_mapping */
+    0,                         /* tp_hash */
+    0,                         /* tp_call */
+    0,                         /* tp_str */
+    0,                         /* tp_getattro */
+    0,                         /* tp_setattro */
+    0,                         /* tp_as_buffer */
+    Py_TPFLAGS_DEFAULT,        /* tp_flags */
+    0,                         /* tp_doc */
+    0,                         /* tp_traverse */
+    0,                         /* tp_clear */
+    0,                         /* tp_richcompare */
+    0,                         /* tp_weaklistoffset */
+    PyObject_SelfIter,         /* tp_iter */
+    (iternextfunc)_vectoriter_next, /* tp_iternext */
+    _vectoriter_methods,        /* tp_methods */
+    0,                         /* tp_members */
+    0,                         /* tp_getset */
+    0,                          /* tp_base */
+    0,                          /* tp_dict */
+    0,                          /* tp_descr_get */
+    0,                          /* tp_descr_set */
+    0,                          /* tp_dictoffset */
+    0,                         /* tp_init */
+    0,                          /* tp_alloc */
+    0,                          /* tp_new */
+    0,                          /* tp_free */
+    0,                          /* tp_is_gc */
+    0,                          /* tp_bases */
+    0,                          /* tp_mro */
+    0,                          /* tp_cache */
+    0,                          /* tp_subclasses */
+    0,                          /* tp_weaklist */
+    0,                          /* tp_del */
+#if PY_VERSION_HEX >= 0x02060000
+    0                           /* tp_version_tag */
+#endif
+
+};
+
 /**
  * Methods for the PyVector.
  */
@@ -98,6 +174,7 @@ static PyMethodDef _vector_methods[] =
       DOC_BASE_VECTOR_REFLECT },
     { "reflect_ip", (PyCFunction) _vector_reflect_ip, METH_VARARGS,
       DOC_BASE_VECTOR_REFLECT_IP },
+    { "dot", (PyCFunction) _vector_dot, METH_VARARGS, DOC_BASE_VECTOR_DOT },
     { "distance", (PyCFunction) _vector_distance, METH_VARARGS,
       DOC_BASE_VECTOR_DISTANCE },
     { "distance_squared", (PyCFunction) _vector_distance_squared, METH_VARARGS,
@@ -147,7 +224,7 @@ static PyNumberMethods _vector_as_number =
     (binaryfunc)0,                    /* nb_xor;       __xor__ */
     (binaryfunc)0,                    /* nb_or;        __or__ */
 #ifndef IS_PYTHON_3
-    (coercion)0,                      /* nb_coerce;    __coerce__ */
+    (coercion) 0,                     /* nb_coerce;    __coerce__ */
 #endif
     (unaryfunc)0,                     /* nb_int;       __int__ */
     (unaryfunc)0,                     /* nb_long;      __long__ */
@@ -181,8 +258,8 @@ static PyNumberMethods _vector_as_number =
 static PySequenceMethods _vector_as_sequence =
 {
     (lenfunc) _vector_len,                    /* sq_length;    __len__ */
-    (binaryfunc)0,                            /* sq_concat;    __add__ */
-    (ssizeargfunc)0,                          /* sq_repeat;    __mul__ */
+    (binaryfunc) 0,                           /* sq_concat;    __add__ */
+    (ssizeargfunc) 0,                         /* sq_repeat;    __mul__ */
     (ssizeargfunc) _vector_item,              /* sq_item;      __getitem__ */
     (ssizessizeargfunc) _vector_slice,        /* sq_slice;     __getslice__ */
     (ssizeobjargproc) _vector_ass_item,       /* sq_ass_item;  __setitem__ */
@@ -220,13 +297,13 @@ PyTypeObject PyVector_Type =
     0,                          /* tp_getattro */
     0,                          /* tp_setattro */
     0,                          /* tp_as_buffer */
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_CHECKTYPES,
     DOC_BASE_VECTOR,
     0,                          /* tp_traverse */
     0,                          /* tp_clear */
     _vector_richcompare,        /* tp_richcompare */
     0,                          /* tp_weaklistoffset */
-    0,                          /* tp_iter */
+    _vector_iter,               /* tp_iter */
     0,                          /* tp_iternext */
     _vector_methods,            /* tp_methods */
     0,                          /* tp_members */
@@ -238,7 +315,7 @@ PyTypeObject PyVector_Type =
     0,                          /* tp_dictoffset */
     (initproc)_vector_init,     /* tp_init */
     0,                          /* tp_alloc */
-    0,                          /* tp_new */
+    (newfunc)_vector_new,       /* tp_new */
     0,                          /* tp_free */
     0,                          /* tp_is_gc */
     0,                          /* tp_bases */
@@ -252,17 +329,36 @@ PyTypeObject PyVector_Type =
 #endif
 };
 
+static PyObject*
+_vector_new (PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    PyVector *vector = (PyVector *)type->tp_alloc (type, 0);
+    if (!vector)
+        return NULL;
+    vector->dim = 0;
+    vector->coords = NULL;
+    vector->epsilon = VEC_EPSILON;
+    return (PyObject*) vector;
+}
+
 static int
 _vector_init (PyObject *self, PyObject *args, PyObject *kwds)
 {
     PyObject *elems = NULL;
     int isseq = 0;
+    int isvec = 0;
     int dim = 0;
     PyVector *vector = (PyVector *) self;
     
     if (!PyArg_ParseTuple (args, "O", &elems))
         return -1;
-    if (PySequence_Check (elems))
+
+    if (PyVector_Check (elems))
+    {
+        vector->dim = ((PyVector*) elems)->dim;
+        isvec = 1;
+    }
+    else if (PySequence_Check (elems))
     {
         /* The passed argument is a list of vector elements */
         isseq = 1;
@@ -282,7 +378,7 @@ _vector_init (PyObject *self, PyObject *args, PyObject *kwds)
     else
     {
         PyErr_SetString (PyExc_TypeError,
-            "argument must be a sequence of vector elements or integer");
+            "argument must be a vector, sequence or integer");
         return -1;
     }
 
@@ -293,8 +389,16 @@ _vector_init (PyObject *self, PyObject *args, PyObject *kwds)
     if (!isseq)
     {
         Py_ssize_t i;
-        for (i = 0; i < vector->dim; i++)
-            vector->coords[i] = 0.f;
+        if (!isvec)
+        {
+            for (i = 0; i < vector->dim; i++)
+                vector->coords[i] = 0.f;
+        }        
+        else
+        {
+            memcpy (vector->coords, ((PyVector*)elems)->coords,
+                sizeof (double) * vector->dim);
+        }
     }
     else
     {
@@ -310,7 +414,6 @@ _vector_init (PyObject *self, PyObject *args, PyObject *kwds)
             vector->coords[i] = tmp;
         }
     }
-    vector->epsilon = DBL_EPSILON;
     return 0;
 }
 
@@ -328,9 +431,53 @@ _vector_dealloc (PyVector *self)
 static PyObject*
 _vector_repr (PyObject *self)
 {
+    char b[32];
+    Py_ssize_t i;
     PyVector *v = (PyVector*) self;
-    /* TODO */
-    return Text_FromFormat ("Vector%d()", v->dim);
+#ifdef IS_PYTHON_3
+    PyObject *tmp1, *tmp2;
+#endif
+#if PY_VERSION_HEX < 0x02050000
+    PyObject *string = Text_FromFormat ("Vector%d(", v->dim);
+#else
+    PyObject *string = Text_FromFormat ("Vector%zd(", v->dim);
+#endif
+
+    for (i = 0; i < (v->dim - 1); i++)
+    {
+        if (!PyOS_ascii_formatd (b, 32, "%.8f", v->coords[i]))
+        {
+            Py_DECREF (string);
+            return NULL;
+        }
+#ifdef IS_PYTHON_3
+        tmp1 = string;
+        tmp2 = Text_FromFormat ("%s, ", b);
+        string = PyUnicode_Concat (tmp1, tmp2);
+        Py_XDECREF (tmp1);
+        Py_XDECREF (tmp2);
+        if (!string)
+            return NULL;
+#else
+        PyString_ConcatAndDel (&string, PyString_FromFormat ("%s, ", b));
+#endif        
+    }
+
+    if (!PyOS_ascii_formatd (b, 32, "%.8f", v->coords[v->dim - 1]))
+    {
+        Py_DECREF (string);
+        return NULL;
+    }
+#ifdef IS_PYTHON_3
+    tmp1 = string;
+    tmp2 = Text_FromFormat ("%s)", b);
+    string = PyUnicode_Concat (tmp1, tmp2);
+    Py_XDECREF (tmp1);
+    Py_XDECREF (tmp2);
+#else
+    PyString_ConcatAndDel (&string, PyString_FromFormat ("%s)", b));
+#endif        
+    return string;
 }
 
 /* Vector getters/setters */
@@ -859,9 +1006,12 @@ _vector_distance_squared (PyVector *self, PyObject *args)
 static PyObject*
 _vector_generic_math (PyObject *o1, PyObject *o2, int op)
 {
-    PyVector *v, *retval;
+    PyVector *v;
+    PyObject *retval = NULL;
     PyObject *other;
-    Py_ssize_t dim, otherdim = 0, i;
+    Py_ssize_t dim, otherdim, i;
+    double *coords = NULL;
+    double *vcoords = NULL;
     
     if (!o1 || !o2)
     {
@@ -873,6 +1023,7 @@ _vector_generic_math (PyObject *o1, PyObject *o2, int op)
     {
         v = (PyVector *) o1;
         other = o2;
+        vcoords = v->coords;
     }
     else if (PyVector_Check (o2))
     {
@@ -886,16 +1037,18 @@ _vector_generic_math (PyObject *o1, PyObject *o2, int op)
         return NULL;
     }
     dim = v->dim;
-    
-    if (PyVector_Check (other))
+    vcoords = v->coords;
+
+    coords = VectorCoordsFromObj (other, &otherdim);
+    if (coords)
     {
         op |= OP_ARG_VECTOR;
-        otherdim = ((PyVector*) other)->dim;
         /* right-hand vector must have less dimensions than left-hand. */
         if (otherdim > dim)
         {
             PyErr_SetString (PyExc_TypeError,
                 "right op must not have more dimensions than left op");
+            PyMem_Free (coords);
             return NULL;
         }
     }
@@ -903,124 +1056,149 @@ _vector_generic_math (PyObject *o1, PyObject *o2, int op)
         op |= OP_ARG_NUMBER;
     else
         op |= OP_ARG_UNKNOWN;
+    PyErr_Clear (); /* Set by VectorCoordsFromObj */
 
     switch (op)
     {
     case OP_ADD | OP_ARG_VECTOR:
     case OP_ADD | OP_ARG_VECTOR | OP_ARG_REVERSE:
     {
-        retval = (PyVector *) PyVector_NewSpecialized (dim);
+        retval = PyVector_NewSpecialized (dim);
         if (!retval)
-            return NULL;
-        memcpy (retval->coords, v->coords, sizeof (double) * dim);
+            break;
+        memcpy (((PyVector*)retval)->coords, vcoords, sizeof (double) * dim);
         for (i = 0; i < otherdim; i++)
-            retval->coords[i] += ((PyVector*)other)->coords[i];
-        return (PyObject*) retval;
+            ((PyVector*)retval)->coords[i] += coords[i];
+        break;
     }
     case OP_IADD | OP_ARG_VECTOR:
     {
-        for (i = 0; i < otherdim; i++)
-            v->coords[i] += ((PyVector*)other)->coords[i];
-        return (PyObject*) v;
+        for (i = 0; i < dim; i++)
+            vcoords[i] += coords[i];
+        retval = (PyObject*)v;
+        Py_INCREF (retval);
+        break;
     }
     case OP_SUB | OP_ARG_VECTOR:
+    {
+        retval = PyVector_NewSpecialized (dim);
+        if (!retval)
+            break;
+        for (i = 0; i < otherdim; i++)
+            ((PyVector*)retval)->coords[i] = vcoords[i] - coords[i];
+        break;
+    }
     case OP_SUB | OP_ARG_VECTOR | OP_ARG_REVERSE:
     {
-        retval = (PyVector *) PyVector_NewSpecialized (dim);
+        retval = PyVector_NewSpecialized (dim);
         if (!retval)
-            return NULL;
-        memcpy (retval->coords, v->coords, sizeof (double) * dim);
+            break;
         for (i = 0; i < otherdim; i++)
-            retval->coords[i] -= ((PyVector*)other)->coords[i];
-        return (PyObject*) retval;
+            ((PyVector*)retval)->coords[i] = coords[i] - vcoords[i];
+        break;
     }
     case OP_ISUB | OP_ARG_VECTOR:
     {
-        for (i = 0; i < otherdim; i++)
-            v->coords[i] -= ((PyVector*)other)->coords[i];
-        return (PyObject*) v;
+        for (i = 0; i < dim; i++)
+            vcoords[i] -= coords[i];
+        retval = (PyObject*)v;
+        Py_INCREF (retval);
+        break;
     }
     case OP_MUL | OP_ARG_VECTOR:
     case OP_MUL | OP_ARG_VECTOR | OP_ARG_REVERSE:
     {
         double tmp = 0.f;
-        for (i = 0; i < otherdim; i++)
-            tmp += v->coords[i] * ((PyVector*)other)->coords[i];
-        return PyFloat_FromDouble (tmp);
+        for (i = 0; i < dim; i++)
+            tmp += vcoords[i] * coords[i];
+        retval = PyFloat_FromDouble (tmp);
+        break;
     }
     case OP_MUL | OP_ARG_NUMBER:
     case OP_MUL | OP_ARG_NUMBER | OP_ARG_REVERSE:
     {
         double tmp;
         if (!DoubleFromObj (other, &tmp))
-            return NULL;
+            break;
         
-        retval = (PyVector *) PyVector_NewSpecialized (dim);
+        retval = PyVector_NewSpecialized (dim);
         if (!retval)
-            return NULL;
+            break;
         for (i = 0; i < dim; i++)
-            retval->coords[i] = v->coords[i] * tmp;
-        return (PyObject *) retval;
+            ((PyVector*)retval)->coords[i] = vcoords[i] * tmp;
+        break;
     }
     case OP_IMUL | OP_ARG_NUMBER:
     {
         double tmp;
         if (!DoubleFromObj (other, &tmp))
-            return NULL;
+            break;
         for (i = 0; i < dim; i++)
-            v->coords[i] *= tmp;
-        return (PyObject *) v;
+            vcoords[i] *= tmp;
+        retval = (PyObject*)v;
+        Py_INCREF (retval);
+        break;
     }
     case OP_DIV | OP_ARG_NUMBER:
     {
         double tmp;
         if (!DoubleFromObj (other, &tmp))
-            return NULL;
+            break;
         tmp = 1.f / tmp;
-        retval = (PyVector *) PyVector_NewSpecialized (dim);
+        retval = PyVector_NewSpecialized (dim);
         if (!retval)
-            return NULL;
+            break;
         for (i = 0; i < dim; i++)
-            retval->coords[i] = v->coords[i] * tmp;
-        return (PyObject *) retval;
+            ((PyVector*)retval)->coords[i] = vcoords[i] * tmp;
+        break;
     }
     case OP_IDIV | OP_ARG_NUMBER:
     {
         double tmp;
         if (!DoubleFromObj (other, &tmp))
-            return NULL;
+            break;
         tmp = 1. / tmp;
         for (i = 0; i < dim; i++)
-            v->coords[i] *= tmp;
-        return (PyObject *) v;
+            vcoords[i] *= tmp;
+        retval = (PyObject *) v;
+        Py_INCREF (retval);
+        break;
     }
     case OP_FLOOR_DIV | OP_ARG_NUMBER:
     {
         double tmp;
         if (!DoubleFromObj (other, &tmp))
-            return NULL;
+            break;
         tmp = 1. / tmp;
-        retval = (PyVector *) PyVector_NewSpecialized(dim);
+        retval = PyVector_NewSpecialized(dim);
         if (!retval)
-            return NULL;
+            break;
         for (i = 0; i < dim; i++)
-            retval->coords[i] = floor (v->coords[i] * tmp);
-        return (PyObject *) retval;
+            ((PyVector*)retval)->coords[i] = floor (vcoords[i] * tmp);
+        break;
     }
     case OP_IFLOOR_DIV | OP_ARG_NUMBER:
     {
         double tmp;
         if (!DoubleFromObj (other, &tmp))
-            return NULL;
+            break;
         tmp = 1. / tmp;
         for (i = 0; i < dim; i++)
-            v->coords[i] = floor (v->coords[i] * tmp);
-        return (PyObject *) v;
+            v->coords[i] = floor (vcoords[i] * tmp);
+        retval = (PyObject *) v;
+        Py_INCREF (retval);
+        break;
     }
     default:
-        Py_INCREF (Py_NotImplemented);
-        return Py_NotImplemented;
+        PyErr_Clear ();
+        PyErr_SetString (PyExc_NotImplementedError,
+            "operation for those types not supported");
+        break;
     }
+    
+    if (coords)
+        PyMem_Free (coords);
+    return (PyObject*) retval;
 }
 
 /**
@@ -1213,10 +1391,10 @@ _vector_slice (PyVector *self, Py_ssize_t ilow, Py_ssize_t ihigh)
         ihigh = self->dim;
     
     len = ihigh - ilow;
-    if (len == 0)
+    if (len <= 1)
     {
         /* Return single number */
-        return PyFloat_FromDouble (self->coords[ihigh]);
+        return PyFloat_FromDouble (self->coords[ilow]);
     }
     
     retval = (PyVector *) PyVector_NewSpecialized (len);
@@ -1227,8 +1405,11 @@ _vector_slice (PyVector *self, Py_ssize_t ilow, Py_ssize_t ihigh)
     return (PyObject *) retval;
 }
 
+/**
+ * vector[x,y] = p
+ */
 static int
-_vector_ass_slice(PyVector *self, Py_ssize_t ilow, Py_ssize_t ihigh,
+_vector_ass_slice (PyVector *self, Py_ssize_t ilow, Py_ssize_t ihigh,
     PyObject *v)
 {
     Py_ssize_t i, len;
@@ -1288,7 +1469,30 @@ _vector_ass_slice(PyVector *self, Py_ssize_t ilow, Py_ssize_t ihigh,
 static PyObject*
 _vector_subscript (PyVector *self, PyObject *op)
 {
-    if (PyIndex_Check (op) || PyInt_Check (op) || PyLong_Check (op))
+    if (PySlice_Check (op))
+    {
+        /* A slice */
+        PyVector *retval;
+        Py_ssize_t slicelen, step, start, stop, cur, i;
+        int ret;
+
+        ret = PySlice_GetIndicesEx ((PySliceObject *) op,
+            self->dim, &start, &stop, &step, &slicelen);
+        if (ret < 0 || slicelen < 0)
+            return NULL;
+        if (slicelen == 0)
+            Py_RETURN_NONE;
+
+        if (step == 1)
+            return _vector_slice (self, start, stop);
+        retval = (PyVector *) PyVector_NewSpecialized (slicelen);
+        if (!retval)
+            return NULL;
+        for (cur = start, i = 0; i < slicelen; cur += step, i++)
+            retval->coords[i] = self->coords[cur];
+        return (PyObject *) retval;
+    }
+    else if (PyIndex_Check (op) || PyInt_Check (op) || PyLong_Check (op))
     {
         Py_ssize_t i;
 #if PY_VERSION_HEX >= 0x02050000
@@ -1304,6 +1508,8 @@ _vector_subscript (PyVector *self, PyObject *op)
         if (!IntFromObj (op, &i))
             return NULL;
 #endif
+        if (i < 0)
+            i += self->dim;
         return _vector_item (self, i);
     }
     /* TODO */
@@ -1313,6 +1519,13 @@ _vector_subscript (PyVector *self, PyObject *op)
 static int
 _vector_ass_subscript (PyVector *self, PyObject *op, PyObject *value)
 {
+    if (!value)
+    {
+        PyErr_SetString (PyExc_ValueError, 
+            "deletion of vector components is not supported");
+        return -1;
+    }
+
     if (PyIndex_Check (op) || PyInt_Check (op) || PyLong_Check (op))
     {
         Py_ssize_t i;
@@ -1331,8 +1544,55 @@ _vector_ass_subscript (PyVector *self, PyObject *op, PyObject *value)
 #endif
         return _vector_ass_item (self, i, value);
     }
-    /* TODO */
-    return 0;
+    else if (PySlice_Check (op))
+    {
+        /* A slice */
+        double *coords, sval = 0.f;
+        Py_ssize_t dim;
+        Py_ssize_t slicelen, step, start, stop, cur, i;
+        int ret, issingle = 0;
+
+        ret = PySlice_GetIndicesEx ((PySliceObject *) op, self->dim,
+            &start, &stop, &step, &slicelen);
+        if (ret < 0 || slicelen <= 0)
+            return -1;
+
+        if (step == 1)
+            return _vector_ass_slice (self, start, stop, value);
+        
+        if (PySequence_Check (value))
+        {
+            Py_ssize_t size = PySequence_Size (value);
+            if (size == 1)
+            {
+                if (!DoubleFromSeqIndex (value, (Py_ssize_t)0, &sval))
+                    return -1;
+                issingle = 1;
+            }
+        }
+        else if (DoubleFromObj (value, &sval))
+            issingle = 1;
+        else
+            return -1;
+
+        if (issingle)
+        {
+            /* Single value assignment to all. */
+            for (cur = start, i = 0; i < slicelen; cur += step, i++)
+                self->coords[cur] = sval;
+            return 0;
+        }
+
+        coords = VectorCoordsFromObj (value, &dim);
+        if (!coords)
+            return -1;
+
+        for (cur = start, i = 0; i < slicelen; cur += step, i++)
+            self->coords[i] = coords[cur];
+        PyMem_Free (coords);
+        return 0;
+    }
+    return -1;
 }
 
 static PyObject*
@@ -1342,47 +1602,27 @@ _vector_richcompare (PyObject *o1, PyObject *o2, int op)
     double diff;
     PyVector *v = NULL, *v2 = NULL;
     PyObject *other = NULL;
-    int swap = 0, retval = 0;
+    int swap = 0, retval = 1;
     
     if (PyVector_Check (o1))
     {
         v = (PyVector *) o1;
-        if (PyVector_Check (o2))
-        {
-            v2 = (PyVector *) o2;
-            otherdim = v2->dim;
-        }
-        else if (PySequence_Check (o2))
-        {
-            other = o2;
-            otherdim = PySequence_Size (other);
-        }
-        else
-        {
-            Py_INCREF (Py_NotImplemented);
-            return Py_NotImplemented;
-        }
+        other = o2;
     }
     else if (PyVector_Check (o2))
     {
         swap = 1;
         v = (PyVector *) o2;
-        if (PyVector_Check (o1))
-        {
-            v2 = (PyVector *) o1;
-            otherdim = v2->dim;
-        }
-        else if (PySequence_Check (o1))
-        {
-            other = o1;
-            otherdim = PySequence_Size (other);
-        }
-        else
-        {
-            Py_INCREF (Py_NotImplemented);
-            return Py_NotImplemented;
-        }
+        other = o1;
     }
+
+    if (PyVector_Check (other))
+    {
+        v2 = (PyVector *) other;
+        otherdim = v2->dim;
+    }
+    else if (PySequence_Check (other))
+        otherdim = PySequence_Size (other);
     else
     {
         Py_INCREF (Py_NotImplemented);
@@ -1390,28 +1630,36 @@ _vector_richcompare (PyObject *o1, PyObject *o2, int op)
     }
 
     if (v->dim != otherdim)
-        Py_RETURN_FALSE;
-
-    for (i = 0; i < v->dim; i++)
+        retval = 0;
+    else
     {
-        if (v2)
-            diff = v->coords[i] - v2->coords[i];
-        else
+        for (i = 0; i < v->dim; i++)
         {
-            double tmp;
-            if (!DoubleFromSeqIndex (other, i, &tmp))
-                return NULL;
-            diff = v->coords[i] - tmp;
-        }
-        
-        if (isnan (diff) || fabs (diff) >= v->epsilon)
-        {
-            retval = (swap == 1) ? 1 : 0;
-            break;
+            if (v2)
+                diff = v->coords[i] - v2->coords[i];
+            else
+            {
+                double tmp;
+                if (!DoubleFromSeqIndex (other, i, &tmp))
+                    return NULL;
+                diff = v->coords[i] - tmp;
+            }
+            
+            if (isnan (diff) || fabs (diff) >= v->epsilon)
+            {
+                retval = 0;
+                break;
+            }
         }
     }
-    retval = (swap == 1) ? 0 : 1;
-    
+    if (swap == 1)
+    {
+        if (retval == 0)
+            retval = 1;
+        else
+            retval = 0;
+    }
+
     switch (op)
     {
     case Py_EQ:
@@ -1423,6 +1671,65 @@ _vector_richcompare (PyObject *o1, PyObject *o2, int op)
         return Py_NotImplemented;
     }
 }
+
+/* Iterator support */
+static PyObject*
+_vector_iter (PyObject *vec)
+{
+    _vectoriter *it;
+    if (!PyVector_Check (vec))
+    {
+        PyErr_BadInternalCall ();
+        return NULL;
+    }
+
+    it = PyObject_New (_vectoriter, &_PyVectorIter_Type);
+    if (!it)
+        return NULL;
+    it->it_index = 0;
+    Py_INCREF (vec);
+    it->vec = (PyVector *)vec;
+    return (PyObject *)it;
+}
+
+static void
+_vectoriter_dealloc (_vectoriter *it)
+{
+    if (!it)
+        return;
+    Py_XDECREF (it->vec);
+    PyObject_Del (it);
+}
+
+static PyObject*
+_vectoriter_next (_vectoriter *it)
+{
+    if (!it || !it->vec)
+        return NULL;
+    if (!PyVector_Check (it->vec))
+        return NULL;
+
+    if (it->it_index < it->vec->dim)
+    {
+        double item = it->vec->coords[it->it_index];
+        ++(it->it_index);
+        return PyFloat_FromDouble (item);
+    }
+    
+    Py_DECREF (it->vec);
+    it->vec = NULL;
+    return NULL;
+}
+
+static PyObject*
+_vectoriter_len (_vectoriter *it)
+{
+    Py_ssize_t len = 0;
+    if (it && it->vec)
+        len = it->vec->dim - it->it_index;
+    return PyInt_FromSsize_t (len);
+}
+
 
 /* C API */
 PyObject*
@@ -1441,7 +1748,7 @@ PyVector_New (Py_ssize_t dim)
     if (!v)
         return NULL;
     v->dim = dim;
-    v->epsilon = DBL_EPSILON;
+    v->epsilon = VEC_EPSILON;
     v->coords = PyMem_New (double, dim);
     if (!v->coords)
     {

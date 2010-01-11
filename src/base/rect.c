@@ -240,11 +240,11 @@ _rect_init (PyObject *self, PyObject *args, PyObject *kwds)
     pgint16 x, y;
     pgint32 w, h;
 
-    if (!PyArg_ParseTuple (args, "iiii", &x, &y, &w, &h))
+    if (!PyArg_ParseTuple (args, "iill", &x, &y, &w, &h))
     {
         x = y = 0;
         PyErr_Clear ();
-        if (!PyArg_ParseTuple (args, "ii", &w, &h))
+        if (!PyArg_ParseTuple (args, "ll", &w, &h))
         {
             PyObject *pt, *rect;
             PyErr_Clear ();

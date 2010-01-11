@@ -26,6 +26,8 @@
 extern "C" {
 #endif
 
+#define VEC_EPSILON 1e-6
+
 #define PYGAME_MATH_FIRSTSLOT 0
 #define PYGAME_MATH_NUMSLOTS 1
 #ifndef PYGAME_MATH_INTERNAL
