@@ -30,8 +30,7 @@ def run ():
     video.init ()
     freetype.init ()
 
-    fontfile = os.path.join (pygame2.examples.RESOURCEDIR, "sans.ttf")
-    font = freetype.Font (fontfile)
+    font = freetype.Font (pygame2.examples.RESOURCES.get ("sans.ttf"))
 
     fpsmanager = sdlgfx.FPSmanager (2)
 

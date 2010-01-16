@@ -1,4 +1,3 @@
-import sys
 try:
     import pygame2.test.pgunittest as unittest
 except:
@@ -361,7 +360,7 @@ class SDLEventTest (unittest.TestCase):
         # the caller and removed from the queue. While the program is
         # waiting it will sleep in an idle state.
 
-        self.fail() 
+        self.fail()
 
 if __name__ == "__main__":
     unittest.main ()

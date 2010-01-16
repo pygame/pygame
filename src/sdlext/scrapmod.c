@@ -23,6 +23,7 @@
 #include "pgsdlext.h"
 #include "pgsdl.h"
 #include "scrap.h"
+#include "sdlextscrap_doc.h"
 
 #define ASSERT_SCRAP_INIT(x)                                            \
     if (!pyg_scrap_was_init ())                                         \
@@ -61,16 +62,19 @@ static PyObject* _scrap_getmode (PyObject* self);
 
 static PyMethodDef _scrap_methods[] =
 {
-    { "init", (PyCFunction)_scrap_init, METH_NOARGS, "" },
-    { "quit", (PyCFunction)_scrap_quit, METH_NOARGS, "" },
-    { "was_init", (PyCFunction)_scrap_wasinit, METH_NOARGS, "" },
-    { "contains", _scrap_contains, METH_VARARGS, "" },
-    { "get", _scrap_get, METH_VARARGS, "" },
-    { "put", _scrap_put, METH_VARARGS, "" },
-    { "get_types", (PyCFunction)_scrap_gettypes, METH_NOARGS, "" },
-    { "lost", (PyCFunction)_scrap_lost, METH_NOARGS, "" },
-    { "set_mode", _scrap_setmode, METH_VARARGS, "" },
-    { "get_mode", (PyCFunction)_scrap_getmode, METH_NOARGS, "" },
+    { "init", (PyCFunction)_scrap_init, METH_NOARGS, DOC_SCRAP_INIT },
+    { "quit", (PyCFunction)_scrap_quit, METH_NOARGS, DOC_SCRAP_QUIT },
+    { "was_init", (PyCFunction)_scrap_wasinit, METH_NOARGS,
+      DOC_SCRAP_WAS_INIT },
+    { "contains", _scrap_contains, METH_VARARGS, DOC_SCRAP_CONTAINS },
+    { "get", _scrap_get, METH_VARARGS, DOC_SCRAP_GET },
+    { "put", _scrap_put, METH_VARARGS, DOC_SCRAP_PUT },
+    { "get_types", (PyCFunction)_scrap_gettypes, METH_NOARGS,
+      DOC_SCRAP_GET_TYPES },
+    { "lost", (PyCFunction)_scrap_lost, METH_NOARGS, DOC_SCRAP_LOST },
+    { "set_mode", _scrap_setmode, METH_VARARGS, DOC_SCRAP_SET_MODE },
+    { "get_mode", (PyCFunction)_scrap_getmode, METH_NOARGS,
+      DOC_SCRAP_GET_MODE },
     { NULL, NULL, 0, NULL }
 };
 
@@ -321,7 +325,7 @@ _scrap_clear (PyObject *mod)
 struct PyModuleDef _scrapmodule = {
     PyModuleDef_HEAD_INIT,
     "scrap",
-    "",
+    DOC_SCRAP,
     sizeof (_ScrapState),
     _scrap_methods,
     NULL,
@@ -343,7 +347,7 @@ PyMODINIT_FUNC initscrap (void)
 #ifdef IS_PYTHON_3
     mod = PyModule_Create (&_scrapmodule);
 #else
-    mod = Py_InitModule3 ("scrap", _scrap_methods, "");
+    mod = Py_InitModule3 ("scrap", _scrap_methods, DOC_SCRAP);
 #endif
     if (!mod)
         goto fail;

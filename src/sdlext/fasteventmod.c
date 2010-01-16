@@ -28,6 +28,7 @@
 
 #include "pgsdl.h"
 #include "fastevents.h"
+#include "sdlextfastevent_doc.h"
 
 typedef struct {
     int fewasinit;
@@ -62,12 +63,12 @@ static PyObject* _sdl_feventpush (PyObject *self, PyObject *args);
 static PyObject* _sdl_feventget (PyObject *self);
 
 static PyMethodDef _fevent_methods[] = {
-    { "init", (PyCFunction)_sdl_feventinit, METH_NOARGS, "" },
-    { "quit", (PyCFunction)_sdl_feventquit, METH_NOARGS, "" },
-    { "poll", (PyCFunction)_sdl_feventpoll, METH_NOARGS, "" },
-    { "wait", (PyCFunction)_sdl_feventwait, METH_NOARGS, "" },
-    { "push", _sdl_feventpush, METH_VARARGS, "" },
-    { "get", (PyCFunction)_sdl_feventget, METH_NOARGS, "" },
+    { "init", (PyCFunction)_sdl_feventinit, METH_NOARGS, DOC_FASTEVENT_INIT },
+    { "quit", (PyCFunction)_sdl_feventquit, METH_NOARGS, DOC_FASTEVENT_QUIT },
+    { "poll", (PyCFunction)_sdl_feventpoll, METH_NOARGS, DOC_FASTEVENT_POLL },
+    { "wait", (PyCFunction)_sdl_feventwait, METH_NOARGS, DOC_FASTEVENT_WAIT },
+    { "push", _sdl_feventpush, METH_VARARGS, DOC_FASTEVENT_PUSH },
+    { "get", (PyCFunction)_sdl_feventget, METH_NOARGS, DOC_FASTEVENT_GET },
     { NULL, NULL, 0, NULL }
 };
 
@@ -127,7 +128,7 @@ _sdl_feventpoll (PyObject *self)
     else
     {
         /* Check for -1 */
-        return PyEvent_New (NULL);
+        Py_RETURN_NONE;
     }
 
 }
@@ -240,7 +241,7 @@ _fastevent_clear (PyObject *mod)
 struct PyModuleDef _module = {
     PyModuleDef_HEAD_INIT,
     "fastevent",
-    "",
+    DOC_FASTEVENT,
     sizeof (_FastEventState),
     _fevent_methods,
     NULL,
@@ -262,7 +263,7 @@ PyMODINIT_FUNC initfastevent (void)
 #ifdef IS_PYTHON_3
     mod = PyModule_Create (&_module);
 #else
-    mod = Py_InitModule3 ("fastevent", _fevent_methods, "");
+    mod = Py_InitModule3 ("fastevent", _fevent_methods, DOC_FASTEVENT);
 #endif
     if (!mod)
         goto fail;

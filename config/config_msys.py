@@ -110,7 +110,7 @@ class Dependency (config_unix.Dependency):
             for g in self._libdirs:
                 p = msys_obj.msys_to_windows (os.path.join (d, g))
                 f = msys_obj.msys_to_windows (os.path.join (p, name))
-                if filter (os.path.isfile, glob.glob (f + '*')):
+                if list (filter (os.path.isfile, glob.glob (f + '*'))):
                     return p
 
     def _configure_libconfig(self):

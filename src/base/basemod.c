@@ -81,6 +81,60 @@ IntFromObj (PyObject* obj, int* val)
 }
 
 int
+LongFromObj (PyObject* obj, long* val)
+{
+    PyObject* longobj;
+    long tmp;
+
+    if (!obj || !val)
+    {
+        PyErr_SetString (PyExc_TypeError, "argument is NULL");
+        return 0;
+    }
+    
+    if (PyNumber_Check (obj))
+    {
+        if (!(longobj = PyNumber_Long (obj)))
+            return 0;
+        tmp = PyLong_AsLong (longobj);
+        Py_DECREF (longobj);
+        if (tmp == -1 && PyErr_Occurred ())
+            return 0;
+        *val = tmp;
+        return 1;
+    }
+    PyErr_SetString (PyExc_TypeError, "value must be a number object");
+    return 0;
+}
+
+unsigned long
+UlongFromObj (PyObject* obj, long* val)
+{
+    PyObject* longobj;
+    unsigned long tmp;
+    
+    if (!obj || !val)
+    {
+        PyErr_SetString (PyExc_TypeError, "argument is NULL");
+        return 0;
+    }
+    
+    if (PyNumber_Check (obj))
+    {
+        if (!(longobj = PyNumber_Long (obj)))
+            return 0;
+        tmp = PyLong_AsUnsignedLong (longobj);
+        Py_DECREF (longobj);
+        if (PyErr_Occurred ())
+            return 0;
+        *val = tmp;
+        return 1;
+    }
+    PyErr_SetString (PyExc_TypeError, "value must be a number object");
+    return 0;
+}
+
+int
 UintFromObj (PyObject* obj, unsigned int* val)
 {
     PyObject* intobj;
@@ -453,7 +507,7 @@ PyMODINIT_FUNC initbase (void)
     state = BASE_MOD_STATE(mod);
 
     /* Setup the pygame exeption */
-    state->error = PyErr_NewException ("base.Error", NULL, NULL);
+    state->error = PyErr_NewException ("pygame2.Error", NULL, NULL);
     if (!state->error)
     {
         Py_DECREF (mod);
@@ -484,7 +538,10 @@ PyMODINIT_FUNC initbase (void)
     c_api[PYGAME_BASE_FIRSTSLOT+10] = FSizeFromObject;
     c_api[PYGAME_BASE_FIRSTSLOT+11] = ASCIIFromObject;
     c_api[PYGAME_BASE_FIRSTSLOT+12] = UTF8FromObject;
+    c_api[PYGAME_BASE_FIRSTSLOT+13] = UlongFromObj;
+    c_api[PYGAME_BASE_FIRSTSLOT+14] = LongFromObj;
 
+    streamwrapper_export_capi (c_api);
     color_export_capi (c_api);
     rect_export_capi (c_api);
     floatrect_export_capi (c_api);

@@ -24,7 +24,7 @@ STUB_TEMPLATE = relative_indentation.Template ( '''
 
         ${comments}
 
-        self.fail() ''' % date, 
+        self.fail()''' % date, 
 
         strip_common = 0, strip_excess = 0
 )
@@ -138,7 +138,7 @@ def get_stubs (root):
     module = do_import (root)
     parts = dir (module)
     stubs = {}
-    
+
     for what in parts:
         if what.startswith ("_"):
             continue # Skip private ones.

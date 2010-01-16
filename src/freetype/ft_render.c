@@ -113,7 +113,6 @@ PGFT_BuildRenderMode(FreeTypeInstance *ft,
     return 0;
 }
 
-
 /*********************************************************
  *
  * Rendering on SDL-specific surfaces
@@ -159,7 +158,7 @@ int PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
     /* build font text */
     font_text = PGFT_LoadFontText(ft, font, render, text);
-
+    
     if (!font_text)
         return -1;
 
@@ -171,7 +170,6 @@ int PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
         if (SDL_LockSurface(surface) == -1)
         {
             _PGFT_SetError(ft, SDL_GetError (), 0);
-            SDL_FreeSurface(surface);
             return -1;
         }
         locked = 1;
@@ -255,7 +253,6 @@ SDL_Surface *PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
     /* build font text */
     font_text = PGFT_LoadFontText(ft, font, render, text);
-
     if (!font_text)
         return NULL;
 
@@ -333,9 +330,6 @@ SDL_Surface *PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
 }
 #endif
 
-
-
-
 /*********************************************************
  *
  * Rendering on generic arrays
@@ -394,9 +388,6 @@ cleanup:
 
     return array;
 }
-
-
-
 
 /*********************************************************
  *
@@ -630,4 +621,3 @@ int _PGFT_Render_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
     return error;
 }
-

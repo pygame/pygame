@@ -21,6 +21,7 @@
 
 #include <SDL_syswm.h>
 #include "pgsdl.h"
+#include "sdlwm_doc.h"
 
 static PyObject* _sdl_wmsetcaption (PyObject *self, PyObject *args);
 static PyObject* _sdl_wmgetcaption (PyObject *self);
@@ -31,14 +32,16 @@ static PyObject* _sdl_wmgetinfo (PyObject *self);
 static PyObject* _sdl_wmgrabinput (PyObject *self, PyObject *args);
 
 static PyMethodDef _wm_methods[] = {
-    { "get_caption", (PyCFunction)_sdl_wmgetcaption, METH_NOARGS, "" },
-    { "set_caption", _sdl_wmsetcaption, METH_VARARGS, "" },
-    { "set_icon", _sdl_wmseticon, METH_VARARGS, "" },
-    { "iconify_window", (PyCFunction)_sdl_wmiconify, METH_NOARGS, "" },
+    { "get_caption", (PyCFunction)_sdl_wmgetcaption, METH_NOARGS,
+      DOC_WM_GET_CAPTION },
+    { "set_caption", _sdl_wmsetcaption, METH_VARARGS, DOC_WM_SET_CAPTION },
+    { "set_icon", _sdl_wmseticon, METH_VARARGS, DOC_WM_SET_ICON },
+    { "iconify_window", (PyCFunction)_sdl_wmiconify, METH_NOARGS,
+      DOC_WM_ICONIFY_WINDOW },
     { "toggle_fullscreen", (PyCFunction)_sdl_wmtogglefullscreen, METH_NOARGS,
-      "" },
-    { "get_info", (PyCFunction) _sdl_wmgetinfo, METH_NOARGS, "" },
-    { "grab_input", _sdl_wmgrabinput, METH_VARARGS, "" },
+      DOC_WM_TOGGLE_FULLSCREEN },
+    { "get_info", (PyCFunction) _sdl_wmgetinfo, METH_NOARGS, DOC_WM_GET_INFO },
+    { "grab_input", _sdl_wmgrabinput, METH_VARARGS, DOC_WM_GRAB_INPUT },
     { NULL, NULL, 0, NULL }
 };
 
@@ -244,14 +247,14 @@ PyMODINIT_FUNC initwm (void)
     static struct PyModuleDef _module = {
         PyModuleDef_HEAD_INIT,
         "wm",
-        "",
+        DOC_WM,
         -1,
         _wm_methods,
         NULL, NULL, NULL, NULL
     };
     mod = PyModule_Create (&_module);
 #else
-    mod = Py_InitModule3 ("wm", _wm_methods, "");
+    mod = Py_InitModule3 ("wm", _wm_methods, DOC_WM);
 #endif
     if (!mod)
         goto fail;

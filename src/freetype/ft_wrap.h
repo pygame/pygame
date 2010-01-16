@@ -275,7 +275,7 @@ FT_UInt16 * PGFT_BuildUnicodeString(FreeTypeInstance *ft, PyObject *text);
 
 
 /******************************************************** Glyph cache management ****/
-void        PGFT_Cache_Init(FreeTypeInstance *ft, FontCache *cache, PyFreeTypeFont *parent);
+int        PGFT_Cache_Init(FreeTypeInstance *ft, FontCache *cache, PyFreeTypeFont *parent);
 void        PGFT_Cache_Destroy(FontCache *cache);
 void        PGFT_Cache_Cleanup(FontCache *cache);
 FontGlyph * PGFT_Cache_FindGlyph(FreeTypeInstance *ft, FontCache *cache, FT_UInt character, 

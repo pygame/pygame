@@ -25,6 +25,7 @@
 typedef struct
 {
     SDL_TimerID    id;
+    SDL_sem       *wait;
     PyObject      *callable;
     PyObject      *param;
 #ifdef WITH_THREAD
@@ -33,9 +34,14 @@ typedef struct
 } _TimerData;
 
 typedef struct {
-    PyObject *timerhook;
-    PyObject *timerlist;
+    PyObject  *timerlist;
 } _SDLTimerState;
+
+#if 0
+#define DEBUG_P(x) puts(x)
+#else
+#define DEBUG_P(x)
+#endif
 
 #ifdef IS_PYTHON_3
 struct PyModuleDef _timermodule; /* Forward declaration */
@@ -50,9 +56,8 @@ _SDLTimerState _modstate;
 static int _timer_traverse (PyObject *mod, visitproc visit, void *arg);
 static int _timer_clear (PyObject *mod);
 
-static Uint32 _sdl_timercallback (Uint32 interval);
 static Uint32 _sdl_timerfunc (Uint32 interval, void *param);
-static void _free_timerdata (_TimerData *data);
+static void _free_timerdata (void *p);
 static void _remove_alltimers (_SDLTimerState *mod);
 
 static PyObject* _sdl_timeinit (PyObject *self);
@@ -60,7 +65,6 @@ static PyObject* _sdl_timewasinit (PyObject *self);
 static PyObject* _sdl_timequit (PyObject *self);
 static PyObject* _sdl_timegetticks (PyObject *self);
 static PyObject* _sdl_timedelay (PyObject *self, PyObject *args);
-static PyObject* _sdl_settimer (PyObject *self, PyObject *args);
 static PyObject* _sdl_addtimer (PyObject *self, PyObject *args);
 static PyObject* _sdl_removetimer (PyObject *self, PyObject *args);
 
@@ -72,41 +76,10 @@ static PyMethodDef _time_methods[] = {
     { "get_ticks", (PyCFunction) _sdl_timegetticks, METH_NOARGS,
       DOC_TIME_GET_TICKS },
     { "delay", _sdl_timedelay, METH_VARARGS, DOC_TIME_DELAY },
-    { "set_timer", _sdl_settimer, METH_VARARGS, DOC_TIME_SET_TIMER },
     { "add_timer", _sdl_addtimer, METH_VARARGS, DOC_TIME_ADD_TIMER },
     { "remove_timer", _sdl_removetimer, METH_VARARGS, DOC_TIME_REMOVE_TIMER },
     { NULL, NULL, 0, NULL }
 };
-
-static Uint32
-_sdl_timercallback (Uint32 interval)
-{
-    PyObject *result, *val;
-    Uint32 retval;
-    _SDLTimerState *state = SDLTIMER_STATE;
-
-    if (!state->timerhook)
-        return 1;
-    
-    val = PyLong_FromUnsignedLong (interval);
-    result = PyObject_CallObject (state->timerhook, val);
-    Py_DECREF (val);
-
-    if (!Uint32FromObj (result, &retval))
-    {
-        /* Wrong signature, remove the callback */
-        PyErr_SetString (PyExc_ValueError,
-            "callback must return a positive integer");
-        Py_XDECREF (result);
-        Py_XDECREF (state->timerhook);
-        state->timerhook = NULL;
-        SDL_SetTimer (0, NULL);
-        return 0;
-    }
-
-    Py_XDECREF (result);
-    return retval;
-}
 
 static Uint32
 _sdl_timerfunc (Uint32 interval, void *param)
@@ -114,16 +87,33 @@ _sdl_timerfunc (Uint32 interval, void *param)
     _TimerData *timerdata = (_TimerData*) param;
     PyObject *result, *val;
     Uint32 retval = 0;
-    _SDLTimerState *state;
+    SDL_TimerID id = timerdata->id;
+#ifdef WITH_THREAD
+    PyThreadState* oldstate = NULL;
+#endif
+
+     /* Do not use timerdata->id here. Due to the context switch, there is a 
+      * very, very, very minimal chance of manipulating timerdata in
+      * the removal functions.
+      */
+    if (!id)
+    {
+        DEBUG_P ("CALLBACK DEFUNCT");
+        goto retnopost;
+    }
+    
+    /* Wait for the removal */
+    DEBUG_P ("WAITING FOR RUN");
+    if (SDL_SemWait (timerdata->wait) == -1)
+        goto retnopost;
+    DEBUG_P ("GOT RUN SIGNAL");
 
 #ifdef WITH_THREAD
-    PyThreadState* oldstate;
     PyEval_AcquireLock ();
     oldstate = PyThreadState_Swap (timerdata->thread);
 #endif
-    state = SDLTIMER_STATE;
-    
-    val = PyLong_FromUnsignedLong (interval);
+  
+    val = PyLong_FromUnsignedLong ((unsigned long)interval);
     if (timerdata->param)
         result = PyObject_CallObject (timerdata->callable, timerdata->param);
     else
@@ -135,7 +125,8 @@ _sdl_timerfunc (Uint32 interval, void *param)
         PyErr_Warn (PyExc_RuntimeError, "timer callback failed:"); 
         PyErr_Print ();
         PyErr_Clear ();
-        return 0;
+        retval = 0;
+        goto ret;
     }
     
     if (!Uint32FromObj (result, &retval))
@@ -152,22 +143,36 @@ _sdl_timerfunc (Uint32 interval, void *param)
         Py_XDECREF (result);
     }
 
+ret:
+    if (SDL_SemPost (timerdata->wait) == -1)
+    {
+        /* TODO */
+        DEBUG_P ("ERROR ON POST");
+    }
+    /* DEBUG_P ("POSTED AFTER RUN"); */
+retnopost:
 #ifdef WITH_THREAD
     PyThreadState_Swap (oldstate);
     PyEval_ReleaseLock ();
 #endif
+
     return retval;
 }
 
 static void
-_free_timerdata (_TimerData *data)
+_free_timerdata (void *p)
 {
+    _TimerData *data = (_TimerData*) p;
     if (!data)
         return;
     
     if (data->id)
         SDL_RemoveTimer (data->id);
     data->id = NULL;
+    
+    if (data->wait)
+        SDL_DestroySemaphore (data->wait);
+    data->wait = NULL;
 
     Py_XDECREF (data->callable);
     Py_XDECREF (data->param);
@@ -194,10 +199,9 @@ _remove_alltimers (_SDLTimerState *state)
     {
         val = PyList_GET_ITEM (state->timerlist, pos);
         timerdata = (_TimerData*) PyCObject_AsVoidPtr (val);
-        _free_timerdata (timerdata);
+        SDL_RemoveTimer (timerdata->id);
+        timerdata->id = NULL;
     }
-    Py_XDECREF (state->timerlist);
-    state->timerlist = PyList_New (0);
 }
 
 static PyObject*
@@ -205,7 +209,7 @@ _sdl_timeinit (PyObject *self)
 {
     if (SDL_WasInit (SDL_INIT_TIMER))
         Py_RETURN_NONE;
-        
+
     if (SDL_InitSubSystem (SDL_INIT_TIMER) == -1)
     {
         PyErr_SetString (PyExc_PyGameError, SDL_GetError ());
@@ -226,13 +230,8 @@ static PyObject*
 _sdl_timequit (PyObject *self)
 {
     _SDLTimerState *state = SDLTIMER_MOD_STATE (self);
-    if (state->timerhook)
-    {
-        /* Reset the single timer hook */
-        Py_XDECREF (state->timerhook);
-        SDL_SetTimer (0, NULL);
-        state->timerhook = NULL;
-    }
+
+    DEBUG_P ("QUITTING");
     _remove_alltimers (state);
     Py_XDECREF (state->timerlist);
     state->timerlist = NULL;
@@ -246,7 +245,7 @@ static PyObject*
 _sdl_timegetticks (PyObject *self)
 {
     ASSERT_TIME_INIT(NULL);
-    return PyLong_FromUnsignedLong (SDL_GetTicks ());
+    return PyLong_FromUnsignedLong ((unsigned long)SDL_GetTicks ());
 }
 
 static PyObject*
@@ -263,50 +262,17 @@ _sdl_timedelay (PyObject *self, PyObject *args)
 }
 
 static PyObject*
-_sdl_settimer (PyObject *self, PyObject *args)
-{
-    Uint32 interval;
-    PyObject *hook;
-    _SDLTimerState *state = SDLTIMER_MOD_STATE (self);
-
-    ASSERT_TIME_INIT(NULL);
-
-    if (!PyArg_ParseTuple (args, "lO:set_timer", &interval, &hook))
-        return NULL;
-
-    if (hook == Py_None)
-    {
-        /* Reset the timer hook */
-        Py_XDECREF (state->timerhook);
-        SDL_SetTimer (0, NULL);
-        state->timerhook = NULL;
-        Py_RETURN_NONE;
-    }
-
-    if (!PyCallable_Check (hook))
-    {
-        PyErr_SetString (PyExc_TypeError, "timer callback must be callable");
-        return NULL;
-    }
-
-    Py_INCREF (hook);
-    state->timerhook = hook;
-    SDL_SetTimer (interval, _sdl_timercallback);
-
-    Py_RETURN_NONE;
-}
-
-static PyObject*
 _sdl_addtimer (PyObject *self, PyObject *args)
 {
     SDL_TimerID id;
     Uint32 interval;
     _TimerData *timerdata;
     PyObject *retval, *func, *data = NULL;
-    _SDLTimerState *state = SDLTIMER_MOD_STATE (self);
+    _SDLTimerState *state;
 
     ASSERT_TIME_INIT (NULL);
     
+    state = SDLTIMER_MOD_STATE (self);
     if (!state->timerlist)
     {
         state->timerlist = PyList_New (0);
@@ -349,18 +315,18 @@ _sdl_addtimer (PyObject *self, PyObject *args)
     timerdata->callable = func;
     timerdata->param = data;
     timerdata->id = NULL;
+    timerdata->wait = SDL_CreateSemaphore (1);
 
 #ifdef WITH_THREAD
     PyEval_InitThreads ();
     timerdata->thread = PyThreadState_New (PyThreadState_Get ()->interp);
 #endif
 
-    retval = PyCObject_FromVoidPtr (timerdata, NULL);
+    retval = PyCObject_FromVoidPtr (timerdata, _free_timerdata);
     id = SDL_AddTimer (interval, _sdl_timerfunc, timerdata);
     if (!id)
     {
         Py_DECREF (retval);
-        _free_timerdata (timerdata);
         PyErr_SetString (PyExc_PyGameError, SDL_GetError ());
         return NULL;
     }
@@ -369,7 +335,6 @@ _sdl_addtimer (PyObject *self, PyObject *args)
     if (PyList_Append (state->timerlist, retval) == -1)
     {
         Py_DECREF (retval);
-        _free_timerdata (timerdata);
         SDL_RemoveTimer (id);
         return NULL;
     }
@@ -383,13 +348,14 @@ _sdl_removetimer (PyObject *self, PyObject *args)
     int found = 0;
     Py_ssize_t pos, count;
     PyObject *val, *cobj;
-    _SDLTimerState *state = SDLTIMER_MOD_STATE (self);
+    _SDLTimerState *state;
     
     ASSERT_TIME_INIT (NULL);
     
     if (!PyArg_ParseTuple (args, "O:remove_timer", &cobj))
         return NULL;
 
+    state = SDLTIMER_MOD_STATE (self);
     if (!state->timerlist  || !PyCObject_Check (cobj))
     {
         PyErr_SetString (PyExc_TypeError, "invalid timer id");
@@ -415,13 +381,28 @@ _sdl_removetimer (PyObject *self, PyObject *args)
     }
     if (!found)
     {
-        PyErr_SetString (PyExc_TypeError, "invalid timer id");
+        PyErr_SetString (PyExc_ValueError, "invalid timer id");
         return NULL;
+    }
+    
+    DEBUG_P ("WAITING FOR REMOVE SIGNAL");
+    if (SDL_SemWait (timerdata->wait) == -1)
+    {
+        PyErr_SetString (PyExc_PyGameError, SDL_GetError ());
+        return NULL;
+    }
+    DEBUG_P ("GOT REMOVE SIGNAL");
+    SDL_RemoveTimer (timerdata->id);
+    timerdata->id = NULL;
+    if (SDL_SemPost (timerdata->wait) == -1)
+    {
+        /* TODO */
+        DEBUG_P ("ERROR ON POST");
     }
     
     if (PySequence_DelItem (state->timerlist, pos) == -1)
         return NULL;
-    _free_timerdata (timerdata);
+    
     Py_RETURN_NONE;
 }
 
@@ -429,7 +410,7 @@ static int
 _timer_traverse (PyObject *mod, visitproc visit, void *arg)
 {
     _SDLTimerState *state = SDLTIMER_MOD_STATE (mod);
-    Py_VISIT (state->timerhook);
+    _remove_alltimers (state);
     Py_VISIT (state->timerlist);
     return 0;
 }
@@ -437,9 +418,7 @@ static int
 _timer_clear (PyObject *mod)
 {
     _SDLTimerState *state = SDLTIMER_MOD_STATE (mod);
-    
     _remove_alltimers (state);
-    Py_CLEAR (state->timerhook);
     Py_CLEAR (state->timerlist);
     return 0;
 }
@@ -474,8 +453,8 @@ PyMODINIT_FUNC inittime (void)
 #endif
     if (!mod)
         goto fail;
+
     state = SDLTIMER_MOD_STATE(mod);
-    state->timerhook = NULL;
     state->timerlist = NULL;
 
     if (import_pygame2_base () < 0)

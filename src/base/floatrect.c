@@ -316,14 +316,45 @@ static PyObject*
 _frect_repr (PyObject *self)
 {
     PyFRect *r = (PyFRect*) self;
-    char b1[32], b2[32], b3[32], b4[32];
+#ifdef IS_PYTHON_3
+    PyObject *retval;
+    int i;
+    char *b[4] = { NULL, NULL, NULL, NULL };
+    
+    b[0] = PyOS_double_to_string (r->x, 'f', 8, 0, NULL);
+    if (!b[0])
+        goto failure;
+    b[1] = PyOS_double_to_string (r->y, 'f', 8, 0, NULL);
+    if (!b[1])
+        goto failure;
+    b[2] = PyOS_double_to_string (r->w, 'f', 8, 0, NULL);
+    if (!b[2])
+        goto failure;
+    b[3] = PyOS_double_to_string (r->h, 'f', 8, 0, NULL);
+    if (!b[3])
+        goto failure;
 
+    retval = Text_FromFormat ("FRect(%s, %s, %s, %s)", b[0], b[1], b[2], b[3]);
+    goto success;
+
+failure:
+    retval = Text_FromUTF8 ("FRect(???)");
+success:
+    for (i = 0; i < 4; i++)
+    {
+        if (b[i])
+            PyMem_Free (b[i]);
+    }
+    return retval;
+#else /* !IS_PYTHON_3 */
+    char b1[32], b2[32], b3[32], b4[32];
     if (!PyOS_ascii_formatd (b1, 32, "%.8f", r->x) ||
         !PyOS_ascii_formatd (b2, 32, "%.8f", r->y) ||
         !PyOS_ascii_formatd (b3, 32, "%.8f", r->w) ||
         !PyOS_ascii_formatd (b4, 32, "%.8f", r->h))
         return Text_FromUTF8 ("FRect(???)");
     return Text_FromFormat ("FRect(%s, %s, %s, %s)", b1, b2, b3, b4);
+#endif
 }
 
 /* FRect getters/setters */

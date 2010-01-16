@@ -484,7 +484,7 @@ _vector3_rotate_y (PyObject *self, PyObject *args)
     sinvalue = sin (angle);
     cosvalue = cos (angle);
 
-    ret->coords[0] = v->coords[0] * cosvalue - v->coords[2] * sinvalue;
+    ret->coords[0] = v->coords[0] * cosvalue + v->coords[2] * sinvalue;
     ret->coords[1] = v->coords[1];
     ret->coords[2] = - v->coords[0] * sinvalue + v->coords[2] * cosvalue;
     return (PyObject*) ret;

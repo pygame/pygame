@@ -133,7 +133,6 @@ class MaskTest (unittest.TestCase):
         self.assertEqual(len(comps2), 1)
         self.assertEqual(len(comps3), 0)
 
-
     def test_pygame2_mask_Mask_count(self):
 
         # __doc__ (as of 2008-11-03) for pygame2.mask.Mask.count:

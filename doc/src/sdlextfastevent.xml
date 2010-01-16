@@ -21,7 +21,16 @@
   <func name="get">
     <call>get () -> [:class:`Event`, :class:`Event`, ...]</call>
     <desc>
-      Gets the events from the event queue.
+      Gets events from the event queue.
+
+      Gets the current events from the event queue. If no argument is
+      passed, all currently available events are received from the event
+      queue and returned as list. Otherwise, the argument can be a
+      sequence or a bitmask combination of event types to receive from
+      the queue.
+
+      If no matching events are found on the queue, an empty list will be
+      returned.
     </desc>
   </func>
   <func name="init">
@@ -31,20 +40,41 @@
     </desc>
   </func>
   <func name="poll">
-    <call></call>
-    <desc></desc>
+    <call>poll () -> :class:`Event`</call>
+    <desc>
+      Gets a single event from the event queue.
+
+      Returns a single event from the queue. If the event queue is
+      empty, None will be returned. If an event is available and
+      returned, it will be removed from the queue.
+    </desc>
   </func>
   <func name="push">
-    <call></call>
-    <desc></desc>
+    <call>push (event) -> None</call>
+    <desc>
+      Places a new event at the end of the event queue.
+
+      This is usually used for placing user defined events on the event
+      queue. You also can push user created device events on the queue,
+      but this will not change the state of the device itself.
+    </desc>
   </func>
   <func name="quit">
-    <call></call>
-    <desc></desc>
+    <call>quit () -> None</call>
+    <desc>
+      Quits the underlying fastevents system and releases all hold resources.
+    </desc>
   </func>
   <func name="wait">
-    <call></call>
-    <desc></desc>
+    <call>wait () -> :class:`Event`</call>
+    <desc>
+      Waits indefinitely for the next available event.
+
+      This is a blocking method, that only returns, if an event occurs
+      on the event queue. Once an event occurs, it will be returned to
+      the caller and removed from the queue. While the program is
+      waiting it will sleep in an idle state.
+    </desc>
   </func>
 </module>
 

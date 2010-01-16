@@ -102,7 +102,7 @@ static PyMethodDef _vectoriter_methods[] =
     { NULL, NULL, 0, NULL} /* sentinel */
 };
 
-static PyTypeObject _PyVectorIter_Type =
+PyTypeObject PyVectorIter_Type =
 {
     TYPE_HEAD (NULL,0)
     "VectorIterator",          /* tp_name */
@@ -129,7 +129,7 @@ static PyTypeObject _PyVectorIter_Type =
     0,                         /* tp_clear */
     0,                         /* tp_richcompare */
     0,                         /* tp_weaklistoffset */
-    PyObject_SelfIter,         /* tp_iter */
+    0,                         /* tp_iter */
     (iternextfunc)_vectoriter_next, /* tp_iternext */
     _vectoriter_methods,        /* tp_methods */
     0,                         /* tp_members */
@@ -431,11 +431,13 @@ _vector_dealloc (PyVector *self)
 static PyObject*
 _vector_repr (PyObject *self)
 {
-    char b[32];
     Py_ssize_t i;
     PyVector *v = (PyVector*) self;
 #ifdef IS_PYTHON_3
+    char *b;
     PyObject *tmp1, *tmp2;
+#else
+    char b[32];
 #endif
 #if PY_VERSION_HEX < 0x02050000
     PyObject *string = Text_FromFormat ("Vector%d(", v->dim);
@@ -445,36 +447,50 @@ _vector_repr (PyObject *self)
 
     for (i = 0; i < (v->dim - 1); i++)
     {
-        if (!PyOS_ascii_formatd (b, 32, "%.8f", v->coords[i]))
+#ifdef IS_PYTHON_3
+        b = PyOS_double_to_string (v->coords[i], 'f', 8, 0, NULL);
+        if (!b)
         {
             Py_DECREF (string);
             return NULL;
         }
-#ifdef IS_PYTHON_3
         tmp1 = string;
         tmp2 = Text_FromFormat ("%s, ", b);
+        PyMem_Free (b);
         string = PyUnicode_Concat (tmp1, tmp2);
         Py_XDECREF (tmp1);
         Py_XDECREF (tmp2);
         if (!string)
             return NULL;
 #else
+        if (!PyOS_ascii_formatd (b, 32, "%.8f", v->coords[i]))
+        {
+            Py_DECREF (string);
+            return NULL;
+        }
         PyString_ConcatAndDel (&string, PyString_FromFormat ("%s, ", b));
 #endif        
     }
 
+#ifdef IS_PYTHON_3
+    b = PyOS_double_to_string (v->coords[i], 'f', 8, 0, NULL);
+    if (!b)
+    {
+        Py_DECREF (string);
+            return NULL;
+    }
+    tmp1 = string;
+    tmp2 = Text_FromFormat ("%s)", b);
+    PyMem_Free (b);
+    string = PyUnicode_Concat (tmp1, tmp2);
+    Py_XDECREF (tmp1);
+    Py_XDECREF (tmp2);
+#else
     if (!PyOS_ascii_formatd (b, 32, "%.8f", v->coords[v->dim - 1]))
     {
         Py_DECREF (string);
         return NULL;
     }
-#ifdef IS_PYTHON_3
-    tmp1 = string;
-    tmp2 = Text_FromFormat ("%s)", b);
-    string = PyUnicode_Concat (tmp1, tmp2);
-    Py_XDECREF (tmp1);
-    Py_XDECREF (tmp2);
-#else
     PyString_ConcatAndDel (&string, PyString_FromFormat ("%s)", b));
 #endif        
     return string;
@@ -1588,7 +1604,7 @@ _vector_ass_subscript (PyVector *self, PyObject *op, PyObject *value)
             return -1;
 
         for (cur = start, i = 0; i < slicelen; cur += step, i++)
-            self->coords[i] = coords[cur];
+            self->coords[cur] = coords[i];
         PyMem_Free (coords);
         return 0;
     }
@@ -1683,7 +1699,7 @@ _vector_iter (PyObject *vec)
         return NULL;
     }
 
-    it = PyObject_New (_vectoriter, &_PyVectorIter_Type);
+    it = PyObject_New (_vectoriter, &PyVectorIter_Type);
     if (!it)
         return NULL;
     it->it_index = 0;

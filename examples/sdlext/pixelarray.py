@@ -91,9 +91,7 @@ def run ():
     screen = video.set_mode (320, 240, 32)
     screen.fill (black)
     
-    imgdir = os.path.dirname (os.path.abspath (__file__))
-    surface = image.load_bmp (os.path.join
-                              (pygame2.examples.IMAGEDIR, "array.bmp"))
+    surface = image.load_bmp (pygame2.examples.RESOURCES.get ("array.bmp"))
     surface = surface.convert (flags=sdlconst.SRCALPHA)
     screen.blit (surface)
     screen.flip ()

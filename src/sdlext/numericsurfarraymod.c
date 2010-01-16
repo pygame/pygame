@@ -22,6 +22,7 @@
 
 #include "pgsdl.h"
 #include "numeric_arrayobject.h"
+#include "sdlextnumericsurfarray_doc.h"
 
 #ifndef IS_PYTHON_3
 
@@ -100,16 +101,22 @@ static PyObject* _make_surface (PyObject* self, PyObject* arg);
 
 static PyMethodDef _surfarray_methods[] =
 {
-    { "pixels2d", _pixels2d, METH_VARARGS, "" },
-    { "pixels3d", _pixels3d, METH_VARARGS, "" },
-    { "pixels_alpha", _pixels_alpha, METH_VARARGS, "" },
-    { "array2d", _array2d, METH_VARARGS, "" },
-    { "array3d", _array3d, METH_VARARGS, "" },
-    { "array_alpha", _array_alpha, METH_VARARGS, "" },
-    { "array_colorkey", _array_colorkey, METH_VARARGS, "" },
-    { "map_array", _map_array, METH_VARARGS, "" },
-    { "blit_array", _blit_array, METH_VARARGS, "" },
-    { "make_surface", _make_surface, METH_VARARGS, "" },
+    { "pixels2d", _pixels2d, METH_VARARGS, DOC_NUMERICSURFARRAY_PIXELS2D },
+    { "pixels3d", _pixels3d, METH_VARARGS, DOC_NUMERICSURFARRAY_PIXELS3D },
+    { "pixels_alpha", _pixels_alpha, METH_VARARGS,
+      DOC_NUMERICSURFARRAY_PIXELS_ALPHA },
+    { "array2d", _array2d, METH_VARARGS, DOC_NUMERICSURFARRAY_ARRAY2D },
+    { "array3d", _array3d, METH_VARARGS, DOC_NUMERICSURFARRAY_ARRAY3D },
+    { "array_alpha", _array_alpha, METH_VARARGS,
+      DOC_NUMERICSURFARRAY_ARRAY_ALPHA },
+    { "array_colorkey", _array_colorkey, METH_VARARGS,
+      DOC_NUMERICSURFARRAY_ARRAY_COLORKEY },
+    { "map_array", _map_array, METH_VARARGS,
+      DOC_NUMERICSURFARRAY_MAP_ARRAY },
+    { "blit_array", _blit_array, METH_VARARGS,
+      DOC_NUMERICSURFARRAY_BLIT_ARRAY },
+    { "make_surface", _make_surface, METH_VARARGS,
+      DOC_NUMERICSURFARRAY_MAKE_SURFACE },
     { NULL, NULL, 0, NULL}
 };
 
@@ -1290,7 +1297,8 @@ initnumericsurfarray (void)
 {
     PyObject *mod;
 
-    mod = Py_InitModule3 ("numericsurfarray", _surfarray_methods, "");
+    mod = Py_InitModule3 ("numericsurfarray", _surfarray_methods,
+        DOC_NUMERICSURFARRAY);
 
     import_pygame2_base ();
     import_pygame2_sdl_base ();

@@ -85,6 +85,7 @@ typedef getcharbufferproc charbufferproc;
 #define Bytes_GET_SIZE PyBytes_GET_SIZE
 
 #define IsTextObj(x) (PyUnicode_Check(x) || PyBytes_Check(x))
+#define IsFileObj(x) (!PyNumber_Check(x) && PyObject_AsFileDescriptor(x) != -1)
 
 #else  /* PY_VERSION_HEX >= 0x03000000 */
 
@@ -104,6 +105,7 @@ typedef getcharbufferproc charbufferproc;
 #define Bytes_GET_SIZE PyString_GET_SIZE
 
 #define IsTextObj(x) (PyString_Check(x) || PyUnicode_Check(x))
+#define IsFileObj(x) PyFile_Check(x)
 
 #define PyState_FindModule(obj) (NULL)
 

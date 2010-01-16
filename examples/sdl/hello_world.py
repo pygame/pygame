@@ -21,11 +21,9 @@ def run():
 
     surface = None
     if hassdlimage:
-        surface = image.load (os.path.join
-                              (pygame2.examples.IMAGEDIR, "logo.gif"))
+        surface = image.load (pygame2.examples.RESOURCES.get ("logo.gif"))
     else:
-        surface = image.load_bmp (os.path.join
-                                  (pygame2.examples.IMAGEDIR, "logo.bmp"))
+        surface = image.load_bmp (pygame2.examples.RESOURCES.get ("logo.bmp"))
 
     screen = video.set_mode (surface.w + 10, surface.h + 10)
     screen.fill (pygame2.Color (255, 255, 255))

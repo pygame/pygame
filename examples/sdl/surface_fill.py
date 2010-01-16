@@ -187,9 +187,7 @@ def run ():
     video.init ()
     
     screen = video.set_mode (760, 300, 32)
-    imgdir = os.path.dirname (os.path.abspath (__file__))
-    surface = image.load_bmp (os.path.join
-                              (pygame2.examples.IMAGEDIR, "logo.bmp"))
+    surface = image.load_bmp (pygame2.examples.RESOURCES.get ("logo.bmp"))
     surface = surface.convert (flags=sdlconst.SRCALPHA)
     
     color = white

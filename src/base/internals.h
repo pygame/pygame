@@ -28,6 +28,7 @@
 #define PYGAME_RECT_INTERNAL
 #define PYGAME_FRECT_INTERNAL
 #define PYGAME_BUFFERPROXY_INTERNAL
+#define PYGAME_STREAMWRAPPER_INTERNAL
 #define PYGAME_SURFACE_INTERNAL
 #define PYGAME_FONT_INTERNAL
 
@@ -84,7 +85,9 @@ void surface_export_capi (void **capi);
 
 extern PyTypeObject PyFont_Type;
 #define PyFont_Check(x) (PyObject_TypeCheck(x, &PyFont_Type))
-PyObject* PyFont_New(void);
-void font_export_capi(void **capi);
+PyObject* PyFont_New (void);
+void font_export_capi (void **capi);
+
+void streamwrapper_export_capi (void **capi);
 
 #endif /* _PYGAME_BASE_INTERNALS_H_ */

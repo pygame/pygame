@@ -13,8 +13,7 @@ To run the drawing pygame2.sdlext example, you would type
 """
 
 import os
+from pygame2.resources import Resources
 
-_filepath = os.path.abspath (__file__)
-RESOURCEDIR = os.path.join (os.path.dirname (_filepath), "resources")
-FONTDIR = os.path.join (os.path.dirname (_filepath), "resources")
-IMAGEDIR = os.path.join (os.path.dirname (_filepath), "resources")
+_filepath = os.path.dirname (os.path.abspath (__file__))
+RESOURCES = Resources (os.path.join (_filepath, "resources"), ".*\.svn\.*")

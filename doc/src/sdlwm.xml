@@ -13,7 +13,7 @@
     <call>get_info () -> dict</call>
     <desc>
       Gets operating system and window manager specific information about the
-      current SDL window .
+      current SDL window.
     </desc>
   </func>
   <func name="grab_input">

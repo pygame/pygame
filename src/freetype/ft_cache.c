@@ -32,7 +32,6 @@ FontCacheNode *_PGFT_Cache_AllocateNode(FreeTypeInstance *,
         FontCache *, const FontRenderMode *, FT_UInt);
 void _PGFT_Cache_FreeNode(FontCache *, FontCacheNode *);
 
-
 FT_UInt32 _PGFT_GetLoadFlags(const FontRenderMode *render)
 {
     FT_UInt32 load_flags = FT_LOAD_DEFAULT;
@@ -85,8 +84,8 @@ FT_UInt32 _PGFT_Cache_Hash(const FontRenderMode *render, FT_UInt glyph_index)
 	return h;
 } 
 
-void PGFT_Cache_Init(FreeTypeInstance *ft, 
-        FontCache *cache, PyFreeTypeFont *parent)
+int
+PGFT_Cache_Init(FreeTypeInstance *ft, FontCache *cache, PyFreeTypeFont *parent)
 {
     int cache_size = MAX(ft->cache_size - 1, PGFT_MIN_CACHE_SIZE - 1);
 
@@ -102,7 +101,14 @@ void PGFT_Cache_Init(FreeTypeInstance *ft,
     cache_size = cache_size + 1;
 
     cache->nodes = calloc((size_t)cache_size, sizeof(FontGlyph *));
+    if (!cache->nodes)
+        return -1;
     cache->depths = calloc((size_t)cache_size, sizeof(FT_Byte));
+    if (!cache->depths)
+    {
+        free (cache->nodes);
+        return -1;
+    }
     cache->font = parent;
     cache->free_nodes = NULL;
     cache->size_mask = (FT_UInt32)(cache_size - 1);
@@ -114,6 +120,7 @@ void PGFT_Cache_Init(FreeTypeInstance *ft,
     cache->_debug_hit = 0;
     cache->_debug_miss = 0;
 #endif
+    return 0;
 }
 
 void PGFT_Cache_Destroy(FontCache *cache)
@@ -179,7 +186,6 @@ void PGFT_Cache_Cleanup(FontCache *cache)
             }
         }
     }
-
 }
 
 FontGlyph *PGFT_Cache_FindGlyph(FreeTypeInstance *ft, FontCache *cache, 
@@ -221,7 +227,6 @@ FontGlyph *PGFT_Cache_FindGlyph(FreeTypeInstance *ft, FontCache *cache,
     }
 
     node = _PGFT_Cache_AllocateNode(ft, cache, render, character);
-
 #ifdef PGFT_DEBUG_CACHE
     cache->_debug_miss++;
 #endif
@@ -255,14 +260,14 @@ FontCacheNode *_PGFT_Cache_AllocateNode(FreeTypeInstance *ft,
 
     FT_UInt32 load_flags;
     FT_Fixed bold_str = 0;
-    int gindex;
+    int gindex, load, get;
     FT_UInt32 bucket;
 
     /*
      * Grab face reference
      */
-    face = _PGFT_GetFaceSized(ft, cache->font, render->pt_size);
 
+    face = _PGFT_GetFaceSized(ft, cache->font, render->pt_size);
     if (!face)
     {
         _PGFT_SetError(ft, "Failed to resize face", 0);
@@ -273,14 +278,17 @@ FontCacheNode *_PGFT_Cache_AllocateNode(FreeTypeInstance *ft,
      * Allocate cache node 
      */
     node = malloc(sizeof(FontCacheNode));
+    if (!node)
+        goto cleanup;
     glyph = &node->glyph;
 
     /*
      * Calculate the corresponding glyph index for the char
      */
+    Py_BEGIN_ALLOW_THREADS;
     gindex = FTC_CMapCache_Lookup(ft->cache_charmap, 
             (FTC_FaceID)&(cache->font->id), -1, character);
-
+    Py_END_ALLOW_THREADS;
     if (gindex < 0)
     {
         _PGFT_SetError(ft, "Glyph character not found in font", 0);
@@ -292,6 +300,7 @@ FontCacheNode *_PGFT_Cache_AllocateNode(FreeTypeInstance *ft,
     /*
      * Get loading information
      */
+
     load_flags = _PGFT_GetLoadFlags(render);
 
     if (render->style & FT_STYLE_BOLD)
@@ -300,8 +309,12 @@ FontCacheNode *_PGFT_Cache_AllocateNode(FreeTypeInstance *ft,
     /*
      * Load the glyph into the glyph slot
      */
-    if (FT_Load_Glyph(face, glyph->glyph_index, (FT_Int)load_flags) != 0 ||
-        FT_Get_Glyph(face->glyph, &(glyph->image)) != 0)
+    Py_BEGIN_ALLOW_THREADS;
+    load = FT_Load_Glyph (face, glyph->glyph_index, (FT_Int)load_flags);
+    if (load == 0)
+        get = FT_Get_Glyph (face->glyph, &(glyph->image));
+    Py_END_ALLOW_THREADS;
+    if (load != 0 || get != 0)
         goto cleanup;
 
     /*
@@ -319,8 +332,7 @@ FontCacheNode *_PGFT_Cache_AllocateNode(FreeTypeInstance *ft,
 
     glyph->size.x = metrics->width + bold_str;
     glyph->size.y = metrics->height + bold_str;
-
-
+    
     /*
      * Update cache internals
      */
@@ -343,7 +355,7 @@ FontCacheNode *_PGFT_Cache_AllocateNode(FreeTypeInstance *ft,
 cleanup:
     if (glyph && glyph->image)
         FT_Done_Glyph(glyph->image);
-
-    free(node);
+    if (node)
+        free(node);
     return NULL;
 }

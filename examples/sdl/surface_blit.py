@@ -192,10 +192,9 @@ def run ():
     imgdir = os.path.dirname (os.path.abspath (__file__))
     logo = None
     if hassdlimage:
-        logo = image.load (os.path.join (pygame2.examples.IMAGEDIR, "logo.gif"))
+        logo = image.load (pygame2.examples.RESOURCES.get ("logo.gif"))
     else:
-        logo = image.load_bmp (os.path.join
-                               (pygame2.examples.IMAGEDIR, "logo.bmp"))
+        logo = image.load_bmp (pygame2.examples.RESOURCES.get ("logo.bmp"))
     
     screen.fill (color)
     screen.blit (logo, (-10, 140))

@@ -744,16 +744,13 @@ static PyObject*
 _surface_getalpha (PyObject *self)
 {
     SDL_Surface *surface = PySDLSurface_AsSDLSurface (self);
-
-    if (surface->flags & SDL_SRCALPHA)
-        return PyInt_FromLong (surface->format->alpha);
-    Py_RETURN_NONE;
+    return PyInt_FromLong (surface->format->alpha);
 }
 
 static PyObject*
 _surface_setalpha (PyObject *self, PyObject *args)
 {
-    Uint32 flags = 0;
+    Uint32 flags = SDL_SRCALPHA;
     Uint8 alpha;
 
     if (!PyArg_ParseTuple (args, "b|l:set_alpha", &alpha, &flags))
@@ -1263,8 +1260,10 @@ PySDLSurface_RemoveRefLock (PyObject *surface, PyObject *lock)
     if (!found)
         return noerror;
 
-    /* Release all locks on the surface */
-    while (found > 0)
+    /* Release all locks on the surface.
+     * In case we are deallocating the surface, sf->surface may become
+     * invalid, then skip the unlocking process. */
+    while (found > 0 && sf->surface)
     {
         SDL_UnlockSurface (sf->surface);
         found--;

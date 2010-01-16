@@ -1,4 +1,3 @@
-import sys
 try:
     import pygame2.test.pgunittest as unittest
     from pygame2.test.pgunittest import doprint, interactive

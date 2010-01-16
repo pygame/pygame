@@ -104,9 +104,13 @@ installall:
 
 testall:
 	@python2.4 test/run_tests.py
+	@rm -rf test/*.pyc
 	@python2.5 test/run_tests.py
+	@rm -rf test/*.pyc
 	@python2.6 test/run_tests.py
+	@rm -rf test/*.pyc
 	@python3.1 test/run_tests.py
+	@rm -rf test/*.pyc
 
 testall2:
 	@python2.4 -c "import pygame2.test; pygame2.test.run ()"

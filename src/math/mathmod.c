@@ -55,8 +55,8 @@ _fromspherical (PyObject* mod, PyObject *args)
         return NULL;
 
     c1 = r * sin (theta) * cos (phi);
-    c3 = r * sin (theta) * sin (phi);
-    c2 = r * cos (theta);
+    c2 = r * sin (theta) * sin (phi);
+    c3 = r * cos (theta);
 
     return PyVector3_New (c1, c2, c3);
 }
@@ -146,6 +146,10 @@ PyMODINIT_FUNC initbase (void)
         NULL, NULL, NULL, NULL
     };
 #endif
+    PyVectorIter_Type.tp_new = &PyType_GenericNew;
+    PyVectorIter_Type.tp_iter = &PyObject_SelfIter;
+    if (PyType_Ready (&PyVectorIter_Type) < 0)
+        goto fail;
     if (PyType_Ready (&PyVector_Type) < 0)
         goto fail;
     Py_INCREF (&PyVector_Type);

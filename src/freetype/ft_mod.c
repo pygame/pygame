@@ -122,7 +122,6 @@ _ft_init(PyObject *self, PyObject *args)
     Py_RETURN_NONE;
 }
 
-
 static PyObject *
 _ft_get_error(PyObject *self)
 {
@@ -149,7 +148,6 @@ _ft_was_init(PyObject *self)
 {
     return PyBool_FromLong((long)(FREETYPE_MOD_STATE (self)->freetype != NULL));
 }
-
 
 static int
 _ft_traverse (PyObject *mod, visitproc visit, void *arg)

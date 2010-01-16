@@ -43,6 +43,8 @@
 #define OP_ARG_VECTOR   128
 #define OP_ARG_NUMBER   256
 
+extern PyTypeObject PyVectorIter_Type;
+
 extern PyTypeObject PyVector_Type;
 #define PyVector_Check(x) (PyObject_TypeCheck (x, &PyVector_Type))
 PyObject* PyVector_New (Py_ssize_t dim);

@@ -37,15 +37,20 @@ class SDLTimeTest (unittest.TestCase):
         
         sdltime.init ()
         tobj = sdltime.add_timer (10, _timercb, (setargs, "Hello", "World"))
-        self.assert_ (tobj != None)
+        if tobj is None:
+            sdltime.quit ()
+            self.fail ()
         t1 = t2 = sdltime.get_ticks ()
-        while (t2 - t1 < 100):
+        while (t2 - t1 < 50):
             sdltime.delay (1)
             t2 = sdltime.get_ticks ()
-        self.assert_ (len (setargs) > 10)
         sdltime.quit ()
-        
         self.assertRaises (pygame2.Error, sdltime.add_timer, _timercb)
+
+        # This is important - if we run the assertion test before quitting,
+        # the time module won't be quitted and the timers will still exist,
+        # causing thread issues in other tests.
+        self.assert_ (len (setargs) > 5)
 
     def test_pygame2_sdl_time_delay(self):
 
@@ -132,19 +137,18 @@ class SDLTimeTest (unittest.TestCase):
         sdltime.init ()
         self.assertRaises (TypeError, sdltime.remove_timer, None)
         
-        flag = []
-        tobj = sdltime.add_timer (10, _timercb, (flag,))
+        flag1 = []
+        tobj = sdltime.add_timer (10, _timercb, (flag1,))
         self.assert_ (tobj != None)
         t1 = t2 = sdltime.get_ticks ()
         while (t2 - t1 < 50):
             sdltime.delay (1)
             t2 = sdltime.get_ticks ()
-        self.assertTrue (len (flag) != 0)
         sdltime.remove_timer (tobj)
         self.assertRaises (ValueError, sdltime.remove_timer, tobj)
         
-        flag = []
-        tobj = sdltime.add_timer (10, _timercb, (flag,))
+        flag2 = []
+        tobj = sdltime.add_timer (100, _timercb, (flag2,))
         sdltime.remove_timer (tobj)
         self.assertRaises (ValueError, sdltime.remove_timer, tobj)
         self.assert_ (tobj != None)
@@ -152,23 +156,12 @@ class SDLTimeTest (unittest.TestCase):
         while (t2 - t1 < 50):
             sdltime.delay (1)
             t2 = sdltime.get_ticks ()
-        self.assert_ (len (flag) == 0)
         sdltime.quit ()
         self.assertRaises (pygame2.Error, sdltime.remove_timer, _timercb)
 
-    def todo_test_pygame2_sdl_time_set_timer(self):
-
-        # __doc__ (as of 2010-01-06) for pygame2.sdl.time.set_timer:
-
-        # set_timer (interval, callable) -> None
-        # 
-        # Sets a single timer callback to be called periodically.
-        # 
-        # Sets a single timer callback to be called periodically using the specified
-        # *interval* in milliseconds. The timer callback can be reset by passing
-        # None as *callable* object.
-
-        self.fail() 
+        # This is important. If the test 
+        self.assertTrue (len (flag1) != 0)
+        self.assertTrue (len (flag2) == 0)
 
     def test_pygame2_sdl_time_was_init(self):
 

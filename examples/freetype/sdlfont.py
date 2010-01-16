@@ -30,8 +30,7 @@ def run():
     video.init ()
     freetype.init (8)
 
-    fontfile = os.path.join (pygame2.examples.RESOURCEDIR, "sans.ttf")
-    font = freetype.Font (fontfile)
+    font = freetype.Font (pygame2.examples.RESOURCES.get ("sans.ttf"))
 
     screen = video.set_mode (800, 600)
     screen.fill (colors["grey_light"])

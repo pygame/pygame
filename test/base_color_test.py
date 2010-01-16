@@ -43,7 +43,6 @@ def _assigna (x, y):
 def _assign_item (x, p, y):
     x[p] = y
 
-
 class ColorTest (unittest.TestCase):
     def test_invalid_html_hex_codes (self):
         # This was a problem with the way 2 digit hex numbers were
@@ -87,7 +86,6 @@ class ColorTest (unittest.TestCase):
         self.assertEqual(Color('#0D000000').r, 0x0D)
         self.assertEqual(Color('#0E000000').r, 0x0E)
         self.assertEqual(Color('#0F000000').r, 0x0F)
-
 
     def test_comparison(self):
         self.failUnless(Color(255, 0, 0, 0) == Color(255, 0, 0, 0))
@@ -413,7 +411,6 @@ class ColorTest (unittest.TestCase):
         self.assertRaises (ValueError, Color, "09abcdef")
         self.assertRaises (ValueError, Color, "09abcde")
         self.assertRaises (ValueError, Color, "quarky")
-
 
     def test_int (self):
         # This will be a long

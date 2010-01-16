@@ -27,35 +27,96 @@
 extern "C" {
 #endif
 
+/* Stream handling */
+
 #define PYGAME_BASE_FIRSTSLOT 0
-#define PYGAME_BASE_NUMSLOTS 13
+#define PYGAME_BASE_NUMSLOTS 15
 #ifndef PYGAME_BASE_INTERNAL
 #define PyExc_PyGameError ((PyObject*)PyGameBase_C_API[PYGAME_BASE_FIRSTSLOT])
 #define DoubleFromObj                                                   \
     (*(int(*)(PyObject*, double*))PyGameBase_C_API[PYGAME_BASE_FIRSTSLOT+1])
 #define IntFromObj                                                      \
     (*(int(*)(PyObject*, int*))PyGameBase_C_API[PYGAME_BASE_FIRSTSLOT+2])
-#define UintFromObj                                                      \
+#define UintFromObj                                                     \
     (*(int(*)(PyObject*, unsigned int*))PyGameBase_C_API[PYGAME_BASE_FIRSTSLOT+3])
 #define DoubleFromSeqIndex                                              \
     (*(int(*)(PyObject*, Py_ssize_t, double*))PyGameBase_C_API[PYGAME_BASE_FIRSTSLOT+4])
 #define IntFromSeqIndex                                                 \
     (*(int(*)(PyObject*, Py_ssize_t, int*))PyGameBase_C_API[PYGAME_BASE_FIRSTSLOT+5])
-#define UintFromSeqIndex                                                 \
+#define UintFromSeqIndex                                                \
     (*(int(*)(PyObject*, Py_ssize_t, unsigned int*))PyGameBase_C_API[PYGAME_BASE_FIRSTSLOT+6])
 #define PointFromObject                                                 \
     (*(int(*)(PyObject*, int*, int*))PyGameBase_C_API[PYGAME_BASE_FIRSTSLOT+7])
 #define SizeFromObject                                                  \
     (*(int(*)(PyObject*, pgint32*, pgint32*))PyGameBase_C_API[PYGAME_BASE_FIRSTSLOT+8])
-#define FPointFromObject                                                 \
+#define FPointFromObject                                                \
     (*(int(*)(PyObject*, double*, double*))PyGameBase_C_API[PYGAME_BASE_FIRSTSLOT+9])
-#define FSizeFromObject                                                  \
+#define FSizeFromObject                                                 \
     (*(int(*)(PyObject*, double*, double*))PyGameBase_C_API[PYGAME_BASE_FIRSTSLOT+10])
 #define ASCIIFromObject                                                 \
     (*(int(*)(PyObject*, char**, PyObject**))PyGameBase_C_API[PYGAME_BASE_FIRSTSLOT+11])
 #define UTF8FromObject                                                  \
     (*(int(*)(PyObject*, char**, PyObject**))PyGameBase_C_API[PYGAME_BASE_FIRSTSLOT+12])
+#define UlongFromObj                                                    \
+    (*(int(*)(PyObject*, unsigned long*))PyGameBase_C_API[PYGAME_BASE_FIRSTSLOT+13])
+#define LongFromObj                                                    \
+    (*(int(*)(PyObject*, long*))PyGameBase_C_API[PYGAME_BASE_FIRSTSLOT+14])
 #endif /* PYGAME_BASE_INTERNAL */
+
+/*
+ * C-only stream access wrapper with threading support. 
+ */
+typedef struct
+{
+    PyObject *read;
+    PyObject *write;
+    PyObject *seek;
+    PyObject *tell;
+    PyObject *close;
+#ifdef WITH_THREAD
+    PyThreadState *thread;
+#endif
+} CPyStreamWrapper;
+
+#define PYGAME_STREAMWRAPPER_FIRSTSLOT \
+    (PYGAME_BASE_FIRSTSLOT + PYGAME_BASE_NUMSLOTS)
+#define PYGAME_STREAMWRAPPER_NUMSLOTS 15
+#ifndef PYGAME_STREAMWRAPPER_INTERNAL
+#define CPyStreamWrapper_New                                            \
+    (*(CPyStreamWrapper*(*)(PyObject*)) PyGameBase_C_API[PYGAME_STREAMWRAPPER_FIRSTSLOT+0])
+#define CPyStreamWrapper_Free                                           \
+    (*(void(*)(CPyStreamWrapper*)) PyGameBase_C_API[PYGAME_STREAMWRAPPER_FIRSTSLOT+1])
+#define CPyStreamWrapper_Read_Threaded                                  \
+    (*(int(*)(CPyStreamWrapper*, void*, pguint32, pguint32, pguint32*)) \
+        PyGameBase_C_API[PYGAME_STREAMWRAPPER_FIRSTSLOT+2])
+#define CPyStreamWrapper_Read                                           \
+    (*(int(*)(CPyStreamWrapper*, void*, pguint32, pguint32, pguint32*)) \
+        PyGameBase_C_API[PYGAME_STREAMWRAPPER_FIRSTSLOT+3])
+#define CPyStreamWrapper_Write_Threaded                                 \
+    (*(int(*)(CPyStreamWrapper*, const void*, pguint32, pguint32, pguint32*)) \
+        PyGameBase_C_API[PYGAME_STREAMWRAPPER_FIRSTSLOT+4])
+#define CPyStreamWrapper_Write                                          \
+    (*(int(*)(CPyStreamWrapper*, const void*, pguint32, pguint32, pguint32*)) \
+        PyGameBase_C_API[PYGAME_STREAMWRAPPER_FIRSTSLOT+5])
+#define CPyStreamWrapper_Seek_Threaded                                  \
+    (*(int(*)(CPyStreamWrapper*, pgint32, int)) PyGameBase_C_API[PYGAME_STREAMWRAPPER_FIRSTSLOT+6])
+#define CPyStreamWrapper_Seek                                         \
+    (*(int(*)(CPyStreamWrapper*, pgint32, int)) PyGameBase_C_API[PYGAME_STREAMWRAPPER_FIRSTSLOT+7])
+#define CPyStreamWrapper_Tell_Threaded                                  \
+    (*(pgint32(*)(CPyStreamWrapper*)) PyGameBase_C_API[PYGAME_STREAMWRAPPER_FIRSTSLOT+8])
+#define CPyStreamWrapper_Tell                                           \
+    (*(pgint32(*)(CPyStreamWrapper*)) PyGameBase_C_API[PYGAME_STREAMWRAPPER_FIRSTSLOT+9])
+#define CPyStreamWrapper_Close_Threaded                                 \
+    (*(int(*)(CPyStreamWrapper*)) PyGameBase_C_API[PYGAME_STREAMWRAPPER_FIRSTSLOT+10])
+#define CPyStreamWrapper_Close                                          \
+    (*(int(*)(CPyStreamWrapper*)) PyGameBase_C_API[PYGAME_STREAMWRAPPER_FIRSTSLOT+11)
+#define IsReadableStreamObj                                             \
+    (*(int(*)(PyObject*))PyGameBase_C_API[PYGAME_STREAMWRAPPER_FIRSTSLOT+12])
+#define IsWriteableStreamObj                                            \
+    (*(int(*)(PyObject*))PyGameBase_C_API[PYGAME_STREAMWRAPPER_FIRSTSLOT+13])
+#define IsReadWriteableStreamObj                                        \
+    (*(int(*)(PyObject*))PyGameBase_C_API[PYGAME_STREAMWRAPPER_FIRSTSLOT+14])
+#endif /* PYGAME_STREAMWRAPPER_INTERNAL */
 
 typedef struct
 {
@@ -66,7 +127,8 @@ typedef struct
     pgbyte b;
     pgbyte a;
 } PyColor;
-#define PYGAME_COLOR_FIRSTSLOT (PYGAME_BASE_FIRSTSLOT + PYGAME_BASE_NUMSLOTS)
+#define PYGAME_COLOR_FIRSTSLOT \
+    (PYGAME_STREAMWRAPPER_FIRSTSLOT + PYGAME_STREAMWRAPPER_NUMSLOTS)
 #define PYGAME_COLOR_NUMSLOTS 5
 #ifndef PYGAME_COLOR_INTERNAL
 #define PyColor_Type \

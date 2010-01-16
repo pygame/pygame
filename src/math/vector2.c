@@ -51,7 +51,8 @@ static PyMethodDef _vector2_methods[] =
       DOC_BASE_VECTOR2_ROTATE_IP },
     { "cross", _vector2_cross, METH_VARARGS, DOC_BASE_VECTOR2_CROSS },
     { "angle_to", _vector2_angleto, METH_VARARGS, DOC_BASE_VECTOR2_ANGLE_TO },
-    { "as_polar", _vector2_aspolar, METH_NOARGS, DOC_BASE_VECTOR2_AS_POLAR },
+    { "as_polar", (PyCFunction)_vector2_aspolar, METH_NOARGS,
+      DOC_BASE_VECTOR2_AS_POLAR },
     { NULL, NULL, 0, NULL },
 };
 

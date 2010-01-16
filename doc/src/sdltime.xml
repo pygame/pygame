@@ -3,7 +3,21 @@
 
 <module name="pygame2.sdl.time">
   <short>SDL time handling and measurement wrapper module</short>
-  <desc>SDL time handling and measurement wrapper module</desc>
+  <desc>SDL time handling and measurement wrapper module.
+  
+    If you are planning to use the timer functionality (:func:`set_timer`,
+    :func:`add_timer`, :func:`remove_timer`) of this module, be aware that
+    simply initializing the SDL subsystem itself (e.g. by calling
+    ``pygame2.sdl.init_subsystem(pygame2.sdl.constants.INIT_TIMER)`` is *not*
+    enough. Instead, explicitly use the :func:`init` and :func:`quit` functions
+    provided by this module, so that threaded timers can work as supposed and
+    you are able to manage them properly.
+  
+    .. todo::
+    
+      Add note about synchronization and deadlock behaviour for the interpreter
+      thread(s).
+  </desc>
 
   <func name="add_timer">
     <call>add_timer (interval, callable[, data]) -> CObject</call>
@@ -75,20 +89,6 @@
       
       Removes a previously added timer callback and throws an exception, if the
       passed object is not a matching timer object.
-    </desc>
-  </func>
-  <func name="set_timer">
-    <call>set_timer (interval, callable) -> None</call>
-    <desc>
-      Sets a single timer callback to be called periodically.
-      
-      Sets a single timer callback to be called periodically using the specified
-      *interval* in milliseconds. The timer callback can be reset by passing
-      None as *callable* object.
-      
-      .. note::
-      
-        Any set timer will be removed automatically on calling :func:`quit`.
     </desc>
   </func>
   <func name="was_init">

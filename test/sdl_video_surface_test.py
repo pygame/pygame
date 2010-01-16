@@ -73,6 +73,7 @@ class SDLVideoSurfaceTest (unittest.TestCase):
             self._cmpcolor (sf, Color (255, 0, 0), Rect (3, 3, 3, 3))
             
             sf.clip_rect = None
+            self.assertEqual (sf.clip_rect, Rect (sf.size))
             sf.fill (Color (255, 255, 255))
             self._cmpcolor (sf, Color (255, 255, 255))
             
@@ -153,7 +154,7 @@ class SDLVideoSurfaceTest (unittest.TestCase):
         video.init ()
         modes = [32, 24, 16, 8]
         for bpp in modes:
-            sf = video.Surface (10, 20, bpp)
+            sf = video.Surface (20, 20, bpp)
             if bpp == 8:
                 sf.set_palette (CGAPALETTE)
 
@@ -164,8 +165,10 @@ class SDLVideoSurfaceTest (unittest.TestCase):
             sf.fill (Color ("cyan"))
             self._cmpcolor (sf, Color ("cyan"))
 
-            sf.fill (Color ("yellow"), Rect (5, 5, 4, 5))
-            self._cmpcolor (sf, Color ("yellow"), Rect (5, 5, 4, 5))
+            sf.fill (Color ("yellow"), Rect (5, 5, 5, 5))
+            self._cmpcolor (sf, Color ("yellow"), Rect (5, 5, 5, 5))
+            self._cmpcolor (sf, Color ("cyan"), Rect (0, 0, 5, 20))
+            self._cmpcolor (sf, Color ("cyan"), Rect (10, 10, 10, 10))
         video.quit ()
 
     def test_pygame2_sdl_video_Surface_flags(self):
@@ -174,8 +177,8 @@ class SDLVideoSurfaceTest (unittest.TestCase):
 
         # The currently set flags for the Surface.
         video.init ()
-        # Add 24bpp and 8bpp alpha masks.
-        modes = [32, 16]
+        # TODO: Add 24bpp and 8bpp alpha masks in the checks below.
+        modes = [32, 24, 16, 8]
         c = constants
         for bpp in modes:
         
@@ -190,22 +193,23 @@ class SDLVideoSurfaceTest (unittest.TestCase):
             sf = video.Surface (10, 10, bpp, flags=c.SRCCOLORKEY)
             self.assertEqual ((sf.flags & c.SRCCOLORKEY), 0)
         
-            sf = video.Surface (10, 10, bpp, flags=c.SRCALPHA)
-            self.assertEqual ((sf.flags & c.SRCALPHA), c.SRCALPHA)
+            if bpp in (16, 32):
+                sf = video.Surface (10, 10, bpp, flags=c.SRCALPHA)
+                self.assertEqual ((sf.flags & c.SRCALPHA), c.SRCALPHA)
 
-            sf = video.Surface (10, 10, bpp, flags=c.SWSURFACE|c.SRCALPHA)
-            self.assertEqual ((sf.flags & c.SWSURFACE), c.SWSURFACE)
-            self.assertEqual ((sf.flags & c.SRCALPHA), c.SRCALPHA)
+                sf = video.Surface (10, 10, bpp, flags=c.SWSURFACE|c.SRCALPHA)
+                self.assertEqual ((sf.flags & c.SWSURFACE), c.SWSURFACE)
+                self.assertEqual ((sf.flags & c.SRCALPHA), c.SRCALPHA)
 
-            sf = video.Surface (10, 10, bpp, flags=c.SRCCOLORKEY|c.SRCALPHA)
-            self.assertEqual ((sf.flags & c.SRCCOLORKEY), 0)
-            self.assertEqual ((sf.flags & c.SRCALPHA), c.SRCALPHA)
+                sf = video.Surface (10, 10, bpp, flags=c.SRCCOLORKEY|c.SRCALPHA)
+                self.assertEqual ((sf.flags & c.SRCCOLORKEY), 0)
+                self.assertEqual ((sf.flags & c.SRCALPHA), c.SRCALPHA)
 
-            sf = video.Surface (10, 10, bpp,
-                                flags=c.SWSURFACE|c.SRCCOLORKEY|c.SRCALPHA)
-            self.assertEqual ((sf.flags & c.SRCCOLORKEY), 0)
-            self.assertEqual ((sf.flags & c.SWSURFACE), c.SWSURFACE)
-            self.assertEqual ((sf.flags & c.SRCALPHA), c.SRCALPHA)
+                sf = video.Surface (10, 10, bpp,
+                                    flags=c.SWSURFACE|c.SRCCOLORKEY|c.SRCALPHA)
+                self.assertEqual ((sf.flags & c.SRCCOLORKEY), 0)
+                self.assertEqual ((sf.flags & c.SWSURFACE), c.SWSURFACE)
+                self.assertEqual ((sf.flags & c.SRCALPHA), c.SRCALPHA)
 
         video.quit ()
 
@@ -242,7 +246,7 @@ class SDLVideoSurfaceTest (unittest.TestCase):
             self.assertEqual (fmt.bytes_per_pixel, bpp // 8)
         video.quit ()
 
-    def todo_test_pygame2_sdl_video_Surface_get_alpha(self):
+    def test_pygame2_sdl_video_Surface_get_alpha(self):
 
         # __doc__ (as of 2009-05-15) for pygame2.sdl.video.Surface.get_alpha:
 
@@ -254,8 +258,35 @@ class SDLVideoSurfaceTest (unittest.TestCase):
         # surface does not support alpha transparency (SRCALPHA flag not set),
         # None will be returned.
         video.init ()
+        modes = [32, 24, 16, 8]
+        # TODO: Add 24bpp and 8bpp alpha masks in the checks below.
+        for bpp in modes:
+            if bpp in (16, 32):
+                sf = video.Surface (10, 10, bpp, flags=constants.SRCALPHA)
+                self.assertEqual ((sf.flags & constants.SRCALPHA),
+                                  constants.SRCALPHA)
+                self.assertEqual (sf.get_alpha (), 255)
+        
+                for alpha in (0, 32, 127, 255):
+                    sf.set_alpha (alpha)
+                    for t in range (4):
+                        sf.set_alpha (sf.get_alpha ())
+                    self.assert_ (sf.get_alpha () == alpha)
+                
+                # Colorkey based surfaces.
+                sf = video.Surface (10, 10, bpp, flags=constants.SRCCOLORKEY)
+                sf.set_colorkey (Color (0, 0, 0))
+                self.assertEqual ((sf.flags & constants.SRCCOLORKEY),
+                                  constants.SRCCOLORKEY)
+                self.assertEqual (sf.get_alpha (), 255)
+        
+                for alpha in (0, 32, 127, 255):
+                    sf.set_alpha (alpha)
+                    for t in range (4):
+                        sf.set_alpha (sf.get_alpha ())
+                    self.assertEqual (sf.get_alpha (), alpha)
+
         video.quit ()
-        self.fail() 
 
     def test_pygame2_sdl_video_Surface_get_at(self):
 
@@ -295,7 +326,6 @@ class SDLVideoSurfaceTest (unittest.TestCase):
         # Gets the colorkey for the Surface or None in case it has no colorkey
         # (SRCCOLORKEY flag not set).
         
-        # This fails badly.
         video.init ()
         modes = [32, 24, 16, 8]
         for bpp in modes:
@@ -317,7 +347,7 @@ class SDLVideoSurfaceTest (unittest.TestCase):
             self.assertEqual (sf.get_colorkey (), key)
         video.quit ()
 
-    def todo_test_pygame2_sdl_video_Surface_get_palette(self):
+    def test_pygame2_sdl_video_Surface_get_palette(self):
 
         # __doc__ (as of 2009-05-15) for pygame2.sdl.video.Surface.get_palette:
 
@@ -328,8 +358,19 @@ class SDLVideoSurfaceTest (unittest.TestCase):
         # Gets the palette colors used by the Surface or None, if the Surface
         # does not use any palette.
         video.init ()
+        palette = [Color (i, i, i) for i in range (256)]
+        
+        surface = video.Surface(2, 2, 8)
+        surface.set_palette (palette)
+        palette2 = surface.get_palette ()
+        r, g, b, a  = palette2[0]
+
+        self.failUnlessEqual (len (palette2), len (palette))
+        for c2, c in zip (palette2, palette):
+            self.failUnlessEqual (c2, c)
+        for c in palette2:
+            self.failUnless (isinstance (c, Color))
         video.quit ()
-        self.fail() 
 
     def test_pygame2_sdl_video_Surface_h(self):
 
@@ -512,7 +553,7 @@ class SDLVideoSurfaceTest (unittest.TestCase):
             self._cmppixels (sf1, sf2)
         video.quit ()
 
-    def todo_test_pygame2_sdl_video_Surface_set_alpha(self):
+    def test_pygame2_sdl_video_Surface_set_alpha(self):
 
         # __doc__ (as of 2009-05-15) for pygame2.sdl.video.Surface.set_alpha:
 
@@ -521,9 +562,9 @@ class SDLVideoSurfaceTest (unittest.TestCase):
         # Adjusts the alpha properties of the Surface.
         # 
         # TODO
-        video.init ()
-        video.quit ()
-        self.fail() 
+        
+        # Already handled in get_alpha() test.
+        pass
 
     def test_pygame2_sdl_video_Surface_set_at(self):
 
@@ -554,7 +595,7 @@ class SDLVideoSurfaceTest (unittest.TestCase):
             self._cmpcolor (sf, color, rect)
         video.quit ()
 
-    def todo_test_pygame2_sdl_video_Surface_set_colorkey(self):
+    def test_pygame2_sdl_video_Surface_set_colorkey(self):
 
         # __doc__ (as of 2009-05-15) for pygame2.sdl.video.Surface.set_colorkey:
 
@@ -563,10 +604,10 @@ class SDLVideoSurfaceTest (unittest.TestCase):
         # Adjusts the colorkey of the Surface.
         # 
         # TODO
-        video.quit ()
-        video.init ()
-        self.fail() 
-
+        
+        # Handled in test_pygame2_sdl_video_Surface_get_colorkey().
+        pass
+    
     def todo_test_pygame2_sdl_video_Surface_set_colors(self):
 
         # __doc__ (as of 2009-05-15) for pygame2.sdl.video.Surface.set_colors:
@@ -586,7 +627,7 @@ class SDLVideoSurfaceTest (unittest.TestCase):
         video.quit ()
         self.fail() 
 
-    def todo_test_pygame2_sdl_video_Surface_set_palette(self):
+    def test_pygame2_sdl_video_Surface_set_palette(self):
 
         # __doc__ (as of 2009-05-15) for pygame2.sdl.video.Surface.set_palette:
 
@@ -602,8 +643,33 @@ class SDLVideoSurfaceTest (unittest.TestCase):
         # If any other error occurs, False will be returned and the
         # Surface palette should be inspected for any changes.
         video.init ()
+        
+        palette = [Color (i, i, i) for i in range (256)]
+        
+        surface = video.Surface (2, 2, 8)
+        surface.set_palette (palette)
+        pxfmt = surface.format
+        for i in range(256):
+            self.failUnlessEqual (pxfmt.map_rgba (palette[i]), i,
+                                  "palette color %i" % (i,))
+            c = palette[i]
+            surface.fill (c)
+            self.failUnlessEqual (surface.get_at (0, 0), c,
+                                  "palette color %i" % (i,))
+        
+            for i in range (10):
+                palette[i] = Color (255 - i, 0, 0)
+            surface.set_palette (palette[0:10])
+            for i in range (256):
+                self.failUnlessEqual (pxfmt.map_rgba (palette[i]), i,
+                                      "palette color %i" % (i,))
+                c = palette[i]
+                surface.fill (c)
+                self.failUnlessEqual (surface.get_at(0, 0), c,
+                                      "palette color %i" % (i,))
+            self.failUnlessRaises (ValueError, surface.set_palette,
+                                   (1, 2, 3, 254))
         video.quit ()
-        self.fail() 
 
     def test_pygame2_sdl_video_Surface_size(self):
 

@@ -28,8 +28,7 @@ def run ():
 
     video.init ()
 
-    imgfont = image.load_bmp (os.path.join
-                              (pygame2.examples.IMAGEDIR, "font.bmp"))
+    imgfont = image.load_bmp (pygame2.examples.RESOURCES.get ("font.bmp"))
     bmpfont = BitmapFont (imgfont, (32, 32), fontmap)
     
     screen = video.set_mode (640, 480)

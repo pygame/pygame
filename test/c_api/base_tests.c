@@ -20,6 +20,8 @@ test_helpers (void)
     double d, e;
     int i, j;
     unsigned int u;
+    long v;
+    unsigned long q;
     char *str;
 
     val = PyFloat_FromDouble (55.33f);
@@ -36,11 +38,25 @@ test_helpers (void)
         ERROR ("Mismatch in IntFromObj result");
     Py_DECREF (val);
 
+    val = PyLong_FromLong (-10);
+    if (!LongFromObj(val, &v))
+        ERROR ("Mismatch in LongFromObj");
+    if (v != -10)
+        ERROR ("Mismatch in LongFromObj result");
+    Py_DECREF (val);
+
     val = PyLong_FromLong (10);
     if (!UintFromObj(val, &u))
         ERROR ("Mismatch in UintFromObj");
     if (u != 10)
         ERROR ("Mismatch in UintFromObj result");
+    Py_DECREF (val);
+
+    val = PyLong_FromUnsignedLong (0xff00ff00ff);
+    if (!UlongFromObj(val, &q))
+        ERROR ("Mismatch in UlongFromObj");
+    if (u != 0xff00ff00ff)
+        ERROR ("Mismatch in UlongFromObj result");
     Py_DECREF (val);
 
     seq = PyTuple_New (2);

@@ -69,6 +69,12 @@
       case it was not done before, :func:`init` will be
       called implicitly with the passed *flags*.
 
+      .. note::
+        
+        Please be aware, that timers need a special treatment, which is not
+        be met by using :data:`INIT_TIMER` alone. For more details, take a look
+        at the :mod:`pygame2.sdl.time` module documentation.
+
       In case an error occured, False will be returned. The detailled
       error can be received using :func:`get_error`.
     </desc>
@@ -81,6 +87,12 @@
       After calling this function, you should not invoke any SDL related
       class, method or function as they are likely to fail or might give
       unpredictable results.
+    
+      .. note::
+        
+        Please be aware, that timers need a special treatment, which is not
+        be met by using :data:`INIT_TIMER` alone. For more details, take a look
+        at the :mod:`pygame2.sdl.time` module documentation.
     </desc>
   </func>
   <func name="quit_subsystem">
@@ -91,6 +103,12 @@
       After calling this function, you should not invoke any class,
       method or function related to the specified subsystems as they are
       likely to fail or might give unpredictable results.
+    
+      .. note::
+        
+        Please be aware, that timers need a special treatment, which is not
+        be met by using :data:`INIT_TIMER` alone. For more details, take a look
+        at the :mod:`pygame2.sdl.time` module documentation.
     </desc>
   </func>
   <func name="was_init">

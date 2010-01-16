@@ -121,8 +121,6 @@ class SDLGLTest (unittest.TestCase):
         screen = video.set_mode (10, 10)
         self.assertEquals (gl.set_attribute (constants.GL_RED_SIZE, 1), None)
         self.assertEquals (gl.get_attribute (constants.GL_RED_SIZE), 0)
-        
-        # TODO
 
     def todo_test_pygame2_sdl_gl_swap_buffers(self):
 

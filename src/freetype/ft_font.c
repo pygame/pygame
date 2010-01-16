@@ -8,7 +8,7 @@
   version 2 of the License, or (at your option) any later version.
 
   This library is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  but WITHOUT ANADDA WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
   Library General Public License for more details.
 
@@ -268,7 +268,7 @@ _ftfont_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     font->pyfont.set_style = _ftfont_setstyle;
     font->pyfont.get_size = _ftfont_getsize;
     font->pyfont.render = _ftfont_render;
-    font->pyfont.copy = NULL; /* TODO */
+    /* TODO: font->pyfont.copy  */
 
     return (PyObject*)font;
 }
@@ -306,11 +306,19 @@ _ftfont_init(PyObject *self, PyObject *args, PyObject *kwds)
     font->antialias = 1;
     font->vertical = 0;
 
-    /*
-     * TODO: Handle file-like objects
-     */
-
-    if (IsTextObj(file))
+    if (IsReadableStreamObj (file))
+    {
+        CPyStreamWrapper *wrapper = CPyStreamWrapper_New (file);
+        if (!wrapper)
+            return NULL;
+        if (PGFT_TryLoadFont_Stream (ft, font, wrapper, face_index) != 0)
+        {
+            if (PyErr_Occurred ())
+                return -1;
+            PyErr_SetString(PyExc_PyGameError, PGFT_GetError(ft));
+        }
+    }
+    else if (IsTextObj(file))
     {
         PyObject *tmp;
         char *filename;
@@ -325,7 +333,7 @@ _ftfont_init(PyObject *self, PyObject *args, PyObject *kwds)
 
         if (PGFT_TryLoadFont_Filename(ft, font, filename, face_index) != 0)
         {
-            PyErr_SetString(PyExc_RuntimeError, PGFT_GetError(ft));
+            PyErr_SetString (PyExc_PyGameError, PGFT_GetError(ft));
             return -1;
         }
     }
@@ -546,7 +554,7 @@ _ftfont_getsize(PyObject *self, PyObject* args, PyObject *kwds)
     if (error)
     {
         if (!PyErr_Occurred ())
-            PyErr_SetString(PyExc_RuntimeError, PGFT_GetError(ft));
+            PyErr_SetString(PyExc_PyGameError, PGFT_GetError(ft));
     }
     else
         rtuple = Py_BuildValue ("(ii)", width, height);
@@ -723,10 +731,9 @@ static PyObject*
 _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
 {
 #ifndef HAVE_PYGAME_SDL_VIDEO
-
-    PyErr_SetString(PyExc_RuntimeError, "SDL support is missing. Cannot render on surfaces");
+    PyErr_SetString(PyExc_PyGameError,
+        "SDL support is missing. Cannot render on surfaces");
     return NULL;
-
 #else
     /* keyword list */
     static char *kwlist[] = 
@@ -815,7 +822,7 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
 
         if (!r_surface)
         {
-            PyErr_SetString(PyExc_RuntimeError, PGFT_GetError(ft));
+            PyErr_SetString(PyExc_PyGameError, PGFT_GetError(ft));
             return NULL;
         }
 
@@ -883,7 +890,7 @@ PyFreeTypeFont_New(const char *filename, int face_index)
 
     if (PGFT_TryLoadFont_Filename(ft, font, filename, face_index) != 0)
     {
-        PyErr_SetString(PyExc_RuntimeError, PGFT_GetError(ft));
+        PyErr_SetString(PyExc_PyGameError, PGFT_GetError(ft));
         return NULL;
     }
 

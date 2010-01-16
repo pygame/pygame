@@ -53,6 +53,7 @@ modules = [
             "src/base/color.c",
             "src/base/floatrect.c",
             "src/base/rect.c",
+            "src/base/streamwrapper.c",
             "src/base/surface.c",
             "src/base/font.c"],
 

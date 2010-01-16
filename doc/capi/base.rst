@@ -250,6 +250,25 @@ Functions
   stored in *convobj* and needs to be freed by the caller, once *text* is not
   required anymore. This returns 1 on success and 0 on failure.
 
+.. cfunction:: int IsReadableStreamObj (PyObject *obj)
+
+  Checks, whether the passed object supports the most important stream
+  operation for reading data, such as ``read``, ``seek`` and ``tell``.
+  This returns 1 on success and 0 on failure.
+
+.. cfunction:: int IsWriteableStreamObj (PyObject *obj)
+
+  Checks, whether the passed object supports the most important stream
+  operation for writing data, such as ``write``, ``seek`` and ``tell``.
+  This returns 1 on success and 0 on failure.
+
+.. cfunction:: int IsReadWriteableStreamObj (PyObject *obj)
+
+  Checks, whether the passed object supports the most important stream
+  operation for reading and writing data, such as ``read``, ``write``,
+  ``seek`` and ``tell``. This returns 1 on success and 0 on failure.
+
+
 PyColor
 -------
 .. ctype:: PyColor
@@ -504,9 +523,9 @@ PySurface
 .. ctype:: PySurface
 .. ctype:: PySurface_Type
 
-The PySurface object an abstract base class, to be used by inheriting classes
-and other interfaces, so it is guaranteed that surface-like objects contain a
-set of same attributes and methods.
+The PySurface object is an abstract base class, to be used by inheriting
+classes and other interfaces, so it is guaranteed that surface-like
+objects contain a set of same attributes and methods.
 
 Members
 ^^^^^^^
@@ -560,3 +579,166 @@ Functions
 
   Creates a new, empty :ctype:`PySurface` object, which's members are set to
   NULL. On failure, this returns NULL.
+
+CPyStreamWrapper
+----------------
+.. ctype:: CPyStreamWrapper
+
+CPyStreamWrapper is a C API only class type for reading and writing
+Python stream objects in a threaded or non-threaded manner. It
+encapsules the important underlying stream methods.
+
+Members
+^^^^^^^
+.. cmember:: PyObject* CPyStreamWrapper.read
+
+  The method pointer to the underlying Python object's ``read`` method.
+  This will be NULL, if the Python object does not support read access.
+
+.. cmember:: PyObject* CPyStreamWrapper.write
+
+  The method pointer to the underlying Python object's ``write`` method.
+  This will be NULL, if the Python object does not support write access.
+
+.. cmember:: PyObject* CPyStreamWrapper.seek
+
+  The method pointer to the underlying Python object's ``seek`` method.
+  This will be NULL, if the Python object does not support seeking the
+  stream.
+
+.. cmember:: PyObject* CPyStreamWrapper.tell
+
+  The method pointer to the underlying Python object's ``tell`` method.
+  This will be NULL, if the Python object does not support seeking the
+  stream.
+
+.. cmember:: PyObject* CPyStreamWrapper.close
+
+  The method pointer to the underlying Python object's ``close`` method.
+  This will be NULL, if the Python object does not support closing the
+  stream.
+
+.. cmember:: PyThreadState* CPyStreamWrapper.thread
+
+  If Python was built with thread support, this will contain the
+  preserved Python thread state to allow concurrent external threads
+  to access the interpreter state and perform stream operations on the
+  underlying Python object.
+
+Functions
+^^^^^^^^^
+.. cfunction:: CPyStreamWrapper* CPyStreamWrapper_New (PyObject *obj)
+
+  Creates a new :ctype:`CPyStreamWrapper` object encapsuling the passed
+  *obj*. This will not perform any checks, whether the *obj* actually is
+  a stream-like object and supports all required methods. If it is not a
+  stream-like object or does not implement the methods, the according
+  :ctype:`CPyStreamWrapper` members will be NULL.
+   
+  Use :cfunc:`IsReadableStreamObj`, :cfunc:`IsWriteableStreamObj` or
+  :cfunc:`IsReadWritebbleStreamObj` beforehand, to check whether *obj*
+  implements all wanted methods.
+
+  On failure, this returns NULL.
+
+.. cfunction:: CPyStreamWrapper_Free (CPyStreamWrapper *wrapper)
+
+  Releases all resources hold by the passed :ctype:`CPyStreamWrapper`
+  instance.
+
+.. cfunction:: int CPyStreamWrapper_Read_Threaded (CPyStreamWrapper *wrapper, void *buf, pguint32 offset, pguint32 count, pguint32 *read_)
+
+  Reads a maximum of *count* bytes from the passed
+  :ctype:`CPyStreamWrapper`, starting at *offset*. The read data will be
+  stored in *buf*, which must be large enough to hold the data. The
+  amount of bytes actually written to *buf* will be stored in *read_*.
+  If *offset* is 0, the stream will not be repositioned. Otherwise,
+  *offset* denotes a position relative to the start of the stream.
+  Returns 1 on succes and 0 on failure.
+
+  This will swap the Python interpreter thread state to gain access to
+  the underlying Python stream object. It **should** not be called from
+  within the same interpreter thread, as it locks the interpreter stat
+  (and thus itself).
+
+.. cfunction:: int CPyStreamWrapper_Read (CPyStreamWrapper *wrapper, void *buf, pguint32 offset, pguint32 count, pguint32 *read_)
+
+  Same as :cfunc:`CPyStreamWrapper_Read_Threaded`, but this will not
+  swap the thread state of the Python interpreter and thus is safe
+  to be called from within the interpreter thread.
+
+.. cfunction:: int CPyStreamWrapper_Write_Threaded (CPyStreamWrapper *wrapper, const void *buf, pguint32 num, pguint32 size, pguint32 *written)
+
+  Writes at least *num* elements of size *size* from the passed *buf* to
+  the stream of the passed :ctype:`CPyStreamWrapper`. The actual amount
+  of written elements will be stored in *written*.
+
+  This will swap the Python interpreter thread state to gain access to
+  the underlying Python stream object. It **should** not be called from
+  within the same interpreter thread, as it locks the interpreter stat
+  (and thus itself).
+
+.. cfunction:: int CPyStreamWrapper_Write (CPyStreamWrapper *wrapper, const void *buf, pguint32 num, pguint32 size, pguint32 *written)
+
+  Same as :cfunc:`CPyStreamWrapper_Write_Threaded`, but this will not
+  swap the thread state of the Python interpreter and thus is safe
+  to be called from within the interpreter thread.
+
+.. cfunction:: int CPyStreamWrapper_Seek_Threaded (CPyStreamWrapper *wrapper, pgint32 offset, int whence)
+
+  Moves to a new stream position. *offset* is the position in
+  bytes. *whence* indicates, how the movement should be performed and
+  can be a valid value of
+
+    * SEEK_SET - *offset* is relative to the start of the stream
+    * SEEK_CUR - *offset* is relative to the current stream position
+    * SEEK_END - *offset* is relative to the end of the stream.
+
+  .. note:: 
+
+    Seeking beyond the end of the stream boundaries might result in an
+    undefined behaviour.
+
+  Returns 1 on succes and 0 on failure.
+
+  This will swap the Python interpreter thread state to gain access to
+  the underlying Python stream object. It **should** not be called from
+  within the same interpreter thread, as it locks the interpreter stat
+  (and thus itself).
+
+.. cfunction:: int CPyStreamWrapper_Seek (CPyStreamWrapper *wrapper, pgint32 offset, int whence)
+
+  Same as :cfunc:`CPyStreamWrapper_Seek_Threaded`, but this will not
+  swap the thread state of the Python interpreter and thus is safe
+  to be called from within the interpreter thread.
+
+.. cfunction:: pgint32 CPyStreamWrapper_Tell_Threaded (CPyStreamWrapper *wrapper)
+
+  Returns the current stream position or -1 if an error occured.
+
+  This will swap the Python interpreter thread state to gain access to
+  the underlying Python stream object. It **should** not be called from
+  within the same interpreter thread, as it locks the interpreter stat
+  (and thus itself).
+
+.. cfunction:: pgint32 CPyStreamWrapper_Tell (CPyStreamWrapper *wrapper)
+
+  Same as :cfunc:`CPyStreamWrapper_Tell_Threaded`, but this will not
+  swap the thread state of the Python interpreter and thus is safe
+  to be called from within the interpreter thread.
+
+.. cfunction:: int CPyStreamWrapper_Close_Threaded (CPyStreamWrapper *wrapper)
+
+  Closes the underlying stream. This leaves the *wrapper* itself intact.
+  Returns 1 on success and 0 on failure.
+
+  This will swap the Python interpreter thread state to gain access to
+  the underlying Python stream object. It **should** not be called from
+  within the same interpreter thread, as it locks the interpreter stat
+  (and thus itself).
+
+.. cfunction:: int CPyStreamWrapper_Close (CPyStreamWrapper *wrapper)
+
+  Same as :cfunc:`CPyStreamWrapper_Close_Threaded`, but this will not
+  swap the thread state of the Python interpreter and thus is safe
+  to be called from within the interpreter thread.

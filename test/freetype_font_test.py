@@ -16,6 +16,44 @@ class FreeTypeFontTest(unittest.TestCase):
         return ft.Font(os.path.join (FONTDIR, 'test_fixed.otf'))
     def get_sans_font (self):
         return ft.Font(os.path.join (FONTDIR, 'test_sans.ttf'))
+    def get_fixed_fontfile (self):
+        return open (os.path.join (FONTDIR, 'test_fixed.otf'), 'rb')
+    def get_sans_fontfile (self):
+        return open (os.path.join (FONTDIR, 'test_sans.ttf'), 'rb')
+
+    def test_pygame2_freetype_Font__from_stream (self):
+        ft.init ()
+        fp = self.get_fixed_fontfile ()
+        f = ft.Font (fp)
+        def test_size(s):
+            self.assertTrue(isinstance(s, tuple))
+            self.assertEqual(len(s), 2)
+            self.assertTrue(isinstance(s[0], int))
+            self.assertTrue(isinstance(s[1], int))
+
+        size = f.get_size("ABCDabcd", ptsize=24)
+        test_size(size)
+        self.assertTrue(size > (0, 0), size)
+        self.assertTrue(size[0] > size[1])
+        del f
+        fp.close ()
+
+        fp = self.get_sans_fontfile ()
+        f = ft.Font (fp)
+        def test_size(s):
+            self.assertTrue(isinstance(s, tuple))
+            self.assertEqual(len(s), 2)
+            self.assertTrue(isinstance(s[0], int))
+            self.assertTrue(isinstance(s[1], int))
+
+        size = f.get_size("ABCDabcd", ptsize=24)
+        test_size(size)
+        self.assertTrue(size > (0, 0), size)
+        self.assertTrue(size[0] > size[1])
+        del f
+        fp.close ()
+
+        ft.quit ()
 
     def test_pygame2_freetype_Font_fixed_width(self):
         ft.init ()
