@@ -657,7 +657,7 @@ Functions
   Returns 1 on succes and 0 on failure.
 
   This will swap the Python interpreter thread state to gain access to
-  the underlying Python stream object. It **should** not be called from
+  the underlying Python stream object. It **should not** be called from
   within the same interpreter thread, as it locks the interpreter stat
   (and thus itself).
 
@@ -674,7 +674,7 @@ Functions
   of written elements will be stored in *written*.
 
   This will swap the Python interpreter thread state to gain access to
-  the underlying Python stream object. It **should** not be called from
+  the underlying Python stream object. It **should not** be called from
   within the same interpreter thread, as it locks the interpreter stat
   (and thus itself).
 
@@ -702,7 +702,7 @@ Functions
   Returns 1 on succes and 0 on failure.
 
   This will swap the Python interpreter thread state to gain access to
-  the underlying Python stream object. It **should** not be called from
+  the underlying Python stream object. It **should not** be called from
   within the same interpreter thread, as it locks the interpreter stat
   (and thus itself).
 
@@ -717,7 +717,7 @@ Functions
   Returns the current stream position or -1 if an error occured.
 
   This will swap the Python interpreter thread state to gain access to
-  the underlying Python stream object. It **should** not be called from
+  the underlying Python stream object. It **should not** be called from
   within the same interpreter thread, as it locks the interpreter stat
   (and thus itself).
 
@@ -733,7 +733,7 @@ Functions
   Returns 1 on success and 0 on failure.
 
   This will swap the Python interpreter thread state to gain access to
-  the underlying Python stream object. It **should** not be called from
+  the underlying Python stream object. It **should not** be called from
   within the same interpreter thread, as it locks the interpreter stat
   (and thus itself).
 

@@ -99,20 +99,27 @@ _sdl_timerfunc (Uint32 interval, void *param)
     if (!id)
     {
         DEBUG_P ("CALLBACK DEFUNCT");
-        goto retnopost;
+        return 0;
     }
     
     /* Wait for the removal */
     DEBUG_P ("WAITING FOR RUN");
     if (SDL_SemWait (timerdata->wait) == -1)
-        goto retnopost;
+        return 0;
     DEBUG_P ("GOT RUN SIGNAL");
 
 #ifdef WITH_THREAD
     PyEval_AcquireLock ();
     oldstate = PyThreadState_Swap (timerdata->thread);
 #endif
-  
+
+    DEBUG_P ("SWAPPED STATE");
+    if (timerdata->id == NULL)
+    {
+        DEBUG_P ("CALLBACK DEFUNCT");
+        goto ret;
+    }
+
     val = PyLong_FromUnsignedLong ((unsigned long)interval);
     if (timerdata->param)
         result = PyObject_CallObject (timerdata->callable, timerdata->param);
@@ -144,18 +151,17 @@ _sdl_timerfunc (Uint32 interval, void *param)
     }
 
 ret:
-    if (SDL_SemPost (timerdata->wait) == -1)
-    {
-        /* TODO */
-        DEBUG_P ("ERROR ON POST");
-    }
-    /* DEBUG_P ("POSTED AFTER RUN"); */
-retnopost:
 #ifdef WITH_THREAD
     PyThreadState_Swap (oldstate);
     PyEval_ReleaseLock ();
 #endif
-
+    if (timerdata->wait)
+    {
+        if (SDL_SemPost (timerdata->wait) == -1)
+        {
+            DEBUG_P ("ERROR ON POST IN CALLBACK");
+        }
+    }
     return retval;
 }
 
@@ -165,7 +171,7 @@ _free_timerdata (void *p)
     _TimerData *data = (_TimerData*) p;
     if (!data)
         return;
-    
+
     if (data->id)
         SDL_RemoveTimer (data->id);
     data->id = NULL;
@@ -207,10 +213,15 @@ _remove_alltimers (_SDLTimerState *state)
 static PyObject*
 _sdl_timeinit (PyObject *self)
 {
+    int ret;
     if (SDL_WasInit (SDL_INIT_TIMER))
         Py_RETURN_NONE;
 
-    if (SDL_InitSubSystem (SDL_INIT_TIMER) == -1)
+    Py_BEGIN_ALLOW_THREADS;
+    ret = SDL_InitSubSystem (SDL_INIT_TIMER);
+    Py_END_ALLOW_THREADS;
+
+    if (ret == -1)
     {
         PyErr_SetString (PyExc_PyGameError, SDL_GetError ());
         return NULL;
@@ -236,8 +247,10 @@ _sdl_timequit (PyObject *self)
     Py_XDECREF (state->timerlist);
     state->timerlist = NULL;
 
+    Py_BEGIN_ALLOW_THREADS;
     if (SDL_WasInit (SDL_INIT_TIMER))
         SDL_QuitSubSystem (SDL_INIT_TIMER);
+    Py_END_ALLOW_THREADS;
     Py_RETURN_NONE;
 }
 
@@ -384,22 +397,11 @@ _sdl_removetimer (PyObject *self, PyObject *args)
         PyErr_SetString (PyExc_ValueError, "invalid timer id");
         return NULL;
     }
-    
-    DEBUG_P ("WAITING FOR REMOVE SIGNAL");
-    if (SDL_SemWait (timerdata->wait) == -1)
-    {
-        PyErr_SetString (PyExc_PyGameError, SDL_GetError ());
-        return NULL;
-    }
-    DEBUG_P ("GOT REMOVE SIGNAL");
+
+    DEBUG_P ("REMOVING TIMER");
     SDL_RemoveTimer (timerdata->id);
     timerdata->id = NULL;
-    if (SDL_SemPost (timerdata->wait) == -1)
-    {
-        /* TODO */
-        DEBUG_P ("ERROR ON POST");
-    }
-    
+
     if (PySequence_DelItem (state->timerlist, pos) == -1)
         return NULL;
     

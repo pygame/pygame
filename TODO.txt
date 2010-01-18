@@ -18,8 +18,6 @@ CRITICAL:
 * Fix eval(repr(xyz)) for most types.
 * >8 bpp surfaces with palettes - it is supported (although it might be
   pointless) by SDL and so should we.
-* Fix possible dead locks on long running timer callbacks in sdl.time module.
-
 
 * freetype: render to buffer buffer support (like new bytearray, but
   write to a buffer instead)
