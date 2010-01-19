@@ -30,7 +30,7 @@ static int _font_init (PyObject *chunk, PyObject *args, PyObject *kwds);
 static void _font_dealloc (PySDLFont_TTF *self);
 
 static PyObject* _font_glyphmetrics (PyObject *self, PyObject* args);
-static PyObject* _font_getsize (PyObject *self, PyObject* args, PyObject *kwds);
+static PyObject* _font_getsize (PyObject *self, PyObject* args);
 static PyObject* _font_render (PyObject *self, PyObject* args, PyObject *kwds);
 
 static PyObject* _font_getstyle (PyObject *self, void *closure);
@@ -47,9 +47,9 @@ static PyObject* _font_getstylename (PyObject *self, void *closure);
 /**
  */
 static PyMethodDef _font_methods[] = {
-    { "get_glyph_metrics", _font_glyphmetrics, METH_VARARGS,
+    { "get_glyph_metrics", _font_glyphmetrics, METH_O,
       DOC_BASE_FONT_GET_GLYPH_METRICS },
-    { "get_size", (PyCFunction) _font_getsize, METH_VARARGS | METH_KEYWORDS,
+    { "get_size", (PyCFunction) _font_getsize, METH_O,
       DOC_BASE_FONT_GET_SIZE },
     { "render", (PyCFunction)_font_render, METH_VARARGS | METH_KEYWORDS,
       DOC_BASE_FONT_RENDER },
@@ -281,22 +281,19 @@ _font_glyphmetrics (PyObject *self, PyObject* args)
 {
     PySDLFont_TTF *font = (PySDLFont_TTF*) self;
     int minx, miny, maxx, maxy, advance, isunicode = 0, i;
-    PyObject *textobj, *list;
+    PyObject *list;
     Py_ssize_t length;
     void *buf = NULL;
 
     ASSERT_TTF_INIT (NULL);
     
-    if (!PyArg_ParseTuple (args, "O:glyph_metrics", &textobj))
-        return NULL;
-
-    if (PyUnicode_Check (textobj))
+    if (PyUnicode_Check (args))
     {
-        buf = PyUnicode_AsUnicode (textobj);
+        buf = PyUnicode_AsUnicode (args);
         isunicode = 1;
     }
-    else if (Bytes_Check (textobj))
-        buf = Bytes_AS_STRING (textobj);
+    else if (Bytes_Check (args))
+        buf = Bytes_AS_STRING (args);
     else
     {
         PyErr_SetString (PyExc_TypeError,
@@ -307,9 +304,9 @@ _font_glyphmetrics (PyObject *self, PyObject* args)
         return NULL;
 
     if (isunicode)
-        length = PyUnicode_GetSize (textobj);
+        length = PyUnicode_GetSize (args);
     else
-        length = Bytes_Size (textobj);
+        length = Bytes_Size (args);
     if (length == 0)
         Py_RETURN_NONE;
 
@@ -363,20 +360,16 @@ _font_glyphmetrics (PyObject *self, PyObject* args)
 }
 
 static PyObject*
-_font_getsize (PyObject *self, PyObject* args, PyObject *kwds)
+_font_getsize (PyObject *self, PyObject* args)
 {
     PySDLFont_TTF *font = (PySDLFont_TTF*) self;
-    PyObject *text;
     int w, h;
     
     ASSERT_TTF_INIT (NULL);
 
-    if (!PyArg_ParseTuple (args, "O:size", &text))
-        return NULL;
-
-    if (PyUnicode_Check (text))
+    if (PyUnicode_Check (args))
     {
-        PyObject* strob = PyUnicode_AsEncodedString (text, "utf-8", "replace");
+        PyObject* strob = PyUnicode_AsEncodedString (args, "utf-8", "replace");
         char *string = Bytes_AS_STRING (strob);
         if (TTF_SizeUTF8 (font->font, string, &w, &h) == -1)
         {
@@ -388,9 +381,9 @@ _font_getsize (PyObject *self, PyObject* args, PyObject *kwds)
         return Py_BuildValue ("(ii)", w, h);
     }
     
-    if (Bytes_Check (text))
+    if (Bytes_Check (args))
     {
-        char* string = Bytes_AS_STRING (text);
+        char* string = Bytes_AS_STRING (args);
         if (TTF_SizeText (font->font, string, &w, &h) == -1)
         {
             PyErr_SetString (PyExc_PyGameError, TTF_GetError ());

@@ -75,7 +75,7 @@ static PyMethodDef _time_methods[] = {
     { "quit", (PyCFunction) _sdl_timequit, METH_NOARGS, DOC_TIME_QUIT },
     { "get_ticks", (PyCFunction) _sdl_timegetticks, METH_NOARGS,
       DOC_TIME_GET_TICKS },
-    { "delay", _sdl_timedelay, METH_VARARGS, DOC_TIME_DELAY },
+    { "delay", _sdl_timedelay, METH_O, DOC_TIME_DELAY },
     { "add_timer", _sdl_addtimer, METH_VARARGS, DOC_TIME_ADD_TIMER },
     { "remove_timer", _sdl_removetimer, METH_VARARGS, DOC_TIME_REMOVE_TIMER },
     { NULL, NULL, 0, NULL }
@@ -266,7 +266,7 @@ _sdl_timedelay (PyObject *self, PyObject *args)
 {
     Uint32 ms;
 
-    if (!PyArg_ParseTuple (args, "l:delay", &ms))
+    if (!Uint32FromObj (args, &ms))
         return NULL;
     Py_BEGIN_ALLOW_THREADS;
     SDL_Delay (ms);

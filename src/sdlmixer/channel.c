@@ -57,8 +57,8 @@ static PyMethodDef _channel_methods[] = {
       DOC_BASE_CHANNEL_RESUME },
     { "fade_in", (PyCFunction)_channel_fadein, METH_VARARGS | METH_KEYWORDS,
       DOC_BASE_CHANNEL_FADE_IN },
-    { "fade_out", _channel_fadeout, METH_VARARGS, DOC_BASE_CHANNEL_FADE_OUT },
-    { "expire", _channel_expire, METH_VARARGS, DOC_BASE_CHANNEL_EXPIRE },
+    { "fade_out", _channel_fadeout, METH_O, DOC_BASE_CHANNEL_FADE_OUT },
+    { "expire", _channel_expire, METH_O, DOC_BASE_CHANNEL_EXPIRE },
     { NULL, NULL, 0, NULL }
 };
 
@@ -387,8 +387,8 @@ _channel_fadeout (PyObject *self, PyObject *args)
     int ms;
     
     ASSERT_MIXER_OPEN (NULL);
-    
-    if (!PyArg_ParseTuple (args, "i:fade_out", &ms))
+
+    if (!IntFromObj (args, &ms))
         return NULL;
     if (ms < 0)
     {
@@ -406,7 +406,7 @@ _channel_expire (PyObject *self, PyObject *args)
     
     ASSERT_MIXER_OPEN (NULL);
     
-    if (!PyArg_ParseTuple (args, "i:expire", &ms))
+    if (!IntFromObj (args, &ms))
         return NULL;
     if (ms < 0)
     {

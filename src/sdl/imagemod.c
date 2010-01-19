@@ -26,7 +26,7 @@ static PyObject* _sdl_loadbmp (PyObject *self, PyObject *args);
 static PyObject* _sdl_savebmp (PyObject *self, PyObject *args);
 
 static PyMethodDef _image_methods[] = {
-    { "load_bmp", _sdl_loadbmp, METH_VARARGS, DOC_IMAGE_LOAD_BMP },
+    { "load_bmp", _sdl_loadbmp, METH_O, DOC_IMAGE_LOAD_BMP },
     { "save_bmp", _sdl_savebmp, METH_VARARGS, DOC_IMAGE_SAVE_BMP },
     { NULL, NULL, 0, NULL }
 };
@@ -37,12 +37,9 @@ _sdl_loadbmp (PyObject *self, PyObject *args)
     SDL_Surface *surface;
     SDL_RWops *rw;
     int autoclose;
-    PyObject *sf, *file;
+    PyObject *sf;
 
-    if (!PyArg_ParseTuple (args, "O:load_bmp", &file))
-        return NULL;
-    
-    rw = PyRWops_NewRO_Threaded (file, &autoclose);
+    rw = PyRWops_NewRO_Threaded (args, &autoclose);
     if (!rw)
         return NULL;
 

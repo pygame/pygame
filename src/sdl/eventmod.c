@@ -47,17 +47,16 @@ static PyMethodDef _event_methods[] = {
     { "pump", (PyCFunction)_sdl_eventpump, METH_NOARGS, DOC_EVENT_PUMP },
     { "poll", (PyCFunction)_sdl_eventpoll, METH_NOARGS, DOC_EVENT_POLL },
     { "wait", (PyCFunction)_sdl_eventwait, METH_NOARGS, DOC_EVENT_WAIT },
-    { "push", _sdl_eventpush, METH_VARARGS, DOC_EVENT_PUSH },
+    { "push", _sdl_eventpush, METH_O, DOC_EVENT_PUSH },
     { "state", _sdl_eventstate, METH_VARARGS, DOC_EVENT_STATE },
     { "peep", _sdl_eventpeep, METH_VARARGS, DOC_EVENT_PEEP },
     { "clear", _sdl_eventclear, METH_VARARGS, DOC_EVENT_CLEAR },
     { "get", _sdl_eventget, METH_VARARGS, DOC_EVENT_GET },
     { "peek", _sdl_eventpeek, METH_VARARGS, DOC_EVENT_PEEK },
-    { "set_blocked", _sdl_eventsetblocked, METH_VARARGS,
-      DOC_EVENT_SET_BLOCKED },
+    { "set_blocked", _sdl_eventsetblocked, METH_O, DOC_EVENT_SET_BLOCKED },
     { "get_blocked", (PyCFunction)_sdl_eventgetblocked, METH_NOARGS,
       DOC_EVENT_GET_BLOCKED },
-    { "set_filter", _sdl_eventsetfilter, METH_VARARGS, DOC_EVENT_SET_FILTER },
+    { "set_filter", _sdl_eventsetfilter, METH_O, DOC_EVENT_SET_FILTER },
     { "get_filter", (PyCFunction)_sdl_eventgetfilter, METH_NOARGS,
       DOC_EVENT_GET_FILTER },
     { "get_app_state", (PyCFunction) _sdl_eventgetappstate, METH_NOARGS,
@@ -145,19 +144,16 @@ static PyObject*
 _sdl_eventpush (PyObject *self, PyObject *args)
 {
     SDL_Event event;
-    PyObject *ev;
     
     ASSERT_VIDEO_INIT(NULL);
 
-    if (!PyArg_ParseTuple (args, "O:push", &ev))
-        return NULL;
-    if (!PyEvent_Check (ev))
+    if (!PyEvent_Check (args))
     {
         PyErr_SetString (PyExc_TypeError, "event must be an Event");
         return NULL;
     }
     
-    if (!PyEvent_SDLEventFromEvent (ev, &event))
+    if (!PyEvent_SDLEventFromEvent (args, &event))
         return NULL;
 
     if (SDL_EventState (event.type, SDL_QUERY) == SDL_IGNORE)
@@ -507,21 +503,17 @@ _sdl_eventpeek (PyObject *self, PyObject *args)
 static PyObject*
 _sdl_eventsetblocked (PyObject *self, PyObject *args)
 {
-    PyObject *events;
     Uint8 types[SDL_NUMEVENTS] = { 0 };
     Uint8 type;
     int i;
-
-    if (!PyArg_ParseTuple (args, "O:set_blocked", &events))
-        return NULL;
  
-    if (events == Py_None)
+    if (args == Py_None)
     {
         /* Reset the previous state, allow all events. */
         for (i = 0; i < SDL_NUMEVENTS; i++)
             SDL_EventState ((Uint8)i, SDL_ENABLE);
     }
-    else if (Uint8FromObj (events, &type))
+    else if (Uint8FromObj (args, &type))
     {
         /* Reset the previous state, allow all events. */
         for (i = 0; i < SDL_NUMEVENTS; i++)
@@ -530,12 +522,14 @@ _sdl_eventsetblocked (PyObject *self, PyObject *args)
         /* Single event to be blocked */
         SDL_EventState (type, SDL_IGNORE);
     }
-    else if (PySequence_Check (events))
+    else if (PySequence_Check (args))
     {
         Py_ssize_t count, j;
 
+        PyErr_Clear (); /* from Uint8FromObj */
+
         /* List of events */
-        count = PySequence_Size (events);
+        count = PySequence_Size (args);
         if (count > SDL_NUMEVENTS)
         {
             PyErr_SetString (PyExc_ValueError,
@@ -547,7 +541,7 @@ _sdl_eventsetblocked (PyObject *self, PyObject *args)
         
         for (j = 0, i = 0; j < count; j++, i++)
         {
-            if (!Uint8FromSeqIndex (events, j, &(types[i])))
+            if (!Uint8FromSeqIndex (args, j, &(types[i])))
             {
                 PyErr_SetString (PyExc_TypeError,
                     "event sequence must consist of valid event types");
@@ -598,15 +592,11 @@ _sdl_eventgetblocked (PyObject *self)
 static PyObject*
 _sdl_eventsetfilter (PyObject *self, PyObject *args)
 {
-    PyObject *hook;
     _SDLEventState *state = SDLEVENT_MOD_STATE(self);
 
     ASSERT_VIDEO_INIT(NULL);
 
-    if (!PyArg_ParseTuple (args, "O:set_filter", &hook))
-        return NULL;
-
-    if (hook == Py_None)
+    if (args == Py_None)
     {
         /* Reset the filter hook */
         Py_XDECREF (state->filterhook);
@@ -615,14 +605,14 @@ _sdl_eventsetfilter (PyObject *self, PyObject *args)
         Py_RETURN_NONE;
     }
 
-    if (!PyCallable_Check (hook))
+    if (!PyCallable_Check (args))
     {
         PyErr_SetString (PyExc_TypeError, "hook must be callable");
         return NULL;
     }
 
-    Py_INCREF (hook);
-    state->filterhook = hook;
+    Py_INCREF (args);
+    state->filterhook = args;
     SDL_SetEventFilter (_sdl_filter_events);
 
     Py_RETURN_NONE;

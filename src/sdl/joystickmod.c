@@ -41,12 +41,11 @@ static PyMethodDef _joystick_methods[] = {
     { "quit", (PyCFunction) _sdl_joyquit, METH_NOARGS, DOC_JOYSTICK_QUIT },
     { "num_joysticks", (PyCFunction) _sdl_joynumjoysticks, METH_NOARGS,
       DOC_JOYSTICK_NUM_JOYSTICKS },
-    { "get_name", _sdl_joygetname, METH_VARARGS, DOC_JOYSTICK_GET_NAME },
+    { "get_name", _sdl_joygetname, METH_O, DOC_JOYSTICK_GET_NAME },
     { "update", (PyCFunction) _sdl_joyupdate, METH_NOARGS,
       DOC_JOYSTICK_UPDATE },
-    { "event_state", _sdl_joyeventstate, METH_VARARGS,
-      DOC_JOYSTICK_EVENT_STATE },
-    { "opened", _sdl_joyopened, METH_VARARGS, DOC_JOYSTICK_OPENED },
+    { "event_state", _sdl_joyeventstate, METH_O, DOC_JOYSTICK_EVENT_STATE },
+    { "opened", _sdl_joyopened, METH_O, DOC_JOYSTICK_OPENED },
     { NULL, NULL, 0, NULL }
 };
 
@@ -106,8 +105,9 @@ _sdl_joygetname (PyObject *self, PyObject *args)
     int joy;
     ASSERT_JOYSTICK_INIT(NULL);
 
-    if (!PyArg_ParseTuple (args, "i:get_name", &joy))
+    if (!IntFromObj (args, &joy))
         return NULL;
+
     if (joy < 0 || joy >= SDL_NumJoysticks())
     {
         PyErr_SetString (PyExc_ValueError, "invalid joystick index");
@@ -131,8 +131,9 @@ _sdl_joyeventstate (PyObject *self, PyObject *args)
     /* TODO: is that necessary? */
     /*ASSERT_VIDEO_INIT(NULL);*/
 
-    if (!PyArg_ParseTuple (args, "i:event_state", &state))
+    if (!IntFromObj (args, &state))
         return NULL;
+
     return PyInt_FromLong (SDL_JoystickEventState (state));
 }
 
@@ -142,7 +143,7 @@ _sdl_joyopened (PyObject *self, PyObject *args)
     int joy;
     ASSERT_JOYSTICK_INIT(NULL);
 
-    if (!PyArg_ParseTuple (args, "i:opened", &joy))
+    if (!IntFromObj (args, &joy))
         return NULL;
     if (joy < 0 || joy >= SDL_NumJoysticks())
     {

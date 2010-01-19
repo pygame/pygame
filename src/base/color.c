@@ -86,7 +86,7 @@ static PyMethodDef _color_methods[] =
 {
     { "normalize", (PyCFunction) _color_normalize, METH_NOARGS,
       DOC_BASE_COLOR_NORMALIZE },
-    { "correct_gamma", (PyCFunction) _color_correct_gamma, METH_VARARGS,
+    { "correct_gamma", (PyCFunction) _color_correct_gamma, METH_O,
       DOC_BASE_COLOR_CORRECT_GAMMA },
     { NULL, NULL, 0, NULL }
 };
@@ -666,8 +666,8 @@ _color_correct_gamma (PyColor *color, PyObject *args)
     double frgba[4];
     pgbyte rgba[4];
     double _gamma;
-    
-    if (!PyArg_ParseTuple (args, "d:correct_gamma", &_gamma))
+
+    if (!DoubleFromObj (args, &_gamma))
         return NULL;
 
     frgba[0] = pow (color->r / 255.0, _gamma);

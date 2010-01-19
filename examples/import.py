@@ -2,6 +2,9 @@ def run ():
     import sys, os
 
     import pygame2
+    import pygame2.colordict
+    import pygame2.colorpalettes
+    import pygame2.font
 
     try:
         import pygame2.freetype
@@ -15,6 +18,8 @@ def run ():
         import pygame2.midi
     except ImportError:
         print (sys.exc_info()[1])
+
+    import pygame2.resources
     
     try:
         import pygame2.sdl
@@ -50,7 +55,6 @@ def run ():
         import pygame2.sdlext.surfarray
     except ImportError:
         print (sys.exc_info()[1])
-
 
     try:
         import pygame2.sdlgfx

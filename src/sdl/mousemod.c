@@ -42,9 +42,9 @@ static PyMethodDef _mouse_methods[] = {
       DOC_MOUSE_GET_STATE },
     { "get_rel_state", (PyCFunction)_sdl_getrelativemousestate, METH_NOARGS,
       DOC_MOUSE_GET_REL_STATE },
-    { "set_visible", _sdl_setvisible, METH_VARARGS, DOC_MOUSE_SET_VISIBLE },
-    { "show_cursor", _sdl_setvisible, METH_VARARGS, DOC_MOUSE_SHOW_CURSOR },
-    { "set_cursor", _sdl_setcursor, METH_VARARGS, DOC_MOUSE_SET_CURSOR },
+    { "set_visible", _sdl_setvisible, METH_O, DOC_MOUSE_SET_VISIBLE },
+    { "show_cursor", _sdl_setvisible, METH_O, DOC_MOUSE_SHOW_CURSOR },
+    { "set_cursor", _sdl_setcursor, METH_O, DOC_MOUSE_SET_CURSOR },
     { NULL, NULL, 0, NULL }
 };
 
@@ -116,22 +116,18 @@ _sdl_getrelativemousestate (PyObject *self)
 static PyObject*
 _sdl_setvisible (PyObject *self, PyObject *args)
 {
-    PyObject *val;
     int state;
 
     ASSERT_VIDEO_SURFACE_SET(NULL);
 
-    if (!PyArg_ParseTuple (args, "O:set_visible", &val))
-        return NULL;
-    
-    if (PyBool_Check (val))
+    if (PyBool_Check (args))
     {
-        if (val == Py_True)
+        if (args == Py_True)
             state = SDL_ShowCursor (SDL_ENABLE);
         else
             state = SDL_ShowCursor (SDL_DISABLE);
     }
-    else if (IntFromObj (val, &state))
+    else if (IntFromObj (args, &state))
         state = SDL_ShowCursor (state);
     else
     {
@@ -149,15 +145,13 @@ _sdl_setcursor (PyObject *self, PyObject *args)
     SDL_Cursor *c;
     
     ASSERT_VIDEO_SURFACE_SET(NULL);
-    if (!PyArg_ParseTuple (args, "O:set_cursor", &cursor))
-        return NULL;
-    if (!PyCursor_Check (cursor))
+    if (!PyCursor_Check (args))
     {
         PyErr_SetString (PyExc_TypeError, "argument must be a Cursor");
         return NULL;
     }
     
-    c = ((PyCursor*)cursor)->cursor;
+    c = ((PyCursor*)args)->cursor;
     SDL_SetCursor (c);
     Py_RETURN_NONE;
 }

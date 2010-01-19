@@ -54,20 +54,20 @@ static PyObject* _vector3_asspherical (PyObject *self);
  */
 static PyMethodDef _vector3_methods[] =
 {
-    { "rotate_x", _vector3_rotate_x, METH_VARARGS, DOC_BASE_VECTOR3_ROTATE_X },
-    { "rotate_x_ip", _vector3_rotate_x_ip, METH_VARARGS,
+    { "rotate_x", _vector3_rotate_x, METH_O, DOC_BASE_VECTOR3_ROTATE_X },
+    { "rotate_x_ip", _vector3_rotate_x_ip, METH_O,
       DOC_BASE_VECTOR3_ROTATE_X_IP },
-    { "rotate_y", _vector3_rotate_y, METH_VARARGS, DOC_BASE_VECTOR3_ROTATE_Y },
-    { "rotate_y_ip", _vector3_rotate_y_ip, METH_VARARGS,
+    { "rotate_y", _vector3_rotate_y, METH_O, DOC_BASE_VECTOR3_ROTATE_Y },
+    { "rotate_y_ip", _vector3_rotate_y_ip, METH_O,
       DOC_BASE_VECTOR3_ROTATE_Y_IP },
-    { "rotate_z", _vector3_rotate_z, METH_VARARGS, DOC_BASE_VECTOR3_ROTATE_Z },
-    { "rotate_z_ip", _vector3_rotate_z_ip, METH_VARARGS,
+    { "rotate_z", _vector3_rotate_z, METH_O, DOC_BASE_VECTOR3_ROTATE_Z },
+    { "rotate_z_ip", _vector3_rotate_z_ip, METH_O,
       DOC_BASE_VECTOR3_ROTATE_Z_IP },
     { "rotate", _vector3_rotate, METH_VARARGS, DOC_BASE_VECTOR3_ROTATE },
     { "rotate_ip", _vector3_rotate_ip, METH_VARARGS,
       DOC_BASE_VECTOR3_ROTATE_IP },
-    { "cross", _vector3_cross, METH_VARARGS, DOC_BASE_VECTOR3_CROSS },
-    { "angle_to", _vector3_angleto, METH_VARARGS, DOC_BASE_VECTOR3_ANGLE_TO },
+    { "cross", _vector3_cross, METH_O, DOC_BASE_VECTOR3_CROSS },
+    { "angle_to", _vector3_angleto, METH_O, DOC_BASE_VECTOR3_ANGLE_TO },
     { "as_spherical", (PyCFunction)_vector3_asspherical, METH_NOARGS,
       DOC_BASE_VECTOR3_AS_SPHERICAL },
     { NULL, NULL, 0, NULL },
@@ -429,8 +429,9 @@ _vector3_rotate_x (PyObject *self, PyObject *args)
     double sinvalue, cosvalue;
     double angle;
 
-    if (!PyArg_ParseTuple (args, "d:rotate_x", &angle))
+    if (!DoubleFromObj (args, &angle))
         return NULL;
+    
     ret = (PyVector*) PyVector3_New (0.f, 0.f, 0.f);
     if (!ret)
         return NULL;
@@ -453,7 +454,7 @@ _vector3_rotate_x_ip (PyObject *self, PyObject *args)
     double sinvalue, cosvalue;
     double angle;
 
-    if (!PyArg_ParseTuple (args, "d:rotate_x_ip", &angle))
+    if (!DoubleFromObj (args, &angle))
         return NULL;
 
     angle = DEG2RAD (angle);
@@ -474,8 +475,9 @@ _vector3_rotate_y (PyObject *self, PyObject *args)
     double sinvalue, cosvalue;
     double angle;
 
-    if (!PyArg_ParseTuple (args, "d:rotate_y", &angle))
+    if (!DoubleFromObj (args, &angle))
         return NULL;
+
     ret = (PyVector*) PyVector3_New (0.f, 0.f, 0.f);
     if (!ret)
         return NULL;
@@ -498,7 +500,7 @@ _vector3_rotate_y_ip (PyObject *self, PyObject *args)
     double sinvalue, cosvalue;
     double angle;
 
-    if (!PyArg_ParseTuple (args, "d:rotate_y_ip", &angle))
+    if (!DoubleFromObj (args, &angle))
         return NULL;
 
     angle = DEG2RAD (angle);
@@ -519,8 +521,9 @@ _vector3_rotate_z (PyObject *self, PyObject *args)
     double sinvalue, cosvalue;
     double angle;
 
-    if (!PyArg_ParseTuple (args, "d:rotate_z", &angle))
+    if (!DoubleFromObj (args, &angle))
         return NULL;
+
     ret = (PyVector*) PyVector3_New (0.f, 0.f, 0.f);
     if (!ret)
         return NULL;
@@ -543,7 +546,7 @@ _vector3_rotate_z_ip (PyObject *self, PyObject *args)
     double sinvalue, cosvalue;
     double angle;
 
-    if (!PyArg_ParseTuple (args, "d:rotate_z_ip", &angle))
+    if (!DoubleFromObj (args, &angle))
         return NULL;
 
     angle = DEG2RAD (angle);
@@ -559,22 +562,18 @@ _vector3_rotate_z_ip (PyObject *self, PyObject *args)
 static PyObject*
 _vector3_cross (PyObject *self, PyObject *args)
 {
-    PyObject *other;
     Py_ssize_t otherdim;
     double *othercoords;
     PyVector *v = (PyVector *) self;
     PyVector *ret;
 
-    if (!PyArg_ParseTuple (args, "O:cross", &other))
-        return NULL;
-
-    if (!IsVectorCompatible (other))
+    if (!IsVectorCompatible (args))
     {
         PyErr_SetString (PyExc_TypeError, "other must be a vector compatible");
         return NULL;
     }
 
-    othercoords = VectorCoordsFromObj (other, &otherdim);
+    othercoords = VectorCoordsFromObj (args, &otherdim);
     if (!othercoords)
         return NULL;
     if (otherdim < v->dim)
@@ -607,19 +606,15 @@ _vector3_angleto (PyObject *self, PyObject *args)
     double angle, tmp1, tmp2;
     double *othercoords;
     Py_ssize_t otherdim;
-    PyObject *other;
     PyVector* v = (PyVector*)self;
 
-    if (!PyArg_ParseTuple (args, "O:angleto", &other))
-        return NULL;
-
-    if (!IsVectorCompatible (other))
+    if (!IsVectorCompatible (args))
     {
         PyErr_SetString (PyExc_TypeError, "other must be a vector compatible");
         return NULL;
     }
 
-    othercoords = VectorCoordsFromObj (other, &otherdim);
+    othercoords = VectorCoordsFromObj (args, &otherdim);
     if (!othercoords)
         return NULL;
     if (otherdim < v->dim)

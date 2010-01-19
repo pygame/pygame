@@ -72,7 +72,7 @@ static PyMethodDef _scrap_methods[] =
     { "get_types", (PyCFunction)_scrap_gettypes, METH_NOARGS,
       DOC_SCRAP_GET_TYPES },
     { "lost", (PyCFunction)_scrap_lost, METH_NOARGS, DOC_SCRAP_LOST },
-    { "set_mode", _scrap_setmode, METH_VARARGS, DOC_SCRAP_SET_MODE },
+    { "set_mode", _scrap_setmode, METH_O, DOC_SCRAP_SET_MODE },
     { "get_mode", (PyCFunction)_scrap_getmode, METH_NOARGS,
       DOC_SCRAP_GET_MODE },
     { NULL, NULL, 0, NULL }
@@ -285,7 +285,8 @@ _scrap_setmode (PyObject* self, PyObject* args)
     int mode, _setmode;
 
     ASSERT_SCRAP_INIT (NULL);
-    if (!PyArg_ParseTuple (args, "i", &mode))
+
+    if (!IntFromObj (args, &mode))
         return NULL;
 
     _setmode = pyg_scrap_set_mode (mode);

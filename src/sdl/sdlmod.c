@@ -22,6 +22,17 @@
 #include "pgsdl.h"
 #include "sdlbase_doc.h"
 
+static int Uint8FromObj (PyObject *item, Uint8 *val);
+static int Uint16FromObj (PyObject *item, Uint16 *val);
+static int Sint16FromObj (PyObject *item, Sint16 *val);
+static int Uint32FromObj (PyObject *item, Uint32 *val);
+static int Uint8FromSeqIndex (PyObject* obj, Py_ssize_t _index, Uint8* val);
+static int Uint16FromSeqIndex (PyObject* obj, Py_ssize_t _index, Uint16* val);
+static int Sint16FromSeqIndex (PyObject* obj, Py_ssize_t _index, Sint16* val);
+static int Uint32FromSeqIndex (PyObject* obj, Py_ssize_t _index, Uint32* val);
+static int IsValidRect (PyObject* rect);
+static int SDLRect_FromRect (PyObject* rect, SDL_Rect *sdlrect);
+
 static int _sdl_traverse (PyObject *mod, visitproc visit, void *arg);
 static int _sdl_clear (PyObject *mod);
 
@@ -42,13 +53,11 @@ static PyObject* _sdl_getcompiledversion (PyObject *self);
 static PyObject* _sdl_getversion (PyObject *self);
 
 static PyMethodDef _sdl_methods[] = {
-    { "init", _sdl_init, METH_VARARGS, DOC_BASE_INIT },
+    { "init", _sdl_init, METH_O, DOC_BASE_INIT },
     { "quit", (PyCFunction) _sdl_quit, METH_NOARGS, DOC_BASE_QUIT },
     { "was_init", _sdl_wasinit, METH_VARARGS, DOC_BASE_WAS_INIT },
-    { "init_subsystem", _sdl_initsubsystem, METH_VARARGS,
-      DOC_BASE_INIT_SUBSYSTEM },
-    { "quit_subsystem", _sdl_quitsubsystem, METH_VARARGS,
-      DOC_BASE_QUIT_SUBSYSTEM }, 
+    { "init_subsystem", _sdl_initsubsystem, METH_O, DOC_BASE_INIT_SUBSYSTEM },
+    { "quit_subsystem", _sdl_quitsubsystem, METH_O,DOC_BASE_QUIT_SUBSYSTEM }, 
     { "get_error", (PyCFunction)_sdl_geterror, METH_NOARGS,
       DOC_BASE_GET_ERROR },
     { "get_compiled_version", (PyCFunction) _sdl_getcompiledversion,
@@ -116,7 +125,7 @@ _sdl_init (PyObject *self, PyObject *args)
     if (!_check_sdl ())
         return NULL;
 
-    if (!PyArg_ParseTuple (args, "l:init", &flags))
+    if (!Uint32FromObj (args, &flags))
         return NULL;
     
     Py_BEGIN_ALLOW_THREADS;
@@ -143,7 +152,7 @@ _sdl_initsubsystem (PyObject *self, PyObject *args)
     Uint32 flags;
     int retval;
 
-    if (!PyArg_ParseTuple (args, "l:init_subsystem", &flags))
+    if (!Uint32FromObj (args, &flags))
         return NULL;
 
     if (SDL_MOD_STATE (self)->initialized == 0)
@@ -161,7 +170,7 @@ static PyObject*
 _sdl_quitsubsystem (PyObject *self, PyObject *args)
 {
     Uint32 flags;
-    if (!PyArg_ParseTuple (args, "l:quit_subsystem", &flags))
+    if (!Uint32FromObj (args, &flags))
         return NULL;
     Py_BEGIN_ALLOW_THREADS;
     SDL_QuitSubSystem (flags);

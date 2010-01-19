@@ -50,7 +50,7 @@ static PyMethodDef _overlay_methods[] = {
       DOC_VIDEO_OVERLAY_LOCK },
     { "unlock", (PyCFunction) _overlay_unlock, METH_NOARGS,
       DOC_VIDEO_OVERLAY_UNLOCK },
-    { "display", (PyCFunction) _overlay_display , METH_NOARGS,
+    { "display", _overlay_display , METH_VARARGS,
       DOC_VIDEO_OVERLAY_DISPLAY },
     { NULL, NULL, 0, NULL }
 };

@@ -74,7 +74,7 @@ static PyMethodDef _transform_methods[] =
       DOC_TRANSFORM_AVERAGE_COLOR },
     { "get_filtertype", (PyCFunction)_transform_getfiltertype, METH_NOARGS,
       DOC_TRANSFORM_GET_FILTERTYPE },
-    { "set_filtertype", _transform_setfiltertype, METH_VARARGS,
+    { "set_filtertype", _transform_setfiltertype, METH_O,
       DOC_TRANSFORM_SET_FILTERTYPE },
     { NULL, NULL, 0, NULL }
 };
@@ -688,7 +688,8 @@ static PyObject*
 _transform_setfiltertype (PyObject* self, PyObject* args)
 {
     FilterType type;
-    if (!PyArg_ParseTuple (args, "i", &type))
+
+    if (!IntFromObj (args, (int*)&type))
         return NULL;
     return PyInt_FromLong (pyg_filter_init_filterfuncs
         (&(TRANSFORM_MOD_STATE (self)->filterfuncs), type));

@@ -41,7 +41,7 @@ static PyMethodDef _wm_methods[] = {
     { "toggle_fullscreen", (PyCFunction)_sdl_wmtogglefullscreen, METH_NOARGS,
       DOC_WM_TOGGLE_FULLSCREEN },
     { "get_info", (PyCFunction) _sdl_wmgetinfo, METH_NOARGS, DOC_WM_GET_INFO },
-    { "grab_input", _sdl_wmgrabinput, METH_VARARGS, DOC_WM_GRAB_INPUT },
+    { "grab_input", _sdl_wmgrabinput, METH_O, DOC_WM_GRAB_INPUT },
     { NULL, NULL, 0, NULL }
 };
 
@@ -210,22 +210,18 @@ _sdl_wmgetinfo (PyObject *self)
 static PyObject*
 _sdl_wmgrabinput (PyObject *self, PyObject *args)
 {
-    PyObject *val;
     int mode;
 
     ASSERT_VIDEO_SURFACE_SET(NULL);
 
-    if (!PyArg_ParseTuple (args, "O:grab_input", &val))
-        return NULL;
-
-    if (PyBool_Check (val))
+    if (PyBool_Check (args))
     {
-        if (val == Py_True)
+        if (args == Py_True)
             mode = SDL_WM_GrabInput (SDL_GRAB_ON);
         else
             mode = SDL_WM_GrabInput (SDL_GRAB_OFF);
     }
-    else if (IntFromObj (val, &mode))
+    else if (IntFromObj (args, &mode))
         mode = SDL_WM_GrabInput (mode);
     else
     {

@@ -38,7 +38,7 @@ static PyMethodDef _cdrom_methods[] = {
     { "quit", (PyCFunction) _sdl_cdquit, METH_NOARGS, DOC_CDROM_QUIT },
     { "num_drives", (PyCFunction) _sdl_cdnumdrives, METH_NOARGS,
       DOC_CDROM_NUM_DRIVES },
-    { "get_name", _sdl_cdgetname, METH_VARARGS, DOC_CDROM_GET_NAME },
+    { "get_name", _sdl_cdgetname, METH_O, DOC_CDROM_GET_NAME },
     { NULL, NULL, 0, NULL }
 };
 
@@ -96,8 +96,8 @@ _sdl_cdgetname (PyObject *self, PyObject *args)
 {
     int drive;
     ASSERT_CDROM_INIT (NULL);
-    
-    if (!PyArg_ParseTuple (args, "i:get_name", &drive))
+
+    if (!IntFromObj (args, &drive))
         return NULL;
     
     if (drive < 0 || drive >= SDL_CDNumDrives ())

@@ -75,7 +75,7 @@ static void _release_c_lock (void *ptr);
 /**
  */
 static PyMethodDef _surface_methods[] = {
-    { "update", _surface_update, METH_VARARGS, DOC_VIDEO_SURFACE_UPDATE },
+    { "update", _surface_update, METH_O, DOC_VIDEO_SURFACE_UPDATE },
     { "flip", (PyCFunction)_surface_flip, METH_NOARGS, DOC_VIDEO_SURFACE_FLIP },
     { "set_colors", _surface_setcolors, METH_VARARGS,
       DOC_VIDEO_SURFACE_SET_COLORS },
@@ -466,14 +466,11 @@ _surface_getlocked (PyObject *self, void *closure)
 static PyObject*
 _surface_update (PyObject *self, PyObject *args)
 {
-    PyObject *rectlist, *item;
+    PyObject *item;
     SDL_Rect *rects, r;
     Py_ssize_t count, i;
     
-    if (!PyArg_ParseTuple (args, "O:update", &rectlist))
-        return NULL;
-
-    if (SDLRect_FromRect (rectlist, &r))
+    if (SDLRect_FromRect (args, &r))
     {
         CLIP_RECT_TO_SURFACE (PySDLSurface_AsSDLSurface (self), &r);
 
@@ -486,7 +483,7 @@ _surface_update (PyObject *self, PyObject *args)
     else
         PyErr_Clear (); /* From SDLRect_FromRect */
     
-    if (!PySequence_Check (rectlist))
+    if (!PySequence_Check (args))
     {
         PyErr_SetString (PyExc_TypeError,
             "argument must be a Rect or list of Rect objects");
@@ -494,14 +491,14 @@ _surface_update (PyObject *self, PyObject *args)
     }
 
     /* Sequence of rects only? */
-    count = PySequence_Size (rectlist);
+    count = PySequence_Size (args);
     rects = PyMem_New (SDL_Rect, (size_t) count);
     if (!rects)
         return NULL;
 
     for (i = 0; i < count; i++)
     {
-        item = PySequence_ITEM (rectlist, i);
+        item = PySequence_ITEM (args, i);
 
         if (!SDLRect_FromRect (item, &(rects[i])))
         {
@@ -770,7 +767,7 @@ _surface_convert (PyObject *self, PyObject *args, PyObject *kwds)
     SDL_PixelFormat *fmt;
     
     static char *keys[] = { "format", "flags", NULL };
-    if (!PyArg_ParseTupleAndKeywords (args, kwds, "|Ol;convert", keys, &pxfmt,
+    if (!PyArg_ParseTupleAndKeywords (args, kwds, "|Ol:convert", keys, &pxfmt,
         &flags))
         return NULL;
 

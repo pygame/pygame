@@ -168,16 +168,16 @@ static PyMethodDef _vector_methods[] =
     { "slerp", (PyCFunction) _vector_slerp, METH_VARARGS,
       DOC_BASE_VECTOR_SLERP },
     { "lerp", (PyCFunction) _vector_lerp, METH_VARARGS, DOC_BASE_VECTOR_LERP },
-    { "scale_to", (PyCFunction) _vector_scaletolength, METH_VARARGS,
+    { "scale_to", (PyCFunction) _vector_scaletolength, METH_O,
       DOC_BASE_VECTOR_SCALE_TO },
-    { "reflect", (PyCFunction) _vector_reflect, METH_VARARGS,
+    { "reflect", (PyCFunction) _vector_reflect, METH_O,
       DOC_BASE_VECTOR_REFLECT },
-    { "reflect_ip", (PyCFunction) _vector_reflect_ip, METH_VARARGS,
+    { "reflect_ip", (PyCFunction) _vector_reflect_ip, METH_O,
       DOC_BASE_VECTOR_REFLECT_IP },
-    { "dot", (PyCFunction) _vector_dot, METH_VARARGS, DOC_BASE_VECTOR_DOT },
-    { "distance", (PyCFunction) _vector_distance, METH_VARARGS,
+    { "dot", (PyCFunction) _vector_dot, METH_O, DOC_BASE_VECTOR_DOT },
+    { "distance", (PyCFunction) _vector_distance, METH_O,
       DOC_BASE_VECTOR_DISTANCE },
-    { "distance_squared", (PyCFunction) _vector_distance_squared, METH_VARARGS,
+    { "distance_squared", (PyCFunction) _vector_distance_squared, METH_O,
       DOC_BASE_VECTOR_DISTANCE_SQUARED },
     { NULL, NULL, 0, NULL },
 };
@@ -786,21 +786,17 @@ _vector_lerp (PyVector *self, PyObject *args)
 static PyObject*
 _vector_dot (PyVector *self, PyObject *args)
 {
-    PyObject *other;
     Py_ssize_t otherdim;
     double* othercoords;
-    double retval, t;
+    double retval;
 
-    if (!PyArg_ParseTuple (args, "O:dot", &other, &t))
-        return NULL;
-
-    if (!IsVectorCompatible (other))
+    if (!IsVectorCompatible (args))
     {
         PyErr_SetString (PyExc_TypeError, "other must be a vector compatible");
         return NULL;
     }
 
-    othercoords = VectorCoordsFromObj (other, &otherdim);
+    othercoords = VectorCoordsFromObj (args, &otherdim);
     if (!othercoords)
         return NULL;
     if (otherdim != self->dim)
@@ -823,7 +819,7 @@ _vector_scaletolength (PyVector *self, PyObject *args)
     double newlength, oldlength = 0;
     double fraction;
 
-    if (!PyArg_ParseTuple (args, "d:scale_to", &newlength))
+    if (!DoubleFromObj (args, &newlength))
         return NULL;
 
     for (i = 0; i < self->dim; ++i)
@@ -909,14 +905,10 @@ ret:
 static PyObject*
 _vector_reflect (PyVector *self, PyObject *args)
 {
-    PyObject *normal;
     PyVector *retval;
     double *dstcoords;
 
-    if (!PyArg_ParseTuple (args, "O:reflect", &normal))
-        return NULL;
-
-    dstcoords = _do_reflect (self->coords, self->dim, self->epsilon, normal);
+    dstcoords = _do_reflect (self->coords, self->dim, self->epsilon, args);
     if (!dstcoords)
         return NULL;
     retval = (PyVector*) PyVector_NewSpecialized (self->dim);
@@ -933,13 +925,9 @@ _vector_reflect (PyVector *self, PyObject *args)
 static PyObject*
 _vector_reflect_ip (PyVector *self, PyObject *args)
 {
-    PyObject *normal;
     double *dstcoords;
 
-    if (!PyArg_ParseTuple (args, "O:reflect", &normal))
-        return NULL;
-
-    dstcoords = _do_reflect (self->coords, self->dim, self->epsilon, normal);
+    dstcoords = _do_reflect (self->coords, self->dim, self->epsilon, args);
     if (!dstcoords)
         return NULL;
     PyMem_Free (self->coords);
@@ -950,20 +938,16 @@ _vector_reflect_ip (PyVector *self, PyObject *args)
 static PyObject*
 _vector_distance (PyVector *self, PyObject *args)
 {
-    PyObject *other;
     Py_ssize_t otherdim, i;
     double *othercoords, distance, tmp;
 
-    if (!PyArg_ParseTuple (args, "O:reflect", &other))
-        return NULL;
-
-    if (!IsVectorCompatible (other))
+    if (!IsVectorCompatible (args))
     {
         PyErr_SetString (PyExc_TypeError, "other must be a vector compatible");
         return NULL;
     }
 
-    othercoords = VectorCoordsFromObj (other, &otherdim);
+    othercoords = VectorCoordsFromObj (args, &otherdim);
     if (!othercoords)
         return NULL;
     if (otherdim < self->dim)
@@ -986,20 +970,16 @@ _vector_distance (PyVector *self, PyObject *args)
 static PyObject*
 _vector_distance_squared (PyVector *self, PyObject *args)
 {
-    PyObject *other;
     Py_ssize_t otherdim, i;
     double *othercoords, distance, tmp;
 
-    if (!PyArg_ParseTuple (args, "O:reflect", &other))
-        return NULL;
-
-    if (!IsVectorCompatible (other))
+    if (!IsVectorCompatible (args))
     {
         PyErr_SetString (PyExc_TypeError, "other must be a vector compatible");
         return NULL;
     }
 
-    othercoords = VectorCoordsFromObj (other, &otherdim);
+    othercoords = VectorCoordsFromObj (args, &otherdim);
     if (!othercoords)
         return NULL;
     if (otherdim < self->dim)

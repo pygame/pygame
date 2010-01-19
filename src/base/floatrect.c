@@ -105,23 +105,22 @@ static PyObject* _frect_richcompare (PyObject *o1, PyObject *o2, int opid);
 /**
  */
 static PyMethodDef _frect_methods[] = {
-    { "clip", _frect_clip, METH_VARARGS, DOC_BASE_FRECT_CLIP },
+    { "clip", _frect_clip, METH_O, DOC_BASE_FRECT_CLIP },
     { "copy", (PyCFunction)_frect_copy, METH_NOARGS, DOC_BASE_FRECT_COPY },
     { "move", _frect_move, METH_VARARGS, DOC_BASE_FRECT_MOVE },
     { "move_ip",  _frect_move_ip, METH_VARARGS, DOC_BASE_FRECT_MOVE_IP },
-    { "union",  _frect_union, METH_VARARGS, DOC_BASE_FRECT_UNION},
-    { "union_ip", _frect_union_ip, METH_VARARGS, DOC_BASE_FRECT_UNION_IP },
+    { "union",  _frect_union, METH_O, DOC_BASE_FRECT_UNION},
+    { "union_ip", _frect_union_ip, METH_O, DOC_BASE_FRECT_UNION_IP },
     { "inflate",  _frect_inflate, METH_VARARGS, DOC_BASE_FRECT_INFLATE },
     { "inflate_ip", _frect_inflate_ip, METH_VARARGS,
       DOC_BASE_FRECT_INFLATE_IP },
-    { "clamp", _frect_clamp, METH_VARARGS, DOC_BASE_FRECT_CLAMP },
-    { "clamp_ip", _frect_clamp_ip, METH_VARARGS, DOC_BASE_FRECT_CLAMP_IP },
-    { "fit", _frect_fit, METH_VARARGS, DOC_BASE_FRECT_FIT },
-    { "contains", _frect_contains, METH_VARARGS, DOC_BASE_FRECT_CONTAINS },
+    { "clamp", _frect_clamp, METH_O, DOC_BASE_FRECT_CLAMP },
+    { "clamp_ip", _frect_clamp_ip, METH_O, DOC_BASE_FRECT_CLAMP_IP },
+    { "fit", _frect_fit, METH_O, DOC_BASE_FRECT_FIT },
+    { "contains", _frect_contains, METH_O, DOC_BASE_FRECT_CONTAINS },
     { "collidepoint", _frect_collidepoint, METH_VARARGS,
       DOC_BASE_FRECT_COLLIDEPOINT },
-    { "colliderect", _frect_colliderect, METH_VARARGS,
-      DOC_BASE_FRECT_COLLIDERECT},
+    { "colliderect", _frect_colliderect, METH_O, DOC_BASE_FRECT_COLLIDERECT},
     { "collidelist", (PyCFunction) _frect_collidelist,
       METH_VARARGS | METH_KEYWORDS, DOC_BASE_FRECT_COLLIDELIST},
     { "collidelistall", (PyCFunction) _frect_collidelistall,
@@ -703,23 +702,20 @@ _frect_setbottomright (PyObject *self, PyObject *value, void *closure)
 static PyObject*
 _frect_clip (PyObject* self, PyObject *args)
 {
-    PyObject *frect;
     PyFRect *rself, *rarg;
 
     double x, y, w, h;
     double selfright, argright;
     double selfbottom, argbottom;
 
-    if (!PyArg_ParseTuple (args, "O:clip", &frect))
-        return NULL;
-    if (!PyFRect_Check (frect))
+    if (!PyFRect_Check (args))
     {
         PyErr_SetString (PyExc_TypeError, "argument must be a FRect");
         return NULL;
     }
 
     rself = (PyFRect*) self;
-    rarg = (PyFRect*) frect;
+    rarg = (PyFRect*) args;
 
     selfright = DBL_ADD_LIMIT (rself->x, rself->w);
     selfbottom = DBL_ADD_LIMIT (rself->y, rself->h);
@@ -802,24 +798,22 @@ _frect_move_ip (PyObject* self, PyObject *args)
 static PyObject*
 _frect_union (PyObject* self, PyObject *args)
 {
-    PyObject *frect, *list;
+    PyObject *frect;
     PyFRect *rself, *rarg;
     Py_ssize_t count, i;
     double x, y;
     double r, b;
 
     rself = (PyFRect*) self;
-    if (!PyArg_ParseTuple (args, "O:union", &list))
-        return NULL;
 
-    if (!PySequence_Check (list))
+    if (!PySequence_Check (args))
     {
-        if (!PyFRect_Check (list))
+        if (!PyFRect_Check (args))
         {
             PyErr_SetString (PyExc_TypeError, "argument must be a FRect");
             return NULL;
         }
-        rarg = (PyFRect*) list;
+        rarg = (PyFRect*) args;
 
         x = MIN (rself->x, rarg->x);
         y = MIN (rself->y, rarg->y);
@@ -835,13 +829,13 @@ _frect_union (PyObject* self, PyObject *args)
     y = rself->y;
     r = DBL_ADD_LIMIT (rself->x, rself->w);
     b = DBL_ADD_LIMIT (rself->y, rself->h);
-    count = PySequence_Size (list);
+    count = PySequence_Size (args);
     if (count == -1)
         return NULL;
 
     for (i = 0; i < count; i++)
     {
-        frect = PySequence_ITEM (list, i);
+        frect = PySequence_ITEM (args, i);
         if (!PyFRect_Check (frect))
         {
             Py_XDECREF (frect);
@@ -864,7 +858,7 @@ _frect_union (PyObject* self, PyObject *args)
 static PyObject*
 _frect_union_ip (PyObject* self, PyObject *args)
 {
-    PyObject *frect, *list;
+    PyObject *frect;
     PyFRect *rself, *rarg;
     Py_ssize_t count, i;
     double x, y;
@@ -872,16 +866,14 @@ _frect_union_ip (PyObject* self, PyObject *args)
 
     rself = (PyFRect*) self;
     
-    if (!PyArg_ParseTuple (args, "O:union_ip", &list))
-        return NULL;
-    if (!PySequence_Check (list))
+    if (!PySequence_Check (args))
     {
-        if (!PyFRect_Check (list))
+        if (!PyFRect_Check (args))
         {
             PyErr_SetString (PyExc_TypeError, "argument must be a FRect");
             return NULL;
         }
-        rarg = (PyFRect*) list;
+        rarg = (PyFRect*) args;
 
         x = MIN (rself->x, rarg->x);
         y = MIN (rself->y, rarg->y);
@@ -902,13 +894,13 @@ _frect_union_ip (PyObject* self, PyObject *args)
     y = rself->y;
     r = DBL_ADD_LIMIT (rself->x, rself->w);
     b = DBL_ADD_LIMIT (rself->y, rself->h);
-    count = PySequence_Size (list);
+    count = PySequence_Size (args);
     if (count == -1)
         return NULL;
 
     for (i = 0; i < count; i++)
     {
-        frect = PySequence_ITEM (list, i);
+        frect = PySequence_ITEM (args, i);
         if (!PyFRect_Check (frect))
         {
             Py_XDECREF (frect);
@@ -984,14 +976,13 @@ _frect_clamp (PyObject* self, PyObject *args)
     PyFRect *rself, *rarg;
     double x, y, t;
 
-    if (!PyArg_ParseTuple (args, "O:clamp", &rarg))
-        return NULL;
-    if (!PyFRect_Check (rarg))
+    if (!PyFRect_Check (args))
     {
         PyErr_SetString (PyExc_TypeError, "argument must be a FRect");
         return NULL;
     }
     rself = (PyFRect*) self;
+    rarg = (PyFRect*) args;
 
     if (rself->w >= rarg->w)
     {
@@ -1032,14 +1023,13 @@ _frect_clamp_ip (PyObject* self, PyObject *args)
     PyFRect *rself, *rarg;
     double t;
 
-    if (!PyArg_ParseTuple (args, "O:clamp_ip", &rarg))
-        return NULL;
-    if (!PyFRect_Check (rarg))
+    if (!PyFRect_Check (args))
     {
         PyErr_SetString (PyExc_TypeError, "argument must be a FRect");
         return NULL;
     }
     rself = (PyFRect*) self;
+    rarg = (PyFRect*) args;
 
     if (rself->w >= rarg->w)
     {
@@ -1082,14 +1072,12 @@ _frect_fit (PyObject* self, PyObject *args)
     
     rself = (PyFRect*) self;
 
-    if (!PyArg_ParseTuple (args, "O:fit", &rarg))
-        return NULL;
-
-    if (!PyFRect_Check (rarg))
+    if (!PyFRect_Check (args))
     {
         PyErr_SetString (PyExc_TypeError, "argument must be a FRect");
         return NULL;
     }
+    rarg = (PyFRect*) args;
 
     xratio = rself->w / rarg->w;
     yratio = rself->h / rarg->h;
@@ -1108,15 +1096,13 @@ _frect_contains (PyObject* self, PyObject *args)
 {
     PyFRect* rself, *rarg;
 
-    if (!PyArg_ParseTuple (args, "O:contains", &rarg))
-        return NULL;
-
-    if (!PyFRect_Check (rarg))
+    if (!PyFRect_Check (args))
     {
         PyErr_SetString (PyExc_TypeError, "argument must be a FRect");
         return NULL;
     }
     rself = (PyFRect*) self;
+    rarg = (PyFRect*) args;
 
     if ((rself->x <= rarg->x) && (rself->y <= rarg->y) &&
         (rself->x + rself->w >= rarg->x + rarg->w) &&
@@ -1156,16 +1142,13 @@ static PyObject*
 _frect_colliderect (PyObject *self, PyObject *args)
 {
     PyFRect *rarg, *rself = (PyFRect*) self;
-    PyObject *frect;
 
-    if (!PyArg_ParseTuple (args, "O:colliderect", &frect))
-        return NULL;
-    if (!PyFRect_Check (frect))
+    if (!PyFRect_Check (args))
     {
         PyErr_SetString (PyExc_TypeError, "argument must be a FRect");
         return NULL;
     }
-    rarg = (PyFRect*) frect;
+    rarg = (PyFRect*) args;
 
     if (INTERSECT (rself, rarg))
     {

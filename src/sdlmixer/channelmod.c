@@ -36,18 +36,18 @@ static PyObject* _channel_expire (PyObject *self, PyObject *args);
 static PyObject* _channel_fadeout (PyObject *self, PyObject *args);
 
 static PyMethodDef _channel_methods[] = {
-    { "allocate", _channel_allocate, METH_VARARGS, DOC_CHANNEL_ALLOCATE },
+    { "allocate", _channel_allocate, METH_O, DOC_CHANNEL_ALLOCATE },
     { "opened", (PyCFunction) _channel_opened, METH_NOARGS,
       DOC_CHANNEL_OPENED },
-    { "set_volume", _channel_setvolume, METH_VARARGS, DOC_CHANNEL_SET_VOLUME },
+    { "set_volume", _channel_setvolume, METH_O, DOC_CHANNEL_SET_VOLUME },
     { "get_volume", (PyCFunction) _channel_getvolume, METH_NOARGS,
       DOC_CHANNEL_GET_VOLUME },
     { "pause", (PyCFunction) _channel_pause, METH_NOARGS, DOC_CHANNEL_PAUSE },
     { "resume", (PyCFunction) _channel_resume, METH_NOARGS,
       DOC_CHANNEL_RESUME },
     { "halt", (PyCFunction) _channel_halt, METH_NOARGS, DOC_CHANNEL_HALT },
-    { "expire", _channel_expire, METH_VARARGS, DOC_CHANNEL_EXPIRE },
-    { "fade_out", _channel_fadeout, METH_VARARGS, DOC_CHANNEL_FADE_OUT },
+    { "expire", _channel_expire, METH_O, DOC_CHANNEL_EXPIRE },
+    { "fade_out", _channel_fadeout, METH_O, DOC_CHANNEL_FADE_OUT },
     { "playing", (PyCFunction) _channel_playing, METH_NOARGS,
       DOC_CHANNEL_PLAYING },
     { "paused", (PyCFunction) _channel_paused, METH_NOARGS,
@@ -63,7 +63,7 @@ _channel_allocate (PyObject *self, PyObject *args)
     
     ASSERT_MIXER_OPEN (NULL);
     
-    if (!PyArg_ParseTuple (args, "i", &chans))
+    if (!IntFromObj (args, &chans))
         return NULL;
     if (chans < 0)
     {
@@ -102,7 +102,7 @@ _channel_setvolume (PyObject *self, PyObject *args)
     
     ASSERT_MIXER_OPEN (NULL);
     
-    if (!PyArg_ParseTuple (args, "i", &volume))
+    if (!IntFromObj (args, &volume))
         return NULL;
     if (volume < 0 || volume > MIX_MAX_VOLUME)
     {
@@ -149,8 +149,8 @@ _channel_expire (PyObject *self, PyObject *args)
     int ms;
     
     ASSERT_MIXER_OPEN (NULL);
-    
-    if (!PyArg_ParseTuple (args, "i", &ms))
+
+    if (!IntFromObj (args, &ms))
         return NULL;
     if (ms < 0)
     {
@@ -167,7 +167,7 @@ _channel_fadeout (PyObject *self, PyObject *args)
     
     ASSERT_MIXER_OPEN (NULL);
     
-    if (!PyArg_ParseTuple (args, "i", &ms))
+    if (!IntFromObj (args, &ms))
         return NULL;
     if (ms < 0)
     {

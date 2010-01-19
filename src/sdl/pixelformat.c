@@ -63,7 +63,7 @@ static PyObject *_pixelformat_getrgba (PyObject *self, PyObject *args);
 static PyMethodDef _pixelformat_methods[] = {
     { "map_rgba", _pixelformat_maprgba, METH_VARARGS,
       DOC_VIDEO_PIXELFORMAT_MAP_RGBA },
-    { "get_rgba", _pixelformat_getrgba, METH_VARARGS,
+    { "get_rgba", _pixelformat_getrgba, METH_O,
       DOC_VIDEO_PIXELFORMAT_GET_RGBA },
     { NULL, NULL, 0, NULL }
 };
@@ -526,16 +526,12 @@ _pixelformat_maprgba (PyObject *self, PyObject *args)
 static PyObject*
 _pixelformat_getrgba (PyObject *self, PyObject *args)
 {
-    PyObject *color = NULL;
     Uint8 r = 0, g = 0, b = 0, a = 255;
     Uint32 val;
 
-    if (!PyArg_ParseTuple (args, "O:get_rgba", &color))
+    if (!Uint32FromObj (args, &val))
         return NULL;
-
-    if (!Uint32FromObj (color, &val))
-        return NULL;
-    if (PyColor_Check (color))
+    if (PyColor_Check (args))
     {
         ARGB2FORMAT (val, ((PyPixelFormat*)self)->format);
     }

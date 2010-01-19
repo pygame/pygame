@@ -46,11 +46,10 @@ static PyObject* _vector2_aspolar (PyVector *self);
  */
 static PyMethodDef _vector2_methods[] =
 {
-    { "rotate", _vector2_rotate, METH_VARARGS, DOC_BASE_VECTOR2_ROTATE },
-    { "rotate_ip", _vector2_rotate_ip, METH_VARARGS,
-      DOC_BASE_VECTOR2_ROTATE_IP },
-    { "cross", _vector2_cross, METH_VARARGS, DOC_BASE_VECTOR2_CROSS },
-    { "angle_to", _vector2_angleto, METH_VARARGS, DOC_BASE_VECTOR2_ANGLE_TO },
+    { "rotate", _vector2_rotate, METH_O, DOC_BASE_VECTOR2_ROTATE },
+    { "rotate_ip", _vector2_rotate_ip, METH_O, DOC_BASE_VECTOR2_ROTATE_IP },
+    { "cross", _vector2_cross, METH_O, DOC_BASE_VECTOR2_CROSS },
+    { "angle_to", _vector2_angleto, METH_O, DOC_BASE_VECTOR2_ANGLE_TO },
     { "as_polar", (PyCFunction)_vector2_aspolar, METH_NOARGS,
       DOC_BASE_VECTOR2_AS_POLAR },
     { NULL, NULL, 0, NULL },
@@ -270,7 +269,7 @@ _vector2_rotate (PyObject *self, PyObject *args)
     PyVector *v = (PyVector *) self;
     PyVector *ret;
 
-    if (!PyArg_ParseTuple (args, "d:rotate", &angle))
+    if (!DoubleFromObj (args, &angle))
         return NULL;
 
     ret = (PyVector*) PyVector2_New (0., 0.);
@@ -286,7 +285,7 @@ _vector2_rotate_ip (PyObject *self, PyObject *args)
     double angle, tmp[2];
     PyVector *v = (PyVector *) self;
 
-    if (!PyArg_ParseTuple (args, "d:rotate_ip", &angle))
+    if (!DoubleFromObj (args, &angle))
         return NULL;
 
     tmp[0] = v->coords[0];
@@ -298,21 +297,17 @@ _vector2_rotate_ip (PyObject *self, PyObject *args)
 static PyObject*
 _vector2_cross (PyObject *self, PyObject *args)
 {
-    PyObject *other;
     PyVector *v = (PyVector*) self;
     double retval, *othercoords;
     Py_ssize_t otherdim;
 
-    if (!PyArg_ParseTuple (args, "O:cross", &other))
-        return NULL;
-
-    if (!IsVectorCompatible (other))
+    if (!IsVectorCompatible (args))
     {
         PyErr_SetString (PyExc_TypeError, "other must be a vector compatible");
         return NULL;
     }
 
-    othercoords = VectorCoordsFromObj (other, &otherdim);
+    othercoords = VectorCoordsFromObj (args, &otherdim);
     if (!othercoords)
         return NULL;
     retval = v->coords[0] * othercoords[1] - v->coords[1] * othercoords[0];
@@ -324,21 +319,17 @@ static PyObject*
 _vector2_angleto (PyObject *self, PyObject *args)
 {
     double angle;
-    PyObject *other;
     PyVector *v = (PyVector*) self;
     double *othercoords;
     Py_ssize_t otherdim;
 
-    if (!PyArg_ParseTuple (args, "O:angleto", &other))
-        return NULL;
-
-    if (!IsVectorCompatible (other))
+    if (!IsVectorCompatible (args))
     {
         PyErr_SetString (PyExc_TypeError, "other must be a vector compatible");
         return NULL;
     }
 
-    othercoords = VectorCoordsFromObj (other, &otherdim);
+    othercoords = VectorCoordsFromObj (args, &otherdim);
     if (!othercoords)
         return NULL;
     angle = atan2 (othercoords[1], othercoords[0]) -

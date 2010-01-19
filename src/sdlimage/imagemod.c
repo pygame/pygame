@@ -35,7 +35,7 @@ static PyMethodDef _image_methods[] = {
     { "get_error", (PyCFunction) _image_geterror, METH_NOARGS,
       DOC_BASE_GET_ERROR },
     { "load", _image_load, METH_VARARGS, DOC_BASE_LOAD },
-    { "read_xpm_from_array", _image_readxpmfromarray, METH_VARARGS,
+    { "read_xpm_from_array", _image_readxpmfromarray, METH_O,
       DOC_BASE_READ_XPM_FROM_ARRAY },
     { NULL, NULL, 0, NULL },
 };
@@ -126,13 +126,10 @@ _image_readxpmfromarray (PyObject *self, PyObject *args)
     const char *buf;
     char *copy;
     Py_ssize_t len;
-    PyObject *buffer, *sf;
+    PyObject *sf;
     SDL_Surface *surface;
 
-    if (!PyArg_ParseTuple (args, "O:read_xpm_from_array", &buffer))
-        return NULL;
-
-    if (PyObject_AsCharBuffer (buffer, &buf, &len) == -1)
+    if (PyObject_AsCharBuffer (args, &buf, &len) == -1)
         return NULL;
 
     copy = PyMem_Malloc ((size_t) len);

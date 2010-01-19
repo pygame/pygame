@@ -46,14 +46,11 @@ static PyObject* _joystick_close (PyObject *self);
 /**
  */
 static PyMethodDef _joystick_methods[] = {
-    { "get_axis", _joystick_getaxis, METH_VARARGS,
-      DOC_JOYSTICK_JOYSTICK_GET_AXIS },
-    { "get_hat", _joystick_gethat, METH_VARARGS,
-      DOC_JOYSTICK_JOYSTICK_GET_HAT },
-    { "get_button", _joystick_getbutton, METH_VARARGS,
+    { "get_axis", _joystick_getaxis, METH_O, DOC_JOYSTICK_JOYSTICK_GET_AXIS },
+    { "get_hat", _joystick_gethat, METH_O, DOC_JOYSTICK_JOYSTICK_GET_HAT },
+    { "get_button", _joystick_getbutton, METH_O,
       DOC_JOYSTICK_JOYSTICK_GET_BUTTON },
-    { "get_ball", _joystick_getball, METH_VARARGS,
-      DOC_JOYSTICK_JOYSTICK_GET_BALL },
+    { "get_ball", _joystick_getball, METH_O, DOC_JOYSTICK_JOYSTICK_GET_BALL },
     { "open", (PyCFunction)_joystick_open, METH_NOARGS,
       DOC_JOYSTICK_JOYSTICK_OPEN },
     { "close", (PyCFunction)_joystick_close, METH_NOARGS,
@@ -247,7 +244,7 @@ _joystick_getaxis (PyObject *self, PyObject *args)
     
     ASSERT_JOYSTICK_OPEN (self, NULL);
     
-    if (!PyArg_ParseTuple (args, "i:get_axis", &axis))
+    if (!IntFromObj (args, &axis))
         return NULL;
 
     maxaxes = SDL_JoystickNumAxes (joystick);
@@ -269,7 +266,7 @@ _joystick_gethat (PyObject *self, PyObject *args)
     
     ASSERT_JOYSTICK_OPEN (self, NULL);
     
-    if (!PyArg_ParseTuple (args, "i:get_hat", &hat))
+    if (!IntFromObj (args, &hat))
         return NULL;
 
     maxhats = SDL_JoystickNumHats (joystick);
@@ -291,7 +288,7 @@ _joystick_getbutton (PyObject *self, PyObject *args)
     
     ASSERT_JOYSTICK_OPEN (self, NULL);
     
-    if (!PyArg_ParseTuple (args, "i:get_button", &button))
+    if (!IntFromObj (args, &button))
         return NULL;
 
     maxbuttons = SDL_JoystickNumHats (joystick);
@@ -313,7 +310,7 @@ _joystick_getball (PyObject *self, PyObject *args)
     
     ASSERT_JOYSTICK_OPEN (self, NULL);
     
-    if (!PyArg_ParseTuple (args, "i:get_ball", &ball))
+    if (!IntFromObj (args, &ball))
         return NULL;
 
     maxballs = SDL_JoystickNumBalls (joystick);

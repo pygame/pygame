@@ -43,7 +43,7 @@ static PyMethodDef _ttf_methods[] = {
       DOC_BASE_GET_VERSION },
     { "get_error", (PyCFunction) _ttf_geterror, METH_NOARGS,
       DOC_BASE_GET_ERROR },
-    { "set_byte_swapped_unicode", _ttf_byteswappedunicode, METH_VARARGS,
+    { "set_byte_swapped_unicode", _ttf_byteswappedunicode, METH_O,
       DOC_BASE_SET_BYTE_SWAPPED_UNICODE },
     { NULL, NULL, 0, NULL },
 };
@@ -108,10 +108,7 @@ _ttf_byteswappedunicode (PyObject *self, PyObject *args)
     PyObject *bool;
     int istrue;
 
-    if (!PyArg_ParseTuple (args, "O:set_byte_swapped_unicode", &bool))
-        return NULL;
-
-    istrue = PyObject_IsTrue (bool);
+    istrue = PyObject_IsTrue (args);
     if (istrue == -1)
         return NULL;
     TTF_ByteSwappedUNICODE (istrue);

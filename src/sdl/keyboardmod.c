@@ -35,10 +35,9 @@ static PyMethodDef _key_methods[] = {
       DOC_KEYBOARD_GET_STATE },
     { "get_mod_state", (PyCFunction) _sdl_keygetmodstate, METH_NOARGS,
       DOC_KEYBOARD_GET_MOD_STATE },
-    { "set_mod_state", _sdl_keysetmodstate, METH_VARARGS,
+    { "set_mod_state", _sdl_keysetmodstate, METH_O,
       DOC_KEYBOARD_SET_MOD_STATE },
-    { "get_key_name", _sdl_keygetkeyname, METH_VARARGS,
-      DOC_KEYBOARD_GET_KEY_NAME },
+    { "get_key_name", _sdl_keygetkeyname, METH_O, DOC_KEYBOARD_GET_KEY_NAME },
     { "enable_repeat", _sdl_keyenablekeyrepeat, METH_VARARGS,
       DOC_KEYBOARD_ENABLE_REPEAT },
     { "get_repeat", (PyCFunction) _sdl_keygetkeyrepeat, METH_NOARGS,
@@ -93,8 +92,9 @@ _sdl_keysetmodstate (PyObject *self, PyObject *args)
     SDLMod mod;
     ASSERT_VIDEO_INIT (NULL);
     
-    if (!PyArg_ParseTuple (args, "i:set_mod_state", &mod))
+    if (!IntFromObj (args, (int*)&mod))
         return NULL;
+
     SDL_SetModState (mod);
     Py_RETURN_NONE;
 }
@@ -106,8 +106,9 @@ _sdl_keygetkeyname (PyObject *self, PyObject *args)
     
     ASSERT_VIDEO_INIT (NULL);
     
-    if (!PyArg_ParseTuple (args, "i:get_key_name", &key))
+    if (!IntFromObj (args, &key))
         return NULL;
+
     if (key < SDLK_FIRST || key >= SDLK_LAST)
     {
         PyErr_SetString (PyExc_ValueError, "invalid key value");

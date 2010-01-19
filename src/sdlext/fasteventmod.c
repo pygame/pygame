@@ -67,7 +67,7 @@ static PyMethodDef _fevent_methods[] = {
     { "quit", (PyCFunction)_sdl_feventquit, METH_NOARGS, DOC_FASTEVENT_QUIT },
     { "poll", (PyCFunction)_sdl_feventpoll, METH_NOARGS, DOC_FASTEVENT_POLL },
     { "wait", (PyCFunction)_sdl_feventwait, METH_NOARGS, DOC_FASTEVENT_WAIT },
-    { "push", _sdl_feventpush, METH_VARARGS, DOC_FASTEVENT_PUSH },
+    { "push", _sdl_feventpush, METH_O, DOC_FASTEVENT_PUSH },
     { "get", (PyCFunction)_sdl_feventget, METH_NOARGS, DOC_FASTEVENT_GET },
     { NULL, NULL, 0, NULL }
 };
@@ -163,15 +163,13 @@ _sdl_feventpush (PyObject *self, PyObject *args)
 
     ASSERT_FASTEVENT_INIT (NULL);
 
-    if (!PyArg_ParseTuple (args, "O:push", &ev))
-        return NULL;
-    if (!PyEvent_Check (ev))
+    if (!PyEvent_Check (args))
     {
         PyErr_SetString (PyExc_TypeError, "event must be an Event");
         return NULL;
     }
 
-    if (!PyEvent_SDLEventFromEvent (ev, &event))
+    if (!PyEvent_SDLEventFromEvent (args, &event))
         return NULL;
 
     Py_BEGIN_ALLOW_THREADS;
