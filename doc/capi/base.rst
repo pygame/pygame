@@ -65,35 +65,35 @@ Macros
 In addition to the types, a set of helpful macros was established, which are
 used heavily and should be relied on wherever possible.
 
-.. cfunction:: MIN(x,y)
+.. cfunction:: MIN(q,v)
 
   Gets the smaller of two values. The own implementation will only be used,
   if no system-specific one was found.
 
-.. cfunction:: MAX(x,y)
+.. cfunction:: MAX(q,v)
 
   Gets the larger of two values. The own implementation will only be used,
   if no system-specific one was found.
 
-.. cfunction:: ABS(x)
+.. cfunction:: ABS(q)
 
   Gets the absolute value. The own implementation will be only used,
   if no system-specific one was found.
 
-.. cfunction:: trunc(x)
+.. cfunction:: trunc(q)
 
   Truncates a floating point value. The own implementation will only be used,
   if no system-specific one was found.
 
-.. cfunction:: round(x)
+.. cfunction:: round(q)
 
   Rounds a floating point value to the nearest integer. The own implementation
   will only be used, if no system-specific one was found.
 
-.. cfunction:: CLAMP(x,low,high)
+.. cfunction:: CLAMP(q,low,high)
   
-  Checks, whether *x* is within the boundaries of *low* and *high* and returns
-  it. If *x* is not within the boundaries, either *low* or *high* will be
+  Checks, whether *q* is within the boundaries of *low* and *high* and returns
+  it. If *q* is not within the boundaries, either *low* or *high* will be
   returned, depending on which of them is larger. The own implementation will
   only be used, if no system-specific one was found.
 
@@ -102,68 +102,68 @@ used heavily and should be relied on wherever possible.
   The pi constant with 31 digits. The own definition will only be used, if no
   system-specific one was found.
 
-.. cfunction:: DEG2RAD(x)
+.. cfunction:: DEG2RAD(a)
 
   Converts degrees to radians. The own implementation will only be used, if no
   system-specific one was found.
 
-.. cfunction:: RAD2DEG(x)
+.. cfunction:: RAD2DEG(a)
 
   Converts radians to degrees. The own implementation will only be used, if no
   system-specific one was found.
 
-.. cfunction:: ADD_LIMIT(x,y,lower,upper)
-               SUB_LIMIT(x,y,lower,upper)
+.. cfunction:: ADD_LIMIT(q,v,lower,upper)
+               SUB_LIMIT(q,v,lower,upper)
 
    Adds and subtracts two values, but guarantees that the result will not be 
    smaller or larger than the *lower* and *upper* limits.
 
-.. cfunction:: INT_ADD_LIMIT(x,y)
-               INT_SUB_LIMIT(x,y)
-               INT16_ADD_LIMIT(x,y)
-               INT16_SUB_LIMIT(x,y)
+.. cfunction:: INT_ADD_LIMIT(q,v)
+               INT_SUB_LIMIT(q,v)
+               INT16_ADD_LIMIT(q,v)
+               INT16_SUB_LIMIT(q,v)
 
    Adds and subtracts two integer values, but guarantees that the result will
    not be smaller or larger than the *INT_MIN* and *INT_MAX* limits.
 
-.. cfunction:: UINT_ADD_LIMIT(x,y)
-               UINT_SUB_LIMIT(x,y)
-               UINT16_ADD_LIMIT(x,y)
-               UINT16_SUB_LIMIT(x,y)
+.. cfunction:: UINT_ADD_LIMIT(q,v)
+               UINT_SUB_LIMIT(q,v)
+               UINT16_ADD_LIMIT(q,v)
+               UINT16_SUB_LIMIT(q,v)
 
    Adds and subtracts two unsigned integer values, but guarantees that the
    result will not be smaller or larger than zero and *UINT_MAX*.
 
-.. cfunction:: LONG_ADD_LIMIT(x,y)
-               LONG_SUB_LIMIT(x,y)
-               INT32_ADD_LIMIT(x,y)
-               INT32_SUB_LIMIT(x,y)
+.. cfunction:: LONG_ADD_LIMIT(q,v)
+               LONG_SUB_LIMIT(q,v)
+               INT32_ADD_LIMIT(q,v)
+               INT32_SUB_LIMIT(q,v)
 
    Adds and subtracts two long integer values, but guarantees that the result
    will not be smaller or larger than the *LONG_MIN* and *LONG_MAX* limits.
 
-.. cfunction:: ULONG_ADD_LIMIT(x,y)
-               ULONG_SUB_LIMIT(x,y)
-               UINT32_ADD_LIMIT(x,y)
-               UINT32_SUB_LIMIT(x,y)
+.. cfunction:: ULONG_ADD_LIMIT(q,v)
+               ULONG_SUB_LIMIT(q,v)
+               UINT32_ADD_LIMIT(q,v)
+               UINT32_SUB_LIMIT(q,v)
 
    Adds and subtracts two unsigned long integer values, but guarantees that the
    result will not be smaller or larger than zero and *ULONG_MAX*.
 
-.. cfunction:: DBL_ADD_LIMIT(x,y)
-               DBL_SUB_LIMIT(x,y)
+.. cfunction:: DBL_ADD_LIMIT(q,v)
+               DBL_SUB_LIMIT(q,v)
 
    Adds and subtracts two floating point values, but guarantees that the result
    will not be smaller or larger than the *DBL_MIN* and *DBL_MAX* limits.
 
-.. cfunction:: INT_ADD_UINT_LIMIT(x,y,z)
-               INT_SUB_UINT_LIMIT(x,y,z)
-               INT16_ADD_UINT16_LIMIT(x,y,z)
-               INT16_SUB_UINT16_LIMIT(x,y,z)
+.. cfunction:: INT_ADD_UINT_LIMIT(q,v,t)
+               INT_SUB_UINT_LIMIT(q,v,t)
+               INT16_ADD_UINT16_LIMIT(q,v,t)
+               INT16_SUB_UINT16_LIMIT(q,v,t)
 
-    Adds and subtracts an unsigned integer *y* to an integer *x* and stores the
-    result in the integer *z*. If the operation will exceed the *INT_MIN* and
-    *INT_MAX* limits, *z* will be set to *INT_MIN or *INT_MAX*.
+    Adds and subtracts an unsigned integer *v* to an integer *q* and stores the
+    result in the integer *t*. If the operation will exceed the *INT_MIN* and
+    *INT_MAX* limits, *t* will be set to *INT_MIN or *INT_MAX*.
 
 Errors
 ------
@@ -188,6 +188,16 @@ Functions
 .. cfunction:: int UintFromObj (PyObject* obj, unsigned int *val)
 
   Tries to convert the PyObject to an unsigned int and stores the result in
+  *val*, if successful. This returns 1 on success and 0 on failure.
+
+.. cfunction:: int LongFromObj (PyObject* obj, long *val)
+
+  Tries to convert the PyObject to a long and stores the result in *val*, if
+  successful. This returns 1 on success and 0 on failure.
+
+.. cfunction:: int UlongFromObj (PyObject* obj, unsigned long *val)
+
+  Tries to convert the PyObject to an unsigned long and stores the result in
   *val*, if successful. This returns 1 on success and 0 on failure.
 
 .. cfunction:: int DoubleFromSeqIndex (PyObject *seq, Py_ssize_t index, double *val)
