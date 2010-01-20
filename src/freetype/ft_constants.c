@@ -23,7 +23,7 @@
 #include "pgtypes.h"
 #include "freetypebase_doc.h"
 
-#define DEC_CONST(x)  PyModule_AddIntConstant(module, #x, (int)FT_##x)
+#define DEC_CONST(x)  PyModule_AddIntConstant(module, #x, (long)FT_##x)
 
 #ifdef IS_PYTHON_3
 PyMODINIT_FUNC PyInit_constants (void)

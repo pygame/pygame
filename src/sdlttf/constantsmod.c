@@ -23,8 +23,8 @@
 #include "pgttf.h"
 
 /* macros used to create each constant */
-#define DEC_CONST(x)  PyModule_AddIntConstant(module, #x, (int) TTF_##x)
-#define DEC_CONSTS(x)  PyModule_AddIntConstant(module, #x, (int) x)
+#define DEC_CONST(x)  PyModule_AddIntConstant(module, #x, (long) TTF_##x)
+#define DEC_CONSTS(x)  PyModule_AddIntConstant(module, #x, (long) x)
 
 #ifdef IS_PYTHON_3
 PyMODINIT_FUNC PyInit_constants (void)

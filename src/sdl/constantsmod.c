@@ -24,10 +24,10 @@
 #include "surface.h"
 
 /* macros used to create each constant */
-#define DEC_CONST(x)  PyModule_AddIntConstant(module, #x, (int) SDL_##x)
-#define DEC_CONSTK(x) PyModule_AddIntConstant(module, #x, (int) SDL##x)
-#define DEC_CONSTN(x) PyModule_AddIntConstant(module, #x, (int) x)
-#define DEC_CONSTS(x,y) PyModule_AddIntConstant(module, #x, (int) y)
+#define DEC_CONST(x)  PyModule_AddIntConstant(module, #x, (long) SDL_##x)
+#define DEC_CONSTK(x) PyModule_AddIntConstant(module, #x, (long) SDL##x)
+#define DEC_CONSTN(x) PyModule_AddIntConstant(module, #x, (long) x)
+#define DEC_CONSTS(x,y) PyModule_AddIntConstant(module, #x, (long) y)
 #define ADD_STRING_CONST(x) PyModule_AddStringConstant(module, #x, x)
 
 #ifdef IS_PYTHON_3

@@ -19,7 +19,7 @@
 */
 #define PYGAME_OPENALBASE_INTERNAL
 
-#include <AL.h>
+#include <AL/al.h>
 #include "pgbase.h"
 #include "pgopenal.h"
 /*#include "openalbase_doc.h"*/
@@ -59,7 +59,7 @@ PyMODINIT_FUNC initbase (void)
         "base",
         ""/*DOC_BASE*/,
         -1,
-        _image_methods,
+        _openal_methods,
         NULL, NULL, NULL, NULL
     };
     mod = PyModule_Create (&_module);
@@ -69,7 +69,7 @@ PyMODINIT_FUNC initbase (void)
     if (!mod)
         goto fail;
         
-    PyModule_AddObject (mod, "Device", (PyObject *) &PyDevice_Type);
+    /*PyModule_AddObject (mod, "Device", (PyObject *) &PyDevice_Type);*/
     
     if (import_pygame2_base () < 0)
         goto fail;

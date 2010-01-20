@@ -19,13 +19,13 @@
 */
 #define PYGAME_OPENALCONSTANTS_INTERNAL
 
-#include <al.h>
-#include <alc.h>
-#include <alext.h>
+#include <AL/al.h>
+#include <AL/alc.h>
+#include <AL/alext.h>
 #include "pgopenal.h"
 
 /* macros used to create each constant */
-#define DEC_CONST(x)  PyModule_AddIntConstant(module, #x, (int) x)
+#define DEC_CONST(x)  PyModule_AddIntConstant(module, #x, (long) x)
 
 #ifdef IS_PYTHON_3
 PyMODINIT_FUNC PyInit_constants (void)

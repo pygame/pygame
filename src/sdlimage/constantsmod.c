@@ -23,7 +23,7 @@
 #include "pgsdl.h"
 
 /* macros used to create each constant */
-#define DEC_CONST(x)  PyModule_AddIntConstant(module, #x, (int) IMG_##x)
+#define DEC_CONST(x)  PyModule_AddIntConstant(module, #x, (long) IMG_##x)
 
 #ifdef IS_PYTHON_3
 PyMODINIT_FUNC PyInit_constants (void)

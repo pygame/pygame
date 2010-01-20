@@ -25,7 +25,7 @@
 #include "filters.h"
 
 /* macros used to create each constant */
-#define DEC_CONSTS(x)  PyModule_AddIntConstant(module, #x, (int) #x)
+#define DEC_CONSTS(x)  PyModule_AddIntConstant(module, #x, (long) #x)
 #define ADD_STRING_CONST(x) PyModule_AddStringConstant(module, #x, x)
 
 #ifdef IS_PYTHON_3

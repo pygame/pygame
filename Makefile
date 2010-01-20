@@ -17,6 +17,7 @@ SUBDIRS = \
 	$(top_srcdir)/test/util \
 	$(top_srcdir)/lib \
 	$(top_srcdir)/lib/freetype \
+	$(top_srcdir)/lib/math \
 	$(top_srcdir)/lib/midi \
 	$(top_srcdir)/lib/sdl \
 	$(top_srcdir)/lib/sdlext \
@@ -30,7 +31,9 @@ SUBDIRS = \
 	$(top_srcdir)/src/base \
 	$(top_srcdir)/src/freetype \
 	$(top_srcdir)/src/mask \
+	$(top_srcdir)/src/math \
 	$(top_srcdir)/src/midi \
+	$(top_srcdir)/src/openal \
 	$(top_srcdir)/src/sdl \
 	$(top_srcdir)/src/sdlext \
 	$(top_srcdir)/src/sdlgfx \
