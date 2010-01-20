@@ -385,6 +385,7 @@ _vector3_rotate (PyObject *self, PyObject *args)
     }
     ret = (PyVector*) PyVector3_New (0.f, 0.f, 0.f);
     _do_rotate (ret->coords, v->coords, axiscoords, angle, v->epsilon);
+    PyMem_Free (axiscoords);
     return (PyObject*) ret;
 }
 
@@ -418,6 +419,7 @@ _vector3_rotate_ip (PyObject *self, PyObject *args)
 
     memcpy (tmp, v->coords, sizeof (double) * 3);
     _do_rotate (v->coords, tmp, axiscoords, angle, v->epsilon);
+    PyMem_Free (axiscoords);
     Py_RETURN_NONE;
 }
 
@@ -629,6 +631,7 @@ _vector3_angleto (PyObject *self, PyObject *args)
     tmp2 = _ScalarProduct (othercoords, othercoords, otherdim);
     angle = acos (_ScalarProduct (v->coords, othercoords, v->dim) /
         sqrt (tmp1 * tmp2));
+    PyMem_Free (othercoords);
 
     return PyFloat_FromDouble (RAD2DEG (angle));
 }

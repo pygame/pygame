@@ -237,7 +237,7 @@ static int
 _rect_init (PyObject *self, PyObject *args, PyObject *kwds)
 {
     pgint16 x, y;
-    pgint32 w, h;
+    pgint32 w = 0, h = 0;
 
     if (!PyArg_ParseTuple (args, "iill", &x, &y, &w, &h))
     {
