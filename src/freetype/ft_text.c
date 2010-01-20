@@ -39,6 +39,7 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
     FT_Fixed    y_scale;
     FT_Fixed    bold_str = 0;
+    FT_Fixed    addh = 0, bearing = 0;
 
     FontText    *ftext = NULL;
     FontGlyph   *glyph = NULL;
@@ -101,7 +102,7 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
     ftext->text_size.x = ftext->text_size.y = 0;
     ftext->baseline_offset.x = ftext->baseline_offset.y = 0;
     ftext->underline_pos = ftext->underline_size = 0;
-
+    
     y_scale = face->size->metrics.y_scale;
 
     /* fill it with the glyphs */
@@ -140,15 +141,23 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
          */
         if (glyph->baseline > ftext->baseline_offset.y)
             ftext->baseline_offset.y = glyph->baseline;
-
+        
         if (glyph->size.x > ftext->glyph_size.x)
             ftext->glyph_size.x = glyph->size.x;
-
+        
         if (glyph->size.y > ftext->glyph_size.y)
             ftext->glyph_size.y = glyph->size.y;
 
+        /* We have to add the bearing below the baseline, so that the
+         * displacement along the baseline is correctly measured */
+        addh = glyph->size.y - (glyph->size.y - glyph->baseline);
+        if (bearing < addh)
+            bearing = addh;
+            
         *glyph_array++ = glyph;
     }
+    
+    ftext->glyph_size.y += bearing;
 
     if (render->style & FT_STYLE_UNDERLINE &&
         (render->render_flags & FT_RFLAG_VERTICAL) == 0 &&

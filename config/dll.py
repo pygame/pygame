@@ -30,6 +30,7 @@ libraries = [
     ('png', r'(lib){0,1}png(1[23])(-0){0,1}\.dll$', ['z']),
     ('z', r'zlib1\.dll$', []),
     ('portmidi', r'portmidi\.dll$', []),
+    ('openal', r'OpenAL32\.dll$', []),
 ]
 
 # regexs: Maps name to DLL file name regex.

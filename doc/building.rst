@@ -73,9 +73,14 @@ Build with JPEG format saving support for
   WITH_FREETYPE=[yes|no|1|True]           Example: make -DWITH_FREETYPE=False
 
 Build and install the :mod:`pygame2.freetype` module. This wraps the
-FreeType2 library.
+FreeType2 library. ::
 
   WITH_PORTMIDI=[yes|no|1|True]           Example: make -DWITH_PORTMIDI=False
 
 Build and install the :mod:`pygame2.pypm` and :mod:`pygame2.midi` modules. This
 wraps the portmidi library and gives access to the :mod:`pygame2.midi` module.
+
+  WITH_OPENAL=[yes|no|1|True]             Example: make -DWITH_OPENAL=False
+    
+Build and install the :mod:`pygame2.openal` module. This wraps the OpenAL
+library and gives access to the :mod:`pygame2.openal` module.

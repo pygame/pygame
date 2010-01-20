@@ -18,7 +18,7 @@ Building the dependencies
 Make sure, you have at least one of the following Python versions installed:
 
 * Python 2.5 (bundled with Mac OS X)
-* Python 2.4, 2.6, 3.0, 3.1 (http://www.python.org)
+* Python 2.4, 2.6, 3.1 (http://www.python.org)
 
 These versions must be installed as Frameworks: Mac OS 10.5 already
 comes with Python 2.5 installed as a framework; be careful when

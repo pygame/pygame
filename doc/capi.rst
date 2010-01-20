@@ -27,6 +27,7 @@ API Reference
   capi/base.rst
   capi/freetype.rst
   capi/mask.rst
+  capi/math.rst
   capi/sdlbase.rst
   capi/sdlcdrom.rst
   capi/sdlevent.rst

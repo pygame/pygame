@@ -325,6 +325,13 @@ modules = [
         instheaders = ["src/math/pgmath.h"],
         docfile = "mathbase.xml"),
 
+    Module ("openal.constants",
+        sources = [ "src/openal/constantsmod.c" ],
+        depends = [ 'openal' ]),
+    
+    Module ("openal.base",
+        sources = [ "src/openal/basemod.c" ],
+        depends = [ 'openal' ]),
     ]
 
 if helpers.getversion() < (3, 0, 0):

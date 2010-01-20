@@ -78,6 +78,8 @@ def get_install_libs (cfg):
         libraries.update (_hunt_libs ("freetype", dirs))
     if cfg.build['PORTMIDI']:
         libraries.update (_hunt_libs ("portmidi", dirs))
+    if cfg.build['OPENAL']:
+        libraries.update (_hunt_libs ("openal", dirs))
 
     return [ k.replace ("/", os.sep) for k in libraries.keys() ]
 

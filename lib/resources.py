@@ -37,6 +37,18 @@ except ImportError:
 
 def open_zipfile (archive, filename, dir=None):
     """open_zipfile (archive, filename, dir=None) -> StringIO
+    
+    Opens and reads a certain file from a ZIP archive.
+    
+    Opens and reads a certain file from a ZIP archive. The result is returned
+    as StringIO stream. *filename* can be a relative or absolute path within
+    the ZIP archive. The optional *dir* argument can be used to supply a
+    relative directory path, under which *filename* will be tried to retrieved.
+    
+    If the *filename* could not be found or an error occured on reading it,
+    None will be returned.
+    
+    Raises a TypeError, if *archive* is not a valid ZIP archive.
     """
     data = None
     opened = False
@@ -62,6 +74,28 @@ def open_zipfile (archive, filename, dir=None):
 
 def open_tarfile (archive, filename, dir=None, type=None):
     """open_tarfile (archive, filename, dir=None, type=None) -> StringIO
+    
+    Opens and reads a certain file from a TAR archive.
+    
+    Opens and reads a certain file from a TAR archive. The result is returned
+    as StringIO stream. *filename* can be a relative or absolute path within
+    the ZIP archive. The optional *dir* argument can be used to supply a
+    relative directory path, under which *filename* will be tried to retrieved.
+
+    *type* is used to supply additional compression information, in case the
+    system cannot determine the compression type itself, and can be either
+    'gz' for gzip compression or 'bz2' for bzip2 compression.
+    
+    Note:
+      
+      If *type* is supplied, the compreesion mode will be enforced for opening
+      and reading.
+    
+    If the *filename* could not be found or an error occured on reading it,
+    None will be returned.
+    
+    Raises a TypeError, if *archive* is not a valid TAR archive or if *type*
+    is not a valid value of ('gz', 'bz2').
     """
     data = None
     opened = False
@@ -92,7 +126,15 @@ def open_tarfile (archive, filename, dir=None, type=None):
     return data
     
 def open_url (filename, basepath=None):
-    """open_url (filename) -> file
+    """open_url (filename, basepath=None) -> file
+    
+    Opens and reads a certain file from a web or remote location.
+    
+    Opens and reads a certain file from a web or remote location. This function
+    utilizes the urllib2 module, which means that it is restricted to the types
+    of remote locations supported by urllib2.
+    
+    *basepath* can be used to supply an additional location prefix.
     """
     url = filename
     if basepath:
@@ -113,7 +155,9 @@ class Resources (object):
             self.scan (path, excludepattern)
 
     def _scanzip (self, filename):
-        """
+        """_scanzip (filename) -> None
+        
+        Scans the passed ZIP archive and indexes all the files contained by it.
         """
         if not zipfile.is_zipfile (filename):
             raise TypeError ("file '%s' is not a valid ZIP archive" % filename)
@@ -126,7 +170,9 @@ class Resources (object):
         zip.close ()
     
     def _scantar (self, filename, type=None):
-        """
+        """_scantar (filename, type=None) -> None
+        
+        Scans the passed TAR archive and indexes all the files contained by it.
         """
         if not tarfile.is_tarfile (filename):
             raise TypeError ("file '%s' is not a valid TAR archive" % filename)
@@ -195,9 +241,11 @@ class Resources (object):
             raise ValueError ("unsupported archive type")
 
     def get (self, filename):
-        """get (filename) -> file
+        """get (filename) -> StringIO
        
-        Gets the specified file from the Resources.
+        Gets a specific file from the Resources.
+        
+        Raises a KeyError, if *filename* could not be found.
         """
         archive, type, pathname = self.files[filename]
         if archive:
@@ -217,9 +265,14 @@ class Resources (object):
         return data
     
     def get_filelike (self, filename):
-        """get_filelike (filename) -> file
+        """get_filelike (filename) -> file or StringIO
         
         Like get(), but tries to return the original file handle, if possible.
+        
+        If the passed *filename* is only available within an archive, a
+        StringIO instance will be returned.
+        
+        Raises a KeyError, if *filename* could not be found.
         """
         archive, type, pathname = self.files[filename]
         if archive:
@@ -237,6 +290,13 @@ class Resources (object):
     
     def get_path (self, filename):
         """get_path (filename) -> str
+        
+        Gets the path of the passed filename.
+        
+        If *filename* is only available within an archive, a string in the form
+        'filename@archivename' will be returned.
+        
+        Raises a KeyError, if *filename* could not be found.
         """
         archive, type, pathname = self.files[filename]
         if archive:
@@ -245,6 +305,15 @@ class Resources (object):
 
     def scan (self, path, excludepattern=None):
         """scan (path) -> None
+        
+        Scans a path and adds all found files to the Resource container.
+        
+        Scans a path and adds all found files to the Resource container. If a
+        file is a supported (ZIP or TAR) archive, its contents will be indexed
+        and added automatically.
+        
+        *excludepattern* can be a regular expression to skip files, which match
+        the pattern.
         """
         match = None
         if excludepattern:

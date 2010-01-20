@@ -81,15 +81,20 @@ WITH_JPEG=[yes|no|1|True]       Example: make -DWITH_JPEG=False
 
     Build with JPEG format saving support for pygame2.sdl.
 
-WITH_FREETYPE=[yes|no|1|True]   Example: make -WITH_FREETYPE=False
+WITH_FREETYPE=[yes|no|1|True]   Example: make -DWITH_FREETYPE=False
     
     Build and install the pygame2.freetype module. This wraps the
     FreeType2 library.
 
-WITH_PORTMIDI=[yes|no|1|True]   Example: make -WITH_PORTMIDI=False
+WITH_PORTMIDI=[yes|no|1|True]   Example: make -DWITH_PORTMIDI=False
     
     Build and install the pygame2.midi module. This wraps the
     portmidi library and gives access to the pygame2.midi module.
+
+WITH_OPENAL=[yes|no|1|True]   Example: make -DWITH_OPENAL=False
+    
+    Build and install the pygame2.openal module. This wraps the
+    OpenAL library and gives access to the pygame2.openal module.
 
 1.1 Dependencies
 ----------------
@@ -98,7 +103,7 @@ the only absolutely necessary dependency is a working Python
 installation. Additionally other libraries are needed, if you want to
 enable certain features of Pygame2.
 
-* Python 2.4, 2.5, 2.6, 3.0, 3.1 supported   (http://www.python.org)
+* Python 2.4, 2.5, 2.6, 3.1 supported   (http://www.python.org)
 
 [Optional dependencies]
 * SDL >= 1.2.10             (http://www.libsdl.org)

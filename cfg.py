@@ -53,3 +53,6 @@ build['FREETYPE'] = istrue (os.getenv ("WITH_FREETYPE", True))
 
 # midi (module) support
 build['PORTMIDI'] = istrue (os.getenv ("WITH_PORTMIDI", True))
+
+# OpenAL (module) support
+build['OPENAL'] = istrue (os.getenv ("WITH_OPENAL", True))

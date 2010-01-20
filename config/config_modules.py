@@ -68,7 +68,11 @@ def get_dependencies(buildsystem, cfg):
             config_program='freetype-config'),
         
         'portmidi' : dep(['portmidi.h'], 'portmidi'),
-    }
+        
+        'openal' : dep(['al.h'], 'openal',
+            config_program='openal-config',
+            pkgconfig_name='openal')
+        }
 
     OS_MODULES[buildsystem].update_sys_deps (DEPENDENCIES)
 

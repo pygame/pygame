@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE module SYSTEM "api.dtd">
+
+<module name="pygame2.resources">
+  <short>Resource management methods.</short>
+  <desc>
+    Resource management methods.
+  </desc>
+  
+  <class name="Resources">
+    <constructor>Resources () -> Resources</constructor>
+    <desc>Creates a new resource container instance.
+    
+      The Resources class manages a set of file resources and eases accessing
+      them by using relative paths, scanning archives automatically and so on.
+    </desc>
+    <method name="add">
+      <call>add (filename) -> None</call>
+      <desc>Adds a file to the Resources container.
+
+        Depending on the file type (determined by the file suffix or name),
+        the file will be automatically scanned (if it is an archive) or
+        checked for availability (if it is a stream/network resource).
+      </desc>
+    </method>
+    <method name="add_archive">
+      <call>add_archive (self, filename, typehint='zip') -> None</call>
+      <desc>Adds an archive file to the Resources container.
+
+        This will scan the passed archive and add its contents to the list
+        of available resources.
+      </desc>
+    </method>
+    <method name="add_file">
+      <call>add_file (self, filename) -> None</call>
+      <desc>Adds a file to the Resources container.
+
+        This will only add the passed file and do not scan an archive or check
+        a stream for availability.
+      </desc>
+    </method>
+    <method name="get">
+      <call>get (filename) -> StringIO</call>
+      <desc>Gets a specific file from the Resources.
+
+        Raises a KeyError, if *filename* could not be found.
+      </desc>
+    </method>
+    <method name="get_filelike">
+      <call>get_filelike (filename) -> file or StringIO</call>
+      <desc>
+        Like get(), but tries to return the original file handle, if possible.
+
+        If the passed *filename* is only available within an archive, a
+        StringIO instance will be returned.
+
+        Raises a KeyError, if *filename* could not be found.
+      </desc>
+    </method>
+    <method name="get_path">
+      <call>get_path (filename) -> str</call>
+      <desc>Gets the path of the passed filename.
+
+        If *filename* is only available within an archive, a string in the form
+        'filename@archivename' will be returned.
+
+        Raises a KeyError, if *filename* could not be found.
+      </desc>
+    </method>
+    <method name="scan">
+      <call>scan (path) -> None</call>
+      <desc>Scans a path and adds all found files to the Resource container.
+
+        Scans a path and adds all found files to the Resource container. If a
+        file is a supported (ZIP or TAR) archive, its contents will be indexed
+        and added automatically.
+
+        *excludepattern* can be a regular expression to skip files, which match
+        the pattern.
+      </desc>
+    </method>
+  </class>
+
+  <func name="open_tarfile">
+    <call>open_tarfile (archive, filename, dir=None, type=None) -> StringIO</call>
+    <desc>Opens and reads a certain file from a TAR archive.
+
+      Opens and reads a certain file from a TAR archive. The result is returned
+      as StringIO stream. *filename* can be a relative or absolute path within
+      the ZIP archive. The optional *dir* argument can be used to supply a
+      relative directory path, under which *filename* will be tried to retrieved.
+
+      *type* is used to supply additional compression information, in case the
+      system cannot determine the compression type itself, and can be either
+      'gz' for gzip compression or 'bz2' for bzip2 compression.
+
+      .. note::
+
+        If *type* is supplied, the compreesion mode will be enforced for opening
+        and reading.
+
+      If the *filename* could not be found or an error occured on reading it,
+      None will be returned.
+
+      Raises a TypeError, if *archive* is not a valid TAR archive or if *type*
+      is not a valid value of ('gz', 'bz2').
+    </desc>
+  </func>
+  <func name="open_url">
+    <call>open_url (filename, basepath=None) -> file</call>
+    <desc>Opens and reads a certain file from a web or remote location.
+
+      Opens and reads a certain file from a web or remote location. This function
+      utilizes the urllib2 module, which means that it is restricted to the types
+      of remote locations supported by urllib2.
+
+      *basepath* can be used to supply an additional location prefix.
+    </desc>
+  </func>
+  <func name="open_zipfile">
+    <call>open_zipfile (archive, filename, dir=None) -> StringIO</call>
+    <desc>Opens and reads a certain file from a ZIP archive.
+
+      Opens and reads a certain file from a ZIP archive. The result is returned
+      as StringIO stream. *filename* can be a relative or absolute path within
+      the ZIP archive. The optional *dir* argument can be used to supply a
+      relative directory path, under which *filename* will be tried to retrieved.
+
+      If the *filename* could not be found or an error occured on reading it,
+      None will be returned.
+
+      Raises a TypeError, if *archive* is not a valid ZIP archive.
+    </desc>
+  </func>
+</module>
+

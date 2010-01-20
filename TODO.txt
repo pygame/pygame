@@ -25,14 +25,12 @@ CRITICAL:
 * freetype: brush up docs and examples
 * freetype: description/markup language for rendering text (like e.g. pango
    has)?
-* freetype: fix returned height and surface height for fonts!
 
 Things to ADD:
 ==============
 * (re)add tests
 * add examples
 * reorganise and add camera module
-* add math module
 * add movie module
 * subsurfaces via surface[x:y,a:b]? Brought up by ctgPi via IRC
 

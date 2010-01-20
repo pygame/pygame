@@ -12,6 +12,7 @@ def update_sys_deps (deps):
     deps["user32"].nocheck = True
     deps["gdi32"] = Dependency ([], 'gdi32')
     deps["gdi32"].nocheck = True
+    deps["openal"].libs = [ "OpenAL32" ]
 
 def add_sys_deps (module):
     if module.name.startswith("sdl"):
@@ -79,6 +80,8 @@ def get_install_libs (cfg):
         libraries.update (_hunt_libs ("freetype", dirs))
     if cfg.build['PORTMIDI']:
         libraries.update (_hunt_libs ("portmidi", dirs))
+    if cfg.build['OPENAL']:
+        libraries.update (_hunt_libs ("openal", dirs))
 
     return libraries.keys ()
 
