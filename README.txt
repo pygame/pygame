@@ -106,15 +106,18 @@ enable certain features of Pygame2.
 * Python 2.4, 2.5, 2.6, 3.1 supported   (http://www.python.org)
 
 [Optional dependencies]
-* SDL >= 1.2.10             (http://www.libsdl.org)
-* SDL_mixer >= 1.2.11       (http://www.libsdl.org/projects/SDL_mixer/)
-* SDL_ttf >= 2.0.9          (http://www.libsdl.org/projects/SDL_ttf/)
-* SDL_image >= 1.2.10       (http://www.libsdl.org/projects/SDL_image/)
-* SDL_gfx >= 2.0.18         (http://www.ferzkopp.net/Software/SDL_gfx-2.0/)
-* libpng >= 1.2.24          (http://www.libpng.org)
-* libjpeg >= 6b             (http://www.ijg.org/)
-* freetype >= 2.3.5         (http://www.freetype.org)
-* portmidi >= 199           (http://portmedia.sourceforge.net/)
+* SDL >= 1.2.10                 (http://www.libsdl.org)
+* SDL_mixer >= 1.2.11           (http://www.libsdl.org/projects/SDL_mixer/)
+* SDL_ttf >= 2.0.9              (http://www.libsdl.org/projects/SDL_ttf/)
+* SDL_image >= 1.2.10           (http://www.libsdl.org/projects/SDL_image/)
+* SDL_gfx >= 2.0.18             (http://www.ferzkopp.net/Software/SDL_gfx-2.0/)
+* libpng >= 1.2.24              (http://www.libpng.org)
+* libjpeg >= 6b                 (http://www.ijg.org/)
+* freetype >= 2.3.5             (http://www.freetype.org)
+* portmidi >= 199               (http://portmedia.sourceforge.net/)
+* OpenAL                        use one of:
+  OpenAL11CoreSDK (Aug 2009)    http://www.openal.org 
+  openal-soft >= 1.11.753       http://kcat.strangesoft.net/openal.html
 
 1.2 Notes on SVN usage
 ----------------------

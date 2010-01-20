@@ -19,6 +19,7 @@ The recognized, and optional, environment variables are:
   LIBRARY_PATH - library directory paths - appended to those used by this
                  program
   CPATH - C/C++ header file paths - appended to the paths used by this program
+  CMAKE - Path to the cmake.exe CMake utility.
 
 To get a list of command line options run
 
@@ -41,6 +42,7 @@ jpeg 7
 zlib 1.2.3
 smpeg rev. 384
 portmidi 199
+openal-soft-1.11.753
 
 The build environment used:
 
@@ -56,8 +58,9 @@ msys-automake-1.8.2
 msys-autocont-2.59
 m4-1.4.7-MSYS
 nasm-2.05rc6-win32 (SourceForge)
+CMake 2.8.0
 
-Builds have been performed on Windows 98 and XP.
+Builds have been performed on Windows XP.
 
 Build issues:
   For pre-2007 computers:  MSYS bug "[ 1170716 ] executing a shell scripts
@@ -327,6 +330,9 @@ def set_environment_variables(msys, options):
     include_path = os.path.join(msys_root, 'local', 'include')
     environ['CPATH'] = merge_strings(include_path, environ.get('CPATH', ''),
                                      sep=';')
+    # CMake utility
+    if 'CMAKE' not in environ:
+        environ['CMAKE'] = 'cmake'
 
 class ChooseError(StandardError):
     """Failer to select dependencies"""
@@ -1098,6 +1104,36 @@ if [ x$BDCLEAN == x1 ]; then
   set +e
   make clean
   rm -f GNUmakefile portmidi.def
+fi
+"""),
+    Dependency('OPENAL', ['openal', 'openal-soft-[1-9].*'], ['OpenAL32.dll'], """
+set -e
+cd $BDWD/build
+
+if [ x$BDCONF == x1 ]; then
+  $CMAKE -G "MSYS Makefiles" ..
+fi
+
+if [ x$BDCOMP == x1 ]; then
+  make
+fi
+
+if [ x$BDINST == x1 ]; then
+  cp -fp openal-info.exe /usr/local/bin
+  cp -fp OpenAL32.dll /usr/local/bin
+  cp -fp libOpenAL32.dll.a /usr/local/lib
+  cp -fp openal.pc /usr/local/lib/pkgconfig
+  mkdir -p /usr/local/include/AL
+  cp -f ../include/AL/*.h /usr/local/include/AL
+fi
+
+if [ x$BDSTRIP == x1 ]; then
+  strip --strip-all /usr/local/bin/OpenAL32.dll
+fi
+
+if [ x$BDCLEAN == x1 ]; then
+  make clean
+  rm -rf *
 fi
 """),
 

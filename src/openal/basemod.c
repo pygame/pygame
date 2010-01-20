@@ -19,7 +19,12 @@
 */
 #define PYGAME_OPENALBASE_INTERNAL
 
+#ifdef IS_MSYS
+#include <al.h>
+#else
 #include <AL/al.h>
+#endif
+
 #include "pgbase.h"
 #include "pgopenal.h"
 /*#include "openalbase_doc.h"*/
@@ -69,6 +74,10 @@ PyMODINIT_FUNC initbase (void)
     if (!mod)
         goto fail;
         
+    /* PyDevice_Type.tp_new = PyType_GenericNew; */
+    /* if (PyType_Ready (&PyDevice_Type) < 0) */
+    /*     MODINIT_RETURN(NULL); */
+
     /*PyModule_AddObject (mod, "Device", (PyObject *) &PyDevice_Type);*/
     
     if (import_pygame2_base () < 0)

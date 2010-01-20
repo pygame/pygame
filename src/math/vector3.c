@@ -599,6 +599,7 @@ _vector3_cross (PyObject *self, PyObject *args)
         (v->coords[0] * othercoords[2]);
     ret->coords[2] = (v->coords[0] * othercoords[1]) -
         (v->coords[1] * othercoords[0]);
+    PyMem_Free (othercoords);
     return (PyObject*) ret;
 }
 
