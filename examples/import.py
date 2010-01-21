@@ -19,6 +19,11 @@ def run ():
     except ImportError:
         print (sys.exc_info()[1])
 
+    try:
+        import pygame2.openal
+    except ImportError:
+        print (sys.exc_info()[1])
+
     import pygame2.resources
     
     try:
