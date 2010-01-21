@@ -19,6 +19,7 @@ class SDLVideoTest (unittest.TestCase):
         # 
         # Gets the name of the video driver or None, if the video system has
         # not been initialised or it could not be determined.
+        self.assert_ (video.get_drivername () == None)
         video.init ()
         self.assert_ (video.get_drivername () != None)
         video.quit ()

@@ -19,22 +19,21 @@
 */
 #define PYGAME_OPENALBASE_INTERNAL
 
-#ifdef IS_MSYS
-#include <al.h>
-#else
-#include <AL/al.h>
-#endif
-
+#include "openalmod.h"
 #include "pgbase.h"
 #include "pgopenal.h"
 /*#include "openalbase_doc.h"*/
 
 static PyObject* _openal_init (PyObject *self);
 static PyObject* _openal_quit (PyObject *self);
+static PyObject* _openal_geterror (PyObject *self);
+static PyObject* _openal_isextensionpresent (PyObject *self, PyObject *args);
 
 static PyMethodDef _openal_methods[] = {
     { "init", (PyCFunction)_openal_init, METH_NOARGS, ""/*DOC_BASE_INIT*/ },
     { "quit", (PyCFunction)_openal_quit, METH_NOARGS, ""/*DOC_BASE_QUIT*/ },
+    { "get_error", (PyCFunction)_openal_geterror, METH_NOARGS, ""/*DOC_BASE_GETERROR*/ },
+    { "is_extension_present", _openal_isextensionpresent, METH_VARARGS, "" },
     { NULL, NULL, 0, NULL },
 };
 
@@ -48,6 +47,75 @@ static PyObject*
 _openal_quit (PyObject *self)
 {
     Py_RETURN_NONE;
+}
+
+static PyObject*
+_openal_geterror (PyObject *self)
+{
+    ALenum error = alGetError ();
+    switch (error)
+    {
+    case AL_INVALID_ENUM:
+        return Text_FromUTF8 ("invalid enumeration value");
+    case AL_INVALID_VALUE:
+        return Text_FromUTF8 ("invalid value");
+    case AL_INVALID_OPERATION:
+        return Text_FromUTF8 ("invalid operation request");
+    case AL_OUT_OF_MEMORY:
+        return Text_FromUTF8 ("insufficient memory");
+    default:
+        Py_RETURN_NONE;
+    }
+}
+
+static PyObject*
+_openal_isextensionpresent (PyObject *self, PyObject *args)
+{
+    char *extname = NULL;
+    PyObject *device = NULL;
+    ALCboolean present;
+    
+    if(!PyArg_ParseTuple (args, "s|O", &extname, &device))
+        return NULL;
+    if (device && !PyDevice_Check (device))
+    {
+        PyErr_SetString (PyExc_TypeError, "device must be a Device");
+        return NULL;
+    }
+    
+    if (device)
+        present = alcIsExtensionPresent (PyDevice_AsDevice (device),
+            (const ALchar*) extname);
+    else
+        present = alIsExtensionPresent ((const ALchar*) extname);
+    if (SetALErrorException (alGetError ()))
+        return NULL;
+    if (present == ALC_FALSE)
+        Py_RETURN_FALSE;
+    Py_RETURN_TRUE;
+}
+
+/* C API */
+int
+SetALErrorException (ALenum error)
+{
+    switch (error)
+    {
+    case AL_INVALID_ENUM:
+        PyErr_SetString (PyExc_PyGameError, "invalid enumeration value");
+        return 1;
+    case AL_INVALID_VALUE:
+        PyErr_SetString (PyExc_PyGameError, "invalid value");
+        return 1;
+    case AL_INVALID_OPERATION:
+        PyErr_SetString (PyExc_PyGameError, "invalid operation request");
+        return 1;
+    case AL_OUT_OF_MEMORY:
+        PyErr_SetString (PyExc_PyGameError, "insufficient memory");
+        return 1;
+    default:
+        return 0;
+    }
 }
 
 #ifdef IS_PYTHON_3
@@ -74,14 +142,15 @@ PyMODINIT_FUNC initbase (void)
     if (!mod)
         goto fail;
         
-    /* PyDevice_Type.tp_new = PyType_GenericNew; */
-    /* if (PyType_Ready (&PyDevice_Type) < 0) */
-    /*     MODINIT_RETURN(NULL); */
-
-    /*PyModule_AddObject (mod, "Device", (PyObject *) &PyDevice_Type);*/
-    
     if (import_pygame2_base () < 0)
         goto fail;
+    
+    PyDevice_Type.tp_new = PyType_GenericNew;
+    if (PyType_Ready (&PyDevice_Type) < 0)
+        goto fail;
+
+    PyModule_AddObject (mod, "Device", (PyObject *) &PyDevice_Type);
+    
     MODINIT_RETURN(mod);
 fail:
     Py_XDECREF (mod);

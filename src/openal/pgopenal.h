@@ -19,6 +19,16 @@
 #ifndef _PYGAME_OPENAL_H_
 #define _PYGAME_OPENAL_H_
 
+#ifdef IS_MSYS
+#include <al.h>
+#include <alc.h>
+#include <alext.h>
+#else
+#include <AL/al.h>
+#include <AL/alc.h>
+#include <AL/alext.h>
+#endif
+
 #include "pgcompat.h"
 #include "pgdefines.h"
 
@@ -30,6 +40,25 @@ extern "C" {
 #define PYGAME_OPENAL_NUMSLOTS 0
 #ifndef PYGAME_OPENAL_INTERNAL
 #endif /* PYGAME_OPENAL_INTERNAL */
+
+typedef struct
+{
+    PyObject_HEAD
+    ALCdevice *device;
+} PyDevice;
+#define PyDevice_AsDevice(x) (((PyDevice*)x)->device)
+#define PYGAME_OPENALDEVICE_FIRSTSLOT \
+    (PYGAME_OPENAL_FIRSTSLOT + PYGAME_OPENAL_NUMSLOTS)
+#define PYGAME_OPENALDEVICE_NUMSLOTS 2
+#ifndef PYGAME_OPENALDEVICE_INTERNAL
+#define PyDevice_Type                                             \
+    (*(PyTypeObject*)PyGameOpenAL_C_API[PYGAME_OPENALDEVICE_FIRSTSLOT+0])
+#define PyDevice_Check(x)                                                 \
+    (PyObject_TypeCheck(x,                                              \
+        (PyTypeObject*)PyGameOpenAL_C_API[PYGAME_OPENALDEVICE_FIRSTSLOT+0]))
+#define PyDevice_New                                                      \
+    (*(PyObject*(*)(const char*))PyGameOpenAL_C_API[PYGAME_OPENALDEVICE_FIRSTSLOT+1])
+#endif /* PYGAME_OPENALDEVICE_INTERNAL */
 
 /**
  * C API export.

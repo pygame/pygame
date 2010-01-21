@@ -330,7 +330,8 @@ modules = [
         depends = [ 'openal' ]),
     
     Module ("openal.base",
-        sources = [ "src/openal/basemod.c" ],
+        sources = [ "src/openal/basemod.c",
+                    "src/openal/device.c" ],
         depends = [ 'openal' ]),
     ]
 
