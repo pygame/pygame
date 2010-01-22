@@ -19,6 +19,7 @@
 */
 #define PYGAME_BASE_INTERNAL
 
+#include "pymacros.h"
 #include "internals.h"
 #include "pgbase.h"
 #include "base_doc.h"
@@ -473,30 +474,6 @@ PyMODINIT_FUNC initbase (void)
     _BaseState *state;
     PyObject *mod, *c_api_obj;
     
-    /* Complete types */
-    PyColor_Type.tp_new = PyType_GenericNew;
-    if (PyType_Ready (&PyColor_Type) < 0)
-        MODINIT_RETURN(NULL);
-    PyFRect_Type.tp_new = PyType_GenericNew;
-    if (PyType_Ready (&PyFRect_Type) < 0)
-        MODINIT_RETURN(NULL);
-    PyRect_Type.tp_new = PyType_GenericNew;
-    if (PyType_Ready (&PyRect_Type) < 0)
-        MODINIT_RETURN(NULL);
-    if (PyType_Ready (&PyBufferProxy_Type) < 0)
-        MODINIT_RETURN(NULL);
-    if (PyType_Ready (&PySurface_Type) < 0)
-        MODINIT_RETURN(NULL);
-    if (PyType_Ready(&PyFont_Type) < 0)
-        MODINIT_RETURN(NULL);
-
-    Py_INCREF (&PyColor_Type);
-    Py_INCREF (&PyFRect_Type);
-    Py_INCREF (&PyRect_Type);
-    Py_INCREF (&PyBufferProxy_Type);
-    Py_INCREF (&PySurface_Type);
-    Py_INCREF (&PyFont_Type);
-
 #ifdef IS_PYTHON_3
     mod = PyModule_Create (&_basemodule);
 #else
@@ -514,15 +491,36 @@ PyMODINIT_FUNC initbase (void)
         MODINIT_RETURN(NULL);
     }
 
-    Py_INCREF(state->error);
-    PyModule_AddObject (mod, "Error", state->error);
+    /* Complete types */
+    PyColor_Type.tp_new = PyType_GenericNew;
+    if (PyType_Ready (&PyColor_Type) < 0)
+        goto failed;
+    PyFRect_Type.tp_new = PyType_GenericNew;
+    if (PyType_Ready (&PyFRect_Type) < 0)
+        goto failed;
+    PyRect_Type.tp_new = PyType_GenericNew;
+    if (PyType_Ready (&PyRect_Type) < 0)
+        goto failed;
+    if (PyType_Ready (&PyBufferProxy_Type) < 0)
+        goto failed;
+    if (PyType_Ready (&PySurface_Type) < 0)
+        goto failed;
+    if (PyType_Ready(&PyFont_Type) < 0)
+        goto failed;
 
-    PyModule_AddObject (mod, "Color", (PyObject *) &PyColor_Type);
-    PyModule_AddObject (mod, "Rect", (PyObject *) &PyRect_Type);
-    PyModule_AddObject (mod, "FRect", (PyObject *) &PyFRect_Type);
-    PyModule_AddObject (mod, "BufferProxy", (PyObject *) &PyBufferProxy_Type);
-    PyModule_AddObject (mod, "Surface", (PyObject *) &PySurface_Type);
-    PyModule_AddObject (mod, "Font", (PyObject *) &PyFont_Type);
+    Py_INCREF(state->error);
+    if (PyModule_AddObject (mod, "Error", state->error) == -1)
+    {
+        Py_DECREF (state->error);
+        goto failed;
+    }
+
+    ADD_OBJ_OR_FAIL (mod, "Color", PyColor_Type, failed);
+    ADD_OBJ_OR_FAIL (mod, "Rect", PyRect_Type, failed);
+    ADD_OBJ_OR_FAIL (mod, "FRect", PyFRect_Type, failed);
+    ADD_OBJ_OR_FAIL (mod, "BufferProxy", PyBufferProxy_Type, failed);
+    ADD_OBJ_OR_FAIL (mod, "Surface", PySurface_Type, failed);
+    ADD_OBJ_OR_FAIL (mod, "Font", PyFont_Type, failed);
     
     /* Export C API */
     c_api[PYGAME_BASE_FIRSTSLOT] = state->error;
@@ -551,6 +549,16 @@ PyMODINIT_FUNC initbase (void)
 
     c_api_obj = PyCObject_FromVoidPtr ((void *) c_api, NULL);
     if (c_api_obj)
-        PyModule_AddObject (mod, PYGAME_BASE_ENTRY, c_api_obj);
+    {
+        if (PyModule_AddObject (mod, PYGAME_BASE_ENTRY, c_api_obj) == -1)
+        {
+            Py_DECREF (c_api_obj);
+            goto failed;
+        }
+    }
     MODINIT_RETURN(mod);
+
+failed:
+    Py_DECREF (mod);
+    MODINIT_RETURN (NULL);
 }

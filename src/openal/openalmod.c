@@ -19,6 +19,7 @@
 */
 #define PYGAME_OPENALBASE_INTERNAL
 
+#include "pymacros.h"
 #include "openalmod.h"
 #include "pgbase.h"
 #include "pgopenal.h"
@@ -148,9 +149,8 @@ PyMODINIT_FUNC initbase (void)
     PyDevice_Type.tp_new = PyType_GenericNew;
     if (PyType_Ready (&PyDevice_Type) < 0)
         goto fail;
-
-    PyModule_AddObject (mod, "Device", (PyObject *) &PyDevice_Type);
     
+    ADD_OBJ_OR_FAIL (mod, "Device", PyDevice_Type, fail);
     MODINIT_RETURN(mod);
 fail:
     Py_XDECREF (mod);

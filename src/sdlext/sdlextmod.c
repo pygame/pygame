@@ -19,6 +19,7 @@
 */
 #define PYGAME_SDLEXT_INTERNAL
 
+#include "pymacros.h"
 #include "sdlextmod.h"
 #include "pgsdlext.h"
 #include "pgsdl.h"
@@ -43,13 +44,6 @@ PyMODINIT_FUNC initbase (void)
         NULL,
         NULL, NULL, NULL, NULL
     };
-#endif
-
-    if (PyType_Ready (&PyPixelArray_Type) < 0)
-        goto fail;
-    Py_INCREF (&PyPixelArray_Type);
-
-#ifdef IS_PYTHON_3
     mod = PyModule_Create (&_module);
 #else
     mod = Py_InitModule3 ("base", NULL, DOC_BASE);
@@ -57,14 +51,22 @@ PyMODINIT_FUNC initbase (void)
     if (!mod)
         goto fail;
 
-    PyModule_AddObject (mod, "PixelArray", (PyObject *) &PyPixelArray_Type);
+    if (PyType_Ready (&PyPixelArray_Type) < 0)
+        goto fail;
+    ADD_OBJ_OR_FAIL (mod, "PixelArray", PyPixelArray_Type, fail);
     
     /* Export C API */
     pixelarray_export_capi (c_api);
    
     c_api_obj = PyCObject_FromVoidPtr ((void *) c_api, NULL);
     if (c_api_obj)
-        PyModule_AddObject (mod, PYGAME_SDLEXT_ENTRY, c_api_obj);    
+    {
+        if (PyModule_AddObject (mod, PYGAME_SDLEXT_ENTRY, c_api_obj) == -1)
+        {
+            Py_DECREF (c_api_obj);
+            goto fail;
+        }
+    }
 
     if (import_pygame2_base () < 0)
         goto fail;

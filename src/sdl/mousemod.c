@@ -19,6 +19,7 @@
 */
 #define PYGAME_SDLMOUSE_INTERNAL
 
+#include "pymacros.h"
 #include "mousemod.h"
 #include "pgsdl.h"
 #include "sdlmouse_doc.h"
@@ -175,15 +176,6 @@ PyMODINIT_FUNC initmouse (void)
         _mouse_methods,
         NULL, NULL, NULL, NULL
     };
-#endif
-
-    /* Complete types */
-    if (PyType_Ready (&PyCursor_Type) < 0)
-        goto fail;
-    
-    Py_INCREF (&PyCursor_Type);
-    
-#ifdef IS_PYTHON_3
     mod = PyModule_Create (&_module);
 #else
     mod = Py_InitModule3 ("mouse", _mouse_methods, DOC_MOUSE);
@@ -191,17 +183,32 @@ PyMODINIT_FUNC initmouse (void)
     if (!mod)
         goto fail;
 
-    PyModule_AddObject (mod, "Cursor", (PyObject *) &PyCursor_Type);
+    /* Complete types */
+    if (PyType_Ready (&PyCursor_Type) < 0)
+        goto fail;
+    ADD_OBJ_OR_FAIL (mod, "Cursor", PyCursor_Type, fail);
     
     cursor_export_capi (c_api);
 
     c_api_obj = PyCObject_FromVoidPtr ((void *) c_api, NULL);
     if (c_api_obj)
-        PyModule_AddObject (mod, PYGAME_SDLMOUSE_ENTRY, c_api_obj);    
+    {
+        if (PyModule_AddObject (mod, PYGAME_SDLMOUSE_ENTRY, c_api_obj) == -1)
+        {
+            Py_DECREF (c_api_obj);
+            goto fail;
+        }
+    }
 
     cursors = PyImport_ImportModule ("cursors");
     if (cursors)
-        PyModule_AddObject (mod, "cursors", cursors);
+    {
+        if (PyModule_AddObject (mod, "cursors", cursors) == -1)
+        {
+            Py_DECREF (cursors);
+            goto fail;
+        }
+    }
 
     if (import_pygame2_base () < 0)
         goto fail;

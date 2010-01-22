@@ -549,13 +549,18 @@ PyMODINIT_FUNC initbase (void)
    
     c_api_obj = PyCObject_FromVoidPtr ((void *) c_api, NULL);
     if (c_api_obj)
-        PyModule_AddObject (mod, PYGAME_SDLBASE_ENTRY, c_api_obj);    
-
-    Py_AtExit (_quit);
+    {
+        if (PyModule_AddObject (mod, PYGAME_SDLBASE_ENTRY, c_api_obj) == -1)
+        {
+            Py_DECREF (c_api_obj);
+            goto fail;
+        }
+    }
 
     if (import_pygame2_base () < 0)
         goto fail;
 
+    Py_AtExit (_quit);
     MODINIT_RETURN (mod);
 fail:
     Py_XDECREF (mod);

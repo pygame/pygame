@@ -19,6 +19,7 @@
 */
 #define PYGAME_SDLEVENT_INTERNAL
 
+#include "pymacros.h"
 #include "eventmod.h"
 #include "pgsdl.h"
 #include "sdlevent_doc.h"
@@ -679,11 +680,6 @@ PyMODINIT_FUNC initevent (void)
     _SDLEventState *state;
     static void *c_api[PYGAME_SDLEVENT_SLOTS];
 
-    /* Complete types */
-    if (PyType_Ready (&PyEvent_Type) < 0)
-        goto fail;
-    Py_INCREF (&PyEvent_Type);
-
 #ifdef IS_PYTHON_3
     mod = PyModule_Create (&_eventmodule);
 #else
@@ -694,13 +690,22 @@ PyMODINIT_FUNC initevent (void)
     state = SDLEVENT_MOD_STATE(mod);
     state->filterhook = NULL;
 
-    PyModule_AddObject (mod, "Event", (PyObject *) &PyEvent_Type);
+    /* Complete types */
+    if (PyType_Ready (&PyEvent_Type) < 0)
+        goto fail;
+    ADD_OBJ_OR_FAIL (mod, "Event", PyEvent_Type, fail);
 
     event_export_capi (c_api);
 
     c_api_obj = PyCObject_FromVoidPtr ((void *) c_api, NULL);
     if (c_api_obj)
-        PyModule_AddObject (mod, PYGAME_SDLEVENT_ENTRY, c_api_obj);    
+    {
+        if (PyModule_AddObject (mod, PYGAME_SDLEVENT_ENTRY, c_api_obj) == -1)
+        {
+            Py_DECREF (c_api_obj);
+            goto fail;
+        }
+    }
 
     if (import_pygame2_base () < 0)
         goto fail;

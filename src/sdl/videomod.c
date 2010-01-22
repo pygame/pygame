@@ -19,6 +19,7 @@
 */
 #define PYGAME_SDLVIDEO_INTERNAL
 
+#include "pymacros.h"
 #include "videomod.h"
 #include "pgsdl.h"
 #include "sdlvideo_doc.h"
@@ -510,7 +511,12 @@ PyMODINIT_FUNC initvideo (void)
         _video_methods,
         NULL, NULL, NULL, NULL
     };
+    mod = PyModule_Create (&_module);
+#else
+    mod = Py_InitModule3 ("video", _video_methods, DOC_VIDEO);
 #endif
+    if (!mod)
+        goto fail;
 
     if (import_pygame2_base () < 0)
         goto fail;
@@ -528,21 +534,9 @@ PyMODINIT_FUNC initvideo (void)
     if (PyType_Ready (&PyPixelFormat_Type) < 0)
         goto fail;
 
-    Py_INCREF (&PySDLSurface_Type);
-    Py_INCREF (&PyOverlay_Type);
-    Py_INCREF (&PyPixelFormat_Type);
-
-#ifdef IS_PYTHON_3
-    mod = PyModule_Create (&_module);
-#else
-    mod = Py_InitModule3 ("video", _video_methods, DOC_VIDEO);
-#endif
-    if (!mod)
-        goto fail;
-    
-    PyModule_AddObject (mod, "PixelFormat", (PyObject *) &PyPixelFormat_Type);
-    PyModule_AddObject (mod, "Surface", (PyObject *) &PySDLSurface_Type);
-    PyModule_AddObject (mod, "Overlay", (PyObject *) &PyOverlay_Type);
+    ADD_OBJ_OR_FAIL (mod, "PixelFormat", PyPixelFormat_Type, fail);
+    ADD_OBJ_OR_FAIL (mod, "Surface", PySDLSurface_Type, fail);
+    ADD_OBJ_OR_FAIL (mod, "Overlay", PyOverlay_Type, fail);
     
     c_api[PYGAME_SDLVIDEO_FIRSTSLOT+0] = ColorFromObj;
 
@@ -552,8 +546,13 @@ PyMODINIT_FUNC initvideo (void)
 
     c_api_obj = PyCObject_FromVoidPtr ((void *) c_api, NULL);
     if (c_api_obj)
-        PyModule_AddObject (mod, PYGAME_SDLVIDEO_ENTRY, c_api_obj);    
-
+    {
+        if (PyModule_AddObject (mod, PYGAME_SDLVIDEO_ENTRY, c_api_obj) == -1)
+        {
+            Py_DECREF (c_api_obj);
+            goto fail;
+        }
+    }
     MODINIT_RETURN(mod);
 
 fail:

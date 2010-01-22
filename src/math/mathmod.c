@@ -18,6 +18,7 @@
 */
 #define PYGAME_MATH_INTERNAL
 
+#include "pymacros.h"
 #include "pgbase.h"
 #include "mathmod.h"
 #include "pgmath.h"
@@ -145,24 +146,6 @@ PyMODINIT_FUNC initbase (void)
         _math_methods,
         NULL, NULL, NULL, NULL
     };
-#endif
-    PyVectorIter_Type.tp_new = &PyType_GenericNew;
-    PyVectorIter_Type.tp_iter = &PyObject_SelfIter;
-    if (PyType_Ready (&PyVectorIter_Type) < 0)
-        goto fail;
-    if (PyType_Ready (&PyVector_Type) < 0)
-        goto fail;
-    Py_INCREF (&PyVector_Type);
-    PyVector2_Type.tp_base = &PyVector_Type; 
-    if (PyType_Ready (&PyVector2_Type) < 0)
-        goto fail;
-    Py_INCREF (&PyVector2_Type);
-    PyVector3_Type.tp_base = &PyVector_Type; 
-    if (PyType_Ready (&PyVector3_Type) < 0)
-        goto fail;
-    Py_INCREF (&PyVector3_Type);    
-
-#ifdef IS_PYTHON_3
     mod = PyModule_Create (&_module);
 #else
     mod = Py_InitModule3 ("base", _math_methods, DOC_BASE);
@@ -170,9 +153,22 @@ PyMODINIT_FUNC initbase (void)
     if (!mod)
         goto fail;
 
-    PyModule_AddObject (mod, "Vector", (PyObject *) &PyVector_Type);
-    PyModule_AddObject (mod, "Vector2", (PyObject *) &PyVector2_Type);
-    PyModule_AddObject (mod, "Vector3", (PyObject *) &PyVector3_Type);
+    PyVectorIter_Type.tp_new = &PyType_GenericNew;
+    PyVectorIter_Type.tp_iter = &PyObject_SelfIter;
+    if (PyType_Ready (&PyVectorIter_Type) < 0)
+        goto fail;
+    if (PyType_Ready (&PyVector_Type) < 0)
+        goto fail;
+    PyVector2_Type.tp_base = &PyVector_Type; 
+    if (PyType_Ready (&PyVector2_Type) < 0)
+        goto fail;
+    PyVector3_Type.tp_base = &PyVector_Type; 
+    if (PyType_Ready (&PyVector3_Type) < 0)
+        goto fail;
+
+    ADD_OBJ_OR_FAIL (mod, "Vector", PyVector_Type, fail);
+    ADD_OBJ_OR_FAIL (mod, "Vector2", PyVector2_Type, fail);
+    ADD_OBJ_OR_FAIL (mod, "Vector3", PyVector3_Type, fail);
 
     /* Export C API */
     c_api[PYGAME_MATH_FIRSTSLOT] = &VectorCoordsFromObj;
@@ -183,8 +179,14 @@ PyMODINIT_FUNC initbase (void)
 
     c_api_obj = PyCObject_FromVoidPtr ((void *) c_api, NULL);
     if (c_api_obj)
-        PyModule_AddObject (mod, PYGAME_MATH_ENTRY, c_api_obj);
-        
+    {
+        if (PyModule_AddObject (mod, PYGAME_MATH_ENTRY, c_api_obj) == -1)
+        {
+            Py_DECREF (c_api_obj);
+            goto fail;
+        }
+    }
+   
     if (import_pygame2_base () < 0)
         goto fail;
     MODINIT_RETURN(mod);

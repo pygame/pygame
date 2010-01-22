@@ -29,6 +29,7 @@
 #define PYGAME_MASKMOD_INTERNAL
 
 #include <stdlib.h>
+#include "pymacros.h"
 #include "pgbase.h"
 #include "maskmod.h"
 #include "pgmask.h"
@@ -98,15 +99,23 @@ _mask_fromsurface (PyObject* self, PyObject* args)
 
     /* get the size from the surface, and create the mask. */
     mask = bitmask_create (surf->w, surf->h);
-
     if (!mask)
     {
         PyErr_SetString (PyExc_MemoryError, "memory allocation failed");
         return NULL;
     }
 
+    /* create the new python object from mask */
+    maskobj = (PyMask*)PyMask_Type.tp_new (&PyMask_Type, NULL, NULL);
+    if (!maskobj)
+    {
+        bitmask_free (mask);
+        return NULL;
+    }
+    maskobj->mask = mask;
+
     /* lock the surface, release the GIL. */
-    lock = PySDLSurface_AcquireLockObj (surfobj, (PyObject*)mask);
+    lock = PySDLSurface_AcquireLockObj (surfobj, (PyObject*) maskobj);
     if (!lock)
         return NULL;
 
@@ -148,19 +157,9 @@ _mask_fromsurface (PyObject* self, PyObject* args)
         }
     }
 
+    /* unlock the surface, release the GIL. */
     Py_END_ALLOW_THREADS;
-
-    /* unlock the surface, release the GIL.
-     */
     Py_DECREF (lock);
-
-    /*create the new python object from mask*/        
-    maskobj = (PyMask*)PyMask_Type.tp_new (&PyMask_Type, NULL, NULL);
-    if (maskobj)
-        maskobj->mask = mask;
-    else
-        bitmask_free (mask);
-
     return (PyObject*)maskobj;
 }
 
@@ -402,15 +401,6 @@ PyMODINIT_FUNC initmask (void)
         PyModuleDef_HEAD_INIT, "mask", DOC_MASK, -1, _mask_methods,
         NULL, NULL, NULL, NULL
     };
-#endif
-
-    /* Complete types */
-    if (PyType_Ready (&PyMask_Type) < 0)
-        goto fail;
-    
-    Py_INCREF (&PyMask_Type);
-
-#ifdef IS_PYTHON_3
     mod = PyModule_Create (&_maskmodule);
 #else
     mod = Py_InitModule3 ("mask", _mask_methods, DOC_MASK);
@@ -418,13 +408,21 @@ PyMODINIT_FUNC initmask (void)
     if (!mod)
         goto fail;
 
-    PyModule_AddObject (mod, "Mask", (PyObject *) &PyMask_Type);
+    /* Complete types */
+    if (PyType_Ready (&PyMask_Type) < 0)
+        goto fail;
+    ADD_OBJ_OR_FAIL (mod, "Mask", PyMask_Type, fail);
     
     mask_export_capi (c_api);
-
     c_api_obj = PyCObject_FromVoidPtr ((void *) c_api, NULL);
     if (c_api_obj)
-        PyModule_AddObject (mod, PYGAME_MASK_ENTRY, c_api_obj);
+    {
+        if (PyModule_AddObject (mod, PYGAME_MASK_ENTRY, c_api_obj) == -1)
+        {
+            Py_DECREF (c_api_obj);
+            goto fail;
+        }
+    }
 
     if (import_pygame2_base () < 0)
         goto fail;

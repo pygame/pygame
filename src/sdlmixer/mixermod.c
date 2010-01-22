@@ -19,6 +19,7 @@
 */
 #define PYGAME_SDLMIXER_INTERNAL
 
+#include "pymacros.h"
 #include "mixermod.h"
 #include "pgmixer.h"
 #include "pgsdl.h"
@@ -175,20 +176,6 @@ PyMODINIT_FUNC initbase (void)
         _mixer_methods,
         NULL, NULL, NULL, NULL
     };
-#endif
-    if (PyType_Ready (&PyChunk_Type) < 0)
-        goto fail;
-    if (PyType_Ready (&PyChannel_Type) < 0)
-        goto fail;
-    if (PyType_Ready (&PyMusic_Type) < 0)
-        goto fail;
-
-    Py_INCREF (&PyChunk_Type);
-    Py_INCREF (&PyChannel_Type);
-    Py_INCREF (&PyMusic_Type);
-
-
-#ifdef IS_PYTHON_3
     mod = PyModule_Create (&_module);
 #else
     mod = Py_InitModule3 ("base", _mixer_methods, DOC_BASE);
@@ -196,16 +183,28 @@ PyMODINIT_FUNC initbase (void)
     if (!mod)
         goto fail;
         
-    PyModule_AddObject (mod, "Chunk", (PyObject *) &PyChunk_Type);
-    PyModule_AddObject (mod, "Channel", (PyObject *) &PyChannel_Type);
-    PyModule_AddObject (mod, "Music", (PyObject *) &PyMusic_Type);
+    if (PyType_Ready (&PyChunk_Type) < 0)
+        goto fail;
+    if (PyType_Ready (&PyChannel_Type) < 0)
+        goto fail;
+    if (PyType_Ready (&PyMusic_Type) < 0)
+        goto fail;
+    ADD_OBJ_OR_FAIL (mod, "Chunk", PyChunk_Type, fail);
+    ADD_OBJ_OR_FAIL (mod, "Channel", PyChannel_Type, fail);
+    ADD_OBJ_OR_FAIL (mod, "Music", PyMusic_Type, fail);
 
     /* Export C API */
     chunk_export_capi (c_api);
 
     c_api_obj = PyCObject_FromVoidPtr ((void *) c_api, NULL);
     if (c_api_obj)
-        PyModule_AddObject (mod, PYGAME_SDLMIXER_ENTRY, c_api_obj);    
+    {
+        if (PyModule_AddObject (mod, PYGAME_SDLMIXER_ENTRY, c_api_obj) == -1)
+        {
+            Py_DECREF (c_api_obj);
+            goto fail;
+        }
+    }
 
     if (import_pygame2_base () < 0)
         goto fail;

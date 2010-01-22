@@ -20,6 +20,7 @@
 #define PYGAME_SDLGFX_INTERNAL
 
 #include <SDL_gfxPrimitives.h>
+#include "pymacros.h"
 #include "gfxmod.h"
 #include "pggfx.h"
 #include "pgsdl.h"
@@ -59,13 +60,6 @@ PyMODINIT_FUNC initbase (void)
         _gfx_methods,
         NULL, NULL, NULL, NULL
     };
-#endif
-    if (PyType_Ready (&PyFPSmanager_Type) < 0)
-        goto fail;
-
-    Py_INCREF (&PyFPSmanager_Type);
-
-#ifdef IS_PYTHON_3
     mod = PyModule_Create (&_module);
 #else
     mod = Py_InitModule3 ("base", _gfx_methods, DOC_BASE);
@@ -73,15 +67,22 @@ PyMODINIT_FUNC initbase (void)
     if (!mod)
         goto fail;
 
-    PyModule_AddObject (mod, "FPSmanager", (PyObject *) &PyFPSmanager_Type);
+    if (PyType_Ready (&PyFPSmanager_Type) < 0)
+        goto fail;
+    ADD_OBJ_OR_FAIL (mod, "FPSmanager", PyFPSmanager_Type, fail);
 
     /* Export C API */
     fps_export_capi (c_api);
 
     c_api_obj = PyCObject_FromVoidPtr ((void *) c_api, NULL);
     if (c_api_obj)
-        PyModule_AddObject (mod, PYGAME_SDLGFX_ENTRY, c_api_obj);
-        
+    {
+        if (PyModule_AddObject (mod, PYGAME_SDLGFX_ENTRY, c_api_obj) == -1)
+        {
+            Py_DECREF (c_api_obj);
+            goto fail;
+        }
+    }   
     if (import_pygame2_base () < 0)
         goto fail;
     if (import_pygame2_sdl_base () < 0)

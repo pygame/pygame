@@ -18,8 +18,8 @@
 
 */
 #define PYGAME_SDLTTF_INTERNAL
-//#define PYGAME_FONT_INTERNAL
 
+#include "pymacros.h"
 #include "ttfmod.h"
 #include "pgttf.h"
 #include "pgsdl.h"
@@ -134,8 +134,13 @@ PyMODINIT_FUNC initbase (void)
         _ttf_methods,
         NULL, NULL, NULL, NULL
     };
+    mod = PyModule_Create (&_module);
+#else
+    mod = Py_InitModule3 ("base", _ttf_methods, DOC_BASE);
 #endif
-
+    if (!mod)
+        goto fail;
+    
     /* Import Pygame2 Base API to access PyFont_Type */
     if (import_pygame2_base () < 0)
         goto fail;
@@ -144,24 +149,20 @@ PyMODINIT_FUNC initbase (void)
     if (PyType_Ready (&PySDLFont_TTF_Type) < 0)
         goto fail;
 
-    Py_INCREF (&PySDLFont_TTF_Type);
-
-#ifdef IS_PYTHON_3
-    mod = PyModule_Create (&_module);
-#else
-    mod = Py_InitModule3 ("base", _ttf_methods, DOC_BASE);
-#endif
-    if (!mod)
-        goto fail;
-    
-    PyModule_AddObject (mod, "Font", (PyObject *) &PySDLFont_TTF_Type);
+    ADD_OBJ_OR_FAIL (mod, "Font", PySDLFont_TTF_Type, fail);
 
     /* Export C API */
     font_export_capi (c_api);
 
     c_api_obj = PyCObject_FromVoidPtr ((void *) c_api, NULL);
     if (c_api_obj)
-        PyModule_AddObject (mod, PYGAME_SDLTTF_ENTRY, c_api_obj);    
+    {
+        if (PyModule_AddObject (mod, PYGAME_SDLTTF_ENTRY, c_api_obj) == -1)
+        {
+            Py_DECREF (c_api_obj);
+            goto fail;
+        }
+    }
 
     if (import_pygame2_sdl_base () < 0)
         goto fail;

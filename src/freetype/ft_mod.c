@@ -21,6 +21,7 @@
 #define PYGAME_FREETYPE_INTERNAL
 #define PYGAME_FREETYPE_FONT_INTERNAL
 
+#include "pymacros.h"
 #include "pgfreetype.h"
 #include "ft_wrap.h"
 #include "ft_mod.h"
@@ -211,20 +212,23 @@ PyMODINIT_FUNC
     PyFreeTypeFont_Type.tp_base = &PyFont_Type;
     if (PyType_Ready(&PyFreeTypeFont_Type) < 0)
         goto fail;
-
-    Py_INCREF(&PyFreeTypeFont_Type);
-    PyModule_AddObject(mod, "Font", (PyObject *)&PyFreeTypeFont_Type); 
+    ADD_OBJ_OR_FAIL (mod, "Font", PyFreeTypeFont_Type, fail);
 
     /* 
      * Export C API.
      */
-
     ftfont_export_capi(c_api);
 
     c_api_obj = PyCObject_FromVoidPtr((void *) c_api, NULL);
 
     if (c_api_obj)
-        PyModule_AddObject(mod, PYGAME_FREETYPE_ENTRY, c_api_obj);    
+    {
+        if (PyModule_AddObject(mod, PYGAME_FREETYPE_ENTRY, c_api_obj) == -1)
+        {
+            Py_DECREF (c_api_obj);
+            goto fail;
+        }
+    }
 
 #ifdef HAVE_PYGAME_SDL_VIDEO
     if (import_pygame2_sdl_base () < 0)

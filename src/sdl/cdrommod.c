@@ -19,6 +19,7 @@
 */
 #define PYGAME_SDLCDROM_INTERNAL
 
+#include "pymacros.h"
 #include "cdrommod.h"
 #include "pgsdl.h"
 #include "sdlcdrom_doc.h"
@@ -179,15 +180,6 @@ PyMODINIT_FUNC initcdrom (void)
     _SDLCDromState *state;
 
     static void *c_api[PYGAME_SDLCDROM_SLOTS];
-    
-    /* Complete types */
-    if (PyType_Ready (&PyCD_Type) < 0)
-        goto fail;
-    if (PyType_Ready (&PyCDTrack_Type) < 0)
-        goto fail;
-
-    Py_INCREF (&PyCD_Type);
-    Py_INCREF (&PyCDTrack_Type);
 
 #ifdef IS_PYTHON_3
     mod = PyModule_Create (&_cdrommodule);
@@ -201,16 +193,28 @@ PyMODINIT_FUNC initcdrom (void)
     for (i = 0; i < MAX_CDROMS; i++)
         state->cdrom_drives[i] = NULL;
 
-    PyModule_AddObject (mod, "CD", (PyObject *) &PyCD_Type);
-    PyModule_AddObject (mod, "CDTrack", (PyObject *) &PyCDTrack_Type);
+    
+    /* Complete types */
+    if (PyType_Ready (&PyCD_Type) < 0)
+        goto fail;
+    if (PyType_Ready (&PyCDTrack_Type) < 0)
+        goto fail;
+
+    ADD_OBJ_OR_FAIL (mod, "CD", PyCD_Type, fail);
+    ADD_OBJ_OR_FAIL (mod, "CDTrack", PyCDTrack_Type, fail);
 
     cdrom_export_capi (c_api);
     cdtrack_export_capi (c_api);
 
     c_api_obj = PyCObject_FromVoidPtr ((void *) c_api, NULL);
     if (c_api_obj)
-        PyModule_AddObject (mod, PYGAME_SDLCDROM_ENTRY, c_api_obj);    
-
+    {
+        if (PyModule_AddObject (mod, PYGAME_SDLCDROM_ENTRY, c_api_obj) == -1)
+        {
+            Py_DECREF (c_api_obj);
+            goto fail;
+        }
+    }
     if (import_pygame2_base () < 0)
         goto fail;
     if (import_pygame2_sdl_base () < 0)

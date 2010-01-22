@@ -19,6 +19,7 @@
 */
 #define PYGAME_SDLJOYSTICK_INTERNAL
 
+#include "pymacros.h"
 #include "joystickmod.h"
 #include "pgsdl.h"
 #include "sdljoystick_doc.h"
@@ -223,12 +224,6 @@ PyMODINIT_FUNC initjoystick (void)
     _SDLJoystickState *state;
     static void *c_api[PYGAME_SDLJOYSTICK_SLOTS];
 
-    /* Complete types */
-    if (PyType_Ready (&PyJoystick_Type) < 0)
-        goto fail;
-    Py_INCREF (&PyJoystick_Type);
-
-
 #ifdef IS_PYTHON_3
     mod = PyModule_Create (&_joystickmodule);
 #else
@@ -241,14 +236,22 @@ PyMODINIT_FUNC initjoystick (void)
     for (i = 0; i < MAX_JOYSTICKS; i++)
         state->joysticks[i] = NULL;
 
-    PyModule_AddObject (mod, "Joystick", (PyObject *) &PyJoystick_Type);
+    /* Complete types */
+    if (PyType_Ready (&PyJoystick_Type) < 0)
+        goto fail;
+    ADD_OBJ_OR_FAIL (mod, "Joystick", PyJoystick_Type, fail);
 
     joystick_export_capi (c_api);
 
     c_api_obj = PyCObject_FromVoidPtr ((void *) c_api, NULL);
     if (c_api_obj)
-        PyModule_AddObject (mod, PYGAME_SDLJOYSTICK_ENTRY, c_api_obj);    
-
+    {
+        if (PyModule_AddObject (mod, PYGAME_SDLJOYSTICK_ENTRY, c_api_obj) == -1)
+        {
+            Py_DECREF (c_api_obj);
+            goto fail;
+        }
+    }
     if (import_pygame2_base () < 0)
         goto fail;
     if (import_pygame2_sdl_base () < 0)
