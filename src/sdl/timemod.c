@@ -114,7 +114,7 @@ _sdl_timerfunc (Uint32 interval, void *param)
 #endif
 
     DEBUG_P ("SWAPPED STATE");
-    if (timerdata->id == NULL)
+    if (timerdata->id == NULL || timerdata->wait == NULL)
     {
         DEBUG_P ("CALLBACK DEFUNCT");
         goto ret;
@@ -172,6 +172,7 @@ _free_timerdata (void *p)
     if (!data)
         return;
 
+    DEBUG_P ("FREEING");
     if (data->id)
         SDL_RemoveTimer (data->id);
     data->id = NULL;
@@ -404,7 +405,7 @@ _sdl_removetimer (PyObject *self, PyObject *args)
 
     if (PySequence_DelItem (state->timerlist, pos) == -1)
         return NULL;
-    
+
     Py_RETURN_NONE;
 }
 

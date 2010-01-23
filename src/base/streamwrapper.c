@@ -207,10 +207,10 @@ CPyStreamWrapper_Read_Threaded (CPyStreamWrapper *wrapper, void *buf,
     tmp = Bytes_AS_STRING (result);
 
     off = 0;
-    while ((_read - off) > SSIZE_MAX)
+    while ((_read - off) > SIZE_MAX)
     {
-        memcpy (ptr + off, tmp + off, SSIZE_MAX);
-        off += SSIZE_MAX;
+        memcpy (ptr + off, tmp + off, SIZE_MAX);
+        off += SIZE_MAX;
     }
     memcpy (ptr + off, tmp + off, (size_t) (_read - off));
     Py_DECREF (result);
@@ -275,10 +275,10 @@ CPyStreamWrapper_Read (CPyStreamWrapper *wrapper, void *buf, pguint32 offset,
     tmp = Bytes_AS_STRING (result);
 
     off = 0;
-    while ((_read - off) > SSIZE_MAX)
+    while ((_read - off) > SIZE_MAX)
     {
-        memcpy (ptr + off, tmp + off, SSIZE_MAX);
-        off += SSIZE_MAX;
+        memcpy (ptr + off, tmp + off, SIZE_MAX);
+        off += SIZE_MAX;
     }
     memcpy (ptr + off, tmp + off, (size_t) (_read - off));
     Py_DECREF (result);
