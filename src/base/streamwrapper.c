@@ -77,7 +77,7 @@ CPyStreamWrapper_New (PyObject *obj)
     interp = thread->interp;
     wrapper->thread = PyThreadState_New (interp);
 #endif
-    
+
     if (PyObject_HasAttrString (obj, "read"))
     {
         wrapper->read = PyObject_GetAttrString (obj, "read");

@@ -510,7 +510,7 @@ PyRWops_NewRO_Threaded (PyObject *obj, int *canautoclose)
     SDL_RWops *ops;
     PyInterpreterState* interp;
     PyThreadState* thread;
-    
+
     if (!obj || !canautoclose)
     {
         PyErr_SetString (PyExc_TypeError, "argument is NULL");
@@ -577,7 +577,7 @@ PyRWops_NewRW_Threaded (PyObject *obj, int *canautoclose)
     SDL_RWops *ops;
     PyInterpreterState* interp;
     PyThreadState* thread;
-    
+
     if (!obj || !canautoclose)
     {
         PyErr_SetString (PyExc_TypeError, "argument is NULL");
