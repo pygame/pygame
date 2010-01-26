@@ -114,6 +114,7 @@ pyg_save_png_rw (SDL_Surface *surface, SDL_RWops *rw, int freerw)
 
     unsigned surf_flags;
     unsigned surf_alpha;
+    unsigned surf_colorkey;
 
     if (!surface)
     {
@@ -154,6 +155,8 @@ pyg_save_png_rw (SDL_Surface *surface, SDL_RWops *rw, int freerw)
     
     surf_flags = surface->flags & (SDL_SRCALPHA | SDL_SRCCOLORKEY);
     surf_alpha = surface->format->alpha;
+    surf_colorkey = surface->format->colorkey;
+
     if (surf_flags & SDL_SRCALPHA)
         SDL_SetAlpha (surface, 0, 255);
     if (surf_flags & SDL_SRCCOLORKEY)
@@ -178,7 +181,7 @@ pyg_save_png_rw (SDL_Surface *surface, SDL_RWops *rw, int freerw)
     if (surf_flags & SDL_SRCALPHA)
         SDL_SetAlpha (surface, SDL_SRCALPHA, (Uint8)surf_alpha);
     if (surf_flags & SDL_SRCCOLORKEY)
-        SDL_SetColorKey (surface, SDL_SRCCOLORKEY, surface->format->colorkey);
+        SDL_SetColorKey (surface, SDL_SRCCOLORKEY, surf_colorkey);
 
     for (i = 0; i < ss_h; i++)
     {
