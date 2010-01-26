@@ -220,6 +220,7 @@ SavePNG (SDL_Surface *surface, char *file)
 
     unsigned surf_flags;
     unsigned surf_alpha;
+    unsigned surf_colorkey;
 
     ss_rows = 0;
     ss_size = 0;
@@ -250,6 +251,8 @@ SavePNG (SDL_Surface *surface, char *file)
 
     surf_flags = surface->flags & (SDL_SRCALPHA | SDL_SRCCOLORKEY);
     surf_alpha = surface->format->alpha;
+    surf_colorkey = surface->format->colorkey;
+
     if (surf_flags & SDL_SRCALPHA)
         SDL_SetAlpha (surface, 0, 255);
     if (surf_flags & SDL_SRCCOLORKEY)
@@ -271,7 +274,7 @@ SavePNG (SDL_Surface *surface, char *file)
     if (surf_flags & SDL_SRCALPHA)
         SDL_SetAlpha (surface, SDL_SRCALPHA, (Uint8)surf_alpha);
     if (surf_flags & SDL_SRCCOLORKEY)
-        SDL_SetColorKey (surface, SDL_SRCCOLORKEY, surface->format->colorkey);
+        SDL_SetColorKey (surface, SDL_SRCCOLORKEY, surf_colorkey);
 
     for (i = 0; i < ss_h; i++)
     {
