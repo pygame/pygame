@@ -33,7 +33,7 @@ def get_dependencies(buildsystem, cfg):
         'sdl_mixer' : dep(
             ['SDL_mixer.h'], 'SDL_mixer',
             config_program='sdl-config',
-            pkgconfig_name='sdl',
+            pkgconfig_name='SDL_mixer',
             extra_include_dirs = [pygame_sdl_path]),
 
         'sdl_ttf' : dep(
