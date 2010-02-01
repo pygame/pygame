@@ -57,8 +57,11 @@ static PyMethodDef _mixer_methods[] = {
 static PyObject*
 _mixer_init (PyObject *self, PyObject *args)
 {
-    long flags = MIX_INIT_FLAC | MIX_INIT_MOD | MIX_INIT_MP3 | MIX_INIT_OGG;
+    long flags = 0;
     long retval = 0;
+
+    if (!PyArg_ParseTuple (args, "|l", &flags))
+        return NULL;
 
     if (SDL_WasInit (SDL_INIT_AUDIO))
     {
@@ -120,14 +123,18 @@ _mixer_geterror (PyObject *self)
 static PyObject*
 _mixer_openaudio (PyObject *self, PyObject *args)
 {
-    int freq, chans, chunks;
+    int freq, chans, chunks, retval;
     Uint16 format;
 
     if (!PyArg_ParseTuple (args, "iiii:open_audio", &freq, &format, &chans,
             &chunks))
         return NULL;
+    
+    Py_BEGIN_ALLOW_THREADS;
+    retval = Mix_OpenAudio (freq, format, chans, chunks);
+    Py_END_ALLOW_THREADS;
 
-    if (Mix_OpenAudio (freq, format, chans, chunks) == -1)
+    if (retval == -1)
     {
         PyErr_SetString (PyExc_PyGameError, Mix_GetError ());
         return NULL;
@@ -138,7 +145,9 @@ _mixer_openaudio (PyObject *self, PyObject *args)
 static PyObject*
 _mixer_closeaudio (PyObject *self)
 {
+    Py_BEGIN_ALLOW_THREADS;
     Mix_CloseAudio ();
+    Py_END_ALLOW_THREADS;
     Py_RETURN_NONE;
 }
 
