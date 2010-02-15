@@ -437,7 +437,7 @@ _sdl_setvideomode (PyObject *self, PyObject *args, PyObject *kwds)
 
 /* C API */
 int
-ColorFromObj (PyObject *value, SDL_PixelFormat *format, Uint32 *color)
+SDLColorFromObj (PyObject *value, SDL_PixelFormat *format, Uint32 *color)
 {
     Uint8 rgba[4];
 
@@ -459,20 +459,11 @@ ColorFromObj (PyObject *value, SDL_PixelFormat *format, Uint32 *color)
         rgba[2] = ((PyColor*)value)->b;
         rgba[3] = ((PyColor*)value)->a;
 
-        *color = (Uint32) SDL_MapRGBA
-            (format, rgba[0], rgba[1], rgba[2], rgba[3]);
-        return 1;
-    }
-    else if (PyInt_Check (value))
-    {
-        long intval = PyInt_AsLong (value);
-        if (intval == -1 && PyErr_Occurred ())
-        {
-            PyErr_Clear ();
-            PyErr_SetString (PyExc_ValueError, "invalid color argument");
-            return 0;
-        }
-        *color = (Uint32) intval;
+        if (format->Amask != 0)
+            *color = (Uint32) SDL_MapRGBA
+                (format, rgba[0], rgba[1], rgba[2], rgba[3]);
+        else
+            *color = (Uint32) SDL_MapRGB (format, rgba[0], rgba[1], rgba[2]);
         return 1;
     }
     else if (PyLong_Check (value))
@@ -485,6 +476,18 @@ ColorFromObj (PyObject *value, SDL_PixelFormat *format, Uint32 *color)
             return 0;
         }
         *color = (Uint32) longval;
+        return 1;
+    }
+    else if (PyInt_Check (value))
+    {
+        long intval = PyInt_AsLong (value);
+        if (intval == -1 && PyErr_Occurred ())
+        {
+            PyErr_Clear ();
+            PyErr_SetString (PyExc_ValueError, "invalid color argument");
+            return 0;
+        }
+        *color = (Uint32) intval;
         return 1;
     }
     else
@@ -538,7 +541,7 @@ PyMODINIT_FUNC initvideo (void)
     ADD_OBJ_OR_FAIL (mod, "Surface", PySDLSurface_Type, fail);
     ADD_OBJ_OR_FAIL (mod, "Overlay", PyOverlay_Type, fail);
     
-    c_api[PYGAME_SDLVIDEO_FIRSTSLOT+0] = ColorFromObj;
+    c_api[PYGAME_SDLVIDEO_FIRSTSLOT+0] = SDLColorFromObj;
 
     pixelformat_export_capi (c_api);
     surface_export_capi (c_api);

@@ -34,7 +34,7 @@ class FreeTypeTest(unittest.TestCase):
         # init()
         base.init()
         self.assertEqual(base.was_init(), True)
-
+        
         # quit
         base.quit()
         self.assertEqual(base.was_init(), False)

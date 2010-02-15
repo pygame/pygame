@@ -434,6 +434,51 @@ UTF8FromObject (PyObject *obj, char **text, PyObject **freeme)
     return 1;
 }
 
+int
+ColorFromObj (PyObject *obj, pguint32 *val)
+{
+    if (!obj || !val)
+    {
+        PyErr_SetString (PyExc_TypeError, "argument is NULL");
+        return 0;
+    }
+    
+    if (PyColor_Check (obj))
+    {
+        PyColor *color = (PyColor*) obj;
+        *val = ((pguint32) color->r << 24) | ((pguint32) color->g << 16) |
+            ((pguint32) color->b << 8) | ((pguint32) color->a);
+        return 1;
+    }
+    else if (PyLong_Check (obj))
+    {
+        unsigned long longval = PyLong_AsUnsignedLong (obj);
+        if (PyErr_Occurred ())
+        {
+            PyErr_Clear ();
+            PyErr_SetString(PyExc_ValueError, "invalid color argument");
+            return 0;
+        }
+        *val = (pguint32) longval;
+        return 1;
+    }
+    else if (PyInt_Check (obj))
+    {
+        long intval = PyInt_AsLong (obj);
+        if (intval == -1 && PyErr_Occurred ())
+        {
+            PyErr_Clear ();
+            PyErr_SetString (PyExc_ValueError, "invalid color argument");
+            return 0;
+        }
+        *val = (pguint32) intval;
+        return 1;
+    }
+    else
+        PyErr_SetString (PyExc_TypeError, "invalid color argument");
+    return 0;
+}
+
 static int
 _base_traverse (PyObject *mod, visitproc visit, void *arg)
 {
@@ -538,6 +583,7 @@ PyMODINIT_FUNC initbase (void)
     c_api[PYGAME_BASE_FIRSTSLOT+12] = UTF8FromObject;
     c_api[PYGAME_BASE_FIRSTSLOT+13] = UlongFromObj;
     c_api[PYGAME_BASE_FIRSTSLOT+14] = LongFromObj;
+    c_api[PYGAME_BASE_FIRSTSLOT+15] = ColorFromObj;
 
     streamwrapper_export_capi (c_api);
     color_export_capi (c_api);

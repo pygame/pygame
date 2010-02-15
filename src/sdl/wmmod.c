@@ -54,10 +54,10 @@ _sdl_wmsetcaption (PyObject *s, PyObject *args)
 
     if (!PyArg_ParseTuple (args, "s|s:set_caption", &title, &icon))
         return NULL;
-
+/*
     if (!icon)
         icon = title;
-
+*/
     SDL_WM_SetCaption (title, icon);
     Py_RETURN_NONE;
 }

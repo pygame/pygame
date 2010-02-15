@@ -6,8 +6,12 @@
   <desc>Pygame SDL window manager wrapper module.</desc>
 
   <func name="get_caption">
-    <call>get_caption () -> str</call>
-    <desc>Gets the caption of the current SDL window.</desc>
+    <call>get_caption () -> str, str</call>
+    <desc>Gets the caption of the current SDL window.
+    
+      Gets the title-bar caption and icon name (if any) of the display
+      window. If not set, any of the values might be None.
+    </desc>
   </func>
   <func name="get_info">
     <call>get_info () -> dict</call>
@@ -31,8 +35,12 @@
     </desc>
   </func>
   <func name="set_caption">
-    <call>set_caption (str) -> None</call>
-    <desc>Sets the caption of the current SDL window.</desc>
+    <call>set_caption (title[, iconname]) -> None</call>
+    <desc>Sets the caption of the current SDL window.
+    
+      Sets the title-bar caption and optional icon name (or description)
+      of the display window.
+    </desc>
   </func>
   <func name="set_icon">
     <call>set_icon (surface[, mask]) -> None</call>

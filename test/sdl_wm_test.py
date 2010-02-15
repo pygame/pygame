@@ -7,22 +7,31 @@ except:
     from pgunittest import doprint, interactive
 
 import pygame2
-import pygame2.sdl.wm as image
+import pygame2.sdl.wm as wm
 import pygame2.sdl.video as video
 import pygame2.sdl.constants as constants
 
 class SDLWMTest (unittest.TestCase):
 
-    @interactive("Is the shown caption on the window title correct?")
-    def todo_test_pygame2_sdl_wm_get_caption(self):
+    def test_pygame2_sdl_wm_get_caption(self):
 
         # __doc__ (as of 2010-01-13) for pygame2.sdl.wm.get_caption:
 
         # get_caption () -> str
         # 
         # Gets the caption of the current SDL window.
-        doprint ("The window title caption should be 'sdl.wm unittest'")
-        self.fail() 
+        self.assertRaises (pygame2.Error, wm.get_caption)
+        video.init ()
+        self.assertRaises (pygame2.Error, wm.get_caption)
+        sf = video.set_mode (10, 10)
+        self.assertEqual (wm.get_caption (), (None, None))
+        wm.set_caption ("test window")
+        self.assertEqual (wm.get_caption (), ("test window", None))
+        wm.set_caption ("", "icon")
+        self.assertEqual (wm.get_caption (), ("", "icon"))
+        wm.set_caption ("test window", "icon")
+        self.assertEqual (wm.get_caption (), ("test window", "icon"))
+        video.quit ()
 
     def todo_test_pygame2_sdl_wm_get_info(self):
 
@@ -61,16 +70,27 @@ class SDLWMTest (unittest.TestCase):
 
         self.fail() 
 
-    @interactive ("Was the caption set correctly?")
-    def todo_test_pygame2_sdl_wm_set_caption(self):
+    def test_pygame2_sdl_wm_set_caption(self):
 
         # __doc__ (as of 2010-01-13) for pygame2.sdl.wm.set_caption:
 
         # set_caption (str) -> None
         # 
         # Sets the caption of the current SDL window.
-        doprint ("Trying to set the caption to 'sdl.wm set_caption'...")
-        self.fail() 
+
+        # handled in wm_get_caption()
+        self.assertRaises (pygame2.Error, wm.set_caption, "test", "test")
+        video.init ()
+        self.assertRaises (pygame2.Error, wm.set_caption, "test", "test")
+        sf = video.set_mode (10, 10)
+        self.assertEqual (wm.get_caption (), (None, None))
+        self.assert_ (wm.set_caption ("test window") == None)
+        self.assertEqual (wm.get_caption (), ("test window", None))
+        self.assert_ (wm.set_caption ("", "icon") == None)
+        self.assertEqual (wm.get_caption (), ("", "icon"))
+        self.assert_ (wm.set_caption ("test window", "icon") == None)
+        self.assertEqual (wm.get_caption (), ("test window", "icon"))
+        video.quit ()
 
     @interactive ("Was the window icon updated correctly?")
     def todo_test_pygame2_sdl_wm_set_icon(self):

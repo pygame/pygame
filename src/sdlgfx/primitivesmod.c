@@ -96,6 +96,7 @@ _gfx_pixelcolor (PyObject *self, PyObject* args)
 
     if (!PyArg_ParseTuple (args, "OOO:pixel", &surface, &pt, &color))
     {
+        PyErr_Clear ();
         if (!PyArg_ParseTuple (args, "OiiO:pixel", &surface, &x, &y, &color))
             return NULL;
     }
@@ -110,14 +111,9 @@ _gfx_pixelcolor (PyObject *self, PyObject* args)
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    if (!PyColor_Check (color))
-    {
-        PyErr_SetString (PyExc_TypeError, "color must be a Color");
-        return NULL;
-    }
 
-    c = (Uint32) PyColor_AsNumber (color);
-    ARGB2FORMAT (c, ((PySDLSurface*)surface)->surface->format);
+    if (!ColorFromObj (color, &c))
+        return NULL;
 
     if (pixelColor (((PySDLSurface*)surface)->surface, x, y, c) == -1)
     {
@@ -151,7 +147,7 @@ _gfx_hlinecolor (PyObject *self, PyObject* args)
     }
 
     c = (Uint32) PyColor_AsNumber (color);
-    ARGB2FORMAT (c, ((PySDLSurface*)surface)->surface->format);
+    c = ARGB_2_RGBA (c);
 
     if (hlineColor (((PySDLSurface*)surface)->surface, x1, x2, y, c) == -1)
     {
@@ -186,7 +182,7 @@ _gfx_vlinecolor (PyObject *self, PyObject* args)
     }
 
     c = (Uint32) PyColor_AsNumber (color);
-    ARGB2FORMAT (c, ((PySDLSurface*)surface)->surface->format);
+    c = ARGB_2_RGBA (c);
 
     if (vlineColor (((PySDLSurface*)surface)->surface, x, _y1, y2, c) == -1)
     {
@@ -228,7 +224,7 @@ _gfx_rectanglecolor (PyObject *self, PyObject* args)
     x2 = (Sint16) (sdlrect.x + sdlrect.w);
     y2 = (Sint16) (sdlrect.y + sdlrect.h);
     c = (Uint32) PyColor_AsNumber (color);
-    ARGB2FORMAT (c, ((PySDLSurface*)surface)->surface->format);
+    c = ARGB_2_RGBA (c);
 
     if (rectangleColor (((PySDLSurface*)surface)->surface, x1, x2,_y1, y2, c) ==
         -1)
@@ -271,7 +267,7 @@ _gfx_boxcolor (PyObject *self, PyObject* args)
     x2 = (Sint16) (sdlrect.x + sdlrect.w);
     y2 = (Sint16) (sdlrect.y + sdlrect.h);
     c = (Uint32) PyColor_AsNumber (color);
-    ARGB2FORMAT (c, ((PySDLSurface*)surface)->surface->format);
+    c = ARGB_2_RGBA (c);
 
     if (rectangleColor (((PySDLSurface*)surface)->surface, x1, x2,_y1, y2, c) ==
         -1)
@@ -318,7 +314,7 @@ _gfx_linecolor (PyObject *self, PyObject* args)
     }
 
     c = (Uint32) PyColor_AsNumber (color);
-    ARGB2FORMAT (c, ((PySDLSurface*)surface)->surface->format);
+    c = ARGB_2_RGBA (c);
 
     if (lineColor (((PySDLSurface*)surface)->surface, x1, _y1, x2, y2, c) == -1)
     {
@@ -362,7 +358,7 @@ _gfx_circlecolor (PyObject *self, PyObject* args)
     }
 
     c = (Uint32) PyColor_AsNumber (color);
-    ARGB2FORMAT (c, ((PySDLSurface*)surface)->surface->format);
+    c = ARGB_2_RGBA (c);
 
     if (circleColor (((PySDLSurface*)surface)->surface, x, y, r, c) == -1)
     {
@@ -407,7 +403,7 @@ _gfx_arccolor (PyObject *self, PyObject* args)
     }
 
     c = (Uint32) PyColor_AsNumber (color);
-    ARGB2FORMAT (c, ((PySDLSurface*)surface)->surface->format);
+    c = ARGB_2_RGBA (c);
 
     if (arcColor (((PySDLSurface*)surface)->surface, x, y, r, start, end, c)
         == -1)
@@ -444,15 +440,11 @@ _gfx_aacirclecolor (PyObject *self, PyObject* args)
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    if (!PyColor_Check (color))
-    {
-        PyErr_SetString (PyExc_TypeError, "color must be a Color");
-        return NULL;
-    }
-
     c = (Uint32) PyColor_AsNumber (color);
     ARGB2FORMAT (c, ((PySDLSurface*)surface)->surface->format);
-
+    printf ("%x\n", c);
+/*    c = (Uint32) PyColor_AsNumber (color);
+      c = ARGB_2_RGBA (c);*/
     if (aacircleColor (((PySDLSurface*)surface)->surface, x, y, r, c) == -1)
     {
         PyErr_SetString (PyExc_PyGameError, SDL_GetError ());
@@ -494,10 +486,8 @@ _gfx_filledcirclecolor (PyObject *self, PyObject* args)
         PyErr_SetString (PyExc_TypeError, "color must be a Color");
         return NULL;
     }
-
-    c = (Uint32) PyColor_AsNumber (color);
-    ARGB2FORMAT (c, ((PySDLSurface*)surface)->surface->format);
-
+    c = PyColor_AsNumber (color);
+    c = ARGB_2_RGBA (c);
     if (filledCircleColor (((PySDLSurface*)surface)->surface, x, y, r, c) == -1)
     {
         PyErr_SetString (PyExc_PyGameError, SDL_GetError ());

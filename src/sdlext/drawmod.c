@@ -85,7 +85,7 @@ _draw_aaline (PyObject* self, PyObject* args)
     }
     surface = ((PySDLSurface*)surfobj)->surface;
     
-    if (!ColorFromObj (colorobj, surface->format, &color))
+    if (!SDLColorFromObj (colorobj, surface->format, &color))
         return NULL;
     
     if (surface->format->BytesPerPixel != 3 &&
@@ -139,7 +139,7 @@ _draw_line (PyObject* self, PyObject* args)
     }
     surface = ((PySDLSurface*)surfobj)->surface;
     
-    if (!ColorFromObj (colorobj, surface->format, &color))
+    if (!SDLColorFromObj (colorobj, surface->format, &color))
         return NULL;
     
     if (width < 1)
@@ -180,7 +180,7 @@ _draw_aalines (PyObject* self, PyObject* args)
     }
     surface = ((PySDLSurface*)surfobj)->surface;
     
-    if (!ColorFromObj (colorobj, surface->format, &color))
+    if (!SDLColorFromObj (colorobj, surface->format, &color))
         return NULL;
     
     if (!PySequence_Check (list))
@@ -276,7 +276,7 @@ _draw_lines (PyObject* self, PyObject* args)
     }
     surface = ((PySDLSurface*)surfobj)->surface;
     
-    if (!ColorFromObj (colorobj, surface->format, &color))
+    if (!SDLColorFromObj (colorobj, surface->format, &color))
         return NULL;
     
     if (!PySequence_Check (list))
@@ -377,7 +377,7 @@ _draw_ellipse (PyObject* self, PyObject* args)
     }
     surface = ((PySDLSurface*)surfobj)->surface;
     
-    if (!ColorFromObj (colorobj, surface->format, &color))
+    if (!SDLColorFromObj (colorobj, surface->format, &color))
         return NULL;
 
     if (!SDLRect_FromRect (rectobj, &rect))
@@ -450,7 +450,7 @@ _draw_arc (PyObject* self, PyObject* args)
     }
     surface = ((PySDLSurface*)surfobj)->surface;
     
-    if (!ColorFromObj (colorobj, surface->format, &color))
+    if (!SDLColorFromObj (colorobj, surface->format, &color))
         return NULL;
 
     if (!SDLRect_FromRect (rectobj, &rect))
@@ -526,7 +526,7 @@ _draw_circle (PyObject* self, PyObject* args)
     }
     surface = ((PySDLSurface*)surfobj)->surface;
     
-    if (!ColorFromObj (colorobj, surface->format, &color))
+    if (!SDLColorFromObj (colorobj, surface->format, &color))
         return NULL;
 
     if (radius < 0)
@@ -591,7 +591,7 @@ _draw_polygon (PyObject* self, PyObject* args)
     }
     surface = ((PySDLSurface*)surfobj)->surface;
     
-    if (!ColorFromObj (colorobj, surface->format, &color))
+    if (!SDLColorFromObj (colorobj, surface->format, &color))
         return NULL;
 
     if (!PySequence_Check (list))
@@ -693,7 +693,7 @@ _draw_aapolygon (PyObject* self, PyObject* args)
     }
     surface = ((PySDLSurface*)surfobj)->surface;
     
-    if (!ColorFromObj (colorobj, surface->format, &color))
+    if (!SDLColorFromObj (colorobj, surface->format, &color))
         return NULL;
     
     if (!PySequence_Check (list))
@@ -780,7 +780,7 @@ _draw_rect (PyObject* self, PyObject* args)
     }
     surface = ((PySDLSurface*)surfobj)->surface;
     
-    if (!ColorFromObj (colorobj, surface->format,  &color))
+    if (!SDLColorFromObj (colorobj, surface->format,  &color))
         return NULL;
 
     if (!SDLRect_FromRect (rectobj, &rect))

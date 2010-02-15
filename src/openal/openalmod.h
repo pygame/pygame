@@ -22,8 +22,9 @@
 
 #define PYGAME_OPENAL_INTERNAL
 #define PYGAME_OPENALDEVICE_INTERNAL
+#define PYGAME_OPENALCONTEXT_INTERNAL
 
-#ifdef IS_MSYS
+#if defined(IS_MSYS) || defined(IS_WIN32)
 #include <al.h>
 #else
 #include <AL/al.h>
@@ -35,7 +36,11 @@ extern PyTypeObject PyDevice_Type;
 #define PyDevice_Check(x) (PyObject_TypeCheck (x, &PyDevice_Type))
 PyObject* PyDevice_New (const char *name);
 
+extern PyTypeObject PyContext_Type;
+#define PyContext_Check(x) (PyObject_TypeCheck (x, &PyContext_Type))
+
 int SetALErrorException (ALenum error);
+#define CLEAR_ERROR_STATE() alGetError()
 
 void device_export_capi (void **capi);
 

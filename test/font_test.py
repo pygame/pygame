@@ -1,3 +1,4 @@
+import sys
 try:
     import pygame2.test.pgunittest as unittest
 except:
@@ -33,7 +34,7 @@ class FontTest (unittest.TestCase):
         self.assertEqual (type (retval[1]), bool)
         self.assertEqual (type (retval[2]), bool)
 
-    def todo_test_pygame2_font_find_fonts(self):
+    def test_pygame2_font_find_fonts(self):
 
         # __doc__ (as of 2009-12-10) for pygame2.font.find_fonts:
 
@@ -50,17 +51,25 @@ class FontTest (unittest.TestCase):
         # 
         # All found fonts are returned as list
 
-        self.fail() 
+        retval = font.find_fonts ("invalidfont")
+        self.assertEqual (retval, None)
 
-    def todo_test_pygame2_font_get_families(self):
+        retval = font.find_fonts ("sans")
+        self.assert_ (len (retval) != 0)
+        self.assert_ (type (retval), list)
+
+    def test_pygame2_font_get_families(self):
 
         # __doc__ (as of 2009-12-10) for pygame2.font.get_families:
 
         # get_families () -> [str, str, str, ...]
         # 
         # Gets the list of available font families.
-
-        self.fail() 
-
+        if sys.version in ('win32', 'darwin'):
+            pass
+        else:
+            self.assert_ (len (font.get_families ()) != 0)
+            self.assertEqual (type (font.get_families ()), list)
+    
 if __name__ == '__main__':
     unittest.main()

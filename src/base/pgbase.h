@@ -30,7 +30,7 @@ extern "C" {
 /* Stream handling */
 
 #define PYGAME_BASE_FIRSTSLOT 0
-#define PYGAME_BASE_NUMSLOTS 15
+#define PYGAME_BASE_NUMSLOTS 16
 #ifndef PYGAME_BASE_INTERNAL
 #define PyExc_PyGameError ((PyObject*)PyGameBase_C_API[PYGAME_BASE_FIRSTSLOT])
 #define DoubleFromObj                                                   \
@@ -59,8 +59,10 @@ extern "C" {
     (*(int(*)(PyObject*, char**, PyObject**))PyGameBase_C_API[PYGAME_BASE_FIRSTSLOT+12])
 #define UlongFromObj                                                    \
     (*(int(*)(PyObject*, unsigned long*))PyGameBase_C_API[PYGAME_BASE_FIRSTSLOT+13])
-#define LongFromObj                                                    \
+#define LongFromObj                                                     \
     (*(int(*)(PyObject*, long*))PyGameBase_C_API[PYGAME_BASE_FIRSTSLOT+14])
+#define ColorFromObj                                                    \
+    (*(int(*)(PyObject*, pguint32*))PyGameBase_C_API[PYGAME_BASE_FIRSTSLOT+15])
 #endif /* PYGAME_BASE_INTERNAL */
 
 /*
@@ -118,6 +120,22 @@ typedef struct
     (*(int(*)(PyObject*))PyGameBase_C_API[PYGAME_STREAMWRAPPER_FIRSTSLOT+14])
 #endif /* PYGAME_STREAMWRAPPER_INTERNAL */
 
+/**
+ * PyColor values are using a ARGB layout - provide some simple
+ * RGBA->ARGB and ARGB->RGBA conversion macros.
+ */
+#define ARGB_2_RGBA(x)                          \
+    (((((x) & 0x00ff0000) >> 16) << 24) |       \
+     ((((x) & 0x0000ff00) >>  8) << 16) |       \
+      (((x) & 0x000000ff)        <<  8) |       \
+      (((x) & 0xff000000) >> 24))
+
+#define RGBA_2_ARGB(x)                          \
+    (((((x) & 0xff000000) >> 24) << 16) |       \
+     ((((x) & 0x00ff0000) >> 16) <<  8) |       \
+      (((x) & 0x0000ff00) >>  8)        |       \
+      (((x) & 0x000000ff)        << 24))
+
 typedef struct
 {
     PyObject_HEAD
@@ -145,6 +163,7 @@ typedef struct
 #define PyColor_AsNumber                                                \
     (*(pguint32(*)(PyObject*)) PyGameBase_C_API[PYGAME_COLOR_FIRSTSLOT+4])
 #endif /* PYGAME_COLOR_INTERNAL */
+
 
 typedef struct
 {

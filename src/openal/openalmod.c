@@ -28,13 +28,32 @@
 static PyObject* _openal_init (PyObject *self);
 static PyObject* _openal_quit (PyObject *self);
 static PyObject* _openal_geterror (PyObject *self);
+static PyObject* _openal_algetstring (PyObject *self, PyObject *args);
 static PyObject* _openal_isextensionpresent (PyObject *self, PyObject *args);
+static PyObject* _openal_setcurrentcontext (PyObject *self, PyObject *args);
+static PyObject* _openal_listoutputdevices (PyObject *self);
+static PyObject* _openal_listcapturedevices (PyObject *self);
+static PyObject* _openal_getdefaultoutputdevicename (PyObject *self);
+static PyObject* _openal_getdefaultcapturedevicename (PyObject *self);
 
 static PyMethodDef _openal_methods[] = {
     { "init", (PyCFunction)_openal_init, METH_NOARGS, ""/*DOC_BASE_INIT*/ },
     { "quit", (PyCFunction)_openal_quit, METH_NOARGS, ""/*DOC_BASE_QUIT*/ },
-    { "get_error", (PyCFunction)_openal_geterror, METH_NOARGS, ""/*DOC_BASE_GETERROR*/ },
+    { "get_error", (PyCFunction)_openal_geterror, METH_NOARGS,
+      ""/*DOC_BASE_GETERROR*/ },
     { "is_extension_present", _openal_isextensionpresent, METH_VARARGS, "" },
+    { "list_output_devices", (PyCFunction)_openal_listoutputdevices,
+      METH_NOARGS, "" },
+    { "list_capture_devices", (PyCFunction)_openal_listcapturedevices,
+      METH_NOARGS, "" },
+    { "al_get_string", (PyCFunction)_openal_algetstring, METH_O, "" },
+    { "set_current_context", (PyCFunction)_openal_setcurrentcontext,
+      METH_O, "" },
+    { "get_default_output_device_name",
+      (PyCFunction) _openal_getdefaultoutputdevicename, METH_NOARGS, ""},
+    { "get_default_capture_device_name",
+      (PyCFunction) _openal_getdefaultcapturedevicename, METH_NOARGS, ""},
+
     { NULL, NULL, 0, NULL },
 };
 
@@ -70,6 +89,30 @@ _openal_geterror (PyObject *self)
 }
 
 static PyObject*
+_openal_algetstring (PyObject *self, PyObject *args)
+{
+    ALenum val;
+    const ALchar* retval;
+    if (!IntFromObj (args, (int*) &val))
+        return NULL;
+    CLEAR_ERROR_STATE ();
+
+    if (alcGetCurrentContext () == NULL)
+    {
+        PyErr_SetString (PyExc_PyGameError, "no context is currently used");
+        return NULL;
+    }
+
+    retval = alGetString (val);
+    if (!retval)
+    {
+        SetALErrorException (alGetError ());
+        return NULL;
+    }
+    return Text_FromUTF8 ((const char*)retval);
+}
+
+static PyObject*
 _openal_isextensionpresent (PyObject *self, PyObject *args)
 {
     char *extname = NULL;
@@ -84,6 +127,7 @@ _openal_isextensionpresent (PyObject *self, PyObject *args)
         return NULL;
     }
     
+    CLEAR_ERROR_STATE ();
     if (device)
         present = alcIsExtensionPresent (PyDevice_AsDevice (device),
             (const ALchar*) extname);
@@ -94,6 +138,140 @@ _openal_isextensionpresent (PyObject *self, PyObject *args)
     if (present == ALC_FALSE)
         Py_RETURN_FALSE;
     Py_RETURN_TRUE;
+}
+
+static PyObject*
+_openal_setcurrentcontext (PyObject *self, PyObject *args)
+{
+    if (PyContext_Check (args))
+    {
+        PyErr_SetString (PyExc_TypeError, "argument must be a Context");
+        return NULL;
+    }
+    if (alcMakeContextCurrent (PyContext_AsContext (args)) == AL_TRUE)
+        Py_RETURN_TRUE;
+    Py_RETURN_FALSE;
+}
+
+static PyObject*
+_openal_listoutputdevices (PyObject *self)
+{
+    PyObject *list, *item;
+    const ALCchar *dptr;
+    const ALCchar *devices;
+
+    CLEAR_ERROR_STATE ();
+    if (alcIsExtensionPresent (NULL, "ALC_ENUMERATION_EXT") == AL_FALSE)
+    {
+        PyErr_SetString (PyExc_PyGameError, "device listing not supported");
+        return NULL;
+    }
+
+    if (alcIsExtensionPresent (NULL, "ALC_ENUMERATE_ALL_EXT") == AL_TRUE)
+        devices = alcGetString (NULL, ALC_ALL_DEVICES_SPECIFIER);
+    else
+        devices = alcGetString (NULL, ALC_DEVICE_SPECIFIER);
+
+    if (!devices)
+    {
+        SetALErrorException (alGetError ());
+        return NULL;
+    }
+
+    list = PyList_New (0);
+    if (!list)
+        return NULL;
+    dptr = devices;
+    /* According to the docs, devices will be a list of strings, seperated
+     * by NULL, with two consequtive NULL bytes to mark the end */
+    while (devices && *dptr)
+    {
+        item = Text_FromUTF8 ((const char*) dptr);
+        if (!item)
+        {
+            Py_DECREF (list);
+            return NULL;
+        }
+        if (PyList_Append (list, item) == -1)
+        {
+            Py_DECREF (item);
+            Py_DECREF (list);
+            return NULL;
+        }
+        Py_DECREF (item);
+        dptr += strlen (dptr) + 1;
+    }
+    return list;
+}
+
+static PyObject*
+_openal_listcapturedevices (PyObject *self)
+{
+    PyObject *list, *item;
+    const ALCchar *dptr;
+    const ALCchar *devices;
+
+    CLEAR_ERROR_STATE ();
+    if (alcIsExtensionPresent (NULL, "ALC_ENUMERATION_EXT") == AL_FALSE)
+    {
+        PyErr_SetString (PyExc_PyGameError, "device listing not supported");
+        return NULL;
+    }
+
+    devices = alcGetString (NULL, ALC_CAPTURE_DEVICE_SPECIFIER);
+    if (!devices)
+    {
+        SetALErrorException (alGetError ());
+        return NULL;
+    }
+    list = PyList_New (0);
+    if (!list)
+        return NULL;
+    dptr = devices;
+    /* According to the docs, devices will be a list of strings, seperated
+     * by NULL, with two consequtive NULL bytes to mark the end */
+    while (devices && *dptr)
+    {
+        item = Text_FromUTF8 ((const char*) dptr);
+        if (!item)
+        {
+            Py_DECREF (list);
+            return NULL;
+        }
+        if (PyList_Append (list, item) == -1)
+        {
+            Py_DECREF (item);
+            Py_DECREF (list);
+            return NULL;
+        }
+        Py_DECREF (item);
+        dptr += strlen (dptr) + 1;
+    }
+    return list;
+}
+
+static PyObject*
+_openal_getdefaultoutputdevicename (PyObject *self)
+{
+    const ALCchar *name;
+    CLEAR_ERROR_STATE ();
+    name = alcGetString (NULL, ALC_DEFAULT_DEVICE_SPECIFIER);
+    if (name)
+        return Text_FromUTF8 ((const char*)name);
+    SetALErrorException (alGetError ());
+    return NULL;
+}
+
+static PyObject*
+_openal_getdefaultcapturedevicename (PyObject *self)
+{
+    const ALCchar *name;
+    CLEAR_ERROR_STATE ();
+    name = alcGetString (NULL, ALC_CAPTURE_DEFAULT_DEVICE_SPECIFIER);
+    if (name)
+        return Text_FromUTF8 ((const char*)name);
+    SetALErrorException (alGetError ());
+    return NULL;
 }
 
 /* C API */
@@ -149,8 +327,12 @@ PyMODINIT_FUNC initbase (void)
     PyDevice_Type.tp_new = PyType_GenericNew;
     if (PyType_Ready (&PyDevice_Type) < 0)
         goto fail;
+    PyContext_Type.tp_new = PyType_GenericNew;
+    if (PyType_Ready (&PyContext_Type) < 0)
+        goto fail;
     
     ADD_OBJ_OR_FAIL (mod, "Device", PyDevice_Type, fail);
+    ADD_OBJ_OR_FAIL (mod, "Context", PyContext_Type, fail);
     MODINIT_RETURN(mod);
 fail:
     Py_XDECREF (mod);

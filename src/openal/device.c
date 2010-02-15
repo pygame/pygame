@@ -27,12 +27,15 @@ static void _device_dealloc (PyDevice *self);
 static PyObject* _device_repr (PyObject *self);
 
 static PyObject* _device_hasextension (PyObject *self, PyObject *args);
+static PyObject* _device_geterror (PyObject* self);
 
 static PyObject* _device_getname (PyObject* self, void *closure);
+static PyObject* _device_getextensions (PyObject *self, void *closure);
 /**
  */
 static PyMethodDef _device_methods[] = {
     { "has_extension", _device_hasextension, METH_VARARGS, NULL },
+    { "get_error", (PyCFunction)_device_geterror, METH_NOARGS, NULL },
     { NULL, NULL, 0, NULL }
 };
 
@@ -40,6 +43,7 @@ static PyMethodDef _device_methods[] = {
  */
 static PyGetSetDef _device_getsets[] = {
     { "name", _device_getname, NULL, NULL/*DOC_BASEDEVICE_NAME*/, NULL },
+    { "extensions", _device_getextensions, NULL, NULL, NULL },
     { NULL, NULL, NULL, NULL, NULL }
 };
 
@@ -123,13 +127,26 @@ _device_init (PyObject *self, PyObject *args, PyObject *kwds)
         SetALErrorException (alGetError ());
         return -1;
     }
+    ((PyDevice*)self)->device = device;
     return 0;
 }
 
 static PyObject*
 _device_repr (PyObject *self)
 {
-    return Text_FromUTF8 ("<alcDevice>");
+    PyObject *retval;
+    const ALCchar *name = alcGetString (PyDevice_AsDevice (self),
+        ALC_DEVICE_SPECIFIER);
+    /* <Device ('')> == 13 */
+    size_t len = strlen ((const char*) name) + 14;
+    char *str = malloc (len);
+    if (!str)
+        return NULL;
+
+    snprintf (str, len, "<Device ('%s')>", (const char*) name);
+    retval = Text_FromUTF8 (str);
+    free (str);
+    return retval;
 }
 
 /* Device getters/setters */
@@ -144,6 +161,67 @@ _device_getname (PyObject* self, void *closure)
         return NULL;
     }
     return Text_FromUTF8 ((const char*)name);
+}
+
+static PyObject*
+_device_getextensions (PyObject *self, void *closure)
+{
+    ALCchar tmp[4096] = { '\0' };
+    int i = 0;
+    const ALCchar *dptr, *start;
+    PyObject *list, *item;
+    const ALCchar *devices = alcGetString (PyDevice_AsDevice (self),
+        ALC_CAPTURE_DEVICE_SPECIFIER);
+    
+    if (SetALErrorException (alGetError ()))
+        return NULL;
+    list = PyList_New (0);
+    start = dptr = devices;
+    while (*dptr)
+    {
+        if (*dptr == ' ') /* list entry end */
+        {
+            item = Text_FromUTF8 ((const char*) tmp);
+            if (!item)
+            {
+                Py_DECREF (list);
+                return NULL;
+            }
+            if (PyList_Append (list, item) == -1)
+            {
+                Py_DECREF (item);
+                Py_DECREF (list);
+                return NULL;
+            }
+            Py_DECREF (item);
+            memset (tmp, '\0', (size_t)4096);
+            i = 0;
+        }
+        else if (i < 4096)
+        {
+            tmp[i] = *dptr;
+        }
+        dptr++;
+        i++;
+    }
+    /* Sentinel append */
+    if (i != 0)
+    {
+        item = Text_FromUTF8 ((const char*) tmp);
+        if (!item)
+        {
+            Py_DECREF (list);
+            return NULL;
+        }
+        if (PyList_Append (list, item) == -1)
+        {
+            Py_DECREF (item);
+            Py_DECREF (list);
+            return NULL;
+        }
+        Py_DECREF (item);
+    }
+    return list;
 }
 
 /* Device methods */
@@ -163,6 +241,25 @@ _device_hasextension (PyObject *self, PyObject *args)
     if (present == ALC_FALSE)
         Py_RETURN_FALSE;
     Py_RETURN_TRUE;
+}
+
+static PyObject*
+_device_geterror (PyObject* self)
+{
+    ALenum error = alcGetError (PyDevice_AsDevice (self));
+    switch (error)
+    {
+    case AL_INVALID_ENUM:
+        return Text_FromUTF8 ("invalid enumeration value");
+    case AL_INVALID_VALUE:
+        return Text_FromUTF8 ("invalid value");
+    case AL_INVALID_OPERATION:
+        return Text_FromUTF8 ("invalid operation request");
+    case AL_OUT_OF_MEMORY:
+        return Text_FromUTF8 ("insufficient memory");
+    default:
+        Py_RETURN_NONE;
+    }
 }
 
 /* C API */

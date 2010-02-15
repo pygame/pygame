@@ -19,7 +19,7 @@
 */
 #define PYGAME_OPENALCONSTANTS_INTERNAL
 
-#ifdef IS_MSYS
+#if defined(IS_MSYS) || defined(IS_WIN32)
 #include <al.h>
 #include <alc.h>
 #include <alext.h>

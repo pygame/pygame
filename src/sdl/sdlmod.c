@@ -33,9 +33,6 @@ static int Uint32FromSeqIndex (PyObject* obj, Py_ssize_t _index, Uint32* val);
 static int IsValidRect (PyObject* rect);
 static int SDLRect_FromRect (PyObject* rect, SDL_Rect *sdlrect);
 
-static int _sdl_traverse (PyObject *mod, visitproc visit, void *arg);
-static int _sdl_clear (PyObject *mod);
-
 typedef struct {
     int initialized : 1;
 } _SDLState;

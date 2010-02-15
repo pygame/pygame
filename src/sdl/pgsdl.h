@@ -104,7 +104,7 @@ import_pygame2_sdl_base (void)
 #define PYGAME_SDLVIDEO_FIRSTSLOT 0
 #define PYGAME_SDLVIDEO_NUMSLOTS 1
 #ifndef PYGAME_SDLVIDEO_INTERNAL
-#define ColorFromObj                                                    \
+#define SDLColorFromObj                                                    \
     (*(int(*)(PyObject*,SDL_PixelFormat*,Uint32*))PyGameSDLVideo_C_API[PYGAME_SDLVIDEO_FIRSTSLOT+0])
 #endif /* PYGAME_SDLVIDEO_INTERNAL */
 

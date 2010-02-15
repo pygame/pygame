@@ -996,7 +996,7 @@ _array_assign_sequence (PyPixelArray *array, Py_ssize_t low,
     for (offset = 0; offset < seqsize; offset++)
     {
         item = PySequence_ITEM (val, offset);
-        if (!ColorFromObj (item, surface->format, &color))
+        if (!SDLColorFromObj (item, surface->format, &color))
         {
             Py_XDECREF (item);
             PyMem_Free (colorvals);
@@ -1354,20 +1354,20 @@ _pixelarray_ass_item (PyPixelArray *array, Py_ssize_t _index, PyObject *value)
     bpp = surface->format->BytesPerPixel;
     pixels = (Uint8 *) surface->pixels;
 
-    if (!ColorFromObj (value, surface->format, &color))
+    if (!SDLColorFromObj (value, surface->format, &color))
     {
         if (PyPixelArray_Check (value))
         {
-            PyErr_Clear (); /* ColorFromObj */
+            PyErr_Clear (); /* SDLColorFromObj */
             return _array_assign_array (array, _index, _index + 1,
                 (PyPixelArray *) value);
         }
         else if (PySequence_Check (value))
         {
-            PyErr_Clear (); /* ColorFromObj */
+            PyErr_Clear (); /* SDLColorFromObj */
             return _array_assign_sequence (array, _index, _index + 1, value);
         }
-        else /* Error already set by ColorFromObj(). */
+        else /* Error already set by SDLColorFromObj(). */
             return -1;
     }
 
@@ -1522,13 +1522,13 @@ _pixelarray_ass_slice (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
     {
         return _array_assign_array (array, low, high, (PyPixelArray *) value);
     }
-    else if (ColorFromObj (value, surface->format, &color))
+    else if (SDLColorFromObj (value, surface->format, &color))
     {
         return _array_assign_slice (array, low, high, color);
     }
     else if (PySequence_Check (value))
     {
-        PyErr_Clear (); /* In case ColorFromObj set it */
+        PyErr_Clear (); /* In case SDLColorFromObj set it */
         return _array_assign_sequence (array, low, high, value);
     }
     return 0;
@@ -1557,7 +1557,7 @@ _pixelarray_contains (PyPixelArray *array, PyObject *value)
     bpp = surface->format->BytesPerPixel;
     pixels = (Uint8 *) surface->pixels;
 
-    if (!ColorFromObj (value, surface->format, &color))
+    if (!SDLColorFromObj (value, surface->format, &color))
         return -1;
 
     absxstep = ABS (array->xstep);
@@ -1695,20 +1695,6 @@ _get_subslice (PyObject *op, Py_ssize_t length, Py_ssize_t *start,
             return 0;
         }
     }
-    else if (PyInt_Check (op))
-    {
-        /* Plain index: array[x, */
-        *start = PyInt_AsLong (op);
-        if (*start < 0)
-            *start += length;
-        if (*start >= length || *start < 0)
-        {
-            PyErr_SetString(PyExc_IndexError, "invalid index");
-            return 0;
-        }   
-        *stop = (*start) + 1;
-        *step = 1;
-    }
     else if (PyLong_Check (op))
     {
         long long val = -1;
@@ -1722,6 +1708,20 @@ _get_subslice (PyObject *op, Py_ssize_t length, Py_ssize_t *start,
             return 0;
         }
         *start = (int) val;
+        if (*start < 0)
+            *start += length;
+        if (*start >= length || *start < 0)
+        {
+            PyErr_SetString(PyExc_IndexError, "invalid index");
+            return 0;
+        }   
+        *stop = (*start) + 1;
+        *step = 1;
+    }
+    else if (PyInt_Check (op))
+    {
+        /* Plain index: array[x, */
+        *start = PyInt_AsLong (op);
         if (*start < 0)
             *start += length;
         if (*start >= length || *start < 0)

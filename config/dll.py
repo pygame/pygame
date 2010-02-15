@@ -27,7 +27,7 @@ libraries = [
     ('smpeg', r'(lib){0,1}smpeg\.dll$', ['SDL']),
     ('tiff', r'(lib){0,1}tiff(-3){0,1}\.dll$',  ['jpeg', 'z']),
     ('jpeg', r'(lib){0,1}jpeg\.dll$', []),
-    ('png', r'(lib){0,1}png(1[23])(-0){0,1}\.dll$', ['z']),
+    ('png', r'(lib){0,1}png(1[23]){0,1}(-0){0,1}\.dll$', ['z']),
     ('z', r'zlib1\.dll$', []),
     ('portmidi', r'portmidi\.dll$', []),
     ('openal', r'OpenAL32\.dll$', []),

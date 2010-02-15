@@ -52,6 +52,7 @@ def run_checks ():
         else:
             buildsystem = "win"
             builddefines.append (("IS_WIN32", None))
+            builddefines.append (("WIN32", None))
     elif sys.platform == "darwin":
         buildsystem = "darwin"
         builddefines.append (("IS_DARWIN", None))

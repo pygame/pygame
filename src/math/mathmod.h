@@ -21,6 +21,11 @@
 
 #include <Python.h>
 
+#ifdef IS_WIN32
+#include <float.h>
+#define isnan(x) _isnan(x)
+#endif
+
 #define PYGAME_MATH_INTERNAL
 #define PYGAME_MATHVECTOR_INTERNAL
 #define PYGAME_MATHVECTOR2_INTERNAL

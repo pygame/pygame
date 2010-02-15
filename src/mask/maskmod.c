@@ -188,12 +188,13 @@ _mask_fromthreshold (PyObject* self, PyObject* args)
     if (surfobj2)
         surf2 = PySDLSurface_AsSDLSurface (surfobj2);
 
-    if (!ColorFromObj (rgba_obj_color, surf->format, &color))
+    if (!SDLColorFromObj (rgba_obj_color, surf->format, &color))
         return NULL;
 
     if (rgba_obj_threshold)
     {
-        if (!ColorFromObj (rgba_obj_threshold, surf->format, &color_threshold))
+        if (!SDLColorFromObj (rgba_obj_threshold, surf->format,
+                &color_threshold))
             return NULL;
     }
     else

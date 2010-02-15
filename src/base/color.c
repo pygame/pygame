@@ -1584,8 +1584,8 @@ PyColor_AsNumber (PyObject *color)
         return 0;
     }
 
-    tmp = ((pguint32) c->a << 24) + ((pguint32) c->r << 16) +
-        ((pguint32) c->g << 8) + (pguint32) c->b;
+    tmp = ((pguint32) c->a << 24) | ((pguint32) c->r << 16) |
+        ((pguint32) c->g << 8) | (pguint32) c->b;
     return tmp;
 }
 

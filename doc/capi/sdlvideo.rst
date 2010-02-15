@@ -48,10 +48,11 @@ Macros
 
 Functions
 ---------
-.. cfunction:: int ColorFromObj (PyObject *obj, SDL_PixelFormat *format, Uint32 *val)
+.. cfunction:: int SDLColorFromObj (PyObject *obj, SDL_PixelFormat *format, Uint32 *val)
 
-  Converts the passed object to a 32-bit integer color value and stores the
-  result in *val*. This returns 1 on success and 0 on failure.
+  Converts the passed object to a 32-bit integer color value matching
+  the passed *format* and stores the result in *val*. This returns 1 on
+  success and 0 on failure.
 
 PyPixelFormat
 -------------

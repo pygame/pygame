@@ -61,6 +61,7 @@ int ASCIIFromObject (PyObject *obj, char **text, PyObject **freeme);
 int UTF8FromObject (PyObject *obj, char **text, PyObject **freeme);
 int LongFromObj (PyObject* obj, long* val);
 unsigned long UlongFromObj (PyObject* obj, long* val);
+int ColorFromObj (PyObject *obj, pguint32 *val);
 
 extern PyTypeObject PyColor_Type;
 #define PyColor_Check(x) (PyObject_TypeCheck(x, &PyColor_Type))

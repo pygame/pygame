@@ -49,7 +49,7 @@ extern PyTypeObject PyPixelFormat_Type;
 PyObject* PyPixelFormat_New (void);
 PyObject* PyPixelFormat_NewFromSDLPixelFormat (SDL_PixelFormat *fmt);
 
-int ColorFromObj (PyObject *value, SDL_PixelFormat *format, Uint32 *color);
+int SDLColorFromObj (PyObject *value, SDL_PixelFormat *format, Uint32 *color);
 
 void surface_export_capi (void **capi);
 void overlay_export_capi (void **capi);

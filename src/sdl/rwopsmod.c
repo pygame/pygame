@@ -531,7 +531,6 @@ PyRWops_NewRO_Threaded (PyObject *obj, int *canautoclose)
         if (!ops)
             PyErr_SetString (PyExc_PyGameError, SDL_GetError ());
         return ops;
-
     }
 
     /* No text object, so its a buffer or something like that. Try to get the

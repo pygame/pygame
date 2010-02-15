@@ -353,7 +353,7 @@ class MathVector3Test (unittest.TestCase):
         self.assertEqual (v.elements[1], 10)
         self.assertEqual (v.elements[2], 33.44)
 
-    def todo_test_pygame2_math_base_Vector3_angle_to(self):
+    def test_pygame2_math_base_Vector3_angle_to(self):
 
         # __doc__ (as of 2010-01-09) for pygame2.math.base.Vector3.angle_to:
 
@@ -376,7 +376,7 @@ class MathVector3Test (unittest.TestCase):
 
         self.fail() 
 
-    def todo_test_pygame2_math_base_Vector3_cross(self):
+    def test_pygame2_math_base_Vector3_cross(self):
 
         # __doc__ (as of 2010-01-09) for pygame2.math.base.Vector3.cross:
 

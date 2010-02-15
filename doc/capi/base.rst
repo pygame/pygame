@@ -260,6 +260,12 @@ Functions
   stored in *convobj* and needs to be freed by the caller, once *text* is not
   required anymore. This returns 1 on success and 0 on failure.
 
+.. cfunction:: int ColorFromObj (PyObject *obj, pguint32 *val)
+
+  Converts the passed object to a 32-bit unsigned integer color value
+  using a RGBA layout and stores the result in *val*. This returns 1 on
+  success and 0 on failure.
+
 .. cfunction:: int IsReadableStreamObj (PyObject *obj)
 
   Checks, whether the passed object supports the most important stream

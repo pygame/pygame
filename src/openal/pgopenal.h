@@ -19,7 +19,7 @@
 #ifndef _PYGAME_OPENAL_H_
 #define _PYGAME_OPENAL_H_
 
-#ifdef IS_MSYS
+#if defined(IS_MSYS) || defined(IS_WIN32)
 #include <al.h>
 #include <alc.h>
 #include <alext.h>
@@ -58,6 +58,23 @@ typedef struct
         (PyTypeObject*)PyGameOpenAL_C_API[PYGAME_OPENALDEVICE_FIRSTSLOT+0]))
 #define PyDevice_New                                                      \
     (*(PyObject*(*)(const char*))PyGameOpenAL_C_API[PYGAME_OPENALDEVICE_FIRSTSLOT+1])
+#endif /* PYGAME_OPENALDEVICE_INTERNAL */
+
+typedef struct
+{
+    PyObject_HEAD
+    ALCcontext *context;
+} PyContext;
+#define PyContext_AsContext(x) (((PyContext*)x)->context)
+#define PYGAME_OPENALCONTEXT_FIRSTSLOT \
+    (PYGAME_OPENALDEVICE_FIRSTSLOT + PYGAME_OPENALDEVICE_NUMSLOTS)
+#define PYGAME_OPENALCONTEXT_NUMSLOTS 1
+#ifndef PYGAME_OPENALCONTEXT_INTERNAL
+#define PyContext_Type                                             \
+    (*(PyTypeObject*)PyGameOpenAL_C_API[PYGAME_OPENALCONTEXT_FIRSTSLOT+0])
+#define PyContext_Check(x)                                                 \
+    (PyObject_TypeCheck(x,                                              \
+        (PyTypeObject*)PyGameOpenAL_C_API[PYGAME_OPENALCONTEXT_FIRSTSLOT+0]))
 #endif /* PYGAME_OPENALDEVICE_INTERNAL */
 
 /**

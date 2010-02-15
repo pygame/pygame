@@ -412,8 +412,8 @@ _replace_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
     }
 
     surface = ((PySDLSurface*)array->surface)->surface;
-    if (!ColorFromObj (delcolor, surface->format, &dcolor) ||
-        !ColorFromObj (replcolor, surface->format, &rcolor))
+    if (!SDLColorFromObj (delcolor, surface->format, &dcolor) ||
+        !SDLColorFromObj (replcolor, surface->format, &rcolor))
         return NULL;
 
     if (!_get_weights (weights, &wr, &wg, &wb))
@@ -618,7 +618,7 @@ _extract_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
         return NULL;
 
     surface = ((PySDLSurface*)array->surface)->surface;
-    if (!ColorFromObj (excolor, surface->format, &color))
+    if (!SDLColorFromObj (excolor, surface->format, &color))
         return NULL;
 
     /* Create the b/w mask surface. */

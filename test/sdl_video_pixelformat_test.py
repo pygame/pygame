@@ -82,14 +82,26 @@ class SDLVideoPixelFormatTest (unittest.TestCase):
             self.assertEqual (format.bytes_per_pixel, i)
             self.assertEqual (format.bits_per_pixel, 0)
 
-    def todo_test_pygame2_sdl_video_PixelFormat_colorkey(self):
+    def test_pygame2_sdl_video_PixelFormat_colorkey(self):
 
         # __doc__ (as of 2009-12-08) for pygame2.sdl.video.PixelFormat.colorkey:
 
         # Gets or sets the RGBA value of transparent pixels.
 
-        self.fail() 
+        def _setcolorkey (fmt, key):
+            fmt.colorkey = key
+        
+        format = video.PixelFormat ()
+        self.assertEqual (format.colorkey, Color (0x00000000))
 
+        self.assertRaises (ValueError, _setcolorkey, format, -200)
+        self.assertRaises (ValueError, _setcolorkey, format, -1)
+        self.assertRaises (ValueError, _setcolorkey, format, 200)
+        self.assertRaises (ValueError, _setcolorkey, format, "hello")
+        self.assertRaises (ValueError, _setcolorkey, format, None)
+
+        # TODO: test assignments
+        
     def todo_test_pygame2_sdl_video_PixelFormat_get_rgba(self):
 
         # __doc__ (as of 2009-12-08) for pygame2.sdl.video.PixelFormat.get_rgba:

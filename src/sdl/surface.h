@@ -79,9 +79,15 @@ typedef enum
         _g = (Uint8) (((argb) & 0x0000ff00) >> 8);                      \
         _b = (Uint8)  ((argb) & 0x000000ff);                            \
         (argb) = (_r >> (format)->Rloss) << (format)->Rshift |          \
-            (_g >> (format)->Gloss) << (format)->Gshift |               \
-            (_b >> (format)->Bloss) << (format)->Bshift |               \
-            ((_a >> (format)->Aloss) << (format)->Ashift & (format)->Amask); \
+                 (_g >> (format)->Gloss) << (format)->Gshift |          \
+                 (_b >> (format)->Bloss) << (format)->Bshift;           \
+        if ((format)->Amask)                                            \
+        {                                                               \
+            (argb) = (argb) |                                           \
+                ((_a >> (format)->Aloss) << (format)->Ashift);          \
+        }                                                               \
+        else                                                            \
+            (argb) |= 255;                                              \
     }                                                                   \
     else                                                                \
     {                                                                   \
