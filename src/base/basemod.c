@@ -60,6 +60,7 @@ IntFromObj (PyObject* obj, int* val)
         PyErr_SetString (PyExc_TypeError, "argument is NULL");
         return 0;
     }
+
     
     if (PyNumber_Check (obj))
     {
@@ -259,9 +260,9 @@ PointFromObject (PyObject *obj, int *x, int *y)
     }
     else if (PySequence_Check (obj) && PySequence_Size (obj) >= 2)
     {
-        if (!IntFromSeqIndex (obj, 0, x))
+        if (!IntFromSeqIndex (obj, (Py_ssize_t)0, x))
             goto failed;
-        if (!IntFromSeqIndex (obj, 1, y))
+        if (!IntFromSeqIndex (obj, (Py_ssize_t)1, y))
             goto failed;
         return 1;
     }

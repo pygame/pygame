@@ -55,7 +55,7 @@ test_helpers (void)
     val = PyLong_FromUnsignedLong (0xff00ff00ff);
     if (!UlongFromObj(val, &q))
         ERROR ("Mismatch in UlongFromObj");
-    if (u != 0xff00ff00ff)
+    if (q != 0xff00ff00ff)
         ERROR ("Mismatch in UlongFromObj result");
     Py_DECREF (val);
 
@@ -63,6 +63,7 @@ test_helpers (void)
     PyTuple_SET_ITEM (seq, 0, PyLong_FromLong (2));
     PyTuple_SET_ITEM (seq, 1, PyLong_FromLong (4));
 
+    d = 0;
     if (!DoubleFromSeqIndex (seq, 0, &d))
         ERROR ("Mismatch in DoubleFromSeqIndex (0)");
     if (d != 2.f)
@@ -72,6 +73,7 @@ test_helpers (void)
     if (d != 4.f)
         ERROR ("Mismatch in DoubleFromSeqIndex result 1");
 
+    i = 0;
     if (!IntFromSeqIndex (seq, 0, &i))
         ERROR ("Mismatch in IntFromSeqIndex (0)");
     if (i != 2)
@@ -81,6 +83,7 @@ test_helpers (void)
     if (i != 4)
         ERROR ("Mismatch in IntFromSeqIndex result 1");
 
+    u = 0;
     if (!UintFromSeqIndex (seq, 0, &u))
         ERROR ("Mismatch in UintFromSeqIndex (0)");
     if (u != 2)
@@ -90,21 +93,25 @@ test_helpers (void)
     if (u != 4)
         ERROR ("Mismatch in UintFromSeqIndex result 1");
 
+    i = j = 0;
     if (!PointFromObject (seq, &i, &j))
         ERROR ("Mismatch in PointFromObject");
     if (i != 2 || j != 4)
         ERROR ("Mismatch in PointFromObject result");
 
+    sw = sh = 0;
     if (!SizeFromObject (seq, &sw, &sh))
         ERROR ("Mismatch in SizeFromObject");
     if (sw != 2 || sh != 4)
         ERROR ("Mismatch in SizeFromObject result");
 
+    d = e = 0;
     if (!FPointFromObject (seq, &d, &e))
         ERROR ("Mismatch in FPointFromObject");
     if (d != 2.f || e != 4.f)
         ERROR ("Mismatch in FPointFromObject result");
 
+    d = e = 0;
     if (!FSizeFromObject (seq, &d, &e))
         ERROR ("Mismatch in FSizeFromObject");
     if (d != 2.f || e != 4.f)

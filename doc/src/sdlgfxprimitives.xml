@@ -24,6 +24,16 @@
       ellipse, *rx*, *ry* the radius for the x- and y-axis.
     </desc>
   </func>
+  <func name="aaline">
+    <call>aaline (surface, x1, y1, x2, y2, color) -> None
+    aaline (surface, point1, point2, color) -> None</call>
+    <desc>Draws an anti-aliased line on a surface.
+    
+      Draws an anti-aliased line on a *surface* with a fixed width of
+      1px. *x1*, *y1* and *x2*, *y2* denote the start and end position
+      of the line.
+    </desc>
+  </func>
   <func name="aapolygon">
     <call>aapolygon (surface, (point1, point2, ...), color) -> None</call>
     <desc>Draws an anti-aliased polygonal shape on a surface.

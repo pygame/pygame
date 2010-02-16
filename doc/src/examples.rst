@@ -32,6 +32,10 @@ Currently the following examples exists:
 | pygame2.examples.sdl.hello_world   | The almighty "Hello World" example     |
 |                                    | using the :mod:`pygame2.sdl` module.   |
 +------------------------------------+----------------------------------------+
+| pygame2.examples.sdl.joystick      | Demonstrates joystick input and event  |
+|                                    | handling for the                       |
+|                                    | :mod:`pygame2.sdl.joystick` module.    |
++------------------------------------+----------------------------------------+
 | pygame2.examples.sdl.keyboard      | Demonstrates keyboard input and event  |
 |                                    | handling for the                       |
 |                                    | :mod:`pygame2.sdl.keyboard` module.    |
@@ -56,4 +60,12 @@ Currently the following examples exists:
 | pygame2.examples.sdlext.pixelarray | Demonstrates the features of the       |
 |                                    | :class:`pygame2.sdlext.PixelArray`     |
 |                                    | class.                                 |
++------------------------------------+----------------------------------------+
+| pygame2.examples.sdlgfx.fpsmanager | Demonstrates the features of the       |
+|                                    | :class:`pygame2.sdlgfx.FPSmanager`     |
+|                                    | class.                                 |
++------------------------------------+----------------------------------------+
+| pygame2.examples.sdlgfx.primitives | Demonstrates the features of the       |
+|                                    | :class:`pygame2.sdlgfx.primitives`     |
+|                                    | module.                                 |
 +------------------------------------+----------------------------------------+

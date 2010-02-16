@@ -29,6 +29,7 @@ static void _context_dealloc (PyContext *self);
 static PyObject* _context_repr (PyObject *self);
 
 static PyObject* _context_makecurrent (PyObject *self);
+static PyObject* _context_iscurrent (PyObject* self, void *closure);
 
 /**
  */
@@ -40,6 +41,7 @@ static PyMethodDef _context_methods[] = {
 /**
  */
 static PyGetSetDef _context_getsets[] = {
+    { "is_current", _context_iscurrent, NULL, NULL, NULL },
     { NULL, NULL, NULL, NULL, NULL }
 };
 
@@ -196,6 +198,15 @@ _context_repr (PyObject *self)
     /* TODO */
     return Text_FromUTF8 ("<alcContext>");
 }
+
+/* Context getters/setters */
+static PyObject*
+_context_iscurrent (PyObject* self, void *closure)
+{
+    return PyBool_FromLong
+        (alcGetCurrentContext () == PyContext_AsContext (self));
+}
+
 
 /* Context methods */
 static PyObject*
