@@ -154,7 +154,7 @@ _gfx_rotozoomsize (PyObject *self, PyObject *args)
             }
             else
             {
-                if (!SizeFromObject (obj, (pgint32*)&w, (pgint32*)&h))
+                if (!SizeFromObj (obj, (pgint32*)&w, (pgint32*)&h))
                     return NULL;
             }
         }
@@ -186,7 +186,7 @@ _gfx_rotozoomsizexy (PyObject *self, PyObject *args)
             }
             else
             {
-                if (!SizeFromObject (obj, (pgint32*)&w, (pgint32*)&h))
+                if (!SizeFromObj (obj, (pgint32*)&w, (pgint32*)&h))
                     return NULL;
             }
         }
@@ -257,7 +257,7 @@ _gfx_zoomsize (PyObject *self, PyObject *args)
             }
             else
             {
-                if (!SizeFromObject (obj, (pgint32*)&w, (pgint32*)&h))
+                if (!SizeFromObj (obj, (pgint32*)&w, (pgint32*)&h))
                     return NULL;
             }
         }

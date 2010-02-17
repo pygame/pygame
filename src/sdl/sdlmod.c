@@ -31,7 +31,7 @@ static int Uint16FromSeqIndex (PyObject* obj, Py_ssize_t _index, Uint16* val);
 static int Sint16FromSeqIndex (PyObject* obj, Py_ssize_t _index, Sint16* val);
 static int Uint32FromSeqIndex (PyObject* obj, Py_ssize_t _index, Uint32* val);
 static int IsValidRect (PyObject* rect);
-static int SDLRect_FromRect (PyObject* rect, SDL_Rect *sdlrect);
+static int SDLRectFromRect (PyObject* rect, SDL_Rect *sdlrect);
 
 typedef struct {
     int initialized : 1;
@@ -470,7 +470,7 @@ failed:
 }
 
 static int
-SDLRect_FromRect (PyObject* rect, SDL_Rect *sdlrect)
+SDLRectFromRect (PyObject* rect, SDL_Rect *sdlrect)
 {
     if (!rect || !sdlrect)
     {
@@ -542,7 +542,7 @@ PyMODINIT_FUNC initbase (void)
     c_api[PYGAME_SDLBASE_FIRSTSLOT+6] = Sint16FromSeqIndex;
     c_api[PYGAME_SDLBASE_FIRSTSLOT+7] = Uint32FromSeqIndex;
     c_api[PYGAME_SDLBASE_FIRSTSLOT+8] = IsValidRect;
-    c_api[PYGAME_SDLBASE_FIRSTSLOT+9] = SDLRect_FromRect;
+    c_api[PYGAME_SDLBASE_FIRSTSLOT+9] = SDLRectFromRect;
    
     c_api_obj = PyCObject_FromVoidPtr ((void *) c_api, NULL);
     if (c_api_obj)

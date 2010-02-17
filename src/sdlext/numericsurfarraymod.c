@@ -314,7 +314,7 @@ _array2d (PyObject* self, PyObject* arg)
 {
     int dim[2], loopy;
     Uint8* data;
-    PyObject *surfobj, *array;
+    PyObject *array;
     SDL_Surface* surf;
     int stridex, stridey;
     

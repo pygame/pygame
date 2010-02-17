@@ -183,7 +183,7 @@ _mask_init (PyObject *mask, PyObject *args, PyObject *kwds)
         PyErr_Clear ();
         if (!PyArg_ParseTuple (args, "O", &size))
             return -1;
-        if (!SizeFromObject (size, (pgint32*)&w, (pgint32*)&h))
+        if (!SizeFromObj (size, (pgint32*)&w, (pgint32*)&h))
             return -1;
     }
     if (w <= 0 || h <= 0)
@@ -330,7 +330,7 @@ _mask_getat (PyObject* self, PyObject* args)
         PyErr_Clear ();
         if (!PyArg_ParseTuple (args, "O", &pt))
             return NULL;
-        if (!PointFromObject (pt, &x, &y))
+        if (!PointFromObj (pt, &x, &y))
             return NULL;
     }
 
@@ -359,7 +359,7 @@ _mask_setat (PyObject* self, PyObject* args)
         PyErr_Clear ();
         if (!PyArg_ParseTuple (args, "O|i", &pt, &value))
             return NULL;
-        if (!PointFromObject (pt, &x, &y))
+        if (!PointFromObj (pt, &x, &y))
             return NULL;
     }
 
@@ -397,7 +397,7 @@ _mask_overlap (PyObject* self, PyObject* args)
         PyErr_Clear ();
         if (!PyArg_ParseTuple (args, "O!O", &PyMask_Type, &maskobj, &pt))
             return NULL;
-        if (!PointFromObject (pt, &x, &y))
+        if (!PointFromObj (pt, &x, &y))
             return NULL;
     }
 
@@ -424,7 +424,7 @@ _mask_overlaparea (PyObject* self, PyObject* args)
         PyErr_Clear ();
         if (!PyArg_ParseTuple (args, "O!O", &PyMask_Type, &maskobj, &pt))
             return NULL;
-        if (!PointFromObject (pt, &x, &y))
+        if (!PointFromObj (pt, &x, &y))
             return NULL;
     }
 
@@ -450,7 +450,7 @@ _mask_overlapmask (PyObject* self, PyObject* args)
         PyErr_Clear ();
         if (!PyArg_ParseTuple (args, "O!O", &PyMask_Type, &maskobj, &pt))
             return NULL;
-        if (!PointFromObject (pt, &x, &y))
+        if (!PointFromObj (pt, &x, &y))
             return NULL;
     }
 
@@ -513,7 +513,7 @@ _mask_scale (PyObject* self, PyObject *args)
         PyErr_Clear ();
         if (!PyArg_ParseTuple (args, "O", &pt))
             return NULL;
-        if (!PointFromObject (pt, &x, &y))
+        if (!PointFromObj (pt, &x, &y))
             return NULL;
     }
 
@@ -548,7 +548,7 @@ _mask_draw (PyObject* self, PyObject* args)
         PyErr_Clear ();
         if (!PyArg_ParseTuple (args, "O!O", &PyMask_Type, &maskobj, &pt))
             return NULL;
-        if (!PointFromObject (pt, &x, &y))
+        if (!PointFromObj (pt, &x, &y))
             return NULL;
     }
 
@@ -571,7 +571,7 @@ _mask_erase (PyObject* self, PyObject* args)
         PyErr_Clear ();
         if (!PyArg_ParseTuple (args, "O!O", &PyMask_Type, &maskobj, &pt))
             return NULL;
-        if (!PointFromObject (pt, &x, &y))
+        if (!PointFromObj (pt, &x, &y))
             return NULL;
     }
     
@@ -810,7 +810,7 @@ _mask_connectedcomponent (PyObject* self, PyObject* args)
         PyErr_Clear ();
         if (!PyArg_ParseTuple (args, "|O", &pt))
             return NULL;
-        if (!PointFromObject (pt, &x, &y))
+        if (!PointFromObj (pt, &x, &y))
             return NULL;
     }
     
@@ -913,7 +913,7 @@ _mask_convolve (PyObject* self, PyObject* args)
     }
     else if (pt)
     {
-        if (!PointFromObject (pt, &x, &y))
+        if (!PointFromObj (pt, &x, &y))
             return NULL;
     }
     

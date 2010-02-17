@@ -270,14 +270,14 @@ _rect_init (PyObject *self, PyObject *args, PyObject *kwds)
                     w = (pgint32) trunc (((PyFRect*)rect)->w);
                     h = (pgint32) trunc (((PyFRect*)rect)->h);
                 }
-                else if (!SizeFromObject (rect, &w, &h))
+                else if (!SizeFromObj (rect, &w, &h))
                     return -1;
             }
             else
             {
-                if (!PointFromObject (pt, (int*)&x, (int*)&y))
+                if (!PointFromObj (pt, (int*)&x, (int*)&y))
                     return -1;
-                if (!SizeFromObject (rect, &w, &h))
+                if (!SizeFromObj (rect, &w, &h))
                     return -1;
             }
         }
@@ -457,7 +457,7 @@ static int
 _rect_setcenter (PyObject *self, PyObject *value, void *closure)
 {
     pgint16 x, y;
-    if (!PointFromObject (value, (int*)&x, (int*)&y))
+    if (!PointFromObj (value, (int*)&x, (int*)&y))
         return -1;
 
     INT16_SUB_UINT16_LIMIT (x, (((PyRect*)self)->w >> 1), ((PyRect*)self)->x);
@@ -477,7 +477,7 @@ _rect_setsize (PyObject *self, PyObject *value, void *closure)
 {
     pguint16 w, h;
 
-    if (!SizeFromObject (value, (pgint32*)&w, (pgint32*)&h))
+    if (!SizeFromObj (value, (pgint32*)&w, (pgint32*)&h))
         return -1;
 
     ((PyRect*)self)->w = w;
@@ -496,7 +496,7 @@ static int
 _rect_setmidtop (PyObject *self, PyObject *value, void *closure)
 {
     pgint16 x, y;
-    if (!PointFromObject (value, (int*)&x, (int*)&y))
+    if (!PointFromObj (value, (int*)&x, (int*)&y))
         return -1;
 
     INT16_SUB_UINT16_LIMIT (x, (((PyRect*)self)->w >> 1), ((PyRect*)self)->x);
@@ -515,7 +515,7 @@ static int
 _rect_setmidleft (PyObject *self, PyObject *value, void *closure)
 {
     pgint16 x, y;
-    if (!PointFromObject (value, (int*)&x, (int*)&y))
+    if (!PointFromObj (value, (int*)&x, (int*)&y))
         return -1;
 
     ((PyRect*)self)->x = x;
@@ -534,7 +534,7 @@ static int
 _rect_setmidbottom (PyObject *self, PyObject *value, void *closure)
 {
     pgint16 x, y;
-    if (!PointFromObject (value, (int*)&x, (int*)&y))
+    if (!PointFromObj (value, (int*)&x, (int*)&y))
         return -1;
 
     INT16_SUB_UINT16_LIMIT (x, (((PyRect*)self)->w >> 1), ((PyRect*)self)->x);
@@ -553,7 +553,7 @@ static int
 _rect_setmidright (PyObject *self, PyObject *value, void *closure)
 {
     pgint16 x, y;
-    if (!PointFromObject (value, (int*)&x, (int*)&y))
+    if (!PointFromObj (value, (int*)&x, (int*)&y))
         return -1;
 
     INT16_SUB_UINT16_LIMIT (x, ((PyRect*)self)->w, ((PyRect*)self)->x);
@@ -571,7 +571,7 @@ static int
 _rect_settopleft (PyObject *self, PyObject *value, void *closure)
 {
     pgint16 x, y;
-    if (!PointFromObject (value, (int*)&x, (int*)&y))
+    if (!PointFromObj (value, (int*)&x, (int*)&y))
         return -1;
 
     ((PyRect*)self)->x = x;
@@ -590,7 +590,7 @@ static int
 _rect_settopright (PyObject *self, PyObject *value, void *closure)
 {
     pgint16 x, y;
-    if (!PointFromObject (value, (int*)&x, (int*)&y))
+    if (!PointFromObj (value, (int*)&x, (int*)&y))
         return -1;
 
     INT16_SUB_UINT16_LIMIT (x, ((PyRect*)self)->w, ((PyRect*)self)->x);
@@ -609,7 +609,7 @@ static int
 _rect_setbottomleft (PyObject *self, PyObject *value, void *closure)
 {
     pgint16 x, y;
-    if (!PointFromObject (value, (int*)&x, (int*)&y))
+    if (!PointFromObj (value, (int*)&x, (int*)&y))
         return -1;
 
     ((PyRect*)self)->x = x;
@@ -628,7 +628,7 @@ static int
 _rect_setbottomright (PyObject *self, PyObject *value, void *closure)
 {
     pgint16 x, y;
-    if (!PointFromObject (value, (int*)&x, (int*)&y))
+    if (!PointFromObj (value, (int*)&x, (int*)&y))
         return -1;
 
     INT16_SUB_UINT16_LIMIT (x, ((PyRect*)self)->w, ((PyRect*)self)->x);
@@ -700,7 +700,7 @@ _rect_move (PyObject* self, PyObject *args)
         PyErr_Clear ();
         if (!PyArg_ParseTuple (args, "O:move", &pos))
             return NULL;
-        if (!PointFromObject (pos, (int*)&x, (int*)&y))
+        if (!PointFromObj (pos, (int*)&x, (int*)&y))
             return NULL;
     }
 
@@ -726,7 +726,7 @@ _rect_move_ip (PyObject* self, PyObject *args)
         PyErr_Clear ();
         if (!PyArg_ParseTuple (args, "O:move_ip", &pos))
             return NULL;
-        if (!PointFromObject (pos, (int*)&x, (int*)&y))
+        if (!PointFromObj (pos, (int*)&x, (int*)&y))
             return NULL;
     }
     rect->x = INT16_ADD_LIMIT (rect->x, x);
@@ -884,7 +884,7 @@ _rect_inflate (PyObject* self, PyObject *args)
         PyErr_Clear ();
         if (!PyArg_ParseTuple (args, "O:inflate", &pos))
             return NULL;
-        if (!PointFromObject (pos, (int*)&x, (int*)&y))
+        if (!PointFromObj (pos, (int*)&x, (int*)&y))
             return NULL;
     }
 
@@ -910,7 +910,7 @@ _rect_inflate_ip (PyObject* self, PyObject *args)
         PyErr_Clear ();
         if (!PyArg_ParseTuple (args, "O:inflate_ip", &pos))
             return NULL;
-        if (!PointFromObject (pos, (int*)&x, (int*)&y))
+        if (!PointFromObj (pos, (int*)&x, (int*)&y))
             return NULL;
     }
 
@@ -1085,7 +1085,7 @@ _rect_collidepoint (PyObject *self, PyObject *args)
         PyErr_Clear ();
         if (!PyArg_ParseTuple (args, "O:collidepoint", &pos))
             return NULL;
-        if (!PointFromObject (pos, (int*)&x, (int*)&y))
+        if (!PointFromObj (pos, (int*)&x, (int*)&y))
             return NULL;
     }
 

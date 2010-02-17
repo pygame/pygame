@@ -317,7 +317,7 @@ _sdl_videomodeok (PyObject *self, PyObject *args)
         PyErr_Clear ();
         if (!PyArg_ParseTuple (args, "O|il:is_mode_ok", &size, &bpp, &flags))
             return NULL;
-        if (!SizeFromObject (size, (pgint32*)&width, (pgint32*)&height))
+        if (!SizeFromObj (size, (pgint32*)&width, (pgint32*)&height))
             return NULL;
     }
 
@@ -411,7 +411,7 @@ _sdl_setvideomode (PyObject *self, PyObject *args, PyObject *kwds)
         if (!PyArg_ParseTupleAndKeywords (args, kwds, "O|il:set_mode", kwlist2,
                 &size, &bpp, &flags))
             return NULL;
-        if (!SizeFromObject (size, (pgint32*)&width, (pgint32*)&height))
+        if (!SizeFromObj (size, (pgint32*)&width, (pgint32*)&height))
             return NULL;
     }
 

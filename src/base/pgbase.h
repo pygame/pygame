@@ -45,17 +45,17 @@ extern "C" {
     (*(int(*)(PyObject*, Py_ssize_t, int*))PyGameBase_C_API[PYGAME_BASE_FIRSTSLOT+5])
 #define UintFromSeqIndex                                                \
     (*(int(*)(PyObject*, Py_ssize_t, unsigned int*))PyGameBase_C_API[PYGAME_BASE_FIRSTSLOT+6])
-#define PointFromObject                                                 \
+#define PointFromObj                                                    \
     (*(int(*)(PyObject*, int*, int*))PyGameBase_C_API[PYGAME_BASE_FIRSTSLOT+7])
-#define SizeFromObject                                                  \
+#define SizeFromObj                                                     \
     (*(int(*)(PyObject*, pgint32*, pgint32*))PyGameBase_C_API[PYGAME_BASE_FIRSTSLOT+8])
-#define FPointFromObject                                                \
+#define FPointFromObj                                                   \
     (*(int(*)(PyObject*, double*, double*))PyGameBase_C_API[PYGAME_BASE_FIRSTSLOT+9])
-#define FSizeFromObject                                                 \
+#define FSizeFromObj                                                    \
     (*(int(*)(PyObject*, double*, double*))PyGameBase_C_API[PYGAME_BASE_FIRSTSLOT+10])
-#define ASCIIFromObject                                                 \
+#define ASCIIFromObj                                                    \
     (*(int(*)(PyObject*, char**, PyObject**))PyGameBase_C_API[PYGAME_BASE_FIRSTSLOT+11])
-#define UTF8FromObject                                                  \
+#define UTF8FromObj                                                     \
     (*(int(*)(PyObject*, char**, PyObject**))PyGameBase_C_API[PYGAME_BASE_FIRSTSLOT+12])
 #define UlongFromObj                                                    \
     (*(int(*)(PyObject*, unsigned long*))PyGameBase_C_API[PYGAME_BASE_FIRSTSLOT+13])

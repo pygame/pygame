@@ -136,9 +136,9 @@ _cursor_init (PyObject *self, PyObject *args, PyObject *kwds)
         if (PyArg_ParseTuple (args, "OOO|O", &databuf, &maskbuf, &size,
                 &pt))
             return -1;
-        if (!SizeFromObject (size, (pgint32*)&w, (pgint32*)&h))
+        if (!SizeFromObj (size, (pgint32*)&w, (pgint32*)&h))
             return -1;
-        if (!PointFromObject (pt, &hotx, &hoty))
+        if (!PointFromObj (pt, &hotx, &hoty))
             return -1;
     }
 

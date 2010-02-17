@@ -284,14 +284,14 @@ _frect_init (PyObject *self, PyObject *args, PyObject *kwds)
                     w = ((PyFRect*)rect)->w;
                     h = ((PyFRect*)rect)->h;
                 }
-                else if (!FSizeFromObject (rect, &w, &h))
+                else if (!FSizeFromObj (rect, &w, &h))
                     return -1;
             }
             else
             {
-                if (!FPointFromObject (pt, &x, &y))
+                if (!FPointFromObj (pt, &x, &y))
                     return -1;
-                if (!FSizeFromObject (rect, &w, &h))
+                if (!FSizeFromObj (rect, &w, &h))
                     return -1;
             }
         }
@@ -512,7 +512,7 @@ static int
 _frect_setcenter (PyObject *self, PyObject *value, void *closure)
 {
     double x, y;
-    if (!FPointFromObject (value, &x, &y))
+    if (!FPointFromObj (value, &x, &y))
         return -1;
     
     ((PyFRect*)self)->x = DBL_SUB_LIMIT (x, (((PyFRect*)self)->w / 2));
@@ -532,7 +532,7 @@ _frect_setsize (PyObject *self, PyObject *value, void *closure)
 {
     double w, h;
 
-    if (!FSizeFromObject (value, &w, &h))
+    if (!FSizeFromObj (value, &w, &h))
         return -1;
 
     if (w < 0 || h < 0)
@@ -558,7 +558,7 @@ static int
 _frect_setmidtop (PyObject *self, PyObject *value, void *closure)
 {
     double x, y;
-    if (!FPointFromObject (value, &x, &y))
+    if (!FPointFromObj (value, &x, &y))
         return -1;
 
     ((PyFRect*)self)->x = DBL_SUB_LIMIT (x, (((PyFRect*)self)->w / 2));
@@ -577,7 +577,7 @@ static int
 _frect_setmidleft (PyObject *self, PyObject *value, void *closure)
 {
     double x, y;
-    if (!FPointFromObject (value, &x, &y))
+    if (!FPointFromObj (value, &x, &y))
         return -1;
 
     ((PyFRect*)self)->x = x;
@@ -596,7 +596,7 @@ static int
 _frect_setmidbottom (PyObject *self, PyObject *value, void *closure)
 {
     double x, y;
-    if (!FPointFromObject (value, &x, &y))
+    if (!FPointFromObj (value, &x, &y))
         return -1;
     
     ((PyFRect*)self)->x = DBL_SUB_LIMIT (x, (((PyFRect*)self)->w / 2));
@@ -615,7 +615,7 @@ static int
 _frect_setmidright (PyObject *self, PyObject *value, void *closure)
 {
     double x, y;
-    if (!FPointFromObject (value, &x, &y))
+    if (!FPointFromObj (value, &x, &y))
         return -1;
 
     ((PyFRect*)self)->x = DBL_SUB_LIMIT (x, ((PyFRect*)self)->w);
@@ -633,7 +633,7 @@ static int
 _frect_settopleft (PyObject *self, PyObject *value, void *closure)
 {
     double x, y;
-    if (!FPointFromObject (value, &x, &y))
+    if (!FPointFromObj (value, &x, &y))
         return -1;
 
     ((PyFRect*)self)->x = x;
@@ -652,7 +652,7 @@ static int
 _frect_settopright (PyObject *self, PyObject *value, void *closure)
 {
     double x, y;
-    if (!FPointFromObject (value, &x, &y))
+    if (!FPointFromObj (value, &x, &y))
         return -1;
 
     ((PyFRect*)self)->x = DBL_SUB_LIMIT (x, ((PyFRect*)self)->w);
@@ -671,7 +671,7 @@ static int
 _frect_setbottomleft (PyObject *self, PyObject *value, void *closure)
 {
     double x, y;
-    if (!FPointFromObject (value, &x, &y))
+    if (!FPointFromObj (value, &x, &y))
         return -1;
 
     ((PyFRect*)self)->x = x;
@@ -690,7 +690,7 @@ static int
 _frect_setbottomright (PyObject *self, PyObject *value, void *closure)
 {
     double x, y;
-    if (!FPointFromObject (value, &x, &y))
+    if (!FPointFromObj (value, &x, &y))
         return -1;
 
     ((PyFRect*)self)->x = DBL_SUB_LIMIT (x, ((PyFRect*)self)->w);
@@ -767,7 +767,7 @@ _frect_move (PyObject* self, PyObject *args)
         PyErr_Clear ();
         if (!PyArg_ParseTuple (args, "O:move", &pos))
             return NULL;
-        if (!FPointFromObject (pos, &x, &y))
+        if (!FPointFromObj (pos, &x, &y))
             return NULL;
     }
 
@@ -786,7 +786,7 @@ _frect_move_ip (PyObject* self, PyObject *args)
         PyErr_Clear ();
         if (!PyArg_ParseTuple (args, "O:move_ip", &pos))
             return NULL;
-        if (!FPointFromObject (pos, &x, &y))
+        if (!FPointFromObj (pos, &x, &y))
             return NULL;
     }
 
@@ -937,7 +937,7 @@ _frect_inflate (PyObject* self, PyObject *args)
         PyErr_Clear ();
         if (!PyArg_ParseTuple (args, "O:inflate", &pos))
             return NULL;
-        if (!FPointFromObject (pos, &x, &y))
+        if (!FPointFromObj (pos, &x, &y))
             return NULL;
     }
 
@@ -958,7 +958,7 @@ _frect_inflate_ip (PyObject* self, PyObject *args)
         PyErr_Clear ();
         if (!PyArg_ParseTuple (args, "O:inflate_ip", &pos))
             return NULL;
-        if (!FPointFromObject (pos, &x, &y))
+        if (!FPointFromObj (pos, &x, &y))
             return NULL;
     }
 
@@ -1126,7 +1126,7 @@ _frect_collidepoint (PyObject *self, PyObject *args)
         PyErr_Clear ();
         if (!PyArg_ParseTuple (args, "O:collidepoint", &pos))
             return NULL;
-        if (!FPointFromObject (pos, &x, &y))
+        if (!FPointFromObj (pos, &x, &y))
             return NULL;
     }
 

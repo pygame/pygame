@@ -422,7 +422,7 @@ _hexcolor (PyObject *color, pgbyte rgba[])
     char *name;
     PyObject *tmp;
 
-    if (!ASCIIFromObject (color, &name, &tmp))
+    if (!ASCIIFromObj (color, &name, &tmp))
         return 0;
 
     len = strlen (name);

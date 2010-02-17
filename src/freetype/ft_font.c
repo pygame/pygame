@@ -310,7 +310,7 @@ _ftfont_init(PyObject *self, PyObject *args, PyObject *kwds)
     {
         CPyStreamWrapper *wrapper = CPyStreamWrapper_New (file);
         if (!wrapper)
-            return NULL;
+            return -1;
         if (PGFT_TryLoadFont_Stream (ft, font, wrapper, face_index) != 0)
         {
             if (PyErr_Occurred ())
@@ -323,7 +323,7 @@ _ftfont_init(PyObject *self, PyObject *args, PyObject *kwds)
         PyObject *tmp;
         char *filename;
 
-        if (!UTF8FromObject(file, &filename, &tmp))
+        if (!UTF8FromObj(file, &filename, &tmp))
         {
             PyErr_SetString(PyExc_ValueError, "Failed to decode file name");
             return -1;

@@ -238,7 +238,7 @@ DoubleFromSeqIndex (PyObject* obj, Py_ssize_t _index, double* val)
 }
 
 int
-PointFromObject (PyObject *obj, int *x, int *y)
+PointFromObj (PyObject *obj, int *x, int *y)
 {
     if (!obj || !x || !y)
     {
@@ -274,7 +274,7 @@ failed:
 }
 
 int
-FPointFromObject (PyObject *obj, double *x, double *y)
+FPointFromObj (PyObject *obj, double *x, double *y)
 {
     if (!obj || !x || !y)
     {
@@ -310,7 +310,7 @@ failed:
 }
 
 int
-SizeFromObject (PyObject *obj, pgint32 *w, pgint32 *h)
+SizeFromObj (PyObject *obj, pgint32 *w, pgint32 *h)
 {
     if (!obj || !w || !h)
     {
@@ -346,7 +346,7 @@ failed:
 }
 
 int
-FSizeFromObject (PyObject *obj, double *w, double *h)
+FSizeFromObj (PyObject *obj, double *w, double *h)
 {
     if (!obj || !w || !h)
     {
@@ -382,7 +382,7 @@ failed:
 }
 
 int
-ASCIIFromObject (PyObject *obj, char **text, PyObject **freeme)
+ASCIIFromObj (PyObject *obj, char **text, PyObject **freeme)
 {
     if (!obj || !text || !freeme)
     {
@@ -409,7 +409,7 @@ ASCIIFromObject (PyObject *obj, char **text, PyObject **freeme)
 }
 
 int
-UTF8FromObject (PyObject *obj, char **text, PyObject **freeme)
+UTF8FromObj (PyObject *obj, char **text, PyObject **freeme)
 {
     if (!obj || !text || !freeme)
     {
@@ -576,12 +576,12 @@ PyMODINIT_FUNC initbase (void)
     c_api[PYGAME_BASE_FIRSTSLOT+4] = DoubleFromSeqIndex;
     c_api[PYGAME_BASE_FIRSTSLOT+5] = IntFromSeqIndex;
     c_api[PYGAME_BASE_FIRSTSLOT+6] = UintFromSeqIndex;
-    c_api[PYGAME_BASE_FIRSTSLOT+7] = PointFromObject;
-    c_api[PYGAME_BASE_FIRSTSLOT+8] = SizeFromObject;
-    c_api[PYGAME_BASE_FIRSTSLOT+9] = FPointFromObject;
-    c_api[PYGAME_BASE_FIRSTSLOT+10] = FSizeFromObject;
-    c_api[PYGAME_BASE_FIRSTSLOT+11] = ASCIIFromObject;
-    c_api[PYGAME_BASE_FIRSTSLOT+12] = UTF8FromObject;
+    c_api[PYGAME_BASE_FIRSTSLOT+7] = PointFromObj;
+    c_api[PYGAME_BASE_FIRSTSLOT+8] = SizeFromObj;
+    c_api[PYGAME_BASE_FIRSTSLOT+9] = FPointFromObj;
+    c_api[PYGAME_BASE_FIRSTSLOT+10] = FSizeFromObj;
+    c_api[PYGAME_BASE_FIRSTSLOT+11] = ASCIIFromObj;
+    c_api[PYGAME_BASE_FIRSTSLOT+12] = UTF8FromObj;
     c_api[PYGAME_BASE_FIRSTSLOT+13] = UlongFromObj;
     c_api[PYGAME_BASE_FIRSTSLOT+14] = LongFromObj;
     c_api[PYGAME_BASE_FIRSTSLOT+15] = ColorFromObj;

@@ -97,7 +97,7 @@ _transform_scale (PyObject* self, PyObject* args)
     }
     else
     {
-        if (!SizeFromObject (size, (pgint32*)&width, (pgint32*)&height))
+        if (!SizeFromObj (size, (pgint32*)&width, (pgint32*)&height))
             return NULL;
     }
     
@@ -272,7 +272,7 @@ _transform_chop (PyObject* self, PyObject* args)
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    if (!SDLRect_FromRect (rectobj, &rect))
+    if (!SDLRectFromRect (rectobj, &rect))
         return NULL;
 
     surface = ((PySDLSurface*)surfobj)->surface;
@@ -360,7 +360,7 @@ _transform_smoothscale (PyObject* self, PyObject* args)
     }
     else
     {
-        if (!SizeFromObject (size, (pgint32*)&width, (pgint32*)&height))
+        if (!SizeFromObj (size, (pgint32*)&width, (pgint32*)&height))
             return NULL;
     }
     
@@ -654,7 +654,7 @@ _transform_averagecolor (PyObject* self, PyObject* args)
         PyErr_SetString (PyExc_TypeError, "surface must be Surface");
         return NULL;
     }
-    if (rectobj && !SDLRect_FromRect (rectobj, &sdlrect))
+    if (rectobj && !SDLRectFromRect (rectobj, &sdlrect))
         return NULL;
 
     surface = ((PySDLSurface*)surfobj)->surface;

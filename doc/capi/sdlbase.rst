@@ -84,7 +84,7 @@ Functions
   values two Uint16-compatible values in the order (Sint16, Sint16,
   Uint16, Uint16). This returns 1 on success and 0 on failure.
 
-.. cfunction:: int SDLRect_FromRect (PyObject *obj, SDL_Rect *rect)
+.. cfunction:: int SDLRectFromRect (PyObject *obj, SDL_Rect *rect)
 
    Tries to convert the passed object to a :ctype:`SDL_Rect` and stores
    the result in the passed *rect*'s members. The object must be a valid

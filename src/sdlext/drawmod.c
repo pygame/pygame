@@ -73,8 +73,8 @@ _draw_aaline (PyObject* self, PyObject* args)
     }
     else
     {
-        if (!PointFromObject (p1, &x1, &_y1) ||
-            !PointFromObject (p2, &x2, &y2))
+        if (!PointFromObj (p1, &x1, &_y1) ||
+            !PointFromObj (p2, &x2, &y2))
             return NULL;
     }
     
@@ -127,8 +127,8 @@ _draw_line (PyObject* self, PyObject* args)
     }
     else
     {
-        if (!PointFromObject (p1, &x1, &_y1) ||
-            !PointFromObject (p2, &x2, &y2))
+        if (!PointFromObj (p1, &x1, &_y1) ||
+            !PointFromObj (p2, &x2, &y2))
             return NULL;
     }
     
@@ -222,7 +222,7 @@ _draw_aalines (PyObject* self, PyObject* args)
     for (i = 0; i < count; i++)
     {
         item = PySequence_ITEM (list, i);
-        if (!PointFromObject (item, &x, &y))
+        if (!PointFromObj (item, &x, &y))
         {
             Py_XDECREF (item);
             PyMem_Free (xpts);
@@ -323,7 +323,7 @@ _draw_lines (PyObject* self, PyObject* args)
     for (i = 0; i < count; i++)
     {
         item = PySequence_ITEM (list, i);
-        if (!PointFromObject (item, &x, &y))
+        if (!PointFromObj (item, &x, &y))
         {
             Py_XDECREF (item);
             PyMem_Free (xpts);
@@ -380,7 +380,7 @@ _draw_ellipse (PyObject* self, PyObject* args)
     if (!SDLColorFromObj (colorobj, surface->format, &color))
         return NULL;
 
-    if (!SDLRect_FromRect (rectobj, &rect))
+    if (!SDLRectFromRect (rectobj, &rect))
         return NULL;
 
     if (width < 0)
@@ -453,7 +453,7 @@ _draw_arc (PyObject* self, PyObject* args)
     if (!SDLColorFromObj (colorobj, surface->format, &color))
         return NULL;
 
-    if (!SDLRect_FromRect (rectobj, &rect))
+    if (!SDLRectFromRect (rectobj, &rect))
         return NULL;
 
     if (width < 0)
@@ -515,7 +515,7 @@ _draw_circle (PyObject* self, PyObject* args)
     }
     else
     {
-        if (!PointFromObject (pt, &px, &py))
+        if (!PointFromObj (pt, &px, &py))
             return NULL;
     }
 
@@ -630,7 +630,7 @@ _draw_polygon (PyObject* self, PyObject* args)
     for (i = 0; i < count; i++)
     {
         item = PySequence_ITEM (list, i);
-        if (!PointFromObject (item, &x, &y))
+        if (!PointFromObj (item, &x, &y))
         {
             Py_XDECREF (item);
             PyMem_Free (xpts);
@@ -727,7 +727,7 @@ _draw_aapolygon (PyObject* self, PyObject* args)
     for (i = 0; i < count; i++)
     {
         item = PySequence_ITEM (list, i);
-        if (!PointFromObject (item, &x, &y))
+        if (!PointFromObj (item, &x, &y))
         {
             Py_XDECREF (item);
             PyMem_Free (xpts);
@@ -783,7 +783,7 @@ _draw_rect (PyObject* self, PyObject* args)
     if (!SDLColorFromObj (colorobj, surface->format,  &color))
         return NULL;
 
-    if (!SDLRect_FromRect (rectobj, &rect))
+    if (!SDLRectFromRect (rectobj, &rect))
         return NULL;
 
     xpts[0] = rect.x; ypts[0] = rect.y;

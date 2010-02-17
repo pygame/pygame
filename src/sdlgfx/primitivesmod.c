@@ -93,7 +93,7 @@ _gfx_pixelcolor (PyObject *self, PyObject* args)
 {
     PyObject *surface, *color, *pt;
     int x, y;
-    Uint32 c;
+    pguint32 c;
 
     ASSERT_VIDEO_INIT (NULL);
 
@@ -105,7 +105,7 @@ _gfx_pixelcolor (PyObject *self, PyObject* args)
     }
     else
     {
-        if (!PointFromObject (pt, &x, &y))
+        if (!PointFromObj (pt, &x, &y))
             return NULL;
     }
     
@@ -118,8 +118,8 @@ _gfx_pixelcolor (PyObject *self, PyObject* args)
     if (!ColorFromObj (color, &c))
         return NULL;
 
-    if (pixelColor (((PySDLSurface*)surface)->surface, (Sint16)x, (Sint16)y, c)
-        == -1)
+    if (pixelColor (((PySDLSurface*)surface)->surface, (Sint16)x, (Sint16)y,
+            (Uint32)c)== -1)
     {
         PyErr_SetString (PyExc_PyGameError, SDL_GetError ());
         return NULL;
@@ -132,7 +132,7 @@ _gfx_hlinecolor (PyObject *self, PyObject* args)
 {
     PyObject *surface, *color;
     int x1, x2, y;
-    Uint32 c;
+    pguint32 c;
 
     ASSERT_VIDEO_INIT (NULL);
 
@@ -144,17 +144,12 @@ _gfx_hlinecolor (PyObject *self, PyObject* args)
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    if (!PyColor_Check (color))
-    {
-        PyErr_SetString (PyExc_TypeError, "color must be a Color");
-        return NULL;
-    }
 
-    c = (Uint32) PyColor_AsNumber (color);
-    c = ARGB_2_RGBA (c);
+    if (!ColorFromObj (color, &c))
+        return NULL;
 
     if (hlineColor (((PySDLSurface*)surface)->surface,
-            (Sint16)x1, (Sint16)x2, y, c) == -1)
+            (Sint16)x1, (Sint16)x2, y, (Uint32)c) == -1)
     {
         PyErr_SetString (PyExc_PyGameError, SDL_GetError ());
         return NULL;
@@ -167,7 +162,7 @@ _gfx_vlinecolor (PyObject *self, PyObject* args)
 {
     PyObject *surface, *color;
     int x, _y1, y2;
-    Uint32 c;
+    pguint32 c;
 
     ASSERT_VIDEO_INIT (NULL);
 
@@ -180,17 +175,12 @@ _gfx_vlinecolor (PyObject *self, PyObject* args)
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    if (!PyColor_Check (color))
-    {
-        PyErr_SetString (PyExc_TypeError, "color must be a Color");
-        return NULL;
-    }
 
-    c = (Uint32) PyColor_AsNumber (color);
-    c = ARGB_2_RGBA (c);
+    if (!ColorFromObj (color, &c))
+        return NULL;
 
     if (vlineColor (((PySDLSurface*)surface)->surface, (Sint16) x, (Sint16)_y1,
-            (Sint16)y2, c) == -1)
+            (Sint16)y2, (Uint32)c) == -1)
     {
         PyErr_SetString (PyExc_PyGameError, SDL_GetError ());
         return NULL;
@@ -204,7 +194,7 @@ _gfx_rectanglecolor (PyObject *self, PyObject* args)
     PyObject *surface, *color, *rect;
     SDL_Rect sdlrect;
     Sint16 x1, x2, _y1, y2;
-    Uint32 c;
+    pguint32 c;
 
     ASSERT_VIDEO_INIT (NULL);
 
@@ -216,24 +206,18 @@ _gfx_rectanglecolor (PyObject *self, PyObject* args)
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    if (!SDLRect_FromRect (rect, &sdlrect))
+    if (!SDLRectFromRect (rect, &sdlrect))
         return NULL;
-
-    if (!PyColor_Check (color))
-    {
-        PyErr_SetString (PyExc_TypeError, "color must be a Color");
-        return NULL;
-    }
 
     x1 = sdlrect.x;
     _y1 = sdlrect.y;
     x2 = (Sint16) (sdlrect.x + sdlrect.w);
     y2 = (Sint16) (sdlrect.y + sdlrect.h);
-    c = (Uint32) PyColor_AsNumber (color);
-    c = ARGB_2_RGBA (c);
+    if (!ColorFromObj (color, &c))
+        return NULL;
 
-    if (rectangleColor (((PySDLSurface*)surface)->surface, x1, _y1, x2, y2, c)
-        == -1)
+    if (rectangleColor (((PySDLSurface*)surface)->surface, x1, _y1, x2, y2,
+            (Uint32)c) == -1)
     {
         PyErr_SetString (PyExc_PyGameError, SDL_GetError ());
         return NULL;
@@ -247,7 +231,7 @@ _gfx_boxcolor (PyObject *self, PyObject* args)
     PyObject *surface, *color, *rect;
     SDL_Rect sdlrect;
     Sint16 x1, x2, _y1, y2;
-    Uint32 c;
+    pguint32 c;
 
     ASSERT_VIDEO_INIT (NULL);
 
@@ -259,23 +243,18 @@ _gfx_boxcolor (PyObject *self, PyObject* args)
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    if (!SDLRect_FromRect (rect, &sdlrect))
+    if (!SDLRectFromRect (rect, &sdlrect))
         return NULL;
-
-    if (!PyColor_Check (color))
-    {
-        PyErr_SetString (PyExc_TypeError, "color must be a Color");
-        return NULL;
-    }
 
     x1 = sdlrect.x;
     _y1 = sdlrect.y;
     x2 = (Sint16) (sdlrect.x + sdlrect.w);
     y2 = (Sint16) (sdlrect.y + sdlrect.h);
-    c = (Uint32) PyColor_AsNumber (color);
-    c = ARGB_2_RGBA (c);
-
-    if (boxColor (((PySDLSurface*)surface)->surface, x1, _y1, x2, y2, c) == -1)
+    if (!ColorFromObj (color, &c))
+        return NULL;
+ 
+    if (boxColor (((PySDLSurface*)surface)->surface, x1, _y1, x2, y2,
+            (Uint32)c) == -1)
     {
         PyErr_SetString (PyExc_PyGameError, SDL_GetError ());
         return NULL;
@@ -289,7 +268,7 @@ _gfx_aalinecolor (PyObject *self, PyObject* args)
     PyObject *surface, *color;
     PyObject *p1, *p2;
     int x1, x2, _y1, y2;
-    Uint32 c;
+    pguint32 c;
 
     ASSERT_VIDEO_INIT (NULL);
 
@@ -302,7 +281,7 @@ _gfx_aalinecolor (PyObject *self, PyObject* args)
     }
     else
     {
-        if (!PointFromObject (p1, &x1, &_y1) || !PointFromObject (p2, &x2, &y2))
+        if (!PointFromObj (p1, &x1, &_y1) || !PointFromObj (p2, &x2, &y2))
             return NULL;
     }
     
@@ -311,17 +290,12 @@ _gfx_aalinecolor (PyObject *self, PyObject* args)
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    if (!PyColor_Check (color))
-    {
-        PyErr_SetString (PyExc_TypeError, "color must be a Color");
-        return NULL;
-    }
 
-    c = (Uint32) PyColor_AsNumber (color);
-    c = ARGB_2_RGBA (c);
+    if (!ColorFromObj (color, &c))
+        return NULL;
 
     if (aalineColor (((PySDLSurface*)surface)->surface, 
-            (Sint16)x1, (Sint16)_y1, (Sint16)x2, (Sint16)y2, c) == -1)
+            (Sint16)x1, (Sint16)_y1, (Sint16)x2, (Sint16)y2, (Uint32)c) == -1)
     {
         PyErr_SetString (PyExc_PyGameError, SDL_GetError ());
         return NULL;
@@ -335,7 +309,7 @@ _gfx_linecolor (PyObject *self, PyObject* args)
     PyObject *surface, *color;
     PyObject *p1, *p2;
     int x1, x2, _y1, y2;
-    Uint32 c;
+    pguint32 c;
 
     ASSERT_VIDEO_INIT (NULL);
 
@@ -348,7 +322,7 @@ _gfx_linecolor (PyObject *self, PyObject* args)
     }
     else
     {
-        if (!PointFromObject (p1, &x1, &_y1) || !PointFromObject (p2, &x2, &y2))
+        if (!PointFromObj (p1, &x1, &_y1) || !PointFromObj (p2, &x2, &y2))
             return NULL;
     }
     
@@ -357,17 +331,12 @@ _gfx_linecolor (PyObject *self, PyObject* args)
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    if (!PyColor_Check (color))
-    {
-        PyErr_SetString (PyExc_TypeError, "color must be a Color");
-        return NULL;
-    }
 
-    c = (Uint32) PyColor_AsNumber (color);
-    c = ARGB_2_RGBA (c);
+    if (!ColorFromObj (color, &c))
+        return NULL;
 
     if (lineColor (((PySDLSurface*)surface)->surface, 
-            (Sint16)x1, (Sint16)_y1, (Sint16)x2, (Sint16)y2, c) == -1)
+            (Sint16)x1, (Sint16)_y1, (Sint16)x2, (Sint16)y2, (Uint32)c) == -1)
     {
         PyErr_SetString (PyExc_PyGameError, SDL_GetError ());
         return NULL;
@@ -380,7 +349,7 @@ _gfx_circlecolor (PyObject *self, PyObject* args)
 {
     PyObject *surface, *color, *pt;
     int x, y, r;
-    Uint32 c;
+    pguint32 c;
 
     ASSERT_VIDEO_INIT (NULL);
 
@@ -393,7 +362,7 @@ _gfx_circlecolor (PyObject *self, PyObject* args)
     }
     else
     {
-        if (!PointFromObject (pt, &x, &y))
+        if (!PointFromObj (pt, &x, &y))
             return NULL;
     }
     
@@ -402,17 +371,12 @@ _gfx_circlecolor (PyObject *self, PyObject* args)
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    if (!PyColor_Check (color))
-    {
-        PyErr_SetString (PyExc_TypeError, "color must be a Color");
-        return NULL;
-    }
 
-    c = (Uint32) PyColor_AsNumber (color);
-    c = ARGB_2_RGBA (c);
+    if (!ColorFromObj (color, &c))
+        return NULL;
 
     if (circleColor (((PySDLSurface*)surface)->surface,
-            (Sint16)x, (Sint16)y, (Sint16)r, c) == -1)
+            (Sint16)x, (Sint16)y, (Sint16)r, (Uint32)c) == -1)
     {
         PyErr_SetString (PyExc_PyGameError, SDL_GetError ());
         return NULL;
@@ -425,7 +389,7 @@ _gfx_arccolor (PyObject *self, PyObject* args)
 {
     PyObject *surface, *color, *pt;
     int x, y, r, start, end;
-    Uint32 c;
+    pguint32 c;
 
     ASSERT_VIDEO_INIT (NULL);
 
@@ -439,7 +403,7 @@ _gfx_arccolor (PyObject *self, PyObject* args)
     }
     else
     {
-        if (!PointFromObject (pt, &x, &y))
+        if (!PointFromObj (pt, &x, &y))
             return NULL;
     }
 
@@ -448,17 +412,12 @@ _gfx_arccolor (PyObject *self, PyObject* args)
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    if (!PyColor_Check (color))
-    {
-        PyErr_SetString (PyExc_TypeError, "color must be a Color");
-        return NULL;
-    }
 
-    c = (Uint32) PyColor_AsNumber (color);
-    c = ARGB_2_RGBA (c);
+    if (!ColorFromObj (color, &c))
+        return NULL;
 
     if (arcColor (((PySDLSurface*)surface)->surface, (Sint16)x, (Sint16)y,
-            (Sint16)r, (Sint16)start, (Sint16)end, c) == -1)
+            (Sint16)r, (Sint16)start, (Sint16)end, (Uint32)c) == -1)
     {
         PyErr_SetString (PyExc_PyGameError, SDL_GetError ());
         return NULL;
@@ -471,7 +430,7 @@ _gfx_aacirclecolor (PyObject *self, PyObject* args)
 {
     PyObject *surface, *color, *pt;
     int x, y, r;
-    Uint32 c;
+    pguint32 c;
 
     ASSERT_VIDEO_INIT (NULL);
 
@@ -484,7 +443,7 @@ _gfx_aacirclecolor (PyObject *self, PyObject* args)
     }
     else
     {
-        if (!PointFromObject (pt, &x, &y))
+        if (!PointFromObj (pt, &x, &y))
             return NULL;
     }
 
@@ -493,11 +452,11 @@ _gfx_aacirclecolor (PyObject *self, PyObject* args)
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    c = (Uint32) PyColor_AsNumber (color);
-    c = ARGB_2_RGBA (c);
+    if (!ColorFromObj (color, &c))
+        return NULL;
 
     if (aacircleColor (((PySDLSurface*)surface)->surface,
-            (Sint16)x, (Sint16)y, (Sint16)r, c) == -1)
+            (Sint16)x, (Sint16)y, (Sint16)r, (Uint32)c) == -1)
     {
         PyErr_SetString (PyExc_PyGameError, SDL_GetError ());
         return NULL;
@@ -510,7 +469,7 @@ _gfx_filledcirclecolor (PyObject *self, PyObject* args)
 {
     PyObject *surface, *color, *pt;
     int x, y, r;
-    Uint32 c;
+    pguint32 c;
 
     ASSERT_VIDEO_INIT (NULL);
 
@@ -524,7 +483,7 @@ _gfx_filledcirclecolor (PyObject *self, PyObject* args)
     }
     else
     {
-        if (!PointFromObject (pt, (int*)&x, (int*)&y))
+        if (!PointFromObj (pt, (int*)&x, (int*)&y))
             return NULL;
     }
     
@@ -533,16 +492,11 @@ _gfx_filledcirclecolor (PyObject *self, PyObject* args)
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    if (!PyColor_Check (color))
-    {
-        PyErr_SetString (PyExc_TypeError, "color must be a Color");
+    if (!ColorFromObj (color, &c))
         return NULL;
-    }
-    c = PyColor_AsNumber (color);
-    c = ARGB_2_RGBA (c);
 
     if (filledCircleColor (((PySDLSurface*)surface)->surface,
-            (Sint16)x, (Sint16)y, (Sint16)r, c) == -1)
+            (Sint16)x, (Sint16)y, (Sint16)r, (Uint32)c) == -1)
     {
         PyErr_SetString (PyExc_PyGameError, SDL_GetError ());
         return NULL;
@@ -555,7 +509,7 @@ _gfx_ellipsecolor (PyObject *self, PyObject* args)
 {
     PyObject *surface, *color, *pt, *rd;
     int x, y, rx, ry;
-    Uint32 c;
+    pguint32 c;
 
     ASSERT_VIDEO_INIT (NULL);
 
@@ -568,7 +522,7 @@ _gfx_ellipsecolor (PyObject *self, PyObject* args)
     }
     else
     {
-        if (!PointFromObject (pt, &x, &y) || !PointFromObject (rd, &rx, &ry))
+        if (!PointFromObj (pt, &x, &y) || !PointFromObj (rd, &rx, &ry))
             return NULL;
     }
     
@@ -577,17 +531,11 @@ _gfx_ellipsecolor (PyObject *self, PyObject* args)
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    if (!PyColor_Check (color))
-    {
-        PyErr_SetString (PyExc_TypeError, "color must be a Color");
+    if (!ColorFromObj (color, &c))
         return NULL;
-    }
-
-    c = (Uint32) PyColor_AsNumber (color);
-    c = ARGB_2_RGBA (c);
 
     if (ellipseColor (((PySDLSurface*)surface)->surface, (Sint16)x, (Sint16)y,
-            (Sint16)rx, (Sint16)ry, c) == -1)
+            (Sint16)rx, (Sint16)ry, (Uint32)c) == -1)
     {
         PyErr_SetString (PyExc_PyGameError, SDL_GetError ());
         return NULL;
@@ -600,7 +548,7 @@ _gfx_aaellipsecolor (PyObject *self, PyObject* args)
 {
     PyObject *surface, *color, *pt, *rd;
     int x, y, rx, ry;
-    Uint32 c;
+    pguint32 c;
 
     ASSERT_VIDEO_INIT (NULL);
 
@@ -613,7 +561,7 @@ _gfx_aaellipsecolor (PyObject *self, PyObject* args)
     }
     else
     {
-        if (!PointFromObject (pt, &x, &y) || !PointFromObject (rd, &rx, &ry))
+        if (!PointFromObj (pt, &x, &y) || !PointFromObj (rd, &rx, &ry))
             return NULL;
     }
     
@@ -622,17 +570,11 @@ _gfx_aaellipsecolor (PyObject *self, PyObject* args)
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    if (!PyColor_Check (color))
-    {
-        PyErr_SetString (PyExc_TypeError, "color must be a Color");
+    if (!ColorFromObj (color, &c))
         return NULL;
-    }
-
-    c = (Uint32) PyColor_AsNumber (color);
-    c = ARGB_2_RGBA (c);
 
     if (aaellipseColor (((PySDLSurface*)surface)->surface,
-            (Sint16)x, (Sint16)y, (Sint16)rx, (Sint16)ry, c) == -1)
+            (Sint16)x, (Sint16)y, (Sint16)rx, (Sint16)ry, (Uint32)c) == -1)
     {
         PyErr_SetString (PyExc_PyGameError, SDL_GetError ());
         return NULL;
@@ -645,7 +587,7 @@ _gfx_filledellipsecolor (PyObject *self, PyObject* args)
 {
     PyObject *surface, *color, *pt, *rd;
     int x, y, rx, ry;
-    Uint32 c;
+    pguint32 c;
 
     ASSERT_VIDEO_INIT (NULL);
 
@@ -659,7 +601,7 @@ _gfx_filledellipsecolor (PyObject *self, PyObject* args)
     }
     else
     {
-        if (!PointFromObject (pt, &x, &y) || !PointFromObject (rd, &rx, &ry))
+        if (!PointFromObj (pt, &x, &y) || !PointFromObj (rd, &rx, &ry))
             return NULL;
     }
 
@@ -668,17 +610,11 @@ _gfx_filledellipsecolor (PyObject *self, PyObject* args)
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    if (!PyColor_Check (color))
-    {
-        PyErr_SetString (PyExc_TypeError, "color must be a Color");
+    if (!ColorFromObj (color, &c))
         return NULL;
-    }
-
-    c = (Uint32) PyColor_AsNumber (color);
-    c = ARGB_2_RGBA (c);
 
     if (filledEllipseColor (((PySDLSurface*)surface)->surface,
-            (Sint16)x, (Sint16)y, (Sint16)rx, (Sint16)ry, c) == -1)
+            (Sint16)x, (Sint16)y, (Sint16)rx, (Sint16)ry, (Uint32)c) == -1)
     {
         PyErr_SetString (PyExc_PyGameError, SDL_GetError ());
         return NULL;
@@ -691,7 +627,7 @@ _gfx_piecolor (PyObject *self, PyObject* args)
 {
     PyObject *surface, *color, *pt;
     int x, y, r, start, end;
-    Uint32 c;
+    pguint32 c;
 
     ASSERT_VIDEO_INIT (NULL);
 
@@ -705,7 +641,7 @@ _gfx_piecolor (PyObject *self, PyObject* args)
     }
     else
     {
-        if (!PointFromObject (pt, &x, &y))
+        if (!PointFromObj (pt, &x, &y))
             return NULL;
     }
     if (!PySDLSurface_Check (surface))
@@ -713,17 +649,11 @@ _gfx_piecolor (PyObject *self, PyObject* args)
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    if (!PyColor_Check (color))
-    {
-        PyErr_SetString (PyExc_TypeError, "color must be a Color");
+    if (!ColorFromObj (color, &c))
         return NULL;
-    }
-
-    c = (Uint32) PyColor_AsNumber (color);
-    c = ARGB_2_RGBA (c);
 
     if (pieColor (((PySDLSurface*)surface)->surface, (Sint16)x, (Sint16)y,
-            (Sint16)r, (Sint16)start, (Sint16)end, c) == -1)
+            (Sint16)r, (Sint16)start, (Sint16)end, (Uint32)c) == -1)
     {
         PyErr_SetString (PyExc_PyGameError, SDL_GetError ());
         return NULL;
@@ -736,7 +666,7 @@ _gfx_filledpiecolor (PyObject *self, PyObject* args)
 {
     PyObject *surface, *color, *pt;
     int x, y, r, start, end;
-    Uint32 c;
+    pguint32 c;
 
     ASSERT_VIDEO_INIT (NULL);
 
@@ -750,7 +680,7 @@ _gfx_filledpiecolor (PyObject *self, PyObject* args)
     }
     else
     {
-        if (!PointFromObject (pt, (int*)&x, (int*)&y))
+        if (!PointFromObj (pt, (int*)&x, (int*)&y))
             return NULL;
     }
     if (!PySDLSurface_Check (surface))
@@ -758,17 +688,12 @@ _gfx_filledpiecolor (PyObject *self, PyObject* args)
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    if (!PyColor_Check (color))
-    {
-        PyErr_SetString (PyExc_TypeError, "color must be a Color");
-        return NULL;
-    }
 
-    c = (Uint32) PyColor_AsNumber (color);
-    c = ARGB_2_RGBA (c);
+    if (!ColorFromObj (color, &c))
+        return NULL;
 
     if (filledPieColor (((PySDLSurface*)surface)->surface, (Sint16)x,
-            (Sint16)y, (Sint16)r, (Sint16)start, (Sint16)end, c) == -1)
+            (Sint16)y, (Sint16)r, (Sint16)start, (Sint16)end, (Uint32)c) == -1)
     {
         PyErr_SetString (PyExc_PyGameError, SDL_GetError ());
         return NULL;
@@ -781,7 +706,7 @@ _gfx_trigoncolor (PyObject *self, PyObject* args)
 {
     PyObject *surface, *color, *p1, *p2, *p3;
     int x1, x2, x3, _y1, y2, y3;
-    Uint32 c;
+    pguint32 c;
 
     ASSERT_VIDEO_INIT (NULL);
 
@@ -795,9 +720,9 @@ _gfx_trigoncolor (PyObject *self, PyObject* args)
     }
     else
     {
-        if (!PointFromObject (p1, &x1, &_y1) ||
-            !PointFromObject (p2, &x2, &y2) ||
-            !PointFromObject (p3, &x3, &y3))
+        if (!PointFromObj (p1, &x1, &_y1) ||
+            !PointFromObj (p2, &x2, &y2) ||
+            !PointFromObj (p3, &x3, &y3))
             return NULL;
     }
     
@@ -806,18 +731,13 @@ _gfx_trigoncolor (PyObject *self, PyObject* args)
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    if (!PyColor_Check (color))
-    {
-        PyErr_SetString (PyExc_TypeError, "color must be a Color");
-        return NULL;
-    }
 
-    c = (Uint32) PyColor_AsNumber (color);
-    c = ARGB_2_RGBA (c);
+    if (!ColorFromObj (color, &c))
+        return NULL;
 
     if (trigonColor (((PySDLSurface*)surface)->surface,
             (Sint16)x1, (Sint16)_y1, (Sint16)x2, (Sint16)y2,
-            (Sint16)x3, (Sint16)y3, c) == -1)
+            (Sint16)x3, (Sint16)y3, (Uint32)c) == -1)
     {
         PyErr_SetString (PyExc_PyGameError, SDL_GetError ());
         return NULL;
@@ -830,7 +750,7 @@ _gfx_aatrigoncolor (PyObject *self, PyObject* args)
 {
     PyObject *surface, *color, *p1, *p2, *p3;
     int x1, x2, x3, _y1, y2, y3;
-    Uint32 c;
+    pguint32 c;
 
     ASSERT_VIDEO_INIT (NULL);
 
@@ -844,9 +764,9 @@ _gfx_aatrigoncolor (PyObject *self, PyObject* args)
     }
     else
     {
-        if (!PointFromObject (p1, &x1, &_y1) ||
-            !PointFromObject (p2, &x2, &y2) ||
-            !PointFromObject (p3, &x3, &y3))
+        if (!PointFromObj (p1, &x1, &_y1) ||
+            !PointFromObj (p2, &x2, &y2) ||
+            !PointFromObj (p3, &x3, &y3))
             return NULL;
     }
     
@@ -855,18 +775,13 @@ _gfx_aatrigoncolor (PyObject *self, PyObject* args)
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    if (!PyColor_Check (color))
-    {
-        PyErr_SetString (PyExc_TypeError, "color must be a Color");
-        return NULL;
-    }
 
-    c = (Uint32) PyColor_AsNumber (color);
-    c = ARGB_2_RGBA (c);
+    if (!ColorFromObj (color, &c))
+        return NULL;
 
     if (aatrigonColor (((PySDLSurface*)surface)->surface,
             (Sint16)x1, (Sint16)_y1, (Sint16)x2, (Sint16)y2,
-            (Sint16)x3, (Sint16)y3, c) == -1)
+            (Sint16)x3, (Sint16)y3, (Uint32)c) == -1)
     {
         PyErr_SetString (PyExc_PyGameError, SDL_GetError ());
         return NULL;
@@ -879,7 +794,7 @@ _gfx_filledtrigoncolor (PyObject *self, PyObject* args)
 {
     PyObject *surface, *color, *p1, *p2, *p3;
     int x1, x2, x3, _y1, y2, y3;
-    Uint32 c;
+    pguint32 c;
 
     ASSERT_VIDEO_INIT (NULL);
 
@@ -893,9 +808,9 @@ _gfx_filledtrigoncolor (PyObject *self, PyObject* args)
     }
     else
     {
-        if (!PointFromObject (p1, &x1, &_y1) ||
-            !PointFromObject (p2, &x2, &y2) ||
-            !PointFromObject (p3, &x3, &y3))
+        if (!PointFromObj (p1, &x1, &_y1) ||
+            !PointFromObj (p2, &x2, &y2) ||
+            !PointFromObj (p3, &x3, &y3))
             return NULL;
     }
     
@@ -904,18 +819,13 @@ _gfx_filledtrigoncolor (PyObject *self, PyObject* args)
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    if (!PyColor_Check (color))
-    {
-        PyErr_SetString (PyExc_TypeError, "color must be a Color");
-        return NULL;
-    }
 
-    c = (Uint32) PyColor_AsNumber (color);
-    c = ARGB_2_RGBA (c);
+    if (!ColorFromObj (color, &c))
+        return NULL;
 
     if (filledTrigonColor (((PySDLSurface*)surface)->surface,
             (Sint16)x1, (Sint16)_y1, (Sint16)x2, (Sint16)y2,
-            (Sint16)x3, (Sint16)y3, c) == -1)
+            (Sint16)x3, (Sint16)y3, (Uint32)c) == -1)
     {
         PyErr_SetString (PyExc_PyGameError, SDL_GetError ());
         return NULL;
@@ -931,7 +841,7 @@ _gfx_polygoncolor (PyObject *self, PyObject* args)
     int tmp1, tmp2;
     Py_ssize_t count, i;
     int ret;
-    Uint32 c;
+    pguint32 c;
 
     ASSERT_VIDEO_INIT (NULL);
 
@@ -941,11 +851,6 @@ _gfx_polygoncolor (PyObject *self, PyObject* args)
     if (!PySDLSurface_Check (surface))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
-        return NULL;
-    }
-    if (!PyColor_Check (color))
-    {
-        PyErr_SetString (PyExc_TypeError, "color must be a Color");
         return NULL;
     }
     if (!PySequence_Check (points))
@@ -961,8 +866,9 @@ _gfx_polygoncolor (PyObject *self, PyObject* args)
             "points must contain more than 2 points");
         return NULL;
     }
-    c = (Uint32) PyColor_AsNumber (color);
-    c = ARGB_2_RGBA (c);
+
+    if (!ColorFromObj (color, &c))
+        return NULL;
 
     vx = PyMem_New (Sint16, (size_t) count);
     vy = PyMem_New (Sint16, (size_t) count);
@@ -978,7 +884,7 @@ _gfx_polygoncolor (PyObject *self, PyObject* args)
     for (i = 0; i < count; i++)
     {
         item = PySequence_ITEM (points, i);
-        if (!PointFromObject (item, &tmp1, &tmp2))
+        if (!PointFromObj (item, &tmp1, &tmp2))
         {
             PyMem_Free (vx);
             PyMem_Free (vy);
@@ -992,7 +898,7 @@ _gfx_polygoncolor (PyObject *self, PyObject* args)
 
     Py_BEGIN_ALLOW_THREADS;
     ret = polygonColor (((PySDLSurface*)surface)->surface, vx, vy, (int)count,
-        c);
+        (Uint32)c);
     Py_END_ALLOW_THREADS;
 
     PyMem_Free (vx);
@@ -1014,7 +920,7 @@ _gfx_aapolygoncolor (PyObject *self, PyObject* args)
     int tmp1, tmp2;
     Py_ssize_t count, i;
     int ret;
-    Uint32 c;
+    pguint32 c;
 
     ASSERT_VIDEO_INIT (NULL);
 
@@ -1024,11 +930,6 @@ _gfx_aapolygoncolor (PyObject *self, PyObject* args)
     if (!PySDLSurface_Check (surface))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
-        return NULL;
-    }
-    if (!PyColor_Check (color))
-    {
-        PyErr_SetString (PyExc_TypeError, "color must be a Color");
         return NULL;
     }
     if (!PySequence_Check (points))
@@ -1044,8 +945,9 @@ _gfx_aapolygoncolor (PyObject *self, PyObject* args)
             "points must contain more than 2 points");
         return NULL;
     }
-    c = (Uint32) PyColor_AsNumber (color);
-    c = ARGB_2_RGBA (c);
+
+    if (!ColorFromObj (color, &c))
+        return NULL;
 
     vx = PyMem_New (Sint16, (size_t) count);
     vy = PyMem_New (Sint16, (size_t) count);
@@ -1061,7 +963,7 @@ _gfx_aapolygoncolor (PyObject *self, PyObject* args)
     for (i = 0; i < count; i++)
     {
         item = PySequence_ITEM (points, i);
-        if (!PointFromObject (item, &tmp1, &tmp2))
+        if (!PointFromObj (item, &tmp1, &tmp2))
         {
             PyMem_Free (vx);
             PyMem_Free (vy);
@@ -1075,7 +977,7 @@ _gfx_aapolygoncolor (PyObject *self, PyObject* args)
 
     Py_BEGIN_ALLOW_THREADS;
     ret = aapolygonColor (((PySDLSurface*)surface)->surface, vx, vy, (int)count,
-        c);
+        (Uint32)c);
     Py_END_ALLOW_THREADS;
 
     PyMem_Free (vx);
@@ -1097,7 +999,7 @@ _gfx_filledpolygoncolor (PyObject *self, PyObject* args)
     int tmp1, tmp2;
     Py_ssize_t count, i;
     int ret;
-    Uint32 c;
+    pguint32 c;
 
     ASSERT_VIDEO_INIT (NULL);
 
@@ -1108,11 +1010,6 @@ _gfx_filledpolygoncolor (PyObject *self, PyObject* args)
     if (!PySDLSurface_Check (surface))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
-        return NULL;
-    }
-    if (!PyColor_Check (color))
-    {
-        PyErr_SetString (PyExc_TypeError, "color must be a Color");
         return NULL;
     }
     if (!PySequence_Check (points))
@@ -1128,8 +1025,9 @@ _gfx_filledpolygoncolor (PyObject *self, PyObject* args)
             "points must contain more than 2 points");
         return NULL;
     }
-    c = (Uint32) PyColor_AsNumber (color);
-    c = ARGB_2_RGBA (c);
+
+    if (!ColorFromObj (color, &c))
+        return NULL;
 
     vx = PyMem_New (Sint16, (size_t) count);
     vy = PyMem_New (Sint16, (size_t) count);
@@ -1145,7 +1043,7 @@ _gfx_filledpolygoncolor (PyObject *self, PyObject* args)
     for (i = 0; i < count; i++)
     {
         item = PySequence_ITEM (points, i);
-        if (!PointFromObject (item, &tmp1, &tmp2))
+        if (!PointFromObj (item, &tmp1, &tmp2))
         {
             PyMem_Free (vx);
             PyMem_Free (vy);
@@ -1159,7 +1057,7 @@ _gfx_filledpolygoncolor (PyObject *self, PyObject* args)
 
     Py_BEGIN_ALLOW_THREADS;
     ret = filledPolygonColor (((PySDLSurface*)surface)->surface, vx, vy,
-        (int)count, c);
+        (int)count, (Uint32)c);
     Py_END_ALLOW_THREADS;
 
     PyMem_Free (vx);
@@ -1194,7 +1092,7 @@ _gfx_texturedpolygon (PyObject *self, PyObject* args)
     }
     else
     {
-        if (!PointFromObject (pt, &tdx, &tdy))
+        if (!PointFromObj (pt, &tdx, &tdy))
             return NULL;
     }
     
@@ -1236,7 +1134,7 @@ _gfx_texturedpolygon (PyObject *self, PyObject* args)
     for (i = 0; i < count; i++)
     {
         item = PySequence_ITEM (points, i);
-        if (!PointFromObject (item, &tmp1, &tmp2))
+        if (!PointFromObj (item, &tmp1, &tmp2))
         {
             PyMem_Free (vx);
             PyMem_Free (vy);
@@ -1274,7 +1172,7 @@ _gfx_beziercolor (PyObject *self, PyObject* args)
     int x, y;
     Py_ssize_t count, i;
     int ret, steps;
-    Uint32 c;
+    pguint32 c;
 
     ASSERT_VIDEO_INIT (NULL);
 
@@ -1285,11 +1183,6 @@ _gfx_beziercolor (PyObject *self, PyObject* args)
     if (!PySDLSurface_Check (surface))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
-        return NULL;
-    }
-    if (!PyColor_Check (color))
-    {
-        PyErr_SetString (PyExc_TypeError, "color must be a Color");
         return NULL;
     }
     if (!PySequence_Check (points))
@@ -1305,8 +1198,9 @@ _gfx_beziercolor (PyObject *self, PyObject* args)
             "points must contain more than 2 points");
         return NULL;
     }
-    c = (Uint32) PyColor_AsNumber (color);
-    c = ARGB_2_RGBA (c);
+
+    if (!ColorFromObj (color, &c))
+        return NULL;
 
     vx = PyMem_New (Sint16, (size_t) count);
     vy = PyMem_New (Sint16, (size_t) count);
@@ -1323,7 +1217,7 @@ _gfx_beziercolor (PyObject *self, PyObject* args)
     for (i = 0; i < count; i++)
     {
         item = PySequence_ITEM (points, i);
-        if (!PointFromObject (item, &x, &y))
+        if (!PointFromObj (item, &x, &y))
         {
             PyMem_Free (vx);
             PyMem_Free (vy);
@@ -1337,7 +1231,7 @@ _gfx_beziercolor (PyObject *self, PyObject* args)
 
     Py_BEGIN_ALLOW_THREADS;
     ret = bezierColor (((PySDLSurface*)surface)->surface, vx, vy, (int)count,
-        steps, c);
+        steps, (Uint32)c);
     Py_END_ALLOW_THREADS;
 
     PyMem_Free (vx);

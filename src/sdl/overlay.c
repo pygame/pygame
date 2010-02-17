@@ -174,7 +174,7 @@ _overlay_init (PyObject *self, PyObject *args, PyObject *kwds)
     }
     else
     {
-        if (!SizeFromObject (size, (pgint32*)&width, (pgint32*)&height))
+        if (!SizeFromObj (size, (pgint32*)&width, (pgint32*)&height))
             return -1;
     }
     
@@ -380,7 +380,7 @@ _overlay_display (PyObject *self, PyObject *args)
     if (!PyArg_ParseTuple (args, "|O:display", &rect))
         return NULL;
     
-    if (rect && !SDLRect_FromRect (rect, &sdlrect))
+    if (rect && !SDLRectFromRect (rect, &sdlrect))
         return NULL;
     if (!rect)
     {

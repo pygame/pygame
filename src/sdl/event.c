@@ -179,7 +179,7 @@ _event_repr (PyObject *self)
     str = PyObject_Str (ev->dict);
     if (!str)
         return NULL;
-    ret = UTF8FromObject (str, &dicttext, &tmp);
+    ret = UTF8FromObj (str, &dicttext, &tmp);
     Py_DECREF (str);
     if (!ret)
     {

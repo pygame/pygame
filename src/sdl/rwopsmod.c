@@ -385,7 +385,7 @@ PyRWops_NewRO (PyObject *obj, int *canautoclose)
     {
         PyObject *tmp;
         char *filename;
-        if (!UTF8FromObject (obj, &filename, &tmp))
+        if (!UTF8FromObj (obj, &filename, &tmp))
             return NULL;
         Py_XDECREF (tmp);
         *canautoclose = 1;
@@ -438,7 +438,7 @@ PyRWops_NewRW (PyObject *obj, int *canautoclose)
     {
         PyObject *tmp;
         char *filename;
-        if (!UTF8FromObject (obj, &filename, &tmp))
+        if (!UTF8FromObj (obj, &filename, &tmp))
             return NULL;
         Py_XDECREF (tmp);
         *canautoclose = 1;
@@ -523,7 +523,7 @@ PyRWops_NewRO_Threaded (PyObject *obj, int *canautoclose)
     {
         PyObject *tmp;
         char *filename;
-        if (!UTF8FromObject (obj, &filename, &tmp))
+        if (!UTF8FromObj (obj, &filename, &tmp))
             return NULL;
         Py_XDECREF (tmp);
         *canautoclose = 1;
@@ -589,7 +589,7 @@ PyRWops_NewRW_Threaded (PyObject *obj, int *canautoclose)
     {
         PyObject *tmp;
         char *filename;
-        if (!UTF8FromObject (obj, &filename, &tmp))
+        if (!UTF8FromObj (obj, &filename, &tmp))
             return NULL;
         Py_XDECREF (tmp);
         *canautoclose = 1;

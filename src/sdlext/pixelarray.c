@@ -111,7 +111,7 @@ static PySequenceMethods _pixelarray_sequence =
  */
 static PyMappingMethods _pixelarray_mapping =
 {
-    (inquiry) _pixelarray_length,              /*mp_length*/
+    (lenfunc) _pixelarray_length,              /*mp_length*/
     (binaryfunc) _pixelarray_subscript,        /*mp_subscript*/
     (objobjargproc) _pixelarray_ass_subscript, /*mp_ass_subscript*/
 };

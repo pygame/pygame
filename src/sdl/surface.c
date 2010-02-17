@@ -254,7 +254,7 @@ _surface_init (PyObject *self, PyObject *args, PyObject *kwds)
         if (!PyArg_ParseTupleAndKeywords (args, kwds, "O|ilO", keys2, &size,
                 &depth, &flags, &masks))
             return -1;
-        if (!SizeFromObject (size, (pgint32*)&width, (pgint32*)&height))
+        if (!SizeFromObj (size, (pgint32*)&width, (pgint32*)&height))
             return -1;
     }
 
@@ -383,7 +383,7 @@ _surface_setcliprect (PyObject *self, PyObject *value, void *closure)
         SDL_SetClipRect (surface, NULL);
         return 0;
     }
-    if (!SDLRect_FromRect (value, &rect))
+    if (!SDLRectFromRect (value, &rect))
         return -1;
     SDL_SetClipRect (surface, &rect);
     return 0;
@@ -470,7 +470,7 @@ _surface_update (PyObject *self, PyObject *args)
     SDL_Rect *rects, r;
     Py_ssize_t count, i;
     
-    if (SDLRect_FromRect (args, &r))
+    if (SDLRectFromRect (args, &r))
     {
         CLIP_RECT_TO_SURFACE (PySDLSurface_AsSDLSurface (self), &r);
 
@@ -481,7 +481,7 @@ _surface_update (PyObject *self, PyObject *args)
         Py_RETURN_NONE;
     }
     else
-        PyErr_Clear (); /* From SDLRect_FromRect */
+        PyErr_Clear (); /* From SDLRectFromRect */
     
     if (!PySequence_Check (args))
     {
@@ -500,7 +500,7 @@ _surface_update (PyObject *self, PyObject *args)
     {
         item = PySequence_ITEM (args, i);
 
-        if (!SDLRect_FromRect (item, &(rects[i])))
+        if (!SDLRectFromRect (item, &(rects[i])))
         {
             Py_XDECREF (item);
             PyMem_Free (rects);
@@ -822,7 +822,7 @@ _surface_getat (PyObject *self, PyObject *args)
         PyErr_Clear ();
         if (!PyArg_ParseTuple (args, "O", &pos))
             return NULL;
-        if (!PointFromObject (pos, &x, &y))
+        if (!PointFromObj (pos, &x, &y))
             return NULL;
     }
 
@@ -863,7 +863,7 @@ _surface_setat (PyObject *self, PyObject *args)
         PyErr_Clear ();
         if (!PyArg_ParseTuple (args, "OO", &pos, &color))
             return NULL;
-        if (!PointFromObject (pos, &x, &y))
+        if (!PointFromObj (pos, &x, &y))
             return NULL;
     }
 
@@ -921,14 +921,14 @@ _surface_blit (PyObject *self, PyObject *args, PyObject *kwds)
         return NULL;
     }
 
-    if (srcr && !SDLRect_FromRect (srcr, &srcrect))
+    if (srcr && !SDLRectFromRect (srcr, &srcrect))
     {
         PyErr_Clear ();
         PyErr_SetString (PyExc_TypeError, "srcrect must be a Rect or FRect");
         return NULL;
     }
 
-    if (dstr && !PointFromObject (dstr, (int*)&(dstrect.x), (int*)&(dstrect.y)))
+    if (dstr && !PointFromObj (dstr, (int*)&(dstrect.x), (int*)&(dstrect.y)))
         return NULL;
 
     src = PySDLSurface_AsSDLSurface (srcsf);
@@ -989,7 +989,7 @@ _surface_fill (PyObject *self, PyObject *args, PyObject *kwds)
         PyErr_SetString (PyExc_TypeError, "color must be a Color");
         return NULL;
     }
-    if (dstrect && !SDLRect_FromRect (dstrect, &rect))
+    if (dstrect && !SDLRectFromRect (dstrect, &rect))
     {
         PyErr_Clear ();
         PyErr_SetString (PyExc_TypeError, "rect must be a Rect");
@@ -1047,7 +1047,7 @@ _surface_save (PyObject *self, PyObject *args)
         size_t len;
         PyObject *tmp;
 
-        if (!UTF8FromObject (file, &filename, &tmp))
+        if (!UTF8FromObj (file, &filename, &tmp))
             return NULL;
         Py_XDECREF (tmp);
 

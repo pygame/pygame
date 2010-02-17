@@ -61,7 +61,7 @@ _sdl_warpmouse (PyObject *self, PyObject *args)
         PyObject *pt;
         if (!PyArg_ParseTuple (args, "O:warp", &pt))
             return NULL;
-        if (!PointFromObject (pt, (int*)&x, (int*)&y))
+        if (!PointFromObj (pt, (int*)&x, (int*)&y))
             return NULL;
     }
     SDL_WarpMouse (x, y);
@@ -142,7 +142,6 @@ _sdl_setvisible (PyObject *self, PyObject *args)
 static PyObject*
 _sdl_setcursor (PyObject *self, PyObject *args)
 {
-    PyObject *cursor;
     SDL_Cursor *c;
     
     ASSERT_VIDEO_SURFACE_SET(NULL);

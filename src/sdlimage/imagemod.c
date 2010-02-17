@@ -31,7 +31,7 @@ static PyObject* _image_readxpmfromarray (PyObject *self, PyObject *args);
 
 static PyMethodDef _image_methods[] = {
     { "init", _image_init, METH_VARARGS, DOC_BASE_INIT },
-    { "quit", _image_quit, METH_VARARGS, DOC_BASE_QUIT },
+    { "quit", (PyCFunction)_image_quit, METH_NOARGS, DOC_BASE_QUIT },
     { "get_error", (PyCFunction) _image_geterror, METH_NOARGS,
       DOC_BASE_GET_ERROR },
     { "load", _image_load, METH_VARARGS, DOC_BASE_LOAD },

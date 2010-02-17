@@ -49,7 +49,7 @@ extern "C" {
     (*(int(*)(PyObject*,Py_ssize_t,Uint32*))PyGameSDLBase_C_API[PYGAME_SDLBASE_FIRSTSLOT+7])
 #define IsValidRect                                                     \
     (*(int(*)(PyObject*))PyGameSDLBase_C_API[PYGAME_SDLBASE_FIRSTSLOT+8])
-#define SDLRect_FromRect                                                \
+#define SDLRectFromRect                                                \
     (*(int(*)(PyObject*,SDL_Rect*))PyGameSDLBase_C_API[PYGAME_SDLBASE_FIRSTSLOT+9])
 #endif /* PYGAME_SDLBASE_INTERNAL */
 

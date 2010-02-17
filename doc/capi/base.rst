@@ -112,6 +112,16 @@ used heavily and should be relied on wherever possible.
   Converts radians to degrees. The own implementation will only be used, if no
   system-specific one was found.
 
+.. cfunction:: ARGB_2_RGBA(a)
+
+  Converts a 32-bit unsigned integer value from an 0xAARRGGBB layout to
+  a 32-bit unsigned integer value using an 0xRRGGBBAA layout.
+
+.. cfunction:: RGBA_2_ARGB(a)
+
+  Converts a 32-bit unsigned integer value from an 0xRRGGBBAA layout to
+  a 32-bit unsigned integer value using an 0xAARRGGBB layout.
+
 .. cfunction:: ADD_LIMIT(q,v,lower,upper)
                SUB_LIMIT(q,v,lower,upper)
 
@@ -218,42 +228,42 @@ Functions
   and converts it to an unsigned int, which will be stored in *val*. This
   returns 1 on success and 0 on failure.
 
-.. cfunction:: int PointFromObject (PyObject *obj, int *x, int *y)
+.. cfunction:: int PointFromObj (PyObject *obj, int *x, int *y)
 
   Tries to get two int values from the passed object. If the object is a
   :ctype:`PyRect` or :ctype:`PyFRect`, the topleft x and y values are taken,
   if the object is a sequence type, the first two items are used. This returns
   1 on success and 0 on failure.
 
-.. cfunction:: int SizeFromObject (PyObject *obj, pgint32 *x, pgint32 *y)
+.. cfunction:: int SizeFromObj (PyObject *obj, pgint32 *x, pgint32 *y)
 
   Tries to get two pgint32 values from the passed object. If the object is a
   :ctype:`PyRect` or :ctype:`PyFRect`, the width and height values are taken,
   if the object is a sequence type, the first two items are used. This returns
   1 on success and 0 on failure.
 
-.. cfunction:: int FPointFromObject (PyObject *obj, double *x, double *y)
+.. cfunction:: int FPointFromObj (PyObject *obj, double *x, double *y)
 
   Tries to get two double values from the passed object. If the object is a
   :ctype:`PyRect` or :ctype:`PyFRect`, the topleft x and y values are taken,
   if the object is a sequence type, the first two items are used. This returns
   1 on success and 0 on failure.
 
-.. cfunction:: int FSizeFromObject (PyObject *obj, double *x, double *y)
+.. cfunction:: int FSizeFromObj (PyObject *obj, double *x, double *y)
 
   Tries to get two double values from the passed object. If the object is a
   :ctype:`PyRect` or :ctype:`PyFRect`, the width and height values are taken,
   if the object is a sequence type, the first two items are used. This returns
   1 on success and 0 on failure.
 
-.. cfunction:: int ASCIIFromObject (PyObject *obj, char** text, PyObject **convobj)
+.. cfunction:: int ASCIIFromObj (PyObject *obj, char** text, PyObject **convobj)
 
   Tries to get ASCII text from the passed object and stores the result in
   *text*. If the object has to be converted, the conversion result will be
   stored in *convobj* and needs to be freed by the caller, once *text* is not
   required anymore. This returns 1 on success and 0 on failure.
 
-.. cfunction:: int UTF8FromObject (PyObject *obj, char** text, PyObject **convobj)
+.. cfunction:: int UTF8FromObj (PyObject *obj, char** text, PyObject **convobj)
 
   Tries to get UTF-8 encoded text from the passed object and stores the result
   in *text*. If the object has to be converted, the conversion result will be
