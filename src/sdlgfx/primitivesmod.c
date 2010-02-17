@@ -1278,7 +1278,7 @@ _gfx_beziercolor (PyObject *self, PyObject* args)
 
     ASSERT_VIDEO_INIT (NULL);
 
-    if (!PyArg_ParseTuple (args, "OOiO:polygon", &surface, &points, &steps,
+    if (!PyArg_ParseTuple (args, "OOiO:bezier", &surface, &points, &steps,
             &color))
         return NULL;
     

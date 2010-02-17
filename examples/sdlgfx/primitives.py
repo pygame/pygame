@@ -1,10 +1,12 @@
 import sys
 import pygame2
+import pygame2.examples
 try:
     import pygame2.sdl.constants as sdlconst
     import pygame2.sdl.event as event
     import pygame2.sdl.video as video
     import pygame2.sdl.wm as wm
+    import pygame2.sdl.image as image
 except ImportError:
     print ("No pygame2.sdl support")
     sys.exit ()
@@ -20,6 +22,8 @@ black = pygame2.Color (0, 0, 0)
 red = pygame2.Color (255, 0, 0)
 green = pygame2.Color (0, 255, 0)
 blue = pygame2.Color (0, 0, 255)
+
+colors = [ black, red, green, blue ]
 
 def draw_aacircle (screen):
     wm.set_caption ("primitives.aacircle examples")
@@ -89,6 +93,12 @@ def draw_aapolygon (screen):
                                    (33, 237), (580, 370),
                                    (0, 0), (640, 480)), black)
 
+def draw_filledpolygon (screen):
+    wm.set_caption ("primitives.filled_polygon examples")
+    primitives.filled_polygon (screen, ((4, 40), (280, 7), (40, 220),
+                                        (33, 237), (580, 370),
+                                        (0, 0), (640, 480)), black)
+
 def draw_ellipse (screen):
     wm.set_caption ("primitives.ellipse examnples")
     primitives.ellipse (screen, 210, 400, 50, 50, black)
@@ -110,18 +120,88 @@ def draw_filledellipse (screen):
     primitives.filled_ellipse (screen, 180, 190, 90, 100, green)
     primitives.filled_ellipse (screen, 390, 120, 100, 70, blue)
 
+def draw_aatrigon (screen):
+    wm.set_caption ("primitives.aatrigon examples")
+    primitives.aatrigon (screen, (10, 10), (420, 40), (60, 200), black)
+    primitives.aatrigon (screen, (240, 100), (370, 300), (40, 300), red)
+    primitives.aatrigon (screen, (300, 400), (620, 270), (470, 200), green)
+    primitives.aatrigon (screen, (33, 400), (440, 460), (312, 410), blue)
+
+def draw_trigon (screen):
+    wm.set_caption ("primitives.trigon examples")
+    primitives.trigon (screen, (10, 10), (420, 40), (60, 200), black)
+    primitives.trigon (screen, (240, 100), (370, 300), (40, 300), red)
+    primitives.trigon (screen, (300, 400), (620, 270), (470, 200), green)
+    primitives.trigon (screen, (33, 400), (440, 460), (312, 410), blue)
+
+def draw_filledtrigon (screen):
+    wm.set_caption ("primitives.filled_trigon examples")
+    primitives.filled_trigon (screen, (10, 10), (420, 40), (60, 200), black)
+    primitives.filled_trigon (screen, (240, 100), (370, 300), (40, 300), red)
+    primitives.filled_trigon (screen, (300, 400), (620, 270), (470, 200), green)
+    primitives.filled_trigon (screen, (33, 400), (440, 460), (312, 410), blue)
+
+def draw_bezier (screen):
+    wm.set_caption ("primitives.bezier examples")
+    primitives.bezier (screen, ((10, 10), (420, 40), (60, 200)), 50, black)
+    primitives.bezier (screen, ((240, 100), (370, 300), (40, 300)), 30, red)
+    primitives.bezier (screen, ((300, 400), (620, 270), (470, 200)), 10, green)
+    primitives.bezier (screen, ((33, 400), (440, 460), (312, 410)), 3, blue)
+
+def draw_pie (screen):
+    wm.set_caption ("primitives.pie examples")
+    primitives.pie (screen, (100, 200), 45, 0, 90, black)
+    primitives.pie (screen, (200, 160), 80, 45, 135, red)
+    primitives.pie (screen, (370, 210), 100, 89, 217, green)
+    primitives.pie (screen, (400, 400), 45, 10, 350, blue)
+
+def draw_filledpie (screen):
+    wm.set_caption ("primitives.filled_pie examples")
+    primitives.filled_pie (screen, (100, 200), 45, 0, 90, black)
+    primitives.filled_pie (screen, (200, 160), 80, 45, 135, red)
+    primitives.filled_pie (screen, (370, 210), 100, 89, 217, green)
+    primitives.filled_pie (screen, (400, 400), 45, 10, 350, blue)
+
+def draw_hline (screen):
+    wm.set_caption ("primitives.hline examples")
+    off = 0
+    for y in range (0, 480, 4):
+        primitives.hline (screen, 10, 630, y, colors[off])
+        off = (off + 1) % 4
+
+def draw_vline (screen):
+    wm.set_caption ("primitives.vline examples")
+    off = 0
+    for x in range (0, 640, 4):
+        primitives.vline (screen, x, 10, 470, colors[off])
+        off = (off + 1) % 4
+
+def draw_texturedpolygon (screen):
+    wm.set_caption ("primitives.textured_polygon examples")
+    tex = image.load_bmp (pygame2.examples.RESOURCES.get ("logo.bmp"))
+    
+    primitives.textured_polygon (screen, ((4, 40), (280, 7), (40, 220),
+                                          (33, 237), (580, 370), (0, 0),
+                                          (640, 480)), tex, 10, 30)
+    
 def run ():
-    drawtypes = [ draw_aacircle, draw_circle, draw_filledcircle, draw_box,
-                  draw_rectangle, draw_arc, draw_line, draw_aaline,
-                  draw_polygon, draw_aapolygon, draw_ellipse, draw_aaellipse,
-                  draw_filledellipse
+    drawtypes = [ draw_aacircle, draw_circle, draw_filledcircle,
+                  draw_box, draw_rectangle,
+                  draw_arc,
+                  draw_line, draw_aaline, draw_hline, draw_vline, 
+                  draw_polygon, draw_aapolygon, draw_filledpolygon,
+                  draw_texturedpolygon,
+                  draw_ellipse, draw_aaellipse, draw_filledellipse,
+                  draw_aatrigon, draw_trigon, draw_filledtrigon,
+                  draw_bezier,
+                  draw_pie, draw_filledpie, 
                   ]
     curtype = 0
     video.init ()
 
     screen = video.set_mode (640, 480, 32)
     screen.fill (white)
-    draw_aacircle (screen)
+    drawtypes[0] (screen)
     screen.flip ()
 
     okay = True
