@@ -116,8 +116,9 @@ enable certain features of Pygame2.
 * freetype >= 2.3.5             (http://www.freetype.org)
 * portmidi >= 199               (http://portmedia.sourceforge.net/)
 * OpenAL                        use one of:
-  OpenAL11CoreSDK (Aug 2009)    http://www.openal.org 
-  openal-soft >= 1.11.753       http://kcat.strangesoft.net/openal.html
+    
+  * OpenAL11CoreSDK (Aug 2009) http://www.openal.org 
+  * openal-soft >= 1.11.753    http://kcat.strangesoft.net/openal.html
 
 1.2 Notes on SVN usage
 ----------------------

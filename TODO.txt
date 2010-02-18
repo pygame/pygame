@@ -1,11 +1,7 @@
 CRITICAL:
 =========
-* recheck and redesign X11 implementation for pygame.sdlext.scrap
 * make LayeredGroups class independent from sdl surfaces, where possible
 * check anything for possible integer/float overflows
-* use copy.copy and copy.deepcopy for consistent object copies
-* Rewrite and fix up numpysurfarray and numpysndarray
-* Add prebuilt package for Win32 VC++ builds.
 * Check display surface tracking for multiple calls to set_mode using
   different return variables.
 * Argument parsing must handle 64-bit conversions correctly.
@@ -15,7 +11,6 @@ CRITICAL:
 * Mark methods, which are limited to certain bpp ranges.
 * Add doc notes about quit() behaviour of the various modules.
 * add pgcompat.h to *mod.h internal headers.
-* Fix eval(repr(xyz)) for most types.
 * >8 bpp surfaces with palettes - it is supported (although it might be
   pointless) by SDL and so should we.
 
@@ -33,9 +28,14 @@ Things to ADD:
 * reorganise and add camera module
 * add movie module
 * subsurfaces via surface[x:y,a:b]? Brought up by ctgPi via IRC
+* Add prebuilt package for Win32 VC++ builds.
 
 Things to FIX:
 ==============
+* Fix eval(repr(xyz)) for most types.
+* use copy.copy and copy.deepcopy for consistent object copies
+* Rewrite and fix up numpysurfarray and numpysndarray
+* recheck and redesign X11 implementation for pygame.sdlext.scrap
 * check all string/unicode conversions, esp. file I/O with !UTF-8 and !ASCII
 * respect surface->clip_rect where necessary!
 * sdl.mouse.cursors, NOT pygame2.sdl.cursors or whatever

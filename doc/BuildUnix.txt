@@ -7,7 +7,8 @@ probably the easiest way of having a fully featured multimedia framework
 Setting the environment
 -----------------------
 You will need a mostly C99 compatible compiler such as the GNU C
-Compiler and (optionally) a make utility such as GNU make or pmake.
+Compiler and (optionally) a make utility such as GNU make or pmake. A list of
+supported compilers can be found in the section :ref:`alternative-compilers`.
 
 Building the dependencies
 -------------------------
@@ -34,8 +35,9 @@ packages:
 * freetype >= 2.3.5          (http://www.freetype.org)
 * portmidi >= 199            (http://portmedia.sourceforge.net/)
 * OpenAL                     use one of:
-  OpenAL11CoreSDK (Aug 2009) http://www.openal.org 
-  openal-soft >= 1.11.753    http://kcat.strangesoft.net/openal.html
+    
+  * OpenAL11CoreSDK (Aug 2009) http://www.openal.org 
+  * openal-soft >= 1.11.753    http://kcat.strangesoft.net/openal.html
 
 And you will need the dependency packages for the packages above:
 
@@ -66,3 +68,28 @@ for the traditional python way or ::
 
 for using the Makefile. This will try to perform a default installation
 with as many features as possible.
+
+.. _alternative-compilers:
+
+Using Alternative Compilers
+---------------------------
+Pygame2 offers support for using different compilers on Unix platforms. Those
+are
+
+* Intel C++ Compiler suite (http://software.intel.com/en-us/intel-compilers/)
+* GNU C Compiler (http://gcc.gnu.org)
+* LLVM Clang Compiler (http://clang.llvm.org/)
+
+The GNU C Compiler will be used as default compiler for most Unix platforms (or
+better: is installed as default compiler). To use a different compiler,
+execute ::
+
+  python setup.py build --compiler=icc
+  python setup.py build -c icc 			# same as above, but shorter
+  
+for the Intel C++ Compiler or ::
+
+  python setup.py build --compiler=clang
+  python setup.py build -c clang 		# same as above, but shorter
+ 
+for the LLVM Clang Compiler.

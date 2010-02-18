@@ -67,5 +67,5 @@ Currently the following examples exists:
 +------------------------------------+----------------------------------------+
 | pygame2.examples.sdlgfx.primitives | Demonstrates the features of the       |
 |                                    | :class:`pygame2.sdlgfx.primitives`     |
-|                                    | module.                                 |
+|                                    | module.                                |
 +------------------------------------+----------------------------------------+

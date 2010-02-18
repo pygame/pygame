@@ -10,7 +10,7 @@ C Modules
 Create an new directory under src, using the name of the module you
 would like to create (see below, "Module naming"). All source files
 related to your module should go into that directory (and stay there!).
-You should use the Python 2.5 and 3.0 API for programming. In order to
+You should use the Python 2.5 and 3.1 API for programming. In order to
 support Python 2.4, include the "pgcompat.h" header file, where
 appropriate.
 
@@ -99,7 +99,7 @@ necessary, if you have C API header files to install. pgCAPIHEADER.h then
 will be replaced with the name and full path of the header file(s) to
 install.
 DOCFILE.xml is the name of the documentation file to use, which is located
-under doc/src (see below, "Documenting").
+under doc/src (see below, :ref:`documenting`).
 Each entry in the DEPENDENCYx list represents an external library reference
 which must be linked with the module. The names of these libraries can be
 found/modified in the config.config_modules file.
@@ -181,6 +181,8 @@ Python Modules
 Python modules have no special restriction, but should follow the
 typical python conventions. The files should be named all lowercase and
 be placed under lib.
+
+.. _documenting:
 
 Documenting
 -----------

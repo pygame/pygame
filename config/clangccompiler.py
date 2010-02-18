@@ -4,9 +4,9 @@ from distutils.unixccompiler import UnixCCompiler
 import distutils.sysconfig  as sysconfig
 
 class ClangCCompiler(UnixCCompiler):
-    """ClangCCompiler (verbose=0, dry_run=0, force=0) -> LLVMCCompiler
+    """ClangCCompiler (verbose=0, dry_run=0, force=0) -> ClangCCompiler
     
-    A simple compiler class for the clang frontent of the LLVM Compiler
+    A simple compiler class for the clang frontend of the LLVM Compiler
     infrastructure.
     """
     compiler_type = 'clang'
@@ -15,9 +15,9 @@ class ClangCCompiler(UnixCCompiler):
         UnixCCompiler.__init__ (self, verbose, dry_run, force)
         cc = 'clang'
 
-        cflags = sysconfig.get_config_var ('CFLAGS')
-        cshared = sysconfig.get_config_var ('CCSHARED')
-        ldflags = sysconfig.get_config_var ('LDFLAGS')
+        cflags = sysconfig.get_config_var ('CFLAGS') or ""
+        cshared = sysconfig.get_config_var ('CCSHARED') or ""
+        ldflags = sysconfig.get_config_var ('LDFLAGS') or ""
 
         self.set_executables(compiler=cc + ' ' + cflags,
                              compiler_so=cc + ' ' + cflags + ' ' + cshared,
