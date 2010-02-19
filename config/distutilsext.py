@@ -23,7 +23,7 @@ def new_compiler (plat=None,
                   verbose=0,
                   dry_run=0,
                   force=0):
-    """Recognizes replacement mingw32 compiler classes"""
+    """Recognizes replacement compiler classes"""
 
     if compiler == 'mingw32':
         from config.mingw32ccompiler import Mingw32DefaultCCompiler

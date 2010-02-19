@@ -91,7 +91,7 @@ if __name__ == "__main__":
     if buildsystem in ("msys", "unix", "darwin") and DEBUG:
         os.environ["CFLAGS"] += " -W -Wall -Wimplicit-int " + \
                         "-Wimplicit-function-declaration " + \
-                        "-Wimplicit -Wmain -Wreturn-type -Wunused " + \
+                        "-Wimplicit -Wreturn-type -Wunused " + \
                         "-Wswitch -Wcomment -Wtrigraphs -Wformat " + \
                         "-Wchar-subscripts -Wuninitialized -Wparentheses " +\
                         "-Wpointer-arith -Wcast-qual -Winline " + \

@@ -1,5 +1,5 @@
 """A simple Intel C compiler class for Unix-based systems."""
-
+import os
 from distutils.unixccompiler import UnixCCompiler
 import distutils.sysconfig  as sysconfig
 
@@ -16,11 +16,18 @@ class ClangCCompiler(UnixCCompiler):
         cc = 'clang'
 
         cflags = sysconfig.get_config_var ('CFLAGS') or ""
+        cflags += os.getenv('CFLAGS', '')
         cshared = sysconfig.get_config_var ('CCSHARED') or ""
         ldflags = sysconfig.get_config_var ('LDFLAGS') or ""
+        ldflags += os.getenv('LDFLAGS', '')
+        cppflags = os.getenv ('CPPFLAGS', '')
 
-        self.set_executables(compiler=cc + ' ' + cflags,
-                             compiler_so=cc + ' ' + cflags + ' ' + cshared,
+        cargs = ' ' + cflags + ' ' + cppflags
+        soargs = ' ' + cflags + ' ' + cshared
+        ldargs = ' ' + ldflags
+        
+        self.set_executables(compiler=cc + cargs,
+                             compiler_so=cc + soargs,
                              compiler_cxx=cc,
-                             linker_exe=cc + ' ' + ldflags,
+                             linker_exe=cc + ldflags,
                              linker_so=cc + ' -shared')

@@ -99,6 +99,12 @@ buildall: clean
 	@python2.6 setup.py build
 	@python3.1 setup.py build
 
+buildallclang: clean
+	@python2.4 setup.py build -c clang
+	@python2.5 setup.py build -c clang
+	@python2.6 setup.py build -c clang
+	@python3.1 setup.py build -c clang
+
 installall:
 	@python2.4 setup.py install
 	@python2.5 setup.py install
