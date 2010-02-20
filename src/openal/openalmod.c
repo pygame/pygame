@@ -304,6 +304,8 @@ PyMODINIT_FUNC initbase (void)
 #endif
 {
     PyObject *mod;
+    PyObject *c_api_obj;
+    static void *c_api[PYGAME_OPENAL_SLOTS];
 
 #ifdef IS_PYTHON_3
     static struct PyModuleDef _module = {
@@ -333,6 +335,20 @@ PyMODINIT_FUNC initbase (void)
     
     ADD_OBJ_OR_FAIL (mod, "Device", PyDevice_Type, fail);
     ADD_OBJ_OR_FAIL (mod, "Context", PyContext_Type, fail);
+
+    device_export_capi (c_api);
+    context_export_capi (c_api);
+
+    c_api_obj = PyCObject_FromVoidPtr ((void *) c_api, NULL);
+    if (c_api_obj)
+    {
+        if (PyModule_AddObject (mod, PYGAME_OPENAL_ENTRY, c_api_obj) == -1)
+        {
+            Py_DECREF (c_api_obj);
+            goto fail;
+        }
+    }
+
     MODINIT_RETURN(mod);
 fail:
     Py_XDECREF (mod);

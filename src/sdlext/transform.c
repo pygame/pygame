@@ -646,7 +646,7 @@ SDL_Surface*
 pyg_transform_flip (SDL_Surface *surface, int xaxis, int yaxis)
 {
     int loopx, loopy;
-    int pixsize, srcpitch, dstpitch;
+    int srcpitch, dstpitch;
     Uint8 *srcpix, *dstpix;
     SDL_Surface *newsurface;
 
@@ -672,7 +672,6 @@ pyg_transform_flip (SDL_Surface *surface, int xaxis, int yaxis)
         return NULL;
     }
 
-    pixsize = surface->format->BytesPerPixel;
     srcpitch = surface->pitch;
     dstpitch = newsurface->pitch;
     srcpix = (Uint8*) surface->pixels;
@@ -1374,7 +1373,6 @@ pyg_transform_laplacian (SDL_Surface *srcsurface, SDL_Surface *dstsurface)
         return NULL;
     }
     
-    pixels = (Uint8 *) srcsurface->pixels;
     format = srcsurface->format;
     height = srcsurface->h;
     width = srcsurface->w;

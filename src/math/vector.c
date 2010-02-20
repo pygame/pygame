@@ -1019,7 +1019,6 @@ _vector_generic_math (PyObject *o1, PyObject *o2, int op)
     {
         v = (PyVector *) o1;
         other = o2;
-        vcoords = v->coords;
     }
     else if (PyVector_Check (o2))
     {

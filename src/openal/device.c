@@ -168,7 +168,7 @@ _device_getextensions (PyObject *self, void *closure)
 {
     ALCchar tmp[4096] = { '\0' };
     int i = 0;
-    const ALCchar *dptr, *start;
+    const ALCchar *dptr;
     PyObject *list, *item;
     const ALCchar *devices = alcGetString (PyDevice_AsDevice (self),
         ALC_CAPTURE_DEVICE_SPECIFIER);
@@ -176,7 +176,7 @@ _device_getextensions (PyObject *self, void *closure)
     if (SetALErrorException (alGetError ()))
         return NULL;
     list = PyList_New (0);
-    start = dptr = devices;
+    dptr = devices;
     while (*dptr)
     {
         if (*dptr == ' ') /* list entry end */

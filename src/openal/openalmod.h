@@ -43,5 +43,6 @@ int SetALErrorException (ALenum error);
 #define CLEAR_ERROR_STATE() alGetError()
 
 void device_export_capi (void **capi);
+void context_export_capi (void **capi);
 
 #endif /* _PYGAME_OPENALMOD_H_ */

@@ -49,7 +49,7 @@ _image_init (PyObject *self, PyObject *args)
     if (!PyArg_ParseTuple (args, "|l:init", &flags))
         return NULL;
     retval = IMG_Init (flags);
-    return PyInt_FromLong (flags);
+    return PyInt_FromLong (retval);
 }
 
 static PyObject*

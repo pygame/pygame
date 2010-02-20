@@ -272,7 +272,7 @@ _gfx_aalinecolor (PyObject *self, PyObject* args)
 
     ASSERT_VIDEO_INIT (NULL);
 
-    if (!PyArg_ParseTuple (args, "OOOO:aaline", &surface, &p1, &p2, color))
+    if (!PyArg_ParseTuple (args, "OOOO:aaline", &surface, &p1, &p2, &color))
     {
         PyErr_Clear ();
         if (!PyArg_ParseTuple (args, "OiiiiO:aaline", &surface, &x1, &_y1,
@@ -313,7 +313,7 @@ _gfx_linecolor (PyObject *self, PyObject* args)
 
     ASSERT_VIDEO_INIT (NULL);
 
-    if (!PyArg_ParseTuple (args, "OOOO:line", &surface, &p1, &p2, color))
+    if (!PyArg_ParseTuple (args, "OOOO:line", &surface, &p1, &p2, &color))
     {
         PyErr_Clear ();
         if (!PyArg_ParseTuple (args, "OiiiiO:line", &surface, &x1, &_y1,

@@ -466,12 +466,14 @@ _transform_threshold (PyObject* self, PyObject* args)
     ARGB2FORMAT (diffcolor, srcsurface->format);
     ARGB2FORMAT (threscolor, srcsurface->format);
 
-    if (srcsurface->w != dstsurface->w || srcsurface->h != dstsurface->h)
+    if (dstsurface &&
+        (srcsurface->w != dstsurface->w || srcsurface->h != dstsurface->h))
     {
         PyErr_SetString (PyExc_ValueError,
             "destination surface and source surface must have the same size");
         return NULL;
     }
+
     if (diffsurface &&
         (srcsurface->w != diffsurface->w || srcsurface->h != diffsurface->h))
     {

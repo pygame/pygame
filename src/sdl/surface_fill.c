@@ -1561,7 +1561,7 @@ pyg_sdlsurface_fill_blend (SDL_Surface *surface, SDL_Rect *rect, Uint32 color,
         result = surface_fill_blend_avg (surface, rect, color);
         break;
     }
-    
+
     case BLEND_RGBA_ADD:
     {
         result = surface_fill_blend_rgba_add (surface, rect, color);
@@ -1625,5 +1625,9 @@ pyg_sdlsurface_fill_blend (SDL_Surface *surface, SDL_Rect *rect, Uint32 color,
         break;
     }
     }
+
+    if (locked)
+        SDL_UnlockSurface (surface);
+
     return result;
 }

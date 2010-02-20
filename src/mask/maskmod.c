@@ -121,7 +121,6 @@ _mask_fromsurface (PyObject* self, PyObject* args)
 
     Py_BEGIN_ALLOW_THREADS;
 
-    pixels = (Uint8 *) surf->pixels;
     format = surf->format;
     amask = format->Amask;
     ashift = format->Ashift;
@@ -170,7 +169,6 @@ _mask_fromthreshold (PyObject* self, PyObject* args)
     PyMask *maskobj;
     bitmask_t* m;
     SDL_Surface* surf, *surf2;
-    int bpp;
     PyObject *rgba_obj_color, *rgba_obj_threshold;
     Uint32 color;
     Uint32 color_threshold;
@@ -202,7 +200,6 @@ _mask_fromthreshold (PyObject* self, PyObject* args)
         color_threshold = SDL_MapRGBA (surf->format, 0, 0, 0, 255);
     }
 
-    bpp = surf->format->BytesPerPixel;
     m = bitmask_create(surf->w, surf->h);
     if (!m)
     {
@@ -261,7 +258,6 @@ _bitmask_threshold (bitmask_t *m, SDL_Surface *surf, SDL_Surface *surf2,
     Uint8 r, g, b, a;
     Uint8 tr, tg, tb, ta;
 
-    pixels = (Uint8 *) surf->pixels;
     format = surf->format;
     rmask = format->Rmask;
     gmask = format->Gmask;
@@ -286,7 +282,6 @@ _bitmask_threshold (bitmask_t *m, SDL_Surface *surf, SDL_Surface *surf2,
         rloss2 = format2->Rloss;
         gloss2 = format2->Gloss;
         bloss2 = format2->Bloss;
-        pixels2 = (Uint8 *) surf2->pixels;
         bpp2 = format2->BytesPerPixel;
     }
     else
@@ -296,7 +291,6 @@ _bitmask_threshold (bitmask_t *m, SDL_Surface *surf, SDL_Surface *surf2,
         rshift2 = gshift2 = bshift2 = 0;
         rloss2 = gloss2 = bloss2 = 0;
         format2 = NULL;
-        pixels2 = NULL;
         bpp2 = 0;
     }
 

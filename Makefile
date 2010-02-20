@@ -57,6 +57,11 @@ build:
 	@$(PYTHON) setup.py build #-c mingw32
 	@echo "Build finished, invoke 'make install' to install."
 
+clang: clean
+	@echo "Running build with Clang..."
+	@$(PYTHON) setup.py build -c clang
+	@echo "Build finished, invoke 'make install' to install."
+
 install:
 	@echo "Installing..."
 	@$(PYTHON) setup.py install 

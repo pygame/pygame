@@ -901,7 +901,7 @@ _mask_getboundingrects (PyObject* self)
 static PyObject*
 _mask_convolve (PyObject* self, PyObject* args)
 {
-    PyObject *pt = NULL, *cmask, *outmask = NULL;
+    PyObject *pt = NULL, *cmask = NULL, *outmask = NULL;
     bitmask_t *a, *b, *o;
     int x = 0, y = 0;
 
@@ -917,7 +917,7 @@ _mask_convolve (PyObject* self, PyObject* args)
             return NULL;
     }
     
-    if (cmask && !PyMask_Check (cmask))
+    if (!PyMask_Check (cmask))
     {
         PyErr_SetString (PyExc_TypeError, "mask must be a Mask");
         return NULL;

@@ -220,7 +220,7 @@ _set_data (_ClipData *datalist, Display *display, Window window, Atom property,
     Atom target)
 {
     char *value = NULL;
-    _ClipData *data;
+    _ClipData *data = NULL;
     int i, size = (sizeof (datalist) / sizeof (datalist[0]));
 
     for (i = 0; i < size; i++)

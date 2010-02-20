@@ -196,10 +196,8 @@ const char *PGFT_Face_GetName(FreeTypeInstance *ft, PyFreeTypeFont *);
 int         PGFT_TryLoadFont_Filename(FreeTypeInstance *, 
                 PyFreeTypeFont *, const char *, int);
 
-#ifdef HAVE_PYGAME_SDL_RWOPS
-int         PGFT_TryLoadFont_RWops(FreeTypeInstance *, 
-                PyFreeTypeFont *, SDL_RWops *, int);
-#endif
+int         PGFT_TryLoadFont_Stream (FreeTypeInstance *ft, 
+    PyFreeTypeFont *font, CPyStreamWrapper *wrapper, int face_index);
 
 void        PGFT_UnloadFont(FreeTypeInstance *, PyFreeTypeFont *);
 

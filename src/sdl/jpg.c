@@ -75,7 +75,6 @@ _write_jpeg (SDL_RWops *rw, unsigned char** image_buffer, int image_width,
     struct jpeg_error_mgr jerr;
     struct dest_mgr *dest;
     JSAMPROW row_pointer[1];
-    int row_stride;
 
     cinfo.err = jpeg_std_error (&jerr);
     jpeg_create_compress (&cinfo);
@@ -105,7 +104,6 @@ _write_jpeg (SDL_RWops *rw, unsigned char** image_buffer, int image_width,
     dest->pub.next_output_byte = NULL;
 
     jpeg_start_compress (&cinfo, TRUE);
-    row_stride = image_width * 3;
 
     while (cinfo.next_scanline < cinfo.image_height)
     {
@@ -149,7 +147,6 @@ pyg_save_jpeg_rw (SDL_Surface *surface, SDL_RWops *rw, int freerw)
     SDL_Surface *ss_surface;
     SDL_Rect ss_rect;
     int r, i;
-    int alpha = 0;
     int pixel_bits = 32;
 
     if (!surface)
@@ -170,7 +167,6 @@ pyg_save_jpeg_rw (SDL_Surface *surface, SDL_RWops *rw, int freerw)
     ss_w = surface->w;
     ss_h = surface->h;
 
-    alpha = 0;
     pixel_bits = 24;
 
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
