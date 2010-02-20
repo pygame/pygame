@@ -24,19 +24,36 @@
 Resource management methods.
 """
 
-import os, re
+import sys, os, re
 import zipfile
 import tarfile
-import urlparse
-import urllib2
+# Python 3.x workarounds for the changed urllib and stringio modules.
+if sys.version_info[0] >= 3:
+    import urllib.parse as urlparse
+    import urllib.request as urllib2
+    import io
+else:
+    import urlparse
+    import urllib2
+    try:
+        import cStringIO as io
+    except ImportError:
+        import StringIO as io
 
-try:
-    import cStringIO as stringio
-except ImportError:
-    import StringIO as stringio
+def _get_stringio (data):
+    """_get_stringio (data) -> StringIO or BytesIO
+
+    Returns a StringIO instance for Python < 3 or a BytesIO or Python > 3.
+    """
+    iodata = None
+    if sys.version_info[0] >= 3:
+        iodata = io.BytesIO (data)
+    else:
+        iodata = io.StringIO (data)
+    return iodata
 
 def open_zipfile (archive, filename, dir=None):
-    """open_zipfile (archive, filename, dir=None) -> StringIO
+    """open_zipfile (archive, filename, dir=None) -> StringIO or BytesIO
     
     Opens and reads a certain file from a ZIP archive.
     
@@ -66,14 +83,14 @@ def open_zipfile (archive, filename, dir=None):
     
     try:
         dmpdata = archive.open (apath)
-        data = stringio.StringIO (dmpdata.read ())
+        data = _get_stringio (dmpdata.read ())
     finally:
         if opened:
             archive.close ()
     return data
 
 def open_tarfile (archive, filename, dir=None, type=None):
-    """open_tarfile (archive, filename, dir=None, type=None) -> StringIO
+    """open_tarfile (archive, filename, dir=None, type=None) -> StringIO or BytesIO
     
     Opens and reads a certain file from a TAR archive.
     
@@ -119,7 +136,7 @@ def open_tarfile (archive, filename, dir=None, type=None):
     
     try:
         dmpdata = archive.extractfile (apath)
-        data = stringio.StringIO (dmpdata.read ())
+        data = _get_stringio (dmpdata.read ())
     finally:
         if opened:
             archive.close ()
@@ -241,7 +258,7 @@ class Resources (object):
             raise ValueError ("unsupported archive type")
 
     def get (self, filename):
-        """get (filename) -> StringIO
+        """get (filename) -> StringIO or BytesIO
        
         Gets a specific file from the Resources.
         
@@ -260,12 +277,12 @@ class Resources (object):
             else:
                 raise ValueError ("unsupported archive type")
         dmpdata = open (pathname, 'rb')
-        data = stringio.StringIO (dmpdata.read ())
+        data = _get_stringio (dmpdata.read ())
         dmpdata.close ()
         return data
     
     def get_filelike (self, filename):
-        """get_filelike (filename) -> file or StringIO
+        """get_filelike (filename) -> file or StringIO or BytesIO
         
         Like get(), but tries to return the original file handle, if possible.
         

@@ -51,7 +51,6 @@ def run ():
     okay = True
     while okay:
         for ev in event.get ():
-            print ev
             if ev.type == sdlconst.QUIT:
                 okay = False
             elif ev.type == sdlconst.KEYDOWN and ev.key == sdlconst.K_ESCAPE:
