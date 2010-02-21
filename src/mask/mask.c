@@ -1497,5 +1497,5 @@ void
 mask_export_capi (void **capi)
 {
     capi[PYGAME_MASK_FIRSTSLOT+0] = &PyMask_Type;
-    capi[PYGAME_MASK_FIRSTSLOT+1] = &PyMask_New;
+    capi[PYGAME_MASK_FIRSTSLOT+1] = (void *)PyMask_New;
 }

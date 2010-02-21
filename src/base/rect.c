@@ -1692,5 +1692,5 @@ void
 rect_export_capi (void **capi)
 {
     capi[PYGAME_RECT_FIRSTSLOT] = &PyRect_Type;
-    capi[PYGAME_RECT_FIRSTSLOT+1] = PyRect_New;
+    capi[PYGAME_RECT_FIRSTSLOT+1] = (void *)PyRect_New;
 }

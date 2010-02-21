@@ -400,5 +400,5 @@ void
 joystick_export_capi (void **capi)
 {
     capi[PYGAME_SDLJOYSTICK_FIRSTSLOT] = &PyJoystick_Type;
-    capi[PYGAME_SDLJOYSTICK_FIRSTSLOT+1] = PyJoystick_New;
+    capi[PYGAME_SDLJOYSTICK_FIRSTSLOT+1] = (void *)PyJoystick_New;
 }

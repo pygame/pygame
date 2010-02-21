@@ -258,5 +258,5 @@ void
 music_export_capi (void **capi)
 {
     capi[PYGAME_SDLMIXERMUSIC_FIRSTSLOT] = &PyMusic_Type;
-    capi[PYGAME_SDLMIXERMUSIC_FIRSTSLOT+1] = &PyMusic_New;
+    capi[PYGAME_SDLMIXERMUSIC_FIRSTSLOT+1] = (void *)PyMusic_New;
 }

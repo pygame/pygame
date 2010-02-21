@@ -362,5 +362,5 @@ void
 font_export_capi(void **capi)
 {
     capi[PYGAME_FONT_FIRSTSLOT + 0] = &PyFont_Type;
-    capi[PYGAME_FONT_FIRSTSLOT + 1] = PyFont_New;
+    capi[PYGAME_FONT_FIRSTSLOT + 1] = (void *)PyFont_New;
 }

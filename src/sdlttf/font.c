@@ -565,5 +565,5 @@ void
 font_export_capi (void **capi)
 {
     capi[PYGAME_SDLTTFFONT_FIRSTSLOT] = &PySDLFont_TTF_Type;
-    capi[PYGAME_SDLTTFFONT_FIRSTSLOT+1] = &PySDLFont_TTF_New;
+    capi[PYGAME_SDLTTFFONT_FIRSTSLOT+1] = (void *)PySDLFont_TTF_New;
 }

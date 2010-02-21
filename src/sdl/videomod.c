@@ -541,7 +541,7 @@ PyMODINIT_FUNC initvideo (void)
     ADD_OBJ_OR_FAIL (mod, "Surface", PySDLSurface_Type, fail);
     ADD_OBJ_OR_FAIL (mod, "Overlay", PyOverlay_Type, fail);
     
-    c_api[PYGAME_SDLVIDEO_FIRSTSLOT+0] = SDLColorFromObj;
+    c_api[PYGAME_SDLVIDEO_FIRSTSLOT+0] = (void *)SDLColorFromObj;
 
     pixelformat_export_capi (c_api);
     surface_export_capi (c_api);

@@ -365,5 +365,5 @@ void
 vector2_export_capi (void **capi)
 {
     capi[PYGAME_MATHVECTOR2_FIRSTSLOT] = &PyVector2_Type;
-    capi[PYGAME_MATHVECTOR2_FIRSTSLOT+1] = &PyVector2_New;
+    capi[PYGAME_MATHVECTOR2_FIRSTSLOT+1] = (void *)PyVector2_New;
 }

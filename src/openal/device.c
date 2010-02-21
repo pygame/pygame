@@ -287,5 +287,5 @@ void
 device_export_capi (void **capi)
 {
     capi[PYGAME_OPENALDEVICE_FIRSTSLOT] = &PyDevice_Type;
-    capi[PYGAME_OPENALDEVICE_FIRSTSLOT+1] = PyDevice_New;
+    capi[PYGAME_OPENALDEVICE_FIRSTSLOT+1] = (void *)PyDevice_New;
 }

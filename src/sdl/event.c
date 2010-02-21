@@ -819,6 +819,6 @@ void
 event_export_capi (void **capi)
 {
     capi[PYGAME_SDLEVENT_FIRSTSLOT] = &PyEvent_Type;
-    capi[PYGAME_SDLEVENT_FIRSTSLOT+1] = PyEvent_New;
-    capi[PYGAME_SDLEVENT_FIRSTSLOT+2] = PyEvent_SDLEventFromEvent;
+    capi[PYGAME_SDLEVENT_FIRSTSLOT+1] = (void *)PyEvent_New;
+    capi[PYGAME_SDLEVENT_FIRSTSLOT+2] = (void *)PyEvent_SDLEventFromEvent;
 }

@@ -343,5 +343,5 @@ void
 bufferproxy_export_capi (void **capi)
 {
     capi[PYGAME_BUFFERPROXY_FIRSTSLOT] = &PyBufferProxy_Type;
-    capi[PYGAME_BUFFERPROXY_FIRSTSLOT+1] = PyBufferProxy_New;
+    capi[PYGAME_BUFFERPROXY_FIRSTSLOT+1] = (void *)PyBufferProxy_New;
 }

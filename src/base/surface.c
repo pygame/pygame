@@ -276,5 +276,5 @@ void
 surface_export_capi (void **capi)
 {
     capi[PYGAME_SURFACE_FIRSTSLOT] = &PySurface_Type;
-    capi[PYGAME_SURFACE_FIRSTSLOT+1] = PySurface_New;
+    capi[PYGAME_SURFACE_FIRSTSLOT+1] = (void *)PySurface_New;
 }

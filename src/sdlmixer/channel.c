@@ -462,6 +462,6 @@ void
 channel_export_capi (void **capi)
 {
     capi[PYGAME_SDLMIXERCHANNEL_FIRSTSLOT] = &PyChannel_Type;
-    capi[PYGAME_SDLMIXERCHANNEL_FIRSTSLOT+1] = &PyChannel_New;
-    capi[PYGAME_SDLMIXERCHANNEL_FIRSTSLOT+2] = &PyChannel_NewFromIndex;
+    capi[PYGAME_SDLMIXERCHANNEL_FIRSTSLOT+1] = (void *)PyChannel_New;
+    capi[PYGAME_SDLMIXERCHANNEL_FIRSTSLOT+2] = (void *)PyChannel_NewFromIndex;
 }

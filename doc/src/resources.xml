@@ -40,14 +40,14 @@
       </desc>
     </method>
     <method name="get">
-      <call>get (filename) -> StringIO</call>
+      <call>get (filename) -> StringIO or BytesIO</call>
       <desc>Gets a specific file from the Resources.
 
         Raises a KeyError, if *filename* could not be found.
       </desc>
     </method>
     <method name="get_filelike">
-      <call>get_filelike (filename) -> file or StringIO</call>
+      <call>get_filelike (filename) -> file or StringIO or BytesIO</call>
       <desc>
         Like get(), but tries to return the original file handle, if possible.
 
@@ -82,7 +82,7 @@
   </class>
 
   <func name="open_tarfile">
-    <call>open_tarfile (archive, filename, dir=None, type=None) -> StringIO</call>
+    <call>open_tarfile (archive, filename, dir=None, type=None) -> StringIO or BytesIO</call>
     <desc>Opens and reads a certain file from a TAR archive.
 
       Opens and reads a certain file from a TAR archive. The result is returned
@@ -118,7 +118,7 @@
     </desc>
   </func>
   <func name="open_zipfile">
-    <call>open_zipfile (archive, filename, dir=None) -> StringIO</call>
+    <call>open_zipfile (archive, filename, dir=None) -> StringIO or BytesIO</call>
     <desc>Opens and reads a certain file from a ZIP archive.
 
       Opens and reads a certain file from a ZIP archive. The result is returned

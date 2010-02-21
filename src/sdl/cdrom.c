@@ -494,5 +494,5 @@ void
 cdrom_export_capi (void **capi)
 {
     capi[PYGAME_SDLCDROM_FIRSTSLOT] = &PyCD_Type;
-    capi[PYGAME_SDLCDROM_FIRSTSLOT+1] = PyCD_New;
+    capi[PYGAME_SDLCDROM_FIRSTSLOT+1] = (void *)PyCD_New;
 }

@@ -2130,6 +2130,6 @@ void
 pixelarray_export_capi (void **capi)
 {
     capi[PYGAME_SDLEXTPIXELARRAY_FIRSTSLOT] = &PyPixelArray_Type;
-    capi[PYGAME_SDLEXTPIXELARRAY_FIRSTSLOT+1] = PyPixelArray_New;
+    capi[PYGAME_SDLEXTPIXELARRAY_FIRSTSLOT+1] = (void *)PyPixelArray_New;
 }
 

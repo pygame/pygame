@@ -1593,8 +1593,8 @@ void
 color_export_capi (void **capi)
 {
     capi[PYGAME_COLOR_FIRSTSLOT] = &PyColor_Type;
-    capi[PYGAME_COLOR_FIRSTSLOT+1] = PyColor_New;
-    capi[PYGAME_COLOR_FIRSTSLOT+2] = PyColor_NewFromNumber;
-    capi[PYGAME_COLOR_FIRSTSLOT+3] = PyColor_NewFromRGBA;
-    capi[PYGAME_COLOR_FIRSTSLOT+4] = PyColor_AsNumber;
+    capi[PYGAME_COLOR_FIRSTSLOT+1] = (void *)PyColor_New;
+    capi[PYGAME_COLOR_FIRSTSLOT+2] = (void *)PyColor_NewFromNumber;
+    capi[PYGAME_COLOR_FIRSTSLOT+3] = (void *)PyColor_NewFromRGBA;
+    capi[PYGAME_COLOR_FIRSTSLOT+4] = (void *)PyColor_AsNumber;
 }

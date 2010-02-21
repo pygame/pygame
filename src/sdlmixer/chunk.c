@@ -244,6 +244,6 @@ void
 chunk_export_capi (void **capi)
 {
     capi[PYGAME_SDLMIXERCHUNK_FIRSTSLOT] = &PyChunk_Type;
-    capi[PYGAME_SDLMIXERCHUNK_FIRSTSLOT+1] = &PyChunk_New;
-    capi[PYGAME_SDLMIXERCHUNK_FIRSTSLOT+2] = &PyChunk_NewFromMixerChunk;
+    capi[PYGAME_SDLMIXERCHUNK_FIRSTSLOT+1] = (void *)PyChunk_New;
+    capi[PYGAME_SDLMIXERCHUNK_FIRSTSLOT+2] = (void *)PyChunk_NewFromMixerChunk;
 }

@@ -1808,7 +1808,7 @@ void
 vector_export_capi (void **capi)
 {
     capi[PYGAME_MATHVECTOR_FIRSTSLOT] = &PyVector_Type;
-    capi[PYGAME_MATHVECTOR_FIRSTSLOT+1] = &PyVector_New;
-    capi[PYGAME_MATHVECTOR_FIRSTSLOT+2] = &PyVector_NewFromSeq;
-    capi[PYGAME_MATHVECTOR_FIRSTSLOT+3] = &PyVector_NewSpecialized;
+    capi[PYGAME_MATHVECTOR_FIRSTSLOT+1] = (void *)PyVector_New;
+    capi[PYGAME_MATHVECTOR_FIRSTSLOT+2] = (void *)PyVector_NewFromSeq;
+    capi[PYGAME_MATHVECTOR_FIRSTSLOT+3] = (void *)PyVector_NewSpecialized;
 }

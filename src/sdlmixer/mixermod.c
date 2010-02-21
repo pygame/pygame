@@ -204,6 +204,8 @@ PyMODINIT_FUNC initbase (void)
 
     /* Export C API */
     chunk_export_capi (c_api);
+    channel_export_capi (c_api);
+    music_export_capi (c_api);
 
     c_api_obj = PyCObject_FromVoidPtr ((void *) c_api, NULL);
     if (c_api_obj)

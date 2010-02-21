@@ -1351,10 +1351,11 @@ void
 surface_export_capi (void **capi)
 {
     capi[PYGAME_SDLSURFACE_FIRSTSLOT] = &PySDLSurface_Type;
-    capi[PYGAME_SDLSURFACE_FIRSTSLOT+1] = PySDLSurface_New;
-    capi[PYGAME_SDLSURFACE_FIRSTSLOT+2] = PySDLSurface_NewFromSDLSurface;
-    capi[PYGAME_SDLSURFACE_FIRSTSLOT+3] = PySDLSurface_Copy;
-    capi[PYGAME_SDLSURFACE_FIRSTSLOT+4] = PySDLSurface_AddRefLock;
-    capi[PYGAME_SDLSURFACE_FIRSTSLOT+5] = PySDLSurface_RemoveRefLock;
-    capi[PYGAME_SDLSURFACE_FIRSTSLOT+6] = PySDLSurface_AcquireLockObj;
+    capi[PYGAME_SDLSURFACE_FIRSTSLOT+1] = (void *)PySDLSurface_New;
+    capi[PYGAME_SDLSURFACE_FIRSTSLOT+2] =
+        (void *)PySDLSurface_NewFromSDLSurface;
+    capi[PYGAME_SDLSURFACE_FIRSTSLOT+3] = (void *)PySDLSurface_Copy;
+    capi[PYGAME_SDLSURFACE_FIRSTSLOT+4] = (void *)PySDLSurface_AddRefLock;
+    capi[PYGAME_SDLSURFACE_FIRSTSLOT+5] = (void *)PySDLSurface_RemoveRefLock;
+    capi[PYGAME_SDLSURFACE_FIRSTSLOT+6] = (void *)PySDLSurface_AcquireLockObj;
 }

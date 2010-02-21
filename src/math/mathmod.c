@@ -171,7 +171,7 @@ PyMODINIT_FUNC initbase (void)
     ADD_OBJ_OR_FAIL (mod, "Vector3", PyVector3_Type, fail);
 
     /* Export C API */
-    c_api[PYGAME_MATH_FIRSTSLOT] = &VectorCoordsFromObj;
+    c_api[PYGAME_MATH_FIRSTSLOT] = (void *)VectorCoordsFromObj;
 
     vector_export_capi (c_api);
     vector2_export_capi (c_api);

@@ -215,5 +215,5 @@ void
 fps_export_capi (void **capi)
 {
     capi[PYGAME_SDLGFXFPS_FIRSTSLOT] = &PyFPSmanager_Type;
-    capi[PYGAME_SDLGFXFPS_FIRSTSLOT+1] = &PyFPSmanager_New;
+    capi[PYGAME_SDLGFXFPS_FIRSTSLOT+1] = (void *)PyFPSmanager_New;
 }

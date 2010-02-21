@@ -576,6 +576,7 @@ void
 pixelformat_export_capi (void **capi)
 {
     capi[PYGAME_SDLPXFMT_FIRSTSLOT] = &PyPixelFormat_Type;
-    capi[PYGAME_SDLPXFMT_FIRSTSLOT+1] = PyPixelFormat_New;
-    capi[PYGAME_SDLPXFMT_FIRSTSLOT+2] = PyPixelFormat_NewFromSDLPixelFormat;
+    capi[PYGAME_SDLPXFMT_FIRSTSLOT+1] = (void *)PyPixelFormat_New;
+    capi[PYGAME_SDLPXFMT_FIRSTSLOT+2] =
+        (void *)PyPixelFormat_NewFromSDLPixelFormat;
 }

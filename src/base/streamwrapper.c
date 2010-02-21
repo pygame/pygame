@@ -695,19 +695,19 @@ IsReadWriteableStreamObj (PyObject *obj)
 void
 streamwrapper_export_capi (void **capi)
 {
-    capi[PYGAME_STREAMWRAPPER_FIRSTSLOT] = CPyStreamWrapper_New;
-    capi[PYGAME_STREAMWRAPPER_FIRSTSLOT+1] = CPyStreamWrapper_Free;
-    capi[PYGAME_STREAMWRAPPER_FIRSTSLOT+2] = CPyStreamWrapper_Read_Threaded;
-    capi[PYGAME_STREAMWRAPPER_FIRSTSLOT+3] = CPyStreamWrapper_Read;
-    capi[PYGAME_STREAMWRAPPER_FIRSTSLOT+4] = CPyStreamWrapper_Write_Threaded;
-    capi[PYGAME_STREAMWRAPPER_FIRSTSLOT+5] = CPyStreamWrapper_Write;
-    capi[PYGAME_STREAMWRAPPER_FIRSTSLOT+6] = CPyStreamWrapper_Seek_Threaded;
-    capi[PYGAME_STREAMWRAPPER_FIRSTSLOT+7] = CPyStreamWrapper_Seek;
-    capi[PYGAME_STREAMWRAPPER_FIRSTSLOT+8] = CPyStreamWrapper_Tell_Threaded;
-    capi[PYGAME_STREAMWRAPPER_FIRSTSLOT+9] = CPyStreamWrapper_Tell;
-    capi[PYGAME_STREAMWRAPPER_FIRSTSLOT+10] = CPyStreamWrapper_Close_Threaded;
-    capi[PYGAME_STREAMWRAPPER_FIRSTSLOT+11] = CPyStreamWrapper_Close;
-    capi[PYGAME_STREAMWRAPPER_FIRSTSLOT+12] = IsReadableStreamObj;
-    capi[PYGAME_STREAMWRAPPER_FIRSTSLOT+13] = IsWriteableStreamObj;
-    capi[PYGAME_STREAMWRAPPER_FIRSTSLOT+14] = IsReadWriteableStreamObj;
+    capi[PYGAME_STREAMWRAPPER_FIRSTSLOT] = (void *)CPyStreamWrapper_New;
+    capi[PYGAME_STREAMWRAPPER_FIRSTSLOT+1] = (void *)CPyStreamWrapper_Free;
+    capi[PYGAME_STREAMWRAPPER_FIRSTSLOT+2] = (void *)CPyStreamWrapper_Read_Threaded;
+    capi[PYGAME_STREAMWRAPPER_FIRSTSLOT+3] = (void *)CPyStreamWrapper_Read;
+    capi[PYGAME_STREAMWRAPPER_FIRSTSLOT+4] = (void *)CPyStreamWrapper_Write_Threaded;
+    capi[PYGAME_STREAMWRAPPER_FIRSTSLOT+5] = (void *)CPyStreamWrapper_Write;
+    capi[PYGAME_STREAMWRAPPER_FIRSTSLOT+6] = (void *)CPyStreamWrapper_Seek_Threaded;
+    capi[PYGAME_STREAMWRAPPER_FIRSTSLOT+7] = (void *)CPyStreamWrapper_Seek;
+    capi[PYGAME_STREAMWRAPPER_FIRSTSLOT+8] = (void *)CPyStreamWrapper_Tell_Threaded;
+    capi[PYGAME_STREAMWRAPPER_FIRSTSLOT+9] = (void *)CPyStreamWrapper_Tell;
+    capi[PYGAME_STREAMWRAPPER_FIRSTSLOT+10] = (void *)CPyStreamWrapper_Close_Threaded;
+    capi[PYGAME_STREAMWRAPPER_FIRSTSLOT+11] = (void *)CPyStreamWrapper_Close;
+    capi[PYGAME_STREAMWRAPPER_FIRSTSLOT+12] = (void *)IsReadableStreamObj;
+    capi[PYGAME_STREAMWRAPPER_FIRSTSLOT+13] = (void *)IsWriteableStreamObj;
+    capi[PYGAME_STREAMWRAPPER_FIRSTSLOT+14] = (void *)IsReadWriteableStreamObj;
 }

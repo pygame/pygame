@@ -658,11 +658,11 @@ PyMODINIT_FUNC initrwops (void)
     if (!mod)
         goto fail;
 
-    c_api[PYGAME_SDLRWOPS_FIRSTSLOT+0] = PyRWops_NewRO;
-    c_api[PYGAME_SDLRWOPS_FIRSTSLOT+1] = PyRWops_NewRW;
-    c_api[PYGAME_SDLRWOPS_FIRSTSLOT+2] = PyRWops_Close;
-    c_api[PYGAME_SDLRWOPS_FIRSTSLOT+3] = PyRWops_NewRO_Threaded;
-    c_api[PYGAME_SDLRWOPS_FIRSTSLOT+4] = PyRWops_NewRW_Threaded;
+    c_api[PYGAME_SDLRWOPS_FIRSTSLOT+0] = (void *)PyRWops_NewRO;
+    c_api[PYGAME_SDLRWOPS_FIRSTSLOT+1] = (void *)PyRWops_NewRW;
+    c_api[PYGAME_SDLRWOPS_FIRSTSLOT+2] = (void *)PyRWops_Close;
+    c_api[PYGAME_SDLRWOPS_FIRSTSLOT+3] = (void *)PyRWops_NewRO_Threaded;
+    c_api[PYGAME_SDLRWOPS_FIRSTSLOT+4] = (void *)PyRWops_NewRW_Threaded;
 
     c_api_obj = PyCObject_FromVoidPtr ((void *) c_api, NULL);
     if (c_api_obj)

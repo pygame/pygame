@@ -546,7 +546,7 @@ void
 overlay_export_capi (void **capi)
 {
     capi[PYGAME_SDLOVERLAY_FIRSTSLOT] = &PyOverlay_Type;
-    capi[PYGAME_SDLOVERLAY_FIRSTSLOT+1] = PyOverlay_New;
-    capi[PYGAME_SDLOVERLAY_FIRSTSLOT+2] = PyOverlay_AddRefLock;
-    capi[PYGAME_SDLOVERLAY_FIRSTSLOT+3] = PyOverlay_RemoveRefLock;
+    capi[PYGAME_SDLOVERLAY_FIRSTSLOT+1] = (void *)PyOverlay_New;
+    capi[PYGAME_SDLOVERLAY_FIRSTSLOT+2] = (void *)PyOverlay_AddRefLock;
+    capi[PYGAME_SDLOVERLAY_FIRSTSLOT+3] = (void *)PyOverlay_RemoveRefLock;
 }

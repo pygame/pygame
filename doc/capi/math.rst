@@ -72,7 +72,7 @@ Functions
 
 .. cfunction:: PyObject* PyVector_NewFromSeq (PyObject *obj)
 
-  Creates a new :ctype:`PyVector` object from the passed *obj*. *obj is treated
+  Creates a new :ctype:`PyVector` object from the passed *obj*. *obj* is treated
   as a sequence of float values (or :ctype:`PyVector`). On failure, this
   returns NULL.
 

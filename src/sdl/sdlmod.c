@@ -533,16 +533,16 @@ PyMODINIT_FUNC initbase (void)
     SDL_MOD_STATE(mod)->initialized = 0;
 
     /* Export C API */
-    c_api[PYGAME_SDLBASE_FIRSTSLOT] = Uint8FromObj;
-    c_api[PYGAME_SDLBASE_FIRSTSLOT+1] = Uint16FromObj;
-    c_api[PYGAME_SDLBASE_FIRSTSLOT+2] = Sint16FromObj;
-    c_api[PYGAME_SDLBASE_FIRSTSLOT+3] = Uint32FromObj;
-    c_api[PYGAME_SDLBASE_FIRSTSLOT+4] = Uint8FromSeqIndex;
-    c_api[PYGAME_SDLBASE_FIRSTSLOT+5] = Uint16FromSeqIndex;
-    c_api[PYGAME_SDLBASE_FIRSTSLOT+6] = Sint16FromSeqIndex;
-    c_api[PYGAME_SDLBASE_FIRSTSLOT+7] = Uint32FromSeqIndex;
-    c_api[PYGAME_SDLBASE_FIRSTSLOT+8] = IsValidRect;
-    c_api[PYGAME_SDLBASE_FIRSTSLOT+9] = SDLRectFromRect;
+    c_api[PYGAME_SDLBASE_FIRSTSLOT] = (void *)Uint8FromObj;
+    c_api[PYGAME_SDLBASE_FIRSTSLOT+1] = (void *)Uint16FromObj;
+    c_api[PYGAME_SDLBASE_FIRSTSLOT+2] = (void *)Sint16FromObj;
+    c_api[PYGAME_SDLBASE_FIRSTSLOT+3] = (void *)Uint32FromObj;
+    c_api[PYGAME_SDLBASE_FIRSTSLOT+4] = (void *)Uint8FromSeqIndex;
+    c_api[PYGAME_SDLBASE_FIRSTSLOT+5] = (void *)Uint16FromSeqIndex;
+    c_api[PYGAME_SDLBASE_FIRSTSLOT+6] = (void *)Sint16FromSeqIndex;
+    c_api[PYGAME_SDLBASE_FIRSTSLOT+7] = (void *)Uint32FromSeqIndex;
+    c_api[PYGAME_SDLBASE_FIRSTSLOT+8] = (void *)IsValidRect;
+    c_api[PYGAME_SDLBASE_FIRSTSLOT+9] = (void *)SDLRectFromRect;
    
     c_api_obj = PyCObject_FromVoidPtr ((void *) c_api, NULL);
     if (c_api_obj)

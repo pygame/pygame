@@ -1801,5 +1801,5 @@ void
 floatrect_export_capi (void **capi)
 {
     capi[PYGAME_FRECT_FIRSTSLOT] = &PyFRect_Type;
-    capi[PYGAME_FRECT_FIRSTSLOT+1] = PyFRect_New;
+    capi[PYGAME_FRECT_FIRSTSLOT+1] = (void *)PyFRect_New;
 }

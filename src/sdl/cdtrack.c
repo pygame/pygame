@@ -201,6 +201,6 @@ void
 cdtrack_export_capi (void **capi)
 {
     capi[PYGAME_SDLCDTRACK_FIRSTSLOT] = &PyCDTrack_Type;
-    capi[PYGAME_SDLCDTRACK_FIRSTSLOT+1] = PyCDTrack_New;
+    capi[PYGAME_SDLCDTRACK_FIRSTSLOT+1] = (void *)PyCDTrack_New;
 }
 

@@ -590,7 +590,7 @@ _get_data_as (Atom source, Atom format, char **data, unsigned int *size)
         p.encoding = sel_type;
         p.format = sel_format;
         p.nitems = nbytes;
-        p.value = (*data);
+        p.value = (unsigned char*)(*data);
 
         status = XmbTextPropertyToTextList (_sdldisplay, &p, &list, &count);
         if (status == XLocaleNotSupported || status == XConverterNotFound)

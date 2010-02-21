@@ -901,5 +901,5 @@ void
 ftfont_export_capi(void **capi)
 {
     capi[PYGAME_FREETYPE_FONT_FIRSTSLOT + 0] = &PyFreeTypeFont_Type;
-    capi[PYGAME_FREETYPE_FONT_FIRSTSLOT + 1] = &PyFreeTypeFont_New;
+    capi[PYGAME_FREETYPE_FONT_FIRSTSLOT + 1] = (void *)PyFreeTypeFont_New;
 }

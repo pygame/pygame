@@ -155,11 +155,11 @@ _sdl_wmgetinfo (PyObject *self)
     PyDict_SetItemString (dict, "display", tmp);
     Py_DECREF (tmp);
 
-    tmp = PyCObject_FromVoidPtr (info.info.x11.lock_func, NULL);
+    tmp = PyCObject_FromVoidPtr ((void *)info.info.x11.lock_func, NULL);
     PyDict_SetItemString (dict, "lock_func", tmp);
     Py_DECREF (tmp);
 
-    tmp = PyCObject_FromVoidPtr (info.info.x11.unlock_func, NULL);
+    tmp = PyCObject_FromVoidPtr ((void *)info.info.x11.unlock_func, NULL);
     PyDict_SetItemString (dict, "unlock_func", tmp);
     Py_DECREF (tmp);
 

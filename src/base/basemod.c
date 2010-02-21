@@ -570,21 +570,21 @@ PyMODINIT_FUNC initbase (void)
     
     /* Export C API */
     c_api[PYGAME_BASE_FIRSTSLOT] = state->error;
-    c_api[PYGAME_BASE_FIRSTSLOT+1] = DoubleFromObj;
-    c_api[PYGAME_BASE_FIRSTSLOT+2] = IntFromObj;
-    c_api[PYGAME_BASE_FIRSTSLOT+3] = UintFromObj;
-    c_api[PYGAME_BASE_FIRSTSLOT+4] = DoubleFromSeqIndex;
-    c_api[PYGAME_BASE_FIRSTSLOT+5] = IntFromSeqIndex;
-    c_api[PYGAME_BASE_FIRSTSLOT+6] = UintFromSeqIndex;
-    c_api[PYGAME_BASE_FIRSTSLOT+7] = PointFromObj;
-    c_api[PYGAME_BASE_FIRSTSLOT+8] = SizeFromObj;
-    c_api[PYGAME_BASE_FIRSTSLOT+9] = FPointFromObj;
-    c_api[PYGAME_BASE_FIRSTSLOT+10] = FSizeFromObj;
-    c_api[PYGAME_BASE_FIRSTSLOT+11] = ASCIIFromObj;
-    c_api[PYGAME_BASE_FIRSTSLOT+12] = UTF8FromObj;
-    c_api[PYGAME_BASE_FIRSTSLOT+13] = UlongFromObj;
-    c_api[PYGAME_BASE_FIRSTSLOT+14] = LongFromObj;
-    c_api[PYGAME_BASE_FIRSTSLOT+15] = ColorFromObj;
+    c_api[PYGAME_BASE_FIRSTSLOT+1] = (void *)DoubleFromObj;
+    c_api[PYGAME_BASE_FIRSTSLOT+2] = (void *)IntFromObj;
+    c_api[PYGAME_BASE_FIRSTSLOT+3] = (void *)UintFromObj;
+    c_api[PYGAME_BASE_FIRSTSLOT+4] = (void *)DoubleFromSeqIndex;
+    c_api[PYGAME_BASE_FIRSTSLOT+5] = (void *)IntFromSeqIndex;
+    c_api[PYGAME_BASE_FIRSTSLOT+6] = (void *)UintFromSeqIndex;
+    c_api[PYGAME_BASE_FIRSTSLOT+7] = (void *)PointFromObj;
+    c_api[PYGAME_BASE_FIRSTSLOT+8] = (void *)SizeFromObj;
+    c_api[PYGAME_BASE_FIRSTSLOT+9] = (void *)FPointFromObj;
+    c_api[PYGAME_BASE_FIRSTSLOT+10] = (void *)FSizeFromObj;
+    c_api[PYGAME_BASE_FIRSTSLOT+11] = (void *)ASCIIFromObj;
+    c_api[PYGAME_BASE_FIRSTSLOT+12] = (void *)UTF8FromObj;
+    c_api[PYGAME_BASE_FIRSTSLOT+13] = (void *)UlongFromObj;
+    c_api[PYGAME_BASE_FIRSTSLOT+14] = (void *)LongFromObj;
+    c_api[PYGAME_BASE_FIRSTSLOT+15] = (void *)ColorFromObj;
 
     streamwrapper_export_capi (c_api);
     color_export_capi (c_api);
