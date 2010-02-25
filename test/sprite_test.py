@@ -227,28 +227,18 @@ class SpriteCollideTest( unittest.TestCase ):
 
         # s2 and s3 out
         self.s2.rect.move_ip(0, 10)
-
-        self.assertFalse(
-            sprite.spritecollideany(self.s1, self.ag2)
-                    )
+        self.assertFalse(sprite.spritecollideany(self.s1, self.ag2))
 
         # s2 out, s3 in
         self.s3.rect.move_ip(-105, -105)
-
-        self.assert_(
-            sprite.spritecollideany(self.s1, self.ag2)
-                    )
+        self.assert_(sprite.spritecollideany(self.s1, self.ag2))
 
         # s2 and s3 in
         self.s2.rect.move_ip(0, -10)
-
-        self.assert_(
-            sprite.spritecollideany(self.s1, self.ag2)
-                    )
+        self.assert_(sprite.spritecollideany(self.s1, self.ag2))
 
         # s2 in, s3 out (reset)
         self.s3.rect.move_ip(105, 105)
-
 
     def test_spritecollideany__with_collided_callback(self):
 
@@ -287,15 +277,13 @@ class SpriteCollideTest( unittest.TestCase ):
 
         # The callback function should have been called only once, so self.s1
         # should have only been passed as an argument once
-        self.assert_(
-            len(arg_dict_a) == 1 and arg_dict_a[self.s1] == 1
-                   )
+        self.assert_(len(arg_dict_a) == 1 and arg_dict_a[self.s1] == 1)
 
         # The callback function should have been called only once, so self.s2
         # exclusive-or self.s3 should have only been passed as an argument
         # once
         self.assert_(
-            len(arg_dict_b) == 1 and arg_dict_b.values()[0] == 1 and
+            len(arg_dict_b) == 1 and list(arg_dict_b.values())[0] == 1 and
             (self.s2 in arg_dict_b or self.s3 in arg_dict_b)
                     )
 
@@ -306,21 +294,19 @@ class SpriteCollideTest( unittest.TestCase ):
         # This should return False because return_container[0] is False
         self.assertFalse(
             sprite.spritecollideany(self.s1, self.ag2, collided_callback)
-                    )
+                        )
 
         # The callback function should have been called as many times as there
         # are sprites in self.ag2
-        self.assert_(
-            len(arg_dict_a) == 1 and arg_dict_a[self.s1] == 2
-                   )
+        self.assert_(len(arg_dict_a) == 1 and arg_dict_a[self.s1] == 2)
 
         # The callback function should have been called only once, so self.s2
         # exclusive-or self.s3 should have only been passed as an argument
         # once
         self.assert_(
-            len(arg_dict_b) == 2
-            and arg_dict_b[self.s2] == 1 and arg_dict_b[self.s3] == 1
-                   )
+            len(arg_dict_b) == 2 and
+            arg_dict_b[self.s2] == 1 and arg_dict_b[self.s3] == 1
+                    )
 
     def todo_test_groupcollide(self):
 
