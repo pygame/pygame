@@ -84,4 +84,10 @@ module. ::
   WITH_OPENAL=[yes|no|1|True]             Example: make -DWITH_OPENAL=False
     
 Build and install the :mod:`pygame2.openal` module. This wraps the OpenAL
-library and gives access to the :mod:`pygame2.openal` module.
+library and gives access to the :mod:`pygame2.openal` module. ::
+
+  WITH_EXPERIMENTAL=[yes|no|1|True]       Example: make -DWITH_EXPERIMENTAL=True
+
+Build pygame2 modules, which are marked as experimental. Note that those
+modules are likely to change a lot between updates, may cause instabilities
+and can contain lots of bugs.

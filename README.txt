@@ -48,54 +48,60 @@ instead of touching the "cfg.py" file. Currently the following
 environment variables are controlling, which components of pgreloaded
 should be build:
 
-WITH_SDL=[yes|no|1|True]        Example: make -DWITH_SDL=yes
+WITH_SDL=[yes|no|1|True]            Example: make -DWITH_SDL=yes
 
     Build and install the pygame2.sdl module. This wraps the SDL library
     and is required for any other SDL related module in pgreloaded.
 
-WITH_SDL_MIXER=[yes|no|1|True]  Example: make -DWITH_SDL_MIXER=no
+WITH_SDL_MIXER=[yes|no|1|True]      Example: make -DWITH_SDL_MIXER=no
 
     Build and install the pygame2.sdlmixer module. This wraps the
     SDL_mixer library. 
 
-WITH_SDL_IMAGE=[yes|no|1|True]  Example: make -DWITH_SDL_IMAGE=True
+WITH_SDL_IMAGE=[yes|no|1|True]      Example: make -DWITH_SDL_IMAGE=True
 
     Build and install the pygame2.sdlimage module. This wraps the
     SDL_image library.
 
-WITH_SDL_TTF=[yes|no|1|True]    Example: make -DWITH_SDL_TTF=True
+WITH_SDL_TTF=[yes|no|1|True]        Example: make -DWITH_SDL_TTF=True
 
     Build and install the pygame2.sdlttf module. This wraps the
     SDL_ttf library.
 
-WITH_SDL_GFX=[yes|no|1|True]    Example: make -DWITH_SDL_GFX=1
+WITH_SDL_GFX=[yes|no|1|True]        Example: make -DWITH_SDL_GFX=1
 
     Build and install the pygame2.sdlgfx module. This wraps the
     SDL_gfx library.
 
-WITH_PNG=[yes|no|1|True]        Example: make -DWITH_PNG=True
+WITH_PNG=[yes|no|1|True]            Example: make -DWITH_PNG=True
 
     Build with PNG format saving support for pygame2.sdl.
 
-WITH_JPEG=[yes|no|1|True]       Example: make -DWITH_JPEG=False
+WITH_JPEG=[yes|no|1|True]           Example: make -DWITH_JPEG=False
 
     Build with JPEG format saving support for pygame2.sdl.
 
-WITH_FREETYPE=[yes|no|1|True]   Example: make -DWITH_FREETYPE=False
+WITH_FREETYPE=[yes|no|1|True]       Example: make -DWITH_FREETYPE=False
     
     Build and install the pygame2.freetype module. This wraps the
     FreeType2 library.
 
-WITH_PORTMIDI=[yes|no|1|True]   Example: make -DWITH_PORTMIDI=False
+WITH_PORTMIDI=[yes|no|1|True]       Example: make -DWITH_PORTMIDI=False
     
     Build and install the pygame2.midi module. This wraps the
     portmidi library and gives access to the pygame2.midi module.
 
-WITH_OPENAL=[yes|no|1|True]   Example: make -DWITH_OPENAL=False
+WITH_OPENAL=[yes|no|1|True]         Example: make -DWITH_OPENAL=False
     
     Build and install the pygame2.openal module. This wraps the
     OpenAL library and gives access to the pygame2.openal module.
 
+WITH_EXPERIMENTAL=[yes|no|1|True]   Example: make -DWITH_EXPERIMENTAL=True
+
+    Build pygame2 modules, which are marked as experimental. Note that those
+    modules are likely to change a lot between updates, may cause instabilities
+    and can contain lots of bugs.
+    
 1.1 Dependencies
 ----------------
 Pygame2 is designed to run in as many environments as possible. As such,

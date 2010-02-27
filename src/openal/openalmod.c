@@ -36,6 +36,7 @@ static PyObject* _openal_listcapturedevices (PyObject *self);
 static PyObject* _openal_getdefaultoutputdevicename (PyObject *self);
 static PyObject* _openal_getdefaultcapturedevicename (PyObject *self);
 
+
 static PyMethodDef _openal_methods[] = {
     { "init", (PyCFunction)_openal_init, METH_NOARGS, ""/*DOC_BASE_INIT*/ },
     { "quit", (PyCFunction)_openal_quit, METH_NOARGS, ""/*DOC_BASE_QUIT*/ },
@@ -53,7 +54,7 @@ static PyMethodDef _openal_methods[] = {
       (PyCFunction) _openal_getdefaultoutputdevicename, METH_NOARGS, ""},
     { "get_default_capture_device_name",
       (PyCFunction) _openal_getdefaultcapturedevicename, METH_NOARGS, ""},
-
+   
     { NULL, NULL, 0, NULL },
 };
 
@@ -174,7 +175,7 @@ _openal_listoutputdevices (PyObject *self)
 
     if (!devices)
     {
-        SetALErrorException (alGetError ());
+        SetALCErrorException (alcGetError (NULL));
         return NULL;
     }
 
@@ -221,7 +222,7 @@ _openal_listcapturedevices (PyObject *self)
     devices = alcGetString (NULL, ALC_CAPTURE_DEVICE_SPECIFIER);
     if (!devices)
     {
-        SetALErrorException (alGetError ());
+        SetALCErrorException (alcGetError (NULL));
         return NULL;
     }
     list = PyList_New (0);
@@ -258,7 +259,7 @@ _openal_getdefaultoutputdevicename (PyObject *self)
     name = alcGetString (NULL, ALC_DEFAULT_DEVICE_SPECIFIER);
     if (name)
         return Text_FromUTF8 ((const char*)name);
-    SetALErrorException (alGetError ());
+    SetALCErrorException (alcGetError (NULL));
     return NULL;
 }
 
@@ -270,7 +271,7 @@ _openal_getdefaultcapturedevicename (PyObject *self)
     name = alcGetString (NULL, ALC_CAPTURE_DEFAULT_DEVICE_SPECIFIER);
     if (name)
         return Text_FromUTF8 ((const char*)name);
-    SetALErrorException (alGetError ());
+    SetALCErrorException (alcGetError (NULL));
     return NULL;
 }
 
@@ -291,6 +292,31 @@ SetALErrorException (ALenum error)
         return 1;
     case AL_OUT_OF_MEMORY:
         PyErr_SetString (PyExc_PyGameError, "insufficient memory");
+        return 1;
+    default:
+        return 0;
+    }
+}
+
+int
+SetALCErrorException (ALCenum error)
+{
+    switch (error)
+    {
+    case ALC_INVALID_ENUM:
+        PyErr_SetString (PyExc_PyGameError, "invalid enumeration value");
+        return 1;
+    case ALC_INVALID_VALUE:
+        PyErr_SetString (PyExc_PyGameError, "invalid value");
+        return 1;
+    case ALC_OUT_OF_MEMORY:
+        PyErr_SetString (PyExc_PyGameError, "insufficient memory");
+        return 1;
+    case ALC_INVALID_DEVICE:
+        PyErr_SetString (PyExc_PyGameError, "invalid device");
+        return 1;
+    case ALC_INVALID_CONTEXT:
+        PyErr_SetString (PyExc_PyGameError, "invalid context");
         return 1;
     default:
         return 0;

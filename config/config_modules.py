@@ -111,7 +111,8 @@ def prepare_modules(buildsystem, modules, cfg):
     dependencies = get_dependencies(buildsystem, cfg)
 
     for mod in modules:
-        mod.canbuild = True
+        mod.canbuild = (not mod.experimental) or \
+            (mod.experimental and cfg.build['EXPERIMENTAL'])
 
         # Pull in OS-specific dependencies.
         os_config.add_sys_deps (mod)

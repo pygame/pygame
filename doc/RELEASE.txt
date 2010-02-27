@@ -113,6 +113,11 @@ will be built using them. ::
 
     make release
 
+.. note::
+
+  Set the *EXPERIMENTAL* variable to *0* within the Makefile before
+  starting the release build.
+
 This also will create a set of bundled docs to be distributed.
 
 Once all packages are built (see below) the revision control tree can be tagged

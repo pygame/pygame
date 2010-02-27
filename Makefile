@@ -1,4 +1,6 @@
 PYTHON = python
+# Set this to 0 on releases.
+EXPERIMENTAL = 1
 top_srcdir = `pwd`
 SUBDIRS = \
 	$(top_srcdir)/config \
@@ -41,6 +43,7 @@ SUBDIRS = \
 	$(top_srcdir)/src/sdlmixer \
 	$(top_srcdir)/src/sdlttf
 
+
 all: clean build
 
 dist: clean docs
@@ -54,17 +57,17 @@ bdist: clean docs
 
 build:
 	@echo "Running build..."
-	@$(PYTHON) setup.py build #-c mingw32
+	@WITH_EXPERIMENTAL=$(EXPERIMENTAL) $(PYTHON) setup.py build #-c mingw32
 	@echo "Build finished, invoke 'make install' to install."
 
 clang: clean
 	@echo "Running build with Clang..."
-	@$(PYTHON) setup.py build -c clang
+	@WITH_EXPERIMENTAL=$(EXPERIMENTAL) $(PYTHON) setup.py build -c clang
 	@echo "Build finished, invoke 'make install' to install."
 
 install:
 	@echo "Installing..."
-	@$(PYTHON) setup.py install 
+	@WITH_EXPERIMENTAL=$(EXPERIMENTAL) $(PYTHON) setup.py install 
 
 clean:
 	@echo "Cleaning up in $(top_srcdir)/ ..."
@@ -99,22 +102,22 @@ runtest:
 # purposes only!
 
 buildall: clean
-	@python2.4 setup.py build
-	@python2.5 setup.py build
-	@python2.6 setup.py build
-	@python3.1 setup.py build
+	@WITH_EXPERIMENTAL=$(EXPERIMENTAL) python2.4 setup.py build
+	@WITH_EXPERIMENTAL=$(EXPERIMENTAL) python2.5 setup.py build
+	@WITH_EXPERIMENTAL=$(EXPERIMENTAL) python2.6 setup.py build
+	@WITH_EXPERIMENTAL=$(EXPERIMENTAL) python3.1 setup.py build
 
 buildallclang: clean
-	@python2.4 setup.py build -c clang
-	@python2.5 setup.py build -c clang
-	@python2.6 setup.py build -c clang
-	@python3.1 setup.py build -c clang
+	@WITH_EXPERIMENTAL=$(EXPERIMENTAL) python2.4 setup.py build -c clang
+	@WITH_EXPERIMENTAL=$(EXPERIMENTAL) python2.5 setup.py build -c clang
+	@WITH_EXPERIMENTAL=$(EXPERIMENTAL) python2.6 setup.py build -c clang
+	@WITH_EXPERIMENTAL=$(EXPERIMENTAL) python3.1 setup.py build -c clang
 
 installall:
-	@python2.4 setup.py install
-	@python2.5 setup.py install
-	@python2.6 setup.py install
-	@python3.1 setup.py install
+	@WITH_EXPERIMENTAL=$(EXPERIMENTAL) python2.4 setup.py install
+	@WITH_EXPERIMENTAL=$(EXPERIMENTAL) python2.5 setup.py install
+	@WITH_EXPERIMENTAL=$(EXPERIMENTAL) python2.6 setup.py install
+	@WITH_EXPERIMENTAL=$(EXPERIMENTAL) python3.1 setup.py install
 
 testall:
 	@python2.4 test/run_tests.py

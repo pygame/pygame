@@ -157,7 +157,7 @@ _device_getname (PyObject* self, void *closure)
         ALC_DEVICE_SPECIFIER);
     if (!name)
     {
-        SetALErrorException (alGetError ());
+        SetALCErrorException (alcGetError (PyDevice_AsDevice (self)));
         return NULL;
     }
     return Text_FromUTF8 ((const char*)name);
@@ -173,7 +173,7 @@ _device_getextensions (PyObject *self, void *closure)
     const ALCchar *devices = alcGetString (PyDevice_AsDevice (self),
         ALC_CAPTURE_DEVICE_SPECIFIER);
     
-    if (SetALErrorException (alGetError ()))
+    if (SetALCErrorException (alcGetError (PyDevice_AsDevice (self))))
         return NULL;
     list = PyList_New (0);
     dptr = devices;
@@ -236,7 +236,7 @@ _device_hasextension (PyObject *self, PyObject *args)
     
     present = alcIsExtensionPresent (PyDevice_AsDevice (self),
         (const ALchar*)extname);
-    if (SetALErrorException (alGetError ()))
+    if (SetALCErrorException (alcGetError (PyDevice_AsDevice (self))))
         return NULL;
     if (present == ALC_FALSE)
         Py_RETURN_FALSE;
@@ -246,16 +246,18 @@ _device_hasextension (PyObject *self, PyObject *args)
 static PyObject*
 _device_geterror (PyObject* self)
 {
-    ALenum error = alcGetError (PyDevice_AsDevice (self));
+    ALCenum error = alcGetError (PyDevice_AsDevice (self));
     switch (error)
     {
-    case AL_INVALID_ENUM:
+    case ALC_INVALID_ENUM:
         return Text_FromUTF8 ("invalid enumeration value");
-    case AL_INVALID_VALUE:
+    case ALC_INVALID_VALUE:
         return Text_FromUTF8 ("invalid value");
-    case AL_INVALID_OPERATION:
-        return Text_FromUTF8 ("invalid operation request");
-    case AL_OUT_OF_MEMORY:
+    case ALC_INVALID_DEVICE:
+        return Text_FromUTF8 ("invalid device");
+    case ALC_INVALID_CONTEXT:
+        return Text_FromUTF8 ("invalid context");
+    case ALC_OUT_OF_MEMORY:
         return Text_FromUTF8 ("insufficient memory");
     default:
         Py_RETURN_NONE;

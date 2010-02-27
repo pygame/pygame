@@ -79,7 +79,7 @@ Functions
 .. cfunction:: int IsValidRect (PyObject *obj)
 
   Checks, if the passed object is a valid rectangle object. That is the
-  case if, the object is either a :ctype::`PyRect` or :ctype::`PyFRect`
+  case if, the object is either a :ctype:`PyRect` or :ctype:`PyFRect`
   instance or a 4-value sequence that carries two Sint16-compatible
   values two Uint16-compatible values in the order (Sint16, Sint16,
   Uint16, Uint16). This returns 1 on success and 0 on failure.

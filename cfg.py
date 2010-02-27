@@ -56,3 +56,6 @@ build['PORTMIDI'] = istrue (os.getenv ("WITH_PORTMIDI", True))
 
 # OpenAL (module) support
 build['OPENAL'] = istrue (os.getenv ("WITH_OPENAL", True))
+
+# Experimental modules support
+build['EXPERIMENTAL'] = istrue (os.getenv ("WITH_EXPERIMENTAL", False))

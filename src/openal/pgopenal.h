@@ -45,6 +45,8 @@ typedef struct
 {
     PyObject_HEAD
     ALCdevice *device;
+    ALuint    *buffers;
+    int        bufsize;
 } PyDevice;
 #define PyDevice_AsDevice(x) (((PyDevice*)x)->device)
 #define PYGAME_OPENALDEVICE_FIRSTSLOT \
@@ -64,6 +66,7 @@ typedef struct
 {
     PyObject_HEAD
     ALCcontext *context;
+    PyObject   *device;
 } PyContext;
 #define PyContext_AsContext(x) (((PyContext*)x)->context)
 #define PYGAME_OPENALCONTEXT_FIRSTSLOT \

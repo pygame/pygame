@@ -9,7 +9,7 @@ import create_cref
 
 class Module:
     def __init__ (self, name, sources=None, instheaders=[], docfile=None,
-                  depends=None, optional_dep=None):
+                  depends=None, optional_dep=None, experimental=False):
         """
             Initializes the Module object.
 
@@ -23,6 +23,7 @@ class Module:
                         config.config_modules.DEPENDENCIES
             optional_dep - List of optional libraries with which this module
                            can be built.
+            experimental - Indicates, if the module is in an experimental state.
         """
 
         self.name = name
@@ -35,6 +36,7 @@ class Module:
         self.cflags = []
         self.docfile = docfile
         self.canbuild = True
+        self.experimental = experimental
         nn = name.upper ().replace (".", "_")
         self.globaldefines = [("HAVE_PYGAME_" + nn, None)]
 
@@ -327,13 +329,15 @@ modules = [
 
     Module ("openal.constants",
         sources = [ "src/openal/constantsmod.c" ],
-        depends = [ 'openal' ]),
+        depends = [ 'openal' ],
+        experimental = True),
     
     Module ("openal.base",
         sources = [ "src/openal/openalmod.c",
                     "src/openal/context.c",
                     "src/openal/device.c" ],
-        depends = [ 'openal' ]),
+        depends = [ 'openal' ],
+        experimental = True),
     ]
 
 if helpers.getversion() < (3, 0, 0):

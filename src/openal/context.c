@@ -23,18 +23,41 @@
 #include "openalmod.h"
 #include "pgopenal.h"
 
+#define CONTEXT_IS_CURRENT(x) \
+    (alcGetCurrentContext () == PyContext_AsContext (x))
+
+#define ASSERT_CONTEXT_IS_CURRENT(x,ret)                                \
+    if (alcGetCurrentContext () != PyContext_AsContext (x))             \
+    {                                                                   \
+        PyErr_SetString (PyExc_PyGameError, "Context is not current");  \
+        return (ret);                                                   \
+    }
 
 static int _context_init (PyObject *self, PyObject *args, PyObject *kwds);
 static void _context_dealloc (PyContext *self);
 static PyObject* _context_repr (PyObject *self);
 
+static PyObject* _context_createbuffers (PyObject *self, PyObject *args);
 static PyObject* _context_makecurrent (PyObject *self);
+static PyObject* _context_suspend (PyObject *self);
+static PyObject* _context_process (PyObject *self);
+static PyObject* _context_enable (PyObject *self, PyObject *args);
+static PyObject* _context_disable (PyObject *self, PyObject *args);
+static PyObject* _context_isenabled (PyObject *self, PyObject *args);
+
 static PyObject* _context_iscurrent (PyObject* self, void *closure);
+static PyObject* _context_getdevice (PyObject* self, void *closure);
 
 /**
  */
 static PyMethodDef _context_methods[] = {
-    { "make_current", (PyCFunction)_context_makecurrent, METH_NOARGS, "" },
+    { "make_current", (PyCFunction)_context_makecurrent, METH_NOARGS, NULL },
+    { "create_buffers", (PyCFunction) _context_createbuffers, METH_O, NULL },
+    { "suspend", (PyCFunction) _context_suspend, METH_NOARGS, NULL },
+    { "process", (PyCFunction) _context_process, METH_NOARGS, NULL },
+    { "enable", (PyCFunction) _context_enable, METH_O, "" },
+    { "disable", (PyCFunction) _context_disable, METH_O, "" },
+    { "is_enabled", (PyCFunction) _context_isenabled, METH_O, "" },
     { NULL, NULL, 0, NULL }
 };
 
@@ -42,6 +65,7 @@ static PyMethodDef _context_methods[] = {
  */
 static PyGetSetDef _context_getsets[] = {
     { "is_current", _context_iscurrent, NULL, NULL, NULL },
+    { "device", _context_getdevice, NULL, NULL, NULL },
     { NULL, NULL, NULL, NULL, NULL }
 };
 
@@ -113,6 +137,8 @@ _context_dealloc (PyContext *self)
             alcMakeContextCurrent (NULL);
         alcDestroyContext (self->context);
     }
+    Py_XDECREF (self->device);
+    self->device = NULL;
     self->context = NULL;
     ((PyObject*)self)->ob_type->tp_free ((PyObject *) self);
 }
@@ -186,9 +212,11 @@ _context_init (PyObject *self, PyObject *args, PyObject *kwds)
         PyMem_Free (attrs);
     if (((PyContext*)self)->context == NULL)
     {
-        SetALErrorException (alGetError ());
+        SetALCErrorException (alcGetError (PyDevice_AsDevice (device)));
         return -1;
     }
+    Py_INCREF (device);
+    ((PyContext*)self)->device = device;
     return 0;
 }
 
@@ -203,16 +231,107 @@ _context_repr (PyObject *self)
 static PyObject*
 _context_iscurrent (PyObject* self, void *closure)
 {
-    return PyBool_FromLong
-        (alcGetCurrentContext () == PyContext_AsContext (self));
+    return PyBool_FromLong (CONTEXT_IS_CURRENT (self));
 }
 
+static PyObject*
+_context_getdevice (PyObject* self, void *closure)
+{
+    PyContext *ctxt = (PyContext*)self;
+    Py_INCREF (ctxt->device);
+    return ctxt->device;
+}
 
 /* Context methods */
 static PyObject*
 _context_makecurrent (PyObject *self)
 {
     if (alcMakeContextCurrent (PyContext_AsContext (self)) == AL_TRUE)
+        Py_RETURN_TRUE;
+    Py_RETURN_FALSE;
+}
+
+static PyObject*
+_context_createbuffers (PyObject *self, PyObject *args)
+{
+    unsigned int bufnum;
+    ALuint buffers;
+
+    ASSERT_CONTEXT_IS_CURRENT(self, NULL);
+
+    if (!UintFromObj (args, &bufnum))
+        return NULL;
+    CLEAR_ERROR_STATE ();
+
+    /* TODO: If there are already existing buffer, what should we do? */
+    alGenBuffers ((ALsizei)bufnum, &buffers);
+    if (SetALErrorException (alGetError ()))
+        return NULL;
+    Py_RETURN_NONE;
+}
+
+static PyObject*
+_context_suspend (PyObject *self)
+{
+    alcSuspendContext (PyContext_AsContext (self));
+    Py_RETURN_NONE;
+}
+
+static PyObject*
+_context_process (PyObject *self)
+{
+    alcProcessContext (PyContext_AsContext (self));
+    Py_RETURN_NONE;
+}
+
+
+static PyObject*
+_context_enable (PyObject *self, PyObject *args)
+{
+    ALenum val;
+
+    ASSERT_CONTEXT_IS_CURRENT(self, NULL);
+
+    if (!IntFromObj (args, (int*) &val))
+        return NULL;
+    CLEAR_ERROR_STATE ();
+    alEnable (val);
+    if (SetALErrorException (alGetError ()))
+        return NULL;
+    Py_RETURN_NONE;
+}
+
+static PyObject*
+_context_disable (PyObject *self, PyObject *args)
+{
+    ALenum val;
+
+    ASSERT_CONTEXT_IS_CURRENT(self, NULL);
+
+    if (!IntFromObj (args, (int*) &val))
+        return NULL;
+    CLEAR_ERROR_STATE ();
+    alDisable (val);
+    if (SetALErrorException (alGetError ()))
+        return NULL;
+    Py_RETURN_NONE;
+}
+
+static PyObject*
+_context_isenabled (PyObject *self, PyObject *args)
+{
+    ALenum val;
+    ALboolean ret;
+
+    ASSERT_CONTEXT_IS_CURRENT(self, NULL);
+
+    if (!IntFromObj (args, (int*) &val))
+        return NULL;
+    CLEAR_ERROR_STATE ();
+    ret = alIsEnabled (val);
+    if (SetALErrorException (alGetError ()))
+        return NULL;
+    if (ret == AL_TRUE)
         Py_RETURN_TRUE;
     Py_RETURN_FALSE;
 }

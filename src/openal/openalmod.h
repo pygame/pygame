@@ -26,8 +26,10 @@
 
 #if defined(IS_MSYS) || defined(IS_WIN32)
 #include <al.h>
+#include <alc.h>
 #else
 #include <AL/al.h>
+#include <AL/alc.h>
 #endif
 
 #include "pgcompat.h"
@@ -40,6 +42,7 @@ extern PyTypeObject PyContext_Type;
 #define PyContext_Check(x) (PyObject_TypeCheck (x, &PyContext_Type))
 
 int SetALErrorException (ALenum error);
+int SetALCErrorException (ALCenum error);
 #define CLEAR_ERROR_STATE() alGetError()
 
 void device_export_capi (void **capi);
