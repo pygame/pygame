@@ -358,12 +358,17 @@ PyMODINIT_FUNC initbase (void)
     PyContext_Type.tp_new = PyType_GenericNew;
     if (PyType_Ready (&PyContext_Type) < 0)
         goto fail;
+    PyBuffers_Type.tp_new = PyType_GenericNew;
+    if (PyType_Ready (&PyBuffers_Type) < 0)
+        goto fail;
     
     ADD_OBJ_OR_FAIL (mod, "Device", PyDevice_Type, fail);
     ADD_OBJ_OR_FAIL (mod, "Context", PyContext_Type, fail);
+    ADD_OBJ_OR_FAIL (mod, "Buffers", PyBuffers_Type, fail);
 
     device_export_capi (c_api);
     context_export_capi (c_api);
+    buffers_export_capi (c_api);
 
     c_api_obj = PyCObject_FromVoidPtr ((void *) c_api, NULL);
     if (c_api_obj)

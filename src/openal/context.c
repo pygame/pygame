@@ -255,7 +255,7 @@ static PyObject*
 _context_createbuffers (PyObject *self, PyObject *args)
 {
     unsigned int bufnum;
-    ALuint buffers;
+    PyBuffers *buffers;
 
     ASSERT_CONTEXT_IS_CURRENT(self, NULL);
 
@@ -263,10 +263,16 @@ _context_createbuffers (PyObject *self, PyObject *args)
         return NULL;
     CLEAR_ERROR_STATE ();
 
-    /* TODO: If there are already existing buffer, what should we do? */
-    alGenBuffers ((ALsizei)bufnum, &buffers);
-    if (SetALErrorException (alGetError ()))
+    buffers = (PyBuffers*) PyBuffers_New ((ALsizei) bufnum);
+    if (!buffers)
         return NULL;
+
+    alGenBuffers ((ALsizei)bufnum, buffers->buffers);
+    if (SetALErrorException (alGetError ()))
+    {
+        Py_DECREF (buffers);
+        return NULL;
+    }
     Py_RETURN_NONE;
 }
 

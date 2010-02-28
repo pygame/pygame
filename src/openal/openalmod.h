@@ -23,6 +23,7 @@
 #define PYGAME_OPENAL_INTERNAL
 #define PYGAME_OPENALDEVICE_INTERNAL
 #define PYGAME_OPENALCONTEXT_INTERNAL
+#define PYGAME_OPENALBUFFERS_INTERNAL
 
 #if defined(IS_MSYS) || defined(IS_WIN32)
 #include <al.h>
@@ -41,11 +42,16 @@ PyObject* PyDevice_New (const char *name);
 extern PyTypeObject PyContext_Type;
 #define PyContext_Check(x) (PyObject_TypeCheck (x, &PyContext_Type))
 
+extern PyTypeObject PyBuffers_Type;
+#define PyBuffers_Check(x) (PyObject_TypeCheck (x, &PyBuffers_Type))
+PyObject* PyBuffers_New (ALsizei count);
+
 int SetALErrorException (ALenum error);
 int SetALCErrorException (ALCenum error);
 #define CLEAR_ERROR_STATE() alGetError()
 
 void device_export_capi (void **capi);
 void context_export_capi (void **capi);
+void buffers_export_capi (void **capi);
 
 #endif /* _PYGAME_OPENALMOD_H_ */

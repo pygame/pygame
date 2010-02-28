@@ -31,6 +31,7 @@ static PyObject* _device_geterror (PyObject* self);
 
 static PyObject* _device_getname (PyObject* self, void *closure);
 static PyObject* _device_getextensions (PyObject *self, void *closure);
+
 /**
  */
 static PyMethodDef _device_methods[] = {
@@ -101,7 +102,6 @@ PyTypeObject PyDevice_Type =
     0                           /* tp_version_tag */
 #endif
 };
-
 
 static void
 _device_dealloc (PyDevice *self)

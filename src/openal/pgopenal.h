@@ -49,16 +49,16 @@ typedef struct
     int        bufsize;
 } PyDevice;
 #define PyDevice_AsDevice(x) (((PyDevice*)x)->device)
-#define PYGAME_OPENALDEVICE_FIRSTSLOT \
+#define PYGAME_OPENALDEVICE_FIRSTSLOT                   \
     (PYGAME_OPENAL_FIRSTSLOT + PYGAME_OPENAL_NUMSLOTS)
 #define PYGAME_OPENALDEVICE_NUMSLOTS 2
 #ifndef PYGAME_OPENALDEVICE_INTERNAL
-#define PyDevice_Type                                             \
+#define PyDevice_Type                                                   \
     (*(PyTypeObject*)PyGameOpenAL_C_API[PYGAME_OPENALDEVICE_FIRSTSLOT+0])
-#define PyDevice_Check(x)                                                 \
+#define PyDevice_Check(x)                                               \
     (PyObject_TypeCheck(x,                                              \
         (PyTypeObject*)PyGameOpenAL_C_API[PYGAME_OPENALDEVICE_FIRSTSLOT+0]))
-#define PyDevice_New                                                      \
+#define PyDevice_New                                                    \
     (*(PyObject*(*)(const char*))PyGameOpenAL_C_API[PYGAME_OPENALDEVICE_FIRSTSLOT+1])
 #endif /* PYGAME_OPENALDEVICE_INTERNAL */
 
@@ -69,16 +69,36 @@ typedef struct
     PyObject   *device;
 } PyContext;
 #define PyContext_AsContext(x) (((PyContext*)x)->context)
-#define PYGAME_OPENALCONTEXT_FIRSTSLOT \
+#define PYGAME_OPENALCONTEXT_FIRSTSLOT                                  \
     (PYGAME_OPENALDEVICE_FIRSTSLOT + PYGAME_OPENALDEVICE_NUMSLOTS)
 #define PYGAME_OPENALCONTEXT_NUMSLOTS 1
 #ifndef PYGAME_OPENALCONTEXT_INTERNAL
-#define PyContext_Type                                             \
+#define PyContext_Type                                                  \
     (*(PyTypeObject*)PyGameOpenAL_C_API[PYGAME_OPENALCONTEXT_FIRSTSLOT+0])
-#define PyContext_Check(x)                                                 \
+#define PyContext_Check(x)                                              \
     (PyObject_TypeCheck(x,                                              \
         (PyTypeObject*)PyGameOpenAL_C_API[PYGAME_OPENALCONTEXT_FIRSTSLOT+0]))
 #endif /* PYGAME_OPENALDEVICE_INTERNAL */
+
+typedef struct
+{
+    PyObject_HEAD
+    ALsizei  count;
+    ALuint  *buffers;
+} PyBuffers;
+
+#define PyBuffers_AsBuffers(x) (((PyBuffers*)x)->buffers)
+#define PYGAME_OPENALBUFFERS_FIRSTSLOT                                  \
+    (PYGAME_OPENALCONTEXT_FIRSTSLOT + PYGAME_OPENALCONTEXT_NUMSLOTS)
+#define PYGAME_OPENALBUFFERS_NUMSLOTS 1
+#ifndef PYGAME_OPENALBUFFERS_INTERNAL
+#define PyBuffers_Type                                                  \
+    (*(PyTypeObject*)PyGameOpenAL_C_API[PYGAME_OPENALBUFFERS_FIRSTSLOT+0])
+#define PyBuffers_Check(x)                                              \
+    (PyObject_TypeCheck(x,                                              \
+        (PyTypeObject*)PyGameOpenAL_C_API[PYGAME_OPENALBUFFERS_FIRSTSLOT+0]))
+#endif /* PYGAME_OPENALBUFFERS_INTERNAL */
+
 
 /**
  * C API export.
@@ -90,7 +110,7 @@ static void **PyGameOpenAL_C_API;
 #endif
 
 #define PYGAME_OPENAL_SLOTS \
-    (PYGAME_OPENALCONTEXT_FIRSTSLOT + PYGAME_OPENALCONTEXT_NUMSLOTS)
+    (PYGAME_OPENALBUFFERS_FIRSTSLOT + PYGAME_OPENALBUFFERS_NUMSLOTS)
 #define PYGAME_OPENAL_ENTRY "_PYGAME_OPENAL_CAPI"
 
 static int
