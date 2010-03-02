@@ -137,13 +137,13 @@ _device_repr (PyObject *self)
     PyObject *retval;
     const ALCchar *name = alcGetString (PyDevice_AsDevice (self),
         ALC_DEVICE_SPECIFIER);
-    /* <Device ('')> == 13 */
-    size_t len = strlen ((const char*) name) + 14;
+    /* Device('') == 10 */
+    size_t len = strlen ((const char*) name) + 11;
     char *str = malloc (len);
     if (!str)
         return NULL;
 
-    snprintf (str, len, "<Device ('%s')>", (const char*) name);
+    snprintf (str, len, "Device('%s')", (const char*) name);
     retval = Text_FromUTF8 (str);
     free (str);
     return retval;

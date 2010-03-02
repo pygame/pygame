@@ -21,6 +21,8 @@ CRITICAL:
 * freetype: description/markup language for rendering text (like e.g. pango
    has)?
 
+* openal: check integrity and references for sources, buffers and listeners.
+
 Things to ADD:
 ==============
 * (re)add tests

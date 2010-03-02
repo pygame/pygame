@@ -17,53 +17,70 @@
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 */
-#define PYGAME_OPENALBUFFERS_INTERNAL
+#define PYGAME_OPENALSOURCES_INTERNAL
 
 #include "openalmod.h"
 #include "pgopenal.h"
 
-static int _buffers_init (PyObject *self, PyObject *args, PyObject *kwds);
-static void _buffers_dealloc (PyBuffers *self);
-static PyObject* _buffers_repr (PyObject *self);
+static int _sources_init (PyObject *self, PyObject *args, PyObject *kwds);
+static void _sources_dealloc (PySources *self);
+static PyObject* _sources_repr (PyObject *self);
 
-static PyObject* _buffers_setprop (PyObject *self, PyObject *args);
-static PyObject* _buffers_getprop (PyObject *self, PyObject *args);
-static PyObject* _buffers_bufferdata (PyObject *self, PyObject *args);
+typedef enum
+{
+    PLAY,
+    PAUSE,
+    STOP,
+    REWIND
+} SourcesAction;
+static PyObject* _sources_action (PyObject *self, PyObject *args,
+    SourcesAction action);
 
-static PyObject* _buffers_getcount (PyObject* self, void *closure);
-static PyObject* _buffers_getbuffers (PyObject* self, void *closure);
+
+static PyObject* _sources_setprop (PyObject *self, PyObject *args);
+static PyObject* _sources_getprop (PyObject *self, PyObject *args);
+static PyObject* _sources_play (PyObject *self, PyObject *args);
+static PyObject* _sources_pause (PyObject *self, PyObject *args);
+static PyObject* _sources_stop (PyObject *self, PyObject *args);
+static PyObject* _sources_rewind (PyObject *self, PyObject *args);
+
+static PyObject* _sources_getcount (PyObject* self, void *closure);
+static PyObject* _sources_getsources (PyObject* self, void *closure);
 
 /**
  */
-static PyMethodDef _buffers_methods[] = {
-    { "set_prop", _buffers_setprop, METH_VARARGS, NULL },
-    { "get_prop", _buffers_getprop, METH_VARARGS, NULL },
-    { "buffer_data", _buffers_bufferdata, METH_VARARGS, NULL },
+static PyMethodDef _sources_methods[] = {
+    { "set_prop", _sources_setprop, METH_VARARGS, NULL },
+    { "get_prop", _sources_getprop, METH_VARARGS, NULL },
+    { "play", _sources_play, METH_O, NULL },
+    { "pause", _sources_pause, METH_O, NULL },
+    { "stop", _sources_stop, METH_O, NULL },
+    { "rewind", _sources_rewind, METH_O, NULL },
     { NULL, NULL, 0, NULL }
 };
 
 /**
  */
-static PyGetSetDef _buffers_getsets[] = {
-    { "count", _buffers_getcount, NULL, NULL, NULL },
-    { "buffers", _buffers_getbuffers, NULL, NULL, NULL },
+static PyGetSetDef _sources_getsets[] = {
+    { "count", _sources_getcount, NULL, NULL, NULL },
+    { "sources", _sources_getsources, NULL, NULL, NULL },
     { NULL, NULL, NULL, NULL, NULL }
 };
 
 /**
  */
-PyTypeObject PyBuffers_Type =
+PyTypeObject PySources_Type =
 {
     TYPE_HEAD(NULL, 0)
-    "base.Buffers",              /* tp_name */
-    sizeof (PyBuffers),          /* tp_basicsize */
+    "base.Sources",              /* tp_name */
+    sizeof (PySources),          /* tp_basicsize */
     0,                          /* tp_itemsize */
-    (destructor) _buffers_dealloc, /* tp_dealloc */
+    (destructor) _sources_dealloc, /* tp_dealloc */
     0,                          /* tp_print */
     0,                          /* tp_getattr */
     0,                          /* tp_setattr */
     0,                          /* tp_compare */
-    (reprfunc)_buffers_repr,     /* tp_repr */
+    (reprfunc)_sources_repr,     /* tp_repr */
     0,                          /* tp_as_number */
     0,                          /* tp_as_sequence */
     0,                          /* tp_as_mapping */
@@ -81,15 +98,15 @@ PyTypeObject PyBuffers_Type =
     0,                          /* tp_weaklistoffset */
     0,                          /* tp_iter */
     0,                          /* tp_iternext */
-    _buffers_methods,            /* tp_methods */
+    _sources_methods,            /* tp_methods */
     0,                          /* tp_members */
-    _buffers_getsets,            /* tp_getset */
+    _sources_getsets,            /* tp_getset */
     0,                          /* tp_base */
     0,                          /* tp_dict */
     0,                          /* tp_descr_get */
     0,                          /* tp_descr_set */
     0,                          /* tp_dictoffset */
-    (initproc) _buffers_init,   /* tp_init */
+    (initproc) _sources_init,   /* tp_init */
     0,                          /* tp_alloc */
     0,                          /* tp_new */
     0,                          /* tp_free */
@@ -106,11 +123,11 @@ PyTypeObject PyBuffers_Type =
 };
 
 static void
-_buffers_dealloc (PyBuffers *self)
+_sources_dealloc (PySources *self)
 {
     int switched = 0;
 
-    if (self->buffers != NULL)
+    if (self->sources != NULL)
     {
         ALCcontext *ctxt = alcGetCurrentContext ();
         if (ctxt != PyContext_AsContext (self->context))
@@ -119,51 +136,51 @@ _buffers_dealloc (PyBuffers *self)
             alcMakeContextCurrent (PyContext_AsContext (self->context));
             switched = 1;
         }
-        alDeleteBuffers (self->count, self->buffers);
+        alDeleteSources (self->count, self->sources);
         if (switched)
             alcMakeContextCurrent (ctxt);
     }
-    self->buffers = NULL;
+    self->sources = NULL;
     self->count = 0;
 
     ((PyObject*)self)->ob_type->tp_free ((PyObject *) self);
 }
 
 static int
-_buffers_init (PyObject *self, PyObject *args, PyObject *kwds)
+_sources_init (PyObject *self, PyObject *args, PyObject *kwds)
 {
     PyErr_SetString (PyExc_NotImplementedError,
-        "Buffers cannot be created dirrectly - use the Context instead");
+        "Sources cannot be created dirrectly - use the Context instead");
     return -1;
 }
 
 static PyObject*
-_buffers_repr (PyObject *self)
+_sources_repr (PyObject *self)
 {
-    return Text_FromUTF8 ("<Buffers>");
+    return Text_FromUTF8 ("<Sources>");
 }
 
-/* Buffers getters/setters */
+/* Sources getters/setters */
 static PyObject*
-_buffers_getcount (PyObject* self, void *closure)
+_sources_getcount (PyObject* self, void *closure)
 {
-    return PyInt_FromLong ((long)(((PyBuffers*)self)->count));
+    return PyInt_FromLong ((long)(((PySources*)self)->count));
 }
 
 static PyObject*
-_buffers_getbuffers (PyObject* self, void *closure)
+_sources_getsources (PyObject* self, void *closure)
 {
-    PyBuffers *buffers = (PyBuffers*)self;
+    PySources *sources = (PySources*)self;
     PyObject *tuple, *item;
     ALsizei i;
 
-    tuple = PyTuple_New ((Py_ssize_t)(buffers->count));
+    tuple = PyTuple_New ((Py_ssize_t)(sources->count));
     if (!tuple)
         return NULL;
 
-    for (i = 0; i < buffers->count; i++)
+    for (i = 0; i < sources->count; i++)
     {
-        item = PyInt_FromLong ((long)buffers->buffers[i]);
+        item = PyInt_FromLong ((long)sources->sources[i]);
         if (!item)
         {
             Py_DECREF (tuple);
@@ -174,10 +191,9 @@ _buffers_getbuffers (PyObject* self, void *closure)
     return tuple;
 }
 
-
-/* Buffers methods */
+/* Sources methods */
 static PyObject*
-_buffers_setprop (PyObject *self, PyObject *args)
+_sources_setprop (PyObject *self, PyObject *args)
 {
     long bufnum;
     ALenum param;
@@ -185,9 +201,9 @@ _buffers_setprop (PyObject *self, PyObject *args)
     char *type;
     PropType ptype = INVALID;
 
-    if (!CONTEXT_IS_CURRENT (((PyBuffers*)self)->context))
+    if (!CONTEXT_IS_CURRENT (((PySources*)self)->context))
     {
-        PyErr_SetString (PyExc_PyGameError, "buffer context is not current");
+        PyErr_SetString (PyExc_PyGameError, "source context is not current");
         return NULL;
     }
 
@@ -195,9 +211,9 @@ _buffers_setprop (PyObject *self, PyObject *args)
             &type))
         return NULL;
 
-    if (bufnum < 0 || bufnum > ((PyBuffers*)self)->count)
+    if (bufnum < 0 || bufnum > ((PySources*)self)->count)
     {
-        PyErr_SetString (PyExc_ValueError, "buffer index out of range");
+        PyErr_SetString (PyExc_ValueError, "source index out of range");
         return NULL;
     }
 
@@ -257,9 +273,9 @@ _buffers_setprop (PyObject *self, PyObject *args)
 
             CLEAR_ERROR_STATE ();
             if (ptype == INT3)
-                alBuffer3i ((ALuint)bufnum, param, vals[0], vals[1], vals[2]);
+                alSource3i ((ALuint)bufnum, param, vals[0], vals[1], vals[2]);
             else
-                alBufferiv ((ALuint)bufnum, param, vals);
+                alSourceiv ((ALuint)bufnum, param, vals);
             PyMem_Free (vals);
             /* Error will be set at the end */
             break;
@@ -290,9 +306,9 @@ _buffers_setprop (PyObject *self, PyObject *args)
 
             CLEAR_ERROR_STATE ();
             if (ptype == FLOAT3)
-                alBuffer3f ((ALuint)bufnum, param, vals[0], vals[1], vals[2]);
+                alSource3f ((ALuint)bufnum, param, vals[0], vals[1], vals[2]);
             else
-                alBufferfv ((ALuint)bufnum, param, vals);
+                alSourcefv ((ALuint)bufnum, param, vals);
             PyMem_Free (vals);
             /* Error will be set at the end */
             break;
@@ -329,13 +345,13 @@ _buffers_setprop (PyObject *self, PyObject *args)
             if (!IntFromObj (values, &ival))
                 return NULL;
             CLEAR_ERROR_STATE ();
-            alBufferi ((ALuint)bufnum, param, (ALint) ival);
+            alSourcei ((ALuint)bufnum, param, (ALint) ival);
             break;
         case FLOAT:
             if (!DoubleFromObj (values, &fval))
                 return NULL;
             CLEAR_ERROR_STATE ();
-            alBufferf ((ALuint)bufnum, param, (ALfloat) fval);
+            alSourcef ((ALuint)bufnum, param, (ALfloat) fval);
             break;
         default:
             PyErr_SetString (PyExc_TypeError, "value type mismatch");
@@ -349,7 +365,7 @@ _buffers_setprop (PyObject *self, PyObject *args)
 }
 
 static PyObject*
-_buffers_getprop (PyObject *self, PyObject *args)
+_sources_getprop (PyObject *self, PyObject *args)
 {
     long bufnum;
     ALenum param;
@@ -357,9 +373,9 @@ _buffers_getprop (PyObject *self, PyObject *args)
     int size = 0, cnt;
     PropType ptype = INVALID;
 
-    if (!CONTEXT_IS_CURRENT (((PyBuffers*)self)->context))
+    if (!CONTEXT_IS_CURRENT (((PySources*)self)->context))
     {
-        PyErr_SetString (PyExc_PyGameError, "buffer context is not current");
+        PyErr_SetString (PyExc_PyGameError, "source context is not current");
         return NULL;
     }
 
@@ -375,9 +391,9 @@ _buffers_getprop (PyObject *self, PyObject *args)
         }
     }
 
-    if (bufnum < 0 || bufnum > ((PyBuffers*)self)->count)
+    if (bufnum < 0 || bufnum > ((PySources*)self)->count)
     {
-        PyErr_SetString (PyExc_ValueError, "buffer index out of range");
+        PyErr_SetString (PyExc_ValueError, "source index out of range");
         return NULL;
     }
 
@@ -388,7 +404,7 @@ _buffers_getprop (PyObject *self, PyObject *args)
     case INT:
     {
         ALint val;
-        alGetBufferi ((ALuint)bufnum, param, &val);
+        alGetSourcei ((ALuint)bufnum, param, &val);
         if (SetALErrorException (alGetError ()))
             return NULL;
         return PyLong_FromLong ((long)val);
@@ -396,7 +412,7 @@ _buffers_getprop (PyObject *self, PyObject *args)
     case FLOAT:
     {
         ALfloat val;
-        alGetBufferf ((ALuint)bufnum, param, &val);
+        alGetSourcef ((ALuint)bufnum, param, &val);
         if (SetALErrorException (alGetError ()))
             return NULL;
         return PyFloat_FromDouble ((double)val);
@@ -404,7 +420,7 @@ _buffers_getprop (PyObject *self, PyObject *args)
     case INT3:
     {
         ALint val[3];
-        alGetBuffer3i ((ALuint)bufnum, param, &val[0], &val[1], &val[2]);
+        alGetSource3i ((ALuint)bufnum, param, &val[0], &val[1], &val[2]);
         if (SetALErrorException (alGetError ()))
             return NULL;
         return Py_BuildValue ("(lll)", (long)val[0], (long)val[1],
@@ -413,7 +429,7 @@ _buffers_getprop (PyObject *self, PyObject *args)
     case FLOAT3:
     {
         ALfloat val[3];
-        alGetBuffer3f ((ALuint)bufnum, param, &val[0], &val[1], &val[2]);
+        alGetSource3f ((ALuint)bufnum, param, &val[0], &val[1], &val[2]);
         if (SetALErrorException (alGetError ()))
             return NULL;
         return Py_BuildValue ("(ddd)", (double)val[0], (double)val[1],
@@ -425,7 +441,7 @@ _buffers_getprop (PyObject *self, PyObject *args)
         ALint* val = PyMem_New (ALint, size);
         if (!val)
             return NULL;
-        alGetBufferiv ((ALuint)bufnum, param, val);
+        alGetSourceiv ((ALuint)bufnum, param, val);
         if (SetALErrorException (alGetError ()))
         {
             PyMem_Free (val);
@@ -453,7 +469,7 @@ _buffers_getprop (PyObject *self, PyObject *args)
         ALfloat* val = PyMem_New (ALfloat, size);
         if (!val)
             return NULL;
-        alGetBufferfv ((ALuint)bufnum, param, val);
+        alGetSourcefv ((ALuint)bufnum, param, val);
         if (SetALErrorException (alGetError ()))
         {
             PyMem_Free (val);
@@ -482,43 +498,121 @@ _buffers_getprop (PyObject *self, PyObject *args)
 }
 
 static PyObject*
-_buffers_bufferdata (PyObject *self, PyObject *args)
+_sources_action (PyObject *self, PyObject *args, SourcesAction action)
 {
-    long bufnum;
-    ALenum format;
-    const char *buf;
-    Py_ssize_t len;
-    ALsizei freq;
-
-    if (!CONTEXT_IS_CURRENT (((PyBuffers*)self)->context))
-    {
-        PyErr_SetString (PyExc_PyGameError, "buffer context is not current");
-        return NULL;
-    }
-
-    if (!PyArg_ParseTuple (args, "lls#l", &bufnum, &format, &buf, &len, &freq))
-        return NULL;
+    unsigned int source;
     
-    /* TODO */
-    if (bufnum < 0 || bufnum > ((PyBuffers*)self)->count)
+    if (!CONTEXT_IS_CURRENT (((PySources*)self)->context))
     {
-        PyErr_SetString (PyExc_ValueError, "buffer index out of range");
+        PyErr_SetString (PyExc_PyGameError, "source context is not current");
         return NULL;
     }
-    CLEAR_ERROR_STATE ();
-    alBufferData ((ALuint) bufnum, format, (const void*) buf, (ALsizei)len,
-        freq);
-    if (SetALErrorException (alGetError ()))
-        return NULL;
-    Py_RETURN_NONE;
+
+    if (PySequence_Check (args))
+    {
+        ALuint *sources;
+        Py_ssize_t i;
+        Py_ssize_t len = PySequence_Size (args);
+
+        if (len > ((PySources*)self)->count)
+        {
+            PyErr_SetString (PyExc_ValueError,
+                "sequence size exceeds the available sources");
+            return NULL;
+        }
+        sources = PyMem_New (ALuint, (ALsizei) len);
+        if (!sources)
+            return NULL;
+        for (i = 0; i < len; i++)
+        {
+            if (!UintFromSeqIndex (args, i, &source))
+            {
+                PyMem_Free (sources);
+                return NULL;
+            }
+            sources[i] = source;
+        }
+        CLEAR_ERROR_STATE ();
+        switch (action)
+        {
+        case PLAY:
+            alSourcePlayv ((ALsizei) len, sources);
+            break;
+        case PAUSE:
+            alSourcePausev ((ALsizei) len, sources);
+            break;
+        case STOP:
+            alSourceStopv ((ALsizei) len, sources);
+            break;
+        case REWIND:
+            alSourceRewindv ((ALsizei) len, sources);
+            break;
+        default:
+            break;
+        }
+        PyMem_Free (sources);
+        if (SetALErrorException (alGetError ()))
+            return NULL;
+        Py_RETURN_NONE;
+    }
+    else if (UintFromObj (args, &source))
+    {
+        CLEAR_ERROR_STATE ();
+        switch (action)
+        {
+        case PLAY:
+            alSourcePlay ((ALuint)source);
+            break;
+        case PAUSE:
+            alSourcePause ((ALuint)source);
+            break;
+        case STOP:
+            alSourceStop ((ALuint)source);
+            break;
+        case REWIND:
+            alSourceRewind ((ALuint)source);
+            break;
+        }
+        if (SetALErrorException (alGetError ()))
+            return NULL;
+        Py_RETURN_NONE;
+    }
+
+    PyErr_SetString (PyExc_TypeError,
+        "argument must be a sequence or positive integer");
+    return NULL;
+}
+
+static PyObject*
+_sources_play (PyObject *self, PyObject *args)
+{
+    return _sources_action (self, args, PLAY);
+}
+
+static PyObject*
+_sources_pause (PyObject *self, PyObject *args)
+{
+    return _sources_action (self, args, PAUSE);
+}
+
+static PyObject*
+_sources_stop (PyObject *self, PyObject *args)
+{
+    return _sources_action (self, args, STOP);
+}
+
+static PyObject*
+_sources_rewind (PyObject *self, PyObject *args)
+{
+    return _sources_action (self, args, REWIND);
 }
 
 /* C API */
 PyObject*
-PyBuffers_New (PyObject *context, ALsizei count)
+PySources_New (PyObject *context, ALsizei count)
 {
     ALuint *buf;
-    PyObject *buffers;
+    PyObject *sources;
 
     if (!context || !PyContext_Check (context))
     {
@@ -528,39 +622,37 @@ PyBuffers_New (PyObject *context, ALsizei count)
 
     if (count < 1)
     {
-        PyErr_SetString (PyExc_ValueError, "cannot create less than 1 buffer");
+        PyErr_SetString (PyExc_ValueError, "cannot create less than 1 sources");
         return NULL;
     }
 
-    buffers = PyBuffers_Type.tp_new (&PyBuffers_Type, NULL, NULL);
-    if (!buffers)
+    sources = PySources_Type.tp_new (&PySources_Type, NULL, NULL);
+    if (!sources)
         return NULL;
-    ((PyBuffers*)buffers)->context = context;
-    ((PyBuffers*)buffers)->count = count;
-    ((PyBuffers*)buffers)->buffers = NULL;
+    ((PySources*)sources)->context = context;
+    ((PySources*)sources)->count = count;
+    ((PySources*)sources)->sources = NULL;
     
     buf = PyMem_New (ALuint, count);
     if (!buf)
     {
-        Py_DECREF (buffers);
+        Py_DECREF (sources);
         return NULL;
     }
     CLEAR_ERROR_STATE ();
-    alGenBuffers (count, buf);
+    alGenSources (count, buf);
     if (SetALErrorException (alGetError ()))
     {
-        Py_DECREF (buffers);
+        Py_DECREF (sources);
         return NULL;
     }
 
-    ((PyBuffers*)buffers)->buffers = buf;
-
-    
-    return buffers;
+    ((PySources*)sources)->sources = buf;
+    return sources;
 }
 
 void
-buffers_export_capi (void **capi)
+sources_export_capi (void **capi)
 {
-    capi[PYGAME_OPENALBUFFERS_FIRSTSLOT] = &PyBuffers_Type;
+    capi[PYGAME_OPENALSOURCES_FIRSTSLOT] = &PySources_Type;
 }

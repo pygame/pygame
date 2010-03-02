@@ -36,7 +36,6 @@ static PyObject* _openal_listcapturedevices (PyObject *self);
 static PyObject* _openal_getdefaultoutputdevicename (PyObject *self);
 static PyObject* _openal_getdefaultcapturedevicename (PyObject *self);
 
-
 static PyMethodDef _openal_methods[] = {
     { "init", (PyCFunction)_openal_init, METH_NOARGS, ""/*DOC_BASE_INIT*/ },
     { "quit", (PyCFunction)_openal_quit, METH_NOARGS, ""/*DOC_BASE_QUIT*/ },
@@ -323,6 +322,45 @@ SetALCErrorException (ALCenum error)
     }
 }
 
+PropType
+GetPropTypeFromStr (char *name)
+{
+    size_t len;
+    if (!name)
+        return INVALID;
+
+    len = strlen (name);
+
+    if (len == 1)
+    {
+        if (name[0] == 'i')
+            return INT;
+        else if (name[0] == 'f')
+            return FLOAT;
+        return INVALID;
+    }
+
+    if (len == 2)
+    {
+        if (name[0] == 'i')
+        {
+            if (name[1] == 'a')
+                return INTARRAY;
+            if (name[1] == '3')
+                return INT3;
+        }
+        else if (name[0] == 'f')
+        {
+            if (name[1] == 'a')
+                return FLOATARRAY;
+            if (name[1] == '3')
+                return FLOAT3;
+        }
+    }
+    return INVALID;
+}
+
+
 #ifdef IS_PYTHON_3
 PyMODINIT_FUNC PyInit_base (void)
 #else
@@ -361,14 +399,24 @@ PyMODINIT_FUNC initbase (void)
     PyBuffers_Type.tp_new = PyType_GenericNew;
     if (PyType_Ready (&PyBuffers_Type) < 0)
         goto fail;
+    PySources_Type.tp_new = PyType_GenericNew;
+    if (PyType_Ready (&PySources_Type) < 0)
+        goto fail;
+    PyListener_Type.tp_new = PyType_GenericNew;
+    if (PyType_Ready (&PyListener_Type) < 0)
+        goto fail;
     
     ADD_OBJ_OR_FAIL (mod, "Device", PyDevice_Type, fail);
     ADD_OBJ_OR_FAIL (mod, "Context", PyContext_Type, fail);
     ADD_OBJ_OR_FAIL (mod, "Buffers", PyBuffers_Type, fail);
+    ADD_OBJ_OR_FAIL (mod, "Sources", PySources_Type, fail);
+    ADD_OBJ_OR_FAIL (mod, "Listener", PyListener_Type, fail);
 
     device_export_capi (c_api);
     context_export_capi (c_api);
     buffers_export_capi (c_api);
+    sources_export_capi (c_api);
+    listener_export_capi (c_api);
 
     c_api_obj = PyCObject_FromVoidPtr ((void *) c_api, NULL);
     if (c_api_obj)

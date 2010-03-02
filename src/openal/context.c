@@ -23,21 +23,12 @@
 #include "openalmod.h"
 #include "pgopenal.h"
 
-#define CONTEXT_IS_CURRENT(x) \
-    (alcGetCurrentContext () == PyContext_AsContext (x))
-
-#define ASSERT_CONTEXT_IS_CURRENT(x,ret)                                \
-    if (alcGetCurrentContext () != PyContext_AsContext (x))             \
-    {                                                                   \
-        PyErr_SetString (PyExc_PyGameError, "Context is not current");  \
-        return (ret);                                                   \
-    }
-
 static int _context_init (PyObject *self, PyObject *args, PyObject *kwds);
 static void _context_dealloc (PyContext *self);
 static PyObject* _context_repr (PyObject *self);
 
 static PyObject* _context_createbuffers (PyObject *self, PyObject *args);
+static PyObject* _context_createsources (PyObject *self, PyObject *args);
 static PyObject* _context_makecurrent (PyObject *self);
 static PyObject* _context_suspend (PyObject *self);
 static PyObject* _context_process (PyObject *self);
@@ -46,6 +37,7 @@ static PyObject* _context_disable (PyObject *self, PyObject *args);
 static PyObject* _context_isenabled (PyObject *self, PyObject *args);
 
 static PyObject* _context_iscurrent (PyObject* self, void *closure);
+static PyObject* _context_getlistener (PyObject* self, void *closure);
 static PyObject* _context_getdevice (PyObject* self, void *closure);
 
 /**
@@ -53,6 +45,7 @@ static PyObject* _context_getdevice (PyObject* self, void *closure);
 static PyMethodDef _context_methods[] = {
     { "make_current", (PyCFunction)_context_makecurrent, METH_NOARGS, NULL },
     { "create_buffers", (PyCFunction) _context_createbuffers, METH_O, NULL },
+    { "create_sources", (PyCFunction) _context_createsources, METH_O, NULL },
     { "suspend", (PyCFunction) _context_suspend, METH_NOARGS, NULL },
     { "process", (PyCFunction) _context_process, METH_NOARGS, NULL },
     { "enable", (PyCFunction) _context_enable, METH_O, "" },
@@ -66,6 +59,7 @@ static PyMethodDef _context_methods[] = {
 static PyGetSetDef _context_getsets[] = {
     { "is_current", _context_iscurrent, NULL, NULL, NULL },
     { "device", _context_getdevice, NULL, NULL, NULL },
+    { "listener", _context_getlistener, NULL, NULL, NULL },
     { NULL, NULL, NULL, NULL, NULL }
 };
 
@@ -138,6 +132,8 @@ _context_dealloc (PyContext *self)
         alcDestroyContext (self->context);
     }
     Py_XDECREF (self->device);
+    Py_XDECREF (self->listener);
+    self->listener = NULL;
     self->device = NULL;
     self->context = NULL;
     ((PyObject*)self)->ob_type->tp_free ((PyObject *) self);
@@ -224,7 +220,7 @@ static PyObject*
 _context_repr (PyObject *self)
 {
     /* TODO */
-    return Text_FromUTF8 ("<alcContext>");
+    return Text_FromUTF8 ("<Context>");
 }
 
 /* Context getters/setters */
@@ -242,6 +238,21 @@ _context_getdevice (PyObject* self, void *closure)
     return ctxt->device;
 }
 
+static PyObject*
+_context_getlistener (PyObject* self, void *closure)
+{
+    PyContext *ctxt = (PyContext*)self;
+
+    if (!ctxt->listener)
+    {
+        ctxt->listener = PyListener_New (self);
+        if (!ctxt->listener)
+            return NULL;
+    }
+    Py_INCREF (ctxt->listener);
+    return ctxt->listener;
+}
+
 /* Context methods */
 static PyObject*
 _context_makecurrent (PyObject *self)
@@ -255,25 +266,22 @@ static PyObject*
 _context_createbuffers (PyObject *self, PyObject *args)
 {
     unsigned int bufnum;
-    PyBuffers *buffers;
 
     ASSERT_CONTEXT_IS_CURRENT(self, NULL);
-
     if (!UintFromObj (args, &bufnum))
         return NULL;
-    CLEAR_ERROR_STATE ();
+    return PyBuffers_New (self, (ALsizei) bufnum);
+}
 
-    buffers = (PyBuffers*) PyBuffers_New ((ALsizei) bufnum);
-    if (!buffers)
-        return NULL;
+static PyObject*
+_context_createsources (PyObject *self, PyObject *args)
+{
+    unsigned int bufnum;
 
-    alGenBuffers ((ALsizei)bufnum, buffers->buffers);
-    if (SetALErrorException (alGetError ()))
-    {
-        Py_DECREF (buffers);
+    ASSERT_CONTEXT_IS_CURRENT(self, NULL);
+    if (!UintFromObj (args, &bufnum))
         return NULL;
-    }
-    Py_RETURN_NONE;
+    return PySources_New (self, (ALsizei) bufnum);
 }
 
 static PyObject*

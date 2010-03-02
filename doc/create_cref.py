@@ -17,7 +17,7 @@ def prepare_text (text, stripbefore=False):
     for l in lines:
         l = l.strip ().replace ("::", "")
         if l.startswith ("|"):
-            # Peserve spacings.
+            # Preserve spacings.
             l = l.replace (":const:", "       ")
             l = l.replace (":class:", "       ")
             l = l.replace (":meth:", "      ")

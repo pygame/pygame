@@ -24,6 +24,8 @@
 #define PYGAME_OPENALDEVICE_INTERNAL
 #define PYGAME_OPENALCONTEXT_INTERNAL
 #define PYGAME_OPENALBUFFERS_INTERNAL
+#define PYGAME_OPENALSOURCES_INTERNAL
+#define PYGAME_OPENALLISTENER_INTERNAL
 
 #if defined(IS_MSYS) || defined(IS_WIN32)
 #include <al.h>
@@ -44,7 +46,27 @@ extern PyTypeObject PyContext_Type;
 
 extern PyTypeObject PyBuffers_Type;
 #define PyBuffers_Check(x) (PyObject_TypeCheck (x, &PyBuffers_Type))
-PyObject* PyBuffers_New (ALsizei count);
+PyObject* PyBuffers_New (PyObject *context, ALsizei count);
+
+extern PyTypeObject PySources_Type;
+#define PySources_Check(x) (PyObject_TypeCheck (x, &PySources_Type))
+PyObject* PySources_New (PyObject *context, ALsizei count);
+
+extern PyTypeObject PyListener_Type;
+#define PyListener_Check(x) (PyObject_TypeCheck (x, &PyListener_Type))
+PyObject* PyListener_New (PyObject *context);
+
+typedef enum
+{
+    INVALID,     /* invalid type */
+    INT,         /* 'i'  */
+    FLOAT,       /* 'f'  */
+    INT3,        /* 'i3' */
+    FLOAT3,      /* 'f3' */ 
+    INTARRAY,    /* 'ia' */
+    FLOATARRAY   /* 'fa' */
+} PropType;
+PropType GetPropTypeFromStr (char *name);
 
 int SetALErrorException (ALenum error);
 int SetALCErrorException (ALCenum error);
@@ -53,5 +75,7 @@ int SetALCErrorException (ALCenum error);
 void device_export_capi (void **capi);
 void context_export_capi (void **capi);
 void buffers_export_capi (void **capi);
+void sources_export_capi (void **capi);
+void listener_export_capi (void **capi);
 
 #endif /* _PYGAME_OPENALMOD_H_ */

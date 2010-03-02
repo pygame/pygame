@@ -17,53 +17,46 @@
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 */
-#define PYGAME_OPENALBUFFERS_INTERNAL
+#define PYGAME_OPENALLISTENER_INTERNAL
 
 #include "openalmod.h"
 #include "pgopenal.h"
 
-static int _buffers_init (PyObject *self, PyObject *args, PyObject *kwds);
-static void _buffers_dealloc (PyBuffers *self);
-static PyObject* _buffers_repr (PyObject *self);
+static int _listener_init (PyObject *self, PyObject *args, PyObject *kwds);
+static void _listener_dealloc (PyListener *self);
+static PyObject* _listener_repr (PyObject *self);
 
-static PyObject* _buffers_setprop (PyObject *self, PyObject *args);
-static PyObject* _buffers_getprop (PyObject *self, PyObject *args);
-static PyObject* _buffers_bufferdata (PyObject *self, PyObject *args);
-
-static PyObject* _buffers_getcount (PyObject* self, void *closure);
-static PyObject* _buffers_getbuffers (PyObject* self, void *closure);
+static PyObject* _listener_setprop (PyObject *self, PyObject *args);
+static PyObject* _listener_getprop (PyObject *self, PyObject *args);
 
 /**
  */
-static PyMethodDef _buffers_methods[] = {
-    { "set_prop", _buffers_setprop, METH_VARARGS, NULL },
-    { "get_prop", _buffers_getprop, METH_VARARGS, NULL },
-    { "buffer_data", _buffers_bufferdata, METH_VARARGS, NULL },
+static PyMethodDef _listener_methods[] = {
+    { "set_prop", _listener_setprop, METH_VARARGS, NULL },
+    { "get_prop", _listener_getprop, METH_VARARGS, NULL },
     { NULL, NULL, 0, NULL }
 };
 
 /**
  */
-static PyGetSetDef _buffers_getsets[] = {
-    { "count", _buffers_getcount, NULL, NULL, NULL },
-    { "buffers", _buffers_getbuffers, NULL, NULL, NULL },
+static PyGetSetDef _listener_getsets[] = {
     { NULL, NULL, NULL, NULL, NULL }
 };
 
 /**
  */
-PyTypeObject PyBuffers_Type =
+PyTypeObject PyListener_Type =
 {
     TYPE_HEAD(NULL, 0)
-    "base.Buffers",              /* tp_name */
-    sizeof (PyBuffers),          /* tp_basicsize */
+    "base.Listener",            /* tp_name */
+    sizeof (PyListener),        /* tp_basicsize */
     0,                          /* tp_itemsize */
-    (destructor) _buffers_dealloc, /* tp_dealloc */
+    (destructor) _listener_dealloc, /* tp_dealloc */
     0,                          /* tp_print */
     0,                          /* tp_getattr */
     0,                          /* tp_setattr */
     0,                          /* tp_compare */
-    (reprfunc)_buffers_repr,     /* tp_repr */
+    (reprfunc)_listener_repr,   /* tp_repr */
     0,                          /* tp_as_number */
     0,                          /* tp_as_sequence */
     0,                          /* tp_as_mapping */
@@ -81,15 +74,15 @@ PyTypeObject PyBuffers_Type =
     0,                          /* tp_weaklistoffset */
     0,                          /* tp_iter */
     0,                          /* tp_iternext */
-    _buffers_methods,            /* tp_methods */
+    _listener_methods,          /* tp_methods */
     0,                          /* tp_members */
-    _buffers_getsets,            /* tp_getset */
+    _listener_getsets,          /* tp_getset */
     0,                          /* tp_base */
     0,                          /* tp_dict */
     0,                          /* tp_descr_get */
     0,                          /* tp_descr_set */
     0,                          /* tp_dictoffset */
-    (initproc) _buffers_init,   /* tp_init */
+    (initproc) _listener_init,  /* tp_init */
     0,                          /* tp_alloc */
     0,                          /* tp_new */
     0,                          /* tp_free */
@@ -106,100 +99,44 @@ PyTypeObject PyBuffers_Type =
 };
 
 static void
-_buffers_dealloc (PyBuffers *self)
+_listener_dealloc (PyListener *self)
 {
-    int switched = 0;
-
-    if (self->buffers != NULL)
-    {
-        ALCcontext *ctxt = alcGetCurrentContext ();
-        if (ctxt != PyContext_AsContext (self->context))
-        {
-            /* Switch the current context to release the correct buffers. */
-            alcMakeContextCurrent (PyContext_AsContext (self->context));
-            switched = 1;
-        }
-        alDeleteBuffers (self->count, self->buffers);
-        if (switched)
-            alcMakeContextCurrent (ctxt);
-    }
-    self->buffers = NULL;
-    self->count = 0;
-
     ((PyObject*)self)->ob_type->tp_free ((PyObject *) self);
 }
 
 static int
-_buffers_init (PyObject *self, PyObject *args, PyObject *kwds)
+_listener_init (PyObject *self, PyObject *args, PyObject *kwds)
 {
     PyErr_SetString (PyExc_NotImplementedError,
-        "Buffers cannot be created dirrectly - use the Context instead");
+        "Listener cannot be created dirrectly - use the Context instead");
     return -1;
 }
 
 static PyObject*
-_buffers_repr (PyObject *self)
+_listener_repr (PyObject *self)
 {
-    return Text_FromUTF8 ("<Buffers>");
+    return Text_FromUTF8 ("<Listener>");
 }
 
-/* Buffers getters/setters */
+/* Listener getters/setters */
+
+/* Listener methods */
 static PyObject*
-_buffers_getcount (PyObject* self, void *closure)
+_listener_setprop (PyObject *self, PyObject *args)
 {
-    return PyInt_FromLong ((long)(((PyBuffers*)self)->count));
-}
-
-static PyObject*
-_buffers_getbuffers (PyObject* self, void *closure)
-{
-    PyBuffers *buffers = (PyBuffers*)self;
-    PyObject *tuple, *item;
-    ALsizei i;
-
-    tuple = PyTuple_New ((Py_ssize_t)(buffers->count));
-    if (!tuple)
-        return NULL;
-
-    for (i = 0; i < buffers->count; i++)
-    {
-        item = PyInt_FromLong ((long)buffers->buffers[i]);
-        if (!item)
-        {
-            Py_DECREF (tuple);
-            return NULL;
-        }
-        PyTuple_SET_ITEM (tuple, (Py_ssize_t)i, item);
-    }
-    return tuple;
-}
-
-
-/* Buffers methods */
-static PyObject*
-_buffers_setprop (PyObject *self, PyObject *args)
-{
-    long bufnum;
     ALenum param;
     PyObject *values;
     char *type;
     PropType ptype = INVALID;
 
-    if (!CONTEXT_IS_CURRENT (((PyBuffers*)self)->context))
+    if (!CONTEXT_IS_CURRENT (((PyListener*)self)->context))
     {
         PyErr_SetString (PyExc_PyGameError, "buffer context is not current");
         return NULL;
     }
 
-    if (!PyArg_ParseTuple (args, "llO|s:set_prop", &bufnum, &param, &values,
-            &type))
+    if (!PyArg_ParseTuple (args, "lO|s:set_prop", &param, &values, &type))
         return NULL;
-
-    if (bufnum < 0 || bufnum > ((PyBuffers*)self)->count)
-    {
-        PyErr_SetString (PyExc_ValueError, "buffer index out of range");
-        return NULL;
-    }
 
     if (type)
     {
@@ -257,9 +194,9 @@ _buffers_setprop (PyObject *self, PyObject *args)
 
             CLEAR_ERROR_STATE ();
             if (ptype == INT3)
-                alBuffer3i ((ALuint)bufnum, param, vals[0], vals[1], vals[2]);
+                alListener3i (param, vals[0], vals[1], vals[2]);
             else
-                alBufferiv ((ALuint)bufnum, param, vals);
+                alListeneriv (param, vals);
             PyMem_Free (vals);
             /* Error will be set at the end */
             break;
@@ -290,9 +227,9 @@ _buffers_setprop (PyObject *self, PyObject *args)
 
             CLEAR_ERROR_STATE ();
             if (ptype == FLOAT3)
-                alBuffer3f ((ALuint)bufnum, param, vals[0], vals[1], vals[2]);
+                alListener3f (param, vals[0], vals[1], vals[2]);
             else
-                alBufferfv ((ALuint)bufnum, param, vals);
+                alListenerfv (param, vals);
             PyMem_Free (vals);
             /* Error will be set at the end */
             break;
@@ -329,13 +266,13 @@ _buffers_setprop (PyObject *self, PyObject *args)
             if (!IntFromObj (values, &ival))
                 return NULL;
             CLEAR_ERROR_STATE ();
-            alBufferi ((ALuint)bufnum, param, (ALint) ival);
+            alListeneri (param, (ALint) ival);
             break;
         case FLOAT:
             if (!DoubleFromObj (values, &fval))
                 return NULL;
             CLEAR_ERROR_STATE ();
-            alBufferf ((ALuint)bufnum, param, (ALfloat) fval);
+            alListenerf (param, (ALfloat) fval);
             break;
         default:
             PyErr_SetString (PyExc_TypeError, "value type mismatch");
@@ -349,36 +286,29 @@ _buffers_setprop (PyObject *self, PyObject *args)
 }
 
 static PyObject*
-_buffers_getprop (PyObject *self, PyObject *args)
+_listener_getprop (PyObject *self, PyObject *args)
 {
-    long bufnum;
     ALenum param;
     char *type;
     int size = 0, cnt;
     PropType ptype = INVALID;
 
-    if (!CONTEXT_IS_CURRENT (((PyBuffers*)self)->context))
+    if (!CONTEXT_IS_CURRENT (((PyListener*)self)->context))
     {
         PyErr_SetString (PyExc_PyGameError, "buffer context is not current");
         return NULL;
     }
 
-    if (!PyArg_ParseTuple (args, "lls", &bufnum, &param, &type))
+    if (!PyArg_ParseTuple (args, "ls", &param, &type))
     {
         PyErr_Clear ();
-        if (!PyArg_ParseTuple (args, "ll|si", &bufnum, &param, &type, &size))
+        if (!PyArg_ParseTuple (args, "l|si", &param, &type, &size))
             return NULL;
         if (size <= 0)
         {
             PyErr_SetString (PyExc_ValueError, "size must not smaller than 0");
             return NULL;
         }
-    }
-
-    if (bufnum < 0 || bufnum > ((PyBuffers*)self)->count)
-    {
-        PyErr_SetString (PyExc_ValueError, "buffer index out of range");
-        return NULL;
     }
 
     ptype = GetPropTypeFromStr (type);
@@ -388,7 +318,7 @@ _buffers_getprop (PyObject *self, PyObject *args)
     case INT:
     {
         ALint val;
-        alGetBufferi ((ALuint)bufnum, param, &val);
+        alGetListeneri (param, &val);
         if (SetALErrorException (alGetError ()))
             return NULL;
         return PyLong_FromLong ((long)val);
@@ -396,7 +326,7 @@ _buffers_getprop (PyObject *self, PyObject *args)
     case FLOAT:
     {
         ALfloat val;
-        alGetBufferf ((ALuint)bufnum, param, &val);
+        alGetListenerf (param, &val);
         if (SetALErrorException (alGetError ()))
             return NULL;
         return PyFloat_FromDouble ((double)val);
@@ -404,7 +334,7 @@ _buffers_getprop (PyObject *self, PyObject *args)
     case INT3:
     {
         ALint val[3];
-        alGetBuffer3i ((ALuint)bufnum, param, &val[0], &val[1], &val[2]);
+        alGetListener3i (param, &val[0], &val[1], &val[2]);
         if (SetALErrorException (alGetError ()))
             return NULL;
         return Py_BuildValue ("(lll)", (long)val[0], (long)val[1],
@@ -413,7 +343,7 @@ _buffers_getprop (PyObject *self, PyObject *args)
     case FLOAT3:
     {
         ALfloat val[3];
-        alGetBuffer3f ((ALuint)bufnum, param, &val[0], &val[1], &val[2]);
+        alGetListener3f (param, &val[0], &val[1], &val[2]);
         if (SetALErrorException (alGetError ()))
             return NULL;
         return Py_BuildValue ("(ddd)", (double)val[0], (double)val[1],
@@ -425,7 +355,7 @@ _buffers_getprop (PyObject *self, PyObject *args)
         ALint* val = PyMem_New (ALint, size);
         if (!val)
             return NULL;
-        alGetBufferiv ((ALuint)bufnum, param, val);
+        alGetListeneriv (param, val);
         if (SetALErrorException (alGetError ()))
         {
             PyMem_Free (val);
@@ -453,7 +383,7 @@ _buffers_getprop (PyObject *self, PyObject *args)
         ALfloat* val = PyMem_New (ALfloat, size);
         if (!val)
             return NULL;
-        alGetBufferfv ((ALuint)bufnum, param, val);
+        alGetListenerfv (param, val);
         if (SetALErrorException (alGetError ()))
         {
             PyMem_Free (val);
@@ -481,44 +411,11 @@ _buffers_getprop (PyObject *self, PyObject *args)
     }
 }
 
-static PyObject*
-_buffers_bufferdata (PyObject *self, PyObject *args)
-{
-    long bufnum;
-    ALenum format;
-    const char *buf;
-    Py_ssize_t len;
-    ALsizei freq;
-
-    if (!CONTEXT_IS_CURRENT (((PyBuffers*)self)->context))
-    {
-        PyErr_SetString (PyExc_PyGameError, "buffer context is not current");
-        return NULL;
-    }
-
-    if (!PyArg_ParseTuple (args, "lls#l", &bufnum, &format, &buf, &len, &freq))
-        return NULL;
-    
-    /* TODO */
-    if (bufnum < 0 || bufnum > ((PyBuffers*)self)->count)
-    {
-        PyErr_SetString (PyExc_ValueError, "buffer index out of range");
-        return NULL;
-    }
-    CLEAR_ERROR_STATE ();
-    alBufferData ((ALuint) bufnum, format, (const void*) buf, (ALsizei)len,
-        freq);
-    if (SetALErrorException (alGetError ()))
-        return NULL;
-    Py_RETURN_NONE;
-}
-
 /* C API */
 PyObject*
-PyBuffers_New (PyObject *context, ALsizei count)
+PyListener_New (PyObject *context)
 {
-    ALuint *buf;
-    PyObject *buffers;
+    PyObject *listener;
 
     if (!context || !PyContext_Check (context))
     {
@@ -526,41 +423,15 @@ PyBuffers_New (PyObject *context, ALsizei count)
         return NULL;
     }
 
-    if (count < 1)
-    {
-        PyErr_SetString (PyExc_ValueError, "cannot create less than 1 buffer");
+    listener = PyListener_Type.tp_new (&PyListener_Type, NULL, NULL);
+    if (!listener)
         return NULL;
-    }
-
-    buffers = PyBuffers_Type.tp_new (&PyBuffers_Type, NULL, NULL);
-    if (!buffers)
-        return NULL;
-    ((PyBuffers*)buffers)->context = context;
-    ((PyBuffers*)buffers)->count = count;
-    ((PyBuffers*)buffers)->buffers = NULL;
-    
-    buf = PyMem_New (ALuint, count);
-    if (!buf)
-    {
-        Py_DECREF (buffers);
-        return NULL;
-    }
-    CLEAR_ERROR_STATE ();
-    alGenBuffers (count, buf);
-    if (SetALErrorException (alGetError ()))
-    {
-        Py_DECREF (buffers);
-        return NULL;
-    }
-
-    ((PyBuffers*)buffers)->buffers = buf;
-
-    
-    return buffers;
+    ((PyListener*)listener)->context = context;
+    return listener;
 }
 
 void
-buffers_export_capi (void **capi)
+listener_export_capi (void **capi)
 {
-    capi[PYGAME_OPENALBUFFERS_FIRSTSLOT] = &PyBuffers_Type;
+    capi[PYGAME_OPENALLISTENER_FIRSTSLOT] = &PyListener_Type;
 }

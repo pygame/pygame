@@ -29,8 +29,7 @@
 #include <AL/alext.h>
 #endif
 
-#include "pgcompat.h"
-#include "pgdefines.h"
+#include "pgbase.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -67,8 +66,17 @@ typedef struct
     PyObject_HEAD
     ALCcontext *context;
     PyObject   *device;
+    PyObject   *listener;
 } PyContext;
 #define PyContext_AsContext(x) (((PyContext*)x)->context)
+#define CONTEXT_IS_CURRENT(x) \
+    (alcGetCurrentContext () == PyContext_AsContext (x))
+#define ASSERT_CONTEXT_IS_CURRENT(x,ret)                                \
+    if (alcGetCurrentContext () != PyContext_AsContext (x))             \
+    {                                                                   \
+        PyErr_SetString (PyExc_PyGameError, "Context is not current");  \
+        return (ret);                                                   \
+    }
 #define PYGAME_OPENALCONTEXT_FIRSTSLOT                                  \
     (PYGAME_OPENALDEVICE_FIRSTSLOT + PYGAME_OPENALDEVICE_NUMSLOTS)
 #define PYGAME_OPENALCONTEXT_NUMSLOTS 1
@@ -83,10 +91,10 @@ typedef struct
 typedef struct
 {
     PyObject_HEAD
-    ALsizei  count;
-    ALuint  *buffers;
+    PyObject *context;
+    ALsizei   count;
+    ALuint   *buffers;
 } PyBuffers;
-
 #define PyBuffers_AsBuffers(x) (((PyBuffers*)x)->buffers)
 #define PYGAME_OPENALBUFFERS_FIRSTSLOT                                  \
     (PYGAME_OPENALCONTEXT_FIRSTSLOT + PYGAME_OPENALCONTEXT_NUMSLOTS)
@@ -99,6 +107,40 @@ typedef struct
         (PyTypeObject*)PyGameOpenAL_C_API[PYGAME_OPENALBUFFERS_FIRSTSLOT+0]))
 #endif /* PYGAME_OPENALBUFFERS_INTERNAL */
 
+typedef struct
+{
+    PyObject_HEAD
+    PyObject *context;
+    ALsizei   count;
+    ALuint   *sources;
+} PySources;
+#define PySources_AsSources(x) (((PySources*)x)->sources)
+#define PYGAME_OPENALSOURCES_FIRSTSLOT                                  \
+    (PYGAME_OPENALBUFFERS_FIRSTSLOT + PYGAME_OPENALBUFFERS_NUMSLOTS)
+#define PYGAME_OPENALSOURCES_NUMSLOTS 1
+#ifndef PYGAME_OPENALSOURCES_INTERNAL
+#define PySources_Type                                                  \
+    (*(PyTypeObject*)PyGameOpenAL_C_API[PYGAME_OPENALSOURCES_FIRSTSLOT+0])
+#define PySources_Check(x)                                              \
+    (PyObject_TypeCheck(x,                                              \
+        (PyTypeObject*)PyGameOpenAL_C_API[PYGAME_OPENALSOURCES_FIRSTSLOT+0]))
+#endif /* PYGAME_OPENALSOURCES_INTERNAL */
+
+typedef struct
+{
+    PyObject_HEAD
+    PyObject *context;
+} PyListener;
+#define PYGAME_OPENALLISTENER_FIRSTSLOT                                 \
+    (PYGAME_OPENALSOURCES_FIRSTSLOT + PYGAME_OPENALSOURCES_NUMSLOTS)
+#define PYGAME_OPENALLISTENER_NUMSLOTS 1
+#ifndef PYGAME_OPENALLISTENER_INTERNAL
+#define PyListener_Type                                                 \
+    (*(PyTypeObject*)PyGameOpenAL_C_API[PYGAME_OPENALLISTENER_FIRSTSLOT+0])
+#define PyListener_Check(x)                                             \
+    (PyObject_TypeCheck(x,                                              \
+        (PyTypeObject*)PyGameOpenAL_C_API[PYGAME_OPENALLISTENER_FIRSTSLOT+0]))
+#endif /* PYGAME_OPENALLISTENER_INTERNAL */
 
 /**
  * C API export.
@@ -110,7 +152,7 @@ static void **PyGameOpenAL_C_API;
 #endif
 
 #define PYGAME_OPENAL_SLOTS \
-    (PYGAME_OPENALBUFFERS_FIRSTSLOT + PYGAME_OPENALBUFFERS_NUMSLOTS)
+    (PYGAME_OPENALLISTENER_FIRSTSLOT + PYGAME_OPENALLISTENER_NUMSLOTS)
 #define PYGAME_OPENAL_ENTRY "_PYGAME_OPENAL_CAPI"
 
 static int
