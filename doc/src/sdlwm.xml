@@ -46,10 +46,6 @@
     <call>set_icon (surface[, mask]) -> None</call>
     <desc>
       Sets the window manager icon to be used by the window.
-      
-      .. todo::
-        
-         Not fully implemented.
     </desc>
   </func>
   <func name="toggle_fullscreen">

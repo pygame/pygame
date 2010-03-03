@@ -39,7 +39,9 @@ def print_(*args, **kwds):
 def is_msys():
     """Return true if the execution environment is MSYS"""
     
-    try:
-        return os.environ['OSTYPE'] == 'msys'
-    except KeyError:
-        return 0
+    if 'OSTYPE' in os.environ:
+        if os.environ['OSTYPE'] == 'msys':
+            return True
+    if 'MSYSCON' in os.environ:
+        return True
+    return False

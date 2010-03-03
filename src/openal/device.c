@@ -107,7 +107,11 @@ static void
 _device_dealloc (PyDevice *self)
 {
     if (self->device)
+    {
+        Py_BEGIN_ALLOW_THREADS;
         alcCloseDevice (self->device);
+        Py_END_ALLOW_THREADS;
+    }
     self->device = NULL;
     ((PyObject*)self)->ob_type->tp_free ((PyObject *) self);
 }
@@ -121,7 +125,9 @@ _device_init (PyObject *self, PyObject *args, PyObject *kwds)
     if (!PyArg_ParseTuple (args, "|s", &name))
         return -1;
     
+    Py_BEGIN_ALLOW_THREADS;
     device = alcOpenDevice (name);
+    Py_END_ALLOW_THREADS;
     if (!device)
     {
         SetALErrorException (alGetError ());

@@ -43,6 +43,8 @@ static PyObject* _sources_play (PyObject *self, PyObject *args);
 static PyObject* _sources_pause (PyObject *self, PyObject *args);
 static PyObject* _sources_stop (PyObject *self, PyObject *args);
 static PyObject* _sources_rewind (PyObject *self, PyObject *args);
+static PyObject* _sources_queuebuffers (PyObject *self, PyObject *args);
+static PyObject* _sources_unqueuebuffers (PyObject *self, PyObject *args);
 
 static PyObject* _sources_getcount (PyObject* self, void *closure);
 static PyObject* _sources_getsources (PyObject* self, void *closure);
@@ -56,6 +58,8 @@ static PyMethodDef _sources_methods[] = {
     { "pause", _sources_pause, METH_O, NULL },
     { "stop", _sources_stop, METH_O, NULL },
     { "rewind", _sources_rewind, METH_O, NULL },
+    { "queue_buffers", _sources_queuebuffers, METH_VARARGS, NULL },
+    { "unqueue_buffers", _sources_unqueuebuffers, METH_VARARGS, NULL },
     { NULL, NULL, 0, NULL }
 };
 
@@ -137,6 +141,7 @@ _sources_dealloc (PySources *self)
             switched = 1;
         }
         alDeleteSources (self->count, self->sources);
+        PyMem_Free (self->sources);
         if (switched)
             alcMakeContextCurrent (ctxt);
     }
@@ -379,10 +384,11 @@ _sources_getprop (PyObject *self, PyObject *args)
         return NULL;
     }
 
-    if (!PyArg_ParseTuple (args, "lls", &bufnum, &param, &type))
+    if (!PyArg_ParseTuple (args, "lls:get_prop", &bufnum, &param, &type))
     {
         PyErr_Clear ();
-        if (!PyArg_ParseTuple (args, "ll|si", &bufnum, &param, &type, &size))
+        if (!PyArg_ParseTuple (args, "ll|si:get_prop", &bufnum, &param, &type,
+            &size))
             return NULL;
         if (size <= 0)
         {
@@ -607,6 +613,75 @@ _sources_rewind (PyObject *self, PyObject *args)
     return _sources_action (self, args, REWIND);
 }
 
+static PyObject*
+_sources_queuebuffers (PyObject *self, PyObject *args)
+{
+    PyObject *buffers;
+    long bufnum;
+    
+    if (!CONTEXT_IS_CURRENT (((PySources*)self)->context))
+    {
+        PyErr_SetString (PyExc_PyGameError, "source context is not current");
+        return NULL;
+    }
+    
+    if (!PyArg_ParseTuple (args, "lO:queue_buffers", &bufnum, &buffers))
+        return NULL;
+    
+    if (bufnum < 0 || bufnum > ((PySources*)self)->count)
+    {
+        PyErr_SetString (PyExc_ValueError, "source index out of range");
+        return NULL;
+    }
+    if (!PyBuffers_Check (buffers))
+    {
+        PyErr_SetString (PyExc_TypeError, "argument must be a Buffers object");
+        return NULL;
+    }
+    
+    CLEAR_ERROR_STATE ();
+    alSourceQueueBuffers ((ALuint) bufnum, ((PyBuffers*)buffers)->count,
+        PyBuffers_AsBuffers(buffers));
+    if (SetALErrorException (alGetError ()))
+        return NULL;
+    
+    Py_RETURN_NONE;
+}
+
+static PyObject*
+_sources_unqueuebuffers (PyObject *self, PyObject *args)
+{
+    PyObject *buffers;
+    long bufnum;
+    
+    if (!CONTEXT_IS_CURRENT (((PySources*)self)->context))
+    {
+        PyErr_SetString (PyExc_PyGameError, "source context is not current");
+        return NULL;
+    }
+    
+    if (!PyArg_ParseTuple (args, "lO:unqueue_buffers", &bufnum, &buffers))
+        return NULL;
+    
+    if (bufnum < 0 || bufnum > ((PySources*)self)->count)
+    {
+        PyErr_SetString (PyExc_ValueError, "source index out of range");
+        return NULL;
+    }
+    if (!PyBuffers_Check (buffers))
+    {
+        PyErr_SetString (PyExc_TypeError, "argument must be a Buffers object");
+        return NULL;
+    }
+    
+    CLEAR_ERROR_STATE ();
+    alSourceUnqueueBuffers ((ALuint) bufnum, ((PyBuffers*)buffers)->count,
+        PyBuffers_AsBuffers(buffers));
+    if (SetALErrorException (alGetError ()))
+        return NULL;
+    
+    Py_RETURN_NONE;
+}
 /* C API */
 PyObject*
 PySources_New (PyObject *context, ALsizei count)
@@ -644,6 +719,7 @@ PySources_New (PyObject *context, ALsizei count)
     if (SetALErrorException (alGetError ()))
     {
         Py_DECREF (sources);
+        PyMem_Free (buf);
         return NULL;
     }
 

@@ -1,4 +1,5 @@
 PYTHON = python
+COMPILER = ''
 # Set this to 0 on releases.
 EXPERIMENTAL = 1
 top_srcdir = `pwd`
@@ -43,7 +44,6 @@ SUBDIRS = \
 	$(top_srcdir)/src/sdlmixer \
 	$(top_srcdir)/src/sdlttf
 
-
 all: clean build
 
 dist: clean docs
@@ -56,14 +56,20 @@ bdist: clean docs
 	@$(PYTHON) setup.py bdist
 
 build:
-	@echo "Running build..."
-	@WITH_EXPERIMENTAL=$(EXPERIMENTAL) $(PYTHON) setup.py build #-c mingw32
+	@if test -n $(COMPILER); then \
+        echo "Running build with $(COMPILER)..."; \
+		WITH_EXPERIMENTAL=$(EXPERIMENTAL) $(PYTHON) setup.py build -c $(COMPILER); \
+	else \
+        echo "Running build"; \
+		WITH_EXPERIMENTAL=$(EXPERIMENTAL) $(PYTHON) setup.py build; \
+	fi
 	@echo "Build finished, invoke 'make install' to install."
 
-clang: clean
-	@echo "Running build with Clang..."
-	@WITH_EXPERIMENTAL=$(EXPERIMENTAL) $(PYTHON) setup.py build -c clang
-	@echo "Build finished, invoke 'make install' to install."
+clang: COMPILER = clang
+clang: all
+
+msys: COMPILER = mingw32
+msys: all
 
 install:
 	@echo "Installing..."
@@ -102,16 +108,20 @@ runtest:
 # purposes only!
 
 buildall: clean
-	@WITH_EXPERIMENTAL=$(EXPERIMENTAL) python2.4 setup.py build
-	@WITH_EXPERIMENTAL=$(EXPERIMENTAL) python2.5 setup.py build
-	@WITH_EXPERIMENTAL=$(EXPERIMENTAL) python2.6 setup.py build
-	@WITH_EXPERIMENTAL=$(EXPERIMENTAL) python3.1 setup.py build
+	@if test -n $(COMPILER); then \
+		WITH_EXPERIMENTAL=$(EXPERIMENTAL) python2.4 setup.py build -c $(COMPILER); \
+		WITH_EXPERIMENTAL=$(EXPERIMENTAL) python2.5 setup.py build -c $(COMPILER); \
+		WITH_EXPERIMENTAL=$(EXPERIMENTAL) python2.6 setup.py build -c $(COMPILER); \
+		WITH_EXPERIMENTAL=$(EXPERIMENTAL) python3.1 setup.py build -c $(COMPILER); \
+	else \
+		WITH_EXPERIMENTAL=$(EXPERIMENTAL) python2.4 setup.py build; \
+		WITH_EXPERIMENTAL=$(EXPERIMENTAL) python2.5 setup.py build; \
+		WITH_EXPERIMENTAL=$(EXPERIMENTAL) python2.6 setup.py build; \
+		WITH_EXPERIMENTAL=$(EXPERIMENTAL) python3.1 setup.py build; \
+	fi
 
-buildallclang: clean
-	@WITH_EXPERIMENTAL=$(EXPERIMENTAL) python2.4 setup.py build -c clang
-	@WITH_EXPERIMENTAL=$(EXPERIMENTAL) python2.5 setup.py build -c clang
-	@WITH_EXPERIMENTAL=$(EXPERIMENTAL) python2.6 setup.py build -c clang
-	@WITH_EXPERIMENTAL=$(EXPERIMENTAL) python3.1 setup.py build -c clang
+buildallclang: COMPILER = clang
+buildallclang: buildall
 
 installall:
 	@WITH_EXPERIMENTAL=$(EXPERIMENTAL) python2.4 setup.py install

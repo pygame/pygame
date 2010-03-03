@@ -44,8 +44,6 @@ typedef struct
 {
     PyObject_HEAD
     ALCdevice *device;
-    ALuint    *buffers;
-    int        bufsize;
 } PyDevice;
 #define PyDevice_AsDevice(x) (((PyDevice*)x)->device)
 #define PYGAME_OPENALDEVICE_FIRSTSLOT                   \
@@ -60,6 +58,25 @@ typedef struct
 #define PyDevice_New                                                    \
     (*(PyObject*(*)(const char*))PyGameOpenAL_C_API[PYGAME_OPENALDEVICE_FIRSTSLOT+1])
 #endif /* PYGAME_OPENALDEVICE_INTERNAL */
+
+typedef struct
+{
+    PyDevice device;
+    ALCsizei size;
+} PyCaptureDevice;
+#define PyCaptureDevice_AsDevice(x) (((PyCaptureDevice*)x)->device.device)
+#define PYGAME_OPENALCAPTUREDEVICE_FIRSTSLOT                   \
+    (PYGAME_OPENALDEVICE_FIRSTSLOT + PYGAME_OPENALDEVICE_NUMSLOTS)
+#define PYGAME_OPENALCAPTUREDEVICE_NUMSLOTS 2
+#ifndef PYGAME_OPENALCAPTUREDEVICE_INTERNAL
+#define PyCaptureDevice_Type                                            \
+    (*(PyTypeObject*)PyGameOpenAL_C_API[PYGAME_OPENALCAPTUREDEVICE_FIRSTSLOT+0])
+#define PyCaptureDevice_Check(x)                                        \
+    (PyObject_TypeCheck(x,                                              \
+        (PyTypeObject*)PyGameOpenAL_C_API[PYGAME_OPENALCAPTUREDEVICE_FIRSTSLOT+0]))
+#define PyCaptureDevice_New                                             \
+    (*(PyObject*(*)(const char*,ALCuint,ALCenum,ALCsizei))PyGameOpenAL_C_API[PYGAME_OPENALCAPTUREDEVICE_FIRSTSLOT+1])
+#endif /* PYGAME_OPENALCAPTUREDEVICE_INTERNAL */
 
 typedef struct
 {
@@ -78,7 +95,7 @@ typedef struct
         return (ret);                                                   \
     }
 #define PYGAME_OPENALCONTEXT_FIRSTSLOT                                  \
-    (PYGAME_OPENALDEVICE_FIRSTSLOT + PYGAME_OPENALDEVICE_NUMSLOTS)
+    (PYGAME_OPENALCAPTUREDEVICE_FIRSTSLOT + PYGAME_OPENALCAPTUREDEVICE_NUMSLOTS)
 #define PYGAME_OPENALCONTEXT_NUMSLOTS 1
 #ifndef PYGAME_OPENALCONTEXT_INTERNAL
 #define PyContext_Type                                                  \

@@ -22,6 +22,7 @@
 
 #define PYGAME_OPENAL_INTERNAL
 #define PYGAME_OPENALDEVICE_INTERNAL
+#define PYGAME_OPENALCAPTUREDEVICE_INTERNAL
 #define PYGAME_OPENALCONTEXT_INTERNAL
 #define PYGAME_OPENALBUFFERS_INTERNAL
 #define PYGAME_OPENALSOURCES_INTERNAL
@@ -40,6 +41,11 @@
 extern PyTypeObject PyDevice_Type;
 #define PyDevice_Check(x) (PyObject_TypeCheck (x, &PyDevice_Type))
 PyObject* PyDevice_New (const char *name);
+
+extern PyTypeObject PyCaptureDevice_Type;
+#define PyCaptureDevice_Check(x) (PyObject_TypeCheck (x, &PyCaptureDevice_Type))
+PyObject* PyCaptureDevice_New (const char* name, ALCuint frequency,
+    ALCenum format, ALCsizei bufsize);
 
 extern PyTypeObject PyContext_Type;
 #define PyContext_Check(x) (PyObject_TypeCheck (x, &PyContext_Type))
@@ -73,6 +79,7 @@ int SetALCErrorException (ALCenum error);
 #define CLEAR_ERROR_STATE() alGetError()
 
 void device_export_capi (void **capi);
+void capturedevice_export_capi (void **capi);
 void context_export_capi (void **capi);
 void buffers_export_capi (void **capi);
 void sources_export_capi (void **capi);

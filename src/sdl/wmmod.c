@@ -77,7 +77,9 @@ _sdl_wmseticon (PyObject *self, PyObject *args)
 {
     PyObject *surface;
     PyObject *mask = NULL;
-    SDL_Surface *sfmask = NULL;
+    Uint8 *maskbuf = NULL;
+    Py_ssize_t masklen = 0;
+    SDL_Surface *sdlsurface;
 
     ASSERT_VIDEO_INIT(NULL);
 
@@ -95,14 +97,23 @@ _sdl_wmseticon (PyObject *self, PyObject *args)
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-
+    sdlsurface = PySDLSurface_AsSDLSurface (surface);
+    
     if (mask)
     {
-        PyErr_SetString (PyExc_NotImplementedError,
-            "icon masks are not supported yet");
+        int w;
+        if (PyObject_AsReadBuffer (mask, (const void**)&maskbuf,
+            &masklen) == -1)
+            return -1;
+        w = (int) round ((masklen * 1.f) / sdlsurface->h);
+        if ((w * 8) != sdlsurface->w)
+        {
+            PyErr_SetString (PyExc_ValueError,
+                "mask buffer does not match size");
+            return NULL;
+        }
     }
-    /* TODO: support the mask */
-    SDL_WM_SetIcon (((PySDLSurface*)surface)->surface, NULL);
+    SDL_WM_SetIcon (((PySDLSurface*)surface)->surface, maskbuf);
     Py_RETURN_NONE;
 }
 

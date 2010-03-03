@@ -393,6 +393,9 @@ PyMODINIT_FUNC initbase (void)
     PyDevice_Type.tp_new = PyType_GenericNew;
     if (PyType_Ready (&PyDevice_Type) < 0)
         goto fail;
+    PyCaptureDevice_Type.tp_base = &PyDevice_Type;
+    if (PyType_Ready (&PyCaptureDevice_Type) < 0)
+        goto fail;
     PyContext_Type.tp_new = PyType_GenericNew;
     if (PyType_Ready (&PyContext_Type) < 0)
         goto fail;
@@ -407,12 +410,14 @@ PyMODINIT_FUNC initbase (void)
         goto fail;
     
     ADD_OBJ_OR_FAIL (mod, "Device", PyDevice_Type, fail);
+    ADD_OBJ_OR_FAIL (mod, "CaptureDevice", PyCaptureDevice_Type, fail);
     ADD_OBJ_OR_FAIL (mod, "Context", PyContext_Type, fail);
     ADD_OBJ_OR_FAIL (mod, "Buffers", PyBuffers_Type, fail);
     ADD_OBJ_OR_FAIL (mod, "Sources", PySources_Type, fail);
     ADD_OBJ_OR_FAIL (mod, "Listener", PyListener_Type, fail);
 
     device_export_capi (c_api);
+    capturedevice_export_capi (c_api);
     context_export_capi (c_api);
     buffers_export_capi (c_api);
     sources_export_capi (c_api);

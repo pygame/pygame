@@ -299,10 +299,10 @@ _listener_getprop (PyObject *self, PyObject *args)
         return NULL;
     }
 
-    if (!PyArg_ParseTuple (args, "ls", &param, &type))
+    if (!PyArg_ParseTuple (args, "ls:get_prop", &param, &type))
     {
         PyErr_Clear ();
-        if (!PyArg_ParseTuple (args, "l|si", &param, &type, &size))
+        if (!PyArg_ParseTuple (args, "l|si:get_prop", &param, &type, &size))
             return NULL;
         if (size <= 0)
         {

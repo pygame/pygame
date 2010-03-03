@@ -338,6 +338,7 @@ modules = [
                     "src/openal/sources.c",
                     "src/openal/listener.c",
                     "src/openal/context.c",
+                    "src/openal/capturedevice.c",
                     "src/openal/device.c" ],
         depends = [ 'openal' ],
         experimental = True),

@@ -22,6 +22,7 @@ CRITICAL:
    has)?
 
 * openal: check integrity and references for sources, buffers and listeners.
+* openal: check for locking issues on closing a CaptureDevice.
 
 Things to ADD:
 ==============

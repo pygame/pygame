@@ -120,6 +120,7 @@ _buffers_dealloc (PyBuffers *self)
             switched = 1;
         }
         alDeleteBuffers (self->count, self->buffers);
+        PyMem_Free (self->buffers);
         if (switched)
             alcMakeContextCurrent (ctxt);
     }
@@ -363,10 +364,11 @@ _buffers_getprop (PyObject *self, PyObject *args)
         return NULL;
     }
 
-    if (!PyArg_ParseTuple (args, "lls", &bufnum, &param, &type))
+    if (!PyArg_ParseTuple (args, "lls:get_prop", &bufnum, &param, &type))
     {
         PyErr_Clear ();
-        if (!PyArg_ParseTuple (args, "ll|si", &bufnum, &param, &type, &size))
+        if (!PyArg_ParseTuple (args, "ll|si:get_prop", &bufnum, &param, &type,
+            &size))
             return NULL;
         if (size <= 0)
         {
@@ -550,12 +552,11 @@ PyBuffers_New (PyObject *context, ALsizei count)
     if (SetALErrorException (alGetError ()))
     {
         Py_DECREF (buffers);
+        PyMem_Free (buf);
         return NULL;
     }
 
     ((PyBuffers*)buffers)->buffers = buf;
-
-    
     return buffers;
 }
 
