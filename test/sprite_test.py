@@ -46,10 +46,8 @@ class SpriteCollideTest( unittest.TestCase ):
         self.s2.rect.move_ip(40, 0)
         self.s3.rect.move_ip(100, 100)
 
-
-
     def test_spritecollide__works_if_collided_cb_is_None(self):
-    # Test that sprites collide without collided function.
+        # Test that sprites collide without collided function.
         self.assertEqual (
             sprite.spritecollide (
                 self.s1, self.ag2, dokill = False, collided = None
@@ -58,7 +56,7 @@ class SpriteCollideTest( unittest.TestCase ):
         )
 
     def test_spritecollide__works_if_collided_cb_not_passed(self):
-    # Should also work when collided function isn't passed at all.
+        # Should also work when collided function isn't passed at all.
         self.assertEqual(sprite.spritecollide (
             self.s1, self.ag2, dokill = False),
             [self.s2]
@@ -166,7 +164,7 @@ class SpriteCollideTest( unittest.TestCase ):
             )
         )
 
-    def test_collide_mask(self):
+    def test_collide_mask__opaque(self):
         # make some fully opaque sprites that will collide with masks.
         self.s1.image.fill((255,255,255,255))
         self.s2.image.fill((255,255,255,255))
@@ -194,7 +192,7 @@ class SpriteCollideTest( unittest.TestCase ):
             [self.s2]
         )
 
-    def test_collide_mask(self):
+    def test_collide_mask__transparent(self):
         # make some sprites that are fully transparent, so they won't collide.
         self.s1.image.fill((255,255,255,0))
         self.s2.image.fill((255,255,255,0))
@@ -236,9 +234,6 @@ class SpriteCollideTest( unittest.TestCase ):
         # s2 and s3 in
         self.s2.rect.move_ip(0, -10)
         self.assert_(sprite.spritecollideany(self.s1, self.ag2))
-
-        # s2 in, s3 out (reset)
-        self.s3.rect.move_ip(105, 105)
 
     def test_spritecollideany__with_collided_callback(self):
 
