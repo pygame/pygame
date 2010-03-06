@@ -74,9 +74,10 @@ typedef enum
 } PropType;
 PropType GetPropTypeFromStr (char *name);
 
-int SetALErrorException (ALenum error);
-int SetALCErrorException (ALCenum error);
-#define CLEAR_ERROR_STATE() alGetError()
+int SetALErrorException (ALenum error, int force);
+int SetALCErrorException (ALCenum error, int force);
+#define CLEAR_ALERROR_STATE() alGetError()
+#define CLEAR_ALCERROR_STATE() alcGetError(NULL)
 
 void device_export_capi (void **capi);
 void capturedevice_export_capi (void **capi);

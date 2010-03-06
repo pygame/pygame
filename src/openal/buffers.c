@@ -256,7 +256,7 @@ _buffers_setprop (PyObject *self, PyObject *args)
                 vals[cnt] = (ALint) tmp;
             }
 
-            CLEAR_ERROR_STATE ();
+            CLEAR_ALERROR_STATE ();
             if (ptype == INT3)
                 alBuffer3i ((ALuint)bufnum, param, vals[0], vals[1], vals[2]);
             else
@@ -289,7 +289,7 @@ _buffers_setprop (PyObject *self, PyObject *args)
                 vals[cnt] = (ALfloat) tmp;
             }
 
-            CLEAR_ERROR_STATE ();
+            CLEAR_ALERROR_STATE ();
             if (ptype == FLOAT3)
                 alBuffer3f ((ALuint)bufnum, param, vals[0], vals[1], vals[2]);
             else
@@ -329,13 +329,13 @@ _buffers_setprop (PyObject *self, PyObject *args)
         case INT:
             if (!IntFromObj (values, &ival))
                 return NULL;
-            CLEAR_ERROR_STATE ();
+            CLEAR_ALERROR_STATE ();
             alBufferi ((ALuint)bufnum, param, (ALint) ival);
             break;
         case FLOAT:
             if (!DoubleFromObj (values, &fval))
                 return NULL;
-            CLEAR_ERROR_STATE ();
+            CLEAR_ALERROR_STATE ();
             alBufferf ((ALuint)bufnum, param, (ALfloat) fval);
             break;
         default:
@@ -344,7 +344,7 @@ _buffers_setprop (PyObject *self, PyObject *args)
         }
     }
 
-    if (SetALErrorException (alGetError ()))
+    if (SetALErrorException (alGetError (), 0))
         return NULL;
     Py_RETURN_NONE;
 }
@@ -384,14 +384,14 @@ _buffers_getprop (PyObject *self, PyObject *args)
     }
 
     ptype = GetPropTypeFromStr (type);
-    CLEAR_ERROR_STATE ();
+    CLEAR_ALERROR_STATE ();
     switch (ptype)
     {
     case INT:
     {
         ALint val;
         alGetBufferi ((ALuint)bufnum, param, &val);
-        if (SetALErrorException (alGetError ()))
+        if (SetALErrorException (alGetError (), 0))
             return NULL;
         return PyLong_FromLong ((long)val);
     }
@@ -399,7 +399,7 @@ _buffers_getprop (PyObject *self, PyObject *args)
     {
         ALfloat val;
         alGetBufferf ((ALuint)bufnum, param, &val);
-        if (SetALErrorException (alGetError ()))
+        if (SetALErrorException (alGetError (), 0))
             return NULL;
         return PyFloat_FromDouble ((double)val);
     }
@@ -407,7 +407,7 @@ _buffers_getprop (PyObject *self, PyObject *args)
     {
         ALint val[3];
         alGetBuffer3i ((ALuint)bufnum, param, &val[0], &val[1], &val[2]);
-        if (SetALErrorException (alGetError ()))
+        if (SetALErrorException (alGetError (), 0))
             return NULL;
         return Py_BuildValue ("(lll)", (long)val[0], (long)val[1],
             (long)val[2]);
@@ -416,7 +416,7 @@ _buffers_getprop (PyObject *self, PyObject *args)
     {
         ALfloat val[3];
         alGetBuffer3f ((ALuint)bufnum, param, &val[0], &val[1], &val[2]);
-        if (SetALErrorException (alGetError ()))
+        if (SetALErrorException (alGetError (), 0))
             return NULL;
         return Py_BuildValue ("(ddd)", (double)val[0], (double)val[1],
             (double)val[2]);
@@ -428,7 +428,7 @@ _buffers_getprop (PyObject *self, PyObject *args)
         if (!val)
             return NULL;
         alGetBufferiv ((ALuint)bufnum, param, val);
-        if (SetALErrorException (alGetError ()))
+        if (SetALErrorException (alGetError (), 0))
         {
             PyMem_Free (val);
             return NULL;
@@ -456,7 +456,7 @@ _buffers_getprop (PyObject *self, PyObject *args)
         if (!val)
             return NULL;
         alGetBufferfv ((ALuint)bufnum, param, val);
-        if (SetALErrorException (alGetError ()))
+        if (SetALErrorException (alGetError (), 0))
         {
             PyMem_Free (val);
             return NULL;
@@ -507,10 +507,10 @@ _buffers_bufferdata (PyObject *self, PyObject *args)
         PyErr_SetString (PyExc_ValueError, "buffer index out of range");
         return NULL;
     }
-    CLEAR_ERROR_STATE ();
+    CLEAR_ALERROR_STATE ();
     alBufferData ((ALuint) bufnum, format, (const void*) buf, (ALsizei)len,
         freq);
-    if (SetALErrorException (alGetError ()))
+    if (SetALErrorException (alGetError (), 0))
         return NULL;
     Py_RETURN_NONE;
 }
@@ -547,9 +547,9 @@ PyBuffers_New (PyObject *context, ALsizei count)
         Py_DECREF (buffers);
         return NULL;
     }
-    CLEAR_ERROR_STATE ();
+    CLEAR_ALERROR_STATE ();
     alGenBuffers (count, buf);
-    if (SetALErrorException (alGetError ()))
+    if (SetALErrorException (alGetError (), 0))
     {
         Py_DECREF (buffers);
         PyMem_Free (buf);

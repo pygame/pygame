@@ -63,6 +63,8 @@ typedef struct
 {
     PyDevice device;
     ALCsizei size;
+    ALCenum  format;
+    ALCuint  frequency;
 } PyCaptureDevice;
 #define PyCaptureDevice_AsDevice(x) (((PyCaptureDevice*)x)->device.device)
 #define PYGAME_OPENALCAPTUREDEVICE_FIRSTSLOT                   \

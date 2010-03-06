@@ -30,14 +30,18 @@ static PyObject* _capturedevice_repr (PyObject *self);
 
 static PyObject* _capturedevice_start (PyObject* self);
 static PyObject* _capturedevice_stop (PyObject* self);
+static PyObject* _capturedevice_getsamples (PyObject* self, PyObject *args);
 
 static PyObject* _capturedevice_getsize (PyObject *self, void *closure);
+static PyObject* _capturedevice_getfrequency (PyObject *self, void *closure);
+static PyObject* _capturedevice_getformat (PyObject *self, void *closure);
 
 /**
  */
 static PyMethodDef _capturedevice_methods[] = {
-    { "start", (PyCFunction)_capturedevice_start, METH_NOARGS, NULL },
-    { "stop", (PyCFunction)_capturedevice_start, METH_NOARGS, NULL },
+    { "start", (PyCFunction) _capturedevice_start, METH_NOARGS, NULL },
+    { "stop", (PyCFunction) _capturedevice_stop, METH_NOARGS, NULL },
+    { "get_samples", (PyCFunction) _capturedevice_getsamples, METH_VARARGS, NULL },
     { NULL, NULL, 0, NULL }
 };
 
@@ -45,6 +49,8 @@ static PyMethodDef _capturedevice_methods[] = {
  */
 static PyGetSetDef _capturedevice_getsets[] = {
     { "size", _capturedevice_getsize, NULL, NULL, NULL },
+    { "frequency", _capturedevice_getfrequency, NULL, NULL, NULL },
+    { "format", _capturedevice_getformat, NULL, NULL, NULL },
     { NULL, NULL, NULL, NULL, NULL }
 };
 
@@ -110,6 +116,9 @@ _capturedevice_new (PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (!device)
         return NULL;
     device->size = 0;
+    device->format = 0;
+    device->frequency = 0;
+    
     device->device.device = NULL;
     return (PyObject*) device;
 }
@@ -136,11 +145,11 @@ _capturedevice_init (PyObject *self, PyObject *args, PyObject *kwds)
     
     if (!PyArg_ParseTuple (args, "slll", &name, &freq, &format, &bufsize))
     {
+        name = NULL;
         PyErr_Clear ();
         if (!PyArg_ParseTuple (args, "lll", &freq, &format, &bufsize))
             return -1;
     }
-
     if (bufsize <= 0)
     {
         PyErr_SetString (PyExc_ValueError,
@@ -148,16 +157,19 @@ _capturedevice_init (PyObject *self, PyObject *args, PyObject *kwds)
         return -1;
     }
 
-    Py_BEGIN_ALLOW_THREADS;
+    CLEAR_ALCERROR_STATE ();
     device = alcCaptureOpenDevice ((const ALCchar*)name, (ALCuint) freq,
         (ALCenum)format, (ALCsizei) bufsize);
-    Py_END_ALLOW_THREADS;
     if (!device)
     {
-        SetALErrorException (alGetError ());
+        SetALCErrorException (alcGetError (NULL), 1);
         return -1;
     }
     ((PyCaptureDevice*)self)->device.device = device;
+    ((PyCaptureDevice*)self)->format = (ALCenum)format;
+    ((PyCaptureDevice*)self)->frequency = (ALCuint) freq;
+    ((PyCaptureDevice*)self)->size = (ALCsizei) bufsize;
+
     return 0;
 }
 
@@ -165,11 +177,21 @@ static PyObject*
 _capturedevice_repr (PyObject *self)
 {
     PyObject *retval;
-    const ALCchar *name = alcGetString (PyCaptureDevice_AsDevice (self),
+    const ALCchar *name;
+    size_t len;
+    char *str;
+    
+    CLEAR_ALCERROR_STATE ();
+    name = alcGetString (PyCaptureDevice_AsDevice (self),
         ALC_CAPTURE_DEVICE_SPECIFIER);
+    if (!name)
+    {
+        SetALCErrorException (alcGetError (PyCaptureDevice_AsDevice (self)), 1);
+        return NULL;
+    }        
     /* CaptureDevice('') == 17 */
-    size_t len = strlen ((const char*) name) + 18;
-    char *str = malloc (len);
+    len = strlen ((const char*) name) + 18;
+    str = malloc (len);
     if (!str)
         return NULL;
 
@@ -186,16 +208,63 @@ _capturedevice_getsize (PyObject *self, void *closure)
     return PyInt_FromLong ((long) ((PyCaptureDevice*)self)->size);
 }
 
+static PyObject*
+_capturedevice_getfrequency (PyObject *self, void *closure)
+{
+    return PyInt_FromLong ((long) ((PyCaptureDevice*)self)->frequency);
+}
+
+static PyObject*
+_capturedevice_getformat (PyObject *self, void *closure)
+{
+    return PyInt_FromLong ((long) ((PyCaptureDevice*)self)->format);
+}
+
 /* CaptureDevice methods */
 static PyObject*
 _capturedevice_start (PyObject* self)
 {
+    CLEAR_ALCERROR_STATE ();
+    alcCaptureStart (PyCaptureDevice_AsDevice(self));
+    if (SetALCErrorException (alcGetError (PyCaptureDevice_AsDevice(self)), 0))
+        return NULL;
     Py_RETURN_NONE;
 }
 
 static PyObject*
 _capturedevice_stop (PyObject* self)
 {
+    CLEAR_ALCERROR_STATE ();
+    alcCaptureStop (PyCaptureDevice_AsDevice(self));
+    if (SetALCErrorException (alcGetError (PyCaptureDevice_AsDevice(self)), 0))
+        return NULL;
+    Py_RETURN_NONE;
+}
+
+static PyObject*
+_capturedevice_getsamples (PyObject* self, PyObject *args)
+{
+    PyObject *buffer = NULL;
+    long offset = 0;
+    ALCvoid *buf;
+    ALCsizei count;
+    
+    if (!PyArg_ParseTuple (args, "|Ol:get_samples", &buffer, &offset))
+        return NULL;
+    
+    CLEAR_ALCERROR_STATE ();
+    alcGetIntegerv (PyCaptureDevice_AsDevice (self), ALC_CAPTURE_SAMPLES,
+        (ALCsizei)(sizeof (ALCsizei)), &count);
+    if (SetALCErrorException (alcGetError (PyCaptureDevice_AsDevice(self)), 0))
+        return NULL;
+    if (count == 0)
+    {
+        Py_RETURN_NONE;
+    }
+    
+    alcCaptureSamples (PyCaptureDevice_AsDevice (self), &buf, count);
+    if (SetALCErrorException (alcGetError (PyCaptureDevice_AsDevice(self)), 0))
+        return NULL;
     Py_RETURN_NONE;
 }
 
@@ -211,10 +280,11 @@ PyCaptureDevice_New (const char* name, ALCuint frequency, ALCenum format,
     if (!device)
         return NULL;
 
+    CLEAR_ALCERROR_STATE ();
     dev = alcCaptureOpenDevice (name, frequency, format, bufsize);
     if (!dev)
     {
-        SetALErrorException (alGetError ());
+        SetALErrorException (alGetError (), 1);
         Py_DECREF (device);
         return NULL;
     }

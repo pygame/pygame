@@ -192,7 +192,7 @@ _listener_setprop (PyObject *self, PyObject *args)
                 vals[cnt] = (ALint) tmp;
             }
 
-            CLEAR_ERROR_STATE ();
+            CLEAR_ALERROR_STATE ();
             if (ptype == INT3)
                 alListener3i (param, vals[0], vals[1], vals[2]);
             else
@@ -225,7 +225,7 @@ _listener_setprop (PyObject *self, PyObject *args)
                 vals[cnt] = (ALfloat) tmp;
             }
 
-            CLEAR_ERROR_STATE ();
+            CLEAR_ALERROR_STATE ();
             if (ptype == FLOAT3)
                 alListener3f (param, vals[0], vals[1], vals[2]);
             else
@@ -265,13 +265,13 @@ _listener_setprop (PyObject *self, PyObject *args)
         case INT:
             if (!IntFromObj (values, &ival))
                 return NULL;
-            CLEAR_ERROR_STATE ();
+            CLEAR_ALERROR_STATE ();
             alListeneri (param, (ALint) ival);
             break;
         case FLOAT:
             if (!DoubleFromObj (values, &fval))
                 return NULL;
-            CLEAR_ERROR_STATE ();
+            CLEAR_ALERROR_STATE ();
             alListenerf (param, (ALfloat) fval);
             break;
         default:
@@ -280,7 +280,7 @@ _listener_setprop (PyObject *self, PyObject *args)
         }
     }
 
-    if (SetALErrorException (alGetError ()))
+    if (SetALErrorException (alGetError (), 0))
         return NULL;
     Py_RETURN_NONE;
 }
@@ -312,14 +312,14 @@ _listener_getprop (PyObject *self, PyObject *args)
     }
 
     ptype = GetPropTypeFromStr (type);
-    CLEAR_ERROR_STATE ();
+    CLEAR_ALERROR_STATE ();
     switch (ptype)
     {
     case INT:
     {
         ALint val;
         alGetListeneri (param, &val);
-        if (SetALErrorException (alGetError ()))
+        if (SetALErrorException (alGetError (), 0))
             return NULL;
         return PyLong_FromLong ((long)val);
     }
@@ -327,7 +327,7 @@ _listener_getprop (PyObject *self, PyObject *args)
     {
         ALfloat val;
         alGetListenerf (param, &val);
-        if (SetALErrorException (alGetError ()))
+        if (SetALErrorException (alGetError (), 0))
             return NULL;
         return PyFloat_FromDouble ((double)val);
     }
@@ -335,7 +335,7 @@ _listener_getprop (PyObject *self, PyObject *args)
     {
         ALint val[3];
         alGetListener3i (param, &val[0], &val[1], &val[2]);
-        if (SetALErrorException (alGetError ()))
+        if (SetALErrorException (alGetError (), 0))
             return NULL;
         return Py_BuildValue ("(lll)", (long)val[0], (long)val[1],
             (long)val[2]);
@@ -344,7 +344,7 @@ _listener_getprop (PyObject *self, PyObject *args)
     {
         ALfloat val[3];
         alGetListener3f (param, &val[0], &val[1], &val[2]);
-        if (SetALErrorException (alGetError ()))
+        if (SetALErrorException (alGetError (), 0))
             return NULL;
         return Py_BuildValue ("(ddd)", (double)val[0], (double)val[1],
             (double)val[2]);
@@ -356,7 +356,7 @@ _listener_getprop (PyObject *self, PyObject *args)
         if (!val)
             return NULL;
         alGetListeneriv (param, val);
-        if (SetALErrorException (alGetError ()))
+        if (SetALErrorException (alGetError (), 0))
         {
             PyMem_Free (val);
             return NULL;
@@ -384,7 +384,7 @@ _listener_getprop (PyObject *self, PyObject *args)
         if (!val)
             return NULL;
         alGetListenerfv (param, val);
-        if (SetALErrorException (alGetError ()))
+        if (SetALErrorException (alGetError (), 0))
         {
             PyMem_Free (val);
             return NULL;

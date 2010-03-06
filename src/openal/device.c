@@ -125,12 +125,13 @@ _device_init (PyObject *self, PyObject *args, PyObject *kwds)
     if (!PyArg_ParseTuple (args, "|s", &name))
         return -1;
     
+    CLEAR_ALCERROR_STATE ();
     Py_BEGIN_ALLOW_THREADS;
     device = alcOpenDevice (name);
     Py_END_ALLOW_THREADS;
     if (!device)
     {
-        SetALErrorException (alGetError ());
+        SetALCErrorException (alcGetError (NULL), 1);
         return -1;
     }
     ((PyDevice*)self)->device = device;
@@ -141,11 +142,21 @@ static PyObject*
 _device_repr (PyObject *self)
 {
     PyObject *retval;
-    const ALCchar *name = alcGetString (PyDevice_AsDevice (self),
-        ALC_DEVICE_SPECIFIER);
+    const ALCchar *name;
+    size_t len;
+    char *str;
+    
+    CLEAR_ALCERROR_STATE ();
+    name = alcGetString (PyDevice_AsDevice (self), ALC_DEVICE_SPECIFIER);
+    if (!name)
+    {
+        SetALCErrorException (alcGetError (PyDevice_AsDevice (self)), 1);
+        return NULL;
+    }
+
     /* Device('') == 10 */
-    size_t len = strlen ((const char*) name) + 11;
-    char *str = malloc (len);
+    len = strlen ((const char*) name) + 11;
+    str = malloc (len);
     if (!str)
         return NULL;
 
@@ -159,11 +170,13 @@ _device_repr (PyObject *self)
 static PyObject*
 _device_getname (PyObject* self, void *closure)
 {
-    const ALCchar *name = alcGetString (PyDevice_AsDevice (self),
-        ALC_DEVICE_SPECIFIER);
+    const ALCchar *name;
+
+    CLEAR_ALCERROR_STATE ();
+    name = alcGetString (PyDevice_AsDevice (self), ALC_DEVICE_SPECIFIER);
     if (!name)
     {
-        SetALCErrorException (alcGetError (PyDevice_AsDevice (self)));
+        SetALCErrorException (alcGetError (PyDevice_AsDevice (self)), 1);
         return NULL;
     }
     return Text_FromUTF8 ((const char*)name);
@@ -176,11 +189,16 @@ _device_getextensions (PyObject *self, void *closure)
     int i = 0;
     const ALCchar *dptr;
     PyObject *list, *item;
-    const ALCchar *devices = alcGetString (PyDevice_AsDevice (self),
-        ALC_CAPTURE_DEVICE_SPECIFIER);
-    
-    if (SetALCErrorException (alcGetError (PyDevice_AsDevice (self))))
+    const ALCchar *devices;
+
+    CLEAR_ALCERROR_STATE ();
+    devices = alcGetString (PyDevice_AsDevice (self), ALC_DEVICE_SPECIFIER);
+    if (!devices)
+    {
+        SetALCErrorException (alcGetError (PyDevice_AsDevice (self)), 1);
         return NULL;
+    }
+    
     list = PyList_New (0);
     dptr = devices;
     while (*dptr)
@@ -240,9 +258,10 @@ _device_hasextension (PyObject *self, PyObject *args)
     if(!PyArg_ParseTuple (args, "s:has_extension", &extname))
         return NULL;
     
+    CLEAR_ALCERROR_STATE ();
     present = alcIsExtensionPresent (PyDevice_AsDevice (self),
         (const ALchar*)extname);
-    if (SetALCErrorException (alcGetError (PyDevice_AsDevice (self))))
+    if (SetALCErrorException (alcGetError (PyDevice_AsDevice (self)), 0))
         return NULL;
     if (present == ALC_FALSE)
         Py_RETURN_FALSE;
@@ -280,10 +299,11 @@ PyDevice_New (const char* name)
     if (!device)
         return NULL;
 
+    CLEAR_ALCERROR_STATE ();
     dev = alcOpenDevice (name);
     if (!dev)
     {
-        SetALErrorException (alGetError ());
+        SetALCErrorException (alcGetError (NULL), 1);
         Py_DECREF (device);
         return NULL;
     }

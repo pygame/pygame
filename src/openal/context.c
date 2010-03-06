@@ -202,13 +202,14 @@ _context_init (PyObject *self, PyObject *args, PyObject *kwds)
         }
     }
 
+    CLEAR_ALCERROR_STATE ();
     ((PyContext*)self)->context = alcCreateContext (PyDevice_AsDevice (device),
         attrs);
     if (attrs)
         PyMem_Free (attrs);
     if (((PyContext*)self)->context == NULL)
     {
-        SetALCErrorException (alcGetError (PyDevice_AsDevice (device)));
+        SetALCErrorException (alcGetError (PyDevice_AsDevice (device)), 1);
         return -1;
     }
     Py_INCREF (device);
@@ -257,8 +258,14 @@ _context_getlistener (PyObject* self, void *closure)
 static PyObject*
 _context_makecurrent (PyObject *self)
 {
-    if (alcMakeContextCurrent (PyContext_AsContext (self)) == AL_TRUE)
+    PyContext *ctxt = (PyContext*) self;
+    
+    CLEAR_ALCERROR_STATE ();
+    if (alcMakeContextCurrent (ctxt->context) == AL_TRUE)
         Py_RETURN_TRUE;
+    if (SetALCErrorException (alcGetError
+        (PyDevice_AsDevice (ctxt->device)), 0))
+        return NULL;
     Py_RETURN_FALSE;
 }
 
@@ -287,14 +294,26 @@ _context_createsources (PyObject *self, PyObject *args)
 static PyObject*
 _context_suspend (PyObject *self)
 {
-    alcSuspendContext (PyContext_AsContext (self));
+    PyContext *ctxt = (PyContext*) self;
+    
+    CLEAR_ALCERROR_STATE ();
+    alcSuspendContext (ctxt->context);
+    if (SetALCErrorException (alcGetError
+        (PyDevice_AsDevice (ctxt->device)), 0))
+        return NULL;
     Py_RETURN_NONE;
 }
 
 static PyObject*
 _context_process (PyObject *self)
 {
-    alcProcessContext (PyContext_AsContext (self));
+    PyContext *ctxt = (PyContext*) self;
+
+    CLEAR_ALCERROR_STATE ();
+    alcProcessContext (ctxt->context);
+    if (SetALCErrorException (alcGetError
+        (PyDevice_AsDevice (ctxt->device)), 0))
+        return NULL;
     Py_RETURN_NONE;
 }
 
@@ -308,9 +327,9 @@ _context_enable (PyObject *self, PyObject *args)
 
     if (!IntFromObj (args, (int*) &val))
         return NULL;
-    CLEAR_ERROR_STATE ();
+    CLEAR_ALERROR_STATE ();
     alEnable (val);
-    if (SetALErrorException (alGetError ()))
+    if (SetALErrorException (alGetError (), 0))
         return NULL;
     Py_RETURN_NONE;
 }
@@ -324,9 +343,9 @@ _context_disable (PyObject *self, PyObject *args)
 
     if (!IntFromObj (args, (int*) &val))
         return NULL;
-    CLEAR_ERROR_STATE ();
+    CLEAR_ALERROR_STATE ();
     alDisable (val);
-    if (SetALErrorException (alGetError ()))
+    if (SetALErrorException (alGetError (), 0))
         return NULL;
     Py_RETURN_NONE;
 }
@@ -341,9 +360,9 @@ _context_isenabled (PyObject *self, PyObject *args)
 
     if (!IntFromObj (args, (int*) &val))
         return NULL;
-    CLEAR_ERROR_STATE ();
+    CLEAR_ALERROR_STATE ();
     ret = alIsEnabled (val);
-    if (SetALErrorException (alGetError ()))
+    if (SetALErrorException (alGetError (), 0))
         return NULL;
     if (ret == AL_TRUE)
         Py_RETURN_TRUE;

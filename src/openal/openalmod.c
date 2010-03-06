@@ -95,7 +95,6 @@ _openal_algetstring (PyObject *self, PyObject *args)
     const ALchar* retval;
     if (!IntFromObj (args, (int*) &val))
         return NULL;
-    CLEAR_ERROR_STATE ();
 
     if (alcGetCurrentContext () == NULL)
     {
@@ -103,10 +102,11 @@ _openal_algetstring (PyObject *self, PyObject *args)
         return NULL;
     }
 
+    CLEAR_ALERROR_STATE ();
     retval = alGetString (val);
     if (!retval)
     {
-        SetALErrorException (alGetError ());
+        SetALErrorException (alGetError (), 1);
         return NULL;
     }
     return Text_FromUTF8 ((const char*)retval);
@@ -127,13 +127,13 @@ _openal_isextensionpresent (PyObject *self, PyObject *args)
         return NULL;
     }
     
-    CLEAR_ERROR_STATE ();
+    CLEAR_ALCERROR_STATE ();
     if (device)
         present = alcIsExtensionPresent (PyDevice_AsDevice (device),
             (const ALchar*) extname);
     else
         present = alIsExtensionPresent ((const ALchar*) extname);
-    if (SetALErrorException (alGetError ()))
+    if (SetALCErrorException (alcGetError (PyDevice_AsDevice (device)), 0))
         return NULL;
     if (present == ALC_FALSE)
         Py_RETURN_FALSE;
@@ -160,7 +160,7 @@ _openal_listoutputdevices (PyObject *self)
     const ALCchar *dptr;
     const ALCchar *devices;
 
-    CLEAR_ERROR_STATE ();
+    CLEAR_ALCERROR_STATE ();
     if (alcIsExtensionPresent (NULL, "ALC_ENUMERATION_EXT") == AL_FALSE)
     {
         PyErr_SetString (PyExc_PyGameError, "device listing not supported");
@@ -170,11 +170,14 @@ _openal_listoutputdevices (PyObject *self)
     if (alcIsExtensionPresent (NULL, "ALC_ENUMERATE_ALL_EXT") == AL_TRUE)
         devices = alcGetString (NULL, ALC_ALL_DEVICES_SPECIFIER);
     else
+    {
+        CLEAR_ALCERROR_STATE (); /* Ignore errors */
         devices = alcGetString (NULL, ALC_DEVICE_SPECIFIER);
-
+    }
+    
     if (!devices)
     {
-        SetALCErrorException (alcGetError (NULL));
+        SetALCErrorException (alcGetError (NULL), 1);
         return NULL;
     }
 
@@ -211,7 +214,7 @@ _openal_listcapturedevices (PyObject *self)
     const ALCchar *dptr;
     const ALCchar *devices;
 
-    CLEAR_ERROR_STATE ();
+    CLEAR_ALCERROR_STATE ();
     if (alcIsExtensionPresent (NULL, "ALC_ENUMERATION_EXT") == AL_FALSE)
     {
         PyErr_SetString (PyExc_PyGameError, "device listing not supported");
@@ -221,7 +224,7 @@ _openal_listcapturedevices (PyObject *self)
     devices = alcGetString (NULL, ALC_CAPTURE_DEVICE_SPECIFIER);
     if (!devices)
     {
-        SetALCErrorException (alcGetError (NULL));
+        SetALCErrorException (alcGetError (NULL), 1);
         return NULL;
     }
     list = PyList_New (0);
@@ -254,11 +257,11 @@ static PyObject*
 _openal_getdefaultoutputdevicename (PyObject *self)
 {
     const ALCchar *name;
-    CLEAR_ERROR_STATE ();
+    CLEAR_ALCERROR_STATE ();
     name = alcGetString (NULL, ALC_DEFAULT_DEVICE_SPECIFIER);
     if (name)
         return Text_FromUTF8 ((const char*)name);
-    SetALCErrorException (alcGetError (NULL));
+    SetALCErrorException (alcGetError (NULL), 1);
     return NULL;
 }
 
@@ -266,17 +269,17 @@ static PyObject*
 _openal_getdefaultcapturedevicename (PyObject *self)
 {
     const ALCchar *name;
-    CLEAR_ERROR_STATE ();
+    CLEAR_ALCERROR_STATE ();
     name = alcGetString (NULL, ALC_CAPTURE_DEFAULT_DEVICE_SPECIFIER);
     if (name)
         return Text_FromUTF8 ((const char*)name);
-    SetALCErrorException (alcGetError (NULL));
+    SetALCErrorException (alcGetError (NULL), 1);
     return NULL;
 }
 
 /* C API */
 int
-SetALErrorException (ALenum error)
+SetALErrorException (ALenum error, int force)
 {
     switch (error)
     {
@@ -293,12 +296,19 @@ SetALErrorException (ALenum error)
         PyErr_SetString (PyExc_PyGameError, "insufficient memory");
         return 1;
     default:
+    {
+        if (force)
+        {
+            PyErr_SetString (PyExc_PyGameError,
+                "an unknown error occured for OpenAL");
+        }
         return 0;
+    }
     }
 }
 
 int
-SetALCErrorException (ALCenum error)
+SetALCErrorException (ALCenum error, int force)
 {
     switch (error)
     {
@@ -318,7 +328,14 @@ SetALCErrorException (ALCenum error)
         PyErr_SetString (PyExc_PyGameError, "invalid context");
         return 1;
     default:
+    {
+        if (force)
+        {
+            PyErr_SetString (PyExc_PyGameError,
+                "an unknown error occured for an OpenAL context");
+        }
         return 0;
+    }
     }
 }
 

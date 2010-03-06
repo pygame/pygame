@@ -36,7 +36,6 @@ typedef enum
 static PyObject* _sources_action (PyObject *self, PyObject *args,
     SourcesAction action);
 
-
 static PyObject* _sources_setprop (PyObject *self, PyObject *args);
 static PyObject* _sources_getprop (PyObject *self, PyObject *args);
 static PyObject* _sources_play (PyObject *self, PyObject *args);
@@ -276,7 +275,7 @@ _sources_setprop (PyObject *self, PyObject *args)
                 vals[cnt] = (ALint) tmp;
             }
 
-            CLEAR_ERROR_STATE ();
+            CLEAR_ALERROR_STATE ();
             if (ptype == INT3)
                 alSource3i ((ALuint)bufnum, param, vals[0], vals[1], vals[2]);
             else
@@ -309,7 +308,7 @@ _sources_setprop (PyObject *self, PyObject *args)
                 vals[cnt] = (ALfloat) tmp;
             }
 
-            CLEAR_ERROR_STATE ();
+            CLEAR_ALERROR_STATE ();
             if (ptype == FLOAT3)
                 alSource3f ((ALuint)bufnum, param, vals[0], vals[1], vals[2]);
             else
@@ -349,13 +348,13 @@ _sources_setprop (PyObject *self, PyObject *args)
         case INT:
             if (!IntFromObj (values, &ival))
                 return NULL;
-            CLEAR_ERROR_STATE ();
+            CLEAR_ALERROR_STATE ();
             alSourcei ((ALuint)bufnum, param, (ALint) ival);
             break;
         case FLOAT:
             if (!DoubleFromObj (values, &fval))
                 return NULL;
-            CLEAR_ERROR_STATE ();
+            CLEAR_ALERROR_STATE ();
             alSourcef ((ALuint)bufnum, param, (ALfloat) fval);
             break;
         default:
@@ -364,7 +363,7 @@ _sources_setprop (PyObject *self, PyObject *args)
         }
     }
 
-    if (SetALErrorException (alGetError ()))
+    if (SetALErrorException (alGetError (), 0))
         return NULL;
     Py_RETURN_NONE;
 }
@@ -404,14 +403,14 @@ _sources_getprop (PyObject *self, PyObject *args)
     }
 
     ptype = GetPropTypeFromStr (type);
-    CLEAR_ERROR_STATE ();
+    CLEAR_ALERROR_STATE ();
     switch (ptype)
     {
     case INT:
     {
         ALint val;
         alGetSourcei ((ALuint)bufnum, param, &val);
-        if (SetALErrorException (alGetError ()))
+        if (SetALErrorException (alGetError (), 0))
             return NULL;
         return PyLong_FromLong ((long)val);
     }
@@ -419,7 +418,7 @@ _sources_getprop (PyObject *self, PyObject *args)
     {
         ALfloat val;
         alGetSourcef ((ALuint)bufnum, param, &val);
-        if (SetALErrorException (alGetError ()))
+        if (SetALErrorException (alGetError (), 0))
             return NULL;
         return PyFloat_FromDouble ((double)val);
     }
@@ -427,7 +426,7 @@ _sources_getprop (PyObject *self, PyObject *args)
     {
         ALint val[3];
         alGetSource3i ((ALuint)bufnum, param, &val[0], &val[1], &val[2]);
-        if (SetALErrorException (alGetError ()))
+        if (SetALErrorException (alGetError (), 0))
             return NULL;
         return Py_BuildValue ("(lll)", (long)val[0], (long)val[1],
             (long)val[2]);
@@ -436,7 +435,7 @@ _sources_getprop (PyObject *self, PyObject *args)
     {
         ALfloat val[3];
         alGetSource3f ((ALuint)bufnum, param, &val[0], &val[1], &val[2]);
-        if (SetALErrorException (alGetError ()))
+        if (SetALErrorException (alGetError (), 0))
             return NULL;
         return Py_BuildValue ("(ddd)", (double)val[0], (double)val[1],
             (double)val[2]);
@@ -448,7 +447,7 @@ _sources_getprop (PyObject *self, PyObject *args)
         if (!val)
             return NULL;
         alGetSourceiv ((ALuint)bufnum, param, val);
-        if (SetALErrorException (alGetError ()))
+        if (SetALErrorException (alGetError (), 0))
         {
             PyMem_Free (val);
             return NULL;
@@ -476,7 +475,7 @@ _sources_getprop (PyObject *self, PyObject *args)
         if (!val)
             return NULL;
         alGetSourcefv ((ALuint)bufnum, param, val);
-        if (SetALErrorException (alGetError ()))
+        if (SetALErrorException (alGetError (), 0))
         {
             PyMem_Free (val);
             return NULL;
@@ -538,7 +537,7 @@ _sources_action (PyObject *self, PyObject *args, SourcesAction action)
             }
             sources[i] = source;
         }
-        CLEAR_ERROR_STATE ();
+        CLEAR_ALERROR_STATE ();
         switch (action)
         {
         case PLAY:
@@ -557,13 +556,13 @@ _sources_action (PyObject *self, PyObject *args, SourcesAction action)
             break;
         }
         PyMem_Free (sources);
-        if (SetALErrorException (alGetError ()))
+        if (SetALErrorException (alGetError (), 0))
             return NULL;
         Py_RETURN_NONE;
     }
     else if (UintFromObj (args, &source))
     {
-        CLEAR_ERROR_STATE ();
+        CLEAR_ALERROR_STATE ();
         switch (action)
         {
         case PLAY:
@@ -579,7 +578,7 @@ _sources_action (PyObject *self, PyObject *args, SourcesAction action)
             alSourceRewind ((ALuint)source);
             break;
         }
-        if (SetALErrorException (alGetError ()))
+        if (SetALErrorException (alGetError (), 0))
             return NULL;
         Py_RETURN_NONE;
     }
@@ -639,10 +638,10 @@ _sources_queuebuffers (PyObject *self, PyObject *args)
         return NULL;
     }
     
-    CLEAR_ERROR_STATE ();
+    CLEAR_ALERROR_STATE ();
     alSourceQueueBuffers ((ALuint) bufnum, ((PyBuffers*)buffers)->count,
         PyBuffers_AsBuffers(buffers));
-    if (SetALErrorException (alGetError ()))
+    if (SetALErrorException (alGetError (), 0))
         return NULL;
     
     Py_RETURN_NONE;
@@ -674,10 +673,10 @@ _sources_unqueuebuffers (PyObject *self, PyObject *args)
         return NULL;
     }
     
-    CLEAR_ERROR_STATE ();
+    CLEAR_ALERROR_STATE ();
     alSourceUnqueueBuffers ((ALuint) bufnum, ((PyBuffers*)buffers)->count,
         PyBuffers_AsBuffers(buffers));
-    if (SetALErrorException (alGetError ()))
+    if (SetALErrorException (alGetError (), 0))
         return NULL;
     
     Py_RETURN_NONE;
@@ -714,9 +713,9 @@ PySources_New (PyObject *context, ALsizei count)
         Py_DECREF (sources);
         return NULL;
     }
-    CLEAR_ERROR_STATE ();
+    CLEAR_ALERROR_STATE ();
     alGenSources (count, buf);
-    if (SetALErrorException (alGetError ()))
+    if (SetALErrorException (alGetError (), 0))
     {
         Py_DECREF (sources);
         PyMem_Free (buf);
