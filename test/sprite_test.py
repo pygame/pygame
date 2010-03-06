@@ -301,13 +301,13 @@ class SpriteCollideTest( unittest.TestCase ):
         self.assert_(len(arg_dict_a) == 1 and arg_dict_a[self.s1] == 2)
 
         # The callback function should have been twice because self.s2 and
-        # self.s3 should have only been passed once each
+        # self.s3 should have been passed once each
         self.assert_(
             len(arg_dict_b) == 2 and
             arg_dict_b[self.s2] == 1 and arg_dict_b[self.s3] == 1
                     )
 
-    def test_groupcollide__without_collided_callback(self):
+    def todo_test_groupcollide__without_collided_callback(self):
 
         # __doc__ (as of 2008-08-02) for pygame.sprite.groupcollide:
 
@@ -342,7 +342,7 @@ class SpriteCollideTest( unittest.TestCase ):
 
         self.fail()
 
-    def test_groupcollide__with_collided_callback(self):
+    def todo_test_groupcollide__with_collided_callback(self):
 
         # __doc__ (as of 2008-08-02) for pygame.sprite.groupcollide:
 
