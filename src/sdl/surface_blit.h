@@ -39,17 +39,17 @@ typedef struct
     SDL_PixelFormat *dst;
 } SDL_BlitInfo;
 
-void blit_blend_add (SDL_BlitInfo* info);
-void blit_blend_sub (SDL_BlitInfo* info);
-void blit_blend_mul (SDL_BlitInfo* info);
-void blit_blend_min (SDL_BlitInfo* info);
-void blit_blend_max (SDL_BlitInfo* info);
-void blit_blend_and (SDL_BlitInfo* info);
-void blit_blend_or (SDL_BlitInfo* info);
-void blit_blend_xor (SDL_BlitInfo* info);
-void blit_blend_diff (SDL_BlitInfo* info);
-void blit_blend_screen (SDL_BlitInfo* info);
-void blit_blend_avg (SDL_BlitInfo* info);
+void blit_blend_rgb_add (SDL_BlitInfo* info);
+void blit_blend_rgb_sub (SDL_BlitInfo* info);
+void blit_blend_rgb_mul (SDL_BlitInfo* info);
+void blit_blend_rgb_min (SDL_BlitInfo* info);
+void blit_blend_rgb_max (SDL_BlitInfo* info);
+void blit_blend_rgb_and (SDL_BlitInfo* info);
+void blit_blend_rgb_or (SDL_BlitInfo* info);
+void blit_blend_rgb_xor (SDL_BlitInfo* info);
+void blit_blend_rgb_diff (SDL_BlitInfo* info);
+void blit_blend_rgb_screen (SDL_BlitInfo* info);
+void blit_blend_rgb_avg (SDL_BlitInfo* info);
 
 void blit_blend_rgba_add (SDL_BlitInfo* info);
 void blit_blend_rgba_sub (SDL_BlitInfo* info);

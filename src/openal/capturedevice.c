@@ -41,7 +41,8 @@ static PyObject* _capturedevice_getformat (PyObject *self, void *closure);
 static PyMethodDef _capturedevice_methods[] = {
     { "start", (PyCFunction) _capturedevice_start, METH_NOARGS, NULL },
     { "stop", (PyCFunction) _capturedevice_stop, METH_NOARGS, NULL },
-    { "get_samples", (PyCFunction) _capturedevice_getsamples, METH_VARARGS, NULL },
+    { "get_samples", (PyCFunction) _capturedevice_getsamples, METH_VARARGS,
+      NULL },
     { NULL, NULL, 0, NULL }
 };
 
@@ -258,13 +259,12 @@ _capturedevice_getsamples (PyObject* self, PyObject *args)
     if (SetALCErrorException (alcGetError (PyCaptureDevice_AsDevice(self)), 0))
         return NULL;
     if (count == 0)
-    {
         Py_RETURN_NONE;
-    }
     
     alcCaptureSamples (PyCaptureDevice_AsDevice (self), &buf, count);
     if (SetALCErrorException (alcGetError (PyCaptureDevice_AsDevice(self)), 0))
         return NULL;
+
     Py_RETURN_NONE;
 }
 

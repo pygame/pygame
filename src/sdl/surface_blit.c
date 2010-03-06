@@ -498,57 +498,57 @@ pyg_sdlsoftware_blit (SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
         }
         case BLEND_RGB_ADD:
         {
-            blit_blend_add (&info);
+            blit_blend_rgb_add (&info);
             break;
         }
         case BLEND_RGB_SUB:
         {
-            blit_blend_sub (&info);
+            blit_blend_rgb_sub (&info);
             break;
         }
         case BLEND_RGB_MULT:
         {
-            blit_blend_mul (&info);
+            blit_blend_rgb_mul (&info);
             break;
         }
         case BLEND_RGB_MIN:
         {
-            blit_blend_min (&info);
+            blit_blend_rgb_min (&info);
             break;
         }
         case BLEND_RGB_MAX:
         {
-            blit_blend_max (&info);
+            blit_blend_rgb_max (&info);
             break;
         }
         case BLEND_RGB_AND:
         {
-            blit_blend_and (&info);
+            blit_blend_rgb_and (&info);
             break;
         }
         case BLEND_RGB_OR:
         {
-            blit_blend_or (&info);
+            blit_blend_rgb_or (&info);
             break;
         }
         case BLEND_RGB_XOR:
         {
-            blit_blend_xor (&info);
+            blit_blend_rgb_xor (&info);
             break;
         }
         case BLEND_RGB_DIFF:
         {
-            blit_blend_diff (&info);
+            blit_blend_rgb_diff (&info);
             break;
         }
         case BLEND_RGB_SCREEN:
         {
-            blit_blend_screen (&info);
+            blit_blend_rgb_screen (&info);
             break;
         }
         case BLEND_RGB_AVG:
         {
-            blit_blend_avg (&info);
+            blit_blend_rgb_avg (&info);
             break;
         }
 
