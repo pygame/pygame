@@ -20,7 +20,11 @@
 #define PYGAME_OPENALCAPTUREDEVICE_INTERNAL
 
 #include "openalmod.h"
+#include "pgbase.h"
 #include "pgopenal.h"
+
+static int _getbytesfromformat (ALenum format);
+static int _getchannelsfromformat (ALenum format);
 
 static PyObject* _capturedevice_new (PyTypeObject *type, PyObject *args,
     PyObject *kwds);
@@ -222,6 +226,75 @@ _capturedevice_getformat (PyObject *self, void *closure)
 }
 
 /* CaptureDevice methods */
+static int
+_getbytesfromformat (ALenum format)
+{
+    switch (format)
+    {
+    case AL_FORMAT_MONO8:
+    case AL_FORMAT_STEREO8:
+    case AL_FORMAT_QUAD8_LOKI:
+    case AL_FORMAT_QUAD8:
+    case AL_FORMAT_51CHN8:
+    case AL_FORMAT_61CHN8:
+    case AL_FORMAT_71CHN8:
+        return 1;
+    case AL_FORMAT_MONO16:
+    case AL_FORMAT_STEREO16:
+    case AL_FORMAT_QUAD16_LOKI:
+    case AL_FORMAT_QUAD16:
+    case AL_FORMAT_51CHN16:
+    case AL_FORMAT_61CHN16:
+    case AL_FORMAT_71CHN16:
+        return 2;
+    case AL_FORMAT_MONO_FLOAT32:
+    case AL_FORMAT_STEREO_FLOAT32:
+    case AL_FORMAT_QUAD32:
+    case AL_FORMAT_51CHN32:
+    case AL_FORMAT_61CHN32:
+    case AL_FORMAT_71CHN32:
+        return 4;
+    default:
+        return -1;
+    }
+}
+
+static int
+_getchannelsfromformat (ALenum format)
+{
+    switch (format)
+    {
+    case AL_FORMAT_MONO8:
+    case AL_FORMAT_MONO16:
+    case AL_FORMAT_MONO_FLOAT32:
+        return 1;
+    case AL_FORMAT_STEREO8:
+    case AL_FORMAT_STEREO16:
+    case AL_FORMAT_STEREO_FLOAT32:
+        return 2;
+    case AL_FORMAT_QUAD8_LOKI:
+    case AL_FORMAT_QUAD16_LOKI:
+    case AL_FORMAT_QUAD8:
+    case AL_FORMAT_QUAD16:
+    case AL_FORMAT_QUAD32:
+        return 4;
+    case AL_FORMAT_51CHN8:
+    case AL_FORMAT_51CHN16:
+    case AL_FORMAT_51CHN32:
+        return 6;
+    case AL_FORMAT_61CHN8:
+    case AL_FORMAT_61CHN16:
+    case AL_FORMAT_61CHN32:
+        return 7;
+    case AL_FORMAT_71CHN8:
+    case AL_FORMAT_71CHN16:
+    case AL_FORMAT_71CHN32:
+        return 8;
+    default:
+        return -1;
+    }
+}
+
 static PyObject*
 _capturedevice_start (PyObject* self)
 {
@@ -245,27 +318,79 @@ _capturedevice_stop (PyObject* self)
 static PyObject*
 _capturedevice_getsamples (PyObject* self, PyObject *args)
 {
-    PyObject *buffer = NULL;
-    long offset = 0;
+    PyObject *retval, *buffer = NULL;
     ALCvoid *buf;
-    ALCsizei count;
+    ALCsizei count, total;
+    int channels, bytesize;
+    PyCaptureDevice *pydevice = (PyCaptureDevice*) self;
+    ALCdevice *device = PyCaptureDevice_AsDevice (self);
     
-    if (!PyArg_ParseTuple (args, "|Ol:get_samples", &buffer, &offset))
+    if (!PyArg_ParseTuple (args, "|O:get_samples", &buffer))
         return NULL;
+
+    if (buffer && !IsWriteableStreamObj (buffer))
+    {
+        PyErr_SetString (PyExc_ValueError, "buffer is not writeable");
+        return NULL;
+    }
     
     CLEAR_ALCERROR_STATE ();
-    alcGetIntegerv (PyCaptureDevice_AsDevice (self), ALC_CAPTURE_SAMPLES,
-        (ALCsizei)(sizeof (ALCsizei)), &count);
-    if (SetALCErrorException (alcGetError (PyCaptureDevice_AsDevice(self)), 0))
+    alcGetIntegerv (device, ALC_CAPTURE_SAMPLES, (ALCsizei)(sizeof (ALCsizei)),
+        &count);
+    if (SetALCErrorException (alcGetError (device), 0))
         return NULL;
     if (count == 0)
         Py_RETURN_NONE;
     
+    /* The default for a good ring buffer size is something like the following
+     *
+     * single sample bytesize:
+     *      frequency * channels * format
+     */
+    
+    channels = _getchannelsfromformat (pydevice->format);
+    bytesize = _getbytesfromformat (pydevice->format);
+    if (channels == -1 || bytesize == -1)
+    {
+        PyErr_SetString (PyExc_RuntimeError, "unsupported OpenAL format");
+        return NULL;
+    }
+
+    total = count * channels * bytesize;
+    buf = PyMem_Malloc (total);
+    if (!buf)
+        return NULL;
+
     alcCaptureSamples (PyCaptureDevice_AsDevice (self), &buf, count);
     if (SetALCErrorException (alcGetError (PyCaptureDevice_AsDevice(self)), 0))
         return NULL;
 
-    Py_RETURN_NONE;
+    if (buffer)
+    {
+        pguint32 written;
+        CPyStreamWrapper *wrapper = CPyStreamWrapper_New (buffer);
+        if (!wrapper)
+        {
+            PyMem_Free (buf);
+            return NULL;
+        }
+        if (!CPyStreamWrapper_Write (buffer, buf, count, bytesize * channels,
+                &written))
+        {
+            PyMem_Free (buf);
+            CPyStreamWrapper_Free (buffer);
+            return NULL;
+        }
+        CPyStreamWrapper_Free (buffer);
+        return PyLong_FromUnsignedLong ((unsigned long) written);
+    }
+
+    /* No buffer provided - create a byte array */
+    retval = Bytes_FromStringAndSize ((const char*) buf, total);
+    PyMem_Free (buf);
+    if (!retval)
+        return NULL;
+    return retval;
 }
 
 /* C API */

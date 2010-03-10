@@ -29,6 +29,7 @@ static PyObject* _openal_init (PyObject *self);
 static PyObject* _openal_quit (PyObject *self);
 static PyObject* _openal_geterror (PyObject *self);
 static PyObject* _openal_algetstring (PyObject *self, PyObject *args);
+static PyObject* _openal_getenumvalue (PyObject *self, PyObject *args);
 static PyObject* _openal_isextensionpresent (PyObject *self, PyObject *args);
 static PyObject* _openal_setcurrentcontext (PyObject *self, PyObject *args);
 static PyObject* _openal_listoutputdevices (PyObject *self);
@@ -42,6 +43,7 @@ static PyMethodDef _openal_methods[] = {
     { "get_error", (PyCFunction)_openal_geterror, METH_NOARGS,
       ""/*DOC_BASE_GETERROR*/ },
     { "is_extension_present", _openal_isextensionpresent, METH_VARARGS, "" },
+    { "get_enum_value", _openal_getenumvalue, METH_O, "" }, 
     { "list_output_devices", (PyCFunction)_openal_listoutputdevices,
       METH_NOARGS, "" },
     { "list_capture_devices", (PyCFunction)_openal_listcapturedevices,
@@ -110,6 +112,25 @@ _openal_algetstring (PyObject *self, PyObject *args)
         return NULL;
     }
     return Text_FromUTF8 ((const char*)retval);
+}
+
+static PyObject*
+_openal_getenumvalue (PyObject *self, PyObject *args)
+{
+    ALenum val;
+    PyObject *freeme;
+    char *enumname;
+    
+    if (!ASCIIFromObj (args, &enumname, &freeme))
+        return NULL;
+    val = alGetEnumValue ((const ALchar*)enumname);
+    Py_XDECREF (freeme);
+    if (val == 0)
+    {
+        PyErr_SetString (PyExc_ValueError, "enumeration name does not exist");
+        return NULL;
+    }
+    return PyInt_FromLong ((long)val);
 }
 
 static PyObject*

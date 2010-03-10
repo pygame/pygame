@@ -35,10 +35,20 @@ static PyObject* _context_process (PyObject *self);
 static PyObject* _context_enable (PyObject *self, PyObject *args);
 static PyObject* _context_disable (PyObject *self, PyObject *args);
 static PyObject* _context_isenabled (PyObject *self, PyObject *args);
+static PyObject* _context_getprop (PyObject *self, PyObject *args);
 
 static PyObject* _context_iscurrent (PyObject* self, void *closure);
 static PyObject* _context_getlistener (PyObject* self, void *closure);
 static PyObject* _context_getdevice (PyObject* self, void *closure);
+static PyObject* _context_getdistancemodel (PyObject* self, void *closure);
+static int _context_setdistancemodel (PyObject* self, PyObject *value,
+    void *closure);
+static PyObject* _context_getdopplerfactor (PyObject* self, void *closure);
+static int _context_setdopplerfactor (PyObject* self, PyObject *value,
+    void *closure);
+static PyObject* _context_getspeedofsound (PyObject* self, void *closure);
+static int _context_setspeedofsound (PyObject* self, PyObject *value,
+    void *closure);
 
 /**
  */
@@ -51,6 +61,7 @@ static PyMethodDef _context_methods[] = {
     { "enable", (PyCFunction) _context_enable, METH_O, "" },
     { "disable", (PyCFunction) _context_disable, METH_O, "" },
     { "is_enabled", (PyCFunction) _context_isenabled, METH_O, "" },
+    /*{ "get_prop", (PyCFunction) _context_getprop, METH_VARARGS, "" },*/
     { NULL, NULL, 0, NULL }
 };
 
@@ -60,6 +71,12 @@ static PyGetSetDef _context_getsets[] = {
     { "is_current", _context_iscurrent, NULL, NULL, NULL },
     { "device", _context_getdevice, NULL, NULL, NULL },
     { "listener", _context_getlistener, NULL, NULL, NULL },
+    { "distance_model", _context_getdistancemodel, _context_setdistancemodel,
+      NULL, NULL },
+    { "doppler_factor", _context_getdopplerfactor, _context_setdopplerfactor,
+      NULL, NULL }, 
+    { "speed_of_sound", _context_getspeedofsound, _context_setspeedofsound,
+      NULL, NULL },
     { NULL, NULL, NULL, NULL, NULL }
 };
 
@@ -254,6 +271,94 @@ _context_getlistener (PyObject* self, void *closure)
     return ctxt->listener;
 }
 
+static PyObject*
+_context_getdistancemodel (PyObject* self, void *closure)
+{
+    ALint model;
+    
+    ASSERT_CONTEXT_IS_CURRENT (self, NULL);
+    CLEAR_ALERROR_STATE ();
+    model = alGetInteger (AL_DISTANCE_MODEL);
+    if (SetALErrorException (alGetError (), 0))
+        return NULL;
+    return PyInt_FromLong ((long)model);
+}
+
+static int
+_context_setdistancemodel (PyObject* self, PyObject *value, void *closure)
+{
+    int model;
+    
+    ASSERT_CONTEXT_IS_CURRENT (self, -1);
+    
+    if (!IntFromObj (value, &model))
+        return -1;
+    CLEAR_ALERROR_STATE ();
+    alDistanceModel ((ALenum)model);
+    if (SetALErrorException (alGetError (), 0))
+        return -1;
+    return 0;
+}
+
+static PyObject*
+_context_getdopplerfactor (PyObject* self, void *closure)
+{
+    ALfloat factor;
+    
+    ASSERT_CONTEXT_IS_CURRENT (self, NULL);
+    CLEAR_ALERROR_STATE ();
+    factor = alGetFloat (AL_DOPPLER_FACTOR);
+    if (SetALErrorException (alGetError (), 0))
+        return NULL;
+    return PyFloat_FromDouble ((double)factor);
+}
+
+static int
+_context_setdopplerfactor (PyObject* self, PyObject *value, void *closure)
+{
+    double factor;
+    
+    ASSERT_CONTEXT_IS_CURRENT (self, -1);
+    
+    if (!DoubleFromObj (value, &factor))
+        return -1;
+    CLEAR_ALERROR_STATE ();
+    alDopplerFactor ((ALfloat)factor);
+    if (SetALErrorException (alGetError (), 0))
+        return -1;
+    return 0;
+}
+
+static PyObject*
+_context_getspeedofsound (PyObject* self, void *closure)
+{
+    ALfloat speed;
+    
+    ASSERT_CONTEXT_IS_CURRENT (self, NULL);
+    CLEAR_ALERROR_STATE ();
+    speed = alGetFloat (AL_SPEED_OF_SOUND);
+    if (SetALErrorException (alGetError (), 0))
+        return NULL;
+    return PyFloat_FromDouble ((double)speed);
+}
+
+static int
+_context_setspeedofsound (PyObject* self, PyObject *value, void *closure)
+{
+    double speed;
+    
+    ASSERT_CONTEXT_IS_CURRENT (self, -1);
+    
+    if (!DoubleFromObj (value, &speed))
+        return -1;
+    CLEAR_ALERROR_STATE ();
+    alSpeedOfSound ((ALfloat)speed);
+    if (SetALErrorException (alGetError (), 0))
+        return -1;
+    return 0;
+}
+
+
 /* Context methods */
 static PyObject*
 _context_makecurrent (PyObject *self)
@@ -317,7 +422,6 @@ _context_process (PyObject *self)
     Py_RETURN_NONE;
 }
 
-
 static PyObject*
 _context_enable (PyObject *self, PyObject *args)
 {
@@ -367,6 +471,13 @@ _context_isenabled (PyObject *self, PyObject *args)
     if (ret == AL_TRUE)
         Py_RETURN_TRUE;
     Py_RETURN_FALSE;
+}
+
+static PyObject*
+_context_getprop (PyObject *self, PyObject *args)
+{
+    /* TODO */
+    Py_RETURN_NONE;
 }
 
 void

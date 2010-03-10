@@ -65,12 +65,16 @@ PyObject* PyListener_New (PyObject *context);
 typedef enum
 {
     INVALID,     /* invalid type */
+    BOOL,        /* 'b'  */
     INT,         /* 'i'  */
     FLOAT,       /* 'f'  */
+    DOUBLE,      /* 'd'  */
     INT3,        /* 'i3' */
     FLOAT3,      /* 'f3' */ 
+    BOOLARRAY,   /* 'ba' */
     INTARRAY,    /* 'ia' */
-    FLOATARRAY   /* 'fa' */
+    FLOATARRAY,  /* 'fa' */
+    DOUBLEARRAY, /* 'da' */
 } PropType;
 PropType GetPropTypeFromStr (char *name);
 

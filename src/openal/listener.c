@@ -235,7 +235,7 @@ _listener_setprop (PyObject *self, PyObject *args)
             break;
         }
         default:
-            PyErr_SetString (PyExc_TypeError, "unsupported value");
+            PyErr_SetString (PyExc_TypeError, "unsupported type value");
             return NULL;
         }
     }

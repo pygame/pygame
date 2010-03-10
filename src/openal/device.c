@@ -28,6 +28,7 @@ static PyObject* _device_repr (PyObject *self);
 
 static PyObject* _device_hasextension (PyObject *self, PyObject *args);
 static PyObject* _device_geterror (PyObject* self);
+static PyObject* _device_getenumvalue (PyObject *self, PyObject *args);
 
 static PyObject* _device_getname (PyObject* self, void *closure);
 static PyObject* _device_getextensions (PyObject *self, void *closure);
@@ -37,6 +38,7 @@ static PyObject* _device_getextensions (PyObject *self, void *closure);
 static PyMethodDef _device_methods[] = {
     { "has_extension", _device_hasextension, METH_VARARGS, NULL },
     { "get_error", (PyCFunction)_device_geterror, METH_NOARGS, NULL },
+    { "get_enum_value", _device_getenumvalue, METH_O, NULL },
     { NULL, NULL, 0, NULL }
 };
 
@@ -287,6 +289,23 @@ _device_geterror (PyObject* self)
     default:
         Py_RETURN_NONE;
     }
+}
+
+static PyObject*
+_device_getenumvalue (PyObject *self, PyObject *args)
+{
+    ALCenum val;
+    PyObject *freeme;
+    char *enumname;
+    
+    if (!ASCIIFromObj (args, &enumname, &freeme))
+        return NULL;
+    CLEAR_ALCERROR_STATE ();
+    val = alcGetEnumValue (PyDevice_AsDevice (self), (const ALchar*)enumname);
+    Py_XDECREF (freeme);
+    if (SetALCErrorException (alcGetError (PyDevice_AsDevice (self)), 0))
+        return NULL;
+    return PyInt_FromLong ((long)val);
 }
 
 /* C API */

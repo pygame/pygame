@@ -22,6 +22,7 @@ SUBDIRS = \
 	$(top_srcdir)/lib/freetype \
 	$(top_srcdir)/lib/math \
 	$(top_srcdir)/lib/midi \
+	$(top_srcdir)/lib/openal \
 	$(top_srcdir)/lib/sdl \
 	$(top_srcdir)/lib/sdlext \
 	$(top_srcdir)/lib/sdlgfx \
