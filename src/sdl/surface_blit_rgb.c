@@ -41,23 +41,23 @@
         Sint32          tmp2;                                           \
                                                                         \
         if (srcbpp == 4 && dstbpp == 4)                                 \
-        {                                                                   \
-            while (height--)                                                \
-            {                                                               \
-                LOOP_UNROLLED4(                                             \
-                {                                                           \
+        {                                                               \
+            while (height--)                                            \
+            {                                                           \
+                LOOP_UNROLLED4(                                         \
+                    {                                                   \
                     GET_RGB_VALS ((*(Uint32*)src), srcfmt, sR, sG, sB, sA); \
                     GET_RGB_VALS ((*(Uint32*)dst), dstfmt, dR, dG, dB, dA); \
                     _blitop;                                            \
-                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);      \
-                    src += srcbpp;                                          \
-                    dst += dstbpp;                                          \
-                }, n, width);                                               \
-                src += srcskip;                                             \
-                dst += dstskip;                                             \
-            }                                                               \
-            return;                                                         \
-        }                                                                   \
+                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);  \
+                    src += srcbpp;                                      \
+                    dst += dstbpp;                                      \
+                    }, n, width);                                       \
+                src += srcskip;                                         \
+                dst += dstskip;                                         \
+            }                                                           \
+            return;                                                     \
+        }                                                               \
                                                                         \
         if (srcbpp == 1)                                                \
         {                                                               \

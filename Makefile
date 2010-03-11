@@ -43,7 +43,8 @@ SUBDIRS = \
 	$(top_srcdir)/src/sdlgfx \
 	$(top_srcdir)/src/sdlimage \
 	$(top_srcdir)/src/sdlmixer \
-	$(top_srcdir)/src/sdlttf
+	$(top_srcdir)/src/sdlttf \
+	$(top_srcdir)/util
 
 all: clean build
 

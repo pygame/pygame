@@ -69,8 +69,6 @@ def main():
                        os.path.join(alias, 'doc'), False)
         add_directory (zipbundle, os.path.join(root, 'doc'),
                        os.path.join(alias, 'doc'), True)
-        add_directory (zipbundle, os.path.join(root, 'examples'),
-                       os.path.join(alias, 'examples'), True)
         print ("\nFinished: %s\n          %s\n" % (bundle_name, zip_name))
     finally:
         bundle.close()

@@ -51,7 +51,7 @@
                 LOOP_UNROLLED4(                                         \
                 {                                                       \
                     GET_PALETTE_VALS (pixels, fmt, sR, sG, sB, sA);     \
-                    D_BLEND_RGBA_ADD (tmp, cR, cG, cB, cA, sR, sG, sB, sA); \
+                    _fillop;                                            \
                     *pixels = SDL_MapRGBA (fmt, sR, sG, sB, sA);        \
                     pixels += bpp;                                      \
                 }, n, width);                                           \
