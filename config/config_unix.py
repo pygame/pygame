@@ -1,10 +1,10 @@
 import os, glob, sys
 from config import config_generic, libconfig, pkgconfig, helpers
 
-def update_sys_deps (deps):
+def update_sys_libdeps (deps):
     deps["x11"] = Dependency (['Xutil.h'], 'X11', pkgconfig_name='x11')
 
-def add_sys_deps (module):
+def add_sys_libdeps (module):
     if module.name == "sdlext.scrap":
         module.depends.append ("x11")
 

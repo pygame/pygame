@@ -2,58 +2,58 @@ import os, glob
 
 class Dependency (object):
     """
-        Generic Dependency class.
+    Generic Dependency class.
+    
+    This class represents a generic library dependency of a PyGame
+    module, i.e. the required compiler and linker flags for building
+    a module which depends on this library.
+    
+    This class is instantiated with the 'linker id' (for example, a
+    library which is linked with '-lpng' has 'png' as its linker id)
+    of the library it represents and the name of a representative
+    header file.
+    
+    It must be then configured with the configure() method; if the
+    configuration is successful, the setup_module() method may be
+    used to update a Module object with the compiler flags which are
+    needed to build it.
+    
+    The process of 'configuring' this Dependency implies setting the
+    following lists with the information relevant to the library:
+    
+        self.incdirs  (all the directories which contain the include files)
+        self.libdirs  (the directory(s) which contain the library itself)
+        self.libs     (the name of the library files which must be linked)
+        self.cflags   (all the flags which must be passed to the C compiler)
+        self.gdefines (all the defines which to be passed to the C compiler)
+        self.lflags   (all the flags which must be passed to the C linker)
 
-        This class represents a generic library dependency of a PyGame
-        module, i.e. the required compiler and linker flags for building
-        a module which depends on this library.
-
-        This class is instantiated with the 'linker id' (for example, a
-        library which is linked with '-lpng' has 'png' as its linker id)
-        of the library it represents and the name of a representative
-        header file.
-
-        It must be then configured with the configure() method; if the
-        configuration is successful, the setup_module() method may be
-        used to update a Module object with the compiler flags which are
-        needed to build it.
-
-        The process of 'configuring' this Dependency implies setting the
-        following lists with the information relevant to the library:
-            
-            self.incdirs  (all the directories which contain the include files)
-            self.libdirs  (the directory(s) which contain the library itself)
-            self.libs     (the name of the library files which must be linked)
-            self.cflags   (all the flags which must be passed to the C compiler)
-            self.gdefines (all the defines which to be passed to the C compiler)
-            self.lflags   (all the flags which must be passed to the C linker)
-
-        Configuration is done by executing 'configuration callbacks'
-        (each one implementing a different configuration method) until
-        the required information has been collected.
-
-        A configuration callback is simply a class method starting by
-        '_configure_' which is automatically executed by the
-        Dependency.configure() method and returns True if the library's
-        information was found.
-
-        By default, this generic class implements the configuration
-        method which is common to all platforms:
-        Dependency._configure_guess() tries to guess the location of the
-        library by looking in system folders for the required files.
-
-        However, all platforms inherit this class to implement their
-        custom configuration callbacks; for instance, Unix systems also
-        try to use the 'pkgconfig' tool to automatically locate
-        installed libraries, and Mac OS X tries to locate installed
-        Framework Bundles containing the libraries.
-
-        See the other configuration callbacks in their respective modules:
-
-            config.config_unix
-            config.config_darwin
-            config.config_msys
-            config.config_win
+    Configuration is done by executing 'configuration callbacks'
+    (each one implementing a different configuration method) until
+    the required information has been collected.
+    
+    A configuration callback is simply a class method starting by
+    '_configure_' which is automatically executed by the
+    Dependency.configure() method and returns True if the library's
+    information was found.
+    
+    By default, this generic class implements the configuration
+    method which is common to all platforms:
+    Dependency._configure_guess() tries to guess the location of the
+    library by looking in system folders for the required files.
+    
+    However, all platforms inherit this class to implement their
+    custom configuration callbacks; for instance, Unix systems also
+    try to use the 'pkgconfig' tool to automatically locate
+    installed libraries, and Mac OS X tries to locate installed
+    Framework Bundles containing the libraries.
+    
+    See the other configuration callbacks in their respective modules:
+    
+        config.config_unix
+        config.config_darwin
+        config.config_msys
+        config.config_win
     """
 
     _incdirs = []
@@ -84,8 +84,8 @@ class Dependency (object):
 
     def _canbuild(self, cfg):
         """
-            Returns if this library has been manually disabled
-            by the user on the 'cfg.py' module, and hence cannot be built.
+        Returns if this library has been manually disabled
+        by the user on the 'cfg.py' module, and hence cannot be built.
         """
         cfg_entry = self.library_id.upper()
 
@@ -98,8 +98,8 @@ class Dependency (object):
 
     def _find_libdir(self, name):
         """
-            Searches the library folders for the specified library
-            file.
+        Searches the library folders for the specified library
+        file.
         """
         for d in self._searchdirs:
             for g in self._libdirs:
@@ -113,8 +113,8 @@ class Dependency (object):
 
     def _find_incdir(self, name):
         """
-            Recursively search all include dirs for the specified
-            header file.
+        Recursively search all include dirs for the specified
+        header file.
         """
         for d in self._searchdirs:
             for g in self._incdirs:
@@ -127,9 +127,9 @@ class Dependency (object):
 
     def _configure_guess(self):
         """
-            Configuration callback which automatically looks for
-            the required headers and libraries in some default
-            system folders.
+        Configuration callback which automatically looks for
+        the required headers and libraries in some default
+        system folders.
         """
         dirs = []
         for h in self.header_files:
@@ -150,8 +150,8 @@ class Dependency (object):
 
     def configure(self, cfg):
         """
-            Finds the compiler/linker information needed
-            to configure this library.
+        Finds the compiler/linker information needed
+        to configure this library.
         """
         print ("Configuring library '%s':" % self.library_id)
         if self.nocheck:
@@ -222,11 +222,11 @@ class Dependency (object):
 
     def setup_module(self, module, optional = False):
         """
-            Updates a modules.Module object with all the compiler
-            and linker flags required to build it with this library.
-
-            module - modules.Module object
-            optional - whether the module requires the library to build
+        Updates a modules.Module object with all the compiler
+        and linker flags required to build it with this library.
+        
+        module - modules.Module object
+        optional - whether the module requires the library to build
         """
 
         # if the building for this module is disabled already, it means

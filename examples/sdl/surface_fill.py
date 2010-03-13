@@ -9,7 +9,7 @@ try:
     import pygame2.sdl.wm as wm
 except ImportError:
     print ("No pygame2.sdl support")
-    sys.exit ()
+    sys.exit (1)
 
 white = pygame2.Color (255, 255, 255)
 black = pygame2.Color (0, 0, 0)

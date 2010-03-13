@@ -6,7 +6,6 @@ from config import config_generic, config_unix
 try: import plistlib
 except: pass
 
-
 def _get_framework_path(library):
     """
         Returns a tuple containing the path to the

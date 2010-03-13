@@ -20,7 +20,138 @@
 */
 
 #include "surface_blit.h"
+#ifdef HAVE_OPENMP
+#include <omp.h>
+#endif
 
+#ifdef HAVE_OPENMP
+#define CREATE_BLITTER(_name,_blitop)                                   \
+    void blit_##_name(SDL_BlitInfo *info)                               \
+    {                                                                   \
+        int             width = info->d_width;                          \
+        int             height = info->d_height;                        \
+        Uint8          *src = info->s_pixels;                           \
+        Uint8          *dst = info->d_pixels;                           \
+        SDL_PixelFormat *srcfmt = info->src;                            \
+        SDL_PixelFormat *dstfmt = info->dst;                            \
+        int             srcbpp = srcfmt->BytesPerPixel;                 \
+        int             dstbpp = dstfmt->BytesPerPixel;                 \
+        Uint8           dR, dG, dB, dA, sR, sG, sB, sA;                 \
+        Uint32          pixel;                                          \
+        Uint32          tmp;                                            \
+        Sint32          tmp2;                                           \
+        Uint8          *sppx, *dppx;                                    \
+        int             x, y;                                           \
+                                                                        \
+        if (srcbpp == 4 && dstbpp == 4)                                 \
+        {                                                               \
+            _Pragma("omp parallel")                                     \
+            {                                                           \
+                _Pragma("omp for private(sppx,dppx,x,sR,sG,sB,sA,dR,dG,dB,dA,tmp,tmp2)") \
+                for (y = 0; y < height; y++)                            \
+                {                                                       \
+                    for (x = 0; x < width; x++)                         \
+                    {                                                   \
+                        sppx = src + y * info->s_pitch + x * srcbpp;    \
+                        dppx = dst + y * info->d_pitch + x * dstbpp;    \
+                        GET_RGB_VALS ((*(Uint32*)sppx), srcfmt, sR, sG, sB, sA); \
+                        GET_RGB_VALS ((*(Uint32*)dppx), dstfmt, dR, dG, dB, dA); \
+                        _blitop;                                        \
+                        CREATE_PIXEL(dppx, dR, dG, dB, dA, dstbpp, dstfmt); \
+                    }                                                   \
+                }                                                       \
+            }                                                           \
+            return;                                                     \
+        }                                                               \
+                                                                        \
+        if (srcbpp == 1)                                                \
+        {                                                               \
+            if (dstbpp == 1)                                            \
+            {                                                           \
+                _Pragma("omp parallel")                                 \
+                {                                                       \
+                    _Pragma("omp for private(sppx,dppx,x,sR,sG,sB,sA,dR,dG,dB,dA,tmp,tmp2)") \
+                    for (y = 0; y < height; y++)                        \
+                    {                                                   \
+                        for (x = 0; x < width; x++)                     \
+                        {                                               \
+                            sppx = src + y * info->s_pitch + x * srcbpp; \
+                            dppx = dst + y * info->d_pitch + x * dstbpp; \
+                            GET_PALETTE_VALS(sppx, srcfmt, sR, sG, sB, sA); \
+                            GET_PALETTE_VALS(dppx, dstfmt, dR, dG, dB, dA); \
+                            _blitop;                                    \
+                            CREATE_PIXEL(dppx, dR, dG, dB, dA, dstbpp, dstfmt); \
+                        }                                               \
+                    }                                                   \
+                }                                                       \
+            }                                                           \
+            else /* dstbpp > 1 */                                       \
+            {                                                           \
+                _Pragma("omp parallel")                                 \
+                {                                                       \
+                    _Pragma("omp for private(sppx,dppx,pixel,x,sR,sG,sB,sA,dR,dG,dB,dA,tmp,tmp2)") \
+                    for (y = 0; y < height; y++)                        \
+                    {                                                   \
+                        for (x = 0; x < width; x++)                     \
+                        {                                               \
+                            sppx = src + y * info->s_pitch + x * srcbpp; \
+                            dppx = dst + y * info->d_pitch + x * dstbpp; \
+                            GET_PALETTE_VALS(sppx, srcfmt, sR, sG, sB, sA); \
+                            GET_PIXEL (pixel, dstbpp, dppx);             \
+                            GET_RGB_VALS (pixel, dstfmt, dR, dG, dB, dA); \
+                            _blitop;                                    \
+                            CREATE_PIXEL(dppx, dR, dG, dB, dA, dstbpp, dstfmt); \
+                        }                                               \
+                    }                                                   \
+                }                                                       \
+            }                                                           \
+        }                                                               \
+        else /* srcbpp > 1 */                                           \
+        {                                                               \
+            if (dstbpp == 1)                                            \
+            {                                                           \
+                _Pragma("omp parallel")                                 \
+                {                                                       \
+                    _Pragma("omp for private(sppx,dppx,pixel,x,sR,sG,sB,sA,dR,dG,dB,dA,tmp,tmp2)") \
+                    for (y = 0; y < height; y++)                        \
+                    {                                                   \
+                        for (x = 0; x < width; x++)                     \
+                        {                                               \
+                            sppx = src + y * info->s_pitch + x * srcbpp; \
+                            dppx = dst + y * info->d_pitch + x * dstbpp; \
+                            GET_PIXEL(pixel, srcbpp, sppx);             \
+                            GET_RGB_VALS (pixel, srcfmt, sR, sG, sB, sA); \
+                            GET_PALETTE_VALS(dppx, dstfmt, dR, dG, dB, dA); \
+                            _blitop;                                    \
+                            CREATE_PIXEL(dppx, dR, dG, dB, dA, dstbpp, dstfmt); \
+                        }                                               \
+                    }                                                   \
+                }                                                       \
+            }                                                           \
+            else /* dstbpp > 1 */                                       \
+            {                                                           \
+                _Pragma("omp parallel")                                 \
+                {                                                       \
+                    _Pragma("omp for private(sppx,dppx,pixel,x,sR,sG,sB,sA,dR,dG,dB,dA,tmp,tmp2)") \
+                    for (y = 0; y < height; y++)                        \
+                    {                                                   \
+                        for (x = 0; x < width; x++)                     \
+                        {                                               \
+                            sppx = src + y * info->s_pitch + x * srcbpp; \
+                            dppx = dst + y * info->d_pitch + x * dstbpp; \
+                            GET_PIXEL(pixel, srcbpp, sppx);             \
+                            GET_RGB_VALS (pixel, srcfmt, sR, sG, sB, sA); \
+                            GET_PIXEL (pixel, dstbpp, dppx);            \
+                            GET_RGB_VALS (pixel, dstfmt, dR, dG, dB, dA); \
+                            _blitop;                                    \
+                            CREATE_PIXEL(dppx, dR, dG, dB, dA, dstbpp, dstfmt); \
+                        }                                               \
+                    }                                                   \
+                }                                                       \
+            }                                                           \
+        }                                                               \
+    }
+#else /* HAVE_OPENMP */
 #define CREATE_BLITTER(_name,_blitop)                                   \
     void blit_##_name(SDL_BlitInfo *info)                               \
     {                                                                   \
@@ -139,7 +270,7 @@
             }                                                           \
         }                                                               \
     }
-
+#endif /* HAVE_OPENMP */
 CREATE_BLITTER(blend_rgb_add, D_BLEND_RGB_ADD(tmp,sR,sG,sB,dR,dG,dB))
 CREATE_BLITTER(blend_rgb_sub, D_BLEND_RGB_SUB(tmp2,sR,sG,sB,dR,dG,dB))
 CREATE_BLITTER(blend_rgb_mul, D_BLEND_RGB_MULT(sR,sG,sB,dR,dG,dB))

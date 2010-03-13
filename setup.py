@@ -37,6 +37,19 @@ def find_pkg_data (directory, excludedirs=[], excludefiles=[]):
             pkgdata.append (os.path.join (subd, f))
     return pkgdata
 
+def get_compiler (args):
+    coffset = 0
+    compiler = ''
+    if '-c' in args:
+        coffset = args.index ('-c')
+        if coffset < len (args) - 1:
+            compiler = args[coffset+1]
+    else:
+        for arg in args:
+            if '--compiler=' in arg:
+                compiler = arg.split ('=')[1]
+    return compiler
+
 def run_checks ():
     # Python version check.
     if helpers.getversion () < PYTHON_MINIMUM: # major, minor check
@@ -45,37 +58,44 @@ def run_checks ():
 
     buildsystem = None
     builddefines = []
+    defcompiler = ''
     if sys.platform == "win32":
         if msys.is_msys ():
             buildsystem = "msys"
             builddefines.append (("IS_MSYS", None))
+            defcompiler = "mingw32"
         else:
             buildsystem = "win"
             builddefines.append (("IS_WIN32", None))
             builddefines.append (("WIN32", None))
+            defcompiler = "msvc"
     elif sys.platform == "darwin":
         buildsystem = "darwin"
         builddefines.append (("IS_DARWIN", None))
+        defcompiler = "unix"
     else:
         buildsystem = "unix"
+        defcompiler = "unix"
         builddefines.append (("IS_UNIX", None))
 
     if cfg.build['SDL']:
         sdlversion = config_modules.sdl_get_version (buildsystem)
+    compiler = get_compiler (sys.argv) or defcompiler
 
     print ("\nThe following information will be used to build Pygame:")
-    print ("\t System: %s" % buildsystem)
-    print ("\t Python: %d.%d.%d" % helpers.getversion ())
+    print ("\t System:   %s" % buildsystem)
+    print ("\t Python:   %d.%d.%d" % helpers.getversion ())
+    print ("\t Compiler: %s" % compiler)
     if cfg.build['SDL']:
-        print ("\t SDL:    %s" % sdlversion)
-    return buildsystem, builddefines
+        print ("\t SDL:      %s" % sdlversion)
+    return buildsystem, builddefines, compiler
 
 if __name__ == "__main__":
 
     buildsystem = None
     buildcflags = None
     try:
-        buildsystem, builddefines = run_checks ()
+        buildsystem, builddefines, compiler = run_checks ()
     except:
         print (helpers.geterror ())
         print (helpers.gettraceback ())
@@ -88,7 +108,8 @@ if __name__ == "__main__":
         VERSION = VERSION.replace("-alpha", "a")
         VERSION = VERSION.replace("-rc", "r")
 
-    if buildsystem in ("msys", "unix", "darwin") and DEBUG:
+    if DEBUG and buildsystem in ("msys", "unix", "darwin") and \
+       compiler in ("unix", "cygwin", "mingw32", "mingw32-console"):
         os.environ["CFLAGS"] += " -W -Wall -Wimplicit-int " + \
                         "-Wimplicit-function-declaration " + \
                         "-Wimplicit -Wreturn-type -Wunused " + \
@@ -129,7 +150,7 @@ if __name__ == "__main__":
 
     dllfiles = [ os.path.join ("pygame2", "dll"),
                  config_modules.get_install_libs (buildsystem, cfg) ]
-    ext_modules = modules.get_extensions (buildsystem)
+    ext_modules = modules.get_extensions (buildsystem, compiler)
     modules.update_packages (ext_modules, packages, package_dir, package_data)
 
     headerfiles = []

@@ -357,14 +357,14 @@ if helpers.getversion() < (3, 0, 0):
             docfile = "sdlextnumericsurfarray.xml",
             depends = ['SDL']))
 
-def get_extensions (buildsystem):
+def get_extensions (buildsystem, compiler):
     extensions = []
 
     compatpath = "src"
     docpath = os.path.join ("src", "doc")
     baseincpath = os.path.join ("src", "base")
 
-    config.config_modules.prepare_modules (buildsystem, modules, cfg)
+    config.config_modules.prepare_modules (buildsystem, modules, cfg, compiler)
     
     alldefines = []
     for mod in modules:

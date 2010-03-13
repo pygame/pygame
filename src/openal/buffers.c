@@ -196,12 +196,6 @@ _buffers_setprop (PyObject *self, PyObject *args)
             &type))
         return NULL;
 
-    if (bufnum < 0 || bufnum > ((PyBuffers*)self)->count)
-    {
-        PyErr_SetString (PyExc_ValueError, "buffer index out of range");
-        return NULL;
-    }
-
     if (type)
     {
         ptype = GetPropTypeFromStr (type);
@@ -367,7 +361,7 @@ _buffers_getprop (PyObject *self, PyObject *args)
     if (!PyArg_ParseTuple (args, "lls:get_prop", &bufnum, &param, &type))
     {
         PyErr_Clear ();
-        if (!PyArg_ParseTuple (args, "ll|si:get_prop", &bufnum, &param, &type,
+        if (!PyArg_ParseTuple (args, "lls|i:get_prop", &bufnum, &param, &type,
             &size))
             return NULL;
         if (size <= 0)
@@ -375,12 +369,6 @@ _buffers_getprop (PyObject *self, PyObject *args)
             PyErr_SetString (PyExc_ValueError, "size must not smaller than 0");
             return NULL;
         }
-    }
-
-    if (bufnum < 0 || bufnum > ((PyBuffers*)self)->count)
-    {
-        PyErr_SetString (PyExc_ValueError, "buffer index out of range");
-        return NULL;
     }
 
     ptype = GetPropTypeFromStr (type);
@@ -486,8 +474,7 @@ _buffers_getprop (PyObject *self, PyObject *args)
 static PyObject*
 _buffers_bufferdata (PyObject *self, PyObject *args)
 {
-    long bufnum;
-    ALenum format;
+    long bufnum, format;
     const char *buf;
     Py_ssize_t len;
     ALsizei freq;
@@ -501,15 +488,9 @@ _buffers_bufferdata (PyObject *self, PyObject *args)
     if (!PyArg_ParseTuple (args, "lls#l", &bufnum, &format, &buf, &len, &freq))
         return NULL;
     
-    /* TODO */
-    if (bufnum < 0 || bufnum > ((PyBuffers*)self)->count)
-    {
-        PyErr_SetString (PyExc_ValueError, "buffer index out of range");
-        return NULL;
-    }
     CLEAR_ALERROR_STATE ();
-    alBufferData ((ALuint) bufnum, format, (const void*) buf, (ALsizei)len,
-        freq);
+    alBufferData ((ALuint) bufnum, (ALenum)format, (const void*) buf,
+        (ALsizei)len, freq);
     if (SetALErrorException (alGetError (), 0))
         return NULL;
     Py_RETURN_NONE;

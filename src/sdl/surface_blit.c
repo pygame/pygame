@@ -481,6 +481,8 @@ pyg_sdlsoftware_blit (SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
         info.d_width = dstrect->w;
         info.d_height = dstrect->h;
         info.d_skip = dst->pitch - info.d_width * dst->format->BytesPerPixel;
+        info.s_pitch = src->pitch;
+        info.d_pitch = dst->pitch;
         info.src = src->format;
         info.dst = dst->format;
 

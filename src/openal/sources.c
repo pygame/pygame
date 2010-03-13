@@ -215,12 +215,6 @@ _sources_setprop (PyObject *self, PyObject *args)
             &type))
         return NULL;
 
-    if (bufnum < 0 || bufnum > ((PySources*)self)->count)
-    {
-        PyErr_SetString (PyExc_ValueError, "source index out of range");
-        return NULL;
-    }
-
     if (type)
     {
         ptype = GetPropTypeFromStr (type);
@@ -386,7 +380,7 @@ _sources_getprop (PyObject *self, PyObject *args)
     if (!PyArg_ParseTuple (args, "lls:get_prop", &bufnum, &param, &type))
     {
         PyErr_Clear ();
-        if (!PyArg_ParseTuple (args, "ll|si:get_prop", &bufnum, &param, &type,
+        if (!PyArg_ParseTuple (args, "lls|i:get_prop", &bufnum, &param, &type,
             &size))
             return NULL;
         if (size <= 0)
@@ -394,12 +388,6 @@ _sources_getprop (PyObject *self, PyObject *args)
             PyErr_SetString (PyExc_ValueError, "size must not smaller than 0");
             return NULL;
         }
-    }
-
-    if (bufnum < 0 || bufnum > ((PySources*)self)->count)
-    {
-        PyErr_SetString (PyExc_ValueError, "source index out of range");
-        return NULL;
     }
 
     ptype = GetPropTypeFromStr (type);
@@ -626,12 +614,7 @@ _sources_queuebuffers (PyObject *self, PyObject *args)
     
     if (!PyArg_ParseTuple (args, "lO:queue_buffers", &bufnum, &buffers))
         return NULL;
-    
-    if (bufnum < 0 || bufnum > ((PySources*)self)->count)
-    {
-        PyErr_SetString (PyExc_ValueError, "source index out of range");
-        return NULL;
-    }
+
     if (!PyBuffers_Check (buffers))
     {
         PyErr_SetString (PyExc_TypeError, "argument must be a Buffers object");
@@ -662,11 +645,6 @@ _sources_unqueuebuffers (PyObject *self, PyObject *args)
     if (!PyArg_ParseTuple (args, "lO:unqueue_buffers", &bufnum, &buffers))
         return NULL;
     
-    if (bufnum < 0 || bufnum > ((PySources*)self)->count)
-    {
-        PyErr_SetString (PyExc_ValueError, "source index out of range");
-        return NULL;
-    }
     if (!PyBuffers_Check (buffers))
     {
         PyErr_SetString (PyExc_TypeError, "argument must be a Buffers object");

@@ -64,7 +64,7 @@ typedef enum
     }                                                                   \
     else                                                                \
     {                                                                   \
-        rgb = SDL_MapRGB (format,                                       \
+        (rgb) = SDL_MapRGB (format,                                     \
             ((Uint8)(((rgb) & 0xff0000) >> 16)),                        \
             ((Uint8)(((rgb) & 0x00ff00) >>  8)),                        \
             ((Uint8)((rgb) & 0x0000ff)));                               \
@@ -85,7 +85,7 @@ typedef enum
     }                                                                   \
     else                                                                \
     {                                                                   \
-        argb = SDL_MapRGBA (format,                                     \
+        (argb) = SDL_MapRGBA (format,                                   \
             ((Uint8)(((argb) & 0x00ff0000) >> 16)),                     \
             ((Uint8)(((argb) & 0x0000ff00) >>  8)),                     \
             ((Uint8) ((argb) & 0x000000ff)),                            \
@@ -181,22 +181,22 @@ typedef enum
     switch ((bpp))                                                      \
     {                                                                   \
     case 1:                                                             \
-        pxl = *((Uint8*) ((Uint8*)(surface)->pixels) + (_y) *           \
+        (pxl) = *((Uint8*) ((Uint8*)(surface)->pixels) + (_y) *         \
             (surface)->pitch + (_x));                                   \
         break;                                                          \
     case 2:                                                             \
-        pxl = *((Uint16*)(((Uint8*)(surface)->pixels) + (_y) *          \
+        (pxl) = *((Uint16*)(((Uint8*)(surface)->pixels) + (_y) *        \
                 (surface)->pitch) + (_x));                              \
         break;                                                          \
     case 4:                                                             \
-        pxl = *((Uint32*)(((Uint8*)(surface)->pixels) + (_y) *          \
+        (pxl) = *((Uint32*)(((Uint8*)(surface)->pixels) + (_y) *        \
                 (surface)->pitch) + (_x));                              \
         break;                                                          \
     default:                                                            \
     {                                                                   \
         Uint8* buf = ((Uint8 *) (((Uint8*)(surface)->pixels) + (_y) *   \
                 (surface)->pitch) + (_x) * 3);                          \
-        pxl = GET_PIXEL24(buf);                                         \
+        (pxl) = GET_PIXEL24(buf);                                       \
         break;                                                          \
     }                                                                   \
     }

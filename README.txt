@@ -96,6 +96,13 @@ WITH_OPENAL=[yes|no|1|True]         Example: make -DWITH_OPENAL=False
     Build and install the pygame2.openal module. This wraps the
     OpenAL library and gives access to the pygame2.openal module.
 
+WITH_OPENMP=[yes|no|1|True]         Example: make -DWITH_OPENAL=1
+    
+    Add support for the Open Multi-Processing library. This will utilize
+    the OpenMP API to speed up certain routines, such as e.g blit and
+    fill operations. This option is only available for certain compilers
+    and will be disabled by default.
+
 WITH_EXPERIMENTAL=[yes|no|1|True]   Example: make -DWITH_EXPERIMENTAL=True
 
     Build pygame2 modules, which are marked as experimental. Note that those

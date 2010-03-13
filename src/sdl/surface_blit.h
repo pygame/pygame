@@ -29,10 +29,12 @@ typedef struct
     int             s_width;
     int             s_height;
     int             s_skip;
+    int             s_pitch;
     Uint8          *d_pixels;
     int             d_width;
     int             d_height;
     int             d_skip;
+    int             d_pitch;
     void           *aux_data;
     SDL_PixelFormat *src;
     Uint8          *table;

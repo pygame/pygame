@@ -10,11 +10,11 @@ except:
 def sdl_get_version ():
     return config_unix.sdl_get_version()
 
-def add_sys_deps (module):
-    config_win.add_sys_deps(module)
+def add_sys_libdeps (module):
+    config_win.add_sys_libdeps(module)
 
-def update_sys_deps (deps):
-    config_win.update_sys_deps(deps)
+def update_sys_libdeps (deps):
+    config_win.update_sys_libdeps(deps)
 
 def _hunt_libs (name, dirs):
     # Used by get_install_libs(). It resolves the dependency libraries
@@ -82,7 +82,6 @@ def get_install_libs (cfg):
         libraries.update (_hunt_libs ("openal", dirs))
 
     return [ k.replace ("/", os.sep) for k in libraries.keys() ]
-
 
 class Dependency (config_unix.Dependency):
     _searchdirs = [ "/usr", "/usr/local", "/mingw" ]

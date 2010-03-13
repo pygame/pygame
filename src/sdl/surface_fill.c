@@ -18,7 +18,82 @@
 */
 
 #include "surface.h"
+#ifdef HAVE_OPENMP
+#include <omp.h>
+#endif
 
+#ifdef HAVE_OPENMP
+#define CREATE_FILLER(_name,_fillop)                                    \
+    static int surface_fill_##_name(SDL_Surface *surface,               \
+        SDL_Rect *rect, Uint32 color)                                   \
+    {                                                                   \
+        Uint8 *pixels, *ppx;                                            \
+        int width = rect->w;                                            \
+        int height = rect->h;                                           \
+        int skip;                                                       \
+        int bpp;                                                        \
+        int n;                                                          \
+        SDL_PixelFormat *fmt;                                           \
+        Uint8 sR, sG, sB, sA, cR, cG, cB, cA;                           \
+        Uint32 pixel;                                                   \
+        Uint32 tmp;                                                     \
+        int result = -1;                                                \
+                                                                        \
+        bpp = surface->format->BytesPerPixel;                           \
+        fmt = surface->format;                                          \
+        pixels = (Uint8 *) surface->pixels + surface->offset +          \
+            (Uint16) rect->y * surface->pitch + (Uint16) rect->x * bpp; \
+        skip = surface->pitch - width * bpp;                            \
+                                                                        \
+        switch (bpp)                                                    \
+        {                                                               \
+        case 1:                                                         \
+        {                                                               \
+            int x, y;                                                   \
+            SDL_GetRGBA (color, fmt, &cR, &cG, &cB, &cA);               \
+            _Pragma("omp parallel")                                     \
+            {                                                           \
+                _Pragma("omp for private(ppx,x,sR,sG,sB,sA,tmp)")       \
+                for (y = 0; y < height; y++)                            \
+                {                                                       \
+                    for (x = 0; x < width; x++)                         \
+                    {                                                   \
+                        ppx = pixels + y * surface->pitch + x * bpp;    \
+                        GET_PALETTE_VALS(ppx,fmt,sR,sG,sB,sA);          \
+                        _fillop;                                        \
+                        *ppx = SDL_MapRGBA(fmt,sR,sG,sB,sA);            \
+                    }                                                   \
+                }                                                       \
+            }                                                           \
+            result = 0;                                                 \
+            break;                                                      \
+        }                                                               \
+        default:                                                        \
+        {                                                               \
+            int x, y;                                                   \
+            GET_RGB_VALS (color, fmt, cR, cG, cB, cA);                  \
+            _Pragma("omp parallel")                                     \
+            {                                                           \
+                _Pragma("omp for private(ppx,pixel,x,sR,sG,sB,sA,tmp)") \
+                for (y = 0; y < height; y++)                            \
+                {                                                       \
+                    for (x = 0; x < width; x++)                         \
+                    {                                                   \
+                        ppx = pixels + y * surface->pitch + x * bpp;    \
+                        GET_PIXEL(pixel,bpp,ppx);                       \
+                        GET_RGB_VALS(pixel,fmt,sR,sG,sB,sA);            \
+                        _fillop;                                        \
+                        CREATE_PIXEL(ppx,sR,sG,sB,sA,bpp,fmt);          \
+                    }                                                   \
+                }                                                       \
+            }                                                           \
+            result = 0;                                                 \
+            break;                                                      \
+        }                                                               \
+        }                                                               \
+        return result;                                                  \
+    }
+#else /* HAVE_OPENMP */
 #define CREATE_FILLER(_name,_fillop)                                    \
     static int surface_fill_##_name(SDL_Surface *surface,               \
         SDL_Rect *rect, Uint32 color)                                   \
@@ -81,6 +156,7 @@
         }                                                               \
         return result;                                                  \
     }
+#endif /* HAVE_OPENMP */
 
 CREATE_FILLER(blend_rgba_add, D_BLEND_RGBA_ADD(tmp,cR,cG,cB,cA,sR,sG,sB,sA))
 CREATE_FILLER(blend_rgba_sub, D_BLEND_RGBA_SUB(tmp,cR,cG,cB,cA,sR,sG,sB,sA))
