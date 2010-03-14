@@ -330,40 +330,55 @@ class SpriteCollideTest( unittest.TestCase ):
         crashed = pygame.sprite.groupcollide(self.ag, self.ag2, False, False)
         self.assert_(crashed == {})
 
-    def todo_test_groupcollide__with_collided_callback(self):
+    def test_groupcollide__with_collided_callback(self):
 
-        # __doc__ (as of 2008-08-02) for pygame.sprite.groupcollide:
+        collided_callback_true = lambda spr_a, spr_b: True
+        collided_callback_false = lambda spr_a, spr_b: False
 
-          # pygame.sprite.groupcollide(groupa, groupb, dokilla, dokillb) -> dict
-          # collision detection between group and group
-          #
-          # given two groups, this will find the intersections
-          # between all sprites in each group. it returns a
-          # dictionary of all sprites in the first group that
-          # collide. the value for each item in the dictionary
-          # is a list of the sprites in the second group it
-          # collides with. the two dokill arguments control if
-          # the sprites from either group will be automatically
-          # removed from all groups.
-          # collided is a callback function used to calculate if
-          # two sprites are colliding. it should take two sprites
-          # as values, and return a bool value indicating if
-          # they are colliding. if collided is not passed, all
-          # sprites must have a "rect" value, which is a
-          # rectangle of the sprite area, which will be used
-          # to calculate the collision.
-          #
-          # This will find intersections between all the Sprites in two groups.
-          # Intersection is determined by comparing the Sprite.rect attribute of
-          # each Sprite.
-          #
-          # Every Sprite inside group1 is added to the return dictionary. The
-          # value for each item is the list of Sprites in group2 that intersect.
-          #
-          # If either dokill argument is True, the intersecting Sprites will be
-          # removed from their respective Group.
+        # test no kill
+        crashed = pygame.sprite.groupcollide(self.ag, self.ag2, False, False, 
+                                             collided_callback_false)
+        self.assert_(crashed == {})  
 
-        self.fail()
+        crashed = pygame.sprite.groupcollide(self.ag, self.ag2, False, False, 
+                                             collided_callback_true)
+        self.assert_(crashed == {self.s1: [self.s2, self.s3]} or 
+                     crashed == {self.s1: [self.s3, self.s2]})
+
+        crashed = pygame.sprite.groupcollide(self.ag, self.ag2, False, False, 
+                                             collided_callback_true)
+        self.assert_(crashed == {self.s1: [self.s2, self.s3]} or 
+                     crashed == {self.s1: [self.s3, self.s2]})
+
+        # test killb
+        crashed = pygame.sprite.groupcollide(self.ag, self.ag2, False, True, 
+                                             collided_callback_false)
+        self.assert_(crashed == {})  
+
+        crashed = pygame.sprite.groupcollide(self.ag, self.ag2, False, True, 
+                                             collided_callback_true)
+        self.assert_(crashed == {self.s1: [self.s2, self.s3]} or 
+                     crashed == {self.s1: [self.s3, self.s2]})
+
+        crashed = pygame.sprite.groupcollide(self.ag, self.ag2, False, True, 
+                                             collided_callback_true)
+        self.assert_(crashed == {})
+
+        # test killa
+        self.ag.add(self.s2)
+        self.ag2.add(self.s3)
+
+        crashed = pygame.sprite.groupcollide(self.ag, self.ag2, True, False, 
+                                             collided_callback_false)
+        self.assert_(crashed == {})  
+
+        crashed = pygame.sprite.groupcollide(self.ag, self.ag2, True, False, 
+                                             collided_callback_true)
+        self.assert_(crashed == {self.s1: [self.s3], self.s2: [self.s3]})
+
+        crashed = pygame.sprite.groupcollide(self.ag, self.ag2, True, False, 
+                                             collided_callback_true)
+        self.assert_(crashed == {})
 
     def todo_test_collide_rect(self):
 
