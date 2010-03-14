@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE module SYSTEM "api.dtd">
+
+<module name="pygame2.openal.base">
+  <alias>pygame2.openal</alias>
+  <short>basic OpenAL wrapper module</short>
+  <desc>
+    Basic Pygame2 OpenAL wrapper module.
+  </desc>
+
+  <class name="Buffers">
+    <constructor>Buffers () -> NotImplementedError</constructor>
+    <desc>
+      Buffers objects are used by OpenAL to buffer and provide PCM data
+      for playback, recording and manipulation.
+      
+      The Buffers object provides methods and properties to manipulate
+      certain aspects of the buffered data.
+
+      Buffers instances cannot be created directly, but are bound to a
+      :class:`Device`. To create a Buffers instance for the currently
+      active :class:`Device`, use the :meth:`Context.create_buffers`
+      method.
+    </desc>
+    <example></example>
+    <method name="buffer_data">
+      <call>buffer_data (bufnum, format, data, samplerate)</call>
+      <desc>
+        Buffers a chunk of *data* into one of the created buffers. 
+      </desc>
+      <example></example>
+    </method>
+    <attr name="buffers">
+      <desc>None</desc>
+      <example></example>
+    </attr>
+    <attr name="count">
+      <desc>None</desc>
+      <example></example>
+    </attr>
+    <method name="get_prop">
+      <call></call>
+      <desc></desc>
+      <example></example>
+    </method>
+    <method name="set_prop">
+      <call></call>
+      <desc></desc>
+      <example></example>
+    </method>
+  </class>
+
+  <class name="CaptureDevice">
+    <constructor>TODO</constructor>
+    <desc>None</desc>
+    <example></example>
+    <attr name="format">
+      <desc>None</desc>
+      <example></example>
+    </attr>
+    <attr name="frequency">
+      <desc>None</desc>
+      <example></example>
+    </attr>
+    <method name="get_samples">
+      <call></call>
+      <desc></desc>
+      <example></example>
+    </method>
+    <attr name="size">
+      <desc>None</desc>
+      <example></example>
+    </attr>
+    <method name="start">
+      <call></call>
+      <desc></desc>
+      <example></example>
+    </method>
+    <method name="stop">
+      <call></call>
+      <desc></desc>
+      <example></example>
+    </method>
+  </class>
+
+  <class name="Context">
+    <constructor>TODO</constructor>
+    <desc>None</desc>
+    <example></example>
+    <method name="create_buffers">
+      <call></call>
+      <desc></desc>
+      <example></example>
+    </method>
+    <method name="create_sources">
+      <call></call>
+      <desc></desc>
+      <example></example>
+    </method>
+    <attr name="device">
+      <desc>None</desc>
+      <example></example>
+    </attr>
+    <method name="disable">
+      <call></call>
+      <desc></desc>
+      <example></example>
+    </method>
+    <attr name="distance_model">
+      <desc>None</desc>
+      <example></example>
+    </attr>
+    <attr name="doppler_factor">
+      <desc>None</desc>
+      <example></example>
+    </attr>
+    <method name="enable">
+      <call></call>
+      <desc></desc>
+      <example></example>
+    </method>
+    <attr name="is_current">
+      <desc>None</desc>
+      <example></example>
+    </attr>
+    <method name="is_enabled">
+      <call></call>
+      <desc></desc>
+      <example></example>
+    </method>
+    <attr name="listener">
+      <desc>None</desc>
+      <example></example>
+    </attr>
+    <method name="make_current">
+      <call></call>
+      <desc></desc>
+      <example></example>
+    </method>
+    <method name="process">
+      <call></call>
+      <desc></desc>
+      <example></example>
+    </method>
+    <attr name="speed_of_sound">
+      <desc>None</desc>
+      <example></example>
+    </attr>
+    <method name="suspend">
+      <call></call>
+      <desc></desc>
+      <example></example>
+    </method>
+  </class>
+
+  <class name="Device">
+    <constructor>TODO</constructor>
+    <desc>None</desc>
+    <example></example>
+    <attr name="extensions">
+      <desc>None</desc>
+      <example></example>
+    </attr>
+    <method name="get_enum_value">
+      <call></call>
+      <desc></desc>
+      <example></example>
+    </method>
+    <method name="get_error">
+      <call></call>
+      <desc></desc>
+      <example></example>
+    </method>
+    <method name="has_extension">
+      <call></call>
+      <desc></desc>
+      <example></example>
+    </method>
+    <attr name="name">
+      <desc>None</desc>
+      <example></example>
+    </attr>
+  </class>
+
+  <class name="Listener">
+    <constructor>TODO</constructor>
+    <desc>None</desc>
+    <example></example>
+    <method name="get_prop">
+      <call></call>
+      <desc></desc>
+      <example></example>
+    </method>
+    <method name="set_prop">
+      <call></call>
+      <desc></desc>
+      <example></example>
+    </method>
+  </class>
+
+  <class name="Sources">
+    <constructor>TODO</constructor>
+    <desc>None</desc>
+    <example></example>
+    <attr name="count">
+      <desc>None</desc>
+      <example></example>
+    </attr>
+    <method name="get_prop">
+      <call></call>
+      <desc></desc>
+      <example></example>
+    </method>
+    <method name="pause">
+      <call></call>
+      <desc></desc>
+      <example></example>
+    </method>
+    <method name="play">
+      <call></call>
+      <desc></desc>
+      <example></example>
+    </method>
+    <method name="queue_buffers">
+      <call></call>
+      <desc></desc>
+      <example></example>
+    </method>
+    <method name="rewind">
+      <call></call>
+      <desc></desc>
+      <example></example>
+    </method>
+    <method name="set_prop">
+      <call></call>
+      <desc></desc>
+      <example></example>
+    </method>
+    <attr name="sources">
+      <desc>None</desc>
+      <example></example>
+    </attr>
+    <method name="stop">
+      <call></call>
+      <desc></desc>
+      <example></example>
+    </method>
+    <method name="unqueue_buffers">
+      <call></call>
+      <desc></desc>
+      <example></example>
+    </method>
+  </class>
+
+  <func name="al_get_string">
+    <call></call>
+    <desc></desc>
+    <example></example>
+  </func>
+  <func name="get_default_capture_device_name">
+    <call></call>
+    <desc></desc>
+    <example></example>
+  </func>
+  <func name="get_default_output_device_name">
+    <call></call>
+    <desc></desc>
+    <example></example>
+  </func>
+  <func name="get_enum_value">
+    <call></call>
+    <desc></desc>
+    <example></example>
+  </func>
+  <func name="get_error">
+    <call></call>
+    <desc></desc>
+    <example></example>
+  </func>
+  <func name="init">
+    <call></call>
+    <desc></desc>
+    <example></example>
+  </func>
+  <func name="is_extension_present">
+    <call></call>
+    <desc></desc>
+    <example></example>
+  </func>
+  <func name="list_capture_devices">
+    <call></call>
+    <desc></desc>
+    <example></example>
+  </func>
+  <func name="list_output_devices">
+    <call></call>
+    <desc></desc>
+    <example></example>
+  </func>
+  <func name="quit">
+    <call></call>
+    <desc></desc>
+    <example></example>
+  </func>
+  <func name="set_current_context">
+    <call></call>
+    <desc></desc>
+    <example></example>
+  </func>
+</module>
+

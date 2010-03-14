@@ -5,7 +5,7 @@
   <alias>pygame2.math</alias>
   <short>Vector math features used by pygame2</short>
   <desc>
-    TODO
+    Vector math features used by pygame2
   </desc>
 
   <include>pygame2_math_base.rst</include>

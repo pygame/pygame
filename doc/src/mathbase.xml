@@ -6,7 +6,7 @@
   <alias>pygame2.math</alias>
   <short>Vector math module for Pygame2</short>
   <desc>
-    TODO
+    Vector math module for Pygame2
   </desc>
   <func name="vector_from_polar">
     <call>vector_from_polar (p1, p2) -> Vector2</call>

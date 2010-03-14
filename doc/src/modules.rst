@@ -31,6 +31,8 @@ Modules
    pygame2_math.rst
    pygame2_mask.rst
    pygame2_midi.rst
+   pygame2_openal_base.rst
+   pygame2_openal_constants.rst
    pygame2_resources.rst
    pygame2_sdl.rst
    pygame2_sdl_audio.rst
