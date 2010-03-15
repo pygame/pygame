@@ -88,8 +88,8 @@
 #define UINT32_ADD_LIMIT ULONG_ADD_LIMIT
 #define UINT32_SUB_LIMIT ULONG_SUB_LIMIT
 
-#define DBL_ADD_LIMIT(x,y) (ADD_LIMIT(x,y,DBL_MIN,DBL_MAX))
-#define DBL_SUB_LIMIT(x,y) (SUB_LIMIT(x,y,DBL_MIN,DBL_MAX))
+#define DBL_ADD_LIMIT(x,y) (ADD_LIMIT(x,y,-DBL_MAX,DBL_MAX))
+#define DBL_SUB_LIMIT(x,y) (SUB_LIMIT(x,y,-DBL_MAX,DBL_MAX))
 
 /**
  * Using a ? : conditional leads to weird optimisations for some GCC
