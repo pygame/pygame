@@ -21,6 +21,7 @@
 
 #include "openalmod.h"
 #include "pgopenal.h"
+#include "openalbase_doc.h"
 
 static int _device_init (PyObject *self, PyObject *args, PyObject *kwds);
 static void _device_dealloc (PyDevice *self);
@@ -36,17 +37,21 @@ static PyObject* _device_getextensions (PyObject *self, void *closure);
 /**
  */
 static PyMethodDef _device_methods[] = {
-    { "has_extension", _device_hasextension, METH_VARARGS, NULL },
-    { "get_error", (PyCFunction)_device_geterror, METH_NOARGS, NULL },
-    { "get_enum_value", _device_getenumvalue, METH_O, NULL },
+    { "has_extension", _device_hasextension, METH_VARARGS,
+      DOC_BASE_DEVICE_HAS_EXTENSION },
+    { "get_error", (PyCFunction)_device_geterror, METH_NOARGS,
+      DOC_BASE_DEVICE_GET_ERROR },
+    { "get_enum_value", _device_getenumvalue, METH_O,
+      DOC_BASE_DEVICE_GET_ENUM_VALUE },
     { NULL, NULL, 0, NULL }
 };
 
 /**
  */
 static PyGetSetDef _device_getsets[] = {
-    { "name", _device_getname, NULL, NULL/*DOC_BASEDEVICE_NAME*/, NULL },
-    { "extensions", _device_getextensions, NULL, NULL, NULL },
+    { "name", _device_getname, NULL, DOC_BASE_DEVICE_NAME, NULL },
+    { "extensions", _device_getextensions, NULL, DOC_BASE_DEVICE_EXTENSIONS,
+      NULL },
     { NULL, NULL, NULL, NULL, NULL }
 };
 
@@ -74,7 +79,7 @@ PyTypeObject PyDevice_Type =
     0,                          /* tp_setattro */
     0,                          /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags */
-    0/*DOC_BASE_DEVICE*/,
+    DOC_BASE_DEVICE,
     0,                          /* tp_traverse */
     0,                          /* tp_clear */
     0,                          /* tp_richcompare */

@@ -22,6 +22,7 @@
 #include "openalmod.h"
 #include "pgbase.h"
 #include "pgopenal.h"
+#include "openalbase_doc.h"
 
 static int _getbytesfromformat (ALenum format);
 static int _getchannelsfromformat (ALenum format);
@@ -43,19 +44,23 @@ static PyObject* _capturedevice_getformat (PyObject *self, void *closure);
 /**
  */
 static PyMethodDef _capturedevice_methods[] = {
-    { "start", (PyCFunction) _capturedevice_start, METH_NOARGS, NULL },
-    { "stop", (PyCFunction) _capturedevice_stop, METH_NOARGS, NULL },
+    { "start", (PyCFunction) _capturedevice_start, METH_NOARGS,
+      DOC_BASE_CAPTUREDEVICE_START },
+    { "stop", (PyCFunction) _capturedevice_stop, METH_NOARGS,
+      DOC_BASE_CAPTUREDEVICE_STOP },
     { "get_samples", (PyCFunction) _capturedevice_getsamples, METH_VARARGS,
-      NULL },
+      DOC_BASE_CAPTUREDEVICE_GET_SAMPLES },
     { NULL, NULL, 0, NULL }
 };
 
 /**
  */
 static PyGetSetDef _capturedevice_getsets[] = {
-    { "size", _capturedevice_getsize, NULL, NULL, NULL },
-    { "frequency", _capturedevice_getfrequency, NULL, NULL, NULL },
-    { "format", _capturedevice_getformat, NULL, NULL, NULL },
+    { "size", _capturedevice_getsize, NULL, DOC_BASE_CAPTUREDEVICE_SIZE, NULL },
+    { "frequency", _capturedevice_getfrequency, NULL, 
+      DOC_BASE_CAPTUREDEVICE_FREQUENCY, NULL },
+    { "format", _capturedevice_getformat, NULL, DOC_BASE_CAPTUREDEVICE_FORMAT,
+      NULL },
     { NULL, NULL, NULL, NULL, NULL }
 };
 
@@ -83,7 +88,7 @@ PyTypeObject PyCaptureDevice_Type =
     0,                          /* tp_setattro */
     0,                          /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags */
-    0/*DOC_BASE_DEVICE*/,
+    DOC_BASE_CAPTUREDEVICE,
     0,                          /* tp_traverse */
     0,                          /* tp_clear */
     0,                          /* tp_richcompare */

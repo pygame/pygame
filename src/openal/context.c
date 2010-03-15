@@ -22,6 +22,7 @@
 #include "pgbase.h"
 #include "openalmod.h"
 #include "pgopenal.h"
+#include "openalbase_doc.h"
 
 static int _context_init (PyObject *self, PyObject *args, PyObject *kwds);
 static void _context_dealloc (PyContext *self);
@@ -53,14 +54,22 @@ static int _context_setspeedofsound (PyObject* self, PyObject *value,
 /**
  */
 static PyMethodDef _context_methods[] = {
-    { "make_current", (PyCFunction)_context_makecurrent, METH_NOARGS, NULL },
-    { "create_buffers", (PyCFunction) _context_createbuffers, METH_O, NULL },
-    { "create_sources", (PyCFunction) _context_createsources, METH_O, NULL },
-    { "suspend", (PyCFunction) _context_suspend, METH_NOARGS, NULL },
-    { "process", (PyCFunction) _context_process, METH_NOARGS, NULL },
-    { "enable", (PyCFunction) _context_enable, METH_O, "" },
-    { "disable", (PyCFunction) _context_disable, METH_O, "" },
-    { "is_enabled", (PyCFunction) _context_isenabled, METH_O, "" },
+    { "make_current", (PyCFunction)_context_makecurrent, METH_NOARGS,
+      DOC_BASE_CONTEXT_MAKE_CURRENT },
+    { "create_buffers", (PyCFunction) _context_createbuffers, METH_O,
+      DOC_BASE_CONTEXT_CREATE_BUFFERS },
+    { "create_sources", (PyCFunction) _context_createsources, METH_O,
+      DOC_BASE_CONTEXT_CREATE_SOURCES },
+    { "suspend", (PyCFunction) _context_suspend, METH_NOARGS,
+      DOC_BASE_CONTEXT_SUSPEND },
+    { "process", (PyCFunction) _context_process, METH_NOARGS,
+      DOC_BASE_CONTEXT_PROCESS },
+    { "enable", (PyCFunction) _context_enable, METH_O,
+      DOC_BASE_CONTEXT_ENABLE },
+    { "disable", (PyCFunction) _context_disable, METH_O,
+      DOC_BASE_CONTEXT_DISABLE },
+    { "is_enabled", (PyCFunction) _context_isenabled, METH_O,
+      DOC_BASE_CONTEXT_IS_ENABLED },
     /*{ "get_prop", (PyCFunction) _context_getprop, METH_VARARGS, "" },*/
     { NULL, NULL, 0, NULL }
 };
@@ -68,15 +77,16 @@ static PyMethodDef _context_methods[] = {
 /**
  */
 static PyGetSetDef _context_getsets[] = {
-    { "is_current", _context_iscurrent, NULL, NULL, NULL },
-    { "device", _context_getdevice, NULL, NULL, NULL },
-    { "listener", _context_getlistener, NULL, NULL, NULL },
+    { "is_current", _context_iscurrent, NULL, DOC_BASE_CONTEXT_IS_CURRENT,
+      NULL },
+    { "device", _context_getdevice, NULL, DOC_BASE_CONTEXT_DEVICE, NULL },
+    { "listener", _context_getlistener, NULL, DOC_BASE_CONTEXT_LISTENER, NULL },
     { "distance_model", _context_getdistancemodel, _context_setdistancemodel,
-      NULL, NULL },
+      DOC_BASE_CONTEXT_DISTANCE_MODEL, NULL },
     { "doppler_factor", _context_getdopplerfactor, _context_setdopplerfactor,
-      NULL, NULL }, 
+      DOC_BASE_CONTEXT_DOPPLER_FACTOR, NULL }, 
     { "speed_of_sound", _context_getspeedofsound, _context_setspeedofsound,
-      NULL, NULL },
+      DOC_BASE_CONTEXT_SPEED_OF_SOUND, NULL },
     { NULL, NULL, NULL, NULL, NULL }
 };
 
@@ -104,7 +114,7 @@ PyTypeObject PyContext_Type =
     0,                          /* tp_setattro */
     0,                          /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags */
-    0/*DOC_BASE_CONTEXT*/,
+    DOC_BASE_CONTEXT,
     0,                          /* tp_traverse */
     0,                          /* tp_clear */
     0,                          /* tp_richcompare */

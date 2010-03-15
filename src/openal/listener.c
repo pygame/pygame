@@ -21,6 +21,7 @@
 
 #include "openalmod.h"
 #include "pgopenal.h"
+#include "openalbase_doc.h"
 
 static int _listener_init (PyObject *self, PyObject *args, PyObject *kwds);
 static void _listener_dealloc (PyListener *self);
@@ -32,8 +33,8 @@ static PyObject* _listener_getprop (PyObject *self, PyObject *args);
 /**
  */
 static PyMethodDef _listener_methods[] = {
-    { "set_prop", _listener_setprop, METH_VARARGS, NULL },
-    { "get_prop", _listener_getprop, METH_VARARGS, NULL },
+    { "set_prop", _listener_setprop, METH_VARARGS, DOC_BASE_LISTENER_SET_PROP },
+    { "get_prop", _listener_getprop, METH_VARARGS, DOC_BASE_LISTENER_GET_PROP },
     { NULL, NULL, 0, NULL }
 };
 
@@ -67,7 +68,7 @@ PyTypeObject PyListener_Type =
     0,                          /* tp_setattro */
     0,                          /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags */
-    0/*DOC_BASE_DEVICE*/,
+    DOC_BASE_LISTENER,
     0,                          /* tp_traverse */
     0,                          /* tp_clear */
     0,                          /* tp_richcompare */

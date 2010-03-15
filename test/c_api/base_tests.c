@@ -94,41 +94,41 @@ test_helpers (void)
         ERROR ("Mismatch in UintFromSeqIndex result 1");
 
     i = j = 0;
-    if (!PointFromObject (seq, &i, &j))
-        ERROR ("Mismatch in PointFromObject");
+    if (!PointFromObj (seq, &i, &j))
+        ERROR ("Mismatch in PointFromObj");
     if (i != 2 || j != 4)
-        ERROR ("Mismatch in PointFromObject result");
+        ERROR ("Mismatch in PointFromObj result");
 
     sw = sh = 0;
-    if (!SizeFromObject (seq, &sw, &sh))
-        ERROR ("Mismatch in SizeFromObject");
+    if (!SizeFromObj (seq, &sw, &sh))
+        ERROR ("Mismatch in SizeFromObj");
     if (sw != 2 || sh != 4)
-        ERROR ("Mismatch in SizeFromObject result");
+        ERROR ("Mismatch in SizeFromObj result");
 
     d = e = 0;
-    if (!FPointFromObject (seq, &d, &e))
-        ERROR ("Mismatch in FPointFromObject");
+    if (!FPointFromObj (seq, &d, &e))
+        ERROR ("Mismatch in FPointFromObj");
     if (d != 2.f || e != 4.f)
-        ERROR ("Mismatch in FPointFromObject result");
+        ERROR ("Mismatch in FPointFromObj result");
 
     d = e = 0;
-    if (!FSizeFromObject (seq, &d, &e))
-        ERROR ("Mismatch in FSizeFromObject");
+    if (!FSizeFromObj (seq, &d, &e))
+        ERROR ("Mismatch in FSizeFromObj");
     if (d != 2.f || e != 4.f)
-        ERROR ("Mismatch in FSizeFromObject result");
+        ERROR ("Mismatch in FSizeFromObj result");
     Py_DECREF (seq);
 
     string = PyString_FromString ("Hello World!");
-    if (!ASCIIFromObject (string, &str, &tmp))
-        ERROR ("Mismatch in ASCIIFromObject");
+    if (!ASCIIFromObj (string, &str, &tmp))
+        ERROR ("Mismatch in ASCIIFromObj");
     if (strcmp (str, "Hello World!") != 0)
-        ERROR ("Mismatch in ASCIIFromObject result");
+        ERROR ("Mismatch in ASCIIFromObj result");
     Py_XDECREF (tmp);
 
-    if (!UTF8FromObject (string, &str, &tmp))
-        ERROR ("Mismatch in UTF8FromObject");
+    if (!UTF8FromObj (string, &str, &tmp))
+        ERROR ("Mismatch in UTF8FromObj");
     if (strcmp (str, "Hello World!") != 0)
-        ERROR ("Mismatch in UTF8FromObject result");
+        ERROR ("Mismatch in UTF8FromObj result");
     Py_XDECREF (tmp);
 }
 
@@ -181,25 +181,25 @@ test_rect (void)
         ((PyRect*)rect)->h != 4)
         ERROR ("Rect mismatch in PyRect_New");
 
-    if (!SizeFromObject (rect, &w, &h))
-        ERROR ("Mismatch in SizeFromObject for PyRect");
+    if (!SizeFromObj (rect, &w, &h))
+        ERROR ("Mismatch in SizeFromObj for PyRect");
     if (w != 3 || h != 4)
-        ERROR ("Mismatch in SizeFromObject result for PyRect");
+        ERROR ("Mismatch in SizeFromObj result for PyRect");
 
-    if (!PointFromObject (rect, (int*)&x, (int*)&y))
-        ERROR ("Mismatch in PointFromObject for PyRect");
+    if (!PointFromObj (rect, (int*)&x, (int*)&y))
+        ERROR ("Mismatch in PointFromObj for PyRect");
     if (x != 1 || y != 2)
-        ERROR ("Mismatch in PointFromObject result for PyRect");
+        ERROR ("Mismatch in PointFromObj result for PyRect");
 
-    if (!FSizeFromObject (rect, &dw, &dh))
-        ERROR ("Mismatch in FSizeFromObject for PyRect");
+    if (!FSizeFromObj (rect, &dw, &dh))
+        ERROR ("Mismatch in FSizeFromObj for PyRect");
     if (dw != 3 || dh != 4)
-        ERROR ("Mismatch in FSizeFromObject result for PyRect");
+        ERROR ("Mismatch in FSizeFromObj result for PyRect");
 
-    if (!FPointFromObject (rect, &dx, &dy))
-        ERROR ("Mismatch in FPointFromObject for PyRect");
+    if (!FPointFromObj (rect, &dx, &dy))
+        ERROR ("Mismatch in FPointFromObj for PyRect");
     if (dx != 1 || dy != 2)
-        ERROR ("Mismatch in FPointFromObject result for PyRect");
+        ERROR ("Mismatch in FPointFromObj result for PyRect");
     
     Py_DECREF (rect);
 }
@@ -222,25 +222,25 @@ test_frect (void)
         ((PyFRect*)rect)->h != 4.04f)
         ERROR ("FRect mismatch in PyFRect_New");
 
-    if (!SizeFromObject (rect, &sw, &sh))
-        ERROR ("Mismatch in SizeFromObject for PyFRect");
+    if (!SizeFromObj (rect, &sw, &sh))
+        ERROR ("Mismatch in SizeFromObj for PyFRect");
     if (sw != 3 || sh != 4)
-        ERROR ("Mismatch in SizeFromObject result for PyFRect");
+        ERROR ("Mismatch in SizeFromObj result for PyFRect");
 
-    if (!PointFromObject (rect, &ix, &iy))
-        ERROR ("Mismatch in PointFromObject for PyFRect");
+    if (!PointFromObj (rect, &ix, &iy))
+        ERROR ("Mismatch in PointFromObj for PyFRect");
     if (ix != 1 || iy != 2)
-        ERROR ("Mismatch in PointFromObject result for PyFRect");
+        ERROR ("Mismatch in PointFromObj result for PyFRect");
 
-    if (!FSizeFromObject (rect, &w, &h))
-        ERROR ("Mismatch in FSizeFromObject for PyFRect");
+    if (!FSizeFromObj (rect, &w, &h))
+        ERROR ("Mismatch in FSizeFromObj for PyFRect");
     if (!NEAR_ZERO (w - 3.03) || !NEAR_ZERO (h - 4.04))
-        ERROR ("Mismatch in FSizeFromObject result for PyFRect");
+        ERROR ("Mismatch in FSizeFromObj result for PyFRect");
 
-    if (!FPointFromObject (rect, &x, &y))
-        ERROR ("Mismatch in FPointFromObject for PyFRect");
+    if (!FPointFromObj (rect, &x, &y))
+        ERROR ("Mismatch in FPointFromObj for PyFRect");
     if (!NEAR_ZERO (x - 1.01) || !NEAR_ZERO (y - 2.02))
-        ERROR ("Mismatch in FPointFromObject result for PyFRect");
+        ERROR ("Mismatch in FPointFromObj result for PyFRect");
     
     Py_DECREF (rect);
 }

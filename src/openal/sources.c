@@ -21,6 +21,7 @@
 
 #include "openalmod.h"
 #include "pgopenal.h"
+#include "openalbase_doc.h"
 
 static int _sources_init (PyObject *self, PyObject *args, PyObject *kwds);
 static void _sources_dealloc (PySources *self);
@@ -51,22 +52,24 @@ static PyObject* _sources_getsources (PyObject* self, void *closure);
 /**
  */
 static PyMethodDef _sources_methods[] = {
-    { "set_prop", _sources_setprop, METH_VARARGS, NULL },
-    { "get_prop", _sources_getprop, METH_VARARGS, NULL },
-    { "play", _sources_play, METH_O, NULL },
-    { "pause", _sources_pause, METH_O, NULL },
-    { "stop", _sources_stop, METH_O, NULL },
-    { "rewind", _sources_rewind, METH_O, NULL },
-    { "queue_buffers", _sources_queuebuffers, METH_VARARGS, NULL },
-    { "unqueue_buffers", _sources_unqueuebuffers, METH_VARARGS, NULL },
+    { "set_prop", _sources_setprop, METH_VARARGS, DOC_BASE_SOURCES_SET_PROP },
+    { "get_prop", _sources_getprop, METH_VARARGS, DOC_BASE_SOURCES_GET_PROP },
+    { "play", _sources_play, METH_O, DOC_BASE_SOURCES_PLAY },
+    { "pause", _sources_pause, METH_O, DOC_BASE_SOURCES_PAUSE },
+    { "stop", _sources_stop, METH_O, DOC_BASE_SOURCES_STOP },
+    { "rewind", _sources_rewind, METH_O, DOC_BASE_SOURCES_REWIND },
+    { "queue_buffers", _sources_queuebuffers, METH_VARARGS,
+      DOC_BASE_SOURCES_QUEUE_BUFFERS },
+    { "unqueue_buffers", _sources_unqueuebuffers, METH_VARARGS,
+      DOC_BASE_SOURCES_UNQUEUE_BUFFERS },
     { NULL, NULL, 0, NULL }
 };
 
 /**
  */
 static PyGetSetDef _sources_getsets[] = {
-    { "count", _sources_getcount, NULL, NULL, NULL },
-    { "sources", _sources_getsources, NULL, NULL, NULL },
+    { "count", _sources_getcount, NULL, DOC_BASE_SOURCES_COUNT, NULL },
+    { "sources", _sources_getsources, NULL, DOC_BASE_SOURCES_SOURCES, NULL },
     { NULL, NULL, NULL, NULL, NULL }
 };
 
@@ -94,7 +97,7 @@ PyTypeObject PySources_Type =
     0,                          /* tp_setattro */
     0,                          /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags */
-    0/*DOC_BASE_DEVICE*/,
+    DOC_BASE_SOURCES,
     0,                          /* tp_traverse */
     0,                          /* tp_clear */
     0,                          /* tp_richcompare */

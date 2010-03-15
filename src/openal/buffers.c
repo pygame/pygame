@@ -21,6 +21,7 @@
 
 #include "openalmod.h"
 #include "pgopenal.h"
+#include "openalbase_doc.h"
 
 static int _buffers_init (PyObject *self, PyObject *args, PyObject *kwds);
 static void _buffers_dealloc (PyBuffers *self);
@@ -36,17 +37,18 @@ static PyObject* _buffers_getbuffers (PyObject* self, void *closure);
 /**
  */
 static PyMethodDef _buffers_methods[] = {
-    { "set_prop", _buffers_setprop, METH_VARARGS, NULL },
-    { "get_prop", _buffers_getprop, METH_VARARGS, NULL },
-    { "buffer_data", _buffers_bufferdata, METH_VARARGS, NULL },
+    { "set_prop", _buffers_setprop, METH_VARARGS, DOC_BASE_BUFFERS_SET_PROP },
+    { "get_prop", _buffers_getprop, METH_VARARGS, DOC_BASE_BUFFERS_GET_PROP },
+    { "buffer_data", _buffers_bufferdata, METH_VARARGS,
+      DOC_BASE_BUFFERS_BUFFER_DATA },
     { NULL, NULL, 0, NULL }
 };
 
 /**
  */
 static PyGetSetDef _buffers_getsets[] = {
-    { "count", _buffers_getcount, NULL, NULL, NULL },
-    { "buffers", _buffers_getbuffers, NULL, NULL, NULL },
+    { "count", _buffers_getcount, NULL, DOC_BASE_BUFFERS_COUNT, NULL },
+    { "buffers", _buffers_getbuffers, NULL, DOC_BASE_BUFFERS_BUFFERS, NULL },
     { NULL, NULL, NULL, NULL, NULL }
 };
 
@@ -74,7 +76,7 @@ PyTypeObject PyBuffers_Type =
     0,                          /* tp_setattro */
     0,                          /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags */
-    0/*DOC_BASE_DEVICE*/,
+    DOC_BASE_BUFFERS,
     0,                          /* tp_traverse */
     0,                          /* tp_clear */
     0,                          /* tp_richcompare */

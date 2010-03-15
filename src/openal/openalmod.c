@@ -23,7 +23,7 @@
 #include "openalmod.h"
 #include "pgbase.h"
 #include "pgopenal.h"
-/*#include "openalbase_doc.h"*/
+#include "openalbase_doc.h"
 
 static PyObject* _openal_init (PyObject *self);
 static PyObject* _openal_quit (PyObject *self);
@@ -38,23 +38,28 @@ static PyObject* _openal_getdefaultoutputdevicename (PyObject *self);
 static PyObject* _openal_getdefaultcapturedevicename (PyObject *self);
 
 static PyMethodDef _openal_methods[] = {
-    { "init", (PyCFunction)_openal_init, METH_NOARGS, ""/*DOC_BASE_INIT*/ },
-    { "quit", (PyCFunction)_openal_quit, METH_NOARGS, ""/*DOC_BASE_QUIT*/ },
+    { "init", (PyCFunction)_openal_init, METH_NOARGS, DOC_BASE_INIT },
+    { "quit", (PyCFunction)_openal_quit, METH_NOARGS, DOC_BASE_QUIT },
     { "get_error", (PyCFunction)_openal_geterror, METH_NOARGS,
-      ""/*DOC_BASE_GETERROR*/ },
-    { "is_extension_present", _openal_isextensionpresent, METH_VARARGS, "" },
-    { "get_enum_value", _openal_getenumvalue, METH_O, "" }, 
+      DOC_BASE_GET_ERROR },
+    { "is_extension_present", _openal_isextensionpresent, METH_VARARGS,
+      DOC_BASE_IS_EXTENSION_PRESENT },
+    { "get_enum_value", _openal_getenumvalue, METH_O,
+      DOC_BASE_GET_ENUM_VALUE }, 
     { "list_output_devices", (PyCFunction)_openal_listoutputdevices,
-      METH_NOARGS, "" },
+      METH_NOARGS, DOC_BASE_LIST_OUTPUT_DEVICES },
     { "list_capture_devices", (PyCFunction)_openal_listcapturedevices,
-      METH_NOARGS, "" },
-    { "al_get_string", (PyCFunction)_openal_algetstring, METH_O, "" },
+      METH_NOARGS, DOC_BASE_LIST_CAPTURE_DEVICES },
+    { "al_get_string", (PyCFunction)_openal_algetstring, METH_O,
+      DOC_BASE_AL_GET_STRING },
     { "set_current_context", (PyCFunction)_openal_setcurrentcontext,
-      METH_O, "" },
+      METH_O, DOC_BASE_SET_CURRENT_CONTEXT },
     { "get_default_output_device_name",
-      (PyCFunction) _openal_getdefaultoutputdevicename, METH_NOARGS, ""},
+      (PyCFunction) _openal_getdefaultoutputdevicename, METH_NOARGS,
+      DOC_BASE_GET_DEFAULT_OUTPUT_DEVICE_NAME },
     { "get_default_capture_device_name",
-      (PyCFunction) _openal_getdefaultcapturedevicename, METH_NOARGS, ""},
+      (PyCFunction) _openal_getdefaultcapturedevicename, METH_NOARGS,
+      DOC_BASE_GET_DEFAULT_CAPTURE_DEVICE_NAME },
    
     { NULL, NULL, 0, NULL },
 };
@@ -420,7 +425,7 @@ PyMODINIT_FUNC initbase (void)
     };
     mod = PyModule_Create (&_module);
 #else
-    mod = Py_InitModule3 ("base", _openal_methods, ""/*DOC_BASE*/);
+    mod = Py_InitModule3 ("base", _openal_methods, DOC_BASE);
 #endif
     if (!mod)
         goto fail;

@@ -340,6 +340,8 @@ modules = [
                     "src/openal/context.c",
                     "src/openal/capturedevice.c",
                     "src/openal/device.c" ],
+        instheaders = [ "src/openal/pgopenal.h" ],
+        docfile = "openalbase.xml",
         depends = [ 'openal' ],
         experimental = True),
     ]
