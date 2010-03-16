@@ -373,33 +373,59 @@ GetPropTypeFromStr (char *name)
         return INVALID;
 
     len = strlen (name);
+    if (len > 2)
+        return INVALID;
 
-    if (len == 1)
+    switch (name[0])
     {
-        if (name[0] == 'i')
-            return INT;
-        else if (name[0] == 'f')
-            return FLOAT;
+    case 'b':
+    {
+        if (len == 2)
+        {
+            if (name[1] == 'a')
+                return BOOLARRAY;
+            return INVALID;
+        }
+        return BOOL;
+    }
+    case 'd':
+    {
+        if (len == 2)
+        {
+            if (name[1] == 'a')
+                return DOUBLEARRAY;
+            return INVALID;
+        }
+        return DOUBLE;
+    }
+    case 'f':
+    {
+        if (len == 2)
+        {
+            if (name[1] == '3')
+                return FLOAT3;
+            if (name[1] == 'a')
+                return FLOATARRAY;
+            return INVALID;
+        }
+        return FLOAT;
+    }
+    case 'i':
+    {
+        if (len == 2)
+        {
+            if (name[1] == '3')
+                return INT3;
+            if (name[1] == 'a')
+                return INTARRAY;
+            return INVALID;
+        }
+        return INT;
+    }
+    default:
         return INVALID;
     }
 
-    if (len == 2)
-    {
-        if (name[0] == 'i')
-        {
-            if (name[1] == 'a')
-                return INTARRAY;
-            if (name[1] == '3')
-                return INT3;
-        }
-        else if (name[0] == 'f')
-        {
-            if (name[1] == 'a')
-                return FLOATARRAY;
-            if (name[1] == '3')
-                return FLOAT3;
-        }
-    }
     return INVALID;
 }
 

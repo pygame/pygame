@@ -6,6 +6,40 @@
   <short>basic OpenAL wrapper module</short>
   <desc>
     Basic Pygame2 OpenAL wrapper module.
+
+
+
+
+    Identifiers for the property get and set methods:
+    
+    +------+------------------------------------------------------------+
+    | 'b'  | Get or set a single boolean value (e.g. AL_TRUE)           |
+    +------+------------------------------------------------------------+
+    | 'ba' | Get or set an array of boolean values. The array can be    |
+    |      | any type of sequence containing matching values.           |
+    +------+------------------------------------------------------------+
+    | 'i'  | Get or set a single integer value.                         |
+    +------+------------------------------------------------------------+
+    | 'i3' | Get or set an triplet of integer values. The array can be  |
+    |      | any type of sequence containing matching values.           |
+    +------+------------------------------------------------------------+
+    | 'ia' | Get or set an array of integer values. The array can be    |
+    |      | any type of sequence containing matching values.           |
+    +------+------------------------------------------------------------+
+    | 'f'  | Get or set a single floating point value.                  |
+    +------+------------------------------------------------------------+
+    | 'f3' | Get or set an triplet of floating point values. The array  |
+    |      | can be any type of sequence containing matching values.    |
+    +------+------------------------------------------------------------+
+    | 'fa' | Get or set an array of floating point values. The array    |
+    |      | can be any type of sequence containing matching values.    |
+    +------+------------------------------------------------------------+
+    | 'd'  | Get or set a single double precision floating point value. |
+    +------+------------------------------------------------------------+
+    | 'da' | Get or set an array of double precision floating point     |
+    |      | values. The array can be any type of sequence containing   |
+    |      | matching values.                                           |
+    +------+------------------------------------------------------------+
   </desc>
 
   <class name="Buffers">
@@ -31,16 +65,20 @@
       <example></example>
     </method>
     <attr name="buffers">
-      <desc>None</desc>
+      <desc>The buffer identifiers used inb the Buffers instance.</desc>
       <example></example>
     </attr>
     <attr name="count">
-      <desc>None</desc>
+      <desc>The number of buffers.</desc>
       <example></example>
     </attr>
     <method name="get_prop">
-      <call></call>
-      <desc></desc>
+      <call>get_prop (bufnum, prop, type) -> value or (value, ...) </call>
+      <desc>
+        Retrieves the value(s) of an OpenAL property for the Buffers.
+      
+        
+      </desc>
       <example></example>
     </method>
     <method name="set_prop">

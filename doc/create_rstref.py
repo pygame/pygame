@@ -236,7 +236,7 @@ class Doc(object):
         data += "%s\n" % self.create_desc_rst (func.description, 2)
         return data
 
-    def create_example_rst (self, example, showex=False):
+    def create_example_rst (self, example, showex=True):
         data = ""
         if showex:
             data = "  **Example:** ::\n"
@@ -281,7 +281,7 @@ class Doc(object):
             fp.write (".. currentmodule:: %s\n\n" % (name))
 
         if len (self.example) > 0:
-            fp.write (self.create_example_rst (self.example, True))
+            fp.write (self.create_example_rst (self.example))
 
         if len (self.data) > 0:
             fp.write ("Data Fields\n")
@@ -328,7 +328,6 @@ class Doc(object):
                             fp.write ("            %s.%s\n" % (cls.name, call))
                         fp.write (self.create_desc_rst (method.description, 2))
                         if len (method.example) > 0:
-                            fp.write ("Example:\n")
                             fp.write (self.create_example_rst (method.example))
 
         fp.write ("\n")

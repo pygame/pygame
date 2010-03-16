@@ -11,11 +11,11 @@
   </desc>
 
   <data name="__version__">
-    The version of the Pygame2 package as string.
+    The version of the pygame2 package as string.
   </data>
 
   <data name="version_info">
-    The version of the Pygame2 package as value tuple. The tuple is of
+    The version of the pygame2 package as value tuple. The tuple is of
     the form ``('major', 'minor', 'micro', 'releaselevel')``, where all
     values except the *releaselevel* are integers.
   </data>
@@ -92,9 +92,28 @@
       <desc>
         Applies a certain gamma value to the Color.
 
-        Applies a certain gamma value to the Color and returns a new
-        Color with the adjusted RGBA values.
+        Applies a certain *gamma* value to the Color and returns a new
+        Color with the adjusted RGBA values. The *gamma* value will be
+        used as exponent for a power of calculation to adjust the actual
+        gamma tone.
+
+        The passed *gamma* value will influence he overall luminance of
+        the color, where the following rules apply.
+        
+        * Pure white and black colors (R = G = B = 255 or 0) won't be effected by adjusting the gamma value.
+        * the smaller the gamma factor, the higher the luminance and thus the brighter the color channels will be.
       </desc>
+      <example>
+        from pygame2 import Color
+
+        color = Color (127, 127, 127)
+        # 1.0 has no effect - corrected will be (127, 127, 127)
+        corrected = color.correct_gamma (1.0)
+        # 0.5 brightens the color by two - brightened will be (180, 180, 180)
+        brightened = color.correct_gamma (0.5)
+        # 2.0 darkens the color by two - darkened will be (63, 63, 63)
+        darkened = color.correct_gamma (2.0)
+      </example>
     </method>
     <attr name="g">
       <desc>Gets or sets the green value of the Color.</desc>
@@ -131,6 +150,13 @@
         Returns the normalized RGBA values of the Color as floating
         point values.
       </desc>
+      <example>
+        from pygame2 import Color
+
+        color = Color (255, 255, 255)
+        # normalized will be (1.0, 1.0, 1.0, 1.0)
+        normalized = color.normalize ()
+      </example>
     </method>
     <attr name="r">
       <desc>Gets or sets the red value of the Color.</desc>

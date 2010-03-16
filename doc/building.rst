@@ -32,7 +32,7 @@ available, the build system assumes that you want to have as many
 features as possible and thus will enable them.
 
 Currently the following environment variables are controlling, which
-components of pgreloaded should be build: ::
+components of pygame2 should be build: ::
 
   WITH_SDL=[yes|no|1|True]                Example: make -DWITH_SDL=yes
 
@@ -86,7 +86,7 @@ module. ::
 Build and install the :mod:`pygame2.openal` module. This wraps the OpenAL
 library and gives access to the :mod:`pygame2.openal` module. ::
 
-  WITH_OPENMP=[yes|no|1|True]         Example: make -DWITH_OPENAL=1
+  WITH_OPENMP=[yes|no|1|True]             Example: make -DWITH_OPENAL=1
     
 Add support for the Open Multi-Processing library. This will utilize the
 OpenMP API to speed up certain routines, such as e.g blit and fill
