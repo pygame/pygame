@@ -25,6 +25,14 @@
 #include <limits.h>
 #include "pgtypes.h"
 
+#if defined(IS_WIN32) && defined(WIN32)
+#define PRAGMA(x) __pragma(x)
+#elif defined (__GNUC__)
+#define PRAGMA(x) _Pragma(#x)
+#else
+#define PRAGMA(x)
+#endif
+
 #ifndef MIN
 #define MIN(x,y) (((x) < (y)) ? (x) : (y))
 #endif

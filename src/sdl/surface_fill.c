@@ -51,9 +51,9 @@
         {                                                               \
             int x, y;                                                   \
             SDL_GetRGBA (color, fmt, &cR, &cG, &cB, &cA);               \
-            _Pragma("omp parallel")                                     \
+            PRAGMA(omp parallel)                                        \
             {                                                           \
-                _Pragma("omp for private(ppx,x,sR,sG,sB,sA,tmp)")       \
+                PRAGMA(omp for private(ppx,x,sR,sG,sB,sA,tmp))          \
                 for (y = 0; y < height; y++)                            \
                 {                                                       \
                     for (x = 0; x < width; x++)                         \
@@ -72,9 +72,9 @@
         {                                                               \
             int x, y;                                                   \
             GET_RGB_VALS (color, fmt, cR, cG, cB, cA);                  \
-            _Pragma("omp parallel")                                     \
+            PRAGMA(omp parallel)                                        \
             {                                                           \
-                _Pragma("omp for private(ppx,pixel,x,sR,sG,sB,sA,tmp)") \
+                PRAGMA(omp for private(ppx,pixel,x,sR,sG,sB,sA,tmp))    \
                 for (y = 0; y < height; y++)                            \
                 {                                                       \
                     for (x = 0; x < width; x++)                         \

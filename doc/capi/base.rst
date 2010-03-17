@@ -65,6 +65,20 @@ Macros
 In addition to the types, a set of helpful macros was established, which are
 used heavily and should be relied on wherever possible.
 
+.. cfunction:: PRAGMA(q)
+
+  #pragma handler for usage within C macros. ::
+
+    PRAGMA(some simple pragma)
+
+  will be expanded depending on the compiler to something like ::
+
+    __pragma(some simple pragma) /* Visual C++ */
+    _Pragma("some simple pragma") /* GCC */
+
+  which in turn will be expanded to the default #pragma directive for
+  the compiler.
+
 .. cfunction:: MIN(q,v)
 
   Gets the smaller of two values. The own implementation will only be used,

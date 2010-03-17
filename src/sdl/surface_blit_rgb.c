@@ -45,9 +45,9 @@
                                                                         \
         if (srcbpp == 4 && dstbpp == 4)                                 \
         {                                                               \
-            _Pragma("omp parallel")                                     \
+            PRAGMA(omp parallel)                                        \
             {                                                           \
-                _Pragma("omp for private(sppx,dppx,x,sR,sG,sB,sA,dR,dG,dB,dA,tmp,tmp2)") \
+                PRAGMA(omp for private(sppx,dppx,x,sR,sG,sB,sA,dR,dG,dB,dA,tmp,tmp2)) \
                 for (y = 0; y < height; y++)                            \
                 {                                                       \
                     for (x = 0; x < width; x++)                         \
@@ -68,9 +68,9 @@
         {                                                               \
             if (dstbpp == 1)                                            \
             {                                                           \
-                _Pragma("omp parallel")                                 \
+                PRAGMA(omp parallel)                                    \
                 {                                                       \
-                    _Pragma("omp for private(sppx,dppx,x,sR,sG,sB,sA,dR,dG,dB,dA,tmp,tmp2)") \
+                    PRAGMA(omp for private(sppx,dppx,x,sR,sG,sB,sA,dR,dG,dB,dA,tmp,tmp2)) \
                     for (y = 0; y < height; y++)                        \
                     {                                                   \
                         for (x = 0; x < width; x++)                     \
@@ -87,9 +87,9 @@
             }                                                           \
             else /* dstbpp > 1 */                                       \
             {                                                           \
-                _Pragma("omp parallel")                                 \
+                PRAGMA(omp parallel)                                    \
                 {                                                       \
-                    _Pragma("omp for private(sppx,dppx,pixel,x,sR,sG,sB,sA,dR,dG,dB,dA,tmp,tmp2)") \
+                    PRAGMA(omp for private(sppx,dppx,pixel,x,sR,sG,sB,sA,dR,dG,dB,dA,tmp,tmp2)) \
                     for (y = 0; y < height; y++)                        \
                     {                                                   \
                         for (x = 0; x < width; x++)                     \
@@ -110,9 +110,9 @@
         {                                                               \
             if (dstbpp == 1)                                            \
             {                                                           \
-                _Pragma("omp parallel")                                 \
+                PRAGMA(omp parallel)                                    \
                 {                                                       \
-                    _Pragma("omp for private(sppx,dppx,pixel,x,sR,sG,sB,sA,dR,dG,dB,dA,tmp,tmp2)") \
+                    PRAGMA(omp for private(sppx,dppx,pixel,x,sR,sG,sB,sA,dR,dG,dB,dA,tmp,tmp2)) \
                     for (y = 0; y < height; y++)                        \
                     {                                                   \
                         for (x = 0; x < width; x++)                     \
@@ -130,9 +130,9 @@
             }                                                           \
             else /* dstbpp > 1 */                                       \
             {                                                           \
-                _Pragma("omp parallel")                                 \
+                PRAGMA(omp parallel)                                    \
                 {                                                       \
-                    _Pragma("omp for private(sppx,dppx,pixel,x,sR,sG,sB,sA,dR,dG,dB,dA,tmp,tmp2)") \
+                    PRAGMA(omp for private(sppx,dppx,pixel,x,sR,sG,sB,sA,dR,dG,dB,dA,tmp,tmp2)) \
                     for (y = 0; y < height; y++)                        \
                     {                                                   \
                         for (x = 0; x < width; x++)                     \
