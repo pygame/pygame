@@ -31,7 +31,9 @@ class SimplePlayer (object):
         self.context = openal.Context (self.device)
         self.context.make_current ()
 
-        # Create a playback source.
+        # Create a playback source and set the default gain and pitch.
+        # Then set the position of the sound to be centered and static
+        # (no velocity).
         self.sources = self.context.create_sources (1)
 
         self.sources.set_prop (self.sources.sources[0], const.AL_PITCH, 1., 'f')
@@ -41,6 +43,8 @@ class SimplePlayer (object):
         self.sources.set_prop(self.sources.sources[0], const.AL_VELOCITY,
                               (0., 0., 0.), 'fa')
 
+        # Create a buffer for holding the WAV data, load the data and
+        # queue the buffer for playback.
         buffers = self.context.create_buffers (1)
         buffers.buffer_data (buffers.buffers[0],self.alformat, data, samplerate)
         self.sources.queue_buffers (self.sources.sources[0], buffers)
