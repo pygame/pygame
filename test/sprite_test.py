@@ -380,29 +380,12 @@ class SpriteCollideTest( unittest.TestCase ):
                                              collided_callback_true)
         self.assert_(crashed == {})
 
-    def todo_test_collide_rect(self):
+    def test_collide_rect(self):
 
-        # __doc__ (as of 2008-08-02) for pygame.sprite.collide_rect:
-
-          # collision detection between two sprites, using rects.
-          # pygame.sprite.collide_rect(left, right): return bool
-          #
-          # Tests for collision between two sprites. Uses the
-          # pygame rect colliderect function to calculate the
-          # collision. Intended to be passed as a collided
-          # callback function to the *collide functions.
-          # Sprites must have a "rect" attributes.
-          #
-          # New in pygame 1.8.0
-          #
-          # Tests for collision between two sprites. Uses the pygame rect
-          # colliderect function to calculate the collision. Intended to be
-          # passed as a collided callback function to the *collide functions.
-          # Sprites must have a "rect" attributes.
-          #
-          # New in pygame 1.8.0
-
-        self.fail()
+        self.assert_(pygame.sprite.collide_rect(self.s1, self.s2))
+        self.assert_(pygame.sprite.collide_rect(self.s2, self.s1))
+        self.assertFalse(pygame.sprite.collide_rect(self.s1, self.s3))
+        self.assertFalse(pygame.sprite.collide_rect(self.s3, self.s1))
 
 ################################################################################
 
