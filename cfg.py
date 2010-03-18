@@ -62,5 +62,3 @@ build['OPENMP'] = istrue (os.getenv ("WITH_OPENMP", False))
 
 # Experimental modules support
 build['EXPERIMENTAL'] = istrue (os.getenv ("WITH_EXPERIMENTAL", False))
-
-

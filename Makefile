@@ -19,6 +19,7 @@ SUBDIRS = \
 	$(top_srcdir)/test/c_api \
 	$(top_srcdir)/test/util \
 	$(top_srcdir)/lib \
+	$(top_srcdir)/lib/dll \
 	$(top_srcdir)/lib/freetype \
 	$(top_srcdir)/lib/math \
 	$(top_srcdir)/lib/midi \
