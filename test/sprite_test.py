@@ -336,31 +336,31 @@ class SpriteCollideTest( unittest.TestCase ):
         collided_callback_false = lambda spr_a, spr_b: False
 
         # test no kill
-        crashed = pygame.sprite.groupcollide(self.ag, self.ag2, False, False, 
+        crashed = pygame.sprite.groupcollide(self.ag, self.ag2, False, False,
                                              collided_callback_false)
-        self.assert_(crashed == {})  
+        self.assert_(crashed == {})
 
-        crashed = pygame.sprite.groupcollide(self.ag, self.ag2, False, False, 
+        crashed = pygame.sprite.groupcollide(self.ag, self.ag2, False, False,
                                              collided_callback_true)
-        self.assert_(crashed == {self.s1: [self.s2, self.s3]} or 
+        self.assert_(crashed == {self.s1: [self.s2, self.s3]} or
                      crashed == {self.s1: [self.s3, self.s2]})
 
-        crashed = pygame.sprite.groupcollide(self.ag, self.ag2, False, False, 
+        crashed = pygame.sprite.groupcollide(self.ag, self.ag2, False, False,
                                              collided_callback_true)
-        self.assert_(crashed == {self.s1: [self.s2, self.s3]} or 
+        self.assert_(crashed == {self.s1: [self.s2, self.s3]} or
                      crashed == {self.s1: [self.s3, self.s2]})
 
         # test killb
-        crashed = pygame.sprite.groupcollide(self.ag, self.ag2, False, True, 
+        crashed = pygame.sprite.groupcollide(self.ag, self.ag2, False, True,
                                              collided_callback_false)
-        self.assert_(crashed == {})  
+        self.assert_(crashed == {})
 
-        crashed = pygame.sprite.groupcollide(self.ag, self.ag2, False, True, 
+        crashed = pygame.sprite.groupcollide(self.ag, self.ag2, False, True,
                                              collided_callback_true)
-        self.assert_(crashed == {self.s1: [self.s2, self.s3]} or 
+        self.assert_(crashed == {self.s1: [self.s2, self.s3]} or
                      crashed == {self.s1: [self.s3, self.s2]})
 
-        crashed = pygame.sprite.groupcollide(self.ag, self.ag2, False, True, 
+        crashed = pygame.sprite.groupcollide(self.ag, self.ag2, False, True,
                                              collided_callback_true)
         self.assert_(crashed == {})
 
@@ -368,117 +368,145 @@ class SpriteCollideTest( unittest.TestCase ):
         self.ag.add(self.s2)
         self.ag2.add(self.s3)
 
-        crashed = pygame.sprite.groupcollide(self.ag, self.ag2, True, False, 
+        crashed = pygame.sprite.groupcollide(self.ag, self.ag2, True, False,
                                              collided_callback_false)
-        self.assert_(crashed == {})  
+        self.assert_(crashed == {})
 
-        crashed = pygame.sprite.groupcollide(self.ag, self.ag2, True, False, 
+        crashed = pygame.sprite.groupcollide(self.ag, self.ag2, True, False,
                                              collided_callback_true)
         self.assert_(crashed == {self.s1: [self.s3], self.s2: [self.s3]})
 
-        crashed = pygame.sprite.groupcollide(self.ag, self.ag2, True, False, 
+        crashed = pygame.sprite.groupcollide(self.ag, self.ag2, True, False,
                                              collided_callback_true)
         self.assert_(crashed == {})
 
     def test_collide_rect(self):
 
+        # Test colliding - some edges touching
         self.assert_(pygame.sprite.collide_rect(self.s1, self.s2))
         self.assert_(pygame.sprite.collide_rect(self.s2, self.s1))
+
+        # Test colliding - all edges touching
+        self.s2.rect.center = self.s3.rect.center
+        self.assert_(pygame.sprite.collide_rect(self.s2, self.s3))
+        self.assert_(pygame.sprite.collide_rect(self.s3, self.s2))
+
+        # Test colliding - no edges touching
+        self.s2.rect.inflate_ip(10, 10)
+        self.assert_(pygame.sprite.collide_rect(self.s2, self.s3))
+        self.assert_(pygame.sprite.collide_rect(self.s3, self.s2))
+
+        # Test colliding - some edges intersecting
+        self.s2.rect.center = (self.s1.rect.right, self.s1.rect.bottom)
+        self.assert_(pygame.sprite.collide_rect(self.s1, self.s2))
+        self.assert_(pygame.sprite.collide_rect(self.s2, self.s1))
+
+        # Test not colliding
         self.assertFalse(pygame.sprite.collide_rect(self.s1, self.s3))
         self.assertFalse(pygame.sprite.collide_rect(self.s3, self.s1))
 
 ################################################################################
 
 class AbstractGroupTypeTest( unittest.TestCase ):
+    def setUp(self):
+        self.ag = sprite.AbstractGroup()
+        self.ag2 = sprite.AbstractGroup()
+        self.s1 = sprite.Sprite(self.ag)
+        self.s2 = sprite.Sprite(self.ag)
+        self.s3 = sprite.Sprite(self.ag2)
+        self.s4 = sprite.Sprite(self.ag2)
+
+        self.s1.image = pygame.Surface((10, 10))
+        self.s1.image.fill(pygame.Color('red'))
+        self.s1.rect = self.s1.image.get_rect()
+
+        self.s2.image = pygame.Surface((10, 10))
+        self.s2.image.fill(pygame.Color('green'))
+        self.s2.rect = self.s2.image.get_rect()
+        self.s2.rect.left = 10
+
+        self.s3.image = pygame.Surface((10, 10))
+        self.s3.image.fill(pygame.Color('blue'))
+        self.s3.rect = self.s3.image.get_rect()
+        self.s3.rect.top = 10
+
+        self.s4.image = pygame.Surface((10, 10))
+        self.s4.image.fill(pygame.Color('white'))
+        self.s4.rect = self.s4.image.get_rect()
+        self.s4.rect.left = 10
+        self.s4.rect.top = 10
+
+        self.bg = pygame.Surface((20, 20))
+        self.scr = pygame.Surface((20, 20))
+        self.scr.fill(pygame.Color('grey'))
+
     def test_has( self ):
         " See if AbstractGroup.has() works as expected. "
 
-        ag = sprite.AbstractGroup()
-        ag2 = sprite.AbstractGroup()
-        s1 = sprite.Sprite(ag)
-        s2 = sprite.Sprite(ag)
-        s3 = sprite.Sprite(ag2)
-        s4 = sprite.Sprite(ag2)
+        self.assertEqual(True, self.s1 in self.ag)
 
-        self.assertEqual(True, s1 in ag )
+        self.assertEqual(True, self.ag.has(self.s1))
 
-        self.assertEqual(True, ag.has(s1) )
-
-        self.assertEqual(True, ag.has([s1, s2]) )
+        self.assertEqual(True, self.ag.has([self.s1, self.s2]))
 
         # see if one of them not being in there.
-        self.assertNotEqual(True, ag.has([s1, s2, s3]) )
+        self.assertNotEqual(True, self.ag.has([self.s1, self.s2, self.s3]))
 
         # see if a second AbstractGroup works.
-        self.assertEqual(True, ag2.has(s3) )
+        self.assertEqual(True, self.ag2.has(self.s3))
 
-    def todo_test_add(self):
+    def test_add(self):
 
-        # __doc__ (as of 2008-08-02) for pygame.sprite.AbstractGroup.add:
+        ag3 = sprite.AbstractGroup()
+        self.assertFalse(self.s1 in ag3)
+        self.assertFalse(self.s2 in ag3)
+        self.assertFalse(self.s3 in ag3)
+        self.assertFalse(self.s4 in ag3)
 
-          # add(sprite, list, or group, ...)
-          # add sprite to group
-          #
-          # Add a sprite or sequence of sprites to a group.
+        ag3.add(self.s1, [self.s2], self.ag2)
+        self.assert_(self.s1 in ag3)
+        self.assert_(self.s2 in ag3)
+        self.assert_(self.s3 in ag3)
+        self.assert_(self.s4 in ag3)
 
-        self.fail()
+    def test_add_internal(self):
 
-    def todo_test_add_internal(self):
+        self.assertFalse(self.s1 in self.ag2)
+        self.ag2.add_internal(self.s1)
+        self.assert_(self.s1 in self.ag2)
 
-        # __doc__ (as of 2008-08-02) for pygame.sprite.AbstractGroup.add_internal:
+    def test_clear(self):
 
-          #
-
-        self.fail()
-
-    def todo_test_clear(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.sprite.AbstractGroup.clear:
-
-          # clear(surface, bgd)
-          # erase the previous position of all sprites
-          #
-          # Clears the area of all drawn sprites. the bgd
-          # argument should be Surface which is the same
-          # dimensions as the surface. The bgd can also be
-          # a function which gets called with the passed
-          # surface and the area to be cleared.
-
-        self.fail()
+        self.ag.draw(self.scr)
+        self.ag.clear(self.scr, self.bg)
+        self.assertEqual((0, 0, 0, 255),
+                         self.scr.get_at((5, 5)))
+        self.assertEqual((0, 0, 0, 255),
+                         self.scr.get_at((15, 5)))
 
     def todo_test_copy(self):
 
-        # __doc__ (as of 2008-08-02) for pygame.sprite.AbstractGroup.copy:
+        """This raises an exception. The __init__ method of AbstractGroup
+        does not accept an argument after the implicit self."""
 
-          # copy()
-          # copy a group with all the same sprites
-          #
-          # Returns a copy of the group that is the same class
-          # type, and has the same sprites in it.
+        ag_copy = self.ag.copy()
+        self.assert_(isinstance(ag_copy, pygame.sprite.AbstractGroup))
+        self.assert_(self.s1 in ag_copy)
+        self.assert_(self.s2 in ag_copy)
 
-        self.fail()
+    def test_draw(self):
 
-    def todo_test_draw(self):
+        self.ag.draw(self.scr)
+        self.assertEqual((255, 0, 0, 255),
+                         self.scr.get_at((5, 5)))
+        self.assertEqual((0, 255, 0, 255),
+                         self.scr.get_at((15, 5)))
 
-        # __doc__ (as of 2008-08-02) for pygame.sprite.AbstractGroup.draw:
+    def test_empty(self):
 
-          # draw(surface)
-          # draw all sprites onto the surface
-          #
-          # Draws all the sprites onto the given surface.
-
-        self.fail()
-
-    def todo_test_empty(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.sprite.AbstractGroup.empty:
-
-          # empty()
-          # remove all sprites
-          #
-          # Removes all the sprites from the group.
-
-        self.fail()
+        self.ag.empty()
+        self.assertFalse(self.s1 in self.ag)
+        self.assertFalse(self.s2 in self.ag)
 
     def todo_test_has_internal(self):
 
