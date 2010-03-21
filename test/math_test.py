@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 if __name__ == '__main__':
     import sys
     import os
@@ -80,6 +82,11 @@ class Vector2TypeTest(unittest.TestCase):
         self.assertEqual(self.v1.x, 3.141)
         self.v1.y = 3.141
         self.assertEqual(self.v1.y, 3.141)
+        def assign_nonfloat():
+            v = Vector2()
+            v.x = "spam"
+        self.assertRaises(TypeError, assign_nonfloat)
+
         
     def testSequence(self):
         v = Vector2(1.2, 3.4)
@@ -111,6 +118,10 @@ class Vector2TypeTest(unittest.TestCase):
             v = Vector2()
             v[:] = [1]
         self.assertRaises(ValueError, underpopulate)
+        def assign_nonfloat():
+            v = Vector2()
+            v[0] = "spam"
+        self.assertRaises(TypeError, assign_nonfloat)
 
     def testExtendedSlicing(self):
         #  deletion
@@ -122,9 +133,9 @@ class Vector2TypeTest(unittest.TestCase):
             elif start is None and stop is None and step is not None:
                 del vec[::step]
         v = Vector2(self.v1)
-        self.assertRaises(ValueError, delSlice, v, None, None, 2)
-        self.assertRaises(ValueError, delSlice, v, 1, None, 2)
-        self.assertRaises(ValueError, delSlice, v, 1, 2, 1)
+        self.assertRaises(TypeError, delSlice, v, None, None, 2)
+        self.assertRaises(TypeError, delSlice, v, 1, None, 2)
+        self.assertRaises(TypeError, delSlice, v, 1, 2, 1)
 
         #  assignment
         v = Vector2(self.v1)
@@ -451,6 +462,9 @@ class Vector2TypeTest(unittest.TestCase):
         def invalidAssignment():
             Vector2().xy = 3
         self.assertRaises(TypeError, invalidAssignment)
+        def unicodeAttribute():
+            getattr(Vector2(), "ä")
+        self.assertRaises(AttributeError, unicodeAttribute)
 
     def test_elementwise(self):
         # behaviour for "elementwise op scalar"
@@ -644,6 +658,16 @@ class Vector2TypeTest(unittest.TestCase):
         self.assertEqual(self.zeroVec.elementwise() ** 0, (1, 1))
         self.assertRaises(ValueError, lambda : pow(Vector2(-1, 0).elementwise(), 1.2))
         self.assertRaises(ZeroDivisionError, lambda : self.zeroVec.elementwise() ** -1)
+        self.assertRaises(ZeroDivisionError, lambda : self.zeroVec.elementwise() ** -1)
+        self.assertRaises(ZeroDivisionError, lambda : Vector2(1,1).elementwise() / 0)
+        self.assertRaises(ZeroDivisionError, lambda : Vector2(1,1).elementwise() // 0)
+        self.assertRaises(ZeroDivisionError, lambda : Vector2(1,1).elementwise() % 0)
+        self.assertRaises(ZeroDivisionError, lambda : Vector2(1,1).elementwise() / self.zeroVec)
+        self.assertRaises(ZeroDivisionError, lambda : Vector2(1,1).elementwise() // self.zeroVec)
+        self.assertRaises(ZeroDivisionError, lambda : Vector2(1,1).elementwise() % self.zeroVec)
+        self.assertRaises(ZeroDivisionError, lambda : 2 / self.zeroVec.elementwise())
+        self.assertRaises(ZeroDivisionError, lambda : 2 // self.zeroVec.elementwise())
+        self.assertRaises(ZeroDivisionError, lambda : 2 % self.zeroVec.elementwise())
 
     def test_slerp(self):
         self.assertRaises(ZeroDivisionError,
@@ -667,6 +691,9 @@ class Vector2TypeTest(unittest.TestCase):
         for i, u in ((i, v1.slerp(v2, -i/float(steps))) for i in range(steps+1)):
             self.assertAlmostEqual(u.length(), (v2.length() - v1.length()) * (float(i)/steps) + v1.length())
         self.assertEqual(u, v2)
+        self.assertEqual(v1.slerp(v1, .5), v1)
+        self.assertEqual(v2.slerp(v2, .5), v2)
+        self.assertRaises(ValueError, lambda : v1.slerp(-v1, 0.5))
 
     def test_lerp(self):
         """TODO"""
@@ -688,6 +715,8 @@ class Vector2TypeTest(unittest.TestCase):
         self.assertRaises(TypeError, lambda : v.from_polar(1, 2))
         v.from_polar((.5, math.pi / 2.))
         self.assertEqual(v, .5 * self.e2)
+        v.from_polar((1, 0))
+        self.assertEqual(v, self.e1)
 
 
 
@@ -760,6 +789,10 @@ class Vector3TypeTest(unittest.TestCase):
         self.assertEqual(self.v1.y, 3.141)
         self.v1.z = 3.141
         self.assertEqual(self.v1.z, 3.141)
+        def assign_nonfloat():
+            v = Vector2()
+            v.x = "spam"
+        self.assertRaises(TypeError, assign_nonfloat)
 
     def testSequence(self):
         v = Vector3(1.2, 3.4, -9.6)
@@ -797,6 +830,10 @@ class Vector3TypeTest(unittest.TestCase):
             v = Vector3()
             v[:] = [1]
         self.assertRaises(ValueError, underpopulate)
+        def assign_nonfloat():
+            v = Vector2()
+            v[0] = "spam"
+        self.assertRaises(TypeError, assign_nonfloat)
 
     def testExtendedSlicing(self):
         #  deletion
@@ -808,9 +845,9 @@ class Vector3TypeTest(unittest.TestCase):
             elif start is None and stop is None and step is not None:
                 del vec[::step]
         v = Vector3(self.v1)
-        self.assertRaises(ValueError, delSlice, v, None, None, 2)
-        self.assertRaises(ValueError, delSlice, v, 1, None, 2)
-        self.assertRaises(ValueError, delSlice, v, 1, 2, 1)
+        self.assertRaises(TypeError, delSlice, v, None, None, 2)
+        self.assertRaises(TypeError, delSlice, v, 1, None, 2)
+        self.assertRaises(TypeError, delSlice, v, 1, 2, 1)
 
         #  assignment
         v = Vector3(self.v1)
@@ -1411,7 +1448,17 @@ class Vector3TypeTest(unittest.TestCase):
         self.assertEqual(self.zeroVec.elementwise() ** 0, (1, 1, 1))
         self.assertRaises(ValueError, lambda : pow(Vector3(-1, 0, 0).elementwise(), 1.2))
         self.assertRaises(ZeroDivisionError, lambda : self.zeroVec.elementwise() ** -1)
-
+        self.assertRaises(ZeroDivisionError, lambda : Vector3(1,1,1).elementwise() / 0)
+        self.assertRaises(ZeroDivisionError, lambda : Vector3(1,1,1).elementwise() // 0)
+        self.assertRaises(ZeroDivisionError, lambda : Vector3(1,1,1).elementwise() % 0)
+        self.assertRaises(ZeroDivisionError, lambda : Vector3(1,1,1).elementwise() / self.zeroVec)
+        self.assertRaises(ZeroDivisionError, lambda : Vector3(1,1,1).elementwise() // self.zeroVec)
+        self.assertRaises(ZeroDivisionError, lambda : Vector3(1,1,1).elementwise() % self.zeroVec)
+        self.assertRaises(ZeroDivisionError, lambda : 2 / self.zeroVec.elementwise())
+        self.assertRaises(ZeroDivisionError, lambda : 2 // self.zeroVec.elementwise())
+        self.assertRaises(ZeroDivisionError, lambda : 2 % self.zeroVec.elementwise())
+        
+        
     def test_slerp(self):
         self.assertRaises(ZeroDivisionError,
                           lambda : self.zeroVec.slerp(self.v1, .5))
@@ -1432,6 +1479,9 @@ class Vector3TypeTest(unittest.TestCase):
         for i, u in ((i, v1.slerp(v2, -i/float(steps))) for i in range(steps+1)):
             self.assertAlmostEqual(u.length(), (v2.length() - v1.length()) * (float(i)/steps) + v1.length())
         self.assertEqual(u, v2)
+        self.assertEqual(v1.slerp(v1, .5), v1)
+        self.assertEqual(v2.slerp(v2, .5), v2)
+        self.assertRaises(ValueError, lambda : v1.slerp(-v1, 0.5))
 
     def test_lerp(self):
         """TODO"""
