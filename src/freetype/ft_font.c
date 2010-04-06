@@ -26,23 +26,6 @@
 #include "ft_mod.h"
 #include "freetypebase_doc.h"
 
-
-/*
- * Auxiliar defines
- */
-#define PGFT_CHECK_BOOL(_pyobj, _var)               \
-    if (_pyobj)                                     \
-    {                                               \
-        if (!PyBool_Check(_pyobj))                  \
-        {                                           \
-            PyErr_SetString(PyExc_TypeError,        \
-                #_var " must be a boolean value");  \
-            return NULL;                            \
-        }                                           \
-                                                    \
-        _var = PyObject_IsTrue(_pyobj);             \
-    }
-
 /*
  * Constructor/init/destructor
  */
@@ -58,8 +41,7 @@ static PyObject* _ftfont_getsize(PyObject *self, PyObject* args, PyObject *kwds)
 static PyObject* _ftfont_getmetrics(PyObject *self, PyObject* args, PyObject *kwds);
 static PyObject* _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds);
 static PyObject* _ftfont_render_raw(PyObject *self, PyObject* args, PyObject *kwds);
-
-/* static PyObject* _ftfont_copy(PyObject *self); */
+/*static PyObject* _ftfont_copy (PyObject *self);*/
 
 /*
  * Getters/setters
@@ -83,30 +65,14 @@ static int _ftfont_setstyle_flag(PyObject *self, PyObject *value, void *closure)
  */
 static PyMethodDef _ftfont_methods[] = 
 {
-    {
-        "get_size", 
-        (PyCFunction) _ftfont_getsize,
-        METH_VARARGS | METH_KEYWORDS,
-        DOC_BASE_FONT_GET_SIZE 
-    },
-    {
-        "get_metrics", 
-        (PyCFunction) _ftfont_getmetrics,
-        METH_VARARGS | METH_KEYWORDS,
-        DOC_BASE_FONT_GET_METRICS 
-    },
-    { 
-        "render", 
-        (PyCFunction)_ftfont_render, 
-        METH_VARARGS | METH_KEYWORDS,
-        DOC_BASE_FONT_RENDER 
-    },
-    { 
-        "render_raw", 
-        (PyCFunction)_ftfont_render_raw, 
-        METH_VARARGS | METH_KEYWORDS,
-        DOC_BASE_FONT_RENDER_RAW
-    },
+    { "get_size", (PyCFunction) _ftfont_getsize, METH_VARARGS | METH_KEYWORDS,
+      DOC_BASE_FONT_GET_SIZE },
+    { "get_metrics", (PyCFunction) _ftfont_getmetrics,
+      METH_VARARGS | METH_KEYWORDS, DOC_BASE_FONT_GET_METRICS },
+    { "render",  (PyCFunction)_ftfont_render, METH_VARARGS | METH_KEYWORDS,
+      DOC_BASE_FONT_RENDER },
+    { "render_raw", (PyCFunction)_ftfont_render_raw,
+      METH_VARARGS | METH_KEYWORDS, DOC_BASE_FONT_RENDER_RAW },
     { NULL, NULL, 0, NULL }
 };
 
@@ -115,69 +81,22 @@ static PyMethodDef _ftfont_methods[] =
  */
 static PyGetSetDef _ftfont_getsets[] = 
 {
-    { 
-        "style",    
-        _ftfont_getstyle,   
-        _ftfont_setstyle, 
-        DOC_BASE_FONT_STYLE,    
-        NULL 
-    },
-    { 
-        "height",
-        _ftfont_getheight,  
-        NULL,
-        DOC_BASE_FONT_HEIGHT,   
-        NULL
-    },
-    { 
-        "name", 
-        _ftfont_getname, 
-        NULL,
-        DOC_BASE_FONT_NAME, 
-        NULL 
-    },
-    {
-        "fixed_width",
-        _ftfont_getfixedwidth,
-        NULL,
-        DOC_BASE_FONT_FIXED_WIDTH,
-        NULL
-    },
-    {
-        "antialiased",
-        _ftfont_getantialias,
-        _ftfont_setantialias,
-        DOC_BASE_FONT_ANTIALIASED,
-        NULL
-    },
-    {
-        "vertical",
-        _ftfont_getvertical,
-        _ftfont_setvertical,
-        DOC_BASE_FONT_VERTICAL,
-        NULL
-    },
-    {
-        "italic",
-        _ftfont_getstyle_flag,
-        _ftfont_setstyle_flag,
-        DOC_BASE_FONT_ITALIC, 
-        (void *)FT_STYLE_ITALIC
-    },
-    {
-        "bold",
-        _ftfont_getstyle_flag,
-        _ftfont_setstyle_flag,
-        DOC_BASE_FONT_BOLD, 
-        (void *)FT_STYLE_BOLD
-    },
-    {
-        "underline",
-        _ftfont_getstyle_flag,
-        _ftfont_setstyle_flag,
-        DOC_BASE_FONT_UNDERLINE, 
-        (void *)FT_STYLE_UNDERLINE
-    },
+    { "style",  _ftfont_getstyle, _ftfont_setstyle,  DOC_BASE_FONT_STYLE,
+      NULL },
+    { "height", _ftfont_getheight, NULL, DOC_BASE_FONT_HEIGHT, NULL },
+    { "name", _ftfont_getname, NULL, DOC_BASE_FONT_NAME, NULL },
+    { "fixed_width", _ftfont_getfixedwidth, NULL, DOC_BASE_FONT_FIXED_WIDTH,
+      NULL },
+    { "antialiased", _ftfont_getantialias, _ftfont_setantialias,
+      DOC_BASE_FONT_ANTIALIASED, NULL },
+    { "vertical", _ftfont_getvertical, _ftfont_setvertical,
+      DOC_BASE_FONT_VERTICAL, NULL },
+    { "italic", _ftfont_getstyle_flag, _ftfont_setstyle_flag,
+      DOC_BASE_FONT_ITALIC, (void *)FT_STYLE_ITALIC },
+    { "bold", _ftfont_getstyle_flag, _ftfont_setstyle_flag,
+      DOC_BASE_FONT_BOLD, (void *)FT_STYLE_BOLD },
+    { "underline", _ftfont_getstyle_flag, _ftfont_setstyle_flag,
+      DOC_BASE_FONT_UNDERLINE,  (void *)FT_STYLE_UNDERLINE },
     { NULL, NULL, NULL, NULL, NULL }
 };
 
@@ -268,6 +187,7 @@ _ftfont_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     font->pyfont.set_style = _ftfont_setstyle;
     font->pyfont.get_size = _ftfont_getsize;
     font->pyfont.render = _ftfont_render;
+    /*font->pyfont.copy = _ftfont_copy;*/
     /* TODO: font->pyfont.copy  */
 
     return (PyObject*)font;
@@ -870,12 +790,15 @@ PyObject*
 PyFreeTypeFont_New(const char *filename, int face_index)
 {
     PyFreeTypeFont *font;
-
+    
     FreeTypeInstance *ft;
     ASSERT_GRAB_FREETYPE(ft, NULL);
-
+    
     if (!filename)
+    {
+        PyErr_SetString (PyExc_ValueError, "filename must not be NULL");
         return NULL;
+    }
 
     font = (PyFreeTypeFont *)PyFreeTypeFont_Type.tp_new(
             &PyFreeTypeFont_Type, NULL, NULL);
@@ -891,12 +814,13 @@ PyFreeTypeFont_New(const char *filename, int face_index)
     if (PGFT_TryLoadFont_Filename(ft, font, filename, face_index) != 0)
     {
         PyErr_SetString(PyExc_PyGameError, PGFT_GetError(ft));
+        Py_XDECREF (font);
         return NULL;
     }
 
     return (PyObject*) font;
 }
-
+    
 void
 ftfont_export_capi(void **capi)
 {

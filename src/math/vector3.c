@@ -376,10 +376,10 @@ _vector3_rotate (PyObject *self, PyObject *args)
     axiscoords = VectorCoordsFromObj (axis, &axisdim);
     if (!axiscoords)
         return NULL;
-    if (axisdim < v->dim)
+    if (axisdim != v->dim)
     {
         PyErr_SetString (PyExc_ValueError,
-            "axis must have at least three dimensions");
+            "axis must have the same dimensions as the vector");
         PyMem_Free (axiscoords);
         return NULL;
     }
@@ -409,10 +409,10 @@ _vector3_rotate_ip (PyObject *self, PyObject *args)
     axiscoords = VectorCoordsFromObj (axis, &axisdim);
     if (!axiscoords)
         return NULL;
-    if (axisdim < v->dim)
+    if (axisdim != v->dim)
     {
         PyErr_SetString (PyExc_ValueError,
-            "axis must have at least three dimensions");
+            "axis must have the same dimensions as the vector");
         PyMem_Free (axiscoords);
         return NULL;
     }
@@ -578,10 +578,10 @@ _vector3_cross (PyObject *self, PyObject *args)
     othercoords = VectorCoordsFromObj (args, &otherdim);
     if (!othercoords)
         return NULL;
-    if (otherdim < v->dim)
+    if (otherdim != v->dim)
     {
         PyErr_SetString (PyExc_ValueError,
-            "other must have at least three dimensions");
+            "other must have the same dimensions as the vector");
         PyMem_Free (othercoords);
         return NULL;
     }
@@ -620,10 +620,10 @@ _vector3_angleto (PyObject *self, PyObject *args)
     othercoords = VectorCoordsFromObj (args, &otherdim);
     if (!othercoords)
         return NULL;
-    if (otherdim < v->dim)
+    if (otherdim != v->dim)
     {
         PyErr_SetString (PyExc_ValueError,
-            "other must have at least three dimensions");
+            "other must have the same dimensions as the vector");
         PyMem_Free (othercoords);
         return NULL;
     }

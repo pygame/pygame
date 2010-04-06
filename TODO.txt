@@ -13,7 +13,7 @@ CRITICAL:
 * add pgcompat.h to *mod.h internal headers.
 * >8 bpp surfaces with palettes - it is supported (although it might be
   pointless) by SDL and so should we.
-* add OpenMP support where useful (looped operations, etc.)
+* math module changes in rev. 2777
 
 * freetype: render to buffer buffer support (like new bytearray, but
   write to a buffer instead)
@@ -23,7 +23,6 @@ CRITICAL:
    has)?
 
 * openal: check integrity and references for sources, buffers and listeners.
-* openal: check for locking issues on closing a CaptureDevice.
 
 Things to ADD:
 ==============
@@ -33,6 +32,7 @@ Things to ADD:
 * add movie module
 * subsurfaces via surface[x:y,a:b]? Brought up by ctgPi via IRC
 * Add prebuilt package for Win32 VC++ builds.
+* add OpenMP support where useful (looped operations, etc.)
 
 Things to FIX:
 ==============

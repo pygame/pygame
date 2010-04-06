@@ -7,9 +7,6 @@
   <desc>
     Basic Pygame2 OpenAL wrapper module.
 
-
-
-
     Identifiers for the property get and set methods:
     
     +------+------------------------------------------------------------+
@@ -49,7 +46,8 @@
       for playback, recording and manipulation.
       
       The Buffers object provides methods and properties to manipulate
-      certain aspects of the buffered data.
+      certain aspects of the buffered data and can be queued to multiple
+      sources within the same context.
 
       Buffers instances cannot be created directly, but are bound to a
       :class:`Device`. To create a Buffers instance for the currently
@@ -60,12 +58,14 @@
     <method name="buffer_data">
       <call>buffer_data (bufnum, format, data, samplerate)</call>
       <desc>
-        Buffers a chunk of *data* into one of the created buffers. 
+        Buffers a chunk of *data* into one of the created buffers.
+
+        
       </desc>
       <example></example>
     </method>
     <attr name="buffers">
-      <desc>The buffer identifiers used inb the Buffers instance.</desc>
+      <desc>The buffer identifiers used in the Buffers instance.</desc>
       <example></example>
     </attr>
     <attr name="count">

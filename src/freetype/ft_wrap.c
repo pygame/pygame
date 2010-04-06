@@ -205,10 +205,8 @@ _PGFT_Init_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font)
 }
 
 int
-PGFT_TryLoadFont_Filename(FreeTypeInstance *ft, 
-    PyFreeTypeFont *font, 
-    const char *filename, 
-    int face_index)
+PGFT_TryLoadFont_Filename (FreeTypeInstance *ft,  PyFreeTypeFont *font, 
+    const char *filename,  int face_index)
 {
     char *filename_alloc;
     size_t file_len;

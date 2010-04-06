@@ -817,12 +817,28 @@
       <call>copy () -> Surface</call>
       <desc>Creates a copy of this Surface.</desc>
     </method>
+    <method name="get_at">
+      <call>get_at (x, y) -> Color
+      get_at (point) -> Color
+      </call>
+      <desc>
+        Gets the Surface pixel value at the specified point.
+      </desc>
+    </method>
     <attr name="height">
       <desc>Gets the height of the Surface.</desc>
     </attr>
     <attr name="pixels">
       <desc>Gets a buffer with the pixels of the Surface.</desc>
     </attr>
+    <method name="set_at">
+      <call>set_at (x, y, color) -> None
+      set_at (point, color) -> None
+      </call>
+      <desc>
+        Sets the Surface pixel value at the specified point.
+      </desc>
+    </method>
     <attr name="size">
       <desc>Gets the width and height of the Surface.</desc>
     </attr>

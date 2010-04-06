@@ -239,6 +239,8 @@ typedef struct
     PyObject* (*get_size)(PyObject *self, void *closure);
     PyObject* (*get_pixels)(PyObject *self, void *closure);
     PyObject* (*blit)(PyObject *self, PyObject *args, PyObject *kwds); 
+    PyObject* (*set_at)(PyObject *self, PyObject *args); 
+    PyObject* (*get_at)(PyObject *self, PyObject *args); 
     PyObject* (*copy)(PyObject *self); 
 } PySurface;
 #define PYGAME_SURFACE_FIRSTSLOT                                        \
@@ -262,8 +264,6 @@ typedef struct
     PyObject* (*get_name)(PyObject *self, void *closure);
     PyObject* (*get_style)(PyObject *self, void *closure);
     int       (*set_style)(PyObject *self, PyObject *attr, void *closure);
-    
-
     PyObject* (*get_size)(PyObject *self, PyObject *args, PyObject *kwds);
     PyObject* (*render)(PyObject *self, PyObject *args, PyObject *kwds);
     PyObject* (*copy)(PyObject *self);

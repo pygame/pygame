@@ -35,4 +35,3 @@ Indices and tables
 * :ref:`search`
 
 Last generated on: |today|
-

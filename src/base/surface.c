@@ -34,6 +34,8 @@ static PyObject* _surface_getheight (PyObject *self, void *closure);
 static PyObject* _surface_getsize (PyObject *self, void *closure);
 static PyObject* _surface_getpixels (PyObject *self, void *closure);
 
+static PyObject* _surface_setat (PyObject* self, PyObject *args);
+static PyObject* _surface_getat (PyObject* self, PyObject *args);
 static PyObject* _surface_blit (PyObject* self, PyObject *args, PyObject *kwds);
 static PyObject* _surface_copy (PyObject* self);
 
@@ -45,6 +47,8 @@ static PyObject* _def_get_width (PyObject *self, void *closure);
 static PyObject* _def_get_height (PyObject *self, void *closure);
 static PyObject* _def_get_size (PyObject *self, void *closure);
 static PyObject* _def_get_pixels (PyObject *self, void *closure);
+static PyObject* _def_set_at (PyObject* self, PyObject *args);
+static PyObject* _def_get_at (PyObject* self, PyObject *args);
 static PyObject* _def_blit (PyObject *self, PyObject *args, PyObject *kwds); 
 static PyObject* _def_copy (PyObject *self); 
 
@@ -54,6 +58,8 @@ static PyMethodDef _surface_methods[] = {
     { "blit", (PyCFunction) _surface_blit, METH_VARARGS | METH_KEYWORDS,
       DOC_BASE_SURFACE_BLIT },
     { "copy", (PyCFunction) _surface_copy, METH_NOARGS, DOC_BASE_SURFACE_COPY },
+    { "get_at", _surface_getat, METH_VARARGS, DOC_BASE_SURFACE_GET_AT },
+    { "set_at", _surface_setat, METH_VARARGS, DOC_BASE_SURFACE_SET_AT },
     { NULL, NULL, 0, NULL }
 };
 
@@ -136,6 +142,8 @@ _surface_new (PyTypeObject *type, PyObject *args, PyObject *kwds)
     sf->get_size = _def_get_size;
     sf->blit = _def_blit;
     sf->copy = _def_copy;
+    sf->set_at = _def_set_at;
+    sf->get_at = _def_get_at;
 
     return (PyObject*) sf;
 }
@@ -223,6 +231,27 @@ _surface_copy (PyObject* self)
 }
 
 static PyObject*
+_surface_setat (PyObject* self, PyObject *args)
+{
+    if (((PySurface*)self)->set_at && ((PySurface*)self)->set_at != _def_set_at)
+        return ((PySurface*)self)->set_at (self, args);
+    PyErr_SetString (PyExc_NotImplementedError,
+        "set_at method not implemented");
+    return NULL;
+}
+
+static PyObject*
+_surface_getat (PyObject* self, PyObject *args)
+{
+    if (((PySurface*)self)->get_at && ((PySurface*)self)->get_at != _def_get_at)
+        return ((PySurface*)self)->get_at (self, args);
+    PyErr_SetString (PyExc_NotImplementedError,
+        "get_at method not implemented");
+    return NULL;
+}
+
+
+static PyObject*
 _def_get_width (PyObject *self, void *closure)
 {
     return PyObject_GetAttrString (self, "width");
@@ -263,6 +292,32 @@ static PyObject*
 _def_copy (PyObject *self)
 {
     return PyObject_CallMethod (self, "copy", NULL, NULL);
+}
+
+static PyObject*
+_def_set_at (PyObject* self, PyObject *args)
+{
+    PyObject *retval, *method;
+    
+    method = PyObject_GetAttrString (self, "set_at");
+    if (!method)
+        return NULL;
+    retval = PyObject_Call (method, args, NULL);
+    Py_DECREF (method);
+    return retval;
+}
+
+static PyObject*
+_def_get_at (PyObject* self, PyObject *args)
+{
+    PyObject *retval, *method;
+    
+    method = PyObject_GetAttrString (self, "get_at");
+    if (!method)
+        return NULL;
+    retval = PyObject_Call (method, args, NULL);
+    Py_DECREF (method);
+    return retval;
 }
 
 /* C API */

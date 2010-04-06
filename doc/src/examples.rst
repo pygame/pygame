@@ -1,7 +1,8 @@
 :mod:`pygame2.examples` -- examples for Pygame2
 ===============================================
 
-Examples package for Pygame2.
+.. module:: pygame2.examples
+   :synopsis: Examples package for Pygame2.
 
 This package contains code snippets demonstrating the aspects of the
 various Pygame2 modules. Each example is a module of its own and can be

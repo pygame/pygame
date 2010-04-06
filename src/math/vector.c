@@ -234,7 +234,7 @@ static PyNumberMethods _vector_as_number =
     (unaryfunc)0,                     /* nb_hex;       __hex__ */
 #endif
     (binaryfunc) _vector_inplace_add, /* nb_inplace_add;       __iadd__ */
-    (binaryfunc) _vector_inplace_sub, /* nb_inplace_subtract;  __isub__ */
+   (binaryfunc) _vector_inplace_sub, /* nb_inplace_subtract;  __isub__ */
     (binaryfunc) _vector_inplace_mul, /* nb_inplace_multiply;  __imul__ */
 #ifndef IS_PYTHON_3
     (binaryfunc) _vector_inplace_div, /* nb_inplace_divide;    __idiv__ */
@@ -861,7 +861,7 @@ _do_reflect (const double *srccoords, Py_ssize_t dim, double eps, PyObject *n)
     ncoords = VectorCoordsFromObj (n, &ndim);
     if (!ncoords)
         return NULL;
-    if (ndim < dim)
+    if (ndim != dim)
     {
         PyErr_SetString (PyExc_ValueError,
             "normal must have same dimension as vector");
@@ -950,10 +950,10 @@ _vector_distance (PyVector *self, PyObject *args)
     othercoords = VectorCoordsFromObj (args, &otherdim);
     if (!othercoords)
         return NULL;
-    if (otherdim < self->dim)
+    if (otherdim != self->dim)
     {
         PyErr_SetString (PyExc_ValueError,
-            "must have same at least the same dimension as vector");
+            "must have same the same dimension as vector");
         PyMem_Free (othercoords);
         return NULL;
     }
@@ -982,10 +982,10 @@ _vector_distance_squared (PyVector *self, PyObject *args)
     othercoords = VectorCoordsFromObj (args, &otherdim);
     if (!othercoords)
         return NULL;
-    if (otherdim < self->dim)
+    if (otherdim != self->dim)
     {
         PyErr_SetString (PyExc_ValueError,
-            "must have same at least the same dimension as vector");
+            "must have same the same dimension as vector");
         PyMem_Free (othercoords);
         return NULL;
     }
@@ -1038,11 +1038,11 @@ _vector_generic_math (PyObject *o1, PyObject *o2, int op)
     if (coords)
     {
         op |= OP_ARG_VECTOR;
-        /* right-hand vector must have less dimensions than left-hand. */
-        if (otherdim > dim)
+        /* right-hand vector must have the same dimensions than left-hand. */
+        if (otherdim != dim)
         {
             PyErr_SetString (PyExc_TypeError,
-                "right op must not have more dimensions than left op");
+                "right op must have the same dimensions as left op");
             PyMem_Free (coords);
             return NULL;
         }

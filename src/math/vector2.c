@@ -310,6 +310,14 @@ _vector2_cross (PyObject *self, PyObject *args)
     othercoords = VectorCoordsFromObj (args, &otherdim);
     if (!othercoords)
         return NULL;
+    if (otherdim != v->dim)
+    {
+        PyErr_SetString (PyExc_TypeError,
+            "vectors must have the same dimensions");
+        PyMem_Free (othercoords);
+        return NULL;
+    }
+
     retval = v->coords[0] * othercoords[1] - v->coords[1] * othercoords[0];
     PyMem_Free (othercoords);
     return PyFloat_FromDouble (retval);
@@ -332,6 +340,13 @@ _vector2_angleto (PyObject *self, PyObject *args)
     othercoords = VectorCoordsFromObj (args, &otherdim);
     if (!othercoords)
         return NULL;
+    if (otherdim != v->dim)
+    {
+        PyErr_SetString (PyExc_TypeError,
+            "vectors must have the same dimensions");
+        PyMem_Free (othercoords);
+        return NULL;
+    }
     angle = atan2 (othercoords[1], othercoords[0]) -
         atan2 (v->coords[1], v->coords[0]);
     PyMem_Free (othercoords);

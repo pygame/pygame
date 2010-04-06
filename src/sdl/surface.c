@@ -220,6 +220,8 @@ _surface_new (PyTypeObject *type, PyObject *args, PyObject *kwds)
     surface->pysurface.get_pixels = _surface_getpixels;
     surface->pysurface.blit = _surface_blit;
     surface->pysurface.copy = _surface_copy;
+    surface->pysurface.get_at = _surface_getat;
+    surface->pysurface.set_at = _surface_setat;
 
     return (PyObject*) surface;
 }
