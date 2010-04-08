@@ -34,6 +34,7 @@ static void _color_dealloc (PyColor *color);
 static PyObject* _color_repr (PyColor *color);
 static PyObject* _color_normalize (PyColor *color);
 static PyObject* _color_correct_gamma (PyColor *color, PyObject *args);
+static PyObject* _color_copy (PyColor *color, PyObject *unused);
 
 /* Getters/setters */
 static PyObject* _color_get_r (PyColor *color, void *closure);
@@ -77,6 +78,7 @@ static PyObject* _color_richcompare (PyObject *o1, PyObject *o2, int opid);
 /* C API */
 static PyObject* PyColor_New (pgbyte rgba[]);
 static PyObject* PyColor_NewFromNumber (pguint32 val);
+static PyObject* PyColor_NewFromRGBA (pgbyte r, pgbyte g, pgbyte b, pgbyte a);
 static pguint32 PyColor_AsNumber (PyObject *color);
 
 /**
@@ -88,6 +90,8 @@ static PyMethodDef _color_methods[] =
       DOC_BASE_COLOR_NORMALIZE },
     { "correct_gamma", (PyCFunction) _color_correct_gamma, METH_O,
       DOC_BASE_COLOR_CORRECT_GAMMA },
+    { "__copy__", _color_copy, METH_NOARGS, NULL },
+    { "__deepcopy__", _color_copy, METH_O, NULL },
     { NULL, NULL, 0, NULL }
 };
 
@@ -686,6 +690,12 @@ _color_correct_gamma (PyColor *color, PyObject *args)
     rgba[3] = (frgba[3] > 1.0) ? 255 : ((frgba[3] < 0.0) ? 0 :
         (pgbyte) (frgba[3] * 255 + .5));
     return PyColor_New (rgba);
+}
+
+static PyObject*
+_color_copy (PyColor *color, PyObject *unused)
+{
+    return PyColor_NewFromRGBA (color->r, color->g, color->b, color->a);
 }
 
 /**

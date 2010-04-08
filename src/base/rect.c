@@ -72,7 +72,7 @@ static int _rect_setbottomright (PyObject *self, PyObject *value,
     void *closure);
 
 static PyObject* _rect_clip (PyObject* self, PyObject *args);
-static PyObject* _rect_copy (PyObject* self);
+static PyObject* _rect_copy (PyObject* self, PyObject *unused);
 static PyObject* _rect_move (PyObject* self, PyObject *args);
 static PyObject* _rect_move_ip (PyObject* self, PyObject *args);
 static PyObject* _rect_union (PyObject* self, PyObject *args);
@@ -123,6 +123,8 @@ static PyMethodDef _rect_methods[] = {
       METH_VARARGS | METH_KEYWORDS, DOC_BASE_RECT_COLLIDEDICT },
     { "collidedictall", (PyCFunction) _rect_collidedictall,
       METH_VARARGS | METH_KEYWORDS, DOC_BASE_RECT_COLLIDEDICTALL },
+    { "__copy__", (PyCFunction)_rect_copy, METH_NOARGS, DOC_BASE_RECT_COPY },
+    { "__deepcopy__", (PyCFunction)_rect_copy, METH_O, DOC_BASE_RECT_COPY },
     { NULL, NULL, 0, NULL }
 };
 
@@ -708,7 +710,7 @@ _rect_move (PyObject* self, PyObject *args)
 }
 
 static PyObject*
-_rect_copy (PyObject* self)
+_rect_copy (PyObject* self, PyObject *unused)
 {
     return PyRect_New (((PyRect*)self)->x, ((PyRect*)self)->y,
         ((PyRect*)self)->w, ((PyRect*)self)->h);

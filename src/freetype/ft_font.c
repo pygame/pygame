@@ -41,7 +41,9 @@ static PyObject* _ftfont_getsize(PyObject *self, PyObject* args, PyObject *kwds)
 static PyObject* _ftfont_getmetrics(PyObject *self, PyObject* args, PyObject *kwds);
 static PyObject* _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds);
 static PyObject* _ftfont_render_raw(PyObject *self, PyObject* args, PyObject *kwds);
-static PyObject* _ftfont_copy (PyObject *self);
+
+typedef PyObject* (*arglessfunc)(PyObject *self);
+static PyObject* _ftfont_copy (PyObject *self, PyObject *unused);
 
 /*
  * Getters/setters
@@ -76,6 +78,8 @@ static PyMethodDef _ftfont_methods[] =
     { "render_raw", (PyCFunction)_ftfont_render_raw,
       METH_VARARGS | METH_KEYWORDS, DOC_BASE_FONT_RENDER_RAW },
     { "copy", (PyCFunction)_ftfont_copy, METH_NOARGS, DOC_BASE_FONT_COPY },
+    { "__copy__", (PyCFunction)_ftfont_copy, METH_NOARGS, DOC_BASE_FONT_COPY },
+    { "__deepcopy__", (PyCFunction)_ftfont_copy, METH_O, DOC_BASE_FONT_COPY },
     { NULL, NULL, 0, NULL }
 };
 
@@ -192,7 +196,7 @@ _ftfont_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     font->pyfont.set_style = _ftfont_setstyle;
     font->pyfont.get_size = _ftfont_getsize;
     font->pyfont.render = _ftfont_render;
-    font->pyfont.copy = _ftfont_copy;
+    font->pyfont.copy = (arglessfunc)_ftfont_copy;
 
     return (PyObject*)font;
 }
@@ -799,7 +803,7 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
 }
 
 static PyObject*
-_ftfont_copy (PyObject *self)
+_ftfont_copy (PyObject *self, PyObject *unused)
 {
     PyFreeTypeFont *font;
     FreeTypeInstance *ft;
