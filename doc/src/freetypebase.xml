@@ -89,6 +89,12 @@
         underline, bold) used to draw this font. This style may be
         overriden on any :meth:`render` call.
     </desc>
+    <method name="copy">
+      <call>copy() -> Font</call>
+      <desc>
+        Creates a copy of the Font.
+      </desc>
+    </method>
     <attr name="name">
       <desc>Read only. Gets the name of the font face.</desc>
     </attr>
@@ -133,6 +139,9 @@
     <attr name="height">
       <desc>Read only. Gets the height of the Font. This is the average
       value of all glyphs in the font.</desc>
+    </attr>
+    <attr name="ptsize">
+      <desc>Gets or sets the default size of the Font in points.</desc>
     </attr>
     <method name="render">
       <call>render(dest, text, fgcolor [, bgcolor, style, rotation, ptsize]) -> int, int[, :class:`pygame2.sdl.video.Surface`]</call>

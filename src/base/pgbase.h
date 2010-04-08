@@ -82,7 +82,7 @@ typedef struct
 
 #define PYGAME_STREAMWRAPPER_FIRSTSLOT \
     (PYGAME_BASE_FIRSTSLOT + PYGAME_BASE_NUMSLOTS)
-#define PYGAME_STREAMWRAPPER_NUMSLOTS 15
+#define PYGAME_STREAMWRAPPER_NUMSLOTS 16
 #ifndef PYGAME_STREAMWRAPPER_INTERNAL
 #define CPyStreamWrapper_New                                            \
     (*(CPyStreamWrapper*(*)(PyObject*)) PyGameBase_C_API[PYGAME_STREAMWRAPPER_FIRSTSLOT+0])
@@ -111,13 +111,15 @@ typedef struct
 #define CPyStreamWrapper_Close_Threaded                                 \
     (*(int(*)(CPyStreamWrapper*)) PyGameBase_C_API[PYGAME_STREAMWRAPPER_FIRSTSLOT+10])
 #define CPyStreamWrapper_Close                                          \
-    (*(int(*)(CPyStreamWrapper*)) PyGameBase_C_API[PYGAME_STREAMWRAPPER_FIRSTSLOT+11)
+    (*(int(*)(CPyStreamWrapper*)) PyGameBase_C_API[PYGAME_STREAMWRAPPER_FIRSTSLOT+11])
+#define CPyStreamWrapper_Clone                                          \
+    (*(CPyStreamWrapper*(*)(CPyStreamWrapper*)) PyGameBase_C_API[PYGAME_STREAMWRAPPER_FIRSTSLOT+12])
 #define IsReadableStreamObj                                             \
-    (*(int(*)(PyObject*))PyGameBase_C_API[PYGAME_STREAMWRAPPER_FIRSTSLOT+12])
-#define IsWriteableStreamObj                                            \
     (*(int(*)(PyObject*))PyGameBase_C_API[PYGAME_STREAMWRAPPER_FIRSTSLOT+13])
-#define IsReadWriteableStreamObj                                        \
+#define IsWriteableStreamObj                                            \
     (*(int(*)(PyObject*))PyGameBase_C_API[PYGAME_STREAMWRAPPER_FIRSTSLOT+14])
+#define IsReadWriteableStreamObj                                        \
+    (*(int(*)(PyObject*))PyGameBase_C_API[PYGAME_STREAMWRAPPER_FIRSTSLOT+15])
 #endif /* PYGAME_STREAMWRAPPER_INTERNAL */
 
 /**

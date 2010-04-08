@@ -559,8 +559,11 @@ PyPixelFormat_NewFromSDLPixelFormat (SDL_PixelFormat *fmt)
 {
     PyPixelFormat *format;
     if (!fmt)
+    {
+        PyErr_SetString (PyExc_ValueError, "fmt must not be NULL");
         return NULL;
-        
+    }
+   
     format = (PyPixelFormat*) PyPixelFormat_Type.tp_new (&PyPixelFormat_Type,
         NULL, NULL);
     if (!format)

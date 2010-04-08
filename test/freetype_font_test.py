@@ -270,7 +270,18 @@ class FreeTypeFontTest(unittest.TestCase):
         font.style = ft_const.STYLE_NORMAL
         self.assertEqual(ft_const.STYLE_NORMAL, font.style)
         ft.quit ()
+
+    def todo_test_pygame2_freetype_Font_copy (self):
+
+        # __doc__ (as of 2010-04-07) for pygame2.freetype.Font.copy:
+
+        # Creates a copy of the Font.
         
+        ft.init ()
+        font = self.get_sans_font ()
+        fontcopy = font.copy ()
+        ft.quit ()
+    
     def todo_test_pygame2_freetype_Font_antialiased(self):
 
         # __doc__ (as of 2009-12-14) for pygame2.freetype.Font.antialiased:

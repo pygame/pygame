@@ -285,6 +285,36 @@ PGFT_TryLoadFont_Stream (FreeTypeInstance *ft,  PyFreeTypeFont *font,
     return _PGFT_Init_INTERNAL(ft, font);
 }
 
+int
+PGFT_TryClone_Font (FreeTypeInstance *ft, PyFreeTypeFont *font,
+    PyFreeTypeFont *source)
+{
+    font->ptsize = source->ptsize;
+    font->style = source->style;
+    font->antialias = source->antialias;
+    font->vertical = source->vertical;
+
+    if ((source->id.open_args.flags == FT_OPEN_PATHNAME))
+    {
+        return PGFT_TryLoadFont_Filename (ft, font,
+            source->id.open_args.pathname, source->id.face_index);
+    }
+    else if ((source->id.open_args.flags == FT_OPEN_STREAM))
+    {
+        CPyStreamWrapper *clone = CPyStreamWrapper_Clone ((CPyStreamWrapper*)
+            (source->id.open_args.stream->descriptor.pointer));
+        if (!clone)
+        {
+            _PGFT_SetError(ft, "Failed to clone font stream", 0);
+            return -1;
+        }
+        return PGFT_TryLoadFont_Stream (ft, font, clone, source->id.face_index);
+    }
+
+    _PGFT_SetError (ft, "Unsupported font type for cloning", 0);
+    return -1;
+}
+
 void
 PGFT_UnloadFont(FreeTypeInstance *ft, PyFreeTypeFont *font)
 {

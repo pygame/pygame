@@ -41,6 +41,7 @@ static pgint32 CPyStreamWrapper_Tell_Threaded (CPyStreamWrapper *wrapper);
 static pgint32 CPyStreamWrapper_Tell (CPyStreamWrapper *wrapper);
 static int CPyStreamWrapper_Close_Threaded (CPyStreamWrapper *wrapper);
 static int CPyStreamWrapper_Close (CPyStreamWrapper *wrapper);
+static CPyStreamWrapper* CPyStreamWrapper_Clone (CPyStreamWrapper *wrapper);
 
 static int IsReadableStreamObj (PyObject *obj);
 static int IsWriteableStreamObj (PyObject *obj);
@@ -134,6 +135,7 @@ CPyStreamWrapper_Free (CPyStreamWrapper *wrapper)
         PyErr_SetString (PyExc_ValueError, "wrapper must not be NULL");
         return;
     }
+
 #ifdef WITH_THREAD
     PyThreadState_Clear (wrapper->thread);
     PyThreadState_Delete (wrapper->thread);
@@ -514,7 +516,7 @@ CPyStreamWrapper_Close (CPyStreamWrapper *wrapper)
 {
     PyObject *result;
     int retval = 1;
-    
+
     if (!wrapper->close)
         return -1;
 
@@ -530,6 +532,42 @@ CPyStreamWrapper_Close (CPyStreamWrapper *wrapper)
     }
 
     return retval;
+}
+
+static CPyStreamWrapper*
+CPyStreamWrapper_Clone (CPyStreamWrapper *wrapper)
+{
+    CPyStreamWrapper *clone;
+
+#ifdef WITH_THREAD
+    PyInterpreterState* interp;
+    PyThreadState* thread;
+#endif
+
+    clone = PyMem_New (CPyStreamWrapper, 1);
+    if (!clone)
+        return NULL;
+
+#ifdef WITH_THREAD    
+    PyEval_InitThreads ();
+    thread = PyThreadState_Get ();
+    interp = thread->interp;
+    clone->thread = PyThreadState_New (interp);
+#endif
+
+    clone->read = wrapper->read;
+    clone->write = wrapper->write;
+    clone->seek = wrapper->seek;
+    clone->tell = wrapper->tell;
+    clone->close = wrapper->close;
+
+    Py_XINCREF (clone->seek);
+    Py_XINCREF (clone->tell);
+    Py_XINCREF (clone->write);
+    Py_XINCREF (clone->read);
+    Py_XINCREF (clone->close);
+    
+    return clone;
 }
 
 static int
@@ -712,7 +750,8 @@ streamwrapper_export_capi (void **capi)
     capi[PYGAME_STREAMWRAPPER_FIRSTSLOT+10] =
         (void *)CPyStreamWrapper_Close_Threaded;
     capi[PYGAME_STREAMWRAPPER_FIRSTSLOT+11] = (void *)CPyStreamWrapper_Close;
-    capi[PYGAME_STREAMWRAPPER_FIRSTSLOT+12] = (void *)IsReadableStreamObj;
-    capi[PYGAME_STREAMWRAPPER_FIRSTSLOT+13] = (void *)IsWriteableStreamObj;
-    capi[PYGAME_STREAMWRAPPER_FIRSTSLOT+14] = (void *)IsReadWriteableStreamObj;
+    capi[PYGAME_STREAMWRAPPER_FIRSTSLOT+12] = (void *)CPyStreamWrapper_Clone;
+    capi[PYGAME_STREAMWRAPPER_FIRSTSLOT+13] = (void *)IsReadableStreamObj;
+    capi[PYGAME_STREAMWRAPPER_FIRSTSLOT+14] = (void *)IsWriteableStreamObj;
+    capi[PYGAME_STREAMWRAPPER_FIRSTSLOT+15] = (void *)IsReadWriteableStreamObj;
 }

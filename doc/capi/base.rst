@@ -628,6 +628,12 @@ CPyStreamWrapper is a C API only class type for reading and writing
 Python stream objects in a threaded or non-threaded manner. It
 encapsules the important underlying stream methods.
 
+.. note::
+
+  The C functions provided below do **not** perform any argument
+  checks. It is up to the caller to ensure that the passed
+  CPyStreamWrapper argument is correct.
+
 Members
 ^^^^^^^
 .. cmember:: PyObject* CPyStreamWrapper.read
@@ -685,6 +691,11 @@ Functions
 
   Releases all resources hold by the passed :ctype:`CPyStreamWrapper`
   instance.
+
+.. cfunction:: CPyStreamWrapper_Clone (CPyStreamWrapper *wrapper)
+
+  Creates a copy of the passed :ctype:`CPyStreamWrapper` instance, which
+  uses the same bound methods for reading and writing.
 
 .. cfunction:: int CPyStreamWrapper_Read_Threaded (CPyStreamWrapper *wrapper, void *buf, pguint32 offset, pguint32 count, pguint32 *read_)
 
