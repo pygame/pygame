@@ -677,8 +677,8 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
     /* keyword list */
     static char *kwlist[] = 
     { 
-        "dest", "text", "fgcolor", "bgcolor", 
-        "style", "rotation", "ptsize", NULL
+        "text", "fgcolor", "bgcolor", "style", "rotation", "ptsize", "dest",
+        NULL
     };
 
     PyFreeTypeFont *font = (PyFreeTypeFont *)self;
@@ -705,13 +705,12 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
     FreeTypeInstance *ft;
     ASSERT_GRAB_FREETYPE(ft, NULL);
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOO|Oiii", kwlist,
-                &target_tuple, &text, &fg_color_obj, /* required */
-                &bg_color_obj, &style, &rotation, &ptsize)) /* optional */
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OO|OiiiO", kwlist, &text,
+            &fg_color_obj, &bg_color_obj, &style, &rotation, &ptsize,
+            &target_tuple))
         return NULL;
 
-
-    if (PyColor_Check(fg_color_obj))
+    if (fg_color_obj && PyColor_Check(fg_color_obj))
     {
         PyColor *c = (PyColor *)fg_color_obj;
         fg_color.r = c->r;
@@ -752,9 +751,10 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
         return NULL;
     }
 
-    if (target_tuple == Py_None)
+    if (!target_tuple || target_tuple == Py_None)
     {
         SDL_Surface *r_surface = NULL;
+        PyObject *surface_obj = NULL;
 
         r_surface = PGFT_Render_NewSurface(ft, font, &render, text,
                 &fg_color, bg_color_obj ? &bg_color : NULL, &width, &height);
@@ -765,8 +765,18 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
             return NULL;
         }
 
-        rtuple = Py_BuildValue("(iiO)", width, height,
-                PySDLSurface_NewFromSDLSurface(r_surface));
+        surface_obj = PySDLSurface_NewFromSDLSurface(r_surface);
+        if (!surface_obj)
+        {
+            SDL_FreeSurface (r_surface);
+            return NULL;
+        }
+        rtuple = Py_BuildValue("(Oii)", surface_obj, width, height);
+        if (!rtuple)
+        {
+            Py_DECREF (surface_obj);
+            return NULL;
+        }
     }
     else
     {
@@ -794,7 +804,7 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
             return NULL;
         }
 
-        rtuple = Py_BuildValue("(ii)", width, height);
+        rtuple = Py_BuildValue("(Oii)", surface_obj, width, height);
     }
 
     return rtuple;
@@ -856,7 +866,7 @@ PyFreeTypeFont_New(const char *filename, int face_index)
     if (PGFT_TryLoadFont_Filename(ft, font, filename, face_index) != 0)
     {
         PyErr_SetString(PyExc_PyGameError, PGFT_GetError(ft));
-        Py_XDECREF (font);
+        Py_XDECREF ((PyObject*)font);
         return NULL;
     }
 

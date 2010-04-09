@@ -187,46 +187,47 @@ class FreeTypeFontTest(unittest.TestCase):
         color = pygame2.base.Color(0, 0, 0)
 
         # make sure we always have a valid fg color
-        self.assertRaises(TypeError, font.render, None, 'FoobarBaz')
-        self.assertRaises(TypeError, font.render, None, 'FoobarBaz', None)
+        self.assertRaises(TypeError, font.render, 'FoobarBaz')
+        self.assertRaises(TypeError, font.render, 'FoobarBaz', None)
 
         # render to new surface
-        rend = font.render(None, 'FoobarBaz', pygame2.base.Color(0, 0, 0), None, ptsize=24)
+        rend = font.render('FoobarBaz', pygame2.base.Color(0, 0, 0), ptsize=24)
         self.assertTrue(isinstance(rend, tuple))
-        self.assertTrue(isinstance(rend[0], int))
+        self.assertTrue(isinstance(rend[0], pygame2.base.Surface))
         self.assertTrue(isinstance(rend[1], int))
-        self.assertTrue(isinstance(rend[2], pygame2.base.Surface))
+        self.assertTrue(isinstance(rend[2], int))
 
         # render to existing surface
-        rend = font.render((surf, 32, 32), 'FoobarBaz', color, None, ptsize=24)
+        rend = font.render('FoobarBaz', color, ptsize=24, dest=(surf, 32, 32))
         self.assertTrue(isinstance(rend, tuple))
-        self.assertTrue(isinstance(rend[0], int))
+        self.assertTrue(rend[0] == surf)
         self.assertTrue(isinstance(rend[1], int))
+        self.assertTrue(isinstance(rend[2], int))
 
         # render empty to new surface
-        rend = font.render(None, '', pygame2.base.Color(0, 0, 0), None, ptsize=24)
+        rend = font.render('', pygame2.base.Color(0, 0, 0), ptsize=24)
         self.assertTrue(isinstance(rend, tuple))
-        self.assertTrue(isinstance(rend[0], int) and rend[0] == 0)
+        self.assertTrue(isinstance(rend[0], pygame2.base.Surface))
         self.assertTrue(isinstance(rend[1], int) and rend[1] == 0)
-        self.assertTrue(isinstance(rend[2], pygame2.base.Surface))
-        self.assertTrue(rend[2].size == (0, 0))
+        self.assertTrue(isinstance(rend[2], int) and rend[2] == 0)
+        self.assertTrue(rend[0].size == (0, 0))
         
         # render empty to existing surface
-        rend = font.render((surf, 32, 32), '', color, None, ptsize=24)
+        rend = font.render('', color, ptsize=24, dest=(surf, 32, 32))
         self.assertTrue(isinstance(rend, tuple))
-        self.assertTrue(isinstance(rend[0], int) and rend[0] == 0)
+        self.assertTrue(rend[0] == surf)
         self.assertTrue(isinstance(rend[1], int) and rend[1] == 0)
+        self.assertTrue(isinstance(rend[2], int) and rend[2] == 0)
         
         # misc parameter test
-        self.assertRaises(ValueError, font.render, None, 'foobar', color)
-        self.assertRaises(TypeError, font.render, None, 'foobar', color, "",
-                ptsize=24)
-        self.assertRaises(ValueError, font.render, None, 'foobar', color, None,
-                style=42, ptsize=24)
-        self.assertRaises(TypeError, font.render, None, 'foobar', color, None,
-                style=None, ptsize=24)
-        self.assertRaises(ValueError, font.render, None, 'foobar', color, None,
-                style=97, ptsize=24)
+        self.assertRaises(ValueError, font.render, 'foobar', color)
+        self.assertRaises(TypeError, font.render, 'foobar', color, "",ptsize=24)
+        self.assertRaises(ValueError, font.render, 'foobar', color, None,
+                          style=42, ptsize=24)
+        self.assertRaises(TypeError, font.render, 'foobar', color, None,
+                          style=None, ptsize=24)
+        self.assertRaises(ValueError, font.render,'foobar', color, None,
+                          style=97, ptsize=24)
 
         pygame2.sdl.video.quit()
         ft.quit ()

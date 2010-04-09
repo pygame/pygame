@@ -144,7 +144,7 @@
       <desc>Gets or sets the default size of the Font in points.</desc>
     </attr>
     <method name="render">
-      <call>render(dest, text, fgcolor [, bgcolor, style, rotation, ptsize]) -> int, int[, :class:`pygame2.sdl.video.Surface`]</call>
+      <call>render(text, fgcolor [, bgcolor, style, rotation, ptsize, dest]) -> :class:`pygame2.sdl.video.Surface`, int, int</call>
       <desc>
         Renders a text on a SDL surface.
 
@@ -181,7 +181,7 @@
         *ptsize* argument, a text rotation via the *rotation* argument,
         or a new text style via the *style* argument.
 
-        This function is only available when PyGame2 has been compiled
+        This function is only available when Pygame2 has been compiled
         with SDL support.
       </desc>
     </method>
