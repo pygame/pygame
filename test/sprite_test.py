@@ -484,17 +484,6 @@ class AbstractGroupTypeTest( unittest.TestCase ):
         self.assertEqual((0, 0, 0, 255),
                          self.scr.get_at((15, 5)))
 
-    def todo_test_copy(self):
-
-        """This raises an exception. The __init__ method of AbstractGroup
-        does not accept an argument after the implicit self. The copy method
-        only works after AbstractGroup has been subclassed, which may be OK."""
-
-        ag_copy = self.ag.copy()
-        self.assert_(isinstance(ag_copy, pygame.sprite.AbstractGroup))
-        self.assert_(self.s1 in ag_copy and ag_copy in self.s1.groups())
-        self.assert_(self.s2 in ag_copy and ag_copy in self.s2.groups())
-
     def test_draw(self):
 
         self.ag.draw(self.scr)
@@ -883,6 +872,14 @@ class LayeredGroupBase:
             self.assert_(spr in self.LG.get_sprites_from_layer(2))
         self.assert_(len(self.LG)==len(sprites1)+len(sprites2))
 
+    def test_copy(self):
+
+        self.LG.add(self.sprite())
+        spr = self.LG.sprites()[0]
+        lg_copy = self.LG.copy()
+        self.assert_(isinstance(lg_copy, type(self.LG)))
+        self.assert_(spr in lg_copy and lg_copy in spr.groups())
+
 ########################## LAYERED RENDER GROUP TESTS ##########################
 
 class LayeredUpdatesTypeTest__SpriteTest(LayeredGroupBase, unittest.TestCase):
@@ -923,34 +920,30 @@ class SpriteBase:
         for g in self.groups:
             self.assert_(g in self.sprite.groups())
 
-    def todo_test_remove_internal(self):
+    def test_remove_internal(self):
 
-        # __doc__ (as of 2008-08-02) for pygame.sprite.Sprite.remove_internal:
+        for g in self.groups:
+            self.sprite.add_internal(g)
 
-        self.fail()
+        for g in self.groups:
+            self.sprite.remove_internal(g)
+            
+        for g in self.groups:
+            self.assertFalse(g in self.sprite.groups())
 
-    def todo_test_update(self):
+    def test_update(self):
 
-        # __doc__ (as of 2008-08-02) for pygame.sprite.Sprite.update:
+        class test_sprite(pygame.sprite.Sprite):
+            sink = []
+            def __init__(self, *groups):
+                pygame.sprite.Sprite.__init__(self, *groups)
+            def update(self, *args):
+                self.sink += args
 
-          # method to control sprite behavior
-          # Sprite.update(*args):
-          #
-          # The default implementation of this method does nothing; it's just a
-          # convenient "hook" that you can override. This method is called by
-          # Group.update() with whatever arguments you give it.
-          #
-          # There is no need to use this method if not using the convenience
-          # method by the same name in the Group class.
-          #
-          # The default implementation of this method does nothing; it's just a
-          # convenient "hook" that you can override. This method is called by
-          # Group.update() with whatever arguments you give it.
-          #
-          # There is no need to use this method if not using the convenience
-          # method by the same name in the Group class.
+        s = test_sprite()
+        s.update(1, 2, 3)
 
-        self.fail()
+        self.assertEqual(test_sprite.sink, [1, 2, 3])
 
     def test___init____added_to_groups_passed(self):
         self.sprite = self.Sprite(self.groups)
