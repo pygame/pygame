@@ -451,6 +451,10 @@ class AbstractGroupTypeTest( unittest.TestCase ):
 
         # see if one of them not being in there.
         self.assertNotEqual(True, self.ag.has([self.s1, self.s2, self.s3]))
+        self.assertNotEqual(True, self.ag.has(self.s1, self.s2, self.s3))
+        self.assertNotEqual(True, self.ag.has(self.s1,
+                                              sprite.Group(self.s2, self.s3)))
+        self.assertNotEqual(True, self.ag.has(self.s1, [self.s2, self.s3]))
 
         # see if a second AbstractGroup works.
         self.assertEqual(True, self.ag2.has(self.s3))
