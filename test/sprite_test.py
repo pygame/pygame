@@ -915,11 +915,13 @@ class SpriteBase:
 
         self.sprite = self.Sprite()
 
-    def todo_test_add_internal(self):
+    def test_add_internal(self):
 
-        # __doc__ (as of 2008-08-02) for pygame.sprite.Sprite.add_internal:
-
-        self.fail()
+        for g in self.groups:
+            self.sprite.add_internal(g)
+            
+        for g in self.groups:
+            self.assert_(g in self.sprite.groups())
 
     def todo_test_remove_internal(self):
 
