@@ -487,12 +487,13 @@ class AbstractGroupTypeTest( unittest.TestCase ):
     def todo_test_copy(self):
 
         """This raises an exception. The __init__ method of AbstractGroup
-        does not accept an argument after the implicit self."""
+        does not accept an argument after the implicit self. The copy method
+        only works after AbstractGroup has been subclassed, which may be OK."""
 
         ag_copy = self.ag.copy()
         self.assert_(isinstance(ag_copy, pygame.sprite.AbstractGroup))
-        self.assert_(self.s1 in ag_copy)
-        self.assert_(self.s2 in ag_copy)
+        self.assert_(self.s1 in ag_copy and ag_copy in self.s1.groups())
+        self.assert_(self.s2 in ag_copy and ag_copy in self.s2.groups())
 
     def test_draw(self):
 
@@ -508,56 +509,60 @@ class AbstractGroupTypeTest( unittest.TestCase ):
         self.assertFalse(self.s1 in self.ag)
         self.assertFalse(self.s2 in self.ag)
 
-    def todo_test_has_internal(self):
+    def test_has_internal(self):
 
-        # __doc__ (as of 2008-08-02) for pygame.sprite.AbstractGroup.has_internal:
+        self.assert_(self.ag.has_internal(self.s1))
+        self.assertFalse(self.ag.has_internal(self.s3))
 
-          #
+    def test_remove(self):
 
-        self.fail()
+        # Test removal of 1 sprite
+        self.ag.remove(self.s1)
+        self.assertFalse(self.ag in self.s1.groups())
+        self.assertFalse(self.ag.has(self.s1))
 
-    def todo_test_remove(self):
+        # Test removal of 2 sprites as 2 arguments
+        self.ag2.remove(self.s3, self.s4)
+        self.assertFalse(self.ag2 in self.s3.groups())
+        self.assertFalse(self.ag2 in self.s4.groups())
+        self.assertFalse(self.ag2.has(self.s3, self.s4))
 
-        # __doc__ (as of 2008-08-02) for pygame.sprite.AbstractGroup.remove:
+        # Test removal of 4 sprites as a list containing a sprite and a group
+        # containing a sprite and another group containing 2 sprites.
+        self.ag.add(self.s1, self.s3, self.s4)
+        self.ag2.add(self.s3, self.s4)
+        g = sprite.Group(self.s2)
+        self.ag.remove([self.s1, g], self.ag2)
+        self.assertFalse(self.ag in self.s1.groups())
+        self.assertFalse(self.ag in self.s2.groups())
+        self.assertFalse(self.ag in self.s3.groups())
+        self.assertFalse(self.ag in self.s4.groups())
+        self.assertFalse(self.ag.has(self.s1, self.s2, self.s3, self.s4))
 
-          # remove(sprite, list, or group, ...)
-          # remove sprite from group
-          #
-          # Remove a sprite or sequence of sprites from a group.
+    def test_remove_internal(self):
 
-        self.fail()
+        self.ag.remove_internal(self.s1)
+        self.assertFalse(self.ag.has_internal(self.s1))
 
-    def todo_test_remove_internal(self):
+    def test_sprites(self):
 
-        # __doc__ (as of 2008-08-02) for pygame.sprite.AbstractGroup.remove_internal:
+        sprite_list = self.ag.sprites()
+        self.assert_(sprite_list == [self.s1, self.s2] or
+                     sprite_list == [self.s2, self.s1])
 
-        self.fail()
+    def test_update(self):
 
-    def todo_test_sprites(self):
+        class test_sprite(pygame.sprite.Sprite):
+            sink = []
+            def __init__(self, *groups):
+                pygame.sprite.Sprite.__init__(self, *groups)
+            def update(self, *args):
+                self.sink += args
 
-        # __doc__ (as of 2008-08-02) for pygame.sprite.AbstractGroup.sprites:
+        s = test_sprite(self.ag)
+        self.ag.update(1, 2, 3)
 
-          # sprites()
-          # get a list of sprites in the group
-          #
-          # Returns an object that can be looped over with a 'for' loop.
-          # (For now it is always a list, but newer version of Python
-          # could return different iterators.) You can also iterate directly
-          # over the sprite group.
-
-        self.fail()
-
-    def todo_test_update(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.sprite.AbstractGroup.update:
-
-          # update(*args)
-          # call update for all member sprites
-          #
-          # calls the update method for all sprites in the group.
-          # Passes all arguments on to the Sprite update function.
-
-        self.fail()
+        self.assertEqual(test_sprite.sink, [1, 2, 3])
 
 
 ################################################################################
