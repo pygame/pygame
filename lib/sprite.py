@@ -89,6 +89,7 @@ Sprites are not thread safe, so lock them yourself if using threads.
 import pygame
 from pygame import Rect
 from pygame.time import get_ticks
+from operator import truth
 
 # Don't depend on pygame.mask if it's not there...
 try:
@@ -413,29 +414,36 @@ class AbstractGroup(object):
         'in' operator, e.g. 'sprite in group', 'subgroup in group'.
 
         """
-        if sprites:
-            for sprite in sprites:
-                if isinstance(sprite, Sprite):
-                    # Check for Sprite instance's membership in this group
-                    if not self.has_internal(sprite):
-                        return False
-                else:
-                    try:
-                        for spr in sprite:
-                            if not self.has(spr):
-                                return False
-                    except (TypeError, AttributeError):
-                        if hasattr(sprite, '_spritegroup'):
-                            for spr in sprite.sprites():
-                                if not self.has_internal(spr):
-                                    return False
-                        else:
-                            if not self.has_internal(sprite):
-                                return False
-            return True
-        else:
-            return False
+        return_value = False
 
+        for sprite in sprites:
+            if isinstance(sprite, Sprite):
+                # Check for Sprite instance's membership in this group
+                if self.has_internal(sprite):
+                    return_value = True
+                else:
+                    return False
+            else:
+                try:
+                    for spr in sprite:
+                        if self.has(spr):
+                            return_value = True
+                        else:
+                            return False
+                except (TypeError, AttributeError):
+                    if hasattr(sprite, '_spritegroup'):
+                        for spr in sprite.sprites():
+                            if self.has_internal(spr):
+                                return_value = True
+                            else:
+                                return False
+                    else:
+                        if self.has_internal(sprite):
+                            return_value = True
+                        else:
+                            return False
+
+        return return_value
 
     def update(self, *args):
         """call the update method of every member sprite
