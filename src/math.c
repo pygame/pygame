@@ -678,7 +678,7 @@ vector_nonzero(PyVector *self)
 {
     int i;
     for (i = 0; i < self->dim; i++) {
-        if (fabs(self->coords[i]) > self->epsilon) {
+        if (self->coords[i] != 0) {
             return 1;
         }
     }
@@ -1167,7 +1167,7 @@ vector_normalize_ip(PyVector *self)
     length = sqrt(_scalar_product(self->coords, self->coords, self->dim));
 
     if (length == 0) {
-        PyErr_SetString(PyExc_ZeroDivisionError, 
+        PyErr_SetString(PyExc_ValueError,
                         "Can't normalize Vector of length Zero");
         return NULL;
     }
@@ -1217,7 +1217,7 @@ vector_scale_to_length(PyVector *self, PyObject *length)
     old_length = sqrt(_scalar_product(self->coords, self->coords, self->dim));
 
     if (old_length < self->epsilon) {
-        PyErr_SetString(PyExc_ZeroDivisionError, "Cannot scale a vector with zero length");
+        PyErr_SetString(PyExc_ValueError, "Cannot scale a vector with zero length");
         return NULL;
     }
 
@@ -1252,7 +1252,7 @@ vector_slerp(PyVector *self, PyObject *args)
     length1 = sqrt(_scalar_product(self->coords, self->coords, self->dim));
     length2 = sqrt(_scalar_product(other_coords, other_coords, self->dim));
     if ((length1 < self->epsilon) || (length2 < self->epsilon)) {
-        PyErr_SetString(PyExc_ZeroDivisionError,
+        PyErr_SetString(PyExc_ValueError,
                         "can't use slerp with Zero-Vector");
         return NULL;
     }
@@ -1344,7 +1344,7 @@ _vector_reflect_helper(double *dst_coords, const double *src_coords,
     norm_length = _scalar_product(norm_coords, norm_coords, dim);
 
     if (norm_length < epsilon) {
-        PyErr_SetString(PyExc_ZeroDivisionError, "Normal must not be of length zero.");
+        PyErr_SetString(PyExc_ValueError, "Normal must not be of length zero.");
         return 0;
     }
     if (norm_length != 1) {
@@ -1928,7 +1928,7 @@ vector2_as_polar(PyVector *self)
 {
     double r, phi;
     r = sqrt(_scalar_product(self->coords, self->coords, self->dim));
-    phi = atan2(self->coords[1], self->coords[0]);
+    phi = RAD2DEG(atan2(self->coords[1], self->coords[0]));
     return Py_BuildValue("(dd)", r, phi);
 }
 
@@ -1939,6 +1939,7 @@ vector2_from_polar(PyVector *self, PyObject *args)
     if (!PyArg_ParseTuple(args, "(dd):Vector2.from_polar", &r, &phi)) {
         return NULL;
     }
+    phi = DEG2RAD(phi);
     self->coords[0] = r * cos(phi);
     self->coords[1] = r * sin(phi);
     
@@ -2233,7 +2234,7 @@ _vector3_rotate_helper(double *dst_coords, const double *src_coords,
     }
 
     /* normalize the axis */
-    if (axisLength2 - 1 > epsilon) {
+    if (fabs(axisLength2 - 1) > epsilon) {
         normalizationFactor = 1. / sqrt(axisLength2);
         for (i = 0; i < 3; ++i)
             axis[i] *= normalizationFactor;
@@ -2542,7 +2543,7 @@ vector3_cross(PyVector *self, PyObject *other)
 static PyObject *
 vector3_angle_to(PyVector *self, PyObject *other)
 {
-    double angle, tmp1, tmp2;
+    double angle, tmp, squared_length1, squared_length2;
     double other_coords[VECTOR_MAX_SIZE];
 
     if (!PyVectorCompatible_Check(other, self->dim)) {
@@ -2553,10 +2554,14 @@ vector3_angle_to(PyVector *self, PyObject *other)
     if (!PySequence_AsVectorCoords(other, other_coords, self->dim)) {
         return NULL;
     }
-    tmp1 = _scalar_product(self->coords, self->coords, self->dim);
-    tmp2 = _scalar_product(other_coords, other_coords, self->dim);
-    angle = acos(_scalar_product(self->coords, other_coords, self->dim) /
-                 sqrt(tmp1 * tmp2));
+    squared_length1 = _scalar_product(self->coords, self->coords, self->dim);
+    squared_length2 = _scalar_product(other_coords, other_coords, self->dim);
+    tmp = sqrt(squared_length1 * squared_length2);
+    if (tmp == 0) {
+        PyErr_SetString(PyExc_ValueError, "angle to zero vector is undefined.");
+        return NULL;
+    }
+    angle = acos(_scalar_product(self->coords, other_coords, self->dim) / tmp);
     return PyFloat_FromDouble(RAD2DEG(angle));
 }
 
@@ -2565,8 +2570,11 @@ vector3_as_spherical(PyVector *self)
 {
     double r, theta, phi;
     r = sqrt(_scalar_product(self->coords, self->coords, self->dim));
-    theta = acos(self->coords[2] / r);
-    phi = atan2(self->coords[1], self->coords[0]);
+    if (r == 0.) {
+        return Py_BuildValue("(ddd)", 0., 0., 0.);
+    }
+    theta = RAD2DEG(acos(self->coords[2] / r));
+    phi = RAD2DEG(atan2(self->coords[1], self->coords[0]));
     return Py_BuildValue("(ddd)", r, theta, phi);
 }
 
@@ -2579,6 +2587,8 @@ vector3_from_spherical(PyVector *self, PyObject *args)
                           &r, &theta, &phi)) {
         return NULL;
     }
+    theta = DEG2RAD(theta);
+    phi = DEG2RAD(phi);
     self->coords[0] = r * sin(theta) * cos(phi);
     self->coords[1] = r * sin(theta) * sin(phi);
     self->coords[2] = r * cos(theta);
