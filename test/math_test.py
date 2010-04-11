@@ -329,7 +329,7 @@ class Vector2TypeTest(unittest.TestCase):
         self.assertEqual(self.v1.y, self.l1[1])
         # v2 is paralell to v1
         self.assertAlmostEqual(self.v1.x * v.y - self.v1.y * v.x, 0.)
-        self.assertRaises(ZeroDivisionError, lambda : self.zeroVec.normalize())
+        self.assertRaises(ValueError, lambda : self.zeroVec.normalize())
         
     def test_normalize_ip(self):
         v = +self.v1
@@ -341,8 +341,7 @@ class Vector2TypeTest(unittest.TestCase):
         self.assertAlmostEqual(v.x * v.x + v.y * v.y, 1.)
         # v2 is paralell to v1
         self.assertAlmostEqual(self.v1.x * v.y - self.v1.y * v.x, 0.)
-        self.assertRaises(ZeroDivisionError,
-                          lambda : self.zeroVec.normalize_ip())
+        self.assertRaises(ValueError, lambda : self.zeroVec.normalize_ip())
 
     def test_is_normalized(self):
         self.assertEqual(self.v1.is_normalized(), False)
@@ -383,8 +382,7 @@ class Vector2TypeTest(unittest.TestCase):
         v = Vector2(1, 1)
         v.scale_to_length(2.5)
         self.assertEqual(v, Vector2(2.5, 2.5) / math.sqrt(2))
-        self.assertRaises(ZeroDivisionError,
-                          lambda : self.zeroVec.scale_to_length(1))
+        self.assertRaises(ValueError, lambda : self.zeroVec.scale_to_length(1))
         self.assertEqual(v.scale_to_length(0), None)
         self.assertEqual(v, self.zeroVec)
 
@@ -404,7 +402,7 @@ class Vector2TypeTest(unittest.TestCase):
         self.assertEqual(v.reflect(n), Vector2(1, 1))
         self.assertEqual(v.reflect(3*n), v.reflect(n))
         self.assertEqual(v.reflect(-v), -v)
-        self.assertRaises(ZeroDivisionError, lambda : v.reflect(self.zeroVec))
+        self.assertRaises(ValueError, lambda : v.reflect(self.zeroVec))
         
     def test_reflect_ip(self):
         v1 = Vector2(1, -1)
@@ -418,7 +416,7 @@ class Vector2TypeTest(unittest.TestCase):
         v2 = Vector2(v1)
         v2.reflect_ip(-v1)
         self.assertEqual(v2, -v1)
-        self.assertRaises(ZeroDivisionError, lambda : v2.reflect_ip(Vector2()))
+        self.assertRaises(ValueError, lambda : v2.reflect_ip(Vector2()))
 
     def test_distance_to(self):
         diff = self.v1 - self.v2
@@ -670,11 +668,9 @@ class Vector2TypeTest(unittest.TestCase):
         self.assertRaises(ZeroDivisionError, lambda : 2 % self.zeroVec.elementwise())
 
     def test_slerp(self):
-        self.assertRaises(ZeroDivisionError,
-                          lambda : self.zeroVec.slerp(self.v1, .5))
-        self.assertRaises(ZeroDivisionError,
-                          lambda : self.v1.slerp(self.zeroVec, .5))
-        self.assertRaises(ZeroDivisionError,
+        self.assertRaises(ValueError, lambda : self.zeroVec.slerp(self.v1, .5))
+        self.assertRaises(ValueError, lambda : self.v1.slerp(self.zeroVec, .5))
+        self.assertRaises(ValueError,
                           lambda : self.zeroVec.slerp(self.zeroVec, .5))
         v1 = Vector2(1, 0)
         v2 = Vector2(0, 1)
@@ -704,16 +700,15 @@ class Vector2TypeTest(unittest.TestCase):
         v.from_polar(self.v1.as_polar())
         self.assertEqual(self.v1, v)
         self.assertEqual(self.e1.as_polar(), (1, 0))
-        self.assertEqual(self.e2.as_polar(), (1, math.pi / 2))
-        self.assertEqual((2 * self.e2).as_polar(),
-                         (2, math.pi / 2))
+        self.assertEqual(self.e2.as_polar(), (1, 90))
+        self.assertEqual((2 * self.e2).as_polar(), (2, 90))
         self.assertRaises(TypeError, lambda : v.from_polar((None, None)))
         self.assertRaises(TypeError, lambda : v.from_polar("ab"))
         self.assertRaises(TypeError, lambda : v.from_polar((None, 1)))
         self.assertRaises(TypeError, lambda : v.from_polar((1, 2, 3)))
         self.assertRaises(TypeError, lambda : v.from_polar((1,)))
         self.assertRaises(TypeError, lambda : v.from_polar(1, 2))
-        v.from_polar((.5, math.pi / 2.))
+        v.from_polar((.5, 90))
         self.assertEqual(v, .5 * self.e2)
         v.from_polar((1, 0))
         self.assertEqual(v, self.e1)
@@ -1189,7 +1184,7 @@ class Vector3TypeTest(unittest.TestCase):
                  (self.v1.z * v.x - self.v1.x * v.z) ** 2 +
                  (self.v1.x * v.y - self.v1.y * v.x) ** 2)
         self.assertAlmostEqual(cross, 0.)
-        self.assertRaises(ZeroDivisionError, lambda : self.zeroVec.normalize())
+        self.assertRaises(ValueError, lambda : self.zeroVec.normalize())
         
     def test_normalize_ip(self):
         v = +self.v1
@@ -1204,8 +1199,7 @@ class Vector3TypeTest(unittest.TestCase):
                  (self.v1.z * v.x - self.v1.x * v.z) ** 2 +
                  (self.v1.x * v.y - self.v1.y * v.x) ** 2)
         self.assertAlmostEqual(cross, 0.)
-        self.assertRaises(ZeroDivisionError,
-                          lambda : self.zeroVec.normalize_ip())
+        self.assertRaises(ValueError, lambda : self.zeroVec.normalize_ip())
 
     def test_is_normalized(self):
         self.assertEqual(self.v1.is_normalized(), False)
@@ -1249,8 +1243,7 @@ class Vector3TypeTest(unittest.TestCase):
         v = Vector3(1, 1, 1)
         v.scale_to_length(2.5)
         self.assertEqual(v, Vector3(2.5, 2.5, 2.5) / math.sqrt(3))
-        self.assertRaises(ZeroDivisionError,
-                          lambda : self.zeroVec.scale_to_length(1))
+        self.assertRaises(ValueError, lambda : self.zeroVec.scale_to_length(1))
         self.assertEqual(v.scale_to_length(0), None)
         self.assertEqual(v, self.zeroVec)
 
@@ -1270,7 +1263,7 @@ class Vector3TypeTest(unittest.TestCase):
         self.assertEqual(v.reflect(n), Vector3(1, 1, 1))
         self.assertEqual(v.reflect(3*n), v.reflect(n))
         self.assertEqual(v.reflect(-v), -v)
-        self.assertRaises(ZeroDivisionError, lambda : v.reflect(self.zeroVec))
+        self.assertRaises(ValueError, lambda : v.reflect(self.zeroVec))
         
     def test_reflect_ip(self):
         v1 = Vector3(1, -1, 1)
@@ -1284,7 +1277,7 @@ class Vector3TypeTest(unittest.TestCase):
         v2 = Vector3(v1)
         v2.reflect_ip(-v1)
         self.assertEqual(v2, -v1)
-        self.assertRaises(ZeroDivisionError, lambda : v2.reflect_ip(self.zeroVec))
+        self.assertRaises(ValueError, lambda : v2.reflect_ip(self.zeroVec))
 
     def test_distance_to(self):
         diff = self.v1 - self.v2
@@ -1460,11 +1453,9 @@ class Vector3TypeTest(unittest.TestCase):
         
         
     def test_slerp(self):
-        self.assertRaises(ZeroDivisionError,
-                          lambda : self.zeroVec.slerp(self.v1, .5))
-        self.assertRaises(ZeroDivisionError,
-                          lambda : self.v1.slerp(self.zeroVec, .5))
-        self.assertRaises(ZeroDivisionError,
+        self.assertRaises(ValueError, lambda : self.zeroVec.slerp(self.v1, .5))
+        self.assertRaises(ValueError, lambda : self.v1.slerp(self.zeroVec, .5))
+        self.assertRaises(ValueError,
                           lambda : self.zeroVec.slerp(self.zeroVec, .5))
         steps = 10
         angle_step = self.e1.angle_to(self.e2) / steps
@@ -1491,18 +1482,17 @@ class Vector3TypeTest(unittest.TestCase):
         v = Vector3()
         v.from_spherical(self.v1.as_spherical())
         self.assertEqual(self.v1, v)
-        self.assertEqual(self.e1.as_spherical(), (1, math.pi / 2., 0))
-        self.assertEqual(self.e2.as_spherical(), (1, math.pi / 2., math.pi / 2))
+        self.assertEqual(self.e1.as_spherical(), (1, 90, 0))
+        self.assertEqual(self.e2.as_spherical(), (1, 90, 90))
         self.assertEqual(self.e3.as_spherical(), (1, 0, 0))
-        self.assertEqual((2 * self.e2).as_spherical(),
-                         (2, math.pi / 2., math.pi / 2))
+        self.assertEqual((2 * self.e2).as_spherical(), (2, 90, 90))
         self.assertRaises(TypeError, lambda : v.from_spherical((None, None, None)))
         self.assertRaises(TypeError, lambda : v.from_spherical("abc"))
         self.assertRaises(TypeError, lambda : v.from_spherical((None, 1, 2)))
         self.assertRaises(TypeError, lambda : v.from_spherical((1, 2, 3, 4)))
         self.assertRaises(TypeError, lambda : v.from_spherical((1, 2)))
         self.assertRaises(TypeError, lambda : v.from_spherical(1, 2, 3))
-        v.from_spherical((.5, math.pi / 2., math.pi / 2.))
+        v.from_spherical((.5, 90, 90))
         self.assertEqual(v, .5 * self.e2)
         
 
