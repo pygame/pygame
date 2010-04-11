@@ -413,25 +413,29 @@ class AbstractGroup(object):
         'in' operator, e.g. 'sprite in group', 'subgroup in group'.
 
         """
-        # Again, this follows the basic pattern of Group.add and
-        # Group.remove.
-        for sprite in sprites:
-            if isinstance(sprite, Sprite):
-                return self.has_internal(sprite)
-
-            try:
-                for spr in sprite:
-                    if not self.has(spr):
+        if sprites:
+            for sprite in sprites:
+                if isinstance(sprite, Sprite):
+                    # Check for Sprite instance's membership in this group
+                    if not self.has_internal(sprite):
                         return False
-                return True
-            except (TypeError, AttributeError):
-                if hasattr(sprite, '_spritegroup'):
-                    for spr in sprite.sprites():
-                        if not self.has_internal(spr):
-                            return False
-                    return True
                 else:
-                    return self.has_internal(sprite)
+                    try:
+                        for spr in sprite:
+                            if not self.has(spr):
+                                return False
+                    except (TypeError, AttributeError):
+                        if hasattr(sprite, '_spritegroup'):
+                            for spr in sprite.sprites():
+                                if not self.has_internal(spr):
+                                    return False
+                        else:
+                            if not self.has_internal(sprite):
+                                return False
+            return True
+        else:
+            return False
+
 
     def update(self, *args):
         """call the update method of every member sprite
