@@ -91,6 +91,11 @@ from pygame import Rect
 from pygame.time import get_ticks
 from operator import truth
 
+# Python 3 does not have the callable function, but an equivalent can be made
+# with the hasattr function.
+if 'callable' not in dir(__builtins__):
+    callable = lambda obj: hasattr(obj, '__call__')
+
 # Don't depend on pygame.mask if it's not there...
 try:
     from pygame.mask import from_surface
@@ -115,7 +120,8 @@ class Sprite(object):
 
     def __init__(self, *groups):
         self.__g = {} # The groups the sprite is in
-        if groups: self.add(groups)
+        if groups:
+            self.add(*groups)
 
     def add(self, *groups):
         """add the sprite to groups
@@ -185,7 +191,7 @@ class Sprite(object):
         adding it to Groups.
 
         """
-        for c in self.__g.keys():
+        for c in self.__g:
             c.remove_internal(self)
         self.__g.clear()
 
@@ -197,7 +203,7 @@ class Sprite(object):
         Returns a list of all the Groups that contain this Sprite.
 
         """
-        return self.__g.keys()
+        return list(self.__g)
 
     def alive(self):
         """does the sprite belong to any groups
@@ -206,7 +212,7 @@ class Sprite(object):
 
         Returns True when the Sprite belongs to one or more Groups.
         """
-        return (len(self.__g) != 0)
+        return truth(self.__g)
 
     def __repr__(self):
         return "<%s sprite(in %d groups)>" % (self.__class__.__name__, len(self.__g))
@@ -305,7 +311,7 @@ class AbstractGroup(object):
         directly over the sprite group, e.g. 'for sprite in group'.
 
         """
-        return list(self.spritedict.keys())
+        return list(self.spritedict)
 
     def add_internal(self, sprite):
         self.spritedict[sprite] = 0
@@ -356,8 +362,7 @@ class AbstractGroup(object):
                 try:
                     # See if sprite is an iterator, like a list or sprite
                     # group.
-                    for spr in sprite:
-                        self.add(spr)
+                    self.add(*sprite)
                 except (TypeError, AttributeError):
                     # Not iterable. This is probably a sprite that is not an
                     # instance of the Sprite class or is not an instance of a
@@ -393,7 +398,7 @@ class AbstractGroup(object):
                     sprite.remove_internal(self)
             else:
                 try:
-                    for spr in sprite: self.remove(spr)
+                    self.remove(*sprite)
                 except (TypeError, AttributeError):
                     if hasattr(sprite, '_spritegroup'):
                         for spr in sprite.sprites():
@@ -425,11 +430,10 @@ class AbstractGroup(object):
                     return False
             else:
                 try:
-                    for spr in sprite:
-                        if self.has(spr):
-                            return_value = True
-                        else:
-                            return False
+                    if self.has(*sprite):
+                        return_value = True
+                    else:
+                        return False
                 except (TypeError, AttributeError):
                     if hasattr(sprite, '_spritegroup'):
                         for spr in sprite.sprites():
@@ -482,23 +486,19 @@ class AbstractGroup(object):
         the given surface and the area to be cleared as arguments.
 
         """
-        try:
-            bgd.__call__
-        except AttributeError:
-            pass
-        else:
+        if callable(bgd):
             for r in self.lostsprites:
                 bgd(surface, r)
             for r in self.spritedict.values():
                 if r is not 0:
                     bgd(surface, r)
-            return
-        surface_blit = surface.blit
-        for r in self.lostsprites:
-            surface_blit(bgd, r, r)
-        for r in self.spritedict.values():
-            if r is not 0:
+        else:
+            surface_blit = surface.blit
+            for r in self.lostsprites:
                 surface_blit(bgd, r, r)
+            for r in self.spritedict.values():
+                if r is not 0:
+                    surface_blit(bgd, r, r)
 
     def empty(self):
         """remove all sprites
@@ -513,7 +513,7 @@ class AbstractGroup(object):
             s.remove_internal(self)
 
     def __nonzero__(self):
-        return (len(self.sprites()) != 0)
+        return truth(self.sprites())
 
     def __len__(self):
         """return number of sprites in group
@@ -654,19 +654,17 @@ class LayeredUpdates(AbstractGroup):
             except AttributeError:
                 layer = self._default_layer
 
-
-        self._spritelayers[sprite] = layer
+        sprites = self._spritelist # speedup
+        sprites_layers = self._spritelayers
+        sprites_layers[sprite] = layer
         if hasattr(sprite, '_layer'):
             sprite._layer = layer
 
         # add the sprite at the right position
         # bisect algorithmus
-        sprites = self._spritelist # speedup
-        sprites_layers = self._spritelayers
         leng = len(sprites)
-        low = 0
-        high = leng-1
-        mid = low
+        low = mid = 0
+        high = leng - 1
         while low <= high:
             mid = low + (high - low) // 2
             if sprites_layers[sprites[mid]] <= layer:
@@ -694,7 +692,7 @@ class LayeredUpdates(AbstractGroup):
         layer = None
         if 'layer' in kwargs:
             layer = kwargs['layer']
-        if sprites is None or not sprites:
+        if not sprites:
             return
         for sprite in sprites:
             # It's possible that some sprite is also an iterator.
@@ -708,8 +706,7 @@ class LayeredUpdates(AbstractGroup):
                 try:
                     # See if sprite is an iterator, like a list or sprite
                     # group.
-                    for spr in sprite:
-                        self.add(spr, **kwargs)
+                    self.add(*sprite, **kwargs)
                 except (TypeError, AttributeError):
                     # Not iterable. This is probably a sprite that is not an
                     # instance of the Sprite class or is not an instance of a
@@ -781,14 +778,10 @@ class LayeredUpdates(AbstractGroup):
         Bottom sprites are listed first; the top ones are listed last.
 
         """
-
         _sprites = self._spritelist
         rect = Rect(pos, (0, 0))
         colliding_idx = rect.collidelistall(_sprites)
-        colliding = []
-        colliding_append = colliding.append
-        for i in colliding_idx:
-            colliding_append(_sprites[i])
+        colliding = [_sprites[i] for i in colliding_idx]
         return colliding
 
     def get_sprite(self, idx):
@@ -808,7 +801,7 @@ class LayeredUpdates(AbstractGroup):
 
         """
         sprites = self.get_sprites_from_layer(layer_nr)
-        self.remove(sprites)
+        self.remove(*sprites)
         return sprites
 
     #---# layer methods
@@ -818,10 +811,7 @@ class LayeredUpdates(AbstractGroup):
         LayeredUpdates.layers(): return layers
 
         """
-        layers = set()
-        for layer in self._spritelayers.values():
-            layers.add(layer)
-        return list(layers)
+        return sorted(set(self._spritelayers.values()))
 
     def change_layer(self, sprite, new_layer):
         """change the layer of the sprite
@@ -841,9 +831,8 @@ class LayeredUpdates(AbstractGroup):
         # add the sprite at the right position
         # bisect algorithmus
         leng = len(sprites)
-        low = 0
-        high = leng-1
-        mid = low
+        low = mid = 0
+        high = leng - 1
         while low <= high:
             mid = low + (high - low) // 2
             if sprites_layers[sprites[mid]] <= new_layer:
@@ -1014,9 +1003,9 @@ class LayeredDirty(LayeredUpdates):
         # check if all needed attributes are set
         if not hasattr(sprite, 'dirty'):
             raise AttributeError()
-        if not hasattr(sprite, "visible"):
+        if not hasattr(sprite, 'visible'):
             raise AttributeError()
-        if not hasattr(sprite, "blendmode"):
+        if not hasattr(sprite, 'blendmode'):
             raise AttributeError()
 
         if not isinstance(sprite, DirtySprite):
@@ -1065,7 +1054,8 @@ class LayeredDirty(LayeredUpdates):
                 if 0 < spr.dirty:
                     # chose the right rect
                     if spr.source_rect:
-                        _union_rect = _rect(spr.rect.topleft, spr.source_rect.size)
+                        _union_rect = _rect(spr.rect.topleft,
+                                            spr.source_rect.size)
                     else:
                         _union_rect = _rect(spr.rect)
 
@@ -1111,9 +1101,9 @@ class LayeredDirty(LayeredUpdates):
                             _surf_blit(spr.image,
                                        clip,
                                        (clip[0] - _spr_rect[0],
-                                           clip[1] - _spr_rect[1],
-                                           clip[2],
-                                           clip[3]),
+                                        clip[1] - _spr_rect[1],
+                                        clip[2],
+                                        clip[3]),
                                        spr.blendmode)
                 else: # dirty sprite
                     if spr._visible:
@@ -1206,7 +1196,6 @@ class LayeredDirty(LayeredUpdates):
         if sprite.dirty == 0:
             sprite.dirty = 1
 
-
     def set_timing_treshold(self, time_ms):
         """set the treshold in milliseconds
 
@@ -1253,7 +1242,8 @@ class GroupSingle(AbstractGroup):
             self.__sprite.remove_internal(self)
         self.__sprite = sprite
 
-    def __nonzero__(self): return (self.__sprite is not None)
+    def __nonzero__(self):
+        return self.__sprite is not None
 
     def _get_sprite(self):
         return self.__sprite
@@ -1492,30 +1482,31 @@ def spritecollide(sprite, group, dokill, collided=None):
     which will be used to calculate the collision.
 
     """
-    crashed = []
-    if collided is None:
-        # Special case old behaviour for speed.
-        spritecollide = sprite.rect.colliderect
-        if dokill:
+    if dokill:
+
+        crashed = []
+        append = crashed.append
+
+        if collided:
+            for s in group.sprites():
+                if collided(sprite, s):
+                    s.kill()
+                    append(s)
+        else:
+            spritecollide = sprite.rect.colliderect
             for s in group.sprites():
                 if spritecollide(s.rect):
                     s.kill()
-                    crashed.append(s)
-        else:
-            for s in group:
-                if spritecollide(s.rect):
-                    crashed.append(s)
+                    append(s)
+
+        return crashed
+
+    elif collided:
+        return [s for s in group if collided(sprite, s)]
     else:
-        if dokill:
-            for s in group.sprites():
-                if collided(sprite, s):
-                    s.kill()
-                    crashed.append(s)
-        else:
-            for s in group:
-                if collided(sprite, s):
-                    crashed.append(s)
-    return crashed
+        spritecollide = sprite.rect.colliderect
+        return [s for s in group if spritecollide(s.rect)]
+
 
 def groupcollide(groupa, groupb, dokilla, dokillb, collided=None):
     """detect collision between a group and another group
@@ -1569,14 +1560,14 @@ def spritecollideany(sprite, group, collided=None):
     which will be used to calculate the collision.
 
     """
-    if collided is None:
+    if collided:
+        for s in group:
+            if collided(sprite, s):
+                return s
+    else:
         # Special case old behaviour for speed.
         spritecollide = sprite.rect.colliderect
         for s in group:
             if spritecollide(s.rect):
-                return s
-    else:
-        for s in group:
-            if collided(sprite, s):
                 return s
     return None
