@@ -652,13 +652,13 @@ class LayeredUpdates(AbstractGroup):
             try:
                 layer = sprite._layer
             except AttributeError:
-                layer = self._default_layer
+                layer = sprite._layer = self._default_layer
+        elif hasattr(sprite, '_layer'):
+            sprite._layer = layer
 
         sprites = self._spritelist # speedup
         sprites_layers = self._spritelayers
         sprites_layers[sprite] = layer
-        if hasattr(sprite, '_layer'):
-            sprite._layer = layer
 
         # add the sprite at the right position
         # bisect algorithmus
@@ -689,11 +689,12 @@ class LayeredUpdates(AbstractGroup):
 
         """
 
-        layer = None
-        if 'layer' in kwargs:
-            layer = kwargs['layer']
         if not sprites:
             return
+        if 'layer' in kwargs:
+            layer = kwargs['layer']
+        else:
+            layer = None
         for sprite in sprites:
             # It's possible that some sprite is also an iterator.
             # If this is the case, we should add the sprite itself,
@@ -727,7 +728,6 @@ class LayeredUpdates(AbstractGroup):
         The group uses it to add a sprite.
 
         """
-
         self._spritelist.remove(sprite)
         # these dirty rects are suboptimal for one frame
         self.lostsprites.append(self.spritedict[sprite]) # dirty rect
@@ -937,7 +937,7 @@ class LayeredUpdates(AbstractGroup):
         sprites1 = self.remove_sprites_of_layer(layer1_nr)
         for spr in self.get_sprites_from_layer(layer2_nr):
             self.change_layer(spr, layer1_nr)
-        self.add(sprites1, layer=layer2_nr)
+        self.add(layer=layer2_nr, *sprites1)
 
 
 class LayeredDirty(LayeredUpdates):
