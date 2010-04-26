@@ -194,7 +194,7 @@ Errors
 
 .. cvar:: PyObject* PyExc_PyGameError
 
-  The internally used :class:`pygame2.base.Error` exception class.
+  The internally used :class:`pygame2.Error` exception class.
 
 Functions
 ---------

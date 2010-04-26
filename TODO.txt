@@ -5,40 +5,20 @@ CRITICAL:
 * Check display surface tracking for multiple calls to set_mode using
   different return variables.
 * Argument parsing must handle 64-bit conversions correctly.
-* Add palette color support to sdlext.transform (trunk rev. 2242).
 * Check trunk 1953 (blit blend operations).
 * Check trunk rev. 1937, 1947 (blit blend for self).
 * Mark methods, which are limited to certain bpp ranges.
-* Add doc notes about quit() behaviour of the various modules.
-* add pgcompat.h to *mod.h internal headers.
-* >8 bpp surfaces with palettes - it is supported (although it might be
-  pointless) by SDL and so should we.
 * math module changes in rev. 2777
-
-* freetype: render to buffer buffer support (like new bytearray, but
-  write to a buffer instead)
+* freetype: rendering size should use the bbox height for correct ascent/descent
+  values, not the real size
 * freetype: correct error messages (e.g. on trying to scale pcf fonts)
 * freetype: brush up docs and examples
-* freetype: description/markup language for rendering text (like e.g. pango
-   has)?
-
 * openal: check integrity and references for sources, buffers and listeners.
-
-Things to ADD:
-==============
-* (re)add tests
-* add examples
-* reorganise and add camera module
-* add movie module
-* subsurfaces via surface[x:y,a:b]? Brought up by ctgPi via IRC
-* Add prebuilt package for Win32 VC++ builds.
-* add OpenMP support where useful (looped operations, etc.)
 
 Things to FIX:
 ==============
 * Fix eval(repr(xyz)) for most types.
 * use copy.copy and copy.deepcopy for consistent object copies
-* Rewrite and fix up numpysurfarray and numpysndarray
 * recheck and redesign X11 implementation for pygame.sdlext.scrap
 * check all string/unicode conversions, esp. file I/O with !UTF-8 and !ASCII
 * respect surface->clip_rect where necessary!
@@ -51,8 +31,27 @@ Things to FIX:
   how not to do it)
 * SDL_gfx has to set the correct errors (SDL_SetError()). Fix that and
   merge it back to the SDL_gfx upstream
-* Speed up blits using fast lookup tables for 8bpp to 8bpp.
 * Brush up documentation for pygame2.midi.
+* Rewrite and fix up numpysurfarray and numpysndarray
+
+Things to ADD:
+==============
+* (re)add tests
+* add examples
+* reorganise and add camera module
+* add movie module
+* subsurfaces via surface[x:y,a:b]? Brought up by ctgPi via IRC
+* Add prebuilt package for Win32 VC++ builds.
+* add OpenMP support where useful (looped operations, etc.)
+* freetype: description/markup language for rendering text (like e.g. pango
+   has)?
+* freetype: render to buffer buffer support (like new bytearray, but
+  write to a buffer instead)
+* >8 bpp surfaces with palettes - it is supported (although it might be
+  pointless) by SDL and so should we.
+* Add palette color support to sdlext.transform (trunk rev. 2242).
+* Speed up blits using fast lookup tables for 8bpp to 8bpp.
+* add pgcompat.h to *mod.h internal headers.
 
 Things to WRAP:
 ===============
@@ -63,4 +62,3 @@ Things to WRAP:
 * SDL_Thread*
 * SDL_gfx image filter functions
 * characterXXX wrappers for sdlgdfx
-

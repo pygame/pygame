@@ -14,6 +14,8 @@ Pygame2, but instead show you the most noteworthy features.
 .. toctree::
   :maxdepth: 2
 
+  pygame
+
 Indices and tables
 ==================
 

@@ -35,79 +35,6 @@
 #define WB_NTSC 0.114
 
 /**
- * Retrieves a single pixel located at index from the surface pixel
- * array.
- */
-static PyObject*
-_get_single_pixel (Uint8 *pixels, int bpp, Uint32 _index, Uint32 row)
-{
-    Uint32 pixel;
-
-    switch (bpp)
-    {
-    case 1:
-        pixel = (Uint32)*((Uint8 *) pixels + row + _index);
-        break;
-    case 2:
-        pixel = (Uint32)*((Uint16 *) (pixels + row) + _index);
-        break;
-    case 3:
-    {
-        Uint8 *px = ((Uint8 *) (pixels + row) + _index * 3);
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
-        pixel = (px[0]) + (px[1] << 8) + (px[2] << 16);
-#else
-        pixel = (px[2]) + (px[1] << 8) + (px[0] << 16);
-#endif
-        break;
-    }
-    default: /* 4 bpp */
-        pixel = *((Uint32 *) (pixels + row) + _index);
-        break;
-    }
-    
-    return PyInt_FromLong ((long)pixel);
-}
-
-/**
- * Sets a single pixel located at index from the surface pixel array.
- */
-static void
-_set_single_pixel (Uint8 *pixels, int bpp, Uint32 _index, Uint32 row,
-    SDL_PixelFormat *format, Uint32 color)
-{
-    switch (bpp)
-    {
-    case 1:
-        *((Uint8 *) pixels + row + _index) = (Uint8) color;
-        break;
-    case 2:
-        *((Uint16 *) (pixels + row) + _index) = (Uint16) color;
-        break;
-    case 3:
-#if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
-        *((Uint8 *) (pixels + row) + _index * 3 + (format->Rshift >> 3)) =
-            (Uint8) (color >> 16);
-        *((Uint8 *) (pixels + row) + _index * 3 + (format->Gshift >> 3)) =
-            (Uint8) (color >> 8);
-        *((Uint8 *) (pixels + row) + _index * 3 + (format->Bshift >> 3)) =
-            (Uint8) color;
-#else
-        *((Uint8 *) (pixels + row) + _index * 3 + 2 - (format->Rshift >> 3)) =
-            (Uint8) (color >> 16);
-        *((Uint8 *) (pixels + row) + _index * 3 + 2 - (format->Gshift >> 3)) =
-            (Uint8) (color >> 8);
-        *((Uint8 *) (pixels + row) + _index * 3 + 2 - (format->Bshift >> 3)) =
-            (Uint8) color;
-#endif
-        break;
-    default: /* 4 bpp */
-        *((Uint32 *) (pixels + row) + _index) = color;
-        break;
-    }
-}
-
-/**
  * Creates a new surface using the currently applied dimensions, step
  * size, etc.
  */
@@ -490,7 +417,6 @@ _replace_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
     {
         Uint8 *px;
         Uint32 pxcolor;
-        SDL_PixelFormat *format = surface->format;
         while (posy < array->ylen)
         {
             x = array->xstart;
@@ -498,47 +424,26 @@ _replace_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
             while (posx < array->xlen)
             {
                 px = ((Uint8 *) (pixels + y * surface->pitch) + x * 3);
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
-                pxcolor = (px[0]) + (px[1] << 8) + (px[2] << 16);
+                pxcolor = GET_PIXEL24 (px);
                 if (distance)
                 {
                     GET_RGB_VALS (pxcolor, surface->format, r2, g2, b2, a2);
                     if (COLOR_DIFF_RGB (wr, wg, wb, r1, g1, b1, r2, g2, b2) <=
                         distance)
                     {
-                        *(px + (format->Rshift >> 3)) = (Uint8) (rcolor >> 16);
-                        *(px + (format->Gshift >> 3)) = (Uint8) (rcolor >> 8);
-                        *(px + (format->Bshift >> 3)) = (Uint8) rcolor;
+                        SET_PIXEL24_RGB (px, surface->format,
+                            ((Uint8) (rcolor >> 16)),
+                            ((Uint8) (rcolor >> 8)),
+                            ((Uint8) (rcolor)));
                     }
                 }
                 else if (pxcolor == dcolor)
                 {
-                    *(px + (format->Rshift >> 3)) = (Uint8) (rcolor >> 16);
-                    *(px + (format->Gshift >> 3)) = (Uint8) (rcolor >> 8);
-                    *(px + (format->Bshift >> 3)) = (Uint8) rcolor;
+                    SET_PIXEL24_RGB (px,  surface->format,
+                        ((Uint8) (rcolor >> 16)),
+                        ((Uint8) (rcolor >> 8)),
+                        ((Uint8) (rcolor)));
                 }
-#else
-                pxcolor = (px[2]) + (px[1] << 8) + (px[0] << 16);
-                if (distance)
-                {
-                    GET_RGB_VALS (pxcolor, surface->format, r2, g2, b2, a2);
-                    if (COLOR_DIFF_RGB (wr, wg, wb, r1, g1, b1, r2, g2, b2) <=
-                        distance)
-                    {
-                        *(px + 2 - (format->Rshift >> 3)) =
-                            (Uint8) (rcolor >> 16);
-                        *(px + 2 - (format->Gshift >> 3)) =
-                            (Uint8) (rcolor >> 8);
-                        *(px + 2 - (format->Bshift >> 3)) = (Uint8) rcolor;
-                    }
-                }
-                else if (pxcolor == dcolor)
-                {
-                    *(px + 2 - (format->Rshift >> 3)) = (Uint8) (rcolor >> 16);
-                    *(px + 2 - (format->Gshift >> 3)) = (Uint8) (rcolor >> 8);
-                    *(px + 2 - (format->Bshift >> 3)) = (Uint8) rcolor;
-                }
-#endif
                 x += array->xstep;
                 posx += absxstep;
             }
@@ -710,7 +615,6 @@ _extract_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
     {
         Uint8 *px;
         Uint32 pxcolor;
-        SDL_PixelFormat *format = surface->format;
         while (posy < newarray->ylen)
         {
             x = newarray->xstart;
@@ -718,73 +622,40 @@ _extract_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
             while (posx < newarray->xlen)
             {
                 px = ((Uint8 *) (pixels + y * surface->pitch) + x * 3);
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
-                pxcolor = (px[0]) + (px[1] << 8) + (px[2] << 16);
+                pxcolor = GET_PIXEL24 (px);
                 if (distance)
                 {
                     GET_RGB_VALS (pxcolor, surface->format, r2, g2, b2, a2);
                     if (COLOR_DIFF_RGB (wr, wg, wb, r1, g1, b1, r2, g2, b2) <=
                         distance)
                     {
-                        *(px + (format->Rshift >> 3)) = (Uint8) (white >> 16);
-                        *(px + (format->Gshift >> 3)) = (Uint8) (white >> 8);
-                        *(px + (format->Bshift >> 3)) = (Uint8) white;
+                        SET_PIXEL24_RGB (px,  surface->format,
+                            ((Uint8) (white >> 16)),
+                            ((Uint8) (white >> 8)),
+                            ((Uint8) (white)));
                     }
                     else
                     {
-                        *(px + (format->Rshift >> 3)) = (Uint8) (black >> 16);
-                        *(px + (format->Gshift >> 3)) = (Uint8) (black >> 8);
-                        *(px + (format->Bshift >> 3)) = (Uint8) black;
+                        SET_PIXEL24_RGB (px, surface->format,
+                            ((Uint8) (black >> 16)),
+                            ((Uint8) (black >> 8)),
+                            ((Uint8) (black)));
                     }
                 }
                 else if (pxcolor == color)
                 {
-                    *(px + (format->Rshift >> 3)) = (Uint8) (white >> 16);
-                    *(px + (format->Gshift >> 3)) = (Uint8) (white >> 8);
-                    *(px + (format->Bshift >> 3)) = (Uint8) white;
+                    SET_PIXEL24_RGB (px,  surface->format,
+                        ((Uint8) (white >> 16)),
+                        ((Uint8) (white >> 8)),
+                        ((Uint8) (white)));
                 }
                 else
                 {
-                    *(px + (format->Rshift >> 3)) = (Uint8) (black >> 16);
-                    *(px + (format->Gshift >> 3)) = (Uint8) (black >> 8);
-                    *(px + (format->Bshift >> 3)) = (Uint8) black;
+                    SET_PIXEL24_RGB (px, surface->format,
+                        ((Uint8) (black >> 16)),
+                        ((Uint8) (black >> 8)),
+                        ((Uint8) (black)));
                 }
-#else
-                pxcolor = (px[2]) + (px[1] << 8) + (px[0] << 16);
-                if (distance)
-                {
-                    GET_RGB_VALS (pxcolor, surface->format, r2, g2, b2, a2);
-                    if (COLOR_DIFF_RGB (wr, wg, wb, r1, g1, b1, r2, g2, b2) <=
-                        distance)
-                    {
-                        *(px + 2 - (format->Rshift >> 3)) =
-                            (Uint8) (white >> 16);
-                        *(px + 2 - (format->Gshift >> 3)) =
-                            (Uint8) (white >> 8);
-                        *(px + 2 - (format->Bshift >> 3)) = (Uint8) white;
-                    }
-                    else
-                    {
-                        *(px + 2 - (format->Rshift >> 3)) =
-                            (Uint8) (black >> 16);
-                        *(px + 2 - (format->Gshift >> 3)) =
-                            (Uint8) (black >> 8);
-                        *(px + 2 - (format->Bshift >> 3)) = (Uint8) black;
-                    }
-                }
-                else if (pxcolor == color)
-                {
-                    *(px + 2 - (format->Rshift >> 3)) = (Uint8) (white >> 16);
-                    *(px + 2 - (format->Gshift >> 3)) = (Uint8) (white >> 8);
-                    *(px + 2 - (format->Bshift >> 3)) = (Uint8) white;
-                }
-                else
-                {
-                    *(px + 2 - (format->Rshift >> 3)) = (Uint8) (black >> 16);
-                    *(px + 2 - (format->Gshift >> 3)) = (Uint8) (black >> 8);
-                    *(px + 2 - (format->Bshift >> 3)) = (Uint8) black;
-                }
-#endif
                 x += newarray->xstep;
                 posx += absxstep;
             }
@@ -992,7 +863,6 @@ _compare (PyPixelArray *array, PyObject *args, PyObject *kwds)
     {
         Uint8 *px1, *px2;
         Uint32 pxcolor1, pxcolor2;
-        SDL_PixelFormat *format = surface1->format;
         while (posy < newarray->ylen)
         {
             vx = array2->xstart;
@@ -1002,9 +872,8 @@ _compare (PyPixelArray *array, PyObject *args, PyObject *kwds)
             {
                 px1 = ((Uint8 *) (pixels1 + y * surface1->pitch) + x * 3);
                 px2 = ((Uint8 *) (pixels2 + vy * surface2->pitch) + vx * 3);
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
-                pxcolor1 = (px1[0]) + (px1[1] << 8) + (px1[2] << 16);
-                pxcolor2 = (px2[0]) + (px2[1] << 8) + (px2[2] << 16);
+                pxcolor1 = GET_PIXEL24(px1);
+                pxcolor2 = GET_PIXEL24(px2);
                 if (distance)
                 {
                     GET_RGB_VALS (pxcolor1, surface1->format, r1, g1, b1, a1);
@@ -1012,67 +881,33 @@ _compare (PyPixelArray *array, PyObject *args, PyObject *kwds)
                     if (COLOR_DIFF_RGB (wr, wg, wb, r1, g1, b1, r2, g2, b2) >
                         distance)
                     {
-                        *(px1 + (format->Rshift >> 3)) = (Uint8) (white >> 16);
-                        *(px1 + (format->Gshift >> 3)) = (Uint8) (white >> 8);
-                        *(px1 + (format->Bshift >> 3)) = (Uint8) white;
+                        SET_PIXEL24_RGB(px1, surface1->format,
+                            ((Uint8) (white >> 16)),
+                            ((Uint8) (white >> 8)),
+                            ((Uint8) (white)));
                     }
                     else
                     {
-                        *(px1 + (format->Rshift >> 3)) = (Uint8) (black >> 16);
-                        *(px1 + (format->Gshift >> 3)) = (Uint8) (black >> 8);
-                        *(px1 + (format->Bshift >> 3)) = (Uint8) black;
+                        SET_PIXEL24_RGB(px1, surface1->format,
+                            ((Uint8) (black >> 16)),
+                            ((Uint8) (black >> 8)),
+                            ((Uint8) (black)));
                     }
                 }
                 else if (pxcolor1 != pxcolor2)
                 {
-                    *(px1 + (format->Rshift >> 3)) = (Uint8) (white >> 16);
-                    *(px1 + (format->Gshift >> 3)) = (Uint8) (white >> 8);
-                    *(px1 + (format->Bshift >> 3)) = (Uint8) white;
+                    SET_PIXEL24_RGB(px1, surface1->format,
+                        ((Uint8) (white >> 16)),
+                        ((Uint8) (white >> 8)),
+                        ((Uint8) (white)));
                 }
                 else
                 {
-                    *(px1 + (format->Rshift >> 3)) = (Uint8) (black >> 16);
-                    *(px1 + (format->Gshift >> 3)) = (Uint8) (black >> 8);
-                    *(px1 + (format->Bshift >> 3)) = (Uint8) black;
+                    SET_PIXEL24_RGB(px1, surface1->format,
+                        ((Uint8) (black >> 16)),
+                        ((Uint8) (black >> 8)),
+                        ((Uint8) (black)));
                 }
-#else
-                pxcolor1 = (px1[2]) + (px1[1] << 8) + (px1[0] << 16);
-                pxcolor2 = (px2[2]) + (px2[1] << 8) + (px2[0] << 16);
-                if (distance)
-                {
-                    GET_RGB_VALS (pxcolor1, surface1->format, r1, g1, b1, a1);
-                    GET_RGB_VALS (pxcolor2, surface2->format, r2, g2, b2, a2);
-                    if (COLOR_DIFF_RGB (wr, wg, wb, r1, g1, b1, r2, g2, b2) >
-                        distance)
-                    {
-                        *(px1 + 2 - (format->Rshift >> 3)) =
-                            (Uint8) (white >> 16);
-                        *(px1 + 2 - (format->Gshift >> 3)) =
-                            (Uint8) (white >> 8);
-                        *(px1 + 2 - (format->Bshift >> 3)) = (Uint8) white;
-                    }
-                    else
-                    {
-                        *(px1 + 2 - (format->Rshift >> 3)) =
-                            (Uint8) (black >> 16);
-                        *(px1 + 2 - (format->Gshift >> 3)) =
-                            (Uint8) (black >> 8);
-                        *(px1 + 2 - (format->Bshift >> 3)) = (Uint8) black;
-                    }
-                }
-                else if (pxcolor1 != pxcolor2)
-                {
-                    *(px1 + 2 - (format->Rshift >> 3)) = (Uint8) (white >> 16);
-                    *(px1 + 2 - (format->Gshift >> 3)) = (Uint8) (white >> 8);
-                    *(px1 + 2 - (format->Bshift >> 3)) = (Uint8) white;
-                }
-                else
-                {
-                    *(px1 + 2 - (format->Rshift >> 3)) = (Uint8) (black >> 16);
-                    *(px1 + 2 - (format->Gshift >> 3)) = (Uint8) (black >> 8);
-                    *(px1 + 2 - (format->Bshift >> 3)) = (Uint8) black;
-                }
-#endif
                 vx += array2->xstep;
                 x += newarray->xstep;
                 posx += absxstep;

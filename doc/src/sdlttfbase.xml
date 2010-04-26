@@ -67,7 +67,7 @@
       <desc>Gets the line skip of the Font.</desc>
     </attr>
     <method name="render">
-      <call>render (text, fgcolor[, bgcolor, renderflag]) -> :class:`pygame2.sdl.video.Surface`</call>
+      <call>render (text, fgcolor[, bgcolor, renderflag]) -> Surface</call>
       <desc>
         Renders a text to a :class:`pygame2.sdl.video.Surface`.
         
@@ -106,13 +106,14 @@
     </desc>
   </func>
   <func name="get_error">
-    <call>get_error () -> :exc:`pygame2.Error`</call>
+    <call>get_error () -> str</call>
     <desc>
-      Gets the last :exc:`pygame2.Error` occured.
+      Gets the last SDL_ttf error message occured.
 
       SDL_ttf maintains an internal error message. This message will usually
-      be given to you when a :exc:`pygame2.Error` is raised. You will
-      rarely need to call this function.
+      be given to you when a :exc:`pygame2.Error` is raised.
+
+      You will rarely need to call this function.
     </desc>
   </func>
   <func name="get_version">

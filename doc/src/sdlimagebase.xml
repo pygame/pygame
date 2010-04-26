@@ -22,19 +22,18 @@
     </desc>
   </func>
   <func name="get_error">
-    <call>get_error () -> :exc:`pygame2.Error`</call>
+    <call>get_error () -> str</call>
     <desc>
-      Gets the last :exc:`pygame2.Error` occured.
+      Gets the last SDL error message occured.
 
-      SDL_image maintains an internal error message. This message will
-      usually be given to you when a :exc:`pygame2.Error` is
-      raised.
+      SDL_image maintains an internal error message. This message will usually
+      be given to you when a :exc:`pygame2.Error` is raised.
 
       You will rarely need to call this function.
     </desc>
   </func>
   <func name="load">
-    <call>load (file[, type]) -> :class:`pygame2.sdl.video.Surface`</call>
+    <call>load (file[, type]) -> Surface</call>
     <desc>
       Loads an image file and creates a :class:`pygame2.sdl.video.Surface` from
       it.
@@ -61,7 +60,7 @@
     </desc>
   </func>
   <func name="read_xpm_from_array">
-    <call>read_xpm_from_array (buffer) -> :class:`pygame2.sdl.video.Surface`</call>
+    <call>read_xpm_from_array (buffer) -> Surface</call>
     <desc>Creates a :class:`pygame2.sdl.video.Surface` from a XPM buffer.
     
       Creates a :class:`pygame2.sdl.video.Surface` from a XPM

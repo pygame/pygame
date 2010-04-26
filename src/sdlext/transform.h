@@ -25,17 +25,6 @@
 #include "pgdefines.h"
 #include "filters.h"
 
-#define LOCK_SURFACE(x,ret)                                             \
-    if (SDL_MUSTLOCK (x))                                               \
-    {                                                                   \
-        if (SDL_LockSurface (x) == -1)                                  \
-            return (ret);                                               \
-    }
-
-#define UNLOCK_SURFACE(x)                       \
-    if (SDL_MUSTLOCK (x))                       \
-        SDL_UnlockSurface (x);
-
 SDL_Surface*
 pyg_transform_scale (SDL_Surface *srcsurface, SDL_Surface *dstsurface,
     int width, int height);

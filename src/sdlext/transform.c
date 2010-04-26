@@ -371,15 +371,8 @@ pyg_transform_rotate (SDL_Surface *surface, double angle)
             bgcolor = *(Uint32*) surface->pixels;
             break;
         default: /*case 3:*/
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
-            bgcolor = (((Uint8*) surface->pixels)[0]) +
-                (((Uint8*) surface->pixels)[1] << 8) +
-                (((Uint8*) surface->pixels)[2] << 16);
-#else
-            bgcolor = (((Uint8*) surface->pixels)[2]) +
-                (((Uint8*) surface->pixels)[1] << 8) +
-                (((Uint8*) surface->pixels)[0] << 16);
-#endif
+            bgcolor = GET_PIXEL24 ((Uint8*) surface->pixels);
+            break;
         }
         bgcolor &= ~surface->format->Amask;
     }
@@ -1325,7 +1318,6 @@ pyg_transform_laplacian (SDL_Surface *srcsurface, SDL_Surface *dstsurface)
     Uint32 color;
     int atmp0, atmp1, atmp2, atmp3;
     SDL_PixelFormat *format;
-    Uint8 *pixels;
 
     if (!srcsurface)
     {
@@ -1731,11 +1723,7 @@ pyg_transform_average_color (SDL_Surface *surface, SDL_Rect *rect,
             for (col = x; col < x + w; col++)
             {
                 pix = pixels;
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
-                color = (pix[0]) + (pix[1] << 8) + (pix[2] << 16);
-#else
-                color = (pix[2]) + (pix[1] << 8) + (pix[0] << 16);
-#endif
+                color = GET_PIXEL24 (pix);
                 rtot += ((color & rmask) >> rshift) << rloss;
                 gtot += ((color & gmask) >> gshift) << gloss;
                 btot += ((color & bmask) >> bshift) << bloss;

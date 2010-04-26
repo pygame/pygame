@@ -10,8 +10,7 @@ Content:
     1.4 Notes for Mac OS users
     1.5 Notes for Unix users
 2. Getting started
-3. Credits
-4. License
+3. License
 
 0. Description
 --------------
@@ -167,14 +166,11 @@ To gain ground quickly, you can find the reference and tutorials within
 the doc/ directory. A lot of examples demonstrating the abilities of
 Pygame2 are available in the examples/
 
-3. Credits
-----------
-TODO
-
-4. License
+3. License
 ----------
 This library is distributed under GNU LGPL version 2.1, which can be found in
-the file "doc/LGPL".
+the file "doc/LGPL". Parts might be licensed with less restrictions (e.g.
+BSD-style license or Public Domain code).
 
 This basically means you can use Pygame2 in any project you want, but if
 you make any changes or additions to pygame itself, those must be

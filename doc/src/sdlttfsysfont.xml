@@ -5,9 +5,9 @@
   <short>SDL_ttf system font loader module</short>
   <desc>SDL_ttf system font loader module</desc>
   <func name="get_sys_font">
-    <call>get_sys_font (name, size, style=STYLE_NORMAL) -> :class:`pyggame2.sdlttf.Font`</call>
+    <call>get_sys_font (name, size, style=STYLE_NORMAL) -> Font</call>
     <desc>
-      Create a :class:`pyggame2.sdlttf.Font` from system font resources
+      Create a :class:`pygame2.sdlttf.Font` from system font resources
 
       This will search the system fonts for the given font *name*. You can
       also enable bold or italic styles, and the appropriate system font

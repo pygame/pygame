@@ -59,8 +59,6 @@
       <call>buffer_data (bufnum, format, data, samplerate)</call>
       <desc>
         Buffers a chunk of *data* into one of the created buffers.
-
-        
       </desc>
       <example></example>
     </method>
@@ -76,20 +74,18 @@
       <call>get_prop (bufnum, prop, type) -> value or (value, ...) </call>
       <desc>
         Retrieves the value(s) of an OpenAL property for the Buffers.
-      
-        
       </desc>
       <example></example>
     </method>
     <method name="set_prop">
-      <call></call>
+      <call>set_prop (</call>
       <desc></desc>
       <example></example>
     </method>
   </class>
 
   <class name="CaptureDevice">
-    <constructor>TODO</constructor>
+    <constructor>CaptureDevice ()</constructor>
     <desc>None</desc>
     <example></example>
     <attr name="format">
@@ -101,7 +97,7 @@
       <example></example>
     </attr>
     <method name="get_samples">
-      <call></call>
+      <call>get_samples ()</call>
       <desc></desc>
       <example></example>
     </method>
@@ -110,28 +106,28 @@
       <example></example>
     </attr>
     <method name="start">
-      <call></call>
+      <call>start ()</call>
       <desc></desc>
       <example></example>
     </method>
     <method name="stop">
-      <call></call>
+      <call>stop ()</call>
       <desc></desc>
       <example></example>
     </method>
   </class>
 
   <class name="Context">
-    <constructor>TODO</constructor>
+    <constructor>Context ()</constructor>
     <desc>None</desc>
     <example></example>
     <method name="create_buffers">
-      <call></call>
+      <call>create_buffers ()</call>
       <desc></desc>
       <example></example>
     </method>
     <method name="create_sources">
-      <call></call>
+      <call>create_sources ()</call>
       <desc></desc>
       <example></example>
     </method>
@@ -140,7 +136,7 @@
       <example></example>
     </attr>
     <method name="disable">
-      <call></call>
+      <call>disable ()</call>
       <desc></desc>
       <example></example>
     </method>
@@ -153,7 +149,7 @@
       <example></example>
     </attr>
     <method name="enable">
-      <call></call>
+      <call>enable ()</call>
       <desc></desc>
       <example></example>
     </method>
@@ -162,7 +158,7 @@
       <example></example>
     </attr>
     <method name="is_enabled">
-      <call></call>
+      <call>is_enabled ()</call>
       <desc></desc>
       <example></example>
     </method>
@@ -171,12 +167,12 @@
       <example></example>
     </attr>
     <method name="make_current">
-      <call></call>
+      <call>make_current ()</call>
       <desc></desc>
       <example></example>
     </method>
     <method name="process">
-      <call></call>
+      <call>process ()</call>
       <desc></desc>
       <example></example>
     </method>
@@ -185,14 +181,14 @@
       <example></example>
     </attr>
     <method name="suspend">
-      <call></call>
+      <call>suspend ()</call>
       <desc></desc>
       <example></example>
     </method>
   </class>
 
   <class name="Device">
-    <constructor>TODO</constructor>
+    <constructor>Device ()</constructor>
     <desc>None</desc>
     <example></example>
     <attr name="extensions">
@@ -200,17 +196,17 @@
       <example></example>
     </attr>
     <method name="get_enum_value">
-      <call></call>
+      <call>get_enum_value ()</call>
       <desc></desc>
       <example></example>
     </method>
     <method name="get_error">
-      <call></call>
+      <call>get_error ()</call>
       <desc></desc>
       <example></example>
     </method>
     <method name="has_extension">
-      <call></call>
+      <call>has_extension</call>
       <desc></desc>
       <example></example>
     </method>
@@ -221,23 +217,23 @@
   </class>
 
   <class name="Listener">
-    <constructor>TODO</constructor>
+    <constructor>Listener</constructor>
     <desc>None</desc>
     <example></example>
     <method name="get_prop">
-      <call></call>
+      <call>get_prop ()</call>
       <desc></desc>
       <example></example>
     </method>
     <method name="set_prop">
-      <call></call>
+      <call>set_prop ()</call>
       <desc></desc>
       <example></example>
     </method>
   </class>
 
   <class name="Sources">
-    <constructor>TODO</constructor>
+    <constructor>Sources</constructor>
     <desc>None</desc>
     <example></example>
     <attr name="count">
@@ -245,32 +241,32 @@
       <example></example>
     </attr>
     <method name="get_prop">
-      <call></call>
+      <call>get_prop ()</call>
       <desc></desc>
       <example></example>
     </method>
     <method name="pause">
-      <call></call>
+      <call>pause ()</call>
       <desc></desc>
       <example></example>
     </method>
     <method name="play">
-      <call></call>
+      <call>play ()</call>
       <desc></desc>
       <example></example>
     </method>
     <method name="queue_buffers">
-      <call></call>
+      <call>queue_buffers ()</call>
       <desc></desc>
       <example></example>
     </method>
     <method name="rewind">
-      <call></call>
+      <call>rewind ()</call>
       <desc></desc>
       <example></example>
     </method>
     <method name="set_prop">
-      <call></call>
+      <call>set_prop ()</call>
       <desc></desc>
       <example></example>
     </method>
@@ -279,69 +275,69 @@
       <example></example>
     </attr>
     <method name="stop">
-      <call></call>
+      <call>stop ()</call>
       <desc></desc>
       <example></example>
     </method>
     <method name="unqueue_buffers">
-      <call></call>
+      <call>unqueue_buffers ()</call>
       <desc></desc>
       <example></example>
     </method>
   </class>
 
   <func name="al_get_string">
-    <call></call>
+    <call>al_get_string ()</call>
     <desc></desc>
     <example></example>
   </func>
   <func name="get_default_capture_device_name">
-    <call></call>
+    <call>get_default_capture_device_name ()</call>
     <desc></desc>
     <example></example>
   </func>
   <func name="get_default_output_device_name">
-    <call></call>
+    <call>get_default_output_device_name ()</call>
     <desc></desc>
     <example></example>
   </func>
   <func name="get_enum_value">
-    <call></call>
+    <call>get_enum_value ()</call>
     <desc></desc>
     <example></example>
   </func>
   <func name="get_error">
-    <call></call>
+    <call>get_error ()</call>
     <desc></desc>
     <example></example>
   </func>
   <func name="init">
-    <call></call>
+    <call>init ()</call>
     <desc></desc>
     <example></example>
   </func>
   <func name="is_extension_present">
-    <call></call>
+    <call>is_extension_present ()</call>
     <desc></desc>
     <example></example>
   </func>
   <func name="list_capture_devices">
-    <call></call>
+    <call>list_capture_devices ()</call>
     <desc></desc>
     <example></example>
   </func>
   <func name="list_output_devices">
-    <call></call>
+    <call>list_output_devices</call>
     <desc></desc>
     <example></example>
   </func>
   <func name="quit">
-    <call></call>
+    <call>quit ()</call>
     <desc></desc>
     <example></example>
   </func>
   <func name="set_current_context">
-    <call></call>
+    <call>set_current_context ()</call>
     <desc></desc>
     <example></example>
   </func>

@@ -60,7 +60,7 @@ This means that e.g. BLEND_RGB_ADD performs some operation similar to
 .. data:: BLEND_RGB_ADD
 
    Used for an additive blend, ignoring the per-pixel alpha value. The sum of
-   the both RGB values will used for the result.
+   the both RGB values will be used for the result.
 
 .. data:: BLEND_RGB_SUB
 

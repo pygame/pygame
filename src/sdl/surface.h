@@ -440,7 +440,6 @@ typedef enum
     } while(0)
 #endif
 
-
 #define CLIP_RECT_TO_SURFACE(sf,r)                                      \
     if ((r)->x > (sf)->w || (r)->y > (sf)->h ||                         \
         ((r)->x + (r)->w) <= 0 || ((r)->y + (r)->h) <= 0)               \
@@ -454,6 +453,17 @@ typedef enum
         (r)->w = (Uint16) MIN((r)->x + (r)->w, (sf)->w) - (r)->x;       \
         (r)->h = (Uint16) MIN((r)->y + (r)->h, (sf)->h) - (r)->y;       \
     }
+
+#define LOCK_SURFACE(x,ret)                                             \
+    if (SDL_MUSTLOCK (x))                                               \
+    {                                                                   \
+        if (SDL_LockSurface (x) == -1)                                  \
+            return (ret);                                               \
+    }
+
+#define UNLOCK_SURFACE(x)                       \
+    if (SDL_MUSTLOCK (x))                       \
+        SDL_UnlockSurface (x);
 
 int
 pyg_sdlsurface_fill_blend (SDL_Surface *surface, SDL_Rect *rect, Uint32 color,

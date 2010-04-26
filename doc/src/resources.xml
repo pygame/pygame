@@ -87,7 +87,7 @@
 
       Opens and reads a certain file from a TAR archive. The result is returned
       as StringIO stream. *filename* can be a relative or absolute path within
-      the ZIP archive. The optional *dir* argument can be used to supply a
+      the TAR archive. The optional *dir* argument can be used to supply a
       relative directory path, under which *filename* will be tried to retrieved.
 
       *type* is used to supply additional compression information, in case the

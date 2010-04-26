@@ -24,12 +24,13 @@
       While it is possible to assign both, integer color values and RGB(A)
       color tuples, the PixelArray will only use integers for the
       color representation. Thus, checking for certain colors has to be done
-      using the :meth:`pygame2.sdl.video.Surface.map_rgb` method of the surface,
+      using the :meth:`pygame2.sdl.video.PixelFormat.map_rgba` method of the
+      surface's :attr:`pygame2.sdl.video.Surface.format`,
       the PixelArray was created for. ::
 
         pxarray = pygame.PixelArray (surface)
         # Check, if the first pixel at the topleft corner is blue
-        if pxarray[0][0] == surface.map_rgb ((0, 0, 255)):
+        if pxarray[0][0] == surface.format.map_rgba ((0, 0, 255)):
             ...
       
       If you operate on a slice, you also can use arbitrary sequences or

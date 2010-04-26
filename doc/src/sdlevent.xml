@@ -176,7 +176,7 @@
     </desc>
   </func>
   <func name="get">
-    <call>get ([events]) -> [:class:`Event`, :class:`Event`, ... ]</call>
+    <call>get ([events]) -> [Event, Event, ... ]</call>
     <desc>
       Gets events from the event queue.
 
@@ -244,7 +244,7 @@
     </desc>
   </func>
   <func name="poll">
-    <call>poll () -> :class:`Event`</call>
+    <call>poll () -> Event</call>
     <desc>
       Gets a single event from the event queue.
 
@@ -336,7 +336,7 @@
     </desc>
   </func>
   <func name="wait">
-    <call>wait () -> :class:`Event`</call>
+    <call>wait () -> Event</call>
     <desc>
       Waits indefinitely for the next available event.
 

@@ -188,7 +188,7 @@
       <desc>Gets or sets the bottom right corner position of the FRect.</desc>
     </attr>
     <method name="ceil">
-      <call>ceil () -> :class:`Rect`</call>
+      <call>ceil () -> Rect</call>
       <desc>
         Creates a :class:`Rect` from the specified FRect.
 
@@ -369,7 +369,7 @@
       </desc>
     </method>
     <method name="floor">
-      <call>floor () -> :class:`Rect`</call>
+      <call>floor () -> Rect</call>
       <desc>
         Creates a :class:`Rect` from the specified FRect.
 
@@ -442,7 +442,7 @@
       <desc>Gets or sets the right position of the FRect.</desc>
     </attr>
     <method name="round">
-      <call>round () -> :class`Rect`</call>
+      <call>round () -> Rect</call>
       <desc>
         Creates a :class:`Rect` from the specified FRect.
 
@@ -464,7 +464,7 @@
       <desc>Gets or sets the top right corner position of the FRect.</desc>
     </attr>
     <method name="trunc">
-      <call>trunc () -> :class:`Rect`</call>
+      <call>trunc () -> Rect</call>
       <desc>
         Creates a :class:`Rect` from the specified FRect.
 

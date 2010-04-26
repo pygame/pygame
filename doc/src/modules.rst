@@ -67,6 +67,7 @@ Modules
    pygame2_sdlimage_constants.rst
    pygame2_sdlmixer.rst
    pygame2_sdlmixer_channel.rst
+   pygame2_sdlmixer_constants.rst
    pygame2_sdlmixer_music.rst
    pygame2_sdlmixer_numericsndarray.rst
    pygame2_sdlttf.rst

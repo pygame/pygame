@@ -8,11 +8,13 @@ layout for all modules, you should respect some minor rules.
 C Modules
 ---------
 Create an new directory under src, using the name of the module you
-would like to create (see below, "Module naming"). All source files
+would like to create (see below, :ref:`cmodulenaming`). All source files
 related to your module should go into that directory (and stay there!).
 You should use the Python 2.5 and 3.1 API for programming. In order to
 support Python 2.4, include the "pgcompat.h" header file, where
 appropriate.
+
+.. _cmodulenaming:
 
 C Module Naming
 ---------------
@@ -100,9 +102,17 @@ will be replaced with the name and full path of the header file(s) to
 install.
 DOCFILE.xml is the name of the documentation file to use, which is located
 under doc/src (see below, :ref:`documenting`).
-Each entry in the DEPENDENCYx list represents an external library reference
+Each entry in the DEPENDENCY list represents an external library reference
 which must be linked with the module. The names of these libraries can be
 found/modified in the config.config_modules file.
+
+.. note::
+
+   If the module is not fully implemented yet or in an unstable or untested
+   form, mark it as experimental, so that it will not be built and included
+   in default releases, but only in SCM-based builds.
+   To do this, simply add the ``experimental=True`` parameter to the ``Module``
+   constructor.
 
 Example: ::
 
@@ -157,7 +167,7 @@ added at compile time. Currently, the following flags are available:
   +-----------+----------------------------------------+
   | IS_MSYS   | (Win32) Msys build with GCC            |
   +-----------+----------------------------------------+
-  | IS_DARWIN | MacOS X and Darin-based platforms      |
+  | IS_DARWIN | MacOS X and Darwin-based platforms     |
   +-----------+----------------------------------------+
   | IS_UNIX   | Any other build platform that          |
   |           | successfully passes the preparations   |

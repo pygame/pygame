@@ -21,6 +21,7 @@ Enhanced and specialised font rendering classes and functions for
 SDL-based surfaces.
 """
 
+import os
 from pygame2 import Rect, FRect, Color
 from pygame2.sdl.video import Surface
 
@@ -96,7 +97,7 @@ class BitmapFont (object):
         tw, th = 0, 0
         w, h = self.size
             
-        lines = text.split ('\n')
+        lines = text.split (os.linesep)
         for line in lines:
             tw = max (tw, sum ([w for c in line]))
             th += h
@@ -124,7 +125,7 @@ class BitmapFont (object):
         x, y = offset
         w, h = self.size
             
-        lines = text.split ('\n')
+        lines = text.split (os.linesep)
         blit = surface.blit
         fontsf = self.surface
         offsets = self.offsets
@@ -147,7 +148,7 @@ class BitmapFont (object):
 
         Checks, whether all characters in the passed text can be rendered.
         """
-        lines = text.split ('\n')
+        lines = text.split (os.linesep)
         has_key = self.offsets.has_key
         for line in lines:
             for c in line:

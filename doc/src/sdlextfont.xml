@@ -48,7 +48,7 @@
       <example></example>
     </method>
     <method name="render_on">
-      <call>render_on (surface, text, offset=(0, 0)) -> :class:`pygame2.Rect`</call>
+      <call>render_on (surface, text, offset=(0, 0)) -> Rect</call>
       <desc>
         Renders a text on the passed surface, starting at offset.
 
@@ -60,7 +60,7 @@
       <example></example>
     </method>
     <method name="render">
-      <call>render (text) -> :class:`pygame2.sdl.video.Surface`</call>
+      <call>render (text) -> Surface</call>
       <desc>
         Renders the passed *text* on a new
         :class:`pygame2.sdl.video.Surface` and returns it.

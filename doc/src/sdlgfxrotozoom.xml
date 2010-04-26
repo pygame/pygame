@@ -6,7 +6,7 @@
   <desc>SDL_gfx rotozoom wrapper module</desc>
 
   <func name="rotate_90">
-    <call>rotate_90 (surface, times) -> :class:`pygame2.sdl.video.Surface`
+    <call>rotate_90 (surface, times) -> Surface
     </call>
     <desc>Rotates a surface clockwise by 90 degrees.
       
@@ -16,7 +16,7 @@
     </desc>
   </func>
   <func name="rotozoom">
-    <call>rotozoom (surface, angle, zoom[, smooth]) -> :class:`pygame2.sdl.video.Surface`</call>
+    <call>rotozoom (surface, angle, zoom[, smooth]) -> Surface</call>
     <desc>Rotates and zooms a surface.
     
       Rotates and zooms a *surface* at the same time and returns a new
@@ -49,7 +49,7 @@
     </desc>
   </func>
   <func name="rotozoom_xy">
-    <call>rotozoom_xy (surface, angle, zoomx, zoomy[, smooth]) -> :class:`pygame2.sdl.video.Surface`</call>
+    <call>rotozoom_xy (surface, angle, zoomx, zoomy[, smooth]) -> Surface</call>
     <desc>Rotates and zooms a surface with different scaling factors for the x- and y- axes.
     
       Rotates and zooms a *surface* at the same time and returns a new
@@ -60,7 +60,7 @@
     </desc>
   </func>
   <func name="shrink">
-    <call>zoom (surface, shrinkx, shrinky) -> :class:`pygame2.sdl.video.Surface`
+    <call>zoom (surface, shrinkx, shrinky) -> Surface
     </call>
     <desc>Shrinks a surface.
       
@@ -70,7 +70,7 @@
     </desc>
   </func>
   <func name="zoom">
-    <call>zoom (surface, zoomx, zoomy[, smooth]) -> :class:`pygame2.sdl.video.Surface`</call>
+    <call>zoom (surface, zoomx, zoomy[, smooth]) -> Surface</call>
     <desc>Zooms a surface.
     
       Zooms a *surface* and returns a new

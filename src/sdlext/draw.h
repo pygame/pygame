@@ -26,17 +26,6 @@
 extern "C" {
 #endif
 
-#define LOCK_SURFACE(x,ret)                                             \
-    if (SDL_MUSTLOCK (x))                                               \
-    {                                                                   \
-        if (SDL_LockSurface (x) == -1)                                  \
-            return (ret);                                               \
-    }
-
-#define UNLOCK_SURFACE(x)                       \
-    if (SDL_MUSTLOCK (x))                       \
-        SDL_UnlockSurface (x);
-
 int
 pyg_draw_aaline (SDL_Surface *surface, SDL_Rect *cliprect, Uint32 color,
     int x1, int _y1, int x2, int y2, int blendargs, SDL_Rect *area);

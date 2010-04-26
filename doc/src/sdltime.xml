@@ -15,7 +15,7 @@
       *interval*. *callable* can be any callable objet, method or function.
       On invocation, the optional *data* will be passed to the callable. If
       *data* is a sequence, each item of it will be passed as single argument
-      to tha callable.
+      to the callable.
             
       This will return an CObject that acts as unique id for the timer callback.
 

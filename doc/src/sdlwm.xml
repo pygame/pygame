@@ -49,7 +49,7 @@
     </desc>
   </func>
   <func name="toggle_fullscreen">
-    <call>toggle_fullscren (bool) -> bool</call>
+    <call>toggle_fullscreen (bool) -> bool</call>
     <desc>
       Tries to toggle the fullscreen mode for the SDL window and
       returns, whether the operation was successful or not.

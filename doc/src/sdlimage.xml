@@ -6,7 +6,7 @@
   <desc>SDL image I/O wrapper module</desc>
 
   <func name="load_bmp">
-    <call>load_bmp (file) -> :class:`pygame2.sdl.video.Surface`</call>
+    <call>load_bmp (file) -> Surface</call>
     <desc>
       Loads a BMP file and creates a :class:`pygame2.sdl.video.Surface` from it.
     

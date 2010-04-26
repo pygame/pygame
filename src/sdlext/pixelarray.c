@@ -64,6 +64,7 @@ static int _pixelarray_ass_subscript (PyPixelArray *array, PyObject* op,
 
 #include "pixelarray_methods.c"
 
+
 /**
  */
 static PyMethodDef _pixelarray_methods[] = {
@@ -462,11 +463,7 @@ _pixelarray_repr (PyPixelArray *array)
             {
                 /* Construct the columns */
                 px24 = ((Uint8 *) (pixels + y * array->padding) + x * 3);
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
-                pixel = (px24[0]) + (px24[1] << 8) + (px24[2] << 16);
-#else
-                pixel = (px24[2]) + (px24[1] << 8) + (px24[0] << 16);
-#endif
+                pixel = GET_PIXEL24 (px24);
 #ifdef IS_PYTHON_3
                 tmp1 = string;
                 tmp2 = Text_FromFormat ("%ld, ", (long)pixel);
@@ -483,11 +480,7 @@ _pixelarray_repr (PyPixelArray *array)
                 posx += absxstep;
             }
             px24 = ((Uint8 *) (pixels + y * array->padding) + x * 3);
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
-            pixel = (px24[0]) + (px24[1] << 8) + (px24[2] << 16);
-#else
-            pixel = (px24[2]) + (px24[1] << 8) + (px24[0] << 16);
-#endif
+            pixel = GET_PIXEL24 (px24);
 #ifdef IS_PYTHON_3
             tmp1 = string;
             tmp2 = Text_FromFormat ("%ld]", (long)pixel);
@@ -664,24 +657,30 @@ _pixelarray_item (PyPixelArray *array, Py_ssize_t _index)
      /* Access of a single column. */
     if (array->xlen == 1)
     {
+        Uint32 pixel;
+        
         if ((Uint32) _index >= array->ystart + array->ylen)
         {
             PyErr_SetString (PyExc_IndexError, "array index out of range");
             return NULL;
         }
-        return _get_single_pixel ((Uint8 *) surface->pixels, bpp,
-            array->xstart, _index * array->padding * array->ystep);
+        
+        GET_PIXEL_AT (pixel, surface, bpp, array->xstart,
+            _index * array->padding * array->ystep);
+        return PyInt_FromLong ((long)pixel);
     }
     if (array->ylen == 1)
     {
+        Uint32 pixel;
+        
         if ((Uint32) _index >= array->xstart + array->xlen)
         {
             PyErr_SetString (PyExc_IndexError, "array index out of range");
             return NULL;
         }
-        return _get_single_pixel ((Uint8 *) surface->pixels, bpp,
-            array->xstart + _index * array->xstep,
+        GET_PIXEL_AT(pixel, surface, bpp, array->xstart + _index * array->xstep,
             array->ystart * array->padding * array->ystep);
+        return PyInt_FromLong ((long)pixel);
     }
 
     return _array_slice_internal (array, _index, _index + 1, 1);
@@ -983,8 +982,8 @@ _array_assign_sequence (PyPixelArray *array, Py_ssize_t low,
     if (seqsize == 1)
     {
         /* Single value assignment. */
-        _set_single_pixel (pixels, bpp, xstart, ystart + padding * ystep,
-            surface->format, color);
+        SET_PIXEL_AT (surface, surface->format, xstart,
+            ystart + padding * ystep, color);
         return 0;
     }
 
@@ -1090,7 +1089,6 @@ _array_assign_sequence (PyPixelArray *array, Py_ssize_t low,
     case 3:
     {
         Uint8 *px;
-        SDL_PixelFormat *format = surface->format;
 
         if (gooverx)
         {
@@ -1103,15 +1101,10 @@ _array_assign_sequence (PyPixelArray *array, Py_ssize_t low,
                 {
                     color = *nextcolor++;
                     px = ((Uint8 *) (pixels + y * padding) + x * 3);
-#if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
-                    *(px + (format->Rshift >> 3)) = (Uint8) (color >> 16);
-                    *(px + (format->Gshift >> 3)) = (Uint8) (color >> 8);
-                    *(px + (format->Bshift >> 3)) = (Uint8) color;
-#else
-                    *(px + 2 - (format->Rshift >> 3)) = (Uint8) (color >> 16);
-                    *(px + 2 - (format->Gshift >> 3)) = (Uint8) (color >> 8);
-                    *(px + 2 - (format->Bshift >> 3)) = (Uint8) color;
-#endif
+                    SET_PIXEL24_RGB (px, surface->format,
+                        ((Uint8) (color >> 16)),
+                        ((Uint8) (color >> 8)),
+                        ((Uint8) (color)));
                     x += xstep;
                     posx += absxstep;
                 }
@@ -1129,15 +1122,10 @@ _array_assign_sequence (PyPixelArray *array, Py_ssize_t low,
                 while (posx < xlen)
                 {
                     px = ((Uint8 *) (pixels + y * padding) + x * 3);
-#if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
-                    *(px + (format->Rshift >> 3)) = (Uint8) (color >> 16);
-                    *(px + (format->Gshift >> 3)) = (Uint8) (color >> 8);
-                    *(px + (format->Bshift >> 3)) = (Uint8) color;
-#else
-                    *(px + 2 - (format->Rshift >> 3)) = (Uint8) (color >> 16);
-                    *(px + 2 - (format->Gshift >> 3)) = (Uint8) (color >> 8);
-                    *(px + 2 - (format->Bshift >> 3)) = (Uint8) color;
-#endif
+                    SET_PIXEL24_RGB (px, surface->format,
+                        ((Uint8) (color >> 16)),
+                        ((Uint8) (color >> 8)),
+                        ((Uint8) (color)));
                     x += xstep;
                     posx += absxstep;
                 }
@@ -1824,9 +1812,10 @@ _pixelarray_subscript (PyPixelArray *array, PyObject *op)
         /* Single value? */
         if (ABS (xstop - xstart) == 1 && ABS (ystop - ystart) == 1)
         {
-            return  _get_single_pixel ((Uint8 *) surface->pixels,
-                surface->format->BytesPerPixel, array->xstart + xstart,
-                ystart * array->padding * array->ystep);
+            Uint32 pixel;
+            GET_PIXEL_AT (pixel, surface, surface->format->BytesPerPixel,
+                array->xstart + xstart, ystart * array->padding * array->ystep);
+            return PyInt_FromLong ((long)pixel);
         }
 
         return (PyObject *) _pixelarray_new_internal (&PyPixelArray_Type,

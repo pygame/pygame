@@ -20,7 +20,7 @@
   </desc>
 
   <func name="average_color">
-    <call>average_color (surface[, rect]) -> :class:`pygame2.Color`</call>
+    <call>average_color (surface[, rect]) -> Color</call>
     <desc>
       Finds the average color of a surface.
       
@@ -30,7 +30,7 @@
     </desc>
   </func>
   <func name="average_surfaces">
-    <call>average_surfaces ((surface1, surface2, ...)[, destsurface]) -> :class:`pygame2.sdl.video.Surface`</call>
+    <call>average_surfaces ((surface1, surface2, ...)[, destsurface]) -> Surface</call>
     <desc>
       Creates a new surface with the average colors from a list of surfaces.
       
@@ -46,7 +46,7 @@
     </desc>
   </func>
   <func name="chop">
-    <call>chop (surface, rect) -> :class:`pygame2.sdl.video.Surface`</call>
+    <call>chop (surface, rect) -> Surface</call>
     <desc>
       Extracts a portion of a surface.
 
@@ -62,7 +62,7 @@
     </desc>
   </func>
   <func name="flip">
-    <call>flip (surface, flipx, flipy) -> :class:`pygame2.sdl.video.Surface`</call>
+    <call>flip (surface, flipx, flipy) -> Surface</call>
     <desc>
       Flips a surface horizontically, vertically or over both axes.
       
@@ -93,7 +93,7 @@
     </desc>
   </func>
   <func name="laplacian">
-    <call>laplacian (surface[, destsurface]) -> :class:`pygame2.sdl.video.Surface`</call>
+    <call>laplacian (surface[, destsurface]) -> Surface</call>
     <desc>
       Finds the edges in a surface using the laplacian algorithm.
       
@@ -108,7 +108,7 @@
     </desc>
   </func>
   <func name="rotate">
-    <call>rotate (surface, angle) -> :class:`pygame2.sdl.video.Surface`</call>
+    <call>rotate (surface, angle) -> Surface</call>
     <desc>
       Rotates a surface.
       
@@ -123,8 +123,8 @@
     </desc>
   </func>
   <func name="scale">
-    <call>scale (surface, width, height[, destsurface]) -> :class:`pygame2.sdl.video.Surface`
-      scale (surface, size[, destsurface]) -> :class:`pygame2.sdl.video.Surface`
+    <call>scale (surface, width, height[, destsurface]) -> Surface
+      scale (surface, size[, destsurface]) -> Surface
     </call>
     <desc>
        Resizes the surface to a new resolution.
@@ -140,7 +140,7 @@
     </desc>
   </func>
   <func name="scale2x">
-    <call>scale (surface[, destsurface]) -> :class:`pygame2.sdl.video.Surface`</call>
+    <call>scale (surface[, destsurface]) -> Surface</call>
     <desc>
       Scales a surface to the double of its original size.
       
@@ -161,8 +161,8 @@
     </desc>
   </func>
   <func name="smoothscale">
-    <call>smoothscale (surface, width, height[, destsurface]) -> :class:`pygame2.sdl.video.Surface`
-      smoothscale (surface, size[, destsurface]) -> :class:`pygame2.sdl.video.Surface`
+    <call>smoothscale (surface, width, height[, destsurface]) -> Surface
+      smoothscale (surface, size[, destsurface]) -> Surface
     </call>
     <desc>
       Resizes the surface to a new resolution using smoothing algorithms.
@@ -187,8 +187,8 @@
     </desc>
   </func>
   <func name="threshold">
-    <call>threshold (surface, color, threscolor[, destsurface]) -> :class:`pygame2.sdl.video.Surface`
-      threshold (surface, colorsurface, threscolor[, destsurface]) -> :class:`pygame2.sdl.video.Surface`
+    <call>threshold (surface, color, threscolor[, destsurface]) -> Surface
+      threshold (surface, colorsurface, threscolor[, destsurface]) -> Surface
     </call>
     <desc>TODO</desc>
   </func>

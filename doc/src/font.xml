@@ -18,7 +18,7 @@
       filetype argument to request specific font file types, such as bdf or ttf
       fonts.
 
-      All found fonts are returned as list
+      All found fonts are returned as list.
     </desc>
     <example></example>
   </func>
@@ -36,8 +36,8 @@
     </desc>
     <example></example>
   </func>
-  <func name="get_fonts">
-    <call>get_fonts () -> [str, str, ...]</call>
+  <func name="get_families">
+    <call>get_families () -> [str, str, ...]</call>
     <desc>
       Gets the list of available font families.
     </desc>

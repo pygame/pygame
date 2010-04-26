@@ -9,8 +9,8 @@
    </desc>
 
   <func name="aaline">
-    <call>aaline (surface, color, x1, y1, x2, y2[, blend]) -> :class:`pygame2.Rect`
-    aaline (surface, color, point1, point2[, blend]) -> :class:`pygame2.Rect`</call>
+    <call>aaline (surface, color, x1, y1, x2, y2[, blend]) -> Rect
+    aaline (surface, color, point1, point2[, blend]) -> Rect</call>
     <desc>Draws a fine anti-aliased line.
       
       Draws an anti-aliased line on a *surface*. If *blend* is True, the
@@ -22,7 +22,7 @@
     </desc>
   </func>
   <func name="aalines">
-    <call>aalines (surface, color, (point1, point2, ...) [, blend]) -> :class:`pygame2.Rect`
+    <call>aalines (surface, color, (point1, point2, ...) [, blend]) -> Rect
     </call>
     <desc>Draws multiple contiguous anti-aliased line segments on a surface.
     
@@ -35,7 +35,7 @@
     </desc>
   </func>
   <func name="aapolygon">
-    <call>aapolygon (surface, color, (point1, point2, ...) [, blend]) -> :class:`pygame2.Rect`
+    <call>aapolygon (surface, color, (point1, point2, ...) [, blend]) -> Rect
     </call>
     <desc>Draws an anti-aliased polygonal shape on a surface.
     
@@ -48,7 +48,7 @@
     </desc>
   </func>
   <func name="arc">
-    <call>arc (surface, color, rect, startangle, stopangle[, width]) -> :class:`pygame2.Rect`
+    <call>arc (surface, color, rect, startangle, stopangle[, width]) -> Rect
     </call>
     <desc>Draws an elliptical arc on a surface.
     
@@ -63,8 +63,8 @@
     </desc>
   </func>
   <func name="circle">
-    <call>circle (surface, color, x, y, radius[, width]) -> :class:`pygame2.Rect`
-    circle (surface, color, point, radius[, width]) -> :class:`pygame2.Rect`</call>
+    <call>circle (surface, color, x, y, radius[, width]) -> Rect
+    circle (surface, color, point, radius[, width]) -> Rect</call>
     <desc>Draws a circular shape on a surface.
     
       Draws a circular shape on a *surface* with an optionally specified
@@ -77,7 +77,7 @@
     </desc>
   </func>
   <func name="ellipse">
-    <call>ellipse (surface, color, rect[, width]) -> :class:`pygame2.Rect`</call>
+    <call>ellipse (surface, color, rect[, width]) -> Rect</call>
     <desc>Draws an elliptical shape on a surface.
     
       Draws an elliptical shape on a *surface* with an optionally
@@ -91,8 +91,8 @@
     </desc>
   </func>
   <func name="line">
-    <call>line (surface, color, x1, y1, x2, y2[, width]) -> :class:`pygame2.Rect`
-    line (surface, color, point1, point2[, width]) -> :class:`pygame2.Rect`</call>
+    <call>line (surface, color, x1, y1, x2, y2[, width]) -> Rect
+    line (surface, color, point1, point2[, width]) -> Rect</call>
     <desc>Draws a straight line segment on a surface.
 
       Draws a straight line segment on a *surface* with an optionally
@@ -105,7 +105,7 @@
     </desc>
   </func>
   <func name="lines">
-    <call>lines (surface, color, (point1, point2, ...) [, width]) -> :class:`pygame2.Rect`</call>
+    <call>lines (surface, color, (point1, point2, ...) [, width]) -> Rect</call>
     <desc>Draws multiple contiguous line segments on a surface.
     
       Draws a sequence of lines on a *surface* with an optionally
@@ -117,7 +117,7 @@
     </desc>
   </func>
   <func name="polygon">
-    <call>polygon (surface, color, (point1, point2), ...) [, width]) -> :class:`pygame2.Rect`
+    <call>polygon (surface, color, (point1, point2), ...) [, width]) -> Rect
     </call>
     <desc>Draws a polygonal shape on a surface.
     
@@ -131,7 +131,7 @@
     </desc>
   </func>
   <func name="rect">
-    <call>rect (surface, color, rect [, width]) -> :class:`pygame2.Rect`</call>
+    <call>rect (surface, color, rect [, width]) -> Rect</call>
     <desc>Draws a rectangular shape on a surface.
     
       Draws a rectangular shape on a *surface* with an optionally

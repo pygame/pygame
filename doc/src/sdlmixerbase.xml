@@ -105,40 +105,138 @@
   </class>
 
   <func name="close_audio">
-    <call></call>
-    <desc></desc>
+    <call>close_audio () -> None</call>
+    <desc>
+      Closes an opened instance of the audio hardware.
+
+      Use :func:`query_spec` to detect how often :func:`close_audio` has
+      to be called.
+
+      After calling this function (often enough), you should not invoke
+      any SDL_mixer related class, method or function as they are likely
+      to fail or might give unpredictable results.
+    </desc>
   </func>
   <func name="get_compiled_version">
-    <call></call>
-    <desc></desc>
+    <call>get_compiled_version () -> (int, int, int)</call>
+    <desc>
+      Gets the SDL_mixer version pygame2 was compiled against as three-value tuple.
+
+      This version is built at compile time. It can be used to detect
+      which features may not be available through Pygame, if it is used
+      as precompiled package using a different version of the SDL_mixer
+      library.
+    </desc>
   </func>
   <func name="get_error">
-    <call></call>
-    <desc></desc>
+    <call>get_error () -> str</call>
+    <desc>
+      Gets the last SDL_mixer error message occured.
+
+      SDL_mixer maintains an internal error message. This message will
+      usually be given to you when a :exc:`pygame2.Error` is raised.
+
+      You will rarely need to call this function.
+    </desc>
   </func>
   <func name="get_version">
-    <call></call>
-    <desc></desc>
+    <call>get_version () -> (int, int, int)</call>
+    <desc>
+      Gets the SDL_mixer version pygame2 currently uses as three-value tuple.
+
+      This version is detected at runtime. It can be used to detect
+      which features may not be available through Pygame, if it is used
+      as precompiled package using a different version of the SDL_mixer
+      library.
+    </desc>
   </func>
   <func name="init">
-    <call></call>
-    <desc></desc>
+    <call>init ([flags]) -> int</call>
+    <desc>
+      Initializes the underlying SDL_mixer library.
+
+      Initializes the underlying SDL_mixer library using the passed
+      mixer flags. The flags indicate, which music library (FLAC, OGG,
+      ...) SDL_mixer should initialize and can be a bitwise
+      combination of the initialization constants of the
+      :mod:`pygame2.sdlmixer.constants` module.
+
+      In case an error occured, an exception will be raised.
+    </desc>
   </func>
   <func name="open_audio">
-    <call></call>
-    <desc></desc>
+    <call>open_audio (frequency, format, channels, chunksize) -> None</call>
+    <desc>
+      Initializes the mixer API and prepares the audio hardware for access.
+
+      This must be called before using any other method or class for
+      audio output. It initializes the API with a certain *frequency*
+      (e.g. 44100 for 44.1 KHz).
+
+      *format* is the sample format that will be used in the
+      :class:`Chunk` and :class:`Music` objects and can be one of the
+      :data:`AUDIO_XXX` constants.
+
+      *channels* denotes the number of output channels, not the number
+      of :class:`Channel` instances and can be 1 for mono or 2 for
+      stereo sound.
+
+      *chunksize* is the size of bytes used per output sample to
+      stream. The larger the value, the more often the output hooks will
+      be called. A good value for chunksize is between 1024 and 4096 on
+      most computers (1kB - 4 kB).
+
+      .. note::
+      
+        You can call this method multiple times with different
+        values. In turn, you have to call :func:`close_audio` as often
+        as you called :func:`open_audio` to shut anything down.
+    </desc>
+    <example>
+      import pygame2.sdlmixer as mixer
+      import pygame2.sdlmixer.constants as mixconst
+      ...
+      
+      mixer.open_audio (22050, mixconst.AUDIO_U16SYS, 2, 2048)
+    </example>
   </func>
   <func name="query_spec">
-    <call></call>
-    <desc></desc>
+    <call>query_spec () -> (int, int, int, int)</call>
+    <desc>
+      Queries the actual settings used by the audio device.
+
+      Queries the actual settings used by the audio device and returns
+      the setting in the following order:
+
+        * number of times :func:`open_audio` was called
+        * current frequency
+        * current format
+        * current channel setting (stereo or mono)
+
+     See :func:`open_audio` for the typical meaning and values of the
+     returned tuple.
+    </desc>
   </func>
   <func name="quit">
-    <call></call>
-    <desc></desc>
+    <call>quit () -> None</call>
+    <desc>
+      Shuts down the underlying SDL_mixer library.
+
+      After calling this function, you should not invoke any SDL_mixer
+      related class, method or function as they are likely to fail or
+      might give unpredictable results.
+    </desc>
   </func>
   <func name="was_init">
-    <call></call>
-    <desc></desc>
+    <call>was_init () -> bool</call>
+    <desc>
+      Gets, whether the SDL_mixer library was initialized or not.
+
+      .. note::
+
+         This only checks, whether the **SDL** flag :data:`INIT_AUDIO`
+         was set.
+    </desc>
   </func>
 </module>
 

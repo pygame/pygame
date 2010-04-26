@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 
+import os, sys, glob, time, re
+
 import distutils.sysconfig
 from distutils.core import setup
 from distutils.command.install_data import install_data
-import os, sys, glob, time, re
+
 import modules, cfg
 from config import helpers, msys, config_modules
 

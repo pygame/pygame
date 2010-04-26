@@ -1,5 +1,6 @@
-"""A simple Intel C compiler class for Unix-based systems."""
+"""A simple LLVM C compiler class for Unix-based systems."""
 import os
+
 from distutils.unixccompiler import UnixCCompiler
 import distutils.sysconfig  as sysconfig
 

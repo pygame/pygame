@@ -33,7 +33,7 @@ Render Constants
 ----------------
 
 The following constants are used for rendering text for a certain font using
-:meth:`pygam2.sdlttf.Font.render`.
+:meth:`pygame2.sdlttf.Font.render`.
 
 .. data:: RENDER_SOLID
    

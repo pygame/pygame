@@ -10,17 +10,34 @@
   </desc>
   <func name="vector_from_polar">
     <call>vector_from_polar (p1, p2) -> Vector2</call>
-    <desc></desc>
+    <desc>
+      Creates a 2D vector from the passed polar coordinates.
+    </desc>
   </func>
   <func name="vector_from_spherical">
     <call>vector_from_spherical (p1, p2, p3) -> Vector2</call>
-    <desc></desc>
+    <desc>
+      Creates a 3D vector from the passed spherical coordinates.
+    </desc>
   </func>
 
   <class name="Vector">
-    <constructor>Vector () -> Vector</constructor>
-    <desc>Creates a new Vector.
+    <constructor>Vector (elements) -> Vector</constructor>
+    <desc>Creates a new Vector with the specified elements or dimension.
+    
+      Creates a new n-dimensional Vector. *elements* can be either a sequence of
+      numbers representing the values for each dimension or a positive integer
+      to create an empty vector with *elements* dimensions.
     </desc>
+    <example>
+      from pygame2.math import Vector
+      
+      # Create a 3D vector with x=1, y=2 and z=3
+      v1 = Vector ([1, 2, 3])
+      
+      # Create a vector with 15 dimensions, where each component is set to 0.
+      v2 = Vector (15)
+    </example>
     <attr name="dimension">
       <desc>Gets the dimensions of the :class:`Vector`.</desc>
     </attr>
@@ -44,11 +61,11 @@
     </attr>
     <method name="normalize">
       <call>normalize () -> Vector</call>
-      <desc></desc>
+      <desc>Creates a normalized representation of this Vector.</desc>
     </method>
     <method name="normalize_ip">
       <call>normalize_ip () -> None</call>
-      <desc></desc>
+      <desc>Normalizes the Vector in place.</desc>
     </method>
     <method name="slerp">
       <call>slerp () -> Vector</call>
@@ -59,28 +76,29 @@
       <desc></desc>
     </method>
     <method name="dot">
-      <call>dot () -> float</call>
-      <desc></desc>
+      <call>dot (v) -> float</call>
+      <desc>Calculates the dot product of the Vector and the passed argument.
+      </desc>
     </method>
     <method name="scale_to">
-      <call>scale_to (v) -> Vector</call>
-      <desc></desc>
+      <call>scale_to (length) -> Vector</call>
+      <desc>Scales the Vector to match the passed length.</desc>
     </method>
     <method name="reflect">
       <call>reflect () -> Vector</call>
-      <desc></desc>
+      <desc>Creates a reflected representation of the Vector.</desc>
     </method>
     <method name="reflect_ip">
       <call>reflect_ip () -> None</call>
-      <desc></desc>
+      <desc>Reflects the Vector in place.</desc>
     </method>
     <method name="distance">
-      <call>distance () -> None</call>
-      <desc></desc>
+      <call>distance (v) -> float</call>
+      <desc>Calculates the distance between two vectors.</desc>
     </method>
     <method name="distance_squared">
       <call>distance_squared () -> None</call>
-      <desc></desc>
+      <desc>Calculates the squared distance between two vectors.</desc>
     </method>
   </class>
   
@@ -106,24 +124,24 @@
       <desc>Gets or sets second element of the :class:`Vector2`.</desc>
     </attr>
     <method name="rotate">
-      <call>rotate () -> Vector2</call>
-      <desc></desc>
+      <call>rotate (angle) -> Vector2</call>
+      <desc>Rotates the Vector2 by the passed degrees.</desc>
     </method>
     <method name="rotate_ip">
-      <call>rotate_ip () -> Vector2</call>
-      <desc></desc>
+      <call>rotate_ip (angle) -> Vector2</call>
+      <desc>Rotates the Vector2 by the passed degrees in place.</desc>
     </method>
     <method name="as_polar">
       <call>as_polar () -> float, float</call>
-      <desc></desc>
+      <desc>Gets the polar coordinate representation of the Vector2.</desc>
     </method>
     <method name="angle_to">
       <call>angle_to (v) -> float</call>
-      <desc></desc>
+      <desc>Calculates the angle (in degrees) between two Vector2 objects.</desc>
     </method>
     <method name="cross">
       <call>cross (v) -> Vector2</call>
-      <desc></desc>
+      <desc>Creates the cross product of the two Vector2 objects.</desc>
     </method>
   </class>
 
@@ -152,48 +170,51 @@
       <desc>Gets or sets third element of the :class:`Vector3`.</desc>
     </attr>
     <method name="rotate_x">
-      <call>rotate_x () -> Vector3</call>
-      <desc></desc>
+      <call>rotate_x (angle) -> Vector3</call>
+      <desc>Rotates the Vector3 by the passed degrees around the x-axis.</desc>
     </method>
     <method name="rotate_x_ip">
-      <call>rotate_x_ip () -> None</call>
-      <desc></desc>
+      <call>rotate_x_ip (angle) -> None</call>
+      <desc>Rotates the Vector3 by the passed degrees in place around the x-axis.
+      </desc>
     </method>
     <method name="rotate_y">
-      <call>rotate_y () -> Vector3</call>
-      <desc></desc>
+      <call>rotate_y (angle) -> Vector3</call>
+      <desc>Rotates the Vector3 by the passed degrees around the y-axis.</desc>
     </method>
     <method name="rotate_y_ip">
-      <call>rotate_y_ip () -> None</call>
-      <desc></desc>
+      <call>rotate_y_ip (angle) -> None</call>
+      <desc>Rotates the Vector3 by the passed degrees in place around the y-axis.</desc>
     </method>
     <method name="rotate_z">
-      <call>rotate_z () -> Vector3</call>
-      <desc></desc>
+      <call>rotate_z (angle) -> Vector3</call>
+      <desc>Rotates the Vector3 by the passed degrees around the z-axis.</desc>
     </method>
     <method name="rotate_z_ip">
-      <call>rotate_z_ip () -> None</call>
-      <desc></desc>
+      <call>rotate_z_ip (angle) -> None</call>
+      <desc>Rotates the Vector3 by the passed degrees in place around the z-axis.</desc>
     </method>
     <method name="rotate">
-      <call>rotate () -> Vector3</call>
-      <desc></desc>
+      <call>rotate (angle, axis) -> Vector3</call>
+      <desc>Rotates the Vector3 by the passed degrees around the passed axis vector.
+      </desc>
     </method>
     <method name="rotate_ip">
-      <call>rotate_ip () -> Vector3</call>
-      <desc></desc>
+      <call>rotate_ip (angle, axis) -> Vector3</call>
+      <desc>Rotates the Vector3 by the passed degrees in place around the passed axis vector.
+      </desc>
     </method>
     <method name="angle_to">
       <call>angle_to (v) -> float</call>
-      <desc></desc>
+      <desc>Calculates the angle between two vectors in degrees</desc>
     </method>
     <method name="cross">
       <call>cross (v) -> Vector3</call>
-      <desc></desc>
+      <desc>Calculates the cross product between the two Vector3 instances.</desc>
     </method>
     <method name="as_spherical">
       <call>as_spherical () -> float, float, float</call>
-      <desc></desc>
+      <desc>Gets the sperhical coordinate representation of the Vector3.</desc>
     </method>
   </class>
 

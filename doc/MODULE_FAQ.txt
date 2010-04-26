@@ -3,7 +3,13 @@ C Module FAQ
 ============
 The C API contains numerous macros and functions that ease the
 developer's life. In order to have a similar behaviour without
-implementing the same things again and again, those will be listed here.
+implementing the same things again and again, the most important ones will be
+listed here.
+
+.. note::
+
+   For a full list of macros, utility functiona and C API interfaces, it is 
+   *strongly* recommended to read the :ref:`capi`.
 
 If it is necessary to rely on certain features specific to a particular
 environment, you can check for the build system flags, which are automatically
@@ -14,7 +20,7 @@ added at compile time. Currently, the following flags and macros are available:
   +-----------+----------------------------------------+
   | IS_MSYS   | (Win32) Msys build with GCC            |
   +-----------+----------------------------------------+
-  | IS_DARWIN | MacOS X and Darin-based platforms      |
+  | IS_DARWIN | MacOS X and Darwin-based platforms     |
   +-----------+----------------------------------------+
   | IS_UNIX   | Any other build platform that          |
   |           | successfully passes the preparations   |
