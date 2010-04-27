@@ -28,7 +28,7 @@ Those constants are used by the :func:`pygame2.sdlmixer.init` function.
 
    Initialises the ogg/vorbis library bindings.
 
-Format constants
+Format Constants
 ----------------
 
 Those constants are used by the :func:`pygame2.sdlmixer.open_audio` and
@@ -74,7 +74,83 @@ Those constants are used by the :func:`pygame2.sdlmixer.open_audio` and
    
    Signed 16-bit data in system byte order.
 
-.. todo::
+Fading Status Constants
+-----------------------
 
-   Complete the constants
+Those constants indicate the fading status for :class:`pygame2.sdlmixer.Channel`
+and :class:`pygame2.sdlmixer.Music` objects.
 
+.. data:: NO_FADING
+
+   Indicates that the Channel or Music is currently not faded.
+
+.. data:: FADING_IN
+
+   Indicates that the Channel or Music is currently fading in.
+
+.. data:: FADING_OUT
+
+   Indicates that the Channel or Music is currently fading out.
+
+Music Type Constants
+--------------------
+
+Those constants are used by the :attr:`pygame2.sdlmixer.Music.type` attribute.
+
+.. data:: MUS_NONE
+
+   Indicates no music being played at all.
+
+.. data:: MUS_CMD
+
+   Indicates an external command to be used for music playback.
+
+.. data:: MUS_WAV
+
+   The music format is WAV data.
+
+.. data:: MUS_MOD
+
+   The music format is MOD data.
+   
+.. data:: MUS_MID
+
+   The music format is MIDI data.
+
+.. data:: MUS_OGG
+
+   The music format is Ogg/Vorbis encoded data.
+
+.. data:: MUS_MP3
+
+   The music format is MP3 encoded data (using smpeg as decoder).
+
+.. data:: MUS_MP3_MAD
+
+   The music format is MP3 encoded data (using libmad as decoder).
+
+Other Constants
+---------------
+
+.. data:: CHANNELS
+
+   The default amount of ready-to-use allocated
+   :class:`pygame2.sdlmixer.Channel` objects after the initial call to
+   :func:`pygame2.sdlmixer.open_audio`.
+
+.. data:: DEFAULT_FREQUENCY
+
+   A good default sample rate in Hz for most sound cards (22050).
+
+.. data:: DEFAULT_FORMAT
+
+   The suggested default audio format (:const:`AUDIO_S16SYS`).
+   
+.. data:: DEFAULT_CHANNELS
+
+   The suggested default channel setting for :func:`pygame2.sdlmixer.open_audio`.
+   This is 2 for stereo sound.
+
+.. data:: MAX_VOLUME
+
+   The maximum value for any volume setting.

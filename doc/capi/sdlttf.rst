@@ -18,7 +18,7 @@ Include headers::
 
 Macros
 ------
-.. cfunction:: ASSERT_TTF_INIT (retval)
+.. cmacro:: ASSERT_TTF_INIT (retval)
 
   Checks, whether the ttf subsystem was properly initialised. If
   not, this will set a :exc:`PyExc_PyGameError` and return *retval*.

@@ -313,6 +313,109 @@ Those constants are used by the :data:`ACTIVEEVENT` event and the
 
    Indicates that the SDL application has the mouse input focus.
 
+Input State Flags
+-----------------
+
+The following constants are used by the :func:`pygame2.sdl.wm.grab_input`
+function.
+
+.. data:: GRAB_OFF
+
+   Release the input devices to allow them to switch to other applications.
+
+.. data:: GRAB_ON
+
+   Grab all supported input devices and deny switching to other applications,
+   if possible (this is not necessarily supported on any platform and window
+   manager).
+
+.. data:: GRAB_QUERY
+
+   Query the grab state without actually changing it.
+   
+Input System Contants
+---------------------
+
+The constants below represent flags or button and key abbreviations, which are
+usually retrieved by input events or used on operating with the various input
+modules, functions and classes.
+
+For keyboard constants, see :ref:`kbdconstants`.
+
+.. data:: BUTTON_LEFT
+
+   Represents the left mouse button.
+
+.. data:: BUTTON_MIDDLE
+
+   Represents the middle mouse button.
+
+.. data:: BUTTON_RIGHT
+
+   Represents the right mouse button.
+
+.. data:: BUTTON_WHEELDOWN
+
+   Represents the mouse wheel down signal.
+
+.. data:: BUTTON_WHEELUP
+
+   Represents the mouse wheel up signal.
+
+.. data:: BUTTON_X1
+
+   Represents an extended mouse button.
+   
+.. data:: BUTTON_X2
+
+   Represents an extended mouse button.
+   
+.. data:: HAT_CENTERED
+
+   Indicates that the joystick hat is centered.
+
+.. data:: HAT_DOWN
+
+   Indicates that the joystick hat is pushed downwards.
+
+.. data:: HAT_LEFT
+
+   Indicates that the joystick hat is pushed to the left.
+
+.. data:: HAT_LEFTDOWN
+
+   Indicates that the joystick hat is pushed to the lower left.
+
+.. data:: HAT_LEFTUP
+
+   Indicates that the joystick hat is pushed to the upper left.
+
+.. data:: HAT_RIGHT
+
+   Indicates that the joystick hat is pushed to the right.
+
+.. data:: HAT_RIGHTDOWN
+
+   Indicates that the joystick hat is pushed to the lower right.
+
+.. data:: HAT_RIGHTUP
+
+   Indicates that the joystick hat is pushed to the upper right.
+
+.. data:: HAT_UP
+
+   Indicates that the joystick hat is pushed upwards.
+
+.. data:: PRESSED
+
+   Indicates that a button or key is pressed down.
+
+.. data:: RELEASED
+
+   Indicates that a button or key is released (not pressed down).
+   
+.. _kbdconstants:
+
 Keyboard Constants
 ------------------
 
@@ -601,6 +704,107 @@ error, instead the inappropriate flags are silently ignored.
    This is only available for the :mod:`pygame2.sdl.video` functions and the
    display surface set by :meth:`pygame2.sdl.video.set_mode`.
 
+OpenGL Constants
+----------------
+
+The following pre-defined constants are used by the :mod:`pygame2.sdl.gl`
+attribute functions.
+
+.. data:: GL_ACCELERATED_VISUAL
+
+   
+
+.. data:: GL_ACCUM_ALPHA_SIZE
+
+   
+
+.. data:: GL_ACCUM_BLUE_SIZE
+
+   
+
+.. data:: GL_ACCUM_GREEN_SIZE
+
+   
+
+.. data:: GL_ACCUM_RED_SIZE
+
+   
+
+.. data:: GL_DEPTH_SIZE
+
+   
+
+.. data:: GL_ALPHA_SIZE
+
+   
+
+.. data:: GL_BLUE_SIZE
+
+   
+
+.. data:: GL_BUFFER_SIZE
+
+   
+
+.. data:: GL_GREEN_SIZE
+
+   
+
+.. data:: GL_RED_SIZE
+
+   
+
+.. data:: GL_DOUBLEBUFFER
+
+   
+
+.. data:: GL_MULTISAMPLEBUFFERS
+
+   
+
+.. data:: GL_MULTISAMPLESAMPLES
+
+   
+
+.. data:: GL_STENCIL_SIZE
+
+   
+
+.. data:: GL_STEREO
+
+   
+
+.. data:: GL_SWAP_CONTROL
+
+   xxx
+
+State and Context Constants
+---------------------------
+
+The following constants are used by various methods and functions to indicate,
+that a particular state, context or action is allowed or supported or
+disallowed or unsupported.
+
+Their concrete meaning and behaviour is explained in the documentation of the
+using function or method.
+
+.. data:: ENABLE
+
+   Indicates that the context (action) is allowed.
+
+.. data:: DISABLE
+
+   Indicates that the context (action) is disallowed.
+
+.. data:: IGNORE
+
+   Indicates that the context (action) is ignored.
+
+.. data:: QUERY
+
+   Queries the context (action) state without actually changing it.
+
+
 Various Constants
 -----------------
 
@@ -616,3 +820,26 @@ Various Constants
 .. data:: BIG_ENDIAN
     
    Indicates a big endian byte order.
+
+.. data:: ALPHA_OPAQUE
+
+   The alpha channel value representing a fully opaque (255) Color .
+
+.. data:: ALPHA_TRANSPARENT
+
+   The alpha channel value representing a fully transparent (0) Color .
+
+.. data:: TIMER_RESOLUTION
+
+   The default timer (tick) resolution used within :mod:`pygame2.sdl.time`.
+
+TO SORT:
+--------
+
+.. todo:
+
+  Sort those!
+ 
+  .. data:: PHYSPAL
+  .. data:: RLEACCELOK
+

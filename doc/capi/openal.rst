@@ -18,12 +18,12 @@ Include headers::
 Macros
 ------
 
-.. cfunction:: CONTEXT_IS_CURRENT (ctxt)
+.. cmacro:: CONTEXT_IS_CURRENT (ctxt)
 
   Gets, whether the passed context is the current one. This returns 0,
   if the context is not the current one
 
-.. cfunction:: ASSERT_CONTEXT_IS_CURRENT (ctxt, ret)
+.. cmacro:: ASSERT_CONTEXT_IS_CURRENT (ctxt, ret)
 
   Checks, whether the passed context is the current one. If not, this
   will set a :exc:`PyExc_PyGameError` and return *retval*.

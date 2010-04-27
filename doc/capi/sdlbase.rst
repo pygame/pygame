@@ -24,7 +24,7 @@ The following macros are used in places within the :mod:`pygame2.sdl`
 and related modules. They are used to check whether certain parts of the
 SDL subsystems are properly set and initialised.
 
-.. cfunction:: ASSERT_TIME_INIT (retval)
+.. cmacro:: ASSERT_TIME_INIT (retval)
 
   Checks, whether the time subsystem was properly initialised. If not,
   this will set a :exc:`PyExc_PyGameError` and return *retval*.

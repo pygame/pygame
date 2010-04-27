@@ -18,12 +18,12 @@ Include headers::
 
 Macros
 ------
-.. cfunction:: ASSERT_CDROM_INIT (retval)
+.. cmacro:: ASSERT_CDROM_INIT (retval)
 
   Checks, whether the cdrom subsystem was properly initialised. If not,
   this will set a :exc:`PyExc_PyGameError` and return *retval*.
 
-.. cfunction:: ASSERT_CDROM_OPEN (obj, retval)
+.. cmacro:: ASSERT_CDROM_OPEN (obj, retval)
 
   Checks, whether the passed :ctype:`PyCD` is open for access. If not,
   this will set a :exc:`PyExc_PyGameError` and return *retval*.

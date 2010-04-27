@@ -157,7 +157,8 @@ _channel_expire (PyObject *self, PyObject *args)
         PyErr_SetString (PyExc_ValueError, "ms must not be negative");
         return NULL;
     }
-    return PyInt_FromLong (Mix_ExpireChannel (-1, ms));
+    Mix_ExpireChannel (-1, ms);
+    Py_RETURN_NONE;
 }
 
 static PyObject*

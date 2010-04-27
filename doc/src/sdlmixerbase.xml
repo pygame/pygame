@@ -15,76 +15,107 @@
   </desc>
 
   <class name="Channel">
-    <constructor>TODO</constructor>
-    <desc></desc>
+    <constructor>Channel ([index]) -> Channel</constructor>
+    <desc>Creates a new Channel for playing audio data
+    
+      Channel represents a playback destination for audio data.
+      SDL_mixer can handle multiple channels to play audio simultanously.
+
+      If *index* is omitted or smaller than 1, a new Channel will be created.
+      Otherwise Channel will refer to an existing channel and reuse it.
+      
+      .. note::
+         
+         The state of an existing channel will not be reset.
+    </desc>
     <attr name="chunk">
-      <desc></desc>
+      <desc>The current :class:`Chunk` of audio data to be played.</desc>
     </attr>
     <method name="expire">
-      <call></call>
-      <desc></desc>
+      <call>expire (ms) -> None</call>
+      <desc>Halts the playback of the Channel after *ms* milliseconds.</desc>
     </method>
     <method name="fade_in">
-      <call></call>
-      <desc></desc>
+      <call>fade_in (sound, ms[, loops, ticks]) -> None</call>
+      <desc>Fades in the passed sound.
+      
+        This starts playing the passed *sound* at volume 0, which fades up to
+        the maximum value over *ms* milliseconds. The *sound* will be played
+        for *loops* + 1 number of times.
+        
+        *ticks* is the optional maximum time in milliseconds to stop playing
+        after.
+      </desc>
     </method>
     <method name="fade_out">
-      <call></call>
-      <desc></desc>
+      <call>fade_out (ms) -> None</call>
+      <desc>Fades out the current audio playback.
+      
+      This gradually reduces the volume to 0 over *ms* milliseconds. The channel
+      will be halted after the fadeout is complete.
+      </desc>
     </method>
     <attr name="fading">
-      <desc></desc>
+      <desc>The fading status of the Channel.</desc>
     </attr>
     <method name="halt">
-      <call></call>
-      <desc></desc>
+      <call>halt () -> None</call>
+      <desc>Stops the audio playback immediately and resets the playback state
+      </desc>
     </method>
     <method name="pause">
-      <call></call>
-      <desc></desc>
+      <call>pause () -> None</call>
+      <desc>Pauses the current audio playback.</desc>
     </method>
     <attr name="paused">
-      <desc></desc>
+      <desc>Gets, whether the Channel playback is currently paused.</desc>
     </attr>
     <method name="play">
-      <call></call>
-      <desc></desc>
+      <call>play (sound[, loops, ticks]) -> None</call>
+      <desc>Starts the playback of an audio :class:`Chunk`.
+      
+        The audio chunk will be played for *loops* + 1 times (or one time only, 
+        if *loops* is omitted).
+        
+        *ticks* is the optional maximum time in milliseconds to stop playing
+        after.
+      </desc>
     </method>
     <attr name="playing">
-      <desc></desc>
+      <desc>Gets, whether the Channel is currently playing audio.</desc>
     </attr>
     <method name="resume">
-      <call></call>
-      <desc></desc>
+      <call>resume () -> None</call>
+      <desc>Resumes the playback of a paused sound chunk.</desc>
     </method>
     <attr name="volume">
-      <desc></desc>
+      <desc>Gets or sets the channel volume.</desc>
     </attr>
   </class>
 
   <class name="Chunk">
-    <constructor>TODO</constructor>
-    <desc>
-
+    <constructor>Chunk (file) -> Chunk</constructor>
+    <desc>Creates a new sound chunk for audio playback.
+    
       .. note::
 
         The file object *must* support binary read and write
         access. This is especially important for Python 3.x users.
     </desc>
     <attr name="buf">
-      <desc></desc>
+      <desc>Gets the raw audio buffer of the Chunk.</desc>
     </attr>
     <attr name="len">
-      <desc></desc>
+      <desc>Gets the length of the audio data.</desc>
     </attr>
     <attr name="volume">
-      <desc></desc>
+      <desc>Gets or sets the default volume for the audio data.</desc>
     </attr>
   </class>
 
   <class name="Music">
-    <constructor>TODO</constructor>
-    <desc>
+    <constructor>Music (file) -> Music</constructor>
+    <desc>Creates a new sound chunk for music playback.
 
       .. note::
 
@@ -92,15 +123,26 @@
         access. This is especially important for Python 3.x users.
     </desc>
     <method name="fade_in">
-      <call></call>
-      <desc></desc>
+      <call>fade_in (ms[, loops, pos]) -> None</call>
+      <desc>Fades in the Music.
+      
+        This starts playing the Music at volume 0, which fades up to
+        the maximum value over *ms* milliseconds. The Music will be played
+        for *loops* + 1 number of times.
+        
+        *pos* is the position to start the playback from.
+      </desc>
     </method>
     <method name="play">
-      <call></call>
-      <desc></desc>
+      <call>play ([loops]) -> None</call>
+      <desc>Starts the playback of the Music.
+      
+        Starts the playback of the Music. The music will be played once, if
+        *loops* is omitted, otherwise it will be played *loops* + 1 times.
+      </desc>
     </method>
     <attr name="type">
-      <desc></desc>
+      <desc>Gets the music format.</desc>
     </attr>
   </class>
 

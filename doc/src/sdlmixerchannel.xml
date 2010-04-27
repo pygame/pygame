@@ -3,51 +3,66 @@
 
 <module name="pygame2.sdlmixer.channel">
   <short>SDL_mixer sound channel handling</short>
-  <desc></desc>
+  <desc>
+    This module takes care of general sound channel management and operations,
+    which can apply to one or multiple channels at once without having a 
+    concrete :class:`Channel` object around.
+  </desc>
 
   <func name="allocate">
-    <call></call>
-    <desc></desc>
+    <call>allocate (amount) -> (Channel, Channel, ...)</call>
+    <desc>(Pre-)Allocates a set of Channel objects.
+    </desc>
   </func>
   <func name="expire">
-    <call></call>
-    <desc></desc>
+    <call>expire (ms) -> None</call>
+    <desc>Halts the playback of all channels after *ms* milliseconds.</desc>
   </func>
   <func name="fade_out">
-    <call></call>
-    <desc></desc>
+    <call>fade_out (ms) -> int</call>
+    <desc>Fades out the current audio playback for all channels.
+    
+      This gradually reduces the volume for all channels to 0 over *ms*
+      milliseconds. The channels will be halted after the fadeout is complete.
+      
+      The number of channels set to fade out will be returned.
+    </desc>
   </func>
   <func name="get_volume">
-    <call></call>
-    <desc></desc>
+    <call>get_volume () -> int</call>
+    <desc>Gets the currently set overall volume for all Channel objects.</desc>
   </func>
   <func name="halt">
-    <call></call>
-    <desc></desc>
+    <call>halt () -> None</call>
+    <desc>Stops the sound playback for all Channel objects.</desc>
   </func>
   <func name="opened">
-    <call></call>
-    <desc></desc>
+    <call>opened () -> int</call>
+    <desc>Gets the number of currently open (allocated) channels.</desc>
   </func>
   <func name="pause">
-    <call></call>
-    <desc></desc>
+    <call>pause () -> None</call>
+    <desc>Pauses the sound playback for all Channel objects.</desc>
   </func>
   <func name="paused">
-    <call></call>
-    <desc></desc>
+    <call>paused () -> int</call>
+    <desc>Gets the number of channels being currently paused.</desc>
   </func>
   <func name="playing">
-    <call></call>
-    <desc></desc>
+    <call>playing () -> int</call>
+    <desc>Gets the number of channels currently playing.</desc>
   </func>
   <func name="resume">
-    <call></call>
-    <desc></desc>
+    <call>resume () -> None</call>
+    <desc>Resumes the playback for all paused Channel objects.</desc>
   </func>
   <func name="set_volume">
-    <call></call>
-    <desc></desc>
+    <call>set_volume (volume) -> int</call>
+    <desc>Sets the overall volume for all available Channel objects.
+
+      Sets the volume for all available Channel objects and returns the previous
+      set volume.
+    </desc>
   </func>
 </module>
 

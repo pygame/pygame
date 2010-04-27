@@ -65,7 +65,7 @@ Macros
 In addition to the types, a set of helpful macros was established, which are
 used heavily and should be relied on wherever possible.
 
-.. cfunction:: PRAGMA(q)
+.. cmacro:: PRAGMA(q)
 
   #pragma handler for usage within C macros. ::
 
@@ -79,32 +79,32 @@ used heavily and should be relied on wherever possible.
   which in turn will be expanded to the default #pragma directive for
   the compiler.
 
-.. cfunction:: MIN(q,v)
+.. cmacro:: MIN(q,v)
 
   Gets the smaller of two values. The own implementation will only be used,
   if no system-specific one was found.
 
-.. cfunction:: MAX(q,v)
+.. cmacro:: MAX(q,v)
 
   Gets the larger of two values. The own implementation will only be used,
   if no system-specific one was found.
 
-.. cfunction:: ABS(q)
+.. cmacro:: ABS(q)
 
   Gets the absolute value. The own implementation will be only used,
   if no system-specific one was found.
 
-.. cfunction:: trunc(q)
+.. cmacro:: trunc(q)
 
   Truncates a floating point value. The own implementation will only be used,
   if no system-specific one was found.
 
-.. cfunction:: round(q)
+.. cmacro:: round(q)
 
   Rounds a floating point value to the nearest integer. The own implementation
   will only be used, if no system-specific one was found.
 
-.. cfunction:: CLAMP(q,low,high)
+.. cmacro:: CLAMP(q,low,high)
   
   Checks, whether *q* is within the boundaries of *low* and *high* and returns
   it. If *q* is not within the boundaries, either *low* or *high* will be
@@ -116,33 +116,33 @@ used heavily and should be relied on wherever possible.
   The pi constant with 31 digits. The own definition will only be used, if no
   system-specific one was found.
 
-.. cfunction:: DEG2RAD(a)
+.. cmacro:: DEG2RAD(q)
 
   Converts degrees to radians. The own implementation will only be used, if no
   system-specific one was found.
 
-.. cfunction:: RAD2DEG(a)
+.. cmacro:: RAD2DEG(q)
 
   Converts radians to degrees. The own implementation will only be used, if no
   system-specific one was found.
 
-.. cfunction:: ARGB_2_RGBA(a)
+.. cmacro:: ARGB_2_RGBA(q)
 
   Converts a 32-bit unsigned integer value from an 0xAARRGGBB layout to
   a 32-bit unsigned integer value using an 0xRRGGBBAA layout.
 
-.. cfunction:: RGBA_2_ARGB(a)
+.. cmacro:: RGBA_2_ARGB(q)
 
   Converts a 32-bit unsigned integer value from an 0xRRGGBBAA layout to
   a 32-bit unsigned integer value using an 0xAARRGGBB layout.
 
-.. cfunction:: ADD_LIMIT(q,v,lower,upper)
+.. cmacro:: ADD_LIMIT(q,v,lower,upper)
                SUB_LIMIT(q,v,lower,upper)
 
    Adds and subtracts two values, but guarantees that the result will not be 
    smaller or larger than the *lower* and *upper* limits.
 
-.. cfunction:: INT_ADD_LIMIT(q,v)
+.. cmacro:: INT_ADD_LIMIT(q,v)
                INT_SUB_LIMIT(q,v)
                INT16_ADD_LIMIT(q,v)
                INT16_SUB_LIMIT(q,v)
@@ -150,7 +150,7 @@ used heavily and should be relied on wherever possible.
    Adds and subtracts two integer values, but guarantees that the result will
    not be smaller or larger than the *INT_MIN* and *INT_MAX* limits.
 
-.. cfunction:: UINT_ADD_LIMIT(q,v)
+.. cmacro:: UINT_ADD_LIMIT(q,v)
                UINT_SUB_LIMIT(q,v)
                UINT16_ADD_LIMIT(q,v)
                UINT16_SUB_LIMIT(q,v)
@@ -158,7 +158,7 @@ used heavily and should be relied on wherever possible.
    Adds and subtracts two unsigned integer values, but guarantees that the
    result will not be smaller or larger than zero and *UINT_MAX*.
 
-.. cfunction:: LONG_ADD_LIMIT(q,v)
+.. cmacro:: LONG_ADD_LIMIT(q,v)
                LONG_SUB_LIMIT(q,v)
                INT32_ADD_LIMIT(q,v)
                INT32_SUB_LIMIT(q,v)
@@ -166,7 +166,7 @@ used heavily and should be relied on wherever possible.
    Adds and subtracts two long integer values, but guarantees that the result
    will not be smaller or larger than the *LONG_MIN* and *LONG_MAX* limits.
 
-.. cfunction:: ULONG_ADD_LIMIT(q,v)
+.. cmacro:: ULONG_ADD_LIMIT(q,v)
                ULONG_SUB_LIMIT(q,v)
                UINT32_ADD_LIMIT(q,v)
                UINT32_SUB_LIMIT(q,v)
@@ -174,13 +174,13 @@ used heavily and should be relied on wherever possible.
    Adds and subtracts two unsigned long integer values, but guarantees that the
    result will not be smaller or larger than zero and *ULONG_MAX*.
 
-.. cfunction:: DBL_ADD_LIMIT(q,v)
+.. cmacro:: DBL_ADD_LIMIT(q,v)
                DBL_SUB_LIMIT(q,v)
 
    Adds and subtracts two floating point values, but guarantees that the result
    will not be smaller or larger than the *DBL_MIN* and *DBL_MAX* limits.
 
-.. cfunction:: INT_ADD_UINT_LIMIT(q,v,t)
+.. cmacro:: INT_ADD_UINT_LIMIT(q,v,t)
                INT_SUB_UINT_LIMIT(q,v,t)
                INT16_ADD_UINT16_LIMIT(q,v,t)
                INT16_SUB_UINT16_LIMIT(q,v,t)

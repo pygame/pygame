@@ -379,14 +379,14 @@ _capturedevice_getsamples (PyObject* self, PyObject *args)
             PyMem_Free (buf);
             return NULL;
         }
-        if (!CPyStreamWrapper_Write (buffer, buf, count, bytesize * channels,
+        if (!CPyStreamWrapper_Write (wrapper, buf, count, bytesize * channels,
                 &written))
         {
             PyMem_Free (buf);
-            CPyStreamWrapper_Free (buffer);
+            CPyStreamWrapper_Free (wrapper);
             return NULL;
         }
-        CPyStreamWrapper_Free (buffer);
+        CPyStreamWrapper_Free (wrapper);
         return PyLong_FromUnsignedLong ((unsigned long) written);
     }
 

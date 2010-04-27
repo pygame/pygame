@@ -18,12 +18,12 @@ Include headers::
 
 Macros
 ------
-.. cfunction:: ASSERT_JOYSTICK_INIT (retval)
+.. cmacro:: ASSERT_JOYSTICK_INIT (retval)
 
   Checks, whether the joystick subsystem was properly initialised. If
   not, this will set a :exc:`PyExc_PyGameError` and return *retval*.
 
-.. cfunction:: ASSERT_JOYSTICK_OPEN (obj, retval)
+.. cmacro:: ASSERT_JOYSTICK_OPEN (obj, retval)
 
   Checks, whether the passed :ctype:`PyJoystick` is open for access. If
   not, this will set a :exc:`PyExc_PyGameError` and return *retval*.

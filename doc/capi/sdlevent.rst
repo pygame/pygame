@@ -5,10 +5,6 @@ pygame2.sdl.event
 The :mod:`pygame2.sdl.event` C API contains objects and functions for
 accessing and manipulating the SDL event system queue.
 
-.. todo::
-   
-   Describe user event encapsulation!
-
 Import
 ------
 Include headers::
@@ -32,6 +28,27 @@ Macros
   Constant for SDL user event types. This is usually placed into the
   :cmember:`SDL_Event.code` field for :cmacro:`SDL_USEREVENT` events.
 
+.. note::
+
+   If you handle events programmatically from C code or interoperate with other
+   SDL-based applications or libraries, which exchange events, you might have to
+   treat Python-based SDL events in a special way.
+
+   To check, whether the event comes from Pygame, you can check the
+   :cmember:`SDL_Event.data1` and :cmember:`SDL_Event.code` for the
+   :cdata:`PYGAME_USEREVENT` and :cdata:`PYGAME_USEREVENT_CODE` values.
+   If both are set, this indicates that the event comes from Pygame and carries
+   a Python dictionary in the :cmember:`SDL_Event.data2` field. ::
+   
+     if (event->user.code == PYGAME_USEREVENT_CODE &&
+         event->user.data1 == (void*)PYGAME_USEREVENT)
+     {
+         /* It comes from pygame*/
+         PyObject *dict = (PyObject*) event->user.data2;
+         ...
+     }
+
+  
 PyEvent
 -------
 .. ctype:: PyEvent

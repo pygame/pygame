@@ -35,12 +35,12 @@ Basic Types
 
 Macros
 ------
-.. cfunction:: ASSERT_VIDEO_INIT (retval)
+.. cmacro:: ASSERT_VIDEO_INIT (retval)
 
   Checks, whether the video subsystem was properly initialised. If not,
   this will set a :exc:`PyExc_PyGameError` and return *retval*.
 
-.. cfunction:: ASSERT_VIDEO_SURFACE_SET (retval)
+.. cmacro:: ASSERT_VIDEO_SURFACE_SET (retval)
 
   Checks, whether a display surface was created already using
   :func:`pygame2.sdl.video.set_mode`. If not, this will set a

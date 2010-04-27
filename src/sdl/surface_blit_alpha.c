@@ -21,14 +21,17 @@
 
 #include "surface_blit.h"
 
-CREATE_BLITTER(blend_rgba_add, D_BLEND_RGBA_ADD(tmp,sR,sG,sB,sA,dR,dG,dB,dA),,,)
-CREATE_BLITTER(blend_rgba_sub, D_BLEND_RGBA_SUB(tmp2,sR,sG,sB,sA,dR,dG,dB,dA),,,)
-CREATE_BLITTER(blend_rgba_mul, D_BLEND_RGBA_MULT(sR,sG,sB,sA,dR,dG,dB,dA),,,)
-CREATE_BLITTER(blend_rgba_min, D_BLEND_RGBA_MIN(sR,sG,sB,sA,dR,dG,dB,dA),,,)
-CREATE_BLITTER(blend_rgba_max, D_BLEND_RGBA_MAX(sR,sG,sB,sA,dR,dG,dB,dA),,,)
-CREATE_BLITTER(blend_rgba_xor, D_BLEND_RGBA_XOR(sR,sG,sB,sA,dR,dG,dB,dA),,,)
-CREATE_BLITTER(blend_rgba_and, D_BLEND_RGBA_AND(sR,sG,sB,sA,dR,dG,dB,dA),,,)
-CREATE_BLITTER(blend_rgba_or, D_BLEND_RGBA_OR(sR,sG,sB,sA,dR,dG,dB,dA),,,)
-CREATE_BLITTER(blend_rgba_diff, D_BLEND_RGBA_DIFF(sR,sG,sB,sA,dR,dG,dB,dA),,,)
-CREATE_BLITTER(blend_rgba_screen, D_BLEND_RGBA_SCREEN(sR,sG,sB,sA,dR,dG,dB,dA),,,)
-CREATE_BLITTER(blend_rgba_avg, D_BLEND_RGBA_AVG(sR,sG,sB,sA,dR,dG,dB,dA),,,)
+CREATE_BLITTER(alpha_alpha, ALPHA_BLEND(sR,sG,sB,sA,dR,dG,dB,dA),,,)
+CREATE_BLITTER(alpha_solid, ALPHA_BLEND(sR,sG,sB,alpha,dR,dG,dB,dA),,,)
+#ifdef HAVE_OPENMP
+/* src values are reachable via sppx in OpenMP macro */
+CREATE_BLITTER(alpha_colorkey, ALPHA_BLEND(sR,sG,sB,sA,dR,dG,dB,dA),
+    (sA = (*sppx == colorkey) ? 0 : alpha),
+    (sA = (pixel == colorkey) ? 0 : alpha),
+    (sA = ((*(Uint32*)sppx) == colorkey) ? 0 : alpha))
+#else
+CREATE_BLITTER(alpha_colorkey, ALPHA_BLEND(sR,sG,sB,sA,dR,dG,dB,dA),
+    (sA = (*src == colorkey) ? 0 : alpha),
+    (sA = (pixel == colorkey) ? 0 : alpha),
+    (sA = ((*(Uint32*)src) == colorkey) ? 0 : alpha))
+#endif

@@ -113,7 +113,7 @@ Once anything's tested, updated written down, the required packages have to be
 built. First of all, the source packages are required as the binary packages
 will be built using them. ::
 
-    make release
+  make release
 
 .. note::
 

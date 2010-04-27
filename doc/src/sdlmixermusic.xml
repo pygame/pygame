@@ -3,51 +3,61 @@
 
 <module name="pygame2.sdlmixer.music">
   <short>SDL_mixer music playback</short>
-  <desc></desc>
+  <desc>
+    This module takes care of general music management and operations,
+    which can apply to the currently set :class:`Music` object.
+  </desc>
 
   <func name="fade_out">
-    <call></call>
-    <desc></desc>
+    <call>fade_out (ms) -> None</call>
+    <desc>Fades out the current music playback.
+    
+      This gradually reduces the volume for the current music to 0 over *ms*
+      milliseconds. The music will be halted after the fadeout is complete.
+    </desc>
   </func>
   <func name="fading">
-    <call></call>
-    <desc></desc>
+    <call>fading () -> int</call>
+    <desc>Gets the fading status of the music.</desc>
   </func>
   <func name="get_volume">
-    <call></call>
-    <desc></desc>
+    <call>get_volume () -> int</call>
+    <desc>Gets the volume of the music.</desc>
   </func>
   <func name="halt">
-    <call></call>
-    <desc></desc>
+    <call>halt () -> None</call>
+    <desc>Halts the music playback and resets its state.</desc>
   </func>
   <func name="pause">
-    <call></call>
-    <desc></desc>
+    <call>pause () -> None</call>
+    <desc>Pauses the music playback.</desc>
   </func>
   <func name="paused">
-    <call></call>
-    <desc></desc>
+    <call>paused () -> bool</call>
+    <desc>Gets, whether the music playback is currently paused.</desc>
   </func>
   <func name="playing">
-    <call></call>
-    <desc></desc>
+    <call>playing () -> bool</call>
+    <desc>Gets, whether the music is currently playing.</desc>
   </func>
   <func name="resume">
-    <call></call>
-    <desc></desc>
+    <call>resume () -> None</call>
+    <desc>Resumes the previously paused music playback</desc>
   </func>
   <func name="rewind">
-    <call></call>
-    <desc></desc>
+    <call>rewind () -> None</call>
+    <desc>Rewinds the music to the start.</desc>
   </func>
   <func name="set_position">
-    <call></call>
-    <desc></desc>
+    <call>set_position (pos) -> None</call>
+    <desc>Sets the current playback position.</desc>
   </func>
   <func name="set_volume">
-    <call></call>
-    <desc></desc>
+    <call>set_volume (volume) -> int</call>
+    <desc>Sets the volume for the music.
+    
+      Sets the volume for the music and returns the previous set volume.
+    </desc>
   </func>
 </module>
 

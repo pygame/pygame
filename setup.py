@@ -9,7 +9,7 @@ from distutils.command.install_data import install_data
 import modules, cfg
 from config import helpers, msys, config_modules
 
-VERSION = "2.0.0-alpha4"
+VERSION = "2.0.0-alpha5"
 DEBUG = True
 
 # Minimum requirements.

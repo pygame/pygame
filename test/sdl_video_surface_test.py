@@ -244,6 +244,7 @@ class SDLVideoSurfaceTest (unittest.TestCase):
             self.assertEqual (type (fmt), video.PixelFormat)
             self.assertEqual (fmt.bits_per_pixel, bpp)
             self.assertEqual (fmt.bytes_per_pixel, bpp // 8)
+            self.assertEqual (fmt.readonly, True)
         video.quit ()
 
     def test_pygame2_sdl_video_Surface_get_alpha(self):

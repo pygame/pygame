@@ -104,7 +104,7 @@ _sdl_wmseticon (PyObject *self, PyObject *args)
         int w;
         if (PyObject_AsReadBuffer (mask, (const void**)&maskbuf,
             &masklen) == -1)
-            return -1;
+            return NULL;
         w = (int) round ((masklen * 1.f) / sdlsurface->h);
         if ((w * 8) != sdlsurface->w)
         {

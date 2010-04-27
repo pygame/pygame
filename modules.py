@@ -158,6 +158,7 @@ modules = [
             "src/sdl/surface_blit.c",
             "src/sdl/surface_blit_rgb.c",
             "src/sdl/surface_blit_rgba.c",
+            "src/sdl/surface_blit_alpha.c",
             "src/sdl/surface_fill.c",
             "src/sdl/surface_save.c",
             "src/sdl/surface.c",

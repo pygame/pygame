@@ -209,7 +209,7 @@
   </class>
 
   <func name="from_surface">
-    <call>from_surface (surface, threshold) -> :class:`Mask`</call>
+    <call>from_surface (surface, threshold) -> Mask</call>
     <desc>
       Returns a :class:`Mask` from the given :class:`pygame2.sdl.video.Surface`.
 
@@ -223,7 +223,7 @@
     </desc>
   </func>
   <func name="from_threshold">
-    <call>from_threshold (surface, color[, threshold, thressurface]) -> :class:`Mask`</call>
+    <call>from_threshold (surface, color[, threshold, thressurface]) -> Mask</call>
     <desc>
       Creates a :class:`Mask` by thresholding surfaces.
 

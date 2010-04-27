@@ -52,6 +52,9 @@ Things to ADD:
 * Add palette color support to sdlext.transform (trunk rev. 2242).
 * Speed up blits using fast lookup tables for 8bpp to 8bpp.
 * add pgcompat.h to *mod.h internal headers.
+* SDL_mixer: channel groups.
+* SDL_mixer: Mix_SetMusicCMD.
+* SDL_mixer: finishing hooks.
 
 Things to WRAP:
 ===============
