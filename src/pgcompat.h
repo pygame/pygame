@@ -1,10 +1,17 @@
 #ifndef _PYGAME_PYTHONCOMPAT_H_
 #define _PYGAME_PYTHONCOMPAT_H_
 
+#define PY_SSIZE_T_CLEAN
+
 #include <Python.h>
 
 /* Python 2.4 compatibility */
 #if PY_VERSION_HEX < 0x02050000
+
+#ifndef IS_PYTHON_24
+#   define IS_PYTHON_24
+#endif
+
 typedef int Py_ssize_t;
 #define PY_SSIZE_T_MAX INT_MAX
 #define PY_SSIZE_T_MIN INT_MIN

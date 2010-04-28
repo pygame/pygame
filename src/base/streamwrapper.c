@@ -19,7 +19,6 @@
 */
 #define PYGAME_STREAMWRAPPER_INTERNAL
 
-#include <Python.h>
 #include "internals.h"
 #include "pgbase.h"
 

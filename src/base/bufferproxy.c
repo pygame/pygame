@@ -19,12 +19,12 @@
 */
 #define PYGAME_BUFFERPROXY_INTERNAL
 
-#include <Python.h>
-#include <structmember.h> /* Somehow offsetof's not recognized in this file */
 
 #include "internals.h"
 #include "pgbase.h"
 #include "base_doc.h"
+
+#include <structmember.h> /* Somehow offsetof's not recognized in this file */
 
 static PyObject* _bufferproxy_new (PyTypeObject *type, PyObject *args,
     PyObject *kwds);
@@ -250,8 +250,13 @@ _bufferproxy_write (PyBufferProxy *buffer, PyObject *args)
     Py_ssize_t length;
     char *buf;
 
+#ifdef IS_PYTHON_24
     if (!PyArg_ParseTuple (args, "s#i", &buf, &length, &offset))
         return NULL;
+#else
+    if (!PyArg_ParseTuple (args, "s#n", &buf, &length, &offset))
+        return NULL;
+#endif
 
     if (offset + length > buffer->length)
     {

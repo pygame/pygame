@@ -19,7 +19,7 @@
 #ifndef _PYGAME_MATHMOD_H_
 #define _PYGAME_MATHMOD_H_
 
-#include <Python.h>
+#include "pgcompat.h"
 
 #ifdef IS_WIN32
 #include <float.h>

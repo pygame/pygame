@@ -43,7 +43,7 @@ class BufferProxyTest (unittest.TestCase):
             del buf
         video.quit ()
 
-    def todo_test_pygame2_base_BufferProxy_write(self):
+    def test_pygame2_base_BufferProxy_write(self):
 
         # __doc__ (as of 2010-01-13) for pygame2.base.BufferProxy.write:
 
@@ -56,7 +56,22 @@ class BufferProxyTest (unittest.TestCase):
         # the length of the passed *buffer* exceeds the length of the
         # BufferProxy (reduced by *offset*), an IndexError will
         # be raised.
-        self.fail ()
+        video.init ()
+        for bpp in (32, 16, 8):
+            surface = video.Surface (10, 10, bpp)
+            buf = surface.pixels
+            for y in range (surface.height):
+                for x in range (surface.width):
+                    buf.write ('\xff', x + y * surface.pitch)
+            del buf
+
+            # getat = surface.get_at
+            # color = Color (255, 255, 255, 255)
+            # for x in range (surface.width):
+            #     for y in range (surface.height):
+            #         self.failUnlessEqual (getat (x, y), color,
+            #             "%s != %s at (%d, %d)" % (getat (x, y), color, x, y))
+        video.quit ()
 
 if __name__ == '__main__':
     unittest.main ()

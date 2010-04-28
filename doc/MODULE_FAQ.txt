@@ -1,6 +1,7 @@
 ============
 C Module FAQ
 ============
+
 The C API contains numerous macros and functions that ease the
 developer's life. In order to have a similar behaviour without
 implementing the same things again and again, the most important ones will be
@@ -54,6 +55,35 @@ integer and double additions and subtractions with overflow checking.
 Additionally base/pgbase.h contains several functions to get an integer
 or floating point value from a PyObject. Those however require other
 modules to import the base module.
+
+.. note::
+  
+   **Never** do an ``#include <Python.h>`` in your code directly. We are
+   using ``PY_SSIZE_T_CLEAN`` along with a set of compatibility
+   macros. To have correct includes, use ``#include "pgcompat.h``
+   instead.
+
+Buffer Sizes and Offset Access
+------------------------------
+Since Python 2.5, the **Py_ssize_t** type is available, which can (and
+should) be used for numerical sizing arguments. Python 2.4 does not know
+this type however and also cannot handle the ``n`` argument in
+``PyArg_ParseTuple``.
+
+To come around this issue, do something like the following in the code: ::
+
+  Py_ssize_t offset;
+  Py_ssize_t length;
+  char *buf;
+
+  #ifdef IS_PYTHON_24
+    if (!PyArg_ParseTuple (args, "s#i", &buf, &length, &offset))
+        return NULL;
+  #else
+    if (!PyArg_ParseTuple (args, "s#n", &buf, &length, &offset))
+        return NULL;
+  #endif
+
 
 Text Handling
 -------------

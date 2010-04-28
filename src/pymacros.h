@@ -2,7 +2,7 @@
  * Useful python macros.
  */
 
-#include <Python.h>
+#include "pgcompat.h"
 
 #define ADD_OBJ_OR_FAIL(mod,name,type,mark)                       \
     Py_INCREF(&type);                                             \
