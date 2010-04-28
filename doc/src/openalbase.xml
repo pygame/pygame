@@ -5,9 +5,12 @@
   <alias>pygame2.openal</alias>
   <short>basic OpenAL wrapper module</short>
   <desc>
-    Basic Pygame2 OpenAL wrapper module.
-
-    Identifiers for the property get and set methods:
+    .. todo::
+    
+       detailled description of the OpenAL model, including contexts, devices,
+       source and listener bindings and the context/state driven behaviour.
+    
+    Type identifiers for the property get and set methods:
     
     +------+------------------------------------------------------------+
     | 'b'  | Get or set a single boolean value (e.g. AL_TRUE)           |
@@ -47,39 +50,57 @@
       
       The Buffers object provides methods and properties to manipulate
       certain aspects of the buffered data and can be queued to multiple
-      sources within the same context.
+      Sources within the same context.
 
       Buffers instances cannot be created directly, but are bound to a
       :class:`Device`. To create a Buffers instance for the currently
-      active :class:`Device`, use the :meth:`Context.create_buffers`
-      method.
+      active :class:`Device`, use the :meth:`Context.create_buffers` method
+      on the currently active :class:`Context`.
     </desc>
     <example></example>
     <method name="buffer_data">
-      <call>buffer_data (bufnum, format, data, samplerate)</call>
-      <desc>
-        Buffers a chunk of *data* into one of the created buffers.
+      <call>buffer_data (bufnum, format, data, samplerate) -> None</call>
+      <desc>Buffers a chunk of *data* into one of the created buffers.
+      
+        Buffers a chunk of PCM *data* into the buffer at *bufnum*. *format*
+        describes the audio format of the data (see
+        :mod:`pygame2.openal.constants` for
+        more details). *samplerate* denotes the sample rate in Hz.
       </desc>
       <example></example>
     </method>
     <attr name="buffers">
-      <desc>The buffer identifiers used in the Buffers instance.</desc>
+      <desc>Gets the buffer identifiers used in the Buffers instance.</desc>
       <example></example>
     </attr>
     <attr name="count">
-      <desc>The number of buffers.</desc>
+      <desc>Gets the number of buffers managed in the Buffers instance.</desc>
       <example></example>
     </attr>
     <method name="get_prop">
       <call>get_prop (bufnum, prop, type) -> value or (value, ...) </call>
-      <desc>
-        Retrieves the value(s) of an OpenAL property for the Buffers.
+      <desc>Retrieves the value(s) of an OpenAL property for the Buffers.
+      
+        Retrieves the value or values of a buffer-related OpenAL property for
+        the buffer identified by *bufnum*. *prop* can be any valid buffer
+        constant and *type* **must** be a valid value type identifier for the
+        constant.
       </desc>
       <example></example>
     </method>
     <method name="set_prop">
-      <call>set_prop (</call>
-      <desc></desc>
+      <call>set_prop (bufnum, prop, value[,type]) -> None</call>
+      <desc>Sets the value(s) of an OpenAL property for the Buffers.
+      
+        Sets the value or values of a buffer-related OpenAL property for the 
+        buffer identified by *bufnum*. *prop* can be any valid buffer
+        constant, while *value* **must** be valid for the constant.
+        
+        If *type* is omitted, the function tries to guess, which type should be
+        used from the passed value(s). Guessing tries to convert values
+        implicitly, where possible, so if there are ambiguous values, it is
+        better to provide *type*.
+      </desc>
       <example></example>
     </method>
   </class>
@@ -217,128 +238,277 @@
   </class>
 
   <class name="Listener">
-    <constructor>Listener</constructor>
-    <desc>None</desc>
+    <constructor>Listener () -> NotImplementedError</constructor>
+    <desc>
+      The Listener represents the user hearing the sounds played by OpenAL in a
+      specific Context. Source playback is done relative to the position of the
+      Listener in the 3D space.
+    
+      Listener instances cannot be created directly, but are bound to a
+      :class:`Context`. To create (or get) a Listener instance for the
+      currently active :class:`Context`, use the :attr:`Context.listener`
+      property.
+    </desc>
     <example></example>
     <method name="get_prop">
-      <call>get_prop ()</call>
-      <desc></desc>
+      <call>get_prop (prop, type) -> value or (value, ...)</call>
+      <desc>Retrieves the value(s) of an OpenAL property for the Listener.
+      
+        Retrieves the value or values of a listener-related OpenAL property.
+        *prop* can be any valid listener constant and *type* **must** be a
+        valid value type identifier for the constant.
+      </desc>
       <example></example>
     </method>
     <method name="set_prop">
-      <call>set_prop ()</call>
-      <desc></desc>
+      <call>set_prop (prop, value[, type]) -> None</call>
+      <desc>Sets the value(s) of an OpenAL property for the Listener.
+      
+        Sets the value or values of a listener-related OpenAL property.
+        *prop* can be any valid listener constant, while *value* **must** be
+        valid for the constant.
+        
+        If *type* is omitted, the function tries to guess, which type should be
+        used from the passed value(s). Guessing tries to convert values
+        implicitly, where possible, so if there are ambiguous values, it is
+        better to provide *type*.
+      </desc>
       <example></example>
     </method>
   </class>
 
   <class name="Sources">
-    <constructor>Sources</constructor>
-    <desc>None</desc>
+    <constructor>Sources () -> NotImplementedError</constructor>
+    <desc>
+      Sources store locations, directions, and other attributes of an object in
+      3D space and have a buffer associated with them for playback. When the
+      program wants to play a sound, it controls execution through a source
+      object. Sources are processed independently from each other and.
+      
+      Sources instances cannot be created directly, but are bound to a
+      :class:`Context`. To create a Sources instance for the currently
+      active :class:`Context`, use the :meth:`Context.create_sources` method.
+    </desc>
     <example></example>
     <attr name="count">
-      <desc>None</desc>
+      <desc>Gets the number of sources managed in the Sources instance.</desc>
       <example></example>
     </attr>
     <method name="get_prop">
-      <call>get_prop ()</call>
-      <desc></desc>
+      <call>get_prop (sourcenum, prop, type) -> value or (value, ...)</call>
+      <desc>Retrieves the value(s) of an OpenAL property for the Sources.
+      
+        Retrieves the value or values of a sources-related OpenAL property for
+        the source identified by *sourcenum*. *prop* can be any valid source
+        constant and *type* **must** be a valid value type identifier for the
+        constant.
+      </desc>
       <example></example>
     </method>
     <method name="pause">
-      <call>pause ()</call>
-      <desc></desc>
+      <call>pause (sourcenum) -> None
+        pause ((sourcenum1, sourcenum2, ...)) -> None
+      </call>
+      <desc>Pauses a single source or a set of sources.
+      
+        Pauses a single source identified by *sourcenum* or a set of sources
+        identified by the passed sequence of source identifiers.
+      </desc>
       <example></example>
     </method>
     <method name="play">
-      <call>play ()</call>
-      <desc></desc>
+      <call>play (sourcenum) -> None
+        play ((sourcenum1, sourcenum2, ...)) -> None
+      </call>
+      <desc>Plays a single source or a set of sources.
+      
+        Plays a single source identified by *sourcenum* or a set of sources
+        identified by the passed sequence of source identifiers.
+      </desc>
       <example></example>
     </method>
     <method name="queue_buffers">
-      <call>queue_buffers ()</call>
-      <desc></desc>
+      <call>queue_buffers (sourcenum, buffers) -> None</call>
+      <desc>Queues a :class:`Buffers` on a source.
+
+        Queues a :class:`Buffers` instance holding one or multiple audio buffers
+        on the source identified by *sourcenum*. The audio buffers in *buffers*
+        will be played in sequence.
+        
+        To retrieve the number of audio buffers already processed, you can query
+        the source with the :const:`AL_BUFFERS_PROCESSED` constant.
+      </desc>
       <example></example>
     </method>
     <method name="rewind">
-      <call>rewind ()</call>
-      <desc></desc>
+      <call>rewind (sourcenum) -> None
+        rewind ((sourcenum1, sourcenum2, ...)) -> None
+      </call>
+      <desc>Rewinds a single source or a set of sources.
+      
+        Rewinds a single source identified by *sourcenum* or a set of sources
+        identified by the passed sequence of source identifiers.
+      </desc>
       <example></example>
     </method>
     <method name="set_prop">
-      <call>set_prop ()</call>
-      <desc></desc>
+      <call>set_prop (sourcenum, prop, value[, type]) -> None</call>
+      <desc>Sets the value(s) of an OpenAL property for the Sources.
+      
+        Sets the value or values of a sources-related OpenAL property for the 
+        source identified by *sourcenum*. *prop* can be any valid source
+        constant, while *value* **must** be valid for the constant.
+        
+        If *type* is omitted, the function tries to guess, which type should be
+        used from the passed value(s). Guessing tries to convert values
+        implicitly, where possible, so if there are ambiguous values, it is
+        better to provide *type*.
+      </desc>
       <example></example>
     </method>
     <attr name="sources">
-      <desc>None</desc>
+      <desc>Gets the source identifiers used in the Sources instance.</desc>
       <example></example>
     </attr>
     <method name="stop">
-      <call>stop ()</call>
-      <desc></desc>
+      <call>stop (sourcenum) -> None
+        stop ((sourcenum1, sourcenum2, ...)) -> None
+      </call>
+      <desc>Stops playing a single source or a set of sources.
+      
+        Stops playing a single source identified by *sourcenum* or a set of
+        sources identified by the passed sequence of source identifiers.
+      </desc>
       <example></example>
     </method>
     <method name="unqueue_buffers">
-      <call>unqueue_buffers ()</call>
-      <desc></desc>
+      <call>unqueue_buffers (sourcenum, buffers) -> None</call>
+      <desc>Unqueues processed :class:`Buffers` from a source
+      
+        Unqueus an already processed :class:`Buffers` with one or multiple audio
+        buffers from the source identified by *sourcenum*.
+        
+        .. note::
+        
+          This will only succeed, when all buffers within the :class`Buffers`
+          instance were processed by the source. Otherwise a
+          :exc:`pygame2.Error` will be raised.
+      </desc>
       <example></example>
     </method>
   </class>
 
   <func name="al_get_string">
-    <call>al_get_string ()</call>
-    <desc></desc>
-    <example></example>
+    <call>al_get_string (prop) -> str</call>
+    <desc>Retrieves an OpenAL string property.
+    
+      For valid property values, see :mod:`pygame2.openal.constants`.
+    </desc>
+    <example>
+      import pygame2.openal as openal
+      import pygame2.openal.constants as const
+      
+      print (openal.al_get_string (const.AL_VENDOR))
+    </example>
   </func>
   <func name="get_default_capture_device_name">
-    <call>get_default_capture_device_name ()</call>
-    <desc></desc>
+    <call>get_default_capture_device_name () -> str</call>
+    <desc>Gets the name of the default capture device.</desc>
     <example></example>
   </func>
   <func name="get_default_output_device_name">
-    <call>get_default_output_device_name ()</call>
-    <desc></desc>
+    <call>get_default_output_device_name () -> str</call>
+    <desc>Gets the name of the default output device.</desc>
     <example></example>
   </func>
   <func name="get_enum_value">
-    <call>get_enum_value ()</call>
-    <desc></desc>
+    <call>get_enum_value (name) -> long</call>
+    <desc>Gets the value of an OpenAL enumeration name.</desc>
     <example></example>
   </func>
   <func name="get_error">
-    <call>get_error ()</call>
-    <desc></desc>
+    <call>get_error () -> str</call>
+    <desc>
+      Gets the last OpenAL error message occured.
+
+      OpenAL maintains an internal error message. This message will usually
+      be given to you when a :exc:`pygame2.Error` is raised.
+
+      You will rarely need to call this function.
+      
+      .. note::
+        
+        Once called, the internal OpenAL error message will be cleared, so that
+        subsequent calls of this function will return *None*, until a new
+        OpenAL error occurs.
+    </desc>
     <example></example>
   </func>
   <func name="init">
     <call>init ()</call>
-    <desc></desc>
+    <desc>Initializes the underlying OpenAL library.
+
+      .. note::    
+        
+        This function is currently only available for compliance with other
+        pygame2 modules, but does not actually perform anything. The behaviour
+        might change in later pygame2 versions, so it is generally safe to call
+        this function.
+    </desc>
     <example></example>
   </func>
   <func name="is_extension_present">
-    <call>is_extension_present ()</call>
-    <desc></desc>
+    <call>is_extension_present (name[, device]) -> bool</call>
+    <desc>Checks, whether the specified extension is available.
+    
+      Checks, whether the extension specified by *name* is available in the
+      current OpenAL implementation. If a *device* is passed, the OpenAL's
+      :pygame2.openal.Device` will be checked for the extension.
+    </desc>
     <example></example>
   </func>
   <func name="list_capture_devices">
-    <call>list_capture_devices ()</call>
-    <desc></desc>
+    <call>list_capture_devices () -> [str, str, ...]</call>
+    <desc>Retrieves a list of available capture devices.
+    
+      Retrieves a list of available and supported capture device names. If no
+      capture devices could be found, an empty list is returned.
+    </desc>
     <example></example>
   </func>
   <func name="list_output_devices">
     <call>list_output_devices</call>
-    <desc></desc>
+    <desc>Retrieves a list of available output devices.
+    
+      Retrieves a list of available and supported output device names. If no
+      output devices could be found, an empty list is returned.
+    </desc>
     <example></example>
   </func>
   <func name="quit">
     <call>quit ()</call>
-    <desc></desc>
+    <desc>Shuts down the underlying OpenAL library.
+    
+      .. note::    
+        
+        This function is currently only available for compliance with other
+        pygame2 modules, but does not actually perform anything. The behaviour
+        might change in later pygame2 versions, so it is generally safe to call
+        this function.
+    </desc>
     <example></example>
   </func>
   <func name="set_current_context">
-    <call>set_current_context ()</call>
-    <desc></desc>
+    <call>set_current_context (context) -> bool</call>
+    <desc>Switches the current OpenAL context.
+    
+      Switches the current OpenAL context. The current OpenAL context can then
+      be influenced in various ways, such as attaching sources, buffers and
+      tweaking its settings.
+      
+      Returns True, if the context could be switched successfully, otherwise
+      False.
+    </desc>
     <example></example>
   </func>
 </module>

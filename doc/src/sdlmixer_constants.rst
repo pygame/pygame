@@ -129,8 +129,8 @@ Those constants are used by the :attr:`pygame2.sdlmixer.Music.type` attribute.
 
    The music format is MP3 encoded data (using libmad as decoder).
 
-Other Constants
----------------
+Miscellaneous Constants
+-----------------------
 
 .. data:: CHANNELS
 

@@ -804,9 +804,8 @@ using function or method.
 
    Queries the context (action) state without actually changing it.
 
-
-Various Constants
------------------
+Miscellaneous Constants
+-----------------------
 
 .. data:: BYTEORDER
 

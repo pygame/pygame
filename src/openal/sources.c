@@ -655,6 +655,10 @@ _sources_unqueuebuffers (PyObject *self, PyObject *args)
     }
     
     CLEAR_ALERROR_STATE ();
+    
+    /* TODO: if alSourcei (AL_PROCESSED) < buffers->count, an error occurs.
+     * should we reduce the amount internally? */
+    
     alSourceUnqueueBuffers ((ALuint) bufnum, ((PyBuffers*)buffers)->count,
         PyBuffers_AsBuffers(buffers));
     if (SetALErrorException (alGetError (), 0))
