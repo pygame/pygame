@@ -48,7 +48,23 @@
       <desc>Gets the length of the :class:`Vector`.</desc>
     </attr>
     <attr name="epsilon">
-      <desc>Gets or sets the exactness delta of the :class:`Vector`.</desc>
+      <desc>Gets or sets the exactness delta of the :class:`Vector`.
+      
+      epsilon represents a small fractional value to come around
+      rounding issues on floating point calculations. It is usually used
+      to soothe rounding differences and thus to allow the system to
+      return an appropriate state, with a small tradeoff for the
+      exactness.
+
+      **Example:** ::
+
+        (0.0000000000001 - 0.0000000000009) == 0.0
+
+      Given that epsilon is large enough, the above calculation will be
+      true. To get over rounding issues on vector operations with small
+      fractional parts or to make them more exact, the concrete epsilon
+      value can be freely adjusted.
+      </desc>
     </attr>
     <attr name="elements">
       <desc>Gets or sets the elements of the :class:`Vector`.

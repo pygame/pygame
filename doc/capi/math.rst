@@ -19,8 +19,19 @@ Macros
 ------
 .. data:: VEC_EPSILON
 
-  .. todo::
-    Detailled description about the eps usage.
+  A small fractional value to come around rounding issues on floating
+  point calculations. VEC_EPSILON is usually used to soothe rounding
+  differences and thus to allow the system to return an appropriate
+  state, with a small tradeoff for the exactness.
+
+  **Example:** ::
+
+     (0.0000000000001 - 0.0000000000009) == 0.0
+
+  Given that VEC_EPSILON is large enough, the above calculation will be
+  true. To get over rounding issues on vector operations with small
+  fractional parts or to make them more exact, the concrete epsilon
+  value can be adjusted on a per :class:`PyVector` basis.
 
 Functions
 ---------
@@ -49,14 +60,15 @@ Members
 
   The vector coordinates. It holds up to *dim* values.
   
-.. cmember:: Py_ssize_t PyVector.dim;
+.. cmember:: Py_ssize_t PyVector.dim
 
   The number of dimensions (coordinate values), the PyVector can hold.
 
 .. cmember:: double PyVector.epsilon
 
-  .. todo::
-    Detailled description about the eps usage.
+  The fractional delta to use for soothing round differences for
+  floating point operations on the PyVector. see :cdata:`VEC_EPSILON`
+  for more details.
 
 Functions
 ^^^^^^^^^
