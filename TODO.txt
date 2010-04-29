@@ -14,7 +14,6 @@ CRITICAL:
 * freetype: correct error messages (e.g. on trying to scale pcf fonts)
 * freetype: brush up docs and examples
 * openal: check integrity and references for sources, buffers and listeners.
-* Check for leakage on accessing buffers (BufferProxy).
 
 Things to FIX:
 ==============

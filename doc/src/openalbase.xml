@@ -106,34 +106,61 @@
   </class>
 
   <class name="CaptureDevice">
-    <constructor>CaptureDevice ()</constructor>
-    <desc>None</desc>
+    <constructor>CaptureDevice (frequency, format, bufsize) -> CaptureDevice
+    CaptureDevice (name, frequency, format, bufsize) -> CaptureDevice
+    </constructor>
+    <desc>Creates a sound capturing device.
+    
+    The CaptureDevice acts as recorder for a certain hardware device and
+    allows the caller to record incoming sound samples (e.g. from a
+    microphone or line-in device).
+
+    The captured samples will be stored in an internal buffer, which is
+    guaranteed to hold *bufsize* samples. Depending on the passed
+    *format* and *frequency*, captured samples can vary in their byte
+    size (see :mod:`pygame2.openal.constants` for more details) and
+    speed of occurance.
+    </desc>
     <example></example>
     <attr name="format">
-      <desc>None</desc>
+      <desc>Gets the set audio format for the CaptureDevice.</desc>
       <example></example>
     </attr>
     <attr name="frequency">
-      <desc>None</desc>
+      <desc>Gets the set frequency in Hz for the CaptureDevice.</desc>
       <example></example>
     </attr>
     <method name="get_samples">
-      <call>get_samples ()</call>
-      <desc></desc>
+      <call>get_samples ([buffer]) -> (str or bytes) or int</call>
+      <desc>Retrieves the available samples from the CaptureDevice.
+
+      Retrieves the samples that are available on the CaptureDevice. If
+      a *buffer* is provided, the samples will be directly written to
+      the buffer and the amount of bytes written will be returned.
+
+      If no *buffer* is provided, the retrieved samples will be returned
+      as byte sequence (byte string or string).
+      </desc>
       <example></example>
     </method>
     <attr name="size">
-      <desc>None</desc>
+      <desc>Gets the default buffer size for the CaptureDevice.</desc>
       <example></example>
     </attr>
     <method name="start">
-      <call>start ()</call>
-      <desc></desc>
+      <call>start () ->None</call>
+      <desc>Starts capturing incoming samples on the device.
+
+      Starts capturing incoming samples for the CaptureDevice. The
+      samples will be stored in the CaptureDevice's internal buffer. If
+      the buffer is full, the oldest samples will be overwritten with
+      the newest samples (ring buffer).
+      </desc>
       <example></example>
     </method>
     <method name="stop">
-      <call>stop ()</call>
-      <desc></desc>
+      <call>stop () -> None</call>
+      <desc>Stops capturing incoming samples.</desc>
       <example></example>
     </method>
   </class>
