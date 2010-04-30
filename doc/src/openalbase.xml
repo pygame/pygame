@@ -166,100 +166,159 @@
   </class>
 
   <class name="Context">
-    <constructor>Context ()</constructor>
-    <desc>None</desc>
+    <constructor>Context (device[,attribtes]) -> Context</constructor>
+    <desc>Creates a new Context for a specific Device.
+    
+      OpenAL contexts represent logical state groups, where
+      :class:`Sources` and a :class:`Listener` are managed and audio
+      data is correctly streamed to the underlying output
+      :class:`Device`.
+
+      Contexts can be created for multiple devices and independently
+      managed without influencing each other. To be processed correctly
+      at a certain time, a :class:`Context` must be set as the *current*
+      one in OpenAL. This will cause OpenAL to process only data from
+      that :class:`Context` to and from the audio hardware.
+
+      Most methods and properties will fail for a :class:`Context` that
+      is not marked as the *current* one. So before accessing any member
+      of a :class:`Context`, make sure, you marked it as *current*.
+    </desc>
     <example></example>
     <method name="create_buffers">
-      <call>create_buffers ()</call>
-      <desc></desc>
+      <call>create_buffers (amount) -> Buffers</call>
+      <desc>Creates a Buffers instance with *amount* buffers for the Context.
+      </desc>
       <example></example>
     </method>
     <method name="create_sources">
-      <call>create_sources ()</call>
-      <desc></desc>
+      <call>create_sources (amount) -> Sources</call>
+      <desc>Creates a Sources instance with *amount* sources for the Context.
+      </desc>
       <example></example>
     </method>
     <attr name="device">
-      <desc>None</desc>
+      <desc>Gets the :class:`Device` the Context is using.</desc>
       <example></example>
     </attr>
     <method name="disable">
-      <call>disable ()</call>
-      <desc></desc>
+      <call>disable (value) -> None</call>
+      <desc>Disables a certain context-specific setting.</desc>
       <example></example>
     </method>
     <attr name="distance_model">
-      <desc>None</desc>
+      <desc>Gets or sets the distance model setting for the
+      :class:`Context`.</desc>
       <example></example>
     </attr>
     <attr name="doppler_factor">
-      <desc>None</desc>
+      <desc>Gets or sets the doppler factor setting for the
+      :class:`Context`.</desc>
       <example></example>
     </attr>
     <method name="enable">
-      <call>enable ()</call>
-      <desc></desc>
+      <call>enable (value) -> None</call>
+      <desc>Enables a certain context-specific setting.</desc>
       <example></example>
     </method>
     <attr name="is_current">
-      <desc>None</desc>
+      <desc>Gets, whether the :class:`Context` is marked the current one
+      to process.</desc>
       <example></example>
     </attr>
     <method name="is_enabled">
-      <call>is_enabled ()</call>
-      <desc></desc>
+      <call>is_enabled (value) -> bool</call>
+      <desc>Checks, whether a certain setting is enabled.</desc>
       <example></example>
     </method>
     <attr name="listener">
-      <desc>None</desc>
+      <desc>Gets the :class:`Listener` for the :class:`Context`.</desc>
       <example></example>
     </attr>
     <method name="make_current">
-      <call>make_current ()</call>
-      <desc></desc>
+      <call>make_current () -> bool</call>
+      <desc>Tries to mark the :class:`Context` as current.
+      
+        Tries to mark the :class:`Context` as the current one. If the
+        :class:`Context` could not be marked sucessfully, False will be
+        returned, otherwise True.
+
+        Any other :class:`Context`, which was previously marked as
+        current, will loose this state.
+      </desc>
       <example></example>
     </method>
     <method name="process">
-      <call>process ()</call>
-      <desc></desc>
+      <call>process () -> None</call>
+      <desc>Processes the :class:`Context`.
+      
+        Processes the :class:`Context`, causing it to update any
+        internal states, stream audio data to and from the hardware,
+        update the internal source and listener positions and so forth.
+      </desc>
       <example></example>
     </method>
     <attr name="speed_of_sound">
-      <desc>None</desc>
+      <desc>Gets or sets the value of the speed of sound for the
+      :class:`Context`.</desc>
       <example></example>
     </attr>
     <method name="suspend">
-      <call>suspend ()</call>
-      <desc></desc>
+      <call>suspend () -> None</call>
+      <desc>Suspends the :class:`Context` from processing any data.</desc>
       <example></example>
     </method>
   </class>
 
   <class name="Device">
-    <constructor>Device ()</constructor>
-    <desc>None</desc>
+    <constructor>Device ([name]) -> Device</constructor>
+    <desc>Creates a sound output device.
+
+    The Device class acts as sound streaming sink, by default for
+    playing audio data (The :class:`CaptureDevice` also inherits from
+    :class:`Device`, but acts as recorder).
+    </desc>
     <example></example>
     <attr name="extensions">
-      <desc>None</desc>
+      <desc>Gets a list of available extensions for the Device and
+      OpenAL implementation.
+      </desc>
       <example></example>
     </attr>
     <method name="get_enum_value">
-      <call>get_enum_value ()</call>
-      <desc></desc>
+      <call>get_enum_value (name) -> long</call>
+      <desc>Gets the value of a Device-specific OpenAL enumeration name.
+      </desc>
       <example></example>
     </method>
     <method name="get_error">
-      <call>get_error ()</call>
+      <call>get_error () -> str</call>
+      <desc>
+        Gets the last OpenAL error message occured on the Device.
+
+        OpenAL devices maintain an internal error message. This message
+        will usually be given to you when a :exc:`pygame2.Error` is
+        raised.
+
+        You will rarely need to call this function.
+      
+        .. note::
+        
+          Once called, the internal error message will be cleared, so
+          that subsequent calls of this function will return *None*,
+          until a new error occurs.
+    </desc>
       <desc></desc>
       <example></example>
     </method>
     <method name="has_extension">
-      <call>has_extension</call>
-      <desc></desc>
+      <call>has_extension (extname) -> bool</call>
+      <desc>Checks, whether a certain extension is available on the Device.
+      </desc>
       <example></example>
     </method>
     <attr name="name">
-      <desc>None</desc>
+      <desc>Gets the name of the Device as reported by OpenAL.</desc>
       <example></example>
     </attr>
   </class>
