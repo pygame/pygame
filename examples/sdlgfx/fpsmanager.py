@@ -66,8 +66,8 @@ def run ():
         fpstext = "FPS: %d" % fpsmanager.framerate
         timetext = "time (ms) passed since last update: %.3f" % millis
                    
-        w, h, surfacef = font.render (None, fpstext, white, ptsize=28)
-        w2, h2, surfacet = font.render (None, timetext, white, ptsize=28)
+        surfacef, w, h = font.render (fpstext, white, ptsize=28)
+        surfacet, w2, h2 = font.render (timetext, white, ptsize=28)
         blitrect = pygame2.Rect (w, h)
         blitrect.center = screenrect.centerx, screenrect.centery - h
         screen.blit (surfacef, blitrect.topleft)
