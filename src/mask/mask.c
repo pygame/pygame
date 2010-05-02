@@ -174,7 +174,7 @@ _mask_new (PyTypeObject *type, PyObject *args, PyObject *kwds)
 static int
 _mask_init (PyObject *mask, PyObject *args, PyObject *kwds)
 {
-    int w, h;
+    pgint32 w, h;
     bitmask_t *m;
 
     if (!PyArg_ParseTuple (args, "ii", &w, &h))
@@ -183,7 +183,7 @@ _mask_init (PyObject *mask, PyObject *args, PyObject *kwds)
         PyErr_Clear ();
         if (!PyArg_ParseTuple (args, "O", &size))
             return -1;
-        if (!SizeFromObj (size, (pgint32*)&w, (pgint32*)&h))
+        if (!SizeFromObj (size, &w, &h))
             return -1;
     }
     if (w <= 0 || h <= 0)
@@ -193,7 +193,7 @@ _mask_init (PyObject *mask, PyObject *args, PyObject *kwds)
         return -1;
     }
 
-    m = bitmask_create (w, h);
+    m = bitmask_create ((int)w, (int)h);
     if (!m)
     {
         PyErr_SetString (PyExc_MemoryError, "memory allocation failed");
