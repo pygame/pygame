@@ -35,6 +35,10 @@
         Resets the state of all bits in the Mask to 0.
       </desc>
     </method>
+    <method name="copy">
+      <call>copy () -> Mask</call>
+      <desc>Creates an exact copy of the Mask.</desc>
+    </method>
     <method name="connected_component">
       <call>connected_component ([x, y]) -> Mask
       connected_component ([point]) -> Mask</call>

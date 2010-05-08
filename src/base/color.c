@@ -1507,9 +1507,9 @@ _color_richcompare (PyObject *o1, PyObject *o2, int opid)
     
     if (!(PyColor_Check(o1) && PyColor_Check (o2)))
     {
-		Py_INCREF (Py_NotImplemented);
-		return Py_NotImplemented;
-	}
+        Py_INCREF (Py_NotImplemented);
+        return Py_NotImplemented;
+    }
     c1 = (PyColor*) o1;
     c2 = (PyColor*) o2;
     

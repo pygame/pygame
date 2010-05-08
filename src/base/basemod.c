@@ -61,7 +61,6 @@ IntFromObj (PyObject* obj, int* val)
         return 0;
     }
 
-    
     if (PyNumber_Check (obj))
     {
         if (!(intobj = PyNumber_Int (obj)))

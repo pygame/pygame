@@ -64,6 +64,7 @@ static PyObject* _mask_connectedcomponent (PyObject* self, PyObject* args);
 static PyObject* _mask_connectedcomponents (PyObject* self, PyObject* args);
 static PyObject* _mask_getboundingrects (PyObject* self);
 static PyObject* _mask_convolve (PyObject* self, PyObject* args);
+static PyObject* _mask_copy (PyObject *self, PyObject *unused);
 
 static PyGetSetDef _mask_getsets[] = {
     { "size", _mask_getsize, NULL, DOC_MASK_MASK, NULL },
@@ -97,6 +98,9 @@ static PyMethodDef _mask_methods[] = {
     { "get_bounding_rects",(PyCFunction) _mask_getboundingrects, METH_NOARGS,
       DOC_MASK_MASK_GET_BOUNDING_RECTS },
     { "convolve", _mask_convolve, METH_VARARGS, DOC_MASK_MASK_CONVOLVE },
+    { "copy", (PyCFunction)_mask_copy, METH_NOARGS, DOC_MASK_MASK_COPY },
+    { "__copy__", (PyCFunction)_mask_copy, METH_NOARGS, DOC_MASK_MASK_COPY },
+    { "__deepcopy__", (PyCFunction)_mask_copy, METH_O, DOC_MASK_MASK_COPY },
     { NULL, NULL, 0, NULL }
 };
 
@@ -174,7 +178,7 @@ _mask_new (PyTypeObject *type, PyObject *args, PyObject *kwds)
 static int
 _mask_init (PyObject *mask, PyObject *args, PyObject *kwds)
 {
-    pgint32 w, h;
+    pgint32 w = 0, h = 0;
     bitmask_t *m;
 
     if (!PyArg_ParseTuple (args, "ii", &w, &h))
@@ -948,6 +952,21 @@ _mask_convolve (PyObject* self, PyObject* args)
     bitmask_convolve(a, b, o, x, y);
 
     return outmask;
+}
+
+static PyObject*
+_mask_copy (PyObject *self, PyObject *unused)
+{
+    PyMask *selfm = (PyMask*) self;
+    PyMask *mask = (PyMask*) PyMask_New (selfm->mask->w, selfm->mask->h);
+    if (!mask)
+        return NULL;
+
+    memcpy (mask->mask->bits, selfm->mask->bits,
+        selfm->mask->h * ((selfm->mask->w - 1)/BITMASK_W_LEN + 1) *
+        sizeof(BITMASK_W));
+
+    return (PyObject*) mask;
 }
 
 /* Connected component labeling based on the SAUF algorithm by Kesheng Wu,

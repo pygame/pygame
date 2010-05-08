@@ -60,10 +60,10 @@ bdist: clean docs
 
 build:
 	@if test -n $(COMPILER); then \
-        echo "Running build with $(COMPILER)..."; \
+		echo "Running build with $(COMPILER)..."; \
 		WITH_EXPERIMENTAL=$(EXPERIMENTAL) $(PYTHON) setup.py build -c $(COMPILER); \
 	else \
-        echo "Running build"; \
+		echo "Running build"; \
 		WITH_EXPERIMENTAL=$(EXPERIMENTAL) $(PYTHON) setup.py build; \
 	fi
 	@echo "Build finished, invoke 'make install' to install."

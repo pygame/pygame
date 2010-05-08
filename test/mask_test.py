@@ -146,6 +146,18 @@ class MaskTest (unittest.TestCase):
         m.clear ()
         self.assertEqual (m.count, 0)
 
+    def test_pygame2_mask_Mask_copy (self):
+        m = Mask (10, 10)
+        for x in range (0, 10, 2):
+            for y in range (0, 10, 2):
+                m.set_at (x, y)
+        self.assertEqual (m.count, 25)
+
+        m2 = m.copy ()
+        for x in range (0, 10, 2):
+            for y in range (0, 10, 2):
+                self.assertEqual (m2.get_at (x, y), 1)
+
     def test_pygame2_mask_Mask_convolve(self):
 
         # __doc__ (as of 2009-05-11) for pygame2.mask.Mask.convolve:
