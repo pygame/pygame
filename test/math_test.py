@@ -3,12 +3,27 @@ try:
 except:
     import pgunittest as unittest
 
+import copy
 import math
 import pygame2
 import pygame2.math as pmath
 from pygame2.math import Vector, Vector2, Vector3
 
 class MathTest (unittest.TestCase):
+
+    def test_pygame2_math_base_Vector_copy (self):
+        #
+        # Test the __copy__ implementation and copy constructor
+        #
+        v1 = Vector ((1, 2, 3))
+        self.assertEqual (v1.dimension, 3)
+
+        v2 = copy.copy (v1)
+        self.assertEqual (v1, v2)
+        v3 = copy.deepcopy (v1)
+        self.assertEqual (v1, v3)
+        v4 = Vector (v1)
+        self.assertEqual (v1, v4)
 
     def test_pygame2_math_base_vector_from_polar(self):
 

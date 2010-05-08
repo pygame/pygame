@@ -90,8 +90,8 @@ static PyMethodDef _color_methods[] =
       DOC_BASE_COLOR_NORMALIZE },
     { "correct_gamma", (PyCFunction) _color_correct_gamma, METH_O,
       DOC_BASE_COLOR_CORRECT_GAMMA },
-    { "__copy__", _color_copy, METH_NOARGS, NULL },
-    { "__deepcopy__", _color_copy, METH_O, NULL },
+    { "__copy__", (PyCFunction) _color_copy, METH_NOARGS, NULL },
+    { "__deepcopy__", (PyCFunction) _color_copy, METH_O, NULL },
     { NULL, NULL, 0, NULL }
 };
 

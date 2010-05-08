@@ -48,6 +48,7 @@ static PyObject* _vector_reflect (PyVector *self, PyObject *args);
 static PyObject* _vector_reflect_ip (PyVector *self, PyObject *args);
 static PyObject* _vector_distance (PyVector *self, PyObject *args);
 static PyObject* _vector_distance_squared (PyVector *self, PyObject *args);
+static PyObject* _vector_copy (PyObject *self, PyObject *unused);
 
 /* Generic math operations for vectors. */
 static PyObject* _vector_generic_math (PyObject *o1, PyObject *o2, int op);
@@ -179,6 +180,8 @@ static PyMethodDef _vector_methods[] =
       DOC_BASE_VECTOR_DISTANCE },
     { "distance_squared", (PyCFunction) _vector_distance_squared, METH_O,
       DOC_BASE_VECTOR_DISTANCE_SQUARED },
+    { "__copy__", (PyCFunction) _vector_copy, METH_NOARGS, NULL },
+    { "__deepcopy__", (PyCFunction) _vector_copy, METH_O, NULL },
     { NULL, NULL, 0, NULL },
 };
 
@@ -838,6 +841,20 @@ _vector_scaletolength (PyVector *self, PyObject *args)
         self->coords[i] *= fraction;
     Py_RETURN_NONE;
 }
+
+static PyObject*
+_vector_copy (PyObject *self, PyObject *unused)
+{
+    PyVector *selfv = (PyVector*) self;
+    PyVector *newv = (PyVector*) PyVector_New (selfv->dim);
+    
+    if (!newv)
+        return NULL;
+    newv->epsilon = selfv->epsilon;
+    memcpy (newv->coords, selfv->coords, selfv->dim * sizeof (double));
+    return (PyObject*) newv;
+}
+
 
 static double*
 _do_reflect (const double *srccoords, Py_ssize_t dim, double eps, PyObject *n)
