@@ -39,15 +39,14 @@ class MathTest (unittest.TestCase):
         v = from_polar(*v1.as_polar())
         self.assertEqual(v1, v)
         self.assertEqual(e1.as_polar(), (1, 0))
-        self.assertEqual(e2.as_polar(), (1, math.pi / 2))
-        self.assertEqual((2 * e2).as_polar(),
-                         (2, math.pi / 2))
+        self.assertEqual(e2.as_polar(), (1, 90))
+        self.assertEqual((2 * e2).as_polar(), (2, 90))
         self.assertRaises(TypeError, lambda : from_polar((None, None)))
         self.assertRaises(TypeError, lambda : from_polar("ab"))
         self.assertRaises(TypeError, lambda : from_polar((None, 1)))
         self.assertRaises(TypeError, lambda : from_polar((1, 2, 3)))
         self.assertRaises(TypeError, lambda : from_polar((1,)))
-        v = from_polar(.5, math.pi / 2.)
+        v = from_polar(.5, 90)
         self.assertEqual(v, .5 * e2)
 
     def test_pygame2_math_base_vector_from_spherical(self):
@@ -64,18 +63,17 @@ class MathTest (unittest.TestCase):
         from_spherical = pmath.vector_from_spherical
         v = from_spherical(*v1.as_spherical())
         self.assertEqual(v1, v)
-        self.assertEqual(e1.as_spherical(), (1, math.pi / 2., 0))
-        self.assertEqual(e2.as_spherical(), (1, math.pi / 2., math.pi / 2))
+        self.assertEqual(e1.as_spherical(), (1, 90, 0))
+        self.assertEqual(e2.as_spherical(), (1, 90, 90))
         self.assertEqual(e3.as_spherical(), (1, 0, 0))
-        self.assertEqual((2 * e2).as_spherical(),
-                         (2, math.pi / 2., math.pi / 2))
+        self.assertEqual((2 * e2).as_spherical(), (2, 90, 90))
         self.assertRaises(TypeError, lambda : from_spherical((None, None, None)))
         self.assertRaises(TypeError, lambda : from_spherical("abc"))
         self.assertRaises(TypeError, lambda : from_spherical((None, 1, 2)))
         self.assertRaises(TypeError, lambda : from_spherical((1, 2, 3, 4)))
         self.assertRaises(TypeError, lambda : from_spherical((1, 2)))
         self.assertRaises(TypeError, lambda : from_spherical((1, 2, 3)))
-        v = from_spherical(.5, math.pi / 2., math.pi / 2.)
+        v = from_spherical(.5, 90, 90)
         self.assertEqual(v, .5 * e2)
 
 if __name__ == "__main__":

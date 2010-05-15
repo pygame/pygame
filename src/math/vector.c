@@ -46,6 +46,9 @@ static PyObject* _vector_dot (PyVector *self, PyObject *args);
 static PyObject* _vector_scaletolength (PyVector *self, PyObject *args);
 static PyObject* _vector_reflect (PyVector *self, PyObject *args);
 static PyObject* _vector_reflect_ip (PyVector *self, PyObject *args);
+
+static double
+_vector_distance_squared_as_double(PyVector *self, PyObject *args);
 static PyObject* _vector_distance (PyVector *self, PyObject *args);
 static PyObject* _vector_distance_squared (PyVector *self, PyObject *args);
 static PyObject* _vector_copy (PyObject *self, PyObject *unused);
@@ -540,14 +543,20 @@ _vector_get_elements (PyObject *self, void *closure)
 {
     PyVector *v = (PyVector *) self;
     Py_ssize_t i;
-    
+    PyObject *tmp;
     PyObject *tuple = PyTuple_New (v->dim);
     if (!tuple)
         return NULL;
     for (i = 0; i < v->dim; i++)
     {
-        PyTuple_SET_ITEM (tuple, i, PyFloat_FromDouble (v->coords[i]));
-    }
+        tmp = PyFloat_FromDouble (v->coords[i]);
+        if (!tmp)
+        {
+            Py_DECREF (tuple);
+            return NULL;
+        }
+        PyTuple_SET_ITEM (tuple, i, tmp);
+   }
     return tuple;
 }
 
@@ -635,7 +644,7 @@ _vector_normalize (PyVector *self)
     length = sqrt (_ScalarProduct(self->coords, self->coords, self->dim));
     if (length == 0)
     {
-        PyErr_SetString (PyExc_ZeroDivisionError,
+        PyErr_SetString (PyExc_ValueError,
             "can not normalize vector of length 0");
         return NULL;
     }
@@ -655,7 +664,7 @@ _vector_normalize_ip (PyVector *self)
     length = sqrt (_ScalarProduct (self->coords, self->coords, self->dim));
     if (length == 0)
     {
-        PyErr_SetString (PyExc_ZeroDivisionError,
+        PyErr_SetString (PyExc_ValueError,
             "can not normalize vector of length 0");
         return NULL;
     }
@@ -672,7 +681,7 @@ _vector_slerp (PyVector *self, PyObject *args)
     PyObject *other;
     PyVector *ret;
     double *othercoords;
-    double angle, t, length1, length2, f0, f1, f2;
+    double angle, t, length1, length2, f0, f1, f2, tmp;
 
     if (!PyArg_ParseTuple(args, "Od:slerp", &other, &t))
         return NULL;
@@ -706,13 +715,17 @@ _vector_slerp (PyVector *self, PyObject *args)
 
     if ((length1 < self->epsilon) || (length2 < self->epsilon))
     {
-        PyErr_SetString (PyExc_ZeroDivisionError,
+        PyErr_SetString (PyExc_ValueError,
             "can not use slerp with zero-Vector");
         PyMem_Free (othercoords);
         return NULL;
     }
-    angle = acos (_ScalarProduct (self->coords, othercoords, self->dim) /
-        (length1 * length2));
+    tmp = _ScalarProduct (self->coords, othercoords, self->dim) /
+        (length1 * length2);
+    /* make sure tmp is in the range [-1:1] so acos won't return NaN */
+    tmp = (tmp < -1 ? -1 : (tmp > 1 ? 1 : tmp));
+    angle = acos (tmp);
+                       
 
     if (t < 0)
     {
@@ -729,11 +742,31 @@ _vector_slerp (PyVector *self, PyObject *args)
         PyMem_Free (othercoords);
         return NULL;
     }
-    f0 = ((length2 - length1) * t + length1) / sin (angle);
-    f1 = sin (angle * (1 - t)) / length1;
-    f2 = sin (angle * t) / length2;
-    for (i = 0; i < self->dim; ++i)
-        ret->coords[i] = (self->coords[i] * f1 + othercoords[i] * f2) * f0;
+    /* special case angle==0 and angle==360 */
+    if ((fabs (angle) < self->epsilon) ||
+        (fabs (fabs (angle) - 2 * M_PI) < self->epsilon))
+    {
+        /* approximate with lerp, because slerp diverges with 1/sin(angle) */
+        for (i = 0; i < self->dim; ++i)
+            ret->coords[i] = self->coords[i] * (1 - t) + othercoords[i] * t;
+    }
+    /* special case angle==180 and angle==-180 */
+    else if (fabs (fabs (angle) - M_PI) < self->epsilon)
+    {
+        PyErr_SetString(PyExc_ValueError,
+            "SLERP with 180 degrees is undefined.");
+        Py_DECREF (ret);
+        PyMem_Free (othercoords);
+        return NULL;
+    }
+    else
+    {
+        f0 = ((length2 - length1) * t + length1) / sin (angle);
+        f1 = sin (angle * (1 - t)) / length1;
+        f2 = sin (angle * t) / length2;
+        for (i = 0; i < self->dim; ++i)
+            ret->coords[i] = (self->coords[i] * f1 + othercoords[i] * f2) * f0;
+    }
 
     PyMem_Free (othercoords);
     return (PyObject*) ret;
@@ -768,9 +801,9 @@ _vector_lerp (PyVector *self, PyObject *args)
         return NULL;
     }
 
-    if (fabs (t) > 1)
+    if (t < 0 || t > 1)
     {
-        PyErr_SetString (PyExc_ValueError, "t must be in range [-1, 1]");
+        PyErr_SetString (PyExc_ValueError, "t must be in range [0, 1]");
         PyMem_Free (othercoords);
         return NULL;
     }
@@ -825,13 +858,11 @@ _vector_scaletolength (PyVector *self, PyObject *args)
     if (!DoubleFromObj (args, &newlength))
         return NULL;
 
-    for (i = 0; i < self->dim; ++i)
-        oldlength += self->coords[i] * self->coords[i];
-    oldlength = sqrt (oldlength);
+    oldlength = sqrt (_ScalarProduct (self->coords, self->coords, self->dim));
 
     if (oldlength < self->epsilon)
     {
-        PyErr_SetString (PyExc_ZeroDivisionError,
+        PyErr_SetString (PyExc_ValueError,
             "cannot scale a vector with zero length");
         return NULL;
     }
@@ -886,12 +917,10 @@ _do_reflect (const double *srccoords, Py_ssize_t dim, double eps, PyObject *n)
     }
 
     /* Normalize the normal */
-    nlength = 0;
-    for (i = 0; i < ndim; i++)
-        nlength += ncoords[i] * ncoords[i];
+    nlength = _ScalarProduct(ncoords, ncoords, ndim);
     if (nlength < eps)
     {
-        PyErr_SetString (PyExc_ZeroDivisionError,
+        PyErr_SetString (PyExc_ValueError,
             "normal must not be a zero-length vector");
         goto ret;
     }
@@ -904,9 +933,7 @@ _do_reflect (const double *srccoords, Py_ssize_t dim, double eps, PyObject *n)
     }
 
     /* Calculate the dot product for the projection. */
-    dotprod = 0;
-    for (i = 0; i < dim; i++)
-        dotprod += srccoords[i] * ncoords[i];
+    dotprod = _ScalarProduct(srccoords, ncoords, dim);
         
     dstcoords = PyMem_New (double, dim);
     if (!dstcoords)
@@ -952,68 +979,54 @@ _vector_reflect_ip (PyVector *self, PyObject *args)
     Py_RETURN_NONE;
 }
 
-static PyObject*
-_vector_distance (PyVector *self, PyObject *args)
+static double
+_vector_distance_squared_as_double(PyVector *self, PyObject *args)
 {
     Py_ssize_t otherdim, i;
-    double *othercoords, distance, tmp;
+    double *othercoords, distance_squared, tmp;
 
     if (!IsVectorCompatible (args))
     {
         PyErr_SetString (PyExc_TypeError, "other must be a vector compatible");
-        return NULL;
+        return -1;
     }
 
     othercoords = VectorCoordsFromObj (args, &otherdim);
     if (!othercoords)
-        return NULL;
+        return -1;
     if (otherdim != self->dim)
     {
         PyErr_SetString (PyExc_ValueError,
             "must have same the same dimension as vector");
         PyMem_Free (othercoords);
-        return NULL;
+        return -1;
     }
-    distance = 0;
+    distance_squared = 0;
     for (i = 0; i < self->dim; i++)
     {
         tmp = othercoords[i] - self->coords[i];
-        distance += tmp * tmp;
+        distance_squared += tmp * tmp;
     }
     PyMem_Free (othercoords);
-    return PyFloat_FromDouble (sqrt (distance));
+    return distance_squared;
+}
+
+static PyObject*
+_vector_distance (PyVector *self, PyObject *args)
+{
+    double distance_squared = _vector_distance_squared_as_double (self, args);
+    if (distance_squared == -1 && PyErr_Occurred())
+        return NULL;
+    return PyFloat_FromDouble (sqrt (distance_squared));
 }
 
 static PyObject*
 _vector_distance_squared (PyVector *self, PyObject *args)
 {
-    Py_ssize_t otherdim, i;
-    double *othercoords, distance, tmp;
-
-    if (!IsVectorCompatible (args))
-    {
-        PyErr_SetString (PyExc_TypeError, "other must be a vector compatible");
+    double distance_squared = _vector_distance_squared_as_double (self, args);
+    if (distance_squared == -1 && PyErr_Occurred ())
         return NULL;
-    }
-
-    othercoords = VectorCoordsFromObj (args, &otherdim);
-    if (!othercoords)
-        return NULL;
-    if (otherdim != self->dim)
-    {
-        PyErr_SetString (PyExc_ValueError,
-            "must have same the same dimension as vector");
-        PyMem_Free (othercoords);
-        return NULL;
-    }
-    distance = 0;
-    for (i = 0; i < self->dim; i++)
-    {
-        tmp = othercoords[i] - self->coords[i];
-        distance += tmp * tmp;
-    }
-    PyMem_Free (othercoords);
-    return PyFloat_FromDouble (distance);
+    return PyFloat_FromDouble (distance_squared);
 }
 
 static PyObject*
@@ -1156,6 +1169,11 @@ _vector_generic_math (PyObject *o1, PyObject *o2, int op)
         double tmp;
         if (!DoubleFromObj (other, &tmp))
             break;
+        if (tmp == 0.f)
+        {
+            PyErr_SetString (PyExc_ZeroDivisionError, "division by zero");
+            return NULL;
+        }
         tmp = 1.f / tmp;
         retval = PyVector_NewSpecialized (dim);
         if (!retval)
@@ -1169,6 +1187,11 @@ _vector_generic_math (PyObject *o1, PyObject *o2, int op)
         double tmp;
         if (!DoubleFromObj (other, &tmp))
             break;
+        if (tmp == 0.f)
+        {
+            PyErr_SetString (PyExc_ZeroDivisionError, "division by zero");
+            return NULL;
+        }
         tmp = 1. / tmp;
         for (i = 0; i < dim; i++)
             vcoords[i] *= tmp;
@@ -1181,6 +1204,11 @@ _vector_generic_math (PyObject *o1, PyObject *o2, int op)
         double tmp;
         if (!DoubleFromObj (other, &tmp))
             break;
+        if (tmp == 0.f)
+        {
+            PyErr_SetString (PyExc_ZeroDivisionError, "division by zero");
+            return NULL;
+        }
         tmp = 1. / tmp;
         retval = PyVector_NewSpecialized(dim);
         if (!retval)
@@ -1194,6 +1222,11 @@ _vector_generic_math (PyObject *o1, PyObject *o2, int op)
         double tmp;
         if (!DoubleFromObj (other, &tmp))
             break;
+        if (tmp == 0.f)
+        {
+            PyErr_SetString (PyExc_ZeroDivisionError, "division by zero");
+            return NULL;
+        }
         tmp = 1. / tmp;
         for (i = 0; i < dim; i++)
             v->coords[i] = floor (vcoords[i] * tmp);
@@ -1304,7 +1337,7 @@ _vector_inplace_floor_div (PyVector *o1, PyObject *o2)
 }
 
 /**
- * -vector1, ~vector1
+ * -vector1, +vector1
  */
 static PyObject*
 _vector_neg (PyVector *self)
@@ -1334,7 +1367,7 @@ _vector_nonzero (PyVector *self)
     Py_ssize_t i;
     for (i = 0; i < self->dim; i++)
     {
-        if (fabs (self->coords[i]) > self->epsilon)
+        if (self->coords[i] != 0.f)
             return 1;
     }
     return 0;
@@ -1614,7 +1647,7 @@ _vector_richcompare (PyObject *o1, PyObject *o2, int op)
     double diff;
     PyVector *v = NULL, *v2 = NULL;
     PyObject *other = NULL;
-    int swap = 0, retval = 1;
+    int retval = 1;
     
     if (PyVector_Check (o1))
     {
@@ -1623,7 +1656,6 @@ _vector_richcompare (PyObject *o1, PyObject *o2, int op)
     }
     else if (PyVector_Check (o2))
     {
-        swap = 1;
         v = (PyVector *) o2;
         other = o1;
     }
@@ -1663,13 +1695,6 @@ _vector_richcompare (PyObject *o1, PyObject *o2, int op)
                 break;
             }
         }
-    }
-    if (swap == 1)
-    {
-        if (retval == 0)
-            retval = 1;
-        else
-            retval = 0;
     }
 
     switch (op)

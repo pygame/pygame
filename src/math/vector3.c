@@ -34,7 +34,7 @@ static int _vector3_set_y (PyObject *self, PyObject *value, void *closure);
 static PyObject* _vector3_get_z (PyObject *self, void *closure);
 static int _vector3_set_z (PyObject *self, PyObject *value, void *closure);
 
-static void _do_rotate (double *dst_coords, const double *src_coords,
+static int _do_rotate (double *dst_coords, const double *src_coords,
     const double* axis_coords, double angle, double epsilon);
 
 static PyObject* _vector3_rotate (PyObject *self, PyObject *args);
@@ -261,7 +261,7 @@ _vector3_set_z (PyObject *self, PyObject *value, void *closure)
 }
 
 /* Vector3 methods */
-static void
+static int
 _do_rotate (double *dst_coords, const double *src_coords,
     const double* axis_coords, double angle, double epsilon)
 {
@@ -282,8 +282,15 @@ _do_rotate (double *dst_coords, const double *src_coords,
         axis[i] = axis_coords[i];
     }
 
+    if (axislen < epsilon)
+    {
+        PyErr_SetString (PyExc_ValueError,
+            "rotation axis is too close to zero.");
+        return 0;
+    }
+    
     /* normalize the axis */
-    if (axislen - 1 > epsilon)
+    if (fabs (axislen - 1) > epsilon)
     {
         nfactor = 1. / sqrt (axislen);
         for (i = 0; i < 3; ++i)
@@ -353,6 +360,7 @@ _do_rotate (double *dst_coords, const double *src_coords,
              src_coords[1] * (axis[1] * axis[2] * coscompl + axis[0] * sinv) +
              src_coords[2] * (cosv + axis[2] * axis[2] * coscompl));
     }
+    return 1;
 }
 
 static PyObject*
@@ -384,7 +392,14 @@ _vector3_rotate (PyObject *self, PyObject *args)
         return NULL;
     }
     ret = (PyVector*) PyVector3_New (0.f, 0.f, 0.f);
-    _do_rotate (ret->coords, v->coords, axiscoords, angle, v->epsilon);
+    
+    if (!ret ||
+        !_do_rotate (ret->coords, v->coords, axiscoords, angle, v->epsilon))
+    {
+        Py_XDECREF (ret);
+        ret = NULL;
+    }
+
     PyMem_Free (axiscoords);
     return (PyObject*) ret;
 }
@@ -418,7 +433,11 @@ _vector3_rotate_ip (PyObject *self, PyObject *args)
     }
 
     memcpy (tmp, v->coords, sizeof (double) * 3);
-    _do_rotate (v->coords, tmp, axiscoords, angle, v->epsilon);
+    if (!_do_rotate (v->coords, tmp, axiscoords, angle, v->epsilon))
+    {
+        PyMem_Free (axiscoords);
+        return NULL;
+    }
     PyMem_Free (axiscoords);
     Py_RETURN_NONE;
 }
@@ -606,7 +625,7 @@ _vector3_cross (PyObject *self, PyObject *args)
 static PyObject*
 _vector3_angleto (PyObject *self, PyObject *args)
 {
-    double angle, tmp1, tmp2;
+    double angle, tmp, squared_length1, squared_length2;
     double *othercoords;
     Py_ssize_t otherdim;
     PyVector* v = (PyVector*)self;
@@ -628,12 +647,20 @@ _vector3_angleto (PyObject *self, PyObject *args)
         return NULL;
     }
     
-    tmp1 = _ScalarProduct (v->coords, v->coords, v->dim);
-    tmp2 = _ScalarProduct (othercoords, othercoords, otherdim);
-    angle = acos (_ScalarProduct (v->coords, othercoords, v->dim) /
-        sqrt (tmp1 * tmp2));
-    PyMem_Free (othercoords);
 
+    squared_length1 = _ScalarProduct (v->coords, v->coords, v->dim);
+    squared_length2 = _ScalarProduct (othercoords, othercoords, otherdim);
+    tmp = sqrt (squared_length1 * squared_length2);
+    if (tmp == 0.f)
+    {
+        PyErr_SetString (PyExc_ValueError,
+            "angle to zero vector is undefined");
+        PyMem_Free (othercoords);
+        return NULL;
+    }
+    angle = acos (_ScalarProduct (v->coords, othercoords, v->dim) / tmp);
+
+    PyMem_Free (othercoords);
     return PyFloat_FromDouble (RAD2DEG (angle));
 }
 
@@ -643,10 +670,12 @@ _vector3_asspherical (PyObject *self)
     PyVector* v = (PyVector*)self;
     double r, theta, phi;
     r = sqrt (_ScalarProduct (v->coords, v->coords, v->dim));
+    if (r == 0.f)
+        return Py_BuildValue ("(ddd)", 0.f, 0.f, 0.f);
 
     theta = acos (v->coords[2] / r);
     phi = atan2 (v->coords[1], v->coords[0]);
-    return Py_BuildValue ("(ddd)", r, theta, phi);
+    return Py_BuildValue ("(ddd)", r, RAD2DEG (theta), RAD2DEG (phi));
 }
 
 

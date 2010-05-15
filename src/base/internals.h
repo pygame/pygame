@@ -60,7 +60,7 @@ int FSizeFromObj (PyObject* obj, double *w, double *h);
 int ASCIIFromObj (PyObject *obj, char **text, PyObject **freeme);
 int UTF8FromObj (PyObject *obj, char **text, PyObject **freeme);
 int LongFromObj (PyObject* obj, long* val);
-unsigned long UlongFromObj (PyObject* obj, long* val);
+int UlongFromObj (PyObject* obj, unsigned long* val);
 int ColorFromObj (PyObject *obj, pguint32 *val);
 
 extern PyTypeObject PyColor_Type;

@@ -108,8 +108,8 @@ LongFromObj (PyObject* obj, long* val)
     return 0;
 }
 
-unsigned long
-UlongFromObj (PyObject* obj, long* val)
+int
+UlongFromObj (PyObject* obj, unsigned long* val)
 {
     PyObject* longobj;
     unsigned long tmp;

@@ -392,7 +392,7 @@ class MathVector2Test (unittest.TestCase):
         self.assertEqual(self.v1.y, self.l1[1])
         # v2 is paralell to v1
         self.assertAlmostEqual(self.v1.x * v.y - self.v1.y * v.x, 0.)
-        self.assertRaises(ZeroDivisionError, lambda : self.zeroVec.normalize())
+        self.assertRaises(ValueError, lambda : self.zeroVec.normalize())
 
     def test_pygame2_math_base_Vector_normalize_ip(self):
 
@@ -408,8 +408,7 @@ class MathVector2Test (unittest.TestCase):
         self.assertAlmostEqual(v.x * v.x + v.y * v.y, 1.)
         # v2 is paralell to v1
         self.assertAlmostEqual(self.v1.x * v.y - self.v1.y * v.x, 0.)
-        self.assertRaises(ZeroDivisionError,
-                          lambda : self.zeroVec.normalize_ip())
+        self.assertRaises(ValueError, lambda : self.zeroVec.normalize_ip())
 
     def test_pygame2_math_base_Vector_distance(self):
 
@@ -480,7 +479,7 @@ class MathVector2Test (unittest.TestCase):
         self.assertEqual(v.reflect(n), Vector2(1, 1))
         self.assertEqual(v.reflect(3*n), v.reflect(n))
         self.assertEqual(v.reflect(-v), -v)
-        self.assertRaises(ZeroDivisionError, lambda : v.reflect(self.zeroVec))
+        self.assertRaises(ValueError, lambda : v.reflect(self.zeroVec))        
 
     def test_pygame2_math_base_Vector_reflect_ip(self):
 
@@ -498,7 +497,7 @@ class MathVector2Test (unittest.TestCase):
         v2 = Vector2(v1)
         v2.reflect_ip(-v1)
         self.assertEqual(v2, -v1)
-        self.assertRaises(ZeroDivisionError, lambda : v2.reflect_ip(Vector2()))
+        self.assertRaises(ValueError, lambda : v2.reflect_ip(Vector2()))
 
     def test_pygame2_math_base_Vector_scale_to(self):
 
@@ -508,8 +507,7 @@ class MathVector2Test (unittest.TestCase):
         v = Vector2(1, 1)
         v.scale_to(2.5)
         self.assertEqual(v, Vector2(2.5, 2.5) / math.sqrt(2))
-        self.assertRaises(ZeroDivisionError,
-                          lambda : self.zeroVec.scale_to(1))
+        self.assertRaises(ValueError, lambda : self.zeroVec.scale_to(1))
         self.assertEqual(v.scale_to(0), None)
         self.assertEqual(v, self.zeroVec)
 
@@ -543,15 +541,14 @@ class MathVector2Test (unittest.TestCase):
         v = from_polar(*self.v1.as_polar())
         self.assertEqual(self.v1, v)
         self.assertEqual(self.e1.as_polar(), (1, 0))
-        self.assertEqual(self.e2.as_polar(), (1, math.pi / 2))
-        self.assertEqual((2 * self.e2).as_polar(),
-                         (2, math.pi / 2))
+        self.assertEqual(self.e2.as_polar(), (1, 90))
+        self.assertEqual((2 * self.e2).as_polar(), (2, 90))
         self.assertRaises(TypeError, lambda : from_polar((None, None)))
         self.assertRaises(TypeError, lambda : from_polar("ab"))
         self.assertRaises(TypeError, lambda : from_polar((None, 1)))
         self.assertRaises(TypeError, lambda : from_polar((1, 2, 3)))
         self.assertRaises(TypeError, lambda : from_polar((1,)))
-        v = from_polar(.5, math.pi / 2.)
+        v = from_polar(.5, 90)
         self.assertEqual(v, .5 * self.e2)
 
     def test_pygame2_math_base_Vector2_cross(self):

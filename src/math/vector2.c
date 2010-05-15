@@ -360,7 +360,7 @@ _vector2_aspolar (PyVector *self)
     double r, phi;
     r = sqrt(_ScalarProduct (self->coords, self->coords, self->dim));
     phi = atan2 (self->coords[1], self->coords[0]);
-    return Py_BuildValue ("(dd)", r, phi);
+    return Py_BuildValue ("(dd)", r, RAD2DEG (phi));
 }
 
 /* C API */

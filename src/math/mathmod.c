@@ -42,6 +42,7 @@ _frompolar (PyObject* mod, PyObject *args)
 
     if (!PyArg_ParseTuple (args, "dd:vector_from_polar", &r, &phi))
         return NULL;
+    phi = DEG2RAD (phi);
     c1 = r * cos (phi);
     c2 = r * sin (phi);
     return PyVector2_New (c1, c2);
@@ -55,6 +56,8 @@ _fromspherical (PyObject* mod, PyObject *args)
     if (!PyArg_ParseTuple (args, "ddd:vector_from_spherical", &r, &theta, &phi))
         return NULL;
 
+    theta = DEG2RAD (theta);
+    phi = DEG2RAD (phi);
     c1 = r * sin (theta) * cos (phi);
     c2 = r * sin (theta) * sin (phi);
     c3 = r * cos (theta);
