@@ -9,6 +9,7 @@ try:
 except ImportError:
     import io as stringio
 
+import copy
 import pygame2
 from pygame2.colorpalettes import CGAPALETTE
 from pygame2 import Rect, Color
@@ -122,6 +123,7 @@ class SDLVideoSurfaceTest (unittest.TestCase):
             sf = video.Surface (10, 10, bpp)
             if bpp == 8:
                 sf.set_palette (CGAPALETTE)
+
             sfcopy = sf.copy ()
         
             self.assertEqual (sf.size, sfcopy.size)
@@ -133,6 +135,21 @@ class SDLVideoSurfaceTest (unittest.TestCase):
             sf.fill (Color (200, 100, 0))
             sfcopy = sf.copy ()
             self._cmppixels (sf, sfcopy)
+
+            sfcopy2 = copy.copy (sf)
+            self.assertEqual (sf.size, sfcopy2.size)
+            self.assertEqual (sf.format.bits_per_pixel,
+                              sfcopy2.format.bits_per_pixel)
+            self.assertEqual (sf.format.masks, sfcopy2.format.masks)
+            self._cmppixels (sf, sfcopy2)
+
+            sfcopy3 = copy.deepcopy (sf)
+            self.assertEqual (sf.size, sfcopy3.size)
+            self.assertEqual (sf.format.bits_per_pixel,
+                              sfcopy3.format.bits_per_pixel)
+            self.assertEqual (sf.format.masks, sfcopy3.format.masks)
+            self._cmppixels (sf, sfcopy3)
+
         video.quit ()
 
     def test_pygame2_sdl_video_Surface_fill(self):

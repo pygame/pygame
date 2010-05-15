@@ -61,7 +61,7 @@ static PyObject* _surface_getalpha (PyObject *self);
 static PyObject* _surface_setalpha (PyObject *self, PyObject *args);
 static PyObject* _surface_convert (PyObject *self, PyObject *args,
     PyObject *kwds);
-static PyObject* _surface_copy (PyObject *self);
+static PyObject* _surface_copy (PyObject *self, PyObject *unused);
 static PyObject* _surface_blit (PyObject *self, PyObject *args, PyObject *kwds);
 static PyObject* _surface_fill (PyObject *self, PyObject *args, PyObject *kwds);
 static PyObject* _surface_save (PyObject *self, PyObject *args);
@@ -106,6 +106,8 @@ static PyMethodDef _surface_methods[] = {
     { "save", _surface_save, METH_VARARGS, DOC_VIDEO_SURFACE_SAVE },
     { "scroll", (PyCFunction) _surface_scroll, METH_VARARGS | METH_KEYWORDS,
       DOC_VIDEO_SURFACE_SCROLL },
+    { "__copy__", (PyCFunction)_surface_copy, METH_NOARGS, NULL },
+    { "__deepcopy__", (PyCFunction)_surface_copy, METH_O, NULL },
     { NULL, NULL, 0, NULL }
 };
 
@@ -898,7 +900,7 @@ _surface_setat (PyObject *self, PyObject *args)
 }
 
 static PyObject*
-_surface_copy (PyObject *self)
+_surface_copy (PyObject *self, PyObject *unused)
 {
     return PySDLSurface_Copy (self);
 }
