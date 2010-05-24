@@ -210,5 +210,19 @@ class MixerMusicModuleTest(unittest.TestCase):
           # 
 
         self.fail() 
+
+    def todo_test_set_pos(self):
+
+        # __doc__ (as of 2010-24-05) for pygame.mixer_music.set_pos:
+
+          #This sets the position in the music file where playback will start. The
+          # meaning of "pos", a float (or a number that can be converted to a float),
+          # depends on the music format. Newer versions of SDL_mixer have better
+          # positioning support than earlier. An SDLError is raised if a particular
+          # format does not support positioning.
+          # 
+
+        self.fail() 
+
 if __name__ == '__main__':
     unittest.main()

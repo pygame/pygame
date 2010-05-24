@@ -21,6 +21,8 @@
 
 #define DOC_PYGAMEMIXERMUSICGETBUSY "pygame.mixer.music.get_busy(): return bool\ncheck if the music stream is playing"
 
+#define DOC_PYGAMEMIXERMUSICSETPOS "pygame.mixer.music.set_pos(pos): return None\nset position to play from"
+
 #define DOC_PYGAMEMIXERMUSICGETPOS "pygame.mixer.music.get_pos(): return time\nget the music play time"
 
 #define DOC_PYGAMEMIXERMUSICQUEUE "pygame.mixer.music.queue(filename): return None\nqueue a music file to follow the current"
@@ -99,6 +101,12 @@ get the music volume
 pygame.mixer.music.get_busy
  pygame.mixer.music.get_busy(): return bool
 check if the music stream is playing
+
+
+
+pygame.mixer.music.set_pos
+ pygame.mixer.music.set_pos(pos): return None
+set position to play from
 
 
 
