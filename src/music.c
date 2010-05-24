@@ -77,13 +77,15 @@ endmusic_callback (void)
 
 /*music module methods*/
 static PyObject*
-music_play (PyObject* self, PyObject* args)
+music_play (PyObject* self, PyObject* args, PyObject *keywds)
 {
     int loops = 0;
     float startpos = 0.0;
     int val, volume = 0;
 
-    if (!PyArg_ParseTuple (args, "|if", &loops, &startpos))
+    static char *kwids[] = {"loops", "start", NULL};
+    if (!PyArg_ParseTupleAndKeywords (args, keywds, "|if", kwids,
+                                      &loops, &startpos))
         return NULL;
 
     MIXER_INIT_CHECK ();
@@ -393,7 +395,8 @@ static PyMethodDef _music_methods[] =
     { "get_endevent", (PyCFunction) music_get_endevent, METH_NOARGS,
       DOC_PYGAMEMIXERMUSICGETENDEVENT },
 
-    { "play", music_play, METH_VARARGS, DOC_PYGAMEMIXERMUSICPLAY },
+    { "play", (PyCFunction) music_play, METH_VARARGS | METH_KEYWORDS,
+      DOC_PYGAMEMIXERMUSICPLAY },
     { "get_busy", (PyCFunction) music_get_busy, METH_NOARGS,
       DOC_PYGAMEMIXERMUSICGETBUSY },
     { "fadeout", music_fadeout, METH_VARARGS, DOC_PYGAMEMIXERMUSICFADEOUT },
