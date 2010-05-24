@@ -66,6 +66,7 @@
   <tr><td><a href="music.html#pygame.mixer.music.set_volume">pygame.mixer.music.set_volume</a> - <font size=-1>set the music volume</font></td><td>set the music volume</td></tr>
   <tr><td><a href="music.html#pygame.mixer.music.get_volume">pygame.mixer.music.get_volume</a> - <font size=-1>get the music volume</font></td><td>get the music volume</td></tr>
   <tr><td><a href="music.html#pygame.mixer.music.get_busy">pygame.mixer.music.get_busy</a> - <font size=-1>check if the music stream is playing</font></td><td>check if the music stream is playing</td></tr>
+  <tr><td><a href="music.html#pygame.mixer.music.set_pos">pygame.mixer.music.set_pos</a> - <font size=-1>set position to play from</font></td><td>set position to play from</td></tr>
   <tr><td><a href="music.html#pygame.mixer.music.get_pos">pygame.mixer.music.get_pos</a> - <font size=-1>get the music play time</font></td><td>get the music play time</td></tr>
   <tr><td><a href="music.html#pygame.mixer.music.queue">pygame.mixer.music.queue</a> - <font size=-1>queue a music file to follow the current</font></td><td>queue a music file to follow the current</td></tr>
   <tr><td><a href="music.html#pygame.mixer.music.set_endevent">pygame.mixer.music.set_endevent</a> - <font size=-1>have the music send an event when playback stops</font></td><td>have the music send an event when playback stops</td></tr>
@@ -168,6 +169,15 @@
   <tt>pygame.mixer.music.get_busy(): return bool</tt><br>
 <p>Returns True when the music stream is actively playing. When the music is idle this returns False. </p>
 <!--COMMENTS:pygame.mixer.music.get_busy--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.mixer.music.set_pos">
+<big><b>pygame.mixer.music.set_pos</big></b><br><ul>
+  <i>set position to play from</i><br>
+  <tt>pygame.mixer.music.set_pos(pos): return None</tt><br>
+<p>This sets the position in the music file where playback will start. The meaning of "pos", a float (or a number that can be converted to a float), depends on the music format. Newer versions of SDL_mixer have better positioning support than earlier. An SDLError is raised if a particular format does not support positioning. </p>
+<!--COMMENTS:pygame.mixer.music.set_pos--> &nbsp;<br> 
 <br></ul>
 
 

@@ -207,6 +207,25 @@ music_get_volume (PyObject* self)
 }
 
 static PyObject*
+music_set_pos (PyObject* self, PyObject* arg)
+{
+    double pos = PyFloat_AsDouble (arg);
+    if (pos == -1 && PyErr_Occurred ())
+    {
+        PyErr_Clear ();
+        return RAISE (PyExc_TypeError, "set_pos expects 1 float argument");
+    }
+
+    MIXER_INIT_CHECK ();
+
+    if (Mix_SetMusicPosition (pos) == -1)
+    {
+        return RAISE (PyExc_SDLError, "set_pos unsupported for this codec");
+    }
+    Py_RETURN_NONE;
+}
+
+static PyObject*
 music_get_pos (PyObject* self)
 {
     long ticks;
@@ -389,6 +408,8 @@ static PyMethodDef _music_methods[] =
       DOC_PYGAMEMIXERMUSICSETVOLUME },
     { "get_volume", (PyCFunction) music_get_volume, METH_NOARGS,
       DOC_PYGAMEMIXERMUSICGETVOLUME },
+    { "set_pos", (PyCFunction) music_set_pos, METH_O,
+      DOC_PYGAMEMIXERMUSICSETPOS },
     { "get_pos", (PyCFunction) music_get_pos, METH_NOARGS,
       DOC_PYGAMEMIXERMUSICGETPOS },
 
