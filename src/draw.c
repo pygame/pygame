@@ -120,7 +120,8 @@ static PyObject* line(PyObject* self, PyObject* arg)
 	PyObject *surfobj, *colorobj, *start, *end;
 	SDL_Surface* surf;
 	int startx, starty, endx, endy;
-	int top, left, bottom, right;
+	int dx, dy;
+	int rtop, rleft, rwidth, rheight;
 	int width = 1;
 	int pts[4];
 	Uint8 rgba[4];
@@ -163,27 +164,21 @@ static PyObject* line(PyObject* self, PyObject* arg)
 	/*compute return rect*/
 	if(!anydraw)
 		return PyRect_New4(startx, starty, 0, 0);
-	if(pts[0] < pts[2])
+	rleft = (startx < endx) ? startx : endx;
+	rtop = (starty < endy) ? starty : endy;
+	dx = abs(startx - endx);
+	dy = abs(starty - endy);
+	if (dx > dy)
 	{
-		left = pts[0];
-		right = pts[2];
+		rwidth = dx + 1;
+		rheight = dy + width;
 	}
 	else
 	{
-		left = pts[2];
-		right = pts[0];
+		rwidth = dx + width;
+		rheight = dy + 1;
 	}
-	if(pts[1] < pts[3])
-	{
-		top = pts[1];
-		bottom = pts[3];
-	}
-	else
-	{
-		top = pts[3];
-		bottom = pts[1];
-	}
-	return PyRect_New4(left, top, right-left+1, bottom-top+1);
+	return PyRect_New4(rleft, rtop, rwidth, rheight);
 }
 
 
