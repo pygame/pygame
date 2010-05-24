@@ -92,6 +92,58 @@ class DrawModuleTest(unittest.TestCase):
         for pt in test_utils.rect_outer_bounds(drawn):
             self.assert_(self.surf.get_at(pt) != self.color)
 
+        #Line width greater that 1
+        line_width = 2
+        offset = 5
+        a = (offset, offset)
+        b = (self.surf_size[0] - offset, a[1])
+        c = (a[0], self.surf_size[1] - offset)
+        d = (b[0], c[1])
+        e = (a[0] + offset, c[1])
+        f = (b[0], c[0] + 5)
+        lines = [(a, d), (b, c), (c, b), (d, a),
+                 (a, b), (b, a), (a, c), (c, a),
+                 (a, e), (e, a), (a, f), (f, a),
+                 (a, a),]
+        for p1, p2 in lines:
+            msg = "%s - %s" % (p1, p2)
+            if p1[0] <= p2[0]:
+                plow = p1
+                phigh = p2
+            else:
+                plow = p2
+                phigh = p1
+            self.surf.fill((0, 0, 0))
+            rec = draw.line(self.surf, (255, 255, 255), p1, p2, line_width)
+            xinc = yinc = 0
+            if abs(p1[0] - p2[0]) > abs(p1[1] - p2[1]):
+                yinc = 1
+            else:
+                xinc = 1
+            for i in range(line_width):
+                p = (p1[0] + xinc * i, p1[1] + yinc * i)
+                self.assert_(self.surf.get_at(p) == (255, 255, 255), msg)
+                p = (p2[0] + xinc * i, p2[1] + yinc * i)
+                self.assert_(self.surf.get_at(p) == (255, 255, 255), msg)
+            p = (plow[0] - 1, plow[1])
+            self.assert_(self.surf.get_at(p) == (0, 0, 0), msg)
+            p = (plow[0] + xinc * line_width, plow[1] + yinc * line_width)
+            self.assert_(self.surf.get_at(p) == (0, 0, 0), msg)
+            p = (phigh[0] + xinc * line_width, phigh[1] + yinc * line_width)
+            self.assert_(self.surf.get_at(p) == (0, 0, 0), msg)
+            if p1[0] < p2[0]:
+                rx = p1[0]
+            else:
+                rx = p2[0]
+            if p1[1] < p2[1]:
+                ry = p1[1]
+            else:
+                ry = p2[1]
+            w = abs(p2[0] - p1[0]) + 1 + xinc * (line_width - 1)
+            h = abs(p2[1] - p1[1]) + 1 + yinc * (line_width - 1)
+            msg += ", %s" % (rec,)
+            self.assert_(rec == (rx, ry, w, h), msg)
+        
     def todo_test_aaline(self):
 
         # __doc__ (as of 2008-08-02) for pygame.draw.aaline:
