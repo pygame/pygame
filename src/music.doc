@@ -125,6 +125,19 @@ is idle this returns False.
 
 
 
+set_pos
+set position to play from
+pygame.mixer.music.set_pos(pos): return None
+
+This sets the position in the music file where playback will start. The
+meaning of "pos", a float (or a number that can be converted to a float),
+depends on the music format. Newer versions of SDL_mixer have better
+positioning support than earlier. An SDLError is raised if a particular
+format does not support positioning.
+<END>
+
+
+
 get_pos
 get the music play time
 pygame.mixer.music.get_pos(): return time
