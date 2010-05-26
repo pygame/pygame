@@ -3,9 +3,14 @@
 
 <module name="pygame2.sdlmixer.numericsndarray">
   <short>SDL_mixer chunk arrays using Numeric</short>
-  <desc></desc>
+  <desc>
+    .. note::
+    
+      The module is subject to change in future version and thus is
+      marked as deprecated.
+  </desc>
 
-  <func name="array">
+  <func name="make_array">
     <call></call>
     <desc></desc>
   </func>

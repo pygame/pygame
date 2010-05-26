@@ -8,7 +8,6 @@ CRITICAL:
 * Check trunk 1953 (blit blend operations).
 * Check trunk rev. 1937, 1947 (blit blend for self).
 * Mark methods, which are limited to certain bpp ranges.
-* math module changes in rev. 2777
 * freetype: rendering size should use the bbox height for correct ascent/descent
   values, not the real size
 * freetype: correct error messages (e.g. on trying to scale pcf fonts)

@@ -16,6 +16,12 @@
 ##    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ##
 
+"""Specialized rendering-enabled sprite groups"""
+
+import pygame2.compat
+pygame2.compat.deprecation \
+    ("The sprite package is deprecated and will change in future versions")
+
 from pygame2.sprite.groups import Group
 
 RenderPlain = Group
@@ -30,24 +36,24 @@ class RenderUpdates(Group):
     """
     
     def draw(self, surface):
-       spritedict = self.spritedict
-       surface_blit = surface.blit
-       dirty = self.lostsprites
-       self.lostsprites = []
-       dirty_append = dirty.append
-       for s in self.sprites():
-           r = spritedict[s]
-           newrect = surface_blit(s.image, s.rect)
-           if r is 0:
-               dirty_append(newrect)
-           else:
-               if newrect.colliderect(r):
-                   dirty_append(newrect.union(r))
-               else:
-                   dirty_append(newrect)
-                   dirty_append(r)
-           spritedict[s] = newrect
-       return dirty
+        spritedict = self.spritedict
+        surface_blit = surface.blit
+        dirty = self.lostsprites
+        self.lostsprites = []
+        dirty_append = dirty.append
+        for s in self.sprites():
+            r = spritedict[s]
+            newrect = surface_blit(s.image, s.rect)
+            if r is 0:
+                dirty_append(newrect)
+            else:
+                if newrect.colliderect(r):
+                    dirty_append(newrect.union(r))
+                else:
+                    dirty_append(newrect)
+                    dirty_append(r)
+            spritedict[s] = newrect
+        return dirty
 
 class OrderedUpdates(RenderUpdates):
     """RenderUpdates class that draws Sprites in order of addition

@@ -366,11 +366,10 @@ def _initwin32 ():
             pass
 
     for key in keys:
-        fontdict = {}
         for i in range (_winreg.QueryInfoKey (key)[1]):
-            name, font, t = None, None, None
+            name, font = None, None
             try:
-                name, font, t = _winreg.EnumValue (key, i)
+                name, font = _winreg.EnumValue (key, i)[0:2]
             except EnvironmentError:
                 break
 
@@ -412,8 +411,8 @@ def _initdarwin ():
         for k, apath in details.items ():
             if os.path.exists (apath):
                 bold, italic = k
-                ftype = _gettype (font)
-                _addfont(apath, name, dtype, "", bold, italic) 
+                ftype = _gettype (apath)
+                _addfont(apath, name, ftype, "", bold, italic) 
 
 def _initunix ():
     """_initunix () -> None
@@ -422,11 +421,10 @@ def _initunix ():
     """
     output = ""
     try:
-        p = subprocess.Popen \
+        proc = subprocess.Popen \
 		("fc-list : file family style fullname fullnamelang",
                  shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        output = p.communicate()[0]
-        retcode = p.returncode
+        output = proc.communicate()[0]
         if sys.version_info[0] >= 3:
             output = str (output, "utf-8")
     except OSError:
@@ -437,7 +435,7 @@ def _initunix ():
     try:
         for line in output.split ("\n"):
             if line.strip () == "":
-               continue 
+                continue 
             values = line.split (":")
             fullnames, fulllang, name = None, None, None
             filename, family, style = values[0:3]
@@ -460,7 +458,7 @@ def _initunix ():
             ftype = _gettype (filename)
             bold, italic = _getstyle (style)
             _addfont (filename, name, ftype, family, bold, italic)
-    except Exception:
+    except:
         _families.clear ()
         _fonts.clear ()
         _families[None] = None
@@ -549,9 +547,9 @@ def find_fonts (name, bold=False, italic=False, ftype=None):
             continue
 
         if fullname != name and name not in fname:
-            nl = name.lower ()
-            fl = fullname.lower ()
-            if nl not in fl and nl not in fname.lower():
+            namel = name.lower ()
+            fulll = fullname.lower ()
+            if namel not in fulll and namel not in fname.lower ():
                 continue
         if ftype and ftype != filetype:
             # The user requires a certain font filetype.

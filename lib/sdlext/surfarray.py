@@ -57,6 +57,10 @@ which is important to keep in mind, if you use the module's functions
 and wonder about the values.
 """
 
+import pygame2.compat
+pygame2.compat.deprecation ("""The surfarray package is deprecated and
+will be changed or removed in future versions""")
+
 # Global array type setting. See use_arraytype().
 __arraytype = None
 

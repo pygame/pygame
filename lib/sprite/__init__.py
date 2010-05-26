@@ -64,6 +64,10 @@ that you extend those when you add a Sprite or Group class.
 Sprites are not thread safe.  So lock them yourself if using threads.
 """
 
+import pygame2.compat
+pygame2.compat.deprecation \
+    ("The sprite package is deprecated and will change in future versions")
+
 ##todo
 ## a group that holds only the 'n' most recent elements.
 ## sort of like the GroupSingle class, but holding more

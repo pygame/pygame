@@ -82,15 +82,15 @@
   </class>
 
   <func name="open_tarfile">
-    <call>open_tarfile (archive, filename, dir=None, type=None) -> StringIO or BytesIO</call>
+    <call>open_tarfile (archive, filename, directory=None, ftype=None) -> StringIO or BytesIO</call>
     <desc>Opens and reads a certain file from a TAR archive.
 
       Opens and reads a certain file from a TAR archive. The result is returned
       as StringIO stream. *filename* can be a relative or absolute path within
-      the TAR archive. The optional *dir* argument can be used to supply a
+      the TAR archive. The optional *directory* argument can be used to supply a
       relative directory path, under which *filename* will be tried to retrieved.
 
-      *type* is used to supply additional compression information, in case the
+      *ftype* is used to supply additional compression information, in case the
       system cannot determine the compression type itself, and can be either
       'gz' for gzip compression or 'bz2' for bzip2 compression.
 
@@ -118,12 +118,12 @@
     </desc>
   </func>
   <func name="open_zipfile">
-    <call>open_zipfile (archive, filename, dir=None) -> StringIO or BytesIO</call>
+    <call>open_zipfile (archive, filename, directory=None) -> StringIO or BytesIO</call>
     <desc>Opens and reads a certain file from a ZIP archive.
 
       Opens and reads a certain file from a ZIP archive. The result is returned
       as StringIO stream. *filename* can be a relative or absolute path within
-      the ZIP archive. The optional *dir* argument can be used to supply a
+      the ZIP archive. The optional *directory* argument can be used to supply a
       relative directory path, under which *filename* will be tried to retrieved.
 
       If the *filename* could not be found or an error occured on reading it,

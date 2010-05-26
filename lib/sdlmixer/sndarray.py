@@ -54,19 +54,23 @@ signed integers for the representation, which is important to keep in
 mind, if you use the module's functions and wonder about the values.
 """
 
+import pygame2.compat
+pygame2.compat.deprecation ("""The sndarray package is deprecated and
+will be changed or removed in future versions""")
+
 # Global array type setting. See use_arraytype().
 __arraytype = None
 
 # Try to import the necessary modules.
 try:
-    import numericsndarray as numericsnd
+    import pygame2.sdlmixer.numericsndarray as numericsnd
     __hasnumeric = True
     __arraytype = "numeric"
 except ImportError:
     __hasnumeric = False
 
 try:
-    import numpysndarray as numpysnd
+    import pygame2.sdlmixer.numpysndarray as numpysnd
     __hasnumpy = True
     if not __hasnumeric:
         __arraytype = "numpy"
@@ -76,19 +80,19 @@ except ImportError:
 #if not __hasnumpy and not __hasnumeric:
 #    raise ImportError ("no module named numpy or Numeric found")
 
-def array (sound):
-    """pygame2.sndarray.array(Sound): return array
+def make_array (sound):
+    """pygame2.sndarray.make_array(Sound): return array
 
     Copy Sound samples into an array.
 
     Creates a new array for the sound data and copies the samples. The
     array will always be in the format returned from
-    pygame2.mixer.get_init().
+    pygame2.sdlmixer.get_init().
     """
     if __arraytype == "numeric":
-        return numericsnd.array (sound)
+        return numericsnd.make_array (sound)
     elif __arraytype == "numpy":
-        return numpysnd.array (sound)
+        return numpysnd.make_array (sound)
     raise NotImplementedError ("sound arrays are not supported")
 
 def samples (sound):

@@ -22,7 +22,7 @@ SDL-based surfaces.
 """
 
 import os
-from pygame2 import Rect, FRect, Color
+from pygame2 import Rect, FRect
 from pygame2.sdl.video import Surface
 
 DEFAULTMAP = [ "0123456789",
@@ -75,7 +75,9 @@ class BitmapFont (object):
         self._calculate_offsets ()
     
     def _calculate_offsets (self):
-        """
+        """calculate_offsets () -> None
+        
+        Calculates the internal character offsets for each line.
         """
         self.offsets = {}
         offsets = self.offsets

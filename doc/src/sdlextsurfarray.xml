@@ -3,9 +3,14 @@
 
 <module name="pygame2.sdlext.surfarray">
   <short>
-    module for accessing surface pixel data using numeric array interfaces
+    module for accessing surface pixel data using numeric array interfaces.
   </short>
   <desc>
+    .. note::
+    
+      The module is subject to change in future version and thus is
+      marked as deprecated.
+
     Functions to convert pixel data between pygame Surfaces and arrays. This
     module will only be functional when pygame can use the external Numpy or
     Numeric packages.

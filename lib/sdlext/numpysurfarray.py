@@ -42,7 +42,12 @@ In contrast to Numeric Numpy does use unsigned 16bit integers, images
 with 16bit data will be treated as unsigned integers.
 """
 
-import pygame2.sdl
+import pygame2.compat
+pygame2.compat.deprecation ("""The numpysurfarray package is deprecated and
+will be changed or removed in future versions""")
+
+import pygame2.sdl.video as video
+import pygame2.sdl.constants as sdlconst
 import numpy
 import re
 
@@ -59,8 +64,8 @@ def array2d (surface):
     (see the Surface.lock - lock the Surface memory for pixel access
     method).
     """
-    format = surface.format
-    bpp = format.bytes_per_pixel
+    sformat = surface.format
+    bpp = sformat.bytes_per_pixel
     if bpp <= 0 or bpp > 4:
         raise ValueError ("unsupported bit depth for 2D array")
 
@@ -69,7 +74,7 @@ def array2d (surface):
         
     # Remove extra pitch from each row.
     width = surface.width
-    pitchdiff = format.pitch - width * bpp
+    pitchdiff = sformat.pitch - width * bpp
     if pitchdiff > 0:
         pattern = re.compile ('(%s)%s' % ('.' * width * bpp, '.' * pitchdiff),
                               flags=re.DOTALL)
@@ -79,7 +84,7 @@ def array2d (surface):
         # Pad each triplet of bytes with another zero
         pattern = re.compile ('...', flags=re.DOTALL)
         data = '\0'.join (pattern.findall (data))
-        if pygame2.sdl.BYTEORDER == pygame2.sdl.LIL_ENDIAN:
+        if sdlconst.BYTEORDER == sdlconst.LIL_ENDIAN:
             data += '\0'
         else:
             data = '\0' + data
@@ -107,17 +112,17 @@ def pixels2d (surface):
     the array (see the Surface.lock - lock the Surface memory for pixel
     access method).
     """
-    format = surface.format
-    bpp = format.bytes_per_pixel
+    sformat = surface.format
+    bpp = sformat.bytes_per_pixel
     if bpp == 3 or bpp < 1 or bpp > 4:
         raise ValueError ("unsupported bit depth for 2D reference array")
 
     typecode = (numpy.uint8, numpy.uint16, None, numpy.uint32)[bpp - 1]
     array = numpy.frombuffer (surface.pixels, typecode)
-    array.shape = surface.height, format.pitch / bpp
+    array.shape = surface.height, sformat.pitch / bpp
 
     # Padding correction for certain depth due to padding bytes.
-    array = array[:,:surface.width]
+    array = array[:, :surface.width]
     array = numpy.transpose (array)
     return array
 
@@ -134,8 +139,8 @@ def array3d (surface):
     (see the Surface.lock - lock the Surface memory for pixel access
     method).
     """
-    format = surface.format
-    bpp = format.bytes_per_pixel
+    sformat = surface.format
+    bpp = sformat.bytes_per_pixel
     array = array2d (surface)
 
     # Taken from from Alex Holkner's pygame-ctypes package. Thanks a
@@ -153,9 +158,9 @@ def array3d (surface):
         array = numpy.transpose (array, (1, 2, 0))
         return array
     else:
-        masks = format.masks
-        shifts = format.shifts
-        losses = format.losses
+        masks = sformat.masks
+        shifts = sformat.shifts
+        losses = sformat.losses
         planes = [((array & masks[0]) >> shifts[0]) << losses[0],
                   ((array & masks[1]) >> shifts[1]) << losses[1],
                   ((array & masks[2]) >> shifts[2]) << losses[2]]
@@ -178,17 +183,17 @@ def pixels3d (surface):
     the array (see the Surface.lock - lock the Surface memory for pixel
     access method).
     """
-    format = surface.format
-    bpp = format.bytes_per_pixel
+    sformat = surface.format
+    bpp = sformat.bytes_per_pixel
     if bpp < 3 or bpp > 4:
         raise ValueError ("unsupported bit depth for 3D reference array")
-    lilendian = pygame2.sdl.BYTEORDER == pygame2.sdl.LIL_ENDIAN
+    lilendian = sdlconst.BYTEORDER == sdlconst.LIL_ENDIAN
 
     start = 0
     step = 0
 
     # Check for RGB or BGR surface.
-    shifts = format.shifts
+    shifts = sformat.shifts
     if shifts[0] == 16 and shifts[1] == 8 and shifts[2] == 0:
         # RGB 
         if lilendian:
@@ -214,7 +219,7 @@ def pixels3d (surface):
     array = numpy.ndarray \
             (shape=(surface.width, surface.height, 3),
              dtype=numpy.uint8, buffer=surface.pixels,
-             offset=start, strides=(bpp, format.pitch, step))
+             offset=start, strides=(bpp, sformat.pitch, step))
     return array
 
 def array_alpha (surface):
@@ -231,8 +236,8 @@ def array_alpha (surface):
     (see the Surface.lock - lock the Surface memory for pixel access
     method).
     """
-    format = surface.format
-    if format.bytes_per_pixel == 1 or not surface.get_alpha ():
+    sformat = surface.format
+    if sformat.bytes_per_pixel == 1 or not surface.get_alpha ():
         # 1 bpp surfaces and surfaces without alpha are always fully
         # opaque.
         array = numpy.empty (surface.width * surface.height, numpy.uint8)
@@ -243,7 +248,7 @@ def array_alpha (surface):
     array = array2d (surface)
     # Those shifts match the results from the old numeric system
     # exactly.
-    array = array >> format.shifts[3] << format.losses[3]
+    array = array >> sformat.shifts[3] << sformat.losses[3]
     array = array.astype (numpy.uint8)
     return array
 
@@ -262,18 +267,18 @@ def pixels_alpha (surface):
     The Surface this array references will remain locked for the
     lifetime of the array.
     """
-    format = surface.format
-    if format.bytes_per_pixel != 4:
+    sformat = surface.format
+    if sformat.bytes_per_pixel != 4:
         raise ValueError ("unsupported bit depth for alpha reference array")
-    lilendian = pygame2.sdl.BYTEORDER == pygame2.sdl.LIL_ENDIAN
+    lilendian = sdlconst.BYTEORDER == sdlconst.LIL_ENDIAN
 
     # ARGB surface.
     start = 0
     
-    if format.shifts[3] == 24 and lilendian:
+    if sformat.shifts[3] == 24 and lilendian:
         # RGBA surface.
         start = 3
-    elif format.shifts[3] == 0 and not lilendian:
+    elif sformat.shifts[3] == 0 and not lilendian:
         start = 3
     else:
         raise ValueError ("unsupported colormasks for alpha reference array")
@@ -281,7 +286,7 @@ def pixels_alpha (surface):
     array = numpy.ndarray \
             (shape=(surface.width, surface.height),
              dtype=numpy.uint8, buffer=surface.pixels,
-             offset=start, strides=(4, format.pitch))
+             offset=start, strides=(4, sformat.pitch))
     return array
 
 def array_colorkey (surface):
@@ -345,7 +350,7 @@ def make_surface (array):
     else:
         raise ValueError ("must be a valid 2d or 3d array")
 
-    surface = pygame2.sdl.Surface ((shape[0], shape[1]), 0, bpp, (r, g, b, 0))
+    surface = video.Surface ((shape[0], shape[1]), 0, bpp, (r, g, b, 0))
     blit_array (surface, array)
     return surface
 
@@ -362,8 +367,8 @@ def blit_array (surface, array):
     This function will temporarily lock the Surface as the new values
     are copied.
     """
-    format = surface.format
-    bpp = format.bytes_per_pixel
+    sformat = surface.format
+    bpp = sformat.bytes_per_pixel
     if bpp <= 0 or bpp > 4:
         raise ValueError ("unsupported bit depth for surface")
     
@@ -377,11 +382,11 @@ def blit_array (surface, array):
     # lot.
     if len(shape) == 3 and shape[2] == 3:
         array = numpy.transpose (array, (1, 0, 2))
-        shifts = format.shifts
-        losses = format.losses
-        array = (array[:,:,::3] >> losses[0] << shifts[0]) | \
-                (array[:,:,1::3] >> losses[1] << shifts[1]) | \
-                (array[:,:,2::3] >> losses[2] << shifts[2])
+        shifts = sformat.shifts
+        losses = sformat.losses
+        array = (array[:, :, ::3] >> losses[0] << shifts[0]) | \
+                (array[:, :, 1::3] >> losses[1] << shifts[1]) | \
+                (array[:, :, 2::3] >> losses[2] << shifts[2])
     elif len (shape) == 2:
         array = numpy.transpose (array)
     else:
@@ -396,7 +401,7 @@ def blit_array (surface, array):
     if itemsize > bpp:
         # Trim bytes from each element, keep least significant byte(s)
         pattern = '%s(%s)' % ('.' * (itemsize - bpp), '.' * bpp)
-        if pygame2.sdl.BYTEORDER == pygame2.sdl.LIL_ENDIAN:
+        if sdlconst.BYTEORDER == sdlconst.LIL_ENDIAN:
             pattern = '(%s)%s' % ('.' * bpp, '.' * (itemsize - bpp))
         data = ''.join (re.compile (pattern, flags=re.DOTALL).findall (data))
     elif itemsize < bpp:
@@ -404,13 +409,13 @@ def blit_array (surface, array):
         pad = '\0' * (bpp - itemsize)
         pixels = re.compile ('.' * itemsize, flags=re.DOTALL).findall (data)
         data = pad.join (pixels)
-        if pygame2.sdl.BYTEORDER == pygame2.sdl.LIL_ENDIAN:
+        if sdlconst.BYTEORDER == sdlconst.LIL_ENDIAN:
             data = data + pad
         else:
             data = pad + data
 
     # Add zeros pad for pitch correction
-    pitchdiff = format.pitch - width * bpp
+    pitchdiff = sformat.pitch - width * bpp
     if pitchdiff > 0:
         pad = '\0' * pitchdiff
         rows = re.compile ('.' * width * bpp, flags=re.DOTALL).findall (data)
@@ -434,8 +439,8 @@ def map_array (surface, array):
     """
     # Taken from from Alex Holkner's pygame-ctypes package. Thanks a
     # lot.
-    format = surface.format
-    bpp = format.bytes_per_pixel
+    sformat = surface.format
+    bpp = sformat.bytes_per_pixel
     if bpp <= 0 or bpp > 4:
         raise ValueError ("unsupported bit depth for surface array")
 
@@ -443,9 +448,9 @@ def map_array (surface, array):
     if shape[-1] != 3:
         raise ValueError ("array must be a 3d array of 3-value color data")
 
-    shifts = format.shifts
-    losses = format.losses
-    array = (array[:,:,::3] >> losses[0] << shifts[0]) | \
-            (array[:,:,1::3] >> losses[1] << shifts[1]) | \
-            (array[:,:,2::3] >> losses[2] << shifts[2])
+    shifts = sformat.shifts
+    losses = sformat.losses
+    array = (array[:, :, ::3] >> losses[0] << shifts[0]) | \
+            (array[:, :, 1::3] >> losses[1] << shifts[1]) | \
+            (array[:, :, 2::3] >> losses[2] << shifts[2])
     return array

@@ -31,14 +31,18 @@ A stereo sound file has two values per sample, while a mono sound file
 only has one.
 """
 
+import pygame2.compat
+pygame2.compat.deprecation ("""The numpysndarray package is deprecated and
+will be changed or removed in future versions""")
+
 import pygame2
-from base import *
+import pygame2.sdlmixer as mixer
 import numpy
 
 
 def _array_samples(sound, raw):
     # Info is a (freq, format, stereo) tuple
-    info = mixer.get_init ()
+    info = mixer.query_spec ()[1:]
     if not info:
         raise pygame2.Error ("Mixer not initialized")
     fmtbytes = (abs (info[1]) & 0xff) >> 3
@@ -64,8 +68,8 @@ def _array_samples(sound, raw):
     array.shape = shape
     return array
 
-def array (sound):
-    """pygame2._numpysndarray.array(Sound): return array
+def make_array (sound):
+    """pygame2._numpysndarray.make_array(Sound): return array
 
     Copy Sound samples into an array.
 
@@ -85,7 +89,7 @@ def samples (sound):
     always be in the format returned from pygame2.mixer.get_init().
     """
     # Info is a (freq, format, stereo) tuple
-    info = pygame2.mixer.get_init ()
+    info = mixer.query_spec ()[1:]
     if not info:
         raise pygame2.Error ("Mixer not initialized")
     fmtbytes = (abs (info[1]) & 0xff) >> 3
@@ -104,12 +108,12 @@ def samples (sound):
                  -16 : numpy.int16  # AUDUI_S16
                  }[info[1]]
 
-    array = numpy.frombuffer (data, typecode)
-    array.shape = shape
-    return array
+    soundarray = numpy.frombuffer (data, typecode)
+    soundarray.shape = shape
+    return soundarray
 
-def make_sound (array):
-    """pygame2._numpysndarray.make_sound(array): return Sound
+def make_sound (soundarray):
+    """pygame2._numpysndarray.make_sound(soundarray): return Sound
 
     Convert an array into a Sound object.
     
@@ -118,12 +122,12 @@ def make_sound (array):
     audio format.
     """
     # Info is a (freq, format, stereo) tuple
-    info = pygame2.mixer.get_init ()
+    info = mixer.query_spec ()[1:]
     if not info:
-        raise pygame2.error ("Mixer not initialized")
+        raise pygame2.Error ("Mixer not initialized")
     channels = info[2]
 
-    shape = array.shape
+    shape = soundarray.shape
     if channels == 1:
         if len (shape) != 1:
             raise ValueError ("Array must be 1-dimensional for mono mixer")
@@ -132,4 +136,4 @@ def make_sound (array):
             raise ValueError ("Array must be 2-dimensional for stereo mixer")
         elif shape[1] != channels:
             raise ValueError ("Array depth must match number of mixer channels")
-    return mixer.Sound (array)
+    return mixer.Sound (soundarray)

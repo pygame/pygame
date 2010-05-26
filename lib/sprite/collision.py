@@ -18,6 +18,12 @@
 
 # some different collision detection functions that could be used.
 
+"""Collision handling for sprite objects"""
+
+import pygame2.compat
+pygame2.compat.deprecation \
+    ("The sprite package is deprecated and will change in future versions")
+
 try:
     from pygame2.mask import from_surface
 except:
@@ -37,7 +43,7 @@ def collide_rect(left, right):
     """
     return left.rect.colliderect(right.rect)
 
-class collide_rect_ratio:
+class collide_rect_ratio (object):
     """A callable class that checks for collisions between
     two sprites, using a scaled version of the sprites
     rects.
@@ -73,12 +79,14 @@ class collide_rect_ratio:
         leftrect = left.rect
         width = leftrect.width
         height = leftrect.height
-        leftrect = leftrect.inflate( width * ratio - width, height * ratio - height )
+        leftrect = leftrect.inflate(width * ratio - width,
+                                    height * ratio - height)
         
         rightrect = right.rect
         width = rightrect.width
         height = rightrect.height
-        rightrect = rightrect.inflate( width * ratio - width, height * ratio - height )
+        rightrect = rightrect.inflate(width * ratio - width,
+                                      height * ratio - height)
         
         return leftrect.colliderect( rightrect )
 
@@ -111,7 +119,7 @@ def collide_circle( left, right ):
         rightradiussquared = right.radius ** 2
     except AttributeError:
         rightrect = right.rect
-        rightradiussquared = ( rightrect.width ** 2 + rightrect.height ** 2 ) / 4
+        rightradiussquared = (rightrect.width ** 2 + rightrect.height ** 2) / 4
     return distancesquared < leftradiussquared + rightradiussquared
 
 class collide_circle_ratio( object ):
@@ -166,17 +174,20 @@ class collide_circle_ratio( object ):
             else:
                 halfratio = self.halfratio
                 rightrect = right.rect
-                rightradiussquared = (rightrect.width ** 2 + rightrect.height ** 2) * halfratio
+                rightradiussquared = \
+                    (rightrect.width ** 2 + rightrect.height ** 2) * halfratio
         else:
             halfratio = self.halfratio
             leftrect = left.rect
-            leftradiussquared = (leftrect.width ** 2 + leftrect.height ** 2) * halfratio
+            leftradiussquared = \
+                (leftrect.width ** 2 + leftrect.height ** 2) * halfratio
             
             if hasattr( right, "radius" ):
                 rightradiussquared = (right.radius * ratio) ** 2
             else:
                 rightrect = right.rect
-                rightradiussquared = (rightrect.width ** 2 + rightrect.height ** 2) * halfratio
+                rightradiussquared = \
+                    (rightrect.width ** 2 + rightrect.height ** 2) * halfratio
         return distancesquared < leftradiussquared + rightradiussquared
 
 def collide_mask(left, right):
@@ -216,24 +227,25 @@ def spritecollide(sprite, group, dokill, collided = None):
     The dokill argument is a bool. If set to True, all Sprites that collide
     will be removed from the Group.
 
-    The collided argument is a callback function used to calculate if two sprites 
-    are colliding. it should take two sprites as values, and return a bool 
-    value indicating if they are colliding. If collided is not passed, all sprites 
-    must have a "rect" value, which is a rectangle of the sprite area, which will 
-    be used to calculate the collision.
+    The collided argument is a callback function used to calculate if
+    two sprites are colliding. it should take two sprites as values, and
+    return a bool value indicating if they are colliding. If collided is
+    not passed, all sprites must have a "rect" value, which is a
+    rectangle of the sprite area, which will be used to calculate the
+    collision.
     """
     crashed = []
     if collided is None:
         # Special case old behaviour for speed.
-        spritecollide = sprite.rect.colliderect
+        collide = sprite.rect.colliderect
         if dokill:
             for s in group.sprites():
-                if spritecollide(s.rect):
+                if collide(s.rect):
                     s.kill()
                     crashed.append(s)
         else:
             for s in group:
-                if spritecollide(s.rect):
+                if collide(s.rect):
                     crashed.append(s)
     else:
         if dokill:
@@ -303,9 +315,9 @@ def spritecollideany(sprite, group, collided = None):
        to calculate the collision."""
     if collided is None:
         # Special case old behaviour for speed.
-        spritecollide = sprite.rect.colliderect
+        collide = sprite.rect.colliderect
         for s in group:
-            if spritecollide(s.rect):
+            if collide(s.rect):
                 return s
     else:
         for s in group:

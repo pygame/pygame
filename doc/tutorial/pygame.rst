@@ -593,13 +593,20 @@ pygame.mixer.get_init
   :func:`pygame2.sdlmixer.was_init`
 
 pygame.mixer.stop
-  Use :meth:`pygame2.sdlmixer.Channel.stop`.
+  Use :meth:`pygame2.sdlmixer.Channel.halt` or
+  :func:`pygame2.sdlmixer.channel.halt`.
+
 pygame.mixer.pause
-  Use :meth:`pygame2.sdlmixer.Channel.stop`.
+  Use :meth:`pygame2.sdlmixer.Channel.pause` or
+  :func:`pygame2.sdlmixer.channel.pause`.
+
 pygame.mixer.unpause
-  Use :meth:`pygame2.sdlmixer.Channel.resume`.
+  Use :meth:`pygame2.sdlmixer.Channel.resume` or
+  :func:`pygame2.sdlmixer.channel.resume`.
+
 pygame.mixer.fadeout
-  Use :meth:`pygame2.sdlmixer.Channel.fade_out`.
+  Use :meth:`pygame2.sdlmixer.Channel.fade_out` or
+  :func:`pygame2.sdlmixer.channel.fade_out`.
 
 pygame.mixer.set_num_channels
    There is no similar function or attribute in Pygame2. Use
@@ -626,7 +633,7 @@ pygame.mixer.Sound.play
 
 pygame.mixer.Sound.stop
   There is no similar function or attribute in Pygame2. Use
-  :meth:`pygame2.sdlmixer.Channel.stop`.
+  :meth:`pygame2.sdlmixer.Channel.halt`.
 
 pygame.mixer.Sound.fadeout
    There is no similar function or attribute in Pygame2. Use

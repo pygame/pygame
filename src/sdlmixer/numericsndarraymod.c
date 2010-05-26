@@ -31,7 +31,7 @@ static PyObject* _sndarray_make_sound (PyObject* self, PyObject* arg);
 static PyMethodDef _sndarray_methods[] =
 {
     { "samples", _sndarray_samples, METH_VARARGS, "" },
-    { "array", _sndarray_array, METH_VARARGS, "" },
+    { "make_array", _sndarray_array, METH_VARARGS, "" },
     { "make_sound", _sndarray_make_sound, METH_VARARGS, "" },
     { NULL, NULL, 0, NULL},
 };

@@ -16,6 +16,12 @@
 ##    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ##
 
+"""Sprite groups"""
+
+import pygame2.compat
+pygame2.compat.deprecation \
+    ("The sprite package is deprecated and will change in future versions")
+
 from pygame2.sprite.sprites import Sprite
 
 class AbstractGroup(object):
@@ -45,15 +51,18 @@ class AbstractGroup(object):
         return self.spritedict.keys()
 
     def add_internal(self, sprite):
+        """Adds a dummy sprite entry."""
         self.spritedict[sprite] = 0
 
     def remove_internal(self, sprite):
+        """Removes a sprite"""
         r = self.spritedict[sprite]
         if r is not 0:
             self.lostsprites.append(r)
         del(self.spritedict[sprite])
 
     def has_internal(self, sprite):
+        """Checks, whether the passed sprite exists"""
         return self.spritedict.has_key(sprite)
 
     def copy(self):
@@ -118,7 +127,8 @@ class AbstractGroup(object):
                     sprite.remove_internal(self)
             else:
                 try:
-                    for spr in sprite: self.remove(spr)
+                    for spr in sprite:
+                        self.remove(spr)
                 except (TypeError, AttributeError):
                     if hasattr(sprite, '_spritegroup'):
                         for spr in sprite.sprites():
@@ -162,7 +172,8 @@ class AbstractGroup(object):
 
            calls the update method for all sprites in the group.
            Passes all arguments on to the Sprite update function."""
-        for s in self.sprites(): s.update(*args)
+        for s in self.sprites():
+            s.update(*args)
 
     def draw(self, surface):
         """draw(surface)
@@ -188,13 +199,15 @@ class AbstractGroup(object):
             for r in self.lostsprites:
                 bgd(surface, r)
             for r in self.spritedict.values():
-                if r is not 0: bgd(surface, r)
+                if r is not 0:
+                    bgd(surface, r)
         else:
             surface_blit = surface.blit
             for r in self.lostsprites:
                 surface_blit(bgd, r, r)
             for r in self.spritedict.values():
-                if r is not 0: surface_blit(bgd, r, r)
+                if r is not 0:
+                    surface_blit(bgd, r, r)
 
     def empty(self):
         """empty()
@@ -254,26 +267,35 @@ class GroupSingle(AbstractGroup):
     def __init__(self, sprite = None):
         AbstractGroup.__init__(self)
         self.__sprite = None
-        if sprite is not None: self.add(sprite)
+        if sprite is not None:
+            self.add(sprite)
 
     def copy(self):
+        """Copies the Group."""
         return GroupSingle(self.__sprite)
 
     def sprites(self):
-        if self.__sprite is not None: return [self.__sprite]
-        else: return []
+        """Returns the sprites of the Group as list."""
+        if self.__sprite is not None:
+            return [self.__sprite]
+        else:
+            return []
 
     def add_internal(self, sprite):
+        """Adds a sprite."""
         if self.__sprite is not None:
             self.__sprite.remove_internal(self)
         self.__sprite = sprite
 
-    def __nonzero__(self): return (self.__sprite is not None)
+    def __nonzero__(self):
+        return (self.__sprite is not None)
 
     def _get_sprite(self):
+        """Gets the sprite container"""
         return self.__sprite
 
     def _set_sprite(self, sprite):
+        """Sets (adds) a sprite"""
         self.add_internal(sprite)
         sprite.add_internal(self)
         return sprite
@@ -282,10 +304,14 @@ class GroupSingle(AbstractGroup):
                       "The sprite contained in this group")
     
     def remove_internal(self, sprite):
-        if sprite is self.__sprite: self.__sprite = None
+        """Removes a sprite"""
+        if sprite is self.__sprite:
+            self.__sprite = None
 
     def has_internal(self, sprite):
+        """Checks whether the sprite exists in the Group"""
         return (self.__sprite is sprite)
 
     # Optimizations...
-    def __contains__(self, sprite): return (self.__sprite is sprite)
+    def __contains__(self, sprite):
+        return (self.__sprite is sprite)

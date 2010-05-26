@@ -16,6 +16,12 @@
 ##    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ##
 
+"""Sprite objects"""
+
+import pygame2.compat
+pygame2.compat.deprecation \
+    ("The sprite package is deprecated and will change in future versions")
+
 class Sprite(object):
     """simple base class for visible game objects
     pygame2.sprite.Sprite(*groups): return Sprite
@@ -31,7 +37,8 @@ class Sprite(object):
 
     def __init__(self, *groups):
         self.__g = {} # The groups the sprite is in
-        if groups: self.add(groups)
+        if groups:
+            self.add (groups)
 
     def add(self, *groups):
         """add the sprite to groups
@@ -65,9 +72,11 @@ class Sprite(object):
             else: self.remove(*group)
 
     def add_internal(self, group):
+        """Adds a dummy group"""
         self.__g[group] = 0
 
     def remove_internal(self, group):
+        """Removes a group"""
         del self.__g[group]
 
     def update(self, *args):

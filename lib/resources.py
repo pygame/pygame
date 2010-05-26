@@ -52,14 +52,14 @@ def _get_stringio (data):
         iodata = io.StringIO (data)
     return iodata
 
-def open_zipfile (archive, filename, dir=None):
-    """open_zipfile (archive, filename, dir=None) -> StringIO or BytesIO
+def open_zipfile (archive, filename, directory=None):
+    """open_zipfile (archive, filename, directory=None) -> StringIO or BytesIO
     
     Opens and reads a certain file from a ZIP archive.
     
     Opens and reads a certain file from a ZIP archive. The result is returned
     as StringIO stream. *filename* can be a relative or absolute path within
-    the ZIP archive. The optional *dir* argument can be used to supply a
+    the ZIP archive. The optional *directory* argument can be used to supply a
     relative directory path, under which *filename* will be tried to retrieved.
     
     If the *filename* could not be found or an error occured on reading it,
@@ -79,7 +79,7 @@ def open_zipfile (archive, filename, dir=None):
     
     apath = filename
     if dir:
-        apath = "%s/%s" % (dir, filename)
+        apath = "%s/%s" % (directory, filename)
     
     try:
         dmpdata = archive.open (apath)
@@ -89,23 +89,23 @@ def open_zipfile (archive, filename, dir=None):
             archive.close ()
     return data
 
-def open_tarfile (archive, filename, dir=None, type=None):
-    """open_tarfile (archive, filename, dir=None, type=None) -> StringIO or BytesIO
+def open_tarfile (archive, filename, directory=None, ftype=None):
+    """open_tarfile (archive, filename, directory=None, ftype=None) -> StringIO or BytesIO
     
     Opens and reads a certain file from a TAR archive.
     
     Opens and reads a certain file from a TAR archive. The result is returned
     as StringIO stream. *filename* can be a relative or absolute path within
-    the TAR archive. The optional *dir* argument can be used to supply a
+    the TAR archive. The optional *directory* argument can be used to supply a
     relative directory path, under which *filename* will be tried to retrieved.
 
-    *type* is used to supply additional compression information, in case the
+    *ftype* is used to supply additional compression information, in case the
     system cannot determine the compression type itself, and can be either
     'gz' for gzip compression or 'bz2' for bzip2 compression.
     
     Note:
       
-      If *type* is supplied, the compreesion mode will be enforced for opening
+      If *ftype* is supplied, the compreesion mode will be enforced for opening
       and reading.
     
     If the *filename* could not be found or an error occured on reading it,
@@ -118,10 +118,10 @@ def open_tarfile (archive, filename, dir=None, type=None):
     opened = False
     
     mode = 'r'
-    if type:
-        if type not in ('gz', 'bz2'):
+    if ftype:
+        if ftype not in ('gz', 'bz2'):
             raise TypeError ("invalid TAR compression type")
-        mode = "r:%s" % type
+        mode = "r:%s" % ftype
     
     if not isinstance (archive, tarfile.TarFile):
         if not tarfile.is_tarfile (archive):
@@ -132,7 +132,7 @@ def open_tarfile (archive, filename, dir=None, type=None):
     
     apath = filename
     if dir:
-        apath = "%s/%s" % (dir, filename)
+        apath = "%s/%s" % (directory, filename)
     
     try:
         dmpdata = archive.extractfile (apath)
@@ -179,32 +179,32 @@ class Resources (object):
         if not zipfile.is_zipfile (filename):
             raise TypeError ("file '%s' is not a valid ZIP archive" % filename)
         archname = os.path.abspath (filename)
-        zip = zipfile.ZipFile (filename, 'r')
-        for path in zip.namelist ():
-            dirname, fname = os.path.split (path)
+        zipf = zipfile.ZipFile (filename, 'r')
+        for path in zipf.namelist ():
+            fname = os.path.split (path)[1]
             if fname:
                 self.files[fname] = (archname, 'zip', path)
-        zip.close ()
+        zipf.close ()
     
-    def _scantar (self, filename, type=None):
-        """_scantar (filename, type=None) -> None
+    def _scantar (self, filename, ftype=None):
+        """_scantar (filename, ftype=None) -> None
         
         Scans the passed TAR archive and indexes all the files contained by it.
         """
         if not tarfile.is_tarfile (filename):
             raise TypeError ("file '%s' is not a valid TAR archive" % filename)
         mode = 'r'
-        if type:
-            if type not in ('gz', 'bz2'):
+        if ftype:
+            if ftype not in ('gz', 'bz2'):
                 raise TypeError ("invalid TAR compression type")
-            mode = "r:%s" % type
+            mode = "r:%s" % ftype
         archname = os.path.abspath (filename)
         archtype = 'tar'
-        if type:
-            archtype = 'tar%s' % type
+        if ftype:
+            archtype = 'tar%s' % ftype
         tar = tarfile.open (filename, mode)
         for path in tar.getnames ():
-            dirname, fname = os.path.split (path)
+            fname = os.path.split (path)[1]
             self.files[fname] = (archname, archtype, path)
         tar.close ()
     
@@ -233,7 +233,7 @@ class Resources (object):
         a stream for availability.
         """
         abspath = os.path.abspath (filename)
-        dirname, fname = os.path.split (abspath)
+        fname = os.path.split (abspath)[1]
         if not fname:
             raise ValueError ("invalid file path")
         self.files[fname] = (None, None, abspath)
@@ -264,15 +264,15 @@ class Resources (object):
         
         Raises a KeyError, if *filename* could not be found.
         """
-        archive, type, pathname = self.files[filename]
+        archive, ftype, pathname = self.files[filename]
         if archive:
-            if type == 'zip':
+            if ftype == 'zip':
                 return open_zipfile (archive, pathname)
-            elif type == 'tar':
+            elif ftype == 'tar':
                 return open_tarfile (archive, pathname)
-            elif type == 'tarbz2':
+            elif ftype == 'tarbz2':
                 return open_tarfile (archive, pathname, 'bz2')
-            elif type == 'targz':
+            elif ftype == 'targz':
                 return open_tarfile (archive, pathname, 'gz')
             else:
                 raise ValueError ("unsupported archive type")
@@ -291,15 +291,15 @@ class Resources (object):
         
         Raises a KeyError, if *filename* could not be found.
         """
-        archive, type, pathname = self.files[filename]
+        archive, ftype, pathname = self.files[filename]
         if archive:
-            if type == 'zip':
+            if ftype == 'zip':
                 return open_zipfile (archive, pathname)
-            elif type == 'tar':
+            elif ftype == 'tar':
                 return open_tarfile (archive, pathname)
-            elif type == 'tarbz2':
+            elif ftype == 'tarbz2':
                 return open_tarfile (archive, pathname, 'bz2')
-            elif type == 'targz':
+            elif ftype == 'targz':
                 return open_tarfile (archive, pathname, 'gz')
             else:
                 raise ValueError ("unsupported archive type")
@@ -315,7 +315,7 @@ class Resources (object):
         
         Raises a KeyError, if *filename* could not be found.
         """
-        archive, type, pathname = self.files[filename]
+        archive, ftype, pathname = self.files[filename]
         if archive:
             return '%s@%s' % (pathname, archive)
         return pathname
@@ -338,8 +338,8 @@ class Resources (object):
         join = os.path.join
         add = self.add
         abspath = os.path.abspath (path)
-        for (p, dirnames, filenames) in os.walk (abspath):
-            if match and match(p) is not None:
+        for (pdir, dirnames, filenames) in os.walk (abspath):
+            if match and match(pdir) is not None:
                 continue
             for fname in filenames:
-                add (join (p, fname))
+                add (join (pdir, fname))

@@ -12,6 +12,11 @@
       allows you to write compatible code for various platforms having
       either Numeric *or* numpy installed.
 
+    .. note::
+    
+      The module is subject to change in future version and thus is
+      marked as deprecated.
+
     Functions to convert pixel data between pygame Surfaces and Numpy
     arrays. This module will only be available when pygame can use the
     external Numpy package.

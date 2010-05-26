@@ -199,57 +199,57 @@ textmarker_strings = (               #sized 8x16
 
 
 
-def compile(strings, black='X', white='.',xor='o'):
-   """compile(strings, black, white,xor) -> data, mask
+def compile(strings, black='X', white='.', xor='o'):
+    """compile(strings, black, white,xor) -> data, mask
+    
+    Compile cursor strings into cursor data
+    
+    This takes a set of strings with equal length and computes
+    the binary data for that cursor. The string widths must be
+    divisible by 8.
+    
+    The black and white arguments are single letter strings that
+    tells which characters will represent black pixels, and which
+    characters represent white pixels. All other characters are
+    considered clear.
+    
+    This returns a tuple containing the cursor data and cursor mask
+    data. Both these arguments are used when setting a cursor with
+    pygame2.sdl.mouse.set_cursor().
+    """
 
-   Compile cursor strings into cursor data
-   
-   This takes a set of strings with equal length and computes
-   the binary data for that cursor. The string widths must be
-   divisible by 8.
-   
-   The black and white arguments are single letter strings that
-   tells which characters will represent black pixels, and which
-   characters represent white pixels. All other characters are
-   considered clear.
-   
-   This returns a tuple containing the cursor data and cursor mask
-   data. Both these arguments are used when setting a cursor with
-   pygame2.sdl.mouse.set_cursor().
-   """
+    #first check for consistent lengths
+    size = len(strings[0]), len(strings)
+    if size[0] % 8 or size[1] % 8:
+        raise ValueError ("cursor string sizes must be divisible by 8")
+    for s in strings[1:]:
+        if len(s) != size[0]:
+            raise ValueError ("Cursor strings are inconsistent lengths")
 
-   #first check for consistent lengths
-   size = len(strings[0]), len(strings)
-   if size[0] % 8 or size[1] % 8:
-       raise ValueError ("cursor string sizes must be divisible by 8")
-   for s in strings[1:]:
-       if len(s) != size[0]:
-           raise ValueError ("Cursor strings are inconsistent lengths")
-
-   #create the data arrays.
-   #this could stand a little optimizing
-   maskdata = []
-   filldata = []
-   maskitem = fillitem = 0
-   step = 8
-   for s in strings:
-       for c in s:
-           maskitem = maskitem << 1
-           fillitem = fillitem << 1
-           step = step - 1
-           if c == black:
-               maskitem = maskitem | 1
-           elif c == white:
-               maskitem = maskitem | 1
-               fillitem = fillitem | 1
-           elif c == xor:
-               fillitem = fillitem | 1
-           if not step:
-               maskdata.append(maskitem)
-               filldata.append(fillitem)
-               maskitem = fillitem = 0
-               step = 8
-   return tuple(filldata), tuple(maskdata)
+    #create the data arrays.
+    #this could stand a little optimizing
+    maskdata = []
+    filldata = []
+    maskitem = fillitem = 0
+    step = 8
+    for s in strings:
+        for c in s:
+            maskitem = maskitem << 1
+            fillitem = fillitem << 1
+            step = step - 1
+            if c == black:
+                maskitem = maskitem | 1
+            elif c == white:
+                maskitem = maskitem | 1
+                fillitem = fillitem | 1
+            elif c == xor:
+                fillitem = fillitem | 1
+            if not step:
+                maskdata.append(maskitem)
+                filldata.append(fillitem)
+                maskitem = fillitem = 0
+                step = 8
+    return tuple(filldata), tuple(maskdata)
 
 def load_xbm(curs, mask):
     """load_xbm(cursorfile, maskfile) -> cursor_args
@@ -261,13 +261,16 @@ def load_xbm(curs, mask):
     should work with typical XBM files.
     """
     def bitswap(num):
+        """simple bit swapper"""
         val = 0
         for x in range(8):
-            b = num&(1<<x) != 0
-            val = val<<1 | b
+            b = num & (1 << x) != 0
+            val = val << 1 | b
         return val
-    if type(curs) is type(''): curs = open(curs)
-    if type(mask) is type(''): mask = open(mask)
+    if type(curs) is type(''):
+       curs = open(curs)
+    if type(mask) is type(''):
+       mask = open(mask)
     curs = curs.readlines()
     mask = mask.readlines()
     #avoid comments

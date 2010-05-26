@@ -16,6 +16,12 @@
 ##    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ##
 
+"""Specialized rendering- and layer-aware groups"""
+
+import pygame2.compat
+pygame2.compat.deprecation \
+    ("The sprite package is deprecated and will change in future versions")
+
 try:
     from pygame2.sdl.time import get_ticks
     __hassdl = True
