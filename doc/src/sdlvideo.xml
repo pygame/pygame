@@ -158,11 +158,6 @@
       information, typically displaying some sort of image data. The Surface is
       the central element of the :mod:`pygame2.sdl.video` module and used to
       display image information on an SDL screen window.
-      
-      .. todo::
-        
-        TODO
-      
     </desc>
     <method name="blit">
       <call>blit (srcsurface[, destrect, srcrect, blendargs]) -> Rect</call>

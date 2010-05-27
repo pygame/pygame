@@ -41,6 +41,8 @@ Members
 ^^^^^^^
 .. cmember:: ALCdevice* PyDevice.device
 
+  Pointer to the underlying OpenAL device.
+
 Functions
 ^^^^^^^^^
 .. cfunction:: int PyDevice_Check (PyObject *obj)
@@ -110,15 +112,25 @@ PyContext
 .. ctype:: PyContext
 .. ctype:: PyContext_Type
 
-.. todo::
-
-  describe
+  PyContext objects represent logical state groups, where sources and a
+  listener are managed and audio data is correctly streamed to the
+  underlying output device.
 
 Members
 ^^^^^^^
 .. cmember:: ALCcontext* context
+
+  Pointer to the underlying OpenAL context.
+
 .. cmember:: PyObject* device
+
+  The :ctype:`PyDevice` bound to the context.
+
 .. cmember:: PyObject* listener
+
+  The :ctype:`PyListener` bound to the context. This will be NULL until
+  the first call to the :attr:`pygame2.openal.Context.listener`
+  property.
 
 Functions
 ^^^^^^^^^
@@ -137,15 +149,22 @@ PyBuffers
 .. ctype:: PyBuffers
 .. ctype:: PyBuffers_Type
 
-.. todo::
-
-  describe
+  PyBuffer objects are used by OpenAL to buffer and provide PCM data for
+  playback, recording and manipulation.
 
 Members
 ^^^^^^^
 .. cmember:: PyObject* context
+
+  The :ctype:`PyContext` the PyBuffers was created from.
+
 .. cmember:: ALCsizei count
+
+  The amount of buffers reserved.
+
 .. cmember:: ALuint* buffers
+
+  OpenAL identifiers for the single buffers.
 
 Functions
 ^^^^^^^^^
@@ -164,15 +183,25 @@ PySources
 .. ctype:: PySources
 .. ctype:: PySources_Type
 
-.. todo::
-
-  describe
+   Sources store locations, directions, and other attributes of an
+   object in 3D space and have a buffer associated with them for
+   playback. When the program wants to play a sound, it controls
+   execution through a source object. Sources are processed
+   independently from each other.
 
 Members
 ^^^^^^^
 .. cmember:: PyObject* context
+
+  The :ctype:`PyContext` the PySources was created from.
+
 .. cmember:: ALCsizei count
+
+  The amount of sources reserved.
+
 .. cmember:: ALuint* sources
+
+  OpenAL identifiers for the single sources.
 
 Functions
 ^^^^^^^^^
@@ -191,13 +220,15 @@ PyListner
 .. ctype:: PyListener
 .. ctype:: PyListener_Type
 
-.. todo::
-
-  describe
+  The PyListener represents the user hearing the sounds played by OpenAL
+  in a specific :ctype:`PyContext`. Source playback is done relative to
+  the position of the PyListener in the 3D space.
 
 Members
 ^^^^^^^
 .. cmember:: PyObject* context
+
+  The :ctype:`PyContext` the PyListener belongs to.
 
 Functions
 ^^^^^^^^^

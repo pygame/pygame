@@ -369,7 +369,7 @@
       Sources store locations, directions, and other attributes of an object in
       3D space and have a buffer associated with them for playback. When the
       program wants to play a sound, it controls execution through a source
-      object. Sources are processed independently from each other and.
+      object. Sources are processed independently from each other.
       
       Sources instances cannot be created directly, but are bound to a
       :class:`Context`. To create a Sources instance for the currently
@@ -476,7 +476,7 @@
         
         .. note::
         
-          This will only succeed, when all buffers within the :class`Buffers`
+          This will only succeed, when all buffers within the :class:`Buffers`
           instance were processed by the source. Otherwise a
           :exc:`pygame2.Error` will be raised.
       </desc>
