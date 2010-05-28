@@ -58,10 +58,16 @@ def run():
     font.render("or BLAND!", pygame2.Color(0, 0xCC, 28, 128), ptsize=64,
                 dest=(screen, 258, 237))
 
-    font.render("I \u2665 Unicode", pygame2.Color(0, 0xCC, 0xDD), ptsize=64,
+    text = "I \u2665 Unicode"
+    if sys.version_info[0] < 3:
+        text = "I " + unichr(0x2665) + " Unicode"
+    font.render(text, pygame2.Color(0, 0xCC, 0xDD), ptsize=64,
                 dest=(screen, 298, 320))
-
-    font.render("\u2665", colors["grey_light"], colors["red"], ptsize=148,
+    
+    text = "\u2665"
+    if sys.version_info[0] < 3:
+        text = unichr(0x2665)
+    font.render(text, colors["grey_light"], colors["red"], ptsize=148,
                 dest=(screen, 480, 32))
 
     font.render("...yes, this is a SDL surface", pygame2.Color(0, 0, 0),
