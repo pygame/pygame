@@ -33,7 +33,7 @@
 #include <SDL/SDL_mixer.h>
 #include <SDL.h>
 #include <SDL_thread.h>
-#include <avformat.h>
+#include <libavformat/avformat.h>
 
 
 /* Buffer Node for a simple FIFO queue of sound samples. */

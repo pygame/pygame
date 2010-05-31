@@ -44,8 +44,8 @@
 #include <Python.h>
 #include <SDL.h>
 #include <SDL_thread.h>
-#include <avformat.h>
-#include <swscale.h>
+#include <libavformat/avformat.h>
+#include <libswscale/swscale.h>
 
 	
 /*constant definitions */

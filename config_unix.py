@@ -186,8 +186,8 @@ def main():
         Dependency('SCRAP', '', 'libX11', ['X11']),
         Dependency('PORTMIDI', 'portmidi.h', 'libportmidi.so', ['portmidi']),
         Dependency('PORTTIME', 'porttime.h', 'libporttime.so', ['porttime']),
-        FFMPEGDependency('AVFORMAT', 'avformat.h', 'libavformat.a', ['avformat'], ['/include/libavformat', '/include/ffmpeg']),
-        FFMPEGDependency('SWSCALE', 'swscale.h', 'libswscale.a', ['swscale'], ['/include/libswscale', '/include/ffmpeg']),
+        FFMPEGDependency('AVFORMAT', 'libavformat/avformat.h', 'libavformat.a', ['avformat'], ['/include', '/include/ffmpeg']),
+        FFMPEGDependency('SWSCALE', 'libswscale/swscale.h', 'libswscale.a', ['swscale'], ['/include', '/include/ffmpeg']),
         DependencyProg('FREETYPE', 'FREETYPE_CONFIG', 'freetype-config', '2.0', ['freetype'], '--ftversion'),
         #Dependency('GFX', 'SDL_gfxPrimitives.h', 'libSDL_gfx.so', ['SDL_gfx']),
     ]
