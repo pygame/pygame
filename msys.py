@@ -226,7 +226,10 @@ class Msys(object):
                        doc="True if the execution environment is MSYS")
 
     def windows_to_msys(self, path):
-        """Return an MSYS translation of an absolute Windows path"""
+        """Return an MSYS translation of an absolute Windows path
+
+        Spaces in the path are escaped.
+        """
         
         msys_root = self.msys_root
         mingw_root = self.mingw_root
@@ -236,12 +239,14 @@ class Msys(object):
         if mingw_root is not None and path_lower.startswith(mingw_root.lower()):
             return '/mingw' + path[len(mingw_root):].replace(os.sep, '/')
         drive, tail = os.path.splitdrive(path)
-        return '/%s%s' % (drive[0], tail.replace(os.sep, '/'))
+        tail = tail.replace(os.sep, '/')
+        tail = tail.replace(' ', '\\ ')
+        return '/%s%s' % (drive[0], tail)
 
     def msys_to_windows(self, path):
         """Return a Windows translation of an MSYS path
         
-        The Unix path separator is uses as it survives the distutils setup
+        The Unix path separator is used as it survives the distutils setup
         file read process. Raises a ValueError if the path cannot be
         translated.
         """
