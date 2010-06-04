@@ -1,7 +1,4 @@
-try:
-    import pygame2.test.pgunittest as unittest
-except:
-    import pgunittest as unittest
+import unittest
 from pygame2.base import Surface
 
 class TestSurface (Surface):

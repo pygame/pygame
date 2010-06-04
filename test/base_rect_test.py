@@ -1,8 +1,4 @@
-try:
-    import pygame2.test.pgunittest as unittest
-except:
-    import pgunittest as unittest
-
+import unittest
 from pygame2.base import Rect
 
 class RectTest (unittest.TestCase):
@@ -76,19 +72,19 @@ class RectTest (unittest.TestCase):
         r4 = Rect(10,20,30,40)
 
         class foo (Rect):
-            def __eq__(self,other):
-                return id(self) == id(other);
+            def __eq__ (self, other):
+                return id(self) == id(other)
 
         class foo2 (Rect):
             pass
 
         r5 = foo(10,20,30,40)
         r6 = foo2(10,20,30,40)
-
-        self.assertNotEqual(r5, r2)
-
+        
+        self.assertEqual ((r5 == r2), False)
+        self.assertEqual ((r2 == r5), False)
         # because we define equality differently for this subclass.
-        self.assertEqual(r6, r2)
+        self.assertEqual ((r6 == r2), True)
 
 
         rect_list = [r1,r2,r3,r4,r6]

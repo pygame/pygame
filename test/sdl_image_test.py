@@ -1,13 +1,9 @@
 import os, sys
+import unittest
 try:
     import StringIO as stringio
 except ImportError:
     import io as stringio
-
-try:
-    import pygame2.test.pgunittest as unittest
-except:
-    import pgunittest as unittest
 
 import pygame2
 import pygame2.sdl.image as image

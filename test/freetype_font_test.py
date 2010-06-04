@@ -1,9 +1,5 @@
 import os
-try:
-    import pygame2.test.pgunittest as unittest
-except:
-    import pgunittest as unittest
-
+import unittest
 import pygame2
 import pygame2.freetype as ft
 import pygame2.freetype.constants as ft_const

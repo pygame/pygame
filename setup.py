@@ -137,17 +137,18 @@ if __name__ == "__main__":
                  "pygame2.sprite",
                  "pygame2.threads",
                  "pygame2.test",
+                 "pygame2.test.util",
                  "pygame2.dll",
                  ]
     package_dir = { "pygame2" : "lib",
                     "pygame2.examples" : "examples",
-                    "pygame2.sprite" : "lib/sprite",
-                    "pygame2.threads" : "lib/threads",
+                    "pygame2.sprite" : os.path.join ("lib", "sprite"),
+                    "pygame2.threads" : os.path.join ("lib", "threads"),
                     "pygame2.test" : "test",
+                    "pygame2.test.util" : os.path.join ("test", "util"),
                     }
     package_data = {
         "pygame2.examples" : find_pkg_data ("examples"),
-        "pygame2.test" : find_pkg_data ("test", ["c_api", "util"]),
         }
 
     dllfiles = [ os.path.join ("pygame2", "dll"),

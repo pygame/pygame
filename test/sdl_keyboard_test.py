@@ -1,10 +1,4 @@
-try:
-    import pygame2.test.pgunittest as unittest
-    from pygame2.test.pgunittest import doprint, interactive
-except:
-    import pgunittest as unittest
-    from pgunittest import doprint, interactive
-
+import unittest
 import pygame2
 import pygame2.sdl.keyboard as keyboard
 import pygame2.sdl.video as video

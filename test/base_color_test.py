@@ -1,10 +1,7 @@
-try:
-    import pygame2.test.pgunittest as unittest
-except:
-    import pgunittest as unittest
-
 import sys
 import math
+
+import unittest
 from pygame2.base import Color
 
 if sys.version_info >= (3, 0, 0):
@@ -803,15 +800,15 @@ class ColorTest (unittest.TestCase):
         c = Color (128, 128, 128, 128)
         t = c.normalize ()
         for v in t:
-            self.assertAlmostEquals (v, 0.5, 2)
+            self.assertAlmostEquals (v, 0.5, places=2)
 
         c = Color (128, 255, 0, 52)
         t = c.normalize ()
-        self.assertAlmostEquals (t[0], 0.5, 2)
+        self.assertAlmostEquals (t[0], 0.5, places=2)
         self.assertEqual (t[1], 1.0)
         self.assertEqual (t[2], 0.0)
         # 52 / 255 ~= .20
-        self.assertAlmostEquals (t[3], 0.2, 2)
+        self.assertAlmostEquals (t[3], 0.2, places=2)
 
     def test_pygame2_base_Color_r(self):
 

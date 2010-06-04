@@ -1,9 +1,5 @@
 import sys
-try:
-    import pygame2.test.pgunittest as unittest
-except:
-    import pgunittest as unittest
-
+import unittest
 import pygame2
 from pygame2.colorpalettes import CGAPALETTE
 from pygame2 import Rect, Color

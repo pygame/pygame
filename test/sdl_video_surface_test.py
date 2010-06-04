@@ -1,8 +1,5 @@
 import sys
-try:
-    import pygame2.test.pgunittest as unittest
-except:
-    import pgunittest as unittest
+import unittest
 
 try:
     import StringIO as stringio

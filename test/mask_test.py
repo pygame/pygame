@@ -1,8 +1,4 @@
-try:
-    import pygame2.test.pgunittest as unittest
-except:
-    import pgunittest as unittest
-
+import unittest
 import random
 import pygame2
 import pygame2.mask

@@ -1,9 +1,4 @@
-try:
-    import pygame2.test.pgunittest as unittest
-    import pygame2.test.pgunittest as unittest
-except:
-    import pgunittest as unittest
-
+import unittest
 import sys, math
 import pygame2
 import pygame2.math as pmath

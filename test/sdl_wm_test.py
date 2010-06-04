@@ -1,15 +1,14 @@
 import os
-try:
-    import pygame2.test.pgunittest as unittest
-    from pygame2.test.pgunittest import doprint, interactive
-except:
-    import pgunittest as unittest
-    from pgunittest import doprint, interactive
-
+import unittest
 import pygame2
 import pygame2.sdl.wm as wm
 import pygame2.sdl.video as video
 import pygame2.sdl.constants as constants
+
+try:
+    from pygame2.test.util.testutils import interactive
+except ImportError:
+    from util.testutils import interactive
 
 class SDLWMTest (unittest.TestCase):
 

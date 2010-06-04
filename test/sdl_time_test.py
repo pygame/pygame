@@ -1,11 +1,5 @@
 import time
-try:
-    import pygame2.test.pgunittest as unittest
-    from pygame2.test.pgunittest import doprint, interactive
-except:
-    import pgunittest as unittest
-    from pgunittest import doprint, interactive
-
+import unittest
 import pygame2
 import pygame2.sdl as sdl
 import pygame2.sdl.time as sdltime

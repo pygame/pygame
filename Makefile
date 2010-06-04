@@ -105,7 +105,7 @@ release: dist
 	@$(PYTHON) config/bundle_docs.py
 
 runtest:
-	@$(PYTHON) test/run_tests.py
+	@$(PYTHON) test/util/runtests.py
 
 # Do not run these in production environments! They are for testing
 # purposes only!
@@ -133,13 +133,13 @@ installall:
 	@WITH_EXPERIMENTAL=$(EXPERIMENTAL) python3.1 setup.py install
 
 testall:
-	@python2.4 test/run_tests.py
+	@python2.4 test/util/runtests.py
 	@rm -rf test/*.pyc
-	@python2.5 test/run_tests.py
+	@python2.5 test/util/runtests.py
 	@rm -rf test/*.pyc
-	@python2.6 test/run_tests.py
+	@python2.6 test/util/runtests.py
 	@rm -rf test/*.pyc
-	@python3.1 test/run_tests.py
+	@python3.1 test/util/runtests.py
 	@rm -rf test/*.pyc
 
 testall2:

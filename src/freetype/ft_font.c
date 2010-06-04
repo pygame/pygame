@@ -794,7 +794,7 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
         }
 
         surface = PySDLSurface_AsSDLSurface(surface_obj);
-            
+
         if (PGFT_Render_ExistingSurface(ft, font, &render, 
                 text, surface, xpos, ypos, 
                 &fg_color, bg_color_obj ? &bg_color : NULL,

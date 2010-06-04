@@ -1,9 +1,5 @@
 import os, sys
-try:
-    import pygame2.test.pgunittest as unittest
-except:
-    import pgunittest as unittest
-
+import unittest
 import pygame2
 import pygame2.sdl.video as video
 import pygame2.sdl.gl as gl

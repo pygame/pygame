@@ -1,8 +1,5 @@
 import sys
-try:
-    import pygame2.test.pgunittest as unittest
-except:
-    import pgunittest as unittest
+import unittest
 
 from pygame2.base import BufferProxy, Color
 from pygame2.colorpalettes import VGAPALETTE

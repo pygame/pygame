@@ -1,8 +1,4 @@
-try:
-    import pygame2.test.pgunittest as unittest
-except:
-    import pgunittest as unittest
-
+import unittest
 import sys, math
 import pygame2
 import pygame2.math as pmath
@@ -314,7 +310,7 @@ class MathVector2Test (unittest.TestCase):
             v.epsilon = eps
         
         v = Vector (2);
-        self.assertAlmostEqual (v.epsilon, 0, 5)
+        self.assertAlmostEqual (v.epsilon, 0, places=5)
         v.epsilon = 0.0000004
         self.assertEqual (v.epsilon, 0.0000004)
         v.epsilon = 57293.2

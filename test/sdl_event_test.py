@@ -1,8 +1,4 @@
-try:
-    import pygame2.test.pgunittest as unittest
-except:
-    import pgunittest as unittest
-
+import unittest
 import pygame2
 import pygame2.sdl.event as event
 import pygame2.sdl.constants as constants
