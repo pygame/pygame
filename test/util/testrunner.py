@@ -7,9 +7,10 @@ class TagTestLoader (TestLoader):
     """A TestLoader which handles additional __tags__ attributes for
     test functions.
     """
-    def __init__ (self, excludetags):
+    def __init__ (self, excludetags, randomizer=None):
         TestLoader.__init__ (self)
         self.excludetags = excludetags
+        self.randomizer = randomizer
 
     def getTestCaseNames(self, testCaseClass):
         """
@@ -38,7 +39,9 @@ class TagTestLoader (TestLoader):
         elif hasattr (unittest, "CmpToKey"):
             cmpkey = unittest.CmpToKey
 
-        if self.sortTestMethodsUsing:
+        if self.randomizer:
+            self.randomizer.shuffle (testFnNames)
+        elif self.sortTestMethodsUsing:
             if cmpkey:
                 testFnNames.sort (key=cmpkey(self.sortTestMethodsUsing))
             else:
@@ -58,21 +61,21 @@ class SimpleTestResult (TestResult):
     def addSuccess (self, test):
         TestResult.addSuccess (self, test)
         if self.verbose:
-            self.stream.write (".")
+            self.stream.write ("OK:     %s%s" % (test, os.linesep))
             self.stream.flush ()
         self.countcall ()
 
     def addError (self, test, err):
         TestResult.addError (self, test, err)
         if self.verbose:
-            self.stream.write ("E")
+            self.stream.write ("ERROR:  %s%s" % (test, os.linesep))
             self.stream.flush ()
         self.countcall ()
 
     def addFailure (self, test, err):
         TestResult.addFailure (self, test, err)
         if self.verbose:
-            self.stream.write ("F")
+            self.stream.write ("FAILED: %s%s" % (test, os.linesep))
             self.stream.flush ()
         self.countcall ()
 

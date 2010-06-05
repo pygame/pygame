@@ -41,8 +41,8 @@ class StreamOutput (object):
     def writesame (self, data):
         overhang = self.curoffset - len (data)
         if overhang > 0:
-            self.stream.write (data + " " * overhang + "\r")
+            self.stream.write ("%s %s\r" % (data, " " * overhang))
         else:
-            self.stream.write (data + "\r")
+            self.stream.write ("%s\r" % data)
         self.curoffset = len (data)
         self.stream.flush ()

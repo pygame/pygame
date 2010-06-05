@@ -1,6 +1,7 @@
 import os, sys, traceback
 import unittest
 import optparse
+import random
 
 try:
     from pygame2.test.util import support, testrunner
@@ -16,27 +17,50 @@ EXCLUDETAGS = [ "interactive", ]
 def printerror ():
     print (traceback.format_exc ())
 
+def include_tag (option, opt, value, parser, *args, **kwargs):
+    try:
+        if args:
+            EXCLUDETAGS.remove (args[0])
+        else:
+            EXCLUDETAGS.remove (value)
+    finally:
+        pass
+
+def exclude_tag (option, opt, value, parser, *args, **kwargs):
+    if value not in EXCLUDETAGS:
+        EXCLUDETAGS.append (value)
+
 def create_options ():
     """Create the accepatble options for the test runner."""
     optparser = optparse.OptionParser ()
-    optparser.add_option ("-n", "--nosubprocess", action="store_true",
+    optparser.add_option ("-s", "--subprocess", action="store_true",
                           default=False,
-                          help="run everything in a single process "
-                          "(default: use seperate subprocesses)")
+                          help="run everything in an own subprocess "
+                          "(default: use a single process)")
     optparser.add_option ("-v", "--verbose", action="store_true", default=False,
                           help="be verbose adnd print anything instantly")
     optparser.add_option ("-r", "--random", action="store_true", default=False,
                           help="randomize the order of tests")
     optparser.add_option ("-S", "--seed", type="int",
                           help="seed the randomizer (useful to "
-                          "recreate earlier test cases)")
+                          "recreate earlier randomized test cases)")
     optparser.add_option ("-i", "--interactive", action="callback",
-                          callback=EXCLUDETAGS.remove,
+                          callback=include_tag,
                           callback_args=("interactive",),
-                          help="also execute interactive tests ")
-    return optparser
+                          help="also execute interactive tests")
+    optparser.add_option ("-e", "--exclude", action="callback",
+                          callback=exclude_tag, type="string",
+                          help="exclude test containing the tag")
+    optkeys = [
+        "subprocess",
+        "random",
+        "seed",
+        "verbose"
+        ]
 
-def gettestfiles (testdir=None):
+    return optparser, optkeys
+
+def gettestfiles (testdir=None, randomizer=None):
     """
     Get all test files from the passed test directory. If none is
     passed, use the default pygame2 test directory.
@@ -50,13 +74,15 @@ def gettestfiles (testdir=None):
     for name in names:
         if name.endswith ("_test" + os.extsep + "py"):
             testfiles.append (name)
-    testfiles.sort ()
+    if randomizer:
+        randomizer.shuffle (testfiles)
+    else:
+        testfiles.sort ()
     return testdir, testfiles
 
-def loadtests (test, testdir, writer, options):
+def loadtests (test, testdir, writer, loader, options):
     """Loads a test."""
     suites = []
-    testloader = testrunner.TagTestLoader (EXCLUDETAGS)
 
     try:
         testmod = os.path.splitext (test)[0]
@@ -71,7 +97,7 @@ def loadtests (test, testdir, writer, options):
             if hasattr (val, "setUp") and hasattr (val, "tearDown"):
                 # might be a test.
                 try:
-                    tests = testloader.loadTestsFromTestCase (val)
+                    tests = loader.loadTestsFromTestCase (val)
                     suites.append (tests)
                     # TODO: provide a meaningful error information about
                     # the failure.
@@ -94,7 +120,7 @@ def prepare_results (results):
     return testcount, errors, failures, ok
 
 def run ():
-    optparser = create_options ()
+    optparser, optkeys = create_options ()
     options, args = optparser.parse_args ()
     #err, out = support.redirect_output ()
     writer = support.StreamOutput (sys.stdout)
@@ -104,10 +130,18 @@ def run ():
         writer.writeline ("-- Starting tests --")
         writer.writeline (HEAVYDELIM)
 
-    testdir, testfiles = gettestfiles ()
+    loader = None
+    randomizer = None
+    if options.random:
+        if options.seed is None:
+            options.seed = random.randint (0, sys.maxint)
+        randomizer = random.Random (options.seed)
+    loader = testrunner.TagTestLoader (EXCLUDETAGS, randomizer)
+
+    testdir, testfiles = gettestfiles (randomizer=randomizer)
     testsuites = []
     for test in testfiles:
-        testsuites.extend (loadtests (test, testdir, writer, options))
+        testsuites.extend (loadtests (test, testdir, writer, loader, options))
     if not options.verbose:
         writer.writesame ("Tests loaded")
     runner = testrunner.SimpleTestRunner (sys.stderr, options.verbose)
@@ -150,6 +184,10 @@ def run ():
     writer.writeline (HEAVYDELIM)
     writer.writeline ("-- Statistics --")
     writer.writeline (HEAVYDELIM)
+    writer.writeline ("Options:")
+    for key in optkeys:
+        writer.writeline ("                '%s' = '%s'" %
+                          (key, getattr (options, key)))
     writer.writeline ("Time taken:     %.3f seconds" % timetaken)
     writer.writeline ("Tests executed: %d " % testcount)
     writer.writeline ("Tests OK:       %d " % ok)
@@ -160,14 +198,14 @@ def run ():
         writer.writeline ("Errors:" + os.linesep)
         for err in errors:
             writer.writeline (LINEDELIM)
-            writer.writeline ("ERROR: " + err[0])
+            writer.writeline ("ERROR: %s" % err[0])
             writer.writeline (HEAVYDELIM)
             writer.writeline (err[1])
     if len (failures) > 0:
         writer.writeline ("Failures:" + os.linesep)
         for fail in failures:
             writer.writeline (LINEDELIM)
-            writer.writeline ("FAILURE: " + fail[0])
+            writer.writeline ("FAILURE: %s" % fail[0])
             writer.writeline (HEAVYDELIM)
             writer.writeline (fail[1])
         

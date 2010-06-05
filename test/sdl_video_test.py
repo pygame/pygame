@@ -203,6 +203,7 @@ class SDLVideoTest (unittest.TestCase):
         try:
             video.set_gamma (1, 1, 1)
         except pygame2.Error:
+            video.quit ()
             return
         self.assert_ (video.set_gamma (0, 0, 0) == None)
         self.assert_ (video.set_gamma (1, 1, 1) == None)
