@@ -12,6 +12,12 @@ except ImportError:
 
 class SDLWMTest (unittest.TestCase):
 
+    def setUp (self):
+        video.init ()
+
+    def tearDown (self):
+        video.quit ()
+
     def test_pygame2_sdl_wm_get_caption(self):
 
         # __doc__ (as of 2010-01-13) for pygame2.sdl.wm.get_caption:
@@ -19,8 +25,6 @@ class SDLWMTest (unittest.TestCase):
         # get_caption () -> str
         # 
         # Gets the caption of the current SDL window.
-        self.assertRaises (pygame2.Error, wm.get_caption)
-        video.init ()
         self.assertRaises (pygame2.Error, wm.get_caption)
         sf = video.set_mode (10, 10)
         self.assertEqual (wm.get_caption (), (None, None))
@@ -30,7 +34,6 @@ class SDLWMTest (unittest.TestCase):
         self.assertEqual (wm.get_caption (), ("", "icon"))
         wm.set_caption ("test window", "icon")
         self.assertEqual (wm.get_caption (), ("test window", "icon"))
-        video.quit ()
 
     def todo_test_pygame2_sdl_wm_get_info(self):
 
@@ -79,8 +82,6 @@ class SDLWMTest (unittest.TestCase):
 
         # handled in wm_get_caption()
         self.assertRaises (pygame2.Error, wm.set_caption, "test", "test")
-        video.init ()
-        self.assertRaises (pygame2.Error, wm.set_caption, "test", "test")
         sf = video.set_mode (10, 10)
         self.assertEqual (wm.get_caption (), (None, None))
         self.assert_ (wm.set_caption ("test window") == None)
@@ -89,7 +90,6 @@ class SDLWMTest (unittest.TestCase):
         self.assertEqual (wm.get_caption (), ("", "icon"))
         self.assert_ (wm.set_caption ("test window", "icon") == None)
         self.assertEqual (wm.get_caption (), ("test window", "icon"))
-        video.quit ()
 
     @interactive ("Was the window icon updated correctly?")
     def todo_test_pygame2_sdl_wm_set_icon(self):

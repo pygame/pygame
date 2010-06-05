@@ -15,11 +15,13 @@ class SDLTimeTest (unittest.TestCase):
         # 
         # Adds a timer callback to be called periodically.
         # 
-        # Adds a timer callback to be called periodically using the specified
-        # *interval*. *callable* can be any callable objet, method or function. On
-        # invocation, the optional *data* will be passed to the callable.
+        # Adds a timer callback to be called periodically using the
+        # specified *interval*. *callable* can be any callable objet,
+        # method or function. On invocation, the optional *data* will be
+        # passed to the callable.
         # 
-        # This will return an CObject that acts as unique id for the timer callback.
+        # This will return an CObject that acts as unique id for the
+        # timer callback.
         setargs = []
         
         def _timercb (l, arg1, arg2):
@@ -120,8 +122,9 @@ class SDLTimeTest (unittest.TestCase):
         # 
         # Removes a previously added timer callback.
         # 
-        # Removes a previously added timer callback and throws an exception, if the
-        # passed object is not a matching timer object.
+        # Removes a previously added timer callback and throws an
+        # exception, if the passed object is not a matching timer
+        # object.
         
         def _timercb (flag):
             flag.append (1)

@@ -149,6 +149,7 @@ if __name__ == "__main__":
                     }
     package_data = {
         "pygame2.examples" : find_pkg_data ("examples"),
+        "pygame2.test" : find_pkg_data ("test"),
         }
 
     dllfiles = [ os.path.join ("pygame2", "dll"),

@@ -89,9 +89,14 @@ class SDLVideoSurfaceBlitTest (unittest.TestCase):
                 self.failUnlessEqual \
                     (cc, c, failmsg % (cc, c, x, y, sfbpp, srcbpp))    
 
+    def setUp (self):
+        video.init ()
+
+    def tearDown (self):
+        video.quit ()
+
     def test_simple_32bpp_blit (self):
         # Simple 32bpp blit
-        video.init ()
         modes = [32, 24, 16, 8]
         color1 = Color (127, 0, 0)
         color2 = Color (0, 127, 0)
@@ -116,11 +121,9 @@ class SDLVideoSurfaceBlitTest (unittest.TestCase):
             self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
             self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
             self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-        video.quit ()
     
     def test_simple_24bpp_blit (self):
         # Simple 24bpp blit
-        video.init ()
         modes = [32, 24, 16, 8]
         color1 = Color (127, 0, 0)
         color2 = Color (0, 127, 0)
@@ -146,11 +149,9 @@ class SDLVideoSurfaceBlitTest (unittest.TestCase):
             self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
             self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
             self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-        video.quit ()
     
     def test_simple_16bpp_blit (self):
         # Simple 16bpp blit
-        video.init ()
         modes = [32, 24, 16, 8]
         color1 = Color (127, 0, 0)
         color2 = Color (0, 127, 0)
@@ -170,11 +171,9 @@ class SDLVideoSurfaceBlitTest (unittest.TestCase):
             self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
             self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
             self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-        video.quit ()
     
     def test_simple_8bpp_blit (self):
         # Simple 8bpp blit
-        video.init ()
         modes = [32, 24, 16, 8]
         color1 = Color (127, 0, 0)
         color2 = Color (0, 127, 0)
@@ -195,10 +194,8 @@ class SDLVideoSurfaceBlitTest (unittest.TestCase):
             self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
             self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
             self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-        video.quit ()
 
     def test_BLEND_RGB_ADD (self):
-        video.init ()
         modes = [32, 24, 16, 8]
         color1 = Color (127, 0, 0)
         color2 = Color (0, 127, 0)
@@ -247,11 +244,8 @@ class SDLVideoSurfaceBlitTest (unittest.TestCase):
                 self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
                 self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
                 self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-        
-        video.quit ()
 
     def test_BLEND_RGB_SUB (self):
-        video.init ()
         modes = [32, 24, 16, 8]
         color1 = Color (255, 255, 255)
         color2 = Color (0, 127, 0)
@@ -302,10 +296,8 @@ class SDLVideoSurfaceBlitTest (unittest.TestCase):
                 self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
                 self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
                 self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-        video.quit ()
 
     def test_BLEND_RGB_MAX (self):
-        video.init ()
         modes = [32, 24, 16, 8]
         color1 = Color (30, 10, 100)
         color2 = Color (0, 127, 24)
@@ -361,10 +353,8 @@ class SDLVideoSurfaceBlitTest (unittest.TestCase):
                 self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
                 self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
                 self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-        video.quit ()
 
     def test_BLEND_RGB_MIN (self):
-        video.init ()
         modes = [32, 24, 16, 8]
         color1 = Color (255, 100, 12)
         color2 = Color (133, 127, 16)
@@ -419,10 +409,8 @@ class SDLVideoSurfaceBlitTest (unittest.TestCase):
                 self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
                 self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
                 self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-        video.quit ()
 
     def test_BLEND_RGB_MULT (self):
-        video.init ()
         modes = [32, 24, 16, 8]
         color1 = Color (8, 50, 10)
         color2 = Color (127, 44, 12)
@@ -481,10 +469,8 @@ class SDLVideoSurfaceBlitTest (unittest.TestCase):
                 self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
                 self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
                 self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-        video.quit ()
 
     def test_BLEND_RGB_OR (self):
-        video.init ()
         modes = [32, 24, 16, 8]
         color1 = Color (8, 50, 10)
         color2 = Color (127, 44, 12)
@@ -527,10 +513,8 @@ class SDLVideoSurfaceBlitTest (unittest.TestCase):
                 self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
                 self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
                 self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-        video.quit ()
 
     def test_BLEND_RGB_AND (self):
-        video.init ()
         modes = [32, 24, 16, 8]
         color1 = Color (8, 50, 10)
         color2 = Color (127, 44, 12)
@@ -573,10 +557,8 @@ class SDLVideoSurfaceBlitTest (unittest.TestCase):
                 self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
                 self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
                 self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-        video.quit ()
 
     def test_BLEND_RGB_XOR (self):
-        video.init ()
         modes = [32, 24, 16, 8]
         color1 = Color (8, 50, 10)
         color2 = Color (127, 44, 12)
@@ -619,10 +601,8 @@ class SDLVideoSurfaceBlitTest (unittest.TestCase):
                 self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
                 self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
                 self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-        video.quit ()
 
     def test_BLEND_RGB_DIFF (self):
-        video.init ()
         modes = [32, 24, 16, 8]
         color1 = Color (8, 50, 10)
         color2 = Color (127, 44, 12)
@@ -668,10 +648,8 @@ class SDLVideoSurfaceBlitTest (unittest.TestCase):
                 self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
                 self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
                 self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-        video.quit ()
 
     def test_BLEND_RGB_AVG (self):
-        video.init ()
         modes = [32, 24, 16, 8]
         color1 = Color (8, 50, 10)
         color2 = Color (127, 44, 12)
@@ -717,10 +695,8 @@ class SDLVideoSurfaceBlitTest (unittest.TestCase):
                 self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
                 self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
                 self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-        video.quit ()
 
     def test_BLEND_RGB_SCREEN (self):
-        video.init ()
         modes = [32, 24, 16, 8]
         color1 = Color (8, 50, 10)
         color2 = Color (127, 44, 12)
@@ -769,7 +745,6 @@ class SDLVideoSurfaceBlitTest (unittest.TestCase):
                 self._cmpcolor (sf1, sf2, color1, Rect (5, 5, 5, 5))
                 self._cmpcolor (sf1, sf2, color1, Rect (0, 5, 5, 5))
                 self._cmpcolor (sf1, sf2, color1, Rect (5, 0, 5, 5))
-        video.quit ()
 
 if __name__ == "__main__":
     unittest.main ()

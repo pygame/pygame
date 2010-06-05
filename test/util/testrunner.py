@@ -4,13 +4,18 @@ from unittest import TestResult, TestLoader
 import time
 
 class TagTestLoader (TestLoader):
-
+    """A TestLoader which handles additional __tags__ attributes for
+    test functions.
+    """
     def __init__ (self, excludetags):
         TestLoader.__init__ (self)
         self.excludetags = excludetags
 
     def getTestCaseNames(self, testCaseClass):
-        """Return a sorted sequence of method names found within testCaseClass
+        """
+        Gets only the tests, which are not within the tag exclusion.
+        The method overrides the original TestLoader.getTestCaseNames()
+        method, so we need to keep them in sync on updates.
         """
         def isTestMethod(attrname, testCaseClass=testCaseClass,
                          prefix=self.testMethodPrefix):
@@ -41,32 +46,43 @@ class TagTestLoader (TestLoader):
         return testFnNames
 
 class SimpleTestResult (TestResult):
-    def __init__ (self, stream=sys.stderr):
+    """A simple TestResult class with output capabilities.
+    """
+    def __init__ (self, stream=sys.stderr, verbose=False, countcall=None):
         TestResult.__init__ (self)
         self.stream = stream
         self.duration = 0
+        self.verbose = verbose
+        self.countcall = countcall
     
     def addSuccess (self, test):
         TestResult.addSuccess (self, test)
-        self.stream.write (".")
-        self.stream.flush ()
+        if self.verbose:
+            self.stream.write (".")
+            self.stream.flush ()
+        self.countcall ()
 
     def addError (self, test, err):
         TestResult.addError (self, test, err)
-        self.stream.write ("E")
-        self.stream.flush ()
+        if self.verbose:
+            self.stream.write ("E")
+            self.stream.flush ()
+        self.countcall ()
 
     def addFailure (self, test, err):
         TestResult.addFailure (self, test, err)
-        self.stream.write ("F")
-        self.stream.flush ()
+        if self.verbose:
+            self.stream.write ("F")
+            self.stream.flush ()
+        self.countcall ()
 
 class SimpleTestRunner (object):
-    def __init__ (self, stream=sys.stderr):
+    def __init__ (self, stream=sys.stderr, verbose=False):
         self.stream = stream
+        self.verbose = verbose
 
-    def run (self, test):
-        result = SimpleTestResult (self.stream)
+    def run (self, test, countcall):
+        result = SimpleTestResult (self.stream, self.verbose, countcall)
         starttime = time.time ()
         test (result)
         endtime = time.time ()

@@ -17,8 +17,15 @@ class FreeTypeFontTest(unittest.TestCase):
     def get_sans_fontfile (self):
         return open (os.path.join (FONTDIR, 'test_sans.ttf'), 'rb')
 
-    def test_pygame2_freetype_Font__from_stream (self):
+    def setUp (self):
         ft.init ()
+        pygame2.sdl.video.init()
+
+    def tearDown (self):
+        pygame2.sdl.video.quit()
+        ft.quit ()
+
+    def test_pygame2_freetype_Font__from_stream (self):
         fp = self.get_fixed_fontfile ()
         f = ft.Font (fp)
         def test_size(s):
@@ -49,10 +56,7 @@ class FreeTypeFontTest(unittest.TestCase):
         del f
         fp.close ()
 
-        ft.quit ()
-
     def test_pygame2_freetype_Font_fixed_width(self):
-        ft.init ()
         f = self.get_sans_font ()
         self.assertFalse(f.fixed_width)
 
@@ -60,10 +64,8 @@ class FreeTypeFontTest(unittest.TestCase):
         self.assertFalse(f.fixed_width)
 
         # TODO: Find a real fixed width font to test with
-        ft.quit ()
         
     def test_pygame2_freetype_Font_get_metrics(self):
-        ft.init ()
         font = self.get_sans_font ()
         
         # test for floating point values (BBOX_EXACT)
@@ -98,10 +100,8 @@ class FreeTypeFontTest(unittest.TestCase):
 
         # test for invalid string
         self.assertRaises(TypeError, font.get_metrics, 24, 24)
-        ft.quit ()
 
     def test_pygame2_freetype_Font_get_size(self):
-        ft.init()
         font = self.get_sans_font ()
 
         def test_size(s):
@@ -154,31 +154,24 @@ class FreeTypeFontTest(unittest.TestCase):
         size_null = font.get_size("", ptsize=24)
         test_size (size_null)
         self.assertTrue (size_null[0] == size_null[1] == 0)
-        ft.quit ()
 
     def test_pygame2_freetype_Font_height(self):
-        ft.init ()
         f = self.get_sans_font ()
         self.assertEqual(f.height, 2355)
 
         f = self.get_fixed_font ()
         self.assertEqual(f.height, 1100)
-        ft.quit ()
         
     def test_pygame2_freetype_Font_name(self):
-        ft.init ()
         f = self.get_sans_font ()
         self.assertEqual(f.name, 'Liberation Sans')
 
         f = self.get_fixed_font ()
         self.assertEqual(f.name, 'Inconsolata')
-        ft.quit ()
         
     def test_pygame2_freetype_Font_render(self):
-        ft.init ()
         font = self.get_sans_font ()
         
-        pygame2.sdl.video.init()
         surf = pygame2.sdl.video.Surface(800, 600)
         color = pygame2.base.Color(0, 0, 0)
 
@@ -225,11 +218,7 @@ class FreeTypeFontTest(unittest.TestCase):
         self.assertRaises(ValueError, font.render,'foobar', color, None,
                           style=97, ptsize=24)
 
-        pygame2.sdl.video.quit()
-        ft.quit ()
-
     def test_pygame2_freetype_Font_style(self):
-        ft.init ()
         font = self.get_sans_font ()
 
         # make sure STYLE_NORMAL is the default value
@@ -266,7 +255,6 @@ class FreeTypeFontTest(unittest.TestCase):
         # revert changes
         font.style = ft_const.STYLE_NORMAL
         self.assertEqual(ft_const.STYLE_NORMAL, font.style)
-        ft.quit ()
 
     def todo_test_pygame2_freetype_Font_copy (self):
 
@@ -274,10 +262,8 @@ class FreeTypeFontTest(unittest.TestCase):
 
         # Creates a copy of the Font.
         
-        ft.init ()
         font = self.get_sans_font ()
         fontcopy = font.copy ()
-        ft.quit ()
     
     def todo_test_pygame2_freetype_Font_antialiased(self):
 

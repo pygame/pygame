@@ -6,20 +6,24 @@ from pygame2.colorpalettes import VGAPALETTE
 import pygame2.sdl.video as video
 
 class BufferProxyTest (unittest.TestCase):
+
+    def setUp (self):
+        video.init ()
+
+    def tearDown (self):
+        video.quit ()
     
     def test_pygame2_base_BufferProxy_length(self):
 
         # __doc__ (as of 2010-01-13) for pygame2.base.BufferProxy.length:
 
         # Gets the size of the buffer data in bytes.
-        video.init ()
         for bpp in (32, 24, 16, 8):
             surface = video.Surface (10, 10, bpp)
             # 10 * 10 * bpp/8 byte
             buf = surface.pixels
             self.assertEqual (buf.length, surface.h * surface.pitch)
             del buf
-        video.quit ()
 
     def test_pygame2_base_BufferProxy_raw(self):
 
@@ -27,7 +31,6 @@ class BufferProxyTest (unittest.TestCase):
 
         # Gets the raw buffer data as string. The string may contain
         # NUL bytes.
-        video.init ()
         for bpp in (32, 24, 16, 8):
             surface = video.Surface (10, 10, bpp)
             buf = surface.pixels
@@ -38,7 +41,6 @@ class BufferProxyTest (unittest.TestCase):
                 for b in buf.raw:
                     self.assertEqual (b, 0)
             del buf
-        video.quit ()
 
     def test_pygame2_base_BufferProxy_write(self):
 
@@ -53,7 +55,6 @@ class BufferProxyTest (unittest.TestCase):
         # the length of the passed *buffer* exceeds the length of the
         # BufferProxy (reduced by *offset*), an IndexError will
         # be raised.
-        video.init ()
         for bpp in (32, 16, 8):
             surface = video.Surface (10, 10, bpp)
             buf = surface.pixels
@@ -68,7 +69,6 @@ class BufferProxyTest (unittest.TestCase):
             #     for y in range (surface.height):
             #         self.failUnlessEqual (getat (x, y), color,
             #             "%s != %s at (%d, %d)" % (getat (x, y), color, x, y))
-        video.quit ()
 
 if __name__ == '__main__':
     unittest.main ()

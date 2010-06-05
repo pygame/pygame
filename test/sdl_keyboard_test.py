@@ -5,6 +5,13 @@ import pygame2.sdl.video as video
 import pygame2.sdl.constants as constants
 
 class SDLKeyboardTest (unittest.TestCase):
+
+    def setUp (self):
+        video.init ()
+
+    def tearDown (self):
+        video.quit ()
+
     def test_pygame2_sdl_keyboard_enable_repeat(self):
 
         # __doc__ (as of 2009-05-13) for pygame2.sdl.keyboard.enable_repeat:
@@ -22,14 +29,12 @@ class SDLKeyboardTest (unittest.TestCase):
         # repeating completely.
         # 
         # Setting delay to 0 will disable repeating completely.
-        video.init ()
         self.assert_ (keyboard.enable_repeat (0, 0) == None)
         self.assert_ (keyboard.enable_repeat (1, 1) == None)
         self.assert_ (keyboard.enable_repeat (900, 1000) == None)
         self.assertRaises (ValueError, keyboard.enable_repeat, -1, -1)
         self.assertRaises (ValueError, keyboard.enable_repeat,  1, -1)
         self.assertRaises (ValueError, keyboard.enable_repeat, -1,  1)
-        video.quit ()
 
     def test_pygame2_sdl_keyboard_enable_unicode(self):
 
@@ -44,7 +49,6 @@ class SDLKeyboardTest (unittest.TestCase):
         # state.  By default unicode handling is enabled and for
         # keyboard events, the *unicode* member of the event will be
         # filled with the corresponding unicode character.
-        video.init ()
         self.assertEqual (keyboard.enable_unicode (), True)
         self.assertEqual (keyboard.enable_unicode (True), True)
         self.assertEqual (keyboard.enable_unicode (False), True)
@@ -54,7 +58,6 @@ class SDLKeyboardTest (unittest.TestCase):
         self.assertEqual (keyboard.enable_unicode (False), True)
         self.assertEqual (keyboard.enable_unicode (False), False)
         self.assertEqual (keyboard.enable_unicode (), False)
-        video.quit ()
         
     def test_pygame2_sdl_keyboard_get_key_name(self):
 
@@ -63,7 +66,6 @@ class SDLKeyboardTest (unittest.TestCase):
         # get_key_name (key) -> str
         # 
         # Get the descriptive name for a key constant.
-        video.init ()
         self.assertEqual (keyboard.get_key_name (constants.K_a), 'a')
         self.assertEqual (keyboard.get_key_name (constants.K_b), 'b')
         self.assertEqual (keyboard.get_key_name (constants.K_q), 'q')
@@ -71,7 +73,6 @@ class SDLKeyboardTest (unittest.TestCase):
         self.assertEqual (keyboard.get_key_name (constants.K_PAGEUP), 'page up')
         self.assertEqual (keyboard.get_key_name (constants.K_KP4), '[4]')
         self.assertEqual (keyboard.get_key_name (constants.K_4), '4')
-        video.quit ()
 
     def test_pygame2_sdl_keyboard_get_mod_state(self):
 
@@ -86,7 +87,6 @@ class SDLKeyboardTest (unittest.TestCase):
         # if specific shift keys are pressed, the state of the capslock
         # button, and more.  The bitmask will consist of the various
         # KMOD_* flags as specified in the constants.
-        video.init ()
         self.assertEqual (keyboard.get_mod_state (), 0)
         kstate = constants.KMOD_LALT|constants.KMOD_NUM
         keyboard.set_mod_state (kstate)
@@ -95,7 +95,6 @@ class SDLKeyboardTest (unittest.TestCase):
         self.assertEqual (keyboard.get_mod_state (), constants.KMOD_CAPS)
         keyboard.set_mod_state (kstate)
         self.assertEqual (keyboard.get_mod_state (), kstate)
-        video.quit ()
 
     def test_pygame2_sdl_keyboard_get_repeat(self):
 
@@ -104,7 +103,6 @@ class SDLKeyboardTest (unittest.TestCase):
         # get_repeat () -> delay, interval
         # 
         # Gets the currently set keyboard repeat delay and interval.
-        video.init ()
         keyboard.enable_repeat (0, 0)
         self.assertEqual (keyboard.get_repeat (), (0, 0))
         keyboard.enable_repeat (10, 10)
@@ -115,7 +113,6 @@ class SDLKeyboardTest (unittest.TestCase):
         self.assertEqual (keyboard.get_repeat (), (0, 5))
         keyboard.enable_repeat (7, 0)
         self.assertEqual (keyboard.get_repeat (), (7, 0))
-        video.quit ()
 
     def test_pygame2_sdl_keyboard_get_state(self):
 
@@ -129,13 +126,11 @@ class SDLKeyboardTest (unittest.TestCase):
         # the dictionary are the key constants, the boolean values of
         # the dictionary indicate, whether a certain key is pressed or
         # not.
-        video.init ()
         self.assert_ (type (keyboard.get_state ()) == dict)
         self.assert_ (constants.K_a in keyboard.get_state ().keys ())
         self.assert_ (constants.K_b in keyboard.get_state ().keys ())
         self.assert_ (constants.K_q in keyboard.get_state ().keys ())
         self.assert_ (constants.K_KP4 in keyboard.get_state ().keys ())
-        video.quit ()
 
     def test_pygame2_sdl_keyboard_set_mod_state(self):
 
@@ -148,7 +143,6 @@ class SDLKeyboardTest (unittest.TestCase):
         # Sets the current modifier key state. mod has to be a bitwise OR'd
         # combination of the KMOD_* flags as they are specified in the
         # constants.
-        video.init ()
         self.assertEqual (keyboard.get_mod_state (), 0)
         kstate = constants.KMOD_LALT|constants.KMOD_NUM
         keyboard.set_mod_state (kstate)
@@ -157,7 +151,6 @@ class SDLKeyboardTest (unittest.TestCase):
         self.assertEqual (keyboard.get_mod_state (), constants.KMOD_CAPS)
         keyboard.set_mod_state (kstate)
         self.assertEqual (keyboard.get_mod_state (), kstate)
-        video.quit ()
 
 if __name__ == "__main__":
     unittest.main ()

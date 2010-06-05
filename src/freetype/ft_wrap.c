@@ -139,8 +139,7 @@ _PGFT_GetFace(FreeTypeInstance *ft,
     FT_Face face;
 
     error = FTC_Manager_LookupFace(ft->cache_manager,
-        (FTC_FaceID)(&font->id),
-        &face);
+        (FTC_FaceID)(&font->id), &face);
     if (error)
     {
         _PGFT_SetError(ft, "Failed to load face", error);
@@ -282,7 +281,12 @@ PGFT_TryLoadFont_Stream (FreeTypeInstance *ft,  PyFreeTypeFont *font,
     font->id.open_args.flags = FT_OPEN_STREAM;
     font->id.open_args.stream = stream;
 
-    return _PGFT_Init_INTERNAL(ft, font);
+    if (_PGFT_Init_INTERNAL(ft, font) == -1)
+    {
+        PGFT_UnloadFont (ft, font);
+        return -1;
+    }
+    return 0;
 }
 
 int
