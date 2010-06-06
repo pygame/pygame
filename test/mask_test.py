@@ -532,6 +532,7 @@ class MaskTest (unittest.TestCase):
         self.assertEqual (m.width, 322)
 
     def test_pygame2_mask_from_surface(self):
+        __tags__ = [ "sdl" ]
 
         # __doc__ (as of 2008-11-03) for pygame2.mask.from_surface:
 
@@ -576,6 +577,7 @@ class MaskTest (unittest.TestCase):
         video.quit ()
 
     def test_pygame2_mask_from_threshold(self):
+        __tags__ = [ "sdl" ]
 
         # __doc__ (as of 2008-11-03) for pygame2.mask.from_threshold:
 

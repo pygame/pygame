@@ -7,6 +7,7 @@ import pygame2.freetype.constants as ft_const
 FONTDIR = os.path.dirname (os.path.abspath (__file__))
 
 class FreeTypeFontTest(unittest.TestCase):
+    __tags__ = [ "sdl", "freetype" ]
 
     def get_fixed_font (self):
         return ft.Font(os.path.join (FONTDIR, 'test_fixed.otf'))

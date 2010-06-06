@@ -4,6 +4,7 @@ import pygame2.sdl.base as base
 import pygame2.sdl.constants as constants
 
 class SDLTest (unittest.TestCase):
+    __tags__ = [ "sdl" ]
 
     def test_pygame2_sdl_base_get_compiled_version(self):
 

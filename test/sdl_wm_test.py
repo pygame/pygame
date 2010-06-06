@@ -11,6 +11,7 @@ except ImportError:
     from util.testutils import interactive
 
 class SDLWMTest (unittest.TestCase):
+    __tags__ = [ "sdl" ]
 
     def setUp (self):
         video.init ()

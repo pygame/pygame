@@ -6,6 +6,8 @@ import pygame2.sdl.video as video
 import pygame2.sdl.constants as constants
 
 class SDLVideoSurfaceBlitTest (unittest.TestCase):
+    __tags__ = [ "sdl" ]
+
     # __doc__ (as of 2009-05-15) for pygame2.sdl.video.Surface.blit:
 
     # blit (srcsurface[, destrect, srcrect, blendargs]) -> Rect

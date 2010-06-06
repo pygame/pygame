@@ -11,6 +11,7 @@ import pygame2.sdl.video as video
 import pygame2.sdl.constants as constants
 
 class SDLImageTest (unittest.TestCase):
+    __tags__ = [ "sdl" ]
 
     def setUp (self):
         video.init ()

@@ -6,6 +6,7 @@ import pygame2.sdl.gl as gl
 import pygame2.sdl.constants as constants
 
 class SDLGLTest (unittest.TestCase):
+    __tags__ = [ "sdl" ]
 
     def _get_gllib (self):
         gllib = ""

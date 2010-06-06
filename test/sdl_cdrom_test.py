@@ -9,6 +9,7 @@ except ImportError:
     from util.testutils import interactive, doprint
 
 class SDLCDRomTest (unittest.TestCase):
+    __tags__ = [ "sdl" ]
 
     def todo_test_pygame2_sdl_cdrom_CD_close(self):
 

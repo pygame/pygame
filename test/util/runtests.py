@@ -17,6 +17,7 @@ EXCLUDETAGS = [ "interactive", ]
 def printerror ():
     print (traceback.format_exc ())
 
+
 def include_tag (option, opt, value, parser, *args, **kwargs):
     try:
         if args:
@@ -29,6 +30,33 @@ def include_tag (option, opt, value, parser, *args, **kwargs):
 def exclude_tag (option, opt, value, parser, *args, **kwargs):
     if value not in EXCLUDETAGS:
         EXCLUDETAGS.append (value)
+
+def list_tags (option, opt, value, parser, *args, **kwargs):
+    alltags = []
+    testsuites = []
+    testdir, testfiles = gettestfiles ()
+    testloader = unittest.defaultTestLoader
+
+    for test in testfiles:
+        try:
+            testmod = os.path.splitext (test)[0]
+            glob, loc = {}, {}
+            package = __import__ (testmod, glob, loc)
+            try:
+                testsuites.append (loadtests_frompkg (package, testloader))
+            except:
+                printerror()
+        except:
+            pass
+    for suite in testsuites:
+        for test in suite:
+            if hasattr (test, "__tags__"):
+                tags = getattr (test, "__tags__")
+                for tag in tags:
+                    if tag not in alltags:
+                        alltags.append (tag)
+    print (alltags)
+    sys.exit ()
 
 def create_options ():
     """Create the accepatble options for the test runner."""
@@ -51,6 +79,9 @@ def create_options ():
     optparser.add_option ("-e", "--exclude", action="callback",
                           callback=exclude_tag, type="string",
                           help="exclude test containing the tag")
+    optparser.add_option ("-T", "--listtags", action="callback",
+                          callback=list_tags,
+                          help="lists all available tags and exits")
     optkeys = [
         "subprocess",
         "random",
@@ -80,6 +111,13 @@ def gettestfiles (testdir=None, randomizer=None):
         testfiles.sort ()
     return testdir, testfiles
 
+def loadtests_frompkg (package, loader):
+    for x in dir (package):
+        val = package.__dict__[x]
+        if hasattr (val, "setUp") and hasattr (val, "tearDown"):
+            # might be a test.
+            return loader.loadTestsFromTestCase (val)
+
 def loadtests (test, testdir, writer, loader, options):
     """Loads a test."""
     suites = []
@@ -92,17 +130,10 @@ def loadtests (test, testdir, writer, loader, options):
             writer.writeline ("Loading tests from [%s] ..." % testmod)
         else:
             writer.writesame ("Loading tests from [%s] ..." % testmod)
-        for x in dir (package):
-            val = package.__dict__[x]
-            if hasattr (val, "setUp") and hasattr (val, "tearDown"):
-                # might be a test.
-                try:
-                    tests = loader.loadTestsFromTestCase (val)
-                    suites.append (tests)
-                    # TODO: provide a meaningful error information about
-                    # the failure.
-                except:
-                    printerror ()
+        try:
+            suites.append (loadtests_frompkg (package, loader))
+        except:
+            printerror ()
     except:
         printerror ()
     return suites
@@ -188,6 +219,7 @@ def run ():
     for key in optkeys:
         writer.writeline ("                '%s' = '%s'" %
                           (key, getattr (options, key)))
+    writer.writeline ("                'excludetags' = '%s'" % EXCLUDETAGS)
     writer.writeline ("Time taken:     %.3f seconds" % timetaken)
     writer.writeline ("Tests executed: %d " % testcount)
     writer.writeline ("Tests OK:       %d " % ok)

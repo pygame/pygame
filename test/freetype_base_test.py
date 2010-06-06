@@ -3,6 +3,7 @@ import pygame2
 import pygame2.freetype.base as base
 
 class FreeTypeTest(unittest.TestCase):
+    __tags__ = [ "freetype" ]
 
     def test_pygame2_freetype_base_get_version(self):
 

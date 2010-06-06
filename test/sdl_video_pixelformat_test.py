@@ -7,6 +7,7 @@ import pygame2.sdl.video as video
 import pygame2.sdl.constants as constants
 
 class SDLVideoPixelFormatTest (unittest.TestCase):
+    __tags__ = [ "sdl" ]
 
     def test_pygame2_sdl_video_PixelFormat_alpha(self):
 

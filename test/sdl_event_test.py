@@ -4,6 +4,7 @@ import pygame2.sdl.event as event
 import pygame2.sdl.constants as constants
 
 class SDLEventTest (unittest.TestCase):
+    __tags__ = [ "sdl" ]
 
     def test_pygame2_sdl_event_Event (self):
         # check argument handling

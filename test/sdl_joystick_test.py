@@ -5,6 +5,7 @@ import pygame2.sdl.video as video
 import pygame2.sdl.constants as constants
 
 class SDLJoystickTest (unittest.TestCase):
+    __tags__ = [ "sdl" ]
 
     def todo_test_pygame2_sdl_joystick_Joystick_close(self):
 

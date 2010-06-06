@@ -6,6 +6,7 @@ from pygame2.colorpalettes import VGAPALETTE
 import pygame2.sdl.video as video
 
 class BufferProxyTest (unittest.TestCase):
+    __tags__ = [ "sdl" ]
 
     def setUp (self):
         video.init ()

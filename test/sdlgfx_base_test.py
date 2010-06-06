@@ -5,6 +5,7 @@ import pygame2.sdlgfx.base as base
 import pygame2.sdlgfx.constants as constants
 
 class SDLGfxTest (unittest.TestCase):
+    __tags__ = [ "sdl", "sdlgfx" ]
 
     def test_pygame2_sdlgfx_base_FPSmanager (self):
         manager = base.FPSmanager ()

@@ -4,6 +4,8 @@ import pygame2.sdl.audio as audio
 import pygame2.sdl.constants as constants
 
 class SDLAudioTest (unittest.TestCase):
+    __tags__ = [ "sdl" ]
+
     def test_pygame2_sdl_audio_init(self):
 
         # __doc__ (as of 2009-05-13) for pygame2.sdl.audio.init:

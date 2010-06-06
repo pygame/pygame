@@ -4,6 +4,7 @@ import pygame2.sdl.video as video
 import pygame2.sdl.constants as constants
 
 class SDLVideoOverlayTest (unittest.TestCase):
+    __tags__ = [ "sdl" ]
 
     def todo_test_pygame2_sdl_video_Overlay_display(self):
 

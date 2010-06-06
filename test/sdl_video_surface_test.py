@@ -16,6 +16,7 @@ import pygame2.sdlimage as sdlimage
 import pygame2.sdl.constants as constants
 
 class SDLVideoSurfaceTest (unittest.TestCase):
+    __tags__ = [ "sdl" ]
 
     def _cmppixels (self, sf1, sf2):
         # Simple pixel comparision
@@ -44,7 +45,6 @@ class SDLVideoSurfaceTest (unittest.TestCase):
             for y in range (sy, sy + h):
                 self.failUnlessEqual (getat (x, y), c,
                     failmsg % (getat (x, y), c, x, y))
-
 
     def setUp (self):
         video.init ()

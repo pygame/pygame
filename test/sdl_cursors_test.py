@@ -4,6 +4,7 @@ import pygame2.sdl.cursors as cursors
 import pygame2.sdl.constants as constants
 
 class SDLCursorsTest (unittest.TestCase):
+    __tags__ = [ "sdl" ]
 
     def todo_test_pygame2_sdl_cursors_compile(self):
 

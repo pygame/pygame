@@ -31,7 +31,13 @@ class TagTestLoader (TestLoader):
                     if t in self.excludetags:
                         return False
             return True
-        
+
+        if hasattr (testCaseClass, "__tags__"):
+            tags = getattr (testCaseClass, "__tags__")
+            for t in tags:
+                if t in self.excludetags:
+                    return []
+
         testFnNames = list (filter(isTestMethod, dir(testCaseClass)))
         cmpkey = None
         if hasattr (unittest, "_CmpToKey"):

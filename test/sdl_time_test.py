@@ -6,6 +6,7 @@ import pygame2.sdl.time as sdltime
 import pygame2.sdl.constants as constants
 
 class SDLTimeTest (unittest.TestCase):
+    __tags__ = [ "sdl" ]
 
     def test_pygame2_sdl_time_add_timer(self):
 
