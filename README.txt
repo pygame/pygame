@@ -179,3 +179,6 @@ pygame project). Closed source and commercial games are fine.
 
 The programs in the "doc/examples" subdirectory are in the public domain.
 The documentation generators in the doc/ directory are in the public domain.
+Parts of the test framework in the "test/util" subdirectory are in
+the public domain.
+

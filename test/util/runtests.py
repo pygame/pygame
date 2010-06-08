@@ -1,3 +1,7 @@
+##
+## This file is placed under the public domain.
+##
+
 import os, sys, traceback
 import unittest
 import optparse
@@ -97,7 +101,7 @@ def gettestfiles (testdir=None, randomizer=None):
     passed, use the default pygame2 test directory.
     """
     if not testdir:
-        testdir = os.path.join (os.path.dirname (__file__), "..")
+        testdir = os.path.dirname (__file__)
         sys.path.append (testdir)
 
     names = os.listdir (testdir)
@@ -169,7 +173,9 @@ def run ():
         randomizer = random.Random (options.seed)
     loader = testrunner.TagTestLoader (EXCLUDETAGS, randomizer)
 
-    testdir, testfiles = gettestfiles (randomizer=randomizer)
+    testdir, testfiles = gettestfiles \
+        (os.path.join (os.path.dirname (__file__), ".."),
+         randomizer=randomizer)
     testsuites = []
     for test in testfiles:
         testsuites.extend (loadtests (test, testdir, writer, loader, options))

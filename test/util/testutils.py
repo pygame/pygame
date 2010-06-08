@@ -1,6 +1,6 @@
-#
-# This file is under the public domain.
-#
+##
+## This file is placed under the public domain.
+##
 
 import os
 

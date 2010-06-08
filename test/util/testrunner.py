@@ -1,3 +1,7 @@
+##
+## This file is placed under the public domain.
+##
+
 import sys, os
 import unittest
 from unittest import TestResult, TestLoader
