@@ -16,6 +16,8 @@ PORTMIDI = -lportmidi
 PORTTIME =
 AVFORMAT = -Iprebuilt/include -lavformat -lavcodec -lavutil -lws2_32
 SWSCALE = -Iprebuilt/include -lswscale -lavutil
+# Make sure ffmpeg headers are included by make_prebuilt.py.
+FFMPEG_HDR_DIRS = -Iprebuilt/include/libavformat -Iprebuilt/include/libavcodec -Iprebuilt/include/libswscale -Iprebuilt/include/avutil
 COPYLIB_SDL -Lprebuilt/lib/SDL.dll
 COPYLIB_SDL_ttf -lSDL -lfreetype -Lprebuilt/lib/SDL_ttf.dll
 COPYLIB_SDL_image -lSDL -ljpef -lpng -ltiff -Lprebuilt/lib/SDL_image.dll
