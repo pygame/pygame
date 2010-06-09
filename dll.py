@@ -27,18 +27,17 @@ libraries = [
      ['SDL', 'JPEG', 'PNG', 'TIFF']),
     ('TIFF', 'tiff', r'libtiff\.dll$',  ['JPEG', 'Z']),
     ('JPEG', 'jpeg', r'jpeg\.dll$', []),
-    ('PNG', 'png12', r'libpng12-0\.dll$', ['Z']),
+    ('PNG', 'png', r'libpng12\.dll$', ['Z']),
     ('FONT', 'SDL_ttf', r'SDL_ttf\.dll$', ['SDL']),
     ('FREETYPE', 'freetype', r'libfreetype-6\.dll$', ['Z']),
     ('Z', 'z', r'zlib1\.dll$', []),
     ('SDL', 'SDL', r'SDL\.dll$', []),
     ('PORTMIDI', 'portmidi', r'portmidi\.dll', []),
     ('PORTTIME', 'portmidi', r'portmidi\.dll', []),
-    ('AVCODEC', 'avcodec', r'avcodec\.dll', []),
-    ('AVFORMAT', 'avformat', r'avformat-52\.dll', []),
-    ('AVDEVICE', 'avdevice', r'avdevice-52\.dll', []),
-    ('AVUTIL', 'avutil', r'avutil\.dll', []),
-    ('SWSCALE', 'swscale', r'swscale\.dll', []),
+    ('AVCODEC', 'avcodec', r'avcodec-52\.dll', ['AVUTIL', 'Z']),
+    ('AVFORMAT', 'avformat', r'avformat-52\.dll', ['AVCODEC', 'AVUTIL', 'Z']),
+    ('AVUTIL', 'avutil', r'avutil-50\.dll', []),
+    ('SWSCALE', 'swscale', r'swscale-0\.dll', ['AVUTIL']),
 ]
 
 # regexs: Maps name to DLL file name regex.
