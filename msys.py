@@ -228,7 +228,6 @@ class Msys(object):
     def windows_to_msys(self, path):
         """Return an MSYS translation of an absolute Windows path
 
-        Spaces in the path are escaped.
         """
         
         msys_root = self.msys_root
@@ -240,7 +239,6 @@ class Msys(object):
             return '/mingw' + path[len(mingw_root):].replace(os.sep, '/')
         drive, tail = os.path.splitdrive(path)
         tail = tail.replace(os.sep, '/')
-        tail = tail.replace(' ', '\\ ')
         return '/%s%s' % (drive[0], tail)
 
     def msys_to_windows(self, path):

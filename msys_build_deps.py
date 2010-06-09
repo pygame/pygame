@@ -5,13 +5,14 @@
 
 """Build Pygame dependencies using MinGW and MSYS
 
-Configured for Pygame 1.9.0 and Python 2.4 and up.
+Configured for Pygame 1.9.1 and Python 2.5 and up.
 
 The libraries are installed in /usr/local of the MSYS directory structure.
 
 This program can be run from a Windows cmd.exe or MSYS terminal. The current
 directory and its outer directory are searched for the library source
-directories.
+directories. Run the program from the pygame trunk directory. The Windows
+file path cannot have spaces in it.
 
 The recognized, and optional, environment variables are:
   SHELL - MSYS shell program path - already defined in the MSYS terminal
@@ -27,48 +28,52 @@ python build_deps.py --help
 
 This program has been tested against the following libraries:
 
-SDL 1.2 (.13) revision 4114 from SVN 
+SDL 1.2.14 
 SDL_image 1.2.6
 SDL_mixer 1.2 (.8) revision 3942 from SVN
 SDL_ttf 2.0.9
-smpeg revision 370 from SVN
-freetype 2.3.7
+smpeg revision 389 from SVN
+freetype 2.3.12
 libogg 1.1.3
 libvorbis 1.2.0
 FLAC 1.2.1
 tiff 3.8.2
-libpng 1.2.32
+libpng 1.2.43
 jpeg 6b
 zlib 1.2.3
-PortMidi release 82
+PortMidi revision 201 from SVN (patched)
+ffmpeg revision 23520 from SVN
 
 The build environment used:
 
-gcc-core-3.4.5
-gcc-c++-3.4.5
-binutils-2.17.50
-mingwrt-3.15.1
-win32api-3.12
-mingw32-make-3.81-20080326
-MSYS-1.0.11
-msysDTK-1.0.1
-msys-automake-1.8.2
-msys-autocont-2.59
-m4-1.4.7-MSYS
-nasm-2.05rc6-win32 (SourceForge)
+gcc-core-4.5.0-1-mingw32
+gcc-c++-4.5.0-1-mingw32
+libstdc++-4.5.0-1-mingw32
+binutils-2.20.1-2-mingw32
+mingwrt-3.18-mingw32
+w32api-3.14-mingw32
+libgmp-5.0.1-1-mingw32
+libmpc-0.8.1-1-mingw32
+libmpfr-2.4.1-1-mingw32
+mingw32-make-3.81-20080326 (needed?)
+coreutils-5.97-3-msys-1.0.13
+msysDTK-1.0.1 (?)
+msys-automake-1.8.2 (?)
+autoconf-2.65-1-msys-1.0.13
+m4-1.4.14-1-msys-1.0.13
+nasm-2.08.01-win32 (needed (replace with yasm)?)
+yasm (1.0.1) (Prefered over nasm by SDL 1.2.14 configure?)
+plus numerous other dependencies to still be sorted out when the the new
+  MinGW installer is available (Hopefully there will be an Msys installer as well.)
 
-Builds have been performed on Windows 98 and XP.
+The build has been performed on Windows XP.
 
 Build issues:
-  For pre-2007 computers:  MSYS bug "[ 1170716 ] executing a shell scripts
-    gives a memory leak" (http://sourceforge.net/tracker/
-    index.php?func=detail&aid=1170716&group_id=2435&atid=102435)
-    
-    It may not be possible to use the --all option to build all Pygame
-    dependencies in one session. Instead the job may need to be split into two
-    or more sessions, with a reboot of the operating system between each. Use
-    the --help-args option to list the libraries in the their proper build
-    order.
+  An intermitent problem was noted with SDL's configure involving locking of
+  conftest.exe resulting in various C library functions being reported unavailable
+  when in fact they are present. This does not appear to be a problem with the
+  configure script itself but rather Msys. If it happens then just rerun
+  msys_build_deps.py.
 """
 
 import msys
@@ -473,7 +478,7 @@ dependencies = [
     Dependency('SDL', ['SDL-[1-9].*'], ['SDL.dll'], """
 
 set -e
-cd $BDWD
+cd "$BDWD"
 
 if [ x$BDCONF == x1 ]; then
   # Remove NONAMELESSUNION from directx.h headers.
@@ -515,7 +520,7 @@ fi
     Dependency('Z', ['zlib-[1-9].*'], ['zlib1.dll'], """
 
 set -e
-cd $BDWD
+cd "$BDWD"
 
 if [ x$BDCONF == x1 ]; then
   # Use the existing gcc makefile, modified to add linker options.
@@ -547,7 +552,8 @@ fi
     Dependency('FREETYPE', ['freetype-[2-9].*'], ['libfreetype-6.dll'], """
 
 set -e
-cd $BDWD
+cd "$BDWD"
+export PWD="${BDWD// /\\\\ /}"
 
 if [ x$BDCONF == x1 ]; then
   # Need to define inline as freetypes is compiled as -pedentic
@@ -576,7 +582,7 @@ fi
     Dependency('FONT', ['SDL_ttf-[2-9].*'], ['SDL_ttf.dll'], """
 
 set -e
-cd $BDWD
+cd "$BDWD"
 
 if [ x$BDCONF == x1 ]; then
   ./configure
@@ -599,35 +605,34 @@ if [ x$BDCLEAN == x1 ]; then
   make clean
 fi
 """),
-    Dependency('PNG', ['libpng-[1-9].*'], ['libpng12-0.dll'], """
+    Dependency('PNG', ['libpng-[1-9].*'], ['libpng12.dll'], """
 
 set -e
-cd $BDWD
+cd "$BDWD"
 
 if [ x$BDCONF == x1 ]; then
-  # This will only build a static library.
-  ./configure --with-libpng-compat=no
-
-  # Remove a duplicate entry in the def file.
-  BDDEF=scripts/pngw32.def
-  cp -f "$BDDEF" temp_
-  sed '222 s/^\\(  png_malloc_warn @195\\)/;\\1/' temp_ >"$BDDEF"
-  rm temp_
+  # Use the provided MinGW makefile.
+  cp -f scripts/Makefile.mingw Makefile
 fi
 
 if [ x$BDCOMP == x1 ]; then
-  make
+  make prefix=/usr/local
 fi
 
 if [ x$BDINST == x1 ]; then
-  make install
-  
-  # Sorry, but no one else recognizes png12
-  cp -f /usr/local/lib/libpng12.dll.a /usr/local/lib/libpng.dll.a
+  # The makefile goes into an infinite loop on install.
+  # Do in ourselves.
+  cp -f libpng12.dll /usr/local/bin
+  cp -f libpng.dll.a /usr/local/lib
+  cp -f libpng.a /usr/local/lib
+  headers=/usr/local/include
+  mkdir -p $headers
+  cp -f png.h $headers
+  cp -f pngconf.h $headers
 fi
 
 if [ x$BDSTRIP == x1 ]; then
-  strip --strip-all /usr/local/bin/libpng12-0.dll
+  strip --strip-all /usr/local/bin/libpng12.dll
 fi
 
 if [ x$BDCLEAN == x1 ]; then
@@ -638,7 +643,7 @@ fi
     Dependency('JPEG', ['jpeg-[6-9]*'], ['jpeg.dll'], """
 
 set -e
-cd $BDWD
+cd "$BDWD"
 
 if [ x$BDCONF == x1 ]; then
   # This will only build a static library.
@@ -678,7 +683,7 @@ fi
     Dependency('TIFF', ['tiff-[3-9].*'], ['libtiff.dll'], """
 
 set -e
-cd $BDWD
+cd "$BDWD"
 
 if [ x$BDCONF == x1 ]; then
   # The shared library build does not work
@@ -723,7 +728,7 @@ fi
     Dependency('IMAGE', ['SDL_image-[1-9].*'], ['SDL_image.dll'], """
 
 set -e
-cd $BDWD
+cd "$BDWD"
 
 if [ x$BDCONF == x1 ]; then
   # Disable dynamic loading of image libraries as that uses the wrong DLL
@@ -751,18 +756,41 @@ fi
     Dependency('SMPEG', ['smpeg-[0-9].*', 'smpeg'], ['smpeg.dll'], """
 
 set -e
-cd $BDWD
+cd "$BDWD"
 
 if [ x$BDCONF == x1 ]; then
   # This comes straight from SVN so has no configure script
   if [ ! -f "./configure" ]; then
     ./autogen.sh
   fi
+
+  # Don't need the toys.
   ./configure --disable-gtk-player --disable-opengl-player --disable-gtktest
 fi
 
 if [ x$BDCOMP == x1 ]; then
+  # Leave out undefined symbols so a dll will build, along with the appropriate
+  # libtool generated files (if needed elsewere). The DLL is it not what we want
+  # though: linked to the C runtime we specify, and statically linked to the gcc
+  # runtime libraries (If you know how to coerce libtool into building this DLL
+  # then please fix this.)
   make CXXLD='$(CXX) -no-undefined'
+
+  # Build the DLL we want. Build options adapted from those libtool generates in
+  # Makefile, but letting g++ do the work of adding support libraries. Note the
+  # addition of the -static-libgcc and -static-libstdc++ options.
+  g++ -shared -static-libgcc -static-libstdc++ -mwindows \
+    -Wl,--enable-auto-image-base -Xlinker --out-implib -Xlinker .libs/libsmpeg.dll.a \
+    -L/local/lib -o .libs/smpeg.dll \
+    .libs/MPEG.o .libs/MPEGring.o .libs/MPEGlist.o .libs/MPEGstream.o \
+    .libs/MPEGsystem.o .libs/MPEGfilter.o .libs/smpeg.o .libs/MPEGaudio.o \
+    .libs/bitwindow.o .libs/filter.o .libs/filter_2.o .libs/hufftable.o \
+    .libs/mpeglayer1.o .libs/mpeglayer2.o .libs/mpeglayer3.o .libs/mpegtable.o \
+    .libs/mpegtoraw.o .libs/MPEGvideo.o .libs/decoders.o .libs/floatdct.o \
+    .libs/gdith.o .libs/jrevdct.o .libs/motionvec.o .libs/parseblock.o \
+    .libs/readfile.o .libs/util.o .libs/video.o .libs/vhar128.o .libs/mmxflags_asm.o \
+    .libs/mmxidct_asm.o -lSDL -lmingw32 -lgcc_s -lgcc -lmoldname -lmingwex \
+    -lmsvcrt -luser32 -lkernel32 -ladvapi32 -lshell32
 fi
 
 if [ x$BDINST == x1 ]; then
@@ -781,7 +809,7 @@ fi
     Dependency('OGG', ['libogg-[1-9].*'], ['libogg-0.dll'], """
 
 set -e
-cd $BDWD
+cd "$BDWD"
 
 if [ x$BDCONF == x1 ]; then
   ./configure
@@ -809,7 +837,7 @@ fi
                ['libvorbis-0.dll', 'libvorbisfile-3.dll'], """
 
 set -e
-cd $BDWD
+cd "$BDWD"
 
 if [ x$BDCONF == x1 ]; then
   ./configure
@@ -836,7 +864,7 @@ fi
     Dependency('FLAC', ['flac-[1-9].*'], [], """
 
 set -e
-cd $BDWD
+cd "$BDWD"
 
 if [ x$BDCONF == x1 ]; then
   # Add __MINGW32__ to SIZE_T_MAX declaration test in alloc.h header.
@@ -870,27 +898,57 @@ fi
     Dependency('MIXER', ['SDL_mixer-[1-9].*'], ['SDL_mixer.dll'], """
 
 set -e
-cd $BDWD
+cd "$BDWD"
 
 if [ x$BDCONF == x1 ]; then
   # This comes straight from SVN so has no configure script
   if [ ! -f "./configure" ]; then
     ./autogen.sh
   fi
-  # Need to add Ws2_32 library for FLAC.
+  # Add Ws2_32 library for FLAC.
   cp -f configure configure_
   sed '
 s/\\(EXTRA_LDFLAGS="$EXTRA_LDFLAGS -lFLAC\\)"/\\1 -lWs2_32"/
 s/\\(LIBS="-lFLAC\\)\\(  $LIBS"\\)/\\1 -lWs2_32\\2/' \
     configure_ >configure
   rm configure_
+
   # No dynamic loading of dependent libraries.
   ./configure --disable-music-ogg-shared --disable-music-mp3-shared \
     --disable-music-flac-shared
 fi
 
 if [ x$BDCOMP == x1 ]; then
+  # The DLL make builds is it not what we want: linked to the C runtime we specify
+  # (If you know how to coerce libtool into building this DLL then please fix this.)
   make
+
+  # Build the DLL we want. Build options adapted from those libtool generates in
+  # Makefile, but letting gcc do the work of adding support libraries. Note the
+  # addition of the -static-libgcc option.
+ gcc -shared -static-libgcc -mwindows-Wl,--enable-auto-image-base \
+   -Xlinker --out-implib -Xlinker build/.libs/libSDL_mixer.dll.a \
+   -o build/.libs/SDL_mixer.dll -L/usr/local/lib \
+   build/.libs/effect_position.o build/.libs/effect_stereoreverse.o \
+   build/.libs/effects_internal.o build/.libs/load_aiff.o build/.libs/load_voc.o \
+   build/.libs/mixer.o build/.libs/music.o build/.libs/music_cmd.o \
+   build/.libs/wavestream.o build/.libs/drv_nos.o build/.libs/load_it.o \
+   build/.libs/load_mod.o build/.libs/load_s3m.o build/.libs/load_xm.o \
+   build/.libs/mdreg.o build/.libs/mdriver.o build/.libs/mloader.o build/.libs/mlreg.o \
+   build/.libs/mlutil.o build/.libs/mmalloc.o build/.libs/mmerror.o \
+   build/.libs/mmio.o build/.libs/mplayer.o build/.libs/munitrk.o build/.libs/mwav.o \
+   build/.libs/npertab.o build/.libs/sloader.o build/.libs/virtch.o build/.libs/virtch2.o \
+   build/.libs/virtch_common.o build/.libs/common.o build/.libs/ctrlmode.o \
+   build/.libs/filter.o build/.libs/instrum.o build/.libs/mix.o build/.libs/output.o \
+   build/.libs/playmidi.o build/.libs/readmidi.o build/.libs/resample.o \
+   build/.libs/sdl_a.o build/.libs/sdl_c.o build/.libs/tables.o build/.libs/timidity.o \
+   build/.libs/native_midi_common.o build/.libs/native_midi_mac.o \
+   build/.libs/native_midi_win32.o build/.libs/dynamic_ogg.o build/.libs/load_ogg.o \
+   build/.libs/music_ogg.o build/.libs/dynamic_flac.o build/.libs/load_flac.o \
+   build/.libs/music_flac.o build/.libs/dynamic_mp3.o build/version.o \
+   -lwinmm /usr/local/lib/libvorbisfile.dll.a /usr/local/lib/libvorbis.dll.a \
+   /usr/local/lib/libogg.dll.a -lFLAC -lWs2_32 /usr/local/lib/libsmpeg.dll.a \
+   -lmingw32 -lSDLmain -lSDL
 fi
 
 if [ x$BDINST == x1 ]; then
@@ -909,13 +967,13 @@ fi
     Dependency('PORTMIDI', ['portmidi', 'portmidi-[1-9].*'], ['portmidi.dll'], """
 
 set -e
-cd $BDWD
+cd "$BDWD"
 
 if [ x$BDCONF == x1 ]; then
   cat > GNUmakefile << 'THE_END'
 # Makefile for portmidi, generated for Pygame by msys_build_deps.py.
 
-target = /usr/local
+prefix = /usr/local
 
 pmcom = pm_common
 pmwin = pm_win
@@ -925,8 +983,8 @@ pmdll = portmidi.dll
 pmlib = libportmidi.a
 pmimplib = libportmidi.dll.a
 pmcomsrc = $(pmcom)/portmidi.c $(pmcom)/pmutil.c
-pmwinsrc = $(pmwin)/pmwin.c $(pmwin)/pmwinmm_.c
-pmobj = portmidi.o pmutil.o pmwin.o pmwinmm_.o
+pmwinsrc = $(pmwin)/pmwin.c $(pmwin)/pmwinmm.c
+pmobj = portmidi.o pmutil.o pmwin.o pmwinmm.o
 pmsrc = $(pmcomsrc) $(pmwinsrc)
 pmreqhdr = $(pmcom)/portmidi.h $(pmcom)/pmutil.h
 pmhdr = $(pmreqhdr) $(pmcom)/pminternal.h $(pmwin)/pmwinmm.h
@@ -950,31 +1008,28 @@ LIBS := $(LOADLIBES) $(LDLIBS) -lwinmm
 all : $(pmdll)
 .PHONY : all
 
-$(pmwin)/pmwinmm_.c : $(pmwin)/pmwinmm.c
-\tsed 's_#define DEBUG.*$$_/*&*/_' < "$<" > "$@"
-
 $(pmlib) : $(src) $(hdr)
-\tc++ $(CPPFLAGS) $(IHDR) -c $(CFLAGS) $(src)
+\tg++ $(CPPFLAGS) $(IHDR) -c $(CFLAGS) $(src)
 \tar rc $(pmlib) $(obj)
 \tranlib $(pmlib)
 
 $(pmdll) : $(pmlib) $(def)
-\tc++ -shared $(LDFLAGS) -def $(def) $(pmlib) $(LIBS) -o $@
+\tg++ -shared -static-libgcc $(LDFLAGS) -def $(def) $(pmlib) $(LIBS) -o $@
 \tdlltool -D $(pmdll) -d $(def) -l $(pmimplib)
 \tranlib $(pmimplib)
 
 .PHONY : install
 
 install : $(pmdll)
-\tcp -f --target-directory=$(target)/bin $<
-\tcp -f --target-directory=$(target)/lib $(pmlib)
-\tcp -f --target-directory=$(target)/lib $(pmimplib)
-\tcp -f --target-directory=$(target)/include $(reqhdr)
+\tcp -f --target-directory=$(prefix)/bin $<
+\tcp -f --target-directory=$(prefix)/lib $(pmlib)
+\tcp -f --target-directory=$(prefix)/lib $(pmimplib)
+\tcp -f --target-directory=$(prefix)/include $(reqhdr)
 
 .PHONY : clean
 
 clean :
-\trm -f $(obj) $(pmdll) $(pmimplib) $(pmlib) $(pmwin)/pmwinmm_.c
+\trm -f $(obj) $(pmdll) $(pmimplib) $(pmlib)
 THE_END
 
   cat > portmidi.def << 'THE_END'
@@ -1013,25 +1068,6 @@ Pt_Start
 Pt_Started
 Pt_Stop
 Pt_Time
-pm_add_device
-pm_alloc
-pm_descriptor_index DATA
-pm_descriptor_max DATA
-pm_fail_fn
-pm_fail_timestamp_fn
-pm_free
-pm_hosterror DATA
-pm_hosterror_text DATA
-pm_init
-pm_none_dictionary DATA
-pm_read_bytes
-pm_read_short
-pm_success_fn
-pm_term
-pm_winmm_in_dictionary DATA
-pm_winmm_init
-pm_winmm_out_dictionary DATA
-pm_winmm_term
 THE_END
 
 fi
@@ -1055,10 +1091,11 @@ if [ x$BDCLEAN == x1 ]; then
 fi
 """),
     Dependency('FFMPEG', ['ffmpeg'],
-    ['avformat-52.dll', 'swscale-0.dll', 'SDL_mixer.dll'], """
+    ['avformat-52.dll', 'swscale-0.dll',
+     'avcodec-52.dll', 'avutil-50.dll' ], """
 
 set -e
-cd $BDWD
+cd "$BDWD"
 
 if [ x$BDCONF == x1 ]; then
   ./configure --enable-shared --enable-memalign-hack
@@ -1066,26 +1103,31 @@ fi
 
 if [ x$BDCOMP == x1 ]; then
   make
+  cd libswscale/
+  make
+  cd ..
 fi
 
 if [ x$BDINST == x1 ]; then
   make install
+  cd libswscale/
+  make install
+  cd ..
 fi
 
 if [ x$BDSTRIP == x1 ]; then
-  strip --strip-all /usr/local/bin/SDL_ttf.dll
-fi
-
-if [ x$BDINST == x1 ]; then
-  cd libswscale/
-  make
-  make install
-  cd ..
+  strip --strip-all /usr/local/bin/avformat-52.dll
+  strip --strip-all /usr/local/bin/swscale-0.dll
+  strip --strip-all /usr/local/bin/avcodec-52.dll
+  strip --strip-all /usr/local/bin/avutil-50.dll
 fi
 
 if [ x$BDCLEAN == x1 ]; then
   set +e
   make clean
+  cd libswscale/
+  make clean
+  cd ..
 fi
 """),
 
