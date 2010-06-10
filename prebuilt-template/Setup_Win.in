@@ -14,10 +14,14 @@ VORBIS = -Iprebuilt/include/vorbis -lvorbis
 OGG = -Iprebuilt/include/ogg -logg
 PORTMIDI = -lportmidi
 PORTTIME =
-AVFORMAT = -Iprebuilt/include -lavformat -lavcodec -lavutil -lws2_32
+AVFORMAT = -Iprebuilt/include -lavformat -lavcodec -lavutil
 SWSCALE = -Iprebuilt/include -lswscale -lavutil
-# Make sure ffmpeg headers are included by make_prebuilt.py.
-FFMPEG_HDR_DIRS = -Iprebuilt/include/libavformat -Iprebuilt/include/libavcodec -Iprebuilt/include/libswscale -Iprebuilt/include/avutil
+# Ensure make_prebuilt.py includes the ffmpeg headers.
+COPYHDRS_AVFORMAT = -lavformat -Iprebuilt/include/libavformat
+COPYHDRS_SWCALE = -lswscale -Iprebuilt/include/libswscale
+COPYHDRS_AVCODEC = -lavcodec -Iprebuilt/include/libavcodec
+COPYHDRS_AVUTIL = -lavutil -Iprebuilt/include/libavutil
+# The DLL's
 COPYLIB_SDL -Lprebuilt/lib/SDL.dll
 COPYLIB_SDL_ttf -lSDL -lfreetype -Lprebuilt/lib/SDL_ttf.dll
 COPYLIB_SDL_image -lSDL -ljpef -lpng -ltiff -Lprebuilt/lib/SDL_image.dll
