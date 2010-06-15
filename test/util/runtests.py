@@ -102,6 +102,7 @@ def gettestfiles (testdir=None, randomizer=None):
     """
     if not testdir:
         testdir = os.path.dirname (__file__)
+    if testdir not in sys.path:
         sys.path.append (testdir)
 
     names = os.listdir (testdir)
