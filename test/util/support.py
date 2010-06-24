@@ -13,7 +13,10 @@ except ImportError:
 class StreamOutput (object):
     def __init__ (self, stream):
         self.stream = stream
-        self.startoffset = self.stream.tell ()
+        try:
+            self.startoffset = self.stream.tell ()
+        except IOError:
+            self.startoffset = 0
         self.curoffset = 0
 
     def writeline (self, data=None):
