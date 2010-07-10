@@ -15,6 +15,7 @@ import time
 import subprocess
 import re
 import glob
+import platform
 try:
     if helpers.getversion()[0] >= 3:
         import winreg as _winreg
@@ -32,6 +33,9 @@ def has_drive(path):
     """Return true if the MSYS path strats with a drive letter"""
     
     return re.match('/[A-Z]/', path, re.I) is not None
+
+def is64bit ():
+    return "64" in platform.architecture ()[0]
 
 class MsysException(Exception):
     """Path retrieval problem"""
@@ -94,6 +98,8 @@ def find_msys_registry():
     key = None
     subkey = (
         'Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\MSYS-1.0_is1')
+    if is64bit ():
+        subkey = ('Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\MSYS-1.0_is1')
     try:
         key = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE, subkey)
         try:
