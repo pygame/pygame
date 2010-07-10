@@ -198,7 +198,7 @@ def main(dest_dir=None):
                         'rem Make .lib import libraries.\n'
                         'rem Requires Visual C++ Studio or Toolkit.\n'
                         'rem VCVARS32.BAT (VCVARS64.BAT (?) for 64 bit build)\n'
-                        'rem must be run first to use LIB.EXE.\n\n')
+                        'rem must be run first to use LINK.EXE.\n\n')
         for dep in deps:
             dll_name = os.path.split(dep.library_dirs[0])[1]
             lib = dep.name[8:]
@@ -207,7 +207,7 @@ def main(dest_dir=None):
                 start = ''
             else:
                 start = 'rem '
-            make_libs.write('%sLIB.EXE /NOLOGO /DEF:%s.def /MACHINE:IX86 /OUT:%s.lib\n' %
+            make_libs.write('%sLINK.EXE /LIB /NOLOGO /DEF:%s.def /MACHINE:IX86 /OUT:%s.lib\n' %
                             (start, lib, lib))
     finally:
         make_libs.close()

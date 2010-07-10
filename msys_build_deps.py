@@ -5,6 +5,8 @@
 
 """Build Pygame dependencies using MinGW and MSYS
 
+*** Incomplete: needs mikmod build ***
+
 Configured for Pygame 1.9.1 and Python 2.5 and up.
 
 The libraries are installed in /usr/local of the MSYS directory structure.
@@ -16,10 +18,7 @@ file path cannot have spaces in it.
 
 The recognized, and optional, environment variables are:
   SHELL - MSYS shell program path - already defined in the MSYS terminal
-  CFLAGS - compiler options - overrides the defaults used by this program
   LDFLAGS - linker options - prepended to flags set by the program
-  LIBRARY_PATH - library directory paths - appended to those used by this
-                 program
   CPATH - C/C++ header file paths - appended to the paths used by this program
 
 To get a list of command line options run
@@ -29,18 +28,18 @@ python build_deps.py --help
 This program has been tested against the following libraries:
 
 SDL 1.2.14 
-SDL_image 1.2.6
-SDL_mixer 1.2 (.8) revision 3942 from SVN
+SDL_image 1.2.10
+SDL_mixer 1.2.11
 SDL_ttf 2.0.9
 smpeg revision 389 from SVN
 freetype 2.3.12
-libogg 1.1.3
-libvorbis 1.2.0
+libogg 1.2.0
+libvorbis 1.3.1
 FLAC 1.2.1
-tiff 3.8.2
-libpng 1.2.43
-jpeg 6b
-zlib 1.2.3
+tiff 3.9.4
+libpng 1.4.3
+jpeg 8b
+zlib 1.2.5
 PortMidi revision 201 from SVN (patched)
 ffmpeg revision 23520 from SVN
 
@@ -93,6 +92,8 @@ def geterror():
 #
 hunt_paths = ['.', '..']
 
+default_msys_prefix = '/usr/local'
+
 def prompt(p=None):
     """MSYS friendly raw_input
     
@@ -118,6 +119,13 @@ def as_flag(b):
     if b:
         return '1'
     return '0'
+
+def as_linker_lib_path(p):
+    """Return as an ld library path argument"""
+    
+    if p:
+        return '-L' + p
+    return ''
 
 def merge_strings(*args, **kwds):
     """Returns non empty string joined by sep
@@ -231,6 +239,7 @@ def build(dependencies, msys):
     """Execute that shell scripts for all dependencies"""
     
     for dep in dependencies:
+        print_("\n\n----", dep.name, "----")
         dep.build(msys)
 
 def command_line():
@@ -259,10 +268,6 @@ def command_line():
     parser.add_option('--no-msvcr71', action='store_false', dest='msvcr71',
                       help="Do not link to msvcr71.dll")
     parser.set_defaults(msvcr71=True)
-    parser.add_option('--console', action='store_true', dest='console',
-                      help="Link with the console subsystem:"
-                           " defaults to Win32 GUI")
-    parser.set_defaults(console=False)
     parser.add_option('--no-configure', action='store_false', dest='configure',
                       help="Do not prepare the makefiles")
     parser.set_defaults(configure=True)
@@ -290,6 +295,11 @@ def command_line():
                       help="MSYS directory path, which may include"
                            " the 1.x subdirectory")
     parser.set_defaults(msys_directory='')
+    parser.add_option('-p', '--prefix', action='store',
+                      dest='prefix',
+                      help="Destination directory of the build: defaults to MSYS %s)"
+                           % (default_msys_prefix,))
+    parser.set_defaults(prefix='')
     parser.add_option('--help-args', action='store_true', dest='arg_help',
                       help="Show a list of recognised libraries,"
                            " in build order, and exit")
@@ -301,6 +311,12 @@ def set_environment_variables(msys, options):
     
     environ = msys.environ
     msys_root = msys.msys_root
+    prefix = options.prefix
+    if prefix:
+        prefix = msys.windows_to_msys(prefix)
+    else:
+        prefix = default_msys_prefix
+    environ['PREFIX'] = prefix
     environ['BDCONF'] = as_flag(options.configure and
                                 not options.clean_only)
     environ['BDCOMP'] = as_flag(options.compile and
@@ -308,31 +324,26 @@ def set_environment_variables(msys, options):
     environ['BDINST'] = as_flag(options.install and
                                 options.compile and
                                 not options.clean_only)
-    environ['BDSTRIP'] = as_flag(options.install and
+    environ['BDSTRIP'] = as_flag(options.compile and
+                                 options.install and
                                  options.strip and
                                  not options.clean_only)
     environ['BDCLEAN'] = as_flag(options.clean or options.clean_only)
     environ.pop('INCLUDE', None)  # INCLUDE causes problems with MIXER.
-    if 'CFLAGS' not in environ:
-        environ['CFLAGS'] = '-O2'
-    ldflags = '-mwindows'
-    if options.console:
-        ldflags = '-mconsole'
-    environ['LDFLAGS'] = merge_strings(environ.get('LDFLAGS', ''), ldflags,
-                                       sep=' ')
-    library_path = os.path.join(msys_root, 'local', 'lib')
+    lib_path = prefix + '/lib'
     msvcr71_path = ''
     if options.msvcr71:
         # Hide the msvcrt.dll import libraries with those for msvcr71.dll.
         # Their subdirectory is in the same directory as the SDL library.
-        msvcr71_path = os.path.join(library_path, 'msvcr71')
+        msvcr71_path = lib_path + '/msvcr71'
         environ['DBMSVCR71'] = msvcr71_path
-    # For dependency libraries and msvcrt hiding.
-    environ['LIBRARY_PATH'] = merge_strings(library_path, msvcr71_path,
-                                            environ.get('LIBRARY_PATH', ''),
-                                            sep=';')
+    environ['LDFLAGS'] = merge_strings(environ.get('LDFLAGS', ''),
+                                       as_linker_lib_path(lib_path),
+                                       as_linker_lib_path(msvcr71_path),
+                                       sep=' ')
+
     # For dependency headers.
-    include_path = os.path.join(msys_root, 'local', 'include')
+    include_path = '/'.join((prefix, 'include'))
     environ['CPATH'] = merge_strings(include_path, environ.get('CPATH', ''),
                                      sep=';')
 
@@ -382,8 +393,8 @@ def summary(dependencies, msys, start_time, chosen_deps):
         elif dep.path:
             print_("  Source directory for", dep.name, ":", dep.path)
     print_()
-    msys_root = msys.msys_root
-    bin_dir = os.path.join(msys_root, 'local', 'bin')
+    prefix = msys.msys_to_windows(msys.environ['PREFIX']).replace('/', os.sep)
+    bin_dir = os.path.join(prefix, 'bin')
     for d in dependencies:
         name = d.name
         dlls = d.dlls
@@ -421,6 +432,9 @@ def main(dependencies, msvcr71_preparation, msys_preparation):
             print_("All libraries excluded")
     if options.msvcr71:
         chosen_deps.insert(0, msvcr71_preparation)
+        print_("Linking to msvcr71.dll.")
+    else:
+        print_("Linking to MinGW default C runtime library.")
     if chosen_deps:
         chosen_deps.insert(0, msys_preparation)
     try:
@@ -431,6 +445,8 @@ def main(dependencies, msvcr71_preparation, msys_preparation):
     start_time = None
     return_code = 1
     set_environment_variables(m, options)
+    print_("Destination directory:",
+           m.msys_to_windows(m.environ['PREFIX']).replace('/', os.sep))
     try:
         configure(chosen_deps)
     except BuildError:
@@ -495,7 +511,7 @@ if [ x$BDCONF == x1 ]; then
   if [ ! -f "./configure" ]; then
     ./autogen.sh
   fi
-  ./configure
+  ./configure --prefix="$PREFIX" LDFLAGS="$LDFLAGS"
 fi
 
 if [ x$BDCOMP == x1 ]; then
@@ -505,11 +521,11 @@ fi
 if [ x$BDINST == x1 ]; then
   make install
   # Make SDL_config_win32.h available for prebuilt and MSVC
-  cp -f "$BDWD/include/SDL_config_win32.h" "/usr/local/include/SDL"
+  cp -f "$BDWD/include/SDL_config_win32.h" "$PREFIX/include/SDL"
 fi
 
 if [ x$BDSTRIP == x1 ]; then
-  strip --strip-all /usr/local/bin/SDL.dll
+  strip --strip-all "$PREFIX/bin/SDL.dll"
 fi
 
 if [ x$BDCLEAN == x1 ]; then
@@ -523,43 +539,40 @@ set -e
 cd "$BDWD"
 
 if [ x$BDCONF == x1 ]; then
-  # Use the existing gcc makefile, modified to add linker options.
-  sed "s/dllwrap/dllwrap $LDFLAGS/" win32/Makefile.gcc >Makefile.gcc
+  cp -fp win32/Makefile.gcc .
+  # Will use contributed asm code.
+  cp -fp contrib/asm686/match.S .
 fi
 
 if [ x$BDCOMP == x1 ]; then
-  # Build with the import library renamed.
-  make IMPLIB='libz.dll.a' -fMakefile.gcc "CFLAGS=$CFLAGS"
+  # Build with the import library renamed, using asm code, our CFLAGS
+  # and LDFLAGS.
+  make IMPLIB=libz.dll.a CFLAGS="$CFLAGS" LOC="-DASMV $LDFLAGS" \
+    OBJA=match.o -fMakefile.gcc
 fi
 
 if [ x$BDINST == x1 ]; then
-  # Have to do own install.
-  cp -fp *.a /usr/local/lib
-  cp -fp zlib.h /usr/local/include
-  cp -fp zconf.h /usr/local/include
-  cp -fp zlib1.dll /usr/local/bin
+  # Make sure everything is installed in the correct places
+  make install LIBRARY_PATH="$PREFIX/lib" INCLUDE_PATH="$PREFIX/include" \
+    BINARY_PATH="$PREFIX/bin" SHARED_MODE=1 IMPLIB=libz.dll.a -fMakefile.gcc
 fi
 
 if [ x$BDSTRIP == x1 ]; then
-  strip --strip-all /usr/local/bin/zlib1.dll
+  strip --strip-all "$PREFIX/bin/zlib1.dll"
 fi
 
 if [ x$BDCLEAN == x1 ]; then
   set +e
-  make clean
+  make clean -fMakefile.gcc
 fi
 """),
     Dependency('FREETYPE', ['freetype-[2-9].*'], ['libfreetype-6.dll'], """
 
 set -e
 cd "$BDWD"
-export PWD="${BDWD// /\\\\ /}"
 
 if [ x$BDCONF == x1 ]; then
-  # Need to define inline as freetypes is compiled as -pedentic
-  # yet stdlib.h is not.
-  export CPPFLAGS="-Dinline=__inline__ $CPPFLAGS"
-  ./configure
+  ./configure --prefix="$PREFIX" LDFLAGS="$LDFLAGS"
 fi
 
 if [ x$BDCOMP == x1 ]; then
@@ -571,7 +584,7 @@ if [ x$BDINST == x1 ]; then
 fi
 
 if [ x$BDSTRIP == x1 ]; then
-  strip --strip-all /usr/local/bin/libfreetype-6.dll
+  strip --strip-all "$PREFIX/bin/libfreetype-6.dll"
 fi
 
 if [ x$BDCLEAN == x1 ]; then
@@ -585,7 +598,7 @@ set -e
 cd "$BDWD"
 
 if [ x$BDCONF == x1 ]; then
-  ./configure
+  ./configure --prefix="$PREFIX" LDFLAGS="$LDFLAGS"
 fi
 
 if [ x$BDCOMP == x1 ]; then
@@ -597,7 +610,7 @@ if [ x$BDINST == x1 ]; then
 fi
 
 if [ x$BDSTRIP == x1 ]; then
-  strip --strip-all /usr/local/bin/SDL_ttf.dll
+  strip --strip-all "$PREFIX/bin/SDL_ttf.dll"
 fi
 
 if [ x$BDCLEAN == x1 ]; then
@@ -605,117 +618,83 @@ if [ x$BDCLEAN == x1 ]; then
   make clean
 fi
 """),
-    Dependency('PNG', ['libpng-[1-9].*'], ['libpng12.dll'], """
+    Dependency('PNG', ['l*png*[1-9][1-9.]*'], ['libpng14.dll'], """
 
 set -e
 cd "$BDWD"
 
 if [ x$BDCONF == x1 ]; then
   # Use the provided MinGW makefile.
-  cp -f scripts/Makefile.mingw Makefile
+  cp -fp scripts/Makefile.mingw .
 fi
 
 if [ x$BDCOMP == x1 ]; then
-  make prefix=/usr/local
+  make -fMakefile.mingw prefix="$PREFIX" \
+       MINGW_CCFLAGS="-I$PREFIX/include $CFLAGS" MINGW_LDFLAGS="$LDFLAGS"
 fi
 
 if [ x$BDINST == x1 ]; then
-  # The makefile goes into an infinite loop on install.
-  # Do in ourselves.
-  cp -f libpng12.dll /usr/local/bin
-  cp -f libpng.dll.a /usr/local/lib
-  cp -f libpng.a /usr/local/lib
-  headers=/usr/local/include
-  mkdir -p $headers
-  cp -f png.h $headers
-  cp -f pngconf.h $headers
+  make install -fMakefile.mingw prefix="$PREFIX"
 fi
 
 if [ x$BDSTRIP == x1 ]; then
-  strip --strip-all /usr/local/bin/libpng12.dll
+  strip --strip-all "$PREFIX/bin/libpng14.dll"
 fi
 
 if [ x$BDCLEAN == x1 ]; then
   set +e
-  make clean
+  make clean -fMakefile.mingw
 fi
 """),
-    Dependency('JPEG', ['jpeg-[6-9]*'], ['jpeg.dll'], """
+    Dependency('JPEG', ['jpeg-[6-9]*'], ['libjpeg-8.dll'], """
 
 set -e
 cd "$BDWD"
 
 if [ x$BDCONF == x1 ]; then
   # This will only build a static library.
-  ./configure --disable-shared
+  ./configure --prefix="$PREFIX" LDFLAGS="$LDFLAGS"
+  cp jconfig.vc jconfig.h
 fi
 
 if [ x$BDCOMP == x1 ]; then
-  # Build the DLL as a win32 gui.
   make
-  dlltool --export-all-symbols -D jpeg.dll -l libjpeg.dll.a -z in.def libjpeg.a
-  ranlib libjpeg.dll.a
-  gcc -shared -s $LDFLAGS -def in.def -o jpeg.dll libjpeg.a
 fi
 
 if [ x$BDINST == x1 ]; then
   # Only install the headers and import library, otherwise SDL_image will
   # statically link to jpeg.
-  make install-headers
-  cp -fp libjpeg.a /usr/local/lib
-  cp -fp libjpeg.dll.a /usr/local/lib
-  cp -fp jpeg.dll /usr/local/bin
-  if [ x$? != x0 ]; then exit $?; fi
+  make install
 fi
 
 if [ x$BDSTRIP == x1 ]; then
-  strip --strip-all /usr/local/bin/jpeg.dll
+  strip --strip-all "$PREFIX/bin/libjpeg-8.dll"
 fi
 
 if [ x$BDCLEAN == x1 ]; then
   set +e
   make clean
-  rm -f in.def
-  rm -f libjpeg.dll.a
-  rm -f jpeg.dll
 fi
 """),
-    Dependency('TIFF', ['tiff-[3-9].*'], ['libtiff.dll'], """
+    Dependency('TIFF', ['tiff-[3-9].*'], ['libtiff-3.dll'], """
 
 set -e
 cd "$BDWD"
 
 if [ x$BDCONF == x1 ]; then
-  # The shared library build does not work
-  ./configure --disable-cxx --prefix=/usr/local --disable-shared
+  ./configure --disable-cxx --prefix="$PREFIX" LDFLAGS="$LDFLAGS"
 fi
 
 if [ x$BDCOMP == x1 ]; then
   make
-
-  # Build the DLL as a win32 gui
-  cd libtiff
-  gcc -shared -s $LDFLAGS -def libtiff.def -o libtiff.dll .libs/libtiff.a \
-    -ljpeg -lz
-  dlltool -D libtiff.dll -d libtiff.def -l libtiff.dll.a
-  ranlib libtiff.dll.a
-  cd ..
 fi
 
 if [ x$BDINST == x1 ]; then
-  # Don't install any libtools info files so SDL_image will not
-  # statically link to jpeg.
-  cd libtiff
-  make install-data-am
-  cp -fp .libs/libtiff.a /usr/local/lib
-  cp -fp libtiff.dll.a /usr/local/lib
-  cp -fp libtiff.dll /usr/local/bin
-  if [ x$? != x0 ]; then exit $?; fi
-  cd ..
+  make install
 fi
 
 if [ x$BDSTRIP == x1 ]; then
-  strip --strip-all /usr/local/bin/libtiff.dll
+  strip --strip-all "$PREFIX/bin/libtiff-3.dll"
 fi
 
 if [ x$BDCLEAN == x1 ]; then
@@ -733,7 +712,8 @@ cd "$BDWD"
 if [ x$BDCONF == x1 ]; then
   # Disable dynamic loading of image libraries as that uses the wrong DLL
   # search path
-  ./configure --disable-jpeg-shared --disable-png-shared --disable-tif-shared
+  ./configure --disable-jpg-shared --disable-png-shared --disable-tif-shared \
+              --prefix="$PREFIX" LDFLAGS="$LDFLAGS"
 fi
 
 if [ x$BDCOMP == x1 ]; then
@@ -745,10 +725,10 @@ if [ x$BDINST == x1 ]; then
 fi
 
 if [ x$BDSTRIP == x1 ]; then
-  strip --strip-all /usr/local/bin/SDL_image.dll
+  strip --strip-all "$PREFIX/bin/SDL_image.dll"
 fi
 
-if [ x$BDCLEAN == x1 ]; then
+if [[ x$BDCLEAN == x1 && -f Makefile ]]; then
   set +e
   make clean
 fi
@@ -765,32 +745,14 @@ if [ x$BDCONF == x1 ]; then
   fi
 
   # Don't need the toys.
-  ./configure --disable-gtk-player --disable-opengl-player --disable-gtktest
+  ./configure --disable-gtk-player --disable-opengl-player \
+              --prefix="$PREFIX" \
+              LDFLAGS="-static-libstdc++ -static-libgcc $LDFLAGS"
 fi
 
 if [ x$BDCOMP == x1 ]; then
-  # Leave out undefined symbols so a dll will build, along with the appropriate
-  # libtool generated files (if needed elsewere). The DLL is it not what we want
-  # though: linked to the C runtime we specify, and statically linked to the gcc
-  # runtime libraries (If you know how to coerce libtool into building this DLL
-  # then please fix this.)
+  # Leave out undefined symbols so a dll will build.
   make CXXLD='$(CXX) -no-undefined'
-
-  # Build the DLL we want. Build options adapted from those libtool generates in
-  # Makefile, but letting g++ do the work of adding support libraries. Note the
-  # addition of the -static-libgcc and -static-libstdc++ options.
-  g++ -shared -static-libgcc -static-libstdc++ -mwindows \
-    -Wl,--enable-auto-image-base -Xlinker --out-implib -Xlinker .libs/libsmpeg.dll.a \
-    -L/local/lib -o .libs/smpeg.dll \
-    .libs/MPEG.o .libs/MPEGring.o .libs/MPEGlist.o .libs/MPEGstream.o \
-    .libs/MPEGsystem.o .libs/MPEGfilter.o .libs/smpeg.o .libs/MPEGaudio.o \
-    .libs/bitwindow.o .libs/filter.o .libs/filter_2.o .libs/hufftable.o \
-    .libs/mpeglayer1.o .libs/mpeglayer2.o .libs/mpeglayer3.o .libs/mpegtable.o \
-    .libs/mpegtoraw.o .libs/MPEGvideo.o .libs/decoders.o .libs/floatdct.o \
-    .libs/gdith.o .libs/jrevdct.o .libs/motionvec.o .libs/parseblock.o \
-    .libs/readfile.o .libs/util.o .libs/video.o .libs/vhar128.o .libs/mmxflags_asm.o \
-    .libs/mmxidct_asm.o -lSDL -lmingw32 -lgcc_s -lgcc -lmoldname -lmingwex \
-    -lmsvcrt -luser32 -lkernel32 -ladvapi32 -lshell32
 fi
 
 if [ x$BDINST == x1 ]; then
@@ -798,10 +760,10 @@ if [ x$BDINST == x1 ]; then
 fi
 
 if [ x$BDSTRIP == x1 ]; then
-  strip --strip-all /usr/local/bin/smpeg.dll
+  strip --strip-all "$PREFIX/bin/smpeg.dll"
 fi
 
-if [ x$BDCLEAN == x1 ]; then
+if [[ x$BDCLEAN == x1 && -f Makefile ]]; then
   set +e
   make clean
 fi
@@ -812,7 +774,7 @@ set -e
 cd "$BDWD"
 
 if [ x$BDCONF == x1 ]; then
-  ./configure
+  ./configure --prefix="$PREFIX" LDFLAGS="$LDFLAGS"
 fi
 
 if [ x$BDCOMP == x1 ]; then
@@ -824,10 +786,10 @@ if [ x$BDINST == x1 ]; then
 fi
 
 if [ x$BDSTRIP == x1 ]; then
-  strip --strip-all /usr/local/bin/libogg-0.dll
+  strip --strip-all "$PREFIX/bin/libogg-0.dll"
 fi
 
-if [ x$BDCLEAN == x1 ]; then
+if [[ x$BDCLEAN == x1 && -f Makefile ]]; then
   set +e
   make clean
 fi
@@ -840,11 +802,11 @@ set -e
 cd "$BDWD"
 
 if [ x$BDCONF == x1 ]; then
-  ./configure
+  ./configure --prefix="$PREFIX" LDFLAGS="$LDFLAGS" LIBS='-logg'
 fi
 
 if [ x$BDCOMP == x1 ]; then
-  make LIBS='-logg'
+  make
 fi
 
 if [ x$BDINST == x1 ]; then
@@ -852,11 +814,11 @@ if [ x$BDINST == x1 ]; then
 fi
 
 if [ x$BDSTRIP == x1 ]; then
-  strip --strip-all /usr/local/bin/libvorbis-0.dll
-  strip --strip-all /usr/local/bin/libvorbisfile-3.dll
+  strip --strip-all "$PREFIX/bin/libvorbis-0.dll"
+  strip --strip-all "$PREFIX/bin/libvorbisfile-3.dll"
 fi
 
-if [ x$BDCLEAN == x1 ]; then
+if [[ x$BDCLEAN == x1 && -f Makefile ]]; then
   set +e
   make clean
 fi
@@ -877,7 +839,7 @@ if [ x$BDCONF == x1 ]; then
 
   # Will only install a static library, but that is all that is needed.
   ./configure --disable-shared --disable-ogg --disable-cpplibs \
-    --disable-doxygen-docs
+    --disable-doxygen-docs --prefix="$PREFIX" LDFLAGS="$LDFLAGS"
 fi
 
 if [ x$BDCOMP == x1 ]; then
@@ -885,12 +847,12 @@ if [ x$BDCOMP == x1 ]; then
 fi
 
 if [ x$BDINST == x1 ]; then
-  cp src/libFLAC/.libs/libFLAC.a /usr/local/lib
-  mkdir -p /usr/local/include/FLAC
-  cp -f include/FLAC/*.h /usr/local/include/FLAC
+  cp src/libFLAC/.libs/libFLAC.a "$PREFIX/lib"
+  mkdir -p "$PREFIX/include/FLAC"
+  cp -f include/FLAC/*.h "$PREFIX/include/FLAC"
 fi
 
-if [ x$BDCLEAN == x1 ]; then
+if [[ x$BDCLEAN == x1 && -f Makefile ]]; then
   set +e
   make clean
 fi
@@ -900,55 +862,36 @@ fi
 set -e
 cd "$BDWD"
 
+mikmod_dependencies='-ldsound'
+flac_dependencies='-lWs2_32'
+
 if [ x$BDCONF == x1 ]; then
-  # This comes straight from SVN so has no configure script
+  # If this came from SVN then need a configure script.
   if [ ! -f "./configure" ]; then
     ./autogen.sh
   fi
-  # Add Ws2_32 library for FLAC.
-  cp -f configure configure_
-  sed '
-s/\\(EXTRA_LDFLAGS="$EXTRA_LDFLAGS -lFLAC\\)"/\\1 -lWs2_32"/
-s/\\(LIBS="-lFLAC\\)\\(  $LIBS"\\)/\\1 -lWs2_32\\2/' \
-    configure_ >configure
-  rm configure_
 
-  # No dynamic loading of dependent libraries.
+  # No dynamic loading of dependent libraries. Use LIBS so FLAC test
+  # builds (unfortunately LIBS is not passed on to Makefile).
+  export LIBS="$mikmod_dependencies $flac_dependencies"
   ./configure --disable-music-ogg-shared --disable-music-mp3-shared \
-    --disable-music-flac-shared
+    --disable-music-mod-shared --disable-music-flac-shared \
+    PREFIX="$PREFIX" LDFLAGS="$LDFLAGS"
+  
+  # ./configure messes up on its Makefile generation, putting some rules
+  # on the same line as their targets, and placing multiple targets in one
+  # line. Break them up. Also add the required FLAC and mikmod linkage flags.
+  mv -f Makefile Makefile~
+  sed -e 's~\\(-c $< -o $@\\) \\($(objects)\\)~\\1\\\n\\2~g' \
+      -e 's~\\(\\.c\\)\\(\t$(LIBTOOL)\\)~\\1\\\n\\2~g' \
+      -e 's~\\(: \\./version.rc\\)\\(\t$(WINDRES)\\)~\\1\\\n\\2~' \
+      -e "s~\\(-lFLAC\\)~\\1 $flac_dependencies~" \
+      -e "s~\\(-lmikmod\\)~\\1 $mikmod_dependencies~" \
+      Makefile~ >Makefile
 fi
 
 if [ x$BDCOMP == x1 ]; then
-  # The DLL make builds is it not what we want: linked to the C runtime we specify
-  # (If you know how to coerce libtool into building this DLL then please fix this.)
   make
-
-  # Build the DLL we want. Build options adapted from those libtool generates in
-  # Makefile, but letting gcc do the work of adding support libraries. Note the
-  # addition of the -static-libgcc option.
- gcc -shared -static-libgcc -mwindows-Wl,--enable-auto-image-base \
-   -Xlinker --out-implib -Xlinker build/.libs/libSDL_mixer.dll.a \
-   -o build/.libs/SDL_mixer.dll -L/usr/local/lib \
-   build/.libs/effect_position.o build/.libs/effect_stereoreverse.o \
-   build/.libs/effects_internal.o build/.libs/load_aiff.o build/.libs/load_voc.o \
-   build/.libs/mixer.o build/.libs/music.o build/.libs/music_cmd.o \
-   build/.libs/wavestream.o build/.libs/drv_nos.o build/.libs/load_it.o \
-   build/.libs/load_mod.o build/.libs/load_s3m.o build/.libs/load_xm.o \
-   build/.libs/mdreg.o build/.libs/mdriver.o build/.libs/mloader.o build/.libs/mlreg.o \
-   build/.libs/mlutil.o build/.libs/mmalloc.o build/.libs/mmerror.o \
-   build/.libs/mmio.o build/.libs/mplayer.o build/.libs/munitrk.o build/.libs/mwav.o \
-   build/.libs/npertab.o build/.libs/sloader.o build/.libs/virtch.o build/.libs/virtch2.o \
-   build/.libs/virtch_common.o build/.libs/common.o build/.libs/ctrlmode.o \
-   build/.libs/filter.o build/.libs/instrum.o build/.libs/mix.o build/.libs/output.o \
-   build/.libs/playmidi.o build/.libs/readmidi.o build/.libs/resample.o \
-   build/.libs/sdl_a.o build/.libs/sdl_c.o build/.libs/tables.o build/.libs/timidity.o \
-   build/.libs/native_midi_common.o build/.libs/native_midi_mac.o \
-   build/.libs/native_midi_win32.o build/.libs/dynamic_ogg.o build/.libs/load_ogg.o \
-   build/.libs/music_ogg.o build/.libs/dynamic_flac.o build/.libs/load_flac.o \
-   build/.libs/music_flac.o build/.libs/dynamic_mp3.o build/version.o \
-   -lwinmm /usr/local/lib/libvorbisfile.dll.a /usr/local/lib/libvorbis.dll.a \
-   /usr/local/lib/libogg.dll.a -lFLAC -lWs2_32 /usr/local/lib/libsmpeg.dll.a \
-   -lmingw32 -lSDLmain -lSDL
 fi
 
 if [ x$BDINST == x1 ]; then
@@ -956,10 +899,10 @@ if [ x$BDINST == x1 ]; then
 fi
 
 if [ x$BDSTRIP == x1 ]; then
-  strip --strip-all /usr/local/bin/SDL_mixer.dll
+  strip --strip-all "$PREFIX/bin/SDL_mixer.dll"
 fi
 
-if [ x$BDCLEAN == x1 ]; then
+if [[ x$BDCLEAN == x1 && -f Makefile ]]; then
   set +e
   make clean
 fi
@@ -970,6 +913,40 @@ set -e
 cd "$BDWD"
 
 if [ x$BDCONF == x1 ]; then
+  # Fix up some g++ 4.5.0 issues in the source code.
+  source_file=pm_common/portmidi.c
+  if [ ! -f "$source_file~" ]; then
+     mv "$source_file" "$source_file~"
+     sed \
+'420,+7s/return !Pm_QueueEmpty(midi->queue);/\
+return Pm_QueueEmpty(midi->queue) ? pmNoData : pmGotData;/' \
+         "$source_file~" >"$source_file"
+  fi
+  source_file=pm_win/pmwin.c
+if [ ! -f "$source_file~" ]; then
+     mv "$source_file" "$source_file~"
+     sed \
+-e '20,+6s/^\\(#include <windows.h>\\)/#include <ctype.h>\\\n\\1/' \
+-e '91,+7s/if (RegQueryValueEx(hkey, key, NULL, &dwType, pattern, &pattern_max) !=/\
+if (RegQueryValueEx(hkey, key, NULL, \\&dwType, (BYTE *) pattern, (DWORD *) \\&pattern_max) !=/' \
+         "$source_file~" >"$source_file"
+  fi
+  source_file=pm_win/pmwinmm.c
+  if [ ! -f "$source_file~" ]; then
+     mv "$source_file" "$source_file~"
+     sed \
+-e '207,+7s/midi_out_caps = pm_alloc( sizeof(MIDIOUTCAPS) \\* midi_num_outputs );/\
+midi_out_caps = (MIDIOUTCAPS *) pm_alloc( sizeof(MIDIOUTCAPS) * midi_num_outputs );/' \
+-e '531,+10s/return pm_hosterror;/return pmInsufficientMemory;/' \
+-e '531,+10s/return pm_hosterror;/return pm_hosterror ? pmInsufficientMemory : pmNoError;/' \
+-e '626,+7s/return m->error;/return m->error == MMSYSERR_NOERROR ? pmNoError : pmHostError;/' \
+-e '1206,+7s/midi->fill_offset_ptr = &(hdr->dwBytesRecorded);/\
+midi->fill_offset_ptr = (uint32_t *) \\&(hdr->dwBytesRecorded);/' \
+-e '1422,+7s/PmInternal \\* midi = descriptors\\[i\\]\\.internalDescriptor;/\
+PmInternal * midi = (PmInternal *) descriptors[i].internalDescriptor;/' \
+         "$source_file~" >"$source_file"
+  fi
+
   cat > GNUmakefile << 'THE_END'
 # Makefile for portmidi, generated for Pygame by msys_build_deps.py.
 
@@ -1073,18 +1050,18 @@ THE_END
 fi
 
 if [ x$BDCOMP == x1 ]; then
-  make
+  make LDFLAGS="$LDFLAGS"
 fi
 
 if [ x$BDINST == x1 ]; then
-  make install
+  make install prefix="$PREFIX"
 fi
 
 if [ x$BDSTRIP == x1 ]; then
-  strip --strip-all /usr/local/bin/portmidi.dll
+  strip --strip-all "$PREFIX/bin/portmidi.dll"
 fi
 
-if [ x$BDCLEAN == x1 ]; then
+if [[ x$BDCLEAN == x1 && -f Makefile ]]; then
   set +e
   make clean
   rm -f GNUmakefile portmidi.def
@@ -1098,7 +1075,10 @@ set -e
 cd "$BDWD"
 
 if [ x$BDCONF == x1 ]; then
-  ./configure --enable-shared --enable-memalign-hack
+  ./configure --enable-shared --enable-memalign-hack \
+              --prefix="$PREFIX" --host-cflags="$CFLAGS" \
+              --host-ldflags="$LDFLAGS" \
+              --disable-protocol=http
 fi
 
 if [ x$BDCOMP == x1 ]; then
@@ -1116,10 +1096,10 @@ if [ x$BDINST == x1 ]; then
 fi
 
 if [ x$BDSTRIP == x1 ]; then
-  strip --strip-all /usr/local/bin/avformat-52.dll
-  strip --strip-all /usr/local/bin/swscale-0.dll
-  strip --strip-all /usr/local/bin/avcodec-52.dll
-  strip --strip-all /usr/local/bin/avutil-50.dll
+  strip --strip-all "$PREFIX/bin/avformat-52.dll
+  strip --strip-all "$PREFIX/bin/swscale-0.dll
+  strip --strip-all "$PREFIX/bin/avcodec-52.dll
+  strip --strip-all "$PREFIX/bin/avutil-50.dll
 fi
 
 if [ x$BDCLEAN == x1 ]; then
@@ -1131,19 +1111,34 @@ if [ x$BDCLEAN == x1 ]; then
 fi
 """),
 
-	
-	]  # End dependencies = [.
+    
+    ]  # End dependencies = [.
 
 
-msys_prep = Preparation('/usr/local', """
+msys_prep = Preparation('destintation directory', """
 
-# Ensure /usr/local and its subdirectories exist.
-mkdir -p /usr/local/lib
-mkdir -p /usr/local/include
-mkdir -p /usr/local/bin
-mkdir -p /usr/local/doc
-mkdir -p /usr/local/man
-mkdir -p /usr/local/share
+# Ensure the destination directory and its subdirectories exist.
+mkdir -p "$PREFIX/lib"
+mkdir -p "$PREFIX/include"
+mkdir -p "$PREFIX/bin"
+mkdir -p "$PREFIX/doc"
+mkdir -p "$PREFIX/man"
+mkdir -p "$PREFIX/share"
+
+# Have libtool link against static stdc++ and gcc libraries. Use hacked .la files.
+# This works when the destination directory comes early in the library search path.
+if [ ! -f "$PREFIX/lib/null.dll.a" ]; then
+  dest_lib="$PREFIX/lib"
+  dlltool -D null.dll -l "$PREFIX/lib/null.dll.a"
+  cp -fp /mingw/lib/gcc/mingw32/4.5.0/libstdc++.a "$dest_lib/libstdc++_pg.a"
+  sed -e "s~^\\(library_names='\\)[^']\\+~\\1null.dll.a~" \
+      -e "s~^\\(dependency_libs='\\)[^']\\+~\\1 -lstdc++_pg -lgcc_eh~" \
+      -e "s~^\\(libdir='\\)[^']\\+~\\1$PREFIX/lib~" \
+      /mingw/lib/gcc/mingw32/4.5.0/libstdc++.la >"$dest_lib/libstdc++.la"
+  sed -e "s~^\\(old_library='\\)[^']\\+~\\1libgcc.a~" \
+      -e "s~^\\(dependency_libs='\\)[^']\\+~\\1 -lgcc~" \
+      "$dest_lib/libstdc++.la" >"$dest_lib/libgcc_s.la"
+fi
 """)
     
 msvcr71_prep = Preparation('msvcr71.dll linkage', r"""
@@ -1154,6 +1149,7 @@ set -e
 #   msvcr71.dll support
 #
 if [ ! -f "$DBMSVCR71/libmoldname.a" ]; then
+  echo "Making directory $DBMSVCR71 for msvcr71.dll linking."
   mkdir -p "$DBMSVCR71"
   cp -fp /mingw/lib/libmoldname71.a "$DBMSVCR71/libmoldname.a"
   cp -fp /mingw/lib/libmoldname71d.a "$DBMSVCR71/libmoldnamed.a"
