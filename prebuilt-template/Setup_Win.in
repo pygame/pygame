@@ -28,9 +28,9 @@ COPYLIB_SDL_image -lSDL -ljpef -lpng -ltiff -Lprebuilt/lib/SDL_image.dll
 COPYLIB_SDL_mixer -lSDL -lvorbisfile -lsmpeg -Lprebuilt/lib/SDL_mixer.dll
 COPYLIB_freetype -lz -Lprebuilt/lib/libfreetype-6.dll
 COPYLIB_smpeg -lSDL -Lprebuilt/lib/smpeg.dll
-COPYLIB_tiff -ljpeg -lz -Lprebuilt/lib/libtiff.dll
-COPYLIB_png -lz -Lprebuilt/lib/libpng12.dll
-COPYLIB_jpeg -Lprebuilt/lib/jpeg.dll
+COPYLIB_tiff -ljpeg -lz -Lprebuilt/lib/libtiff-3.dll
+COPYLIB_png -lz -Lprebuilt/lib/libpng14.dll
+COPYLIB_jpeg -Lprebuilt/lib/libjpeg-8.dll
 COPYLIB_z -Lprebuilt/lib/zlib1.dll
 COPYLIB_vorbisfile -lvorbis -Lprebuilt/lib/libvorbisfile-3.dll
 COPYLIB_vorbis -logg -Lprebuilt/lib/libvorbis-0.dll

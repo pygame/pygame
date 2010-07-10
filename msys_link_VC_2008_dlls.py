@@ -24,30 +24,31 @@ python build_deps.py --help
 
 This program has been tested against the following libraries:
 
-SDL 1.2 (.13) revision 4114 from SVN 
-SDL_image 1.2.6
-SDL_mixer 1.2 (.8) revision 3942 from SVN
+SDL 1.2.14 
+SDL_image 1.2.10
+SDL_mixer 1.2.11
 SDL_ttf 2.0.9
-smpeg revision 370 from SVN
-freetype 2.3.7
-libogg 1.1.3
-libvorbis 1.2.0
+#disabled for now since crashes (smpeg revision 389 from SVN)
+freetype 2.3.12
+libogg 1.2.0
+libvorbis 1.3.1
 FLAC 1.2.1
-tiff 3.8.2
-libpng 1.2.32
-jpeg 6b
-zlib 1.2.3
+tiff 3.9.4
+libpng 1.4.3
+jpeg 8b
+zlib 1.2.5
+PortMidi revision 201 from SVN (patched)
 
 The build environment used:
 
-gcc-core-3.4.5
-binutils-2.17.50
-mingwrt-3.15.1
-win32api-3.12
-pexports 0.43
-MSYS-1.0.10
+gcc-core-4.5.0-1-mingw32
+gcc-c++-4.5.0-1-mingw32
+binutils-2.20.1-2-mingw32
+mingwrt-3.18-mingw32
+pexports 0.44
+MSYS 1.0.13
 
-Builds have been performed on Windows 98 and XP.
+Builds have been performed on Windows XP.
 
 Build issues:
   For pre-2007 computers:  MSYS bug "[ 1170716 ] executing a shell scripts
@@ -371,39 +372,39 @@ dlltool -D SDL_ttf.dll -d SDL_ttf.def -l libSDL_ttf.dll.a
 ranlib libSDL_ttf.dll.a
 strip --strip-all SDL_ttf.dll
 """),
-    Dependency('PNG', ['libpng12-0.dll'], """
+    Dependency('PNG', ['libpng14.dll'], """
 
 set -e
 cd "$BDWD"
 
-pexports "$BDBIN/libpng12-0.dll" >png.def
-gcc -shared $LDFLAGS -L. -o libpng12-0.dll -def png.def "$BDLIB/libpng.a" -lz
-dlltool -D libpng12-0.dll -d png.def -l libpng.dll.a
+pexports "$BDBIN/libpng14.dll" >png.def
+gcc -shared $LDFLAGS -L. -o libpng14.dll -def png.def "$BDLIB/libpng.a" -lz
+dlltool -D libpng14.dll -d png.def -l libpng.dll.a
 ranlib libpng.dll.a
-strip --strip-all libpng12-0.dll
+strip --strip-all libpng14.dll
 """),
-    Dependency('JPEG', ['jpeg.dll'], """
+    Dependency('JPEG', ['libjpeg-8.dll'], """
 
 set -e
 cd "$BDWD"
 
-pexports "$BDBIN/jpeg.dll" >jpeg.def
-gcc -shared $LDFLAGS -o jpeg.dll -def jpeg.def "$BDLIB/libjpeg.a"
-dlltool -D jpeg.dll -d jpeg.def -l libjpeg.dll.a
+pexports "$BDBIN/libjpeg-8.dll" >jpeg.def
+gcc -shared $LDFLAGS -o libjpeg-8.dll -def jpeg.def "$BDLIB/libjpeg.a"
+dlltool -D libjpeg-8.dll -d jpeg.def -l libjpeg.dll.a
 ranlib libjpeg.dll.a
-strip --strip-all jpeg.dll
+strip --strip-all libjpeg-8.dll
 """),
-    Dependency('TIFF', ['libtiff.dll'], """
+    Dependency('TIFF', ['libtiff-3.dll'], """
 
 set -e
 cd "$BDWD"
 
-pexports "$BDBIN/libtiff.dll" >tiff.def
-gcc -shared $LDFLAGS -L. -o libtiff.dll -def tiff.def \
+pexports "$BDBIN/libtiff-3.dll" >tiff.def
+gcc -shared $LDFLAGS -L. -o libtiff-3.dll -def tiff.def \
   "$BDLIB/libtiff.a" -ljpeg -lz
-dlltool -D libtiff.dll -d tiff.def -l libtiff.dll.a
+dlltool -D libtiff-3.dll -d tiff.def -l libtiff.dll.a
 ranlib libtiff.dll.a
-strip --strip-all libtiff.dll
+strip --strip-all libtiff-3.dll
 """),
     Dependency('IMAGE', ['SDL_image.dll'], """
 
@@ -419,13 +420,17 @@ strip --strip-all SDL_image.dll
 """),
     Dependency('SMPEG', ['smpeg.dll'], """
 
+echo "*** SMPEG rev 389 linking to msvcr90.dll has been disabled for now."
+echo "    use the smpeg.dll provided in the Pygame 1.9.1 dependencies."
+exit 0
+
 set -e
 cd "$BDWD"
 
-pexports "$BDBIN/smpeg.dll" >smpeg.def
+dlltool --export-all-symbols -z smpeg.def "$BDLIB/libsmpeg.a"
 g++ -shared $LDFLAGS -L. -o smpeg.dll -def smpeg.def \
+  -Wl,--enable-auto-import -Xlinker --out-implib -Xlinker libsmpeg.dll.a \
   "$BDLIB/libsmpeg.a" -lSDL
-dlltool -D smpeg.dll -d smpeg.def -l libsmpeg.dll.a
 ranlib libsmpeg.dll.a
 strip --strip-all smpeg.dll
 """),
@@ -465,7 +470,7 @@ set -e
 cd "$BDWD"
 
 pexports "$BDBIN/SDL_mixer.dll" >SDL_mixer.def
-gcc -shared $LDFLAGS -L. -L/usr/local/lib -o SDL_mixer.dll -def SDL_mixer.def \
+gcc -shared -shared-libgcc $LDFLAGS -L. -L/usr/local/lib -o SDL_mixer.dll -def SDL_mixer.def \
   "$BDLIB/libSDL_mixer.a" -lSDL -lsmpeg -lvorbisfile -lFLAC -lWs2_32 -lwinmm
 dlltool -D SDL_mixer.dll -d SDL_mixer.def -l libSDL_mixer.dll.a
 ranlib libSDL_mixer.dll.a
@@ -477,11 +482,57 @@ set -e
 cd "$BDWD"
 
 pexports "$BDBIN/portmidi.dll" >portmidi.def
-gcc -shared $LDFLAGS -L. -L/usr/local/lib -o portmidi.dll -def portmidi.def \
+g++ -shared $LDFLAGS -L. -L/usr/local/lib -o portmidi.dll -def portmidi.def \
   "$BDLIB/libportmidi.a" -lwinmm
 dlltool -D portmidi.dll -d portmidi.def -l portmidi.dll.a
 ranlib libSDL_mixer.dll.a
 strip --strip-all portmidi.dll
+"""),
+    Dependency('FFMPEG', ['avformat-52.dll', 'swscale-0.dll',
+                          'avcodec-52.dll', 'avutil-50.dll' ], """
+
+set -e
+cd "$BDWD"
+
+dlltool --export-all-symbols -z avutil.def "$BDLIB/libavutil.a"
+gcc -shared -L. -L/usr/local/lib -o avutil-50.dll -def avutil.def $LDFLAGS \
+  -Wl,-Bsymbolic,--as-needed -Xlinker --out-implib -Xlinker libavutil.dll.a \
+  "$BDLIB/libavutil.a" -lavutil
+ranlib libavutil.dll.a
+strip --strip-all avutil-50.dll
+
+set -e
+cd "$BDWD"
+
+dlltool --export-all-symbols -z avcodec.def "$BDLIB/libavcodec.a"
+gcc -shared -L. -L/usr/local/lib -o avcodec-52.dll -def avcodec.def $LDFLAGS \
+  -Wl,-Bsymbolic,--as-needed,--enable-auto-import \
+  -Xlinker --out-implib -Xlinker libavcodec.dll.a \
+  "$BDLIB/libavcodec.a" -lavutil -lz
+ranlib libavcodec.dll.a
+strip --strip-all avcodec-52.dll
+
+set -e
+cd "$BDWD"
+
+dlltool --export-all-symbols -z avformat.def "$BDLIB/libavformat.a"
+gcc -shared -L. -L/usr/local/lib -o avformat-52.dll -def avformat.def $LDFLAGS \
+  -Wl,-Bsymbolic,--as-needed,--enable-auto-import \
+  -Xlinker --out-implib -Xlinker libavformat.dll.a \
+  "$BDLIB/libavformat.a" -lavcodec -lavutil -lz -lWs2_32
+ranlib libavformat.dll.a
+strip --strip-all avformat-52.dll
+
+set -e
+cd "$BDWD"
+
+dlltool --export-all-symbols -z swscale.def "$BDLIB/libswscale.a"
+gcc -shared -L. -L/usr/local/lib -o swscale-0.dll -def swscale.def $LDFLAGS \
+  -Wl,-Bsymbolic,--as-needed,--enable-auto-import \
+  -Xlinker --out-implib -Xlinker libswscale.dll.a \
+  "$BDLIB/libswscale.a" -lavutil
+ranlib libswscale.dll.a
+strip --strip-all swscale-0.dll
 """),
     ]  # End dependencies = [.
 
@@ -1938,15 +1989,61 @@ time_t time(time_t *timer)
 }
 THE_END
 
-  gcc -c -O2 gmtime.c _ftime.c time.c
+  # Provide the mktime stub required by ffmpeg/avformat/utils.c.
+  cat > mktime.c << 'THE_END'
+/* Stub function for mktime.
+ * This is an inline function in Visual C 2008 so is missing from msvcr90.dll
+ */
+#include <time.h>
+
+time_t _mktime32(struct tm *timeptr);
+
+time_t mktime(struct tm *timeptr)
+{
+    return _mktime32(timeptr);                                    
+}
+THE_END
+
+  # Provide the localtime stub required by ffmpeg/avformat/utils.c.
+  cat > localtime.c << 'THE_END'
+/* Stub function for localtime.
+ * This is an inline function in Visual C 2008 so is missing from msvcr90.dll
+ */
+#include <time.h>
+
+struct tm *_localtime32(const time_t *timer);
+
+struct tm *localtime(const time_t *timer)
+{
+    return _localtime32(timer);                                    
+}
+THE_END
+
+  # Provide the _fstati64 stub required by ffmpeg/libavformat/file.c.
+  cat > _fstati64.c << 'THE_END'
+/* Stub function for _fstati64.
+ * This is an alias in Visual C 2008 but has a fixed definition in MinGW
+ */
+#include <sys/stat.h>
+
+int _fstat32i64(int fd, struct _stati64 *buffer);
+
+int _fstati64(int fd, struct _stati64 *buffer)
+{
+    return _fstat32i64(fd, buffer);                                    
+}
+THE_END
+
+
+  gcc -c -O2 gmtime.c _ftime.c time.c mktime.c localtime.c _fstati64.c
   dlltool -d msvcr90.def -D msvcr90.dll -l libmsvcr90.dll.a
-  ar rc libmsvcr90.dll.a gmtime.o _ftime.o time.o
+  ar rc libmsvcr90.dll.a gmtime.o _ftime.o time.o mktime.o localtime.o _fstati64.o
   ranlib libmsvcr90.dll.a
   cp -f libmsvcr90.dll.a "$DBMSVCR90"
   mv -f libmsvcr90.dll.a "$DBMSVCR90/libmsvcrt.dll.a"
-  gcc -c -g gmtime.c
+  gcc -c -g gmtime.c _ftime.c time.c mktime.c localtime.c _fstati64.c
   dlltool -d msvcr90.def -D msvcr90d.dll -l libmsvcr90d.dll.a
-  ar rc libmsvcr90d.dll.a gmtime.o
+  ar rc libmsvcr90d.dll.a gmtime.o _ftime.o time.o mktime.o localtime.o _fstati64.o
   ranlib libmsvcr90d.dll.a
   cp -f libmsvcr90d.dll.a "$DBMSVCR90"
   mv -f libmsvcr90d.dll.a "$DBMSVCR90/libmsvcrtd.dll.a"
@@ -2088,7 +2185,7 @@ THE_END
   # Provide the fstat stub required by TIFF.
   cat > fstat.c << 'THE_END'
 /* Stub function for fstat.
- * This is an inlined functions in Visual C 2008 so is missing from msvcr90.dll
+ * This is an inlined function in Visual C 2008 so is missing from msvcr90.dll
  */
 #include <sys/stat.h>
 
