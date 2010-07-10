@@ -1,0 +1,7 @@
+The pgreloaded repository has been moved to googlecode:
+
+	http://code.google.com/p/pgreloaded/
+
+This repository is for documentation purposes and not meant to be updated
+anymore.
+
