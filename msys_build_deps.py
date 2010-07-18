@@ -507,11 +507,12 @@ if [ x$BDCONF == x1 ]; then
     BDDXHDR=
   done
 
-  # This comes straight from SVN so has no configure script
+  # If this comes from SVN it has no configure script
   if [ ! -f "./configure" ]; then
     ./autogen.sh
   fi
-  ./configure --prefix="$PREFIX" LDFLAGS="$LDFLAGS"
+  # Prevent libtool deadlocks.
+  ./configure --disable-libtool-lock --prefix="$PREFIX" LDFLAGS="$LDFLAGS"
 fi
 
 if [ x$BDCOMP == x1 ]; then
@@ -1077,8 +1078,13 @@ cd "$BDWD"
 if [ x$BDCONF == x1 ]; then
   ./configure --enable-shared --enable-memalign-hack \
               --prefix="$PREFIX" --host-cflags="$CFLAGS" \
-              --host-ldflags="$LDFLAGS" \
-              --disable-protocol=http
+              --host-ldflags="$LDFLAGS" --enable-runtime-cpudetect
+              
+  # Fix incompatibilities between ffmpeg and MinGW notions of the C99 standard.
+  mv config.mak config.mak~
+  sed -e "s~\\\\(-std=\\\\)c99~\\\\1=gnu99~g" \
+      -e "s~\\\\(_POSIX_C_SOURCE=\\\\)200112~\\\\1=199209~g" \
+      config.mak~ >config.mak
 fi
 
 if [ x$BDCOMP == x1 ]; then
