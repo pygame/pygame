@@ -41,7 +41,7 @@ libpng 1.4.3
 jpeg 8b
 zlib 1.2.5
 PortMidi revision 201 from SVN (patched)
-ffmpeg revision 23520 from SVN
+ffmpeg revision 24319 from SVN
 
 The build environment used:
 
@@ -1082,8 +1082,8 @@ if [ x$BDCONF == x1 ]; then
               
   # Fix incompatibilities between ffmpeg and MinGW notions of the C99 standard.
   mv config.mak config.mak~
-  sed -e "s~\\\\(-std=\\\\)c99~\\\\1=gnu99~g" \
-      -e "s~\\\\(_POSIX_C_SOURCE=\\\\)200112~\\\\1=199209~g" \
+  sed -e "s~\\\\(-std=\\\\)c99~\\\\1gnu99~g" \
+      -e "s~\\\\(_POSIX_C_SOURCE=\\\\)200112~\\\\1199209~g" \
       config.mak~ >config.mak
 fi
 
@@ -1102,10 +1102,10 @@ if [ x$BDINST == x1 ]; then
 fi
 
 if [ x$BDSTRIP == x1 ]; then
-  strip --strip-all "$PREFIX/bin/avformat-52.dll
-  strip --strip-all "$PREFIX/bin/swscale-0.dll
-  strip --strip-all "$PREFIX/bin/avcodec-52.dll
-  strip --strip-all "$PREFIX/bin/avutil-50.dll
+  strip --strip-all "$PREFIX/bin/avformat-52.dll"
+  strip --strip-all "$PREFIX/bin/swscale-0.dll"
+  strip --strip-all "$PREFIX/bin/avcodec-52.dll"
+  strip --strip-all "$PREFIX/bin/avutil-50.dll"
 fi
 
 if [ x$BDCLEAN == x1 ]; then
