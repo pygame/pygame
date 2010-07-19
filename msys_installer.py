@@ -38,6 +38,8 @@ packages = [
     'http://sourceforge.net/projects/mingw/files/MSYS/zlib/zlib-1.2.3-2/zlib-1.2.3-2-msys-1.0.13-dll.tar.lzma/download',
     'http://sourceforge.net/projects/mingw/files/MSYS/gdbm/gdbm-1.8.3-3/libgdbm-1.8.3-3-msys-1.0.13-dll-3.tar.lzma/download',
     'http://sourceforge.net/projects/mingw/files/MSYS/coreutils/coreutils-5.97-3/coreutils-5.97-3-msys-1.0.13-bin.tar.lzma/download',
+    'http://sourceforge.net/projects/mingw/files/MSYS/coreutils/coreutils-5.97-3/coreutils-5.97-3-msys-1.0.13-ext.tar.lzma/download',
+    'http://sourceforge.net/projects/mingw/files/MSYS/diffutils/diffutils-2.8.7.20071206cvs-3/diffutils-2.8.7.20071206cvs-3-msys-1.0.13-bin.tar.lzma/download',
 ]
 
 def find_7zip_registry():
