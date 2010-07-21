@@ -1,15 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: ascii -*-
 # Program msys_build_deps.py
-# Requires Python 2.4 or later and win32api.
+# Requires Python 2.5 or later and win32api.
 
 """Build Pygame dependencies using MinGW and MSYS
 
 *** Incomplete: needs mikmod build ***
 
-Configured for Pygame 1.9.1 and Python 2.5 and up.
+Configured for Pygame 1.9.2 and Python 2.5 and up.
 
-The libraries are installed in /usr/local of the MSYS directory structure.
+By default the libraries are installed in the MSYS directory /usr/local unless
+a diffrent directory is specified by the --prefix command line argument.
 
 This program can be run from a Windows cmd.exe or MSYS terminal. The current
 directory and its outer directory are searched for the library source
@@ -17,6 +18,7 @@ directories. Run the program from the pygame trunk directory. The Windows
 file path cannot have spaces in it.
 
 The recognized, and optional, environment variables are:
+  PREFIX - Destination directory
   SHELL - MSYS shell program path - already defined in the MSYS terminal
   LDFLAGS - linker options - prepended to flags set by the program
   CPATH - C/C++ header file paths - appended to the paths used by this program
@@ -36,6 +38,7 @@ freetype 2.3.12
 libogg 1.2.0
 libvorbis 1.3.1
 FLAC 1.2.1
+mikmod 3.1.12 patched (included with SDL_mixer 1.2.11)
 tiff 3.9.4
 libpng 1.4.3
 jpeg 8b
@@ -143,11 +146,11 @@ class BuildError(Exception):
 class Dependency(object):
     """Builds a library"""
     
-    def __init__(self, name, wildcards, dlls, shell_script):
+    def __init__(self, name, wildcards, libs, shell_script):
         self.name = name
         self.wildcards = wildcards
         self.shell_script = shell_script
-        self.dlls = dlls
+        self.libs = libs
 
     def configure(self, hunt_paths):
         self.path = None
@@ -236,7 +239,7 @@ def configure(dependencies):
         raise BuildError("Not all source directories were found")
 
 def build(dependencies, msys):
-    """Execute that shell scripts for all dependencies"""
+    """Execute the shell scripts for all dependencies"""
     
     for dep in dependencies:
         print_("\n\n----", dep.name, "----")
@@ -312,11 +315,15 @@ def set_environment_variables(msys, options):
     environ = msys.environ
     msys_root = msys.msys_root
     prefix = options.prefix
+    if not prefix:
+        prefix = environ.get('PREFIX', '')
     if prefix:
         prefix = msys.windows_to_msys(prefix)
     else:
         prefix = default_msys_prefix
     environ['PREFIX'] = prefix
+    path = environ['PATH']
+    environ['PATH'] = "%s:%s/bin" % (path, prefix)
     environ['BDCONF'] = as_flag(options.configure and
                                 not options.clean_only)
     environ['BDCOMP'] = as_flag(options.compile and
@@ -343,7 +350,7 @@ def set_environment_variables(msys, options):
                                        sep=' ')
 
     # For dependency headers.
-    include_path = '/'.join((prefix, 'include'))
+    include_path = prefix + '/include'
     environ['CPATH'] = merge_strings(include_path, environ.get('CPATH', ''),
                                      sep=';')
 
@@ -378,7 +385,7 @@ def choose_dependencies(dependencies, options, args):
     return []
     
 def summary(dependencies, msys, start_time, chosen_deps):
-    """Display a summary report of new, existing and missing DLLs"""
+    """Display a summary report of new, existing and missing libraries"""
 
     import datetime
 
@@ -395,21 +402,34 @@ def summary(dependencies, msys, start_time, chosen_deps):
     print_()
     prefix = msys.msys_to_windows(msys.environ['PREFIX']).replace('/', os.sep)
     bin_dir = os.path.join(prefix, 'bin')
+    lib_dir = os.path.join(prefix, 'lib')
     for d in dependencies:
-        name = d.name
-        dlls = d.dlls
-        for dll in dlls:
-            dll_path = os.path.join(bin_dir, dll)
-            try:
-                mod_time = os.path.getmtime(dll_path)
-            except:
-                msg = "No DLL"
-            else:
-                if mod_time >= start_time:
-                    msg = "Installed new DLL %s" % dll_path
+        for lib in d.libs:
+            if lib.endswith('.dll'):
+                lib_path = os.path.join(bin_dir, lib)
+                try:
+                    mod_time = os.path.getmtime(lib_path)
+                except:
+                    msg = "No DLL"
                 else:
-                    msg = "-- (old DLL %s)" % dll_path
-            print_("  %-10s: %s" % (name, msg))
+                    if mod_time >= start_time:
+                        msg = "Installed new DLL %s" % (lib_path,)
+                    else:
+                        msg = "-- (old DLL %s)" % (lib_path,)
+            elif lib.endswith('.a'):
+                lib_path = os.path.join(lib_dir, lib)
+                try:
+                    mod_time = os.path.getmtime(lib_path)
+                except:
+                    msg = "No static library"
+                else:
+                    if mod_time >= start_time:
+                        msg = "Installed new static library %s" % (lib_path,)
+                    else:
+                        msg = "-- (old static library %s)" % (lib_path,)
+            else:
+                msg = "Internal error: unknown library type %s" % (lib,)
+            print_("  %-10s: %s" % (d.name, msg))
     
 def main(dependencies, msvcr71_preparation, msys_preparation):
     """Build the dependencies according to the command line options."""
@@ -644,7 +664,7 @@ fi
 
 if [ x$BDCLEAN == x1 ]; then
   set +e
-  make clean -fMakefile.mingw
+  make clean -fMakefile.mingw prefix="$PREFIX"
 fi
 """),
     Dependency('JPEG', ['jpeg-[6-9]*'], ['libjpeg-8.dll'], """
@@ -824,7 +844,7 @@ if [[ x$BDCLEAN == x1 && -f Makefile ]]; then
   make clean
 fi
 """),
-    Dependency('FLAC', ['flac-[1-9].*'], [], """
+    Dependency('FLAC', ['flac-[1-9].*'], ['libFLAC.a'], """
 
 set -e
 cd "$BDWD"
@@ -858,6 +878,232 @@ if [[ x$BDCLEAN == x1 && -f Makefile ]]; then
   make clean
 fi
 """),
+    Dependency('MIKMOD', ['libmikmod-3.*'], ['libmikmod.a'], """
+
+set -e
+cd "$BDWD"
+
+if [ x$BDCONF == x1 ]; then
+  cat > win32/Makefile.static.mingw << 'THE_END'
+# MinGW Makefile adapted from template for use under win32
+#
+# libmikmod subdirectory
+
+# Your compiler here
+CC=gcc
+# Compiler flags
+CFLAGS_MIKMOD=-c -DWIN32 -DDRV_DS -DDRV_WIN -DHAVE_FCNTL_H -DHAVE_MALLOC_H -DHAVE_LIMITS_H $(CFLAGS)
+COMPILE=$(CC) $(CFLAGS_MIKMOD) -I../include -I.. -I../win32
+
+.SUFFIXES:
+.SUFFIXES: .o .c
+
+LIBNAME=libmikmod.a
+
+LIBS=$(LIBNAME)
+
+DRIVER_OBJ=drv_ds.o drv_win.o
+
+OBJ=$(DRIVER_OBJ) \\
+    drv_nos.o drv_raw.o drv_stdout.o drv_wav.o \\
+    load_669.o load_amf.o load_dsm.o load_far.o load_gdm.o load_it.o  \\
+    load_imf.o load_m15.o load_med.o load_mod.o load_mtm.o load_okt.o \\
+    load_s3m.o load_stm.o load_stx.o load_ult.o load_uni.o load_xm.o \\
+    mmalloc.o mmerror.o mmio.o \\
+    mdriver.o mdreg.o mloader.o mlreg.o mlutil.o mplayer.o munitrk.o mwav.o \\
+    npertab.o sloader.o virtch.o virtch2.o virtch_common.o
+
+all:            $(LIBS)
+
+clean:
+\tfor f in $(LIBS) ; do rm -f $f; done
+\trm -f *.o
+
+distclean:
+\trm -f ../include/mikmod.h
+
+install:
+\tcp -fp libmikmod.a "$(PREFIX)/lib"
+\tcp -fp ../include/mikmod.h "$(PREFIX)/include"
+\tcp -fp ../libmikmod-config "$(PREFIX)/bin"
+
+$(LIBNAME):     $(OBJ)
+\tar -r $(LIBNAME) *.o
+\tranlib $(LIBNAME)
+
+../include/mikmod.h ../win32/mikmod_build.h:\tmikmod_build.h
+\tcp -f mikmod_build.h ../win32/mikmod_build.h
+\tcp -f mikmod_build.h ../include/mikmod.h
+
+drv_ds.o:       ../drivers/drv_ds.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t$(COMPILE) -o $@ ../drivers/drv_ds.c
+drv_nos.o:      ../drivers/drv_nos.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t$(COMPILE) -o $@ ../drivers/drv_nos.c
+drv_raw.o:      ../drivers/drv_raw.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t$(COMPILE) -o $@ ../drivers/drv_raw.c
+drv_stdout.o:   ../drivers/drv_stdout.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t$(COMPILE) -o $@ ../drivers/drv_stdout.c
+drv_wav.o:      ../drivers/drv_wav.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t$(COMPILE) -o $@ ../drivers/drv_wav.c
+drv_win.o:       ../drivers/drv_win.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t$(COMPILE) -o $@ ../drivers/drv_win.c
+load_669.o:     ../loaders/load_669.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t$(COMPILE) -o $@ ../loaders/load_669.c
+load_amf.o:     ../loaders/load_amf.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t$(COMPILE) -o $@ ../loaders/load_amf.c
+load_dsm.o:     ../loaders/load_dsm.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t$(COMPILE) -o $@ ../loaders/load_dsm.c
+load_far.o:     ../loaders/load_far.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t$(COMPILE) -o $@ ../loaders/load_far.c
+load_gdm.o:     ../loaders/load_gdm.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t$(COMPILE) -o $@ ../loaders/load_gdm.c
+load_it.o:      ../loaders/load_it.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t$(COMPILE) -o $@ ../loaders/load_it.c
+load_imf.o:     ../loaders/load_imf.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t$(COMPILE) -o $@ ../loaders/load_imf.c
+load_m15.o:     ../loaders/load_m15.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t$(COMPILE) -o $@ ../loaders/load_m15.c
+load_med.o:     ../loaders/load_med.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t$(COMPILE) -o $@ ../loaders/load_med.c
+load_mod.o:     ../loaders/load_mod.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t$(COMPILE) -o $@ ../loaders/load_mod.c
+load_mtm.o:     ../loaders/load_mtm.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t$(COMPILE) -o $@ ../loaders/load_mtm.c
+load_okt.o:     ../loaders/load_okt.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t$(COMPILE) -o $@ ../loaders/load_okt.c
+load_s3m.o:     ../loaders/load_s3m.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t$(COMPILE) -o $@ ../loaders/load_s3m.c
+load_stm.o:     ../loaders/load_stm.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t$(COMPILE) -o $@ ../loaders/load_stm.c
+load_stx.o:     ../loaders/load_stx.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t$(COMPILE) -o $@ ../loaders/load_stx.c
+load_ult.o:     ../loaders/load_ult.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t$(COMPILE) -o $@ ../loaders/load_ult.c
+load_uni.o:     ../loaders/load_uni.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t$(COMPILE) -o $@ ../loaders/load_uni.c
+load_xm.o:      ../loaders/load_xm.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t$(COMPILE) -o $@ ../loaders/load_xm.c
+mmalloc.o:      ../mmio/mmalloc.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t$(COMPILE) -o $@ ../mmio/mmalloc.c
+mmerror.o:      ../mmio/mmerror.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t$(COMPILE) -o $@ ../mmio/mmerror.c
+mmio.o:         ../mmio/mmio.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t$(COMPILE) -o $@ ../mmio/mmio.c
+mdriver.o:      ../playercode/mdriver.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t$(COMPILE) -o $@ ../playercode/mdriver.c
+mdreg.o:        ../playercode/mdreg.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t$(COMPILE) -o $@ ../playercode/mdreg.c
+mloader.o:      ../playercode/mloader.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t$(COMPILE) -o $@ ../playercode/mloader.c
+mlreg.o:        ../playercode/mlreg.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t$(COMPILE) -o $@ ../playercode/mlreg.c
+mlutil.o:       ../playercode/mlutil.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t$(COMPILE) -o $@ ../playercode/mlutil.c
+mplayer.o:      ../playercode/mplayer.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t$(COMPILE) -o $@ ../playercode/mplayer.c
+munitrk.o:      ../playercode/munitrk.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t$(COMPILE) -o $@ ../playercode/munitrk.c
+mwav.o:         ../playercode/mwav.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t$(COMPILE) -o $@ ../playercode/mwav.c
+npertab.o:      ../playercode/npertab.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t$(COMPILE) -o $@ ../playercode/npertab.c
+sloader.o:      ../playercode/sloader.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t$(COMPILE) -o $@ ../playercode/sloader.c
+virtch.o:       ../playercode/virtch.c ../playercode/virtch_common.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t$(COMPILE) -o $@ ../playercode/virtch.c
+virtch2.o:      ../playercode/virtch2.c ../playercode/virtch_common.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t$(COMPILE) -o $@ ../playercode/virtch2.c
+virtch_common.o:        ../playercode/virtch_common.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t$(COMPILE) -o $@ ../playercode/virtch_common.c
+THE_END
+
+  function mikmod_getver
+  {
+    gawk '\
+      function getnum(s)
+      {
+        match(s, /[0-9]+/)
+        return substr(s, RSTART, RLENGTH)
+      }
+      /^LIBMIKMOD_MAJOR_VERSION *= *[0-9]+/ { major = getnum($0); next}
+      /^LIBMIKMOD_MINOR_VERSION *= *[0-9]+/ { minor = getnum($0); next}
+      /^LIBMIKMOD_MICRO_VERSION *= *[0-9]+/ { micro = getnum($0); next}
+      END { printf "%s.%s.%s", major, minor, micro }' \
+      $1
+    }
+
+  mikmod_version=`mikmod_getver configure.in`
+  sed -e "s~@prefix@~$PREFIX~g" \
+      -e "s~@exec_prefix@~$PREFIX~g" \
+      -e "s~@LIBMIKMOD_VERSION@~$mikmod_version~g" \
+      -e "s~@REENTRANT@~-D_REENTRANT~g" \
+      -e "s~@LIB_LDADD@~~g" \
+      -e "s~@LIBRARY_LIB@~-lpthread~g" \
+  libmikmod-config.in >libmikmod-config
+fi
+
+if [ x$BDCOMP == x1 ]; then
+  cd win32
+  make LDFLAGS="$LDFLAGS" -fMakefile.static.mingw
+  cd ..
+fi
+
+if [ x$BDINST == x1 ]; then
+  cd win32
+  make install PREFIX="$PREFIX" -fMakefile.static.mingw
+  cd ..
+fi
+
+if [[ x$BDCLEAN == x1 && -f Makefile ]]; then
+  cd win32
+  set +e
+  make clean -fMakefile.static.mingw
+  rm -f Makefile.static.mingw
+  cd ..
+  rm -f libmikmod-config
+fi
+
+"""),
     Dependency('MIXER', ['SDL_mixer-[1-9].*'], ['SDL_mixer.dll'], """
 
 set -e
@@ -877,7 +1123,7 @@ if [ x$BDCONF == x1 ]; then
   export LIBS="$mikmod_dependencies $flac_dependencies"
   ./configure --disable-music-ogg-shared --disable-music-mp3-shared \
     --disable-music-mod-shared --disable-music-flac-shared \
-    PREFIX="$PREFIX" LDFLAGS="$LDFLAGS"
+    --disable-libtool-lock --prefix="$PREFIX" LDFLAGS="$LDFLAGS"
   
   # ./configure messes up on its Makefile generation, putting some rules
   # on the same line as their targets, and placing multiple targets in one
@@ -999,10 +1245,10 @@ $(pmdll) : $(pmlib) $(def)
 .PHONY : install
 
 install : $(pmdll)
-\tcp -f --target-directory=$(prefix)/bin $<
-\tcp -f --target-directory=$(prefix)/lib $(pmlib)
-\tcp -f --target-directory=$(prefix)/lib $(pmimplib)
-\tcp -f --target-directory=$(prefix)/include $(reqhdr)
+\tcp -f --target-directory=$(PREFIX)/bin $<
+\tcp -f --target-directory=$(PREFIX)/lib $(pmlib)
+\tcp -f --target-directory=$(PREFIX)/lib $(pmimplib)
+\tcp -f --target-directory=$(PREFIX)/include $(reqhdr)
 
 .PHONY : clean
 
@@ -1055,7 +1301,7 @@ if [ x$BDCOMP == x1 ]; then
 fi
 
 if [ x$BDINST == x1 ]; then
-  make install prefix="$PREFIX"
+  make install PREFIX="$PREFIX"
 fi
 
 if [ x$BDSTRIP == x1 ]; then
