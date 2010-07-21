@@ -58,6 +58,7 @@ def is_msys():
     """Return true if the execution environment is MSYS"""
 
     try:
-        return os.environ['OSTYPE'] == 'msys'
+        # Unfortunately there is no longer an MSYS specific identifier.
+        return os.environ['TERM'] == 'cygwin'
     except KeyError:
         return False
