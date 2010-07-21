@@ -19,7 +19,7 @@ file path cannot have spaces in it.
 
 The recognized, and optional, environment variables are:
   PREFIX - Destination directory
-  SHELL - MSYS shell program path - already defined in the MSYS terminal
+  MSYS_ROOT_DIRECTORY - MSYS home directory (may omit 1.0 subdirectory)
   LDFLAGS - linker options - prepended to flags set by the program
   CPATH - C/C++ header file paths - appended to the paths used by this program
 
@@ -63,8 +63,7 @@ msysDTK-1.0.1 (?)
 msys-automake-1.8.2 (?)
 autoconf-2.65-1-msys-1.0.13
 m4-1.4.14-1-msys-1.0.13
-nasm-2.08.01-win32 (needed (replace with yasm)?)
-yasm (1.0.1) (Prefered over nasm by SDL 1.2.14 configure?)
+yasm (1.0.1)
 plus numerous other dependencies to still be sorted out when the the new
   MinGW installer is available (Hopefully there will be an Msys installer as well.)
 
@@ -462,6 +461,7 @@ def main(dependencies, msvcr71_preparation, msys_preparation):
     except msys.MsysException:
         print_(geterror())
         return 1
+    print_("Using MSYS in directory:", m.msys_root)
     start_time = None
     return_code = 1
     set_environment_variables(m, options)

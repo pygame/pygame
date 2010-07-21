@@ -3,7 +3,13 @@
 
 """MSYS specifics for Msys terminal IO and for running shell scripts
 
+Configured for MSYS 1.0.13.
+
 exports msys_raw_input, MsysException, Msys
+
+Uses optional environment variable MSYS_ROOT_DIRECTORY. Set this to the full
+path of the MSYS home directory, 1.0 subdirectory in path optional.
+
 """
 
 from msysio import raw_input_ as msys_raw_input, print_ as msys_print
@@ -89,7 +95,10 @@ def find_msys_registry():
 
     The return value is an encoded ascii str. The registry entry for the
     uninstaller is used. Raise a LookupError if not found.
+    
     """
+    
+    #!! Leave until known if new MSYS package manager makes a registry entry.
     
     subkey = (
         'Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\MSYS-1.0_is1')
@@ -122,13 +131,19 @@ def check_for_shell(msys_directory=None):
             return as_shell(dir_path)
 
     try:
-        shell = os.environ['SHELL']
+        shell = os.environ['MSYS_ROOT_DIRECTORY']
     except KeyError:
         pass
     else:
-        if is_msys():
-            return shell + '.exe'
-        return shell
+        if not re.search(r'[\\/]1\.[0-9]', shell):
+            shell = os.path.join(shell, '1.0')
+        return os.path.join(shell, 'bin', 'sh.exe')
+    
+    if is_msys():
+        try:
+            return os.environ['WD'] + os.environ['MSYSCON']
+        except KeyError:
+            pass
 
     try:
         dir_path = find_msys_registry()
