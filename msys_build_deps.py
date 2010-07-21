@@ -43,7 +43,7 @@ tiff 3.9.4
 libpng 1.4.3
 jpeg 8b
 zlib 1.2.5
-PortMidi revision 201 from SVN (patched)
+PortMidi revision 201 from SVN
 ffmpeg revision 24319 from SVN
 
 The build environment used:
