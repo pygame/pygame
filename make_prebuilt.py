@@ -1,12 +1,20 @@
-import msys
-from distutils.extension import read_setup_file
+# Not yet configured for Python 3.x
 
+import msys
+
+from distutils.extension import read_setup_file
+from optparse import OptionParser
 import os
 import re
 import sys
 
+default_msys_prefix = '/usr/local'
+
 prebuilt_dir = 'prebuilt'
 lib_subdir = 'lib'
+
+def print_(*args, **kwds):
+    msys.msys_print(*args, **kwds)
 
 class MakePrebuiltError(Exception):
     pass
@@ -59,20 +67,70 @@ def mkdir(path):
     elif not os.path.isdir(path):
         raise MakePrebuiltError("%s is not a directory" % path)
 
-def main(dest_dir=None):
+
+def command_line():
+    """Process the command line and return the options"""
+    
+    usage = ("usage: %prog [options] [destination]\n"
+             "\n"
+             "Assemble the Python 2.5 prebuilt dependencies directory. The\n"
+             "default destination is .\\prebuilt .\n"
+             "\n"
+             "At startup this program may prompt for missing information.\n"
+             "Be aware of this before redirecting output or leaving the\n"
+             "program unattended. Once the '=== Assembling ===' message appears\n"
+             "no more user input is required.")
+    
+    parser = OptionParser(usage)
+    parser.add_option('-f', '--force', action='store_true', dest='force',
+                      help="Overwrite an existing destination directory"
+                           " without prompting first")
+    parser.set_defaults(force=False)
+    parser.add_option('-m', '--msys-root', action='store',
+                      dest='msys_directory',
+                      help="MSYS directory path, which may include"
+                           " the 1.x subdirectory")
+    parser.set_defaults(msys_directory='')
+    parser.add_option('-s', '--source', action='store',
+                      dest='source_directory',
+                      help="Directory where the DLLs and headers are installed:\n"
+                           "(defaults to MSYS %s)"
+                           % (default_msys_prefix,))
+    parser.set_defaults(source='')
+    return parser.parse_args()
+
+def main(dest_dir=None, src_dir=None, msys_dir=None, force=None):
     # Top level directories.
     if dest_dir is None:
+        dest_dir = ''
+    if src_dir is None:
+        source_dir = ''
+    if msys_dir is None:
+        msys_dir = ''
+    if force is None:
+        force = False
+    if not dest_dir:
         dest_dir = prebuilt_dir
     if re.match(r'([A-Za-z]:){0,1}[^"<>:|?*]+$', dest_dir) is None:
-        print "Invalid directory path name %s" % dest_dir
+        print_("Invalid directory path name %s" % (dest_dir,))
         return 1
     dest_dir = os.path.abspath(dest_dir)
-    if os.path.isdir(dest_dir):
+    if not force and os.path.isdir(dest_dir):
         if not confirm("Directory %s already exists;\ncontinue" % dest_dir):
             return 1
     mkdir(dest_dir)
-    m = msys.Msys()
-    src_dir = os.path.join(m.msys_root, 'local')
+    if not src_dir:
+        try:
+            m = msys.Msys()
+        except msys.MsysException:
+            return 0
+        src_dir = os.path.join(m.msys_root, 'local')
+    else:
+        src_dir = os.path.abspath(src_dir)
+    if not os.path.isdir(src_dir):
+        print_("Source directory %s not found." % (src_dir,))
+        return 1
+    print_("=== Assembling ===")
     prebuilt_template = os.path.abspath('prebuilt-template')
     dest_lib_dir = os.path.join(dest_dir, lib_subdir)
     
@@ -218,11 +276,15 @@ def main(dest_dir=None):
     return 0
 
 if __name__ =='__main__':
+    options, args = command_line()
     dest_dir = None
-    if len(sys.argv) > 1:
-        dest_dir = sys.argv[1]
+    if args:
+        dest_dir = args[0]
     try:
-        sys.exit(main(dest_dir))
+        sys.exit(main(dest_dir=dest_dir,
+                      src_dir=options.source_directory,
+                      msys_dir=options.msys_directory,
+                      force=options.force))
     except MakePrebuiltError, e:
-        print "*** %s; execution halted" % e
+        print_("*** %s; execution halted" % (e,))
         sys.exit(1)
