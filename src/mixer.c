@@ -768,7 +768,8 @@ chan_get_endevent (PyObject* self)
 
 static PyMethodDef channel_methods[] =
 {
-    { "play", (PyCFunction) chan_play, METH_KEYWORDS, DOC_CHANNELPLAY },
+    { "play", (PyCFunction) chan_play, METH_VARARGS | METH_KEYWORDS,
+      DOC_CHANNELPLAY },
     { "queue", chan_queue, METH_VARARGS, DOC_CHANNELQUEUE },
     { "get_busy", (PyCFunction) chan_get_busy, METH_NOARGS,
       DOC_CHANNELGETBUSY },
