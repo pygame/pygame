@@ -50,6 +50,10 @@ packages = [
     'http://sourceforge.net/projects/mingw/files/MinGW/automake/automake1.11/automake1.11-1.11-1/automake1.11-1.11-1-mingw32-bin.tar.lzma/download',
 ]
 
+dx7_headers = 'http://www.mplayerhq.hu/MPlayer/contrib/win32/dx7headers.tgz'
+
+yasm = 'http://www.tortall.net/projects/yasm/releases/yasm-1.0.1-win32.exe'
+
 def find_7zip_registry():
     """Return the path of the 7-Zip binaries
     
@@ -143,6 +147,52 @@ class PackageInstaller(object):
         if retcode:
             raise IOError("7-Zip failed to unpack tar file %s", (tar_file_name,))
 
+    def retrieve_tgz(self, url, destination=None):
+        if destination is None:
+            destination = ''
+        file_name = encode_file_name(re.search(r'/(?P<name>[^/]+\.tgz)$',
+                                               url).group('name'))
+        if file_name is None:
+            raise ValueError("Internel error: Unable to extract"
+                             " package file name from URL %s" %
+                             (url,))
+        tar_file_name = file_name[:-3] + 'tar'
+        if tar_file_name is None:
+            raise ValueError("Internel error: Unable to extract tar file name"
+                             " from package file name %s" % (tar_file_name,))
+        response, content = self.client.request(url, 'GET')
+        if response.status != 200:
+            raise IOError("HTTP code %i for URL %s" % (responce.status, url))
+        f = open(file_name, 'wb')
+        try:
+            f.write(content)
+        finally:
+            f.close()
+        retcode = subprocess.call(['7z', 'x', file_name, '-aoa'])
+        if retcode:
+            raise IOError("7-Zip failed to decompress %s" % (file_name,))
+        retcode = subprocess.call(['7z', 'x', tar_file_name, '-aoa',
+                                   '-o' + destination])
+        if retcode:
+            raise IOError("7-Zip failed to unpack tar file %s", (tar_file_name,))
+
+    def retrieve_file(self, url, target=None):
+        if target is None:
+            target = encode_file_name(re.search(r'/(?P<name>[^/]+)$',
+                                                url).group('name'))
+        if target is None:
+            raise ValueError("Internel error: Unable to extract"
+                             " file name from URL %s" %
+                             (url,))
+        response, content = self.client.request(url, 'GET')
+        if response.status != 200:
+            raise IOError("HTTP code %i for URL %s" % (responce.status, url))
+        f = open(target, 'wb')
+        try:
+            f.write(content)
+        finally:
+            f.close()
+
 def install(mingw_dir):
     installer = PackageInstaller()
     try:
@@ -156,7 +206,15 @@ def install(mingw_dir):
                 print "-", p
                 installer.retrieve(p)
                 log.add(p)
-    
+        
+        if dx7_headers not in log:
+            installer.retrieve_tgz(dx7_headers, 'include')
+            log.add(dx7_headers)
+            
+        if yasm not in log:
+            installer.retrieve_file(yasm, 'bin\\yasm.exe')
+            log.add(yasm)
+
 if __name__ == '__main__':
     if len(sys.argv )== 2:
         mingw_dir = sys.argv[1]
