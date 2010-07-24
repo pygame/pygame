@@ -20,6 +20,7 @@ file path cannot have spaces in it.
 The recognized, and optional, environment variables are:
   PREFIX - Destination directory
   MSYS_ROOT_DIRECTORY - MSYS home directory (may omit 1.0 subdirectory)
+  CPPFLAGS - preprocessor options, appended to options set by the program
   LDFLAGS - linker options - prepended to flags set by the program
   CPATH - C/C++ header file paths - appended to the paths used by this program
 
@@ -44,7 +45,7 @@ libpng 1.4.3
 jpeg 8b
 zlib 1.2.5
 PortMidi revision 201 from SVN
-ffmpeg revision 24319 from SVN
+ffmpeg revision 24482 from SVN (swscale revision 31785)
 
 The build environment used:
 
@@ -57,7 +58,6 @@ w32api-3.14-mingw32
 libgmp-5.0.1-1-mingw32
 libmpc-0.8.1-1-mingw32
 libmpfr-2.4.1-1-mingw32
-mingw32-make-3.81-20080326 (needed?)
 coreutils-5.97-3-msys-1.0.13
 msysDTK-1.0.1 (?)
 msys-automake-1.8.2 (?)
@@ -94,7 +94,7 @@ def geterror():
 #
 hunt_paths = ['.', '..']
 
-default_msys_prefix = '/usr/local'
+default_prefix_mp = '/usr/local'
 
 def prompt(p=None):
     """MSYS friendly raw_input
@@ -208,7 +208,7 @@ class Preparation(object):
         self.name = name
         self.path = ''
         self.paths = []
-        self.dlls = []
+        self.libs = []
         self.shell_script = shell_script
 
     def configure(self, hunt_paths):
@@ -300,7 +300,7 @@ def command_line():
     parser.add_option('-p', '--prefix', action='store',
                       dest='prefix',
                       help="Destination directory of the build: defaults to MSYS %s)"
-                           % (default_msys_prefix,))
+                           % (default_prefix_mp,))
     parser.set_defaults(prefix='')
     parser.add_option('--help-args', action='store_true', dest='arg_help',
                       help="Show a list of recognised libraries,"
@@ -312,17 +312,16 @@ def set_environment_variables(msys, options):
     """Set the environment variables used by the scripts"""
     
     environ = msys.environ
-    msys_root = msys.msys_root
-    prefix = options.prefix
-    if not prefix:
-        prefix = environ.get('PREFIX', '')
-    if prefix:
-        prefix = msys.windows_to_msys(prefix)
+    msys_root_wp = msys.msys_root
+    prefix_wp = options.prefix
+    if not prefix_wp:
+        prefix_wp = environ.get('PREFIX', '')
+    if prefix_wp:
+        prefix_mp = msys.windows_to_msys(prefix_wp)
     else:
-        prefix = default_msys_prefix
-    environ['PREFIX'] = prefix
-    path = environ['PATH']
-    environ['PATH'] = "%s:%s/bin" % (path, prefix)
+        prefix_mp = default_prefix_mp
+        prefix_wp = msys.msys_to_windows(prefix_mp)
+    environ['PREFIX'] = prefix_mp
     environ['BDCONF'] = as_flag(options.configure and
                                 not options.clean_only)
     environ['BDCOMP'] = as_flag(options.compile and
@@ -336,21 +335,21 @@ def set_environment_variables(msys, options):
                                  not options.clean_only)
     environ['BDCLEAN'] = as_flag(options.clean or options.clean_only)
     environ.pop('INCLUDE', None)  # INCLUDE causes problems with MIXER.
-    lib_path = prefix + '/lib'
-    msvcr71_path = ''
+    lib_mp = prefix_mp + '/lib'
+    msvcr71_mp = ''
     if options.msvcr71:
         # Hide the msvcrt.dll import libraries with those for msvcr71.dll.
         # Their subdirectory is in the same directory as the SDL library.
-        msvcr71_path = lib_path + '/msvcr71'
-        environ['DBMSVCR71'] = msvcr71_path
+        msvcr71_mp = lib_mp + '/msvcr71'
+        environ['DBMSVCR71'] = msvcr71_mp
     environ['LDFLAGS'] = merge_strings(environ.get('LDFLAGS', ''),
-                                       as_linker_lib_path(lib_path),
-                                       as_linker_lib_path(msvcr71_path),
+                                       as_linker_lib_path(lib_mp),
+                                       as_linker_lib_path(msvcr71_mp),
                                        sep=' ')
 
     # For dependency headers.
-    include_path = prefix + '/include'
-    environ['CPATH'] = merge_strings(include_path, environ.get('CPATH', ''),
+    include_wp = prefix_wp + '/include'
+    environ['CPATH'] = merge_strings(include_wp, environ.get('CPATH', ''),
                                      sep=';')
 
 class ChooseError(Exception):
@@ -499,12 +498,14 @@ def main(dependencies, msvcr71_preparation, msys_preparation):
 
 # This list includes the MSYS shell scripts to build each library. Each script
 # runs in an environment where MINGW_ROOT_DIRECTORY is defined and the MinGW
-# bin directory is in PATH. Four other environment variables are defined:
-# BDCONF, BDCOMP, BDINST and BDCLEAN. They are either '0' or '1'. They
+# bin directory is in PATH. Four build control environment variables are
+# defined: BDCONF, BDCOMP, BDINST and BDCLEAN. They are either '0' or '1'. They
 # represent configure, compile, install and clean respectively. When '1' the
-# corresponding action is performed. When '0' it is skipped. A final variable,
-# DBWD, is the root directory of the source code. A script will cd to it before
-# doing anything else.
+# corresponding action is performed. When '0' it is skipped. The installation
+# directory is given by PREFIX. The script needs to prepend it to PATH. The
+# source code root directory is DBWD. A script will cd to it before doing
+# starting the build. Various gcc flags are in CPATH, CPPFLAGS, CFLAGS and
+# LDFLAGS.
 #
 # None of these scripts end with an "exit". Exit, possibly, leads to Msys
 # freezing on some versions of Windows (98).
@@ -514,6 +515,7 @@ dependencies = [
     Dependency('SDL', ['SDL-[1-9].*'], ['SDL.dll'], """
 
 set -e
+export PATH="$PREFIX/bin:$PATH"
 cd "$BDWD"
 
 if [ x$BDCONF == x1 ]; then
@@ -531,7 +533,7 @@ if [ x$BDCONF == x1 ]; then
   if [ ! -f "./configure" ]; then
     ./autogen.sh
   fi
-  # Prevent libtool deadlocks.
+  # Prevent libtool deadlocks (maybe).
   ./configure --disable-libtool-lock --prefix="$PREFIX" LDFLAGS="$LDFLAGS"
 fi
 
@@ -557,6 +559,7 @@ fi
     Dependency('Z', ['zlib-[1-9].*'], ['zlib1.dll'], """
 
 set -e
+export PATH="$PREFIX/bin:$PATH"
 cd "$BDWD"
 
 if [ x$BDCONF == x1 ]; then
@@ -590,6 +593,7 @@ fi
     Dependency('FREETYPE', ['freetype-[2-9].*'], ['libfreetype-6.dll'], """
 
 set -e
+export PATH="$PREFIX/bin:$PATH"
 cd "$BDWD"
 
 if [ x$BDCONF == x1 ]; then
@@ -616,6 +620,7 @@ fi
     Dependency('FONT', ['SDL_ttf-[2-9].*'], ['SDL_ttf.dll'], """
 
 set -e
+export PATH="$PREFIX/bin:$PATH"
 cd "$BDWD"
 
 if [ x$BDCONF == x1 ]; then
@@ -642,6 +647,7 @@ fi
     Dependency('PNG', ['l*png*[1-9][1-9.]*'], ['libpng14.dll'], """
 
 set -e
+export PATH="$PREFIX/bin:$PATH"
 cd "$BDWD"
 
 if [ x$BDCONF == x1 ]; then
@@ -670,6 +676,7 @@ fi
     Dependency('JPEG', ['jpeg-[6-9]*'], ['libjpeg-8.dll'], """
 
 set -e
+export PATH="$PREFIX/bin:$PATH"
 cd "$BDWD"
 
 if [ x$BDCONF == x1 ]; then
@@ -700,6 +707,7 @@ fi
     Dependency('TIFF', ['tiff-[3-9].*'], ['libtiff-3.dll'], """
 
 set -e
+export PATH="$PREFIX/bin:$PATH"
 cd "$BDWD"
 
 if [ x$BDCONF == x1 ]; then
@@ -728,12 +736,14 @@ fi
     Dependency('IMAGE', ['SDL_image-[1-9].*'], ['SDL_image.dll'], """
 
 set -e
+export PATH="$PREFIX/bin:$PATH"
 cd "$BDWD"
 
 if [ x$BDCONF == x1 ]; then
   # Disable dynamic loading of image libraries as that uses the wrong DLL
-  # search path
+  # search path. --disable-libtool-lock: Prevent libtool deadlocks (maybe).
   ./configure --disable-jpg-shared --disable-png-shared --disable-tif-shared \
+              --disable-libtool-lock \
               --prefix="$PREFIX" LDFLAGS="$LDFLAGS"
 fi
 
@@ -757,6 +767,7 @@ fi
     Dependency('SMPEG', ['smpeg-[0-9].*', 'smpeg'], ['smpeg.dll'], """
 
 set -e
+export PATH="$PREFIX/bin:$PATH"
 cd "$BDWD"
 
 if [ x$BDCONF == x1 ]; then
@@ -792,6 +803,7 @@ fi
     Dependency('OGG', ['libogg-[1-9].*'], ['libogg-0.dll'], """
 
 set -e
+export PATH="$PREFIX/bin:$PATH"
 cd "$BDWD"
 
 if [ x$BDCONF == x1 ]; then
@@ -820,6 +832,7 @@ fi
                ['libvorbis-0.dll', 'libvorbisfile-3.dll'], """
 
 set -e
+export PATH="$PREFIX/bin:$PATH"
 cd "$BDWD"
 
 if [ x$BDCONF == x1 ]; then
@@ -847,6 +860,7 @@ fi
     Dependency('FLAC', ['flac-[1-9].*'], ['libFLAC.a'], """
 
 set -e
+export PATH="$PREFIX/bin:$PATH"
 cd "$BDWD"
 
 if [ x$BDCONF == x1 ]; then
@@ -881,6 +895,7 @@ fi
     Dependency('MIKMOD', ['libmikmod-3.*'], ['libmikmod.a'], """
 
 set -e
+export PATH="$PREFIX/bin:$PATH"
 cd "$BDWD"
 
 if [ x$BDCONF == x1 ]; then
@@ -892,8 +907,8 @@ if [ x$BDCONF == x1 ]; then
 # Your compiler here
 CC=gcc
 # Compiler flags
-CFLAGS_MIKMOD=-c -DWIN32 -DDRV_DS -DDRV_WIN -DHAVE_FCNTL_H -DHAVE_MALLOC_H -DHAVE_LIMITS_H $(CFLAGS)
-COMPILE=$(CC) $(CFLAGS_MIKMOD) -I../include -I.. -I../win32
+CPPFLAGS_MIKMOD=-c -DWIN32 -DDRV_DS -DDRV_WIN -DHAVE_FCNTL_H -DHAVE_MALLOC_H -DHAVE_LIMITS_H $(CPPFLAGS)
+COMPILE=$(CC) $(CPPFLAGS_MIKMOD) -I../include -I.. -I../win32 $(CFLAGS)
 
 .SUFFIXES:
 .SUFFIXES: .o .c
@@ -1107,6 +1122,7 @@ fi
     Dependency('MIXER', ['SDL_mixer-[1-9].*'], ['SDL_mixer.dll'], """
 
 set -e
+export PATH="$PREFIX/bin:$PATH"
 cd "$BDWD"
 
 mikmod_dependencies='-ldsound'
@@ -1157,6 +1173,7 @@ fi
     Dependency('PORTMIDI', ['portmidi', 'portmidi-[1-9].*'], ['portmidi.dll'], """
 
 set -e
+export PATH="$PREFIX/bin:$PATH"
 cd "$BDWD"
 
 if [ x$BDCONF == x1 ]; then
@@ -1319,17 +1336,18 @@ fi
      'avcodec-52.dll', 'avutil-50.dll' ], """
 
 set -e
+export PATH="$PREFIX/bin:$PATH"
 cd "$BDWD"
 
 if [ x$BDCONF == x1 ]; then
+  # Don't want the pthreads dll, which links to msvcrt.dll.
   ./configure --enable-shared --enable-memalign-hack \
-              --prefix="$PREFIX" --host-cflags="$CFLAGS" \
-              --host-ldflags="$LDFLAGS" --enable-runtime-cpudetect
+              --disable-pthreads --prefix="$PREFIX" \
+              --enable-runtime-cpudetect
               
   # Fix incompatibilities between ffmpeg and MinGW notions of the C99 standard.
   mv config.mak config.mak~
   sed -e "s~\\\\(-std=\\\\)c99~\\\\1gnu99~g" \
-      -e "s~\\\\(_POSIX_C_SOURCE=\\\\)200112~\\\\1199209~g" \
       config.mak~ >config.mak
 fi
 
