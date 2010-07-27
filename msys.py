@@ -14,6 +14,7 @@ path of the MSYS home directory, 1.0 subdirectory in path optional.
 
 from msysio import raw_input_ as msys_raw_input, print_ as msys_print
 from msysio import is_msys
+import sys
 import os
 import time
 import subprocess
@@ -27,6 +28,13 @@ except ImportError:
 # For Python 2.x/3.x compatibility
 def geterror():
     return sys.exc_info()[1]
+
+if sys.version_info > (3,):
+    def encode_script(s):
+        return s.encode('ascii')
+else:
+    def encode_script(s):
+        return s
 
 FSTAB_REGEX = (r'^[ \t]*(?P<path>'
                r'([a-zA-Z]:){0,1}([\\/][^\s*^?:%\\/]+)+)'
@@ -295,7 +303,7 @@ class Msys(object):
             process = subprocess.Popen(cmd,
                                        stdin=subprocess.PIPE,
                                        env=self.environ)
-            process.communicate(script)
+            process.communicate(encode_script(script))
             return process.returncode
         finally:
             time.sleep(2)  # Allow shell subprocesses to terminate.
