@@ -5,8 +5,6 @@
 
 """Build Pygame dependencies using MinGW and MSYS
 
-*** Incomplete: needs mikmod build ***
-
 Configured for Pygame 1.9.2 and Python 2.5 and up.
 
 By default the libraries are installed in the MSYS directory /usr/local unless
@@ -32,7 +30,7 @@ This program has been tested against the following libraries:
 
 SDL 1.2.14 
 SDL_image 1.2.10
-SDL_mixer 1.2.11
+SDL_mixer 1.2.11 and revision 6ed75d34edc9 tip from hg
 SDL_ttf 2.0.9
 smpeg revision 389 from SVN
 freetype 2.3.12
@@ -47,27 +45,17 @@ zlib 1.2.5
 PortMidi revision 201 from SVN
 ffmpeg revision 24482 from SVN (swscale revision 31785)
 
-The build environment used:
+The build environment used: 
 
-gcc-core-4.5.0-1-mingw32
-gcc-c++-4.5.0-1-mingw32
-libstdc++-4.5.0-1-mingw32
-binutils-2.20.1-2-mingw32
-mingwrt-3.18-mingw32
-w32api-3.14-mingw32
-libgmp-5.0.1-1-mingw32
-libmpc-0.8.1-1-mingw32
-libmpfr-2.4.1-1-mingw32
-coreutils-5.97-3-msys-1.0.13
-msysDTK-1.0.1 (?)
-msys-automake-1.8.2 (?)
-autoconf-2.65-1-msys-1.0.13
-m4-1.4.14-1-msys-1.0.13
-yasm (1.0.1)
-plus numerous other dependencies to still be sorted out when the the new
-  MinGW installer is available (Hopefully there will be an Msys installer as well.)
+GCC 4.5.0
+MSYS 1.0.13
+dx7 headers
+yasm 1.0.1
 
-The build has been performed on Windows XP.
+see mingw_installer.py and msys_installer.py
+
+
+The build has been performed on Windows XP, SP3.
 
 Build issues:
   An intermitent problem was noted with SDL's configure involving locking of
@@ -306,6 +294,15 @@ def command_line():
                       help="Show a list of recognised libraries,"
                            " in build order, and exit")
     parser.set_defaults(arg_help=False)
+    parser.add_option('--subsystem-noforce', action='store_true', dest='subsystem_noforce',
+                      help="Do not force the dlls to build with the GUI subsystem type")
+    parser.set_defaults(subsystem_noforce=False)
+    parser.add_option('-b', '--beep', action='store_true', dest='finish_alert',
+                      help="Beep the computer speaker when finished.")
+    parser.set_defaults(finish_alert=False)
+    parser.add_option('-n', '--beep-ntimes', type='int', action='store', dest='finish_alert_ntimes',
+                      help="Beep the computer speaker n times when finished")
+    parser.set_defaults(finish_alert_ntimes=0)
     return parser.parse_args()
 
 def set_environment_variables(msys, options):
@@ -342,9 +339,13 @@ def set_environment_variables(msys, options):
         # Their subdirectory is in the same directory as the SDL library.
         msvcr71_mp = lib_mp + '/msvcr71'
         environ['DBMSVCR71'] = msvcr71_mp
+    subsystem = ''
+    if not options.subsystem_noforce:
+        subsystem = '-mwindows'
     environ['LDFLAGS'] = merge_strings(environ.get('LDFLAGS', ''),
                                        as_linker_lib_path(lib_mp),
                                        as_linker_lib_path(msvcr71_mp),
+                                       subsystem,
                                        sep=' ')
 
     # For dependency headers.
@@ -461,11 +462,15 @@ def main(dependencies, msvcr71_preparation, msys_preparation):
         print_(geterror())
         return 1
     print_("Using MSYS in directory:", m.msys_root)
+    print_("MinGW directory:", m.mingw_root)
     start_time = None
     return_code = 1
     set_environment_variables(m, options)
     print_("Destination directory:",
            m.msys_to_windows(m.environ['PREFIX']).replace('/', os.sep))
+    print_("common CPPFLAGS:", m.environ.get('CPPFLAGS', ''))
+    print_("common CFLAGS:", m.environ.get('CFLAGS', ''))
+    print_("common LDFLAGS:", m.environ.get('LDFLAGS', ''))
     try:
         configure(chosen_deps)
     except BuildError:
@@ -490,6 +495,10 @@ def main(dependencies, msvcr71_preparation, msys_preparation):
     else:
         mingwcfg.write(m.mingw_root)
 
+    if options.finish_alert or options.finish_alert_ntimes > 0:
+        if options.finish_alert_ntimes > 0:
+            m.environ['BDNTIMES'] = "%i" % (options.finish_alert_ntimes,)
+        alert.build(m)
     return return_code
 
 #
@@ -535,6 +544,12 @@ if [ x$BDCONF == x1 ]; then
   fi
   # Prevent libtool deadlocks (maybe).
   ./configure --disable-libtool-lock --prefix="$PREFIX" LDFLAGS="$LDFLAGS"
+  
+  # check for MSYS permission errors
+  if [ x"`grep 'Permission denied' config.log`" != x ]; then
+      echo '**** MSYS problems; build aborted.'
+      exit 1
+  fi
 fi
 
 if [ x$BDCOMP == x1 ]; then
@@ -598,6 +613,12 @@ cd "$BDWD"
 
 if [ x$BDCONF == x1 ]; then
   ./configure --prefix="$PREFIX" LDFLAGS="$LDFLAGS"
+  
+  # check for MSYS permission errors
+  if [ x"`grep 'Permission denied' builds/unix/config.log`" != x ]; then
+      echo '**** MSYS problems; build aborted.'
+      exit 1
+  fi
 fi
 
 if [ x$BDCOMP == x1 ]; then
@@ -625,6 +646,12 @@ cd "$BDWD"
 
 if [ x$BDCONF == x1 ]; then
   ./configure --prefix="$PREFIX" LDFLAGS="$LDFLAGS"
+  
+  # check for MSYS permission errors
+  if [ x"`grep 'Permission denied' config.log`" != x ]; then
+      echo '**** MSYS problems; build aborted.'
+      exit 1
+  fi
 fi
 
 if [ x$BDCOMP == x1 ]; then
@@ -682,6 +709,13 @@ cd "$BDWD"
 if [ x$BDCONF == x1 ]; then
   # This will only build a static library.
   ./configure --prefix="$PREFIX" LDFLAGS="$LDFLAGS"
+  
+  # check for MSYS permission errors
+  if [ x"`grep 'Permission denied' config.log`" != x ]; then
+      echo '**** MSYS problems; build aborted.'
+      exit 1
+  fi
+
   cp jconfig.vc jconfig.h
 fi
 
@@ -712,6 +746,12 @@ cd "$BDWD"
 
 if [ x$BDCONF == x1 ]; then
   ./configure --disable-cxx --prefix="$PREFIX" LDFLAGS="$LDFLAGS"
+  
+  # check for MSYS permission errors
+  if [ x"`grep 'Permission denied' config.log`" != x ]; then
+      echo '**** MSYS problems; build aborted.'
+      exit 1
+  fi
 fi
 
 if [ x$BDCOMP == x1 ]; then
@@ -745,6 +785,12 @@ if [ x$BDCONF == x1 ]; then
   ./configure --disable-jpg-shared --disable-png-shared --disable-tif-shared \
               --disable-libtool-lock \
               --prefix="$PREFIX" LDFLAGS="$LDFLAGS"
+  
+  # check for MSYS permission errors
+  if [ x"`grep 'Permission denied' config.log`" != x ]; then
+      echo '**** MSYS problems; build aborted.'
+      exit 1
+  fi
 fi
 
 if [ x$BDCOMP == x1 ]; then
@@ -780,6 +826,12 @@ if [ x$BDCONF == x1 ]; then
   ./configure --disable-gtk-player --disable-opengl-player \
               --prefix="$PREFIX" \
               LDFLAGS="-static-libstdc++ -static-libgcc $LDFLAGS"
+  
+  # check for MSYS permission errors
+  if [ x"`grep 'Permission denied' config.log`" != x ]; then
+      echo '**** MSYS problems; build aborted.'
+      exit 1
+  fi
 fi
 
 if [ x$BDCOMP == x1 ]; then
@@ -808,6 +860,12 @@ cd "$BDWD"
 
 if [ x$BDCONF == x1 ]; then
   ./configure --prefix="$PREFIX" LDFLAGS="$LDFLAGS"
+  
+  # check for MSYS permission errors
+  if [ x"`grep 'Permission denied' config.log`" != x ]; then
+      echo '**** MSYS problems; build aborted.'
+      exit 1
+  fi
 fi
 
 if [ x$BDCOMP == x1 ]; then
@@ -837,6 +895,12 @@ cd "$BDWD"
 
 if [ x$BDCONF == x1 ]; then
   ./configure --prefix="$PREFIX" LDFLAGS="$LDFLAGS" LIBS='-logg'
+  
+  # check for MSYS permission errors
+  if [ x"`grep 'Permission denied' config.log`" != x ]; then
+      echo '**** MSYS problems; build aborted.'
+      exit 1
+  fi
 fi
 
 if [ x$BDCOMP == x1 ]; then
@@ -875,6 +939,12 @@ if [ x$BDCONF == x1 ]; then
   # Will only install a static library, but that is all that is needed.
   ./configure --disable-shared --disable-ogg --disable-cpplibs \
     --disable-doxygen-docs --prefix="$PREFIX" LDFLAGS="$LDFLAGS"
+  
+  # check for MSYS permission errors
+  if [ x"`grep 'Permission denied' config.log`" != x ]; then
+      echo '**** MSYS problems; build aborted.'
+      exit 1
+  fi
 fi
 
 if [ x$BDCOMP == x1 ]; then
@@ -1141,6 +1211,12 @@ if [ x$BDCONF == x1 ]; then
     --disable-music-mod-shared --disable-music-flac-shared \
     --disable-libtool-lock --prefix="$PREFIX" LDFLAGS="$LDFLAGS"
   
+  # check for MSYS permission errors
+  if [ x"`grep 'Permission denied' config.log`" != x ]; then
+      echo '**** MSYS problems; build aborted.'
+      exit 1
+  fi
+  
   # ./configure messes up on its Makefile generation, putting some rules
   # on the same line as their targets, and placing multiple targets in one
   # line. Break them up. Also add the required FLAC and mikmod linkage flags.
@@ -1345,6 +1421,12 @@ if [ x$BDCONF == x1 ]; then
               --disable-pthreads --prefix="$PREFIX" \
               --enable-runtime-cpudetect
               
+  # check for MSYS permission errors
+  if [ x"`grep 'Permission denied' config.log`" != x ]; then
+      echo '**** MSYS problems; build aborted.'
+      exit 1
+  fi
+
   # Fix incompatibilities between ffmpeg and MinGW notions of the C99 standard.
   mv config.mak config.mak~
   sed -e "s~\\\\(-std=\\\\)c99~\\\\1gnu99~g" \
@@ -1426,6 +1508,21 @@ if [ ! -f "$DBMSVCR71/libmoldname.a" ]; then
   cp -fp /mingw/lib/libmsvcr71.a "$DBMSVCR71/libmsvcrt.a"
   cp -fp /mingw/lib/libmsvcr71d.a "$DBMSVCR71/libmsvcrtd.a"
 fi
+""")
+
+alert = Preparation('computer beeper', r"""
+
+#
+# Alert the user by beeping the computer speaker
+#
+if [ x"$BDNTIMES" == x ]; then
+  BDNTIMES=1
+fi
+
+for (( i = $BDNTIMES ; i ; i-- )); do
+    printf $'\a\a\a\a\a'
+    sleep 1s
+done
 """)
 
 if __name__ == '__main__':
