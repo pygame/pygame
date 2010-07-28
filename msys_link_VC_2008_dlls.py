@@ -71,7 +71,12 @@ import time
 import re
 import copy
 
+# For Python 2.x/3.x compatibility
+def geterror():
+    return sys.exc_info()[1]
+
 DEFAULT_DEST_DIR_NAME = 'lib_VC_2008'
+default_source_mp = '/usr/local'
 
 def print_(*args, **kwds):
     msys.msys_print(*args, **kwds)
@@ -85,7 +90,7 @@ def merge_strings(*args, **kwds):
     sep = kwds.get('sep', '')
     return sep.join([s for s in args if s])
 
-class BuildError(StandardError):
+class BuildError(Exception):
     """Raised for missing source paths and failed script runs"""
     pass
 
@@ -178,6 +183,12 @@ def command_line():
                       dest='msys_directory',
                       help="MSYS directory path, which may include"
                            " the 1.x subdirectory")
+    parser.add_option('-s', '--source', action='store',
+                      dest='source_directory',
+                      help="Directory where the DLLs and headers are installed:\n"
+                           "(defaults to MSYS %s)"
+                           % (default_source_mp,))
+    parser.set_defaults(source_directory='')
     parser.add_option('--help-args', action='store_true', dest='arg_help',
                       help="Show a list of recognised libraries,"
                            " in build order, and exit")
@@ -188,30 +199,27 @@ def set_environment_variables(msys, options):
     """Set the environment variables used by the scripts"""
     
     environ = msys.environ
-    msys_root = msys.msys_root
-    destination_dir = os.path.abspath(options.destination_dir)
-    environ['BDWD'] = msys.windows_to_msys(destination_dir)
-    environ['BDBIN'] = '/usr/local/bin'
-    environ['BDLIB'] = '/usr/local/lib'
-    subsystem = '-mwindows'
-    if options.console:
-        subsystem = '-mconsole'
+    msys_root_wp = msys.msys_root
+    destination_dir_wp = os.path.abspath(options.destination_dir)
+    environ['BDWD'] = msys.windows_to_msys(destination_dir_wp)
+    source_mp = default_source_mp
+    if options.source_directory:
+        source_mp = msys.windows_to_msys(options.source_directory)
+    environ['BDBIN'] = source_mp + '/bin'
+    environ['BDLIB'] = source_mp + '/lib'
     strip = ''
     if options.strip:
         strip = '-Wl,--strip-all'
-    environ['LDFLAGS'] = merge_strings(environ.get('LDFLAGS', ''),
-                                       subsystem,
-                                       strip,
+    environ['LDFLAGS'] = merge_strings(strip, environ.get('LDFLAGS', ''),
                                        sep=' ')
-    library_path = os.path.join(msys_root, 'local', 'lib')
-    msvcr90_path = os.path.join(destination_dir, 'msvcr90')
-    environ['DBMSVCR90'] = msys.windows_to_msys(msvcr90_path)
+    msvcr90_wp = os.path.join(destination_dir_wp, 'msvcr90')
+    environ['DBMSVCR90'] = msys.windows_to_msys(msvcr90_wp)
     # For dependency libraries and msvcrt hiding.
-    environ['LIBRARY_PATH'] = merge_strings(msvcr90_path,
+    environ['LIBRARY_PATH'] = merge_strings(msvcr90_wp,
                                             environ.get('LIBRARY_PATH', ''),
                                             sep=';')
 
-class ChooseError(StandardError):
+class ChooseError(Exception):
     """Failer to select dependencies"""
     pass
 
@@ -278,8 +286,8 @@ def main(dependencies, msvcr90_preparation, msys_preparation):
         return 0
     try:
         chosen_deps = choose_dependencies(dependencies, options, args)
-    except ChooseError, e:
-        print_(e)
+    except ChooseError:
+        print_(geterror())
         return 1
     print_("Destination directory:", options.destination_dir)
     if not chosen_deps:
@@ -295,8 +303,8 @@ def main(dependencies, msvcr90_preparation, msys_preparation):
         msys_directory = None
     try:
         m = msys.Msys(msys_directory)
-    except msys.MsysException, e:
-        print_(e)
+    except msys.MsysException:
+        print_(geterror())
         return 1
     start_time = None
     return_code = 1
@@ -305,8 +313,8 @@ def main(dependencies, msvcr90_preparation, msys_preparation):
     start_time = time.time()  # For file timestamp checks.
     try:
         build(chosen_deps, m)
-    except BuildError, e:
-        print_("Build aborted:", e)
+    except BuildError:
+        print_("Build aborted:", geterror())
     else:
         # A successful build!
         return_code = 0
@@ -332,10 +340,10 @@ set -e
 cd "$BDWD"
 
 pexports "$BDBIN/SDL.dll" >SDL.def
-gcc -shared $LDFLAGS -o SDL.dll -def SDL.def "$BDLIB/libSDL.a" -lwinmm -ldxguid
+gcc -shared $LDFLAGS -mwindows -def SDL.def "$BDLIB/libSDL.a" -lwinmm -ldxguid -lgdi32 -o SDL.dll
 dlltool -D SDL.dll -d SDL.def -l libSDL.dll.a
 ranlib libSDL.dll.a
-strip --strip-all SDL.dll
+#strip --strip-all SDL.dll
 """),
     Dependency('Z', ['zlib1.dll'], """
 
@@ -343,10 +351,10 @@ set -e
 cd "$BDWD"
 
 pexports "$BDBIN/zlib1.dll" >z.def
-gcc -shared $LDFLAGS -o zlib1.dll -def z.def "$BDLIB/libz.a"
+gcc -shared $LDFLAGS -def z.def "$BDLIB/libz.a" -mwindows -o zlib1.dll 
 dlltool -D zlib1.dll -d z.def -l libz.dll.a
 ranlib libz.dll.a
-strip --strip-all zlib1.dll
+#strip --strip-all zlib1.dll
 """),
     Dependency('FREETYPE', ['libfreetype-6.dll'], """
 
@@ -354,11 +362,11 @@ set -e
 cd "$BDWD"
 
 pexports "$BDBIN/libfreetype-6.dll" >freetype.def
-gcc -shared $LDFLAGS -L. -o libfreetype-6.dll -def freetype.def \
-  "$BDLIB/libfreetype.a" -lz
+gcc -shared $LDFLAGS -L. -def freetype.def \
+  "$BDLIB/libfreetype.a" -mwindows -lz -o libfreetype-6.dll
 dlltool -D libfreetype-6.dll -d freetype.def -l libfreetype.dll.a
 ranlib libfreetype.dll.a
-strip --strip-all libfreetype-6.dll
+#strip --strip-all libfreetype-6.dll
 """),
     Dependency('FONT', ['SDL_ttf.dll'], """
 
@@ -366,11 +374,11 @@ set -e
 cd "$BDWD"
 
 pexports "$BDBIN/SDL_ttf.dll" >SDL_ttf.def
-gcc -shared $LDFLAGS -L. "-L$BDLIB" -o SDL_ttf.dll -def SDL_ttf.def \
-  "$BDLIB/libSDL_ttf.a" -lSDL -lfreetype
+gcc -shared $LDFLAGS -L. "-L$BDLIB" -def SDL_ttf.def \
+  "$BDLIB/libSDL_ttf.a" -mwindows -lSDL -lfreetype -o SDL_ttf.dll
 dlltool -D SDL_ttf.dll -d SDL_ttf.def -l libSDL_ttf.dll.a
 ranlib libSDL_ttf.dll.a
-strip --strip-all SDL_ttf.dll
+#strip --strip-all SDL_ttf.dll
 """),
     Dependency('PNG', ['libpng14.dll'], """
 
@@ -378,10 +386,10 @@ set -e
 cd "$BDWD"
 
 pexports "$BDBIN/libpng14.dll" >png.def
-gcc -shared $LDFLAGS -L. -o libpng14.dll -def png.def "$BDLIB/libpng.a" -lz
+gcc -shared $LDFLAGS -L. -def png.def "$BDLIB/libpng.a" -mwindows -lz -o libpng14.dll
 dlltool -D libpng14.dll -d png.def -l libpng.dll.a
 ranlib libpng.dll.a
-strip --strip-all libpng14.dll
+#strip --strip-all libpng14.dll
 """),
     Dependency('JPEG', ['libjpeg-8.dll'], """
 
@@ -389,19 +397,19 @@ set -e
 cd "$BDWD"
 
 pexports "$BDBIN/libjpeg-8.dll" >jpeg.def
-gcc -shared $LDFLAGS -o libjpeg-8.dll -def jpeg.def "$BDLIB/libjpeg.a"
+gcc -shared $LDFLAGS -def jpeg.def "$BDLIB/libjpeg.a" -mwindows -o libjpeg-8.dll
 dlltool -D libjpeg-8.dll -d jpeg.def -l libjpeg.dll.a
 ranlib libjpeg.dll.a
-strip --strip-all libjpeg-8.dll
+#strip --strip-all libjpeg-8.dll
 """),
     Dependency('TIFF', ['libtiff-3.dll'], """
 
 set -e
 cd "$BDWD"
 
-pexports "$BDBIN/libtiff-3.dll" >tiff.def
-gcc -shared $LDFLAGS -L. -o libtiff-3.dll -def tiff.def \
-  "$BDLIB/libtiff.a" -ljpeg -lz
+pexports "$BDBIN/libtiff-3.dll" | sed '/libport_dummy_function/d' >tiff.def
+gcc -shared $LDFLAGS -L. -def tiff.def \
+  "$BDLIB/libtiff.a" -mwindows -ljpeg -lz -o libtiff-3.dll
 dlltool -D libtiff-3.dll -d tiff.def -l libtiff.dll.a
 ranlib libtiff.dll.a
 strip --strip-all libtiff-3.dll
@@ -412,27 +420,23 @@ set -e
 cd "$BDWD"
 
 pexports "$BDBIN/SDL_image.dll" >SDL_image.def
-gcc -shared $LDFLAGS -L. -o SDL_image.dll -def SDL_image.def \
-  "$BDLIB/libSDL_image.a" -lSDL -ljpeg -lpng -ltiff
+gcc -shared $LDFLAGS -L. -def SDL_image.def \
+  "$BDLIB/libSDL_image.a" -mwindows -lSDL -ljpeg -lpng -ltiff -o SDL_image.dll
 dlltool -D SDL_image.dll -d SDL_image.def -l libSDL_image.dll.a
 ranlib libSDL_image.dll.a
-strip --strip-all SDL_image.dll
+#strip --strip-all SDL_image.dll
 """),
     Dependency('SMPEG', ['smpeg.dll'], """
-
-echo "*** SMPEG rev 389 linking to msvcr90.dll has been disabled for now."
-echo "    use the smpeg.dll provided in the Pygame 1.9.1 dependencies."
-exit 0
 
 set -e
 cd "$BDWD"
 
 dlltool --export-all-symbols -z smpeg.def "$BDLIB/libsmpeg.a"
-g++ -shared $LDFLAGS -L. -o smpeg.dll -def smpeg.def \
-  -Wl,--enable-auto-import -Xlinker --out-implib -Xlinker libsmpeg.dll.a \
-  "$BDLIB/libsmpeg.a" -lSDL
+g++ -shared $LDFLAGS -static-libstdc++ -static-libgcc -L. -def smpeg.def \
+  -Wl,--enable-auto-import,--out-implib,libsmpeg.dll.a \
+  "$BDLIB/libsmpeg.a" -mwindows -lSDL -o smpeg.dll
 ranlib libsmpeg.dll.a
-strip --strip-all smpeg.dll
+#strip --strip-all smpeg.dll
 """),
     Dependency('OGG', ['libogg-0.dll'], """
 
@@ -440,10 +444,10 @@ set -e
 cd "$BDWD"
 
 pexports "$BDBIN/libogg-0.dll" >ogg.def
-gcc -shared $LDFLAGS -o libogg-0.dll -def ogg.def "$BDLIB/libogg.a"
+gcc -shared $LDFLAGS -def ogg.def "$BDLIB/libogg.a" -mwindows -o libogg-0.dll
 dlltool -D libogg-0.dll -d ogg.def -l libogg.dll.a
 ranlib libogg.dll.a
-strip --strip-all libogg-0.dll
+#strip --strip-all libogg-0.dll
 """),
     Dependency('VORBIS', ['libvorbis-0.dll', 'libvorbisfile-3.dll'], """
 
@@ -451,18 +455,18 @@ set -e
 cd "$BDWD"
 
 pexports "$BDBIN/libvorbis-0.dll" >vorbis.def
-gcc -shared $LDFLAGS -L. -o libvorbis-0.dll -def vorbis.def \
-  "$BDLIB/libvorbis.a" -logg
+gcc -shared $LDFLAGS -L. -def vorbis.def \
+  "$BDLIB/libvorbis.a" -mwindows -logg -o libvorbis-0.dll
 dlltool -D libvorbis-0.dll -d vorbis.def -l libvorbis.dll.a
 ranlib libvorbis.dll.a
-strip --strip-all libvorbis-0.dll
+#strip --strip-all libvorbis-0.dll
 
 pexports "$BDBIN/libvorbisfile-3.dll" >vorbisfile.def
-gcc -shared $LDFLAGS -L. -o libvorbisfile-3.dll -def vorbisfile.def \
-  "$BDLIB/libvorbisfile.a" -lvorbis -logg
+gcc -shared $LDFLAGS -L. -def vorbisfile.def \
+  "$BDLIB/libvorbisfile.a" -mwindows -lvorbis -logg -o libvorbisfile-3.dll
 dlltool -D libvorbisfile-3.dll -d vorbisfile.def -l libvorbisfile.dll.a
 ranlib libvorbisfile.dll.a
-strip --strip-all libvorbisfile-3.dll
+#strip --strip-all libvorbisfile-3.dll
 """),
     Dependency('MIXER', ['SDL_mixer.dll'], """
 
@@ -470,11 +474,11 @@ set -e
 cd "$BDWD"
 
 pexports "$BDBIN/SDL_mixer.dll" >SDL_mixer.def
-gcc -shared -shared-libgcc $LDFLAGS -L. -L/usr/local/lib -o SDL_mixer.dll -def SDL_mixer.def \
-  "$BDLIB/libSDL_mixer.a" -lSDL -lsmpeg -lvorbisfile -lFLAC -lWs2_32 -lwinmm
+gcc -shared -static-libgcc $LDFLAGS -L. -L"$BDLIB" -def SDL_mixer.def \
+  "$BDLIB/libSDL_mixer.a" -mwindows -lSDL -lsmpeg -lvorbisfile -lFLAC -lmikmod -lWs2_32 -lwinmm -o SDL_mixer.dll
 dlltool -D SDL_mixer.dll -d SDL_mixer.def -l libSDL_mixer.dll.a
 ranlib libSDL_mixer.dll.a
-strip --strip-all SDL_mixer.dll
+#strip --strip-all SDL_mixer.dll
 """),
     Dependency('PORTMIDI', ['portmidi.dll'], """
 
@@ -482,11 +486,11 @@ set -e
 cd "$BDWD"
 
 pexports "$BDBIN/portmidi.dll" >portmidi.def
-g++ -shared $LDFLAGS -L. -L/usr/local/lib -o portmidi.dll -def portmidi.def \
-  "$BDLIB/libportmidi.a" -lwinmm
+g++ -shared -static-libgcc $LDFLAGS -L. -L/usr/local/lib -def portmidi.def \
+  "$BDLIB/libportmidi.a" -mwindows -lwinmm -o portmidi.dll
 dlltool -D portmidi.dll -d portmidi.def -l portmidi.dll.a
 ranlib libSDL_mixer.dll.a
-strip --strip-all portmidi.dll
+#strip --strip-all portmidi.dll
 """),
     Dependency('FFMPEG', ['avformat-52.dll', 'swscale-0.dll',
                           'avcodec-52.dll', 'avutil-50.dll' ], """
@@ -495,44 +499,41 @@ set -e
 cd "$BDWD"
 
 dlltool --export-all-symbols -z avutil.def "$BDLIB/libavutil.a"
-gcc -shared -L. -L/usr/local/lib -o avutil-50.dll -def avutil.def $LDFLAGS \
-  -Wl,-Bsymbolic,--as-needed -Xlinker --out-implib -Xlinker libavutil.dll.a \
-  "$BDLIB/libavutil.a" -lavutil
+gcc -shared -L. -L"$BDLIB" -def avutil.def $LDFLAGS \
+  -Wl,-Bsymbolic,--as-needed,--out-implib,libavutil.dll.a \
+  "$BDLIB/libavutil.a" -mwindows -o avutil-50.dll
 ranlib libavutil.dll.a
-strip --strip-all avutil-50.dll
+#strip --strip-all avutil-50.dll
 
 set -e
 cd "$BDWD"
 
 dlltool --export-all-symbols -z avcodec.def "$BDLIB/libavcodec.a"
-gcc -shared -L. -L/usr/local/lib -o avcodec-52.dll -def avcodec.def $LDFLAGS \
-  -Wl,-Bsymbolic,--as-needed,--enable-auto-import \
-  -Xlinker --out-implib -Xlinker libavcodec.dll.a \
-  "$BDLIB/libavcodec.a" -lavutil -lz
+gcc -shared -L. -L"$BDLIB" -def avcodec.def $LDFLAGS \
+  -Wl,-Bsymbolic,--as-needed,--enable-auto-import,--out-implib,libavcodec.dll.a \
+  "$BDLIB/libavcodec.a" -mwindows -lavutil -lz -o avcodec-52.dll
 ranlib libavcodec.dll.a
-strip --strip-all avcodec-52.dll
+#strip --strip-all avcodec-52.dll
 
 set -e
 cd "$BDWD"
 
 dlltool --export-all-symbols -z avformat.def "$BDLIB/libavformat.a"
-gcc -shared -L. -L/usr/local/lib -o avformat-52.dll -def avformat.def $LDFLAGS \
-  -Wl,-Bsymbolic,--as-needed,--enable-auto-import \
-  -Xlinker --out-implib -Xlinker libavformat.dll.a \
-  "$BDLIB/libavformat.a" -lavcodec -lavutil -lz -lWs2_32
+gcc -shared -L. -L"BDLIB" -def avformat.def $LDFLAGS \
+  -Wl,-Bsymbolic,--as-needed,--enable-auto-import,--out-implib,libavformat.dll.a \
+  "$BDLIB/libavformat.a" -mwindows -lavcodec -lavutil -lz -lWs2_32 -o avformat-52.dll
 ranlib libavformat.dll.a
-strip --strip-all avformat-52.dll
+#strip --strip-all avformat-52.dll
 
 set -e
 cd "$BDWD"
 
 dlltool --export-all-symbols -z swscale.def "$BDLIB/libswscale.a"
-gcc -shared -L. -L/usr/local/lib -o swscale-0.dll -def swscale.def $LDFLAGS \
-  -Wl,-Bsymbolic,--as-needed,--enable-auto-import \
-  -Xlinker --out-implib -Xlinker libswscale.dll.a \
-  "$BDLIB/libswscale.a" -lavutil
+gcc -shared -L. -L"$BDLIB" -def swscale.def $LDFLAGS \
+  -Wl,-Bsymbolic,--as-needed,--enable-auto-import,--out-implib,libswscale.dll.a \
+  "$BDLIB/libswscale.a" -mwindows -lavutil -o swscale-0.dll
 ranlib libswscale.dll.a
-strip --strip-all swscale-0.dll
+#strip --strip-all swscale-0.dll
 """),
     ]  # End dependencies = [.
 
@@ -1958,37 +1959,6 @@ struct tm* gmtime(const time_t *timer)
 }
 THE_END
 
-  # Provide the _ftime stub required by numpy.random.mtrand.
-  cat > _ftime.c << 'THE_END'
-/* Stub function for _ftime.
- * This is an inline function in Visual C 2008 so is missing from msvcr90.dll
- */
-#include <sys/types.h>
-#include <sys/timeb.h>
-
-void _ftime32(struct _timeb *timeptr);
-
-void _ftime(struct _timeb *timeptr)
-{
-    _ftime32(timeptr);                                    
-}
-THE_END
-
-  # Provide the time stub required by Numeric.RNG.
-  cat > time.c << 'THE_END'
-/* Stub function for time.
- * This is an inline function in Visual C 2008 so is missing from msvcr90.dll
- */
-#include <time.h>
-
-time_t _time32(time_t *timer);
-
-time_t time(time_t *timer)
-{
-    return _time32(timer);                                    
-}
-THE_END
-
   # Provide the mktime stub required by ffmpeg/avformat/utils.c.
   cat > mktime.c << 'THE_END'
 /* Stub function for mktime.
@@ -2034,16 +2004,31 @@ int _fstati64(int fd, struct _stati64 *buffer)
 }
 THE_END
 
+  # Provide the time stub required by libavformat.
+  cat > time.c << 'THE_END'
+/* Stub function for time.
+ * This is an inline function in Visual C 2008 so is missing from msvcr90.dll
+ */
+#include <time.h>
 
-  gcc -c -O2 gmtime.c _ftime.c time.c mktime.c localtime.c _fstati64.c
+time_t _time32(time_t *timer);
+
+time_t time(time_t *timer)
+{
+    return _time32(timer);                                    
+}
+THE_END
+
+
+  gcc -c -O2 gmtime.c mktime.c localtime.c _fstati64.c time.c
   dlltool -d msvcr90.def -D msvcr90.dll -l libmsvcr90.dll.a
-  ar rc libmsvcr90.dll.a gmtime.o _ftime.o time.o mktime.o localtime.o _fstati64.o
+  ar rc libmsvcr90.dll.a gmtime.o mktime.o localtime.o _fstati64.o time.o
   ranlib libmsvcr90.dll.a
   cp -f libmsvcr90.dll.a "$DBMSVCR90"
   mv -f libmsvcr90.dll.a "$DBMSVCR90/libmsvcrt.dll.a"
-  gcc -c -g gmtime.c _ftime.c time.c mktime.c localtime.c _fstati64.c
+  gcc -c -g gmtime.c mktime.c localtime.c _fstati64.c time.c
   dlltool -d msvcr90.def -D msvcr90d.dll -l libmsvcr90d.dll.a
-  ar rc libmsvcr90d.dll.a gmtime.o _ftime.o time.o mktime.o localtime.o _fstati64.o
+  ar rc libmsvcr90d.dll.a gmtime.o mktime.o localtime.o _fstati64.o time.o
   ranlib libmsvcr90d.dll.a
   cp -f libmsvcr90d.dll.a "$DBMSVCR90"
   mv -f libmsvcr90d.dll.a "$DBMSVCR90/libmsvcrtd.dll.a"
@@ -2197,23 +2182,38 @@ int fstat(int fd, struct stat *buffer)
 }
 THE_END
 
+  # Provide the _winmajor constant required by libmingw32.a.
+  cat > _winver.c << 'THE_END'
+/* Windows Version constants.
+ * Set to version 5.0 as msvcr90.dll cannot be used on any version before
+ * Windows 2000.
+*/
+  /* Explicitly declare the pointers for linkage with dllimport */
+  static unsigned int _winmajor = 5;
+  static unsigned int _winminor = 0;
+  static unsigned int _winver = 0x0500;
+  unsigned int *_imp___winmajor = &_winmajor;
+  unsigned int *_imp___winminor = &_winminor;
+  unsigned int *_imp___winver = &_winver;
+THE_END
+
   mkdir -p "$DBMSVCR90"
-  gcc -c -O2 fstat.c
+  gcc -c -O2 fstat.c _winver.c
   ar x /mingw/lib/libmoldname90.a $OBJS
   dlltool --as as -k -U \
      --dllname msvcr90.dll \
      --def moldname-msvcrt.def \
      --output-lib libmoldname.dll.a
-  ar rc libmoldname.dll.a $OBJS fstat.o
+  ar rc libmoldname.dll.a $OBJS fstat.o _winver.o
   ranlib libmoldname.dll.a
   mv -f libmoldname.dll.a "$DBMSVCR90"
-  gcc -c -g fstat.c
+  gcc -c -g fstat.c _winver.c
   ar x /mingw/lib/libmoldname90d.a $OBJS
   dlltool --as as -k -U \
      --dllname msvcr90.dll \
      --def moldname-msvcrt.def \
      --output-lib libmoldnamed.dll.a
-  ar rc libmoldnamed.dll.a $OBJS fstat.o
+  ar rc libmoldnamed.dll.a $OBJS fstat.o _winver.o
   ranlib libmoldnamed.dll.a
   mv -f libmoldnamed.dll.a "$DBMSVCR90"
   rm -f ./*
