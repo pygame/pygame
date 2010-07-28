@@ -1,5 +1,3 @@
-# Not yet configured for Python 3.x
-
 import msys
 
 from distutils.extension import read_setup_file
@@ -7,6 +5,10 @@ from optparse import OptionParser
 import os
 import re
 import sys
+
+# For Python 2.x/3.x compatibility
+def geterror():
+    return sys.exc_info()[1]
 
 default_msys_prefix = '/usr/local'
 
@@ -27,7 +29,7 @@ def file_copy(src, dest):
         d = open(dest, 'wb')
         try:
             d.write(s.read())
-            print "%s => %s" % (src, dest)
+            print_("%s => %s" % (src, dest))
         finally:
             d.close()
     finally:
@@ -96,7 +98,7 @@ def command_line():
                       help="Directory where the DLLs and headers are installed:\n"
                            "(defaults to MSYS %s)"
                            % (default_msys_prefix,))
-    parser.set_defaults(source='')
+    parser.set_defaults(source_directory='')
     return parser.parse_args()
 
 def main(dest_dir=None, src_dir=None, msys_dir=None, force=None):
@@ -186,7 +188,7 @@ def main(dest_dir=None, src_dir=None, msys_dir=None, force=None):
             lib_name = 'lib%s.dll.a' % lib
             src_lib_path = os.path.join(src_lib_dir, lib_name)
             if not os.path.exists(src_lib_path):
-                print "Missing import library %s" % lib_name
+                print_("Missing import library %s" % (lib_name,))
                 return 1
             file_copy(src_lib_path, os.path.join(dest_lib_dir, lib_name))
 
@@ -207,7 +209,7 @@ def main(dest_dir=None, src_dir=None, msys_dir=None, force=None):
                     path_elements = path_elements[1:]
                 src_header_dir = os.path.join(src_dir, *path_elements)
                 if not os.path.exists(src_header_dir):
-                    print "Missing include directory %s" % src_header_dir
+                    print_("Missing include directory %s" % (src_header_dir,))
                     return 1
                 dest_header_dir = dest_dir
                 for dir_name in path_elements:
@@ -285,6 +287,6 @@ if __name__ =='__main__':
                       src_dir=options.source_directory,
                       msys_dir=options.msys_directory,
                       force=options.force))
-    except MakePrebuiltError, e:
-        print_("*** %s; execution halted" % (e,))
+    except MakePrebuiltError:
+        print_("*** %s; execution halted" % (geterror(),))
         sys.exit(1)
