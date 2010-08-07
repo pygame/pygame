@@ -59,6 +59,10 @@
 #define BUILTINS_UNICODE "str"
 #define BUILTINS_UNICHR "chr"
 
+/* Defaults for unicode file path encoding */
+#define UNICODE_DEF_FS_CODEC Py_FileSystemDefaultEncoding
+#define UNICODE_DEF_FS_ERROR "surrogateescape"
+
 #else /* PY_VERSION_HEX >= 0x03000000 */
 
 #define PY3 0
@@ -97,7 +101,13 @@
 #define BUILTINS_UNICODE "unicode"
 #define BUILTINS_UNICHR "unichr"
 
+/* Defaults for unicode file path encoding */
+#define UNICODE_DEF_FS_CODEC Py_FileSystemDefaultEncoding
+#define UNICODE_DEF_FS_ERROR "strict"
+
 #endif /* PY_VERSION_HEX >= 0x03000000 */
+
+#define PY2 (!PY3)
 
 #define MODINIT_ERROR MODINIT_RETURN (NULL)
 
@@ -113,6 +123,17 @@
 #define Py_TYPE(o)    (((PyObject*)(o))->ob_type)
 #define Py_REFCNT(o)  (((PyObject*)(o))->ob_refcnt)
 #define Py_SIZE(o)    (((PyVarObject*)(o))->ob_size)
+#endif
+
+/* Encode a unicode file path */
+#define Unicode_AsEncodedPath(u) \
+    PyUnicode_AsEncodedString ((u), UNICODE_DEF_FS_CODEC, UNICODE_DEF_FS_ERROR)
+
+/* Relative paths introduced in Python 2.6 */
+#if PY_VERSION_HEX >= 0x02060000
+#define HAVE_RELATIVE_IMPORT 1
+#else
+#define HAVE_RELATIVE_IMPORT 0
 #endif
 
 #endif /* !defined(PGCOMPAT_H) */
