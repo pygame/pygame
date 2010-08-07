@@ -56,54 +56,33 @@ static int rw_close_th (SDL_RWops* context);
 static SDL_RWops*
 get_standard_rwop (PyObject* obj)
 {
-#if PY3
     if (PyUnicode_Check (obj)) {
-        int result;
-        char* name;
-        PyObject* tuple = PyTuple_New (1);
-        if (!tuple) {
+        PyObject *bytes = Unicode_AsEncodedPath (obj);
+        const char *name = NULL;
+        SDL_RWops *rw = NULL;
+        
+        if (!bytes)
+        {
+            PyErr_Clear ();
+            SDL_SetError ("Unable to encode unicode file name");
             return NULL;
-	}
-        Py_INCREF (obj);
-        PyTuple_SET_ITEM (tuple, 0, obj);
-        result = PyArg_ParseTuple (tuple, "s", &name);
-        Py_DECREF (tuple);
-        if (!result)
-            return NULL;
-        return SDL_RWFromFile (name, "rb");
+        }
+        name = Bytes_AS_STRING (bytes);
+        rw = SDL_RWFromFile (name, "rb");
+        Py_DECREF (bytes);
+        return rw;
     }
-    else if (PyBytes_Check (obj)) {
-        int result;
-        char* name;
-        PyObject* tuple = PyTuple_New (1);
-        if (!tuple)
-            return NULL;
-        Py_INCREF (obj);
-        PyTuple_SET_ITEM (tuple, 0, obj);
-        result = PyArg_ParseTuple (tuple, "y", &name);
-        Py_DECREF (tuple);
-        if (!result)
-            return NULL;
-        return SDL_RWFromFile (name, "rb");
-    }
-#else
-    if (PyString_Check (obj) || PyUnicode_Check (obj))
+#if PY2
+    if (PyString_Check (obj))
     {
-        int result;
-        char* name;
-        PyObject* tuple = PyTuple_New (1);
-        if (!tuple)
-            return NULL;
-        Py_INCREF (obj);
-        PyTuple_SET_ITEM (tuple, 0, obj);
-        result = PyArg_ParseTuple (tuple, "s", &name);
-        Py_DECREF (tuple);
-        if (!result)
-            return NULL;
+        const char *name = PyString_AS_STRING (obj);
+        
         return SDL_RWFromFile (name, "rb");
     }
-    else if (PyFile_Check(obj))
+    if (PyFile_Check (obj))
+    {
         return SDL_RWFromFP (PyFile_AsFile (obj), 0);
+    }
 #endif
     return NULL;
 }
@@ -168,15 +147,28 @@ RWopsFromPython (PyObject* obj)
     RWHelper* helper;
 
     if (!obj)
+    {
         return (SDL_RWops*) RAISE (PyExc_TypeError, "Invalid filetype object");
+    }
     rw = get_standard_rwop (obj);
     if (rw)
+    {
         return rw;
+    }
+    SDL_ClearError ();
 
     helper = PyMem_New (RWHelper, 1);
+    if (!helper)
+    {
+        return (SDL_RWops*) PyErr_NoMemory ();
+    }
     fetch_object_methods (helper, obj);
 
     rw = SDL_AllocRW ();
+    if (!rw)
+    {
+        return (SDL_RWops *) PyErr_NoMemory ();
+    }
     rw->hidden.unknown.data1 = (void*) helper;
     rw->seek = rw_seek;
     rw->read = rw_read;
