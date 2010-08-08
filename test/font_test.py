@@ -308,6 +308,20 @@ class FontTypeTest( unittest.TestCase ):
         self.failUnlessRaises(IOError, fetch)
 
 
+    def test_load_from_file(self):
+        font_name = pygame.font.get_default_font()
+        font_path = os.path.join(os.path.split(pygame.__file__)[0], 
+                                 pygame.font.get_default_font())
+        f = pygame.font.Font(font_path, 20)
+
+    def test_load_from_file_obj(self):
+        font_name = pygame.font.get_default_font()
+        font_path = os.path.join(os.path.split(pygame.__file__)[0], 
+                                 pygame.font.get_default_font())
+        f = open(font_path, "rb")
+        font = pygame.font.Font(f, 20)
+
+
 class VisualTests( unittest.TestCase ):
     __tags__ = ['interactive']
     

@@ -4,6 +4,10 @@
 # BREAK = change breaks existing code
 # BUG    = fixed a bug that was (or could have been) crashing
 
+
+[SVN 2847] August 8, 2010
+    [BUG] Font loading from file object patch, and test.  Thanks Janosch Graf
+
 [SVN 2573] August 6, 2009
     [BUG] missing readme.html in MANIFEST.in causes install to fail
         on pythons with setuptools installed.

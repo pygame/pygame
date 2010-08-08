@@ -620,12 +620,21 @@ font_init (PyFontObject *self, PyObject *args, PyObject *kwds)
         {
             goto error;
         }
-        Py_BEGIN_ALLOW_THREADS;
-        font = TTF_OpenFontIndexRW (rw, 1, fontsize, 0);
-        Py_END_ALLOW_THREADS;
-#else
-        RAISE (PyExc_NotImplementedError,
-               "nonstring fonts require SDL_ttf-2.0.6");
+
+
+
+        if (RWopsCheckPython (rw)) {
+            font = TTF_OpenFontIndexRW (rw, 1, fontsize, 0);
+        }
+        else
+        {
+         Py_BEGIN_ALLOW_THREADS;
+         font = TTF_OpenFontIndexRW (rw, 1, fontsize, 0);
+         Py_END_ALLOW_THREADS;
+        }
+ #else
+         RAISE (PyExc_NotImplementedError,
+                "nonstring fonts require SDL_ttf-2.0.6");
         goto error;
 #endif
     }
