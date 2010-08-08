@@ -72,13 +72,13 @@ get_standard_rwop (PyObject* obj)
         Py_DECREF (bytes);
         return rw;
     }
-#if PY2
-    if (PyString_Check (obj))
+    if (Bytes_Check (obj))
     {
-        const char *name = PyString_AS_STRING (obj);
+        const char *name = Bytes_AS_STRING (obj);
         
         return SDL_RWFromFile (name, "rb");
     }
+#if PY2
     if (PyFile_Check (obj))
     {
         return SDL_RWFromFP (PyFile_AsFile (obj), 0);
