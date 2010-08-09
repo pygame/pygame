@@ -190,7 +190,13 @@ class MixerModuleTest(unittest.TestCase):
             self.assert_(get_bytes(mixer.Sound(wave_path)) == snd_bytes)
             self.assert_(get_bytes(mixer.Sound(file=uwave_path)) == snd_bytes)
             self.assert_(get_bytes(mixer.Sound(uwave_path)) == snd_bytes)
-            arg_emsg = 'Sound takes either 1 positional or 1 keywork argument'
+            arg_emsg = 'Sound takes either 1 positional or 1 keyword argument'
+            try:
+                mixer.Sound()
+            except TypeError:
+                self.assert_(str(geterror()) == arg_emsg)
+            else:
+                self.fail("no exception")
             try:
                 mixer.Sound(wave_path, buffer=sample)
             except TypeError:
