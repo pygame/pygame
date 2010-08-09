@@ -69,7 +69,7 @@
   <tr><td><a href="mixer.html#pygame.mixer.set_reserved">pygame.mixer.set_reserved</a> - <font size=-1>reserve channels from being automatically used</font></td><td>reserve channels from being automatically used</td></tr>
   <tr><td><a href="mixer.html#pygame.mixer.find_channel">pygame.mixer.find_channel</a> - <font size=-1>find an unused channel</font></td><td>find an unused channel</td></tr>
   <tr><td><a href="mixer.html#pygame.mixer.get_busy">pygame.mixer.get_busy</a> - <font size=-1>test if any sound is being mixed</font></td><td>test if any sound is being mixed</td></tr>
-  <tr><td><a href="mixer.html#pygame.mixer.Sound">pygame.mixer.Sound</a> - <font size=-1>Create a new Sound object from a file</font></td><td>Create a new Sound object from a file</td></tr>
+  <tr><td><a href="mixer.html#pygame.mixer.Sound">pygame.mixer.Sound</a> - <font size=-1>Create a new Sound object from a file or buffer object</font></td><td>Create a new Sound object from a file or buffer object</td></tr>
   <tr><td><a href="mixer.html#pygame.mixer.Channel">pygame.mixer.Channel</a> - <font size=-1>Create a Channel object for controlling playback</font></td><td>Create a Channel object for controlling playback</td></tr>
 </table></small></ul>
 <p>This module contains classes for loading Sound objects and controlling playback. The mixer module is optional and depends on SDL_mixer. Your program should test that <tt>pygame.mixer</tt> is available and intialized before using it. </p>
@@ -206,10 +206,13 @@
 
 <a name="pygame.mixer.Sound">
 <big><b>pygame.mixer.Sound</big></b><br><ul>
-  <i>Create a new Sound object from a file</i><br>
+  <i>Create a new Sound object from a file or buffer object</i><br>
   <tt>pygame.mixer.Sound(filename): return Sound</tt><br>
+  <tt>pygame.mixer.Sound(file=filename): return Sound</tt><br>
   <tt>pygame.mixer.Sound(buffer): return Sound</tt><br>
+  <tt>pygame.mixer.Sound(buffer=buffer): return Sound</tt><br>
   <tt>pygame.mixer.Sound(object): return Sound</tt><br>
+  <tt>pygame.mixer.Sound(file=object): return Sound</tt><br>
 <ul><small><table>
   <tr><td><a href="mixer.html#Sound.play">Sound.play</a> - <font size=-1>begin sound playback</font></td><td>begin sound playback</td></tr>
   <tr><td><a href="mixer.html#Sound.stop">Sound.stop</a> - <font size=-1>stop sound playback</font></td><td>stop sound playback</td></tr>
@@ -220,11 +223,11 @@
   <tr><td><a href="mixer.html#Sound.get_length">Sound.get_length</a> - <font size=-1>get the length of the Sound</font></td><td>get the length of the Sound</td></tr>
   <tr><td><a href="mixer.html#Sound.get_buffer">Sound.get_buffer</a> - <font size=-1>acquires a buffer object for the sameples of the Sound.</font></td><td>acquires a buffer object for the sameples of the Sound.</td></tr>
 </table></small></ul>
-<p>Load a new sound buffer from a filename, a python file object or a readable buffer object. Limited resampling will be performed to help the sample match the initialize arguments for the mixer. </p>
+<p>Load a new sound buffer from a filename, a python file object or a readable buffer object. Limited resampling will be performed to help the sample match the initialize arguments for the mixer. <tt>A</tt> Unicode string can only be a file pathname. <tt>A</tt> Python <tt>2.x</tt> string or a Python <tt>3.x</tt> bytes object can be either a pathname or a buffer object. Use the 'file' or 'buffer' keywords to avoid ambiguity; otherwise Sound may guess wrong. </p>
 <p>The Sound object represents actual sound sample data. Methods that change the state of the Sound object will the all instances of the Sound playback. </p>
 <p>The Sound can be loaded from an <tt>OGG</tt> audio file or from an uncompressed <tt>WAV</tt>. </p>
 <p>Note: The buffer will be copied internally, no data will be shared between it and the Sound object. </p>
-<p><tt>pygame.mixer.Sound(buffer)</tt> is new in pygame <tt>1.8</tt> </p>
+<p><tt>pygame.mixer.Sound(buffer)</tt> is new in pygame <tt>1.8</tt> <tt>pygame.mixer.Sound</tt> keyword arguments new in pygame <tt>1.9.2</tt> </p>
 <!--COMMENTS:pygame.mixer.Sound--> &nbsp;<br> 
 
 

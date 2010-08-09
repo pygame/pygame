@@ -46,7 +46,6 @@ static PyObject* PyChannel_New (int);
 #define PySound_Check(x) ((x)->ob_type == &PySound_Type)
 #define PyChannel_Check(x) ((x)->ob_type == &PyChannel_Type)
 
-/* Zero values will be replaced with defaults by _init(). */
 static int request_frequency = PYGAME_MIXER_DEFAULT_FREQUENCY;
 static int request_size = PYGAME_MIXER_DEFAULT_SIZE;
 static int request_stereo = PYGAME_MIXER_DEFAULT_CHANNELS;
@@ -192,8 +191,8 @@ _init (int freq, int size, int stereo, int chunk)
 
 
     /*make chunk a power of 2*/
-    for (i = 0; 1 << i < chunk; ++i); //yes, semicolon on for loop
-    chunk = MAX (1 << i, 256);
+    for (i = 0; 1 << i < chunk; ++i); /*yes, semicolon on for loop*/
+    chunk = MAX (1 << i, 256);        /*do this after foo loop exits*/
 
     if (!SDL_WasInit (SDL_INIT_AUDIO))
     {
@@ -974,106 +973,193 @@ mixer_unpause (PyObject* self)
 static int
 sound_init (PyObject* self, PyObject* arg, PyObject* kwarg)
 {
-    PyObject* file;
-    char* name = NULL;
-    Mix_Chunk* chunk = NULL;
+    static const char arg_cnt_err_msg[] =
+        "Sound takes either 1 positional or 1 keywork argument";
+    PyObject *obj = NULL;
+    PyObject *file = NULL;
+    PyObject *buffer = NULL;
+    Mix_Chunk *chunk = NULL;
     
     ((PySoundObject*)self)->chunk = NULL;
 
-    if (!PyArg_ParseTuple (arg, "O", &file))
-        return -1;
-
-    if (!SDL_WasInit (SDL_INIT_AUDIO)) 
+    /* Process arguments, returning cleaner error messages than
+       PyArg_ParseTupleAndKeywords would.
+    */
+    if (arg && PyTuple_GET_SIZE (arg))
     {
-        RAISE (PyExc_SDLError, "mixer system not initialized");
-        return -1;
-    }
-
-#if PY3
-    Py_INCREF (file);
-    if (PyUnicode_Check (file)) {
-        PyObject *tmp = PyUnicode_AsASCIIString (file);
-        if (tmp == NULL) {
-            goto error;
+        if ((kwarg && PyDict_Size (kwarg)) || PyTuple_GET_SIZE (arg) != 1)
+        {
+            RAISE (PyExc_TypeError, arg_cnt_err_msg);
+            return -1;
         }
-        Py_DECREF (file);
-        file = tmp;
+        obj = PyTuple_GET_ITEM (arg, 0);
+        
+        if (PyUnicode_Check (obj))
+        {
+            file = obj;
+            obj = NULL;
+        }
+        else
+        {
+            file = obj;
+            buffer = obj;
+        }
     }
-
-    if (Bytes_Check (file))
-#else
-    if (PyString_Check (file) || PyUnicode_Check (file))
-#endif
+    else if (kwarg)
     {
-        if (PyArg_ParseTuple (arg, "s", &name))
+        if (PyDict_Size (kwarg) != 1)
+        {
+            RAISE (PyExc_TypeError, arg_cnt_err_msg);
+            return -1;
+        }
+        if (!(file = PyDict_GetItemString (kwarg, "file")) &&
+            !(buffer = PyDict_GetItemString (kwarg, "buffer")))
+        {
+            PyObject *keys;
+            PyObject *key;
+            const char *keystr;
+            
+            if (!(keys = PyDict_Keys (kwarg)))
+            {
+                return -1;
+            }
+            key = PyList_GET_ITEM (keys, 0);
+            Py_INCREF (key);
+#if PY3
+            PyObject *tmp;
+            tmp = PyUnicode_AsASCIIString (key);
+            Py_DECREF (key);
+            key = tmp;
+            if (!key)
+            {
+                Py_DECREF (keys);
+                return -1;
+            }
+#endif
+            keystr = Bytes_AsString (key);
+            PyErr_Format(PyExc_TypeError,
+                         "Unrecognized keyword argument '%s'",
+                         keystr);
+            Py_DECREF (key);
+            Py_DECREF (keys);
+            return -1;
+        }
+        if (buffer && PyUnicode_Check (buffer))
+        {
+            RAISE (PyExc_TypeError,
+                   "Unicode object not allowed as buffer object");
+            return -1;
+        }
+    }
+    else
+    {
+        RAISE (PyExc_TypeError, arg_cnt_err_msg);
+        return -1;
+    }  
+
+    if (file)
+    {
+        SDL_RWops *rw = RWopsFromPython (file);
+        if (!rw)
+        {
+            /* RWopsFromPython only raises critical Python exceptions,
+               so automatically pass them on.
+            */
+            return -1;
+        }
+        if (RWopsCheckPython (rw))
+        {
+            chunk = Mix_LoadWAV_RW (rw, 1);
+        }
+        else
         {
             Py_BEGIN_ALLOW_THREADS;
-            chunk = Mix_LoadWAV (name);
+            chunk = Mix_LoadWAV_RW (rw, 1);
             Py_END_ALLOW_THREADS;
         }
+        if (!chunk && !obj)
+        {
+            if (PyUnicode_Check (file))
+            {
+                const char *name = NULL;
+                PyObject *tmp =
+                    PyUnicode_AsEncodedString(file,
+                                              "unicode_escape",
+                                              "backslashreplace");
+                if (!tmp)
+                {
+                    return -1;
+                }
+                name = Bytes_AS_STRING (tmp);
+                PyErr_Format (PyExc_SDLError,
+                              "Unable to open file '%s'", name);
+                Py_DECREF (tmp);
+            }
+            else if (Bytes_Check (file))
+            {
+                const char *name = Bytes_AS_STRING (file);
+                PyErr_Format (PyExc_SDLError,
+                              "Unable to open file '%s'", name);
+            }
+            else
+            {
+                RAISE (PyExc_SDLError, SDL_GetError ());
+            }
+            return -1;
+        }
     }
-    
-    if (!chunk)
-    {
-        const void *buf;
-        Py_ssize_t buflen;
 
-        if (PyObject_AsReadBuffer (file, &buf, &buflen) == 0)
+    if (!chunk && buffer)
+    {
+        const void *buf = NULL;
+        Py_ssize_t buflen = 0;
+
+        if (PyObject_AsReadBuffer (buffer, &buf, &buflen))
+        {
+            if (obj)
+            {
+                PyErr_Clear ();
+            }
+            else
+            {
+                PyErr_Format (PyExc_TypeError,
+                              "Expected object with buffer interface: got a %s",
+                              buffer->ob_type->tp_name);
+                return -1;
+            }
+        }
+        else
         {
             chunk = malloc (sizeof (Mix_Chunk));
             if (!chunk)
             {
-                RAISE (PyExc_MemoryError, "cannot allocate chunk");
-                goto error;
+                PyErr_NoMemory ();
+                return -1;
             }
             chunk->alen = buflen;
             chunk->abuf = malloc ((size_t) buflen);
             if (!chunk->abuf)
             {
                 free (chunk);
-                RAISE (PyExc_MemoryError, "cannot allocate chunk");
-                goto error;
+                PyErr_NoMemory ();
+                return -1;
             }
             chunk->allocated = 1;
             chunk->volume = 128;
             memcpy (chunk->abuf, buf, (size_t) buflen);
         }
-        else
-            PyErr_Clear ();
     }
     
     if (!chunk)
     {
-        SDL_RWops *rw;
-        if (!(rw = RWopsFromPython (file)))
-            goto error;
-        if (RWopsCheckPython (rw))
-            chunk = Mix_LoadWAV_RW (rw, 1);
-        else
-        {
-            Py_BEGIN_ALLOW_THREADS;
-            chunk = Mix_LoadWAV_RW (rw, 1);
-            Py_END_ALLOW_THREADS;
-        }
-    }
-
-    if (!chunk)
-    {
-        RAISE (PyExc_SDLError, SDL_GetError ());
-        goto error;
+        PyErr_Format (PyExc_TypeError,
+                      "Unrecognized argument (type %s)",
+                      obj->ob_type->tp_name);
+        return -1;
     }
         
     ((PySoundObject*)self)->chunk = chunk;
-#if PY3
-    Py_DECREF (file);
-#endif
     return 0;
-
-error:
-#if PY3
-    Py_DECREF (file);
-#endif
-    return -1;
 }
 
 static PyMethodDef _mixer_methods[] =
@@ -1237,7 +1323,7 @@ MODINIT_DEFINE (mixer)
         PyErr_Clear ();
         /* try loading it under this name...
         */
-#if PY_VERSION_HEX >= 0x02060000 /* Is this Python 2.6 or greater? */
+#if HAVE_RELATIVE_IMPORT
         /* Use relative paths. */
         music = PyImport_ImportModule(".mixer_music");
 #else
