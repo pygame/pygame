@@ -179,14 +179,20 @@ idle then this return False.
 <END>
 
 Sound
-Create a new Sound object from a file
+Create a new Sound object from a file or buffer object
 pygame.mixer.Sound(filename): return Sound
+pygame.mixer.Sound(file=filename): return Sound
 pygame.mixer.Sound(buffer): return Sound
+pygame.mixer.Sound(buffer=buffer): return Sound
 pygame.mixer.Sound(object): return Sound
+pygame.mixer.Sound(file=object): return Sound
 
 Load a new sound buffer from a filename, a python file object or a
 readable buffer object. Limited resampling will be performed to help the
-sample match the initialize arguments for the mixer.
+sample match the initialize arguments for the mixer. A Unicode string
+can only be a file pathname. A Python 2.x string or a Python 3.x
+bytes object can be either a pathname or a buffer object. Use the
+'file' or 'buffer' keywords to avoid ambiguity; otherwise Sound may guess wrong.
 
 The Sound object represents actual sound sample data. Methods that change
 the state of the Sound object will the all instances of the Sound playback.
@@ -198,6 +204,7 @@ Note: The buffer will be copied internally, no data will be shared
 between it and the Sound object.
 
 pygame.mixer.Sound(buffer) is new in pygame 1.8
+pygame.mixer.Sound keyword arguments new in pygame 1.9.2
 <SECTION>
 
 play
