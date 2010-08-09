@@ -13,13 +13,14 @@ else:
     is_pygame_pkg = __name__.startswith('pygame.tests.')
 
 if is_pygame_pkg:
-    from pygame.tests.test_utils import test_not_implemented, unittest
+    from pygame.tests.test_utils import test_not_implemented, unittest, example_path
 else:
-    from test.test_utils import test_not_implemented, unittest
+    from test.test_utils import test_not_implemented, unittest, example_path
 import pygame
 from pygame import mixer
-from pygame.compat import xrange_
+from pygame.compat import xrange_, unicode_, as_bytes, geterror
 
+import sys
 import os
 
 ################################### CONSTANTS ##################################
@@ -172,6 +173,82 @@ class MixerModuleTest(unittest.TestCase):
             pygame.error, mixer.get_num_channels,
         )
 
+    def test_sound_args(self):
+        def get_bytes(snd):
+            return snd.get_buffer().raw
+        
+        mixer.init()
+        try:
+            sample = as_bytes('\x00\xff') * 24
+            wave_path = example_path(os.path.join('data', 'house_lo.wav'))
+            uwave_path = unicode_(wave_path)
+            bwave_path = uwave_path.encode(sys.getfilesystemencoding())
+            snd = mixer.Sound(file=wave_path)
+            self.assert_(snd.get_length() > 0.5)
+            snd_bytes = get_bytes(snd)
+            self.assert_(len(snd_bytes) > 1000)
+            self.assert_(get_bytes(mixer.Sound(wave_path)) == snd_bytes)
+            self.assert_(get_bytes(mixer.Sound(file=uwave_path)) == snd_bytes)
+            self.assert_(get_bytes(mixer.Sound(uwave_path)) == snd_bytes)
+            arg_emsg = 'Sound takes either 1 positional or 1 keywork argument'
+            try:
+                mixer.Sound(wave_path, buffer=sample)
+            except TypeError:
+                self.assert_(str(geterror()) == arg_emsg)
+            else:
+                self.fail("no exception")
+            try:
+                mixer.Sound(sample, file=wave_path)
+            except TypeError:
+                self.assert_(str(geterror()) == arg_emsg)
+            else:
+                self.fail("no exception")           
+            try:
+                mixer.Sound(buffer=sample, file=wave_path)
+            except TypeError:
+                self.assert_(str(geterror()) == arg_emsg)
+            else:
+                self.fail("no exception")           
+            try:
+                mixer.Sound(foobar=sample)
+            except TypeError:
+                emsg = "Unrecognized keyword argument 'foobar'"
+                self.assert_(str(geterror()) == emsg)
+            else:
+                self.fail("no exception")
+            snd = mixer.Sound(wave_path, **{})
+            self.assert_(get_bytes(snd) == snd_bytes)
+            snd = mixer.Sound(*[], **{'file': wave_path})          
+            try:
+               snd = mixer.Sound([])
+            except TypeError:
+                emsg = 'Unrecognized argument (type list)'
+                self.assert_(str(geterror()) == emsg)
+            else:   
+                self.fail("no exception")
+            try:
+                snd = mixer.Sound(buffer=[])
+            except TypeError:
+                emsg = 'Expected object with buffer interface: got a list'
+                self.assert_(str(geterror()) == emsg)
+            else:
+                self.fail("no exception")
+            ufake_path = unicode_('12345678')
+            self.assertRaises(pygame.error, mixer.Sound, ufake_path)
+            try:
+                mixer.Sound(buffer=unicode_('something'))
+            except TypeError:
+                emsg = 'Unicode object not allowed as buffer object'
+                self.assert_(str(geterror()) == emsg)
+            else:
+                self.fail("no exception")
+            self.assert_(get_bytes(mixer.Sound(buffer=sample)) == sample)
+            self.assert_(get_bytes(mixer.Sound(sample)) == sample)
+            self.assert_(get_bytes(mixer.Sound(file=bwave_path)) == snd_bytes)
+            self.assert_(get_bytes(mixer.Sound(bwave_path)) == snd_bytes)
+        finally:
+            mixer.quit()
+        
     def todo_test_fadeout(self):
 
         # __doc__ (as of 2008-08-02) for pygame.mixer.fadeout:
