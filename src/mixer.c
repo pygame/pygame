@@ -974,7 +974,7 @@ static int
 sound_init (PyObject* self, PyObject* arg, PyObject* kwarg)
 {
     static const char arg_cnt_err_msg[] =
-        "Sound takes either 1 positional or 1 keywork argument";
+        "Sound takes either 1 positional or 1 keyword argument";
     PyObject *obj = NULL;
     PyObject *file = NULL;
     PyObject *buffer = NULL;
