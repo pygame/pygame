@@ -1018,7 +1018,9 @@ sound_init (PyObject* self, PyObject* arg, PyObject* kwarg)
             PyObject *keys;
             PyObject *key;
             const char *keystr;
-            
+#if PY3
+            PyObject *tmp;
+#endif
             if (!(keys = PyDict_Keys (kwarg)))
             {
                 return -1;
@@ -1026,7 +1028,6 @@ sound_init (PyObject* self, PyObject* arg, PyObject* kwarg)
             key = PyList_GET_ITEM (keys, 0);
             Py_INCREF (key);
 #if PY3
-            PyObject *tmp;
             tmp = PyUnicode_AsASCIIString (key);
             Py_DECREF (key);
             key = tmp;
