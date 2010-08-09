@@ -22,6 +22,7 @@
   pete@shinners.org
 */
 
+#define NO_PYGAME_C_API
 #include "surface.h"
 
 /* The structure passed to the low level blit functions */
