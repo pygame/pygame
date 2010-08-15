@@ -33,6 +33,23 @@
 #include "doc/font_doc.h"
 #include "structmember.h"
 
+#if PY3
+#define RAISE_TEXT_TYPE_ERROR() \
+    RAISE(PyExc_TypeError, "text must be a unicode or bytes");
+#else
+#define RAISE_TEXT_TYPE_ERROR() \
+    RAISE(PyExc_TypeError, "text must be a string or unicode");
+#endif
+
+/* For filtering out UCS-4 and larger characters when Python is
+ * built with Py_UNICODE_WIDE.
+ */
+#if defined(Py_UNICODE_WIDE)
+#define IS_UCS_2(c) ((c) < 0x10000L)
+#else
+#define IS_UCS_2(c) 1
+#endif
+
 static PyTypeObject PyFont_Type;
 static PyObject* PyFont_New (TTF_Font*);
 #define PyFont_Check(x) ((x)->ob_type == &PyFont_Type)
@@ -262,7 +279,7 @@ font_set_underline (PyObject* self, PyObject* args)
 }
 
 static PyObject*
-font_render (PyObject* self, PyObject* args)
+font_render(PyObject* self, PyObject* args)
 {
     TTF_Font* font = PyFont_AsFont (self);
     int aa;
@@ -272,217 +289,219 @@ font_render (PyObject* self, PyObject* args)
     SDL_Surface* surf;
     SDL_Color foreg, backg;
     int just_return;
-    just_return = 0;
 
-    if (!PyArg_ParseTuple (args, "OiO|O", &text, &aa, &fg_rgba_obj,
-                           &bg_rgba_obj))
+    if (!PyArg_ParseTuple(args, "OiO|O", &text, &aa, &fg_rgba_obj,
+                          &bg_rgba_obj)) {
         return NULL;
+    }
 
-    if (!RGBAFromColorObj (fg_rgba_obj, rgba))
+    if (!RGBAFromColorObj(fg_rgba_obj, rgba)) {
         return RAISE (PyExc_TypeError, "Invalid foreground RGBA argument");
+    }
     foreg.r = rgba[0];
     foreg.g = rgba[1];
     foreg.b = rgba[2];
-    if (bg_rgba_obj)
-    {
-        if (!RGBAFromColorObj (bg_rgba_obj, rgba))
+    if (bg_rgba_obj != NULL) {
+        if (!RGBAFromColorObj(bg_rgba_obj, rgba)) {
             return RAISE (PyExc_TypeError, "Invalid background RGBA argument");
+        }
         backg.r = rgba[0];
         backg.g = rgba[1];
         backg.b = rgba[2];
         backg.unused = 0;
     }
-    else
-    {
+    else {
         backg.r = 0;
         backg.g = 0;
         backg.b = 0;
         backg.unused = 0;
     }
 
-    if (!PyObject_IsTrue (text))
-    {
-        int height = TTF_FontHeight (font);
+    just_return = PyObject_Not(text);
+    if (just_return) {
+        int height = TTF_FontHeight(font);
 
-        surf = SDL_CreateRGBSurface (SDL_SWSURFACE, 1, height, 32,
-                                     0xff<<16, 0xff<<8, 0xff, 0);
-        if (!surf)
-            return RAISE (PyExc_SDLError, "SDL_CreateRGBSurface failed");
-
-        if (bg_rgba_obj)
-        {
-
-            Uint32 c = SDL_MapRGB (surf->format, backg.r, backg.g, backg.b);
-            SDL_FillRect (surf, NULL, c);
+        if (just_return == -1 ||
+            !(PyUnicode_Check(text) || Bytes_Check(text) || text == Py_None)) {
+            PyErr_Clear();
+            return RAISE_TEXT_TYPE_ERROR();
         }
-        else
-            SDL_SetColorKey (surf, SDL_SRCCOLORKEY, 0);
-        just_return = 1;
-    }
-    else if (PyUnicode_Check (text))
-    {
-        PyObject* strob = PyUnicode_AsEncodedString (text, "utf-8", "replace");
-        char *astring = Bytes_AsString (strob);
-
-        if (aa)
-        {
-            if (!bg_rgba_obj)
-                surf = TTF_RenderUTF8_Blended (font, astring, foreg);
-            else
-                surf = TTF_RenderUTF8_Shaded (font, astring, foreg, backg);
+        surf = SDL_CreateRGBSurface(SDL_SWSURFACE, 1, height, 32,
+                                    0xff<<16, 0xff<<8, 0xff, 0);
+        if (surf == NULL) {
+            return RAISE (PyExc_SDLError, SDL_GetError());
         }
-        else
-            surf = TTF_RenderUTF8_Solid (font, astring, foreg);
-
-        Py_DECREF (strob);
-    }
-    else if (Bytes_Check (text))
-    {
-        char* astring = Bytes_AsString (text);
-
-        if (aa)
-        {
-            if (!bg_rgba_obj)
-                surf = TTF_RenderText_Blended (font, astring, foreg);
-            else
-                surf = TTF_RenderText_Shaded (font, astring, foreg, backg);
+        if (bg_rgba_obj != NULL) {
+            Uint32 c = SDL_MapRGB(surf->format, backg.r, backg.g, backg.b);
+            SDL_FillRect(surf, NULL, c);
         }
-        else
-            surf = TTF_RenderText_Solid (font, astring, foreg);
+        else {
+            SDL_SetColorKey(surf, SDL_SRCCOLORKEY, 0);
+        }
     }
-    else
-        return RAISE (PyExc_TypeError, "text must be a string or unicode");
+    else if (PyUnicode_Check(text)) {
+        PyObject *bytes = PyUnicode_AsEncodedString(text, "utf-8", "replace");
+        const char *astring = NULL;
+        
+        if (!bytes) {
+            return NULL;
+        }
+        astring = Bytes_AsString (bytes);
+        if (aa) {
+            if (bg_rgba_obj == NULL) {
+                surf = TTF_RenderUTF8_Blended(font, astring, foreg);
+            }
+            else {
+                surf = TTF_RenderUTF8_Shaded(font, astring, foreg, backg);
+            }
+        }
+        else {
+            surf = TTF_RenderUTF8_Solid(font, astring, foreg);
+        }
+        Py_DECREF (bytes);
+    }
+    else if (Bytes_Check(text)) {
+        const char *astring = Bytes_AsString(text);
 
-    if (!surf)
+        if (aa) {
+            if (bg_rgba_obj == NULL) {
+                surf = TTF_RenderText_Blended(font, astring, foreg);
+            }
+            else {
+                surf = TTF_RenderText_Shaded(font, astring, foreg, backg);
+            }
+        }
+        else {
+            surf = TTF_RenderText_Solid(font, astring, foreg);
+        }
+    }
+    else {
+        return RAISE_TEXT_TYPE_ERROR();
+    }
+    if (surf == NULL) {
         return RAISE (PyExc_SDLError, TTF_GetError());
-
-    if (!aa && bg_rgba_obj && !just_return) /*turn off transparancy*/
-    {
-        SDL_SetColorKey (surf, 0, 0);
+    }
+    if (!aa && (bg_rgba_obj != NULL) && !just_return) {
+        /* turn off transparancy */
+        SDL_SetColorKey(surf, 0, 0);
         surf->format->palette->colors[0].r = backg.r;
         surf->format->palette->colors[0].g = backg.g;
         surf->format->palette->colors[0].b = backg.b;
     }
-
-    final = PySurface_New (surf);
-    if (!final)
-        SDL_FreeSurface (surf);
+    final = PySurface_New(surf);
+    if (final == NULL) {
+        SDL_FreeSurface(surf);
+    }
     return final;
 }
 
 static PyObject*
-font_size (PyObject* self, PyObject* args)
+font_size(PyObject* self, PyObject* args)
 {
-    TTF_Font* font = PyFont_AsFont (self);
+    TTF_Font* font = PyFont_AsFont(self);
     int w, h;
-    PyObject* text;
+    PyObject *text;
+    const char *string;
 
-    if (!PyArg_ParseTuple (args, "O", &text))
+    if (!PyArg_ParseTuple(args, "O", &text)) {
         return NULL;
-
-    if (PyUnicode_Check (text))
-    {
-        //PyObject* strob = PyUnicode_AsEncodedObject(text, "utf-8", "replace");
-        PyObject* strob = PyUnicode_AsEncodedString (text, "utf-8", "replace");
-        char *string = Bytes_AsString (strob);
-
-        TTF_SizeUTF8 (font, string, &w, &h);
-        Py_DECREF (strob);
     }
-    else if (Bytes_Check (text))
-    {
-        char* string = Bytes_AsString (text);
-        TTF_SizeText (font, string, &w, &h);
-    }
-    else
-        return RAISE (PyExc_TypeError, "text must be a string or unicode");
 
-    return Py_BuildValue ("(ii)", w, h);
+    if (PyUnicode_Check(text))
+    {
+        PyObject* bytes = PyUnicode_AsEncodedString(text, "utf-8", "replace");
+        int ecode;
+        
+        if (!bytes) {
+            return NULL;
+        }
+        string = Bytes_AS_STRING(bytes);
+        ecode = TTF_SizeUTF8(font, string, &w, &h);
+        Py_DECREF(bytes);
+        if (ecode) {
+            return RAISE (PyExc_SDLError, TTF_GetError());
+        }
+    }
+    else if (Bytes_Check(text)) {
+        string = Bytes_AS_STRING(text);
+        if (TTF_SizeText(font, string, &w, &h)) {
+            return RAISE (PyExc_SDLError, TTF_GetError());
+        }
+    }
+    else {
+        return RAISE_TEXT_TYPE_ERROR();
+    }
+    return Py_BuildValue("(ii)", w, h);
 }
 
 static PyObject*
-font_metrics (PyObject* self, PyObject* args)
+font_metrics(PyObject* self, PyObject* args)
 {
     TTF_Font *font = PyFont_AsFont (self);
     PyObject *list;
     PyObject *textobj;
-    int length;
-    int i;
+    Py_ssize_t length;
+    Py_ssize_t i;
     int minx;
     int maxx;
     int miny;
     int maxy;
     int advance;
-    void *buf;
-    int isunicode = 0;
+    PyObject *unicodeobj;
+    PyObject *listitem;
+    Py_UNICODE *buffer;
+    Py_UNICODE ch;
 
-    if (!PyArg_ParseTuple (args, "O", &textobj))
+    if (!PyArg_ParseTuple(args, "O", &textobj)) {
         return NULL;
-
-    if (PyUnicode_Check (textobj))
-    {
-        buf = PyUnicode_AsUnicode (textobj);
-        isunicode = 1;
     }
-    else if (Bytes_Check (textobj))
-        buf = Bytes_AsString (textobj);
-    else
-        return RAISE (PyExc_TypeError, "text must be a string or unicode");
 
-    if (!buf)
-        return NULL;
-
-    if (isunicode)
-        length = PyUnicode_GetSize (textobj);
-    else
-        length = Bytes_Size (textobj);
-
-    if (length == 0)
-        Py_RETURN_NONE;
-
-    list = PyList_New (length);
-    if (isunicode)
-    {
-        for (i = 0; i < length; i++)
-        {
-            /* TODO:
-             * TTF_GlyphMetrics() seems to returns a value for any character,
-             * using the default invalid character, if the char is not found.
-             */
-            if (TTF_GlyphMetrics (font, (Uint16) ((Py_UNICODE*) buf)[i], &minx,
-                                  &maxx, &miny, &maxy, &advance) == -1)
-            {
-                Py_INCREF (Py_None);
-                PyList_SetItem (list, i, Py_None); /* No matching metrics. */
-            }
-            else
-            {
-                PyList_SetItem (list, i, Py_BuildValue
-                                ("(iiiii)", minx, maxx, miny, maxy, advance));
-            }
+    if (PyUnicode_Check (textobj)) {
+        unicodeobj = textobj;
+        Py_INCREF (unicodeobj);
+    }
+    else if (Bytes_Check (textobj)) {
+        unicodeobj = PyUnicode_FromEncodedObject(textobj, "latin-1", NULL);
+        if (!unicodeobj) {
+            return NULL;
         }
     }
-    else
-    {
-        for (i = 0; i < length; i++)
-        {
-            /* TODO:
-             * TTF_GlyphMetrics() seems to returns a value for any character,
-             * using the default invalid character, if the char is not found.
-             */
-            if (TTF_GlyphMetrics (font, (Uint16) ((char*) buf)[i], &minx,
-                                  &maxx, &miny, &maxy, &advance) == -1)
-            {
-                Py_INCREF (Py_None);
-                PyList_SetItem (list, i, Py_None); /* No matching metrics. */
-            }
-            else
-            {
-                PyList_SetItem (list, i, Py_BuildValue
-                                ("(iiiii)", minx, maxx, miny, maxy, advance));
+    else {
+        return RAISE_TEXT_TYPE_ERROR ();
+    }
+
+    length = PyUnicode_GET_SIZE(unicodeobj);
+    list = PyList_New(length);
+    if (!list) {
+        Py_DECREF (unicodeobj);
+        return NULL;
+    }      
+    buffer = PyUnicode_AS_UNICODE(unicodeobj);
+    for (i = 0; i != length; ++i) {
+        ch = buffer[i];
+        /* TODO:
+         * TTF_GlyphMetrics() seems to return a value for any character,
+         * using the default invalid character, if the char is not found.
+         */
+        if (IS_UCS_2(ch) &&  /* conditional and */
+            !TTF_GlyphMetrics(font, (Uint16) ch, &minx,
+                              &maxx, &miny, &maxy, &advance)) {
+            listitem = Py_BuildValue("(iiiii)",
+                                     minx, maxx, miny, maxy, advance);
+            if (!listitem) {
+                Py_DECREF(list);
+                Py_DECREF(unicodeobj);
+                return NULL;
             }
         }
+        else {
+            /* Not UCS-2 or no matching metrics. */
+            Py_INCREF(Py_None);
+            listitem = Py_None;
+        }
+        PyList_SET_ITEM(list, i, listitem);
     }
+    Py_DECREF(unicodeobj);
     return list;
 }
 
