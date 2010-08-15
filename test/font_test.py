@@ -16,6 +16,18 @@ if is_pygame_pkg:
 else:
     from test.test_utils import test_not_implemented, unittest, geterror
 import pygame
+from pygame.compat import as_unicode, as_bytes, xrange_
+
+def equal_images(s1, s2):
+    size = s1.get_size()
+    if s2.get_size() != size:
+        return False
+    w, h = size
+    for x in xrange_(w):
+        for y in xrange_(h):
+            if s1.get_at((x, y)) != s2.get_at((x, y)):
+                return False
+    return True
 
 
 class FontModuleTest( unittest.TestCase ):
@@ -182,7 +194,30 @@ class FontTypeTest( unittest.TestCase ):
         self.failUnless(isinstance(linesize, int))
         self.failUnless(linesize > 0)
 
-    def todo_test_metrics(self):
+    def test_metrics(self):
+        # Ensure bytes decoding works correctly. Can only compare results
+        # with unicode for now.
+        f = pygame.font.Font(None, 20);
+        um = f.metrics(as_unicode("."))
+        bm = f.metrics(as_bytes("."))
+        self.assert_(len(um) == 1)
+        self.assert_(len(bm) == 1)
+        self.assert_(um[0] is not None)
+        self.assert_(um == bm)
+        u = as_unicode(r"\u212A")
+        b = u.encode("UTF-16")[2:] # Keep byte order consistent. [2:] skips BOM
+        bm = f.metrics(b)
+        self.assert_(len(bm) == 2)
+        try:
+            um = f.metrics(u)
+        except pygame.error:
+            pass
+        else:
+            self.assert_(len(um) == 1)
+            self.assert_(bm[0] != um[0])
+            self.assert_(bm[1] != um[0])
+    
+        return # unfinished
         # The documentation is useless here. How large a list?
         # How do list positions relate to character codes?
         # What about unicode characters?
@@ -216,9 +251,32 @@ class FontTypeTest( unittest.TestCase ):
         # null text should be 1 pixel wide.
         s = f.render("", False, [0, 0, 0], [255, 255, 255])
         self.assertEqual(s.get_size()[0], 1)
+        # None text should be 1 pixel wide.
+        s = f.render(None, False, [0, 0, 0], [255, 255, 255])
+        self.assertEqual(s.get_size()[0], 1)
+        # Non-text should raise a TypeError.
+        self.assertRaises(TypeError, f.render,
+                          [], False, [0, 0, 0], [255, 255, 255])
+        self.assertRaises(TypeError, f.render,
+                          1, False, [0, 0, 0], [255, 255, 255])
         # is background transparent for antialiasing?
         s = f.render(".", True, [255, 255, 255])
         self.failUnlessEqual(s.get_at((0, 0))[3], 0)
+        # is Unicode and bytes encoding correct?
+        # Cannot really test if the correct characters are rendered, but
+        # at least can assert the encodings differ.
+        su = f.render(as_unicode("."), False, [0, 0, 0], [255, 255, 255])
+        sb = f.render(as_bytes("."), False, [0, 0, 0], [255, 255, 255])
+        self.assert_(equal_images(su, sb))
+        u = as_unicode(r"\u212A")
+        b = u.encode("UTF-16")[2:] # Keep byte order consistent. [2:] skips BOM
+        sb = f.render(b, False, [0, 0, 0], [255, 255, 255])
+        try:
+            su = f.render(u, False, [0, 0, 0], [255, 255, 255])
+        except pygame.error:
+            pass
+        else:
+            self.assert_(not equal_images(su, sb))
 
         # __doc__ (as of 2008-08-02) for pygame.font.Font.render:
 
@@ -290,12 +348,23 @@ class FontTypeTest( unittest.TestCase ):
 
     def test_size(self):
         f = pygame.font.Font(None, 20)
-        text = "Xg"
+        text = as_unicode("Xg")
         size = f.size(text)
         w, h = size
-        self.failUnless(isinstance(w, int) and isinstance(h, int))
+        self.assert_(isinstance(w, int) and isinstance(h, int))
         s = f.render(text, False, (255, 255, 255))
-        self.failUnlessEqual(size, s.get_size())
+        self.assert_(size == s.get_size())
+        btext = text.encode("ascii")
+        self.assert_(f.size(btext) == size)
+        text = as_unicode(r"\u212A")
+        btext = text.encode("UTF-16")[2:] # Keep the byte order consistent.
+        bsize = f.size(btext)
+        try:
+            size = f.size(text)
+        except pygame.error:
+            pass
+        else:
+            self.assert_(size != bsize)
 
     def test_font_file_not_found(self):
         # A per BUG reported by Bo Jangeborg on pygame-user mailing list,
