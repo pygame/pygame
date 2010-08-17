@@ -141,35 +141,31 @@ fetch_object_methods (RWHelper* helper, PyObject* obj)
 }
 
 static SDL_RWops*
-RWopsFromPython (PyObject* obj)
+RWopsFromPython(PyObject *obj)
 {
-    SDL_RWops* rw;
-    RWHelper* helper;
+    SDL_RWops *rw;
+    RWHelper *helper;
 
-    if (!obj)
-    {
-        return (SDL_RWops*) RAISE (PyExc_TypeError, "Invalid filetype object");
+    if(obj == NULL) {
+        return (SDL_RWops *)RAISE(PyExc_TypeError, "Invalid filetype object");
     }
-    rw = get_standard_rwop (obj);
-    if (rw)
-    {
+    rw = get_standard_rwop(obj);
+    if (rw) {
         return rw;
     }
-    SDL_ClearError ();
+    SDL_ClearError();
 
-    helper = PyMem_New (RWHelper, 1);
-    if (!helper)
-    {
-        return (SDL_RWops*) PyErr_NoMemory ();
+    helper = PyMem_New(RWHelper, 1);
+    if (helper == NULL) {
+        return (SDL_RWops *)PyErr_NoMemory();
     }
-    fetch_object_methods (helper, obj);
-
-    rw = SDL_AllocRW ();
-    if (!rw)
-    {
-        return (SDL_RWops *) PyErr_NoMemory ();
+    rw = SDL_AllocRW();
+    if (rw == NULL) {
+        PyMem_Del(helper);
+        return (SDL_RWops *)PyErr_NoMemory();
     }
-    rw->hidden.unknown.data1 = (void*) helper;
+    fetch_object_methods(helper, obj);
+    rw->hidden.unknown.data1 = (void *)helper;
     rw->seek = rw_seek;
     rw->read = rw_read;
     rw->write = rw_write;
@@ -284,34 +280,41 @@ rw_close (SDL_RWops* context)
 }
 
 static SDL_RWops*
-RWopsFromPythonThreaded (PyObject* obj)
+RWopsFromPythonThreaded(PyObject *obj)
 {
-    SDL_RWops* rw;
-    RWHelper* helper;
-    PyInterpreterState* interp;
-    PyThreadState* thread;
+    SDL_RWops *rw;
+    RWHelper *helper;
+    PyInterpreterState *interp;
+    PyThreadState *thread;
 
-    if (!obj)
-        return (SDL_RWops*) RAISE (PyExc_TypeError, "Invalid filetype object");
+    if (obj == NULL) {
+        return (SDL_RWops *)RAISE(PyExc_TypeError, "Invalid filetype object");
+    }
 
 #ifndef WITH_THREAD
-    return (SDL_RWops*) RAISE (PyExc_NotImplementedError,
-                               "Python built without thread support");
+    return (SDL_RWops *)RAISE(PyExc_NotImplementedError,
+                              "Python built without thread support");
 #else
-    helper = PyMem_New (RWHelper, 1);
-    fetch_object_methods (helper, obj);
-
-    rw = SDL_AllocRW ();
-    rw->hidden.unknown.data1 = (void*) helper;
+    helper = PyMem_New(RWHelper, 1);
+    if (helper == NULL) {
+        return (SDL_RWops *)PyErr_NoMemory();
+    }
+    rw = SDL_AllocRW();
+    if (rw == NULL) {
+        PyMem_Del(helper);
+        return (SDL_RWops *)PyErr_NoMemory();
+    }
+    fetch_object_methods(helper, obj);
+    rw->hidden.unknown.data1 = (void *)helper;
     rw->seek = rw_seek_th;
     rw->read = rw_read_th;
     rw->write = rw_write_th;
     rw->close = rw_close_th;
 
-    PyEval_InitThreads ();
-    thread = PyThreadState_Get ();
+    PyEval_InitThreads();
+    thread = PyThreadState_Get();
     interp = thread->interp;
-    helper->thread = PyThreadState_New (interp);
+    helper->thread = PyThreadState_New(interp);
 
     return rw;
 #endif
