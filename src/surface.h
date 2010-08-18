@@ -24,6 +24,11 @@
 #ifndef SURFACE_H
 #define SURFACE_H
 
+/* This is defined in SDL.h */
+#if defined(_POSIX_C_SOURCE)
+#undef _POSIX_C_SOURCE
+#endif
+
 #include <SDL.h>
 #include "pygame.h"
 
