@@ -19,6 +19,11 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
+/* This is unconditionally defined in Python.h */
+#if defined(_POSIX_C_SOURCE)
+#undef _POSIX_C_SOURCE
+#endif
+
 #include <Python.h>
 
 /* Handle clipboard text and data in arbitrary formats */
