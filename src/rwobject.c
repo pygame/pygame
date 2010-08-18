@@ -28,6 +28,24 @@
 #include "pygame.h"
 #include "pgcompat.h"
 
+#define DOC_PYGAMERWOBJECTENCODEFILEPATH \
+   ("Encode a unicode or bytes object using the file system encoding\n" \
+    "\n" \
+    "encode_file_path(obj, etype, encoding, errors) => encoded path\n" \
+    "\n" \
+    "obj: If unicode, encode; if bytes, copy unaltered; if anything else,\n" \
+    "  return None; if not given, raise SyntaxError.\n" \
+    "etype (exception type): If given, then use to repackage certain\n" \
+    "  exceptions; otherwise leave exceptions unchanged.\n" \
+    "encoding (string): If present, encoding to use. Otherwise use the file\n" \
+    " system\n encoding.\n" \
+    "errors (string): If given, how to handle unencodable characters.\n" \
+    "  Otherwise use the default for the file system.\n" \
+    "\n" \
+    "This is for testing the RWopsEncodeFilePath Pygame api function.\n" \
+    "Keyword arguments are supported.\n" \
+    "\n")
+
 typedef struct
 {
     PyObject* read;
@@ -52,6 +70,89 @@ static int rw_write_th (SDL_RWops* context, const void* ptr, int size,
                         int maxnum);
 static int rw_close_th (SDL_RWops* context);
 #endif
+
+static int
+RWopsEncodeFilePath(char **path, PyObject *obj, PyTypeObject *etype,
+                    const char *encoding, const char *errors)
+{
+    PyObject *oencoded = NULL;
+    PyObject *exc_type;
+    PyObject *exc_value;
+    PyObject *exc_trace;
+    PyObject *str;
+    const char *name;
+    size_t size;
+    
+    if (obj == NULL) {
+        return 1;
+    }
+    if (encoding == NULL) {
+        encoding = UNICODE_DEF_FS_CODEC;
+    }
+    if (errors == NULL) {
+        errors = UNICODE_DEF_FS_ERROR;
+    }
+
+    if (PyUnicode_Check(obj)) {
+        oencoded = PyUnicode_AsEncodedString(obj, encoding, errors);
+        if (oencoded == NULL) {
+            if (etype != NULL &&
+                !PyErr_ExceptionMatches(PyExc_MemoryError)) {
+                /* Replace the Unicode exception with a pygame
+                 * exception, but keep the error message.
+                 */
+                PyErr_Fetch(&exc_type, &exc_value, &exc_trace);
+                Py_DECREF(exc_type);
+                Py_XDECREF(exc_trace);
+                if (exc_value == NULL) {
+                    PyErr_SetString((PyObject *)etype,
+                                    "Unicode encoding error");
+                }
+                else {
+                    str = PyObject_Str(exc_value);
+                    Py_DECREF(exc_value);
+                    if (str != NULL) {
+                        PyErr_SetObject((PyObject *)etype, str);
+                        Py_DECREF(str);
+                    }
+                }
+            }
+            return -1;
+        }
+        obj = oencoded;
+    }
+    if (Bytes_Check(obj)) {
+        name = Bytes_AS_STRING(obj);
+        size = (size_t)Bytes_GET_SIZE(obj);
+        if (strlen(name) != size) {
+            Py_XDECREF(oencoded);
+            PyErr_SetString(PyExc_TypeError,
+                            "expected string without null bytes");
+            return -1;
+        }
+        *path = PyMem_Malloc(size + 1);
+        if (*path == NULL) {
+            Py_XDECREF(oencoded);
+            PyErr_NoMemory();
+            return -1;
+        }
+        strncpy(*path, name, size + 1);
+    }
+    else {
+        *path = NULL;
+    }
+    Py_XDECREF(oencoded);
+
+    return 0;
+}
+
+static void
+RWopsFreeFilePath(char *path)
+{
+    if (path != NULL) {
+        PyMem_Free(path);
+    }
+}
 
 static SDL_RWops*
 get_standard_rwop (PyObject* obj)
@@ -491,8 +592,48 @@ rw_close_th (SDL_RWops* context)
 }
 #endif
 
+static PyObject*
+rwobject_encode_file_path(PyObject *self, PyObject *args, PyObject *keywds)
+{
+    char *path = NULL;
+    PyObject *opath;
+    PyObject *obj = NULL;
+    PyTypeObject *etype = NULL;
+    const char *encoding = NULL;
+    const char *errors = NULL;
+    static char *kwids[] = {"obj", "etype", "encoding", "errors", NULL};  
+
+    if (!PyArg_ParseTupleAndKeywords (args, keywds, "|OO!ss", kwids,
+                                      &obj, &PyType_Type, &etype,
+                                      &encoding, &errors)) {
+        return NULL;
+    }
+    if (etype != NULL &&  /* conditional and */
+        !PyType_IsSubtype(etype, (PyTypeObject *)PyExc_BaseException)) {
+        PyErr_Format(PyExc_TypeError,
+                     "Expected an exception type for etype: got %s",
+                     etype->tp_name);
+        return NULL;
+    }
+    
+    if (obj == NULL) {
+        RAISE(PyExc_SyntaxError, "Forwarded exception");
+    }
+    if (RWopsEncodeFilePath(&path, obj, etype, encoding, errors)) {
+        return NULL;
+    }
+    if (path == NULL) {
+        Py_RETURN_NONE;
+    }
+    opath = Bytes_FromStringAndSize(path, strlen(path));
+    RWopsFreeFilePath(path);
+    return opath;
+}
+
 static PyMethodDef _rwobject_methods[] =
 {
+    { "encode_file_path", (PyCFunction)rwobject_encode_file_path,
+      METH_VARARGS | METH_KEYWORDS, DOC_PYGAMERWOBJECTENCODEFILEPATH },
     { NULL, NULL }
 };
 
@@ -534,6 +675,8 @@ MODINIT_DEFINE (rwobject)
     c_api[1] = RWopsCheckPython;
     c_api[2] = RWopsFromPythonThreaded;
     c_api[3] = RWopsCheckPythonThreaded;
+    c_api[4] = RWopsEncodeFilePath;
+    c_api[5] = RWopsFreeFilePath;
     apiobj = PyCObject_FromVoidPtr (c_api, NULL);
     if (apiobj == NULL) {
         DECREF_MOD (module);
