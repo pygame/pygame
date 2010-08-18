@@ -136,9 +136,4 @@
 #define HAVE_RELATIVE_IMPORT 0
 #endif
 
-/* Exception base type */
-#if PY_VERSION_HEX < 0x02050000
-#define PyExc_BaseException PyExc_Exception
-#endif
-
 #endif /* !defined(PGCOMPAT_H) */
