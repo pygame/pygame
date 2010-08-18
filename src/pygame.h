@@ -539,7 +539,7 @@ typedef struct {
 /*the rwobject are only needed for C side work, not accessable from python*/
 #define PYGAMEAPI_RWOBJECT_FIRSTSLOT                            \
     (PYGAMEAPI_EVENT_FIRSTSLOT + PYGAMEAPI_EVENT_NUMSLOTS)
-#define PYGAMEAPI_RWOBJECT_NUMSLOTS 4
+#define PYGAMEAPI_RWOBJECT_NUMSLOTS 6
 #ifndef PYGAMEAPI_RWOBJECT_INTERNAL
 #define RWopsFromPython \
     (*(SDL_RWops*(*)(PyObject*))PyGAME_C_API[PYGAMEAPI_RWOBJECT_FIRSTSLOT + 0])
@@ -549,6 +549,11 @@ typedef struct {
     (*(SDL_RWops*(*)(PyObject*))PyGAME_C_API[PYGAMEAPI_RWOBJECT_FIRSTSLOT + 2])
 #define RWopsCheckPythonThreaded                                        \
     (*(int(*)(SDL_RWops*))PyGAME_C_API[PYGAMEAPI_RWOBJECT_FIRSTSLOT + 3])
+#define RWopsEncodeFilePath \
+    (*(int(*)(char**,PyObject*,PyTypeObject*,const char*, const char*)) \
+    PyGAME_C_API[PYGAMEAPI_RWOBJECT_FIRSTSLOT + 4])
+#define RWopsFreeFilaPath \
+    (*(void(*)(char*))PyGAME_C_API[PYGAMEAPI_RWOBJECT_FIRSTSLOT + 5])
 #define import_pygame_rwobject() {                                   \
 	PyObject *_module = PyImport_ImportModule(IMPPREFIX "rwobject"); \
 	if (_module != NULL) {                                        \
