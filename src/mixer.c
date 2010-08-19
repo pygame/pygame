@@ -486,6 +486,8 @@ sound_dealloc (PySoundObject* self)
     Mix_Chunk* chunk = PySound_AsChunk ((PyObject*)self);
     if (chunk)
         Mix_FreeChunk (chunk);
+    if (self->mem)
+        PyMem_Free (self->mem);
     if (self->weakreflist)
         PyObject_ClearWeakRefs ((PyObject*)self);
     Py_TYPE(self)->tp_free ((PyObject*)self);
@@ -979,8 +981,10 @@ sound_init (PyObject* self, PyObject* arg, PyObject* kwarg)
     PyObject *file = NULL;
     PyObject *buffer = NULL;
     Mix_Chunk *chunk = NULL;
+    Uint8 *mem;
     
-    ((PySoundObject*)self)->chunk = NULL;
+    ((PySoundObject *)self)->chunk = NULL;
+    ((PySoundObject *)self)->mem = NULL;
 
     /* Process arguments, returning cleaner error messages than
        PyArg_ParseTupleAndKeywords would.
@@ -1131,23 +1135,22 @@ sound_init (PyObject* self, PyObject* arg, PyObject* kwarg)
         }
         else
         {
-            chunk = malloc (sizeof (Mix_Chunk));
+            mem = PyMem_Malloc ((size_t)buflen);
+            if (mem == NULL)
+            {
+                PyErr_NoMemory ();
+                return -1;
+            }
+            chunk = Mix_QuickLoad_RAW (mem, (Uint32)buflen);
             if (!chunk)
             {
+                SDL_ClearError ();
+                PyMem_Free (mem);
                 PyErr_NoMemory ();
                 return -1;
             }
-            chunk->alen = buflen;
-            chunk->abuf = malloc ((size_t) buflen);
-            if (!chunk->abuf)
-            {
-                free (chunk);
-                PyErr_NoMemory ();
-                return -1;
-            }
-            chunk->allocated = 1;
-            chunk->volume = 128;
-            memcpy (chunk->abuf, buf, (size_t) buflen);
+            ((PySoundObject *)self)->mem = mem;
+            memcpy (mem, buf, (size_t)buflen);
         }
     }
     
@@ -1202,7 +1205,10 @@ PySound_New (Mix_Chunk* chunk)
 
     soundobj = (PySoundObject *)PySound_Type.tp_new (&PySound_Type, NULL, NULL);
     if (soundobj)
+    {
+        soundobj->mem = NULL;
         soundobj->chunk = chunk;
+    }
 
     return (PyObject*)soundobj;
 }
