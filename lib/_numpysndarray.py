@@ -133,4 +133,4 @@ def make_sound (array):
             raise ValueError("Array must be 2-dimensional for stereo mixer")
         elif shape[1] != channels:
             raise ValueError("Array depth must match number of mixer channels")
-    return mixer.Sound (array)
+    return mixer.Sound (buffer=array)
