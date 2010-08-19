@@ -35,7 +35,8 @@
 #define PYGAMEAPI_MIXER_NUMSLOTS 7
 typedef struct {
   PyObject_HEAD
-  Mix_Chunk* chunk;
+  Mix_Chunk *chunk;
+  Uint8 *mem;
   PyObject *weakreflist;
 } PySoundObject;
 typedef struct {
