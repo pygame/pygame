@@ -1326,16 +1326,11 @@ MODINIT_DEFINE (mixer)
     }
 
     music = PyImport_ImportModule(IMPPREFIX "mixer_music");
-    if (!music) {
+    if (music == NULL) {
         PyErr_Clear ();
         /* try loading it under this name...
         */
-#if HAVE_RELATIVE_IMPORT
-        /* Use relative paths. */
-        music = PyImport_ImportModule(".mixer_music");
-#else
-        music = PyImport_ImportModule("mixer_music");
-#endif
+        music = PyImport_ImportModule(RELATIVE_MODULE("mixer_music"));
         /*printf("NOTE3: here in mixer.c...\n");
          */
     }

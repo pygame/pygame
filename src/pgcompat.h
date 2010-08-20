@@ -136,4 +136,10 @@
 #define HAVE_RELATIVE_IMPORT 0
 #endif
 
+#if HAVE_RELATIVE_IMPORT
+#define RELATIVE_MODULE(m) ("." m)
+#else
+#define RELATIVE_MODULE(m) (m)
+#endif
+
 #endif /* !defined(PGCOMPAT_H) */
