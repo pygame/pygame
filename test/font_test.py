@@ -390,6 +390,11 @@ class FontTypeTest( unittest.TestCase ):
         f = open(font_path, "rb")
         font = pygame.font.Font(f, 20)
 
+    def test_load_default_font_filename(self):
+        # In font_init, a special case is when the filename argument is
+        # identical to the default font file name.
+        f = pygame.font.Font(pygame.font.get_default_font(), 20)
+
 
 class VisualTests( unittest.TestCase ):
     __tags__ = ['interactive']
