@@ -571,9 +571,9 @@ font_init (PyFontObject *self, PyObject *args, PyObject *kwds)
 
     if (fileobj == Py_None)
     {
-
+        Py_DECREF(fileobj);
         fileobj = font_resource (font_defaultname);
-        if (!fileobj)
+        if (fileobj == NULL)
         {
             char error[1024];
             PyOS_snprintf (error, 1024, "default font not found '%s'",
@@ -592,6 +592,7 @@ font_init (PyFontObject *self, PyObject *args, PyObject *kwds)
         if (tmp == NULL) {
             goto error;
         }
+        Py_DECREF(fileobj);
         fileobj = tmp;
     }
 
