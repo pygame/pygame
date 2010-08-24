@@ -1,4 +1,9 @@
+import sys
 from ctypes import *
+
+PY3 = 0
+if sys.version_info >= (3,):
+    PY3 = 1
 
 class PyArrayInterface(Structure):
     _fields_ = [('two', c_int), ('nd', c_int), ('typekind', c_char),
@@ -11,6 +16,17 @@ PAI_Ptr = POINTER(PyArrayInterface)
 PyCObject_AsVoidPtr = pythonapi.PyCObject_AsVoidPtr
 PyCObject_AsVoidPtr.restype = c_void_p
 PyCObject_AsVoidPtr.argtypes = [py_object]
+try:
+    PyCapsule_IsValid = pythonapi.PyCapsule_IsValid
+except AttributeError:
+    def PyCapsule_IsValid(capsule, name):
+        return 0
+else:
+    PyCapsule_IsValid.restype = c_int
+    PyCapsule_IsValid.argtypes = [py_object, c_char_p]
+    PyCapsule_GetPointer = pythonapi.PyCapsule_GetPointer
+    PyCapsule_GetPointer.restype = c_void_p
+    PyCapsule_GetPointer.argtypes = [py_object, c_char_p]
 
 PAI_CONTIGUOUS = 0x01
 PAI_FORTRAN = 0x02
@@ -21,8 +37,19 @@ PAI_ARR_HAS_DESCR = 0x800
 
 class Inter(object):
     def __init__(self, arr):
-        self._cobj = arr.__array_struct__
-        vp = PyCObject_AsVoidPtr(self._cobj)
+        try:
+            self._cobj = arr.__array_struct__
+        except AttributeError:
+            raise TypeError("The array object lacks an array structure")
+        if not self._cobj:
+            raise TypeError("The array object has a NULL array structure value")
+        try:
+            vp = PyCObject_AsVoidPtr(self._cobj)
+        except TypeError:
+            if PyCapsule_IsValid(self._cobj, None):
+                vp = PyCapsule_GetPointer(self._cobj, None)
+            else:
+                raise TypeError("The array object has an invalid array structure")
         self._inter = cast(vp, PAI_Ptr)[0]
 
     def __getattr__(self, name):
