@@ -18,6 +18,15 @@
 
 */
 
+/* Adjust gcc 4.4 optimization for floating point on x86-32 PCs running Linux.
+ * This addresses bug 52:
+ * http://pygame.motherhamster.org/bugzilla/show_bug.cgi?id=52
+ */
+#if defined(__GNUC__) && defined(__linux__) && defined(__i386__) && \
+  __SIZEOF_POINTER__ == 4 &&  __GNUC__ == 4 && __GNUC_MINOR__ == 4
+#pragma GCC optimize ("float-store")
+#endif
+ 
 #define PYGAMEAPI_MATH_INTERNAL
 #define NO_PYGAME_C_API
 #include "doc/math_doc.h"
@@ -132,11 +141,15 @@ static int vector_SetSlice(PyVector *self, Py_ssize_t ilow, Py_ssize_t ihigh, Py
 static PyObject *vector_getx (PyVector *self, void *closure);
 static PyObject *vector_gety (PyVector *self, void *closure);
 static PyObject *vector_getz (PyVector *self, void *closure);
+#ifdef PYGAME_MATH_VECTOR_HAVE_W
 static PyObject *vector_getw (PyVector *self, void *closure);
+#endif
 static int vector_setx (PyVector *self, PyObject *value, void *closure);
 static int vector_sety (PyVector *self, PyObject *value, void *closure);
 static int vector_setz (PyVector *self, PyObject *value, void *closure);
+#ifdef PYGAME_MATH_VECTOR_HAVE_W
 static int vector_setw (PyVector *self, PyObject *value, void *closure);
+#endif
 static PyObject *vector_richcompare(PyObject *o1, PyObject *o2, int op);
 static PyObject *vector_length(PyVector *self);
 static PyObject *vector_length_squared(PyVector *self);
@@ -360,7 +373,10 @@ _vector_find_string_helper(PyObject *str_obj, const char *substr,
      * wchar.h was only added to the standard in 95 and we want to be
      * ISO C 90 compatible.
      */
-    PyObject *substr_obj, *tmp;
+    PyObject *substr_obj;
+#if PY_VERSION_HEX < 0x02060000
+    PyObject *tmp;
+#endif
     Py_ssize_t pos;
 #if PY_VERSION_HEX >= 0x02060000
     substr_obj = PyUnicode_FromString (substr);
@@ -395,7 +411,7 @@ _vector_coords_from_string(PyObject *str, char **delimiter,
 {
     int error_code;
     Py_ssize_t i, start_pos, end_pos, length;
-    PyObject *vector_string, *tmp;
+    PyObject *vector_string;
     vector_string = PyUnicode_FromObject (str);
     if (vector_string == NULL) {
         return -2;
@@ -498,7 +514,7 @@ vector_generic_math(PyObject *o1, PyObject *o2, int op)
     double other_coords[VECTOR_MAX_SIZE];
     double tmp;
     PyObject *other;
-    PyVector *vec, *ret;
+    PyVector *vec, *ret = NULL;
     if (PyVector_Check(o1)) {
         vec = (PyVector *)o1;
         other = o2;
@@ -591,7 +607,7 @@ vector_generic_math(PyObject *o1, PyObject *o2, int op)
         break;
     default:
         if (!(op & OP_INPLACE)) {
-            Py_DECREF(ret);
+            Py_XDECREF(ret);
         }
         Py_INCREF(Py_NotImplemented);
         return Py_NotImplemented;
@@ -1048,6 +1064,7 @@ vector_setz (PyVector *self, PyObject *value, void *closure)
     return vector_set_component (self, value, 2);
 }
 
+#ifdef PYGAME_MATH_VECTOR_HAVE_W
 static PyObject*
 vector_getw (PyVector *self, void *closure)
 {
@@ -1059,6 +1076,7 @@ vector_setw (PyVector *self, PyObject *value, void *closure)
 {
     return vector_set_component (self, value, 3);
 }
+#endif
 
 
 
@@ -1645,7 +1663,7 @@ vector_setAttr_swizzle(PyVector *self, PyObject *attr_name, PyObject *val)
     }
 } 
 
-/*
+#if 0
 static Py_ssize_t
 vector_readbuffer(PyVector *self, Py_ssize_t segment, void **ptrptr)
 {
@@ -1711,7 +1729,7 @@ static PyBufferProcs vector_as_buffer = {
     (getbufferproc)vector_getbuffer,
     (releasebufferproc)vector_releasebuffer,
 };
-*/
+#endif
 
 /*********************************************************************
  * vector2 specific functions
@@ -3078,7 +3096,7 @@ static PyObject *
 vector_elementwiseproxy_generic_math(PyObject *o1, PyObject *o2, int op)
 {
     int i, dim;
-    double mod, other_value;
+    double mod, other_value = 0.0;
     double other_coords[VECTOR_MAX_SIZE];
     PyObject *other;
     PyVector *vec, *ret;
