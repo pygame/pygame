@@ -45,8 +45,10 @@ with 16bit data will be treated as unsigned integers.
 """
 
 import pygame
+from pygame.compat import bytes_
+from pygame._arraysurfarray import blit_array
 import numpy
-import re
+
 
 def array2d (surface):
     """pygame.numpyarray.array2d (Surface): return array
@@ -65,34 +67,30 @@ def array2d (surface):
     if bpp <= 0 or bpp > 4:
         raise ValueError("unsupported bit depth for 2D array")
 
+    size = surface.get_size ()
+    width, height = size
+    
     # Taken from Alex Holkner's pygame-ctypes package. Thanks a lot.
-    data = surface.get_buffer ().raw
-        
-    # Remove extra pitch from each row.
-    width = surface.get_width ()
-    pitchdiff = surface.get_pitch () - width * bpp
-    if pitchdiff > 0:
-        pattern = re.compile ('(%s)%s' % ('.' * width * bpp, '.' * pitchdiff),
-                              flags=re.DOTALL)
-        data = ''.join (pattern.findall (data))
+    data = numpy.frombuffer (surface.get_buffer (), numpy.uint8)
+    pitch = surface.get_pitch ()
+    row_size = width * bpp
+    if pitch != row_size:
+        data.shape = (height, pitch)
+        data = data[:, 0:row_size]
 
+    dtype = (None, numpy.uint8, numpy.uint16, numpy.int32, numpy.int32)[bpp]
+    array = numpy.zeros (size, dtype, 'F')
+    array_data = numpy.frombuffer (array, numpy.uint8)
     if bpp == 3:
-        # Pad each triplet of bytes with another zero
-        pattern = re.compile ('...', flags=re.DOTALL)
-        data = '\0'.join (pattern.findall (data))
-        if pygame.get_sdl_byteorder () == pygame.LIL_ENDIAN:
-            data += '\0'
-        else:
-            data = '\0' + data
-        bpp = 4
-
-    typecode = (numpy.uint8, numpy.uint16, None, numpy.int32)[bpp - 1]
-    array = numpy.fromstring (data, typecode)
-    array.shape = (surface.get_height (), width)
-    array = numpy.transpose (array)
+        data.shape = (height, width, 3)
+        array_data.shape = (height, width, 4)
+        array_data[:,:,:3] = data[...]
+    else:
+        data.shape = (height, row_size)
+        array_data.shape = (height, row_size)
+        array_data[...] =  data[...]
     return array
     
-
 def pixels2d (surface):
     """pygame.numpyarray.pixels2d (Surface): return array
 
@@ -367,74 +365,6 @@ def make_surface (array):
     surface = pygame.Surface ((shape[0], shape[1]), 0, bpp, (r, g, b, 0))
     blit_array (surface, array)
     return surface
-
-def blit_array (surface, array):
-    """pygame.numpyarray.blit_array (Surface, array): return None
-
-    blit directly from a array values
-
-    Directly copy values from an array into a Surface. This is faster
-    than converting the array into a Surface and blitting. The array
-    must be the same dimensions as the Surface and will completely
-    replace all pixel values.
-
-    This function will temporarily lock the Surface as the new values
-    are copied.
-    """
-    bpp = surface.get_bytesize ()
-    if bpp <= 0 or bpp > 4:
-        raise ValueError("unsupported bit depth for surface")
-    
-    shape = array.shape
-    width = surface.get_width ()
-
-    typecode = (numpy.uint8, numpy.uint16, None, numpy.uint32)[bpp - 1]
-    array = array.astype (typecode)
-
-    # Taken from from Alex Holkner's pygame-ctypes package. Thanks a
-    # lot.
-    if len(shape) == 3 and shape[2] == 3:
-        array = numpy.transpose (array, (1, 0, 2))
-        shifts = surface.get_shifts ()
-        losses = surface.get_losses ()
-        array = (array[:,:,::3] >> losses[0] << shifts[0]) | \
-                (array[:,:,1::3] >> losses[1] << shifts[1]) | \
-                (array[:,:,2::3] >> losses[2] << shifts[2])
-    elif len (shape) == 2:
-        array = numpy.transpose (array)
-    else:
-        raise ValueError("must be a valid 2d or 3d array")
-
-    if width != shape[0] or surface.get_height () != shape[1]:
-        raise ValueError("array must match the surface dimensions")
-
-    itemsize = array.itemsize
-    data = array.tostring ()
-
-    if itemsize > bpp:
-        # Trim bytes from each element, keep least significant byte(s)
-        pattern = '%s(%s)' % ('.' * (itemsize - bpp), '.' * bpp)
-        if pygame.get_sdl_byteorder () == pygame.LIL_ENDIAN:
-            pattern = '(%s)%s' % ('.' * bpp, '.' * (itemsize - bpp))
-        data = ''.join (re.compile (pattern, flags=re.DOTALL).findall (data))
-    elif itemsize < bpp:
-        # Add pad bytes to each element, at most significant end
-        pad = '\0' * (bpp - itemsize)
-        pixels = re.compile ('.' * itemsize, flags=re.DOTALL).findall (data)
-        data = pad.join (pixels)
-        if pygame.get_sdl_byteorder () == pygame.LIL_ENDIAN:
-            data = data + pad
-        else:
-            data = pad + data
-
-    # Add zeros pad for pitch correction
-    pitchdiff = surface.get_pitch () - width * bpp
-    if pitchdiff > 0:
-        pad = '\0' * pitchdiff
-        rows = re.compile ('.' * width * bpp, flags=re.DOTALL).findall (data)
-        data = pad.join (rows) + pad
-
-    surface.get_buffer ().write (data, 0)
     
 def map_array (surface, array):
     """pygame.numpyarray.map_array (Surface, array3d): return array2d

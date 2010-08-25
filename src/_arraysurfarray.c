@@ -29,60 +29,75 @@
 
 static int
 _get_array_interface(PyObject *obj,
-		     PyObject **cobj_p,
-		     PyArrayInterface **inter_p)
+                     PyObject **cobj_p,
+                     PyArrayInterface **inter_p)
 {
-    if (!(*cobj_p = PyObject_GetAttrString(obj, "__array_struct__"))) {
-	if (PyErr_ExceptionMatches(PyExc_AttributeError)) {
-		PyErr_Clear();
-		PyErr_SetString(PyExc_ValueError,
-				"no C-struct array interface");
-	    }
-	return 0;
+    PyObject *cobj = PyObject_GetAttrString(obj, "__array_struct__");
+    PyArrayInterface *inter = NULL;
+
+    if (cobj == NULL) {
+        if (PyErr_ExceptionMatches(PyExc_AttributeError)) {
+                PyErr_Clear();
+                PyErr_SetString(PyExc_ValueError,
+                                "no C-struct array interface");
+        }
+        return 0;
     }
 
-    if (!PyCObject_Check(*cobj_p) ||  /* conditional 'or's */
-	!(*inter_p = PyCObject_AsVoidPtr(*cobj_p)) ||
-	(*inter_p)->two != 2) {
-	Py_DECREF(*cobj_p);
-	PyErr_SetString(PyExc_ValueError, "invalid array interface");
-	return 0;
+#if defined(PyCObject_Check)
+    if (PyCObject_Check(cobj)) {
+        inter = (PyArrayInterface *)PyCObject_AsVoidPtr(cobj);
     }
+#endif
+#if defined(PyCapsule_CheckExact)
+    if (PyCapsule_IsValid(cobj, NULL)) {
+        inter = (PyArrayInterface *)PyCapsule_GetPointer(cobj, NULL);
+    }
+#endif
+    if (inter == NULL ||   /* conditional or */
+        inter->two != 2  ) {
+        Py_DECREF(cobj);
+        PyErr_SetString(PyExc_ValueError, "invalid array interface");
+        return 0;
+    }
+
+    *cobj_p = cobj;
+    *inter_p = inter;
     return 1;
 }
 
 /*macros used to blit arrays*/
-#define COPYMACRO_2D(DST, SRC)                                           \
-    for (loopy = 0; loopy < sizey; ++loopy)                              \
-    {                                                                    \
-        DST* imgrow = (DST*)(((char*)surf->pixels)+loopy*surf->pitch);   \
-        Uint8* datarow = (Uint8*)array_data + stridey * loopy;           \
-        for (loopx = 0; loopx < sizex; ++loopx)                          \
-            *(imgrow + loopx) = (DST)*(SRC*)(datarow + stridex * loopx); \
+#define COPYMACRO_2D(DST, SRC)                                            \
+    for (loopy = 0; loopy < sizey; ++loopy)                               \
+    {                                                                     \
+        DST* imgrow = (DST*)(((char*)surf->pixels)+loopy*surf->pitch);    \
+        Uint8* datarow = (Uint8*)array_data + stridey * loopy;            \
+        for (loopx = 0; loopx < sizex; ++loopx)                           \
+            *(imgrow + loopx) = (DST)*(SRC*)(datarow + stridex * loopx);  \
     }
 
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
-#define COPYMACRO_2D_24_PIXEL(pix, data, SRC)    			\
-    *pix++ = *data;					                \
-    *pix++ = *(data + 1);					        \
+#define COPYMACRO_2D_24_PIXEL(pix, data, SRC)                             \
+    *pix++ = *data;                                                       \
+    *pix++ = *(data + 1);                                                 \
     *pix++ = *(data + 2);
 #else
-#define COPYMACRO_2D_24_PIXEL(pix, data, SRC)    			\
-    *pix++ = *(data + sizeof (SRC) - 1);				\
-    *pix++ = *(data + sizeof (SRC) - 2);				\
+#define COPYMACRO_2D_24_PIXEL(pix, data, SRC)                             \
+    *pix++ = *(data + sizeof (SRC) - 1);                                  \
+    *pix++ = *(data + sizeof (SRC) - 2);                                  \
     *pix++ = *(data + sizeof (SRC) - 3);
 #endif
 
-#define COPYMACRO_2D_24(SRC)                                            \
-    for (loopy = 0; loopy < sizey; ++loopy)                             \
-    {                                                                   \
-        Uint8 *pix = ((Uint8 *)surf->pixels) + loopy * surf->pitch;     \
-        Uint8 *data = (Uint8 *)array_data + stridey * loopy;            \
-        Uint8 *end = pix + 3 * sizex;                                   \
-        while (pix != end) {                                            \
-            COPYMACRO_2D_24_PIXEL(pix, data, SRC)			\
-            data += stridex;                                            \
-        }                                                               \
+#define COPYMACRO_2D_24(SRC)                                              \
+    for (loopy = 0; loopy < sizey; ++loopy)                               \
+    {                                                                     \
+        Uint8 *pix = ((Uint8 *)surf->pixels) + loopy * surf->pitch;       \
+        Uint8 *data = (Uint8 *)array_data + stridey * loopy;              \
+        Uint8 *end = pix + 3 * sizex;                                     \
+        while (pix != end) {                                              \
+            COPYMACRO_2D_24_PIXEL(pix, data, SRC)                         \
+            data += stridex;                                              \
+        }                                                                 \
     }
 
 #define COPYMACRO_3D(DST, SRC)                                            \
@@ -104,7 +119,7 @@ _get_array_interface(PyObject *obj,
     {                                                                   \
         Uint8 *pix = ((Uint8*)surf->pixels) + surf->pitch * loopy;      \
         Uint8 *data = (Uint8*)array_data + stridey * loopy;             \
-	Uint8 *end = pix + 3 * sizex;                                   \
+        Uint8 *end = pix + 3 * sizex;                                   \
         while (pix != end) {                                            \
             *pix++ = (Uint8)*(SRC*)(data + stridez_0);                  \
             *pix++ = (Uint8)*(SRC*)(data + stridez_1);                  \
@@ -114,7 +129,7 @@ _get_array_interface(PyObject *obj,
     }
 
 static PyObject*
-blit_array(PyObject* self, PyObject* arg)
+blit_array(PyObject *self, PyObject *arg)
 {
     PyObject *surfobj, *arrayobj;
     PyObject *cobj;
@@ -138,18 +153,18 @@ blit_array(PyObject* self, PyObject* arg)
 
     switch (inter->typekind) {
     case 'i':  /* integer */
-	break;
+        break;
     case 'u':  /* unsigned integer */ 
-	break;
+        break;
     case 'S':  /* fixed length character field */
-	break;
+        break;
     case 'V':  /* structured element: record */
-	break;
+        break;
     default:
-	Py_DECREF(cobj);
-	PyErr_Format(PyExc_ValueError, "unsupported array type '%c'",
-		     inter->typekind);
-	return NULL;
+        Py_DECREF(cobj);
+        PyErr_Format(PyExc_ValueError, "unsupported array type '%c'",
+                     inter->typekind);
+        return NULL;
     }
 
     if (!(inter->nd == 2 || (inter->nd == 3 && inter->shape[2] == 3)))
@@ -173,7 +188,7 @@ blit_array(PyObject* self, PyObject* arg)
         Py_DECREF(cobj);
         return RAISE(PyExc_ValueError, "array must match surface dimensions");
     }
-    if (!PySurface_LockBy(surfobj, (PyObject *) arrayobj)) {
+    if (!PySurface_LockBy(surfobj, arrayobj)) {
         Py_DECREF(cobj);
         return NULL;
     }
@@ -198,7 +213,7 @@ blit_array(PyObject* self, PyObject* arg)
                 break;
             default:
                 Py_DECREF(cobj);
-                if (!PySurface_UnlockBy(surfobj, (PyObject *) arrayobj)) {
+                if (!PySurface_UnlockBy(surfobj, arrayobj)) {
                     return NULL;
                 }
                 return RAISE(PyExc_ValueError,
@@ -207,7 +222,7 @@ blit_array(PyObject* self, PyObject* arg)
         }
         else {
             Py_DECREF(cobj);
-            if (!PySurface_UnlockBy(surfobj, (PyObject *) arrayobj)) {
+            if (!PySurface_UnlockBy(surfobj, arrayobj)) {
                 return NULL;
             }
             return RAISE(PyExc_ValueError,
@@ -228,7 +243,7 @@ blit_array(PyObject* self, PyObject* arg)
                 break;
             default:
                 Py_DECREF(cobj);
-                if (!PySurface_UnlockBy(surfobj, (PyObject *) arrayobj)) {
+                if (!PySurface_UnlockBy(surfobj, arrayobj)) {
                     return NULL;
                 }
                 return RAISE(PyExc_ValueError,
@@ -236,10 +251,10 @@ blit_array(PyObject* self, PyObject* arg)
             }
         }
         else {
-	    Uint16 alpha = 0;
-	    if (format->Amask) {
-		alpha = 255 >> format->Aloss << format->Ashift;
-	    }
+            Uint16 alpha = 0;
+            if (format->Amask) {
+                alpha = 255 >> format->Aloss << format->Ashift;
+            }
             switch (inter->itemsize) {
             case sizeof (Uint8):
                 COPYMACRO_3D(Uint16, Uint8);
@@ -255,7 +270,7 @@ blit_array(PyObject* self, PyObject* arg)
                 break;
             default:
                 Py_DECREF(cobj);
-                if (!PySurface_UnlockBy(surfobj, (PyObject *) arrayobj)) {
+                if (!PySurface_UnlockBy(surfobj, arrayobj)) {
                     return NULL;
                 }
                 return RAISE(PyExc_ValueError,
@@ -266,7 +281,7 @@ blit_array(PyObject* self, PyObject* arg)
     case 3:
         /* Assumption: The rgb components of a 24 bit pixel are in
            separate bytes.
-	*/
+        */
         if (inter->nd == 2) {
             switch (inter->itemsize) {
             case sizeof (Uint32):
@@ -277,7 +292,7 @@ blit_array(PyObject* self, PyObject* arg)
                 break;
             default:
                 Py_DECREF(cobj);
-                if (!PySurface_UnlockBy(surfobj, (PyObject *) arrayobj)) {
+                if (!PySurface_UnlockBy(surfobj, arrayobj)) {
                     return NULL;
                 }
                 return RAISE(PyExc_ValueError,
@@ -286,25 +301,25 @@ blit_array(PyObject* self, PyObject* arg)
         }
         else {
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
-	    size_t stridez_0 = (Rshift ==  0 ? 0        :
-				Gshift ==  0 ? stridez  :
-				               stridez2   );
-	    size_t stridez_1 = (Rshift ==  8 ? 0        :
-				Gshift ==  8 ? stridez  :
+            size_t stridez_0 = (Rshift ==  0 ? 0        :
+                                Gshift ==  0 ? stridez  :
                                                stridez2   );
-	    size_t stridez_2 = (Rshift == 16 ? 0        :
+            size_t stridez_1 = (Rshift ==  8 ? 0        :
+                                Gshift ==  8 ? stridez  :
+                                               stridez2   );
+            size_t stridez_2 = (Rshift == 16 ? 0        :
                                 Gshift == 16 ? stridez  :
-				               stridez2   );
+                                               stridez2   );
 #else
-	    size_t stridez_2 = (Rshift ==  0 ? 0        :
-				Gshift ==  0 ? stridez  :
-				               stridez2   );
-	    size_t stridez_1 = (Rshift ==  8 ? 0        :
-				Gshift ==  8 ? stridez  :
+            size_t stridez_2 = (Rshift ==  0 ? 0        :
+                                Gshift ==  0 ? stridez  :
                                                stridez2   );
-	    size_t stridez_0 = (Rshift == 16 ? 0        :
+            size_t stridez_1 = (Rshift ==  8 ? 0        :
+                                Gshift ==  8 ? stridez  :
+                                               stridez2   );
+            size_t stridez_0 = (Rshift == 16 ? 0        :
                                 Gshift == 16 ? stridez  :
-				               stridez2   );
+                                               stridez2   );
 #endif
             switch (inter->itemsize) {
             case sizeof (Uint8):
@@ -321,7 +336,7 @@ blit_array(PyObject* self, PyObject* arg)
                 break;
             default:
                 Py_DECREF(cobj);
-                if (!PySurface_UnlockBy(surfobj, (PyObject *) arrayobj)) {
+                if (!PySurface_UnlockBy(surfobj, arrayobj)) {
                     return NULL;
                 }
                 return RAISE(PyExc_ValueError,
@@ -340,7 +355,7 @@ blit_array(PyObject* self, PyObject* arg)
                 break;
             default:
                 Py_DECREF(cobj);
-                if (!PySurface_UnlockBy(surfobj, (PyObject *) arrayobj)) {
+                if (!PySurface_UnlockBy(surfobj, arrayobj)) {
                     return NULL;
                 }
                 return RAISE(PyExc_ValueError,
@@ -348,10 +363,10 @@ blit_array(PyObject* self, PyObject* arg)
             }
         }
         else {
-	    Uint32 alpha = 0;
-	    if (format->Amask) {
-		alpha = 255 >> format->Aloss << format->Ashift;
-	    }
+            Uint32 alpha = 0;
+            if (format->Amask) {
+                alpha = 255 >> format->Aloss << format->Ashift;
+            }
             switch (inter->itemsize) {
             case sizeof (Uint8):
                 COPYMACRO_3D(Uint32, Uint8);
@@ -367,7 +382,7 @@ blit_array(PyObject* self, PyObject* arg)
                 break;
             default:
                 Py_DECREF(cobj);
-                if (!PySurface_UnlockBy(surfobj, (PyObject *) arrayobj)) {
+                if (!PySurface_UnlockBy(surfobj, arrayobj)) {
                     return NULL;
                 }
                 return RAISE(PyExc_ValueError,
@@ -377,14 +392,14 @@ blit_array(PyObject* self, PyObject* arg)
         break;
     default:
         Py_DECREF(cobj);
-        if (!PySurface_UnlockBy(surfobj, (PyObject *) arrayobj)) {
+        if (!PySurface_UnlockBy(surfobj, arrayobj)) {
             return NULL;
         }
         return RAISE(PyExc_RuntimeError, "unsupported bit depth for image");
     }
     
     Py_DECREF(cobj);
-    if (!PySurface_UnlockBy(surfobj, (PyObject *) arrayobj)) {
+    if (!PySurface_UnlockBy(surfobj, arrayobj)) {
         return NULL;
     }
     Py_RETURN_NONE;
@@ -416,11 +431,11 @@ MODINIT_DEFINE (_arraysurfarray)
     */
     import_pygame_base();
     if (PyErr_Occurred ()) {
-	MODINIT_ERROR;
+        MODINIT_ERROR;
     }
     import_pygame_surface();
     if (PyErr_Occurred ()) {
-	MODINIT_ERROR;
+        MODINIT_ERROR;
     }
 
 #if PY3
