@@ -32,10 +32,10 @@ def main(arraytype=None):
 
     if surfarray.get_arraytype() == 'numpy':
         import numpy as N
-        from numpy import int32
+        from numpy import int32, uint8, uint
     else:
         import Numeric as N
-        from Numeric import Int32 as int32
+        from Numeric import Int32 as int32, UInt8 as uint8, UInt as uint
 
     pygame.init()
     print ('Using %s' % surfarray.get_arraytype().capitalize())
@@ -116,12 +116,15 @@ def main(arraytype=None):
 
 
     #soften
-    soften = N.array(rgbarray)*1
-    soften[1:,:]  += rgbarray[:-1,:]*8
-    soften[:-1,:] += rgbarray[1:,:]*8
-    soften[:,1:]  += rgbarray[:,:-1]*8
-    soften[:,:-1] += rgbarray[:,1:]*8
-    soften /= 33
+    #having factor as an array forces integer upgrade during multiplication
+    #of rgbarray, even for numpy.
+    factor = N.array((8,), int32)
+    soften = N.array(rgbarray, int32)
+    soften[1:,:]  += rgbarray[:-1,:] * factor
+    soften[:-1,:] += rgbarray[1:,:] * factor
+    soften[:,1:]  += rgbarray[:,:-1] * factor
+    soften[:,:-1] += rgbarray[:,1:] * factor
+    soften //= 33
     surfdemo_show(soften, 'soften')
 
 
@@ -130,10 +133,7 @@ def main(arraytype=None):
     dest = N.zeros(rgbarray.shape)
     dest[:] = 20, 50, 100
     diff = (dest - src) * 0.50
-    if surfarray.get_arraytype() == 'numpy':
-        xfade = src + diff.astype(N.uint)
-    else:
-        xfade = src + diff.astype(N.Int)
+    xfade = src + diff.astype(uint)
     surfdemo_show(xfade, 'xfade')
 
 

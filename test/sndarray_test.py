@@ -15,6 +15,7 @@ if is_pygame_pkg:
 else:
     from test.test_utils import test_not_implemented, unittest
 import pygame
+from pygame.compat import as_bytes
 
 arraytype = ""
 try:
@@ -160,6 +161,7 @@ class SndarrayTest (unittest.TestCase):
         if not arraytype:
             self.fail("no array package installed")
 
+        null_byte = as_bytes('\x00')
         def check_sample(size, channels, test_data):
             try:
                 pygame.mixer.init(22050, size, channels)
@@ -169,14 +171,14 @@ class SndarrayTest (unittest.TestCase):
             try:
                 __, sz, __ = pygame.mixer.get_init()
                 if sz == size:
-                    zeroed = '\0' * ((abs(size) // 8) *
-                                     len(test_data) *
-                                     channels)
-                    snd = pygame.mixer.Sound(buffer(zeroed))
+                    zeroed = null_byte * ((abs(size) // 8) *
+                                          len(test_data) *
+                                          channels)
+                    snd = pygame.mixer.Sound(buffer=zeroed)
                     samples = pygame.sndarray.samples(snd)
                     self._assert_compatible(samples, size)
-                    print ('X %s' % (samples.shape,))
-                    print ('Y %s' % (test_data,))
+                    ##print ('X %s' % (samples.shape,))
+                    ##print ('Y %s' % (test_data,))
                     samples[...] = test_data
                     arr = pygame.sndarray.array(snd)
                     self.failUnless(alltrue(samples == arr),
