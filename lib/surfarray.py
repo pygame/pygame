@@ -83,7 +83,7 @@ except ImportError:
 if not __hasnumpy and not __hasnumeric:
     raise ImportError("no module named numpy or Numeric found")
 
-from _arraysurfarray import blit_array
+from pygame._arraysurfarray import blit_array
 
 def array2d (surface):
     """pygame.surfarray.array2d (Surface): return array
@@ -242,25 +242,6 @@ def make_surface (array):
     elif __arraytype == "numpy":
         return numpysf.make_surface (array)
     raise NotImplementedError("surface arrays are not supported")
-
-##def blit_array (surface, array):
-##    """pygame.surfarray.blit_array (Surface, array): return None
-##
-##    Blit directly from a array values.
-##
-##    Directly copy values from an array into a Surface. This is faster
-##    than converting the array into a Surface and blitting. The array
-##    must be the same dimensions as the Surface and will completely
-##    replace all pixel values.
-##
-##    This function will temporarily lock the Surface as the new values
-##    are copied.
-##    """
-##    if __arraytype == "numeric":
-##        return numericsf.blit_array (surface, array)
-##    elif __arraytype == "numpy":
-##        return numpysf.blit_array (surface, array)
-##    raise NotImplementedError("surface arrays are not supported")
 
 def map_array (surface, array):
     """pygame.surfarray.map_array (Surface, array3d): return array2d
