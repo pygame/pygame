@@ -37,6 +37,19 @@ class Mingw32DefaultCCompiler (Mingw32CCompiler):
     It is overridden by subsystem options in the linker extras.
     """
 
+    def __init__ (self,
+                  verbose=0,
+                  dry_run=0,
+                  force=0):
+        from distutils import version
+        import sys
+        
+        StrictVersion = version.StrictVersion
+        if sys.version_info < (2,5):
+            version.StrictVersion = version.LooseVersion
+        Mingw32CCompiler.__init__ (self, verbose, dry_run, force)
+        version.StrictVersion = StrictVersion
+
     def set_executables (self, **args):
         """Has no linker subsystem option for shared libraries"""
         Mingw32CCompiler.set_executables(self, **args)
