@@ -63,7 +63,7 @@ if subprocess.mswindows:
                 return "", c_avail.value, c_message.value
                 
     except ImportError:
-        from win32file import ReadFile, WriteFile, TerminateProcess
+        from win32file import ReadFile, WriteFile
         from win32pipe import PeekNamedPipe
         from win32api import TerminateProcess
     import msvcrt
