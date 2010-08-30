@@ -1,9 +1,10 @@
 pygame.font
 pygame module for loading and rendering fonts
 
-The font module allows for rendering TrueType fonts into a new Surface
-object. This module is optional and requires SDL_ttf as a dependency. You
-should test that pygame.font is available and initialized before attempting
+The font module allows for rendering TrueType fonts into a new Surface object.
+It accepts any UCS-2 character ('\u0001' to '\uFFFF').
+This module is optional and requires SDL_ttf as a dependency.
+You should test that pygame.font is available and initialized before attempting
 to use the module.
  
 Most of the work done with fonts are done by using the actual Font objects.
@@ -138,6 +139,11 @@ instead you must use Font.render() to create an image (Surface) of
 the text, then blit this image onto another Surface.
 
 The text can only be a single line: newline characters are not rendered.
+Null characters ('\x00') are treated as end-of-text.
+Both Unicode and char (byte) strings are accepted.
+For Unicode strings only UCS-2 characters ('\u0001' to '\uFFFF') are recognized.
+Behavior is undefined for anything greater.
+For char strings a LATIN1 encoding is assumed.
 The antialias argument is a boolean: if true the characters will have
 smooth edges. The color argument is the color of the text
 [e.g.: (0,0,255) for blue]. The optional
@@ -165,7 +171,7 @@ rather than (much less efficient) alpha values.
 If you render '\n' a unknown char will be rendered.  Usually a rectangle.
 Instead you need to handle new lines yourself.
 
-Font rendering is not thread safe: only a single thread can render text
+Font rendering is not thread safe: only a single thread can render text at
 any time.
 <END>
 
@@ -244,7 +250,8 @@ Font.metrics(text): return list
 The list contains tuples for each character, which contain the minimum
 X offset, the maximum X offset, the minimum Y offset, the maximum
 Y offset and the advance offset (bearing plus width) of the character.
-[(minx, maxx, miny, maxy, advance), (minx, maxx, miny, maxy, advance), ...]
+[(minx, maxx, miny, maxy, advance), (minx, maxx, miny, maxy, advance), ...].
+None is entered in the list for each unrecognized character.
 <END>
 
 

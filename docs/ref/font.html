@@ -65,7 +65,7 @@
   <tr><td><a href="font.html#pygame.font.SysFont">pygame.font.SysFont</a> - <font size=-1>create a Font object from the system fonts</font></td><td>create a Font object from the system fonts</td></tr>
   <tr><td><a href="font.html#pygame.font.Font">pygame.font.Font</a> - <font size=-1>create a new Font object from a file</font></td><td>create a new Font object from a file</td></tr>
 </table></small></ul>
-<p>The font module allows for rendering TrueType fonts into a new Surface object. This module is optional and requires SDL_ttf as a dependency. You should test that <tt>pygame.font</tt> is available and initialized before attempting to use the module. </p>
+<p>The font module allows for rendering TrueType fonts into a new Surface object. It accepts any <tt>UCS-2</tt> character ('\u0001' to '\uFFFF'). This module is optional and requires SDL_ttf as a dependency. You should test that <tt>pygame.font</tt> is available and initialized before attempting to use the module. </p>
 <p>Most of the work done with fonts are done by using the actual Font objects. The module by itself only has routines to initialize the module and create Font objects with <tt><a href="font.html#pygame.font.Font">pygame.font.Font</a> - <font size=-1>create a new Font object from a file</font></tt>. </p>
 <p>You can load fonts from the system by using the <tt><a href="font.html#pygame.font.SysFont">pygame.font.SysFont</a> - <font size=-1>create a Font object from the system fonts</font></tt> function. There are a few other functions to help lookup the system fonts. </p>
 <p>Pygame comes with a builtin default font. This can always be accessed by passing None as the font name. </p>
@@ -173,12 +173,12 @@
   <i>draw text on a new Surface</i><br>
   <tt>Font.render(text, antialias, color, background=None): return Surface</tt><br>
 <p>This creates a new Surface with the specified text rendered on it. Pygame provides no way to directly draw text on an existing Surface: instead you must use <tt><a href="freetype.html#Font.render">Font.render</a> - <font size=-1>Renders text on a surface</font></tt> to create an image (Surface) of the text, then blit this image onto another Surface. </p>
-<p>The text can only be a single line: newline characters are not rendered. The antialias argument is a boolean: if true the characters will have smooth edges. The color argument is the color of the text <tt>[e.g.:</tt> (0,0,255) for blue]. The optional background argument is a color to use for the text background. If no background is passed the area outside the text will be transparent. </p>
+<p>The text can only be a single line: newline characters are not rendered. Null characters ('\x00') are treated as end-of-text. Both Unicode and char (byte) strings are accepted. For Unicode strings only <tt>UCS-2</tt> characters ('\u0001' to '\uFFFF') are recognized. Behavior is undefined for anything greater. For char strings a <tt>LATIN1</tt> encoding is assumed. The antialias argument is a boolean: if true the characters will have smooth edges. The color argument is the color of the text <tt>[e.g.:</tt> (0,0,255) for blue]. The optional background argument is a color to use for the text background. If no background is passed the area outside the text will be transparent. </p>
 <p>The Surface returned will be of the dimensions required to hold the text. (the same as those returned by <tt>Font.size())</tt>. If an empty string is passed for the text, a blank surface will be returned that is one pixel wide and the height of the font. </p>
 <p>Depending on the type of background and antialiasing used, this returns different types of Surfaces. For performance reasons, it is good to know what type of image will be used. If antialiasing is not used, the return image will always be an 8bit image with a two color palette. If the background is transparent a colorkey will be set. Antialiased images are rendered to 24-bit <tt>RGB</tt> images. If the background is transparent a pixel alpha will be included. </p>
 <p>Optimization: if you know that the final destination for the text (on the screen) will always have a solid background, and the text is antialiased, you can improve performance by specifying the background color. This will cause the resulting image to maintain transparency information by colorkey rather than (much less efficient) alpha values. </p>
 <p>If you render '\n' a unknown char will be rendered. Usually a rectangle. Instead you need to handle new lines yourself. </p>
-<p>Font rendering is not thread safe: only a single thread can render text any time. </p>
+<p>Font rendering is not thread safe: only a single thread can render text at any time. </p>
 <!--COMMENTS:Font.render--> &nbsp;<br> 
 <br></ul>
 
@@ -242,7 +242,7 @@
 <big><b>Font.metrics</big></b><br><ul>
   <i>Gets the metrics for each character in the pased string.</i><br>
   <tt>Font.metrics(text): return list</tt><br>
-<p>The list contains tuples for each character, which contain the minimum <tt>X</tt> offset, the maximum <tt>X</tt> offset, the minimum <tt>Y</tt> offset, the maximum <tt>Y</tt> offset and the advance offset (bearing plus width) of the character. [(minx, maxx, miny, maxy, advance), (minx, maxx, miny, maxy, advance), <tt>...]</tt> </p>
+<p>The list contains tuples for each character, which contain the minimum <tt>X</tt> offset, the maximum <tt>X</tt> offset, the minimum <tt>Y</tt> offset, the maximum <tt>Y</tt> offset and the advance offset (bearing plus width) of the character. [(minx, maxx, miny, maxy, advance), (minx, maxx, miny, maxy, advance), <tt>...]</tt>. None is entered in the list for each unrecognized character. </p>
 <!--COMMENTS:Font.metrics--> &nbsp;<br> 
 <br></ul>
 
