@@ -51,13 +51,13 @@ void _PGFT_GetMetrics_INTERNAL(FT_Glyph glyph, FT_UInt bbmode,
 
 
 int PGFT_GetMetrics(FreeTypeInstance *ft, PyFreeTypeFont *font,
-    int character, const FontRenderMode *render, int bbmode,
+    FT_UInt32 character, const FontRenderMode *render, int bbmode,
     void *minx, void *maxx, void *miny, void *maxy, void *advance)
 {
     FontGlyph *     glyph = NULL;
 
     glyph = PGFT_Cache_FindGlyph(ft, &PGFT_INTERNALS(font)->cache, 
-            (FT_UInt)character, render);
+                                 character, render);
 
     if (!glyph)
         return -1;
