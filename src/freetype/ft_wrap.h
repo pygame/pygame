@@ -209,7 +209,7 @@ int         PGFT_GetTextSize(FreeTypeInstance *ft, PyFreeTypeFont *font,
                 const FontRenderMode *render, PyObject *text, int *w, int *h);
 
 int         PGFT_GetMetrics(FreeTypeInstance *ft, PyFreeTypeFont *font,
-                int character, const FontRenderMode *render, int bbmode, 
+                FT_UInt32 character, const FontRenderMode *render, int bbmode, 
                 void *minx, void *maxx, void *miny, void *maxy, void *advance);
 
 int         PGFT_GetSurfaceSize(FreeTypeInstance *ft, PyFreeTypeFont *font,
@@ -277,7 +277,7 @@ FT_UInt16 * PGFT_BuildUnicodeString(PyObject *);
 void        PGFT_Cache_Init(FreeTypeInstance *ft, FontCache *cache, PyFreeTypeFont *parent);
 void        PGFT_Cache_Destroy(FontCache *cache);
 void        PGFT_Cache_Cleanup(FontCache *cache);
-FontGlyph * PGFT_Cache_FindGlyph(FreeTypeInstance *ft, FontCache *cache, FT_UInt character, 
+FontGlyph * PGFT_Cache_FindGlyph(FreeTypeInstance *ft, FontCache *cache, FT_UInt32 character, 
                 const FontRenderMode *render);
 
 

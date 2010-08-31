@@ -1134,7 +1134,7 @@ _FreeTypeState _modstate;
 
 MODINIT_DEFINE (freetype)
 {
-    PyObject *module, *apiobj, *base, *base_register_quit, *quit, *rval;
+    PyObject *module, *apiobj, *pygame, *pygame_register_quit, *quit, *rval;
     static void* c_api[PYGAMEAPI_FREETYPE_NUMSLOTS];
 
     PyFREETYPE_C_API[0] = PyFREETYPE_C_API[0]; 
@@ -1166,20 +1166,20 @@ MODINIT_DEFINE (freetype)
     /* import needed modules. Do this first so if there is an error
        the module is not loaded.
     */
-    base = PyImport_ImportModule ("base");
-    if (!base) {
+    pygame = PyImport_ImportModule ("pygame");
+    if (!pygame) {
         MODINIT_ERROR;
     }
-    base_register_quit = PyObject_GetAttrString (base, "register_quit");
-    Py_DECREF (base);
-    if (!base_register_quit) {
+    pygame_register_quit = PyObject_GetAttrString (pygame, "register_quit");
+    Py_DECREF (pygame);
+    if (!pygame_register_quit) {
         MODINIT_ERROR;
     }
 
     /* type preparation */
     if (PyType_Ready(&PyFreeTypeFont_Type) < 0) 
     {
-        Py_DECREF(base_register_quit);
+        Py_DECREF(pygame_register_quit);
         MODINIT_ERROR;
     }
 
@@ -1194,14 +1194,14 @@ MODINIT_DEFINE (freetype)
 
     if (module == NULL) 
     {
-        Py_DECREF(base_register_quit);
+        Py_DECREF(pygame_register_quit);
         MODINIT_ERROR;
     }
 
     Py_INCREF((PyObject *)&PyFreeTypeFont_Type);
     if (PyModule_AddObject(module, "Font", (PyObject *)&PyFreeTypeFont_Type) == -1) 
     {
-        Py_DECREF(base_register_quit);
+        Py_DECREF(pygame_register_quit);
         Py_DECREF((PyObject *) &PyFreeTypeFont_Type);
         DECREF_MOD(module);
         MODINIT_ERROR;
@@ -1226,14 +1226,14 @@ MODINIT_DEFINE (freetype)
     apiobj = PyCObject_FromVoidPtr(c_api, NULL);
     if (apiobj == NULL) 
     {
-        Py_DECREF (base_register_quit);
+        Py_DECREF (pygame_register_quit);
         DECREF_MOD(module);
         MODINIT_ERROR;
     }
 
     if (PyModule_AddObject(module, PYGAMEAPI_LOCAL_ENTRY, apiobj) == -1) 
     {
-        Py_DECREF(base_register_quit);
+        Py_DECREF(pygame_register_quit);
         Py_DECREF(apiobj);
         DECREF_MOD(module);
         MODINIT_ERROR;
@@ -1241,12 +1241,12 @@ MODINIT_DEFINE (freetype)
 
     quit = PyObject_GetAttrString (module, "quit");
     if (quit == NULL) {  /* assertion */
-        Py_DECREF (base_register_quit);
+        Py_DECREF (pygame_register_quit);
         DECREF_MOD (module);
         MODINIT_ERROR;
     }
-    rval = PyObject_CallFunctionObjArgs (base_register_quit, quit, NULL);
-    Py_DECREF (base_register_quit);
+    rval = PyObject_CallFunctionObjArgs (pygame_register_quit, quit, NULL);
+    Py_DECREF (pygame_register_quit);
     Py_DECREF (quit);
     if (rval == NULL) {
         DECREF_MOD (module);

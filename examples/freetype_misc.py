@@ -20,7 +20,7 @@ def run():
     pygame.init()
 
     fontdir = os.path.dirname(os.path.abspath (__file__))
-    font = freetype.Font(os.path.join (fontdir, "sans.ttf"))
+    font = freetype.Font(os.path.join (fontdir, "data", "sans.ttf"))
 
     screen = pygame.display.set_mode((800, 600))
     screen.fill (colors["grey_light"])

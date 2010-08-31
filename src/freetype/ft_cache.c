@@ -181,7 +181,7 @@ void PGFT_Cache_Cleanup(FontCache *cache)
 }
 
 FontGlyph *PGFT_Cache_FindGlyph(FreeTypeInstance *ft, FontCache *cache, 
-        FT_UInt character, const FontRenderMode *render)
+        FT_UInt32 character, const FontRenderMode *render)
 {
     FontCacheNode **nodes = cache->nodes;
     FontCacheNode *node, *prev;
