@@ -64,12 +64,16 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
         return NULL;
     }
 
-    /* get the length of the text */
+    /* get the length of the text; assume valid UTF-16 */
     for (ch = buffer; *ch; ++ch)
     {
-        if (*ch != UNICODE_BOM_NATIVE &&
-            *ch != UNICODE_BOM_SWAPPED)
-            string_length++;
+        if (*ch != UNICODE_BOM_NATIVE  &&
+            *ch != UNICODE_BOM_SWAPPED    )
+        {
+            if (*ch > 0xD7FF && *ch < 0xE000)
+                ++ch;
+            ++string_length;
+        }
     }
 
     /* cleanup the cache */
@@ -100,7 +104,7 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
     for (ch = buffer; *ch; ++ch)
     {
-        FT_UInt16 c = *ch;
+        FT_UInt32 c = *ch;
 
         /*
          * Handle byte-order markers in the unicode string
@@ -118,10 +122,22 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
             c = (FT_UInt16)((c << 8) | (c >> 8));
 
         /*
+         * Handle a two-part UTF-16 character
+         */
+        if (c > 0xD7FF && c < 0xE000)
+        {
+            FT_UInt16 low = *(++ch);
+            
+            if (swapped)
+                low = (FT_UInt16)((low << 8) | (low >> 8));
+            c = ((c & 0x03FF) << 10 | (low & 0x03FF)) + 0x10000L;
+        }
+
+        /*
          * Load the corresponding glyph from the cache
          */
-        glyph = PGFT_Cache_FindGlyph(ft, &PGFT_INTERNALS(font)->cache, 
-                (FT_UInt)c, render);
+        glyph = PGFT_Cache_FindGlyph(ft, &PGFT_INTERNALS(font)->cache,
+                                     c, render);
 
         if (!glyph)
             continue;
