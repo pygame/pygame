@@ -67,8 +67,9 @@ PGFT_BuildRenderMode(FreeTypeInstance *ft,
     {
         if (font->ptsize == -1)
         {
-            _PGFT_SetError(ft, "No font point size specified"
-                    " and no default font size in typeface", 0);
+            RAISE(PyExc_ValueError,
+                  "No font point size specified"
+                  " and no default font size in typeface");
             return -1;
         }
 
@@ -77,7 +78,7 @@ PGFT_BuildRenderMode(FreeTypeInstance *ft,
 
     if (pt_size <= 0)
     {
-        _PGFT_SetError(ft, "Invalid point size for font.", 0);
+        RAISE(PyExc_ValueError, "Invalid point size for font.");
         return -1;
     }
 
@@ -91,7 +92,7 @@ PGFT_BuildRenderMode(FreeTypeInstance *ft,
     {
         if (PGFT_CheckStyle((FT_UInt32)style) != 0)
         {
-            _PGFT_SetError(ft, "Invalid style value", 0);
+            RAISE(PyExc_ValueError, "Invalid style value");
             return -1;
         }
 
@@ -161,8 +162,8 @@ int PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
     {
         if (SDL_LockSurface(surface) == -1)
         {
-            _PGFT_SetError(ft, SDL_GetError (), 0);
             SDL_FreeSurface(surface);
+            RAISE(PyExc_SDLError, SDL_GetError());
             return -1;
         }
         locked = 1;
@@ -172,10 +173,18 @@ int PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
     font_text = PGFT_LoadFontText(ft, font, render, text);
 
     if (!font_text)
+    {
+        if (locked)
+            SDL_UnlockSurface(surface);
         return -1;
+    }
 
     if (PGFT_GetSurfaceSize(ft, font, render, font_text, &width, &height) != 0)
+    {
+        if (locked)
+            SDL_UnlockSurface(surface);
         return -1;
+    }
 
     /*
      * Setup target surface struct
@@ -226,8 +235,12 @@ int PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
     /*
      * Render!
      */
-    if (_PGFT_Render_INTERNAL(ft, font, font_text, render, fgcolor, &font_surf) != 0)
+    if (_PGFT_Render_INTERNAL(ft, font, font_text, render, fgcolor, &font_surf))
+    {
+        if (locked)
+            SDL_UnlockSurface(surface);
         return -1;
+    }
 
     *_width = width;
     *_height = height;
@@ -277,7 +290,7 @@ SDL_Surface *PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
     if (!surface)
     {
-        _PGFT_SetError(ft, SDL_GetError (), 0);
+        PyErr_NoMemory(); /* Everything else should be Okay */
         return NULL;
     }
 
@@ -285,7 +298,7 @@ SDL_Surface *PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
     {
         if (SDL_LockSurface(surface) == -1)
         {
-            _PGFT_SetError(ft, SDL_GetError (), 0);
+            RAISE(PyExc_SDLError, SDL_GetError());
             SDL_FreeSurface(surface);
             return NULL;
         }
@@ -371,7 +384,7 @@ PyObject *PGFT_Render_PixelArray(FreeTypeInstance *ft, PyFreeTypeFont *font,
     buffer = malloc((size_t)array_size);
     if (!buffer)
     {
-        _PGFT_SetError(ft, "Could not allocate memory", 0);
+        PyErr_NoMemory();
         goto cleanup;
     }
 
@@ -439,7 +452,6 @@ int _PGFT_Render_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
     if (!face)
     {
-        _PGFT_SetError(ft, "Failed to resize face", 0);
         return -1;
     }
 
@@ -450,7 +462,6 @@ int _PGFT_Render_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
     if (error)
     {
-        _PGFT_SetError(ft, "Failed to load advance glyph advances", error);
         return error;
     }
 
@@ -627,6 +638,11 @@ int _PGFT_Render_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font,
                 surface, fg_color);
     }
 
+    if (error)
+    {
+        RAISE(PyExc_SDLError, "(exception under construction)"
+                              " last character unrendered");
+    }
     return error;
 }
 

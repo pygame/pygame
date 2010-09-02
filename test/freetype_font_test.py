@@ -21,7 +21,7 @@ try:
     import pygame.freetype as ft
 except ImportError:
     ft = None
-
+from pygame.compat import as_unicode
 
 
 FONTDIR = os.path.join(os.path.dirname (os.path.abspath (__file__)),
@@ -141,6 +141,9 @@ class FreeTypeFontTest(unittest.TestCase):
         self.assertTrue(size_under[0] == size_default[0])
         self.assertTrue(size_under[1] > size_default[1])
 
+        size_utf16 = font.get_size(as_unicode(r'\U000130A7'), ptsize=24)
+        size_utf32 = font.get_size(as_unicode(r'\uD80C\uDCA7'), ptsize=24)
+        self.assertEqual(size_utf16[1], size_utf32[1])
 
     def test_freetype_Font_height(self):
 
@@ -195,6 +198,20 @@ class FreeTypeFontTest(unittest.TestCase):
         self.assertRaises(ValueError, font.render, None, 'foobar', color, None,
                 style=97, ptsize=24)
 
+        # unicode text (incomplete)
+        self.assertRaises(UnicodeEncodeError, font.render,
+                          None, as_unicode(r'\uD80C'), color, ptsize=24)
+        self.assertRaises(UnicodeEncodeError, font.render,
+                          None, as_unicode(r'\uDCA7'), color, ptsize=24)
+        self.assertRaises(UnicodeEncodeError, font.render,
+                          None, as_unicode(r'\uFEFF'), color, ptsize=24)
+        self.assertRaises(UnicodeEncodeError, font.render,
+                          None, as_unicode(r'\uFFFE'), color, ptsize=24)
+        rend1 = font.render(None, as_unicode(r'\uD80C\uDCA7'),
+                            color, ptsize=24)
+        rend2 = font.render(None, as_unicode(r'\U000130A7'),
+                            color, ptsize=24)
+        self.assertEqual(rend1[2], rend2[2])
 
     def test_freetype_Font_style(self):
 

@@ -60,7 +60,9 @@ int PGFT_GetMetrics(FreeTypeInstance *ft, PyFreeTypeFont *font,
                                  character, render);
 
     if (!glyph)
+    {
         return -1;
+    }
 
     _PGFT_GetMetrics_INTERNAL(glyph->image, (FT_UInt)bbmode, 
             minx, maxx, miny, maxy, advance);
@@ -130,9 +132,16 @@ PGFT_GetSurfaceSize(FreeTypeInstance *ft, PyFreeTypeFont *font,
 {
     int w, h;
 
-    if (text == NULL || 
-        _PGFT_GetTextSize_INTERNAL(ft, font, render, text) != 0)
+    if (text == NULL)
+    {
+        RAISE(PyExc_SystemError,
+              "pygame bug (PGFT_GetSurfaceSize): receive NULL text argument");
         return -1;
+    }
+    if (_PGFT_GetTextSize_INTERNAL(ft, font, render, text))
+    {
+        return -1;
+    }
 
     w = text->text_size.x;
     h = text->text_size.y;

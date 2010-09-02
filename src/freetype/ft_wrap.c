@@ -47,8 +47,10 @@ _PGFT_SetError(FreeTypeInstance *ft, const char *error_msg, FT_Error error_id)
     } ft_errors[] = 
 #include FT_ERRORS_H
 
-          int i;
+    const int maxlen = (int)(sizeof (ft->_error_msg)) - 1;
+    int i;
     const char *ft_msg;
+    int error_msg_len = (int)strlen(error_msg);
 
     ft_msg = NULL;
     for (i = 0; ft_errors[i].err_msg != NULL; ++i)
@@ -60,10 +62,14 @@ _PGFT_SetError(FreeTypeInstance *ft, const char *error_msg, FT_Error error_id)
         }
     }
 
-    if (error_id && ft_msg)
-        sprintf(ft->_error_msg, "%s: %s", error_msg, ft_msg);
+    if (error_id && ft_msg && maxlen > error_msg_len - 42)
+        sprintf(ft->_error_msg, "%.*s: %.*s",
+                maxlen - 2, error_msg, maxlen - error_msg_len - 2, ft_msg);
     else
-        strcpy(ft->_error_msg, error_msg);
+    {
+        strncpy(ft->_error_msg, error_msg, maxlen);
+        ft->_error_msg[maxlen] = '\0';  /* in case of message truncation */
+    }
 }
 
 const char *
@@ -212,12 +218,20 @@ int _PGFT_Init_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font)
     font->_internals = malloc(sizeof(FontInternals));
 
     if (font->_internals == NULL)
+    {
+        PyErr_NoMemory();
         return -1;
+    }
 
     memset(font->_internals, 0x0, sizeof(FontInternals));
     PGFT_Cache_Init(ft, &PGFT_INTERNALS(font)->cache, font);
 
-    return (_PGFT_GetFace(ft, font)) ? 0 : -1;
+    if (!_PGFT_GetFace(ft, font))
+    {
+        RAISE(PyExc_SDLError, PGFT_GetError(ft));
+        return -1;
+    }
+    return 0;
 }
 
 int
@@ -233,7 +247,7 @@ PGFT_TryLoadFont_Filename(FreeTypeInstance *ft,
     filename_alloc = malloc(file_len + 1);
     if (!filename_alloc)
     {
-        _PGFT_SetError(ft, "Could not allocate memory", 0);
+        PyErr_NoMemory();
         return -1;
     }
 
@@ -273,7 +287,7 @@ int PGFT_TryLoadFont_RWops(FreeTypeInstance *ft,
 
     if (position < 0)
     {
-        _PGFT_SetError(ft, "Failed to seek in font stream", 0);
+        RAISE(PyExc_SDLError, "Failed to seek in font stream");
         return -1;
     }
 
@@ -281,7 +295,7 @@ int PGFT_TryLoadFont_RWops(FreeTypeInstance *ft,
 
     if (stream == NULL)
     {
-        _PGFT_SetError(ft, "Failed to alloc font stream", 0);
+        PyErr_NoMemory();
         return -1;
     }
 
@@ -340,27 +354,43 @@ int
 PGFT_Init(FreeTypeInstance **_instance, int cache_size)
 {
     FreeTypeInstance *inst = NULL;
+    int error;
 
     inst = malloc(sizeof(FreeTypeInstance));
 
     if (!inst)
+    {
+        PyErr_NoMemory();
         goto error_cleanup;
+    }
 
     memset(inst, 0, sizeof(FreeTypeInstance));
-    inst->_error_msg = calloc(1024, sizeof(char));
     inst->cache_size = cache_size;
-    
-    if (FT_Init_FreeType(&inst->library) != 0)
+
+    error = FT_Init_FreeType(&inst->library);
+    if (error)
+    {
+        RAISE(PyExc_RuntimeError,
+              "pygame (PGFT_Init): failed to initialize FreeType library");
         goto error_cleanup;
+    }
 
     if (FTC_Manager_New(inst->library, 0, 0, 0,
             &_PGFT_face_request, NULL,
             &inst->cache_manager) != 0)
+    {
+        RAISE(PyExc_RuntimeError,
+              "pygame (PGFT_Init): failed to create new FreeType manager");
         goto error_cleanup;
+    }
 
     if (FTC_CMapCache_New(inst->cache_manager, 
             &inst->cache_charmap) != 0)
+    {
+        RAISE(PyExc_RuntimeError,
+              "pygame (PGFT_Init): failed to create new FreeType cache");
         goto error_cleanup;
+    }
 
     *_instance = inst;
     return 0;
@@ -384,9 +414,6 @@ PGFT_Quit(FreeTypeInstance *ft)
     if (ft->library)
         FT_Done_FreeType(ft->library);
 
-    if (ft->_error_msg)
-        free (ft->_error_msg);
-    
     free (ft);
 }
 
