@@ -50,7 +50,7 @@ typedef struct
     FTC_CMapCache cache_charmap;
 
     int cache_size;
-    char *_error_msg;
+    char _error_msg[1024];
 } FreeTypeInstance;
 
 typedef struct __fontcolor
@@ -270,7 +270,7 @@ FontText *  PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
 int         PGFT_LoadTextAdvances(FreeTypeInstance *ft, PyFreeTypeFont *font, 
                 const FontRenderMode *render, FontText *text);
 
-FT_UInt16 * PGFT_BuildUnicodeString(PyObject *);
+int         PGFT_BuildUnicodeString(PyObject *, FT_UInt32 **, Py_ssize_t *);
 
 
 /******************************************************** Glyph cache management ****/
