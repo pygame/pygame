@@ -23,19 +23,21 @@
 #include "ft_wrap.h"
 #include FT_MODULE_H
 
+static void
+Err_UnicodeEncodeError(const char *codec,
+                       PyObject *unistr,
+                       Py_ssize_t start,
+                       Py_ssize_t end,
+                       const char *reason);
+
 FontText *
 PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font, 
         const FontRenderMode *render, PyObject *text)
 {
-    const FT_UInt16 UNICODE_BOM_NATIVE  = 0xFEFF;
-    const FT_UInt16 UNICODE_BOM_SWAPPED = 0xFFFE;
+    Py_ssize_t  string_length;
 
-    int         swapped = 0;
-    int         string_length = 0;
-
-    FT_UInt16 * buffer = NULL;
-    FT_UInt16 * orig_buffer;
-    FT_UInt16 * ch;
+    FT_UInt32 * buffer = NULL;
+    FT_UInt32 * ch;
 
     FT_Fixed    y_scale;
     FT_Fixed    bold_str = 0;
@@ -51,29 +53,14 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
     if (!face)
     {
-        _PGFT_SetError(ft, "Failed to scale the given face", 0);
+        RAISE(PyExc_SDLError, PGFT_GetError(ft));
         return NULL;
     }
 
     /* get the text as an unicode string */
-    orig_buffer = buffer = PGFT_BuildUnicodeString(text);
-
-    if (!buffer)
+    if (PGFT_BuildUnicodeString(text, &buffer, &string_length))
     {
-        _PGFT_SetError(ft, "Invalid text string specified", 0);
         return NULL;
-    }
-
-    /* get the length of the text; assume valid UTF-16 */
-    for (ch = buffer; *ch; ++ch)
-    {
-        if (*ch != UNICODE_BOM_NATIVE  &&
-            *ch != UNICODE_BOM_SWAPPED    )
-        {
-            if (*ch > 0xD7FF && *ch < 0xE000)
-                ++ch;
-            ++string_length;
-        }
     }
 
     /* cleanup the cache */
@@ -104,40 +91,11 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
     for (ch = buffer; *ch; ++ch)
     {
-        FT_UInt32 c = *ch;
-
-        /*
-         * Handle byte-order markers in the unicode string
-         */
-        if (c == UNICODE_BOM_NATIVE || c == UNICODE_BOM_SWAPPED)
-        {
-            swapped = (c == UNICODE_BOM_SWAPPED);
-            if (buffer == ch)
-                ++buffer;
-
-            continue;
-        }
-
-        if (swapped)
-            c = (FT_UInt16)((c << 8) | (c >> 8));
-
-        /*
-         * Handle a two-part UTF-16 character
-         */
-        if (c > 0xD7FF && c < 0xE000)
-        {
-            FT_UInt16 low = *(++ch);
-            
-            if (swapped)
-                low = (FT_UInt16)((low << 8) | (low >> 8));
-            c = ((c & 0x03FF) << 10 | (low & 0x03FF)) + 0x10000L;
-        }
-
         /*
          * Load the corresponding glyph from the cache
          */
         glyph = PGFT_Cache_FindGlyph(ft, &PGFT_INTERNALS(font)->cache,
-                                     c, render);
+                                     *ch, render);
 
         if (!glyph)
             continue;
@@ -196,7 +154,7 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
         ftext->underline_size = underline_size;
     }
 
-    free(orig_buffer);
+    free(buffer);
     return ftext;
 }
 
@@ -220,7 +178,10 @@ PGFT_LoadTextAdvances(FreeTypeInstance *ft, PyFreeTypeFont *font,
     face = _PGFT_GetFaceSized(ft, font, render->pt_size);
 
     if (!face)
+    {
+        RAISE(PyExc_SDLError, PGFT_GetError(ft));
         return -1;
+    }
 
     advances = text->advances;
 
@@ -321,30 +282,75 @@ PGFT_LoadTextAdvances(FreeTypeInstance *ft, PyFreeTypeFont *font,
     return 0;
 }
 
-FT_UInt16 *
-PGFT_BuildUnicodeString(PyObject *obj)
+int
+PGFT_BuildUnicodeString(PyObject *obj,
+                        FT_UInt32 **utf32_buffer,
+                        Py_ssize_t *string_length)
 {
-    size_t len;
-    FT_UInt16 *utf16_buffer = NULL;
-    char *tmp_buffer;
+    const FT_UInt16 UNICODE_BOM_NATIVE = 0xFEFF;
+    const FT_UInt16 UNICODE_BOM_SWAPPED = 0xFFFE;
+    Py_ssize_t len;
+    FT_UInt32 *dst;
 
     if (PyUnicode_Check(obj))
     {
         /*
-         * For unicode objects, create a new Bytes object
-         * with the unicode contents as UTF16 and copy
-         * the raw contents of that object.
+         * Python may be built with UCS-2 or UCS-4 unicode strings. However,
+         * only valid Unicode points are accepted. The UTF-16 low-surrogate
+         * and high-surrogate areas are forbidden in UTF-32. So, however
+         * Python was built, treat surrogate pairs as UTF-16 encoded
+         * characters. This allows SMP characters to be rendered even with
+         * a UCS-2 built interpreter. UTF-16 BOMS are an error.
          */
-        PyObject *utf_bytes;
+        const Py_UNICODE *src = PyUnicode_AS_UNICODE(obj);
+        Py_UNICODE c;
+        Py_ssize_t i, j, srclen;
 
-        utf_bytes = PyUnicode_AsUTF16String(obj);
-        Bytes_AsStringAndSize(utf_bytes, &tmp_buffer, (int *)&len);
-        utf16_buffer = malloc(len + 2);
-
-        memcpy(utf16_buffer, tmp_buffer, len);
-        utf16_buffer[len / sizeof(FT_UInt16)] = 0;
-
-        Py_DECREF(utf_bytes);
+        len = srclen = PyUnicode_GET_SIZE(obj);
+        for (i = 0; i < srclen; ++i)
+        {
+            c = src[i];
+            if (c == UNICODE_BOM_NATIVE || c == UNICODE_BOM_SWAPPED)
+            {
+                Err_UnicodeEncodeError("utf-32", obj, i, i + 1,
+                                       "no BOM handling");
+                return -1;
+            }
+            if (c > 0xD7FF && c < 0xE000)
+            {
+                if (c > 0xD8FF || ++i == srclen)
+                {
+                    Err_UnicodeEncodeError(
+                        "utf-32", obj, i, i + 1,
+                        "missing high-surrogate code point");
+                    return -1;
+                }
+                c = src[i];
+                if (c > 0xDFFF || c < 0xDC00)
+                {
+                    Err_UnicodeEncodeError(
+                        "utf-32", obj, i, i + 1,
+                        "expected low-surrogate code point");
+                    return -1;
+                }
+                --len;
+            }
+        }
+        
+        /* The Unicode is correct enough to use */
+        dst = (FT_UInt32 *)malloc((size_t)(len + 1) * sizeof(FT_UInt32));
+        if (!dst)
+        {
+            PyErr_NoMemory();
+            return -1;
+        }
+        for (i = 0, j = 0; i < srclen; ++i, ++j)
+        {
+            c = src[i];
+            if (c > 0xD7FF && c < 0xD900)
+                c = ((c & 0x3FF) << 10 | (src[++i] & 0x3FF)) + 0x10000;
+            dst[j] = c;
+        }
     }
     else if (Bytes_Check(obj))
     {
@@ -352,18 +358,53 @@ PGFT_BuildUnicodeString(PyObject *obj)
          * For bytes objects, assume the bytes are
          * Latin1 text (who would manually enter bytes as
          * UTF8 anyway?), so manually copy the raw contents
-         * of the object expanding each byte to 16 bits.
+         * of the object expanding each byte to 32 bits.
          */
-        size_t i;
+        char *src;
+        Py_ssize_t i;
 
-        Bytes_AsStringAndSize(obj, &tmp_buffer, (int *)&len);
-        utf16_buffer = malloc((size_t)(len + 1) * sizeof(FT_UInt16));
-
+        Bytes_AsStringAndSize(obj, &src, &len);
+        dst = (FT_UInt32 *)malloc((size_t)(len + 1) * sizeof(FT_UInt32));
+        if (!dst)
+        {
+            PyErr_NoMemory();
+            return -1;
+        }
         for (i = 0; i < len; ++i)
-            utf16_buffer[i] = (FT_UInt16)tmp_buffer[i];
-
-        utf16_buffer[len] = 0;
+        {
+            dst[i] = (FT_UInt32)(src[i]);
+        }
+    }
+    else
+    {
+        PyErr_Format(PyExc_TypeError,
+                     "Expected a Unicode or LATIN1 (bytes) string for text:"
+                     " got type %.1024s", Py_TYPE(obj)->tp_name);
+        return -1;
     }
 
-    return utf16_buffer;
+    dst[len] = 0;
+    *utf32_buffer = dst;
+    *string_length = len;
+    return 0;
 }
+
+void
+Err_UnicodeEncodeError(const char *codec,
+                       PyObject *unistr,
+                       Py_ssize_t start,
+                       Py_ssize_t end,
+                       const char *reason)
+{
+    PyObject *e = PyObject_CallFunction(PyExc_UnicodeEncodeError, "sSkks",
+                                        codec, unistr,
+                                        (unsigned long)start,
+                                        (unsigned long)end,
+                                        reason);
+
+    if (!e)
+        return;
+    Py_INCREF(PyExc_UnicodeEncodeError);
+    PyErr_Restore(PyExc_UnicodeEncodeError, e, NULL);
+}
+

@@ -25,6 +25,10 @@
 #include "freetype/ft_wrap.h"
 #include "doc/freetype_doc.h"
 
+#ifndef DOC_PYGAMEFREETYPEFONTRENDERRAW
+#define DOC_PYGAMEFREETYPEFONTRENDERRAW "--- needs documenting ---"
+#endif
+
 /*
  * Auxiliar defines
  */
@@ -97,8 +101,10 @@ font_resource_end:
 /*
  * FreeType module declarations
  */
-static int _ft_traverse (PyObject *mod, visitproc visit, void *arg);
-static int _ft_clear (PyObject *mod);
+#if PY3
+static int _ft_traverse(PyObject *mod, visitproc visit, void *arg);
+static int _ft_clear(PyObject *mod);
+#endif
 
 static PyObject *_ft_quit(PyObject *self);
 static PyObject *_ft_init(PyObject *self, PyObject *args);
@@ -106,7 +112,6 @@ static PyObject *_ft_get_version(PyObject *self);
 static PyObject *_ft_get_error(PyObject *self);
 static PyObject *_ft_was_init(PyObject *self);
 static PyObject* _ft_autoinit(PyObject* self);
-static void _ft_autoquit(void);
 
 /*
  * Constructor/init/destructor
@@ -211,12 +216,13 @@ static PyMethodDef _ftfont_methods[] =
         METH_VARARGS | METH_KEYWORDS,
         DOC_FONTRENDER
     },
-/*    { 
+    { 
         "render_raw", 
         (PyCFunction)_ftfont_render_raw, 
         METH_VARARGS | METH_KEYWORDS,
         DOC_PYGAMEFREETYPEFONTRENDERRAW
-    }, */
+    },
+
     { NULL, NULL, 0, NULL }
 };
 
@@ -662,15 +668,12 @@ _ftfont_getsize(PyObject *self, PyObject* args, PyObject *kwds)
     if (PGFT_BuildRenderMode(ft, font, &render, 
                 ptsize, style, rotation) != 0)
     {
-        PyErr_SetString(PyExc_ValueError, PGFT_GetError(ft));
         return NULL;
     }
 
     error = PGFT_GetTextSize(ft, font, &render,text, &width, &height);
 
-    if (error)
-        PyErr_SetString(PyExc_RuntimeError, PGFT_GetError(ft));
-    else
+    if (!error)
         rtuple = Py_BuildValue ("(ii)", width, height);
 
     return rtuple;
@@ -690,7 +693,9 @@ _ftfont_getmetrics(PyObject *self, PyObject* args, PyObject *kwds)
 
     /* aux vars */
     void *buf = NULL;
-    int char_id, length, i, isunicode = 0;
+    FT_UInt32 char_id;
+    int length, i, j, isunicode = 0;
+    int nchars = 0;
 
     /* arguments */
     PyObject *text, *list;
@@ -713,7 +718,6 @@ _ftfont_getmetrics(PyObject *self, PyObject* args, PyObject *kwds)
     if (PGFT_BuildRenderMode(ft, font, 
                 &render, ptsize, FT_STYLE_NORMAL, 0) != 0)
     {
-        PyErr_SetString(PyExc_ValueError, PGFT_GetError(ft));
         return NULL;
     }
 
@@ -737,18 +741,60 @@ _ftfont_getmetrics(PyObject *self, PyObject* args, PyObject *kwds)
         return NULL;
 
     if (isunicode)
+    {
         length = PyUnicode_GetSize(text);
+        nchars = length;
+        for (i = 0; i < length; ++i)
+        {
+            char_id = ((Py_UNICODE *)buf)[i];
+            if (char_id > 0xD7FF && char_id < 0xE000)
+            {
+                if (char_id > 0xD8FF)
+                {
+                    PyErr_Format(PyExc_UnicodeError,
+                                 "'utf-16' codec can't decode character"
+                                 " '\\u%.04x' in position %d:"
+                                 " no preceding high-surrogate code point",
+                                 (int)char_id, i);
+                    return NULL;
+                }
+                char_id = ((Py_UNICODE *)buf)[++i];
+                if (char_id < 0xDC00 || char_id > 0xDFFF)
+                {
+                    PyErr_Format(PyExc_UnicodeError,
+                                 "'utf-16' codec can't decode character"
+                                 " '\\u%.04x' in position %d:"
+                                 " expected a low-surogate code point",
+                                 (int)char_id, i - 1);
+                    return NULL;
+                }
+                --nchars;
+            }
+        }
+    }
     else
+    {
         length = Bytes_Size(text);
+        nchars = length;
+    }
 
 #define _GET_METRICS(_mt, _tuple_format) {              \
-    for (i = 0; i < length; i++)                        \
+    for (i = 0, j = 0; i < length; ++i, ++j)            \
     {                                                   \
         _mt minx_##_mt, miny_##_mt;                     \
         _mt maxx_##_mt, maxy_##_mt;                     \
         _mt advance_##_mt;                              \
                                                         \
-        if (isunicode) char_id = ((Py_UNICODE *)buf)[i];\
+        if (isunicode)                                  \
+        {                                               \
+            char_id = ((Py_UNICODE *)buf)[i];           \
+            if (char_id > 0xD7FF && char_id < 0xE000)   \
+            {                                           \
+                char_id = ((char_id & 0x03FF) << 10 |   \
+                           (((Py_UNICODE *)buf)[++i] &  \
+                             0x03FF)) + 0x10000L;       \
+            }                                           \
+        }                                               \
         else char_id = ((char *)buf)[i];                \
                                                         \
         if (PGFT_GetMetrics(ft,                         \
@@ -758,7 +804,7 @@ _ftfont_getmetrics(PyObject *self, PyObject* args, PyObject *kwds)
                 &miny_##_mt, &maxy_##_mt,               \
                 &advance_##_mt) == 0)                   \
         {                                               \
-            PyList_SetItem (list, i,                    \
+            PyList_SetItem (list, j,                    \
                     Py_BuildValue(_tuple_format,        \
                         minx_##_mt, maxx_##_mt,         \
                         miny_##_mt, maxy_##_mt,         \
@@ -767,19 +813,23 @@ _ftfont_getmetrics(PyObject *self, PyObject* args, PyObject *kwds)
         else                                            \
         {                                               \
             Py_INCREF (Py_None);                        \
-            PyList_SetItem (list, i, Py_None);          \
+            PyList_SetItem (list, j, Py_None);          \
         }                                               \
     }}
 
     /* get metrics */
     if (bbmode == FT_BBOX_EXACT || bbmode == FT_BBOX_EXACT_GRIDFIT)
     {
-        list = PyList_New(length);
+        list = PyList_New(nchars);
+        if (!list)
+            return NULL;
         _GET_METRICS(float, "(fffff)");
     }
     else if (bbmode == FT_BBOX_PIXEL || bbmode == FT_BBOX_PIXEL_GRIDFIT)
     {
-        list = PyList_New(length);
+        list = PyList_New(nchars);
+        if (!list)
+            return NULL;
         _GET_METRICS(int, "(iiiii)");
     }
     else
@@ -826,7 +876,6 @@ _ftfont_render_raw(PyObject *self, PyObject* args, PyObject *kwds)
     if (PGFT_BuildRenderMode(ft, font, 
                 &render, ptsize, FT_STYLE_NORMAL, 0) != 0)
     {
-        PyErr_SetString(PyExc_ValueError, PGFT_GetError(ft));
         return NULL;
     }
 
@@ -834,7 +883,6 @@ _ftfont_render_raw(PyObject *self, PyObject* args, PyObject *kwds)
 
     if (!rbuffer)
     {
-        PyErr_SetString(PyExc_RuntimeError, PGFT_GetError(ft));
         return NULL;
     }
 
@@ -904,7 +952,6 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
     if (PGFT_BuildRenderMode(ft, font, 
                 &render, ptsize, style, rotation) != 0)
     {
-        PyErr_SetString(PyExc_ValueError, PGFT_GetError(ft));
         return NULL;
     }
 
@@ -918,7 +965,6 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
 
         if (!r_surface)
         {
-            PyErr_SetString(PyExc_RuntimeError, PGFT_GetError(ft));
             return NULL;
         }
 
@@ -948,7 +994,6 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
                 &fg_color, bg_color_obj ? &bg_color : NULL,
                 &width, &height) != 0)
         {
-            PyErr_SetString(PyExc_RuntimeError, PGFT_GetError(ft));
             return NULL;
         }
 
@@ -987,7 +1032,6 @@ PyFreeTypeFont_New(const char *filename, int face_index)
 
     if (PGFT_TryLoadFont_Filename(ft, font, filename, face_index) != 0)
     {
-        PyErr_SetString(PyExc_RuntimeError, PGFT_GetError(ft));
         return NULL;
     }
 
@@ -1027,6 +1071,8 @@ _ft_autoinit(PyObject* self)
     {
         result = (PGFT_Init(&(FREETYPE_MOD_STATE(self)->freetype), 
                     PGFT_DEFAULT_CACHE_SIZE) == 0);
+        if (!result)
+            return NULL;
     }
 
     return PyInt_FromLong(result);
@@ -1093,6 +1139,7 @@ _ft_was_init(PyObject *self)
     return PyBool_FromLong((FREETYPE_MOD_STATE (self)->freetype != NULL));
 }
 
+#if PY3
 static int
 _ft_traverse (PyObject *mod, visitproc visit, void *arg)
 {
@@ -1109,6 +1156,7 @@ _ft_clear (PyObject *mod)
     }
     return 0;
 }
+#endif
 
 
 
