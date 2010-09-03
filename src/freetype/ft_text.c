@@ -71,11 +71,28 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
     if (string_length > ftext->length)
     {
-        free(ftext->glyphs);
-        ftext->glyphs = malloc((size_t)string_length * sizeof(FontGlyph *));
+        _PGFT_free(ftext->glyphs);
+        ftext->glyphs =
+            _PGFT_malloc((size_t)string_length * sizeof(FontGlyph *));
+        if (!ftext->glyphs)
+        {
+            _PGFT_free(buffer);
+            PyErr_NoMemory();
+            return NULL;
+        }
 
-        free(ftext->advances);
-        ftext->advances = malloc((size_t)string_length * sizeof(FT_Vector));
+        _PGFT_free(ftext->advances);
+        ftext->advances =
+            _PGFT_malloc((size_t)string_length * sizeof(FT_Vector));
+        if (!ftext->advances)
+        {
+            _PGFT_free(buffer);
+            _PGFT_free(ftext->glyphs);
+            ftext->glyphs = NULL;
+            PyErr_NoMemory();
+            return NULL;
+        }
+
     }
 
     ftext->length = string_length;
@@ -154,7 +171,7 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
         ftext->underline_size = underline_size;
     }
 
-    free(buffer);
+    _PGFT_free(buffer);
     return ftext;
 }
 
@@ -338,7 +355,7 @@ PGFT_BuildUnicodeString(PyObject *obj,
         }
         
         /* The Unicode is correct enough to use */
-        dst = (FT_UInt32 *)malloc((size_t)(len + 1) * sizeof(FT_UInt32));
+        dst = (FT_UInt32 *)_PGFT_malloc((size_t)(len + 1) * sizeof(FT_UInt32));
         if (!dst)
         {
             PyErr_NoMemory();
@@ -364,7 +381,7 @@ PGFT_BuildUnicodeString(PyObject *obj,
         Py_ssize_t i;
 
         Bytes_AsStringAndSize(obj, &src, &len);
-        dst = (FT_UInt32 *)malloc((size_t)(len + 1) * sizeof(FT_UInt32));
+        dst = (FT_UInt32 *)_PGFT_malloc((size_t)(len + 1) * sizeof(FT_UInt32));
         if (!dst)
         {
             PyErr_NoMemory();

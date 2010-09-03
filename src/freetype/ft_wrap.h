@@ -274,11 +274,12 @@ int         PGFT_BuildUnicodeString(PyObject *, FT_UInt32 **, Py_ssize_t *);
 
 
 /******************************************************** Glyph cache management ****/
-void        PGFT_Cache_Init(FreeTypeInstance *ft, FontCache *cache, PyFreeTypeFont *parent);
+int         PGFT_Cache_Init(FreeTypeInstance *ft, FontCache *cache, PyFreeTypeFont *parent);
 void        PGFT_Cache_Destroy(FontCache *cache);
 void        PGFT_Cache_Cleanup(FontCache *cache);
-FontGlyph * PGFT_Cache_FindGlyph(FreeTypeInstance *ft, FontCache *cache, FT_UInt32 character, 
-                const FontRenderMode *render);
+FontGlyph * PGFT_Cache_FindGlyph(FreeTypeInstance *ft, FontCache *cache,
+                                 FT_UInt32 character, 
+                                 const FontRenderMode *render);
 
 
 /******************************************************************* Internals ****/
@@ -286,6 +287,8 @@ void        _PGFT_SetError(FreeTypeInstance *, const char *, FT_Error);
 FT_Face     _PGFT_GetFace(FreeTypeInstance *, PyFreeTypeFont *);
 FT_Face     _PGFT_GetFaceSized(FreeTypeInstance *, PyFreeTypeFont *, int);
 void        _PGFT_BuildScaler(PyFreeTypeFont *, FTC_Scaler, int);
+#define     _PGFT_malloc PyMem_Malloc
+#define     _PGFT_free   PyMem_Free
 
 
 #endif

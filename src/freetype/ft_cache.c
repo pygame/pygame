@@ -31,7 +31,8 @@ FontCacheNode *_PGFT_Cache_AllocateNode(FreeTypeInstance *,
 void _PGFT_Cache_FreeNode(FontCache *, FontCacheNode *);
 
 
-FT_UInt32 _PGFT_GetLoadFlags(const FontRenderMode *render)
+FT_UInt32
+_PGFT_GetLoadFlags(const FontRenderMode *render)
 {
     FT_UInt32 load_flags = FT_LOAD_DEFAULT;
 
@@ -54,7 +55,8 @@ FT_UInt32 _PGFT_GetLoadFlags(const FontRenderMode *render)
     return load_flags;
 }
 
-FT_UInt32 _PGFT_Cache_Hash(const FontRenderMode *render, FT_UInt glyph_index)
+FT_UInt32 
+_PGFT_Cache_Hash(const FontRenderMode *render, FT_UInt glyph_index)
 {
 	const FT_UInt32 m = 0x5bd1e995;
 	const int r = 24;
@@ -83,10 +85,12 @@ FT_UInt32 _PGFT_Cache_Hash(const FontRenderMode *render, FT_UInt glyph_index)
 	return h;
 } 
 
-void PGFT_Cache_Init(FreeTypeInstance *ft, 
-        FontCache *cache, PyFreeTypeFont *parent)
+int
+PGFT_Cache_Init(FreeTypeInstance *ft, 
+                FontCache *cache, PyFreeTypeFont *parent)
 {
     int cache_size = MAX(ft->cache_size - 1, PGFT_MIN_CACHE_SIZE - 1);
+    int i;
 
     /*
      * Make sure this is a power of 2.
@@ -99,8 +103,19 @@ void PGFT_Cache_Init(FreeTypeInstance *ft,
 
     cache_size = cache_size + 1;
 
-    cache->nodes = calloc((size_t)cache_size, sizeof(FontGlyph *));
-    cache->depths = calloc((size_t)cache_size, sizeof(FT_Byte));
+    cache->nodes = _PGFT_malloc((size_t)cache_size * sizeof(FontGlyph *));
+    if (!cache->nodes)
+        return -1;
+    for (i=0; i < cache_size; ++i)
+        cache->nodes[i] = NULL;
+    cache->depths = _PGFT_malloc((size_t)cache_size);
+    if (!cache->depths)
+    {
+        _PGFT_free(cache->nodes);
+        cache->nodes = NULL;
+        return -1;
+    }
+    memset(cache->depths, 0, cache_size);
     cache->font = parent;
     cache->free_nodes = NULL;
     cache->size_mask = (FT_UInt32)(cache_size - 1);
@@ -112,9 +127,11 @@ void PGFT_Cache_Init(FreeTypeInstance *ft,
     cache->_debug_hit = 0;
     cache->_debug_miss = 0;
 #endif
+    return 0;
 }
 
-void PGFT_Cache_Destroy(FontCache *cache)
+void 
+PGFT_Cache_Destroy(FontCache *cache)
 {
     FT_UInt i;
     FontCacheNode *node, *next;
@@ -130,23 +147,28 @@ void PGFT_Cache_Destroy(FontCache *cache)
     fprintf(stderr, "\t%d nodes kicked\n", cache->_debug_delete_count);
 #endif
 
-    for (i = 0; i <= cache->size_mask; ++i)
+    if (cache->nodes != NULL)
     {
-        node = cache->nodes[i];
-
-        while (node)
+        for (i = 0; i <= cache->size_mask; ++i)
         {
-            next = node->next;
-            _PGFT_Cache_FreeNode(cache, node);
-            node = next;
-        }
-    }
+            node = cache->nodes[i];
 
-    free(cache->nodes);
-    free(cache->depths);
+            while (node)
+            {
+                next = node->next;
+                _PGFT_Cache_FreeNode(cache, node);
+                node = next;
+            }
+        }
+        _PGFT_free(cache->nodes);
+        cache->nodes = NULL;
+    }
+    _PGFT_free(cache->depths);
+    cache->depths = NULL;
 }
 
-void PGFT_Cache_Cleanup(FontCache *cache)
+void
+PGFT_Cache_Cleanup(FontCache *cache)
 {
     const FT_Byte MAX_BUCKET_DEPTH = 2;
     FontCacheNode *node, *prev;
@@ -180,7 +202,8 @@ void PGFT_Cache_Cleanup(FontCache *cache)
 
 }
 
-FontGlyph *PGFT_Cache_FindGlyph(FreeTypeInstance *ft, FontCache *cache, 
+FontGlyph *
+PGFT_Cache_FindGlyph(FreeTypeInstance *ft, FontCache *cache, 
         FT_UInt32 character, const FontRenderMode *render)
 {
     FontCacheNode **nodes = cache->nodes;
@@ -227,7 +250,8 @@ FontGlyph *PGFT_Cache_FindGlyph(FreeTypeInstance *ft, FontCache *cache,
     return &node->glyph;
 }
 
-void _PGFT_Cache_FreeNode(FontCache *cache, FontCacheNode *node)
+void
+_PGFT_Cache_FreeNode(FontCache *cache, FontCacheNode *node)
 {
     if (node == NULL)
         return;
@@ -239,10 +263,11 @@ void _PGFT_Cache_FreeNode(FontCache *cache, FontCacheNode *node)
     cache->depths[node->hash & cache->size_mask]--;
 
     FT_Done_Glyph(node->glyph.image);
-    free(node);
+    _PGFT_free(node);
 }
 
-FontCacheNode *_PGFT_Cache_AllocateNode(FreeTypeInstance *ft, 
+FontCacheNode *
+_PGFT_Cache_AllocateNode(FreeTypeInstance *ft, 
         FontCache *cache, const FontRenderMode *render, FT_UInt character)
 {
     FontCacheNode *node = NULL;
@@ -270,7 +295,9 @@ FontCacheNode *_PGFT_Cache_AllocateNode(FreeTypeInstance *ft,
     /* 
      * Allocate cache node 
      */
-    node = malloc(sizeof(FontCacheNode));
+    node = _PGFT_malloc(sizeof(FontCacheNode));
+    if (!node)
+        return NULL;
     glyph = &node->glyph;
 
     /*
@@ -342,6 +369,6 @@ cleanup:
     if (glyph && glyph->image)
         FT_Done_Glyph(glyph->image);
 
-    free(node);
+    _PGFT_free(node);
     return NULL;
 }
