@@ -89,6 +89,8 @@ typedef struct
     void *_internals;
 } PyFreeTypeFont;
 
+#define PyFreeTypeFont_IS_ALIVE(o) \
+    (((PyFreeTypeFont *)(o))->_internals != NULL)
 
 /**********************************************************
  * Module declaration

@@ -381,7 +381,7 @@ PyObject *PGFT_Render_PixelArray(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
     array_size = width * height;
 
-    buffer = malloc((size_t)array_size);
+    buffer = _PGFT_malloc((size_t)array_size);
     if (!buffer)
     {
         PyErr_NoMemory();
@@ -406,8 +406,7 @@ PyObject *PGFT_Render_PixelArray(FreeTypeInstance *ft, PyFreeTypeFont *font,
     array = Bytes_FromStringAndSize((char *)buffer, array_size);
 
 cleanup:
-    if (buffer)
-        free(buffer);
+    _PGFT_free(buffer);
 
     return array;
 }

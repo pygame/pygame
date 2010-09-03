@@ -27,8 +27,14 @@ from pygame.compat import as_unicode
 FONTDIR = os.path.join(os.path.dirname (os.path.abspath (__file__)),
                        'fixtures', 'fonts')
 
+def nullfont():
+    """return an uninitialized font instance"""
+    return ft.Font.__new__(ft.Font)
+
 class FreeTypeFontTest(unittest.TestCase):
 
+    _fixed_path = os.path.join(FONTDIR, 'test_fixed.otf')
+    _sans_path = os.path.join(FONTDIR, 'test_sans.ttf')
     _TEST_FONTS = {}
 
     def setUp(self):
@@ -38,13 +44,13 @@ class FreeTypeFontTest(unittest.TestCase):
             # Inconsolata is an open-source font designed by Raph Levien
             # Licensed under the Open Font License
             # http://www.levien.com/type/myfonts/inconsolata.html
-            self._TEST_FONTS['fixed'] = ft.Font(os.path.join (FONTDIR, 'test_fixed.otf'))
+            self._TEST_FONTS['fixed'] = ft.Font(self._fixed_path)
 
         if 'sans' not in self._TEST_FONTS:
             # Liberation Sans is an open-source font designed by Steve Matteson
             # Licensed under the GNU GPL
             # https://fedorahosted.org/liberation-fonts/
-            self._TEST_FONTS['sans'] = ft.Font(os.path.join (FONTDIR, 'test_sans.ttf'))
+            self._TEST_FONTS['sans'] = ft.Font(self._sans_path)
 
     def test_freetype_defaultfont(self):
         font = ft.Font(None)
@@ -60,14 +66,37 @@ class FreeTypeFontTest(unittest.TestCase):
         f = self._TEST_FONTS['fixed']
         self.assertTrue(isinstance(f, ft.Font))
 
-
+        f = ft.Font(None, ptsize=24)
+        self.assert_(f.height > 0)
+        self.assertRaises(RuntimeError, f.__init__,
+                          os.path.join(FONTDIR, 'nonexistant.ttf'))
+        self.assertRaises(RuntimeError, f.get_size, 'a', ptsize=24)
+        
+        # Test attribute preservation during reinitalization
+        f = ft.Font(self._sans_path, ptsize=24)
+        self.assertEqual(f.name, 'Liberation Sans')
+        self.assertFalse(f.fixed_width)
+        self.assertTrue(f.antialiased)
+        self.assertFalse(f.italic)
+        f.antialiased = False
+        f.italic = True
+        f.__init__(self._fixed_path)
+        self.assertEqual(f.name, 'Inconsolata')
+        ##self.assertTrue(f.fixed_width)
+        self.assertFalse(f.fixed_width)  # need a properly marked Mono font
+        self.assertFalse(f.antialiased)
+        self.assertTrue(f.italic)
+        
     def test_freetype_Font_fixed_width(self):
 
         f = self._TEST_FONTS['sans']
         self.assertFalse(f.fixed_width)
 
         f = self._TEST_FONTS['fixed']
-        self.assertFalse(f.fixed_width)
+        ##self.assertTrue(f.fixed_width)
+        self.assertFalse(f.fixed_width)  # need a properly marked Mone font
+
+        self.assertRaises(RuntimeError, lambda : nullfont().fixed_width)
 
     def test_freetype_Font_get_metrics(self):
 
@@ -101,6 +130,10 @@ class FreeTypeFontTest(unittest.TestCase):
 
         # test for invalid string
         self.assertRaises(TypeError, font.get_metrics, 24, 24)
+
+        # raises exception when uninitalized
+        self.assertRaises(RuntimeError, nullfont().get_metrics,
+                          'a', ptsize=24)
 
     def test_freetype_Font_get_size(self):
 
@@ -145,6 +178,9 @@ class FreeTypeFontTest(unittest.TestCase):
         size_utf32 = font.get_size(as_unicode(r'\uD80C\uDCA7'), ptsize=24)
         self.assertEqual(size_utf16[1], size_utf32[1])
 
+        self.assertRaises(RuntimeError,
+                          nullfont().get_size, 'a', ptsize=24)
+
     def test_freetype_Font_height(self):
 
         f = self._TEST_FONTS['sans']
@@ -152,6 +188,8 @@ class FreeTypeFontTest(unittest.TestCase):
 
         f = self._TEST_FONTS['fixed']
         self.assertEqual(f.height, 1100)
+
+        self.assertRaises(RuntimeError, lambda : nullfont().height)
         
 
     def test_freetype_Font_name(self):
@@ -162,6 +200,8 @@ class FreeTypeFontTest(unittest.TestCase):
         f = self._TEST_FONTS['fixed']
         self.assertEqual(f.name, 'Inconsolata')
 
+        nf = nullfont()
+        self.assertEqual(nf.name, repr(nf))
 
     def test_freetype_Font_render(self):
 
@@ -177,6 +217,7 @@ class FreeTypeFontTest(unittest.TestCase):
         # render to new surface
         rend = font.render(None, 'FoobarBaz', pygame.Color(0, 0, 0), None, ptsize=24)
         self.assertTrue(isinstance(rend, tuple))
+        self.assertEqual(len(rend), 3)
         self.assertTrue(isinstance(rend[0], pygame.Surface))
         self.assertTrue(isinstance(rend[1], int))
         self.assertTrue(isinstance(rend[2], int))
@@ -184,6 +225,7 @@ class FreeTypeFontTest(unittest.TestCase):
         # render to existing surface
         rend = font.render((surf, 32, 32), 'FoobarBaz', color, None, ptsize=24)
         self.assertTrue(isinstance(rend, tuple))
+        self.assertEqual(len(rend), 2)
         self.assertTrue(isinstance(rend[0], int))
         self.assertTrue(isinstance(rend[1], int))
 
@@ -212,6 +254,10 @@ class FreeTypeFontTest(unittest.TestCase):
         rend2 = font.render(None, as_unicode(r'\U000130A7'),
                             color, ptsize=24)
         self.assertEqual(rend1[2], rend2[2])
+
+        # raises exception when uninitalized
+        self.assertRaises(RuntimeError, nullfont().render,
+                          None, 'a', (0, 0, 0), ptsize=24)
 
     def test_freetype_Font_style(self):
 

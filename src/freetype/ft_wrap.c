@@ -25,7 +25,8 @@
 
 static unsigned long _RWops_read(FT_Stream stream, unsigned long offset,
 	unsigned char *buffer, unsigned long count);
-int _PGFT_Init_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font);
+static int _PGFT_Init_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font);
+static void _PGFT_Free_INTERNAL(PyFreeTypeFont *font);
 
 
 /*********************************************************
@@ -89,10 +90,13 @@ PGFT_GetError(FreeTypeInstance *ft)
 int
 PGFT_Face_IsFixedWidth(FreeTypeInstance *ft, PyFreeTypeFont *font)
 {
-    FT_Face face;
-    face = _PGFT_GetFace(ft, font);
+    FT_Face face = _PGFT_GetFace(ft, font);
 
-    return face ? FT_IS_FIXED_WIDTH(face) : 0;
+    if (face == NULL) {
+        RAISE(PyExc_RuntimeError, PGFT_GetError(ft));
+        return -1;
+    }
+    return FT_IS_FIXED_WIDTH(face);
 }
 
 const char *
@@ -101,7 +105,11 @@ PGFT_Face_GetName(FreeTypeInstance *ft, PyFreeTypeFont *font)
     FT_Face face;
     face = _PGFT_GetFace(ft, font);
 
-    return face ? face->family_name : ""; 
+    if (face == NULL) {
+        RAISE(PyExc_RuntimeError, PGFT_GetError(ft));
+        return NULL;
+    }
+    return face->family_name; 
 }
 
 int
@@ -110,7 +118,11 @@ PGFT_Face_GetHeight(FreeTypeInstance *ft, PyFreeTypeFont *font)
     FT_Face face;
     face = _PGFT_GetFace(ft, font);
 
-    return face ? face->height : 0;
+    if (face == NULL) {
+        RAISE(PyExc_RuntimeError, PGFT_GetError(ft));
+        return -1;
+    }
+    return face->height;
 }
 
 
@@ -215,23 +227,47 @@ _PGFT_face_request(FTC_FaceID face_id,
 
 int _PGFT_Init_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font)
 {
-    font->_internals = malloc(sizeof(FontInternals));
-
+    font->_internals = _PGFT_malloc(sizeof(FontInternals));
     if (font->_internals == NULL)
     {
         PyErr_NoMemory();
         return -1;
     }
-
     memset(font->_internals, 0x0, sizeof(FontInternals));
-    PGFT_Cache_Init(ft, &PGFT_INTERNALS(font)->cache, font);
+
+    if (PGFT_Cache_Init(ft, &PGFT_INTERNALS(font)->cache, font))
+    {
+        _PGFT_free(font->_internals);
+        font->_internals = NULL;
+        PyErr_NoMemory();
+        return -1;
+    }
 
     if (!_PGFT_GetFace(ft, font))
     {
-        RAISE(PyExc_SDLError, PGFT_GetError(ft));
+        PGFT_Cache_Destroy(&PGFT_INTERNALS(font)->cache);
+        _PGFT_free(font->_internals);
+        font->_internals = NULL;
+        RAISE(PyExc_RuntimeError, PGFT_GetError(ft));
         return -1;
     }
+
+    PGFT_INTERNALS(font)->active_text.glyphs = NULL;
+    PGFT_INTERNALS(font)->active_text.advances = NULL;
+
     return 0;
+}
+
+void
+_PGFT_Free_INTERNAL(PyFreeTypeFont *font)
+{
+    if (font->_internals)
+    {
+        _PGFT_free(PGFT_INTERNALS(font)->active_text.glyphs);
+        _PGFT_free(PGFT_INTERNALS(font)->active_text.advances);
+        _PGFT_free(font->_internals);
+        font->_internals = NULL;
+    }
 }
 
 int
@@ -244,7 +280,7 @@ PGFT_TryLoadFont_Filename(FreeTypeInstance *ft,
     size_t file_len;
 
     file_len = strlen(filename);
-    filename_alloc = malloc(file_len + 1);
+    filename_alloc = _PGFT_malloc(file_len + 1);
     if (!filename_alloc)
     {
         PyErr_NoMemory();
@@ -291,7 +327,7 @@ int PGFT_TryLoadFont_RWops(FreeTypeInstance *ft,
         return -1;
     }
 
-    stream = malloc(sizeof(*stream));
+    stream = _PGFT_malloc(sizeof(*stream));
 
     if (stream == NULL)
     {
@@ -319,6 +355,9 @@ int PGFT_TryLoadFont_RWops(FreeTypeInstance *ft,
 void
 PGFT_UnloadFont(FreeTypeInstance *ft, PyFreeTypeFont *font)
 {
+    if (font->id.open_args.flags == 0)
+        return;
+
     if (ft != NULL)
     {
         FTC_Manager_RemoveFaceID(ft->cache_manager, (FTC_FaceID)(&font->id));
@@ -326,20 +365,17 @@ PGFT_UnloadFont(FreeTypeInstance *ft, PyFreeTypeFont *font)
             PGFT_Cache_Destroy(&PGFT_INTERNALS(font)->cache);
     }
 
-    if (PGFT_INTERNALS(font))
-    {
-        free(PGFT_INTERNALS(font)->active_text.glyphs);
-        free(PGFT_INTERNALS(font));
-    }
-
     if (font->id.open_args.flags == FT_OPEN_STREAM)
     {
-        free(font->id.open_args.pathname);
+        _PGFT_free(font->id.open_args.pathname);
     }
     else if (font->id.open_args.flags == FT_OPEN_PATHNAME)
     {
-        free(font->id.open_args.stream);
+        _PGFT_free(font->id.open_args.stream);
     }
+    font->id.open_args.flags = 0;
+
+    _PGFT_Free_INTERNAL(font);
 }
 
 
@@ -356,7 +392,7 @@ PGFT_Init(FreeTypeInstance **_instance, int cache_size)
     FreeTypeInstance *inst = NULL;
     int error;
 
-    inst = malloc(sizeof(FreeTypeInstance));
+    inst = _PGFT_malloc(sizeof(FreeTypeInstance));
 
     if (!inst)
     {
@@ -414,6 +450,6 @@ PGFT_Quit(FreeTypeInstance *ft)
     if (ft->library)
         FT_Done_FreeType(ft->library);
 
-    free (ft);
+    _PGFT_free (ft);
 }
 
