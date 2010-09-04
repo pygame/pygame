@@ -122,8 +122,9 @@ PGFT_BuildRenderMode(FreeTypeInstance *ft,
  *********************************************************/
 #ifdef HAVE_PYGAME_SDL_VIDEO
 int PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
-    const FontRenderMode *render, PyObject *text, SDL_Surface *surface, 
-    int x, int y, FontColor *fgcolor, FontColor *bgcolor, int *_width, int *_height)
+    const FontRenderMode *render, PGFT_String *text,
+    SDL_Surface *surface, int x, int y, FontColor *fgcolor, FontColor *bgcolor,
+    int *_width, int *_height)
 {
     static const FontRenderPtr __SDLrenderFuncs[] =
     {
@@ -252,7 +253,7 @@ int PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
 }
 
 SDL_Surface *PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font, 
-    const FontRenderMode *render, PyObject *text,
+    const FontRenderMode *render, PGFT_String *text,
     FontColor *fgcolor, FontColor *bgcolor, int *_width, int *_height)
 {
     int locked = 0;
@@ -360,7 +361,7 @@ SDL_Surface *PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
  *********************************************************/
 
 PyObject *PGFT_Render_PixelArray(FreeTypeInstance *ft, PyFreeTypeFont *font,
-    const FontRenderMode *render, PyObject *text, int *_width, int *_height)
+    const FontRenderMode *render, PGFT_String *text, int *_width, int *_height)
 {
     FT_Byte *buffer = NULL;
     PyObject *array = NULL;

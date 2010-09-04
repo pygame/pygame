@@ -1,8 +1,11 @@
 pygame.freetype
 Enhanced Pygame module for loading and rendering fonts
 
+--- Note that some features may change before a formal release
+
 This module allows for rendering all font formats supported by FreeType, namely
-TTF, Type1, CFF, OpenType, SFNT, PCF, FNT, BDF, PFR and Type42 fonts.
+TTF, Type1, CFF, OpenType, SFNT, PCF, FNT, BDF, PFR and Type42 fonts. It
+can render any UTF-32 character in a font file.
 
 This module is optional, and replaces all of the functionality of the
 original 'font' module, whilst expanding it. This module depends in no
@@ -114,12 +117,12 @@ as specified on the font file.
 
 get_size
 Gets the size of rendered text
-Font.get_size(text, style=STYLE_DEFAULT, rotation=0, ptsize=default): return (int, int)
+Font.get_size(text, style=STYLE_DEFAULT, rotation=0, ptsize=default, surrogate=False): return (int, int)
 
 Gets the size in pixels which 'text' will occupy when rendered using 
 this Font. The calculations will take into account the font's default style
 (e.g. underlined fonts take extra height for the underline), or the
-style may be overridden by the 'style' parameter. 
+style may be overridden by the 'style' parameter.
 
 Returns a tuple containing the width and height of the text's
 bounding box. 
@@ -129,11 +132,23 @@ without any rotation, and taking into account fonts which are set
 to be drawn vertically via the Font.vertical attribute.
 Optionally you may specify another point size to use via the
 'ptsize' argument, or a text rotation via the 'rotation' argument.
+
+The surrogate argument allows access to the Supplemental Multilingual
+Plane (U+10000 to U+1FFFF) for Python interpreters built with a UCS-2
+unicode type.
+If surrogate is set True, and text is a unicode string, then any
+UTF-16 surrogate pairs found in the text are translated to UTF-32.
+Also, minimal UTF-16 error checking is performed: any
+BOM characters or malformed surrogate pairs raises a UnicodeEncodingError.
+If surrogate is False, the default, all characters in the text are
+passed through as is.
+
+If text is a char (byte) string, then its encoding is assumed to be LATIN1.
 <END>
 
 get_metrics
 Gets glyph metrics for the font's characters
-Font.get_metrics(text, bbmode=BBOX_PIXEL_GRIDFIT, ptsize=default): return [(...), ...]
+Font.get_metrics(text, bbmode=BBOX_PIXEL_GRIDFIT, ptsize=default, surrogate=False): return [(...), ...]
 
 Returns the glyph metrics for each character in 'text'.
 
@@ -157,6 +172,10 @@ may be passed as the bbmode argument to change this:
 
 The calculations are done using the font's default size in points.
 Optionally you may specify another point size to use.
+
+For the surrogate argument, see Font.get_size.
+
+If text is a char (byte) string, then its encoding is assumed to be LATIN1.
 <END>
 
 height
@@ -168,7 +187,7 @@ Read only. Gets the height of the Font. This is the average value of all glyphs 
 
 render
 Renders text on a surface
-Font.render(dest, text, fgcolor, bgcolor=None, style=STYLE_DEFAULT, rotation=0, ptsize=default): return (Surface, int, int)
+Font.render(dest, text, fgcolor, bgcolor=None, style=STYLE_DEFAULT, rotation=0, ptsize=default, surrogate=False): return (Surface, int, int)
 
 Renders the string 'text' to a pygame.Surface, using the color 'fgcolor'.
 
@@ -199,6 +218,18 @@ fonts which are set to be drawn vertically via the Font.vertical attribute.
 Optionally you may specify another point size to use via the
 'ptsize' argument, a text rotation via the 'rotation' argument,
 or a new text style via the 'style' argument.
+
+For the surrogate argument, see Font.get_size.
+
+If text is a char (byte) string, then its encoding is assumed to be LATIN1.
+<END>
+
+render_raw
+Renders text as a string of bytes
+Font.render_raw(text, ptsize=default, surrogate=False): return (bytes, int, int)
+
+Like Font.render(None, ...) but returns the rendered text as an 8 bit monochrome string of bytes.
+
 <END>
 
 style

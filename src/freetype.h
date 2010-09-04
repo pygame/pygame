@@ -102,7 +102,7 @@ typedef struct
 #ifndef PYGAME_FREETYPE_INTERNAL
 
 #define PyFreeTypeFont_Check(x) ((x)->ob_type == (PyTypeObject*)PyFREETYPE_C_API[0])
-#define PyFreeTypeFont_Type (*(PyTypeObject*)PyFREETYPE_C_API[0])
+#define PyFreeTypeFont_Type (*(PyTypeObject*)PyFREETYPE_C_API[1])
 #define PyFont_New (*(PyObject*(*)(const char*, int))PyFREETYPE_C_API[1])
 
 #define import_pygame_freetype() { \
