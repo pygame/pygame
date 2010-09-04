@@ -202,11 +202,12 @@
 <a name="Font.render">
 <big><b>Font.render</big></b><br><ul>
   <i>Renders text on a surface</i><br>
-  <tt>Font.render(dest, text, fgcolor, bgcolor=None, style=STYLE_DEFAULT, rotation=0, ptsize=default, surrogate=False): return (Surface, int, int)</tt><br>
+  <tt>Font.render(dest, text, fgcolor, bgcolor=None, style=STYLE_DEFAULT, rotation=0, ptsize=default, surrogate=False): return (Surface, Rect)</tt><br>
 <p>Renders the string 'text' to a <tt>pygame.Surface</tt>, using the color 'fgcolor'. </p>
 <p>The 'dest' parameter is supposed to be a tuple containing the surface and the coordinates at which the text will be rendered, in that order. </p>
-<p>If such tuple exists, and the destination surface is a valid <tt>pygame.Surface</tt> (independently of its bit depth), the text will be rendered directly on top of it at the passed coordinates, using the given 'fgcolor', and painting the background of the text with the given 'bgcolor', if available. The alpha values for both colors are always taken into account. The width and height of the rendered text will be returned in a tuple. </p>
-<p>If 'None' is passed instead of the destination tuple, a new 32 bit <tt>pygame.Surface</tt> will be created with the required size to contain the drawn text, and using *bgcolor* as its background color. If a background color is not available, the surface will be filled with zero alpha opacity. The width and height of the rendered text, together with the new <tt>:class:`pygame2.sdl.video.Surface`</tt>, will be returned in a tuple. </p>
+<p>If such tuple exists, and the destination surface is a valid <tt>pygame.Surface</tt> (independently of its bit depth), the text will be rendered directly on top of it at the passed coordinates, using the given 'fgcolor', and painting the background of the text with the given 'bgcolor', if available. The alpha values for both colors are always taken into account. </p>
+<p>If 'None' is passed instead of the destination tuple, a new 32 bit <tt>pygame.Surface</tt> will be created with the required size to contain the drawn text, and using *bgcolor* as its background color. If a background color is not available, the surface will be filled with zero alpha opacity. </p>
+<p>The return value is a tuple: the target surface and the bounding rectangle giving the size and position of the rendered text within the surface. </p>
 <p>The rendering is done using the font's default size in points and its default style, without any rotation, and taking into account fonts which are set to be drawn vertically via the <tt>Font.vertical</tt> attribute. Optionally you may specify another point size to use via the 'ptsize' argument, a text rotation via the 'rotation' argument, or a new text style via the 'style' argument. </p>
 <p>For the surrogate argument, see <tt>Font.get_size</tt>. </p>
 <p>If text is a char (byte) string, then its encoding is assumed to be <tt>LATIN1</tt>. </p>
@@ -217,8 +218,8 @@
 <a name="Font.render_raw">
 <big><b>Font.render_raw</big></b><br><ul>
   <i>Renders text as a string of bytes</i><br>
-  <tt>Font.render_raw(text, ptsize=default, surrogate=False): return (bytes, int, int)</tt><br>
-<p>Like <tt>Font.render(None</tt>, <tt>...)</tt> but returns the rendered text as an 8 bit monochrome string of bytes. </p>
+  <tt>Font.render_raw(text, ptsize=default, surrogate=False): return (bytes, (int, int))</tt><br>
+<p>Like <tt>Font.render(None</tt>, <tt>...)</tt> but the tuple returned is an 8 bit monochrome string of bytes and its size. </p>
 <!--COMMENTS:Font.render_raw--> &nbsp;<br> 
 <br></ul>
 

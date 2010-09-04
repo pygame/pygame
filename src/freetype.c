@@ -25,10 +25,6 @@
 #include "freetype/ft_wrap.h"
 #include "doc/freetype_doc.h"
 
-#ifndef DOC_PYGAMEFREETYPEFONTRENDERRAW
-#define DOC_PYGAMEFREETYPEFONTRENDERRAW "--- needs documenting ---"
-#endif
-
 #define MODULE_NAME "freetype"
 #define FONT_TYPE_NAME "Font"
 
@@ -232,7 +228,7 @@ static PyMethodDef _ftfont_methods[] =
         "render_raw", 
         (PyCFunction)_ftfont_render_raw, 
         METH_VARARGS | METH_KEYWORDS,
-        DOC_PYGAMEFREETYPEFONTRENDERRAW
+        DOC_FONTRENDERRAW
     },
 
     { NULL, NULL, 0, NULL }
@@ -884,6 +880,7 @@ _ftfont_render_raw(PyObject *self, PyObject *args, PyObject *kwds)
 
     /* output arguments */
     PyObject *rbuffer = NULL;
+    PyObject *rtuple;
     int width, height;
 
     FreeTypeInstance *ft;
@@ -921,7 +918,9 @@ _ftfont_render_raw(PyObject *self, PyObject *args, PyObject *kwds)
         return NULL;
     }
 
-    return Py_BuildValue("(Oii)", rbuffer, width, height);
+    rtuple = Py_BuildValue("(O(ii))", rbuffer, width, height);
+    Py_DECREF(rbuffer);
+    return rtuple;
 }
 
 PyObject *
@@ -1006,54 +1005,66 @@ _ftfont_render(PyObject *self, PyObject *args, PyObject *kwds)
     if (target_tuple == Py_None)
     {
         SDL_Surface *r_surface = NULL;
+        PyObject *surface_obj;
+        PyObject *rect_obj;
 
         r_surface = PGFT_Render_NewSurface(ft, font, &render, text,
                 &fg_color, bg_color_obj ? &bg_color : NULL, 
                 &width, &height);
+        PGFT_FreeString(text);
 
         if (!r_surface)
         {
-            PGFT_FreeString(text);
             return NULL;
         }
 
-        rtuple = Py_BuildValue("(Oii)", 
-                PySurface_New(r_surface), width, height);
+        surface_obj = PySurface_New(r_surface);
+        if (!surface_obj)
+        {
+            return NULL;
+        }
+        rect_obj = PyRect_New4(0, 0, width, height);
+        if (rect_obj != NULL)
+        {
+            rtuple = PyTuple_Pack(2, surface_obj, rect_obj);
+            Py_DECREF(rect_obj);
+        }
+        Py_XDECREF(surface_obj);
     }
     else
     {
         SDL_Surface *surface = NULL;
         PyObject *surface_obj = NULL;
+        PyObject *rect_obj;
         int xpos = 0, ypos = 0;
+        int rcode;
 
-        if (!PyArg_ParseTuple(target_tuple, "Oii", &surface_obj, &xpos, &ypos))
+        if (!PyArg_ParseTuple(target_tuple, "O!ii",
+                              &PySurface_Type, &surface_obj, &xpos, &ypos))
         {
             PGFT_FreeString(text);
-            return NULL;
-        }
-
-        if (!PySurface_Check(surface_obj))
-        {
-            PGFT_FreeString(text);
-            PyErr_SetString(PyExc_TypeError,
-                            "Target surface must be a SDL surface");
             return NULL;
         }
 
         surface = PySurface_AsSurface(surface_obj);
 
-        if (PGFT_Render_ExistingSurface(ft, font, &render, 
-                text, surface, xpos, ypos, 
-                &fg_color, bg_color_obj ? &bg_color : NULL,
-                &width, &height) != 0)
+        rcode = PGFT_Render_ExistingSurface(ft, font, &render, 
+                    text, surface, xpos, ypos, 
+                    &fg_color, bg_color_obj ? &bg_color : NULL,
+                    &width, &height);
+        PGFT_FreeString(text);
+        if (rcode)
         {
-            PGFT_FreeString(text);
             return NULL;
         }
 
-        rtuple = Py_BuildValue("(Oii)", surface_obj, width, height);
+        rect_obj = PyRect_New4(xpos, ypos, width, height);
+        if (rect_obj != NULL)
+        {
+            rtuple = PyTuple_Pack(2, surface_obj, rect_obj);
+            Py_DECREF(rect_obj);
+        }
     }
-    PGFT_FreeString(text);
 
     return rtuple;
 
@@ -1256,6 +1267,12 @@ MODINIT_DEFINE (freetype)
     }
 
     import_pygame_rwobject();
+    if (PyErr_Occurred()) 
+    {
+	    MODINIT_ERROR;
+    }
+
+    import_pygame_rect();
     if (PyErr_Occurred()) 
     {
 	    MODINIT_ERROR;
