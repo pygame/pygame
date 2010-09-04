@@ -21,9 +21,9 @@
 
 #define DOC_FONTHEIGHT "Font.height: return int\nGets the height of the Font"
 
-#define DOC_FONTRENDER "Font.render(dest, text, fgcolor, bgcolor=None, style=STYLE_DEFAULT, rotation=0, ptsize=default, surrogate=False): return (Surface, int, int)\nRenders text on a surface"
+#define DOC_FONTRENDER "Font.render(dest, text, fgcolor, bgcolor=None, style=STYLE_DEFAULT, rotation=0, ptsize=default, surrogate=False): return (Surface, Rect)\nRenders text on a surface"
 
-#define DOC_FONTRENDERRAW "Font.render_raw(text, ptsize=default, surrogate=False): return (bytes, int, int)\nRenders text as a string of bytes"
+#define DOC_FONTRENDERRAW "Font.render_raw(text, ptsize=default, surrogate=False): return (bytes, (int, int))\nRenders text as a string of bytes"
 
 #define DOC_FONTSTYLE "Font.style: return int\nGets or sets the font's style"
 
@@ -114,13 +114,13 @@ Gets the height of the Font
 
 
 Font.render
- Font.render(dest, text, fgcolor, bgcolor=None, style=STYLE_DEFAULT, rotation=0, ptsize=default, surrogate=False): return (Surface, int, int)
+ Font.render(dest, text, fgcolor, bgcolor=None, style=STYLE_DEFAULT, rotation=0, ptsize=default, surrogate=False): return (Surface, Rect)
 Renders text on a surface
 
 
 
 Font.render_raw
- Font.render_raw(text, ptsize=default, surrogate=False): return (bytes, int, int)
+ Font.render_raw(text, ptsize=default, surrogate=False): return (bytes, (int, int))
 Renders text as a string of bytes
 
 
