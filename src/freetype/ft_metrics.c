@@ -51,13 +51,13 @@ void _PGFT_GetMetrics_INTERNAL(FT_Glyph glyph, FT_UInt bbmode,
 
 
 int PGFT_GetMetrics(FreeTypeInstance *ft, PyFreeTypeFont *font,
-    FT_UInt32 character, const FontRenderMode *render, int bbmode,
+    PGFT_char character, const FontRenderMode *render, int bbmode,
     void *minx, void *maxx, void *miny, void *maxy, void *advance)
 {
     FontGlyph *     glyph = NULL;
 
     glyph = PGFT_Cache_FindGlyph(ft, &PGFT_INTERNALS(font)->cache, 
-                                 character, render);
+                                 (FT_UInt32)character, render);
 
     if (!glyph)
     {
@@ -166,7 +166,7 @@ PGFT_GetSurfaceSize(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
 int
 PGFT_GetTextSize(FreeTypeInstance *ft, PyFreeTypeFont *font,
-    const FontRenderMode *render, PyObject *text, int *w, int *h)
+    const FontRenderMode *render, PGFT_String *text, int *w, int *h)
 {
     FontText *font_text;
 
