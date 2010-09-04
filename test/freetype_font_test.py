@@ -21,7 +21,7 @@ try:
     import pygame.freetype as ft
 except ImportError:
     ft = None
-from pygame.compat import as_unicode
+from pygame.compat import as_unicode, bytes_
 
 
 FONTDIR = os.path.join(os.path.dirname (os.path.abspath (__file__)),
@@ -220,20 +220,21 @@ class FreeTypeFontTest(unittest.TestCase):
         # render to new surface
         rend = font.render(None, 'FoobarBaz', pygame.Color(0, 0, 0), None, ptsize=24)
         self.assertTrue(isinstance(rend, tuple))
-        self.assertEqual(len(rend), 3)
+        self.assertEqual(len(rend), 2)
         self.assertTrue(isinstance(rend[0], pygame.Surface))
-        self.assertTrue(isinstance(rend[1], int))
-        self.assertTrue(isinstance(rend[2], int))
+        self.assertTrue(isinstance(rend[1], pygame.Rect))
+        self.assertEqual(rend[0].get_rect(), rend[1])
 
         # render to existing surface
         refcount = sys.getrefcount(surf);
         rend = font.render((surf, 32, 32), 'FoobarBaz', color, None, ptsize=24)
         self.assertTrue(isinstance(rend, tuple))
-        self.assertEqual(len(rend), 3)
+        self.assertEqual(len(rend), 2)
         self.assertTrue(rend[0] is surf)
         self.assertEqual(sys.getrefcount(surf), refcount + 1)
-        self.assertTrue(isinstance(rend[1], int))
-        self.assertTrue(isinstance(rend[2], int))
+        self.assertTrue(isinstance(rend[1], pygame.Rect))
+        self.assertEqual(rend[1].topleft, (32, 32))
+        self.assertTrue(rend[0].get_rect().contains(rend[1]))
 
         # misc parameter test
         self.assertRaises(ValueError, font.render, None, 'foobar', color)
@@ -271,6 +272,24 @@ class FreeTypeFontTest(unittest.TestCase):
         # raises exception when uninitalized
         self.assertRaises(RuntimeError, nullfont().render,
                           None, 'a', (0, 0, 0), ptsize=24)
+
+    def test_freetype_Font_render_raw(self):
+    
+        font = self._TEST_FONTS['sans']
+        
+        text = "abc"
+        size = font.get_size(text, ptsize=24)
+        rend = font.render_raw(text, ptsize=24)
+        self.assertTrue(isinstance(rend, tuple))
+        self.assertEqual(len(rend), 2)
+        r, s = rend
+        self.assertTrue(isinstance(r, bytes_))
+        self.assertTrue(isinstance(s, tuple))
+        self.assertTrue(len(s), 2)
+        self.assertTrue(isinstance(s[0], int))
+        self.assertTrue(isinstance(s[1], int))
+        self.assertEqual(s, size)
+        self.assertEqual(len(r), s[0] * s[1])
 
     def test_freetype_Font_style(self):
 

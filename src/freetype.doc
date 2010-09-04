@@ -187,7 +187,7 @@ Read only. Gets the height of the Font. This is the average value of all glyphs 
 
 render
 Renders text on a surface
-Font.render(dest, text, fgcolor, bgcolor=None, style=STYLE_DEFAULT, rotation=0, ptsize=default, surrogate=False): return (Surface, int, int)
+Font.render(dest, text, fgcolor, bgcolor=None, style=STYLE_DEFAULT, rotation=0, ptsize=default, surrogate=False): return (Surface, Rect)
 
 Renders the string 'text' to a pygame.Surface, using the color 'fgcolor'.
 
@@ -201,16 +201,15 @@ be rendered directly on top of it at the
 passed coordinates, using the given 'fgcolor', and painting
 the background of the text with the given 'bgcolor', if available. 
 The alpha values for both colors are always taken into account.
-The width and height of the rendered text will be returned in a tuple.
 
 If 'None' is passed instead of the destination tuple, a new 32 bit
 pygame.Surface will be created with the required size to contain 
 the drawn text, and using *bgcolor* as its
 background color. If a background color is not available, the 
 surface will be filled with zero alpha opacity.
-The width and height of the rendered text,
-together with the new :class:`pygame2.sdl.video.Surface`, will
-be returned in a tuple.
+
+The return value is a tuple: the target surface and the bounding rectangle
+giving the size and position of the rendered text within the surface.
 
 The rendering is done using the font's default size in points and
 its default style, without any rotation, and taking into account 
@@ -226,9 +225,9 @@ If text is a char (byte) string, then its encoding is assumed to be LATIN1.
 
 render_raw
 Renders text as a string of bytes
-Font.render_raw(text, ptsize=default, surrogate=False): return (bytes, int, int)
+Font.render_raw(text, ptsize=default, surrogate=False): return (bytes, (int, int))
 
-Like Font.render(None, ...) but returns the rendered text as an 8 bit monochrome string of bytes.
+Like Font.render(None, ...) but the tuple returned is an 8 bit monochrome string of bytes and its size.
 
 <END>
 
