@@ -15,15 +15,15 @@
 
 #define DOC_FONTNAME "Font.name: return string\nGets the name of the font face."
 
-#define DOC_FONTGETSIZE "Font.get_size(text, style=STYLE_DEFAULT, rotation=0, ptsize=default, surrogate=False): return (int, int)\nGets the size of rendered text"
+#define DOC_FONTGETSIZE "Font.get_size(text, style=STYLE_DEFAULT, rotation=0, ptsize=default, surrogates=True): return (int, int)\nGets the size of rendered text"
 
-#define DOC_FONTGETMETRICS "Font.get_metrics(text, bbmode=BBOX_PIXEL_GRIDFIT, ptsize=default, surrogate=False): return [(...), ...]\nGets glyph metrics for the font's characters"
+#define DOC_FONTGETMETRICS "Font.get_metrics(text, bbmode=BBOX_PIXEL_GRIDFIT, ptsize=default, surrogates=True): return [(...), ...]\nGets glyph metrics for the font's characters"
 
 #define DOC_FONTHEIGHT "Font.height: return int\nGets the height of the Font"
 
-#define DOC_FONTRENDER "Font.render(dest, text, fgcolor, bgcolor=None, style=STYLE_DEFAULT, rotation=0, ptsize=default, surrogate=False): return (Surface, Rect)\nRenders text on a surface"
+#define DOC_FONTRENDER "Font.render(dest, text, fgcolor, bgcolor=None, style=STYLE_DEFAULT, rotation=0, ptsize=default, surrogates=True): return (Surface, Rect)\nRenders text on a surface"
 
-#define DOC_FONTRENDERRAW "Font.render_raw(text, ptsize=default, surrogate=False): return (bytes, (int, int))\nRenders text as a string of bytes"
+#define DOC_FONTRENDERRAW "Font.render_raw(text, ptsize=default, surrogates=True): return (bytes, (int, int))\nRenders text as a string of bytes"
 
 #define DOC_FONTSTYLE "Font.style: return int\nGets or sets the font's style"
 
@@ -96,13 +96,13 @@ Gets the name of the font face.
 
 
 Font.get_size
- Font.get_size(text, style=STYLE_DEFAULT, rotation=0, ptsize=default, surrogate=False): return (int, int)
+ Font.get_size(text, style=STYLE_DEFAULT, rotation=0, ptsize=default, surrogates=True): return (int, int)
 Gets the size of rendered text
 
 
 
 Font.get_metrics
- Font.get_metrics(text, bbmode=BBOX_PIXEL_GRIDFIT, ptsize=default, surrogate=False): return [(...), ...]
+ Font.get_metrics(text, bbmode=BBOX_PIXEL_GRIDFIT, ptsize=default, surrogates=True): return [(...), ...]
 Gets glyph metrics for the font's characters
 
 
@@ -114,13 +114,13 @@ Gets the height of the Font
 
 
 Font.render
- Font.render(dest, text, fgcolor, bgcolor=None, style=STYLE_DEFAULT, rotation=0, ptsize=default, surrogate=False): return (Surface, Rect)
+ Font.render(dest, text, fgcolor, bgcolor=None, style=STYLE_DEFAULT, rotation=0, ptsize=default, surrogates=True): return (Surface, Rect)
 Renders text on a surface
 
 
 
 Font.render_raw
- Font.render_raw(text, ptsize=default, surrogate=False): return (bytes, (int, int))
+ Font.render_raw(text, ptsize=default, surrogates=True): return (bytes, (int, int))
 Renders text as a string of bytes
 
 

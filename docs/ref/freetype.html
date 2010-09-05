@@ -160,11 +160,11 @@
 <a name="Font.get_size">
 <big><b>Font.get_size</big></b><br><ul>
   <i>Gets the size of rendered text</i><br>
-  <tt>Font.get_size(text, style=STYLE_DEFAULT, rotation=0, ptsize=default, surrogate=False): return (int, int)</tt><br>
+  <tt>Font.get_size(text, style=STYLE_DEFAULT, rotation=0, ptsize=default, surrogates=True): return (int, int)</tt><br>
 <p>Gets the size in pixels which 'text' will occupy when rendered using this Font. The calculations will take into account the font's default style <tt>(e.g</tt>. underlined fonts take extra height for the underline), or the style may be overridden by the 'style' parameter. </p>
 <p>Returns a tuple containing the width and height of the text's bounding box. </p>
 <p>The calculations are done using the font's default size in points, without any rotation, and taking into account fonts which are set to be drawn vertically via the <tt>Font.vertical</tt> attribute. Optionally you may specify another point size to use via the 'ptsize' argument, or a text rotation via the 'rotation' argument. </p>
-<p>The surrogate argument allows access to the Supplemental Multilingual Plane <tt>(U+10000</tt> to <tt>U+1FFFF)</tt> for Python interpreters built with a <tt>UCS-2</tt> unicode type. If surrogate is set True, and text is a unicode string, then any <tt>UTF-16</tt> surrogate pairs found in the text are translated to <tt>UTF-32</tt>. Also, minimal <tt>UTF-16</tt> error checking is performed: any <tt>BOM</tt> characters or malformed surrogate pairs raises a UnicodeEncodingError. If surrogate is False, the default, all characters in the text are passed through as is. </p>
+<p>The surrogates argument allows disabling of <tt>UTF-16</tt> surrogate pair translation. By default surrogates is True to allow access to the Supplemental Multilingual Plane <tt>(U+10000</tt> to <tt>U+1FFFF)</tt> for Python interpreters built with a <tt>UCS-2</tt> unicode type. If text is a unicode string, then any <tt>UTF-16</tt> surrogate pairs found in the text are translated to <tt>UTF-32</tt>. Also, minimal <tt>UTF-16</tt> error checking is performed: any <tt>BOM</tt> characters or malformed surrogate pairs raises a UnicodeEncodingError. If surrogate is False all characters in the text are passed through as is. This will cause different behavior for unicode '\Uxxxxxxxx' escapes on <tt>UCS-2</tt> and <tt>UCS-4</tt> interpreters, as <tt>UCS-2</tt> interpreters transform the code point into a surrogate pair, whereas it is simple stored as a single character in <tt>UCS-4</tt>. </p>
 <p>If text is a char (byte) string, then its encoding is assumed to be <tt>LATIN1</tt>. </p>
 <!--COMMENTS:Font.get_size--> &nbsp;<br> 
 <br></ul>
@@ -173,7 +173,7 @@
 <a name="Font.get_metrics">
 <big><b>Font.get_metrics</big></b><br><ul>
   <i>Gets glyph metrics for the font's characters</i><br>
-  <tt>Font.get_metrics(text, bbmode=BBOX_PIXEL_GRIDFIT, ptsize=default, surrogate=False): return [(...), ...]</tt><br>
+  <tt>Font.get_metrics(text, bbmode=BBOX_PIXEL_GRIDFIT, ptsize=default, surrogates=True): return [(...), ...]</tt><br>
 <p>Returns the glyph metrics for each character in 'text'. </p>
 <p>The glyph metrics are returned inside a list; each character will be represented as a tuple inside the list with the following values: </p>
 <pre>    (min_x, max_x, min_y, max_y, horizontal_advance)
@@ -202,7 +202,7 @@
 <a name="Font.render">
 <big><b>Font.render</big></b><br><ul>
   <i>Renders text on a surface</i><br>
-  <tt>Font.render(dest, text, fgcolor, bgcolor=None, style=STYLE_DEFAULT, rotation=0, ptsize=default, surrogate=False): return (Surface, Rect)</tt><br>
+  <tt>Font.render(dest, text, fgcolor, bgcolor=None, style=STYLE_DEFAULT, rotation=0, ptsize=default, surrogates=True): return (Surface, Rect)</tt><br>
 <p>Renders the string 'text' to a <tt>pygame.Surface</tt>, using the color 'fgcolor'. </p>
 <p>The 'dest' parameter is supposed to be a sequence containing the surface and the coordinates at which the text will be rendered, in that order. The sequence may be either (surf, posn) or (surf, x, y), where x and y are numbers. posn can be any sequence, including Rect, for which the first two elements are positions x and y. If x and y are not integers they will be cast to int: int(x), int(y). </p>
 <p>If such a sequence exists, and the destination surface is a valid <tt>pygame.Surface</tt> (independently of its bit depth), the text will be rendered directly on top of it at the passed coordinates, using the given 'fgcolor', and painting the background of the text with the given 'bgcolor', if available. The alpha values for both colors are always taken into account. </p>
@@ -218,7 +218,7 @@
 <a name="Font.render_raw">
 <big><b>Font.render_raw</big></b><br><ul>
   <i>Renders text as a string of bytes</i><br>
-  <tt>Font.render_raw(text, ptsize=default, surrogate=False): return (bytes, (int, int))</tt><br>
+  <tt>Font.render_raw(text, ptsize=default, surrogates=True): return (bytes, (int, int))</tt><br>
 <p>Like <tt>Font.render(None</tt>, <tt>...)</tt> but the tuple returned is an 8 bit monochrome string of bytes and its size. </p>
 <!--COMMENTS:Font.render_raw--> &nbsp;<br> 
 <br></ul>
