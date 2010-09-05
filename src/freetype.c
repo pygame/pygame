@@ -823,7 +823,7 @@ _ftfont_getsize(PyObject *self, PyObject *args, PyObject *kwds)
     PyObject *rtuple = NULL;
     FT_Error error;
     int ptsize = -1;
-    int surrogates = 0;
+    int surrogates = 1;
     int width, height;
 
     FontRenderMode render;
@@ -937,7 +937,7 @@ _ftfont_getmetrics(PyObject *self, PyObject *args, PyObject *kwds)
     PGFT_String *text;
     int ptsize = -1;
     int bbmode = FT_BBOX_PIXEL_GRIDFIT;
-    int surrogates = 0;
+    int surrogates = 1;
 
     /* grab freetype */
     FreeTypeInstance *ft;
@@ -1006,7 +1006,7 @@ _ftfont_render_raw(PyObject *self, PyObject *args, PyObject *kwds)
     PyObject *textobj;
     PGFT_String *text;
     int ptsize = -1;
-    int surrogates = 0;
+    int surrogates = 1;
 
     /* output arguments */
     PyObject *rbuffer = NULL;
@@ -1075,7 +1075,7 @@ _ftfont_render(PyObject *self, PyObject *args, PyObject *kwds)
     PyObject *textobj = NULL;
     PGFT_String *text;
     int ptsize = -1;
-    int surrogates = 0;
+    int surrogates = 1;
     PyObject *dest = NULL;
     PyObject *surface_obj = NULL;
     int xpos = 0;

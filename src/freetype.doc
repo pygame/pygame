@@ -117,7 +117,7 @@ as specified on the font file.
 
 get_size
 Gets the size of rendered text
-Font.get_size(text, style=STYLE_DEFAULT, rotation=0, ptsize=default, surrogate=False): return (int, int)
+Font.get_size(text, style=STYLE_DEFAULT, rotation=0, ptsize=default, surrogates=True): return (int, int)
 
 Gets the size in pixels which 'text' will occupy when rendered using 
 this Font. The calculations will take into account the font's default style
@@ -133,22 +133,25 @@ to be drawn vertically via the Font.vertical attribute.
 Optionally you may specify another point size to use via the
 'ptsize' argument, or a text rotation via the 'rotation' argument.
 
-The surrogate argument allows access to the Supplemental Multilingual
+The surrogates argument allows disabling of UTF-16 surrogate pair translation.
+By default surrogates is True to allow access to the Supplemental Multilingual
 Plane (U+10000 to U+1FFFF) for Python interpreters built with a UCS-2
 unicode type.
-If surrogate is set True, and text is a unicode string, then any
-UTF-16 surrogate pairs found in the text are translated to UTF-32.
-Also, minimal UTF-16 error checking is performed: any
+If text is a unicode string, then any UTF-16 surrogate pairs found in the text
+are translated to UTF-32. Also, minimal UTF-16 error checking is performed: any
 BOM characters or malformed surrogate pairs raises a UnicodeEncodingError.
-If surrogate is False, the default, all characters in the text are
-passed through as is.
+If surrogate is False all characters in the text are passed through as is.
+This will cause different behavior for unicode '\Uxxxxxxxx' escapes
+on UCS-2 and UCS-4 interpreters, as UCS-2 interpreters transform the
+code point into a surrogate pair, whereas it is simple stored as a single
+character in UCS-4.
 
 If text is a char (byte) string, then its encoding is assumed to be LATIN1.
 <END>
 
 get_metrics
 Gets glyph metrics for the font's characters
-Font.get_metrics(text, bbmode=BBOX_PIXEL_GRIDFIT, ptsize=default, surrogate=False): return [(...), ...]
+Font.get_metrics(text, bbmode=BBOX_PIXEL_GRIDFIT, ptsize=default, surrogates=True): return [(...), ...]
 
 Returns the glyph metrics for each character in 'text'.
 
@@ -187,7 +190,7 @@ Read only. Gets the height of the Font. This is the average value of all glyphs 
 
 render
 Renders text on a surface
-Font.render(dest, text, fgcolor, bgcolor=None, style=STYLE_DEFAULT, rotation=0, ptsize=default, surrogate=False): return (Surface, Rect)
+Font.render(dest, text, fgcolor, bgcolor=None, style=STYLE_DEFAULT, rotation=0, ptsize=default, surrogates=True): return (Surface, Rect)
 
 Renders the string 'text' to a pygame.Surface, using the color 'fgcolor'.
 
@@ -228,7 +231,7 @@ If text is a char (byte) string, then its encoding is assumed to be LATIN1.
 
 render_raw
 Renders text as a string of bytes
-Font.render_raw(text, ptsize=default, surrogate=False): return (bytes, (int, int))
+Font.render_raw(text, ptsize=default, surrogates=True): return (bytes, (int, int))
 
 Like Font.render(None, ...) but the tuple returned is an 8 bit monochrome string of bytes and its size.
 

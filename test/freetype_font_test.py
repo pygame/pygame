@@ -175,10 +175,9 @@ class FreeTypeFontTest(unittest.TestCase):
         self.assertTrue(size_under[1] > size_default[1])
 
         size_utf32 = font.get_size(as_unicode(r'\U000130A7'), ptsize=24)
-        size_utf16 = font.get_size(as_unicode(r'\uD80C\uDCA7'),
-                                   ptsize=24, surrogates=True)
-        self.assertEqual(size_utf16[0], size_utf32[0])
         size_utf16 = font.get_size(as_unicode(r'\uD80C\uDCA7'), ptsize=24)
+        size_utf16 = font.get_size(as_unicode(r'\uD80C\uDCA7'), ptsize=24,
+                                   surrogates=False)
         self.assertNotEqual(size_utf16[0], size_utf32[0]);
         
         self.assertRaises(RuntimeError,
@@ -266,24 +265,18 @@ class FreeTypeFontTest(unittest.TestCase):
 
         # unicode text (incomplete)
         self.assertRaises(UnicodeEncodeError, font.render,
-                          None, as_unicode(r'\uD80C'), color, ptsize=24,
-                          surrogates=True)
+                          None, as_unicode(r'\uD80C'), color, ptsize=24)
         self.assertRaises(UnicodeEncodeError, font.render,
-                          None, as_unicode(r'\uDCA7'), color, ptsize=24,
-                          surrogates=True)
+                          None, as_unicode(r'\uDCA7'), color, ptsize=24)
         self.assertRaises(UnicodeEncodeError, font.render,
-                          None, as_unicode(r'\uFEFF'), color, ptsize=24,
-                          surrogates=True)
+                          None, as_unicode(r'\uFEFF'), color, ptsize=24)
         self.assertRaises(UnicodeEncodeError, font.render,
-                          None, as_unicode(r'\uFFFE'), color, ptsize=24,
-                          surrogates=True)
-        rend1 = font.render(None, as_unicode(r'\uD80C\uDCA7'),
-                            color, ptsize=24, surrogates=True)
-        rend2 = font.render(None, as_unicode(r'\U000130A7'),
-                            color, ptsize=24)
+                          None, as_unicode(r'\uFFFE'), color, ptsize=24)
+        rend1 = font.render(None, as_unicode(r'\uD80C\uDCA7'), color, ptsize=24)
+        rend2 = font.render(None, as_unicode(r'\U000130A7'), color, ptsize=24)
         self.assertEqual(rend1[1], rend2[1])
         rend1 = font.render(None, as_unicode(r'\uD80C\uDCA7'),
-                            color, ptsize=24)
+                            color, ptsize=24, surrogates=False)
         self.assertNotEqual(rend1[1], rend2[1])
 
         # raises exception when uninitalized

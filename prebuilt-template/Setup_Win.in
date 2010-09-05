@@ -21,6 +21,8 @@ COPYHDRS_AVFORMAT = -lavformat -Iprebuilt/include/libavformat
 COPYHDRS_SWCALE = -lswscale -Iprebuilt/include/libswscale
 COPYHDRS_AVCODEC = -lavcodec -Iprebuilt/include/libavcodec
 COPYHDRS_AVUTIL = -lavutil -Iprebuilt/include/libavutil
+# Ensure make_prebuilt.py includes the freetype2 headers.
+COPYHDRS_FREETYPE = -lfreetype -Iprebuilt/include/freetype2/freetype -Iprebuilt/include/freetype2/freetype/config
 # The DLL's
 COPYLIB_SDL -Lprebuilt/lib/SDL.dll
 COPYLIB_SDL_ttf -lSDL -lfreetype -Lprebuilt/lib/SDL_ttf.dll
