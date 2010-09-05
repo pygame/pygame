@@ -104,6 +104,136 @@ font_resource_end:
     return result;
 }
 
+static int
+parse_dest(PyObject *dest, PyObject **surf, int *x, int *y)
+{
+    PyObject *s = PySequence_GetItem(dest, 0);
+    int len = PySequence_Length(dest);
+    PyObject *oi;
+    PyObject *oj;
+    int i, j;
+
+    if (!PySurface_Check(s))
+    {
+        PyErr_Format(PyExc_TypeError,
+                     "expected a Surface as element 0 of dest:"
+                     " got type %.1024s",
+                     Py_TYPE(s)->tp_name);
+        Py_DECREF(s);
+        return -1;
+    }
+    if (len == 2)
+    {
+        PyObject *size = PySequence_GetItem(dest, 1);
+
+        if (size == NULL)
+        {
+            Py_DECREF(s);
+            return -1;
+        }
+        if (!PySequence_Check(size))
+        {
+            PyErr_Format(PyExc_TypeError,
+                         "expected an (x,y) position for element 1"
+                         " of dest: got type %.1024s",
+                         Py_TYPE(size)->tp_name);
+            Py_DECREF(s);
+            Py_DECREF(size);
+            return -1;
+        }
+        len = PySequence_Length(size);
+        if (len < 2)
+        {
+            PyErr_Format(PyExc_TypeError,
+                         "expected at least a length 2 sequence for element 1"
+                         " of dest: not length %d", len);
+            Py_DECREF(s);
+            Py_DECREF(size);
+            return -1;
+        }
+        oi = PySequence_GetItem(size, 0);
+        if (oi == NULL)
+        {
+            Py_DECREF(s);
+            Py_DECREF(size);
+            return -1;
+        }
+        oj = PySequence_GetItem(size, 1);
+        Py_DECREF(size);
+        if (oj == NULL)
+        {
+            Py_DECREF(s);
+            Py_DECREF(oi);
+            return -1;
+        }
+        if (!PyNumber_Check(oi) || !PyNumber_Check(oj))
+        {
+            Py_DECREF(s);
+            Py_DECREF(oi);
+            Py_DECREF(oj);
+            PyErr_Format(PyExc_TypeError,
+                         "expected a pair of numbers for element 1 of dest:"
+                         " got types %.1024s and %.1024s",
+                         Py_TYPE(oi)->tp_name, Py_TYPE(oj)->tp_name);
+            return -1;
+        }
+    }
+    else if (len == 3)
+    {
+        oi = PySequence_GetItem(dest, 1);
+        if (oi == NULL)
+        {
+            Py_DECREF(s);
+            return -1;
+        }
+        oj = PySequence_GetItem(dest, 2);
+        if (oj == NULL)
+        {
+            Py_DECREF(oi);
+            Py_DECREF(s);
+            return -1;
+        }
+        if (!PyNumber_Check(oi) || !PyNumber_Check(oj))
+        {
+            Py_DECREF(s);
+            PyErr_Format(PyExc_TypeError,
+                         "for dest expected a pair of numbers"
+                         "for elements 1 and 2: got types %.1024s and %1024s",
+                         Py_TYPE(oi)->tp_name, Py_TYPE(oj)->tp_name);
+            Py_DECREF(oi);
+            Py_DECREF(oj);
+            return -1;
+        }
+    }
+    else
+    {
+        Py_DECREF(s);
+        PyErr_Format(PyExc_TypeError,
+                     "for dest expected a sequence of either 2 or 3:"
+                     " not length %d", len);
+        return -1;
+    }              
+    i = PyInt_AsLong(oi);
+    Py_DECREF(oi);
+    if (i == -1 && PyErr_Occurred())
+    {
+        Py_DECREF(s);
+        Py_DECREF(oj);
+        return -1;
+    }
+    j = PyInt_AsLong(oj);
+    Py_DECREF(oj);
+    if (j == -1 && PyErr_Occurred())
+    {
+        Py_DECREF(s);
+        return -1;
+    }
+    *surf = s;
+    *x = i;
+    *y = j;
+    return 0;
+}
+
 /*
  * FreeType module declarations
  */
@@ -946,7 +1076,10 @@ _ftfont_render(PyObject *self, PyObject *args, PyObject *kwds)
     PGFT_String *text;
     int ptsize = -1;
     int surrogates = 0;
-    PyObject *target_tuple = NULL;
+    PyObject *dest = NULL;
+    PyObject *surface_obj = NULL;
+    int xpos = 0;
+    int ypos = 0;
     PyObject *fg_color_obj = NULL;
     PyObject *bg_color_obj = NULL;
     int rotation = 0;
@@ -955,6 +1088,7 @@ _ftfont_render(PyObject *self, PyObject *args, PyObject *kwds)
     /* output arguments */
     PyObject *rtuple = NULL;
     int width, height;
+    PyObject *rect_obj;
 
     FontColor fg_color, bg_color;
     FontRenderMode render;
@@ -963,7 +1097,7 @@ _ftfont_render(PyObject *self, PyObject *args, PyObject *kwds)
     ASSERT_GRAB_FREETYPE(ft, NULL);
 
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOO|Oiiii", kwlist,
-                &target_tuple, &textobj, &fg_color_obj, /* required */
+                &dest, &textobj, &fg_color_obj, /* required */
                 &bg_color_obj, &style, &rotation, /* optional */
                 &ptsize, &surrogates)) /* optional */
         return NULL;
@@ -1002,11 +1136,9 @@ _ftfont_render(PyObject *self, PyObject *args, PyObject *kwds)
         return NULL;
     }
 
-    if (target_tuple == Py_None)
+    if (dest == Py_None)
     {
         SDL_Surface *r_surface = NULL;
-        PyObject *surface_obj;
-        PyObject *rect_obj;
 
         r_surface = PGFT_Render_NewSurface(ft, font, &render, text,
                 &fg_color, bg_color_obj ? &bg_color : NULL, 
@@ -1023,24 +1155,14 @@ _ftfont_render(PyObject *self, PyObject *args, PyObject *kwds)
         {
             return NULL;
         }
-        rect_obj = PyRect_New4(0, 0, width, height);
-        if (rect_obj != NULL)
-        {
-            rtuple = PyTuple_Pack(2, surface_obj, rect_obj);
-            Py_DECREF(rect_obj);
-        }
-        Py_XDECREF(surface_obj);
     }
-    else
+    else if (PySequence_Check(dest) &&  /* conditional and */
+             PySequence_Size(dest) > 1)
     {
         SDL_Surface *surface = NULL;
-        PyObject *surface_obj = NULL;
-        PyObject *rect_obj;
-        int xpos = 0, ypos = 0;
         int rcode;
 
-        if (!PyArg_ParseTuple(target_tuple, "O!ii",
-                              &PySurface_Type, &surface_obj, &xpos, &ypos))
+        if (parse_dest(dest, &surface_obj, &xpos, &ypos))
         {
             PGFT_FreeString(text);
             return NULL;
@@ -1055,16 +1177,25 @@ _ftfont_render(PyObject *self, PyObject *args, PyObject *kwds)
         PGFT_FreeString(text);
         if (rcode)
         {
+            Py_DECREF(surface_obj);
             return NULL;
         }
-
-        rect_obj = PyRect_New4(xpos, ypos, width, height);
-        if (rect_obj != NULL)
-        {
-            rtuple = PyTuple_Pack(2, surface_obj, rect_obj);
-            Py_DECREF(rect_obj);
-        }
     }
+    else
+    {
+        PGFT_FreeString(text);
+        return PyErr_Format(PyExc_TypeError,
+                            "Expected a (surface, posn) or None for dest argument:"
+                            " got type %.1024s",
+                            Py_TYPE(dest)->tp_name);
+    }
+    rect_obj = PyRect_New4(xpos, ypos, width, height);
+    if (rect_obj != NULL)
+    {
+        rtuple = PyTuple_Pack(2, surface_obj, rect_obj);
+        Py_DECREF(rect_obj);
+    }
+    Py_DECREF(surface_obj);
 
     return rtuple;
 

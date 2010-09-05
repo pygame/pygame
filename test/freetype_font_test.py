@@ -233,8 +233,25 @@ class FreeTypeFontTest(unittest.TestCase):
         self.assertTrue(rend[0] is surf)
         self.assertEqual(sys.getrefcount(surf), refcount + 1)
         self.assertTrue(isinstance(rend[1], pygame.Rect))
-        self.assertEqual(rend[1].topleft, (32, 32))
+        self.assertEqual(tuple(rend[1].topleft), (32, 32))
         self.assertTrue(rend[0].get_rect().contains(rend[1]))
+        
+        rect = pygame.Rect(20, 20, 2, 2)
+        rend = font.render((surf, rect), 'FoobarBax', color, None, ptsize=24)
+        self.assertEqual(rend[1].topleft, rect.topleft)
+        self.assertNotEqual(rend[1], rect)
+        rend = font.render((surf, 20.1, 18.9), 'FoobarBax',
+                           color, None, ptsize=24)
+        self.assertEqual(tuple(rend[1].topleft), (20, 18))
+
+        # invalid dest test
+        for dest in [0, (), (surf,), (surf, 'a'), (surf, ()),
+                     (surf, (1,)), (surf, ('a', 2)), (surf, (1, 'a')),
+                     (surf, (1+2j, 2)), (surf, (1, 1+2j)),
+                     (surf, 'a', 2), (surf, 1, 'a'), (surf, 1+2j, 2),
+                     (surf, 1, 1+2j), (surf, 1, 2, 3)]: 
+            self.assertRaises(TypeError, font.render,
+                              dest, 'foobar', color, ptsize=24)
 
         # misc parameter test
         self.assertRaises(ValueError, font.render, None, 'foobar', color)

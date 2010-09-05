@@ -191,18 +191,21 @@ Font.render(dest, text, fgcolor, bgcolor=None, style=STYLE_DEFAULT, rotation=0, 
 
 Renders the string 'text' to a pygame.Surface, using the color 'fgcolor'.
 
-The 'dest' parameter is supposed to be a tuple containing
+The 'dest' parameter is supposed to be a sequence containing
 the surface and the coordinates at which the text will be rendered,
-in that order.
+in that order. The sequence may be either (surf, posn) or
+(surf, x, y), where x and y are numbers. posn can be any sequence, including
+Rect, for which the first two elements are positions x and y. If x and y
+are not integers they will be cast to int: int(x), int(y).
 
-If such tuple exists, and the destination surface is a valid
+If such a sequence exists, and the destination surface is a valid
 pygame.Surface (independently of its bit depth), the text will 
 be rendered directly on top of it at the
 passed coordinates, using the given 'fgcolor', and painting
 the background of the text with the given 'bgcolor', if available. 
 The alpha values for both colors are always taken into account.
 
-If 'None' is passed instead of the destination tuple, a new 32 bit
+If 'None' is passed instead of a destination sequence, a new 32 bit
 pygame.Surface will be created with the required size to contain 
 the drawn text, and using *bgcolor* as its
 background color. If a background color is not available, the 
