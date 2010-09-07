@@ -46,7 +46,7 @@ void __render_glyph_ByteArray(int x, int y, FontSurface *surface,
         dst_cpy = dst;
 
         for (i = 0; i < bitmap->width; ++i)
-            *dst_cpy++ = (FT_Byte)(~(*src_cpy++));
+            *dst_cpy++ = (FT_Byte)(*src_cpy++);
 
         dst += surface->pitch;
         src += bitmap->pitch;
