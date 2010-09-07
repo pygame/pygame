@@ -159,6 +159,14 @@ int PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
     FontSurface font_surf;
     FontText    *font_text;
 
+    if (PGFT_String_GET_LENGTH(text) == 0)
+    {
+        /* No rendering */
+        *_width = 0;
+        *_height = PGFT_Face_GetHeight(ft, font);
+        return 0;
+    }
+
     if (SDL_MUSTLOCK(surface))
     {
         if (SDL_LockSurface(surface) == -1)
@@ -273,6 +281,15 @@ SDL_Surface *PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
     FontSurface font_surf;
     FontText *font_text;
     int width, height;
+
+    if (PGFT_String_GET_LENGTH(text) == 0)
+    {
+        /* Empty surface */
+        *_width = 0;
+        *_height = PGFT_Face_GetHeight(ft, font);
+        return SDL_CreateRGBSurface(SDL_SWSURFACE, 0, *_height, 32,
+                                    rmask, gmask, bmask, amask);
+    }
 
     /* build font text */
     font_text = PGFT_LoadFontText(ft, font, render, text);
@@ -393,6 +410,14 @@ PyObject *PGFT_Render_PixelArray(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
     FontText *font_text;
     int array_size;
+
+    if (PGFT_String_GET_LENGTH(text) == 0)
+    {
+        /* Empty array */
+        *_width = 0;
+        *_height = PGFT_Face_GetHeight(ft, font);
+        return Bytes_FromStringAndSize("", 0);
+    }
 
     /* build font text */
     font_text = PGFT_LoadFontText(ft, font, render, text);

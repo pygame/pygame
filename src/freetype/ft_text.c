@@ -30,6 +30,7 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
     Py_ssize_t  string_length = PGFT_String_GET_LENGTH(text);
 
     PGFT_char * buffer = PGFT_String_GET_DATA(text);
+    PGFT_char * buffer_end;
     PGFT_char * ch;
 
     FT_Fixed    y_scale;
@@ -91,7 +92,7 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
     /* fill it with the glyphs */
     glyph_array = ftext->glyphs;
 
-    for (ch = buffer; *ch; ++ch)
+    for (ch = buffer, buffer_end = ch + string_length; ch < buffer_end; ++ch)
     {
         /*
          * Load the corresponding glyph from the cache
