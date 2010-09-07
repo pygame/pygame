@@ -237,6 +237,7 @@ Renders text as a string of bytes
 Font.render_raw(text, ptsize=default, surrogates=True): return (bytes, (int, int))
 
 Like Font.render(None, ...) but the tuple returned is an 8 bit monochrome string of bytes and its size.
+The forground color is 255, the background 0, useful as an alpha mask for a foreground pattern.
 
 <END>
 

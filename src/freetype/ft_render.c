@@ -446,9 +446,10 @@ PyObject *PGFT_Render_PixelArray(FreeTypeInstance *ft, PyFreeTypeFont *font,
     }
     buffer = (FT_Byte *)Bytes_AS_STRING(array);
 
-    memset(buffer, 0xFF, (size_t)array_size);
+    memset(buffer, 0x00, (size_t)array_size);
 
     surf.buffer = buffer;
+    surf.x_offset = surf.y_offset = 0;
     surf.width = surf.pitch = width;
     surf.height = height;
 
