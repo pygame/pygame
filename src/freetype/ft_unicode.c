@@ -30,14 +30,12 @@
 #define SIZEOF_PGFT_STRING(len) \
     (sizeof(PGFT_String) + (ssize_t)(len) * sizeof(PGFT_char))
 
-static const Py_UNICODE UNICODE_BOM_NATIVE = 0xFEFF;
-static const Py_UNICODE UNICODE_BOM_SWAPPED = 0xFFFE;
-static const Py_UNICODE UNICODE_HSA_START = 0xD800;
-static const Py_UNICODE UNICODE_HSA_END = 0xD8FF;
-static const Py_UNICODE UNICODE_LSA_START = 0xDC00;
-static const Py_UNICODE UNICODE_LSA_END = 0xDFFF;
-static const Py_UNICODE UNICODE_SA_START = 0xD800;
-static const Py_UNICODE UNICODE_SA_END = 0xDFFF;
+static const PGFT_char UNICODE_HSA_START = 0xD800;
+static const PGFT_char UNICODE_HSA_END = 0xDBFF;
+static const PGFT_char UNICODE_LSA_START = 0xDC00;
+static const PGFT_char UNICODE_LSA_END = 0xDFFF;
+static const PGFT_char UNICODE_SA_START = 0xD800;
+static const PGFT_char UNICODE_SA_END = 0xDFFF;
 
 static void
 Err_UnicodeEncodeError(const char *codec,
@@ -56,23 +54,17 @@ PGFT_EncodePyString(PyObject *obj, int surrogates)
 
     if (PyUnicode_Check(obj)) {
         const Py_UNICODE *src = PyUnicode_AS_UNICODE(obj);
-        Py_UNICODE c;
+        PGFT_char c;
         Py_ssize_t i, j, srclen;
 
         len = srclen = PyUnicode_GET_SIZE(obj);
         if (surrogates) {
             /* Do UTF-16 surrogate pair decoding. Calculate character count
-             * and raise an exception if BOMs or malformed surrogate pairs
-             * are found.
+             * and raise an exception on a malformed surrogate pair.
              */
             for (i = 0; i < srclen; ++i) {
                 c = src[i];
-                if (c == UNICODE_BOM_NATIVE || c == UNICODE_BOM_SWAPPED) {
-                    Err_UnicodeEncodeError("utf-32", obj, i, i + 1,
-                                           "no BOM handling");
-                    return NULL;
-                }
-                if (c >= UNICODE_SA_START && c < UNICODE_SA_END) {
+                if (c >= UNICODE_SA_START && c <= UNICODE_SA_END) {
                     if (c > UNICODE_HSA_END) {
                         Err_UnicodeEncodeError(
                             "utf-32", obj, i, i + 1,
@@ -97,7 +89,6 @@ PGFT_EncodePyString(PyObject *obj, int surrogates)
             }
         }       
 
-        /* The Unicode is valid enough to use */
         utf32_buffer = (PGFT_String *)_PGFT_malloc(SIZEOF_PGFT_STRING(len));
         if (utf32_buffer == NULL) {
             PyErr_NoMemory();
@@ -107,9 +98,11 @@ PGFT_EncodePyString(PyObject *obj, int surrogates)
         if (surrogates) {
             for (i = 0, j = 0; i < srclen; ++i, ++j) {
                 c = src[i];
-                if (c >= UNICODE_HSA_START && c <= UNICODE_HSA_END)
-                    c = ((c & 0x3FF) << 10 | (src[++i] & 0x3FF)) + 0x10000;
-                dst[j] = (PGFT_char)c;
+                if (c >= UNICODE_HSA_START && c <= UNICODE_HSA_END) {
+                    c = ((c & 0x3FF) << 10 | (PGFT_char)(src[++i] & 0x3FF)) +
+                        0x10000U;
+                }
+                dst[j] = c;
             }
         }
         else {

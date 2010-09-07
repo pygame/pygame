@@ -168,6 +168,7 @@ typedef struct PGFT_String_
  **********************************************************/
 typedef struct {
     FreeTypeInstance *freetype;
+    FT_Int cache_size;
 } _FreeTypeState;
 
 #ifdef IS_PYTHON_3
