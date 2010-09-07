@@ -47,13 +47,15 @@ def run():
     font.render((screen, 258, 237), "or BLAND!", pygame.Color(0, 0xCC, 28, 128), None,
             ptsize=64)
 
-    font.render((screen, 298, 320), "I \u2665 Unicode", pygame.Color(0, 0xCC, 0xDD), None,
+    utext = pygame.compat.as_unicode(r"I \u2665 Unicode")
+    font.render((screen, 298, 320), utext, pygame.Color(0, 0xCC, 0xDD), None,
             ptsize=64)
 
-    font.render((screen, 480, 32), "\u2665", colors["grey_light"], colors["red"],
+    utext = pygame.compat.as_unicode(r"\u2665")
+    font.render((screen, 480, 32), utext, colors["grey_light"], colors["red"],
             ptsize=148)
 
-    font.render((screen, 380, 380), "...yes, this is a SDL surface", pygame.Color(0, 0, 0), None,
+    font.render((screen, 380, 380), "...yes, this is an SDL surface", pygame.Color(0, 0, 0), None,
             ptsize=24, style=freetype.STYLE_BOLD)
 
     pygame.display.flip()
