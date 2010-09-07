@@ -133,18 +133,16 @@ to be drawn vertically via the Font.vertical attribute.
 Optionally you may specify another point size to use via the
 'ptsize' argument, or a text rotation via the 'rotation' argument.
 
-The surrogates argument allows disabling of UTF-16 surrogate pair translation.
-By default surrogates is True to allow access to the Supplemental Multilingual
-Plane (U+10000 to U+1FFFF) for Python interpreters built with a UCS-2
-unicode type.
-If text is a unicode string, then any UTF-16 surrogate pairs found in the text
-are translated to UTF-32. Also, minimal UTF-16 error checking is performed: any
-BOM characters or malformed surrogate pairs raises a UnicodeEncodingError.
-If surrogate is False all characters in the text are passed through as is.
-This will cause different behavior for unicode '\Uxxxxxxxx' escapes
-on UCS-2 and UCS-4 interpreters, as UCS-2 interpreters transform the
-code point into a surrogate pair, whereas it is simple stored as a single
-character in UCS-4.
+The surrogates arguement controls Unicode text decoding.
+By default, the freetype module performs UTF-16 surrogate pair decoding on Unicode text.
+This allows 32-bit escape sequences ('\Uxxxxxxxx') between 0x10000 and 0x10FFFF
+to represent their corresponding UTF-32 code points on Python interpreters
+built with a UCS-2 unicode type (on Windows, for instance).
+It also means character values within the UTF-16 surrogate area (0xD800 to 0xDFFF)
+are considered part of a surrogate pair.
+A malformed surrogate pair will raise an UnicodeEncodeError. 
+Setting surrogates False turns surrogate pair decoding off,
+letting interpreters with a UCS-4 unicode type access the full UCS-4 character range.
 
 If text is a char (byte) string, then its encoding is assumed to be LATIN1.
 <END>
@@ -176,7 +174,7 @@ may be passed as the bbmode argument to change this:
 The calculations are done using the font's default size in points.
 Optionally you may specify another point size to use.
 
-For the surrogate argument, see Font.get_size.
+Setting surrogates False turns off surrogate pair decoding (see Font.get_size).
 
 If text is a char (byte) string, then its encoding is assumed to be LATIN1.
 <END>
@@ -217,6 +215,11 @@ surface will be filled with zero alpha opacity.
 The return value is a tuple: the target surface and the bounding rectangle
 giving the size and position of the rendered text within the surface.
 
+If an empty string is passed for text then the returned Rect is
+zero width and the height of the font. If dest is None the returned
+surface is the same dimensions as the boundary rect. The rect will
+test False.
+
 The rendering is done using the font's default size in points and
 its default style, without any rotation, and taking into account 
 fonts which are set to be drawn vertically via the Font.vertical attribute.
@@ -224,7 +227,7 @@ Optionally you may specify another point size to use via the
 'ptsize' argument, a text rotation via the 'rotation' argument,
 or a new text style via the 'style' argument.
 
-For the surrogate argument, see Font.get_size.
+Setting surrogates False turns off surrogate pair decoding (see Font.get_size).
 
 If text is a char (byte) string, then its encoding is assumed to be LATIN1.
 <END>

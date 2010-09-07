@@ -187,6 +187,16 @@ int PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
         return -1;
     }
 
+    if (width <= 0 || height <= 0)
+    {
+        /* Nothing more to do. */
+        if (locked)
+            SDL_UnlockSurface(surface);
+        *_width = 0;
+        *_height = PGFT_Face_GetHeight(ft, font);
+        return 0;
+    }
+    
     /*
      * Setup target surface struct
      */
@@ -272,7 +282,11 @@ SDL_Surface *PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
     if (PGFT_GetSurfaceSize(ft, font, render, font_text, &width, &height) != 0)
         return NULL;
-
+    if (height <= 0)
+    {
+        height = PGFT_Face_GetHeight(ft, font);
+    }
+        
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
     rmask = 0xff000000;
     gmask = 0x00ff0000;
@@ -293,6 +307,14 @@ SDL_Surface *PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
     {
         PyErr_NoMemory(); /* Everything else should be Okay */
         return NULL;
+    }
+
+    if (width <= 0)
+    {
+        /* Nothing more to do. */
+        *_width = 0;
+        *_height = height;
+        return surface;
     }
 
     if (SDL_MUSTLOCK(surface))
@@ -335,7 +357,8 @@ SDL_Surface *PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
     /*
      * Render the text!
      */
-    if (_PGFT_Render_INTERNAL(ft, font, font_text, render, fgcolor, &font_surf) != 0)
+    if (_PGFT_Render_INTERNAL(ft, font, font_text, render,
+                              fgcolor, &font_surf))
     {
         SDL_FreeSurface(surface);
         return NULL;
@@ -349,7 +372,7 @@ SDL_Surface *PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
     return surface;
 }
-#endif
+#endif  /* #ifdef HAVE_PYGAME_SDL_VIDEO */
 
 
 
@@ -375,19 +398,28 @@ PyObject *PGFT_Render_PixelArray(FreeTypeInstance *ft, PyFreeTypeFont *font,
     font_text = PGFT_LoadFontText(ft, font, render, text);
 
     if (!font_text)
-        goto cleanup;
+        return NULL;
 
     if (PGFT_GetSurfaceSize(ft, font, render, font_text, &width, &height) != 0)
-        goto cleanup;
+        return NULL;
 
     array_size = width * height;
 
-    buffer = _PGFT_malloc((size_t)array_size);
-    if (!buffer)
+    if (array_size <= 0)
     {
-        PyErr_NoMemory();
-        goto cleanup;
+        /* Empty array */
+        *_width = 0;
+        *_height = PGFT_Face_GetHeight(ft, font);
+        return Bytes_FromStringAndSize("", 0);
     }
+
+    /* Create an uninitialized string whose buffer can be directly set. */
+    array = Bytes_FromStringAndSize(NULL, array_size);
+    if (array == NULL)
+    {
+        return NULL;
+    }
+    buffer = (FT_Byte *)Bytes_AS_STRING(array);
 
     memset(buffer, 0xFF, (size_t)array_size);
 
@@ -399,15 +431,13 @@ PyObject *PGFT_Render_PixelArray(FreeTypeInstance *ft, PyFreeTypeFont *font,
     surf.render = __render_glyph_ByteArray;
 
     if (_PGFT_Render_INTERNAL(ft, font, font_text, render, 0x0, &surf) != 0)
-        goto cleanup;
+    {
+        Py_DECREF(array);
+        return NULL;
+    }
 
     *_width = width;
     *_height = height;
-
-    array = Bytes_FromStringAndSize((char *)buffer, array_size);
-
-cleanup:
-    _PGFT_free(buffer);
 
     return array;
 }

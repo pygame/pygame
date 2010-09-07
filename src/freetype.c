@@ -857,12 +857,12 @@ _ftfont_getsize(PyObject *self, PyObject *args, PyObject *kwds)
     PGFT_FreeString(text);
 
     if (!error)
-        rtuple = Py_BuildValue ("(ii)", width, height);
+        rtuple = Py_BuildValue ("ii", width, height);
 
     return rtuple;
 }
 
-#define _TUPLE_FORMAT(_ot) ("(" _ot _ot _ot _ot _ot ")")
+#define _TUPLE_FORMAT(_ot) (_ot _ot _ot _ot _ot)
 #define _DEFINE_GET_METRICS(_mt, _ot)                   \
 static PyObject *                                       \
 _PGFT_get_metrics_##_mt(FreeTypeInstance *ft,           \
@@ -1047,8 +1047,7 @@ _ftfont_render_raw(PyObject *self, PyObject *args, PyObject *kwds)
     {
         return NULL;
     }
-
-    rtuple = Py_BuildValue("(O(ii))", rbuffer, width, height);
+    rtuple = Py_BuildValue("O(ii)", rbuffer, width, height);
     Py_DECREF(rbuffer);
     return rtuple;
 }
@@ -1262,7 +1261,7 @@ _ft_autoinit(PyObject *self)
     if (FREETYPE_MOD_STATE(self)->freetype == NULL)
     {
         result = (PGFT_Init(&(FREETYPE_MOD_STATE(self)->freetype), 
-                    PGFT_DEFAULT_CACHE_SIZE) == 0);
+                            FREETYPE_MOD_STATE(self)->cache_size) == 0);
         if (!result)
             return NULL;
     }
@@ -1290,6 +1289,7 @@ _ft_init(PyObject *self, PyObject *args)
     if (!PyArg_ParseTuple(args, "|i", &cache_size))
         return NULL;
 
+    FREETYPE_MOD_STATE(self)->cache_size = cache_size;
     result = _ft_autoinit(self);
 
     if (!PyObject_IsTrue(result))
@@ -1299,7 +1299,6 @@ _ft_init(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    FREETYPE_MOD_STATE(self)->freetype->cache_size = cache_size;
     Py_RETURN_NONE;
 }
 
@@ -1322,7 +1321,7 @@ PyObject *
 _ft_get_version(PyObject *self)
 {
     /* Return the linked FreeType2 version */
-    return Py_BuildValue("(iii)", FREETYPE_MAJOR, FREETYPE_MINOR, FREETYPE_PATCH);
+    return Py_BuildValue("iii", FREETYPE_MAJOR, FREETYPE_MINOR, FREETYPE_PATCH);
 }
 
 PyObject *
@@ -1442,6 +1441,9 @@ MODINIT_DEFINE (freetype)
         MODINIT_ERROR;
     }
 
+    FREETYPE_MOD_STATE(module)->freetype = NULL;
+    FREETYPE_MOD_STATE(module)->cache_size = PGFT_DEFAULT_CACHE_SIZE;
+    
     Py_INCREF((PyObject *)&PyFreeTypeFont_Type);
     if (PyModule_AddObject(module, FONT_TYPE_NAME,
                            (PyObject *)&PyFreeTypeFont_Type) == -1) 
