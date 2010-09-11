@@ -307,24 +307,27 @@ class FreeTypeFontTest(unittest.TestCase):
         font = self._TEST_FONTS['sans']
         
         text = "abc"
-        # size = font.get_size(text, ptsize=24)
-        # rend = font.render_raw(text, ptsize=24)
-        # self.assertTrue(isinstance(rend, tuple))
-        # self.assertEqual(len(rend), 2)
-        # r, s = rend
-        # self.assertTrue(isinstance(r, bytes_))
-        # self.assertTrue(isinstance(s, tuple))
-        # self.assertTrue(len(s), 2)
-        # w, h = s
-        # self.assertTrue(isinstance(w, int))
-        # self.assertTrue(isinstance(w, int))
-        # self.assertEqual(s, size)
-        # self.assertEqual(len(r), w * h)
+        size = font.get_size(text, ptsize=24)
+        rend = font.render_raw(text, ptsize=24)
+        self.assertTrue(isinstance(rend, tuple))
+        self.assertEqual(len(rend), 2)
+        r, s = rend
+        self.assertTrue(isinstance(r, bytes_))
+        self.assertTrue(isinstance(s, tuple))
+        self.assertTrue(len(s), 2)
+        w, h = s
+        self.assertTrue(isinstance(w, int))
+        self.assertTrue(isinstance(w, int))
+        self.assertEqual(s, size)
+        self.assertEqual(len(r), w * h)
         
         r, (w, h) = font.render_raw('', ptsize=24)
-        # self.assertEqual(w, 0)
-        # self.assertEqual(h, font.height)
-        # self.assertEqual(len(r), 0)
+        self.assertEqual(w, 0)
+        self.assertEqual(h, font.height)
+        self.assertEqual(len(r), 0)
+        
+        # bug with decenders: this would crash
+        rend = font.render_raw('render_raw', ptsize=24)
 
     def test_freetype_Font_style(self):
 
