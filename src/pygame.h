@@ -539,16 +539,24 @@ typedef struct {
 /*the rwobject are only needed for C side work, not accessable from python*/
 #define PYGAMEAPI_RWOBJECT_FIRSTSLOT                            \
     (PYGAMEAPI_EVENT_FIRSTSLOT + PYGAMEAPI_EVENT_NUMSLOTS)
-#define PYGAMEAPI_RWOBJECT_NUMSLOTS 4
+#define PYGAMEAPI_RWOBJECT_NUMSLOTS 7
 #ifndef PYGAMEAPI_RWOBJECT_INTERNAL
-#define RWopsFromPython \
+#define RWopsFromObject \
     (*(SDL_RWops*(*)(PyObject*))PyGAME_C_API[PYGAMEAPI_RWOBJECT_FIRSTSLOT + 0])
-#define RWopsCheckPython                                                \
+#define RWopsCheckObject                                               \
     (*(int(*)(SDL_RWops*))PyGAME_C_API[PYGAMEAPI_RWOBJECT_FIRSTSLOT + 1])
-#define RWopsFromPythonThreaded                                         \
+#define RWopsFromFileObjectThreaded                                         \
     (*(SDL_RWops*(*)(PyObject*))PyGAME_C_API[PYGAMEAPI_RWOBJECT_FIRSTSLOT + 2])
-#define RWopsCheckPythonThreaded                                        \
+#define RWopsCheckObjectThreaded                                        \
     (*(int(*)(SDL_RWops*))PyGAME_C_API[PYGAMEAPI_RWOBJECT_FIRSTSLOT + 3])
+#define RWopsEncodeFilePath \
+    (*(PyObject*(*)(PyObject*, PyObject*)) \
+        PyGAME_C_API[PYGAMEAPI_RWOBJECT_FIRSTSLOT + 4])
+#define RWopsEncodeString \
+    (*(PyObject*(*)(PyObject*, const char*, const char*, PyObject*)) \
+        PyGAME_C_API[PYGAMEAPI_RWOBJECT_FIRSTSLOT + 5])
+#define RWopsFromFileObject                                         \
+    (*(SDL_RWops*(*)(PyObject*))PyGAME_C_API[PYGAMEAPI_RWOBJECT_FIRSTSLOT + 6])
 #define import_pygame_rwobject() {                                   \
 	PyObject *_module = PyImport_ImportModule(IMPPREFIX "rwobject"); \
 	if (_module != NULL) {                                        \
@@ -564,6 +572,11 @@ typedef struct {
             Py_DECREF(_module);                                          \
         }                                                               \
     }
+/* For backward compatibility */
+#define RWopsFromPython RWopsFromObject
+#define RWopsCheckPython RWopsCheckObject
+#define RWopsFromPythonThreaded RWopsFromFileObjectThreaded
+#define RWopsCheckPythonThreaded RWopsCheckObjectThreaded
 #endif
 
 /* BufferProxy */

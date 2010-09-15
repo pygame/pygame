@@ -120,9 +120,9 @@
 
 /* Pep 3123: Making PyObject_HEAD conform to standard C */
 #if !defined(Py_TYPE)
-#define Py_TYPE(o)    (((PyObject*)(o))->ob_type)
-#define Py_REFCNT(o)  (((PyObject*)(o))->ob_refcnt)
-#define Py_SIZE(o)    (((PyVarObject*)(o))->ob_size)
+#define Py_TYPE(o)    (((PyObject *)(o))->ob_type)
+#define Py_REFCNT(o)  (((PyObject *)(o))->ob_refcnt)
+#define Py_SIZE(o)    (((PyVarObject *)(o))->ob_size)
 #endif
 
 /* Encode a unicode file path */

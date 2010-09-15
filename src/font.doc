@@ -139,10 +139,10 @@ instead you must use Font.render() to create an image (Surface) of
 the text, then blit this image onto another Surface.
 
 The text can only be a single line: newline characters are not rendered.
-Null characters ('\x00') are treated as end-of-text.
+Null characters ('\x00') raise a TypeError.
 Both Unicode and char (byte) strings are accepted.
 For Unicode strings only UCS-2 characters ('\u0001' to '\uFFFF') are recognized.
-Behavior is undefined for anything greater.
+Anything greater raises a UnicodeError.
 For char strings a LATIN1 encoding is assumed.
 The antialias argument is a boolean: if true the characters will have
 smooth edges. The color argument is the color of the text

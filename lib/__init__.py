@@ -97,7 +97,7 @@ from pygame.constants import *
 from pygame.version import *
 from pygame.rect import Rect
 from pygame.compat import geterror
-import pygame.rwobject
+from pygame.rwobject import encode_string, encode_file_path
 import pygame.surflock
 import pygame.color
 Color = color.Color
@@ -304,4 +304,4 @@ copy_reg.pickle(Color, __color_reduce, __color_constructor)
 
 
 #cleanup namespace
-del pygame, os, sys, rwobject, surflock, MissingModule, copy_reg, geterror
+del pygame, os, sys, surflock, MissingModule, copy_reg, geterror

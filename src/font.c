@@ -33,6 +33,11 @@
 #include "doc/font_doc.h"
 #include "structmember.h"
 
+/* Do we need to support anything before 2006? */
+#if !defined(TTF_MAJOR_VERSION)
+#error Require SDL_ttf 1.2.6 or later
+#endif
+
 #if PY3
 #define RAISE_TEXT_TYPE_ERROR() \
     RAISE(PyExc_TypeError, "text must be a unicode or bytes");
@@ -67,52 +72,82 @@ static const char *resourcefunc_name = "getResource";
 #endif
 
 
+/*
+ */
+static int
+utf_8_needs_UCS_4(const char *str)
+{
+    static const Uint8 first = 0xF0;
+    
+    while (*str) {
+        if ((Uint8)*str >= first) {
+            return 1;
+        }
+        ++str;
+    }
+    return 0;
+}
+
+/* Return an encoded file path, a file-like object or a NULL pointer.
+ * May raise a Python error. Use PyErr_Occurred to check.
+ */
 static PyObject*
 font_resource (const char *filename)
 {
-    PyObject* load_basicfunc = NULL;
     PyObject* pkgdatamodule = NULL;
     PyObject* resourcefunc = NULL;
     PyObject* result = NULL;
-#if PY3
     PyObject* tmp;
+
+    pkgdatamodule = PyImport_ImportModule(pkgdatamodule_name);
+    if (pkgdatamodule == NULL) {
+        return NULL;
+    }
+
+    resourcefunc = PyObject_GetAttrString(pkgdatamodule, resourcefunc_name);
+    Py_DECREF(pkgdatamodule);
+    if (resourcefunc == NULL) {
+        return NULL;
+    }
+
+    result = PyObject_CallFunction(resourcefunc, "s", filename);
+    Py_DECREF(resourcefunc);
+    if (result == NULL) {
+        return NULL;
+    }
+
+#if PY3
+    tmp = PyObject_GetAttrString(result, "name");
+    if (tmp != NULL) {
+        Py_DECREF(result);
+        result = tmp;
+    }
+    else if (!PyErr_ExceptionMatches(PyExc_MemoryError)) {
+        PyErr_Clear();
+    }
+#else
+    if (PyFile_Check(result))
+    {		
+        tmp = PyFile_Name(result);        
+        Py_INCREF(tmp);
+        Py_DECREF(result);
+        result = tmp;
+    }
 #endif
 
-    pkgdatamodule = PyImport_ImportModule (pkgdatamodule_name);
-    if (!pkgdatamodule)
-        goto font_resource_end;
-
-    resourcefunc = PyObject_GetAttrString (pkgdatamodule, resourcefunc_name);
-    if (!resourcefunc)
-        goto font_resource_end;
-
-    result = PyObject_CallFunction (resourcefunc, "s", filename);
-    if (!result)
-        goto font_resource_end;
-
-#if PY3
-    tmp = PyObject_GetAttrString (result, "name");
-    if (tmp != NULL) {
-        Py_DECREF (result);
+    tmp = RWopsEncodeFilePath(result, NULL);
+    if (tmp == NULL) {
+        Py_DECREF(result);
+        return NULL;
+    }
+    else if (tmp != Py_None) {
+        Py_DECREF(result);
         result = tmp;
     }
     else {
-        PyErr_Clear ();
+        Py_DECREF(tmp);
     }
-#else
-    if (PyFile_Check (result))
-    {		
-        PyObject *tmp = PyFile_Name (result);        
-        Py_INCREF (tmp);
-        Py_DECREF (result);
-        result = tmp;
-    }
-#endif
 
-font_resource_end:
-    Py_XDECREF (pkgdatamodule);
-    Py_XDECREF (resourcefunc);
-    Py_XDECREF (load_basicfunc);
     return result;
 }
 
@@ -296,14 +331,14 @@ font_render(PyObject* self, PyObject* args)
     }
 
     if (!RGBAFromColorObj(fg_rgba_obj, rgba)) {
-        return RAISE (PyExc_TypeError, "Invalid foreground RGBA argument");
+        return RAISE(PyExc_TypeError, "Invalid foreground RGBA argument");
     }
     foreg.r = rgba[0];
     foreg.g = rgba[1];
     foreg.b = rgba[2];
     if (bg_rgba_obj != NULL) {
         if (!RGBAFromColorObj(bg_rgba_obj, rgba)) {
-            return RAISE (PyExc_TypeError, "Invalid background RGBA argument");
+            return RAISE(PyExc_TypeError, "Invalid background RGBA argument");
         }
         backg.r = rgba[0];
         backg.g = rgba[1];
@@ -329,7 +364,7 @@ font_render(PyObject* self, PyObject* args)
         surf = SDL_CreateRGBSurface(SDL_SWSURFACE, 1, height, 32,
                                     0xff<<16, 0xff<<8, 0xff, 0);
         if (surf == NULL) {
-            return RAISE (PyExc_SDLError, SDL_GetError());
+            return RAISE(PyExc_SDLError, SDL_GetError());
         }
         if (bg_rgba_obj != NULL) {
             Uint32 c = SDL_MapRGB(surf->format, backg.r, backg.g, backg.b);
@@ -346,7 +381,18 @@ font_render(PyObject* self, PyObject* args)
         if (!bytes) {
             return NULL;
         }
-        astring = Bytes_AsString (bytes);
+        astring = Bytes_AsString(bytes);
+        if (strlen(astring) != Bytes_GET_SIZE(bytes)) {
+            Py_DECREF(bytes);
+            return RAISE(PyExc_ValueError,
+                         "A null character was found in the text");
+        }
+        if (utf_8_needs_UCS_4(astring)) {
+            Py_DECREF(bytes);
+            return RAISE(PyExc_UnicodeError,
+                         "A Unicode character above '\\uFFFF' was found;"
+                         " not supported");
+        }
         if (aa) {
             if (bg_rgba_obj == NULL) {
                 surf = TTF_RenderUTF8_Blended(font, astring, foreg);
@@ -358,11 +404,15 @@ font_render(PyObject* self, PyObject* args)
         else {
             surf = TTF_RenderUTF8_Solid(font, astring, foreg);
         }
-        Py_DECREF (bytes);
+        Py_DECREF(bytes);
     }
     else if (Bytes_Check(text)) {
         const char *astring = Bytes_AsString(text);
 
+        if (strlen(astring) != Bytes_GET_SIZE(text)) {
+            return RAISE(PyExc_ValueError,
+                         "A null character was found in the text");
+        }
         if (aa) {
             if (bg_rgba_obj == NULL) {
                 surf = TTF_RenderText_Blended(font, astring, foreg);
@@ -379,7 +429,7 @@ font_render(PyObject* self, PyObject* args)
         return RAISE_TEXT_TYPE_ERROR();
     }
     if (surf == NULL) {
-        return RAISE (PyExc_SDLError, TTF_GetError());
+        return RAISE(PyExc_SDLError, TTF_GetError());
     }
     if (!aa && (bg_rgba_obj != NULL) && !just_return) {
         /* turn off transparancy */
@@ -409,7 +459,7 @@ font_size(PyObject* self, PyObject* args)
 
     if (PyUnicode_Check(text))
     {
-        PyObject* bytes = PyUnicode_AsEncodedString(text, "utf-8", "replace");
+        PyObject* bytes = PyUnicode_AsEncodedString(text, "utf-8", "strict");
         int ecode;
         
         if (!bytes) {
@@ -548,129 +598,118 @@ font_dealloc (PyFontObject* self)
 }
 
 static int
-font_init (PyFontObject *self, PyObject *args, PyObject *kwds)
+font_init(PyFontObject *self, PyObject *args, PyObject *kwds)
 {
     int fontsize;
-    TTF_Font* font = NULL;
-    PyObject* fileobj;
+    TTF_Font *font = NULL;
+    PyObject *obj;
+    PyObject *oencoded;
     
     self->font = NULL;
-    if (!PyArg_ParseTuple (args, "Oi", &fileobj, &fontsize))
-        return -1;
-
-    if (!font_initialized)
-    {
-        RAISE (PyExc_SDLError, "font not initialized");
+    if (!PyArg_ParseTuple(args, "Oi", &obj, &fontsize)) {
         return -1;
     }
 
-    Py_INCREF (fileobj);
+    if (!font_initialized) {
+        RAISE(PyExc_SDLError, "font not initialized");
+        return -1;
+    }
 
-    if (fontsize <= 1)
+    Py_INCREF(obj);
+
+    if (fontsize <= 1) {
         fontsize = 1;
+    }
 
-    if (fileobj == Py_None)
-    {
-        Py_DECREF(fileobj);
-        fileobj = font_resource (font_defaultname);
-        if (fileobj == NULL)
-        {
-            char error[1024];
-            PyOS_snprintf (error, 1024, "default font not found '%s'",
-                      font_defaultname);
-            RAISE (PyExc_RuntimeError, error);
+    if (obj == Py_None) {
+        Py_DECREF(obj);
+        obj = font_resource(font_defaultname);
+        if (obj == NULL) {
+            if (PyErr_Occurred() == NULL) {
+                PyErr_Format(PyExc_RuntimeError,
+                             "default font '%.1024s' not found",
+                             font_defaultname);
+            }
             goto error;
         }
-        fontsize = (int) (fontsize * .6875);
-        if (fontsize <= 1)
+        fontsize = (int)(fontsize * .6875);
+        if (fontsize <= 1) {
             fontsize = 1;
+        }
     }
-     
-    if (PyUnicode_Check (fileobj)) {
-        PyObject* tmp = PyUnicode_AsASCIIString (fileobj);
-
-        if (tmp == NULL) {
+    else {
+        oencoded = RWopsEncodeFilePath(obj, NULL);
+        if (oencoded == NULL) {
             goto error;
         }
-        Py_DECREF(fileobj);
-        fileobj = tmp;
+        if (oencoded == Py_None) {
+            Py_DECREF(oencoded);
+        }
+        else {
+            Py_DECREF(obj);
+            obj = oencoded;
+        }
     }
-
-    if (Bytes_Check (fileobj))
-    {
-        FILE* test;        
-        char* filename = Bytes_AsString (fileobj);
+    if (Bytes_Check(obj)) {
+        const char *filename = Bytes_AS_STRING(obj);
+        FILE *test;        
        		
-        if (!filename) {
-            goto error;
-        }
-                
         /*check if it is a valid file, else SDL_ttf segfaults*/
-        test = fopen (filename, "rb");
-        if(!test)
-        {
+        test = fopen(filename, "rb");
+        if(test == NULL) {
             PyObject *tmp = NULL;
 
-            if (!strcmp (filename, font_defaultname)) {
-                tmp = font_resource (font_defaultname);
+            if (!strcmp(filename, font_defaultname)) {
+                /* filename is the default font; get it's file-like resource
+                 */
+                tmp = font_resource(font_defaultname);
             }
-            if (!tmp)
-            {
-                PyErr_SetString (PyExc_IOError,
-                                 "unable to read font filename");
+            if (tmp == NULL) {
+                if (PyErr_Occurred() == NULL) {
+                    PyErr_Format(PyExc_IOError,
+                                 "unable to read font file '%.1024s'",
+                                 filename);
+                }
                 goto error;
             }
-            Py_DECREF (fileobj);
-            fileobj = tmp;
+            Py_DECREF(obj);
+            obj = tmp;
         }
-        else
-        {
-            fclose (test);
+        else {
+            fclose(test);
             Py_BEGIN_ALLOW_THREADS;
             font = TTF_OpenFont(filename, fontsize);
             Py_END_ALLOW_THREADS;
         }	
     }
-    if (!font)
-    {
-#ifdef TTF_MAJOR_VERSION
-        SDL_RWops *rw;
-        rw = RWopsFromPython (fileobj);
-        if (!rw)
-        {
+    if (font == NULL)  {
+        SDL_RWops *rw = RWopsFromFileObject(obj);
+
+        if (rw == NULL) {
             goto error;
         }
 
-
-
-        if (RWopsCheckPython (rw)) {
-            font = TTF_OpenFontIndexRW (rw, 1, fontsize, 0);
+        if (RWopsCheckObject(rw)) {
+            font = TTF_OpenFontIndexRW(rw, 1, fontsize, 0);
         }
-        else
-        {
-         Py_BEGIN_ALLOW_THREADS;
-         font = TTF_OpenFontIndexRW (rw, 1, fontsize, 0);
-         Py_END_ALLOW_THREADS;
+        else {
+             Py_BEGIN_ALLOW_THREADS;
+             font = TTF_OpenFontIndexRW(rw, 1, fontsize, 0);
+             Py_END_ALLOW_THREADS;
         }
- #else
-         RAISE (PyExc_NotImplementedError,
-                "nonstring fonts require SDL_ttf-2.0.6");
-        goto error;
-#endif
     }
 
-    if (!font)
-    {
-        RAISE (PyExc_RuntimeError, SDL_GetError ());
+    if (font == NULL) {
+        RAISE(PyExc_RuntimeError, SDL_GetError());
         goto error;
     }
 
-    Py_DECREF (fileobj);
+    Py_DECREF(obj);
     self->font = font;
     return 0;
 
 error:
-    Py_DECREF (fileobj);
+    Py_DECREF(obj);
     return -1;
 }
 
