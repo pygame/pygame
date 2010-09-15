@@ -4,9 +4,105 @@
 # BREAK = change breaks existing code
 # BUG    = fixed a bug that was (or could have been) crashing
 
+[SVN 2914, 2916] September 15, 2010
+    Preparation for merge with fsencoding branch
+
+[SVN 2900-2910] August 31-September 11, 2010
+    Preparations to freetype for release:
+      - fix a bug with base.register_quit import that kept freetype
+        from loading
+      - improve Unicode handling so can handle all UTF-32 characters
+      - enable encode_raw Font method
+      - import exception messages
+      - add missing error checks of memory allocations
+      - attempt to fix text boundary calculation bug that causes
+        memory access violations in some cases. Unfinished.
+
+[SVN 2897] August 30, 2010
+    update docs to reflect changes in r2855
+
+[SVN 2858] August 18, 2010
+    Remove distracting '"_POSIX_C_SOURCE" redefined' GCC warnings from linux builds.
+
+[SVN 2857] August 17, 2010
+    [BUG] fix rwobject memory leak when raising a memory error
+
+[SVN 2856] August 15, 2010
+    font.c, rwobject.c, font_test.py: Update/correct Python3 svn property
+    to better reflect Python 3.1 compatibility
+
+[SVN 2855] August 15, 2010
+    font module: improve unicode text handling: can now render Unicode
+    characters up to U+FFFF.
+
+[SVN 2854] August 9, 2010
+    remove distracting "'PyGAME_C_API' defined but not used" gcc warnings
+    from Pygame build
+
+[SVN 2853] August 9, 2010
+    mixer.Sound: fix spelling error in an error message and add no-arguments
+    check to the unit tests
+
+[SVN 2852] August 9, 2010
+    [BUG] mixer.c: move a variable declaration to the beginning of a block
+    to keep MSVC happy
+
+[SVN 2851] August 9, 2010
+    add keyword arguments to mixer.Sound and improve Unicode strings/
+    Python 3.x bytes handling
+
+[SVN 2850] August 9, 2010
+    make _movie module unit tests conditional on the presence of the module.
+
+[SVN 2849] August 8, 2010
+    compat.py: add more Python 3.x compatibility features; add unit tests
+
+[SVN 2848] August 8, 2010
+    allow RWopsFromPython to accept a Python 3.x bytes object as a file path
+    (for compatibilty with open())
 
 [SVN 2847] August 8, 2010
     [BUG] Font loading from file object patch, and test.  Thanks Janosch Graf
+
+[SVN 2828-2845] July 10-28, 2010
+    Update Windows dependency build chain to build the latest versions of the libraries.
+    Uses MinGW gcc 4.5.0 and Msys 1.0.11. Dependencies can now be built with Python 3.1.
+    
+[SVN 2824-2825] June 9-10, 2010
+    Update ffmpeg building with msys on Windows.
+
+[SVN 2824] June 9, 2010
+    [BUG] Undo bug introduced into Setup.in for ffmpeg
+
+[SVN 2823] June 9, 2010
+    [BUG] Fix missing Windows drive in docs.__main__.py
+
+[SVN 2822] June 9, 2010
+    Update Windows dependencies build for MinGW GCC 4.5.0.
+    Some newer dependency libraries are used, notably SDL-1.2.14,
+    and the addition of FFMPEG has been completed. This update leaves
+    msys_build_deps.py in a working, but transitional, state.
+
+[SVN 2816] June 3, 2010
+    [BUG] docs.__main__: Fix problem with spaces in Windows directory names.
+
+[SVN 2815] May 31, 2010
+    [BUG] Fix a _movie module bug where the module fails to build under Debian Linux
+      because the libavformat and libswscale header subdirectories are in ffmpeg.
+      The changes makes the module's ffmpeg includes consistent with ffmpeg itself.
+
+[SVN 2810] May 24, 2010
+    [BUG] Let mixer.music.play accept keyword arguments
+
+[SVN 2809] May 24, 2010
+    [BUG] Add set_pos method to pygame.music.mixer that calls Mix_SetMusicPosition
+      SDL_mixer function. As per the feature request by Mark Reed on the
+      mailing list (16/05/10).
+        
+[SVN 2808] May 24, 2010
+    [BUG] Fixes bug in pygame.draw.line where the wrong rectangle was returned
+      for a line with width > 1 and the end point y value less than the
+      start point y value.  Identified by Aaron Brady on mailing list, 10/10/09.
 
 [SVN 2573] August 6, 2009
     [BUG] missing readme.html in MANIFEST.in causes install to fail
