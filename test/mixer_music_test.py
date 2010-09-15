@@ -1,5 +1,5 @@
+import sys
 if __name__ == '__main__':
-    import sys
     import os
     pkg_dir = os.path.split(os.path.abspath(__file__))[0]
     parent_dir, pkg_name = os.path.split(pkg_dir)
@@ -17,6 +17,7 @@ else:
     from test.test_utils \
          import test_not_implemented, unittest, example_path
 import pygame
+from pygame.compat import as_unicode, filesystem_encode
 
 import os
 
@@ -35,9 +36,11 @@ class MixerMusicModuleTest(unittest.TestCase):
         formats = ['ogg', 'wav']
 
         for f in formats:
-            musfn = os.path.join(data_fname, 'house_lo.%s' % f)
+            umusfn = as_unicode(os.path.join(data_fname, 'house_lo.%s' % f))
+            bmusfn = filesystem_encode(umusfn) 
     
-            pygame.mixer.music.load(musfn)
+            pygame.mixer.music.load(umusfn)
+            pygame.mixer.music.load(bmusfn)
 
             #NOTE: TODO: loading from filelikes are disabled...
             # because as of writing it only works in SDL_mixer svn.

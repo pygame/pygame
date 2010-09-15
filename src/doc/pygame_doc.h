@@ -17,6 +17,10 @@
 
 #define DOC_PYGAMEREGISTERQUIT "register_quit(callable): return None\nregister a function to be called when pygame quits"
 
+#define DOC_PYGAMEENCODESTRING "encode_string([obj [, encoding [, errors [, etype]]]]) => bytes or None\nEncode a unicode or bytes object"
+
+#define DOC_PYGAMEENCODEFILEPATH "encode_file_path([obj [, etype]]) => bytes or None\nEncode a unicode or bytes object as a file system path"
+
 #define DOC_PYGAMEVERSION "module pygame.version\nsmall module containing version information"
 
 #define DOC_PYGAMEVERSIONVER "pygame.version.ver = '1.2'\nversion number as a string"
@@ -80,6 +84,18 @@ get the byte order of SDL
 pygame.register_quit
  register_quit(callable): return None
 register a function to be called when pygame quits
+
+
+
+pygame.encode_string
+ encode_string([obj [, encoding [, errors [, etype]]]]) => bytes or None
+Encode a unicode or bytes object
+
+
+
+pygame.encode_file_path
+ encode_file_path([obj [, etype]]) => bytes or None
+Encode a unicode or bytes object as a file system path
 
 
 

@@ -45,6 +45,8 @@
 
 #define DOC_PYGAMEMIDITIME "pygame.midi.time(): return time\nreturns the current time in ms of the PortMidi timer"
 
+#define DOC_ ""
+
 
 
 /* Docs in a comments... slightly easier to read. */
@@ -191,6 +193,11 @@ uninitialize the midi module
 pygame.midi.time
  pygame.midi.time(): return time
 returns the current time in ms of the PortMidi timer
+
+
+
+
+ 
 
 
 

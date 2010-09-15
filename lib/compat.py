@@ -58,6 +58,14 @@ try:
 except NameError:
     raw_input_ = input
 
+if sys.version_info >= (3, 0, 0):
+    filesystem_errors = "surrogateescape"
+else:
+    filesystem_errors = "strict"
+    
+def filesystem_encode(u):
+    return u.encode(sys.getfilesystemencoding(), filesystem_errors)
+
 # Represent escaped bytes and strings in a portable way.
 #
 # as_bytes: Allow a Python 3.x string to represent a bytes object.

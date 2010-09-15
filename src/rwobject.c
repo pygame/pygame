@@ -27,6 +27,17 @@
 #define PYGAMEAPI_RWOBJECT_INTERNAL
 #include "pygame.h"
 #include "pgcompat.h"
+#include "doc/pygame_doc.h"
+
+/* With Python 2.5 exception types became new-style classes and
+ * PyExc_BaseException was introduced.
+ */
+#if PY_VERSION_HEX < 0x02050000
+#define ExcClassType_Check(o) PyClass_Check(o)
+#define PyExc_BaseException PyExc_Exception
+#else
+#define ExcClassType_Check(o) PyType_Check(o)
+#endif
 
 typedef struct
 {
@@ -39,6 +50,9 @@ typedef struct
     PyThreadState* thread;
 #endif
 } RWHelper;
+
+static const char const default_encoding[] = "unicode_escape";
+static const char const default_errors[] = "backslashreplace";
 
 static int rw_seek (SDL_RWops* context, int offset, int whence);
 static int rw_read (SDL_RWops* context, void* ptr, int size, int maxnum);
@@ -53,38 +67,37 @@ static int rw_write_th (SDL_RWops* context, const void* ptr, int size,
 static int rw_close_th (SDL_RWops* context);
 #endif
 
-static SDL_RWops*
-get_standard_rwop (PyObject* obj)
+static int
+is_exception_class(PyObject *obj, void **optr)
 {
-    if (PyUnicode_Check (obj)) {
-        PyObject *bytes = Unicode_AsEncodedPath (obj);
-        const char *name = NULL;
-        SDL_RWops *rw = NULL;
-        
-        if (!bytes)
-        {
-            PyErr_Clear ();
-            SDL_SetError ("Unable to encode unicode file name");
-            return NULL;
-        }
-        name = Bytes_AS_STRING (bytes);
-        rw = SDL_RWFromFile (name, "rb");
-        Py_DECREF (bytes);
-        return rw;
-    }
-    if (Bytes_Check (obj))
-    {
-        const char *name = Bytes_AS_STRING (obj);
-        
-        return SDL_RWFromFile (name, "rb");
-    }
-#if PY2
-    if (PyFile_Check (obj))
-    {
-        return SDL_RWFromFP (PyFile_AsFile (obj), 0);
-    }
+    PyObject **rval = (PyObject **)optr;
+    PyObject *oname;
+#if PY3
+    PyObject *tmp;
 #endif
-    return NULL;
+
+    if (!ExcClassType_Check(obj) || /* conditional or */
+        !PyObject_IsSubclass(obj, PyExc_BaseException)) {
+        oname = PyObject_Str(obj);
+        if (oname == NULL) {
+            return 0;
+        }
+#if PY3
+        tmp = PyUnicode_AsEncodedString(oname, "ascii", "replace");
+        Py_DECREF(tmp);
+        if (tmp == NULL) {
+            return 0;
+        }
+        oname = tmp;
+#endif
+        PyErr_Format(PyExc_TypeError,
+                     "Expected an exception class: got %.1024s",
+                     Bytes_AS_STRING(oname));
+        Py_DECREF(oname);
+        return 0;
+    }
+    *rval = obj;
+    return 1;
 }
 
 static void
@@ -140,21 +153,120 @@ fetch_object_methods (RWHelper* helper, PyObject* obj)
     }
 }
 
-static SDL_RWops*
-RWopsFromPython(PyObject *obj)
+static PyObject*
+RWopsEncodeString(PyObject *obj,
+                  const char *encoding,
+                  const char *errors,
+                  PyObject *eclass)
 {
-    SDL_RWops *rw;
+    PyObject *oencoded;
+    PyObject *exc_type;
+    PyObject *exc_value;
+    PyObject *exc_trace;
+    PyObject *str;
+
+    if (obj == NULL) {
+        /* Assume an error was raise; forward it */
+        return NULL;
+    }
+    if (encoding == NULL) {
+        encoding = default_encoding;
+    }
+    if (errors == NULL) {
+        errors = default_errors;
+    }
+    if (PyUnicode_Check(obj)) {
+        oencoded = PyUnicode_AsEncodedString(obj, encoding, errors);
+        if (oencoded != NULL) {
+            return oencoded;
+        }
+        else if (PyErr_ExceptionMatches(PyExc_MemoryError)) {
+            /* Forward memory errors */
+            return NULL;
+        }
+        else if (eclass != NULL) {
+            /* Foward as eclass error */
+            PyErr_Fetch(&exc_type, &exc_value, &exc_trace);
+            Py_DECREF(exc_type);
+            Py_XDECREF(exc_trace);
+            if (exc_value == NULL) {
+                PyErr_SetString(eclass,
+                                "Unicode encoding error");
+            }
+            else {
+                str = PyObject_Str(exc_value);
+                Py_DECREF(exc_value);
+                if (str != NULL) {
+                    PyErr_SetObject(eclass, str);
+                    Py_DECREF(str);
+                }
+            }
+            return NULL;
+        }
+        else if (encoding == default_encoding && errors == default_errors) {
+            /* The default encoding and error handling should not fail */
+            return RAISE(PyExc_SystemError,
+                         "Pygame bug (in RWopsEncodeString):"
+                         " unexpected encoding error");
+        }
+        PyErr_Clear();
+    }
+    else if (Bytes_Check(obj)) {
+        Py_INCREF(obj);
+        return obj;
+    }
+    
+    Py_RETURN_NONE;
+}
+
+static PyObject*
+RWopsEncodeFilePath(PyObject *obj, PyObject *eclass)
+{
+    PyObject *result = RWopsEncodeString(obj,
+                                         UNICODE_DEF_FS_CODEC, 
+                                         UNICODE_DEF_FS_ERROR,
+                                         eclass);
+    if (result == NULL || result == Py_None) {
+        return result;
+    }
+    if ((size_t)Bytes_GET_SIZE(result) != strlen(Bytes_AS_STRING(result))) {
+        if (eclass != NULL) {
+            Py_DECREF(result);
+            result = RWopsEncodeString(obj, NULL, NULL, NULL);
+            if (result == NULL) {
+                return NULL;
+            }
+            PyErr_Format(eclass,
+                         "File path '%.1024s' contains null characters",
+                         Bytes_AS_STRING(result));
+            Py_DECREF(result);
+            return NULL;
+        }
+        Py_DECREF(result);
+        Py_RETURN_NONE;
+    }
+    return result;
+}
+
+static SDL_RWops*
+RWopsFromFileObject(PyObject *obj)
+{
+    SDL_RWops *rw = NULL;
     RWHelper *helper;
 
-    if(obj == NULL) {
+    if (obj == NULL) {
         return (SDL_RWops *)RAISE(PyExc_TypeError, "Invalid filetype object");
     }
-    rw = get_standard_rwop(obj);
-    if (rw) {
-        return rw;
+#if PY2
+    if (PyFile_Check(obj))
+    {
+        rw = SDL_RWFromFP(PyFile_AsFile(obj), 0);
+        if (rw) {
+            return rw;
+        }
+        SDL_ClearError();
     }
-    SDL_ClearError();
-
+#endif
     helper = PyMem_New(RWHelper, 1);
     if (helper == NULL) {
         return (SDL_RWops *)PyErr_NoMemory();
@@ -174,8 +286,31 @@ RWopsFromPython(PyObject *obj)
     return rw;
 }
 
+static SDL_RWops*
+RWopsFromObject(PyObject *obj)
+{
+    PyObject *oencoded;
+    SDL_RWops *rw = NULL;
+
+    if (obj != NULL) {
+        oencoded = RWopsEncodeFilePath(obj, NULL);
+        if (oencoded == NULL) {
+            return NULL;
+        }
+        if (oencoded != Py_None) {
+            rw = SDL_RWFromFile(Bytes_AS_STRING(oencoded), "rb");
+        }
+        Py_DECREF(oencoded);
+        if (rw) {
+            return rw;
+        }
+        SDL_ClearError();
+    }
+    return RWopsFromFileObject(obj);
+}
+
 static int
-RWopsCheckPython (SDL_RWops* rw)
+RWopsCheckObject (SDL_RWops* rw)
 {
     return rw->close == rw_close;
 }
@@ -280,7 +415,7 @@ rw_close (SDL_RWops* context)
 }
 
 static SDL_RWops*
-RWopsFromPythonThreaded(PyObject *obj)
+RWopsFromFileObjectThreaded(PyObject *obj)
 {
     SDL_RWops *rw;
     RWHelper *helper;
@@ -321,7 +456,7 @@ RWopsFromPythonThreaded(PyObject *obj)
 }
 
 static int
-RWopsCheckPythonThreaded (SDL_RWops* rw)
+RWopsCheckObjectThreaded (SDL_RWops* rw)
 {
 #ifdef WITH_THREAD
     return rw->close == rw_close_th;
@@ -491,8 +626,51 @@ rw_close_th (SDL_RWops* context)
 }
 #endif
 
+static PyObject*
+rwobject_encode_string(PyObject *self, PyObject *args, PyObject *keywds)
+{
+    PyObject *obj = NULL;
+    PyObject *eclass = NULL;
+    const char *encoding = NULL;
+    const char *errors = NULL;
+    static char *kwids[] = {"obj", "encoding", "errors", "etype", NULL};  
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "|OssO&", kwids,
+                                     &obj, &encoding, &errors,
+                                     &is_exception_class, &eclass)) {
+        return NULL;
+    }
+    
+    if (obj == NULL) {
+        RAISE(PyExc_SyntaxError, "Forwarded exception");
+    }
+    return RWopsEncodeString(obj, encoding, errors, eclass);
+}
+
+static PyObject*
+rwobject_encode_file_path(PyObject *self, PyObject *args, PyObject *keywds)
+{
+    PyObject *obj = NULL;
+    PyObject *eclass = NULL;
+    static char *kwids[] = {"obj", "etype", NULL};  
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "|OO&", kwids,
+                                     &obj, &is_exception_class, &eclass)) {
+        return NULL;
+    }
+    
+    if (obj == NULL) {
+        RAISE(PyExc_SyntaxError, "Forwarded exception");
+    }
+    return RWopsEncodeFilePath(obj, eclass);
+}
+
 static PyMethodDef _rwobject_methods[] =
 {
+    { "encode_string", (PyCFunction)rwobject_encode_string,
+      METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEENCODESTRING },
+    { "encode_file_path", (PyCFunction)rwobject_encode_file_path,
+      METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEENCODEFILEPATH },
     { NULL, NULL }
 };
 
@@ -530,10 +708,13 @@ MODINIT_DEFINE (rwobject)
     dict = PyModule_GetDict (module);
 
     /* export the c api */
-    c_api[0] = RWopsFromPython;
-    c_api[1] = RWopsCheckPython;
-    c_api[2] = RWopsFromPythonThreaded;
-    c_api[3] = RWopsCheckPythonThreaded;
+    c_api[0] = RWopsFromObject;
+    c_api[1] = RWopsCheckObject;
+    c_api[2] = RWopsFromFileObjectThreaded;
+    c_api[3] = RWopsCheckObjectThreaded;
+    c_api[4] = RWopsEncodeFilePath;
+    c_api[5] = RWopsEncodeString;
+    c_api[6] = RWopsFromFileObject;
     apiobj = PyCObject_FromVoidPtr (c_api, NULL);
     if (apiobj == NULL) {
         DECREF_MOD (module);

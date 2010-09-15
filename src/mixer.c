@@ -43,8 +43,8 @@ static PyTypeObject PySound_Type;
 static PyTypeObject PyChannel_Type;
 static PyObject* PySound_New (Mix_Chunk*);
 static PyObject* PyChannel_New (int);
-#define PySound_Check(x) ((x)->ob_type == &PySound_Type)
-#define PyChannel_Check(x) ((x)->ob_type == &PyChannel_Type)
+#define PySound_Check(x) (Py_TYPE(x) == &PySound_Type)
+#define PyChannel_Check(x) (Py_TYPE(x) == &PyChannel_Type)
 
 static int request_frequency = PYGAME_MIXER_DEFAULT_FREQUENCY;
 static int request_size = PYGAME_MIXER_DEFAULT_SIZE;
@@ -973,13 +973,18 @@ mixer_unpause (PyObject* self)
 }
 
 static int
-sound_init (PyObject* self, PyObject* arg, PyObject* kwarg)
+sound_init(PyObject *self, PyObject *arg, PyObject *kwarg)
 {
     static const char arg_cnt_err_msg[] =
         "Sound takes either 1 positional or 1 keyword argument";
     PyObject *obj = NULL;
     PyObject *file = NULL;
     PyObject *buffer = NULL;
+    PyObject *keys;
+    PyObject *kencoded;
+    SDL_RWops *rw;
+    const void *buf = NULL;
+    Py_ssize_t buflen = 0;
     Mix_Chunk *chunk = NULL;
     Uint8 *mem;
     
@@ -989,180 +994,129 @@ sound_init (PyObject* self, PyObject* arg, PyObject* kwarg)
     /* Process arguments, returning cleaner error messages than
        PyArg_ParseTupleAndKeywords would.
     */
-    if (arg && PyTuple_GET_SIZE (arg))
-    {
-        if ((kwarg && PyDict_Size (kwarg)) || PyTuple_GET_SIZE (arg) != 1)
-        {
-            RAISE (PyExc_TypeError, arg_cnt_err_msg);
+    if (arg != NULL && PyTuple_GET_SIZE(arg)) {
+        if ((kwarg != NULL && PyDict_Size(kwarg)) || /* conditional and */
+            PyTuple_GET_SIZE(arg) != 1)              {
+            RAISE(PyExc_TypeError, arg_cnt_err_msg);
             return -1;
         }
-        obj = PyTuple_GET_ITEM (arg, 0);
+        obj = PyTuple_GET_ITEM(arg, 0);
         
-        if (PyUnicode_Check (obj))
-        {
+        if (PyUnicode_Check(obj)) {
             file = obj;
             obj = NULL;
         }
-        else
-        {
+        else {
             file = obj;
             buffer = obj;
         }
     }
-    else if (kwarg)
-    {
-        if (PyDict_Size (kwarg) != 1)
-        {
-            RAISE (PyExc_TypeError, arg_cnt_err_msg);
+    else if (kwarg != NULL) {
+        if (PyDict_Size(kwarg) != 1) {
+            RAISE(PyExc_TypeError, arg_cnt_err_msg);
             return -1;
         }
-        if (!(file = PyDict_GetItemString (kwarg, "file")) &&
-            !(buffer = PyDict_GetItemString (kwarg, "buffer")))
-        {
-            PyObject *keys;
-            PyObject *key;
-            const char *keystr;
-#if PY3
-            PyObject *tmp;
-#endif
-            if (!(keys = PyDict_Keys (kwarg)))
-            {
+        if ((file = PyDict_GetItemString(kwarg, "file")) == NULL &&
+            (buffer = PyDict_GetItemString(kwarg, "buffer")) == NULL) {
+            keys = PyDict_Keys(kwarg);
+            if (keys == NULL) {
                 return -1;
             }
-            key = PyList_GET_ITEM (keys, 0);
-            Py_INCREF (key);
-#if PY3
-            tmp = PyUnicode_AsASCIIString (key);
-            Py_DECREF (key);
-            key = tmp;
-            if (!key)
-            {
-                Py_DECREF (keys);
+            kencoded = RWopsEncodeString(PyList_GET_ITEM(keys, 0),
+                                         NULL, NULL, NULL);
+            Py_DECREF(keys);
+            if (kencoded == NULL) {
                 return -1;
             }
-#endif
-            keystr = Bytes_AsString (key);
             PyErr_Format(PyExc_TypeError,
-                         "Unrecognized keyword argument '%s'",
-                         keystr);
-            Py_DECREF (key);
-            Py_DECREF (keys);
+                         "Unrecognized keyword argument '%.1024s'",
+                         Bytes_AS_STRING(kencoded));
+            Py_DECREF(kencoded);
             return -1;
         }
-        if (buffer && PyUnicode_Check (buffer))
-        {
-            RAISE (PyExc_TypeError,
-                   "Unicode object not allowed as buffer object");
+        if (buffer != NULL && PyUnicode_Check(buffer)) { /* conditional and */
+            RAISE(PyExc_TypeError,
+                  "Unicode object not allowed as buffer object");
             return -1;
         }
     }
-    else
-    {
-        RAISE (PyExc_TypeError, arg_cnt_err_msg);
+    else {
+        RAISE(PyExc_TypeError, arg_cnt_err_msg);
         return -1;
     }  
 
-    if (file)
-    {
-        SDL_RWops *rw = RWopsFromPython (file);
-        if (!rw)
-        {
-            /* RWopsFromPython only raises critical Python exceptions,
+    if (file != NULL) {
+        rw = RWopsFromObject(file);
+        if (rw == NULL) {
+            /* RWopsFromObject only raises critical Python exceptions,
                so automatically pass them on.
             */
             return -1;
         }
-        if (RWopsCheckPython (rw))
-        {
-            chunk = Mix_LoadWAV_RW (rw, 1);
+        if (RWopsCheckObject(rw)) {
+            chunk = Mix_LoadWAV_RW(rw, 1);
         }
-        else
-        {
+        else {
             Py_BEGIN_ALLOW_THREADS;
-            chunk = Mix_LoadWAV_RW (rw, 1);
+            chunk = Mix_LoadWAV_RW(rw, 1);
             Py_END_ALLOW_THREADS;
         }
-        if (!chunk && !obj)
-        {
-            if (PyUnicode_Check (file))
-            {
-                const char *name = NULL;
-                PyObject *tmp =
-                    PyUnicode_AsEncodedString(file,
-                                              "unicode_escape",
-                                              "backslashreplace");
-                if (!tmp)
-                {
-                    return -1;
+        if (chunk == NULL && obj == NULL) {
+            obj = RWopsEncodeString(file, NULL, NULL, NULL);
+            if (obj != NULL) {
+                if (obj == Py_None) {
+                    RAISE(PyExc_SDLError, SDL_GetError());
                 }
-                name = Bytes_AS_STRING (tmp);
-                PyErr_Format (PyExc_SDLError,
-                              "Unable to open file '%s'", name);
-                Py_DECREF (tmp);
-            }
-            else if (Bytes_Check (file))
-            {
-                const char *name = Bytes_AS_STRING (file);
-                PyErr_Format (PyExc_SDLError,
-                              "Unable to open file '%s'", name);
-            }
-            else
-            {
-                RAISE (PyExc_SDLError, SDL_GetError ());
+                else {
+                    PyErr_Format(PyExc_SDLError,
+                                 "Unable to open file '%s'",
+                                 Bytes_AS_STRING(obj));
+                }
+                Py_XDECREF(obj);
             }
             return -1;
         }
     }
 
-    if (!chunk && buffer)
-    {
-        const void *buf = NULL;
-        Py_ssize_t buflen = 0;
-
-        if (PyObject_AsReadBuffer (buffer, &buf, &buflen))
-        {
-            if (obj)
-            {
-                PyErr_Clear ();
+    if (chunk == NULL && buffer != NULL) {
+        if (PyObject_AsReadBuffer(buffer, &buf, &buflen)) {
+            if (obj != NULL) {
+                PyErr_Clear();
             }
-            else
-            {
-                PyErr_Format (PyExc_TypeError,
-                              "Expected object with buffer interface: got a %s",
-                              buffer->ob_type->tp_name);
+            else {
+                PyErr_Format(PyExc_TypeError,
+                             "Expected object with buffer interface: got a %s",
+                             Py_TYPE(buffer)->tp_name);
                 return -1;
             }
         }
-        else
-        {
-            mem = PyMem_Malloc ((size_t)buflen);
+        else {
+            mem = PyMem_Malloc((size_t)buflen);
             if (mem == NULL)
             {
                 PyErr_NoMemory ();
                 return -1;
             }
-            chunk = Mix_QuickLoad_RAW (mem, (Uint32)buflen);
-            if (!chunk)
-            {
-                SDL_ClearError ();
-                PyMem_Free (mem);
-                PyErr_NoMemory ();
+            chunk = Mix_QuickLoad_RAW(mem, (Uint32)buflen);
+            if (chunk == NULL) {
+                SDL_ClearError();
+                PyMem_Free(mem);
+                PyErr_NoMemory();
                 return -1;
             }
             ((PySoundObject *)self)->mem = mem;
-            memcpy (mem, buf, (size_t)buflen);
+            memcpy(mem, buf, (size_t)buflen);
         }
     }
-    
-    if (!chunk)
-    {
-        PyErr_Format (PyExc_TypeError,
-                      "Unrecognized argument (type %s)",
-                      obj->ob_type->tp_name);
+
+    if (chunk == NULL) {
+        PyErr_Format(PyExc_TypeError,
+                     "Unrecognized argument (type %s)",
+                     Py_TYPE(obj)->tp_name);
         return -1;
     }
         
-    ((PySoundObject*)self)->chunk = chunk;
+    ((PySoundObject *)self)->chunk = chunk;
     return 0;
 }
 
