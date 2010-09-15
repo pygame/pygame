@@ -40,7 +40,7 @@ static struct _module_state _state = { 0 };
 #define GETSTATE(m) PY2_GETSTATE (_state)
 #endif
 
-static int SaveTGA (SDL_Surface *surface, char *file, int rle);
+static int SaveTGA (SDL_Surface *surface, const char *file, int rle);
 static int SaveTGA_RW (SDL_Surface *surface, SDL_RWops *out, int rle);
 static SDL_Surface* opengltosdl (void);
 
@@ -49,59 +49,53 @@ static SDL_Surface* opengltosdl (void);
      (((char*) data) + row * width))
 
 static PyObject*
-image_load_basic (PyObject* self, PyObject* arg)
+image_load_basic(PyObject *self, PyObject *arg)
 {
-    PyObject* file, *final;
-    char* name = NULL;
+    PyObject *obj;
+    PyObject *final;
+    PyObject *oencoded;
+    const char *name = NULL;
     SDL_Surface* surf;
     SDL_RWops *rw;
-    if (!PyArg_ParseTuple (arg, "O|s", &file, &name))
-        return NULL;
 
-#if PY3
-    if (PyUnicode_Check (file)) {
-        if (!PyArg_ParseTuple (arg, "s|O", &name, &file))
-            return NULL;
-        Py_BEGIN_ALLOW_THREADS;
-        surf = SDL_LoadBMP (name);
-        Py_END_ALLOW_THREADS;
+    if (!PyArg_ParseTuple(arg, "O|s", &obj, &name)) {
+        return NULL;
     }
-    else if (PyBytes_Check (file)) {
-        if (!PyArg_ParseTuple (arg, "y|O", &name, &file))
-            return NULL;
-        Py_BEGIN_ALLOW_THREADS;
-        surf = SDL_LoadBMP (name);
-        Py_END_ALLOW_THREADS;
+
+    oencoded = RWopsEncodeFilePath(obj, PyExc_SDLError);
+    if (oencoded == NULL) {
+        return NULL;
     }
-#else
-    if (PyString_Check (file) || PyUnicode_Check (file))
-    {
-        if (!PyArg_ParseTuple (arg, "s|O", &name, &file))
-            return NULL;
+    if (oencoded != Py_None) {
         Py_BEGIN_ALLOW_THREADS;
-        surf = SDL_LoadBMP (name);
+        surf = SDL_LoadBMP(Bytes_AS_STRING(oencoded));
         Py_END_ALLOW_THREADS;
+        Py_DECREF(oencoded);
     }
-#endif
-    else
-    {
-        if (!(rw = RWopsFromPython (file)))
+    else {
+        Py_DECREF(oencoded);
+        rw = RWopsFromFileObject(obj);
+        if (rw == NULL) {
             return NULL;
-        if (RWopsCheckPython (rw))
+        }
+        if (RWopsCheckObject(rw)) {
             surf = SDL_LoadBMP_RW (rw, 1);
-        else
-        {
+        }
+        else {
             Py_BEGIN_ALLOW_THREADS;
-            surf = SDL_LoadBMP_RW (rw, 1);
+            surf = SDL_LoadBMP_RW(rw, 1);
             Py_END_ALLOW_THREADS;
         }
     }
-    if (!surf)
-        return RAISE (PyExc_SDLError, SDL_GetError ());
+            
+    if (surf == NULL) {
+        return RAISE(PyExc_SDLError, SDL_GetError());
+    }
 
-    final = PySurface_New (surf);
-    if (!final)
-        SDL_FreeSurface (surf);
+    final = PySurface_New(surf);
+    if (final == NULL) {
+        SDL_FreeSurface(surf);
+    }
     return final;
 }
 
@@ -176,125 +170,127 @@ opengltosdl ()
 }
 
 PyObject*
-image_save (PyObject* self, PyObject* arg)
+image_save(PyObject *self, PyObject *arg)
 {
-    PyObject* surfobj, *file;
+    PyObject *surfobj;
+    PyObject *obj;
+    PyObject *oencoded;
     PyObject *imgext = NULL;
     SDL_Surface *surf;
     SDL_Surface *temp = NULL;
-    int result = 0;
+    int result = 1;
 
-    if (!PyArg_ParseTuple (arg, "O!O", &PySurface_Type, &surfobj, &file))
+    if (!PyArg_ParseTuple(arg, "O!O", &PySurface_Type, &surfobj, &obj)) {
         return NULL;
-    surf = PySurface_AsSurface (surfobj);
-
-    if (surf->flags & SDL_OPENGL)
-    {
-        temp = surf = opengltosdl ();
-        if (!surf)
-            return NULL;
     }
-    else
-        PySurface_Prep (surfobj);
+    
+    surf = PySurface_AsSurface(surfobj);
+    if (surf->flags & SDL_OPENGL) {
+        temp = surf = opengltosdl();
+        if (surf == NULL) {
+            return NULL;
+        }
+    }
+    else {
+        PySurface_Prep(surfobj);
+    }
 
-#if PY3
-    if (PyBytes_Check (file) || PyUnicode_Check (file))
-#else
-    if (PyString_Check (file) || PyUnicode_Check (file))
-#endif
-    {
-        int namelen;
-        char* name;
-        int written = 0;
-
-#if PY3
-        if (PyUnicode_Check (file)) {
-            if (!PyArg_ParseTuple (arg, "O|s", &file, &name)) {
-                return NULL;
-            }
+    oencoded = RWopsEncodeFilePath(obj, PyExc_SDLError);
+    if (oencoded == Py_None) {
+        SDL_RWops *rw = RWopsFromFileObject(obj);
+        if (rw != NULL) {
+            result = SaveTGA_RW(surf, rw, 1);
         }
         else {
-            if (!PyArg_ParseTuple (arg, "O|y", &file, &name)) {
-                return NULL;
-            }
+            result = -2;
         }
-#else
-        if (!PyArg_ParseTuple (arg, "O|s", &file, &name))
-            return NULL;
-#endif
-        namelen = strlen (name);
-        if (namelen > 3)
-        {
+    }
+    else if (oencoded != NULL) {
+        const char *name = Bytes_AS_STRING(oencoded);
+        Py_ssize_t namelen = Bytes_GET_SIZE(oencoded);
+        int written = 0;
+
+        if (namelen > 3) {
             if ((name[namelen - 1]=='p' || name[namelen - 1]=='P') &&
                 (name[namelen - 2]=='m' || name[namelen - 2]=='M') &&
-                (name[namelen - 3]=='b' || name[namelen - 3]=='B'))
-            {
+                (name[namelen - 3]=='b' || name[namelen - 3]=='B'))   {
                 Py_BEGIN_ALLOW_THREADS;
-                result = SDL_SaveBMP (surf, name);
+                result = SDL_SaveBMP(surf, name);
                 Py_END_ALLOW_THREADS;
                 written = 1;
             }
             else if (((name[namelen - 1]=='g' || name[namelen - 1]=='G') &&
-                    (name[namelen - 2]=='n' || name[namelen - 2]=='N') &&
-                    (name[namelen - 3]=='p' || name[namelen - 3]=='P')) ||
-                ((name[namelen - 1]=='g' || name[namelen - 1]=='G') &&
-                    (name[namelen - 2]=='e' || name[namelen - 2]=='E') &&
-                    (name[namelen - 3]=='p' || name[namelen - 3]=='P') &&
-                    (name[namelen - 4]=='j' || name[namelen - 4]=='J')) ||
-                ((name[namelen - 1]=='g' || name[namelen - 1]=='G') &&
-                    (name[namelen - 2]=='p' || name[namelen - 2]=='P') &&
-                    (name[namelen - 3]=='j' || name[namelen - 3]=='J')))
-            {
+                      (name[namelen - 2]=='n' || name[namelen - 2]=='N') &&
+                      (name[namelen - 3]=='p' || name[namelen - 3]=='P')) ||
+                     ((name[namelen - 1]=='g' || name[namelen - 1]=='G') &&
+                      (name[namelen - 2]=='e' || name[namelen - 2]=='E') &&
+                      (name[namelen - 3]=='p' || name[namelen - 3]=='P') &&
+                      (name[namelen - 4]=='j' || name[namelen - 4]=='J')) ||
+                     ((name[namelen - 1]=='g' || name[namelen - 1]=='G') &&
+                      (name[namelen - 2]=='p' || name[namelen - 2]=='P') &&
+                      (name[namelen - 3]=='j' || name[namelen - 3]=='J')))  {
                 /* If it is .png .jpg .jpeg use the extended module. */
                 /* try to get extended formats */
-                imgext = PyImport_ImportModule (IMPPREFIX "imageext");
-                if (imgext)
+                imgext = PyImport_ImportModule(IMPPREFIX "imageext");
+                if (imgext != NULL)
                 {
-                    PyObject *extdict = PyModule_GetDict (imgext);
-                    PyObject* extsave = PyDict_GetItemString (extdict,
-                        "save_extended");
-                    PyObject* data = PyObject_CallObject (extsave, arg);
-                    if (!data)
-                        result = -1;
-                    Py_DECREF (imgext);
-                    /* Data must be decremented here, not? */
-                    if (data)
-		    {
-                    	Py_DECREF (data);
-		    }
+                    PyObject *extsave = 
+                        PyObject_GetAttrString(imgext, "save_extended");
+                    PyObject *data;
+                    
+                    Py_DECREF(imgext);
+                    if (extsave != NULL) {
+                        data = PyObject_CallObject(extsave, arg);
+                        Py_DECREF(extsave);
+                        if (data == NULL) {
+                            result = -2;
+                        }
+                        else {
+                            Py_DECREF(data);
+                            result = 0;
+                        }
+                    }
+                    else {
+                        result = -2;
+                    }
                 }
-                else
-		{
+                else {
                     result = -2;
-		}
+                }
                 written = 1;
             }
         }
 
-        if (!written)
-        {
+        if (!written) {
             Py_BEGIN_ALLOW_THREADS;
-            result = SaveTGA (surf, name, 1);
+            result = SaveTGA(surf, name, 1);
             Py_END_ALLOW_THREADS;
         }
     }
-    else
-    {
-        SDL_RWops* rw;
-        if (!(rw = RWopsFromPython (file)))
-            return NULL;
-        result = SaveTGA_RW (surf, rw, 1);
+    else {
+        result = -2;
     }
+    Py_XDECREF(oencoded);
 
-    if (temp)
+    if (temp) {
         SDL_FreeSurface (temp);
-    else
+    }
+    else {
         PySurface_Unprep (surfobj);
+    }
         
-    if (result == -2)
-        return imgext;
-    if (result == -1)
-        return RAISE (PyExc_SDLError, SDL_GetError ());
+    if (result == -2) {
+        /* Python error raised elsewhere */
+        return NULL;
+    }
+    if (result == -1) {
+        /* SDL error: translate to Python error */
+        return RAISE(PyExc_SDLError, SDL_GetError());
+    }
+    if (result == 1) {
+        /* Should never get here */
+        return RAISE(PyExc_SDLError, "Unrecognized image type");
+    }
 
     Py_RETURN_NONE;
 }
@@ -1037,19 +1033,19 @@ image_frombuffer (PyObject* self, PyObject* arg)
 /*******************************************************/
 struct TGAheader
 {
-    Uint8 infolen;		/* length of info field */
-    Uint8 has_cmap;		/* 1 if image has colormap, 0 otherwise */
+    Uint8 infolen;                /* length of info field */
+    Uint8 has_cmap;                /* 1 if image has colormap, 0 otherwise */
     Uint8 type;
 
-    Uint8 cmap_start[2];	/* index of first colormap entry */
-    Uint8 cmap_len[2];		/* number of entries in colormap */
-    Uint8 cmap_bits;		/* bits per colormap entry */
+    Uint8 cmap_start[2];        /* index of first colormap entry */
+    Uint8 cmap_len[2];                /* number of entries in colormap */
+    Uint8 cmap_bits;                /* bits per colormap entry */
 
-    Uint8 yorigin[2];		/* image origin (ignored here) */
+    Uint8 yorigin[2];                /* image origin (ignored here) */
     Uint8 xorigin[2];
-    Uint8 width[2];		/* image size */
+    Uint8 width[2];                /* image size */
     Uint8 height[2];
-    Uint8 pixel_bits;		/* bits/pixel */
+    Uint8 pixel_bits;                /* bits/pixel */
     Uint8 flags;
 };
 
@@ -1058,19 +1054,19 @@ enum tga_type
     TGA_TYPE_INDEXED = 1,
     TGA_TYPE_RGB = 2,
     TGA_TYPE_BW = 3,
-    TGA_TYPE_RLE = 8		/* additive */
+    TGA_TYPE_RLE = 8                /* additive */
 };
 
-#define TGA_INTERLEAVE_MASK	0xc0
-#define TGA_INTERLEAVE_NONE	0x00
-#define TGA_INTERLEAVE_2WAY	0x40
-#define TGA_INTERLEAVE_4WAY	0x80
+#define TGA_INTERLEAVE_MASK        0xc0
+#define TGA_INTERLEAVE_NONE        0x00
+#define TGA_INTERLEAVE_2WAY        0x40
+#define TGA_INTERLEAVE_4WAY        0x80
 
-#define TGA_ORIGIN_MASK		0x30
-#define TGA_ORIGIN_LEFT		0x00
-#define TGA_ORIGIN_RIGHT	0x10
-#define TGA_ORIGIN_LOWER	0x00
-#define TGA_ORIGIN_UPPER	0x20
+#define TGA_ORIGIN_MASK                0x30
+#define TGA_ORIGIN_LEFT                0x00
+#define TGA_ORIGIN_RIGHT        0x10
+#define TGA_ORIGIN_LOWER        0x00
+#define TGA_ORIGIN_UPPER        0x20
 
 /* read/write unaligned little-endian 16-bit ints */
 #define LE16(p) ((p)[0] + ((p)[1] << 8))
@@ -1080,7 +1076,7 @@ enum tga_type
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 #endif
 
-#define TGA_RLE_MAX 128		/* max length of a TGA RLE chunk */
+#define TGA_RLE_MAX 128                /* max length of a TGA RLE chunk */
 /* return the number of bytes in the resulting buffer after RLE-encoding
    a line of TGA data */
 static int
@@ -1091,36 +1087,36 @@ rle_line (Uint8 *src, Uint8 *dst, int w, int bpp)
     int raw = 0;
     while (x < w)
     {
-	Uint32 pix;
-	int x0 = x;
-	memcpy (&pix, src + x * bpp, bpp);
-	x++;
-	while (x < w && memcmp (&pix, src + x * bpp, bpp) == 0
+        Uint32 pix;
+        int x0 = x;
+        memcpy (&pix, src + x * bpp, bpp);
+        x++;
+        while (x < w && memcmp (&pix, src + x * bpp, bpp) == 0
                && x - x0 < TGA_RLE_MAX)
-	    x++;
-	/* use a repetition chunk iff the repeated pixels would consume
-	   two bytes or more */
-	if ((x - x0 - 1) * bpp >= 2 || x == w)
+            x++;
+        /* use a repetition chunk iff the repeated pixels would consume
+           two bytes or more */
+        if ((x - x0 - 1) * bpp >= 2 || x == w)
         {
-	    /* output previous raw chunks */
-	    while (raw < x0)
+            /* output previous raw chunks */
+            while (raw < x0)
             {
-		int n = MIN (TGA_RLE_MAX, x0 - raw);
-		dst[out++] = n - 1;
-		memcpy (dst + out, src + raw * bpp, n * bpp);
-		out += n * bpp;
-		raw += n;
-	    }
+                int n = MIN (TGA_RLE_MAX, x0 - raw);
+                dst[out++] = n - 1;
+                memcpy (dst + out, src + raw * bpp, n * bpp);
+                out += n * bpp;
+                raw += n;
+            }
 
-	    if (x - x0 > 0)
+            if (x - x0 > 0)
             {
-		/* output new repetition chunk */
-		dst[out++] = 0x7f + x - x0;
-		memcpy (dst + out, &pix, bpp);
-		out += bpp;
-	    }
-	    raw = x;
-	}
+                /* output new repetition chunk */
+                dst[out++] = 0x7f + x - x0;
+                memcpy (dst + out, &pix, bpp);
+                out += bpp;
+            }
+            raw = x;
+        }
     }
     return out;
 }
@@ -1157,53 +1153,53 @@ SaveTGA_RW (SDL_Surface *surface, SDL_RWops *out, int rle)
     srcbpp = surface->format->BitsPerPixel;
     if (srcbpp < 8)
     {
-	SDL_SetError ("cannot save <8bpp images as TGA");
-	return -1;
+        SDL_SetError ("cannot save <8bpp images as TGA");
+        return -1;
     }
 
     if (srcbpp == 8)
     {
-	h.has_cmap = 1;
-	h.type = TGA_TYPE_INDEXED;
-	if (surface->flags & SDL_SRCCOLORKEY)
+        h.has_cmap = 1;
+        h.type = TGA_TYPE_INDEXED;
+        if (surface->flags & SDL_SRCCOLORKEY)
         {
-	    ckey = surface->format->colorkey;
-	    h.cmap_bits = 32;
-	}
+            ckey = surface->format->colorkey;
+            h.cmap_bits = 32;
+        }
         else
-	    h.cmap_bits = 24;
-	SETLE16 (h.cmap_len, surface->format->palette->ncolors);
-	h.pixel_bits = 8;
-	rmask = gmask = bmask = amask = 0;
+            h.cmap_bits = 24;
+        SETLE16 (h.cmap_len, surface->format->palette->ncolors);
+        h.pixel_bits = 8;
+        rmask = gmask = bmask = amask = 0;
     }
     else
     {
-	h.has_cmap = 0;
-	h.type = TGA_TYPE_RGB;
-	h.cmap_bits = 0;
-	SETLE16 (h.cmap_len, 0);
-	if (surface->format->Amask)
+        h.has_cmap = 0;
+        h.type = TGA_TYPE_RGB;
+        h.cmap_bits = 0;
+        SETLE16 (h.cmap_len, 0);
+        if (surface->format->Amask)
         {
-	    alpha = 1;
-	    h.pixel_bits = 32;
-	}
+            alpha = 1;
+            h.pixel_bits = 32;
+        }
         else
-	    h.pixel_bits = 24;
-	if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
+            h.pixel_bits = 24;
+        if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
         {
-	    int s = alpha ? 0 : 8;
-	    amask = 0x000000ff >> s;
-	    rmask = 0x0000ff00 >> s;
-	    gmask = 0x00ff0000 >> s;
-	    bmask = 0xff000000 >> s;
-	}
+            int s = alpha ? 0 : 8;
+            amask = 0x000000ff >> s;
+            rmask = 0x0000ff00 >> s;
+            gmask = 0x00ff0000 >> s;
+            bmask = 0xff000000 >> s;
+        }
         else
         {
-	    amask = alpha ? 0xff000000 : 0;
-	    rmask = 0x00ff0000;
-	    gmask = 0x0000ff00;
-	    bmask = 0x000000ff;
-	}
+            amask = alpha ? 0xff000000 : 0;
+            rmask = 0x00ff0000;
+            gmask = 0x0000ff00;
+            bmask = 0x000000ff;
+        }
     }
     bpp = h.pixel_bits >> 3;
     if (rle)
@@ -1216,39 +1212,39 @@ SaveTGA_RW (SDL_Surface *surface, SDL_RWops *out, int rle)
     h.flags = TGA_ORIGIN_UPPER | (alpha ? 8 : 0);
 
     if (!SDL_RWwrite (out, &h, sizeof (h), 1))
-	return -1;
+        return -1;
 
     if (h.has_cmap)
     {
-	int i;
-	SDL_Palette *pal = surface->format->palette;
-	Uint8 entry[4];
-	for (i = 0; i < pal->ncolors; i++)
+        int i;
+        SDL_Palette *pal = surface->format->palette;
+        Uint8 entry[4];
+        for (i = 0; i < pal->ncolors; i++)
         {
-	    entry[0] = pal->colors[i].b;
-	    entry[1] = pal->colors[i].g;
-	    entry[2] = pal->colors[i].r;
-	    entry[3] = (i == ckey) ? 0 : 0xff;
-	    if (!SDL_RWwrite (out, entry, h.cmap_bits >> 3, 1))
-		return -1;
-	}
+            entry[0] = pal->colors[i].b;
+            entry[1] = pal->colors[i].g;
+            entry[2] = pal->colors[i].r;
+            entry[3] = (i == ckey) ? 0 : 0xff;
+            if (!SDL_RWwrite (out, entry, h.cmap_bits >> 3, 1))
+                return -1;
+        }
     }
 
     linebuf = SDL_CreateRGBSurface (SDL_SWSURFACE, surface->w, 1, h.pixel_bits,
                                     rmask, gmask, bmask, amask);
     if (!linebuf)
-	return -1;
+        return -1;
     if (h.has_cmap)
-	SDL_SetColors (linebuf, surface->format->palette->colors, 0,
+        SDL_SetColors (linebuf, surface->format->palette->colors, 0,
                        surface->format->palette->ncolors);
     if (rle)
     {
-	rlebuf = malloc (bpp * surface->w + 1 + surface->w / TGA_RLE_MAX);
-	if (!rlebuf)
+        rlebuf = malloc (bpp * surface->w + 1 + surface->w / TGA_RLE_MAX);
+        if (!rlebuf)
         {
-	    SDL_SetError ("out of memory");
-	    goto error;
-	}
+            SDL_SetError ("out of memory");
+            goto error;
+        }
     }
 
     /* Temporarily remove colourkey and alpha from surface so copies are
@@ -1256,38 +1252,38 @@ SaveTGA_RW (SDL_Surface *surface, SDL_RWops *out, int rle)
     surf_flags = surface->flags & (SDL_SRCALPHA | SDL_SRCCOLORKEY);
     surf_alpha = surface->format->alpha;
     if (surf_flags & SDL_SRCALPHA)
-	SDL_SetAlpha (surface, 0, 255);
+        SDL_SetAlpha (surface, 0, 255);
     if (surf_flags & SDL_SRCCOLORKEY)
-	SDL_SetColorKey (surface, 0, surface->format->colorkey);
+        SDL_SetColorKey (surface, 0, surface->format->colorkey);
 
     r.x = 0;
     r.w = surface->w;
     r.h = 1;
     for (r.y = 0; r.y < surface->h; r.y++)
     {
-	int n;
-	void *buf;
-	if (SDL_BlitSurface (surface, &r, linebuf, NULL) < 0)
-	    break;
-	if (rle)
+        int n;
+        void *buf;
+        if (SDL_BlitSurface (surface, &r, linebuf, NULL) < 0)
+            break;
+        if (rle)
         {
-	    buf = rlebuf;
-	    n = rle_line (linebuf->pixels, rlebuf, surface->w, bpp);
-	}
+            buf = rlebuf;
+            n = rle_line (linebuf->pixels, rlebuf, surface->w, bpp);
+        }
         else
         {
-	    buf = linebuf->pixels;
-	    n = surface->w * bpp;
-	}
-	if (!SDL_RWwrite (out, buf, n, 1))
-	    break;
+            buf = linebuf->pixels;
+            n = surface->w * bpp;
+        }
+        if (!SDL_RWwrite (out, buf, n, 1))
+            break;
     }
 
     /* restore flags */
     if (surf_flags & SDL_SRCALPHA)
-	SDL_SetAlpha (surface, SDL_SRCALPHA, (Uint8)surf_alpha);
+        SDL_SetAlpha (surface, SDL_SRCALPHA, (Uint8)surf_alpha);
     if (surf_flags & SDL_SRCCOLORKEY)
-	SDL_SetColorKey (surface, SDL_SRCCOLORKEY, surface->format->colorkey);
+        SDL_SetColorKey (surface, SDL_SRCCOLORKEY, surface->format->colorkey);
 
 error:
     free (rlebuf);
@@ -1296,12 +1292,12 @@ error:
 }
 
 static int
-SaveTGA (SDL_Surface *surface, char *file, int rle)
+SaveTGA (SDL_Surface *surface, const char *file, int rle)
 {
     SDL_RWops *out = SDL_RWFromFile (file, "wb");
     int ret;
     if (!out)
-	return -1;
+        return -1;
     ret = SaveTGA_RW (surface, out, rle);
     SDL_RWclose (out);
     return ret;

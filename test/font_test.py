@@ -16,7 +16,9 @@ if is_pygame_pkg:
 else:
     from test.test_utils import test_not_implemented, unittest, geterror
 import pygame
-from pygame.compat import as_unicode, as_bytes, xrange_
+from pygame.compat import as_unicode, as_bytes, xrange_, filesystem_errors
+
+UCS_4 = sys.maxunicode > 0xFFFF
 
 def equal_images(s1, s2):
     size = s1.get_size()
@@ -216,6 +218,11 @@ class FontTypeTest( unittest.TestCase ):
             self.assert_(len(um) == 1)
             self.assert_(bm[0] != um[0])
             self.assert_(bm[1] != um[0])
+
+        if UCS_4:
+            u = as_unicode(r"\U00013000")
+            bm = f.metrics(u)
+            self.assert_(len(bm) == 1 and bm[0] is None)
     
         return # unfinished
         # The documentation is useless here. How large a list?
@@ -278,6 +285,19 @@ class FontTypeTest( unittest.TestCase ):
         else:
             self.assert_(not equal_images(su, sb))
 
+        if UCS_4:
+            # SDL_ttf only handles UCS-2
+            ucs_2 = as_unicode(r"\uFFEE")
+            s = f.render(ucs_2, False, [0, 0, 0], [255, 255, 255])
+            ucs_4 = as_unicode(r"\U00010000")
+            self.assertRaises(UnicodeError, f.render,
+                              ucs_4, False, [0, 0, 0], [255, 255, 255])
+
+        b = as_bytes("ab\x00cd")
+        self.assertRaises(ValueError, f.render, b, 0, [0, 0, 0])
+        u = as_unicode("ab\x00cd")
+        self.assertRaises(ValueError, f.render, b, 0, [0, 0, 0])
+    
         # __doc__ (as of 2008-08-02) for pygame.font.Font.render:
 
           # Font.render(text, antialias, color, background=None): return Surface
@@ -371,11 +391,9 @@ class FontTypeTest( unittest.TestCase ):
         # http://www.mail-archive.com/pygame-users@seul.org/msg11675.html
 
         pygame.font.init()
-
-        def fetch():
-            font = pygame.font.Font('some-fictional-font.ttf', 20)
-        self.failUnlessRaises(IOError, fetch)
-
+        self.failUnlessRaises(IOError,
+                              pygame.font.Font,
+                              'some-fictional-font.ttf', 20)
 
     def test_load_from_file(self):
         font_name = pygame.font.get_default_font()
@@ -395,6 +413,27 @@ class FontTypeTest( unittest.TestCase ):
         # identical to the default font file name.
         f = pygame.font.Font(pygame.font.get_default_font(), 20)
 
+    def test_load_from_file_unicode(self):
+        base_dir = os.path.split(pygame.__file__)[0]
+        sep = os.path.sep
+        if sep == '\\':
+            sep = '\\\\'
+        font_path = base_dir + sep + pygame.font.get_default_font()
+        ufont_path = as_unicode(font_path)
+        f = pygame.font.Font(ufont_path, 20)
+
+    def test_load_from_file_bytes(self):
+        font_path = os.path.join(os.path.split(pygame.__file__)[0], 
+                                 pygame.font.get_default_font())
+        filesystem_encoding = sys.getfilesystemencoding()
+        try:
+            font_path = font_path.decode(filesystem_encoding,
+                                         filesystem_errors)
+        except AttributeError:
+            pass
+        bfont_path = font_path.encode(filesystem_encoding,
+                                      filesystem_errors)
+        f = pygame.font.Font(bfont_path, 20)
 
 class VisualTests( unittest.TestCase ):
     __tags__ = ['interactive']

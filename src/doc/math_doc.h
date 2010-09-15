@@ -103,6 +103,8 @@
 
 #define DOC_ ""
 
+#define DOC_ ""
+
 
 
 /* Docs in a comments... slightly easier to read. */
@@ -418,6 +420,11 @@ returns a tuple with radial distance, inclination and azimuthal angle.
 Vector3.from_spherical
  Vector3.from_spherical((r, theta, phi)): return None
 Sets x, y and z from a spherical coordinates 3-tuple.
+
+
+
+
+ 
 
 
 

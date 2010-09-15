@@ -4,6 +4,12 @@
 # BREAK = change breaks existing code
 # BUG    = fixed a bug that was (or could have been) crashing
 
+[SVN 2921] September 15, 2010
+    Merge fsencoding branch back into trunk. This adds corrected Unicode file path
+    handling to Pygame. File paths can contain any UTF-32 character, except \x00,
+    provided the file system encoding can handle it. It is also one more step
+    towards a full Python 3.1 port of Pygame.
+
 [SVN 2914, 2916] September 15, 2010
     Preparation for merge with fsencoding branch
 

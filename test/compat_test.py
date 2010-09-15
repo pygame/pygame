@@ -15,6 +15,7 @@ if is_pygame_pkg:
 else:
     from test.test_utils import test_not_implemented, unittest
 from pygame import compat
+encode_file_path = sys.modules['pygame.rwobject'].encode_file_path
 
 class CompatModuleTest(unittest.TestCase):
     def test_as_unicode(self):
@@ -89,6 +90,11 @@ class CompatModuleTest(unittest.TestCase):
             self.failUnlessEqual(s, msg)
         finally:
             sys.stdin = tmp
-                   
+
+    def test_filesystem_encode(self):
+        upath = compat.as_unicode(r"ab\u212Acd")
+        self.assertEqual(compat.filesystem_encode(upath),
+                         encode_file_path(upath))
+        
 if __name__ == '__main__':
     unittest.main()

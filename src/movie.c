@@ -440,7 +440,7 @@ static PyObject*
 Movie (PyObject* self, PyObject* arg)
 {
     PyObject* file, *final, *filesource=NULL;
-    char* name = NULL;
+    PyObject* oencoded;
     SMPEG* movie=NULL;
     SMPEG_Info info;
     SDL_Surface* screen;
@@ -457,15 +457,20 @@ Movie (PyObject* self, PyObject* arg)
     if (!SDL_WasInit (SDL_INIT_AUDIO))
         audioavail = 1;
 
-    if (Bytes_Check (file) || PyUnicode_Check (file))
-    {
-        if (!PyArg_ParseTuple (arg, "s", &name))
-            return NULL;
-        movie = SMPEG_new (name, &info, audioavail);
+    oencoded = RWopsEncodeFilePath (file, PyExc_SDLError);
+    if (oencoded == NULL) {
+        return NULL;
     }
-#if !PY3
+    if (oencoded != Py_None) {
+        const char *name = Bytes_AS_STRING(oencoded);
+
+        movie = SMPEG_new (name, &info, audioavail);
+        Py_DECREF(oencoded);
+    }
+#if PY2
     else if (PyFile_Check (file))
     {
+        Py_DECREF(oencoded);
         SDL_RWops *rw = SDL_RWFromFP (PyFile_AsFile (file), 0);
         movie = SMPEG_new_rwops (rw, &info, audioavail);
         filesource = file;
@@ -474,8 +479,10 @@ Movie (PyObject* self, PyObject* arg)
 #endif
     else
     {
-        SDL_RWops *rw;
-        if (!(rw = RWopsFromPythonThreaded (file)))
+        SDL_RWops *rw = RWopsFromFileObjectThreaded (file);
+        
+        Py_DECREF(oencoded);
+        if (!rw)
             return NULL;
         Py_BEGIN_ALLOW_THREADS;
         movie = SMPEG_new_rwops (rw, &info, audioavail);

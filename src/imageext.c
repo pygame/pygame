@@ -50,115 +50,121 @@
 #include "pgopengl.h"
 #include <SDL_image.h>
 
-static char*
-find_extension (char* fullname)
+static const char*
+find_extension(const char *fullname)
 {
-    char* dot;
+    const char *dot;
 
-    if (!fullname)
+    if (fullname == NULL) {
         return NULL;
+    }
 
-    dot = strrchr (fullname, '.');
-    if (!dot)
+    dot = strrchr(fullname, '.');
+    if (dot == NULL) {
         return fullname;
+    }
     return dot + 1;
 }
 
 static PyObject*
-image_load_ext (PyObject* self, PyObject* arg)
+image_load_ext(PyObject *self, PyObject *arg)
 {
-    PyObject *file, *final;
-#if PY3
-    PyObject *oname, *odecoded = NULL;
-#endif
-    char* name = NULL;
-    SDL_Surface* surf;
+    PyObject *obj;
+    PyObject *final;
+    PyObject *oencoded;
+    PyObject *oname;
+    const char *name = NULL;
+    const char *cext;
+    char *ext = NULL;
+    SDL_Surface *surf;
     SDL_RWops *rw;
-    if (!PyArg_ParseTuple (arg, "O|s", &file, &name))
+    
+    if (!PyArg_ParseTuple(arg, "O|s", &obj, &name)) {
         return NULL;
-#if PY3
-    if (PyUnicode_Check (file))
-#else
-    if (PyString_Check (file) || PyUnicode_Check (file))
-#endif
-    {
-        if (!PyArg_ParseTuple (arg, "s|O", &name, &file))
-            return NULL;
-        Py_BEGIN_ALLOW_THREADS;
-        surf = IMG_Load (name);
-        Py_END_ALLOW_THREADS;
     }
-#if PY3
-    else if (PyBytes_Check (file)) {
-        name = PyBytes_AsString (file);
-	if (name == NULL) {
-	    return NULL;
-	}
-        Py_BEGIN_ALLOW_THREADS;
-        surf = IMG_Load (name);
-        Py_END_ALLOW_THREADS;
+    
+    oencoded = RWopsEncodeFilePath(obj, PyExc_SDLError);
+    if (oencoded == NULL) {
+        return NULL;
     }
+    if (oencoded != Py_None) {
+        Py_BEGIN_ALLOW_THREADS;
+        surf = IMG_Load(Bytes_AS_STRING(oencoded));
+        Py_END_ALLOW_THREADS;
+        Py_DECREF(oencoded);
+    }
+    else {
+        Py_DECREF(oencoded);
+        oencoded = NULL;
+#if PY2
+        if (name == NULL && PyFile_Check(obj)) {
+            oencoded = PyFile_Name(obj);
+            if (oencoded == NULL) {
+                /* This should never happen */
+                return NULL;
+            }
+            Py_INCREF(oencoded);
+            name = Bytes_AS_STRING(oencoded);
+        }
 #endif
-    else
-    {
-#if PY3
         if (name == NULL) {
-            oname = PyObject_GetAttrString (file, "name");
-            if (oname == NULL) {
-	        PyErr_Clear ();
+            oname = PyObject_GetAttrString(obj, "name");
+            if (oname != NULL) {
+                oencoded = RWopsEncodeFilePath(oname, NULL);
+                Py_DECREF(oname);
+                if (oencoded == NULL) {
+                    return NULL;
+                }
+                if (oencoded != Py_None) {
+                    name = Bytes_AS_STRING(oencoded);
+                }
             }
             else {
-	        if (PyUnicode_Check (oname)) {
-	            odecoded = PyUnicode_AsASCIIString (oname);
-	            Py_DECREF (oname);
-	            if (odecoded == NULL) {
-	                return NULL;
-		    }
-	  	    name = PyBytes_AsString (odecoded);
-	        }
-		else if (PyBytes_Check (oname)) {
-		    name = PyBytes_AsString (oname);
-		}
-	    }
+                PyErr_Clear();
+            }
         }
-#else
-        if (!name && PyFile_Check (file))
-            name = PyString_AsString (PyFile_Name (file));
-#endif
-        if (!(rw = RWopsFromPython (file))) {
-#if PY3
-	    Py_XDECREF (odecoded);
-#endif
+        rw = RWopsFromFileObject(obj);
+        if (rw == NULL) {
+            Py_XDECREF(oencoded);
             return NULL;
-	}
-        if (RWopsCheckPython (rw))
-        {
-            surf = IMG_LoadTyped_RW (rw, 1, find_extension (name));
         }
-        else
-        {
+        
+        cext = find_extension(name);
+        if (cext != NULL) {
+            ext = PyMem_Malloc(strlen(cext) + 1);
+            if (ext == NULL) {
+                Py_XDECREF(oencoded);
+                return PyErr_NoMemory();
+            }
+            strcpy(ext, cext);
+        }
+        Py_XDECREF(oencoded);
+        if (RWopsCheckObject(rw)) {
+            surf = IMG_LoadTyped_RW(rw, 1, ext);
+        }
+        else {
             Py_BEGIN_ALLOW_THREADS;
-            surf = IMG_LoadTyped_RW (rw, 1, find_extension (name));
+            surf = IMG_LoadTyped_RW(rw, 1, ext);
             Py_END_ALLOW_THREADS;
         }
-#if PY3
-	Py_XDECREF (odecoded);
-#endif
+        PyMem_Free(ext);
     }
 
-    if (!surf)
-        return RAISE (PyExc_SDLError, IMG_GetError ());
-    final = PySurface_New (surf);
-    if (!final)
-        SDL_FreeSurface (surf);
+    if (surf == NULL) {
+        return RAISE(PyExc_SDLError, IMG_GetError());
+    }
+    final = PySurface_New(surf);
+    if (final == NULL) {
+        SDL_FreeSurface(surf);
+    }
     return final;
 }
 
 #ifdef PNG_H
 
 static int
-write_png (char *file_name, png_bytep *rows, int w, int h, int colortype,
-           int bitdepth)
+write_png (const char *file_name, png_bytep *rows, int w, int h,
+           int colortype, int bitdepth)
 {
     png_structp png_ptr;
     png_infop info_ptr;
@@ -207,7 +213,7 @@ fail:
 }
 
 static int
-SavePNG (SDL_Surface *surface, char *file)
+SavePNG (SDL_Surface *surface, const char *file)
 {
     static unsigned char** ss_rows;
     static int ss_size;
@@ -306,8 +312,8 @@ SavePNG (SDL_Surface *surface, char *file)
 #define NUM_LINES_TO_WRITE 500
 
 
-int write_jpeg (char *file_name, unsigned char** image_buffer,  int image_width,
-            int image_height, int quality) {
+int write_jpeg (const char *file_name, unsigned char** image_buffer,
+                int image_width, int image_height, int quality) {
 
     struct jpeg_compress_struct cinfo;
     struct jpeg_error_mgr jerr;
@@ -383,7 +389,7 @@ int write_jpeg (char *file_name, unsigned char** image_buffer,  int image_width,
 
 
 
-int SaveJPEG (SDL_Surface *surface, char *file) {
+int SaveJPEG (SDL_Surface *surface, const char *file) {
 
     static unsigned char** ss_rows;
     static int ss_size;
@@ -553,45 +559,42 @@ opengltosdl (void)
 
 
 static PyObject*
-image_save_ext (PyObject* self, PyObject* arg)
+image_save_ext(PyObject *self, PyObject *arg)
 {
-    PyObject* surfobj, *file;
+    PyObject *surfobj;
+    PyObject *obj;
+    PyObject *oencoded;
     SDL_Surface *surf;
     SDL_Surface *temp = NULL;
-    int result;
+    int result = 1;
 
-    if (!PyArg_ParseTuple (arg, "O!O", &PySurface_Type, &surfobj, &file))
+    if (!PyArg_ParseTuple(arg, "O!O", &PySurface_Type, &surfobj, &obj)) {
         return NULL;
-    surf = PySurface_AsSurface (surfobj);
-
-    if (surf->flags & SDL_OPENGL)
-    {
-        temp = surf = opengltosdl ();
-        if (!surf)
-            return NULL;
     }
-    else
-        PySurface_Prep (surfobj);
+    surf = PySurface_AsSurface(surfobj);
 
-#if PY3
-    if (PyUnicode_Check (file) || PyBytes_Check (file))
-#else
-    if (PyString_Check (file) || PyUnicode_Check (file))
-#endif
-    {
-        int namelen;
-        char* name;
-#if PY3
-        if (PyBytes_Check (file)) {
-	    if (!PyArg_ParseTuple (arg, "0|y", &file, &name)) {
-	        return NULL;
-	    }
-	}
-	else
-#endif
-        if (!PyArg_ParseTuple (arg, "O|s", &file, &name))
+    surf = PySurface_AsSurface(surfobj);
+    if (surf->flags & SDL_OPENGL) {
+        temp = surf = opengltosdl();
+        if (surf == NULL) {
             return NULL;
-        namelen = strlen (name);
+        }
+    }
+    else {
+        PySurface_Prep(surfobj);
+    }
+
+    oencoded = RWopsEncodeFilePath(obj, PyExc_SDLError);
+    if (oencoded == Py_None) {
+        PyErr_Format(PyExc_TypeError,
+                     "Expected a string for the file argument: got %.1024s",
+                     Py_TYPE(obj)->tp_name);
+        result = -2;
+    }
+    else if (oencoded != NULL) {
+        const char *name = Bytes_AS_STRING(oencoded);
+        Py_ssize_t namelen = Bytes_GET_SIZE(oencoded);
+
         if ((namelen >= 4) &&
             (((name[namelen - 1]=='g' || name[namelen - 1]=='G') &&
               (name[namelen - 2]=='e' || name[namelen - 2]=='E') &&
@@ -599,49 +602,58 @@ image_save_ext (PyObject* self, PyObject* arg)
               (name[namelen - 4]=='j' || name[namelen - 4]=='J')) ||
              ((name[namelen - 1]=='g' || name[namelen - 1]=='G') &&
               (name[namelen - 2]=='p' || name[namelen - 2]=='P') &&
-              (name[namelen - 3]=='j' || name[namelen - 3]=='J'))))
-        {
+              (name[namelen - 3]=='j' || name[namelen - 3]=='J'))))  {
 #ifdef JPEGLIB_H
             /* jpg save functions seem *NOT* thread safe at least on windows. */
             /*
             Py_BEGIN_ALLOW_THREADS;
             */
-            result = SaveJPEG (surf, name);
+            result = SaveJPEG(surf, name);
             /*
             Py_END_ALLOW_THREADS;
             */
 #else
-            return RAISE (PyExc_SDLError, "No support for jpg compiled in.");
+            RAISE(PyExc_SDLError, "No support for jpg compiled in.");
+            result = -2;
 #endif
 
         }
         else if ((namelen >= 3) &&
                  ((name[namelen - 1]=='g' || name[namelen - 1]=='G') &&
                   (name[namelen - 2]=='n' || name[namelen - 2]=='N') &&
-                  (name[namelen - 3]=='p' || name[namelen - 3]=='P')))
-        {
+                  (name[namelen - 3]=='p' || name[namelen - 3]=='P')))  {
 #ifdef PNG_H
             /*Py_BEGIN_ALLOW_THREADS; */
-            result = SavePNG (surf, name);
+            result = SavePNG(surf, name);
             /*Py_END_ALLOW_THREADS; */
 #else
-            return RAISE (PyExc_SDLError, "No support for png compiled in.");
+            RAISE(PyExc_SDLError, "No support for png compiled in.");
+            result = -2;
 #endif
         }
-
-        else
-            result = -1;
     }
-    else
+    else {
+        result = -2;
+    }
+
+    if (temp != NULL) {
+        SDL_FreeSurface(temp);
+    }
+    else {
+        PySurface_Unprep(surfobj);
+    }
+
+    if (result == -2) {
+        /* Python error raised elsewhere */
         return NULL;
-
-    if(temp)
-        SDL_FreeSurface (temp);
-    else
-        PySurface_Unprep (surfobj);
-
-    if (result == -1)
-        return RAISE (PyExc_SDLError, SDL_GetError ());
+    }
+    if (result == -1) {
+        /* SDL error: translate to Python error */
+        return RAISE(PyExc_SDLError, SDL_GetError());
+    }
+    if (result == 1) {
+        return RAISE(PyExc_SDLError, "Unrecognized image type");
+    }
 
     Py_RETURN_NONE;
 }
