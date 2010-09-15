@@ -29,10 +29,26 @@
 #include "doc/music_doc.h"
 #include "mixer.h"
 
-/* Need at least SDL_mixer 1.2.8 (released in 2007) */
-#if (MIX_MAJOR_VERSION*100*100 + MIX_MINOR_VERSION*100 + MIX_PATCHLEVEL) < 10208
-#error Need at least SDL_mixer 1.2.8
+#define ver(major_version, minor_version, patchlevel) \
+  (major_version * 10000 + minor_version * 100 + patchlevel)
+#define _version_ ver(MIX_MAJOR_VERSION, MIX_MINOR_VERSION, MIX_PATCHLEVEL)
+
+/* versions 1.2.4 and greater have positioned fade-in */
+#if _version_ >= ver(1, 2, 4)
+#define MIXMUSIC_HAVE_STARTPOSN 1
+#else
+#define MIXMUSIC_HAVE_STARTPOSN 0
 #endif
+
+/* versions 1.2.8 and greater have rwops */
+#if _version_ >= ver(1, 2, 8)
+#define MIXMUSIC_HAVE_RWOPS 1
+#else
+#define MIXMUSIC_HAVE_RWOPS 0
+#endif
+
+#undef ver
+#undef _version_
 
 static Mix_Music* current_music = NULL;
 static Mix_Music* queue_music = NULL;
@@ -103,11 +119,20 @@ music_play (PyObject* self, PyObject* args, PyObject *keywds)
     music_pos = 0;
     music_pos_time = SDL_GetTicks ();
 
+#if MIXMUSIC_HAVE_STARTPOSN
     Py_BEGIN_ALLOW_THREADS
     volume = Mix_VolumeMusic (-1);
     val = Mix_FadeInMusicPos (current_music, loops, 0, startpos);
     Mix_VolumeMusic (volume);
     Py_END_ALLOW_THREADS
+#else
+    if (startpos)
+        return RAISE (PyExc_NotImplementedError,
+                      "music start position requires SDL_mixer-1.2.4");
+    Py_BEGIN_ALLOW_THREADS
+    val = Mix_PlayMusic (current_music, loops);
+    Py_END_ALLOW_THREADS
+#endif
     if (val == -1)
         return RAISE (PyExc_SDLError, SDL_GetError ());
 
@@ -277,6 +302,7 @@ music_load(PyObject *self, PyObject *args)
     oencoded = RWopsEncodeFilePath(obj, PyExc_SDLError);
     if (oencoded == Py_None) {
         Py_DECREF(oencoded);
+#if MIXMUSIC_HAVE_RWOPS
         rw = RWopsFromFileObjectThreaded(obj);
         if(rw == NULL) {
             return NULL;
@@ -284,6 +310,11 @@ music_load(PyObject *self, PyObject *args)
         Py_BEGIN_ALLOW_THREADS
         new_music = Mix_LoadMUS_RW(rw);
         Py_END_ALLOW_THREADS
+#else
+        return RAISE (PyExc_NotImplementedError,
+                      "music file-like-object support requires"
+                      " SDL_mixer-1.2.8");
+#endif
     }
     else if (oencoded != NULL) {
         name = Bytes_AS_STRING(oencoded);
@@ -335,6 +366,7 @@ music_queue(PyObject *self, PyObject *args)
     oencoded = RWopsEncodeFilePath(obj, PyExc_SDLError);
     if (oencoded == Py_None) {
         Py_DECREF(oencoded);
+#if MIXMUSIC_HAVE_RWOPS
         rw = RWopsFromFileObjectThreaded(obj);
         if(rw == NULL) {
             return NULL;
@@ -342,6 +374,11 @@ music_queue(PyObject *self, PyObject *args)
         Py_BEGIN_ALLOW_THREADS
         queue_music = Mix_LoadMUS_RW(rw);
         Py_END_ALLOW_THREADS
+#else
+        return RAISE (PyExc_NotImplementedError,
+                      "music file-like-object support requires"
+                      " SDL_mixer-1.2.8");
+#endif
     }
     else if (oencoded != NULL) {
         name = Bytes_AS_STRING(oencoded);

@@ -33,9 +33,11 @@
 #include "doc/font_doc.h"
 #include "structmember.h"
 
-/* Do we need to support anything before 2006? */
-#if !defined(TTF_MAJOR_VERSION)
-#error Require SDL_ttf 1.2.6 or later
+/* Require SDL_ttf 2.0.6 or later for rwops support */
+#ifdef TTF_MAJOR_VERSION
+#define FONT_HAVE_RWOPS 1
+#else
+#define FONT_HAVE_RWOPS 0
 #endif
 
 #if PY3
@@ -683,6 +685,7 @@ font_init(PyFontObject *self, PyObject *args, PyObject *kwds)
         }	
     }
     if (font == NULL)  {
+#if FONT_HAVE_RWOPS
         SDL_RWops *rw = RWopsFromFileObject(obj);
 
         if (rw == NULL) {
@@ -697,6 +700,11 @@ font_init(PyFontObject *self, PyObject *args, PyObject *kwds)
              font = TTF_OpenFontIndexRW(rw, 1, fontsize, 0);
              Py_END_ALLOW_THREADS;
         }
+#else
+        RAISE (PyExc_NotImplementedError,
+               "nonstring fonts require SDL_ttf-2.0.6");
+        goto error;
+#endif
     }
 
     if (font == NULL) {
