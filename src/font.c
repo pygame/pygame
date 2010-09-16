@@ -62,16 +62,9 @@ static PyObject* PyFont_New (TTF_Font*);
 #define PyFont_Check(x) ((x)->ob_type == &PyFont_Type)
 
 static int font_initialized = 0;
-#ifndef __SYMBIAN32__
-static const char const *font_defaultname = "freesansbold.ttf";
-static const char const *pkgdatamodule_name = "pygame.pkgdata";
-static const char const *resourcefunc_name = "getResource";
-#else
-/// Symbian GCCE does not like the second const
-static const char *font_defaultname = "freesansbold.ttf";
-static const char *pkgdatamodule_name = "pygame.pkgdata";
-static const char *resourcefunc_name = "getResource";
-#endif
+static const char font_defaultname[] = "freesansbold.ttf";
+static const char pkgdatamodule_name[] = "pygame.pkgdata";
+static const char resourcefunc_name[] = "getResource";
 
 
 /*
@@ -661,7 +654,7 @@ font_init(PyFontObject *self, PyObject *args, PyObject *kwds)
         if(test == NULL) {
             PyObject *tmp = NULL;
 
-            if (!strcmp(filename, font_defaultname)) {
+            if (strcmp(filename, font_defaultname) == 0) {
                 /* filename is the default font; get it's file-like resource
                  */
                 tmp = font_resource(font_defaultname);
