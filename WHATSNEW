@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG    = fixed a bug that was (or could have been) crashing
 
+[SVN 2934] September 16, 2010
+    [BUG] Fix some MSVC warnings in hope of solving an error raised in font_test.py.
+
 [SVN 2923] September 16, 2010
     [BUG] Fix error in movie.c that prevents MSVC from compiling the module.
 
