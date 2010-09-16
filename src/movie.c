@@ -470,8 +470,9 @@ Movie (PyObject* self, PyObject* arg)
 #if PY2
     else if (PyFile_Check (file))
     {
-        Py_DECREF(oencoded);
         SDL_RWops *rw = SDL_RWFromFP (PyFile_AsFile (file), 0);
+
+        Py_DECREF(oencoded);
         movie = SMPEG_new_rwops (rw, &info, audioavail);
         filesource = file;
         Py_INCREF (file);
