@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG    = fixed a bug that was (or could have been) crashing
 
+[SVN 2923] September 16, 2010
+    [BUG] Fix error in movie.c that prevents MSVC from compiling the module.
+
 [SVN 2922] September 15, 2010
     [BUG] Mac builds fail: maybe using older versions of SDL_ttf or
       SDL_mixer. Restore version conditional code in font and music modules.
