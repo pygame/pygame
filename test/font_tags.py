@@ -1,4 +1,5 @@
-__tags__ = []
+#__tags__ = []
+__tags__ = ['ignore', 'subprocess_ignore']
 
 import sys
 # Font support not fully implemented for Python 3.x.
