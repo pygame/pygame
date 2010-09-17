@@ -72,7 +72,7 @@ static const char resourcefunc_name[] = "getResource";
 static int
 utf_8_needs_UCS_4(const char *str)
 {
-    static const Uint8 first = 0xF0;
+    static const Uint8 first = '\xF0';
     
     while (*str) {
         if ((Uint8)*str >= first) {
