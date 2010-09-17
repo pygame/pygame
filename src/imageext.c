@@ -131,7 +131,7 @@ image_load_ext(PyObject *self, PyObject *arg)
         
         cext = find_extension(name);
         if (cext != NULL) {
-            ext = PyMem_Malloc(strlen(cext) + 1);
+            ext = (char *)PyMem_Malloc(strlen(cext) + 1);
             if (ext == NULL) {
                 Py_XDECREF(oencoded);
                 return PyErr_NoMemory();
