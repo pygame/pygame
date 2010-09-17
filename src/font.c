@@ -651,11 +651,11 @@ font_init(PyFontObject *self, PyObject *args, PyObject *kwds)
        		
         /*check if it is a valid file, else SDL_ttf segfaults*/
         test = fopen(filename, "rb");
-        if(test == NULL) {
+        if (test == NULL) {
             PyObject *tmp = NULL;
 
             if (strcmp(filename, font_defaultname) == 0) {
-                /* filename is the default font; get it's file-like resource
+                /* filename is the default font; get it's resource
                  */
                 tmp = font_resource(font_defaultname);
             }
@@ -669,13 +669,23 @@ font_init(PyFontObject *self, PyObject *args, PyObject *kwds)
             }
             Py_DECREF(obj);
             obj = tmp;
+            if (Bytes_Check(obj)) {
+                filename = Bytes_AS_STRING(obj);
+                test = fopen(filename, "rb");
+                if (test == NULL) {
+                    PyErr_Format(PyExc_IOError,
+                                 "unable to read font file '%.1024s'",
+                                 filename);
+                    goto error;
+                }
+            }
         }
-        else {
+        if (Bytes_Check(obj)) {
             fclose(test);
             Py_BEGIN_ALLOW_THREADS;
             font = TTF_OpenFont(filename, fontsize);
             Py_END_ALLOW_THREADS;
-        }	
+        }
     }
     if (font == NULL)  {
 #if FONT_HAVE_RWOPS

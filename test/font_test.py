@@ -411,9 +411,7 @@ class FontTypeTest( unittest.TestCase ):
     def test_load_default_font_filename(self):
         # In font_init, a special case is when the filename argument is
         # identical to the default font file name.
-## The Spectacularly Adequate Build Page fails here (r2924) for Windows.
-## Let it pass, so the binary can be tested directly.
-##        f = pygame.font.Font(pygame.font.get_default_font(), 20)
+        f = pygame.font.Font(pygame.font.get_default_font(), 20)
 
     def test_load_from_file_unicode(self):
         base_dir = os.path.split(pygame.__file__)[0]

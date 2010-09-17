@@ -36,7 +36,10 @@ class MixerMusicModuleTest(unittest.TestCase):
         formats = ['ogg', 'wav']
 
         for f in formats:
-            umusfn = as_unicode(os.path.join(data_fname, 'house_lo.%s' % f))
+            path = os.path.join(data_fname, 'house_lo.%s' % f)
+            if os.sep == '\\':
+                path = path.replace('\\', '\\\\')
+            umusfn = as_unicode(path)
             bmusfn = filesystem_encode(umusfn) 
     
             pygame.mixer.music.load(umusfn)
