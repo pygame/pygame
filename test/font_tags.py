@@ -1,5 +1,4 @@
 __tags__ = []
-__tags__ = ['ignore', 'subprocess_ignore']  #temporary to find Mac build error
 
 import sys
 # Font support not fully implemented for Python 3.x.

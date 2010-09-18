@@ -53,8 +53,8 @@ typedef struct
 
 /*static const char default_encoding[] = "unicode_escape";*/
 /*static const char default_errors[] = "backslashreplace";*/
-static char default_encoding[] = "unicode_escape";
-static char default_errors[] = "backslashreplace";
+static const char default_encoding[] = "unicode_escape";
+static const char default_errors[] = "backslashreplace";
 
 static int rw_seek (SDL_RWops* context, int offset, int whence);
 static int rw_read (SDL_RWops* context, void* ptr, int size, int maxnum);
@@ -673,7 +673,7 @@ static PyMethodDef _rwobject_methods[] =
       METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEENCODESTRING },
     { "encode_file_path", (PyCFunction)rwobject_encode_file_path,
       METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEENCODEFILEPATH },
-    { NULL, NULL 0, NULL }
+    { NULL, NULL, 0, NULL }
 };
 
 /*DOC*/ static char _rwobject_doc[] =
