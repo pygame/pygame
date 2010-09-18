@@ -124,7 +124,8 @@ try: import pygame.event
 except (ImportError,IOError):event=MissingModule("event", geterror(), 1)
 
 try: import pygame.image
-except (ImportError,IOError):image=MissingModule("image", geterror(), 1)
+##except (ImportError,IOError):image=MissingModule("image", geterror(), 1)
+except (ImportError,IOError):image=MissingModule("image", geterror(), 0) # remove when Mac debugging finished.
 
 try: import pygame.joystick
 except (ImportError,IOError):joystick=MissingModule("joystick", geterror(), 1)

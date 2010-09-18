@@ -15,6 +15,7 @@ if is_pygame_pkg:
 else:
     from test.test_utils import test_not_implemented, unittest
 import pygame
+import sys
 
 init_called = quit_called = 0
 def __PYGAMEinit__(): #called automatically by pygame.init()
@@ -59,10 +60,12 @@ class BaseModuleTest(unittest.TestCase):
     def not_init_assertions(self):
         self.assert_(not pygame.display.get_init(),
                      "display shouldn't be initialized" )
-        self.assert_(not pygame.mixer.get_init(),
-                     "mixer shouldn't be initialized" )
-        self.assert_(not pygame.font.get_init(),
-                     "init shouldn't be initialized" )
+        if 'pygame.mixer' in sys.modules:
+            self.assert_(not pygame.mixer.get_init(),
+                         "mixer shouldn't be initialized" )
+        if 'pygame.font' in sys.modules:
+            self.assert_(not pygame.font.get_init(),
+                         "init shouldn't be initialized" )
 
         ## !!! TODO : Remove when scrap works for OS X
         import platform
@@ -80,8 +83,10 @@ class BaseModuleTest(unittest.TestCase):
 
     def init_assertions(self):
         self.assert_(pygame.display.get_init())
-        self.assert_(pygame.mixer.get_init())
-        self.assert_(pygame.font.get_init())
+        if 'pygame.mixer' in sys.modules:
+            self.assert_(pygame.mixer.get_init())
+        if 'pygame.font' in sys.modules:
+            self.assert_(pygame.font.get_init())
 
     def test_quit__and_init(self):
         # __doc__ (as of 2008-06-25) for pygame.base.quit:
