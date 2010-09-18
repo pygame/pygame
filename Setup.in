@@ -28,13 +28,13 @@ DEBUG =
 #everything you can, but you can ignore ones you don't have
 #dependencies for, just comment them out
 
-imageext src/imageext.c $(SDL) $(IMAGE) $(PNG) $(JPEG) $(DEBUG)
-font src/font.c $(SDL) $(FONT) $(DEBUG)
-mixer src/mixer.c $(SDL) $(MIXER) $(DEBUG)
-mixer_music src/music.c $(SDL) $(MIXER) $(DEBUG)
+#imageext src/imageext.c $(SDL) $(IMAGE) $(PNG) $(JPEG) $(DEBUG)
+#font src/font.c $(SDL) $(FONT) $(DEBUG)
+#mixer src/mixer.c $(SDL) $(MIXER) $(DEBUG)
+#mixer_music src/music.c $(SDL) $(MIXER) $(DEBUG)
 _numericsurfarray src/_numericsurfarray.c $(SDL) $(DEBUG)
 _numericsndarray src/_numericsndarray.c $(SDL) $(MIXER) $(DEBUG)
-movie src/movie.c $(SDL) $(SMPEG) $(DEBUG)
+#movie src/movie.c $(SDL) $(SMPEG) $(DEBUG)
 #_movie src/_gsound.c src/_gmovie.c src/_gcommand.c src/gmovie.c $(SDL) $(AVFORMAT) $(SWSCALE) $(MIXER) $(DEBUG)
 scrap src/scrap.c $(SDL) $(SCRAP) $(DEBUG)
 #_camera src/_camera.c src/camera_v4l2.c src/camera_v4l.c $(SDL) $(DEBUG)
@@ -67,7 +67,7 @@ surflock src/surflock.c $(SDL) $(DEBUG)
 time src/time.c $(SDL) $(DEBUG)
 joystick src/joystick.c $(SDL) $(DEBUG)
 draw src/draw.c $(SDL) $(DEBUG)
-image src/image.c $(SDL) $(DEBUG)
+#image src/image.c $(SDL) $(DEBUG)
 overlay src/overlay.c $(SDL) $(DEBUG)
 transform src/transform.c src/rotozoom.c src/scale2x.c src/scale_mmx.c $(SDL) $(DEBUG) -D_NO_MMX_FOR_X86_64
 mask src/mask.c src/bitmask.c $(SDL) $(DEBUG)

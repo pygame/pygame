@@ -18,6 +18,7 @@ else:
          import test_not_implemented, trunk_relative_path, unittest
 import pygame
 from pygame import scrap
+import sys
 
 class ScrapModuleTest(unittest.TestCase):
     not_initialized = True
@@ -129,6 +130,8 @@ class ScrapModuleTest(unittest.TestCase):
         self.assertEquals (scrap.get (pygame.SCRAP_TEXT), "Another String")
 
     def test_scrap_put_image (self):
+        if 'pygame.image' not in sys.modules:
+            return
         sf = pygame.image.load (
             trunk_relative_path("examples/data/asprite.bmp")
         )
