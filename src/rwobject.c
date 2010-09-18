@@ -673,7 +673,7 @@ static PyMethodDef _rwobject_methods[] =
       METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEENCODESTRING },
     { "encode_file_path", (PyCFunction)rwobject_encode_file_path,
       METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEENCODEFILEPATH },
-    { NULL, NULL }
+    { NULL, NULL 0, NULL }
 };
 
 /*DOC*/ static char _rwobject_doc[] =
