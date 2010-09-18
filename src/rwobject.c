@@ -51,8 +51,10 @@ typedef struct
 #endif
 } RWHelper;
 
-static const char default_encoding[] = "unicode_escape";
-static const char default_errors[] = "backslashreplace";
+/*static const char default_encoding[] = "unicode_escape";*/
+/*static const char default_errors[] = "backslashreplace";*/
+static char default_encoding[] = "unicode_escape";
+static char default_errors[] = "backslashreplace";
 
 static int rw_seek (SDL_RWops* context, int offset, int whence);
 static int rw_read (SDL_RWops* context, void* ptr, int size, int maxnum);
