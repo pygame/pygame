@@ -3,6 +3,7 @@ __tags__ = ['array']
 exclude = False
 
 try:
+    import pygame.mixer
     import numpy
 except ImportError:
     try:
