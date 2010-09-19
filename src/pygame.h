@@ -70,6 +70,8 @@ void* _alloca(size_t size);
 #  define alloca _alloca
 #endif
 
+#endif
+
 #include <Python.h>
 
 // No signal()
