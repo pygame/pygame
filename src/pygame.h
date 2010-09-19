@@ -70,13 +70,6 @@ void* _alloca(size_t size);
 #  define alloca _alloca
 #endif
 
-#endif
-
-/* This is unconditionally defined in Python.h */
-#if defined(_POSIX_C_SOURCE)
-#undef _POSIX_C_SOURCE
-#endif
-
 #include <Python.h>
 
 // No signal()
