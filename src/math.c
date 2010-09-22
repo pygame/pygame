@@ -3690,7 +3690,7 @@ MODINIT_DEFINE (math)
     c_api[3] = PyVector_NEW;
     c_api[4] = PyVectorCompatible_Check;
     */
-    apiobj = PyCObject_FromVoidPtr(c_api, NULL);
+    apiobj = encapsulate_api(c_api, "math");
     if (apiobj == NULL) {
         DECREF_MOD (module);
         MODINIT_ERROR;

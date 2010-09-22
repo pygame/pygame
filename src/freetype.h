@@ -95,6 +95,7 @@ typedef struct
 /**********************************************************
  * Module declaration
  **********************************************************/
+#define PYGAMEAPI_FREETYPE_FIRSTSLOT 0
 #define PYGAMEAPI_FREETYPE_NUMSLOTS 2
 
 #define PyFreeTypeFont_AsFont(x) (((PyFreeTypeFont *)x)->font)
@@ -105,18 +106,10 @@ typedef struct
 #define PyFreeTypeFont_Type (*(PyTypeObject*)PyFREETYPE_C_API[1])
 #define PyFont_New (*(PyObject*(*)(const char*, int))PyFREETYPE_C_API[1])
 
-#define import_pygame_freetype() { \
-	PyObject *module = PyImport_ImportModule(MODPREFIX "freetype"); \
-	if (module != NULL) { \
-		PyObject *dict = PyModule_GetDict(module); \
-		PyObject *c_api = PyDict_GetItemString(dict, PYGAMEAPI_LOCAL_ENTRY); \
-		if(PyCObject_Check(c_api)) {\
-			void** localptr = (void**)PyCObject_AsVoidPtr(c_api); \
-			memcpy(PyFREETYPE_C_API, localptr, sizeof(void*)*PYGAMEAPI_FREETYPE_NUMSLOTS); \
-} Py_DECREF(module); } }
-
-#endif /* PYGAME_FREETYPE_INTERNAL */
+#define import_pygame_freetype() \
+    _IMPORT_PYGAME_MODULE(freetype, FREETYPE, PyFREETYPE_C_API)
 
 static void *PyFREETYPE_C_API[PYGAMEAPI_FREETYPE_NUMSLOTS] = {NULL};
+#endif /* PYGAME_FREETYPE_INTERNAL */
 
 #endif /* _PYGAME_FREETYPE_H_ */

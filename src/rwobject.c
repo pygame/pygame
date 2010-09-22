@@ -717,7 +717,7 @@ MODINIT_DEFINE (rwobject)
     c_api[4] = RWopsEncodeFilePath;
     c_api[5] = RWopsEncodeString;
     c_api[6] = RWopsFromFileObject;
-    apiobj = PyCObject_FromVoidPtr (c_api, NULL);
+    apiobj = encapsulate_api (c_api, "rwobject");
     if (apiobj == NULL) {
         DECREF_MOD (module);
 	MODINIT_ERROR;

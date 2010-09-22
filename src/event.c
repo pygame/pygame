@@ -1061,7 +1061,7 @@ MODINIT_DEFINE (event)
     c_api[1] = PyEvent_New;
     c_api[2] = PyEvent_New2;
     c_api[3] = PyEvent_FillUserEvent;
-    apiobj = PyCObject_FromVoidPtr (c_api, NULL);
+    apiobj = encapsulate_api (c_api, "event");
     if (apiobj == NULL) {
         DECREF_MOD (module);
         MODINIT_ERROR;

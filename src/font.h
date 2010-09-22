@@ -34,6 +34,7 @@
 
 
 
+#define PYGAMEAPI_FONT_FIRSTSLOT 0
 #define PYGAMEAPI_FONT_NUMSLOTS 3
 typedef struct {
   PyObject_HEAD
@@ -41,23 +42,16 @@ typedef struct {
   PyObject* weakreflist;
 } PyFontObject;
 #define PyFont_AsFont(x) (((PyFontObject*)x)->font)
+
 #ifndef PYGAMEAPI_FONT_INTERNAL
 #define PyFont_Check(x) ((x)->ob_type == (PyTypeObject*)PyFONT_C_API[0])
 #define PyFont_Type (*(PyTypeObject*)PyFONT_C_API[0])
 #define PyFont_New (*(PyObject*(*)(TTF_Font*))PyFONT_C_API[1])
 /*slot 2 taken by FONT_INIT_CHECK*/
-#define import_pygame_font() { \
-	PyObject *module = PyImport_ImportModule(MODPREFIX "font"); \
-	if (module != NULL) { \
-		PyObject *dict = PyModule_GetDict(module); \
-		PyObject *c_api = PyDict_GetItemString(dict, PYGAMEAPI_LOCAL_ENTRY); \
-		if(PyCObject_Check(c_api)) {\
-			void** localptr = (void**)PyCObject_AsVoidPtr(c_api); \
-			memcpy(PyFONT_C_API, localptr, sizeof(void*)*PYGAMEAPI_FONT_NUMSLOTS); \
-} Py_DECREF(module); } }
-#endif
 
-
-
+#define import_pygame_font() \
+    _IMPORT_PYGAME_MODULE(font, FONT, PyFONT_C_API)
 
 static void* PyFONT_C_API[PYGAMEAPI_FONT_NUMSLOTS] = {NULL};
+#endif
+

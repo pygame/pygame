@@ -818,8 +818,6 @@ MODINIT_DEFINE (font)
     };
 #endif
 
-    PyFONT_C_API[0] = PyFONT_C_API[0]; /*clean an unused warning*/
-
     /* imported needed apis; Do this first so if there is an error
        the module is not loaded.
     */
@@ -879,7 +877,7 @@ MODINIT_DEFINE (font)
     c_api[0] = &PyFont_Type;
     c_api[1] = PyFont_New;
     c_api[2] = &font_initialized;
-    apiobj = PyCObject_FromVoidPtr (c_api, NULL);
+    apiobj = encapsulate_api (c_api, "font");
     if (apiobj == NULL) {
         DECREF_MOD (module);
         MODINIT_ERROR;

@@ -4,6 +4,10 @@
 # BREAK = change breaks existing code
 # BUG    = fixed a bug that was (or could have been) crashing
 
+[SVN 2936] September 22, 2010
+    Use capsule objects in preference to cobject objects.
+    This allows Pygame to build an run from Python 3.2, which has to cobjects.
+
 [SVN 2934] September 16, 2010
     [BUG] Fix some MSVC warnings in hope of solving an error raised in font_test.py.
 

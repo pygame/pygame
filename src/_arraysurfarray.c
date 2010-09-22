@@ -44,12 +44,12 @@ _get_array_interface(PyObject *obj,
         return 0;
     }
 
-#if defined(PyCObject_Check)
+#if PG_HAVE_COBJECT
     if (PyCObject_Check(cobj)) {
         inter = (PyArrayInterface *)PyCObject_AsVoidPtr(cobj);
     }
 #endif
-#if defined(PyCapsule_CheckExact)
+#if PG_HAVE_CAPSULE
     if (PyCapsule_IsValid(cobj, NULL)) {
         inter = (PyArrayInterface *)PyCapsule_GetPointer(cobj, NULL);
     }

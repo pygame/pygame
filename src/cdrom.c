@@ -655,7 +655,7 @@ MODINIT_DEFINE (cdrom)
     /* export the c api */
     c_api[0] = &PyCD_Type;
     c_api[1] = PyCD_New;
-    apiobj = PyCObject_FromVoidPtr (c_api, NULL);
+    apiobj = encapsulate_api (c_api, "cdrom");
     if (apiobj == NULL) {
         DECREF_MOD (module);
         MODINIT_ERROR;

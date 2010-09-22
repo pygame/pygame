@@ -2173,7 +2173,7 @@ MODINIT_DEFINE (pixelarray)
 
     c_api[0] = &PyPixelArray_Type;
     c_api[1] = PyPixelArray_New;
-    apiobj = PyCObject_FromVoidPtr (c_api, NULL);
+    apiobj = encapsulate_api (c_api, "pixelarray");
     if (apiobj == NULL)
     {
         DECREF_MOD (module);

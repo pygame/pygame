@@ -345,15 +345,15 @@ get_wm_info (PyObject* self)
     PyDict_SetItemString (dict, "window", tmp);
     Py_DECREF (tmp);
 
-    tmp = PyCObject_FromVoidPtr (info.info.x11.display, NULL);
+    tmp = PyCapsule_New (info.info.x11.display, "display", NULL);
     PyDict_SetItemString (dict, "display", tmp);
     Py_DECREF (tmp);
 
-    tmp = PyCObject_FromVoidPtr (info.info.x11.lock_func, NULL);
+    tmp = PyCapsule_New (info.info.x11.lock_func, "lock_func", NULL);
     PyDict_SetItemString (dict, "lock_func", tmp);
     Py_DECREF (tmp);
     
-    tmp = PyCObject_FromVoidPtr (info.info.x11.unlock_func, NULL);
+    tmp = PyCapsule_New (info.info.x11.unlock_func, "unlock_func", NULL);
     PyDict_SetItemString (dict, "unlock_func", tmp);
     Py_DECREF (tmp);
 
@@ -1073,15 +1073,15 @@ MODINIT_DEFINE (display)
     */
     import_pygame_base ();
     if (PyErr_Occurred ()) {
-	MODINIT_ERROR;
+    	MODINIT_ERROR;
     }
     import_pygame_rect ();
     if (PyErr_Occurred ()) {
-	MODINIT_ERROR;
+    	MODINIT_ERROR;
     }
     import_pygame_surface ();
     if (PyErr_Occurred ()) {
-	MODINIT_ERROR;
+    	MODINIT_ERROR;
     }
 
     /* type preparation */
@@ -1105,7 +1105,7 @@ MODINIT_DEFINE (display)
     /* export the c api */
     c_api[0] = &PyVidInfo_Type;
     c_api[1] = PyVidInfo_New;
-    apiobj = PyCObject_FromVoidPtr (c_api, NULL);
+    apiobj = encapsulate_api (c_api, "display");
     if (apiobj == NULL) {
         DECREF_MOD (module);
         MODINIT_ERROR;
