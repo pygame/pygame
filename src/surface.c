@@ -2382,10 +2382,12 @@ MODINIT_DEFINE (surface)
         PyObject *_dict = PyModule_GetDict (lockmodule);
         PyObject *_c_api = PyDict_GetItemString (_dict, PYGAMEAPI_LOCAL_ENTRY);
 
-        if (PyCObject_Check (_c_api))
+        if (PyCapsule_CheckExact (_c_api))
         {
             int i;
-            void **localptr = (void *)PyCObject_AsVoidPtr (_c_api);
+            void **localptr = 
+                (void *)PyCapsule_GetPointer (_c_api,
+                                              PG_CAPSULE_NAME("surflock"));
 
             for (i = 0; i < PYGAMEAPI_SURFLOCK_NUMSLOTS; ++i)
                 PyGAME_C_API[i + PYGAMEAPI_SURFLOCK_FIRSTSLOT] = localptr[i];
@@ -2426,7 +2428,7 @@ MODINIT_DEFINE (surface)
     c_api[0] = &PySurface_Type;
     c_api[1] = PySurface_New;
     c_api[2] = PySurface_Blit;
-    apiobj = PyCObject_FromVoidPtr (c_api, NULL);
+    apiobj = encapsulate_api (c_api, "surface");
     if (apiobj == NULL) {
         DECREF_MOD (module);
         MODINIT_ERROR;

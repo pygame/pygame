@@ -63,7 +63,7 @@
 #define UNICODE_DEF_FS_CODEC Py_FileSystemDefaultEncoding
 #define UNICODE_DEF_FS_ERROR "surrogateescape"
 
-#else /* PY_VERSION_HEX >= 0x03000000 */
+#else /* #if PY_VERSION_HEX >= 0x03000000 */
 
 #define PY3 0
 
@@ -105,7 +105,7 @@
 #define UNICODE_DEF_FS_CODEC Py_FileSystemDefaultEncoding
 #define UNICODE_DEF_FS_ERROR "strict"
 
-#endif /* PY_VERSION_HEX >= 0x03000000 */
+#endif /* #if PY_VERSION_HEX >= 0x03000000 */
 
 #define PY2 (!PY3)
 
@@ -142,4 +142,4 @@
 #define RELATIVE_MODULE(m) (m)
 #endif
 
-#endif /* !defined(PGCOMPAT_H) */
+#endif /* #if !defined(PGCOMPAT_H) */

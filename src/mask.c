@@ -1532,7 +1532,7 @@ MODINIT_DEFINE (mask)
     }
     /* export the c api */
     c_api[0] = &PyMask_Type;
-    apiobj = PyCObject_FromVoidPtr (c_api, NULL);
+    apiobj = encapsulate_api (c_api, "mask");
     if (apiobj == NULL) {
         DECREF_MOD (module);
         MODINIT_ERROR;

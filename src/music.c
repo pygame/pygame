@@ -482,7 +482,8 @@ MODINIT_DEFINE (mixer_music)
     if (module == NULL) {
         MODINIT_ERROR;
     }
-    cobj = PyCObject_FromVoidPtr (&current_music, NULL);
+    cobj = PyCapsule_New (&current_music,
+                          "pygame.music_mixer._MUSIC_POINTER", NULL);
     if (cobj == NULL) {
         DECREF_MOD (module);
         MODINIT_ERROR;
@@ -492,7 +493,8 @@ MODINIT_DEFINE (mixer_music)
         DECREF_MOD (module);
         MODINIT_ERROR;
     }
-    cobj = PyCObject_FromVoidPtr (&queue_music, NULL);
+    cobj = PyCapsule_New (&queue_music,
+                          "pygame.music_mixer._QUEUE_POINTER", NULL);
     if (cobj == NULL) {
         DECREF_MOD (module);
         MODINIT_ERROR;

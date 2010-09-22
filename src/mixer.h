@@ -32,6 +32,7 @@
 
 
 
+#define PYGAMEAPI_MIXER_FIRSTSLOT 0
 #define PYGAMEAPI_MIXER_NUMSLOTS 7
 typedef struct {
   PyObject_HEAD
@@ -45,6 +46,7 @@ typedef struct {
 } PyChannelObject;
 #define PySound_AsChunk(x) (((PySoundObject*)x)->chunk)
 #define PyChannel_AsInt(x) (((PyChannelObject*)x)->chan)
+
 #ifndef PYGAMEAPI_MIXER_INTERNAL
 #define PySound_Check(x) ((x)->ob_type == (PyTypeObject*)PyMIXER_C_API[0])
 #define PySound_Type (*(PyTypeObject*)PyMIXER_C_API[0])
@@ -55,17 +57,10 @@ typedef struct {
 #define PyChannel_New (*(PyObject*(*)(int))PyMIXER_C_API[4])
 #define PyMixer_AutoInit (*(PyObject*(*)(PyObject*, PyObject*))PyMIXER_C_API[5])
 #define PyMixer_AutoQuit (*(void(*)(void))PyMIXER_C_API[6])
-#define import_pygame_mixer() { \
-	PyObject *_module = PyImport_ImportModule(IMPPREFIX "mixer"); \
-	if (_module != NULL) { \
-		PyObject *_dict = PyModule_GetDict(_module); \
-		PyObject *_c_api = PyDict_GetItemString(_dict, PYGAMEAPI_LOCAL_ENTRY); \
-		if(PyCObject_Check(_c_api)) {\
-			void** localptr = (void**)PyCObject_AsVoidPtr(_c_api); \
-			memcpy(PyMIXER_C_API, localptr, sizeof(void*)*PYGAMEAPI_MIXER_NUMSLOTS); \
-} Py_DECREF(_module); } }
-#endif
 
-
+#define import_pygame_mixer() \
+    _IMPORT_PYGAME_MODULE(mixer, MIXER, PyMIXER_C_API)
 
 static void* PyMIXER_C_API[PYGAMEAPI_MIXER_NUMSLOTS] = {NULL};
+#endif
+

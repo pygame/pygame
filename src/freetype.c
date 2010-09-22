@@ -1473,7 +1473,7 @@ MODINIT_DEFINE (freetype)
     c_api[0] = &PyFreeTypeFont_Type;
     c_api[1] = &PyFreeTypeFont_New;
 
-    apiobj = PyCObject_FromVoidPtr(c_api, NULL);
+    apiobj = encapsulate_api(c_api, "freetype");
     if (apiobj == NULL) 
     {
         Py_DECREF (pygame_register_quit);
