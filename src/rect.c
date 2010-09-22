@@ -1619,7 +1619,7 @@ MODINIT_DEFINE (rect)
     c_api[1] = PyRect_New;
     c_api[2] = PyRect_New4;
     c_api[3] = GameRect_FromObject;
-    apiobj = PyCObject_FromVoidPtr (c_api, NULL);
+    apiobj = encapsulate_api (c_api, "rect");
     if (apiobj == NULL) {
         DECREF_MOD (module);
         MODINIT_ERROR;

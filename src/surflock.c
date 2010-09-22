@@ -293,7 +293,7 @@ MODINIT_DEFINE (surflock)
     c_api[5] = PySurface_LockBy;
     c_api[6] = PySurface_UnlockBy;
     c_api[7] = PySurface_LockLifetime;
-    apiobj = PyCObject_FromVoidPtr (c_api, NULL);
+    apiobj = encapsulate_api (c_api, "surflock");
     if (apiobj == NULL) {
         DECREF_MOD (module);
         MODINIT_ERROR;

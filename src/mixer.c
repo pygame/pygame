@@ -1200,8 +1200,6 @@ MODINIT_DEFINE (mixer)
     };
 #endif
 
-    PyMIXER_C_API[0] = PyMIXER_C_API[0]; /*this cleans an unused warning*/
-
     /* imported needed apis; Do this first so if there is an error
        the module is not loaded.
     */
@@ -1267,7 +1265,7 @@ MODINIT_DEFINE (mixer)
     c_api[4] = PyChannel_New;
     c_api[5] = autoinit;
     c_api[6] = autoquit;
-    apiobj = PyCObject_FromVoidPtr (c_api, NULL);
+    apiobj = encapsulate_api (c_api, "mixer");
     if (apiobj == NULL) {
         DECREF_MOD (module);
         MODINIT_ERROR;
@@ -1300,9 +1298,13 @@ MODINIT_DEFINE (mixer)
         }
         _dict = PyModule_GetDict (music);
         ptr = PyDict_GetItemString (_dict, "_MUSIC_POINTER");
-        current_music = (Mix_Music**)PyCObject_AsVoidPtr (ptr);
+        current_music = 
+            (Mix_Music**)PyCapsule_GetPointer (ptr, "pygame.music_mixer."
+                                                    "_MUSIC_POINTER");
         ptr = PyDict_GetItemString (_dict, "_QUEUE_POINTER");
-        queue_music = (Mix_Music**)PyCObject_AsVoidPtr (ptr);
+        queue_music = 
+            (Mix_Music**)PyCapsule_GetPointer (ptr, "pygame.music_mixer."
+                                                    "_QUEUE_POINTER");
     }
     else /*music module not compiled? cleanly ignore*/
     {

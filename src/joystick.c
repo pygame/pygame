@@ -502,7 +502,7 @@ MODINIT_DEFINE (joystick)
     /* export the c api */
     c_api[0] = &PyJoystick_Type;
     c_api[1] = PyJoystick_New;
-    apiobj = PyCObject_FromVoidPtr (c_api, NULL);
+    apiobj = encapsulate_api (c_api, "joystick");
     if (apiobj == NULL) {
         DECREF_MOD (module);
         MODINIT_ERROR;

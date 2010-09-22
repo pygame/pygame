@@ -90,7 +90,7 @@ PyGame_RegisterQuit (void(*func)(void))
     }
     if (func)
     {
-        obj = PyCObject_FromVoidPtr (func, NULL);
+        obj = PyCapsule_New (func, "quit", NULL);
         PyList_Append (quitfunctions, obj);
         Py_DECREF (obj);
     }
@@ -226,9 +226,9 @@ _quit (void)
         quit = PyList_GET_ITEM (privatefuncs, num);
         if (PyCallable_Check (quit))
             PyObject_CallObject (quit, NULL);
-        else if (PyCObject_Check (quit))
+        else if (PyCapsule_CheckExact (quit))
         {
-            void* ptr = PyCObject_AsVoidPtr (quit);
+            void* ptr = PyCapsule_GetPointer (quit, "quit");
             (*(void(*)(void)) ptr) ();
         }
     }
@@ -675,7 +675,7 @@ MODINIT_DEFINE(base)
     c_api[10] = PyGame_Video_AutoQuit;
     c_api[11] = PyGame_Video_AutoInit;
     c_api[12] = RGBAFromObj;
-    apiobj = PyCObject_FromVoidPtr (c_api, NULL);
+    apiobj = encapsulate_api (c_api, "base");
     if (apiobj == NULL) {
         Py_XDECREF (atexit_register);
         DECREF_MOD (module);

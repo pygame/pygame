@@ -1891,7 +1891,7 @@ MODINIT_DEFINE (color)
     c_api[2] = RGBAFromColorObj;
     c_api[3] = PyColor_NewLength;
 
-    apiobj = PyCObject_FromVoidPtr (c_api, NULL);
+    apiobj = encapsulate_api (c_api, "color");
     if (apiobj == NULL) {
         Py_DECREF (_COLORDICT);
         DECREF_MOD(module);
