@@ -4,6 +4,11 @@
 # BREAK = change breaks existing code
 # BUG    = fixed a bug that was (or could have been) crashing
 
+[SVN 2937] September 23, 2010
+    [BUG] Bugzilla 54: pygame.examples.movieplayer causes
+    "PyThreadState_Get: no current thread".
+    Movie module now works under Python 3.2.
+
 [SVN 2936] September 22, 2010
     Use capsule objects in preference to cobject objects.
     This allows Pygame to build an run from Python 3.2, which has to cobjects.
