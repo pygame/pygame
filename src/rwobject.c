@@ -46,9 +46,6 @@ typedef struct
     PyObject* seek;
     PyObject* tell;
     PyObject* close;
-#ifdef WITH_THREAD
-    PyThreadState* thread;
-#endif
 } RWHelper;
 
 /*static const char default_encoding[] = "unicode_escape";*/
@@ -421,8 +418,6 @@ RWopsFromFileObjectThreaded(PyObject *obj)
 {
     SDL_RWops *rw;
     RWHelper *helper;
-    PyInterpreterState *interp;
-    PyThreadState *thread;
 
     if (obj == NULL) {
         return (SDL_RWops *)RAISE(PyExc_TypeError, "Invalid filetype object");
@@ -449,9 +444,6 @@ RWopsFromFileObjectThreaded(PyObject *obj)
     rw->close = rw_close_th;
 
     PyEval_InitThreads();
-    thread = PyThreadState_Get();
-    interp = thread->interp;
-    helper->thread = PyThreadState_New(interp);
 
     return rw;
 #endif
@@ -474,13 +466,13 @@ rw_seek_th (SDL_RWops* context, int offset, int whence)
     RWHelper* helper = (RWHelper*) context->hidden.unknown.data1;
     PyObject* result;
     int retval;
-    PyThreadState* oldstate;
+    PyGILState_STATE state;
+
 
     if (!helper->seek || !helper->tell)
         return -1;
 
-    PyEval_AcquireLock ();
-    oldstate = PyThreadState_Swap (helper->thread);
+    state = PyGILState_Ensure();
 
     if (!(offset == 0 && whence == SEEK_CUR)) /* being seek'd, not just tell'd */
     {
@@ -506,8 +498,7 @@ rw_seek_th (SDL_RWops* context, int offset, int whence)
     Py_DECREF (result);
 
 end:
-    PyThreadState_Swap (oldstate);
-    PyEval_ReleaseLock ();
+    PyGILState_Release(state);
 
     return retval;
 }
@@ -518,13 +509,12 @@ rw_read_th (SDL_RWops* context, void* ptr, int size, int maxnum)
     RWHelper* helper = (RWHelper*) context->hidden.unknown.data1;
     PyObject* result;
     int retval;
-    PyThreadState* oldstate;
+    PyGILState_STATE state;
 
     if (!helper->read)
         return -1;
 
-    PyEval_AcquireLock ();
-    oldstate = PyThreadState_Swap (helper->thread);
+    state = PyGILState_Ensure();
 
     result = PyObject_CallFunction (helper->read, "i", size * maxnum);
     if (!result)
@@ -549,8 +539,7 @@ rw_read_th (SDL_RWops* context, void* ptr, int size, int maxnum)
     Py_DECREF (result);
 
 end:
-    PyThreadState_Swap (oldstate);
-    PyEval_ReleaseLock ();
+    PyGILState_Release(state);
 
     return retval;
 }
@@ -561,13 +550,12 @@ rw_write_th (SDL_RWops* context, const void* ptr, int size, int num)
     RWHelper* helper = (RWHelper*) context->hidden.unknown.data1;
     PyObject* result;
     int retval;
-    PyThreadState* oldstate;
+    PyGILState_STATE state;
 
     if (!helper->write)
         return -1;
 
-    PyEval_AcquireLock ();
-    oldstate = PyThreadState_Swap (helper->thread);
+    state = PyGILState_Ensure();
 
     result = PyObject_CallFunction (helper->write, "s#", ptr, size * num);
     if (!result)
@@ -581,8 +569,7 @@ rw_write_th (SDL_RWops* context, const void* ptr, int size, int num)
     retval = num;
 
 end:
-    PyThreadState_Swap (oldstate);
-    PyEval_ReleaseLock ();
+    PyGILState_Release(state);
 
     return retval;
 }
@@ -593,10 +580,9 @@ rw_close_th (SDL_RWops* context)
     RWHelper* helper = (RWHelper*) context->hidden.unknown.data1;
     PyObject* result;
     int retval = 0;
-    PyThreadState* oldstate;
+    PyGILState_STATE state;
 
-    PyEval_AcquireLock ();
-    oldstate = PyThreadState_Swap (helper->thread);
+    state = PyGILState_Ensure();
 
     if (helper->close)
     {
@@ -615,13 +601,9 @@ rw_close_th (SDL_RWops* context)
     Py_XDECREF (helper->read);
     Py_XDECREF (helper->close);
 
-    PyThreadState_Swap (oldstate);
-    PyThreadState_Clear (helper->thread);
-    PyThreadState_Delete (helper->thread);
-
     PyMem_Del (helper);
 
-    PyEval_ReleaseLock ();
+    PyGILState_Release(state);
 
     SDL_FreeRW (context);
     return retval;
