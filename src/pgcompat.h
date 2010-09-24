@@ -61,7 +61,11 @@
 
 /* Defaults for unicode file path encoding */
 #define UNICODE_DEF_FS_CODEC Py_FileSystemDefaultEncoding
+#if defined(MS_WIN32)
+#define UNICODE_DEF_FS_ERROR "replace"
+#else
 #define UNICODE_DEF_FS_ERROR "surrogateescape"
+#endif
 
 #else /* #if PY_VERSION_HEX >= 0x03000000 */
 
