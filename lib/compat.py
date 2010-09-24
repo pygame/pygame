@@ -58,7 +58,9 @@ try:
 except NameError:
     raw_input_ = input
 
-if sys.version_info >= (3, 0, 0):
+if sys.platform == 'win32':
+    filesystem_errors = "replace"
+elif sys.version_info >= (3, 0, 0):
     filesystem_errors = "surrogateescape"
 else:
     filesystem_errors = "strict"
