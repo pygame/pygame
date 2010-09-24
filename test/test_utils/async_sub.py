@@ -47,7 +47,7 @@ if subprocess.mswindows:
             c_read = DWORD()
             buffer = ctypes.create_string_buffer(desired_bytes+1)
             success = ctypes.windll.kernel32.ReadFile(handle, buffer, desired_bytes, ctypes.byref(c_read), ol)
-            buffer[c_read.value] = '\0'
+            buffer[c_read.value] = ctypes.c_char(0)
             return ctypes.windll.kernel32.GetLastError(), decode(buffer.value)
         def PeekNamedPipe(handle, desired_bytes):
             c_avail = DWORD()
@@ -56,7 +56,7 @@ if subprocess.mswindows:
                 c_read = DWORD()
                 buffer = ctypes.create_string_buffer(desired_bytes+1)
                 success = ctypes.windll.kernel32.PeekNamedPipe(handle, buffer, desired_bytes, ctypes.byref(c_read), ctypes.byref(c_avail), ctypes.byref(c_message))
-                buffer[c_read.value] = '\0'
+                buffer[c_read.value] = ctypes.c_char(0)
                 return decode(buffer.value), c_avail.value, c_message.value
             else:
                 success = ctypes.windll.kernel32.PeekNamedPipe(handle, None, desired_bytes, None, ctypes.byref(c_avail), ctypes.byref(c_message))
