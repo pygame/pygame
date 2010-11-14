@@ -145,6 +145,7 @@ def main():
     else:
         print_('Using UNIX configuration...\n')
         import config_unix as CFG
+        additional_platform_setup = open("Setup_Unix.in", "r").readlines()
     
     if os.path.isfile('Setup'):
         if "-auto" in sys.argv or confirm('Backup existing "Setup" file'):
