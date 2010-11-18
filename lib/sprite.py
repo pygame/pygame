@@ -1239,6 +1239,7 @@ class GroupSingle(AbstractGroup):
 
     def add_internal(self, sprite):
         if self.__sprite is not None:
+            self.remove_internal(sprite)
             self.__sprite.remove_internal(self)
         self.__sprite = sprite
 
@@ -1261,6 +1262,8 @@ class GroupSingle(AbstractGroup):
     def remove_internal(self, sprite):
         if sprite is self.__sprite:
             self.__sprite = None
+        if sprite in self.spritedict:
+            AbstractGroup.remove_internal(self, sprite)
 
     def has_internal(self, sprite):
         return self.__sprite is sprite
