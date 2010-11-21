@@ -1239,8 +1239,8 @@ class GroupSingle(AbstractGroup):
 
     def add_internal(self, sprite):
         if self.__sprite is not None:
-            self.remove_internal(sprite)
             self.__sprite.remove_internal(self)
+            self.remove_internal(self.__sprite)
         self.__sprite = sprite
 
     def __nonzero__(self):
