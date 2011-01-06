@@ -1,4 +1,5 @@
 #################################### IMPORTS ###################################
+# -*- encoding: utf-8 -*-
 
 if __name__ == '__main__':
     import sys
@@ -1021,6 +1022,36 @@ class DirtySpriteTypeTest(SpriteBase, unittest.TestCase):
                sprite.OrderedUpdates,
                sprite.LayeredDirty, ]
 
+############################## BUG TESTS #######################################
+
+class SingleGroupBugsTest(unittest.TestCase):
+    def test_memoryleak_bug(self):
+        # For memoryleak bug posted to mailing list by Tobias Steinrücken on 16/11/10.
+        # Fixed in revision 2953.
+        
+        import weakref
+        import gc
+        
+        class MySprite(sprite.Sprite):
+            def __init__(self, *args, **kwargs):
+                sprite.Sprite.__init__(self, *args, **kwargs)
+                self.image = pygame.Surface( (2, 4), 0, 24 )
+                self.rect = self.image.get_rect()
+                
+        g = sprite.GroupSingle()
+        screen = pygame.Surface((4, 8), 0, 24)
+        s = MySprite()
+        r = weakref.ref(s)
+        g.sprite = s
+        del s
+        gc.collect()
+        self.assert_(r() is not None)
+        g.update()
+        g.draw(screen)
+        g.sprite = MySprite()
+        gc.collect()
+        self.assert_(r() is None)
+        
 ################################################################################
 
 if __name__ == '__main__':
