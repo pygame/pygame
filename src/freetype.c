@@ -1376,8 +1376,6 @@ MODINIT_DEFINE (freetype)
     PyObject *module, *apiobj, *pygame, *pygame_register_quit, *quit, *rval;
     static void* c_api[PYGAMEAPI_FREETYPE_NUMSLOTS];
 
-    PyFREETYPE_C_API[0] = PyFREETYPE_C_API[0]; 
-
     import_pygame_base();
     if (PyErr_Occurred())
     {   
