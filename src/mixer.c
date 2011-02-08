@@ -50,6 +50,7 @@ const PG_sample_format_t PG_SAMPLE_BIG_ENDIAN = 0;
 #else
 const PG_sample_format_t PG_SAMPLE_LITTLE_ENDIAN = 0;
 const PG_sample_format_t PG_SAMPLE_BIG_ENDIAN = 0x20000u;
+const PG_sample_format_t PG_SAMPLE_CHAR_SIGN = (char)0xff > 0 ? 0 : 0x10000u;
 #endif
 #define PG_SAMPLE_SIZE(sf) ((sf) & 0x0ffffu)
 #define PG_IS_SAMPLE_SIGNED(sf) ((sf) & PG_SAMPLE_SIGNED != 0)
@@ -58,11 +59,6 @@ const PG_sample_format_t PG_SAMPLE_BIG_ENDIAN = 0x20000u;
     ((sf) & PG_SAMPLE_LITTLE_ENDIAN == PG_SAMPLE_LITTLE_ENDIAN)
 #define PG_IS_SAMPLE_BIG_ENDIAN(sf) \
     ((sf) & PG_SAMPLE_BIG_ENDIAN == PG_SAMPLE_BIG_ENDIAN)
-#if (char)-1l > 0
-const PG_sample_format_t PG_SAMPLE_CHAR_SIGN = 0;
-#else
-const PG_sample_format_t PG_SAMPLE_CHAR_SIGN = 0x10000;
-#endif
 
 /* Since they are documented, the default init values are defined here
    rather than taken from SDL_mixer. It also means that the default
