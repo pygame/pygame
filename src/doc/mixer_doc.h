@@ -27,7 +27,7 @@
 
 #define DOC_PYGAMEMIXERGETBUSY "pygame.mixer.get_busy(): return bool\ntest if any sound is being mixed"
 
-#define DOC_PYGAMEMIXERSOUND "pygame.mixer.Sound(filename): return Sound\npygame.mixer.Sound(file=filename): return Sound\npygame.mixer.Sound(buffer): return Sound\npygame.mixer.Sound(buffer=buffer): return Sound\npygame.mixer.Sound(object): return Sound\npygame.mixer.Sound(file=object): return Sound\nCreate a new Sound object from a file or buffer object"
+#define DOC_PYGAMEMIXERSOUND "pygame.mixer.Sound(filename): return Sound\npygame.mixer.Sound(file=filename): return Sound\npygame.mixer.Sound(buffer): return Sound\npygame.mixer.Sound(buffer=buffer): return Sound\npygame.mixer.Sound(object): return Sound\npygame.mixer.Sound(file=object): return Sound\npygame.mixer.Sound(array=object): return Sound\nCreate a new Sound object from a file or buffer object"
 
 #define DOC_SOUNDPLAY "Sound.play(loops=0, maxtime=0, fade_ms=0): return Channel\nbegin sound playback"
 
@@ -169,6 +169,7 @@ pygame.mixer.Sound(buffer): return Sound
 pygame.mixer.Sound(buffer=buffer): return Sound
 pygame.mixer.Sound(object): return Sound
 pygame.mixer.Sound(file=object): return Sound
+pygame.mixer.Sound(array=object): return Sound
 Create a new Sound object from a file or buffer object
 
 

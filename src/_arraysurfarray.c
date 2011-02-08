@@ -41,7 +41,7 @@ _get_array_interface(PyObject *obj,
                 PyErr_SetString(PyExc_ValueError,
                                 "no C-struct array interface");
         }
-        return 0;
+        return -1;
     }
 
 #if PG_HAVE_COBJECT
@@ -58,12 +58,12 @@ _get_array_interface(PyObject *obj,
         inter->two != 2  ) {
         Py_DECREF(cobj);
         PyErr_SetString(PyExc_ValueError, "invalid array interface");
-        return 0;
+        return -1;
     }
 
     *cobj_p = cobj;
     *inter_p = inter;
-    return 1;
+    return 0;
 }
 
 /*macros used to blit arrays*/
@@ -147,7 +147,7 @@ blit_array(PyObject *self, PyObject *arg)
     surf = PySurface_AsSurface(surfobj);
     format = surf->format;
     
-    if (!_get_array_interface(arrayobj, &cobj, &inter)) {
+    if (_get_array_interface(arrayobj, &cobj, &inter)) {
         return 0;
     }
 

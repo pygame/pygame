@@ -37,33 +37,6 @@ import pygame
 import pygame.mixer as mixer 
 import numpy
 
-def _array_samples(sound, raw):
-    # Info is a (freq, format, stereo) tuple
-    info = mixer.get_init ()
-    if not info:
-        raise pygame.error("Mixer not initialized")
-    fmtbytes = (abs (info[1]) & 0xff) >> 3
-    channels = info[2]
-    if raw:
-        data = sound.get_buffer ().raw
-    else:
-        data = sound.get_buffer ()
-
-    shape = (len (data) // fmtbytes, )
-    if channels > 1:
-        shape = (shape[0] // channels, channels)
-
-    # mixer.init () does not support different formats from the ones below,
-    # so MSB/LSB stuff is silently ignored.
-    typecode = { 8 : numpy.uint8,   # AUDIO_U8
-                 16 : numpy.uint16, # AUDIO_U16 / AUDIO_U16SYS
-                 -8 : numpy.int8,   # AUDIO_S8
-                 -16 : numpy.int16  # AUDUI_S16 / AUDIO_S16SYS
-                 }[info[1]]
-                 
-    array = numpy.fromstring (data, typecode)
-    array.shape = shape
-    return array
 
 def array (sound):
     """pygame._numpysndarray.array(Sound): return array
@@ -74,7 +47,8 @@ def array (sound):
     array will always be in the format returned from
     pygame.mixer.get_init().
     """
-    return _array_samples(sound, True)
+
+    return numpy.array (sound, copy=True)
 
 def samples (sound):
     """pygame._numpysndarray.samples(Sound): return array
@@ -85,29 +59,8 @@ def samples (sound):
     object. Modifying the array will change the Sound. The array will
     always be in the format returned from pygame.mixer.get_init().
     """
-    # Info is a (freq, format, stereo) tuple
-    info = pygame.mixer.get_init ()
-    if not info:
-        raise pygame.error("Mixer not initialized")
-    fmtbytes = (abs (info[1]) & 0xff) >> 3
-    channels = info[2]
-    data = sound.get_buffer ()
 
-    shape = (data.length // fmtbytes, )
-    if channels > 1:
-        shape = (shape[0] // channels, channels)
-        
-    # mixer.init () does not support different formats from the ones below,
-    # so MSB/LSB stuff is silently ignored.
-    typecode = { 8 : numpy.uint8,   # AUDIO_U8
-                 16 : numpy.uint16, # AUDIO_U16
-                 -8 : numpy.int8,   # AUDIO_S8
-                 -16 : numpy.int16  # AUDUI_S16
-                 }[info[1]]
-
-    array = numpy.frombuffer (data, typecode)
-    array.shape = shape
-    return array
+    return numpy.array (sound, copy=False)
 
 def make_sound (array):
     """pygame._numpysndarray.make_sound(array): return Sound
@@ -118,19 +71,6 @@ def make_sound (array):
     must be initialized and the array format must be similar to the mixer
     audio format.
     """
-    # Info is a (freq, format, stereo) tuple
-    info = pygame.mixer.get_init ()
-    if not info:
-        raise pygame.error("Mixer not initialized")
-    channels = info[2]
+    
+    return mixer.Sound (array=array)
 
-    shape = array.shape
-    if channels == 1:
-        if len (shape) != 1:
-            raise ValueError("Array must be 1-dimensional for mono mixer")
-    else:
-        if len (shape) != 2:
-            raise ValueError("Array must be 2-dimensional for stereo mixer")
-        elif shape[1] != channels:
-            raise ValueError("Array depth must match number of mixer channels")
-    return mixer.Sound (buffer=array)

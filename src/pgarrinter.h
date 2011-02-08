@@ -5,6 +5,7 @@ const int PAI_FORTRAN = 0x02;
 const int PAI_ALIGNED = 0x100;
 const int PAI_NOTSWAPPED = 0x200;
 const int PAI_WRITEABLE = 0x400;
+const int PAI_ARR_HAS_DESCR = 0x800;
 
 typedef struct {
     int two;              /* contains the integer 2 -- simple sanity check */

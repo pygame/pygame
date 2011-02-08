@@ -4,14 +4,47 @@
 # BREAK = change breaks existing code
 # BUG    = fixed a bug that was (or could have been) crashing
 
+[SVN 2983] Feb 07, 2011
+    Merge the buffer branch back into trunk.
+    1) Extend pygame.mixer.Sound() to load samples from an object with
+       an array struct interface or the new buffer protocol. Exports
+       an array struct interface.
+    2) Update sndarray to use the new Sound features on numpy arrays,
+       removing the Python array manipulation code.
+    3) Add a new Type, pygame._view.View as a proxy for exporting an
+       array struct interface.
+    4) Add the pygame.Surface.get_view() method, which returns a View instance.
+       Besides creating views describing pixel2d, pixels3d, and pixels_alpha
+       arrays, new pixels_red, pixels_green, and pixels_blue views have been
+       added.
+    5) Update the pixels surfarray methods to use Surface.get_view() for
+       numpy arrays, removing the Python array manipulation code. Add new
+       methods returning red, green, and blue pixels arrays.
+
+[SVN 2977] Feb 06, 2011
+    Add Python 3.2 __pycache__ directories to ignore list.
+
+[SVN 2958] Jan 19, 2011
+    Add proof-of-concept pygame.freetype.render_raw method to show one way to
+      correctly calculate text size.
+
+[SVN 2957] Jan 14, 2011
+    Fix freetype.c build bug involving PyFREETYPE_C_API not defined.
+
+[SVN 2952-2954] Jan 05, 2011
+    [bug] GroupSingle memory leak posted in mailing list by Tobias Steinrücken.
+
+[SVN 2951] Nov 14, 2010
+    Reenable the camera module for linux.
+
+[SVN 2936, 2938, 2944] Sep 28, 2010
+    Pygame now builds for Python 3.2. Capsule objects are used in preference
+    to CObject objects.
+
 [SVN 2937] September 23, 2010
     [BUG] Bugzilla 54: pygame.examples.movieplayer causes
     "PyThreadState_Get: no current thread".
     Movie module now works under Python 3.2.
-
-[SVN 2936] September 22, 2010
-    Use capsule objects in preference to cobject objects.
-    This allows Pygame to build an run from Python 3.2, which has to cobjects.
 
 [SVN 2934] September 16, 2010
     [BUG] Fix some MSVC warnings in hope of solving an error raised in font_test.py.
