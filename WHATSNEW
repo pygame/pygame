@@ -4,7 +4,7 @@
 # BREAK = change breaks existing code
 # BUG    = fixed a bug that was (or could have been) crashing
 
-[SVN 2983-2984] Feb 08, 2011
+[SVN 2983-2985] Feb 08, 2011
     Merge the buffer branch back into trunk.
     1) Extend pygame.mixer.Sound() to load samples from an object with
        an array struct interface or the new buffer protocol. Exports
