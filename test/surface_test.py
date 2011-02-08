@@ -1,3 +1,4 @@
+import gc
 if __name__ == '__main__':
     import sys
     import os
@@ -13,12 +14,21 @@ else:
 if is_pygame_pkg:
     from pygame.tests import test_utils
     from pygame.tests.test_utils import test_not_implemented, unittest
+    try:
+        from pygame.tests.test_utils.arrinter import *
+    except ImportError:
+        pass
 else:
     from test import test_utils
     from test.test_utils import test_not_implemented, unittest
+    try:
+        from test.test_utils.arrinter import *
+    except ImportError:
+        pass
 import pygame
 from pygame.locals import *
-from pygame.compat import xrange_
+from pygame.compat import xrange_, as_bytes, as_unicode
+from pygame._view import View
 
 def intify(i):
     """If i is a long, cast to an int while preserving the bits"""
@@ -292,6 +302,89 @@ class SurfaceTypeTest(unittest.TestCase):
                 self.assertEquals(s.get_width(), w) 
                 self.assertEquals(s.get_height(), h) 
                 self.assertEquals(s.get_size(), (w, h))
+
+    def test_get_view(self):
+        # Check that Views are returned when array depth is supported,
+        # ValueErrors returned otherwise.
+        Error = ValueError
+
+        s = pygame.Surface((5, 7), 0, 8)
+        v = s.get_view('2')
+        self.assert_(isinstance(v, View))
+        self.assertRaises(Error, s.get_view, '3')
+
+        s = pygame.Surface((5, 7), 0, 16)
+        v = s.get_view('2')
+        self.assert_(isinstance(v, View))
+        self.assertRaises(Error, s.get_view, '3')
+
+        s = pygame.Surface((5, 7), pygame.SRCALPHA, 16)
+        v = s.get_view('2')
+        self.assert_(isinstance(v, View))
+        self.assertRaises(Error, s.get_view, '3')
+
+        s = pygame.Surface((5, 7), 0, 24)
+        self.assertRaises(Error, s.get_view, '2')
+        v = s.get_view('3')
+        self.assert_(isinstance(v, View))
+
+        s = pygame.Surface((5, 7), 0, 32)
+        v = s.get_view('2')
+        self.assert_(isinstance(v, View))
+        v = s.get_view('3')
+        self.assert_(isinstance(v, View))
+
+        s = pygame.Surface((5, 7), pygame.SRCALPHA, 32)
+        v = s.get_view('2')
+        self.assert_(isinstance(v, View))
+        v = s.get_view('3')
+        self.assert_(isinstance(v, View))
+        v = s.get_view('a')
+        self.assert_(isinstance(v, View))
+        v = s.get_view('A')
+        self.assert_(isinstance(v, View))
+        v = s.get_view('r')
+        self.assert_(isinstance(v, View))
+        v = s.get_view('G')
+        self.assert_(isinstance(v, View))
+        v = s.get_view('g')
+        self.assert_(isinstance(v, View))
+        v = s.get_view('B')
+        self.assert_(isinstance(v, View))
+        v = s.get_view('b')
+
+        # Check argument defaults.
+        s = pygame.Surface((5, 7), 0, 16)
+        v = s.get_view()
+        self.assert_(isinstance(v, View))
+        s = pygame.Surface((5, 7), 0, 24)
+        self.assertRaises(Error, s.get_view)
+
+        # Check keyword arguments.
+        s = pygame.Surface((5, 7), 0, 24)
+        v = s.get_view(kind='3')
+        self.assert_(isinstance(v, View))
+
+        # Check locking.
+        s = pygame.Surface((2, 4), 0, 32)
+        self.assert_(not s.get_locked())
+        v = s.get_view()
+        self.assert_(s.get_locked())
+        del v
+        gc.collect()
+        self.assert_(not s.get_locked())
+
+        # Check invalid view kind values.
+        s = pygame.Surface((2, 4), pygame.SRCALPHA, 32)
+        self.assertRaises(TypeError, s.get_view, '')
+        self.assertRaises(TypeError, s.get_view, '0')
+        self.assertRaises(TypeError, s.get_view, 'RGBA')
+        self.assertRaises(TypeError, s.get_view, 2)
+
+        # Both unicode and bytes strings are allowed for kind.
+        s = pygame.Surface((2, 4), 0, 32)
+        s.get_view(as_unicode('2'))
+        s.get_view(as_bytes('2'))
 
     def test_set_colorkey(self):
 
@@ -1001,21 +1094,188 @@ class SurfaceTypeTest(unittest.TestCase):
         surf.scroll(dx=-3, dy=-3)
         self.failUnlessEqual(surf.get_at((0, 0)), spot_color)
 
+class SurfaceGetViewTest (unittest.TestCase):
+
+    # These tests requires ctypes. They are disabled if ctypes
+    # is not installed.
+    #
+    try:
+        ArrayInterface
+    except NameError:
+        __tags__ = ('ignore', 'subprocess_ignore')
+
+    lilendian = pygame.get_sdl_byteorder () == pygame.LIL_ENDIAN
+
+    def _check_interface_2D(self, s):
+        s_w, s_h = s.get_size()
+        s_bytesize = s.get_bytesize();
+        s_pitch = s.get_pitch()
+        s_pixels = s._pixels_address
+
+        # check the array interface structure fields.
+        v = s.get_view('2')
+        inter = ArrayInterface(v)
+        flags = PAI_FORTRAN | PAI_ALIGNED | PAI_NOTSWAPPED | PAI_WRITEABLE
+        if (s.get_pitch() == s_w * s_bytesize):
+            flags |= PAI_CONTIGUOUS
+        self.assertEqual(inter.two, 2)
+        self.assertEqual(inter.nd, 2)
+        self.assertEqual(inter.typekind, as_bytes('u'))
+        self.assertEqual(inter.itemsize, s_bytesize)
+        self.assertEqual(inter.shape[0], s_w)
+        self.assertEqual(inter.shape[1], s_h)
+        self.assertEqual(inter.strides[0], s_bytesize)
+        self.assertEqual(inter.strides[1], s_pitch)
+        self.assertEqual(inter.flags, flags)
+        self.assertEqual(inter.data, s_pixels);
+
+    def _check_interface_3D(self, s):
+        s_w, s_h = s.get_size()
+        s_bytesize = s.get_bytesize();
+        s_pitch = s.get_pitch()
+        s_pixels = s._pixels_address
+        s_shifts = list(s.get_shifts())
+
+        # Check for RGB or BGR surface.
+        if s_shifts[0:3] == [0, 8, 16]:
+            # RGB
+            if self.lilendian:
+                offset = 0
+                step = 1
+            else:
+                offset = s_bytesize - 1
+                step = -1
+        elif s_shifts[0:3] == [16, 8, 0]:
+            # BGR
+            if self.lilendian:
+                offset = 2
+                step = -1
+            else:
+                offset = 1
+                step = 1
+        else:
+            return
+
+        # check the array interface structure fields.
+        v = s.get_view('3')
+        inter = ArrayInterface(v)
+        flags = PAI_ALIGNED | PAI_NOTSWAPPED | PAI_WRITEABLE
+        if (s.get_pitch() == s_w * 3):
+            flags |= PAI_CONTIGUOUS
+        self.assertEqual(inter.two, 2)
+        self.assertEqual(inter.nd, 3)
+        self.assertEqual(inter.typekind, as_bytes('u'))
+        self.assertEqual(inter.itemsize, 1)
+        self.assertEqual(inter.shape[0], s_w)
+        self.assertEqual(inter.shape[1], s_h)
+        self.assertEqual(inter.shape[2], 3)
+        self.assertEqual(inter.strides[0], s_bytesize)
+        self.assertEqual(inter.strides[1], s_pitch)
+        self.assertEqual(inter.strides[2], step)
+        self.assertEqual(inter.flags, flags)
+        self.assertEqual(inter.data, s_pixels + offset);
+
+    def _check_interface_rgba(self, s, plane):
+        s_w, s_h = s.get_size()
+        s_bytesize = s.get_bytesize();
+        s_pitch = s.get_pitch()
+        s_pixels = s._pixels_address
+        s_shifts = s.get_shifts()
+        s_masks = s.get_masks()
+
+        # Find the color plane position within the pixel.
+        if not s_masks[plane]:
+            return
+        alpha_shift = s_shifts[plane]
+        offset = alpha_shift // 8
+        if not self.lilendian:
+            offset = s_bytesize - offset - 1
+
+        # check the array interface structure fields.
+        v = s.get_view('rgba'[plane])
+        inter = ArrayInterface(v)
+        flags = PAI_ALIGNED | PAI_NOTSWAPPED | PAI_WRITEABLE | PAI_FORTRAN
+        self.assertEqual(inter.two, 2)
+        self.assertEqual(inter.nd, 2)
+        self.assertEqual(inter.typekind, as_bytes('u'))
+        self.assertEqual(inter.itemsize, 1)
+        self.assertEqual(inter.shape[0], s_w)
+        self.assertEqual(inter.shape[1], s_h)
+        self.assertEqual(inter.strides[0], s_bytesize)
+        self.assertEqual(inter.strides[1], s_pitch)
+        self.assertEqual(inter.flags, flags)
+        self.assertEqual(inter.data, s_pixels + offset);
+        
+    def test_array_interface(self):
+        self._check_interface_2D(pygame.Surface((5, 7), 0, 8))
+        self._check_interface_2D(pygame.Surface((5, 7), 0, 16))
+        self._check_interface_2D(pygame.Surface((5, 7), pygame.SRCALPHA, 16))
+        self._check_interface_3D(pygame.Surface((5, 7), 0, 24))
+        self._check_interface_3D(pygame.Surface((8, 4), 0, 24)) # contiguous
+        self._check_interface_2D(pygame.Surface((5, 7), 0, 32))
+        self._check_interface_3D(pygame.Surface((5, 7), 0, 32))
+        self._check_interface_2D(pygame.Surface((5, 7), pygame.SRCALPHA, 32))
+        self._check_interface_3D(pygame.Surface((5, 7), pygame.SRCALPHA, 32))
+
+    def test_array_interface_masks(self):
+        """Test non-default color byte orders on 3D views"""
+
+        sz = (5, 7)
+        # Reversed RGB byte order
+        s = pygame.Surface(sz, 0, 32)
+        s_masks = list(s.get_masks())
+        masks = [0xff, 0xff00, 0xff0000]
+        if s_masks[0:3] == masks or s_masks[0:3] == masks[::-1]:
+            masks = s_masks[2::-1] + s_masks[3:4]
+            self._check_interface_3D(pygame.Surface(sz, 0, 32, masks))
+        s = pygame.Surface(sz, 0, 24)
+        s_masks = list(s.get_masks())
+        masks = [0xff, 0xff00, 0xff0000]
+        if s_masks[0:3] == masks or s_masks[0:3] == masks[::-1]:
+            masks = s_masks[2::-1] + s_masks[3:4]
+            self._check_interface_3D(pygame.Surface(sz, 0, 24, masks))
+
+        # Unsupported RGB byte orders
+        masks = [0xff00, 0xff0000, 0xff000000, 0]
+        self.assertRaises(ValueError,
+                          pygame.Surface(sz, 0, 32, masks).get_view, '3')
+        masks = [0xff00, 0xff, 0xff0000, 0]
+        self.assertRaises(ValueError,
+                          pygame.Surface(sz, 0, 24, masks).get_view, '3')
+
+    def test_array_interface_alpha(self):
+        for shifts in [[0, 8, 16, 24], [8, 16, 24, 0],
+                       [24, 16, 8, 0], [16, 8, 0, 24]]:
+            masks = [0xff << s for s in shifts]
+            s = pygame.Surface((4, 2), pygame.SRCALPHA, 32, masks)
+            self._check_interface_rgba(s, 3)
+
+    def test_array_interface_rgb(self):
+        for shifts in [[0, 8, 16, 24], [8, 16, 24, 0],
+                       [24, 16, 8, 0], [16, 8, 0, 24]]:
+            masks = [0xff << s for s in shifts]
+            masks[3] = 0
+            for plane in range(3):
+                s = pygame.Surface((4, 2), 0, 24)
+                self._check_interface_rgba(s, plane)
+                s = pygame.Surface((4, 2), 0, 32)
+                self._check_interface_rgba(s, plane)
+
 class SurfaceBlendTest (unittest.TestCase):
 
-    test_palette = [(0, 0, 0, 255),
-                    (10, 30, 60, 0),
-                    (25, 75, 100, 128),
-                    (200, 150, 100, 200),
-                    (0, 100, 200, 255)]
+    _test_palette = [(0, 0, 0, 255),
+                     (10, 30, 60, 0),
+                     (25, 75, 100, 128),
+                     (200, 150, 100, 200),
+                     (0, 100, 200, 255)]
     surf_size = (10, 12)
-    test_points = [((0, 0), 1), ((4, 5), 1), ((9, 0), 2),
-                   ((5, 5), 2), ((0, 11), 3), ((4, 6), 3),
-                   ((9, 11), 4), ((5, 6), 4)]
+    _test_points = [((0, 0), 1), ((4, 5), 1), ((9, 0), 2),
+                    ((5, 5), 2), ((0, 11), 3), ((4, 6), 3),
+                    ((9, 11), 4), ((5, 6), 4)]
 
     def _make_surface(self, bitsize, srcalpha=False, palette=None):
         if palette is None:
-            palette = self.test_palette
+            palette = self._test_palette
         flags = 0
         if srcalpha:
             flags |= SRCALPHA
@@ -1026,7 +1286,7 @@ class SurfaceBlendTest (unittest.TestCase):
 
     def _fill_surface(self, surf, palette=None):
         if palette is None:
-            palette = self.test_palette
+            palette = self._test_palette
         surf.fill(palette[1], (0, 0, 5, 6))
         surf.fill(palette[2], (5, 0, 5, 6))
         surf.fill(palette[3], (0, 6, 5, 6))
@@ -1039,10 +1299,10 @@ class SurfaceBlendTest (unittest.TestCase):
 
     def _assert_surface(self, surf, palette=None, msg=""):
         if palette is None:
-            palette = self.test_palette
+            palette = self._test_palette
         if surf.get_bitsize() == 16:
             palette = [surf.unmap_rgb(surf.map_rgb(c)) for c in palette]
-        for posn, i in self.test_points:
+        for posn, i in self._test_points:
             self.failUnlessEqual(surf.get_at(posn), palette[i],
                                  "%s != %s: flags: %i, bpp: %i, posn: %s%s" %
                                  (surf.get_at(posn),
@@ -1080,7 +1340,7 @@ class SurfaceBlendTest (unittest.TestCase):
 
         for src in sources:
             src_palette = [src.unmap_rgb(src.map_rgb(c))
-                           for c in self.test_palette]
+                           for c in self._test_palette]
             for dst in destinations:
                 for blend_name, dst_color, op in blend:
                     dc = dst.unmap_rgb(dst.map_rgb(dst_color))
@@ -1110,7 +1370,7 @@ class SurfaceBlendTest (unittest.TestCase):
                              [masks[1], masks[2], masks[0], masks[3]])
         for blend_name, dst_color, op in blend:
             p = []
-            for src_color in self.test_palette:
+            for src_color in self._test_palette:
                 c = [op(dst_color[i], src_color[i]) for i in range(3)]
                 c.append(255)
                 p.append(tuple(c))
@@ -1135,7 +1395,7 @@ class SurfaceBlendTest (unittest.TestCase):
         dst = pygame.Surface(src.get_size(), 0, 32, masks)
         for blend_name, dst_color, op in blend:
             p = []
-            for src_color in self.test_palette:
+            for src_color in self._test_palette:
                 c = [op(dst_color[i], src_color[i]) for i in range(3)]
                 c.append(255)
                 p.append(tuple(c))
@@ -1169,7 +1429,7 @@ class SurfaceBlendTest (unittest.TestCase):
 
         for src in sources:
             src_palette = [src.unmap_rgb(src.map_rgb(c))
-                           for c in self.test_palette]
+                           for c in self._test_palette]
             for dst in destinations:
                 for blend_name, dst_color, op in blend:
                     dc = dst.unmap_rgb(dst.map_rgb(dst_color))
@@ -1201,7 +1461,7 @@ class SurfaceBlendTest (unittest.TestCase):
                              (masks[1], masks[2], masks[3], masks[0]))
         for blend_name, dst_color, op in blend:
             p = [tuple([op(dst_color[i], src_color[i]) for i in range(4)])
-                 for src_color in self.test_palette]
+                 for src_color in self._test_palette]
             dst.fill(dst_color)
             dst.blit(src,
                      (0, 0),
@@ -1262,7 +1522,7 @@ class SurfaceBlendTest (unittest.TestCase):
 
         for dst in destinations:
             dst_palette = [dst.unmap_rgb(dst.map_rgb(c))
-                           for c in self.test_palette]
+                           for c in self._test_palette]
             for blend_name, fill_color, op in blend:
                 fc = dst.unmap_rgb(dst.map_rgb(fill_color))
                 self._fill_surface(dst)
@@ -1296,7 +1556,7 @@ class SurfaceBlendTest (unittest.TestCase):
 
         for dst in destinations:
             dst_palette = [dst.unmap_rgb(dst.map_rgb(c))
-                           for c in self.test_palette]
+                           for c in self._test_palette]
             for blend_name, fill_color, op in blend:
                 fc = dst.unmap_rgb(dst.map_rgb(fill_color))
                 self._fill_surface(dst)
@@ -1316,20 +1576,20 @@ class SurfaceSelfBlitTest(unittest.TestCase):
     This test case is in response to MotherHamster Bugzilla Bug 19.
     """
 
-    test_palette = [(0, 0, 0, 255),
+    _test_palette = [(0, 0, 0, 255),
                     (255, 0, 0, 0),
                     (0, 255, 0, 255)]
     surf_size = (9, 6)
     
     def _fill_surface(self, surf, palette=None):
         if palette is None:
-            palette = self.test_palette
+            palette = self._test_palette
         surf.fill(palette[1])
         surf.fill(palette[2], (1, 2, 1, 2))
 
     def _make_surface(self, bitsize, srcalpha=False, palette=None):
         if palette is None:
-            palette = self.test_palette
+            palette = self._test_palette
         flags = 0
         if srcalpha:
             flags |= SRCALPHA
@@ -1393,10 +1653,10 @@ class SurfaceSelfBlitTest(unittest.TestCase):
         bitsizes = [8, 16, 24, 32]
         for bitsize in bitsizes:
             surf = self._make_surface(bitsize)
-            surf.set_colorkey(self.test_palette[1])
+            surf.set_colorkey(self._test_palette[1])
             surf.blit(surf, (3, 0))
             p = []
-            for c in self.test_palette:
+            for c in self._test_palette:
                 c = surf.unmap_rgb(surf.map_rgb(c))
                 p.append(c)
             p[1] = (p[1][0], p[1][1], p[1][2], 0)
@@ -1417,7 +1677,7 @@ class SurfaceSelfBlitTest(unittest.TestCase):
             surf.set_alpha(128)
             surf.blit(surf, (3, 0))
             p = []
-            for c in self.test_palette:
+            for c in self._test_palette:
                 c = surf.unmap_rgb(surf.map_rgb(c))
                 p.append((c[0], c[1], c[2], 128))
             tmp = self._make_surface(32, srcalpha=True, palette=p)

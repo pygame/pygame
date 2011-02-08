@@ -13,6 +13,12 @@
 
 #define DOC_PYGAMESURFARRAYPIXELSALPHA "pygame.surfarray.pixels_alpha(Surface): return array\nReference pixel alphas into a 2d array"
 
+#define DOC_PYGAMESURFARRAYPIXELSRED "pygame.surfarray.pixels_red (Surface): return array\nReference pixel red into a 2d array."
+
+#define DOC_PYGAMESURFARRAYPIXELSGREEN "pygame.surfarray.pixels_green (Surface): return array\nReference pixel green into a 2d array."
+
+#define DOC_PYGAMESURFARRAYPIXELSBLUE "pygame.surfarray.pixels_blue (Surface): return array\nReference pixel blue into a 2d array."
+
 #define DOC_PYGAMESURFARRAYARRAYCOLORKEY "pygame.surfarray.array_colorkey(Surface): return array\nCopy the colorkey values into a 2d array"
 
 #define DOC_PYGAMESURFARRAYMAKESURFACE "pygame.surfarray.make_surface(array): return Surface\nCopy an array to a new surface"
@@ -72,6 +78,24 @@ Copy pixel alphas into a 2d array
 pygame.surfarray.pixels_alpha
  pygame.surfarray.pixels_alpha(Surface): return array
 Reference pixel alphas into a 2d array
+
+
+
+pygame.surfarray.pixels_red
+ pygame.surfarray.pixels_red (Surface): return array
+Reference pixel red into a 2d array.
+
+
+
+pygame.surfarray.pixels_green
+ pygame.surfarray.pixels_green (Surface): return array
+Reference pixel green into a 2d array.
+
+
+
+pygame.surfarray.pixels_blue
+ pygame.surfarray.pixels_blue (Surface): return array
+Reference pixel blue into a 2d array.
 
 
 

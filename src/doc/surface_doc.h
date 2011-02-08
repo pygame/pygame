@@ -89,6 +89,8 @@
 
 #define DOC_SURFACEGETBOUNDINGRECT "Surface.get_bounding_rect(min_alpha = 1): return Rect\nfind the smallest rect containing data"
 
+#define DOC_SURFACEGETVIEW "Surface.get_view(kind='2'): return <view>\nreturn a view of a surface's pixel data."
+
 #define DOC_SURFACEGETBUFFER "Surface.get_buffer(): return BufferProxy\nacquires a buffer object for the pixels of the Surface."
 
 
@@ -373,6 +375,12 @@ the significant bits used to convert between a color and a mapped integer
 Surface.get_bounding_rect
  Surface.get_bounding_rect(min_alpha = 1): return Rect
 find the smallest rect containing data
+
+
+
+Surface.get_view
+ Surface.get_view(kind='2'): return <view>
+return a view of a surface's pixel data.
 
 
 

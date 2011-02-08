@@ -208,6 +208,60 @@ def pixels_alpha (surface):
         return numpysf.pixels_alpha (surface)
     raise NotImplementedError("surface arrays are not supported")
 
+def pixels_red (surface):
+    """pygame.surfarray.pixels_red (Surface): return array
+
+    Reference pixel red into a 2d array.
+
+    Create a new 2D array that directly references the red values
+    in a Surface. Any changes to the array will affect the pixels
+    in the Surface. This is a fast operation since no data is copied.
+
+    This can only work on 24-bit or 32-bit Surfaces.
+
+    The Surface this array references will remain locked for the
+    lifetime of the array.
+    """
+    if __arraytype == "numpy":
+        return numpysf.pixels_red (surface)
+    raise NotImplementedError("surface arrays are not supported")
+
+def pixels_green (surface):
+    """pygame.surfarray.pixels_green (Surface): return array
+
+    Reference pixel green into a 2d array.
+
+    Create a new 2D array that directly references the green values
+    in a Surface. Any changes to the array will affect the pixels
+    in the Surface. This is a fast operation since no data is copied.
+
+    This can only work on 24-bit or 32-bit Surfaces.
+
+    The Surface this array references will remain locked for the
+    lifetime of the array.
+    """
+    if __arraytype == "numpy":
+        return numpysf.pixels_green (surface)
+    raise NotImplementedError("surface arrays are not supported")
+
+def pixels_blue (surface):
+    """pygame.surfarray.pixels_blue (Surface): return array
+
+    Reference pixel blue into a 2d array.
+
+    Create a new 2D array that directly references the blue values
+    in a Surface. Any changes to the array will affect the pixels
+    in the Surface. This is a fast operation since no data is copied.
+
+    This can only work on 24-bit or 32-bit Surfaces.
+
+    The Surface this array references will remain locked for the
+    lifetime of the array.
+    """
+    if __arraytype == "numpy":
+        return numpysf.pixels_blue (surface)
+    raise NotImplementedError("surface arrays are not supported")
+
 def array_colorkey (surface):
     """pygame.surfarray.array_colorkey (Surface): return array
 

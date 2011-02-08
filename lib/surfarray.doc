@@ -127,6 +127,48 @@ The Surface this array references will remain locked for the lifetime of
 the array.
 <END>
 
+pixels_red
+Reference pixel red into a 2d array.
+pygame.surfarray.pixels_red (Surface): return array
+
+Create a new 2D array that directly references the red values
+in a Surface. Any changes to the array will affect the pixels
+in the Surface. This is a fast operation since no data is copied.
+
+This can only work on 24-bit or 32-bit Surfaces.
+
+The Surface this array references will remain locked for the
+lifetime of the array.
+<END>
+
+pixels_green
+Reference pixel green into a 2d array.
+pygame.surfarray.pixels_green (Surface): return array
+
+Create a new 2D array that directly references the green values
+in a Surface. Any changes to the array will affect the pixels
+in the Surface. This is a fast operation since no data is copied.
+
+This can only work on 24-bit or 32-bit Surfaces.
+
+The Surface this array references will remain locked for the
+lifetime of the array.
+<END>
+
+pixels_blue
+Reference pixel blue into a 2d array.
+pygame.surfarray.pixels_blue (Surface): return array
+
+Create a new 2D array that directly references the blue values
+in a Surface. Any changes to the array will affect the pixels
+in the Surface. This is a fast operation since no data is copied.
+
+This can only work on 24-bit or 32-bit Surfaces.
+
+The Surface this array references will remain locked for the
+lifetime of the array.
+<END>
+
 array_colorkey
 Copy the colorkey values into a 2d array
 pygame.surfarray.array_colorkey(Surface): return array

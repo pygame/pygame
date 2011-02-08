@@ -109,6 +109,8 @@
 #define UNICODE_DEF_FS_CODEC Py_FileSystemDefaultEncoding
 #define UNICODE_DEF_FS_ERROR "strict"
 
+#define PyObject_Free _PyObject_Del
+
 #endif /* #if PY_VERSION_HEX >= 0x03000000 */
 
 #define PY2 (!PY3)
@@ -144,6 +146,23 @@
 #define RELATIVE_MODULE(m) ("." m)
 #else
 #define RELATIVE_MODULE(m) (m)
+#endif
+
+/* Python 3 (PEP 3118) buffer protocol */
+#if PY_VERSION_HEX >= 0x02060000
+#define HAVE_NEW_BUFPROTO 1
+#else
+#define HAVE_NEW_BUFPROTO 0
+#endif
+
+#define HAVE_OLD_BUFPROTO PY2
+
+#ifndef Py_TPFLAGS_HAVE_NEWBUFFER
+#define Py_TPFLAGS_HAVE_NEWBUFFER 0
+#endif
+
+#ifndef Py_TPFLAGS_HAVE_CLASS
+#define Py_TPFLAGS_HAVE_CLASS 0
 #endif
 
 #endif /* #if !defined(PGCOMPAT_H) */
