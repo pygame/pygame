@@ -50,8 +50,8 @@ const PG_sample_format_t PG_SAMPLE_BIG_ENDIAN = 0;
 #else
 const PG_sample_format_t PG_SAMPLE_LITTLE_ENDIAN = 0;
 const PG_sample_format_t PG_SAMPLE_BIG_ENDIAN = 0x20000u;
-const PG_sample_format_t PG_SAMPLE_CHAR_SIGN = (char)0xff > 0 ? 0 : 0x10000u;
 #endif
+const PG_sample_format_t PG_SAMPLE_CHAR_SIGN = (char)0xff > 0 ? 0 : 0x10000u;
 #define PG_SAMPLE_SIZE(sf) ((sf) & 0x0ffffu)
 #define PG_IS_SAMPLE_SIGNED(sf) ((sf) & PG_SAMPLE_SIGNED != 0)
 #define PG_IS_SAMPLE_NATIVE_ENDIAN(sf) ((sf) & PG_SAMPLE_NATIVE_ENDIAN != 0)
