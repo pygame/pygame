@@ -194,49 +194,49 @@ class MixerModuleTest(unittest.TestCase):
             try:
                 mixer.Sound()
             except TypeError:
-                self.assert_(str(geterror()) == arg_emsg)
+                self.assertEqual(str(geterror()), arg_emsg)
             else:
                 self.fail("no exception")
             try:
                 mixer.Sound(wave_path, buffer=sample)
             except TypeError:
-                self.assert_(str(geterror()) == arg_emsg)
+                self.assertEqual(str(geterror()), arg_emsg)
             else:
                 self.fail("no exception")
             try:
                 mixer.Sound(sample, file=wave_path)
             except TypeError:
-                self.assert_(str(geterror()) == arg_emsg)
+                self.assertEqual(str(geterror()), arg_emsg)
             else:
                 self.fail("no exception")           
             try:
                 mixer.Sound(buffer=sample, file=wave_path)
             except TypeError:
-                self.assert_(str(geterror()) == arg_emsg)
+                self.assertEqual(str(geterror()), arg_emsg)
             else:
                 self.fail("no exception")           
             try:
                 mixer.Sound(foobar=sample)
             except TypeError:
                 emsg = "Unrecognized keyword argument 'foobar'"
-                self.assert_(str(geterror()) == emsg)
+                self.assertEqual(str(geterror()), emsg)
             else:
                 self.fail("no exception")
             snd = mixer.Sound(wave_path, **{})
-            self.assert_(get_bytes(snd) == snd_bytes)
+            self.assertEqual(get_bytes(snd), snd_bytes)
             snd = mixer.Sound(*[], **{'file': wave_path})          
             try:
                snd = mixer.Sound([])
             except TypeError:
                 emsg = 'Unrecognized argument (type list)'
-                self.assert_(str(geterror()) == emsg)
+                self.assertEqual(str(geterror()), emsg)
             else:   
                 self.fail("no exception")
             try:
                 snd = mixer.Sound(buffer=[])
             except TypeError:
                 emsg = 'Expected object with buffer interface: got a list'
-                self.assert_(str(geterror()) == emsg)
+                self.assertEqual(str(geterror()), emsg)
             else:
                 self.fail("no exception")
             ufake_path = unicode_('12345678')
@@ -245,16 +245,121 @@ class MixerModuleTest(unittest.TestCase):
                 mixer.Sound(buffer=unicode_('something'))
             except TypeError:
                 emsg = 'Unicode object not allowed as buffer object'
-                self.assert_(str(geterror()) == emsg)
+                self.assertEqual(str(geterror()), emsg)
             else:
                 self.fail("no exception")
-            self.assert_(get_bytes(mixer.Sound(buffer=sample)) == sample)
-            self.assert_(get_bytes(mixer.Sound(sample)) == sample)
-            self.assert_(get_bytes(mixer.Sound(file=bwave_path)) == snd_bytes)
-            self.assert_(get_bytes(mixer.Sound(bwave_path)) == snd_bytes)
+            self.assertEqual(get_bytes(mixer.Sound(buffer=sample)), sample)
+            self.assertEqual(get_bytes(mixer.Sound(sample)), sample)
+            self.assertEqual(get_bytes(mixer.Sound(file=bwave_path)), snd_bytes)
+            self.assertEqual(get_bytes(mixer.Sound(bwave_path)), snd_bytes)
+            
+            snd = mixer.Sound(wave_path)
+            try:
+                mixer.Sound(wave_path, array=snd)
+            except TypeError:
+                self.assertEqual(str(geterror()), arg_emsg)
+            else:
+                self.fail("no exception")
+            try:
+                mixer.Sound(buffer=sample, array=snd)
+            except TypeError:
+                self.assertEqual(str(geterror()), arg_emsg)
+            else:
+                self.fail("no exception")
+            snd2 = mixer.Sound(array=snd)
+            self.assertEqual(snd.get_buffer().raw, snd2.get_buffer().raw)
+            
         finally:
             mixer.quit()
-        
+
+    def test_array_keyword(self):
+        try:
+            from numpy import (array, arange, zeros,
+                               int8, uint8,
+                               int16, uint16,
+                               int32, uint32)
+        except ImportError:
+            return
+        freq = 22050
+        format_list = [-8, 8, -16, 16]
+        channels_list = [1, 2]
+
+        a_lists = dict((f, []) for f in format_list)
+        a32u_mono = arange(0, 256, 1, uint32)
+        a16u_mono = a32u_mono.astype(uint16)
+        a8u_mono = a32u_mono.astype(uint8)
+        au_list_mono = [(1, a) for a in [a8u_mono, a16u_mono, a32u_mono]]
+        for format in format_list:
+            if format > 0:
+                a_lists[format].extend(au_list_mono)
+        a32s_mono = arange(-128, 128, 1, int32)
+        a16s_mono = a32s_mono.astype(int16)
+        a8s_mono = a32s_mono.astype(int8)
+        as_list_mono = [(1, a) for a in [a8s_mono, a16s_mono, a32s_mono]]
+        for format in format_list:
+            if format < 0:
+                a_lists[format].extend(as_list_mono)
+        a32u_stereo = zeros([a32u_mono.shape[0], 2], uint32)
+        a32u_stereo[:,0] = a32u_mono
+        a32u_stereo[:,1] = 255 - a32u_mono
+        a16u_stereo = a32u_stereo.astype(uint16)
+        a8u_stereo = a32u_stereo.astype(uint8)
+        au_list_stereo = [(2, a)
+                          for a in [a8u_stereo, a16u_stereo, a32u_stereo]]
+        for format in format_list:
+            if format > 0:
+                a_lists[format].extend(au_list_stereo)
+        a32s_stereo = zeros([a32s_mono.shape[0], 2], int32)
+        a32s_stereo[:,0] = a32s_mono
+        a32s_stereo[:,1] = -1 - a32s_mono
+        a16s_stereo = a32s_stereo.astype(int16)
+        a8s_stereo = a32s_stereo.astype(int8)
+        as_list_stereo = [(2, a)
+                          for a in [a8s_stereo, a16s_stereo, a32s_stereo]]
+        for format in format_list:
+            if format < 0:
+                a_lists[format].extend(as_list_stereo)
+
+        for format in format_list:
+            for channels in channels_list:
+                try:
+                    mixer.init(freq, format, channels)
+                except pygame.error:
+                    # Some formats (e.g. 16) may not be supported.
+                    continue
+                try:
+                    __, f, c = mixer.get_init()
+                    if f != format or c != channels:
+                        # Some formats (e.g. -8) may not be supported.
+                        continue
+                    for c, a in a_lists[format]:
+                        self._test_array_interface(format, a, c == channels)
+                finally:
+                    mixer.quit()
+
+    def _test_array_interface(self, format, a, test_pass):
+        from numpy import array, all as all_
+
+        try:
+            snd = mixer.Sound(array=a)
+        except ValueError:
+            if not test_pass:
+                return
+        if not test_pass:
+            self.fail("Did not raise ValueError: Format %i, dtype %s" %
+                      (format, a.dtype))
+        a2 = array(snd)
+        a3 = a.astype(a2.dtype)
+        lshift = abs(format) - 8 * a.itemsize
+        if lshift >= 0:
+            # This is asymmetric with respect to downcasting.
+            a3 <<= lshift
+        self.assert_(all_(a2 == a3),
+                     "Format %i, dtype %s" % (format, a.dtype))
+    
+    def _test_array_interface_fail(self, a):
+        self.assertRaises(ValueError, mixer.Sound, array=a)
+ 
     def todo_test_fadeout(self):
 
         # __doc__ (as of 2008-08-02) for pygame.mixer.fadeout:

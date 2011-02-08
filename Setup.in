@@ -74,4 +74,4 @@ bufferproxy src/bufferproxy.c $(SDL) $(DEBUG)
 pixelarray src/pixelarray.c $(SDL) $(DEBUG)
 _arraysurfarray src/_arraysurfarray.c $(SDL) $(DEBUG)
 math src/math.c $(SDL) $(DEBUG)
-
+_view src/_view.c $(SDL) $(DEBUG)

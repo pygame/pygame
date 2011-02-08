@@ -213,6 +213,7 @@
   <tt>pygame.mixer.Sound(buffer=buffer): return Sound</tt><br>
   <tt>pygame.mixer.Sound(object): return Sound</tt><br>
   <tt>pygame.mixer.Sound(file=object): return Sound</tt><br>
+  <tt>pygame.mixer.Sound(array=object): return Sound</tt><br>
 <ul><small><table>
   <tr><td><a href="mixer.html#Sound.play">Sound.play</a> - <font size=-1>begin sound playback</font></td><td>begin sound playback</td></tr>
   <tr><td><a href="mixer.html#Sound.stop">Sound.stop</a> - <font size=-1>stop sound playback</font></td><td>stop sound playback</td></tr>
@@ -223,11 +224,12 @@
   <tr><td><a href="mixer.html#Sound.get_length">Sound.get_length</a> - <font size=-1>get the length of the Sound</font></td><td>get the length of the Sound</td></tr>
   <tr><td><a href="mixer.html#Sound.get_buffer">Sound.get_buffer</a> - <font size=-1>acquires a buffer object for the sameples of the Sound.</font></td><td>acquires a buffer object for the sameples of the Sound.</td></tr>
 </table></small></ul>
-<p>Load a new sound buffer from a filename, a python file object or a readable buffer object. Limited resampling will be performed to help the sample match the initialize arguments for the mixer. <tt>A</tt> Unicode string can only be a file pathname. <tt>A</tt> Python <tt>2.x</tt> string or a Python <tt>3.x</tt> bytes object can be either a pathname or a buffer object. Use the 'file' or 'buffer' keywords to avoid ambiguity; otherwise Sound may guess wrong. </p>
-<p>The Sound object represents actual sound sample data. Methods that change the state of the Sound object will the all instances of the Sound playback. </p>
+<p>Load a new sound buffer from a filename, a python file object or a readable buffer object. Limited resampling will be performed to help the sample match the initialize arguments for the mixer. <tt>A</tt> Unicode string can only be a file pathname. <tt>A</tt> Python <tt>2.x</tt> string or a Python <tt>3.x</tt> bytes object can be either a pathname or a buffer object. Use the 'file' or 'buffer' keywords to avoid ambiguity; otherwise Sound may guess wrong. If the array keyword is used, the object is expected to export a version 3, <tt>C</tt> level array interface or, for Python <tt>2.6</tt> or later, a new buffer interface (The object is checked for a buffer interface <tt>first.)</tt> </p>
+<p>The Sound object represents actual sound sample data. Methods that change the state of the Sound object will the all instances of the Sound playback. <tt>A</tt> Sound object also exports an array interface, and, for Python <tt>2.6</tt> or later, a new buffer interface. </p>
 <p>The Sound can be loaded from an <tt>OGG</tt> audio file or from an uncompressed <tt>WAV</tt>. </p>
 <p>Note: The buffer will be copied internally, no data will be shared between it and the Sound object. </p>
-<p><tt>pygame.mixer.Sound(buffer)</tt> is new in pygame <tt>1.8</tt> <tt>pygame.mixer.Sound</tt> keyword arguments new in pygame <tt>1.9.2</tt> </p>
+<p>For now buffer and array support is consistent with <tt>sndarray.make_sound</tt> for Numeric arrays, in that sample sign and byte order are ignored. This will change, either by correctly handling sign and byte order, or by raising an exception when different. Also, source samples are truncated to fit the audio sample size. This will not change. </p>
+<p><tt>pygame.mixer.Sound(buffer)</tt> is new in pygame <tt>1.8</tt> <tt>pygame.mixer.Sound</tt> keyword arguments and array interface support new in pygame <tt>1.9.2</tt> </p>
 <!--COMMENTS:pygame.mixer.Sound--> &nbsp;<br> 
 
 

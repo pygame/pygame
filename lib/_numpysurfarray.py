@@ -48,7 +48,7 @@ import pygame
 from pygame.compat import bytes_
 from pygame._arraysurfarray import blit_array
 import numpy
-
+from numpy import array as numpy_array
 
 def array2d (surface):
     """pygame.numpyarray.array2d (Surface): return array
@@ -107,18 +107,8 @@ def pixels2d (surface):
     the array (see the Surface.lock - lock the Surface memory for pixel
     access method).
     """
-    bpp = surface.get_bytesize ()
-    if bpp == 3 or bpp < 1 or bpp > 4:
-        raise ValueError("unsupported bit depth for 2D reference array")
 
-    typecode = (numpy.uint8, numpy.uint16, None, numpy.int32)[bpp - 1]
-    array = numpy.frombuffer (surface.get_buffer (), typecode)
-    array.shape = surface.get_height (), surface.get_pitch () / bpp
-
-    # Padding correction for certain depth due to padding bytes.
-    array = array[:,:surface.get_width ()]
-    array = numpy.transpose (array)
-    return array
+    return numpy_array(surface.get_view('2'), copy=False)
 
 def array3d (surface):
     """pygame.numpyarray.array3d (Surface): return array
@@ -189,43 +179,8 @@ def pixels3d (surface):
     the array (see the Surface.lock - lock the Surface memory for pixel
     access method).
     """
-    bpp = surface.get_bytesize ()
-    if bpp < 3 or bpp > 4:
-        raise ValueError("unsupported bit depth for 3D reference array")
-    lilendian = pygame.get_sdl_byteorder () == pygame.LIL_ENDIAN
 
-    start = 0
-    step = 0
-
-    # Check for RGB or BGR surface.
-    shifts = surface.get_shifts ()
-    if shifts[0] == 16 and shifts[1] == 8 and shifts[2] == 0:
-        # RGB 
-        if lilendian:
-            start = 2
-            step = -1
-        else:
-            start = 0
-            step = 1
-    elif shifts[2] == 16 and shifts[1] == 8 and shifts[0] == 0:
-        # BGR
-        if lilendian:
-            start = 0
-            step = 1
-        else:
-            start = 2
-            step = -1
-    else:
-        raise ValueError("unsupported colormasks for 3D reference array")
-
-    if bpp == 4 and not lilendian:
-        start += 1
-
-    array = numpy.ndarray \
-            (shape=(surface.get_width (), surface.get_height (), 3),
-             dtype=numpy.uint8, buffer=surface.get_buffer (),
-             offset=start, strides=(bpp, surface.get_pitch (),step))
-    return array
+    return numpy_array(surface.get_view('3'), copy=False)
 
 def array_alpha (surface):
     """pygame.numpyarray.array_alpha (Surface): return array
@@ -279,26 +234,59 @@ def pixels_alpha (surface):
     The Surface this array references will remain locked for the
     lifetime of the array.
     """
-    if surface.get_bytesize () != 4:
-        raise ValueError("unsupported bit depth for alpha reference array")
-    lilendian = pygame.get_sdl_byteorder () == pygame.LIL_ENDIAN
 
-    # ARGB surface.
-    start = 0
-    
-    if surface.get_shifts ()[3] == 24 and lilendian:
-        # RGBA surface.
-        start = 3
-    elif surface.get_shifts ()[3] == 0 and not lilendian:
-        start = 3
-    else:
-        raise ValueError("unsupported colormasks for alpha reference array")
+    return numpy.array (surface.get_view('a'), copy=False)
 
-    array = numpy.ndarray \
-            (shape=(surface.get_width (), surface.get_height ()),
-             dtype=numpy.uint8, buffer=surface.get_buffer (),
-             offset=start, strides=(4, surface.get_pitch ()))
-    return array
+def pixels_red (surface):
+    """pygame.surfarray.pixels_red (Surface): return array
+
+    Reference pixel red into a 2d array.
+
+    Create a new 2D array that directly references the red values
+    in a Surface. Any changes to the array will affect the pixels
+    in the Surface. This is a fast operation since no data is copied.
+
+    This can only work on 24-bit or 32-bit Surfaces.
+
+    The Surface this array references will remain locked for the
+    lifetime of the array.
+    """
+
+    return numpy.array (surface.get_view('r'), copy=False)
+
+def pixels_green (surface):
+    """pygame.surfarray.pixels_green (Surface): return array
+
+    Reference pixel green into a 2d array.
+
+    Create a new 2D array that directly references the green values
+    in a Surface. Any changes to the array will affect the pixels
+    in the Surface. This is a fast operation since no data is copied.
+
+    This can only work on 24-bit or 32-bit Surfaces.
+
+    The Surface this array references will remain locked for the
+    lifetime of the array.
+    """
+
+    return numpy.array (surface.get_view('g'), copy=False)
+
+def pixels_blue (surface):
+    """pygame.surfarray.pixels_blue (Surface): return array
+
+    Reference pixel blue into a 2d array.
+
+    Create a new 2D array that directly references the blue values
+    in a Surface. Any changes to the array will affect the pixels
+    in the Surface. This is a fast operation since no data is copied.
+
+    This can only work on 24-bit or 32-bit Surfaces.
+
+    The Surface this array references will remain locked for the
+    lifetime of the array.
+    """
+
+    return numpy.array (surface.get_view('b'), copy=False)
 
 def array_colorkey (surface):
     """pygame.numpyarray.array_colorkey (Surface): return array

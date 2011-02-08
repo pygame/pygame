@@ -62,6 +62,9 @@
   <tr><td><a href="surfarray.html#pygame.surfarray.pixels3d">pygame.surfarray.pixels3d</a> - <font size=-1>Reference pixels into a 3d array</font></td><td>Reference pixels into a 3d array</td></tr>
   <tr><td><a href="surfarray.html#pygame.surfarray.array_alpha">pygame.surfarray.array_alpha</a> - <font size=-1>Copy pixel alphas into a 2d array</font></td><td>Copy pixel alphas into a 2d array</td></tr>
   <tr><td><a href="surfarray.html#pygame.surfarray.pixels_alpha">pygame.surfarray.pixels_alpha</a> - <font size=-1>Reference pixel alphas into a 2d array</font></td><td>Reference pixel alphas into a 2d array</td></tr>
+  <tr><td><a href="surfarray.html#pygame.surfarray.pixels_red">pygame.surfarray.pixels_red</a> - <font size=-1>Reference pixel red into a 2d array.</font></td><td>Reference pixel red into a 2d array.</td></tr>
+  <tr><td><a href="surfarray.html#pygame.surfarray.pixels_green">pygame.surfarray.pixels_green</a> - <font size=-1>Reference pixel green into a 2d array.</font></td><td>Reference pixel green into a 2d array.</td></tr>
+  <tr><td><a href="surfarray.html#pygame.surfarray.pixels_blue">pygame.surfarray.pixels_blue</a> - <font size=-1>Reference pixel blue into a 2d array.</font></td><td>Reference pixel blue into a 2d array.</td></tr>
   <tr><td><a href="surfarray.html#pygame.surfarray.array_colorkey">pygame.surfarray.array_colorkey</a> - <font size=-1>Copy the colorkey values into a 2d array</font></td><td>Copy the colorkey values into a 2d array</td></tr>
   <tr><td><a href="surfarray.html#pygame.surfarray.make_surface">pygame.surfarray.make_surface</a> - <font size=-1>Copy an array to a new surface</font></td><td>Copy an array to a new surface</td></tr>
   <tr><td><a href="surfarray.html#pygame.surfarray.blit_array">pygame.surfarray.blit_array</a> - <font size=-1>Blit directly from a array values</font></td><td>Blit directly from a array values</td></tr>
@@ -144,6 +147,39 @@
 <p>This can only work on 32-bit Surfaces with a per-pixel alpha value. </p>
 <p>The Surface this array references will remain locked for the lifetime of the array. </p>
 <!--COMMENTS:pygame.surfarray.pixels_alpha--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.surfarray.pixels_red">
+<big><b>pygame.surfarray.pixels_red</big></b><br><ul>
+  <i>Reference pixel red into a 2d array.</i><br>
+  <tt>pygame.surfarray.pixels_red (Surface): return array</tt><br>
+<p>Create a new <tt>2D</tt> array that directly references the red values in a Surface. Any changes to the array will affect the pixels in the Surface. This is a fast operation since no data is copied. </p>
+<p>This can only work on 24-bit or 32-bit Surfaces. </p>
+<p>The Surface this array references will remain locked for the lifetime of the array. </p>
+<!--COMMENTS:pygame.surfarray.pixels_red--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.surfarray.pixels_green">
+<big><b>pygame.surfarray.pixels_green</big></b><br><ul>
+  <i>Reference pixel green into a 2d array.</i><br>
+  <tt>pygame.surfarray.pixels_green (Surface): return array</tt><br>
+<p>Create a new <tt>2D</tt> array that directly references the green values in a Surface. Any changes to the array will affect the pixels in the Surface. This is a fast operation since no data is copied. </p>
+<p>This can only work on 24-bit or 32-bit Surfaces. </p>
+<p>The Surface this array references will remain locked for the lifetime of the array. </p>
+<!--COMMENTS:pygame.surfarray.pixels_green--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.surfarray.pixels_blue">
+<big><b>pygame.surfarray.pixels_blue</big></b><br><ul>
+  <i>Reference pixel blue into a 2d array.</i><br>
+  <tt>pygame.surfarray.pixels_blue (Surface): return array</tt><br>
+<p>Create a new <tt>2D</tt> array that directly references the blue values in a Surface. Any changes to the array will affect the pixels in the Surface. This is a fast operation since no data is copied. </p>
+<p>This can only work on 24-bit or 32-bit Surfaces. </p>
+<p>The Surface this array references will remain locked for the lifetime of the array. </p>
+<!--COMMENTS:pygame.surfarray.pixels_blue--> &nbsp;<br> 
 <br></ul>
 
 

@@ -102,6 +102,7 @@
   <tr><td><a href="surface.html#Surface.set_shifts">Surface.set_shifts</a> - <font size=-1>sets the bit shifts needed to convert between a color and a mapped integer</font></td><td>sets the bit shifts needed to convert between a color and a mapped integer</td></tr>
   <tr><td><a href="surface.html#Surface.get_losses">Surface.get_losses</a> - <font size=-1>the significant bits used to convert between a color and a mapped integer</font></td><td>the significant bits used to convert between a color and a mapped integer</td></tr>
   <tr><td><a href="surface.html#Surface.get_bounding_rect">Surface.get_bounding_rect</a> - <font size=-1>find the smallest rect containing data</font></td><td>find the smallest rect containing data</td></tr>
+  <tr><td><a href="surface.html#Surface.get_view">Surface.get_view</a> - <font size=-1>return a view of a surface's pixel data.</font></td><td>return a view of a surface's pixel data.</td></tr>
   <tr><td><a href="surface.html#Surface.get_buffer">Surface.get_buffer</a> - <font size=-1>acquires a buffer object for the pixels of the Surface.</font></td><td>acquires a buffer object for the pixels of the Surface.</td></tr>
 </table></small></ul>
 <p><tt>A</tt> pygame Surface is used to represent any image. The Surface has a fixed resolution and pixel format. Surfaces with 8bit pixels use a color palette to map to 24bit color. </p>
@@ -590,6 +591,21 @@
 <p>This function will temporarily lock and unlock the Surface as needed. </p>
 <p>New in pygame <tt>1.8</tt>. </p>
 <!--COMMENTS:Surface.get_bounding_rect--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="Surface.get_view">
+<big><b>Surface.get_view</big></b><br><ul>
+  <i>return a view of a surface's pixel data.</i><br>
+  <tt>Surface.get_view(kind='2'): return <view></tt><br>
+<p>Return an object which exposes a surface's internal pixel buffer to a NumPy array. For now a custom object with an array struct interface is returned. <tt>A</tt> Python memoryview may be returned in the future. The buffer is writeable. </p>
+<p>The kind argument is the length 1 string '2', '3', 'r', 'g', 'b', or 'a'. The letters are case insensitive; <tt>'A'</tt> will work as well. The argument can be either a Unicode or byte (char) string. The default is '2'. </p>
+<p><tt>A</tt> kind '2' view is a (surface-width, surface-height) array of raw pixels. The pixels are surface bytesized unsigned integers. The pixel format is surface specific. It is unavailable for 24-bit surfaces. </p>
+<p>'3' returns a (surface-width, surface-height, 3) view of <tt>RGB</tt> color components. Each of the red, green, and blue components are unsigned bytes. Only 24-bit and 32-bit surfaces are supported. The color components must be in either <tt>RGB</tt> or <tt>BGR</tt> order within the pixel. </p>
+<p>'r' for red, 'g' for green, 'b' for blue, and 'a' for alpha return a (surface-width, surface-height) view of a single color component within a surface: a color plane. Color components are unsigned bytes. Both 24-bit and 32-bit surfaces support 'r', 'g', and 'b'. Only 32-bit surfaces with <tt>SRCALPHA</tt> support 'a'. </p>
+<p>This method implicitly locks the Surface. The lock will be released, once the returned view object is deleted. </p>
+<p>New in pygame <tt>1.9.2</tt>. </p>
+<!--COMMENTS:Surface.get_view--> &nbsp;<br> 
 <br></ul>
 
 
