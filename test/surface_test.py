@@ -1,4 +1,3 @@
-import gc
 if __name__ == '__main__':
     import sys
     import os
@@ -371,7 +370,6 @@ class SurfaceTypeTest(unittest.TestCase):
         v = s.get_view()
         self.assert_(s.get_locked())
         del v
-        gc.collect()
         self.assert_(not s.get_locked())
 
         # Check invalid view kind values.

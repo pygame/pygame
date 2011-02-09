@@ -1,4 +1,3 @@
-import gc
 if __name__ == '__main__':
     import sys
     import os
@@ -545,7 +544,6 @@ class SurfarrayModuleTest (unittest.TestCase):
             surf.unlock()
             self.failUnless(surf.get_locked())
             del arr
-            gc.collect()
             self.failIf(surf.get_locked())
             self.failUnlessEqual(surf.get_locks(), ())
             self._assert_surface(surf)
@@ -576,7 +574,6 @@ class SurfarrayModuleTest (unittest.TestCase):
             surf.unlock()
             self.failUnless(surf.get_locked())
             del arr
-            gc.collect()
             self.failIf(surf.get_locked())
             self.failUnlessEqual(surf.get_locks(), ())
             self._assert_surface(surf)
@@ -632,7 +629,6 @@ class SurfarrayModuleTest (unittest.TestCase):
                                  "posn: (%i, %i)" % (x, y))
 
         del arr
-        gc.collect()
         self.failIf(surf.get_locked())
         self.failUnlessEqual(surf.get_locks(), ())
 
@@ -692,7 +688,6 @@ class SurfarrayModuleTest (unittest.TestCase):
                 self.failUnlessEqual(arr[x, y], plane[i])
 
             del arr
-            gc.collect()
             self.failIf(surf.get_locked())
             self.failUnlessEqual(surf.get_locks(), ())
 

@@ -1,7 +1,6 @@
 import sys
 import re
 import weakref
-import gc
 if __name__ == '__main__':
     import os
     pkg_dir = os.path.split(os.path.abspath(__file__))[0]
@@ -49,7 +48,6 @@ class ViewTest(unittest.TestCase):
         weak_v = weakref.ref(v)
         self.assert_(weak_v() is v)
         del v
-        gc.collect()
         self.assert_(weak_v() is None)
 
     def test_gc(self):
@@ -68,19 +66,16 @@ class ViewTest(unittest.TestCase):
         v = View(c, p, d)
         weak_v = weakref.ref(v)
         del c, p, d
-        gc.collect()
         self.assert_(weak_c() is not None)
         self.assert_(weak_p() is not None)
         self.assert_(weak_d() is not None)
         del v
-        gc.collect()
         self.assert_(weak_v() is None)
         self.assert_(weak_c() is None)
         self.assert_(weak_p() is None)
         self.assert_(weak_d() is None)
         self.assert_(weak_r0() is not None)
         del r[0]
-        gc.collect()
         self.assert_(weak_r0() is None)
         
     def test_c_api(self):
