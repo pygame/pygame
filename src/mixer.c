@@ -30,9 +30,6 @@
 #include "mixer.h"
 #include "pgarrinter.h"
 
-#define EXPORT_BUFFER 0 /* Don't export a buffer interface until the new */
-                        /* buffer protocol is formalized (Python 3.3 ?). */
-
 #if !defined(EXPORT_BUFFER)
 #define EXPORT_BUFFER HAVE_NEW_BUFPROTO
 #endif
@@ -907,6 +904,7 @@ snd_getbuffer(PyObject *obj, Py_buffer *view, int flags)
                 PyErr_NoMemory();
                 return -1;
             }
+	    view->internal = shape;
             if (fortran_order) {
                 shape[0] = channels;
                 shape[ndim - 1] = samples;
@@ -945,9 +943,9 @@ snd_getbuffer(PyObject *obj, Py_buffer *view, int flags)
 static void
 snd_releasebuffer(PyObject *obj, Py_buffer *view)
 {
-    if (view->shape) {
-        PyMem_Free(view->shape);
-        view->shape = 0;
+    if (view->internal) {
+        PyMem_Free(view->internal);
+        view->internal = 0;
     }
 }
 
