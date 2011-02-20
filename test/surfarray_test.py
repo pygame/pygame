@@ -498,7 +498,8 @@ class SurfarrayModuleTest (unittest.TestCase):
             return
 
         arr3d = self._make_src_array3d(uint8)
-        targets = [self._make_surface(16),
+        targets = [self._make_surface(8),
+                   self._make_surface(16),
                    self._make_surface(16, srcalpha=True),
                    self._make_surface(24),
                    self._make_surface(32),
@@ -514,10 +515,7 @@ class SurfarrayModuleTest (unittest.TestCase):
                                       surf.get_bitsize(), surf.get_flags()))
 
         # Exception checks
-        def do_map_array(surf, arr):
-            pygame.surfarray.map_array(surf, arr)
-
-        self.failUnlessRaises(ValueError, do_map_array,
+        self.failUnlessRaises(ValueError, pygame.surfarray.map_array,
                               self._make_surface(32),
                               self._make_array2d(uint8))
 

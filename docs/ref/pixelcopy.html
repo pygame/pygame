@@ -1,0 +1,106 @@
+
+<html>
+<title>pixelcopy - Pygame Documentation</title>
+<body bgcolor=#aaeebb text=#000000 link=#331111 vlink=#331111>
+
+
+<table cellpadding=0 cellspacing=0 border=0 style='border: 3px solid black;' width='100%'>
+<tr>
+<td bgcolor='#c2fc20' style='padding: 6px;' align=center valign=center><a href='http://www.pygame.org/'><img src='../pygame_tiny.gif' border=0 width=200 height=60></a><br><b>pygame documentation</b></td>
+<td bgcolor='#6aee28' style='border-left: 3px solid black; padding: 6px;' align=center valign=center>
+	||&nbsp;
+	<a href=http://www.pygame.org>Pygame Home</a> &nbsp;||&nbsp;
+	<a href=../index.html>Help Contents</a> &nbsp;||
+	<a href=index.html>Reference Index</a> &nbsp;||
+	<br>&nbsp;<br>
+	
+<a href="camera.html">Camera</a>&nbsp;||&nbsp;
+<a href="cdrom.html">Cdrom</a>&nbsp;||&nbsp;
+<a href="color.html">Color</a>&nbsp;||&nbsp;
+<a href="cursors.html">Cursors</a>&nbsp;||&nbsp;
+<a href="display.html">Display</a>&nbsp;||&nbsp;
+<a href="draw.html">Draw</a>&nbsp;||&nbsp;
+<a href="event.html">Event</a>&nbsp;||&nbsp;
+<a href="examples.html">Examples</a>&nbsp;||&nbsp;
+<a href="font.html">Font</a>&nbsp;||&nbsp;
+<a href="freetype.html">Freetype</a>&nbsp;||&nbsp;
+<a href="gfxdraw.html">Gfxdraw</a>&nbsp;||&nbsp;
+<a href="image.html">Image</a>&nbsp;||&nbsp;
+<a href="joystick.html">Joystick</a>&nbsp;||&nbsp;
+<a href="key.html">Key</a>&nbsp;||&nbsp;
+<a href="locals.html">Locals</a>&nbsp;||&nbsp;
+<a href="mask.html">Mask</a>&nbsp;||&nbsp;
+<a href="math.html">Math</a>&nbsp;||&nbsp;
+<a href="midi.html">Midi</a>&nbsp;||&nbsp;
+<a href="mixer.html">Mixer</a>&nbsp;||&nbsp;
+<a href="mouse.html">Mouse</a>&nbsp;||&nbsp;
+<a href="movie.html">Movie</a>&nbsp;||&nbsp;
+<a href="music.html">Music</a>&nbsp;||&nbsp;
+<a href="overlay.html">Overlay</a>&nbsp;||&nbsp;
+<a href="pixelarray.html">Pixelarray</a>&nbsp;||&nbsp;
+<a href="pixelcopy.html">Pixelcopy</a>&nbsp;||&nbsp;
+<a href="pygame.html">Pygame</a>&nbsp;||&nbsp;
+<a href="rect.html">Rect</a>&nbsp;||&nbsp;
+<a href="scrap.html">Scrap</a>&nbsp;||&nbsp;
+<a href="sndarray.html">Sndarray</a>&nbsp;||&nbsp;
+<a href="sprite.html">Sprite</a>&nbsp;||&nbsp;
+<a href="surface.html">Surface</a>&nbsp;||&nbsp;
+<a href="surfarray.html">Surfarray</a>&nbsp;||&nbsp;
+<a href="tests.html">Tests</a>&nbsp;||&nbsp;
+<a href="time.html">Time</a>&nbsp;||&nbsp;
+<a href="transform.html">Transform</a>
+</td></tr></table>
+<br>
+
+
+<a name="pygame.pixelcopy">
+<big><b>pygame.pixelcopy</big></b><br><ul>
+  <i>pygame module for general pixel array copying</i><br>
+<ul><small><table>
+  <tr><td><a href="pixelcopy.html#pygame.pixelcopy.surface_to_array">pygame.pixelcopy.surface_to_array</a> - <font size=-1>copy surface pixels to an array object</font></td><td>copy surface pixels to an array object</td></tr>
+  <tr><td><a href="pixelcopy.html#pygame.pixelcopy.array_to_surface">pygame.pixelcopy.array_to_surface</a> - <font size=-1>copy an array object to a surface</font></td><td>copy an array object to a surface</td></tr>
+  <tr><td><a href="pixelcopy.html#pygame.pixelcopy.map_array">pygame.pixelcopy.map_array</a> - <font size=-1>copy an array to another array, using surface format</font></td><td>copy an array to another array, using surface format</td></tr>
+  <tr><td><a href="pixelcopy.html#pygame.pixelcopy.make_surface">pygame.pixelcopy.make_surface</a> - <font size=-1>return a new surface with pixels copied from an array</font></td><td>return a new surface with pixels copied from an array</td></tr>
+</table></small></ul>
+<p>The <tt>pygame.pixelcopy</tt> module contains methods for copying between surfaces and objects exporting an array structure interface. </p>
+<p>New in pygame <tt>1.9.2</tt>. </p>
+<!--COMMENTS:pygame.pixelcopy--> &nbsp;<br> 
+
+
+<a name="pygame.pixelcopy.surface_to_array">
+<big><b>pygame.pixelcopy.surface_to_array</big></b><br><ul>
+  <i>copy surface pixels to an array object</i><br>
+  <tt>pygame.pixelcopy.surface_to_array(array, surface, kind='P', opaque=255, clear=0): return None</tt><br>
+<p>Copy a surface to an array object. </p>
+<!--COMMENTS:pygame.pixelcopy.surface_to_array--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.pixelcopy.array_to_surface">
+<big><b>pygame.pixelcopy.array_to_surface</big></b><br><ul>
+  <i>copy an array object to a surface</i><br>
+  <tt>pygame.pixelcopy.array_to_surface(<surface>, <array>): returns None</tt><br>
+<p>Copy an array to a surface. </p>
+<!--COMMENTS:pygame.pixelcopy.array_to_surface--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.pixelcopy.map_array">
+<big><b>pygame.pixelcopy.map_array</big></b><br><ul>
+  <i>copy an array to another array, using surface format</i><br>
+  <tt>pygame.pixelcopy.map_array(<array>, <array>, <surface>): return None</tt><br>
+<p>Copy one array to another. </p>
+<!--COMMENTS:pygame.pixelcopy.map_array--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.pixelcopy.make_surface">
+<big><b>pygame.pixelcopy.make_surface</big></b><br><ul>
+  <i>return a new surface with pixels copied from an array</i><br>
+  <tt>pygame.pixelcopy.make_surface(<array>): returns <surface></tt><br>
+<p>Return a new surface. </p>
+<!--COMMENTS:pygame.pixelcopy.make_surface--> &nbsp;<br> 
+<br></ul>
+<br></ul>
+
+</body></html>
