@@ -67,7 +67,7 @@
 #define UNICODE_DEF_FS_ERROR "surrogateescape"
 #endif
 
-#else /* #if PY_VERSION_HEX >= 0x03000000 */
+#else /* #if PY_MAJOR_VERSION >= 3 */
 
 #define PY3 0
 
@@ -108,8 +108,6 @@
 /* Defaults for unicode file path encoding */
 #define UNICODE_DEF_FS_CODEC Py_FileSystemDefaultEncoding
 #define UNICODE_DEF_FS_ERROR "strict"
-
-#define PyObject_Free _PyObject_Del
 
 #endif /* #if PY_VERSION_HEX >= 0x03000000 */
 

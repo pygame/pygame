@@ -142,6 +142,8 @@ except (ImportError,IOError):sprite=MissingModule("sprite", geterror(), 1)
 try: import pygame.threads
 except (ImportError,IOError):threads=MissingModule("threads", geterror(), 1)
 
+try: import pygame.pixelcopy
+except (ImportError,IOError):pixelcopy=MissingModule("pixelcopy", geterror(), 1)
 
 def warn_unwanted_files():
     """ Used to warn about unneeded old files.
