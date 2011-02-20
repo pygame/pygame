@@ -7,13 +7,13 @@ try:
 except ImportError:
     try:
         import Numeric
-        import pygame._numericsurfarray
+        import pygame.pixelcopy
         import pygame._arraysurfarray
     except ImportError:
         exclude = True
 else:
     try:
-        import pygame._arraysurfarray
+        import pygame.pixelcopy
     except ImportError:
         exclude = True
 
