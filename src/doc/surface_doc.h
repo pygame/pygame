@@ -35,6 +35,8 @@
 
 #define DOC_SURFACESETAT "Surface.set_at((x, y), Color): return None\nset the color value for a single pixel"
 
+#define DOC_SURFACEGETATMAPPED "Surface.get_at((x, y)): return Color\nget the mapped color value at a single pixel"
+
 #define DOC_SURFACEGETPALETTE "Surface.get_palette(): return [RGB, RGB, RGB, ...]\nget the color index palette for an 8bit Surface"
 
 #define DOC_SURFACEGETPALETTEAT "Surface.get_palette_at(index): return RGB\nget the color for a single entry in a palette"
@@ -212,6 +214,12 @@ get the color value at a single pixel
 Surface.set_at
  Surface.set_at((x, y), Color): return None
 set the color value for a single pixel
+
+
+
+Surface.get_at_mapped
+ Surface.get_at((x, y)): return Color
+get the mapped color value at a single pixel
 
 
 

@@ -575,12 +575,12 @@ class SurfaceTypeTest(unittest.TestCase):
 
         self.fail() 
 
-    def todo_test_get_at(self):
+    def test_get_at(self):
         surf = pygame.Surface((2, 2), 0, 24)
-        c00 = pygame.Color((1, 2, 3))
-        c01 = pygame.Color((5, 10, 15))
-        c10 = pygame.Color((100, 50, 0))
-        c11 = pygame.Color((4, 5, 6))
+        c00 = pygame.Color(1, 2, 3)
+        c01 = pygame.Color(5, 10, 15)
+        c10 = pygame.Color(100, 50, 0)
+        c11 = pygame.Color(4, 5, 6)
         surf.set_at((0, 0), c00)
         surf.set_at((0, 1), c01)
         surf.set_at((1, 0), c10)
@@ -592,7 +592,17 @@ class SurfaceTypeTest(unittest.TestCase):
         self.failUnlessEqual(surf.get_at((1, 0)), c10)
         self.failUnlessEqual(surf.get_at((1, 1)), c11)
         for p in [(-1, 0), (0, -1), (2, 0), (0, 2)]:
-            self.failUnlessRaises(IndexError, surf.get_at, p, "%s" % (p,))
+            self.failUnlessRaises(IndexError, surf.get_at, p)
+
+    def test_get_at_mapped(self):
+        color = pygame.Color(10, 20, 30)
+        for bitsize in [8, 16, 24, 32]:
+            surf = pygame.Surface((2, 2), 0, bitsize)
+            surf.fill(color)
+            pixel = surf.get_at_mapped((0, 0))
+            self.failUnlessEqual(pixel, surf.map_rgb(color),
+                                 "%i != %i, bitsize: %i" %
+                                 (pixel, surf.map_rgb(color), bitsize))
 
     def todo_test_get_bitsize(self):
 
@@ -1158,8 +1168,6 @@ class SurfaceGetViewTest (unittest.TestCase):
         v = s.get_view('3')
         inter = ArrayInterface(v)
         flags = PAI_ALIGNED | PAI_NOTSWAPPED | PAI_WRITEABLE
-        if (s.get_pitch() == s_w * 3):
-            flags |= PAI_CONTIGUOUS
         self.assertEqual(inter.two, 2)
         self.assertEqual(inter.nd, 3)
         self.assertEqual(inter.typekind, as_bytes('u'))
@@ -1209,7 +1217,7 @@ class SurfaceGetViewTest (unittest.TestCase):
         self._check_interface_2D(pygame.Surface((5, 7), 0, 16))
         self._check_interface_2D(pygame.Surface((5, 7), pygame.SRCALPHA, 16))
         self._check_interface_3D(pygame.Surface((5, 7), 0, 24))
-        self._check_interface_3D(pygame.Surface((8, 4), 0, 24)) # contiguous
+        self._check_interface_3D(pygame.Surface((8, 4), 0, 24)) # No gaps
         self._check_interface_2D(pygame.Surface((5, 7), 0, 32))
         self._check_interface_3D(pygame.Surface((5, 7), 0, 32))
         self._check_interface_2D(pygame.Surface((5, 7), pygame.SRCALPHA, 32))
