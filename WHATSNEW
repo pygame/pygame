@@ -4,6 +4,19 @@
 # BREAK = change breaks existing code
 # BUG    = fixed a bug that was (or could have been) crashing
 
+[SVN 3000-3001] Feb 20, 2011
+    Merge the surface_buffer branch back into trunk.
+    1) Rename module _arraysurfarray to pixelcopy, which implements
+       array_to_surface (blit_surface), surface_to_array, and map_array.
+    2) Reimplement _numpysurfarray methods array2d, array3d, array_alpha,
+       array_colorkey, and map_surface to use new pixelcopy methods.
+
+    Module pixelcopy reimplements _numericsurfarray using generic
+    copy methods that accept objects exporting an array struct interface.
+    Along with Surface views, it moves almost all of the _numpysurfarray.py
+    functionality into C code. pixelcopy is also independent of NumPy,
+    so can work with other array like objects.
+
 [SVN 2983-2987] Feb 08, 2011
     Merge the buffer branch back into trunk.
     1) Extend pygame.mixer.Sound() to load samples from an object with

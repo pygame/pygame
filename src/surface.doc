@@ -386,6 +386,24 @@ This function will temporarily lock and unlock the Surface as needed.
 
 
 
+get_at_mapped
+get the mapped color value at a single pixel
+Surface.get_at((x, y)): return Color
+
+Return the integer value of the given pixel.
+If the pixel position is outside the area of the Surface an IndexError 
+exception will be raised.
+
+This method is intended for Pygame unit testing.
+It unlikely has any use in an application.
+
+This function will temporarily lock and unlock the Surface as needed.
+
+New in pygame. 1.9.2.
+<END>
+
+
+
 get_palette
 get the color index palette for an 8bit Surface
 Surface.get_palette(): return [RGB, RGB, RGB, ...]
