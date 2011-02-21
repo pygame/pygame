@@ -57,8 +57,9 @@ static void surface_move (Uint8 *src, Uint8 *dst, int h,
 
 static PyObject *surf_get_at (PyObject *self, PyObject *args);
 static PyObject *surf_set_at (PyObject *self, PyObject *args);
+static PyObject *surf_get_at_mapped (PyObject *self, PyObject *args);
 static PyObject *surf_map_rgb (PyObject *self, PyObject *args);
-static PyObject *surf_unmap_rgb (PyObject *self, PyObject *arg); 
+static PyObject *surf_unmap_rgb (PyObject *self, PyObject *arg);
 static PyObject *surf_lock (PyObject *self);
 static PyObject *surf_unlock (PyObject *self);
 static PyObject *surf_mustlock (PyObject *self);
@@ -109,8 +110,6 @@ static PyObject *surf_get_pixels_address (PyObject *self,
 static int surf_view_kind(PyObject *obj, void *view_kind_vptr);
 #if PY3
 static void surf_arraystruct_capsule_destr(PyObject *capsule);
-#else
-static void surf_arraystruct_cobject_destr(void *inter_vp);
 #endif
 static void surf_view_destr(PyObject *view);
 static PyObject *_raise_get_view_ndim_error(int bitsize, SurfViewKind kind);
@@ -127,6 +126,8 @@ static struct PyMethodDef surface_methods[] =
 {
     { "get_at", surf_get_at, METH_VARARGS, DOC_SURFACEGETAT },
     { "set_at", surf_set_at, METH_VARARGS, DOC_SURFACESETAT },
+    { "get_at_mapped", surf_get_at_mapped, METH_VARARGS,
+      DOC_SURFACEGETATMAPPED },
     { "map_rgb", surf_map_rgb, METH_VARARGS, DOC_SURFACEMAPRGB },
     { "unmap_rgb", surf_unmap_rgb, METH_O, DOC_SURFACEUNMAPRGB },
 
@@ -717,6 +718,61 @@ surf_set_at (PyObject *self, PyObject *args)
     if (!PySurface_Unlock (self))
         return NULL;
     Py_RETURN_NONE;
+}
+
+static PyObject*
+surf_get_at_mapped (PyObject *self, PyObject *args)
+{
+    SDL_Surface *surf = PySurface_AsSurface (self);
+    SDL_PixelFormat *format = surf->format;
+    Uint8 *pixels = (Uint8 *) surf->pixels;
+    int x, y;
+    Uint32 color;
+    Uint8 *pix;
+
+    if (!PyArg_ParseTuple (args, "(ii)", &x, &y))
+        return NULL;
+    if (!surf)
+        return RAISE (PyExc_SDLError, "display Surface quit");
+
+    if (surf->flags & SDL_OPENGL)
+        return RAISE (PyExc_SDLError, "Cannot call on OPENGL Surfaces");
+
+    if (x < 0 || x >= surf->w || y < 0 || y >= surf->h)
+        return RAISE (PyExc_IndexError, "pixel index out of range");
+
+    if (format->BytesPerPixel < 1 || format->BytesPerPixel > 4)
+        return RAISE (PyExc_RuntimeError, "invalid color depth for surface");
+
+    if (!PySurface_Lock (self))
+        return NULL;
+
+    pixels = (Uint8 *) surf->pixels;
+
+    switch (format->BytesPerPixel)
+    {
+    case 1:
+        color = (Uint32)*((Uint8 *) pixels + y * surf->pitch + x);
+        break;
+    case 2:
+        color = (Uint32)*((Uint16 *) (pixels + y * surf->pitch) + x);
+        break;
+    case 3:
+        pix = ((Uint8 *) (pixels + y * surf->pitch) + x * 3);
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+        color = (pix[0]) + (pix[1] << 8) + (pix[2] << 16);
+#else
+        color = (pix[2]) + (pix[1] << 8) + (pix[0] << 16);
+#endif
+        break;
+    default:                  /* case 4: */
+        color = *((Uint32 *) (pixels + y * surf->pitch) + x);
+        break;
+    }
+    if (!PySurface_Unlock (self))
+        return NULL;
+
+    return PyInt_FromLong ((long)color);
 }
 
 static PyObject*
@@ -2169,11 +2225,19 @@ _raise_get_view_ndim_error(int bitsize, SurfViewKind kind) {
 static PyObject *
 surf_get_view(PyObject *self, PyObject *args, PyObject *kwds)
 {
+#   define SURF_GET_VIEW_MAXDIM 3
     const int lilendian = (SDL_BYTEORDER == SDL_LIL_ENDIAN);
-    const int maxdim = 3;
+    const int maxdim = SURF_GET_VIEW_MAXDIM; 
+    typedef struct {
+        PyArrayInterface inter;
+        Py_intptr_t shape_mem[SURF_GET_VIEW_MAXDIM];
+        Py_intptr_t strides_mem[SURF_GET_VIEW_MAXDIM];
+    } Interface;
+#   undef SURF_GET_VIEW_MAXDIM
     SurfViewKind view_kind = VIEWKIND_2D;
     int ndim = maxdim;
     PyObject *capsule;
+    Interface *allocation;
     PyArrayInterface *inter;
     SDL_Surface *surface = PySurface_AsSurface(self);
     int pixelsize;
@@ -2196,20 +2260,17 @@ surf_get_view(PyObject *self, PyObject *args, PyObject *kwds)
         return RAISE(PyExc_SDLError, "display Surface quit");
     }
 
-    inter = PyMem_New(PyArrayInterface, 1);
-    if (!inter) {
+    allocation = PyMem_New(Interface, 1);
+    if (!allocation) {
         return PyErr_NoMemory();
     }
-    inter->shape = PyMem_New(Py_intptr_t, 2 * maxdim);
-    if (!inter->shape) {
-        PyMem_Free(inter);
-        return PyErr_NoMemory();
-    }
-    inter->strides = inter->shape + maxdim;
+    inter = (PyArrayInterface *)allocation;
+    inter->shape = allocation->shape_mem;
+    inter->strides = allocation->strides_mem;
 #if PY3
     capsule = PyCapsule_New(inter, 0, surf_arraystruct_capsule_destr);
 #else
-    capsule = PyCObject_FromVoidPtr(inter, surf_arraystruct_cobject_destr);
+    capsule = PyCObject_FromVoidPtr(inter, PyMem_Free);
 #endif
     if (!capsule) {
         PyMem_Free(inter);
@@ -2257,9 +2318,6 @@ surf_get_view(PyObject *self, PyObject *args, PyObject *kwds)
         ndim = 3;
         itemsize = 1;
         shape[2] = 3;
-        if (pixelsize == 3 && strides[1] == shape[0] * pixelsize) {
-            inter->flags |= PAI_CONTIGUOUS;
-        }
         if (surface->format->Rmask == 0xff0000 &&
             surface->format->Gmask == 0x00ff00 &&
             surface->format->Bmask == 0x0000ff)
@@ -2398,19 +2456,7 @@ surf_view_kind(PyObject *obj, void *view_kind_vptr)
 static void
 surf_arraystruct_capsule_destr(PyObject *capsule)
 {
-    PyArrayInterface *inter = PyCapsule_GetPointer(capsule, 0);
-
-    PyMem_Free(inter->shape);
-    PyMem_Free(inter);
-}
-#else
-static void
-surf_arraystruct_cobject_destr(void *inter_vp)
-{
-    PyArrayInterface *inter = (PyArrayInterface *)inter_vp;
-
-    PyMem_Free(inter->shape);
-    PyMem_Free(inter);
+    PyMem_Free(PyCapsule_GetPointer(capsule, 0));
 }
 #endif
 

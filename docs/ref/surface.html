@@ -76,6 +76,7 @@
   <tr><td><a href="surface.html#Surface.get_locks">Surface.get_locks</a> - <font size=-1>Gets the locks for the Surface</font></td><td>Gets the locks for the Surface</td></tr>
   <tr><td><a href="surface.html#Surface.get_at">Surface.get_at</a> - <font size=-1>get the color value at a single pixel</font></td><td>get the color value at a single pixel</td></tr>
   <tr><td><a href="surface.html#Surface.set_at">Surface.set_at</a> - <font size=-1>set the color value for a single pixel</font></td><td>set the color value for a single pixel</td></tr>
+  <tr><td><a href="surface.html#Surface.get_at_mapped">Surface.get_at_mapped</a> - <font size=-1>get the mapped color value at a single pixel</font></td><td>get the mapped color value at a single pixel</td></tr>
   <tr><td><a href="surface.html#Surface.get_palette">Surface.get_palette</a> - <font size=-1>get the color index palette for an 8bit Surface</font></td><td>get the color index palette for an 8bit Surface</td></tr>
   <tr><td><a href="surface.html#Surface.get_palette_at">Surface.get_palette_at</a> - <font size=-1>get the color for a single entry in a palette</font></td><td>get the color for a single entry in a palette</td></tr>
   <tr><td><a href="surface.html#Surface.set_palette">Surface.set_palette</a> - <font size=-1>set the color palette for an 8bit Surface</font></td><td>set the color palette for an 8bit Surface</td></tr>
@@ -309,6 +310,18 @@
 <p>Getting and setting pixels one at a time is generally too slow to be used in a game or realtime situation. </p>
 <p>This function will temporarily lock and unlock the Surface as needed. </p>
 <!--COMMENTS:Surface.set_at--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="Surface.get_at_mapped">
+<big><b>Surface.get_at_mapped</big></b><br><ul>
+  <i>get the mapped color value at a single pixel</i><br>
+  <tt>Surface.get_at((x, y)): return Color</tt><br>
+<p>Return the integer value of the given pixel. If the pixel position is outside the area of the Surface an IndexError exception will be raised. </p>
+<p>This method is intended for Pygame unit testing. It unlikely has any use in an application. </p>
+<p>This function will temporarily lock and unlock the Surface as needed. </p>
+<p>New in pygame. <tt>1.9.2</tt>. </p>
+<!--COMMENTS:Surface.get_at_mapped--> &nbsp;<br> 
 <br></ul>
 
 
