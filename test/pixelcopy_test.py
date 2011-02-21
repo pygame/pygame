@@ -282,7 +282,7 @@ class PixelCopyTestWithArray(unittest.TestCase):
     try:
         import numpy
     except ImportError:
-        __tags__ = ('ignore', 'subprocess_ignore')
+        __tags__ = ['ignore', 'subprocess_ignore']
 
     bitsizes = [8, 16, 32]
 
@@ -297,10 +297,13 @@ class PixelCopyTestWithArray(unittest.TestCase):
                    ((5, 5), 2), ((0, 11), 3), ((4, 6), 3),
                    ((9, 11), 4), ((5, 6), 4)]
 
-    dst_types = [numpy.uint8, numpy.uint16, numpy.uint32]
     try:
-        dst_types.append(numpy.uint64) 
-    except AttributeError:
+        dst_types = [numpy.uint8, numpy.uint16, numpy.uint32]
+        try:    
+            dst_types.append(numpy.uint64) 
+        except AttributeError:
+            pass
+    except NameError:
         pass
 
     def __init__(self, *args, **kwds):
@@ -347,7 +350,10 @@ class PixelCopyTestWithArray(unittest.TestCase):
         pygame.display.quit()
 
     def test_surface_to_array_2d(self):
-        from numpy import empty, dtype
+        try:
+            from numpy import empty, dtype
+        except ImportError:
+            return
 
         palette = self.test_palette
         alpha_color = (0, 0, 0, 128)
@@ -416,7 +422,10 @@ class PixelCopyTestWithArray(unittest.TestCase):
                                      (dp, sp, surf.get_bitsize()))
 
     def test_surface_to_array_3d(self):
-        from numpy import empty, dtype
+        try:
+            from numpy import empty, dtype
+        except ImportError:
+            return
 
         palette = self.test_palette
 
@@ -483,7 +492,10 @@ class PixelCopyTestWithArray(unittest.TestCase):
                                   posn))
         
     def test_map_array(self):
-        from numpy import array, zeros, uint8, int32, alltrue
+        try:
+            from numpy import array, zeros, uint8, int32, alltrue
+        except ImportError:
+            return
 
         surf = pygame.Surface((1, 1), 0, 32)
 
