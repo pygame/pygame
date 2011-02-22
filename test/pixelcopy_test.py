@@ -322,7 +322,6 @@ class PixelcopyModuleTest (unittest.TestCase):
         self.failUnlessRaises(ValueError, do_blit, surf, arr)
 
 class PixelCopyTestWithArray(unittest.TestCase):
-    global numpy
     try:
         import numpy
     except ImportError:
@@ -342,6 +341,8 @@ class PixelCopyTestWithArray(unittest.TestCase):
                    ((9, 11), 4), ((5, 6), 4)]
 
     def __init__(self, *args, **kwds):
+        import numpy
+
         self.dst_types = [numpy.uint8, numpy.uint16, numpy.uint32]
         try:    
             self.dst_types.append(numpy.uint64) 
@@ -582,6 +583,8 @@ class PixelCopyTestWithArray(unittest.TestCase):
         del test_surface_to_array_2d
         del test_surface_to_array_3d
         del test_map_array
+    else:
+        del numpy
 
 if __name__ == '__main__':
     unittest.main()
