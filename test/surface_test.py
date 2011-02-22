@@ -1127,7 +1127,7 @@ class SurfaceGetViewTest (unittest.TestCase):
             flags |= PAI_CONTIGUOUS
         self.assertEqual(inter.two, 2)
         self.assertEqual(inter.nd, 2)
-        self.assertEqual(inter.typekind, as_bytes('u'))
+        self.assertEqual(inter.typekind, 'u')
         self.assertEqual(inter.itemsize, s_bytesize)
         self.assertEqual(inter.shape[0], s_w)
         self.assertEqual(inter.shape[1], s_h)
@@ -1169,7 +1169,7 @@ class SurfaceGetViewTest (unittest.TestCase):
         flags = PAI_ALIGNED | PAI_NOTSWAPPED | PAI_WRITEABLE
         self.assertEqual(inter.two, 2)
         self.assertEqual(inter.nd, 3)
-        self.assertEqual(inter.typekind, as_bytes('u'))
+        self.assertEqual(inter.typekind, 'u')
         self.assertEqual(inter.itemsize, 1)
         self.assertEqual(inter.shape[0], s_w)
         self.assertEqual(inter.shape[1], s_h)
@@ -1202,7 +1202,7 @@ class SurfaceGetViewTest (unittest.TestCase):
         flags = PAI_ALIGNED | PAI_NOTSWAPPED | PAI_WRITEABLE | PAI_FORTRAN
         self.assertEqual(inter.two, 2)
         self.assertEqual(inter.nd, 2)
-        self.assertEqual(inter.typekind, as_bytes('u'))
+        self.assertEqual(inter.typekind, 'u')
         self.assertEqual(inter.itemsize, 1)
         self.assertEqual(inter.shape[0], s_w)
         self.assertEqual(inter.shape[1], s_h)

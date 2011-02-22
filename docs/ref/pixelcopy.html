@@ -60,7 +60,6 @@
   <tr><td><a href="pixelcopy.html#pygame.pixelcopy.surface_to_array">pygame.pixelcopy.surface_to_array</a> - <font size=-1>copy surface pixels to an array object</font></td><td>copy surface pixels to an array object</td></tr>
   <tr><td><a href="pixelcopy.html#pygame.pixelcopy.array_to_surface">pygame.pixelcopy.array_to_surface</a> - <font size=-1>copy an array object to a surface</font></td><td>copy an array object to a surface</td></tr>
   <tr><td><a href="pixelcopy.html#pygame.pixelcopy.map_array">pygame.pixelcopy.map_array</a> - <font size=-1>copy an array to another array, using surface format</font></td><td>copy an array to another array, using surface format</td></tr>
-  <tr><td><a href="pixelcopy.html#pygame.pixelcopy.make_surface">pygame.pixelcopy.make_surface</a> - <font size=-1>return a new surface with pixels copied from an array</font></td><td>return a new surface with pixels copied from an array</td></tr>
 </table></small></ul>
 <p>The <tt>pygame.pixelcopy</tt> module contains methods for copying between surfaces and objects exporting an array structure interface. </p>
 <p>New in pygame <tt>1.9.2</tt>. </p>
@@ -89,17 +88,8 @@
 <big><b>pygame.pixelcopy.map_array</big></b><br><ul>
   <i>copy an array to another array, using surface format</i><br>
   <tt>pygame.pixelcopy.map_array(<array>, <array>, <surface>): return None</tt><br>
-<p>Copy one array to another. </p>
+<p>Map an array of color element values - (w, h, <tt>...</tt>, 3) - to an array of pixels - (w, h) according to the format of <surface>. </p>
 <!--COMMENTS:pygame.pixelcopy.map_array--> &nbsp;<br> 
-<br></ul>
-
-
-<a name="pygame.pixelcopy.make_surface">
-<big><b>pygame.pixelcopy.make_surface</big></b><br><ul>
-  <i>return a new surface with pixels copied from an array</i><br>
-  <tt>pygame.pixelcopy.make_surface(<array>): returns <surface></tt><br>
-<p>Return a new surface. </p>
-<!--COMMENTS:pygame.pixelcopy.make_surface--> &nbsp;<br> 
 <br></ul>
 <br></ul>
 
