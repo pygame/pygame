@@ -109,7 +109,7 @@
 #define UNICODE_DEF_FS_CODEC Py_FileSystemDefaultEncoding
 #define UNICODE_DEF_FS_ERROR "strict"
 
-#endif /* #if PY_VERSION_HEX >= 0x03000000 */
+#endif /* #if PY_MAJOR_VERSION >= 3 */
 
 #define PY2 (!PY3)
 
@@ -161,6 +161,15 @@
 
 #ifndef Py_TPFLAGS_HAVE_CLASS
 #define Py_TPFLAGS_HAVE_CLASS 0
+#endif
+
+#if PY_VERSION_HEX >= 0x03020000
+#define Slice_GET_INDICES_EX(slice, length, start, stop, step, slicelength) \
+    PySlice_GetIndicesEx(slice, length, start, stop, step, slicelength)
+#else
+#define Slice_GET_INDICES_EX(slice, length, start, stop, step, slicelength) \
+    PySlice_GetIndicesEx((PySliceObject *)(slice), length, \
+                         start, stop, step, slicelength)
 #endif
 
 #endif /* #if !defined(PGCOMPAT_H) */

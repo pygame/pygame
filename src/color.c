@@ -22,6 +22,7 @@
 #include "doc/color_doc.h"
 #include "pygame.h"
 #include "pgcompat.h"
+#include "pgarrinter.h"
 #include <ctype.h>
 
 typedef struct
@@ -59,6 +60,11 @@ static PyObject* _color_repr (PyColor *color);
 static PyObject* _color_normalize (PyColor *color);
 static PyObject* _color_correct_gamma (PyColor *color, PyObject *args);
 static PyObject* _color_set_length (PyColor *color, PyObject *args);
+#if PY3
+static void _color_freeview (PyObject *c);
+#else
+#define _color_freeview PyMem_Free
+#endif
 
 /* Getters/setters */
 static PyObject* _color_get_r (PyColor *color, void *closure);
@@ -77,6 +83,7 @@ static PyObject* _color_get_i1i2i3 (PyColor *color, void *closure);
 static int _color_set_i1i2i3 (PyColor *color, PyObject *value, void *closure);
 static PyObject* _color_get_cmy (PyColor *color, void *closure);
 static int _color_set_cmy (PyColor *color, PyObject *value, void *closure);
+static PyObject* _color_get_arraystruct(PyColor *color, void *closure);
 
 /* Number protocol methods */
 static PyObject* _color_add (PyColor *color1, PyColor *color2);
@@ -147,6 +154,8 @@ static PyGetSetDef _color_getsets[] =
       DOC_COLORI1I2I3, NULL },
     { "cmy", (getter) _color_get_cmy, (setter) _color_set_cmy, DOC_COLORCMY,
       NULL },
+    { "__array_struct__", (getter) _color_get_arraystruct, NULL,
+      "array structure interface, read only", NULL },
     { NULL, NULL, NULL, NULL, NULL }
 };
 
@@ -1339,6 +1348,51 @@ _color_set_cmy (PyColor *color, PyObject *value, void *closure)
     return 0;
 }
 
+static PyObject*
+_color_get_arraystruct(PyColor *color, void *closure)
+{
+    typedef struct {
+        PyArrayInterface inter;
+        Py_intptr_t shape[1];
+        Uint8 data[4];
+    } _color_view_t;
+    _color_view_t *view = PyMem_New(_color_view_t, 1);
+    PyObject *cobj;
+
+    if (!view) {
+        return PyErr_NoMemory();
+    }
+    view->shape[0] = color->len;
+    view->data[0] = color->r;
+    view->data[1] = color->g;
+    view->data[2] = color->b;
+    view->data[3] = color->a;
+    view->inter.two = 2;
+    view->inter.nd = 1;
+    view->inter.typekind = 'u';
+    view->inter.itemsize = 1;
+    view->inter.flags = (PAI_CONTIGUOUS | PAI_FORTRAN |
+                         PAI_ALIGNED | PAI_NOTSWAPPED);
+    view->inter.shape = view->shape;
+    view->inter.strides = &(view->inter.itemsize);
+    view->inter.data = view->data;
+    
+    cobj = PyCapsule_New(view, NULL, _color_freeview);
+    if (!cobj) {
+        PyMem_Free(view);
+        return 0;
+    }
+    return cobj;
+}
+
+#if PY3
+static void
+_color_freeview (PyObject *c)
+{
+    PyMem_Free(PyCapsule_GetPointer (c, NULL));
+}
+#endif
+
 /* Number protocol methods */
 
 /**
@@ -1617,8 +1671,10 @@ static PyObject * _color_subscript(PyColor* self, PyObject* item) {
         int len= 4;
         Py_ssize_t start, stop, step, slicelength;
 
-        if (PySlice_GetIndicesEx((PySliceObject*)item, len, &start, &stop, &step, &slicelength) < 0)
+        if (Slice_GET_INDICES_EX(item, len,
+                                 &start, &stop, &step, &slicelength) < 0) {
             return NULL;
+        }
 
         if (slicelength <= 0) {
             return PyTuple_New(0);
@@ -1739,9 +1795,13 @@ _color_slice(register PyColor *a,
 static PyObject*
 _color_richcompare(PyObject *o1, PyObject *o2, int opid)
 {
-    Uint8 rgba1[4], rgba2[4];
+    typedef union {
+        Uint32 pixel;
+        Uint8 bytes[4];
+    } _rgba_t;
+    _rgba_t rgba1, rgba2;
 
-    switch (_coerce_obj (o1, rgba1))
+    switch (_coerce_obj (o1, rgba1.bytes))
     {
     case -1:
 	return 0;
@@ -1750,7 +1810,7 @@ _color_richcompare(PyObject *o1, PyObject *o2, int opid)
     default:
         break;
     }
-    switch (_coerce_obj (o2, rgba2))
+    switch (_coerce_obj (o2, rgba2.bytes))
     {
     case -1:
 	return 0;
@@ -1763,9 +1823,9 @@ _color_richcompare(PyObject *o1, PyObject *o2, int opid)
     switch (opid)
     {
     case Py_EQ:
-        return PyBool_FromLong (*((Uint32 *) rgba1) == *((Uint32 *) rgba2));
+        return PyBool_FromLong (rgba1.pixel == rgba2.pixel);
     case Py_NE:
-        return PyBool_FromLong (*((Uint32 *) rgba1) != *((Uint32 *) rgba2));
+        return PyBool_FromLong (rgba1.pixel != rgba2.pixel);
     default:
         break;
     }

@@ -936,14 +936,19 @@ map_array(PyObject *self, PyObject *args)
     }
     dim_diff = ndim - src_ndim + 1;
     for (dim = dim_diff; dim != ndim; ++dim) {
-        if (src_inter->shape[dim - dim_diff] != shape[dim]) {
+        if (src_inter->shape[dim - dim_diff] == 1) {
+            src_strides[dim] = 0;
+        }
+        else if (src_inter->shape[dim - dim_diff] == shape[dim]) {
+            src_strides[dim] = src_inter->strides[dim - dim_diff];
+        }
+        else {
             PyErr_Format(PyExc_ValueError,
                          "size mismatch between dimension %d of source and"
                          " dimension %d of target",
                          dim - dim_diff, dim);
             goto fail;
         }
-        src_strides[dim] = src_inter->strides[dim - dim_diff];
     }
     for (dim = 0; dim != ndim - 1; ++dim) {
         tar_advances[dim] =

@@ -323,7 +323,8 @@ class SurfaceTypeTest(unittest.TestCase):
         self.assertRaises(Error, s.get_view, '3')
 
         s = pygame.Surface((5, 7), 0, 24)
-        self.assertRaises(Error, s.get_view, '2')
+        v = s.get_view('2')
+        self.assert_(isinstance(v, View))
         v = s.get_view('3')
         self.assert_(isinstance(v, View))
 
@@ -356,8 +357,6 @@ class SurfaceTypeTest(unittest.TestCase):
         s = pygame.Surface((5, 7), 0, 16)
         v = s.get_view()
         self.assert_(isinstance(v, View))
-        s = pygame.Surface((5, 7), 0, 24)
-        self.assertRaises(Error, s.get_view)
 
         # Check keyword arguments.
         s = pygame.Surface((5, 7), 0, 24)
