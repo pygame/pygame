@@ -1076,13 +1076,6 @@ map_array(PyObject *self, PyObject *args)
     return 0;
 }
 
-static PyObject *
-make_surface(PyObject *self, PyObject *arg)
-{
-    PyErr_SetString(PyExc_NotImplementedError, "Not ready yet");
-    return 0;
-}
-
 static PyMethodDef _pixelcopy_methods[] =
 {
     { "array_to_surface", array_to_surface,
@@ -1091,8 +1084,6 @@ static PyMethodDef _pixelcopy_methods[] =
       METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEPIXELCOPYSURFACETOARRAY },
     { "map_array", map_array,
       METH_VARARGS, DOC_PYGAMEPIXELCOPYMAPARRAY },
-    { "make_surface", make_surface,
-      METH_O, DOC_PYGAMEPIXELCOPYMAKESURFACE },
     { 0, 0, 0, 0}
 };
 
