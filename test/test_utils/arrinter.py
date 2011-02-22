@@ -71,6 +71,8 @@ class ArrayInterface(object):
         self._inter = cast(vp, PAI_Ptr)[0]
 
     def __getattr__(self, name):
+        if (name == 'typekind'):
+            return self._inter.typekind.decode('latin-1')
         return getattr(self._inter, name)
 
     def __str__(self):
