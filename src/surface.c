@@ -2300,10 +2300,6 @@ surf_get_view(PyObject *self, PyObject *args, PyObject *kwds)
     switch (view_kind) {
 
     case VIEWKIND_2D:
-        if (pixelsize == 3) {
-            Py_DECREF(view);
-            return _raise_get_view_ndim_error(pixelsize * 8, view_kind);
-        }
         ndim = 2;
         itemsize = pixelsize;
         if (strides[1] == shape[0] * pixelsize) {
