@@ -544,11 +544,8 @@ class SurfarrayModuleTest (unittest.TestCase):
             self._assert_surface(surf)
 
         # Error checks
-        def do_pixels2d(surf):
-            pygame.surfarray.pixels2d(surf)
-
         self.failUnlessRaises(ValueError,
-                              do_pixels2d,
+                              pygame.surfarray.pixels2d,
                               self._make_surface(24))
 
     def test_pixels3d(self):

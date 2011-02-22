@@ -147,6 +147,50 @@ class PixelcopyModuleTest (unittest.TestCase):
                                   posn))
             del view
 
+    def test_map_array(self):
+        targets = [self._make_surface(8),
+                   self._make_surface(16),
+                   self._make_surface(16, srcalpha=True),
+                   self._make_surface(24),
+                   self._make_surface(32),
+                   self._make_surface(32, srcalpha=True),
+                   ]
+        source = pygame.Surface(self.surf_size, 0, 24,
+                                masks=[0xff, 0xff00, 0xff0000, 0])
+        source_view = source.get_view('3')  # (w, h, 3)
+        for t in targets:
+            map_array(t.get_view('2'), source_view, t)
+            for posn, i in self.test_points:
+                sc = t.map_rgb(source.get_at(posn))
+                dc = t.get_at_mapped(posn)
+                self.assertEqual(dc, sc,
+                                 "%s != %s: flags: %i"
+                                 ", bpp: %i, posn: %s" %
+                                 (dc, sc,
+                                  t.get_flags(), t.get_bitsize(),
+                                  posn))
+
+        color = pygame.Color("salmon")
+        color.set_length(3)
+        for t in targets:
+            map_array(t.get_view('2'), color, t)
+            sc = t.map_rgb(color)
+            for posn, i in self.test_points:
+                dc = t.get_at_mapped(posn)
+                self.assertEqual(dc, sc,
+                                 "%s != %s: flags: %i"
+                                 ", bpp: %i, posn: %s" %
+                                 (dc, sc,
+                                  t.get_flags(), t.get_bitsize(),
+                                  posn))
+
+        # mismatched shapes
+        w, h = source.get_size()
+        target = pygame.Surface((w, h + 1), 0, 32)
+        self.assertRaises(ValueError, map_array, target, source, target)
+        target = pygame.Surface((w - 1, h), 0, 32)
+        self.assertRaises(ValueError, map_array, target, source, target)
+
     def todo_test_array_to_surface(self):
         # target surfaces
         targets = [_make_surface(8),
@@ -297,16 +341,12 @@ class PixelCopyTestWithArray(unittest.TestCase):
                    ((5, 5), 2), ((0, 11), 3), ((4, 6), 3),
                    ((9, 11), 4), ((5, 6), 4)]
 
-    try:
-        dst_types = [numpy.uint8, numpy.uint16, numpy.uint32]
+    def __init__(self, *args, **kwds):
+        self.dst_types = [numpy.uint8, numpy.uint16, numpy.uint32]
         try:    
-            dst_types.append(numpy.uint64) 
+            self.dst_types.append(numpy.uint64) 
         except AttributeError:
             pass
-    except NameError:
-        pass
-
-    def __init__(self, *args, **kwds):
         pygame.display.init()
         try:
             unittest.TestCase.__init__(self, *args, **kwds)
@@ -505,12 +545,43 @@ class PixelCopyTestWithArray(unittest.TestCase):
         map_array(target, color, surf)
         self.assert_(alltrue(target == surf.map_rgb(color)))
 
-        # array row stripes
+        # array column stripes
         stripe = array([[2, 5, 7], [11, 19, 23], [37, 53, 101]], uint8)
-        target = zeros((4, 3), int32)
+        target = zeros((4, stripe.shape[0]), int32)
         map_array(target, stripe, surf)
         target_stripe = array([surf.map_rgb(c) for c in stripe], int32)
-        self.assert_(alltrue(target[...] == target_stripe))
+        self.assert_(alltrue(target == target_stripe))
+
+        # array row stripes
+        stripe = array([[[2, 5, 7]],
+                        [[11, 19, 24]],
+                        [[10, 20, 30]],
+                        [[37, 53, 101]]], uint8)
+        target = zeros((stripe.shape[0], 3), int32)
+        map_array(target, stripe, surf)
+        target_stripe = array([[surf.map_rgb(c)] for c in stripe[:,0]], int32)
+        self.assert_(alltrue(target == target_stripe))
+
+        # mismatched shape
+        w = 4
+        h = 5
+        source = zeros((w, h, 3), uint8)
+        target = zeros((w,), int32)
+        self.assertRaises(ValueError, map_array, target, source, surf)
+        source = zeros((12, w, h + 1), uint8)
+        self.assertRaises(ValueError, map_array, target, source, surf)
+        source = zeros((12, w - 1, 5), uint8)
+        self.assertRaises(ValueError, map_array, target, source, surf)
+
+    try:
+        numpy
+    except NameError:
+        # Ensure no methods requiring numpy are run when
+        # pixelcopy_test is '__main__'.
+        del __init__
+        del test_surface_to_array_2d
+        del test_surface_to_array_3d
+        del test_map_array
 
 if __name__ == '__main__':
     unittest.main()

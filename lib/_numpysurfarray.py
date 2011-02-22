@@ -90,7 +90,11 @@ def pixels2d(surface):
     the array (see the Surface.lock - lock the Surface memory for pixel
     access method).
     """
-    return numpy_array(surface.get_view('2'), copy=False)
+    try:
+        return numpy_array(surface.get_view('2'), copy=False)
+    except ValueError:
+        raise ValueError("bit depth %i unsupported for 2D reference array" %
+                         (surface.get_bitsize(),))
 
 def array3d(surface):
     """pygame.numpyarray.array3d(Surface): return array
@@ -105,7 +109,7 @@ def array3d(surface):
     (see the Surface.lock - lock the Surface memory for pixel access
     method).
     """
-    w, h = surface.get_size() 
+    w, h = surface.get_size()
     array = numpy.empty((w, h, 3), numpy.uint8)
     surface_to_array(array, surface)
     return array
