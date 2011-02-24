@@ -33,6 +33,7 @@ typedef struct
     Uint8 g;
     Uint8 b;
     Uint8 a;
+    Uint8 data[4];
     Uint8 len;
 } PyColor;
 
@@ -306,10 +307,10 @@ static PyTypeObject PyColor_Type =
     ((o)->ob_type == (PyTypeObject *) &PyColor_Type)
 
 #define RGB_EQUALS(x,y)                          \
-    ((((PyColor *)x)->r == ((PyColor *)y)->r) && \
-     (((PyColor *)x)->g == ((PyColor *)y)->g) && \
-     (((PyColor *)x)->b == ((PyColor *)y)->b) && \
-     (((PyColor *)x)->a == ((PyColor *)y)->a))
+    ((((PyColor *)x)->data[0] == ((PyColor *)y)->data[0]) && \
+     (((PyColor *)x)->data[1] == ((PyColor *)y)->data[1]) && \
+     (((PyColor *)x)->data[2] == ((PyColor *)y)->data[2]) && \
+     (((PyColor *)x)->data[3] == ((PyColor *)y)->data[3]))
 
 static int
 _get_double (PyObject *obj, double *val)
@@ -554,10 +555,10 @@ _coerce_obj (PyObject *obj, Uint8 rgba[])
 {
     if (PyType_IsSubtype (obj->ob_type, &PyColor_Type))
     {
-	rgba[0] = ((PyColor *) obj)->r;
-	rgba[1] = ((PyColor *) obj)->g;
-	rgba[2] = ((PyColor *) obj)->b;
-	rgba[3] = ((PyColor *) obj)->a;
+	rgba[0] = ((PyColor *) obj)->data[0];
+	rgba[1] = ((PyColor *) obj)->data[1];
+	rgba[2] = ((PyColor *) obj)->data[2];
+	rgba[3] = ((PyColor *) obj)->data[3];
 	return 1;
     }
     else if (PyType_IsSubtype (obj->ob_type, &PyTuple_Type))
@@ -590,10 +591,10 @@ _color_new_internal_length (PyTypeObject *type, Uint8 rgba[], Uint8 length)
     if (!color)
         return NULL;
 
-    color->r = rgba[0];
-    color->g = rgba[1];
-    color->b = rgba[2];
-    color->a = rgba[3];
+    color->data[0] = rgba[0];
+    color->data[1] = rgba[1];
+    color->data[2] = rgba[2];
+    color->data[3] = rgba[3];
     color->len = length;
 
     return color;
@@ -713,7 +714,7 @@ _color_repr (PyColor *color)
     /* Max. would be (255, 255, 255, 255) */
     char buf[21];
     PyOS_snprintf (buf, sizeof (buf), "(%d, %d, %d, %d)",
-        color->r, color->g, color->b, color->a);
+        color->data[0], color->data[1], color->data[2], color->data[3]);
     return Text_FromUTF8 (buf);
 }
 
@@ -724,10 +725,10 @@ static PyObject*
 _color_normalize (PyColor *color)
 {
     double rgba[4];
-    rgba[0] = color->r / 255.0;
-    rgba[1] = color->g / 255.0;
-    rgba[2] = color->b / 255.0;
-    rgba[3] = color->a / 255.0;
+    rgba[0] = color->data[0] / 255.0;
+    rgba[1] = color->data[1] / 255.0;
+    rgba[2] = color->data[2] / 255.0;
+    rgba[3] = color->data[3] / 255.0;
     return Py_BuildValue ("(ffff)", rgba[0], rgba[1], rgba[2], rgba[3]);
 }
 
@@ -744,10 +745,10 @@ _color_correct_gamma (PyColor *color, PyObject *args)
     if (!PyArg_ParseTuple (args, "d", &_gamma))
         return NULL;
 
-    frgba[0] = pow (color->r / 255.0, _gamma);
-    frgba[1] = pow (color->g / 255.0, _gamma);
-    frgba[2] = pow (color->b / 255.0, _gamma);
-    frgba[3] = pow (color->a / 255.0, _gamma);
+    frgba[0] = pow (color->data[0] / 255.0, _gamma);
+    frgba[1] = pow (color->data[1] / 255.0, _gamma);
+    frgba[2] = pow (color->data[2] / 255.0, _gamma);
+    frgba[3] = pow (color->data[3] / 255.0, _gamma);
 
     /* visual studio doesn't have a round func, so doing it with +.5 and
      * truncaction */
@@ -768,7 +769,7 @@ _color_correct_gamma (PyColor *color, PyObject *args)
 static PyObject*
 _color_get_r (PyColor *color, void *closure)
 {
-    return PyInt_FromLong (color->r);
+    return PyInt_FromLong (color->data[0]);
 }
 
 /**
@@ -785,7 +786,7 @@ _color_set_r (PyColor *color, PyObject *value, void *closure)
         PyErr_SetString (PyExc_ValueError, "color exceeds allowed range");
         return -1;
     }
-    color->r = c;
+    color->data[0] = c;
     return 0;
 }
 
@@ -795,7 +796,7 @@ _color_set_r (PyColor *color, PyObject *value, void *closure)
 static PyObject*
 _color_get_g (PyColor *color, void *closure)
 {
-    return PyInt_FromLong (color->g);
+    return PyInt_FromLong (color->data[1]);
 }
 
 /**
@@ -812,7 +813,7 @@ _color_set_g (PyColor *color, PyObject *value, void *closure)
         PyErr_SetString (PyExc_ValueError, "color exceeds allowed range");
         return -1;
     }
-    color->g = c;
+    color->data[1] = c;
     return 0;
 }
 
@@ -822,7 +823,7 @@ _color_set_g (PyColor *color, PyObject *value, void *closure)
 static PyObject*
 _color_get_b (PyColor *color, void *closure)
 {
-    return PyInt_FromLong (color->b);
+    return PyInt_FromLong (color->data[2]);
 }
 
 /**
@@ -839,7 +840,7 @@ _color_set_b (PyColor *color, PyObject *value, void *closure)
         PyErr_SetString (PyExc_ValueError, "color exceeds allowed range");
         return -1;
     }
-    color->b = c;
+    color->data[2] = c;
     return 0;
 }
 
@@ -849,7 +850,7 @@ _color_set_b (PyColor *color, PyObject *value, void *closure)
 static PyObject*
 _color_get_a (PyColor *color, void *closure)
 {
-    return PyInt_FromLong (color->a);
+    return PyInt_FromLong (color->data[3]);
 }
 
 /**
@@ -866,7 +867,7 @@ _color_set_a (PyColor *color, PyObject *value, void *closure)
         PyErr_SetString (PyExc_ValueError, "color exceeds allowed range");
         return -1;
     }
-    color->a = c;
+    color->data[3] = c;
     return 0;
 }
 
@@ -881,10 +882,10 @@ _color_get_hsva (PyColor *color, void *closure)
     double minv, maxv, diff;
 
     /* Normalize */
-    frgb[0] = color->r / 255.0;
-    frgb[1] = color->g / 255.0;
-    frgb[2] = color->b / 255.0;
-    frgb[3] = color->a / 255.0;
+    frgb[0] = color->data[0] / 255.0;
+    frgb[1] = color->data[1] / 255.0;
+    frgb[2] = color->data[2] / 255.0;
+    frgb[3] = color->data[3] / 255.0;
 
     maxv = MAX (MAX (frgb[0], frgb[1]), frgb[2]);
     minv = MIN (MIN (frgb[0], frgb[1]), frgb[2]);
@@ -978,7 +979,7 @@ _color_set_hsva (PyColor *color, PyObject *value, void *closure)
         Py_DECREF (item);
     }
 
-    color->a = (Uint8) ((hsva[3] / 100.0f) * 255);
+    color->data[3] = (Uint8) ((hsva[3] / 100.0f) * 255);
 
     s = hsva[1] / 100.f;
     v = hsva[2] / 100.f;
@@ -992,34 +993,34 @@ _color_set_hsva (PyColor *color, PyObject *value, void *closure)
     switch (hi)
     {
     case 0:
-        color->r = (Uint8) (v * 255);
-        color->g = (Uint8) (t * 255);
-        color->b = (Uint8) (p * 255);
+        color->data[0] = (Uint8) (v * 255);
+        color->data[1] = (Uint8) (t * 255);
+        color->data[2] = (Uint8) (p * 255);
         break;
     case 1:
-        color->r = (Uint8) (q * 255);
-        color->g = (Uint8) (v * 255);
-        color->b = (Uint8) (p * 255);
+        color->data[0] = (Uint8) (q * 255);
+        color->data[1] = (Uint8) (v * 255);
+        color->data[2] = (Uint8) (p * 255);
         break;
     case 2:
-        color->r = (Uint8) (p * 255);
-        color->g = (Uint8) (v * 255);
-        color->b = (Uint8) (t * 255);
+        color->data[0] = (Uint8) (p * 255);
+        color->data[1] = (Uint8) (v * 255);
+        color->data[2] = (Uint8) (t * 255);
         break;
     case 3:
-        color->r = (Uint8) (p * 255);
-        color->g = (Uint8) (q * 255);
-        color->b = (Uint8) (v * 255);
+        color->data[0] = (Uint8) (p * 255);
+        color->data[1] = (Uint8) (q * 255);
+        color->data[2] = (Uint8) (v * 255);
         break;
     case 4:
-        color->r = (Uint8) (t * 255);
-        color->g = (Uint8) (p * 255);
-        color->b = (Uint8) (v * 255);
+        color->data[0] = (Uint8) (t * 255);
+        color->data[1] = (Uint8) (p * 255);
+        color->data[2] = (Uint8) (v * 255);
         break;
     case 5:
-        color->r = (Uint8) (v * 255);
-        color->g = (Uint8) (p * 255);
-        color->b = (Uint8) (q * 255);
+        color->data[0] = (Uint8) (v * 255);
+        color->data[1] = (Uint8) (p * 255);
+        color->data[2] = (Uint8) (q * 255);
         break;
     default:
         PyErr_SetString (PyExc_OverflowError,
@@ -1041,10 +1042,10 @@ _color_get_hsla (PyColor *color, void *closure)
     double minv, maxv, diff;
 
     /* Normalize */
-    frgb[0] = color->r / 255.0;
-    frgb[1] = color->g / 255.0;
-    frgb[2] = color->b / 255.0;
-    frgb[3] = color->a / 255.0;
+    frgb[0] = color->data[0] / 255.0;
+    frgb[1] = color->data[1] / 255.0;
+    frgb[2] = color->data[2] / 255.0;
+    frgb[3] = color->data[3] / 255.0;
 
     maxv = MAX (MAX (frgb[0], frgb[1]), frgb[2]);
     minv = MIN (MIN (frgb[0], frgb[1]), frgb[2]);
@@ -1146,16 +1147,16 @@ _color_set_hsla (PyColor *color, PyObject *value, void *closure)
         Py_DECREF (item);
     }
 
-    color->a = (Uint8) ((hsla[3] / 100.f) * 255);
+    color->data[3] = (Uint8) ((hsla[3] / 100.f) * 255);
 
     s = hsla[1] / 100.f;
     l = hsla[2] / 100.f;
 
     if (s == 0)
     {
-        color->r = (Uint8) (l * 255);
-        color->g = (Uint8) (l * 255);
-        color->b = (Uint8) (l * 255);
+        color->data[0] = (Uint8) (l * 255);
+        color->data[1] = (Uint8) (l * 255);
+        color->data[2] = (Uint8) (l * 255);
         return 0;
     }
 
@@ -1175,13 +1176,13 @@ _color_set_hsla (PyColor *color, PyObject *value, void *closure)
         h -= 1;
 
     if (h < 1./6.f)
-        color->r = (Uint8) ((p + ((q - p) * 6 * h)) * 255);
+        color->data[0] = (Uint8) ((p + ((q - p) * 6 * h)) * 255);
     else if (h < 0.5f)
-        color->r = (Uint8) (q * 255);
+        color->data[0] = (Uint8) (q * 255);
     else if (h < 2./3.f)
-        color->r = (Uint8) ((p + ((q - p) * 6 * (2./3.f - h))) * 255);
+        color->data[0] = (Uint8) ((p + ((q - p) * 6 * (2./3.f - h))) * 255);
     else
-        color->r = (Uint8) (p * 255);
+        color->data[0] = (Uint8) (p * 255);
 
     /* Calculate G */
     h = ht;
@@ -1191,13 +1192,13 @@ _color_set_hsla (PyColor *color, PyObject *value, void *closure)
         h -= 1;
 
     if (h < 1./6.f)
-        color->g = (Uint8) ((p + ((q - p) * 6 * h)) * 255);
+        color->data[1] = (Uint8) ((p + ((q - p) * 6 * h)) * 255);
     else if (h < 0.5f)
-        color->g = (Uint8) (q * 255);
+        color->data[1] = (Uint8) (q * 255);
     else if (h < 2./3.f)
-        color->g = (Uint8) ((p + ((q - p) * 6 * (2./3.f - h))) * 255);
+        color->data[1] = (Uint8) ((p + ((q - p) * 6 * (2./3.f - h))) * 255);
     else
-        color->g = (Uint8) (p * 255);
+        color->data[1] = (Uint8) (p * 255);
 
     /* Calculate B */
     h = ht - onethird;
@@ -1207,13 +1208,13 @@ _color_set_hsla (PyColor *color, PyObject *value, void *closure)
         h -= 1;
 
     if (h < 1./6.f)
-        color->b = (Uint8) ((p + ((q - p) * 6 * h)) * 255);
+        color->data[2] = (Uint8) ((p + ((q - p) * 6 * h)) * 255);
     else if (h < 0.5f)
-        color->b = (Uint8) (q * 255);
+        color->data[2] = (Uint8) (q * 255);
     else if (h < 2./3.f)
-        color->b = (Uint8) ((p + ((q - p) * 6 * (2./3.f - h))) * 255);
+        color->data[2] = (Uint8) ((p + ((q - p) * 6 * (2./3.f - h))) * 255);
     else
-        color->b = (Uint8) (p * 255);
+        color->data[2] = (Uint8) (p * 255);
 
     return 0;
 }
@@ -1225,9 +1226,9 @@ _color_get_i1i2i3 (PyColor *color, void *closure)
     double frgb[3];
 
     /* Normalize */
-    frgb[0] = color->r / 255.0;
-    frgb[1] = color->g / 255.0;
-    frgb[2] = color->b / 255.0;
+    frgb[0] = color->data[0] / 255.0;
+    frgb[1] = color->data[1] / 255.0;
+    frgb[2] = color->data[2] / 255.0;
     
     i1i2i3[0] = (frgb[0] + frgb[1] + frgb[2]) / 3.0f;
     i1i2i3[1] = (frgb[0] - frgb[2]) / 2.0f;
@@ -1280,9 +1281,9 @@ _color_set_i1i2i3 (PyColor *color, PyObject *value, void *closure)
     ar = 2 * i1i2i3[1] + ab;
     ag = 3 * i1i2i3[0] - ar - ab;
 
-    color->r = (Uint8) (ar * 255);
-    color->g = (Uint8) (ag * 255);
-    color->b = (Uint8) (ab * 255);
+    color->data[0] = (Uint8) (ar * 255);
+    color->data[1] = (Uint8) (ag * 255);
+    color->data[2] = (Uint8) (ab * 255);
 
     return 0;
 }
@@ -1294,9 +1295,9 @@ _color_get_cmy (PyColor *color, void *closure)
     double frgb[3];
 
     /* Normalize */
-    frgb[0] = color->r / 255.0;
-    frgb[1] = color->g / 255.0;
-    frgb[2] = color->b / 255.0;
+    frgb[0] = color->data[0] / 255.0;
+    frgb[1] = color->data[1] / 255.0;
+    frgb[2] = color->data[2] / 255.0;
     
     cmy[0] = 1.0 - frgb[0];
     cmy[1] = 1.0 - frgb[1];
@@ -1341,9 +1342,9 @@ _color_set_cmy (PyColor *color, PyObject *value, void *closure)
     }
     Py_DECREF (item);
     
-    color->r = (Uint8) ((1.0 - cmy[0]) * 255);
-    color->g = (Uint8) ((1.0 - cmy[1]) * 255);
-    color->b = (Uint8) ((1.0 - cmy[2]) * 255);
+    color->data[0] = (Uint8) ((1.0 - cmy[0]) * 255);
+    color->data[1] = (Uint8) ((1.0 - cmy[1]) * 255);
+    color->data[2] = (Uint8) ((1.0 - cmy[2]) * 255);
 
     return 0;
 }
@@ -1354,7 +1355,6 @@ _color_get_arraystruct(PyColor *color, void *closure)
     typedef struct {
         PyArrayInterface inter;
         Py_intptr_t shape[1];
-        Uint8 data[4];
     } _color_view_t;
     _color_view_t *view = PyMem_New(_color_view_t, 1);
     PyObject *cobj;
@@ -1363,10 +1363,6 @@ _color_get_arraystruct(PyColor *color, void *closure)
         return PyErr_NoMemory();
     }
     view->shape[0] = color->len;
-    view->data[0] = color->r;
-    view->data[1] = color->g;
-    view->data[2] = color->b;
-    view->data[3] = color->a;
     view->inter.two = 2;
     view->inter.nd = 1;
     view->inter.typekind = 'u';
@@ -1375,7 +1371,7 @@ _color_get_arraystruct(PyColor *color, void *closure)
                          PAI_ALIGNED | PAI_NOTSWAPPED);
     view->inter.shape = view->shape;
     view->inter.strides = &(view->inter.itemsize);
-    view->inter.data = view->data;
+    view->inter.data = color->data;
     
     cobj = PyCapsule_New(view, NULL, _color_freeview);
     if (!cobj) {
@@ -1402,10 +1398,10 @@ static PyObject*
 _color_add (PyColor *color1, PyColor *color2)
 {
     Uint8 rgba[4];
-    rgba[0] = MIN (color1->r + color2->r, 255);
-    rgba[1] = MIN (color1->g + color2->g, 255);
-    rgba[2] = MIN (color1->b + color2->b, 255);
-    rgba[3] = MIN (color1->a + color2->a, 255);
+    rgba[0] = MIN (color1->data[0] + color2->data[0], 255);
+    rgba[1] = MIN (color1->data[1] + color2->data[1], 255);
+    rgba[2] = MIN (color1->data[2] + color2->data[2], 255);
+    rgba[3] = MIN (color1->data[3] + color2->data[3], 255);
     return (PyObject*) _color_new_internal (&PyColor_Type, rgba);
 }
 
@@ -1416,10 +1412,10 @@ static PyObject*
 _color_sub (PyColor *color1, PyColor *color2)
 {
     Uint8 rgba[4];
-    rgba[0] = MAX (color1->r - color2->r, 0);
-    rgba[1] = MAX (color1->g - color2->g, 0);
-    rgba[2] = MAX (color1->b - color2->b, 0);
-    rgba[3] = MAX (color1->a - color2->a, 0);
+    rgba[0] = MAX (color1->data[0] - color2->data[0], 0);
+    rgba[1] = MAX (color1->data[1] - color2->data[1], 0);
+    rgba[2] = MAX (color1->data[2] - color2->data[2], 0);
+    rgba[3] = MAX (color1->data[3] - color2->data[3], 0);
     return (PyObject*) _color_new_internal (&PyColor_Type, rgba);
 }
 
@@ -1430,10 +1426,10 @@ static PyObject*
 _color_mul (PyColor *color1, PyColor *color2)
 {
     Uint8 rgba[4];
-    rgba[0] = MIN (color1->r * color2->r, 255);
-    rgba[1] = MIN (color1->g * color2->g, 255);
-    rgba[2] = MIN (color1->b * color2->b, 255);
-    rgba[3] = MIN (color1->a * color2->a, 255);
+    rgba[0] = MIN (color1->data[0] * color2->data[0], 255);
+    rgba[1] = MIN (color1->data[1] * color2->data[1], 255);
+    rgba[2] = MIN (color1->data[2] * color2->data[2], 255);
+    rgba[3] = MIN (color1->data[3] * color2->data[3], 255);
     return (PyObject*) _color_new_internal (&PyColor_Type, rgba);
 }
 
@@ -1444,14 +1440,14 @@ static PyObject*
 _color_div (PyColor *color1, PyColor *color2)
 {
     Uint8 rgba[4] = { 0, 0, 0, 0 };
-    if (color2->r != 0)
-        rgba[0] = color1->r / color2->r;
-    if (color2->g != 0)
-        rgba[1] = color1->g / color2->g;
-    if (color2->b)
-        rgba[2] = color1->b / color2->b;
-    if (color2->a)
-        rgba[3] = color1->a / color2->a;
+    if (color2->data[0] != 0)
+        rgba[0] = color1->data[0] / color2->data[0];
+    if (color2->data[1] != 0)
+        rgba[1] = color1->data[1] / color2->data[1];
+    if (color2->data[2])
+        rgba[2] = color1->data[2] / color2->data[2];
+    if (color2->data[3])
+        rgba[3] = color1->data[3] / color2->data[3];
     return (PyObject*) _color_new_internal (&PyColor_Type, rgba);
 }
 
@@ -1462,10 +1458,10 @@ static PyObject*
 _color_mod (PyColor *color1, PyColor *color2)
 {
     Uint8 rgba[4];
-    rgba[0] = color1->r % color2->r;
-    rgba[1] = color1->g % color2->g;
-    rgba[2] = color1->b % color2->b;
-    rgba[3] = color1->a % color2->a;
+    rgba[0] = color1->data[0] % color2->data[0];
+    rgba[1] = color1->data[1] % color2->data[1];
+    rgba[2] = color1->data[2] % color2->data[2];
+    rgba[3] = color1->data[3] % color2->data[3];
     return (PyObject*) _color_new_internal (&PyColor_Type, rgba);
 }
 
@@ -1476,10 +1472,10 @@ static PyObject*
 _color_inv (PyColor *color)
 {
     Uint8 rgba[4];
-    rgba[0] = 255 - color->r;
-    rgba[1] = 255 - color->g;
-    rgba[2] = 255 - color->b;
-    rgba[3] = 255 - color->a;
+    rgba[0] = 255 - color->data[0];
+    rgba[1] = 255 - color->data[1];
+    rgba[2] = 255 - color->data[2];
+    rgba[3] = 255 - color->data[3];
     return (PyObject*) _color_new_internal (&PyColor_Type, rgba);
 }
 
@@ -1506,8 +1502,8 @@ _color_coerce (PyObject **pv, PyObject **pw)
 static PyObject*
 _color_int (PyColor *color)
 {
-    Uint32 tmp = (color->r << 24) + (color->g << 16) + 
-                 (color->b << 8) + color->a;
+    Uint32 tmp = (color->data[0] << 24) + (color->data[1] << 16) + 
+                 (color->data[2] << 8) + color->data[3];
 #if !PY3
     if (tmp < LONG_MAX)
         return PyInt_FromLong ((long) tmp);
@@ -1521,8 +1517,10 @@ _color_int (PyColor *color)
 static PyObject*
 _color_long (PyColor *color)
 {
-    Uint32 tmp = (color->r << 24) + (color->g << 16) + (color->b << 8) +
-        color->a;
+    Uint32 tmp = ((color->data[0] << 24) +
+                  (color->data[1] << 16) +
+                  (color->data[2] << 8) +
+                  color->data[3]);
     return PyLong_FromUnsignedLong (tmp);
 }
 
@@ -1532,8 +1530,10 @@ _color_long (PyColor *color)
 static PyObject*
 _color_float (PyColor *color)
 {
-    Uint32 tmp = (color->r << 24) + (color->g << 16) + (color->b << 8) +
-        color->a;
+    Uint32 tmp = ((color->data[0] << 24) +
+                  (color->data[1] << 16) +
+                  (color->data[2] << 8) +
+                  color->data[3]);
     return PyFloat_FromDouble ((double) tmp);
 }
 
@@ -1545,8 +1545,10 @@ static PyObject*
 _color_oct (PyColor *color)
 {
     char buf[100];
-    Uint32 tmp = (color->r << 24) + (color->g << 16) + (color->b << 8) +
-        color->a;
+    Uint32 tmp = ((color->data[0] << 24) +
+                  (color->data[1] << 16) +
+                  (color->data[2] << 8) +
+                  color->data[3]);
 
     if (tmp < LONG_MAX)
         PyOS_snprintf (buf, sizeof (buf), "0%lo", (unsigned long) tmp);
@@ -1562,8 +1564,10 @@ static PyObject*
 _color_hex (PyColor *color)
 {
     char buf[100];
-    Uint32 tmp = (color->r << 24) + (color->g << 16) + (color->b << 8) +
-        color->a;
+    Uint32 tmp = ((color->data[0] << 24) +
+                  (color->data[1] << 16) +
+                  (color->data[2] << 8) +
+                  color->data[3]);
     if (tmp < LONG_MAX)
         PyOS_snprintf (buf, sizeof (buf), "0x%lx", (unsigned long) tmp);
     else
@@ -1628,13 +1632,13 @@ _color_item (PyColor *color, Py_ssize_t _index)
     switch (_index)
     {
     case 0:
-        return PyInt_FromLong (color->r);
+        return PyInt_FromLong (color->data[0]);
     case 1:
-        return PyInt_FromLong (color->g);
+        return PyInt_FromLong (color->data[1]);
     case 2:
-        return PyInt_FromLong (color->b);
+        return PyInt_FromLong (color->data[2]);
     case 3:
-        return PyInt_FromLong (color->a);
+        return PyInt_FromLong (color->data[3]);
     default:
         return RAISE (PyExc_IndexError, "invalid index");
     }
@@ -1748,21 +1752,21 @@ _color_slice(register PyColor *a,
         /* printf("2 ilow :%d:, ihigh:%d: len:%d:\n", ilow, ihigh, len); */
         
         if(ilow == 0) {
-            c1 = a->r;
-            c2 = a->g;
-            c3 = a->b;
-            c4 = a->a;
+            c1 = a->data[0];
+            c2 = a->data[1];
+            c3 = a->data[2];
+            c4 = a->data[3];
         } else if(ilow == 1) {
-            c1 = a->g;
-            c2 = a->b;
-            c3 = a->a;
+            c1 = a->data[1];
+            c2 = a->data[2];
+            c3 = a->data[3];
 
         } else if(ilow == 2) {
-            c1 = a->b;
-            c2 = a->a;
+            c1 = a->data[2];
+            c2 = a->data[3];
 
         } else if(ilow == 3) {
-            c1 = a->a;
+            c1 = a->data[3];
         }
 
 
@@ -1860,10 +1864,10 @@ RGBAFromColorObj (PyObject *color, Uint8 rgba[])
 {
     if (PyColor_Check (color))
     {
-        rgba[0] = ((PyColor *) color)->r;
-        rgba[1] = ((PyColor *) color)->g;
-        rgba[2] = ((PyColor *) color)->b;
-        rgba[3] = ((PyColor *) color)->a;
+        rgba[0] = ((PyColor *) color)->data[0];
+        rgba[1] = ((PyColor *) color)->data[1];
+        rgba[2] = ((PyColor *) color)->data[2];
+        rgba[3] = ((PyColor *) color)->data[3];
         return 1;
     }
     else

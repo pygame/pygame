@@ -4,7 +4,18 @@
 # BREAK = change breaks existing code
 # BUG    = fixed a bug that was (or could have been) crashing
 
-[SVN 3000-3001] Feb 20, 2011
+[SVN 3006] Feb 24, 2011
+    [BUG] Fix hanging pointer problem in color.c.
+    Add deprecation warning for Numeric in surfarray and sndarray.
+
+[SVN 3003-3005] Feb 21-24, 2011
+    Enhance array support in pixelcopy methods. map_array now accepts
+    a three byte integer for target array. Surface.get_view now
+    allows a 2D view for 24 bitsized arrays, even though not accepted
+    by numpy. Color objects now export an array struct interface.
+    Various bug fixes for Python 3.1.
+
+[SVN 3000-3002] Feb 20, 2011
     Merge the surface_buffer branch back into trunk.
     1) Rename module _arraysurfarray to pixelcopy, which implements
        array_to_surface (blit_surface), surface_to_array, and map_array.
