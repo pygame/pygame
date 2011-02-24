@@ -79,12 +79,12 @@
 <p>The arrays are indexed by the <tt>X</tt> axis first, followed by the <tt>Y</tt> axis. Arrays that treat the pixels as a single integer are referred to as <tt>2D</tt> arrays. This module can also separate the red, green, and blue color values into separate indices. These types of arrays are referred to as <tt>3D</tt> arrays, and the last index is 0 for red, 1 for green, and 2 for blue. </p>
 <p>Supported array systems are </p>
 <pre>  numpy
-  numeric
-</pre><p>The default will be numpy, if installed. Otherwise, Numeric will be set as default if installed. If neither numpy nor Numeric are installed, the module will raise an ImportError. </p>
+  numeric (deprecated; to be removed in Pygame 1.9.3.)
+</pre><p>The default will be numpy, if installed. Otherwise, Numeric will be set as default if installed, and a deprecation warning will be issued. If neither numpy nor Numeric are installed, the module will raise an ImportError. </p>
 <p>The array type to use can be changed at runtime using the use_arraytype () method, which requires one of the above types as string. </p>
 <p>Note: numpy and Numeric are not completely compatible. Certain array manipulations, which work for one type, might behave differently or even completely break for the other. </p>
-<p>Additionally, in contrast to Numeric numpy does use unsigned 16-bit integers. Images with 16-bit data will be treated as unsigned integers. Numeric instead uses signed integers for the representation, which is important to keep in mind, if you use the module's functions and wonder about the values. </p>
-<p>The support of numpy is new in pygame <tt>1.8</tt>. </p>
+<p>Additionally, in contrast to Numeric, numpy does use unsigned 16-bit integers. Images with 16-bit data will be treated as unsigned integers. Numeric instead uses signed integers for the representation, which is important to keep in mind, if you use the module's functions and wonder about the values. </p>
+<p>The support of numpy is new in Pygame <tt>1.8</tt>. Official Numeric deprecation begins in Pygame <tt>1.9.2</tt>. </p>
 <!--COMMENTS:pygame.surfarray--> &nbsp;<br> 
 
 
@@ -228,7 +228,7 @@
   <i>Sets the array system to be used for surface arrays</i><br>
   <tt>pygame.surfarray.use_arraytype (arraytype): return None</tt><br>
 <p>Uses the requested array type for the module functions. Currently supported array types are: </p>
-<pre>  numeric
+<pre>  numeric (deprecated; will be removed in Pygame 1.9.3.)
   numpy
 </pre><p>If the requested type is not available, a ValueError will be raised. </p>
 <p>New in pygame <tt>1.8</tt>. </p>

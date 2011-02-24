@@ -69,11 +69,12 @@
 <p>Each sample is an 8-bit or 16-bit integer, depending on the data format. <tt>A</tt> stereo sound file has two values per sample, while a mono sound file only has one. </p>
 <p>Supported array systems are </p>
 <pre>  numpy
-  numeric
-</pre><p>The default will be numpy, if installed. Otherwise, Numeric will be set as default if installed. If neither numpy nor Numeric are installed, the module will raise an ImportError. </p>
+  numeric (deprecated; to be removed in Pygame 1.9.3.)
+</pre><p>The default will be numpy, if installed. Otherwise, Numeric will be set as default if installed, and a deprecation warning will be issued. If neither numpy nor Numeric are installed, the module will raise an ImportError. </p>
 <p>The array type to use can be changed at runtime using the use_arraytype() method, which requires one of the above types as string. </p>
 <p>Note: numpy and Numeric are not completely compatible. Certain array manipulations, which work for one type, might behave differently or even completely break for the other. </p>
 <p>Additionally, in contrast to Numeric numpy can use unsigned 16-bit integers. Sounds with 16-bit data will be treated as unsigned integers, if the sound sample type requests this. Numeric instead always uses signed integers for the representation, which is important to keep in mind, if you use the module's functions and wonder about the values. </p>
+<p>numpy support added in Pygame <tt>1.8</tt> Official Numeric deprecation begins in Pygame <tt>1.9.2</tt>. </p>
 <!--COMMENTS:pygame.sndarray--> &nbsp;<br> 
 
 
@@ -109,7 +110,7 @@
   <i>Sets the array system to be used for sound arrays</i><br>
   <tt>pygame.sndarray.use_arraytype (arraytype): return None</tt><br>
 <p>Uses the requested array type for the module functions. Currently supported array types are: </p>
-<pre>  numeric
+<pre>  numeric (deprecated; will be removed in Pygame 1.9.3.)
   numpy
 </pre><p>If the requested type is not available, a ValueError will be raised. </p>
 <p>New in pygame <tt>1.8</tt>. </p>

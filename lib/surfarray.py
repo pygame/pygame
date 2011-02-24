@@ -39,11 +39,12 @@ blue.
 Supported array types are
 
   numpy
-  numeric
+  numeric (deprecated; will be removed in Pygame 1.9.3.)
 
 The default will be numpy, if installed. Otherwise, Numeric will be set
-as default if installed. If neither numpy nor Numeric are installed, the
-module will raise an ImportError.
+as default if installed, and a deprecation warning will be issued. If
+neither numpy nor Numeric are installed, the module will raise an
+ImportError.
 
 The array type to use can be changed at runtime using the use_arraytype()
 method, which requires one of the above types as string.
@@ -52,7 +53,7 @@ Note: numpy and Numeric are not completely compatible. Certain array
 manipulations, which work for one type, might behave differently or even
 completely break for the other.
 
-Additionally, in contrast to Numeric numpy does use unsigned 16-bit
+Additionally, in contrast to Numeric, numpy does use unsigned 16-bit
 integers. Images with 16-bit data will be treated as unsigned
 integers. Numeric instead uses signed integers for the representation,
 which is important to keep in mind, if you use the module's functions
@@ -60,6 +61,8 @@ and wonder about the values.
 """
 
 import pygame
+import imp
+import warnings
 
 # Global array type setting. See use_arraytype().
 __arraytype = None
@@ -73,10 +76,15 @@ except ImportError:
     __hasnumpy = False
 
 try:
-    import pygame._numericsurfarray as numericsf
-    __hasnumeric = True
     if not __hasnumpy:
+        import pygame._numericsurfarray as numericsf
         __arraytype = "numeric"
+        warnings.warn(warnings.DeprecationWarning(
+                "Numeric support to be removed in Pygame 1.9.3"))
+    else:
+        f, p, d = imp.find_module('Numeric')
+        f.close()
+    __hasnumeric = True
 except ImportError:
     __hasnumeric = False
 
@@ -335,20 +343,21 @@ def use_arraytype (arraytype):
     Uses the requested array type for the module functions.
     Currently supported array types are:
 
-      numeric 
+      numeric (deprecated; to be removed in Pygame 1.9.3)
       numpy
 
     If the requested type is not available, a ValueError will be raised.
     """
     global __arraytype
+    global numericsf
 
     arraytype = arraytype.lower ()
     if arraytype == "numeric":
         if __hasnumeric:
+            import pygame._numericsurfarray as numericsf
             __arraytype = arraytype
         else:
             raise ValueError("Numeric arrays are not available")
-        
     elif arraytype == "numpy":
         if __hasnumpy:
             __arraytype = arraytype
