@@ -153,7 +153,6 @@ perhaps make a clean copy from "Setup.in".""")
 #python 3.x: remove modules not yet ported
 if sys.version_info >= (3, 0, 0):
     python3_skip = ['scrap',
-                    '_camera',
                     '_movie',
                     '_numericsurfarray',
                     '_numericsndarray',
