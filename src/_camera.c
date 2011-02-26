@@ -34,6 +34,7 @@
  */
  
 #include "camera.h"
+#include "pgcompat.h"
 
 /*
 #if defined(__unix__) || !defined(__APPLE__)
@@ -147,7 +148,7 @@ PyObject* list_cameras (PyObject* self, PyObject* arg) {
     # endif
     
     for(i = 0; i < num_devices; i++) {
-        string = PyString_FromString(devices[i]);
+        string = Text_FromUTF8(devices[i]);
         PyList_Append(ret_list, string);
         Py_DECREF(string);
         free(devices[i]);
@@ -1392,20 +1393,19 @@ void camera_dealloc (PyObject* self) {
     free(((PyCameraObject*) self)->device_name);
     PyObject_DEL (self);
 }
-
+/*
 PyObject* camera_getattr(PyObject* self, char* attrname) {
     return Py_FindMethod(cameraobj_builtins, self, attrname);
 }
-
+*/
 PyTypeObject PyCamera_Type = {
-    PyObject_HEAD_INIT(NULL)
-    0,
+    TYPE_HEAD (NULL, 0)
     "Camera",
     sizeof(PyCameraObject),
     0,
     camera_dealloc,
     0,
-    camera_getattr,
+    0,                      /*camera_getattr */
     NULL,			        /*setattr*/
     NULL,			        /*compare*/
     NULL,			        /*repr*/
@@ -1416,7 +1416,24 @@ PyTypeObject PyCamera_Type = {
     (ternaryfunc)NULL,		/*call*/
     (reprfunc)NULL, 		/*str*/
     0L,0L,0L,0L,
-    DOC_PYGAMECAMERACAMERA  /* Documentation string */
+    DOC_PYGAMECAMERACAMERA,  /* Documentation string */
+    0,                          /* tp_traverse */
+    0,                          /* tp_clear */
+    0,                          /* tp_richcompare */
+    0,                          /* tp_weaklistoffset */
+    0,                          /* tp_iter */
+    0,                          /* tp_iternext */
+    cameraobj_builtins,         /* tp_methods */
+    0,                          /* tp_members */
+    0,                          /* tp_getset */
+    0,                          /* tp_base */
+    0,                          /* tp_dict */
+    0,                          /* tp_descr_get */
+    0,                          /* tp_descr_set */
+    0,                          /* tp_dictoffset */
+    0,                          /* tp_init */
+    0,                          /* tp_alloc */
+    0,                          /* tp_new */
 };
 
 PyObject* Camera (PyCameraObject* self, PyObject* arg) {
@@ -1515,25 +1532,49 @@ PyMethodDef camera_builtins[] = {
     {NULL, NULL, 0, NULL }
 };
  
-void init_camera(void) {
-    PyObject *module, *dict;
+MODINIT_DEFINE (_camera) {
+    PyObject *module;
     /* imported needed apis; Do this first so if there is an error
      * the module is not loaded.
      */
+     
+#if PY3
+    static struct PyModuleDef _module = {
+        PyModuleDef_HEAD_INIT,
+        "_camera",
+        DOC_PYGAMECAMERA,
+        -1,
+        camera_builtins,
+        NULL, NULL, NULL, NULL
+    };
+#endif
+
     import_pygame_base();
     if (PyErr_Occurred()) {
-        return;
+        MODINIT_ERROR;
     }
     import_pygame_surface();
     if (PyErr_Occurred()) {
-        return;
+        MODINIT_ERROR;
     }
 
     /* type preparation */
-    PyType_Init(PyCamera_Type);
+    //PyType_Init(PyCamera_Type);
+    PyCamera_Type.tp_new = PyType_GenericNew;
+    if (PyType_Ready (&PyCamera_Type) < 0)
+    {
+        MODINIT_ERROR;
+    }
   
     /* create the module */
+#if PY3
+    module = PyModule_Create(&_module);
+#else
     module = Py_InitModule3("_camera", camera_builtins, DOC_PYGAMECAMERA);
-    dict = PyModule_GetDict(module);
-    PyDict_SetItemString(dict, "CameraType", (PyObject *)&PyCamera_Type);
+#endif
+
+    Py_INCREF(&PyCamera_Type);
+    PyModule_AddObject(module, "CameraType", (PyObject *)&PyCamera_Type);
+
+    MODINIT_RETURN(module);
 }

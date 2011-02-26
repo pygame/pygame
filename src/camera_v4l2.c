@@ -20,6 +20,7 @@
 #if defined(__unix__)
 
 #include "camera.h"
+#include "pgcompat.h"
 
 int v4l2_pixelformat (int fd, struct v4l2_format* fmt, 
                              unsigned long pixelformat);
@@ -133,8 +134,8 @@ PyObject* v4l2_read_raw (PyCameraObject* self)
 
     assert (buf.index < self->n_buffers);
 
-    raw = PyString_FromStringAndSize(self->buffers[buf.index].start, 
-                                     self->buffers[buf.index].length);
+    raw = Bytes_FromStringAndSize(self->buffers[buf.index].start, 
+                                  self->buffers[buf.index].length);
 
     if (-1 == v4l2_xioctl (self->fd, VIDIOC_QBUF, &buf)) {
         PyErr_Format(PyExc_SystemError, "ioctl(VIDIOC_QBUF) failure : %d, %s",
