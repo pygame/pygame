@@ -6,6 +6,7 @@
 //
 
 #import "camera.h"
+#import "pgcompat.h"
 
 
 
@@ -317,7 +318,7 @@ PyObject *mac_read_raw(PyCameraObject *self) {
     PyObject *raw;
     PixMapHandle pixmap_handle = GetGWorldPixMap(self->gworld);
     LockPixels(pixmap_handle);
-    raw = PyString_FromStringAndSize(self->pixels.start, self->pixels.length);
+    raw = Bytes_FromStringAndSize(self->pixels.start, self->pixels.length);
     UnlockPixels(pixmap_handle);
     return raw;
 }

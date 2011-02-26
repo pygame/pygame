@@ -22,7 +22,6 @@
 
 #if defined(__unix__)
     #include <structmember.h>
-    #include <stringobject.h>
     #include <stdio.h>
     #include <stdlib.h>
     #include <string.h>
