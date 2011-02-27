@@ -17,13 +17,15 @@ def list_cameras():
 
 
 def init():
-    global vidcap
-    vidcap = vc
+
 
     try:
         import vidcap as vc
     except ImportError:
         from VideoCapture import vidcap as vc
+        
+    global vidcap
+    vidcap = vc        
 
 
 def quit():
