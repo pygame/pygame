@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 
-"""This example demonstrates creating an image with Numeric
+"""This example demonstrates creating an image with numpy
 python, and displaying that through SDL. You can look at the
-method of importing numeric and pygame.surfarray. This method
+method of importing numpy and pygame.surfarray. This method
 will fail 'gracefully' if it is not available.
 I've tried mixing in a lot of comments where the code might
 not be self explanatory, nonetheless it may still seem a bit
-strange. Learning to use numeric for images like this takes a
+strange. Learning to use numpy for images like this takes a
 bit of learning, but the payoff is extremely fast image
 manipulation in python.
 
@@ -24,12 +24,12 @@ import os, pygame
 from pygame.locals import *
 
 try:
-    from Numeric import *
-    from RandomArray import *
+    from numpy import *
+    from numpy.random import *
 except ImportError:
-    raise SystemExit('This example requires Numeric and the pygame surfarray module')
+    raise SystemExit('This example requires numpy and the pygame surfarray module')
 
-pygame.surfarray.use_arraytype('numeric')
+pygame.surfarray.use_arraytype('numpy')
 
 timer = 0
 def stopwatch(message = None):
@@ -53,12 +53,12 @@ def VertGrad3D(surf, topcolor, bottomcolor):
     diff = bottomcolor - topcolor
     width, height = surf.get_size()
     # create array from 0.0 to 1.0 triplets
-    column = arange(height, typecode=Float)/height
-    column = repeat(column[:, NewAxis], [3], 1)
+    column = arange(height, dtype='float')/height
+    column = repeat(column[:, newaxis], [3], 1)
     # create a single column of gradient
-    column = topcolor + (diff * column).astype(Int)
+    column = topcolor + (diff * column).astype('int')
     # make the column a 3d image column by adding X
-    column = column.astype(UnsignedInt8)[NewAxis,:,:]
+    column = column.astype('uint8')[newaxis,:,:]
     #3d array into 2d array
     column = pygame.surfarray.map_array(surf, column)
     # stretch the column into a full image
