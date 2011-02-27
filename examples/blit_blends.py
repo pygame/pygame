@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# fake additive blending.  Using Numeric.  it doesn't clamp.
+# fake additive blending.  Using NumPy.  it doesn't clamp.
 # press r,g,b
 
 import os, pygame
@@ -19,6 +19,7 @@ data_dir = os.path.join(main_dir, 'data')
 
 def main():
     pygame.init()
+    pygame.mixer.quit() # remove ALSA underflow messages for Debian squeeze
     screen = pygame.display.set_mode((640, 480))
 
     im1= pygame.Surface(screen.get_size())
