@@ -515,6 +515,16 @@ array_to_surface(PyObject *self, PyObject *arg)
     Rloss = format->Rloss; Gloss = format->Gloss; Bloss = format->Bloss;
     Rshift = format->Rshift; Gshift = format->Gshift; Bshift = format->Bshift;
 
+    /* Do any required broadcasting. */
+    if (sizex == 1) {
+        sizex = surf->w;
+        stridex = 0;
+    }
+    if (sizey == 1) {
+        sizey = surf->h;
+        stridey = 0;
+    }
+
     if (sizex != surf->w || sizey != surf->h) {
         Py_DECREF(cobj);
         return RAISE(PyExc_ValueError, "array must match surface dimensions");
