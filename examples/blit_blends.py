@@ -8,9 +8,9 @@ from pygame.locals import *
 
 try:
     import pygame.surfarray
-    import Numeric
+    import numpy
 except:
-    print ("no surfarray for you!  install Numeric")
+    print ("no surfarray for you!  install numpy")
 
 import time
         
@@ -134,10 +134,10 @@ def main():
                 t1 = time.time()
                 im1p = pygame.surfarray.pixels3d(im1)
                 im2p = pygame.surfarray.pixels3d(im2)
-                im1p16 = im1p.astype(Numeric.UInt16)
-                im2p16 = im1p.astype(Numeric.UInt16)
+                im1p16 = im1p.astype(numpy.uint16)
+                im2p16 = im1p.astype(numpy.uint16)
                 im1p16 += im2p16
-                im1p16 = Numeric.minimum(im1p16, 255)
+                im1p16 = numpy.minimum(im1p16, 255)
                 pygame.surfarray.blit_array(im1, im1p16)
 
                 del im1p
