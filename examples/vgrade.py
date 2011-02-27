@@ -10,6 +10,12 @@ strange. Learning to use numpy for images like this takes a
 bit of learning, but the payoff is extremely fast image
 manipulation in python.
 
+For Pygame 1.9.2 and up, this example also showcases a new feature
+of surfarray.blit_surface: array broadcasting. If a source array
+has either a width or height of 1, the array is repeatedly blitted
+to the surface along that dimension to fill the surface. In fact,
+a (1, 1) or (1, 1, 3) array results in a simple surface color fill.
+
 Just so you know how this breaks down. For each sampling of
 time, 30% goes to each creating the gradient and blitting the
 array. The final 40% goes to flipping/updating the display surface
@@ -46,7 +52,7 @@ def stopwatch(message = None):
 
 
 
-def VertGrad3D(surf, topcolor, bottomcolor):
+def VertGradientColumn(surf, topcolor, bottomcolor):
     "creates a new 3d vertical gradient array"
     topcolor = array(topcolor, copy=0)
     bottomcolor = array(bottomcolor, copy=0)
@@ -60,9 +66,7 @@ def VertGrad3D(surf, topcolor, bottomcolor):
     # make the column a 3d image column by adding X
     column = column.astype('uint8')[newaxis,:,:]
     #3d array into 2d array
-    column = pygame.surfarray.map_array(surf, column)
-    # stretch the column into a full image
-    return resize(column, (width, height))
+    return pygame.surfarray.map_array(surf, column)
 
 
 
@@ -70,8 +74,8 @@ def DisplayGradient(surf):
     "choose random colors and show them"
     stopwatch()
     colors = randint(0, 255, (2, 3))
-    grade = VertGrad3D(surf, colors[0], colors[1])
-    pygame.surfarray.blit_array(surf, grade)
+    column = VertGradientColumn(surf, colors[0], colors[1])
+    pygame.surfarray.blit_array(surf, column)
     pygame.display.flip()
     stopwatch('Gradient:')
 
@@ -79,6 +83,7 @@ def DisplayGradient(surf):
 
 def main():
     pygame.init()
+    pygame.mixer.quit() # remove ALSA underflow messages for Debian squeeze
     size = 600, 400
     os.environ['SDL_VIDEO_CENTERED'] = '1'
     screen = pygame.display.set_mode(size, NOFRAME, 0)
