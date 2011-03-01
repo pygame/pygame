@@ -351,7 +351,7 @@ dict_from_event (SDL_Event* event)
 
         //printf("asdf :%d:", event->syswm.msg->event.xevent.type);
         insobj (dict,  "event",
-               Text_FromUTF8AndSize
+               Bytes_FromStringAndSize
                 ((char*) & (event->syswm.msg->event.xevent), sizeof (XEvent)));
 #endif
 
