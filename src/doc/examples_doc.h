@@ -41,6 +41,8 @@
 
 #define DOC_PYGAMEEXAMPLESBLENDFILLMAIN "pygame.examples.blend_fill.main(): return None\ndemonstrate the various surface.fill method blend options"
 
+#define DOC_PYGAMEEXAMPLESBLITBLENDSMAIN "pygame.examples.blit_blends.main(): return None\nuses alternative additive fill to that of surface.fill"
+
 #define DOC_PYGAMEEXAMPLESCURSORSMAIN "pygame.examples.cursors.main(): return None\ndisplay two different custom cursors"
 
 #define DOC_PYGAMEEXAMPLESPIXELARRAYMAIN "pygame.examples.pixelarray.main(): return None\ndisplay various pixelarray generated effects"
@@ -52,6 +54,8 @@
 #define DOC_PYGAMEEXAMPLESSCROLLMAIN "pygame.examples.scroll.main(image_file=None): return None\nrun a Surface.scroll example that shows a magnified image"
 
 #define DOC_PYGAMEEXAMPLESMOVIEPLAYERMAIN "pygame.examples.moveplayer.main(filepath): return None\nplay an MPEG movie"
+
+#define DOC_PYGAMEEXAMPLESCAMERAMAIN "pygame.examples.camera.main(): return None\ndisplay video captured live from an attached camera"
 
 
 
@@ -185,6 +189,12 @@ demonstrate the various surface.fill method blend options
 
 
 
+pygame.examples.blit_blends.main
+ pygame.examples.blit_blends.main(): return None
+uses alternative additive fill to that of surface.fill
+
+
+
 pygame.examples.cursors.main
  pygame.examples.cursors.main(): return None
 display two different custom cursors
@@ -218,6 +228,12 @@ run a Surface.scroll example that shows a magnified image
 pygame.examples.movieplayer.main
  pygame.examples.moveplayer.main(filepath): return None
 play an MPEG movie
+
+
+
+pygame.examples.camera.main
+ pygame.examples.camera.main(): return None
+display video captured live from an attached camera
 
 
 

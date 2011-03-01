@@ -77,12 +77,14 @@
   <tr><td><a href="examples.html#pygame.examples.fastevents.main">pygame.examples.fastevents.main</a> - <font size=-1>stress test the fastevents module</font></td><td>stress test the fastevents module</td></tr>
   <tr><td><a href="examples.html#pygame.examples.overlay.main">pygame.examples.overlay.main</a> - <font size=-1>play a .pgm video using overlays</font></td><td>play a .pgm video using overlays</td></tr>
   <tr><td><a href="examples.html#pygame.examples.blend_fill.main">pygame.examples.blend_fill.main</a> - <font size=-1>demonstrate the various surface.fill method blend options</font></td><td>demonstrate the various surface.fill method blend options</td></tr>
+  <tr><td><a href="examples.html#pygame.examples.blit_blends.main">pygame.examples.blit_blends.main</a> - <font size=-1>uses alternative additive fill to that of surface.fill</font></td><td>uses alternative additive fill to that of surface.fill</td></tr>
   <tr><td><a href="examples.html#pygame.examples.cursors.main">pygame.examples.cursors.main</a> - <font size=-1>display two different custom cursors</font></td><td>display two different custom cursors</td></tr>
   <tr><td><a href="examples.html#pygame.examples.pixelarray.main">pygame.examples.pixelarray.main</a> - <font size=-1>display various pixelarray generated effects</font></td><td>display various pixelarray generated effects</td></tr>
   <tr><td><a href="examples.html#pygame.examples.scaletest.main">pygame.examples.scaletest.main</a> - <font size=-1>interactively scale an image using smoothscale</font></td><td>interactively scale an image using smoothscale</td></tr>
   <tr><td><a href="examples.html#pygame.examples.midi.main">pygame.examples.midi.main</a> - <font size=-1>run a midi example</font></td><td>run a midi example</td></tr>
   <tr><td><a href="examples.html#pygame.examples.scroll.main">pygame.examples.scroll.main</a> - <font size=-1>run a Surface.scroll example that shows a magnified image</font></td><td>run a Surface.scroll example that shows a magnified image</td></tr>
   <tr><td><a href="examples.html#pygame.examples.movieplayer.main">pygame.examples.movieplayer.main</a> - <font size=-1>play an MPEG movie</font></td><td>play an MPEG movie</td></tr>
+  <tr><td><a href="examples.html#pygame.examples.camera.main">pygame.examples.camera.main</a> - <font size=-1>display video captured live from an attached camera</font></td><td>display video captured live from an attached camera</td></tr>
 </table></small></ul>
 <p>These examples should help get you started with pygame. Here is a brief rundown of what you get. The source code for these examples is in the public domain. Feel free to use for your own projects. </p>
 <p>There are several ways to run the examples. First they can be run as stand-alone programs. Second they can be imported and their main() methods called (see below). Finally, the easiest way is to use the python -m option: </p>
@@ -161,7 +163,7 @@
 <big><b>pygame.examples.vgrade.main</big></b><br><ul>
   <i>display a vertical gradient</i><br>
   <tt>pygame.examples.vgrade.main(): return None</tt><br>
-<p>Demonstrates creating a vertical gradient with NumPy python. The app will create a new gradient every half second and report the time needed to create and display the image. If you're not prepared to start working with the NumPy arrays, don't worry about the source for this one :] </p>
+<p>Demonstrates creating a vertical gradient with pixelcopy and NumPy python. The app will create a new gradient every half second and report the time needed to create and display the image. If you're not prepared to start working with the NumPy arrays, don't worry about the source for this one :] </p>
 <!--COMMENTS:pygame.examples.vgrade.main--> &nbsp;<br> 
 <br></ul>
 
@@ -317,6 +319,15 @@
 <br></ul>
 
 
+<a name="pygame.examples.blit_blends.main">
+<big><b>pygame.examples.blit_blends.main</big></b><br><ul>
+  <i>uses alternative additive fill to that of surface.fill</i><br>
+  <tt>pygame.examples.blit_blends.main(): return None</tt><br>
+<p>Fake additive blending. Using NumPy. it doesn't clamp. Press r,g,b Somewhat like blend_fill. </p>
+<!--COMMENTS:pygame.examples.blit_blends.main--> &nbsp;<br> 
+<br></ul>
+
+
 <a name="pygame.examples.cursors.main">
 <big><b>pygame.examples.cursors.main</big></b><br><ul>
   <i>display two different custom cursors</i><br>
@@ -389,6 +400,15 @@
 <p><tt>A</tt> simple movie player that plays an <tt>MPEG</tt> movie in a Pygame window. It showcases the <tt>pygame.movie</tt> module. The window adjusts to the size of the movie image. It is given a boarder to demonstrate that a movie can play autonomously in a sub- window. Also, the file is copied to a file like object to show that not just Python files can be used as a movie source. </p>
 <p>The <tt>pygame.movie</tt> module is problematic and may not work on all systems. It is intended to replace it with an ffmpeg based version. </p>
 <!--COMMENTS:pygame.examples.movieplayer.main--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.examples.camera.main">
+<big><b>pygame.examples.camera.main</big></b><br><ul>
+  <i>display video captured live from an attached camera</i><br>
+  <tt>pygame.examples.camera.main(): return None</tt><br>
+<p><tt>A</tt> simple live video player, it uses the first available camera it finds on the system. </p>
+<!--COMMENTS:pygame.examples.camera.main--> &nbsp;<br> 
 <br></ul>
 <br></ul>
 
