@@ -117,7 +117,7 @@ vgrade.main
 display a vertical gradient
 pygame.examples.vgrade.main(): return None
 
-Demonstrates creating a vertical gradient with
+Demonstrates creating a vertical gradient with pixelcopy and
 NumPy python. The app will create a new gradient every half
 second and report the time needed to create and display the
 image. If you're not prepared to start working with the
@@ -325,6 +325,17 @@ A interactive demo that lets one choose which BLEND_xxx option to apply to a sur
 <END>
 
 
+
+blit_blends.main
+uses alternative additive fill to that of surface.fill
+pygame.examples.blit_blends.main(): return None
+
+Fake additive blending. Using NumPy. it doesn't clamp. Press r,g,b
+Somewhat like blend_fill.
+<END>
+
+
+
 cursors.main
 display two different custom cursors
 pygame.examples.cursors.main(): return None
@@ -425,5 +436,14 @@ Python files can be used as a movie source.
 
 The pygame.movie module is problematic and may not work on all systems. It is
 intended to replace it with an ffmpeg based version.
+<END>
+
+
+
+camera.main
+display video captured live from an attached camera
+pygame.examples.camera.main(): return None
+
+A simple live video player, it uses the first available camera it finds on the system.
 <END>
 <END>
