@@ -57,13 +57,13 @@
 <big><b>pygame.key</big></b><br><ul>
   <i>pygame module to work with the keyboard</i><br>
 <ul><small><table>
-  <tr><td><a href="key.html#pygame.key.get_focused">pygame.key.get_focused</a> - <font size=-1>true if the display is receiving keyboard input from the system</font></td><td>true if the display is receiving keyboard input from the system</td></tr>
-  <tr><td><a href="key.html#pygame.key.get_pressed">pygame.key.get_pressed</a> - <font size=-1>get the state of all keyboard buttons</font></td><td>get the state of all keyboard buttons</td></tr>
-  <tr><td><a href="key.html#pygame.key.get_mods">pygame.key.get_mods</a> - <font size=-1>determine which modifier keys are being held</font></td><td>determine which modifier keys are being held</td></tr>
-  <tr><td><a href="key.html#pygame.key.set_mods">pygame.key.set_mods</a> - <font size=-1>temporarily set which modifier keys are pressed</font></td><td>temporarily set which modifier keys are pressed</td></tr>
-  <tr><td><a href="key.html#pygame.key.set_repeat">pygame.key.set_repeat</a> - <font size=-1>control how held keys are repeated</font></td><td>control how held keys are repeated</td></tr>
-  <tr><td><a href="key.html#pygame.key.get_repeat">pygame.key.get_repeat</a> - <font size=-1>see how held keys are repeated</font></td><td>see how held keys are repeated</td></tr>
-  <tr><td><a href="key.html#pygame.key.name">pygame.key.name</a> - <font size=-1>get the name of a key identifier</font></td><td>get the name of a key identifier</td></tr>
+  <tr><td><a href="key.html#pygame.key.get_focused">pygame.key.get_focused</a></td><td> &mdash; true if the display is receiving keyboard input from the system</td></tr>
+  <tr><td><a href="key.html#pygame.key.get_pressed">pygame.key.get_pressed</a></td><td> &mdash; get the state of all keyboard buttons</td></tr>
+  <tr><td><a href="key.html#pygame.key.get_mods">pygame.key.get_mods</a></td><td> &mdash; determine which modifier keys are being held</td></tr>
+  <tr><td><a href="key.html#pygame.key.set_mods">pygame.key.set_mods</a></td><td> &mdash; temporarily set which modifier keys are pressed</td></tr>
+  <tr><td><a href="key.html#pygame.key.set_repeat">pygame.key.set_repeat</a></td><td> &mdash; control how held keys are repeated</td></tr>
+  <tr><td><a href="key.html#pygame.key.get_repeat">pygame.key.get_repeat</a></td><td> &mdash; see how held keys are repeated</td></tr>
+  <tr><td><a href="key.html#pygame.key.name">pygame.key.name</a></td><td> &mdash; get the name of a key identifier</td></tr>
 </table></small></ul>
 <p>This module contains functions for dealing with the keyboard. </p>
 <p>The event queue gets <tt>pygame.KEYDOWN</tt> and <tt>pygame.KEYUP</tt> events when the keyboard buttons are pressed and released. Both events have a key attribute that is a integer id representing every key on the keyboard. </p>
@@ -215,7 +215,7 @@
 <big><b>pygame.key.get_focused</big></b><br><ul>
   <i>true if the display is receiving keyboard input from the system</i><br>
   <tt>pygame.key.get_focused(): return bool</tt><br>
-<p>This is true when the display window has keyboard focus from the system. If the display needs to ensure it does not lose keyboard focus, it can use <tt><a href="event.html#pygame.event.set_grab">pygame.event.set_grab</a> - <font size=-1>control the sharing of input devices with other applications</font></tt> to grab all input. </p>
+<p>This is true when the display window has keyboard focus from the system. If the display needs to ensure it does not lose keyboard focus, it can use <tt><a href="event.html#pygame.event.set_grab">pygame.event.set_grab</a></tt>&nbsp;&ndash;<font size=-1>control the sharing of input devices with other applications</font>&ndash; to grab all input. </p>
 <!--COMMENTS:pygame.key.get_focused--> &nbsp;<br> 
 <br></ul>
 
@@ -224,8 +224,8 @@
 <big><b>pygame.key.get_pressed</big></b><br><ul>
   <i>get the state of all keyboard buttons</i><br>
   <tt>pygame.key.get_pressed(): return bools</tt><br>
-<p>Returns a sequence of boolean values representing the state of every key on the keyboard. Use the key constant values to index the array. <tt>A</tt> True value means the that button is pressed. </p>
-<p>Getting the list of pushed buttons with this function is not the proper way to handle text entry from the user. You have no way to know the order of keys pressed, and rapidly pushed keys can be completely unnoticed between two calls to <tt><a href="key.html#pygame.key.get_pressed">pygame.key.get_pressed</a> - <font size=-1>get the state of all keyboard buttons</font></tt>. There is also no way to translate these pushed keys into a fully translated character value. See the <tt>pygame.KEYDOWN</tt> events on the event queue for this functionality. </p>
+<p>Returns a sequence of boolean values representing the state of every key on the keyboard. Use the key constant values to index the array. A True value means the that button is pressed. </p>
+<p>Getting the list of pushed buttons with this function is not the proper way to handle text entry from the user. You have no way to know the order of keys pressed, and rapidly pushed keys can be completely unnoticed between two calls to <tt><a href="key.html#pygame.key.get_pressed">pygame.key.get_pressed</a></tt>&nbsp;&ndash;<font size=-1>get the state of all keyboard buttons</font>. There is also no way to translate these pushed keys into a fully translated character value. See the <tt>pygame.KEYDOWN</tt> events on the event queue for this functionality. </p>
 <!--COMMENTS:pygame.key.get_pressed--> &nbsp;<br> 
 <br></ul>
 
@@ -265,7 +265,7 @@
   <tt>pygame.key.get_repeat(): return (delay, interval)</tt><br>
 <p>When the keyboard repeat is enabled, keys that are held down will generate multiple <tt>pygame.KEYDOWN</tt> events. The delay is the number of milliseconds before the first repeated <tt>pygame.KEYDOWN</tt> will be sent. After that another <tt>pygame.KEYDOWN</tt> will be sent every interval milliseconds. </p>
 <p>When pygame is initialized the key repeat is disabled. </p>
-<p>New in pygame <tt>1.8</tt>. </p>
+<p>New in pygame 1.8. </p>
 <!--COMMENTS:pygame.key.get_repeat--> &nbsp;<br> 
 <br></ul>
 

@@ -57,20 +57,20 @@
 <big><b>pygame</big></b><br><ul>
   <i>the top level pygame package</i><br>
 <ul><small><table>
-  <tr><td><a href="pygame.html#pygame.init">pygame.init</a> - <font size=-1>initialize all imported pygame modules</font></td><td>initialize all imported pygame modules</td></tr>
-  <tr><td><a href="pygame.html#pygame.quit">pygame.quit</a> - <font size=-1>uninitialize all pygame modules</font></td><td>uninitialize all pygame modules</td></tr>
-  <tr><td><a href="pygame.html#pygame.error">pygame.error</a> - <font size=-1>standard pygame exception</font></td><td>standard pygame exception</td></tr>
-  <tr><td><a href="pygame.html#pygame.get_error">pygame.get_error</a> - <font size=-1>get the current error message</font></td><td>get the current error message</td></tr>
-  <tr><td><a href="pygame.html#pygame.set_error">pygame.set_error</a> - <font size=-1>set the current error message</font></td><td>set the current error message</td></tr>
-  <tr><td><a href="pygame.html#pygame.get_sdl_version">pygame.get_sdl_version</a> - <font size=-1>get the version number of SDL</font></td><td>get the version number of SDL</td></tr>
-  <tr><td><a href="pygame.html#pygame.get_sdl_byteorder">pygame.get_sdl_byteorder</a> - <font size=-1>get the byte order of SDL</font></td><td>get the byte order of SDL</td></tr>
-  <tr><td><a href="pygame.html#pygame.register_quit">pygame.register_quit</a> - <font size=-1>register a function to be called when pygame quits</font></td><td>register a function to be called when pygame quits</td></tr>
-  <tr><td><a href="pygame.html#pygame.encode_string">pygame.encode_string</a> - <font size=-1>Encode a unicode or bytes object</font></td><td>Encode a unicode or bytes object</td></tr>
-  <tr><td><a href="pygame.html#pygame.encode_file_path">pygame.encode_file_path</a> - <font size=-1>Encode a unicode or bytes object as a file system path</font></td><td>Encode a unicode or bytes object as a file system path</td></tr>
-  <tr><td><a href="pygame.html#pygame.version">pygame.version</a> - <font size=-1>small module containing version information</font></td><td>small module containing version information</td></tr>
+  <tr><td><a href="pygame.html#pygame.init">pygame.init</a></td><td> &mdash; initialize all imported pygame modules</td></tr>
+  <tr><td><a href="pygame.html#pygame.quit">pygame.quit</a></td><td> &mdash; uninitialize all pygame modules</td></tr>
+  <tr><td><a href="pygame.html#pygame.error">pygame.error</a></td><td> &mdash; standard pygame exception</td></tr>
+  <tr><td><a href="pygame.html#pygame.get_error">pygame.get_error</a></td><td> &mdash; get the current error message</td></tr>
+  <tr><td><a href="pygame.html#pygame.set_error">pygame.set_error</a></td><td> &mdash; set the current error message</td></tr>
+  <tr><td><a href="pygame.html#pygame.get_sdl_version">pygame.get_sdl_version</a></td><td> &mdash; get the version number of SDL</td></tr>
+  <tr><td><a href="pygame.html#pygame.get_sdl_byteorder">pygame.get_sdl_byteorder</a></td><td> &mdash; get the byte order of SDL</td></tr>
+  <tr><td><a href="pygame.html#pygame.register_quit">pygame.register_quit</a></td><td> &mdash; register a function to be called when pygame quits</td></tr>
+  <tr><td><a href="pygame.html#pygame.encode_string">pygame.encode_string</a></td><td> &mdash; Encode a unicode or bytes object</td></tr>
+  <tr><td><a href="pygame.html#pygame.encode_file_path">pygame.encode_file_path</a></td><td> &mdash; Encode a unicode or bytes object as a file system path</td></tr>
+  <tr><td><a href="pygame.html#pygame.version">pygame.version</a></td><td> &mdash; small module containing version information</td></tr>
 </table></small></ul>
 <p>The pygame package represents the top-level package for others to use. Pygame itself is broken into many submodules, but this does not affect programs that use Pygame. </p>
-<p>As a convenience, most of the top-level variables in pygame have been placed inside a module named <tt>'pygame.locals'</tt>. This is meant to be used with 'from <tt>pygame.locals</tt> import *', in addition to 'import pygame'. </p>
+<p>As a convenience, most of the top-level variables in pygame have been placed inside a module named 'pygame.locals'. This is meant to be used with 'from <tt>pygame.locals</tt> import *', in addition to 'import pygame'. </p>
 <p>When you 'import pygame' all available pygame submodules are automatically imported. Be aware that some of the pygame modules are considered "optional", and may not be available. In that case, Pygame will provide a placeholder object instead of the module, which can be used to test for availability. </p>
 <!--COMMENTS:pygame--> &nbsp;<br> 
 
@@ -79,9 +79,9 @@
 <big><b>pygame.init</big></b><br><ul>
   <i>initialize all imported pygame modules</i><br>
   <tt>pygame.init(): return (numpass, numfail)</tt><br>
-<p>Initialize all imported Pygame modules. No exceptions will be raised if a module fails, but the total number if successful and failed inits will be returned as a tuple. You can always initialize individual modules manually, but <tt>pygame.init</tt> is a convenient way to get everything started. The init() functions for individual modules will raise exceptions when they fail. </p>
+<p>Initialize all imported Pygame modules. No exceptions will be raised if a module fails, but the total number if successful and failed inits will be returned as a tuple. You can always initialize individual modules manually, but <tt>pygame.init</tt> is a convenient way to get everything started. The <tt>init()</tt> functions for individual modules will raise exceptions when they fail. </p>
 <p>You may want to initalise the different modules seperately to speed up your program or to not use things your game does not. </p>
-<p>It is safe to call this init() more than once: repeated calls will have no effect. This is true even if you have <tt><a href="pygame.html#pygame.quit">pygame.quit</a> - <font size=-1>uninitialize all pygame modules</font></tt> all the modules. </p>
+<p>It is safe to call this <tt>init()</tt> more than once: repeated calls will have no effect. This is true even if you have <tt><a href="pygame.html#pygame.quit">pygame.quit</a></tt>&nbsp;&ndash;<font size=-1>uninitialize all pygame modules</font>&ndash; all the modules. </p>
 <!--COMMENTS:pygame.init--> &nbsp;<br> 
 <br></ul>
 
@@ -129,7 +129,7 @@
   <i>get the version number of SDL</i><br>
   <tt>pygame.get_sdl_version(): return major, minor, patch</tt><br>
 <p>Returns the three version numbers of the <tt>SDL</tt> library. This version is built at compile time. It can be used to detect which features may not be available through Pygame. </p>
-<p>get_sdl_version is new in pygame <tt>1.7.0</tt> </p>
+<p>get_sdl_version is new in pygame 1.7.0 </p>
 <!--COMMENTS:pygame.get_sdl_version--> &nbsp;<br> 
 <br></ul>
 
@@ -139,7 +139,7 @@
   <i>get the byte order of SDL</i><br>
   <tt>pygame.get_sdl_byteorder(): return int</tt><br>
 <p>Returns the byte order of the <tt>SDL</tt> library. It returns <tt>LIL_ENDIAN</tt> for little endian byte order and <tt>BIG_ENDIAN</tt> for big endian byte order. </p>
-<p>get_sdl_byteorder is new in pygame <tt>1.8</tt> </p>
+<p>get_sdl_byteorder is new in pygame 1.8 </p>
 <!--COMMENTS:pygame.get_sdl_byteorder--> &nbsp;<br> 
 <br></ul>
 
@@ -168,7 +168,7 @@
   by PyUnicode_AsEncodedString(). For the default encoding and
   errors values there should be no encoding errors.
 </pre><p>This function is used in encoding file paths. Keyword arguments are supported. </p>
-<p>Added in Pygame <tt>1.9.2</tt> (primarily for use in unit tests) </p>
+<p>Added in Pygame 1.9.2 (primarily for use in unit tests) </p>
 <!--COMMENTS:pygame.encode_string--> &nbsp;<br> 
 <br></ul>
 
@@ -183,7 +183,7 @@
 <pre>  an encoding error. The default is UnicodeEncodeError, as returned
   by PyUnicode_AsEncodedString().
 </pre><p>This function is used to encode file paths in Pygame. Encoding is to the codec as returned by <tt>sys.getfilesystemencoding()</tt>. Keyword arguments are supported. </p>
-<p>Added in Pygame <tt>1.9.2</tt> (primarily for use in unit tests) </p>
+<p>Added in Pygame 1.9.2 (primarily for use in unit tests) </p>
 <!--COMMENTS:pygame.encode_file_path--> &nbsp;<br> 
 <br></ul>
 
@@ -193,8 +193,8 @@
   <i>small module containing version information</i><br>
   <tt>module pygame.version</tt><br>
 <ul><small><table>
-  <tr><td><a href="pygame.html#pygame.version.ver">pygame.version.ver</a> - <font size=-1>version number as a string</font></td><td>version number as a string</td></tr>
-  <tr><td><a href="pygame.html#pygame.version.vernum">pygame.version.vernum</a> - <font size=-1>tupled integers of the version</font></td><td>tupled integers of the version</td></tr>
+  <tr><td><a href="pygame.html#pygame.version.ver">pygame.version.ver</a></td><td> &mdash; version number as a string</td></tr>
+  <tr><td><a href="pygame.html#pygame.version.vernum">pygame.version.vernum</a></td><td> &mdash; tupled integers of the version</td></tr>
 </table></small></ul>
 <p>This module is automatically imported into the pygame package and offers a few variables to check with version of pygame has been imported. </p>
 <!--COMMENTS:pygame.version--> &nbsp;<br> 
@@ -204,7 +204,7 @@
 <big><b>pygame.version.ver</big></b><br><ul>
   <i>version number as a string</i><br>
   <tt>pygame.version.ver = '1.2'</tt><br>
-<p>This is the version represented as a string. It can contain a micro release number as well, <tt>e.g.</tt>, <tt>'1.5.2'</tt> </p>
+<p>This is the version represented as a string. It can contain a micro release number as well, e.g., '1.5.2' </p>
 <!--COMMENTS:pygame.version.ver--> &nbsp;<br> 
 <br></ul>
 

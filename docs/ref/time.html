@@ -57,11 +57,11 @@
 <big><b>pygame.time</big></b><br><ul>
   <i>pygame module for monitoring time</i><br>
 <ul><small><table>
-  <tr><td><a href="time.html#pygame.time.get_ticks">pygame.time.get_ticks</a> - <font size=-1>get the time in milliseconds</font></td><td>get the time in milliseconds</td></tr>
-  <tr><td><a href="time.html#pygame.time.wait">pygame.time.wait</a> - <font size=-1>pause the program for an amount of time</font></td><td>pause the program for an amount of time</td></tr>
-  <tr><td><a href="time.html#pygame.time.delay">pygame.time.delay</a> - <font size=-1>pause the program for an amount of time</font></td><td>pause the program for an amount of time</td></tr>
-  <tr><td><a href="time.html#pygame.time.set_timer">pygame.time.set_timer</a> - <font size=-1>repeatedly create an event on the event queue</font></td><td>repeatedly create an event on the event queue</td></tr>
-  <tr><td><a href="time.html#pygame.time.Clock">pygame.time.Clock</a> - <font size=-1>create an object to help track time</font></td><td>create an object to help track time</td></tr>
+  <tr><td><a href="time.html#pygame.time.get_ticks">pygame.time.get_ticks</a></td><td> &mdash; get the time in milliseconds</td></tr>
+  <tr><td><a href="time.html#pygame.time.wait">pygame.time.wait</a></td><td> &mdash; pause the program for an amount of time</td></tr>
+  <tr><td><a href="time.html#pygame.time.delay">pygame.time.delay</a></td><td> &mdash; pause the program for an amount of time</td></tr>
+  <tr><td><a href="time.html#pygame.time.set_timer">pygame.time.set_timer</a></td><td> &mdash; repeatedly create an event on the event queue</td></tr>
+  <tr><td><a href="time.html#pygame.time.Clock">pygame.time.Clock</a></td><td> &mdash; create an object to help track time</td></tr>
 </table></small></ul>
 <p>Times in pygame are represented in milliseconds (1/1000 seconds). Most platforms have a limited time resolution of around 10 milliseconds. This resolution, in milliseconds, is given in the <tt>TIMER_RESOLUTION</tt> constant. </p>
 <!--COMMENTS:pygame.time--> &nbsp;<br> 
@@ -71,7 +71,7 @@
 <big><b>pygame.time.get_ticks</big></b><br><ul>
   <i>get the time in milliseconds</i><br>
   <tt>pygame.time.get_ticks(): return milliseconds</tt><br>
-<p>Return the number of millisconds since <tt><a href="pygame.html#pygame.init">pygame.init</a> - <font size=-1>initialize all imported pygame modules</font></tt> was called. Before pygame is initialized this will always be 0. </p>
+<p>Return the number of millisconds since <tt><a href="pygame.html#pygame.init">pygame.init</a></tt>&nbsp;&ndash;<font size=-1>initialize all imported pygame modules</font>&ndash; was called. Before pygame is initialized this will always be 0. </p>
 <!--COMMENTS:pygame.time.get_ticks--> &nbsp;<br> 
 <br></ul>
 
@@ -80,7 +80,7 @@
 <big><b>pygame.time.wait</big></b><br><ul>
   <i>pause the program for an amount of time</i><br>
   <tt>pygame.time.wait(milliseconds): return time</tt><br>
-<p>Will pause for a given number of milliseconds. This function sleeps the process to share the processor with other programs. <tt>A</tt> program that waits for even a few milliseconds will consume very little processor time. It is slightly less accurate than the <tt><a href="time.html#pygame.time.delay">pygame.time.delay</a> - <font size=-1>pause the program for an amount of time</font></tt> function. </p>
+<p>Will pause for a given number of milliseconds. This function sleeps the process to share the processor with other programs. A program that waits for even a few milliseconds will consume very little processor time. It is slightly less accurate than the <tt><a href="time.html#pygame.time.delay">pygame.time.delay</a></tt>&nbsp;&ndash;<font size=-1>pause the program for an amount of time</font>&ndash; function. </p>
 <p>This returns the actual number of milliseconds used. </p>
 <!--COMMENTS:pygame.time.wait--> &nbsp;<br> 
 <br></ul>
@@ -90,7 +90,7 @@
 <big><b>pygame.time.delay</big></b><br><ul>
   <i>pause the program for an amount of time</i><br>
   <tt>pygame.time.delay(milliseconds): return time</tt><br>
-<p>Will pause for a given number of milliseconds. This function will use the processor (rather than sleeping) in order to make the delay more accurate than <tt><a href="time.html#pygame.time.wait">pygame.time.wait</a> - <font size=-1>pause the program for an amount of time</font></tt>. </p>
+<p>Will pause for a given number of milliseconds. This function will use the processor (rather than sleeping) in order to make the delay more accurate than <tt><a href="time.html#pygame.time.wait">pygame.time.wait</a></tt>&nbsp;&ndash;<font size=-1>pause the program for an amount of time</font>. </p>
 <p>This returns the actual number of milliseconds used. </p>
 <!--COMMENTS:pygame.time.delay--> &nbsp;<br> 
 <br></ul>
@@ -112,11 +112,11 @@
   <i>create an object to help track time</i><br>
   <tt>pygame.time.Clock(): return Clock</tt><br>
 <ul><small><table>
-  <tr><td><a href="time.html#Clock.tick">Clock.tick</a> - <font size=-1>update the clock</font></td><td>update the clock</td></tr>
-  <tr><td><a href="time.html#Clock.tick_busy_loop">Clock.tick_busy_loop</a> - <font size=-1>update the clock</font></td><td>update the clock</td></tr>
-  <tr><td><a href="time.html#Clock.get_time">Clock.get_time</a> - <font size=-1>time used in the previous tick</font></td><td>time used in the previous tick</td></tr>
-  <tr><td><a href="time.html#Clock.get_rawtime">Clock.get_rawtime</a> - <font size=-1>actual time used in the previous tick</font></td><td>actual time used in the previous tick</td></tr>
-  <tr><td><a href="time.html#Clock.get_fps">Clock.get_fps</a> - <font size=-1>compute the clock framerate</font></td><td>compute the clock framerate</td></tr>
+  <tr><td><a href="time.html#Clock.tick">Clock.tick</a></td><td> &mdash; update the clock</td></tr>
+  <tr><td><a href="time.html#Clock.tick_busy_loop">Clock.tick_busy_loop</a></td><td> &mdash; update the clock</td></tr>
+  <tr><td><a href="time.html#Clock.get_time">Clock.get_time</a></td><td> &mdash; time used in the previous tick</td></tr>
+  <tr><td><a href="time.html#Clock.get_rawtime">Clock.get_rawtime</a></td><td> &mdash; actual time used in the previous tick</td></tr>
+  <tr><td><a href="time.html#Clock.get_fps">Clock.get_fps</a></td><td> &mdash; compute the clock framerate</td></tr>
 </table></small></ul>
 <p>Creates a new Clock object that can be used to track an amount of time. The clock also provides several functions to help control a game's framerate. </p>
 <!--COMMENTS:pygame.time.Clock--> &nbsp;<br> 
@@ -141,8 +141,8 @@
   <tt>control timer events</tt><br>
 <p>This method should be called once per frame. It will compute how many milliseconds have passed since the previous call. </p>
 <p>If you pass the optional framerate argument the function will delay to keep the game running slower than the given ticks per second. This can be used to help limit the runtime speed of a game. By calling <tt>Clock.tick(40)</tt> once per frame, the program will never run at more than 40 frames per second. </p>
-<p>Note that this function uses <tt>pygame.time.delay</tt>, which uses lots of cpu in a busy loop to make sure that timing is more acurate. </p>
-<p>New in pygame <tt>1.8.0</tt>. </p>
+<p>Note that this function uses pygame.time.delay, which uses lots of cpu in a busy loop to make sure that timing is more acurate. </p>
+<p>New in pygame 1.8.0. </p>
 <!--COMMENTS:Clock.tick_busy_loop--> &nbsp;<br> 
 <br></ul>
 
@@ -151,7 +151,7 @@
 <big><b>Clock.get_time</big></b><br><ul>
   <i>time used in the previous tick</i><br>
   <tt>Clock.get_time(): return milliseconds</tt><br>
-<p>Returns the parameter passed to the last call to <tt><a href="time.html#Clock.tick">Clock.tick</a> - <font size=-1>update the clock</font></tt>. It is the number of milliseconds passed between the previous two calls to <tt>Pygame.tick()</tt>. </p>
+<p>Returns the parameter passed to the last call to <tt><a href="time.html#Clock.tick">Clock.tick</a></tt>&nbsp;&ndash;<font size=-1>update the clock</font>. It is the number of milliseconds passed between the previous two calls to <tt>Pygame.tick()</tt>. </p>
 <!--COMMENTS:Clock.get_time--> &nbsp;<br> 
 <br></ul>
 
@@ -160,7 +160,7 @@
 <big><b>Clock.get_rawtime</big></b><br><ul>
   <i>actual time used in the previous tick</i><br>
   <tt>Clock.get_rawtime(): return milliseconds</tt><br>
-<p>Similar to <tt><a href="time.html#Clock.get_time">Clock.get_time</a> - <font size=-1>time used in the previous tick</font></tt>, but this does not include any time used while <tt><a href="time.html#Clock.tick">Clock.tick</a> - <font size=-1>update the clock</font></tt> was delaying to limit the framerate. </p>
+<p>Similar to <tt><a href="time.html#Clock.get_time">Clock.get_time</a></tt>&nbsp;&ndash;<font size=-1>time used in the previous tick</font>, but this does not include any time used while <tt><a href="time.html#Clock.tick">Clock.tick</a></tt>&nbsp;&ndash;<font size=-1>update the clock</font>&ndash; was delaying to limit the framerate. </p>
 <!--COMMENTS:Clock.get_rawtime--> &nbsp;<br> 
 <br></ul>
 
@@ -169,7 +169,7 @@
 <big><b>Clock.get_fps</big></b><br><ul>
   <i>compute the clock framerate</i><br>
   <tt>Clock.get_fps(): return float</tt><br>
-<p>Compute your game's framerate (in frames per second). It is computed by averaging the last few calls to <tt><a href="time.html#Clock.tick">Clock.tick</a> - <font size=-1>update the clock</font></tt>. </p>
+<p>Compute your game's framerate (in frames per second). It is computed by averaging the last few calls to <tt><a href="time.html#Clock.tick">Clock.tick</a></tt>&nbsp;&ndash;<font size=-1>update the clock</font>. </p>
 <!--COMMENTS:Clock.get_fps--> &nbsp;<br> 
 <br></ul>
 <br></ul>

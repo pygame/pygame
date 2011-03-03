@@ -57,12 +57,12 @@
 <big><b>pygame.camera</big></b><br><ul>
   <i>pygame module for camera use</i><br>
 <ul><small><table>
-  <tr><td><a href="camera.html#pygame.camera.colorspace">pygame.camera.colorspace</a> - <font size=-1>Surface colorspace conversion</font></td><td>Surface colorspace conversion</td></tr>
-  <tr><td><a href="camera.html#pygame.camera.list_cameras">pygame.camera.list_cameras</a> - <font size=-1>returns a list of available cameras</font></td><td>returns a list of available cameras</td></tr>
-  <tr><td><a href="camera.html#pygame.camera.Camera">pygame.camera.Camera</a> - <font size=-1>load a camera</font></td><td>load a camera</td></tr>
+  <tr><td><a href="camera.html#pygame.camera.colorspace">pygame.camera.colorspace</a></td><td> &mdash; Surface colorspace conversion</td></tr>
+  <tr><td><a href="camera.html#pygame.camera.list_cameras">pygame.camera.list_cameras</a></td><td> &mdash; returns a list of available cameras</td></tr>
+  <tr><td><a href="camera.html#pygame.camera.Camera">pygame.camera.Camera</a></td><td> &mdash; load a camera</td></tr>
 </table></small></ul>
 <p>Pygame currently supports only Linux and v4l2 cameras. </p>
-<p><tt>EXPERIMENTAL!:</tt> This api may change or disappear in later pygame releases. If you use this, your code will very likely break with the next pygame release. </p>
+<p>EXPERIMENTAL!: This api may change or disappear in later pygame releases. If you use this, your code will very likely break with the next pygame release. </p>
 <p>The Bayer to <tt>RGB</tt> function is based on: </p>
 <pre> Sonix SN9C101 based webcam basic I/F routines
  Copyright (C) 2004 Takafumi Mizuno <taka-qce@ls-a.jp>
@@ -85,7 +85,7 @@
  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  SUCH DAMAGE.
-</pre><p>New in pygame <tt>1.9.0</tt>. </p>
+</pre><p>New in pygame 1.9.0. </p>
 <!--COMMENTS:pygame.camera--> &nbsp;<br> 
 
 
@@ -93,7 +93,7 @@
 <big><b>pygame.camera.colorspace</big></b><br><ul>
   <i>Surface colorspace conversion</i><br>
   <tt>pygame.camera.colorspace(Surface, format, DestSurface = None): return Surface</tt><br>
-<p>Allows for conversion from <tt>"RGB"</tt> to a destination colorspace of <tt>"HSV"</tt> or <tt>"YUV"</tt>. The source and destination surfaces must be the same size and pixel depth. This is useful for computer vision on devices with limited processing power. Capture as small of an image as possible, <tt>transform.scale()</tt> it even smaller, and then convert the colorspace to <tt>YUV</tt> or <tt>HSV</tt> before doing any processing on it. </p>
+<p>Allows for conversion from "RGB" to a destination colorspace of "HSV" or "YUV". The source and destination surfaces must be the same size and pixel depth. This is useful for computer vision on devices with limited processing power. Capture as small of an image as possible, <tt>transform.scale()</tt> it even smaller, and then convert the colorspace to <tt>YUV</tt> or <tt>HSV</tt> before doing any processing on it. </p>
 <!--COMMENTS:pygame.camera.colorspace--> &nbsp;<br> 
 <br></ul>
 
@@ -112,14 +112,14 @@
   <i>load a camera</i><br>
   <tt>pygame.camera.Camera(device, (width, height), format): return Camera</tt><br>
 <ul><small><table>
-  <tr><td><a href="camera.html#Camera.start">Camera.start</a> - <font size=-1>opens, initializes, and starts capturing</font></td><td>opens, initializes, and starts capturing</td></tr>
-  <tr><td><a href="camera.html#Camera.stop">Camera.stop</a> - <font size=-1>stops, uninitializes, and closes the camera</font></td><td>stops, uninitializes, and closes the camera</td></tr>
-  <tr><td><a href="camera.html#Camera.get_controls">Camera.get_controls</a> - <font size=-1>gets current values of user controls</font></td><td>gets current values of user controls</td></tr>
-  <tr><td><a href="camera.html#Camera.set_controls">Camera.set_controls</a> - <font size=-1>changes camera settings if supported by the camera</font></td><td>changes camera settings if supported by the camera</td></tr>
-  <tr><td><a href="camera.html#Camera.get_size">Camera.get_size</a> - <font size=-1>returns the dimensions of the images being recorded</font></td><td>returns the dimensions of the images being recorded</td></tr>
-  <tr><td><a href="camera.html#Camera.query_image">Camera.query_image</a> - <font size=-1>checks if a frame is ready</font></td><td>checks if a frame is ready</td></tr>
-  <tr><td><a href="camera.html#Camera.get_image">Camera.get_image</a> - <font size=-1>captures an image as a Surface</font></td><td>captures an image as a Surface</td></tr>
-  <tr><td><a href="camera.html#Camera.get_raw">Camera.get_raw</a> - <font size=-1>returns an unmodified image as a string</font></td><td>returns an unmodified image as a string</td></tr>
+  <tr><td><a href="camera.html#Camera.start">Camera.start</a></td><td> &mdash; opens, initializes, and starts capturing</td></tr>
+  <tr><td><a href="camera.html#Camera.stop">Camera.stop</a></td><td> &mdash; stops, uninitializes, and closes the camera</td></tr>
+  <tr><td><a href="camera.html#Camera.get_controls">Camera.get_controls</a></td><td> &mdash; gets current values of user controls</td></tr>
+  <tr><td><a href="camera.html#Camera.set_controls">Camera.set_controls</a></td><td> &mdash; changes camera settings if supported by the camera</td></tr>
+  <tr><td><a href="camera.html#Camera.get_size">Camera.get_size</a></td><td> &mdash; returns the dimensions of the images being recorded</td></tr>
+  <tr><td><a href="camera.html#Camera.query_image">Camera.query_image</a></td><td> &mdash; checks if a frame is ready</td></tr>
+  <tr><td><a href="camera.html#Camera.get_image">Camera.get_image</a></td><td> &mdash; captures an image as a Surface</td></tr>
+  <tr><td><a href="camera.html#Camera.get_raw">Camera.get_raw</a></td><td> &mdash; returns an unmodified image as a string</td></tr>
 </table></small></ul>
 <p>Loads a v4l2 camera. The device is typically something like "/dev/video0". Default width and height are 640 by 480. Format is the desired colorspace of the output. This is useful for computer vision purposes. The default is <tt>RGB</tt>. The following are supported: </p>
 <ul>
@@ -179,7 +179,7 @@
 <big><b>Camera.query_image</big></b><br><ul>
   <i>checks if a frame is ready</i><br>
   <tt>Camera.query_image(): return bool</tt><br>
-<p>If an image is ready to get, it returns true. Otherwise it returns false. Note that some webcams will always return False and will only queue a frame when called with a blocking function like get_image(). This is useful to separate the framerate of the game from that of the camera without having to use threading. </p>
+<p>If an image is ready to get, it returns true. Otherwise it returns false. Note that some webcams will always return False and will only queue a frame when called with a blocking function like <tt>get_image()</tt>. This is useful to separate the framerate of the game from that of the camera without having to use threading. </p>
 <!--COMMENTS:Camera.query_image--> &nbsp;<br> 
 <br></ul>
 
