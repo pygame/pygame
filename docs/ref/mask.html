@@ -57,12 +57,12 @@
 <big><b>pygame.mask</big></b><br><ul>
   <i>pygame module for image masks.</i><br>
 <ul><small><table>
-  <tr><td><a href="mask.html#pygame.mask.from_surface">pygame.mask.from_surface</a> - <font size=-1>Returns a Mask from the given surface.</font></td><td>Returns a Mask from the given surface.</td></tr>
-  <tr><td><a href="mask.html#pygame.mask.from_threshold">pygame.mask.from_threshold</a> - <font size=-1>Creates a mask by thresholding Surfaces</font></td><td>Creates a mask by thresholding Surfaces</td></tr>
-  <tr><td><a href="mask.html#pygame.mask.Mask">pygame.mask.Mask</a> - <font size=-1>pygame object for representing 2d bitmasks</font></td><td>pygame object for representing 2d bitmasks</td></tr>
+  <tr><td><a href="mask.html#pygame.mask.from_surface">pygame.mask.from_surface</a></td><td> &mdash; Returns a Mask from the given surface.</td></tr>
+  <tr><td><a href="mask.html#pygame.mask.from_threshold">pygame.mask.from_threshold</a></td><td> &mdash; Creates a mask by thresholding Surfaces</td></tr>
+  <tr><td><a href="mask.html#pygame.mask.Mask">pygame.mask.Mask</a></td><td> &mdash; pygame object for representing 2d bitmasks</td></tr>
 </table></small></ul>
-<p>Useful for fast pixel perfect collision detection. <tt>A</tt> Mask uses 1bit per pixel to store which parts collide. </p>
-<p>New in pygame <tt>1.8</tt>. </p>
+<p>Useful for fast pixel perfect collision detection. A Mask uses 1bit per pixel to store which parts collide. </p>
+<p>New in pygame 1.8. </p>
 <!--COMMENTS:pygame.mask--> &nbsp;<br> 
 
 
@@ -91,26 +91,26 @@
   <i>pygame object for representing 2d bitmasks</i><br>
   <tt>pygame.Mask((width, height)): return Mask</tt><br>
 <ul><small><table>
-  <tr><td><a href="mask.html#Mask.get_size">Mask.get_size</a> - <font size=-1>Returns the size of the mask.</font></td><td>Returns the size of the mask.</td></tr>
-  <tr><td><a href="mask.html#Mask.get_at">Mask.get_at</a> - <font size=-1>Returns nonzero if the bit at (x,y) is set.</font></td><td>Returns nonzero if the bit at (x,y) is set.</td></tr>
-  <tr><td><a href="mask.html#Mask.set_at">Mask.set_at</a> - <font size=-1>Sets the position in the mask given by x and y.</font></td><td>Sets the position in the mask given by x and y.</td></tr>
-  <tr><td><a href="mask.html#Mask.overlap">Mask.overlap</a> - <font size=-1>Returns the point of intersection if the masks overlap with the given offset - or None if it does not overlap.</font></td><td>Returns the point of intersection if the masks overlap with the given offset - or None if it does not overlap.</td></tr>
-  <tr><td><a href="mask.html#Mask.overlap_area">Mask.overlap_area</a> - <font size=-1>Returns the number of overlapping 'pixels'.</font></td><td>Returns the number of overlapping 'pixels'.</td></tr>
-  <tr><td><a href="mask.html#Mask.overlap_mask">Mask.overlap_mask</a> - <font size=-1>Returns a mask of the overlapping pixels</font></td><td>Returns a mask of the overlapping pixels</td></tr>
-  <tr><td><a href="mask.html#Mask.fill">Mask.fill</a> - <font size=-1>Sets all bits to 1</font></td><td>Sets all bits to 1</td></tr>
-  <tr><td><a href="mask.html#Mask.clear">Mask.clear</a> - <font size=-1>Sets all bits to 0</font></td><td>Sets all bits to 0</td></tr>
-  <tr><td><a href="mask.html#Mask.invert">Mask.invert</a> - <font size=-1>Flips the bits in a Mask</font></td><td>Flips the bits in a Mask</td></tr>
-  <tr><td><a href="mask.html#Mask.scale">Mask.scale</a> - <font size=-1>Resizes a mask</font></td><td>Resizes a mask</td></tr>
-  <tr><td><a href="mask.html#Mask.draw">Mask.draw</a> - <font size=-1>Draws a mask onto another</font></td><td>Draws a mask onto another</td></tr>
-  <tr><td><a href="mask.html#Mask.erase">Mask.erase</a> - <font size=-1>Erases a mask from another</font></td><td>Erases a mask from another</td></tr>
-  <tr><td><a href="mask.html#Mask.count">Mask.count</a> - <font size=-1>Returns the number of set pixels</font></td><td>Returns the number of set pixels</td></tr>
-  <tr><td><a href="mask.html#Mask.centroid">Mask.centroid</a> - <font size=-1>Returns the centroid of the pixels in a Mask</font></td><td>Returns the centroid of the pixels in a Mask</td></tr>
-  <tr><td><a href="mask.html#Mask.angle">Mask.angle</a> - <font size=-1>Returns the orientation of the pixels</font></td><td>Returns the orientation of the pixels</td></tr>
-  <tr><td><a href="mask.html#Mask.outline">Mask.outline</a> - <font size=-1>list of points outlining an object</font></td><td>list of points outlining an object</td></tr>
-  <tr><td><a href="mask.html#Mask.convolve">Mask.convolve</a> - <font size=-1>Return the convolution of self with another mask.</font></td><td>Return the convolution of self with another mask.</td></tr>
-  <tr><td><a href="mask.html#Mask.connected_component">Mask.connected_component</a> - <font size=-1>Returns a mask of a connected region of pixels.</font></td><td>Returns a mask of a connected region of pixels.</td></tr>
-  <tr><td><a href="mask.html#Mask.connected_components">Mask.connected_components</a> - <font size=-1>Returns a list of masks of connected regions of pixels.</font></td><td>Returns a list of masks of connected regions of pixels.</td></tr>
-  <tr><td><a href="mask.html#Mask.get_bounding_rects">Mask.get_bounding_rects</a> - <font size=-1>Returns a list of bounding rects of regions of set pixels.</font></td><td>Returns a list of bounding rects of regions of set pixels.</td></tr>
+  <tr><td><a href="mask.html#Mask.get_size">Mask.get_size</a></td><td> &mdash; Returns the size of the mask.</td></tr>
+  <tr><td><a href="mask.html#Mask.get_at">Mask.get_at</a></td><td> &mdash; Returns nonzero if the bit at (x,y) is set.</td></tr>
+  <tr><td><a href="mask.html#Mask.set_at">Mask.set_at</a></td><td> &mdash; Sets the position in the mask given by x and y.</td></tr>
+  <tr><td><a href="mask.html#Mask.overlap">Mask.overlap</a></td><td> &mdash; Returns the point of intersection if the masks overlap with the given offset - or None if it does not overlap.</td></tr>
+  <tr><td><a href="mask.html#Mask.overlap_area">Mask.overlap_area</a></td><td> &mdash; Returns the number of overlapping 'pixels'.</td></tr>
+  <tr><td><a href="mask.html#Mask.overlap_mask">Mask.overlap_mask</a></td><td> &mdash; Returns a mask of the overlapping pixels</td></tr>
+  <tr><td><a href="mask.html#Mask.fill">Mask.fill</a></td><td> &mdash; Sets all bits to 1</td></tr>
+  <tr><td><a href="mask.html#Mask.clear">Mask.clear</a></td><td> &mdash; Sets all bits to 0</td></tr>
+  <tr><td><a href="mask.html#Mask.invert">Mask.invert</a></td><td> &mdash; Flips the bits in a Mask</td></tr>
+  <tr><td><a href="mask.html#Mask.scale">Mask.scale</a></td><td> &mdash; Resizes a mask</td></tr>
+  <tr><td><a href="mask.html#Mask.draw">Mask.draw</a></td><td> &mdash; Draws a mask onto another</td></tr>
+  <tr><td><a href="mask.html#Mask.erase">Mask.erase</a></td><td> &mdash; Erases a mask from another</td></tr>
+  <tr><td><a href="mask.html#Mask.count">Mask.count</a></td><td> &mdash; Returns the number of set pixels</td></tr>
+  <tr><td><a href="mask.html#Mask.centroid">Mask.centroid</a></td><td> &mdash; Returns the centroid of the pixels in a Mask</td></tr>
+  <tr><td><a href="mask.html#Mask.angle">Mask.angle</a></td><td> &mdash; Returns the orientation of the pixels</td></tr>
+  <tr><td><a href="mask.html#Mask.outline">Mask.outline</a></td><td> &mdash; list of points outlining an object</td></tr>
+  <tr><td><a href="mask.html#Mask.convolve">Mask.convolve</a></td><td> &mdash; Return the convolution of self with another mask.</td></tr>
+  <tr><td><a href="mask.html#Mask.connected_component">Mask.connected_component</a></td><td> &mdash; Returns a mask of a connected region of pixels.</td></tr>
+  <tr><td><a href="mask.html#Mask.connected_components">Mask.connected_components</a></td><td> &mdash; Returns a list of masks of connected regions of pixels.</td></tr>
+  <tr><td><a href="mask.html#Mask.get_bounding_rects">Mask.get_bounding_rects</a></td><td> &mdash; Returns a list of bounding rects of regions of set pixels.</td></tr>
 </table></small></ul>
  &nbsp;<br> 
 <!--COMMENTS:pygame.mask.Mask--> &nbsp;<br> 
@@ -221,7 +221,7 @@
 <big><b>Mask.draw</big></b><br><ul>
   <i>Draws a mask onto another</i><br>
   <tt>Mask.draw(othermask, offset)</tt><br>
-<p>Performs a bitwise <tt>OR</tt>, drawing othermask onto Mask. </p>
+<p>Performs a bitwise OR, drawing othermask onto Mask. </p>
 <!--COMMENTS:Mask.draw--> &nbsp;<br> 
 <br></ul>
 
@@ -257,7 +257,7 @@
 <big><b>Mask.angle</big></b><br><ul>
   <i>Returns the orientation of the pixels</i><br>
   <tt>Mask.angle() -> theta</tt><br>
-<p>Finds the approximate orientation of the pixels in the image from -90 to 90 degrees. This works best if performed on one connected component of pixels. It will return <tt>0.0</tt> on an empty Mask. </p>
+<p>Finds the approximate orientation of the pixels in the image from -90 to 90 degrees. This works best if performed on one connected component of pixels. It will return 0.0 on an empty Mask. </p>
 <!--COMMENTS:Mask.angle--> &nbsp;<br> 
 <br></ul>
 
@@ -303,7 +303,7 @@
 <big><b>Mask.get_bounding_rects</big></b><br><ul>
   <i>Returns a list of bounding rects of regions of set pixels.</i><br>
   <tt>Mask.get_bounding_rects() -> Rects</tt><br>
-<p>This gets a bounding rect of connected regions of set pixels. <tt>A</tt> bounding rect is one for which each of the connected pixels is inside the rect. </p>
+<p>This gets a bounding rect of connected regions of set pixels. A bounding rect is one for which each of the connected pixels is inside the rect. </p>
 <!--COMMENTS:Mask.get_bounding_rects--> &nbsp;<br> 
 <br></ul>
 <br></ul>

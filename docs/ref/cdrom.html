@@ -57,11 +57,11 @@
 <big><b>pygame.cdrom</big></b><br><ul>
   <i>pygame module for audio cdrom control</i><br>
 <ul><small><table>
-  <tr><td><a href="cdrom.html#pygame.cdrom.init">pygame.cdrom.init</a> - <font size=-1>initialize the cdrom module</font></td><td>initialize the cdrom module</td></tr>
-  <tr><td><a href="cdrom.html#pygame.cdrom.quit">pygame.cdrom.quit</a> - <font size=-1>uninitialize the cdrom module</font></td><td>uninitialize the cdrom module</td></tr>
-  <tr><td><a href="cdrom.html#pygame.cdrom.get_init">pygame.cdrom.get_init</a> - <font size=-1>true if the cdrom module is initialized</font></td><td>true if the cdrom module is initialized</td></tr>
-  <tr><td><a href="cdrom.html#pygame.cdrom.get_count">pygame.cdrom.get_count</a> - <font size=-1>number of cd drives on the system</font></td><td>number of cd drives on the system</td></tr>
-  <tr><td><a href="cdrom.html#pygame.cdrom.CD">pygame.cdrom.CD</a> - <font size=-1>class to manage a cdrom drive</font></td><td>class to manage a cdrom drive</td></tr>
+  <tr><td><a href="cdrom.html#pygame.cdrom.init">pygame.cdrom.init</a></td><td> &mdash; initialize the cdrom module</td></tr>
+  <tr><td><a href="cdrom.html#pygame.cdrom.quit">pygame.cdrom.quit</a></td><td> &mdash; uninitialize the cdrom module</td></tr>
+  <tr><td><a href="cdrom.html#pygame.cdrom.get_init">pygame.cdrom.get_init</a></td><td> &mdash; true if the cdrom module is initialized</td></tr>
+  <tr><td><a href="cdrom.html#pygame.cdrom.get_count">pygame.cdrom.get_count</a></td><td> &mdash; number of cd drives on the system</td></tr>
+  <tr><td><a href="cdrom.html#pygame.cdrom.CD">pygame.cdrom.CD</a></td><td> &mdash; class to manage a cdrom drive</td></tr>
 </table></small></ul>
 <p>The cdrom module manages the <tt>CD</tt> and <tt>DVD</tt> drives on a computer. It can also control the playback of audio cd's. This module needs to be initialized before it can do anything. Each <tt>CD</tt> object you create represents a cdrom drive and must also be initialized individually before it can do most things. </p>
 <!--COMMENTS:pygame.cdrom--> &nbsp;<br> 
@@ -71,7 +71,7 @@
 <big><b>pygame.cdrom.init</big></b><br><ul>
   <i>initialize the cdrom module</i><br>
   <tt>pygame.cdrom.init(): return None</tt><br>
-<p>Initialize the cdrom module. This will scan the system for all <tt>CD</tt> devices. The module must be initialized before any other functions will work. This automatically happens when you call <tt><a href="pygame.html#pygame.init">pygame.init</a> - <font size=-1>initialize all imported pygame modules</font></tt>. </p>
+<p>Initialize the cdrom module. This will scan the system for all <tt>CD</tt> devices. The module must be initialized before any other functions will work. This automatically happens when you call <tt><a href="pygame.html#pygame.init">pygame.init</a></tt>&nbsp;&ndash;<font size=-1>initialize all imported pygame modules</font>. </p>
 <p>It is safe to call this function more than once. </p>
 <!--COMMENTS:pygame.cdrom.init--> &nbsp;<br> 
 <br></ul>
@@ -91,7 +91,7 @@
 <big><b>pygame.cdrom.get_init</big></b><br><ul>
   <i>true if the cdrom module is initialized</i><br>
   <tt>pygame.cdrom.get_init(): return bool</tt><br>
-<p>Test if the cdrom module is initialized or not. This is different than the <tt><a href="cdrom.html#CD.init">CD.init</a> - <font size=-1>initialize a cdrom drive for use</font></tt> since each drive must also be initialized individually. </p>
+<p>Test if the cdrom module is initialized or not. This is different than the <tt><a href="cdrom.html#CD.init">CD.init</a></tt>&nbsp;&ndash;<font size=-1>initialize a cdrom drive for use</font>&ndash; since each drive must also be initialized individually. </p>
 <!--COMMENTS:pygame.cdrom.get_init--> &nbsp;<br> 
 <br></ul>
 
@@ -110,28 +110,28 @@
   <i>class to manage a cdrom drive</i><br>
   <tt>pygame.cdrom.CD(id): return CD</tt><br>
 <ul><small><table>
-  <tr><td><a href="cdrom.html#CD.init">CD.init</a> - <font size=-1>initialize a cdrom drive for use</font></td><td>initialize a cdrom drive for use</td></tr>
-  <tr><td><a href="cdrom.html#CD.quit">CD.quit</a> - <font size=-1>uninitialize a cdrom drive for use</font></td><td>uninitialize a cdrom drive for use</td></tr>
-  <tr><td><a href="cdrom.html#CD.get_init">CD.get_init</a> - <font size=-1>true if this cd device initialized</font></td><td>true if this cd device initialized</td></tr>
-  <tr><td><a href="cdrom.html#CD.play">CD.play</a> - <font size=-1>start playing audio</font></td><td>start playing audio</td></tr>
-  <tr><td><a href="cdrom.html#CD.stop">CD.stop</a> - <font size=-1>stop audio playback</font></td><td>stop audio playback</td></tr>
-  <tr><td><a href="cdrom.html#CD.pause">CD.pause</a> - <font size=-1>temporarily stop audio playback</font></td><td>temporarily stop audio playback</td></tr>
-  <tr><td><a href="cdrom.html#CD.resume">CD.resume</a> - <font size=-1>unpause audio playback</font></td><td>unpause audio playback</td></tr>
-  <tr><td><a href="cdrom.html#CD.eject">CD.eject</a> - <font size=-1>eject or open the cdrom drive</font></td><td>eject or open the cdrom drive</td></tr>
-  <tr><td><a href="cdrom.html#CD.get_id">CD.get_id</a> - <font size=-1>the index of the cdrom drive</font></td><td>the index of the cdrom drive</td></tr>
-  <tr><td><a href="cdrom.html#CD.get_name">CD.get_name</a> - <font size=-1>the system name of the cdrom drive</font></td><td>the system name of the cdrom drive</td></tr>
-  <tr><td><a href="cdrom.html#CD.get_busy">CD.get_busy</a> - <font size=-1>true if the drive is playing audio</font></td><td>true if the drive is playing audio</td></tr>
-  <tr><td><a href="cdrom.html#CD.get_paused">CD.get_paused</a> - <font size=-1>true if the drive is paused</font></td><td>true if the drive is paused</td></tr>
-  <tr><td><a href="cdrom.html#CD.get_current">CD.get_current</a> - <font size=-1>the current audio playback position</font></td><td>the current audio playback position</td></tr>
-  <tr><td><a href="cdrom.html#CD.get_empty">CD.get_empty</a> - <font size=-1>False if a cdrom is in the drive</font></td><td>False if a cdrom is in the drive</td></tr>
-  <tr><td><a href="cdrom.html#CD.get_numtracks">CD.get_numtracks</a> - <font size=-1>the number of tracks on the cdrom</font></td><td>the number of tracks on the cdrom</td></tr>
-  <tr><td><a href="cdrom.html#CD.get_track_audio">CD.get_track_audio</a> - <font size=-1>true if the cdrom track has audio data</font></td><td>true if the cdrom track has audio data</td></tr>
-  <tr><td><a href="cdrom.html#CD.get_all">CD.get_all</a> - <font size=-1>get all track information</font></td><td>get all track information</td></tr>
-  <tr><td><a href="cdrom.html#CD.get_track_start">CD.get_track_start</a> - <font size=-1>start time of a cdrom track</font></td><td>start time of a cdrom track</td></tr>
-  <tr><td><a href="cdrom.html#CD.get_track_length">CD.get_track_length</a> - <font size=-1>length of a cdrom track</font></td><td>length of a cdrom track</td></tr>
+  <tr><td><a href="cdrom.html#CD.init">CD.init</a></td><td> &mdash; initialize a cdrom drive for use</td></tr>
+  <tr><td><a href="cdrom.html#CD.quit">CD.quit</a></td><td> &mdash; uninitialize a cdrom drive for use</td></tr>
+  <tr><td><a href="cdrom.html#CD.get_init">CD.get_init</a></td><td> &mdash; true if this cd device initialized</td></tr>
+  <tr><td><a href="cdrom.html#CD.play">CD.play</a></td><td> &mdash; start playing audio</td></tr>
+  <tr><td><a href="cdrom.html#CD.stop">CD.stop</a></td><td> &mdash; stop audio playback</td></tr>
+  <tr><td><a href="cdrom.html#CD.pause">CD.pause</a></td><td> &mdash; temporarily stop audio playback</td></tr>
+  <tr><td><a href="cdrom.html#CD.resume">CD.resume</a></td><td> &mdash; unpause audio playback</td></tr>
+  <tr><td><a href="cdrom.html#CD.eject">CD.eject</a></td><td> &mdash; eject or open the cdrom drive</td></tr>
+  <tr><td><a href="cdrom.html#CD.get_id">CD.get_id</a></td><td> &mdash; the index of the cdrom drive</td></tr>
+  <tr><td><a href="cdrom.html#CD.get_name">CD.get_name</a></td><td> &mdash; the system name of the cdrom drive</td></tr>
+  <tr><td><a href="cdrom.html#CD.get_busy">CD.get_busy</a></td><td> &mdash; true if the drive is playing audio</td></tr>
+  <tr><td><a href="cdrom.html#CD.get_paused">CD.get_paused</a></td><td> &mdash; true if the drive is paused</td></tr>
+  <tr><td><a href="cdrom.html#CD.get_current">CD.get_current</a></td><td> &mdash; the current audio playback position</td></tr>
+  <tr><td><a href="cdrom.html#CD.get_empty">CD.get_empty</a></td><td> &mdash; False if a cdrom is in the drive</td></tr>
+  <tr><td><a href="cdrom.html#CD.get_numtracks">CD.get_numtracks</a></td><td> &mdash; the number of tracks on the cdrom</td></tr>
+  <tr><td><a href="cdrom.html#CD.get_track_audio">CD.get_track_audio</a></td><td> &mdash; true if the cdrom track has audio data</td></tr>
+  <tr><td><a href="cdrom.html#CD.get_all">CD.get_all</a></td><td> &mdash; get all track information</td></tr>
+  <tr><td><a href="cdrom.html#CD.get_track_start">CD.get_track_start</a></td><td> &mdash; start time of a cdrom track</td></tr>
+  <tr><td><a href="cdrom.html#CD.get_track_length">CD.get_track_length</a></td><td> &mdash; length of a cdrom track</td></tr>
 </table></small></ul>
-<p>You can create a <tt>CD</tt> object for each cdrom on the system. Use <tt><a href="cdrom.html#pygame.cdrom.get_count">pygame.cdrom.get_count</a> - <font size=-1>number of cd drives on the system</font></tt> to determine how many drives actually exist. The id argument is an integer of the drive, starting at zero. </p>
-<p>The <tt>CD</tt> object is not initialized, you can only call <tt><a href="cdrom.html#CD.get_id">CD.get_id</a> - <font size=-1>the index of the cdrom drive</font></tt> and <tt><a href="cdrom.html#CD.get_name">CD.get_name</a> - <font size=-1>the system name of the cdrom drive</font></tt> on an uninitialized drive. </p>
+<p>You can create a <tt>CD</tt> object for each cdrom on the system. Use <tt><a href="cdrom.html#pygame.cdrom.get_count">pygame.cdrom.get_count</a></tt>&nbsp;&ndash;<font size=-1>number of cd drives on the system</font>&ndash; to determine how many drives actually exist. The id argument is an integer of the drive, starting at zero. </p>
+<p>The <tt>CD</tt> object is not initialized, you can only call <tt><a href="cdrom.html#CD.get_id">CD.get_id</a></tt>&nbsp;&ndash;<font size=-1>the index of the cdrom drive</font>&ndash; and <tt><a href="cdrom.html#CD.get_name">CD.get_name</a></tt>&nbsp;&ndash;<font size=-1>the system name of the cdrom drive</font>&ndash; on an uninitialized drive. </p>
 <p>It is safe to create multiple <tt>CD</tt> objects for the same drive, they will all cooperate normally. </p>
 <!--COMMENTS:pygame.cdrom.CD--> &nbsp;<br> 
 
@@ -141,7 +141,7 @@
   <i>initialize a cdrom drive for use</i><br>
   <tt>CD.init(): return None</tt><br>
 <p>Initialize the cdrom drive for use. The drive must be initialized for most <tt>CD</tt> methods to work. Even if the rest of pygame has been initialized. </p>
-<p>There may be a brief pause while the drive is initialized. Avoid <tt><a href="cdrom.html#CD.init">CD.init</a> - <font size=-1>initialize a cdrom drive for use</font></tt> if the program should not stop for a second or two. </p>
+<p>There may be a brief pause while the drive is initialized. Avoid <tt><a href="cdrom.html#CD.init">CD.init</a></tt>&nbsp;&ndash;<font size=-1>initialize a cdrom drive for use</font>&ndash; if the program should not stop for a second or two. </p>
 <!--COMMENTS:CD.init--> &nbsp;<br> 
 <br></ul>
 
@@ -159,7 +159,7 @@
 <big><b>CD.get_init</big></b><br><ul>
   <i>true if this cd device initialized</i><br>
   <tt>CD.get_init(): return bool</tt><br>
-<p>Test if this <tt>CDROM</tt> device is initialized. This is different than the <tt><a href="cdrom.html#pygame.cdrom.init">pygame.cdrom.init</a> - <font size=-1>initialize the cdrom module</font></tt> since each drive must also be initialized individually. </p>
+<p>Test if this <tt>CDROM</tt> device is initialized. This is different than the <tt><a href="cdrom.html#pygame.cdrom.init">pygame.cdrom.init</a></tt>&nbsp;&ndash;<font size=-1>initialize the cdrom module</font>&ndash; since each drive must also be initialized individually. </p>
 <!--COMMENTS:CD.get_init--> &nbsp;<br> 
 <br></ul>
 
@@ -170,7 +170,7 @@
   <tt>CD.play(track, start=None, end=None): return None</tt><br>
 <p>Playback audio from an audio cdrom in the drive. Besides the track number argument, you can also pass a starting and ending time for playback. The start and end time are in seconds, and can limit the section of an audio track played. </p>
 <p>If you pass a start time but no end, the audio will play to the end of the track. If you pass a start time and 'None' for the end time, the audio will play to the end of the entire disc. </p>
-<p>See the <tt><a href="cdrom.html#CD.get_numtracks">CD.get_numtracks</a> - <font size=-1>the number of tracks on the cdrom</font></tt> and <tt><a href="cdrom.html#CD.get_track_audio">CD.get_track_audio</a> - <font size=-1>true if the cdrom track has audio data</font></tt> to find tracks to playback. </p>
+<p>See the <tt><a href="cdrom.html#CD.get_numtracks">CD.get_numtracks</a></tt>&nbsp;&ndash;<font size=-1>the number of tracks on the cdrom</font>&ndash; and <tt><a href="cdrom.html#CD.get_track_audio">CD.get_track_audio</a></tt>&nbsp;&ndash;<font size=-1>true if the cdrom track has audio data</font>&ndash; to find tracks to playback. </p>
 <p>Note, track 0 is the first track on the <tt>CD</tt>. Track numbers start at zero. </p>
 <!--COMMENTS:CD.play--> &nbsp;<br> 
 <br></ul>
@@ -189,7 +189,7 @@
 <big><b>CD.pause</big></b><br><ul>
   <i>temporarily stop audio playback</i><br>
   <tt>CD.pause(): return None</tt><br>
-<p>Temporarily stop audio playback on the <tt>CD</tt>. The playback can be resumed at the same point with the <tt><a href="cdrom.html#CD.resume">CD.resume</a> - <font size=-1>unpause audio playback</font></tt> method. If the <tt>CD</tt> is not playing this method does nothing. </p>
+<p>Temporarily stop audio playback on the <tt>CD</tt>. The playback can be resumed at the same point with the <tt><a href="cdrom.html#CD.resume">CD.resume</a></tt>&nbsp;&ndash;<font size=-1>unpause audio playback</font>&ndash; method. If the <tt>CD</tt> is not playing this method does nothing. </p>
 <p>Note, track 0 is the first track on the <tt>CD</tt>. Track numbers start at zero. </p>
 <!--COMMENTS:CD.pause--> &nbsp;<br> 
 <br></ul>
@@ -281,7 +281,7 @@
 <big><b>CD.get_track_audio</big></b><br><ul>
   <i>true if the cdrom track has audio data</i><br>
   <tt>CD.get_track_audio(track): return bool</tt><br>
-<p>Determine if a track on a cdrom contains audio data. You can also call <tt>CD.num_tracks()</tt> and <tt><a href="cdrom.html#CD.get_all">CD.get_all</a> - <font size=-1>get all track information</font></tt> to determine more information about the cdrom. </p>
+<p>Determine if a track on a cdrom contains audio data. You can also call <tt>CD.num_tracks()</tt> and <tt><a href="cdrom.html#CD.get_all">CD.get_all</a></tt>&nbsp;&ndash;<font size=-1>get all track information</font>&ndash; to determine more information about the cdrom. </p>
 <p>Note, track 0 is the first track on the <tt>CD</tt>. Track numbers start at zero. </p>
 <!--COMMENTS:CD.get_track_audio--> &nbsp;<br> 
 <br></ul>

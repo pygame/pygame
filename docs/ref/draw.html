@@ -57,15 +57,15 @@
 <big><b>pygame.draw</big></b><br><ul>
   <i>pygame module for drawing shapes</i><br>
 <ul><small><table>
-  <tr><td><a href="draw.html#pygame.draw.rect">pygame.draw.rect</a> - <font size=-1>draw a rectangle shape</font></td><td>draw a rectangle shape</td></tr>
-  <tr><td><a href="draw.html#pygame.draw.polygon">pygame.draw.polygon</a> - <font size=-1>draw a shape with any number of sides</font></td><td>draw a shape with any number of sides</td></tr>
-  <tr><td><a href="draw.html#pygame.draw.circle">pygame.draw.circle</a> - <font size=-1>draw a circle around a point</font></td><td>draw a circle around a point</td></tr>
-  <tr><td><a href="draw.html#pygame.draw.ellipse">pygame.draw.ellipse</a> - <font size=-1>draw a round shape inside a rectangle</font></td><td>draw a round shape inside a rectangle</td></tr>
-  <tr><td><a href="draw.html#pygame.draw.arc">pygame.draw.arc</a> - <font size=-1>draw a partial section of an ellipse</font></td><td>draw a partial section of an ellipse</td></tr>
-  <tr><td><a href="draw.html#pygame.draw.line">pygame.draw.line</a> - <font size=-1>draw a straight line segment</font></td><td>draw a straight line segment</td></tr>
-  <tr><td><a href="draw.html#pygame.draw.lines">pygame.draw.lines</a> - <font size=-1>draw multiple contiguous line segments</font></td><td>draw multiple contiguous line segments</td></tr>
-  <tr><td><a href="draw.html#pygame.draw.aaline">pygame.draw.aaline</a> - <font size=-1>draw fine antialiased lines</font></td><td>draw fine antialiased lines</td></tr>
-  <tr><td><a href="draw.html#pygame.draw.aalines">pygame.draw.aalines</a> - <font size=-1>pygame.draw.aalines(Surface, color, closed, pointlist, blend=1): return Rect</font></td><td>pygame.draw.aalines(Surface, color, closed, pointlist, blend=1): return Rect</td></tr>
+  <tr><td><a href="draw.html#pygame.draw.rect">pygame.draw.rect</a></td><td> &mdash; draw a rectangle shape</td></tr>
+  <tr><td><a href="draw.html#pygame.draw.polygon">pygame.draw.polygon</a></td><td> &mdash; draw a shape with any number of sides</td></tr>
+  <tr><td><a href="draw.html#pygame.draw.circle">pygame.draw.circle</a></td><td> &mdash; draw a circle around a point</td></tr>
+  <tr><td><a href="draw.html#pygame.draw.ellipse">pygame.draw.ellipse</a></td><td> &mdash; draw a round shape inside a rectangle</td></tr>
+  <tr><td><a href="draw.html#pygame.draw.arc">pygame.draw.arc</a></td><td> &mdash; draw a partial section of an ellipse</td></tr>
+  <tr><td><a href="draw.html#pygame.draw.line">pygame.draw.line</a></td><td> &mdash; draw a straight line segment</td></tr>
+  <tr><td><a href="draw.html#pygame.draw.lines">pygame.draw.lines</a></td><td> &mdash; draw multiple contiguous line segments</td></tr>
+  <tr><td><a href="draw.html#pygame.draw.aaline">pygame.draw.aaline</a></td><td> &mdash; draw fine antialiased lines</td></tr>
+  <tr><td><a href="draw.html#pygame.draw.aalines">pygame.draw.aalines</a></td><td> &mdash; pygame.draw.aalines(Surface, color, closed, pointlist, blend=1): return Rect</td></tr>
 </table></small></ul>
 <p>Draw several simple shapes to a Surface. These functions will work for rendering to any format of Surface. Rendering to hardware Surfaces will be slower than regular software Surfaces. </p>
 <p>Most of the functions take a width argument to represent the size of stroke around the edge of the shape. If a width of 0 is passed the function will actually solid fill the entire shape. </p>
@@ -80,7 +80,7 @@
   <i>draw a rectangle shape</i><br>
   <tt>pygame.draw.rect(Surface, color, Rect, width=0): return Rect</tt><br>
 <p>Draws a rectangular shape on the Surface. The given Rect is the area of the rectangle. The width argument is the thickness to draw the outer edge. If width is zero then the rectangle will be filled. </p>
-<p>Keep in mind the <tt><a href="surface.html#Surface.fill">Surface.fill</a> - <font size=-1>fill Surface with a solid color</font></tt> method works just as well for drawing filled rectangles. In fact the <tt><a href="surface.html#Surface.fill">Surface.fill</a> - <font size=-1>fill Surface with a solid color</font></tt> can be hardware accelerated on some platforms with both software and hardware display modes. </p>
+<p>Keep in mind the <tt><a href="surface.html#Surface.fill">Surface.fill</a></tt>&nbsp;&ndash;<font size=-1>fill Surface with a solid color</font>&ndash; method works just as well for drawing filled rectangles. In fact the <tt><a href="surface.html#Surface.fill">Surface.fill</a></tt>&nbsp;&ndash;<font size=-1>fill Surface with a solid color</font>&ndash; can be hardware accelerated on some platforms with both software and hardware display modes. </p>
 <!--COMMENTS:pygame.draw.rect--> &nbsp;<br> 
 <br></ul>
 
@@ -145,7 +145,7 @@
 <big><b>pygame.draw.aaline</big></b><br><ul>
   <i>draw fine antialiased lines</i><br>
   <tt>pygame.draw.aaline(Surface, color, startpos, endpos, blend=1): return Rect</tt><br>
-<p>Draws an anti-aliased line on a surface. This will respect the clipping rectangle. <tt>A</tt> bounding box of the affected area is returned returned as a rectangle. If blend is true, the shades will be be blended with existing pixel shades instead of overwriting them. This function accepts floating point values for the end points. </p>
+<p>Draws an anti-aliased line on a surface. This will respect the clipping rectangle. A bounding box of the affected area is returned returned as a rectangle. If blend is true, the shades will be be blended with existing pixel shades instead of overwriting them. This function accepts floating point values for the end points. </p>
 <!--COMMENTS:pygame.draw.aaline--> &nbsp;<br> 
 <br></ul>
 

@@ -57,25 +57,25 @@
 <big><b>pygame.mixer.music</big></b><br><ul>
   <i>pygame module for controlling streamed audio</i><br>
 <ul><small><table>
-  <tr><td><a href="music.html#pygame.mixer.music.load">pygame.mixer.music.load</a> - <font size=-1>Load a music file for playback</font></td><td>Load a music file for playback</td></tr>
-  <tr><td><a href="music.html#pygame.mixer.music.play">pygame.mixer.music.play</a> - <font size=-1>Start the playback of the music stream</font></td><td>Start the playback of the music stream</td></tr>
-  <tr><td><a href="music.html#pygame.mixer.music.rewind">pygame.mixer.music.rewind</a> - <font size=-1>restart music</font></td><td>restart music</td></tr>
-  <tr><td><a href="music.html#pygame.mixer.music.stop">pygame.mixer.music.stop</a> - <font size=-1>stop the music playback</font></td><td>stop the music playback</td></tr>
-  <tr><td><a href="music.html#pygame.mixer.music.pause">pygame.mixer.music.pause</a> - <font size=-1>temporarily stop music playback</font></td><td>temporarily stop music playback</td></tr>
-  <tr><td><a href="music.html#pygame.mixer.music.unpause">pygame.mixer.music.unpause</a> - <font size=-1>resume paused music</font></td><td>resume paused music</td></tr>
-  <tr><td><a href="music.html#pygame.mixer.music.fadeout">pygame.mixer.music.fadeout</a> - <font size=-1>stop music playback after fading out</font></td><td>stop music playback after fading out</td></tr>
-  <tr><td><a href="music.html#pygame.mixer.music.set_volume">pygame.mixer.music.set_volume</a> - <font size=-1>set the music volume</font></td><td>set the music volume</td></tr>
-  <tr><td><a href="music.html#pygame.mixer.music.get_volume">pygame.mixer.music.get_volume</a> - <font size=-1>get the music volume</font></td><td>get the music volume</td></tr>
-  <tr><td><a href="music.html#pygame.mixer.music.get_busy">pygame.mixer.music.get_busy</a> - <font size=-1>check if the music stream is playing</font></td><td>check if the music stream is playing</td></tr>
-  <tr><td><a href="music.html#pygame.mixer.music.set_pos">pygame.mixer.music.set_pos</a> - <font size=-1>set position to play from</font></td><td>set position to play from</td></tr>
-  <tr><td><a href="music.html#pygame.mixer.music.get_pos">pygame.mixer.music.get_pos</a> - <font size=-1>get the music play time</font></td><td>get the music play time</td></tr>
-  <tr><td><a href="music.html#pygame.mixer.music.queue">pygame.mixer.music.queue</a> - <font size=-1>queue a music file to follow the current</font></td><td>queue a music file to follow the current</td></tr>
-  <tr><td><a href="music.html#pygame.mixer.music.set_endevent">pygame.mixer.music.set_endevent</a> - <font size=-1>have the music send an event when playback stops</font></td><td>have the music send an event when playback stops</td></tr>
-  <tr><td><a href="music.html#pygame.mixer.music.get_endevent">pygame.mixer.music.get_endevent</a> - <font size=-1>get the event a channel sends when playback stops</font></td><td>get the event a channel sends when playback stops</td></tr>
+  <tr><td><a href="music.html#pygame.mixer.music.load">pygame.mixer.music.load</a></td><td> &mdash; Load a music file for playback</td></tr>
+  <tr><td><a href="music.html#pygame.mixer.music.play">pygame.mixer.music.play</a></td><td> &mdash; Start the playback of the music stream</td></tr>
+  <tr><td><a href="music.html#pygame.mixer.music.rewind">pygame.mixer.music.rewind</a></td><td> &mdash; restart music</td></tr>
+  <tr><td><a href="music.html#pygame.mixer.music.stop">pygame.mixer.music.stop</a></td><td> &mdash; stop the music playback</td></tr>
+  <tr><td><a href="music.html#pygame.mixer.music.pause">pygame.mixer.music.pause</a></td><td> &mdash; temporarily stop music playback</td></tr>
+  <tr><td><a href="music.html#pygame.mixer.music.unpause">pygame.mixer.music.unpause</a></td><td> &mdash; resume paused music</td></tr>
+  <tr><td><a href="music.html#pygame.mixer.music.fadeout">pygame.mixer.music.fadeout</a></td><td> &mdash; stop music playback after fading out</td></tr>
+  <tr><td><a href="music.html#pygame.mixer.music.set_volume">pygame.mixer.music.set_volume</a></td><td> &mdash; set the music volume</td></tr>
+  <tr><td><a href="music.html#pygame.mixer.music.get_volume">pygame.mixer.music.get_volume</a></td><td> &mdash; get the music volume</td></tr>
+  <tr><td><a href="music.html#pygame.mixer.music.get_busy">pygame.mixer.music.get_busy</a></td><td> &mdash; check if the music stream is playing</td></tr>
+  <tr><td><a href="music.html#pygame.mixer.music.set_pos">pygame.mixer.music.set_pos</a></td><td> &mdash; set position to play from</td></tr>
+  <tr><td><a href="music.html#pygame.mixer.music.get_pos">pygame.mixer.music.get_pos</a></td><td> &mdash; get the music play time</td></tr>
+  <tr><td><a href="music.html#pygame.mixer.music.queue">pygame.mixer.music.queue</a></td><td> &mdash; queue a music file to follow the current</td></tr>
+  <tr><td><a href="music.html#pygame.mixer.music.set_endevent">pygame.mixer.music.set_endevent</a></td><td> &mdash; have the music send an event when playback stops</td></tr>
+  <tr><td><a href="music.html#pygame.mixer.music.get_endevent">pygame.mixer.music.get_endevent</a></td><td> &mdash; get the event a channel sends when playback stops</td></tr>
 </table></small></ul>
 <p>The music module is closely tied to <tt>pygame.mixer</tt>. Use the music module to control the playback of music in the sound mixer. </p>
 <p>The difference between the music playback and regular Sound playback is that the music is streamed, and never actually loaded all at once. The mixer system only supports a single music stream at once. </p>
-<p>Be aware that <tt>MP3</tt> support is limited. On some systems an unsupported format can crash the program, <tt>e.g</tt>. Debian Linux. Consider using <tt>OGG</tt> instead. </p>
+<p>Be aware that MP3 support is limited. On some systems an unsupported format can crash the program, <tt>e.g</tt>. Debian Linux. Consider using <tt>OGG</tt> instead. </p>
 <!--COMMENTS:pygame.mixer.music--> &nbsp;<br> 
 
 
@@ -94,8 +94,8 @@
   <i>Start the playback of the music stream</i><br>
   <tt>pygame.mixer.music.play(loops=0, start=0.0): return None</tt><br>
 <p>This will play the loaded music stream. If the music is already playing it will be restarted. </p>
-<p>The loops argument controls the number of repeats a music will play. play(5) will cause the music to played once, then repeated five times, for a total of six. If the loops is -1 then the music will repeat indefinitely. </p>
-<p>The starting position argument controls where in the music the song starts playing. The starting position is dependent on the format of music playing. <tt>MP3</tt> and <tt>OGG</tt> use the position as time (in seconds). <tt>MOD</tt> music it is the pattern order number. Passing a startpos will raise a NotImplementedError if it cannot set the start position </p>
+<p>The loops argument controls the number of repeats a music will play. <tt>play(5)</tt> will cause the music to played once, then repeated five times, for a total of six. If the loops is -1 then the music will repeat indefinitely. </p>
+<p>The starting position argument controls where in the music the song starts playing. The starting position is dependent on the format of music playing. MP3 and <tt>OGG</tt> use the position as time (in seconds). <tt>MOD</tt> music it is the pattern order number. Passing a startpos will raise a NotImplementedError if it cannot set the start position </p>
 <!--COMMENTS:pygame.mixer.music.play--> &nbsp;<br> 
 <br></ul>
 
@@ -122,7 +122,7 @@
 <big><b>pygame.mixer.music.pause</big></b><br><ul>
   <i>temporarily stop music playback</i><br>
   <tt>pygame.mixer.music.pause(): return None</tt><br>
-<p>Temporarily stop playback of the music stream. It can be resumed with the <tt><a href="music.html#pygame.mixer.music.unpause">pygame.mixer.music.unpause</a> - <font size=-1>resume paused music</font></tt> function. </p>
+<p>Temporarily stop playback of the music stream. It can be resumed with the <tt><a href="music.html#pygame.mixer.music.unpause">pygame.mixer.music.unpause</a></tt>&nbsp;&ndash;<font size=-1>resume paused music</font>&ndash; function. </p>
 <!--COMMENTS:pygame.mixer.music.pause--> &nbsp;<br> 
 <br></ul>
 
@@ -150,7 +150,7 @@
 <big><b>pygame.mixer.music.set_volume</big></b><br><ul>
   <i>set the music volume</i><br>
   <tt>pygame.mixer.music.set_volume(value): return None</tt><br>
-<p>Set the volume of the music playback. The value argument is between <tt>0.0</tt> and <tt>1.0</tt>. When new music is loaded the volume is reset. </p>
+<p>Set the volume of the music playback. The value argument is between 0.0 and 1.0. When new music is loaded the volume is reset. </p>
 <!--COMMENTS:pygame.mixer.music.set_volume--> &nbsp;<br> 
 <br></ul>
 
@@ -159,7 +159,7 @@
 <big><b>pygame.mixer.music.get_volume</big></b><br><ul>
   <i>get the music volume</i><br>
   <tt>pygame.mixer.music.get_volume(): return value</tt><br>
-<p>Returns the current volume for the mixer. The value will be between <tt>0.0</tt> and <tt>1.0</tt>. </p>
+<p>Returns the current volume for the mixer. The value will be between 0.0 and 1.0. </p>
 <!--COMMENTS:pygame.mixer.music.get_volume--> &nbsp;<br> 
 <br></ul>
 
@@ -195,7 +195,7 @@
 <big><b>pygame.mixer.music.queue</big></b><br><ul>
   <i>queue a music file to follow the current</i><br>
   <tt>pygame.mixer.music.queue(filename): return None</tt><br>
-<p>This will load a music file and queue it. <tt>A</tt> queued music file will begin as soon as the current music naturally ends. If the current music is ever stopped or changed, the queued song will be lost. </p>
+<p>This will load a music file and queue it. A queued music file will begin as soon as the current music naturally ends. If the current music is ever stopped or changed, the queued song will be lost. </p>
 <p>The following example will play music by Bach six times, then play music by Mozart once: </p>
 <pre>    pygame.mixer.music.load('bach.ogg')
     pygame.mixer.music.play(5)        # Plays six times, not five!

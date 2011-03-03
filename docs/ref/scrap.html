@@ -57,22 +57,22 @@
 <big><b>pygame.scrap</big></b><br><ul>
   <i>pygame module for clipboard support.</i><br>
 <ul><small><table>
-  <tr><td><a href="scrap.html#pygame.scrap.init">pygame.scrap.init</a> - <font size=-1>Initializes the scrap module.</font></td><td>Initializes the scrap module.</td></tr>
-  <tr><td><a href="scrap.html#pygame.scrap.get">pygame.scrap.get</a> - <font size=-1>Gets the data for the specified type from the clipboard.</font></td><td>Gets the data for the specified type from the clipboard.</td></tr>
-  <tr><td><a href="scrap.html#pygame.scrap.get_types">pygame.scrap.get_types</a> - <font size=-1>Gets a list of the available clipboard types.</font></td><td>Gets a list of the available clipboard types.</td></tr>
-  <tr><td><a href="scrap.html#pygame.scrap.put">pygame.scrap.put</a> - <font size=-1>Places data into the clipboard.</font></td><td>Places data into the clipboard.</td></tr>
-  <tr><td><a href="scrap.html#pygame.scrap.contains">pygame.scrap.contains</a> - <font size=-1>Checks, whether a certain type is available in the clipboard.</font></td><td>Checks, whether a certain type is available in the clipboard.</td></tr>
-  <tr><td><a href="scrap.html#pygame.scrap.lost">pygame.scrap.lost</a> - <font size=-1>Checks whether the clipboard is currently owned by the application.</font></td><td>Checks whether the clipboard is currently owned by the application.</td></tr>
-  <tr><td><a href="scrap.html#pygame.scrap.set_mode">pygame.scrap.set_mode</a> - <font size=-1>Sets the clipboard access mode.</font></td><td>Sets the clipboard access mode.</td></tr>
+  <tr><td><a href="scrap.html#pygame.scrap.init">pygame.scrap.init</a></td><td> &mdash; Initializes the scrap module.</td></tr>
+  <tr><td><a href="scrap.html#pygame.scrap.get">pygame.scrap.get</a></td><td> &mdash; Gets the data for the specified type from the clipboard.</td></tr>
+  <tr><td><a href="scrap.html#pygame.scrap.get_types">pygame.scrap.get_types</a></td><td> &mdash; Gets a list of the available clipboard types.</td></tr>
+  <tr><td><a href="scrap.html#pygame.scrap.put">pygame.scrap.put</a></td><td> &mdash; Places data into the clipboard.</td></tr>
+  <tr><td><a href="scrap.html#pygame.scrap.contains">pygame.scrap.contains</a></td><td> &mdash; Checks, whether a certain type is available in the clipboard.</td></tr>
+  <tr><td><a href="scrap.html#pygame.scrap.lost">pygame.scrap.lost</a></td><td> &mdash; Checks whether the clipboard is currently owned by the application.</td></tr>
+  <tr><td><a href="scrap.html#pygame.scrap.set_mode">pygame.scrap.set_mode</a></td><td> &mdash; Sets the clipboard access mode.</td></tr>
 </table></small></ul>
-<p><tt>EXPERIMENTAL!:</tt> meaning this api may change, or dissapear in later pygame releases. If you use this, your code will break with the next pygame release. </p>
+<p>EXPERIMENTAL!: meaning this api may change, or dissapear in later pygame releases. If you use this, your code will break with the next pygame release. </p>
 <p>The scrap module is for getting and putting stuff from the clipboard. So you can copy and paste things between pygame, and other application types. It defines some basic own data types </p>
 <pre>  SCRAP_PPM
   SCRAP_PBM
   SCRAP_BMP
   SCRAP_TEXT
-</pre><p>to be placed into the clipboard and allows to use define own clipboard types. <tt>SCRAP_PPM</tt>, <tt>SCRAP_PBM</tt> and <tt>SCRAP_BMP</tt> are suitable for surface buffers to be shared with other applications, while <tt>SCRAP_TEXT</tt> is an alias for the plain text clipboard type. </p>
-<p>The <tt>SCRAP_*</tt> types refer to the following <tt>MIME</tt> types and register those as well as the default operating system type for this type of data: </p>
+</pre><p>to be placed into the clipboard and allows to use define own clipboard types. SCRAP_PPM, <tt>SCRAP_PBM</tt> and <tt>SCRAP_BMP</tt> are suitable for surface buffers to be shared with other applications, while <tt>SCRAP_TEXT</tt> is an alias for the plain text clipboard type. </p>
+<p>The SCRAP_* types refer to the following <tt>MIME</tt> types and register those as well as the default operating system type for this type of data: </p>
 <pre>  SCRAP_TEXT text/plain    for plain text
   SCRAP_PBM  image/pbm     for PBM encoded image data
   SCRAP_PPM  image/ppm     for PPM encoded image data
@@ -82,14 +82,14 @@
 <pre>  text/plain;charset=utf-8 for UTF-8 encoded text
   audio/wav                for WAV encoded audio
   image/tiff               for TIFF encoded image data
-</pre><p>For <tt>X11</tt> platforms, the additional types are supported automatically and resolve to their internal definitions: </p>
+</pre><p>For X11 platforms, the additional types are supported automatically and resolve to their internal definitions: </p>
 <pre>  UTF8_STRING               for UTF-8 encoded text
   text/plain;charset=utf-8  for UTF-8 encoded text
   COMPOUND_TEXT             for COMPOUND text
 </pre><p>As stated before you can define own types for the clipboard, those however might not be usable by other applications. Thus data pasted into the clipboard using </p>
 <pre>  pygame.scrap.put ("own_data", data)
 </pre><p>can only be used by applications, which query the clipboard for the "own_data" type. </p>
-<p>New in pygame <tt>1.8</tt>. Only works for Windows, <tt>X11</tt> and Mac <tt>OS</tt> <tt>X</tt> so far. On Mac <tt>OSX</tt> only text works at the moment - other types will be supported in the next release. </p>
+<p>New in pygame 1.8. Only works for Windows, X11 and Mac <tt>OS</tt> <tt>X</tt> so far. On Mac <tt>OSX</tt> only text works at the moment - other types will be supported in the next release. </p>
 <!--COMMENTS:pygame.scrap--> &nbsp;<br> 
 
 
@@ -97,7 +97,7 @@
 <big><b>pygame.scrap.init</big></b><br><ul>
   <i>Initializes the scrap module.</i><br>
   <tt>scrap.init () -> None</tt><br>
-<p>Tries to initialize the scrap module and raises an exception, if it fails. Note that this module requires a set display surface, so you have to make sure, you acquired one earlier using <tt><a href="display.html#pygame.display.set_mode">pygame.display.set_mode</a> - <font size=-1>initialize a window or screen for display</font></tt>. </p>
+<p>Tries to initialize the scrap module and raises an exception, if it fails. Note that this module requires a set display surface, so you have to make sure, you acquired one earlier using <tt><a href="display.html#pygame.display.set_mode">pygame.display.set_mode</a></tt>&nbsp;&ndash;<font size=-1>initialize a window or screen for display</font>. </p>
 <!--COMMENTS:pygame.scrap.init--> &nbsp;<br> 
 <br></ul>
 
@@ -137,7 +137,7 @@
 <big><b>pygame.scrap.put</big></b><br><ul>
   <i>Places data into the clipboard.</i><br>
   <tt>scrap.put(type, data) -> None</tt><br>
-<p>Places data for a specific clipboard type into the clipboard. The data must be a string buffer. The type is a string identifying the type of data placed into the clipboard. This can be one of the native <tt>SCRAP_PBM</tt>, <tt>SCRAP_PPM</tt>, <tt>SCRAP_BMP</tt> or <tt>SCRAP_TEXT</tt> values or an own string identifier. </p>
+<p>Places data for a specific clipboard type into the clipboard. The data must be a string buffer. The type is a string identifying the type of data placed into the clipboard. This can be one of the native SCRAP_PBM, SCRAP_PPM, <tt>SCRAP_BMP</tt> or <tt>SCRAP_TEXT</tt> values or an own string identifier. </p>
 <p>The method raises an exception, if the content could not be placed into the clipboard. </p>
 <pre>  fp = open ("example.bmp", "rb")
   pygame.scrap.put (SCRAP_BMP, fp.read ())
@@ -181,7 +181,7 @@
 <big><b>pygame.scrap.set_mode</big></b><br><ul>
   <i>Sets the clipboard access mode.</i><br>
   <tt>scrap.set_mode(mode) -> None</tt><br>
-<p>Sets the access mode for the clipboard. This is only of interest for <tt>X11</tt> environments, where clipboard modes for mouse selections <tt>(SRAP_SELECTION)</tt> and the clipboard <tt>(SCRAP_CLIPBOARD)</tt> are available. Setting the mode to <tt>SCRAP_SELECTION</tt> in other environments will not cause any difference. </p>
+<p>Sets the access mode for the clipboard. This is only of interest for X11 environments, where clipboard modes for mouse selections (SRAP_SELECTION) and the clipboard (SCRAP_CLIPBOARD) are available. Setting the mode to <tt>SCRAP_SELECTION</tt> in other environments will not cause any difference. </p>
 <p>If a value different from <tt>SCRAP_CLIPBOARD</tt> or <tt>SCRAP_SELECTION</tt> is passed, a ValueError will be raised. </p>
 <!--COMMENTS:pygame.scrap.set_mode--> &nbsp;<br> 
 <br></ul>

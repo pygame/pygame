@@ -57,23 +57,23 @@
 <big><b>pygame.midi</big></b><br><ul>
   <i>pygame module for interacting with midi input and output.</i><br>
 <ul><small><table>
-  <tr><td><a href="midi.html#pygame.midi.Input">pygame.midi.Input</a> - <font size=-1>Input is used to get midi input from midi devices.</font></td><td>Input is used to get midi input from midi devices.</td></tr>
-  <tr><td><a href="midi.html#pygame.midi.MidiException">pygame.midi.MidiException</a> - <font size=-1>exception that pygame.midi functions and classes can raise</font></td><td>exception that pygame.midi functions and classes can raise</td></tr>
-  <tr><td><a href="midi.html#pygame.midi.Output">pygame.midi.Output</a> - <font size=-1>Output is used to send midi to an output device</font></td><td>Output is used to send midi to an output device</td></tr>
-  <tr><td><a href="midi.html#pygame.midi.get_count">pygame.midi.get_count</a> - <font size=-1>gets the number of devices.</font></td><td>gets the number of devices.</td></tr>
-  <tr><td><a href="midi.html#pygame.midi.get_default_input_id">pygame.midi.get_default_input_id</a> - <font size=-1>gets default input device number</font></td><td>gets default input device number</td></tr>
-  <tr><td><a href="midi.html#pygame.midi.get_default_output_id">pygame.midi.get_default_output_id</a> - <font size=-1>gets default output device number</font></td><td>gets default output device number</td></tr>
-  <tr><td><a href="midi.html#pygame.midi.get_device_info">pygame.midi.get_device_info</a> - <font size=-1> returns information about a midi device</font></td><td> returns information about a midi device</td></tr>
-  <tr><td><a href="midi.html#pygame.midi.init">pygame.midi.init</a> - <font size=-1>initialize the midi module</font></td><td>initialize the midi module</td></tr>
-  <tr><td><a href="midi.html#pygame.midi.midis2events">pygame.midi.midis2events</a> - <font size=-1>converts midi events to pygame events</font></td><td>converts midi events to pygame events</td></tr>
-  <tr><td><a href="midi.html#pygame.midi.quit">pygame.midi.quit</a> - <font size=-1>uninitialize the midi module</font></td><td>uninitialize the midi module</td></tr>
-  <tr><td><a href="midi.html#pygame.midi.time">pygame.midi.time</a> - <font size=-1>returns the current time in ms of the PortMidi timer</font></td><td>returns the current time in ms of the PortMidi timer</td></tr>
+  <tr><td><a href="midi.html#pygame.midi.Input">pygame.midi.Input</a></td><td> &mdash; Input is used to get midi input from midi devices.</td></tr>
+  <tr><td><a href="midi.html#pygame.midi.MidiException">pygame.midi.MidiException</a></td><td> &mdash; exception that pygame.midi functions and classes can raise</td></tr>
+  <tr><td><a href="midi.html#pygame.midi.Output">pygame.midi.Output</a></td><td> &mdash; Output is used to send midi to an output device</td></tr>
+  <tr><td><a href="midi.html#pygame.midi.get_count">pygame.midi.get_count</a></td><td> &mdash; gets the number of devices.</td></tr>
+  <tr><td><a href="midi.html#pygame.midi.get_default_input_id">pygame.midi.get_default_input_id</a></td><td> &mdash; gets default input device number</td></tr>
+  <tr><td><a href="midi.html#pygame.midi.get_default_output_id">pygame.midi.get_default_output_id</a></td><td> &mdash; gets default output device number</td></tr>
+  <tr><td><a href="midi.html#pygame.midi.get_device_info">pygame.midi.get_device_info</a></td><td> &mdash;  returns information about a midi device</td></tr>
+  <tr><td><a href="midi.html#pygame.midi.init">pygame.midi.init</a></td><td> &mdash; initialize the midi module</td></tr>
+  <tr><td><a href="midi.html#pygame.midi.midis2events">pygame.midi.midis2events</a></td><td> &mdash; converts midi events to pygame events</td></tr>
+  <tr><td><a href="midi.html#pygame.midi.quit">pygame.midi.quit</a></td><td> &mdash; uninitialize the midi module</td></tr>
+  <tr><td><a href="midi.html#pygame.midi.time">pygame.midi.time</a></td><td> &mdash; returns the current time in ms of the PortMidi timer</td></tr>
 </table></small></ul>
 <p>The midi module can send output to midi devices, and get input from midi devices. It can also list midi devices on the system. </p>
 <p>Including real midi devices, and virtual ones. </p>
-<p>It uses the portmidi library. Is portable to which ever platforms portmidi supports (currently windows, <tt>OSX</tt>, and linux). </p>
+<p>It uses the portmidi library. Is portable to which ever platforms portmidi supports (currently windows, OSX, and linux). </p>
 <p>This uses pyportmidi for now, but may use its own bindings at some point in the future. The pyportmidi bindings are included with pygame. </p>
-<p>New in pygame <tt>1.9.0</tt>. </p>
+<p>New in pygame 1.9.0. </p>
 <!--COMMENTS:pygame.midi--> &nbsp;<br> 
 
 
@@ -83,9 +83,9 @@
   <tt>Input(device_id)</tt><br>
   <tt>Input(device_id, buffer_size)</tt><br>
 <ul><small><table>
-  <tr><td><a href="midi.html#Input.close">Input.close</a> - <font size=-1> closes a midi stream, flushing any pending buffers.</font></td><td> closes a midi stream, flushing any pending buffers.</td></tr>
-  <tr><td><a href="midi.html#Input.poll">Input.poll</a> - <font size=-1>returns true if there's data, or false if not.</font></td><td>returns true if there's data, or false if not.</td></tr>
-  <tr><td><a href="midi.html#Input.read">Input.read</a> - <font size=-1>reads num_events midi events from the buffer.</font></td><td>reads num_events midi events from the buffer.</td></tr>
+  <tr><td><a href="midi.html#Input.close">Input.close</a></td><td> &mdash;  closes a midi stream, flushing any pending buffers.</td></tr>
+  <tr><td><a href="midi.html#Input.poll">Input.poll</a></td><td> &mdash; returns true if there's data, or false if not.</td></tr>
+  <tr><td><a href="midi.html#Input.read">Input.read</a></td><td> &mdash; reads num_events midi events from the buffer.</td></tr>
 </table></small></ul>
 <p>buffer_size -the number of input events to be buffered waiting to </p>
 <pre>  be read using Input.read()
@@ -140,18 +140,18 @@
   <tt>Output(device_id, buffer_size = 4096)</tt><br>
   <tt>Output(device_id, latency, buffer_size)</tt><br>
 <ul><small><table>
-  <tr><td><a href="midi.html#Output.abort">Output.abort</a> - <font size=-1> terminates outgoing messages immediately</font></td><td> terminates outgoing messages immediately</td></tr>
-  <tr><td><a href="midi.html#Output.close">Output.close</a> - <font size=-1> closes a midi stream, flushing any pending buffers.</font></td><td> closes a midi stream, flushing any pending buffers.</td></tr>
-  <tr><td><a href="midi.html#Output.note_off">Output.note_off</a> - <font size=-1>turns a midi note off.  Note must be on.</font></td><td>turns a midi note off.  Note must be on.</td></tr>
-  <tr><td><a href="midi.html#Output.note_on">Output.note_on</a> - <font size=-1>turns a midi note on.  Note must be off.</font></td><td>turns a midi note on.  Note must be off.</td></tr>
-  <tr><td><a href="midi.html#Output.set_instrument">Output.set_instrument</a> - <font size=-1>select an instrument, with a value between 0 and 127</font></td><td>select an instrument, with a value between 0 and 127</td></tr>
-  <tr><td><a href="midi.html#Output.write">Output.write</a> - <font size=-1>writes a list of midi data to the Output</font></td><td>writes a list of midi data to the Output</td></tr>
-  <tr><td><a href="midi.html#Output.write_short">Output.write_short</a> - <font size=-1>write_short(status <, data1><, data2>)</font></td><td>write_short(status <, data1><, data2>)</td></tr>
-  <tr><td><a href="midi.html#Output.write_sys_ex">Output.write_sys_ex</a> - <font size=-1>writes a timestamped system-exclusive midi message.</font></td><td>writes a timestamped system-exclusive midi message.</td></tr>
+  <tr><td><a href="midi.html#Output.abort">Output.abort</a></td><td> &mdash;  terminates outgoing messages immediately</td></tr>
+  <tr><td><a href="midi.html#Output.close">Output.close</a></td><td> &mdash;  closes a midi stream, flushing any pending buffers.</td></tr>
+  <tr><td><a href="midi.html#Output.note_off">Output.note_off</a></td><td> &mdash; turns a midi note off.  Note must be on.</td></tr>
+  <tr><td><a href="midi.html#Output.note_on">Output.note_on</a></td><td> &mdash; turns a midi note on.  Note must be off.</td></tr>
+  <tr><td><a href="midi.html#Output.set_instrument">Output.set_instrument</a></td><td> &mdash; select an instrument, with a value between 0 and 127</td></tr>
+  <tr><td><a href="midi.html#Output.write">Output.write</a></td><td> &mdash; writes a list of midi data to the Output</td></tr>
+  <tr><td><a href="midi.html#Output.write_short">Output.write_short</a></td><td> &mdash; write_short(status <, data1><, data2>)</td></tr>
+  <tr><td><a href="midi.html#Output.write_sys_ex">Output.write_sys_ex</a></td><td> &mdash; writes a timestamped system-exclusive midi message.</td></tr>
 </table></small></ul>
-<p>The buffer_size specifies the number of output events to be buffered waiting for output. (In some cases -- see below -- PortMidi does not buffer output at all and merely passes data to a lower-level <tt>API</tt>, in which case buffersize is <tt>ignored.)</tt> </p>
-<p>latency is the delay in milliseconds applied to timestamps to determine when the output should actually occur. (If latency is < 0, 0 is <tt>assumed.)</tt> </p>
-<p>If latency is zero, timestamps are ignored and all output is delivered immediately. If latency is greater than zero, output is delayed until the message timestamp plus the latency. <tt>(NOTE:</tt> time is measured relative to the time source indicated by time_proc. Timestamps are absolute, not relative delays or <tt>offsets.)</tt> In some cases, PortMidi can obtain better timing than your application by passing timestamps along to the device driver or hardware. Latency may also help you to synchronize midi data to audio data by matching midi latency to the audio buffer latency. </p>
+<p>The buffer_size specifies the number of output events to be buffered waiting for output. (In some cases -- see below -- PortMidi does not buffer output at all and merely passes data to a lower-level API, in which case buffersize is ignored.) </p>
+<p>latency is the delay in milliseconds applied to timestamps to determine when the output should actually occur. (If latency is < 0, 0 is assumed.) </p>
+<p>If latency is zero, timestamps are ignored and all output is delivered immediately. If latency is greater than zero, output is delayed until the message timestamp plus the latency. (NOTE: time is measured relative to the time source indicated by time_proc. Timestamps are absolute, not relative delays or offsets.) In some cases, PortMidi can obtain better timing than your application by passing timestamps along to the device driver or hardware. Latency may also help you to synchronize midi data to audio data by matching midi latency to the audio buffer latency. </p>
 <!--COMMENTS:pygame.midi.Output--> &nbsp;<br> 
 
 
@@ -260,7 +260,7 @@
 <big><b>pygame.midi.get_count</big></b><br><ul>
   <i>gets the number of devices.</i><br>
   <tt>pygame.midi.get_count(): return num_devices</tt><br>
-<p>Device ids range from 0 to get_count() -1 </p>
+<p>Device ids range from 0 to <tt>get_count()</tt> -1 </p>
 <!--COMMENTS:pygame.midi.get_count--> &nbsp;<br> 
 <br></ul>
 
@@ -270,13 +270,13 @@
   <i>gets default input device number</i><br>
   <tt>pygame.midi.get_default_input_id(): return default_id</tt><br>
 <p>Return the default device <tt>ID</tt> or -1 if there are no devices. The result can be passed to the Input()/Ouput() class. </p>
-<p>On the <tt>PC</tt>, the user can specify a default device by setting an environment variable. For example, to use device #1. </p>
+<p>On the PC, the user can specify a default device by setting an environment variable. For example, to use device #1. </p>
 <pre>    set PM_RECOMMENDED_INPUT_DEVICE=1
 </pre><p>The user should first determine the available device <tt>ID</tt> by using the supplied application "testin" or "testout". </p>
-<p>In general, the registry is a better place for this kind of info, and with <tt>USB</tt> devices that can come and go, using integers is not very reliable for device identification. Under Windows, if <tt>PM_RECOMMENDED_OUTPUT_DEVICE</tt> (or <tt>PM_RECOMMENDED_INPUT_DEVICE)</tt> is <tt>*NOT*</tt> found in the environment, then the default device is obtained by looking for a string in the registry under: </p>
+<p>In general, the registry is a better place for this kind of info, and with <tt>USB</tt> devices that can come and go, using integers is not very reliable for device identification. Under Windows, if <tt>PM_RECOMMENDED_OUTPUT_DEVICE</tt> (or PM_RECOMMENDED_INPUT_DEVICE) is *NOT* found in the environment, then the default device is obtained by looking for a string in the registry under: </p>
 <pre>    HKEY_LOCAL_MACHINE/SOFTWARE/PortMidi/Recommended_Input_Device
-</pre><p>and HKEY_LOCAL_MACHINE/SOFTWARE/PortMidi/Recommended_Output_Device for a string. The number of the first device with a substring that matches the string exactly is returned. For example, if the string in the registry is <tt>"USB"</tt>, and device 1 is named "In <tt>USB</tt> MidiSport 1x1", then that will be the default input because it contains the string <tt>"USB"</tt>. </p>
-<p>In addition to the name, get_device_info() returns "interf", which is the interface name. (The "interface" is the underlying software system or <tt>API</tt> used by PortMidi to access devices. Examples are MMSystem, DirectX (not implemented), <tt>ALSA</tt>, <tt>OSS</tt> (not implemented), <tt>etc.)</tt> At present, the only Win32 interface is "MMSystem", the only Linux interface is <tt>"ALSA"</tt>, and the only Max <tt>OS</tt> <tt>X</tt> interface is "CoreMIDI". To specify both the interface and the device name in the registry, separate the two with a comma and a space, <tt>e.g.:</tt> </p>
+</pre><p>and HKEY_LOCAL_MACHINE/SOFTWARE/PortMidi/Recommended_Output_Device for a string. The number of the first device with a substring that matches the string exactly is returned. For example, if the string in the registry is "USB", and device 1 is named "In <tt>USB</tt> MidiSport 1x1", then that will be the default input because it contains the string "USB". </p>
+<p>In addition to the name, <tt>get_device_info()</tt> returns "interf", which is the interface name. (The "interface" is the underlying software system or <tt>API</tt> used by PortMidi to access devices. Examples are MMSystem, DirectX (not implemented), ALSA, <tt>OSS</tt> (not implemented), etc.) At present, the only Win32 interface is "MMSystem", the only Linux interface is "ALSA", and the only Max <tt>OS</tt> <tt>X</tt> interface is "CoreMIDI". To specify both the interface and the device name in the registry, separate the two with a comma and a space, e.g.: </p>
 <pre>    MMSystem, In USB MidiSport 1x1
 </pre><p>In this case, the string before the comma must be a substring of the "interf" string, and the string after the space must be a substring of the "name" name string in order to match the device. </p>
 <p>Note: in the current release, the default is simply the first device (the input or output device with the lowest PmDeviceID). </p>
@@ -289,13 +289,13 @@
   <i>gets default output device number</i><br>
   <tt>pygame.midi.get_default_output_id(): return default_id</tt><br>
 <p>Return the default device <tt>ID</tt> or -1 if there are no devices. The result can be passed to the Input()/Ouput() class. </p>
-<p>On the <tt>PC</tt>, the user can specify a default device by setting an environment variable. For example, to use device #1. </p>
+<p>On the PC, the user can specify a default device by setting an environment variable. For example, to use device #1. </p>
 <pre>    set PM_RECOMMENDED_OUTPUT_DEVICE=1
 </pre><p>The user should first determine the available device <tt>ID</tt> by using the supplied application "testin" or "testout". </p>
-<p>In general, the registry is a better place for this kind of info, and with <tt>USB</tt> devices that can come and go, using integers is not very reliable for device identification. Under Windows, if <tt>PM_RECOMMENDED_OUTPUT_DEVICE</tt> (or <tt>PM_RECOMMENDED_INPUT_DEVICE)</tt> is <tt>*NOT*</tt> found in the environment, then the default device is obtained by looking for a string in the registry under: </p>
+<p>In general, the registry is a better place for this kind of info, and with <tt>USB</tt> devices that can come and go, using integers is not very reliable for device identification. Under Windows, if <tt>PM_RECOMMENDED_OUTPUT_DEVICE</tt> (or PM_RECOMMENDED_INPUT_DEVICE) is *NOT* found in the environment, then the default device is obtained by looking for a string in the registry under: </p>
 <pre>    HKEY_LOCAL_MACHINE/SOFTWARE/PortMidi/Recommended_Input_Device
-</pre><p>and HKEY_LOCAL_MACHINE/SOFTWARE/PortMidi/Recommended_Output_Device for a string. The number of the first device with a substring that matches the string exactly is returned. For example, if the string in the registry is <tt>"USB"</tt>, and device 1 is named "In <tt>USB</tt> MidiSport 1x1", then that will be the default input because it contains the string <tt>"USB"</tt>. </p>
-<p>In addition to the name, get_device_info() returns "interf", which is the interface name. (The "interface" is the underlying software system or <tt>API</tt> used by PortMidi to access devices. Examples are MMSystem, DirectX (not implemented), <tt>ALSA</tt>, <tt>OSS</tt> (not implemented), <tt>etc.)</tt> At present, the only Win32 interface is "MMSystem", the only Linux interface is <tt>"ALSA"</tt>, and the only Max <tt>OS</tt> <tt>X</tt> interface is "CoreMIDI". To specify both the interface and the device name in the registry, separate the two with a comma and a space, <tt>e.g.:</tt> </p>
+</pre><p>and HKEY_LOCAL_MACHINE/SOFTWARE/PortMidi/Recommended_Output_Device for a string. The number of the first device with a substring that matches the string exactly is returned. For example, if the string in the registry is "USB", and device 1 is named "In <tt>USB</tt> MidiSport 1x1", then that will be the default input because it contains the string "USB". </p>
+<p>In addition to the name, <tt>get_device_info()</tt> returns "interf", which is the interface name. (The "interface" is the underlying software system or <tt>API</tt> used by PortMidi to access devices. Examples are MMSystem, DirectX (not implemented), ALSA, <tt>OSS</tt> (not implemented), etc.) At present, the only Win32 interface is "MMSystem", the only Linux interface is "ALSA", and the only Max <tt>OS</tt> <tt>X</tt> interface is "CoreMIDI". To specify both the interface and the device name in the registry, separate the two with a comma and a space, e.g.: </p>
 <pre>    MMSystem, In USB MidiSport 1x1
 </pre><p>In this case, the string before the comma must be a substring of the "interf" string, and the string after the space must be a substring of the "name" name string in order to match the device. </p>
 <p>Note: in the current release, the default is simply the first device (the input or output device with the lowest PmDeviceID). </p>
@@ -307,7 +307,7 @@
 <big><b>pygame.midi.get_device_info</big></b><br><ul>
   <i> returns information about a midi device</i><br>
   <tt>pygame.midi.get_device_info(an_id): return (interf, name, input, output, opened)</tt><br>
-<p>interf - a text string describing the device interface, eg <tt>'ALSA'</tt>. name - a text string for the name of the device, eg 'Midi Through Port-0' input - 0, or 1 if the device is an input device. output - 0, or 1 if the device is an output device. opened - 0, or 1 if the device is opened. </p>
+<p>interf - a text string describing the device interface, eg 'ALSA'. name - a text string for the name of the device, eg 'Midi Through Port-0' input - 0, or 1 if the device is an input device. output - 0, or 1 if the device is an output device. opened - 0, or 1 if the device is opened. </p>
 <p>If the id is out of range, the function returns None. </p>
 <!--COMMENTS:pygame.midi.get_device_info--> &nbsp;<br> 
 <br></ul>

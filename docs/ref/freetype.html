@@ -57,18 +57,18 @@
 <big><b>pygame.freetype</big></b><br><ul>
   <i>Enhanced Pygame module for loading and rendering fonts</i><br>
 <ul><small><table>
-  <tr><td><a href="freetype.html#pygame.freetype.get_error">pygame.freetype.get_error</a> - <font size=-1>Get the latest error</font></td><td>Get the latest error</td></tr>
-  <tr><td><a href="freetype.html#pygame.freetype.get_version">pygame.freetype.get_version</a> - <font size=-1>Get the FreeType version</font></td><td>Get the FreeType version</td></tr>
-  <tr><td><a href="freetype.html#pygame.freetype.init">pygame.freetype.init</a> - <font size=-1>Initialize the underlying FreeType 2 library.</font></td><td>Initialize the underlying FreeType 2 library.</td></tr>
-  <tr><td><a href="freetype.html#pygame.freetype.quit">pygame.freetype.quit</a> - <font size=-1>Shuts down the underlying FreeType 2 library.</font></td><td>Shuts down the underlying FreeType 2 library.</td></tr>
-  <tr><td><a href="freetype.html#pygame.freetype.was_init">pygame.freetype.was_init</a> - <font size=-1>Returns whether the the FreeType 2 library is initialized.</font></td><td>Returns whether the the FreeType 2 library is initialized.</td></tr>
-  <tr><td><a href="freetype.html#pygame.freetype.Font">pygame.freetype.Font</a> - <font size=-1>Creates a new Font from a supported font file.</font></td><td>Creates a new Font from a supported font file.</td></tr>
+  <tr><td><a href="freetype.html#pygame.freetype.get_error">pygame.freetype.get_error</a></td><td> &mdash; Get the latest error</td></tr>
+  <tr><td><a href="freetype.html#pygame.freetype.get_version">pygame.freetype.get_version</a></td><td> &mdash; Get the FreeType version</td></tr>
+  <tr><td><a href="freetype.html#pygame.freetype.init">pygame.freetype.init</a></td><td> &mdash; Initialize the underlying FreeType 2 library.</td></tr>
+  <tr><td><a href="freetype.html#pygame.freetype.quit">pygame.freetype.quit</a></td><td> &mdash; Shuts down the underlying FreeType 2 library.</td></tr>
+  <tr><td><a href="freetype.html#pygame.freetype.was_init">pygame.freetype.was_init</a></td><td> &mdash; Returns whether the the FreeType 2 library is initialized.</td></tr>
+  <tr><td><a href="freetype.html#pygame.freetype.Font">pygame.freetype.Font</a></td><td> &mdash; Creates a new Font from a supported font file.</td></tr>
 </table></small></ul>
 <p>--- Note that some features may change before a formal release </p>
-<p>This module allows for rendering all font formats supported by FreeType, namely <tt>TTF</tt>, Type1, <tt>CFF</tt>, OpenType, <tt>SFNT</tt>, <tt>PCF</tt>, <tt>FNT</tt>, <tt>BDF</tt>, <tt>PFR</tt> and Type42 fonts. It can render any <tt>UTF-32</tt> character in a font file. </p>
+<p>This module allows for rendering all font formats supported by FreeType, namely TTF, Type1, CFF, OpenType, SFNT, PCF, FNT, BDF, <tt>PFR</tt> and Type42 fonts. It can render any UTF-32 character in a font file. </p>
 <p>This module is optional, and replaces all of the functionality of the original 'font' module, whilst expanding it. This module depends in no way on the SDL_ttf library. </p>
-<p>You should test that <tt>pygame.freetype</tt> is initialized before attempting to use the module; if the module is available and loaded, it will be automatically initialized by <tt><a href="pygame.html#pygame.init">pygame.init</a> - <font size=-1>initialize all imported pygame modules</font></tt> </p>
-<p>Most of the work done with fonts is done by using the actual Font objects. The module by itself only has routines to initialize itself and create Font objects with <tt><a href="freetype.html#pygame.freetype.Font">pygame.freetype.Font</a> - <font size=-1>Creates a new Font from a supported font file.</font></tt>. </p>
+<p>You should test that <tt>pygame.freetype</tt> is initialized before attempting to use the module; if the module is available and loaded, it will be automatically initialized by <tt><a href="pygame.html#pygame.init">pygame.init</a></tt>&nbsp;&ndash;<font size=-1>initialize all imported pygame modules</font>&ndash; </p>
+<p>Most of the work done with fonts is done by using the actual Font objects. The module by itself only has routines to initialize itself and create Font objects with <tt><a href="freetype.html#pygame.freetype.Font">pygame.freetype.Font</a></tt>&nbsp;&ndash;<font size=-1>Creates a new Font from a supported font file.</font>. </p>
 <p>You can load fonts from the system by using the <tt>pygame.freetype.SysFont()</tt> function. There are a few other functions to help lookup the system fonts. </p>
 <p>Pygame comes with a builtin default font. This can always be accessed by passing None as the font name to the Font constructor. </p>
 <!--COMMENTS:pygame.freetype--> &nbsp;<br> 
@@ -88,7 +88,7 @@
   <i>Get the FreeType version</i><br>
   <tt>pygame.freetype.get_version(): return (int, int, int)</tt><br>
 <p>Gets the version of the FreeType2 library which was used to build the 'freetype' module. </p>
-<p>Note that the FreeType module depends on the FreeType 2 library, and will not compile with the original FreeType <tt>1.0</tt>, hence the first element of the tuple will always be 2. </p>
+<p>Note that the FreeType module depends on the FreeType 2 library, and will not compile with the original FreeType 1.0, hence the first element of the tuple will always be 2. </p>
 <!--COMMENTS:pygame.freetype.get_version--> &nbsp;<br> 
 <br></ul>
 
@@ -98,7 +98,7 @@
   <i>Initialize the underlying FreeType 2 library.</i><br>
   <tt>pygame.freetype.init(default_cache_size=64): return None</tt><br>
 <p>This function initializes the underlying FreeType 2 library and must be called before trying to use any of the functionality of the 'freetype' module. </p>
-<p>However, if the module is available, this function will be automatically called by <tt><a href="pygame.html#pygame.init">pygame.init</a> - <font size=-1>initialize all imported pygame modules</font></tt>. It is safe to call this function more than once. </p>
+<p>However, if the module is available, this function will be automatically called by <tt><a href="pygame.html#pygame.init">pygame.init</a></tt>&nbsp;&ndash;<font size=-1>initialize all imported pygame modules</font>. It is safe to call this function more than once. </p>
 <p>Optionally, you may specify a default size for the Glyph cache: this is the maximum amount of glyphs that will be cached at any given time by the module. Exceedingly small values will be automatically tuned for performance. </p>
 <!--COMMENTS:pygame.freetype.init--> &nbsp;<br> 
 <br></ul>
@@ -127,25 +127,25 @@
   <i>Creates a new Font from a supported font file.</i><br>
   <tt>pygame.freetype.Font(file, style=STYLE_NONE, ptsize=-1, face_index=0): return Font</tt><br>
 <ul><small><table>
-  <tr><td><a href="freetype.html#Font.name">Font.name</a> - <font size=-1>Gets the name of the font face.</font></td><td>Gets the name of the font face.</td></tr>
-  <tr><td><a href="freetype.html#Font.get_size">Font.get_size</a> - <font size=-1>Gets the size of rendered text</font></td><td>Gets the size of rendered text</td></tr>
-  <tr><td><a href="freetype.html#Font.get_metrics">Font.get_metrics</a> - <font size=-1>Gets glyph metrics for the font's characters</font></td><td>Gets glyph metrics for the font's characters</td></tr>
-  <tr><td><a href="freetype.html#Font.height">Font.height</a> - <font size=-1>Gets the height of the Font</font></td><td>Gets the height of the Font</td></tr>
-  <tr><td><a href="freetype.html#Font.render">Font.render</a> - <font size=-1>Renders text on a surface</font></td><td>Renders text on a surface</td></tr>
-  <tr><td><a href="freetype.html#Font.render_raw">Font.render_raw</a> - <font size=-1>Renders text as a string of bytes</font></td><td>Renders text as a string of bytes</td></tr>
-  <tr><td><a href="freetype.html#Font.style">Font.style</a> - <font size=-1>Gets or sets the font's style</font></td><td>Gets or sets the font's style</td></tr>
-  <tr><td><a href="freetype.html#Font.underline">Font.underline</a> - <font size=-1>Gets or sets the font's underline style</font></td><td>Gets or sets the font's underline style</td></tr>
-  <tr><td><a href="freetype.html#Font.bold">Font.bold</a> - <font size=-1>Gets or sets the font's bold style</font></td><td>Gets or sets the font's bold style</td></tr>
-  <tr><td><a href="freetype.html#Font.italic">Font.italic</a> - <font size=-1>Gets or sets the font's italic style</font></td><td>Gets or sets the font's italic style</td></tr>
-  <tr><td><a href="freetype.html#Font.fixed_width">Font.fixed_width</a> - <font size=-1>Gets whether the font is fixed-width</font></td><td>Gets whether the font is fixed-width</td></tr>
-  <tr><td><a href="freetype.html#Font.antialiased">Font.antialiased</a> - <font size=-1>Font antialiasing mode</font></td><td>Font antialiasing mode</td></tr>
-  <tr><td><a href="freetype.html#Font.vertical">Font.vertical</a> - <font size=-1>Font vertical mode</font></td><td>Font vertical mode</td></tr>
-  <tr><td>None</td><td></td></tr>
+  <tr><td><a href="freetype.html#Font.name">Font.name</a></td><td> &mdash; Gets the name of the font face.</td></tr>
+  <tr><td><a href="freetype.html#Font.get_size">Font.get_size</a></td><td> &mdash; Gets the size of rendered text</td></tr>
+  <tr><td><a href="freetype.html#Font.get_metrics">Font.get_metrics</a></td><td> &mdash; Gets glyph metrics for the font's characters</td></tr>
+  <tr><td><a href="freetype.html#Font.height">Font.height</a></td><td> &mdash; Gets the height of the Font</td></tr>
+  <tr><td><a href="freetype.html#Font.render">Font.render</a></td><td> &mdash; Renders text on a surface</td></tr>
+  <tr><td><a href="freetype.html#Font.render_raw">Font.render_raw</a></td><td> &mdash; Renders text as a string of bytes</td></tr>
+  <tr><td><a href="freetype.html#Font.style">Font.style</a></td><td> &mdash; Gets or sets the font's style</td></tr>
+  <tr><td><a href="freetype.html#Font.underline">Font.underline</a></td><td> &mdash; Gets or sets the font's underline style</td></tr>
+  <tr><td><a href="freetype.html#Font.bold">Font.bold</a></td><td> &mdash; Gets or sets the font's bold style</td></tr>
+  <tr><td><a href="freetype.html#Font.italic">Font.italic</a></td><td> &mdash; Gets or sets the font's italic style</td></tr>
+  <tr><td><a href="freetype.html#Font.fixed_width">Font.fixed_width</a></td><td> &mdash; Gets whether the font is fixed-width</td></tr>
+  <tr><td><a href="freetype.html#Font.antialiased">Font.antialiased</a></td><td> &mdash; Font antialiasing mode</td></tr>
+  <tr><td><a href="freetype.html#Font.vertical">Font.vertical</a></td><td> &mdash; Font vertical mode</td></tr>
+  <tr><td>None</td><td> &mdash; </td></tr>
 </table></small></ul>
 <p>'file' can be either a string representing the font's filename, a file-like object containing the font, or None; in this last case the default, built-in font will be used. </p>
 <p>Optionally, a *ptsize* argument may be specified to set the default size in points which will be used to render the font. Such size can also be specified manually on each method call. Because of the way the caching system works, specifying a default size on the constructor doesn't imply a performance gain over manually passing the size on each function call. </p>
 <p>If the font file has more than one face, the *index* argument may be specified to specify which face index to load. Defaults to 0; font loading will fail if the given index is not contained in the font. </p>
-<p>The 'style' argument will set the default style (italic, underline, bold) used to draw this font. This style may be overriden on any <tt><a href="freetype.html#Font.render">Font.render</a> - <font size=-1>Renders text on a surface</font></tt> call. </p>
+<p>The 'style' argument will set the default style (italic, underline, bold) used to draw this font. This style may be overriden on any <tt><a href="freetype.html#Font.render">Font.render</a></tt>&nbsp;&ndash;<font size=-1>Renders text on a surface</font>&ndash; call. </p>
 <!--COMMENTS:pygame.freetype.Font--> &nbsp;<br> 
 
 
@@ -162,11 +162,11 @@
 <big><b>Font.get_size</big></b><br><ul>
   <i>Gets the size of rendered text</i><br>
   <tt>Font.get_size(text, style=STYLE_DEFAULT, rotation=0, ptsize=default, surrogates=True): return (int, int)</tt><br>
-<p>Gets the size in pixels which 'text' will occupy when rendered using this Font. The calculations will take into account the font's default style <tt>(e.g</tt>. underlined fonts take extra height for the underline), or the style may be overridden by the 'style' parameter. </p>
+<p>Gets the size in pixels which 'text' will occupy when rendered using this Font. The calculations will take into account the font's default style (e.g. underlined fonts take extra height for the underline), or the style may be overridden by the 'style' parameter. </p>
 <p>Returns a tuple containing the width and height of the text's bounding box. </p>
 <p>The calculations are done using the font's default size in points, without any rotation, and taking into account fonts which are set to be drawn vertically via the <tt>Font.vertical</tt> attribute. Optionally you may specify another point size to use via the 'ptsize' argument, or a text rotation via the 'rotation' argument. </p>
-<p>The surrogates arguement controls Unicode text decoding. By default, the freetype module performs <tt>UTF-16</tt> surrogate pair decoding on Unicode text. This allows 32-bit escape sequences ('\Uxxxxxxxx') between 0x10000 and 0x10FFFF to represent their corresponding <tt>UTF-32</tt> code points on Python interpreters built with a <tt>UCS-2</tt> unicode type (on Windows, for instance). It also means character values within the <tt>UTF-16</tt> surrogate area (0xD800 to 0xDFFF) are considered part of a surrogate pair. <tt>A</tt> malformed surrogate pair will raise an UnicodeEncodeError. Setting surrogates False turns surrogate pair decoding off, letting interpreters with a <tt>UCS-4</tt> unicode type access the full <tt>UCS-4</tt> character range. </p>
-<p>If text is a char (byte) string, then its encoding is assumed to be <tt>LATIN1</tt>. </p>
+<p>The surrogates arguement controls Unicode text decoding. By default, the freetype module performs UTF-16 surrogate pair decoding on Unicode text. This allows 32-bit escape sequences ('\Uxxxxxxxx') between 0x10000 and 0x10FFFF to represent their corresponding UTF-32 code points on Python interpreters built with a UCS-2 unicode type (on Windows, for instance). It also means character values within the UTF-16 surrogate area (0xD800 to 0xDFFF) are considered part of a surrogate pair. A malformed surrogate pair will raise an UnicodeEncodeError. Setting surrogates False turns surrogate pair decoding off, letting interpreters with a UCS-4 unicode type access the full UCS-4 character range. </p>
+<p>If text is a char (byte) string, then its encoding is assumed to be LATIN1. </p>
 <!--COMMENTS:Font.get_size--> &nbsp;<br> 
 <br></ul>
 
@@ -185,8 +185,8 @@
     BBOX_PIXEL: Return pixel coordinates (ints).
     BBOX_PIXEL_GRIDFIT (default): Return grid-aligned pixel coordinates.
 </pre><p>The calculations are done using the font's default size in points. Optionally you may specify another point size to use. </p>
-<p>Setting surrogates False turns off surrogate pair decoding (see <tt>Font.get_size)</tt>. </p>
-<p>If text is a char (byte) string, then its encoding is assumed to be <tt>LATIN1</tt>. </p>
+<p>Setting surrogates False turns off surrogate pair decoding (see Font.get_size). </p>
+<p>If text is a char (byte) string, then its encoding is assumed to be LATIN1. </p>
 <!--COMMENTS:Font.get_metrics--> &nbsp;<br> 
 <br></ul>
 
@@ -204,15 +204,15 @@
 <big><b>Font.render</big></b><br><ul>
   <i>Renders text on a surface</i><br>
   <tt>Font.render(dest, text, fgcolor, bgcolor=None, style=STYLE_DEFAULT, rotation=0, ptsize=default, surrogates=True): return (Surface, Rect)</tt><br>
-<p>Renders the string 'text' to a <tt>pygame.Surface</tt>, using the color 'fgcolor'. </p>
-<p>The 'dest' parameter is supposed to be a sequence containing the surface and the coordinates at which the text will be rendered, in that order. The sequence may be either (surf, posn) or (surf, x, y), where x and y are numbers. posn can be any sequence, including Rect, for which the first two elements are positions x and y. If x and y are not integers they will be cast to int: int(x), int(y). </p>
+<p>Renders the string 'text' to a pygame.Surface, using the color 'fgcolor'. </p>
+<p>The 'dest' parameter is supposed to be a sequence containing the surface and the coordinates at which the text will be rendered, in that order. The sequence may be either (surf, posn) or (surf, x, y), where x and y are numbers. posn can be any sequence, including Rect, for which the first two elements are positions x and y. If x and y are not integers they will be cast to int: int(x), <tt>int(y)</tt>. </p>
 <p>If such a sequence exists, and the destination surface is a valid <tt>pygame.Surface</tt> (independently of its bit depth), the text will be rendered directly on top of it at the passed coordinates, using the given 'fgcolor', and painting the background of the text with the given 'bgcolor', if available. The alpha values for both colors are always taken into account. </p>
 <p>If 'None' is passed instead of a destination sequence, a new 32 bit <tt>pygame.Surface</tt> will be created with the required size to contain the drawn text, and using *bgcolor* as its background color. If a background color is not available, the surface will be filled with zero alpha opacity. </p>
 <p>The return value is a tuple: the target surface and the bounding rectangle giving the size and position of the rendered text within the surface. </p>
 <p>If an empty string is passed for text then the returned Rect is zero width and the height of the font. If dest is None the returned surface is the same dimensions as the boundary rect. The rect will test False. </p>
 <p>The rendering is done using the font's default size in points and its default style, without any rotation, and taking into account fonts which are set to be drawn vertically via the <tt>Font.vertical</tt> attribute. Optionally you may specify another point size to use via the 'ptsize' argument, a text rotation via the 'rotation' argument, or a new text style via the 'style' argument. </p>
-<p>Setting surrogates False turns off surrogate pair decoding (see <tt>Font.get_size)</tt>. </p>
-<p>If text is a char (byte) string, then its encoding is assumed to be <tt>LATIN1</tt>. </p>
+<p>Setting surrogates False turns off surrogate pair decoding (see Font.get_size). </p>
+<p>If text is a char (byte) string, then its encoding is assumed to be LATIN1. </p>
 <!--COMMENTS:Font.render--> &nbsp;<br> 
 <br></ul>
 
@@ -221,7 +221,7 @@
 <big><b>Font.render_raw</big></b><br><ul>
   <i>Renders text as a string of bytes</i><br>
   <tt>Font.render_raw(text, ptsize=default, surrogates=True): return (bytes, (int, int))</tt><br>
-<p>Like <tt>Font.render(None</tt>, <tt>...)</tt> but the tuple returned is an 8 bit monochrome string of bytes and its size. The forground color is 255, the background 0, useful as an alpha mask for a foreground pattern. </p>
+<p>Like <tt>Font.render(None, ...)</tt> but the tuple returned is an 8 bit monochrome string of bytes and its size. The forground color is 255, the background 0, useful as an alpha mask for a foreground pattern. </p>
 <!--COMMENTS:Font.render_raw--> &nbsp;<br> 
 <br></ul>
 
@@ -272,7 +272,7 @@
   <i>Gets whether the font is fixed-width</i><br>
   <tt>Font.fixed_width: return bool</tt><br>
 <p>Read only. Returns whether this Font is a fixed-width (bitmap) font. </p>
-<p>Note that scalable fonts whose glyphs are all the same width <tt>(i.e</tt>. monospace <tt>TTF</tt> fonts used for programming) are not considered fixed width. </p>
+<p>Note that scalable fonts whose glyphs are all the same width (i.e. monospace <tt>TTF</tt> fonts used for programming) are not considered fixed width. </p>
 <!--COMMENTS:Font.fixed_width--> &nbsp;<br> 
 <br></ul>
 
