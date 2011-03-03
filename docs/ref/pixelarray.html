@@ -58,14 +58,14 @@
   <i>pygame object for direct pixel access of surfaces</i><br>
   <tt>pygame.PixelArray(Surface): return PixelArray</tt><br>
 <ul><small><table>
-  <tr><td><a href="pixelarray.html#PixelArray.surface">PixelArray.surface</a> - <font size=-1>Gets the Surface the PixelArray uses.</font></td><td>Gets the Surface the PixelArray uses.</td></tr>
-  <tr><td><a href="pixelarray.html#PixelArray.make_surface">PixelArray.make_surface</a> - <font size=-1>Creates a new Surface from the current PixelArray.</font></td><td>Creates a new Surface from the current PixelArray.</td></tr>
-  <tr><td><a href="pixelarray.html#PixelArray.replace">PixelArray.replace</a> - <font size=-1>Replaces the passed color in the PixelArray with another one.</font></td><td>Replaces the passed color in the PixelArray with another one.</td></tr>
-  <tr><td><a href="pixelarray.html#PixelArray.extract">PixelArray.extract</a> - <font size=-1>Extracts the passed color from the PixelArray.</font></td><td>Extracts the passed color from the PixelArray.</td></tr>
-  <tr><td><a href="pixelarray.html#PixelArray.compare">PixelArray.compare</a> - <font size=-1>Compares the PixelArray with another one.</font></td><td>Compares the PixelArray with another one.</td></tr>
+  <tr><td><a href="pixelarray.html#PixelArray.surface">PixelArray.surface</a></td><td> &mdash; Gets the Surface the PixelArray uses.</td></tr>
+  <tr><td><a href="pixelarray.html#PixelArray.make_surface">PixelArray.make_surface</a></td><td> &mdash; Creates a new Surface from the current PixelArray.</td></tr>
+  <tr><td><a href="pixelarray.html#PixelArray.replace">PixelArray.replace</a></td><td> &mdash; Replaces the passed color in the PixelArray with another one.</td></tr>
+  <tr><td><a href="pixelarray.html#PixelArray.extract">PixelArray.extract</a></td><td> &mdash; Extracts the passed color from the PixelArray.</td></tr>
+  <tr><td><a href="pixelarray.html#PixelArray.compare">PixelArray.compare</a></td><td> &mdash; Compares the PixelArray with another one.</td></tr>
 </table></small></ul>
-<p>The PixelArray wraps up a Surface and provides a direct <tt>2D</tt> array access to its pixels using the surface its rows as first and its columns as second axis. It supports slicing, row and pixel manipluation, slicing and slice assignments while inplace operations such as addition, subtraction, multiplication, division and so forth are not allowed. </p>
-<p>While it is possible to assign both, integer color values and <tt>RGB(A)</tt> color tuples, the PixelArray will only use integers for the color representation. Thus, checking for certain colors has to be done using the <tt><a href="surface.html#Surface.map_rgb">Surface.map_rgb</a> - <font size=-1>convert a color into a mapped color value</font></tt> method of the surface, the PixelArray was created for. </p>
+<p>The PixelArray wraps up a Surface and provides a direct 2D array access to its pixels using the surface its rows as first and its columns as second axis. It supports slicing, row and pixel manipluation, slicing and slice assignments while inplace operations such as addition, subtraction, multiplication, division and so forth are not allowed. </p>
+<p>While it is possible to assign both, integer color values and <tt>RGB(A)</tt> color tuples, the PixelArray will only use integers for the color representation. Thus, checking for certain colors has to be done using the <tt><a href="surface.html#Surface.map_rgb">Surface.map_rgb</a></tt>&nbsp;&ndash;<font size=-1>convert a color into a mapped color value</font>&ndash; method of the surface, the PixelArray was created for. </p>
 <pre>  pxarray = pygame.PixelArray (surface)
   # Check, if the first pixel at the topleft corner is blue
   if pxarray[0][0] == surface.map_rgb ((0, 0, 255)):
@@ -93,7 +93,7 @@
 </pre><p>Subscripts also can be used to do fast rectangular pixel manipulations instead of iterating over the x or y axis as above. </p>
 <pre>  pxarray[::2,:] = (0, 0, 0)                # Make each second column black.
 </pre><p>During its lifetime, the PixelArray locks the surface, thus you explicitly have to delete it once its not used anymore and the surface should perform operations in the same scope. </p>
-<p>New in pygame <tt>1.8</tt>. Subscript support is new in pygame <tt>1.8.1</tt>. </p>
+<p>New in pygame 1.8. Subscript support is new in pygame 1.8.1. </p>
 <!--COMMENTS:pygame.PixelArray--> &nbsp;<br> 
 
 
@@ -113,7 +113,7 @@
 <p>Creates a new Surface from the current PixelArray. Depending on the current PixelArray the size, pixel order etc. will be different from the original Surface. </p>
 <pre>  # Create a new surface flipped around the vertical axis.
   sf = pxarray[:,::-1].make_surface ()
-</pre><p>New in pygame <tt>1.8.1</tt>. </p>
+</pre><p>New in pygame 1.8.1. </p>
 <!--COMMENTS:PixelArray.make_surface--> &nbsp;<br> 
 <br></ul>
 
@@ -123,9 +123,9 @@
   <i>Replaces the passed color in the PixelArray with another one.</i><br>
   <tt>PixelArray.replace (color, repcolor, distance=0, weights=(0.299, 0.587, 0.114)): Return None</tt><br>
 <p>Replaces the pixels with the passed color in the PixelArray by changing them them to the passed replacement color. </p>
-<p>It uses a simple weighted euclidian distance formula to calculate the distance between the colors. The distance space ranges from <tt>0.0</tt> to <tt>1.0</tt> and is used as threshold for the color detection. This causes the replacement to take pixels with a similar, but not exactly identical color, into account as well. </p>
+<p>It uses a simple weighted euclidian distance formula to calculate the distance between the colors. The distance space ranges from 0.0 to 1.0 and is used as threshold for the color detection. This causes the replacement to take pixels with a similar, but not exactly identical color, into account as well. </p>
 <p>This is an in place operation that directly affects the pixels of the PixelArray. </p>
-<p>New in pygame <tt>1.8.1</tt>. </p>
+<p>New in pygame 1.8.1. </p>
 <!--COMMENTS:PixelArray.replace--> &nbsp;<br> 
 <br></ul>
 
@@ -135,8 +135,8 @@
   <i>Extracts the passed color from the PixelArray.</i><br>
   <tt>PixelArray.extract (color, distance=0, weights=(0.299, 0.587, 0.114)): Return PixelArray</tt><br>
 <p>Extracts the passed color by changing all matching pixels to white, while non-matching pixels are changed to black. This returns a new PixelArray with the black/white color mask. </p>
-<p>It uses a simple weighted euclidian distance formula to calculate the distance between the colors. The distance space ranges from <tt>0.0</tt> to <tt>1.0</tt> and is used as threshold for the color detection. This causes the extraction to take pixels with a similar, but not exactly identical color, into account as well. </p>
-<p>New in pygame <tt>1.8.1</tt>. </p>
+<p>It uses a simple weighted euclidian distance formula to calculate the distance between the colors. The distance space ranges from 0.0 to 1.0 and is used as threshold for the color detection. This causes the extraction to take pixels with a similar, but not exactly identical color, into account as well. </p>
+<p>New in pygame 1.8.1. </p>
 <!--COMMENTS:PixelArray.extract--> &nbsp;<br> 
 <br></ul>
 
@@ -146,8 +146,8 @@
   <i>Compares the PixelArray with another one.</i><br>
   <tt>PixelArray.compare (array, distance=0, weights=(0.299, 0.587, 0.114)): Return PixelArray</tt><br>
 <p>Compares the contents of the PixelArray with those from the passed PixelArray. It returns a new PixelArray with a black/white color mask that indicates the differences (white) of both arrays. Both PixelArray objects must have indentical bit depths and dimensions. </p>
-<p>It uses a simple weighted euclidian distance formula to calculate the distance between the colors. The distance space ranges from <tt>0.0</tt> to <tt>1.0</tt> and is used as threshold for the color detection. This causes the comparision to mark pixels with a similar, but not exactly identical color, as black. </p>
-<p>New in pygame <tt>1.8.1</tt>. </p>
+<p>It uses a simple weighted euclidian distance formula to calculate the distance between the colors. The distance space ranges from 0.0 to 1.0 and is used as threshold for the color detection. This causes the comparision to mark pixels with a similar, but not exactly identical color, as black. </p>
+<p>New in pygame 1.8.1. </p>
 <!--COMMENTS:PixelArray.compare--> &nbsp;<br> 
 <br></ul>
 <br></ul>

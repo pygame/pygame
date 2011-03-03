@@ -2,6 +2,115 @@
 
 import os, glob
 
+from collections import deque
+
+TWORD = 0
+TIDENT = 1
+TFUNCALL = 2
+TUPPER = 2
+
+class Getc(object):
+    def __init__(self, s):
+        self.i = iter(s)
+        self.store = deque()
+
+    def __call__(self):
+        if self.store:
+            return self.store.popleft()
+        try:
+            return next(self.i)
+        except StopIteration:
+            pass
+        return ''
+
+    def unget(self, s):
+        self.store.extendleft(reversed(s))
+
+
+def tokenize(s):
+    getc = Getc(s)
+    token = deque()
+    loop = True
+    while loop:
+        ch = getc()
+        if token:
+            if not ch or ch.isspace():
+                if len(token) == 1 and token[0] in 'AI':
+                    ttype = TWORD
+                elif alnum and hasdot and not hasargs:
+                    ttype = TIDENT
+                elif allupper and not hasargs:
+                    ttype = TUPPER
+                elif hasargs:
+                    ttype = TFUNCALL
+                else:
+                    ttype = TWORD
+                yield ttype, ''.join(token)
+                token.clear()
+            elif ch == '.':
+                next_ch = getc()
+                hasdot = (alnum and
+                          (hasdot or next_ch.isalnum() or next_ch == '_'))
+                getc.unget(next_ch)
+                token.extend(ch)
+            elif ch.isalnum():
+                allupper = allupper and ch.isupper()
+                token.extend(ch)
+            elif ch == '(' and alnum:
+                getc.unget(ch)
+                next_token = parens(getc)
+                if next_token:
+                    token.extend(next_token)
+                    hasargs = alnum
+                else:
+                    alnum = False
+                    allupper = False
+            elif ch in '_':
+                token.extend(ch)
+            elif ch in '+_':
+                alnum = False
+                token.extend(ch)
+            else:
+                token.extend(ch)
+                hasargs = False
+                allupper = False
+                alnum = False
+        elif ch.isspace():
+            pass
+        elif ch:
+            if ch == '_':
+                alnum = True
+                allupper = True
+            elif ch.isalpha():
+                alnum = True
+                allupper = ch.isupper()
+            else:
+                alnum = False
+                allupper = False
+            token.extend(ch)
+            hasdot = False
+            hasargs = False
+        loop = bool(ch)
+
+def parens(getc):
+    ch = getc()
+    token = deque()
+    while ch:
+        if ch == '(' and token:
+            getc.unget(ch)
+            subtoken = parens(getc)
+            if subtoken:
+                token.extend(subtoken)
+            else:
+                getc.unget(token)
+                return ''
+        else:
+            token.append(ch)
+            if ch == ')':
+                return token
+        ch = getc()
+    return ''
+
 
 def sortkey(x):
     return os.path.basename(x).lower()
@@ -120,8 +229,8 @@ def HtmlOut(doc, index, f):
     if doc.kids:
         f.write("<ul><small><table>\n")
         for kid in doc.kids:
-            f.write("  <tr><td>%s</td><td>%s</td></tr>\n"
-                        % (index.get(kid.fullname + "()"), kid.descr or ""))
+            f.write("  <tr><td>%s</td><td> &mdash; %s</td></tr>\n"
+                        % (index.get(kid.fullname + "()", [None])[0], kid.descr or ""))
         f.write("</table></small></ul>\n")
     if doc.docs:
         pre = False
@@ -170,16 +279,19 @@ def HtmlPrettyLine(line, index, pre):
     
     if not pre:
         pretty += "<p>"
-        for word in line.split():
+        for ttype, word in tokenize(line):
             if word[-1] in ",.":
                 finish = word[-1]
                 word = word[:-1]
             else:
                 finish = ""
-            link = index.get(word)
+            link, descr = index.get(word, [None, None])
             if link:
-                pretty += "<tt>%s</tt>%s " % (link, finish)
-            elif word.isupper() or "." in word[1:-1]:
+                if finish:
+                    pretty += "<tt>%s</tt>&nbsp;&ndash;%s%s " % (link, descr, finish)
+                else:
+                    pretty += "<tt>%s</tt>&nbsp;&ndash;%s&ndash; " % (link, descr)
+            elif ttype != TWORD:
                 pretty += "<tt>%s</tt>%s " % (word, finish)
             else:
                 pretty += "%s%s " % (word, finish)
@@ -201,8 +313,9 @@ def WritePageLinks(outFile, pages):
 
 def MakeIndex(name, doc, index):
     if doc.fullname:
-        link = '<a href="%s.html#%s">%s</a> - <font size=-1>%s</font>' % (name, doc.fullname, doc.fullname, doc.descr)
-        index[doc.fullname + "()"] = link
+        link = '<a href="%s.html#%s">%s</a>' % (name, doc.fullname, doc.fullname)
+        descr = '<font size=-1>%s</font>' % (doc.descr,)
+        index[doc.fullname + "()"] = (link, descr)
     if doc.kids:
         for kid in doc.kids:
             MakeIndex(name, kid, index)
@@ -232,8 +345,11 @@ def LayoutDocs(docs):
 
 
 def WriteIndex(outFile, index, doc):
-    link = index.get(doc.fullname + "()", doc.fullname)
-    outFile.write("<li>%s</li>\n" % link)
+    link, descr = index.get(doc.fullname + "()", [doc.fullname, ''])
+    if descr:
+        outFile.write("<li>%s &mdash; %s</li>\n" % (link, descr))
+    else:
+        outFile.write("<li>%s</li>\n" % (link,))
     if doc.kids:
         outFile.write("<ul>\n")
         sortKids = list(doc.kids)

@@ -57,14 +57,14 @@
 <big><b>pygame.tests</big></b><br><ul>
   <i>Pygame unit test suite package</i><br>
 <ul><small><table>
-  <tr><td><a href="tests.html#pygame.tests.run">pygame.tests.run</a> - <font size=-1>Run the Pygame unit test suite</font></td><td>Run the Pygame unit test suite</td></tr>
+  <tr><td><a href="tests.html#pygame.tests.run">pygame.tests.run</a></td><td> &mdash; Run the Pygame unit test suite</td></tr>
 </table></small></ul>
-<p><tt>A</tt> quick way to run the test suite package from the command line is to import the go submodule with the Python -m option: </p>
+<p>A quick way to run the test suite package from the command line is to import the go submodule with the Python -m option: </p>
 <pre>  python -m pygame.tests [&lt;test options&gt;]
 </pre><p>Command line option --help displays a usage message. Available options correspond to the <tt>pygame.tests.run</tt> arguments. </p>
 <p>The xxxx_test submodules of the tests package are unit test suites for individual parts of Pygame. Each can also be run as a main program. This is useful if the test, such as cdrom_test, is interactive. </p>
-<p>For Pygame development the test suite can be run from a Pygame distribution root directory. Program <tt>run_tests.py</tt> is provided for convenience, though <tt>test/go.py</tt> can be run directly. </p>
-<p>Module level tags control which modules are included in a unit test run. Tags are assigned to a unit test module with a corresponding <tt>&lt;name&gt;_tags.py</tt> module. The tags module has the global __tags__, a list of tag names. For example, <tt>cdrom_test.py</tt> has a tag file <tt>cdrom_tags.py</tt> containing a tags list that has the 'interactive' string. The 'interactive' tag indicates <tt>cdrom_test.py</tt> expects user input. It is excluded from a <tt>run_tests.py</tt> or <tt>pygame.tests.go</tt> run. Two other tags that are excluded are 'ignore' and 'subprocess_ignore'. These two tags indicate unit tests that will not run on a particular platform, or for which no corresponding Pygame module is available. The test runner will list each excluded module along with the tag responsible. </p>
+<p>For Pygame development the test suite can be run from a Pygame distribution root directory. Program <tt>run_tests.py</tt> is provided for convenience, though test/go.py can be run directly. </p>
+<p>Module level tags control which modules are included in a unit test run. Tags are assigned to a unit test module with a corresponding &lt;name&gt;_tags.py module. The tags module has the global __tags__, a list of tag names. For example, <tt>cdrom_test.py</tt> has a tag file <tt>cdrom_tags.py</tt> containing a tags list that has the 'interactive' string. The 'interactive' tag indicates <tt>cdrom_test.py</tt> expects user input. It is excluded from a <tt>run_tests.py</tt> or <tt>pygame.tests.go</tt> run. Two other tags that are excluded are 'ignore' and 'subprocess_ignore'. These two tags indicate unit tests that will not run on a particular platform, or for which no corresponding Pygame module is available. The test runner will list each excluded module along with the tag responsible. </p>
 <!--COMMENTS:pygame.tests--> &nbsp;<br> 
 
 
@@ -100,7 +100,7 @@
 </pre><p>Return value: </p>
 <pre>    A tuple of total number of tests run, dictionary of error information.
     The dictionary is empty if no errors were recorded.
-</pre><p>By default individual test modules are run in separate subprocesses. This recreates normal Pygame usage where <tt><a href="pygame.html#pygame.init">pygame.init</a> - <font size=-1>initialize all imported pygame modules</font></tt> and <tt><a href="pygame.html#pygame.quit">pygame.quit</a> - <font size=-1>uninitialize all pygame modules</font></tt> are called only once per program execution, and avoids unfortunate interactions between test modules. Also, a time limit is placed on test execution, so frozen tests are killed when there time allotment expired. Use the single process option if threading is not working properly or if tests are taking too long. It is not guaranteed that all tests will pass in single process mode. </p>
+</pre><p>By default individual test modules are run in separate subprocesses. This recreates normal Pygame usage where <tt><a href="pygame.html#pygame.init">pygame.init</a></tt>&nbsp;&ndash;<font size=-1>initialize all imported pygame modules</font>&ndash; and <tt><a href="pygame.html#pygame.quit">pygame.quit</a></tt>&nbsp;&ndash;<font size=-1>uninitialize all pygame modules</font>&ndash; are called only once per program execution, and avoids unfortunate interactions between test modules. Also, a time limit is placed on test execution, so frozen tests are killed when there time allotment expired. Use the single process option if threading is not working properly or if tests are taking too long. It is not guaranteed that all tests will pass in single process mode. </p>
 <p>Tests are run in a randomized order if the randomize argument is True or a seed argument is provided. If no seed integer is provided then the system time is used. </p>
 <p>Individual test modules may have a __tags__ attribute, a list of tag strings used to selectively omit modules from a run. By default only 'interactive' modules such as cdrom_test are ignored. An interactive module must be run from the console as a Python program. </p>
 <p>This function can only be called once per Python session. It is not reentrant. </p>
