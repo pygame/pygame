@@ -117,7 +117,7 @@
 <a name="pygame.transform.scale2x">
 <big><b>pygame.transform.scale2x</big></b><br><ul>
   <i>specialized image doubler</i><br>
-  <tt>pygame.transform.scale2x(Surface, DestSurface = None): Surface</tt><br>
+  <tt>pygame.transform.scale2x(Surface, DestSurface = None): return Surface</tt><br>
 <p>This will return a new image that is double the size of the original. It uses the AdvanceMAME Scale2X algorithm which does a 'jaggie-less' scale of bitmap graphics. </p>
 <p>This really only has an effect on simple images with solid colors. On photographic and antialiased images it will look like a regular unfiltered scale. </p>
 <p>An optional destination surface can be used, rather than have it create a new one. This is quicker if you want to repeatedly scale something. However the destination must be twice the size of the source surface passed in. Also the destination surface must be the same format. </p>

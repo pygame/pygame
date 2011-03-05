@@ -72,7 +72,7 @@ rotate. A negative rotation angle will rotate clockwise.
 
 scale2x
 specialized image doubler
-pygame.transform.scale2x(Surface, DestSurface = None): Surface
+pygame.transform.scale2x(Surface, DestSurface = None): return Surface
 
 This will return a new image that is double the size of the original. It uses
 the AdvanceMAME Scale2X algorithm which does a 'jaggie-less' scale of bitmap

@@ -9,7 +9,7 @@
 
 #define DOC_PYGAMETRANSFORMROTOZOOM "pygame.transform.rotozoom(Surface, angle, scale): return Surface\nfiltered scale and rotation"
 
-#define DOC_PYGAMETRANSFORMSCALE2X "pygame.transform.scale2x(Surface, DestSurface = None): Surface\nspecialized image doubler"
+#define DOC_PYGAMETRANSFORMSCALE2X "pygame.transform.scale2x(Surface, DestSurface = None): return Surface\nspecialized image doubler"
 
 #define DOC_PYGAMETRANSFORMSMOOTHSCALE "pygame.transform.smoothscale(Surface, (width, height), DestSurface = None): return Surface\nscale a surface to an arbitrary size smoothly"
 
@@ -64,7 +64,7 @@ filtered scale and rotation
 
 
 pygame.transform.scale2x
- pygame.transform.scale2x(Surface, DestSurface = None): Surface
+ pygame.transform.scale2x(Surface, DestSurface = None): return Surface
 specialized image doubler
 
 
