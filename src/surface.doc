@@ -769,7 +769,8 @@ The default is '2'.
 A kind '2' view is a (surface-width, surface-height) array of raw pixels.
 The pixels are surface bytesized unsigned integers.
 The pixel format is surface specific.
-It is unavailable for 24-bit surfaces.
+The 3 byte unsigned integers of 24 bit surfaces are unlikely accepted
+by anything other than other Pygame functions.
 
 '3' returns a (surface-width, surface-height, 3) view of RGB color components.
 Each of the red, green, and blue components are unsigned bytes.
