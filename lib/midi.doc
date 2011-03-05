@@ -30,7 +30,7 @@ buffer_size -the number of input events to be buffered waiting to
 
 
 close
- closes a midi stream, flushing any pending buffers.
+closes a midi stream, flushing any pending buffers.
 Input.close(): return None
 
 PortMidi attempts to close open streams when the application
@@ -97,7 +97,7 @@ the audio buffer latency.
 
 
 abort
- terminates outgoing messages immediately
+terminates outgoing messages immediately
 Output.abort(): return None
 
 The caller should immediately close the output port;
@@ -110,7 +110,7 @@ any time.
 
 
 close
- closes a midi stream, flushing any pending buffers.
+closes a midi stream, flushing any pending buffers.
 Output.close(): return None
 
 PortMidi attempts to close open streams when the application
@@ -315,7 +315,7 @@ Note: in the current release, the default is simply the first device
 
 
 get_device_info
- returns information about a midi device
+returns information about a midi device
 pygame.midi.get_device_info(an_id): return (interf, name, input, output, opened) 
 
 interf - a text string describing the device interface, eg 'ALSA'.

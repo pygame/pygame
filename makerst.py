@@ -399,7 +399,7 @@ def reSTOut(doc, index, f, level=0, prefix=''):
 
 def reSTPrettyWord(word):
     if '.' in word[:-1] or word.isupper():
-        return "``word``"
+        return word
     return word
 
 
