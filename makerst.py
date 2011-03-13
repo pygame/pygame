@@ -231,18 +231,6 @@ def Run(target_dir=None):
         outFile.write(reSTFinish)
         outFile.close()
 
-    topDoc = LayoutDocs(justDocs)
-
-    outFile = open(os.path.join("reSTdoc","index.rst"), "w")
-    outFile.write("=====\nIndex\n=====\n\n")
-    WritePageLinks(outFile, pages)
-    outFile.write(reSTMid)
-    outFile.write("<ul>\n\n")
-    WriteIndex(outFile, index, topDoc)
-    outFile.write("\n\n</ul>\n")
-    outFile.write(reSTFinish)
-    outFile.close()
-
 
 def MakeIndex(name, doc, index, level=0):
     if doc.fullname and '.' in doc.fullname[1:-1]:
@@ -269,16 +257,18 @@ name_pat = re.compile(r'\.(?P<name>[a-zA-Z_][a-zA-Z0-9_]*)(:| =|\n)')
 value_pat = re.compile(r'\.[a-zA-Z_][a-zA-Z0-9_]* += +(?P<value>.+)\n')
 
 def pstrip(proto):
-    m = proto_pat.search(proto)
     p = ''
     r = ''
     v = ''
+    m = proto_pat.search(proto)
     if m is not None:
         p = m.group(0)
         m = return_pat.search(proto)
         if m is not None:
             r = m.group('ret')
             print ('p: %s, ret: %s' % (p, r))  ##
+        else:
+            r = 'None'
         return p, r, v
     m = name_pat.search(proto)
     if m is not None:
@@ -294,9 +284,6 @@ def pstrip(proto):
     print ("Unknown: %s" % proto)
     return p, r, v
 
-def qualify_name(*args):
-    return '.'.join(arg for arg in args if arg)
-    
 
 def reSTOut(doc, index, f, level=0, prefix=''):
     f.write('\n\n')
@@ -319,26 +306,15 @@ def reSTOut(doc, index, f, level=0, prefix=''):
                     f.write('%s| **%s**\n' % (content_indent, proto))
             elif doc.kids:
                 f.write('%s.. class:: %s\n' % (indent, p))
-                prefix = qualify_name(prefix, doc.name)
                 for proto in doc.protos[1:]:
                     p, r, v = pstrip(proto)
                     f.write('%s           %s\n' % (indent, p))
             elif p.endswith(')') and level > 1:
-                ret = []
-                if r:
-                    ret.append(r)
-                m = qualify_name(prefix, p)
-                f.write('%s.. method:: %s\n' % (indent, m))
+                f.write('%s.. method:: %s -> %s\n' % (indent, p, r))
                 for proto in doc.protos[1:]:
                     p, r, v = pstrip(proto)
-                    if r:
-                        ret.append(r)
-                    m = qualify_name(prefix, p)
-                    f.write('%s            %s\n' % (indent, m))
+                    f.write('%s            %s -> %s\n' % (indent, p, r))
                 f.write('\n')
-                if not ret:
-                    ret.append('None')
-                f.write('%s:return: %s\n' % (content_indent, ' | '.join(ret)))
             elif level > 1:
                 f.write('%s.. attribute:: %s\n' % (indent, p))
                 if r and v:
@@ -351,18 +327,10 @@ def reSTOut(doc, index, f, level=0, prefix=''):
                     f.write('\n')
                     f.write('%svalue: **%s**\n' % (content_indent, v))
             else:
-                ret = []
-                ret.append(r)
-                f.write('%s.. function:: %s\n' % (indent, p))
+                f.write('%s.. function:: %s -> %s\n' % (indent, p, r))
                 for proto in doc.protos[1:]:
                     p, r, v = pstrip(proto)
-                    if r:
-                        ret.append(r)
-                    f.write('%s              %s\n' % (indent, p))
-                if not ret:
-                    ret.append('None')
-                f.write('\n')
-                f.write('%s:return: %s\n' % (content_indent, ' | '.join(ret)))
+                    f.write('%s              %s -> %s\n' % (indent, p, r))
             f.write('\n')
             f.write('%s.. FULLNAME: %s\n' % (content_indent, doc.fullname))
         elif doc.fullname:
@@ -407,6 +375,8 @@ def reSTPrettyLine(line, index, pre, level):
     pretty = ""
 
     indent = ' ' * (INDENT * level)
+
+    line = apply_markup(line)
     
     if line[0].isspace():
         if not pre:
@@ -448,10 +418,18 @@ def reSTPrettyLine(line, index, pre, level):
         pretty += indent + line + '\n'
     return pretty, pre
 
+markup_pat = re.compile("&[a-z]+;")
+markup_table = {'&lt;': '<', '&gt;': '>'}
+
+def apply_markup(text):
+    def repl(m):
+        markup = m.group(0)
+        return markup_table.get(markup, markup)
+    return markup_pat.sub(repl, text)
 
 def WriteHeader(outFile, doc):
     v = vars(doc)
-    title = (':mod:`%(fullname)s` --- %(descr)s' % v)
+    title = (':mod:`%(fullname)s`' % v)
     outFile.write(title)
     outFile.write('\n')
     outFile.write('=' * len(title))
@@ -494,21 +472,6 @@ def LayoutDocs(docs):
             parent.kids.append(doc)
 
     return top
-
-
-def WriteIndex(outFile, index, doc):
-    link = index.get(doc.fullname + "()", doc.fullname)
-    outFile.write("<li>%s</li>\n" % link)
-    if doc.kids:
-        outFile.write("<ul>\n")
-        sortKids = list(doc.kids)
-        #print(sortKids)
-        sortKids = sort_list_by_keyfunc(sortKids, lambda x: x.fullname)
-        #sortKids = sorted( sortKids )
-        for kid in sortKids:
-            WriteIndex(outFile, index, kid)
-        outFile.write("</ul>\n")
-
 
 
 class Doc(object):
