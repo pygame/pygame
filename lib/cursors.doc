@@ -43,7 +43,7 @@ pygame.cursors.compile() :
 
 compile
 create binary cursor data from simple strings
-pygame.cursor.compile(strings, black='X', white='.', xor='o'): return data, mask
+pygame.cursors.compile(strings, black='X', white='.', xor='o'): return data, mask
 
 A sequence of strings can be used to create binary cursor data for the system
 cursor. The return values are the same format needed by

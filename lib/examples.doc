@@ -40,7 +40,7 @@ examples as a package is new to pygame 1.9.0.
 
 aliens.main
 play the full aliens example
-pygame.aliens.main(): return None
+pygame.examples.aliens.main(): return None
 
 This started off as a port of the SDL demonstration,
 Aliens. Now it has evolved into something sort of resembling

@@ -358,7 +358,6 @@ the display and higher values will brighten.
 
 
 set_gamma_ramp
-set_gamma_ramp(red, green, blue): return bool
 change the hardware gamma ramps with a custom lookup
 pygame.display.set_gamma_ramp(red, green, blue): return bool
 

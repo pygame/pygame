@@ -251,28 +251,42 @@ def MakeIndex(name, doc, index, level=0):
         for kid in doc.kids:
             MakeIndex(name, kid, index, level+1)
 
-proto_pat = re.compile(r'[a-zA-Z_][a-zA-Z0-9_]* *\((?:\([^)]*\)|[^()]*)*\)')
-return_pat = re.compile(r'(?:(?: +[rR]eturns? *)|(?: *[-=]> *))(?P<ret>.+)')
-name_pat = re.compile(r'\.(?P<name>[a-zA-Z_][a-zA-Z0-9_]*)(:| =|\n)')
-value_pat = re.compile(r'\.[a-zA-Z_][a-zA-Z0-9_]* += +(?P<value>.+)\n')
+def imapcdr(fn, seq):
+    while seq:
+        yield fn(seq)
+        seq = seq[1:]
 
-def pstrip(proto):
+proto_pat = re.compile(r'[a-zA-Z_][a-zA-Z0-9_.]* *\((?:\([^)]*\)|[^()]*)*\)')
+return_pat = re.compile(r'(?:(?: +[rR]eturns? *)|(?: *[-=]> *))(?P<ret>.+)')
+name_pat = re.compile(r'\.?(?P<name>[a-zA-Z_][a-zA-Z0-9_.]*)')
+value_pat = re.compile(r'[a-zA-Z_][a-zA-Z0-9_.]* += +(?P<value>.+)\n')
+
+def pstrip(proto, modname):
+    n = ''
     p = ''
     r = ''
     v = ''
+
+    for submodname in imapcdr('.'.join, modname.split('.')):
+        if proto.startswith(submodname):
+            proto = proto[len(submodname):]
+            break
+    m = name_pat.match(proto)
+    if m is not None:
+        n = m.group('name')
     m = proto_pat.search(proto)
     if m is not None:
         p = m.group(0)
         m = return_pat.search(proto)
         if m is not None:
             r = m.group('ret')
-            print ('p: %s, ret: %s' % (p, r))  ##
+            print ('modname: %s, n: %s, p: %s, ret: %s' %
+                   (modname, n, p, r))  ##
         else:
             r = 'None'
-        return p, r, v
-    m = name_pat.search(proto)
-    if m is not None:
-        p = m.group('name')
+        return n, p, r, v
+    if n:
+        p = n
         m = return_pat.search(proto)
         if m is not None:
             r = m.group('ret')
@@ -280,70 +294,90 @@ def pstrip(proto):
             m = value_pat.search(proto)
             if m is not None:
                 v = m.group('value')
-        return p, r, v
+        return n, p, r, v
     print ("Unknown: %s" % proto)
-    return p, r, v
+    return n, p, r, v
 
 
-def reSTOut(doc, index, f, level=0, prefix=''):
-    f.write('\n\n')
-    if level == 0:
-        indent = ''
-        f.write('.. module:: %s\n' % doc.fullname)
-        f.write('%s:synopsis: %s\n' % ((' ' * INDENT), doc.descr))
-    else:
-        indent = ' ' * (INDENT * (level - 1))
-        content_indent = ' ' * (INDENT * level)
-        if doc.protos:
-            p, r, v = pstrip(doc.protos[0])
-            if not p:
-                f.write('%s.. describe:: %s\n' % (indent, doc.fullname))
-                f.write('\n')
-                f.write('%s.. FIXME: Needs hand formatting\n' %
-                        (content_indent,))
-                f.write('\n')
-                for proto in doc.protos:
-                    f.write('%s| **%s**\n' % (content_indent, proto))
-            elif doc.kids:
-                f.write('%s.. class:: %s\n' % (indent, p))
-                for proto in doc.protos[1:]:
-                    p, r, v = pstrip(proto)
-                    f.write('%s           %s\n' % (indent, p))
-            elif p.endswith(')') and level > 1:
-                f.write('%s.. method:: %s -> %s\n' % (indent, p, r))
-                for proto in doc.protos[1:]:
-                    p, r, v = pstrip(proto)
-                    f.write('%s            %s -> %s\n' % (indent, p, r))
-                f.write('\n')
-            elif level > 1:
-                f.write('%s.. attribute:: %s\n' % (indent, p))
-                if r and v:
-                    f.write('\n')
-                    f.write('%s.. FIXME: both a value and a return?\n')
-                if r:
-                    f.write('\n')
-                    f.write('%sreturn: **%s**\n' % (content_indent, r))
-                if v:
-                    f.write('\n')
-                    f.write('%svalue: **%s**\n' % (content_indent, v))
+def reSTOut(doc, index, f, level=0, new_module=True, modname=''):
+    indent = ' ' * (INDENT * level)
+    content_indent = ' ' * (INDENT * (level + 1))
+    descr = doc.descr.strip()
+
+    f.write('\n')
+    if doc.protos:
+        if new_module:
+            modname = '.'.join(doc.fullname.split('.')[:-1])
+            f.write('\n')
+            f.write('%s.. currentmodule:: %s\n' % (indent, modname))
+        n, p, r, v = pstrip(doc.protos[0], modname)
+        if not p:
+            f.write('\n')
+            f.write('%s.. describe:: %s\n' % (indent, doc.fullname))
+            f.write('\n')
+            f.write('%s.. FIXME: Needs hand formatting\n' %
+                    (content_indent,))
+            f.write('\n')
+            for proto in doc.protos:
+                f.write('%s| **%s**\n' % (content_indent, proto))
+        elif doc.kids:
+            if not r:
+                r = n
+            f.write('\n')
+            f.write('%s.. class:: %s -> %s\n' % (indent, p, r))
+            for proto in doc.protos[1:]:
+                n, p, r, v = pstrip(proto, modname)
+                if not r:
+                    r = n
+                f.write('%s           %s -> %s\n' % (indent, p, r))
+            modname += '.' + n
+        elif p.endswith(')'):
+            if level == 0:
+                funtype = 'function'
             else:
-                f.write('%s.. function:: %s -> %s\n' % (indent, p, r))
-                for proto in doc.protos[1:]:
-                    p, r, v = pstrip(proto)
-                    f.write('%s              %s -> %s\n' % (indent, p, r))
+                funtype = 'method'
             f.write('\n')
-            f.write('%s.. FULLNAME: %s\n' % (content_indent, doc.fullname))
-        elif doc.fullname:
-            f.write('%s.. data:: %s\n' % (content_indent, doc.fullname))
-
-        if doc.descr:
+            f.write('%s.. %s:: %s -> %s\n' % (indent, funtype, p, r))
+            for proto in doc.protos[1:]:
+                n, p, r, v = pstrip(proto, modname)
+                f.write('%s            %s -> %s\n' % (indent, p, r))
+        else:
+            if level > 0:
+                nametype = 'attribute'
+            else:
+                nametype = 'data'
+            if not n:
+                n = p
             f.write('\n')
-            f.write('%s**%s**\n' % (content_indent, doc.descr))
+            f.write('%s.. %s:: %s\n' % (indent, nametype, n))
+            if r and v:
+                f.write('\n')
+                f.write('%s.. FIXME: both a value and a return?\n' %
+                        (content_indent,))
+            if r:
+                f.write('\n')
+                f.write('%sreturn: **%s**\n' % (content_indent, r))
+            if v:
+                f.write('\n')
+                f.write('%svalue: **%s**\n' % (content_indent, v))
+        level += 1
+    elif new_module:
+        modname = doc.fullname
+        f.write('\n')
+        f.write('%s.. module:: %s\n' % (indent, modname))
+        f.write('%s:synopsis: %s\n' % (content_indent, descr))
+    elif doc.fullname:
+        f.write('\n')
+        f.write('%s.. data:: %s\n' % (indent, doc.fullname))
+        level += 1
 
-        indent = content_indent
+    indent = ' ' * (INDENT * level)
+
+    if descr:
+        f.write('\n')
+        f.write('%s*%s*\n' % (indent, descr))
 
     if doc.docs:
-        f.write('\n')
         pre = False
         for d in doc.docs:
             if d[0] == '*':
@@ -355,11 +389,9 @@ def reSTOut(doc, index, f, level=0, prefix=''):
                 txt, pre = reSTPrettyLine(d, index, pre, level)
                 f.write(txt)
 
-    level += 1
-
     if doc.kids:
         for k in doc.kids:
-            reSTOut(k, index, f, level, prefix)
+            reSTOut(k, index, f, level, False, modname)
 
     f.write('\n')
     f.write("%s.. ## %s ##\n" % (indent, doc.fullname))
