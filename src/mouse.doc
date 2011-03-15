@@ -27,7 +27,7 @@ this configured.
 
 get_pressed
 get the state of the mouse buttons
-pygame.moouse.get_pressed(): return (button1, button2, button3)
+pygame.mouse.get_pressed(): return (button1, button2, button3)
 
 Returns a sequence of booleans representing the state of all the mouse
 buttons. A true value means the mouse is currently being pressed at the
