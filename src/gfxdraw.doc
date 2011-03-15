@@ -41,133 +41,133 @@ pygame.gfxdraw.hline(surface, x1, x2, y, color): return None
 
 vline
 draw a vertical line
-pgyame.gfxdraw.vline(surface, x, y1, y2, color): return None
+pygame.gfxdraw.vline(surface, x, y1, y2, color): return None
 <END>
 
 
 
 rectangle
 draw a rectangle
-pgyame.gfxdraw.rectangle(surface, rect, color): return None
+pygame.gfxdraw.rectangle(surface, rect, color): return None
 <END>
 
 
 
 box
 draw a box
-pgyame.gfxdraw.box(surface, rect, color): return None
+pygame.gfxdraw.box(surface, rect, color): return None
 <END>
 
 
 
 line
 draw a line
-pgyame.gfxdraw.line(surface, x1, y1, x2, y2, color): return None
+pygame.gfxdraw.line(surface, x1, y1, x2, y2, color): return None
 <END>
 
 
 
 circle
 draw a circle
-pgyame.gfxdraw.circle(surface, x, y, r, color): return None
+pygame.gfxdraw.circle(surface, x, y, r, color): return None
 <END>
 
 
 
 arc
 draw an arc
-pgyame.gfxdraw.arc(surface, x, y, r, start, end, color): return None
+pygame.gfxdraw.arc(surface, x, y, r, start, end, color): return None
 <END>
 
 
 
 aacircle
 draw an anti-aliased circle
-pgyame.gfxdraw.aacircle(surface, x, y, r, color): return None
+pygame.gfxdraw.aacircle(surface, x, y, r, color): return None
 <END>
 
 
 
 filled_circle
 draw a filled circle
-pgyame.gfxdraw.filled_circle(surface, x, y, r, color): return None
+pygame.gfxdraw.filled_circle(surface, x, y, r, color): return None
 <END>
 
 
 
 ellipse
 draw an ellipse
-pgyame.gfxdraw.ellipse(surface, x, y, rx, ry, color): return None
+pygame.gfxdraw.ellipse(surface, x, y, rx, ry, color): return None
 <END>
 
 
 
 aaellipse
 draw an anti-aliased ellipse
-pgyame.gfxdraw.aaellipse(surface, x, y, rx, ry, color): return None
+pygame.gfxdraw.aaellipse(surface, x, y, rx, ry, color): return None
 <END>
 
 
 
 filled_ellipse
 draw a filled ellipse
-pgyame.gfxdraw.filled_ellipse(surface, x, y, rx, ry, color): return None
+pygame.gfxdraw.filled_ellipse(surface, x, y, rx, ry, color): return None
 <END>
 
 
 
 pie
 draw a pie
-pgyame.gfxdraw.pie(surface, x, y, r, start, end, color): return None
+pygame.gfxdraw.pie(surface, x, y, r, start, end, color): return None
 <END>
 
 
 
 trigon
 draw a triangle
-pgyame.gfxdraw.trigon(surface, x1, y1, x2, y2, x3, y3, color): return None
+pygame.gfxdraw.trigon(surface, x1, y1, x2, y2, x3, y3, color): return None
 <END>
 
 
 
 aatrigon
 draw an anti-aliased triangle
-pgyame.gfxdraw.aatrigon(surface, x1, y1, x2, y2, x3, y3, color): return None
+pygame.gfxdraw.aatrigon(surface, x1, y1, x2, y2, x3, y3, color): return None
 <END>
 
 
 
 filled_trigon
 draw a filled trigon
-pgyame.gfxdraw.filled_trigon(surface, x1, y1, x3, y2, x3, y3, color): return None
+pygame.gfxdraw.filled_trigon(surface, x1, y1, x3, y2, x3, y3, color): return None
 <END>
 
 
 
 polygon
 draw a polygon
-pgyame.gfxdraw.polygon(surface, points, color): return None
+pygame.gfxdraw.polygon(surface, points, color): return None
 <END>
 
 
 
 aapolygon
 draw an anti-aliased polygon
-pgyame.gfxdraw.aapolygon(surface, points, color): return None
+pygame.gfxdraw.aapolygon(surface, points, color): return None
 <END>
 
 
 
 filled_polygon
 draw a filled polygon
-pgyame.gfxdraw.filled_polygon(surface, points, color): return None
+pygame.gfxdraw.filled_polygon(surface, points, color): return None
 <END>
 
 
 
 textured_polygon
 draw a textured polygon
-pgyame.gfxdraw.textured_polygon(surface, points, texture, tx, ty): return None
+pygame.gfxdraw.textured_polygon(surface, points, texture, tx, ty): return None
 
 A per-pixel alpha texture blit to a per-pixel alpha surface will differ from a
 Surface.blit() blit. Also, a per-pixel alpha texture cannot be used with an
@@ -178,6 +178,6 @@ Surface.blit() blit. Also, a per-pixel alpha texture cannot be used with an
 
 bezier
 draw a bezier curve
-pgyame.gfxdraw.bezier(surface, points, steps, color): return None
+pygame.gfxdraw.bezier(surface, points, steps, color): return None
 <END>
 <END>

@@ -140,6 +140,7 @@ sounds playing on the truncated channels are stopped.
 
 get_num_channels
 get the total number of playback channels
+pygame.mixer.get_num_channels(): return count
 
 Returns the number of currently active playback channels.
 <END>
