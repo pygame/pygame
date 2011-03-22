@@ -286,7 +286,6 @@ def pstrip(proto, modname):
             r = 'None'
         return n, p, r, v
     if n:
-        p = n
         m = return_pat.search(proto)
         if m is not None:
             r = m.group('ret')
@@ -315,11 +314,13 @@ def reSTOut(doc, index, f, level=0, new_module=True, modname=''):
             f.write('\n')
             f.write('%s.. describe:: %s\n' % (indent, doc.fullname))
             f.write('\n')
-            f.write('%s.. FIXME: Needs hand formatting\n' %
-                    (content_indent,))
-            f.write('\n')
+            if descr:
+                f.write('%s| *%s*\n' % (content_indent, descr))
+                descr = ''
             for proto in doc.protos:
                 f.write('%s| **%s**\n' % (content_indent, proto))
+            f.write('\n')
+            f.write('%s.. FIXME: Needs hand formatting\n' % (content_indent,))
         elif doc.kids:
             if not r:
                 r = n

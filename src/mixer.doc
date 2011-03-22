@@ -293,7 +293,7 @@ Return the length of this Sound in seconds.
 <END>
 
 get_buffer
-acquires a buffer object for the sameples of the Sound.
+acquires a buffer object for the samples of the Sound.
 Sound.get_buffer(): return BufferProxy
 
 Return a buffer object for the Sound samples. The buffer can be
