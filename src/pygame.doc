@@ -54,7 +54,7 @@ program end in the same way a normal python program will end.
 
 error
 standard pygame exception
-raise pygame.error, message
+raise pygame.error(message)
 
 This exception is raised whenever a pygame or SDL operation fails. You can
 catch any anticipated problems and deal with the error. The exception is

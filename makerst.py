@@ -35,7 +35,7 @@ from collections import deque
 TWORD = 0
 TIDENT = 1
 TFUNCALL = 2
-TUPPER = 2
+TUPPER = 3
 
 class Getc(object):
     def __init__(self, s):
@@ -54,10 +54,12 @@ class Getc(object):
     def unget(self, s):
         self.store.extendleft(reversed(s))
 
+break_chars = set(iter(',;:?!)}]'))
 
 def tokenize(s):
     getc = Getc(s)
     token = deque()
+    finish = ''
     loop = True
     while loop:
         ch = getc()
@@ -73,14 +75,18 @@ def tokenize(s):
                     ttype = TFUNCALL
                 else:
                     ttype = TWORD
-                yield ttype, ''.join(token)
+                yield ttype, ''.join(token), finish
                 token.clear()
+                finish = ''
             elif ch == '.':
                 next_ch = getc()
-                hasdot = (alnum and
-                          (hasdot or next_ch.isalnum() or next_ch == '_'))
+                if not next_ch or next_ch.isspace():
+                    finish = ch
+                else:
+                    hasdot = (alnum and
+                              (hasdot or next_ch.isalnum() or next_ch == '_'))
+                    token.extend(ch)
                 getc.unget(next_ch)
-                token.extend(ch)
             elif ch.isalnum():
                 allupper = allupper and ch.isupper()
                 token.extend(ch)
@@ -98,6 +104,16 @@ def tokenize(s):
             elif ch in '+_':
                 alnum = False
                 token.extend(ch)
+            elif ch in break_chars:
+                next_ch = getc()
+                if next_ch and not next_ch.isspace():
+                    hasargs = False
+                    allupper = False
+                    alnum = False
+                    token.extend(ch)
+                else:
+                    finish = ch
+                getc.unget(next_ch)
             else:
                 token.extend(ch)
                 hasargs = False
@@ -313,14 +329,8 @@ def reSTOut(doc, index, f, level=0, new_module=True, modname=''):
         if not p:
             f.write('\n')
             f.write('%s.. describe:: %s\n' % (indent, doc.fullname))
-            f.write('\n')
-            if descr:
-                f.write('%s| *%s*\n' % (content_indent, descr))
-                descr = ''
             for proto in doc.protos:
-                f.write('%s| **%s**\n' % (content_indent, proto))
-            f.write('\n')
-            f.write('%s.. FIXME: Needs hand formatting\n' % (content_indent,))
+                f.write('%s              %s\n' % (indent, proto))
         elif doc.kids:
             if not r:
                 r = n
@@ -337,11 +347,12 @@ def reSTOut(doc, index, f, level=0, new_module=True, modname=''):
                 funtype = 'function'
             else:
                 funtype = 'method'
+            padding = ' ' * len(funtype)
             f.write('\n')
             f.write('%s.. %s:: %s -> %s\n' % (indent, funtype, p, r))
             for proto in doc.protos[1:]:
                 n, p, r, v = pstrip(proto, modname)
-                f.write('%s            %s -> %s\n' % (indent, p, r))
+                f.write('%s     %s %s -> %s\n' % (indent, padding, p, r))
         else:
             if level > 0:
                 nametype = 'attribute'
@@ -373,6 +384,7 @@ def reSTOut(doc, index, f, level=0, new_module=True, modname=''):
         level += 1
 
     indent = ' ' * (INDENT * level)
+    content_indent = ' ' * (INDENT * (level + 1))
 
     if descr:
         f.write('\n')
@@ -382,10 +394,10 @@ def reSTOut(doc, index, f, level=0, new_module=True, modname=''):
         pre = False
         for d in doc.docs:
             if d[0] == '*':
-                f.write('\n')
                 for li in d[1:].split('*'):
                     txt = reSTPrettyWord(li)
-                    f.write("%s- %s\n" % (indent, txt))
+                    f.write('\n')
+                    f.write("%s* %s\n" % (content_indent, txt))
             else:
                 txt, pre = reSTPrettyLine(d, index, pre, level)
                 f.write(txt)
@@ -399,9 +411,13 @@ def reSTOut(doc, index, f, level=0, new_module=True, modname=''):
 
 
 def reSTPrettyWord(word):
-    if '.' in word[:-1] or word.isupper():
-        return word
-    return word
+    parts = []
+    for ttype, token, finish in tokenize(word):
+        if ttype == TWORD:
+            parts.append(token + finish)
+        else:
+            parts.append('``%s``%s' % (token, finish))
+    return ' '.join(parts)
 
 
 def reSTPrettyLine(line, index, pre, level):
@@ -423,18 +439,13 @@ def reSTPrettyLine(line, index, pre, level):
         pretty += indent
         spacer = ''
         linelen = len(pretty) - 1
-        for ttype, word in tokenize(line):
-            if word[-1] in ",.":
-                finish = word[-1]
-                word = word[:-1]
-            else:
-                finish = ""
+        for ttype, word, finish in tokenize(line):
             link = index.get(word)
             if link:
                 markup = "%s%s" % (link, finish)
             elif ttype == TIDENT or ttype == TFUNCALL:
                 markup = "``%s``%s" % (word, finish)
-            elif ttype == TUPPER and (len(word) > 1 or word not in 'AI'):
+            elif ttype == TUPPER and (len(word) > 1 or word not in ['A', 'I']):
                 markup = "``%s``%s" % (word, finish)
             else:
                 markup = "%s%s" % (word, finish)
