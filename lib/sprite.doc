@@ -170,7 +170,7 @@ following standard Python operations:
 
     in      test if a Sprite is contained
     len     the number of Sprites contained
-    bool test if any Sprites are contained
+    bool    test if any Sprites are contained
     iter    iterate through all the Sprites
 
 The Sprites in the Group are not ordered, so drawing and iterating the 
