@@ -126,6 +126,7 @@ point values for the end points.
 
 
 aalines
+draw a connected sequence of antialiased lines
 pygame.draw.aalines(Surface, color, closed, pointlist, blend=1): return Rect
 
 Draws a sequence on a surface. You must pass at least two points in the
