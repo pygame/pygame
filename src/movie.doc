@@ -3,7 +3,7 @@ pygame module for playback of mpeg video
 
 NOTE: pygame.movie currently does not work on windows with the latest pygame release.  
 As no one has managed to get smpeg working there.  The alternative is to use 
- <a href="http://www.pymedia.org/">pymedia</a>
+<a href="http://www.pymedia.org/">pymedia</a>
 
 Pygame can playback video and audio from basic encoded MPEG1 video files.
 Movie playback happens in background threads, which makes playback easy to
