@@ -36,6 +36,7 @@ TWORD = 0
 TIDENT = 1
 TFUNCALL = 2
 TUPPER = 3
+THYPERLINK = 4
 
 class Getc(object):
     def __init__(self, s):
@@ -73,6 +74,8 @@ def tokenize(s):
                     ttype = TUPPER
                 elif hasargs:
                     ttype = TFUNCALL
+                elif hlink:
+                    ttype = THYPERLINK
                 else:
                     ttype = TWORD
                 yield ttype, ''.join(token), finish
@@ -85,11 +88,16 @@ def tokenize(s):
                 else:
                     hasdot = (alnum and
                               (hasdot or next_ch.isalnum() or next_ch == '_'))
+                    hlink = False
                     token.extend(ch)
                 getc.unget(next_ch)
-            elif ch.isalnum():
+            elif ch.isalpha():
                 allupper = allupper and ch.isupper()
                 token.extend(ch)
+                hlink = False
+            elif ch.isdigit():
+                token.extend(ch)
+                hlink = False
             elif ch == '(' and alnum:
                 getc.unget(ch)
                 next_token = parens(getc)
@@ -99,11 +107,14 @@ def tokenize(s):
                 else:
                     alnum = False
                     allupper = False
+                hlink = False
             elif ch in '_':
                 token.extend(ch)
+                hlink = False
             elif ch in '+_':
-                alnum = False
                 token.extend(ch)
+                alnum = False
+                hlink = False
             elif ch in break_chars:
                 next_ch = getc()
                 if next_ch and not next_ch.isspace():
@@ -119,9 +130,15 @@ def tokenize(s):
                 hasargs = False
                 allupper = False
                 alnum = False
+                hlink = False
         elif ch.isspace():
             pass
         elif ch:
+            alnum = False
+            allupper = False
+            hasdot = False
+            hasargs = False
+            hlink = False
             if ch == '_':
                 alnum = True
                 allupper = True
@@ -134,14 +151,13 @@ def tokenize(s):
                 allupper = True
             elif ch == '`':
                 ch = '\\`'
-                alnum = False
-                allupper = False
-            else:
-                alnum = False
-                allupper = False
+            elif ch == '<':
+                getc.unget(ch)
+                next_token = hyperlink(getc)
+                if next_token:
+                    token.extend(next_token)
+                    hlink = True
             token.extend(ch)
-            hasdot = False
-            hasargs = False
         loop = bool(ch)
 
 def parens(getc):
@@ -162,6 +178,43 @@ def parens(getc):
                 return token
         ch = getc()
     return ''
+
+class NotAMatch(StandardError):
+    pass
+
+def hyperlink(getc):
+    token = deque()
+    try:
+        token.extend(token_match('<a ', getc))
+        token.extend(token_find('>', getc))
+        token.extend(token_find('<', getc, 200))
+        token.extend(token_match('/a>', getc))
+    except NotAMatch:
+        getc.unget(token)
+        return ''
+    return token
+
+def token_match(s, getc):
+    token = deque()
+    for c in s:
+        ch = getc()
+        if ch == c:
+            token.append(ch)
+        else:
+            getc.unget(token)
+            raise NotAMatch()
+    return token
+
+def token_find(c, getc, maxchar=100):
+    token = deque()
+    while maxchar:
+        ch = getc()
+        token.append(ch)
+        if ch == c:
+            return token
+        maxchar -= 1
+    getc.unget(token)
+    raise NotAMatch()
 
 def sortkey(x):
     return os.path.basename(x).lower()
@@ -447,6 +500,13 @@ def reSTPrettyLine(line, index, pre, level):
                 markup = "``%s``%s" % (word, finish)
             elif ttype == TUPPER and (len(word) > 1 or word not in ['A', 'I']):
                 markup = "``%s``%s" % (word, finish)
+            elif ttype == THYPERLINK:
+                try:
+                    uri, reference = parse_hyperlink(word)
+                except ValueError:
+                    markup = "%s%s" % (word, finish)
+                else:
+                    markup = "`%s <%s>`_" % (reference, uri)
             else:
                 markup = "%s%s" % (word, finish)
             mlen = len(markup)
@@ -461,6 +521,14 @@ def reSTPrettyLine(line, index, pre, level):
     else:
         pretty += indent + line + '\n'
     return pretty, pre
+
+hyperlink_pat = re.compile(r'<a.*href="(?P<uri>.+)"[^>]*>(?P<ref>[^<]*)</a>')
+
+def parse_hyperlink(token):
+    m = hyperlink_pat.match(token)
+    if m is None:
+        raise ValueError("Token not html markup")
+    return m.group('uri'), m.group('ref')
 
 markup_pat = re.compile("&[a-z]+;")
 markup_table = {'&lt;': '<', '&gt;': '>'}
