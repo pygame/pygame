@@ -328,7 +328,7 @@ def imapcdr(fn, seq):
 proto_pat = re.compile(r'[a-zA-Z_][a-zA-Z0-9_.]* *\((?:\([^)]*\)|[^()]*)*\)')
 return_pat = re.compile(r'(?:(?: +[rR]eturns? *)|(?: *[-=]> *))(?P<ret>.+)')
 name_pat = re.compile(r'\.?(?P<name>[a-zA-Z_][a-zA-Z0-9_.]*)')
-value_pat = re.compile(r'[a-zA-Z_][a-zA-Z0-9_.]* += +(?P<value>.+)\n')
+value_pat = re.compile(r'[a-zA-Z_][a-zA-Z0-9_.]* += +(?P<value>.+)')
 
 def pstrip(proto, modname):
     n = ''
@@ -379,11 +379,34 @@ def reSTOut(doc, index, f, level=0, new_module=True, modname=''):
             f.write('\n')
             f.write('%s.. currentmodule:: %s\n' % (indent, modname))
         n, p, r, v = pstrip(doc.protos[0], modname)
-        if not p:
+        if doc.protos[0].startswith('raise '):
+            n, p, r, v = pstrip(doc.fullname, modname)
             f.write('\n')
-            f.write('%s.. describe:: %s\n' % (indent, doc.fullname))
+            f.write('%s.. exception:: %s\n' % (indent, n))
+            for proto in doc.protos:
+                f.write('%s               %s\n' % (indent, proto))
+            modname += '.' + n
+        elif not p and n and r and level > 0:
+            n, p, r, v = pstrip(doc.fullname, modname)
+            f.write('\n')
+            f.write('%s.. attribute:: %s\n' % (indent, n))
+            for proto in doc.protos:
+                n, p, r, v = pstrip(proto, modname)
+                f.write('%s               %s -> %s\n' % (indent, n, r))
+        elif not p and v:
+            n, p, r, v = pstrip(doc.fullname, modname)
+            f.write('\n')
+            f.write('%s.. data:: %s\n' % (indent, n))
+            for proto in doc.protos:
+                n, p, r, v = pstrip(proto, modname)
+                f.write('%s          %s = %s\n' % (indent, n, v))
+        elif not p:
+            n, p, r, v = pstrip(doc.fullname, modname)
+            f.write('\n')
+            f.write('%s.. describe:: %s\n' % (indent, n))
             for proto in doc.protos:
                 f.write('%s              %s\n' % (indent, proto))
+            modname += '.' + n
         elif doc.kids:
             if not r:
                 r = n
@@ -395,7 +418,7 @@ def reSTOut(doc, index, f, level=0, new_module=True, modname=''):
                     r = n
                 f.write('%s           %s -> %s\n' % (indent, p, r))
             modname += '.' + n
-        elif p.endswith(')'):
+        else:
             if level == 0:
                 funtype = 'function'
             else:
@@ -406,25 +429,6 @@ def reSTOut(doc, index, f, level=0, new_module=True, modname=''):
             for proto in doc.protos[1:]:
                 n, p, r, v = pstrip(proto, modname)
                 f.write('%s     %s %s -> %s\n' % (indent, padding, p, r))
-        else:
-            if level > 0:
-                nametype = 'attribute'
-            else:
-                nametype = 'data'
-            if not n:
-                n = p
-            f.write('\n')
-            f.write('%s.. %s:: %s\n' % (indent, nametype, n))
-            if r and v:
-                f.write('\n')
-                f.write('%s.. FIXME: both a value and a return?\n' %
-                        (content_indent,))
-            if r:
-                f.write('\n')
-                f.write('%sreturn: **%s**\n' % (content_indent, r))
-            if v:
-                f.write('\n')
-                f.write('%svalue: **%s**\n' % (content_indent, v))
         level += 1
     elif new_module:
         modname = doc.fullname
