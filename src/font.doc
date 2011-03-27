@@ -234,7 +234,7 @@ Return True when the font bold rendering mode is enabled.
 
 set_italic
 enable fake rendering of italic text
-Font.set_bold(bool): return None
+Font.set_italic(bool): return None
 
 Enables fake rendering of italic text. This is a fake skewing of the
 font that doesn't look good on many font types. If possible load the font from

@@ -388,7 +388,7 @@ This function will temporarily lock and unlock the Surface as needed.
 
 get_at_mapped
 get the mapped color value at a single pixel
-Surface.get_at((x, y)): return Color
+Surface.get_at_mapped((x, y)): return Color
 
 Return the integer value of the given pixel.
 If the pixel position is outside the area of the Surface an IndexError 
@@ -444,7 +444,7 @@ This function has no effect on a Surface with more than 8bits per pixel.
 
 set_palette_at
 set the color for a single index in an 8bit Surface palette
-Surface.set_at(index, RGB): return None
+Surface.set_palette_at(index, RGB): return None
 
 Set the palette value for a single entry in a Surface palette. The index should
 be a value from 0 to 255.
@@ -471,7 +471,7 @@ and pixel formats.
 
 unmap_rgb
 convert a mapped integer color value into a Color
-Surface.map_rgb(mapped_int): return Color
+Surface.unmap_rgb(mapped_int): return Color
 
 Convert an mapped integer color into the RGB color components for this Surface.
 Mapped color values are not often used inside Pygame, but can be passed to
@@ -717,7 +717,7 @@ This value is not needed for normal Pygame usage.
 
 set_shifts
 sets the bit shifts needed to convert between a color and a mapped integer
-Surface.get_shifts((r,g,b,a)): return None
+Surface.set_shifts((r,g,b,a)): return None
 
 This is not needed for normal Pygame usage.
 New in pygame 1.8.1
