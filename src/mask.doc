@@ -21,7 +21,7 @@ If the Surface is color keyed, then threshold is not used.
 
 from_threshold
 Creates a mask by thresholding Surfaces
-pygame.mask.from_surface(Surface, color, threshold = (0,0,0,255), othersurface = None, palette_colors = 1) -> Mask
+pygame.mask.from_threshold(Surface, color, threshold = (0,0,0,255), othersurface = None, palette_colors = 1) -> Mask
 
 This is a more featureful method of getting a Mask from a Surface.  If supplied
 with only one Surface, all pixels within the threshold of the supplied color are

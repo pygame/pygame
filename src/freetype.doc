@@ -76,7 +76,7 @@ even if the module hasn't been initialized yet.
 
 was_init
 Returns whether the the FreeType 2 library is initialized.
-pygame.freetype.quit(): return bool
+pygame.freetype.was_init(): return bool
 
 Returns whether the the FreeType 2 library is initialized.
 <END>

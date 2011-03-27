@@ -126,7 +126,7 @@ This function is provided for Pygame testing and debugging.
 
 set_smoothscale_backend
 set smoothscale filter version to one of: 'GENERIC', 'MMX', or 'SSE'
-pygame.transform.get_smoothscale_backend(type): return None
+pygame.transform.set_smoothscale_backend(type): return None
 
 Sets smoothscale acceleration. Takes a string argument. A value
 of 'GENERIC' turns off acceleration. 'MMX' uses MMX instructions

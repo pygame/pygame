@@ -35,7 +35,7 @@ called. By default swizzling is disabled.
 
 
 
-diable_swizzling
+disable_swizzling
 globally disables swizzling for vectors.
 math.disable_swizzling(): return None
 
@@ -110,7 +110,7 @@ as self.
 
 normalize_ip
 normalizes the vector in place so that its length is 1.
-Vector2.normalize(): return None
+Vector2.normalize_ip(): return None
 
 Normalizes the vector so that it has length == 1. The direction 
 of the vector is not changed.
@@ -153,7 +153,7 @@ normal. The length of the new vector is the same as self's.
 
 reflect_ip
 reflect the vector of a given normal in place.
-Vector2.reflect(Vector2): return None
+Vector2.reflect_ip(Vector2): return None
 
 Changes the direction of self as if it would have been reflected
 of a surface with the given surface normal.
@@ -324,7 +324,7 @@ as self.
 
 normalize_ip
 normalizes the vector in place so that its length is 1.
-Vector3.normalize(): return None
+Vector3.normalize_ip(): return None
 
 Normalizes the vector so that it has length == 1. The direction 
 of the vector is not changed.
@@ -367,7 +367,7 @@ normal. The length of the new vector is the same as self's.
 
 reflect_ip
 reflect the vector of a given normal in place.
-Vector3.reflect(Vector3): return None
+Vector3.reflect_ip(Vector3): return None
 
 Changes the direction of self as if it would have been reflected
 of a surface with the given surface normal.
