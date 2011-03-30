@@ -438,7 +438,7 @@ event_nonzero (PyEventObject *self)
 }
 
 static PyNumberMethods event_as_number = {
-    (binaryfunc)NULL,                /*add*/
+    (binaryfunc)NULL,                /*Add*/
     (binaryfunc)NULL,                /*subtract*/
     (binaryfunc)NULL,                /*multiply*/
 #if !PY3
@@ -446,25 +446,25 @@ static PyNumberMethods event_as_number = {
 #endif
     (binaryfunc)NULL,                /*remainder*/
     (binaryfunc)NULL,                /*divmod*/
-    (ternaryfunc)NULL,                /*power*/
-    (unaryfunc)NULL,                /*negative*/
-    (unaryfunc)NULL,                /*pos*/
-    (unaryfunc)NULL,                /*abs*/
-    (inquiry)event_nonzero,        /*nonzero*/
-    (unaryfunc)NULL,                /*invert*/
+    (ternaryfunc)NULL,               /*power*/
+    (unaryfunc)NULL,                 /*negative*/
+    (unaryfunc)NULL,                 /*pos*/
+    (unaryfunc)NULL,                 /*abs*/
+    (inquiry)event_nonzero,          /*nonzero*/
+    (unaryfunc)NULL,                 /*invert*/
     (binaryfunc)NULL,                /*lshift*/
     (binaryfunc)NULL,                /*rshift*/
     (binaryfunc)NULL,                /*and*/
     (binaryfunc)NULL,                /*xor*/
     (binaryfunc)NULL,                /*or*/
 #if !PY3
-    (coercion)NULL,                        /*coerce*/
+    (coercion)NULL,                  /*coerce*/
 #endif
-    (unaryfunc)NULL,                /*int*/
+    (unaryfunc)NULL,                 /*int*/
 #if !PY3
-    (unaryfunc)NULL,                /*long*/
+    (unaryfunc)NULL,                 /*long*/
 #endif
-    (unaryfunc)NULL,                /*float*/
+    (unaryfunc)NULL,                 /*float*/
 };
 
 /*
@@ -508,33 +508,33 @@ Unimplemented:
 static PyTypeObject PyEvent_Type =
 {
     TYPE_HEAD (NULL, 0)
-    "Event",                                /*name*/
-    sizeof(PyEventObject),        /*basic size*/
-    0,                                                /*itemsize*/
-    event_dealloc,                        /*dealloc*/
-    0,                                                /*print*/
-    event_getattr,                        /*getattr*/
-    NULL,                                        /*setattr*/
-    NULL,                                        /*compare*/
-    event_str,                                /*repr*/
+    "Event",                         /*name*/
+    sizeof(PyEventObject),           /*basic size*/
+    0,                               /*itemsize*/
+    event_dealloc,                   /*dealloc*/
+    0,                               /*print*/
+    event_getattr,                   /*getattr*/
+    NULL,                            /*setattr*/
+    NULL,                            /*compare*/
+    event_str,                       /*repr*/
     &event_as_number,                /*as_number*/
-    NULL,                                        /*as_sequence*/
-    NULL,                                        /*as_mapping*/
-    (hashfunc)NULL,                 /*hash*/
-    (ternaryfunc)NULL,                /*call*/
-    (reprfunc)NULL,                 /*str*/
-    0,                          /* tp_getattro */
-    0,                          /* tp_setattro */
-    0,                          /* tp_as_buffer */
+    NULL,                            /*as_sequence*/
+    NULL,                            /*as_mapping*/
+    (hashfunc)NULL,                  /*hash*/
+    (ternaryfunc)NULL,               /*call*/
+    (reprfunc)NULL,                  /*str*/
+    0,                               /* tp_getattro */
+    0,                               /* tp_setattro */
+    0,                               /* tp_as_buffer */
 #if PY3
     0,
 #else
     Py_TPFLAGS_HAVE_RICHCOMPARE,
 #endif
-    DOC_PYGAMEEVENTEVENT, /* Documentation string */
-    0,                          /* tp_traverse */
-    0,                          /* tp_clear */
-    event_richcompare,         /* tp_richcompare */
+    DOC_PYGAMEEVENTEVENT,            /* Documentation string */
+    0,                               /* tp_traverse */
+    0,                               /* tp_clear */
+    event_richcompare,               /* tp_richcompare */
 };
 
 static PyObject*
