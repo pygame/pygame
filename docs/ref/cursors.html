@@ -88,7 +88,7 @@
 <a name="pygame.cursors.compile">
 <big><b>pygame.cursors.compile</big></b><br><ul>
   <i>create binary cursor data from simple strings</i><br>
-  <tt>pygame.cursor.compile(strings, black='X', white='.', xor='o'): return data, mask</tt><br>
+  <tt>pygame.cursors.compile(strings, black='X', white='.', xor='o'): return data, mask</tt><br>
 <p>A sequence of strings can be used to create binary cursor data for the system cursor. The return values are the same format needed by <tt><a href="mouse.html#pygame.mouse.set_cursor">pygame.mouse.set_cursor</a></tt>&nbsp;&ndash;<font size=-1>set the image for the system mouse cursor</font>. </p>
 <p>If you are creating your own cursor strings, you can use any value represent the black and white pixels. Some system allow you to set a special toggle color for the system color, this is also called the xor color. If the system does not support xor cursors, that color will simply be black. </p>
 <p>The width of the strings must all be equal and be divisible by 8. An example set of cursor strings looks like this </p>

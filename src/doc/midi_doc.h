@@ -3,7 +3,7 @@
 
 #define DOC_PYGAMEMIDIINPUT "Input(device_id)\nInput(device_id, buffer_size)\nInput is used to get midi input from midi devices."
 
-#define DOC_INPUTCLOSE "Input.close(): return None\n closes a midi stream, flushing any pending buffers."
+#define DOC_INPUTCLOSE "Input.close(): return None\ncloses a midi stream, flushing any pending buffers."
 
 #define DOC_INPUTPOLL "Input.poll(): return Bool\nreturns true if there's data, or false if not."
 
@@ -13,9 +13,9 @@
 
 #define DOC_PYGAMEMIDIOUTPUT "Output(device_id)\nOutput(device_id, latency = 0)\nOutput(device_id, buffer_size = 4096)\nOutput(device_id, latency, buffer_size)\nOutput is used to send midi to an output device"
 
-#define DOC_OUTPUTABORT "Output.abort(): return None\n terminates outgoing messages immediately"
+#define DOC_OUTPUTABORT "Output.abort(): return None\nterminates outgoing messages immediately"
 
-#define DOC_OUTPUTCLOSE "Output.close(): return None\n closes a midi stream, flushing any pending buffers."
+#define DOC_OUTPUTCLOSE "Output.close(): return None\ncloses a midi stream, flushing any pending buffers."
 
 #define DOC_OUTPUTNOTEOFF "Output.note_off(note, velocity=None, channel = 0)\nturns a midi note off.  Note must be on."
 
@@ -35,7 +35,7 @@
 
 #define DOC_PYGAMEMIDIGETDEFAULTOUTPUTID "pygame.midi.get_default_output_id(): return default_id\ngets default output device number"
 
-#define DOC_PYGAMEMIDIGETDEVICEINFO "pygame.midi.get_device_info(an_id): return (interf, name, input, output, opened)\n returns information about a midi device"
+#define DOC_PYGAMEMIDIGETDEVICEINFO "pygame.midi.get_device_info(an_id): return (interf, name, input, output, opened)\nreturns information about a midi device"
 
 #define DOC_PYGAMEMIDIINIT "pygame.midi.init(): return None\ninitialize the midi module"
 
@@ -66,7 +66,7 @@ Input is used to get midi input from midi devices.
 
 Input.close
  Input.close(): return None
- closes a midi stream, flushing any pending buffers.
+closes a midi stream, flushing any pending buffers.
 
 
 
@@ -99,13 +99,13 @@ Output is used to send midi to an output device
 
 Output.abort
  Output.abort(): return None
- terminates outgoing messages immediately
+terminates outgoing messages immediately
 
 
 
 Output.close
  Output.close(): return None
- closes a midi stream, flushing any pending buffers.
+closes a midi stream, flushing any pending buffers.
 
 
 
@@ -166,7 +166,7 @@ gets default output device number
 
 pygame.midi.get_device_info
  pygame.midi.get_device_info(an_id): return (interf, name, input, output, opened)
- returns information about a midi device
+returns information about a midi device
 
 
 

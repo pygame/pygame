@@ -58,7 +58,7 @@
   <i>pygame module for vector classes</i><br>
 <ul><small><table>
   <tr><td><a href="math.html#pygame.math.enable_swizzling">pygame.math.enable_swizzling</a></td><td> &mdash; globally enables swizzling for vectors.</td></tr>
-  <tr><td><a href="math.html#pygame.math.diable_swizzling">pygame.math.diable_swizzling</a></td><td> &mdash; globally disables swizzling for vectors.</td></tr>
+  <tr><td><a href="math.html#pygame.math.disable_swizzling">pygame.math.disable_swizzling</a></td><td> &mdash; globally disables swizzling for vectors.</td></tr>
   <tr><td><a href="math.html#pygame.math.Vector2">pygame.math.Vector2</a></td><td> &mdash; a 2-Dimensional Vector</td></tr>
   <tr><td><a href="math.html#pygame.math.Vector3">pygame.math.Vector3</a></td><td> &mdash; a 3-Dimensional Vector</td></tr>
 </table></small></ul>
@@ -78,12 +78,12 @@
 <br></ul>
 
 
-<a name="pygame.math.diable_swizzling">
-<big><b>pygame.math.diable_swizzling</big></b><br><ul>
+<a name="pygame.math.disable_swizzling">
+<big><b>pygame.math.disable_swizzling</big></b><br><ul>
   <i>globally disables swizzling for vectors.</i><br>
   <tt>math.disable_swizzling(): return None</tt><br>
 <p>Disables swizzling for all vectors until <tt>enable_swizzling()</tt> is called. By default swizzling is disabled. </p>
-<!--COMMENTS:pygame.math.diable_swizzling--> &nbsp;<br> 
+<!--COMMENTS:pygame.math.disable_swizzling--> &nbsp;<br> 
 <br></ul>
 
 
@@ -168,7 +168,7 @@
 <a name="Vector2.normalize_ip">
 <big><b>Vector2.normalize_ip</big></b><br><ul>
   <i>normalizes the vector in place so that its length is 1.</i><br>
-  <tt>Vector2.normalize(): return None</tt><br>
+  <tt>Vector2.normalize_ip(): return None</tt><br>
 <p>Normalizes the vector so that it has length == 1. The direction of the vector is not changed. </p>
 <!--COMMENTS:Vector2.normalize_ip--> &nbsp;<br> 
 <br></ul>
@@ -204,7 +204,7 @@
 <a name="Vector2.reflect_ip">
 <big><b>Vector2.reflect_ip</big></b><br><ul>
   <i>reflect the vector of a given normal in place.</i><br>
-  <tt>Vector2.reflect(Vector2): return None</tt><br>
+  <tt>Vector2.reflect_ip(Vector2): return None</tt><br>
 <p>Changes the direction of self as if it would have been reflected of a surface with the given surface normal. </p>
 <!--COMMENTS:Vector2.reflect_ip--> &nbsp;<br> 
 <br></ul>
@@ -389,7 +389,7 @@
 <a name="Vector3.normalize_ip">
 <big><b>Vector3.normalize_ip</big></b><br><ul>
   <i>normalizes the vector in place so that its length is 1.</i><br>
-  <tt>Vector3.normalize(): return None</tt><br>
+  <tt>Vector3.normalize_ip(): return None</tt><br>
 <p>Normalizes the vector so that it has length == 1. The direction of the vector is not changed. </p>
 <!--COMMENTS:Vector3.normalize_ip--> &nbsp;<br> 
 <br></ul>
@@ -425,7 +425,7 @@
 <a name="Vector3.reflect_ip">
 <big><b>Vector3.reflect_ip</big></b><br><ul>
   <i>reflect the vector of a given normal in place.</i><br>
-  <tt>Vector3.reflect(Vector3): return None</tt><br>
+  <tt>Vector3.reflect_ip(Vector3): return None</tt><br>
 <p>Changes the direction of self as if it would have been reflected of a surface with the given surface normal. </p>
 <!--COMMENTS:Vector3.reflect_ip--> &nbsp;<br> 
 <br></ul>

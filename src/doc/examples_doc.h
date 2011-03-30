@@ -1,7 +1,7 @@
 /* Auto generated file: with makeref.py .  Docs go in src/ *.doc . */
 #define DOC_PYGAMEEXAMPLES "module of example programs"
 
-#define DOC_PYGAMEEXAMPLESALIENSMAIN "pygame.aliens.main(): return None\nplay the full aliens example"
+#define DOC_PYGAMEEXAMPLESALIENSMAIN "pygame.examples.aliens.main(): return None\nplay the full aliens example"
 
 #define DOC_PYGAMEEXAMPLESOLDALIENMAIN "pygame.examples.oldalien.main(): return None\nplay the original aliens example"
 
@@ -53,7 +53,7 @@
 
 #define DOC_PYGAMEEXAMPLESSCROLLMAIN "pygame.examples.scroll.main(image_file=None): return None\nrun a Surface.scroll example that shows a magnified image"
 
-#define DOC_PYGAMEEXAMPLESMOVIEPLAYERMAIN "pygame.examples.moveplayer.main(filepath): return None\nplay an MPEG movie"
+#define DOC_PYGAMEEXAMPLESMOVIEPLAYERMAIN "pygame.examples.movieplayer.main(filepath): return None\nplay an MPEG movie"
 
 #define DOC_PYGAMEEXAMPLESCAMERAMAIN "pygame.examples.camera.main(): return None\ndisplay video captured live from an attached camera"
 
@@ -70,7 +70,7 @@ pygame.examples
 
 
 pygame.examples.aliens.main
- pygame.aliens.main(): return None
+ pygame.examples.aliens.main(): return None
 play the full aliens example
 
 
@@ -226,7 +226,7 @@ run a Surface.scroll example that shows a magnified image
 
 
 pygame.examples.movieplayer.main
- pygame.examples.moveplayer.main(filepath): return None
+ pygame.examples.movieplayer.main(filepath): return None
 play an MPEG movie
 
 

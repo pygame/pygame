@@ -17,7 +17,7 @@
 
 #define DOC_PYGAMEDRAWAALINE "pygame.draw.aaline(Surface, color, startpos, endpos, blend=1): return Rect\ndraw fine antialiased lines"
 
-#define DOC_PYGAMEDRAWAALINES "pygame.draw.aalines(Surface, color, closed, pointlist, blend=1): return Rect"
+#define DOC_PYGAMEDRAWAALINES "pygame.draw.aalines(Surface, color, closed, pointlist, blend=1): return Rect\ndraw a connected sequence of antialiased lines"
 
 
 
@@ -81,6 +81,7 @@ draw fine antialiased lines
 
 pygame.draw.aalines
  pygame.draw.aalines(Surface, color, closed, pointlist, blend=1): return Rect
+draw a connected sequence of antialiased lines
 
 
 

@@ -99,7 +99,7 @@
 <a name="pygame.error">
 <big><b>pygame.error</big></b><br><ul>
   <i>standard pygame exception</i><br>
-  <tt>raise pygame.error, message</tt><br>
+  <tt>raise pygame.error(message)</tt><br>
 <p>This exception is raised whenever a pygame or <tt>SDL</tt> operation fails. You can catch any anticipated problems and deal with the error. The exception is always raised with a descriptive message about the problem. </p>
 <p>Derived from the RuntimeError exception, which can also be used to catch these raised errors. </p>
 <!--COMMENTS:pygame.error--> &nbsp;<br> 
@@ -157,17 +157,11 @@
 <big><b>pygame.encode_string</big></b><br><ul>
   <i>Encode a unicode or bytes object</i><br>
   <tt>encode_string([obj [, encoding [, errors [, etype]]]]) => bytes or None</tt><br>
-<p>obj: If unicode, encode; if bytes, return unaltered; if anything else, </p>
-<pre>  return None; if not given, raise SyntaxError.
-  encoding (string): If present, encoding to use. The default is
-  'unicode_escape'.
-</pre><p>errors (string): If given, how to handle unencodable characters. </p>
-<pre>  The default is 'backslashreplace'.
-</pre><p>etype (exception type): If given, the exception type to raise for </p>
-<pre>  an encoding error. The default is UnicodeEncodeError, as returned
-  by PyUnicode_AsEncodedString(). For the default encoding and
-  errors values there should be no encoding errors.
-</pre><p>This function is used in encoding file paths. Keyword arguments are supported. </p>
+<p>obj: If unicode, encode; if bytes, return unaltered; if anything else, return None; if not given, raise SyntaxError. </p>
+<p>encoding (string): If present, encoding to use. The default is 'unicode_escape'. </p>
+<p>errors (string): If given, how to handle unencodable characters. The default is 'backslashreplace'. </p>
+<p>etype (exception type): If given, the exception type to raise for an encoding error. The default is UnicodeEncodeError, as returned by <tt>PyUnicode_AsEncodedString()</tt>. For the default encoding and errors values there should be no encoding errors. </p>
+<p>This function is used in encoding file paths. Keyword arguments are supported. </p>
 <p>Added in Pygame 1.9.2 (primarily for use in unit tests) </p>
 <!--COMMENTS:pygame.encode_string--> &nbsp;<br> 
 <br></ul>
@@ -177,12 +171,9 @@
 <big><b>pygame.encode_file_path</big></b><br><ul>
   <i>Encode a unicode or bytes object as a file system path</i><br>
   <tt>encode_file_path([obj [, etype]]) => bytes or None</tt><br>
-<p>obj: If unicode, encode; if bytes, return unaltered; if anything else, </p>
-<pre>  return None; if not given, raise SyntaxError.
-</pre><p>etype (exception type): If given, the exception type to raise for </p>
-<pre>  an encoding error. The default is UnicodeEncodeError, as returned
-  by PyUnicode_AsEncodedString().
-</pre><p>This function is used to encode file paths in Pygame. Encoding is to the codec as returned by <tt>sys.getfilesystemencoding()</tt>. Keyword arguments are supported. </p>
+<p>obj: If unicode, encode; if bytes, return unaltered; if anything else, return None; if not given, raise SyntaxError. </p>
+<p>etype (exception type): If given, the exception type to raise for an encoding error. The default is UnicodeEncodeError, as returned by <tt>PyUnicode_AsEncodedString()</tt>. </p>
+<p>This function is used to encode file paths in Pygame. Encoding is to the codec as returned by <tt>sys.getfilesystemencoding()</tt>. Keyword arguments are supported. </p>
 <p>Added in Pygame 1.9.2 (primarily for use in unit tests) </p>
 <!--COMMENTS:pygame.encode_file_path--> &nbsp;<br> 
 <br></ul>

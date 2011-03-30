@@ -1,7 +1,7 @@
 /* Auto generated file: with makeref.py .  Docs go in src/ *.doc . */
 #define DOC_PYGAMEMOUSE "pygame module to work with the mouse"
 
-#define DOC_PYGAMEMOUSEGETPRESSED "pygame.moouse.get_pressed(): return (button1, button2, button3)\nget the state of the mouse buttons"
+#define DOC_PYGAMEMOUSEGETPRESSED "pygame.mouse.get_pressed(): return (button1, button2, button3)\nget the state of the mouse buttons"
 
 #define DOC_PYGAMEMOUSEGETPOS "pygame.mouse.get_pos(): return (x, y)\nget the mouse cursor position"
 
@@ -30,7 +30,7 @@ pygame.mouse
 
 
 pygame.mouse.get_pressed
- pygame.moouse.get_pressed(): return (button1, button2, button3)
+ pygame.mouse.get_pressed(): return (button1, button2, button3)
 get the state of the mouse buttons
 
 
