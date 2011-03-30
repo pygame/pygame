@@ -135,13 +135,13 @@ name_from_eventtype (int type)
     switch (type)
     {
     case SDL_ACTIVEEVENT:
-	return "ActiveEvent";
+        return "ActiveEvent";
     case SDL_KEYDOWN:
         return "KeyDown";
     case SDL_KEYUP:
         return "KeyUp";
     case SDL_MOUSEMOTION:
-	return "MouseMotion";
+        return "MouseMotion";
     case SDL_MOUSEBUTTONDOWN:
         return "MouseButtonDown";
     case SDL_MOUSEBUTTONUP:
@@ -151,19 +151,19 @@ name_from_eventtype (int type)
     case SDL_JOYBALLMOTION:
         return "JoyBallMotion";
     case SDL_JOYHATMOTION:
-	return "JoyHatMotion";
+        return "JoyHatMotion";
     case SDL_JOYBUTTONUP:
-	return "JoyButtonUp";
+        return "JoyButtonUp";
     case SDL_JOYBUTTONDOWN:
         return "JoyButtonDown";
     case SDL_QUIT:
         return "Quit";
     case SDL_SYSWMEVENT:
-	return "SysWMEvent";
+        return "SysWMEvent";
     case SDL_VIDEORESIZE:
-	return "VideoResize";
+        return "VideoResize";
     case SDL_VIDEOEXPOSE:
-	return "VideoExpose";
+        return "VideoExpose";
     case SDL_NOEVENT:
         return "NoEvent";
     }
@@ -410,7 +410,7 @@ event_str (PyObject* self)
 
     strobj = PyObject_Str (e->dict);
     if (strobj == NULL) {
-	return NULL;
+        return NULL;
     }
 #if PY3
     encodedobj = PyUnicode_AsASCIIString (strobj);
@@ -418,7 +418,7 @@ event_str (PyObject* self)
     strobj = encodedobj;
     encodedobj = NULL;
     if (strobj == NULL) {
-	return NULL;
+        return NULL;
     }
     s = PyBytes_AsString (strobj);
 #else
@@ -438,33 +438,33 @@ event_nonzero (PyEventObject *self)
 }
 
 static PyNumberMethods event_as_number = {
-    (binaryfunc)NULL,		/*add*/
-    (binaryfunc)NULL,		/*subtract*/
-    (binaryfunc)NULL,		/*multiply*/
+    (binaryfunc)NULL,                /*add*/
+    (binaryfunc)NULL,                /*subtract*/
+    (binaryfunc)NULL,                /*multiply*/
 #if !PY3
-    (binaryfunc)NULL,		/*divide*/
+    (binaryfunc)NULL,                /*divide*/
 #endif
-    (binaryfunc)NULL,		/*remainder*/
-    (binaryfunc)NULL,		/*divmod*/
-    (ternaryfunc)NULL,		/*power*/
-    (unaryfunc)NULL,		/*negative*/
-    (unaryfunc)NULL,		/*pos*/
-    (unaryfunc)NULL,		/*abs*/
-    (inquiry)event_nonzero,	/*nonzero*/
-    (unaryfunc)NULL,		/*invert*/
-    (binaryfunc)NULL,		/*lshift*/
-    (binaryfunc)NULL,		/*rshift*/
-    (binaryfunc)NULL,		/*and*/
-    (binaryfunc)NULL,		/*xor*/
-    (binaryfunc)NULL,		/*or*/
+    (binaryfunc)NULL,                /*remainder*/
+    (binaryfunc)NULL,                /*divmod*/
+    (ternaryfunc)NULL,                /*power*/
+    (unaryfunc)NULL,                /*negative*/
+    (unaryfunc)NULL,                /*pos*/
+    (unaryfunc)NULL,                /*abs*/
+    (inquiry)event_nonzero,        /*nonzero*/
+    (unaryfunc)NULL,                /*invert*/
+    (binaryfunc)NULL,                /*lshift*/
+    (binaryfunc)NULL,                /*rshift*/
+    (binaryfunc)NULL,                /*and*/
+    (binaryfunc)NULL,                /*xor*/
+    (binaryfunc)NULL,                /*or*/
 #if !PY3
-    (coercion)NULL,			/*coerce*/
+    (coercion)NULL,                        /*coerce*/
 #endif
-    (unaryfunc)NULL,		/*int*/
+    (unaryfunc)NULL,                /*int*/
 #if !PY3
-    (unaryfunc)NULL,		/*long*/
+    (unaryfunc)NULL,                /*long*/
 #endif
-    (unaryfunc)NULL,		/*float*/
+    (unaryfunc)NULL,                /*float*/
 };
 
 /*
@@ -478,7 +478,7 @@ event_richcompare(PyObject *o1, PyObject *o2, int opid)
 
     if (!PyEvent_Check(o1) || !PyEvent_Check(o2))
     {
-	goto Unimplemented;
+        goto Unimplemented;
     }
 
     e1 = (PyEventObject *) o1;
@@ -487,14 +487,14 @@ event_richcompare(PyObject *o1, PyObject *o2, int opid)
     {
     case Py_EQ:
         return PyBool_FromLong (e1->type == e2->type &&
-				PyObject_RichCompareBool (e1->dict,
-						          e2->dict,
-						          Py_EQ) == 1);
+                                PyObject_RichCompareBool (e1->dict,
+                                                          e2->dict,
+                                                          Py_EQ) == 1);
     case Py_NE:
         return PyBool_FromLong (e1->type != e2->type ||
-				PyObject_RichCompareBool (e1->dict,
-						          e2->dict,
-						          Py_NE) == 1);
+                                PyObject_RichCompareBool (e1->dict,
+                                                          e2->dict,
+                                                          Py_NE) == 1);
     default:
         break;
     }
@@ -508,21 +508,21 @@ Unimplemented:
 static PyTypeObject PyEvent_Type =
 {
     TYPE_HEAD (NULL, 0)
-    "Event",				/*name*/
-    sizeof(PyEventObject),	/*basic size*/
-    0,						/*itemsize*/
-    event_dealloc,			/*dealloc*/
-    0,						/*print*/
-    event_getattr,			/*getattr*/
-    NULL,					/*setattr*/
-    NULL,					/*compare*/
-    event_str,				/*repr*/
-    &event_as_number,		/*as_number*/
-    NULL,					/*as_sequence*/
-    NULL,					/*as_mapping*/
-    (hashfunc)NULL, 		/*hash*/
-    (ternaryfunc)NULL,		/*call*/
-    (reprfunc)NULL, 		/*str*/
+    "Event",                                /*name*/
+    sizeof(PyEventObject),        /*basic size*/
+    0,                                                /*itemsize*/
+    event_dealloc,                        /*dealloc*/
+    0,                                                /*print*/
+    event_getattr,                        /*getattr*/
+    NULL,                                        /*setattr*/
+    NULL,                                        /*compare*/
+    event_str,                                /*repr*/
+    &event_as_number,                /*as_number*/
+    NULL,                                        /*as_sequence*/
+    NULL,                                        /*as_mapping*/
+    (hashfunc)NULL,                 /*hash*/
+    (ternaryfunc)NULL,                /*call*/
+    (reprfunc)NULL,                 /*str*/
     0,                          /* tp_getattro */
     0,                          /* tp_setattro */
     0,                          /* tp_as_buffer */
@@ -848,10 +848,10 @@ event_post (PyObject* self, PyObject* args)
 
 
     /* see if the event is blocked before posting it. */
-	isblocked = SDL_EventState (e->type, SDL_QUERY) == SDL_IGNORE;
+        isblocked = SDL_EventState (e->type, SDL_QUERY) == SDL_IGNORE;
     
-	if (isblocked) {
-		/* event is blocked, so we don't post it. */
+        if (isblocked) {
+                /* event is blocked, so we don't post it. */
         Py_RETURN_NONE;
     }
 
@@ -1034,12 +1034,12 @@ MODINIT_DEFINE (event)
     */
     import_pygame_base ();
     if (PyErr_Occurred ()) {
-	MODINIT_ERROR;
+        MODINIT_ERROR;
     }
 
     /* type preparation */
     if (PyType_Ready (&PyEvent_Type) < 0) {
-	MODINIT_ERROR;
+        MODINIT_ERROR;
     }
 
     /* create the module */
@@ -1051,7 +1051,7 @@ MODINIT_DEFINE (event)
     dict = PyModule_GetDict (module);
 
     if (PyDict_SetItemString (dict, "EventType",
-			      (PyObject *)&PyEvent_Type) == -1) {
+                              (PyObject *)&PyEvent_Type) == -1) {
         DECREF_MOD (module);
         MODINIT_ERROR;
     }
