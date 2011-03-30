@@ -239,8 +239,9 @@
   <i>create a new event object</i><br>
   <tt>pygame.event.Event(type, dict): return Event</tt><br>
   <tt>pygame.event.Event(type, **attributes): return Event</tt><br>
-<p>Creates a new event with the given type. The event is created with the given attributes and values. The attributes can come from a dictionary argument, or as string keys from a dictionary. </p>
-<p>The given attributes will be readonly attributes on the new event object itself. These are the only attributes on the Event object, there are no methods attached to Event objects. </p>
+<p>Creates a new event with the given type. The event is created with the given attributes and values. The attributes can come from a dictionary argument with string keys, or from keyword arguments. The event object exposes its dictionary as attribute __dict__, and also as dict for backward compatibility. </p>
+<p>Attributes type, __dict__, and dict are readonly. Other attributes are mutable. There are no methods attached to an Event object. </p>
+<p>Mutable attributes are new to Pygame 1.9.2. </p>
 <!--COMMENTS:pygame.event.Event--> &nbsp;<br> 
 <br></ul>
 <br></ul>
