@@ -152,11 +152,12 @@ perhaps make a clean copy from "Setup.in".""")
 
 #python 3.x: remove modules not yet ported
 if sys.version_info >= (3, 0, 0):
-    python3_skip = ['scrap',
-                    '_movie',
+    python3_skip = ['_movie',
                     '_numericsurfarray',
                     '_numericsndarray',
-                    ]
+                   ]
+    if (sys.platform != 'linux2'):
+        python3_skip.append('scrap')
     tmp_extensions = extensions
     extensions = []
     for e in tmp_extensions:
