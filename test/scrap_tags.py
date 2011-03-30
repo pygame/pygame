@@ -4,8 +4,7 @@ import sys
 
 exclude = False
 
-if ((sys.platform == 'win32' or sys.platform == 'linux2') and
-    sys.version_info < (3, 0, 0)):
+if sys.platform == 'win32' or sys.platform == 'linux2':
     try:
         import pygame
         pygame.scrap._NOT_IMPLEMENTED_

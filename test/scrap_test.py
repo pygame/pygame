@@ -18,6 +18,7 @@ else:
          import test_not_implemented, trunk_relative_path, unittest
 import pygame
 from pygame import scrap
+from pygame.compat import as_bytes
 import sys
 
 class ScrapModuleTest(unittest.TestCase):
@@ -123,11 +124,13 @@ class ScrapModuleTest(unittest.TestCase):
         self.assertRaises (ValueError, scrap.set_mode, 1099)
 
     def test_scrap_put_text (self):
-        scrap.put (pygame.SCRAP_TEXT, "Hello world")
-        self.assertEquals (scrap.get (pygame.SCRAP_TEXT), "Hello world")
+        scrap.put (pygame.SCRAP_TEXT, as_bytes("Hello world"))
+        self.assertEquals (scrap.get (pygame.SCRAP_TEXT),
+                           as_bytes("Hello world"))
 
-        scrap.put (pygame.SCRAP_TEXT, "Another String")
-        self.assertEquals (scrap.get (pygame.SCRAP_TEXT), "Another String")
+        scrap.put (pygame.SCRAP_TEXT, as_bytes("Another String"))
+        self.assertEquals (scrap.get (pygame.SCRAP_TEXT),
+                           as_bytes("Another String"))
 
     def test_scrap_put_image (self):
         if 'pygame.image' not in sys.modules:
@@ -140,9 +143,9 @@ class ScrapModuleTest(unittest.TestCase):
         self.assertEquals (scrap.get(pygame.SCRAP_BMP), string)
 
     def test_put (self):
-        scrap.put ("arbitrary buffer", "buf")
+        scrap.put ("arbitrary buffer", as_bytes("buf"))
         r = scrap.get ("arbitrary buffer")
-        self.assertEquals (r, "buf")
+        self.assertEquals (r, as_bytes("buf"))
 
 if __name__ == '__main__':
     unittest.main()

@@ -137,7 +137,7 @@ _add_clip_data (Atom cliptype, char *data, int srclen)
     PyObject *tmp;
     char *key = _atom_to_string (cliptype);
 
-    tmp = PyString_FromStringAndSize (data, srclen);
+    tmp = Bytes_FromStringAndSize (data, srclen);
     PyDict_SetItemString (dict, key, tmp);
     Py_DECREF (tmp);
     XChangeProperty (SDL_Display, SDL_Window, clip, cliptype,
@@ -292,6 +292,9 @@ _set_targets (PyObject *data, Display *display, Window window, Atom property)
     int i;
     char *format;
     PyObject *list = PyDict_Keys (data);
+#if PY3
+    PyObject *chars;
+#endif
     int amount = PyList_Size (list);
     /* All types plus the TARGETS and a TIMESTAMP atom. */
     Atom *targets = malloc ((amount + 2) * sizeof (Atom));
@@ -302,8 +305,19 @@ _set_targets (PyObject *data, Display *display, Window window, Atom property)
     targets[1] = _atom_TIMESTAMP;
     for (i = 0; i < amount; i++)
     {
+#if PY3
+        chars = PyUnicode_AsASCIIString (PyList_GetItem (list, i));
+        if (!chars) {
+            return;
+        }
+        format = PyBytes_AsString (chars);
+#else
         format = PyString_AsString (PyList_GetItem(list, i));
+#endif
         targets[i + 2] = _convert_format (format);
+#if PY3
+	Py_DECREF (chars);
+#endif
     }
     XChangeProperty (display, window, property, XA_ATOM, 32, PropModeReplace,
                      (unsigned char*) targets, amount + 2);
@@ -333,8 +347,8 @@ _set_data (PyObject *data, Display *display, Window window, Atom property,
         XFree (name);
         return 0;
     }
-    size = PyString_Size (val);
-    value = PyString_AsString (val);
+    size = Bytes_Size (val);
+    value = Bytes_AsString (val);
 
     /* Send data. */
     XChangeProperty (display, window, property, target, 8, PropModeReplace,
@@ -404,7 +418,7 @@ _get_scrap_owner (Atom *selection)
 static char*
 _get_data_as (Atom source, Atom format, unsigned long *length)
 {
-    char *retval = NULL;
+    unsigned char *retval = NULL;
     Window owner;
     time_t start;
     Atom sel_type;
@@ -430,10 +444,10 @@ _get_data_as (Atom source, Atom format, unsigned long *length)
         fmt = _atom_to_string (format);
 
         if (_currentmode == SCRAP_SELECTION)
-            data = PyString_AsString
+            data = Bytes_AsString
                 (PyDict_GetItemString (_selectiondata, fmt));
         else
-            data = PyString_AsString (PyDict_GetItemString (_clipdata, fmt));
+            data = Bytes_AsString (PyDict_GetItemString (_clipdata, fmt));
         free (fmt);
 
         return data;
@@ -585,7 +599,7 @@ _get_data_as (Atom source, Atom format, unsigned long *length)
             {
                 int i = 0;
                 int ioffset = 0;
-                char *tmp;
+                unsigned char *tmp;
 
                 free (retval);
                 retval = NULL;
@@ -613,7 +627,7 @@ _get_data_as (Atom source, Atom format, unsigned long *length)
     }
 
     Unlock_Display ();
-    return retval;
+    return (char *)retval;
 }
 
 int
@@ -812,6 +826,9 @@ pygame_scrap_get_types (void)
     if (!pygame_scrap_lost ())
     {
         PyObject *key;
+#if PY3
+        PyObject *chars;
+#endif
         int pos = 0;
         int i = 0;
         PyObject *dict = (_currentmode == SCRAP_SELECTION) ? _selectiondata :
@@ -824,7 +841,18 @@ pygame_scrap_get_types (void)
         memset (types, 0, (size_t) (PyDict_Size (dict) + 1));
         while (PyDict_Next (dict, &pos, &key, NULL))
         {
-            types[i] = strdup (PyString_AsString (key));
+#if PY3
+            chars = PyUnicode_AsASCIIString (key);
+            if (chars) {
+                types[i] = strdup (PyBytes_AsString (chars));
+                Py_DECREF (chars);
+            }
+            else {
+                types[i] = NULL;
+            }
+#else
+             types[i] = strdup (PyString_AsString (key));
+#endif
             if (!types[i])
             {
                 /* Could not allocate memory, free anything. */
