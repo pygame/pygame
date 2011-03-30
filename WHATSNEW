@@ -4,6 +4,14 @@
 # BREAK = change breaks existing code
 # BUG    = fixed a bug that was (or could have been) crashing
 
+[SVN 3062] Mar 30, 2011
+    Port scrap module to Python 3.x (merge with branches/port_scrap_py3).
+    Accidently committed in rev 3061.
+
+[SVN 3057-3061]
+    Update Pygame Event type to have mutable attributes as per feature request
+    62 on Motherhamster's Bugzilla 
+
 [SVN 3006] Feb 24, 2011
     [BUG] Fix hanging pointer problem in color.c.
     Add deprecation warning for Numeric in surfarray and sndarray.
