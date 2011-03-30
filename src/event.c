@@ -28,6 +28,8 @@
 #include "pgcompat.h"
 #include "doc/event_doc.h"
 
+#include "structmember.h"
+
 // FIXME: The system message code is only tested on windows, so only
 //          include it there for now.
 #include <SDL_syswm.h>
@@ -374,29 +376,6 @@ event_dealloc (PyObject* self)
     PyObject_DEL (self);
 }
 
-static PyObject*
-event_getattr (PyObject *self, char *name)
-{
-    PyEventObject* e = (PyEventObject*)self;
-    PyObject* item;
-
-    if (!strcmp (name, "type"))
-        return PyInt_FromLong (e->type);
-
-    if (!strcmp (name, "dict"))
-    {
-        Py_INCREF (e->dict);
-        return e->dict;
-    }
-
-    item = PyDict_GetItemString (e->dict, name);
-    if(item)
-        Py_INCREF (item);
-    else
-        RAISE (PyExc_AttributeError, "event member not defined");
-    return item;
-}
-
 PyObject*
 event_str (PyObject* self)
 {
@@ -467,6 +446,15 @@ static PyNumberMethods event_as_number = {
     (unaryfunc)NULL,                 /*float*/
 };
 
+#define OFF(x) offsetof(PyEventObject, x)
+
+static PyMemberDef event_members[] = {
+    {"__dict__",  T_OBJECT, OFF(dict), READONLY},
+    {"type",      T_INT,    OFF(type), READONLY},
+    {"dict",      T_OBJECT, OFF(dict), READONLY},
+    {NULL}  /* Sentinel */
+};
+
 /*
  * eventA == eventB
  * eventA != eventB
@@ -513,28 +501,42 @@ static PyTypeObject PyEvent_Type =
     0,                               /*itemsize*/
     event_dealloc,                   /*dealloc*/
     0,                               /*print*/
-    event_getattr,                   /*getattr*/
-    NULL,                            /*setattr*/
-    NULL,                            /*compare*/
+    0,                               /*getattr*/
+    0,                               /*setattr*/
+    0,                               /*compare*/
     event_str,                       /*repr*/
     &event_as_number,                /*as_number*/
-    NULL,                            /*as_sequence*/
-    NULL,                            /*as_mapping*/
+    0,                               /*as_sequence*/
+    0,                               /*as_mapping*/
     (hashfunc)NULL,                  /*hash*/
     (ternaryfunc)NULL,               /*call*/
     (reprfunc)NULL,                  /*str*/
-    0,                               /* tp_getattro */
-    0,                               /* tp_setattro */
+    PyObject_GenericGetAttr,         /* tp_getattro */
+    PyObject_GenericSetAttr,         /* tp_setattro */
     0,                               /* tp_as_buffer */
 #if PY3
     0,
 #else
-    Py_TPFLAGS_HAVE_RICHCOMPARE,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_RICHCOMPARE,
 #endif
     DOC_PYGAMEEVENTEVENT,            /* Documentation string */
     0,                               /* tp_traverse */
     0,                               /* tp_clear */
     event_richcompare,               /* tp_richcompare */
+    0,		                     /* tp_weaklistoffset */
+    0,		                     /* tp_iter */
+    0,		                     /* tp_iternext */
+    0,                               /* tp_methods */
+    event_members,                   /* tp_members */
+    0,                               /* tp_getset */
+    0,                               /* tp_base */
+    0,                               /* tp_dict */
+    0,                               /* tp_descr_get */
+    0,                               /* tp_descr_set */
+    offsetof(PyEventObject, dict),   /* tp_dictoffset */
+    0,                               /* tp_init */
+    0,                               /* tp_alloc */
+    0,                               /* tp_new */
 };
 
 static PyObject*
@@ -850,8 +852,8 @@ event_post (PyObject* self, PyObject* args)
     /* see if the event is blocked before posting it. */
         isblocked = SDL_EventState (e->type, SDL_QUERY) == SDL_IGNORE;
     
-        if (isblocked) {
-                /* event is blocked, so we don't post it. */
+    if (isblocked) {
+        /* event is blocked, so we do not post it. */
         Py_RETURN_NONE;
     }
 
