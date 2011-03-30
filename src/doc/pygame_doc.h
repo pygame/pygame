@@ -5,7 +5,7 @@
 
 #define DOC_PYGAMEQUIT "pygame.quit(): return None\nuninitialize all pygame modules"
 
-#define DOC_PYGAMEERROR "raise pygame.error, message\nstandard pygame exception"
+#define DOC_PYGAMEERROR "raise pygame.error(message)\nstandard pygame exception"
 
 #define DOC_PYGAMEGETERROR "pygame.get_error(): return errorstr\nget the current error message"
 
@@ -52,7 +52,7 @@ uninitialize all pygame modules
 
 
 pygame.error
- raise pygame.error, message
+ raise pygame.error(message)
 standard pygame exception
 
 

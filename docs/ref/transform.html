@@ -148,7 +148,7 @@
 <a name="pygame.transform.set_smoothscale_backend">
 <big><b>pygame.transform.set_smoothscale_backend</big></b><br><ul>
   <i>set smoothscale filter version to one of: 'GENERIC', 'MMX', or 'SSE'</i><br>
-  <tt>pygame.transform.get_smoothscale_backend(type): return None</tt><br>
+  <tt>pygame.transform.set_smoothscale_backend(type): return None</tt><br>
 <p>Sets smoothscale acceleration. Takes a string argument. A value of 'GENERIC' turns off acceleration. 'MMX' uses <tt>MMX</tt> instructions only. 'SSE' allows <tt>SSE</tt> extensions as well. A value error is raised if type is not recognized or not supported by the current processor. </p>
 <p>This function is provided for Pygame testing and debugging. If smoothscale causes an invalid instruction error then it is a Pygame/SDL bug that should be reported. Use this function as a temporary fix only. </p>
 <!--COMMENTS:pygame.transform.set_smoothscale_backend--> &nbsp;<br> 

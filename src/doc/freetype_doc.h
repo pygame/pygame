@@ -9,7 +9,7 @@
 
 #define DOC_PYGAMEFREETYPEQUIT "pygame.freetype.quit(): return None\nShuts down the underlying FreeType 2 library."
 
-#define DOC_PYGAMEFREETYPEWASINIT "pygame.freetype.quit(): return bool\nReturns whether the the FreeType 2 library is initialized."
+#define DOC_PYGAMEFREETYPEWASINIT "pygame.freetype.was_init(): return bool\nReturns whether the the FreeType 2 library is initialized."
 
 #define DOC_PYGAMEFREETYPEFONT "pygame.freetype.Font(file, style=STYLE_NONE, ptsize=-1, face_index=0): return Font\nCreates a new Font from a supported font file."
 
@@ -78,7 +78,7 @@ Shuts down the underlying FreeType 2 library.
 
 
 pygame.freetype.was_init
- pygame.freetype.quit(): return bool
+ pygame.freetype.was_init(): return bool
 Returns whether the the FreeType 2 library is initialized.
 
 

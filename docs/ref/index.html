@@ -226,7 +226,7 @@
 <li><a href="display.html#pygame.display.quit">pygame.display.quit</a> &mdash; <font size=-1>uninitialize the display module</font></li>
 <li><a href="display.html#pygame.display.set_caption">pygame.display.set_caption</a> &mdash; <font size=-1>set the current window caption</font></li>
 <li><a href="display.html#pygame.display.set_gamma">pygame.display.set_gamma</a> &mdash; <font size=-1>change the hardware gamma ramps</font></li>
-<li><a href="display.html#pygame.display.set_gamma_ramp">pygame.display.set_gamma_ramp</a> &mdash; <font size=-1>set_gamma_ramp(red, green, blue): return bool</font></li>
+<li><a href="display.html#pygame.display.set_gamma_ramp">pygame.display.set_gamma_ramp</a> &mdash; <font size=-1>change the hardware gamma ramps with a custom lookup</font></li>
 <li><a href="display.html#pygame.display.set_icon">pygame.display.set_icon</a> &mdash; <font size=-1>change the system image for the display window</font></li>
 <li><a href="display.html#pygame.display.set_mode">pygame.display.set_mode</a> &mdash; <font size=-1>initialize a window or screen for display</font></li>
 <li><a href="display.html#pygame.display.set_palette">pygame.display.set_palette</a> &mdash; <font size=-1>set the display color palette for indexed displays</font></li>
@@ -236,7 +236,7 @@
 <li><a href="draw.html#pygame.draw">pygame.draw</a> &mdash; <font size=-1>pygame module for drawing shapes</font></li>
 <ul>
 <li><a href="draw.html#pygame.draw.aaline">pygame.draw.aaline</a> &mdash; <font size=-1>draw fine antialiased lines</font></li>
-<li><a href="draw.html#pygame.draw.aalines">pygame.draw.aalines</a> &mdash; <font size=-1>pygame.draw.aalines(Surface, color, closed, pointlist, blend=1): return Rect</font></li>
+<li><a href="draw.html#pygame.draw.aalines">pygame.draw.aalines</a> &mdash; <font size=-1>draw a connected sequence of antialiased lines</font></li>
 <li><a href="draw.html#pygame.draw.arc">pygame.draw.arc</a> &mdash; <font size=-1>draw a partial section of an ellipse</font></li>
 <li><a href="draw.html#pygame.draw.circle">pygame.draw.circle</a> &mdash; <font size=-1>draw a circle around a point</font></li>
 <li><a href="draw.html#pygame.draw.ellipse">pygame.draw.ellipse</a> &mdash; <font size=-1>draw a round shape inside a rectangle</font></li>
@@ -502,22 +502,22 @@
 <li><a href="math.html#Vector3.scale_to_length">Vector3.scale_to_length</a> &mdash; <font size=-1>scales the vector to a given length.</font></li>
 <li><a href="math.html#Vector3.slerp">Vector3.slerp</a> &mdash; <font size=-1>returns a spherical interpolation to the given vector.</font></li>
 </ul>
-<li><a href="math.html#pygame.math.diable_swizzling">pygame.math.diable_swizzling</a> &mdash; <font size=-1>globally disables swizzling for vectors.</font></li>
+<li><a href="math.html#pygame.math.disable_swizzling">pygame.math.disable_swizzling</a> &mdash; <font size=-1>globally disables swizzling for vectors.</font></li>
 <li><a href="math.html#pygame.math.enable_swizzling">pygame.math.enable_swizzling</a> &mdash; <font size=-1>globally enables swizzling for vectors.</font></li>
 </ul>
 <li><a href="midi.html#pygame.midi">pygame.midi</a> &mdash; <font size=-1>pygame module for interacting with midi input and output.</font></li>
 <ul>
 <li><a href="midi.html#pygame.midi.Input">pygame.midi.Input</a> &mdash; <font size=-1>Input is used to get midi input from midi devices.</font></li>
 <ul>
-<li><a href="midi.html#Input.close">Input.close</a> &mdash; <font size=-1> closes a midi stream, flushing any pending buffers.</font></li>
+<li><a href="midi.html#Input.close">Input.close</a> &mdash; <font size=-1>closes a midi stream, flushing any pending buffers.</font></li>
 <li><a href="midi.html#Input.poll">Input.poll</a> &mdash; <font size=-1>returns true if there's data, or false if not.</font></li>
 <li><a href="midi.html#Input.read">Input.read</a> &mdash; <font size=-1>reads num_events midi events from the buffer.</font></li>
 </ul>
 <li><a href="midi.html#pygame.midi.MidiException">pygame.midi.MidiException</a> &mdash; <font size=-1>exception that pygame.midi functions and classes can raise</font></li>
 <li><a href="midi.html#pygame.midi.Output">pygame.midi.Output</a> &mdash; <font size=-1>Output is used to send midi to an output device</font></li>
 <ul>
-<li><a href="midi.html#Output.abort">Output.abort</a> &mdash; <font size=-1> terminates outgoing messages immediately</font></li>
-<li><a href="midi.html#Output.close">Output.close</a> &mdash; <font size=-1> closes a midi stream, flushing any pending buffers.</font></li>
+<li><a href="midi.html#Output.abort">Output.abort</a> &mdash; <font size=-1>terminates outgoing messages immediately</font></li>
+<li><a href="midi.html#Output.close">Output.close</a> &mdash; <font size=-1>closes a midi stream, flushing any pending buffers.</font></li>
 <li><a href="midi.html#Output.note_off">Output.note_off</a> &mdash; <font size=-1>turns a midi note off.  Note must be on.</font></li>
 <li><a href="midi.html#Output.note_on">Output.note_on</a> &mdash; <font size=-1>turns a midi note on.  Note must be off.</font></li>
 <li><a href="midi.html#Output.set_instrument">Output.set_instrument</a> &mdash; <font size=-1>select an instrument, with a value between 0 and 127</font></li>
@@ -528,7 +528,7 @@
 <li><a href="midi.html#pygame.midi.get_count">pygame.midi.get_count</a> &mdash; <font size=-1>gets the number of devices.</font></li>
 <li><a href="midi.html#pygame.midi.get_default_input_id">pygame.midi.get_default_input_id</a> &mdash; <font size=-1>gets default input device number</font></li>
 <li><a href="midi.html#pygame.midi.get_default_output_id">pygame.midi.get_default_output_id</a> &mdash; <font size=-1>gets default output device number</font></li>
-<li><a href="midi.html#pygame.midi.get_device_info">pygame.midi.get_device_info</a> &mdash; <font size=-1> returns information about a midi device</font></li>
+<li><a href="midi.html#pygame.midi.get_device_info">pygame.midi.get_device_info</a> &mdash; <font size=-1>returns information about a midi device</font></li>
 <li><a href="midi.html#pygame.midi.init">pygame.midi.init</a> &mdash; <font size=-1>initialize the midi module</font></li>
 <li><a href="midi.html#pygame.midi.midis2events">pygame.midi.midis2events</a> &mdash; <font size=-1>converts midi events to pygame events</font></li>
 <li><a href="midi.html#pygame.midi.quit">pygame.midi.quit</a> &mdash; <font size=-1>uninitialize the midi module</font></li>
@@ -555,7 +555,7 @@
 <li><a href="mixer.html#pygame.mixer.Sound">pygame.mixer.Sound</a> &mdash; <font size=-1>Create a new Sound object from a file or buffer object</font></li>
 <ul>
 <li><a href="mixer.html#Sound.fadeout">Sound.fadeout</a> &mdash; <font size=-1>stop sound playback after fading out</font></li>
-<li><a href="mixer.html#Sound.get_buffer">Sound.get_buffer</a> &mdash; <font size=-1>acquires a buffer object for the sameples of the Sound.</font></li>
+<li><a href="mixer.html#Sound.get_buffer">Sound.get_buffer</a> &mdash; <font size=-1>acquires a buffer object for the samples of the Sound.</font></li>
 <li><a href="mixer.html#Sound.get_length">Sound.get_length</a> &mdash; <font size=-1>get the length of the Sound</font></li>
 <li><a href="mixer.html#Sound.get_num_channels">Sound.get_num_channels</a> &mdash; <font size=-1>count how many times this Sound is playing</font></li>
 <li><a href="mixer.html#Sound.get_volume">Sound.get_volume</a> &mdash; <font size=-1>get the playback volume</font></li>

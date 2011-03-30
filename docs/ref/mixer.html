@@ -171,6 +171,7 @@
 <a name="pygame.mixer.get_num_channels">
 <big><b>pygame.mixer.get_num_channels</big></b><br><ul>
   <i>get the total number of playback channels</i><br>
+  <tt>pygame.mixer.get_num_channels(): return count</tt><br>
 <p>Returns the number of currently active playback channels. </p>
 <!--COMMENTS:pygame.mixer.get_num_channels--> &nbsp;<br> 
 <br></ul>
@@ -223,7 +224,7 @@
   <tr><td><a href="mixer.html#Sound.get_volume">Sound.get_volume</a></td><td> &mdash; get the playback volume</td></tr>
   <tr><td><a href="mixer.html#Sound.get_num_channels">Sound.get_num_channels</a></td><td> &mdash; count how many times this Sound is playing</td></tr>
   <tr><td><a href="mixer.html#Sound.get_length">Sound.get_length</a></td><td> &mdash; get the length of the Sound</td></tr>
-  <tr><td><a href="mixer.html#Sound.get_buffer">Sound.get_buffer</a></td><td> &mdash; acquires a buffer object for the sameples of the Sound.</td></tr>
+  <tr><td><a href="mixer.html#Sound.get_buffer">Sound.get_buffer</a></td><td> &mdash; acquires a buffer object for the samples of the Sound.</td></tr>
 </table></small></ul>
 <p>Load a new sound buffer from a filename, a python file object or a readable buffer object. Limited resampling will be performed to help the sample match the initialize arguments for the mixer. A Unicode string can only be a file pathname. A Python 2.x string or a Python 3.x bytes object can be either a pathname or a buffer object. Use the 'file' or 'buffer' keywords to avoid ambiguity; otherwise Sound may guess wrong. If the array keyword is used, the object is expected to export a version 3, <tt>C</tt> level array interface or, for Python 2.6 or later, a new buffer interface (The object is checked for a buffer interface first.) </p>
 <p>The Sound object represents actual sound sample data. Methods that change the state of the Sound object will the all instances of the Sound playback. A Sound object also exports an array interface, and, for Python 2.6 or later, a new buffer interface. </p>
@@ -303,7 +304,7 @@
 
 <a name="Sound.get_buffer">
 <big><b>Sound.get_buffer</big></b><br><ul>
-  <i>acquires a buffer object for the sameples of the Sound.</i><br>
+  <i>acquires a buffer object for the samples of the Sound.</i><br>
   <tt>Sound.get_buffer(): return BufferProxy</tt><br>
 <p>Return a buffer object for the Sound samples. The buffer can be used for direct access and manipulation. </p>
 <p>New in pygame 1.8. </p>
