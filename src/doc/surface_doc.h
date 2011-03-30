@@ -35,7 +35,7 @@
 
 #define DOC_SURFACESETAT "Surface.set_at((x, y), Color): return None\nset the color value for a single pixel"
 
-#define DOC_SURFACEGETATMAPPED "Surface.get_at((x, y)): return Color\nget the mapped color value at a single pixel"
+#define DOC_SURFACEGETATMAPPED "Surface.get_at_mapped((x, y)): return Color\nget the mapped color value at a single pixel"
 
 #define DOC_SURFACEGETPALETTE "Surface.get_palette(): return [RGB, RGB, RGB, ...]\nget the color index palette for an 8bit Surface"
 
@@ -43,11 +43,11 @@
 
 #define DOC_SURFACESETPALETTE "Surface.set_palette([RGB, RGB, RGB, ...]): return None\nset the color palette for an 8bit Surface"
 
-#define DOC_SURFACESETPALETTEAT "Surface.set_at(index, RGB): return None\nset the color for a single index in an 8bit Surface palette"
+#define DOC_SURFACESETPALETTEAT "Surface.set_palette_at(index, RGB): return None\nset the color for a single index in an 8bit Surface palette"
 
 #define DOC_SURFACEMAPRGB "Surface.map_rgb(Color): return mapped_int\nconvert a color into a mapped color value"
 
-#define DOC_SURFACEUNMAPRGB "Surface.map_rgb(mapped_int): return Color\nconvert a mapped integer color value into a Color"
+#define DOC_SURFACEUNMAPRGB "Surface.unmap_rgb(mapped_int): return Color\nconvert a mapped integer color value into a Color"
 
 #define DOC_SURFACESETCLIP "Surface.set_clip(rect): return None\nSurface.set_clip(None): return None\nset the current clipping area of the Surface"
 
@@ -85,7 +85,7 @@
 
 #define DOC_SURFACEGETSHIFTS "Surface.get_shifts(): return (R, G, B, A)\nthe bit shifts needed to convert between a color and a mapped integer"
 
-#define DOC_SURFACESETSHIFTS "Surface.get_shifts((r,g,b,a)): return None\nsets the bit shifts needed to convert between a color and a mapped integer"
+#define DOC_SURFACESETSHIFTS "Surface.set_shifts((r,g,b,a)): return None\nsets the bit shifts needed to convert between a color and a mapped integer"
 
 #define DOC_SURFACEGETLOSSES "Surface.get_losses(): return (R, G, B, A)\nthe significant bits used to convert between a color and a mapped integer"
 
@@ -218,7 +218,7 @@ set the color value for a single pixel
 
 
 Surface.get_at_mapped
- Surface.get_at((x, y)): return Color
+ Surface.get_at_mapped((x, y)): return Color
 get the mapped color value at a single pixel
 
 
@@ -242,7 +242,7 @@ set the color palette for an 8bit Surface
 
 
 Surface.set_palette_at
- Surface.set_at(index, RGB): return None
+ Surface.set_palette_at(index, RGB): return None
 set the color for a single index in an 8bit Surface palette
 
 
@@ -254,7 +254,7 @@ convert a color into a mapped color value
 
 
 Surface.unmap_rgb
- Surface.map_rgb(mapped_int): return Color
+ Surface.unmap_rgb(mapped_int): return Color
 convert a mapped integer color value into a Color
 
 
@@ -369,7 +369,7 @@ the bit shifts needed to convert between a color and a mapped integer
 
 
 Surface.set_shifts
- Surface.get_shifts((r,g,b,a)): return None
+ Surface.set_shifts((r,g,b,a)): return None
 sets the bit shifts needed to convert between a color and a mapped integer
 
 

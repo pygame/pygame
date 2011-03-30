@@ -65,7 +65,7 @@
   <tr><td><a href="draw.html#pygame.draw.line">pygame.draw.line</a></td><td> &mdash; draw a straight line segment</td></tr>
   <tr><td><a href="draw.html#pygame.draw.lines">pygame.draw.lines</a></td><td> &mdash; draw multiple contiguous line segments</td></tr>
   <tr><td><a href="draw.html#pygame.draw.aaline">pygame.draw.aaline</a></td><td> &mdash; draw fine antialiased lines</td></tr>
-  <tr><td><a href="draw.html#pygame.draw.aalines">pygame.draw.aalines</a></td><td> &mdash; pygame.draw.aalines(Surface, color, closed, pointlist, blend=1): return Rect</td></tr>
+  <tr><td><a href="draw.html#pygame.draw.aalines">pygame.draw.aalines</a></td><td> &mdash; draw a connected sequence of antialiased lines</td></tr>
 </table></small></ul>
 <p>Draw several simple shapes to a Surface. These functions will work for rendering to any format of Surface. Rendering to hardware Surfaces will be slower than regular software Surfaces. </p>
 <p>Most of the functions take a width argument to represent the size of stroke around the edge of the shape. If a width of 0 is passed the function will actually solid fill the entire shape. </p>
@@ -152,7 +152,8 @@
 
 <a name="pygame.draw.aalines">
 <big><b>pygame.draw.aalines</big></b><br><ul>
-  <i>pygame.draw.aalines(Surface, color, closed, pointlist, blend=1): return Rect</i><br>
+  <i>draw a connected sequence of antialiased lines</i><br>
+  <tt>pygame.draw.aalines(Surface, color, closed, pointlist, blend=1): return Rect</tt><br>
 <p>Draws a sequence on a surface. You must pass at least two points in the sequence of points. The closed argument is a simple boolean and if true, a line will be draw between the first and last points. The boolean blend argument set to true will blend the shades with existing shades instead of overwriting them. This function accepts floating point values for the end points. </p>
 <!--COMMENTS:pygame.draw.aalines--> &nbsp;<br> 
 <br></ul>

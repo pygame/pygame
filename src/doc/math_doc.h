@@ -3,7 +3,7 @@
 
 #define DOC_PYGAMEMATHENABLESWIZZLING "math.enable_swizzling(): return None\nglobally enables swizzling for vectors."
 
-#define DOC_PYGAMEMATHDIABLESWIZZLING "math.disable_swizzling(): return None\nglobally disables swizzling for vectors."
+#define DOC_PYGAMEMATHDISABLESWIZZLING "math.disable_swizzling(): return None\nglobally disables swizzling for vectors."
 
 #define DOC_PYGAMEMATHVECTOR2 "pygame.math.Vector2(): return Vector2\npygame.math.Vector2(Vector2): return Vector2\npygame.math.Vector2(x, y): return Vector2\npygame.math.Vector2((x, y)): return Vector2\na 2-Dimensional Vector"
 
@@ -17,7 +17,7 @@
 
 #define DOC_VECTOR2NORMALIZE "Vector2.normalize(): return Vector2\nreturns a vector with the same direction but length 1."
 
-#define DOC_VECTOR2NORMALIZEIP "Vector2.normalize(): return None\nnormalizes the vector in place so that its length is 1."
+#define DOC_VECTOR2NORMALIZEIP "Vector2.normalize_ip(): return None\nnormalizes the vector in place so that its length is 1."
 
 #define DOC_VECTOR2ISNORMALIZED "Vector2.is_normalized(): return Bool\ntests if the vector is normalized i.e. has length == 1."
 
@@ -25,7 +25,7 @@
 
 #define DOC_VECTOR2REFLECT "Vector2.reflect(Vector2): return Vector2\nreturns a vector reflected of a given normal."
 
-#define DOC_VECTOR2REFLECTIP "Vector2.reflect(Vector2): return None\nreflect the vector of a given normal in place."
+#define DOC_VECTOR2REFLECTIP "Vector2.reflect_ip(Vector2): return None\nreflect the vector of a given normal in place."
 
 #define DOC_VECTOR2DISTANCETO "Vector2.distance_to(Vector2): return float\ncalculates the euclidic distance to a given vector."
 
@@ -59,7 +59,7 @@
 
 #define DOC_VECTOR3NORMALIZE "Vector3.normalize(): return Vector3\nreturns a vector with the same direction but length 1."
 
-#define DOC_VECTOR3NORMALIZEIP "Vector3.normalize(): return None\nnormalizes the vector in place so that its length is 1."
+#define DOC_VECTOR3NORMALIZEIP "Vector3.normalize_ip(): return None\nnormalizes the vector in place so that its length is 1."
 
 #define DOC_VECTOR3ISNORMALIZED "Vector3.is_normalized(): return Bool\ntests if the vector is normalized i.e. has length == 1."
 
@@ -67,7 +67,7 @@
 
 #define DOC_VECTOR3REFLECT "Vector3.reflect(Vector3): return Vector3\nreturns a vector reflected of a given normal."
 
-#define DOC_VECTOR3REFLECTIP "Vector3.reflect(Vector3): return None\nreflect the vector of a given normal in place."
+#define DOC_VECTOR3REFLECTIP "Vector3.reflect_ip(Vector3): return None\nreflect the vector of a given normal in place."
 
 #define DOC_VECTOR3DISTANCETO "Vector3.distance_to(Vector3): return float\ncalculates the euclidic distance to a given vector."
 
@@ -121,7 +121,7 @@ globally enables swizzling for vectors.
 
 
 
-pygame.math.diable_swizzling
+pygame.math.disable_swizzling
  math.disable_swizzling(): return None
 globally disables swizzling for vectors.
 
@@ -167,7 +167,7 @@ returns a vector with the same direction but length 1.
 
 
 Vector2.normalize_ip
- Vector2.normalize(): return None
+ Vector2.normalize_ip(): return None
 normalizes the vector in place so that its length is 1.
 
 
@@ -191,7 +191,7 @@ returns a vector reflected of a given normal.
 
 
 Vector2.reflect_ip
- Vector2.reflect(Vector2): return None
+ Vector2.reflect_ip(Vector2): return None
 reflect the vector of a given normal in place.
 
 
@@ -296,7 +296,7 @@ returns a vector with the same direction but length 1.
 
 
 Vector3.normalize_ip
- Vector3.normalize(): return None
+ Vector3.normalize_ip(): return None
 normalizes the vector in place so that its length is 1.
 
 
@@ -320,7 +320,7 @@ returns a vector reflected of a given normal.
 
 
 Vector3.reflect_ip
- Vector3.reflect(Vector3): return None
+ Vector3.reflect_ip(Vector3): return None
 reflect the vector of a given normal in place.
 
 

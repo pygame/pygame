@@ -75,7 +75,7 @@
   <tr><td><a href="display.html#pygame.display.iconify">pygame.display.iconify</a></td><td> &mdash; iconify the display surface</td></tr>
   <tr><td><a href="display.html#pygame.display.toggle_fullscreen">pygame.display.toggle_fullscreen</a></td><td> &mdash; switch between fullscreen and windowed displays</td></tr>
   <tr><td><a href="display.html#pygame.display.set_gamma">pygame.display.set_gamma</a></td><td> &mdash; change the hardware gamma ramps</td></tr>
-  <tr><td><a href="display.html#pygame.display.set_gamma_ramp">pygame.display.set_gamma_ramp</a></td><td> &mdash; set_gamma_ramp(red, green, blue): return bool</td></tr>
+  <tr><td><a href="display.html#pygame.display.set_gamma_ramp">pygame.display.set_gamma_ramp</a></td><td> &mdash; change the hardware gamma ramps with a custom lookup</td></tr>
   <tr><td><a href="display.html#pygame.display.set_icon">pygame.display.set_icon</a></td><td> &mdash; change the system image for the display window</td></tr>
   <tr><td><a href="display.html#pygame.display.set_caption">pygame.display.set_caption</a></td><td> &mdash; set the current window caption</td></tr>
   <tr><td><a href="display.html#pygame.display.get_caption">pygame.display.get_caption</a></td><td> &mdash; get the current window caption</td></tr>
@@ -307,8 +307,7 @@
 
 <a name="pygame.display.set_gamma_ramp">
 <big><b>pygame.display.set_gamma_ramp</big></b><br><ul>
-  <i>set_gamma_ramp(red, green, blue): return bool</i><br>
-  <tt>change the hardware gamma ramps with a custom lookup</tt><br>
+  <i>change the hardware gamma ramps with a custom lookup</i><br>
   <tt>pygame.display.set_gamma_ramp(red, green, blue): return bool</tt><br>
 <p>Set the red, green, and blue gamma ramps with an explicit lookup table. Each argument should be sequence of 256 integers. The integers should range between 0 and 0xffff. Not all systems and hardware support gamma ramps, if the function succeeds it will return True. </p>
 <!--COMMENTS:pygame.display.set_gamma_ramp--> &nbsp;<br> 

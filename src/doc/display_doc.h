@@ -37,7 +37,7 @@
 
 #define DOC_PYGAMEDISPLAYSETGAMMA "pygame.display.set_gamma(red, green=None, blue=None): return bool\nchange the hardware gamma ramps"
 
-#define DOC_PYGAMEDISPLAYSETGAMMARAMP "change the hardware gamma ramps with a custom lookup\npygame.display.set_gamma_ramp(red, green, blue): return bool\nset_gamma_ramp(red, green, blue): return bool"
+#define DOC_PYGAMEDISPLAYSETGAMMARAMP "pygame.display.set_gamma_ramp(red, green, blue): return bool\nchange the hardware gamma ramps with a custom lookup"
 
 #define DOC_PYGAMEDISPLAYSETICON "pygame.display.set_icon(Surface): return None\nchange the system image for the display window"
 
@@ -169,9 +169,8 @@ change the hardware gamma ramps
 
 
 pygame.display.set_gamma_ramp
- change the hardware gamma ramps with a custom lookup
-pygame.display.set_gamma_ramp(red, green, blue): return bool
-set_gamma_ramp(red, green, blue): return bool
+ pygame.display.set_gamma_ramp(red, green, blue): return bool
+change the hardware gamma ramps with a custom lookup
 
 
 

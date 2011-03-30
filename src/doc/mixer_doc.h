@@ -19,7 +19,7 @@
 
 #define DOC_PYGAMEMIXERSETNUMCHANNELS "pygame.mixer.set_num_channels(count): return None\nset the total number of playback channels"
 
-#define DOC_PYGAMEMIXERGETNUMCHANNELS "get the total number of playback channels"
+#define DOC_PYGAMEMIXERGETNUMCHANNELS "pygame.mixer.get_num_channels(): return count\nget the total number of playback channels"
 
 #define DOC_PYGAMEMIXERSETRESERVED "pygame.mixer.set_reserved(count): return None\nreserve channels from being automatically used"
 
@@ -43,7 +43,7 @@
 
 #define DOC_SOUNDGETLENGTH "Sound.get_length(): return seconds\nget the length of the Sound"
 
-#define DOC_SOUNDGETBUFFER "Sound.get_buffer(): return BufferProxy\nacquires a buffer object for the sameples of the Sound."
+#define DOC_SOUNDGETBUFFER "Sound.get_buffer(): return BufferProxy\nacquires a buffer object for the samples of the Sound."
 
 #define DOC_PYGAMEMIXERCHANNEL "pygame.mixer.Channel(id): return Channel\nCreate a Channel object for controlling playback"
 
@@ -140,7 +140,8 @@ set the total number of playback channels
 
 
 pygame.mixer.get_num_channels
- get the total number of playback channels
+ pygame.mixer.get_num_channels(): return count
+get the total number of playback channels
 
 
 
@@ -218,7 +219,7 @@ get the length of the Sound
 
 Sound.get_buffer
  Sound.get_buffer(): return BufferProxy
-acquires a buffer object for the sameples of the Sound.
+acquires a buffer object for the samples of the Sound.
 
 
 

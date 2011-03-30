@@ -63,7 +63,7 @@
   <tr><td><a href="midi.html#pygame.midi.get_count">pygame.midi.get_count</a></td><td> &mdash; gets the number of devices.</td></tr>
   <tr><td><a href="midi.html#pygame.midi.get_default_input_id">pygame.midi.get_default_input_id</a></td><td> &mdash; gets default input device number</td></tr>
   <tr><td><a href="midi.html#pygame.midi.get_default_output_id">pygame.midi.get_default_output_id</a></td><td> &mdash; gets default output device number</td></tr>
-  <tr><td><a href="midi.html#pygame.midi.get_device_info">pygame.midi.get_device_info</a></td><td> &mdash;  returns information about a midi device</td></tr>
+  <tr><td><a href="midi.html#pygame.midi.get_device_info">pygame.midi.get_device_info</a></td><td> &mdash; returns information about a midi device</td></tr>
   <tr><td><a href="midi.html#pygame.midi.init">pygame.midi.init</a></td><td> &mdash; initialize the midi module</td></tr>
   <tr><td><a href="midi.html#pygame.midi.midis2events">pygame.midi.midis2events</a></td><td> &mdash; converts midi events to pygame events</td></tr>
   <tr><td><a href="midi.html#pygame.midi.quit">pygame.midi.quit</a></td><td> &mdash; uninitialize the midi module</td></tr>
@@ -83,7 +83,7 @@
   <tt>Input(device_id)</tt><br>
   <tt>Input(device_id, buffer_size)</tt><br>
 <ul><small><table>
-  <tr><td><a href="midi.html#Input.close">Input.close</a></td><td> &mdash;  closes a midi stream, flushing any pending buffers.</td></tr>
+  <tr><td><a href="midi.html#Input.close">Input.close</a></td><td> &mdash; closes a midi stream, flushing any pending buffers.</td></tr>
   <tr><td><a href="midi.html#Input.poll">Input.poll</a></td><td> &mdash; returns true if there's data, or false if not.</td></tr>
   <tr><td><a href="midi.html#Input.read">Input.read</a></td><td> &mdash; reads num_events midi events from the buffer.</td></tr>
 </table></small></ul>
@@ -95,7 +95,7 @@
 
 <a name="Input.close">
 <big><b>Input.close</big></b><br><ul>
-  <i> closes a midi stream, flushing any pending buffers.</i><br>
+  <i>closes a midi stream, flushing any pending buffers.</i><br>
   <tt>Input.close(): return None</tt><br>
 <p>PortMidi attempts to close open streams when the application exits -- this is particularly difficult under Windows. </p>
 <!--COMMENTS:Input.close--> &nbsp;<br> 
@@ -140,8 +140,8 @@
   <tt>Output(device_id, buffer_size = 4096)</tt><br>
   <tt>Output(device_id, latency, buffer_size)</tt><br>
 <ul><small><table>
-  <tr><td><a href="midi.html#Output.abort">Output.abort</a></td><td> &mdash;  terminates outgoing messages immediately</td></tr>
-  <tr><td><a href="midi.html#Output.close">Output.close</a></td><td> &mdash;  closes a midi stream, flushing any pending buffers.</td></tr>
+  <tr><td><a href="midi.html#Output.abort">Output.abort</a></td><td> &mdash; terminates outgoing messages immediately</td></tr>
+  <tr><td><a href="midi.html#Output.close">Output.close</a></td><td> &mdash; closes a midi stream, flushing any pending buffers.</td></tr>
   <tr><td><a href="midi.html#Output.note_off">Output.note_off</a></td><td> &mdash; turns a midi note off.  Note must be on.</td></tr>
   <tr><td><a href="midi.html#Output.note_on">Output.note_on</a></td><td> &mdash; turns a midi note on.  Note must be off.</td></tr>
   <tr><td><a href="midi.html#Output.set_instrument">Output.set_instrument</a></td><td> &mdash; select an instrument, with a value between 0 and 127</td></tr>
@@ -157,7 +157,7 @@
 
 <a name="Output.abort">
 <big><b>Output.abort</big></b><br><ul>
-  <i> terminates outgoing messages immediately</i><br>
+  <i>terminates outgoing messages immediately</i><br>
   <tt>Output.abort(): return None</tt><br>
 <p>The caller should immediately close the output port; this call may result in transmission of a partial midi message. There is no abort for Midi input because the user can simply ignore messages in the buffer and close an input device at any time. </p>
 <!--COMMENTS:Output.abort--> &nbsp;<br> 
@@ -166,7 +166,7 @@
 
 <a name="Output.close">
 <big><b>Output.close</big></b><br><ul>
-  <i> closes a midi stream, flushing any pending buffers.</i><br>
+  <i>closes a midi stream, flushing any pending buffers.</i><br>
   <tt>Output.close(): return None</tt><br>
 <p>PortMidi attempts to close open streams when the application exits -- this is particularly difficult under Windows. </p>
 <!--COMMENTS:Output.close--> &nbsp;<br> 
@@ -305,7 +305,7 @@
 
 <a name="pygame.midi.get_device_info">
 <big><b>pygame.midi.get_device_info</big></b><br><ul>
-  <i> returns information about a midi device</i><br>
+  <i>returns information about a midi device</i><br>
   <tt>pygame.midi.get_device_info(an_id): return (interf, name, input, output, opened)</tt><br>
 <p>interf - a text string describing the device interface, eg 'ALSA'. name - a text string for the name of the device, eg 'Midi Through Port-0' input - 0, or 1 if the device is an input device. output - 0, or 1 if the device is an output device. opened - 0, or 1 if the device is opened. </p>
 <p>If the id is out of range, the function returns None. </p>

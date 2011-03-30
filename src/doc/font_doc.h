@@ -29,7 +29,7 @@
 
 #define DOC_FONTGETBOLD "Font.get_bold(): return bool\ncheck if text will be rendered bold"
 
-#define DOC_FONTSETITALIC "Font.set_bold(bool): return None\nenable fake rendering of italic text"
+#define DOC_FONTSETITALIC "Font.set_italic(bool): return None\nenable fake rendering of italic text"
 
 #define DOC_FONTMETRICS "Font.metrics(text): return list\nGets the metrics for each character in the pased string."
 
@@ -141,7 +141,7 @@ check if text will be rendered bold
 
 
 Font.set_italic
- Font.set_bold(bool): return None
+ Font.set_italic(bool): return None
 enable fake rendering of italic text
 
 
