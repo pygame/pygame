@@ -7,7 +7,8 @@ import os
 import pygame
 from pygame.locals import *
 import pygame.scrap as scrap
-import StringIO
+from pygame.compat import as_bytes
+BytesIO = pygame.compat.get_BytesIO()
 
 def usage ():
     print ("Press the 'g' key to get all of the current clipboard data")
@@ -39,13 +40,15 @@ while going:
             for t in scrap.get_types ():
                 r = scrap.get (t)
                 if r and len (r) > 500:
-                    print ("Type %s : (large buffer)" % t)
+                    print ("Type %s : (large %i byte buffer)" % (t, len(r)))
+                elif r is None:
+                    print ("Type %s : None" % (t,))
                 else:
-                    print ("Type %s : %s" % (t, r))
+                    print ("Type %s : '%s'" % (t, r.decode('ascii', 'replace')))
                 if "image" in t:
                     namehint = t.split("/")[1]
                     if namehint in ['bmp', 'png', 'jpg']:
-                        f = StringIO.StringIO(r)
+                        f = BytesIO(r)
                         loaded_surf = pygame.image.load(f, "." + namehint)
                         screen.blit(loaded_surf, (0,0))
 
@@ -53,7 +56,8 @@ while going:
         elif e.type == KEYDOWN and e.key == K_p:
             # Place some text into the selection.
             print ("Placing clipboard text.")
-            scrap.put (SCRAP_TEXT, "Hello. This is a message from scrap.")
+            scrap.put (SCRAP_TEXT,
+                       as_bytes("Hello. This is a message from scrap."))
 
         elif e.type == KEYDOWN and e.key == K_a:
             # Get all available types.
@@ -61,7 +65,8 @@ while going:
             types = scrap.get_types ()
             print (types)
             if len (types) > 0:
-                print ("Contains %s: %s" % (types[0], scrap.contains (types[0])))
+                print ("Contains %s: %s" %
+                       (types[0], scrap.contains (types[0])))
                 print ("Contains _INVALID_: ", scrap.contains ("_INVALID_"))
 
         elif e.type == KEYDOWN and e.key == K_i:

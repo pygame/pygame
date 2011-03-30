@@ -30,6 +30,7 @@
 #include "scrap.h"
 #include "pygame.h"
 #include "doc/scrap_doc.h"
+#include "pgcompat.h"
 
 /**
  * Indicates, whether pygame.scrap was initialized or not.
@@ -117,6 +118,7 @@ _scrap_get_types (PyObject *self, PyObject *args)
 {
     int i = 0;
     char **types;
+    char *type;
     PyObject *list;
     PyObject *tmp;
     
@@ -139,8 +141,17 @@ _scrap_get_types (PyObject *self, PyObject *args)
         return list;
     while (types[i] != NULL)
     {
-        tmp = PyString_FromString (types[i]);
-        PyList_Append (list, tmp);
+        type = types[i];
+        tmp = PyUnicode_DecodeASCII (type, strlen (type), 0);
+        if (!tmp) {
+            Py_DECREF (list);
+            return 0;
+        }
+        if (PyList_Append (list, tmp)) {
+            Py_DECREF (list);
+            Py_DECREF (tmp);
+            return 0;
+        }
         Py_DECREF (tmp);
         i++;
     }
@@ -208,7 +219,7 @@ _scrap_get_scrap (PyObject* self, PyObject* args)
     if (!scrap)
         Py_RETURN_NONE;
 
-    retval = PyString_FromStringAndSize (scrap, count);
+    retval = Bytes_FromStringAndSize (scrap, count);
     return retval;
 }
 #endif
@@ -224,11 +235,17 @@ _scrap_put_scrap (PyObject* self, PyObject* args)
     char *scrap = NULL;
     char *scrap_type;
     PyObject *tmp;
+#if PY3
+    static const char argfmt[] = "sy#";
+#else
+    static char argfmt[] = "st#";
+#endif
 
     PYGAME_SCRAP_INIT_CHECK ();
 
-    if (!PyArg_ParseTuple (args, "st#", &scrap_type, &scrap, &scraplen))
+    if (!PyArg_ParseTuple (args, argfmt, &scrap_type, &scrap, &scraplen)) {
         return NULL;
+    }
 
     /* Set it in the clipboard. */
     if (!pygame_scrap_put (scrap_type, scraplen, scrap))
@@ -240,7 +257,7 @@ _scrap_put_scrap (PyObject* self, PyObject* args)
     {
     case SCRAP_SELECTION:
     {
-        tmp = PyString_FromStringAndSize (scrap, scraplen);
+        tmp = Bytes_FromStringAndSize (scrap, scraplen);
         PyDict_SetItemString (_selectiondata, scrap_type, tmp);
         Py_DECREF (tmp);
         break;
@@ -248,7 +265,7 @@ _scrap_put_scrap (PyObject* self, PyObject* args)
     case SCRAP_CLIPBOARD:
     default:
     {
-        tmp = PyString_FromStringAndSize (scrap, scraplen);
+        tmp = Bytes_FromStringAndSize (scrap, scraplen);
         PyDict_SetItemString (_clipdata, scrap_type, tmp);
         Py_DECREF (tmp);
         break;
@@ -323,19 +340,35 @@ static PyMethodDef scrap_builtins[] =
     { NULL, NULL, 0, NULL}
 };
 
-PYGAME_EXPORT
-void initscrap (void)
+MODINIT_DEFINE (scrap)
 {
-    PyObject *mod;
+    PyObject *module;
+
+#if PY3
+    static struct PyModuleDef _module = {
+        PyModuleDef_HEAD_INIT,
+        "scrap",
+        "",
+        -1,
+        scrap_builtins,
+        NULL, NULL, NULL, NULL
+    };
+#endif
 
     /* imported needed apis; Do this first so if there is an error
        the module is not loaded.
     */
     import_pygame_base ();
     if (PyErr_Occurred ()) {
-        return;
+        MODINIT_ERROR;
     }
 
     /* create the module */
-    mod = Py_InitModule3 (MODPREFIX "scrap", scrap_builtins, NULL);
+#if PY3
+    module = PyModule_Create (&_module);
+#else
+    module = Py_InitModule3 (MODPREFIX "scrap", scrap_builtins, NULL);
+#endif
+
+    MODINIT_RETURN (module);
 }

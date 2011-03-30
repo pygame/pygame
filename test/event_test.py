@@ -41,16 +41,26 @@ class EventTypeTest(unittest.TestCase):
         self.assertEquals(e.some_attr, 1)
         self.assertEquals(e.other_attr, "1")
 
-        # Event now uses tp_dictoffset and tp_members.
+        # Event now uses tp_dictoffset and tp_members: request 62
+        # on Motherhamster Bugzilla.
         self.assertEquals(e.type, pygame.USEREVENT)
         self.assert_(e.dict is e.__dict__)
         e.some_attr = 12
         self.assertEquals(e.some_attr, 12)
         e.new_attr = 15
         self.assertEquals(e.new_attr, 15)
-        self.assertRaises(TypeError, setattr, e, 'type', 0)
-        self.assertRaises(TypeError, setattr, e, 'dict', None)
+
+        # For Python 2.x a TypeError is raised for a readonly member;
+        # for Python 3.x it is an AttributeError.
+        self.assertRaises((TypeError, AttributeError), setattr, e, 'type', 0)
+        self.assertRaises((TypeError, AttributeError), setattr, e, 'dict', None)
+
+        # Ensure attributes are visible to dir(), part of the original
+        # posted request.
         d = dir(e)
+        self.assert_('type' in d)
+        self.assert_('dict' in d)
+        self.assert_('__dict__' in d)
         self.assert_('some_attr' in d)
         self.assert_('other_attr' in d)
         self.assert_('new_attr' in d)
