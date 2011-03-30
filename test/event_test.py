@@ -41,6 +41,20 @@ class EventTypeTest(unittest.TestCase):
         self.assertEquals(e.some_attr, 1)
         self.assertEquals(e.other_attr, "1")
 
+        # Event now uses tp_dictoffset and tp_members.
+        self.assertEquals(e.type, pygame.USEREVENT)
+        self.assert_(e.dict is e.__dict__)
+        e.some_attr = 12
+        self.assertEquals(e.some_attr, 12)
+        e.new_attr = 15
+        self.assertEquals(e.new_attr, 15)
+        self.assertRaises(TypeError, setattr, e, 'type', 0)
+        self.assertRaises(TypeError, setattr, e, 'dict', None)
+        d = dir(e)
+        self.assert_('some_attr' in d)
+        self.assert_('other_attr' in d)
+        self.assert_('new_attr' in d)
+
 race_condition_notification = """
 This test is dependent on timing. The event queue is cleared in preparation for 
 tests. There is a small window where outside events from the OS may have effected
