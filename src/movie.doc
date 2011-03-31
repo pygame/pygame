@@ -149,7 +149,7 @@ the size of any Surface, but this will report the natural video size.
 
 has_video
 check if the movie file contains video
-Movie.get_video(): return bool
+Movie.has_video(): return bool
 
 True when the opened movie file contains a video stream.
 <END>
@@ -158,7 +158,7 @@ True when the opened movie file contains a video stream.
 
 has_audio
 check if the movie file contains audio
-Movie.get_audio(): return bool
+Movie.has_audio(): return bool
 
 True when the opened movie file contains an audio stream.
 <END>
