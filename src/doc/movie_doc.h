@@ -25,9 +25,9 @@
 
 #define DOC_MOVIEGETSIZE "Movie.get_size(): return (width, height)\nget the resolution of the video"
 
-#define DOC_MOVIEHASVIDEO "Movie.get_video(): return bool\ncheck if the movie file contains video"
+#define DOC_MOVIEHASVIDEO "Movie.has_video(): return bool\ncheck if the movie file contains video"
 
-#define DOC_MOVIEHASAUDIO "Movie.get_audio(): return bool\ncheck if the movie file contains audio"
+#define DOC_MOVIEHASAUDIO "Movie.has_audio(): return bool\ncheck if the movie file contains audio"
 
 #define DOC_MOVIESETVOLUME "Movie.set_volume(value): return None\nset the audio playback volume"
 
@@ -119,13 +119,13 @@ get the resolution of the video
 
 
 Movie.has_video
- Movie.get_video(): return bool
+ Movie.has_video(): return bool
 check if the movie file contains video
 
 
 
 Movie.has_audio
- Movie.get_audio(): return bool
+ Movie.has_audio(): return bool
 check if the movie file contains audio
 
 
