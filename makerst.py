@@ -6,8 +6,7 @@ This program is intended for making the move to reStructuredText for
 Pygame document sources. Once done, the original sources will be retired
 and future edits done in reST.
 
-Right now, the program generates Python specific markup as implemented
-by jug.
+The program generates Python specific Sphinx 0.6 markup based on that used by jug.
 
 An output directory path can be specified as a command line argument.
 The default directory is reSTdoc. The directory is created if it
@@ -293,6 +292,7 @@ def Run(target_dir=None):
     for name, doc in docs:
         fullname = os.path.join(target_dir, "%s.rst") % name
         outFile = open(fullname, "w")
+        WriteHeader(outFile, doc)
         reSTOut(doc, index, outFile)
         outFile.close()
 
@@ -326,16 +326,19 @@ return_pat = re.compile(r'(?:(?: +[rR]eturns? *)|(?: *[-=]> *))(?P<ret>.+)')
 name_pat = re.compile(r'\.?(?P<name>[a-zA-Z_][a-zA-Z0-9_.]*)')
 value_pat = re.compile(r'[a-zA-Z_][a-zA-Z0-9_.]* += +(?P<value>.+)')
 
+def strip_modname(name, modname):
+    for submodname in imapcdr('.'.join, modname.split('.')):
+        if name.startswith(submodname):
+            return name[len(submodname) + 1:]
+    return name
+
 def pstrip(proto, modname):
     n = ''
     p = ''
     r = ''
     v = ''
 
-    for submodname in imapcdr('.'.join, modname.split('.')):
-        if proto.startswith(submodname):
-            proto = proto[len(submodname):]
-            break
+    proto = strip_modname(proto, modname)
     m = name_pat.match(proto)
     if m is not None:
         n = m.group('name')
@@ -362,14 +365,20 @@ def pstrip(proto, modname):
     print ("Unknown: %s" % proto)
     return n, p, r, v
 
+def ipstrip(protos, modname):
+    for proto in protos:
+        yield pstrip(proto, modname)
 
 def reSTOut(doc, index, f, level=0, new_module=True, modname=''):
     indent = ' ' * (INDENT * level)
     content_indent = ' ' * (INDENT * (level + 1))
     descr = doc.descr.strip()
+    desctype = None
+    protos = None
+    name = strip_modname(doc.fullname, modname)
 
     if new_module:
-        WriteHeader(f, doc)
+        WriteHeading(f, doc)
 
     if new_module and (level > 0 or not doc.protos):
         level = 0
@@ -382,75 +391,63 @@ def reSTOut(doc, index, f, level=0, new_module=True, modname=''):
     elif doc.protos:
         if new_module:
             modname = '.'.join(doc.fullname.split('.')[:-1])
+            name = doc.fullname.split('.')[-1]
             f.write('\n')
             f.write('%s.. currentmodule:: %s\n' % (indent, modname))
         n, p, r, v = pstrip(doc.protos[0], modname)
         if doc.protos[0].startswith('raise '):
-            n, p, r, v = pstrip(doc.fullname, modname)
-            f.write('\n')
-            f.write('%s.. exception:: %s\n' % (indent, n))
-            for proto in doc.protos:
-                f.write('%s               %s\n' % (indent, proto))
-            modname += '.' + n
+            desctype = 'exception'
+            protos = doc.protos
+            modname += '.' + name
         elif not p and n and r and level > 0:
-            n, p, r, v = pstrip(doc.fullname, modname)
-            f.write('\n')
-            f.write('%s.. attribute:: %s\n' % (indent, n))
-            for proto in doc.protos:
-                n, p, r, v = pstrip(proto, modname)
-                f.write('%s               %s -> %s\n' % (indent, n, r))
+            desctype = 'attribute'
+            protos = ['%s -> %s' % (n, r) for n, p, r, v in ipstrip(doc.protos, modname)]
         elif not p and v:
-            n, p, r, v = pstrip(doc.fullname, modname)
-            f.write('\n')
-            f.write('%s.. data:: %s\n' % (indent, n))
-            for proto in doc.protos:
-                n, p, r, v = pstrip(proto, modname)
-                f.write('%s          %s = %s\n' % (indent, n, v))
+            desctype = 'data'
+            protos = ['%s = %s' % (n, v) for n, p, r, v in ipstrip(doc.protos, modname)]
         elif not p and doc.kids:
             f.write('\n')
             reSTOut(doc, index, f, level + 1)
             return
         elif not p:
-            n, p, r, v = pstrip(doc.fullname, modname)
-            f.write('\n')
-            f.write('%s.. describe:: %s\n' % (indent, n))
-            for proto in doc.protos:
-                f.write('%s              %s\n' % (indent, proto))
-            modname += '.' + n
+            desctype = 'describe'
+            protos = doc.protos
         elif doc.kids:
-            if not r:
-                r = n
-            f.write('\n')
-            f.write('%s.. class:: %s -> %s\n' % (indent, p, r))
-            for proto in doc.protos[1:]:
+            desctype = 'class'
+            protos = []
+            for proto in doc.protos:
                 n, p, r, v = pstrip(proto, modname)
                 if not r:
                     r = n
-                f.write('%s           %s -> %s\n' % (indent, p, r))
-            modname += '.' + n
+                protos.append('%s -> %s' % (p, r))
+            modname += '.' + name
         else:
             if level == 0:
-                funtype = 'function'
+                desctype = 'function'
             else:
-                funtype = 'method'
-            padding = ' ' * len(funtype)
-            f.write('\n')
-            f.write('%s.. %s:: %s -> %s\n' % (indent, funtype, p, r))
-            for proto in doc.protos[1:]:
-                n, p, r, v = pstrip(proto, modname)
-                f.write('%s     %s %s -> %s\n' % (indent, padding, p, r))
+                desctype = 'method'
+            protos = ['%s -> %s' % (p, r) for n, p, r, v in ipstrip(doc.protos, modname)]
         level += 1
     elif doc.fullname:
-        f.write('\n')
-        f.write('%s.. data:: %s\n' % (indent, doc.fullname))
+        desctype = 'data'
         level += 1
+
+    if desctype is not None:
+        f.write('\n')
+        f.write('%s.. %s:: %s\n' % (indent, desctype, name))
 
     indent = ' ' * (INDENT * level)
     content_indent = ' ' * (INDENT * (level + 1))
 
-    if descr:
+    if descr or protos is not None:
         f.write('\n')
-        f.write('%s*%s*\n' % (indent, descr))
+
+    if descr:
+        f.write('%s| :sl:`%s`\n' % (indent, descr))
+        
+    if protos is not None:
+        for proto in protos:
+            f.write('%s| :sg:`%s`\n' % (indent, proto))
 
     if doc.docs:
         pre = False
@@ -549,6 +546,18 @@ def apply_markup(text):
     return markup_pat.sub(repl, text)
 
 def WriteHeader(outFile, doc):
+    outFile.write('.. role:: summaryline\n')
+    outFile.write('\n')
+    outFile.write('.. role:: sl(summaryline)\n')
+    outFile.write('   :class: summaryline\n')
+    outFile.write('\n')
+    outFile.write('.. role:: signature\n')
+    outFile.write('\n')
+    outFile.write('.. role:: sg(signature)\n')
+    outFile.write('   :class: signature\n')
+    outFile.write('\n')
+
+def WriteHeading(outFile, doc):
     v = vars(doc)
     title = (':mod:`%(fullname)s`' % v)
     outFile.write(title)
