@@ -63,8 +63,6 @@ static PyObject* _color_correct_gamma (PyColor *color, PyObject *args);
 static PyObject* _color_set_length (PyColor *color, PyObject *args);
 #if PY3
 static void _color_freeview (PyObject *c);
-#else
-#define _color_freeview PyMem_Free
 #endif
 
 /* Getters/setters */
@@ -1373,7 +1371,11 @@ _color_get_arraystruct(PyColor *color, void *closure)
     view->inter.strides = &(view->inter.itemsize);
     view->inter.data = color->data;
     
-    cobj = PyCapsule_New(view, NULL, _color_freeview);
+#if PY3
+    cobj = PyCapsule_New(view, 0, _color_freeview);
+#else
+    cobj = PyCObject_FromVoidPtr(view, PyMem_Free);
+#endif
     if (!cobj) {
         PyMem_Free(view);
         return 0;
