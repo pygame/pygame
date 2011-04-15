@@ -546,15 +546,7 @@ def apply_markup(text):
     return markup_pat.sub(repl, text)
 
 def WriteHeader(outFile, doc):
-    outFile.write('.. role:: summaryline\n')
-    outFile.write('\n')
-    outFile.write('.. role:: sl(summaryline)\n')
-    outFile.write('   :class: summaryline\n')
-    outFile.write('\n')
-    outFile.write('.. role:: signature\n')
-    outFile.write('\n')
-    outFile.write('.. role:: sg(signature)\n')
-    outFile.write('   :class: signature\n')
+    outFile.write('.. include:: common.txt\n')
     outFile.write('\n')
 
 def WriteHeading(outFile, doc):
