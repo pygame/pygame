@@ -22,7 +22,7 @@
  * Author: Nirav Patel
  *
  * This module allows for use of v4l2 webcams in pygame.  The code is written
- * such that adding support for v4l or vfw cameras should be possible without
+ * such that adding support for vfw cameras should be possible without
  * much modification of existing functions.  v4l2 functions are kept seperate
  * from functions available to pygame users and generic functions like
  * colorspace conversion.
@@ -165,20 +165,8 @@ PyObject* list_cameras (PyObject* self, PyObject* arg) {
 PyObject* camera_start (PyCameraObject* self) {
 #if defined(__unix__)
     if (v4l2_open_device(self) == 0) {
-        if (v4l_open_device(self) == 0) {
-            v4l2_close_device(self);
-            return NULL;
-        } else {
-            self->camera_type = CAM_V4L;
-            if (v4l_init_device(self) == 0) {
-                v4l2_close_device(self);
-                return NULL;
-            }
-            if (v4l_start_capturing(self) == 0) {
-                v4l2_close_device(self);
-                return NULL;
-            }
-        }
+        v4l2_close_device(self);
+        return NULL;
     } else {
         self->camera_type = CAM_V4L2;
         if (v4l2_init_device(self) == 0) {

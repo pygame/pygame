@@ -38,7 +38,6 @@
 
     #include <asm/types.h>          /* for videodev2.h */
 
-    #include <linux/videodev.h>
     #include <linux/videodev2.h>
 #elif defined(__APPLE__)
     #include <QuickTime/QuickTime.h>
@@ -64,7 +63,7 @@
 #define RGB_OUT 1
 #define YUV_OUT 2
 #define HSV_OUT 4
-#define CAM_V4L 1
+#define CAM_V4L 1 /* deprecated. the incomplete support in pygame was removed */
 #define CAM_V4L2 2
 
 struct buffer {
@@ -165,10 +164,6 @@ int v4l2_init_device (PyCameraObject* self);
 int v4l2_close_device (PyCameraObject* self);
 int v4l2_open_device (PyCameraObject* self);
 
-/* internal functions specific to v4l */
-int v4l_open_device (PyCameraObject* self);
-int v4l_init_device(PyCameraObject* self);
-int v4l_start_capturing(PyCameraObject* self);
 #elif defined(__APPLE__)
 /* internal functions specific to mac */
 char** mac_list_cameras(int* num_devices);
