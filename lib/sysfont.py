@@ -273,7 +273,7 @@ def initsysfonts_win32():
                     # no goodness with str or MBCS encoding... skip this font.
                     continue
    
-            if font[-4:].lower() not in [".ttf", ".ttc"]:
+            if font[-4:].lower() not in [".ttf", ".ttc", ".otf"]:
                 continue
             if os.sep not in font:
                 font = os.path.join(fontdir, font)
@@ -462,7 +462,7 @@ def initsysfonts_unix():
         for line in entries.split('\n'):
             try:
                 filename, family, style = line.split(':', 2)
-                if filename[-4:].lower() in ['.ttf', '.ttc']:
+                if filename[-4:].lower() in ['.ttf', '.ttc', '.otf']:
                     bold = style.find('Bold') >= 0
                     italic = style.find('Italic') >= 0
                     oblique = style.find('Oblique') >= 0
