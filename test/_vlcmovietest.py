@@ -107,7 +107,6 @@ class MovieTypeTest( unittest.TestCase ):
         pygame.mixer.quit()
         movie_file = trunk_relative_path('examples/data/blue.mpg')
         movie = gmovie.Movie(movie_file)
-        print movie.width
         self.assertEqual(movie.width, 200)
         
         del movie
@@ -117,7 +116,6 @@ class MovieTypeTest( unittest.TestCase ):
         pygame.mixer.quit()
         movie_file = trunk_relative_path('examples/data/blue.mpg')
         movie = gmovie.Movie(movie_file)
-        print movie.height
         self.assertEqual(movie.height, 200)
         
         del movie

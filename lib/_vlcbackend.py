@@ -15,7 +15,6 @@ extra = "--rc-host %s:%d"
 class Communicator:
     def __init__(self, player, remote, extra, port, hostname):
         self.socket = socket.socket()
-        #print (hostname, port)
         while 1:
             try:
                 self.socket.connect((hostname, port))
@@ -23,7 +22,6 @@ class Communicator:
             except socket.error:
                 port+=1
         self.commands =  ' '.join([player, remote, extra%(hostname, port)])
-        print self.commands
         self.patterns = {
             'size'  : re.compile("Resolution: \d{1,4}x\d{1,4}"), 
             'width' : re.compile("Resolution: \d{1,4}(?=\d{1,4})"), 
