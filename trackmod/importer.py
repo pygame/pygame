@@ -6,6 +6,11 @@ import sys
 from trackmod import module, namereg
 
 try:
+    from imp import reload
+except ImportError:
+    pass
+
+try:
     collect_data
 except NameError:
     pass
@@ -41,8 +46,8 @@ def find_module(fullname, path=None):
         try:
             try:
                 reload(m)
-            except ImportError, e:
-                return None;
+            except ImportError:
+                return None
         finally:
             del sys.modules[fullname]
 
