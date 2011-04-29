@@ -289,7 +289,7 @@ def main():
     
     for d in DEPS[1:]:
         if not d.found:
-            if not confirm("""
+            if "-auto" not in sys.argv and not confirm("""
 Warning, some of the pygame dependencies were not found. Pygame can still
 compile and install, but games that depend on those missing dependencies
 will not run. Would you like to continue the configuration?"""):
