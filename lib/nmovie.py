@@ -12,10 +12,10 @@ except ImportError:
                 from pygame._vlcbackend import Movie, MovieWatcher
             except ImportError:
                 #you're really hooped now...
-                print "Unable to find a working movie backend. Loading the dummy movie class..."
+                print("Unable to find a working movie backend. Loading the dummy movie class...")
                 from pygame._dummybackend import Movie
         else:
-            print "Unable to find a working movie backend. Loading the dummy movie class..."
+            print("Unable to find a working movie backend. Loading the dummy movie class...")
             from pygame._dummybackend import Movie
     else:
         #POSIX
@@ -24,9 +24,9 @@ except ImportError:
                 from pygame._vlcbackend import Movie, MovieWatcher
             except ImportError:
                 #oh man, I didn't mean for this to happen so badly...
-                print "Unable to find a working movie backend. Loading the dummy movie class..."
+                print("Unable to find a working movie backend. Loading the dummy movie class...")
                 from pygame._dummybackend import Movie
         else:
-            print "Unable to find a working movie backend. Loading the dummy movie class..."
+            print("Unable to find a working movie backend. Loading the dummy movie class...")
             from pygame._dummybackend import Movie
             
