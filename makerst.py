@@ -9,7 +9,7 @@ and future edits done in reST.
 The program generates Python specific Sphinx 0.6 markup based on that used by jug.
 
 An output directory path can be specified as a command line argument.
-The default directory is reSTdoc. The directory is created if it
+The default directory is reST/source/ref. The directory is created if it
 does not exist.
 
 """
@@ -22,6 +22,9 @@ import re
 
 WRAPLEN = 79
 INDENT = 3
+
+default_target_dir = os.path.join('reST', 'source', 'ref')
+common_header = 'common.txt'
 
 try:
     next
@@ -261,7 +264,7 @@ def Run(target_dir=None):
     global roles
 
     if target_dir is None:
-        target_dir = 'reSTdoc'
+        target_dir = default_target_dir
     if not os.path.isdir(target_dir):
         os.mkdir(target_dir)
 
@@ -291,10 +294,13 @@ def Run(target_dir=None):
 
     for name, doc in docs:
         fullname = os.path.join(target_dir, "%s.rst") % name
-        outFile = open(fullname, "w")
-        WriteHeader(outFile, doc)
-        reSTOut(doc, index, outFile)
-        outFile.close()
+        with open(fullname, "w") as outFile:
+            WriteHeader(outFile, doc)
+            reSTOut(doc, index, outFile)
+
+    fullname = os.path.join(target_dir, common_header)
+    with open(fullname, 'w') as outFile:
+        WriteCommon(outFile)
 
 
 def MakeIndex(name, doc, index, level=0):
@@ -546,7 +552,7 @@ def apply_markup(text):
     return markup_pat.sub(repl, text)
 
 def WriteHeader(outFile, doc):
-    outFile.write('.. include:: common.txt\n')
+    outFile.write('.. include:: %s\n' % (common_header,))
     outFile.write('\n')
 
 def WriteHeading(outFile, doc):
@@ -579,6 +585,9 @@ def LayoutDocs(docs):
 
     return top
 
+def WriteCommon(outFile):
+    outFile.write('.. include:: ../common.txt\n')
+    outFile.write('\n')
 
 class Doc(object):
     def __init__(self, parentname, f):
