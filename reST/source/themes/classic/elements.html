@@ -11,18 +11,18 @@
     <table>
       <tr>
 	<td class="logo">
-	  <a href="http://www.pygame.org/">
-	    {%- set logo_path = "_static/" + logo %}
-	    <img src="{{ logo_path }}"/>
+	  <a href="{{ theme_home_uri }}">
+{%-         set logo_path = '_static/' + logo %}
+	    <img src="{{ pathto(logo_path, 1) }}"/>
 	  </a>
 	  <h5>pygame documentation</h5>
 	</td>
 	<td class="pagelinks">
 	  <p class="top">
 	    ||
-	    <a href="http://www.pygame.org">Pygame Home</a> ||
+	    <a href="{{ theme_home_uri }}">Pygame Home</a> ||
 	    <a href="{{ pathto(master_doc) }}">Help Contents</a> ||
-	    <a href="index.html">Reference Index</a> ||
+	    <a href="{{ pathto('genindex') }}">Reference Index</a> ||
 	  </p>
 {%-   if pyg_sections %}
 	  <p class="bottom">
@@ -30,7 +30,7 @@
 {%-     for section in pyg_sections %}
 {%-       set docname = section['docname'] %}
 {%-       set name = section['fullname'].split('.')[-1] %}
-{%-       set uri = docname + file_suffix -%}
+{%-       set uri = pathto(docname, 1) + file_suffix -%}
 {%-       if name|lower != docname %}
 {%-         set uri = uri + '#' + section['refid'] %}
 {%-       endif %}

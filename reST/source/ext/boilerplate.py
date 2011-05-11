@@ -50,7 +50,7 @@ def visit_toc_ref_html(self, node):
     refid = as_refid(refuri)
     docname = get_descinfo_refid(refid, self.settings.env)['docname']
     link_suffix = self.builder.link_suffix
-    node['refuri'] = '%s%s%s' % (docname, link_suffix, refuri)
+    node['refuri'] = '%s%s%s' % (os.path.basename(docname), link_suffix, refuri)
     visit_toc_ref(self, node)
 
 class TocTable(table):

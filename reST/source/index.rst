@@ -11,7 +11,7 @@ Pygame Front Page
    :glob:
    :hidden:
 
-   *
+   ref/*
 
 Documents
 ---------
@@ -80,91 +80,91 @@ Reference
 :ref:`genindex`
   A list of all functions, classes, and methods in the Pygame package.
 
-:doc:`cdrom`
+:doc:`ref/cdrom`
   How to access and control the CD audio devices.
 
-:doc:`color`
+:doc:`ref/color`
   Color representation.
 
-:doc:`cursors`
+:doc:`ref/cursors`
   Loading and compiling cursor images.
 
-:doc:`display`
+:doc:`ref/display`
   Configure the display surface.
 
-:doc:`draw`
+:doc:`ref/draw`
   Drawing simple shapes like lines and ellipses to surfaces.
 
-:doc:`event`
+:doc:`ref/event`
   Manage the incoming events from various input devices and the windowing platform.
 
-:doc:`examples`
+:doc:`ref/examples`
   Various programs demonstrating the use of individual pyame modules.
 
-:doc:`font`
+:doc:`ref/font`
   Loading and rendering Truetype fonts.
 
-:doc:`gfxdraw`
+:doc:`ref/gfxdraw`
   Anti-aliasing draw functions.
 
-:doc:`image`
+:doc:`ref/image`
   Loading, saving, and transferring of surfaces.
 
-:doc:`joystick`
+:doc:`ref/joystick`
   Manage the joystick devices.
 
-:doc:`key`
+:doc:`ref/key`
   Manage the keyboard device.
 
-:doc:`locals`
+:doc:`ref/locals`
   Pygame constants.
 
-:doc:`mixer`
+:doc:`ref/mixer`
   Load and play sounds
 
-:doc:`mouse`
+:doc:`ref/mouse`
   Manage the mouse device and display.
 
-:doc:`movie`
+:doc:`ref/movie`
   Video playback from MPEG movies.
 
-:doc:`music`
+:doc:`ref/music`
   Play streaming music tracks.
 
-:doc:`overlay`
+:doc:`ref/overlay`
   Access advanced video overlays.
 
-:doc:`pygame`
+:doc:`ref/pygame`
   Top level functions to manage Pygame.
 
-:doc:`pixelarray`
+:doc:`ref/pixelarray`
   Manipulate image pixel data.
 
-:doc:`rect`
+:doc:`ref/rect`
   Flexible container for a rectangle.
 
-:doc:`scrap`
+:doc:`ref/scrap`
   Native clipboard access.
 
-:doc:`sndarray`
+:doc:`ref/sndarray`
   Manipulate sound sample data.
 
-:doc:`sprite`
+:doc:`ref/sprite`
   Higher level objects to represent game images.
 
-:doc:`surface`
+:doc:`ref/surface`
   Objects for images and the screen.
 
-:doc:`surfarray`
+:doc:`ref/surfarray`
   Manipulate image pixel data.
 
-:doc:`tests`
+:doc:`ref/tests`
   Test Pygame.
 
-:doc:`time`
+:doc:`ref/time`
   Manage timing and framerate.
 
-:doc:`transform`
+:doc:`ref/transform`
   Resize and move images.
 
 :ref:`modindex`
