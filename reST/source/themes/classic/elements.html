@@ -29,9 +29,10 @@
 {%      set sep = joiner(" || \n") %}
 {%-     for section in pyg_sections %}
 {%-       set docname = section['docname'] %}
+{%-       set simpledocname = docname.split('/')[-1] %}
 {%-       set name = section['fullname'].split('.')[-1] %}
 {%-       set uri = pathto(docname, 1) + file_suffix -%}
-{%-       if name|lower != docname %}
+{%-       if name|lower != simpledocname %}
 {%-         set uri = uri + '#' + section['refid'] %}
 {%-       endif %}
 {{- sep() }}	    <a href="{{ uri }}">{{ name }}</a>
