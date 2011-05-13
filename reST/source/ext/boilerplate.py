@@ -7,7 +7,7 @@ from ext.indexer import get_descinfo, get_descinfo_refid
 from sphinx.addnodes import (desc, desc_signature, desc_content, module)
 
 from docutils.nodes import (section, literal, reference, paragraph, title,
-                            Text, TextElement,
+                            document, Text, TextElement,
                             table, tgroup, colspec, tbody, row, entry,
                             whitespace_normalize_name, SkipNode)
 import os
@@ -113,7 +113,7 @@ class DocumentTransformer(Visitor):
         add_toc(node, self.env)
 
     def visit_title(self, node):
-        if isinstance(node.parent, section):
+        if isinstance(node.parent.parent, document):
             # Make title node a DocTitle instance. This works because DocTitle
             # simply subclasses title.
             node.__class__ = DocTitle

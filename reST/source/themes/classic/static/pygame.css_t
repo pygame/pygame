@@ -85,6 +85,18 @@ span.linkdescr {
     font-size: 90%;
 }
 
+#pygame-front-page dt {
+    padding-top: 1em;
+}
+
+#pygame-front-page dl {
+    padding: 0 0 0 1em;
+}
+
+#pygame-front-page h2 {
+    padding: 1em 0 0 0;
+}
+
 /* -- general index --------------------------------------------------------- */
 
 table.indextable td {
