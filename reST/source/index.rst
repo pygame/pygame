@@ -173,19 +173,19 @@ Reference
 :ref:`search`
   Search Pygame documents by keyword.
 
-.. _Readme: readme.html
+.. _Readme: ../readme.html
 
-.. _Install: install.html
+.. _Install: ../install.html
 
 .. _File Path Function Arguments: filepaths.html
 
-.. _LGPL License: LGPL
+.. _LGPL License: ../LGPL
 
 .. _Introduction to Pygame: tut/intro/intro.html
 
-.. _Import and Initialize: tut/importinit.html
+.. _Import and Initialize: tut/ImportInit.html
 
-.. _How do I move an Image?: tut/Moveit.html
+.. _How do I move an Image?: tut/MoveIt.html
 
 .. _Chimp Tutorial, Line by Line: tut/chimp/ChimpLineByLine.html
 
