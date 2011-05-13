@@ -213,6 +213,7 @@ add_datafiles(data_files, 'pygame/docs',
               ['docs',
                   ['*.html',
                    '*.gif',
+                   '*.js',
                    ['ref',
                        ['*.html']],
                    ['tut',
@@ -229,7 +230,19 @@ add_datafiles(data_files, 'pygame/docs',
                              '*.jpg']],
                         ['tom',
                             ['*.html',
-                             '*.png']]]]]])
+                             '*.png']],
+                        ['camera',
+                            ['*.html',
+                             '*.jpg']]]],
+                   ['_static',
+                        ['*.css',
+                         '*.png',
+                         '*.ico',
+                         '*.js']],
+                   ['_sources',
+                        ['*.txt',
+                         ['ref',
+                            ['*.txt']]]]]])
               
 #required. This will be filled if doing a Windows build.
 cmdclass = {}
