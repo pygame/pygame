@@ -4,8 +4,7 @@ The following persistent Pygame specific environment structures are built:
 
 pyg_sections: [{'docname': <docname>,
                 'fullname': <fullname>,
-                'refid': <ref>,
-                'synopsis': <synopsis>},
+                'refid': <ref>},
                ...]
     all Pygame api sections in the documents in order processed.
 pyg_descinfo_tbl: {<id>: {'fullname': <fullname>,
@@ -25,12 +24,12 @@ pyg_descinfo_tbl: {<id>: {'fullname': <fullname>,
 <type>: (str) an object's type: the desctype attribute.
 <summary>: (str) a summary line as identified by a :summaryline: role.
            This corresponds to the first line of a docstring.
-<synopsis>: (str) a module synopsis as identified by the :synopsis: option.
 <sigs>: (list of str) an object's signatures, in document order.
 <toc>: (list of str) refids of an object's children, in document order.
 
 """
 
+from sphinx.addnodes import desc
 from ext.utils import (Visitor, get_fullname, get_refid, as_refid,
                        geterror, GetError, EMPTYSTR)
 
@@ -87,37 +86,25 @@ class CollectInfo(Visitor):
             self.env.pyg_descinfo_tbl = {}
 
     def visit_section(self, node):
-        """Prepare to collect a module synopsis"""
-        
         if not node['names']:
             raise self.skip_node
-        self.synopsis = None
         self._push()
         
     def depart_section(self, node):
         """Record section info"""
 
         summary, sigs, child_descs = self._pop()
-        if self.synopsis is None:
-            # No module directive: use first toplevel directive instead.
-            try:
-                desc = child_descs[0]
-            except IndexError:
-                return
-            summary = get_descinfo(desc, self.env).get('summary', EMPTYSTR)
-            self._add_section(desc, summary)
-            self._add_descinfo_entry(node, get_descinfo(desc, self.env))
+        if not node.children:
+            return
+        if isinstance(node[0], desc):
+            # No section level introduction: use the first toplevel directive instead.
+            desc_node = child_descs[0]
+            summary = get_descinfo(desc_node, self.env).get('summary', EMPTYSTR)
+            self._add_section(desc_node)
+            self._add_descinfo_entry(node, get_descinfo(desc_node, self.env))
         else:
-            self._add_section(node, self.synopsis)
-            if not summary:
-                summary = self.synopsis
+            self._add_section(node)
             self._add_descinfo(node, summary, sigs, child_descs)
-        
-    def visit_module(self, node):
-        """Record the module directive :synopsis: value"""
-        
-        self.synopsis = node.get('synopsis', EMPTYSTR)
-        raise self.skip_departure
         
     def visit_desc(self, node):
         """Prepare to collect a summary and toc for this description"""
@@ -141,11 +128,10 @@ class CollectInfo(Visitor):
             self._add_sig(node)
         raise self.skip_departure
 
-    def _add_section(self, node, synopsis): 
+    def _add_section(self, node): 
         entry = {'docname': self.docname,
                  'fullname': get_fullname(node),
-                 'refid': get_refid(node),
-                 'synopsis': synopsis}
+                 'refid': get_refid(node)}
         self.env.pyg_sections.append(entry)
 
     def _add_descinfo(self, node, summary, sigs, child_descs):
