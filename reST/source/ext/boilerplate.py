@@ -4,7 +4,7 @@ from ext.utils import (Visitor, _unicode, as_unicode, get_name, GetError,
                        get_refid, as_refid, as_refuri)
 from ext.indexer import get_descinfo, get_descinfo_refid
 
-from sphinx.addnodes import (desc, desc_signature, desc_content, module)
+from sphinx.addnodes import (desc, desc_signature, desc_content)
 
 from docutils.nodes import (section, literal, reference, paragraph, title,
                             document, Text, TextElement,
