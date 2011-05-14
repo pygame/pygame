@@ -181,7 +181,7 @@ def parens(getc):
         ch = getc()
     return ''
 
-class NotAMatch(StandardError):
+class NotAMatch(Exception):
     pass
 
 def hyperlink(getc):
