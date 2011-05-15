@@ -113,7 +113,13 @@ except SyntaxError:
         return rstring.encode('ascii', 'strict').decode('unicode_escape',
                                                         'stict')
 
-class Visitor(object, docutils.nodes.SparseNodeVisitor):
+# Ensure Visitor is a new-style class
+_SparseNodeVisitor = docutils.nodes.SparseNodeVisitor
+if not hasattr(_SparseNodeVisitor, '__class__'):
+    class _SparseNodeVisitor(object, docutils.nodes.SparseNodeVisitor):
+        pass
+
+class Visitor(_SparseNodeVisitor):
 
     skip_node = docutils.nodes.SkipNode()
     skip_departure = docutils.nodes.SkipDeparture()
