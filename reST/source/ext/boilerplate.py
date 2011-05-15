@@ -5,6 +5,10 @@ from ext.utils import (Visitor, _unicode, as_unicode, get_name, GetError,
 from ext.indexer import get_descinfo, get_descinfo_refid
 
 from sphinx.addnodes import (desc, desc_signature, desc_content)
+try:
+    from sphinx.addnodes import module as section_prelude_end_class
+except ImportError:
+    from sphinx.addnodes import index as section_prelude_end_class
 
 from docutils.nodes import (section, literal, reference, paragraph, title,
                             document, Text, TextElement,
@@ -92,20 +96,12 @@ class DocumentTransformer(Visitor):
         self.title_stack = deque()
 
     def visit_section(self, node):
-        self.module_stack.append(None)
         self.title_stack.append(None)
 
     def depart_section(self, node):
-        module_node = self.module_stack.pop()
         title_node = self.title_stack.pop()
-        if module_node is not None:
-            transform_module_section(node, title_node, module_node, self.env)
-
-    def visit_module(self, node):
-        self.module_stack.append(node)
-
-    def visit_desc(self, node):
-        pass
+        if node['ids'][0].startswith('module-'):
+            transform_module_section(node, title_node, self.env)
 
     def depart_desc(self, node):
         node['classes'].append('definition')
@@ -139,9 +135,9 @@ class DocumentTransformer(Visitor):
         if summary:
             node['reftitle'] = summary
 
-def transform_module_section(section_node, title_node, module_node, env):
-    fullmodname = module_node['modname']
-    where = section_node.index(module_node)
+def transform_module_section(section_node, title_node, env):
+    fullmodname = section_node['names'][0]
+    where = section_node.first_child_matching_class(section_prelude_end_class)
     content_children = list(ipop_child(section_node, where + 1))
     if title_node is None:
         signature_children = [literal('', fullmodname)]
@@ -152,7 +148,9 @@ def transform_module_section(section_node, title_node, module_node, env):
                                     names=[fullmodname])
     content_node = desc_content('', *content_children)
     desc_node = desc('', signature_node, content_node,
-                     desctype='module', classes=['definition'])
+                     desctype='module',
+                     objtype='module',
+                     classes=['definition'])
     section_node.append(desc_node)
     add_toc(desc_node, env, section_node)
 
