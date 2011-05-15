@@ -29,7 +29,6 @@ pyg_descinfo_tbl: {<id>: {'fullname': <fullname>,
 
 """
 
-from sphinx.addnodes import desc
 from ext.utils import (Visitor, get_fullname, get_refid, as_refid,
                        geterror, GetError, EMPTYSTR)
 
@@ -96,15 +95,16 @@ class CollectInfo(Visitor):
         summary, sigs, child_descs = self._pop()
         if not node.children:
             return
-        if isinstance(node[0], desc):
-            # No section level introduction: use the first toplevel directive instead.
+        if node['ids'][0].startswith('module-'):
+            self._add_section(node)
+            self._add_descinfo(node, summary, sigs, child_descs)
+        elif child_descs:
+            # No section level introduction: use the first toplevel directive
+            # instead.
             desc_node = child_descs[0]
             summary = get_descinfo(desc_node, self.env).get('summary', EMPTYSTR)
             self._add_section(desc_node)
             self._add_descinfo_entry(node, get_descinfo(desc_node, self.env))
-        else:
-            self._add_section(node)
-            self._add_descinfo(node, summary, sigs, child_descs)
         
     def visit_desc(self, node):
         """Prepare to collect a summary and toc for this description"""
