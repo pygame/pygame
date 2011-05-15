@@ -184,6 +184,7 @@ def add_toc(desc_node, env, section_node=None):
 def build_toc(descinfo, env):
     """Return a desc table of contents node tree"""
     
+    separator = EMDASH
     child_ids = descinfo['children']
     if not child_ids:
         return None
@@ -195,16 +196,23 @@ def build_toc(descinfo, env):
         max_summary_len = max(max_summary_len, len(summary))
         reference_node = toc_ref(fullname, refid)
         ref_entry_node = entry('', paragraph('', '', reference_node))
-        sum_entry_node = entry('', paragraph('', EMDASH + SPACE + summary))
-        row_node = row('', ref_entry_node, sum_entry_node)
+        sep_entry_node = entry('', paragraph('', separator))
+        sum_entry_node = entry('', paragraph('', summary))
+        row_node = row('', ref_entry_node, sep_entry_node, sum_entry_node)
         rows.append(row_node)
     col0_len = max_fullname_len + 2   # add error margin
-    col1_len = max_summary_len + 12   # add error margin and room for emdash
+    col1_len = len(separator)         # no padding
+    col2_len = max_summary_len + 10   # add error margin
     tbody_node = tbody('', *rows)
     col0_colspec_node = colspec(colwidth=col0_len)
     col1_colspec_node = colspec(colwidth=col1_len)
-    tgroup_node = tgroup('', col0_colspec_node, col1_colspec_node, tbody_node,
-                         cols=2)
+    col2_colspec_node = colspec(colwidth=col2_len)
+    tgroup_node = tgroup('',
+                         col0_colspec_node,
+                         col1_colspec_node,
+                         col2_colspec_node,
+                         tbody_node,
+                         cols=3)
     return TocTable('', tgroup_node, classes=['toc'])
 
 def ichild_ids(child_ids, env):
