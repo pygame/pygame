@@ -1,9 +1,10 @@
 pygame.movie
 pygame module for playback of mpeg video
 
-NOTE: pygame.movie currently does not work on windows with the latest pygame release.  
-As no one has managed to get smpeg working there.  The alternative is to use 
-<a href="http://www.pymedia.org/">pymedia</a>
+NOTE: On NT derived Windows versions (e.g. XT) the default SDL directx video
+driver is problematic. For pygame.movie, use the windib driver instead.
+To enable windib set the SDL_VIDEODRIVER environment variable to 'windib'
+before importing pygame (see the pygame.examples.movieplayer.main example).
 
 Pygame can playback video and audio from basic encoded MPEG1 video files.
 Movie playback happens in background threads, which makes playback easy to
