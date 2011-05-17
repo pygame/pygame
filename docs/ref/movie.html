@@ -59,7 +59,7 @@
 <ul><small><table>
   <tr><td><a href="movie.html#pygame.movie.Movie">pygame.movie.Movie</a></td><td> &mdash; load an mpeg movie file</td></tr>
 </table></small></ul>
-<p>NOTE: <tt>pygame.movie</tt> currently does not work on windows with the latest pygame release. As no one has managed to get smpeg working there. The alternative is to use <a href="http://www.pymedia.org/">pymedia</a> </p>
+<p>NOTE: On <tt>NT</tt> derived Windows versions (e.g. XT) the default <tt>SDL</tt> directx video driver is problematic. For pygame.movie, use the windib driver instead. To enable windib set the <tt>SDL_VIDEODRIVER</tt> environment variable to 'windib' before importing pygame (see the <tt>pygame.examples.movieplayer.main</tt> example). </p>
 <p>Pygame can playback video and audio from basic encoded MPEG1 video files. Movie playback happens in background threads, which makes playback easy to manage. </p>
 <p>The audio for Movies must have full control over the sound system. This means the <tt>pygame.mixer</tt> module must be uninitialized if the movie's sound is to be played. The common solution is to call <tt><a href="mixer.html#pygame.mixer.quit">pygame.mixer.quit</a></tt>&nbsp;&ndash;<font size=-1>uninitialize the mixer</font>&ndash; before the movie begins. The mixer can be reinitialized after the movie is finished. </p>
 <p>The video overlay planes are drawn on top of everything in the display window. To draw the movie as normal graphics into the display window, create an offscreen Surface and set that as the movie target. Then once per frame blit that surface to the screen. </p>
