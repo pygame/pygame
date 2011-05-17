@@ -1,9 +1,15 @@
 #!/usr/bin/env python
 
+import sys
+import os
+
+if sys.platform == 'win32' and sys.getwindowsversion()[0] >= 5: # condi. and
+    # On NT like Windows versions smpeg video needs windb.
+    os.environ['SDL_VIDEODRIVER'] = 'windib'
+    
 import pygame
 from pygame.locals import *
 
-import sys
 try:
     from cStringIO import StringIO as BytesIO
 except ImportError:
@@ -26,6 +32,7 @@ Python files can be used as a movie source.
 def main(filepath):
     pygame.init()
     pygame.mixer.quit()
+    pygame.display.init()
 
     f = BytesIO(open(filepath, 'rb').read())
     movie = pygame.movie.Movie(f)
