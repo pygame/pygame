@@ -167,9 +167,6 @@ Reference
 :doc:`ref/transform`
   Resize and move images.
 
-:ref:`modindex`
-  Global module index.
-
 :ref:`search`
   Search Pygame documents by keyword.
 

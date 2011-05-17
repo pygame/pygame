@@ -62,11 +62,11 @@ release = '1.9.2'
 #today_fmt = '%B %d, %Y'
 
 # List of documents that shouldn't be included in the build.
-unused_docs = ['_movie', 'freetype']
+unused_docs = ['ref/freetype']
 
 # List of directories, relative to source directory, that shouldn't be searched
 # for source files.
-exclude_trees = []
+#exclude_trees = []
 
 # The reST default role (used for this markup: `text`) to use for all documents.
 #default_role = None
@@ -140,7 +140,7 @@ html_static_path = ['_static']
 #html_additional_pages = {}
 
 # If false, no module index is generated.
-#html_use_modindex = True
+html_use_modindex = False
 
 # If false, no index is generated.
 #html_use_index = True
