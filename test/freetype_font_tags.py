@@ -1,4 +1,4 @@
-__tags__ = []
+__tags__ = ['development']
 
 exclude = False
 
