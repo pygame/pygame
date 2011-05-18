@@ -1,0 +1,259 @@
+.. include:: common.txt
+
+:mod:`pygame.joystick`
+======================
+
+.. module:: pygame.joystick
+   :synopsis: pygame module for interacting with joystick devices
+
+| :sl:`pygame module for interacting with joystick devices`
+
+The joystick module manages the joystick devices on a computer (there can be
+more than one). Joystick devices include trackballs and video-game-style
+gamepads, and the module allows the use of multiple buttons and "hats".
+
+.. function:: init
+
+   | :sl:`initialize the joystick module`
+   | :sg:`init() -> None`
+
+   This function is called automatically by ``pygame.init()``.
+
+   It initializes the joystick module. This will scan the system for all
+   joystick devices. The module must be initialized before any other functions
+   will work.
+
+   It is safe to call this function more than once.
+
+   .. ## pygame.joystick.init ##
+
+.. function:: quit
+
+   | :sl:`uninitialize the joystick module`
+   | :sg:`quit() -> None`
+
+   Uninitialize the joystick module. After you call this any existing joystick
+   objects will no longer work.
+
+   It is safe to call this function more than once.
+
+   .. ## pygame.joystick.quit ##
+
+.. function:: get_init
+
+   | :sl:`true if the joystick module is initialized`
+   | :sg:`get_init() -> bool`
+
+   Test if the ``pygame.joystick.init()`` function has been called.
+
+   .. ## pygame.joystick.get_init ##
+
+.. function:: get_count
+
+   | :sl:`number of joysticks on the system`
+   | :sg:`get_count() -> count`
+
+   Return the number of joystick devices on the system. The count will be 0 if
+   there are no joysticks on the system.
+
+   When you create Joystick objects using ``Joystick(id)``, you pass an integer
+   that must be lower than this count.
+
+   .. ## pygame.joystick.get_count ##
+
+.. class:: Joystick
+
+   | :sl:`create a new Joystick object`
+   | :sg:`Joystick(id) -> Joystick`
+
+   Create a new joystick to access a physical device. The id argument must be a
+   value from 0 to pygame.joystick.get_count()-1.
+
+   To access most of the Joystick methods, you'll need to ``init()`` the
+   Joystick. This is separate from making sure the joystick module is
+   initialized. When multiple Joysticks objects are created for the same
+   physical joystick device (i.e., they have the same ``ID`` number), the state
+   and values for those Joystick objects will be shared.
+
+   The Joystick object allows you to get information about the types of
+   controls on a joystick device. Once the device is initialized the Pygame
+   event queue will start receiving events about its input.
+
+   You can call the ``Joystick.get_name()`` and ``Joystick.get_id()`` functions
+   without initializing the Joystick object.
+
+   .. method:: init
+
+      | :sl:`initialize the Joystick`
+      | :sg:`init() -> None`
+
+      The Joystick must be initialized to get most of the information about the
+      controls. While the Joystick is initialized the Pygame event queue will
+      receive events from the Joystick input.
+
+      It is safe to call this more than once.
+
+      .. ## Joystick.init ##
+
+   .. method:: quit
+
+      | :sl:`uninitialize the Joystick`
+      | :sg:`quit() -> None`
+
+      This will unitialize a Joystick. After this the Pygame event queue will
+      no longer receive events from the device.
+
+      It is safe to call this more than once.
+
+      .. ## Joystick.quit ##
+
+   .. method:: get_init
+
+      | :sl:`check if the Joystick is initialized`
+      | :sg:`get_init() -> bool`
+
+      Returns True if the ``init()`` method has already been called on this
+      Joystick object.
+
+      .. ## Joystick.get_init ##
+
+   .. method:: get_id
+
+      | :sl:`get the Joystick ID`
+      | :sg:`get_id() -> int`
+
+      Returns the integer ``ID`` that represents this device. This is the same
+      value that was passed to the ``Joystick()`` constructor. This method can
+      safely be called while the Joystick is not initialized.
+
+      .. ## Joystick.get_id ##
+
+   .. method:: get_name
+
+      | :sl:`get the Joystick system name`
+      | :sg:`get_name() -> string`
+
+      Returns the system name for this joystick device. It is unknown what name
+      the system will give to the Joystick, but it should be a unique name that
+      identifies the device. This method can safely be called while the
+      Joystick is not initialized.
+
+      .. ## Joystick.get_name ##
+
+   .. method:: get_numaxes
+
+      | :sl:`get the number of axes on a Joystick`
+      | :sg:`get_numaxes() -> int`
+
+      Returns the number of input axes are on a Joystick. There will usually be
+      two for the position. Controls like rudders and throttles are treated as
+      additional axes.
+
+      The ``pygame.JOYAXISMOTION`` events will be in the range from -1.0 to
+      1.0. A value of 0.0 means the axis is centered. Gamepad devices will
+      usually be -1, 0, or 1 with no values in between. Older analog joystick
+      axes will not always use the full -1 to 1 range, and the centered value
+      will be some area around 0. Analog joysticks usually have a bit of noise
+      in their axis, which will generate a lot of rapid small motion events.
+
+      .. ## Joystick.get_numaxes ##
+
+   .. method:: get_axis
+
+      | :sl:`get the current position of an axis`
+      | :sg:`get_axis(axis_number) -> float`
+
+      Returns the current position of a joystick axis. The value will range
+      from -1 to 1 with a value of 0 being centered. You may want to take into
+      account some tolerance to handle jitter, and joystick drift may keep the
+      joystick from centering at 0 or using the full range of position values.
+
+      The axis number must be an integer from zero to get_numaxes()-1.
+
+      .. ## Joystick.get_axis ##
+
+   .. method:: get_numballs
+
+      | :sl:`get the number of trackballs on a Joystick`
+      | :sg:`get_numballs() -> int`
+
+      Returns the number of trackball devices on a Joystick. These devices work
+      similar to a mouse but they have no absolute position; they only have
+      relative amounts of movement.
+
+      The ``pygame.JOYBALLMOTION`` event will be sent when the trackball is
+      rolled. It will report the amount of movement on the trackball.
+
+      .. ## Joystick.get_numballs ##
+
+   .. method:: get_ball
+
+      | :sl:`get the relative position of a trackball`
+      | :sg:`get_ball(ball_number) -> x, y`
+
+      Returns the relative movement of a joystick button. The value is a x, y
+      pair holding the relative movement since the last call to get_ball.
+
+      The ball number must be an integer from zero to get_numballs()-1.
+
+      .. ## Joystick.get_ball ##
+
+   .. method:: get_numbuttons
+
+      | :sl:`get the number of buttons on a Joystick`
+      | :sg:`get_numbuttons() -> int`
+
+      Returns the number of pushable buttons on the joystick. These buttons
+      have a boolean (on or off) state.
+
+      Buttons generate a ``pygame.JOYBUTTONDOWN`` and ``pygame.JOYBUTTONUP``
+      event when they are pressed and released.
+
+      .. ## Joystick.get_numbuttons ##
+
+   .. method:: get_button
+
+      | :sl:`get the current button state`
+      | :sg:`get_button(button) -> bool`
+
+      Returns the current state of a joystick button.
+
+      .. ## Joystick.get_button ##
+
+   .. method:: get_numhats
+
+      | :sl:`get the number of hat controls on a Joystick`
+      | :sg:`get_numhats() -> int`
+
+      Returns the number of joystick hats on a Joystick. Hat devices are like
+      miniature digital joysticks on a joystick. Each hat has two axes of
+      input.
+
+      The ``pygame.JOYHATMOTION`` event is generated when the hat changes
+      position. The position attribute for the event contains a pair of values
+      that are either -1, 0, or 1. A position of (0, 0) means the hat is
+      centered.
+
+      .. ## Joystick.get_numhats ##
+
+   .. method:: get_hat
+
+      | :sl:`get the position of a joystick hat`
+      | :sg:`get_hat(hat_number) -> x, y`
+
+      Returns the current position of a position hat. The position is given as
+      two values representing the ``X`` and ``Y`` position for the hat. (0, 0)
+      means centered. A value of -1 means left/down and a value of 1 means
+      right/up: so (-1, 0) means left; (1, 0) means right; (0, 1) means up; (1,
+      1) means upper-right; etc.
+
+      This value is digital, ``i.e.``, each coordinate can be -1, 0 or 1 but
+      never in-between.
+
+      The hat number must be between 0 and get_numhats()-1.
+
+      .. ## Joystick.get_hat ##
+
+   .. ## pygame.joystick.Joystick ##
+
+.. ## pygame.joystick ##

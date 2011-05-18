@@ -1,43 +1,33 @@
 /* Auto generated file: with makeref.py .  Docs go in src/ *.doc . */
-#define DOC_PYGAMEOVERLAY "pygame.Overlay(format, (width, height)): return Overlay\npygame object for video overlay graphics"
+#define DOC_PYGAMEOVERLAY "Overlay(format, (width, height)) -> Overlay\npygame object for video overlay graphics"
 
-#define DOC_OVERLAYDISPLAY "Overlay.display((y, u, v)): return None\nOverlay.display(): return None\nset the overlay pixel data"
+#define DOC_OVERLAYDISPLAY "display((y, u, v)) -> None\ndisplay() -> None\nset the overlay pixel data"
 
-#define DOC_OVERLAYSETLOCATION "Overlay.set_location(rect): return None\ncontrol where the overlay is displayed"
+#define DOC_OVERLAYSETLOCATION "set_location(rect) -> None\ncontrol where the overlay is displayed"
 
-#define DOC_OVERLAYGETHARDWARE "Overlay.get_hardware(rect): return int\ntest if the Overlay is hardware accelerated"
+#define DOC_OVERLAYGETHARDWARE "get_hardware(rect) -> int\ntest if the Overlay is hardware accelerated"
 
 
 
-/* Docs in a comments... slightly easier to read. */
-
+/* Docs in a comment... slightly easier to read. */
 
 /*
 
 pygame.Overlay
- pygame.Overlay(format, (width, height)): return Overlay
+ Overlay(format, (width, height)) -> Overlay
 pygame object for video overlay graphics
 
-
-
-Overlay.display
- Overlay.display((y, u, v)): return None
-Overlay.display(): return None
+pygame.Overlay.display
+ display((y, u, v)) -> None
+ display() -> None
 set the overlay pixel data
 
-
-
-Overlay.set_location
- Overlay.set_location(rect): return None
+pygame.Overlay.set_location
+ set_location(rect) -> None
 control where the overlay is displayed
 
-
-
-Overlay.get_hardware
- Overlay.get_hardware(rect): return int
+pygame.Overlay.get_hardware
+ get_hardware(rect) -> int
 test if the Overlay is hardware accelerated
 
-
-
 */
-

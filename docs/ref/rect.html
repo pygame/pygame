@@ -1,300 +1,509 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-<html>
-<title>rect - Pygame Documentation</title>
-<body bgcolor=#aaeebb text=#000000 link=#331111 vlink=#331111>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pygame.Rect &mdash; Pygame v1.9.2 documentation</title>
+    <link rel="stylesheet" href="../_static/pygame.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.9.2',
+        COLLAPSE_MODINDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/pygame.ico"/>
+    <link rel="top" title="Pygame v1.9.2 documentation" href="../index.html" />
+    <link rel="next" title="pygame.scrap" href="scrap.html" />
+    <link rel="prev" title="pygame" href="pygame.html" /> 
+  </head>
+  <body>  
 
+    <div class="document">
 
-<table cellpadding=0 cellspacing=0 border=0 style='border: 3px solid black;' width='100%'>
-<tr>
-<td bgcolor='#c2fc20' style='padding: 6px;' align=center valign=center><a href='http://www.pygame.org/'><img src='../pygame_tiny.gif' border=0 width=200 height=60></a><br><b>pygame documentation</b></td>
-<td bgcolor='#6aee28' style='border-left: 3px solid black; padding: 6px;' align=center valign=center>
-	||&nbsp;
-	<a href=http://www.pygame.org>Pygame Home</a> &nbsp;||&nbsp;
-	<a href=../index.html>Help Contents</a> &nbsp;||
-	<a href=index.html>Reference Index</a> &nbsp;||
-	<br>&nbsp;<br>
-	
-<a href="camera.html">Camera</a>&nbsp;||&nbsp;
-<a href="cdrom.html">Cdrom</a>&nbsp;||&nbsp;
-<a href="color.html">Color</a>&nbsp;||&nbsp;
-<a href="cursors.html">Cursors</a>&nbsp;||&nbsp;
-<a href="display.html">Display</a>&nbsp;||&nbsp;
-<a href="draw.html">Draw</a>&nbsp;||&nbsp;
-<a href="event.html">Event</a>&nbsp;||&nbsp;
-<a href="examples.html">Examples</a>&nbsp;||&nbsp;
-<a href="font.html">Font</a>&nbsp;||&nbsp;
-<a href="freetype.html">Freetype</a>&nbsp;||&nbsp;
-<a href="gfxdraw.html">Gfxdraw</a>&nbsp;||&nbsp;
-<a href="image.html">Image</a>&nbsp;||&nbsp;
-<a href="joystick.html">Joystick</a>&nbsp;||&nbsp;
-<a href="key.html">Key</a>&nbsp;||&nbsp;
-<a href="locals.html">Locals</a>&nbsp;||&nbsp;
-<a href="mask.html">Mask</a>&nbsp;||&nbsp;
-<a href="math.html">Math</a>&nbsp;||&nbsp;
-<a href="midi.html">Midi</a>&nbsp;||&nbsp;
-<a href="mixer.html">Mixer</a>&nbsp;||&nbsp;
-<a href="mouse.html">Mouse</a>&nbsp;||&nbsp;
-<a href="movie.html">Movie</a>&nbsp;||&nbsp;
-<a href="music.html">Music</a>&nbsp;||&nbsp;
-<a href="overlay.html">Overlay</a>&nbsp;||&nbsp;
-<a href="pixelarray.html">Pixelarray</a>&nbsp;||&nbsp;
-<a href="pixelcopy.html">Pixelcopy</a>&nbsp;||&nbsp;
-<a href="pygame.html">Pygame</a>&nbsp;||&nbsp;
-<a href="rect.html">Rect</a>&nbsp;||&nbsp;
-<a href="scrap.html">Scrap</a>&nbsp;||&nbsp;
-<a href="sndarray.html">Sndarray</a>&nbsp;||&nbsp;
-<a href="sprite.html">Sprite</a>&nbsp;||&nbsp;
-<a href="surface.html">Surface</a>&nbsp;||&nbsp;
-<a href="surfarray.html">Surfarray</a>&nbsp;||&nbsp;
-<a href="tests.html">Tests</a>&nbsp;||&nbsp;
-<a href="time.html">Time</a>&nbsp;||&nbsp;
-<a href="transform.html">Transform</a>
-</td></tr></table>
-<br>
+  <div class="header">
+    <table>
+      <tr>
+	<td class="logo">
+	  <a href="http://www.pygame.org/">
+	    <img src="../_static/pygame_tiny.png"/>
+	  </a>
+	  <h5>pygame documentation</h5>
+	</td>
+	<td class="pagelinks">
+	  <p class="top">
+	    ||
+	    <a href="http://www.pygame.org/">Pygame Home</a> ||
+	    <a href="../index.html">Help Contents</a> ||
+	    <a href="../genindex.html">Reference Index</a> ||
+	  </p>
+	  <p class="bottom">
+	    <a href="camera.html">camera</a> || 
+	    <a href="cdrom.html">cdrom</a> || 
+	    <a href="color.html">Color</a> || 
+	    <a href="cursors.html">cursors</a> || 
+	    <a href="display.html">display</a> || 
+	    <a href="draw.html">draw</a> || 
+	    <a href="event.html">event</a> || 
+	    <a href="examples.html">examples</a> || 
+	    <a href="font.html">font</a> || 
+	    <a href="gfxdraw.html">gfxdraw</a> || 
+	    <a href="image.html">image</a> || 
+	    <a href="joystick.html">joystick</a> || 
+	    <a href="key.html">key</a> || 
+	    <a href="locals.html">locals</a> || 
+	    <a href="mask.html">mask</a> || 
+	    <a href="math.html">math</a> || 
+	    <a href="midi.html">midi</a> || 
+	    <a href="mixer.html">mixer</a> || 
+	    <a href="mouse.html">mouse</a> || 
+	    <a href="movie.html">movie</a> || 
+	    <a href="music.html">music</a> || 
+	    <a href="overlay.html">Overlay</a> || 
+	    <a href="pixelarray.html">PixelArray</a> || 
+	    <a href="pixelcopy.html">pixelcopy</a> || 
+	    <a href="pygame.html">pygame</a> || 
+	    <a href="rect.html">Rect</a> || 
+	    <a href="scrap.html">scrap</a> || 
+	    <a href="sndarray.html">sndarray</a> || 
+	    <a href="sprite.html">sprite</a> || 
+	    <a href="surface.html">Surface</a> || 
+	    <a href="surfarray.html">surfarray</a> || 
+	    <a href="tests.html">tests</a> || 
+	    <a href="time.html">time</a> || 
+	    <a href="transform.html">transform</a> || 
+	    <a href="pygame.html#module-pygame.version">version</a>
+	  </p>
+	</td>
+      </tr>
+    </table>
+  </div>
 
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <div class="sectionwrapper">
+<div class="section" id="pygame-rect">
+<dl class="definition class">
+<dt class="title" id="pygame.Rect">
+<em class="property">class </em><tt class="descclassname">pygame.</tt><tt class="descname">Rect</tt><a class="headerlink" href="#pygame.Rect" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">pygame object for storing rectangular coordinates</span></div>
+<div class="line"><span class="signature">Rect(left, top, width, height) -&gt; Rect</span></div>
+<div class="line"><span class="signature">Rect((left, top), (width, height)) -&gt; Rect</span></div>
+<div class="line"><span class="signature">Rect(object) -&gt; Rect</span></div>
+</div>
+<table border="1" class="toc docutils">
+<colgroup>
+<col width="32%" />
+<col width="1%" />
+<col width="67%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="toc reference external" href="rect.html#pygame.Rect.copy">pygame.Rect.copy</a></td>
+<td>—</td>
+<td>copy the rectangle</td>
+</tr>
+<tr><td><a class="toc reference external" href="rect.html#pygame.Rect.move">pygame.Rect.move</a></td>
+<td>—</td>
+<td>moves the rectangle</td>
+</tr>
+<tr><td><a class="toc reference external" href="rect.html#pygame.Rect.move_ip">pygame.Rect.move_ip</a></td>
+<td>—</td>
+<td>moves the rectangle, in place</td>
+</tr>
+<tr><td><a class="toc reference external" href="rect.html#pygame.Rect.inflate">pygame.Rect.inflate</a></td>
+<td>—</td>
+<td>grow or shrink the rectangle size</td>
+</tr>
+<tr><td><a class="toc reference external" href="rect.html#pygame.Rect.inflate_ip">pygame.Rect.inflate_ip</a></td>
+<td>—</td>
+<td>grow or shrink the rectangle size, in place</td>
+</tr>
+<tr><td><a class="toc reference external" href="rect.html#pygame.Rect.clamp">pygame.Rect.clamp</a></td>
+<td>—</td>
+<td>moves the rectangle inside another</td>
+</tr>
+<tr><td><a class="toc reference external" href="rect.html#pygame.Rect.clamp_ip">pygame.Rect.clamp_ip</a></td>
+<td>—</td>
+<td>moves the rectangle inside another, in place</td>
+</tr>
+<tr><td><a class="toc reference external" href="rect.html#pygame.Rect.clip">pygame.Rect.clip</a></td>
+<td>—</td>
+<td>crops a rectangle inside another</td>
+</tr>
+<tr><td><a class="toc reference external" href="rect.html#pygame.Rect.union">pygame.Rect.union</a></td>
+<td>—</td>
+<td>joins two rectangles into one</td>
+</tr>
+<tr><td><a class="toc reference external" href="rect.html#pygame.Rect.union_ip">pygame.Rect.union_ip</a></td>
+<td>—</td>
+<td>joins two rectangles into one, in place</td>
+</tr>
+<tr><td><a class="toc reference external" href="rect.html#pygame.Rect.unionall">pygame.Rect.unionall</a></td>
+<td>—</td>
+<td>the union of many rectangles</td>
+</tr>
+<tr><td><a class="toc reference external" href="rect.html#pygame.Rect.unionall_ip">pygame.Rect.unionall_ip</a></td>
+<td>—</td>
+<td>the union of many rectangles, in place</td>
+</tr>
+<tr><td><a class="toc reference external" href="rect.html#pygame.Rect.fit">pygame.Rect.fit</a></td>
+<td>—</td>
+<td>resize and move a rectangle with aspect ratio</td>
+</tr>
+<tr><td><a class="toc reference external" href="rect.html#pygame.Rect.normalize">pygame.Rect.normalize</a></td>
+<td>—</td>
+<td>correct negative sizes</td>
+</tr>
+<tr><td><a class="toc reference external" href="rect.html#pygame.Rect.contains">pygame.Rect.contains</a></td>
+<td>—</td>
+<td>test if one rectangle is inside another</td>
+</tr>
+<tr><td><a class="toc reference external" href="rect.html#pygame.Rect.collidepoint">pygame.Rect.collidepoint</a></td>
+<td>—</td>
+<td>test if a point is inside a rectangle</td>
+</tr>
+<tr><td><a class="toc reference external" href="rect.html#pygame.Rect.colliderect">pygame.Rect.colliderect</a></td>
+<td>—</td>
+<td>test if two rectangles overlap</td>
+</tr>
+<tr><td><a class="toc reference external" href="rect.html#pygame.Rect.collidelist">pygame.Rect.collidelist</a></td>
+<td>—</td>
+<td>test if one rectangle in a list intersects</td>
+</tr>
+<tr><td><a class="toc reference external" href="rect.html#pygame.Rect.collidelistall">pygame.Rect.collidelistall</a></td>
+<td>—</td>
+<td>test if all rectangles in a list intersect</td>
+</tr>
+<tr><td><a class="toc reference external" href="rect.html#pygame.Rect.collidedict">pygame.Rect.collidedict</a></td>
+<td>—</td>
+<td>test if one rectangle in a dictionary intersects</td>
+</tr>
+<tr><td><a class="toc reference external" href="rect.html#pygame.Rect.collidedictall">pygame.Rect.collidedictall</a></td>
+<td>—</td>
+<td>test if all rectangles in a dictionary intersect</td>
+</tr>
+</tbody>
+</table>
+<p>Pygame uses Rect objects to store and manipulate rectangular areas. A Rect
+can be created from a combination of left, top, width, and height values.
+Rects can also be created from python objects that are already a Rect or
+have an attribute named &#8220;rect&#8221;.</p>
+<p>Any Pygame function that requires a Rect argument also accepts any of these
+values to construct a Rect. This makes it easier to create Rects on the fly
+as arguments to functions.</p>
+<p>The Rect functions that change the position or size of a Rect return a new
+copy of the Rect with the affected changes. The original Rect is not
+modified. Some methods have an alternate &#8220;in-place&#8221; version that returns
+None but effects the original Rect. These &#8220;in-place&#8221; methods are denoted
+with the &#8220;ip&#8221; suffix.</p>
+<p>The Rect object has several virtual attributes which can be used to move and
+align the Rect:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">top</span><span class="p">,</span> <span class="n">left</span><span class="p">,</span> <span class="n">bottom</span><span class="p">,</span> <span class="n">right</span>
+<span class="n">topleft</span><span class="p">,</span> <span class="n">bottomleft</span><span class="p">,</span> <span class="n">topright</span><span class="p">,</span> <span class="n">bottomright</span>
+<span class="n">midtop</span><span class="p">,</span> <span class="n">midleft</span><span class="p">,</span> <span class="n">midbottom</span><span class="p">,</span> <span class="n">midright</span>
+<span class="n">center</span><span class="p">,</span> <span class="n">centerx</span><span class="p">,</span> <span class="n">centery</span>
+<span class="n">size</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span>
+<span class="n">w</span><span class="p">,</span><span class="n">h</span>
+</pre></div>
+</div>
+<p>All of these attributes can be assigned to:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">rect1</span><span class="o">.</span><span class="n">right</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">rect2</span><span class="o">.</span><span class="n">center</span> <span class="o">=</span> <span class="p">(</span><span class="mi">20</span><span class="p">,</span><span class="mi">30</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Assigning to size, width or height changes the dimensions of the rectangle;
+all other assignments move the rectangle without resizing it. Notice that
+some attributes are integers and others are pairs of integers.</p>
+<p>If a Rect has a nonzero width or height, it will return True for a nonzero
+test. Some methods return a Rect with 0 size to represent an invalid
+rectangle.</p>
+<p>The coordinates for Rect objects are all integers. The size values can be
+programmed to have negative values, but these are considered illegal Rects
+for most operations.</p>
+<p>There are several collision tests between other rectangles. Most python
+containers can be searched for collisions against a single Rect.</p>
+<p>The area covered by a Rect does not include the right- and bottom-most edge
+of pixels. If one Rect&#8217;s bottom border is another Rect&#8217;s top border (i.e.,
+rect1.bottom=rect2.top), the two meet exactly on the screen but do not
+overlap, and <tt class="docutils literal"><span class="pre">rect1.colliderect(rect2)</span></tt> returns false.</p>
+<p>Though Rect can be subclassed, methods that return new rectangles are not
+subclass aware. That is, move or copy return a new <tt class="xref docutils literal"><span class="pre">pygame.Rect</span></tt>
+instance, not an instance of the subclass. This may change. To make subclass
+awareness work though, subclasses may have to maintain the same constructor
+signature as Rect.</p>
+<dl class="definition method">
+<dt class="title" id="pygame.Rect.copy">
+<tt class="descname">copy</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.Rect.copy" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">copy the rectangle</span></div>
+<div class="line"><span class="signature">copy() -&gt; Rect</span></div>
+</div>
+<p>Returns a new rectangle having the same position and size as the orginal.</p>
+<p>New in pygame 1.9</p>
+</dd></dl>
 
-<a name="pygame.Rect">
-<big><b>pygame.Rect</big></b><br><ul>
-  <i>pygame object for storing rectangular coordinates</i><br>
-  <tt>pygame.Rect(left, top, width, height): return Rect</tt><br>
-  <tt>pygame.Rect((left, top), (width, height)): return Rect</tt><br>
-  <tt>pygame.Rect(object): return Rect</tt><br>
-<ul><small><table>
-  <tr><td><a href="rect.html#Rect.copy">Rect.copy</a></td><td> &mdash; copy the rectangle</td></tr>
-  <tr><td><a href="rect.html#Rect.move">Rect.move</a></td><td> &mdash; moves the rectangle</td></tr>
-  <tr><td><a href="rect.html#Rect.move_ip">Rect.move_ip</a></td><td> &mdash; moves the rectangle, in place</td></tr>
-  <tr><td><a href="rect.html#Rect.inflate">Rect.inflate</a></td><td> &mdash; grow or shrink the rectangle size</td></tr>
-  <tr><td><a href="rect.html#Rect.inflate_ip">Rect.inflate_ip</a></td><td> &mdash; grow or shrink the rectangle size, in place</td></tr>
-  <tr><td><a href="rect.html#Rect.clamp">Rect.clamp</a></td><td> &mdash; moves the rectangle inside another</td></tr>
-  <tr><td><a href="rect.html#Rect.clamp_ip">Rect.clamp_ip</a></td><td> &mdash; moves the rectangle inside another, in place</td></tr>
-  <tr><td><a href="rect.html#Rect.clip">Rect.clip</a></td><td> &mdash; crops a rectangle inside another</td></tr>
-  <tr><td><a href="rect.html#Rect.union">Rect.union</a></td><td> &mdash; joins two rectangles into one</td></tr>
-  <tr><td><a href="rect.html#Rect.union_ip">Rect.union_ip</a></td><td> &mdash; joins two rectangles into one, in place</td></tr>
-  <tr><td><a href="rect.html#Rect.unionall">Rect.unionall</a></td><td> &mdash; the union of many rectangles</td></tr>
-  <tr><td><a href="rect.html#Rect.unionall_ip">Rect.unionall_ip</a></td><td> &mdash; the union of many rectangles, in place</td></tr>
-  <tr><td><a href="rect.html#Rect.fit">Rect.fit</a></td><td> &mdash; resize and move a rectangle with aspect ratio</td></tr>
-  <tr><td><a href="rect.html#Rect.normalize">Rect.normalize</a></td><td> &mdash; correct negative sizes</td></tr>
-  <tr><td><a href="rect.html#Rect.contains">Rect.contains</a></td><td> &mdash; test if one rectangle is inside another</td></tr>
-  <tr><td><a href="rect.html#Rect.collidepoint">Rect.collidepoint</a></td><td> &mdash; test if a point is inside a rectangle</td></tr>
-  <tr><td><a href="rect.html#Rect.colliderect">Rect.colliderect</a></td><td> &mdash; test if two rectangles overlap</td></tr>
-  <tr><td><a href="rect.html#Rect.collidelist">Rect.collidelist</a></td><td> &mdash; test if one rectangle in a list intersects</td></tr>
-  <tr><td><a href="rect.html#Rect.collidelistall">Rect.collidelistall</a></td><td> &mdash; test if all rectangles in a list intersect</td></tr>
-  <tr><td><a href="rect.html#Rect.collidedict">Rect.collidedict</a></td><td> &mdash; test if one rectangle in a dictionary intersects</td></tr>
-  <tr><td><a href="rect.html#Rect.collidedictall">Rect.collidedictall</a></td><td> &mdash; test if all rectangles in a dictionary intersect</td></tr>
-</table></small></ul>
-<p>Pygame uses Rect objects to store and manipulate rectangular areas. A Rect can be created from a combination of left, top, width, and height values. Rects can also be created from python objects that are already a Rect or have an attribute named "rect". </p>
-<p>Any Pygame function that requires a Rect argument also accepts any of these values to construct a Rect. This makes it easier to create Rects on the fly as arguments to functions. </p>
-<p>The Rect functions that change the position or size of a Rect return a new copy of the Rect with the affected changes. The original Rect is not modified. Some methods have an alternate "in-place" version that returns None but effects the original Rect. These "in-place" methods are denoted with the "ip" suffix. </p>
-<p>The Rect object has several virtual attributes which can be used to move and align the Rect: </p>
-<pre>    top, left, bottom, right
-    topleft, bottomleft, topright, bottomright
-    midtop, midleft, midbottom, midright
-    center, centerx, centery
-    size, width, height
-    w,h
-</pre><p>All of these attributes can be assigned to: </p>
-<pre>    rect1.right = 10
-    rect2.center = (20,30)
-</pre><p>Assigning to size, width or height changes the dimensions of the rectangle; all other assignments move the rectangle without resizing it. Notice that some attributes are integers and others are pairs of integers. </p>
-<p>If a Rect has a nonzero width or height, it will return True for a nonzero test. Some methods return a Rect with 0 size to represent an invalid rectangle. </p>
-<p>The coordinates for Rect objects are all integers. The size values can be programmed to have negative values, but these are considered illegal Rects for most operations. </p>
-<p>There are several collision tests between other rectangles. Most python containers can be searched for collisions against a single Rect. </p>
-<p>The area covered by a Rect does not include the right- and bottom-most edge of pixels. If one Rect's bottom border is another Rect's top border (i.e., rect1.bottom=rect2.top), the two meet exactly on the screen but do not overlap, and <tt>rect1.colliderect(rect2)</tt> returns false. </p>
-<p>Though Rect can be subclassed, methods that return new rectangles are not subclass aware. That is, move or copy return a new <tt>pygame.Rect</tt> instance, not an instance of the subclass. This may change. To make subclass awareness work though, subclasses may have to maintain the same constructor signature as Rect. </p>
-<!--COMMENTS:pygame.Rect--> &nbsp;<br> 
+<dl class="definition method">
+<dt class="title" id="pygame.Rect.move">
+<tt class="descname">move</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.Rect.move" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">moves the rectangle</span></div>
+<div class="line"><span class="signature">move(x, y) -&gt; Rect</span></div>
+</div>
+<p>Returns a new rectangle that is moved by the given offset. The x and y
+arguments can be any integer value, positive or negative.</p>
+</dd></dl>
 
+<dl class="definition method">
+<dt class="title" id="pygame.Rect.move_ip">
+<tt class="descname">move_ip</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.Rect.move_ip" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">moves the rectangle, in place</span></div>
+<div class="line"><span class="signature">move_ip(x, y) -&gt; None</span></div>
+</div>
+<p>Same as the <tt class="docutils literal"><span class="pre">Rect.move()</span></tt> method, but operates in place.</p>
+</dd></dl>
 
-<a name="Rect.copy">
-<big><b>Rect.copy</big></b><br><ul>
-  <i>copy the rectangle</i><br>
-  <tt>Rect.copy(): return Rect</tt><br>
-<p>Returns a new rectangle having the same position and size as the orginal. </p>
-<p>New in pygame 1.9 </p>
-<!--COMMENTS:Rect.copy--> &nbsp;<br> 
-<br></ul>
+<dl class="definition method">
+<dt class="title" id="pygame.Rect.inflate">
+<tt class="descname">inflate</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.Rect.inflate" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">grow or shrink the rectangle size</span></div>
+<div class="line"><span class="signature">inflate(x, y) -&gt; Rect</span></div>
+</div>
+<p>Returns a new rectangle with the size changed by the given offset. The
+rectangle remains centered around its current center. Negative values
+will shrink the rectangle.</p>
+</dd></dl>
 
+<dl class="definition method">
+<dt class="title" id="pygame.Rect.inflate_ip">
+<tt class="descname">inflate_ip</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.Rect.inflate_ip" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">grow or shrink the rectangle size, in place</span></div>
+<div class="line"><span class="signature">inflate_ip(x, y) -&gt; None</span></div>
+</div>
+<p>Same as the <tt class="docutils literal"><span class="pre">Rect.inflate()</span></tt> method, but operates in place.</p>
+</dd></dl>
 
-<a name="Rect.move">
-<big><b>Rect.move</big></b><br><ul>
-  <i>moves the rectangle</i><br>
-  <tt>Rect.move(x, y): return Rect</tt><br>
-<p>Returns a new rectangle that is moved by the given offset. The x and y arguments can be any integer value, positive or negative. </p>
-<!--COMMENTS:Rect.move--> &nbsp;<br> 
-<br></ul>
+<dl class="definition method">
+<dt class="title" id="pygame.Rect.clamp">
+<tt class="descname">clamp</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.Rect.clamp" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">moves the rectangle inside another</span></div>
+<div class="line"><span class="signature">clamp(Rect) -&gt; Rect</span></div>
+</div>
+<p>Returns a new rectangle that is moved to be completely inside the
+argument Rect. If the rectangle is too large to fit inside, it is
+centered inside the argument Rect, but its size is not changed.</p>
+</dd></dl>
 
+<dl class="definition method">
+<dt class="title" id="pygame.Rect.clamp_ip">
+<tt class="descname">clamp_ip</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.Rect.clamp_ip" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">moves the rectangle inside another, in place</span></div>
+<div class="line"><span class="signature">clamp_ip(Rect) -&gt; None</span></div>
+</div>
+<p>Same as the <tt class="docutils literal"><span class="pre">Rect.clamp()</span></tt> method, but operates in place.</p>
+</dd></dl>
 
-<a name="Rect.move_ip">
-<big><b>Rect.move_ip</big></b><br><ul>
-  <i>moves the rectangle, in place</i><br>
-  <tt>Rect.move_ip(x, y): return None</tt><br>
-<p>Same as the <tt><a href="rect.html#Rect.move">Rect.move</a></tt>&nbsp;&ndash;<font size=-1>moves the rectangle</font>&ndash; method, but operates in place. </p>
-<!--COMMENTS:Rect.move_ip--> &nbsp;<br> 
-<br></ul>
+<dl class="definition method">
+<dt class="title" id="pygame.Rect.clip">
+<tt class="descname">clip</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.Rect.clip" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">crops a rectangle inside another</span></div>
+<div class="line"><span class="signature">clip(Rect) -&gt; Rect</span></div>
+</div>
+<p>Returns a new rectangle that is cropped to be completely inside the
+argument Rect. If the two rectangles do not overlap to begin with, a Rect
+with 0 size is returned.</p>
+</dd></dl>
 
+<dl class="definition method">
+<dt class="title" id="pygame.Rect.union">
+<tt class="descname">union</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.Rect.union" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">joins two rectangles into one</span></div>
+<div class="line"><span class="signature">union(Rect) -&gt; Rect</span></div>
+</div>
+<p>Returns a new rectangle that completely covers the area of the two
+provided rectangles. There may be area inside the new Rect that is not
+covered by the originals.</p>
+</dd></dl>
 
-<a name="Rect.inflate">
-<big><b>Rect.inflate</big></b><br><ul>
-  <i>grow or shrink the rectangle size</i><br>
-  <tt>Rect.inflate(x, y): return Rect</tt><br>
-<p>Returns a new rectangle with the size changed by the given offset. The rectangle remains centered around its current center. Negative values will shrink the rectangle. </p>
-<!--COMMENTS:Rect.inflate--> &nbsp;<br> 
-<br></ul>
+<dl class="definition method">
+<dt class="title" id="pygame.Rect.union_ip">
+<tt class="descname">union_ip</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.Rect.union_ip" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">joins two rectangles into one, in place</span></div>
+<div class="line"><span class="signature">union_ip(Rect) -&gt; None</span></div>
+</div>
+<p>Same as the <tt class="docutils literal"><span class="pre">Rect.union()</span></tt> method, but operates in place.</p>
+</dd></dl>
 
+<dl class="definition method">
+<dt class="title" id="pygame.Rect.unionall">
+<tt class="descname">unionall</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.Rect.unionall" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">the union of many rectangles</span></div>
+<div class="line"><span class="signature">unionall(Rect_sequence) -&gt; Rect</span></div>
+</div>
+<p>Returns the union of one rectangle with a sequence of many rectangles.</p>
+</dd></dl>
 
-<a name="Rect.inflate_ip">
-<big><b>Rect.inflate_ip</big></b><br><ul>
-  <i>grow or shrink the rectangle size, in place</i><br>
-  <tt>Rect.inflate_ip(x, y): return None</tt><br>
-<p>Same as the <tt><a href="rect.html#Rect.inflate">Rect.inflate</a></tt>&nbsp;&ndash;<font size=-1>grow or shrink the rectangle size</font>&ndash; method, but operates in place. </p>
-<!--COMMENTS:Rect.inflate_ip--> &nbsp;<br> 
-<br></ul>
+<dl class="definition method">
+<dt class="title" id="pygame.Rect.unionall_ip">
+<tt class="descname">unionall_ip</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.Rect.unionall_ip" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">the union of many rectangles, in place</span></div>
+<div class="line"><span class="signature">unionall_ip(Rect_sequence) -&gt; None</span></div>
+</div>
+<p>The same as the <tt class="docutils literal"><span class="pre">Rect.unionall()</span></tt> method, but operates in place.</p>
+</dd></dl>
 
+<dl class="definition method">
+<dt class="title" id="pygame.Rect.fit">
+<tt class="descname">fit</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.Rect.fit" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">resize and move a rectangle with aspect ratio</span></div>
+<div class="line"><span class="signature">fit(Rect) -&gt; Rect</span></div>
+</div>
+<p>Returns a new rectangle that is moved and resized to fit another. The
+aspect ratio of the original Rect is preserved, so the new rectangle may
+be smaller than the target in either width or height.</p>
+</dd></dl>
 
-<a name="Rect.clamp">
-<big><b>Rect.clamp</big></b><br><ul>
-  <i>moves the rectangle inside another</i><br>
-  <tt>Rect.clamp(Rect): return Rect</tt><br>
-<p>Returns a new rectangle that is moved to be completely inside the argument Rect. If the rectangle is too large to fit inside, it is centered inside the argument Rect, but its size is not changed. </p>
-<!--COMMENTS:Rect.clamp--> &nbsp;<br> 
-<br></ul>
+<dl class="definition method">
+<dt class="title" id="pygame.Rect.normalize">
+<tt class="descname">normalize</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.Rect.normalize" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">correct negative sizes</span></div>
+<div class="line"><span class="signature">normalize() -&gt; None</span></div>
+</div>
+<p>This will flip the width or height of a rectangle if it has a negative
+size. The rectangle will remain in the same place, with only the sides
+swapped.</p>
+</dd></dl>
 
+<dl class="definition method">
+<dt class="title" id="pygame.Rect.contains">
+<tt class="descname">contains</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.Rect.contains" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">test if one rectangle is inside another</span></div>
+<div class="line"><span class="signature">contains(Rect) -&gt; bool</span></div>
+</div>
+<p>Returns true when the argument is completely inside the Rect.</p>
+</dd></dl>
 
-<a name="Rect.clamp_ip">
-<big><b>Rect.clamp_ip</big></b><br><ul>
-  <i>moves the rectangle inside another, in place</i><br>
-  <tt>Rect.clamp_ip(Rect): return None</tt><br>
-<p>Same as the <tt><a href="rect.html#Rect.clamp">Rect.clamp</a></tt>&nbsp;&ndash;<font size=-1>moves the rectangle inside another</font>&ndash; method, but operates in place. </p>
-<!--COMMENTS:Rect.clamp_ip--> &nbsp;<br> 
-<br></ul>
+<dl class="definition method">
+<dt class="title" id="pygame.Rect.collidepoint">
+<tt class="descname">collidepoint</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.Rect.collidepoint" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">test if a point is inside a rectangle</span></div>
+<div class="line"><span class="signature">collidepoint(x, y) -&gt; bool</span></div>
+<div class="line"><span class="signature">collidepoint((x,y)) -&gt; bool</span></div>
+</div>
+<p>Returns true if the given point is inside the rectangle. A point along
+the right or bottom edge is not considered to be inside the rectangle.</p>
+</dd></dl>
 
+<dl class="definition method">
+<dt class="title" id="pygame.Rect.colliderect">
+<tt class="descname">colliderect</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.Rect.colliderect" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">test if two rectangles overlap</span></div>
+<div class="line"><span class="signature">colliderect(Rect) -&gt; bool</span></div>
+</div>
+<p>Returns true if any portion of either rectangle overlap (except the
+top+bottom or left+right edges).</p>
+</dd></dl>
 
-<a name="Rect.clip">
-<big><b>Rect.clip</big></b><br><ul>
-  <i>crops a rectangle inside another</i><br>
-  <tt>Rect.clip(Rect): return Rect</tt><br>
-<p>Returns a new rectangle that is cropped to be completely inside the argument Rect. If the two rectangles do not overlap to begin with, a Rect with 0 size is returned. </p>
-<!--COMMENTS:Rect.clip--> &nbsp;<br> 
-<br></ul>
+<dl class="definition method">
+<dt class="title" id="pygame.Rect.collidelist">
+<tt class="descname">collidelist</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.Rect.collidelist" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">test if one rectangle in a list intersects</span></div>
+<div class="line"><span class="signature">collidelist(list) -&gt; index</span></div>
+</div>
+<p>Test whether the rectangle collides with any in a sequence of rectangles.
+The index of the first collision found is returned. If no collisions are
+found an index of -1 is returned.</p>
+</dd></dl>
 
+<dl class="definition method">
+<dt class="title" id="pygame.Rect.collidelistall">
+<tt class="descname">collidelistall</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.Rect.collidelistall" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">test if all rectangles in a list intersect</span></div>
+<div class="line"><span class="signature">collidelistall(list) -&gt; indices</span></div>
+</div>
+<p>Returns a list of all the indices that contain rectangles that collide
+with the Rect. If no intersecting rectangles are found, an empty list is
+returned.</p>
+</dd></dl>
 
-<a name="Rect.union">
-<big><b>Rect.union</big></b><br><ul>
-  <i>joins two rectangles into one</i><br>
-  <tt>Rect.union(Rect): return Rect</tt><br>
-<p>Returns a new rectangle that completely covers the area of the two provided rectangles. There may be area inside the new Rect that is not covered by the originals. </p>
-<!--COMMENTS:Rect.union--> &nbsp;<br> 
-<br></ul>
+<dl class="definition method">
+<dt class="title" id="pygame.Rect.collidedict">
+<tt class="descname">collidedict</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.Rect.collidedict" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">test if one rectangle in a dictionary intersects</span></div>
+<div class="line"><span class="signature">collidedict(dict) -&gt; (key, value)</span></div>
+</div>
+<p>Returns the key and value of the first dictionary value that collides
+with the Rect. If no collisions are found, None is returned.</p>
+<p>Rect objects are not hashable and cannot be used as keys in a dictionary,
+only as values.</p>
+</dd></dl>
 
+<dl class="definition method">
+<dt class="title" id="pygame.Rect.collidedictall">
+<tt class="descname">collidedictall</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.Rect.collidedictall" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">test if all rectangles in a dictionary intersect</span></div>
+<div class="line"><span class="signature">collidedictall(dict) -&gt; [(key, value), ...]</span></div>
+</div>
+<p>Returns a list of all the key and value pairs that intersect with the
+Rect. If no collisions are found an empty dictionary is returned.</p>
+<p>Rect objects are not hashable and cannot be used as keys in a dictionary,
+only as values.</p>
+</dd></dl>
 
-<a name="Rect.union_ip">
-<big><b>Rect.union_ip</big></b><br><ul>
-  <i>joins two rectangles into one, in place</i><br>
-  <tt>Rect.union_ip(Rect): return None</tt><br>
-<p>Same as the <tt><a href="rect.html#Rect.union">Rect.union</a></tt>&nbsp;&ndash;<font size=-1>joins two rectangles into one</font>&ndash; method, but operates in place. </p>
-<!--COMMENTS:Rect.union_ip--> &nbsp;<br> 
-<br></ul>
+</dd></dl>
 
+</div>
 
-<a name="Rect.unionall">
-<big><b>Rect.unionall</big></b><br><ul>
-  <i>the union of many rectangles</i><br>
-  <tt>Rect.unionall(Rect_sequence): return Rect</tt><br>
-<p>Returns the union of one rectangle with a sequence of many rectangles. </p>
-<!--COMMENTS:Rect.unionall--> &nbsp;<br> 
-<br></ul>
-
-
-<a name="Rect.unionall_ip">
-<big><b>Rect.unionall_ip</big></b><br><ul>
-  <i>the union of many rectangles, in place</i><br>
-  <tt>Rect.unionall_ip(Rect_sequence): return None</tt><br>
-<p>The same as the <tt><a href="rect.html#Rect.unionall">Rect.unionall</a></tt>&nbsp;&ndash;<font size=-1>the union of many rectangles</font>&ndash; method, but operates in place. </p>
-<!--COMMENTS:Rect.unionall_ip--> &nbsp;<br> 
-<br></ul>
-
-
-<a name="Rect.fit">
-<big><b>Rect.fit</big></b><br><ul>
-  <i>resize and move a rectangle with aspect ratio</i><br>
-  <tt>Rect.fit(Rect): return Rect</tt><br>
-<p>Returns a new rectangle that is moved and resized to fit another. The aspect ratio of the original Rect is preserved, so the new rectangle may be smaller than the target in either width or height. </p>
-<!--COMMENTS:Rect.fit--> &nbsp;<br> 
-<br></ul>
-
-
-<a name="Rect.normalize">
-<big><b>Rect.normalize</big></b><br><ul>
-  <i>correct negative sizes</i><br>
-  <tt>Rect.normalize(): return None</tt><br>
-<p>This will flip the width or height of a rectangle if it has a negative size. The rectangle will remain in the same place, with only the sides swapped. </p>
-<!--COMMENTS:Rect.normalize--> &nbsp;<br> 
-<br></ul>
-
-
-<a name="Rect.contains">
-<big><b>Rect.contains</big></b><br><ul>
-  <i>test if one rectangle is inside another</i><br>
-  <tt>Rect.contains(Rect): return bool</tt><br>
-<p>Returns true when the argument is completely inside the Rect. </p>
-<!--COMMENTS:Rect.contains--> &nbsp;<br> 
-<br></ul>
-
-
-<a name="Rect.collidepoint">
-<big><b>Rect.collidepoint</big></b><br><ul>
-  <i>test if a point is inside a rectangle</i><br>
-  <tt>Rect.collidepoint(x, y): return bool</tt><br>
-  <tt>Rect.collidepoint((x,y)): return bool</tt><br>
-<p>Returns true if the given point is inside the rectangle. A point along the right or bottom edge is not considered to be inside the rectangle. </p>
-<!--COMMENTS:Rect.collidepoint--> &nbsp;<br> 
-<br></ul>
-
-
-<a name="Rect.colliderect">
-<big><b>Rect.colliderect</big></b><br><ul>
-  <i>test if two rectangles overlap</i><br>
-  <tt>Rect.colliderect(Rect): return bool</tt><br>
-<p>Returns true if any portion of either rectangle overlap (except the top+bottom or left+right edges). </p>
-<!--COMMENTS:Rect.colliderect--> &nbsp;<br> 
-<br></ul>
-
-
-<a name="Rect.collidelist">
-<big><b>Rect.collidelist</big></b><br><ul>
-  <i>test if one rectangle in a list intersects</i><br>
-  <tt>Rect.collidelist(list): return index</tt><br>
-<p>Test whether the rectangle collides with any in a sequence of rectangles. The index of the first collision found is returned. If no collisions are found an index of -1 is returned. </p>
-<!--COMMENTS:Rect.collidelist--> &nbsp;<br> 
-<br></ul>
-
-
-<a name="Rect.collidelistall">
-<big><b>Rect.collidelistall</big></b><br><ul>
-  <i>test if all rectangles in a list intersect</i><br>
-  <tt>Rect.collidelistall(list): return indices</tt><br>
-<p>Returns a list of all the indices that contain rectangles that collide with the Rect. If no intersecting rectangles are found, an empty list is returned. </p>
-<!--COMMENTS:Rect.collidelistall--> &nbsp;<br> 
-<br></ul>
-
-
-<a name="Rect.collidedict">
-<big><b>Rect.collidedict</big></b><br><ul>
-  <i>test if one rectangle in a dictionary intersects</i><br>
-  <tt>Rect.collidedict(dict): return (key, value)</tt><br>
-<p>Returns the key and value of the first dictionary value that collides with the Rect. If no collisions are found, None is returned. </p>
-<p>Rect objects are not hashable and cannot be used as keys in a dictionary, only as values. </p>
-<!--COMMENTS:Rect.collidedict--> &nbsp;<br> 
-<br></ul>
-
-
-<a name="Rect.collidedictall">
-<big><b>Rect.collidedictall</big></b><br><ul>
-  <i>test if all rectangles in a dictionary intersect</i><br>
-  <tt>Rect.collidedictall(dict): return [(key, value), ...]</tt><br>
-<p>Returns a list of all the key and value pairs that intersect with the Rect. If no collisions are found an empty dictionary is returned. </p>
-<p>Rect objects are not hashable and cannot be used as keys in a dictionary, only as values. </p>
-<!--COMMENTS:Rect.collidedictall--> &nbsp;<br> 
-<br></ul>
-<br></ul>
-
-</body></html>
+  </div>
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="scrap.html" title="pygame.scrap"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pygame.html" title="pygame"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">Pygame v1.9.2 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+      &copy; Copyright 2011, Pygame Developers.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.6.6.
+    </div>
+  </body>
+</html>

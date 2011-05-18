@@ -1,104 +1,208 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-<html>
-<title>overlay - Pygame Documentation</title>
-<body bgcolor=#aaeebb text=#000000 link=#331111 vlink=#331111>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pygame.Overlay &mdash; Pygame v1.9.2 documentation</title>
+    <link rel="stylesheet" href="../_static/pygame.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.9.2',
+        COLLAPSE_MODINDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/pygame.ico"/>
+    <link rel="top" title="Pygame v1.9.2 documentation" href="../index.html" />
+    <link rel="next" title="pygame.PixelArray" href="pixelarray.html" />
+    <link rel="prev" title="pygame.mixer.music" href="music.html" /> 
+  </head>
+  <body>  
 
+    <div class="document">
 
-<table cellpadding=0 cellspacing=0 border=0 style='border: 3px solid black;' width='100%'>
-<tr>
-<td bgcolor='#c2fc20' style='padding: 6px;' align=center valign=center><a href='http://www.pygame.org/'><img src='../pygame_tiny.gif' border=0 width=200 height=60></a><br><b>pygame documentation</b></td>
-<td bgcolor='#6aee28' style='border-left: 3px solid black; padding: 6px;' align=center valign=center>
-	||&nbsp;
-	<a href=http://www.pygame.org>Pygame Home</a> &nbsp;||&nbsp;
-	<a href=../index.html>Help Contents</a> &nbsp;||
-	<a href=index.html>Reference Index</a> &nbsp;||
-	<br>&nbsp;<br>
-	
-<a href="camera.html">Camera</a>&nbsp;||&nbsp;
-<a href="cdrom.html">Cdrom</a>&nbsp;||&nbsp;
-<a href="color.html">Color</a>&nbsp;||&nbsp;
-<a href="cursors.html">Cursors</a>&nbsp;||&nbsp;
-<a href="display.html">Display</a>&nbsp;||&nbsp;
-<a href="draw.html">Draw</a>&nbsp;||&nbsp;
-<a href="event.html">Event</a>&nbsp;||&nbsp;
-<a href="examples.html">Examples</a>&nbsp;||&nbsp;
-<a href="font.html">Font</a>&nbsp;||&nbsp;
-<a href="freetype.html">Freetype</a>&nbsp;||&nbsp;
-<a href="gfxdraw.html">Gfxdraw</a>&nbsp;||&nbsp;
-<a href="image.html">Image</a>&nbsp;||&nbsp;
-<a href="joystick.html">Joystick</a>&nbsp;||&nbsp;
-<a href="key.html">Key</a>&nbsp;||&nbsp;
-<a href="locals.html">Locals</a>&nbsp;||&nbsp;
-<a href="mask.html">Mask</a>&nbsp;||&nbsp;
-<a href="math.html">Math</a>&nbsp;||&nbsp;
-<a href="midi.html">Midi</a>&nbsp;||&nbsp;
-<a href="mixer.html">Mixer</a>&nbsp;||&nbsp;
-<a href="mouse.html">Mouse</a>&nbsp;||&nbsp;
-<a href="movie.html">Movie</a>&nbsp;||&nbsp;
-<a href="music.html">Music</a>&nbsp;||&nbsp;
-<a href="overlay.html">Overlay</a>&nbsp;||&nbsp;
-<a href="pixelarray.html">Pixelarray</a>&nbsp;||&nbsp;
-<a href="pixelcopy.html">Pixelcopy</a>&nbsp;||&nbsp;
-<a href="pygame.html">Pygame</a>&nbsp;||&nbsp;
-<a href="rect.html">Rect</a>&nbsp;||&nbsp;
-<a href="scrap.html">Scrap</a>&nbsp;||&nbsp;
-<a href="sndarray.html">Sndarray</a>&nbsp;||&nbsp;
-<a href="sprite.html">Sprite</a>&nbsp;||&nbsp;
-<a href="surface.html">Surface</a>&nbsp;||&nbsp;
-<a href="surfarray.html">Surfarray</a>&nbsp;||&nbsp;
-<a href="tests.html">Tests</a>&nbsp;||&nbsp;
-<a href="time.html">Time</a>&nbsp;||&nbsp;
-<a href="transform.html">Transform</a>
-</td></tr></table>
-<br>
+  <div class="header">
+    <table>
+      <tr>
+	<td class="logo">
+	  <a href="http://www.pygame.org/">
+	    <img src="../_static/pygame_tiny.png"/>
+	  </a>
+	  <h5>pygame documentation</h5>
+	</td>
+	<td class="pagelinks">
+	  <p class="top">
+	    ||
+	    <a href="http://www.pygame.org/">Pygame Home</a> ||
+	    <a href="../index.html">Help Contents</a> ||
+	    <a href="../genindex.html">Reference Index</a> ||
+	  </p>
+	  <p class="bottom">
+	    <a href="camera.html">camera</a> || 
+	    <a href="cdrom.html">cdrom</a> || 
+	    <a href="color.html">Color</a> || 
+	    <a href="cursors.html">cursors</a> || 
+	    <a href="display.html">display</a> || 
+	    <a href="draw.html">draw</a> || 
+	    <a href="event.html">event</a> || 
+	    <a href="examples.html">examples</a> || 
+	    <a href="font.html">font</a> || 
+	    <a href="gfxdraw.html">gfxdraw</a> || 
+	    <a href="image.html">image</a> || 
+	    <a href="joystick.html">joystick</a> || 
+	    <a href="key.html">key</a> || 
+	    <a href="locals.html">locals</a> || 
+	    <a href="mask.html">mask</a> || 
+	    <a href="math.html">math</a> || 
+	    <a href="midi.html">midi</a> || 
+	    <a href="mixer.html">mixer</a> || 
+	    <a href="mouse.html">mouse</a> || 
+	    <a href="movie.html">movie</a> || 
+	    <a href="music.html">music</a> || 
+	    <a href="overlay.html">Overlay</a> || 
+	    <a href="pixelarray.html">PixelArray</a> || 
+	    <a href="pixelcopy.html">pixelcopy</a> || 
+	    <a href="pygame.html">pygame</a> || 
+	    <a href="rect.html">Rect</a> || 
+	    <a href="scrap.html">scrap</a> || 
+	    <a href="sndarray.html">sndarray</a> || 
+	    <a href="sprite.html">sprite</a> || 
+	    <a href="surface.html">Surface</a> || 
+	    <a href="surfarray.html">surfarray</a> || 
+	    <a href="tests.html">tests</a> || 
+	    <a href="time.html">time</a> || 
+	    <a href="transform.html">transform</a> || 
+	    <a href="pygame.html#module-pygame.version">version</a>
+	  </p>
+	</td>
+      </tr>
+    </table>
+  </div>
 
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <div class="sectionwrapper">
+<div class="section" id="pygame-overlay">
+<dl class="definition class">
+<dt class="title" id="pygame.Overlay">
+<em class="property">class </em><tt class="descclassname">pygame.</tt><tt class="descname">Overlay</tt><a class="headerlink" href="#pygame.Overlay" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">pygame object for video overlay graphics</span></div>
+<div class="line"><span class="signature">Overlay(format, (width, height)) -&gt; Overlay</span></div>
+</div>
+<table border="1" class="toc docutils">
+<colgroup>
+<col width="35%" />
+<col width="1%" />
+<col width="64%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="toc reference external" href="overlay.html#pygame.Overlay.display">pygame.Overlay.display</a></td>
+<td>—</td>
+<td>set the overlay pixel data</td>
+</tr>
+<tr><td><a class="toc reference external" href="overlay.html#pygame.Overlay.set_location">pygame.Overlay.set_location</a></td>
+<td>—</td>
+<td>control where the overlay is displayed</td>
+</tr>
+<tr><td><a class="toc reference external" href="overlay.html#pygame.Overlay.get_hardware">pygame.Overlay.get_hardware</a></td>
+<td>—</td>
+<td>test if the Overlay is hardware accelerated</td>
+</tr>
+</tbody>
+</table>
+<p>The Overlay objects provide support for accessing hardware video overlays.
+Video overlays do not use standard <tt class="docutils literal"><span class="pre">RGB</span></tt> pixel formats, and can use
+multiple resolutions of data to create a single image.</p>
+<p>The Overlay objects represent lower level access to the display hardware. To
+use the object you must understand the technical details of video overlays.</p>
+<p>The Overlay format determines the type of pixel data used. Not all hardware
+will support all types of overlay formats. Here is a list of available
+format types:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">YV12_OVERLAY</span><span class="p">,</span> <span class="n">IYUV_OVERLAY</span><span class="p">,</span> <span class="n">YUV2_OVERLAY</span><span class="p">,</span> <span class="n">UYVY_OVERLAY</span><span class="p">,</span> <span class="n">YVYU_OVERLAY</span>
+</pre></div>
+</div>
+<p>The width and height arguments control the size for the overlay image data.
+The overlay image can be displayed at any size, not just the resolution of
+the overlay.</p>
+<p>The overlay objects are always visible, and always show above the regular
+display contents.</p>
+<dl class="definition method">
+<dt class="title" id="pygame.Overlay.display">
+<tt class="descname">display</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.Overlay.display" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">set the overlay pixel data</span></div>
+<div class="line"><span class="signature">display((y, u, v)) -&gt; None</span></div>
+<div class="line"><span class="signature">display() -&gt; None</span></div>
+</div>
+<p>Display the yuv data in SDL&#8217;s overlay planes. The y, u, and v arguments
+are strings of binary data. The data must be in the correct format used
+to create the Overlay.</p>
+<p>If no argument is passed in, the Overlay will simply be redrawn with the
+current data. This can be useful when the Overlay is not really hardware
+accelerated.</p>
+<p>The strings are not validated, and improperly sized strings could crash
+the program.</p>
+</dd></dl>
 
-<a name="pygame.Overlay">
-<big><b>pygame.Overlay</big></b><br><ul>
-  <i>pygame object for video overlay graphics</i><br>
-  <tt>pygame.Overlay(format, (width, height)): return Overlay</tt><br>
-<ul><small><table>
-  <tr><td><a href="overlay.html#Overlay.display">Overlay.display</a></td><td> &mdash; set the overlay pixel data</td></tr>
-  <tr><td><a href="overlay.html#Overlay.set_location">Overlay.set_location</a></td><td> &mdash; control where the overlay is displayed</td></tr>
-  <tr><td><a href="overlay.html#Overlay.get_hardware">Overlay.get_hardware</a></td><td> &mdash; test if the Overlay is hardware accelerated</td></tr>
-</table></small></ul>
-<p>The Overlay objects provide support for accessing hardware video overlays. Video overlays do not use standard <tt>RGB</tt> pixel formats, and can use multiple resolutions of data to create a single image. </p>
-<p>The Overlay objects represent lower level access to the display hardware. To use the object you must understand the technical details of video overlays. </p>
-<p>The Overlay format determines the type of pixel data used. Not all hardware will support all types of overlay formats. Here is a list of available format types: </p>
-<pre>  YV12_OVERLAY, IYUV_OVERLAY, YUV2_OVERLAY, UYVY_OVERLAY, YVYU_OVERLAY
-</pre><p>The width and height arguments control the size for the overlay image data. The overlay image can be displayed at any size, not just the resolution of the overlay. </p>
-<p>The overlay objects are always visible, and always show above the regular display contents. </p>
-<!--COMMENTS:pygame.Overlay--> &nbsp;<br> 
+<dl class="definition method">
+<dt class="title" id="pygame.Overlay.set_location">
+<tt class="descname">set_location</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.Overlay.set_location" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">control where the overlay is displayed</span></div>
+<div class="line"><span class="signature">set_location(rect) -&gt; None</span></div>
+</div>
+<p>Set the location for the overlay. The overlay will always be shown
+relative to the main display Surface. This does not actually redraw the
+overlay, it will be updated on the next call to <tt class="docutils literal"><span class="pre">Overlay.display()</span></tt>.</p>
+</dd></dl>
 
+<dl class="definition method">
+<dt class="title" id="pygame.Overlay.get_hardware">
+<tt class="descname">get_hardware</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.Overlay.get_hardware" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">test if the Overlay is hardware accelerated</span></div>
+<div class="line"><span class="signature">get_hardware(rect) -&gt; int</span></div>
+</div>
+<p>Returns a True value when the Overlay is hardware accelerated. If the
+platform does not support acceleration, software rendering is used.</p>
+</dd></dl>
 
-<a name="Overlay.display">
-<big><b>Overlay.display</big></b><br><ul>
-  <i>set the overlay pixel data</i><br>
-  <tt>Overlay.display((y, u, v)): return None</tt><br>
-  <tt>Overlay.display(): return None</tt><br>
-<p>Display the yuv data in SDL's overlay planes. The y, u, and v arguments are strings of binary data. The data must be in the correct format used to create the Overlay. </p>
-<p>If no argument is passed in, the Overlay will simply be redrawn with the current data. This can be useful when the Overlay is not really hardware accelerated. </p>
-<p>The strings are not validated, and improperly sized strings could crash the program. </p>
-<!--COMMENTS:Overlay.display--> &nbsp;<br> 
-<br></ul>
+</dd></dl>
 
+</div>
 
-<a name="Overlay.set_location">
-<big><b>Overlay.set_location</big></b><br><ul>
-  <i>control where the overlay is displayed</i><br>
-  <tt>Overlay.set_location(rect): return None</tt><br>
-<p>Set the location for the overlay. The overlay will always be shown relative to the main display Surface. This does not actually redraw the overlay, it will be updated on the next call to <tt><a href="overlay.html#Overlay.display">Overlay.display</a></tt>&nbsp;&ndash;<font size=-1>set the overlay pixel data</font>. </p>
-<!--COMMENTS:Overlay.set_location--> &nbsp;<br> 
-<br></ul>
-
-
-<a name="Overlay.get_hardware">
-<big><b>Overlay.get_hardware</big></b><br><ul>
-  <i>test if the Overlay is hardware accelerated</i><br>
-  <tt>Overlay.get_hardware(rect): return int</tt><br>
-<p>Returns a True value when the Overlay is hardware accelerated. If the platform does not support acceleration, software rendering is used. </p>
-<!--COMMENTS:Overlay.get_hardware--> &nbsp;<br> 
-<br></ul>
-<br></ul>
-
-</body></html>
+  </div>
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="pixelarray.html" title="pygame.PixelArray"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="music.html" title="pygame.mixer.music"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">Pygame v1.9.2 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+      &copy; Copyright 2011, Pygame Developers.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.6.6.
+    </div>
+  </body>
+</html>

@@ -1,186 +1,140 @@
 /* Auto generated file: with makeref.py .  Docs go in src/ *.doc . */
 #define DOC_PYGAMEFONT "pygame module for loading and rendering fonts"
 
-#define DOC_PYGAMEFONTINIT "pygame.font.init(): return None\ninitialize the font module"
+#define DOC_PYGAMEFONTINIT "init() -> None\ninitialize the font module"
 
-#define DOC_PYGAMEFONTQUIT "pygame.font.quit(): return None\nuninitialize the font module"
+#define DOC_PYGAMEFONTQUIT "quit() -> None\nuninitialize the font module"
 
-#define DOC_PYGAMEFONTGETINIT "pygame.font.get_init(): return bool\ntrue if the font module is initialized"
+#define DOC_PYGAMEFONTGETINIT "get_init() -> bool\ntrue if the font module is initialized"
 
-#define DOC_PYGAMEFONTGETDEFAULTFONT "pygame.font.get_default_font(): return string\nget the filename of the default font"
+#define DOC_PYGAMEFONTGETDEFAULTFONT "get_default_font() -> string\nget the filename of the default font"
 
-#define DOC_PYGAMEFONTGETFONTS "pygame.font.get_fonts(): return list of strings\nget all available fonts"
+#define DOC_PYGAMEFONTGETFONTS "get_fonts() -> list of strings\nget all available fonts"
 
-#define DOC_PYGAMEFONTMATCHFONT "pygame.font.match_font(name, bold=False, italic=False): return path\nfind a specific font on the system"
+#define DOC_PYGAMEFONTMATCHFONT "match_font(name, bold=False, italic=False) -> path\nfind a specific font on the system"
 
-#define DOC_PYGAMEFONTSYSFONT "pygame.font.SysFont(name, size, bold=False, italic=False): return Font\ncreate a Font object from the system fonts"
+#define DOC_PYGAMEFONTSYSFONT "SysFont(name, size, bold=False, italic=False) -> Font\ncreate a Font object from the system fonts"
 
-#define DOC_PYGAMEFONTFONT "pygame.font.Font(filename, size): return Font\npygame.font.Font(object, size): return Font\ncreate a new Font object from a file"
+#define DOC_PYGAMEFONTFONT "Font(filename, size) -> Font\nFont(object, size) -> Font\ncreate a new Font object from a file"
 
-#define DOC_FONTRENDER "Font.render(text, antialias, color, background=None): return Surface\ndraw text on a new Surface"
+#define DOC_FONTRENDER "render(text, antialias, color, background=None) -> Surface\ndraw text on a new Surface"
 
-#define DOC_FONTSIZE "Font.size(text): return (width, height)\ndetermine the amount of space needed to render text"
+#define DOC_FONTSIZE "size(text) -> (width, height)\ndetermine the amount of space needed to render text"
 
-#define DOC_FONTSETUNDERLINE "Font.set_underline(bool): return None\ncontrol if text is rendered with an underline"
+#define DOC_FONTSETUNDERLINE "set_underline(bool) -> None\ncontrol if text is rendered with an underline"
 
-#define DOC_FONTGETUNDERLINE "Font.get_underline(): return bool\ncheck if text will be rendered with an underline"
+#define DOC_FONTGETUNDERLINE "get_underline() -> bool\ncheck if text will be rendered with an underline"
 
-#define DOC_FONTSETBOLD "Font.set_bold(bool): return None\nenable fake rendering of bold text"
+#define DOC_FONTSETBOLD "set_bold(bool) -> None\nenable fake rendering of bold text"
 
-#define DOC_FONTGETBOLD "Font.get_bold(): return bool\ncheck if text will be rendered bold"
+#define DOC_FONTGETBOLD "get_bold() -> bool\ncheck if text will be rendered bold"
 
-#define DOC_FONTSETITALIC "Font.set_italic(bool): return None\nenable fake rendering of italic text"
+#define DOC_FONTSETITALIC "set_italic(bool) -> None\nenable fake rendering of italic text"
 
-#define DOC_FONTMETRICS "Font.metrics(text): return list\nGets the metrics for each character in the pased string."
+#define DOC_FONTMETRICS "metrics(text) -> list\nGets the metrics for each character in the pased string."
 
-#define DOC_FONTGETITALIC "Font.get_italic(): return bool\ncheck if the text will be rendered italic"
+#define DOC_FONTGETITALIC "get_italic() -> bool\ncheck if the text will be rendered italic"
 
-#define DOC_FONTGETLINESIZE "Font.get_linesize(): return int\nget the line space of the font text"
+#define DOC_FONTGETLINESIZE "get_linesize() -> int\nget the line space of the font text"
 
-#define DOC_FONTGETHEIGHT "Font.get_height(): return int\nget the height of the font"
+#define DOC_FONTGETHEIGHT "get_height() -> int\nget the height of the font"
 
-#define DOC_FONTGETASCENT "Font.get_ascent(): return int\nget the ascent of the font"
+#define DOC_FONTGETASCENT "get_ascent() -> int\nget the ascent of the font"
 
-#define DOC_FONTGETDESCENT "Font.get_descent(): return int\nget the descent of the font"
+#define DOC_FONTGETDESCENT "get_descent() -> int\nget the descent of the font"
 
 
 
-/* Docs in a comments... slightly easier to read. */
-
+/* Docs in a comment... slightly easier to read. */
 
 /*
 
 pygame.font
- pygame module for loading and rendering fonts
-
-
+pygame module for loading and rendering fonts
 
 pygame.font.init
- pygame.font.init(): return None
+ init() -> None
 initialize the font module
 
-
-
 pygame.font.quit
- pygame.font.quit(): return None
+ quit() -> None
 uninitialize the font module
 
-
-
 pygame.font.get_init
- pygame.font.get_init(): return bool
+ get_init() -> bool
 true if the font module is initialized
 
-
-
 pygame.font.get_default_font
- pygame.font.get_default_font(): return string
+ get_default_font() -> string
 get the filename of the default font
 
-
-
 pygame.font.get_fonts
- pygame.font.get_fonts(): return list of strings
+ get_fonts() -> list of strings
 get all available fonts
 
-
-
 pygame.font.match_font
- pygame.font.match_font(name, bold=False, italic=False): return path
+ match_font(name, bold=False, italic=False) -> path
 find a specific font on the system
 
-
-
 pygame.font.SysFont
- pygame.font.SysFont(name, size, bold=False, italic=False): return Font
+ SysFont(name, size, bold=False, italic=False) -> Font
 create a Font object from the system fonts
 
-
-
 pygame.font.Font
- pygame.font.Font(filename, size): return Font
-pygame.font.Font(object, size): return Font
+ Font(filename, size) -> Font
+ Font(object, size) -> Font
 create a new Font object from a file
 
-
-
-Font.render
- Font.render(text, antialias, color, background=None): return Surface
+pygame.font.Font.render
+ render(text, antialias, color, background=None) -> Surface
 draw text on a new Surface
 
-
-
-Font.size
- Font.size(text): return (width, height)
+pygame.font.Font.size
+ size(text) -> (width, height)
 determine the amount of space needed to render text
 
-
-
-Font.set_underline
- Font.set_underline(bool): return None
+pygame.font.Font.set_underline
+ set_underline(bool) -> None
 control if text is rendered with an underline
 
-
-
-Font.get_underline
- Font.get_underline(): return bool
+pygame.font.Font.get_underline
+ get_underline() -> bool
 check if text will be rendered with an underline
 
-
-
-Font.set_bold
- Font.set_bold(bool): return None
+pygame.font.Font.set_bold
+ set_bold(bool) -> None
 enable fake rendering of bold text
 
-
-
-Font.get_bold
- Font.get_bold(): return bool
+pygame.font.Font.get_bold
+ get_bold() -> bool
 check if text will be rendered bold
 
-
-
-Font.set_italic
- Font.set_italic(bool): return None
+pygame.font.Font.set_italic
+ set_italic(bool) -> None
 enable fake rendering of italic text
 
-
-
-Font.metrics
- Font.metrics(text): return list
+pygame.font.Font.metrics
+ metrics(text) -> list
 Gets the metrics for each character in the pased string.
 
-
-
-Font.get_italic
- Font.get_italic(): return bool
+pygame.font.Font.get_italic
+ get_italic() -> bool
 check if the text will be rendered italic
 
-
-
-Font.get_linesize
- Font.get_linesize(): return int
+pygame.font.Font.get_linesize
+ get_linesize() -> int
 get the line space of the font text
 
-
-
-Font.get_height
- Font.get_height(): return int
+pygame.font.Font.get_height
+ get_height() -> int
 get the height of the font
 
-
-
-Font.get_ascent
- Font.get_ascent(): return int
+pygame.font.Font.get_ascent
+ get_ascent() -> int
 get the ascent of the font
 
-
-
-Font.get_descent
- Font.get_descent(): return int
+pygame.font.Font.get_descent
+ get_descent() -> int
 get the descent of the font
 
-
-
 */
-

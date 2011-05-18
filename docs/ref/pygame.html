@@ -1,217 +1,395 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-<html>
-<title>pygame - Pygame Documentation</title>
-<body bgcolor=#aaeebb text=#000000 link=#331111 vlink=#331111>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pygame &mdash; Pygame v1.9.2 documentation</title>
+    <link rel="stylesheet" href="../_static/pygame.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.9.2',
+        COLLAPSE_MODINDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/pygame.ico"/>
+    <link rel="top" title="Pygame v1.9.2 documentation" href="../index.html" />
+    <link rel="next" title="pygame.Rect" href="rect.html" />
+    <link rel="prev" title="pygame.pixelcopy" href="pixelcopy.html" /> 
+  </head>
+  <body>  
 
+    <div class="document">
 
-<table cellpadding=0 cellspacing=0 border=0 style='border: 3px solid black;' width='100%'>
-<tr>
-<td bgcolor='#c2fc20' style='padding: 6px;' align=center valign=center><a href='http://www.pygame.org/'><img src='../pygame_tiny.gif' border=0 width=200 height=60></a><br><b>pygame documentation</b></td>
-<td bgcolor='#6aee28' style='border-left: 3px solid black; padding: 6px;' align=center valign=center>
-	||&nbsp;
-	<a href=http://www.pygame.org>Pygame Home</a> &nbsp;||&nbsp;
-	<a href=../index.html>Help Contents</a> &nbsp;||
-	<a href=index.html>Reference Index</a> &nbsp;||
-	<br>&nbsp;<br>
-	
-<a href="camera.html">Camera</a>&nbsp;||&nbsp;
-<a href="cdrom.html">Cdrom</a>&nbsp;||&nbsp;
-<a href="color.html">Color</a>&nbsp;||&nbsp;
-<a href="cursors.html">Cursors</a>&nbsp;||&nbsp;
-<a href="display.html">Display</a>&nbsp;||&nbsp;
-<a href="draw.html">Draw</a>&nbsp;||&nbsp;
-<a href="event.html">Event</a>&nbsp;||&nbsp;
-<a href="examples.html">Examples</a>&nbsp;||&nbsp;
-<a href="font.html">Font</a>&nbsp;||&nbsp;
-<a href="freetype.html">Freetype</a>&nbsp;||&nbsp;
-<a href="gfxdraw.html">Gfxdraw</a>&nbsp;||&nbsp;
-<a href="image.html">Image</a>&nbsp;||&nbsp;
-<a href="joystick.html">Joystick</a>&nbsp;||&nbsp;
-<a href="key.html">Key</a>&nbsp;||&nbsp;
-<a href="locals.html">Locals</a>&nbsp;||&nbsp;
-<a href="mask.html">Mask</a>&nbsp;||&nbsp;
-<a href="math.html">Math</a>&nbsp;||&nbsp;
-<a href="midi.html">Midi</a>&nbsp;||&nbsp;
-<a href="mixer.html">Mixer</a>&nbsp;||&nbsp;
-<a href="mouse.html">Mouse</a>&nbsp;||&nbsp;
-<a href="movie.html">Movie</a>&nbsp;||&nbsp;
-<a href="music.html">Music</a>&nbsp;||&nbsp;
-<a href="overlay.html">Overlay</a>&nbsp;||&nbsp;
-<a href="pixelarray.html">Pixelarray</a>&nbsp;||&nbsp;
-<a href="pixelcopy.html">Pixelcopy</a>&nbsp;||&nbsp;
-<a href="pygame.html">Pygame</a>&nbsp;||&nbsp;
-<a href="rect.html">Rect</a>&nbsp;||&nbsp;
-<a href="scrap.html">Scrap</a>&nbsp;||&nbsp;
-<a href="sndarray.html">Sndarray</a>&nbsp;||&nbsp;
-<a href="sprite.html">Sprite</a>&nbsp;||&nbsp;
-<a href="surface.html">Surface</a>&nbsp;||&nbsp;
-<a href="surfarray.html">Surfarray</a>&nbsp;||&nbsp;
-<a href="tests.html">Tests</a>&nbsp;||&nbsp;
-<a href="time.html">Time</a>&nbsp;||&nbsp;
-<a href="transform.html">Transform</a>
-</td></tr></table>
-<br>
+  <div class="header">
+    <table>
+      <tr>
+	<td class="logo">
+	  <a href="http://www.pygame.org/">
+	    <img src="../_static/pygame_tiny.png"/>
+	  </a>
+	  <h5>pygame documentation</h5>
+	</td>
+	<td class="pagelinks">
+	  <p class="top">
+	    ||
+	    <a href="http://www.pygame.org/">Pygame Home</a> ||
+	    <a href="../index.html">Help Contents</a> ||
+	    <a href="../genindex.html">Reference Index</a> ||
+	  </p>
+	  <p class="bottom">
+	    <a href="camera.html">camera</a> || 
+	    <a href="cdrom.html">cdrom</a> || 
+	    <a href="color.html">Color</a> || 
+	    <a href="cursors.html">cursors</a> || 
+	    <a href="display.html">display</a> || 
+	    <a href="draw.html">draw</a> || 
+	    <a href="event.html">event</a> || 
+	    <a href="examples.html">examples</a> || 
+	    <a href="font.html">font</a> || 
+	    <a href="gfxdraw.html">gfxdraw</a> || 
+	    <a href="image.html">image</a> || 
+	    <a href="joystick.html">joystick</a> || 
+	    <a href="key.html">key</a> || 
+	    <a href="locals.html">locals</a> || 
+	    <a href="mask.html">mask</a> || 
+	    <a href="math.html">math</a> || 
+	    <a href="midi.html">midi</a> || 
+	    <a href="mixer.html">mixer</a> || 
+	    <a href="mouse.html">mouse</a> || 
+	    <a href="movie.html">movie</a> || 
+	    <a href="music.html">music</a> || 
+	    <a href="overlay.html">Overlay</a> || 
+	    <a href="pixelarray.html">PixelArray</a> || 
+	    <a href="pixelcopy.html">pixelcopy</a> || 
+	    <a href="pygame.html">pygame</a> || 
+	    <a href="rect.html">Rect</a> || 
+	    <a href="scrap.html">scrap</a> || 
+	    <a href="sndarray.html">sndarray</a> || 
+	    <a href="sprite.html">sprite</a> || 
+	    <a href="surface.html">Surface</a> || 
+	    <a href="surfarray.html">surfarray</a> || 
+	    <a href="tests.html">tests</a> || 
+	    <a href="time.html">time</a> || 
+	    <a href="transform.html">transform</a> || 
+	    <a href="pygame.html#module-pygame.version">version</a>
+	  </p>
+	</td>
+      </tr>
+    </table>
+  </div>
 
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <div class="sectionwrapper">
+<div class="section" id="module-pygame">
+<dl class="definition module">
+<dt class="title module">
+<tt class="docutils literal"><span class="pre">pygame</span></tt></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">the top level pygame package</span></div>
+</div>
+<table border="1" class="toc docutils">
+<colgroup>
+<col width="29%" />
+<col width="1%" />
+<col width="70%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="toc reference external" href="pygame.html#pygame.init">pygame.init</a></td>
+<td>—</td>
+<td>initialize all imported pygame modules</td>
+</tr>
+<tr><td><a class="toc reference external" href="pygame.html#pygame.quit">pygame.quit</a></td>
+<td>—</td>
+<td>uninitialize all pygame modules</td>
+</tr>
+<tr><td><a class="toc reference external" href="pygame.html#pygame.error">pygame.error</a></td>
+<td>—</td>
+<td>standard pygame exception</td>
+</tr>
+<tr><td><a class="toc reference external" href="pygame.html#pygame.get_error">pygame.get_error</a></td>
+<td>—</td>
+<td>get the current error message</td>
+</tr>
+<tr><td><a class="toc reference external" href="pygame.html#pygame.set_error">pygame.set_error</a></td>
+<td>—</td>
+<td>set the current error message</td>
+</tr>
+<tr><td><a class="toc reference external" href="pygame.html#pygame.get_sdl_version">pygame.get_sdl_version</a></td>
+<td>—</td>
+<td>get the version number of SDL</td>
+</tr>
+<tr><td><a class="toc reference external" href="pygame.html#pygame.get_sdl_byteorder">pygame.get_sdl_byteorder</a></td>
+<td>—</td>
+<td>get the byte order of SDL</td>
+</tr>
+<tr><td><a class="toc reference external" href="pygame.html#pygame.register_quit">pygame.register_quit</a></td>
+<td>—</td>
+<td>register a function to be called when pygame quits</td>
+</tr>
+<tr><td><a class="toc reference external" href="pygame.html#pygame.encode_string">pygame.encode_string</a></td>
+<td>—</td>
+<td>Encode a unicode or bytes object</td>
+</tr>
+<tr><td><a class="toc reference external" href="pygame.html#pygame.encode_file_path">pygame.encode_file_path</a></td>
+<td>—</td>
+<td>Encode a unicode or bytes object as a file system path</td>
+</tr>
+</tbody>
+</table>
+<p>The pygame package represents the top-level package for others to use. Pygame
+itself is broken into many submodules, but this does not affect programs that
+use Pygame.</p>
+<p>As a convenience, most of the top-level variables in pygame have been placed
+inside a module named &#8216;pygame.locals&#8217;. This is meant to be used with &#8216;from
+<a title="" class="tooltip reference external" href="locals.html#module-pygame.locals"><tt class="xref docutils literal"><span class="pre">pygame.locals</span></tt><span class="tooltip-content">pygame constants</span></a> import *&#8217;, in addition to &#8216;import pygame&#8217;.</p>
+<p>When you &#8216;import pygame&#8217; all available pygame submodules are automatically
+imported. Be aware that some of the pygame modules are considered &#8220;optional&#8221;,
+and may not be available. In that case, Pygame will provide a placeholder
+object instead of the module, which can be used to test for availability.</p>
+<dl class="definition function">
+<dt class="title" id="pygame.init">
+<tt class="descclassname">pygame.</tt><tt class="descname">init</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.init" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">initialize all imported pygame modules</span></div>
+<div class="line"><span class="signature">init() -&gt; (numpass, numfail)</span></div>
+</div>
+<p>Initialize all imported Pygame modules. No exceptions will be raised if a
+module fails, but the total number if successful and failed inits will be
+returned as a tuple. You can always initialize individual modules manually,
+but <a title="" class="tooltip reference internal" href="#pygame.init"><tt class="xref docutils literal"><span class="pre">pygame.init()</span></tt><span class="tooltip-content">initialize all imported pygame modules</span></a> is a convenient way to get everything started. The
+<tt class="docutils literal"><span class="pre">init()</span></tt> functions for individual modules will raise exceptions when they
+fail.</p>
+<p>You may want to initalise the different modules seperately to speed up your
+program or to not use things your game does not.</p>
+<p>It is safe to call this <tt class="docutils literal"><span class="pre">init()</span></tt> more than once: repeated calls will have
+no effect. This is true even if you have <tt class="docutils literal"><span class="pre">pygame.quit()</span></tt> all the modules.</p>
+</dd></dl>
 
-<a name="pygame">
-<big><b>pygame</big></b><br><ul>
-  <i>the top level pygame package</i><br>
-<ul><small><table>
-  <tr><td><a href="pygame.html#pygame.init">pygame.init</a></td><td> &mdash; initialize all imported pygame modules</td></tr>
-  <tr><td><a href="pygame.html#pygame.quit">pygame.quit</a></td><td> &mdash; uninitialize all pygame modules</td></tr>
-  <tr><td><a href="pygame.html#pygame.error">pygame.error</a></td><td> &mdash; standard pygame exception</td></tr>
-  <tr><td><a href="pygame.html#pygame.get_error">pygame.get_error</a></td><td> &mdash; get the current error message</td></tr>
-  <tr><td><a href="pygame.html#pygame.set_error">pygame.set_error</a></td><td> &mdash; set the current error message</td></tr>
-  <tr><td><a href="pygame.html#pygame.get_sdl_version">pygame.get_sdl_version</a></td><td> &mdash; get the version number of SDL</td></tr>
-  <tr><td><a href="pygame.html#pygame.get_sdl_byteorder">pygame.get_sdl_byteorder</a></td><td> &mdash; get the byte order of SDL</td></tr>
-  <tr><td><a href="pygame.html#pygame.register_quit">pygame.register_quit</a></td><td> &mdash; register a function to be called when pygame quits</td></tr>
-  <tr><td><a href="pygame.html#pygame.encode_string">pygame.encode_string</a></td><td> &mdash; Encode a unicode or bytes object</td></tr>
-  <tr><td><a href="pygame.html#pygame.encode_file_path">pygame.encode_file_path</a></td><td> &mdash; Encode a unicode or bytes object as a file system path</td></tr>
-  <tr><td><a href="pygame.html#pygame.version">pygame.version</a></td><td> &mdash; small module containing version information</td></tr>
-</table></small></ul>
-<p>The pygame package represents the top-level package for others to use. Pygame itself is broken into many submodules, but this does not affect programs that use Pygame. </p>
-<p>As a convenience, most of the top-level variables in pygame have been placed inside a module named 'pygame.locals'. This is meant to be used with 'from <tt>pygame.locals</tt> import *', in addition to 'import pygame'. </p>
-<p>When you 'import pygame' all available pygame submodules are automatically imported. Be aware that some of the pygame modules are considered "optional", and may not be available. In that case, Pygame will provide a placeholder object instead of the module, which can be used to test for availability. </p>
-<!--COMMENTS:pygame--> &nbsp;<br> 
+<dl class="definition function">
+<dt class="title" id="pygame.quit">
+<tt class="descclassname">pygame.</tt><tt class="descname">quit</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.quit" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">uninitialize all pygame modules</span></div>
+<div class="line"><span class="signature">quit() -&gt; None</span></div>
+</div>
+<p>Uninitialize all pygame modules that have previously been initialized. When
+the Python interpreter shuts down, this method is called regardless, so your
+program should not need it, except when it wants to terminate its pygame
+resources and continue. It is safe to call this function more than once:
+repeated calls have no effect.</p>
+<p>Note, that <a title="" class="tooltip reference internal" href="#pygame.quit"><tt class="xref docutils literal"><span class="pre">pygame.quit()</span></tt><span class="tooltip-content">uninitialize all pygame modules</span></a> will not exit your program. Consider letting
+your program end in the same way a normal python program will end.</p>
+</dd></dl>
 
+<dl class="definition exception">
+<dt class="title" id="pygame.error">
+<em class="property">exception </em><tt class="descclassname">pygame.</tt><tt class="descname">error</tt><a class="headerlink" href="#pygame.error" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">standard pygame exception</span></div>
+<div class="line"><span class="signature">raise pygame.error(message)</span></div>
+</div>
+<p>This exception is raised whenever a pygame or <tt class="docutils literal"><span class="pre">SDL</span></tt> operation fails. You
+can catch any anticipated problems and deal with the error. The exception is
+always raised with a descriptive message about the problem.</p>
+<p>Derived from the RuntimeError exception, which can also be used to catch
+these raised errors.</p>
+</dd></dl>
 
-<a name="pygame.init">
-<big><b>pygame.init</big></b><br><ul>
-  <i>initialize all imported pygame modules</i><br>
-  <tt>pygame.init(): return (numpass, numfail)</tt><br>
-<p>Initialize all imported Pygame modules. No exceptions will be raised if a module fails, but the total number if successful and failed inits will be returned as a tuple. You can always initialize individual modules manually, but <tt>pygame.init</tt> is a convenient way to get everything started. The <tt>init()</tt> functions for individual modules will raise exceptions when they fail. </p>
-<p>You may want to initalise the different modules seperately to speed up your program or to not use things your game does not. </p>
-<p>It is safe to call this <tt>init()</tt> more than once: repeated calls will have no effect. This is true even if you have <tt><a href="pygame.html#pygame.quit">pygame.quit</a></tt>&nbsp;&ndash;<font size=-1>uninitialize all pygame modules</font>&ndash; all the modules. </p>
-<!--COMMENTS:pygame.init--> &nbsp;<br> 
-<br></ul>
+<dl class="definition function">
+<dt class="title" id="pygame.get_error">
+<tt class="descclassname">pygame.</tt><tt class="descname">get_error</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.get_error" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">get the current error message</span></div>
+<div class="line"><span class="signature">get_error() -&gt; errorstr</span></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">SDL</span></tt> maintains an internal error message. This message will usually be
+given to you when <a title="" class="tooltip reference internal" href="#pygame.error"><tt class="xref docutils literal"><span class="pre">pygame.error()</span></tt><span class="tooltip-content">standard pygame exception</span></a> is raised. You will rarely need to
+call this function.</p>
+</dd></dl>
 
+<dl class="definition function">
+<dt class="title" id="pygame.set_error">
+<tt class="descclassname">pygame.</tt><tt class="descname">set_error</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.set_error" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">set the current error message</span></div>
+<div class="line"><span class="signature">set_error(error_msg) -&gt; None</span></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">SDL</span></tt> maintains an internal error message. This message will usually be
+given to you when <a title="" class="tooltip reference internal" href="#pygame.error"><tt class="xref docutils literal"><span class="pre">pygame.error()</span></tt><span class="tooltip-content">standard pygame exception</span></a> is raised. You will rarely need to
+call this function.</p>
+</dd></dl>
 
-<a name="pygame.quit">
-<big><b>pygame.quit</big></b><br><ul>
-  <i>uninitialize all pygame modules</i><br>
-  <tt>pygame.quit(): return None</tt><br>
-<p>Uninitialize all pygame modules that have previously been initialized. When the Python interpreter shuts down, this method is called regardless, so your program should not need it, except when it wants to terminate its pygame resources and continue. It is safe to call this function more than once: repeated calls have no effect. </p>
-<p>Note, that <tt>pygame.quit</tt> will not exit your program. Consider letting your program end in the same way a normal python program will end. </p>
-<!--COMMENTS:pygame.quit--> &nbsp;<br> 
-<br></ul>
+<dl class="definition function">
+<dt class="title" id="pygame.get_sdl_version">
+<tt class="descclassname">pygame.</tt><tt class="descname">get_sdl_version</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.get_sdl_version" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">get the version number of SDL</span></div>
+<div class="line"><span class="signature">get_sdl_version() -&gt; major, minor, patch</span></div>
+</div>
+<p>Returns the three version numbers of the <tt class="docutils literal"><span class="pre">SDL</span></tt> library. This version is
+built at compile time. It can be used to detect which features may not be
+available through Pygame.</p>
+<p>get_sdl_version is new in pygame 1.7.0</p>
+</dd></dl>
 
+<dl class="definition function">
+<dt class="title" id="pygame.get_sdl_byteorder">
+<tt class="descclassname">pygame.</tt><tt class="descname">get_sdl_byteorder</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.get_sdl_byteorder" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">get the byte order of SDL</span></div>
+<div class="line"><span class="signature">get_sdl_byteorder() -&gt; int</span></div>
+</div>
+<p>Returns the byte order of the <tt class="docutils literal"><span class="pre">SDL</span></tt> library. It returns <tt class="docutils literal"><span class="pre">LIL_ENDIAN</span></tt> for
+little endian byte order and <tt class="docutils literal"><span class="pre">BIG_ENDIAN</span></tt> for big endian byte order.</p>
+<p>get_sdl_byteorder is new in pygame 1.8</p>
+</dd></dl>
 
-<a name="pygame.error">
-<big><b>pygame.error</big></b><br><ul>
-  <i>standard pygame exception</i><br>
-  <tt>raise pygame.error(message)</tt><br>
-<p>This exception is raised whenever a pygame or <tt>SDL</tt> operation fails. You can catch any anticipated problems and deal with the error. The exception is always raised with a descriptive message about the problem. </p>
-<p>Derived from the RuntimeError exception, which can also be used to catch these raised errors. </p>
-<!--COMMENTS:pygame.error--> &nbsp;<br> 
-<br></ul>
+<dl class="definition function">
+<dt class="title" id="pygame.register_quit">
+<tt class="descclassname">pygame.</tt><tt class="descname">register_quit</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.register_quit" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">register a function to be called when pygame quits</span></div>
+<div class="line"><span class="signature">register_quit(callable) -&gt; None</span></div>
+</div>
+<p>When <a title="" class="tooltip reference internal" href="#pygame.quit"><tt class="xref docutils literal"><span class="pre">pygame.quit()</span></tt><span class="tooltip-content">uninitialize all pygame modules</span></a> is called, all registered quit functions are
+called. Pygame modules do this automatically when they are initializing.
+This function is not be needed for regular pygame users.</p>
+</dd></dl>
 
+<dl class="definition function">
+<dt class="title" id="pygame.encode_string">
+<tt class="descclassname">pygame.</tt><tt class="descname">encode_string</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.encode_string" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Encode a unicode or bytes object</span></div>
+<div class="line"><span class="signature">encode_string([obj [, encoding [, errors [, etype]]]]) -&gt; bytes or None</span></div>
+</div>
+<p>obj: If unicode, encode; if bytes, return unaltered; if anything else,
+return None; if not given, raise SyntaxError.</p>
+<p>encoding (string): If present, encoding to use. The default is
+&#8216;unicode_escape&#8217;.</p>
+<p>errors (string): If given, how to handle unencodable characters. The default
+is &#8216;backslashreplace&#8217;.</p>
+<p>etype (exception type): If given, the exception type to raise for an
+encoding error. The default is UnicodeEncodeError, as returned by
+<tt class="docutils literal"><span class="pre">PyUnicode_AsEncodedString()</span></tt>. For the default encoding and errors values
+there should be no encoding errors.</p>
+<p>This function is used in encoding file paths. Keyword arguments are
+supported.</p>
+<p>Added in Pygame 1.9.2 (primarily for use in unit tests)</p>
+</dd></dl>
 
-<a name="pygame.get_error">
-<big><b>pygame.get_error</big></b><br><ul>
-  <i>get the current error message</i><br>
-  <tt>pygame.get_error(): return errorstr</tt><br>
-<p><tt>SDL</tt> maintains an internal error message. This message will usually be given to you when <tt>pygame.error</tt> is raised. You will rarely need to call this function. </p>
-<!--COMMENTS:pygame.get_error--> &nbsp;<br> 
-<br></ul>
+<dl class="definition function">
+<dt class="title" id="pygame.encode_file_path">
+<tt class="descclassname">pygame.</tt><tt class="descname">encode_file_path</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.encode_file_path" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Encode a unicode or bytes object as a file system path</span></div>
+<div class="line"><span class="signature">encode_file_path([obj [, etype]]) -&gt; bytes or None</span></div>
+</div>
+<p>obj: If unicode, encode; if bytes, return unaltered; if anything else,
+return None; if not given, raise SyntaxError.</p>
+<p>etype (exception type): If given, the exception type to raise for an
+encoding error. The default is UnicodeEncodeError, as returned by
+<tt class="docutils literal"><span class="pre">PyUnicode_AsEncodedString()</span></tt>.</p>
+<p>This function is used to encode file paths in Pygame. Encoding is to the
+codec as returned by <tt class="docutils literal"><span class="pre">sys.getfilesystemencoding()</span></tt>. Keyword arguments are
+supported.</p>
+<p>Added in Pygame 1.9.2 (primarily for use in unit tests)</p>
+</dd></dl>
 
+</dd></dl>
 
-<a name="pygame.set_error">
-<big><b>pygame.set_error</big></b><br><ul>
-  <i>set the current error message</i><br>
-  <tt>pygame.set_error(error_msg): return None</tt><br>
-<p><tt>SDL</tt> maintains an internal error message. This message will usually be given to you when <tt>pygame.error</tt> is raised. You will rarely need to call this function. </p>
-<!--COMMENTS:pygame.set_error--> &nbsp;<br> 
-<br></ul>
+</div>
+<div class="section" id="module-pygame.version">
+<dl class="definition module">
+<dt class="title module">
+<tt class="docutils literal"><span class="pre">pygame.version</span></tt></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">small module containing version information</span></div>
+</div>
+<table border="1" class="toc docutils">
+<colgroup>
+<col width="36%" />
+<col width="2%" />
+<col width="63%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="toc reference external" href="pygame.html#pygame.version.ver">pygame.version.ver</a></td>
+<td>—</td>
+<td>version number as a string</td>
+</tr>
+<tr><td><a class="toc reference external" href="pygame.html#pygame.version.vernum">pygame.version.vernum</a></td>
+<td>—</td>
+<td>tupled integers of the version</td>
+</tr>
+</tbody>
+</table>
+<p>This module is automatically imported into the pygame package and offers a few
+variables to check with version of pygame has been imported.</p>
+<dl class="definition data">
+<dt class="title" id="pygame.version.ver">
+<tt class="descclassname">pygame.version.</tt><tt class="descname">ver</tt><a class="headerlink" href="#pygame.version.ver" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">version number as a string</span></div>
+<div class="line"><span class="signature">ver = &#8216;1.2&#8217;</span></div>
+</div>
+<p>This is the version represented as a string. It can contain a micro release
+number as well, <tt class="docutils literal"><span class="pre">e.g.</span></tt>, &#8216;1.5.2&#8217;</p>
+</dd></dl>
 
+<dl class="definition data">
+<dt class="title" id="pygame.version.vernum">
+<tt class="descclassname">pygame.version.</tt><tt class="descname">vernum</tt><a class="headerlink" href="#pygame.version.vernum" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">tupled integers of the version</span></div>
+<div class="line"><span class="signature">vernum = (1, 5, 3)</span></div>
+</div>
+<p>This variable for the version can easily be compared with other version
+numbers of the same format. An example of checking Pygame version numbers
+would look like this:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">if</span> <span class="n">pygame</span><span class="o">.</span><span class="n">version</span><span class="o">.</span><span class="n">vernum</span> <span class="o">&lt;</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">):</span>
+    <span class="k">print</span> <span class="s">&#39;Warning, older version of Pygame (</span><span class="si">%s</span><span class="s">)&#39;</span> <span class="o">%</span>  <span class="n">pygame</span><span class="o">.</span><span class="n">version</span><span class="o">.</span><span class="n">ver</span>
+    <span class="n">disable_advanced_features</span> <span class="o">=</span> <span class="bp">True</span>
+</pre></div>
+</div>
+</dd></dl>
 
-<a name="pygame.get_sdl_version">
-<big><b>pygame.get_sdl_version</big></b><br><ul>
-  <i>get the version number of SDL</i><br>
-  <tt>pygame.get_sdl_version(): return major, minor, patch</tt><br>
-<p>Returns the three version numbers of the <tt>SDL</tt> library. This version is built at compile time. It can be used to detect which features may not be available through Pygame. </p>
-<p>get_sdl_version is new in pygame 1.7.0 </p>
-<!--COMMENTS:pygame.get_sdl_version--> &nbsp;<br> 
-<br></ul>
+</dd></dl>
 
+</div>
 
-<a name="pygame.get_sdl_byteorder">
-<big><b>pygame.get_sdl_byteorder</big></b><br><ul>
-  <i>get the byte order of SDL</i><br>
-  <tt>pygame.get_sdl_byteorder(): return int</tt><br>
-<p>Returns the byte order of the <tt>SDL</tt> library. It returns <tt>LIL_ENDIAN</tt> for little endian byte order and <tt>BIG_ENDIAN</tt> for big endian byte order. </p>
-<p>get_sdl_byteorder is new in pygame 1.8 </p>
-<!--COMMENTS:pygame.get_sdl_byteorder--> &nbsp;<br> 
-<br></ul>
-
-
-<a name="pygame.register_quit">
-<big><b>pygame.register_quit</big></b><br><ul>
-  <i>register a function to be called when pygame quits</i><br>
-  <tt>register_quit(callable): return None</tt><br>
-<p>When <tt>pygame.quit</tt> is called, all registered quit functions are called. Pygame modules do this automatically when they are initializing. This function is not be needed for regular pygame users. </p>
-<!--COMMENTS:pygame.register_quit--> &nbsp;<br> 
-<br></ul>
-
-
-<a name="pygame.encode_string">
-<big><b>pygame.encode_string</big></b><br><ul>
-  <i>Encode a unicode or bytes object</i><br>
-  <tt>encode_string([obj [, encoding [, errors [, etype]]]]) => bytes or None</tt><br>
-<p>obj: If unicode, encode; if bytes, return unaltered; if anything else, return None; if not given, raise SyntaxError. </p>
-<p>encoding (string): If present, encoding to use. The default is 'unicode_escape'. </p>
-<p>errors (string): If given, how to handle unencodable characters. The default is 'backslashreplace'. </p>
-<p>etype (exception type): If given, the exception type to raise for an encoding error. The default is UnicodeEncodeError, as returned by <tt>PyUnicode_AsEncodedString()</tt>. For the default encoding and errors values there should be no encoding errors. </p>
-<p>This function is used in encoding file paths. Keyword arguments are supported. </p>
-<p>Added in Pygame 1.9.2 (primarily for use in unit tests) </p>
-<!--COMMENTS:pygame.encode_string--> &nbsp;<br> 
-<br></ul>
-
-
-<a name="pygame.encode_file_path">
-<big><b>pygame.encode_file_path</big></b><br><ul>
-  <i>Encode a unicode or bytes object as a file system path</i><br>
-  <tt>encode_file_path([obj [, etype]]) => bytes or None</tt><br>
-<p>obj: If unicode, encode; if bytes, return unaltered; if anything else, return None; if not given, raise SyntaxError. </p>
-<p>etype (exception type): If given, the exception type to raise for an encoding error. The default is UnicodeEncodeError, as returned by <tt>PyUnicode_AsEncodedString()</tt>. </p>
-<p>This function is used to encode file paths in Pygame. Encoding is to the codec as returned by <tt>sys.getfilesystemencoding()</tt>. Keyword arguments are supported. </p>
-<p>Added in Pygame 1.9.2 (primarily for use in unit tests) </p>
-<!--COMMENTS:pygame.encode_file_path--> &nbsp;<br> 
-<br></ul>
-
-
-<a name="pygame.version">
-<big><b>pygame.version</big></b><br><ul>
-  <i>small module containing version information</i><br>
-  <tt>module pygame.version</tt><br>
-<ul><small><table>
-  <tr><td><a href="pygame.html#pygame.version.ver">pygame.version.ver</a></td><td> &mdash; version number as a string</td></tr>
-  <tr><td><a href="pygame.html#pygame.version.vernum">pygame.version.vernum</a></td><td> &mdash; tupled integers of the version</td></tr>
-</table></small></ul>
-<p>This module is automatically imported into the pygame package and offers a few variables to check with version of pygame has been imported. </p>
-<!--COMMENTS:pygame.version--> &nbsp;<br> 
-
-
-<a name="pygame.version.ver">
-<big><b>pygame.version.ver</big></b><br><ul>
-  <i>version number as a string</i><br>
-  <tt>pygame.version.ver = '1.2'</tt><br>
-<p>This is the version represented as a string. It can contain a micro release number as well, e.g., '1.5.2' </p>
-<!--COMMENTS:pygame.version.ver--> &nbsp;<br> 
-<br></ul>
-
-
-<a name="pygame.version.vernum">
-<big><b>pygame.version.vernum</big></b><br><ul>
-  <i>tupled integers of the version</i><br>
-  <tt>pygame.version.vernum = (1, 5, 3)</tt><br>
-<p>This variable for the version can easily be compared with other version numbers of the same format. An example of checking Pygame version numbers would look like this: </p>
-<pre>    if pygame.version.vernum < (1, 5):
-        print 'Warning, older version of Pygame (%s)' %  pygame.version.ver
-        disable_advanced_features = True
-</pre>
-<!--COMMENTS:pygame.version.vernum--> &nbsp;<br> 
-<br></ul>
-<br></ul>
-<br></ul>
-
-</body></html>
+  </div>
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="rect.html" title="pygame.Rect"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pixelcopy.html" title="pygame.pixelcopy"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">Pygame v1.9.2 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+      &copy; Copyright 2011, Pygame Developers.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.6.6.
+    </div>
+  </body>
+</html>

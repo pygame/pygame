@@ -1,241 +1,181 @@
 /* Auto generated file: with makeref.py .  Docs go in src/ *.doc . */
 #define DOC_PYGAMEEXAMPLES "module of example programs"
 
-#define DOC_PYGAMEEXAMPLESALIENSMAIN "pygame.examples.aliens.main(): return None\nplay the full aliens example"
+#define DOC_PYGAMEEXAMPLESALIENSMAIN "aliens.main() -> None\nplay the full aliens example"
 
-#define DOC_PYGAMEEXAMPLESOLDALIENMAIN "pygame.examples.oldalien.main(): return None\nplay the original aliens example"
+#define DOC_PYGAMEEXAMPLESOLDALIENMAIN "oldalien.main() -> None\nplay the original aliens example"
 
-#define DOC_PYGAMEEXAMPLESSTARSMAIN "pygame.examples.stars.main(): return None\nrun a simple starfield example"
+#define DOC_PYGAMEEXAMPLESSTARSMAIN "stars.main() -> None\nrun a simple starfield example"
 
-#define DOC_PYGAMEEXAMPLESCHIMPMAIN "pygame.examples.chimp.main(): return None\nhit the moving chimp"
+#define DOC_PYGAMEEXAMPLESCHIMPMAIN "chimp.main() -> None\nhit the moving chimp"
 
-#define DOC_PYGAMEEXAMPLESMOVEITMAIN "pygame.examples.moveit.main(): return None\ndisplay animated objects on the screen"
+#define DOC_PYGAMEEXAMPLESMOVEITMAIN "moveit.main() -> None\ndisplay animated objects on the screen"
 
-#define DOC_PYGAMEEXAMPLESFONTYMAIN "pygame.examples.fonty.main(): return None\nrun a font rendering example"
+#define DOC_PYGAMEEXAMPLESFONTYMAIN "fonty.main() -> None\nrun a font rendering example"
 
-#define DOC_PYGAMEEXAMPLESVGRADEMAIN "pygame.examples.vgrade.main(): return None\ndisplay a vertical gradient"
+#define DOC_PYGAMEEXAMPLESVGRADEMAIN "vgrade.main() -> None\ndisplay a vertical gradient"
 
-#define DOC_PYGAMEEXAMPLESEVENTLISTMAIN "pygame.examples.eventlist.main(): return None\ndisplay pygame events"
+#define DOC_PYGAMEEXAMPLESEVENTLISTMAIN "eventlist.main() -> None\ndisplay pygame events"
 
-#define DOC_PYGAMEEXAMPLESARRAYDEMOMAIN "pygame.examples.arraydemo.main(arraytype=None): return None\nshow various surfarray effects"
+#define DOC_PYGAMEEXAMPLESARRAYDEMOMAIN "arraydemo.main(arraytype=None) -> None\nshow various surfarray effects"
 
-#define DOC_PYGAMEEXAMPLESSOUNDMAIN "pygame.examples.sound.main(file_path=None): return None\nload and play a sound"
+#define DOC_PYGAMEEXAMPLESSOUNDMAIN "sound.main(file_path=None) -> None\nload and play a sound"
 
-#define DOC_PYGAMEEXAMPLESSOUNDARRAYDEMOSMAIN "pygame.examples.sound_array_demos.main(arraytype=None): return None\nplay various sndarray effects"
+#define DOC_PYGAMEEXAMPLESSOUNDARRAYDEMOSMAIN "sound_array_demos.main(arraytype=None) -> None\nplay various sndarray effects"
 
-#define DOC_PYGAMEEXAMPLESLIQUIDMAIN "pygame.examples.liquid.main(): return None\ndisplay an animated liquid effect"
+#define DOC_PYGAMEEXAMPLESLIQUIDMAIN "liquid.main() -> None\ndisplay an animated liquid effect"
 
-#define DOC_PYGAMEEXAMPLESGLCUBEMAIN "pygame.examples.glcube.main(): return None\ndisplay an animated 3D cube using OpenGL"
+#define DOC_PYGAMEEXAMPLESGLCUBEMAIN "glcube.main() -> None\ndisplay an animated 3D cube using OpenGL"
 
-#define DOC_PYGAMEEXAMPLESSCRAPCLIPBOARDMAIN "pygame.examples.scrap_clipboard.main(): return None\naccess the clipboard"
+#define DOC_PYGAMEEXAMPLESSCRAPCLIPBOARDMAIN "scrap_clipboard.main() -> None\naccess the clipboard"
 
-#define DOC_PYGAMEEXAMPLESMASKMAIN "pygame.examples.mask.main(*args): return None\ndisplay multiple images bounce off each other using collision detection"
+#define DOC_PYGAMEEXAMPLESMASKMAIN "mask.main(*args) -> None\ndisplay multiple images bounce off each other using collision detection"
 
-#define DOC_PYGAMEEXAMPLESTESTSPRITEMAIN "pygame.examples.testsprite.main(update_rects = True, use_static = False, use_FastRenderGroup = False, screen_dims = [640, 480], use_alpha = False, flags = 0): return None\nshow lots of sprites moving around"
+#define DOC_PYGAMEEXAMPLESTESTSPRITEMAIN "testsprite.main(update_rects = True, use_static = False, use_FastRenderGroup = False, screen_dims = [640, 480], use_alpha = False, flags = 0) -> None\nshow lots of sprites moving around"
 
-#define DOC_PYGAMEEXAMPLESHEADLESSNOWINDOWSNEEDEDMAIN "pygame.examples.headless_no_windows_needed.main(fin, fout, w, h): return None\nwrite an image file that is smoothscaled copy of an input file"
+#define DOC_PYGAMEEXAMPLESHEADLESSNOWINDOWSNEEDEDMAIN "headless_no_windows_needed.main(fin, fout, w, h) -> None\nwrite an image file that is smoothscaled copy of an input file"
 
-#define DOC_PYGAMEEXAMPLESFASTEVENTSMAIN "pygame.examples.fastevents.main(): return None\nstress test the fastevents module"
+#define DOC_PYGAMEEXAMPLESFASTEVENTSMAIN "fastevents.main() -> None\nstress test the fastevents module"
 
-#define DOC_PYGAMEEXAMPLESOVERLAYMAIN "pygame.examples.overlay.main(fname): return None\nplay a .pgm video using overlays"
+#define DOC_PYGAMEEXAMPLESOVERLAYMAIN "overlay.main(fname) -> None\nplay a .pgm video using overlays"
 
-#define DOC_PYGAMEEXAMPLESBLENDFILLMAIN "pygame.examples.blend_fill.main(): return None\ndemonstrate the various surface.fill method blend options"
+#define DOC_PYGAMEEXAMPLESBLENDFILLMAIN "blend_fill.main() -> None\ndemonstrate the various surface.fill method blend options"
 
-#define DOC_PYGAMEEXAMPLESBLITBLENDSMAIN "pygame.examples.blit_blends.main(): return None\nuses alternative additive fill to that of surface.fill"
+#define DOC_PYGAMEEXAMPLESBLITBLENDSMAIN "blit_blends.main() -> None\nuses alternative additive fill to that of surface.fill"
 
-#define DOC_PYGAMEEXAMPLESCURSORSMAIN "pygame.examples.cursors.main(): return None\ndisplay two different custom cursors"
+#define DOC_PYGAMEEXAMPLESCURSORSMAIN "cursors.main() -> None\ndisplay two different custom cursors"
 
-#define DOC_PYGAMEEXAMPLESPIXELARRAYMAIN "pygame.examples.pixelarray.main(): return None\ndisplay various pixelarray generated effects"
+#define DOC_PYGAMEEXAMPLESPIXELARRAYMAIN "pixelarray.main() -> None\ndisplay various pixelarray generated effects"
 
-#define DOC_PYGAMEEXAMPLESSCALETESTMAIN "pygame.examples.scaletest.main(imagefile, convert_alpha=False, run_speed_test=True): return None\ninteractively scale an image using smoothscale"
+#define DOC_PYGAMEEXAMPLESSCALETESTMAIN "scaletest.main(imagefile, convert_alpha=False, run_speed_test=True) -> None\ninteractively scale an image using smoothscale"
 
-#define DOC_PYGAMEEXAMPLESMIDIMAIN "pygame.examples.midi.main(mode='output', device_id=None): return None\nrun a midi example"
+#define DOC_PYGAMEEXAMPLESMIDIMAIN "midi.main(mode='output', device_id=None) -> None\nrun a midi example"
 
-#define DOC_PYGAMEEXAMPLESSCROLLMAIN "pygame.examples.scroll.main(image_file=None): return None\nrun a Surface.scroll example that shows a magnified image"
+#define DOC_PYGAMEEXAMPLESSCROLLMAIN "scroll.main(image_file=None) -> None\nrun a Surface.scroll example that shows a magnified image"
 
-#define DOC_PYGAMEEXAMPLESMOVIEPLAYERMAIN "pygame.examples.movieplayer.main(filepath): return None\nplay an MPEG movie"
+#define DOC_PYGAMEEXAMPLESMOVIEPLAYERMAIN "movieplayer.main(filepath) -> None\nplay an MPEG movie"
 
-#define DOC_PYGAMEEXAMPLESCAMERAMAIN "pygame.examples.camera.main(): return None\ndisplay video captured live from an attached camera"
+#define DOC_PYGAMEEXAMPLESCAMERAMAIN "camera.main() -> None\ndisplay video captured live from an attached camera"
 
 
 
-/* Docs in a comments... slightly easier to read. */
-
+/* Docs in a comment... slightly easier to read. */
 
 /*
 
 pygame.examples
- module of example programs
-
-
+module of example programs
 
 pygame.examples.aliens.main
- pygame.examples.aliens.main(): return None
+ aliens.main() -> None
 play the full aliens example
 
-
-
 pygame.examples.oldalien.main
- pygame.examples.oldalien.main(): return None
+ oldalien.main() -> None
 play the original aliens example
 
-
-
 pygame.examples.stars.main
- pygame.examples.stars.main(): return None
+ stars.main() -> None
 run a simple starfield example
 
-
-
 pygame.examples.chimp.main
- pygame.examples.chimp.main(): return None
+ chimp.main() -> None
 hit the moving chimp
 
-
-
 pygame.examples.moveit.main
- pygame.examples.moveit.main(): return None
+ moveit.main() -> None
 display animated objects on the screen
 
-
-
 pygame.examples.fonty.main
- pygame.examples.fonty.main(): return None
+ fonty.main() -> None
 run a font rendering example
 
-
-
 pygame.examples.vgrade.main
- pygame.examples.vgrade.main(): return None
+ vgrade.main() -> None
 display a vertical gradient
 
-
-
 pygame.examples.eventlist.main
- pygame.examples.eventlist.main(): return None
+ eventlist.main() -> None
 display pygame events
 
-
-
 pygame.examples.arraydemo.main
- pygame.examples.arraydemo.main(arraytype=None): return None
+ arraydemo.main(arraytype=None) -> None
 show various surfarray effects
 
-
-
 pygame.examples.sound.main
- pygame.examples.sound.main(file_path=None): return None
+ sound.main(file_path=None) -> None
 load and play a sound
 
-
-
 pygame.examples.sound_array_demos.main
- pygame.examples.sound_array_demos.main(arraytype=None): return None
+ sound_array_demos.main(arraytype=None) -> None
 play various sndarray effects
 
-
-
 pygame.examples.liquid.main
- pygame.examples.liquid.main(): return None
+ liquid.main() -> None
 display an animated liquid effect
 
-
-
 pygame.examples.glcube.main
- pygame.examples.glcube.main(): return None
+ glcube.main() -> None
 display an animated 3D cube using OpenGL
 
-
-
 pygame.examples.scrap_clipboard.main
- pygame.examples.scrap_clipboard.main(): return None
+ scrap_clipboard.main() -> None
 access the clipboard
 
-
-
 pygame.examples.mask.main
- pygame.examples.mask.main(*args): return None
+ mask.main(*args) -> None
 display multiple images bounce off each other using collision detection
 
-
-
 pygame.examples.testsprite.main
- pygame.examples.testsprite.main(update_rects = True, use_static = False, use_FastRenderGroup = False, screen_dims = [640, 480], use_alpha = False, flags = 0): return None
+ testsprite.main(update_rects = True, use_static = False, use_FastRenderGroup = False, screen_dims = [640, 480], use_alpha = False, flags = 0) -> None
 show lots of sprites moving around
 
-
-
 pygame.examples.headless_no_windows_needed.main
- pygame.examples.headless_no_windows_needed.main(fin, fout, w, h): return None
+ headless_no_windows_needed.main(fin, fout, w, h) -> None
 write an image file that is smoothscaled copy of an input file
 
-
-
 pygame.examples.fastevents.main
- pygame.examples.fastevents.main(): return None
+ fastevents.main() -> None
 stress test the fastevents module
 
-
-
 pygame.examples.overlay.main
- pygame.examples.overlay.main(fname): return None
+ overlay.main(fname) -> None
 play a .pgm video using overlays
 
-
-
 pygame.examples.blend_fill.main
- pygame.examples.blend_fill.main(): return None
+ blend_fill.main() -> None
 demonstrate the various surface.fill method blend options
 
-
-
 pygame.examples.blit_blends.main
- pygame.examples.blit_blends.main(): return None
+ blit_blends.main() -> None
 uses alternative additive fill to that of surface.fill
 
-
-
 pygame.examples.cursors.main
- pygame.examples.cursors.main(): return None
+ cursors.main() -> None
 display two different custom cursors
 
-
-
 pygame.examples.pixelarray.main
- pygame.examples.pixelarray.main(): return None
+ pixelarray.main() -> None
 display various pixelarray generated effects
 
-
-
 pygame.examples.scaletest.main
- pygame.examples.scaletest.main(imagefile, convert_alpha=False, run_speed_test=True): return None
+ scaletest.main(imagefile, convert_alpha=False, run_speed_test=True) -> None
 interactively scale an image using smoothscale
 
-
-
 pygame.examples.midi.main
- pygame.examples.midi.main(mode='output', device_id=None): return None
+ midi.main(mode='output', device_id=None) -> None
 run a midi example
 
-
-
 pygame.examples.scroll.main
- pygame.examples.scroll.main(image_file=None): return None
+ scroll.main(image_file=None) -> None
 run a Surface.scroll example that shows a magnified image
 
-
-
 pygame.examples.movieplayer.main
- pygame.examples.movieplayer.main(filepath): return None
+ movieplayer.main(filepath) -> None
 play an MPEG movie
 
-
-
 pygame.examples.camera.main
- pygame.examples.camera.main(): return None
+ camera.main() -> None
 display video captured live from an attached camera
 
-
-
 */
-

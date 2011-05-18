@@ -1,312 +1,517 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-<html>
-<title>mask - Pygame Documentation</title>
-<body bgcolor=#aaeebb text=#000000 link=#331111 vlink=#331111>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pygame.mask &mdash; Pygame v1.9.2 documentation</title>
+    <link rel="stylesheet" href="../_static/pygame.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.9.2',
+        COLLAPSE_MODINDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/pygame.ico"/>
+    <link rel="top" title="Pygame v1.9.2 documentation" href="../index.html" />
+    <link rel="next" title="pygame.math" href="math.html" />
+    <link rel="prev" title="pygame.locals" href="locals.html" /> 
+  </head>
+  <body>  
 
+    <div class="document">
 
-<table cellpadding=0 cellspacing=0 border=0 style='border: 3px solid black;' width='100%'>
-<tr>
-<td bgcolor='#c2fc20' style='padding: 6px;' align=center valign=center><a href='http://www.pygame.org/'><img src='../pygame_tiny.gif' border=0 width=200 height=60></a><br><b>pygame documentation</b></td>
-<td bgcolor='#6aee28' style='border-left: 3px solid black; padding: 6px;' align=center valign=center>
-	||&nbsp;
-	<a href=http://www.pygame.org>Pygame Home</a> &nbsp;||&nbsp;
-	<a href=../index.html>Help Contents</a> &nbsp;||
-	<a href=index.html>Reference Index</a> &nbsp;||
-	<br>&nbsp;<br>
-	
-<a href="camera.html">Camera</a>&nbsp;||&nbsp;
-<a href="cdrom.html">Cdrom</a>&nbsp;||&nbsp;
-<a href="color.html">Color</a>&nbsp;||&nbsp;
-<a href="cursors.html">Cursors</a>&nbsp;||&nbsp;
-<a href="display.html">Display</a>&nbsp;||&nbsp;
-<a href="draw.html">Draw</a>&nbsp;||&nbsp;
-<a href="event.html">Event</a>&nbsp;||&nbsp;
-<a href="examples.html">Examples</a>&nbsp;||&nbsp;
-<a href="font.html">Font</a>&nbsp;||&nbsp;
-<a href="freetype.html">Freetype</a>&nbsp;||&nbsp;
-<a href="gfxdraw.html">Gfxdraw</a>&nbsp;||&nbsp;
-<a href="image.html">Image</a>&nbsp;||&nbsp;
-<a href="joystick.html">Joystick</a>&nbsp;||&nbsp;
-<a href="key.html">Key</a>&nbsp;||&nbsp;
-<a href="locals.html">Locals</a>&nbsp;||&nbsp;
-<a href="mask.html">Mask</a>&nbsp;||&nbsp;
-<a href="math.html">Math</a>&nbsp;||&nbsp;
-<a href="midi.html">Midi</a>&nbsp;||&nbsp;
-<a href="mixer.html">Mixer</a>&nbsp;||&nbsp;
-<a href="mouse.html">Mouse</a>&nbsp;||&nbsp;
-<a href="movie.html">Movie</a>&nbsp;||&nbsp;
-<a href="music.html">Music</a>&nbsp;||&nbsp;
-<a href="overlay.html">Overlay</a>&nbsp;||&nbsp;
-<a href="pixelarray.html">Pixelarray</a>&nbsp;||&nbsp;
-<a href="pixelcopy.html">Pixelcopy</a>&nbsp;||&nbsp;
-<a href="pygame.html">Pygame</a>&nbsp;||&nbsp;
-<a href="rect.html">Rect</a>&nbsp;||&nbsp;
-<a href="scrap.html">Scrap</a>&nbsp;||&nbsp;
-<a href="sndarray.html">Sndarray</a>&nbsp;||&nbsp;
-<a href="sprite.html">Sprite</a>&nbsp;||&nbsp;
-<a href="surface.html">Surface</a>&nbsp;||&nbsp;
-<a href="surfarray.html">Surfarray</a>&nbsp;||&nbsp;
-<a href="tests.html">Tests</a>&nbsp;||&nbsp;
-<a href="time.html">Time</a>&nbsp;||&nbsp;
-<a href="transform.html">Transform</a>
-</td></tr></table>
-<br>
+  <div class="header">
+    <table>
+      <tr>
+	<td class="logo">
+	  <a href="http://www.pygame.org/">
+	    <img src="../_static/pygame_tiny.png"/>
+	  </a>
+	  <h5>pygame documentation</h5>
+	</td>
+	<td class="pagelinks">
+	  <p class="top">
+	    ||
+	    <a href="http://www.pygame.org/">Pygame Home</a> ||
+	    <a href="../index.html">Help Contents</a> ||
+	    <a href="../genindex.html">Reference Index</a> ||
+	  </p>
+	  <p class="bottom">
+	    <a href="camera.html">camera</a> || 
+	    <a href="cdrom.html">cdrom</a> || 
+	    <a href="color.html">Color</a> || 
+	    <a href="cursors.html">cursors</a> || 
+	    <a href="display.html">display</a> || 
+	    <a href="draw.html">draw</a> || 
+	    <a href="event.html">event</a> || 
+	    <a href="examples.html">examples</a> || 
+	    <a href="font.html">font</a> || 
+	    <a href="gfxdraw.html">gfxdraw</a> || 
+	    <a href="image.html">image</a> || 
+	    <a href="joystick.html">joystick</a> || 
+	    <a href="key.html">key</a> || 
+	    <a href="locals.html">locals</a> || 
+	    <a href="mask.html">mask</a> || 
+	    <a href="math.html">math</a> || 
+	    <a href="midi.html">midi</a> || 
+	    <a href="mixer.html">mixer</a> || 
+	    <a href="mouse.html">mouse</a> || 
+	    <a href="movie.html">movie</a> || 
+	    <a href="music.html">music</a> || 
+	    <a href="overlay.html">Overlay</a> || 
+	    <a href="pixelarray.html">PixelArray</a> || 
+	    <a href="pixelcopy.html">pixelcopy</a> || 
+	    <a href="pygame.html">pygame</a> || 
+	    <a href="rect.html">Rect</a> || 
+	    <a href="scrap.html">scrap</a> || 
+	    <a href="sndarray.html">sndarray</a> || 
+	    <a href="sprite.html">sprite</a> || 
+	    <a href="surface.html">Surface</a> || 
+	    <a href="surfarray.html">surfarray</a> || 
+	    <a href="tests.html">tests</a> || 
+	    <a href="time.html">time</a> || 
+	    <a href="transform.html">transform</a> || 
+	    <a href="pygame.html#module-pygame.version">version</a>
+	  </p>
+	</td>
+      </tr>
+    </table>
+  </div>
 
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <div class="sectionwrapper">
+<div class="section" id="module-pygame.mask">
+<dl class="definition module">
+<dt class="title module">
+<tt class="docutils literal"><span class="pre">pygame.mask</span></tt></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">pygame module for image masks.</span></div>
+</div>
+<table border="1" class="toc docutils">
+<colgroup>
+<col width="35%" />
+<col width="1%" />
+<col width="64%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="toc reference external" href="mask.html#pygame.mask.from_surface">pygame.mask.from_surface</a></td>
+<td>—</td>
+<td>Returns a Mask from the given surface.</td>
+</tr>
+<tr><td><a class="toc reference external" href="mask.html#pygame.mask.from_threshold">pygame.mask.from_threshold</a></td>
+<td>—</td>
+<td>Creates a mask by thresholding Surfaces</td>
+</tr>
+<tr><td><a class="toc reference external" href="mask.html#pygame.mask.Mask">pygame.mask.Mask</a></td>
+<td>—</td>
+<td>pygame object for representing 2d bitmasks</td>
+</tr>
+</tbody>
+</table>
+<p>Useful for fast pixel perfect collision detection. A Mask uses 1bit per pixel
+to store which parts collide.</p>
+<p>New in pygame 1.8.</p>
+<dl class="definition function">
+<dt class="title" id="pygame.mask.from_surface">
+<tt class="descclassname">pygame.mask.</tt><tt class="descname">from_surface</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.mask.from_surface" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Returns a Mask from the given surface.</span></div>
+<div class="line"><span class="signature">from_surface(Surface, threshold = 127) -&gt; Mask</span></div>
+</div>
+<p>Makes the transparent parts of the Surface not set, and the opaque parts
+set.</p>
+<p>The alpha of each pixel is checked to see if it is greater than the given
+threshold.</p>
+<p>If the Surface is color keyed, then threshold is not used.</p>
+</dd></dl>
 
-<a name="pygame.mask">
-<big><b>pygame.mask</big></b><br><ul>
-  <i>pygame module for image masks.</i><br>
-<ul><small><table>
-  <tr><td><a href="mask.html#pygame.mask.from_surface">pygame.mask.from_surface</a></td><td> &mdash; Returns a Mask from the given surface.</td></tr>
-  <tr><td><a href="mask.html#pygame.mask.from_threshold">pygame.mask.from_threshold</a></td><td> &mdash; Creates a mask by thresholding Surfaces</td></tr>
-  <tr><td><a href="mask.html#pygame.mask.Mask">pygame.mask.Mask</a></td><td> &mdash; pygame object for representing 2d bitmasks</td></tr>
-</table></small></ul>
-<p>Useful for fast pixel perfect collision detection. A Mask uses 1bit per pixel to store which parts collide. </p>
-<p>New in pygame 1.8. </p>
-<!--COMMENTS:pygame.mask--> &nbsp;<br> 
+<dl class="definition function">
+<dt class="title" id="pygame.mask.from_threshold">
+<tt class="descclassname">pygame.mask.</tt><tt class="descname">from_threshold</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.mask.from_threshold" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Creates a mask by thresholding Surfaces</span></div>
+<div class="line"><span class="signature">from_threshold(Surface, color, threshold = (0,0,0,255), othersurface = None, palette_colors = 1) -&gt; Mask</span></div>
+</div>
+<p>This is a more featureful method of getting a Mask from a Surface. If
+supplied with only one Surface, all pixels within the threshold of the
+supplied color are set in the Mask. If given the optional othersurface, all
+pixels in Surface that are within the threshold of the corresponding pixel
+in othersurface are set in the Mask.</p>
+</dd></dl>
 
+<dl class="definition class">
+<dt class="title" id="pygame.mask.Mask">
+<em class="property">class </em><tt class="descclassname">pygame.mask.</tt><tt class="descname">Mask</tt><a class="headerlink" href="#pygame.mask.Mask" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">pygame object for representing 2d bitmasks</span></div>
+<div class="line"><span class="signature">Mask((width, height)) -&gt; Mask</span></div>
+</div>
+<table border="1" class="toc docutils">
+<colgroup>
+<col width="24%" />
+<col width="1%" />
+<col width="75%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="toc reference external" href="mask.html#pygame.mask.Mask.get_size">pygame.mask.Mask.get_size</a></td>
+<td>—</td>
+<td>Returns the size of the mask.</td>
+</tr>
+<tr><td><a class="toc reference external" href="mask.html#pygame.mask.Mask.get_at">pygame.mask.Mask.get_at</a></td>
+<td>—</td>
+<td>Returns nonzero if the bit at (x,y) is set.</td>
+</tr>
+<tr><td><a class="toc reference external" href="mask.html#pygame.mask.Mask.set_at">pygame.mask.Mask.set_at</a></td>
+<td>—</td>
+<td>Sets the position in the mask given by x and y.</td>
+</tr>
+<tr><td><a class="toc reference external" href="mask.html#pygame.mask.Mask.overlap">pygame.mask.Mask.overlap</a></td>
+<td>—</td>
+<td>Returns the point of intersection if the masks overlap with the given offset - or None if it does not overlap.</td>
+</tr>
+<tr><td><a class="toc reference external" href="mask.html#pygame.mask.Mask.overlap_area">pygame.mask.Mask.overlap_area</a></td>
+<td>—</td>
+<td>Returns the number of overlapping &#8216;pixels&#8217;.</td>
+</tr>
+<tr><td><a class="toc reference external" href="mask.html#pygame.mask.Mask.overlap_mask">pygame.mask.Mask.overlap_mask</a></td>
+<td>—</td>
+<td>Returns a mask of the overlapping pixels</td>
+</tr>
+<tr><td><a class="toc reference external" href="mask.html#pygame.mask.Mask.fill">pygame.mask.Mask.fill</a></td>
+<td>—</td>
+<td>Sets all bits to 1</td>
+</tr>
+<tr><td><a class="toc reference external" href="mask.html#pygame.mask.Mask.clear">pygame.mask.Mask.clear</a></td>
+<td>—</td>
+<td>Sets all bits to 0</td>
+</tr>
+<tr><td><a class="toc reference external" href="mask.html#pygame.mask.Mask.invert">pygame.mask.Mask.invert</a></td>
+<td>—</td>
+<td>Flips the bits in a Mask</td>
+</tr>
+<tr><td><a class="toc reference external" href="mask.html#pygame.mask.Mask.scale">pygame.mask.Mask.scale</a></td>
+<td>—</td>
+<td>Resizes a mask</td>
+</tr>
+<tr><td><a class="toc reference external" href="mask.html#pygame.mask.Mask.draw">pygame.mask.Mask.draw</a></td>
+<td>—</td>
+<td>Draws a mask onto another</td>
+</tr>
+<tr><td><a class="toc reference external" href="mask.html#pygame.mask.Mask.erase">pygame.mask.Mask.erase</a></td>
+<td>—</td>
+<td>Erases a mask from another</td>
+</tr>
+<tr><td><a class="toc reference external" href="mask.html#pygame.mask.Mask.count">pygame.mask.Mask.count</a></td>
+<td>—</td>
+<td>Returns the number of set pixels</td>
+</tr>
+<tr><td><a class="toc reference external" href="mask.html#pygame.mask.Mask.centroid">pygame.mask.Mask.centroid</a></td>
+<td>—</td>
+<td>Returns the centroid of the pixels in a Mask</td>
+</tr>
+<tr><td><a class="toc reference external" href="mask.html#pygame.mask.Mask.angle">pygame.mask.Mask.angle</a></td>
+<td>—</td>
+<td>Returns the orientation of the pixels</td>
+</tr>
+<tr><td><a class="toc reference external" href="mask.html#pygame.mask.Mask.outline">pygame.mask.Mask.outline</a></td>
+<td>—</td>
+<td>list of points outlining an object</td>
+</tr>
+<tr><td><a class="toc reference external" href="mask.html#pygame.mask.Mask.convolve">pygame.mask.Mask.convolve</a></td>
+<td>—</td>
+<td>Return the convolution of self with another mask.</td>
+</tr>
+<tr><td><a class="toc reference external" href="mask.html#pygame.mask.Mask.connected_component">pygame.mask.Mask.connected_component</a></td>
+<td>—</td>
+<td>Returns a mask of a connected region of pixels.</td>
+</tr>
+<tr><td><a class="toc reference external" href="mask.html#pygame.mask.Mask.connected_components">pygame.mask.Mask.connected_components</a></td>
+<td>—</td>
+<td>Returns a list of masks of connected regions of pixels.</td>
+</tr>
+<tr><td><a class="toc reference external" href="mask.html#pygame.mask.Mask.get_bounding_rects">pygame.mask.Mask.get_bounding_rects</a></td>
+<td>—</td>
+<td>Returns a list of bounding rects of regions of set pixels.</td>
+</tr>
+</tbody>
+</table>
+<dl class="definition method">
+<dt class="title" id="pygame.mask.Mask.get_size">
+<tt class="descname">get_size</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.mask.Mask.get_size" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Returns the size of the mask.</span></div>
+<div class="line"><span class="signature">get_size() -&gt; width,height</span></div>
+</div>
+</dd></dl>
 
-<a name="pygame.mask.from_surface">
-<big><b>pygame.mask.from_surface</big></b><br><ul>
-  <i>Returns a Mask from the given surface.</i><br>
-  <tt>pygame.mask.from_surface(Surface, threshold = 127) -> Mask</tt><br>
-<p>Makes the transparent parts of the Surface not set, and the opaque parts set. </p>
-<p>The alpha of each pixel is checked to see if it is greater than the given threshold. </p>
-<p>If the Surface is color keyed, then threshold is not used. </p>
-<!--COMMENTS:pygame.mask.from_surface--> &nbsp;<br> 
-<br></ul>
+<dl class="definition method">
+<dt class="title" id="pygame.mask.Mask.get_at">
+<tt class="descname">get_at</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.mask.Mask.get_at" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Returns nonzero if the bit at (x,y) is set.</span></div>
+<div class="line"><span class="signature">get_at((x,y)) -&gt; int</span></div>
+</div>
+<p>Coordinates start at (0,0) is top left - just like Surfaces.</p>
+</dd></dl>
 
+<dl class="definition method">
+<dt class="title" id="pygame.mask.Mask.set_at">
+<tt class="descname">set_at</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.mask.Mask.set_at" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Sets the position in the mask given by x and y.</span></div>
+<div class="line"><span class="signature">set_at((x,y),value) -&gt; None</span></div>
+</div>
+</dd></dl>
 
-<a name="pygame.mask.from_threshold">
-<big><b>pygame.mask.from_threshold</big></b><br><ul>
-  <i>Creates a mask by thresholding Surfaces</i><br>
-  <tt>pygame.mask.from_threshold(Surface, color, threshold = (0,0,0,255), othersurface = None, palette_colors = 1) -> Mask</tt><br>
-<p>This is a more featureful method of getting a Mask from a Surface. If supplied with only one Surface, all pixels within the threshold of the supplied color are set in the Mask. If given the optional othersurface, all pixels in Surface that are within the threshold of the corresponding pixel in othersurface are set in the Mask. </p>
-<!--COMMENTS:pygame.mask.from_threshold--> &nbsp;<br> 
-<br></ul>
+<dl class="definition method">
+<dt class="title" id="pygame.mask.Mask.overlap">
+<tt class="descname">overlap</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.mask.Mask.overlap" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Returns the point of intersection if the masks overlap with the given offset - or None if it does not overlap.</span></div>
+<div class="line"><span class="signature">overlap(othermask, offset) -&gt; x,y</span></div>
+</div>
+<p>The overlap tests uses the following offsets (which may be negative):</p>
+<div class="highlight-python"><pre>+----+----------..
+|A   | yoffset
+|  +-+----------..
++--|B
+|xoffset
+|  |
+:  :</pre>
+</div>
+</dd></dl>
 
+<dl class="definition method">
+<dt class="title" id="pygame.mask.Mask.overlap_area">
+<tt class="descname">overlap_area</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.mask.Mask.overlap_area" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Returns the number of overlapping &#8216;pixels&#8217;.</span></div>
+<div class="line"><span class="signature">overlap_area(othermask, offset) -&gt; numpixels</span></div>
+</div>
+<p>You can see how many pixels overlap with the other mask given. This can
+be used to see in which direction things collide, or to see how much the
+two masks collide. An approximate collision normal can be found by
+calculating the gradient of the overlap area through the finite
+difference.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">dx</span> <span class="o">=</span> <span class="n">Mask</span><span class="o">.</span><span class="n">overlap_area</span><span class="p">(</span><span class="n">othermask</span><span class="p">,(</span><span class="n">x</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">y</span><span class="p">))</span> <span class="o">-</span> <span class="n">Mask</span><span class="o">.</span><span class="n">overlap_area</span><span class="p">(</span><span class="n">othermask</span><span class="p">,(</span><span class="n">x</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">y</span><span class="p">))</span>
+<span class="n">dy</span> <span class="o">=</span> <span class="n">Mask</span><span class="o">.</span><span class="n">overlap_area</span><span class="p">(</span><span class="n">othermask</span><span class="p">,(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span> <span class="o">-</span> <span class="n">Mask</span><span class="o">.</span><span class="n">overlap_area</span><span class="p">(</span><span class="n">othermask</span><span class="p">,(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+</pre></div>
+</div>
+</dd></dl>
 
-<a name="pygame.mask.Mask">
-<big><b>pygame.mask.Mask</big></b><br><ul>
-  <i>pygame object for representing 2d bitmasks</i><br>
-  <tt>pygame.mask.Mask((width, height)): return Mask</tt><br>
-<ul><small><table>
-  <tr><td><a href="mask.html#Mask.get_size">Mask.get_size</a></td><td> &mdash; Returns the size of the mask.</td></tr>
-  <tr><td><a href="mask.html#Mask.get_at">Mask.get_at</a></td><td> &mdash; Returns nonzero if the bit at (x,y) is set.</td></tr>
-  <tr><td><a href="mask.html#Mask.set_at">Mask.set_at</a></td><td> &mdash; Sets the position in the mask given by x and y.</td></tr>
-  <tr><td><a href="mask.html#Mask.overlap">Mask.overlap</a></td><td> &mdash; Returns the point of intersection if the masks overlap with the given offset - or None if it does not overlap.</td></tr>
-  <tr><td><a href="mask.html#Mask.overlap_area">Mask.overlap_area</a></td><td> &mdash; Returns the number of overlapping 'pixels'.</td></tr>
-  <tr><td><a href="mask.html#Mask.overlap_mask">Mask.overlap_mask</a></td><td> &mdash; Returns a mask of the overlapping pixels</td></tr>
-  <tr><td><a href="mask.html#Mask.fill">Mask.fill</a></td><td> &mdash; Sets all bits to 1</td></tr>
-  <tr><td><a href="mask.html#Mask.clear">Mask.clear</a></td><td> &mdash; Sets all bits to 0</td></tr>
-  <tr><td><a href="mask.html#Mask.invert">Mask.invert</a></td><td> &mdash; Flips the bits in a Mask</td></tr>
-  <tr><td><a href="mask.html#Mask.scale">Mask.scale</a></td><td> &mdash; Resizes a mask</td></tr>
-  <tr><td><a href="mask.html#Mask.draw">Mask.draw</a></td><td> &mdash; Draws a mask onto another</td></tr>
-  <tr><td><a href="mask.html#Mask.erase">Mask.erase</a></td><td> &mdash; Erases a mask from another</td></tr>
-  <tr><td><a href="mask.html#Mask.count">Mask.count</a></td><td> &mdash; Returns the number of set pixels</td></tr>
-  <tr><td><a href="mask.html#Mask.centroid">Mask.centroid</a></td><td> &mdash; Returns the centroid of the pixels in a Mask</td></tr>
-  <tr><td><a href="mask.html#Mask.angle">Mask.angle</a></td><td> &mdash; Returns the orientation of the pixels</td></tr>
-  <tr><td><a href="mask.html#Mask.outline">Mask.outline</a></td><td> &mdash; list of points outlining an object</td></tr>
-  <tr><td><a href="mask.html#Mask.convolve">Mask.convolve</a></td><td> &mdash; Return the convolution of self with another mask.</td></tr>
-  <tr><td><a href="mask.html#Mask.connected_component">Mask.connected_component</a></td><td> &mdash; Returns a mask of a connected region of pixels.</td></tr>
-  <tr><td><a href="mask.html#Mask.connected_components">Mask.connected_components</a></td><td> &mdash; Returns a list of masks of connected regions of pixels.</td></tr>
-  <tr><td><a href="mask.html#Mask.get_bounding_rects">Mask.get_bounding_rects</a></td><td> &mdash; Returns a list of bounding rects of regions of set pixels.</td></tr>
-</table></small></ul>
- &nbsp;<br> 
-<!--COMMENTS:pygame.mask.Mask--> &nbsp;<br> 
+<dl class="definition method">
+<dt class="title" id="pygame.mask.Mask.overlap_mask">
+<tt class="descname">overlap_mask</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.mask.Mask.overlap_mask" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Returns a mask of the overlapping pixels</span></div>
+<div class="line"><span class="signature">overlap_mask(othermask, offset) -&gt; Mask</span></div>
+</div>
+<p>Returns a Mask the size of the original Mask containing only the
+overlapping pixels between Mask and othermask.</p>
+</dd></dl>
 
+<dl class="definition method">
+<dt class="title" id="pygame.mask.Mask.fill">
+<tt class="descname">fill</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.mask.Mask.fill" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Sets all bits to 1</span></div>
+<div class="line"><span class="signature">fill() -&gt; None</span></div>
+</div>
+<p>Sets all bits in a Mask to 1.</p>
+</dd></dl>
 
-<a name="Mask.get_size">
-<big><b>Mask.get_size</big></b><br><ul>
-  <i>Returns the size of the mask.</i><br>
-  <tt>Mask.get_size() -> width,height</tt><br>
- &nbsp;<br> 
-<!--COMMENTS:Mask.get_size--> &nbsp;<br> 
-<br></ul>
+<dl class="definition method">
+<dt class="title" id="pygame.mask.Mask.clear">
+<tt class="descname">clear</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.mask.Mask.clear" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Sets all bits to 0</span></div>
+<div class="line"><span class="signature">clear() -&gt; None</span></div>
+</div>
+<p>Sets all bits in a Mask to 0.</p>
+</dd></dl>
 
+<dl class="definition method">
+<dt class="title" id="pygame.mask.Mask.invert">
+<tt class="descname">invert</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.mask.Mask.invert" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Flips the bits in a Mask</span></div>
+<div class="line"><span class="signature">invert() -&gt; None</span></div>
+</div>
+<p>Flips all of the bits in a Mask, so that the set pixels turn to unset
+pixels and the unset pixels turn to set pixels.</p>
+</dd></dl>
 
-<a name="Mask.get_at">
-<big><b>Mask.get_at</big></b><br><ul>
-  <i>Returns nonzero if the bit at (x,y) is set.</i><br>
-  <tt>Mask.get_at((x,y)) -> int</tt><br>
-<p>Coordinates start at (0,0) is top left - just like Surfaces. </p>
-<!--COMMENTS:Mask.get_at--> &nbsp;<br> 
-<br></ul>
+<dl class="definition method">
+<dt class="title" id="pygame.mask.Mask.scale">
+<tt class="descname">scale</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.mask.Mask.scale" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Resizes a mask</span></div>
+<div class="line"><span class="signature">scale((x, y)) -&gt; Mask</span></div>
+</div>
+<p>Returns a new Mask of the Mask scaled to the requested size.</p>
+</dd></dl>
 
+<dl class="definition method">
+<dt class="title" id="pygame.mask.Mask.draw">
+<tt class="descname">draw</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.mask.Mask.draw" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Draws a mask onto another</span></div>
+<div class="line"><span class="signature">draw(othermask, offset) -&gt; None</span></div>
+</div>
+<p>Performs a bitwise <tt class="docutils literal"><span class="pre">OR</span></tt>, drawing othermask onto Mask.</p>
+</dd></dl>
 
-<a name="Mask.set_at">
-<big><b>Mask.set_at</big></b><br><ul>
-  <i>Sets the position in the mask given by x and y.</i><br>
-  <tt>Mask.set_at((x,y),value)</tt><br>
- &nbsp;<br> 
-<!--COMMENTS:Mask.set_at--> &nbsp;<br> 
-<br></ul>
+<dl class="definition method">
+<dt class="title" id="pygame.mask.Mask.erase">
+<tt class="descname">erase</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.mask.Mask.erase" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Erases a mask from another</span></div>
+<div class="line"><span class="signature">erase(othermask, offset) -&gt; None</span></div>
+</div>
+<p>Erases all pixels set in othermask from Mask.</p>
+</dd></dl>
 
+<dl class="definition method">
+<dt class="title" id="pygame.mask.Mask.count">
+<tt class="descname">count</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.mask.Mask.count" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Returns the number of set pixels</span></div>
+<div class="line"><span class="signature">count() -&gt; pixels</span></div>
+</div>
+<p>Returns the number of set pixels in the Mask.</p>
+</dd></dl>
 
-<a name="Mask.overlap">
-<big><b>Mask.overlap</big></b><br><ul>
-  <i>Returns the point of intersection if the masks overlap with the given offset - or None if it does not overlap.</i><br>
-  <tt>Mask.overlap(othermask, offset) -> x,y</tt><br>
-<p>The overlap tests uses the following offsets (which may be negative): </p>
-<pre>   +----+----------..
-   |A   | yoffset
-   |  +-+----------..
-   +--|B
-   |xoffset
-   |  |
-   :  :
-</pre>
-<!--COMMENTS:Mask.overlap--> &nbsp;<br> 
-<br></ul>
+<dl class="definition method">
+<dt class="title" id="pygame.mask.Mask.centroid">
+<tt class="descname">centroid</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.mask.Mask.centroid" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Returns the centroid of the pixels in a Mask</span></div>
+<div class="line"><span class="signature">centroid() -&gt; (x, y)</span></div>
+</div>
+<p>Finds the centroid, the center of pixel mass, of a Mask. Returns a
+coordinate tuple for the centroid of the Mask. In the event the Mask is
+empty, it will return (0,0).</p>
+</dd></dl>
 
+<dl class="definition method">
+<dt class="title" id="pygame.mask.Mask.angle">
+<tt class="descname">angle</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.mask.Mask.angle" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Returns the orientation of the pixels</span></div>
+<div class="line"><span class="signature">angle() -&gt; theta</span></div>
+</div>
+<p>Finds the approximate orientation of the pixels in the image from -90 to
+90 degrees. This works best if performed on one connected component of
+pixels. It will return 0.0 on an empty Mask.</p>
+</dd></dl>
 
-<a name="Mask.overlap_area">
-<big><b>Mask.overlap_area</big></b><br><ul>
-  <i>Returns the number of overlapping 'pixels'.</i><br>
-  <tt>Mask.overlap_area(othermask, offset) -> numpixels</tt><br>
-<p>You can see how many pixels overlap with the other mask given. This can be used to see in which direction things collide, or to see how much the two masks collide. An approximate collision normal can be found by calculating the gradient of the overlap area through the finite difference. </p>
-<pre> dx = Mask.overlap_area(othermask,(x+1,y)) - Mask.overlap_area(othermask,(x-1,y))
- dy = Mask.overlap_area(othermask,(x,y+1)) - Mask.overlap_area(othermask,(x,y-1))
-</pre>
-<!--COMMENTS:Mask.overlap_area--> &nbsp;<br> 
-<br></ul>
+<dl class="definition method">
+<dt class="title" id="pygame.mask.Mask.outline">
+<tt class="descname">outline</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.mask.Mask.outline" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">list of points outlining an object</span></div>
+<div class="line"><span class="signature">outline(every = 1) -&gt; [(x,y), (x,y) ...]</span></div>
+</div>
+<p>Returns a list of points of the outline of the first object it comes
+across in a Mask. For this to be useful, there should probably only be
+one connected component of pixels in the Mask. The every option allows
+you to skip pixels in the outline. For example, setting it to 10 would
+return a list of every 10th pixel in the outline.</p>
+</dd></dl>
 
+<dl class="definition method">
+<dt class="title" id="pygame.mask.Mask.convolve">
+<tt class="descname">convolve</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.mask.Mask.convolve" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Return the convolution of self with another mask.</span></div>
+<div class="line"><span class="signature">convolve(othermask, outputmask = None, offset = (0,0)) -&gt; Mask</span></div>
+</div>
+<p>Returns a mask with the (i-offset[0],j-offset[1]) bit set if shifting
+othermask so that it&#8217;s lower right corner pixel is at (i,j) would cause
+it to overlap with self.</p>
+<p>If an outputmask is specified, the output is drawn onto outputmask and
+outputmask is returned. Otherwise a mask of size <tt class="docutils literal"><span class="pre">self.get_size()</span></tt> +
+<tt class="docutils literal"><span class="pre">othermask.get_size()</span></tt> - (1,1) is created.</p>
+</dd></dl>
 
-<a name="Mask.overlap_mask">
-<big><b>Mask.overlap_mask</big></b><br><ul>
-  <i>Returns a mask of the overlapping pixels</i><br>
-  <tt>Mask.overlap_mask(othermask, offset) -> Mask</tt><br>
-<p>Returns a Mask the size of the original Mask containing only the overlapping pixels between Mask and othermask. </p>
-<!--COMMENTS:Mask.overlap_mask--> &nbsp;<br> 
-<br></ul>
+<dl class="definition method">
+<dt class="title" id="pygame.mask.Mask.connected_component">
+<tt class="descname">connected_component</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.mask.Mask.connected_component" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Returns a mask of a connected region of pixels.</span></div>
+<div class="line"><span class="signature">connected_component((x,y) = None) -&gt; Mask</span></div>
+</div>
+<p>This uses the <tt class="docutils literal"><span class="pre">SAUF</span></tt> algorithm to find a connected component in the
+Mask. It checks 8 point connectivity. By default, it will return the
+largest connected component in the image. Optionally, a coordinate pair
+of a pixel can be specified, and the connected component containing it
+will be returned. In the event the pixel at that location is not set, the
+returned Mask will be empty. The Mask returned is the same size as the
+original Mask.</p>
+</dd></dl>
 
+<dl class="definition method">
+<dt class="title" id="pygame.mask.Mask.connected_components">
+<tt class="descname">connected_components</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.mask.Mask.connected_components" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Returns a list of masks of connected regions of pixels.</span></div>
+<div class="line"><span class="signature">connected_components(min = 0) -&gt; [Masks]</span></div>
+</div>
+<p>Returns a list of masks of connected regions of pixels. An optional
+minimum number of pixels per connected region can be specified to filter
+out noise.</p>
+</dd></dl>
 
-<a name="Mask.fill">
-<big><b>Mask.fill</big></b><br><ul>
-  <i>Sets all bits to 1</i><br>
-  <tt>Mask.fill()</tt><br>
-<p>Sets all bits in a Mask to 1. </p>
-<!--COMMENTS:Mask.fill--> &nbsp;<br> 
-<br></ul>
+<dl class="definition method">
+<dt class="title" id="pygame.mask.Mask.get_bounding_rects">
+<tt class="descname">get_bounding_rects</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.mask.Mask.get_bounding_rects" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Returns a list of bounding rects of regions of set pixels.</span></div>
+<div class="line"><span class="signature">get_bounding_rects() -&gt; Rects</span></div>
+</div>
+<p>This gets a bounding rect of connected regions of set pixels. A bounding
+rect is one for which each of the connected pixels is inside the rect.</p>
+</dd></dl>
 
+</dd></dl>
 
-<a name="Mask.clear">
-<big><b>Mask.clear</big></b><br><ul>
-  <i>Sets all bits to 0</i><br>
-  <tt>Mask.clear()</tt><br>
-<p>Sets all bits in a Mask to 0. </p>
-<!--COMMENTS:Mask.clear--> &nbsp;<br> 
-<br></ul>
+</dd></dl>
 
+</div>
 
-<a name="Mask.invert">
-<big><b>Mask.invert</big></b><br><ul>
-  <i>Flips the bits in a Mask</i><br>
-  <tt>Mask.invert()</tt><br>
-<p>Flips all of the bits in a Mask, so that the set pixels turn to unset pixels and the unset pixels turn to set pixels. </p>
-<!--COMMENTS:Mask.invert--> &nbsp;<br> 
-<br></ul>
-
-
-<a name="Mask.scale">
-<big><b>Mask.scale</big></b><br><ul>
-  <i>Resizes a mask</i><br>
-  <tt>Mask.scale((x, y)) -> Mask</tt><br>
-<p>Returns a new Mask of the Mask scaled to the requested size. </p>
-<!--COMMENTS:Mask.scale--> &nbsp;<br> 
-<br></ul>
-
-
-<a name="Mask.draw">
-<big><b>Mask.draw</big></b><br><ul>
-  <i>Draws a mask onto another</i><br>
-  <tt>Mask.draw(othermask, offset)</tt><br>
-<p>Performs a bitwise OR, drawing othermask onto Mask. </p>
-<!--COMMENTS:Mask.draw--> &nbsp;<br> 
-<br></ul>
-
-
-<a name="Mask.erase">
-<big><b>Mask.erase</big></b><br><ul>
-  <i>Erases a mask from another</i><br>
-  <tt>Mask.erase(othermask, offset)</tt><br>
-<p>Erases all pixels set in othermask from Mask. </p>
-<!--COMMENTS:Mask.erase--> &nbsp;<br> 
-<br></ul>
-
-
-<a name="Mask.count">
-<big><b>Mask.count</big></b><br><ul>
-  <i>Returns the number of set pixels</i><br>
-  <tt>Mask.count() -> pixels</tt><br>
-<p>Returns the number of set pixels in the Mask. </p>
-<!--COMMENTS:Mask.count--> &nbsp;<br> 
-<br></ul>
-
-
-<a name="Mask.centroid">
-<big><b>Mask.centroid</big></b><br><ul>
-  <i>Returns the centroid of the pixels in a Mask</i><br>
-  <tt>Mask.centroid() -> (x, y)</tt><br>
-<p>Finds the centroid, the center of pixel mass, of a Mask. Returns a coordinate tuple for the centroid of the Mask. In the event the Mask is empty, it will return (0,0). </p>
-<!--COMMENTS:Mask.centroid--> &nbsp;<br> 
-<br></ul>
-
-
-<a name="Mask.angle">
-<big><b>Mask.angle</big></b><br><ul>
-  <i>Returns the orientation of the pixels</i><br>
-  <tt>Mask.angle() -> theta</tt><br>
-<p>Finds the approximate orientation of the pixels in the image from -90 to 90 degrees. This works best if performed on one connected component of pixels. It will return 0.0 on an empty Mask. </p>
-<!--COMMENTS:Mask.angle--> &nbsp;<br> 
-<br></ul>
-
-
-<a name="Mask.outline">
-<big><b>Mask.outline</big></b><br><ul>
-  <i>list of points outlining an object</i><br>
-  <tt>Mask.outline(every = 1) -> [(x,y), (x,y) ...]</tt><br>
-<p>Returns a list of points of the outline of the first object it comes across in a Mask. For this to be useful, there should probably only be one connected component of pixels in the Mask. The every option allows you to skip pixels in the outline. For example, setting it to 10 would return a list of every 10th pixel in the outline. </p>
-<!--COMMENTS:Mask.outline--> &nbsp;<br> 
-<br></ul>
-
-
-<a name="Mask.convolve">
-<big><b>Mask.convolve</big></b><br><ul>
-  <i>Return the convolution of self with another mask.</i><br>
-  <tt>Mask.convolve(othermask, outputmask = None, offset = (0,0)) -> Mask</tt><br>
-<p>Returns a mask with the (i-offset[0],j-offset[1]) bit set if shifting othermask so that it's lower right corner pixel is at (i,j) would cause it to overlap with self. </p>
-<p>If an outputmask is specified, the output is drawn onto outputmask and outputmask is returned. Otherwise a mask of size <tt>self.get_size()</tt> + <tt>othermask.get_size()</tt> - (1,1) is created. </p>
-<!--COMMENTS:Mask.convolve--> &nbsp;<br> 
-<br></ul>
-
-
-<a name="Mask.connected_component">
-<big><b>Mask.connected_component</big></b><br><ul>
-  <i>Returns a mask of a connected region of pixels.</i><br>
-  <tt>Mask.connected_component((x,y) = None) -> Mask</tt><br>
-<p>This uses the <tt>SAUF</tt> algorithm to find a connected component in the Mask. It checks 8 point connectivity. By default, it will return the largest connected component in the image. Optionally, a coordinate pair of a pixel can be specified, and the connected component containing it will be returned. In the event the pixel at that location is not set, the returned Mask will be empty. The Mask returned is the same size as the original Mask. </p>
-<!--COMMENTS:Mask.connected_component--> &nbsp;<br> 
-<br></ul>
-
-
-<a name="Mask.connected_components">
-<big><b>Mask.connected_components</big></b><br><ul>
-  <i>Returns a list of masks of connected regions of pixels.</i><br>
-  <tt>Mask.connected_components(min = 0) -> [Masks]</tt><br>
-<p>Returns a list of masks of connected regions of pixels. An optional minimum number of pixels per connected region can be specified to filter out noise. </p>
-<!--COMMENTS:Mask.connected_components--> &nbsp;<br> 
-<br></ul>
-
-
-<a name="Mask.get_bounding_rects">
-<big><b>Mask.get_bounding_rects</big></b><br><ul>
-  <i>Returns a list of bounding rects of regions of set pixels.</i><br>
-  <tt>Mask.get_bounding_rects() -> Rects</tt><br>
-<p>This gets a bounding rect of connected regions of set pixels. A bounding rect is one for which each of the connected pixels is inside the rect. </p>
-<!--COMMENTS:Mask.get_bounding_rects--> &nbsp;<br> 
-<br></ul>
-<br></ul>
-<br></ul>
-
-</body></html>
+  </div>
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="math.html" title="pygame.math"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="locals.html" title="pygame.locals"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">Pygame v1.9.2 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+      &copy; Copyright 2011, Pygame Developers.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.6.6.
+    </div>
+  </body>
+</html>
