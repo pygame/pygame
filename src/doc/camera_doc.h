@@ -1,105 +1,79 @@
 /* Auto generated file: with makeref.py .  Docs go in src/ *.doc . */
 #define DOC_PYGAMECAMERA "pygame module for camera use"
 
-#define DOC_PYGAMECAMERACOLORSPACE "pygame.camera.colorspace(Surface, format, DestSurface = None): return Surface\nSurface colorspace conversion"
+#define DOC_PYGAMECAMERACOLORSPACE "colorspace(Surface, format, DestSurface = None) -> Surface\nSurface colorspace conversion"
 
-#define DOC_PYGAMECAMERALISTCAMERAS "pygame.camera.list_cameras(): return [cameras]\nreturns a list of available cameras"
+#define DOC_PYGAMECAMERALISTCAMERAS "list_cameras() -> [cameras]\nreturns a list of available cameras"
 
-#define DOC_PYGAMECAMERACAMERA "pygame.camera.Camera(device, (width, height), format): return Camera\nload a camera"
+#define DOC_PYGAMECAMERACAMERA "Camera(device, (width, height), format) -> Camera\nload a camera"
 
-#define DOC_CAMERASTART "Camera.start(): return None\nopens, initializes, and starts capturing"
+#define DOC_CAMERASTART "start() -> None\nopens, initializes, and starts capturing"
 
-#define DOC_CAMERASTOP "Camera.stop(): return None\nstops, uninitializes, and closes the camera"
+#define DOC_CAMERASTOP "stop() -> None\nstops, uninitializes, and closes the camera"
 
-#define DOC_CAMERAGETCONTROLS "Camera.get_controls(): return (hflip = bool, vflip = bool, brightness)\ngets current values of user controls"
+#define DOC_CAMERAGETCONTROLS "get_controls() -> (hflip = bool, vflip = bool, brightness)\ngets current values of user controls"
 
-#define DOC_CAMERASETCONTROLS "Camera.set_controls(hflip = bool, vflip = bool, brightness): return (hflip = bool, vflip = bool, brightness)\nchanges camera settings if supported by the camera"
+#define DOC_CAMERASETCONTROLS "set_controls(hflip = bool, vflip = bool, brightness) -> (hflip = bool, vflip = bool, brightness)\nchanges camera settings if supported by the camera"
 
-#define DOC_CAMERAGETSIZE "Camera.get_size(): return (width, height)\nreturns the dimensions of the images being recorded"
+#define DOC_CAMERAGETSIZE "get_size() -> (width, height)\nreturns the dimensions of the images being recorded"
 
-#define DOC_CAMERAQUERYIMAGE "Camera.query_image(): return bool\nchecks if a frame is ready"
+#define DOC_CAMERAQUERYIMAGE "query_image() -> bool\nchecks if a frame is ready"
 
-#define DOC_CAMERAGETIMAGE "Camera.get_image(Surface = None): return Surface\ncaptures an image as a Surface"
+#define DOC_CAMERAGETIMAGE "get_image(Surface = None) -> Surface\ncaptures an image as a Surface"
 
-#define DOC_CAMERAGETRAW "Camera.get_raw(): return string\nreturns an unmodified image as a string"
+#define DOC_CAMERAGETRAW "get_raw() -> string\nreturns an unmodified image as a string"
 
 
 
-/* Docs in a comments... slightly easier to read. */
-
+/* Docs in a comment... slightly easier to read. */
 
 /*
 
 pygame.camera
- pygame module for camera use
-
-
+pygame module for camera use
 
 pygame.camera.colorspace
- pygame.camera.colorspace(Surface, format, DestSurface = None): return Surface
+ colorspace(Surface, format, DestSurface = None) -> Surface
 Surface colorspace conversion
 
-
-
 pygame.camera.list_cameras
- pygame.camera.list_cameras(): return [cameras]
+ list_cameras() -> [cameras]
 returns a list of available cameras
 
-
-
 pygame.camera.Camera
- pygame.camera.Camera(device, (width, height), format): return Camera
+ Camera(device, (width, height), format) -> Camera
 load a camera
 
-
-
-Camera.start
- Camera.start(): return None
+pygame.camera.Camera.start
+ start() -> None
 opens, initializes, and starts capturing
 
-
-
-Camera.stop
- Camera.stop(): return None
+pygame.camera.Camera.stop
+ stop() -> None
 stops, uninitializes, and closes the camera
 
-
-
-Camera.get_controls
- Camera.get_controls(): return (hflip = bool, vflip = bool, brightness)
+pygame.camera.Camera.get_controls
+ get_controls() -> (hflip = bool, vflip = bool, brightness)
 gets current values of user controls
 
-
-
-Camera.set_controls
- Camera.set_controls(hflip = bool, vflip = bool, brightness): return (hflip = bool, vflip = bool, brightness)
+pygame.camera.Camera.set_controls
+ set_controls(hflip = bool, vflip = bool, brightness) -> (hflip = bool, vflip = bool, brightness)
 changes camera settings if supported by the camera
 
-
-
-Camera.get_size
- Camera.get_size(): return (width, height)
+pygame.camera.Camera.get_size
+ get_size() -> (width, height)
 returns the dimensions of the images being recorded
 
-
-
-Camera.query_image
- Camera.query_image(): return bool
+pygame.camera.Camera.query_image
+ query_image() -> bool
 checks if a frame is ready
 
-
-
-Camera.get_image
- Camera.get_image(Surface = None): return Surface
+pygame.camera.Camera.get_image
+ get_image(Surface = None) -> Surface
 captures an image as a Surface
 
-
-
-Camera.get_raw
- Camera.get_raw(): return string
+pygame.camera.Camera.get_raw
+ get_raw() -> string
 returns an unmodified image as a string
 
-
-
 */
-

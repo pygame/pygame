@@ -1,155 +1,304 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-<html>
-<title>pixelarray - Pygame Documentation</title>
-<body bgcolor=#aaeebb text=#000000 link=#331111 vlink=#331111>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pygame.PixelArray &mdash; Pygame v1.9.2 documentation</title>
+    <link rel="stylesheet" href="../_static/pygame.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.9.2',
+        COLLAPSE_MODINDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/pygame.ico"/>
+    <link rel="top" title="Pygame v1.9.2 documentation" href="../index.html" />
+    <link rel="next" title="pygame.pixelcopy" href="pixelcopy.html" />
+    <link rel="prev" title="pygame.Overlay" href="overlay.html" /> 
+  </head>
+  <body>  
 
+    <div class="document">
 
-<table cellpadding=0 cellspacing=0 border=0 style='border: 3px solid black;' width='100%'>
-<tr>
-<td bgcolor='#c2fc20' style='padding: 6px;' align=center valign=center><a href='http://www.pygame.org/'><img src='../pygame_tiny.gif' border=0 width=200 height=60></a><br><b>pygame documentation</b></td>
-<td bgcolor='#6aee28' style='border-left: 3px solid black; padding: 6px;' align=center valign=center>
-	||&nbsp;
-	<a href=http://www.pygame.org>Pygame Home</a> &nbsp;||&nbsp;
-	<a href=../index.html>Help Contents</a> &nbsp;||
-	<a href=index.html>Reference Index</a> &nbsp;||
-	<br>&nbsp;<br>
-	
-<a href="camera.html">Camera</a>&nbsp;||&nbsp;
-<a href="cdrom.html">Cdrom</a>&nbsp;||&nbsp;
-<a href="color.html">Color</a>&nbsp;||&nbsp;
-<a href="cursors.html">Cursors</a>&nbsp;||&nbsp;
-<a href="display.html">Display</a>&nbsp;||&nbsp;
-<a href="draw.html">Draw</a>&nbsp;||&nbsp;
-<a href="event.html">Event</a>&nbsp;||&nbsp;
-<a href="examples.html">Examples</a>&nbsp;||&nbsp;
-<a href="font.html">Font</a>&nbsp;||&nbsp;
-<a href="freetype.html">Freetype</a>&nbsp;||&nbsp;
-<a href="gfxdraw.html">Gfxdraw</a>&nbsp;||&nbsp;
-<a href="image.html">Image</a>&nbsp;||&nbsp;
-<a href="joystick.html">Joystick</a>&nbsp;||&nbsp;
-<a href="key.html">Key</a>&nbsp;||&nbsp;
-<a href="locals.html">Locals</a>&nbsp;||&nbsp;
-<a href="mask.html">Mask</a>&nbsp;||&nbsp;
-<a href="math.html">Math</a>&nbsp;||&nbsp;
-<a href="midi.html">Midi</a>&nbsp;||&nbsp;
-<a href="mixer.html">Mixer</a>&nbsp;||&nbsp;
-<a href="mouse.html">Mouse</a>&nbsp;||&nbsp;
-<a href="movie.html">Movie</a>&nbsp;||&nbsp;
-<a href="music.html">Music</a>&nbsp;||&nbsp;
-<a href="overlay.html">Overlay</a>&nbsp;||&nbsp;
-<a href="pixelarray.html">Pixelarray</a>&nbsp;||&nbsp;
-<a href="pixelcopy.html">Pixelcopy</a>&nbsp;||&nbsp;
-<a href="pygame.html">Pygame</a>&nbsp;||&nbsp;
-<a href="rect.html">Rect</a>&nbsp;||&nbsp;
-<a href="scrap.html">Scrap</a>&nbsp;||&nbsp;
-<a href="sndarray.html">Sndarray</a>&nbsp;||&nbsp;
-<a href="sprite.html">Sprite</a>&nbsp;||&nbsp;
-<a href="surface.html">Surface</a>&nbsp;||&nbsp;
-<a href="surfarray.html">Surfarray</a>&nbsp;||&nbsp;
-<a href="tests.html">Tests</a>&nbsp;||&nbsp;
-<a href="time.html">Time</a>&nbsp;||&nbsp;
-<a href="transform.html">Transform</a>
-</td></tr></table>
-<br>
+  <div class="header">
+    <table>
+      <tr>
+	<td class="logo">
+	  <a href="http://www.pygame.org/">
+	    <img src="../_static/pygame_tiny.png"/>
+	  </a>
+	  <h5>pygame documentation</h5>
+	</td>
+	<td class="pagelinks">
+	  <p class="top">
+	    ||
+	    <a href="http://www.pygame.org/">Pygame Home</a> ||
+	    <a href="../index.html">Help Contents</a> ||
+	    <a href="../genindex.html">Reference Index</a> ||
+	  </p>
+	  <p class="bottom">
+	    <a href="camera.html">camera</a> || 
+	    <a href="cdrom.html">cdrom</a> || 
+	    <a href="color.html">Color</a> || 
+	    <a href="cursors.html">cursors</a> || 
+	    <a href="display.html">display</a> || 
+	    <a href="draw.html">draw</a> || 
+	    <a href="event.html">event</a> || 
+	    <a href="examples.html">examples</a> || 
+	    <a href="font.html">font</a> || 
+	    <a href="gfxdraw.html">gfxdraw</a> || 
+	    <a href="image.html">image</a> || 
+	    <a href="joystick.html">joystick</a> || 
+	    <a href="key.html">key</a> || 
+	    <a href="locals.html">locals</a> || 
+	    <a href="mask.html">mask</a> || 
+	    <a href="math.html">math</a> || 
+	    <a href="midi.html">midi</a> || 
+	    <a href="mixer.html">mixer</a> || 
+	    <a href="mouse.html">mouse</a> || 
+	    <a href="movie.html">movie</a> || 
+	    <a href="music.html">music</a> || 
+	    <a href="overlay.html">Overlay</a> || 
+	    <a href="pixelarray.html">PixelArray</a> || 
+	    <a href="pixelcopy.html">pixelcopy</a> || 
+	    <a href="pygame.html">pygame</a> || 
+	    <a href="rect.html">Rect</a> || 
+	    <a href="scrap.html">scrap</a> || 
+	    <a href="sndarray.html">sndarray</a> || 
+	    <a href="sprite.html">sprite</a> || 
+	    <a href="surface.html">Surface</a> || 
+	    <a href="surfarray.html">surfarray</a> || 
+	    <a href="tests.html">tests</a> || 
+	    <a href="time.html">time</a> || 
+	    <a href="transform.html">transform</a> || 
+	    <a href="pygame.html#module-pygame.version">version</a>
+	  </p>
+	</td>
+      </tr>
+    </table>
+  </div>
 
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <div class="sectionwrapper">
+<div class="section" id="pygame-pixelarray">
+<dl class="definition class">
+<dt class="title" id="pygame.PixelArray">
+<em class="property">class </em><tt class="descclassname">pygame.</tt><tt class="descname">PixelArray</tt><a class="headerlink" href="#pygame.PixelArray" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">pygame object for direct pixel access of surfaces</span></div>
+<div class="line"><span class="signature">PixelArray(Surface) -&gt; PixelArray</span></div>
+</div>
+<table border="1" class="toc docutils">
+<colgroup>
+<col width="31%" />
+<col width="1%" />
+<col width="68%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="toc reference external" href="pixelarray.html#pygame.PixelArray.surface">pygame.PixelArray.surface</a></td>
+<td>—</td>
+<td>Gets the Surface the PixelArray uses.</td>
+</tr>
+<tr><td><a class="toc reference external" href="pixelarray.html#pygame.PixelArray.make_surface">pygame.PixelArray.make_surface</a></td>
+<td>—</td>
+<td>Creates a new Surface from the current PixelArray.</td>
+</tr>
+<tr><td><a class="toc reference external" href="pixelarray.html#pygame.PixelArray.replace">pygame.PixelArray.replace</a></td>
+<td>—</td>
+<td>Replaces the passed color in the PixelArray with another one.</td>
+</tr>
+<tr><td><a class="toc reference external" href="pixelarray.html#pygame.PixelArray.extract">pygame.PixelArray.extract</a></td>
+<td>—</td>
+<td>Extracts the passed color from the PixelArray.</td>
+</tr>
+<tr><td><a class="toc reference external" href="pixelarray.html#pygame.PixelArray.compare">pygame.PixelArray.compare</a></td>
+<td>—</td>
+<td>Compares the PixelArray with another one.</td>
+</tr>
+</tbody>
+</table>
+<p>The PixelArray wraps up a Surface and provides a direct 2D array access to
+its pixels using the surface its rows as first and its columns as second
+axis. It supports slicing, row and pixel manipluation, slicing and slice
+assignments while inplace operations such as addition, subtraction,
+multiplication, division and so forth are not allowed.</p>
+<p>While it is possible to assign both, integer color values and <tt class="docutils literal"><span class="pre">RGB(A)</span></tt>
+color tuples, the PixelArray will only use integers for the color
+representation. Thus, checking for certain colors has to be done using the
+<tt class="docutils literal"><span class="pre">Surface.map_rgb()</span></tt> method of the surface, the PixelArray was created for.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">pxarray</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">PixelArray</span> <span class="p">(</span><span class="n">surface</span><span class="p">)</span>
+<span class="c"># Check, if the first pixel at the topleft corner is blue</span>
+<span class="k">if</span> <span class="n">pxarray</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">surface</span><span class="o">.</span><span class="n">map_rgb</span> <span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">)):</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+<p>Pixels can be manipulated using integer values or color tuples.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">pxarray</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="n">y</span><span class="p">]</span> <span class="o">=</span> <span class="mh">0xFF00FF</span>
+<span class="n">pxarray</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="n">y</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If you operate on a slice, you also can use arbitrary sequences or other
+PixelArray objects to modify the pixels. They have to match the size of the
+PixelArray however.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">pxarray</span><span class="p">[</span><span class="n">a</span><span class="p">:</span><span class="n">b</span><span class="p">]</span> <span class="o">=</span> <span class="mh">0xFF00FF</span>                   <span class="c"># set all pixels to 0xFF00FF</span>
+<span class="n">pxarray</span><span class="p">[</span><span class="n">a</span><span class="p">:</span><span class="n">b</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mh">0xFF00FF</span><span class="p">,</span> <span class="mh">0xAACCEE</span><span class="p">,</span> <span class="o">...</span> <span class="p">)</span> <span class="c"># first pixel = 0xFF00FF,</span>
+                                          <span class="c"># second pixel  = 0xAACCEE, ...</span>
+<span class="n">pxarray</span><span class="p">[</span><span class="n">a</span><span class="p">:</span><span class="n">b</span><span class="p">]</span> <span class="o">=</span> <span class="p">((</span><span class="mi">255</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">),</span> <span class="p">(</span><span class="mi">170</span><span class="p">,</span> <span class="mi">204</span><span class="p">,</span> <span class="mi">238</span><span class="p">),</span> <span class="o">...</span><span class="p">)</span> <span class="c"># same as above</span>
+<span class="n">pxarray</span><span class="p">[</span><span class="n">a</span><span class="p">:</span><span class="n">b</span><span class="p">]</span> <span class="o">=</span> <span class="p">((</span><span class="mi">255</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">),</span> <span class="mh">0xAACCEE</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>        <span class="c"># same as above</span>
+<span class="n">pxarray</span><span class="p">[</span><span class="n">a</span><span class="p">:</span><span class="n">b</span><span class="p">]</span> <span class="o">=</span> <span class="n">otherarray</span><span class="p">[</span><span class="n">x</span><span class="p">:</span><span class="n">y</span><span class="p">]</span>            <span class="c"># slice sizes must match</span>
+</pre></div>
+</div>
+<p>Note, that something like</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">pxarray</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="mi">4</span><span class="p">][</span><span class="mi">3</span><span class="p">:</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="o">...</span>
+</pre></div>
+</div>
+<p>will not cause a rectangular manipulation. Instead it will be first sliced
+to a two-column array, which then shall be sliced by columns once more,
+which will fail due an IndexError. This is caused by the slicing mechanisms
+in python and an absolutely correct behaviour. Create a single columned
+slice first, which you can manipulate then:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">pxarray</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">3</span><span class="p">:</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="o">...</span>
+<span class="n">pxarray</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="mi">3</span><span class="p">:</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="o">...</span>
+</pre></div>
+</div>
+<p>If you want to make a rectangular manipulation or create a view of a part of
+the PixelArray, you also can use the subscript abilities. You can easily
+create different view by creating &#8216;subarrays&#8217; using the subscripts.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># Create some new PixelArray objects providing a different view</span>
+<span class="c"># of the original array/surface.</span>
+<span class="n">newarray</span> <span class="o">=</span> <span class="n">pxarray</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="mi">4</span><span class="p">,</span><span class="mi">3</span><span class="p">:</span><span class="mi">5</span><span class="p">]</span>
+<span class="n">otherarray</span> <span class="o">=</span> <span class="n">pxarray</span><span class="p">[::</span><span class="mi">2</span><span class="p">,::</span><span class="mi">2</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Subscripts also can be used to do fast rectangular pixel manipulations
+instead of iterating over the x or y axis as above.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">pxarray</span><span class="p">[::</span><span class="mi">2</span><span class="p">,:]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>                <span class="c"># Make each second column black.</span>
+</pre></div>
+</div>
+<p>During its lifetime, the PixelArray locks the surface, thus you explicitly
+have to delete it once its not used anymore and the surface should perform
+operations in the same scope.</p>
+<p>New in pygame 1.8. Subscript support is new in pygame 1.8.1.</p>
+<dl class="definition attribute">
+<dt class="title" id="pygame.PixelArray.surface">
+<tt class="descname">surface</tt><a class="headerlink" href="#pygame.PixelArray.surface" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Gets the Surface the PixelArray uses.</span></div>
+<div class="line"><span class="signature">surface -&gt; Surface</span></div>
+</div>
+<p>The Surface, the PixelArray was created for.</p>
+</dd></dl>
 
-<a name="pygame.PixelArray">
-<big><b>pygame.PixelArray</big></b><br><ul>
-  <i>pygame object for direct pixel access of surfaces</i><br>
-  <tt>pygame.PixelArray(Surface): return PixelArray</tt><br>
-<ul><small><table>
-  <tr><td><a href="pixelarray.html#PixelArray.surface">PixelArray.surface</a></td><td> &mdash; Gets the Surface the PixelArray uses.</td></tr>
-  <tr><td><a href="pixelarray.html#PixelArray.make_surface">PixelArray.make_surface</a></td><td> &mdash; Creates a new Surface from the current PixelArray.</td></tr>
-  <tr><td><a href="pixelarray.html#PixelArray.replace">PixelArray.replace</a></td><td> &mdash; Replaces the passed color in the PixelArray with another one.</td></tr>
-  <tr><td><a href="pixelarray.html#PixelArray.extract">PixelArray.extract</a></td><td> &mdash; Extracts the passed color from the PixelArray.</td></tr>
-  <tr><td><a href="pixelarray.html#PixelArray.compare">PixelArray.compare</a></td><td> &mdash; Compares the PixelArray with another one.</td></tr>
-</table></small></ul>
-<p>The PixelArray wraps up a Surface and provides a direct 2D array access to its pixels using the surface its rows as first and its columns as second axis. It supports slicing, row and pixel manipluation, slicing and slice assignments while inplace operations such as addition, subtraction, multiplication, division and so forth are not allowed. </p>
-<p>While it is possible to assign both, integer color values and <tt>RGB(A)</tt> color tuples, the PixelArray will only use integers for the color representation. Thus, checking for certain colors has to be done using the <tt><a href="surface.html#Surface.map_rgb">Surface.map_rgb</a></tt>&nbsp;&ndash;<font size=-1>convert a color into a mapped color value</font>&ndash; method of the surface, the PixelArray was created for. </p>
-<pre>  pxarray = pygame.PixelArray (surface)
-  # Check, if the first pixel at the topleft corner is blue
-  if pxarray[0][0] == surface.map_rgb ((0, 0, 255)):
-      ...
-</pre><p>Pixels can be manipulated using integer values or color tuples. </p>
-<pre>  pxarray[x][y] = 0xFF00FF
-  pxarray[x][y] = (255, 0, 255)
-</pre><p>If you operate on a slice, you also can use arbitrary sequences or other PixelArray objects to modify the pixels. They have to match the size of the PixelArray however. </p>
-<pre>  pxarray[a:b] = 0xFF00FF                   # set all pixels to 0xFF00FF
-  pxarray[a:b] = (0xFF00FF, 0xAACCEE, ... ) # first pixel = 0xFF00FF,
-                                            # second pixel  = 0xAACCEE, ...
-  pxarray[a:b] = ((255, 0, 255), (170, 204, 238), ...) # same as above
-  pxarray[a:b] = ((255, 0, 255), 0xAACCEE, ...)        # same as above
-  pxarray[a:b] = otherarray[x:y]            # slice sizes must match
-</pre><p>Note, that something like </p>
-<pre>  pxarray[2:4][3:5] = ...
-</pre><p>will not cause a rectangular manipulation. Instead it will be first sliced to a two-column array, which then shall be sliced by columns once more, which will fail due an IndexError. This is caused by the slicing mechanisms in python and an absolutely correct behaviour. Create a single columned slice first, which you can manipulate then: </p>
-<pre>  pxarray[2][3:5] = ...
-  pxarray[3][3:5] = ...
-</pre><p>If you want to make a rectangular manipulation or create a view of a part of the PixelArray, you also can use the subscript abilities. You can easily create different view by creating 'subarrays' using the subscripts. </p>
-<pre>  # Create some new PixelArray objects providing a different view
-  # of the original array/surface.
-  newarray = pxarray[2:4,3:5]
-  otherarray = pxarray[::2,::2]
-</pre><p>Subscripts also can be used to do fast rectangular pixel manipulations instead of iterating over the x or y axis as above. </p>
-<pre>  pxarray[::2,:] = (0, 0, 0)                # Make each second column black.
-</pre><p>During its lifetime, the PixelArray locks the surface, thus you explicitly have to delete it once its not used anymore and the surface should perform operations in the same scope. </p>
-<p>New in pygame 1.8. Subscript support is new in pygame 1.8.1. </p>
-<!--COMMENTS:pygame.PixelArray--> &nbsp;<br> 
+<dl class="definition method">
+<dt class="title" id="pygame.PixelArray.make_surface">
+<tt class="descname">make_surface</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.PixelArray.make_surface" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Creates a new Surface from the current PixelArray.</span></div>
+<div class="line"><span class="signature">make_surface () -&gt; Surface</span></div>
+</div>
+<p>Creates a new Surface from the current PixelArray. Depending on the
+current PixelArray the size, pixel order etc. will be different from the
+original Surface.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># Create a new surface flipped around the vertical axis.</span>
+<span class="n">sf</span> <span class="o">=</span> <span class="n">pxarray</span><span class="p">[:,::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">make_surface</span> <span class="p">()</span>
+</pre></div>
+</div>
+<p>New in pygame 1.8.1.</p>
+</dd></dl>
 
+<dl class="definition method">
+<dt class="title" id="pygame.PixelArray.replace">
+<tt class="descname">replace</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.PixelArray.replace" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Replaces the passed color in the PixelArray with another one.</span></div>
+<div class="line"><span class="signature">replace (color, repcolor, distance=0, weights=(0.299, 0.587, 0.114)) -&gt; None</span></div>
+</div>
+<p>Replaces the pixels with the passed color in the PixelArray by changing
+them them to the passed replacement color.</p>
+<p>It uses a simple weighted euclidian distance formula to calculate the
+distance between the colors. The distance space ranges from 0.0 to 1.0
+and is used as threshold for the color detection. This causes the
+replacement to take pixels with a similar, but not exactly identical
+color, into account as well.</p>
+<p>This is an in place operation that directly affects the pixels of the
+PixelArray.</p>
+<p>New in pygame 1.8.1.</p>
+</dd></dl>
 
-<a name="PixelArray.surface">
-<big><b>PixelArray.surface</big></b><br><ul>
-  <i>Gets the Surface the PixelArray uses.</i><br>
-  <tt>PixelArray.surface: Return Surface</tt><br>
-<p>The Surface, the PixelArray was created for. </p>
-<!--COMMENTS:PixelArray.surface--> &nbsp;<br> 
-<br></ul>
+<dl class="definition method">
+<dt class="title" id="pygame.PixelArray.extract">
+<tt class="descname">extract</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.PixelArray.extract" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Extracts the passed color from the PixelArray.</span></div>
+<div class="line"><span class="signature">extract (color, distance=0, weights=(0.299, 0.587, 0.114)) -&gt; PixelArray</span></div>
+</div>
+<p>Extracts the passed color by changing all matching pixels to white, while
+non-matching pixels are changed to black. This returns a new PixelArray
+with the black/white color mask.</p>
+<p>It uses a simple weighted euclidian distance formula to calculate the
+distance between the colors. The distance space ranges from 0.0 to 1.0
+and is used as threshold for the color detection. This causes the
+extraction to take pixels with a similar, but not exactly identical
+color, into account as well.</p>
+<p>New in pygame 1.8.1.</p>
+</dd></dl>
 
+<dl class="definition method">
+<dt class="title" id="pygame.PixelArray.compare">
+<tt class="descname">compare</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.PixelArray.compare" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Compares the PixelArray with another one.</span></div>
+<div class="line"><span class="signature">compare (array, distance=0, weights=(0.299, 0.587, 0.114)) -&gt; PixelArray</span></div>
+</div>
+<p>Compares the contents of the PixelArray with those from the passed
+PixelArray. It returns a new PixelArray with a black/white color mask
+that indicates the differences (white) of both arrays. Both PixelArray
+objects must have indentical bit depths and dimensions.</p>
+<p>It uses a simple weighted euclidian distance formula to calculate the
+distance between the colors. The distance space ranges from 0.0 to 1.0
+and is used as threshold for the color detection. This causes the
+comparision to mark pixels with a similar, but not exactly identical
+color, as black.</p>
+<p>New in pygame 1.8.1.</p>
+</dd></dl>
 
-<a name="PixelArray.make_surface">
-<big><b>PixelArray.make_surface</big></b><br><ul>
-  <i>Creates a new Surface from the current PixelArray.</i><br>
-  <tt>PixelArray.make_surface (): Return Surface</tt><br>
-<p>Creates a new Surface from the current PixelArray. Depending on the current PixelArray the size, pixel order etc. will be different from the original Surface. </p>
-<pre>  # Create a new surface flipped around the vertical axis.
-  sf = pxarray[:,::-1].make_surface ()
-</pre><p>New in pygame 1.8.1. </p>
-<!--COMMENTS:PixelArray.make_surface--> &nbsp;<br> 
-<br></ul>
+</dd></dl>
 
+</div>
 
-<a name="PixelArray.replace">
-<big><b>PixelArray.replace</big></b><br><ul>
-  <i>Replaces the passed color in the PixelArray with another one.</i><br>
-  <tt>PixelArray.replace (color, repcolor, distance=0, weights=(0.299, 0.587, 0.114)): Return None</tt><br>
-<p>Replaces the pixels with the passed color in the PixelArray by changing them them to the passed replacement color. </p>
-<p>It uses a simple weighted euclidian distance formula to calculate the distance between the colors. The distance space ranges from 0.0 to 1.0 and is used as threshold for the color detection. This causes the replacement to take pixels with a similar, but not exactly identical color, into account as well. </p>
-<p>This is an in place operation that directly affects the pixels of the PixelArray. </p>
-<p>New in pygame 1.8.1. </p>
-<!--COMMENTS:PixelArray.replace--> &nbsp;<br> 
-<br></ul>
-
-
-<a name="PixelArray.extract">
-<big><b>PixelArray.extract</big></b><br><ul>
-  <i>Extracts the passed color from the PixelArray.</i><br>
-  <tt>PixelArray.extract (color, distance=0, weights=(0.299, 0.587, 0.114)): Return PixelArray</tt><br>
-<p>Extracts the passed color by changing all matching pixels to white, while non-matching pixels are changed to black. This returns a new PixelArray with the black/white color mask. </p>
-<p>It uses a simple weighted euclidian distance formula to calculate the distance between the colors. The distance space ranges from 0.0 to 1.0 and is used as threshold for the color detection. This causes the extraction to take pixels with a similar, but not exactly identical color, into account as well. </p>
-<p>New in pygame 1.8.1. </p>
-<!--COMMENTS:PixelArray.extract--> &nbsp;<br> 
-<br></ul>
-
-
-<a name="PixelArray.compare">
-<big><b>PixelArray.compare</big></b><br><ul>
-  <i>Compares the PixelArray with another one.</i><br>
-  <tt>PixelArray.compare (array, distance=0, weights=(0.299, 0.587, 0.114)): Return PixelArray</tt><br>
-<p>Compares the contents of the PixelArray with those from the passed PixelArray. It returns a new PixelArray with a black/white color mask that indicates the differences (white) of both arrays. Both PixelArray objects must have indentical bit depths and dimensions. </p>
-<p>It uses a simple weighted euclidian distance formula to calculate the distance between the colors. The distance space ranges from 0.0 to 1.0 and is used as threshold for the color detection. This causes the comparision to mark pixels with a similar, but not exactly identical color, as black. </p>
-<p>New in pygame 1.8.1. </p>
-<!--COMMENTS:PixelArray.compare--> &nbsp;<br> 
-<br></ul>
-<br></ul>
-
-</body></html>
+  </div>
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="pixelcopy.html" title="pygame.pixelcopy"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="overlay.html" title="pygame.Overlay"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">Pygame v1.9.2 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+      &copy; Copyright 2011, Pygame Developers.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.6.6.
+    </div>
+  </body>
+</html>

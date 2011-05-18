@@ -1,58 +1,44 @@
 /* Auto generated file: with makeref.py .  Docs go in src/ *.doc . */
-#define DOC_PYGAMEPIXELARRAY "pygame.PixelArray(Surface): return PixelArray\npygame object for direct pixel access of surfaces"
+#define DOC_PYGAMEPIXELARRAY "PixelArray(Surface) -> PixelArray\npygame object for direct pixel access of surfaces"
 
-#define DOC_PIXELARRAYSURFACE "PixelArray.surface: Return Surface\nGets the Surface the PixelArray uses."
+#define DOC_PIXELARRAYSURFACE "surface -> Surface\nGets the Surface the PixelArray uses."
 
-#define DOC_PIXELARRAYMAKESURFACE "PixelArray.make_surface (): Return Surface\nCreates a new Surface from the current PixelArray."
+#define DOC_PIXELARRAYMAKESURFACE "make_surface () -> Surface\nCreates a new Surface from the current PixelArray."
 
-#define DOC_PIXELARRAYREPLACE "PixelArray.replace (color, repcolor, distance=0, weights=(0.299, 0.587, 0.114)): Return None\nReplaces the passed color in the PixelArray with another one."
+#define DOC_PIXELARRAYREPLACE "replace (color, repcolor, distance=0, weights=(0.299, 0.587, 0.114)) -> None\nReplaces the passed color in the PixelArray with another one."
 
-#define DOC_PIXELARRAYEXTRACT "PixelArray.extract (color, distance=0, weights=(0.299, 0.587, 0.114)): Return PixelArray\nExtracts the passed color from the PixelArray."
+#define DOC_PIXELARRAYEXTRACT "extract (color, distance=0, weights=(0.299, 0.587, 0.114)) -> PixelArray\nExtracts the passed color from the PixelArray."
 
-#define DOC_PIXELARRAYCOMPARE "PixelArray.compare (array, distance=0, weights=(0.299, 0.587, 0.114)): Return PixelArray\nCompares the PixelArray with another one."
+#define DOC_PIXELARRAYCOMPARE "compare (array, distance=0, weights=(0.299, 0.587, 0.114)) -> PixelArray\nCompares the PixelArray with another one."
 
 
 
-/* Docs in a comments... slightly easier to read. */
-
+/* Docs in a comment... slightly easier to read. */
 
 /*
 
 pygame.PixelArray
- pygame.PixelArray(Surface): return PixelArray
+ PixelArray(Surface) -> PixelArray
 pygame object for direct pixel access of surfaces
 
-
-
-PixelArray.surface
- PixelArray.surface: Return Surface
+pygame.PixelArray.surface
+ surface -> Surface
 Gets the Surface the PixelArray uses.
 
-
-
-PixelArray.make_surface
- PixelArray.make_surface (): Return Surface
+pygame.PixelArray.make_surface
+ make_surface () -> Surface
 Creates a new Surface from the current PixelArray.
 
-
-
-PixelArray.replace
- PixelArray.replace (color, repcolor, distance=0, weights=(0.299, 0.587, 0.114)): Return None
+pygame.PixelArray.replace
+ replace (color, repcolor, distance=0, weights=(0.299, 0.587, 0.114)) -> None
 Replaces the passed color in the PixelArray with another one.
 
-
-
-PixelArray.extract
- PixelArray.extract (color, distance=0, weights=(0.299, 0.587, 0.114)): Return PixelArray
+pygame.PixelArray.extract
+ extract (color, distance=0, weights=(0.299, 0.587, 0.114)) -> PixelArray
 Extracts the passed color from the PixelArray.
 
-
-
-PixelArray.compare
- PixelArray.compare (array, distance=0, weights=(0.299, 0.587, 0.114)): Return PixelArray
+pygame.PixelArray.compare
+ compare (array, distance=0, weights=(0.299, 0.587, 0.114)) -> PixelArray
 Compares the PixelArray with another one.
 
-
-
 */
-

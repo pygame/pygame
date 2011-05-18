@@ -1,189 +1,143 @@
 /* Auto generated file: with makeref.py .  Docs go in src/ *.doc . */
-#define DOC_PYGAMERECT "pygame.Rect(left, top, width, height): return Rect\npygame.Rect((left, top), (width, height)): return Rect\npygame.Rect(object): return Rect\npygame object for storing rectangular coordinates"
+#define DOC_PYGAMERECT "Rect(left, top, width, height) -> Rect\nRect((left, top), (width, height)) -> Rect\nRect(object) -> Rect\npygame object for storing rectangular coordinates"
 
-#define DOC_RECTCOPY "Rect.copy(): return Rect\ncopy the rectangle"
+#define DOC_RECTCOPY "copy() -> Rect\ncopy the rectangle"
 
-#define DOC_RECTMOVE "Rect.move(x, y): return Rect\nmoves the rectangle"
+#define DOC_RECTMOVE "move(x, y) -> Rect\nmoves the rectangle"
 
-#define DOC_RECTMOVEIP "Rect.move_ip(x, y): return None\nmoves the rectangle, in place"
+#define DOC_RECTMOVEIP "move_ip(x, y) -> None\nmoves the rectangle, in place"
 
-#define DOC_RECTINFLATE "Rect.inflate(x, y): return Rect\ngrow or shrink the rectangle size"
+#define DOC_RECTINFLATE "inflate(x, y) -> Rect\ngrow or shrink the rectangle size"
 
-#define DOC_RECTINFLATEIP "Rect.inflate_ip(x, y): return None\ngrow or shrink the rectangle size, in place"
+#define DOC_RECTINFLATEIP "inflate_ip(x, y) -> None\ngrow or shrink the rectangle size, in place"
 
-#define DOC_RECTCLAMP "Rect.clamp(Rect): return Rect\nmoves the rectangle inside another"
+#define DOC_RECTCLAMP "clamp(Rect) -> Rect\nmoves the rectangle inside another"
 
-#define DOC_RECTCLAMPIP "Rect.clamp_ip(Rect): return None\nmoves the rectangle inside another, in place"
+#define DOC_RECTCLAMPIP "clamp_ip(Rect) -> None\nmoves the rectangle inside another, in place"
 
-#define DOC_RECTCLIP "Rect.clip(Rect): return Rect\ncrops a rectangle inside another"
+#define DOC_RECTCLIP "clip(Rect) -> Rect\ncrops a rectangle inside another"
 
-#define DOC_RECTUNION "Rect.union(Rect): return Rect\njoins two rectangles into one"
+#define DOC_RECTUNION "union(Rect) -> Rect\njoins two rectangles into one"
 
-#define DOC_RECTUNIONIP "Rect.union_ip(Rect): return None\njoins two rectangles into one, in place"
+#define DOC_RECTUNIONIP "union_ip(Rect) -> None\njoins two rectangles into one, in place"
 
-#define DOC_RECTUNIONALL "Rect.unionall(Rect_sequence): return Rect\nthe union of many rectangles"
+#define DOC_RECTUNIONALL "unionall(Rect_sequence) -> Rect\nthe union of many rectangles"
 
-#define DOC_RECTUNIONALLIP "Rect.unionall_ip(Rect_sequence): return None\nthe union of many rectangles, in place"
+#define DOC_RECTUNIONALLIP "unionall_ip(Rect_sequence) -> None\nthe union of many rectangles, in place"
 
-#define DOC_RECTFIT "Rect.fit(Rect): return Rect\nresize and move a rectangle with aspect ratio"
+#define DOC_RECTFIT "fit(Rect) -> Rect\nresize and move a rectangle with aspect ratio"
 
-#define DOC_RECTNORMALIZE "Rect.normalize(): return None\ncorrect negative sizes"
+#define DOC_RECTNORMALIZE "normalize() -> None\ncorrect negative sizes"
 
-#define DOC_RECTCONTAINS "Rect.contains(Rect): return bool\ntest if one rectangle is inside another"
+#define DOC_RECTCONTAINS "contains(Rect) -> bool\ntest if one rectangle is inside another"
 
-#define DOC_RECTCOLLIDEPOINT "Rect.collidepoint(x, y): return bool\nRect.collidepoint((x,y)): return bool\ntest if a point is inside a rectangle"
+#define DOC_RECTCOLLIDEPOINT "collidepoint(x, y) -> bool\ncollidepoint((x,y)) -> bool\ntest if a point is inside a rectangle"
 
-#define DOC_RECTCOLLIDERECT "Rect.colliderect(Rect): return bool\ntest if two rectangles overlap"
+#define DOC_RECTCOLLIDERECT "colliderect(Rect) -> bool\ntest if two rectangles overlap"
 
-#define DOC_RECTCOLLIDELIST "Rect.collidelist(list): return index\ntest if one rectangle in a list intersects"
+#define DOC_RECTCOLLIDELIST "collidelist(list) -> index\ntest if one rectangle in a list intersects"
 
-#define DOC_RECTCOLLIDELISTALL "Rect.collidelistall(list): return indices\ntest if all rectangles in a list intersect"
+#define DOC_RECTCOLLIDELISTALL "collidelistall(list) -> indices\ntest if all rectangles in a list intersect"
 
-#define DOC_RECTCOLLIDEDICT "Rect.collidedict(dict): return (key, value)\ntest if one rectangle in a dictionary intersects"
+#define DOC_RECTCOLLIDEDICT "collidedict(dict) -> (key, value)\ntest if one rectangle in a dictionary intersects"
 
-#define DOC_RECTCOLLIDEDICTALL "Rect.collidedictall(dict): return [(key, value), ...]\ntest if all rectangles in a dictionary intersect"
+#define DOC_RECTCOLLIDEDICTALL "collidedictall(dict) -> [(key, value), ...]\ntest if all rectangles in a dictionary intersect"
 
 
 
-/* Docs in a comments... slightly easier to read. */
-
+/* Docs in a comment... slightly easier to read. */
 
 /*
 
 pygame.Rect
- pygame.Rect(left, top, width, height): return Rect
-pygame.Rect((left, top), (width, height)): return Rect
-pygame.Rect(object): return Rect
+ Rect(left, top, width, height) -> Rect
+ Rect((left, top), (width, height)) -> Rect
+ Rect(object) -> Rect
 pygame object for storing rectangular coordinates
 
-
-
-Rect.copy
- Rect.copy(): return Rect
+pygame.Rect.copy
+ copy() -> Rect
 copy the rectangle
 
-
-
-Rect.move
- Rect.move(x, y): return Rect
+pygame.Rect.move
+ move(x, y) -> Rect
 moves the rectangle
 
-
-
-Rect.move_ip
- Rect.move_ip(x, y): return None
+pygame.Rect.move_ip
+ move_ip(x, y) -> None
 moves the rectangle, in place
 
-
-
-Rect.inflate
- Rect.inflate(x, y): return Rect
+pygame.Rect.inflate
+ inflate(x, y) -> Rect
 grow or shrink the rectangle size
 
-
-
-Rect.inflate_ip
- Rect.inflate_ip(x, y): return None
+pygame.Rect.inflate_ip
+ inflate_ip(x, y) -> None
 grow or shrink the rectangle size, in place
 
-
-
-Rect.clamp
- Rect.clamp(Rect): return Rect
+pygame.Rect.clamp
+ clamp(Rect) -> Rect
 moves the rectangle inside another
 
-
-
-Rect.clamp_ip
- Rect.clamp_ip(Rect): return None
+pygame.Rect.clamp_ip
+ clamp_ip(Rect) -> None
 moves the rectangle inside another, in place
 
-
-
-Rect.clip
- Rect.clip(Rect): return Rect
+pygame.Rect.clip
+ clip(Rect) -> Rect
 crops a rectangle inside another
 
-
-
-Rect.union
- Rect.union(Rect): return Rect
+pygame.Rect.union
+ union(Rect) -> Rect
 joins two rectangles into one
 
-
-
-Rect.union_ip
- Rect.union_ip(Rect): return None
+pygame.Rect.union_ip
+ union_ip(Rect) -> None
 joins two rectangles into one, in place
 
-
-
-Rect.unionall
- Rect.unionall(Rect_sequence): return Rect
+pygame.Rect.unionall
+ unionall(Rect_sequence) -> Rect
 the union of many rectangles
 
-
-
-Rect.unionall_ip
- Rect.unionall_ip(Rect_sequence): return None
+pygame.Rect.unionall_ip
+ unionall_ip(Rect_sequence) -> None
 the union of many rectangles, in place
 
-
-
-Rect.fit
- Rect.fit(Rect): return Rect
+pygame.Rect.fit
+ fit(Rect) -> Rect
 resize and move a rectangle with aspect ratio
 
-
-
-Rect.normalize
- Rect.normalize(): return None
+pygame.Rect.normalize
+ normalize() -> None
 correct negative sizes
 
-
-
-Rect.contains
- Rect.contains(Rect): return bool
+pygame.Rect.contains
+ contains(Rect) -> bool
 test if one rectangle is inside another
 
-
-
-Rect.collidepoint
- Rect.collidepoint(x, y): return bool
-Rect.collidepoint((x,y)): return bool
+pygame.Rect.collidepoint
+ collidepoint(x, y) -> bool
+ collidepoint((x,y)) -> bool
 test if a point is inside a rectangle
 
-
-
-Rect.colliderect
- Rect.colliderect(Rect): return bool
+pygame.Rect.colliderect
+ colliderect(Rect) -> bool
 test if two rectangles overlap
 
-
-
-Rect.collidelist
- Rect.collidelist(list): return index
+pygame.Rect.collidelist
+ collidelist(list) -> index
 test if one rectangle in a list intersects
 
-
-
-Rect.collidelistall
- Rect.collidelistall(list): return indices
+pygame.Rect.collidelistall
+ collidelistall(list) -> indices
 test if all rectangles in a list intersect
 
-
-
-Rect.collidedict
- Rect.collidedict(dict): return (key, value)
+pygame.Rect.collidedict
+ collidedict(dict) -> (key, value)
 test if one rectangle in a dictionary intersects
 
-
-
-Rect.collidedictall
- Rect.collidedictall(dict): return [(key, value), ...]
+pygame.Rect.collidedictall
+ collidedictall(dict) -> [(key, value), ...]
 test if all rectangles in a dictionary intersect
 
-
-
 */
-

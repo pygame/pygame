@@ -1,108 +1,82 @@
 /* Auto generated file: with makeref.py .  Docs go in src/ *.doc . */
-#define DOC_PYGAMECOLOR "pygame.Color(name): Return Color\npygame.Color(r, g, b, a): Return Color\npygame.Color(rgbvalue): Return Color\npygame object for color representations"
+#define DOC_PYGAMECOLOR "Color(name) -> Color\nColor(r, g, b, a) -> Color\nColor(rgbvalue) -> Color\npygame object for color representations"
 
-#define DOC_COLORR "Color.r: Return int\nGets or sets the red value of the Color."
+#define DOC_COLORR "r -> int\nGets or sets the red value of the Color."
 
-#define DOC_COLORG "Color.g: Return int\nGets or sets the green value of the Color."
+#define DOC_COLORG "g -> int\nGets or sets the green value of the Color."
 
-#define DOC_COLORB "Color.b: Return int\nGets or sets the blue value of the Color."
+#define DOC_COLORB "b -> int\nGets or sets the blue value of the Color."
 
-#define DOC_COLORA "Color.a: Return int\nGets or sets the alpha value of the Color."
+#define DOC_COLORA "a -> int\nGets or sets the alpha value of the Color."
 
-#define DOC_COLORCMY "Color.cmy: Return tuple\nGets or sets the CMY representation of the Color."
+#define DOC_COLORCMY "cmy -> tuple\nGets or sets the CMY representation of the Color."
 
-#define DOC_COLORHSVA "Color.hsva: Return tuple\nGets or sets the HSVA representation of the Color."
+#define DOC_COLORHSVA "hsva -> tuple\nGets or sets the HSVA representation of the Color."
 
-#define DOC_COLORHSLA "Color.hsla: Return tuple\nGets or sets the HSLA representation of the Color."
+#define DOC_COLORHSLA "hsla -> tuple\nGets or sets the HSLA representation of the Color."
 
-#define DOC_COLORI1I2I3 "Color.i1i2i3: Return tuple\nGets or sets the I1I2I3 representation of the Color."
+#define DOC_COLORI1I2I3 "i1i2i3 -> tuple\nGets or sets the I1I2I3 representation of the Color."
 
-#define DOC_COLORNORMALIZE "Color.normalize(): Return tuple\nReturns the normalized RGBA values of the Color."
+#define DOC_COLORNORMALIZE "normalize() -> tuple\nReturns the normalized RGBA values of the Color."
 
-#define DOC_COLORCORRECTGAMMA "Color.correct_gamma (gamma): Return Color\nApplies a certain gamma value to the Color."
+#define DOC_COLORCORRECTGAMMA "correct_gamma (gamma) -> Color\nApplies a certain gamma value to the Color."
 
-#define DOC_COLORSETLENGTH "Color.set_length(len)\nSet the number of elements in the Color to 1,2,3, or 4."
+#define DOC_COLORSETLENGTH "set_length(len) -> None\nSet the number of elements in the Color to 1,2,3, or 4."
 
 
 
-/* Docs in a comments... slightly easier to read. */
-
+/* Docs in a comment... slightly easier to read. */
 
 /*
 
 pygame.Color
- pygame.Color(name): Return Color
-pygame.Color(r, g, b, a): Return Color
-pygame.Color(rgbvalue): Return Color
+ Color(name) -> Color
+ Color(r, g, b, a) -> Color
+ Color(rgbvalue) -> Color
 pygame object for color representations
 
-
-
-Color.r
- Color.r: Return int
+pygame.Color.r
+ r -> int
 Gets or sets the red value of the Color.
 
-
-
-Color.g
- Color.g: Return int
+pygame.Color.g
+ g -> int
 Gets or sets the green value of the Color.
 
-
-
-Color.b
- Color.b: Return int
+pygame.Color.b
+ b -> int
 Gets or sets the blue value of the Color.
 
-
-
-Color.a
- Color.a: Return int
+pygame.Color.a
+ a -> int
 Gets or sets the alpha value of the Color.
 
-
-
-Color.cmy
- Color.cmy: Return tuple
+pygame.Color.cmy
+ cmy -> tuple
 Gets or sets the CMY representation of the Color.
 
-
-
-Color.hsva
- Color.hsva: Return tuple
+pygame.Color.hsva
+ hsva -> tuple
 Gets or sets the HSVA representation of the Color.
 
-
-
-Color.hsla
- Color.hsla: Return tuple
+pygame.Color.hsla
+ hsla -> tuple
 Gets or sets the HSLA representation of the Color.
 
-
-
-Color.i1i2i3
- Color.i1i2i3: Return tuple
+pygame.Color.i1i2i3
+ i1i2i3 -> tuple
 Gets or sets the I1I2I3 representation of the Color.
 
-
-
-Color.normalize
- Color.normalize(): Return tuple
+pygame.Color.normalize
+ normalize() -> tuple
 Returns the normalized RGBA values of the Color.
 
-
-
-Color.correct_gamma
- Color.correct_gamma (gamma): Return Color
+pygame.Color.correct_gamma
+ correct_gamma (gamma) -> Color
 Applies a certain gamma value to the Color.
 
-
-
-Color.set_length
- Color.set_length(len)
+pygame.Color.set_length
+ set_length(len) -> None
 Set the number of elements in the Color to 1,2,3, or 4.
 
-
-
 */
-

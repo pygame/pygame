@@ -1,215 +1,401 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-<html>
-<title>transform - Pygame Documentation</title>
-<body bgcolor=#aaeebb text=#000000 link=#331111 vlink=#331111>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pygame.transform &mdash; Pygame v1.9.2 documentation</title>
+    <link rel="stylesheet" href="../_static/pygame.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.9.2',
+        COLLAPSE_MODINDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/pygame.ico"/>
+    <link rel="top" title="Pygame v1.9.2 documentation" href="../index.html" />
+    <link rel="prev" title="pygame.time" href="time.html" /> 
+  </head>
+  <body>  
 
+    <div class="document">
 
-<table cellpadding=0 cellspacing=0 border=0 style='border: 3px solid black;' width='100%'>
-<tr>
-<td bgcolor='#c2fc20' style='padding: 6px;' align=center valign=center><a href='http://www.pygame.org/'><img src='../pygame_tiny.gif' border=0 width=200 height=60></a><br><b>pygame documentation</b></td>
-<td bgcolor='#6aee28' style='border-left: 3px solid black; padding: 6px;' align=center valign=center>
-	||&nbsp;
-	<a href=http://www.pygame.org>Pygame Home</a> &nbsp;||&nbsp;
-	<a href=../index.html>Help Contents</a> &nbsp;||
-	<a href=index.html>Reference Index</a> &nbsp;||
-	<br>&nbsp;<br>
-	
-<a href="camera.html">Camera</a>&nbsp;||&nbsp;
-<a href="cdrom.html">Cdrom</a>&nbsp;||&nbsp;
-<a href="color.html">Color</a>&nbsp;||&nbsp;
-<a href="cursors.html">Cursors</a>&nbsp;||&nbsp;
-<a href="display.html">Display</a>&nbsp;||&nbsp;
-<a href="draw.html">Draw</a>&nbsp;||&nbsp;
-<a href="event.html">Event</a>&nbsp;||&nbsp;
-<a href="examples.html">Examples</a>&nbsp;||&nbsp;
-<a href="font.html">Font</a>&nbsp;||&nbsp;
-<a href="freetype.html">Freetype</a>&nbsp;||&nbsp;
-<a href="gfxdraw.html">Gfxdraw</a>&nbsp;||&nbsp;
-<a href="image.html">Image</a>&nbsp;||&nbsp;
-<a href="joystick.html">Joystick</a>&nbsp;||&nbsp;
-<a href="key.html">Key</a>&nbsp;||&nbsp;
-<a href="locals.html">Locals</a>&nbsp;||&nbsp;
-<a href="mask.html">Mask</a>&nbsp;||&nbsp;
-<a href="math.html">Math</a>&nbsp;||&nbsp;
-<a href="midi.html">Midi</a>&nbsp;||&nbsp;
-<a href="mixer.html">Mixer</a>&nbsp;||&nbsp;
-<a href="mouse.html">Mouse</a>&nbsp;||&nbsp;
-<a href="movie.html">Movie</a>&nbsp;||&nbsp;
-<a href="music.html">Music</a>&nbsp;||&nbsp;
-<a href="overlay.html">Overlay</a>&nbsp;||&nbsp;
-<a href="pixelarray.html">Pixelarray</a>&nbsp;||&nbsp;
-<a href="pixelcopy.html">Pixelcopy</a>&nbsp;||&nbsp;
-<a href="pygame.html">Pygame</a>&nbsp;||&nbsp;
-<a href="rect.html">Rect</a>&nbsp;||&nbsp;
-<a href="scrap.html">Scrap</a>&nbsp;||&nbsp;
-<a href="sndarray.html">Sndarray</a>&nbsp;||&nbsp;
-<a href="sprite.html">Sprite</a>&nbsp;||&nbsp;
-<a href="surface.html">Surface</a>&nbsp;||&nbsp;
-<a href="surfarray.html">Surfarray</a>&nbsp;||&nbsp;
-<a href="tests.html">Tests</a>&nbsp;||&nbsp;
-<a href="time.html">Time</a>&nbsp;||&nbsp;
-<a href="transform.html">Transform</a>
-</td></tr></table>
-<br>
+  <div class="header">
+    <table>
+      <tr>
+	<td class="logo">
+	  <a href="http://www.pygame.org/">
+	    <img src="../_static/pygame_tiny.png"/>
+	  </a>
+	  <h5>pygame documentation</h5>
+	</td>
+	<td class="pagelinks">
+	  <p class="top">
+	    ||
+	    <a href="http://www.pygame.org/">Pygame Home</a> ||
+	    <a href="../index.html">Help Contents</a> ||
+	    <a href="../genindex.html">Reference Index</a> ||
+	  </p>
+	  <p class="bottom">
+	    <a href="camera.html">camera</a> || 
+	    <a href="cdrom.html">cdrom</a> || 
+	    <a href="color.html">Color</a> || 
+	    <a href="cursors.html">cursors</a> || 
+	    <a href="display.html">display</a> || 
+	    <a href="draw.html">draw</a> || 
+	    <a href="event.html">event</a> || 
+	    <a href="examples.html">examples</a> || 
+	    <a href="font.html">font</a> || 
+	    <a href="gfxdraw.html">gfxdraw</a> || 
+	    <a href="image.html">image</a> || 
+	    <a href="joystick.html">joystick</a> || 
+	    <a href="key.html">key</a> || 
+	    <a href="locals.html">locals</a> || 
+	    <a href="mask.html">mask</a> || 
+	    <a href="math.html">math</a> || 
+	    <a href="midi.html">midi</a> || 
+	    <a href="mixer.html">mixer</a> || 
+	    <a href="mouse.html">mouse</a> || 
+	    <a href="movie.html">movie</a> || 
+	    <a href="music.html">music</a> || 
+	    <a href="overlay.html">Overlay</a> || 
+	    <a href="pixelarray.html">PixelArray</a> || 
+	    <a href="pixelcopy.html">pixelcopy</a> || 
+	    <a href="pygame.html">pygame</a> || 
+	    <a href="rect.html">Rect</a> || 
+	    <a href="scrap.html">scrap</a> || 
+	    <a href="sndarray.html">sndarray</a> || 
+	    <a href="sprite.html">sprite</a> || 
+	    <a href="surface.html">Surface</a> || 
+	    <a href="surfarray.html">surfarray</a> || 
+	    <a href="tests.html">tests</a> || 
+	    <a href="time.html">time</a> || 
+	    <a href="transform.html">transform</a> || 
+	    <a href="pygame.html#module-pygame.version">version</a>
+	  </p>
+	</td>
+      </tr>
+    </table>
+  </div>
 
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <div class="sectionwrapper">
+<div class="section" id="module-pygame.transform">
+<dl class="definition module">
+<dt class="title module">
+<tt class="docutils literal"><span class="pre">pygame.transform</span></tt></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">pygame module to transform surfaces</span></div>
+</div>
+<table border="1" class="toc docutils">
+<colgroup>
+<col width="32%" />
+<col width="1%" />
+<col width="68%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="toc reference external" href="transform.html#pygame.transform.flip">pygame.transform.flip</a></td>
+<td>—</td>
+<td>flip vertically and horizontally</td>
+</tr>
+<tr><td><a class="toc reference external" href="transform.html#pygame.transform.scale">pygame.transform.scale</a></td>
+<td>—</td>
+<td>resize to new resolution</td>
+</tr>
+<tr><td><a class="toc reference external" href="transform.html#pygame.transform.rotate">pygame.transform.rotate</a></td>
+<td>—</td>
+<td>rotate an image</td>
+</tr>
+<tr><td><a class="toc reference external" href="transform.html#pygame.transform.rotozoom">pygame.transform.rotozoom</a></td>
+<td>—</td>
+<td>filtered scale and rotation</td>
+</tr>
+<tr><td><a class="toc reference external" href="transform.html#pygame.transform.scale2x">pygame.transform.scale2x</a></td>
+<td>—</td>
+<td>specialized image doubler</td>
+</tr>
+<tr><td><a class="toc reference external" href="transform.html#pygame.transform.smoothscale">pygame.transform.smoothscale</a></td>
+<td>—</td>
+<td>scale a surface to an arbitrary size smoothly</td>
+</tr>
+<tr><td><a class="toc reference external" href="transform.html#pygame.transform.get_smoothscale_backend">pygame.transform.get_smoothscale_backend</a></td>
+<td>—</td>
+<td>return smoothscale filter version in use: &#8216;GENERIC&#8217;, &#8216;MMX&#8217;, or &#8216;SSE&#8217;</td>
+</tr>
+<tr><td><a class="toc reference external" href="transform.html#pygame.transform.set_smoothscale_backend">pygame.transform.set_smoothscale_backend</a></td>
+<td>—</td>
+<td>set smoothscale filter version to one of: &#8216;GENERIC&#8217;, &#8216;MMX&#8217;, or &#8216;SSE&#8217;</td>
+</tr>
+<tr><td><a class="toc reference external" href="transform.html#pygame.transform.chop">pygame.transform.chop</a></td>
+<td>—</td>
+<td>gets a copy of an image with an interior area removed</td>
+</tr>
+<tr><td><a class="toc reference external" href="transform.html#pygame.transform.laplacian">pygame.transform.laplacian</a></td>
+<td>—</td>
+<td>find edges in a surface</td>
+</tr>
+<tr><td><a class="toc reference external" href="transform.html#pygame.transform.average_surfaces">pygame.transform.average_surfaces</a></td>
+<td>—</td>
+<td>find the average surface from many surfaces.</td>
+</tr>
+<tr><td><a class="toc reference external" href="transform.html#pygame.transform.average_color">pygame.transform.average_color</a></td>
+<td>—</td>
+<td>finds the average color of a surface</td>
+</tr>
+<tr><td><a class="toc reference external" href="transform.html#pygame.transform.threshold">pygame.transform.threshold</a></td>
+<td>—</td>
+<td>finds which, and how many pixels in a surface are within a threshold of a color.</td>
+</tr>
+</tbody>
+</table>
+<p>A Surface transform is an operation that moves or resizes the pixels. All these
+functions take a Surface to operate on and return a new Surface with the
+results.</p>
+<p>Some of the transforms are considered destructive. These means every time they
+are performed they lose pixel data. Common examples of this are resizing and
+rotating. For this reason, it is better to retransform the original surface
+than to keep transforming an image multiple times. (For example, suppose you
+are animating a bouncing spring which expands and contracts. If you applied the
+size changes incrementally to the previous images, you would lose detail.
+Instead, always begin with the original image and scale to the desired size.)</p>
+<dl class="definition function">
+<dt class="title" id="pygame.transform.flip">
+<tt class="descclassname">pygame.transform.</tt><tt class="descname">flip</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.transform.flip" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">flip vertically and horizontally</span></div>
+<div class="line"><span class="signature">flip(Surface, xbool, ybool) -&gt; Surface</span></div>
+</div>
+<p>This can flip a Surface either vertically, horizontally, or both. Flipping a
+Surface is nondestructive and returns a new Surface with the same
+dimensions.</p>
+</dd></dl>
 
-<a name="pygame.transform">
-<big><b>pygame.transform</big></b><br><ul>
-  <i>pygame module to transform surfaces</i><br>
-<ul><small><table>
-  <tr><td><a href="transform.html#pygame.transform.flip">pygame.transform.flip</a></td><td> &mdash; flip vertically and horizontally</td></tr>
-  <tr><td><a href="transform.html#pygame.transform.scale">pygame.transform.scale</a></td><td> &mdash; resize to new resolution</td></tr>
-  <tr><td><a href="transform.html#pygame.transform.rotate">pygame.transform.rotate</a></td><td> &mdash; rotate an image</td></tr>
-  <tr><td><a href="transform.html#pygame.transform.rotozoom">pygame.transform.rotozoom</a></td><td> &mdash; filtered scale and rotation</td></tr>
-  <tr><td><a href="transform.html#pygame.transform.scale2x">pygame.transform.scale2x</a></td><td> &mdash; specialized image doubler</td></tr>
-  <tr><td><a href="transform.html#pygame.transform.smoothscale">pygame.transform.smoothscale</a></td><td> &mdash; scale a surface to an arbitrary size smoothly</td></tr>
-  <tr><td><a href="transform.html#pygame.transform.get_smoothscale_backend">pygame.transform.get_smoothscale_backend</a></td><td> &mdash; return smoothscale filter version in use: 'GENERIC', 'MMX', or 'SSE'</td></tr>
-  <tr><td><a href="transform.html#pygame.transform.set_smoothscale_backend">pygame.transform.set_smoothscale_backend</a></td><td> &mdash; set smoothscale filter version to one of: 'GENERIC', 'MMX', or 'SSE'</td></tr>
-  <tr><td><a href="transform.html#pygame.transform.chop">pygame.transform.chop</a></td><td> &mdash; gets a copy of an image with an interior area removed</td></tr>
-  <tr><td><a href="transform.html#pygame.transform.laplacian">pygame.transform.laplacian</a></td><td> &mdash; find edges in a surface</td></tr>
-  <tr><td><a href="transform.html#pygame.transform.average_surfaces">pygame.transform.average_surfaces</a></td><td> &mdash; find the average surface from many surfaces.</td></tr>
-  <tr><td><a href="transform.html#pygame.transform.average_color">pygame.transform.average_color</a></td><td> &mdash; finds the average color of a surface</td></tr>
-  <tr><td><a href="transform.html#pygame.transform.threshold">pygame.transform.threshold</a></td><td> &mdash; finds which, and how many pixels in a surface are within a threshold of a color.</td></tr>
-</table></small></ul>
-<p>A Surface transform is an operation that moves or resizes the pixels. All these functions take a Surface to operate on and return a new Surface with the results. </p>
-<p>Some of the transforms are considered destructive. These means every time they are performed they lose pixel data. Common examples of this are resizing and rotating. For this reason, it is better to retransform the original surface than to keep transforming an image multiple times. (For example, suppose you are animating a bouncing spring which expands and contracts. If you applied the size changes incrementally to the previous images, you would lose detail. Instead, always begin with the original image and scale to the desired size.) </p>
-<!--COMMENTS:pygame.transform--> &nbsp;<br> 
+<dl class="definition function">
+<dt class="title" id="pygame.transform.scale">
+<tt class="descclassname">pygame.transform.</tt><tt class="descname">scale</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.transform.scale" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">resize to new resolution</span></div>
+<div class="line"><span class="signature">scale(Surface, (width, height), DestSurface = None) -&gt; Surface</span></div>
+</div>
+<p>Resizes the Surface to a new resolution. This is a fast scale operation that
+does not sample the results.</p>
+<p>An optional destination surface can be used, rather than have it create a
+new one. This is quicker if you want to repeatedly scale something. However
+the destination must be the same size as the (width, height) passed in. Also
+the destination surface must be the same format.</p>
+</dd></dl>
 
+<dl class="definition function">
+<dt class="title" id="pygame.transform.rotate">
+<tt class="descclassname">pygame.transform.</tt><tt class="descname">rotate</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.transform.rotate" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">rotate an image</span></div>
+<div class="line"><span class="signature">rotate(Surface, angle) -&gt; Surface</span></div>
+</div>
+<p>Unfiltered counterclockwise rotation. The angle argument represents degrees
+and can be any floating point value. Negative angle amounts will rotate
+clockwise.</p>
+<p>Unless rotating by 90 degree increments, the image will be padded larger to
+hold the new size. If the image has pixel alphas, the padded area will be
+transparent. Otherwise pygame will pick a color that matches the Surface
+colorkey or the topleft pixel value.</p>
+</dd></dl>
 
-<a name="pygame.transform.flip">
-<big><b>pygame.transform.flip</big></b><br><ul>
-  <i>flip vertically and horizontally</i><br>
-  <tt>pygame.transform.flip(Surface, xbool, ybool): return Surface</tt><br>
-<p>This can flip a Surface either vertically, horizontally, or both. Flipping a Surface is nondestructive and returns a new Surface with the same dimensions. </p>
-<!--COMMENTS:pygame.transform.flip--> &nbsp;<br> 
-<br></ul>
+<dl class="definition function">
+<dt class="title" id="pygame.transform.rotozoom">
+<tt class="descclassname">pygame.transform.</tt><tt class="descname">rotozoom</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.transform.rotozoom" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">filtered scale and rotation</span></div>
+<div class="line"><span class="signature">rotozoom(Surface, angle, scale) -&gt; Surface</span></div>
+</div>
+<p>This is a combined scale and rotation transform. The resulting Surface will
+be a filtered 32-bit Surface. The scale argument is a floating point value
+that will be multiplied by the current resolution. The angle argument is a
+floating point value that represents the counterclockwise degrees to rotate.
+A negative rotation angle will rotate clockwise.</p>
+</dd></dl>
 
+<dl class="definition function">
+<dt class="title" id="pygame.transform.scale2x">
+<tt class="descclassname">pygame.transform.</tt><tt class="descname">scale2x</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.transform.scale2x" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">specialized image doubler</span></div>
+<div class="line"><span class="signature">scale2x(Surface, DestSurface = None) -&gt; Surface</span></div>
+</div>
+<p>This will return a new image that is double the size of the original. It
+uses the AdvanceMAME Scale2X algorithm which does a &#8216;jaggie-less&#8217; scale of
+bitmap graphics.</p>
+<p>This really only has an effect on simple images with solid colors. On
+photographic and antialiased images it will look like a regular unfiltered
+scale.</p>
+<p>An optional destination surface can be used, rather than have it create a
+new one. This is quicker if you want to repeatedly scale something. However
+the destination must be twice the size of the source surface passed in. Also
+the destination surface must be the same format.</p>
+</dd></dl>
 
-<a name="pygame.transform.scale">
-<big><b>pygame.transform.scale</big></b><br><ul>
-  <i>resize to new resolution</i><br>
-  <tt>pygame.transform.scale(Surface, (width, height), DestSurface = None): return Surface</tt><br>
-<p>Resizes the Surface to a new resolution. This is a fast scale operation that does not sample the results. </p>
-<p>An optional destination surface can be used, rather than have it create a new one. This is quicker if you want to repeatedly scale something. However the destination must be the same size as the (width, height) passed in. Also the destination surface must be the same format. </p>
-<!--COMMENTS:pygame.transform.scale--> &nbsp;<br> 
-<br></ul>
+<dl class="definition function">
+<dt class="title" id="pygame.transform.smoothscale">
+<tt class="descclassname">pygame.transform.</tt><tt class="descname">smoothscale</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.transform.smoothscale" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">scale a surface to an arbitrary size smoothly</span></div>
+<div class="line"><span class="signature">smoothscale(Surface, (width, height), DestSurface = None) -&gt; Surface</span></div>
+</div>
+<p>Uses one of two different algorithms for scaling each dimension of the input
+surface as required. For shrinkage, the output pixels are area averages of
+the colors they cover. For expansion, a bilinear filter is used. For the
+amd64 and i686 architectures, optimized <tt class="docutils literal"><span class="pre">MMX</span></tt> routines are included and
+will run much faster than other machine types. The size is a 2 number
+sequence for (width, height). This function only works for 24-bit or 32-bit
+surfaces. An exception will be thrown if the input surface bit depth is less
+than 24.</p>
+<p>New in pygame 1.8</p>
+</dd></dl>
 
+<dl class="definition function">
+<dt class="title" id="pygame.transform.get_smoothscale_backend">
+<tt class="descclassname">pygame.transform.</tt><tt class="descname">get_smoothscale_backend</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.transform.get_smoothscale_backend" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">return smoothscale filter version in use: &#8216;GENERIC&#8217;, &#8216;MMX&#8217;, or &#8216;SSE&#8217;</span></div>
+<div class="line"><span class="signature">get_smoothscale_backend() -&gt; String</span></div>
+</div>
+<p>Shows whether or not smoothscale is using <tt class="docutils literal"><span class="pre">MMX</span></tt> or <tt class="docutils literal"><span class="pre">SSE</span></tt> acceleration.
+If no acceleration is available then &#8220;GENERIC&#8221; is returned. For a x86
+processor the level of acceleration to use is determined at runtime.</p>
+<p>This function is provided for Pygame testing and debugging.</p>
+</dd></dl>
 
-<a name="pygame.transform.rotate">
-<big><b>pygame.transform.rotate</big></b><br><ul>
-  <i>rotate an image</i><br>
-  <tt>pygame.transform.rotate(Surface, angle): return Surface</tt><br>
-<p>Unfiltered counterclockwise rotation. The angle argument represents degrees and can be any floating point value. Negative angle amounts will rotate clockwise. </p>
-<p>Unless rotating by 90 degree increments, the image will be padded larger to hold the new size. If the image has pixel alphas, the padded area will be transparent. Otherwise pygame will pick a color that matches the Surface colorkey or the topleft pixel value. </p>
-<!--COMMENTS:pygame.transform.rotate--> &nbsp;<br> 
-<br></ul>
+<dl class="definition function">
+<dt class="title" id="pygame.transform.set_smoothscale_backend">
+<tt class="descclassname">pygame.transform.</tt><tt class="descname">set_smoothscale_backend</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.transform.set_smoothscale_backend" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">set smoothscale filter version to one of: &#8216;GENERIC&#8217;, &#8216;MMX&#8217;, or &#8216;SSE&#8217;</span></div>
+<div class="line"><span class="signature">set_smoothscale_backend(type) -&gt; None</span></div>
+</div>
+<p>Sets smoothscale acceleration. Takes a string argument. A value of &#8216;GENERIC&#8217;
+turns off acceleration. &#8216;MMX&#8217; uses <tt class="docutils literal"><span class="pre">MMX</span></tt> instructions only. &#8216;SSE&#8217; allows
+<tt class="docutils literal"><span class="pre">SSE</span></tt> extensions as well. A value error is raised if type is not
+recognized or not supported by the current processor.</p>
+<p>This function is provided for Pygame testing and debugging. If smoothscale
+causes an invalid instruction error then it is a Pygame/SDL bug that should
+be reported. Use this function as a temporary fix only.</p>
+</dd></dl>
 
+<dl class="definition function">
+<dt class="title" id="pygame.transform.chop">
+<tt class="descclassname">pygame.transform.</tt><tt class="descname">chop</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.transform.chop" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">gets a copy of an image with an interior area removed</span></div>
+<div class="line"><span class="signature">chop(Surface, rect) -&gt; Surface</span></div>
+</div>
+<p>Extracts a portion of an image. All vertical and horizontal pixels
+surrounding the given rectangle area are removed. The corner areas (diagonal
+to the rect) are then brought together. (The original image is not altered
+by this operation.)</p>
+<p><tt class="docutils literal"><span class="pre">NOTE</span></tt>: If you want a &#8220;crop&#8221; that returns the part of an image within a
+rect, you can blit with a rect to a new surface or copy a subsurface.</p>
+</dd></dl>
 
-<a name="pygame.transform.rotozoom">
-<big><b>pygame.transform.rotozoom</big></b><br><ul>
-  <i>filtered scale and rotation</i><br>
-  <tt>pygame.transform.rotozoom(Surface, angle, scale): return Surface</tt><br>
-<p>This is a combined scale and rotation transform. The resulting Surface will be a filtered 32-bit Surface. The scale argument is a floating point value that will be multiplied by the current resolution. The angle argument is a floating point value that represents the counterclockwise degrees to rotate. A negative rotation angle will rotate clockwise. </p>
-<!--COMMENTS:pygame.transform.rotozoom--> &nbsp;<br> 
-<br></ul>
+<dl class="definition function">
+<dt class="title" id="pygame.transform.laplacian">
+<tt class="descclassname">pygame.transform.</tt><tt class="descname">laplacian</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.transform.laplacian" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">find edges in a surface</span></div>
+<div class="line"><span class="signature">laplacian(Surface, DestSurface = None) -&gt; Surface</span></div>
+</div>
+<p>Finds the edges in a surface using the laplacian algorithm.</p>
+<p>New in pygame 1.8</p>
+</dd></dl>
 
+<dl class="definition function">
+<dt class="title" id="pygame.transform.average_surfaces">
+<tt class="descclassname">pygame.transform.</tt><tt class="descname">average_surfaces</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.transform.average_surfaces" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">find the average surface from many surfaces.</span></div>
+<div class="line"><span class="signature">average_surfaces(Surfaces, DestSurface = None, palette_colors = 1) -&gt; Surface</span></div>
+</div>
+<p>Takes a sequence of surfaces and returns a surface with average colors from
+each of the surfaces.</p>
+<p>palette_colors - if true we average the colors in palette, otherwise we
+average the pixel values. This is useful if the surface is actually
+greyscale colors, and not palette colors.</p>
+<p>Note, this function currently does not handle palette using surfaces
+correctly.</p>
+<p>New in pygame 1.8 palette_colors argument new in pygame 1.9</p>
+</dd></dl>
 
-<a name="pygame.transform.scale2x">
-<big><b>pygame.transform.scale2x</big></b><br><ul>
-  <i>specialized image doubler</i><br>
-  <tt>pygame.transform.scale2x(Surface, DestSurface = None): return Surface</tt><br>
-<p>This will return a new image that is double the size of the original. It uses the AdvanceMAME Scale2X algorithm which does a 'jaggie-less' scale of bitmap graphics. </p>
-<p>This really only has an effect on simple images with solid colors. On photographic and antialiased images it will look like a regular unfiltered scale. </p>
-<p>An optional destination surface can be used, rather than have it create a new one. This is quicker if you want to repeatedly scale something. However the destination must be twice the size of the source surface passed in. Also the destination surface must be the same format. </p>
-<!--COMMENTS:pygame.transform.scale2x--> &nbsp;<br> 
-<br></ul>
+<dl class="definition function">
+<dt class="title" id="pygame.transform.average_color">
+<tt class="descclassname">pygame.transform.</tt><tt class="descname">average_color</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.transform.average_color" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">finds the average color of a surface</span></div>
+<div class="line"><span class="signature">average_color(Surface, Rect = None) -&gt; Color</span></div>
+</div>
+<p>Finds the average color of a Surface or a region of a surface specified by a
+Rect, and returns it as a Color.</p>
+</dd></dl>
 
+<dl class="definition function">
+<dt class="title" id="pygame.transform.threshold">
+<tt class="descclassname">pygame.transform.</tt><tt class="descname">threshold</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.transform.threshold" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">finds which, and how many pixels in a surface are within a threshold of a color.</span></div>
+<div class="line"><span class="signature">threshold(DestSurface, Surface, color, threshold = (0,0,0,0), diff_color = (0,0,0,0), change_return = 1, Surface = None, inverse = False) -&gt; num_threshold_pixels</span></div>
+</div>
+<p>Finds which, and how many pixels in a surface are within a threshold of a
+color.</p>
+<p>It can set the destination surface where all of the pixels not within the
+threshold are changed to diff_color. If inverse is optionally set to True,
+the pixels that are within the threshold are instead changed to diff_color.</p>
+<p>If the optional second surface is given, it is used to threshold against
+rather than the specified color. That is, it will find each pixel in the
+first Surface that is within the threshold of the pixel at the same
+coordinates of the second Surface.</p>
+<p>If change_return is set to 0, it can be used to just count the number of
+pixels within the threshold if you set</p>
+<p>If change_return is set to 1, the pixels set in DestSurface will be those
+from the color.</p>
+<p>If change_return is set to 2, the pixels set in DestSurface will be those
+from the first Surface.</p>
+<p>You can use a threshold of (r,g,b,a) where the r,g,b can have different
+thresholds. So you could use an r threshold of 40 and a blue threshold of 2
+if you like.</p>
+<p>New in pygame 1.8</p>
+</dd></dl>
 
-<a name="pygame.transform.smoothscale">
-<big><b>pygame.transform.smoothscale</big></b><br><ul>
-  <i>scale a surface to an arbitrary size smoothly</i><br>
-  <tt>pygame.transform.smoothscale(Surface, (width, height), DestSurface = None): return Surface</tt><br>
-<p>Uses one of two different algorithms for scaling each dimension of the input surface as required. For shrinkage, the output pixels are area averages of the colors they cover. For expansion, a bilinear filter is used. For the amd64 and i686 architectures, optimized <tt>MMX</tt> routines are included and will run much faster than other machine types. The size is a 2 number sequence for (width, height). This function only works for 24-bit or 32-bit surfaces. An exception will be thrown if the input surface bit depth is less than 24. </p>
-<p>New in pygame 1.8 </p>
-<!--COMMENTS:pygame.transform.smoothscale--> &nbsp;<br> 
-<br></ul>
+</dd></dl>
 
+</div>
 
-<a name="pygame.transform.get_smoothscale_backend">
-<big><b>pygame.transform.get_smoothscale_backend</big></b><br><ul>
-  <i>return smoothscale filter version in use: 'GENERIC', 'MMX', or 'SSE'</i><br>
-  <tt>pygame.transform.get_smoothscale_backend(): return String</tt><br>
-<p>Shows whether or not smoothscale is using <tt>MMX</tt> or <tt>SSE</tt> acceleration. If no acceleration is available then "GENERIC" is returned. For a x86 processor the level of acceleration to use is determined at runtime. </p>
-<p>This function is provided for Pygame testing and debugging. </p>
-<!--COMMENTS:pygame.transform.get_smoothscale_backend--> &nbsp;<br> 
-<br></ul>
-
-
-<a name="pygame.transform.set_smoothscale_backend">
-<big><b>pygame.transform.set_smoothscale_backend</big></b><br><ul>
-  <i>set smoothscale filter version to one of: 'GENERIC', 'MMX', or 'SSE'</i><br>
-  <tt>pygame.transform.set_smoothscale_backend(type): return None</tt><br>
-<p>Sets smoothscale acceleration. Takes a string argument. A value of 'GENERIC' turns off acceleration. 'MMX' uses <tt>MMX</tt> instructions only. 'SSE' allows <tt>SSE</tt> extensions as well. A value error is raised if type is not recognized or not supported by the current processor. </p>
-<p>This function is provided for Pygame testing and debugging. If smoothscale causes an invalid instruction error then it is a Pygame/SDL bug that should be reported. Use this function as a temporary fix only. </p>
-<!--COMMENTS:pygame.transform.set_smoothscale_backend--> &nbsp;<br> 
-<br></ul>
-
-
-<a name="pygame.transform.chop">
-<big><b>pygame.transform.chop</big></b><br><ul>
-  <i>gets a copy of an image with an interior area removed</i><br>
-  <tt>pygame.transform.chop(Surface, rect): return Surface</tt><br>
-<p>Extracts a portion of an image. All vertical and horizontal pixels surrounding the given rectangle area are removed. The corner areas (diagonal to the rect) are then brought together. (The original image is not altered by this operation.) </p>
-<p>NOTE: If you want a "crop" that returns the part of an image within a rect, you can blit with a rect to a new surface or copy a subsurface. </p>
-<!--COMMENTS:pygame.transform.chop--> &nbsp;<br> 
-<br></ul>
-
-
-<a name="pygame.transform.laplacian">
-<big><b>pygame.transform.laplacian</big></b><br><ul>
-  <i>find edges in a surface</i><br>
-  <tt>pygame.transform.laplacian(Surface, DestSurface = None): return Surface</tt><br>
-<p>Finds the edges in a surface using the laplacian algorithm. </p>
-<p>New in pygame 1.8 </p>
-<!--COMMENTS:pygame.transform.laplacian--> &nbsp;<br> 
-<br></ul>
-
-
-<a name="pygame.transform.average_surfaces">
-<big><b>pygame.transform.average_surfaces</big></b><br><ul>
-  <i>find the average surface from many surfaces.</i><br>
-  <tt>pygame.transform.average_surfaces(Surfaces, DestSurface = None, palette_colors = 1): return Surface</tt><br>
-<p>Takes a sequence of surfaces and returns a surface with average colors from each of the surfaces. </p>
-<p>palette_colors - if true we average the colors in palette, otherwise we average the pixel values. This is useful if the surface is actually greyscale colors, and not palette colors. </p>
-<p>Note, this function currently does not handle palette using surfaces correctly. </p>
-<p>New in pygame 1.8 palette_colors argument new in pygame 1.9 </p>
-<!--COMMENTS:pygame.transform.average_surfaces--> &nbsp;<br> 
-<br></ul>
-
-
-<a name="pygame.transform.average_color">
-<big><b>pygame.transform.average_color</big></b><br><ul>
-  <i>finds the average color of a surface</i><br>
-  <tt>pygame.transform.average_color(Surface, Rect = None): return Color</tt><br>
-<p>Finds the average color of a Surface or a region of a surface specified by a Rect, and returns it as a Color. </p>
-<!--COMMENTS:pygame.transform.average_color--> &nbsp;<br> 
-<br></ul>
-
-
-<a name="pygame.transform.threshold">
-<big><b>pygame.transform.threshold</big></b><br><ul>
-  <i>finds which, and how many pixels in a surface are within a threshold of a color.</i><br>
-  <tt>pygame.transform.threshold(DestSurface, Surface, color, threshold = (0,0,0,0), diff_color = (0,0,0,0), change_return = 1, Surface = None, inverse = False): return num_threshold_pixels</tt><br>
-<p>Finds which, and how many pixels in a surface are within a threshold of a color. </p>
-<p>It can set the destination surface where all of the pixels not within the threshold are changed to diff_color. If inverse is optionally set to True, the pixels that are within the threshold are instead changed to diff_color. </p>
-<p>If the optional second surface is given, it is used to threshold against rather than the specified color. That is, it will find each pixel in the first Surface that is within the threshold of the pixel at the same coordinates of the second Surface. </p>
-<p>If change_return is set to 0, it can be used to just count the number of pixels within the threshold if you set </p>
-<p>If change_return is set to 1, the pixels set in DestSurface will be those from the color. </p>
-<p>If change_return is set to 2, the pixels set in DestSurface will be those from the first Surface. </p>
-<p>You can use a threshold of (r,g,b,a) where the r,g,b can have different thresholds. So you could use an r threshold of 40 and a blue threshold of 2 if you like. </p>
-<p>New in pygame 1.8 </p>
-<!--COMMENTS:pygame.transform.threshold--> &nbsp;<br> 
-<br></ul>
-<br></ul>
-
-</body></html>
+  </div>
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="time.html" title="pygame.time"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">Pygame v1.9.2 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+      &copy; Copyright 2011, Pygame Developers.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.6.6.
+    </div>
+  </body>
+</html>
