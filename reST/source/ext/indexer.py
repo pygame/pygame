@@ -30,9 +30,12 @@ pyg_descinfo_tbl: {<id>: {'fullname': <fullname>,
 """
 
 from ext.utils import (Visitor, get_fullname, get_refid, as_refid,
-                       geterror, GetError, EMPTYSTR)
+                       geterror, GetError, EMPTYSTR, as_unicode)
 
 from collections import deque
+
+
+MODULE_ID_PREFIX = as_unicode(r'module-')
 
 
 def setup(app):
@@ -95,7 +98,7 @@ class CollectInfo(Visitor):
         summary, sigs, child_descs = self._pop()
         if not node.children:
             return
-        if node['ids'][0].startswith('module-'):
+        if node['ids'][0].startswith(MODULE_ID_PREFIX):
             self._add_section(node)
             self._add_descinfo(node, summary, sigs, child_descs)
         elif child_descs:
@@ -145,7 +148,10 @@ class CollectInfo(Visitor):
         self._add_descinfo_entry(node, entry)
 
     def _add_descinfo_entry(self, node, entry):
-        self.env.pyg_descinfo_tbl[get_refid(node)] = entry
+        key = get_refid(node)
+        if key.startswith(MODULE_ID_PREFIX):
+            key = key[len(MODULE_ID_PREFIX):]
+        self.env.pyg_descinfo_tbl[key] = entry
 
     def _push(self):
         self.summary_stack.append(EMPTYSTR)
@@ -185,6 +191,8 @@ def get_descinfo(node, env):
     return get_descinfo_refid(get_refid(node), env)
 
 def get_descinfo_refid(refid, env):
+    if refid.startswith(MODULE_ID_PREFIX):
+        refid = refid[len(MODULE_ID_PREFIX):]
     try:
         return env.pyg_descinfo_tbl[refid]
     except KeyError:
