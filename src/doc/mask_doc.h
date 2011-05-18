@@ -1,201 +1,151 @@
 /* Auto generated file: with makeref.py .  Docs go in src/ *.doc . */
 #define DOC_PYGAMEMASK "pygame module for image masks."
 
-#define DOC_PYGAMEMASKFROMSURFACE "pygame.mask.from_surface(Surface, threshold = 127) -> Mask\nReturns a Mask from the given surface."
+#define DOC_PYGAMEMASKFROMSURFACE "from_surface(Surface, threshold = 127) -> Mask\nReturns a Mask from the given surface."
 
-#define DOC_PYGAMEMASKFROMTHRESHOLD "pygame.mask.from_threshold(Surface, color, threshold = (0,0,0,255), othersurface = None, palette_colors = 1) -> Mask\nCreates a mask by thresholding Surfaces"
+#define DOC_PYGAMEMASKFROMTHRESHOLD "from_threshold(Surface, color, threshold = (0,0,0,255), othersurface = None, palette_colors = 1) -> Mask\nCreates a mask by thresholding Surfaces"
 
-#define DOC_PYGAMEMASKMASK "pygame.mask.Mask((width, height)): return Mask\npygame object for representing 2d bitmasks"
+#define DOC_PYGAMEMASKMASK "Mask((width, height)) -> Mask\npygame object for representing 2d bitmasks"
 
-#define DOC_MASKGETSIZE "Mask.get_size() -> width,height\nReturns the size of the mask."
+#define DOC_MASKGETSIZE "get_size() -> width,height\nReturns the size of the mask."
 
-#define DOC_MASKGETAT "Mask.get_at((x,y)) -> int\nReturns nonzero if the bit at (x,y) is set."
+#define DOC_MASKGETAT "get_at((x,y)) -> int\nReturns nonzero if the bit at (x,y) is set."
 
-#define DOC_MASKSETAT "Mask.set_at((x,y),value)\nSets the position in the mask given by x and y."
+#define DOC_MASKSETAT "set_at((x,y),value) -> None\nSets the position in the mask given by x and y."
 
-#define DOC_MASKOVERLAP "Mask.overlap(othermask, offset) -> x,y\nReturns the point of intersection if the masks overlap with the given offset - or None if it does not overlap."
+#define DOC_MASKOVERLAP "overlap(othermask, offset) -> x,y\nReturns the point of intersection if the masks overlap with the given offset - or None if it does not overlap."
 
-#define DOC_MASKOVERLAPAREA "Mask.overlap_area(othermask, offset) -> numpixels\nReturns the number of overlapping 'pixels'."
+#define DOC_MASKOVERLAPAREA "overlap_area(othermask, offset) -> numpixels\nReturns the number of overlapping 'pixels'."
 
-#define DOC_MASKOVERLAPMASK "Mask.overlap_mask(othermask, offset) -> Mask\nReturns a mask of the overlapping pixels"
+#define DOC_MASKOVERLAPMASK "overlap_mask(othermask, offset) -> Mask\nReturns a mask of the overlapping pixels"
 
-#define DOC_MASKFILL "Mask.fill()\nSets all bits to 1"
+#define DOC_MASKFILL "fill() -> None\nSets all bits to 1"
 
-#define DOC_MASKCLEAR "Mask.clear()\nSets all bits to 0"
+#define DOC_MASKCLEAR "clear() -> None\nSets all bits to 0"
 
-#define DOC_MASKINVERT "Mask.invert()\nFlips the bits in a Mask"
+#define DOC_MASKINVERT "invert() -> None\nFlips the bits in a Mask"
 
-#define DOC_MASKSCALE "Mask.scale((x, y)) -> Mask\nResizes a mask"
+#define DOC_MASKSCALE "scale((x, y)) -> Mask\nResizes a mask"
 
-#define DOC_MASKDRAW "Mask.draw(othermask, offset)\nDraws a mask onto another"
+#define DOC_MASKDRAW "draw(othermask, offset) -> None\nDraws a mask onto another"
 
-#define DOC_MASKERASE "Mask.erase(othermask, offset)\nErases a mask from another"
+#define DOC_MASKERASE "erase(othermask, offset) -> None\nErases a mask from another"
 
-#define DOC_MASKCOUNT "Mask.count() -> pixels\nReturns the number of set pixels"
+#define DOC_MASKCOUNT "count() -> pixels\nReturns the number of set pixels"
 
-#define DOC_MASKCENTROID "Mask.centroid() -> (x, y)\nReturns the centroid of the pixels in a Mask"
+#define DOC_MASKCENTROID "centroid() -> (x, y)\nReturns the centroid of the pixels in a Mask"
 
-#define DOC_MASKANGLE "Mask.angle() -> theta\nReturns the orientation of the pixels"
+#define DOC_MASKANGLE "angle() -> theta\nReturns the orientation of the pixels"
 
-#define DOC_MASKOUTLINE "Mask.outline(every = 1) -> [(x,y), (x,y) ...]\nlist of points outlining an object"
+#define DOC_MASKOUTLINE "outline(every = 1) -> [(x,y), (x,y) ...]\nlist of points outlining an object"
 
-#define DOC_MASKCONVOLVE "Mask.convolve(othermask, outputmask = None, offset = (0,0)) -> Mask\nReturn the convolution of self with another mask."
+#define DOC_MASKCONVOLVE "convolve(othermask, outputmask = None, offset = (0,0)) -> Mask\nReturn the convolution of self with another mask."
 
-#define DOC_MASKCONNECTEDCOMPONENT "Mask.connected_component((x,y) = None) -> Mask\nReturns a mask of a connected region of pixels."
+#define DOC_MASKCONNECTEDCOMPONENT "connected_component((x,y) = None) -> Mask\nReturns a mask of a connected region of pixels."
 
-#define DOC_MASKCONNECTEDCOMPONENTS "Mask.connected_components(min = 0) -> [Masks]\nReturns a list of masks of connected regions of pixels."
+#define DOC_MASKCONNECTEDCOMPONENTS "connected_components(min = 0) -> [Masks]\nReturns a list of masks of connected regions of pixels."
 
-#define DOC_MASKGETBOUNDINGRECTS "Mask.get_bounding_rects() -> Rects\nReturns a list of bounding rects of regions of set pixels."
+#define DOC_MASKGETBOUNDINGRECTS "get_bounding_rects() -> Rects\nReturns a list of bounding rects of regions of set pixels."
 
 
 
-/* Docs in a comments... slightly easier to read. */
-
+/* Docs in a comment... slightly easier to read. */
 
 /*
 
 pygame.mask
- pygame module for image masks.
-
-
+pygame module for image masks.
 
 pygame.mask.from_surface
- pygame.mask.from_surface(Surface, threshold = 127) -> Mask
+ from_surface(Surface, threshold = 127) -> Mask
 Returns a Mask from the given surface.
 
-
-
 pygame.mask.from_threshold
- pygame.mask.from_threshold(Surface, color, threshold = (0,0,0,255), othersurface = None, palette_colors = 1) -> Mask
+ from_threshold(Surface, color, threshold = (0,0,0,255), othersurface = None, palette_colors = 1) -> Mask
 Creates a mask by thresholding Surfaces
 
-
-
 pygame.mask.Mask
- pygame.mask.Mask((width, height)): return Mask
+ Mask((width, height)) -> Mask
 pygame object for representing 2d bitmasks
 
-
-
-Mask.get_size
- Mask.get_size() -> width,height
+pygame.mask.Mask.get_size
+ get_size() -> width,height
 Returns the size of the mask.
 
-
-
-Mask.get_at
- Mask.get_at((x,y)) -> int
+pygame.mask.Mask.get_at
+ get_at((x,y)) -> int
 Returns nonzero if the bit at (x,y) is set.
 
-
-
-Mask.set_at
- Mask.set_at((x,y),value)
+pygame.mask.Mask.set_at
+ set_at((x,y),value) -> None
 Sets the position in the mask given by x and y.
 
-
-
-Mask.overlap
- Mask.overlap(othermask, offset) -> x,y
+pygame.mask.Mask.overlap
+ overlap(othermask, offset) -> x,y
 Returns the point of intersection if the masks overlap with the given offset - or None if it does not overlap.
 
-
-
-Mask.overlap_area
- Mask.overlap_area(othermask, offset) -> numpixels
+pygame.mask.Mask.overlap_area
+ overlap_area(othermask, offset) -> numpixels
 Returns the number of overlapping 'pixels'.
 
-
-
-Mask.overlap_mask
- Mask.overlap_mask(othermask, offset) -> Mask
+pygame.mask.Mask.overlap_mask
+ overlap_mask(othermask, offset) -> Mask
 Returns a mask of the overlapping pixels
 
-
-
-Mask.fill
- Mask.fill()
+pygame.mask.Mask.fill
+ fill() -> None
 Sets all bits to 1
 
-
-
-Mask.clear
- Mask.clear()
+pygame.mask.Mask.clear
+ clear() -> None
 Sets all bits to 0
 
-
-
-Mask.invert
- Mask.invert()
+pygame.mask.Mask.invert
+ invert() -> None
 Flips the bits in a Mask
 
-
-
-Mask.scale
- Mask.scale((x, y)) -> Mask
+pygame.mask.Mask.scale
+ scale((x, y)) -> Mask
 Resizes a mask
 
-
-
-Mask.draw
- Mask.draw(othermask, offset)
+pygame.mask.Mask.draw
+ draw(othermask, offset) -> None
 Draws a mask onto another
 
-
-
-Mask.erase
- Mask.erase(othermask, offset)
+pygame.mask.Mask.erase
+ erase(othermask, offset) -> None
 Erases a mask from another
 
-
-
-Mask.count
- Mask.count() -> pixels
+pygame.mask.Mask.count
+ count() -> pixels
 Returns the number of set pixels
 
-
-
-Mask.centroid
- Mask.centroid() -> (x, y)
+pygame.mask.Mask.centroid
+ centroid() -> (x, y)
 Returns the centroid of the pixels in a Mask
 
-
-
-Mask.angle
- Mask.angle() -> theta
+pygame.mask.Mask.angle
+ angle() -> theta
 Returns the orientation of the pixels
 
-
-
-Mask.outline
- Mask.outline(every = 1) -> [(x,y), (x,y) ...]
+pygame.mask.Mask.outline
+ outline(every = 1) -> [(x,y), (x,y) ...]
 list of points outlining an object
 
-
-
-Mask.convolve
- Mask.convolve(othermask, outputmask = None, offset = (0,0)) -> Mask
+pygame.mask.Mask.convolve
+ convolve(othermask, outputmask = None, offset = (0,0)) -> Mask
 Return the convolution of self with another mask.
 
-
-
-Mask.connected_component
- Mask.connected_component((x,y) = None) -> Mask
+pygame.mask.Mask.connected_component
+ connected_component((x,y) = None) -> Mask
 Returns a mask of a connected region of pixels.
 
-
-
-Mask.connected_components
- Mask.connected_components(min = 0) -> [Masks]
+pygame.mask.Mask.connected_components
+ connected_components(min = 0) -> [Masks]
 Returns a list of masks of connected regions of pixels.
 
-
-
-Mask.get_bounding_rects
- Mask.get_bounding_rects() -> Rects
+pygame.mask.Mask.get_bounding_rects
+ get_bounding_rects() -> Rects
 Returns a list of bounding rects of regions of set pixels.
 
-
-
 */
-

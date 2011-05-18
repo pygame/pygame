@@ -3,15 +3,11 @@
 
 
 
-/* Docs in a comments... slightly easier to read. */
-
+/* Docs in a comment... slightly easier to read. */
 
 /*
 
 pygame.locals
- pygame constants
-
-
+pygame constants
 
 */
-
