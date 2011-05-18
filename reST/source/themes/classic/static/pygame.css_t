@@ -4,6 +4,7 @@
  */
 
 @import url("reset.css");
+@import url("tooltip.css");
 
 /* -- main layout ----------------------------------------------------------- */
 
@@ -530,4 +531,27 @@ ul.simple {
     list-style-type: circle;
     list-style-position: inside;
     margin-bottom: 1em;
+}
+
+/* -- tooltip style --------------------------------------------------------- */
+
+a.tooltip {
+    text-decoration: underline;
+}
+
+a.tooltip:hover {
+    text-decoration: none;
+}
+
+.tooltip-content {
+    width: 250px;
+    background-color: #c2fc20;
+    border: 1px solid #ace01C;
+    padding: 3px;
+    border-radius: 5px 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.1);
+    -webkit-box-shadow: 5px 5px rgba(0, 0, 0, 0.1);
+    -moz-box-shadow: 5px 5px rgba(0, 0, 0, 0.1);
 }

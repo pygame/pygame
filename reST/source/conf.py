@@ -88,6 +88,9 @@ pygments_style = 'sphinx'
 # A list of ignored prefixes for module index sorting.
 modindex_common_prefix = ['pygame']
 
+# Documents which are to be left undecorated
+# (e.g. adding tooltips to known document links):
+boilerplate_skip_transform = ['index']
 
 # -- Options for HTML output ---------------------------------------------------
 
