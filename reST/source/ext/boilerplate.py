@@ -11,7 +11,7 @@ except ImportError:
     from sphinx.addnodes import index as section_prelude_end_class
 
 from docutils.nodes import (section, literal, reference, paragraph, title,
-                            document, Text, TextElement,
+                            document, Text, TextElement, inline,
                             table, tgroup, colspec, tbody, row, entry,
                             whitespace_normalize_name, SkipNode)
 import os
@@ -26,8 +26,14 @@ def setup(app):
     # This extension uses indexer collected tables.
     app.setup_extension('ext.indexer')
 
+    # Documents to leave untransformed by boilerplate
+    app.add_config_value('boilerplate_skip_transform', [], '')
+
+    # The stages of adding boilerplate markup.
     app.connect('doctree-resolved', transform_document)
     app.connect('html-page-context', inject_template_globals)
+
+    # Internal nodes.
     app.add_node(TocRef,
                  html=(visit_toc_ref_html, depart_toc_ref_html),
                  latex=(visit_toc_ref, depart_toc_ref),
@@ -84,6 +90,8 @@ def depart_doc_title(self, node):
     self.depart_title(node)
 
 def transform_document(app, doctree, docname):
+    if docname in app.config['boilerplate_skip_transform']:
+        return
     doctree.walkabout(DocumentTransformer(app, doctree))
 
 class DocumentTransformer(Visitor):
@@ -133,7 +141,10 @@ class DocumentTransformer(Visitor):
         except GetError:
             return
         if summary:
-            node['reftitle'] = summary
+            node['reftitle'] = ''
+            node['classes'].append('tooltip')
+            inline_node = inline('', summary, classes=['tooltip-content'])
+            node.append(inline_node)
 
 def transform_module_section(section_node, title_node, env):
     fullmodname = section_node['names'][0]

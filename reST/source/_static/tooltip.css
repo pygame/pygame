@@ -1,5 +1,7 @@
 /* Implement hyperlink tooltips
- * (taken from http://psacake.com/web/jl.asp --  Pure CSS Tooltips)
+ *
+ * Adapted from "Sexy Tooltips with Just CSS"
+ * http://sixrevisions.com/css/css-only-tooltips/
  */
 
 .tooltip {
