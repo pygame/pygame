@@ -1,4 +1,4 @@
-__tags__ = []
+__tags__ = ['development']
 
 try:
     import pygame._movie
