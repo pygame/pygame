@@ -1320,7 +1320,7 @@ static PyMethodDef _image_methods[] =
 
 MODINIT_DEFINE (image)
 {
-    PyObject *module, *dict;
+    PyObject *module;
     PyObject *extmodule;
     struct _module_state *st;
 
@@ -1339,15 +1339,18 @@ MODINIT_DEFINE (image)
        the module is not loaded.
     */
     import_pygame_base ();
-    if (PyErr_Occurred ()) {
+    if (PyErr_Occurred ())
+    {
         MODINIT_ERROR;
     }
     import_pygame_surface ();
-    if (PyErr_Occurred ()) {
+    if (PyErr_Occurred ())
+    {
         MODINIT_ERROR;
     }
     import_pygame_rwobject ();
-    if (PyErr_Occurred ()) {
+    if (PyErr_Occurred ())
+    {
         MODINIT_ERROR;
     }
 
@@ -1357,45 +1360,63 @@ MODINIT_DEFINE (image)
 #else
     module = Py_InitModule3 (MODPREFIX "image", _image_methods, DOC_PYGAMEIMAGE);
 #endif
-    if (module == NULL) {
+    if (module == NULL)
+    {
         MODINIT_ERROR;
     }
     st = GETSTATE (module);
-    dict = PyModule_GetDict (module);
 
 
     /* try to get extended formats */
     extmodule = PyImport_ImportModule (IMPPREFIX "imageext");
     if (extmodule)
     {
-        PyObject *extdict = PyModule_GetDict (extmodule);
-        PyObject* extload = PyDict_GetItemString (extdict, "load_extended");
-        PyObject* extsave = PyDict_GetItemString (extdict, "save_extended");
-        PyDict_SetItemString (dict, "load_extended", extload);
-        PyDict_SetItemString (dict, "save_extended", extsave);
-        PyDict_SetItemString (dict, "load", extload);
-        /* PyDict_SetItemString does an internal INCREF */
-        /*
-          Py_INCREF(extload);
-          Py_INCREF(extsave);
-          Py_INCREF(extload);
-        */
+        PyObject *extload;
+        PyObject *extsave;
+
+        extload = PyObject_GetAttrString (extmodule, "load_extended");
+        if (!extload)
+        {
+            Py_DECREF (extmodule);
+            MODINIT_ERROR;
+        }
+        extsave = PyObject_GetAttrString (extmodule, "save_extended");
+        if (!extsave)
+        {
+            Py_DECREF (extload);
+            Py_DECREF (extmodule);
+            MODINIT_ERROR;
+        }
+        if (PyModule_AddObject (module, "load_extended", extload))
+        {
+            Py_DECREF (extload);
+            Py_DECREF (extsave);
+            Py_DECREF (extmodule);
+            MODINIT_ERROR;
+        }
+        if (PyModule_AddObject (module, "save_extended", extsave))
+        {
+            Py_DECREF(extsave);
+            Py_DECREF(extmodule);
+            MODINIT_ERROR;
+        }
+        Py_INCREF (extload);
+        if (PyModule_AddObject (module, "load", extload))
+        {
+            Py_DECREF (extload);
+            Py_DECREF (extmodule);
+            MODINIT_ERROR;
+        }
         Py_DECREF (extmodule);
         st->is_extended = 1;
     }
     else
     {
-        PyObject* basicload = PyDict_GetItemString (dict, "load_basic");
+        PyObject* basicload = PyObject_GetAttrString (module, "load_basic");
         PyErr_Clear ();
-        PyDict_SetItemString (dict, "load_extended", Py_None);
-        PyDict_SetItemString (dict, "save_extended", Py_None);
-        PyDict_SetItemString (dict, "load", basicload);
-        /* PyDict_SetItemString does an internal INCREF */
-        /*
-          Py_INCREF(Py_None);
-          Py_INCREF(Py_None);
-          Py_INCREF(basicload);
-        */
+        PyModule_AddObject (module, "load_extended", Py_None);
+        PyModule_AddObject (module, "save_extended", Py_None);
+        PyModule_AddObject (module, "load", basicload);
         st->is_extended = 0;
     }
     MODINIT_RETURN (module);
