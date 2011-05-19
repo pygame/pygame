@@ -277,8 +277,9 @@ def Run(target_dir=None):
     pages = []
     for f in files:
         name = os.path.splitext(os.path.basename(f))[0]
+        mod_time = os.path.getmtime(f)
         pages.append(name)
-        d = name, Doc('', open(f, "U"))
+        d = name, Doc('', open(f, "U")), mod_time
         docs.append(d)
     
     #pages.sort(key=str.lower)
@@ -288,15 +289,19 @@ def Run(target_dir=None):
     
     index = {}
     justDocs = []
-    for name, doc in docs:
+    for name, doc, src_mod_time in docs:
         justDocs.append(doc)
         MakeIndex(name, doc, index)
 
-    for name, doc in docs:
+    for name, doc, src_mod_time in docs:
         fullname = os.path.join(target_dir, "%s.rst") % name
-        with open(fullname, "w") as outFile:
-            WriteHeader(outFile, doc)
-            reSTOut(doc, index, outFile)
+        dest_mod_time = 0.0
+        if os.path.exists(fullname):
+            dest_mod_time = os.path.getmtime(fullname)
+        if src_mod_time > dest_mod_time:
+            with open(fullname, "w") as outFile:
+                WriteHeader(outFile, doc)
+                reSTOut(doc, index, outFile)
 
     fullname = os.path.join(target_dir, common_header)
     with open(fullname, 'w') as outFile:
