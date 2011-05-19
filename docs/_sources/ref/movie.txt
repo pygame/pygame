@@ -14,7 +14,7 @@ driver instead. To enable windib set the ``SDL_VIDEODRIVER`` environment
 variable to 'windib' before importing pygame (see the
 :func:`pygame.examples.movieplayer.main` example).
 
-Pygame can playback video and audio from basic encoded ``MPEG1`` video files.
+Pygame can playback video and audio from basic encoded MPEG-1 video files.
 Movie playback happens in background threads, which makes playback easy to
 manage.
 
@@ -27,6 +27,14 @@ The video overlay planes are drawn on top of everything in the display window.
 To draw the movie as normal graphics into the display window, create an
 offscreen Surface and set that as the movie target. Then once per frame blit
 that surface to the screen.
+
+Videos can be converted to the .mpg file format (MPEG-1 video, MPEG-1 Audio
+Layer ``III`` (MP3) sound) using ffmpeg video conversion program
+(http://ffmpeg.org/):
+
+::
+
+  ffmpeg -i <infile> -vcodec mpeg1video -acodec libmp3lame -intra <outfile.mpg>
 
 .. class:: Movie
 

@@ -115,7 +115,7 @@ directx video driver is problematic. For <tt class="xref docutils literal"><span
 driver instead. To enable windib set the <tt class="docutils literal"><span class="pre">SDL_VIDEODRIVER</span></tt> environment
 variable to &#8216;windib&#8217; before importing pygame (see the
 <a title="" class="tooltip reference external" href="examples.html#pygame.examples.movieplayer.main"><tt class="xref docutils literal"><span class="pre">pygame.examples.movieplayer.main()</span></tt><span class="tooltip-content">play an MPEG movie</span></a> example).</p>
-<p>Pygame can playback video and audio from basic encoded <tt class="docutils literal"><span class="pre">MPEG1</span></tt> video files.
+<p>Pygame can playback video and audio from basic encoded MPEG-1 video files.
 Movie playback happens in background threads, which makes playback easy to
 manage.</p>
 <p>The audio for Movies must have full control over the sound system. This means
@@ -126,6 +126,11 @@ movie begins. The mixer can be reinitialized after the movie is finished.</p>
 To draw the movie as normal graphics into the display window, create an
 offscreen Surface and set that as the movie target. Then once per frame blit
 that surface to the screen.</p>
+<p>Videos can be converted to the .mpg file format (MPEG-1 video, MPEG-1 Audio
+Layer <tt class="docutils literal"><span class="pre">III</span></tt> (MP3) sound) using ffmpeg video conversion program
+(<a class="reference external" href="http://ffmpeg.org/">http://ffmpeg.org/</a>):</p>
+<div class="highlight-python"><pre>ffmpeg -i &lt;infile&gt; -vcodec mpeg1video -acodec libmp3lame -intra &lt;outfile.mpg&gt;</pre>
+</div>
 <dl class="definition class">
 <dt class="title" id="pygame.movie.Movie">
 <em class="property">class </em><tt class="descclassname">pygame.movie.</tt><tt class="descname">Movie</tt><a class="headerlink" href="#pygame.movie.Movie" title="Permalink to this definition">¶</a></dt>
