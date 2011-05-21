@@ -41,4 +41,14 @@ New in pygame 1.9.2.
 
    .. ## pygame.pixelcopy.map_array ##
 
+.. function:: make_surface
+
+   | :sl:`Copy an array to a new surface`
+   | :sg:`pygame.surfarray.make_surface(array) -> Surface`
+
+   Create a new Surface that best resembles the data and format on the array.
+   The array can be 2D or 3D with any sized integer values.
+
+   .. ## pygame.pixelcopy.make_surface ##
+
 .. ## pygame.pixelcopy ##

@@ -287,37 +287,6 @@ def array_colorkey(surface):
     surface_to_array(array, surface, 'C')
     return array
 
-def make_surface(array):
-    """pygame.numpyarray.make_surface(array): return Surface
-
-    copy an array to a new surface
-
-    Create a new Surface that best resembles the data and format on the
-    array. The array can be 2D or 3D with any sized integer values.
-    """ 
-    # Taken from from Alex Holkner's pygame-ctypes package. Thanks a
-    # lot.
-    bpp = 0
-    r = g = b = 0
-    shape = array.shape
-    if len (shape) == 2:
-        # 2D array
-        bpp = 8
-        r = 0xFF >> 6 << 5
-        g = 0xFF >> 5 << 2
-        b = 0xFF >> 6
-    elif len (shape) == 3 and shape[2] == 3:
-        bpp = 32
-        r = 0xff << 16
-        g = 0xff << 8
-        b = 0xff
-    else:
-        raise ValueError("must be a valid 2d or 3d array")
-
-    surface = pygame.Surface ((shape[0], shape[1]), 0, bpp, (r, g, b, 0))
-    array_to_surface(surface, array)
-    return surface
-    
 def map_array(surface, array):
     """pygame.numpyarray.map_array(Surface, array3d): return array2d
 
