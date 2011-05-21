@@ -170,17 +170,27 @@ _make_surface(PyPixelArray *array)
     Uint32 vy = 0;
     Uint32 posx = 0;
     Uint32 posy = 0;
-    Uint32 absxstep;
-    Uint32 absystep;
+    Uint32 absxstep = ABS (array->xstep);
+    Uint32 absystep = ABS (array->ystep);
+    Uint32 new_xlen;
+    Uint32 new_ylen;
 
     surface = PySurface_AsSurface (array->surface);
     bpp = surface->format->BytesPerPixel;
 
+    new_xlen = (array->xlen + absxstep - 1) / absxstep;
+    new_ylen = (array->ylen + absystep - 1) / absystep;
+
     /* Create the second surface. */
+    
     tmpsf = SDL_CreateRGBSurface (surface->flags,
-        (int) (array->xlen / ABS (array->xstep)),
-        (int) (array->ylen / ABS (array->ystep)), bpp, surface->format->Rmask,
-        surface->format->Gmask, surface->format->Bmask, surface->format->Amask);
+				  (int)new_xlen,
+				  (int)new_ylen,
+				  bpp, 
+				  surface->format->Rmask,
+				  surface->format->Gmask,
+				  surface->format->Bmask,
+				  surface->format->Amask);
     if (!tmpsf)
         return RAISE (PyExc_SDLError, SDL_GetError ());
 
@@ -207,8 +217,6 @@ _make_surface(PyPixelArray *array)
     pixels = (Uint8 *) newsurf->pixels;
     origpixels = (Uint8 *) surface->pixels;
 
-    absxstep = ABS (array->xstep);
-    absystep = ABS (array->ystep);
     y = array->ystart;
 
     Py_BEGIN_ALLOW_THREADS;
