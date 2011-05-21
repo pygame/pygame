@@ -31,5 +31,14 @@ pygame.pixelcopy.map_array(<array>, <array>, <surface>): return None
 Map an array of color element values - (w, h, ..., 3) - to an array of pixels -
 (w, h) according to the format of <surface>.
 <END>
+
+
+make_surface
+Copy an array to a new surface
+pygame.surfarray.make_surface(array): return Surface
+
+Create a new Surface that best resembles the data and format on the
+array. The array can be 2D or 3D with any sized integer values.
+<END>
 <END>
 

@@ -116,6 +116,10 @@
 <td>—</td>
 <td>copy an array to another array, using surface format</td>
 </tr>
+<tr><td><a class="toc reference external" href="pixelcopy.html#pygame.pixelcopy.make_surface">pygame.pixelcopy.make_surface</a></td>
+<td>—</td>
+<td>Copy an array to a new surface</td>
+</tr>
 </tbody>
 </table>
 <p>The <tt class="xref docutils literal"><span class="pre">pygame.pixelcopy</span></tt> module contains methods for copying between
@@ -150,6 +154,17 @@ surfaces and objects exporting an array structure interface.</p>
 </div>
 <p>Map an array of color element values - (w, h, ..., 3) - to an array of
 pixels - (w, h) according to the format of &lt;&lt;urface&gt;.</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.pixelcopy.make_surface">
+<tt class="descclassname">pygame.pixelcopy.</tt><tt class="descname">make_surface</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.pixelcopy.make_surface" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Copy an array to a new surface</span></div>
+<div class="line"><span class="signature">pygame.surfarray.make_surface(array) -&gt; Surface</span></div>
+</div>
+<p>Create a new Surface that best resembles the data and format on the array.
+The array can be 2D or 3D with any sized integer values.</p>
 </dd></dl>
 
 </dd></dl>
