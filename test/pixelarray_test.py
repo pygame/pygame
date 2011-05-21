@@ -433,6 +433,33 @@ class PixelArrayTypeTest (unittest.TestCase):
             self.assertEqual (rect.width, 5)
             self.assertEqual (rect.height, 10)
 
+        # Bug when array width is not a multiple of the slice step.
+        w = 17
+        lst = list(range(w))
+        w_slice = len(lst[::2])
+        h = 3
+        sf = pygame.Surface ((w, h), 0, 32)
+        ar = pygame.PixelArray (sf)
+        ar2 = ar[::2,:]
+        sf2 = ar2.make_surface ()
+        w2, h2 = sf2.get_size ()
+        self.assertEqual (w2, w_slice)
+        self.assertEqual (h2, h)
+
+        # Bug when array height is not a multiple of the slice step.
+        # This can hang the Python interpreter.
+        h = 17
+        lst = list(range(h))
+        h_slice = len(lst[::2])
+        w = 3
+        sf = pygame.Surface ((w, h), 0, 32)
+        ar = pygame.PixelArray (sf)
+        ar2 = ar[:,::2]
+        sf2 = ar2.make_surface ()  # Hangs here.
+        w2, h2 = sf2.get_size ()
+        self.assertEqual (w2, w)
+        self.assertEqual (h2, h_slice)
+
     def test_iter (self):
         for bpp in (8, 16, 24, 32):
             sf = pygame.Surface ((5, 10), 0, bpp)
