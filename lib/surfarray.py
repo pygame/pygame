@@ -91,7 +91,7 @@ except ImportError:
 if not __hasnumpy and not __hasnumeric:
     raise ImportError("no module named numpy or Numeric found")
 
-from pygame.pixelcopy import array_to_surface
+from pygame.pixelcopy import array_to_surface, make_surface as pc_make_surface
 
 def blit_array (surface, array):
     """pygame.surfarray.blit_array(Surface, array): return None
@@ -306,7 +306,7 @@ def array_colorkey (surface):
         return numpysf.array_colorkey (surface)
     raise NotImplementedError("surface arrays are not supported")
 
-def make_surface (array):
+def make_surface(array):
     """pygame.surfarray.make_surface (array): return Surface
 
     Copy an array to a new surface.
@@ -314,11 +314,7 @@ def make_surface (array):
     Create a new Surface that best resembles the data and format on the
     array. The array can be 2D or 3D with any sized integer values.
     """ 
-    if __arraytype == "numeric":
-        return numericsf.make_surface (array)
-    elif __arraytype == "numpy":
-        return numpysf.make_surface (array)
-    raise NotImplementedError("surface arrays are not supported")
+    return pc_make_surface(array)
 
 def map_array (surface, array):
     """pygame.surfarray.map_array (Surface, array3d): return array2d

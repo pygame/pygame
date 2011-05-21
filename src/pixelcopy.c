@@ -1086,6 +1086,89 @@ map_array(PyObject *self, PyObject *args)
     return 0;
 }
 
+static PyObject*
+make_surface (PyObject* self, PyObject* arg)
+{
+    PyArrayInterface *inter;
+    PyObject *capsule;
+    PyObject *surfobj;
+    PyObject *args;
+    PyObject *result;
+    SDL_Surface* surf;
+    int sizex, sizey, bitsperpixel;
+    Uint32 rmask, gmask, bmask;
+
+    if (_get_array_interface(arg, &capsule, &inter)) {
+        return 0;
+    }
+    
+    if (!(inter->nd == 2 || (inter->nd == 3 && inter->shape[2] == 3))) {
+        return RAISE (PyExc_ValueError, "must be a valid 2d or 3d array\n");
+    }
+    switch (inter->typekind) {
+    case 'i':  /* integer */
+        break;
+    case 'u':  /* unsigned integer */ 
+        break;
+    case 'S':  /* fixed length character field */
+        break;
+    case 'V':  /* structured element: record */
+        break;
+    default:
+        Py_DECREF(capsule);
+        PyErr_Format(PyExc_ValueError, "unsupported array type '%c'",
+                     inter->typekind);
+        return NULL;
+    }
+    
+    if (inter->nd == 2) {
+        bitsperpixel = 8;
+        rmask = 0xFF >> 6 << 5;
+        gmask = 0xFF >> 5 << 2;
+        bmask = 0xFF >> 6;
+    }
+    else {
+        bitsperpixel = 32;
+        rmask = 0xFF << 16;
+        gmask = 0xFF << 8;
+        bmask = 0xFF;
+    }
+    sizex = inter->shape[0];
+    sizey = inter->shape[1];
+
+    surf = SDL_CreateRGBSurface (0, sizex, sizey, bitsperpixel, rmask, gmask,
+                                 bmask, 0);
+    if (!surf) {
+        Py_DECREF(capsule);
+        return RAISE(PyExc_SDLError, SDL_GetError());
+    }
+    surfobj = PySurface_New(surf);
+    if (!surfobj) {
+        Py_DECREF(capsule);
+        SDL_FreeSurface(surf);
+        return 0;
+    }
+    
+    args = Py_BuildValue("(OO)", surfobj, arg);
+    if (!args) {
+        Py_DECREF(capsule);
+        Py_DECREF(surfobj);
+        return 0;
+    }
+    
+    result = array_to_surface(self, args);
+    Py_DECREF(capsule);
+    Py_DECREF(args);
+
+    if (!result)
+    {
+        Py_DECREF(surfobj);
+        return 0;
+    }
+    Py_DECREF(result);
+    return surfobj;
+}
+
 static PyMethodDef _pixelcopy_methods[] =
 {
     { "array_to_surface", array_to_surface,
@@ -1094,6 +1177,7 @@ static PyMethodDef _pixelcopy_methods[] =
       METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEPIXELCOPYSURFACETOARRAY },
     { "map_array", map_array,
       METH_VARARGS, DOC_PYGAMEPIXELCOPYMAPARRAY },
+    { "make_surface", make_surface, METH_O, DOC_PYGAMEPIXELCOPYMAKESURFACE },
     { 0, 0, 0, 0}
 };
 
