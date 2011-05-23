@@ -197,7 +197,7 @@ div.header .pagelinks a:hover {
 }
 
 div.document {
-    background-color: {{ theme_sidebarbgcolor }};
+    background-color: {{ theme_bgcolor }};
 }
 
 div.documentwrapper {
@@ -210,7 +210,6 @@ div.bodywrapper {
 }
 
 div.body {
-    background-color: {{ theme_bgcolor }};
 }
 
 div.heading {
@@ -229,6 +228,9 @@ div.bodywrapper {
 {% endif -%}
 
 div.footer {
+{%- if theme_nofooter %}
+    display: none;
+{%- endif %}
     color: {{ theme_footertextcolor }};
     width: 100%;
     padding: 9px 0 9px 0;
@@ -246,6 +248,8 @@ div.related {
     background-color: {{ theme_relbarbgcolor }};
     line-height: 30px;
     color: {{ theme_relbartextcolor }};
+    border-top: 3px solid black;
+    border-bottom: 3px solid black;
 }
 
 div.related a {
@@ -545,8 +549,8 @@ a.tooltip:hover {
 
 .tooltip-content {
     width: 250px;
-    background-color: #c2fc20;
-    border: 1px solid #ace01C;
+    background-color: {{ theme_tooltipbgcolor }};
+    border: 1px solid {{ theme_tooltipbdrcolor }};
     padding: 3px;
     border-radius: 5px 5px;
     -moz-border-radius: 5px;
