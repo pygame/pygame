@@ -523,16 +523,67 @@ class PixelArrayTypeTest (unittest.TestCase):
             self.assertEqual (newar[9][9], black)
         #print "extract end"
 
-    def todo_test_surface(self):
+    def test_2dslice_assignment (self):
+        w = 2 * 5 * 8
+        h = 3 * 5 * 9
+        sf = pygame.Surface ((w, h), 0, 32)
+        ar = pygame.PixelArray (sf)
+        size = (w, h)
+        strides = (1, w)
+        offset = 0
+        self._test_assignment (sf, ar, size, strides, offset)
+        xslice = slice (None, None, 2)
+        yslice = slice (None, None, 3)
+        ar, size, strides, offset = self._array_slice (
+            ar, size, (xslice, yslice), strides, offset)
+        self._test_assignment (sf, ar, size, strides, offset)
+        xslice = slice (5, None, 5)
+        yslice = slice (5, None, 5)
+        ar, size, strides, offset = self._array_slice (
+            ar, size, (xslice, yslice), strides, offset)
+        self._test_assignment (sf, ar, size, strides, offset)
 
-        # __doc__ (as of 2008-08-02) for pygame.pixelarray.PixelArray.surface:
+    def _test_assignment (self, sf, ar, ar_size, ar_strides, ar_offset):
+        ar_w, ar_h = ar_size
+        ar_xstride, ar_ystride = ar_strides
+        sf_w, sf_h = sf.get_size ()
+        black = pygame.Color ('black')
+        color = pygame.Color (0, 0, 12)
+        sf.fill (black)
+        for ar_x, ar_y in [(0, 0),
+                           (0, ar_h - 4),
+                           (ar_w - 3, 0),
+                           (ar_w - 1, ar_h - 1)]:
+            sf_offset = ar_offset + ar_x * ar_xstride + ar_y * ar_ystride
+            sf_y = sf_offset // sf_w
+            sf_x = sf_offset - sf_y * sf_w
+            sf_posn = (sf_x, sf_y)
+            sf_pix = sf.get_at (sf_posn)
+            self.assertEqual (sf_pix, black,
+                              "at pixarr posn (%i, %i) (surf posn (%i, %i)): "
+                              "%s != %s" %
+                              (ar_x, ar_y, sf_x, sf_y, sf_pix, black))
+            ar[ar_x, ar_y] = color
+            sf_pix = sf.get_at (sf_posn)
+            self.assertEqual (sf_pix, color,
+                              "at pixarr posn (%i, %i) (surf posn (%i, %i)): "
+                              "%s != %s" %
+                              (ar_x, ar_y, sf_x, sf_y, sf_pix, color))
 
-          # PixelArray.surface: Return Surface
-          # Gets the Surface the PixelArray uses.
-          # 
-          # The Surface, the PixelArray was created for. 
+    def _array_slice (self, ar, size, slices, strides, offset):
+        ar = ar[slices]
+        xslice, yslice = slices
+        w, h = size
+        xstart, xstop, xstep = xslice.indices(w)
+        ystart, ystop, ystep = yslice.indices(h)
+        w = (xstop - xstart + xstep - 1) // xstep
+        h = (ystop - ystart + ystep - 1) // ystep
+        xstride, ystride = strides
+        offset += xstart * xstride + ystart * ystride
+        xstride *= xstep
+        ystride *= ystep
+        return ar, (w, h), (xstride, ystride), offset
 
-        self.fail() 
 
 if __name__ == '__main__':
     unittest.main()
