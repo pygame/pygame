@@ -197,7 +197,7 @@ div.header .pagelinks a:hover {
 }
 
 div.document {
-    background-color: #1c4e63;
+    background-color: #aaeebb;
 }
 
 div.documentwrapper {
@@ -210,7 +210,6 @@ div.bodywrapper {
 }
 
 div.body {
-    background-color: #aaeebb;
 }
 
 div.heading {
@@ -222,6 +221,7 @@ div.sectionwrapper {
 }
 
 div.footer {
+    display: none;
     color: #000000;
     width: 100%;
     padding: 9px 0 9px 0;
@@ -236,13 +236,15 @@ div.footer a {
 }
 
 div.related {
-    background-color: #133f52;
+    background-color: #6aee28;
     line-height: 30px;
-    color: #ffffff;
+    color: #000000;
+    border-top: 3px solid black;
+    border-bottom: 3px solid black;
 }
 
 div.related a {
-    color: #ffffff;
+    color: #000000;
 }
 
 div.sphinxsidebar {
