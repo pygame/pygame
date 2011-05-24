@@ -11,7 +11,8 @@ except NameError:
     def unicode(s):
         return s
 
-FRAMEWORKS = ['SDL', 'SDL_ttf', 'SDL_image', 'SDL_mixer', 'smpeg']
+#FRAMEWORKS = ['SDL', 'SDL_ttf', 'SDL_image', 'SDL_mixer', 'smpeg']
+FRAMEWORKS = ['SDL', 'SDL_ttf', 'SDL_image', 'SDL_mixer']
 
 CUSTOM_SCHEMES = dict(
     examples=dict(
