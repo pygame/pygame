@@ -12,13 +12,12 @@
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
         VERSION:     '1.9.2',
-        COLLAPSE_INDEX: false,
+        COLLAPSE_MODINDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
       };
     </script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="shortcut icon" href="../_static/pygame.ico"/>
     <link rel="top" title="Pygame v1.9.2 documentation" href="../index.html" />
@@ -92,7 +91,7 @@
             
   <div class="sectionwrapper">
 <div class="section" id="module-pygame.image">
-<span id="pygame-image"></span><dl class="definition module">
+<dl class="definition module">
 <dt class="title module">
 <tt class="docutils literal"><span class="pre">pygame.image</span></tt></dt>
 <dd><div class="line-block">
@@ -141,7 +140,7 @@ supports any extended file formats. By default it can only load uncompressed
 <tt class="docutils literal"><span class="pre">BMP</span></tt> images. When built with full image support, the <tt class="docutils literal"><span class="pre">pygame.image.load()</span></tt>
 function can support the following formats.</p>
 <blockquote>
-<div><ul class="simple">
+<ul class="simple">
 <li><tt class="docutils literal"><span class="pre">JPG</span></tt></li>
 <li><tt class="docutils literal"><span class="pre">PNG</span></tt></li>
 <li><tt class="docutils literal"><span class="pre">GIF</span></tt> (non animated)</li>
@@ -153,17 +152,17 @@ function can support the following formats.</p>
 <li><tt class="docutils literal"><span class="pre">PBM</span></tt> (and <tt class="docutils literal"><span class="pre">PGM</span></tt>, <tt class="docutils literal"><span class="pre">PPM</span></tt>)</li>
 <li><tt class="docutils literal"><span class="pre">XPM</span></tt></li>
 </ul>
-</div></blockquote>
+</blockquote>
 <p>Saving images only supports a limited set of formats. You can save to the
 following formats.</p>
 <blockquote>
-<div><ul class="simple">
+<ul class="simple">
 <li><tt class="docutils literal"><span class="pre">BMP</span></tt></li>
 <li><tt class="docutils literal"><span class="pre">TGA</span></tt></li>
 <li><tt class="docutils literal"><span class="pre">PNG</span></tt></li>
 <li><tt class="docutils literal"><span class="pre">JPEG</span></tt></li>
 </ul>
-</div></blockquote>
+</blockquote>
 <p><tt class="docutils literal"><span class="pre">PNG</span></tt>, <tt class="docutils literal"><span class="pre">JPEG</span></tt> saving new in pygame 1.8.</p>
 <dl class="definition function">
 <dt class="title" id="pygame.image.load">
@@ -171,13 +170,13 @@ following formats.</p>
 <dd><div class="line-block">
 <div class="line"><span class="summaryline">load new image from a file</span></div>
 <div class="line"><span class="signature">load(filename) -&gt; Surface</span></div>
-<div class="line"><span class="signature">load(fileobj, namehint=&#8221;&#8221;) -&gt; Surface</span></div>
+<div class="line"><span class="signature">load(fileobj, namehint=&#8221;&#8220;) -&gt; Surface</span></div>
 </div>
 <p>Load an image from a file source. You can pass either a filename or a Python
 file-like object.</p>
 <p>Pygame will automatically determine the image type (e.g., <tt class="docutils literal"><span class="pre">GIF</span></tt> or bitmap)
 and create a new Surface object from the data. In some cases it will need to
-know the file extension (e.g., <tt class="docutils literal"><span class="pre">GIF</span></tt> images should end in &#8221;.gif&#8221;). If you
+know the file extension (e.g., <tt class="docutils literal"><span class="pre">GIF</span></tt> images should end in &#8220;.gif&#8221;). If you
 pass a raw file-like object, you may also want to pass the original filename
 as the namehint argument.</p>
 <p>The returned Surface will contain the same color format, colorkey and alpha
@@ -237,7 +236,7 @@ only 8bit Surfaces can use the &#8220;P&#8221; format. The other formats will wo
 any Surface. Also note that other Python image packages support more formats
 than Pygame.</p>
 <blockquote>
-<div><ul class="simple">
+<ul class="simple">
 <li><tt class="docutils literal"><span class="pre">P</span></tt>, 8bit palettized Surfaces</li>
 <li><tt class="docutils literal"><span class="pre">RGB</span></tt>, 24bit image</li>
 <li><tt class="docutils literal"><span class="pre">RGBX</span></tt>, 32bit image with unused space</li>
@@ -246,7 +245,7 @@ than Pygame.</p>
 <li><tt class="docutils literal"><span class="pre">RGBA_PREMULT</span></tt>, 32bit image with colors scaled by alpha channel</li>
 <li><tt class="docutils literal"><span class="pre">ARGB_PREMULT</span></tt>, 32bit image with colors scaled by alpha channel, alpha channel first</li>
 </ul>
-</div></blockquote>
+</blockquote>
 </dd></dl>
 
 <dl class="definition function">
@@ -275,7 +274,7 @@ transfer images into Pygame.</p>
 <p>Create a new Surface that shares pixel data directly from the string buffer.
 This method takes the same arguments as <tt class="docutils literal"><span class="pre">pygame.image.fromstring()</span></tt>, but
 is unable to vertically flip the source data.</p>
-<p>This will run much faster than <a class="tooltip reference internal" href="#pygame.image.fromstring" title=""><tt class="xref py py-func docutils literal"><span class="pre">pygame.image.fromstring()</span></tt><span class="tooltip-content">create new Surface from a string buffer</span></a>, since no
+<p>This will run much faster than <a title="" class="tooltip reference internal" href="#pygame.image.fromstring"><tt class="xref docutils literal"><span class="pre">pygame.image.fromstring()</span></tt><span class="tooltip-content">create new Surface from a string buffer</span></a>, since no
 pixel data must be allocated and copied.</p>
 </dd></dl>
 
@@ -304,7 +303,7 @@ pixel data must be allocated and copied.</p>
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2011, Pygame Developers.
+      &copy; Copyright 2011, Pygame Developers.
     </div>
   </body>
 </html>

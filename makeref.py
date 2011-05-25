@@ -6,10 +6,9 @@ import sys
 import os
 
 
-rst_dir = 'reST'
-rst_source_dir = os.path.join(rst_dir, 'source')
-rst_build_dir = os.path.join(rst_dir, 'build')
-rst_source_doc_dir = os.path.join(rst_source_dir, 'ref')
+rst_dir = 'docs'
+rst_source_dir = os.path.join(rst_dir, 'reST')
+rst_build_dir = rst_dir
 rst_doctree_dir = os.path.join(rst_build_dir, 'doctrees')
 html_dir = 'docs'
 c_header_dir = os.path.join('src', 'doc')
