@@ -12,13 +12,12 @@
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
         VERSION:     '1.9.2',
-        COLLAPSE_INDEX: false,
+        COLLAPSE_MODINDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
       };
     </script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="shortcut icon" href="../_static/pygame.ico"/>
     <link rel="top" title="Pygame v1.9.2 documentation" href="../index.html" />
@@ -92,7 +91,7 @@
             
   <div class="sectionwrapper">
 <div class="section" id="module-pygame.camera">
-<span id="pygame-camera"></span><dl class="definition module">
+<dl class="definition module">
 <dt class="title module">
 <tt class="docutils literal"><span class="pre">pygame.camera</span></tt></dt>
 <dd><div class="line-block">
@@ -169,7 +168,7 @@ doing any processing on it.</p>
 <div class="line"><span class="signature">list_cameras() -&gt; [cameras]</span></div>
 </div>
 <p>Checks the computer for available cameras and returns a list of strings of
-camera names, ready to be fed into <a class="tooltip reference internal" href="#pygame.camera.Camera" title=""><tt class="xref py py-class docutils literal"><span class="pre">pygame.camera.Camera</span></tt><span class="tooltip-content">load a camera</span></a>.</p>
+camera names, ready to be fed into <a title="" class="tooltip reference internal" href="#pygame.camera.Camera"><tt class="xref docutils literal"><span class="pre">pygame.camera.Camera</span></tt><span class="tooltip-content">load a camera</span></a>.</p>
 </dd></dl>
 
 <dl class="definition class">
@@ -225,12 +224,12 @@ Default width and height are 640 by 480. Format is the desired colorspace of
 the output. This is useful for computer vision purposes. The default is
 <tt class="docutils literal"><span class="pre">RGB</span></tt>. The following are supported:</p>
 <blockquote>
-<div><ul class="simple">
+<ul class="simple">
 <li><tt class="docutils literal"><span class="pre">RGB</span></tt> - Red, Green, Blue</li>
 <li><tt class="docutils literal"><span class="pre">YUV</span></tt> - Luma, Blue Chrominance, Red Chrominance</li>
 <li><tt class="docutils literal"><span class="pre">HSV</span></tt> - Hue, Saturation, Value</li>
 </ul>
-</div></blockquote>
+</blockquote>
 <dl class="definition method">
 <dt class="title" id="pygame.camera.Camera.start">
 <tt class="descname">start</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.camera.Camera.start" title="Permalink to this definition">¶</a></dt>
@@ -360,7 +359,7 @@ camera. Useful for integration with other libraries.</p>
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2011, Pygame Developers.
+      &copy; Copyright 2011, Pygame Developers.
     </div>
   </body>
 </html>

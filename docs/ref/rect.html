@@ -12,13 +12,12 @@
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
         VERSION:     '1.9.2',
-        COLLAPSE_INDEX: false,
+        COLLAPSE_MODINDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
       };
     </script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="shortcut icon" href="../_static/pygame.ico"/>
     <link rel="top" title="Pygame v1.9.2 documentation" href="../index.html" />
@@ -237,7 +236,7 @@ of pixels. If one Rect&#8217;s bottom border is another Rect&#8217;s top border 
 rect1.bottom=rect2.top), the two meet exactly on the screen but do not
 overlap, and <tt class="docutils literal"><span class="pre">rect1.colliderect(rect2)</span></tt> returns false.</p>
 <p>Though Rect can be subclassed, methods that return new rectangles are not
-subclass aware. That is, move or copy return a new <a class="tooltip reference internal" href="#pygame.Rect" title=""><tt class="xref py py-mod docutils literal"><span class="pre">pygame.Rect</span></tt><span class="tooltip-content">pygame object for storing rectangular coordinates</span></a>
+subclass aware. That is, move or copy return a new <tt class="xref docutils literal"><span class="pre">pygame.Rect</span></tt>
 instance, not an instance of the subclass. This may change. To make subclass
 awareness work though, subclasses may have to maintain the same constructor
 signature as Rect.</p>
@@ -503,7 +502,7 @@ only as values.</p>
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2011, Pygame Developers.
+      &copy; Copyright 2011, Pygame Developers.
     </div>
   </body>
 </html>
