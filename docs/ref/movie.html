@@ -12,12 +12,13 @@
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
         VERSION:     '1.9.2',
-        COLLAPSE_MODINDEX: false,
+        COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
       };
     </script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="shortcut icon" href="../_static/pygame.ico"/>
     <link rel="top" title="Pygame v1.9.2 documentation" href="../index.html" />
@@ -91,7 +92,7 @@
             
   <div class="sectionwrapper">
 <div class="section" id="module-pygame.movie">
-<dl class="definition module">
+<span id="pygame-movie"></span><dl class="definition module">
 <dt class="title module">
 <tt class="docutils literal"><span class="pre">pygame.movie</span></tt></dt>
 <dd><div class="line-block">
@@ -111,15 +112,15 @@
 </tbody>
 </table>
 <p><tt class="docutils literal"><span class="pre">NOTE</span></tt>: On <tt class="docutils literal"><span class="pre">NT</span></tt> derived Windows versions (e.g. <tt class="docutils literal"><span class="pre">XT</span></tt>) the default <tt class="docutils literal"><span class="pre">SDL</span></tt>
-directx video driver is problematic. For <tt class="xref docutils literal"><span class="pre">pygame.movie</span></tt>, use the windib
+directx video driver is problematic. For <a class="tooltip reference internal" href="#module-pygame.movie" title=""><tt class="xref py py-mod docutils literal"><span class="pre">pygame.movie</span></tt><span class="tooltip-content">pygame module for playback of mpeg video</span></a>, use the windib
 driver instead. To enable windib set the <tt class="docutils literal"><span class="pre">SDL_VIDEODRIVER</span></tt> environment
 variable to &#8216;windib&#8217; before importing pygame (see the
-<a title="" class="tooltip reference external" href="examples.html#pygame.examples.movieplayer.main"><tt class="xref docutils literal"><span class="pre">pygame.examples.movieplayer.main()</span></tt><span class="tooltip-content">play an MPEG movie</span></a> example).</p>
+<a class="tooltip reference internal" href="examples.html#pygame.examples.movieplayer.main" title=""><tt class="xref py py-func docutils literal"><span class="pre">pygame.examples.movieplayer.main()</span></tt><span class="tooltip-content">play an MPEG movie</span></a> example).</p>
 <p>Pygame can playback video and audio from basic encoded MPEG-1 video files.
 Movie playback happens in background threads, which makes playback easy to
 manage.</p>
 <p>The audio for Movies must have full control over the sound system. This means
-the <a title="" class="tooltip reference external" href="mixer.html#module-pygame.mixer"><tt class="xref docutils literal"><span class="pre">pygame.mixer</span></tt><span class="tooltip-content">pygame module for loading and playing sounds</span></a> module must be uninitialized if the movie&#8217;s sound is to
+the <a class="tooltip reference internal" href="mixer.html#module-pygame.mixer" title=""><tt class="xref py py-mod docutils literal"><span class="pre">pygame.mixer</span></tt><span class="tooltip-content">pygame module for loading and playing sounds</span></a> module must be uninitialized if the movie&#8217;s sound is to
 be played. The common solution is to call <tt class="docutils literal"><span class="pre">pygame.mixer.quit()</span></tt> before the
 movie begins. The mixer can be reinitialized after the movie is finished.</p>
 <p>The video overlay planes are drawn on top of everything in the display window.
@@ -209,7 +210,7 @@ Layer <tt class="docutils literal"><span class="pre">III</span></tt> (MP3) sound
 </tbody>
 </table>
 <p>Load a new <tt class="docutils literal"><span class="pre">MPEG</span></tt> movie stream from a file or a python file object. The
-Movie object operates similar to the Sound objects from <a title="" class="tooltip reference external" href="mixer.html#module-pygame.mixer"><tt class="xref docutils literal"><span class="pre">pygame.mixer</span></tt><span class="tooltip-content">pygame module for loading and playing sounds</span></a>.</p>
+Movie object operates similar to the Sound objects from <a class="tooltip reference internal" href="mixer.html#module-pygame.mixer" title=""><tt class="xref py py-mod docutils literal"><span class="pre">pygame.mixer</span></tt><span class="tooltip-content">pygame module for loading and playing sounds</span></a>.</p>
 <p>Movie objects have a target display Surface. The movie is rendered into this
 Surface in a background thread. If the target Surface is the display
 Surface, the movie will try to use the hardware accelerated video overlay.
@@ -410,8 +411,7 @@ disabled.</p>
       </ul>
     </div>
     <div class="footer">
-      &copy; Copyright 2011, Pygame Developers.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.6.6.
+        &copy; Copyright 2011, Pygame Developers.
     </div>
   </body>
 </html>
