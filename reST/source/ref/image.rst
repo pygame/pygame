@@ -9,7 +9,7 @@
 | :sl:`pygame module for image transfer`
 
 The image module contains functions for loading and saving pictures, as well as
-transferring Surfaces to formats usable by other packages.
+transferring Surfaces to formats usable by other packages. .
 
 Note that there is no Image class; an image is loaded as a Surface object. The
 Surface class allows manipulation (drawing lines, setting pixels, capturing
