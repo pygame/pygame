@@ -12,13 +12,12 @@
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
         VERSION:     '1.9.2',
-        COLLAPSE_INDEX: false,
+        COLLAPSE_MODINDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
       };
     </script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="shortcut icon" href="../_static/pygame.ico"/>
     <link rel="top" title="Pygame v1.9.2 documentation" href="../index.html" />
@@ -92,7 +91,7 @@
             
   <div class="sectionwrapper">
 <div class="section" id="module-pygame.surfarray">
-<span id="pygame-surfarray"></span><dl class="definition module">
+<dl class="definition module">
 <dt class="title module">
 <tt class="docutils literal"><span class="pre">pygame.surfarray</span></tt></dt>
 <dd><div class="line-block">
@@ -212,7 +211,7 @@ in Pygame 1.9.2.</p>
 will control the size of the integer values, and will work for any type of
 pixel format.</p>
 <p>This function will temporarily lock the Surface as pixels are copied (see
-the <tt class="xref py py-func docutils literal"><span class="pre">Surface.lock()</span></tt> - lock the Surface memory for pixel access method).</p>
+the <tt class="xref docutils literal"><span class="pre">Surface.lock()</span></tt> - lock the Surface memory for pixel access method).</p>
 </dd></dl>
 
 <dl class="definition function">
@@ -228,7 +227,7 @@ This is a fast operation since no data is copied.</p>
 <p>Pixels from a 24-bit Surface cannot be referenced, but all other Surface bit
 depths can.</p>
 <p>The Surface this references will remain locked for the lifetime of the array
-(see the <tt class="xref py py-func docutils literal"><span class="pre">Surface.lock()</span></tt> - lock the Surface memory for pixel access
+(see the <tt class="xref docutils literal"><span class="pre">Surface.lock()</span></tt> - lock the Surface memory for pixel access
 method).</p>
 </dd></dl>
 
@@ -243,7 +242,7 @@ method).</p>
 will control the size of the integer values, and will work for any type of
 pixel format.</p>
 <p>This function will temporarily lock the Surface as pixels are copied (see
-the <tt class="xref py py-func docutils literal"><span class="pre">Surface.lock()</span></tt> - lock the Surface memory for pixel access method).</p>
+the <tt class="xref docutils literal"><span class="pre">Surface.lock()</span></tt> - lock the Surface memory for pixel access method).</p>
 </dd></dl>
 
 <dl class="definition function">
@@ -259,7 +258,7 @@ This is a fast operation since no data is copied.</p>
 <p>This will only work on Surfaces that have 24-bit or 32-bit formats. Lower
 pixel formats cannot be referenced.</p>
 <p>The Surface this references will remain locked for the lifetime of the array
-(see the <tt class="xref py py-func docutils literal"><span class="pre">Surface.lock()</span></tt> - lock the Surface memory for pixel access
+(see the <tt class="xref docutils literal"><span class="pre">Surface.lock()</span></tt> - lock the Surface memory for pixel access
 method).</p>
 </dd></dl>
 
@@ -274,7 +273,7 @@ method).</p>
 2D array. This will work for any type of Surface format. Surfaces without a
 pixel alpha will return an array with all opaque values.</p>
 <p>This function will temporarily lock the Surface as pixels are copied (see
-the <tt class="xref py py-func docutils literal"><span class="pre">Surface.lock()</span></tt> - lock the Surface memory for pixel access method).</p>
+the <tt class="xref docutils literal"><span class="pre">Surface.lock()</span></tt> - lock the Surface memory for pixel access method).</p>
 </dd></dl>
 
 <dl class="definition function">
@@ -428,7 +427,7 @@ for the array creation.</p>
 </div>
 <p>Checks, which array systems are available and returns them as a tuple of
 strings. The values of the tuple can be used directly in the
-<a class="tooltip reference internal" href="#pygame.surfarray.use_arraytype" title=""><tt class="xref py py-func docutils literal"><span class="pre">pygame.surfarray.use_arraytype()</span></tt><span class="tooltip-content">Sets the array system to be used for surface arrays</span></a> () method. If no supported array
+<a title="" class="tooltip reference internal" href="#pygame.surfarray.use_arraytype"><tt class="xref docutils literal"><span class="pre">pygame.surfarray.use_arraytype()</span></tt><span class="tooltip-content">Sets the array system to be used for surface arrays</span></a> () method. If no supported array
 system could be found, None will be returned.</p>
 <p>New in pygame 1.8.</p>
 </dd></dl>
@@ -458,7 +457,7 @@ system could be found, None will be returned.</p>
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2011, Pygame Developers.
+      &copy; Copyright 2011, Pygame Developers.
     </div>
   </body>
 </html>

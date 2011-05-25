@@ -12,13 +12,12 @@
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
         VERSION:     '1.9.2',
-        COLLAPSE_INDEX: false,
+        COLLAPSE_MODINDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
       };
     </script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="shortcut icon" href="../_static/pygame.ico"/>
     <link rel="top" title="Pygame v1.9.2 documentation" href="../index.html" />
@@ -92,7 +91,7 @@
             
   <div class="sectionwrapper">
 <div class="section" id="module-pygame.gfxdraw">
-<span id="pygame-gfxdraw"></span><dl class="definition module">
+<dl class="definition module">
 <dt class="title module">
 <tt class="docutils literal"><span class="pre">pygame.gfxdraw</span></tt></dt>
 <dd><div class="line-block">
@@ -204,8 +203,8 @@ integer pixel value that is already mapped to the Surface&#8217;s pixel format.<
 <p>For all functions the arguments are strictly positional. Only integers are
 accepted for coordinates and radii.</p>
 <p>For functions like rectangle that accept a rect argument any (x, y, w, h)
-sequence is accepted, though <a class="tooltip reference internal" href="rect.html#pygame.Rect" title=""><tt class="xref py py-mod docutils literal"><span class="pre">pygame.Rect</span></tt><span class="tooltip-content">pygame object for storing rectangular coordinates</span></a> instances are prefered. Note
-that for a <a class="tooltip reference internal" href="rect.html#pygame.Rect" title=""><tt class="xref py py-mod docutils literal"><span class="pre">pygame.Rect</span></tt><span class="tooltip-content">pygame object for storing rectangular coordinates</span></a> the drawing will not include
+sequence is accepted, though <tt class="xref docutils literal"><span class="pre">pygame.Rect</span></tt> instances are prefered. Note
+that for a <tt class="xref docutils literal"><span class="pre">pygame.Rect</span></tt> the drawing will not include
 <tt class="docutils literal"><span class="pre">Rect.bottomright</span></tt>. The right and bottom attributes of a Rect lie one pixel
 outside of the Rect&#8217;s boarder.</p>
 <p>New in pygame 1.9.0.</p>
@@ -435,7 +434,7 @@ with an 8-bit per pixel destination.</p>
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2011, Pygame Developers.
+      &copy; Copyright 2011, Pygame Developers.
     </div>
   </body>
 </html>
