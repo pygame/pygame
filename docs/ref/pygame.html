@@ -12,12 +12,13 @@
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
         VERSION:     '1.9.2',
-        COLLAPSE_MODINDEX: false,
+        COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
       };
     </script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="shortcut icon" href="../_static/pygame.ico"/>
     <link rel="top" title="Pygame v1.9.2 documentation" href="../index.html" />
@@ -91,7 +92,7 @@
             
   <div class="sectionwrapper">
 <div class="section" id="module-pygame">
-<dl class="definition module">
+<span id="pygame"></span><dl class="definition module">
 <dt class="title module">
 <tt class="docutils literal"><span class="pre">pygame</span></tt></dt>
 <dd><div class="line-block">
@@ -151,7 +152,7 @@ itself is broken into many submodules, but this does not affect programs that
 use Pygame.</p>
 <p>As a convenience, most of the top-level variables in pygame have been placed
 inside a module named &#8216;pygame.locals&#8217;. This is meant to be used with &#8216;from
-<a title="" class="tooltip reference external" href="locals.html#module-pygame.locals"><tt class="xref docutils literal"><span class="pre">pygame.locals</span></tt><span class="tooltip-content">pygame constants</span></a> import *&#8217;, in addition to &#8216;import pygame&#8217;.</p>
+<a class="tooltip reference internal" href="locals.html#module-pygame.locals" title=""><tt class="xref py py-mod docutils literal"><span class="pre">pygame.locals</span></tt><span class="tooltip-content">pygame constants</span></a> import *&#8217;, in addition to &#8216;import pygame&#8217;.</p>
 <p>When you &#8216;import pygame&#8217; all available pygame submodules are automatically
 imported. Be aware that some of the pygame modules are considered &#8220;optional&#8221;,
 and may not be available. In that case, Pygame will provide a placeholder
@@ -166,7 +167,7 @@ object instead of the module, which can be used to test for availability.</p>
 <p>Initialize all imported Pygame modules. No exceptions will be raised if a
 module fails, but the total number if successful and failed inits will be
 returned as a tuple. You can always initialize individual modules manually,
-but <a title="" class="tooltip reference internal" href="#pygame.init"><tt class="xref docutils literal"><span class="pre">pygame.init()</span></tt><span class="tooltip-content">initialize all imported pygame modules</span></a> is a convenient way to get everything started. The
+but <a class="tooltip reference internal" href="#pygame.init" title=""><tt class="xref py py-func docutils literal"><span class="pre">pygame.init()</span></tt><span class="tooltip-content">initialize all imported pygame modules</span></a> is a convenient way to get everything started. The
 <tt class="docutils literal"><span class="pre">init()</span></tt> functions for individual modules will raise exceptions when they
 fail.</p>
 <p>You may want to initalise the different modules seperately to speed up your
@@ -187,7 +188,7 @@ the Python interpreter shuts down, this method is called regardless, so your
 program should not need it, except when it wants to terminate its pygame
 resources and continue. It is safe to call this function more than once:
 repeated calls have no effect.</p>
-<p>Note, that <a title="" class="tooltip reference internal" href="#pygame.quit"><tt class="xref docutils literal"><span class="pre">pygame.quit()</span></tt><span class="tooltip-content">uninitialize all pygame modules</span></a> will not exit your program. Consider letting
+<p>Note, that <a class="tooltip reference internal" href="#pygame.quit" title=""><tt class="xref py py-func docutils literal"><span class="pre">pygame.quit()</span></tt><span class="tooltip-content">uninitialize all pygame modules</span></a> will not exit your program. Consider letting
 your program end in the same way a normal python program will end.</p>
 </dd></dl>
 
@@ -213,7 +214,7 @@ these raised errors.</p>
 <div class="line"><span class="signature">get_error() -&gt; errorstr</span></div>
 </div>
 <p><tt class="docutils literal"><span class="pre">SDL</span></tt> maintains an internal error message. This message will usually be
-given to you when <a title="" class="tooltip reference internal" href="#pygame.error"><tt class="xref docutils literal"><span class="pre">pygame.error()</span></tt><span class="tooltip-content">standard pygame exception</span></a> is raised. You will rarely need to
+given to you when <a class="tooltip reference internal" href="#pygame.error" title=""><tt class="xref py py-func docutils literal"><span class="pre">pygame.error()</span></tt><span class="tooltip-content">standard pygame exception</span></a> is raised. You will rarely need to
 call this function.</p>
 </dd></dl>
 
@@ -225,7 +226,7 @@ call this function.</p>
 <div class="line"><span class="signature">set_error(error_msg) -&gt; None</span></div>
 </div>
 <p><tt class="docutils literal"><span class="pre">SDL</span></tt> maintains an internal error message. This message will usually be
-given to you when <a title="" class="tooltip reference internal" href="#pygame.error"><tt class="xref docutils literal"><span class="pre">pygame.error()</span></tt><span class="tooltip-content">standard pygame exception</span></a> is raised. You will rarely need to
+given to you when <a class="tooltip reference internal" href="#pygame.error" title=""><tt class="xref py py-func docutils literal"><span class="pre">pygame.error()</span></tt><span class="tooltip-content">standard pygame exception</span></a> is raised. You will rarely need to
 call this function.</p>
 </dd></dl>
 
@@ -261,7 +262,7 @@ little endian byte order and <tt class="docutils literal"><span class="pre">BIG_
 <div class="line"><span class="summaryline">register a function to be called when pygame quits</span></div>
 <div class="line"><span class="signature">register_quit(callable) -&gt; None</span></div>
 </div>
-<p>When <a title="" class="tooltip reference internal" href="#pygame.quit"><tt class="xref docutils literal"><span class="pre">pygame.quit()</span></tt><span class="tooltip-content">uninitialize all pygame modules</span></a> is called, all registered quit functions are
+<p>When <a class="tooltip reference internal" href="#pygame.quit" title=""><tt class="xref py py-func docutils literal"><span class="pre">pygame.quit()</span></tt><span class="tooltip-content">uninitialize all pygame modules</span></a> is called, all registered quit functions are
 called. Pygame modules do this automatically when they are initializing.
 This function is not be needed for regular pygame users.</p>
 </dd></dl>
@@ -310,7 +311,7 @@ supported.</p>
 
 </div>
 <div class="section" id="module-pygame.version">
-<dl class="definition module">
+<span id="pygame-version"></span><dl class="definition module">
 <dt class="title module">
 <tt class="docutils literal"><span class="pre">pygame.version</span></tt></dt>
 <dd><div class="line-block">
@@ -388,8 +389,7 @@ would look like this:</p>
       </ul>
     </div>
     <div class="footer">
-      &copy; Copyright 2011, Pygame Developers.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.6.6.
+        &copy; Copyright 2011, Pygame Developers.
     </div>
   </body>
 </html>
