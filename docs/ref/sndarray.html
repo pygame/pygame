@@ -12,12 +12,13 @@
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
         VERSION:     '1.9.2',
-        COLLAPSE_MODINDEX: false,
+        COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
       };
     </script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="shortcut icon" href="../_static/pygame.ico"/>
     <link rel="top" title="Pygame v1.9.2 documentation" href="../index.html" />
@@ -91,7 +92,7 @@
             
   <div class="sectionwrapper">
 <div class="section" id="module-pygame.sndarray">
-<dl class="definition module">
+<span id="pygame-sndarray"></span><dl class="definition module">
 <dt class="title module">
 <tt class="docutils literal"><span class="pre">pygame.sndarray</span></tt></dt>
 <dd><div class="line-block">
@@ -231,7 +232,7 @@ for the array creation.</p>
 </div>
 <p>Checks, which array systems are available and returns them as a tuple of
 strings. The values of the tuple can be used directly in the
-<a title="" class="tooltip reference internal" href="#pygame.sndarray.use_arraytype"><tt class="xref docutils literal"><span class="pre">pygame.sndarray.use_arraytype()</span></tt><span class="tooltip-content">Sets the array system to be used for sound arrays</span></a> () method. If no supported array
+<a class="tooltip reference internal" href="#pygame.sndarray.use_arraytype" title=""><tt class="xref py py-func docutils literal"><span class="pre">pygame.sndarray.use_arraytype()</span></tt><span class="tooltip-content">Sets the array system to be used for sound arrays</span></a> () method. If no supported array
 system could be found, None will be returned.</p>
 <p>New in pygame 1.8.</p>
 </dd></dl>
@@ -261,8 +262,7 @@ system could be found, None will be returned.</p>
       </ul>
     </div>
     <div class="footer">
-      &copy; Copyright 2011, Pygame Developers.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.6.6.
+        &copy; Copyright 2011, Pygame Developers.
     </div>
   </body>
 </html>

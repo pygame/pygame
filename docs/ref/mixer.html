@@ -12,12 +12,13 @@
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
         VERSION:     '1.9.2',
-        COLLAPSE_MODINDEX: false,
+        COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
       };
     </script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="shortcut icon" href="../_static/pygame.ico"/>
     <link rel="top" title="Pygame v1.9.2 documentation" href="../index.html" />
@@ -91,7 +92,7 @@
             
   <div class="sectionwrapper">
 <div class="section" id="module-pygame.mixer">
-<dl class="definition module">
+<span id="pygame-mixer"></span><dl class="definition module">
 <dt class="title module">
 <tt class="docutils literal"><span class="pre">pygame.mixer</span></tt></dt>
 <dd><div class="line-block">
@@ -168,7 +169,7 @@
 </table>
 <p>This module contains classes for loading Sound objects and controlling
 playback. The mixer module is optional and depends on SDL_mixer. Your program
-should test that <tt class="xref docutils literal"><span class="pre">pygame.mixer</span></tt> is available and intialized before using
+should test that <a class="tooltip reference internal" href="#module-pygame.mixer" title=""><tt class="xref py py-mod docutils literal"><span class="pre">pygame.mixer</span></tt><span class="tooltip-content">pygame module for loading and playing sounds</span></a> is available and intialized before using
 it.</p>
 <p>The mixer module has a limited number of channels for playback of sounds.
 Usually programs tell pygame to start playing audio and it selects an available
@@ -179,7 +180,7 @@ use.</p>
 Sound object, it will return immediately while the sound continues to play. A
 single Sound object can also be actively played back multiple times.</p>
 <p>The mixer also has a special streaming channel. This is for music playback and
-is accessed through the <a title="" class="tooltip reference external" href="music.html#module-pygame.mixer.music"><tt class="xref docutils literal"><span class="pre">pygame.mixer.music</span></tt><span class="tooltip-content">pygame module for controlling streamed audio</span></a> module.</p>
+is accessed through the <a class="tooltip reference internal" href="music.html#module-pygame.mixer.music" title=""><tt class="xref py py-mod docutils literal"><span class="pre">pygame.mixer.music</span></tt><span class="tooltip-content">pygame module for controlling streamed audio</span></a> module.</p>
 <p>The mixer module must be initialized like other pygame modules, but it has some
 extra conditions. The <tt class="docutils literal"><span class="pre">pygame.mixer.init()</span></tt> function takes several optional
 arguments to control the playback rate and sample size. Pygame will default to
@@ -187,8 +188,8 @@ reasonable values, but pygame cannot perform Sound resampling, so the mixer
 should be initialized to match the values of your audio resources.</p>
 <p><tt class="docutils literal"><span class="pre">NOTE</span></tt>: Not to get less laggy sound, use a smaller buffer size. The default
 is set to reduce the chance of scratchy sounds on some computers. You can
-change the default buffer by calling <a title="" class="tooltip reference internal" href="#pygame.mixer.pre_init"><tt class="xref docutils literal"><span class="pre">pygame.mixer.pre_init()</span></tt><span class="tooltip-content">preset the mixer init arguments</span></a> before
-<a title="" class="tooltip reference internal" href="#pygame.mixer.init"><tt class="xref docutils literal"><span class="pre">pygame.mixer.init()</span></tt><span class="tooltip-content">initialize the mixer module</span></a> or <a title="" class="tooltip reference external" href="pygame.html#pygame.init"><tt class="xref docutils literal"><span class="pre">pygame.init()</span></tt><span class="tooltip-content">initialize all imported pygame modules</span></a> is called. For example:
+change the default buffer by calling <a class="tooltip reference internal" href="#pygame.mixer.pre_init" title=""><tt class="xref py py-func docutils literal"><span class="pre">pygame.mixer.pre_init()</span></tt><span class="tooltip-content">preset the mixer init arguments</span></a> before
+<a class="tooltip reference internal" href="#pygame.mixer.init" title=""><tt class="xref py py-func docutils literal"><span class="pre">pygame.mixer.init()</span></tt><span class="tooltip-content">initialize the mixer module</span></a> or <a class="tooltip reference internal" href="pygame.html#pygame.init" title=""><tt class="xref py py-func docutils literal"><span class="pre">pygame.init()</span></tt><span class="tooltip-content">initialize all imported pygame modules</span></a> is called. For example:
 <tt class="docutils literal"><span class="pre">pygame.mixer.pre_init(44100,-16,2,</span> <span class="pre">1024)</span></tt> The default size was changed from
 1024 to 3072 in pygame 1.8.</p>
 <dl class="definition function">
@@ -215,7 +216,7 @@ to reduce latency, but sound dropout may occur. It can be raised to larger
 values to ensure playback never skips, but it will impose latency on sound
 playback. The buffer size must be a power of two (if not it is rounded up to
 the next nearest power of 2).</p>
-<p>Some platforms require the <tt class="xref docutils literal"><span class="pre">pygame.mixer</span></tt> module to be initialized
+<p>Some platforms require the <a class="tooltip reference internal" href="#module-pygame.mixer" title=""><tt class="xref py py-mod docutils literal"><span class="pre">pygame.mixer</span></tt><span class="tooltip-content">pygame module for loading and playing sounds</span></a> module to be initialized
 after the display modules have initialized. The top level <tt class="docutils literal"><span class="pre">pygame.init()</span></tt>
 takes care of this automatically, but cannot pass any arguments to the mixer
 init. To solve this, mixer has a function <tt class="docutils literal"><span class="pre">pygame.mixer.pre_init()</span></tt> to set
@@ -247,7 +248,7 @@ startup defaults.</p>
 <div class="line"><span class="summaryline">uninitialize the mixer</span></div>
 <div class="line"><span class="signature">quit() -&gt; None</span></div>
 </div>
-<p>This will uninitialize <tt class="xref docutils literal"><span class="pre">pygame.mixer</span></tt>. All playback will stop and any
+<p>This will uninitialize <a class="tooltip reference internal" href="#module-pygame.mixer" title=""><tt class="xref py py-mod docutils literal"><span class="pre">pygame.mixer</span></tt><span class="tooltip-content">pygame module for loading and playing sounds</span></a>. All playback will stop and any
 loaded Sound objects may not be compatible with the mixer if it is
 reinitialized later.</p>
 </dd></dl>
@@ -445,7 +446,7 @@ will change, either by correctly handling sign and byte order, or by raising
 an exception when different. Also, source samples are truncated to fit the
 audio sample size. This will not change.</p>
 <p><tt class="docutils literal"><span class="pre">pygame.mixer.Sound(buffer)</span></tt> is new in pygame 1.8
-<a title="" class="tooltip reference internal" href="#pygame.mixer.Sound"><tt class="xref docutils literal"><span class="pre">pygame.mixer.Sound</span></tt><span class="tooltip-content">Create a new Sound object from a file or buffer object</span></a> keyword arguments and array interface support
+<a class="tooltip reference internal" href="#pygame.mixer.Sound" title=""><tt class="xref py py-class docutils literal"><span class="pre">pygame.mixer.Sound</span></tt><span class="tooltip-content">Create a new Sound object from a file or buffer object</span></a> keyword arguments and array interface support
 new in pygame 1.9.2</p>
 <dl class="definition method">
 <dt class="title" id="pygame.mixer.Sound.play">
@@ -720,7 +721,7 @@ called, both calls are taken into account. For example:</p>
 </div>
 <p>Return the volume of the channel for the current playing sound. This does
 not take into account stereo separation used by
-<a title="pygame.mixer.Channel.set_volume" class="reference internal" href="#pygame.mixer.Channel.set_volume"><tt class="xref docutils literal"><span class="pre">Channel.set_volume()</span></tt></a>. The Sound object also has its own volume
+<a class="reference internal" href="#pygame.mixer.Channel.set_volume" title="pygame.mixer.Channel.set_volume"><tt class="xref py py-meth docutils literal"><span class="pre">Channel.set_volume()</span></tt></a>. The Sound object also has its own volume
 which is mixed with the channel.</p>
 </dd></dl>
 
@@ -835,8 +836,7 @@ playback of a Sound. If there is no endevent the function returns
       </ul>
     </div>
     <div class="footer">
-      &copy; Copyright 2011, Pygame Developers.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.6.6.
+        &copy; Copyright 2011, Pygame Developers.
     </div>
   </body>
 </html>
