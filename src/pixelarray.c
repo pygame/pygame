@@ -595,6 +595,7 @@ _pxarray_repr(PyPixelArray *array)
         break;
     case 3:
         for (y = 0; y < dim1; ++y) {
+            Text_ConcatAndDel(&string, Text_FromUTF8("\n  ["));
             pixel_p = pixelrow;
             for (x = 0; x < dim0 - 1; ++x) {
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
