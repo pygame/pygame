@@ -109,6 +109,22 @@
 <td>—</td>
 <td>Gets the Surface the PixelArray uses.</td>
 </tr>
+<tr><td><a class="toc reference external" href="pixelarray.html#pygame.PixelArray.itemsize">pygame.PixelArray.itemsize</a></td>
+<td>—</td>
+<td>Returns the byte size of a pixel array item</td>
+</tr>
+<tr><td><a class="toc reference external" href="pixelarray.html#pygame.PixelArray.ndim">pygame.PixelArray.ndim</a></td>
+<td>—</td>
+<td>Returns the number of dimensions.</td>
+</tr>
+<tr><td><a class="toc reference external" href="pixelarray.html#pygame.PixelArray.shape">pygame.PixelArray.shape</a></td>
+<td>—</td>
+<td>Returns the array size.</td>
+</tr>
+<tr><td><a class="toc reference external" href="pixelarray.html#pygame.PixelArray.strides">pygame.PixelArray.strides</a></td>
+<td>—</td>
+<td>Returns byte offsets for each array dimension.</td>
+</tr>
 <tr><td><a class="toc reference external" href="pixelarray.html#pygame.PixelArray.make_surface">pygame.PixelArray.make_surface</a></td>
 <td>—</td>
 <td>Creates a new Surface from the current PixelArray.</td>
@@ -127,24 +143,29 @@
 </tr>
 </tbody>
 </table>
-<p>The PixelArray wraps up a Surface and provides a direct 2D array access to
-its pixels using the surface its rows as first and its columns as second
-axis. It supports slicing, row and pixel manipluation, slicing and slice
-assignments while inplace operations such as addition, subtraction,
-multiplication, division and so forth are not allowed.</p>
+<p>The PixelArray wraps a Surface and provides direct access to the
+surface&#8217;s pixels. A pixel array can be one or two dimensional.
+A two dimensional array, likes its surface, is indexed [column, row].
+Pixel arrays support slicing, both for returning a subarray or
+for assignment. A pixel array sliced on a single column or row
+returns a one dimensional pixel array. Arithmetic and other operations
+are not supported. A pixel array can be safely assigned to itself.
+Finally, pixel arrays export an array struct interface, allowing
+them to interact with <a title="" class="tooltip reference external" href="pixelcopy.html#module-pygame.pixelcopy"><tt class="xref docutils literal"><span class="pre">pygame.pixelcopy</span></tt><span class="tooltip-content">pygame module for general pixel array copying</span></a> methods and NumPy
+arrays.</p>
 <p>While it is possible to assign both, integer color values and <tt class="docutils literal"><span class="pre">RGB(A)</span></tt>
 color tuples, the PixelArray will only use integers for the color
 representation. Thus, checking for certain colors has to be done using the
 <tt class="docutils literal"><span class="pre">Surface.map_rgb()</span></tt> method of the surface, the PixelArray was created for.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">pxarray</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">PixelArray</span> <span class="p">(</span><span class="n">surface</span><span class="p">)</span>
 <span class="c"># Check, if the first pixel at the topleft corner is blue</span>
-<span class="k">if</span> <span class="n">pxarray</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">surface</span><span class="o">.</span><span class="n">map_rgb</span> <span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">)):</span>
+<span class="k">if</span> <span class="n">pxarray</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">surface</span><span class="o">.</span><span class="n">map_rgb</span> <span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">)):</span>
     <span class="o">...</span>
 </pre></div>
 </div>
 <p>Pixels can be manipulated using integer values or color tuples.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">pxarray</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="n">y</span><span class="p">]</span> <span class="o">=</span> <span class="mh">0xFF00FF</span>
-<span class="n">pxarray</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="n">y</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">pxarray</span><span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">]</span> <span class="o">=</span> <span class="mh">0xFF00FF</span>
+<span class="n">pxarray</span><span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>If you operate on a slice, you also can use arbitrary sequences or other
@@ -159,7 +180,7 @@ PixelArray however.</p>
 </pre></div>
 </div>
 <p>Note, that something like</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">pxarray</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="mi">4</span><span class="p">][</span><span class="mi">3</span><span class="p">:</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="o">...</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">pxarray</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="o">...</span>
 </pre></div>
 </div>
 <p>will not cause a rectangular manipulation. Instead it will be first sliced
@@ -167,8 +188,8 @@ to a two-column array, which then shall be sliced by columns once more,
 which will fail due an IndexError. This is caused by the slicing mechanisms
 in python and an absolutely correct behaviour. Create a single columned
 slice first, which you can manipulate then:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">pxarray</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">3</span><span class="p">:</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="o">...</span>
-<span class="n">pxarray</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="mi">3</span><span class="p">:</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="o">...</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">pxarray</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="o">...</span>
+<span class="n">pxarray</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="o">...</span>
 </pre></div>
 </div>
 <p>If you want to make a rectangular manipulation or create a view of a part of
@@ -176,8 +197,8 @@ the PixelArray, you also can use the subscript abilities. You can easily
 create different view by creating &#8216;subarrays&#8217; using the subscripts.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="c"># Create some new PixelArray objects providing a different view</span>
 <span class="c"># of the original array/surface.</span>
-<span class="n">newarray</span> <span class="o">=</span> <span class="n">pxarray</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="mi">4</span><span class="p">,</span><span class="mi">3</span><span class="p">:</span><span class="mi">5</span><span class="p">]</span>
-<span class="n">otherarray</span> <span class="o">=</span> <span class="n">pxarray</span><span class="p">[::</span><span class="mi">2</span><span class="p">,::</span><span class="mi">2</span><span class="p">]</span>
+<span class="n">newarray</span> <span class="o">=</span> <span class="n">pxarray</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span><span class="mi">5</span><span class="p">]</span>
+<span class="n">otherarray</span> <span class="o">=</span> <span class="n">pxarray</span><span class="p">[::</span><span class="mi">2</span><span class="p">,</span> <span class="p">::</span><span class="mi">2</span><span class="p">]</span>
 </pre></div>
 </div>
 <p>Subscripts also can be used to do fast rectangular pixel manipulations
@@ -188,7 +209,10 @@ instead of iterating over the x or y axis as above.</p>
 <p>During its lifetime, the PixelArray locks the surface, thus you explicitly
 have to delete it once its not used anymore and the surface should perform
 operations in the same scope.</p>
-<p>New in pygame 1.8. Subscript support is new in pygame 1.8.1.</p>
+<p>New in pygame 1.9.2 - array struct interface</p>
+<p>Changed in pyame 1.9.2 - It is now possible to have a PixelArray with
+a dimension of length one. Only an integer index on a 2D PixelArray
+returns a 1D array.</p>
 <dl class="definition attribute">
 <dt class="title" id="pygame.PixelArray.surface">
 <tt class="descname">surface</tt><a class="headerlink" href="#pygame.PixelArray.surface" title="Permalink to this definition">¶</a></dt>
@@ -196,7 +220,56 @@ operations in the same scope.</p>
 <div class="line"><span class="summaryline">Gets the Surface the PixelArray uses.</span></div>
 <div class="line"><span class="signature">surface -&gt; Surface</span></div>
 </div>
-<p>The Surface, the PixelArray was created for.</p>
+<p>The Surface the PixelArray was created for.</p>
+</dd></dl>
+
+<dl class="definition attribute">
+<dt class="title" id="pygame.PixelArray.itemsize">
+<tt class="descname">itemsize</tt><a class="headerlink" href="#pygame.PixelArray.itemsize" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Returns the byte size of a pixel array item</span></div>
+<div class="line"><span class="signature">itemsize -&gt; int</span></div>
+</div>
+<p>This is the same as <a title="pygame.Surface.get_bytesize" class="reference external" href="surface.html#pygame.Surface.get_bytesize"><tt class="xref docutils literal"><span class="pre">Surface.get_bytesize()</span></tt></a> for the
+pixel array&#8217;s surface.</p>
+<p>New in pygame 1.9.2</p>
+</dd></dl>
+
+<dl class="definition attribute">
+<dt class="title" id="pygame.PixelArray.ndim">
+<tt class="descname">ndim</tt><a class="headerlink" href="#pygame.PixelArray.ndim" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Returns the number of dimensions.</span></div>
+<div class="line"><span class="signature">ndim -&gt; int</span></div>
+</div>
+<p>A pixel array can be 1 or 2 dimensional.</p>
+<p>New in pygame 1.9.2</p>
+</dd></dl>
+
+<dl class="definition attribute">
+<dt class="title" id="pygame.PixelArray.shape">
+<tt class="descname">shape</tt><a class="headerlink" href="#pygame.PixelArray.shape" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Returns the array size.</span></div>
+<div class="line"><span class="signature">shape -&gt; tuple of int&#8217;s</span></div>
+</div>
+<p>A tuple or length <a title="pygame.PixelArray.ndim" class="reference internal" href="#pygame.PixelArray.ndim"><tt class="xref docutils literal"><span class="pre">ndim</span></tt></a> giving the length of each
+dimension. Analogous to <a title="pygame.Surface.get_size" class="reference external" href="surface.html#pygame.Surface.get_size"><tt class="xref docutils literal"><span class="pre">Surface.get_size()</span></tt></a>.</p>
+<p>New in pygame 1.9.2</p>
+</dd></dl>
+
+<dl class="definition attribute">
+<dt class="title" id="pygame.PixelArray.strides">
+<tt class="descname">strides</tt><a class="headerlink" href="#pygame.PixelArray.strides" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Returns byte offsets for each array dimension.</span></div>
+<div class="line"><span class="signature">strides -&gt; tuple of int&#8217;s</span></div>
+</div>
+<p>A tuple or length <a title="pygame.PixelArray.ndim" class="reference internal" href="#pygame.PixelArray.ndim"><tt class="xref docutils literal"><span class="pre">ndim</span></tt></a> byte counts. When a stride is
+multiplied by the corresponding index it gives the offset
+of that index from the start of the array. A stride is negative
+for an array that has is inverted (has a negative step).</p>
+<p>New in pygame 1.9.2</p>
 </dd></dl>
 
 <dl class="definition method">
