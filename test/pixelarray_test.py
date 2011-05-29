@@ -403,6 +403,10 @@ class PixelArrayTypeTest (unittest.TestCase, TestMixin):
             ar2 = pygame.PixelArray (sf2)
             self.assertEqual (ar2.shape, sf2.get_size ()) 
 
+            # Array has a single ellipsis subscript: the identity operator
+            ar2 = ar[...]
+            self.assert_ (ar2 is ar)
+
     def test_ass_subscript (self):
         for bpp in (8, 16, 24, 32):
             sf = pygame.Surface ((6, 8), 0, bpp)
@@ -422,7 +426,11 @@ class PixelArrayTypeTest (unittest.TestCase, TestMixin):
             self.assertEqual (ar[0,0], sf.map_rgb ((255, 0, 0)))
             self.assertEqual (ar[1,0], sf.map_rgb ((255, 0, 0)))
             self.assertEqual (ar[-1,-1], sf.map_rgb ((255, 0, 0)))
-
+            ar[...] = (0, 255, 0)
+            self.assertEqual (ar[0,0], sf.map_rgb ((0, 255, 0)))
+            self.assertEqual (ar[1,0], sf.map_rgb ((0, 255, 0)))
+            self.assertEqual (ar[-1,-1], sf.map_rgb ((0, 255, 0)))
+            
     def test_pixels_field(self):
         for bpp in [1, 2, 3, 4]:
             sf = pygame.Surface ((11, 7), 0, bpp * 8)
