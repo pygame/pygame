@@ -1504,6 +1504,10 @@ _pxarray_subscript(PyPixelArray *array, PyObject *op)
 					   xstart, xstop, xstep,
 					   ystart, ystop, ystep);
     }
+    else if (op == Py_Ellipsis) {
+        Py_INCREF(array);
+        return (PyObject *)array;
+    }
     else if (PySlice_Check(op)) {
         /* A slice */
         Py_ssize_t slicelen;
@@ -1635,6 +1639,23 @@ _pxarray_ass_subscript(PyPixelArray *array, PyObject* op, PyObject* value)
             _pxarray_subscript_internal(array,
                                         xstart, xstop, xstep,
                                         ystart, ystop, ystep);
+        if (!tmparray) {
+            return -1;
+        }
+
+        retval = _pxarray_ass_slice(tmparray, 0,
+                                    (Py_ssize_t)tmparray->dim0, value);
+        Py_DECREF(tmparray);
+        return retval;
+    }
+    else if (op == Py_Ellipsis) {
+        /* A slice */
+        PyPixelArray *tmparray =
+             (PyPixelArray *) _pxarray_subscript_internal(array,
+                                                          0, array->dim0, 1,
+                                                          0, array->dim1, 1);
+        int retval;
+
         if (!tmparray) {
             return -1;
         }
