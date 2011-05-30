@@ -106,8 +106,8 @@ resolution, in milliseconds, is given in the ``TIMER_RESOLUTION`` constant.
       If you pass the optional framerate argument the function will delay to
       keep the game running slower than the given ticks per second. This can be
       used to help limit the runtime speed of a game. By calling
-      ``Clock.tick(40)`` once per frame, the program will never run at more
-      than 40 frames per second.
+      ``Clock.tick_busy_loop(40)`` once per frame, the program will never run at 
+      more than 40 frames per second.
 
       Note that this function uses :func:`pygame.time.delay`, which uses lots
       of cpu in a busy loop to make sure that timing is more acurate.
@@ -143,7 +143,7 @@ resolution, in milliseconds, is given in the ``TIMER_RESOLUTION`` constant.
       | :sg:`get_fps() -> float`
 
       Compute your game's framerate (in frames per second). It is computed by
-      averaging the last few calls to ``Clock.tick()``.
+      averaging the last ten calls to ``Clock.tick()``.
 
       .. ## Clock.get_fps ##
 
