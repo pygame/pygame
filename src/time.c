@@ -384,6 +384,8 @@ ClockInit (PyObject* self)
     }
     
     _clock->fps_tick = 0;
+    _clock->timepassed = 0;
+    _clock->rawpassed = 0;
     _clock->last_tick = SDL_GetTicks ();
     _clock->fps = 0.0f;
     _clock->fps_count = 0;
