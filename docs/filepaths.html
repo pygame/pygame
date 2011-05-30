@@ -12,12 +12,13 @@
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
         VERSION:     '1.9.2',
-        COLLAPSE_MODINDEX: false,
+        COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="shortcut icon" href="_static/pygame.ico"/>
     <link rel="top" title="Pygame v1.9.2 documentation" href="index.html" />
@@ -93,7 +94,7 @@
 <div class="section" id="id1">
 <h2>File Path Function Arguments<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
 <blockquote>
-<p>A Pygame function or method which takes a file path argument
+<div><p>A Pygame function or method which takes a file path argument
 will accept either an Unicode or a byte — 8-bit or ASCII character — string.
 Unicode strings are translated to Python&#8217;s default file system encoding,
 as returned by sys.getfilesystemencoding().
@@ -108,7 +109,7 @@ An exception is also raised if an Unicode file path cannot be encoded.
 How UTF-16 surrogate codes are handled is Python interpreter dependent.
 Use UTF-32 code points and 32-bit escape sequences instead.
 The exception types are function dependent.</p>
-</blockquote>
+</div></blockquote>
 </div>
 </div>
 
@@ -130,7 +131,7 @@ The exception types are function dependent.</p>
       </ul>
     </div>
     <div class="footer">
-      &copy; Copyright 2011, Pygame Developers.
+        &copy; Copyright 2011, Pygame Developers.
     </div>
   </body>
 </html>

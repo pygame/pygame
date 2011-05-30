@@ -12,12 +12,13 @@
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
         VERSION:     '1.9.2',
-        COLLAPSE_MODINDEX: false,
+        COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
       };
     </script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="shortcut icon" href="../_static/pygame.ico"/>
     <link rel="top" title="Pygame v1.9.2 documentation" href="../index.html" />
@@ -151,7 +152,7 @@ for assignment. A pixel array sliced on a single column or row
 returns a one dimensional pixel array. Arithmetic and other operations
 are not supported. A pixel array can be safely assigned to itself.
 Finally, pixel arrays export an array struct interface, allowing
-them to interact with <a title="" class="tooltip reference external" href="pixelcopy.html#module-pygame.pixelcopy"><tt class="xref docutils literal"><span class="pre">pygame.pixelcopy</span></tt><span class="tooltip-content">pygame module for general pixel array copying</span></a> methods and NumPy
+them to interact with <a class="tooltip reference internal" href="pixelcopy.html#module-pygame.pixelcopy" title=""><tt class="xref py py-mod docutils literal"><span class="pre">pygame.pixelcopy</span></tt><span class="tooltip-content">pygame module for general pixel array copying</span></a> methods and NumPy
 arrays.</p>
 <p>While it is possible to assign both, integer color values and <tt class="docutils literal"><span class="pre">RGB(A)</span></tt>
 color tuples, the PixelArray will only use integers for the color
@@ -230,7 +231,7 @@ returns a 1D array.</p>
 <div class="line"><span class="summaryline">Returns the byte size of a pixel array item</span></div>
 <div class="line"><span class="signature">itemsize -&gt; int</span></div>
 </div>
-<p>This is the same as <a title="pygame.Surface.get_bytesize" class="reference external" href="surface.html#pygame.Surface.get_bytesize"><tt class="xref docutils literal"><span class="pre">Surface.get_bytesize()</span></tt></a> for the
+<p>This is the same as <a class="reference internal" href="surface.html#pygame.Surface.get_bytesize" title="pygame.Surface.get_bytesize"><tt class="xref py py-meth docutils literal"><span class="pre">Surface.get_bytesize()</span></tt></a> for the
 pixel array&#8217;s surface.</p>
 <p>New in pygame 1.9.2</p>
 </dd></dl>
@@ -253,8 +254,8 @@ pixel array&#8217;s surface.</p>
 <div class="line"><span class="summaryline">Returns the array size.</span></div>
 <div class="line"><span class="signature">shape -&gt; tuple of int&#8217;s</span></div>
 </div>
-<p>A tuple or length <a title="pygame.PixelArray.ndim" class="reference internal" href="#pygame.PixelArray.ndim"><tt class="xref docutils literal"><span class="pre">ndim</span></tt></a> giving the length of each
-dimension. Analogous to <a title="pygame.Surface.get_size" class="reference external" href="surface.html#pygame.Surface.get_size"><tt class="xref docutils literal"><span class="pre">Surface.get_size()</span></tt></a>.</p>
+<p>A tuple or length <a class="reference internal" href="#pygame.PixelArray.ndim" title="pygame.PixelArray.ndim"><tt class="xref py py-attr docutils literal"><span class="pre">ndim</span></tt></a> giving the length of each
+dimension. Analogous to <a class="reference internal" href="surface.html#pygame.Surface.get_size" title="pygame.Surface.get_size"><tt class="xref py py-meth docutils literal"><span class="pre">Surface.get_size()</span></tt></a>.</p>
 <p>New in pygame 1.9.2</p>
 </dd></dl>
 
@@ -265,7 +266,7 @@ dimension. Analogous to <a title="pygame.Surface.get_size" class="reference exte
 <div class="line"><span class="summaryline">Returns byte offsets for each array dimension.</span></div>
 <div class="line"><span class="signature">strides -&gt; tuple of int&#8217;s</span></div>
 </div>
-<p>A tuple or length <a title="pygame.PixelArray.ndim" class="reference internal" href="#pygame.PixelArray.ndim"><tt class="xref docutils literal"><span class="pre">ndim</span></tt></a> byte counts. When a stride is
+<p>A tuple or length <a class="reference internal" href="#pygame.PixelArray.ndim" title="pygame.PixelArray.ndim"><tt class="xref py py-attr docutils literal"><span class="pre">ndim</span></tt></a> byte counts. When a stride is
 multiplied by the corresponding index it gives the offset
 of that index from the start of the array. A stride is negative
 for an array that has is inverted (has a negative step).</p>
@@ -370,7 +371,7 @@ color, as black.</p>
       </ul>
     </div>
     <div class="footer">
-      &copy; Copyright 2011, Pygame Developers.
+        &copy; Copyright 2011, Pygame Developers.
     </div>
   </body>
 </html>
