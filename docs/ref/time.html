@@ -12,12 +12,13 @@
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
         VERSION:     '1.9.2',
-        COLLAPSE_MODINDEX: false,
+        COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
       };
     </script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="shortcut icon" href="../_static/pygame.ico"/>
     <link rel="top" title="Pygame v1.9.2 documentation" href="../index.html" />
@@ -91,7 +92,7 @@
             
   <div class="sectionwrapper">
 <div class="section" id="module-pygame.time">
-<dl class="definition module">
+<span id="pygame-time"></span><dl class="definition module">
 <dt class="title module">
 <tt class="docutils literal"><span class="pre">pygame.time</span></tt></dt>
 <dd><div class="line-block">
@@ -253,9 +254,9 @@ milliseconds have passed since the previous call.</p>
 <p>If you pass the optional framerate argument the function will delay to
 keep the game running slower than the given ticks per second. This can be
 used to help limit the runtime speed of a game. By calling
-<tt class="docutils literal"><span class="pre">Clock.tick(40)</span></tt> once per frame, the program will never run at more
-than 40 frames per second.</p>
-<p>Note that this function uses <a title="" class="tooltip reference internal" href="#pygame.time.delay"><tt class="xref docutils literal"><span class="pre">pygame.time.delay()</span></tt><span class="tooltip-content">pause the program for an amount of time</span></a>, which uses lots
+<tt class="docutils literal"><span class="pre">Clock.tick_busy_loop(40)</span></tt> once per frame, the program will never run at
+more than 40 frames per second.</p>
+<p>Note that this function uses <a class="tooltip reference internal" href="#pygame.time.delay" title=""><tt class="xref py py-func docutils literal"><span class="pre">pygame.time.delay()</span></tt><span class="tooltip-content">pause the program for an amount of time</span></a>, which uses lots
 of cpu in a busy loop to make sure that timing is more acurate.</p>
 <p>New in pygame 1.8.0.</p>
 </dd></dl>
@@ -291,7 +292,7 @@ while <tt class="docutils literal"><span class="pre">Clock.tick()</span></tt> wa
 <div class="line"><span class="signature">get_fps() -&gt; float</span></div>
 </div>
 <p>Compute your game&#8217;s framerate (in frames per second). It is computed by
-averaging the last few calls to <tt class="docutils literal"><span class="pre">Clock.tick()</span></tt>.</p>
+averaging the last ten calls to <tt class="docutils literal"><span class="pre">Clock.tick()</span></tt>.</p>
 </dd></dl>
 
 </dd></dl>
@@ -321,7 +322,7 @@ averaging the last few calls to <tt class="docutils literal"><span class="pre">C
       </ul>
     </div>
     <div class="footer">
-      &copy; Copyright 2011, Pygame Developers.
+        &copy; Copyright 2011, Pygame Developers.
     </div>
   </body>
 </html>

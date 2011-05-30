@@ -12,12 +12,13 @@
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
         VERSION:     '1.9.2',
-        COLLAPSE_MODINDEX: false,
+        COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
       };
     </script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="shortcut icon" href="../_static/pygame.ico"/>
     <link rel="top" title="Pygame v1.9.2 documentation" href="../index.html" />
@@ -91,7 +92,7 @@
             
   <div class="sectionwrapper">
 <div class="section" id="module-pygame.sprite">
-<dl class="definition module">
+<span id="pygame-sprite"></span><dl class="definition module">
 <dt class="title module">
 <tt class="docutils literal"><span class="pre">pygame.sprite</span></tt></dt>
 <dd><div class="line-block">
@@ -675,7 +676,7 @@ Groups.</p>
 </tr>
 </tbody>
 </table>
-<p>This group is fully compatible with <a title="" class="tooltip reference internal" href="#pygame.sprite.Sprite"><tt class="xref docutils literal"><span class="pre">pygame.sprite.Sprite</span></tt><span class="tooltip-content">simple base class for visible game objects</span></a>.</p>
+<p>This group is fully compatible with <a class="tooltip reference internal" href="#pygame.sprite.Sprite" title=""><tt class="xref py py-class docutils literal"><span class="pre">pygame.sprite.Sprite</span></tt><span class="tooltip-content">simple base class for visible game objects</span></a>.</p>
 <p>You can set the default layer through kwargs using &#8216;default_layer&#8217; and an
 integer for the layer. The default layer is 0.</p>
 <p>If the sprite you add has an attribute layer then that layer will be used.
@@ -889,15 +890,15 @@ uses linear search and the sprites are not removed from layer.</p>
 </tr>
 </tbody>
 </table>
-<p>This group requires <a title="" class="tooltip reference internal" href="#pygame.sprite.DirtySprite"><tt class="xref docutils literal"><span class="pre">pygame.sprite.DirtySprite</span></tt><span class="tooltip-content">a more featureful subclass of Sprite with more attributes</span></a> or any sprite that
+<p>This group requires <a class="tooltip reference internal" href="#pygame.sprite.DirtySprite" title=""><tt class="xref py py-class docutils literal"><span class="pre">pygame.sprite.DirtySprite</span></tt><span class="tooltip-content">a more featureful subclass of Sprite with more attributes</span></a> or any sprite that
 has the following attributes:</p>
 <div class="highlight-python"><pre>image, rect, dirty, visible, blendmode (see doc of DirtySprite).</pre>
 </div>
 <p>It uses the dirty flag technique and is therefore faster than the
-<a title="" class="tooltip reference internal" href="#pygame.sprite.RenderUpdates"><tt class="xref docutils literal"><span class="pre">pygame.sprite.RenderUpdates</span></tt><span class="tooltip-content">Group class that tracks dirty updates</span></a> if you have many static sprites. It
+<a class="tooltip reference internal" href="#pygame.sprite.RenderUpdates" title=""><tt class="xref py py-class docutils literal"><span class="pre">pygame.sprite.RenderUpdates</span></tt><span class="tooltip-content">Group class that tracks dirty updates</span></a> if you have many static sprites. It
 also switches automatically between dirty rect update and full screen
 drawing, so you do no have to worry what would be faster.</p>
-<p>Same as for the <a title="" class="tooltip reference internal" href="#pygame.sprite.Group"><tt class="xref docutils literal"><span class="pre">pygame.sprite.Group</span></tt><span class="tooltip-content">container class for many Sprites</span></a>. You can specify some
+<p>Same as for the <a class="tooltip reference internal" href="#pygame.sprite.Group" title=""><tt class="xref py py-class docutils literal"><span class="pre">pygame.sprite.Group</span></tt><span class="tooltip-content">container class for many Sprites</span></a>. You can specify some
 additional attributes through kwargs:</p>
 <div class="highlight-python"><pre>_use_update: True/False   default is False
 _default_layer: default layer where sprites without a layer are added.
@@ -1156,7 +1157,7 @@ since it has less work to do.</p>
       </ul>
     </div>
     <div class="footer">
-      &copy; Copyright 2011, Pygame Developers.
+        &copy; Copyright 2011, Pygame Developers.
     </div>
   </body>
 </html>
