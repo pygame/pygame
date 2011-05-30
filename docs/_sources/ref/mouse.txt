@@ -15,13 +15,14 @@ When the display mode is set, the event queue will start receiving mouse
 events. The mouse buttons generate ``pygame.MOUSEBUTTONDOWN`` and
 ``pygame.MOUSEBUTTONUP`` events when they are pressed and released. These
 events contain a button attribute representing which button was pressed. The
-mouse wheel will generate ``pygame.MOUSEBUTTONDOWN`` events when rolled. The
-button will be set to 4 when the wheel is rolled up, and to button 5 when the
-wheel is rolled down. Anytime the mouse is moved it generates a
-``pygame.MOUSEMOTION`` event. The mouse movement is broken into small and
-accurate motion events. As the mouse is moving many motion events will be
-placed on the queue. Mouse motion events that are not properly cleaned from the
-event queue are the primary reason the event queue fills up.
+mouse wheel will generate ``pygame.MOUSEBUTTONDOWN`` and 
+``pygame.MOUSEBUTTONUP`` events when rolled. The button will be set to 4 
+when the wheel is rolled up, and to button 5 when the wheel is rolled down. 
+Anytime the mouse is moved it generates a ``pygame.MOUSEMOTION`` event. The 
+mouse movement is broken into small and accurate motion events. As the mouse 
+is moving many motion events will be placed on the queue. Mouse motion events 
+that are not properly cleaned from the event queue are the primary reason the 
+event queue fills up.
 
 If the mouse cursor is hidden, and input is grabbed to the current display the
 mouse will enter a virtual input mode, where the relative movements of the
@@ -86,7 +87,7 @@ configured.
 
    Set the current mouse position to arguments given. If the mouse cursor is
    visible it will jump to the new coordinates. Moving the mouse will generate
-   a new ``pygaqme.MOUSEMOTION`` event.
+   a new ``pygame.MOUSEMOTION`` event.
 
    .. ## pygame.mouse.set_pos ##
 

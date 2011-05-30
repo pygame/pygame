@@ -12,12 +12,13 @@
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
         VERSION:     '1.9.2',
-        COLLAPSE_MODINDEX: false,
+        COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
       };
     </script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="shortcut icon" href="../_static/pygame.ico"/>
     <link rel="top" title="Pygame v1.9.2 documentation" href="../index.html" />
@@ -91,7 +92,7 @@
             
   <div class="sectionwrapper">
 <div class="section" id="module-pygame.mouse">
-<dl class="definition module">
+<span id="pygame-mouse"></span><dl class="definition module">
 <dt class="title module">
 <tt class="docutils literal"><span class="pre">pygame.mouse</span></tt></dt>
 <dd><div class="line-block">
@@ -144,13 +145,14 @@ These functions can also alter the system cursor for the mouse.</p>
 events. The mouse buttons generate <tt class="docutils literal"><span class="pre">pygame.MOUSEBUTTONDOWN</span></tt> and
 <tt class="docutils literal"><span class="pre">pygame.MOUSEBUTTONUP</span></tt> events when they are pressed and released. These
 events contain a button attribute representing which button was pressed. The
-mouse wheel will generate <tt class="docutils literal"><span class="pre">pygame.MOUSEBUTTONDOWN</span></tt> events when rolled. The
-button will be set to 4 when the wheel is rolled up, and to button 5 when the
-wheel is rolled down. Anytime the mouse is moved it generates a
-<tt class="docutils literal"><span class="pre">pygame.MOUSEMOTION</span></tt> event. The mouse movement is broken into small and
-accurate motion events. As the mouse is moving many motion events will be
-placed on the queue. Mouse motion events that are not properly cleaned from the
-event queue are the primary reason the event queue fills up.</p>
+mouse wheel will generate <tt class="docutils literal"><span class="pre">pygame.MOUSEBUTTONDOWN</span></tt> and
+<tt class="docutils literal"><span class="pre">pygame.MOUSEBUTTONUP</span></tt> events when rolled. The button will be set to 4
+when the wheel is rolled up, and to button 5 when the wheel is rolled down.
+Anytime the mouse is moved it generates a <tt class="docutils literal"><span class="pre">pygame.MOUSEMOTION</span></tt> event. The
+mouse movement is broken into small and accurate motion events. As the mouse
+is moving many motion events will be placed on the queue. Mouse motion events
+that are not properly cleaned from the event queue are the primary reason the
+event queue fills up.</p>
 <p>If the mouse cursor is hidden, and input is grabbed to the current display the
 mouse will enter a virtual input mode, where the relative movements of the
 mouse will never be stopped by the borders of the screen. See the functions
@@ -212,7 +214,7 @@ around this. Virtual input mode is described at the top of the page.</p>
 </div>
 <p>Set the current mouse position to arguments given. If the mouse cursor is
 visible it will jump to the new coordinates. Moving the mouse will generate
-a new <tt class="docutils literal"><span class="pre">pygaqme.MOUSEMOTION</span></tt> event.</p>
+a new <tt class="docutils literal"><span class="pre">pygame.MOUSEMOTION</span></tt> event.</p>
 </dd></dl>
 
 <dl class="definition function">
@@ -298,7 +300,7 @@ same data as the arguments passed into <tt class="docutils literal"><span class=
       </ul>
     </div>
     <div class="footer">
-      &copy; Copyright 2011, Pygame Developers.
+        &copy; Copyright 2011, Pygame Developers.
     </div>
   </body>
 </html>

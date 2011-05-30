@@ -12,12 +12,13 @@
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
         VERSION:     '1.9.2',
-        COLLAPSE_MODINDEX: false,
+        COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
       };
     </script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="shortcut icon" href="../_static/pygame.ico"/>
     <link rel="top" title="Pygame v1.9.2 documentation" href="../index.html" />
@@ -91,7 +92,7 @@
             
   <div class="sectionwrapper">
 <div class="section" id="module-pygame.examples">
-<dl class="definition module">
+<span id="pygame-examples"></span><dl class="definition module">
 <dt class="title module">
 <tt class="docutils literal"><span class="pre">pygame.examples</span></tt></dt>
 <dd><div class="line-block">
@@ -493,12 +494,12 @@ eg. -scale in.png outpng 50 50</pre>
 </div>
 <p>This is a stress test for the fastevents module.</p>
 <blockquote>
-<ul class="simple">
+<div><ul class="simple">
 <li>Fast events does not appear faster!</li>
 <li></li>
 </ul>
-</blockquote>
-<p>So far it looks like normal <a title="" class="tooltip reference external" href="event.html#module-pygame.event"><tt class="xref docutils literal"><span class="pre">pygame.event</span></tt><span class="tooltip-content">pygame module for interacting with events and queues</span></a> is faster by up to two
+</div></blockquote>
+<p>So far it looks like normal <a class="tooltip reference internal" href="event.html#module-pygame.event" title=""><tt class="xref py py-mod docutils literal"><span class="pre">pygame.event</span></tt><span class="tooltip-content">pygame module for interacting with events and queues</span></a> is faster by up to two
 times. So maybe fastevent isn&#8217;t fast at all.</p>
 <p>Tested on windowsXP sp2 athlon, and freebsd.</p>
 <p>However... on my debian duron 850 machine fastevents is faster.</p>
@@ -616,7 +617,7 @@ displayed on a console.</p>
 <div class="line"><span class="signature">scroll.main(image_file=None) -&gt; None</span></div>
 </div>
 <p>This example shows a scrollable image that has a zoom factor of eight. It
-uses the <tt class="xref docutils literal"><span class="pre">Surface.scroll()</span></tt> function to shift the image on the display
+uses the <tt class="xref py py-func docutils literal"><span class="pre">Surface.scroll()</span></tt> function to shift the image on the display
 surface. A clip rectangle protects a margin area. If called as a function,
 the example accepts an optional image file path. If run as a program it
 takes an optional file path command line argument. If no file is provided a
@@ -634,11 +635,11 @@ the triangle points. Or use the arrow keys. Close the window or press
 <div class="line"><span class="signature">movieplayer.main(filepath) -&gt; None</span></div>
 </div>
 <p>A simple movie player that plays an <tt class="docutils literal"><span class="pre">MPEG</span></tt> movie in a Pygame window. It
-showcases the <a title="" class="tooltip reference external" href="movie.html#module-pygame.movie"><tt class="xref docutils literal"><span class="pre">pygame.movie</span></tt><span class="tooltip-content">pygame module for playback of mpeg video</span></a> module. The window adjusts to the size of
+showcases the <a class="tooltip reference internal" href="movie.html#module-pygame.movie" title=""><tt class="xref py py-mod docutils literal"><span class="pre">pygame.movie</span></tt><span class="tooltip-content">pygame module for playback of mpeg video</span></a> module. The window adjusts to the size of
 the movie image. It is given a boarder to demonstrate that a movie can play
 autonomously in a sub- window. Also, the file is copied to a file like
 object to show that not just Python files can be used as a movie source.</p>
-<p>The <a title="" class="tooltip reference external" href="movie.html#module-pygame.movie"><tt class="xref docutils literal"><span class="pre">pygame.movie</span></tt><span class="tooltip-content">pygame module for playback of mpeg video</span></a> module is problematic and may not work on all
+<p>The <a class="tooltip reference internal" href="movie.html#module-pygame.movie" title=""><tt class="xref py py-mod docutils literal"><span class="pre">pygame.movie</span></tt><span class="tooltip-content">pygame module for playback of mpeg video</span></a> module is problematic and may not work on all
 systems. It is intended to replace it with an ffmpeg based version.</p>
 </dd></dl>
 
@@ -678,7 +679,7 @@ the system.</p>
       </ul>
     </div>
     <div class="footer">
-      &copy; Copyright 2011, Pygame Developers.
+        &copy; Copyright 2011, Pygame Developers.
     </div>
   </body>
 </html>

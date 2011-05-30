@@ -12,12 +12,13 @@
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
         VERSION:     '1.9.2',
-        COLLAPSE_MODINDEX: false,
+        COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
       };
     </script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="shortcut icon" href="../_static/pygame.ico"/>
     <link rel="top" title="Pygame v1.9.2 documentation" href="../index.html" />
@@ -91,7 +92,7 @@
             
   <div class="sectionwrapper">
 <div class="section" id="module-pygame.font">
-<dl class="definition module">
+<span id="pygame-font"></span><dl class="definition module">
 <dt class="title module">
 <tt class="docutils literal"><span class="pre">pygame.font</span></tt></dt>
 <dd><div class="line-block">
@@ -140,7 +141,7 @@
 </table>
 <p>The font module allows for rendering TrueType fonts into a new Surface object.
 It accepts any UCS-2 character (&#8216;u0001&#8217; to &#8216;uFFFF&#8217;). This module is optional
-and requires SDL_ttf as a dependency. You should test that <tt class="xref docutils literal"><span class="pre">pygame.font</span></tt>
+and requires SDL_ttf as a dependency. You should test that <a class="tooltip reference internal" href="#module-pygame.font" title=""><tt class="xref py py-mod docutils literal"><span class="pre">pygame.font</span></tt><span class="tooltip-content">pygame module for loading and rendering fonts</span></a>
 is available and initialized before attempting to use the module.</p>
 <p>Most of the work done with fonts are done by using the actual Font objects. The
 module by itself only has routines to initialize the module and create Font
@@ -532,7 +533,7 @@ number of pixels from the font baseline to the bottom of the font.</p>
       </ul>
     </div>
     <div class="footer">
-      &copy; Copyright 2011, Pygame Developers.
+        &copy; Copyright 2011, Pygame Developers.
     </div>
   </body>
 </html>
