@@ -22,12 +22,10 @@
   from Pygame 2.
   
   TODO:
-  - Add gfxdraw.doc file.
-  - Unpdate Setup.in and config modules.
-  - Move Python 3 compatibility macros to a header.
+  - fix filledPolygonRGBA to use MT versions for threaded use.
+  - do a filled pie version using filledPieColor
   - Determine if SDL video must be initiated for all routines to work.
     Add check if required, else remove ASSERT_VIDEO_INIT.
-  - Unit tests.
   - Example (Maybe).
 */
 #define PYGAME_SDLGFXPRIM_INTERNAL
@@ -1165,7 +1163,7 @@ MODINIT_DEFINE(gfxdraw)
     };
 #endif
 
-    /* importe needed apis; Do this first so if there is an error
+    /* import needed APIs; Do this first so if there is an error
        the module is not loaded.
     */
     import_pygame_base();
