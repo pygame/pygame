@@ -33,7 +33,7 @@
 
 #define DOC_PYGAMEGFXDRAWAATRIGON "aatrigon(surface, x1, y1, x2, y2, x3, y3, color) -> None\ndraw an anti-aliased triangle"
 
-#define DOC_PYGAMEGFXDRAWFILLEDTRIGON "filled_trigon(surface, x1, y1, x3, y2, x3, y3, color) -> None\ndraw a filled trigon"
+#define DOC_PYGAMEGFXDRAWFILLEDTRIGON "filled_trigon(surface, x1, y1, x2, y2, x3, y3, color) -> None\ndraw a filled trigon"
 
 #define DOC_PYGAMEGFXDRAWPOLYGON "polygon(surface, points, color) -> None\ndraw a polygon"
 
@@ -119,7 +119,7 @@ pygame.gfxdraw.aatrigon
 draw an anti-aliased triangle
 
 pygame.gfxdraw.filled_trigon
- filled_trigon(surface, x1, y1, x3, y2, x3, y3, color) -> None
+ filled_trigon(surface, x1, y1, x2, y2, x3, y3, color) -> None
 draw a filled trigon
 
 pygame.gfxdraw.polygon
