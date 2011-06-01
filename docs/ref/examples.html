@@ -230,20 +230,28 @@ called (see below). Finally, the easiest way is to use the python -m option:</p>
 <p>eg:</p>
 <div class="highlight-python"><pre>python -m pygame.examples.scaletest someimage.png</pre>
 </div>
-<p>Resources for the examples are found in the pygame/examples/data subdirectory.</p>
+<p>Resources such as images and sounds for the examples are found in the
+pygame/examples/data subdirectory.</p>
+<p>You can find where the example files are installed by using the following
+commands inside the python interpreter.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pygame.examples.scaletest</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pygame</span><span class="o">.</span><span class="n">examples</span><span class="o">.</span><span class="n">scaletest</span><span class="o">.</span><span class="n">__file__</span>
+<span class="go">&#39;/usr/lib/python2.6/site-packages/pygame/examples/scaletest.py&#39;</span>
+</pre></div>
+</div>
+<p>On each OS and version of python the location will be slightly different.
+For example on windows it might be in &#8216;C:/Python26/Lib/site-packages/pygame/examples/&#8217;
+On Mac OS X it might be in &#8216;/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/pygame/examples/&#8217;</p>
+<p>You can also run the examples in the python interpreter by calling each modules main() function.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pygame.examples.scaletest</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pygame</span><span class="o">.</span><span class="n">examples</span><span class="o">.</span><span class="n">scaletest</span><span class="o">.</span><span class="n">main</span><span class="p">()</span>
+</pre></div>
+</div>
 <p>We&#8217;re always on the lookout for more examples and/or example requests. Code
 like this is probably the best way to start getting involved with python
 gaming.</p>
-<p>This page is adapted from the original examples <tt class="docutils literal"><span class="pre">readme.txt</span></tt> by:</p>
-<div class="highlight-python"><pre>Pete Shinners
-shredwheat@mediaone.net</pre>
-</div>
-<p>Further references</p>
-<div class="highlight-python"><pre>pySDL    : &lt;a href="http://pysdl.sourceforge.net"&gt;http://pysdl.sourceforge.net&lt;a/&gt;
-SDL      : &lt;a href="http://www.libsdl.org"&gt;http://www.libsdl.org&lt;a/&gt;
-aliens.c : &lt;a href="http://www.libsdl.org/projects/aliens"&gt;http://www.libsdl.org/projects/aliens&lt;a/&gt;</pre>
-</div>
-<p>examples as a package is new to pygame 1.9.0.</p>
+<p>examples as a package is new to pygame 1.9.0. But most of the examples came with
+pygame much earlier.</p>
 <dl class="definition function">
 <dt class="title" id="pygame.examples.aliens.main">
 <tt class="descclassname">aliens.</tt><tt class="descname">main</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.examples.aliens.main" title="Permalink to this definition">¶</a></dt>
@@ -636,7 +644,7 @@ the triangle points. Or use the arrow keys. Close the window or press
 </div>
 <p>A simple movie player that plays an <tt class="docutils literal"><span class="pre">MPEG</span></tt> movie in a Pygame window. It
 showcases the <a class="tooltip reference internal" href="movie.html#module-pygame.movie" title=""><tt class="xref py py-mod docutils literal"><span class="pre">pygame.movie</span></tt><span class="tooltip-content">pygame module for playback of mpeg video</span></a> module. The window adjusts to the size of
-the movie image. It is given a boarder to demonstrate that a movie can play
+the movie image. It is given a border to demonstrate that a movie can play
 autonomously in a sub- window. Also, the file is copied to a file like
 object to show that not just Python files can be used as a movie source.</p>
 <p>The <a class="tooltip reference internal" href="movie.html#module-pygame.movie" title=""><tt class="xref py py-mod docutils literal"><span class="pre">pygame.movie</span></tt><span class="tooltip-content">pygame module for playback of mpeg video</span></a> module is problematic and may not work on all
