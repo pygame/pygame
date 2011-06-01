@@ -26,28 +26,37 @@ eg:
 
    python -m pygame.examples.scaletest someimage.png
 
-Resources for the examples are found in the pygame/examples/data subdirectory.
+Resources such as images and sounds for the examples are found in the 
+pygame/examples/data subdirectory.
+
+You can find where the example files are installed by using the following
+commands inside the python interpreter.
+
+::
+    
+   >>> import pygame.examples.scaletest
+   >>> pygame.examples.scaletest.__file__
+   '/usr/lib/python2.6/site-packages/pygame/examples/scaletest.py'
+
+On each OS and version of python the location will be slightly different.
+For example on windows it might be in 'C:/Python26/Lib/site-packages/pygame/examples/'
+On Mac OS X it might be in '/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/pygame/examples/'
+
+
+You can also run the examples in the python interpreter by calling each modules main() function.
+
+::
+
+   >>> import pygame.examples.scaletest
+   >>> pygame.examples.scaletest.main()
+
 
 We're always on the lookout for more examples and/or example requests. Code
 like this is probably the best way to start getting involved with python
 gaming.
 
-This page is adapted from the original examples ``readme.txt`` by:
-
-::
-
-    Pete Shinners
-    shredwheat@mediaone.net
-
-Further references
-
-::
-
-  pySDL    : <a href="http://pysdl.sourceforge.net">http://pysdl.sourceforge.net<a/>
-  SDL      : <a href="http://www.libsdl.org">http://www.libsdl.org<a/>
-  aliens.c : <a href="http://www.libsdl.org/projects/aliens">http://www.libsdl.org/projects/aliens<a/>
-
-examples as a package is new to pygame 1.9.0.
+examples as a package is new to pygame 1.9.0. But most of the examples came with
+pygame much earlier.
 
 .. function:: aliens.main
 
@@ -450,7 +459,7 @@ examples as a package is new to pygame 1.9.0.
 
    A simple movie player that plays an ``MPEG`` movie in a Pygame window. It
    showcases the :mod:`pygame.movie` module. The window adjusts to the size of
-   the movie image. It is given a boarder to demonstrate that a movie can play
+   the movie image. It is given a border to demonstrate that a movie can play
    autonomously in a sub- window. Also, the file is copied to a file like
    object to show that not just Python files can be used as a movie source.
 
