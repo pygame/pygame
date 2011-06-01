@@ -5975,9 +5975,10 @@ int characterColor(SDL_Surface * dst, Sint16 x, Sint16 y, char c, Uint32 color)
 		/* Maybe rotate and replace cached image */
 		if (charRotation>0)
 		{
-			rotatedCharacter = rotateSurface90Degrees(gfxPrimitivesFont[ci], charRotation);
-			SDL_FreeSurface(gfxPrimitivesFont[ci]);
-			gfxPrimitivesFont[ci] = rotatedCharacter;
+			// XXX: NOTE: To drop dependency on the rotateSurface90Degrees call.
+			//rotatedCharacter = rotateSurface90Degrees(gfxPrimitivesFont[ci], charRotation);
+			//SDL_FreeSurface(gfxPrimitivesFont[ci]);
+			//gfxPrimitivesFont[ci] = rotatedCharacter;
 		}
 	}
 
