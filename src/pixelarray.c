@@ -72,7 +72,7 @@ static PyObject *_pxarray_get_pixelsaddress(PyPixelArray *self, void *closure);
 static PyObject *_pxarray_repr(PyPixelArray *array);
 
 static PyObject *_array_slice_internal(
-    PyPixelArray *array, Sint32 start, Sint32 end, Sint32 step);
+    PyPixelArray *array, Py_ssize_t start, Py_ssize_t end, Py_ssize_t step);
 
 #if PY3
 static void _pxarray_capsule_destr(PyObject *capsule);
@@ -197,7 +197,7 @@ static PySequenceMethods _pxarray_sequence =
  */
 static PyMappingMethods _pxarray_mapping =
 {
-    (inquiry)_pxarray_length,              /*mp_length*/
+    (lenfunc)_pxarray_length,              /*mp_length*/
     (binaryfunc)_pxarray_subscript,        /*mp_subscript*/
     (objobjargproc)_pxarray_ass_subscript, /*mp_ass_subscript*/
 };
