@@ -133,6 +133,8 @@ static PyMethodDef _pxarray_methods[] =
       DOC_PIXELARRAYMAKESURFACE },
     { "replace", (PyCFunction)_replace_color, METH_VARARGS | METH_KEYWORDS,
       DOC_PIXELARRAYREPLACE },
+    { "transpose", (PyCFunction)_transpose, METH_NOARGS,
+      DOC_PIXELARRAYTRANSPOSE },
     { NULL, NULL, 0, NULL }
 };
 
@@ -791,18 +793,37 @@ _array_assign_array(PyPixelArray *array,
     Uint8 *copied_pixels = 0;
     Py_ssize_t x;
     Py_ssize_t y;
+    int sizes_match = 0;
 
-    if (!((val_dim1 && dim0 == val_dim0 && dim1 == val_dim1) ||
-	  (dim1 && dim1 == val_dim0)                         ||
-	  (dim0 == val_dim0)                                    )) {
+    /* Broadcast length 1 val dimensions.*/
+    if (val_dim0 == 1) {
+        val_dim0 = dim0;
+        val_stride0 = 0;
+    }
+    if (val_dim1 == 1) {
+        val_dim1 = dim1;
+        val_stride1 = 0;
+    }
+
+    if (val_dim1) {
+        sizes_match = (dim0 == val_dim0 && dim1 == val_dim1);
+    }
+    else if (dim1) {
+        sizes_match = (dim1 == val_dim0);
+    }
+    else {
+        sizes_match = (dim0 == val_dim0);
+    }
+    if (!sizes_match) {
          /* Bounds do not match. */
         PyErr_SetString(PyExc_ValueError, "array sizes do not match");
         return -1;
     }
+
     bpp = surf->format->BytesPerPixel;
     val_bpp = val_surf->format->BytesPerPixel;
     if (val_bpp != bpp) {
-        /* bpp do not match. We cannot guarantee that the padding and co
+        /* bpp do not match. We cannot guarantee that the padding and columns
          * would be set correctly. */
         PyErr_SetString(PyExc_ValueError, "bit depths do not match");
         return -1;
@@ -1148,6 +1169,9 @@ _pxarray_ass_item(PyPixelArray *array, Py_ssize_t index, PyObject *value)
     bpp = surf->format->BytesPerPixel;
 
     if (!_get_color_from_object(value, surf->format, &color)) {
+        if (PyTuple_Check (value)) {
+            return -1;
+        }
         if (PyPixelArray_Check(value)) {
             PyErr_Clear(); /* _get_color_from_object */
             return _array_assign_array(array, index, index + 1,
@@ -1160,7 +1184,7 @@ _pxarray_ass_item(PyPixelArray *array, Py_ssize_t index, PyObject *value)
                                             index, 0, 0,
                                             0, array->dim1, 1);
             if (!tmparray) {
-                return 0;
+                return -1;
             }
             retval = _array_assign_sequence(tmparray,
                                             0, tmparray->dim0, value);
@@ -1265,6 +1289,9 @@ _pxarray_ass_slice(PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
     }
     if (_get_color_from_object(value, surf->format, &color)) {
         return _array_assign_slice(array, low, high, color);
+    }
+    if (PyTuple_Check (value)) {
+        return -1;
     }
     PyErr_Clear(); /* In case _get_color_from_object set it */
     if (PySequence_Check(value)) {

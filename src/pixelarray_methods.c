@@ -32,49 +32,57 @@
 #define WG_NTSC 0.587
 #define WB_NTSC 0.114
 
+/* Modified RGBAFromColorObj that only accepts pygame.Color or tuple objects.
+ */
+static int
+_RGBAFromColorObj (PyObject *obj, Uint8 rgba[4]) {
+    if (PyObject_IsInstance (obj, &PyColor_Type) || PyTuple_Check (obj)) {
+        return RGBAFromColorObj (obj, rgba);
+    }
+    PyErr_SetString(PyExc_ValueError, "invalid color argument");
+    return 0;
+}
+
 /**
  * Tries to retrieve a valid color for a Surface.
  */
 static int
-_get_color_from_object (PyObject *val, SDL_PixelFormat *format, Uint32 *color)
+_get_color_from_object(PyObject *val, SDL_PixelFormat *format, Uint32 *color)
 {
     Uint8 rgba[4];
 
-    if (!val)
+    if (!val) {
         return 0;
+    }
 
-    if (PyInt_Check (val))
-    {
+    if (PyInt_Check(val)) {
         long intval = PyInt_AsLong (val);
-        if (intval == -1 && PyErr_Occurred ())
-        {
+        if (intval == -1 && PyErr_Occurred()) {
             PyErr_SetString (PyExc_ValueError, "invalid color argument");
             return 0;
         }
         *color = (Uint32) intval;
         return 1;
     }
-    else if (PyLong_Check (val))
-    {
+    else if (PyLong_Check(val)) {
         unsigned long longval = PyLong_AsUnsignedLong (val);
-        if (PyErr_Occurred ())
-        {
+        if (PyErr_Occurred()) {
             PyErr_SetString(PyExc_ValueError, "invalid color argument");
             return 0;
         }
         *color = (Uint32) longval;
         return 1;
     }
-    else if (RGBAFromColorObj (val, rgba))
-    {
-        *color = (Uint32) SDL_MapRGBA
-            (format, rgba[0], rgba[1], rgba[2], rgba[3]);
+    else if (_RGBAFromColorObj(val, rgba)) {
+      *color = (Uint32) SDL_MapRGBA(format, rgba[0], rgba[1], rgba[2], rgba[3]);
         return 1;
     }
-    else
-        PyErr_SetString (PyExc_ValueError, "invalid color argument");
+    else {
+        PyErr_SetString(PyExc_ValueError, "invalid color argument");
+    }
     return 0;
 }
+
 
 /**
  * Retrieves a single pixel located at index from the surface pixel
@@ -1031,4 +1039,21 @@ _compare(PyPixelArray *array, PyObject *args, PyObject *kwds)
     Py_END_ALLOW_THREADS;
 
     return (PyObject *)new_array;
+}
+
+static PyObject *
+_transpose(PyPixelArray *array)
+{
+    SDL_Surface *surf = PySurface_AsSurface(array->surface);
+    Py_ssize_t dim0 = array->dim1 ? array->dim1 : 1;
+    Py_ssize_t dim1 = array->dim0;
+    Py_ssize_t stride0;
+    Py_ssize_t stride1 = array->stride0;
+
+    stride0 = array->dim1 ?
+        array->stride1 : array->dim0 * surf->format->BytesPerPixel;
+
+    return (PyObject *)_pxarray_new_internal(&PyPixelArray_Type,
+                                             0, array, array->pixels,
+                                             dim0, dim1, stride0, stride1);
 }

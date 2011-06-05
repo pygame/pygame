@@ -142,11 +142,15 @@
 <td>—</td>
 <td>Compares the PixelArray with another one.</td>
 </tr>
+<tr><td><a class="toc reference external" href="pixelarray.html#pygame.PixelArray.transpose">pygame.PixelArray.transpose</a></td>
+<td>—</td>
+<td>Exchanges the x and y axis.</td>
+</tr>
 </tbody>
 </table>
 <p>The PixelArray wraps a Surface and provides direct access to the
 surface&#8217;s pixels. A pixel array can be one or two dimensional.
-A two dimensional array, likes its surface, is indexed [column, row].
+A two dimensional array, like its surface, is indexed [column, row].
 Pixel arrays support slicing, both for returning a subarray or
 for assignment. A pixel array sliced on a single column or row
 returns a one dimensional pixel array. Arithmetic and other operations
@@ -154,66 +158,77 @@ are not supported. A pixel array can be safely assigned to itself.
 Finally, pixel arrays export an array struct interface, allowing
 them to interact with <a class="tooltip reference internal" href="pixelcopy.html#module-pygame.pixelcopy" title=""><tt class="xref py py-mod docutils literal"><span class="pre">pygame.pixelcopy</span></tt><span class="tooltip-content">pygame module for general pixel array copying</span></a> methods and NumPy
 arrays.</p>
-<p>While it is possible to assign both, integer color values and <tt class="docutils literal"><span class="pre">RGB(A)</span></tt>
-color tuples, the PixelArray will only use integers for the color
-representation. Thus, checking for certain colors has to be done using the
-<tt class="docutils literal"><span class="pre">Surface.map_rgb()</span></tt> method of the surface, the PixelArray was created for.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">pxarray</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">PixelArray</span> <span class="p">(</span><span class="n">surface</span><span class="p">)</span>
-<span class="c"># Check, if the first pixel at the topleft corner is blue</span>
-<span class="k">if</span> <span class="n">pxarray</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">surface</span><span class="o">.</span><span class="n">map_rgb</span> <span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">)):</span>
-    <span class="o">...</span>
-</pre></div>
-</div>
-<p>Pixels can be manipulated using integer values or color tuples.</p>
+<p>A PixelArray pixel item can be assigned a raw integer values, a
+<a class="tooltip reference internal" href="color.html#pygame.Color" title=""><tt class="xref py py-class docutils literal"><span class="pre">pygame.Color</span></tt><span class="tooltip-content">pygame object for color representations</span></a> instance, or a (r, g, b[, a]) tuple.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">pxarray</span><span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">]</span> <span class="o">=</span> <span class="mh">0xFF00FF</span>
+<span class="n">pxarray</span><span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">]</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">Color</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">)</span>
 <span class="n">pxarray</span><span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>If you operate on a slice, you also can use arbitrary sequences or other
-PixelArray objects to modify the pixels. They have to match the size of the
-PixelArray however.</p>
+<p>However, only a pixel&#8217;s integer value is returned. So, to compare a pixel
+to a particular color the color needs to be first mapped using
+the <a class="reference internal" href="surface.html#pygame.Surface.map_rgb" title="pygame.Surface.map_rgb"><tt class="xref py py-meth docutils literal"><span class="pre">Surface.map_rgb()</span></tt></a> method of the Surface object for which the
+PixelArray was created.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">pxarray</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">PixelArray</span><span class="p">(</span><span class="n">surface</span><span class="p">)</span>
+<span class="c"># Check, if the first pixel at the topleft corner is blue</span>
+<span class="k">if</span> <span class="n">pxarray</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">surface</span><span class="o">.</span><span class="n">map_rgb</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">)):</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+<p>When assigning to a range of of pixels, a non tuple sequence of colors or
+a PixelArray can be used as the value. For a sequence, the length must
+match the PixelArray width.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">pxarray</span><span class="p">[</span><span class="n">a</span><span class="p">:</span><span class="n">b</span><span class="p">]</span> <span class="o">=</span> <span class="mh">0xFF00FF</span>                   <span class="c"># set all pixels to 0xFF00FF</span>
 <span class="n">pxarray</span><span class="p">[</span><span class="n">a</span><span class="p">:</span><span class="n">b</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mh">0xFF00FF</span><span class="p">,</span> <span class="mh">0xAACCEE</span><span class="p">,</span> <span class="o">...</span> <span class="p">)</span> <span class="c"># first pixel = 0xFF00FF,</span>
                                           <span class="c"># second pixel  = 0xAACCEE, ...</span>
-<span class="n">pxarray</span><span class="p">[</span><span class="n">a</span><span class="p">:</span><span class="n">b</span><span class="p">]</span> <span class="o">=</span> <span class="p">((</span><span class="mi">255</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">),</span> <span class="p">(</span><span class="mi">170</span><span class="p">,</span> <span class="mi">204</span><span class="p">,</span> <span class="mi">238</span><span class="p">),</span> <span class="o">...</span><span class="p">)</span> <span class="c"># same as above</span>
-<span class="n">pxarray</span><span class="p">[</span><span class="n">a</span><span class="p">:</span><span class="n">b</span><span class="p">]</span> <span class="o">=</span> <span class="p">((</span><span class="mi">255</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">),</span> <span class="mh">0xAACCEE</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>        <span class="c"># same as above</span>
+<span class="n">pxarray</span><span class="p">[</span><span class="n">a</span><span class="p">:</span><span class="n">b</span><span class="p">]</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">),</span> <span class="p">(</span><span class="mi">170</span><span class="p">,</span> <span class="mi">204</span><span class="p">,</span> <span class="mi">238</span><span class="p">),</span> <span class="o">...</span><span class="p">]</span> <span class="c"># same as above</span>
+<span class="n">pxarray</span><span class="p">[</span><span class="n">a</span><span class="p">:</span><span class="n">b</span><span class="p">]</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">),</span> <span class="mh">0xAACCEE</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>        <span class="c"># same as above</span>
 <span class="n">pxarray</span><span class="p">[</span><span class="n">a</span><span class="p">:</span><span class="n">b</span><span class="p">]</span> <span class="o">=</span> <span class="n">otherarray</span><span class="p">[</span><span class="n">x</span><span class="p">:</span><span class="n">y</span><span class="p">]</span>            <span class="c"># slice sizes must match</span>
 </pre></div>
 </div>
-<p>Note, that something like</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">pxarray</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="o">...</span>
-</pre></div>
-</div>
-<p>will not cause a rectangular manipulation. Instead it will be first sliced
-to a two-column array, which then shall be sliced by columns once more,
-which will fail due an IndexError. This is caused by the slicing mechanisms
-in python and an absolutely correct behaviour. Create a single columned
-slice first, which you can manipulate then:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">pxarray</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="o">...</span>
-<span class="n">pxarray</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="o">...</span>
-</pre></div>
-</div>
-<p>If you want to make a rectangular manipulation or create a view of a part of
-the PixelArray, you also can use the subscript abilities. You can easily
-create different view by creating &#8216;subarrays&#8217; using the subscripts.</p>
+<p>For PixelArray assignment, if the right hand side array has a row length
+of 1, then the column is broadcast over the target array&#8217;s rows. An
+array of height 1 is broadcast over the target&#8217;s columns, and is equivalent
+to assigning a 1D PixelArray.</p>
+<p>Subscipt slices can also be used to assign to a rectangular subview of
+the target PixelArray.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="c"># Create some new PixelArray objects providing a different view</span>
 <span class="c"># of the original array/surface.</span>
 <span class="n">newarray</span> <span class="o">=</span> <span class="n">pxarray</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span><span class="mi">5</span><span class="p">]</span>
 <span class="n">otherarray</span> <span class="o">=</span> <span class="n">pxarray</span><span class="p">[::</span><span class="mi">2</span><span class="p">,</span> <span class="p">::</span><span class="mi">2</span><span class="p">]</span>
 </pre></div>
 </div>
-<p>Subscripts also can be used to do fast rectangular pixel manipulations
-instead of iterating over the x or y axis as above.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">pxarray</span><span class="p">[::</span><span class="mi">2</span><span class="p">,:]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>                <span class="c"># Make each second column black.</span>
+<p>Subscript slices can also be used to do fast rectangular pixel manipulations
+instead of iterating over the x or y axis. The</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">pxarray</span><span class="p">[::</span><span class="mi">2</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>               <span class="c"># Make even columns black.</span>
+<span class="n">pxarray</span><span class="p">[::</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>                  <span class="c"># Same as [::2, :]</span>
 </pre></div>
 </div>
 <p>During its lifetime, the PixelArray locks the surface, thus you explicitly
 have to delete it once its not used anymore and the surface should perform
-operations in the same scope.</p>
-<p>New in pygame 1.9.2 - array struct interface</p>
-<p>Changed in pyame 1.9.2 - It is now possible to have a PixelArray with
-a dimension of length one. Only an integer index on a 2D PixelArray
-returns a 1D array.</p>
+operations in the same scope. A simple <tt class="docutils literal"><span class="pre">:</span></tt> slice index for the column can
+be omitted.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">pxarray</span><span class="p">[::</span><span class="mi">2</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>             <span class="c"># Same as pxarray[::2, :]</span>
+<span class="n">pxarray</span><span class="p">[</span><span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>                <span class="c"># Same as pxarray[:]</span>
+</pre></div>
+</div>
+<p>New in pygame 1.9.2</p>
+<blockquote>
+<div><ul class="simple">
+<li>array struct interface</li>
+<li>transpose method</li>
+<li>broadcasting for a length 1 dimension</li>
+</ul>
+</div></blockquote>
+<p>Changed in pyame 1.9.2</p>
+<blockquote>
+<div><ul class="simple">
+<li>A 2D PixelArray can have a length 1 dimension.
+Only an integer index on a 2D PixelArray returns a 1D array.</li>
+<li>For assignment, a tuple can only be a color. Any other sequence type
+is a sequence of colors.</li>
+</ul>
+</div></blockquote>
 <dl class="definition attribute">
 <dt class="title" id="pygame.PixelArray.surface">
 <tt class="descname">surface</tt><a class="headerlink" href="#pygame.PixelArray.surface" title="Permalink to this definition">¶</a></dt>
@@ -278,7 +293,7 @@ for an array that has is inverted (has a negative step).</p>
 <tt class="descname">make_surface</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.PixelArray.make_surface" title="Permalink to this definition">¶</a></dt>
 <dd><div class="line-block">
 <div class="line"><span class="summaryline">Creates a new Surface from the current PixelArray.</span></div>
-<div class="line"><span class="signature">make_surface () -&gt; Surface</span></div>
+<div class="line"><span class="signature">make_surface() -&gt; Surface</span></div>
 </div>
 <p>Creates a new Surface from the current PixelArray. Depending on the
 current PixelArray the size, pixel order etc. will be different from the
@@ -295,7 +310,7 @@ original Surface.</p>
 <tt class="descname">replace</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.PixelArray.replace" title="Permalink to this definition">¶</a></dt>
 <dd><div class="line-block">
 <div class="line"><span class="summaryline">Replaces the passed color in the PixelArray with another one.</span></div>
-<div class="line"><span class="signature">replace (color, repcolor, distance=0, weights=(0.299, 0.587, 0.114)) -&gt; None</span></div>
+<div class="line"><span class="signature">replace(color, repcolor, distance=0, weights=(0.299, 0.587, 0.114)) -&gt; None</span></div>
 </div>
 <p>Replaces the pixels with the passed color in the PixelArray by changing
 them them to the passed replacement color.</p>
@@ -314,7 +329,7 @@ PixelArray.</p>
 <tt class="descname">extract</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.PixelArray.extract" title="Permalink to this definition">¶</a></dt>
 <dd><div class="line-block">
 <div class="line"><span class="summaryline">Extracts the passed color from the PixelArray.</span></div>
-<div class="line"><span class="signature">extract (color, distance=0, weights=(0.299, 0.587, 0.114)) -&gt; PixelArray</span></div>
+<div class="line"><span class="signature">extract(color, distance=0, weights=(0.299, 0.587, 0.114)) -&gt; PixelArray</span></div>
 </div>
 <p>Extracts the passed color by changing all matching pixels to white, while
 non-matching pixels are changed to black. This returns a new PixelArray
@@ -332,7 +347,7 @@ color, into account as well.</p>
 <tt class="descname">compare</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.PixelArray.compare" title="Permalink to this definition">¶</a></dt>
 <dd><div class="line-block">
 <div class="line"><span class="summaryline">Compares the PixelArray with another one.</span></div>
-<div class="line"><span class="signature">compare (array, distance=0, weights=(0.299, 0.587, 0.114)) -&gt; PixelArray</span></div>
+<div class="line"><span class="signature">compare(array, distance=0, weights=(0.299, 0.587, 0.114)) -&gt; PixelArray</span></div>
 </div>
 <p>Compares the contents of the PixelArray with those from the passed
 PixelArray. It returns a new PixelArray with a black/white color mask
@@ -344,6 +359,20 @@ and is used as threshold for the color detection. This causes the
 comparision to mark pixels with a similar, but not exactly identical
 color, as black.</p>
 <p>New in pygame 1.8.1.</p>
+</dd></dl>
+
+<dl class="definition method">
+<dt class="title" id="pygame.PixelArray.transpose">
+<tt class="descname">transpose</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.PixelArray.transpose" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Exchanges the x and y axis.</span></div>
+<div class="line"><span class="signature">transpose() -&gt; PixelArray</span></div>
+</div>
+<p>This method returns a new view of the pixel array with the rows and
+columns swapped. So for a (w, h) sized array a (h, w) slice is returned.
+If an array is one dimensional, then a length 1 x dimension is added,
+resulting in a 2D pixel array.</p>
+<p>New in pygame 1.9.2</p>
 </dd></dl>
 
 </dd></dl>
