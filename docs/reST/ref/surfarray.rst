@@ -213,7 +213,11 @@ in Pygame 1.9.2.
    | :sg:`make_surface(array) -> Surface`
 
    Create a new Surface that best resembles the data and format on the array.
-   The array can be 2D or 3D with any sized integer values.
+   The array can be 2D or 3D with any sized integer values. Function
+   make_surface uses the array struct interface to aquire array properties,
+   so is not limited to just NumPy arrays. See :mod:`pygame.pixelcopy`.
+
+   New in Pygame 1.9.2: array struct interface support.
 
    .. ## pygame.surfarray.make_surface ##
 

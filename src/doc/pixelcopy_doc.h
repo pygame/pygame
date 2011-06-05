@@ -7,7 +7,7 @@
 
 #define DOC_PYGAMEPIXELCOPYMAPARRAY "map_array(<array>, <array>, <surface>) -> None\ncopy an array to another array, using surface format"
 
-#define DOC_PYGAMEPIXELCOPYMAKESURFACE "pygame.surfarray.make_surface(array) -> Surface\nCopy an array to a new surface"
+#define DOC_PYGAMEPIXELCOPYMAKESURFACE "pygame.pixelcopy.make_surface(array) -> Surface\nCopy an array to a new surface"
 
 
 
@@ -31,7 +31,7 @@ pygame.pixelcopy.map_array
 copy an array to another array, using surface format
 
 pygame.pixelcopy.make_surface
- pygame.surfarray.make_surface(array) -> Surface
+ pygame.pixelcopy.make_surface(array) -> Surface
 Copy an array to a new surface
 
 */
