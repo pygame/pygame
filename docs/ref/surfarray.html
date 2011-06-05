@@ -360,7 +360,10 @@ solid opaque array will be returned.</p>
 <div class="line"><span class="signature">make_surface(array) -&gt; Surface</span></div>
 </div>
 <p>Create a new Surface that best resembles the data and format on the array.
-The array can be 2D or 3D with any sized integer values.</p>
+The array can be 2D or 3D with any sized integer values. Function
+make_surface uses the array struct interface to aquire array properties,
+so is not limited to just NumPy arrays. See <a class="tooltip reference internal" href="pixelcopy.html#module-pygame.pixelcopy" title=""><tt class="xref py py-mod docutils literal"><span class="pre">pygame.pixelcopy</span></tt><span class="tooltip-content">pygame module for general pixel array copying</span></a>.</p>
+<p>New in Pygame 1.9.2: array struct interface support.</p>
 </dd></dl>
 
 <dl class="definition function">
