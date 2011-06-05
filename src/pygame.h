@@ -524,6 +524,7 @@ typedef struct
 #define PyColor_Check(x)                                                \
     ((x)->ob_type == (PyTypeObject*)                                    \
         PyGAME_C_API[PYGAMEAPI_COLOR_FIRSTSLOT + 0])
+#define PyColor_Type (*(PyObject *) PyGAME_C_API[PYGAMEAPI_COLOR_FIRSTSLOT])
 #define PyColor_New                                                     \
     (*(PyObject *(*)(Uint8*)) PyGAME_C_API[PYGAMEAPI_COLOR_FIRSTSLOT + 1])
 #define PyColor_NewLength                                               \
