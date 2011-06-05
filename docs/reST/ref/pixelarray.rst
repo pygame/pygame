@@ -12,7 +12,7 @@
 
    The PixelArray wraps a Surface and provides direct access to the
    surface's pixels. A pixel array can be one or two dimensional.
-   A two dimensional array, likes its surface, is indexed [column, row].
+   A two dimensional array, like its surface, is indexed [column, row].
    Pixel arrays support slicing, both for returning a subarray or
    for assignment. A pixel array sliced on a single column or row
    returns a one dimensional pixel array. Arithmetic and other operations
@@ -21,58 +21,47 @@
    them to interact with :mod:`pygame.pixelcopy` methods and NumPy
    arrays.
 
-   While it is possible to assign both, integer color values and ``RGB(A)``
-   color tuples, the PixelArray will only use integers for the color
-   representation. Thus, checking for certain colors has to be done using the
-   ``Surface.map_rgb()`` method of the surface, the PixelArray was created for.
-
-   ::
-
-     pxarray = pygame.PixelArray (surface)
-     # Check, if the first pixel at the topleft corner is blue
-     if pxarray[0, 0] == surface.map_rgb ((0, 0, 255)):
-         ...
-
-   Pixels can be manipulated using integer values or color tuples.
+   A PixelArray pixel item can be assigned a raw integer values, a
+   :class:`pygame.Color` instance, or a (r, g, b[, a]) tuple.
 
    ::
 
      pxarray[x, y] = 0xFF00FF
+     pxarray[x, y] = pygame.Color(255, 0, 255)
      pxarray[x, y] = (255, 0, 255)
 
-   If you operate on a slice, you also can use arbitrary sequences or other
-   PixelArray objects to modify the pixels. They have to match the size of the
-   PixelArray however.
+   However, only a pixel's integer value is returned. So, to compare a pixel
+   to a particular color the color needs to be first mapped using
+   the :meth:`Surface.map_rgb()` method of the Surface object for which the
+   PixelArray was created.
+
+   ::
+
+     pxarray = pygame.PixelArray(surface)
+     # Check, if the first pixel at the topleft corner is blue
+     if pxarray[0, 0] == surface.map_rgb((0, 0, 255)):
+         ...
+
+   When assigning to a range of of pixels, a non tuple sequence of colors or
+   a PixelArray can be used as the value. For a sequence, the length must
+   match the PixelArray width.
 
    ::
 
      pxarray[a:b] = 0xFF00FF                   # set all pixels to 0xFF00FF
      pxarray[a:b] = (0xFF00FF, 0xAACCEE, ... ) # first pixel = 0xFF00FF,
                                                # second pixel  = 0xAACCEE, ...
-     pxarray[a:b] = ((255, 0, 255), (170, 204, 238), ...) # same as above
-     pxarray[a:b] = ((255, 0, 255), 0xAACCEE, ...)        # same as above
+     pxarray[a:b] = [(255, 0, 255), (170, 204, 238), ...] # same as above
+     pxarray[a:b] = [(255, 0, 255), 0xAACCEE, ...]        # same as above
      pxarray[a:b] = otherarray[x:y]            # slice sizes must match
 
-   Note, that something like
+   For PixelArray assignment, if the right hand side array has a row length
+   of 1, then the column is broadcast over the target array's rows. An
+   array of height 1 is broadcast over the target's columns, and is equivalent
+   to assigning a 1D PixelArray.
 
-   ::
-
-     pxarray[2:4, 3:5] = ...
-
-   will not cause a rectangular manipulation. Instead it will be first sliced
-   to a two-column array, which then shall be sliced by columns once more,
-   which will fail due an IndexError. This is caused by the slicing mechanisms
-   in python and an absolutely correct behaviour. Create a single columned
-   slice first, which you can manipulate then:
-
-   ::
-
-     pxarray[2, 3:5] = ...
-     pxarray[3, 3:5] = ...
-
-   If you want to make a rectangular manipulation or create a view of a part of
-   the PixelArray, you also can use the subscript abilities. You can easily
-   create different view by creating 'subarrays' using the subscripts.
+   Subscipt slices can also be used to assign to a rectangular subview of
+   the target PixelArray.
 
    ::
 
@@ -81,22 +70,37 @@
      newarray = pxarray[2:4, 3:5]
      otherarray = pxarray[::2, ::2]
 
-   Subscripts also can be used to do fast rectangular pixel manipulations
-   instead of iterating over the x or y axis as above.
+   Subscript slices can also be used to do fast rectangular pixel manipulations
+   instead of iterating over the x or y axis. The 
 
    ::
 
-     pxarray[::2,:] = (0, 0, 0)                # Make each second column black.
+     pxarray[::2, :] = (0, 0, 0)               # Make even columns black.
+     pxarray[::2] = (0, 0, 0)                  # Same as [::2, :]
 
    During its lifetime, the PixelArray locks the surface, thus you explicitly
    have to delete it once its not used anymore and the surface should perform
-   operations in the same scope.
+   operations in the same scope. A simple ``:`` slice index for the column can
+   be omitted.
 
-   New in pygame 1.9.2 - array struct interface
+   ::
 
-   Changed in pyame 1.9.2 - It is now possible to have a PixelArray with
-   a dimension of length one. Only an integer index on a 2D PixelArray
-   returns a 1D array.
+     pxarray[::2, ...] = (0, 0, 0)             # Same as pxarray[::2, :]
+     pxarray[...] = (255, 0, 0)                # Same as pxarray[:]
+
+   New in pygame 1.9.2
+
+    - array struct interface
+    - transpose method
+    - broadcasting for a length 1 dimension
+
+   Changed in pyame 1.9.2
+
+    - A 2D PixelArray can have a length 1 dimension.
+      Only an integer index on a 2D PixelArray returns a 1D array.
+    - For assignment, a tuple can only be a color. Any other sequence type
+      is a sequence of colors.
+
 
    .. versionadded: 1.8.0
       Subscript support
@@ -166,7 +170,7 @@
    .. method:: make_surface
 
       | :sl:`Creates a new Surface from the current PixelArray.`
-      | :sg:`make_surface () -> Surface`
+      | :sg:`make_surface() -> Surface`
 
       Creates a new Surface from the current PixelArray. Depending on the
       current PixelArray the size, pixel order etc. will be different from the
@@ -184,7 +188,7 @@
    .. method:: replace
 
       | :sl:`Replaces the passed color in the PixelArray with another one.`
-      | :sg:`replace (color, repcolor, distance=0, weights=(0.299, 0.587, 0.114)) -> None`
+      | :sg:`replace(color, repcolor, distance=0, weights=(0.299, 0.587, 0.114)) -> None`
 
       Replaces the pixels with the passed color in the PixelArray by changing
       them them to the passed replacement color.
@@ -205,7 +209,7 @@
    .. method:: extract
 
       | :sl:`Extracts the passed color from the PixelArray.`
-      | :sg:`extract (color, distance=0, weights=(0.299, 0.587, 0.114)) -> PixelArray`
+      | :sg:`extract(color, distance=0, weights=(0.299, 0.587, 0.114)) -> PixelArray`
 
       Extracts the passed color by changing all matching pixels to white, while
       non-matching pixels are changed to black. This returns a new PixelArray
@@ -224,7 +228,7 @@
    .. method:: compare
 
       | :sl:`Compares the PixelArray with another one.`
-      | :sg:`compare (array, distance=0, weights=(0.299, 0.587, 0.114)) -> PixelArray`
+      | :sg:`compare(array, distance=0, weights=(0.299, 0.587, 0.114)) -> PixelArray`
 
       Compares the contents of the PixelArray with those from the passed
       PixelArray. It returns a new PixelArray with a black/white color mask
@@ -240,5 +244,19 @@
       New in pygame 1.8.1.
 
       .. ## PixelArray.compare ##
+
+   .. method:: transpose
+
+      | :sl:`Exchanges the x and y axis.`
+      | :sg:`transpose() -> PixelArray`
+
+      This method returns a new view of the pixel array with the rows and
+      columns swapped. So for a (w, h) sized array a (h, w) slice is returned.
+      If an array is one dimensional, then a length 1 x dimension is added,
+      resulting in a 2D pixel array.
+
+      New in pygame 1.9.2
+
+      .. ## PixelArray.transpose ##
 
    .. ## pygame.PixelArray ##

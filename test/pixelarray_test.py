@@ -231,19 +231,45 @@ class PixelArrayTypeTest (unittest.TestCase, TestMixin):
             ar.__setitem__ (0, [(255, 255, 255)] * 8)
             self.assertEqual (ar[0][0], sf.map_rgb ((255, 255, 255)))
             self.assertEqual (ar[0][1], sf.map_rgb ((255, 255, 255)))
-            
+
             # Test tuple assignment.
-            ar.__setitem__ (1, ((204, 0, 204), (17, 17, 17), (204, 0, 204),
+            # Changed in Pygame 1.9.2 - Raises an exception.
+            self.assertRaises (ValueError, ar.__setitem__, 1,
+                               ((204, 0, 204), (17, 17, 17), (204, 0, 204),
                                 (17, 17, 17), (204, 0, 204), (17, 17, 17),
                                 (204, 0, 204), (17, 17, 17)))
-            self.assertEqual (ar[1][0], sf.map_rgb ((204, 0, 204)))
-            self.assertEqual (ar[1][1], sf.map_rgb ((17, 17, 17)))
-            self.assertEqual (ar[1][2], sf.map_rgb ((204, 0, 204)))
         
             # Test pixel array assignment.
             ar.__setitem__ (1, ar2.__getitem__ (3))
             self.assertEqual (ar[1][0], sf.map_rgb ((0, 255, 255)))
             self.assertEqual (ar[1][1], sf.map_rgb ((0, 255, 255)))
+
+    def test_get_slice (self):
+        for bpp in (8, 16, 24, 32):
+            sf = pygame.Surface ((10, 20), 0, bpp)
+            sf.fill ((0, 0, 0))
+            ar = pygame.PixelArray (sf)
+
+            self.assertEqual (len (ar[0:2]), 2)
+            self.assertEqual (len (ar[3:7][3]), 20)
+
+            self.assertEqual (ar[0:0], None)
+            self.assertEqual (ar[5:5], None)
+            self.assertEqual (ar[9:9], None)
+        
+            # Has to resolve to ar[7:8]
+            self.assertEqual (len (ar[-3:-2]), 1)      # 2D
+            self.assertEqual (len (ar[-3:-2][0]), 20)  # 1D
+
+            # Try assignments.
+
+            # 2D assignment.
+            ar[2:5] = (255, 255, 255)
+
+            # 1D assignment
+            ar[3][3:7] = (10, 10, 10)
+            self.assertEqual (ar[3][5], sf.map_rgb ((10, 10, 10)))
+            self.assertEqual (ar[3][6], sf.map_rgb ((10, 10, 10)))
 
     def test_contains (self):
         for bpp in (8, 16, 24, 32):
@@ -269,6 +295,62 @@ class PixelArrayTypeTest (unittest.TestCase, TestMixin):
             sf.fill ((0, 0, 0))
             ar = pygame.PixelArray (sf)
             self.assert_ (ar.surface is sf)
+
+    def test_set_slice (self):
+        for bpp in (8, 16, 24, 32):
+            sf = pygame.Surface ((6, 8), 0, bpp)
+            sf.fill ((0, 0, 0))
+            ar = pygame.PixelArray (sf)
+
+            # Test single value assignment
+            val = sf.map_rgb ((128, 128, 128))
+            ar[0:2] = val
+            self.assertEqual (ar[0][0], val)
+            self.assertEqual (ar[0][1], val)
+            self.assertEqual (ar[1][0], val)
+            self.assertEqual (ar[1][1], val)
+
+            val = sf.map_rgb ((0, 255, 255))
+            ar[-3:-1] = val
+            self.assertEqual (ar[3][0], val)
+            self.assertEqual (ar[-2][1], val)
+
+            val = sf.map_rgb ((255, 255, 255))
+            ar[-3:] = (255, 255, 255)
+            self.assertEqual (ar[4][0], val)
+            self.assertEqual (ar[-1][1], val)
+
+            # Test array size mismatch.
+            # Changed in ver. 1.9.2
+            # (was "Test list assignment, this is a vertical assignment.")
+            val = sf.map_rgb ((0, 255, 0))
+            self.assertRaises (ValueError, ar.__setitem__, slice (2, 4),
+                               [val] * 8)
+
+            # And the horizontal assignment.
+            val = sf.map_rgb ((255, 0, 0))
+            val2 = sf.map_rgb ((128, 0, 255))
+            ar[0:2] = [val, val2]
+            self.assertEqual (ar[0][0], val)
+            self.assertEqual (ar[1][0], val2)
+            self.assertEqual (ar[0][1], val)
+            self.assertEqual (ar[1][1], val2)
+            self.assertEqual (ar[0][4], val)
+            self.assertEqual (ar[1][4], val2)
+            self.assertEqual (ar[0][5], val)
+            self.assertEqual (ar[1][5], val2)
+
+            # Test pixelarray assignment.
+            ar[:] = (0, 0, 0)
+            sf2 = pygame.Surface ((6, 8), 0, bpp)
+            sf2.fill ((255, 0, 255))
+
+            val = sf.map_rgb ((255, 0, 255))
+            ar2 = pygame.PixelArray (sf2)
+
+            ar[:] = ar2[:]
+            self.assertEqual (ar[0][0], val)
+            self.assertEqual (ar[5][7], val)
 
     def test_subscript (self):
         # By default we do not need to work with any special __***__
@@ -710,17 +792,100 @@ class PixelArrayTypeTest (unittest.TestCase, TestMixin):
             for i in range (w * h):
                 self.assertEqual (ar[max_x - i % w, max_y - i // w], i) 
 
-    def todo_test_surface(self):
+    def test_color_value (self):
+        # Confirm that a PixelArray slice assignment distinguishes between
+        # pygame.Color and tuple objects as single (r, g, b[, a]) colors
+        # and other sequences as sequences of colors to be treated as
+        # slices.
+        sf = pygame.Surface ((5, 5), 0, 32)
+        ar = pygame.PixelArray (sf)
+        index = slice(None, None, 1)
+        ar.__setitem__ (index, (1, 2, 3))
+        self.assertEqual (ar[0, 0], sf.map_rgb ((1, 2, 3)))
+        ar.__setitem__ (index, pygame.Color (10, 11, 12))
+        self.assertEqual (ar[0, 0], sf.map_rgb ((10, 11, 12)))
+        self.assertRaises (ValueError, ar.__setitem__, index, (1, 2, 3, 4, 5))
+        self.assertRaises (ValueError, ar.__setitem__, (index, index),
+                           (1, 2, 3, 4, 5))
+        self.assertRaises (ValueError, ar.__setitem__, index, [1, 2, 3])
+        self.assertRaises (ValueError, ar.__setitem__, (index, index),
+                           [1, 2, 3])
+        sf = pygame.Surface ((3, 3), 0, 32)
+        ar = pygame.PixelArray (sf)
+        ar[:] = (20, 30, 40)
+        self.assertEqual (ar[0, 0], sf.map_rgb ((20, 30, 40)))
+        ar[:] = [20, 30, 40]
+        self.assertEqual (ar[0, 0], 20)
+        self.assertEqual (ar[1, 0], 30)
+        self.assertEqual (ar[2, 0], 40)
 
-        # __doc__ (as of 2008-08-02) for pygame.pixelarray.PixelArray.surface:
+    def test_transpose (self):
+        # PixelArray.transpose(): swap axis on a 2D array, add a length
+        # 1 x axis to a 1D array.
+        sf = pygame.Surface ((3, 7), 0, 32)
+        ar = pygame.PixelArray (sf)
+        w, h = ar.shape
+        dx, dy = ar.strides
+        for i in range (w * h):
+            x = i % w
+            y = i // w
+            ar[x, y] = i
+        ar_t = ar.transpose()
+        self.assertEqual (ar_t.shape, (h, w))
+        self.assertEqual (ar_t.strides, (dy, dx))
+        for i in range (w * h):
+            x = i % w
+            y = i // w
+            self.assertEqual (ar_t[y, x], ar[x, y])
+        ar1D = ar[0]
+        ar2D = ar1D.transpose()
+        self.assertEqual (ar2D.shape, (1, h))
+        for y in range (h):
+            self.assertEqual (ar1D[y], ar2D[0, y])
+        ar1D = ar[:,0]
+        ar2D = ar1D.transpose()
+        self.assertEqual (ar2D.shape, (1, w))
+        for x in range (2):
+            self.assertEqual (ar1D[x], ar2D[0, x])
+ 
+    def test_length_1_dimension_broadcast (self):
+        w = 5
+        sf = pygame.Surface ((w, w), 0, 32)
+        ar = pygame.PixelArray (sf)
+        # y-axis broadcast.
+        sf_x = pygame.Surface ((w, 1), 0, 32)
+        ar_x = pygame.PixelArray (sf_x)
+        for i in range (w):
+            ar_x[i, 0] = (w + 1) * 10
+        ar[...] = ar_x
+        for y in range (w):
+            for x in range (w):
+                self.assertEqual (ar[x, y], ar_x[x, 0])
+        # x-axis broadcast.
+        ar[...] = 0
+        sf_y = pygame.Surface ((1, w), 0, 32)
+        ar_y = pygame.PixelArray (sf_y)
+        for i in range (w):
+            ar_y[0, i] = (w + 1) * 10
+        ar[...] = ar_y
+        for x in range (w):
+            for y in range (w):
+                self.assertEqual (ar[x, y], ar_y[0, y])
+        # (1, 1) array broadcast.
+        ar[...] = 0
+        sf_1px = pygame.Surface ((1, 1), 0, 32)
+        ar_1px = pygame.PixelArray (sf_1px)
+        ar_1px[0, 0] = 42  # Well it had to show up somewhere.
+        ar[...] = ar_1px
+        for y in range (w):
+            for x in range (w):
+                self.assertEqual (ar[x, y], 42)
 
-          # PixelArray.surface: Return Surface
-          # Gets the Surface the PixelArray uses.
-          # 
-          # The Surface, the PixelArray was created for. 
-
-        self.fail() 
-
+    def test_assign_size_mismatch (self):
+        sf = pygame.Surface ((7, 11), 0, 32)
+        ar = pygame.PixelArray (sf)
+        self.assertRaises (ValueError, ar.__setitem__, Ellipsis, ar[:, 0:2])
+        self.assertRaises (ValueError, ar.__setitem__, Ellipsis, ar[0:2, :])
 
 class PixelArrayArrayInterfaceTest (unittest.TestCase, TestMixin):
     def test_basic (self):
