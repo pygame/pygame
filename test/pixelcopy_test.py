@@ -244,142 +244,13 @@ class PixelcopyModuleTest (unittest.TestCase):
                      self.assertEqual(target.get_at_mapped((x, y)), p)
 
             
-
-    def todo_test_array_to_surface(self):
-        # target surfaces
-        targets = [_make_surface(8),
-                   _make_surface(16),
-                   _make_surface(16, srcalpha=True),
-                   _make_surface(24),
-                   _make_surface(32),
-                   _make_surface(32, srcalpha=True),
-                   ]
-        
-        # source arrays
-        arrays3d = []
-        dtypes = [(8, uint8), (16, uint16), (32, uint32)]
-        try:
-            dtypes.append((64, uint64))
-        except NameError:
-            pass
-        arrays3d = [(self._make_src_array3d(dtype), None)
-                    for __, dtype in dtypes]
-        for bitsize in [8, 16, 24, 32]:
-            palette = None
-            if bitsize == 16:
-                s = pygame.Surface((1,1), 0, 16)
-                palette = [s.unmap_rgb(s.map_rgb(c))
-                           for c in self.test_palette]
-            if self.pixels3d[bitsize]:
-                surf = self._make_src_surface(bitsize)
-                arr = pygame.surfarray.pixels3d(surf)
-                arrays3d.append((arr, palette))
-            if self.array3d[bitsize]:
-                surf = self._make_src_surface(bitsize)
-                arr = pygame.surfarray.array3d(surf)
-                arrays3d.append((arr, palette))
-                for sz, dtype in dtypes:
-                    arrays3d.append((arr.astype(dtype), palette))
-
-        # tests on arrays
-        def do_blit(surf, arr):
-            pygame.surfarray.blit_array(surf, arr)
-
-        for surf in targets:
-            bitsize = surf.get_bitsize()
-            for arr, palette in arrays3d:
-                surf.fill((0, 0, 0, 0))
-                if bitsize == 8:
-                    self.failUnlessRaises(ValueError, do_blit, surf, arr)
-                else:
-                    pygame.surfarray.blit_array(surf, arr)
-                    self._assert_surface(surf, palette)
-
-            if self.pixels2d[bitsize]:
-                surf.fill((0, 0, 0, 0))
-                s = self._make_src_surface(bitsize, surf.get_flags() & SRCALPHA)
-                arr = pygame.surfarray.pixels2d(s)
-                pygame.surfarray.blit_array(surf, arr)
-                self._assert_surface(surf)
-
-            if self.array2d[bitsize]:
-                s = self._make_src_surface(bitsize, surf.get_flags() & SRCALPHA)
-                arr = pygame.surfarray.array2d(s)
-                for sz, dtype in dtypes:
-                    surf.fill((0, 0, 0, 0))
-                    if sz >= bitsize:
-                        pygame.surfarray.blit_array(surf, arr.astype(dtype))
-                        self._assert_surface(surf)
-                    else:
-                        self.failUnlessRaises(ValueError, do_blit,
-                                              surf, self._make_array2d(dtype))
-
-        # Check alpha for 2D arrays
-        surf = self._make_surface(16, srcalpha=True)
-        arr = zeros(surf.get_size(), uint16)
-        arr[...] = surf.map_rgb((0, 128, 255, 64))
-        color = surf.unmap_rgb(arr[0, 0])
-        pygame.surfarray.blit_array(surf, arr)
-        self.assertEqual(surf.get_at((5, 5)), color)
-
-        surf = self._make_surface(32, srcalpha=True)
-        arr = zeros(surf.get_size(), uint32)
-        color = (0, 111, 255, 63)
-        arr[...] = surf.map_rgb(color)
-        pygame.surfarray.blit_array(surf, arr)
-        self.assertEqual(surf.get_at((5, 5)), color)
-
-        # Check shifts
-        arr3d = self._make_src_array3d(uint8)
-
-        shift_tests = [(16,
-                        [12, 0, 8, 4],
-                        [0xf000, 0xf, 0xf00, 0xf0]),
-                       (24,
-                        [16, 0, 8, 0],
-                        [0xff0000, 0xff, 0xff00, 0]),
-                       (32,
-                        [0, 16, 24, 8],
-                        [0xff, 0xff0000, 0xff000000, 0xff00])]
-
-        for bitsize, shifts, masks in shift_tests:
-            surf = self._make_surface(bitsize, srcalpha=(shifts[3] != 0))
-            palette = None
-            if bitsize == 16:
-                palette = [surf.unmap_rgb(surf.map_rgb(c))
-                           for c in self.test_palette]
-            surf.set_shifts(shifts)
-            surf.set_masks(masks)
-            pygame.surfarray.blit_array(surf, arr3d)
-            self._assert_surface(surf, palette)
-
-        # Invalid arrays
-        surf = pygame.Surface((1,1), 0, 32)
-        t = 'abcd'
-        self.failUnlessRaises(ValueError, do_blit, surf, t)
-
-        surf_size = self.surf_size
-        surf = pygame.Surface(surf_size, 0, 32)
-        arr = zeros([surf_size[0], surf_size[1] + 1, 3], uint32)
-        self.failUnlessRaises(ValueError, do_blit, surf, arr)
-        arr = zeros([surf_size[0] + 1, surf_size[1], 3], uint32)
-        self.failUnlessRaises(ValueError, do_blit, surf, arr)
-
-        surf = pygame.Surface((1, 4), 0, 32)
-        arr = zeros((4,), uint32)
-        self.failUnlessRaises(ValueError, do_blit, surf, arr)
-        arr.shape = (1, 1, 1, 4)
-        self.failUnlessRaises(ValueError, do_blit, surf, arr)
-
-        arr = zeros((10, 10), float64)
-        surf = pygame.Surface((10, 10), 0, 32)
-        self.failUnlessRaises(ValueError, do_blit, surf, arr)
-
 class PixelCopyTestWithArray(unittest.TestCase):
     try:
         import numpy
     except ImportError:
         __tags__ = ['ignore', 'subprocess_ignore']
+    else:
+        pygame.surfarray.use_arraytype('numpy')
 
     bitsizes = [8, 16, 32]
 
@@ -393,6 +264,11 @@ class PixelCopyTestWithArray(unittest.TestCase):
     test_points = [((0, 0), 1), ((4, 5), 1), ((9, 0), 2),
                    ((5, 5), 2), ((0, 11), 3), ((4, 6), 3),
                    ((9, 11), 4), ((5, 6), 4)]
+
+    pixels2d = set([8, 16, 32])
+    pixels3d = set([24, 32])
+    array2d = set([8, 16, 24, 32])
+    array3d = set([24, 32])
 
     def __init__(self, *args, **kwds):
         import numpy
@@ -627,6 +503,17 @@ class PixelCopyTestWithArray(unittest.TestCase):
         self.assertRaises(ValueError, map_array, target, source, surf)
         source = zeros((12, w - 1, 5), uint8)
         self.assertRaises(ValueError, map_array, target, source, surf)
+
+    ## def test_array_to_surface(self):
+    ##     array_to_surface gets a good workout in the surfarray module's
+    ##     unit tests under the alias blit_array.
+    try:
+        pygame.surfarray.blit_array
+    except AttributeError:
+        def test_array_to_surface(self):
+            self.fail("missing surfarray module:"
+                      " array_to_surface is tested as surfarray.blit_array")
+
 
     try:
         numpy
