@@ -171,7 +171,7 @@ Sprites are not thread safe. So lock them yourself if using threads.
    ::
 
        (READONLY value, it is read when adding it to the
-       LayeredRenderGroup, for details see doc of LayeredRenderGroup)
+       LayeredDirty, for details see doc of LayeredDirty)
 
    .. ##  ##
 
@@ -320,6 +320,16 @@ Sprites are not thread safe. So lock them yourself if using threads.
       .. ## Group.empty ##
 
    .. ## pygame.sprite.Group ##
+
+.. class:: RenderPlain
+
+   same as pygame.sprite.Group
+
+.. class:: RenderClear
+
+   same as pygame.sprite.Group
+
+
 
 .. class:: RenderUpdates
 
@@ -727,13 +737,26 @@ Sprites are not thread safe. So lock them yourself if using threads.
 .. function:: collide_mask
 
    | :sl:`collision detection between two sprites, using masks.`
-   | :sg:`collide_mask(SpriteLeft, SpriteRight) -> bool`
+   | :sg:`collide_mask(SpriteLeft, SpriteRight) -> point`
+
+   Returns first point on the mask where the masks collided, or None if 
+   there was no collision.
 
    Tests for collision between two sprites, by testing if thier bitmasks
    overlap. If the sprites have a "mask" attribute, that is used as the mask,
    otherwise a mask is created from the sprite image. Intended to be passed as
    a collided callback function to the \*collide functions. Sprites must have a
    "rect" and an optional "mask" attribute.
+
+   You should consider creating a mask for your sprite at load time if you 
+   are going to check collisions many times.  This will increase the 
+   performance, otherwise this can be an expensive function because it 
+   will create the masks each time you check for collisions.
+
+   ::
+
+      sprite.mask = pygame.mask.from_surface(sprite.image)
+
 
    New in pygame 1.8.0
 
@@ -742,31 +765,43 @@ Sprites are not thread safe. So lock them yourself if using threads.
 .. function:: groupcollide
 
    | :sl:`find all Sprites that collide between two Groups`
-   | :sg:`groupcollide(group1, group2, dokill1, dokill2) -> Sprite_dict`
+   | :sg:`groupcollide(group1, group2, dokill1, dokill2, collided = None) -> Sprite_dict`
 
-   This will find intersections between all the Sprites in two groups.
-   Intersection is determined by comparing the ``Sprite.rect`` attribute of
-   each Sprite.
+   This will find collisions between all the Sprites in two groups.
+   Collision is determined by comparing the ``Sprite.rect`` attribute of
+   each Sprite or by using the collided function if it is not None.
 
    Every Sprite inside group1 is added to the return dictionary. The value for
    each item is the list of Sprites in group2 that intersect.
 
-   If either dokill argument is True, the intersecting Sprites will be removed
+   If either dokill argument is True, the colliding Sprites will be removed
    from their respective Group.
+
+   The collided argument is a callback function used to calculate if two sprites are
+   colliding. It should take two sprites as values and return a bool value
+   indicating if they are colliding. If collided is not passed, then all
+   sprites must have a "rect" value, which is a rectangle of the sprite area,
+   which will be used to calculate the collision.
 
    .. ## pygame.sprite.groupcollide ##
 
 .. function:: spritecollideany
 
    | :sl:`simple test if a Sprite intersects anything in a Group`
-   | :sg:`spritecollideany(sprite, group) -> bool`
+   | :sg:`spritecollideany(sprite, group, collided = None) -> Sprite` Collision with the returned sprite.
+   | :sg:`spritecollideany(sprite, group, collided = None) -> None` No collision
 
-   Test if the given Sprite intersects with any Sprites in a Group.
-   Intersection is determined by comparing of the ``Sprite.rect`` attribute of
-   each Sprite.
+   If the sprite collides with any single sprite in the group, a single
+   sprite from the group is returned.  On no collision None is returned.
 
-   This collision test can be faster than ``pygame.sprite.spritecollide()``
-   since it has less work to do.
+   If you don't need all the features of the ``pygame.sprite.spritecollide()`` function, this
+   function will be a bit quicker.
+
+   The collided argument is a callback function used to calculate if two sprites are
+   colliding. It should take two sprites as values and return a bool value
+   indicating if they are colliding. If collided is not passed, then all
+   sprites must have a "rect" value, which is a rectangle of the sprite area,
+   which will be used to calculate the collision.
 
    .. ## pygame.sprite.spritecollideany ##
 
