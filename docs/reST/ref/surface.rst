@@ -59,9 +59,10 @@
    surfaces is slow and not recommended. Pixels can be accessed using the
    ``get_at()`` and ``set_at()`` functions. These methods are fine for simple
    access, but will be considerably slow when doing of pixel work with them. If
-   you plan on doing a lot of pixel level work, it is recommended to use the
-   :mod:`pygame.surfarray` module, which can treat the surfaces like large
-   multidimensional arrays (and it's quite quick).
+   you plan on doing a lot of pixel level work, it is recommended to use a
+   :class:`pygame.PixelArray`, which gives an array like view of the surface.
+   For involved mathematical manipulations try the :mod:`pygame.surfarray`
+   module (It's quite quick, but requires NumPy.)
 
    Any functions that directly access a surface's pixel data will need that
    surface to be lock()'ed. These functions can ``lock()`` and ``unlock()`` the
