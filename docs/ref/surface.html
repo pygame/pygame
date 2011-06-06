@@ -335,9 +335,10 @@ colorkeys.</p>
 surfaces is slow and not recommended. Pixels can be accessed using the
 <tt class="docutils literal"><span class="pre">get_at()</span></tt> and <tt class="docutils literal"><span class="pre">set_at()</span></tt> functions. These methods are fine for simple
 access, but will be considerably slow when doing of pixel work with them. If
-you plan on doing a lot of pixel level work, it is recommended to use the
-<a class="tooltip reference internal" href="surfarray.html#module-pygame.surfarray" title=""><tt class="xref py py-mod docutils literal"><span class="pre">pygame.surfarray</span></tt><span class="tooltip-content">pygame module for accessing surface pixel data using array interfaces</span></a> module, which can treat the surfaces like large
-multidimensional arrays (and it&#8217;s quite quick).</p>
+you plan on doing a lot of pixel level work, it is recommended to use a
+<a class="tooltip reference internal" href="pixelarray.html#pygame.PixelArray" title=""><tt class="xref py py-class docutils literal"><span class="pre">pygame.PixelArray</span></tt><span class="tooltip-content">pygame object for direct pixel access of surfaces</span></a>, which gives an array like view of the surface.
+For involved mathematical manipulations try the <a class="tooltip reference internal" href="surfarray.html#module-pygame.surfarray" title=""><tt class="xref py py-mod docutils literal"><span class="pre">pygame.surfarray</span></tt><span class="tooltip-content">pygame module for accessing surface pixel data using array interfaces</span></a>
+module (It&#8217;s quite quick, but requires NumPy.)</p>
 <p>Any functions that directly access a surface&#8217;s pixel data will need that
 surface to be lock()&#8217;ed. These functions can <tt class="docutils literal"><span class="pre">lock()</span></tt> and <tt class="docutils literal"><span class="pre">unlock()</span></tt> the
 surfaces themselves without assistance. But, if a function will be called

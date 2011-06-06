@@ -78,6 +78,15 @@ def main():
     del ar
     show (surface)
 
+    # Rotate 90 degrees clockwise.
+    w, h = surface.get_size ()
+    surface2 = pygame.Surface ((h, w), surface.get_flags (), surface)
+    ar = pygame.PixelArray (surface)
+    ar2 = pygame.PixelArray (surface2)
+    ar2[...] = ar.transpose ()[::-1,:]
+    del ar, ar2
+    show (surface2)
+    
     # Scale it by throwing each second pixel away.
     surface = pygame.image.load (os.path.join (data_dir, 'arraydemo.bmp'))
     ar = pygame.PixelArray (surface)
