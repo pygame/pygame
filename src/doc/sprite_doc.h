@@ -37,6 +37,10 @@
 
 #define DOC_GROUPEMPTY "empty() -> None\nremove all Sprites"
 
+#define DOC_PYGAMESPRITERENDERPLAIN ""
+
+#define DOC_PYGAMESPRITERENDERCLEAR ""
+
 #define DOC_PYGAMESPRITERENDERUPDATES "RenderUpdates(*sprites) -> RenderUpdates\nGroup class that tracks dirty updates"
 
 #define DOC_RENDERUPDATESDRAW "draw(surface) -> Rect_list\nblit the Sprite images and track changed areas"
@@ -105,11 +109,11 @@
 
 #define DOC_PYGAMESPRITECOLLIDECIRCLERATIO "collide_circle_ratio(ratio) -> collided_callable\ncollision detection between two sprites, using circles scaled to a ratio."
 
-#define DOC_PYGAMESPRITECOLLIDEMASK "collide_mask(SpriteLeft, SpriteRight) -> bool\ncollision detection between two sprites, using masks."
+#define DOC_PYGAMESPRITECOLLIDEMASK "collide_mask(SpriteLeft, SpriteRight) -> point\ncollision detection between two sprites, using masks."
 
-#define DOC_PYGAMESPRITEGROUPCOLLIDE "groupcollide(group1, group2, dokill1, dokill2) -> Sprite_dict\nfind all Sprites that collide between two Groups"
+#define DOC_PYGAMESPRITEGROUPCOLLIDE "groupcollide(group1, group2, dokill1, dokill2, collided = None) -> Sprite_dict\nfind all Sprites that collide between two Groups"
 
-#define DOC_PYGAMESPRITESPRITECOLLIDEANY "spritecollideany(sprite, group) -> bool\nsimple test if a Sprite intersects anything in a Group"
+#define DOC_PYGAMESPRITESPRITECOLLIDEANY "spritecollideany(sprite, group, collided = None) -> Sprite\nspritecollideany(sprite, group, collided = None) -> None\nsimple test if a Sprite intersects anything in a Group"
 
 
 
@@ -191,6 +195,12 @@ draw a background over the Sprites
 pygame.sprite.Group.empty
  empty() -> None
 remove all Sprites
+
+pygame.sprite.RenderPlain
+
+
+pygame.sprite.RenderClear
+
 
 pygame.sprite.RenderUpdates
  RenderUpdates(*sprites) -> RenderUpdates
@@ -329,15 +339,16 @@ pygame.sprite.collide_circle_ratio
 collision detection between two sprites, using circles scaled to a ratio.
 
 pygame.sprite.collide_mask
- collide_mask(SpriteLeft, SpriteRight) -> bool
+ collide_mask(SpriteLeft, SpriteRight) -> point
 collision detection between two sprites, using masks.
 
 pygame.sprite.groupcollide
- groupcollide(group1, group2, dokill1, dokill2) -> Sprite_dict
+ groupcollide(group1, group2, dokill1, dokill2, collided = None) -> Sprite_dict
 find all Sprites that collide between two Groups
 
 pygame.sprite.spritecollideany
- spritecollideany(sprite, group) -> bool
+ spritecollideany(sprite, group, collided = None) -> Sprite
+ spritecollideany(sprite, group, collided = None) -> None
 simple test if a Sprite intersects anything in a Group
 
 */
