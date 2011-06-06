@@ -212,6 +212,15 @@ be omitted.</p>
 <span class="n">pxarray</span><span class="p">[</span><span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>                <span class="c"># Same as pxarray[:]</span>
 </pre></div>
 </div>
+<p>A note about PixelArray to PixelArray assignment, for arrays with an
+item size of 3 (created from 24 bit surfaces) pixel values are translated
+from the source to the destinations format. The red, green, and blue
+color elements of each pixel are shifted to match the format of the
+target surface. For all other pixel sizes no such remapping occurs.
+This should change in later Pygame releases, where format conversions
+are performed for all pixel sizes. To avoid code breakage when full mapped
+copying is implemented it is suggested PixelArray to PixelArray copies be
+only between surfaces of identical format.</p>
 <p>New in pygame 1.9.2</p>
 <blockquote>
 <div><ul class="simple">
