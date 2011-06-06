@@ -88,6 +88,16 @@
      pxarray[::2, ...] = (0, 0, 0)             # Same as pxarray[::2, :]
      pxarray[...] = (255, 0, 0)                # Same as pxarray[:]
 
+   A note about PixelArray to PixelArray assignment, for arrays with an
+   item size of 3 (created from 24 bit surfaces) pixel values are translated
+   from the source to the destinations format. The red, green, and blue
+   color elements of each pixel are shifted to match the format of the
+   target surface. For all other pixel sizes no such remapping occurs.
+   This should change in later Pygame releases, where format conversions
+   are performed for all pixel sizes. To avoid code breakage when full mapped
+   copying is implemented it is suggested PixelArray to PixelArray copies be
+   only between surfaces of identical format.
+
    New in pygame 1.9.2
 
     - array struct interface
