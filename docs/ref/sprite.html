@@ -117,6 +117,14 @@
 <td>—</td>
 <td>container class for many Sprites</td>
 </tr>
+<tr><td><a class="toc reference external" href="sprite.html#pygame.sprite.RenderPlain">pygame.sprite.RenderPlain</a></td>
+<td>—</td>
+<td></td>
+</tr>
+<tr><td><a class="toc reference external" href="sprite.html#pygame.sprite.RenderClear">pygame.sprite.RenderClear</a></td>
+<td>—</td>
+<td></td>
+</tr>
 <tr><td><a class="toc reference external" href="sprite.html#pygame.sprite.RenderUpdates">pygame.sprite.RenderUpdates</a></td>
 <td>—</td>
 <td>Group class that tracks dirty updates</td>
@@ -350,7 +358,7 @@ topleft (0,0) of self.image</pre>
 </div>
 <p>layer = 0</p>
 <div class="highlight-python"><pre>(READONLY value, it is read when adding it to the
-LayeredRenderGroup, for details see doc of LayeredRenderGroup)</pre>
+LayeredDirty, for details see doc of LayeredDirty)</pre>
 </div>
 </dd></dl>
 
@@ -540,6 +548,18 @@ background callback function will be called several times each clear.</p>
 <p>Removes all Sprites from this Group.</p>
 </dd></dl>
 
+</dd></dl>
+
+<dl class="definition class">
+<dt class="title" id="pygame.sprite.RenderPlain">
+<em class="property">class </em><tt class="descclassname">pygame.sprite.</tt><tt class="descname">RenderPlain</tt><a class="headerlink" href="#pygame.sprite.RenderPlain" title="Permalink to this definition">¶</a></dt>
+<dd><p>same as pygame.sprite.Group</p>
+</dd></dl>
+
+<dl class="definition class">
+<dt class="title" id="pygame.sprite.RenderClear">
+<em class="property">class </em><tt class="descclassname">pygame.sprite.</tt><tt class="descname">RenderClear</tt><a class="headerlink" href="#pygame.sprite.RenderClear" title="Permalink to this definition">¶</a></dt>
+<dd><p>same as pygame.sprite.Group</p>
 </dd></dl>
 
 <dl class="definition class">
@@ -1092,13 +1112,22 @@ attribute.</p>
 <tt class="descclassname">pygame.sprite.</tt><tt class="descname">collide_mask</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.sprite.collide_mask" title="Permalink to this definition">¶</a></dt>
 <dd><div class="line-block">
 <div class="line"><span class="summaryline">collision detection between two sprites, using masks.</span></div>
-<div class="line"><span class="signature">collide_mask(SpriteLeft, SpriteRight) -&gt; bool</span></div>
+<div class="line"><span class="signature">collide_mask(SpriteLeft, SpriteRight) -&gt; point</span></div>
 </div>
+<p>Returns first point on the mask where the masks collided, or None if
+there was no collision.</p>
 <p>Tests for collision between two sprites, by testing if thier bitmasks
 overlap. If the sprites have a &#8220;mask&#8221; attribute, that is used as the mask,
 otherwise a mask is created from the sprite image. Intended to be passed as
 a collided callback function to the *collide functions. Sprites must have a
 &#8220;rect&#8221; and an optional &#8220;mask&#8221; attribute.</p>
+<p>You should consider creating a mask for your sprite at load time if you
+are going to check collisions many times.  This will increase the
+performance, otherwise this can be an expensive function because it
+will create the masks each time you check for collisions.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">sprite</span><span class="o">.</span><span class="n">mask</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">mask</span><span class="o">.</span><span class="n">from_surface</span><span class="p">(</span><span class="n">sprite</span><span class="o">.</span><span class="n">image</span><span class="p">)</span>
+</pre></div>
+</div>
 <p>New in pygame 1.8.0</p>
 </dd></dl>
 
@@ -1107,15 +1136,20 @@ a collided callback function to the *collide functions. Sprites must have a
 <tt class="descclassname">pygame.sprite.</tt><tt class="descname">groupcollide</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.sprite.groupcollide" title="Permalink to this definition">¶</a></dt>
 <dd><div class="line-block">
 <div class="line"><span class="summaryline">find all Sprites that collide between two Groups</span></div>
-<div class="line"><span class="signature">groupcollide(group1, group2, dokill1, dokill2) -&gt; Sprite_dict</span></div>
+<div class="line"><span class="signature">groupcollide(group1, group2, dokill1, dokill2, collided = None) -&gt; Sprite_dict</span></div>
 </div>
-<p>This will find intersections between all the Sprites in two groups.
-Intersection is determined by comparing the <tt class="docutils literal"><span class="pre">Sprite.rect</span></tt> attribute of
-each Sprite.</p>
+<p>This will find collisions between all the Sprites in two groups.
+Collision is determined by comparing the <tt class="docutils literal"><span class="pre">Sprite.rect</span></tt> attribute of
+each Sprite or by using the collided function if it is not None.</p>
 <p>Every Sprite inside group1 is added to the return dictionary. The value for
 each item is the list of Sprites in group2 that intersect.</p>
-<p>If either dokill argument is True, the intersecting Sprites will be removed
+<p>If either dokill argument is True, the colliding Sprites will be removed
 from their respective Group.</p>
+<p>The collided argument is a callback function used to calculate if two sprites are
+colliding. It should take two sprites as values and return a bool value
+indicating if they are colliding. If collided is not passed, then all
+sprites must have a &#8220;rect&#8221; value, which is a rectangle of the sprite area,
+which will be used to calculate the collision.</p>
 </dd></dl>
 
 <dl class="definition function">
@@ -1123,13 +1157,18 @@ from their respective Group.</p>
 <tt class="descclassname">pygame.sprite.</tt><tt class="descname">spritecollideany</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.sprite.spritecollideany" title="Permalink to this definition">¶</a></dt>
 <dd><div class="line-block">
 <div class="line"><span class="summaryline">simple test if a Sprite intersects anything in a Group</span></div>
-<div class="line"><span class="signature">spritecollideany(sprite, group) -&gt; bool</span></div>
+<div class="line"><span class="signature">spritecollideany(sprite, group, collided = None) -&gt; Sprite</span> Collision with the returned sprite.</div>
+<div class="line"><span class="signature">spritecollideany(sprite, group, collided = None) -&gt; None</span> No collision</div>
 </div>
-<p>Test if the given Sprite intersects with any Sprites in a Group.
-Intersection is determined by comparing of the <tt class="docutils literal"><span class="pre">Sprite.rect</span></tt> attribute of
-each Sprite.</p>
-<p>This collision test can be faster than <tt class="docutils literal"><span class="pre">pygame.sprite.spritecollide()</span></tt>
-since it has less work to do.</p>
+<p>If the sprite collides with any single sprite in the group, a single
+sprite from the group is returned.  On no collision None is returned.</p>
+<p>If you don&#8217;t need all the features of the <tt class="docutils literal"><span class="pre">pygame.sprite.spritecollide()</span></tt> function, this
+function will be a bit quicker.</p>
+<p>The collided argument is a callback function used to calculate if two sprites are
+colliding. It should take two sprites as values and return a bool value
+indicating if they are colliding. If collided is not passed, then all
+sprites must have a &#8220;rect&#8221; value, which is a rectangle of the sprite area,
+which will be used to calculate the collision.</p>
 </dd></dl>
 
 </dd></dl>
