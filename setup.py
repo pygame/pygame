@@ -211,12 +211,14 @@ add_datafiles(data_files, 'pygame/examples',
 #docs
 add_datafiles(data_files, 'pygame/docs',
               ['docs',
-                  ['*.html',
-                   '*.gif',
-                   '*.js',
-                   ['ref',
-                       ['*.html']],
-                   ['tut',
+                  ['*.html',             # Navigation and help pages
+                   '*.gif',              # Pygame logos
+                   '*.js',               # For doc search
+                   ['ref',               # Pygame reference
+                       ['*.html',        # Reference pages
+                        '*.js',          # Comments script
+                        '*.json']],      # Comment data
+                   ['tut',               # Tutorials
                        ['*.html',
                         ['chimp',
                             ['*.html',
@@ -234,12 +236,12 @@ add_datafiles(data_files, 'pygame/docs',
                         ['camera',
                             ['*.html',
                              '*.jpg']]]],
-                   ['_static',
+                   ['_static',            # Sphinx added support files
                         ['*.css',
                          '*.png',
                          '*.ico',
                          '*.js']],
-                   ['_sources',
+                   ['_sources',           # Used for ref search
                         ['*.txt',
                          ['ref',
                             ['*.txt']]]]]])
