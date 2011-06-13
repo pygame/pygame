@@ -21,6 +21,8 @@ try:
 except NameError:
     from functools import reduce
 import operator
+import weakref
+import gc
 
 PY3 = sys.version_info >= (3, 0, 0)
 
@@ -82,7 +84,33 @@ class PixelArrayTypeTest (unittest.TestCase, TestMixin):
             del ar
             if sf.mustlock ():
                 self.assertFalse (sf.get_locked ())
+ 
+    def test_as_class (self):
+        # Check general new-style class freatures.
+        sf = pygame.Surface ((2, 3), 0, 32)
+        ar = pygame.PixelArray (sf)
+        self.assertRaises (AttributeError, getattr, ar, 'nonnative')
+        ar.nonnative = 'value'
+        self.assertEqual (ar.nonnative, 'value')
+        self.assertTrue ('nonnative' in ar.__dict__)
+        r = weakref.ref (ar)
+        self.assertTrue (r() is ar)
+        del ar
+        gc.collect ()
+        self.assertTrue (r() is None)
 
+        class C (pygame.PixelArray):
+            def __str__ (self):
+                return "string (%i, %i)" % self.shape
+
+        ar = C (sf)
+        self.assertEqual (str (ar), "string (2, 3)")
+        r = weakref.ref (ar)
+        self.assertTrue (r() is ar)
+        del ar
+        gc.collect ()
+        self.assertTrue (r() is None)
+        
     # Sequence interfaces
     def test_get_column (self):
         for bpp in (8, 16, 24, 32):
