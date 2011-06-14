@@ -841,9 +841,9 @@ _array_assign_array(PyPixelArray *array,
             PyErr_NoMemory();
             return -1;
         }
-        val_pixels = memcpy(copied_pixels, val_surf->pixels, size) + val_offset;
+        val_pixels = (Uint8 *)memcpy(copied_pixels, val_surf->pixels, size) + val_offset;
     }
-                     
+
     if (!dim1) {
         dim1 = 1;
     }
@@ -1276,7 +1276,7 @@ _pxarray_ass_slice(PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
     else if (low > (Sint32)array->dim0) {
         low = array->dim0;
     }
-        
+    
     if (high < low) {
         high = low;
     }
@@ -1478,7 +1478,7 @@ _pxarray_subscript(PyPixelArray *array, PyObject *op)
         Py_ssize_t size = PySequence_Size(op);
         Py_ssize_t xstart, xstop, xstep;
         Py_ssize_t ystart, ystop, ystep;
-        
+    
         if (size == 0) {
             /* array[,], array[()] ... */
             Py_INCREF(array);
