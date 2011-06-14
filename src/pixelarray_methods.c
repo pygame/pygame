@@ -265,9 +265,9 @@ _get_weights(PyObject *weights, float *wr, float *wg, float *wb)
     float rgb[3] = { 0 };
     
     if (!weights) {
-        *wr = WR_NTSC;
-        *wg = WG_NTSC;
-        *wb = WB_NTSC;
+        *wr = (float)WR_NTSC;
+        *wg = (float)WG_NTSC;
+        *wb = (float)WB_NTSC;
         return 1;
     }
     
@@ -277,7 +277,7 @@ _get_weights(PyObject *weights, float *wr, float *wg, float *wb)
     } 
     else if (PySequence_Size(weights) < 3) {
         PyErr_SetString(PyExc_TypeError,
-			"weights must contain at least 3 values");
+            "weights must contain at least 3 values");
         success = 0;
     }
     else {

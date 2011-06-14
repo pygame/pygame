@@ -437,10 +437,10 @@ _copy_unmapped(PyArrayInterface *inter, SDL_Surface *surf)
         DST *pix = (DST *)(((char *)surf->pixels) + surf->pitch * loopy); \
         char *data = array_data + stridey * loopy;                        \
         for (loopx = 0; loopx < sizex; ++loopx) {                         \
-            *pix++ = (DST)(*(SRC *)(data) >> Rloss << Rshift) |           \
+            *pix++ = (DST)((*(SRC *)(data) >> Rloss << Rshift) |          \
                 (*(SRC *)(data+stridez) >> Gloss << Gshift) |             \
                 (*(SRC *)(data+stridez2) >> Bloss << Bshift) |            \
-                alpha;                                                    \
+                alpha);                                                   \
             data += stridex;                                              \
         }                                                                 \
     }
