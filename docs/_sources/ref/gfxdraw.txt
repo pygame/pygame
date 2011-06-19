@@ -8,6 +8,9 @@
 
 | :sl:`pygame module for drawing shapes`
 
+EXPERIMENTAL!: meaning this api may change, or dissapear in later pygame
+releases. If you use this, your code will break with the next pygame release.
+
 Draw several shapes to a surface.
 
 Most of the functions accept a color argument that is an ``RGB`` triplet. These
