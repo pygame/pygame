@@ -565,5 +565,7 @@ header.commentHeading {
 pre.commentContent {
     overflow: auto; 
     max-width; 800px;
+    margin-left:0px;
+    border: 0;
 }
 
