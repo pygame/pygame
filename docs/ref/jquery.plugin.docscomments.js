@@ -38,7 +38,7 @@ $(document).ready(function () {
 
 		var searchButtonHtml = [
 			'<form action="http://www.google.com/codesearch" class="addcomment"><input type="hidden" value="file:\.py$ ', 
-			'" name="q"><input type="submit" value="Search examples of ',
+			'" name="q"><input type="submit" value="Search examples for ',
 			'"></form>'
 		];
 
