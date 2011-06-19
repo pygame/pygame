@@ -560,6 +560,10 @@ a.tooltip:hover {
     -moz-box-shadow: 5px 5px rgba(0, 0, 0, 0.1);
 }
 
+
+
+/* -- comments style --------------------------------------------------------- */
+
 form.addcomment {
     display:inline;
 }
@@ -574,4 +578,30 @@ a.commentButton {
     padding: 6px;
     margin-right: 4px;
 }
+
+article.commentsArticle {
+    background: none repeat scroll 0 0 #FEF790;
+    border: 1px solid black;
+    margin-bottom: 12px;
+    margin-top: 12px;
+    padding: 4px;
+
+}
+
+article.hidden {
+    display:none;
+}
+
+section.commentPart {
+}
+
+header.commentHeading {
+    background: none repeat scroll 0 0 #FDE42D;
+    text-align: center;
+}
+pre.commentContent {
+    overflow: auto; 
+    max-width; 800px;
+}
+
 
