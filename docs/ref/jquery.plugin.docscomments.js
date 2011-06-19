@@ -20,7 +20,8 @@ $(document).ready(function () {
 
 		var searchButtonHtml = [
 			'<form action="http://www.google.com/codesearch" class="addcomment"><input type="hidden" value="file:\.py$ ', 
-			'" name="q"><input type="submit" value="Search internet source code for examples of pygame.display.init "></form>'
+			'" name="q"><input type="submit" value="Search internet source code for examples of ',
+			'"></form>'
 		];
 
 		var addCommentHtml = [
@@ -45,7 +46,7 @@ $(document).ready(function () {
 			}
 
 			// Add "search internet for source code" buttons.
-			var searchButton = $(searchButtonHtml[0] + link + searchButtonHtml[1]);
+			var searchButton = $(searchButtonHtml[0] + link + searchButtonHtml[1] + link + searchButtonHtml[2]);
 			$(el).next().append(searchButton);
 
 			// Add show comments buttons.
