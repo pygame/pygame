@@ -2,6 +2,7 @@ $(document).ready(function () {
 
 
 	/*
+	- fix comment addition for module level comment.
 	- format dates in a more human readable way.
 	X - show user title for each post.
 	X - order comments by newest first.
