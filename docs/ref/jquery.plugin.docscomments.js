@@ -29,7 +29,7 @@ $(document).ready(function () {
 		];
 		var showCommentHtml = [
 			'<a href="#comment_',
-			'" title="show comments">Comments ',
+			'" title="show comments" class="commentButton">Comments ',
 			'</a><div id="comment_',
 			'" class="hidden"></div>'
 		];
