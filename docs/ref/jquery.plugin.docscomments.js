@@ -55,7 +55,7 @@ $(document).ready(function () {
 				$(el).next().append(addCommentButton);
 			} else {
 				// show comment button.
-				console.log(link)
+				//console.log(link)
 				var $showCommentButton = $([showCommentHtml[0], 
 							  link.replace(/\./g, "_"), 
 							showCommentHtml[1],
@@ -71,7 +71,7 @@ $(document).ready(function () {
 					var $commentSection = $("#comment_" + link.replace(/\./g, "_"));
 					$commentSection.removeClass("hidden");
 					$.each(comments, function(idx) {
-						console.log(comments[idx])
+						//console.log(comments[idx])
 						// date + user
 						var userName = comments[idx]['user'];
 						if (userName == null) {
