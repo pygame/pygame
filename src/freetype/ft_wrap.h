@@ -121,10 +121,17 @@ typedef struct __fonttext
     FT_Fixed underline_pos;
 } FontText;
 
+typedef struct __cachenodekey
+{
+    FontRenderMode mode;
+    PGFT_char ch;
+} CacheNodeKey;
+
 typedef struct __cachenode
 {
-    FontGlyph   glyph;
+    FontGlyph glyph;
     struct __cachenode *next;
+    CacheNodeKey key;
     FT_UInt32 hash;
 
 } FontCacheNode;

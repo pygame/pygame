@@ -30,6 +30,15 @@ FontCacheNode *_PGFT_Cache_AllocateNode(FreeTypeInstance *,
         FontCache *, const FontRenderMode *, FT_UInt);
 void _PGFT_Cache_FreeNode(FontCache *, FontCacheNode *);
 
+static int
+equal_node_keys(CacheNodeKey *a, CacheNodeKey *b)
+{
+    return (a->ch == b->ch &&
+            a->mode.pt_size == b->mode.pt_size &&
+            a->mode.rotation_angle == b->mode.rotation_angle &&
+            a->mode.render_flags == b->mode.render_flags &&
+            a->mode.style == b->mode.style);
+}
 
 FT_UInt32
 _PGFT_GetLoadFlags(const FontRenderMode *render)
@@ -208,6 +217,7 @@ PGFT_Cache_FindGlyph(FreeTypeInstance *ft, FontCache *cache,
 {
     FontCacheNode **nodes = cache->nodes;
     FontCacheNode *node, *prev;
+    CacheNodeKey key = { *render, character };
 
     FT_UInt32 hash = _PGFT_Cache_Hash(render, character);
     FT_UInt32 bucket = hash & cache->size_mask;
@@ -218,10 +228,10 @@ PGFT_Cache_FindGlyph(FreeTypeInstance *ft, FontCache *cache,
 #ifdef PGFT_DEBUG_CACHE
     cache->_debug_access++;
 #endif
-        
+    
     while (node)
     {
-        if (node->hash == hash)
+        if (equal_node_keys(&node->key, &key))
         {
             if (prev)
             {
@@ -349,6 +359,8 @@ _PGFT_Cache_AllocateNode(FreeTypeInstance *ft,
     /*
      * Update cache internals
      */
+    node->key.mode = *render;
+    node->key.ch = character;
     node->hash = _PGFT_Cache_Hash(render, character);
     bucket = node->hash & cache->size_mask;
     node->next = cache->nodes[bucket];

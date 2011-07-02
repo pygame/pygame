@@ -828,6 +828,8 @@ _ftfont_getfixedwidth(PyObject *self, void *closure)
 PyObject *
 _ftfont_getsize(PyObject *self, PyObject *args, PyObject *kwds)
 {
+/* MODIFIED
+ */
     /* keyword list */
     static char *kwlist[] = 
     { 
