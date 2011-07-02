@@ -1337,7 +1337,7 @@ class collide_rect_ratio:
 
         return leftrect.colliderect(rightrect)
 
-def collide_circle( left, right ):
+def collide_circle(left, right):
     """detect collision between two sprites using circles
 
     pygame.sprite.collide_circle(left, right): return bool
@@ -1357,17 +1357,27 @@ def collide_circle( left, right ):
     xdistance = left.rect.centerx - right.rect.centerx
     ydistance = left.rect.centery - right.rect.centery
     distancesquared = xdistance ** 2 + ydistance ** 2
-    try:
-        leftradiussquared = left.radius ** 2
-    except AttributeError:
+    
+    if hasattr(left, 'radius'):
+        leftradius = left.radius
+    else:
         leftrect = left.rect
-        leftradiussquared = (leftrect.width ** 2 + leftrect.height ** 2) / 4
-    try:
-        rightradiussquared = right.radius ** 2
-    except AttributeError:
+        # approximating the radius of a square by using half of the diagonal, 
+        # might give false positives (especially if its a long small rect)
+        leftradius = 0.5 * ((leftrect.width ** 2 + leftrect.height ** 2) ** 0.5)
+        # store the radius on the sprite for next time
+        setattr(left, 'radius', leftradius)
+        
+    if hasattr(right, 'radius'):
+        rightradius = right.radius
+    else:
         rightrect = right.rect
-        rightradiussquared = (rightrect.width ** 2 + rightrect.height ** 2) / 4
-    return distancesquared < leftradiussquared + rightradiussquared
+        # approximating the radius of a square by using half of the diagonal
+        # might give false positives (especially if its a long small rect)
+        rightradius = 0.5 * ((rightrect.width ** 2 + rightrect.height ** 2) ** 0.5)
+        # store the radius on the sprite for next time
+        setattr(right, 'radius', rightradius)
+    return distancesquared <= (leftradius + rightradius) ** 2
 
 class collide_circle_ratio(object):
     """detect collision between two sprites using scaled circles
@@ -1386,14 +1396,15 @@ class collide_circle_ratio(object):
 
         The given ratio is expected to be a floating point value used to scale
         the underlying sprite radius before checking for collisions.
+        
+        When the ratio is ratio=1.0, then it behaves exactly like the 
+        collide_circle method.
 
         """
         self.ratio = ratio
-        # Constant value that folds in division for diameter to radius,
-        # when calculating from a rect.
-        self.halfratio = ratio ** 2 / 4.0
 
-    def __call__( self, left, right ):
+
+    def __call__(self, left, right):
         """detect collision between two sprites using scaled circles
 
         pygame.sprite.collide_circle_radio(ratio)(left, right): return bool
@@ -1413,31 +1424,24 @@ class collide_circle_ratio(object):
         xdistance = left.rect.centerx - right.rect.centerx
         ydistance = left.rect.centery - right.rect.centery
         distancesquared = xdistance ** 2 + ydistance ** 2
-        # Optimize for not containing radius attribute, as if radius was
-        # set consistently, would probably be using collide_circle instead.
+
         if hasattr(left, "radius"):
-            leftradiussquared = (left.radius * ratio) ** 2
-
-            if hasattr(right, "radius"):
-                rightradiussquared = (right.radius * ratio) ** 2
-            else:
-                halfratio = self.halfratio
-                rightrect = right.rect
-                rightradiussquared = (rightrect.width ** 2
-                                      + rightrect.height ** 2) * halfratio
+            leftradius = left.radius * ratio
         else:
-            halfratio = self.halfratio
             leftrect = left.rect
-            leftradiussquared = (leftrect.width ** 2
-                                 + leftrect.height ** 2) * halfratio
+            leftradius = ratio * 0.5 * ((leftrect.width ** 2 + leftrect.height ** 2) ** 0.5)
+            # store the radius on the sprite for next time
+            setattr(left, 'radius', leftradius)
 
-            if hasattr(right, "radius"):
-                rightradiussquared = (right.radius * ratio) ** 2
-            else:
-                rightrect = right.rect
-                rightradiussquared = (rightrect.width ** 2
-                                      + rightrect.height ** 2) * halfratio
-        return distancesquared < leftradiussquared + rightradiussquared
+        if hasattr(right, "radius"):
+            rightradius = right.radius * ratio
+        else:
+            rightrect = right.rect
+            rightradius = ratio * 0.5 * ((rightrect.width ** 2 + rightrect.height ** 2) ** 0.5)
+            # store the radius on the sprite for next time
+            setattr(right, 'radius', rightradius)
+
+        return distancesquared <= (leftradius + rightradius) ** 2
 
 def collide_mask(left, right):
     """collision detection between two sprites, using masks.
