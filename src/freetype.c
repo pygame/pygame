@@ -253,6 +253,7 @@ static PyObject *_ft_was_init(PyObject *self);
 static PyObject *_ft_autoinit(PyObject *self);
 /* ---> To be removed in final release */
 static PyObject *_ft_render_raw(PyObject *self, PyObject *args, PyObject *kwds);
+static PyObject *_ft_render_raw2(PyObject *self, PyObject *args, PyObject *kwds);
 /* <--- */
 
 /*
@@ -339,6 +340,15 @@ static PyMethodDef _ft_methods[] =
         (PyCFunction) _ft_render_raw,
         METH_VARARGS | METH_KEYWORDS,
         "Like Font.render_raw\n"
+        "render_raw(filename, text, ptsize, vertical, rotation, kerning, surrogate) ==> Surface, Rect\n"
+	"\n"
+	"This is a proof of concept method. It will not be in the final module.\n"
+    },
+    { 
+        "render_raw2",
+        (PyCFunction) _ft_render_raw2,
+        METH_VARARGS | METH_KEYWORDS,
+        "Like Font.render_raw2\n"
         "render_raw(filename, text, ptsize, vertical, rotation, kerning, surrogate) ==> Surface, Rect\n"
 	"\n"
 	"This is a proof of concept method. It will not be in the final module.\n"
@@ -1344,8 +1354,6 @@ _ft_get_version(PyObject *self)
 }
 
 /* ---> To be removed in final release */
-#define PGFT_CEIL16_TO_6(x)  ( ( (x) + 1023 ) >> 10 )
-
 static int
 _draw_bitmap(PyObject *b, FT_Byte *bytes, int width, int height, int pitch,
              FT_Bitmap *bitmap, FT_Int x, FT_Int y)
@@ -1370,34 +1378,16 @@ _draw_bitmap(PyObject *b, FT_Byte *bytes, int width, int height, int pitch,
         {
             if (byte < bytes || byte >= bytes_max)
             {
-                ErrMsg = Text_FromFormat("(%i, %i), [%i, %i] outside image sized (%i, %i)",
-                                         c, r, x + c, y + r, width, height);
-                if (ErrMsg != NULL)
-                    {
-                    ErrVal = PyTuple_Pack(2, ErrMsg, b);
-                    Py_DECREF(ErrMsg);
-                    }
-                if (ErrVal != NULL)
-                {
-                    PyErr_SetObject(PyExc_RuntimeError, ErrVal);
-                    Py_DECREF(ErrVal);
-                }
+                PyErr_Format(PyExc_RuntimeError,
+                             "(%i, %i), [%i, %i] outside image sized (%i, %i)",
+                             c, r, x + c, y + r, width, height);
                 return -1;
             } 
             if (byte >= row_end)
             {
-                ErrMsg = Text_FromFormat("(%i, %i),[%i, %i] outside image row (%i, %i)",
-                                         c, r, x + c, y + r, width, r);
-                if (ErrMsg != NULL)
-                    {
-                    ErrVal = PyTuple_Pack(2, ErrMsg, b);
-                    Py_DECREF(ErrMsg);
-                    }
-                if (ErrVal != NULL)
-                {
-                    PyErr_SetObject(PyExc_RuntimeError, ErrVal);
-                    Py_DECREF(ErrVal);
-                }
+                PyErr_Format(PyExc_RuntimeError,
+                             "(%i, %i),[%i, %i] outside image row (%i, %i)",
+                             c, r, x + c, y + r, width, r);
                 return -1;
             } 
 
@@ -1589,6 +1579,11 @@ _ft_render_raw(PyObject *self, PyObject *args, PyObject *kwds)
     }
 
     /* calculate image size */
+    pen.x = 0;
+    pen.y = 0;
+    pen1.x = 0;
+    pen1.y = 0;
+    
     glyph = glyphs;
     FT_Glyph_Get_CBox( glyph->glyph, FT_GLYPH_BBOX_SUBPIXELS, &(glyph->bounds) );
     min_x = 0;
@@ -1609,6 +1604,8 @@ _ft_render_raw(PyObject *self, PyObject *args, PyObject *kwds)
             min_x = glyph->bounds.xMin;
         if (glyph->bounds.xMax > max_x)
             max_x = glyph->bounds.xMax;
+        pen.x += PGFT_CEIL16_TO_6(glyph->glyph->advance.x);
+        pen.y += PGFT_CEIL16_TO_6(glyph->glyph->advance.y);
     }
     if (pen.x > max_x)
         max_x = pen.x;
@@ -1637,7 +1634,7 @@ _ft_render_raw(PyObject *self, PyObject *args, PyObject *kwds)
 
     for ( n = 0; n < num_chars; n++ )
     {
-        FT_Glyph_To_Bitmap( &(glyphs[n].glyph), FT_RENDER_MODE_NORMAL, 0, 1);
+        FT_Glyph_To_Bitmap(&(glyphs[n].glyph), FT_RENDER_MODE_NORMAL, 0, 1);
         if (error)
         {
             _PGFT_SetError(ft, "Rendering glyphs", error);
@@ -1647,9 +1644,298 @@ _ft_render_raw(PyObject *self, PyObject *args, PyObject *kwds)
 
         /* now, draw to our target surface (convert position) */
         bitmap = (FT_BitmapGlyph) glyphs[n].glyph;
-        if (_draw_bitmap( rbuffer, bytes, width, height, width,
-                          &(bitmap->bitmap),
-                          bitmap->left - target_left, target_top - bitmap->top ) )
+        if (_draw_bitmap(rbuffer, bytes, width, height, width,
+                         &(bitmap->bitmap),
+                         bitmap->left - target_left, target_top - bitmap->top))
+        {
+            goto finished;
+        }
+    }
+    rtuple = Py_BuildValue("S(ii)", rbuffer, width, height);
+
+finished:    
+    if (glyphs != NULL)
+    {
+        for (n = 0; n < num_chars; ++n)
+        {
+            glyph = glyphs + n;
+            if (glyph->glyph == NULL)
+                break;
+            FT_Done_Glyph ( glyph->glyph );
+        }
+        _PGFT_free ( glyphs );
+    }
+    if (text != NULL)
+        PGFT_FreeString ( text );
+    if (face != NULL)
+        FT_Done_Face ( face );
+    Py_XDECREF(rbuffer);
+    if (error)
+    {
+        _PGFT_SetError(ft, "Loading face", error);
+        RAISE(PyExc_SDLError, PGFT_GetError(ft));
+    }
+    return rtuple;
+}
+
+static PyObject *
+_ft_render_raw2(PyObject *self, PyObject *args, PyObject *kwds)
+{
+    /* keyword list */
+    static char *kwlist[] = 
+    { 
+        "filename", "text", "ptsize", "vertical", "rotation",
+        "kerning", "surrogates", NULL
+    };
+
+    typedef struct My_GlyphRec_ {
+        FT_UInt  glyph_index;
+        FT_Glyph glyph;
+        FT_Vector posn;
+    } My_GlyphRec, *My_Glyph;
+
+    /* input arguments */
+    char *filename;
+    PyObject *textobj;
+    PGFT_String *text = NULL;
+    int ptsize = -1;
+    int vertical = 0;
+    double rotation = 0;
+    int use_kerning = 1;
+    int surrogates = 1;
+
+    /* output arguments */
+    PyObject *rbuffer = NULL;
+    PyObject *rtuple = NULL;
+    int width, height;
+    int posn_x, posn_y;
+
+    FT_Library    library = NULL;
+    FT_Face       face = NULL;
+
+    FT_GlyphSlot  slot;
+    My_Glyph      glyphs = NULL;
+    My_Glyph      glyph;
+    FT_UInt32     flags;
+    FT_BitmapGlyph bitmap;
+    FT_Matrix     matrix;                 /* transformation matrix */
+    FT_Vector     pen;                    /* untransformed origin  */
+    FT_Vector     pen1;
+    FT_Vector     pen2;
+    FT_Vector     kerning;
+    FT_Error      error = 0;
+    char         *error_location = "";
+
+    int           n, num_chars;
+    int           x, y;
+    
+    int           min_x;
+    int           max_x;
+    int           min_y;
+    int           max_y;
+    int           glyph_width;
+    int           glyph_height;
+    FT_Angle      angle;
+    FT_Vector     unit;
+    
+    PGFT_char     ch;
+    int           bufsize;
+    FT_Byte      *bytes;
+
+    FreeTypeInstance *ft;
+    ASSERT_GRAB_FREETYPE(ft, NULL);
+    library = ft->library;
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "sO|iidii", kwlist,
+                                     &filename, &textobj, &ptsize,
+                                     &vertical, &rotation, 
+                                     &use_kerning, &surrogates))
+        return NULL;
+
+    /* Encode text */
+    text = PGFT_EncodePyString(textobj, surrogates);
+    if (text == NULL)
+    {
+        goto finished;
+    }
+    num_chars = PGFT_String_GET_LENGTH(text);
+
+    if (num_chars == 0)
+    {
+        PGFT_FreeString(text);
+        return Py_BuildValue("s(ii)", "", 0, 0);
+    }
+    
+    error = FT_New_Face( library, filename, 0, &face ); /* create face object */
+    if (error)
+    {
+        error_location = "Loading font face";
+        goto finished;
+    }
+    
+    if (ptsize < 0)
+    {
+        ptsize = 24;
+    }
+    error = FT_Set_Char_Size( face, ptsize * 64, 0,
+                             100, 0 );                /* set character size */
+    if (error)
+    {
+        error_location = "Setting character size";
+        goto finished;
+    }
+
+    /* calculate start position and transformations */
+    rotation = fmod(rotation, 360);
+    angle = (FT_Angle)(rotation * 0x10000L);
+    FT_Vector_Unit( &unit, angle );
+    matrix.xx = unit.x;  /*  cos(angle) */
+    matrix.xy = -unit.y; /* -sin(angle) */
+    matrix.yx = unit.y;  /*  sin(angle) */
+    matrix.yy = unit.x;  /*  cos(angle) */
+    
+    pen.x = 0;
+    pen.y = 0;
+    pen1.x = 0;
+    pen1.y = 0;
+    
+    /* fill glyph array */
+    use_kerning = !vertical && FT_HAS_KERNING(face) && use_kerning;
+    slot = face->glyph;
+    glyphs = _PGFT_malloc( num_chars * sizeof (My_GlyphRec) );
+    if (glyphs == NULL)
+    {
+        PyErr_NoMemory();
+        goto finished;
+    }
+    flags = FT_LOAD_DEFAULT;
+    if (vertical)
+        flags |= FT_LOAD_VERTICAL_LAYOUT;  
+    for (n = 0; n < num_chars; ++n)
+    {
+        pen2.x = pen1.x;
+        pen2.y = pen1.y;
+        pen1.x = pen.x;
+        pen1.y = pen.y;
+        ch = PGFT_String_GET_DATA(text)[n];
+        glyph = glyphs + n;
+        glyph->glyph = NULL;
+        glyph->glyph_index = FT_Get_Char_Index( face, ch );
+        error = FT_Load_Glyph( face, /* handle to face object */
+                               glyph->glyph_index, /* glyph index */
+                               flags ); /* load flags, see below */
+        if (use_kerning && n > 0)
+        {
+            error = FT_Get_Kerning(face, glyphs[n - 1].glyph_index,
+                                   glyph->glyph_index,
+                                   FT_KERNING_UNFITTED, &kerning);
+            if (error)
+            {
+                error_location = "Kerning";
+                goto finished;
+            }
+            if (angle != 0)
+            {
+                FT_Vector_Rotate(&kerning, angle);
+            }
+            pen.x += PGFT_ROUND(kerning.x);
+            pen.y += PGFT_ROUND(kerning.y);
+            if (FT_Vector_Length(&pen2) > FT_Vector_Length(&pen))
+            {
+                pen.x = pen2.x;
+                pen.y = pen2.y;
+            }
+        }
+        if (!error)
+            error = FT_Get_Glyph(slot, &(glyph->glyph));
+        if (!error)
+            error = FT_Glyph_Transform(glyph->glyph, &matrix, 0);
+        if (error)
+        {
+            error_location =  "Filling glyph array";
+            goto finished;
+        }
+        glyph->posn.x = pen.x;
+        glyph->posn.y = pen.y;
+        error = FT_Glyph_To_Bitmap(&(glyph->glyph),
+                                   FT_RENDER_MODE_NORMAL, 0, 1);
+        if (error)
+        {
+            _PGFT_SetError(ft, "Rendering glyphs", error);
+            RAISE(PyExc_SDLError, PGFT_GetError(ft));
+            goto finished;
+        }
+        pen.x += PGFT_CEIL16_TO_6(glyph->glyph->advance.x);
+        pen.y += PGFT_CEIL16_TO_6(glyph->glyph->advance.y);
+    }
+
+    /* calculate image size */
+    pen.x = 0;
+    pen.y = 0;
+    
+    glyph = glyphs;
+    bitmap = (FT_BitmapGlyph)glyph->glyph;
+    min_x = 0;
+    x = PGFT_TRUNC(PGFT_CEIL(glyph->posn.x));
+    y = PGFT_TRUNC(PGFT_CEIL(glyph->posn.y));
+    glyph_width = bitmap->bitmap.width;
+    glyph_height = bitmap->bitmap.rows;
+    if (x - bitmap->left < min_x)
+        min_x = x - bitmap->left;
+    max_x = min_x + glyph_width;
+    max_y = y + bitmap->top;
+    min_y = max_y - bitmap->bitmap.rows;
+    for (n = 1; n < num_chars; ++n)
+    {
+        glyph = glyphs + n;
+        bitmap = (FT_BitmapGlyph)glyph->glyph;
+        x = PGFT_TRUNC(PGFT_CEIL(glyph->posn.x));
+        y = PGFT_TRUNC(PGFT_CEIL(glyph->posn.y));
+        glyph_width = bitmap->bitmap.width;
+        glyph_height = bitmap->bitmap.rows;
+        if (y + bitmap->top - glyph_height < min_y)
+            min_y = y + bitmap->top - glyph_height;
+        if (y + bitmap->top > max_y)
+            max_y = y + bitmap->top;
+        if (x + bitmap->left < min_x)
+            min_x = x + bitmap->left;
+        if (x + bitmap->left + glyph_width > max_x)
+            max_x = x + bitmap->left + glyph_width;
+        pen.x += PGFT_CEIL16_TO_6(glyph->glyph->advance.x);
+        pen.y += PGFT_CEIL16_TO_6(glyph->glyph->advance.y);
+    }
+    if (PGFT_TRUNC(PGFT_CEIL(pen.x)) > max_x)
+        max_x = PGFT_TRUNC(PGFT_CEIL(pen.x));
+    else if (PGFT_TRUNC(PGFT_FLOOR(pen.x)) < min_x)
+        min_x = PGFT_TRUNC(PGFT_FLOOR(pen.x));
+    if (PGFT_TRUNC(PGFT_CEIL(pen.y)) > max_y)
+        max_y = PGFT_TRUNC(PGFT_CEIL(pen.y));
+    else if (PGFT_TRUNC(PGFT_FLOOR(pen.y)) < min_y)
+        min_y = PGFT_TRUNC(PGFT_FLOOR(pen.y));
+    width = max_x - min_x;
+    height = max_y - min_y;
+
+    /* create buffer */
+    bufsize = width * height;
+    rbuffer = Bytes_FromStringAndSize(NULL, bufsize);
+    if (rbuffer == NULL)
+    {
+        goto finished;
+    }
+    bytes = (FT_Byte *)Bytes_AS_STRING(rbuffer);
+    memset(bytes, 0x00, (size_t)bufsize);
+
+    /* render characters */
+    for (n = 0; n < num_chars; n++)
+    {
+        /* now, draw to our target surface (convert position) */
+        bitmap = (FT_BitmapGlyph)glyphs[n].glyph;
+        posn_x = PGFT_TRUNC(PGFT_CEIL(glyphs[n].posn.x));
+        posn_y = PGFT_TRUNC(PGFT_CEIL(glyphs[n].posn.y));
+        x = bitmap->left + posn_x + min_x;
+        y = max_y - posn_y - bitmap->top;
+        if (_draw_bitmap(rbuffer, bytes, width, height, width,
+                         &(bitmap->bitmap), x, y))
         {
             goto finished;
         }

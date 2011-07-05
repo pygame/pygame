@@ -480,210 +480,27 @@ int _PGFT_Render_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font,
     FontText *text, const FontRenderMode *render, FontColor *fg_color,
     FontSurface *surface)
 {
-    const FT_Fixed center = (1 << 15); // 0.5
+    int top;
+    int left;
+    int x;
+    int y;
+    int n;
+    int length = text->length;
+    FontGlyph **glyphs = text->glyphs;
+    FT_BitmapGlyph bitmap;
+    FT_Vector *posns = text->posns;
+    int error = 0;
 
-    int         n;
-    FT_Vector   pen; 
-    FT_Matrix   rotation_matrix;
-    FT_Face     face;
-    FT_Error    error;
-    FT_Vector   *advances = NULL;
-
-    FT_Fixed    bold_str = 0;
-
-    int         x = (surface->x_offset << 6);
-    int         y = (surface->y_offset << 6);
-
-    assert(text->text_size.x);
-    assert(text->text_size.y);
-
-    x += (text->text_size.x / 2);
-    y += (text->text_size.y / 2);
-    y -= (text->baseline_offset.y);
-
-    /******************************************************
-     * Load scaler, size & face
-     ******************************************************/
-    face = _PGFT_GetFaceSized(ft, font, render->pt_size);
-
-    if (!face)
+    PGFT_GetTopLeft(text, &top, &left);
+    top += surface->y_offset;
+    left -= surface->x_offset;
+    for (n = 0; n < length; ++n)
     {
-        return -1;
+        bitmap = (FT_BitmapGlyph)glyphs[n]->image;
+        x = (PGFT_TRUNC(PGFT_CEIL(posns[n].x)) + bitmap->left - left);
+        y = (PGFT_TRUNC(PGFT_CEIL(posns[n].y)) + top - bitmap->top);
+        surface->render(x, y, surface, &(bitmap->bitmap), fg_color);
     }
-
-    /******************************************************
-     * Load advance information
-     ******************************************************/
-    error = PGFT_LoadTextAdvances(ft, font, render, text);
-
-    if (error)
-    {
-        return error;
-    }
-
-    advances = text->advances;
-
-    /******************************************************
-     * Build rotation matrix for rotated text
-     ******************************************************/
-    if (render->rotation_angle != 0)
-    {
-        double      radian;
-        FT_Fixed    cosinus;
-        FT_Fixed    sinus;
-
-        radian  = render->rotation_angle * 3.14159 / 180.0;
-        cosinus = (FT_Fixed)(cos(radian) * 65536.0);
-        sinus   = (FT_Fixed)(sin(radian) * 65536.0);
-
-        rotation_matrix.xx = cosinus;
-        rotation_matrix.yx = sinus;
-        rotation_matrix.xy = -sinus;
-        rotation_matrix.yy = cosinus;
-    }
-
-    /******************************************************
-     * Prepare pen for drawing 
-     ******************************************************/
-
-    /* change to Cartesian coordinates */
-    y = (surface->height << 6) - y;
-
-    /* get the extent, which we store in the last slot */
-    pen = advances[text->length - 1];
-
-    pen.x = FT_MulFix(pen.x, center); 
-    pen.y = FT_MulFix(pen.y, center);
-
-    if ((render->render_flags & FT_RFLAG_VERTICAL) == 0)
-        pen.y += PGFT_ROUND(text->glyph_size.y / 2);
-
-    /* get pen position */
-    if (render->rotation_angle && FT_IS_SCALABLE(face))
-    {
-        FT_Vector_Transform(&pen, &rotation_matrix);
-        pen.x = x - pen.x;
-        pen.y = y - pen.y;
-    }
-    else
-    {
-        pen.x = PGFT_ROUND(x - pen.x);
-        pen.y = PGFT_ROUND(y - pen.y);
-    }
-
-    /******************************************************
-     * Prepare data for glyph transformations
-     ******************************************************/
-    if (render->style & FT_STYLE_BOLD)
-    {
-        bold_str = PGFT_GetBoldStrength(face);
-    }
-
-    /******************************************************
-     * Draw text
-     ******************************************************/
-
-    for (n = 0; n < text->length; ++n)
-    {
-        FT_Glyph image;
-        FT_BBox bbox;
-
-        FontGlyph *glyph = text->glyphs[n];
-
-        if (!glyph || !glyph->image)
-            continue;
-
-        /* copy image */
-        error = FT_Glyph_Copy(glyph->image, &image);
-        if (error)
-            continue;
-
-        if (image->format == FT_GLYPH_FORMAT_OUTLINE)
-        {
-            FT_OutlineGlyph outline;
-            FT_Vector *trans_vector = NULL;
-            FT_Matrix *trans_matrix = NULL;
-
-            outline = (FT_OutlineGlyph)image;
-
-            if (render->style & FT_STYLE_BOLD)
-                FT_Outline_Embolden(&(outline->outline), bold_str);
-
-            if (render->style & FT_STYLE_ITALIC)
-                FT_Outline_Transform(&(outline->outline), &PGFT_SlantMatrix);
-
-            if (render->render_flags & FT_RFLAG_VERTICAL)
-                trans_vector = &glyph->vvector;
-
-            if (render->rotation_angle)
-                trans_matrix = &rotation_matrix;
-
-            if (FT_Glyph_Transform(image, NULL, trans_vector) != 0 ||
-                FT_Glyph_Transform(image, trans_matrix, &pen) != 0)
-            {
-                FT_Done_Glyph(image);
-                continue;
-            }
-        }
-        else
-        {
-            FT_BitmapGlyph  bitmap = (FT_BitmapGlyph)image;
-
-            if (render->render_flags & FT_RFLAG_VERTICAL)
-            {
-                bitmap->left += (glyph->vvector.x + pen.x) >> 6;
-                bitmap->top  += (glyph->vvector.x + pen.y) >> 6;
-            }
-            else
-            {
-                bitmap->left += pen.x >> 6;
-                bitmap->top  += pen.y >> 6;
-            }
-        }
-
-        if (render->rotation_angle)
-            FT_Vector_Transform(advances + n, &rotation_matrix);
-
-        pen.x += advances[n].x;
-        pen.y += advances[n].y;
-
-        FT_Glyph_Get_CBox(image, FT_GLYPH_BBOX_PIXELS, &bbox);
-
-        if (bbox.xMax > 0 && bbox.yMax > 0 &&
-            bbox.xMin < surface->width &&
-            bbox.yMin < surface->height)
-        {
-            int         left, top;
-            FT_Bitmap*  source;
-            FT_BitmapGlyph  bitmap;
-
-            if (image->format == FT_GLYPH_FORMAT_OUTLINE)
-            {
-                FT_Render_Mode render_mode = 
-                    (render->render_flags & FT_RFLAG_ANTIALIAS) ?
-                    FT_RENDER_MODE_NORMAL :
-                    FT_RENDER_MODE_MONO;
-
-                /* render the glyph to a bitmap, don't destroy original */
-                FT_Glyph_To_Bitmap(&image, render_mode, NULL, 0);
-            }
-
-            if (image->format != FT_GLYPH_FORMAT_BITMAP)
-                continue;
-
-            bitmap = (FT_BitmapGlyph)image;
-            source = &bitmap->bitmap;
-
-            left = bitmap->left;
-            top = bitmap->top;
-
-            top = surface->height - top;
-
-            surface->render(left, top, surface, source, fg_color);
-        }
-
-        FT_Done_Glyph(image);
-    } /* END OF RENDERING LOOP */
 
     if (text->underline_size > 0)
     {
