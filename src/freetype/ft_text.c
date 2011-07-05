@@ -22,10 +22,11 @@
 
 #include "ft_wrap.h"
 #include FT_MODULE_H
+#include FT_TRIGONOMETRY_H
 
 FontText *
 PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font, 
-        const FontRenderMode *render, PGFT_String *text)
+                  const FontRenderMode *render, PGFT_String *text)
 {
     Py_ssize_t  string_length = PGFT_String_GET_LENGTH(text);
 
@@ -42,6 +43,26 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
     FT_Face     face;
 
+    FT_Vector   pen;                    /* untransformed origin  */
+    FT_Vector   pen1;
+    FT_Vector   pen2;
+
+    FT_Vector   *next_posn;
+
+    int         use_kerning = 0;
+    FT_Angle    angle = (FT_Angle)(render->rotation_angle * 0x10000L);
+    FT_Vector   kerning;
+    FT_UInt     prev_glyph_index = 0;
+
+    FT_Pos      min_x = 0;
+    FT_Pos      max_x;
+    FT_Pos      min_y;
+    FT_Pos      max_y;
+    FT_BBox     *bounds;
+    FT_Vector   pen3 = {0, 0};
+
+    FT_Error    error = 0;
+
     /* load our sized face */
     face = _PGFT_GetFaceSized(ft, font, render->pt_size);
 
@@ -51,7 +72,7 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
         return NULL;
     }
 
-   /* cleanup the cache */
+    /* cleanup the cache */
     PGFT_Cache_Cleanup(&PGFT_INTERNALS(font)->cache);
 
     /* create the text struct */
@@ -60,7 +81,7 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
     if (string_length > ftext->length)
     {
         _PGFT_free(ftext->glyphs);
-        ftext->glyphs =
+        ftext->glyphs = (FontGlyph **)
             _PGFT_malloc((size_t)string_length * sizeof(FontGlyph *));
         if (!ftext->glyphs)
         {
@@ -69,16 +90,21 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
         }
 
         _PGFT_free(ftext->advances);
-        ftext->advances =
+        ftext->advances = (FT_Vector *)
             _PGFT_malloc((size_t)string_length * sizeof(FT_Vector));
         if (!ftext->advances)
         {
-            _PGFT_free(ftext->glyphs);
-            ftext->glyphs = NULL;
             PyErr_NoMemory();
             return NULL;
         }
-
+        _PGFT_free(ftext->posns);
+	ftext->posns = (FT_Vector *)
+            _PGFT_malloc((size_t)string_length * sizeof(FT_Vector));
+        if (!ftext->advances)
+        {
+            PyErr_NoMemory();
+            return NULL;
+        }
     }
 
     ftext->length = string_length;
@@ -92,8 +118,19 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
     /* fill it with the glyphs */
     glyph_array = ftext->glyphs;
 
+    pen.x = 0;
+    pen.y = 0;
+    pen1.x = 0;
+    pen1.y = 0;
+    
+    next_posn = ftext->posns;
+
     for (ch = buffer, buffer_end = ch + string_length; ch < buffer_end; ++ch)
     {
+        pen2.x = pen1.x;
+        pen2.y = pen1.y;
+        pen1.x = pen.x;
+        pen1.y = pen.y;
         /*
          * Load the corresponding glyph from the cache
          */
@@ -115,8 +152,72 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
         if (glyph->size.y > ftext->glyph_size.y)
             ftext->glyph_size.y = glyph->size.y;
 
+        if (use_kerning && ch > buffer)
+        {
+            error = FT_Get_Kerning(face, prev_glyph_index,
+                                   glyph->glyph_index,
+                                   FT_KERNING_UNFITTED, &kerning);
+            if (error)
+            {
+                _PGFT_SetError(ft, "Loading glyphs", error);
+                RAISE(PyExc_SDLError, PGFT_GetError(ft));
+                return NULL;
+            }
+            if (angle != 0)
+            {
+                FT_Vector_Rotate(&kerning, angle);
+            }
+            pen.x += PGFT_ROUND(kerning.x);
+            pen.y += PGFT_ROUND(kerning.y);
+            if (FT_Vector_Length(&pen2) > FT_Vector_Length(&pen))
+            {
+                pen.x = pen2.x;
+                pen.y = pen2.y;
+            }
+        }
+        bounds = &(glyph->bounds);
+        if (ch == buffer)
+        {
+            if (pen.x + bounds->xMin < min_x)
+                min_x = pen.x + bounds->xMin;
+            max_x = pen.x + bounds->xMax;
+            min_y = pen.y + bounds->yMin;
+            max_y = pen.y + bounds->yMax;
+        }
+        else
+        {
+            if (bounds->yMin + pen.y < min_y)
+                min_y = bounds->yMin + pen.y;
+            if (bounds->yMax + pen.y > max_y)
+                max_y = bounds->yMax + pen.y;
+            if (bounds->xMin + pen.x < min_x)
+                min_x = bounds->xMin + pen.x;
+            if (bounds->xMax + pen.x > max_x)
+                max_x = bounds->xMax + pen.x;
+            pen3.x += glyph->advance.x;
+            pen3.y += glyph->advance.y;
+        }
+        prev_glyph_index = glyph->glyph_index;
+        next_posn->x = pen.x;
+        next_posn->y = pen.y;
+        ++next_posn;
         *glyph_array++ = glyph;
+
+        pen.x += glyph->advance.x;
+        pen.y += glyph->advance.y;
     }
+    if (pen.x > max_x)
+        max_x = pen.x;
+    else if (pen.x < min_x)
+        min_x = pen.x;
+    if (pen.y > max_y)
+        max_y = pen.y;
+    else if (pen.y < min_y)
+        min_y = pen.y;
+    ftext->xMin = min_x;
+    ftext->xMax = max_x;
+    ftext->yMin = min_y;
+    ftext->yMax = max_y;
 
     if (render->style & FT_STYLE_UNDERLINE &&
         (render->render_flags & FT_RFLAG_VERTICAL) == 0 &&

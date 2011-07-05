@@ -22,6 +22,7 @@
 
 #include "ft_wrap.h"
 #include FT_MODULE_H
+#include FT_TRIGONOMETRY_H
 
 FT_UInt32 _PGFT_Cache_Hash(const FontRenderMode *, FT_UInt);
 FT_UInt32 _PGFT_GetLoadFlags(const FontRenderMode *);
@@ -280,6 +281,8 @@ FontCacheNode *
 _PGFT_Cache_AllocateNode(FreeTypeInstance *ft, 
         FontCache *cache, const FontRenderMode *render, FT_UInt character)
 {
+    static FT_Vector delta = {0, 0};
+
     FontCacheNode *node = NULL;
     FontGlyph *glyph = NULL;
 
@@ -290,6 +293,11 @@ _PGFT_Cache_AllocateNode(FreeTypeInstance *ft,
     FT_Fixed bold_str = 0;
     int gindex;
     FT_UInt32 bucket;
+
+    FT_Vector unit;
+    FT_Matrix transform;
+
+    FT_Error error = 0;
 
     /*
      * Grab face reference
@@ -306,8 +314,9 @@ _PGFT_Cache_AllocateNode(FreeTypeInstance *ft,
      * Allocate cache node 
      */
     node = _PGFT_malloc(sizeof(FontCacheNode));
-    if (!node)
-        return NULL;
+    if (!node) {
+        return 0;
+    }
     glyph = &node->glyph;
 
     /*
@@ -335,13 +344,28 @@ _PGFT_Cache_AllocateNode(FreeTypeInstance *ft,
     /*
      * Load the glyph into the glyph slot
      */
-    if (FT_Load_Glyph(face, glyph->glyph_index, (FT_Int)load_flags) != 0 ||
-        FT_Get_Glyph(face->glyph, &(glyph->image)) != 0)
+    if (FT_Load_Glyph(face, glyph->glyph_index, (FT_Int)load_flags) ||
+        FT_Get_Glyph(face->glyph, &(glyph->image)))
         goto cleanup;
+
+    if (render->rotation_angle) {
+        FT_Vector_Unit(&unit, (FT_Angle)(render->rotation_angle * 0x10000L));
+        transform.xx = unit.x;  /*  cos(angle) */
+        transform.xy = -unit.y; /* -sin(angle) */
+        transform.yx = unit.y;  /*  sin(angle) */
+        transform.yy = unit.x;  /*  cos(angle) */
+        if (FT_Glyph_Transform(glyph->image, &transform, &delta)) {
+            goto cleanup;
+        }
+    }
 
     /*
      * Precalculate useful metric values
      */
+    glyph->advance.x = PGFT_CEIL16_TO_6(glyph->image->advance.x);
+    glyph->advance.y = PGFT_CEIL16_TO_6(glyph->image->advance.y);
+    FT_Glyph_Get_CBox(glyph->image, FT_GLYPH_BBOX_SUBPIXELS, &(glyph->bounds));
+
     metrics = &face->glyph->metrics;
 
     glyph->vvector.x  = (metrics->vertBearingX - bold_str / 2) - metrics->horiBearingX;
@@ -355,6 +379,14 @@ _PGFT_Cache_AllocateNode(FreeTypeInstance *ft,
     glyph->size.x = metrics->width + bold_str;
     glyph->size.y = metrics->height + bold_str;
 
+    error = FT_Glyph_To_Bitmap(&(glyph->image),
+			       FT_RENDER_MODE_NORMAL, 0, 1);
+    if (error)
+    {
+        _PGFT_SetError(ft, "Rendering glyphs", error);
+        RAISE(PyExc_SDLError, PGFT_GetError(ft));
+        goto cleanup;
+    }
 
     /*
      * Update cache internals
