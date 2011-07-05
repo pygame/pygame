@@ -33,6 +33,7 @@
 #define PGFT_CEIL(x)   ( ( (x) + 63 ) & -64 )
 #define PGFT_ROUND(x)  ( ( (x) + 32 ) & -64 )
 #define PGFT_TRUNC(x)  (   (x) >> 6 )
+#define PGFT_CEIL16_TO_6(x)  ( ( (x) + 1023 ) >> 10 )
 
 /* Internal configuration variables */
 #define PGFT_DEFAULT_CACHE_SIZE 64
@@ -101,7 +102,9 @@ typedef struct  __fontglyph
 
     FT_Pos      delta;    
     FT_Vector   vvector;  
-    FT_Vector   vadvance; 
+    FT_Vector   vadvance;
+    FT_BBox     bounds;
+    FT_Vector   advance; 
 
     FT_Fixed    baseline;
     FT_Vector   size;
@@ -110,6 +113,7 @@ typedef struct  __fontglyph
 typedef struct __fonttext
 {
     FontGlyph **glyphs;
+    FT_Vector *posns;
     FT_Vector *advances;
     int length;
 
@@ -119,6 +123,11 @@ typedef struct __fonttext
 
     FT_Fixed underline_size;
     FT_Fixed underline_pos;
+
+    FT_Fixed xMin;              /* 26.6 */
+    FT_Fixed xMax;              /* 26.6 */
+    FT_Fixed yMin;              /* 26.6 */
+    FT_Fixed yMax;              /* 26.6 */
 } FontText;
 
 typedef struct __cachenodekey
@@ -237,6 +246,7 @@ int         PGFT_GetSurfaceSize(FreeTypeInstance *ft, PyFreeTypeFont *font,
                 const FontRenderMode *render, FontText *text, 
                 int *width, int *height);
 
+int         PGFT_GetTopLeft(FontText *text, int *top, int *left);
 
 
 /******************************************************************* Rendering ****/
