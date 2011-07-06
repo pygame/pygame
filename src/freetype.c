@@ -23,9 +23,6 @@
 
 #include "freetype.h"
 #include "freetype/ft_wrap.h"
-/* ---> To be removed in final release */
-#include FT_TRIGONOMETRY_H
-/* <--- */
 #include "doc/freetype_doc.h"
 
 #define MODULE_NAME "freetype"
