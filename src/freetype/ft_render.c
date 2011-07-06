@@ -109,7 +109,7 @@ PGFT_BuildRenderMode(FreeTypeInstance *ft,
 
     angle = rotation % 360;
     while (angle < 0) angle += 360;
-    mode->rotation_angle = (FT_UInt16)angle;
+    mode->rotation_angle = PGFT_INT_TO_16(angle);
 
     return 0;
 }
@@ -487,19 +487,19 @@ int _PGFT_Render_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font,
     int n;
     int length = text->length;
     FontGlyph **glyphs = text->glyphs;
-    FT_BitmapGlyph bitmap;
+    FT_BitmapGlyph image;
     FT_Vector *posns = text->posns;
     int error = 0;
 
     PGFT_GetTopLeft(text, &top, &left);
+    left += surface->x_offset;
     top += surface->y_offset;
-    left -= surface->x_offset;
     for (n = 0; n < length; ++n)
     {
-        bitmap = (FT_BitmapGlyph)glyphs[n]->image;
-        x = (PGFT_TRUNC(PGFT_CEIL(posns[n].x)) + bitmap->left - left);
-        y = (PGFT_TRUNC(PGFT_CEIL(posns[n].y)) + top - bitmap->top);
-        surface->render(x, y, surface, &(bitmap->bitmap), fg_color);
+        image = glyphs[n]->image;
+        x = image->left + PGFT_TRUNC(PGFT_CEIL(posns[n].x)) + left;
+        y = top - PGFT_TRUNC(PGFT_CEIL(posns[n].y)) - image->top;
+        surface->render(x, y, surface, &(image->bitmap), fg_color);
     }
 
     if (text->underline_size > 0)

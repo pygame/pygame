@@ -35,6 +35,7 @@
 #include FT_FREETYPE_H 
 #include FT_CACHE_H
 #include FT_XFREE86_H
+#include FT_TRIGONOMETRY_H
 
 /**********************************************************
  * Global module constants
