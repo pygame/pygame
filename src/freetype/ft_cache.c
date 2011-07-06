@@ -22,7 +22,6 @@
 
 #include "ft_wrap.h"
 #include FT_MODULE_H
-#include FT_TRIGONOMETRY_H
 
 FT_UInt32 _PGFT_Cache_Hash(const FontRenderMode *, FT_UInt);
 FT_UInt32 _PGFT_GetLoadFlags(const FontRenderMode *);
@@ -285,6 +284,7 @@ _PGFT_Cache_AllocateNode(FreeTypeInstance *ft,
 
     FontCacheNode *node = NULL;
     FontGlyph *glyph = NULL;
+    FT_Glyph image;
 
     FT_Glyph_Metrics *metrics;
     FT_Face face;
@@ -345,16 +345,16 @@ _PGFT_Cache_AllocateNode(FreeTypeInstance *ft,
      * Load the glyph into the glyph slot
      */
     if (FT_Load_Glyph(face, glyph->glyph_index, (FT_Int)load_flags) ||
-        FT_Get_Glyph(face->glyph, &(glyph->image)))
+        FT_Get_Glyph(face->glyph, &image))
         goto cleanup;
 
     if (render->rotation_angle) {
-        FT_Vector_Unit(&unit, (FT_Angle)(render->rotation_angle * 0x10000L));
+        FT_Vector_Unit(&unit, render->rotation_angle);
         transform.xx = unit.x;  /*  cos(angle) */
         transform.xy = -unit.y; /* -sin(angle) */
         transform.yx = unit.y;  /*  sin(angle) */
         transform.yy = unit.x;  /*  cos(angle) */
-        if (FT_Glyph_Transform(glyph->image, &transform, &delta)) {
+        if (FT_Glyph_Transform(image, &transform, &delta)) {
             goto cleanup;
         }
     }
@@ -362,10 +362,6 @@ _PGFT_Cache_AllocateNode(FreeTypeInstance *ft,
     /*
      * Precalculate useful metric values
      */
-    glyph->advance.x = PGFT_CEIL16_TO_6(glyph->image->advance.x);
-    glyph->advance.y = PGFT_CEIL16_TO_6(glyph->image->advance.y);
-    FT_Glyph_Get_CBox(glyph->image, FT_GLYPH_BBOX_SUBPIXELS, &(glyph->bounds));
-
     metrics = &face->glyph->metrics;
 
     glyph->vvector.x  = (metrics->vertBearingX - bold_str / 2) - metrics->horiBearingX;
@@ -379,14 +375,14 @@ _PGFT_Cache_AllocateNode(FreeTypeInstance *ft,
     glyph->size.x = metrics->width + bold_str;
     glyph->size.y = metrics->height + bold_str;
 
-    error = FT_Glyph_To_Bitmap(&(glyph->image),
-			       FT_RENDER_MODE_NORMAL, 0, 1);
+    error = FT_Glyph_To_Bitmap(&image, FT_RENDER_MODE_NORMAL, 0, 1);
     if (error)
     {
         _PGFT_SetError(ft, "Rendering glyphs", error);
         RAISE(PyExc_SDLError, PGFT_GetError(ft));
         goto cleanup;
     }
+    glyph->image = (FT_BitmapGlyph)image;
 
     /*
      * Update cache internals
@@ -411,7 +407,7 @@ _PGFT_Cache_AllocateNode(FreeTypeInstance *ft,
      */
 cleanup:
     if (glyph && glyph->image)
-        FT_Done_Glyph(glyph->image);
+        FT_Done_Glyph((FT_Glyph)glyph->image);
 
     _PGFT_free(node);
     return NULL;

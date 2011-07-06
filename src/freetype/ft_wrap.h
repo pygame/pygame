@@ -34,6 +34,7 @@
 #define PGFT_ROUND(x)  ( ( (x) + 32 ) & -64 )
 #define PGFT_TRUNC(x)  (   (x) >> 6 )
 #define PGFT_CEIL16_TO_6(x)  ( ( (x) + 1023 ) >> 10 )
+#define PGFT_INT_TO_16(x) ( (x) << 16 )
 
 /* Internal configuration variables */
 #define PGFT_DEFAULT_CACHE_SIZE 64
@@ -90,7 +91,7 @@ typedef struct __fontsurface
 typedef struct __rendermode
 {
     FT_UInt16   pt_size;
-    FT_UInt16   rotation_angle;
+    FT_Angle    rotation_angle;
     FT_UInt16   render_flags;
     FT_UInt16   style;
 } FontRenderMode;
@@ -98,13 +99,11 @@ typedef struct __rendermode
 typedef struct  __fontglyph
 {
     FT_UInt     glyph_index;
-    FT_Glyph    image;    
+    FT_BitmapGlyph image;
 
     FT_Pos      delta;    
     FT_Vector   vvector;  
     FT_Vector   vadvance;
-    FT_BBox     bounds;
-    FT_Vector   advance; 
 
     FT_Fixed    baseline;
     FT_Vector   size;
@@ -124,10 +123,10 @@ typedef struct __fonttext
     FT_Fixed underline_size;
     FT_Fixed underline_pos;
 
-    FT_Fixed xMin;              /* 26.6 */
-    FT_Fixed xMax;              /* 26.6 */
-    FT_Fixed yMin;              /* 26.6 */
-    FT_Fixed yMax;              /* 26.6 */
+    int      width;
+    int      height;
+    int      left;
+    int      top;
 } FontText;
 
 typedef struct __cachenodekey

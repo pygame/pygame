@@ -130,16 +130,16 @@ PGFT_GetSurfaceSize(FreeTypeInstance *ft, PyFreeTypeFont *font,
         const FontRenderMode *render, FontText *text, 
         int *width, int *height)
 {
-    *width = PGFT_TRUNC(PGFT_CEIL(text->xMax) - PGFT_FLOOR(text->xMin));
-    *height = PGFT_TRUNC(PGFT_CEIL(text->yMax) - PGFT_FLOOR(text->yMin));
+    *width = text->width;
+    *height = text->height;
     return 0;
 }
 
 int
 PGFT_GetTopLeft(FontText *text, int *top, int *left)
 {
-    *top = PGFT_TRUNC(PGFT_CEIL(text->yMax));
-    *left = PGFT_TRUNC(PGFT_FLOOR(text->xMin));
+    *top = text->top;
+    *left = text->left;
     return 0;
 }
 
