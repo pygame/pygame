@@ -34,7 +34,11 @@
 #define PGFT_ROUND(x)  ( ( (x) + 32 ) & -64 )
 #define PGFT_TRUNC(x)  (   (x) >> 6 )
 #define PGFT_CEIL16_TO_6(x)  ( ( (x) + 1023 ) >> 10 )
+#define PGFT_INT_TO_6(x) ( (x) << 6 )
 #define PGFT_INT_TO_16(x) ( (x) << 16 )
+
+#define PGFT_MIN_6 ((FT_Pos)0x80000000)
+#define PGFT_MAX_6 ((FT_Pos)0x7FFFFFFF)
 
 /* Internal configuration variables */
 #define PGFT_DEFAULT_CACHE_SIZE 64
@@ -101,32 +105,26 @@ typedef struct  __fontglyph
     FT_UInt     glyph_index;
     FT_BitmapGlyph image;
 
-    FT_Pos      delta;    
-    FT_Vector   vvector;  
-    FT_Vector   vadvance;
-
-    FT_Fixed    baseline;
-    FT_Vector   size;
+    FT_Pos      bold_strength;  /* 26.6 */
+    FT_Vector   h_bearings;     /* 26.6 */
+    FT_Vector   h_advances;     /* 26.6 */
+    FT_Vector   v_bearings;     /* 26.6 */
+    FT_Vector   v_advances;     /* 26.6 */
 } FontGlyph;
 
 typedef struct __fonttext
 {
+    int length;
     FontGlyph **glyphs;
     FT_Vector *posns;
-    FT_Vector *advances;
-    int length;
 
-    FT_Vector glyph_size;       /* 26.6 */
-    FT_Vector text_size;        /* 26.6 */
-    FT_Vector baseline_offset;  /* 26.6 */
+    FT_Pos   underline_size;
+    FT_Pos   underline_pos;
 
-    FT_Fixed underline_size;
-    FT_Fixed underline_pos;
-
-    int      width;
-    int      height;
-    int      left;
-    int      top;
+    int      width;     /* In pixels */
+    int      height;    /* In pixels */
+    int      left;      /* In pixels */
+    int      top;       /* In pixels */
 } FontText;
 
 typedef struct __cachenodekey
@@ -296,10 +294,6 @@ void __render_glyph_ByteArray(int x, int y, FontSurface *surface, FT_Bitmap *bit
 /******************************************************** Font text management ****/
 FontText *  PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font, 
                 const FontRenderMode *render, PGFT_String *text);
-
-int         PGFT_LoadTextAdvances(FreeTypeInstance *ft, PyFreeTypeFont *font, 
-                const FontRenderMode *render, FontText *text);
-
 
 /******************************************************** Glyph cache management ****/
 int         PGFT_Cache_Init(FreeTypeInstance *ft, FontCache *cache, PyFreeTypeFont *parent);

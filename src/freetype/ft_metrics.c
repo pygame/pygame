@@ -27,33 +27,12 @@ extern FT_Matrix PGFT_SlantMatrix;
 
 /* Declarations */
 void _PGFT_GetMetrics_INTERNAL(FT_Glyph, FT_UInt, int *, int *, int *, int *, int *);
-int  _PGFT_GetTextSize_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font, 
-        const FontRenderMode *render, FontText *text);
-
-
-/* Real text metrics */
-void _PGFT_GetMetrics_INTERNAL(FT_Glyph glyph, FT_UInt bbmode,
-    int *minx, int *maxx, int *miny, int *maxy, int *advance)
-{
-    FT_BBox box;
-    FT_Glyph_Get_CBox(glyph, bbmode, &box);
-
-    *minx = box.xMin;
-    *maxx = box.xMax;
-    *miny = box.yMin;
-    *maxy = box.yMax;
-    *advance = glyph->advance.x;
-
-    if (bbmode == FT_GLYPH_BBOX_TRUNCATE ||
-        bbmode == FT_GLYPH_BBOX_PIXELS)
-        *advance >>= 16;
-}
-
 
 int PGFT_GetMetrics(FreeTypeInstance *ft, PyFreeTypeFont *font,
     PGFT_char character, const FontRenderMode *render, int bbmode,
     void *minx, void *maxx, void *miny, void *maxy, void *advance)
-{
+{ 
+#   define FP26_6(i)    ((float)((int)(i) / 64.0f))
     FontGlyph *     glyph = NULL;
 
     glyph = PGFT_Cache_FindGlyph(ft, &PGFT_INTERNALS(font)->cache, 
@@ -64,64 +43,13 @@ int PGFT_GetMetrics(FreeTypeInstance *ft, PyFreeTypeFont *font,
         return -1;
     }
 
-    _PGFT_GetMetrics_INTERNAL(glyph->image, (FT_UInt)bbmode, 
-            minx, maxx, miny, maxy, advance);
+    *(float *)minx = glyph->image->left;
+    *(float *)maxx = glyph->image->left + glyph->image->bitmap.width;
+    *(float *)maxy = glyph->image->top;
+    *(float *)miny = *(float *)maxy - glyph->image->bitmap.rows;
+    *(float *)advance = glyph->h_advances.x;
 
-    if (bbmode == FT_BBOX_EXACT || bbmode == FT_BBOX_EXACT_GRIDFIT)
-    {
-#       define FP16_16(i)   ((float)((int)(i) / 65536.0f))
-#       define FP26_6(i)    ((float)((int)(i) / 64.0f))
-
-        *(float *)minx =    FP26_6(*(int *)minx);
-        *(float *)miny =    FP26_6(*(int *)miny);
-        *(float *)maxx =    FP26_6(*(int *)maxx);
-        *(float *)maxy =    FP26_6(*(int *)maxy);
-        *(float *)advance = FP16_16(*(int *)advance);
-
-#       undef FP16_16
-#       undef FP26_6
-    }
-
-    return 0;
-
-}
-
-
-int
-_PGFT_GetTextSize_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font, 
-    const FontRenderMode *render, FontText *text)
-{
-    FT_Vector   extent;
-    FT_Error    error;
-    FT_Vector   size;
-
-    error = PGFT_LoadTextAdvances(ft, font, render, text);
-
-    if (error)
-        return error;
-
-    extent = text->advances[text->length - 1];
-
-    if (render->render_flags & FT_RFLAG_VERTICAL)
-    {
-        size.x = text->glyph_size.x;
-        size.y = ABS(extent.y);
-    }
-    else
-    {
-        size.x = extent.x;
-        size.y = text->glyph_size.y;
-    }
-
-    if (render->rotation_angle)
-    {   
-        size.x = MAX(size.x, size.y);
-        size.y = MAX(size.x, size.y);
-    }
-
-    text->text_size.x = ABS(size.x);
-    text->text_size.y = ABS(size.y);
-
+#   undef FP26_6
     return 0;
 }
 

@@ -491,14 +491,13 @@ int _PGFT_Render_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font,
     FT_Vector *posns = text->posns;
     int error = 0;
 
-    PGFT_GetTopLeft(text, &top, &left);
-    left += surface->x_offset;
-    top += surface->y_offset;
+    left = surface->x_offset;
+    top = surface->y_offset;
     for (n = 0; n < length; ++n)
     {
         image = glyphs[n]->image;
-        x = image->left + PGFT_TRUNC(PGFT_CEIL(posns[n].x)) + left;
-        y = top - PGFT_TRUNC(PGFT_CEIL(posns[n].y)) - image->top;
+        x = left + PGFT_TRUNC(PGFT_CEIL(posns[n].x));
+        y = top + PGFT_TRUNC(PGFT_CEIL(posns[n].y));
         surface->render(x, y, surface, &(image->bitmap), fg_color);
     }
 
@@ -506,8 +505,8 @@ int _PGFT_Render_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font,
     {
         surface->fill(
                 surface->x_offset,
-                surface->y_offset + PGFT_TRUNC(text->underline_pos),
-                PGFT_TRUNC(text->text_size.x), PGFT_TRUNC(text->underline_size),
+                surface->y_offset + PGFT_TRUNC(PGFT_CEIL(text->underline_pos)),
+                text->width, PGFT_TRUNC(PGFT_CEIL(text->underline_size)),
                 surface, fg_color);
     }
 

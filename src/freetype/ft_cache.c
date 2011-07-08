@@ -22,6 +22,7 @@
 
 #include "ft_wrap.h"
 #include FT_MODULE_H
+#include FT_OUTLINE_H
 
 FT_UInt32 _PGFT_Cache_Hash(const FontRenderMode *, FT_UInt);
 FT_UInt32 _PGFT_GetLoadFlags(const FontRenderMode *);
@@ -272,7 +273,7 @@ _PGFT_Cache_FreeNode(FontCache *cache, FontCacheNode *node)
 
     cache->depths[node->hash & cache->size_mask]--;
 
-    FT_Done_Glyph(node->glyph.image);
+    FT_Done_Glyph((FT_Glyph)(node->glyph.image));
     _PGFT_free(node);
 }
 
@@ -282,6 +283,7 @@ _PGFT_Cache_AllocateNode(FreeTypeInstance *ft,
 {
     static FT_Vector delta = {0, 0};
 
+    int embolden = render->style & FT_STYLE_BOLD;
     FontCacheNode *node = NULL;
     FontGlyph *glyph = NULL;
     FT_Glyph image;
@@ -290,10 +292,11 @@ _PGFT_Cache_AllocateNode(FreeTypeInstance *ft,
     FT_Face face;
 
     FT_UInt32 load_flags;
-    FT_Fixed bold_str = 0;
+    FT_Pos bold_str = 0;
     int gindex;
     FT_UInt32 bucket;
 
+    FT_Fixed rotation_angle = render->rotation_angle;
     FT_Vector unit;
     FT_Matrix transform;
 
@@ -348,8 +351,35 @@ _PGFT_Cache_AllocateNode(FreeTypeInstance *ft,
         FT_Get_Glyph(face->glyph, &image))
         goto cleanup;
 
-    if (render->rotation_angle) {
-        FT_Vector_Unit(&unit, render->rotation_angle);
+    /*
+     * Precalculate useful metric values
+     */
+    metrics = &face->glyph->metrics;
+    glyph->bold_strength = 0;
+    glyph->h_bearings.x = metrics->horiBearingX;
+    glyph->h_bearings.y = metrics->horiBearingY;
+    glyph->h_advances.x = metrics->horiAdvance;
+    glyph->h_advances.y = 0;
+    glyph->v_bearings.x = metrics->vertBearingX;
+    glyph->v_bearings.y = metrics->vertBearingY;
+    glyph->v_advances.x = 0;
+    glyph->v_advances.y = metrics->vertAdvance;
+
+    /*
+     * Perform any transformations
+     */
+    if (embolden)
+    {
+        bold_str = PGFT_GetBoldStrength(face);
+        if (FT_Outline_Embolden(&((FT_OutlineGlyph)image)->outline, bold_str))
+            goto cleanup;
+        glyph->bold_strength += bold_str;
+        glyph->h_advances.x += bold_str;
+        glyph->v_advances.y += bold_str;
+    }
+
+    if (rotation_angle != 0) {
+        FT_Vector_Unit(&unit, rotation_angle);
         transform.xx = unit.x;  /*  cos(angle) */
         transform.xy = -unit.y; /* -sin(angle) */
         transform.yx = unit.y;  /*  sin(angle) */
@@ -357,24 +387,15 @@ _PGFT_Cache_AllocateNode(FreeTypeInstance *ft,
         if (FT_Glyph_Transform(image, &transform, &delta)) {
             goto cleanup;
         }
+	FT_Vector_Rotate(&glyph->h_bearings, rotation_angle);
+	FT_Vector_Rotate(&glyph->h_advances, rotation_angle);
+	FT_Vector_Rotate(&glyph->v_bearings, rotation_angle);
+	FT_Vector_Rotate(&glyph->v_advances, rotation_angle);
     }
 
     /*
-     * Precalculate useful metric values
+     * Finished with transformations, now replace with a bitmap
      */
-    metrics = &face->glyph->metrics;
-
-    glyph->vvector.x  = (metrics->vertBearingX - bold_str / 2) - metrics->horiBearingX;
-    glyph->vvector.y  = -(metrics->vertBearingY + bold_str) - (metrics->horiBearingY + bold_str);
-
-    glyph->vadvance.x = 0;
-    glyph->vadvance.y = -(metrics->vertAdvance + bold_str);
-
-    glyph->baseline = metrics->height - metrics->horiBearingY;
-
-    glyph->size.x = metrics->width + bold_str;
-    glyph->size.y = metrics->height + bold_str;
-
     error = FT_Glyph_To_Bitmap(&image, FT_RENDER_MODE_NORMAL, 0, 1);
     if (error)
     {
