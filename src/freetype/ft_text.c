@@ -50,22 +50,21 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
     FT_Vector   *next_posn;
 
+    int         vertical = font->vertical;
     int         use_kerning = 0;
-    FT_Angle    angle = (FT_Angle)(render->rotation_angle * 0x10000L);
+    FT_Angle    angle = render->rotation_angle;
     FT_Vector   kerning;
     FT_UInt     prev_glyph_index = 0;
 
-    int         min_x = 0;
-    int         max_x;
-    int         min_y;
-    int         max_y;
-    int         x;
-    int         y;
+    FT_Pos      min_x = PGFT_MAX_6;  /* 26.6 */
+    FT_Pos      max_x = PGFT_MIN_6;  /* 26.6 */
+    FT_Pos      min_y = PGFT_MAX_6;  /* 26.6 */
+    FT_Pos      max_y = PGFT_MIN_6;  /* 26.6 */
     int         glyph_width;
     int         glyph_height;
-    FT_Vector   pen3 = {0, 0};
 
     FT_Error    error = 0;
+    int         i;
 
     /* load our sized face */
     face = _PGFT_GetFaceSized(ft, font, render->pt_size);
@@ -93,18 +92,10 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
             return NULL;
         }
 
-        _PGFT_free(ftext->advances);
-        ftext->advances = (FT_Vector *)
-            _PGFT_malloc((size_t)string_length * sizeof(FT_Vector));
-        if (!ftext->advances)
-        {
-            PyErr_NoMemory();
-            return NULL;
-        }
         _PGFT_free(ftext->posns);
 	ftext->posns = (FT_Vector *)
             _PGFT_malloc((size_t)string_length * sizeof(FT_Vector));
-        if (!ftext->advances)
+        if (!ftext->posns)
         {
             PyErr_NoMemory();
             return NULL;
@@ -112,9 +103,6 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
     }
 
     ftext->length = string_length;
-    ftext->glyph_size.x = ftext->glyph_size.y = 0;
-    ftext->text_size.x = ftext->text_size.y = 0;
-    ftext->baseline_offset.x = ftext->baseline_offset.y = 0;
     ftext->underline_pos = ftext->underline_size = 0;
 
     y_scale = face->size->metrics.y_scale;
@@ -143,16 +131,7 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
         /*
          * Do size calculations for all the glyphs in the text
          */
-        if (glyph->baseline > ftext->baseline_offset.y)
-            ftext->baseline_offset.y = glyph->baseline;
-
-        if (glyph->size.x > ftext->glyph_size.x)
-            ftext->glyph_size.x = glyph->size.x;
-
-        if (glyph->size.y > ftext->glyph_size.y)
-            ftext->glyph_size.y = glyph->size.y;
-
-        if (use_kerning && ch > buffer)
+        if (use_kerning && prev_glyph_index)
         {
             error = FT_Get_Kerning(face, prev_glyph_index,
                                    glyph->glyph_index,
@@ -176,67 +155,75 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
             }
         }
 
-	x = PGFT_TRUNC(PGFT_CEIL(pen.x));
-	y = PGFT_TRUNC(PGFT_CEIL(pen.y));
 	glyph_width = image->bitmap.width;
 	glyph_height = image->bitmap.rows;
-        if (ch == buffer)
+        prev_glyph_index = glyph->glyph_index;
+	if (vertical)
         {
-            if (x - image->left < min_x)
-                min_x = x - image->left;
-            max_x = min_x + glyph_width;
-            max_y = y + image->top;
-            min_y = max_y - image->bitmap.rows;
+            if (pen.x + glyph->v_bearings.x < min_x)
+                min_x = pen.x + glyph->v_bearings.x;
+            if (min_x + PGFT_INT_TO_6(glyph_width) > max_x)
+                max_x = min_x + PGFT_INT_TO_6(glyph_width);
+            if (pen.y + glyph->v_bearings.y > max_y)
+                max_y = pen.y + glyph->v_bearings.y;
+            if (max_y - PGFT_INT_TO_6(glyph_height) < min_y)
+                min_y = max_y - PGFT_INT_TO_6(glyph_height);
+            next_posn->x = pen.x + glyph->v_bearings.x;
+            next_posn->y = pen.y + glyph->v_bearings.y;
+            pen.x += glyph->v_advances.x;
+            pen.y += glyph->v_advances.y;
         }
         else
         {
-            if (y + image->top - glyph_height < min_y)
-                min_y = y + image->top - glyph_height;
-            if (y + image->top > max_y)
-                max_y = y + image->top;
-            if (x + image->left < min_x)
-                min_x = x + image->left;
-            if (x + image->left + glyph_width > max_x)
-                max_x = x + image->left + glyph_width;
-            pen3.x += PGFT_CEIL16_TO_6(image->root.advance.x);
-            pen3.y += PGFT_CEIL16_TO_6(image->root.advance.y);
+            if (pen.x + glyph->h_bearings.x < min_x)
+                min_x = pen.x + glyph->h_bearings.x;
+            if (min_x + PGFT_INT_TO_6(glyph_width) > max_x)
+                max_x = min_x + PGFT_INT_TO_6(glyph_width);
+            if (pen.y + glyph->h_bearings.y > max_y)
+                max_y = pen.y + glyph->h_bearings.y;
+            if (max_y - PGFT_INT_TO_6(glyph_height) < min_y)
+                min_y = max_y - PGFT_INT_TO_6(glyph_height);
+            next_posn->x = pen.x + glyph->h_bearings.x;
+            next_posn->y = pen.y + glyph->h_bearings.y;
+            pen.x += glyph->h_advances.x;
+            pen.y += glyph->h_advances.y;
         }
-        prev_glyph_index = glyph->glyph_index;
-        next_posn->x = pen.x;
-        next_posn->y = pen.y;
         ++next_posn;
-        pen.x += PGFT_CEIL16_TO_6(image->root.advance.x);
-        pen.y += PGFT_CEIL16_TO_6(image->root.advance.y);
         *glyph_array++ = glyph;
     }
-    if (PGFT_TRUNC(PGFT_CEIL(pen3.x)) > max_x)
-        max_x = PGFT_TRUNC(PGFT_CEIL(pen3.x));
-    else if (PGFT_TRUNC(PGFT_FLOOR(pen3.x)) < min_x)
-        min_x = PGFT_TRUNC(PGFT_FLOOR(pen3.x));
-    if (PGFT_TRUNC(PGFT_CEIL(pen3.y)) > max_y)
-        max_y = PGFT_TRUNC(PGFT_CEIL(pen3.y));
-    else if (PGFT_TRUNC(PGFT_FLOOR(pen3.y)) < min_y)
-        min_y = PGFT_TRUNC(PGFT_FLOOR(pen3.y));
-    ftext->width = max_x - min_x;
-    ftext->height = max_y - min_y;
-    ftext->left = min_x;
-    ftext->top = max_y;
+    if (pen.x > max_x)
+        max_x = pen.x;
+    else if (pen.x < min_x)
+        min_x = pen.x;
+    if (pen.y > max_y)
+        max_y = pen.y;
+    else if (pen.y < min_y)
+        min_y = pen.y;
 
-    if (render->style & FT_STYLE_UNDERLINE &&
-        (render->render_flags & FT_RFLAG_VERTICAL) == 0 &&
-        (render->rotation_angle == 0))
+    if (render->style & FT_STYLE_UNDERLINE && !vertical && angle == 0)
     {
         FT_Fixed scale;
         FT_Fixed underline_pos;
         FT_Fixed underline_size;
+        FT_Fixed min_y_underline;
         
         scale = face->size->metrics.y_scale;
 
-        underline_pos = FT_MulFix(face->underline_position, scale);
+        underline_pos = FT_MulFix(face->underline_position, scale) / 4; /*(1)*/
         underline_size = FT_MulFix(face->underline_thickness, scale) + bold_str;
+        min_y_underline = (underline_pos -
+                           PGFT_CEIL(ftext->underline_size / 2));
+	if (min_y_underline < min_y)
+        {
+            min_y = min_y_underline;
+        }
+
+	ftext->underline_pos = (max_y - PGFT_FLOOR(underline_pos) -
+                                PGFT_CEIL(ftext->underline_size / 2));
+	ftext->underline_size = PGFT_CEIL(underline_size);
 
         /*
-         * HACK HACK HACK
+         * (1) HACK HACK HACK
          *
          * According to the FT documentation, 'underline_pos' is the offset 
          * to draw the underline in 26.6 FP, based on the text's baseline 
@@ -254,137 +241,39 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
          * with it...
          *
          */
+    }
 
-        ftext->underline_pos =
-            ftext->glyph_size.y - ftext->baseline_offset.y - (underline_pos / 4);
+    if (min_x < 0)
+    {
+        ftext->width = PGFT_TRUNC(PGFT_CEIL(max_x) - PGFT_FLOOR(min_x));
+        ftext->left = -PGFT_TRUNC(PGFT_FLOOR(min_x));
+    }
+    else
+    {
+        ftext->width = PGFT_TRUNC(PGFT_CEIL(max_x) + PGFT_FLOOR(min_x));
+        ftext->left = 0;
+    }
+    ftext->height = PGFT_TRUNC(PGFT_CEIL(max_y) - PGFT_FLOOR(min_y));
+    ftext->top = max_y;
 
-        ftext->underline_size = underline_size;
+    glyph_array = ftext->glyphs;
+    next_posn = ftext->posns;
+    if (vertical)
+    {
+        for (i = 0; i < string_length; ++i)
+        {
+            next_posn->x -= min_x;
+            ++next_posn;
+        }
+    }
+    else
+    {
+        for (i = 0; i < string_length; ++i)
+        {
+            next_posn->y = max_y - next_posn->y;
+            ++next_posn;
+        } 
     }
 
     return ftext;
 }
-
-int
-PGFT_LoadTextAdvances(FreeTypeInstance *ft, PyFreeTypeFont *font, 
-        const FontRenderMode *render, FontText *text)
-{
-    /* Default kerning mode for all text */
-    const int FT_KERNING_MODE = 1;
-
-    FT_Face     face;
-    FontGlyph   *glyph;
-    FT_Pos      track_kern   = 0;
-    FT_UInt     prev_index   = 0;
-    FT_Vector*  prev_advance = NULL;
-    FT_Vector   extent       = {0, 0};
-    FT_Int      i;
-    FT_Fixed    bold_str    = 0;
-    FT_Vector   *advances   = NULL;
-
-    face = _PGFT_GetFaceSized(ft, font, render->pt_size);
-
-    if (!face)
-    {
-        RAISE(PyExc_SDLError, PGFT_GetError(ft));
-        return -1;
-    }
-
-    advances = text->advances;
-
-    if (render->style & FT_STYLE_BOLD)
-        bold_str = PGFT_GetBoldStrength(face);
-
-#if 0
-    if (!(render->render_flags & FT_RFLAG_VERTICAL) && render->kerning_degree)
-    {
-        FT_Fixed  ptsize;
-
-        ptsize = FT_MulFix(face->units_per_EM, face->size->metrics.x_scale);
-
-        if (FT_Get_Track_Kerning(face, ptsize << 10, 
-                    -render->kerning_degree, &track_kern))
-            track_kern = 0;
-        else
-            track_kern >>= 10;
-    }
-#endif
-
-    for (i = 0; i < text->length; i++)
-    {
-        glyph = text->glyphs[i];
-
-        if (!glyph || !glyph->image)
-            continue;
-
-        if (render->render_flags & FT_RFLAG_VERTICAL)
-            advances[i] = glyph->vadvance;
-        else
-        {
-            advances[i] = glyph->image->root.advance;
-
-            /* Convert to 26.6 */
-            advances[i].x >>= 10;
-            advances[i].y >>= 10;
-
-            /* Apply BOLD transformation */
-            if (advances[i].x)
-                advances[i].x += bold_str;
-
-            if (advances[i].y)
-                advances[i].y += bold_str;
-
-            if (prev_advance)
-            {
-                prev_advance->x += track_kern;
-
-                if (FT_KERNING_MODE > 0)
-                {
-                    FT_Vector  kern;
-
-                    FT_Get_Kerning(face, prev_index, glyph->glyph_index,
-                            FT_KERNING_UNFITTED, &kern);
-
-                    prev_advance->x += kern.x;
-                    prev_advance->y += kern.y;
-
-                    if (FT_KERNING_MODE > 1) /* KERNING_MODE_NORMAL */
-                        prev_advance->x += glyph->delta;
-                }
-            }
-        }
-
-        if (prev_advance)
-        {
-            if (render->render_flags & FT_RFLAG_HINTED)
-            {
-                prev_advance->x = PGFT_ROUND(prev_advance->x);
-                prev_advance->y = PGFT_ROUND(prev_advance->y);
-            }
-
-            extent.x += prev_advance->x;
-            extent.y += prev_advance->y;
-        }
-
-        prev_index   = glyph->glyph_index;
-        prev_advance = advances + i;
-    }
-
-    if (prev_advance)
-    {
-        if (render->render_flags & FT_RFLAG_HINTED)
-        {
-            prev_advance->x = PGFT_ROUND(prev_advance->x);
-            prev_advance->y = PGFT_ROUND(prev_advance->y);
-        }
-
-        extent.x += prev_advance->x;
-        extent.y += prev_advance->y;
-    }
-
-    /* store the extent in the last slot */
-    i = text->length - 1;
-    advances[i] = extent;
-
-    return 0;
-}
-
