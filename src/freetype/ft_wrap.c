@@ -253,7 +253,7 @@ int _PGFT_Init_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font)
     }
 
     PGFT_INTERNALS(font)->active_text.glyphs = NULL;
-    PGFT_INTERNALS(font)->active_text.advances = NULL;
+    PGFT_INTERNALS(font)->active_text.posns = NULL;
 
     return 0;
 }
@@ -264,7 +264,7 @@ _PGFT_Free_INTERNAL(PyFreeTypeFont *font)
     if (font->_internals)
     {
         _PGFT_free(PGFT_INTERNALS(font)->active_text.glyphs);
-        _PGFT_free(PGFT_INTERNALS(font)->active_text.advances);
+        _PGFT_free(PGFT_INTERNALS(font)->active_text.posns);
         _PGFT_free(font->_internals);
         font->_internals = NULL;
     }
