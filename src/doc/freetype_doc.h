@@ -37,6 +37,8 @@
 
 #define DOC_FONTANTIALIASED "Font.antialiased: return bool\nFont antialiasing mode"
 
+#define DOC_FONTKERNING "Font.kerning -> bool\nCharacter kerning mode"
+
 #define DOC_FONTVERTICAL "Font.vertical: return bool\nFont vertical mode"
 
 #define DOC_ ""

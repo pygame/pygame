@@ -40,6 +40,7 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
     FontText    *ftext = NULL;
     FontGlyph   *glyph = NULL;
     FontGlyph   **glyph_array = NULL;
+    FontMetrics *metrics;
     FT_BitmapGlyph image;
 
     FT_Face     face;
@@ -48,10 +49,10 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
     FT_Vector   pen1 = {0, 0};
     FT_Vector   pen2;
 
-    FT_Vector   *next_posn;
+    FT_Vector   *next_pos;
 
     int         vertical = font->vertical;
-    int         use_kerning = 0;
+    int         use_kerning = font->kerning;
     FT_Angle    angle = render->rotation_angle;
     FT_Vector   kerning;
     FT_UInt     prev_glyph_index = 0;
@@ -60,8 +61,11 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
     FT_Pos      max_x = PGFT_MIN_6;  /* 26.6 */
     FT_Pos      min_y = PGFT_MAX_6;  /* 26.6 */
     FT_Pos      max_y = PGFT_MIN_6;  /* 26.6 */
-    int         glyph_width;
-    int         glyph_height;
+    FT_Pos      glyph_width;         /* 26.6 */
+    FT_Pos      glyph_height;        /* 26.6 */
+    FT_Pos      text_width;          /* 26.6 */
+    FT_Pos      text_height;         /* 26.6 */
+    FT_Pos      top = PGFT_MIN_6;    /* 26.6 */
 
     FT_Error    error = 0;
     int         i;
@@ -110,7 +114,7 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
     /* fill it with the glyphs */
     glyph_array = ftext->glyphs;
 
-    next_posn = ftext->posns;
+    next_pos = ftext->posns;
 
     for (ch = buffer, buffer_end = ch + string_length; ch < buffer_end; ++ch)
     {
@@ -127,6 +131,8 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
         if (!glyph)
             continue;
         image = glyph->image;
+        glyph_width = PGFT_INT_TO_6(image->bitmap.width);
+        glyph_height = PGFT_INT_TO_6(image->bitmap.rows);
 
         /*
          * Do size calculations for all the glyphs in the text
@@ -155,41 +161,42 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
             }
         }
 
-	glyph_width = image->bitmap.width;
-	glyph_height = image->bitmap.rows;
         prev_glyph_index = glyph->glyph_index;
-	if (vertical)
+	metrics = vertical ? &glyph->v_metrics : &glyph->h_metrics;
+        if (metrics->bearing_y > top)
         {
-            if (pen.x + glyph->v_bearings.x < min_x)
-                min_x = pen.x + glyph->v_bearings.x;
-            if (min_x + PGFT_INT_TO_6(glyph_width) > max_x)
-                max_x = min_x + PGFT_INT_TO_6(glyph_width);
-            if (pen.y + glyph->v_bearings.y > max_y)
-                max_y = pen.y + glyph->v_bearings.y;
-            if (max_y - PGFT_INT_TO_6(glyph_height) < min_y)
-                min_y = max_y - PGFT_INT_TO_6(glyph_height);
-            next_posn->x = pen.x + glyph->v_bearings.x;
-            next_posn->y = pen.y + glyph->v_bearings.y;
-            pen.x += glyph->v_advances.x;
-            pen.y += glyph->v_advances.y;
+            top = metrics->bearing_y;
+        }
+	if (pen.x + metrics->bearing_x < min_x)
+        {
+            min_x = pen.x + metrics->bearing_x;
+        }
+        if (pen.x + metrics->bearing_x + glyph_width > max_x)
+        {
+            max_x = pen.x + metrics->bearing_x + glyph_width;
+        }
+        if (pen.y - metrics->bearing_y < min_y)
+        {
+            min_y = pen.y - metrics->bearing_y;
+        }
+        if (pen.y - metrics->bearing_y + glyph_height > max_y)
+        {
+            max_y = pen.y - metrics->bearing_y + glyph_height;
+        }
+        next_pos->x = pen.x + metrics->bearing_x;
+	pen.x += metrics->advance.x;
+        if (vertical)
+        {
+            next_pos->y = pen.y + metrics->bearing_y;
+            pen.y += metrics->advance.y;
         }
         else
         {
-            if (pen.x + glyph->h_bearings.x < min_x)
-                min_x = pen.x + glyph->h_bearings.x;
-            if (min_x + PGFT_INT_TO_6(glyph_width) > max_x)
-                max_x = min_x + PGFT_INT_TO_6(glyph_width);
-            if (pen.y + glyph->h_bearings.y > max_y)
-                max_y = pen.y + glyph->h_bearings.y;
-            if (max_y - PGFT_INT_TO_6(glyph_height) < min_y)
-                min_y = max_y - PGFT_INT_TO_6(glyph_height);
-            next_posn->x = pen.x + glyph->h_bearings.x;
-            next_posn->y = pen.y + glyph->h_bearings.y;
-            pen.x += glyph->h_advances.x;
-            pen.y += glyph->h_advances.y;
+            next_pos->y = pen.y - metrics->bearing_y;
+            pen.y -= metrics->advance.y;
         }
-        ++next_posn;
         *glyph_array++ = glyph;
+        ++next_pos;
     }
     if (pen.x > max_x)
         max_x = pen.x;
@@ -211,16 +218,14 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
         underline_pos = FT_MulFix(face->underline_position, scale) / 4; /*(1)*/
         underline_size = FT_MulFix(face->underline_thickness, scale) + bold_str;
-        min_y_underline = (underline_pos -
-                           PGFT_CEIL(ftext->underline_size / 2));
-	if (min_y_underline < min_y)
+        min_y_underline = underline_pos - ftext->underline_size / 2;
+	if (min_y_underline < min_y - max_y + top)
         {
-            min_y = min_y_underline;
+            max_y = min_y - min_y_underline + max_y + top;
         }
 
-	ftext->underline_pos = (max_y - PGFT_FLOOR(underline_pos) -
-                                PGFT_CEIL(ftext->underline_size / 2));
-	ftext->underline_size = PGFT_CEIL(underline_size);
+	ftext->underline_pos = top - min_y_underline;
+	ftext->underline_size = underline_size;
 
         /*
          * (1) HACK HACK HACK
@@ -243,36 +248,31 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
          */
     }
 
-    if (min_x < 0)
-    {
-        ftext->width = PGFT_TRUNC(PGFT_CEIL(max_x) - PGFT_FLOOR(min_x));
-        ftext->left = -PGFT_TRUNC(PGFT_FLOOR(min_x));
-    }
-    else
-    {
-        ftext->width = PGFT_TRUNC(PGFT_CEIL(max_x) + PGFT_FLOOR(min_x));
-        ftext->left = 0;
-    }
-    ftext->height = PGFT_TRUNC(PGFT_CEIL(max_y) - PGFT_FLOOR(min_y));
-    ftext->top = max_y;
-
-    glyph_array = ftext->glyphs;
-    next_posn = ftext->posns;
+    text_width = PGFT_CEIL(max_x) - PGFT_FLOOR(min_x);
+    ftext->width = PGFT_TRUNC(text_width);
+    ftext->left = PGFT_TRUNC(PGFT_FLOOR(min_x));
+    text_height = PGFT_CEIL(max_y) - PGFT_FLOOR(min_y);
+    ftext->height = PGFT_TRUNC(text_height);
+    ftext->top = PGFT_TRUNC(PGFT_CEIL(top));
+    
     if (vertical)
     {
+        next_pos = ftext->posns;
         for (i = 0; i < string_length; ++i)
         {
-            next_posn->x -= min_x;
-            ++next_posn;
+            next_pos->x -= min_x;
+            ++next_pos;
         }
     }
     else
     {
+        next_pos = ftext->posns;
         for (i = 0; i < string_length; ++i)
         {
-            next_posn->y = max_y - next_posn->y;
-            ++next_posn;
-        } 
+            next_pos->x -= min_x;
+            next_pos->y -= min_y;
+            ++next_pos;
+        }
     }
 
     return ftext;

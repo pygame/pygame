@@ -100,16 +100,21 @@ typedef struct __rendermode
     FT_UInt16   style;
 } FontRenderMode;
 
-typedef struct  __fontglyph
+typedef struct __fontmetrics
+{
+    FT_Pos    bearing_x;   /* 26.6 */
+    FT_Pos    bearing_y;   /* 26.6 */
+    FT_Vector advance;     /* 26.6 */
+} FontMetrics;
+
+typedef struct __fontglyph
 {
     FT_UInt     glyph_index;
     FT_BitmapGlyph image;
 
-    FT_Pos      bold_strength;  /* 26.6 */
-    FT_Vector   h_bearings;     /* 26.6 */
-    FT_Vector   h_advances;     /* 26.6 */
-    FT_Vector   v_bearings;     /* 26.6 */
-    FT_Vector   v_advances;     /* 26.6 */
+    FT_Pos      bold_strength; /* 26.6 */
+    FontMetrics h_metrics;
+    FontMetrics v_metrics;
 } FontGlyph;
 
 typedef struct __fonttext

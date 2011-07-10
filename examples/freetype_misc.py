@@ -38,7 +38,7 @@ def run():
     font.render((screen, 64, 190), "Let's spin!", colors["red"], None,
             ptsize=48, rotation=55)
 
-    font.render((screen, 150, 270), "All around!", colors["green"], None,
+    font.render((screen, 160, 290), "All around!", colors["green"], None,
             ptsize=48, rotation=-55)
 
     font.render((screen, 250, 220), "and BLEND", pygame.Color(255, 0, 0, 128), None,

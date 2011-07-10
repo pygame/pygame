@@ -47,7 +47,7 @@ int PGFT_GetMetrics(FreeTypeInstance *ft, PyFreeTypeFont *font,
     *(float *)maxx = glyph->image->left + glyph->image->bitmap.width;
     *(float *)maxy = glyph->image->top;
     *(float *)miny = *(float *)maxy - glyph->image->bitmap.rows;
-    *(float *)advance = glyph->h_advances.x;
+    *(float *)advance = (float)glyph->h_metrics.advance.x / 65536.0;
 
 #   undef FP26_6
     return 0;

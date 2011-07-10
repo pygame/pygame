@@ -43,7 +43,7 @@
 
 /* Render styles */
 #define FT_STYLE_NORMAL     0x00
-#define FT_STYLE_BOLD		0x01
+#define FT_STYLE_BOLD	    0x01
 #define FT_STYLE_ITALIC     0x02
 #define FT_STYLE_UNDERLINE  0x04
 #define FT_STYLE_DEFAULT    0xFF
@@ -60,6 +60,7 @@
 #define FT_RFLAG_AUTOHINT       (1 << 1)
 #define FT_RFLAG_VERTICAL       (1 << 2)
 #define FT_RFLAG_HINTED         (1 << 3)
+#define FT_RFLAG_KERNING        (1 << 4)
 #define FT_RFLAG_DEFAULTS       (FT_RFLAG_NONE | FT_RFLAG_HINTED)
 
 
@@ -86,6 +87,7 @@ typedef struct
     FT_Byte style;
     FT_Byte vertical;
     FT_Byte antialias;
+    FT_Byte kerning;
 
     void *_internals;
 } PyFreeTypeFont;
