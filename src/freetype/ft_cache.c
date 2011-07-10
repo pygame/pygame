@@ -24,6 +24,13 @@
 #include FT_MODULE_H
 #include FT_OUTLINE_H
 
+#define SLANT_FACTOR    0.22
+static FT_Matrix PGFT_SlantMatrix = 
+{
+    (1 << 16),  (FT_Fixed)(SLANT_FACTOR * (1 << 16)),
+    0,          (1 << 16) 
+};
+
 FT_UInt32 _PGFT_Cache_Hash(const FontRenderMode *, FT_UInt);
 FT_UInt32 _PGFT_GetLoadFlags(const FontRenderMode *);
 
@@ -31,13 +38,18 @@ FontCacheNode *_PGFT_Cache_AllocateNode(FreeTypeInstance *,
         FontCache *, const FontRenderMode *, FT_UInt);
 void _PGFT_Cache_FreeNode(FontCache *, FontCacheNode *);
 
+const int render_flags_mask = (FT_RFLAG_ANTIALIAS |
+                               FT_RFLAG_HINTED |
+                               FT_RFLAG_AUTOHINT);
+
 static int
 equal_node_keys(CacheNodeKey *a, CacheNodeKey *b)
 {
     return (a->ch == b->ch &&
             a->mode.pt_size == b->mode.pt_size &&
             a->mode.rotation_angle == b->mode.rotation_angle &&
-            a->mode.render_flags == b->mode.render_flags &&
+            (a->mode.render_flags & render_flags_mask) ==
+            (b->mode.render_flags & render_flags_mask) &&
             a->mode.style == b->mode.style);
 }
 
@@ -53,9 +65,9 @@ _PGFT_GetLoadFlags(const FontRenderMode *render)
 
     if (render->render_flags & FT_RFLAG_HINTED)
     {
-        load_flags |=   (render->render_flags & FT_RFLAG_ANTIALIAS) ?
-                        FT_LOAD_TARGET_NORMAL :
-                        FT_LOAD_TARGET_MONO;
+        load_flags |= ((render->render_flags & FT_RFLAG_ANTIALIAS) ?
+                       FT_LOAD_TARGET_NORMAL :
+                       FT_LOAD_TARGET_MONO);
     }
     else
     {
@@ -277,6 +289,68 @@ _PGFT_Cache_FreeNode(FontCache *cache, FontCacheNode *node)
     _PGFT_free(node);
 }
 
+static void
+_PGFT_Metrics_Rotate(FontMetrics *metrics,
+                     FT_BitmapGlyph image,
+                     FT_Angle angle)
+{
+    FT_Pos    min_x = metrics->bearing_x;
+    FT_Pos    max_x = min_x + PGFT_INT_TO_6(image->bitmap.width);
+    FT_Pos    max_y = metrics->bearing_y;
+    FT_Pos    min_y = max_y - PGFT_INT_TO_6(image->bitmap.rows);
+    FT_Vector topleft = {min_x, max_y};
+    FT_Vector topright = {max_x, max_y};
+    FT_Vector bottomleft = {min_x, min_y};
+    FT_Vector bottomright = {max_x, min_y};
+    FT_Vector bearing_x = {metrics->bearing_x, 0};
+    FT_Vector bearing_y = {0, metrics->bearing_y};
+
+    FT_Vector_Rotate(&metrics->advance, angle);
+
+    metrics->bearing_x = PGFT_INT_TO_6(image->left);
+    metrics->bearing_y = PGFT_INT_TO_6(image->top);
+#if 0
+    FT_Vector_Rotate(&bearing, angle);
+    metrics->bearing_x = bearing.x;
+    metrics->bearing_y = bearing.y;
+#endif
+#if 0
+    FT_Vector_Rotate(&topleft, angle);
+    FT_Vector_Rotate(&topright, angle);
+    FT_Vector_Rotate(&bottomleft, angle);
+    FT_Vector_Rotate(&bottomright, angle);
+
+    min_x = bottomleft.x;
+    if (bottomright.x < min_x)
+    {
+        min_x = bottomright.x;
+    }
+    if (topleft.x < min_x)
+    {
+        min_x = topleft.x;
+    }
+    if (topright.x < min_x)
+    {
+        min_x = topright.x;
+    }
+    max_y = topright.y;
+    if (topleft.y > max_y)
+    {
+        max_y = bottomright.y;
+    }
+    if (bottomright.y > max_y)
+    {
+        max_y = topleft.y;
+    }
+    if (bottomleft.y > max_y)
+    {
+        max_y = topright.y;
+    }
+    metrics->bearing_x = min_x;
+    metrics->bearing_y = max_y;
+#endif
+}
+
 FontCacheNode *
 _PGFT_Cache_AllocateNode(FreeTypeInstance *ft, 
         FontCache *cache, const FontRenderMode *render, FT_UInt character)
@@ -286,9 +360,10 @@ _PGFT_Cache_AllocateNode(FreeTypeInstance *ft,
     int embolden = render->style & FT_STYLE_BOLD;
     FontCacheNode *node = NULL;
     FontGlyph *glyph = NULL;
+    FontMetrics *metrics;
     FT_Glyph image;
 
-    FT_Glyph_Metrics *metrics;
+    FT_Glyph_Metrics *ft_metrics;
     FT_Face face;
 
     FT_UInt32 load_flags;
@@ -351,46 +426,49 @@ _PGFT_Cache_AllocateNode(FreeTypeInstance *ft,
         FT_Get_Glyph(face->glyph, &image))
         goto cleanup;
 
-    /*
-     * Precalculate useful metric values
-     */
-    metrics = &face->glyph->metrics;
-    glyph->bold_strength = 0;
-    glyph->h_bearings.x = metrics->horiBearingX;
-    glyph->h_bearings.y = metrics->horiBearingY;
-    glyph->h_advances.x = metrics->horiAdvance;
-    glyph->h_advances.y = 0;
-    glyph->v_bearings.x = metrics->vertBearingX;
-    glyph->v_bearings.y = metrics->vertBearingY;
-    glyph->v_advances.x = 0;
-    glyph->v_advances.y = metrics->vertAdvance;
-
-    /*
-     * Perform any transformations
-     */
     if (embolden)
     {
         bold_str = PGFT_GetBoldStrength(face);
         if (FT_Outline_Embolden(&((FT_OutlineGlyph)image)->outline, bold_str))
             goto cleanup;
-        glyph->bold_strength += bold_str;
-        glyph->h_advances.x += bold_str;
-        glyph->v_advances.y += bold_str;
     }
 
-    if (rotation_angle != 0) {
+    /*
+     * Precalculate useful metric values
+     */
+    ft_metrics = &face->glyph->metrics;
+    glyph->bold_strength = bold_str;
+    metrics = &glyph->h_metrics;
+    metrics->bearing_x = ft_metrics->horiBearingX;
+    metrics->bearing_y = ft_metrics->horiBearingY;
+    metrics->advance.x = ft_metrics->horiAdvance + bold_str;
+    metrics->advance.y = 0;
+    metrics = &glyph->v_metrics;
+    metrics->bearing_x = ft_metrics->vertBearingX;
+    metrics->bearing_y = ft_metrics->vertBearingY;
+    metrics->advance.x = 0;
+    metrics->advance.y = ft_metrics->vertAdvance + bold_str;
+
+    /*
+     * Perform any transformations
+     */
+    if (rotation_angle != 0)
+    {
         FT_Vector_Unit(&unit, rotation_angle);
         transform.xx = unit.x;  /*  cos(angle) */
         transform.xy = -unit.y; /* -sin(angle) */
         transform.yx = unit.y;  /*  sin(angle) */
         transform.yy = unit.x;  /*  cos(angle) */
-        if (FT_Glyph_Transform(image, &transform, &delta)) {
+        if (FT_Glyph_Transform(image, &transform, &delta))
+        {
             goto cleanup;
         }
-	FT_Vector_Rotate(&glyph->h_bearings, rotation_angle);
-	FT_Vector_Rotate(&glyph->h_advances, rotation_angle);
-	FT_Vector_Rotate(&glyph->v_bearings, rotation_angle);
-	FT_Vector_Rotate(&glyph->v_advances, rotation_angle);
+    }
+
+    if (render->style & FT_STYLE_ITALIC)
+    {
+        FT_Outline_Transform(&(((FT_OutlineGlyph)image)->outline),
+                             &PGFT_SlantMatrix);
     }
 
     /*
@@ -404,6 +482,15 @@ _PGFT_Cache_AllocateNode(FreeTypeInstance *ft,
         goto cleanup;
     }
     glyph->image = (FT_BitmapGlyph)image;
+
+    /*
+     * Adjust the metrics.
+     */
+    if (rotation_angle != 0)
+    {
+        _PGFT_Metrics_Rotate(&glyph->h_metrics, glyph->image, rotation_angle);
+        _PGFT_Metrics_Rotate(&glyph->v_metrics, glyph->image, rotation_angle);
+    }
 
     /*
      * Update cache internals

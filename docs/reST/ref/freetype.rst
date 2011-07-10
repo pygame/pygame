@@ -361,6 +361,20 @@ passing None as the font name to the Font constructor.
 
       .. ## Font.antialiased ##
 
+   .. attribute:: kerning
+
+      | :sl:`Character kerning mode`
+      | :sg:`kerning -> bool`
+
+      Gets or sets the font's kerning mode. This defaults to False on all
+      fonts, which will be rendered by default without kerning.
+
+      Setting this to true will change all rendering methods to do kerning
+      between character pairs for surface size calculation and all
+      render operations.
+
+      .. ## Font.kerning ##
+
    .. attribute:: vertical
 
       | :sl:`Font vertical mode`
