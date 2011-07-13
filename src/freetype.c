@@ -253,6 +253,7 @@ static PyObject *_ft_get_error(PyObject *self);
 static PyObject *_ft_was_init(PyObject *self);
 static PyObject *_ft_autoinit(PyObject *self);
 static PyObject *_ft_get_default_resolution(PyObject *self);
+static PyObject *_ft_set_default_resolution(PyObject *self, PyObject *args);
 
 /*
  * Constructor/init/destructor
@@ -343,6 +344,12 @@ static PyMethodDef _ft_methods[] =
         (PyCFunction) _ft_get_default_resolution,
         METH_NOARGS,
         DOC_PYGAMEFREETYPEGETDEFAULTRESOLUTION
+    },
+    {
+        "set_default_resolution",
+        (PyCFunction) _ft_set_default_resolution,
+        METH_VARARGS,
+        DOC_PYGAMEFREETYPESETDEFAULTRESOLUTION
     },
 
     { NULL, NULL, 0, NULL },
@@ -546,7 +553,7 @@ _ftfont_new(PyTypeObject *subtype, PyObject *args, PyObject *kwds)
     
     if (obj != NULL) {
         obj->id.open_args.flags = 0;
-        obj->resolution = FREETYPE_STATE->resolution;
+        obj->resolution = 0;
         obj->_internals = NULL;
         /* Set defaults here so not reset by __init__ */
         obj->ptsize = -1;
@@ -616,6 +623,10 @@ _ftfont_init(PyObject *self, PyObject *args, PyObject *kwds)
     if (resolution)
     {
         font->resolution = (FT_UInt)resolution;
+    }
+    else
+    {
+        font->resolution = FREETYPE_STATE->resolution;
     }
     if (file == Py_None)
     {
@@ -1342,21 +1353,25 @@ _ft_init(PyObject *self, PyObject *args, PyObject *kwds)
 
     PyObject *result;
     int cache_size = PGFT_DEFAULT_CACHE_SIZE;
-    unsigned resolution = PGFT_DEFAULT_RESOLUTION;
+    unsigned resolution = 0;
+    _FreeTypeState *state = FREETYPE_MOD_STATE(self);
 
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "|iI", kwlist,
                                      &cache_size, &resolution))
         return NULL;
 
-    FREETYPE_MOD_STATE(self)->cache_size = cache_size;
-    FREETYPE_MOD_STATE(self)->resolution = (FT_UInt)resolution;
-    result = _ft_autoinit(self);
-
-    if (!PyObject_IsTrue(result))
+    if (!state->freetype)
     {
-        PyErr_SetString(PyExc_RuntimeError, 
-                "Failed to initialize the FreeType2 library");
-        return NULL;
+        state->resolution = (resolution ?
+                             (FT_UInt)resolution : PGFT_DEFAULT_RESOLUTION);
+        result = _ft_autoinit(self);
+
+        if (!PyObject_IsTrue(result))
+        {
+            PyErr_SetString(PyExc_RuntimeError, 
+                            "Failed to initialize the FreeType2 library");
+            return NULL;
+        }
     }
 
     Py_RETURN_NONE;
@@ -1388,6 +1403,20 @@ PyObject *
 _ft_get_default_resolution(PyObject *self)
 {
     return PyLong_FromUnsignedLong((unsigned long)(FREETYPE_STATE->resolution));
+}
+
+PyObject *
+_ft_set_default_resolution(PyObject *self, PyObject *args)
+{
+    unsigned resolution = 0;
+    _FreeTypeState *state = FREETYPE_MOD_STATE(self);
+
+    if (!PyArg_ParseTuple(args, "|I", &resolution))
+        return NULL;
+
+    state->resolution = (resolution ?
+                         (FT_UInt)resolution : PGFT_DEFAULT_RESOLUTION);
+    Py_RETURN_NONE;
 }
 
 PyObject *

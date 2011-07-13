@@ -47,6 +47,8 @@
 
 #define DOC_PYGAMEFREETYPEGETDEFAULTRESOLUTION "pygame.freetype.get_default_resolution() -> long\nReturn the default pixel size in dots per inch"
 
+#define DOC_PYGAMEFREETYPESETDEFAULTRESOLUTION "pygame.freetype.get_default_resolution() -> None\nSet the default pixel size in dots per inch for the module"
+
 #define DOC_ ""
 
 
