@@ -25,6 +25,8 @@
  */
 
 #define PYGAME_FREETYPE_INTERNAL
+#define NO_PYGAME_C_API
+
 #include "ft_wrap.h"
 
 #define SIZEOF_PGFT_STRING(len) \
@@ -46,7 +48,7 @@ Err_UnicodeEncodeError(const char *codec,
 
 
 PGFT_String *
-PGFT_EncodePyString(PyObject *obj, int surrogates)
+PGFT_EncodePyString(PyObject *obj, int ucs4)
 {
     PGFT_String *utf32_buffer = NULL;
     Py_ssize_t len;
@@ -58,7 +60,7 @@ PGFT_EncodePyString(PyObject *obj, int surrogates)
         Py_ssize_t i, j, srclen;
 
         len = srclen = PyUnicode_GET_SIZE(obj);
-        if (surrogates) {
+        if (!ucs4) {
             /* Do UTF-16 surrogate pair decoding. Calculate character count
              * and raise an exception on a malformed surrogate pair.
              */
@@ -95,7 +97,7 @@ PGFT_EncodePyString(PyObject *obj, int surrogates)
             return NULL;
         }
         dst = utf32_buffer->data;
-        if (surrogates) {
+        if (!ucs4) {
             for (i = 0, j = 0; i < srclen; ++i, ++j) {
                 c = src[i];
                 if (c >= UNICODE_HSA_START && c <= UNICODE_HSA_END) {

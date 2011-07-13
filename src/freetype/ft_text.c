@@ -70,12 +70,19 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
     FT_Error    error = 0;
     int         i;
 
+    if (vertical && angle != 0)
+    {
+        PyErr_SetString(PyExc_NotImplementedError,
+			 "rotation of vertical text is unfinished");
+	return NULL;
+    }
+
     /* load our sized face */
     face = _PGFT_GetFaceSized(ft, font, render->pt_size);
 
     if (!face)
     {
-        RAISE(PyExc_SDLError, PGFT_GetError(ft));
+        PyErr_SetString(PyExc_SDLError, PGFT_GetError(ft));
         return NULL;
     }
 
@@ -145,7 +152,7 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
             if (error)
             {
                 _PGFT_SetError(ft, "Loading glyphs", error);
-                RAISE(PyExc_SDLError, PGFT_GetError(ft));
+                PyErr_SetString(PyExc_SDLError, PGFT_GetError(ft));
                 return NULL;
             }
             if (angle != 0)
@@ -200,11 +207,11 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
     }
     if (pen.x > max_x)
         max_x = pen.x;
-    else if (pen.x < min_x)
+    if (pen.x < min_x)
         min_x = pen.x;
     if (pen.y > max_y)
         max_y = pen.y;
-    else if (pen.y < min_y)
+    if (pen.y < min_y)
         min_y = pen.y;
 
     if (render->style & FT_STYLE_UNDERLINE && !vertical && angle == 0)

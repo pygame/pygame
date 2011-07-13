@@ -88,6 +88,8 @@ typedef struct
     FT_Byte vertical;
     FT_Byte antialias;
     FT_Byte kerning;
+    FT_Byte ucs4;
+    FT_UInt resolution;
 
     void *_internals;
 } PyFreeTypeFont;
