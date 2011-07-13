@@ -44,6 +44,7 @@
 #define PGFT_DEFAULT_CACHE_SIZE 64
 #define PGFT_MIN_CACHE_SIZE     32
 #undef  PGFT_DEBUG_CACHE
+#define PGFT_DEFAULT_RESOLUTION 72 /* dots per inch */
 
 
 /**********************************************************
@@ -186,7 +187,8 @@ typedef struct PGFT_String_
  **********************************************************/
 typedef struct {
     FreeTypeInstance *freetype;
-    FT_Int cache_size;
+    int cache_size;
+    FT_UInt resolution;
 } _FreeTypeState;
 
 #ifdef IS_PYTHON_3
@@ -241,8 +243,9 @@ int         PGFT_GetTextSize(FreeTypeInstance *ft, PyFreeTypeFont *font,
                 const FontRenderMode *render, PGFT_String *text, int *w, int *h);
 
 int         PGFT_GetMetrics(FreeTypeInstance *ft, PyFreeTypeFont *font,
-                PGFT_char character, const FontRenderMode *render, int bbmode, 
-                void *minx, void *maxx, void *miny, void *maxy, void *advance);
+			    PGFT_char character, const FontRenderMode *render,
+			    long *minx, long *maxx, long *miny, long *maxy,
+			    double *advance_x, double *advance_y);
 
 int         PGFT_GetSurfaceSize(FreeTypeInstance *ft, PyFreeTypeFont *font,
                 const FontRenderMode *render, FontText *text, 
@@ -311,7 +314,7 @@ FontGlyph * PGFT_Cache_FindGlyph(FreeTypeInstance *ft, FontCache *cache,
 
 
 /******************************************************************* Unicode ******/
-PGFT_String * PGFT_EncodePyString(PyObject *obj, int surrogates);
+PGFT_String * PGFT_EncodePyString(PyObject *obj, int ucs4);
 #define       PGFT_String_GET_DATA(s) ((s)->data)
 #define       PGFT_String_GET_LENGTH(s) ((s)->length)
 #define       PGFT_FreeString _PGFT_free

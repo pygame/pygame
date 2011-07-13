@@ -59,7 +59,7 @@ passing None as the font name to the Font constructor.
 .. function:: init
 
    | :sl:`Initialize the underlying FreeType 2 library.`
-   | :sg:`init(default_cache_size=64) -> None`
+   | :sg:`init(cache_size=64, resolution=72) -> None`
 
    This function initializes the underlying FreeType 2 library and must be
    called before trying to use any of the functionality of the 'freetype'
@@ -72,7 +72,8 @@ passing None as the font name to the Font constructor.
    Optionally, you may specify a default size for the Glyph cache: this is the
    maximum amount of glyphs that will be cached at any given time by the
    module. Exceedingly small values will be automatically tuned for
-   performance.
+   performance. Also a default pixel resolution, in dots per inch, can
+   be given to adjust font scaling.
 
    .. ## pygame.freetype.init ##
 
@@ -98,10 +99,19 @@ passing None as the font name to the Font constructor.
 
    .. ## pygame.freetype.was_init ##
 
+.. function:: get_default_resolution
+
+   | :sl:`Return the default pixel size in dots per inch`
+   | :sg:`get_default_resolution() -> long`
+
+   Returns the default pixel size, in dots per inch, as set by :func:`init`.
+
+   .. ## pygame.freetype.get_default_resolution
+
 .. class:: Font
 
    | :sl:`Creates a new Font from a supported font file.`
-   | :sg:`Font(file, style=STYLE_NONE, ptsize=-1, face_index=0) -> Font`
+   | :sg:`Font(file, style=STYLE_NONE, ptsize=-1, face_index=0, resolution=0) -> Font`
 
    'file' can be either a string representing the font's filename, a file-like
    object containing the font, or None; in this last case the default, built-in
@@ -121,6 +131,10 @@ passing None as the font name to the Font constructor.
    used to draw this font. This style may be overriden on any ``Font.render()``
    call.
 
+   The optional resolution argument sets the pixel size, in dots per inche,
+   to use for scaling glyphs for this Font instance. If 0 then the default
+   module value, set by :meth:`freetype.init`, is used.
+
    .. attribute:: name
 
       | :sl:`Gets the name of the font face.`
@@ -134,7 +148,7 @@ passing None as the font name to the Font constructor.
    .. method:: get_size
 
       | :sl:`Gets the size of rendered text`
-      | :sg:`get_size(text, style=STYLE_DEFAULT, rotation=0, ptsize=default, surrogates=True) -> (int, int)`
+      | :sg:`get_size(text, style=STYLE_DEFAULT, rotation=0, ptsize=default) -> (int, int)`
 
       Gets the size in pixels which 'text' will occupy when rendered using this
       Font. The calculations will take into account the font's default style
@@ -150,17 +164,6 @@ passing None as the font name to the Font constructor.
       may specify another point size to use via the 'ptsize' argument, or a
       text rotation via the 'rotation' argument.
 
-      The surrogates arguement controls Unicode text decoding. By default, the
-      freetype module performs UTF-16 surrogate pair decoding on Unicode text.
-      This allows 32-bit escape sequences ('\Uxxxxxxxx') between 0x10000 and
-      0x10FFFF to represent their corresponding UTF-32 code points on Python
-      interpreters built with a UCS-2 unicode type (on Windows, for instance).
-      It also means character values within the UTF-16 surrogate area (0xD800
-      to 0xDFFF) are considered part of a surrogate pair. A malformed surrogate
-      pair will raise an UnicodeEncodeError. Setting surrogates False turns
-      surrogate pair decoding off, letting interpreters with a UCS-4 unicode
-      type access the full UCS-4 character range.
-
       If text is a char (byte) string, then its encoding is assumed to be
       ``LATIN1``.
 
@@ -169,7 +172,7 @@ passing None as the font name to the Font constructor.
    .. method:: get_metrics
 
       | :sl:`Gets glyph metrics for the font's characters`
-      | :sg:`get_metrics(text, bbmode=BBOX_PIXEL_GRIDFIT, ptsize=default, surrogates=True) -> [(...), ...]`
+      | :sg:`get_metrics(text, ptsize=default) -> [(...), ...]`
 
       Returns the glyph metrics for each character in 'text'.
 
@@ -178,25 +181,17 @@ passing None as the font name to the Font constructor.
 
       ::
 
-          (min_x, max_x, min_y, max_y, horizontal_advance)
+          (min_x, max_x, min_y, max_y, horizontal_advance_x, horizontal_advance_y)
 
-      By default, these values are returned as grid-fitted pixel coordinates
-      (ints) but one of the following constants may be passed as the bbmode
-      argument to change this:
-
-      ::
-
-          BBOX_EXACT: Return accurate floating point values.
-          BBOX_EXACT_GRIDFIT: Return accurate floating point values aligned
-          to the drawing grid.
-          BBOX_PIXEL: Return pixel coordinates (ints).
-          BBOX_PIXEL_GRIDFIT (default): Return grid-aligned pixel coordinates.
+      The bounding box min_x, max_y, min_y, and max_y values are returned as
+      grid-fitted pixel coordinates of type int. The advance values are 
+      float values.
 
       The calculations are done using the font's default size in points.
       Optionally you may specify another point size to use.
 
-      Setting surrogates False turns off surrogate pair decoding (see
-      Font.get_size).
+      The metrics are adjusted for the current rotation, bold, and italics
+      settings.
 
       If text is a char (byte) string, then its encoding is assumed to be
       ``LATIN1``.
@@ -216,7 +211,7 @@ passing None as the font name to the Font constructor.
    .. method:: render
 
       | :sl:`Renders text on a surface`
-      | :sg:`render(dest, text, fgcolor, bgcolor=None, style=STYLE_DEFAULT, rotation=0, ptsize=default, surrogates=True) -> (Surface, Rect)`
+      | :sg:`render(dest, text, fgcolor, bgcolor=None, style=STYLE_DEFAULT, rotation=0, ptsize=default) -> (Surface, Rect)`
 
       Renders the string 'text' to a :mod:`pygame.Surface`, using the color
       'fgcolor'.
@@ -256,9 +251,6 @@ passing None as the font name to the Font constructor.
       argument, a text rotation via the 'rotation' argument, or a new text
       style via the 'style' argument.
 
-      Setting surrogates False turns off surrogate pair decoding (see
-      Font.get_size).
-
       If text is a char (byte) string, then its encoding is assumed to be
       ``LATIN1``.
 
@@ -267,7 +259,7 @@ passing None as the font name to the Font constructor.
    .. method:: render_raw
 
       | :sl:`Renders text as a string of bytes`
-      | :sg:`render_raw(text, ptsize=default, surrogates=True) -> (bytes, (int, int))`
+      | :sg:`render_raw(text, ptsize=default) -> (bytes, (int, int))`
 
       Like ``Font.render(None, ...)`` but the tuple returned is an 8 bit
       monochrome string of bytes and its size. The forground color is 255, the
@@ -396,6 +388,31 @@ passing None as the font name to the Font constructor.
       those cases will give unspecified results.
 
       .. ## Font.vertical ##
+
+   .. attribute:: ucs4
+
+      | :sl:`Enables UCS-4 mode`
+      | :sg:`ucs4 -> bool`
+
+      Gets or sets the decoding of Unicode textdecoding. By default, the
+      freetype module performs UTF-16 surrogate pair decoding on Unicode text.
+      This allows 32-bit escape sequences ('\Uxxxxxxxx') between 0x10000 and
+      0x10FFFF to represent their corresponding UTF-32 code points on Python
+      interpreters built with a UCS-2 unicode type (on Windows, for instance).
+      It also means character values within the UTF-16 surrogate area (0xD800
+      to 0xDFFF) are considered part of a surrogate pair. A malformed surrogate
+      pair will raise an UnicodeEncodeError. Setting ucs4 True turns surrogate
+      pair decoding off, letting interpreters with a UCS-4 unicode type access
+      the full UCS-4 character range.
+
+      .. ## Font.usc4 ##
+
+   .. attribute:: resolution
+
+      | :sl:`Output pixel resolution in dots per inch`
+      | :sg:`resolution -> int`
+
+      Gets the pixel size used in scaling font glyphs for this Font instance.
 
    .. ##  ##
 

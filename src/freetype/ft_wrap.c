@@ -190,7 +190,7 @@ _PGFT_BuildScaler(PyFreeTypeFont *font, FTC_Scaler scale, int size)
     scale->face_id = (FTC_FaceID)(&font->id);
     scale->width = scale->height = (FT_UInt32)(size * 64);
     scale->pixel = 0;
-    scale->x_res = scale->y_res = 0;
+    scale->x_res = scale->y_res = font->resolution;
 }
 
 
