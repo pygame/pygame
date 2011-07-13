@@ -25,31 +25,28 @@
 
 extern FT_Matrix PGFT_SlantMatrix;
 
-/* Declarations */
-void _PGFT_GetMetrics_INTERNAL(FT_Glyph, FT_UInt, int *, int *, int *, int *, int *);
-
 int PGFT_GetMetrics(FreeTypeInstance *ft, PyFreeTypeFont *font,
-    PGFT_char character, const FontRenderMode *render, int bbmode,
-    void *minx, void *maxx, void *miny, void *maxy, void *advance)
+                    PGFT_char character, const FontRenderMode *render,
+                    long *minx, long *maxx, long *miny, long *maxy,
+                    double *advance_x, double *advance_y)
 { 
-#   define FP26_6(i)    ((float)((int)(i) / 64.0f))
     FontGlyph *     glyph = NULL;
 
     glyph = PGFT_Cache_FindGlyph(ft, &PGFT_INTERNALS(font)->cache, 
-                                 (FT_UInt32)character, render);
-
+                                 character, render);
+    
     if (!glyph)
     {
         return -1;
     }
 
-    *(float *)minx = glyph->image->left;
-    *(float *)maxx = glyph->image->left + glyph->image->bitmap.width;
-    *(float *)maxy = glyph->image->top;
-    *(float *)miny = *(float *)maxy - glyph->image->bitmap.rows;
-    *(float *)advance = (float)glyph->h_metrics.advance.x / 65536.0;
+    *minx = (long)glyph->image->left;
+    *maxx = (long)(glyph->image->left + glyph->image->bitmap.width);
+    *maxy = (long)glyph->image->top;
+    *miny = (long)(glyph->image->top - glyph->image->bitmap.rows);
+    *advance_x = (double)(glyph->h_metrics.advance.x / 64.0);
+    *advance_y = (double)(glyph->h_metrics.advance.y / 64.0);
 
-#   undef FP26_6
     return 0;
 }
 

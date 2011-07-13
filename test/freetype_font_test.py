@@ -73,11 +73,12 @@ class FreeTypeFontTest(unittest.TestCase):
         self.assertRaises(RuntimeError, f.get_size, 'a', ptsize=24)
         
         # Test attribute preservation during reinitalization
-        f = ft.Font(self._sans_path, ptsize=24)
+        f = ft.Font(self._sans_path, ptsize=24, ucs4=True)
         self.assertEqual(f.name, 'Liberation Sans')
         self.assertFalse(f.fixed_width)
         self.assertTrue(f.antialiased)
         self.assertFalse(f.italic)
+        self.assertTrue(f.ucs4)
         f.antialiased = False
         f.italic = True
         f.__init__(self._fixed_path)
@@ -86,6 +87,7 @@ class FreeTypeFontTest(unittest.TestCase):
         self.assertFalse(f.fixed_width)  # need a properly marked Mono font
         self.assertFalse(f.antialiased)
         self.assertTrue(f.italic)
+        self.assertTrue(f.ucs4)
         
     def test_freetype_Font_fixed_width(self):
 
@@ -102,27 +104,17 @@ class FreeTypeFontTest(unittest.TestCase):
 
         font = self._TEST_FONTS['sans']
 
-        # test for floating point values (BBOX_EXACT)
-        metrics = font.get_metrics('ABCD', ptsize=24, bbmode=ft.BBOX_EXACT)
+        metrics = font.get_metrics('ABCD', ptsize=24)
         self.assertEqual(len(metrics), len('ABCD'))
         self.assertTrue(isinstance(metrics, list))
 
         for metrics_tuple in metrics:
             self.assertTrue(isinstance(metrics_tuple, tuple))
-            self.assertEqual(len(metrics_tuple), 5)
-            for m in metrics_tuple:
-                self.assertTrue(isinstance(m, float))
-
-        # test for integer values (BBOX_PIXEL)
-        metrics = font.get_metrics('foobar', ptsize=24, bbmode=ft.BBOX_PIXEL)
-        self.assertEqual(len(metrics), len('foobar'))
-        self.assertTrue(isinstance(metrics, list))
-
-        for metrics_tuple in metrics:
-            self.assertTrue(isinstance(metrics_tuple, tuple))
-            self.assertEqual(len(metrics_tuple), 5)
-            for m in metrics_tuple:
+            self.assertEqual(len(metrics_tuple), 6)
+            for m in metrics_tuple[:4]:
                 self.assertTrue(isinstance(m, int))
+            for m in metrics_tuple[4:]:
+                self.assertTrue(isinstance(m, float))
 
         # test for empty string
         metrics = font.get_metrics('', ptsize=24)
@@ -174,11 +166,15 @@ class FreeTypeFontTest(unittest.TestCase):
         self.assertTrue(size_under[0] == size_default[0])
         self.assertTrue(size_under[1] > size_default[1])
 
-        size_utf32 = font.get_size(as_unicode(r'\U000130A7'), ptsize=24)
-        size_utf16 = font.get_size(as_unicode(r'\uD80C\uDCA7'), ptsize=24)
-        size_utf16 = font.get_size(as_unicode(r'\uD80C\uDCA7'), ptsize=24,
-                                   surrogates=False)
-        self.assertNotEqual(size_utf16[0], size_utf32[0]);
+#        size_utf32 = font.get_size(as_unicode(r'\U000130A7'), ptsize=24)
+#        size_utf16 = font.get_size(as_unicode(r'\uD80C\uDCA7'), ptsize=24)
+#        self.assertEqual(size_utf16[0], size_utf32[0]);
+#        font.utf16_surrogates = False
+#        try:
+#            size_utf16 = font.get_size(as_unicode(r'\uD80C\uDCA7'), ptsize=24)
+#        finally:
+#            font.utf16_surrogates = True
+#        self.assertNotEqual(size_utf16[0], size_utf32[0]);
         
         self.assertRaises(RuntimeError,
                           nullfont().get_size, 'a', ptsize=24)
@@ -273,14 +269,18 @@ class FreeTypeFontTest(unittest.TestCase):
                 style=97, ptsize=24)
 
         # valid surrogate pairs
-        rend1 = font.render(None, as_unicode(r'\uD800\uDC00'), color, ptsize=24)
-        rend1 = font.render(None, as_unicode(r'\uDBFF\uDFFF'), color, ptsize=24)
-        rend1 = font.render(None, as_unicode(r'\uD80C\uDCA7'), color, ptsize=24)
-        rend2 = font.render(None, as_unicode(r'\U000130A7'), color, ptsize=24)
-        self.assertEqual(rend1[1], rend2[1])
-        rend1 = font.render(None, as_unicode(r'\uD80C\uDCA7'),
-                            color, ptsize=24, surrogates=False)
-        self.assertNotEqual(rend1[1], rend2[1])
+#        rend1 = font.render(None, as_unicode(r'\uD800\uDC00'), color, ptsize=24)
+#        rend1 = font.render(None, as_unicode(r'\uDBFF\uDFFF'), color, ptsize=24)
+#        rend1 = font.render(None, as_unicode(r'\uD80C\uDCA7'), color, ptsize=24)
+#        rend2 = font.render(None, as_unicode(r'\U000130A7'), color, ptsize=24)
+#        self.assertEqual(rend1[1], rend2[1])
+#        font.utf16_surrogates = False
+#        try:
+#            rend1 = font.render(None, as_unicode(r'\uD80C\uDCA7'),
+#                                color, ptsize=24)
+#        finally:
+#            font.utf16_surrogates = True
+#        self.assertNotEqual(rend1[1], rend2[1])
             
         # malformed surrogate pairs
         self.assertRaises(UnicodeEncodeError, font.render,
@@ -367,6 +367,20 @@ class FreeTypeFontTest(unittest.TestCase):
         # revert changes
         font.style = ft.STYLE_NORMAL
         self.assertEqual(ft.STYLE_NORMAL, font.style)
+
+    def test_freetype_font_resolution(self):
+        text = "|"  # Differs in width and height
+        resolution = ft.get_default_resolution()
+        new_font = ft.Font(self._sans_path, resolution=2 * resolution)
+        self.assertEqual(new_font.resolution, 2 * resolution)
+        size_normal = self._TEST_FONTS['sans'].get_size(text, ptsize=24)
+        size_scaled = new_font.get_size(text, ptsize=24)
+        size_by_2 = size_normal[0] * 2
+        self.assertTrue(size_by_2 + 2 >= size_scaled[0] >= size_by_2 - 2,
+                        "%i not equal %i" % (size_scaled[1], size_by_2))
+        size_by_2 = size_normal[1] * 2
+        self.assertTrue(size_by_2 + 2 >= size_scaled[1] >= size_by_2 - 2,
+                        "%i not equal %i" % (size_scaled[1], size_by_2))
 
 
 if __name__ == '__main__':

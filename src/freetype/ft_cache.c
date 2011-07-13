@@ -226,7 +226,7 @@ PGFT_Cache_Cleanup(FontCache *cache)
 
 FontGlyph *
 PGFT_Cache_FindGlyph(FreeTypeInstance *ft, FontCache *cache, 
-        FT_UInt32 character, const FontRenderMode *render)
+        PGFT_char character, const FontRenderMode *render)
 {
     FontCacheNode **nodes = cache->nodes;
     FontCacheNode *node, *prev;
@@ -270,7 +270,7 @@ PGFT_Cache_FindGlyph(FreeTypeInstance *ft, FontCache *cache,
     cache->_debug_miss++;
 #endif
 
-    return &node->glyph;
+    return node ? &node->glyph : NULL;
 }
 
 void
@@ -289,71 +289,9 @@ _PGFT_Cache_FreeNode(FontCache *cache, FontCacheNode *node)
     _PGFT_free(node);
 }
 
-static void
-_PGFT_Metrics_Rotate(FontMetrics *metrics,
-                     FT_BitmapGlyph image,
-                     FT_Angle angle)
-{
-    FT_Pos    min_x = metrics->bearing_x;
-    FT_Pos    max_x = min_x + PGFT_INT_TO_6(image->bitmap.width);
-    FT_Pos    max_y = metrics->bearing_y;
-    FT_Pos    min_y = max_y - PGFT_INT_TO_6(image->bitmap.rows);
-    FT_Vector topleft = {min_x, max_y};
-    FT_Vector topright = {max_x, max_y};
-    FT_Vector bottomleft = {min_x, min_y};
-    FT_Vector bottomright = {max_x, min_y};
-    FT_Vector bearing_x = {metrics->bearing_x, 0};
-    FT_Vector bearing_y = {0, metrics->bearing_y};
-
-    FT_Vector_Rotate(&metrics->advance, angle);
-
-    metrics->bearing_x = PGFT_INT_TO_6(image->left);
-    metrics->bearing_y = PGFT_INT_TO_6(image->top);
-#if 0
-    FT_Vector_Rotate(&bearing, angle);
-    metrics->bearing_x = bearing.x;
-    metrics->bearing_y = bearing.y;
-#endif
-#if 0
-    FT_Vector_Rotate(&topleft, angle);
-    FT_Vector_Rotate(&topright, angle);
-    FT_Vector_Rotate(&bottomleft, angle);
-    FT_Vector_Rotate(&bottomright, angle);
-
-    min_x = bottomleft.x;
-    if (bottomright.x < min_x)
-    {
-        min_x = bottomright.x;
-    }
-    if (topleft.x < min_x)
-    {
-        min_x = topleft.x;
-    }
-    if (topright.x < min_x)
-    {
-        min_x = topright.x;
-    }
-    max_y = topright.y;
-    if (topleft.y > max_y)
-    {
-        max_y = bottomright.y;
-    }
-    if (bottomright.y > max_y)
-    {
-        max_y = topleft.y;
-    }
-    if (bottomleft.y > max_y)
-    {
-        max_y = topright.y;
-    }
-    metrics->bearing_x = min_x;
-    metrics->bearing_y = max_y;
-#endif
-}
-
 FontCacheNode *
 _PGFT_Cache_AllocateNode(FreeTypeInstance *ft, 
-        FontCache *cache, const FontRenderMode *render, FT_UInt character)
+        FontCache *cache, const FontRenderMode *render, PGFT_char character)
 {
     static FT_Vector delta = {0, 0};
 
@@ -361,14 +299,14 @@ _PGFT_Cache_AllocateNode(FreeTypeInstance *ft,
     FontCacheNode *node = NULL;
     FontGlyph *glyph = NULL;
     FontMetrics *metrics;
-    FT_Glyph image;
+    FT_Glyph image = NULL;
 
     FT_Glyph_Metrics *ft_metrics;
     FT_Face face;
 
     FT_UInt32 load_flags;
     FT_Pos bold_str = 0;
-    int gindex;
+    FT_UInt gindex;
     FT_UInt32 bucket;
 
     FT_Fixed rotation_angle = render->rotation_angle;
@@ -401,15 +339,16 @@ _PGFT_Cache_AllocateNode(FreeTypeInstance *ft,
      * Calculate the corresponding glyph index for the char
      */
     gindex = FTC_CMapCache_Lookup(ft->cache_charmap, 
-            (FTC_FaceID)&(cache->font->id), -1, character);
+				  (FTC_FaceID)&(cache->font->id), -1,
+				  (FT_UInt32)character);
 
-    if (gindex < 0)
+    if (!gindex)
     {
         _PGFT_SetError(ft, "Glyph character not found in font", 0);
         goto cleanup;
     }
 
-    glyph->glyph_index = (FT_UInt)gindex;
+    glyph->glyph_index = gindex;
 
     /*
      * Get loading information
@@ -439,13 +378,9 @@ _PGFT_Cache_AllocateNode(FreeTypeInstance *ft,
     ft_metrics = &face->glyph->metrics;
     glyph->bold_strength = bold_str;
     metrics = &glyph->h_metrics;
-    metrics->bearing_x = ft_metrics->horiBearingX;
-    metrics->bearing_y = ft_metrics->horiBearingY;
     metrics->advance.x = ft_metrics->horiAdvance + bold_str;
     metrics->advance.y = 0;
     metrics = &glyph->v_metrics;
-    metrics->bearing_x = ft_metrics->vertBearingX;
-    metrics->bearing_y = ft_metrics->vertBearingY;
     metrics->advance.x = 0;
     metrics->advance.y = ft_metrics->vertAdvance + bold_str;
 
@@ -463,6 +398,8 @@ _PGFT_Cache_AllocateNode(FreeTypeInstance *ft,
         {
             goto cleanup;
         }
+	FT_Vector_Rotate(&glyph->h_metrics.advance, rotation_angle);
+	FT_Vector_Rotate(&glyph->v_metrics.advance, rotation_angle);
     }
 
     if (render->style & FT_STYLE_ITALIC)
@@ -483,13 +420,23 @@ _PGFT_Cache_AllocateNode(FreeTypeInstance *ft,
     }
     glyph->image = (FT_BitmapGlyph)image;
 
+    metrics = &glyph->h_metrics;
+    metrics->bearing_x = PGFT_INT_TO_6(glyph->image->left);
+    metrics->bearing_y = PGFT_INT_TO_6(glyph->image->top);
+    
+    metrics = &glyph->v_metrics;
+    /* Maybe these should be derived from image->left and image->top? */
+    metrics->bearing_x = ft_metrics->vertBearingX;
+    metrics->bearing_y = ft_metrics->vertBearingY;
+
     /*
      * Adjust the metrics.
      */
     if (rotation_angle != 0)
     {
-        _PGFT_Metrics_Rotate(&glyph->h_metrics, glyph->image, rotation_angle);
-        _PGFT_Metrics_Rotate(&glyph->v_metrics, glyph->image, rotation_angle);
+        /* Do something magical to the vertical metrics
+           unless they are derived from image->left and image->top,
+           then remove this. */
     }
 
     /*
@@ -514,8 +461,8 @@ _PGFT_Cache_AllocateNode(FreeTypeInstance *ft,
      * Cleanup on error
      */
 cleanup:
-    if (glyph && glyph->image)
-        FT_Done_Glyph((FT_Glyph)glyph->image);
+    if (image)
+        FT_Done_Glyph(image);
 
     _PGFT_free(node);
     return NULL;
