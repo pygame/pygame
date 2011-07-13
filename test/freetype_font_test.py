@@ -368,7 +368,7 @@ class FreeTypeFontTest(unittest.TestCase):
         font.style = ft.STYLE_NORMAL
         self.assertEqual(ft.STYLE_NORMAL, font.style)
 
-    def test_freetype_font_resolution(self):
+    def test_freetype_Font_resolution(self):
         text = "|"  # Differs in width and height
         resolution = ft.get_default_resolution()
         new_font = ft.Font(self._sans_path, resolution=2 * resolution)
@@ -381,6 +381,34 @@ class FreeTypeFontTest(unittest.TestCase):
         size_by_2 = size_normal[1] * 2
         self.assertTrue(size_by_2 + 2 >= size_scaled[1] >= size_by_2 - 2,
                         "%i not equal %i" % (size_scaled[1], size_by_2))
+        new_resolution = resolution + 10
+        ft.set_default_resolution(new_resolution)
+        try:
+            new_font = ft.Font(self._sans_path, resolution=0)
+            self.assertEqual(new_font.resolution, new_resolution)
+        finally:
+            ft.set_default_resolution()
+
+
+class FreeTypeFont(unittest.TestCase):
+
+    def test_resolution(self):
+        was_init = ft.was_init()
+        if not was_init:
+            ft.init()
+        try:
+            ft.set_default_resolution()
+            resolution = ft.get_default_resolution()
+            self.assertEqual(resolution, 72)
+            new_resolution = resolution + 10
+            ft.set_default_resolution(new_resolution)
+            self.assertEqual(ft.get_default_resolution(), new_resolution)
+            ft.init(resolution=resolution+20)
+            self.assertEqual(ft.get_default_resolution(), new_resolution)
+        finally:
+            ft.set_default_resolution()
+            if was_init:
+                ft.quit()
 
 
 if __name__ == '__main__':

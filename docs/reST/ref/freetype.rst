@@ -104,7 +104,18 @@ passing None as the font name to the Font constructor.
    | :sl:`Return the default pixel size in dots per inch`
    | :sg:`get_default_resolution() -> long`
 
-   Returns the default pixel size, in dots per inch, as set by :func:`init`.
+   Returns the default pixel size, in dots per inch for the module. At
+   initial module load time the value is 72.
+
+   .. ## pygame.freetype.get_default_resolution
+
+.. function:: set_default_resolution
+
+   | :sl:`Set the default pixel size in dots per inch for the module`
+   | :sg:`get_default_resolution([resolution]) -> None`
+
+   Set the default pixel size, in dots per inch, for the module. If the
+   optional argument is omitted or zero the resolution is reset to 72.
 
    .. ## pygame.freetype.get_default_resolution
 
@@ -131,9 +142,10 @@ passing None as the font name to the Font constructor.
    used to draw this font. This style may be overriden on any ``Font.render()``
    call.
 
-   The optional resolution argument sets the pixel size, in dots per inche,
+   The optional resolution argument sets the pixel size, in dots per inch,
    to use for scaling glyphs for this Font instance. If 0 then the default
-   module value, set by :meth:`freetype.init`, is used.
+   module value, set by :meth:`freetype.init`, is used. The Font object's
+   resolution can only be changed by reinitializing the instance.
 
    .. attribute:: name
 
