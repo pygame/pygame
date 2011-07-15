@@ -82,6 +82,7 @@ typedef struct
 {
     PyObject_HEAD
     FontId id;
+    PyObject *path;
 
     FT_Int16 ptsize;
     FT_Byte style;

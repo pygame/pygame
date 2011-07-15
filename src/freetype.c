@@ -281,6 +281,7 @@ static PyObject *_ftfont_getstyle(PyObject *self, void *closure);
 static int _ftfont_setstyle(PyObject *self, PyObject *value, void *closure);
 static PyObject *_ftfont_getheight(PyObject *self, void *closure);
 static PyObject *_ftfont_getname(PyObject *self, void *closure);
+static PyObject *_ftfont_getpath(PyObject *self, void *closure);
 static PyObject *_ftfont_getfixedwidth(PyObject *self, void *closure);
 
 static PyObject *_ftfont_getvertical(PyObject *self, void *closure);
@@ -413,6 +414,13 @@ static PyGetSetDef _ftfont_getsets[] =
         _ftfont_getname, 
         NULL,
         DOC_FONTNAME,
+        NULL 
+    },
+    { 
+        "path", 
+        _ftfont_getpath, 
+        NULL,
+        DOC_FONTPATH,
         NULL 
     },
     {
@@ -551,16 +559,18 @@ _ftfont_new(PyTypeObject *subtype, PyObject *args, PyObject *kwds)
 {
     PyFreeTypeFont *obj = (PyFreeTypeFont *)(subtype->tp_alloc(subtype, 0));
     
-    if (obj != NULL) {
+    if (obj != NULL)
+    {
         obj->id.open_args.flags = 0;
+        obj->id.open_args.pathname = NULL;
+        obj->path = NULL;
         obj->resolution = 0;
         obj->_internals = NULL;
-        /* Set defaults here so not reset by __init__ */
         obj->ptsize = -1;
         obj->style = FT_STYLE_NORMAL;
         obj->vertical = 0;
         obj->antialias = 1;
-	obj->kerning = 0;
+        obj->kerning = 0;
         obj->ucs4 = 0;
     }
     return (PyObject *)obj;
@@ -573,6 +583,7 @@ _ftfont_dealloc(PyFreeTypeFont *self)
      * a freetype instance. */
     PGFT_UnloadFont(FREETYPE_STATE->freetype, self);
 
+    Py_XDECREF(self->path);
     ((PyObject *)self)->ob_type->tp_free((PyObject *)self);
 }
 
@@ -581,7 +592,8 @@ _ftfont_init(PyObject *self, PyObject *args, PyObject *kwds)
 {
     static char *kwlist[] = 
     { 
-        "font", "ptsize", "style", "face_index", "ucs4", "resolution", NULL
+        "font", "ptsize", "style", "face_index", "vertical",
+        "ucs4", "resolution", NULL
     };
 
     PyFreeTypeFont *font = (PyFreeTypeFont *)self;
@@ -591,6 +603,7 @@ _ftfont_init(PyObject *self, PyObject *args, PyObject *kwds)
     int ptsize;
     int font_style;
     int ucs4;
+    int vertical;
     unsigned resolution = 0;
 
     FreeTypeInstance *ft;
@@ -599,18 +612,19 @@ _ftfont_init(PyObject *self, PyObject *args, PyObject *kwds)
     ptsize = font->ptsize;
     font_style = font->style;
     ucs4 = font->ucs4;
+    vertical = font->vertical;
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|iiIiI", kwlist, 
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|iiIiiI", kwlist, 
                                      &file, &ptsize, &font_style, &face_index,
-                                     &ucs4, &resolution))
+                                     &vertical, &ucs4, &resolution))
         return -1;
 
     original_file = file;
 
     PGFT_UnloadFont(ft, font);
+    Py_XDECREF(font->path);
+    font->path = NULL;
     
-    /* TODO: Ask for vertical? */
-
     if (PGFT_CheckStyle(font_style))
     {
         PyErr_Format(PyExc_ValueError,
@@ -620,6 +634,7 @@ _ftfont_init(PyObject *self, PyObject *args, PyObject *kwds)
     font->ptsize = (FT_Int16)((ptsize <= 0) ? -1 : ptsize);
     font->style = (FT_Byte)font_style;
     font->ucs4 = ucs4 ? (FT_Byte)1 : (FT_Byte)0;
+    font->vertical = vertical;
     if (resolution)
     {
         font->resolution = (FT_UInt)resolution;
@@ -646,21 +661,72 @@ _ftfont_init(PyObject *self, PyObject *args, PyObject *kwds)
     }
     if (Bytes_Check(file))
     {
-        PGFT_TryLoadFont_Filename(ft, font, Bytes_AS_STRING(file), face_index);
+        if (PGFT_TryLoadFont_Filename(ft, font, Bytes_AS_STRING(file),
+                                      face_index))
+        {
+            goto end;
+        }
+	if (PyUnicode_Check(original_file))
+        {
+            /* Make sure to save a pure Unicode object to prevent possible
+             * cycles from a derived class. This means no tp_traverse or
+             * tp_clear for the PyFreetypeFont type.
+             */
+            font->path = Object_Unicode(original_file);
+        }
+        else
+        {
+            font->path = PyUnicode_FromEncodedObject(file, "unicode_escape",
+						     "replace");
+        }
     }
     else
     {
         SDL_RWops *source = RWopsFromFileObject(original_file);
+        PyObject *str = NULL;
+        PyObject *path = NULL;
 
         if (source == NULL)
         {
             goto end;
         }
 
-        if (PGFT_TryLoadFont_RWops(ft, font, source, face_index) != 0);
+        if (PGFT_TryLoadFont_RWops(ft, font, source, face_index))
         {
             goto end;
         }
+
+        path = PyObject_GetAttrString(original_file, "name");
+        if (!path)
+        {
+            PyErr_Clear();
+            str = Bytes_FromFormat("<%s instance at %p>",
+                                   Py_TYPE(file)->tp_name, (void *)file);
+            if (str)
+            {
+                font->path = PyUnicode_FromEncodedObject(str,
+                                                         "ascii", "strict");
+                Py_DECREF(str);
+            }
+        }
+	else if (PyUnicode_Check(path))
+        {
+            /* Make sure to save a pure Unicode object to prevent possible
+             * cycles from a derived class. This means no tp_traverse or
+             * tp_clear for the PyFreetypeFont type.
+             */
+            font->path = Object_Unicode(path);
+        }
+        else if (Bytes_Check(path))
+        {
+            font->path = PyUnicode_FromEncodedObject(file,
+                                               "unicode_escape", "replace");
+        }
+        else
+        {
+            font->path = Object_Unicode(path);
+        }
+        Py_XDECREF(path);
     }
 
 end:
@@ -679,7 +745,24 @@ _ftfont_repr(PyObject *self)
     PyFreeTypeFont *font = (PyFreeTypeFont *)self;
 
     if (PyFreeTypeFont_IS_ALIVE(font))
-        return Text_FromFormat("Font('%.1024s')", font->id.open_args.pathname);
+    {
+#if PY3
+        return PyUnicode_FromFormat("Font('%.1024u')", font->path);
+#else
+        PyObject *str = PyUnicode_AsEncodedString(font->path,
+                                                  "raw_unicode_escape",
+                                                  "replace");
+        PyObject *rval = NULL;
+
+        if (str)
+        {
+            rval = PyString_FromFormat("Font('%.1024s')",
+                                       PyString_AS_STRING(str));
+            Py_DECREF(str);
+        }
+        return rval;
+#endif
+    }
     return Text_FromFormat("<uninitialized Font object at %p>", (void *)self);
 }
 
@@ -857,6 +940,20 @@ _ftfont_getname(PyObject *self, void *closure)
         return name != NULL ? Text_FromUTF8(name) : NULL;
     }
     return PyObject_Repr(self);
+}
+
+PyObject *
+_ftfont_getpath(PyObject *self, void *closure)
+{
+    PyObject *path = ((PyFreeTypeFont *)self)->path;
+
+    if (!path)
+    {
+        PyErr_SetString(PyExc_AttributeError, "path unavailable");
+        return NULL;
+    }
+    Py_INCREF(path);
+    return path;
 }
 
 PyObject *
