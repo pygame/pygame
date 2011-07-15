@@ -49,8 +49,12 @@
 #define Bytes_AsString PyBytes_AsString
 #define Bytes_AsStringAndSize PyBytes_AsStringAndSize
 #define Bytes_FromStringAndSize PyBytes_FromStringAndSize
+#define Bytes_FromFormat PyBytes_FromFormat
 #define Bytes_AS_STRING PyBytes_AS_STRING
 #define Bytes_GET_SIZE PyBytes_GET_SIZE
+#define Bytes_AsDecodeObject PyBytes_AsDecodedObject
+
+#define Object_Unicode PyObject_Str
 
 #define IsTextObj(x) (PyUnicode_Check(x) || PyBytes_Check(x))
 
@@ -97,8 +101,12 @@
 #define Bytes_AsString PyString_AsString
 #define Bytes_AsStringAndSize PyString_AsStringAndSize
 #define Bytes_FromStringAndSize PyString_FromStringAndSize
+#define Bytes_FromFormat PyString_FromFormat
 #define Bytes_AS_STRING PyString_AS_STRING
 #define Bytes_GET_SIZE PyString_GET_SIZE
+#define Bytes_AsDecodedObject PyString_AsDecodedObject
+
+#define Object_Unicode PyObject_Unicode
 
 /* Renamed builtins */
 #define BUILTINS_MODULE "__builtin__"

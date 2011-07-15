@@ -32,6 +32,8 @@ function. There are a few other functions to help lookup the system fonts.
 Pygame comes with a builtin default font. This can always be accessed by
 passing None as the font name to the Font constructor.
 
+New in Pygame 1.9.2
+
 .. function:: get_error
 
    | :sl:`Get the latest error`
@@ -122,7 +124,7 @@ passing None as the font name to the Font constructor.
 .. class:: Font
 
    | :sl:`Creates a new Font from a supported font file.`
-   | :sg:`Font(file, style=STYLE_NONE, ptsize=-1, face_index=0, resolution=0) -> Font`
+   | :sg:`Font(file, style=STYLE_NONE, ptsize=-1, face_index=0, vertical=0, ucs4=0, resolution=0) -> Font`
 
    'file' can be either a string representing the font's filename, a file-like
    object containing the font, or None; in this last case the default, built-in
@@ -142,6 +144,15 @@ passing None as the font name to the Font constructor.
    used to draw this font. This style may be overriden on any ``Font.render()``
    call.
 
+   The optional vertical argument, an integer, sets the default orientation
+   for the font: 0 (False) for horizontal, any other value (True) for vertical.
+   See :attr:`Font.vertical`.
+
+   The optional ucs4 argument, an integer, sets the default text translation
+   mode: 0 (False) recognize UTF-16 surrogate pairs, any other value (True),
+   to treat unicode text as UCS-4, with no surrogate pairs. See
+   :attr:`Font.ucs4`.
+
    The optional resolution argument sets the pixel size, in dots per inch,
    to use for scaling glyphs for this Font instance. If 0 then the default
    module value, set by :meth:`freetype.init`, is used. The Font object's
@@ -156,6 +167,15 @@ passing None as the font name to the Font constructor.
       specified on the font file.
 
       .. ## Font.name ##
+
+   .. attribute:: path
+
+      | :sl:`Gets the path of the font file`
+      | :sg:`path -> unicode`
+
+      Read only. Returns the path of the loaded font file
+
+      .. ## Font.path ##
 
    .. method:: get_size
 
