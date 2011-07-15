@@ -368,6 +368,7 @@ PGFT_UnloadFont(FreeTypeInstance *ft, PyFreeTypeFont *font)
     if (font->id.open_args.flags == FT_OPEN_STREAM)
     {
         _PGFT_free(font->id.open_args.pathname);
+	font->id.open_args.pathname = NULL;
     }
     else if (font->id.open_args.flags == FT_OPEN_PATHNAME)
     {

@@ -15,6 +15,8 @@
 
 #define DOC_FONTNAME "Font.name -> string\nGets the name of the font face."
 
+#define DOC_FONTPATH "Font.path -> unicode\nGets the path of the font file"
+
 #define DOC_FONTGETSIZE "Font.get_size(text, style=STYLE_DEFAULT, rotation=0, ptsize=default, surrogates=True) -> (int, int)\nGets the size of rendered text"
 
 #define DOC_FONTGETMETRICS "Font.get_metrics(text, bbmode=BBOX_PIXEL_GRIDFIT, ptsize=default, surrogates=True) -> [(...), ...]\nGets glyph metrics for the font's characters"

@@ -389,6 +389,10 @@ class FreeTypeFontTest(unittest.TestCase):
         finally:
             ft.set_default_resolution()
 
+    def test_freetype_Font_path(self):
+        self.assertEqual(self._TEST_FONTS['sans'].path, self._sans_path)
+        self.assertRaises(AttributeError, getattr, nullfont(), 'path')
+
 
 class FreeTypeFont(unittest.TestCase):
 
