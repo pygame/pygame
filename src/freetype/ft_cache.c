@@ -367,9 +367,6 @@ Cache_AllocateNode(FreeTypeInstance *ft,
      */
     load_flags = GetLoadFlags(render);
 
-    if (render->style & FT_STYLE_BOLD)
-        bold_str = PGFT_GetBoldStrength(face);
-
     /*
      * Load the glyph into the glyph slot
      */
@@ -380,6 +377,7 @@ Cache_AllocateNode(FreeTypeInstance *ft,
     if (embolden)
     {
         bold_str = PGFT_GetBoldStrength(face);
+        /* bold_advance = (bold_str * 3) / 2; */
         bold_advance = 4 * bold_str;
         if (FT_Outline_Embolden(&((FT_OutlineGlyph)image)->outline, bold_str))
             goto cleanup;
