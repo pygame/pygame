@@ -124,7 +124,7 @@ PGFT_BuildRenderMode(FreeTypeInstance *ft,
 int PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
     const FontRenderMode *render, PGFT_String *text,
     SDL_Surface *surface, int x, int y, FontColor *fgcolor, FontColor *bgcolor,
-    int *_width, int *_height)
+				int *_width, int *_height, FontMetrics *metrics)
 {
     static const FontRenderPtr __SDLrenderFuncs[] =
     {
@@ -209,8 +209,13 @@ int PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
      * Setup target surface struct
      */
     font_surf.buffer = surface->pixels;
-    font_surf.x_offset = x;
-    font_surf.y_offset = y;
+    font_surf.offset.x = PGFT_INT_TO_6(x);
+    font_surf.offset.y = PGFT_INT_TO_6(y);
+    if (!font->origin)
+    {
+        font_surf.offset.x += font_text->offset.x;
+        font_surf.offset.y += font_text->offset.y;
+    }
 
     font_surf.width = surface->w;
     font_surf.height = surface->h;
@@ -263,6 +268,10 @@ int PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
     *_width = width;
     *_height = height;
+    metrics->bearing_rotated.x = font_text->offset.x;
+    metrics->bearing_rotated.y = font_text->offset.y;
+    metrics->advance_rotated.x = font_text->advance.x;
+    metrics->advance_rotated.y = font_text->advance.y;
 
     if (locked)
         SDL_UnlockSurface(surface);
@@ -346,7 +355,7 @@ SDL_Surface *PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
     }
 
     font_surf.buffer = surface->pixels;
-    font_surf.x_offset = font_surf.y_offset = 0;
+    font_surf.offset.x = font_surf.offset.y = 0;
 
     font_surf.width = surface->w;
     font_surf.height = surface->h;
@@ -449,7 +458,7 @@ PyObject *PGFT_Render_PixelArray(FreeTypeInstance *ft, PyFreeTypeFont *font,
     memset(buffer, 0x00, (size_t)array_size);
 
     surf.buffer = buffer;
-    surf.x_offset = surf.y_offset = 0;
+    surf.offset.x = surf.offset.y = 0;
     surf.width = surf.pitch = width;
     surf.height = height;
 
@@ -491,23 +500,23 @@ int _PGFT_Render_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font,
     FT_Vector *posns = text->posns;
     int error = 0;
 
-    left = surface->x_offset;
-    top = surface->y_offset;
+    left = surface->offset.x;
+    top = surface->offset.y;
     for (n = 0; n < length; ++n)
     {
         image = glyphs[n]->image;
-        x = left + PGFT_TRUNC(PGFT_CEIL(posns[n].x));
-        y = top + PGFT_TRUNC(PGFT_CEIL(posns[n].y));
+        x = PGFT_TRUNC(PGFT_CEIL(left + posns[n].x));
+        y = PGFT_TRUNC(PGFT_CEIL(top + posns[n].y));
         surface->render(x, y, surface, &(image->bitmap), fg_color);
     }
 
     if (text->underline_size > 0)
     {
         surface->fill(
-                surface->x_offset,
-                surface->y_offset + PGFT_TRUNC(PGFT_CEIL(text->underline_pos)),
-                text->width, PGFT_TRUNC(PGFT_CEIL(text->underline_size)),
-                surface, fg_color);
+            PGFT_TRUNC(PGFT_CEIL(left)),
+            PGFT_TRUNC(PGFT_CEIL(top + text->underline_pos)),
+            text->width, PGFT_TRUNC(PGFT_CEIL(text->underline_size)),
+            surface, fg_color);
     }
 
     if (error)

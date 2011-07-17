@@ -269,31 +269,14 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
     text_width = PGFT_CEIL(max_x) - PGFT_FLOOR(min_x);
     ftext->width = PGFT_TRUNC(text_width);
+    ftext->offset.x = -min_x;
+    ftext->advance.x = pen.x;
     ftext->left = PGFT_TRUNC(PGFT_FLOOR(min_x));
     text_height = PGFT_CEIL(max_y) - PGFT_FLOOR(min_y);
     ftext->height = PGFT_TRUNC(text_height);
+    ftext->offset.y = -min_y;
+    ftext->advance.y = pen.y;
     ftext->top = PGFT_TRUNC(PGFT_CEIL(top));
     
-    if (vertical)
-    {
-        next_pos = ftext->posns;
-        for (i = 0; i < string_length; ++i)
-        {
-            next_pos->x -= min_x;
-            next_pos->y -= min_y;
-            ++next_pos;
-        }
-    }
-    else
-    {
-        next_pos = ftext->posns;
-        for (i = 0; i < string_length; ++i)
-        {
-            next_pos->x -= min_x;
-            next_pos->y -= min_y;
-            ++next_pos;
-        }
-    }
-
     return ftext;
 }
