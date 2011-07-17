@@ -103,9 +103,11 @@ typedef struct __rendermode
 
 typedef struct __fontmetrics
 {
-    FT_Pos    bearing_x;   /* 26.6 */
-    FT_Pos    bearing_y;   /* 26.6 */
-    FT_Vector advance;     /* 26.6 */
+    /* All these are 26.6 precision */
+    FT_Pos    bearing_x;
+    FT_Pos    bearing_y;
+    FT_Vector bearing_rotated;
+    FT_Vector advance_rotated;
 } FontMetrics;
 
 typedef struct __fontglyph
@@ -113,6 +115,8 @@ typedef struct __fontglyph
     FT_UInt     glyph_index;
     FT_BitmapGlyph image;
 
+    FT_Pos      width;         /* 26.6 */
+    FT_Pos      height;        /* 26.6 */
     FT_Pos      bold_strength; /* 26.6 */
     FontMetrics h_metrics;
     FontMetrics v_metrics;
