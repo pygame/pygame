@@ -31,12 +31,17 @@ static FT_Matrix PGFT_SlantMatrix =
     0,          (1 << 16) 
 };
 
-FT_UInt32 _PGFT_Cache_Hash(const FontRenderMode *, FT_UInt);
-FT_UInt32 _PGFT_GetLoadFlags(const FontRenderMode *);
+static FT_UInt32 Cache_Hash(const FontRenderMode *, FT_UInt);
+static FT_UInt32 GetLoadFlags(const FontRenderMode *);
+static void fill_metrics(FontMetrics *metrics,
+                         FT_Pos bearing_x, FT_Pos bearing_y,
+                         FT_Vector *bearing_rotated,
+                         FT_Vector *advance_rotated);
 
-FontCacheNode *_PGFT_Cache_AllocateNode(FreeTypeInstance *, 
-        FontCache *, const FontRenderMode *, FT_UInt);
-void _PGFT_Cache_FreeNode(FontCache *, FontCacheNode *);
+static FontCacheNode *Cache_AllocateNode(FreeTypeInstance *,
+                                         FontCache *,
+                                         const FontRenderMode *, FT_UInt);
+static void Cache_FreeNode(FontCache *, FontCacheNode *);
 
 const int render_flags_mask = (FT_RFLAG_ANTIALIAS |
                                FT_RFLAG_HINTED |
@@ -53,8 +58,8 @@ equal_node_keys(CacheNodeKey *a, CacheNodeKey *b)
             a->mode.style == b->mode.style);
 }
 
-FT_UInt32
-_PGFT_GetLoadFlags(const FontRenderMode *render)
+static FT_UInt32
+GetLoadFlags(const FontRenderMode *render)
 {
     FT_UInt32 load_flags = FT_LOAD_DEFAULT;
 
@@ -77,13 +82,13 @@ _PGFT_GetLoadFlags(const FontRenderMode *render)
     return load_flags;
 }
 
-FT_UInt32 
-_PGFT_Cache_Hash(const FontRenderMode *render, FT_UInt glyph_index)
+static FT_UInt32 
+Cache_Hash(const FontRenderMode *render, FT_UInt glyph_index)
 {
-	const FT_UInt32 m = 0x5bd1e995;
-	const int r = 24;
+        const FT_UInt32 m = 0x5bd1e995;
+        const int r = 24;
 
-	FT_UInt32 h, k; 
+        FT_UInt32 h, k; 
 
     /* 
      * Quick hashing algorithm, based off MurmurHash2.
@@ -100,11 +105,11 @@ _PGFT_Cache_Hash(const FontRenderMode *render, FT_UInt glyph_index)
     k *= m; k ^= k >> r; 
     k *= m; h *= m; h ^= k;
 
-	h ^= h >> 13;
-	h *= m;
-	h ^= h >> 15;
+        h ^= h >> 13;
+        h *= m;
+        h ^= h >> 15;
 
-	return h;
+        return h;
 } 
 
 int
@@ -178,7 +183,7 @@ PGFT_Cache_Destroy(FontCache *cache)
             while (node)
             {
                 next = node->next;
-                _PGFT_Cache_FreeNode(cache, node);
+                Cache_FreeNode(cache, node);
                 node = next;
             }
         }
@@ -212,7 +217,7 @@ PGFT_Cache_Cleanup(FontCache *cache)
 #endif
 
                     prev->next = NULL; 
-                    _PGFT_Cache_FreeNode(cache, node);
+                    Cache_FreeNode(cache, node);
                     break;
                 }
 
@@ -230,11 +235,13 @@ PGFT_Cache_FindGlyph(FreeTypeInstance *ft, FontCache *cache,
 {
     FontCacheNode **nodes = cache->nodes;
     FontCacheNode *node, *prev;
-    CacheNodeKey key = { *render, character };
+    CacheNodeKey key;
 
-    FT_UInt32 hash = _PGFT_Cache_Hash(render, character);
+    FT_UInt32 hash = Cache_Hash(render, character);
     FT_UInt32 bucket = hash & cache->size_mask;
     
+    key.mode = *render;
+    key.ch = character;
     node = nodes[bucket];
     prev = NULL;
 
@@ -264,7 +271,7 @@ PGFT_Cache_FindGlyph(FreeTypeInstance *ft, FontCache *cache,
         node = node->next;
     }
 
-    node = _PGFT_Cache_AllocateNode(ft, cache, render, character);
+    node = Cache_AllocateNode(ft, cache, render, character);
 
 #ifdef PGFT_DEBUG_CACHE
     cache->_debug_miss++;
@@ -273,8 +280,8 @@ PGFT_Cache_FindGlyph(FreeTypeInstance *ft, FontCache *cache,
     return node ? &node->glyph : NULL;
 }
 
-void
-_PGFT_Cache_FreeNode(FontCache *cache, FontCacheNode *node)
+static void
+Cache_FreeNode(FontCache *cache, FontCacheNode *node)
 {
     if (node == NULL)
         return;
@@ -289,8 +296,8 @@ _PGFT_Cache_FreeNode(FontCache *cache, FontCacheNode *node)
     _PGFT_free(node);
 }
 
-FontCacheNode *
-_PGFT_Cache_AllocateNode(FreeTypeInstance *ft, 
+static FontCacheNode *
+Cache_AllocateNode(FreeTypeInstance *ft, 
         FontCache *cache, const FontRenderMode *render, PGFT_char character)
 {
     static FT_Vector delta = {0, 0};
@@ -298,7 +305,6 @@ _PGFT_Cache_AllocateNode(FreeTypeInstance *ft,
     int embolden = render->style & FT_STYLE_BOLD;
     FontCacheNode *node = NULL;
     FontGlyph *glyph = NULL;
-    FontMetrics *metrics;
     FT_Glyph image = NULL;
 
     FT_Glyph_Metrics *ft_metrics;
@@ -306,12 +312,17 @@ _PGFT_Cache_AllocateNode(FreeTypeInstance *ft,
 
     FT_UInt32 load_flags;
     FT_Pos bold_str = 0;
+    FT_Pos bold_advance = 0;
     FT_UInt gindex;
     FT_UInt32 bucket;
 
     FT_Fixed rotation_angle = render->rotation_angle;
     FT_Vector unit;
     FT_Matrix transform;
+    FT_Vector h_bearing_rotated;
+    FT_Vector v_bearing_rotated;
+    FT_Vector h_advance_rotated;
+    FT_Vector v_advance_rotated;
 
     FT_Error error = 0;
 
@@ -330,6 +341,7 @@ _PGFT_Cache_AllocateNode(FreeTypeInstance *ft,
      * Allocate cache node 
      */
     node = _PGFT_malloc(sizeof(FontCacheNode));
+    memset(node, 0, sizeof(FontCacheNode));
     if (!node) {
         return 0;
     }
@@ -339,8 +351,8 @@ _PGFT_Cache_AllocateNode(FreeTypeInstance *ft,
      * Calculate the corresponding glyph index for the char
      */
     gindex = FTC_CMapCache_Lookup(ft->cache_charmap, 
-				  (FTC_FaceID)&(cache->font->id), -1,
-				  (FT_UInt32)character);
+                                  (FTC_FaceID)&(cache->font->id), -1,
+                                  (FT_UInt32)character);
 
     if (!gindex)
     {
@@ -353,7 +365,7 @@ _PGFT_Cache_AllocateNode(FreeTypeInstance *ft,
     /*
      * Get loading information
      */
-    load_flags = _PGFT_GetLoadFlags(render);
+    load_flags = GetLoadFlags(render);
 
     if (render->style & FT_STYLE_BOLD)
         bold_str = PGFT_GetBoldStrength(face);
@@ -368,27 +380,34 @@ _PGFT_Cache_AllocateNode(FreeTypeInstance *ft,
     if (embolden)
     {
         bold_str = PGFT_GetBoldStrength(face);
+        bold_advance = 4 * bold_str;
         if (FT_Outline_Embolden(&((FT_OutlineGlyph)image)->outline, bold_str))
             goto cleanup;
     }
 
     /*
-     * Precalculate useful metric values
+     * Collect useful metric values
      */
     ft_metrics = &face->glyph->metrics;
-    glyph->bold_strength = bold_str;
-    metrics = &glyph->h_metrics;
-    metrics->advance.x = ft_metrics->horiAdvance + bold_str;
-    metrics->advance.y = 0;
-    metrics = &glyph->v_metrics;
-    metrics->advance.x = 0;
-    metrics->advance.y = ft_metrics->vertAdvance + bold_str;
+    h_advance_rotated.x = ft_metrics->horiAdvance + bold_advance;
+    h_advance_rotated.y = 0;
+    v_advance_rotated.x = 0;
+    v_advance_rotated.y = ft_metrics->vertAdvance + bold_advance;
 
     /*
      * Perform any transformations
      */
+    if (render->style & FT_STYLE_ITALIC)
+    {
+        FT_Outline_Transform(&(((FT_OutlineGlyph)image)->outline),
+                             &PGFT_SlantMatrix);
+    }
+
     if (rotation_angle != 0)
     {
+        FT_Angle counter_rotation =
+            rotation_angle ? PGFT_INT_TO_6(360) - rotation_angle : 0;
+
         FT_Vector_Unit(&unit, rotation_angle);
         transform.xx = unit.x;  /*  cos(angle) */
         transform.xy = -unit.y; /* -sin(angle) */
@@ -398,14 +417,8 @@ _PGFT_Cache_AllocateNode(FreeTypeInstance *ft,
         {
             goto cleanup;
         }
-	FT_Vector_Rotate(&glyph->h_metrics.advance, rotation_angle);
-	FT_Vector_Rotate(&glyph->v_metrics.advance, rotation_angle);
-    }
-
-    if (render->style & FT_STYLE_ITALIC)
-    {
-        FT_Outline_Transform(&(((FT_OutlineGlyph)image)->outline),
-                             &PGFT_SlantMatrix);
+        FT_Vector_Rotate(&h_advance_rotated, rotation_angle);
+        FT_Vector_Rotate(&v_advance_rotated, counter_rotation);
     }
 
     /*
@@ -418,33 +431,50 @@ _PGFT_Cache_AllocateNode(FreeTypeInstance *ft,
         RAISE(PyExc_SDLError, PGFT_GetError(ft));
         goto cleanup;
     }
+
+    /* Fill the glyph */
     glyph->image = (FT_BitmapGlyph)image;
+    glyph->width = PGFT_INT_TO_6(glyph->image->bitmap.width);
+    glyph->height = PGFT_INT_TO_6(glyph->image->bitmap.rows);
+    glyph->bold_strength = bold_str;
+    h_bearing_rotated.x = PGFT_INT_TO_6(glyph->image->left);
+    h_bearing_rotated.y = PGFT_INT_TO_6(glyph->image->top);
+    fill_metrics(&glyph->h_metrics,
+                 ft_metrics->horiBearingX + bold_advance,
+                 ft_metrics->horiBearingY + bold_advance,
+                 &h_bearing_rotated, &h_advance_rotated);
 
-    metrics = &glyph->h_metrics;
-    metrics->bearing_x = PGFT_INT_TO_6(glyph->image->left);
-    metrics->bearing_y = PGFT_INT_TO_6(glyph->image->top);
-    
-    metrics = &glyph->v_metrics;
-    /* Maybe these should be derived from image->left and image->top? */
-    metrics->bearing_x = ft_metrics->vertBearingX;
-    metrics->bearing_y = ft_metrics->vertBearingY;
-
-    /*
-     * Adjust the metrics.
-     */
-    if (rotation_angle != 0)
+    if (rotation_angle == 0)
     {
-        /* Do something magical to the vertical metrics
-           unless they are derived from image->left and image->top,
-           then remove this. */
+        v_bearing_rotated.x = ft_metrics->vertBearingX - bold_advance / 2;
+        v_bearing_rotated.y = ft_metrics->vertBearingY;
     }
+    else
+    {
+        /*
+         * Adjust the vertical metrics.
+         */
+        FT_Vector v_origin;
+
+        v_origin.x = (glyph->h_metrics.bearing_x -
+                      ft_metrics->vertBearingX + bold_advance / 2);
+        v_origin.y = (glyph->h_metrics.bearing_y +
+                      ft_metrics->vertBearingY);
+        FT_Vector_Rotate(&v_origin, rotation_angle);
+        v_bearing_rotated.x = glyph->h_metrics.bearing_rotated.x - v_origin.x;
+        v_bearing_rotated.y = v_origin.y - glyph->h_metrics.bearing_rotated.y;
+    }
+    fill_metrics(&glyph->v_metrics,
+                 ft_metrics->vertBearingX + bold_advance,
+                 ft_metrics->vertBearingY + bold_advance,
+                 &v_bearing_rotated, &v_advance_rotated);
 
     /*
      * Update cache internals
      */
     node->key.mode = *render;
     node->key.ch = character;
-    node->hash = _PGFT_Cache_Hash(render, character);
+    node->hash = Cache_Hash(render, character);
     bucket = node->hash & cache->size_mask;
     node->next = cache->nodes[bucket];
     cache->nodes[bucket] = node;
@@ -466,4 +496,18 @@ cleanup:
 
     _PGFT_free(node);
     return NULL;
+}
+
+static void
+fill_metrics(FontMetrics *metrics, 
+             FT_Pos bearing_x, FT_Pos bearing_y,
+             FT_Vector *bearing_rotated,
+             FT_Vector *advance_rotated)
+{
+    metrics->bearing_x = bearing_x;
+    metrics->bearing_y = bearing_y;
+    metrics->bearing_rotated.x = bearing_rotated->x;
+    metrics->bearing_rotated.y = bearing_rotated->y;
+    metrics->advance_rotated.x = advance_rotated->x;
+    metrics->advance_rotated.y = advance_rotated->y;
 }

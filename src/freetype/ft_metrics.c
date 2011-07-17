@@ -44,8 +44,8 @@ int PGFT_GetMetrics(FreeTypeInstance *ft, PyFreeTypeFont *font,
     *maxx = (long)(glyph->image->left + glyph->image->bitmap.width);
     *maxy = (long)glyph->image->top;
     *miny = (long)(glyph->image->top - glyph->image->bitmap.rows);
-    *advance_x = (double)(glyph->h_metrics.advance.x / 64.0);
-    *advance_y = (double)(glyph->h_metrics.advance.y / 64.0);
+    *advance_x = (double)(glyph->h_metrics.advance_rotated.x / 64.0);
+    *advance_y = (double)(glyph->h_metrics.advance_rotated.y / 64.0);
 
     return 0;
 }
