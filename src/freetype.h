@@ -91,6 +91,7 @@ typedef struct
     FT_Byte kerning;
     FT_Byte ucs4;
     FT_UInt resolution;
+    FT_Byte origin;
 
     void *_internals;
 } PyFreeTypeFont;

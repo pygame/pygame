@@ -79,8 +79,7 @@ typedef struct __fontsurface
 {
     void *buffer;
 
-    int x_offset;
-    int y_offset;
+    FT_Vector offset;
 
     int width;
     int height;
@@ -131,10 +130,13 @@ typedef struct __fonttext
     FT_Pos   underline_size;
     FT_Pos   underline_pos;
 
+    FT_Vector offset;
+    FT_Vector advance;
+
     int      width;     /* In pixels */
     int      height;    /* In pixels */
-    int      left;      /* In pixels */
     int      top;       /* In pixels */
+    int      left;      /* In pixels */
 } FontText;
 
 typedef struct __cachenodekey
@@ -268,8 +270,9 @@ SDL_Surface *PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
 int         PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
                 const FontRenderMode *render, PGFT_String *text, 
-                SDL_Surface *_surface, int x, int y, FontColor *fgcolor, FontColor *bgcolor,
-                int *_width, int *_height);
+                SDL_Surface *_surface, int x, int y,
+                FontColor *fgcolor, FontColor *bgcolor,
+		int *_width, int *_height, FontMetrics *metrics);
 
 int         PGFT_BuildRenderMode(FreeTypeInstance *ft, 
                 PyFreeTypeFont *font, FontRenderMode *mode, int pt_size, 
