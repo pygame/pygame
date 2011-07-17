@@ -71,7 +71,6 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
     FT_Pos      top = PGFT_MIN_6;
 
     FT_Error    error = 0;
-    int         i;
 
     /* load our sized face */
     face = _PGFT_GetFaceSized(ft, font, render->pt_size);
@@ -178,14 +177,6 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
         {
             max_x = pen.x + metrics->bearing_rotated.x + glyph_width;
         }
-        /* if (pen.y - metrics->bearing_rotated.y < min_y) */
-        /* { */
-        /*     min_y = pen.y - metrics->bearing_rotated.y; */
-        /* } */
-        /* if (pen.y - metrics->bearing_rotated.y + glyph_height > max_y) */
-        /* { */
-        /*     max_y = pen.y - metrics->bearing_rotated.y + glyph_height; */
-        /* } */
         next_pos->x = pen.x + metrics->bearing_rotated.x;
         pen.x += metrics->advance_rotated.x;
         if (vertical)
@@ -231,19 +222,18 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
         FT_Fixed scale;
         FT_Fixed underline_pos;
         FT_Fixed underline_size;
-        FT_Fixed min_y_underline;
+        FT_Fixed max_y_underline;
         
         scale = face->size->metrics.y_scale;
 
-        underline_pos = FT_MulFix(face->underline_position, scale) / 4; /*(1)*/
+        underline_pos = -FT_MulFix(face->underline_position, scale) / 4; /*(1)*/
         underline_size = FT_MulFix(face->underline_thickness, scale) + bold_str;
-        min_y_underline = underline_pos - ftext->underline_size / 2;
-	if (min_y_underline < min_y - max_y + top)
+        max_y_underline = underline_pos + underline_size / 2;
+        if (max_y_underline > max_y)
         {
-            max_y = min_y - min_y_underline + max_y + top;
+            max_y = max_y_underline;
         }
-
-	ftext->underline_pos = top - min_y_underline;
+	ftext->underline_pos = underline_pos;
 	ftext->underline_size = underline_size;
 
         /*

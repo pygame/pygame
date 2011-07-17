@@ -36,6 +36,7 @@ FT_Matrix PGFT_SlantMatrix =
 
 FT_Fixed PGFT_GetBoldStrength(FT_Face face)
 {
+    /* const float bold_factor = 0.058f; */
     const float bold_factor = 0.06f;
     FT_Fixed bold_str;
 
@@ -121,10 +122,11 @@ PGFT_BuildRenderMode(FreeTypeInstance *ft,
  *
  *********************************************************/
 #ifdef HAVE_PYGAME_SDL_VIDEO
-int PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
-    const FontRenderMode *render, PGFT_String *text,
-    SDL_Surface *surface, int x, int y, FontColor *fgcolor, FontColor *bgcolor,
-				int *_width, int *_height, FontMetrics *metrics)
+int PGFT_Render_ExistingSurface(
+    FreeTypeInstance *ft, PyFreeTypeFont *font,
+    const FontRenderMode *render, PGFT_String *text, SDL_Surface *surface,
+    int x, int y, FontColor *fgcolor, FontColor *bgcolor,
+    int *_width, int *_height, FontMetrics *metrics)
 {
     static const FontRenderPtr __SDLrenderFuncs[] =
     {
@@ -211,7 +213,12 @@ int PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
     font_surf.buffer = surface->pixels;
     font_surf.offset.x = PGFT_INT_TO_6(x);
     font_surf.offset.y = PGFT_INT_TO_6(y);
-    if (!font->origin)
+    if (font->origin)
+    {
+        x -= PGFT_TRUNC(PGFT_CEIL(font_text->offset.x));
+        y -= PGFT_TRUNC(PGFT_CEIL(font_text->offset.y));
+    }
+    else
     {
         font_surf.offset.x += font_text->offset.x;
         font_surf.offset.y += font_text->offset.y;
@@ -283,8 +290,19 @@ SDL_Surface *PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
     const FontRenderMode *render, PGFT_String *text,
     FontColor *fgcolor, FontColor *bgcolor, int *_width, int *_height)
 {
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+    FT_UInt32 rmask = 0xff000000;
+    FT_UInt32 gmask = 0x00ff0000;
+    FT_UInt32 bmask = 0x0000ff00;
+    FT_UInt32 amask = 0x000000ff;
+#else
+    FT_UInt32 rmask = 0x000000ff;
+    FT_UInt32 gmask = 0x0000ff00;
+    FT_UInt32 bmask = 0x00ff0000;
+    FT_UInt32 amask = 0xff000000;
+#endif
     int locked = 0;
-    FT_UInt32 fillcolor, rmask, gmask, bmask, amask;
+    FT_UInt32 fillcolor;
     SDL_Surface *surface = NULL;
 
     FontSurface font_surf;
@@ -313,18 +331,6 @@ SDL_Surface *PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
         height = PGFT_Face_GetHeight(ft, font);
     }
         
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-    rmask = 0xff000000;
-    gmask = 0x00ff0000;
-    bmask = 0x0000ff00;
-    amask = 0x000000ff;
-#else
-    rmask = 0x000000ff;
-    gmask = 0x0000ff00;
-    bmask = 0x00ff0000;
-    amask = 0xff000000;
-#endif
-
     surface = SDL_CreateRGBSurface(SDL_SWSURFACE, 
             width, height,
             32, rmask, gmask, bmask, amask);
@@ -489,8 +495,8 @@ int _PGFT_Render_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font,
     FontText *text, const FontRenderMode *render, FontColor *fg_color,
     FontSurface *surface)
 {
-    int top;
-    int left;
+    FT_Pos top;
+    FT_Pos left;
     int x;
     int y;
     int n;
@@ -500,6 +506,8 @@ int _PGFT_Render_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font,
     FT_Vector *posns = text->posns;
     int error = 0;
 
+    if (length <= 0)
+        return error;
     left = surface->offset.x;
     top = surface->offset.y;
     for (n = 0; n < length; ++n)
@@ -513,7 +521,7 @@ int _PGFT_Render_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font,
     if (text->underline_size > 0)
     {
         surface->fill(
-            PGFT_TRUNC(PGFT_CEIL(left)),
+            PGFT_TRUNC(PGFT_CEIL(left - text->offset.x)),
             PGFT_TRUNC(PGFT_CEIL(top + text->underline_pos)),
             text->width, PGFT_TRUNC(PGFT_CEIL(text->underline_size)),
             surface, fg_color);
