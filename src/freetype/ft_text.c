@@ -53,29 +53,25 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
     int         vertical = font->vertical;
     int         use_kerning = font->kerning;
-    FT_Angle    angle = render->rotation_angle;
-    FT_Vector   kerning;
     FT_UInt     prev_glyph_index = 0;
 
-    FT_Pos      min_x = PGFT_MAX_6;  /* 26.6 */
-    FT_Pos      max_x = PGFT_MIN_6;  /* 26.6 */
-    FT_Pos      min_y = PGFT_MAX_6;  /* 26.6 */
-    FT_Pos      max_y = PGFT_MIN_6;  /* 26.6 */
-    FT_Pos      glyph_width;         /* 26.6 */
-    FT_Pos      glyph_height;        /* 26.6 */
-    FT_Pos      text_width;          /* 26.6 */
-    FT_Pos      text_height;         /* 26.6 */
-    FT_Pos      top = PGFT_MIN_6;    /* 26.6 */
+    /* All these are 16.16 precision */
+    FT_Angle    angle = render->rotation_angle;
+
+    /* All these are 26.6 precision */
+    FT_Vector   kerning;
+    FT_Pos      min_x = PGFT_MAX_6;
+    FT_Pos      max_x = PGFT_MIN_6;
+    FT_Pos      min_y = PGFT_MAX_6;
+    FT_Pos      max_y = PGFT_MIN_6;
+    FT_Pos      glyph_width;
+    FT_Pos      glyph_height;
+    FT_Pos      text_width;
+    FT_Pos      text_height;
+    FT_Pos      top = PGFT_MIN_6;
 
     FT_Error    error = 0;
     int         i;
-
-    if (vertical && angle != 0)
-    {
-        PyErr_SetString(PyExc_NotImplementedError,
-			 "rotation of vertical text is unfinished");
-	return NULL;
-    }
 
     /* load our sized face */
     face = _PGFT_GetFaceSized(ft, font, render->pt_size);
@@ -138,8 +134,8 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
         if (!glyph)
             continue;
         image = glyph->image;
-        glyph_width = PGFT_INT_TO_6(image->bitmap.width);
-        glyph_height = PGFT_INT_TO_6(image->bitmap.rows);
+        glyph_width = glyph->width;
+        glyph_height = glyph->height;
 
         /*
          * Do size calculations for all the glyphs in the text
@@ -170,37 +166,53 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
         prev_glyph_index = glyph->glyph_index;
 	metrics = vertical ? &glyph->v_metrics : &glyph->h_metrics;
-        if (metrics->bearing_y > top)
+        if (metrics->bearing_rotated.y > top)
         {
-            top = metrics->bearing_y;
+            top = metrics->bearing_rotated.y;
         }
-	if (pen.x + metrics->bearing_x < min_x)
+	if (pen.x + metrics->bearing_rotated.x < min_x)
         {
-            min_x = pen.x + metrics->bearing_x;
+            min_x = pen.x + metrics->bearing_rotated.x;
         }
-        if (pen.x + metrics->bearing_x + glyph_width > max_x)
+        if (pen.x + metrics->bearing_rotated.x + glyph_width > max_x)
         {
-            max_x = pen.x + metrics->bearing_x + glyph_width;
+            max_x = pen.x + metrics->bearing_rotated.x + glyph_width;
         }
-        if (pen.y - metrics->bearing_y < min_y)
-        {
-            min_y = pen.y - metrics->bearing_y;
-        }
-        if (pen.y - metrics->bearing_y + glyph_height > max_y)
-        {
-            max_y = pen.y - metrics->bearing_y + glyph_height;
-        }
-        next_pos->x = pen.x + metrics->bearing_x;
-	pen.x += metrics->advance.x;
+        /* if (pen.y - metrics->bearing_rotated.y < min_y) */
+        /* { */
+        /*     min_y = pen.y - metrics->bearing_rotated.y; */
+        /* } */
+        /* if (pen.y - metrics->bearing_rotated.y + glyph_height > max_y) */
+        /* { */
+        /*     max_y = pen.y - metrics->bearing_rotated.y + glyph_height; */
+        /* } */
+        next_pos->x = pen.x + metrics->bearing_rotated.x;
+        pen.x += metrics->advance_rotated.x;
         if (vertical)
         {
-            next_pos->y = pen.y + metrics->bearing_y;
-            pen.y += metrics->advance.y;
+            if (pen.y + metrics->bearing_rotated.y < min_y)
+	    {
+                min_y = pen.y + metrics->bearing_rotated.y;
+	    }
+            if (pen.y + metrics->bearing_rotated.y + glyph_height > max_y)
+	    {
+                max_y = pen.y + metrics->bearing_rotated.y + glyph_height;
+	    }
+            next_pos->y = pen.y + metrics->bearing_rotated.y;
+            pen.y += metrics->advance_rotated.y;
         }
         else
         {
-            next_pos->y = pen.y - metrics->bearing_y;
-            pen.y -= metrics->advance.y;
+            if (pen.y - metrics->bearing_rotated.y < min_y)
+	    {
+                min_y = pen.y - metrics->bearing_rotated.y;
+	    }
+            if (pen.y - metrics->bearing_rotated.y + glyph_height > max_y)
+	    {
+                max_y = pen.y - metrics->bearing_rotated.y + glyph_height;
+	    }
+            next_pos->y = pen.y - metrics->bearing_rotated.y;
+            pen.y -= metrics->advance_rotated.y;
         }
         *glyph_array++ = glyph;
         ++next_pos;
@@ -268,6 +280,7 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
         for (i = 0; i < string_length; ++i)
         {
             next_pos->x -= min_x;
+            next_pos->y -= min_y;
             ++next_pos;
         }
     }
