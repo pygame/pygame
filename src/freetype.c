@@ -291,8 +291,10 @@ static int _ftfont_setantialias(PyObject *self, PyObject *value, void *closure);
 static PyObject *_ftfont_getkerning(PyObject *self, void *closure);
 static int _ftfont_setkerning(PyObject *self, PyObject *value, void *closure);
 static PyObject *_ftfont_getucs4(PyObject *self, void *closure);
-static int _ftfont_setucs4(PyObject *self, PyObject *value,
-                                 void *closure);
+static int _ftfont_setucs4(PyObject *self, PyObject *value, void *closure);
+static PyObject *_ftfont_getorigin(PyObject *self, void *closure);
+static int _ftfont_setorigin(PyObject *self, PyObject *value, void *closure);
+
 static PyObject *_ftfont_getresolution(PyObject *self, void *closure);
 
 static PyObject *_ftfont_getstyle_flag(PyObject *self, void *closure);
@@ -486,6 +488,13 @@ static PyGetSetDef _ftfont_getsets[] =
         DOC_FONTRESOLUTION,
         NULL
     },
+    {
+        "origin",
+        _ftfont_getorigin,
+        _ftfont_setorigin,
+        DOC_FONTORIGIN,
+        NULL
+    },
 
     { NULL, NULL, NULL, NULL, NULL }
 };
@@ -572,6 +581,7 @@ _ftfont_new(PyTypeObject *subtype, PyObject *args, PyObject *kwds)
         obj->antialias = 1;
         obj->kerning = 0;
         obj->ucs4 = 0;
+	obj->origin = 0;
     }
     return (PyObject *)obj;
 }
@@ -593,7 +603,7 @@ _ftfont_init(PyObject *self, PyObject *args, PyObject *kwds)
     static char *kwlist[] = 
     { 
         "font", "ptsize", "style", "face_index", "vertical",
-        "ucs4", "resolution", NULL
+        "ucs4", "resolution", "origin", NULL
     };
 
     PyFreeTypeFont *font = (PyFreeTypeFont *)self;
@@ -605,6 +615,7 @@ _ftfont_init(PyObject *self, PyObject *args, PyObject *kwds)
     int ucs4;
     int vertical;
     unsigned resolution = 0;
+    int origin;
 
     FreeTypeInstance *ft;
     ASSERT_GRAB_FREETYPE(ft, -1);
@@ -613,10 +624,12 @@ _ftfont_init(PyObject *self, PyObject *args, PyObject *kwds)
     font_style = font->style;
     ucs4 = font->ucs4;
     vertical = font->vertical;
+    origin = font->origin;
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|iiIiiI", kwlist, 
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|iiIiiIi", kwlist, 
                                      &file, &ptsize, &font_style, &face_index,
-                                     &vertical, &ucs4, &resolution))
+                                     &vertical, &ucs4, &resolution,
+				     &origin))
         return -1;
 
     original_file = file;
@@ -635,6 +648,7 @@ _ftfont_init(PyObject *self, PyObject *args, PyObject *kwds)
     font->style = (FT_Byte)font_style;
     font->ucs4 = ucs4 ? (FT_Byte)1 : (FT_Byte)0;
     font->vertical = vertical;
+    font->origin = (FT_Byte)origin;
     if (resolution)
     {
         font->resolution = (FT_UInt)resolution;
@@ -993,6 +1007,30 @@ _ftfont_setucs4(PyObject *self, PyObject *value, void *closure)
 }
 
 
+/** render at text origin attribute */
+PyObject *
+_ftfont_getorigin(PyObject *self, void *closure)
+{
+    PyFreeTypeFont *font = (PyFreeTypeFont *)self;
+    
+    return PyBool_FromLong(font->origin);
+}
+
+int
+_ftfont_setorigin(PyObject *self, PyObject *value, void *closure)
+{
+    PyFreeTypeFont *font = (PyFreeTypeFont *)self;
+    
+    if (!PyBool_Check(value))
+    {
+        PyErr_SetString(PyExc_TypeError, "Expecting 'bool' type");
+        return -1;
+    }
+    font->origin = (FT_Byte)PyObject_IsTrue(value);
+    return 0;
+}
+
+
 /** resolution pixel size attribute */
 PyObject *
 _ftfont_getresolution(PyObject *self, void *closure)
@@ -1248,6 +1286,7 @@ _ftfont_render(PyObject *self, PyObject *args, PyObject *kwds)
     /* output arguments */
     PyObject *rtuple = NULL;
     int width, height;
+    FontMetrics metrics;
     PyObject *rect_obj;
 
     FontColor fg_color, bg_color;
@@ -1330,15 +1369,18 @@ _ftfont_render(PyObject *self, PyObject *args, PyObject *kwds)
         surface = PySurface_AsSurface(surface_obj);
 
         rcode = PGFT_Render_ExistingSurface(ft, font, &render, 
-                    text, surface, xpos, ypos, 
-                    &fg_color, bg_color_obj ? &bg_color : NULL,
-                    &width, &height);
+					    text, surface, xpos, ypos,
+					    &fg_color,
+					    bg_color_obj ? &bg_color : NULL,
+					    &width, &height, &metrics);
         PGFT_FreeString(text);
         if (rcode)
         {
             Py_DECREF(surface_obj);
             return NULL;
         }
+	xpos = PGFT_TRUNC(PGFT_CEIL(metrics.bearing_rotated.x));
+	ypos = PGFT_TRUNC(PGFT_CEIL(metrics.bearing_rotated.y));
     }
     else
     {
