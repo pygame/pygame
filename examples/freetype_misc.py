@@ -26,7 +26,7 @@ def run():
     screen.fill (colors["grey_light"])
 
     font.render((screen, 32, 32), "Hello World", colors["red"], colors['grey_dark'],
-            ptsize=64, style=freetype.STYLE_UNDERLINE|freetype.STYLE_ITALIC)
+            ptsize=64, style=freetype.STYLE_UNDERLINE|freetype.STYLE_OBLIQUE)
 
     font.render((screen, 32, 128), "abcdefghijklm", colors["grey_dark"], colors["green"],
             ptsize=64)

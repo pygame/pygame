@@ -454,11 +454,11 @@ static PyGetSetDef _ftfont_getsets[] =
         NULL
     },
     {
-        "italic",
+        "oblique",
         _ftfont_getstyle_flag,
         _ftfont_setstyle_flag,
-        DOC_FONTITALIC,
-        (void *)FT_STYLE_ITALIC
+        DOC_FONTOBLIQUE,
+        (void *)FT_STYLE_OBLIQUE
     },
     {
         "bold",
@@ -1691,7 +1691,7 @@ MODINIT_DEFINE (freetype)
 
     DEC_CONST(STYLE_NORMAL);
     DEC_CONST(STYLE_BOLD);
-    DEC_CONST(STYLE_ITALIC);
+    DEC_CONST(STYLE_OBLIQUE);
     DEC_CONST(STYLE_UNDERLINE);
 
     DEC_CONST(BBOX_EXACT);

@@ -77,16 +77,16 @@ class FreeTypeFontTest(unittest.TestCase):
         self.assertEqual(f.name, 'Liberation Sans')
         self.assertFalse(f.fixed_width)
         self.assertTrue(f.antialiased)
-        self.assertFalse(f.italic)
+        self.assertFalse(f.oblique)
         self.assertTrue(f.ucs4)
         f.antialiased = False
-        f.italic = True
+        f.oblique = True
         f.__init__(self._fixed_path)
         self.assertEqual(f.name, 'Inconsolata')
         ##self.assertTrue(f.fixed_width)
         self.assertFalse(f.fixed_width)  # need a properly marked Mono font
         self.assertFalse(f.antialiased)
-        self.assertTrue(f.italic)
+        self.assertTrue(f.oblique)
         self.assertTrue(f.ucs4)
         
     def test_freetype_Font_fixed_width(self):
@@ -156,10 +156,10 @@ class FreeTypeFontTest(unittest.TestCase):
         self.assertTrue(size_vert[0] < size_vert[1])
         font.vertical = False
 
-        size_italic = font.get_size("ABCDabcd", ptsize=24, style=ft.STYLE_ITALIC)
-        test_size(size_italic)
-        self.assertTrue(size_italic[0] > size_default[0])
-        self.assertTrue(size_italic[1] == size_default[1])
+        size_oblique = font.get_size("ABCDabcd", ptsize=24, style=ft.STYLE_OBLIQUE)
+        test_size(size_oblique)
+        self.assertTrue(size_oblique[0] > size_default[0])
+        self.assertTrue(size_oblique[1] == size_default[1])
 
         size_under = font.get_size("ABCDabcd", ptsize=24, style=ft.STYLE_UNDERLINE)
         test_size(size_under)
@@ -227,21 +227,25 @@ class FreeTypeFontTest(unittest.TestCase):
         # render to existing surface
         refcount = sys.getrefcount(surf);
         rend = font.render((surf, 32, 32), 'FoobarBaz', color, None, ptsize=24)
+        self.assertEqual(sys.getrefcount(surf), refcount + 1)
         self.assertTrue(isinstance(rend, tuple))
         self.assertEqual(len(rend), 2)
-        self.assertTrue(rend[0] is surf)
-        self.assertEqual(sys.getrefcount(surf), refcount + 1)
-        self.assertTrue(isinstance(rend[1], pygame.Rect))
-        self.assertEqual(tuple(rend[1].topleft), (32, 32))
-        self.assertTrue(rend[0].get_rect().contains(rend[1]))
+        rsurf, rrect = rend
+        self.assertTrue(rsurf is surf)
+        self.assertTrue(isinstance(rrect, pygame.Rect))
+        self.assertEqual(rrect.top, rrect.height)
+##        self.assertEqual(rrect.left, something or other)
+        rcopy = rrect.copy()
+        rcopy.topleft = (32, 32)
+        self.assertTrue(rsurf.get_rect().contains(rcopy))
         
         rect = pygame.Rect(20, 20, 2, 2)
         rend = font.render((surf, rect), 'FoobarBax', color, None, ptsize=24)
-        self.assertEqual(rend[1].topleft, rect.topleft)
-        self.assertNotEqual(rend[1], rect)
+        self.assertEqual(rend[1].top, rend[1].height)
+        self.assertNotEqual(rend[1].size, rect.size)
         rend = font.render((surf, 20.1, 18.9), 'FoobarBax',
                            color, None, ptsize=24)
-        self.assertEqual(tuple(rend[1].topleft), (20, 18))
+##        self.assertEqual(tuple(rend[1].topleft), (20, 18))
 
         s, r = font.render((surf, rect), '', color, None, ptsize=24)
         self.assertFalse(r)
@@ -359,7 +363,7 @@ class FreeTypeFontTest(unittest.TestCase):
 
         # test complex styles
         st = (  ft.STYLE_BOLD | ft.STYLE_UNDERLINE |
-                ft.STYLE_ITALIC )
+                ft.STYLE_OBLIQUE )
 
         font.style = st
         self.assertEqual(st, font.style)

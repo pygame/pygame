@@ -395,7 +395,7 @@ Cache_AllocateNode(FreeTypeInstance *ft,
     /*
      * Perform any transformations
      */
-    if (render->style & FT_STYLE_ITALIC)
+    if (render->style & FT_STYLE_OBLIQUE)
     {
         FT_Outline_Transform(&(((FT_OutlineGlyph)image)->outline),
                              &PGFT_SlantMatrix);

@@ -140,7 +140,7 @@ New in Pygame 1.9.2
    specified to specify which face index to load. Defaults to 0; font loading
    will fail if the given index is not contained in the font.
 
-   The 'style' argument will set the default style (italic, underline, bold)
+   The 'style' argument will set the default style (oblique, underline, bold)
    used to draw this font. This style may be overriden on any ``Font.render()``
    call.
 
@@ -222,7 +222,7 @@ New in Pygame 1.9.2
       The calculations are done using the font's default size in points.
       Optionally you may specify another point size to use.
 
-      The metrics are adjusted for the current rotation, bold, and italics
+      The metrics are adjusted for the current rotation, bold, and oblique
       settings.
 
       If text is a char (byte) string, then its encoding is assumed to be
@@ -313,12 +313,12 @@ New in Pygame 1.9.2
 
           STYLE_NONE
           STYLE_UNDERLINE
-          STYLE_ITALIC
+          STYLE_OBLIQUE
           STYLE_BOLD
 
       These constants may be found on the FreeType constants module.
       Optionally, the default style can be modified or obtained accessing the
-      individual style attributes (underline, italic, bold).
+      individual style attributes (underline, oblique, bold).
 
       .. ## Font.style ##
 
@@ -346,17 +346,17 @@ New in Pygame 1.9.2
 
       .. ## Font.bold ##
 
-   .. attribute:: italic
+   .. attribute:: oblique
 
-      | :sl:`Gets or sets the font's italic style`
-      | :sg:`italic -> bool`
+      | :sl:`Gets or sets the font's oblique style`
+      | :sg:`oblique -> bool`
 
-      Gets or sets whether the font will be in italics when drawing text. This
+      Gets or sets whether the font will be rendered as oblique. This
       default style value will be used for all text rendering and size
       calculations unless overriden specifically in the \`render()` or
       \`get_size()` calls, via the 'style' parameter.
 
-      .. ## Font.italic ##
+      .. ## Font.oblique ##
 
    .. attribute:: fixed_width
 

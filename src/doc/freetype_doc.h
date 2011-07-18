@@ -33,7 +33,7 @@
 
 #define DOC_FONTBOLD "Font.bold -> bool\nGets or sets the font's bold style"
 
-#define DOC_FONTITALIC "Font.italic -> bool\nGets or sets the font's italic style"
+#define DOC_FONTOBLIQUE "Font.oblique -> bool\nGets or sets the font's oblique style"
 
 #define DOC_FONTFIXEDWIDTH "Font.fixed_width -> bool\nGets whether the font is fixed-width"
 
@@ -157,9 +157,9 @@ Gets or sets the font's bold style
 
 
 
-Font.italic
- Font.italic -> bool
-Gets or sets the font's italic style
+Font.oblique
+ Font.oblique -> bool
+Gets or sets the font's oblique style
 
 
 
