@@ -100,6 +100,26 @@ typedef struct __rendermode
     FT_UInt16   style;
 } FontRenderMode;
 
+struct __cachenode;
+
+typedef struct __fontcache
+{
+    struct __cachenode **nodes;
+    struct __cachenode *free_nodes;
+
+    FT_Byte    *depths;
+
+#ifdef PGFT_DEBUG_CACHE
+    FT_UInt32   count;
+    FT_UInt32   _debug_delete_count;
+    FT_UInt32   _debug_access;
+    FT_UInt32   _debug_hit;
+    FT_UInt32   _debug_miss;
+#endif
+
+    FT_UInt32   size_mask;
+} FontCache;
+
 typedef struct __fontmetrics
 {
     /* All these are 26.6 precision */
@@ -123,47 +143,27 @@ typedef struct __fontglyph
 
 typedef struct __fonttext
 {
-    int length;
-    FontGlyph **glyphs;
-    FT_Vector *posns;
-
-    FT_Pos   underline_size;
-    FT_Pos   underline_pos;
-
-    FT_Vector offset;
-    FT_Vector advance;
-
+    int      length;
     int      width;     /* In pixels */
     int      height;    /* In pixels */
     int      top;       /* In pixels */
     int      left;      /* In pixels */
+
+    FT_Vector offset;
+    FT_Vector advance;
+    FT_Pos   underline_size;
+    FT_Pos   underline_pos;
+
+    int       buffer_size;
+    FontGlyph **glyphs;
+    FT_Vector *posns;
+
+    FontCache  glyph_cache;
 } FontText;
-
-struct __cachenode;
-
-typedef struct __fontcache
-{
-    struct __cachenode **nodes;
-    struct __cachenode *free_nodes;
-
-    FT_Byte    *depths;
-
-#ifdef PGFT_DEBUG_CACHE
-    FT_UInt32   count;
-    FT_UInt32   _debug_delete_count;
-    FT_UInt32   _debug_access;
-    FT_UInt32   _debug_hit;
-    FT_UInt32   _debug_miss;
-#endif
-
-    FT_UInt32   size_mask;
-    PyFreeTypeFont  *font;
-} FontCache;
 
 #define PGFT_INTERNALS(f) ((FontInternals *)(f->_internals))
 typedef struct FontInternals_
 {
-    FontCache  cache;
     FontText    active_text;
 } FontInternals;
 
@@ -294,20 +294,19 @@ void __render_glyph_RGB4(int x, int y, FontSurface *surface, FT_Bitmap *bitmap, 
 void __render_glyph_ByteArray(int x, int y, FontSurface *surface, FT_Bitmap *bitmap, FontColor *color);
 
 /******************************************************** Font text management ****/
+int PGFT_FontTextInit(FreeTypeInstance *ft, PyFreeTypeFont *font);
+void PGFT_FontTextFree(PyFreeTypeFont *ftext);
 FontText *PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font, 
                             const FontRenderMode *render, PGFT_String *text);
-int PGFT_LoadGlyph(FontGlyph *glyph, FreeTypeInstance *ft, PyFreeTypeFont *font,
-		   const FontRenderMode *render, PGFT_char character);
+int PGFT_LoadGlyph(FontGlyph *glyph, PGFT_char character, const FontRenderMode *render,
+                   void *internal);
 
 /******************************************************** Glyph cache management ****/
-int         PGFT_Cache_Init(FreeTypeInstance *ft, FontCache *cache, PyFreeTypeFont *parent);
+int         PGFT_Cache_Init(FreeTypeInstance *ft, FontCache *cache);
 void        PGFT_Cache_Destroy(FontCache *cache);
 void        PGFT_Cache_Cleanup(FontCache *cache);
-FontGlyph * PGFT_Cache_FindGlyph(FreeTypeInstance *ft, FontCache *cache,
-                                 FT_UInt32 character, 
-                                 const FontRenderMode *render);
-
-
+FontGlyph * PGFT_Cache_FindGlyph(FT_UInt32 character, const FontRenderMode *render,
+                                 FontCache *cache, void *internal);
 
 /******************************************************************* Unicode ******/
 PGFT_String * PGFT_EncodePyString(PyObject *obj, int ucs4);
