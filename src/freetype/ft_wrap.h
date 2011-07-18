@@ -139,25 +139,12 @@ typedef struct __fonttext
     int      left;      /* In pixels */
 } FontText;
 
-typedef struct __cachenodekey
-{
-    FontRenderMode mode;
-    PGFT_char ch;
-} CacheNodeKey;
-
-typedef struct __cachenode
-{
-    FontGlyph glyph;
-    struct __cachenode *next;
-    CacheNodeKey key;
-    FT_UInt32 hash;
-
-} FontCacheNode;
+struct __cachenode;
 
 typedef struct __fontcache
 {
-    FontCacheNode  **nodes;
-    FontCacheNode  *free_nodes;
+    struct __cachenode **nodes;
+    struct __cachenode *free_nodes;
 
     FT_Byte    *depths;
 
@@ -307,8 +294,10 @@ void __render_glyph_RGB4(int x, int y, FontSurface *surface, FT_Bitmap *bitmap, 
 void __render_glyph_ByteArray(int x, int y, FontSurface *surface, FT_Bitmap *bitmap, FontColor *color);
 
 /******************************************************** Font text management ****/
-FontText *  PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font, 
-                const FontRenderMode *render, PGFT_String *text);
+FontText *PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font, 
+                            const FontRenderMode *render, PGFT_String *text);
+int PGFT_LoadGlyph(FontGlyph *glyph, FreeTypeInstance *ft, PyFreeTypeFont *font,
+		   const FontRenderMode *render, PGFT_char character);
 
 /******************************************************** Glyph cache management ****/
 int         PGFT_Cache_Init(FreeTypeInstance *ft, FontCache *cache, PyFreeTypeFont *parent);
