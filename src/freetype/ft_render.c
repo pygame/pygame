@@ -51,7 +51,7 @@ int PGFT_CheckStyle(FT_UInt32 style)
     const FT_UInt32 max_style =
         FT_STYLE_NORMAL |
         FT_STYLE_BOLD   |
-        FT_STYLE_ITALIC |
+        FT_STYLE_OBLIQUE |
         FT_STYLE_UNDERLINE;
 
     return (style > max_style);
@@ -361,7 +361,8 @@ SDL_Surface *PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
     }
 
     font_surf.buffer = surface->pixels;
-    font_surf.offset.x = font_surf.offset.y = 0;
+    font_surf.offset.x = font_text->offset.x;
+    font_surf.offset.y = font_text->offset.y;
 
     font_surf.width = surface->w;
     font_surf.height = surface->h;
@@ -464,7 +465,8 @@ PyObject *PGFT_Render_PixelArray(FreeTypeInstance *ft, PyFreeTypeFont *font,
     memset(buffer, 0x00, (size_t)array_size);
 
     surf.buffer = buffer;
-    surf.offset.x = surf.offset.y = 0;
+    surf.offset.x = font_text->offset.x;
+    surf.offset.y = font_text->offset.y;
     surf.width = surf.pitch = width;
     surf.height = height;
 
