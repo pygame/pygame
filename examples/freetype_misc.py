@@ -47,6 +47,17 @@ def run():
     font.render((screen, 258, 237), "or BLAND!", pygame.Color(0, 0xCC, 28, 128), None,
             ptsize=64)
 
+    font.origin = True
+    for angle in range(0, 360, 45):
+        font.render((screen, 200, 500), ")", pygame.Color('black'),
+                    ptsize=48, rotation=angle)
+    font.vertical = True
+    for angle in range(15, 375, 30):
+        font.render((screen, 600, 400), "|^*", pygame.Color('orange'),
+                    ptsize=48, rotation=angle)
+    font.vertical = False
+    font.origin = False
+
     utext = pygame.compat.as_unicode(r"I \u2665 Unicode")
     font.render((screen, 298, 320), utext, pygame.Color(0, 0xCC, 0xDD), None,
             ptsize=64)
