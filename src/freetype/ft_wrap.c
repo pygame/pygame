@@ -227,6 +227,14 @@ _PGFT_face_request(FTC_FaceID face_id,
 
 int _PGFT_Init_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font)
 {
+    font->_internals = NULL;
+
+    if (!_PGFT_GetFace(ft, font))
+    {
+        RAISE(PyExc_RuntimeError, PGFT_GetError(ft));
+        return -1;
+    }
+
     font->_internals = _PGFT_malloc(sizeof(FontInternals));
     if (font->_internals == NULL)
     {
@@ -235,25 +243,12 @@ int _PGFT_Init_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font)
     }
     memset(font->_internals, 0x0, sizeof(FontInternals));
 
-    if (PGFT_Cache_Init(ft, &PGFT_INTERNALS(font)->cache, font))
+    if (PGFT_FontTextInit(ft, font))
     {
         _PGFT_free(font->_internals);
         font->_internals = NULL;
-        PyErr_NoMemory();
         return -1;
     }
-
-    if (!_PGFT_GetFace(ft, font))
-    {
-        PGFT_Cache_Destroy(&PGFT_INTERNALS(font)->cache);
-        _PGFT_free(font->_internals);
-        font->_internals = NULL;
-        RAISE(PyExc_RuntimeError, PGFT_GetError(ft));
-        return -1;
-    }
-
-    PGFT_INTERNALS(font)->active_text.glyphs = NULL;
-    PGFT_INTERNALS(font)->active_text.posns = NULL;
 
     return 0;
 }
@@ -263,8 +258,7 @@ _PGFT_Free_INTERNAL(PyFreeTypeFont *font)
 {
     if (font->_internals)
     {
-        _PGFT_free(PGFT_INTERNALS(font)->active_text.glyphs);
-        _PGFT_free(PGFT_INTERNALS(font)->active_text.posns);
+        PGFT_FontTextFree(font);
         _PGFT_free(font->_internals);
         font->_internals = NULL;
     }
@@ -361,8 +355,7 @@ PGFT_UnloadFont(FreeTypeInstance *ft, PyFreeTypeFont *font)
     if (ft != NULL)
     {
         FTC_Manager_RemoveFaceID(ft->cache_manager, (FTC_FaceID)(&font->id));
-        if (PGFT_INTERNALS(font))
-            PGFT_Cache_Destroy(&PGFT_INTERNALS(font)->cache);
+        _PGFT_Free_INTERNAL(font);
     }
 
     if (font->id.open_args.flags == FT_OPEN_STREAM)
@@ -375,8 +368,6 @@ PGFT_UnloadFont(FreeTypeInstance *ft, PyFreeTypeFont *font)
         _PGFT_free(font->id.open_args.stream);
     }
     font->id.open_args.flags = 0;
-
-    _PGFT_Free_INTERNAL(font);
 }
 
 

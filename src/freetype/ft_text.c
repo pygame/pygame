@@ -24,6 +24,7 @@
 #include FT_MODULE_H
 #include FT_TRIGONOMETRY_H
 #include FT_OUTLINE_H
+#include FT_CACHE_H
 
 #define SLANT_FACTOR    0.22
 static FT_Matrix PGFT_SlantMatrix = 
@@ -32,11 +33,49 @@ static FT_Matrix PGFT_SlantMatrix =
     0,          (1 << 16) 
 };
 
+typedef struct __fonttextcontext
+{
+    FTC_FaceID id;
+    FT_Face face;
+    FTC_CMapCache charmap;
+} FontTextContext;
+
 static FT_UInt32 GetLoadFlags(const FontRenderMode *);
 static void fill_metrics(FontMetrics *metrics,
                          FT_Pos bearing_x, FT_Pos bearing_y,
                          FT_Vector *bearing_rotated,
                          FT_Vector *advance_rotated);
+
+int
+PGFT_FontTextInit(FreeTypeInstance *ft, PyFreeTypeFont *font)
+{
+    FontText *ftext = &(PGFT_INTERNALS(font)->active_text);
+
+    ftext->buffer_size = 0;
+    ftext->glyphs = NULL;
+    ftext->posns = NULL;
+
+    if (PGFT_Cache_Init(ft, &ftext->glyph_cache))
+    {
+        PyErr_NoMemory();
+        return -1;
+    }
+
+    return 0;
+}
+
+void
+PGFT_FontTextFree(PyFreeTypeFont *font)
+{
+    FontText *ftext = &(PGFT_INTERNALS(font)->active_text);
+
+    if (ftext->buffer_size > 0)
+    {
+        _PGFT_free(ftext->glyphs);
+        _PGFT_free(ftext->posns);
+    }
+    PGFT_Cache_Destroy(&ftext->glyph_cache);
+}
 
 FontText *
 PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font, 
@@ -51,11 +90,12 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
     FT_Fixed    y_scale;
     FT_Fixed    bold_str = 0;
 
-    FontText    *ftext = NULL;
+    FontText    *ftext = &(PGFT_INTERNALS(font)->active_text);
     FontGlyph   *glyph = NULL;
     FontGlyph   **glyph_array = NULL;
     FontMetrics *metrics;
     FT_BitmapGlyph image;
+    FontTextContext context;
 
     FT_Face     face;
 
@@ -95,13 +135,15 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
         return NULL;
     }
 
+    context.id = (FTC_FaceID)&(font->id);
+    context.face = face;
+    context.charmap = ft->cache_charmap;
+
     /* cleanup the cache */
-    PGFT_Cache_Cleanup(&PGFT_INTERNALS(font)->cache);
+    PGFT_Cache_Cleanup(&ftext->glyph_cache);
 
     /* create the text struct */
-    ftext = &(PGFT_INTERNALS(font)->active_text);
-
-    if (string_length > ftext->length)
+    if (string_length > ftext->buffer_size)
     {
         _PGFT_free(ftext->glyphs);
         ftext->glyphs = (FontGlyph **)
@@ -120,6 +162,7 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
             PyErr_NoMemory();
             return NULL;
         }
+        ftext->buffer_size = string_length;
     }
 
     ftext->length = string_length;
@@ -141,8 +184,8 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
         /*
          * Load the corresponding glyph from the cache
          */
-        glyph = PGFT_Cache_FindGlyph(ft, &PGFT_INTERNALS(font)->cache,
-                                     *((FT_UInt32 *)ch), render);
+        glyph = PGFT_Cache_FindGlyph(*((FT_UInt32 *)ch), render,
+                                     &ftext->glyph_cache, &context);
 
         if (!glyph)
             continue;
@@ -285,17 +328,89 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
     return ftext;
 }
 
+int PGFT_GetMetrics(FreeTypeInstance *ft, PyFreeTypeFont *font,
+                    PGFT_char character, const FontRenderMode *render,
+                    long *minx, long *maxx, long *miny, long *maxy,
+                    double *advance_x, double *advance_y)
+{ 
+    FontGlyph *glyph = NULL;
+    FontTextContext context;
+    FT_Face     face;
+
+    /* load our sized face */
+    face = _PGFT_GetFaceSized(ft, font, render->pt_size);
+
+    if (!face)
+    {
+        return -1;
+    }
+
+    context.id = (FTC_FaceID)&(font->id);
+    context.face = face;
+    context.charmap = ft->cache_charmap;
+    glyph = PGFT_Cache_FindGlyph(character, render,
+                                 &PGFT_INTERNALS(font)->active_text.glyph_cache, 
+                                 &context);
+    
+    if (!glyph)
+    {
+        return -1;
+    }
+
+    *minx = (long)glyph->image->left;
+    *maxx = (long)(glyph->image->left + glyph->image->bitmap.width);
+    *maxy = (long)glyph->image->top;
+    *miny = (long)(glyph->image->top - glyph->image->bitmap.rows);
+    *advance_x = (double)(glyph->h_metrics.advance_rotated.x / 64.0);
+    *advance_y = (double)(glyph->h_metrics.advance_rotated.y / 64.0);
+
+    return 0;
+}
+
 int
-PGFT_LoadGlyph(FontGlyph *glyph, FreeTypeInstance *ft, PyFreeTypeFont *font,
-	       const FontRenderMode *render, PGFT_char character)
+PGFT_GetSurfaceSize(FreeTypeInstance *ft, PyFreeTypeFont *font,
+        const FontRenderMode *render, FontText *text, 
+        int *width, int *height)
+{
+    *width = text->width;
+    *height = text->height;
+    return 0;
+}
+
+int
+PGFT_GetTopLeft(FontText *text, int *top, int *left)
+{
+    *top = text->top;
+    *left = text->left;
+    return 0;
+}
+
+int
+PGFT_GetTextSize(FreeTypeInstance *ft, PyFreeTypeFont *font,
+    const FontRenderMode *render, PGFT_String *text, int *w, int *h)
+{
+    FontText *font_text;
+
+    font_text = PGFT_LoadFontText(ft, font, render, text);
+
+    if (!font_text)
+        return -1;
+
+    return PGFT_GetSurfaceSize(ft, font, render, font_text, w, h);
+}
+
+int
+PGFT_LoadGlyph(FontGlyph *glyph, PGFT_char character, const FontRenderMode *render,
+               void *internal)
 {
     static FT_Vector delta = {0, 0};
 
+    int oblique = render->style & FT_STYLE_OBLIQUE;
     int embolden = render->style & FT_STYLE_BOLD;
     FT_Glyph image = NULL;
 
     FT_Glyph_Metrics *ft_metrics;
-    FT_Face face;
+    FontTextContext *context = (FontTextContext *)internal;
 
     FT_UInt32 load_flags;
     FT_Pos bold_str = 0;
@@ -313,26 +428,13 @@ PGFT_LoadGlyph(FontGlyph *glyph, FreeTypeInstance *ft, PyFreeTypeFont *font,
     FT_Error error = 0;
 
     /*
-     * Grab face reference
-     */
-    face = _PGFT_GetFaceSized(ft, font, render->pt_size);
-
-    if (!face)
-    {
-        _PGFT_SetError(ft, "Failed to resize face", 0);
-        goto cleanup;
-    }
-
-    /*
      * Calculate the corresponding glyph index for the char
      */
-    gindex = FTC_CMapCache_Lookup(ft->cache_charmap, 
-                                  (FTC_FaceID)&(font->id), -1,
-                                  (FT_UInt32)character);
+    gindex = FTC_CMapCache_Lookup(context->charmap, context->id,
+                                  -1, (FT_UInt32)character);
 
     if (!gindex)
     {
-        _PGFT_SetError(ft, "Glyph character not found in font", 0);
         goto cleanup;
     }
     glyph->glyph_index = gindex;
@@ -345,13 +447,13 @@ PGFT_LoadGlyph(FontGlyph *glyph, FreeTypeInstance *ft, PyFreeTypeFont *font,
     /*
      * Load the glyph into the glyph slot
      */
-    if (FT_Load_Glyph(face, glyph->glyph_index, (FT_Int)load_flags) ||
-        FT_Get_Glyph(face->glyph, &image))
+    if (FT_Load_Glyph(context->face, glyph->glyph_index, (FT_Int)load_flags) ||
+        FT_Get_Glyph(context->face->glyph, &image))
         goto cleanup;
 
     if (embolden)
     {
-        bold_str = PGFT_GetBoldStrength(face);
+        bold_str = PGFT_GetBoldStrength(context->face);
         /* bold_advance = (bold_str * 3) / 2; */
         bold_advance = 4 * bold_str;
         if (FT_Outline_Embolden(&((FT_OutlineGlyph)image)->outline, bold_str))
@@ -361,7 +463,7 @@ PGFT_LoadGlyph(FontGlyph *glyph, FreeTypeInstance *ft, PyFreeTypeFont *font,
     /*
      * Collect useful metric values
      */
-    ft_metrics = &face->glyph->metrics;
+    ft_metrics = &context->face->glyph->metrics;
     h_advance_rotated.x = ft_metrics->horiAdvance + bold_advance;
     h_advance_rotated.y = 0;
     v_advance_rotated.x = 0;
@@ -370,7 +472,7 @@ PGFT_LoadGlyph(FontGlyph *glyph, FreeTypeInstance *ft, PyFreeTypeFont *font,
     /*
      * Perform any transformations
      */
-    if (render->style & FT_STYLE_OBLIQUE)
+    if (oblique)
     {
         FT_Outline_Transform(&(((FT_OutlineGlyph)image)->outline),
                              &PGFT_SlantMatrix);
@@ -400,8 +502,6 @@ PGFT_LoadGlyph(FontGlyph *glyph, FreeTypeInstance *ft, PyFreeTypeFont *font,
     error = FT_Glyph_To_Bitmap(&image, FT_RENDER_MODE_NORMAL, 0, 1);
     if (error)
     {
-        _PGFT_SetError(ft, "Rendering glyphs", error);
-        RAISE(PyExc_SDLError, PGFT_GetError(ft));
         goto cleanup;
     }
 
