@@ -75,23 +75,6 @@ typedef struct __fontcolor
     FT_Byte a;
 } FontColor;
 
-typedef struct __fontsurface
-{
-    void *buffer;
-
-    FT_Vector offset;
-
-    int width;
-    int height;
-    int pitch;
-
-    SDL_PixelFormat *format;
-
-    void (* render) (int, int, struct __fontsurface *, FT_Bitmap *, FontColor *);
-    void (* fill)   (int, int, int, int, struct __fontsurface *, FontColor *);
-
-} FontSurface;
-
 typedef struct __rendermode
 {
     FT_UInt16   pt_size;
@@ -160,6 +143,31 @@ typedef struct __fonttext
 
     FontCache  glyph_cache;
 } FontText;
+
+struct __fontsurface;
+
+typedef void (* FontRenderPtr)(int, int, struct __fontsurface *,
+			       FT_Bitmap *, FontColor *);
+typedef void (* FontFillPtr)(int, int, int, int, struct __fontsurface *,
+			     FontColor *);
+
+typedef struct __fontsurface
+{
+    void *buffer;
+
+    FT_Vector offset;
+
+    int width;
+    int height;
+    int pitch;
+
+    SDL_PixelFormat *format;
+
+    FontRenderPtr render_gray;
+    FontRenderPtr render_mono;
+    FontFillPtr fill;
+
+} FontSurface;
 
 #define PGFT_INTERNALS(f) ((FontInternals *)(f->_internals))
 typedef struct FontInternals_
@@ -265,12 +273,6 @@ int         PGFT_BuildRenderMode(FreeTypeInstance *ft,
                 PyFreeTypeFont *font, FontRenderMode *mode, int pt_size, 
                 int style, int rotation);
 
-FT_Fixed    PGFT_GetBoldStrength(FT_Face face);
-
-int         _PGFT_Render_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font, 
-                FontText *text, const FontRenderMode *render, FontColor *fg_color, 
-                FontSurface *surface);
-
 int PGFT_CheckStyle(FT_UInt32 style);
 
 
@@ -292,6 +294,8 @@ void __render_glyph_RGB3(int x, int y, FontSurface *surface, FT_Bitmap *bitmap, 
 void __render_glyph_RGB4(int x, int y, FontSurface *surface, FT_Bitmap *bitmap, FontColor *color);
 
 void __render_glyph_ByteArray(int x, int y, FontSurface *surface, FT_Bitmap *bitmap, FontColor *color);
+void __render_glyph_ByteArray_MONO(int x, int y, FontSurface *surface,
+				   FT_Bitmap *bitmap, FontColor *fg_color);
 
 /******************************************************** Font text management ****/
 int PGFT_FontTextInit(FreeTypeInstance *ft, PyFreeTypeFont *font);
