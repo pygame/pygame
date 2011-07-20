@@ -40,6 +40,12 @@ typedef struct __fonttextcontext
     FTC_CMapCache charmap;
 } FontTextContext;
 
+#define BOLD_STRENGTH_D (0.65)
+#define PIXEL_SIZE ((FT_Fixed)64)
+#define BOLD_STRENGTH ((FT_Fixed)(BOLD_STRENGTH_D * PIXEL_SIZE))
+#define BOLD_ADVANCE (BOLD_STRENGTH * (FT_Fixed)4)
+#define UNICODE_SPACE ((PGFT_char)' ')
+
 static FT_UInt32 GetLoadFlags(const FontRenderMode *);
 static void fill_metrics(FontMetrics *metrics,
                          FT_Pos bearing_x, FT_Pos bearing_y,
@@ -88,7 +94,6 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
     PGFT_char * ch;
 
     FT_Fixed    y_scale;
-    FT_Fixed    bold_str = 0;
 
     FontText    *ftext = &(PGFT_INTERNALS(font)->active_text);
     FontGlyph   *glyph = NULL;
@@ -123,6 +128,7 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
     FT_Pos      text_width;
     FT_Pos      text_height;
     FT_Pos      top = PGFT_MIN_6;
+    FT_Fixed    bold_str = render->style & FT_STYLE_BOLD ? BOLD_STRENGTH : 0;
 
     FT_Error    error = 0;
 
@@ -407,14 +413,16 @@ PGFT_LoadGlyph(FontGlyph *glyph, PGFT_char character, const FontRenderMode *rend
 
     int oblique = render->style & FT_STYLE_OBLIQUE;
     int embolden = render->style & FT_STYLE_BOLD;
+    FT_Render_Mode rmode = (render->render_flags & FT_RFLAG_ANTIALIAS ?
+                            FT_RENDER_MODE_NORMAL : FT_RENDER_MODE_MONO);
+    FT_Fixed bold_str = 0;
+    FT_Fixed bold_advance = 0;
     FT_Glyph image = NULL;
 
     FT_Glyph_Metrics *ft_metrics;
     FontTextContext *context = (FontTextContext *)internal;
 
     FT_UInt32 load_flags;
-    FT_Pos bold_str = 0;
-    FT_Pos bold_advance = 0;
     FT_UInt gindex;
 
     FT_Fixed rotation_angle = render->rotation_angle;
@@ -451,13 +459,13 @@ PGFT_LoadGlyph(FontGlyph *glyph, PGFT_char character, const FontRenderMode *rend
         FT_Get_Glyph(context->face->glyph, &image))
         goto cleanup;
 
-    if (embolden)
+    if (embolden && character != UNICODE_SPACE)
     {
-        bold_str = PGFT_GetBoldStrength(context->face);
-        /* bold_advance = (bold_str * 3) / 2; */
-        bold_advance = 4 * bold_str;
-        if (FT_Outline_Embolden(&((FT_OutlineGlyph)image)->outline, bold_str))
+        if (FT_Outline_Embolden(&((FT_OutlineGlyph)image)->outline,
+				BOLD_STRENGTH))
             goto cleanup;
+	bold_str = BOLD_STRENGTH;
+	bold_advance = BOLD_ADVANCE;
     }
 
     /*
@@ -499,7 +507,7 @@ PGFT_LoadGlyph(FontGlyph *glyph, PGFT_char character, const FontRenderMode *rend
     /*
      * Finished with transformations, now replace with a bitmap
      */
-    error = FT_Glyph_To_Bitmap(&image, FT_RENDER_MODE_NORMAL, 0, 1);
+    error = FT_Glyph_To_Bitmap(&image, rmode, 0, 1);
     if (error)
     {
         goto cleanup;
@@ -580,9 +588,10 @@ GetLoadFlags(const FontRenderMode *render)
 
     if (render->render_flags & FT_RFLAG_HINTED)
     {
-        load_flags |= ((render->render_flags & FT_RFLAG_ANTIALIAS) ?
-                       FT_LOAD_TARGET_NORMAL :
-                       FT_LOAD_TARGET_MONO);
+        load_flags |= FT_LOAD_TARGET_NORMAL;
+        /* load_flags |= ((render->render_flags & FT_RFLAG_ANTIALIAS) ? */
+        /*                FT_LOAD_TARGET_NORMAL : */
+        /*                FT_LOAD_TARGET_MONO); */
     }
     else
     {

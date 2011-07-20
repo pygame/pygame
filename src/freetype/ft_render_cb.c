@@ -39,7 +39,12 @@ void __render_glyph_ByteArray(int x, int y, FontSurface *surface,
     const FT_Byte *src = bitmap->buffer;
     const FT_Byte *src_cpy;
 
+    FT_Byte src_byte;
     int j, i;
+
+    /*
+     * Assumption, target buffer was initialized to zeros before any rendering.
+     */
 
     for (j = 0; j < bitmap->rows; ++j)
     {
@@ -47,10 +52,64 @@ void __render_glyph_ByteArray(int x, int y, FontSurface *surface,
         dst_cpy = dst;
 
         for (i = 0; i < bitmap->width; ++i)
-            *dst_cpy++ = (FT_Byte)(*src_cpy++);
+        {
+            src_byte = *src_cpy;
+            if (src_byte)
+            {
+                *dst_cpy = src_byte + *dst_cpy - src_byte * *dst_cpy / 255;
+            }
+            ++src_cpy;
+            ++dst_cpy;
+        }
 
         dst += surface->pitch;
         src += bitmap->pitch;
+    }
+}
+
+void __render_glyph_ByteArray_MONO(int x, int y, FontSurface *surface,
+				   FT_Bitmap *bitmap, FontColor *fg_color)
+{
+    const int off_x = (x < 0) ? -x : 0;
+    const int off_y = (y < 0) ? -y : 0;
+
+    const int max_x = MIN(x + bitmap->width, surface->width);
+    const int max_y = MIN(y + bitmap->rows, surface->height);
+
+    const int rx = MAX(0, x);
+    const int ry = MAX(0, y);
+
+    int             i, j, shift;
+    unsigned char*  src;
+    unsigned char*  dst;
+    unsigned char*  _src;
+    unsigned char*  _dst;
+    FT_UInt32       val;
+
+    src  = bitmap->buffer + (off_y * bitmap->pitch) + (off_x >> 3);
+    dst = (unsigned char *)surface->buffer + rx + (ry * surface->pitch);
+
+    shift = off_x & 7;
+
+    for (j = ry; j < max_y; ++j)
+    {
+        _src = src;
+        _dst = dst;
+         val = (FT_UInt32)(*_src++ | 0x100) << shift;
+
+        for (i = rx; i < max_x; ++i, ++_dst)
+        {
+            if (val & 0x10000)
+                val = (FT_UInt32)(*_src++ | 0x100);
+
+            if (val & 0x80)
+                *_dst = '\377';
+
+            val   <<= 1;
+        }
+
+        src += bitmap->pitch;
+        dst += surface->pitch;
     }
 }
 

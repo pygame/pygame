@@ -1196,7 +1196,7 @@ _ftfont_render_raw(PyObject *self, PyObject *args, PyObject *kwds)
     /* keyword list */
     static char *kwlist[] = 
     { 
-        "text", "rotation", "ptsize", NULL
+        "text", "style", "rotation", "ptsize", NULL
     };
 
     PyFreeTypeFont *font = (PyFreeTypeFont *)self;
@@ -1207,6 +1207,7 @@ _ftfont_render_raw(PyObject *self, PyObject *args, PyObject *kwds)
     PGFT_String *text;
     int rotation = 0;
     int ptsize = -1;
+    int style = FT_STYLE_DEFAULT;
 
     /* output arguments */
     PyObject *rbuffer = NULL;
@@ -1216,8 +1217,8 @@ _ftfont_render_raw(PyObject *self, PyObject *args, PyObject *kwds)
     FreeTypeInstance *ft;
     ASSERT_GRAB_FREETYPE(ft, NULL);
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|ii", kwlist,
-                                     &textobj, &rotation, &ptsize))
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|iii", kwlist,
+                                     &textobj, &style, &rotation, &ptsize))
         return NULL;
 
     /* Encode text */
@@ -1234,7 +1235,7 @@ _ftfont_render_raw(PyObject *self, PyObject *args, PyObject *kwds)
      * rotation/styles/vertical text
      */
     if (PGFT_BuildRenderMode(ft, font, 
-                &render, ptsize, FT_STYLE_NORMAL, rotation) != 0)
+                &render, ptsize, style, rotation) != 0)
     {
         PGFT_FreeString(text);
         return NULL;
@@ -1289,7 +1290,8 @@ _ftfont_render(PyObject *self, PyObject *args, PyObject *kwds)
     FontMetrics metrics;
     PyObject *rect_obj;
 
-    FontColor fg_color, bg_color;
+    FontColor fg_color;
+    FontColor bg_color;
     FontRenderMode render;
 
     FreeTypeInstance *ft;
