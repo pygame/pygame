@@ -291,7 +291,7 @@ New in Pygame 1.9.2
    .. method:: render_raw
 
       | :sl:`Renders text as a string of bytes`
-      | :sg:`render_raw(text, ptsize=default) -> (bytes, (int, int))`
+      | :sg:`render_raw(text, style=STYLE_DEFAULT, rotation=0, ptsize=default) -> (bytes, (int, int))`
 
       Like ``Font.render(None, ...)`` but the tuple returned is an 8 bit
       monochrome string of bytes and its size. The forground color is 255, the
