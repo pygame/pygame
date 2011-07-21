@@ -25,7 +25,6 @@ def unsigned32(i):
     return i & 0xFFFFFFFF
 
 class PixelcopyModuleTest (unittest.TestCase):
-    __tags__ = ['ignore', 'subprocess_ignore']
 
     bitsizes = [8, 16, 32]
 
