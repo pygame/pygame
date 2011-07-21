@@ -283,6 +283,8 @@ void __fill_glyph_RGB2(int x, int y, int w, int h, FontSurface *surface, FontCol
 void __fill_glyph_RGB3(int x, int y, int w, int h, FontSurface *surface, FontColor *color);
 void __fill_glyph_RGB4(int x, int y, int w, int h, FontSurface *surface, FontColor *color);
 
+void __fill_glyph_GRAY1(int x, int y, int w, int h, FontSurface *surface, FontColor *color);
+
 void __render_glyph_MONO1(int x, int y, FontSurface *surface, FT_Bitmap *bitmap, FontColor *color);
 void __render_glyph_MONO2(int x, int y, FontSurface *surface, FT_Bitmap *bitmap, FontColor *color);
 void __render_glyph_MONO3(int x, int y, FontSurface *surface, FT_Bitmap *bitmap, FontColor *color);
@@ -293,9 +295,11 @@ void __render_glyph_RGB2(int x, int y, FontSurface *surface, FT_Bitmap *bitmap, 
 void __render_glyph_RGB3(int x, int y, FontSurface *surface, FT_Bitmap *bitmap, FontColor *color);
 void __render_glyph_RGB4(int x, int y, FontSurface *surface, FT_Bitmap *bitmap, FontColor *color);
 
-void __render_glyph_ByteArray(int x, int y, FontSurface *surface, FT_Bitmap *bitmap, FontColor *color);
-void __render_glyph_ByteArray_MONO(int x, int y, FontSurface *surface,
-				   FT_Bitmap *bitmap, FontColor *fg_color);
+void __render_glyph_GRAY1(int x, int y, FontSurface *surface, FT_Bitmap *bitmap, FontColor *color);
+void __render_glyph_MONO_as_GRAY1(int x, int y, FontSurface *surface,
+				  FT_Bitmap *bitmap, FontColor *fg_color);
+void __render_glyph_GRAY_as_MONO1(int x, int y, FontSurface *surface,
+				  FT_Bitmap *bitmap, FontColor *fg_color);
 
 /******************************************************** Font text management ****/
 int PGFT_FontTextInit(FreeTypeInstance *ft, PyFreeTypeFont *font);

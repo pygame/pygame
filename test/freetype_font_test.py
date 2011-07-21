@@ -88,7 +88,7 @@ class FreeTypeFontTest(unittest.TestCase):
         self.assertFalse(f.antialiased)
         self.assertTrue(f.oblique)
         self.assertTrue(f.ucs4)
-        
+
     def test_freetype_Font_fixed_width(self):
 
         f = self._TEST_FONTS['sans']
@@ -223,6 +223,7 @@ class FreeTypeFontTest(unittest.TestCase):
         self.assertFalse(r, str(r))
         self.assertEqual(r.height, font.height)
         self.assertEqual(s.get_rect(), r)
+        self.assertEqual(s.get_bitsize(), 32)
 
         # render to existing surface
         refcount = sys.getrefcount(surf);
@@ -305,6 +306,38 @@ class FreeTypeFontTest(unittest.TestCase):
                           None, 'a', (0, 0, 0), ptsize=24)
 
         # *** need more unicode testing to ensure the proper glyphs are rendered
+
+    def test_freetype_Font_render_mono(self):
+        font = self._TEST_FONTS['sans']
+        color = pygame.Color('black')
+        colorkey = pygame.Color('white')
+        text = "."
+
+        save_antialiased = font.antialiased
+        font.antialiased = False
+        try:
+            surf, r = font.render(None, text, color, ptsize=24)
+            self.assertEqual(surf.get_bitsize(), 8)
+            flags = surf.get_flags()
+            self.assertTrue(flags & pygame.SRCCOLORKEY)
+            self.assertFalse(flags & (pygame.SRCALPHA | pygame.HWSURFACE))
+            self.assertEqual(surf.get_colorkey(), colorkey)
+            self.assertTrue(surf.get_alpha() is None)
+
+            translucent_color = pygame.Color(*color)
+            translucent_color.a = 55
+            surf, r = font.render(None, text, translucent_color, ptsize=24)
+            self.assertEqual(surf.get_bitsize(), 8)
+            flags = surf.get_flags()
+            self.assertTrue(flags & (pygame.SRCCOLORKEY | pygame.SRCALPHA))
+            self.assertFalse(flags & pygame.HWSURFACE)
+            self.assertEqual(surf.get_colorkey(), colorkey)
+            self.assertEqual(surf.get_alpha(), translucent_color.a)
+
+            surf, r = font.render(None, text, color, colorkey, ptsize=24)
+            self.assertEqual(surf.get_bitsize(), 32)
+        finally:
+            font.antialiased = save_antialiased
 
     def test_freetype_Font_render_raw(self):
     
