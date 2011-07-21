@@ -262,11 +262,14 @@ New in Pygame 1.9.2
       'bgcolor', if available. The alpha values for both colors are always
       taken into account.
 
-      If 'None' is passed instead of a destination sequence, a new 32 bit
+      If 'None' is passed instead of a destination sequence, a new 
       :mod:`pygame.Surface` will be created with the required size to contain
-      the drawn text, and using \*bgcolor* as its background color. If a
+      the drawn text, and using ``bgcolor`` as its background color. If a
       background color is not available, the surface will be filled with zero
-      alpha opacity.
+      alpha opacity. Normally the returned surface has a 32 bit pixel size.
+      However, if ``bgcolor`` is ``None`` and antialiasing is disabled
+      a two color 8 bit surface with colorkey set for the background color
+      is returned.
 
       The return value is a tuple: the target surface and the bounding
       rectangle giving the size and position of the rendered text within the
@@ -376,12 +379,11 @@ New in Pygame 1.9.2
       | :sl:`Font antialiasing mode`
       | :sg:`antialiased -> bool`
 
-      Gets or sets the font's antialiasing mode. This defaults to True on all
-      fonts, which will be rendered by default antialiased.
+      Gets or sets the font's antialiasing mode. This defaults to ``True`` on
+      all fonts, which are rendered with full 8 bit blending.
 
-      Setting this to true will change all rendering methods to use glyph
-      bitmaps without antialiasing, which supposes a small speed gain and a
-      significant memory gain because of the way glyphs are cached.
+      Setting this to ``False`` will enable monochrome rendering. This should
+      provide a small speed gain and reduce cache memory size.
 
       .. ## Font.antialiased ##
 
