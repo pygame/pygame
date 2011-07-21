@@ -215,7 +215,7 @@ int PGFT_Render_ExistingSurface(
 
     font_surf.width = surface->w;
     font_surf.height = surface->h;
-    font_surf.pitch = surface->pitch / surface->format->BytesPerPixel;
+    font_surf.pitch = surface->pitch;
 
     font_surf.format = surface->format;
 
@@ -290,19 +290,28 @@ SDL_Surface *PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
     int locked = 0;
     FT_UInt32 fillcolor;
     SDL_Surface *surface = NULL;
-    FT_UInt32 surface_flags = SDL_SWSURFACE | SDL_SRCALPHA;
+    FT_UInt32 bits_per_pixel =
+        (bgcolor || render->render_flags & FT_RFLAG_ANTIALIAS) ? 32 : 8;
+    FT_UInt32 surface_flags = SDL_SWSURFACE;
 
     FontSurface font_surf;
     FontText *font_text;
     int width, height;
+    FontColor mono_fgcolor = {0, 0, 0, 1};
+    FontColor mono_bgcolor = {0, 0, 0, 0};
 
     if (PGFT_String_GET_LENGTH(text) == 0)
     {
         /* Empty surface */
         *_width = 0;
         *_height = PGFT_Face_GetHeight(ft, font);
-        return SDL_CreateRGBSurface(SDL_SWSURFACE, 0, *_height, 32,
-                                    rmask, gmask, bmask, amask);
+        surface = SDL_CreateRGBSurface(SDL_SWSURFACE, 0, *_height, 32,
+                                       rmask, gmask, bmask, amask);
+        if (!surface)
+        {
+            PyErr_NoMemory(); /* Everything else should be Okay */
+            return NULL;
+        }
     }
 
     /* build font text */
@@ -317,9 +326,10 @@ SDL_Surface *PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
     {
         height = PGFT_Face_GetHeight(ft, font);
     }
-        
+
     surface = SDL_CreateRGBSurface(surface_flags, width, height,
-				   32, rmask, gmask, bmask, amask);
+				   bits_per_pixel, rmask, gmask, bmask,
+                                   bits_per_pixel == 32 ? amask : 0);
     if (!surface)
     {
         PyErr_NoMemory(); /* Everything else should be Okay */
@@ -351,27 +361,63 @@ SDL_Surface *PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
     font_surf.width = surface->w;
     font_surf.height = surface->h;
-    font_surf.pitch = surface->pitch / sizeof(FT_UInt32);
+    font_surf.pitch = surface->pitch;
 
     font_surf.format = surface->format;
-    font_surf.render_gray = __render_glyph_RGB4;
-    font_surf.render_mono = __render_glyph_MONO4;
-    font_surf.fill = __fill_glyph_RGB4;
-
-    /*
-     * Fill our texture with the required bg color
-     */
-    if (bgcolor)
+    if (bits_per_pixel == 32)
     {
-        fillcolor = SDL_MapRGBA(surface->format, 
+        font_surf.render_gray = __render_glyph_RGB4;
+        font_surf.render_mono = __render_glyph_MONO4;
+        font_surf.fill = __fill_glyph_RGB4;
+        /*
+         * Fill our texture with the required bg color
+         */
+        if (bgcolor)
+        {
+            fillcolor = SDL_MapRGBA(
+                surface->format,
                 bgcolor->r, bgcolor->g, bgcolor->b, bgcolor->a);
+        }
+        else
+        {
+            fillcolor = SDL_MapRGBA(surface->format, 0, 0, 0, 0);
+        }
+        
+        SDL_FillRect(surface, NULL, fillcolor);
     }
     else
     {
-        fillcolor = SDL_MapRGBA(surface->format, 0, 0, 0, 0);
-    }
+        SDL_Color colors[2];
 
-    SDL_FillRect(surface, NULL, fillcolor);
+        colors[1].r = fgcolor->r;  /* Foreground */
+        colors[1].g = fgcolor->g;
+        colors[1].b = fgcolor->b;
+        colors[0].r = ~colors[1].r;  /* Background */
+        colors[0].g = ~colors[1].g;
+        colors[0].b = ~colors[1].b;
+        if (!SDL_SetColors(surface, colors, 0, 2))
+        {
+            PyErr_SetString(PyExc_SystemError,
+                            "Pygame bug in PGFT_Render_NewSurface: "
+                            "SDL_SetColors failed");
+            SDL_FreeSurface(surface);
+            return NULL;
+        }
+        SDL_SetColorKey(surface, SDL_SRCCOLORKEY, (FT_UInt32)0);
+        if (fgcolor->a != SDL_ALPHA_OPAQUE)
+        {
+            SDL_SetAlpha(surface, SDL_SRCALPHA, fgcolor->a);
+        }
+        fgcolor = &mono_fgcolor;
+        bgcolor = &mono_bgcolor;
+        font_surf.render_gray = __render_glyph_GRAY_as_MONO1;
+        font_surf.render_mono = __render_glyph_MONO_as_GRAY1;
+        font_surf.fill = __fill_glyph_GRAY1;
+        /*
+         * Fill our texture with the required bg color
+         */
+        SDL_FillRect(surface, NULL, 0);
+    }
 
     /*
      * Render the text!
@@ -412,6 +458,7 @@ PyObject *PGFT_Render_PixelArray(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
     FontText *font_text;
     int array_size;
+    FontColor mono_opaque = {0, 0, 0, SDL_ALPHA_OPAQUE};
 
     if (PGFT_String_GET_LENGTH(text) == 0)
     {
@@ -457,10 +504,11 @@ PyObject *PGFT_Render_PixelArray(FreeTypeInstance *ft, PyFreeTypeFont *font,
     surf.height = height;
 
     surf.format = NULL;
-    surf.render_gray = __render_glyph_ByteArray;
-    surf.render_mono = __render_glyph_ByteArray_MONO;
+    surf.render_gray = __render_glyph_GRAY1;
+    surf.render_mono = __render_glyph_MONO_as_GRAY1;
 
-    if (_PGFT_Render_INTERNAL(ft, font, font_text, render, 0x0, &surf) != 0)
+    if (_PGFT_Render_INTERNAL(ft, font, font_text, render, 
+                              &mono_opaque, &surf) != 0)
     {
         Py_DECREF(array);
         return NULL;

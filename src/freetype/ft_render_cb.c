@@ -30,7 +30,7 @@
 #   include "surface.h"
 #endif
 
-void __render_glyph_ByteArray(int x, int y, FontSurface *surface,
+void __render_glyph_GRAY1(int x, int y, FontSurface *surface,
     FT_Bitmap *bitmap, FontColor *fg_color)
 {
     FT_Byte *dst = ((FT_Byte *)surface->buffer) + x + (y * surface->pitch);
@@ -43,7 +43,7 @@ void __render_glyph_ByteArray(int x, int y, FontSurface *surface,
     int j, i;
 
     /*
-     * Assumption, target buffer was initialized to zeros before any rendering.
+     * Assumption, target buffer was filled with zeros before any rendering.
      */
 
     for (j = 0; j < bitmap->rows; ++j)
@@ -67,8 +67,8 @@ void __render_glyph_ByteArray(int x, int y, FontSurface *surface,
     }
 }
 
-void __render_glyph_ByteArray_MONO(int x, int y, FontSurface *surface,
-				   FT_Bitmap *bitmap, FontColor *fg_color)
+void __render_glyph_MONO_as_GRAY1(int x, int y, FontSurface *surface,
+                                  FT_Bitmap *bitmap, FontColor *fg_color)
 {
     const int off_x = (x < 0) ? -x : 0;
     const int off_y = (y < 0) ? -y : 0;
@@ -82,9 +82,10 @@ void __render_glyph_ByteArray_MONO(int x, int y, FontSurface *surface,
     int             i, j, shift;
     unsigned char*  src;
     unsigned char*  dst;
-    unsigned char*  _src;
-    unsigned char*  _dst;
+    unsigned char*  src_cpy;
+    unsigned char*  dst_cpy;
     FT_UInt32       val;
+    FT_Byte shade = fg_color->a;
 
     src  = bitmap->buffer + (off_y * bitmap->pitch) + (off_x >> 3);
     dst = (unsigned char *)surface->buffer + rx + (ry * surface->pitch);
@@ -93,22 +94,91 @@ void __render_glyph_ByteArray_MONO(int x, int y, FontSurface *surface,
 
     for (j = ry; j < max_y; ++j)
     {
-        _src = src;
-        _dst = dst;
-         val = (FT_UInt32)(*_src++ | 0x100) << shift;
+        src_cpy = src;
+        dst_cpy = dst;
+         val = (FT_UInt32)(*src_cpy++ | 0x100) << shift;
 
-        for (i = rx; i < max_x; ++i, ++_dst)
+        for (i = rx; i < max_x; ++i, ++dst_cpy)
         {
             if (val & 0x10000)
-                val = (FT_UInt32)(*_src++ | 0x100);
+                val = (FT_UInt32)(*src_cpy++ | 0x100);
 
             if (val & 0x80)
-                *_dst = '\377';
+                *dst_cpy = shade;
 
             val   <<= 1;
         }
 
         src += bitmap->pitch;
+        dst += surface->pitch;
+    }
+}
+
+void __render_glyph_GRAY_as_MONO1(int x, int y, FontSurface *surface,
+    FT_Bitmap *bitmap, FontColor *fg_color)
+{
+    FT_Byte *dst = ((FT_Byte *)surface->buffer) + x + (y * surface->pitch);
+    FT_Byte *dst_cpy;
+    FT_Byte shade = fg_color->a;
+
+    const FT_Byte *src = bitmap->buffer;
+    const FT_Byte *src_cpy;
+
+    int j, i;
+
+    /*
+     * Assumption, target buffer was filled with the background color before
+     * any rendering.
+     */
+
+    for (j = 0; j < bitmap->rows; ++j)
+    {
+        src_cpy = src;
+        dst_cpy = dst;
+
+        for (i = 0; i < bitmap->width; ++i)
+        {
+            if (*src_cpy & '\200') /* Round up on 128 */
+            {
+                *dst_cpy = shade;
+            }
+            ++src_cpy;
+            ++dst_cpy;
+        }
+
+        dst += surface->pitch;
+        src += bitmap->pitch;
+    }
+}
+
+void __fill_glyph_GRAY1(int x, int y, int w, int h,
+        FontSurface *surface, FontColor *color)
+{
+    int i, j;
+    FT_Byte *dst;
+    FT_Byte *dst_cpy;
+    FT_Byte shade = color->a;
+
+    x = MAX(0, x);
+    y = MAX(0, y);
+
+    if (x + w > surface->width)
+        w = surface->width - x;
+
+    if (y + h > surface->height)
+        h = surface->height - y;
+
+    dst = (FT_Byte *)surface->buffer + x + (y * surface->pitch);
+
+    for (j = 0; j < h; ++j)
+    {
+        dst_cpy = dst;
+
+        for (i = 0; i < w; ++i, ++dst_cpy)
+        {
+            *dst_cpy = shade;
+        }
+
         dst += surface->pitch;
     }
 }
@@ -133,7 +203,7 @@ void __render_glyph_ByteArray_MONO(int x, int y, FontSurface *surface,
             h = surface->height - y;                        \
                                                             \
         dst = (unsigned char *)surface->buffer + (x * _bpp) +\
-              (y * _bpp * surface->pitch);                  \
+              (y * surface->pitch);                         \
                                                             \
         for (j = 0; j < h; ++j)                             \
         {                                                   \
@@ -164,7 +234,7 @@ void __render_glyph_ByteArray_MONO(int x, int y, FontSurface *surface,
                 _blendp;                                    \
             }                                               \
                                                             \
-            dst += surface->pitch * _bpp;                   \
+            dst += surface->pitch;                          \
         }                                                   \
     }
 
@@ -189,7 +259,7 @@ void __render_glyph_ByteArray_MONO(int x, int y, FontSurface *surface,
         }                                                           \
                                                                     \
         src += bitmap->pitch;                                       \
-        dst += surface->pitch * _bpp;                               \
+        dst += surface->pitch;                                      \
     }                                                               \
 
 #define _CREATE_MONO_RENDER(_bpp, _getp, _setp, _blendp)                \
@@ -213,7 +283,7 @@ void __render_glyph_ByteArray_MONO(int x, int y, FontSurface *surface,
                                                                         \
         src  = bitmap->buffer + (off_y * bitmap->pitch) + (off_x >> 3); \
         dst = (unsigned char *)surface->buffer + (rx * _bpp) +          \
-                    (ry * _bpp * surface->pitch);                       \
+                    (ry * surface->pitch);                              \
                                                                         \
         full_color = SDL_MapRGBA(surface->format, (FT_Byte)color->r,    \
                 (FT_Byte)color->g, (FT_Byte)color->b, 255);             \
@@ -270,7 +340,7 @@ void __render_glyph_ByteArray_MONO(int x, int y, FontSurface *surface,
         const int ry = MAX(0, y);                                       \
                                                                         \
         FT_Byte *dst = ((FT_Byte*)surface->buffer) + (rx * _bpp) +      \
-                        (ry * _bpp * surface->pitch);                   \
+                        (ry * surface->pitch);                          \
         FT_Byte *_dst;                                                  \
                                                                         \
         const FT_Byte *src = bitmap->buffer + off_x +                   \
@@ -324,7 +394,7 @@ void __render_glyph_ByteArray_MONO(int x, int y, FontSurface *surface,
                 }                                                       \
             }                                                           \
                                                                         \
-            dst += surface->pitch * _bpp;                               \
+            dst += surface->pitch;                                      \
             src += bitmap->pitch;                                       \
         }                                                               \
     }
@@ -343,7 +413,7 @@ void __render_glyph_ByteArray_MONO(int x, int y, FontSurface *surface,
     ((bgR >> surface->format->Rloss) << surface->format->Rshift) |  \
     ((bgG >> surface->format->Gloss) << surface->format->Gshift) |  \
     ((bgB >> surface->format->Bloss) << surface->format->Bshift) |  \
-    ((255 >> surface->format->Aloss) << surface->format->Ashift  &  \
+    ((bgA >> surface->format->Aloss) << surface->format->Ashift  &  \
      surface->format->Amask)                                        )
 
 #define _BLEND_PIXEL_GENERIC(T) *(T*)_dst = (T)(    \
