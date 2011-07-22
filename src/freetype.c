@@ -57,7 +57,7 @@ if (!PyFreeTypeFont_IS_ALIVE(s)) {                  \
 
 static PyObject *
 _PGFT_get_metrics(FreeTypeInstance *ft, FontRenderMode *render,
-		  PyFreeTypeFont *font, PGFT_String *text);
+          PyFreeTypeFont *font, PGFT_String *text);
 
 static PyObject *
 load_font_res(const char *filename)
@@ -93,7 +93,7 @@ load_font_res(const char *filename)
     }
 #else
     if (PyFile_Check(result))
-    {		
+    {
         tmp = PyFile_Name(result);        
         Py_INCREF(tmp);
         Py_DECREF(result);
@@ -526,7 +526,7 @@ PyTypeObject PyFreeTypeFont_Type =
     0,                          /* tp_setattro */
     0,                          /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags */
-    DOC_PYGAMEFREETYPEFONT, 	/* docstring */
+    DOC_PYGAMEFREETYPEFONT,     /* docstring */
     0,                          /* tp_traverse */
     0,                          /* tp_clear */
     0,                          /* tp_richcompare */
@@ -581,7 +581,7 @@ _ftfont_new(PyTypeObject *subtype, PyObject *args, PyObject *kwds)
         obj->antialias = 1;
         obj->kerning = 0;
         obj->ucs4 = 0;
-	obj->origin = 0;
+    obj->origin = 0;
     }
     return (PyObject *)obj;
 }
@@ -629,7 +629,7 @@ _ftfont_init(PyObject *self, PyObject *args, PyObject *kwds)
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|iiIiiIi", kwlist, 
                                      &file, &ptsize, &font_style, &face_index,
                                      &vertical, &ucs4, &resolution,
-				     &origin))
+                     &origin))
         return -1;
 
     original_file = file;
@@ -680,7 +680,7 @@ _ftfont_init(PyObject *self, PyObject *args, PyObject *kwds)
         {
             goto end;
         }
-	if (PyUnicode_Check(original_file))
+    if (PyUnicode_Check(original_file))
         {
             /* Make sure to save a pure Unicode object to prevent possible
              * cycles from a derived class. This means no tp_traverse or
@@ -691,7 +691,7 @@ _ftfont_init(PyObject *self, PyObject *args, PyObject *kwds)
         else
         {
             font->path = PyUnicode_FromEncodedObject(file, "unicode_escape",
-						     "replace");
+                             "replace");
         }
     }
     else
@@ -723,7 +723,7 @@ _ftfont_init(PyObject *self, PyObject *args, PyObject *kwds)
                 Py_DECREF(str);
             }
         }
-	else if (PyUnicode_Check(path))
+    else if (PyUnicode_Check(path))
         {
             /* Make sure to save a pure Unicode object to prevent possible
              * cycles from a derived class. This means no tp_traverse or
@@ -1101,7 +1101,7 @@ _ftfont_getsize(PyObject *self, PyObject *args, PyObject *kwds)
 
 PyObject *
 _PGFT_get_metrics(FreeTypeInstance *ft, FontRenderMode *render,
-		  PyFreeTypeFont *font, PGFT_String *text)
+          PyFreeTypeFont *font, PGFT_String *text)
 {
     Py_ssize_t length = PGFT_String_GET_LENGTH(text);
     PGFT_char *data = PGFT_String_GET_DATA(text);
@@ -1109,7 +1109,7 @@ _PGFT_get_metrics(FreeTypeInstance *ft, FontRenderMode *render,
     long minx, miny;
     long maxx, maxy;
     double advance_x;
-    double advance_y;	
+    double advance_y;
     Py_ssize_t i;
 
     list = PyList_New(length);
@@ -1118,10 +1118,10 @@ _PGFT_get_metrics(FreeTypeInstance *ft, FontRenderMode *render,
     }
     for (i = 0; i < length; ++i) {
         if (PGFT_GetMetrics(ft, font, data[i], render,
-			    &minx, &maxx, &miny, &maxy,
-			    &advance_x, &advance_y) == 0) {
+                &minx, &maxx, &miny, &maxy,
+                &advance_x, &advance_y) == 0) {
             item = Py_BuildValue("lllldd", minx, maxx, miny, maxy,
-				 advance_x, advance_y);
+                 advance_x, advance_y);
             if (!item) {
                 Py_DECREF(list);
                 return NULL;
@@ -1371,18 +1371,18 @@ _ftfont_render(PyObject *self, PyObject *args, PyObject *kwds)
         surface = PySurface_AsSurface(surface_obj);
 
         rcode = PGFT_Render_ExistingSurface(ft, font, &render, 
-					    text, surface, xpos, ypos,
-					    &fg_color,
-					    bg_color_obj ? &bg_color : NULL,
-					    &width, &height, &metrics);
+                        text, surface, xpos, ypos,
+                        &fg_color,
+                        bg_color_obj ? &bg_color : NULL,
+                        &width, &height, &metrics);
         PGFT_FreeString(text);
         if (rcode)
         {
             Py_DECREF(surface_obj);
             return NULL;
         }
-	xpos = PGFT_TRUNC(PGFT_CEIL(metrics.bearing_rotated.x));
-	ypos = PGFT_TRUNC(PGFT_CEIL(metrics.bearing_rotated.y));
+    xpos = PGFT_TRUNC(PGFT_CEIL(metrics.bearing_rotated.x));
+    ypos = PGFT_TRUNC(PGFT_CEIL(metrics.bearing_rotated.y));
     }
     else
     {
@@ -1621,25 +1621,25 @@ MODINIT_DEFINE (freetype)
     import_pygame_surface();
     if (PyErr_Occurred()) 
     {
-	    MODINIT_ERROR;
+        MODINIT_ERROR;
     }
 
     import_pygame_color();
     if (PyErr_Occurred()) 
     {
-	    MODINIT_ERROR;
+        MODINIT_ERROR;
     }
 
     import_pygame_rwobject();
     if (PyErr_Occurred()) 
     {
-	    MODINIT_ERROR;
+        MODINIT_ERROR;
     }
 
     import_pygame_rect();
     if (PyErr_Occurred()) 
     {
-	    MODINIT_ERROR;
+        MODINIT_ERROR;
     }
 
     /* import needed modules. Do this first so if there is an error

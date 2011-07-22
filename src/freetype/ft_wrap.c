@@ -24,7 +24,7 @@
 #include FT_MODULE_H
 
 static unsigned long _RWops_read(FT_Stream stream, unsigned long offset,
-	unsigned char *buffer, unsigned long count);
+    unsigned char *buffer, unsigned long count);
 static int _PGFT_Init_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font);
 static void _PGFT_Free_INTERNAL(PyFreeTypeFont *font);
 
@@ -294,17 +294,17 @@ PGFT_TryLoadFont_Filename(FreeTypeInstance *ft,
 #ifdef HAVE_PYGAME_SDL_RWOPS
 static unsigned long 
 _RWops_read(FT_Stream stream, unsigned long offset,
-	unsigned char *buffer, unsigned long count)
+    unsigned char *buffer, unsigned long count)
 {
-	SDL_RWops *src;
+    SDL_RWops *src;
 
-	src = (SDL_RWops *)stream->descriptor.pointer;
-	SDL_RWseek(src, (int)offset, SEEK_SET);
+    src = (SDL_RWops *)stream->descriptor.pointer;
+    SDL_RWseek(src, (int)offset, SEEK_SET);
 
-	if (count == 0)
-		return 0;
+    if (count == 0)
+        return 0;
 
-	return SDL_RWread(src, buffer, 1, (int)count);
+    return SDL_RWread(src, buffer, 1, (int)count);
 }
 
 int PGFT_TryLoadFont_RWops(FreeTypeInstance *ft, 
@@ -361,7 +361,7 @@ PGFT_UnloadFont(FreeTypeInstance *ft, PyFreeTypeFont *font)
     if (font->id.open_args.flags == FT_OPEN_STREAM)
     {
         _PGFT_free(font->id.open_args.pathname);
-	font->id.open_args.pathname = NULL;
+    font->id.open_args.pathname = NULL;
     }
     else if (font->id.open_args.flags == FT_OPEN_PATHNAME)
     {
