@@ -147,9 +147,9 @@ typedef struct __fonttext
 struct __fontsurface;
 
 typedef void (* FontRenderPtr)(int, int, struct __fontsurface *,
-			       FT_Bitmap *, FontColor *);
+                   FT_Bitmap *, FontColor *);
 typedef void (* FontFillPtr)(int, int, int, int, struct __fontsurface *,
-			     FontColor *);
+                 FontColor *);
 
 typedef struct __fontsurface
 {
@@ -244,9 +244,9 @@ int         PGFT_GetTextSize(FreeTypeInstance *ft, PyFreeTypeFont *font,
                 const FontRenderMode *render, PGFT_String *text, int *w, int *h);
 
 int         PGFT_GetMetrics(FreeTypeInstance *ft, PyFreeTypeFont *font,
-			    PGFT_char character, const FontRenderMode *render,
-			    long *minx, long *maxx, long *miny, long *maxy,
-			    double *advance_x, double *advance_y);
+                PGFT_char character, const FontRenderMode *render,
+                long *minx, long *maxx, long *miny, long *maxy,
+                double *advance_x, double *advance_y);
 
 int         PGFT_GetSurfaceSize(FreeTypeInstance *ft, PyFreeTypeFont *font,
                 const FontRenderMode *render, FontText *text, 
@@ -267,7 +267,7 @@ int         PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *fo
                 const FontRenderMode *render, PGFT_String *text, 
                 SDL_Surface *_surface, int x, int y,
                 FontColor *fgcolor, FontColor *bgcolor,
-		int *_width, int *_height, FontMetrics *metrics);
+        int *_width, int *_height, FontMetrics *metrics);
 
 int         PGFT_BuildRenderMode(FreeTypeInstance *ft, 
                 PyFreeTypeFont *font, FontRenderMode *mode, int pt_size, 
@@ -297,9 +297,9 @@ void __render_glyph_RGB4(int x, int y, FontSurface *surface, FT_Bitmap *bitmap, 
 
 void __render_glyph_GRAY1(int x, int y, FontSurface *surface, FT_Bitmap *bitmap, FontColor *color);
 void __render_glyph_MONO_as_GRAY1(int x, int y, FontSurface *surface,
-				  FT_Bitmap *bitmap, FontColor *fg_color);
+                  FT_Bitmap *bitmap, FontColor *fg_color);
 void __render_glyph_GRAY_as_MONO1(int x, int y, FontSurface *surface,
-				  FT_Bitmap *bitmap, FontColor *fg_color);
+                  FT_Bitmap *bitmap, FontColor *fg_color);
 
 /******************************************************** Font text management ****/
 int PGFT_FontTextInit(FreeTypeInstance *ft, PyFreeTypeFont *font);

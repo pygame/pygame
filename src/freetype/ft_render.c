@@ -328,7 +328,7 @@ SDL_Surface *PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
     }
 
     surface = SDL_CreateRGBSurface(surface_flags, width, height,
-				   bits_per_pixel, rmask, gmask, bmask,
+                   bits_per_pixel, rmask, gmask, bmask,
                                    bits_per_pixel == 32 ? amask : 0);
     if (!surface)
     {
