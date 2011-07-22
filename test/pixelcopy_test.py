@@ -507,13 +507,6 @@ class PixelCopyTestWithArray(unittest.TestCase):
     ## def test_array_to_surface(self):
     ##     array_to_surface gets a good workout in the surfarray module's
     ##     unit tests under the alias blit_array.
-    try:
-        pygame.surfarray.blit_array
-    except AttributeError:
-        def test_array_to_surface(self):
-            self.fail("missing surfarray module:"
-                      " array_to_surface is tested as surfarray.blit_array")
-
 
     try:
         numpy
