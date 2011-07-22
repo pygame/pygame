@@ -690,7 +690,7 @@ _ftfont_init(PyObject *self, PyObject *args, PyObject *kwds)
         }
         else
         {
-            font->path = PyUnicode_FromEncodedObject(file, "unicode_escape",
+            font->path = PyUnicode_FromEncodedObject(file, "raw_unicode_escape",
                              "replace");
         }
     }
