@@ -161,7 +161,7 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
         }
 
         _PGFT_free(ftext->posns);
-	ftext->posns = (FT_Vector *)
+    ftext->posns = (FT_Vector *)
             _PGFT_malloc((size_t)string_length * sizeof(FT_Vector));
         if (!ftext->posns)
         {
@@ -227,12 +227,12 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
         }
 
         prev_glyph_index = glyph->glyph_index;
-	metrics = vertical ? &glyph->v_metrics : &glyph->h_metrics;
+    metrics = vertical ? &glyph->v_metrics : &glyph->h_metrics;
         if (metrics->bearing_rotated.y > top)
         {
             top = metrics->bearing_rotated.y;
         }
-	if (pen.x + metrics->bearing_rotated.x < min_x)
+    if (pen.x + metrics->bearing_rotated.x < min_x)
         {
             min_x = pen.x + metrics->bearing_rotated.x;
         }
@@ -245,26 +245,26 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
         if (vertical)
         {
             if (pen.y + metrics->bearing_rotated.y < min_y)
-	    {
+        {
                 min_y = pen.y + metrics->bearing_rotated.y;
-	    }
+        }
             if (pen.y + metrics->bearing_rotated.y + glyph_height > max_y)
-	    {
+        {
                 max_y = pen.y + metrics->bearing_rotated.y + glyph_height;
-	    }
+        }
             next_pos->y = pen.y + metrics->bearing_rotated.y;
             pen.y += metrics->advance_rotated.y;
         }
         else
         {
             if (pen.y - metrics->bearing_rotated.y < min_y)
-	    {
+        {
                 min_y = pen.y - metrics->bearing_rotated.y;
-	    }
+        }
             if (pen.y - metrics->bearing_rotated.y + glyph_height > max_y)
-	    {
+        {
                 max_y = pen.y - metrics->bearing_rotated.y + glyph_height;
-	    }
+        }
             next_pos->y = pen.y - metrics->bearing_rotated.y;
             pen.y -= metrics->advance_rotated.y;
         }
@@ -296,8 +296,8 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
         {
             max_y = max_y_underline;
         }
-	ftext->underline_pos = underline_pos;
-	ftext->underline_size = underline_size;
+    ftext->underline_pos = underline_pos;
+    ftext->underline_size = underline_size;
 
         /*
          * (1) HACK HACK HACK
@@ -462,10 +462,10 @@ PGFT_LoadGlyph(FontGlyph *glyph, PGFT_char character, const FontRenderMode *rend
     if (embolden && character != UNICODE_SPACE)
     {
         if (FT_Outline_Embolden(&((FT_OutlineGlyph)image)->outline,
-				BOLD_STRENGTH))
+                BOLD_STRENGTH))
             goto cleanup;
-	bold_str = BOLD_STRENGTH;
-	bold_advance = BOLD_ADVANCE;
+    bold_str = BOLD_STRENGTH;
+    bold_advance = BOLD_ADVANCE;
     }
 
     /*

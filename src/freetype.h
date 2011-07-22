@@ -43,7 +43,7 @@
 
 /* Render styles */
 #define FT_STYLE_NORMAL     0x00
-#define FT_STYLE_BOLD	    0x01
+#define FT_STYLE_BOLD       0x01
 #define FT_STYLE_OBLIQUE    0x02
 #define FT_STYLE_UNDERLINE  0x04
 #define FT_STYLE_DEFAULT    0xFF
