@@ -24,10 +24,18 @@
 #include "ft_wrap.h"
 #include FT_MODULE_H
 
-typedef struct __cachenodekey
+/* The key is the UTF character, point size (unsigned short),
+ * style flags (unsigned short), render flags (unsigned short),
+ * and rotation (in whole degrees, unsigned short). Byte order
+ * is little-endian.
+ */
+#define MINKEYLEN (sizeof(PGFT_char) + 2 + 2 + 2 + 2)
+#define KEYLEN ((MINKEYLEN + 3) & 0xFFFC)
+
+typedef union __cachenodekey
 {
-    FontRenderMode mode;
-    PGFT_char ch;
+    FT_Byte bytes[KEYLEN];
+    FT_UInt32 dwords[KEYLEN / 4];
 } CacheNodeKey;
 
 typedef struct __cachenode
@@ -38,57 +46,99 @@ typedef struct __cachenode
     FT_UInt32 hash;
 } FontCacheNode;
 
-static FT_UInt32 Cache_Hash(const FontRenderMode *, FT_UInt);
+static FT_UInt32 cache_hash(const CacheNodeKey *key);
 
 static FontCacheNode *Cache_AllocateNode(FontCache *,
                                          const FontRenderMode *, FT_UInt, void *);
 static void Cache_FreeNode(FontCache *, FontCacheNode *);
-static int equal_node_keys(CacheNodeKey *a, CacheNodeKey *b);
+static void set_node_key(CacheNodeKey *key, PGFT_char ch,
+                         const FontRenderMode *render);
+static int equal_node_keys(const CacheNodeKey *a, const CacheNodeKey *b);
 
 const int render_flags_mask = (FT_RFLAG_ANTIALIAS |
                                FT_RFLAG_HINTED |
                                FT_RFLAG_AUTOHINT);
 
-static int
-equal_node_keys(CacheNodeKey *a, CacheNodeKey *b)
+static void
+set_node_key(CacheNodeKey *key, PGFT_char ch, const FontRenderMode *render)
 {
-    return (a->ch == b->ch &&
-            a->mode.pt_size == b->mode.pt_size &&
-            a->mode.rotation_angle == b->mode.rotation_angle &&
-            (a->mode.render_flags & render_flags_mask) ==
-            (b->mode.render_flags & render_flags_mask) &&
-            a->mode.style == b->mode.style);
+    const FT_UInt16 style_mask = ~(FT_STYLE_UNDERLINE);
+    const FT_UInt16 rflag_mask = ~(FT_RFLAG_VERTICAL | FT_RFLAG_KERNING);
+    int i = 0;
+    unsigned short rot = (unsigned short)PGFT_TRUNC(render->rotation_angle);
+
+    key->dwords[sizeof(key->dwords) / 4 - 1] = 0;
+    key->bytes[i++] = (FT_Byte)ch;
+    ch >>= 8;
+    key->bytes[i++] = (FT_Byte)ch;
+    ch >>= 8;
+    key->bytes[i++] = (FT_Byte)ch;
+    ch >>= 8;
+    key->bytes[i++] = (FT_Byte)ch;
+    key->bytes[i++] = (FT_Byte)render->pt_size;
+    key->bytes[i++] = (FT_Byte)(render->pt_size >> 8);
+    key->bytes[i++] = (FT_Byte)(render->style & style_mask);
+    key->bytes[i++] = (FT_Byte)((render->style & style_mask) >> 8);
+    key->bytes[i++] = (FT_Byte)(render->render_flags & rflag_mask);
+    key->bytes[i++] = (FT_Byte)((render->render_flags & rflag_mask) >> 8);
+    key->bytes[i++] = (FT_Byte)rot;
+    key->bytes[i++] = (FT_Byte)(rot >> 8);
 }
 
-static FT_UInt32 
-Cache_Hash(const FontRenderMode *render, FT_UInt glyph_index)
+static int
+equal_node_keys(const CacheNodeKey *a, const CacheNodeKey *b)
 {
-        const FT_UInt32 m = 0x5bd1e995;
-        const int r = 24;
+    int i;
 
-        FT_UInt32 h, k; 
+    for (i = 0; i < sizeof(a->dwords) / 4; ++i)
+    {
+        if (a->dwords[i] != b->dwords[i])
+        {
+            return 0;
+        }
+    }
+    return 1;
+}
 
-    /* 
-     * Quick hashing algorithm, based off MurmurHash2.
-     * Assumes sizeof(FontRenderMode) == 8
+static FT_UInt32
+cache_hash(const CacheNodeKey *key)
+{
+    /*
+     * Based on the 32 bit x86 MurmurHash3, with the key size a multiple of 4.
      */
 
-    h = (glyph_index << 12) ^ glyph_index;
+    FT_UInt32 h1 = 712189651; /* Set to the seed, a prime in this case */
 
-    k = *(const FT_UInt32 *)render;
-    k *= m; k ^= k >> r; 
-    k *= m; h *= m; h ^= k;
+    FT_UInt32 c1 = 0xCC9E2D51;
+    FT_UInt32 c2 = 0x1B873593;
 
-    k = *(((const FT_UInt32 *)render) + 1);
-    k *= m; k ^= k >> r; 
-    k *= m; h *= m; h ^= k;
+    FT_UInt32 k1;
 
-        h ^= h >> 13;
-        h *= m;
-        h ^= h >> 15;
+    int i;
 
-        return h;
-} 
+    for (i = -(sizeof(key->dwords) / 4); i; ++i)
+    {
+        k1 = key->dwords[i];
+
+        k1 *= c1;
+        k1 = (k1 << 15) | (k1 >> 17);
+        k1 *= c2;
+
+        h1 ^= k1;
+        h1 = (h1 << 13) | (h1 >> 19);
+        h1 = h1 * 5 + 0xE6546B64;
+    }
+
+    h1 ^= sizeof(key->dwords);
+    
+    h1 ^= h1 >> 16;
+    h1 *= 0x85EBCA6B;
+    h1 ^= h1 >> 13;
+    h1 *= 0xC2B2AE35;
+    h1 ^= h1 >> 16;
+
+    return h1;
+}
 
 int
 PGFT_Cache_Init(FreeTypeInstance *ft, FontCache *cache)
@@ -212,11 +262,12 @@ PGFT_Cache_FindGlyph(PGFT_char character, const FontRenderMode *render,
     FontCacheNode *node, *prev;
     CacheNodeKey key;
 
-    FT_UInt32 hash = Cache_Hash(render, character);
-    FT_UInt32 bucket = hash & cache->size_mask;
+    FT_UInt32 hash;
+    FT_UInt32 bucket;
     
-    key.mode = *render;
-    key.ch = character;
+    set_node_key(&key, character, render);
+    hash = cache_hash(&key);
+    bucket = hash & cache->size_mask;
     node = nodes[bucket];
     prev = NULL;
 
@@ -288,9 +339,8 @@ Cache_AllocateNode(FontCache *cache, const FontRenderMode *render, PGFT_char cha
         goto cleanup;
     }
 
-    node->key.mode = *render;
-    node->key.ch = character;
-    node->hash = Cache_Hash(render, character);
+    set_node_key(&node->key, character, render);
+    node->hash = cache_hash(&node->key);
     bucket = node->hash & cache->size_mask;
     node->next = cache->nodes[bucket];
     cache->nodes[bucket] = node;
