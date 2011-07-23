@@ -506,6 +506,7 @@ PyObject *PGFT_Render_PixelArray(FreeTypeInstance *ft, PyFreeTypeFont *font,
     surf.format = NULL;
     surf.render_gray = __render_glyph_GRAY1;
     surf.render_mono = __render_glyph_MONO_as_GRAY1;
+    surf.fill = __fill_glyph_GRAY1;
 
     if (_PGFT_Render_INTERNAL(ft, font, font_text, render, 
                               &mono_opaque, &surf) != 0)

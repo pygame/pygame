@@ -194,7 +194,10 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
                                      &ftext->glyph_cache, &context);
 
         if (!glyph)
+        {
+            --ftext->length;
             continue;
+        }
         image = glyph->image;
         glyph_width = glyph->width;
         glyph_height = glyph->height;
@@ -227,12 +230,12 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
         }
 
         prev_glyph_index = glyph->glyph_index;
-    metrics = vertical ? &glyph->v_metrics : &glyph->h_metrics;
-        if (metrics->bearing_rotated.y > top)
+	metrics = vertical ? &glyph->v_metrics : &glyph->h_metrics;
+	if (metrics->bearing_rotated.y > top)
         {
             top = metrics->bearing_rotated.y;
         }
-    if (pen.x + metrics->bearing_rotated.x < min_x)
+        if (pen.x + metrics->bearing_rotated.x < min_x)
         {
             min_x = pen.x + metrics->bearing_rotated.x;
         }
@@ -296,8 +299,8 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
         {
             max_y = max_y_underline;
         }
-    ftext->underline_pos = underline_pos;
-    ftext->underline_size = underline_size;
+        ftext->underline_pos = underline_pos;
+        ftext->underline_size = underline_size;
 
         /*
          * (1) HACK HACK HACK
