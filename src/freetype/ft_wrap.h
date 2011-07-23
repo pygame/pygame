@@ -173,7 +173,7 @@ typedef struct __fontsurface
 
 } FontSurface;
 
-#define PGFT_INTERNALS(f) ((FontInternals *)(f->_internals))
+#define PGFT_INTERNALS(f) ((FontInternals *)((f)->_internals))
 typedef struct FontInternals_
 {
     FontText    active_text;
@@ -185,7 +185,9 @@ typedef struct PGFT_String_
     PGFT_char data[1];
 } PGFT_String;
 
-
+#if defined(PGFT_DEBUG_CACHE)
+#define PGFT_FONT_CACHE(f) (PGFT_INTERNALS(f)->active_text.glyph_cache)
+#endif
 
 /**********************************************************
  * Module state

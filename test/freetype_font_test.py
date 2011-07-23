@@ -21,7 +21,7 @@ try:
     import pygame.freetype as ft
 except ImportError:
     ft = None
-from pygame.compat import as_unicode, bytes_
+from pygame.compat import as_unicode, bytes_, unichr_, unicode_
 
 
 FONTDIR = os.path.join(os.path.dirname (os.path.abspath (__file__)),
@@ -366,6 +366,11 @@ class FreeTypeFontTest(unittest.TestCase):
         # bug with decenders: this would crash
         rend = font.render_raw('render_raw', ptsize=24)
 
+        # bug with non-printable characters: this would cause a crash
+        # because the text length was not adjusted for skipped characters.
+        text = unicode_("").join([unichr_(i) for i in range(31, 64)])
+        rend = font.render_raw(text, ptsize=10)
+
     def test_freetype_Font_style(self):
 
         font = self._TEST_FONTS['sans']
@@ -430,6 +435,106 @@ class FreeTypeFontTest(unittest.TestCase):
         self.assertEqual(self._TEST_FONTS['sans'].path, self._sans_path)
         self.assertRaises(AttributeError, getattr, nullfont(), 'path')
 
+    # This Font cache test is conditional on freetype being built by a debug
+    # version of Python or with the C macro PGFT_DEBUG_CACHE defined.
+    def test_freetype_Font_cache(self):
+        glyphs = "abcde"
+        glen = len(glyphs)
+        other_glyphs = "123"
+        oglen = len(other_glyphs)
+        many_glyphs = unicode("").join([unichr_(i) for i in range(32,127)])
+        mglen = len(many_glyphs)
+
+        count = 0
+        access = 0
+        hit = 0
+        miss = 0
+
+        f = ft.Font(None, ptsize=24, style=ft.STYLE_NORMAL, vertical=False)
+        f.antialiased = True
+
+        # Ensure debug counters are zero
+        self.assertEqual(f._debug_cache_stats, (0, 0, 0, 0, 0))
+        # Load some basic glyphs
+        count = access = miss = glen
+        f.render_raw(glyphs)
+        self.assertEqual(f._debug_cache_stats, (count, 0, access, hit, miss))
+        # Vertical should not affect the cache
+        access += glen
+        hit += glen
+        f.vertical = True
+        f.render_raw(glyphs)
+        f.vertical = False
+        self.assertEqual(f._debug_cache_stats, (count, 0, access, hit, miss))
+        # New glyphs will
+        count += oglen
+        access += oglen
+        miss += oglen
+        f.render_raw(other_glyphs)
+        self.assertEqual(f._debug_cache_stats, (count, 0, access, hit, miss))
+        # Point size does
+        count += glen
+        access += glen
+        miss += glen
+        f.render_raw(glyphs, ptsize=12)
+        self.assertEqual(f._debug_cache_stats, (count, 0, access, hit, miss))
+        # Underline style does not
+        access += oglen
+        hit += oglen
+        f.underline = True
+        f.render_raw(other_glyphs)
+        f.underline = False
+        self.assertEqual(f._debug_cache_stats, (count, 0, access, hit, miss))
+        # Oblique style does
+        count += glen
+        access += glen
+        miss += glen
+        f.oblique = True
+        f.render_raw(glyphs)
+        f.oblique = False
+        self.assertEqual(f._debug_cache_stats, (count, 0, access, hit, miss))
+        # Bold style does; by this point cache clears can happen
+        count += glen
+        access += glen
+        miss += glen
+        f.bold = True
+        f.render_raw(glyphs)
+        f.bold = False
+        ccount, cdelete_count, caccess, chit, cmiss = f._debug_cache_stats
+        self.assertEqual((ccount + cdelete_count, caccess, chit, cmiss),
+                         (count, access, hit, miss))
+        # Rotation does
+        count += glen
+        access += glen
+        miss += glen
+        f.render_raw(glyphs, rotation=10)
+        ccount, cdelete_count, caccess, chit, cmiss = f._debug_cache_stats
+        self.assertEqual((ccount + cdelete_count, caccess, chit, cmiss),
+                         (count, access, hit, miss))
+        # aliased (mono) glyphs do
+        count += oglen
+        access += oglen
+        miss += oglen
+        f.antialiased = False
+        f.render_raw(other_glyphs)
+        f.antialiased = True
+        ccount, cdelete_count, caccess, chit, cmiss = f._debug_cache_stats
+        self.assertEqual((ccount + cdelete_count, caccess, chit, cmiss),
+                         (count, access, hit, miss))
+        # Trigger a cleanup for sure.
+        count += mglen
+        access += mglen
+        miss += mglen
+        f.render_raw(many_glyphs, ptsize=10)
+        ccount, cdelete_count, caccess, chit, cmiss = f._debug_cache_stats
+        self.assertTrue(ccount < count)
+        self.assertEqual((ccount + cdelete_count, caccess, chit, cmiss),
+                         (count, access, hit, miss))
+
+    try:
+        ft.Font._debug_cache_stats
+    except AttributeError:
+        del test_freetype_Font_cache
 
 class FreeTypeFont(unittest.TestCase):
 
