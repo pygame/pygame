@@ -444,10 +444,6 @@ PGFT_LoadGlyph(FontGlyph *glyph, PGFT_char character, const FontRenderMode *rend
     gindex = FTC_CMapCache_Lookup(context->charmap, context->id,
                                   -1, (FT_UInt32)character);
 
-    if (!gindex)
-    {
-        goto cleanup;
-    }
     glyph->glyph_index = gindex;
 
     /*
