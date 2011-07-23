@@ -83,6 +83,10 @@ typedef struct __rendermode
     FT_UInt16   style;
 } FontRenderMode;
 
+#if defined(Py_DEBUG) && !defined(PGFT_DEBUG_CACHE)
+#define PGFT_DEBUG_CACHE 1
+#endif
+
 struct __cachenode;
 
 typedef struct __fontcache
@@ -93,7 +97,7 @@ typedef struct __fontcache
     FT_Byte    *depths;
 
 #ifdef PGFT_DEBUG_CACHE
-    FT_UInt32   count;
+    FT_UInt32   _debug_count;
     FT_UInt32   _debug_delete_count;
     FT_UInt32   _debug_access;
     FT_UInt32   _debug_hit;
