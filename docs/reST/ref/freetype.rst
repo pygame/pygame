@@ -29,6 +29,9 @@ with ``pygame.freetype.Font()``.
 You can load fonts from the system by using the ``pygame.freetype.SysFont()``
 function. There are a few other functions to help lookup the system fonts.
 
+For now undefined character codes are replaced with the ``undefined character``.
+How undefined codes are handled may become configurable in a future release.
+
 Pygame comes with a builtin default font. This can always be accessed by
 passing None as the font name to the Font constructor.
 

@@ -536,6 +536,19 @@ class FreeTypeFontTest(unittest.TestCase):
     except AttributeError:
         del test_freetype_Font_cache
 
+    def test_undefined_character_code(self):
+        # To be consistent with pygame.font.Font, undefined codes
+        # are rendered as the undefined character.
+        font = self._TEST_FONTS['sans']
+
+        img, size1 = font.render(None, unichr_(1), (0, 0, 0), ptsize=24)
+        img, size0 = font.render(None, "", (0, 0, 0), ptsize=24)
+        self.assertTrue(size1.width > size0.width )
+
+        metrics = font.get_metrics(unichr_(1) + unichr_(48), ptsize=24)
+        self.assertEqual(len(metrics), 2)
+        self.assertTrue(isinstance(metrics[0], tuple))
+
 class FreeTypeFont(unittest.TestCase):
 
     def test_resolution(self):
