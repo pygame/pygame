@@ -113,12 +113,13 @@ cache_hash(const CacheNodeKey *key)
     FT_UInt32 c2 = 0x1B873593;
 
     FT_UInt32 k1;
+    const FT_UInt32 *blocks = key->dwords - 1;
 
     int i;
 
-    for (i = -(sizeof(key->dwords) / 4); i; ++i)
+    for (i = (sizeof(key->dwords) / 4); i; --i)
     {
-        k1 = key->dwords[i];
+        k1 = blocks[i];
 
         k1 *= c1;
         k1 = (k1 << 15) | (k1 >> 17);
@@ -174,7 +175,7 @@ PGFT_Cache_Init(FreeTypeInstance *ft, FontCache *cache)
     cache->size_mask = (FT_UInt32)(cache_size - 1);
 
 #ifdef PGFT_DEBUG_CACHE
-    cache->count = 0;
+    cache->_debug_count = 0;
     cache->_debug_delete_count = 0;
     cache->_debug_access = 0;
     cache->_debug_hit = 0;
@@ -192,13 +193,9 @@ PGFT_Cache_Destroy(FontCache *cache)
     if (cache == NULL)
         return;
 
-#ifdef PGFT_DEBUG_CACHE
-    fprintf(stderr, "Cache stats:\n");
-    fprintf(stderr, "\t%d accesses in total\n", cache->_debug_access);
-    fprintf(stderr, "\t%d hits / %d misses\n", cache->_debug_hit, cache->_debug_miss);
-    fprintf(stderr, "\t%f hit ratio\n", (float)cache->_debug_hit/(float)cache->_debug_access);
-    fprintf(stderr, "\t%d nodes kicked\n", cache->_debug_delete_count);
-#endif
+    /* PGFT_DEBUG_CACHE - Here is a good place to set a breakpoint
+     * to examine _debug fields.
+     */
 
     if (cache->nodes != NULL)
     {
@@ -313,7 +310,7 @@ Cache_FreeNode(FontCache *cache, FontCacheNode *node)
         return;
 
 #ifdef PGFT_DEBUG_CACHE
-    cache->count--;
+    cache->_debug_count--;
 #endif
 
     cache->depths[node->hash & cache->size_mask]--;
@@ -348,7 +345,7 @@ Cache_AllocateNode(FontCache *cache, const FontRenderMode *render, PGFT_char cha
     cache->depths[bucket]++;
 
 #ifdef PGFT_DEBUG_CACHE
-    cache->count++;
+    cache->_debug_count++;
 #endif
 
     return node;
