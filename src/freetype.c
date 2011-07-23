@@ -300,6 +300,10 @@ static PyObject *_ftfont_getresolution(PyObject *self, void *closure);
 static PyObject *_ftfont_getstyle_flag(PyObject *self, void *closure);
 static int _ftfont_setstyle_flag(PyObject *self, PyObject *value, void *closure);
 
+#if defined(PGFT_DEBUG_CACHE)
+static PyObject *_ftfont_getdebugcachestats(PyObject *self, void *closure);
+#endif
+
 /*
  * FREETYPE MODULE METHODS TABLE
  */
@@ -495,6 +499,15 @@ static PyGetSetDef _ftfont_getsets[] =
         DOC_FONTORIGIN,
         NULL
     },
+#if defined(PGFT_DEBUG_CACHE)
+    {
+        "_debug_cache_stats",
+        _ftfont_getdebugcachestats,
+        NULL,
+        "_debug cache fields as a tuple",
+        NULL
+    },
+#endif
 
     { NULL, NULL, NULL, NULL, NULL }
 };
@@ -1040,6 +1053,28 @@ _ftfont_getresolution(PyObject *self, void *closure)
     return PyLong_FromUnsignedLong((unsigned long)font->resolution);
 }
 
+
+/** testing and debugging */
+#if defined(PGFT_DEBUG_CACHE)
+static PyObject *
+_ftfont_getdebugcachestats(PyObject *self, void *closure)
+{
+    /* Yes, this kind of breaches the boundary between the top level
+     * freetype.c and the lower level ft_text.c. But it is built
+     * conditionally, and it keeps some of the Python api out
+     * of ft_text.c and ft_cache.c (hoping to remove the Python
+     * api completely from ft_text.c and support C modules at some point.)
+     */
+    const FontCache *cache = &PGFT_FONT_CACHE((PyFreeTypeFont *)self);
+
+    return Py_BuildValue("kkkkk",
+                         (unsigned long)cache->_debug_count,
+                         (unsigned long)cache->_debug_delete_count,
+                         (unsigned long)cache->_debug_access,
+                         (unsigned long)cache->_debug_hit,
+                         (unsigned long)cache->_debug_miss);
+}
+#endif
 
 /****************************************************
  * MAIN METHODS
