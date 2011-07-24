@@ -392,7 +392,7 @@ event_str (PyObject* self)
         return NULL;
     }
 #if PY3
-    encodedobj = PyUnicode_AsASCIIString (strobj);
+    encodedobj = PyUnicode_AsUTF8String (strobj);
     Py_DECREF (strobj);
     strobj = encodedobj;
     encodedobj = NULL;
