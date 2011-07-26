@@ -1,310 +1,846 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-<html>
-<title>freetype - Pygame Documentation</title>
-<body bgcolor=#aaeebb text=#000000 link=#331111 vlink=#331111>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pygame.freetype &mdash; Pygame v1.9.2 documentation</title>
+    <link rel="stylesheet" href="../_static/pygame.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.9.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/pygame.ico"/>
+    <link rel="top" title="Pygame v1.9.2 documentation" href="../index.html" />
+    <link rel="next" title="pygame.gfxdraw" href="gfxdraw.html" />
+    <link rel="prev" title="pygame.font" href="font.html" /> 
+  </head>
+  <body>  
 
+    <div class="document">
 
-<table cellpadding=0 cellspacing=0 border=0 style='border: 3px solid black;' width='100%'>
-<tr>
-<td bgcolor='#c2fc20' style='padding: 6px;' align=center valign=center><a href='http://www.pygame.org/'><img src='../pygame_tiny.gif' border=0 width=200 height=60></a><br><b>pygame documentation</b></td>
-<td bgcolor='#6aee28' style='border-left: 3px solid black; padding: 6px;' align=center valign=center>
-	||&nbsp;
-	<a href=http://www.pygame.org>Pygame Home</a> &nbsp;||&nbsp;
-	<a href=../index.html>Help Contents</a> &nbsp;||
-	<a href=index.html>Reference Index</a> &nbsp;||
-	<br>&nbsp;<br>
-	
-<a href="camera.html">Camera</a>&nbsp;||&nbsp;
-<a href="cdrom.html">Cdrom</a>&nbsp;||&nbsp;
-<a href="color.html">Color</a>&nbsp;||&nbsp;
-<a href="cursors.html">Cursors</a>&nbsp;||&nbsp;
-<a href="display.html">Display</a>&nbsp;||&nbsp;
-<a href="draw.html">Draw</a>&nbsp;||&nbsp;
-<a href="event.html">Event</a>&nbsp;||&nbsp;
-<a href="examples.html">Examples</a>&nbsp;||&nbsp;
-<a href="font.html">Font</a>&nbsp;||&nbsp;
-<a href="freetype.html">Freetype</a>&nbsp;||&nbsp;
-<a href="gfxdraw.html">Gfxdraw</a>&nbsp;||&nbsp;
-<a href="image.html">Image</a>&nbsp;||&nbsp;
-<a href="joystick.html">Joystick</a>&nbsp;||&nbsp;
-<a href="key.html">Key</a>&nbsp;||&nbsp;
-<a href="locals.html">Locals</a>&nbsp;||&nbsp;
-<a href="mask.html">Mask</a>&nbsp;||&nbsp;
-<a href="math.html">Math</a>&nbsp;||&nbsp;
-<a href="midi.html">Midi</a>&nbsp;||&nbsp;
-<a href="mixer.html">Mixer</a>&nbsp;||&nbsp;
-<a href="mouse.html">Mouse</a>&nbsp;||&nbsp;
-<a href="movie.html">Movie</a>&nbsp;||&nbsp;
-<a href="music.html">Music</a>&nbsp;||&nbsp;
-<a href="overlay.html">Overlay</a>&nbsp;||&nbsp;
-<a href="pixelarray.html">Pixelarray</a>&nbsp;||&nbsp;
-<a href="pixelcopy.html">Pixelcopy</a>&nbsp;||&nbsp;
-<a href="pygame.html">Pygame</a>&nbsp;||&nbsp;
-<a href="rect.html">Rect</a>&nbsp;||&nbsp;
-<a href="scrap.html">Scrap</a>&nbsp;||&nbsp;
-<a href="sndarray.html">Sndarray</a>&nbsp;||&nbsp;
-<a href="sprite.html">Sprite</a>&nbsp;||&nbsp;
-<a href="surface.html">Surface</a>&nbsp;||&nbsp;
-<a href="surfarray.html">Surfarray</a>&nbsp;||&nbsp;
-<a href="tests.html">Tests</a>&nbsp;||&nbsp;
-<a href="time.html">Time</a>&nbsp;||&nbsp;
-<a href="transform.html">Transform</a>
-</td></tr></table>
-<br>
+  <div class="header">
+    <table>
+      <tr>
+	<td class="logo">
+	  <a href="http://www.pygame.org/">
+	    <img src="../_static/pygame_tiny.png"/>
+	  </a>
+	  <h5>pygame documentation</h5>
+	</td>
+	<td class="pagelinks">
+	  <p class="top">
+	    ||
+	    <a href="http://www.pygame.org/">Pygame Home</a> ||
+	    <a href="../index.html">Help Contents</a> ||
+	    <a href="../genindex.html">Reference Index</a> ||
+	  </p>
+	  <p class="bottom">
+	    <a href="camera.html">camera</a> || 
+	    <a href="cdrom.html">cdrom</a> || 
+	    <a href="color.html">Color</a> || 
+	    <a href="cursors.html">cursors</a> || 
+	    <a href="display.html">display</a> || 
+	    <a href="draw.html">draw</a> || 
+	    <a href="event.html">event</a> || 
+	    <a href="examples.html">examples</a> || 
+	    <a href="font.html">font</a> || 
+	    <a href="freetype.html">freetype</a> || 
+	    <a href="gfxdraw.html">gfxdraw</a> || 
+	    <a href="image.html">image</a> || 
+	    <a href="joystick.html">joystick</a> || 
+	    <a href="key.html">key</a> || 
+	    <a href="locals.html">locals</a> || 
+	    <a href="mask.html">mask</a> || 
+	    <a href="math.html">math</a> || 
+	    <a href="midi.html">midi</a> || 
+	    <a href="mixer.html">mixer</a> || 
+	    <a href="mouse.html">mouse</a> || 
+	    <a href="movie.html">movie</a> || 
+	    <a href="music.html">music</a> || 
+	    <a href="overlay.html">Overlay</a> || 
+	    <a href="pixelarray.html">PixelArray</a> || 
+	    <a href="pixelcopy.html">pixelcopy</a> || 
+	    <a href="pygame.html">pygame</a> || 
+	    <a href="rect.html">Rect</a> || 
+	    <a href="scrap.html">scrap</a> || 
+	    <a href="sndarray.html">sndarray</a> || 
+	    <a href="sprite.html">sprite</a> || 
+	    <a href="surface.html">Surface</a> || 
+	    <a href="surfarray.html">surfarray</a> || 
+	    <a href="tests.html">tests</a> || 
+	    <a href="time.html">time</a> || 
+	    <a href="transform.html">transform</a> || 
+	    <a href="pygame.html#module-pygame.version">version</a>
+	  </p>
+	</td>
+      </tr>
+    </table>
+  </div>
 
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <div class="sectionwrapper">
+<div class="section" id="module-pygame.freetype">
+<span id="pygame-freetype"></span><dl class="definition module">
+<dt class="title module">
+<tt class="docutils literal"><span class="pre">pygame.freetype</span></tt></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Enhanced Pygame module for loading and rendering fonts</span></div>
+</div>
+<table border="1" class="toc docutils">
+<colgroup>
+<col width="37%" />
+<col width="1%" />
+<col width="62%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="toc reference external" href="freetype.html#pygame.freetype.get_error">pygame.freetype.get_error</a></td>
+<td>—</td>
+<td>Get the latest error</td>
+</tr>
+<tr><td><a class="toc reference external" href="freetype.html#pygame.freetype.get_version">pygame.freetype.get_version</a></td>
+<td>—</td>
+<td>Get the FreeType version</td>
+</tr>
+<tr><td><a class="toc reference external" href="freetype.html#pygame.freetype.init">pygame.freetype.init</a></td>
+<td>—</td>
+<td>Initialize the underlying FreeType 2 library.</td>
+</tr>
+<tr><td><a class="toc reference external" href="freetype.html#pygame.freetype.quit">pygame.freetype.quit</a></td>
+<td>—</td>
+<td>Shuts down the underlying FreeType 2 library.</td>
+</tr>
+<tr><td><a class="toc reference external" href="freetype.html#pygame.freetype.was_init">pygame.freetype.was_init</a></td>
+<td>—</td>
+<td>Returns whether the the FreeType 2 library is initialized.</td>
+</tr>
+<tr><td><a class="toc reference external" href="freetype.html#pygame.freetype.get_default_resolution">pygame.freetype.get_default_resolution</a></td>
+<td>—</td>
+<td>Return the default pixel size in dots per inch</td>
+</tr>
+<tr><td><a class="toc reference external" href="freetype.html#pygame.freetype.set_default_resolution">pygame.freetype.set_default_resolution</a></td>
+<td>—</td>
+<td>Set the default pixel size in dots per inch for the module</td>
+</tr>
+<tr><td><a class="toc reference external" href="freetype.html#pygame.freetype.get_default_font">pygame.freetype.get_default_font</a></td>
+<td>—</td>
+<td>Get the filename of the default font</td>
+</tr>
+<tr><td><a class="toc reference external" href="freetype.html#pygame.freetype.Font">pygame.freetype.Font</a></td>
+<td>—</td>
+<td>Creates a new Font from a supported font file.</td>
+</tr>
+</tbody>
+</table>
+<p>&#8212; Note that some features may change before a formal release</p>
+<p>This module allows for rendering all font formats supported by FreeType, namely
+<tt class="docutils literal"><span class="pre">TTF</span></tt>, Type1, <tt class="docutils literal"><span class="pre">CFF</span></tt>, OpenType, <tt class="docutils literal"><span class="pre">SFNT</span></tt>, <tt class="docutils literal"><span class="pre">PCF</span></tt>, <tt class="docutils literal"><span class="pre">FNT</span></tt>, <tt class="docutils literal"><span class="pre">BDF</span></tt>, <tt class="docutils literal"><span class="pre">PFR</span></tt>
+and Type42 fonts. It can render any UTF-32 character in a font file.</p>
+<p>This module is optional, and replaces all of the functionality of the original
+&#8216;font&#8217; module, whilst expanding it. This module depends in no way on the
+SDL_ttf library.</p>
+<p>You should test that <a class="tooltip reference internal" href="#module-pygame.freetype" title=""><tt class="xref py py-mod docutils literal"><span class="pre">pygame.freetype</span></tt><span class="tooltip-content">Enhanced Pygame module for loading and rendering fonts</span></a> is initialized before attempting to
+use the module; if the module is available and loaded, it will be automatically
+initialized by <tt class="docutils literal"><span class="pre">pygame.init()</span></tt></p>
+<p>Most of the work done with fonts is done by using the actual Font objects. The
+module by itself only has routines to initialize itself and create Font objects
+with <tt class="docutils literal"><span class="pre">pygame.freetype.Font()</span></tt>.</p>
+<p>You can load fonts from the system by using the <tt class="docutils literal"><span class="pre">pygame.freetype.SysFont()</span></tt>
+function. There are a few other functions to help lookup the system fonts.</p>
+<p>For now undefined character codes are replaced with the <tt class="docutils literal"><span class="pre">undefined</span> <span class="pre">character</span></tt>.
+How undefined codes are handled may become configurable in a future release.</p>
+<p>Pygame comes with a builtin default font. This can always be accessed by
+passing None as the font name to the Font constructor.</p>
+<p>New in Pygame 1.9.2</p>
+<dl class="definition function">
+<dt class="title" id="pygame.freetype.get_error">
+<tt class="descclassname">pygame.freetype.</tt><tt class="descname">get_error</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.freetype.get_error" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Get the latest error</span></div>
+<div class="line"><span class="signature">get_error() -&gt; str</span></div>
+</div>
+<p>Returns the description of the last error which occurred in the FreeType
+library, or None if no errors have occurred.</p>
+</dd></dl>
 
-<a name="pygame.freetype">
-<big><b>pygame.freetype</big></b><br><ul>
-  <i>Enhanced Pygame module for loading and rendering fonts</i><br>
-<ul><small><table>
-  <tr><td><a href="freetype.html#pygame.freetype.get_error">pygame.freetype.get_error</a></td><td> &mdash; Get the latest error</td></tr>
-  <tr><td><a href="freetype.html#pygame.freetype.get_version">pygame.freetype.get_version</a></td><td> &mdash; Get the FreeType version</td></tr>
-  <tr><td><a href="freetype.html#pygame.freetype.init">pygame.freetype.init</a></td><td> &mdash; Initialize the underlying FreeType 2 library.</td></tr>
-  <tr><td><a href="freetype.html#pygame.freetype.quit">pygame.freetype.quit</a></td><td> &mdash; Shuts down the underlying FreeType 2 library.</td></tr>
-  <tr><td><a href="freetype.html#pygame.freetype.was_init">pygame.freetype.was_init</a></td><td> &mdash; Returns whether the the FreeType 2 library is initialized.</td></tr>
-  <tr><td><a href="freetype.html#pygame.freetype.Font">pygame.freetype.Font</a></td><td> &mdash; Creates a new Font from a supported font file.</td></tr>
-</table></small></ul>
-<p>--- Note that some features may change before a formal release </p>
-<p>This module allows for rendering all font formats supported by FreeType, namely TTF, Type1, CFF, OpenType, SFNT, PCF, FNT, BDF, <tt>PFR</tt> and Type42 fonts. It can render any UTF-32 character in a font file. </p>
-<p>This module is optional, and replaces all of the functionality of the original 'font' module, whilst expanding it. This module depends in no way on the SDL_ttf library. </p>
-<p>You should test that <tt>pygame.freetype</tt> is initialized before attempting to use the module; if the module is available and loaded, it will be automatically initialized by <tt><a href="pygame.html#pygame.init">pygame.init</a></tt>&nbsp;&ndash;<font size=-1>initialize all imported pygame modules</font>&ndash; </p>
-<p>Most of the work done with fonts is done by using the actual Font objects. The module by itself only has routines to initialize itself and create Font objects with <tt><a href="freetype.html#pygame.freetype.Font">pygame.freetype.Font</a></tt>&nbsp;&ndash;<font size=-1>Creates a new Font from a supported font file.</font>. </p>
-<p>You can load fonts from the system by using the <tt>pygame.freetype.SysFont()</tt> function. There are a few other functions to help lookup the system fonts. </p>
-<p>Pygame comes with a builtin default font. This can always be accessed by passing None as the font name to the Font constructor. </p>
-<!--COMMENTS:pygame.freetype--> &nbsp;<br> 
+<dl class="definition function">
+<dt class="title" id="pygame.freetype.get_version">
+<tt class="descclassname">pygame.freetype.</tt><tt class="descname">get_version</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.freetype.get_version" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Get the FreeType version</span></div>
+<div class="line"><span class="signature">get_version() -&gt; (int, int, int)</span></div>
+</div>
+<p>Gets the version of the FreeType2 library which was used to build the
+&#8216;freetype&#8217; module.</p>
+<p>Note that the FreeType module depends on the FreeType 2 library, and will
+not compile with the original FreeType 1.0, hence the first element of the
+tuple will always be 2.</p>
+</dd></dl>
 
+<dl class="definition function">
+<dt class="title" id="pygame.freetype.init">
+<tt class="descclassname">pygame.freetype.</tt><tt class="descname">init</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.freetype.init" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Initialize the underlying FreeType 2 library.</span></div>
+<div class="line"><span class="signature">init(cache_size=64, resolution=72) -&gt; None</span></div>
+</div>
+<p>This function initializes the underlying FreeType 2 library and must be
+called before trying to use any of the functionality of the &#8216;freetype&#8217;
+module.</p>
+<p>However, if the module is available, this function will be automatically
+called by <tt class="docutils literal"><span class="pre">pygame.init()</span></tt>. It is safe to call this function more than
+once.</p>
+<p>Optionally, you may specify a default size for the Glyph cache: this is the
+maximum amount of glyphs that will be cached at any given time by the
+module. Exceedingly small values will be automatically tuned for
+performance. Also a default pixel resolution, in dots per inch, can
+be given to adjust font scaling.</p>
+</dd></dl>
 
-<a name="pygame.freetype.get_error">
-<big><b>pygame.freetype.get_error</big></b><br><ul>
-  <i>Get the latest error</i><br>
-  <tt>pygame.freetype.get_error(): return str</tt><br>
-<p>Returns the description of the last error which occurred in the FreeType library, or None if no errors have occurred. </p>
-<!--COMMENTS:pygame.freetype.get_error--> &nbsp;<br> 
-<br></ul>
+<dl class="definition function">
+<dt class="title" id="pygame.freetype.quit">
+<tt class="descclassname">pygame.freetype.</tt><tt class="descname">quit</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.freetype.quit" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Shuts down the underlying FreeType 2 library.</span></div>
+<div class="line"><span class="signature">quit() -&gt; None</span></div>
+</div>
+<p>This function de-initializes the &#8216;freetype&#8217; module. After calling this
+function, you should not invoke any class, method or function related to the
+&#8216;freetype&#8217; module as they are likely to fail or might give unpredictable
+results. It is safe to call this function even if the module hasn&#8217;t been
+initialized yet.</p>
+</dd></dl>
 
+<dl class="definition function">
+<dt class="title" id="pygame.freetype.was_init">
+<tt class="descclassname">pygame.freetype.</tt><tt class="descname">was_init</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.freetype.was_init" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Returns whether the the FreeType 2 library is initialized.</span></div>
+<div class="line"><span class="signature">was_init() -&gt; bool</span></div>
+</div>
+<p>Returns whether the the FreeType 2 library is initialized.</p>
+</dd></dl>
 
-<a name="pygame.freetype.get_version">
-<big><b>pygame.freetype.get_version</big></b><br><ul>
-  <i>Get the FreeType version</i><br>
-  <tt>pygame.freetype.get_version(): return (int, int, int)</tt><br>
-<p>Gets the version of the FreeType2 library which was used to build the 'freetype' module. </p>
-<p>Note that the FreeType module depends on the FreeType 2 library, and will not compile with the original FreeType 1.0, hence the first element of the tuple will always be 2. </p>
-<!--COMMENTS:pygame.freetype.get_version--> &nbsp;<br> 
-<br></ul>
+<dl class="definition function">
+<dt class="title" id="pygame.freetype.get_default_resolution">
+<tt class="descclassname">pygame.freetype.</tt><tt class="descname">get_default_resolution</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.freetype.get_default_resolution" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Return the default pixel size in dots per inch</span></div>
+<div class="line"><span class="signature">get_default_resolution() -&gt; long</span></div>
+</div>
+<p>Returns the default pixel size, in dots per inch for the module. At
+initial module load time the value is 72.</p>
+</dd></dl>
 
+<dl class="definition function">
+<dt class="title" id="pygame.freetype.set_default_resolution">
+<tt class="descclassname">pygame.freetype.</tt><tt class="descname">set_default_resolution</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.freetype.set_default_resolution" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Set the default pixel size in dots per inch for the module</span></div>
+<div class="line"><span class="signature">set_default_resolution([resolution]) -&gt; None</span></div>
+</div>
+<p>Set the default pixel size, in dots per inch, for the module. If the
+optional argument is omitted or zero the resolution is reset to 72.</p>
+</dd></dl>
 
-<a name="pygame.freetype.init">
-<big><b>pygame.freetype.init</big></b><br><ul>
-  <i>Initialize the underlying FreeType 2 library.</i><br>
-  <tt>pygame.freetype.init(default_cache_size=64): return None</tt><br>
-<p>This function initializes the underlying FreeType 2 library and must be called before trying to use any of the functionality of the 'freetype' module. </p>
-<p>However, if the module is available, this function will be automatically called by <tt><a href="pygame.html#pygame.init">pygame.init</a></tt>&nbsp;&ndash;<font size=-1>initialize all imported pygame modules</font>. It is safe to call this function more than once. </p>
-<p>Optionally, you may specify a default size for the Glyph cache: this is the maximum amount of glyphs that will be cached at any given time by the module. Exceedingly small values will be automatically tuned for performance. </p>
-<!--COMMENTS:pygame.freetype.init--> &nbsp;<br> 
-<br></ul>
+<dl class="definition function">
+<dt class="title" id="pygame.freetype.get_default_font">
+<tt class="descclassname">pygame.freetype.</tt><tt class="descname">get_default_font</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.freetype.get_default_font" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Get the filename of the default font</span></div>
+<div class="line"><span class="signature">get_default_font() -&gt; string</span></div>
+</div>
+<p>Return the filename of the system font. This is not the full path to the
+file. This file can usually be found in the same directory as the font
+module, but it can also be bundled in separate archives.</p>
+</dd></dl>
 
+<dl class="definition class">
+<dt class="title" id="pygame.freetype.Font">
+<em class="property">class </em><tt class="descclassname">pygame.freetype.</tt><tt class="descname">Font</tt><a class="headerlink" href="#pygame.freetype.Font" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Creates a new Font from a supported font file.</span></div>
+<div class="line"><span class="signature">Font(file, style=STYLE_NONE, ptsize=-1, face_index=0, vertical=0, ucs4=0, resolution=0) -&gt; Font</span></div>
+</div>
+<table border="1" class="toc docutils">
+<colgroup>
+<col width="41%" />
+<col width="1%" />
+<col width="59%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="toc reference external" href="freetype.html#pygame.freetype.Font.name">pygame.freetype.Font.name</a></td>
+<td>—</td>
+<td>Gets the name of the font face.</td>
+</tr>
+<tr><td><a class="toc reference external" href="freetype.html#pygame.freetype.Font.path">pygame.freetype.Font.path</a></td>
+<td>—</td>
+<td>Gets the path of the font file</td>
+</tr>
+<tr><td><a class="toc reference external" href="freetype.html#pygame.freetype.Font.get_rect">pygame.freetype.Font.get_rect</a></td>
+<td>—</td>
+<td>Gets the size and offset of rendered text</td>
+</tr>
+<tr><td><a class="toc reference external" href="freetype.html#pygame.freetype.Font.get_metrics">pygame.freetype.Font.get_metrics</a></td>
+<td>—</td>
+<td>Gets glyph metrics for the font&#8217;s characters</td>
+</tr>
+<tr><td><a class="toc reference external" href="freetype.html#pygame.freetype.Font.height">pygame.freetype.Font.height</a></td>
+<td>—</td>
+<td>Gets the unscaled height of the face in font units</td>
+</tr>
+<tr><td><a class="toc reference external" href="freetype.html#pygame.freetype.Font.ascender">pygame.freetype.Font.ascender</a></td>
+<td>—</td>
+<td>get the unscaled ascent of the face in font units</td>
+</tr>
+<tr><td><a class="toc reference external" href="freetype.html#pygame.freetype.Font.descender">pygame.freetype.Font.descender</a></td>
+<td>—</td>
+<td>get the unscaled descent of the face in font units</td>
+</tr>
+<tr><td><a class="toc reference external" href="freetype.html#pygame.freetype.Font.get_sized_ascender">pygame.freetype.Font.get_sized_ascender</a></td>
+<td>—</td>
+<td>Gets the scaled ascent the face in pixels</td>
+</tr>
+<tr><td><a class="toc reference external" href="freetype.html#pygame.freetype.Font.get_sized_descender">pygame.freetype.Font.get_sized_descender</a></td>
+<td>—</td>
+<td>Gets the scaled descent the face in pixels</td>
+</tr>
+<tr><td><a class="toc reference external" href="freetype.html#pygame.freetype.Font.get_sized_height">pygame.freetype.Font.get_sized_height</a></td>
+<td>—</td>
+<td>Gets the scaled height of the face in pixels</td>
+</tr>
+<tr><td><a class="toc reference external" href="freetype.html#pygame.freetype.Font.get_sized_glyph_height">pygame.freetype.Font.get_sized_glyph_height</a></td>
+<td>—</td>
+<td>Gets the scaled height of the face in pixels</td>
+</tr>
+<tr><td><a class="toc reference external" href="freetype.html#pygame.freetype.Font.render">pygame.freetype.Font.render</a></td>
+<td>—</td>
+<td>Renders text on a surface</td>
+</tr>
+<tr><td><a class="toc reference external" href="freetype.html#pygame.freetype.Font.render_raw">pygame.freetype.Font.render_raw</a></td>
+<td>—</td>
+<td>Renders text as a string of bytes</td>
+</tr>
+<tr><td><a class="toc reference external" href="freetype.html#pygame.freetype.Font.style">pygame.freetype.Font.style</a></td>
+<td>—</td>
+<td>Gets or sets the font&#8217;s style</td>
+</tr>
+<tr><td><a class="toc reference external" href="freetype.html#pygame.freetype.Font.underline">pygame.freetype.Font.underline</a></td>
+<td>—</td>
+<td>Gets or sets the font&#8217;s underline style</td>
+</tr>
+<tr><td><a class="toc reference external" href="freetype.html#pygame.freetype.Font.bold">pygame.freetype.Font.bold</a></td>
+<td>—</td>
+<td>Gets or sets the font&#8217;s bold style</td>
+</tr>
+<tr><td><a class="toc reference external" href="freetype.html#pygame.freetype.Font.oblique">pygame.freetype.Font.oblique</a></td>
+<td>—</td>
+<td>Gets or sets the font&#8217;s oblique style</td>
+</tr>
+<tr><td><a class="toc reference external" href="freetype.html#pygame.freetype.Font.fixed_width">pygame.freetype.Font.fixed_width</a></td>
+<td>—</td>
+<td>Gets whether the font is fixed-width</td>
+</tr>
+<tr><td><a class="toc reference external" href="freetype.html#pygame.freetype.Font.antialiased">pygame.freetype.Font.antialiased</a></td>
+<td>—</td>
+<td>Font antialiasing mode</td>
+</tr>
+<tr><td><a class="toc reference external" href="freetype.html#pygame.freetype.Font.kerning">pygame.freetype.Font.kerning</a></td>
+<td>—</td>
+<td>Character kerning mode</td>
+</tr>
+<tr><td><a class="toc reference external" href="freetype.html#pygame.freetype.Font.vertical">pygame.freetype.Font.vertical</a></td>
+<td>—</td>
+<td>Font vertical mode</td>
+</tr>
+<tr><td><a class="toc reference external" href="freetype.html#pygame.freetype.Font.origin">pygame.freetype.Font.origin</a></td>
+<td>—</td>
+<td>Font render to text origin mode</td>
+</tr>
+<tr><td><a class="toc reference external" href="freetype.html#pygame.freetype.Font.ucs4">pygame.freetype.Font.ucs4</a></td>
+<td>—</td>
+<td>Enables UCS-4 mode</td>
+</tr>
+<tr><td><a class="toc reference external" href="freetype.html#pygame.freetype.Font.resolution">pygame.freetype.Font.resolution</a></td>
+<td>—</td>
+<td>Output pixel resolution in dots per inch</td>
+</tr>
+<tr><td><a class="toc reference external" href="freetype.html#pygame.freetype.Font.set_transform">pygame.freetype.Font.set_transform</a></td>
+<td>—</td>
+<td>assign a glyph transformation matrix</td>
+</tr>
+<tr><td><a class="toc reference external" href="freetype.html#pygame.freetype.Font.delete_transform">pygame.freetype.Font.delete_transform</a></td>
+<td>—</td>
+<td>delete a glyph transformation matrix</td>
+</tr>
+<tr><td><a class="toc reference external" href="freetype.html#pygame.freetype.Font.get_transform">pygame.freetype.Font.get_transform</a></td>
+<td>—</td>
+<td>return the user assigned transformation matrix, or None</td>
+</tr>
+</tbody>
+</table>
+<p>&#8216;file&#8217; can be either a string representing the font&#8217;s filename, a file-like
+object containing the font, or None; in this last case the default, built-in
+font will be used.</p>
+<p>Optionally, a *ptsize* argument may be specified to set the default size in
+points which will be used to render the font. Such size can also be
+specified manually on each method call. Because of the way the caching
+system works, specifying a default size on the constructor doesn&#8217;t imply a
+performance gain over manually passing the size on each function call.</p>
+<p>If the font file has more than one face, the *index* argument may be
+specified to specify which face index to load. Defaults to 0; font loading
+will fail if the given index is not contained in the font.</p>
+<p>The &#8216;style&#8217; argument will set the default style (oblique, underline, bold)
+used to draw this font. This style may be overriden on any <tt class="docutils literal"><span class="pre">Font.render()</span></tt>
+call.</p>
+<p>The optional vertical argument, an integer, sets the default orientation
+for the font: 0 (False) for horizontal, any other value (True) for vertical.
+See <a class="reference internal" href="#pygame.freetype.Font.vertical" title="pygame.freetype.Font.vertical"><tt class="xref py py-attr docutils literal"><span class="pre">Font.vertical</span></tt></a>.</p>
+<p>The optional ucs4 argument, an integer, sets the default text translation
+mode: 0 (False) recognize UTF-16 surrogate pairs, any other value (True),
+to treat unicode text as UCS-4, with no surrogate pairs. See
+<a class="reference internal" href="#pygame.freetype.Font.ucs4" title="pygame.freetype.Font.ucs4"><tt class="xref py py-attr docutils literal"><span class="pre">Font.ucs4</span></tt></a>.</p>
+<p>The optional resolution argument sets the pixel size, in dots per inch,
+to use for scaling glyphs for this Font instance. If 0 then the default
+module value, set by <tt class="xref py py-meth docutils literal"><span class="pre">freetype.init()</span></tt>, is used. The Font object&#8217;s
+resolution can only be changed by reinitializing the instance.</p>
+<dl class="definition attribute">
+<dt class="title" id="pygame.freetype.Font.name">
+<tt class="descname">name</tt><a class="headerlink" href="#pygame.freetype.Font.name" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Gets the name of the font face.</span></div>
+<div class="line"><span class="signature">name -&gt; string</span></div>
+</div>
+<p>Read only. Returns the real (long) name of the font type face, as
+specified on the font file.</p>
+</dd></dl>
 
-<a name="pygame.freetype.quit">
-<big><b>pygame.freetype.quit</big></b><br><ul>
-  <i>Shuts down the underlying FreeType 2 library.</i><br>
-  <tt>pygame.freetype.quit(): return None</tt><br>
-<p>This function de-initializes the 'freetype' module. After calling this function, you should not invoke any class, method or function related to the 'freetype' module as they are likely to fail or might give unpredictable results. It is safe to call this function even if the module hasn't been initialized yet. </p>
-<!--COMMENTS:pygame.freetype.quit--> &nbsp;<br> 
-<br></ul>
+<dl class="definition attribute">
+<dt class="title" id="pygame.freetype.Font.path">
+<tt class="descname">path</tt><a class="headerlink" href="#pygame.freetype.Font.path" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Gets the path of the font file</span></div>
+<div class="line"><span class="signature">path -&gt; unicode</span></div>
+</div>
+<p>Read only. Returns the path of the loaded font file</p>
+</dd></dl>
 
+<dl class="definition method">
+<dt class="title" id="pygame.freetype.Font.get_rect">
+<tt class="descname">get_rect</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.freetype.Font.get_rect" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Gets the size and offset of rendered text</span></div>
+<div class="line"><span class="signature">get_rect(text, style=STYLE_DEFAULT, rotation=0, ptsize=default) -&gt; rect</span></div>
+</div>
+<p>Gets the final dimensions and origin, in pixels, of &#8216;text&#8217; using the
+current point size, style, rotation and orientation. These are either
+taken from the arguments, if given, else from the default values set
+for the face object.</p>
+<p>Returns a rect containing the width and height of the text&#8217;s bounding
+box and the position of the text&#8217;s origin. The origin can be used
+to align separately rendered pieces of text. It gives the baseline
+position and bearing at the start of the text.</p>
+<p>If text is a char (byte) string, then its encoding is assumed to be
+<tt class="docutils literal"><span class="pre">LATIN1</span></tt>.</p>
+</dd></dl>
 
-<a name="pygame.freetype.was_init">
-<big><b>pygame.freetype.was_init</big></b><br><ul>
-  <i>Returns whether the the FreeType 2 library is initialized.</i><br>
-  <tt>pygame.freetype.was_init(): return bool</tt><br>
-<p>Returns whether the the FreeType 2 library is initialized. </p>
-<!--COMMENTS:pygame.freetype.was_init--> &nbsp;<br> 
-<br></ul>
+<dl class="definition method">
+<dt class="title" id="pygame.freetype.Font.get_metrics">
+<tt class="descname">get_metrics</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.freetype.Font.get_metrics" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Gets glyph metrics for the font&#8217;s characters</span></div>
+<div class="line"><span class="signature">get_metrics(text, ptsize=default) -&gt; [(...), ...]</span></div>
+</div>
+<p>Returns the glyph metrics for each character in &#8216;text&#8217;.</p>
+<p>The glyph metrics are returned inside a list; each character will be
+represented as a tuple inside the list with the following values:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">(</span><span class="n">min_x</span><span class="p">,</span> <span class="n">max_x</span><span class="p">,</span> <span class="n">min_y</span><span class="p">,</span> <span class="n">max_y</span><span class="p">,</span> <span class="n">horizontal_advance_x</span><span class="p">,</span> <span class="n">horizontal_advance_y</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The bounding box min_x, max_y, min_y, and max_y values are returned as
+grid-fitted pixel coordinates of type int. The advance values are
+float values.</p>
+<p>The calculations are done using the font&#8217;s default size in points.
+Optionally you may specify another point size to use.</p>
+<p>The metrics are adjusted for the current rotation, bold, and oblique
+settings.</p>
+<p>If text is a char (byte) string, then its encoding is assumed to be
+<tt class="docutils literal"><span class="pre">LATIN1</span></tt>.</p>
+</dd></dl>
 
+<dl class="definition attribute">
+<dt class="title" id="pygame.freetype.Font.height">
+<tt class="descname">height</tt><a class="headerlink" href="#pygame.freetype.Font.height" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Gets the unscaled height of the face in font units</span></div>
+<div class="line"><span class="signature">height -&gt; int</span></div>
+</div>
+<p>Read only. Gets the height of the face. This is the average value of all
+glyphs in the font.</p>
+</dd></dl>
 
-<a name="pygame.freetype.Font">
-<big><b>pygame.freetype.Font</big></b><br><ul>
-  <i>Creates a new Font from a supported font file.</i><br>
-  <tt>pygame.freetype.Font(file, style=STYLE_NONE, ptsize=-1, face_index=0): return Font</tt><br>
-<ul><small><table>
-  <tr><td><a href="freetype.html#Font.name">Font.name</a></td><td> &mdash; Gets the name of the font face.</td></tr>
-  <tr><td><a href="freetype.html#Font.get_size">Font.get_size</a></td><td> &mdash; Gets the size of rendered text</td></tr>
-  <tr><td><a href="freetype.html#Font.get_metrics">Font.get_metrics</a></td><td> &mdash; Gets glyph metrics for the font's characters</td></tr>
-  <tr><td><a href="freetype.html#Font.height">Font.height</a></td><td> &mdash; Gets the height of the Font</td></tr>
-  <tr><td><a href="freetype.html#Font.render">Font.render</a></td><td> &mdash; Renders text on a surface</td></tr>
-  <tr><td><a href="freetype.html#Font.render_raw">Font.render_raw</a></td><td> &mdash; Renders text as a string of bytes</td></tr>
-  <tr><td><a href="freetype.html#Font.style">Font.style</a></td><td> &mdash; Gets or sets the font's style</td></tr>
-  <tr><td><a href="freetype.html#Font.underline">Font.underline</a></td><td> &mdash; Gets or sets the font's underline style</td></tr>
-  <tr><td><a href="freetype.html#Font.bold">Font.bold</a></td><td> &mdash; Gets or sets the font's bold style</td></tr>
-  <tr><td><a href="freetype.html#Font.italic">Font.italic</a></td><td> &mdash; Gets or sets the font's italic style</td></tr>
-  <tr><td><a href="freetype.html#Font.fixed_width">Font.fixed_width</a></td><td> &mdash; Gets whether the font is fixed-width</td></tr>
-  <tr><td><a href="freetype.html#Font.antialiased">Font.antialiased</a></td><td> &mdash; Font antialiasing mode</td></tr>
-  <tr><td><a href="freetype.html#Font.vertical">Font.vertical</a></td><td> &mdash; Font vertical mode</td></tr>
-  <tr><td>None</td><td> &mdash; </td></tr>
-</table></small></ul>
-<p>'file' can be either a string representing the font's filename, a file-like object containing the font, or None; in this last case the default, built-in font will be used. </p>
-<p>Optionally, a *ptsize* argument may be specified to set the default size in points which will be used to render the font. Such size can also be specified manually on each method call. Because of the way the caching system works, specifying a default size on the constructor doesn't imply a performance gain over manually passing the size on each function call. </p>
-<p>If the font file has more than one face, the *index* argument may be specified to specify which face index to load. Defaults to 0; font loading will fail if the given index is not contained in the font. </p>
-<p>The 'style' argument will set the default style (italic, underline, bold) used to draw this font. This style may be overriden on any <tt><a href="freetype.html#Font.render">Font.render</a></tt>&nbsp;&ndash;<font size=-1>Renders text on a surface</font>&ndash; call. </p>
-<!--COMMENTS:pygame.freetype.Font--> &nbsp;<br> 
+<dl class="definition method">
+<dt class="title" id="pygame.freetype.Font.ascender">
+<tt class="descname">ascender</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.freetype.Font.ascender" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">get the unscaled ascent of the face in font units</span></div>
+<div class="line"><span class="signature">ascender -&gt; int</span></div>
+</div>
+<p>Read only. Return the number of units from the face&#8217;s baseline to
+the top of the bounding box.</p>
+</dd></dl>
 
+<dl class="definition attribute">
+<dt class="title" id="pygame.freetype.Font.descender">
+<tt class="descname">descender</tt><a class="headerlink" href="#pygame.freetype.Font.descender" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">get the unscaled descent of the face in font units</span></div>
+<div class="line"><span class="signature">descender -&gt; int</span></div>
+</div>
+<p>Read only. Return the height in font units for the face descent.
+The descent is the number of units from the face&#8217;s baseline to the
+bottom of the bounding box.</p>
+</dd></dl>
 
-<a name="Font.name">
-<big><b>Font.name</big></b><br><ul>
-  <i>Gets the name of the font face.</i><br>
-  <tt>Font.name: return string</tt><br>
-<p>Read only. Returns the real (long) name of the font type face, as specified on the font file. </p>
-<!--COMMENTS:Font.name--> &nbsp;<br> 
-<br></ul>
+<dl class="definition attribute">
+<dt class="title" id="pygame.freetype.Font.get_sized_ascender">
+<tt class="descname">get_sized_ascender</tt><a class="headerlink" href="#pygame.freetype.Font.get_sized_ascender" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Gets the scaled ascent the face in pixels</span></div>
+<div class="line"><span class="signature">get_sized_ascender() -&gt; int</span></div>
+</div>
+<p>Return the number of units from the face&#8217;s baseline to the top of the
+bounding box. It is not adjusted for bold or rotation.</p>
+</dd></dl>
 
+<dl class="definition method">
+<dt class="title" id="pygame.freetype.Font.get_sized_descender">
+<tt class="descname">get_sized_descender</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.freetype.Font.get_sized_descender" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Gets the scaled descent the face in pixels</span></div>
+<div class="line"><span class="signature">get_sized_descender() -&gt; int</span></div>
+</div>
+<p>Return the number of pixels from the face&#8217;s baseline to the top of the
+bounding box. It is not adjusted for bold or rotation.</p>
+</dd></dl>
 
-<a name="Font.get_size">
-<big><b>Font.get_size</big></b><br><ul>
-  <i>Gets the size of rendered text</i><br>
-  <tt>Font.get_size(text, style=STYLE_DEFAULT, rotation=0, ptsize=default, surrogates=True): return (int, int)</tt><br>
-<p>Gets the size in pixels which 'text' will occupy when rendered using this Font. The calculations will take into account the font's default style (e.g. underlined fonts take extra height for the underline), or the style may be overridden by the 'style' parameter. </p>
-<p>Returns a tuple containing the width and height of the text's bounding box. </p>
-<p>The calculations are done using the font's default size in points, without any rotation, and taking into account fonts which are set to be drawn vertically via the <tt>Font.vertical</tt> attribute. Optionally you may specify another point size to use via the 'ptsize' argument, or a text rotation via the 'rotation' argument. </p>
-<p>The surrogates arguement controls Unicode text decoding. By default, the freetype module performs UTF-16 surrogate pair decoding on Unicode text. This allows 32-bit escape sequences ('\Uxxxxxxxx') between 0x10000 and 0x10FFFF to represent their corresponding UTF-32 code points on Python interpreters built with a UCS-2 unicode type (on Windows, for instance). It also means character values within the UTF-16 surrogate area (0xD800 to 0xDFFF) are considered part of a surrogate pair. A malformed surrogate pair will raise an UnicodeEncodeError. Setting surrogates False turns surrogate pair decoding off, letting interpreters with a UCS-4 unicode type access the full UCS-4 character range. </p>
-<p>If text is a char (byte) string, then its encoding is assumed to be LATIN1. </p>
-<!--COMMENTS:Font.get_size--> &nbsp;<br> 
-<br></ul>
+<dl class="definition attribute">
+<dt class="title" id="pygame.freetype.Font.get_sized_height">
+<tt class="descname">get_sized_height</tt><a class="headerlink" href="#pygame.freetype.Font.get_sized_height" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Gets the scaled height of the face in pixels</span></div>
+<div class="line"><span class="signature">get_sized_height() -&gt; int</span></div>
+</div>
+<p>Read only. Gets the height of the face. This is the average value of all
+glyphs in the font. It is not adjusted for bold or rotation.</p>
+</dd></dl>
 
+<dl class="definition method">
+<dt class="title" id="pygame.freetype.Font.get_sized_glyph_height">
+<tt class="descname">get_sized_glyph_height</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.freetype.Font.get_sized_glyph_height" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Gets the scaled height of the face in pixels</span></div>
+<div class="line"><span class="signature">get_sized_glyph_height() -&gt; int</span></div>
+</div>
+<p>Return the glyph bounding box height of the face in pixels.
+This is the average value of all glyphs in the face.
+It is not adjusted for bold or rotation.</p>
+</dd></dl>
 
-<a name="Font.get_metrics">
-<big><b>Font.get_metrics</big></b><br><ul>
-  <i>Gets glyph metrics for the font's characters</i><br>
-  <tt>Font.get_metrics(text, bbmode=BBOX_PIXEL_GRIDFIT, ptsize=default, surrogates=True): return [(...), ...]</tt><br>
-<p>Returns the glyph metrics for each character in 'text'. </p>
-<p>The glyph metrics are returned inside a list; each character will be represented as a tuple inside the list with the following values: </p>
-<pre>    (min_x, max_x, min_y, max_y, horizontal_advance)
-</pre><p>By default, these values are returned as grid-fitted pixel coordinates (ints) but one of the following constants may be passed as the bbmode argument to change this: </p>
-<pre>    BBOX_EXACT: Return accurate floating point values.
-    BBOX_EXACT_GRIDFIT: Return accurate floating point values aligned
-    to the drawing grid.
-    BBOX_PIXEL: Return pixel coordinates (ints).
-    BBOX_PIXEL_GRIDFIT (default): Return grid-aligned pixel coordinates.
-</pre><p>The calculations are done using the font's default size in points. Optionally you may specify another point size to use. </p>
-<p>Setting surrogates False turns off surrogate pair decoding (see Font.get_size). </p>
-<p>If text is a char (byte) string, then its encoding is assumed to be LATIN1. </p>
-<!--COMMENTS:Font.get_metrics--> &nbsp;<br> 
-<br></ul>
+<dl class="definition method">
+<dt class="title" id="pygame.freetype.Font.render">
+<tt class="descname">render</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.freetype.Font.render" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Renders text on a surface</span></div>
+<div class="line"><span class="signature">render(dest, text, fgcolor, bgcolor=None, style=STYLE_DEFAULT, rotation=0, ptsize=default) -&gt; (Surface, Rect)</span></div>
+</div>
+<p>Renders the string &#8216;text&#8217; to a <a class="tooltip reference internal" href="surface.html#pygame.Surface" title=""><tt class="xref py py-mod docutils literal"><span class="pre">pygame.Surface</span></tt><span class="tooltip-content">pygame object for representing images</span></a>, using the color
+&#8216;fgcolor&#8217;.</p>
+<p>The &#8216;dest&#8217; parameter is supposed to be a sequence containing the surface
+and the coordinates at which the text will be rendered, in that order.
+The sequence may be either (surf, posn) or (surf, x, y), where x and y
+are numbers. posn can be any sequence, including Rect, for which the
+first two elements are positions x and y. If x and y are not integers
+they will be cast to int: <tt class="docutils literal"><span class="pre">int(x)</span></tt>, <tt class="docutils literal"><span class="pre">int(y)</span></tt>.</p>
+<p>If such a sequence exists, and the destination surface is a valid
+<a class="tooltip reference internal" href="surface.html#pygame.Surface" title=""><tt class="xref py py-mod docutils literal"><span class="pre">pygame.Surface</span></tt><span class="tooltip-content">pygame object for representing images</span></a> (independently of its bit depth), the text will be
+rendered directly on top of it at the passed coordinates, using the given
+&#8216;fgcolor&#8217;, and painting the background of the text with the given
+&#8216;bgcolor&#8217;, if available. The alpha values for both colors are always
+taken into account.</p>
+<p>If &#8216;None&#8217; is passed instead of a destination sequence, a new
+<a class="tooltip reference internal" href="surface.html#pygame.Surface" title=""><tt class="xref py py-mod docutils literal"><span class="pre">pygame.Surface</span></tt><span class="tooltip-content">pygame object for representing images</span></a> will be created with the required size to contain
+the drawn text, and using <tt class="docutils literal"><span class="pre">bgcolor</span></tt> as its background color. If a
+background color is not available, the surface will be filled with zero
+alpha opacity. Normally the returned surface has a 32 bit pixel size.
+However, if <tt class="docutils literal"><span class="pre">bgcolor</span></tt> is <tt class="xref docutils literal"><span class="pre">None</span></tt> and antialiasing is disabled
+a two color 8 bit surface with colorkey set for the background color
+is returned.</p>
+<p>The return value is a tuple: the target surface and the bounding
+rectangle giving the size and position of the rendered text within the
+surface.</p>
+<p>If an empty string is passed for text then the returned Rect is zero
+width and the height of the font. If dest is None the returned surface is
+the same dimensions as the boundary rect. The rect will test False.</p>
+<p>The rendering is done using the font&#8217;s default size in points and its
+default style, without any rotation, and taking into account fonts which
+are set to be drawn vertically via the <a class="reference internal" href="#pygame.freetype.Font.vertical" title="pygame.freetype.Font.vertical"><tt class="xref py py-meth docutils literal"><span class="pre">Font.vertical()</span></tt></a> attribute.
+Optionally you may specify another point size to use via the &#8216;ptsize&#8217;
+argument, a text rotation via the &#8216;rotation&#8217; argument, or a new text
+style via the &#8216;style&#8217; argument.</p>
+<p>If text is a char (byte) string, then its encoding is assumed to be
+<tt class="docutils literal"><span class="pre">LATIN1</span></tt>.</p>
+</dd></dl>
 
+<dl class="definition method">
+<dt class="title" id="pygame.freetype.Font.render_raw">
+<tt class="descname">render_raw</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.freetype.Font.render_raw" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Renders text as a string of bytes</span></div>
+<div class="line"><span class="signature">render_raw(text, style=STYLE_DEFAULT, rotation=0, ptsize=default) -&gt; (bytes, (int, int))</span></div>
+</div>
+<p>Like <tt class="docutils literal"><span class="pre">Font.render(None,</span> <span class="pre">...)</span></tt> but the tuple returned is an 8 bit
+monochrome string of bytes and its size. The forground color is 255, the
+background 0, useful as an alpha mask for a foreground pattern.</p>
+</dd></dl>
 
-<a name="Font.height">
-<big><b>Font.height</big></b><br><ul>
-  <i>Gets the height of the Font</i><br>
-  <tt>Font.height: return int</tt><br>
-<p>Read only. Gets the height of the Font. This is the average value of all glyphs in the font. </p>
-<!--COMMENTS:Font.height--> &nbsp;<br> 
-<br></ul>
+<dl class="definition attribute">
+<dt class="title" id="pygame.freetype.Font.style">
+<tt class="descname">style</tt><a class="headerlink" href="#pygame.freetype.Font.style" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Gets or sets the font&#8217;s style</span></div>
+<div class="line"><span class="signature">style -&gt; int</span></div>
+</div>
+<p>Gets or sets the default style of the Font. This default style will be
+used for all text rendering and size calculations unless overriden
+specifically in the `render()` or `get_size()` calls. The style value
+may be a bitwise <tt class="docutils literal"><span class="pre">OR</span></tt> of one or more of the following constants:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">STYLE_NONE</span>
+<span class="n">STYLE_UNDERLINE</span>
+<span class="n">STYLE_OBLIQUE</span>
+<span class="n">STYLE_BOLD</span>
+</pre></div>
+</div>
+<p>These constants may be found on the FreeType constants module.
+Optionally, the default style can be modified or obtained accessing the
+individual style attributes (underline, oblique, bold).</p>
+</dd></dl>
 
+<dl class="definition attribute">
+<dt class="title" id="pygame.freetype.Font.underline">
+<tt class="descname">underline</tt><a class="headerlink" href="#pygame.freetype.Font.underline" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Gets or sets the font&#8217;s underline style</span></div>
+<div class="line"><span class="signature">underline -&gt; bool</span></div>
+</div>
+<p>Gets or sets whether the font will be underlined when drawing text. This
+default style value will be used for all text rendering and size
+calculations unless overriden specifically in the `render()` or
+`get_size()` calls, via the &#8216;style&#8217; parameter.</p>
+</dd></dl>
 
-<a name="Font.render">
-<big><b>Font.render</big></b><br><ul>
-  <i>Renders text on a surface</i><br>
-  <tt>Font.render(dest, text, fgcolor, bgcolor=None, style=STYLE_DEFAULT, rotation=0, ptsize=default, surrogates=True): return (Surface, Rect)</tt><br>
-<p>Renders the string 'text' to a pygame.Surface, using the color 'fgcolor'. </p>
-<p>The 'dest' parameter is supposed to be a sequence containing the surface and the coordinates at which the text will be rendered, in that order. The sequence may be either (surf, posn) or (surf, x, y), where x and y are numbers. posn can be any sequence, including Rect, for which the first two elements are positions x and y. If x and y are not integers they will be cast to int: int(x), <tt>int(y)</tt>. </p>
-<p>If such a sequence exists, and the destination surface is a valid <tt>pygame.Surface</tt> (independently of its bit depth), the text will be rendered directly on top of it at the passed coordinates, using the given 'fgcolor', and painting the background of the text with the given 'bgcolor', if available. The alpha values for both colors are always taken into account. </p>
-<p>If 'None' is passed instead of a destination sequence, a new 32 bit <tt>pygame.Surface</tt> will be created with the required size to contain the drawn text, and using *bgcolor* as its background color. If a background color is not available, the surface will be filled with zero alpha opacity. </p>
-<p>The return value is a tuple: the target surface and the bounding rectangle giving the size and position of the rendered text within the surface. </p>
-<p>If an empty string is passed for text then the returned Rect is zero width and the height of the font. If dest is None the returned surface is the same dimensions as the boundary rect. The rect will test False. </p>
-<p>The rendering is done using the font's default size in points and its default style, without any rotation, and taking into account fonts which are set to be drawn vertically via the <tt>Font.vertical</tt> attribute. Optionally you may specify another point size to use via the 'ptsize' argument, a text rotation via the 'rotation' argument, or a new text style via the 'style' argument. </p>
-<p>Setting surrogates False turns off surrogate pair decoding (see Font.get_size). </p>
-<p>If text is a char (byte) string, then its encoding is assumed to be LATIN1. </p>
-<!--COMMENTS:Font.render--> &nbsp;<br> 
-<br></ul>
+<dl class="definition attribute">
+<dt class="title" id="pygame.freetype.Font.bold">
+<tt class="descname">bold</tt><a class="headerlink" href="#pygame.freetype.Font.bold" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Gets or sets the font&#8217;s bold style</span></div>
+<div class="line"><span class="signature">bold -&gt; bool</span></div>
+</div>
+<p>Gets or sets whether the font will be bold when drawing text. This
+default style value will be used for all text rendering and size
+calculations unless overriden specifically in the `render()` or
+`get_size()` calls, via the &#8216;style&#8217; parameter.</p>
+</dd></dl>
 
+<dl class="definition attribute">
+<dt class="title" id="pygame.freetype.Font.oblique">
+<tt class="descname">oblique</tt><a class="headerlink" href="#pygame.freetype.Font.oblique" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Gets or sets the font&#8217;s oblique style</span></div>
+<div class="line"><span class="signature">oblique -&gt; bool</span></div>
+</div>
+<p>Gets or sets whether the font will be rendered as oblique. This
+default style value will be used for all text rendering and size
+calculations unless overriden specifically in the `render()` or
+`get_size()` calls, via the &#8216;style&#8217; parameter.</p>
+</dd></dl>
 
-<a name="Font.render_raw">
-<big><b>Font.render_raw</big></b><br><ul>
-  <i>Renders text as a string of bytes</i><br>
-  <tt>Font.render_raw(text, ptsize=default, surrogates=True): return (bytes, (int, int))</tt><br>
-<p>Like <tt>Font.render(None, ...)</tt> but the tuple returned is an 8 bit monochrome string of bytes and its size. The forground color is 255, the background 0, useful as an alpha mask for a foreground pattern. </p>
-<!--COMMENTS:Font.render_raw--> &nbsp;<br> 
-<br></ul>
+<dl class="definition attribute">
+<dt class="title" id="pygame.freetype.Font.fixed_width">
+<tt class="descname">fixed_width</tt><a class="headerlink" href="#pygame.freetype.Font.fixed_width" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Gets whether the font is fixed-width</span></div>
+<div class="line"><span class="signature">fixed_width -&gt; bool</span></div>
+</div>
+<p>Read only. Returns whether this Font is a fixed-width (bitmap) font.</p>
+<p>Note that scalable fonts whose glyphs are all the same width (i.e.
+monospace <tt class="docutils literal"><span class="pre">TTF</span></tt> fonts used for programming) are not considered fixed
+width.</p>
+</dd></dl>
 
+<dl class="definition attribute">
+<dt class="title" id="pygame.freetype.Font.antialiased">
+<tt class="descname">antialiased</tt><a class="headerlink" href="#pygame.freetype.Font.antialiased" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Font antialiasing mode</span></div>
+<div class="line"><span class="signature">antialiased -&gt; bool</span></div>
+</div>
+<p>Gets or sets the font&#8217;s antialiasing mode. This defaults to <tt class="xref docutils literal"><span class="pre">True</span></tt> on
+all fonts, which are rendered with full 8 bit blending.</p>
+<p>Setting this to <tt class="xref docutils literal"><span class="pre">False</span></tt> will enable monochrome rendering. This should
+provide a small speed gain and reduce cache memory size.</p>
+</dd></dl>
 
-<a name="Font.style">
-<big><b>Font.style</big></b><br><ul>
-  <i>Gets or sets the font's style</i><br>
-  <tt>Font.style: return int</tt><br>
-<p>Gets or sets the default style of the Font. This default style will be used for all text rendering and size calculations unless overriden specifically in the `render()` or `get_size()` calls. The style value may be a bitwise <tt>OR</tt> of one or more of the following constants: </p>
-<pre>    STYLE_NONE
-    STYLE_UNDERLINE
-    STYLE_ITALIC
-    STYLE_BOLD
-</pre><p>These constants may be found on the FreeType constants module. Optionally, the default style can be modified or obtained accessing the individual style attributes (underline, italic, bold). </p>
-<!--COMMENTS:Font.style--> &nbsp;<br> 
-<br></ul>
+<dl class="definition attribute">
+<dt class="title" id="pygame.freetype.Font.kerning">
+<tt class="descname">kerning</tt><a class="headerlink" href="#pygame.freetype.Font.kerning" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Character kerning mode</span></div>
+<div class="line"><span class="signature">kerning -&gt; bool</span></div>
+</div>
+<p>Gets or sets the font&#8217;s kerning mode. This defaults to False on all
+fonts, which will be rendered by default without kerning.</p>
+<p>Setting this to true will change all rendering methods to do kerning
+between character pairs for surface size calculation and all
+render operations.</p>
+</dd></dl>
 
+<dl class="definition attribute">
+<dt class="title" id="pygame.freetype.Font.vertical">
+<tt class="descname">vertical</tt><a class="headerlink" href="#pygame.freetype.Font.vertical" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Font vertical mode</span></div>
+<div class="line"><span class="signature">vertical -&gt; bool</span></div>
+</div>
+<p>Gets or sets whether the font is a vertical font such as fonts
+representing Kanji glyphs or other styles of vertical writing.</p>
+<p>Changing this attribute will cause the font to be rendering vertically,
+and affects all other methods which manage glyphs or text layouts to use
+vertical metrics accordingly.</p>
+<p>Note that the FreeType library doesn&#8217;t automatically detect whether a
+font contains glyphs which are always supposed to be drawn vertically, so
+this attribute must be set manually by the user.</p>
+<p>Also note that several font formats (specially bitmap based ones) don&#8217;t
+contain the necessary metrics to draw glyphs vertically, so drawing in
+those cases will give unspecified results.</p>
+</dd></dl>
 
-<a name="Font.underline">
-<big><b>Font.underline</big></b><br><ul>
-  <i>Gets or sets the font's underline style</i><br>
-  <tt>Font.underline: return bool</tt><br>
-<p>Gets or sets whether the font will be underlined when drawing text. This default style value will be used for all text rendering and size calculations unless overriden specifically in the `render()` or `get_size()` calls, via the 'style' parameter. </p>
-<!--COMMENTS:Font.underline--> &nbsp;<br> 
-<br></ul>
+<dl class="definition attribute">
+<dt class="title" id="pygame.freetype.Font.origin">
+<tt class="descname">origin</tt><a class="headerlink" href="#pygame.freetype.Font.origin" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Font render to text origin mode</span></div>
+<div class="line"><span class="signature">vertical -&gt; bool</span></div>
+</div>
+<p>If set True, then when rendering to an existing surface, the position
+is taken to be that of the text origin. Otherwise the render position is
+the top-left corner of the text bounding box.</p>
+</dd></dl>
 
+<dl class="definition attribute">
+<dt class="title" id="pygame.freetype.Font.ucs4">
+<tt class="descname">ucs4</tt><a class="headerlink" href="#pygame.freetype.Font.ucs4" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Enables UCS-4 mode</span></div>
+<div class="line"><span class="signature">ucs4 -&gt; bool</span></div>
+</div>
+<p>Gets or sets the decoding of Unicode textdecoding. By default, the
+freetype module performs UTF-16 surrogate pair decoding on Unicode text.
+This allows 32-bit escape sequences (&#8216;Uxxxxxxxx&#8217;) between 0x10000 and
+0x10FFFF to represent their corresponding UTF-32 code points on Python
+interpreters built with a UCS-2 unicode type (on Windows, for instance).
+It also means character values within the UTF-16 surrogate area (0xD800
+to 0xDFFF) are considered part of a surrogate pair. A malformed surrogate
+pair will raise an UnicodeEncodeError. Setting ucs4 True turns surrogate
+pair decoding off, letting interpreters with a UCS-4 unicode type access
+the full UCS-4 character range.</p>
+</dd></dl>
 
-<a name="Font.bold">
-<big><b>Font.bold</big></b><br><ul>
-  <i>Gets or sets the font's bold style</i><br>
-  <tt>Font.bold: return bool</tt><br>
-<p>Gets or sets whether the font will be bold when drawing text. This default style value will be used for all text rendering and size calculations unless overriden specifically in the `render()` or `get_size()` calls, via the 'style' parameter. </p>
-<!--COMMENTS:Font.bold--> &nbsp;<br> 
-<br></ul>
+<dl class="definition attribute">
+<dt class="title" id="pygame.freetype.Font.resolution">
+<tt class="descname">resolution</tt><a class="headerlink" href="#pygame.freetype.Font.resolution" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Output pixel resolution in dots per inch</span></div>
+<div class="line"><span class="signature">resolution -&gt; int</span></div>
+</div>
+<p>Gets the pixel size used in scaling font glyphs for this Font instance.</p>
+</dd></dl>
 
+<dl class="definition method">
+<dt class="title" id="pygame.freetype.Font.set_transform">
+<tt class="descname">set_transform</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.freetype.Font.set_transform" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">assign a glyph transformation matrix</span></div>
+<div class="line"><span class="signature">set_transform(xx, xy, yx, yy) -&gt; None</span></div>
+</div>
+<p>Set a transform matrix for the face. If None, no matrix assigned.
+The arguments can be any numeric type that can be converted
+to a double. The matrix is applied after the bold transformation,
+but before oblique and rotation.</p>
+</dd></dl>
 
-<a name="Font.italic">
-<big><b>Font.italic</big></b><br><ul>
-  <i>Gets or sets the font's italic style</i><br>
-  <tt>Font.italic: return bool</tt><br>
-<p>Gets or sets whether the font will be in italics when drawing text. This default style value will be used for all text rendering and size calculations unless overriden specifically in the `render()` or `get_size()` calls, via the 'style' parameter. </p>
-<!--COMMENTS:Font.italic--> &nbsp;<br> 
-<br></ul>
+<dl class="definition method">
+<dt class="title" id="pygame.freetype.Font.delete_transform">
+<tt class="descname">delete_transform</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.freetype.Font.delete_transform" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">delete a glyph transformation matrix</span></div>
+<div class="line"><span class="signature">set_transform(xx, xy, yx, yy) -&gt; None</span></div>
+</div>
+<p>Remove the transformation matrix, if any.</p>
+</dd></dl>
 
+<dl class="definition method">
+<dt class="title" id="pygame.freetype.Font.get_transform">
+<tt class="descname">get_transform</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.freetype.Font.get_transform" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">return the user assigned transformation matrix, or None</span></div>
+<div class="line"><span class="signature">get_transform() -&gt; (double, double, double, double) or None</span></div>
+</div>
+<p>Return the transform matrix for the face. If None, no matrix is assigned.</p>
+</dd></dl>
 
-<a name="Font.fixed_width">
-<big><b>Font.fixed_width</big></b><br><ul>
-  <i>Gets whether the font is fixed-width</i><br>
-  <tt>Font.fixed_width: return bool</tt><br>
-<p>Read only. Returns whether this Font is a fixed-width (bitmap) font. </p>
-<p>Note that scalable fonts whose glyphs are all the same width (i.e. monospace <tt>TTF</tt> fonts used for programming) are not considered fixed width. </p>
-<!--COMMENTS:Font.fixed_width--> &nbsp;<br> 
-<br></ul>
+</dd></dl>
 
+</dd></dl>
 
-<a name="Font.antialiased">
-<big><b>Font.antialiased</big></b><br><ul>
-  <i>Font antialiasing mode</i><br>
-  <tt>Font.antialiased: return bool</tt><br>
-<p>Gets or sets the font's antialiasing mode. This defaults to True on all fonts, which will be rendered by default antialiased. </p>
-<p>Setting this to true will change all rendering methods to use glyph bitmaps without antialiasing, which supposes a small speed gain and a significant memory gain because of the way glyphs are cached. </p>
-<!--COMMENTS:Font.antialiased--> &nbsp;<br> 
-<br></ul>
+</div>
 
+  </div>
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="gfxdraw.html" title="pygame.gfxdraw"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="font.html" title="pygame.font"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">Pygame v1.9.2 documentation</a> &raquo;</li>
+    <script type="text/javascript" src="jquery.plugin.docscomments.js"></script>
 
-<a name="Font.vertical">
-<big><b>Font.vertical</big></b><br><ul>
-  <i>Font vertical mode</i><br>
-  <tt>Font.vertical: return bool</tt><br>
-<p>Gets or sets whether the font is a vertical font such as fonts representing Kanji glyphs or other styles of vertical writing. </p>
-<p>Changing this attribute will cause the font to be rendering vertically, and affects all other methods which manage glyphs or text layouts to use vertical metrics accordingly. </p>
-<p>Note that the FreeType library doesn't automatically detect whether a font contains glyphs which are always supposed to be drawn vertically, so this attribute must be set manually by the user. </p>
-<p>Also note that several font formats (specially bitmap based ones) don't contain the necessary metrics to draw glyphs vertically, so drawing in those cases will give unspecified results. </p>
-<!--COMMENTS:Font.vertical--> &nbsp;<br> 
-<br></ul>
-
-
-<a name="">
-<big><b></big></b><br><ul>
- &nbsp;<br> 
-<!--COMMENTS:--> &nbsp;<br> 
-<br></ul>
-<br></ul>
-<br></ul>
-
-</body></html>
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Pygame Developers.
+    </div>
+  </body>
+</html>
