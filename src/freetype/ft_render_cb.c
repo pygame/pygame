@@ -347,9 +347,12 @@ void __fill_glyph_GRAY1(int x, int y, int w, int h,
                                 (off_y * bitmap->pitch);                \
         const FT_Byte *_src;                                            \
                                                                         \
+	_DECLARE_full_color##_bpp(surface, color)			\
+        /*                                                              \
         const FT_UInt32 full_color =                                    \
             SDL_MapRGBA(surface->format, (FT_Byte)color->r,             \
                     (FT_Byte)color->g, (FT_Byte)color->b, 255);         \
+	*/                                                              \
                                                                         \
         FT_UInt32 bgR, bgG, bgB, bgA;                                   \
         int j, i;                                                       \
@@ -398,6 +401,15 @@ void __fill_glyph_GRAY1(int x, int y, int w, int h,
             src += bitmap->pitch;                                       \
         }                                                               \
     }
+
+/* These macros removes a gcc unused variable warning for __render_glyph_RGB3 */
+#define _DECLARE_full_color(s, c) const FT_UInt32 full_color =          \
+    SDL_MapRGBA((s)->format, (FT_Byte)(c)->r, (FT_Byte)(c)->g,          \
+                (FT_Byte)(c)->b, 255);
+#define _DECLARE_full_color1(s, c) _DECLARE_full_color(s, c)
+#define _DECLARE_full_color2(s, c) _DECLARE_full_color(s, c)
+#define _DECLARE_full_color3(s, c)
+#define _DECLARE_full_color4(s, c) _DECLARE_full_color(s, c)
 
 
 #define _SET_PIXEL_24   \
