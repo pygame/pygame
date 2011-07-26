@@ -101,6 +101,10 @@ PGFT_BuildRenderMode(FreeTypeInstance *ft,
     while (angle < 0) angle += 360;
     mode->rotation_angle = PGFT_INT_TO_16(angle);
 
+    if (font->do_transform)
+        mode->render_flags |= FT_RFLAG_TRANSFORM;
+    mode->transform = font->transform;
+
     return 0;
 }
 
@@ -114,8 +118,7 @@ PGFT_BuildRenderMode(FreeTypeInstance *ft,
 int PGFT_Render_ExistingSurface(
     FreeTypeInstance *ft, PyFreeTypeFont *font,
     const FontRenderMode *render, PGFT_String *text, SDL_Surface *surface,
-    int x, int y, FontColor *fgcolor, FontColor *bgcolor,
-    int *_width, int *_height, FontMetrics *metrics)
+    int x, int y, FontColor *fgcolor, FontColor *bgcolor, SDL_Rect *r)
 {
     static const FontRenderPtr __SDLrenderFuncs[] =
     {
@@ -153,8 +156,10 @@ int PGFT_Render_ExistingSurface(
     if (PGFT_String_GET_LENGTH(text) == 0)
     {
         /* No rendering */
-        *_width = 0;
-        *_height = PGFT_Face_GetHeight(ft, font);
+        r->x = 0;
+        r->y = 0;
+        r->w = 0;
+        r->h = PGFT_Face_GetHeightSized(ft, font, render->pt_size);
         return 0;
     }
 
@@ -179,6 +184,8 @@ int PGFT_Render_ExistingSurface(
         return -1;
     }
 
+    width = font_text->width;
+    height = font_text->height;
     if (PGFT_GetSurfaceSize(ft, font, render, font_text, &width, &height) != 0)
     {
         if (locked)
@@ -191,8 +198,10 @@ int PGFT_Render_ExistingSurface(
         /* Nothing more to do. */
         if (locked)
             SDL_UnlockSurface(surface);
-        *_width = 0;
-        *_height = PGFT_Face_GetHeight(ft, font);
+	r->x = 0;
+	r->y = 0;
+	r->w = 0;
+        r->h = PGFT_Face_GetHeightSized(ft, font, render->pt_size);
         return 0;
     }
     
@@ -259,12 +268,10 @@ int PGFT_Render_ExistingSurface(
         return -1;
     }
 
-    *_width = width;
-    *_height = height;
-    metrics->bearing_rotated.x = font_text->offset.x;
-    metrics->bearing_rotated.y = font_text->offset.y;
-    metrics->advance_rotated.x = font_text->advance.x;
-    metrics->advance_rotated.y = font_text->advance.y;
+    r->x = -(Sint16)PGFT_TRUNC(PGFT_FLOOR(font_text->offset.x));
+    r->y = (Sint16)PGFT_TRUNC(PGFT_CEIL(font_text->offset.y));
+    r->w = (Uint16)width;
+    r->h = (Uint16)height;
 
     if (locked)
         SDL_UnlockSurface(surface);
@@ -274,7 +281,7 @@ int PGFT_Render_ExistingSurface(
 
 SDL_Surface *PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font, 
     const FontRenderMode *render, PGFT_String *text,
-    FontColor *fgcolor, FontColor *bgcolor, int *_width, int *_height)
+    FontColor *fgcolor, FontColor *bgcolor, SDL_Rect *r)
 {
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
     FT_UInt32 rmask = 0xff000000;
@@ -300,47 +307,39 @@ SDL_Surface *PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
     FontColor mono_fgcolor = {0, 0, 0, 1};
     FontColor mono_bgcolor = {0, 0, 0, 0};
 
-    if (PGFT_String_GET_LENGTH(text) == 0)
-    {
-        /* Empty surface */
-        *_width = 0;
-        *_height = PGFT_Face_GetHeight(ft, font);
-        surface = SDL_CreateRGBSurface(SDL_SWSURFACE, 0, *_height, 32,
-                                       rmask, gmask, bmask, amask);
-        if (!surface)
-        {
-            PyErr_NoMemory(); /* Everything else should be Okay */
-            return NULL;
-        }
-    }
-
     /* build font text */
     font_text = PGFT_LoadFontText(ft, font, render, text);
 
     if (!font_text)
         return NULL;
 
-    if (PGFT_GetSurfaceSize(ft, font, render, font_text, &width, &height) != 0)
-        return NULL;
+    width = font_text->width;
+    height = font_text->height;
     if (height <= 0)
     {
-        height = PGFT_Face_GetHeight(ft, font);
+        height = PGFT_Face_GetHeightSized(ft, font, render->pt_size);
+    }
+    if (width < 0)
+    {
+        width = 0;
     }
 
     surface = SDL_CreateRGBSurface(surface_flags, width, height,
                    bits_per_pixel, rmask, gmask, bmask,
-                                   bits_per_pixel == 32 ? amask : 0);
+                   bits_per_pixel == 32 ? amask : 0);
     if (!surface)
     {
         PyErr_NoMemory(); /* Everything else should be Okay */
         return NULL;
     }
 
-    if (width <= 0)
+    if (width == 0)
     {
         /* Nothing more to do. */
-        *_width = 0;
-        *_height = height;
+        r->x = 0;
+        r->y = 0;
+        r->w = 0;
+        r->h = height;
         return surface;
     }
 
@@ -429,8 +428,10 @@ SDL_Surface *PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
         return NULL;
     }
 
-    *_width = width;
-    *_height = height;
+    r->x = -(Sint16)PGFT_TRUNC(PGFT_FLOOR(font_text->offset.x));
+    r->y = (Sint16)PGFT_TRUNC(PGFT_CEIL(font_text->offset.y));
+    r->w = (Uint16)width;
+    r->h = (Uint16)height;
 
     if (locked)
         SDL_UnlockSurface(surface);

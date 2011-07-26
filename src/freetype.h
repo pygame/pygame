@@ -61,6 +61,7 @@
 #define FT_RFLAG_VERTICAL       (1 << 2)
 #define FT_RFLAG_HINTED         (1 << 3)
 #define FT_RFLAG_KERNING        (1 << 4)
+#define FT_RFLAG_TRANSFORM      (1 << 5)
 #define FT_RFLAG_DEFAULTS       (FT_RFLAG_NONE | FT_RFLAG_HINTED)
 
 
@@ -92,6 +93,8 @@ typedef struct
     FT_Byte ucs4;
     FT_UInt resolution;
     FT_Byte origin;
+    FT_Byte do_transform;
+    FT_Matrix transform;
 
     void *_internals;
 } PyFreeTypeFont;
