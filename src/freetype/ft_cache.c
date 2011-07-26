@@ -26,10 +26,10 @@
 
 /* The key is the UTF character, point size (unsigned short),
  * style flags (unsigned short), render flags (unsigned short),
- * and rotation (in whole degrees, unsigned short). Byte order
- * is little-endian.
+ * and rotation (in whole degrees, unsigned short), transform.xx,
+ * transform.xy, transform.yx, transform.yy. Byte order is little-endian.
  */
-#define MINKEYLEN (sizeof(PGFT_char) + 2 + 2 + 2 + 2)
+#define MINKEYLEN (sizeof(PGFT_char) + 2 + 2 + 2 + 2 + 4 + 4 + 4 + 4)
 #define KEYLEN ((MINKEYLEN + 3) & 0xFFFC)
 
 typedef union __cachenodekey
@@ -83,6 +83,22 @@ set_node_key(CacheNodeKey *key, PGFT_char ch, const FontRenderMode *render)
     key->bytes[i++] = (FT_Byte)((render->render_flags & rflag_mask) >> 8);
     key->bytes[i++] = (FT_Byte)rot;
     key->bytes[i++] = (FT_Byte)(rot >> 8);
+    key->bytes[i++] = (FT_Byte)render->transform.xx;
+    key->bytes[i++] = (FT_Byte)(render->transform.xx >> 8);
+    key->bytes[i++] = (FT_Byte)(render->transform.xx >> 16);
+    key->bytes[i++] = (FT_Byte)(render->transform.xx >> 24);
+    key->bytes[i++] = (FT_Byte)render->transform.xy;
+    key->bytes[i++] = (FT_Byte)(render->transform.xy >> 8);
+    key->bytes[i++] = (FT_Byte)(render->transform.xy >> 16);
+    key->bytes[i++] = (FT_Byte)(render->transform.xy >> 24);
+    key->bytes[i++] = (FT_Byte)render->transform.yx;
+    key->bytes[i++] = (FT_Byte)(render->transform.yx >> 8);
+    key->bytes[i++] = (FT_Byte)(render->transform.yx >> 16);
+    key->bytes[i++] = (FT_Byte)(render->transform.yx >> 24);
+    key->bytes[i++] = (FT_Byte)render->transform.yy;
+    key->bytes[i++] = (FT_Byte)(render->transform.yy >> 8);
+    key->bytes[i++] = (FT_Byte)(render->transform.yy >> 16);
+    key->bytes[i++] = (FT_Byte)(render->transform.yy >> 24);
 }
 
 static int
