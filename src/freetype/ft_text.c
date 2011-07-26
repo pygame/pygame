@@ -24,6 +24,7 @@
 #include FT_MODULE_H
 #include FT_TRIGONOMETRY_H
 #include FT_OUTLINE_H
+#include FT_BITMAP_H
 #include FT_CACHE_H
 
 #define SLANT_FACTOR    0.22
@@ -35,6 +36,7 @@ static FT_Matrix PGFT_SlantMatrix =
 
 typedef struct __fonttextcontext
 {
+    FT_Library lib;
     FTC_FaceID id;
     FT_Face face;
     FTC_CMapCache charmap;
@@ -93,8 +95,6 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
     PGFT_char * buffer_end;
     PGFT_char * ch;
 
-    FT_Fixed    y_scale;
-
     FontText    *ftext = &(PGFT_INTERNALS(font)->active_text);
     FontGlyph   *glyph = NULL;
     FontGlyph   **glyph_array = NULL;
@@ -141,6 +141,7 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
         return NULL;
     }
 
+    context.lib = ft->library;
     context.id = (FTC_FaceID)&(font->id);
     context.face = face;
     context.charmap = ft->cache_charmap;
@@ -161,8 +162,8 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
         }
 
         _PGFT_free(ftext->posns);
-    ftext->posns = (FT_Vector *)
-            _PGFT_malloc((size_t)string_length * sizeof(FT_Vector));
+        ftext->posns = (FT_Vector *)
+        _PGFT_malloc((size_t)string_length * sizeof(FT_Vector));
         if (!ftext->posns)
         {
             PyErr_NoMemory();
@@ -173,8 +174,6 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
     ftext->length = string_length;
     ftext->underline_pos = ftext->underline_size = 0;
-
-    y_scale = face->size->metrics.y_scale;
 
     /* fill it with the glyphs */
     glyph_array = ftext->glyphs;
@@ -274,14 +273,6 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
         *glyph_array++ = glyph;
         ++next_pos;
     }
-    if (pen.x > max_x)
-        max_x = pen.x;
-    if (pen.x < min_x)
-        min_x = pen.x;
-    if (pen.y > max_y)
-        max_y = pen.y;
-    if (pen.y < min_y)
-        min_y = pen.y;
 
     if (render->style & FT_STYLE_UNDERLINE && !vertical && angle == 0)
     {
@@ -339,7 +330,8 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
 int PGFT_GetMetrics(FreeTypeInstance *ft, PyFreeTypeFont *font,
                     PGFT_char character, const FontRenderMode *render,
-                    long *minx, long *maxx, long *miny, long *maxy,
+                    FT_UInt *gindex, long *minx, long *maxx,
+                    long *miny, long *maxy,
                     double *advance_x, double *advance_y)
 { 
     FontGlyph *glyph = NULL;
@@ -354,6 +346,7 @@ int PGFT_GetMetrics(FreeTypeInstance *ft, PyFreeTypeFont *font,
         return -1;
     }
 
+    context.lib = ft->library;
     context.id = (FTC_FaceID)&(font->id);
     context.face = face;
     context.charmap = ft->cache_charmap;
@@ -366,6 +359,7 @@ int PGFT_GetMetrics(FreeTypeInstance *ft, PyFreeTypeFont *font,
         return -1;
     }
 
+    *gindex = glyph->glyph_index;
     *minx = (long)glyph->image->left;
     *maxx = (long)(glyph->image->left + glyph->image->bitmap.width);
     *maxy = (long)glyph->image->top;
@@ -395,8 +389,8 @@ PGFT_GetTopLeft(FontText *text, int *top, int *left)
 }
 
 int
-PGFT_GetTextSize(FreeTypeInstance *ft, PyFreeTypeFont *font,
-    const FontRenderMode *render, PGFT_String *text, int *w, int *h)
+PGFT_GetTextRect(FreeTypeInstance *ft, PyFreeTypeFont *font,
+    const FontRenderMode *render, PGFT_String *text, SDL_Rect *r)
 {
     FontText *font_text;
 
@@ -405,7 +399,11 @@ PGFT_GetTextSize(FreeTypeInstance *ft, PyFreeTypeFont *font,
     if (!font_text)
         return -1;
 
-    return PGFT_GetSurfaceSize(ft, font, render, font_text, w, h);
+    r->x = -(Sint16)PGFT_TRUNC(PGFT_FLOOR(font_text->offset.x));
+    r->y = (Sint16)PGFT_TRUNC(PGFT_CEIL(font_text->offset.y));
+    r->w = (Uint16)font_text->width;
+    r->h = (Uint16)font_text->height;
+    return 0;
 }
 
 int
@@ -416,10 +414,11 @@ PGFT_LoadGlyph(FontGlyph *glyph, PGFT_char character, const FontRenderMode *rend
 
     int oblique = render->style & FT_STYLE_OBLIQUE;
     int embolden = render->style & FT_STYLE_BOLD;
+    int do_transform = render->render_flags & FT_RFLAG_TRANSFORM;
     FT_Render_Mode rmode = (render->render_flags & FT_RFLAG_ANTIALIAS ?
                             FT_RENDER_MODE_NORMAL : FT_RENDER_MODE_MONO);
     FT_Fixed bold_str = 0;
-    FT_Fixed bold_advance = 0;
+    FT_Vector bold_delta = {0, 0};
     FT_Glyph image = NULL;
 
     FT_Glyph_Metrics *ft_metrics;
@@ -430,11 +429,13 @@ PGFT_LoadGlyph(FontGlyph *glyph, PGFT_char character, const FontRenderMode *rend
 
     FT_Fixed rotation_angle = render->rotation_angle;
     FT_Vector unit;
-    FT_Matrix transform;
+    /* FT_Matrix transform; */
     FT_Vector h_bearing_rotated;
     FT_Vector v_bearing_rotated;
     FT_Vector h_advance_rotated;
     FT_Vector v_advance_rotated;
+
+    FT_Matrix transform = {PGFT_INT_TO_16(1), 0, 0, PGFT_INT_TO_16(1)};
 
     FT_Error error = 0;
 
@@ -458,53 +459,54 @@ PGFT_LoadGlyph(FontGlyph *glyph, PGFT_char character, const FontRenderMode *rend
         FT_Get_Glyph(context->face->glyph, &image))
         goto cleanup;
 
-    if (embolden && character != UNICODE_SPACE)
+    /*
+     * Perform any outline transformations
+     */
+    if (embolden)
     {
-        if (FT_Outline_Embolden(&((FT_OutlineGlyph)image)->outline,
-                BOLD_STRENGTH))
+        FT_BBox before;
+        FT_BBox after;
+
+        bold_str = BOLD_STRENGTH;
+        FT_Outline_Get_CBox(&((FT_OutlineGlyph)image)->outline, &before);
+        if (FT_Outline_Embolden(&((FT_OutlineGlyph)image)->outline, bold_str))
             goto cleanup;
-    bold_str = BOLD_STRENGTH;
-    bold_advance = BOLD_ADVANCE;
+        FT_Outline_Get_CBox(&((FT_OutlineGlyph)image)->outline, &after);
+        bold_delta.x += (after.xMax - after.xMin) - (before.xMax - before.xMin);
+        bold_delta.y += (after.yMax - after.yMin) - (before.yMax - before.yMin);
     }
 
-    /*
-     * Collect useful metric values
-     */
-    ft_metrics = &context->face->glyph->metrics;
-    h_advance_rotated.x = ft_metrics->horiAdvance + bold_advance;
-    h_advance_rotated.y = 0;
-    v_advance_rotated.x = 0;
-    v_advance_rotated.y = ft_metrics->vertAdvance + bold_advance;
-
-    /*
-     * Perform any transformations
-     */
     if (oblique)
     {
-        FT_Outline_Transform(&(((FT_OutlineGlyph)image)->outline),
-                             &PGFT_SlantMatrix);
+        FT_Matrix_Multiply(&PGFT_SlantMatrix, &transform);
+        do_transform = 1;
+        /* FT_Outline_Transform(&(((FT_OutlineGlyph)image)->outline), */
+        /*                      &PGFT_SlantMatrix); */
     }
 
     if (rotation_angle != 0)
     {
-        FT_Angle counter_rotation =
-            rotation_angle ? PGFT_INT_TO_6(360) - rotation_angle : 0;
+        FT_Matrix rotate;
 
         FT_Vector_Unit(&unit, rotation_angle);
-        transform.xx = unit.x;  /*  cos(angle) */
-        transform.xy = -unit.y; /* -sin(angle) */
-        transform.yx = unit.y;  /*  sin(angle) */
-        transform.yy = unit.x;  /*  cos(angle) */
+        rotate.xx = unit.x;  /*  cos(angle) */
+        rotate.xy = -unit.y; /* -sin(angle) */
+        rotate.yx = unit.y;  /*  sin(angle) */
+        rotate.yy = unit.x;  /*  cos(angle) */
+        FT_Matrix_Multiply(&rotate, &transform);
+        do_transform = 1;
+    }
+
+    if (do_transform)
+    {
         if (FT_Glyph_Transform(image, &transform, &delta))
         {
             goto cleanup;
         }
-        FT_Vector_Rotate(&h_advance_rotated, rotation_angle);
-        FT_Vector_Rotate(&v_advance_rotated, counter_rotation);
     }
 
     /*
-     * Finished with transformations, now replace with a bitmap
+     * Finished with outline transformations, now replace with a bitmap
      */
     error = FT_Glyph_To_Bitmap(&image, rmode, 0, 1);
     if (error)
@@ -512,7 +514,43 @@ PGFT_LoadGlyph(FontGlyph *glyph, PGFT_char character, const FontRenderMode *rend
         goto cleanup;
     }
 
+    /* if (wide) */
+    /* { */
+    /*     int w = ((FT_BitmapGlyph)image)->bitmap.width; */
+
+    /*     if (w) */
+    /*     { */
+    /*         error = FT_Bitmap_Embolden(context->lib, */
+    /*                                    &((FT_BitmapGlyph)image)->bitmap, */
+    /*                                    (FT_Pos)0x80, (FT_Pos)0); */
+    /*         if (error) */
+    /*         { */
+    /*             goto cleanup; */
+    /*         } */
+    /*         bold_delta.x += PGFT_INT_TO_6(((FT_BitmapGlyph)image)->bitmap.width */
+    /*                                       - w); */
+    /*     } */
+    /*     else */
+    /*     { */
+    /*         bold_delta.x += BOLD_ADVANCE; */
+    /*     } */
+    /* } */
+
     /* Fill the glyph */
+    ft_metrics = &context->face->glyph->metrics;
+
+    h_advance_rotated.x = ft_metrics->horiAdvance + bold_delta.x;
+    h_advance_rotated.y = 0;
+    v_advance_rotated.x = 0;
+    v_advance_rotated.y = ft_metrics->vertAdvance + bold_delta.y;
+    if (rotation_angle != 0)
+    {
+        FT_Angle counter_rotation = PGFT_INT_TO_6(360) - rotation_angle;
+
+        FT_Vector_Rotate(&h_advance_rotated, rotation_angle);
+        FT_Vector_Rotate(&v_advance_rotated, counter_rotation);
+    }
+
     glyph->image = (FT_BitmapGlyph)image;
     glyph->width = PGFT_INT_TO_6(glyph->image->bitmap.width);
     glyph->height = PGFT_INT_TO_6(glyph->image->bitmap.rows);
@@ -520,13 +558,13 @@ PGFT_LoadGlyph(FontGlyph *glyph, PGFT_char character, const FontRenderMode *rend
     h_bearing_rotated.x = PGFT_INT_TO_6(glyph->image->left);
     h_bearing_rotated.y = PGFT_INT_TO_6(glyph->image->top);
     fill_metrics(&glyph->h_metrics,
-                 ft_metrics->horiBearingX + bold_advance,
-                 ft_metrics->horiBearingY + bold_advance,
+                 ft_metrics->horiBearingX,
+                 ft_metrics->horiBearingY,
                  &h_bearing_rotated, &h_advance_rotated);
 
     if (rotation_angle == 0)
     {
-        v_bearing_rotated.x = ft_metrics->vertBearingX - bold_advance / 2;
+        v_bearing_rotated.x = ft_metrics->vertBearingX - bold_delta.x / 2;
         v_bearing_rotated.y = ft_metrics->vertBearingY;
     }
     else
@@ -537,7 +575,7 @@ PGFT_LoadGlyph(FontGlyph *glyph, PGFT_char character, const FontRenderMode *rend
         FT_Vector v_origin;
 
         v_origin.x = (glyph->h_metrics.bearing_x -
-                      ft_metrics->vertBearingX + bold_advance / 2);
+                      ft_metrics->vertBearingX + bold_delta.x / 2);
         v_origin.y = (glyph->h_metrics.bearing_y +
                       ft_metrics->vertBearingY);
         FT_Vector_Rotate(&v_origin, rotation_angle);
@@ -545,8 +583,8 @@ PGFT_LoadGlyph(FontGlyph *glyph, PGFT_char character, const FontRenderMode *rend
         v_bearing_rotated.y = v_origin.y - glyph->h_metrics.bearing_rotated.y;
     }
     fill_metrics(&glyph->v_metrics,
-                 ft_metrics->vertBearingX + bold_advance,
-                 ft_metrics->vertBearingY + bold_advance,
+                 ft_metrics->vertBearingX,
+                 ft_metrics->vertBearingY,
                  &v_bearing_rotated, &v_advance_rotated);
 
     return 0;

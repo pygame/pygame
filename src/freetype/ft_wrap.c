@@ -112,19 +112,102 @@ PGFT_Face_GetName(FreeTypeInstance *ft, PyFreeTypeFont *font)
     return face->family_name; 
 }
 
-int
+/* All the face metric functions raise an exception and return 0 on an error.
+ * It is up to the caller to check PyErr_Occurred for a 0 return value.
+ */
+long
 PGFT_Face_GetHeight(FreeTypeInstance *ft, PyFreeTypeFont *font)
 {
-    FT_Face face;
-    face = _PGFT_GetFace(ft, font);
+    FT_Face face = _PGFT_GetFace(ft, font);
 
     if (face == NULL) {
         RAISE(PyExc_RuntimeError, PGFT_GetError(ft));
-        return -1;
+        return 0;
     }
-    return face->height;
+    return (long)face->height;
 }
 
+long
+PGFT_Face_GetHeightSized(FreeTypeInstance *ft, PyFreeTypeFont *font,
+			 FT_UInt16 ptsize)
+{
+    FT_Face face = _PGFT_GetFaceSized(ft, font, ptsize);
+
+    if (face == NULL) {
+        RAISE(PyExc_RuntimeError, PGFT_GetError(ft));
+        return 0;
+    }
+    return (long)PGFT_TRUNC(PGFT_CEIL(face->size->metrics.height));
+}
+
+long
+PGFT_Face_GetAscender(FreeTypeInstance *ft, PyFreeTypeFont *font)
+{
+    FT_Face face = _PGFT_GetFace(ft, font);
+
+    if (face == NULL) {
+        RAISE(PyExc_RuntimeError, PGFT_GetError(ft));
+        return 0;
+    }
+    return (long)face->ascender;
+}
+
+long
+PGFT_Face_GetAscenderSized(FreeTypeInstance *ft, PyFreeTypeFont *font,
+			   FT_UInt16 ptsize)
+{
+    FT_Face face = _PGFT_GetFaceSized(ft, font, ptsize);
+
+    if (face == NULL) {
+        RAISE(PyExc_RuntimeError, PGFT_GetError(ft));
+        return 0;
+    }
+    return (long)PGFT_TRUNC(PGFT_CEIL(face->size->metrics.ascender));
+}
+
+long
+PGFT_Face_GetDescender(FreeTypeInstance *ft, PyFreeTypeFont *font)
+{
+    FT_Face face = _PGFT_GetFace(ft, font);
+
+    if (face == NULL) {
+        RAISE(PyExc_RuntimeError, PGFT_GetError(ft));
+        return 0;
+    }
+    return (long)face->descender;
+}
+
+long
+PGFT_Face_GetDescenderSized(FreeTypeInstance *ft, PyFreeTypeFont *font,
+			    FT_UInt16 ptsize)
+{
+    FT_Face face = _PGFT_GetFaceSized(ft, font, ptsize);
+
+    if (face == NULL) {
+        RAISE(PyExc_RuntimeError, PGFT_GetError(ft));
+        return 0;
+    }
+    return (long)PGFT_TRUNC(PGFT_FLOOR(face->size->metrics.descender));
+}
+
+long
+PGFT_Face_GetGlyphHeightSized(FreeTypeInstance *ft, PyFreeTypeFont *font,
+			      FT_UInt16 ptsize)
+{
+    /*
+     * Based on the SDL_ttf height calculation.
+     */
+    FT_Face face = _PGFT_GetFaceSized(ft, font, ptsize);
+    FT_Size_Metrics *metrics;
+
+    if (face == NULL) {
+        RAISE(PyExc_RuntimeError, PGFT_GetError(ft));
+        return 0;
+    }
+    metrics = &face->size->metrics;
+    return (long)PGFT_TRUNC(PGFT_CEIL(metrics->ascender) -
+                            PGFT_FLOOR(metrics->descender)) + /* baseline */ 1;
+}
 
 
 
@@ -231,7 +314,7 @@ int _PGFT_Init_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font)
 
     if (!_PGFT_GetFace(ft, font))
     {
-        RAISE(PyExc_RuntimeError, PGFT_GetError(ft));
+        RAISE(PyExc_IOError, PGFT_GetError(ft));
         return -1;
     }
 

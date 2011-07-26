@@ -58,7 +58,7 @@ class FreeTypeFontTest(unittest.TestCase):
 
     def test_freetype_Font_init(self):
 
-        self.assertRaises(RuntimeError, ft.Font, os.path.join (FONTDIR, 'nonexistant.ttf'))
+        self.assertRaises(IOError, ft.Font, os.path.join (FONTDIR, 'nonexistant.ttf'))
 
         f = self._TEST_FONTS['sans']
         self.assertTrue(isinstance(f, ft.Font))
@@ -68,9 +68,9 @@ class FreeTypeFontTest(unittest.TestCase):
 
         f = ft.Font(None, ptsize=24)
         self.assert_(f.height > 0)
-        self.assertRaises(RuntimeError, f.__init__,
+        self.assertRaises(IOError, f.__init__,
                           os.path.join(FONTDIR, 'nonexistant.ttf'))
-        self.assertRaises(RuntimeError, f.get_size, 'a', ptsize=24)
+        self.assertRaises(RuntimeError, f.get_rect, 'a', ptsize=24)
         
         # Test attribute preservation during reinitalization
         f = ft.Font(self._sans_path, ptsize=24, ucs4=True)
@@ -127,44 +127,41 @@ class FreeTypeFontTest(unittest.TestCase):
         self.assertRaises(RuntimeError, nullfont().get_metrics,
                           'a', ptsize=24)
 
-    def test_freetype_Font_get_size(self):
+    def test_freetype_Font_get_rect(self):
 
         font = self._TEST_FONTS['sans']
 
-        def test_size(s):
-            self.assertTrue(isinstance(s, tuple))
-            self.assertEqual(len(s), 2)
-            self.assertTrue(isinstance(s[0], int))
-            self.assertTrue(isinstance(s[1], int))
+        def test_rect(r):
+            self.assertTrue(isinstance(r, pygame.Rect))
 
-        size_default = font.get_size("ABCDabcd", ptsize=24)
-        test_size(size_default)
-        self.assertTrue(size_default > (0, 0))
-        self.assertTrue(size_default[0] > size_default[1])
+        rect_default = font.get_rect("ABCDabcd", ptsize=24)
+        test_rect(rect_default)
+        self.assertTrue(rect_default.size > (0, 0))
+        self.assertTrue(rect_default.width > rect_default.height)
 
-        size_bigger = font.get_size("ABCDabcd", ptsize=32)
-        test_size(size_bigger)
-        self.assertTrue(size_bigger > size_default)
+        rect_bigger = font.get_rect("ABCDabcd", ptsize=32)
+        test_rect(rect_bigger)
+        self.assertTrue(rect_bigger.size > rect_default.size)
 
-        size_bolden = font.get_size("ABCDabcd", ptsize=24, style=ft.STYLE_BOLD)
-        test_size(size_bolden)
-        self.assertTrue(size_bolden > size_default)
+        rect_bolden = font.get_rect("ABCDabcd", ptsize=24, style=ft.STYLE_BOLD)
+        test_rect(rect_bolden)
+        self.assertTrue(rect_bolden.size > rect_default.size)
 
         font.vertical = True
-        size_vert = font.get_size("ABCDabcd", ptsize=24)
-        test_size(size_vert)
-        self.assertTrue(size_vert[0] < size_vert[1])
+        rect_vert = font.get_rect("ABCDabcd", ptsize=24)
+        test_rect(rect_vert)
+        self.assertTrue(rect_vert.width < rect_vert.height)
         font.vertical = False
 
-        size_oblique = font.get_size("ABCDabcd", ptsize=24, style=ft.STYLE_OBLIQUE)
-        test_size(size_oblique)
-        self.assertTrue(size_oblique[0] > size_default[0])
-        self.assertTrue(size_oblique[1] == size_default[1])
+        rect_oblique = font.get_rect("ABCDabcd", ptsize=24, style=ft.STYLE_OBLIQUE)
+        test_rect(rect_oblique)
+        self.assertTrue(rect_oblique.width > rect_default.width)
+        self.assertTrue(rect_oblique.height == rect_default.height)
 
-        size_under = font.get_size("ABCDabcd", ptsize=24, style=ft.STYLE_UNDERLINE)
-        test_size(size_under)
-        self.assertTrue(size_under[0] == size_default[0])
-        self.assertTrue(size_under[1] > size_default[1])
+        rect_under = font.get_rect("ABCDabcd", ptsize=24, style=ft.STYLE_UNDERLINE)
+        test_rect(rect_under)
+        self.assertTrue(rect_under.width == rect_default.width)
+        self.assertTrue(rect_under.height > rect_default.height)
 
 #        size_utf32 = font.get_size(as_unicode(r'\U000130A7'), ptsize=24)
 #        size_utf16 = font.get_size(as_unicode(r'\uD80C\uDCA7'), ptsize=24)
@@ -177,7 +174,7 @@ class FreeTypeFontTest(unittest.TestCase):
 #        self.assertNotEqual(size_utf16[0], size_utf32[0]);
         
         self.assertRaises(RuntimeError,
-                          nullfont().get_size, 'a', ptsize=24)
+                          nullfont().get_rect, 'a', ptsize=24)
 
     def test_freetype_Font_height(self):
 
@@ -218,7 +215,7 @@ class FreeTypeFontTest(unittest.TestCase):
         self.assertEqual(len(rend), 2)
         self.assertTrue(isinstance(rend[0], pygame.Surface))
         self.assertTrue(isinstance(rend[1], pygame.Rect))
-        self.assertEqual(rend[0].get_rect(), rend[1])
+        self.assertEqual(rend[0].get_rect().size, rend[1].size)
         s, r = font.render(None, '', pygame.Color(0, 0, 0), None, ptsize=24)
         self.assertFalse(r, str(r))
         self.assertEqual(r.height, font.height)
@@ -344,7 +341,7 @@ class FreeTypeFontTest(unittest.TestCase):
         font = self._TEST_FONTS['sans']
         
         text = "abc"
-        size = font.get_size(text, ptsize=24)
+        size = font.get_rect(text, ptsize=24).size
         rend = font.render_raw(text, ptsize=24)
         self.assertTrue(isinstance(rend, tuple))
         self.assertEqual(len(rend), 2)
@@ -415,8 +412,8 @@ class FreeTypeFontTest(unittest.TestCase):
         resolution = ft.get_default_resolution()
         new_font = ft.Font(self._sans_path, resolution=2 * resolution)
         self.assertEqual(new_font.resolution, 2 * resolution)
-        size_normal = self._TEST_FONTS['sans'].get_size(text, ptsize=24)
-        size_scaled = new_font.get_size(text, ptsize=24)
+        size_normal = self._TEST_FONTS['sans'].get_rect(text, ptsize=24).size
+        size_scaled = new_font.get_rect(text, ptsize=24).size
         size_by_2 = size_normal[0] * 2
         self.assertTrue(size_by_2 + 2 >= size_scaled[0] >= size_by_2 - 2,
                         "%i not equal %i" % (size_scaled[1], size_by_2))
