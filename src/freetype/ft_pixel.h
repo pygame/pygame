@@ -38,9 +38,9 @@
         (a) = 255;
 
 #define GET_PALETTE_VALS(pixel, fmt, sr, sg, sb, sa)                    \
-    (sr) = (fmt)->palette->colors[*((Uint8 *) (pixel))].r;              \
-    (sg) = (fmt)->palette->colors[*((Uint8 *) (pixel))].g;              \
-    (sb) = (fmt)->palette->colors[*((Uint8 *) (pixel))].b;              \
+    (sr) = (fmt)->palette->colors[(Uint8) (pixel)].r;                   \
+    (sg) = (fmt)->palette->colors[(Uint8) (pixel)].g;                   \
+    (sb) = (fmt)->palette->colors[(Uint8) (pixel)].b;                   \
     (sa) = 255;
 
 #define GET_PIXEL_VALS(pixel, fmt, r, g, b, a)          \
