@@ -109,7 +109,7 @@ class FreeTypeFontTest(unittest.TestCase):
         self.assertTrue(isinstance(metrics, list))
 
         for metrics_tuple in metrics:
-            self.assertTrue(isinstance(metrics_tuple, tuple))
+            self.assertTrue(isinstance(metrics_tuple, tuple), metrics_tuple)
             self.assertEqual(len(metrics_tuple), 6)
             for m in metrics_tuple[:4]:
                 self.assertTrue(isinstance(m, int))
@@ -217,9 +217,9 @@ class FreeTypeFontTest(unittest.TestCase):
         self.assertTrue(isinstance(rend[1], pygame.Rect))
         self.assertEqual(rend[0].get_rect().size, rend[1].size)
         s, r = font.render(None, '', pygame.Color(0, 0, 0), None, ptsize=24)
-        self.assertFalse(r, str(r))
-        self.assertEqual(r.height, font.height)
-        self.assertEqual(s.get_rect(), r)
+        self.assertEqual(r.width, 1)
+        self.assertEqual(r.height, font.get_sized_height(24))
+        self.assertEqual(s.get_size(), r.size)
         self.assertEqual(s.get_bitsize(), 32)
 
         # render to existing surface
@@ -247,7 +247,7 @@ class FreeTypeFontTest(unittest.TestCase):
 
         s, r = font.render((surf, rect), '', color, None, ptsize=24)
         self.assertFalse(r)
-        self.assertEqual(r.height, font.height)
+        self.assertEqual(r.height, font.get_sized_height(24))
         self.assertTrue(s is surf)
 
         # invalid dest test
@@ -439,7 +439,11 @@ class FreeTypeFontTest(unittest.TestCase):
         glen = len(glyphs)
         other_glyphs = "123"
         oglen = len(other_glyphs)
-        many_glyphs = unicode("").join([unichr_(i) for i in range(32,127)])
+        uempty = unicode_("")
+##        many_glyphs = (uempty.join([unichr_(i) for i in range(32,127)] +
+##                                   [unichr_(i) for i in range(161,172)] +
+##                                   [unichr_(i) for i in range(174,239)]))
+        many_glyphs = uempty.join([unichr_(i) for i in range(32,127)])
         mglen = len(many_glyphs)
 
         count = 0
@@ -519,11 +523,13 @@ class FreeTypeFontTest(unittest.TestCase):
         self.assertEqual((ccount + cdelete_count, caccess, chit, cmiss),
                          (count, access, hit, miss))
         # Trigger a cleanup for sure.
-        count += mglen
-        access += mglen
-        miss += mglen
-        f.render_raw(many_glyphs, ptsize=10)
+        count += 2 * mglen
+        access += 2 * mglen
+        miss += 2 * mglen
+        f.get_metrics(many_glyphs, ptsize=8)
+        f.get_metrics(many_glyphs, ptsize=10)
         ccount, cdelete_count, caccess, chit, cmiss = f._debug_cache_stats
+        print (ccount, cdelete_count, caccess, chit, cmiss)
         self.assertTrue(ccount < count)
         self.assertEqual((ccount + cdelete_count, caccess, chit, cmiss),
                          (count, access, hit, miss))
@@ -535,7 +541,8 @@ class FreeTypeFontTest(unittest.TestCase):
 
     def test_undefined_character_code(self):
         # To be consistent with pygame.font.Font, undefined codes
-        # are rendered as the undefined character.
+        # are rendered as the undefined character, and has metrics
+        # of None.
         font = self._TEST_FONTS['sans']
 
         img, size1 = font.render(None, unichr_(1), (0, 0, 0), ptsize=24)
@@ -544,7 +551,8 @@ class FreeTypeFontTest(unittest.TestCase):
 
         metrics = font.get_metrics(unichr_(1) + unichr_(48), ptsize=24)
         self.assertEqual(len(metrics), 2)
-        self.assertTrue(isinstance(metrics[0], tuple))
+        self.assertTrue(metrics[0] is None)
+        self.assertTrue(isinstance(metrics[1], tuple))
 
 class FreeTypeFont(unittest.TestCase):
 

@@ -1459,7 +1459,7 @@ _ftfont_getsizedheight(PyFreeTypeFont *self, PyObject *args)
         RAISE(PyExc_ValueError, "Invalid point size for font.");
         return NULL;
     }
-    value = (long)PGFT_Face_GetHeightSized(ft, self, (FT_UInt16)pt_size);
+    value = PGFT_Face_GetHeightSized(ft, self, (FT_UInt16)pt_size);
     if (!value && PyErr_Occurred())
     {
         return NULL;
@@ -1689,7 +1689,7 @@ _ftfont_render(PyObject *self, PyObject *args, PyObject *kwds)
                         text, surface, xpos, ypos,
                         &fg_color,
                         bg_color_obj ? &bg_color : NULL, &r);
-         PGFT_FreeString(text);
+        PGFT_FreeString(text);
         if (rcode)
         {
             Py_DECREF(surface_obj);
