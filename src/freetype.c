@@ -304,6 +304,8 @@ static PyObject *_ftfont_getucs4(PyObject *self, void *closure);
 static int _ftfont_setucs4(PyObject *self, PyObject *value, void *closure);
 static PyObject *_ftfont_getorigin(PyObject *self, void *closure);
 static int _ftfont_setorigin(PyObject *self, PyObject *value, void *closure);
+static PyObject *_ftfont_getpad(PyObject *self, void *closure);
+static int _ftfont_setpad(PyObject *self, PyObject *value, void *closure);
 
 static PyObject *_ftfont_getresolution(PyObject *self, void *closure);
 
@@ -530,6 +532,13 @@ static PyGetSetDef _ftfont_getsets[] =
         NULL
     },
     {
+        "pad",
+        _ftfont_getpad,
+        _ftfont_setpad,
+        DOC_FONTPAD,
+        NULL
+    },
+    {
         "oblique",
         _ftfont_getstyle_flag,
         _ftfont_setstyle_flag,
@@ -549,6 +558,13 @@ static PyGetSetDef _ftfont_getsets[] =
         _ftfont_setstyle_flag,
         DOC_FONTUNDERLINE,
         (void *)FT_STYLE_UNDERLINE
+    },
+    {
+        "underscore",
+        _ftfont_getstyle_flag,
+        _ftfont_setstyle_flag,
+        DOC_FONTUNDERSCORE,
+        (void *)FT_STYLE_UNDERSCORE
     },
     {
         "ucs4",
@@ -667,6 +683,7 @@ _ftfont_new(PyTypeObject *subtype, PyObject *args, PyObject *kwds)
         obj->kerning = 0;
         obj->ucs4 = 0;
         obj->origin = 0;
+	obj->pad = 0;
         obj->do_transform = 0;
         obj->transform.xx = 0x00010000;
         obj->transform.xy = 0x00000000;
@@ -1153,6 +1170,30 @@ _ftfont_setorigin(PyObject *self, PyObject *value, void *closure)
         return -1;
     }
     font->origin = (FT_Byte)PyObject_IsTrue(value);
+    return 0;
+}
+
+
+/** pad bounding box as font.Font does */
+PyObject *
+_ftfont_getpad(PyObject *self, void *closure)
+{
+    PyFreeTypeFont *font = (PyFreeTypeFont *)self;
+    
+    return PyBool_FromLong(font->pad);
+}
+
+int
+_ftfont_setpad(PyObject *self, PyObject *value, void *closure)
+{
+    PyFreeTypeFont *font = (PyFreeTypeFont *)self;
+    
+    if (!PyBool_Check(value))
+    {
+        PyErr_SetString(PyExc_TypeError, "Expecting 'bool' type");
+        return -1;
+    }
+    font->pad = (FT_Byte)PyObject_IsTrue(value);
     return 0;
 }
 
@@ -2069,6 +2110,7 @@ MODINIT_DEFINE (freetype)
     DEC_CONST(STYLE_BOLD);
     DEC_CONST(STYLE_OBLIQUE);
     DEC_CONST(STYLE_UNDERLINE);
+    DEC_CONST(STYLE_UNDERSCORE);
 
     DEC_CONST(BBOX_EXACT);
     DEC_CONST(BBOX_EXACT_GRIDFIT);

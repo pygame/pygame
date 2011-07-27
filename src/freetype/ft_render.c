@@ -24,13 +24,6 @@
 #include FT_MODULE_H
 #include FT_OUTLINE_H
 
-#define SLANT_FACTOR    0.22
-FT_Matrix PGFT_SlantMatrix = 
-{
-    (1 << 16),  (FT_Fixed)(SLANT_FACTOR * (1 << 16)),
-    0,          (1 << 16) 
-};
-
 static int _PGFT_Render_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font, 
                                  FontText *text, const FontRenderMode *render,
                                  FontColor *fg_color, FontSurface *surface);
@@ -41,7 +34,8 @@ int PGFT_CheckStyle(FT_UInt32 style)
         FT_STYLE_NORMAL |
         FT_STYLE_BOLD   |
         FT_STYLE_OBLIQUE |
-        FT_STYLE_UNDERLINE;
+        FT_STYLE_UNDERLINE |
+        FT_STYLE_UNDERSCORE;
 
     return (style > max_style);
 }
@@ -96,6 +90,9 @@ PGFT_BuildRenderMode(FreeTypeInstance *ft,
 
     if (font->antialias)
         mode->render_flags |= FT_RFLAG_ANTIALIAS;
+
+    if (font->pad)
+        mode->render_flags |= FT_RFLAG_PAD;
 
     angle = rotation % 360;
     while (angle < 0) angle += 360;
@@ -552,13 +549,21 @@ static int _PGFT_Render_INTERNAL(FreeTypeInstance *ft, PyFreeTypeFont *font,
             render_mono(x, y, surface, &(image->bitmap), fg_color);
     }
 
-    if (text->underline_size > 0)
+    if (render->style & FT_STYLE_UNDERLINE)
     {
         surface->fill(
             PGFT_TRUNC(PGFT_CEIL(left - text->offset.x)),
             PGFT_TRUNC(PGFT_CEIL(top + text->underline_pos)),
             text->width, PGFT_TRUNC(PGFT_CEIL(text->underline_size)),
             surface, fg_color);
+    }
+
+    if (render->style & FT_STYLE_UNDERSCORE)
+    {
+        surface->fill(
+            PGFT_TRUNC(PGFT_CEIL(left - text->offset.x)),
+            PGFT_TRUNC(PGFT_CEIL(top - text->descender)),
+            text->width, 1, surface, fg_color);
     }
 
     if (error)
