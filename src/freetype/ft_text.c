@@ -34,12 +34,20 @@ static FT_Matrix PGFT_SlantMatrix =
     0,          (1 << 16) 
 };
 
+static FT_Matrix PGFT_Unit =
+{
+    (1 << 16),  0,
+    0,          (1 << 16) 
+};
+
 typedef struct __fonttextcontext
 {
     FT_Library lib;
     FTC_FaceID id;
     FT_Face face;
     FTC_CMapCache charmap;
+    int do_transform;
+    FT_Matrix transform;
 } FontTextContext;
 
 #define BOLD_STRENGTH_D (0.65)
@@ -53,6 +61,11 @@ static void fill_metrics(FontMetrics *metrics,
                          FT_Pos bearing_x, FT_Pos bearing_y,
                          FT_Vector *bearing_rotated,
                          FT_Vector *advance_rotated);
+static void fill_context(FontTextContext *context,
+                         const FreeTypeInstance *ft,
+                         const PyFreeTypeFont *font,
+                         const FontRenderMode *render,
+                         const FT_Face face);
 
 int
 PGFT_FontTextInit(FreeTypeInstance *ft, PyFreeTypeFont *font)
@@ -115,7 +128,7 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
     FT_UInt     prev_glyph_index = 0;
 
     /* All these are 16.16 precision */
-    FT_Angle    angle = render->rotation_angle;
+    FT_Angle    rotation_angle = render->rotation_angle;
 
     /* All these are 26.6 precision */
     FT_Vector   kerning;
@@ -140,11 +153,6 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
         PyErr_SetString(PyExc_SDLError, PGFT_GetError(ft));
         return NULL;
     }
-
-    context.lib = ft->library;
-    context.id = (FTC_FaceID)&(font->id);
-    context.face = face;
-    context.charmap = ft->cache_charmap;
 
     /* cleanup the cache */
     PGFT_Cache_Cleanup(&ftext->glyph_cache);
@@ -171,13 +179,12 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
         }
         ftext->buffer_size = string_length;
     }
-
     ftext->length = string_length;
     ftext->underline_pos = ftext->underline_size = 0;
 
     /* fill it with the glyphs */
+    fill_context(&context, ft, font, render, face);
     glyph_array = ftext->glyphs;
-
     next_pos = ftext->posns;
 
     for (ch = buffer, buffer_end = ch + string_length; ch < buffer_end; ++ch)
@@ -215,9 +222,9 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
                 PyErr_SetString(PyExc_SDLError, PGFT_GetError(ft));
                 return NULL;
             }
-            if (angle != 0)
+            if (rotation_angle != 0)
             {
-                FT_Vector_Rotate(&kerning, angle);
+                FT_Vector_Rotate(&kerning, rotation_angle);
             }
             pen.x += PGFT_ROUND(kerning.x);
             pen.y += PGFT_ROUND(kerning.y);
@@ -274,7 +281,7 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
         ++next_pos;
     }
 
-    if (render->style & FT_STYLE_UNDERLINE && !vertical && angle == 0)
+    if (render->style & FT_STYLE_UNDERLINE && !vertical && rotation_angle == 0)
     {
         FT_Fixed scale;
         FT_Fixed underline_pos;
@@ -334,6 +341,7 @@ int PGFT_GetMetrics(FreeTypeInstance *ft, PyFreeTypeFont *font,
                     long *miny, long *maxy,
                     double *advance_x, double *advance_y)
 { 
+    FontText    *ftext = &(PGFT_INTERNALS(font)->active_text);
     FontGlyph *glyph = NULL;
     FontTextContext context;
     FT_Face     face;
@@ -346,10 +354,10 @@ int PGFT_GetMetrics(FreeTypeInstance *ft, PyFreeTypeFont *font,
         return -1;
     }
 
-    context.lib = ft->library;
-    context.id = (FTC_FaceID)&(font->id);
-    context.face = face;
-    context.charmap = ft->cache_charmap;
+    /* cleanup the cache */
+    PGFT_Cache_Cleanup(&ftext->glyph_cache);
+
+    fill_context(&context, ft, font, render, face);
     glyph = PGFT_Cache_FindGlyph(character, render,
                                  &PGFT_INTERNALS(font)->active_text.glyph_cache, 
                                  &context);
@@ -412,9 +420,7 @@ PGFT_LoadGlyph(FontGlyph *glyph, PGFT_char character, const FontRenderMode *rend
 {
     static FT_Vector delta = {0, 0};
 
-    int oblique = render->style & FT_STYLE_OBLIQUE;
     int embolden = render->style & FT_STYLE_BOLD;
-    int do_transform = render->render_flags & FT_RFLAG_TRANSFORM;
     FT_Render_Mode rmode = (render->render_flags & FT_RFLAG_ANTIALIAS ?
                             FT_RENDER_MODE_NORMAL : FT_RENDER_MODE_MONO);
     FT_Fixed bold_str = 0;
@@ -428,14 +434,11 @@ PGFT_LoadGlyph(FontGlyph *glyph, PGFT_char character, const FontRenderMode *rend
     FT_UInt gindex;
 
     FT_Fixed rotation_angle = render->rotation_angle;
-    FT_Vector unit;
     /* FT_Matrix transform; */
     FT_Vector h_bearing_rotated;
     FT_Vector v_bearing_rotated;
     FT_Vector h_advance_rotated;
     FT_Vector v_advance_rotated;
-
-    FT_Matrix transform = {PGFT_INT_TO_16(1), 0, 0, PGFT_INT_TO_16(1)};
 
     FT_Error error = 0;
 
@@ -476,30 +479,9 @@ PGFT_LoadGlyph(FontGlyph *glyph, PGFT_char character, const FontRenderMode *rend
         bold_delta.y += (after.yMax - after.yMin) - (before.yMax - before.yMin);
     }
 
-    if (oblique)
+    if (context->do_transform)
     {
-        FT_Matrix_Multiply(&PGFT_SlantMatrix, &transform);
-        do_transform = 1;
-        /* FT_Outline_Transform(&(((FT_OutlineGlyph)image)->outline), */
-        /*                      &PGFT_SlantMatrix); */
-    }
-
-    if (rotation_angle != 0)
-    {
-        FT_Matrix rotate;
-
-        FT_Vector_Unit(&unit, rotation_angle);
-        rotate.xx = unit.x;  /*  cos(angle) */
-        rotate.xy = -unit.y; /* -sin(angle) */
-        rotate.yx = unit.y;  /*  sin(angle) */
-        rotate.yy = unit.x;  /*  cos(angle) */
-        FT_Matrix_Multiply(&rotate, &transform);
-        do_transform = 1;
-    }
-
-    if (do_transform)
-    {
-        if (FT_Glyph_Transform(image, &transform, &delta))
+        if (FT_Glyph_Transform(image, &context->transform, &delta))
         {
             goto cleanup;
         }
@@ -597,6 +579,50 @@ cleanup:
         FT_Done_Glyph(image);
 
     return -1;
+}
+
+static void
+fill_context(FontTextContext *context,
+             const FreeTypeInstance *ft,
+             const PyFreeTypeFont *font,
+             const FontRenderMode *render,
+             const FT_Face face)
+{
+    context->lib = ft->library;
+    context->id = (FTC_FaceID)&(font->id);
+    context->face = face;
+    context->charmap = ft->cache_charmap;
+    context->do_transform = 0;
+
+    if (render->style & FT_STYLE_OBLIQUE)
+    {
+        context->transform = PGFT_SlantMatrix;
+        context->do_transform = 1;
+    }
+    else
+    {
+        context->transform = PGFT_Unit;
+    }
+
+    if (render->render_flags & FT_RFLAG_TRANSFORM)
+    {
+        FT_Matrix_Multiply(&render->transform, &context->transform);
+        context->do_transform = 1;
+    }
+
+    if (render->rotation_angle != 0)
+    {
+        FT_Vector unit;
+        FT_Matrix rotate;
+
+        FT_Vector_Unit(&unit, render->rotation_angle);
+        rotate.xx = unit.x;  /*  cos(angle) */
+        rotate.xy = -unit.y; /* -sin(angle) */
+        rotate.yx = unit.y;  /*  sin(angle) */
+        rotate.yy = unit.x;  /*  cos(angle) */
+        FT_Matrix_Multiply(&rotate, &context->transform);
+        context->do_transform = 1;
+    }
 }
 
 static void

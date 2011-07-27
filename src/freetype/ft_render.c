@@ -313,34 +313,23 @@ SDL_Surface *PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
     if (!font_text)
         return NULL;
 
-    width = font_text->width;
-    height = font_text->height;
-    if (height <= 0)
+    if (font_text->length > 0)
     {
-        height = PGFT_Face_GetHeightSized(ft, font, render->pt_size);
+        width = font_text->width;
+        height = font_text->height;
     }
-    if (width < 0)
+    else
     {
-        width = 0;
+        width = 1;
+        height = PGFT_Face_GetHeightSized(ft, font, render->pt_size);
     }
 
     surface = SDL_CreateRGBSurface(surface_flags, width, height,
                    bits_per_pixel, rmask, gmask, bmask,
                    bits_per_pixel == 32 ? amask : 0);
-    if (!surface)
-    {
-        PyErr_NoMemory(); /* Everything else should be Okay */
+    if (!surface) {
+        PyErr_SetString(PyExc_SDLError, SDL_GetError());
         return NULL;
-    }
-
-    if (width == 0)
-    {
-        /* Nothing more to do. */
-        r->x = 0;
-        r->y = 0;
-        r->w = 0;
-        r->h = height;
-        return surface;
     }
 
     if (SDL_MUSTLOCK(surface))
