@@ -363,6 +363,15 @@ New in Pygame 1.9.2
       calculations unless overriden specifically in the \`render()` or
       \`get_size()` calls, via the 'style' parameter.
 
+   .. attribute:: underscore
+
+      | :sl:`Gets or sets the font's underscore style`
+      | :sg:`underscore -> bool`
+
+      Gets or sets whether the text will be underscored. Unlike underline,
+      the underscore is 1 pixel thick and is positioned descender pixels
+      below the baseline. This is for compatibility with font.Font.
+
    .. attribute:: bold
 
       | :sl:`Gets or sets the font's bold style`
@@ -445,6 +454,15 @@ New in Pygame 1.9.2
       If set True, then when rendering to an existing surface, the position
       is taken to be that of the text origin. Otherwise the render position is
       the top-left corner of the text bounding box.
+
+   .. attribute:: pad
+
+      | :sl:`padded boundary mode`
+      | :sg:`pad -> bool`
+
+      If set True, then the text boundary rectangle will be inflated to match
+      that of font.Font. Otherwise, the boundary rectangle is just large
+      enough for the text.
 
    .. attribute:: ucs4
 

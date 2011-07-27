@@ -139,8 +139,9 @@ typedef struct __fonttext
 
     FT_Vector offset;
     FT_Vector advance;
-    FT_Pos   underline_size;
-    FT_Pos   underline_pos;
+    FT_Pos    underline_size;
+    FT_Pos    underline_pos;
+    FT_Pos    descender;
 
     int       buffer_size;
     FontGlyph **glyphs;

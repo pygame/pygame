@@ -49,6 +49,8 @@
 
 #define DOC_FONTUNDERLINE "underline -> bool\nGets or sets the font's underline style"
 
+#define DOC_FONTUNDERSCORE "underscore -> bool\nGets or sets the font's underscore style"
+
 #define DOC_FONTBOLD "bold -> bool\nGets or sets the font's bold style"
 
 #define DOC_FONTOBLIQUE "oblique -> bool\nGets or sets the font's oblique style"
@@ -62,6 +64,8 @@
 #define DOC_FONTVERTICAL "vertical -> bool\nFont vertical mode"
 
 #define DOC_FONTORIGIN "vertical -> bool\nFont render to text origin mode"
+
+#define DOC_FONTPAD "pad -> bool\npadded boundary mode"
 
 #define DOC_FONTUCS4 "ucs4 -> bool\nEnables UCS-4 mode"
 
@@ -178,6 +182,10 @@ pygame.freetype.Font.underline
  underline -> bool
 Gets or sets the font's underline style
 
+pygame.freetype.Font.underscore
+ underscore -> bool
+Gets or sets the font's underscore style
+
 pygame.freetype.Font.bold
  bold -> bool
 Gets or sets the font's bold style
@@ -205,6 +213,10 @@ Font vertical mode
 pygame.freetype.Font.origin
  vertical -> bool
 Font render to text origin mode
+
+pygame.freetype.Font.pad
+ pad -> bool
+padded boundary mode
 
 pygame.freetype.Font.ucs4
  ucs4 -> bool
