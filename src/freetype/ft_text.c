@@ -27,17 +27,20 @@
 #include FT_BITMAP_H
 #include FT_CACHE_H
 
+#define FX6_ONE 64
+#define FX16_ONE 65536
+
 #define SLANT_FACTOR    0.22
 static FT_Matrix PGFT_SlantMatrix = 
 {
-    (1 << 16),  (FT_Fixed)(SLANT_FACTOR * (1 << 16)),
-    0,          (1 << 16) 
+    FX16_ONE,  (FT_Fixed)(SLANT_FACTOR * FX16_ONE),
+    0,         FX16_ONE 
 };
 
 static FT_Matrix PGFT_Unit =
 {
-    (1 << 16),  0,
-    0,          (1 << 16) 
+    FX16_ONE,  0,
+    0,         FX16_ONE 
 };
 
 typedef struct __fonttextcontext
@@ -123,8 +126,9 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
     FT_Vector   *next_pos;
 
-    int         vertical = font->vertical;
+    int         vertical = render->render_flags & FT_RFLAG_VERTICAL;
     int         use_kerning = font->kerning;
+    int         pad = render->render_flags & FT_RFLAG_PAD;
     FT_UInt     prev_glyph_index = 0;
 
     /* All these are 16.16 precision */
@@ -181,6 +185,7 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
     }
     ftext->length = string_length;
     ftext->underline_pos = ftext->underline_size = 0;
+    ftext->descender = face->size->metrics.descender;
 
     /* fill it with the glyphs */
     fill_context(&context, ft, font, render, face);
@@ -281,15 +286,67 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
         ++next_pos;
     }
 
+    if (pad && rotation_angle == 0)
+    {
+        FT_Size_Metrics *sz_metrics = &face->size->metrics;
+
+        if (pen.x > max_x)
+            max_x = pen.x;
+        else if (pen.x < min_x)
+            min_x = pen.x;
+        if (pen.y > max_y)
+            max_y = pen.y;
+        else if (pen.y < min_y)
+            min_y = pen.y;
+        if (vertical)
+        {
+            FT_Fixed right = sz_metrics->max_advance / 2;
+            
+            if (max_x < right)
+                max_x = right;
+            if (min_x > -right)
+                min_x = -right;
+            if (min_y > 0)
+                min_y = 0;
+            else if (max_y < pen.y)
+                max_y = pen.y;
+        }
+        else
+        {
+            FT_Fixed ascender = sz_metrics->ascender;
+            FT_Fixed descender = sz_metrics->descender;
+
+            if (min_x > 0)
+                min_x = 0;
+            if (max_x < pen.x)
+                max_x = pen.x;
+            if (min_y > -ascender)
+                min_y = -ascender;
+            if (max_y <= -descender)
+                max_y = -descender + /* underscore allowance */ FX6_ONE;
+            else
+            {
+                ftext->descender = -max_y;
+                max_y += FX6_ONE;
+            }
+        }
+    }
+    else if (render->style & FT_STYLE_UNDERSCORE && !vertical &&
+             rotation_angle == 0)
+    {
+        if (-ftext->descender >= max_y)
+            max_y = -ftext->descender + /* underscore allowance */ FX6_ONE;
+        else
+            ftext->descender = -max_y;
+    }
+
     if (render->style & FT_STYLE_UNDERLINE && !vertical && rotation_angle == 0)
     {
-        FT_Fixed scale;
+        FT_Fixed scale = face->size->metrics.y_scale;
         FT_Fixed underline_pos;
         FT_Fixed underline_size;
         FT_Fixed max_y_underline;
         
-        scale = face->size->metrics.y_scale;
-
         underline_pos = -FT_MulFix(face->underline_position, scale) / 4; /*(1)*/
         underline_size = FT_MulFix(face->underline_thickness, scale) + bold_str;
         max_y_underline = underline_pos + underline_size / 2;

@@ -46,6 +46,7 @@
 #define FT_STYLE_BOLD       0x01
 #define FT_STYLE_OBLIQUE    0x02
 #define FT_STYLE_UNDERLINE  0x04
+#define FT_STYLE_UNDERSCORE 0x08
 #define FT_STYLE_DEFAULT    0xFF
 
 /* Bounding box modes */
@@ -62,6 +63,7 @@
 #define FT_RFLAG_HINTED         (1 << 3)
 #define FT_RFLAG_KERNING        (1 << 4)
 #define FT_RFLAG_TRANSFORM      (1 << 5)
+#define FT_RFLAG_PAD            (1 << 6)
 #define FT_RFLAG_DEFAULTS       (FT_RFLAG_NONE | FT_RFLAG_HINTED)
 
 
@@ -93,6 +95,7 @@ typedef struct
     FT_Byte ucs4;
     FT_UInt resolution;
     FT_Byte origin;
+    FT_Byte pad;
     FT_Byte do_transform;
     FT_Matrix transform;
 
