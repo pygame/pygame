@@ -47,6 +47,7 @@
 #define FT_STYLE_OBLIQUE    0x02
 #define FT_STYLE_UNDERLINE  0x04
 #define FT_STYLE_UNDERSCORE 0x08
+#define FT_STYLE_WIDE       0x10
 #define FT_STYLE_DEFAULT    0xFF
 
 /* Bounding box modes */

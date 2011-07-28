@@ -55,6 +55,8 @@
 
 #define DOC_FONTOBLIQUE "oblique -> bool\nGets or sets the font's oblique style"
 
+#define DOC_FONTWIDE "wide -> bool\nGets or sets the font's wide style"
+
 #define DOC_FONTFIXEDWIDTH "fixed_width -> bool\nGets whether the font is fixed-width"
 
 #define DOC_FONTANTIALIASED "antialiased -> bool\nFont antialiasing mode"
@@ -193,6 +195,10 @@ Gets or sets the font's bold style
 pygame.freetype.Font.oblique
  oblique -> bool
 Gets or sets the font's oblique style
+
+pygame.freetype.Font.wide
+ wide -> bool
+Gets or sets the font's wide style
 
 pygame.freetype.Font.fixed_width
  fixed_width -> bool
