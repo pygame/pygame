@@ -353,6 +353,10 @@ module, but it can also be bundled in separate archives.</p>
 <td>—</td>
 <td>Gets or sets the font&#8217;s oblique style</td>
 </tr>
+<tr><td><a class="toc reference external" href="freetype.html#pygame.freetype.Font.wide">pygame.freetype.Font.wide</a></td>
+<td>—</td>
+<td>Gets or sets the font&#8217;s wide style</td>
+</tr>
 <tr><td><a class="toc reference external" href="freetype.html#pygame.freetype.Font.fixed_width">pygame.freetype.Font.fixed_width</a></td>
 <td>—</td>
 <td>Gets whether the font is fixed-width</td>
@@ -695,6 +699,18 @@ calculations unless overriden specifically in the `render()` or
 default style value will be used for all text rendering and size
 calculations unless overriden specifically in the `render()` or
 `get_size()` calls, via the &#8216;style&#8217; parameter.</p>
+</dd></dl>
+
+<dl class="definition attribute">
+<dt class="title" id="pygame.freetype.Font.wide">
+<tt class="descname">wide</tt><a class="headerlink" href="#pygame.freetype.Font.wide" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Gets or sets the font&#8217;s wide style</span></div>
+<div class="line"><span class="signature">wide -&gt; bool</span></div>
+</div>
+<p>Gets or sets whether the font will be stretched horizontally
+when drawing text. It produces a result simular to font.Font&#8217;s
+bold. This style is only available for unrotated text.</p>
 </dd></dl>
 
 <dl class="definition attribute">

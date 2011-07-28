@@ -30,6 +30,11 @@
 #define FX6_ONE 64
 #define FX16_ONE 65536
 
+/* Multiply the face's x ppem by this factor to get the x strength
+ * factor in 16.16 Fixed.
+ */
+#define FX16_WIDE_FACTOR (FX16_ONE / 12)
+
 #define SLANT_FACTOR    0.22
 static FT_Matrix PGFT_SlantMatrix = 
 {
@@ -53,10 +58,13 @@ typedef struct __fonttextcontext
     FT_Matrix transform;
 } FontTextContext;
 
+#if 0
 #define BOLD_STRENGTH_D (0.65)
 #define PIXEL_SIZE ((FT_Fixed)64)
 #define BOLD_STRENGTH ((FT_Fixed)(BOLD_STRENGTH_D * PIXEL_SIZE))
 #define BOLD_ADVANCE (BOLD_STRENGTH * (FT_Fixed)4)
+#endif
+#define FX16_BOLD_FACTOR (FX16_ONE / 36)
 #define UNICODE_SPACE ((PGFT_char)' ')
 
 static FT_UInt32 GetLoadFlags(const FontRenderMode *);
@@ -145,7 +153,6 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
     FT_Pos      text_width;
     FT_Pos      text_height;
     FT_Pos      top = PGFT_MIN_6;
-    FT_Fixed    bold_str = render->style & FT_STYLE_BOLD ? BOLD_STRENGTH : 0;
 
     FT_Error    error = 0;
 
@@ -286,7 +293,7 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
         ++next_pos;
     }
 
-    if (pad && rotation_angle == 0)
+    if (pad)
     {
         FT_Size_Metrics *sz_metrics = &face->size->metrics;
 
@@ -324,31 +331,30 @@ PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
                 min_y = -ascender;
             if (max_y <= -descender)
                 max_y = -descender + /* underscore allowance */ FX6_ONE;
-            else
-            {
-                ftext->descender = -max_y;
-                max_y += FX6_ONE;
-            }
+            /* else */
+            /* { */
+            /*     ftext->descender = -max_y + /\* underscore allowance *\/ FX6_ONE; */
+            /*     max_y += FX6_ONE; */
+            /* } */
         }
     }
-    else if (render->style & FT_STYLE_UNDERSCORE && !vertical &&
-             rotation_angle == 0)
+    else if (render->style & FT_STYLE_UNDERSCORE)
     {
         if (-ftext->descender >= max_y)
             max_y = -ftext->descender + /* underscore allowance */ FX6_ONE;
-        else
-            ftext->descender = -max_y;
+        /* else */
+        /*     ftext->descender = -max_y + /\* underscore allowance *\/ FX6_ONE; */
     }
 
-    if (render->style & FT_STYLE_UNDERLINE && !vertical && rotation_angle == 0)
+    if (render->style & FT_STYLE_UNDERLINE)
     {
         FT_Fixed scale = face->size->metrics.y_scale;
         FT_Fixed underline_pos;
         FT_Fixed underline_size;
         FT_Fixed max_y_underline;
-        
+
         underline_pos = -FT_MulFix(face->underline_position, scale) / 4; /*(1)*/
-        underline_size = FT_MulFix(face->underline_thickness, scale) + bold_str;
+        underline_size = FT_MulFix(face->underline_thickness, scale);
         max_y_underline = underline_pos + underline_size / 2;
         if (max_y_underline > max_y)
         {
@@ -477,10 +483,8 @@ PGFT_LoadGlyph(FontGlyph *glyph, PGFT_char character, const FontRenderMode *rend
 {
     static FT_Vector delta = {0, 0};
 
-    int embolden = render->style & FT_STYLE_BOLD;
     FT_Render_Mode rmode = (render->render_flags & FT_RFLAG_ANTIALIAS ?
                             FT_RENDER_MODE_NORMAL : FT_RENDER_MODE_MONO);
-    FT_Fixed bold_str = 0;
     FT_Vector bold_delta = {0, 0};
     FT_Glyph image = NULL;
 
@@ -522,12 +526,14 @@ PGFT_LoadGlyph(FontGlyph *glyph, PGFT_char character, const FontRenderMode *rend
     /*
      * Perform any outline transformations
      */
-    if (embolden)
+    if (render->style & FT_STYLE_BOLD)
     {
+        FT_UShort x_ppem = context->face->size->metrics.x_ppem;
+        FT_Fixed bold_str;
         FT_BBox before;
         FT_BBox after;
 
-        bold_str = BOLD_STRENGTH;
+        bold_str = PGFT_CEIL16_TO_6(FX16_BOLD_FACTOR * x_ppem);
         FT_Outline_Get_CBox(&((FT_OutlineGlyph)image)->outline, &before);
         if (FT_Outline_Embolden(&((FT_OutlineGlyph)image)->outline, bold_str))
             goto cleanup;
@@ -553,27 +559,31 @@ PGFT_LoadGlyph(FontGlyph *glyph, PGFT_char character, const FontRenderMode *rend
         goto cleanup;
     }
 
-    /* if (wide) */
-    /* { */
-    /*     int w = ((FT_BitmapGlyph)image)->bitmap.width; */
+    if (render->style & FT_STYLE_WIDE)
+    {
+        FT_Bitmap *bitmap = &((FT_BitmapGlyph)image)->bitmap;
+        int w = bitmap->width;
+        FT_UShort x_ppem = context->face->size->metrics.x_ppem;
+        FT_Pos x_strength;
+        
+        x_strength = PGFT_CEIL16_TO_6(x_ppem * FX16_WIDE_FACTOR);
 
-    /*     if (w) */
-    /*     { */
-    /*         error = FT_Bitmap_Embolden(context->lib, */
-    /*                                    &((FT_BitmapGlyph)image)->bitmap, */
-    /*                                    (FT_Pos)0x80, (FT_Pos)0); */
-    /*         if (error) */
-    /*         { */
-    /*             goto cleanup; */
-    /*         } */
-    /*         bold_delta.x += PGFT_INT_TO_6(((FT_BitmapGlyph)image)->bitmap.width */
-    /*                                       - w); */
-    /*     } */
-    /*     else */
-    /*     { */
-    /*         bold_delta.x += BOLD_ADVANCE; */
-    /*     } */
-    /* } */
+        /* FT_Bitmap_Embolden returns an error for a zero width bitmap */
+        if (w > 0)
+        {
+            error = FT_Bitmap_Embolden(context->lib, bitmap,
+                                       x_strength, (FT_Pos)0);
+            if (error)
+            {
+                goto cleanup;
+            }
+            bold_delta.x += PGFT_INT_TO_6(bitmap->width - w);
+        }
+        else
+        {
+            bold_delta.x += x_strength;
+        }
+    }
 
     /* Fill the glyph */
     ft_metrics = &context->face->glyph->metrics;
@@ -593,7 +603,6 @@ PGFT_LoadGlyph(FontGlyph *glyph, PGFT_char character, const FontRenderMode *rend
     glyph->image = (FT_BitmapGlyph)image;
     glyph->width = PGFT_INT_TO_6(glyph->image->bitmap.width);
     glyph->height = PGFT_INT_TO_6(glyph->image->bitmap.rows);
-    glyph->bold_strength = bold_str;
     h_bearing_rotated.x = PGFT_INT_TO_6(glyph->image->left);
     h_bearing_rotated.y = PGFT_INT_TO_6(glyph->image->top);
     fill_metrics(&glyph->h_metrics,

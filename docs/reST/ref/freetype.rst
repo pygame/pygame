@@ -392,6 +392,15 @@ New in Pygame 1.9.2
       calculations unless overriden specifically in the \`render()` or
       \`get_size()` calls, via the 'style' parameter.
 
+   .. attribute:: wide
+
+      | :sl:`Gets or sets the font's wide style`
+      | :sg:`wide -> bool`
+
+      Gets or sets whether the font will be stretched horizontally
+      when drawing text. It produces a result simular to font.Font's
+      bold. This style is only available for unrotated text.
+
    .. attribute:: fixed_width
 
       | :sl:`Gets whether the font is fixed-width`
