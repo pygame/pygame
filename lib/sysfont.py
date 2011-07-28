@@ -528,11 +528,23 @@ def initsysfonts():
         Sysfonts[None] = None
 
 
+# pygame.font specific declarations
+def font_constructor(fontpath, size, bold, italic):
+    import pygame.font
+
+    font = pygame.font.Font(fontpath, size)
+    if bold:
+        font.set_bold(1)
+    if italic:
+        font.set_italic(1)
+
+    return font
+
 
 #the exported functions
 
-def SysFont(name, size, bold=False, italic=False):
-    """pygame.font.SysFont(name, size, bold=False, italic=False) -> Font
+def SysFont(name, size, bold=False, italic=False, constructor=None):
+    """pygame.font.SysFont(name, size, bold=False, italic=False, constructor=None) -> Font
        create a pygame Font from system font resources
 
        This will search the system fonts for the given font
@@ -548,8 +560,13 @@ def SysFont(name, size, bold=False, italic=False):
        uses a small set of common font aliases, if the specific
        font you ask for is not available, a reasonable alternative
        may be used.
+
+       if optional contructor is provided, it must be a function with
+       signature constructor(fontpath, size, bold, italic) which returns
+       a Font instance. If None, a pygame.font.Font object is created.
     """
-    import pygame.font
+    if constructor is None:
+        constructor = font_constructor
 
     if not Sysfonts:
         initsysfonts()
@@ -574,13 +591,13 @@ def SysFont(name, size, bold=False, italic=False):
                         gotitalic = italic
             if fontname: break
 
-    font = pygame.font.Font(fontname, size)
+    set_bold = set_italic = False
     if bold and not gotbold:
-        font.set_bold(1)
+        set_bold = True
     if italic and not gotitalic:
-        font.set_italic(1)
+        set_italic = True
 
-    return font
+    return constructor(fontname, size, set_bold, set_italic)
 
 
 def get_fonts():
