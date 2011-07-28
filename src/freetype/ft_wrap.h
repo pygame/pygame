@@ -124,7 +124,6 @@ typedef struct __fontglyph
 
     FT_Pos      width;         /* 26.6 */
     FT_Pos      height;        /* 26.6 */
-    FT_Pos      bold_strength; /* 26.6 */
     FontMetrics h_metrics;
     FontMetrics v_metrics;
 } FontGlyph;

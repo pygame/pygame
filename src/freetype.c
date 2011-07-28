@@ -567,6 +567,13 @@ static PyGetSetDef _ftfont_getsets[] =
         (void *)FT_STYLE_UNDERSCORE
     },
     {
+        "wide",
+        _ftfont_getstyle_flag,
+        _ftfont_setstyle_flag,
+        DOC_FONTWIDE,
+        (void *)FT_STYLE_WIDE
+    },
+    {
         "ucs4",
         _ftfont_getucs4,
         _ftfont_setucs4,
@@ -2111,6 +2118,7 @@ MODINIT_DEFINE (freetype)
     DEC_CONST(STYLE_OBLIQUE);
     DEC_CONST(STYLE_UNDERLINE);
     DEC_CONST(STYLE_UNDERSCORE);
+    DEC_CONST(STYLE_WIDE);
 
     DEC_CONST(BBOX_EXACT);
     DEC_CONST(BBOX_EXACT_GRIDFIT);

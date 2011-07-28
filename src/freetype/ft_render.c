@@ -35,7 +35,8 @@ int PGFT_CheckStyle(FT_UInt32 style)
         FT_STYLE_BOLD   |
         FT_STYLE_OBLIQUE |
         FT_STYLE_UNDERLINE |
-        FT_STYLE_UNDERSCORE;
+        FT_STYLE_UNDERSCORE |
+        FT_STYLE_WIDE;
 
     return (style > max_style);
 }
@@ -101,6 +102,50 @@ PGFT_BuildRenderMode(FreeTypeInstance *ft,
     if (font->do_transform)
         mode->render_flags |= FT_RFLAG_TRANSFORM;
     mode->transform = font->transform;
+
+    if (mode->rotation_angle != 0)
+    {
+        if (mode->style & FT_STYLE_WIDE)
+        {
+            RAISE(PyExc_ValueError,
+                  "the wide style is unsupported for rotated text");
+            return -1;
+        }
+        if (mode->style & FT_STYLE_UNDERLINE)
+        {
+            RAISE(PyExc_ValueError,
+                  "the underline style is unsupported for rotated text");
+            return -1;
+        }
+        if (mode->style & FT_STYLE_UNDERSCORE)
+        {
+            RAISE(PyExc_ValueError,
+                  "the underscore style is unsupported for rotated text");
+            return -1;
+        }
+        if (mode->render_flags & FT_RFLAG_PAD) 
+        {
+            RAISE(PyExc_ValueError,
+                  "padding is unsupported for rotated text");
+            return -1;
+        }
+    }
+
+    if (mode->render_flags & FT_RFLAG_VERTICAL)
+    {
+        if (mode->style & FT_STYLE_UNDERLINE)
+        {
+            RAISE(PyExc_ValueError,
+                  "the underline style is unsupported for vertical text");
+            return -1;
+        }
+        if (mode->style & FT_STYLE_UNDERSCORE)
+        {
+            RAISE(PyExc_ValueError,
+                  "the underscore style is unsupported for vertical text");
+            return -1;
+        }
+    }
 
     return 0;
 }
