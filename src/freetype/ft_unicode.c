@@ -39,16 +39,11 @@ static const PGFT_char UNICODE_LSA_END = 0xDFFF;
 static const PGFT_char UNICODE_SA_START = 0xD800;
 static const PGFT_char UNICODE_SA_END = 0xDFFF;
 
-static void
-Err_UnicodeEncodeError(const char *codec,
-                       PyObject *unistr,
-                       Py_ssize_t start,
-                       Py_ssize_t end,
-                       const char *reason);
-
+static void raise_unicode_error(const char *, PyObject *,
+                                Py_ssize_t, Py_ssize_t, const char *);
 
 PGFT_String *
-PGFT_EncodePyString(PyObject *obj, int ucs4)
+_PGFT_EncodePyString(PyObject *obj, int ucs4)
 {
     PGFT_String *utf32_buffer = NULL;
     Py_ssize_t len;
@@ -68,20 +63,20 @@ PGFT_EncodePyString(PyObject *obj, int ucs4)
                 c = src[i];
                 if (c >= UNICODE_SA_START && c <= UNICODE_SA_END) {
                     if (c > UNICODE_HSA_END) {
-                        Err_UnicodeEncodeError(
+                        raise_unicode_error(
                             "utf-32", obj, i, i + 1,
                             "missing high-surrogate code point");
                         return NULL;
                     }
                     if (++i == srclen) {
-                        Err_UnicodeEncodeError(
+                        raise_unicode_error(
                             "utf-32", obj, i - 1, i,
                             "missing low-surrogate code point");
                         return NULL;
                     }
                     c = src[i];
                     if (c < UNICODE_LSA_START || c > UNICODE_LSA_END) {
-                        Err_UnicodeEncodeError(
+                        raise_unicode_error(
                             "utf-32", obj, i, i + 1,
                             "expected low-surrogate code point");
                         return NULL;
@@ -89,7 +84,7 @@ PGFT_EncodePyString(PyObject *obj, int ucs4)
                     --len;
                 }
             }
-        }       
+        }
 
         utf32_buffer = (PGFT_String *)_PGFT_malloc(SIZEOF_PGFT_STRING(len));
         if (utf32_buffer == NULL) {
@@ -146,12 +141,9 @@ PGFT_EncodePyString(PyObject *obj, int ucs4)
     return utf32_buffer;
 }
 
-void
-Err_UnicodeEncodeError(const char *codec,
-                       PyObject *unistr,
-                       Py_ssize_t start,
-                       Py_ssize_t end,
-                       const char *reason)
+static void
+raise_unicode_error(const char *codec, PyObject *unistr,
+                    Py_ssize_t start, Py_ssize_t end, const char *reason)
 {
     PyObject *e = PyObject_CallFunction(PyExc_UnicodeEncodeError, "sSkks",
                                         codec, unistr,

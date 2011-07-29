@@ -31,8 +31,8 @@
 #   define IS_PYTHON_3
 #endif
 
-#include <ft2build.h>  
-#include FT_FREETYPE_H 
+#include <ft2build.h>
+#include FT_FREETYPE_H
 #include FT_CACHE_H
 #include FT_XFREE86_H
 #include FT_TRIGONOMETRY_H
@@ -76,14 +76,12 @@
  * Global module types
  **********************************************************/
 
-typedef struct
-{
+typedef struct {
     int face_index;
     FT_Open_Args open_args;
 } FontId;
 
-typedef struct
-{
+typedef struct {
     PyObject_HEAD
     FontId id;
     PyObject *path;

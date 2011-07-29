@@ -31,7 +31,7 @@
 #endif
 
 void __render_glyph_GRAY1(int x, int y, FontSurface *surface,
-    FT_Bitmap *bitmap, FontColor *fg_color)
+                          FT_Bitmap *bitmap, FontColor *fg_color)
 {
     FT_Byte *dst = ((FT_Byte *)surface->buffer) + x + (y * surface->pitch);
     FT_Byte *dst_cpy;
@@ -46,16 +46,13 @@ void __render_glyph_GRAY1(int x, int y, FontSurface *surface,
      * Assumption, target buffer was filled with zeros before any rendering.
      */
 
-    for (j = 0; j < bitmap->rows; ++j)
-    {
+    for (j = 0; j < bitmap->rows; ++j) {
         src_cpy = src;
         dst_cpy = dst;
 
-        for (i = 0; i < bitmap->width; ++i)
-        {
+        for (i = 0; i < bitmap->width; ++i) {
             src_byte = *src_cpy;
-            if (src_byte)
-            {
+            if (src_byte) {
                 *dst_cpy = src_byte + *dst_cpy - src_byte * *dst_cpy / 255;
             }
             ++src_cpy;
@@ -92,14 +89,12 @@ void __render_glyph_MONO_as_GRAY1(int x, int y, FontSurface *surface,
 
     shift = off_x & 7;
 
-    for (j = ry; j < max_y; ++j)
-    {
+    for (j = ry; j < max_y; ++j) {
         src_cpy = src;
         dst_cpy = dst;
          val = (FT_UInt32)(*src_cpy++ | 0x100) << shift;
 
-        for (i = rx; i < max_x; ++i, ++dst_cpy)
-        {
+        for (i = rx; i < max_x; ++i, ++dst_cpy) {
             if (val & 0x10000)
                 val = (FT_UInt32)(*src_cpy++ | 0x100);
 
@@ -131,15 +126,12 @@ void __render_glyph_GRAY_as_MONO1(int x, int y, FontSurface *surface,
      * any rendering.
      */
 
-    for (j = 0; j < bitmap->rows; ++j)
-    {
+    for (j = 0; j < bitmap->rows; ++j) {
         src_cpy = src;
         dst_cpy = dst;
 
-        for (i = 0; i < bitmap->width; ++i)
-        {
-            if (*src_cpy & '\200') /* Round up on 128 */
-            {
+        for (i = 0; i < bitmap->width; ++i) {
+            if (*src_cpy & '\200') /* Round up on 128 */ {
                 *dst_cpy = shade;
             }
             ++src_cpy;
@@ -170,12 +162,10 @@ void __fill_glyph_GRAY1(int x, int y, int w, int h,
 
     dst = (FT_Byte *)surface->buffer + x + (y * surface->pitch);
 
-    for (j = 0; j < h; ++j)
-    {
+    for (j = 0; j < h; ++j) {
         dst_cpy = dst;
 
-        for (i = 0; i < w; ++i, ++dst_cpy)
-        {
+        for (i = 0; i < w; ++i, ++dst_cpy) {
             *dst_cpy = shade;
         }
 
@@ -205,22 +195,18 @@ void __fill_glyph_GRAY1(int x, int y, int w, int h,
         dst = (unsigned char *)surface->buffer + (x * _bpp) +\
               (y * surface->pitch);                         \
                                                             \
-        for (j = 0; j < h; ++j)                             \
-        {                                                   \
+        for (j = 0; j < h; ++j) {                           \
             unsigned char *_dst = dst;                      \
                                                             \
-            for (i = 0; i < w; ++i, _dst += _bpp)           \
-            {                                               \
+            for (i = 0; i < w; ++i, _dst += _bpp) {         \
                 FT_UInt32 pixel = (FT_UInt32)_getp;         \
                                                             \
-                if (_bpp == 1)                              \
-                {                                           \
+                if (_bpp == 1) {                            \
                     GET_PALETTE_VALS(                       \
                             pixel, surface->format,         \
                             bgR, bgG, bgB, bgA);            \
                 }                                           \
-                else                                        \
-                {                                           \
+                else {                                      \
                     GET_RGB_VALS(                           \
                             pixel, surface->format,         \
                             bgR, bgG, bgB, bgA);            \
@@ -245,13 +231,11 @@ void __fill_glyph_GRAY1(int x, int y, int w, int h,
         unsigned char*  _dst = dst;                                 \
         FT_UInt32       val = (FT_UInt32)(*_src++ | 0x100) << shift;\
                                                                     \
-        for (i = rx; i < max_x; ++i, _dst += _bpp)                  \
-        {                                                           \
+        for (i = rx; i < max_x; ++i, _dst += _bpp) {                \
             if (val & 0x10000)                                      \
                 val = (FT_UInt32)(*_src++ | 0x100);                 \
                                                                     \
-            if (val & 0x80)                                         \
-            {                                                       \
+            if (val & 0x80) {                                       \
                 _code;                                              \
             }                                                       \
                                                                     \
@@ -290,27 +274,23 @@ void __fill_glyph_GRAY1(int x, int y, int w, int h,
                                                                         \
         shift = off_x & 7;                                              \
                                                                         \
-        if (color->a == 0xFF)                                           \
-        {                                                               \
+        if (color->a == 0xFF) {                                         \
             __MONO_RENDER_INNER_LOOP(_bpp,                              \
             {                                                           \
                 _setp;                                                  \
             });                                                         \
         }                                                               \
-        else if (color->a > 0)                                          \
-        {                                                               \
+        else if (color->a > 0) {                                        \
             __MONO_RENDER_INNER_LOOP(_bpp,                              \
             {                                                           \
                 FT_UInt32 pixel = (FT_UInt32)_getp;                     \
                                                                         \
-                if (_bpp == 1)                                          \
-                {                                                       \
+                if (_bpp == 1) {                                        \
                     GET_PALETTE_VALS(                                   \
                             pixel, surface->format,                     \
                             bgR, bgG, bgB, bgA);                        \
                 }                                                       \
-                else                                                    \
-                {                                                       \
+                else {                                                  \
                     GET_RGB_VALS(                                       \
                             pixel, surface->format,                     \
                             bgR, bgG, bgB, bgA);                        \
@@ -357,32 +337,26 @@ void __fill_glyph_GRAY1(int x, int y, int w, int h,
         FT_UInt32 bgR, bgG, bgB, bgA;                                   \
         int j, i;                                                       \
                                                                         \
-        for (j = ry; j < max_y; ++j)                                    \
-        {                                                               \
+        for (j = ry; j < max_y; ++j) {                                  \
             _src = src;                                                 \
             _dst = dst;                                                 \
                                                                         \
-            for (i = rx; i < max_x; ++i, _dst += _bpp)                  \
-            {                                                           \
+            for (i = rx; i < max_x; ++i, _dst += _bpp) {                \
                 FT_UInt32 alpha = (*_src++);                            \
                 alpha = (alpha * color->a) / 255;                       \
                                                                         \
-                if (alpha == 0xFF)                                      \
-                {                                                       \
+                if (alpha == 0xFF) {                                    \
                     _setp;                                              \
                 }                                                       \
-                else if (alpha > 0)                                     \
-                {                                                       \
+                else if (alpha > 0) {                                   \
                     FT_UInt32 pixel = (FT_UInt32)_getp;                 \
                                                                         \
-                if (_bpp == 1)                                          \
-                {                                                       \
+                if (_bpp == 1) {                                        \
                     GET_PALETTE_VALS(                                   \
                             pixel, surface->format,                     \
                             bgR, bgG, bgB, bgA);                        \
                 }                                                       \
-                else                                                    \
-                {                                                       \
+                else {                                                  \
                     GET_RGB_VALS(                                       \
                             pixel, surface->format,                     \
                             bgR, bgG, bgB, bgA);                        \
