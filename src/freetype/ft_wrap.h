@@ -29,21 +29,23 @@
  **********************************************************/
 
 /* Fixed point (26.6) math macros */
-#define PGFT_FLOOR(x)  (   (x)        & -64 )
-#define PGFT_CEIL(x)   ( ( (x) + 63 ) & -64 )
-#define PGFT_ROUND(x)  ( ( (x) + 32 ) & -64 )
-#define PGFT_TRUNC(x)  (   (x) >> 6 )
-#define PGFT_CEIL16_TO_6(x)  ( ( (x) + 1023 ) >> 10 )
-#define PGFT_INT_TO_6(x) ( (x) << 6 )
-#define PGFT_INT_TO_16(x) ( (x) << 16 )
+#define PGFT_FLOOR(x) ((x) & -64 )
+#define PGFT_CEIL(x) (((x) + 63) & -64)
+#define PGFT_ROUND(x) (((x) + 32) & -64)
+#define PGFT_TRUNC(x)  ((x) >> 6)
+#define PGFT_CEIL16_TO_6(x) (((x) + 1023) >> 10)
+#define PGFT_INT_TO_6(x) ((x) << 6)
+#define PGFT_INT_TO_16(x) ((x) << 16)
 
 #define PGFT_MIN_6 ((FT_Pos)0x80000000)
 #define PGFT_MAX_6 ((FT_Pos)0x7FFFFFFF)
 
 /* Internal configuration variables */
 #define PGFT_DEFAULT_CACHE_SIZE 64
-#define PGFT_MIN_CACHE_SIZE     32
+#define PGFT_MIN_CACHE_SIZE 32
+#if defined(PGFT_DEBUG_CACHE)
 #undef  PGFT_DEBUG_CACHE
+#endif
 #define PGFT_DEFAULT_RESOLUTION 72 /* dots per inch */
 
 
@@ -57,8 +59,7 @@ typedef FT_UInt32 PGFT_char;
 /**********************************************************
  * Internal data structures
  **********************************************************/
-typedef struct
-{
+typedef struct {
     FT_Library library;
     FTC_Manager cache_manager;
     FTC_CMapCache cache_charmap;
@@ -67,97 +68,90 @@ typedef struct
     char _error_msg[1024];
 } FreeTypeInstance;
 
-typedef struct __fontcolor
-{
+typedef struct fontcolor_ {
     FT_Byte r;
     FT_Byte g;
     FT_Byte b;
     FT_Byte a;
 } FontColor;
 
-typedef struct __rendermode
-{
-    FT_UInt16   pt_size;
-    FT_Angle    rotation_angle;
-    FT_UInt16   render_flags;
-    FT_UInt16   style;
-    FT_Matrix   transform;
+typedef struct rendermode_ {
+    FT_UInt16 pt_size;
+    FT_Angle rotation_angle;
+    FT_UInt16 render_flags;
+    FT_UInt16 style;
+    FT_Matrix transform;
 } FontRenderMode;
 
 #if defined(Py_DEBUG) && !defined(PGFT_DEBUG_CACHE)
 #define PGFT_DEBUG_CACHE 1
 #endif
 
-struct __cachenode;
+struct cachenode_;
 
-typedef struct __fontcache
-{
-    struct __cachenode **nodes;
-    struct __cachenode *free_nodes;
+typedef struct fontcache_ {
+    struct cachenode_ **nodes;
+    struct cachenode_ *free_nodes;
 
-    FT_Byte    *depths;
+    FT_Byte *depths;
 
 #ifdef PGFT_DEBUG_CACHE
-    FT_UInt32   _debug_count;
-    FT_UInt32   _debug_delete_count;
-    FT_UInt32   _debug_access;
-    FT_UInt32   _debug_hit;
-    FT_UInt32   _debug_miss;
+    FT_UInt32 _debug_count;
+    FT_UInt32 _debug_delete_count;
+    FT_UInt32 _debug_access;
+    FT_UInt32 _debug_hit;
+    FT_UInt32 _debug_miss;
 #endif
 
-    FT_UInt32   size_mask;
+    FT_UInt32 size_mask;
 } FontCache;
 
-typedef struct __fontmetrics
-{
+typedef struct fontmetrics_ {
     /* All these are 26.6 precision */
-    FT_Pos    bearing_x;
-    FT_Pos    bearing_y;
+    FT_Pos bearing_x;
+    FT_Pos bearing_y;
     FT_Vector bearing_rotated;
     FT_Vector advance_rotated;
 } FontMetrics;
 
-typedef struct __fontglyph
-{
-    FT_UInt     glyph_index;
+typedef struct fontglyph_ {
+    FT_UInt glyph_index;
     FT_BitmapGlyph image;
 
-    FT_Pos      width;         /* 26.6 */
-    FT_Pos      height;        /* 26.6 */
+    FT_Pos width;         /* 26.6 */
+    FT_Pos height;        /* 26.6 */
     FontMetrics h_metrics;
     FontMetrics v_metrics;
 } FontGlyph;
 
-typedef struct __fonttext
-{
-    int      length;
-    int      width;     /* In pixels */
-    int      height;    /* In pixels */
-    int      top;       /* In pixels */
-    int      left;      /* In pixels */
+typedef struct fonttext_ {
+    int length;
+    int width;     /* In pixels */
+    int height;    /* In pixels */
+    int top;       /* In pixels */
+    int left;      /* In pixels */
 
     FT_Vector offset;
     FT_Vector advance;
-    FT_Pos    underline_size;
-    FT_Pos    underline_pos;
-    FT_Pos    descender;
+    FT_Pos underline_size;
+    FT_Pos underline_pos;
+    FT_Pos descender;
 
-    int       buffer_size;
+    int buffer_size;
     FontGlyph **glyphs;
     FT_Vector *posns;
 
-    FontCache  glyph_cache;
+    FontCache glyph_cache;
 } FontText;
 
-struct __fontsurface;
+struct fontsurface_;
 
-typedef void (* FontRenderPtr)(int, int, struct __fontsurface *,
-                   FT_Bitmap *, FontColor *);
-typedef void (* FontFillPtr)(int, int, int, int, struct __fontsurface *,
-                 FontColor *);
+typedef void (* FontRenderPtr)(int, int, struct fontsurface_ *,
+                               FT_Bitmap *, FontColor *);
+typedef void (* FontFillPtr)(int, int, int, int, struct fontsurface_ *,
+                             FontColor *);
 
-typedef struct __fontsurface
-{
+typedef struct fontsurface_ {
     void *buffer;
 
     FT_Vector offset;
@@ -175,13 +169,11 @@ typedef struct __fontsurface
 } FontSurface;
 
 #define PGFT_INTERNALS(f) ((FontInternals *)((f)->_internals))
-typedef struct FontInternals_
-{
-    FontText    active_text;
+typedef struct FontInternals_ {
+    FontText active_text;
 } FontInternals;
 
-typedef struct PGFT_String_
-{
+typedef struct PGFT_String_ {
     Py_ssize_t length;
     PGFT_char data[1];
 } PGFT_String;
@@ -202,7 +194,8 @@ typedef struct {
 #ifdef IS_PYTHON_3
     extern struct PyModuleDef _freetypemodule;
 #   define FREETYPE_MOD_STATE(mod) ((_FreeTypeState*)PyModule_GetState(mod))
-#   define FREETYPE_STATE FREETYPE_MOD_STATE(PyState_FindModule(&_freetypemodule))
+#   define FREETYPE_STATE \
+    FREETYPE_MOD_STATE(PyState_FindModule(&_freetypemodule))
 #else
     extern _FreeTypeState _modstate;
 #   define FREETYPE_MOD_STATE(mod) (&_modstate)
@@ -211,8 +204,7 @@ typedef struct {
 
 #define ASSERT_GRAB_FREETYPE(ft_ptr, rvalue)                    \
     ft_ptr = FREETYPE_STATE->freetype;                          \
-    if (ft_ptr == NULL)                                         \
-    {                                                           \
+    if (ft_ptr == NULL) {                                       \
         PyErr_SetString(PyExc_RuntimeError,                     \
             "The FreeType 2 library hasn't been initialized");  \
         return (rvalue);                                        \
@@ -225,126 +217,115 @@ typedef struct {
  * Internal API
  **********************************************************/
 
-/********************************************************* General functions ****/
-const char *PGFT_GetError(FreeTypeInstance *);
-void        PGFT_Quit(FreeTypeInstance *);
-int         PGFT_Init(FreeTypeInstance **, int cache_size);
-
-long        PGFT_Face_GetAscender(FreeTypeInstance *, PyFreeTypeFont *);
-long        PGFT_Face_GetAscenderSized(FreeTypeInstance *, PyFreeTypeFont *,
-				       FT_UInt16);
-long        PGFT_Face_GetDescender(FreeTypeInstance *, PyFreeTypeFont *);
-long        PGFT_Face_GetDescenderSized(FreeTypeInstance *, PyFreeTypeFont *,
-					FT_UInt16);
-long        PGFT_Face_GetHeight(FreeTypeInstance *ft, PyFreeTypeFont *);
-long        PGFT_Face_GetHeightSized(FreeTypeInstance *ft, PyFreeTypeFont *,
-				     FT_UInt16);
-long        PGFT_Face_GetGlyphHeightSized(FreeTypeInstance *, PyFreeTypeFont *,
-					  FT_UInt16);
-int         PGFT_Face_IsFixedWidth(FreeTypeInstance *ft, PyFreeTypeFont *);
-const char *PGFT_Face_GetName(FreeTypeInstance *ft, PyFreeTypeFont *);
-
-int         PGFT_TryLoadFont_Filename(FreeTypeInstance *, 
-                PyFreeTypeFont *, const char *, int);
-
+/**************************************** General functions ******************/
+const char *_PGFT_GetError(FreeTypeInstance *);
+void _PGFT_Quit(FreeTypeInstance *);
+int _PGFT_Init(FreeTypeInstance **, int);
+long _PGFT_Face_GetAscender(FreeTypeInstance *, PyFreeTypeFont *);
+long _PGFT_Face_GetAscenderSized(FreeTypeInstance *, PyFreeTypeFont *,
+                                 FT_UInt16);
+long _PGFT_Face_GetDescender(FreeTypeInstance *, PyFreeTypeFont *);
+long _PGFT_Face_GetDescenderSized(FreeTypeInstance *, PyFreeTypeFont *,
+                                  FT_UInt16);
+long _PGFT_Face_GetHeight(FreeTypeInstance *, PyFreeTypeFont *);
+long _PGFT_Face_GetHeightSized(FreeTypeInstance *, PyFreeTypeFont *,
+                               FT_UInt16);
+long _PGFT_Face_GetGlyphHeightSized(FreeTypeInstance *, PyFreeTypeFont *,
+                                    FT_UInt16);
+int _PGFT_Face_IsFixedWidth(FreeTypeInstance *, PyFreeTypeFont *);
+const char *_PGFT_Face_GetName(FreeTypeInstance *, PyFreeTypeFont *);
+int _PGFT_TryLoadFont_Filename(FreeTypeInstance *,
+                               PyFreeTypeFont *, const char *, int);
 #ifdef HAVE_PYGAME_SDL_RWOPS
-int         PGFT_TryLoadFont_RWops(FreeTypeInstance *, 
-                PyFreeTypeFont *, SDL_RWops *, int);
+int _PGFT_TryLoadFont_RWops(FreeTypeInstance *,
+                            PyFreeTypeFont *, SDL_RWops *, int);
 #endif
-
-void        PGFT_UnloadFont(FreeTypeInstance *, PyFreeTypeFont *);
-
+void _PGFT_UnloadFont(FreeTypeInstance *, PyFreeTypeFont *);
 
 
-/********************************************************* Metrics management ****/
-int         PGFT_GetTextRect(FreeTypeInstance *ft, PyFreeTypeFont *font,
-                const FontRenderMode *render, PGFT_String *text, SDL_Rect *r);
-
-int         PGFT_GetMetrics(FreeTypeInstance *ft, PyFreeTypeFont *font,
-                PGFT_char character, const FontRenderMode *render,
-                FT_UInt *gindex, long *minx, long *maxx, long *miny, long *maxy,
-                double *advance_x, double *advance_y);
-
-int         PGFT_GetSurfaceSize(FreeTypeInstance *ft, PyFreeTypeFont *font,
-                const FontRenderMode *render, FontText *text, 
-                int *width, int *height);
-
-int         PGFT_GetTopLeft(FontText *text, int *top, int *left);
+/**************************************** Metrics management *****************/
+int _PGFT_GetTextRect(FreeTypeInstance *, PyFreeTypeFont *,
+                      const FontRenderMode *, PGFT_String *,
+                      SDL_Rect *);
+int _PGFT_GetMetrics(FreeTypeInstance *, PyFreeTypeFont *,
+                     PGFT_char, const FontRenderMode *,
+                     FT_UInt *, long *, long *, long *, long *,
+                     double *, double *);
+int _PGFT_GetSurfaceSize(FreeTypeInstance *, PyFreeTypeFont *,
+                         const FontRenderMode *, FontText *, int *, int *);
+int _PGFT_GetTopLeft(FontText *, int *, int *);
 
 
-/******************************************************************* Rendering ****/
-PyObject *  PGFT_Render_PixelArray(FreeTypeInstance *ft, PyFreeTypeFont *font,
-                const FontRenderMode *render, PGFT_String *text, int *_width, int *_height);
-
-SDL_Surface *PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
-                const FontRenderMode *render, PGFT_String *text,
-                FontColor *fgcolor, FontColor *bgcolor, SDL_Rect *r);
-
-int         PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
-                const FontRenderMode *render, PGFT_String *text, 
-                SDL_Surface *_surface, int x, int y,
-                FontColor *fgcolor, FontColor *bgcolor, SDL_Rect *r);
-
-int         PGFT_BuildRenderMode(FreeTypeInstance *ft, 
-                PyFreeTypeFont *font, FontRenderMode *mode, int pt_size, 
-                int style, int rotation);
-
-int PGFT_CheckStyle(FT_UInt32 style);
+/**************************************** Rendering **************************/
+PyObject *_PGFT_Render_PixelArray(FreeTypeInstance *, PyFreeTypeFont *,
+                                  const FontRenderMode *,
+                                  PGFT_String *, int *, int *);
+SDL_Surface *_PGFT_Render_NewSurface(FreeTypeInstance *, PyFreeTypeFont *,
+                                     const FontRenderMode *, PGFT_String *,
+                                     FontColor *, FontColor *, SDL_Rect *);
+int _PGFT_Render_ExistingSurface(FreeTypeInstance *, PyFreeTypeFont *,
+                                 const FontRenderMode *, PGFT_String *,
+                                 SDL_Surface *, int, int,
+                                 FontColor *, FontColor *, SDL_Rect *);
+int _PGFT_BuildRenderMode(FreeTypeInstance *, PyFreeTypeFont *,
+                          FontRenderMode *, int, int, int);
+int _PGFT_CheckStyle(FT_UInt32);
 
 
-/******************************************************************* Render callbacks ****/
+/**************************************** Render callbacks *******************/
+void __fill_glyph_RGB1(int, int, int, int, FontSurface *, FontColor *);
+void __fill_glyph_RGB2(int, int, int, int, FontSurface *, FontColor *);
+void __fill_glyph_RGB3(int, int, int, int, FontSurface *, FontColor *);
+void __fill_glyph_RGB4(int, int, int, int, FontSurface *, FontColor *);
 
-void __fill_glyph_RGB1(int x, int y, int w, int h, FontSurface *surface, FontColor *color);
-void __fill_glyph_RGB2(int x, int y, int w, int h, FontSurface *surface, FontColor *color);
-void __fill_glyph_RGB3(int x, int y, int w, int h, FontSurface *surface, FontColor *color);
-void __fill_glyph_RGB4(int x, int y, int w, int h, FontSurface *surface, FontColor *color);
+void __fill_glyph_GRAY1(int, int, int, int, FontSurface *, FontColor *);
 
-void __fill_glyph_GRAY1(int x, int y, int w, int h, FontSurface *surface, FontColor *color);
+void __render_glyph_MONO1(int, int, FontSurface *, FT_Bitmap *, FontColor *);
+void __render_glyph_MONO2(int, int, FontSurface *, FT_Bitmap *, FontColor *);
+void __render_glyph_MONO3(int, int, FontSurface *, FT_Bitmap *, FontColor *);
+void __render_glyph_MONO4(int, int, FontSurface *, FT_Bitmap *, FontColor *);
 
-void __render_glyph_MONO1(int x, int y, FontSurface *surface, FT_Bitmap *bitmap, FontColor *color);
-void __render_glyph_MONO2(int x, int y, FontSurface *surface, FT_Bitmap *bitmap, FontColor *color);
-void __render_glyph_MONO3(int x, int y, FontSurface *surface, FT_Bitmap *bitmap, FontColor *color);
-void __render_glyph_MONO4(int x, int y, FontSurface *surface, FT_Bitmap *bitmap, FontColor *color);
+void __render_glyph_RGB1(int, int, FontSurface *, FT_Bitmap *, FontColor *);
+void __render_glyph_RGB2(int, int, FontSurface *, FT_Bitmap *, FontColor *);
+void __render_glyph_RGB3(int, int, FontSurface *, FT_Bitmap *, FontColor *);
+void __render_glyph_RGB4(int, int, FontSurface *, FT_Bitmap *, FontColor *);
 
-void __render_glyph_RGB1(int x, int y, FontSurface *surface, FT_Bitmap *bitmap, FontColor *color);
-void __render_glyph_RGB2(int x, int y, FontSurface *surface, FT_Bitmap *bitmap, FontColor *color);
-void __render_glyph_RGB3(int x, int y, FontSurface *surface, FT_Bitmap *bitmap, FontColor *color);
-void __render_glyph_RGB4(int x, int y, FontSurface *surface, FT_Bitmap *bitmap, FontColor *color);
+void __render_glyph_GRAY1(int, int, FontSurface *, FT_Bitmap *, FontColor *);
+void __render_glyph_MONO_as_GRAY1(int, int, FontSurface *,
+                                  FT_Bitmap *, FontColor *);
+void __render_glyph_GRAY_as_MONO1(int, int, FontSurface *,
+                                  FT_Bitmap *, FontColor *);
 
-void __render_glyph_GRAY1(int x, int y, FontSurface *surface, FT_Bitmap *bitmap, FontColor *color);
-void __render_glyph_MONO_as_GRAY1(int x, int y, FontSurface *surface,
-                  FT_Bitmap *bitmap, FontColor *fg_color);
-void __render_glyph_GRAY_as_MONO1(int x, int y, FontSurface *surface,
-                  FT_Bitmap *bitmap, FontColor *fg_color);
 
-/******************************************************** Font text management ****/
-int PGFT_FontTextInit(FreeTypeInstance *ft, PyFreeTypeFont *font);
-void PGFT_FontTextFree(PyFreeTypeFont *ftext);
-FontText *PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font, 
-                            const FontRenderMode *render, PGFT_String *text);
-int PGFT_LoadGlyph(FontGlyph *glyph, PGFT_char character, const FontRenderMode *render,
-                   void *internal);
+/**************************************** Font text management ***************/
+int _PGFT_FontTextInit(FreeTypeInstance *, PyFreeTypeFont *);
+void _PGFT_FontTextFree(PyFreeTypeFont *);
+FontText *_PGFT_LoadFontText(FreeTypeInstance *, PyFreeTypeFont *,
+                            const FontRenderMode *, PGFT_String *);
+int _PGFT_LoadGlyph(FontGlyph *, PGFT_char, const FontRenderMode *, void *);
 
-/******************************************************** Glyph cache management ****/
-int         PGFT_Cache_Init(FreeTypeInstance *ft, FontCache *cache);
-void        PGFT_Cache_Destroy(FontCache *cache);
-void        PGFT_Cache_Cleanup(FontCache *cache);
-FontGlyph * PGFT_Cache_FindGlyph(FT_UInt32 character, const FontRenderMode *render,
-                                 FontCache *cache, void *internal);
 
-/******************************************************************* Unicode ******/
-PGFT_String * PGFT_EncodePyString(PyObject *obj, int ucs4);
-#define       PGFT_String_GET_DATA(s) ((s)->data)
-#define       PGFT_String_GET_LENGTH(s) ((s)->length)
-#define       PGFT_FreeString _PGFT_free
+/**************************************** Glyph cache management *************/
+int _PGFT_Cache_Init(FreeTypeInstance *, FontCache *);
+void _PGFT_Cache_Destroy(FontCache *);
+void _PGFT_Cache_Cleanup(FontCache *);
+FontGlyph *_PGFT_Cache_FindGlyph(FT_UInt32, const FontRenderMode *,
+                                 FontCache *, void *);
 
-/******************************************************************* Internals ****/
-void        _PGFT_SetError(FreeTypeInstance *, const char *, FT_Error);
-FT_Face     _PGFT_GetFace(FreeTypeInstance *, PyFreeTypeFont *);
-FT_Face     _PGFT_GetFaceSized(FreeTypeInstance *, PyFreeTypeFont *, int);
-void        _PGFT_BuildScaler(PyFreeTypeFont *, FTC_Scaler, int);
-#define     _PGFT_malloc PyMem_Malloc
-#define     _PGFT_free   PyMem_Free
 
+/**************************************** Unicode ****************************/
+PGFT_String *_PGFT_EncodePyString(PyObject *, int);
+#define PGFT_String_GET_DATA(s) ((s)->data)
+#define PGFT_String_GET_LENGTH(s) ((s)->length)
+#define _PGFT_FreeString _PGFT_free
+
+
+/**************************************** Internals **************************/
+void _PGFT_SetError(FreeTypeInstance *, const char *, FT_Error);
+FT_Face _PGFT_GetFace(FreeTypeInstance *, PyFreeTypeFont *);
+FT_Face _PGFT_GetFaceSized(FreeTypeInstance *, PyFreeTypeFont *, int);
+void _PGFT_BuildScaler(PyFreeTypeFont *, FTC_Scaler, int);
+#define _PGFT_malloc PyMem_Malloc
+#define _PGFT_free   PyMem_Free
 
 #endif

@@ -29,8 +29,7 @@
     (g) = ((g) << (fmt)->Gloss) + ((g) >> (8 - ((fmt)->Gloss << 1)));   \
     (b) = ((pixel) & (fmt)->Bmask) >> (fmt)->Bshift;                    \
     (b) = ((b) << (fmt)->Bloss) + ((b) >> (8 - ((fmt)->Bloss << 1)));   \
-    if ((fmt)->Amask)                                                   \
-    {                                                                   \
+    if ((fmt)->Amask) {                                                 \
         (a) = ((pixel) & (fmt)->Amask) >> (fmt)->Ashift;                \
         (a) = ((a) << (fmt)->Aloss) + ((a) >> (8 - ((fmt)->Aloss << 1))); \
     }                                                                   \
@@ -44,12 +43,10 @@
     (sa) = 255;
 
 #define GET_PIXEL_VALS(pixel, fmt, r, g, b, a)          \
-    if ((fmt)->palette == NULL)                         \
-    {                                                   \
+    if ((fmt)->palette == NULL) {                       \
         GET_RGB_VALS(pixel, fmt, r, g, b, a);           \
     }                                                   \
-    else                                                \
-    {                                                   \
+    else {                                              \
         GET_PALETTE_VALS (pixel, fmt, r, g, b, a);      \
     }
 

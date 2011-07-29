@@ -32,28 +32,25 @@
 #define MINKEYLEN (sizeof(PGFT_char) + 2 + 2 + 2 + 2 + 4 + 4 + 4 + 4)
 #define KEYLEN ((MINKEYLEN + 3) & 0xFFFC)
 
-typedef union __cachenodekey
-{
+typedef union cachenodekey_ {
     FT_Byte bytes[KEYLEN];
     FT_UInt32 dwords[KEYLEN / 4];
 } CacheNodeKey;
 
-typedef struct __cachenode
-{
+typedef struct cachenode_ {
     FontGlyph glyph;
-    struct __cachenode *next;
+    struct cachenode_ *next;
     CacheNodeKey key;
     FT_UInt32 hash;
 } FontCacheNode;
 
-static FT_UInt32 cache_hash(const CacheNodeKey *key);
-
-static FontCacheNode *Cache_AllocateNode(FontCache *,
-                                         const FontRenderMode *, FT_UInt, void *);
-static void Cache_FreeNode(FontCache *, FontCacheNode *);
-static void set_node_key(CacheNodeKey *key, PGFT_char ch,
-                         const FontRenderMode *render);
-static int equal_node_keys(const CacheNodeKey *a, const CacheNodeKey *b);
+static FT_UInt32 get_hash(const CacheNodeKey *);
+static FontCacheNode *allocate_node(FontCache *,
+                                    const FontRenderMode *,
+                                    FT_UInt, void *);
+static void free_node(FontCache *, FontCacheNode *);
+static void set_node_key(CacheNodeKey *, PGFT_char, const FontRenderMode *);
+static int equal_node_keys(const CacheNodeKey *, const CacheNodeKey *);
 
 const int render_flags_mask = (FT_RFLAG_ANTIALIAS |
                                FT_RFLAG_HINTED |
@@ -106,10 +103,8 @@ equal_node_keys(const CacheNodeKey *a, const CacheNodeKey *b)
 {
     int i;
 
-    for (i = 0; i < sizeof(a->dwords) / 4; ++i)
-    {
-        if (a->dwords[i] != b->dwords[i])
-        {
+    for (i = 0; i < sizeof(a->dwords) / 4; ++i) {
+        if (a->dwords[i] != b->dwords[i]) {
             return 0;
         }
     }
@@ -117,7 +112,7 @@ equal_node_keys(const CacheNodeKey *a, const CacheNodeKey *b)
 }
 
 static FT_UInt32
-cache_hash(const CacheNodeKey *key)
+get_hash(const CacheNodeKey *key)
 {
     /*
      * Based on the 32 bit x86 MurmurHash3, with the key size a multiple of 4.
@@ -133,8 +128,7 @@ cache_hash(const CacheNodeKey *key)
 
     int i;
 
-    for (i = (sizeof(key->dwords) / 4); i; --i)
-    {
+    for (i = (sizeof(key->dwords) / 4); i; --i) {
         k1 = blocks[i];
 
         k1 *= c1;
@@ -147,7 +141,7 @@ cache_hash(const CacheNodeKey *key)
     }
 
     h1 ^= sizeof(key->dwords);
-    
+
     h1 ^= h1 >> 16;
     h1 *= 0x85EBCA6B;
     h1 ^= h1 >> 13;
@@ -158,7 +152,7 @@ cache_hash(const CacheNodeKey *key)
 }
 
 int
-PGFT_Cache_Init(FreeTypeInstance *ft, FontCache *cache)
+_PGFT_Cache_Init(FreeTypeInstance *ft, FontCache *cache)
 {
     int cache_size = MAX(ft->cache_size - 1, PGFT_MIN_CACHE_SIZE - 1);
     int i;
@@ -180,8 +174,7 @@ PGFT_Cache_Init(FreeTypeInstance *ft, FontCache *cache)
     for (i=0; i < cache_size; ++i)
         cache->nodes[i] = NULL;
     cache->depths = _PGFT_malloc((size_t)cache_size);
-    if (!cache->depths)
-    {
+    if (!cache->depths) {
         _PGFT_free(cache->nodes);
         cache->nodes = NULL;
         return -1;
@@ -200,8 +193,8 @@ PGFT_Cache_Init(FreeTypeInstance *ft, FontCache *cache)
     return 0;
 }
 
-void 
-PGFT_Cache_Destroy(FontCache *cache)
+void
+_PGFT_Cache_Destroy(FontCache *cache)
 {
     FT_UInt i;
     FontCacheNode *node, *next;
@@ -213,16 +206,13 @@ PGFT_Cache_Destroy(FontCache *cache)
      * to examine _debug fields.
      */
 
-    if (cache->nodes != NULL)
-    {
-        for (i = 0; i <= cache->size_mask; ++i)
-        {
+    if (cache->nodes != NULL) {
+        for (i = 0; i <= cache->size_mask; ++i) {
             node = cache->nodes[i];
 
-            while (node)
-            {
+            while (node) {
                 next = node->next;
-                Cache_FreeNode(cache, node);
+                free_node(cache, node);
                 node = next;
             }
         }
@@ -234,29 +224,25 @@ PGFT_Cache_Destroy(FontCache *cache)
 }
 
 void
-PGFT_Cache_Cleanup(FontCache *cache)
+_PGFT_Cache_Cleanup(FontCache *cache)
 {
     const FT_Byte MAX_BUCKET_DEPTH = 2;
     FontCacheNode *node, *prev;
     FT_UInt32 i;
 
-    for (i = 0; i <= cache->size_mask; ++i)
-    {
-        while (cache->depths[i] > MAX_BUCKET_DEPTH)
-        {
+    for (i = 0; i <= cache->size_mask; ++i) {
+        while (cache->depths[i] > MAX_BUCKET_DEPTH) {
             node = cache->nodes[i];
             prev = NULL;
 
-            for (;;)
-            {
-                if (!node->next)
-                {
+            for (;;) {
+                if (!node->next) {
 #ifdef PGFT_DEBUG_CACHE
                     cache->_debug_delete_count++;
 #endif
 
-                    prev->next = NULL; 
-                    Cache_FreeNode(cache, node);
+                    prev->next = NULL;
+                    free_node(cache, node);
                     break;
                 }
 
@@ -268,7 +254,7 @@ PGFT_Cache_Cleanup(FontCache *cache)
 }
 
 FontGlyph *
-PGFT_Cache_FindGlyph(PGFT_char character, const FontRenderMode *render,
+_PGFT_Cache_FindGlyph(PGFT_char character, const FontRenderMode *render,
                      FontCache *cache, void *internal)
 {
     FontCacheNode **nodes = cache->nodes;
@@ -277,9 +263,9 @@ PGFT_Cache_FindGlyph(PGFT_char character, const FontRenderMode *render,
 
     FT_UInt32 hash;
     FT_UInt32 bucket;
-    
+
     set_node_key(&key, character, render);
-    hash = cache_hash(&key);
+    hash = get_hash(&key);
     bucket = hash & cache->size_mask;
     node = nodes[bucket];
     prev = NULL;
@@ -287,13 +273,10 @@ PGFT_Cache_FindGlyph(PGFT_char character, const FontRenderMode *render,
 #ifdef PGFT_DEBUG_CACHE
     cache->_debug_access++;
 #endif
-    
-    while (node)
-    {
-        if (equal_node_keys(&node->key, &key))
-        {
-            if (prev)
-            {
+
+    while (node) {
+        if (equal_node_keys(&node->key, &key)) {
+            if (prev) {
                 prev->next = node->next;
                 node->next = nodes[bucket];
                 nodes[bucket] = node;
@@ -310,7 +293,7 @@ PGFT_Cache_FindGlyph(PGFT_char character, const FontRenderMode *render,
         node = node->next;
     }
 
-    node = Cache_AllocateNode(cache, render, character, internal);
+    node = allocate_node(cache, render, character, internal);
 
 #ifdef PGFT_DEBUG_CACHE
     cache->_debug_miss++;
@@ -320,7 +303,7 @@ PGFT_Cache_FindGlyph(PGFT_char character, const FontRenderMode *render,
 }
 
 static void
-Cache_FreeNode(FontCache *cache, FontCacheNode *node)
+free_node(FontCache *cache, FontCacheNode *node)
 {
     if (node == NULL)
         return;
@@ -336,24 +319,23 @@ Cache_FreeNode(FontCache *cache, FontCacheNode *node)
 }
 
 static FontCacheNode *
-Cache_AllocateNode(FontCache *cache, const FontRenderMode *render, PGFT_char character, void *internal)
+allocate_node(FontCache *cache, const FontRenderMode *render,
+              PGFT_char character, void *internal)
 {
     FontCacheNode *node = _PGFT_malloc(sizeof(FontCacheNode));
     FT_UInt32 bucket;
 
-    if (!node)
-    {
+    if (!node) {
         return NULL;
     }
     memset(node, 0, sizeof(FontCacheNode));
 
-    if (PGFT_LoadGlyph(&node->glyph, character, render, internal))
-    {
+    if (_PGFT_LoadGlyph(&node->glyph, character, render, internal)) {
         goto cleanup;
     }
 
     set_node_key(&node->key, character, render);
-    node->hash = cache_hash(&node->key);
+    node->hash = get_hash(&node->key);
     bucket = node->hash & cache->size_mask;
     node->next = cache->nodes[bucket];
     cache->nodes[bucket] = node;
