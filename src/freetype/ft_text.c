@@ -79,8 +79,8 @@ _PGFT_FontTextInit(FreeTypeInstance *ft, PyFreeTypeFont *font)
     FontText *ftext = &(PGFT_INTERNALS(font)->active_text);
 
     ftext->buffer_size = 0;
-    ftext->glyphs = NULL;
-    ftext->posns = NULL;
+    ftext->glyphs = 0;
+    ftext->posns = 0;
 
     if (_PGFT_Cache_Init(ft, &ftext->glyph_cache)) {
         PyErr_NoMemory();
@@ -113,8 +113,8 @@ _PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
     PGFT_char * ch;
 
     FontText    *ftext = &(PGFT_INTERNALS(font)->active_text);
-    FontGlyph   *glyph = NULL;
-    FontGlyph   **glyph_array = NULL;
+    FontGlyph   *glyph = 0;
+    FontGlyph   **glyph_array = 0;
     FontMetrics *metrics;
     FT_BitmapGlyph image;
     FontTextContext context;
@@ -154,7 +154,7 @@ _PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
     if (!face) {
         PyErr_SetString(PyExc_SDLError, _PGFT_GetError(ft));
-        return NULL;
+        return 0;
     }
 
     /* cleanup the cache */
@@ -167,7 +167,7 @@ _PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
             _PGFT_malloc((size_t)string_length * sizeof(FontGlyph *));
         if (!ftext->glyphs) {
             PyErr_NoMemory();
-            return NULL;
+            return 0;
         }
 
         _PGFT_free(ftext->posns);
@@ -175,7 +175,7 @@ _PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
         _PGFT_malloc((size_t)string_length * sizeof(FT_Vector));
         if (!ftext->posns) {
             PyErr_NoMemory();
-            return NULL;
+            return 0;
         }
         ftext->buffer_size = string_length;
     }
@@ -217,7 +217,7 @@ _PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
             if (error) {
                 _PGFT_SetError(ft, "Loading glyphs", error);
                 PyErr_SetString(PyExc_SDLError, _PGFT_GetError(ft));
-                return NULL;
+                return 0;
             }
             if (rotation_angle != 0) {
                 FT_Vector_Rotate(&kerning, rotation_angle);
@@ -246,20 +246,20 @@ _PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
         if (vertical) {
             if (pen.y + metrics->bearing_rotated.y < min_y) {
                 min_y = pen.y + metrics->bearing_rotated.y;
-        }
+            }
             if (pen.y + metrics->bearing_rotated.y + glyph_height > max_y) {
                 max_y = pen.y + metrics->bearing_rotated.y + glyph_height;
-        }
+            }
             next_pos->y = pen.y + metrics->bearing_rotated.y;
             pen.y += metrics->advance_rotated.y;
         }
         else {
             if (pen.y - metrics->bearing_rotated.y < min_y) {
                 min_y = pen.y - metrics->bearing_rotated.y;
-        }
+            }
             if (pen.y - metrics->bearing_rotated.y + glyph_height > max_y) {
                 max_y = pen.y - metrics->bearing_rotated.y + glyph_height;
-        }
+            }
             next_pos->y = pen.y - metrics->bearing_rotated.y;
             pen.y -= metrics->advance_rotated.y;
         }
@@ -270,50 +270,56 @@ _PGFT_LoadFontText(FreeTypeInstance *ft, PyFreeTypeFont *font,
     if (pad) {
         FT_Size_Metrics *sz_metrics = &face->size->metrics;
 
-        if (pen.x > max_x)
+        if (pen.x > max_x) {
             max_x = pen.x;
-        else if (pen.x < min_x)
+        }
+        else if (pen.x < min_x) {
             min_x = pen.x;
-        if (pen.y > max_y)
+        }
+        if (pen.y > max_y) {
             max_y = pen.y;
-        else if (pen.y < min_y)
+        }
+        else if (pen.y < min_y) {
             min_y = pen.y;
+        }
         if (vertical) {
             FT_Fixed right = sz_metrics->max_advance / 2;
 
-            if (max_x < right)
+            if (max_x < right) {
                 max_x = right;
-            if (min_x > -right)
+            }
+            if (min_x > -right) {
                 min_x = -right;
-            if (min_y > 0)
+            }
+            if (min_y > 0) {
                 min_y = 0;
-            else if (max_y < pen.y)
+            }
+            else if (max_y < pen.y) {
                 max_y = pen.y;
+            }
         }
         else {
             FT_Fixed ascender = sz_metrics->ascender;
             FT_Fixed descender = sz_metrics->descender;
 
-            if (min_x > 0)
+            if (min_x > 0) {
                 min_x = 0;
-            if (max_x < pen.x)
+            }
+            if (max_x < pen.x) {
                 max_x = pen.x;
-            if (min_y > -ascender)
+            }
+            if (min_y > -ascender) {
                 min_y = -ascender;
-            if (max_y <= -descender)
+            }
+            if (max_y <= -descender) {
                 max_y = -descender + /* underscore allowance */ FX6_ONE;
-            /* else */
-            /* { */
-            /*     ftext->descender = -max_y + /\* underscore allowance *\/ FX6_ONE; */
-            /*     max_y += FX6_ONE; */
-            /* } */
+            }
         }
     }
     else if (render->style & FT_STYLE_UNDERSCORE) {
-        if (-ftext->descender >= max_y)
+        if (-ftext->descender >= max_y) {
             max_y = -ftext->descender + /* underscore allowance */ FX6_ONE;
-        /* else */
-        /*     ftext->descender = -max_y + /\* underscore allowance *\/ FX6_ONE; */
+        }
     }
 
     if (render->style & FT_STYLE_UNDERLINE) {
@@ -373,7 +379,7 @@ int _PGFT_GetMetrics(FreeTypeInstance *ft, PyFreeTypeFont *font,
                     double *advance_x, double *advance_y)
 {
     FontText    *ftext = &(PGFT_INTERNALS(font)->active_text);
-    FontGlyph *glyph = NULL;
+    FontGlyph *glyph = 0;
     FontTextContext context;
     FT_Face     face;
 
@@ -452,7 +458,7 @@ _PGFT_LoadGlyph(FontGlyph *glyph, PGFT_char character, const FontRenderMode *ren
     FT_Render_Mode rmode = (render->render_flags & FT_RFLAG_ANTIALIAS ?
                             FT_RENDER_MODE_NORMAL : FT_RENDER_MODE_MONO);
     FT_Vector bold_delta = {0, 0};
-    FT_Glyph image = NULL;
+    FT_Glyph image = 0;
 
     FT_Glyph_Metrics *ft_metrics;
     FontTextContext *context = (FontTextContext *)internal;
@@ -596,8 +602,9 @@ _PGFT_LoadGlyph(FontGlyph *glyph, PGFT_char character, const FontRenderMode *ren
      * Cleanup on error
      */
 cleanup:
-    if (image)
+    if (image) {
         FT_Done_Glyph(image);
+    }
 
     return -1;
 }
@@ -663,14 +670,12 @@ get_load_flags(const FontRenderMode *render)
 
     load_flags |= FT_LOAD_IGNORE_GLOBAL_ADVANCE_WIDTH;
 
-    if (render->render_flags & FT_RFLAG_AUTOHINT)
+    if (render->render_flags & FT_RFLAG_AUTOHINT) {
         load_flags |= FT_LOAD_FORCE_AUTOHINT;
+    }
 
     if (render->render_flags & FT_RFLAG_HINTED) {
         load_flags |= FT_LOAD_TARGET_NORMAL;
-        /* load_flags |= ((render->render_flags & FT_RFLAG_ANTIALIAS) ? */
-        /*                FT_LOAD_TARGET_NORMAL : */
-        /*                FT_LOAD_TARGET_MONO); */
     }
     else {
         load_flags |= FT_LOAD_NO_HINTING;

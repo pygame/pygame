@@ -45,7 +45,7 @@ static void raise_unicode_error(const char *, PyObject *,
 PGFT_String *
 _PGFT_EncodePyString(PyObject *obj, int ucs4)
 {
-    PGFT_String *utf32_buffer = NULL;
+    PGFT_String *utf32_buffer = 0;
     Py_ssize_t len;
     PGFT_char *dst;
 
@@ -66,20 +66,20 @@ _PGFT_EncodePyString(PyObject *obj, int ucs4)
                         raise_unicode_error(
                             "utf-32", obj, i, i + 1,
                             "missing high-surrogate code point");
-                        return NULL;
+                        return 0;
                     }
                     if (++i == srclen) {
                         raise_unicode_error(
                             "utf-32", obj, i - 1, i,
                             "missing low-surrogate code point");
-                        return NULL;
+                        return 0;
                     }
                     c = src[i];
                     if (c < UNICODE_LSA_START || c > UNICODE_LSA_END) {
                         raise_unicode_error(
                             "utf-32", obj, i, i + 1,
                             "expected low-surrogate code point");
-                        return NULL;
+                        return 0;
                     }
                     --len;
                 }
@@ -87,9 +87,9 @@ _PGFT_EncodePyString(PyObject *obj, int ucs4)
         }
 
         utf32_buffer = (PGFT_String *)_PGFT_malloc(SIZEOF_PGFT_STRING(len));
-        if (utf32_buffer == NULL) {
+        if (!utf32_buffer) {
             PyErr_NoMemory();
-            return NULL;
+            return 0;
         }
         dst = utf32_buffer->data;
         if (!ucs4) {
@@ -120,9 +120,9 @@ _PGFT_EncodePyString(PyObject *obj, int ucs4)
 
         Bytes_AsStringAndSize(obj, &src, &len);
         utf32_buffer = (PGFT_String *)_PGFT_malloc(SIZEOF_PGFT_STRING(len));
-        if (utf32_buffer == NULL) {
+        if (!utf32_buffer) {
             PyErr_NoMemory();
-            return NULL;
+            return 0;
         }
         dst = utf32_buffer->data;
         for (i = 0; i < len; ++i) {
@@ -133,7 +133,7 @@ _PGFT_EncodePyString(PyObject *obj, int ucs4)
         PyErr_Format(PyExc_TypeError,
                      "Expected a Unicode or LATIN1 (bytes) string for text:"
                      " got type %.1024s", Py_TYPE(obj)->tp_name);
-        return NULL;
+        return 0;
     }
 
     utf32_buffer->data[len] = 0;
@@ -151,9 +151,10 @@ raise_unicode_error(const char *codec, PyObject *unistr,
                                         (unsigned long)end,
                                         reason);
 
-    if (!e)
+    if (!e) {
         return;
+    }
     Py_INCREF(PyExc_UnicodeEncodeError);
-    PyErr_Restore(PyExc_UnicodeEncodeError, e, NULL);
+    PyErr_Restore(PyExc_UnicodeEncodeError, e, 0);
 }
 

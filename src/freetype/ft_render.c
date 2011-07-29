@@ -24,9 +24,9 @@
 #include FT_MODULE_H
 #include FT_OUTLINE_H
 
-static int render(FreeTypeInstance *, PyFreeTypeFont *,
-                  FontText *, const FontRenderMode *,
-                  FontColor *, FontSurface *);
+static void render(FreeTypeInstance *, PyFreeTypeFont *,
+                   FontText *, const FontRenderMode *,
+                   FontColor *, FontSurface *);
 
 int
 _PGFT_CheckStyle(FT_UInt32 style)
@@ -51,7 +51,7 @@ _PGFT_BuildRenderMode(FreeTypeInstance *ft,
 
     if (pt_size == -1) {
         if (font->ptsize == -1) {
-            RAISE(PyExc_ValueError,
+            PyErr_SetString(PyExc_ValueError,
                   "No font point size specified"
                   " and no default font size in typeface");
             return -1;
@@ -61,7 +61,7 @@ _PGFT_BuildRenderMode(FreeTypeInstance *ft,
     }
 
     if (pt_size <= 0) {
-        RAISE(PyExc_ValueError, "Invalid point size for font.");
+        PyErr_SetString(PyExc_ValueError, "Invalid point size for font.");
         return -1;
     }
 
@@ -71,8 +71,8 @@ _PGFT_BuildRenderMode(FreeTypeInstance *ft,
         mode->style = (FT_Byte)font->style;
     }
     else {
-        if (_PGFT_CheckStyle((FT_UInt32)style) != 0) {
-            RAISE(PyExc_ValueError, "Invalid style value");
+        if (_PGFT_CheckStyle((FT_UInt32)style)) {
+            PyErr_SetString(PyExc_ValueError, "Invalid style value");
             return -1;
         }
 
@@ -81,41 +81,43 @@ _PGFT_BuildRenderMode(FreeTypeInstance *ft,
 
     mode->render_flags = FT_RFLAG_DEFAULTS;
 
-    if (font->vertical)
+    if (font->vertical) {
         mode->render_flags |= FT_RFLAG_VERTICAL;
-
-    if (font->antialias)
+    }
+    if (font->antialias) {
         mode->render_flags |= FT_RFLAG_ANTIALIAS;
-
-    if (font->pad)
+    }
+    if (font->pad) {
         mode->render_flags |= FT_RFLAG_PAD;
+    }
 
     angle = rotation % 360;
     while (angle < 0) angle += 360;
     mode->rotation_angle = PGFT_INT_TO_16(angle);
 
-    if (font->do_transform)
+    if (font->do_transform) {
         mode->render_flags |= FT_RFLAG_TRANSFORM;
+    }
     mode->transform = font->transform;
 
     if (mode->rotation_angle != 0) {
         if (mode->style & FT_STYLE_WIDE) {
-            RAISE(PyExc_ValueError,
+            PyErr_SetString(PyExc_ValueError,
                   "the wide style is unsupported for rotated text");
             return -1;
         }
         if (mode->style & FT_STYLE_UNDERLINE) {
-            RAISE(PyExc_ValueError,
+            PyErr_SetString(PyExc_ValueError,
                   "the underline style is unsupported for rotated text");
             return -1;
         }
         if (mode->style & FT_STYLE_UNDERSCORE) {
-            RAISE(PyExc_ValueError,
+            PyErr_SetString(PyExc_ValueError,
                   "the underscore style is unsupported for rotated text");
             return -1;
         }
         if (mode->render_flags & FT_RFLAG_PAD) {
-            RAISE(PyExc_ValueError,
+            PyErr_SetString(PyExc_ValueError,
                   "padding is unsupported for rotated text");
             return -1;
         }
@@ -123,12 +125,12 @@ _PGFT_BuildRenderMode(FreeTypeInstance *ft,
 
     if (mode->render_flags & FT_RFLAG_VERTICAL) {
         if (mode->style & FT_STYLE_UNDERLINE) {
-            RAISE(PyExc_ValueError,
+            PyErr_SetString(PyExc_ValueError,
                   "the underline style is unsupported for vertical text");
             return -1;
         }
         if (mode->style & FT_STYLE_UNDERSCORE) {
-            RAISE(PyExc_ValueError,
+            PyErr_SetString(PyExc_ValueError,
                   "the underscore style is unsupported for vertical text");
             return -1;
         }
@@ -152,7 +154,7 @@ _PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
                              SDL_Rect *r)
 {
     static const FontRenderPtr __SDLrenderFuncs[] = {
-        NULL,
+        0,
         __render_glyph_RGB1,
         __render_glyph_RGB2,
         __render_glyph_RGB3,
@@ -160,7 +162,7 @@ _PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
     };
 
     static const FontRenderPtr __MONOrenderFuncs[] = {
-        NULL,
+        0,
         __render_glyph_MONO1,
         __render_glyph_MONO2,
         __render_glyph_MONO3,
@@ -168,7 +170,7 @@ _PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
     };
 
     static const FontFillPtr __RGBfillFuncs[] = {
-        NULL,
+        0,
         __fill_glyph_RGB1,
         __fill_glyph_RGB2,
         __fill_glyph_RGB3,
@@ -193,7 +195,7 @@ _PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
     if (SDL_MUSTLOCK(surface)) {
         if (SDL_LockSurface(surface) == -1) {
             SDL_FreeSurface(surface);
-            RAISE(PyExc_SDLError, SDL_GetError());
+            PyErr_SetString(PyExc_SDLError, SDL_GetError());
             return -1;
         }
         locked = 1;
@@ -203,23 +205,26 @@ _PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
     font_text = _PGFT_LoadFontText(ft, font, mode, text);
 
     if (!font_text) {
-        if (locked)
+        if (locked) {
             SDL_UnlockSurface(surface);
+        }
         return -1;
     }
 
     width = font_text->width;
     height = font_text->height;
     if (_PGFT_GetSurfaceSize(ft, font, mode, font_text, &width, &height)) {
-        if (locked)
+        if (locked) {
             SDL_UnlockSurface(surface);
+        }
         return -1;
     }
 
     if (width <= 0 || height <= 0) {
         /* Nothing more to do. */
-        if (locked)
+        if (locked) {
             SDL_UnlockSurface(surface);
+        }
         r->x = 0;
         r->y = 0;
         r->w = 0;
@@ -278,19 +283,16 @@ _PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
     /*
      * Render!
      */
-    if (render(ft, font, font_text, mode, fgcolor, &font_surf)) {
-        if (locked)
-            SDL_UnlockSurface(surface);
-        return -1;
-    }
+    render(ft, font, font_text, mode, fgcolor, &font_surf);
 
     r->x = -(Sint16)PGFT_TRUNC(PGFT_FLOOR(font_text->offset.x));
     r->y = (Sint16)PGFT_TRUNC(PGFT_CEIL(font_text->offset.y));
     r->w = (Uint16)width;
     r->h = (Uint16)height;
 
-    if (locked)
+    if (locked) {
         SDL_UnlockSurface(surface);
+    }
 
     return 0;
 }
@@ -314,7 +316,7 @@ SDL_Surface *_PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
 #endif
     int locked = 0;
     FT_UInt32 fillcolor;
-    SDL_Surface *surface = NULL;
+    SDL_Surface *surface = 0;
     FT_UInt32 bits_per_pixel =
         (bgcolor || mode->render_flags & FT_RFLAG_ANTIALIAS) ? 32 : 8;
     FT_UInt32 surface_flags = SDL_SWSURFACE;
@@ -328,8 +330,9 @@ SDL_Surface *_PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
     /* build font text */
     font_text = _PGFT_LoadFontText(ft, font, mode, text);
 
-    if (!font_text)
-        return NULL;
+    if (!font_text) {
+        return 0;
+    }
 
     if (font_text->length > 0) {
         width = font_text->width;
@@ -345,14 +348,14 @@ SDL_Surface *_PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
                    bits_per_pixel == 32 ? amask : 0);
     if (!surface) {
         PyErr_SetString(PyExc_SDLError, SDL_GetError());
-        return NULL;
+        return 0;
     }
 
     if (SDL_MUSTLOCK(surface)) {
         if (SDL_LockSurface(surface) == -1) {
-            RAISE(PyExc_SDLError, SDL_GetError());
+            PyErr_SetString(PyExc_SDLError, SDL_GetError());
             SDL_FreeSurface(surface);
-            return NULL;
+            return 0;
         }
         locked = 1;
     }
@@ -382,7 +385,7 @@ SDL_Surface *_PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
             fillcolor = SDL_MapRGBA(surface->format, 0, 0, 0, 0);
         }
 
-        SDL_FillRect(surface, NULL, fillcolor);
+        SDL_FillRect(surface, 0, fillcolor);
     }
     else {
         SDL_Color colors[2];
@@ -398,7 +401,7 @@ SDL_Surface *_PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
                             "Pygame bug in _PGFT_Render_NewSurface: "
                             "SDL_SetColors failed");
             SDL_FreeSurface(surface);
-            return NULL;
+            return 0;
         }
         SDL_SetColorKey(surface, SDL_SRCCOLORKEY, (FT_UInt32)0);
         if (fgcolor->a != SDL_ALPHA_OPAQUE) {
@@ -412,25 +415,22 @@ SDL_Surface *_PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
         /*
          * Fill our texture with the required bg color
          */
-        SDL_FillRect(surface, NULL, 0);
+        SDL_FillRect(surface, 0, 0);
     }
 
     /*
      * Render the text!
      */
-    if (render(ft, font, font_text, mode,
-                              fgcolor, &font_surf)) {
-        SDL_FreeSurface(surface);
-        return NULL;
-    }
+    render(ft, font, font_text, mode, fgcolor, &font_surf);
 
     r->x = -(Sint16)PGFT_TRUNC(PGFT_FLOOR(font_text->offset.x));
     r->y = (Sint16)PGFT_TRUNC(PGFT_CEIL(font_text->offset.y));
     r->w = (Uint16)width;
     r->h = (Uint16)height;
 
-    if (locked)
+    if (locked) {
         SDL_UnlockSurface(surface);
+    }
 
     return surface;
 }
@@ -449,8 +449,8 @@ PyObject *_PGFT_Render_PixelArray(FreeTypeInstance *ft, PyFreeTypeFont *font,
                                   const FontRenderMode *mode,
                                   PGFT_String *text, int *_width, int *_height)
 {
-    FT_Byte *buffer = NULL;
-    PyObject *array = NULL;
+    FT_Byte *buffer = 0;
+    PyObject *array = 0;
     FontSurface surf;
     int width, height;
 
@@ -468,11 +468,13 @@ PyObject *_PGFT_Render_PixelArray(FreeTypeInstance *ft, PyFreeTypeFont *font,
     /* build font text */
     font_text = _PGFT_LoadFontText(ft, font, mode, text);
 
-    if (!font_text)
-        return NULL;
+    if (!font_text) {
+        return 0;
+    }
 
-    if (_PGFT_GetSurfaceSize(ft, font, mode, font_text, &width, &height) != 0)
-        return NULL;
+    if (_PGFT_GetSurfaceSize(ft, font, mode, font_text, &width, &height)) {
+        return 0;
+    }
 
     array_size = width * height;
 
@@ -484,9 +486,9 @@ PyObject *_PGFT_Render_PixelArray(FreeTypeInstance *ft, PyFreeTypeFont *font,
     }
 
     /* Create an uninitialized string whose buffer can be directly set. */
-    array = Bytes_FromStringAndSize(NULL, array_size);
-    if (array == NULL) {
-        return NULL;
+    array = Bytes_FromStringAndSize(0, array_size);
+    if (!array) {
+        return 0;
     }
     buffer = (FT_Byte *)Bytes_AS_STRING(array);
 
@@ -498,16 +500,12 @@ PyObject *_PGFT_Render_PixelArray(FreeTypeInstance *ft, PyFreeTypeFont *font,
     surf.width = surf.pitch = width;
     surf.height = height;
 
-    surf.format = NULL;
+    surf.format = 0;
     surf.render_gray = __render_glyph_GRAY1;
     surf.render_mono = __render_glyph_MONO_as_GRAY1;
     surf.fill = __fill_glyph_GRAY1;
 
-    if (render(ft, font, font_text, mode,
-                              &mono_opaque, &surf) != 0) {
-        Py_DECREF(array);
-        return NULL;
-    }
+    render(ft, font, font_text, mode, &mono_opaque, &surf);
 
     *_width = width;
     *_height = height;
@@ -523,7 +521,7 @@ PyObject *_PGFT_Render_PixelArray(FreeTypeInstance *ft, PyFreeTypeFont *font,
  * New rendering algorithm (rotation + veritical drawing)
  *
  *********************************************************/
-static int
+static void
 render(FreeTypeInstance *ft, PyFreeTypeFont *font,
        FontText *text, const FontRenderMode *mode,
        FontColor *fg_color, FontSurface *surface)
@@ -539,21 +537,22 @@ render(FreeTypeInstance *ft, PyFreeTypeFont *font,
     FT_Vector *posns = text->posns;
     FontRenderPtr render_gray = surface->render_gray;
     FontRenderPtr render_mono = surface->render_mono;
-    int error = 0;
 
-
-    if (length <= 0)
-        return error;
+    if (length <= 0) {
+        return;
+    }
     left = surface->offset.x;
     top = surface->offset.y;
     for (n = 0; n < length; ++n) {
         image = glyphs[n]->image;
         x = PGFT_TRUNC(PGFT_CEIL(left + posns[n].x));
         y = PGFT_TRUNC(PGFT_CEIL(top + posns[n].y));
-        if (image->bitmap.pixel_mode == FT_PIXEL_MODE_GRAY)
+        if (image->bitmap.pixel_mode == FT_PIXEL_MODE_GRAY) {
             render_gray(x, y, surface, &(image->bitmap), fg_color);
-        else
+        }
+        else {
             render_mono(x, y, surface, &(image->bitmap), fg_color);
+        }
     }
 
     if (mode->style & FT_STYLE_UNDERLINE) {
@@ -570,10 +569,4 @@ render(FreeTypeInstance *ft, PyFreeTypeFont *font,
             PGFT_TRUNC(PGFT_CEIL(top - text->descender)),
             text->width, 1, surface, fg_color);
     }
-
-    if (error) {
-        RAISE(PyExc_SDLError,
-              "(exception under construction) last character unrendered");
-    }
-    return error;
 }
