@@ -102,7 +102,7 @@ typedef struct {
 } PyFreeTypeFont;
 
 #define PyFreeTypeFont_IS_ALIVE(o) \
-    (((PyFreeTypeFont *)(o))->_internals != NULL)
+    (((PyFreeTypeFont *)(o))->_internals != 0)
 
 /**********************************************************
  * Module declaration
@@ -121,7 +121,7 @@ typedef struct {
 #define import_pygame_freetype() \
     _IMPORT_PYGAME_MODULE(freetype, FREETYPE, PyFREETYPE_C_API)
 
-static void *PyFREETYPE_C_API[PYGAMEAPI_FREETYPE_NUMSLOTS] = {NULL};
+static void *PyFREETYPE_C_API[PYGAMEAPI_FREETYPE_NUMSLOTS] = {0};
 #endif /* PYGAME_FREETYPE_INTERNAL */
 
 #endif /* _PYGAME_FREETYPE_H_ */

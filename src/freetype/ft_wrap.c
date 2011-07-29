@@ -52,8 +52,8 @@ _PGFT_SetError(FreeTypeInstance *ft, const char *error_msg, FT_Error error_id)
     const char *ft_msg;
     int error_msg_len = (int)strlen(error_msg);
 
-    ft_msg = NULL;
-    for (i = 0; ft_errors[i].err_msg != NULL; ++i) {
+    ft_msg = 0;
+    for (i = 0; ft_errors[i].err_msg; ++i) {
         if (error_id == ft_errors[i].err_code) {
             ft_msg = ft_errors[i].err_msg;
             break;
@@ -88,7 +88,7 @@ _PGFT_Face_IsFixedWidth(FreeTypeInstance *ft, PyFreeTypeFont *font)
 {
     FT_Face face = _PGFT_GetFace(ft, font);
 
-    if (face == NULL) {
+    if (!face) {
         RAISE(PyExc_RuntimeError, _PGFT_GetError(ft));
         return -1;
     }
@@ -101,9 +101,9 @@ _PGFT_Face_GetName(FreeTypeInstance *ft, PyFreeTypeFont *font)
     FT_Face face;
     face = _PGFT_GetFace(ft, font);
 
-    if (face == NULL) {
+    if (!face) {
         RAISE(PyExc_RuntimeError, _PGFT_GetError(ft));
-        return NULL;
+        return 0;
     }
     return face->family_name;
 }
@@ -116,7 +116,7 @@ _PGFT_Face_GetHeight(FreeTypeInstance *ft, PyFreeTypeFont *font)
 {
     FT_Face face = _PGFT_GetFace(ft, font);
 
-    if (face == NULL) {
+    if (!face) {
         RAISE(PyExc_RuntimeError, _PGFT_GetError(ft));
         return 0;
     }
@@ -129,7 +129,7 @@ _PGFT_Face_GetHeightSized(FreeTypeInstance *ft, PyFreeTypeFont *font,
 {
     FT_Face face = _PGFT_GetFaceSized(ft, font, ptsize);
 
-    if (face == NULL) {
+    if (!face) {
         RAISE(PyExc_RuntimeError, _PGFT_GetError(ft));
         return 0;
     }
@@ -141,7 +141,7 @@ _PGFT_Face_GetAscender(FreeTypeInstance *ft, PyFreeTypeFont *font)
 {
     FT_Face face = _PGFT_GetFace(ft, font);
 
-    if (face == NULL) {
+    if (!face) {
         RAISE(PyExc_RuntimeError, _PGFT_GetError(ft));
         return 0;
     }
@@ -154,7 +154,7 @@ _PGFT_Face_GetAscenderSized(FreeTypeInstance *ft, PyFreeTypeFont *font,
 {
     FT_Face face = _PGFT_GetFaceSized(ft, font, ptsize);
 
-    if (face == NULL) {
+    if (!face) {
         RAISE(PyExc_RuntimeError, _PGFT_GetError(ft));
         return 0;
     }
@@ -166,7 +166,7 @@ _PGFT_Face_GetDescender(FreeTypeInstance *ft, PyFreeTypeFont *font)
 {
     FT_Face face = _PGFT_GetFace(ft, font);
 
-    if (face == NULL) {
+    if (!face) {
         RAISE(PyExc_RuntimeError, _PGFT_GetError(ft));
         return 0;
     }
@@ -179,7 +179,7 @@ _PGFT_Face_GetDescenderSized(FreeTypeInstance *ft, PyFreeTypeFont *font,
 {
     FT_Face face = _PGFT_GetFaceSized(ft, font, ptsize);
 
-    if (face == NULL) {
+    if (!face) {
         RAISE(PyExc_RuntimeError, _PGFT_GetError(ft));
         return 0;
     }
@@ -196,7 +196,7 @@ _PGFT_Face_GetGlyphHeightSized(FreeTypeInstance *ft, PyFreeTypeFont *font,
     FT_Face face = _PGFT_GetFaceSized(ft, font, ptsize);
     FT_Size_Metrics *metrics;
 
-    if (face == NULL) {
+    if (!face) {
         RAISE(PyExc_RuntimeError, _PGFT_GetError(ft));
         return 0;
     }
@@ -228,7 +228,7 @@ _PGFT_GetFaceSized(FreeTypeInstance *ft,
 
     if (error) {
         _PGFT_SetError(ft, "Failed to resize face", error);
-        return NULL;
+        return 0;
     }
 
     return _fts->face;
@@ -247,7 +247,7 @@ _PGFT_GetFace(FreeTypeInstance *ft,
 
     if (error) {
         _PGFT_SetError(ft, "Failed to load face", error);
-        return NULL;
+        return 0;
     }
 
     return face;
@@ -304,7 +304,7 @@ _PGFT_face_request(FTC_FaceID face_id,
 
 static int init(FreeTypeInstance *ft, PyFreeTypeFont *font)
 {
-    font->_internals = NULL;
+    font->_internals = 0;
 
     if (!_PGFT_GetFace(ft, font)) {
         RAISE(PyExc_IOError, _PGFT_GetError(ft));
@@ -312,7 +312,7 @@ static int init(FreeTypeInstance *ft, PyFreeTypeFont *font)
     }
 
     font->_internals = _PGFT_malloc(sizeof(FontInternals));
-    if (font->_internals == NULL) {
+    if (!font->_internals) {
         PyErr_NoMemory();
         return -1;
     }
@@ -320,7 +320,7 @@ static int init(FreeTypeInstance *ft, PyFreeTypeFont *font)
 
     if (_PGFT_FontTextInit(ft, font)) {
         _PGFT_free(font->_internals);
-        font->_internals = NULL;
+        font->_internals = 0;
         return -1;
     }
 
@@ -333,7 +333,7 @@ quit(PyFreeTypeFont *font)
     if (font->_internals) {
         _PGFT_FontTextFree(font);
         _PGFT_free(font->_internals);
-        font->_internals = NULL;
+        font->_internals = 0;
     }
 }
 
@@ -387,21 +387,17 @@ _PGFT_TryLoadFont_RWops(FreeTypeInstance *ft,
     int position;
 
     position = SDL_RWtell(src);
-
     if (position < 0) {
         RAISE(PyExc_SDLError, "Failed to seek in font stream");
         return -1;
     }
 
     stream = _PGFT_malloc(sizeof(*stream));
-
-    if (stream == NULL) {
+    if (!stream) {
         PyErr_NoMemory();
         return -1;
     }
-
     memset(stream, 0, sizeof(*stream));
-
     stream->read = RWops_read;
     stream->descriptor.pointer = src;
     stream->pos = (unsigned long)position;
@@ -423,22 +419,20 @@ _PGFT_UnloadFont(FreeTypeInstance *ft, PyFreeTypeFont *font)
     if (font->id.open_args.flags == 0)
         return;
 
-    if (ft != NULL) {
+    if (ft) {
         FTC_Manager_RemoveFaceID(ft->cache_manager, (FTC_FaceID)(&font->id));
         quit(font);
     }
 
     if (font->id.open_args.flags == FT_OPEN_STREAM) {
         _PGFT_free(font->id.open_args.pathname);
-    font->id.open_args.pathname = NULL;
+    font->id.open_args.pathname = 0;
     }
     else if (font->id.open_args.flags == FT_OPEN_PATHNAME) {
         _PGFT_free(font->id.open_args.stream);
     }
     font->id.open_args.flags = 0;
 }
-
-
 
 
 /*********************************************************
@@ -449,7 +443,7 @@ _PGFT_UnloadFont(FreeTypeInstance *ft, PyFreeTypeFont *font)
 int
 _PGFT_Init(FreeTypeInstance **_instance, int cache_size)
 {
-    FreeTypeInstance *inst = NULL;
+    FreeTypeInstance *inst = 0;
     int error;
 
     inst = _PGFT_malloc(sizeof(FreeTypeInstance));
@@ -470,7 +464,7 @@ _PGFT_Init(FreeTypeInstance **_instance, int cache_size)
     }
 
     if (FTC_Manager_New(inst->library, 0, 0, 0,
-            &_PGFT_face_request, NULL,
+            &_PGFT_face_request, 0,
             &inst->cache_manager) != 0) {
         RAISE(PyExc_RuntimeError,
               "pygame (_PGFT_Init): failed to create new FreeType manager");
@@ -489,7 +483,7 @@ _PGFT_Init(FreeTypeInstance **_instance, int cache_size)
 
 error_cleanup:
     _PGFT_Quit(inst);
-    *_instance = NULL;
+    *_instance = 0;
 
     return -1;
 }
@@ -497,7 +491,7 @@ error_cleanup:
 void
 _PGFT_Quit(FreeTypeInstance *ft)
 {
-    if (ft == NULL)
+    if (!ft)
         return;
 
     if (ft->cache_manager)
