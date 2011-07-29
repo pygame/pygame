@@ -31,10 +31,12 @@
     (b) = ((b) << (fmt)->Bloss) + ((b) >> (8 - ((fmt)->Bloss << 1)));   \
     if ((fmt)->Amask) {                                                 \
         (a) = ((pixel) & (fmt)->Amask) >> (fmt)->Ashift;                \
-        (a) = ((a) << (fmt)->Aloss) + ((a) >> (8 - ((fmt)->Aloss << 1))); \
+        (a) = ((a) << (fmt)->Aloss) +                                   \
+               ((a) >> (8 - ((fmt)->Aloss << 1)));                      \
     }                                                                   \
-    else                                                                \
-        (a) = 255;
+    else {                                                              \
+        (a) = 255;                                                      \
+    }
 
 #define GET_PALETTE_VALS(pixel, fmt, sr, sg, sb, sa)                    \
     (sr) = (fmt)->palette->colors[(Uint8) (pixel)].r;                   \
@@ -43,7 +45,7 @@
     (sa) = 255;
 
 #define GET_PIXEL_VALS(pixel, fmt, r, g, b, a)          \
-    if ((fmt)->palette == NULL) {                       \
+    if (!(fmt)->palette) {                              \
         GET_RGB_VALS(pixel, fmt, r, g, b, a);           \
     }                                                   \
     else {                                              \

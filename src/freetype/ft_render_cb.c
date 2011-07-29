@@ -95,11 +95,13 @@ void __render_glyph_MONO_as_GRAY1(int x, int y, FontSurface *surface,
          val = (FT_UInt32)(*src_cpy++ | 0x100) << shift;
 
         for (i = rx; i < max_x; ++i, ++dst_cpy) {
-            if (val & 0x10000)
+            if (val & 0x10000) {
                 val = (FT_UInt32)(*src_cpy++ | 0x100);
+            }
 
-            if (val & 0x80)
+            if (val & 0x80) {
                 *dst_cpy = shade;
+            }
 
             val   <<= 1;
         }
@@ -154,11 +156,12 @@ void __fill_glyph_GRAY1(int x, int y, int w, int h,
     x = MAX(0, x);
     y = MAX(0, y);
 
-    if (x + w > surface->width)
+    if (x + w > surface->width) {
         w = surface->width - x;
-
-    if (y + h > surface->height)
+    }
+    if (y + h > surface->height) {
         h = surface->height - y;
+    }
 
     dst = (FT_Byte *)surface->buffer + x + (y * surface->pitch);
 
@@ -177,7 +180,8 @@ void __fill_glyph_GRAY1(int x, int y, int w, int h,
 
 #define _CREATE_RGB_FILLER(_bpp, _getp, _setp, _blendp)     \
     void __fill_glyph_RGB##_bpp(int x, int y, int w, int h, \
-            FontSurface *surface, FontColor *color)           \
+                                FontSurface *surface,       \
+                                FontColor *color)           \
     {                                                       \
         int i, j;                                           \
         unsigned char *dst;                                 \
@@ -186,14 +190,16 @@ void __fill_glyph_GRAY1(int x, int y, int w, int h,
         x = MAX(0, x);                                      \
         y = MAX(0, y);                                      \
                                                             \
-        if (x + w > surface->width)                         \
+        if (x + w > surface->width) {                       \
             w = surface->width - x;                         \
-                                                            \
-        if (y + h > surface->height)                        \
+        }                                                   \
+        if (y + h > surface->height) {                      \
             h = surface->height - y;                        \
+        }                                                   \
                                                             \
-        dst = (unsigned char *)surface->buffer + (x * _bpp) +\
-              (y * surface->pitch);                         \
+        dst = ((unsigned char *)surface->buffer +           \
+               (x * _bpp) +                                 \
+               (y * surface->pitch));                       \
                                                             \
         for (j = 0; j < h; ++j) {                           \
             unsigned char *_dst = dst;                      \
@@ -224,41 +230,45 @@ void __fill_glyph_GRAY1(int x, int y, int w, int h,
         }                                                   \
     }
 
-#define __MONO_RENDER_INNER_LOOP(_bpp, _code)                       \
-    for (j = ry; j < max_y; ++j)                                    \
-    {                                                               \
-        unsigned char*  _src = src;                                 \
-        unsigned char*  _dst = dst;                                 \
-        FT_UInt32       val = (FT_UInt32)(*_src++ | 0x100) << shift;\
-                                                                    \
-        for (i = rx; i < max_x; ++i, _dst += _bpp) {                \
-            if (val & 0x10000)                                      \
-                val = (FT_UInt32)(*_src++ | 0x100);                 \
-                                                                    \
-            if (val & 0x80) {                                       \
-                _code;                                              \
-            }                                                       \
-                                                                    \
-            val   <<= 1;                                            \
-        }                                                           \
-                                                                    \
-        src += bitmap->pitch;                                       \
-        dst += surface->pitch;                                      \
-    }                                                               \
+#define __MONO_RENDER_INNER_LOOP(_bpp, _code)               \
+    for (j = ry; j < max_y; ++j)                            \
+    {                                                       \
+        unsigned char* _src = src;                          \
+        unsigned char* _dst = dst;                          \
+        FT_UInt32 val =                                     \
+            (FT_UInt32)(*_src++ | 0x100) << shift;          \
+                                                            \
+        for (i = rx; i < max_x; ++i, _dst += _bpp) {        \
+            if (val & 0x10000) {                            \
+                val = (FT_UInt32)(*_src++ | 0x100);         \
+            }                                               \
+            if (val & 0x80) {                               \
+                _code;                                      \
+            }                                               \
+            val <<= 1;                                      \
+        }                                                   \
+                                                            \
+        src += bitmap->pitch;                               \
+        dst += surface->pitch;                              \
+    }                                                       \
 
-#define _CREATE_MONO_RENDER(_bpp, _getp, _setp, _blendp)                \
-    void __render_glyph_MONO##_bpp(int x, int y, FontSurface *surface,  \
-            FT_Bitmap *bitmap, FontColor *color)                          \
-    {                                                                   \
-        const int off_x = (x < 0) ? -x : 0;                             \
-        const int off_y = (y < 0) ? -y : 0;                             \
-                                                                        \
-        const int max_x = MIN(x + bitmap->width, surface->width);       \
-        const int max_y = MIN(y + bitmap->rows, surface->height);       \
-                                                                        \
-        const int rx = MAX(0, x);                                       \
-        const int ry = MAX(0, y);                                       \
-                                                                        \
+#define _CREATE_MONO_RENDER(_bpp, _getp, _setp, _blendp)    \
+    void __render_glyph_MONO##_bpp(int x, int y,            \
+                                   FontSurface *surface,    \
+                                   FT_Bitmap *bitmap,       \
+                                FontColor *color)           \
+    {                                                       \
+        const int off_x = (x < 0) ? -x : 0;                 \
+        const int off_y = (y < 0) ? -y : 0;                 \
+                                                            \
+        const int max_x =                                   \
+             MIN(x + bitmap->width, surface->width);        \
+        const int max_y =                                   \
+             MIN(y + bitmap->rows, surface->height);        \
+                                                            \
+        const int rx = MAX(0, x);                           \
+        const int ry = MAX(0, y);                           \
+                                                            \
         int             i, j, shift;                                    \
         unsigned char*  src;                                            \
         unsigned char*  dst;                                            \

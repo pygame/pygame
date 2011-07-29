@@ -172,15 +172,15 @@ _PGFT_Cache_Init(FreeTypeInstance *ft, FontCache *cache)
     if (!cache->nodes)
         return -1;
     for (i=0; i < cache_size; ++i)
-        cache->nodes[i] = NULL;
+        cache->nodes[i] = 0;
     cache->depths = _PGFT_malloc((size_t)cache_size);
     if (!cache->depths) {
         _PGFT_free(cache->nodes);
-        cache->nodes = NULL;
+        cache->nodes = 0;
         return -1;
     }
     memset(cache->depths, 0, cache_size);
-    cache->free_nodes = NULL;
+    cache->free_nodes = 0;
     cache->size_mask = (FT_UInt32)(cache_size - 1);
 
 #ifdef PGFT_DEBUG_CACHE
@@ -199,14 +199,15 @@ _PGFT_Cache_Destroy(FontCache *cache)
     FT_UInt i;
     FontCacheNode *node, *next;
 
-    if (cache == NULL)
+    if (!cache) {
         return;
+    }
 
     /* PGFT_DEBUG_CACHE - Here is a good place to set a breakpoint
      * to examine _debug fields.
      */
 
-    if (cache->nodes != NULL) {
+    if (cache->nodes) {
         for (i = 0; i <= cache->size_mask; ++i) {
             node = cache->nodes[i];
 
@@ -217,10 +218,10 @@ _PGFT_Cache_Destroy(FontCache *cache)
             }
         }
         _PGFT_free(cache->nodes);
-        cache->nodes = NULL;
+        cache->nodes = 0;
     }
     _PGFT_free(cache->depths);
-    cache->depths = NULL;
+    cache->depths = 0;
 }
 
 void
@@ -233,7 +234,7 @@ _PGFT_Cache_Cleanup(FontCache *cache)
     for (i = 0; i <= cache->size_mask; ++i) {
         while (cache->depths[i] > MAX_BUCKET_DEPTH) {
             node = cache->nodes[i];
-            prev = NULL;
+            prev = 0;
 
             for (;;) {
                 if (!node->next) {
@@ -241,7 +242,7 @@ _PGFT_Cache_Cleanup(FontCache *cache)
                     cache->_debug_delete_count++;
 #endif
 
-                    prev->next = NULL;
+                    prev->next = 0;
                     free_node(cache, node);
                     break;
                 }
@@ -268,7 +269,7 @@ _PGFT_Cache_FindGlyph(PGFT_char character, const FontRenderMode *render,
     hash = get_hash(&key);
     bucket = hash & cache->size_mask;
     node = nodes[bucket];
-    prev = NULL;
+    prev = 0;
 
 #ifdef PGFT_DEBUG_CACHE
     cache->_debug_access++;
@@ -299,14 +300,15 @@ _PGFT_Cache_FindGlyph(PGFT_char character, const FontRenderMode *render,
     cache->_debug_miss++;
 #endif
 
-    return node ? &node->glyph : NULL;
+    return node ? &node->glyph : 0;
 }
 
 static void
 free_node(FontCache *cache, FontCacheNode *node)
 {
-    if (node == NULL)
+    if (!node) {
         return;
+    }
 
 #ifdef PGFT_DEBUG_CACHE
     cache->_debug_count--;
@@ -326,7 +328,7 @@ allocate_node(FontCache *cache, const FontRenderMode *render,
     FT_UInt32 bucket;
 
     if (!node) {
-        return NULL;
+        return 0;
     }
     memset(node, 0, sizeof(FontCacheNode));
 
@@ -353,5 +355,5 @@ allocate_node(FontCache *cache, const FontRenderMode *render,
      */
 cleanup:
     _PGFT_free(node);
-    return NULL;
+    return 0;
 }

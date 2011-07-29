@@ -199,12 +199,12 @@ typedef struct {
 #else
     extern _FreeTypeState _modstate;
 #   define FREETYPE_MOD_STATE(mod) (&_modstate)
-#   define FREETYPE_STATE FREETYPE_MOD_STATE(NULL)
+#   define FREETYPE_STATE FREETYPE_MOD_STATE(0)
 #endif
 
 #define ASSERT_GRAB_FREETYPE(ft_ptr, rvalue)                    \
     ft_ptr = FREETYPE_STATE->freetype;                          \
-    if (ft_ptr == NULL) {                                       \
+    if (!ft_ptr) {                                              \
         PyErr_SetString(PyExc_RuntimeError,                     \
             "The FreeType 2 library hasn't been initialized");  \
         return (rvalue);                                        \
