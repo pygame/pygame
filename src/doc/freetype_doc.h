@@ -49,8 +49,6 @@
 
 #define DOC_FACEUNDERLINE "underline -> bool\nGets or sets the face's underline style"
 
-#define DOC_FACEUNDERSCORE "underscore -> bool\nGets or sets the face's underscore style"
-
 #define DOC_FACESTRONG "strong -> bool\nGets or sets the face's strong style"
 
 #define DOC_FACEOBLIQUE "oblique -> bool\nGets or sets the face's oblique style"
@@ -58,6 +56,8 @@
 #define DOC_FACEWIDE "wide -> bool\nGets or sets the face's wide style"
 
 #define DOC_FACESTRENGTH "strength -> float\nGets or sets the strength of the strong or wide styles"
+
+#define DOC_FACEUNDERLINEADJUSTMENT "underline_adjustment -> float\nGets or sets an adjustment factor for the underline position"
 
 #define DOC_FACEFIXEDWIDTH "fixed_width -> bool\nGets whether the face is fixed-width"
 
@@ -186,10 +186,6 @@ pygame.freetype.Face.underline
  underline -> bool
 Gets or sets the face's underline style
 
-pygame.freetype.Face.underscore
- underscore -> bool
-Gets or sets the face's underscore style
-
 pygame.freetype.Face.strong
  strong -> bool
 Gets or sets the face's strong style
@@ -205,6 +201,10 @@ Gets or sets the face's wide style
 pygame.freetype.Face.strength
  strength -> float
 Gets or sets the strength of the strong or wide styles
+
+pygame.freetype.Face.underline_adjustment
+ underline_adjustment -> float
+Gets or sets an adjustment factor for the underline position
 
 pygame.freetype.Face.fixed_width
  fixed_width -> bool

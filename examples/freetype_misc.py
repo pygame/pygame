@@ -25,6 +25,7 @@ def run():
     screen = pygame.display.set_mode((800, 600))
     screen.fill (colors["grey_light"])
 
+    face.underline_adjustment = 0.25
     face.render((screen, 32, 32), "Hello World", colors["red"], colors['grey_dark'],
             ptsize=64, style=freetype.STYLE_UNDERLINE|freetype.STYLE_OBLIQUE)
 
