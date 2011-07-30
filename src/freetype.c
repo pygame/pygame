@@ -84,6 +84,8 @@ static PyObject *_ftface_getpath(PyObject *, void *);
 static PyObject *_ftface_getfixedwidth(PyObject *, void *);
 static PyObject *_ftface_getstrength(PgFaceObject *, void *);
 static int _ftface_setstrength(PgFaceObject *, PyObject *, void *);
+static PyObject *_ftface_getunderlineadjustment(PgFaceObject *, void *);
+static int _ftface_setunderlineadjustment(PgFaceObject *, PyObject *, void *);
 
 static PyObject *_ftface_getvertical(PyObject *, void *);
 static int _ftface_setvertical(PyObject *, PyObject *, void *);
@@ -545,13 +547,6 @@ static PyGetSetDef _ftface_getsets[] = {
         (void *)FT_STYLE_UNDERLINE
     },
     {
-        "underscore",
-        (getter)_ftface_getstyle_flag,
-        (setter)_ftface_setstyle_flag,
-        DOC_FACEUNDERSCORE,
-        (void *)FT_STYLE_UNDERSCORE
-    },
-    {
         "wide",
         (getter)_ftface_getstyle_flag,
         (setter)_ftface_setstyle_flag,
@@ -563,6 +558,13 @@ static PyGetSetDef _ftface_getsets[] = {
         (getter)_ftface_getstrength,
         (setter)_ftface_setstrength,
         DOC_FACESTRENGTH,
+        0
+    }, 
+    {
+        "underline_adjustment",
+        (getter)_ftface_getunderlineadjustment,
+        (setter)_ftface_setunderlineadjustment,
+        DOC_FACEUNDERLINEADJUSTMENT,
         0
     },
     {
@@ -676,6 +678,7 @@ _ftface_new(PyTypeObject *subtype, PyObject *args, PyObject *kwds)
         obj->ptsize = -1;
         obj->style = FT_STYLE_NORMAL;
         obj->strength = PGFT_DBL_DEFAULT_STRENGTH;
+        obj->underline_adjustment = 1.0;
         obj->vertical = 0;
         obj->antialias = 1;
         obj->kerning = 0;
@@ -683,11 +686,11 @@ _ftface_new(PyTypeObject *subtype, PyObject *args, PyObject *kwds)
         obj->origin = 0;
 	obj->pad = 0;
         obj->do_transform = 0;
-        obj->transform.xx = 0x00010000;
-        obj->transform.xy = 0x00000000;
-        obj->transform.yx = 0x00000000;
-        obj->transform.yy = 0x00010000;
-   }
+        obj->transform.xx = FX16_ONE;
+        obj->transform.xy = 0;
+        obj->transform.yx = 0;
+        obj->transform.yy = FX16_ONE;
+    }
     return (PyObject *)obj;
 }
 
@@ -1114,6 +1117,37 @@ _ftface_setstrength(PgFaceObject *self, PyObject *value, void *closure)
         return -1;
     }
     self->strength = strength;
+    return 0;
+}
+
+static PyObject *
+_ftface_getunderlineadjustment(PgFaceObject *self, void *closure)
+{
+    return PyFloat_FromDouble(self->underline_adjustment);
+}
+
+static int
+_ftface_setunderlineadjustment(PgFaceObject *self, PyObject *value,
+                               void *closure)
+{
+    PyObject *adjustmentobj = PyNumber_Float(value);
+    double adjustment;
+
+    if (!adjustmentobj) {
+        return -1;
+    }
+    adjustment = PyFloat_AS_DOUBLE(adjustmentobj);
+    Py_DECREF(adjustmentobj);
+    if (adjustment < -2.0 || adjustment > 2.0) {
+        char msg[100];
+
+        sprintf(msg,
+                "underline adjustment value %.4e is outside range [-2.0, 2.0]",
+                adjustment);
+        PyErr_SetString(PyExc_ValueError, msg);
+        return -1;
+    }
+    self->underline_adjustment = adjustment;
     return 0;
 }
 
@@ -2039,7 +2073,6 @@ MODINIT_DEFINE (freetype)
     DEC_CONST(STYLE_STRONG);
     DEC_CONST(STYLE_OBLIQUE);
     DEC_CONST(STYLE_UNDERLINE);
-    DEC_CONST(STYLE_UNDERSCORE);
     DEC_CONST(STYLE_WIDE);
 
     DEC_CONST(BBOX_EXACT);

@@ -364,15 +364,6 @@ New in Pygame 1.9.2
       calculations unless overriden specifically in the \`render()` or
       \`get_size()` calls, via the 'style' parameter.
 
-   .. attribute:: underscore
-
-      | :sl:`Gets or sets the face's underscore style`
-      | :sg:`underscore -> bool`
-
-      Gets or sets whether the text will be underscored. Unlike underline,
-      the underscore is 1 pixel thick and is positioned descender pixels
-      below the baseline. This is for compatibility with font.Font.
-
    .. attribute:: strong
 
       | :sl:`Gets or sets the face's strong style`
@@ -413,6 +404,17 @@ New in Pygame 1.9.2
       increased. For strong text both the horizontal and vertical
       dimensions are enlarged. A wide style of strength 1/12 is
       equivalent to the font.Font bold style. The default is 1/36.
+
+   .. attribute:: underline_adjustment
+
+      | :sl:`Gets or sets an adjustment factor for the underline position`
+      | :sg:`underline_adjustment -> float`
+
+      Gets or sets a factor which is multiplied with the face's underline
+      offset to adjust the underline position. Accepted values are between
+      -2.0 and 2.0 inclusive. A negative value can turn an underline into
+      a strikethrough or overline. A value of 1.0 restores the default
+      position.
 
    .. attribute:: fixed_width
 

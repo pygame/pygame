@@ -46,8 +46,7 @@
 #define FT_STYLE_STRONG     0x01
 #define FT_STYLE_OBLIQUE    0x02
 #define FT_STYLE_UNDERLINE  0x04
-#define FT_STYLE_UNDERSCORE 0x08
-#define FT_STYLE_WIDE       0x10
+#define FT_STYLE_WIDE       0x08
 #define FT_STYLE_DEFAULT    0xFF
 
 /* Bounding box modes */
@@ -89,6 +88,7 @@ typedef struct {
     FT_Int16 ptsize;
     FT_Byte style;
     double strength;
+    double underline_adjustment;
     FT_Byte vertical;
     FT_Byte antialias;
     FT_Byte kerning;

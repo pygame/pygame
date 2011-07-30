@@ -309,50 +309,28 @@ _PGFT_LoadFaceText(FreeTypeInstance *ft, PgFaceObject *faceobj,
                 min_y = -ascender;
             }
             if (max_y <= -descender) {
-                max_y = -descender + /* underscore allowance */ FX6_ONE;
+                max_y = -descender + /* baseline */ FX6_ONE;
             }
-        }
-    }
-    else if (mode->style & FT_STYLE_UNDERSCORE) {
-        if (-ftext->descender >= max_y) {
-            max_y = -ftext->descender + /* underscore allowance */ FX6_ONE;
         }
     }
 
     if (mode->style & FT_STYLE_UNDERLINE) {
         FT_Fixed scale = face->size->metrics.y_scale;
-        FT_Fixed underline_pos;
-        FT_Fixed underline_size;
+        FT_Fixed adjustment = DBL_TO_FX16(faceobj->underline_adjustment);
+        FT_Fixed pos;
+        FT_Fixed size;
+        FT_Fixed adjusted_pos;
         FT_Fixed max_y_underline;
 
-        underline_pos = -FT_MulFix(face->underline_position, scale) / 4; /*(1)*/
-        underline_size = FT_MulFix(face->underline_thickness, scale);
-        max_y_underline = underline_pos + underline_size / 2;
+        pos = -FT_MulFix(face->underline_position, scale);
+        adjusted_pos = FT_MulFix(pos, adjustment);
+        size = FT_MulFix(face->underline_thickness, scale);
+        max_y_underline = adjusted_pos + size / 2;
         if (max_y_underline > max_y) {
             max_y = max_y_underline;
         }
-        ftext->underline_pos = underline_pos;
-        ftext->underline_size = underline_size;
-
-        /*
-         * (1) HACK HACK HACK
-         *
-         * According to the FT documentation, 'underline_pos' is the offset
-         * to draw the underline in 26.6 FP, based on the text's baseline
-         * (negative values mean below the baseline).
-         *
-         * However, after scaling the underline position, the values for all
-         * fonts are WAY off (e.g. fonts with 32pt size get underline offsets
-         * of -14 pixels).
-         *
-         * Dividing the offset by 4, somehow, returns very sane results for
-         * all kind of fonts; the underline seems to fit perfectly between
-         * the baseline and bottom of the glyphs.
-         *
-         * We'll leave it like this until we can figure out what's wrong
-         * with it...
-         *
-         */
+        ftext->underline_pos = adjusted_pos;
+        ftext->underline_size = size;
     }
 
     text_width = FX6_CEIL(max_x) - FX6_FLOOR(min_x);
@@ -382,7 +360,6 @@ int _PGFT_GetMetrics(FreeTypeInstance *ft, PgFaceObject *faceobj,
 
     /* load our sized face */
     face = _PGFT_GetFaceSized(ft, faceobj, mode->pt_size);
-
     if (!face) {
         return -1;
     }
