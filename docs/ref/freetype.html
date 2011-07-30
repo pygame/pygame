@@ -276,9 +276,9 @@ module, but it can also be bundled in separate archives.</p>
 </div>
 <table border="1" class="toc docutils">
 <colgroup>
-<col width="41%" />
+<col width="39%" />
 <col width="1%" />
-<col width="59%" />
+<col width="60%" />
 </colgroup>
 <tbody valign="top">
 <tr><td><a class="toc reference external" href="freetype.html#pygame.freetype.Face.name">pygame.freetype.Face.name</a></td>
@@ -341,10 +341,6 @@ module, but it can also be bundled in separate archives.</p>
 <td>—</td>
 <td>Gets or sets the face&#8217;s underline style</td>
 </tr>
-<tr><td><a class="toc reference external" href="freetype.html#pygame.freetype.Face.underscore">pygame.freetype.Face.underscore</a></td>
-<td>—</td>
-<td>Gets or sets the face&#8217;s underscore style</td>
-</tr>
 <tr><td><a class="toc reference external" href="freetype.html#pygame.freetype.Face.strong">pygame.freetype.Face.strong</a></td>
 <td>—</td>
 <td>Gets or sets the face&#8217;s strong style</td>
@@ -360,6 +356,10 @@ module, but it can also be bundled in separate archives.</p>
 <tr><td><a class="toc reference external" href="freetype.html#pygame.freetype.Face.strength">pygame.freetype.Face.strength</a></td>
 <td>—</td>
 <td>Gets or sets the strength of the strong or wide styles</td>
+</tr>
+<tr><td><a class="toc reference external" href="freetype.html#pygame.freetype.Face.underline_adjustment">pygame.freetype.Face.underline_adjustment</a></td>
+<td>—</td>
+<td>Gets or sets an adjustment factor for the underline position</td>
 </tr>
 <tr><td><a class="toc reference external" href="freetype.html#pygame.freetype.Face.fixed_width">pygame.freetype.Face.fixed_width</a></td>
 <td>—</td>
@@ -669,18 +669,6 @@ calculations unless overriden specifically in the `render()` or
 </dd></dl>
 
 <dl class="definition attribute">
-<dt class="title" id="pygame.freetype.Face.underscore">
-<tt class="descname">underscore</tt><a class="headerlink" href="#pygame.freetype.Face.underscore" title="Permalink to this definition">¶</a></dt>
-<dd><div class="line-block">
-<div class="line"><span class="summaryline">Gets or sets the face&#8217;s underscore style</span></div>
-<div class="line"><span class="signature">underscore -&gt; bool</span></div>
-</div>
-<p>Gets or sets whether the text will be underscored. Unlike underline,
-the underscore is 1 pixel thick and is positioned descender pixels
-below the baseline. This is for compatibility with font.Font.</p>
-</dd></dl>
-
-<dl class="definition attribute">
 <dt class="title" id="pygame.freetype.Face.strong">
 <tt class="descname">strong</tt><a class="headerlink" href="#pygame.freetype.Face.strong" title="Permalink to this definition">¶</a></dt>
 <dd><div class="line-block">
@@ -731,6 +719,20 @@ size. For the wide style only the horizontal dimension is
 increased. For strong text both the horizontal and vertical
 dimensions are enlarged. A wide style of strength 1/12 is
 equivalent to the font.Font bold style. The default is 1/36.</p>
+</dd></dl>
+
+<dl class="definition attribute">
+<dt class="title" id="pygame.freetype.Face.underline_adjustment">
+<tt class="descname">underline_adjustment</tt><a class="headerlink" href="#pygame.freetype.Face.underline_adjustment" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Gets or sets an adjustment factor for the underline position</span></div>
+<div class="line"><span class="signature">underline_adjustment -&gt; float</span></div>
+</div>
+<p>Gets or sets a factor which is multiplied with the face&#8217;s underline
+offset to adjust the underline position. Accepted values are between
+-2.0 and 2.0 inclusive. A negative value can turn an underline into
+a strikethrough or overline. A value of 1.0 restores the default
+position.</p>
 </dd></dl>
 
 <dl class="definition attribute">

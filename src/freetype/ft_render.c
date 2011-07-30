@@ -35,7 +35,6 @@ _PGFT_CheckStyle(FT_UInt32 style)
         FT_STYLE_STRONG |
         FT_STYLE_OBLIQUE |
         FT_STYLE_UNDERLINE |
-        FT_STYLE_UNDERSCORE |
         FT_STYLE_WIDE;
 
     return style > max_style;
@@ -111,11 +110,6 @@ _PGFT_BuildRenderMode(FreeTypeInstance *ft,
                   "the underline style is unsupported for rotated text");
             return -1;
         }
-        if (mode->style & FT_STYLE_UNDERSCORE) {
-            PyErr_SetString(PyExc_ValueError,
-                  "the underscore style is unsupported for rotated text");
-            return -1;
-        }
         if (mode->render_flags & FT_RFLAG_PAD) {
             PyErr_SetString(PyExc_ValueError,
                   "padding is unsupported for rotated text");
@@ -127,11 +121,6 @@ _PGFT_BuildRenderMode(FreeTypeInstance *ft,
         if (mode->style & FT_STYLE_UNDERLINE) {
             PyErr_SetString(PyExc_ValueError,
                   "the underline style is unsupported for vertical text");
-            return -1;
-        }
-        if (mode->style & FT_STYLE_UNDERSCORE) {
-            PyErr_SetString(PyExc_ValueError,
-                  "the underscore style is unsupported for vertical text");
             return -1;
         }
     }
@@ -559,12 +548,5 @@ render(FreeTypeInstance *ft, FaceText *text, const FaceRenderMode *mode,
             FX6_TRUNC(FX6_CEIL(top + text->underline_pos)),
             text->width, FX6_TRUNC(FX6_CEIL(text->underline_size)),
             surface, fg_color);
-    }
-
-    if (mode->style & FT_STYLE_UNDERSCORE) {
-        surface->fill(
-            FX6_TRUNC(FX6_CEIL(left - text->offset.x)),
-            FX6_TRUNC(FX6_CEIL(top - text->descender)),
-            text->width, 1, surface, fg_color);
     }
 }
