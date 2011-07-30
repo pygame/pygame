@@ -67,7 +67,7 @@ def run():
             ptsize=148)
 
     face.render((screen, 380, 380), "...yes, this is an SDL surface", pygame.Color(0, 0, 0), None,
-            ptsize=24, style=freetype.STYLE_BOLD)
+            ptsize=24, style=freetype.STYLE_STRONG)
 
     pygame.display.flip()
 

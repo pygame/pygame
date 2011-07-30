@@ -27,9 +27,6 @@
 #include FT_BITMAP_H
 #include FT_CACHE_H
 
-#define FX6_ONE 64
-#define FX16_ONE 65536
-
 /* Multiply the face's x ppem by this factor to get the x strength
  * factor in 16.16 Fixed.
  */
@@ -104,7 +101,7 @@ _PGFT_FaceTextFree(PgFaceObject *faceobj)
 
 FaceText *
 _PGFT_LoadFaceText(FreeTypeInstance *ft, PgFaceObject *faceobj,
-                  const FaceRenderMode *render, PGFT_String *text)
+                  const FaceRenderMode *mode, PGFT_String *text)
 {
     Py_ssize_t  string_length = PGFT_String_GET_LENGTH(text);
 
@@ -127,30 +124,30 @@ _PGFT_LoadFaceText(FreeTypeInstance *ft, PgFaceObject *faceobj,
 
     FT_Vector   *next_pos;
 
-    int         vertical = render->render_flags & FT_RFLAG_VERTICAL;
+    int         vertical = mode->render_flags & FT_RFLAG_VERTICAL;
     int         use_kerning = faceobj->kerning;
-    int         pad = render->render_flags & FT_RFLAG_PAD;
+    int         pad = mode->render_flags & FT_RFLAG_PAD;
     FT_UInt     prev_glyph_index = 0;
 
     /* All these are 16.16 precision */
-    FT_Angle    rotation_angle = render->rotation_angle;
+    FT_Angle    rotation_angle = mode->rotation_angle;
 
     /* All these are 26.6 precision */
     FT_Vector   kerning;
-    FT_Pos      min_x = PGFT_MAX_6;
-    FT_Pos      max_x = PGFT_MIN_6;
-    FT_Pos      min_y = PGFT_MAX_6;
-    FT_Pos      max_y = PGFT_MIN_6;
+    FT_Pos      min_x = FX6_MAX;
+    FT_Pos      max_x = FX6_MIN;
+    FT_Pos      min_y = FX6_MAX;
+    FT_Pos      max_y = FX6_MIN;
     FT_Pos      glyph_width;
     FT_Pos      glyph_height;
     FT_Pos      text_width;
     FT_Pos      text_height;
-    FT_Pos      top = PGFT_MIN_6;
+    FT_Pos      top = FX6_MIN;
 
     FT_Error    error = 0;
 
     /* load our sized face */
-    face = _PGFT_GetFaceSized(ft, faceobj, render->pt_size);
+    face = _PGFT_GetFaceSized(ft, faceobj, mode->pt_size);
 
     if (!face) {
         PyErr_SetString(PyExc_SDLError, _PGFT_GetError(ft));
@@ -184,7 +181,7 @@ _PGFT_LoadFaceText(FreeTypeInstance *ft, PgFaceObject *faceobj,
     ftext->descender = face->size->metrics.descender;
 
     /* fill it with the glyphs */
-    fill_context(&context, ft, faceobj, render, face);
+    fill_context(&context, ft, faceobj, mode, face);
     glyph_array = ftext->glyphs;
     next_pos = ftext->posns;
 
@@ -196,7 +193,7 @@ _PGFT_LoadFaceText(FreeTypeInstance *ft, PgFaceObject *faceobj,
         /*
          * Load the corresponding glyph from the cache
          */
-        glyph = _PGFT_Cache_FindGlyph(*((FT_UInt32 *)ch), render,
+        glyph = _PGFT_Cache_FindGlyph(*((FT_UInt32 *)ch), mode,
                                      &ftext->glyph_cache, &context);
 
         if (!glyph) {
@@ -222,8 +219,8 @@ _PGFT_LoadFaceText(FreeTypeInstance *ft, PgFaceObject *faceobj,
             if (rotation_angle != 0) {
                 FT_Vector_Rotate(&kerning, rotation_angle);
             }
-            pen.x += PGFT_ROUND(kerning.x);
-            pen.y += PGFT_ROUND(kerning.y);
+            pen.x += FX6_ROUND(kerning.x);
+            pen.y += FX6_ROUND(kerning.y);
             if (FT_Vector_Length(&pen2) > FT_Vector_Length(&pen)) {
                 pen.x = pen2.x;
                 pen.y = pen2.y;
@@ -316,13 +313,13 @@ _PGFT_LoadFaceText(FreeTypeInstance *ft, PgFaceObject *faceobj,
             }
         }
     }
-    else if (render->style & FT_STYLE_UNDERSCORE) {
+    else if (mode->style & FT_STYLE_UNDERSCORE) {
         if (-ftext->descender >= max_y) {
             max_y = -ftext->descender + /* underscore allowance */ FX6_ONE;
         }
     }
 
-    if (render->style & FT_STYLE_UNDERLINE) {
+    if (mode->style & FT_STYLE_UNDERLINE) {
         FT_Fixed scale = face->size->metrics.y_scale;
         FT_Fixed underline_pos;
         FT_Fixed underline_size;
@@ -358,22 +355,22 @@ _PGFT_LoadFaceText(FreeTypeInstance *ft, PgFaceObject *faceobj,
          */
     }
 
-    text_width = PGFT_CEIL(max_x) - PGFT_FLOOR(min_x);
-    ftext->width = PGFT_TRUNC(text_width);
+    text_width = FX6_CEIL(max_x) - FX6_FLOOR(min_x);
+    ftext->width = FX6_TRUNC(text_width);
     ftext->offset.x = -min_x;
     ftext->advance.x = pen.x;
-    ftext->left = PGFT_TRUNC(PGFT_FLOOR(min_x));
-    text_height = PGFT_CEIL(max_y) - PGFT_FLOOR(min_y);
-    ftext->height = PGFT_TRUNC(text_height);
+    ftext->left = FX6_TRUNC(FX6_FLOOR(min_x));
+    text_height = FX6_CEIL(max_y) - FX6_FLOOR(min_y);
+    ftext->height = FX6_TRUNC(text_height);
     ftext->offset.y = -min_y;
     ftext->advance.y = pen.y;
-    ftext->top = PGFT_TRUNC(PGFT_CEIL(top));
+    ftext->top = FX6_TRUNC(FX6_CEIL(top));
 
     return ftext;
 }
 
 int _PGFT_GetMetrics(FreeTypeInstance *ft, PgFaceObject *faceobj,
-                    PGFT_char character, const FaceRenderMode *render,
+                    PGFT_char character, const FaceRenderMode *mode,
                     FT_UInt *gindex, long *minx, long *maxx,
                     long *miny, long *maxy,
                     double *advance_x, double *advance_y)
@@ -384,7 +381,7 @@ int _PGFT_GetMetrics(FreeTypeInstance *ft, PgFaceObject *faceobj,
     FT_Face     face;
 
     /* load our sized face */
-    face = _PGFT_GetFaceSized(ft, faceobj, render->pt_size);
+    face = _PGFT_GetFaceSized(ft, faceobj, mode->pt_size);
 
     if (!face) {
         return -1;
@@ -393,8 +390,8 @@ int _PGFT_GetMetrics(FreeTypeInstance *ft, PgFaceObject *faceobj,
     /* cleanup the cache */
     _PGFT_Cache_Cleanup(&ftext->glyph_cache);
 
-    fill_context(&context, ft, faceobj, render, face);
-    glyph = _PGFT_Cache_FindGlyph(character, render,
+    fill_context(&context, ft, faceobj, mode, face);
+    glyph = _PGFT_Cache_FindGlyph(character, mode,
                                  &PGFT_INTERNALS(faceobj)->active_text.glyph_cache,
                                  &context);
 
@@ -415,7 +412,7 @@ int _PGFT_GetMetrics(FreeTypeInstance *ft, PgFaceObject *faceobj,
 
 int
 _PGFT_GetSurfaceSize(FreeTypeInstance *ft, PgFaceObject *faceobj,
-        const FaceRenderMode *render, FaceText *text,
+        const FaceRenderMode *mode, FaceText *text,
         int *width, int *height)
 {
     *width = text->width;
@@ -433,29 +430,29 @@ _PGFT_GetTopLeft(FaceText *text, int *top, int *left)
 
 int
 _PGFT_GetTextRect(FreeTypeInstance *ft, PgFaceObject *faceobj,
-    const FaceRenderMode *render, PGFT_String *text, SDL_Rect *r)
+    const FaceRenderMode *mode, PGFT_String *text, SDL_Rect *r)
 {
     FaceText *face_text;
 
-    face_text = _PGFT_LoadFaceText(ft, faceobj, render, text);
+    face_text = _PGFT_LoadFaceText(ft, faceobj, mode, text);
 
     if (!face_text)
         return -1;
 
-    r->x = -(Sint16)PGFT_TRUNC(PGFT_FLOOR(face_text->offset.x));
-    r->y = (Sint16)PGFT_TRUNC(PGFT_CEIL(face_text->offset.y));
+    r->x = -(Sint16)FX6_TRUNC(FX6_FLOOR(face_text->offset.x));
+    r->y = (Sint16)FX6_TRUNC(FX6_CEIL(face_text->offset.y));
     r->w = (Uint16)face_text->width;
     r->h = (Uint16)face_text->height;
     return 0;
 }
 
 int
-_PGFT_LoadGlyph(FaceGlyph *glyph, PGFT_char character, const FaceRenderMode *render,
-               void *internal)
+_PGFT_LoadGlyph(FaceGlyph *glyph, PGFT_char character,
+                const FaceRenderMode *mode, void *internal)
 {
     static FT_Vector delta = {0, 0};
 
-    FT_Render_Mode rmode = (render->render_flags & FT_RFLAG_ANTIALIAS ?
+    FT_Render_Mode rmode = (mode->render_flags & FT_RFLAG_ANTIALIAS ?
                             FT_RENDER_MODE_NORMAL : FT_RENDER_MODE_MONO);
     FT_Vector strong_delta = {0, 0};
     FT_Glyph image = 0;
@@ -466,7 +463,7 @@ _PGFT_LoadGlyph(FaceGlyph *glyph, PGFT_char character, const FaceRenderMode *ren
     FT_UInt32 load_flags;
     FT_UInt gindex;
 
-    FT_Fixed rotation_angle = render->rotation_angle;
+    FT_Fixed rotation_angle = mode->rotation_angle;
     /* FT_Matrix transform; */
     FT_Vector h_bearing_rotated;
     FT_Vector v_bearing_rotated;
@@ -486,7 +483,7 @@ _PGFT_LoadGlyph(FaceGlyph *glyph, PGFT_char character, const FaceRenderMode *ren
     /*
      * Get loading information
      */
-    load_flags = get_load_flags(render);
+    load_flags = get_load_flags(mode);
 
     /*
      * Load the glyph into the glyph slot
@@ -498,19 +495,21 @@ _PGFT_LoadGlyph(FaceGlyph *glyph, PGFT_char character, const FaceRenderMode *ren
     /*
      * Perform any outline transformations
      */
-    if (render->style & FT_STYLE_STRONG) {
+    if (mode->style & FT_STYLE_STRONG) {
         FT_UShort x_ppem = context->face->size->metrics.x_ppem;
         FT_Fixed bold_str;
         FT_BBox before;
         FT_BBox after;
 
-        bold_str = PGFT_CEIL16_TO_6(FX16_BOLD_FACTOR * x_ppem);
+        bold_str = FX16_CEIL_TO_FX6(mode->strength * x_ppem);
         FT_Outline_Get_CBox(&((FT_OutlineGlyph)image)->outline, &before);
         if (FT_Outline_Embolden(&((FT_OutlineGlyph)image)->outline, bold_str))
             goto cleanup;
         FT_Outline_Get_CBox(&((FT_OutlineGlyph)image)->outline, &after);
-        strong_delta.x += (after.xMax - after.xMin) - (before.xMax - before.xMin);
-        strong_delta.y += (after.yMax - after.yMin) - (before.yMax - before.yMin);
+        strong_delta.x += ((after.xMax - after.xMin) -
+                           (before.xMax - before.xMin));
+        strong_delta.y += ((after.yMax - after.yMin) -
+                           (before.yMax - before.yMin));
     }
 
     if (context->do_transform) {
@@ -527,13 +526,13 @@ _PGFT_LoadGlyph(FaceGlyph *glyph, PGFT_char character, const FaceRenderMode *ren
         goto cleanup;
     }
 
-    if (render->style & FT_STYLE_WIDE) {
+    if (mode->style & FT_STYLE_WIDE) {
         FT_Bitmap *bitmap = &((FT_BitmapGlyph)image)->bitmap;
         int w = bitmap->width;
         FT_UShort x_ppem = context->face->size->metrics.x_ppem;
         FT_Pos x_strength;
 
-        x_strength = PGFT_CEIL16_TO_6(x_ppem * FX16_WIDE_FACTOR);
+        x_strength = FX16_CEIL_TO_FX6(mode->strength * x_ppem);
 
         /* FT_Bitmap_Embolden returns an error for a zero width bitmap */
         if (w > 0) {
@@ -542,7 +541,7 @@ _PGFT_LoadGlyph(FaceGlyph *glyph, PGFT_char character, const FaceRenderMode *ren
             if (error) {
                 goto cleanup;
             }
-            strong_delta.x += PGFT_INT_TO_6(bitmap->width - w);
+            strong_delta.x += INT_TO_FX6(bitmap->width - w);
         }
         else {
             strong_delta.x += x_strength;
@@ -557,17 +556,17 @@ _PGFT_LoadGlyph(FaceGlyph *glyph, PGFT_char character, const FaceRenderMode *ren
     v_advance_rotated.x = 0;
     v_advance_rotated.y = ft_metrics->vertAdvance + strong_delta.y;
     if (rotation_angle != 0) {
-        FT_Angle counter_rotation = PGFT_INT_TO_6(360) - rotation_angle;
+        FT_Angle counter_rotation = INT_TO_FX6(360) - rotation_angle;
 
         FT_Vector_Rotate(&h_advance_rotated, rotation_angle);
         FT_Vector_Rotate(&v_advance_rotated, counter_rotation);
     }
 
     glyph->image = (FT_BitmapGlyph)image;
-    glyph->width = PGFT_INT_TO_6(glyph->image->bitmap.width);
-    glyph->height = PGFT_INT_TO_6(glyph->image->bitmap.rows);
-    h_bearing_rotated.x = PGFT_INT_TO_6(glyph->image->left);
-    h_bearing_rotated.y = PGFT_INT_TO_6(glyph->image->top);
+    glyph->width = INT_TO_FX6(glyph->image->bitmap.width);
+    glyph->height = INT_TO_FX6(glyph->image->bitmap.rows);
+    h_bearing_rotated.x = INT_TO_FX6(glyph->image->left);
+    h_bearing_rotated.y = INT_TO_FX6(glyph->image->top);
     fill_metrics(&glyph->h_metrics,
                  ft_metrics->horiBearingX,
                  ft_metrics->horiBearingY,
@@ -613,7 +612,7 @@ static void
 fill_context(TextContext *context,
              const FreeTypeInstance *ft,
              const PgFaceObject *faceobj,
-             const FaceRenderMode *render,
+             const FaceRenderMode *mode,
              const FT_Face face)
 {
     context->lib = ft->library;
@@ -622,7 +621,7 @@ fill_context(TextContext *context,
     context->charmap = ft->cache_charmap;
     context->do_transform = 0;
 
-    if (render->style & FT_STYLE_OBLIQUE) {
+    if (mode->style & FT_STYLE_OBLIQUE) {
         context->transform = slant_matrix;
         context->do_transform = 1;
     }
@@ -630,16 +629,16 @@ fill_context(TextContext *context,
         context->transform = unit_matrix;
     }
 
-    if (render->render_flags & FT_RFLAG_TRANSFORM) {
-        FT_Matrix_Multiply(&render->transform, &context->transform);
+    if (mode->render_flags & FT_RFLAG_TRANSFORM) {
+        FT_Matrix_Multiply(&mode->transform, &context->transform);
         context->do_transform = 1;
     }
 
-    if (render->rotation_angle != 0) {
+    if (mode->rotation_angle != 0) {
         FT_Vector unit;
         FT_Matrix rotate;
 
-        FT_Vector_Unit(&unit, render->rotation_angle);
+        FT_Vector_Unit(&unit, mode->rotation_angle);
         rotate.xx = unit.x;  /*  cos(angle) */
         rotate.xy = -unit.y; /* -sin(angle) */
         rotate.yx = unit.y;  /*  sin(angle) */
@@ -664,17 +663,17 @@ fill_metrics(FaceMetrics *metrics,
 }
 
 static FT_UInt32
-get_load_flags(const FaceRenderMode *render)
+get_load_flags(const FaceRenderMode *mode)
 {
     FT_UInt32 load_flags = FT_LOAD_DEFAULT;
 
     load_flags |= FT_LOAD_IGNORE_GLOBAL_ADVANCE_WIDTH;
 
-    if (render->render_flags & FT_RFLAG_AUTOHINT) {
+    if (mode->render_flags & FT_RFLAG_AUTOHINT) {
         load_flags |= FT_LOAD_FORCE_AUTOHINT;
     }
 
-    if (render->render_flags & FT_RFLAG_HINTED) {
+    if (mode->render_flags & FT_RFLAG_HINTED) {
         load_flags |= FT_LOAD_TARGET_NORMAL;
     }
     else {
