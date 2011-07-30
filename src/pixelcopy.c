@@ -158,13 +158,13 @@ _copy_mapped(PyArrayInterface *inter, SDL_Surface *surf)
     char *dst = (char *)inter->data;
     int w = surf->w;
     int h = surf->h;
-    unsigned dx_src = surf->format->BytesPerPixel;
-    unsigned dy_src = surf->pitch;
-    unsigned dz_src = 1;
-    unsigned dx_dst = inter->strides[0];
-    unsigned dy_dst = inter->strides[1];
-    int dz_dst = 1;
-    int x, y, z;
+    Py_intptr_t dx_src = surf->format->BytesPerPixel;
+    Py_intptr_t dy_src = surf->pitch;
+    Py_intptr_t dz_src = 1;
+    Py_intptr_t dx_dst = inter->strides[0];
+    Py_intptr_t dy_dst = inter->strides[1];
+    Py_intptr_t dz_dst = 1;
+    Py_intptr_t x, y, z;
 
     if (inter->shape[0] != w || inter->shape[1] != h) {
         PyErr_Format(PyExc_ValueError,
@@ -220,13 +220,13 @@ _copy_colorplane(PyArrayInterface *inter,
     char *dst = (char *)inter->data;
     int w = surf->w;
     int h = surf->h;
-    unsigned dx_src = surf->format->BytesPerPixel;
-    unsigned dy_src = surf->pitch;
-    unsigned dx_dst = inter->strides[0];
-    unsigned dy_dst = inter->strides[1];
-    int dz_dst = 1;
-    unsigned dz_pix;
-    int x, y, z;
+    Py_intptr_t dx_src = surf->format->BytesPerPixel;
+    Py_intptr_t dy_src = surf->pitch;
+    Py_intptr_t dx_dst = inter->strides[0];
+    Py_intptr_t dy_dst = inter->strides[1];
+    Py_intptr_t dz_dst = 1;
+    Py_intptr_t dz_pix;
+    Py_intptr_t x, y, z;
     Uint8 r, g, b, a;
     Uint8 *element;
     _pc_pixel_t pixel = { 0 };
@@ -332,14 +332,14 @@ _copy_unmapped(PyArrayInterface *inter, SDL_Surface *surf)
     char *dst = (char *)inter->data;
     int w = surf->w;
     int h = surf->h;
-    unsigned dx_src = surf->format->BytesPerPixel;
-    unsigned dy_src = surf->pitch;
-    unsigned dx_dst = inter->strides[0];
-    unsigned dy_dst = inter->strides[1];
-    unsigned dp_dst = inter->strides[2];
-    int dz_dst = 1;
-    unsigned dz_pix;
-    int x, y, z;
+    Py_intptr_t dx_src = surf->format->BytesPerPixel;
+    Py_intptr_t dy_src = surf->pitch;
+    Py_intptr_t dx_dst = inter->strides[0];
+    Py_intptr_t dy_dst = inter->strides[1];
+    Py_intptr_t dp_dst = inter->strides[2];
+    Py_intptr_t dz_dst = 1;
+    Py_intptr_t dz_pix;
+    Py_intptr_t x, y, z;
     _pc_pixel_t pixel = { 0 };
     Uint8 r, g, b;
 

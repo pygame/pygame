@@ -2186,10 +2186,10 @@ surf_get_view(PyObject *self, PyObject *args, PyObject *kwds)
     inter->descr = 0;
     shape = inter->shape;
     strides = inter->strides;
-    shape[0] = surface->w;
-    shape[1] = surface->h;
-    strides[0] = pixelsize;
-    strides[1] = surface->pitch;
+    shape[0] = (Py_intptr_t)surface->w;
+    shape[1] = (Py_intptr_t)surface->h;
+    strides[0] = (Py_intptr_t)pixelsize;
+    strides[1] = (Py_intptr_t)surface->pitch;
     switch (view_kind) {
 
     case VIEWKIND_2D:

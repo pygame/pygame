@@ -12,8 +12,8 @@ if sys.version_info >= (3,):
 class PyArrayInterface(Structure):
     _fields_ = [('two', c_int), ('nd', c_int), ('typekind', c_char),
                 ('itemsize', c_int), ('flags', c_int),
-                ('shape', POINTER(c_int)),
-                ('strides', POINTER(c_int)),
+                ('shape', POINTER(c_ssize_t)),
+                ('strides', POINTER(c_ssize_t)),
                 ('data', c_void_p), ('descr', py_object)]
 
 PAI_Ptr = POINTER(PyArrayInterface)

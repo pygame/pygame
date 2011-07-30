@@ -404,9 +404,9 @@ static PyObject *
 _pxarray_get_shape(PyPixelArray *self, void *closure)
 {
     if (self->dim1) {
-        return Py_BuildValue("(ll)", (long)self->dim0, (long)self->dim1);
+        return Py_BuildValue("(nn)", self->dim0, self->dim1);
     }
-    return Py_BuildValue("(l)", (long)self->dim0);
+    return Py_BuildValue("(n)", self->dim0);
 }
 
 /**
@@ -416,9 +416,9 @@ static PyObject *
 _pxarray_get_strides(PyPixelArray *self, void *closure)
 {
     if (self->dim1) {
-        return Py_BuildValue("(ll)", (long)self->stride0, (long)self->stride1);
+        return Py_BuildValue("(nn)", self->stride0, self->stride1);
     }
-    return Py_BuildValue("(l)", (long)self->stride0);
+    return Py_BuildValue("(n)", self->stride0);
 }
 
 /**
@@ -1589,8 +1589,8 @@ _pxarray_ass_subscript(PyPixelArray *array, PyObject* op, PyObject* value)
     /* TODO: by time we can make this faster by avoiding the creation of
      * temporary subarrays.
      */
-    Uint32 dim0 = array->dim0;
-    Uint32 dim1 = array->dim1;
+    Py_ssize_t dim0 = array->dim0;
+    Py_ssize_t dim1 = array->dim1;
     
     /* Note: order matters here.
      * First check array[x,y], then array[x:y:z], then array[x]
