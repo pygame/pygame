@@ -38,18 +38,18 @@ typedef union cachenodekey_ {
 } CacheNodeKey;
 
 typedef struct cachenode_ {
-    FontGlyph glyph;
+    FaceGlyph glyph;
     struct cachenode_ *next;
     CacheNodeKey key;
     FT_UInt32 hash;
-} FontCacheNode;
+} CacheNode;
 
 static FT_UInt32 get_hash(const CacheNodeKey *);
-static FontCacheNode *allocate_node(FontCache *,
-                                    const FontRenderMode *,
+static CacheNode *allocate_node(FaceCache *,
+                                    const FaceRenderMode *,
                                     FT_UInt, void *);
-static void free_node(FontCache *, FontCacheNode *);
-static void set_node_key(CacheNodeKey *, PGFT_char, const FontRenderMode *);
+static void free_node(FaceCache *, CacheNode *);
+static void set_node_key(CacheNodeKey *, PGFT_char, const FaceRenderMode *);
 static int equal_node_keys(const CacheNodeKey *, const CacheNodeKey *);
 
 const int render_flags_mask = (FT_RFLAG_ANTIALIAS |
@@ -57,7 +57,7 @@ const int render_flags_mask = (FT_RFLAG_ANTIALIAS |
                                FT_RFLAG_AUTOHINT);
 
 static void
-set_node_key(CacheNodeKey *key, PGFT_char ch, const FontRenderMode *render)
+set_node_key(CacheNodeKey *key, PGFT_char ch, const FaceRenderMode *render)
 {
     const FT_UInt16 style_mask = ~(FT_STYLE_UNDERLINE);
     const FT_UInt16 rflag_mask = ~(FT_RFLAG_VERTICAL | FT_RFLAG_KERNING);
@@ -152,7 +152,7 @@ get_hash(const CacheNodeKey *key)
 }
 
 int
-_PGFT_Cache_Init(FreeTypeInstance *ft, FontCache *cache)
+_PGFT_Cache_Init(FreeTypeInstance *ft, FaceCache *cache)
 {
     int cache_size = MAX(ft->cache_size - 1, PGFT_MIN_CACHE_SIZE - 1);
     int i;
@@ -168,7 +168,7 @@ _PGFT_Cache_Init(FreeTypeInstance *ft, FontCache *cache)
 
     cache_size = cache_size + 1;
 
-    cache->nodes = _PGFT_malloc((size_t)cache_size * sizeof(FontGlyph *));
+    cache->nodes = _PGFT_malloc((size_t)cache_size * sizeof(FaceGlyph *));
     if (!cache->nodes)
         return -1;
     for (i=0; i < cache_size; ++i)
@@ -194,10 +194,10 @@ _PGFT_Cache_Init(FreeTypeInstance *ft, FontCache *cache)
 }
 
 void
-_PGFT_Cache_Destroy(FontCache *cache)
+_PGFT_Cache_Destroy(FaceCache *cache)
 {
     FT_UInt i;
-    FontCacheNode *node, *next;
+    CacheNode *node, *next;
 
     if (!cache) {
         return;
@@ -225,10 +225,10 @@ _PGFT_Cache_Destroy(FontCache *cache)
 }
 
 void
-_PGFT_Cache_Cleanup(FontCache *cache)
+_PGFT_Cache_Cleanup(FaceCache *cache)
 {
     const FT_Byte MAX_BUCKET_DEPTH = 2;
-    FontCacheNode *node, *prev;
+    CacheNode *node, *prev;
     FT_UInt32 i;
 
     for (i = 0; i <= cache->size_mask; ++i) {
@@ -254,12 +254,12 @@ _PGFT_Cache_Cleanup(FontCache *cache)
     }
 }
 
-FontGlyph *
-_PGFT_Cache_FindGlyph(PGFT_char character, const FontRenderMode *render,
-                     FontCache *cache, void *internal)
+FaceGlyph *
+_PGFT_Cache_FindGlyph(PGFT_char character, const FaceRenderMode *render,
+                     FaceCache *cache, void *internal)
 {
-    FontCacheNode **nodes = cache->nodes;
-    FontCacheNode *node, *prev;
+    CacheNode **nodes = cache->nodes;
+    CacheNode *node, *prev;
     CacheNodeKey key;
 
     FT_UInt32 hash;
@@ -304,7 +304,7 @@ _PGFT_Cache_FindGlyph(PGFT_char character, const FontRenderMode *render,
 }
 
 static void
-free_node(FontCache *cache, FontCacheNode *node)
+free_node(FaceCache *cache, CacheNode *node)
 {
     if (!node) {
         return;
@@ -320,17 +320,17 @@ free_node(FontCache *cache, FontCacheNode *node)
     _PGFT_free(node);
 }
 
-static FontCacheNode *
-allocate_node(FontCache *cache, const FontRenderMode *render,
+static CacheNode *
+allocate_node(FaceCache *cache, const FaceRenderMode *render,
               PGFT_char character, void *internal)
 {
-    FontCacheNode *node = _PGFT_malloc(sizeof(FontCacheNode));
+    CacheNode *node = _PGFT_malloc(sizeof(CacheNode));
     FT_UInt32 bucket;
 
     if (!node) {
         return 0;
     }
-    memset(node, 0, sizeof(FontCacheNode));
+    memset(node, 0, sizeof(CacheNode));
 
     if (_PGFT_LoadGlyph(&node->glyph, character, render, internal)) {
         goto cleanup;

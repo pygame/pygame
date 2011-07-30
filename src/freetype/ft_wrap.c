@@ -25,8 +25,8 @@
 
 static unsigned long RWops_read(FT_Stream, unsigned long,
                                 unsigned char *, unsigned long);
-static int init(FreeTypeInstance *, PyFreeTypeFont *);
-static void quit(PyFreeTypeFont *);
+static int init(FreeTypeInstance *, PgFaceObject *);
+static void quit(PgFaceObject *);
 
 
 /*********************************************************
@@ -84,9 +84,9 @@ _PGFT_GetError(FreeTypeInstance *ft)
  *
  *********************************************************/
 int
-_PGFT_Face_IsFixedWidth(FreeTypeInstance *ft, PyFreeTypeFont *font)
+_PGFT_Face_IsFixedWidth(FreeTypeInstance *ft, PgFaceObject *faceobj)
 {
-    FT_Face face = _PGFT_GetFace(ft, font);
+    FT_Face face = _PGFT_GetFace(ft, faceobj);
 
     if (!face) {
         RAISE(PyExc_RuntimeError, _PGFT_GetError(ft));
@@ -96,10 +96,10 @@ _PGFT_Face_IsFixedWidth(FreeTypeInstance *ft, PyFreeTypeFont *font)
 }
 
 const char *
-_PGFT_Face_GetName(FreeTypeInstance *ft, PyFreeTypeFont *font)
+_PGFT_Face_GetName(FreeTypeInstance *ft, PgFaceObject *faceobj)
 {
     FT_Face face;
-    face = _PGFT_GetFace(ft, font);
+    face = _PGFT_GetFace(ft, faceobj);
 
     if (!face) {
         RAISE(PyExc_RuntimeError, _PGFT_GetError(ft));
@@ -112,9 +112,9 @@ _PGFT_Face_GetName(FreeTypeInstance *ft, PyFreeTypeFont *font)
  * It is up to the caller to check PyErr_Occurred for a 0 return value.
  */
 long
-_PGFT_Face_GetHeight(FreeTypeInstance *ft, PyFreeTypeFont *font)
+_PGFT_Face_GetHeight(FreeTypeInstance *ft, PgFaceObject *faceobj)
 {
-    FT_Face face = _PGFT_GetFace(ft, font);
+    FT_Face face = _PGFT_GetFace(ft, faceobj);
 
     if (!face) {
         RAISE(PyExc_RuntimeError, _PGFT_GetError(ft));
@@ -124,10 +124,10 @@ _PGFT_Face_GetHeight(FreeTypeInstance *ft, PyFreeTypeFont *font)
 }
 
 long
-_PGFT_Face_GetHeightSized(FreeTypeInstance *ft, PyFreeTypeFont *font,
+_PGFT_Face_GetHeightSized(FreeTypeInstance *ft, PgFaceObject *faceobj,
 			 FT_UInt16 ptsize)
 {
-    FT_Face face = _PGFT_GetFaceSized(ft, font, ptsize);
+    FT_Face face = _PGFT_GetFaceSized(ft, faceobj, ptsize);
 
     if (!face) {
         RAISE(PyExc_RuntimeError, _PGFT_GetError(ft));
@@ -137,9 +137,9 @@ _PGFT_Face_GetHeightSized(FreeTypeInstance *ft, PyFreeTypeFont *font,
 }
 
 long
-_PGFT_Face_GetAscender(FreeTypeInstance *ft, PyFreeTypeFont *font)
+_PGFT_Face_GetAscender(FreeTypeInstance *ft, PgFaceObject *faceobj)
 {
-    FT_Face face = _PGFT_GetFace(ft, font);
+    FT_Face face = _PGFT_GetFace(ft, faceobj);
 
     if (!face) {
         RAISE(PyExc_RuntimeError, _PGFT_GetError(ft));
@@ -149,10 +149,10 @@ _PGFT_Face_GetAscender(FreeTypeInstance *ft, PyFreeTypeFont *font)
 }
 
 long
-_PGFT_Face_GetAscenderSized(FreeTypeInstance *ft, PyFreeTypeFont *font,
+_PGFT_Face_GetAscenderSized(FreeTypeInstance *ft, PgFaceObject *faceobj,
 			   FT_UInt16 ptsize)
 {
-    FT_Face face = _PGFT_GetFaceSized(ft, font, ptsize);
+    FT_Face face = _PGFT_GetFaceSized(ft, faceobj, ptsize);
 
     if (!face) {
         RAISE(PyExc_RuntimeError, _PGFT_GetError(ft));
@@ -162,9 +162,9 @@ _PGFT_Face_GetAscenderSized(FreeTypeInstance *ft, PyFreeTypeFont *font,
 }
 
 long
-_PGFT_Face_GetDescender(FreeTypeInstance *ft, PyFreeTypeFont *font)
+_PGFT_Face_GetDescender(FreeTypeInstance *ft, PgFaceObject *faceobj)
 {
-    FT_Face face = _PGFT_GetFace(ft, font);
+    FT_Face face = _PGFT_GetFace(ft, faceobj);
 
     if (!face) {
         RAISE(PyExc_RuntimeError, _PGFT_GetError(ft));
@@ -174,10 +174,10 @@ _PGFT_Face_GetDescender(FreeTypeInstance *ft, PyFreeTypeFont *font)
 }
 
 long
-_PGFT_Face_GetDescenderSized(FreeTypeInstance *ft, PyFreeTypeFont *font,
+_PGFT_Face_GetDescenderSized(FreeTypeInstance *ft, PgFaceObject *faceobj,
 			    FT_UInt16 ptsize)
 {
-    FT_Face face = _PGFT_GetFaceSized(ft, font, ptsize);
+    FT_Face face = _PGFT_GetFaceSized(ft, faceobj, ptsize);
 
     if (!face) {
         RAISE(PyExc_RuntimeError, _PGFT_GetError(ft));
@@ -187,13 +187,13 @@ _PGFT_Face_GetDescenderSized(FreeTypeInstance *ft, PyFreeTypeFont *font,
 }
 
 long
-_PGFT_Face_GetGlyphHeightSized(FreeTypeInstance *ft, PyFreeTypeFont *font,
+_PGFT_Face_GetGlyphHeightSized(FreeTypeInstance *ft, PgFaceObject *faceobj,
 			      FT_UInt16 ptsize)
 {
     /*
      * Based on the SDL_ttf height calculation.
      */
-    FT_Face face = _PGFT_GetFaceSized(ft, font, ptsize);
+    FT_Face face = _PGFT_GetFaceSized(ft, faceobj, ptsize);
     FT_Size_Metrics *metrics;
 
     if (!face) {
@@ -214,14 +214,14 @@ _PGFT_Face_GetGlyphHeightSized(FreeTypeInstance *ft, PyFreeTypeFont *font,
  *********************************************************/
 FT_Face
 _PGFT_GetFaceSized(FreeTypeInstance *ft,
-    PyFreeTypeFont *font,
+    PgFaceObject *faceobj,
     int face_size)
 {
     FT_Error error;
     FTC_ScalerRec scale;
     FT_Size _fts;
 
-    _PGFT_BuildScaler(font, &scale, face_size);
+    _PGFT_BuildScaler(faceobj, &scale, face_size);
 
     error = FTC_Manager_LookupSize(ft->cache_manager,
         &scale, &_fts);
@@ -236,13 +236,13 @@ _PGFT_GetFaceSized(FreeTypeInstance *ft,
 
 FT_Face
 _PGFT_GetFace(FreeTypeInstance *ft,
-    PyFreeTypeFont *font)
+    PgFaceObject *faceobj)
 {
     FT_Error error;
     FT_Face face;
 
     error = FTC_Manager_LookupFace(ft->cache_manager,
-        (FTC_FaceID)(&font->id),
+        (FTC_FaceID)(&faceobj->id),
         &face);
 
     if (error) {
@@ -262,12 +262,12 @@ _PGFT_GetFace(FreeTypeInstance *ft,
  *
  *********************************************************/
 void
-_PGFT_BuildScaler(PyFreeTypeFont *font, FTC_Scaler scale, int size)
+_PGFT_BuildScaler(PgFaceObject *faceobj, FTC_Scaler scale, int size)
 {
-    scale->face_id = (FTC_FaceID)(&font->id);
+    scale->face_id = (FTC_FaceID)(&faceobj->id);
     scale->width = scale->height = (FT_UInt32)(size * 64);
     scale->pixel = 0;
-    scale->x_res = scale->y_res = font->resolution;
+    scale->x_res = scale->y_res = faceobj->resolution;
 }
 
 
@@ -285,12 +285,10 @@ _PGFT_BuildScaler(PyFreeTypeFont *font, FTC_Scaler scale, int size)
  *
  *********************************************************/
 static FT_Error
-_PGFT_face_request(FTC_FaceID face_id,
-    FT_Library library,
-    FT_Pointer request_data,
-    FT_Face *aface)
+_PGFT_face_request(FTC_FaceID face_id, FT_Library library,
+                   FT_Pointer request_data, FT_Face *aface)
 {
-    FontId *id = (FontId *)face_id;
+    PgFaceId *id = (PgFaceId *)face_id;
     FT_Error error;
 
     Py_BEGIN_ALLOW_THREADS;
@@ -302,25 +300,25 @@ _PGFT_face_request(FTC_FaceID face_id,
 
 
 
-static int init(FreeTypeInstance *ft, PyFreeTypeFont *font)
+static int init(FreeTypeInstance *ft, PgFaceObject *faceobj)
 {
-    font->_internals = 0;
+    faceobj->_internals = 0;
 
-    if (!_PGFT_GetFace(ft, font)) {
+    if (!_PGFT_GetFace(ft, faceobj)) {
         RAISE(PyExc_IOError, _PGFT_GetError(ft));
         return -1;
     }
 
-    font->_internals = _PGFT_malloc(sizeof(FontInternals));
-    if (!font->_internals) {
+    faceobj->_internals = _PGFT_malloc(sizeof(FaceInternals));
+    if (!faceobj->_internals) {
         PyErr_NoMemory();
         return -1;
     }
-    memset(font->_internals, 0x0, sizeof(FontInternals));
+    memset(faceobj->_internals, 0x0, sizeof(FaceInternals));
 
-    if (_PGFT_FontTextInit(ft, font)) {
-        _PGFT_free(font->_internals);
-        font->_internals = 0;
+    if (_PGFT_FaceTextInit(ft, faceobj)) {
+        _PGFT_free(faceobj->_internals);
+        faceobj->_internals = 0;
         return -1;
     }
 
@@ -328,18 +326,18 @@ static int init(FreeTypeInstance *ft, PyFreeTypeFont *font)
 }
 
 static void
-quit(PyFreeTypeFont *font)
+quit(PgFaceObject *faceobj)
 {
-    if (font->_internals) {
-        _PGFT_FontTextFree(font);
-        _PGFT_free(font->_internals);
-        font->_internals = 0;
+    if (faceobj->_internals) {
+        _PGFT_FaceTextFree(faceobj);
+        _PGFT_free(faceobj->_internals);
+        faceobj->_internals = 0;
     }
 }
 
 int
 _PGFT_TryLoadFont_Filename(FreeTypeInstance *ft,
-    PyFreeTypeFont *font,
+    PgFaceObject *faceobj,
     const char *filename,
     int face_index)
 {
@@ -356,11 +354,11 @@ _PGFT_TryLoadFont_Filename(FreeTypeInstance *ft,
     strcpy(filename_alloc, filename);
     filename_alloc[file_len] = 0;
 
-    font->id.face_index = face_index;
-    font->id.open_args.flags = FT_OPEN_PATHNAME;
-    font->id.open_args.pathname = filename_alloc;
+    faceobj->id.face_index = face_index;
+    faceobj->id.open_args.flags = FT_OPEN_PATHNAME;
+    faceobj->id.open_args.pathname = filename_alloc;
 
-    return init(ft, font);
+    return init(ft, faceobj);
 }
 
 #ifdef HAVE_PYGAME_SDL_RWOPS
@@ -381,7 +379,7 @@ RWops_read(FT_Stream stream, unsigned long offset,
 
 int
 _PGFT_TryLoadFont_RWops(FreeTypeInstance *ft,
-        PyFreeTypeFont *font, SDL_RWops *src, int face_index)
+        PgFaceObject *faceobj, SDL_RWops *src, int face_index)
 {
     FT_Stream stream;
     int position;
@@ -405,33 +403,33 @@ _PGFT_TryLoadFont_RWops(FreeTypeInstance *ft,
     stream->size = (unsigned long)(SDL_RWtell(src) - position);
     SDL_RWseek(src, position, SEEK_SET);
 
-    font->id.face_index = face_index;
-    font->id.open_args.flags = FT_OPEN_STREAM;
-    font->id.open_args.stream = stream;
+    faceobj->id.face_index = face_index;
+    faceobj->id.open_args.flags = FT_OPEN_STREAM;
+    faceobj->id.open_args.stream = stream;
 
-    return init(ft, font);
+    return init(ft, faceobj);
 }
 #endif
 
 void
-_PGFT_UnloadFont(FreeTypeInstance *ft, PyFreeTypeFont *font)
+_PGFT_UnloadFace(FreeTypeInstance *ft, PgFaceObject *faceobj)
 {
-    if (font->id.open_args.flags == 0)
+    if (faceobj->id.open_args.flags == 0)
         return;
 
     if (ft) {
-        FTC_Manager_RemoveFaceID(ft->cache_manager, (FTC_FaceID)(&font->id));
-        quit(font);
+        FTC_Manager_RemoveFaceID(ft->cache_manager, (FTC_FaceID)(&faceobj->id));
+        quit(faceobj);
     }
 
-    if (font->id.open_args.flags == FT_OPEN_STREAM) {
-        _PGFT_free(font->id.open_args.pathname);
-    font->id.open_args.pathname = 0;
+    if (faceobj->id.open_args.flags == FT_OPEN_STREAM) {
+        _PGFT_free(faceobj->id.open_args.pathname);
+    faceobj->id.open_args.pathname = 0;
     }
-    else if (font->id.open_args.flags == FT_OPEN_PATHNAME) {
-        _PGFT_free(font->id.open_args.stream);
+    else if (faceobj->id.open_args.flags == FT_OPEN_PATHNAME) {
+        _PGFT_free(faceobj->id.open_args.stream);
     }
-    font->id.open_args.flags = 0;
+    faceobj->id.open_args.flags = 0;
 }
 
 

@@ -43,7 +43,7 @@
 
 /* Render styles */
 #define FT_STYLE_NORMAL     0x00
-#define FT_STYLE_BOLD       0x01
+#define FT_STYLE_STRONG     0x01
 #define FT_STYLE_OBLIQUE    0x02
 #define FT_STYLE_UNDERLINE  0x04
 #define FT_STYLE_UNDERSCORE 0x08
@@ -79,11 +79,11 @@
 typedef struct {
     int face_index;
     FT_Open_Args open_args;
-} FontId;
+} PgFaceId;
 
 typedef struct {
     PyObject_HEAD
-    FontId id;
+    PgFaceId id;
     PyObject *path;
 
     FT_Int16 ptsize;
@@ -99,10 +99,10 @@ typedef struct {
     FT_Matrix transform;
 
     void *_internals;
-} PyFreeTypeFont;
+} PgFaceObject;
 
-#define PyFreeTypeFont_IS_ALIVE(o) \
-    (((PyFreeTypeFont *)(o))->_internals != 0)
+#define PgFace_IS_ALIVE(o) \
+    (((PgFaceObject *)(o))->_internals != 0)
 
 /**********************************************************
  * Module declaration
@@ -110,18 +110,16 @@ typedef struct {
 #define PYGAMEAPI_FREETYPE_FIRSTSLOT 0
 #define PYGAMEAPI_FREETYPE_NUMSLOTS 2
 
-#define PyFreeTypeFont_AsFont(x) (((PyFreeTypeFont *)x)->font)
-
 #ifndef PYGAME_FREETYPE_INTERNAL
 
-#define PyFreeTypeFont_Check(x) ((x)->ob_type == (PyTypeObject*)PyFREETYPE_C_API[0])
-#define PyFreeTypeFont_Type (*(PyTypeObject*)PyFREETYPE_C_API[1])
-#define PyFont_New (*(PyObject*(*)(const char*, int))PyFREETYPE_C_API[1])
+#define PgFace_Check(x) ((x)->ob_type == (PyTypeObject*)PgFREETYPE_C_API[0])
+#define PgFace_Type (*(PyTypeObject*)PgFREETYPE_C_API[1])
+#define PgFace_New (*(PyObject*(*)(const char*, int))PgFREETYPE_C_API[1])
 
 #define import_pygame_freetype() \
-    _IMPORT_PYGAME_MODULE(freetype, FREETYPE, PyFREETYPE_C_API)
+    _IMPORT_PYGAME_MODULE(freetype, FREETYPE, PgFREETYPE_C_API)
 
-static void *PyFREETYPE_C_API[PYGAMEAPI_FREETYPE_NUMSLOTS] = {0};
+static void *PgFREETYPE_C_API[PYGAMEAPI_FREETYPE_NUMSLOTS] = {0};
 #endif /* PYGAME_FREETYPE_INTERNAL */
 
 #endif /* _PYGAME_FREETYPE_H_ */
