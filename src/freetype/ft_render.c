@@ -24,16 +24,15 @@
 #include FT_MODULE_H
 #include FT_OUTLINE_H
 
-static void render(FreeTypeInstance *, PyFreeTypeFont *,
-                   FontText *, const FontRenderMode *,
-                   FontColor *, FontSurface *);
+static void render(FreeTypeInstance *, FaceText *, const FaceRenderMode *,
+                   FaceColor *, FaceSurface *);
 
 int
 _PGFT_CheckStyle(FT_UInt32 style)
 {
     const FT_UInt32 max_style =
         FT_STYLE_NORMAL |
-        FT_STYLE_BOLD   |
+        FT_STYLE_STRONG   |
         FT_STYLE_OBLIQUE |
         FT_STYLE_UNDERLINE |
         FT_STYLE_UNDERSCORE |
@@ -44,20 +43,20 @@ _PGFT_CheckStyle(FT_UInt32 style)
 
 int
 _PGFT_BuildRenderMode(FreeTypeInstance *ft, 
-                      PyFreeTypeFont *font, FontRenderMode *mode, 
+                      PgFaceObject *faceobj, FaceRenderMode *mode, 
                       int pt_size, int style, int rotation)
 {
     int angle;
 
     if (pt_size == -1) {
-        if (font->ptsize == -1) {
+        if (faceobj->ptsize == -1) {
             PyErr_SetString(PyExc_ValueError,
-                  "No font point size specified"
-                  " and no default font size in typeface");
+                  "No face point size specified"
+                  " and no default face size in typeface");
             return -1;
         }
 
-        pt_size = font->ptsize;
+        pt_size = faceobj->ptsize;
     }
 
     if (pt_size <= 0) {
@@ -68,7 +67,7 @@ _PGFT_BuildRenderMode(FreeTypeInstance *ft,
     mode->pt_size = (FT_UInt16)pt_size;
 
     if (style == FT_STYLE_DEFAULT) {
-        mode->style = (FT_Byte)font->style;
+        mode->style = (FT_Byte)faceobj->style;
     }
     else {
         if (_PGFT_CheckStyle((FT_UInt32)style)) {
@@ -81,13 +80,13 @@ _PGFT_BuildRenderMode(FreeTypeInstance *ft,
 
     mode->render_flags = FT_RFLAG_DEFAULTS;
 
-    if (font->vertical) {
+    if (faceobj->vertical) {
         mode->render_flags |= FT_RFLAG_VERTICAL;
     }
-    if (font->antialias) {
+    if (faceobj->antialias) {
         mode->render_flags |= FT_RFLAG_ANTIALIAS;
     }
-    if (font->pad) {
+    if (faceobj->pad) {
         mode->render_flags |= FT_RFLAG_PAD;
     }
 
@@ -95,10 +94,10 @@ _PGFT_BuildRenderMode(FreeTypeInstance *ft,
     while (angle < 0) angle += 360;
     mode->rotation_angle = PGFT_INT_TO_16(angle);
 
-    if (font->do_transform) {
+    if (faceobj->do_transform) {
         mode->render_flags |= FT_RFLAG_TRANSFORM;
     }
-    mode->transform = font->transform;
+    mode->transform = faceobj->transform;
 
     if (mode->rotation_angle != 0) {
         if (mode->style & FT_STYLE_WIDE) {
@@ -147,13 +146,13 @@ _PGFT_BuildRenderMode(FreeTypeInstance *ft,
  *********************************************************/
 #ifdef HAVE_PYGAME_SDL_VIDEO
 int
-_PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
-                             const FontRenderMode *mode, PGFT_String *text,
+_PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PgFaceObject *faceobj,
+                             const FaceRenderMode *mode, PGFT_String *text,
                              SDL_Surface *surface, int x, int y,
-                             FontColor *fgcolor, FontColor *bgcolor,
+                             FaceColor *fgcolor, FaceColor *bgcolor,
                              SDL_Rect *r)
 {
-    static const FontRenderPtr __SDLrenderFuncs[] = {
+    static const FaceRenderPtr __SDLrenderFuncs[] = {
         0,
         __render_glyph_RGB1,
         __render_glyph_RGB2,
@@ -161,7 +160,7 @@ _PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
         __render_glyph_RGB4
     };
 
-    static const FontRenderPtr __MONOrenderFuncs[] = {
+    static const FaceRenderPtr __MONOrenderFuncs[] = {
         0,
         __render_glyph_MONO1,
         __render_glyph_MONO2,
@@ -169,7 +168,7 @@ _PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
         __render_glyph_MONO4
     };
 
-    static const FontFillPtr __RGBfillFuncs[] = {
+    static const FaceFillPtr __RGBfillFuncs[] = {
         0,
         __fill_glyph_RGB1,
         __fill_glyph_RGB2,
@@ -180,15 +179,15 @@ _PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
     int locked = 0;
     int width, height;
 
-    FontSurface font_surf;
-    FontText *font_text;
+    FaceSurface font_surf;
+    FaceText *font_text;
 
     if (PGFT_String_GET_LENGTH(text) == 0) {
         /* No rendering */
         r->x = 0;
         r->y = 0;
         r->w = 0;
-        r->h = _PGFT_Face_GetHeightSized(ft, font, mode->pt_size);
+        r->h = _PGFT_Face_GetHeightSized(ft, faceobj, mode->pt_size);
         return 0;
     }
 
@@ -202,7 +201,7 @@ _PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
     }
 
     /* build font text */
-    font_text = _PGFT_LoadFontText(ft, font, mode, text);
+    font_text = _PGFT_LoadFaceText(ft, faceobj, mode, text);
 
     if (!font_text) {
         if (locked) {
@@ -213,7 +212,7 @@ _PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
     width = font_text->width;
     height = font_text->height;
-    if (_PGFT_GetSurfaceSize(ft, font, mode, font_text, &width, &height)) {
+    if (_PGFT_GetSurfaceSize(ft, faceobj, mode, font_text, &width, &height)) {
         if (locked) {
             SDL_UnlockSurface(surface);
         }
@@ -228,7 +227,7 @@ _PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
         r->x = 0;
         r->y = 0;
         r->w = 0;
-        r->h = _PGFT_Face_GetHeightSized(ft, font, mode->pt_size);
+        r->h = _PGFT_Face_GetHeightSized(ft, faceobj, mode->pt_size);
         return 0;
     }
 
@@ -238,7 +237,7 @@ _PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
     font_surf.buffer = surface->pixels;
     font_surf.offset.x = PGFT_INT_TO_6(x);
     font_surf.offset.y = PGFT_INT_TO_6(y);
-    if (font->origin) {
+    if (faceobj->origin) {
         x -= PGFT_TRUNC(PGFT_CEIL(font_text->offset.x));
         y -= PGFT_TRUNC(PGFT_CEIL(font_text->offset.y));
     }
@@ -283,7 +282,7 @@ _PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
     /*
      * Render!
      */
-    render(ft, font, font_text, mode, fgcolor, &font_surf);
+    render(ft, font_text, mode, fgcolor, &font_surf);
 
     r->x = -(Sint16)PGFT_TRUNC(PGFT_FLOOR(font_text->offset.x));
     r->y = (Sint16)PGFT_TRUNC(PGFT_CEIL(font_text->offset.y));
@@ -297,10 +296,11 @@ _PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
     return 0;
 }
 
-SDL_Surface *_PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
-                                     const FontRenderMode *mode,
+SDL_Surface *_PGFT_Render_NewSurface(FreeTypeInstance *ft,
+                                     PgFaceObject *faceobj,
+                                     const FaceRenderMode *mode,
                                      PGFT_String *text,
-                                     FontColor *fgcolor, FontColor *bgcolor,
+                                     FaceColor *fgcolor, FaceColor *bgcolor,
                                      SDL_Rect *r)
 {
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
@@ -321,14 +321,14 @@ SDL_Surface *_PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
         (bgcolor || mode->render_flags & FT_RFLAG_ANTIALIAS) ? 32 : 8;
     FT_UInt32 surface_flags = SDL_SWSURFACE;
 
-    FontSurface font_surf;
-    FontText *font_text;
+    FaceSurface font_surf;
+    FaceText *font_text;
     int width, height;
-    FontColor mono_fgcolor = {0, 0, 0, 1};
-    FontColor mono_bgcolor = {0, 0, 0, 0};
+    FaceColor mono_fgcolor = {0, 0, 0, 1};
+    FaceColor mono_bgcolor = {0, 0, 0, 0};
 
     /* build font text */
-    font_text = _PGFT_LoadFontText(ft, font, mode, text);
+    font_text = _PGFT_LoadFaceText(ft, faceobj, mode, text);
 
     if (!font_text) {
         return 0;
@@ -340,7 +340,7 @@ SDL_Surface *_PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
     }
     else {
         width = 1;
-        height = _PGFT_Face_GetHeightSized(ft, font, mode->pt_size);
+        height = _PGFT_Face_GetHeightSized(ft, faceobj, mode->pt_size);
     }
 
     surface = SDL_CreateRGBSurface(surface_flags, width, height,
@@ -421,7 +421,7 @@ SDL_Surface *_PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
     /*
      * Render the text!
      */
-    render(ft, font, font_text, mode, fgcolor, &font_surf);
+    render(ft, font_text, mode, fgcolor, &font_surf);
 
     r->x = -(Sint16)PGFT_TRUNC(PGFT_FLOOR(font_text->offset.x));
     r->y = (Sint16)PGFT_TRUNC(PGFT_CEIL(font_text->offset.y));
@@ -445,34 +445,34 @@ SDL_Surface *_PGFT_Render_NewSurface(FreeTypeInstance *ft, PyFreeTypeFont *font,
  *
  *********************************************************/
 
-PyObject *_PGFT_Render_PixelArray(FreeTypeInstance *ft, PyFreeTypeFont *font,
-                                  const FontRenderMode *mode,
+PyObject *_PGFT_Render_PixelArray(FreeTypeInstance *ft, PgFaceObject *faceobj,
+                                  const FaceRenderMode *mode,
                                   PGFT_String *text, int *_width, int *_height)
 {
     FT_Byte *buffer = 0;
     PyObject *array = 0;
-    FontSurface surf;
+    FaceSurface surf;
     int width, height;
 
-    FontText *font_text;
+    FaceText *font_text;
     int array_size;
-    FontColor mono_opaque = {0, 0, 0, SDL_ALPHA_OPAQUE};
+    FaceColor mono_opaque = {0, 0, 0, SDL_ALPHA_OPAQUE};
 
     if (PGFT_String_GET_LENGTH(text) == 0) {
         /* Empty array */
         *_width = 0;
-        *_height = _PGFT_Face_GetHeight(ft, font);
+        *_height = _PGFT_Face_GetHeight(ft, faceobj);
         return Bytes_FromStringAndSize("", 0);
     }
 
-    /* build font text */
-    font_text = _PGFT_LoadFontText(ft, font, mode, text);
+    /* build face text */
+    font_text = _PGFT_LoadFaceText(ft, faceobj, mode, text);
 
     if (!font_text) {
         return 0;
     }
 
-    if (_PGFT_GetSurfaceSize(ft, font, mode, font_text, &width, &height)) {
+    if (_PGFT_GetSurfaceSize(ft, faceobj, mode, font_text, &width, &height)) {
         return 0;
     }
 
@@ -481,7 +481,7 @@ PyObject *_PGFT_Render_PixelArray(FreeTypeInstance *ft, PyFreeTypeFont *font,
     if (array_size <= 0) {
         /* Empty array */
         *_width = 0;
-        *_height = _PGFT_Face_GetHeight(ft, font);
+        *_height = _PGFT_Face_GetHeight(ft, faceobj);
         return Bytes_FromStringAndSize("", 0);
     }
 
@@ -505,7 +505,7 @@ PyObject *_PGFT_Render_PixelArray(FreeTypeInstance *ft, PyFreeTypeFont *font,
     surf.render_mono = __render_glyph_MONO_as_GRAY1;
     surf.fill = __fill_glyph_GRAY1;
 
-    render(ft, font, font_text, mode, &mono_opaque, &surf);
+    render(ft, font_text, mode, &mono_opaque, &surf);
 
     *_width = width;
     *_height = height;
@@ -514,17 +514,14 @@ PyObject *_PGFT_Render_PixelArray(FreeTypeInstance *ft, PyFreeTypeFont *font,
 }
 
 
-
-
 /*********************************************************
  *
  * New rendering algorithm (rotation + veritical drawing)
  *
  *********************************************************/
 static void
-render(FreeTypeInstance *ft, PyFreeTypeFont *font,
-       FontText *text, const FontRenderMode *mode,
-       FontColor *fg_color, FontSurface *surface)
+render(FreeTypeInstance *ft, FaceText *text, const FaceRenderMode *mode,
+       FaceColor *fg_color, FaceSurface *surface)
 {
     FT_Pos top;
     FT_Pos left;
@@ -532,11 +529,11 @@ render(FreeTypeInstance *ft, PyFreeTypeFont *font,
     int y;
     int n;
     int length = text->length;
-    FontGlyph **glyphs = text->glyphs;
+    FaceGlyph **glyphs = text->glyphs;
     FT_BitmapGlyph image;
     FT_Vector *posns = text->posns;
-    FontRenderPtr render_gray = surface->render_gray;
-    FontRenderPtr render_mono = surface->render_mono;
+    FaceRenderPtr render_gray = surface->render_gray;
+    FaceRenderPtr render_mono = surface->render_mono;
 
     if (length <= 0) {
         return;
