@@ -1353,6 +1353,7 @@ _color_get_arraystruct(PyColor *color, void *closure)
     typedef struct {
         PyArrayInterface inter;
         Py_intptr_t shape[1];
+        Py_intptr_t strides[1];
     } _color_view_t;
     _color_view_t *view = PyMem_New(_color_view_t, 1);
     PyObject *cobj;
@@ -1360,7 +1361,7 @@ _color_get_arraystruct(PyColor *color, void *closure)
     if (!view) {
         return PyErr_NoMemory();
     }
-    view->shape[0] = color->len;
+    view->shape[0] = (Py_intptr_t)color->len;
     view->inter.two = 2;
     view->inter.nd = 1;
     view->inter.typekind = 'u';
@@ -1368,7 +1369,8 @@ _color_get_arraystruct(PyColor *color, void *closure)
     view->inter.flags = (PAI_CONTIGUOUS | PAI_FORTRAN |
                          PAI_ALIGNED | PAI_NOTSWAPPED);
     view->inter.shape = view->shape;
-    view->inter.strides = &(view->inter.itemsize);
+    view->strides[0] = (Py_intptr_t)view->inter.itemsize;
+    view->inter.strides = view->strides;
     view->inter.data = color->data;
     
 #if PY3
