@@ -29,16 +29,20 @@
  **********************************************************/
 
 /* Fixed point (26.6) math macros */
-#define PGFT_FLOOR(x) ((x) & -64 )
-#define PGFT_CEIL(x) (((x) + 63) & -64)
-#define PGFT_ROUND(x) (((x) + 32) & -64)
-#define PGFT_TRUNC(x)  ((x) >> 6)
-#define PGFT_CEIL16_TO_6(x) (((x) + 1023) >> 10)
-#define PGFT_INT_TO_6(x) ((x) << 6)
-#define PGFT_INT_TO_16(x) ((x) << 16)
+#define FX6_ONE 64
+#define FX16_ONE 65536
+#define FX6_MIN ((FT_Pos)0x80000000)
+#define FX6_MAX ((FT_Pos)0x7FFFFFFF)
 
-#define PGFT_MIN_6 ((FT_Pos)0x80000000)
-#define PGFT_MAX_6 ((FT_Pos)0x7FFFFFFF)
+#define FX6_FLOOR(x) ((x) & -64)
+#define FX6_CEIL(x) (((x) + 63) & -64)
+#define FX6_ROUND(x) (((x) + 32) & -64)
+#define FX6_TRUNC(x)  ((x) >> 6)
+#define FX16_CEIL_TO_FX6(x) (((x) + 1023) >> 10)
+#define INT_TO_FX6(i) ((FT_Fixed)((i) << 6))
+#define INT_TO_FX16(i) ((FT_Fixed)((i) << 16))
+#define FX16_TO_DBL(x) ((x) * 1.5259e-5 /* 65536.0^-1 */)
+#define DBL_TO_FX16(d) ((FT_Fixed)((d) * 65536.0))
 
 /* Internal configuration variables */
 #define PGFT_DEFAULT_CACHE_SIZE 64
@@ -48,6 +52,7 @@
 #endif
 #define PGFT_DEFAULT_RESOLUTION 72 /* dots per inch */
 
+#define PGFT_DBL_DEFAULT_STRENGTH (1.0 / 36.0)
 
 /**********************************************************
  * Internal basic types
@@ -80,6 +85,7 @@ typedef struct rendermode_ {
     FT_Angle rotation_angle;
     FT_UInt16 render_flags;
     FT_UInt16 style;
+    FT_Fixed strength;
     FT_Matrix transform;
 } FaceRenderMode;
 

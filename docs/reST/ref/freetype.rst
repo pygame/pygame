@@ -402,6 +402,18 @@ New in Pygame 1.9.2
       when drawing text. It produces a result simular to font.Font's
       bold. This style is only available for unrotated text.
 
+   .. attribute:: strength
+
+      | :sl:`Gets or sets the strength of the strong or wide styles`
+      | :sg:`strength -> float`
+
+      The amount by which a face glyph's size is enlarged for the
+      strong or wide transformations, as a fraction of the untransformed
+      size. For the wide style only the horizontal dimension is
+      increased. For strong text both the horizontal and vertical
+      dimensions are enlarged. A wide style of strength 1/12 is
+      equivalent to the font.Font bold style. The default is 1/36.
+
    .. attribute:: fixed_width
 
       | :sl:`Gets whether the face is fixed-width`

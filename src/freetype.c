@@ -82,6 +82,8 @@ static PyObject *_ftface_getdescender(PyObject *, void *);
 static PyObject *_ftface_getname(PyObject *, void *);
 static PyObject *_ftface_getpath(PyObject *, void *);
 static PyObject *_ftface_getfixedwidth(PyObject *, void *);
+static PyObject *_ftface_getstrength(PgFaceObject *, void *);
+static int _ftface_setstrength(PgFaceObject *, PyObject *, void *);
 
 static PyObject *_ftface_getvertical(PyObject *, void *);
 static int _ftface_setvertical(PyObject *, PyObject *, void *);
@@ -446,141 +448,148 @@ static PyMethodDef _ftface_methods[] = {
 static PyGetSetDef _ftface_getsets[] = {
     {
         "style",
-        _ftface_getstyle,
-        _ftface_setstyle,
+        (getter)_ftface_getstyle,
+        (setter)_ftface_setstyle,
         DOC_FACESTYLE,
         0
     },
     {
         "height",
-        _ftface_getheight,
+        (getter)_ftface_getheight,
         0,
         DOC_FACEHEIGHT,
         0
     },
     {
         "ascender",
-        _ftface_getascender,
+        (getter)_ftface_getascender,
         0,
         DOC_FACEASCENDER,
         0
     },
     {
         "descender",
-        _ftface_getdescender,
+        (getter)_ftface_getdescender,
         0,
         DOC_FACEASCENDER,
         0
     },
     {
         "name",
-        _ftface_getname,
+        (getter)_ftface_getname,
         0,
         DOC_FACENAME,
         0
     },
     {
         "path",
-        _ftface_getpath,
+        (getter)_ftface_getpath,
         0,
         DOC_FACEPATH,
         0
     },
     {
         "fixed_width",
-        _ftface_getfixedwidth,
+        (getter)_ftface_getfixedwidth,
         0,
         DOC_FACEFIXEDWIDTH,
         0
     },
     {
         "antialiased",
-        _ftface_getantialias,
-        _ftface_setantialias,
+        (getter)_ftface_getantialias,
+        (setter)_ftface_setantialias,
         DOC_FACEANTIALIASED,
         0
     },
     {
         "kerning",
-        _ftface_getkerning,
-        _ftface_setkerning,
+        (getter)_ftface_getkerning,
+        (setter)_ftface_setkerning,
         DOC_FACEKERNING,
         0
     },
     {
         "vertical",
-        _ftface_getvertical,
-        _ftface_setvertical,
+        (getter)_ftface_getvertical,
+        (setter)_ftface_setvertical,
         DOC_FACEVERTICAL,
         0
     },
     {
         "pad",
-        _ftface_getpad,
-        _ftface_setpad,
+        (getter)_ftface_getpad,
+        (setter)_ftface_setpad,
         DOC_FACEPAD,
         0
     },
     {
         "oblique",
-        _ftface_getstyle_flag,
-        _ftface_setstyle_flag,
+        (getter)_ftface_getstyle_flag,
+        (setter)_ftface_setstyle_flag,
         DOC_FACEOBLIQUE,
         (void *)FT_STYLE_OBLIQUE
     },
     {
         "strong",
-        _ftface_getstyle_flag,
-        _ftface_setstyle_flag,
+        (getter)_ftface_getstyle_flag,
+        (setter)_ftface_setstyle_flag,
         DOC_FACESTRONG,
         (void *)FT_STYLE_STRONG
     },
     {
         "underline",
-        _ftface_getstyle_flag,
-        _ftface_setstyle_flag,
+        (getter)_ftface_getstyle_flag,
+        (setter)_ftface_setstyle_flag,
         DOC_FACEUNDERLINE,
         (void *)FT_STYLE_UNDERLINE
     },
     {
         "underscore",
-        _ftface_getstyle_flag,
-        _ftface_setstyle_flag,
+        (getter)_ftface_getstyle_flag,
+        (setter)_ftface_setstyle_flag,
         DOC_FACEUNDERSCORE,
         (void *)FT_STYLE_UNDERSCORE
     },
     {
         "wide",
-        _ftface_getstyle_flag,
-        _ftface_setstyle_flag,
+        (getter)_ftface_getstyle_flag,
+        (setter)_ftface_setstyle_flag,
         DOC_FACEWIDE,
         (void *)FT_STYLE_WIDE
     },
     {
+        "strength",
+        (getter)_ftface_getstrength,
+        (setter)_ftface_setstrength,
+        DOC_FACESTRENGTH,
+        0
+    },
+    {
         "ucs4",
-        _ftface_getucs4,
-        _ftface_setucs4,
+        (getter)_ftface_getucs4,
+        (setter)_ftface_setucs4,
         DOC_FACEUCS4,
         0
     },
     {
         "resolution",
-        _ftface_getresolution,
+        (getter)_ftface_getresolution,
         0,
         DOC_FACERESOLUTION,
         0
     },
     {
         "origin",
-        _ftface_getorigin,
-        _ftface_setorigin,
+        (getter)_ftface_getorigin,
+        (setter)_ftface_setorigin,
         DOC_FACEORIGIN,
         0
     },
 #if defined(PGFT_DEBUG_CACHE)
     {
         "_debug_cache_stats",
-        _ftface_getdebugcachestats,
+        (getter)_ftface_getdebugcachestats,
         0,
         "_debug cache fields as a tuple",
         0
@@ -666,6 +675,7 @@ _ftface_new(PyTypeObject *subtype, PyObject *args, PyObject *kwds)
         obj->_internals = 0;
         obj->ptsize = -1;
         obj->style = FT_STYLE_NORMAL;
+        obj->strength = PGFT_DBL_DEFAULT_STRENGTH;
         obj->vertical = 0;
         obj->antialias = 1;
         obj->kerning = 0;
@@ -1077,6 +1087,34 @@ _ftface_getfixedwidth(PyObject *self, void *closure)
     ASSERT_SELF_IS_ALIVE(self);
     fixed_width = _PGFT_Face_IsFixedWidth(ft, (PgFaceObject *)self);
     return fixed_width >= 0 ? PyBool_FromLong(fixed_width) : 0;
+}
+
+static PyObject *
+_ftface_getstrength(PgFaceObject *self, void *closure)
+{
+    return PyFloat_FromDouble(self->strength);
+}
+
+static int
+_ftface_setstrength(PgFaceObject *self, PyObject *value, void *closure)
+{
+    PyObject *strengthobj = PyNumber_Float(value);
+    double strength;
+
+    if (!strengthobj) {
+        return -1;
+    }
+    strength = PyFloat_AS_DOUBLE(strengthobj);
+    Py_DECREF(strengthobj);
+    if (strength < 0.0 || strength > 1.0) {
+        char msg[80];
+
+        sprintf(msg, "strength value %.4e is outside range [0, 1]", strength);
+        PyErr_SetString(PyExc_ValueError, msg);
+        return -1;
+    }
+    self->strength = strength;
+    return 0;
 }
 
 
@@ -1675,22 +1713,19 @@ _ftface_render(PyObject *self, PyObject *args, PyObject *kwds)
 static PyObject *
 _ftface_gettransform(PgFaceObject *self)
 {
-    const double scale_factor = 1.5259e-5; /* 1 / 65536.0 */
-
     if (!self->do_transform) {
         Py_RETURN_NONE;
     }
     return Py_BuildValue("dddd",
-                         self->transform.xx * scale_factor,
-                         self->transform.xy * scale_factor,
-                         self->transform.yx * scale_factor,
-                         self->transform.yy * scale_factor);
+                         FX16_TO_DBL(self->transform.xx),
+                         FX16_TO_DBL(self->transform.xy),
+                         FX16_TO_DBL(self->transform.yx),
+                         FX16_TO_DBL(self->transform.yy));
 }
 
 static PyObject *
 _ftface_settransform(PgFaceObject *self, PyObject *args)
 {
-    const double scale_factor = 65536.0;
     double xx;
     double xy;
     double yx;
@@ -1706,10 +1741,10 @@ _ftface_settransform(PgFaceObject *self, PyObject *args)
                         "received a value outside range [-2.0,2.0]");
         return 0;
     }
-    self->transform.xx = (FT_Fixed)(xx * scale_factor);
-    self->transform.xy = (FT_Fixed)(xy * scale_factor);
-    self->transform.yx = (FT_Fixed)(yx * scale_factor);
-    self->transform.yy = (FT_Fixed)(yy * scale_factor);
+    self->transform.xx = FX16_TO_DBL(xx);
+    self->transform.xy = FX16_TO_DBL(xy);
+    self->transform.yx = FX16_TO_DBL(yx);
+    self->transform.yy = FX16_TO_DBL(yy);
     self->do_transform = 1;
     Py_RETURN_NONE;
 }

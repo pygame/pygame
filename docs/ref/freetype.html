@@ -357,6 +357,10 @@ module, but it can also be bundled in separate archives.</p>
 <td>—</td>
 <td>Gets or sets the face&#8217;s wide style</td>
 </tr>
+<tr><td><a class="toc reference external" href="freetype.html#pygame.freetype.Face.strength">pygame.freetype.Face.strength</a></td>
+<td>—</td>
+<td>Gets or sets the strength of the strong or wide styles</td>
+</tr>
 <tr><td><a class="toc reference external" href="freetype.html#pygame.freetype.Face.fixed_width">pygame.freetype.Face.fixed_width</a></td>
 <td>—</td>
 <td>Gets whether the face is fixed-width</td>
@@ -712,6 +716,21 @@ calculations unless overriden specifically in the `render()` or
 <p>Gets or sets whether the face will be stretched horizontally
 when drawing text. It produces a result simular to font.Font&#8217;s
 bold. This style is only available for unrotated text.</p>
+</dd></dl>
+
+<dl class="definition attribute">
+<dt class="title" id="pygame.freetype.Face.strength">
+<tt class="descname">strength</tt><a class="headerlink" href="#pygame.freetype.Face.strength" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Gets or sets the strength of the strong or wide styles</span></div>
+<div class="line"><span class="signature">strength -&gt; float</span></div>
+</div>
+<p>The amount by which a face glyph&#8217;s size is enlarged for the
+strong or wide transformations, as a fraction of the untransformed
+size. For the wide style only the horizontal dimension is
+increased. For strong text both the horizontal and vertical
+dimensions are enlarged. A wide style of strength 1/12 is
+equivalent to the font.Font bold style. The default is 1/36.</p>
 </dd></dl>
 
 <dl class="definition attribute">
