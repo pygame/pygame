@@ -24,86 +24,67 @@
 #include "ft_wrap.h"
 #include FT_MODULE_H
 
-/* The key is the UTF character, point size (unsigned short),
- * style flags (unsigned short), render flags (unsigned short),
- * and rotation (in whole degrees, unsigned short), transform.xx,
- * transform.xy, transform.yx, transform.yy. Byte order is little-endian.
- */
-#define MINKEYLEN (sizeof(PGFT_char) + 2 + 2 + 2 + 2 + 4 + 4 + 4 + 4)
-#define KEYLEN ((MINKEYLEN + 3) & 0xFFFC)
+typedef struct keyfields_ {
+    PGFT_char ch;
+    unsigned short pt_size;
+    unsigned short style;
+    unsigned short render_flags;
+    unsigned short rotation;
+    FT_Fixed strength;
+    FT_Matrix transform;
+} KeyFields;
 
 typedef union cachenodekey_ {
-    FT_Byte bytes[KEYLEN];
-    FT_UInt32 dwords[KEYLEN / 4];
-} CacheNodeKey;
+    KeyFields fields;
+    FT_UInt32 dwords[(sizeof(KeyFields) + 3) / 4];
+} NodeKey;
 
 typedef struct cachenode_ {
     FaceGlyph glyph;
     struct cachenode_ *next;
-    CacheNodeKey key;
+    NodeKey key;
     FT_UInt32 hash;
 } CacheNode;
 
-static FT_UInt32 get_hash(const CacheNodeKey *);
+static FT_UInt32 get_hash(const NodeKey *);
 static CacheNode *allocate_node(FaceCache *,
                                     const FaceRenderMode *,
                                     FT_UInt, void *);
 static void free_node(FaceCache *, CacheNode *);
-static void set_node_key(CacheNodeKey *, PGFT_char, const FaceRenderMode *);
-static int equal_node_keys(const CacheNodeKey *, const CacheNodeKey *);
+static void set_node_key(NodeKey *, PGFT_char, const FaceRenderMode *);
+static int equal_node_keys(const NodeKey *, const NodeKey *);
 
 const int render_flags_mask = (FT_RFLAG_ANTIALIAS |
                                FT_RFLAG_HINTED |
                                FT_RFLAG_AUTOHINT);
 
 static void
-set_node_key(CacheNodeKey *key, PGFT_char ch, const FaceRenderMode *render)
+set_node_key(NodeKey *key, PGFT_char ch, const FaceRenderMode *mode)
 {
+    KeyFields *fields = &key->fields;
     const FT_UInt16 style_mask = ~(FT_STYLE_UNDERLINE);
     const FT_UInt16 rflag_mask = ~(FT_RFLAG_VERTICAL | FT_RFLAG_KERNING);
-    int i = 0;
-    unsigned short rot = (unsigned short)PGFT_TRUNC(render->rotation_angle);
+    unsigned short rot = (unsigned short)FX6_TRUNC(mode->rotation_angle);
 
-    key->dwords[sizeof(key->dwords) / 4 - 1] = 0;
-    key->bytes[i++] = (FT_Byte)ch;
-    ch >>= 8;
-    key->bytes[i++] = (FT_Byte)ch;
-    ch >>= 8;
-    key->bytes[i++] = (FT_Byte)ch;
-    ch >>= 8;
-    key->bytes[i++] = (FT_Byte)ch;
-    key->bytes[i++] = (FT_Byte)render->pt_size;
-    key->bytes[i++] = (FT_Byte)(render->pt_size >> 8);
-    key->bytes[i++] = (FT_Byte)(render->style & style_mask);
-    key->bytes[i++] = (FT_Byte)((render->style & style_mask) >> 8);
-    key->bytes[i++] = (FT_Byte)(render->render_flags & rflag_mask);
-    key->bytes[i++] = (FT_Byte)((render->render_flags & rflag_mask) >> 8);
-    key->bytes[i++] = (FT_Byte)rot;
-    key->bytes[i++] = (FT_Byte)(rot >> 8);
-    key->bytes[i++] = (FT_Byte)render->transform.xx;
-    key->bytes[i++] = (FT_Byte)(render->transform.xx >> 8);
-    key->bytes[i++] = (FT_Byte)(render->transform.xx >> 16);
-    key->bytes[i++] = (FT_Byte)(render->transform.xx >> 24);
-    key->bytes[i++] = (FT_Byte)render->transform.xy;
-    key->bytes[i++] = (FT_Byte)(render->transform.xy >> 8);
-    key->bytes[i++] = (FT_Byte)(render->transform.xy >> 16);
-    key->bytes[i++] = (FT_Byte)(render->transform.xy >> 24);
-    key->bytes[i++] = (FT_Byte)render->transform.yx;
-    key->bytes[i++] = (FT_Byte)(render->transform.yx >> 8);
-    key->bytes[i++] = (FT_Byte)(render->transform.yx >> 16);
-    key->bytes[i++] = (FT_Byte)(render->transform.yx >> 24);
-    key->bytes[i++] = (FT_Byte)render->transform.yy;
-    key->bytes[i++] = (FT_Byte)(render->transform.yy >> 8);
-    key->bytes[i++] = (FT_Byte)(render->transform.yy >> 16);
-    key->bytes[i++] = (FT_Byte)(render->transform.yy >> 24);
+    memset(key, 0, sizeof(key));
+    fields->ch = ch;
+    fields->pt_size = mode->pt_size;
+    fields->style = mode->style & style_mask;
+    fields->render_flags = mode->render_flags & rflag_mask;
+    fields->rotation = rot;
+    fields->strength = mode->strength;
+    fields->transform.xx = mode->transform.xx;
+    fields->transform.xy = mode->transform.xy;
+    fields->transform.yx = mode->transform.yx;
+    fields->transform.yy = mode->transform.yy;
 }
 
 static int
-equal_node_keys(const CacheNodeKey *a, const CacheNodeKey *b)
+equal_node_keys(const NodeKey *a, const NodeKey *b)
 {
     int i;
 
-    for (i = 0; i < sizeof(a->dwords) / 4; ++i) {
+    for (i = 0; i < sizeof(a->dwords) / sizeof(a->dwords[0]); ++i) {
         if (a->dwords[i] != b->dwords[i]) {
             return 0;
         }
@@ -112,7 +93,7 @@ equal_node_keys(const CacheNodeKey *a, const CacheNodeKey *b)
 }
 
 static FT_UInt32
-get_hash(const CacheNodeKey *key)
+get_hash(const NodeKey *key)
 {
     /*
      * Based on the 32 bit x86 MurmurHash3, with the key size a multiple of 4.
@@ -260,7 +241,7 @@ _PGFT_Cache_FindGlyph(PGFT_char character, const FaceRenderMode *render,
 {
     CacheNode **nodes = cache->nodes;
     CacheNode *node, *prev;
-    CacheNodeKey key;
+    NodeKey key;
 
     FT_UInt32 hash;
     FT_UInt32 bucket;

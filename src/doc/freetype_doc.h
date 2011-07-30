@@ -57,6 +57,8 @@
 
 #define DOC_FACEWIDE "wide -> bool\nGets or sets the face's wide style"
 
+#define DOC_FACESTRENGTH "strength -> float\nGets or sets the strength of the strong or wide styles"
+
 #define DOC_FACEFIXEDWIDTH "fixed_width -> bool\nGets whether the face is fixed-width"
 
 #define DOC_FACEANTIALIASED "antialiased -> bool\nFace antialiasing mode"
@@ -199,6 +201,10 @@ Gets or sets the face's oblique style
 pygame.freetype.Face.wide
  wide -> bool
 Gets or sets the face's wide style
+
+pygame.freetype.Face.strength
+ strength -> float
+Gets or sets the strength of the strong or wide styles
 
 pygame.freetype.Face.fixed_width
  fixed_width -> bool

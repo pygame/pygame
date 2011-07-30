@@ -133,7 +133,7 @@ _PGFT_Face_GetHeightSized(FreeTypeInstance *ft, PgFaceObject *faceobj,
         RAISE(PyExc_RuntimeError, _PGFT_GetError(ft));
         return 0;
     }
-    return (long)PGFT_TRUNC(PGFT_CEIL(face->size->metrics.height));
+    return (long)FX6_TRUNC(FX6_CEIL(face->size->metrics.height));
 }
 
 long
@@ -158,7 +158,7 @@ _PGFT_Face_GetAscenderSized(FreeTypeInstance *ft, PgFaceObject *faceobj,
         RAISE(PyExc_RuntimeError, _PGFT_GetError(ft));
         return 0;
     }
-    return (long)PGFT_TRUNC(PGFT_CEIL(face->size->metrics.ascender));
+    return (long)FX6_TRUNC(FX6_CEIL(face->size->metrics.ascender));
 }
 
 long
@@ -183,7 +183,7 @@ _PGFT_Face_GetDescenderSized(FreeTypeInstance *ft, PgFaceObject *faceobj,
         RAISE(PyExc_RuntimeError, _PGFT_GetError(ft));
         return 0;
     }
-    return (long)PGFT_TRUNC(PGFT_FLOOR(face->size->metrics.descender));
+    return (long)FX6_TRUNC(FX6_FLOOR(face->size->metrics.descender));
 }
 
 long
@@ -201,8 +201,8 @@ _PGFT_Face_GetGlyphHeightSized(FreeTypeInstance *ft, PgFaceObject *faceobj,
         return 0;
     }
     metrics = &face->size->metrics;
-    return (long)PGFT_TRUNC(PGFT_CEIL(metrics->ascender) -
-                            PGFT_FLOOR(metrics->descender)) + /* baseline */ 1;
+    return (long)FX6_TRUNC(FX6_CEIL(metrics->ascender) -
+                           FX6_FLOOR(metrics->descender)) + /* baseline */ 1;
 }
 
 

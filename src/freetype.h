@@ -88,6 +88,7 @@ typedef struct {
 
     FT_Int16 ptsize;
     FT_Byte style;
+    double strength;
     FT_Byte vertical;
     FT_Byte antialias;
     FT_Byte kerning;
