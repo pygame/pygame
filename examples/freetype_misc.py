@@ -25,15 +25,17 @@ def run():
     screen = pygame.display.set_mode((800, 600))
     screen.fill (colors["grey_light"])
 
-    face.underline_adjustment = 0.25
+    face.underline_adjustment = 0.5
+    face.pad = True
     face.render((screen, 32, 32), "Hello World", colors["red"], colors['grey_dark'],
             ptsize=64, style=freetype.STYLE_UNDERLINE|freetype.STYLE_OBLIQUE)
+    face.pad = False
 
     face.render((screen, 32, 128), "abcdefghijklm", colors["grey_dark"], colors["green"],
             ptsize=64)
 
     face.vertical = True
-    face.render((screen, 32, 190), "Vertical?", colors["blue"], None, ptsize=32)
+    face.render((screen, 32, 200), "Vertical?", colors["blue"], None, ptsize=32)
     face.vertical = False
 
     face.render((screen, 64, 190), "Let's spin!", colors["red"], None,
@@ -45,7 +47,7 @@ def run():
     face.render((screen, 250, 220), "and BLEND", pygame.Color(255, 0, 0, 128), None,
             ptsize=64)
 
-    face.render((screen, 258, 237), "or BLAND!", pygame.Color(0, 0xCC, 28, 128), None,
+    face.render((screen, 265, 237), "or BLAND!", pygame.Color(0, 0xCC, 28, 128), None,
             ptsize=64)
 
     face.origin = True

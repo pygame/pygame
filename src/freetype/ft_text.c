@@ -143,16 +143,17 @@ _PGFT_LoadFaceText(FreeTypeInstance *ft, PgFaceObject *faceobj,
     FT_Pos      text_width;
     FT_Pos      text_height;
     FT_Pos      top = FX6_MIN;
+    FT_Fixed    y_scale;
 
     FT_Error    error = 0;
 
     /* load our sized face */
     face = _PGFT_GetFaceSized(ft, faceobj, mode->pt_size);
-
     if (!face) {
         PyErr_SetString(PyExc_SDLError, _PGFT_GetError(ft));
         return 0;
     }
+    y_scale = face->size->metrics.y_scale;
 
     /* cleanup the cache */
     _PGFT_Cache_Cleanup(&ftext->glyph_cache);
@@ -329,7 +330,7 @@ _PGFT_LoadFaceText(FreeTypeInstance *ft, PgFaceObject *faceobj,
         if (max_y_underline > max_y) {
             max_y = max_y_underline;
         }
-        ftext->underline_pos = adjusted_pos;
+        ftext->underline_pos = max_y_underline - size;
         ftext->underline_size = size;
     }
 
