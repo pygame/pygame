@@ -9,11 +9,21 @@ PY3 = 0
 if sys.version_info >= (3,):
     PY3 = 1
 
+SIZEOF_VOID_P = sizeof(c_void_p)
+if SIZEOF_VOID_P <= sizeof(c_int):
+    Py_intptr_t = c_int
+elif SIZEOF_VOID_P <= sizeof(c_long):
+    Py_intptr_t = c_long
+elif 'c_longlong' in globals() and SIZEOF_VOID_P <= sizeof(c_longlong):
+    Py_intptr_t = c_longlong
+else:
+    raise RuntimeError("Unrecognized pointer size %i" % (pointer_size,))
+
 class PyArrayInterface(Structure):
     _fields_ = [('two', c_int), ('nd', c_int), ('typekind', c_char),
                 ('itemsize', c_int), ('flags', c_int),
-                ('shape', POINTER(c_ssize_t)),
-                ('strides', POINTER(c_ssize_t)),
+                ('shape', POINTER(Py_intptr_t)),
+                ('strides', POINTER(Py_intptr_t)),
                 ('data', c_void_p), ('descr', py_object)]
 
 PAI_Ptr = POINTER(PyArrayInterface)
