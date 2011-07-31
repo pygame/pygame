@@ -125,7 +125,7 @@ _PGFT_LoadFaceText(FreeTypeInstance *ft, PgFaceObject *faceobj,
     FT_Vector   *next_pos;
 
     int         vertical = mode->render_flags & FT_RFLAG_VERTICAL;
-    int         use_kerning = faceobj->kerning;
+    int         use_kerning = mode->render_flags & FT_RFLAG_KERNING;
     int         pad = mode->render_flags & FT_RFLAG_PAD;
     FT_UInt     prev_glyph_index = 0;
 

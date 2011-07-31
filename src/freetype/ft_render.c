@@ -57,16 +57,14 @@ _PGFT_BuildRenderMode(FreeTypeInstance *ft,
 
         pt_size = faceobj->ptsize;
     }
-
     if (pt_size <= 0) {
         PyErr_SetString(PyExc_ValueError, "Invalid point size for font.");
         return -1;
     }
-
     mode->pt_size = (FT_UInt16)pt_size;
 
     if (style == FT_STYLE_DEFAULT) {
-        mode->style = (FT_Byte)faceobj->style;
+        mode->style = faceobj->style;
     }
     else {
         if (_PGFT_CheckStyle((FT_UInt32)style)) {
@@ -74,29 +72,14 @@ _PGFT_BuildRenderMode(FreeTypeInstance *ft,
             return -1;
         }
 
-        mode->style = (FT_Byte)style;
+        mode->style = (FT_UInt16)style;
     }
     mode->strength = DBL_TO_FX16(faceobj->strength);
 
-    mode->render_flags = FT_RFLAG_DEFAULTS;
-
-    if (faceobj->vertical) {
-        mode->render_flags |= FT_RFLAG_VERTICAL;
-    }
-    if (faceobj->antialias) {
-        mode->render_flags |= FT_RFLAG_ANTIALIAS;
-    }
-    if (faceobj->pad) {
-        mode->render_flags |= FT_RFLAG_PAD;
-    }
-
+    mode->render_flags = faceobj->render_flags;
     angle = rotation % 360;
     while (angle < 0) angle += 360;
     mode->rotation_angle = INT_TO_FX16(angle);
-
-    if (faceobj->do_transform) {
-        mode->render_flags |= FT_RFLAG_TRANSFORM;
-    }
     mode->transform = faceobj->transform;
 
     if (mode->rotation_angle != 0) {
@@ -227,7 +210,7 @@ _PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PgFaceObject *faceobj,
     font_surf.buffer = surface->pixels;
     font_surf.offset.x = INT_TO_FX6(x);
     font_surf.offset.y = INT_TO_FX6(y);
-    if (faceobj->origin) {
+    if (mode->render_flags & FT_RFLAG_ORIGIN) {
         x -= FX6_TRUNC(FX6_CEIL(font_text->offset.x));
         y -= FX6_TRUNC(FX6_CEIL(font_text->offset.y));
     }

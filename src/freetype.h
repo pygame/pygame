@@ -64,7 +64,9 @@
 #define FT_RFLAG_KERNING        (1 << 4)
 #define FT_RFLAG_TRANSFORM      (1 << 5)
 #define FT_RFLAG_PAD            (1 << 6)
-#define FT_RFLAG_DEFAULTS       (FT_RFLAG_NONE | FT_RFLAG_HINTED)
+#define FT_RFLAG_ORIGIN         (1 << 7)
+#define FT_RFLAG_UCS4           (1 << 8)
+#define FT_RFLAG_DEFAULTS       (FT_RFLAG_HINTED | FT_RFLAG_ANTIALIAS)
 
 
 #define FT_RENDER_NEWBYTEARRAY      0x0
@@ -86,17 +88,11 @@ typedef struct {
     PyObject *path;
 
     FT_Int16 ptsize;
-    FT_Byte style;
+    FT_Int16 style;
+    FT_Int16 render_flags;
     double strength;
     double underline_adjustment;
-    FT_Byte vertical;
-    FT_Byte antialias;
-    FT_Byte kerning;
-    FT_Byte ucs4;
     FT_UInt resolution;
-    FT_Byte origin;
-    FT_Byte pad;
-    FT_Byte do_transform;
     FT_Matrix transform;
 
     void *_internals;
