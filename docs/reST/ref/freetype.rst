@@ -410,11 +410,12 @@ New in Pygame 1.9.2
       | :sl:`Gets or sets an adjustment factor for the underline position`
       | :sg:`underline_adjustment -> float`
 
-      Gets or sets a factor which is multiplied with the face's underline
-      offset to adjust the underline position. Accepted values are between
-      -2.0 and 2.0 inclusive. A negative value can turn an underline into
-      a strikethrough or overline. A value of 1.0 restores the default
-      position.
+      Gets or sets a factor which, when positive, is multiplied with the
+      face's underline offset to adjust the underline position. A negative
+      value turns an underline into a strikethrough or overline. It is
+      multiplied with the ascender. Accepted values are between -2.0 and 2.0
+      inclusive. A value of 0.5 closely matches Tango underlining. A value of
+      1.0 mimics SDL_ttf.
 
    .. attribute:: fixed_width
 

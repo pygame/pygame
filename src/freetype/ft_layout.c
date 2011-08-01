@@ -117,6 +117,7 @@ _PGFT_LoadFaceText(FreeTypeInstance *ft, PgFaceObject *faceobj,
     TextContext context;
 
     FT_Face     face;
+    FT_Size_Metrics *sz_metrics;
 
     FT_Vector   pen = {0, 0};                /* untransformed origin  */
     FT_Vector   pen1 = {0, 0};
@@ -140,8 +141,6 @@ _PGFT_LoadFaceText(FreeTypeInstance *ft, PgFaceObject *faceobj,
     FT_Pos      max_y = FX6_MIN;
     FT_Pos      glyph_width;
     FT_Pos      glyph_height;
-    FT_Pos      text_width;
-    FT_Pos      text_height;
     FT_Pos      top = FX6_MIN;
     FT_Fixed    y_scale;
 
@@ -153,7 +152,8 @@ _PGFT_LoadFaceText(FreeTypeInstance *ft, PgFaceObject *faceobj,
         PyErr_SetString(PyExc_SDLError, _PGFT_GetError(ft));
         return 0;
     }
-    y_scale = face->size->metrics.y_scale;
+    sz_metrics = &face->size->metrics;
+    y_scale = sz_metrics->y_scale;
 
     /* cleanup the cache */
     _PGFT_Cache_Cleanup(&ftext->glyph_cache);
@@ -178,8 +178,15 @@ _PGFT_LoadFaceText(FreeTypeInstance *ft, PgFaceObject *faceobj,
         ftext->buffer_size = string_length;
     }
     ftext->length = string_length;
-    ftext->underline_pos = ftext->underline_size = 0;
-    ftext->descender = face->size->metrics.descender;
+    ftext->ascender = sz_metrics->ascender;
+    ftext->underline_pos = -FT_MulFix(face->underline_position, y_scale);
+    ftext->underline_size = FT_MulFix(face->underline_thickness, y_scale);
+    if (mode->style & FT_STYLE_STRONG) {
+        FT_Fixed bold_str = mode->strength * sz_metrics->x_ppem;
+
+        ftext->underline_size = FT_MulFix(ftext->underline_size,
+                                          FX16_ONE + bold_str / 4);
+    }
 
     /* fill it with the glyphs */
     fill_context(&context, ft, faceobj, mode, face);
@@ -265,6 +272,21 @@ _PGFT_LoadFaceText(FreeTypeInstance *ft, PgFaceObject *faceobj,
         ++next_pos;
     }
 
+    if (ftext->length == 0) {
+        min_x = 0;
+        max_x = 0;
+        if (vertical) {
+            ftext->min_y = 0;
+            max_y = sz_metrics->height;
+        }
+        else {
+            FT_Size_Metrics *sz_metrics = &face->size->metrics;
+
+            min_y = -sz_metrics->ascender;
+            max_y = -sz_metrics->descender;
+        }
+    }
+
     if (pad) {
         FT_Size_Metrics *sz_metrics = &face->size->metrics;
 
@@ -315,35 +337,14 @@ _PGFT_LoadFaceText(FreeTypeInstance *ft, PgFaceObject *faceobj,
         }
     }
 
-    if (mode->style & FT_STYLE_UNDERLINE) {
-        FT_Fixed scale = face->size->metrics.y_scale;
-        FT_Fixed adjustment = DBL_TO_FX16(faceobj->underline_adjustment);
-        FT_Fixed pos;
-        FT_Fixed size;
-        FT_Fixed adjusted_pos;
-        FT_Fixed max_y_underline;
-
-        pos = -FT_MulFix(face->underline_position, scale);
-        adjusted_pos = FT_MulFix(pos, adjustment);
-        size = FT_MulFix(face->underline_thickness, scale);
-        max_y_underline = adjusted_pos + size / 2;
-        if (max_y_underline > max_y) {
-            max_y = max_y_underline;
-        }
-        ftext->underline_pos = max_y_underline - size;
-        ftext->underline_size = size;
-    }
-
-    text_width = FX6_CEIL(max_x) - FX6_FLOOR(min_x);
-    ftext->width = FX6_TRUNC(text_width);
-    ftext->offset.x = -min_x;
-    ftext->advance.x = pen.x;
     ftext->left = FX6_TRUNC(FX6_FLOOR(min_x));
-    text_height = FX6_CEIL(max_y) - FX6_FLOOR(min_y);
-    ftext->height = FX6_TRUNC(text_height);
-    ftext->offset.y = -min_y;
-    ftext->advance.y = pen.y;
     ftext->top = FX6_TRUNC(FX6_CEIL(top));
+    ftext->min_x = min_x;
+    ftext->max_x = max_x;
+    ftext->min_y = min_y;
+    ftext->max_y = max_y;
+    ftext->advance.x = pen.x;
+    ftext->advance.y = pen.y;
 
     return ftext;
 }
@@ -385,42 +386,6 @@ int _PGFT_GetMetrics(FreeTypeInstance *ft, PgFaceObject *faceobj,
     *advance_x = (double)(glyph->h_metrics.advance_rotated.x / 64.0);
     *advance_y = (double)(glyph->h_metrics.advance_rotated.y / 64.0);
 
-    return 0;
-}
-
-int
-_PGFT_GetSurfaceSize(FreeTypeInstance *ft, PgFaceObject *faceobj,
-        const FaceRenderMode *mode, FaceText *text,
-        int *width, int *height)
-{
-    *width = text->width;
-    *height = text->height;
-    return 0;
-}
-
-int
-_PGFT_GetTopLeft(FaceText *text, int *top, int *left)
-{
-    *top = text->top;
-    *left = text->left;
-    return 0;
-}
-
-int
-_PGFT_GetTextRect(FreeTypeInstance *ft, PgFaceObject *faceobj,
-    const FaceRenderMode *mode, PGFT_String *text, SDL_Rect *r)
-{
-    FaceText *face_text;
-
-    face_text = _PGFT_LoadFaceText(ft, faceobj, mode, text);
-
-    if (!face_text)
-        return -1;
-
-    r->x = -(Sint16)FX6_TRUNC(FX6_FLOOR(face_text->offset.x));
-    r->y = (Sint16)FX6_TRUNC(FX6_CEIL(face_text->offset.y));
-    r->w = (Uint16)face_text->width;
-    r->h = (Uint16)face_text->height;
     return 0;
 }
 
