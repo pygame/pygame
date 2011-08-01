@@ -85,7 +85,10 @@ typedef struct rendermode_ {
     FT_Angle rotation_angle;
     FT_UInt16 render_flags;
     FT_UInt16 style;
+
+    /* All these are Fixed 16.16 */
     FT_Fixed strength;
+    FT_Fixed underline_adjustment;
     FT_Matrix transform;
 } FaceRenderMode;
 
@@ -132,16 +135,19 @@ typedef struct faceglyph_ {
 
 typedef struct facetext_ {
     int length;
-    int width;     /* In pixels */
-    int height;    /* In pixels */
+
     int top;       /* In pixels */
     int left;      /* In pixels */
 
+    FT_Pos min_x;
+    FT_Pos max_x;
+    FT_Pos min_y;
+    FT_Pos max_y;
     FT_Vector offset;
     FT_Vector advance;
-    FT_Pos underline_size;
+    FT_Pos ascender;
+    FT_Fixed underline_size;
     FT_Pos underline_pos;
-    FT_Pos descender;
 
     int buffer_size;
     FaceGlyph **glyphs;
@@ -160,10 +166,8 @@ typedef void (* FaceFillPtr)(int, int, int, int, struct facesurface_ *,
 typedef struct facesurface_ {
     void *buffer;
 
-    FT_Vector offset;
-
-    int width;
-    int height;
+    unsigned width;
+    unsigned height;
     int pitch;
 
     SDL_PixelFormat *format;
@@ -257,9 +261,9 @@ int _PGFT_GetMetrics(FreeTypeInstance *, PgFaceObject *,
                      PGFT_char, const FaceRenderMode *,
                      FT_UInt *, long *, long *, long *, long *,
                      double *, double *);
-int _PGFT_GetSurfaceSize(FreeTypeInstance *, PgFaceObject *,
-                         const FaceRenderMode *, FaceText *, int *, int *);
-int _PGFT_GetTopLeft(FaceText *, int *, int *);
+void _PGFT_GetRenderMetrics(const FaceRenderMode *, FaceText *,
+                            unsigned *, unsigned *, FT_Vector *,
+                            FT_Pos *, FT_Fixed *);
 
 
 /**************************************** Rendering **************************/

@@ -205,6 +205,29 @@ _PGFT_Face_GetGlyphHeightSized(FreeTypeInstance *ft, PgFaceObject *faceobj,
                            FX6_FLOOR(metrics->descender)) + /* baseline */ 1;
 }
 
+int
+_PGFT_GetTextRect(FreeTypeInstance *ft, PgFaceObject *faceobj,
+                  const FaceRenderMode *mode, PGFT_String *text, SDL_Rect *r)
+{
+    FaceText *face_text;
+    unsigned width;
+    unsigned height;
+    FT_Vector offset;
+    FT_Pos underline_size;
+    FT_Pos underline_top;
+
+    face_text = _PGFT_LoadFaceText(ft, faceobj, mode, text);
+    if (!face_text) {
+        return -1;
+    }
+    _PGFT_GetRenderMetrics(mode, face_text, &width, &height, &offset,
+                           &underline_size, &underline_top);
+    r->x = -(Sint16)FX6_TRUNC(FX6_FLOOR(offset.x));
+    r->y = (Sint16)FX6_TRUNC(FX6_CEIL(offset.y));
+    r->w = (Uint16)width;
+    r->h = (Uint16)height;
+    return 0;
+}
 
 
 /*********************************************************

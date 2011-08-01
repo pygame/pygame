@@ -25,7 +25,8 @@
 #include FT_OUTLINE_H
 
 static void render(FreeTypeInstance *, FaceText *, const FaceRenderMode *,
-                   FaceColor *, FaceSurface *);
+                   FaceColor *, FaceSurface *, unsigned, unsigned, FT_Vector *,
+                   FT_Pos, FT_Fixed);
 
 int
 _PGFT_CheckStyle(FT_UInt32 style)
@@ -75,7 +76,7 @@ _PGFT_BuildRenderMode(FreeTypeInstance *ft,
         mode->style = (FT_UInt16)style;
     }
     mode->strength = DBL_TO_FX16(faceobj->strength);
-
+    mode->underline_adjustment = DBL_TO_FX16(faceobj->underline_adjustment);
     mode->render_flags = faceobj->render_flags;
     angle = rotation % 360;
     while (angle < 0) angle += 360;
@@ -109,6 +110,45 @@ _PGFT_BuildRenderMode(FreeTypeInstance *ft,
     }
 
     return 0;
+}
+
+void
+_PGFT_GetRenderMetrics(const FaceRenderMode *mode, FaceText *text,
+                       unsigned *w, unsigned *h, FT_Vector *offset,
+                       FT_Pos *underline_top, FT_Fixed *underline_size)
+{
+    FT_Pos min_x = text->min_x;
+    FT_Pos max_x = text->max_x;
+    FT_Pos min_y = text->min_y;
+    FT_Pos max_y = text->max_y;
+
+    *underline_size = 0;
+    if (mode->style & FT_STYLE_UNDERLINE) {
+        FT_Fixed half_size = (text->underline_size + 1) / 2;
+        FT_Fixed adjusted_pos;
+
+        if (mode->underline_adjustment < 0) {
+            adjusted_pos = FT_MulFix(text->ascender,
+                                     mode->underline_adjustment);
+        }
+        else {
+            adjusted_pos = FT_MulFix(text->underline_pos,
+                                     mode->underline_adjustment);
+        }
+        if (adjusted_pos + half_size > max_y) {
+            max_y = adjusted_pos + half_size;
+        }
+        if (adjusted_pos - half_size < min_y) {
+            min_y = adjusted_pos - half_size;
+        }
+        *underline_size = text->underline_size;
+        *underline_top = adjusted_pos - half_size;
+    }
+
+    offset->x = -min_x;
+    offset->y = -min_y;
+    *w = (unsigned)FX6_TRUNC(FX6_CEIL(max_x) - FX6_FLOOR(min_x));
+    *h = (unsigned)FX6_TRUNC(FX6_CEIL(max_y) - FX6_FLOOR(min_y));
 }
 
 
@@ -150,7 +190,12 @@ _PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PgFaceObject *faceobj,
     };
 
     int locked = 0;
-    int width, height;
+    unsigned width;
+    unsigned height;
+    FT_Vector offset;
+    FT_Vector surf_offset;
+    FT_Pos underline_top;
+    FT_Fixed underline_size;
 
     FaceSurface font_surf;
     FaceText *font_text;
@@ -173,9 +218,8 @@ _PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PgFaceObject *faceobj,
         locked = 1;
     }
 
-    /* build font text */
+    /* build face text */
     font_text = _PGFT_LoadFaceText(ft, faceobj, mode, text);
-
     if (!font_text) {
         if (locked) {
             SDL_UnlockSurface(surface);
@@ -183,16 +227,9 @@ _PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PgFaceObject *faceobj,
         return -1;
     }
 
-    width = font_text->width;
-    height = font_text->height;
-    if (_PGFT_GetSurfaceSize(ft, faceobj, mode, font_text, &width, &height)) {
-        if (locked) {
-            SDL_UnlockSurface(surface);
-        }
-        return -1;
-    }
-
-    if (width <= 0 || height <= 0) {
+    _PGFT_GetRenderMetrics(mode, font_text, &width, &height, &offset,
+                           &underline_top, &underline_size);
+    if (width == 0 || height == 0) {
         /* Nothing more to do. */
         if (locked) {
             SDL_UnlockSurface(surface);
@@ -203,28 +240,25 @@ _PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PgFaceObject *faceobj,
         r->h = _PGFT_Face_GetHeightSized(ft, faceobj, mode->pt_size);
         return 0;
     }
+    surf_offset.x = INT_TO_FX6(x);
+    surf_offset.y = INT_TO_FX6(y);
+    if (mode->render_flags & FT_RFLAG_ORIGIN) {
+        x -= FX6_TRUNC(FX6_CEIL(offset.x));
+        y -= FX6_TRUNC(FX6_CEIL(offset.y));
+    }
+    else {
+        surf_offset.x += offset.x;
+        surf_offset.y += offset.y;
+    }
 
     /*
      * Setup target surface struct
      */
     font_surf.buffer = surface->pixels;
-    font_surf.offset.x = INT_TO_FX6(x);
-    font_surf.offset.y = INT_TO_FX6(y);
-    if (mode->render_flags & FT_RFLAG_ORIGIN) {
-        x -= FX6_TRUNC(FX6_CEIL(font_text->offset.x));
-        y -= FX6_TRUNC(FX6_CEIL(font_text->offset.y));
-    }
-    else {
-        font_surf.offset.x += font_text->offset.x;
-        font_surf.offset.y += font_text->offset.y;
-    }
-
     font_surf.width = surface->w;
     font_surf.height = surface->h;
     font_surf.pitch = surface->pitch;
-
     font_surf.format = surface->format;
-
     font_surf.render_gray = __SDLrenderFuncs[surface->format->BytesPerPixel];
     font_surf.render_mono = __MONOrenderFuncs[surface->format->BytesPerPixel];
     font_surf.fill = __RGBfillFuncs[surface->format->BytesPerPixel];
@@ -255,10 +289,11 @@ _PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PgFaceObject *faceobj,
     /*
      * Render!
      */
-    render(ft, font_text, mode, fgcolor, &font_surf);
+    render(ft, font_text, mode, fgcolor, &font_surf,
+           width, height, &surf_offset, underline_top, underline_size);
 
-    r->x = -(Sint16)FX6_TRUNC(FX6_FLOOR(font_text->offset.x));
-    r->y = (Sint16)FX6_TRUNC(FX6_CEIL(font_text->offset.y));
+    r->x = -(Sint16)FX6_TRUNC(FX6_FLOOR(offset.x));
+    r->y = (Sint16)FX6_TRUNC(FX6_CEIL(offset.y));
     r->w = (Uint16)width;
     r->h = (Uint16)height;
 
@@ -296,24 +331,29 @@ SDL_Surface *_PGFT_Render_NewSurface(FreeTypeInstance *ft,
 
     FaceSurface font_surf;
     FaceText *font_text;
-    int width, height;
+    unsigned width;
+    unsigned height;
+    FT_Vector offset;
+    FT_Pos underline_top;
+    FT_Fixed underline_size;
     FaceColor mono_fgcolor = {0, 0, 0, 1};
     FaceColor mono_bgcolor = {0, 0, 0, 0};
 
     /* build font text */
     font_text = _PGFT_LoadFaceText(ft, faceobj, mode, text);
-
     if (!font_text) {
         return 0;
     }
 
     if (font_text->length > 0) {
-        width = font_text->width;
-        height = font_text->height;
+        _PGFT_GetRenderMetrics(mode, font_text, &width, &height, &offset,
+                               &underline_top, &underline_size);
     }
     else {
         width = 1;
         height = _PGFT_Face_GetHeightSized(ft, faceobj, mode->pt_size);
+        offset.x = -font_text->min_x;
+        offset.y = -font_text->min_y;
     }
 
     surface = SDL_CreateRGBSurface(surface_flags, width, height,
@@ -334,13 +374,9 @@ SDL_Surface *_PGFT_Render_NewSurface(FreeTypeInstance *ft,
     }
 
     font_surf.buffer = surface->pixels;
-    font_surf.offset.x = font_text->offset.x;
-    font_surf.offset.y = font_text->offset.y;
-
     font_surf.width = surface->w;
     font_surf.height = surface->h;
     font_surf.pitch = surface->pitch;
-
     font_surf.format = surface->format;
     if (bits_per_pixel == 32) {
         font_surf.render_gray = __render_glyph_RGB4;
@@ -394,10 +430,11 @@ SDL_Surface *_PGFT_Render_NewSurface(FreeTypeInstance *ft,
     /*
      * Render the text!
      */
-    render(ft, font_text, mode, fgcolor, &font_surf);
+    render(ft, font_text, mode, fgcolor, &font_surf,
+           width, height, &offset, underline_top, underline_size);
 
-    r->x = -(Sint16)FX6_TRUNC(FX6_FLOOR(font_text->offset.x));
-    r->y = (Sint16)FX6_TRUNC(FX6_CEIL(font_text->offset.y));
+    r->x = -(Sint16)FX6_TRUNC(FX6_FLOOR(offset.x));
+    r->y = (Sint16)FX6_TRUNC(FX6_CEIL(offset.y));
     r->w = (Uint16)width;
     r->h = (Uint16)height;
 
@@ -425,9 +462,13 @@ PyObject *_PGFT_Render_PixelArray(FreeTypeInstance *ft, PgFaceObject *faceobj,
     FT_Byte *buffer = 0;
     PyObject *array = 0;
     FaceSurface surf;
-    int width, height;
 
     FaceText *font_text;
+    unsigned width;
+    unsigned height;
+    FT_Vector offset;
+    FT_Pos underline_top;
+    FT_Fixed underline_size;
     int array_size;
     FaceColor mono_opaque = {0, 0, 0, SDL_ALPHA_OPAQUE};
 
@@ -445,16 +486,14 @@ PyObject *_PGFT_Render_PixelArray(FreeTypeInstance *ft, PgFaceObject *faceobj,
         return 0;
     }
 
-    if (_PGFT_GetSurfaceSize(ft, faceobj, mode, font_text, &width, &height)) {
-        return 0;
-    }
+    _PGFT_GetRenderMetrics(mode, font_text, &width, &height, &offset,
+                           &underline_size, &underline_top);
 
     array_size = width * height;
-
-    if (array_size <= 0) {
+    if (array_size == 0) {
         /* Empty array */
         *_width = 0;
-        *_height = _PGFT_Face_GetHeight(ft, faceobj);
+        *_height = height;
         return Bytes_FromStringAndSize("", 0);
     }
 
@@ -464,21 +503,18 @@ PyObject *_PGFT_Render_PixelArray(FreeTypeInstance *ft, PgFaceObject *faceobj,
         return 0;
     }
     buffer = (FT_Byte *)Bytes_AS_STRING(array);
-
     memset(buffer, 0x00, (size_t)array_size);
-
     surf.buffer = buffer;
-    surf.offset.x = font_text->offset.x;
-    surf.offset.y = font_text->offset.y;
-    surf.width = surf.pitch = width;
+    surf.width = width;
     surf.height = height;
-
+    surf.pitch = (int)surf.width;
     surf.format = 0;
     surf.render_gray = __render_glyph_GRAY1;
     surf.render_mono = __render_glyph_MONO_as_GRAY1;
     surf.fill = __fill_glyph_GRAY1;
 
-    render(ft, font_text, mode, &mono_opaque, &surf);
+    render(ft, font_text, mode, &mono_opaque, &surf,
+           width, height, &offset, underline_top, underline_size);
 
     *_width = width;
     *_height = height;
@@ -489,12 +525,14 @@ PyObject *_PGFT_Render_PixelArray(FreeTypeInstance *ft, PgFaceObject *faceobj,
 
 /*********************************************************
  *
- * New rendering algorithm (rotation + veritical drawing)
+ * New rendering algorithm (full thickness underlines)
  *
  *********************************************************/
 static void
 render(FreeTypeInstance *ft, FaceText *text, const FaceRenderMode *mode,
-       FaceColor *fg_color, FaceSurface *surface)
+       FaceColor *fg_color, FaceSurface *surface,
+       unsigned width, unsigned height, FT_Vector *offset,
+       FT_Pos underline_top, FT_Fixed underline_size)
 {
     FT_Pos top;
     FT_Pos left;
@@ -511,8 +549,8 @@ render(FreeTypeInstance *ft, FaceText *text, const FaceRenderMode *mode,
     if (length <= 0) {
         return;
     }
-    left = surface->offset.x;
-    top = surface->offset.y;
+    left = offset->x;
+    top = offset->y;
     for (n = 0; n < length; ++n) {
         image = glyphs[n]->image;
         x = FX6_TRUNC(FX6_CEIL(left + posns[n].x));
@@ -525,11 +563,11 @@ render(FreeTypeInstance *ft, FaceText *text, const FaceRenderMode *mode,
         }
     }
 
-    if (mode->style & FT_STYLE_UNDERLINE) {
+    if (underline_size > 0) {
         surface->fill(
-            FX6_TRUNC(FX6_CEIL(left - text->offset.x)),
-            FX6_TRUNC(FX6_CEIL(top + text->underline_pos)),
-            text->width, FX6_TRUNC(FX6_CEIL(text->underline_size)),
+            FX6_TRUNC(FX6_CEIL(left - text->min_x)),
+            FX6_TRUNC(FX6_CEIL(top + underline_top)),
+            width, FX6_TRUNC(FX6_CEIL(underline_size)),
             surface, fg_color);
     }
 }
