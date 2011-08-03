@@ -2551,7 +2551,7 @@ PySurface_Blit (PyObject * dstobj, PyObject * srcobj, SDL_Rect * dstrect,
     if (src->format->BytesPerPixel == 1) {
         result = pygame_Blit (src, srcrect, dst, dstrect, 0);
     }
-    else {
+    else if (SDL_WasInit (SDL_INIT_VIDEO)) {
         src = SDL_DisplayFormat (src);
         if (src) {
         result = SDL_BlitSurface (src, srcrect, dst, dstrect);
@@ -2559,6 +2559,36 @@ PySurface_Blit (PyObject * dstobj, PyObject * srcobj, SDL_Rect * dstrect,
         }
         else {
         result = -1;
+        }
+    }
+    else {
+        SDL_PixelFormat *fmt = src->format;
+        SDL_PixelFormat newfmt;
+
+        newfmt.palette = 0;  /* Set NULL (or SDL gets confused) */
+        newfmt.BitsPerPixel = fmt->BitsPerPixel;
+        newfmt.BytesPerPixel = fmt->BytesPerPixel;
+        newfmt.Amask = 0;
+        newfmt.Rmask = fmt->Rmask;
+        newfmt.Gmask = fmt->Gmask;
+        newfmt.Bmask = fmt->Bmask;
+        newfmt.Ashift = 0;
+        newfmt.Rshift = fmt->Rshift;
+        newfmt.Gshift = fmt->Gshift;
+        newfmt.Bshift = fmt->Bshift;
+        newfmt.Aloss = 0;
+        newfmt.Rloss = fmt->Rloss;
+        newfmt.Gloss = fmt->Gloss;
+        newfmt.Bloss = fmt->Bloss;
+        newfmt.colorkey = 0;
+        newfmt.alpha = 0;
+        src = SDL_ConvertSurface (src, &newfmt, SDL_SWSURFACE);
+        if (src) {
+            result = SDL_BlitSurface (src, srcrect, dst, dstrect);
+            SDL_FreeSurface (src);
+        }
+        else {
+            result = -1;
         }
     }
     /* Py_END_ALLOW_THREADS */
