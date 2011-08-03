@@ -329,6 +329,10 @@ module, but it can also be bundled in separate archives.</p>
 <td>—</td>
 <td>Renders text on a surface</td>
 </tr>
+<tr><td><a class="toc reference external" href="freetype.html#pygame.freetype.Face.render_to">pygame.freetype.Face.render_to</a></td>
+<td>—</td>
+<td>Renders text to an existing surface</td>
+</tr>
 <tr><td><a class="toc reference external" href="freetype.html#pygame.freetype.Face.render_raw">pygame.freetype.Face.render_raw</a></td>
 <td>—</td>
 <td>Renders text as a string of bytes</td>
@@ -580,36 +584,53 @@ It is not adjusted for strong or rotation.</p>
 <tt class="descname">render</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.freetype.Face.render" title="Permalink to this definition">¶</a></dt>
 <dd><div class="line-block">
 <div class="line"><span class="summaryline">Renders text on a surface</span></div>
-<div class="line"><span class="signature">render(dest, text, fgcolor, bgcolor=None, style=STYLE_DEFAULT, rotation=0, ptsize=default) -&gt; (Surface, Rect)</span></div>
+<div class="line"><span class="signature">render(text, fgcolor, bgcolor=None, style=STYLE_DEFAULT, rotation=0, ptsize=default) -&gt; (Surface, Rect)</span></div>
 </div>
-<p>Renders the string &#8216;text&#8217; to a <a class="tooltip reference internal" href="surface.html#pygame.Surface" title=""><tt class="xref py py-mod docutils literal"><span class="pre">pygame.Surface</span></tt><span class="tooltip-content">pygame object for representing images</span></a>, using the color
-&#8216;fgcolor&#8217;.</p>
-<p>The &#8216;dest&#8217; parameter is supposed to be a sequence containing the surface
-and the coordinates at which the text will be rendered, in that order.
-The sequence may be either (surf, posn) or (surf, x, y), where x and y
-are numbers. posn can be any sequence, including Rect, for which the
-first two elements are positions x and y. If x and y are not integers
-they will be cast to int: <tt class="docutils literal"><span class="pre">int(x)</span></tt>, <tt class="docutils literal"><span class="pre">int(y)</span></tt>.</p>
+<p>Renturns a new <a class="tooltip reference internal" href="surface.html#pygame.Surface" title=""><tt class="xref py py-mod docutils literal"><span class="pre">pygame.Surface</span></tt><span class="tooltip-content">pygame object for representing images</span></a>, with the text rendered to it
+in the color given by &#8216;fgcolor&#8217;. If <tt class="docutils literal"><span class="pre">bgcolor</span></tt> is given, the surface
+will be filled with this color. If no background color is given,
+the surface is filled with zero alpha opacity. Normally the returned
+surface has a 32 bit pixel size. However, if <tt class="docutils literal"><span class="pre">bgcolor</span></tt> is <tt class="xref docutils literal"><span class="pre">None</span></tt>
+and antialiasing is disabled a two color 8 bit surface with colorkey
+set for the background color is returned.</p>
+<p>The return value is a tuple: the new surface and the bounding
+rectangle giving the size and origin of the rendered text.</p>
+<p>If an empty string is passed for text then the returned Rect is zero
+width and the height of the face. If dest is None the returned surface is
+the same dimensions as the boundary rect. The rect will test False.</p>
+<p>The rendering is done using the face&#8217;s default size in points and its
+default style, without any rotation, and taking into account faces which
+are set to be drawn vertically via the <a class="reference internal" href="#pygame.freetype.Face.vertical" title="pygame.freetype.Face.vertical"><tt class="xref py py-meth docutils literal"><span class="pre">Face.vertical()</span></tt></a> attribute.
+Optionally you may specify another point size to use via the &#8216;ptsize&#8217;
+argument, a text rotation via the &#8216;rotation&#8217; argument, or a new text
+style via the &#8216;style&#8217; argument.</p>
+<p>If text is a char (byte) string, then its encoding is assumed to be
+<tt class="docutils literal"><span class="pre">LATIN1</span></tt>.</p>
+</dd></dl>
+
+<dl class="definition method">
+<dt class="title" id="pygame.freetype.Face.render_to">
+<tt class="descname">render_to</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.freetype.Face.render_to" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Renders text to an existing surface</span></div>
+<div class="line"><span class="signature">render(surf, dest, text, fgcolor, bgcolor=None, style=STYLE_DEFAULT, rotation=0, ptsize=default) -&gt; Rect</span></div>
+</div>
+<p>Renders the string &#8216;text&#8217; to a <a class="tooltip reference internal" href="surface.html#pygame.Surface" title=""><tt class="xref py py-mod docutils literal"><span class="pre">pygame.Surface</span></tt><span class="tooltip-content">pygame object for representing images</span></a> &#8216;surf&#8217;,
+using the color &#8216;fgcolor&#8217;.</p>
+<p>Argument &#8216;dest&#8217; is an (x, y) surface coordinate pair. If either x
+or y is not an integer it is converted to one if possible.
+Any sequence, including Rect, for which the first two elements are
+positions x and y is accepted.</p>
 <p>If such a sequence exists, and the destination surface is a valid
 <a class="tooltip reference internal" href="surface.html#pygame.Surface" title=""><tt class="xref py py-mod docutils literal"><span class="pre">pygame.Surface</span></tt><span class="tooltip-content">pygame object for representing images</span></a> (independently of its bit depth), the text will be
 rendered directly on top of it at the passed coordinates, using the given
 &#8216;fgcolor&#8217;, and painting the background of the text with the given
 &#8216;bgcolor&#8217;, if available. The alpha values for both colors are always
 taken into account.</p>
-<p>If &#8216;None&#8217; is passed instead of a destination sequence, a new
-<a class="tooltip reference internal" href="surface.html#pygame.Surface" title=""><tt class="xref py py-mod docutils literal"><span class="pre">pygame.Surface</span></tt><span class="tooltip-content">pygame object for representing images</span></a> will be created with the required size to contain
-the drawn text, and using <tt class="docutils literal"><span class="pre">bgcolor</span></tt> as its background color. If a
-background color is not available, the surface will be filled with zero
-alpha opacity. Normally the returned surface has a 32 bit pixel size.
-However, if <tt class="docutils literal"><span class="pre">bgcolor</span></tt> is <tt class="xref docutils literal"><span class="pre">None</span></tt> and antialiasing is disabled
-a two color 8 bit surface with colorkey set for the background color
-is returned.</p>
-<p>The return value is a tuple: the target surface and the bounding
-rectangle giving the size and position of the rendered text within the
-surface.</p>
+<p>The return value is a rectangle giving the size and position of the
+rendered text within the surface.</p>
 <p>If an empty string is passed for text then the returned Rect is zero
-width and the height of the face. If dest is None the returned surface is
-the same dimensions as the boundary rect. The rect will test False.</p>
+width and the height of the face. The rect will test False.</p>
 <p>The rendering is done using the face&#8217;s default size in points and its
 default style, without any rotation, and taking into account faces which
 are set to be drawn vertically via the <a class="reference internal" href="#pygame.freetype.Face.vertical" title="pygame.freetype.Face.vertical"><tt class="xref py py-meth docutils literal"><span class="pre">Face.vertical()</span></tt></a> attribute.
