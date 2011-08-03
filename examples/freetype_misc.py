@@ -27,50 +27,54 @@ def run():
 
     face.underline_adjustment = 0.5
     face.pad = True
-    face.render((screen, 32, 32), "Hello World", colors["red"], colors['grey_dark'],
-            ptsize=64, style=freetype.STYLE_UNDERLINE|freetype.STYLE_OBLIQUE)
+    face.render_to(screen, (32, 32), "Hello World", colors["red"],
+                   colors['grey_dark'], ptsize=64,
+                   style=freetype.STYLE_UNDERLINE|freetype.STYLE_OBLIQUE)
     face.pad = False
 
-    face.render((screen, 32, 128), "abcdefghijklm", colors["grey_dark"], colors["green"],
-            ptsize=64)
+    face.render_to(screen, (32, 128), "abcdefghijklm", colors["grey_dark"],
+                   colors["green"], ptsize=64)
 
     face.vertical = True
-    face.render((screen, 32, 200), "Vertical?", colors["blue"], None, ptsize=32)
+    face.render_to(screen, (32, 200), "Vertical?", colors["blue"],
+                   None, ptsize=32)
     face.vertical = False
 
-    face.render((screen, 64, 190), "Let's spin!", colors["red"], None,
-            ptsize=48, rotation=55)
+    face.render_to(screen, (64, 190), "Let's spin!", colors["red"],
+                   None, ptsize=48, rotation=55)
 
-    face.render((screen, 160, 290), "All around!", colors["green"], None,
-            ptsize=48, rotation=-55)
+    face.render_to(screen, (160, 290), "All around!", colors["green"],
+                   None, ptsize=48, rotation=-55)
 
-    face.render((screen, 250, 220), "and BLEND", pygame.Color(255, 0, 0, 128), None,
-            ptsize=64)
+    face.render_to(screen, (250, 220), "and BLEND",
+                   pygame.Color(255, 0, 0, 128), None, ptsize=64)
 
-    face.render((screen, 265, 237), "or BLAND!", pygame.Color(0, 0xCC, 28, 128), None,
-            ptsize=64)
+    face.render_to(screen, (265, 237), "or BLAND!",
+                   pygame.Color(0, 0xCC, 28, 128), None, ptsize=64)
 
+    # Some pinwheels
     face.origin = True
     for angle in range(0, 360, 45):
-        face.render((screen, 200, 500), ")", pygame.Color('black'),
-                    ptsize=48, rotation=angle)
+        face.render_to(screen, (200, 500), ")", pygame.Color('black'),
+                       ptsize=48, rotation=angle)
     face.vertical = True
     for angle in range(15, 375, 30):
-        face.render((screen, 600, 400), "|^*", pygame.Color('orange'),
-                    ptsize=48, rotation=angle)
+        face.render_to(screen, (600, 400), "|^*", pygame.Color('orange'),
+                       ptsize=48, rotation=angle)
     face.vertical = False
     face.origin = False
 
     utext = pygame.compat.as_unicode(r"I \u2665 Unicode")
-    face.render((screen, 298, 320), utext, pygame.Color(0, 0xCC, 0xDD), None,
-            ptsize=64)
+    face.render_to(screen, (298, 320), utext, pygame.Color(0, 0xCC, 0xDD),
+                   None, ptsize=64)
 
     utext = pygame.compat.as_unicode(r"\u2665")
-    face.render((screen, 480, 32), utext, colors["grey_light"], colors["red"],
-            ptsize=148)
+    face.render_to(screen, (480, 32), utext, colors["grey_light"],
+                   colors["red"], ptsize=148)
 
-    face.render((screen, 380, 380), "...yes, this is an SDL surface", pygame.Color(0, 0, 0), None,
-            ptsize=24, style=freetype.STYLE_STRONG)
+    face.render_to(screen, (380, 380), "...yes, this is an SDL surface",
+                   pygame.Color(0, 0, 0),
+                   None, ptsize=24, style=freetype.STYLE_STRONG)
 
     pygame.display.flip()
 

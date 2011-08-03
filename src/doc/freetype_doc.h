@@ -41,7 +41,9 @@
 
 #define DOC_FACEGETSIZEDGLYPHHEIGHT "get_sized_glyph_height() -> int\nGets the scaled height of the face in pixels"
 
-#define DOC_FACERENDER "render(dest, text, fgcolor, bgcolor=None, style=STYLE_DEFAULT, rotation=0, ptsize=default) -> (Surface, Rect)\nRenders text on a surface"
+#define DOC_FACERENDER "render(text, fgcolor, bgcolor=None, style=STYLE_DEFAULT, rotation=0, ptsize=default) -> (Surface, Rect)\nRenders text on a surface"
+
+#define DOC_FACERENDERTO "render(surf, dest, text, fgcolor, bgcolor=None, style=STYLE_DEFAULT, rotation=0, ptsize=default) -> Rect\nRenders text to an existing surface"
 
 #define DOC_FACERENDERRAW "render_raw(text, style=STYLE_DEFAULT, rotation=0, ptsize=default) -> (bytes, (int, int))\nRenders text as a string of bytes"
 
@@ -171,8 +173,12 @@ pygame.freetype.Face.get_sized_glyph_height
 Gets the scaled height of the face in pixels
 
 pygame.freetype.Face.render
- render(dest, text, fgcolor, bgcolor=None, style=STYLE_DEFAULT, rotation=0, ptsize=default) -> (Surface, Rect)
+ render(text, fgcolor, bgcolor=None, style=STYLE_DEFAULT, rotation=0, ptsize=default) -> (Surface, Rect)
 Renders text on a surface
+
+pygame.freetype.Face.render_to
+ render(surf, dest, text, fgcolor, bgcolor=None, style=STYLE_DEFAULT, rotation=0, ptsize=default) -> Rect
+Renders text to an existing surface
 
 pygame.freetype.Face.render_raw
  render_raw(text, style=STYLE_DEFAULT, rotation=0, ptsize=default) -> (bytes, (int, int))

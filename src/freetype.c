@@ -60,6 +60,7 @@ static int _ftface_init(PgFaceObject *, PyObject *, PyObject *);
 static PyObject *_ftface_getrect(PgFaceObject *, PyObject *, PyObject *);
 static PyObject *_ftface_getmetrics(PgFaceObject *, PyObject *, PyObject *);
 static PyObject *_ftface_render(PgFaceObject *, PyObject *, PyObject *);
+static PyObject *_ftface_render_to(PgFaceObject *, PyObject *, PyObject *);
 static PyObject *_ftface_render_raw(PgFaceObject *, PyObject *, PyObject *);
 static PyObject *_ftface_getsizedascender(PgFaceObject *, PyObject *);
 static PyObject *_ftface_getsizeddescender(PgFaceObject *, PyObject *);
@@ -104,7 +105,7 @@ static PyObject *_ftface_getdebugcachestats(PgFaceObject *, void *);
 static PyObject *get_metrics(FreeTypeInstance *, FaceRenderMode *,
                              PgFaceObject *, PGFT_String *);
 static PyObject *load_font_res(const char *);
-static int parse_dest(PyObject *, PyObject **, int *, int *);
+static int parse_dest(PyObject *, int *, int *);
 
 
 /*
@@ -182,115 +183,49 @@ font_resource_end:
 }
 
 static int
-parse_dest(PyObject *dest, PyObject **surf, int *x, int *y)
+parse_dest(PyObject *dest, int *x, int *y)
 {
-    PyObject *s = PySequence_GetItem(dest, 0);
-    int len = PySequence_Length(dest);
     PyObject *oi;
     PyObject *oj;
     int i, j;
 
-    if (!PySurface_Check(s)) {
+    if (!PySequence_Check(dest) ||  /* conditional and */
+        !PySequence_Size(dest) > 1) {
         PyErr_Format(PyExc_TypeError,
-                     "expected a Surface as element 0 of dest:"
+                     "Expected length 2 sequence for dest argument:"
                      " got type %.1024s",
-                     Py_TYPE(s)->tp_name);
-        Py_DECREF(s);
+                     Py_TYPE(dest)->tp_name);
         return -1;
     }
-    if (len == 2) {
-        PyObject *size = PySequence_GetItem(dest, 1);
-
-        if (!size) {
-            Py_DECREF(s);
-            return -1;
-        }
-        if (!PySequence_Check(size)) {
-            PyErr_Format(PyExc_TypeError,
-                         "expected an (x,y) position for element 1"
-                         " of dest: got type %.1024s",
-                         Py_TYPE(size)->tp_name);
-            Py_DECREF(s);
-            Py_DECREF(size);
-            return -1;
-        }
-        len = PySequence_Length(size);
-        if (len < 2) {
-            PyErr_Format(PyExc_TypeError,
-                         "expected at least a length 2 sequence for element 1"
-                         " of dest: not length %d", len);
-            Py_DECREF(s);
-            Py_DECREF(size);
-            return -1;
-        }
-        oi = PySequence_GetItem(size, 0);
-        if (!oi) {
-            Py_DECREF(s);
-            Py_DECREF(size);
-            return -1;
-        }
-        oj = PySequence_GetItem(size, 1);
-        Py_DECREF(size);
-        if (!oj) {
-            Py_DECREF(s);
-            Py_DECREF(oi);
-            return -1;
-        }
-        if (!PyNumber_Check(oi) || !PyNumber_Check(oj)) {
-            Py_DECREF(s);
-            Py_DECREF(oi);
-            Py_DECREF(oj);
-            PyErr_Format(PyExc_TypeError,
-                         "expected a pair of numbers for element 1 of dest:"
-                         " got types %.1024s and %.1024s",
-                         Py_TYPE(oi)->tp_name, Py_TYPE(oj)->tp_name);
-            return -1;
-        }
+    oi = PySequence_GetItem(dest, 0);
+    if (!oi) {
+        return -1;
     }
-    else if (len == 3) {
-        oi = PySequence_GetItem(dest, 1);
-        if (!oi) {
-            Py_DECREF(s);
-            return -1;
-        }
-        oj = PySequence_GetItem(dest, 2);
-        if (!oj) {
-            Py_DECREF(oi);
-            Py_DECREF(s);
-            return -1;
-        }
-        if (!PyNumber_Check(oi) || !PyNumber_Check(oj)) {
-            Py_DECREF(s);
-            PyErr_Format(PyExc_TypeError,
-                         "for dest expected a pair of numbers"
-                         "for elements 1 and 2: got types %.1024s and %1024s",
-                         Py_TYPE(oi)->tp_name, Py_TYPE(oj)->tp_name);
-            Py_DECREF(oi);
-            Py_DECREF(oj);
-            return -1;
-        }
+    oj = PySequence_GetItem(dest, 1);
+    if (!oj) {
+        Py_DECREF(oi);
+        return -1;
     }
-    else {
-        Py_DECREF(s);
+    if (!PyNumber_Check(oi) || !PyNumber_Check(oj)) {
         PyErr_Format(PyExc_TypeError,
-                     "for dest expected a sequence of either 2 or 3:"
-                     " not length %d", len);
+                     "for dest expected a pair of numbers"
+                     "for elements 1 and 2: got types %.1024s and %1024s",
+                     Py_TYPE(oi)->tp_name, Py_TYPE(oj)->tp_name);
+        Py_DECREF(oi);
+        Py_DECREF(oj);
         return -1;
     }
     i = PyInt_AsLong(oi);
     Py_DECREF(oi);
     if (i == -1 && PyErr_Occurred()) {
-        Py_DECREF(s);
         Py_DECREF(oj);
         return -1;
     }
     j = PyInt_AsLong(oj);
     Py_DECREF(oj);
     if (j == -1 && PyErr_Occurred()) {
-        Py_DECREF(s);
         return -1;
     }
-    *surf = s;
     *x = i;
     *y = j;
     return 0;
@@ -404,6 +339,12 @@ static PyMethodDef _ftface_methods[] = {
         (PyCFunction)_ftface_render,
         METH_VARARGS | METH_KEYWORDS,
         DOC_FACERENDER
+    },
+    {
+        "render_to",
+        (PyCFunction)_ftface_render_to,
+        METH_VARARGS | METH_KEYWORDS,
+        DOC_FACERENDERTO
     },
     {
         "render_raw",
@@ -1468,24 +1409,21 @@ _ftface_render(PgFaceObject *self, PyObject *args, PyObject *kwds)
 #else
     /* keyword list */
     static char *kwlist[] =  {
-        "dest", "text", "fgcolor", "bgcolor",
-        "style", "rotation", "ptsize", 0
+        "text", "fgcolor", "bgcolor", "style", "rotation", "ptsize", 0
     };
 
     /* input arguments */
     PyObject *textobj = 0;
     PGFT_String *text;
     int ptsize = -1;
-    PyObject *dest = 0;
-    PyObject *surface_obj = 0;
-    int xpos = 0;
-    int ypos = 0;
     PyObject *fg_color_obj = 0;
     PyObject *bg_color_obj = 0;
     int rotation = 0;
     int style = FT_STYLE_DEFAULT;
 
     /* output arguments */
+    SDL_Surface *surface;
+    PyObject *surface_obj = 0;
     PyObject *rtuple = 0;
     SDL_Rect r;
     PyObject *rect_obj;
@@ -1497,9 +1435,9 @@ _ftface_render(PgFaceObject *self, PyObject *args, PyObject *kwds)
     FreeTypeInstance *ft;
     ASSERT_GRAB_FREETYPE(ft, 0);
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOO|Oiii", kwlist,
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OO|Oiii", kwlist,
                                      /* required */
-                                     &dest, &textobj, &fg_color_obj,
+                                     &textobj, &fg_color_obj,
                                      /* optional */
                                      &bg_color_obj, &style,
                                      &rotation, &ptsize)) {
@@ -1510,7 +1448,6 @@ _ftface_render(PgFaceObject *self, PyObject *args, PyObject *kwds)
         PyErr_SetString(PyExc_TypeError, "fgcolor must be a Color");
         return 0;
     }
-
     if (bg_color_obj) {
         if (bg_color_obj == Py_None) {
             bg_color_obj = 0;
@@ -1534,53 +1471,18 @@ _ftface_render(PgFaceObject *self, PyObject *args, PyObject *kwds)
         return 0;
     }
 
-    if (dest == Py_None) {
-        SDL_Surface *r_surface = 0;
-
-        r_surface = _PGFT_Render_NewSurface(ft, self, &render, text, &fg_color,
-                                            bg_color_obj ? &bg_color : 0,
-                                            &r);
-        _PGFT_FreeString(text);
-
-        if (!r_surface) {
-            return 0;
-        }
-
-        surface_obj = PySurface_New(r_surface);
-        if (!surface_obj) {
-            return 0;
-        }
+    surface = _PGFT_Render_NewSurface(ft, self, &render, text, &fg_color,
+                                      bg_color_obj ? &bg_color : 0, &r);
+    _PGFT_FreeString(text);
+    if (!surface) {
+        return 0;
     }
-    else if (PySequence_Check(dest) &&  /* conditional and */
-             PySequence_Size(dest) > 1) {
-        SDL_Surface *surface = 0;
-        int rcode;
-
-        if (parse_dest(dest, &surface_obj, &xpos, &ypos)) {
-            _PGFT_FreeString(text);
-            return 0;
-        }
-
-        surface = PySurface_AsSurface(surface_obj);
-
-        rcode = _PGFT_Render_ExistingSurface(ft, self, &render, text, surface,
-                                             xpos, ypos, &fg_color,
-                                             bg_color_obj ? &bg_color : 0,
-                                             &r);
-        _PGFT_FreeString(text);
-        if (rcode) {
-            Py_DECREF(surface_obj);
-            return 0;
-        }
+    surface_obj = PySurface_New(surface);
+    if (!surface_obj) {
+        SDL_FreeSurface(surface);
+        return 0;
     }
-    else {
-        _PGFT_FreeString(text);
-        return PyErr_Format(PyExc_TypeError,
-                            "Expected a (surface, posn) or None for"
-			    " dest argument:"
-                            " got type %.1024s",
-                            Py_TYPE(dest)->tp_name);
-    }
+
     rect_obj = PyRect_New(&r);
     if (rect_obj) {
         rtuple = PyTuple_Pack(2, surface_obj, rect_obj);
@@ -1589,6 +1491,101 @@ _ftface_render(PgFaceObject *self, PyObject *args, PyObject *kwds)
     Py_DECREF(surface_obj);
 
     return rtuple;
+
+#endif // HAVE_PYGAME_SDL_VIDEO
+}
+
+static PyObject *
+_ftface_render_to(PgFaceObject *self, PyObject *args, PyObject *kwds)
+{
+#ifndef HAVE_PYGAME_SDL_VIDEO
+
+    PyErr_SetString(PyExc_RuntimeError,
+		    "SDL support is missing. Cannot render on surfaces");
+    return 0;
+
+#else
+    /* keyword list */
+    static char *kwlist[] =  {
+        "surf", "dest", "text", "fgcolor", "bgcolor",
+        "style", "rotation", "ptsize", 0
+    };
+
+    /* input arguments */
+    PyObject *surface_obj = 0;
+    PyObject *textobj = 0;
+    PGFT_String *text;
+    int ptsize = -1;
+    PyObject *dest = 0;
+    int xpos = 0;
+    int ypos = 0;
+    PyObject *fg_color_obj = 0;
+    PyObject *bg_color_obj = 0;
+    int rotation = 0;
+    int style = FT_STYLE_DEFAULT;
+    SDL_Surface *surface = 0;
+
+    /* output arguments */
+    SDL_Rect r;
+    int rcode;
+
+    FaceColor fg_color;
+    FaceColor bg_color;
+    FaceRenderMode render;
+
+    FreeTypeInstance *ft;
+    ASSERT_GRAB_FREETYPE(ft, 0);
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O!OOO|Oiii", kwlist,
+                                     /* required */
+                                     &PySurface_Type, &surface_obj, &dest,
+                                     &textobj, &fg_color_obj,
+                                     /* optional */
+                                     &bg_color_obj, &style,
+                                     &rotation, &ptsize)) {
+        return 0;
+    }
+
+    if (parse_dest(dest, &xpos, &ypos)) {
+        return 0;
+    }
+    if (!RGBAFromColorObj(fg_color_obj, (Uint8 *)&fg_color)) {
+        PyErr_SetString(PyExc_TypeError, "fgcolor must be a Color");
+        return 0;
+    }
+    if (bg_color_obj) {
+        if (bg_color_obj == Py_None) {
+            bg_color_obj = 0;
+        }
+        else if (!RGBAFromColorObj(bg_color_obj, (Uint8 *)&bg_color)) {
+            PyErr_SetString(PyExc_TypeError, "bgcolor must be a Color");
+            return 0;
+        }
+    }
+
+    ASSERT_SELF_IS_ALIVE(self);
+
+    /* Encode text */
+    text = _PGFT_EncodePyString(textobj, self->render_flags & FT_RFLAG_UCS4);
+    if (!text) {
+        return 0;
+    }
+
+    if (_PGFT_BuildRenderMode(ft, self, &render, ptsize, style, rotation)) {
+        _PGFT_FreeString(text);
+        return 0;
+    }
+
+    surface = PySurface_AsSurface(surface_obj);
+    rcode = _PGFT_Render_ExistingSurface(ft, self, &render, text, surface,
+                                         xpos, ypos, &fg_color,
+                                         bg_color_obj ? &bg_color : 0, &r);
+    _PGFT_FreeString(text);
+    if (rcode) {
+        return 0;
+    }
+
+    return PyRect_New(&r);
 
 #endif // HAVE_PYGAME_SDL_VIDEO
 }

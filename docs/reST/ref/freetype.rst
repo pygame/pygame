@@ -277,17 +277,45 @@ New in Pygame 1.9.2
    .. method:: render
 
       | :sl:`Renders text on a surface`
-      | :sg:`render(dest, text, fgcolor, bgcolor=None, style=STYLE_DEFAULT, rotation=0, ptsize=default) -> (Surface, Rect)`
+      | :sg:`render(text, fgcolor, bgcolor=None, style=STYLE_DEFAULT, rotation=0, ptsize=default) -> (Surface, Rect)`
 
-      Renders the string 'text' to a :mod:`pygame.Surface`, using the color
-      'fgcolor'.
+      Renturns a new :mod:`pygame.Surface`, with the text rendered to it
+      in the color given by 'fgcolor'. If ``bgcolor`` is given, the surface
+      will be filled with this color. If no background color is given,
+      the surface is filled with zero alpha opacity. Normally the returned
+      surface has a 32 bit pixel size. However, if ``bgcolor`` is ``None``
+      and antialiasing is disabled a two color 8 bit surface with colorkey
+      set for the background color is returned.
 
-      The 'dest' parameter is supposed to be a sequence containing the surface
-      and the coordinates at which the text will be rendered, in that order.
-      The sequence may be either (surf, posn) or (surf, x, y), where x and y
-      are numbers. posn can be any sequence, including Rect, for which the
-      first two elements are positions x and y. If x and y are not integers
-      they will be cast to int: ``int(x)``, ``int(y)``.
+      The return value is a tuple: the new surface and the bounding
+      rectangle giving the size and origin of the rendered text.
+
+      If an empty string is passed for text then the returned Rect is zero
+      width and the height of the face. If dest is None the returned surface is
+      the same dimensions as the boundary rect. The rect will test False.
+
+      The rendering is done using the face's default size in points and its
+      default style, without any rotation, and taking into account faces which
+      are set to be drawn vertically via the :meth:`Face.vertical` attribute.
+      Optionally you may specify another point size to use via the 'ptsize'
+      argument, a text rotation via the 'rotation' argument, or a new text
+      style via the 'style' argument.
+
+      If text is a char (byte) string, then its encoding is assumed to be
+      ``LATIN1``.
+
+   .. method:: render_to
+
+      | :sl:`Renders text to an existing surface`
+      | :sg:`render(surf, dest, text, fgcolor, bgcolor=None, style=STYLE_DEFAULT, rotation=0, ptsize=default) -> Rect`
+
+      Renders the string 'text' to a :mod:`pygame.Surface` 'surf',
+      using the color 'fgcolor'.
+
+      Argument 'dest' is an (x, y) surface coordinate pair. If either x
+      or y is not an integer it is converted to one if possible.
+      Any sequence, including Rect, for which the first two elements are
+      positions x and y is accepted.
 
       If such a sequence exists, and the destination surface is a valid
       :mod:`pygame.Surface` (independently of its bit depth), the text will be
@@ -296,22 +324,11 @@ New in Pygame 1.9.2
       'bgcolor', if available. The alpha values for both colors are always
       taken into account.
 
-      If 'None' is passed instead of a destination sequence, a new 
-      :mod:`pygame.Surface` will be created with the required size to contain
-      the drawn text, and using ``bgcolor`` as its background color. If a
-      background color is not available, the surface will be filled with zero
-      alpha opacity. Normally the returned surface has a 32 bit pixel size.
-      However, if ``bgcolor`` is ``None`` and antialiasing is disabled
-      a two color 8 bit surface with colorkey set for the background color
-      is returned.
-
-      The return value is a tuple: the target surface and the bounding
-      rectangle giving the size and position of the rendered text within the
-      surface.
+      The return value is a rectangle giving the size and position of the
+      rendered text within the surface.
 
       If an empty string is passed for text then the returned Rect is zero
-      width and the height of the face. If dest is None the returned surface is
-      the same dimensions as the boundary rect. The rect will test False.
+      width and the height of the face. The rect will test False.
 
       The rendering is done using the face's default size in points and its
       default style, without any rotation, and taking into account faces which

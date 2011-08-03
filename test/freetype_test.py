@@ -198,6 +198,61 @@ class FreeTypeFaceTest(unittest.TestCase):
         nf = nullface()
         self.assertEqual(nf.name, repr(nf))
 
+    def test_freetype_Face_render_to(self):
+        # Rendering to an existing target surface is equivalent to
+        # blitting a surface returned by Face.render with the target.
+        face = self._TEST_FONTS['sans']
+
+        surf = pygame.Surface((800, 600))
+        color = pygame.Color(0, 0, 0)
+
+        rrect = face.render_to(surf, (32, 32),
+                               'FoobarBaz', color, None, ptsize=24)
+        self.assertTrue(isinstance(rrect, pygame.Rect))
+        self.assertEqual(rrect.top, rrect.height)
+##        self.assertEqual(rrect.left, something or other)
+        rcopy = rrect.copy()
+        rcopy.topleft = (32, 32)
+        self.assertTrue(surf.get_rect().contains(rcopy))
+        
+        rect = pygame.Rect(20, 20, 2, 2)
+        rrect = face.render_to(surf, rect, 'FoobarBax', color, None, ptsize=24)
+        self.assertEqual(rrect.top, rrect.height)
+        self.assertNotEqual(rrect.size, rect.size)
+        rrect = face.render_to(surf, (20.1, 18.9), 'FoobarBax',
+                               color, None, ptsize=24)
+##        self.assertEqual(tuple(rend[1].topleft), (20, 18))
+
+        rrect = face.render_to(surf, rect, '', color, None, ptsize=24)
+        self.assertFalse(rrect)
+        self.assertEqual(rrect.height, face.get_sized_height(24))
+
+        # invalid surf test
+        self.assertRaises(TypeError, face.render_to,
+                          "not a surface", "text", color)
+        self.assertRaises(TypeError, face.render_to,
+                          pygame.Surface, "text", color)
+                          
+        # invalid dest test
+        for dest in [None, 0, 'a', 'ab',
+                     (), (1,), ('a', 2), (1, 'a'), (1+2j, 2), (1, 1+2j),
+                     (1, int), (int, 1)]: 
+            self.assertRaises(TypeError, face.render,
+                              surf, dest, 'foobar', color, ptsize=24)
+
+        # misc parameter test
+        self.assertRaises(ValueError, face.render_to, surf, (0, 0),
+                          'foobar', color)
+        self.assertRaises(TypeError, face.render_to, surf, (0, 0),
+                          'foobar', color, "", ptsize=24)
+        self.assertRaises(ValueError, face.render_to, surf, (0, 0),
+                          'foobar', color, None, style=42, ptsize=24)
+        self.assertRaises(TypeError, face.render_to, surf, (0, 0),
+                          'foobar', color, None, style=None, ptsize=24)
+        self.assertRaises(ValueError, face.render_to, surf, (0, 0),
+                          'foobar', color, None, style=97, ptsize=24)
+
+
     def test_freetype_Face_render(self):
 
         face = self._TEST_FONTS['sans']
@@ -206,69 +261,31 @@ class FreeTypeFaceTest(unittest.TestCase):
         color = pygame.Color(0, 0, 0)
 
         # make sure we always have a valid fg color
-        self.assertRaises(TypeError, face.render, None, 'FoobarBaz')
-        self.assertRaises(TypeError, face.render, None, 'FoobarBaz', None)
+        self.assertRaises(TypeError, face.render, 'FoobarBaz')
+        self.assertRaises(TypeError, face.render, 'FoobarBaz', None)
 
-        # render to new surface
-        rend = face.render(None, 'FoobarBaz', pygame.Color(0, 0, 0), None, ptsize=24)
+        rend = face.render('FoobarBaz', pygame.Color(0, 0, 0), None, ptsize=24)
         self.assertTrue(isinstance(rend, tuple))
         self.assertEqual(len(rend), 2)
         self.assertTrue(isinstance(rend[0], pygame.Surface))
         self.assertTrue(isinstance(rend[1], pygame.Rect))
         self.assertEqual(rend[0].get_rect().size, rend[1].size)
-        s, r = face.render(None, '', pygame.Color(0, 0, 0), None, ptsize=24)
+        s, r = face.render('', pygame.Color(0, 0, 0), None, ptsize=24)
         self.assertEqual(r.width, 1)
         self.assertEqual(r.height, face.get_sized_height(24))
         self.assertEqual(s.get_size(), r.size)
         self.assertEqual(s.get_bitsize(), 32)
 
-        # render to existing surface
-        refcount = sys.getrefcount(surf);
-        rend = face.render((surf, 32, 32), 'FoobarBaz', color, None, ptsize=24)
-        self.assertEqual(sys.getrefcount(surf), refcount + 1)
-        self.assertTrue(isinstance(rend, tuple))
-        self.assertEqual(len(rend), 2)
-        rsurf, rrect = rend
-        self.assertTrue(rsurf is surf)
-        self.assertTrue(isinstance(rrect, pygame.Rect))
-        self.assertEqual(rrect.top, rrect.height)
-##        self.assertEqual(rrect.left, something or other)
-        rcopy = rrect.copy()
-        rcopy.topleft = (32, 32)
-        self.assertTrue(rsurf.get_rect().contains(rcopy))
-        
-        rect = pygame.Rect(20, 20, 2, 2)
-        rend = face.render((surf, rect), 'FoobarBax', color, None, ptsize=24)
-        self.assertEqual(rend[1].top, rend[1].height)
-        self.assertNotEqual(rend[1].size, rect.size)
-        rend = face.render((surf, 20.1, 18.9), 'FoobarBax',
-                           color, None, ptsize=24)
-##        self.assertEqual(tuple(rend[1].topleft), (20, 18))
-
-        s, r = face.render((surf, rect), '', color, None, ptsize=24)
-        self.assertFalse(r)
-        self.assertEqual(r.height, face.get_sized_height(24))
-        self.assertTrue(s is surf)
-
-        # invalid dest test
-        for dest in [0, (), (surf,), (surf, 'a'), (surf, ()),
-                     (surf, (1,)), (surf, ('a', 2)), (surf, (1, 'a')),
-                     (surf, (1+2j, 2)), (surf, (1, 1+2j)),
-                     (surf, 'a', 2), (surf, 1, 'a'), (surf, 1+2j, 2),
-                     (surf, 1, 1+2j), (surf, 1, 2, 3)]: 
-            self.assertRaises(TypeError, face.render,
-                              dest, 'foobar', color, ptsize=24)
-
         # misc parameter test
-        self.assertRaises(ValueError, face.render, None, 'foobar', color)
-        self.assertRaises(TypeError, face.render, None, 'foobar', color, "",
-                ptsize=24)
-        self.assertRaises(ValueError, face.render, None, 'foobar', color, None,
-                style=42, ptsize=24)
-        self.assertRaises(TypeError, face.render, None, 'foobar', color, None,
-                style=None, ptsize=24)
-        self.assertRaises(ValueError, face.render, None, 'foobar', color, None,
-                style=97, ptsize=24)
+        self.assertRaises(ValueError, face.render, 'foobar', color)
+        self.assertRaises(TypeError, face.render, 'foobar', color, "",
+                          ptsize=24)
+        self.assertRaises(ValueError, face.render, 'foobar', color, None,
+                          style=42, ptsize=24)
+        self.assertRaises(TypeError, face.render, 'foobar', color, None,
+                          style=None, ptsize=24)
+        self.assertRaises(ValueError, face.render, 'foobar', color, None,
+                          style=97, ptsize=24)
 
         # valid surrogate pairs
 #        rend1 = face.render(None, as_unicode(r'\uD800\uDC00'), color, ptsize=24)
@@ -286,21 +303,21 @@ class FreeTypeFaceTest(unittest.TestCase):
             
         # malformed surrogate pairs
         self.assertRaises(UnicodeEncodeError, face.render,
-                          None, as_unicode(r'\uD80C'), color, ptsize=24)
+                          as_unicode(r'\uD80C'), color, ptsize=24)
         self.assertRaises(UnicodeEncodeError, face.render,
-                          None, as_unicode(r'\uDCA7'), color, ptsize=24)
+                          as_unicode(r'\uDCA7'), color, ptsize=24)
         self.assertRaises(UnicodeEncodeError, face.render,
-                          None, as_unicode(r'\uD7FF\uDCA7'), color, ptsize=24)
+                          as_unicode(r'\uD7FF\uDCA7'), color, ptsize=24)
         self.assertRaises(UnicodeEncodeError, face.render,
-                          None, as_unicode(r'\uDC00\uDCA7'), color, ptsize=24)
+                          as_unicode(r'\uDC00\uDCA7'), color, ptsize=24)
         self.assertRaises(UnicodeEncodeError, face.render,
-                          None, as_unicode(r'\uD80C\uDBFF'), color, ptsize=24)
+                          as_unicode(r'\uD80C\uDBFF'), color, ptsize=24)
         self.assertRaises(UnicodeEncodeError, face.render,
-                          None, as_unicode(r'\uD80C\uE000'), color, ptsize=24)
+                          as_unicode(r'\uD80C\uE000'), color, ptsize=24)
 
         # raises exception when uninitalized
         self.assertRaises(RuntimeError, nullface().render,
-                          None, 'a', (0, 0, 0), ptsize=24)
+                          'a', (0, 0, 0), ptsize=24)
 
         # *** need more unicode testing to ensure the proper glyphs are rendered
 
@@ -313,7 +330,7 @@ class FreeTypeFaceTest(unittest.TestCase):
         save_antialiased = face.antialiased
         face.antialiased = False
         try:
-            surf, r = face.render(None, text, color, ptsize=24)
+            surf, r = face.render(text, color, ptsize=24)
             self.assertEqual(surf.get_bitsize(), 8)
             flags = surf.get_flags()
             self.assertTrue(flags & pygame.SRCCOLORKEY)
@@ -323,7 +340,7 @@ class FreeTypeFaceTest(unittest.TestCase):
 
             translucent_color = pygame.Color(*color)
             translucent_color.a = 55
-            surf, r = face.render(None, text, translucent_color, ptsize=24)
+            surf, r = face.render(text, translucent_color, ptsize=24)
             self.assertEqual(surf.get_bitsize(), 8)
             flags = surf.get_flags()
             self.assertTrue(flags & (pygame.SRCCOLORKEY | pygame.SRCALPHA))
@@ -331,8 +348,80 @@ class FreeTypeFaceTest(unittest.TestCase):
             self.assertEqual(surf.get_colorkey(), colorkey)
             self.assertEqual(surf.get_alpha(), translucent_color.a)
 
-            surf, r = face.render(None, text, color, colorkey, ptsize=24)
+            surf, r = face.render(text, color, colorkey, ptsize=24)
             self.assertEqual(surf.get_bitsize(), 32)
+        finally:
+            face.antialiased = save_antialiased
+
+    def test_freetype_Face_render_to_mono(self):
+        # Rendering to an existing target surface is equivalent to
+        # blitting a surface returned by Face.render with the target.
+        face = self._TEST_FONTS['sans']
+        text = " ."
+        rect = face.get_rect(text, ptsize=24)
+        size = rect.size
+        fg = pygame.Surface((1, 1), pygame.SRCALPHA, 32)
+        bg = pygame.Surface((1, 1), pygame.SRCALPHA, 32)
+        surfaces = [pygame.Surface(size, 0, 8),
+                    pygame.Surface(size, 0, 16),
+                    pygame.Surface(size, pygame.SRCALPHA, 16),
+                    pygame.Surface(size, 0, 24),
+                    pygame.Surface(size, 0, 32),
+                    pygame.Surface(size, pygame.SRCALPHA, 32)]
+        fg_colors = [
+            surfaces[0].get_palette_at(2),
+            surfaces[1].unmap_rgb(surfaces[1].map_rgb((128, 64, 200))),
+            surfaces[2].unmap_rgb(surfaces[2].map_rgb((99, 0, 100, 64))),
+            (128, 97, 213),
+            (128, 97, 213),
+            (128, 97, 213, 60)]
+        fg_colors = [pygame.Color(*c) for c in fg_colors]
+        self.assertEqual(len(surfaces), len(fg_colors))  # safety check
+        bg_colors = [
+            surfaces[0].get_palette_at(4),
+            surfaces[1].unmap_rgb(surfaces[1].map_rgb((220, 20, 99))),
+            surfaces[2].unmap_rgb(surfaces[2].map_rgb((55, 200, 0, 86))),
+            (255, 120, 13),
+            (255, 120, 13),
+            (255, 120, 13, 180)]
+        bg_colors = [pygame.Color(*c) for c in bg_colors]
+        self.assertEqual(len(surfaces), len(bg_colors))  # safety check
+
+        save_antialiased = face.antialiased
+        face.antialiased = False
+        try:
+            fill_color = pygame.Color('black')
+            for i in range(len(surfaces)):
+                surf = surfaces[i]
+                surf.fill(fill_color)
+                fg_color = fg_colors[i]
+                fg.set_at((0, 0), fg_color)
+                surf.blit(fg, (0, 0))
+                r_fg_color = surf.get_at((0, 0))
+                surf.set_at((0, 0), fill_color)
+                rrect = face.render_to(surf, (0, 0), text, fg_color,
+                                       ptsize=24)
+                bottomleft = 0, rrect.height - 1
+                self.assertEqual(surf.get_at(bottomleft), fill_color)
+                bottomright = rrect.width - 1, rrect.height - 1
+                self.assertEqual(surf.get_at(bottomright), r_fg_color)
+            for i in range(len(surfaces)):
+                surf = surfaces[i]
+                surf.fill(fill_color)
+                fg_color = fg_colors[i]
+                bg_color = bg_colors[i]
+                bg.set_at((0, 0), bg_color)
+                fg.set_at((0, 0), fg_color)
+                bg.blit(fg, (0, 0))
+                surf.blit(bg, (0, 0))
+                r_fg_color = surf.get_at((0, 0))
+                surf.set_at((0, 0), fill_color)
+                rrect = face.render_to(surf, (0, 0), text, fg_color,
+                                       bg_color, ptsize=24)
+                bottomleft = 0, rrect.height - 1
+                self.assertEqual(surf.get_at(bottomleft), bg_color)
+                bottomleft = rrect.width - 1, rrect.height - 1
+                self.assertEqual(surf.get_at(bottomright), r_fg_color)
         finally:
             face.antialiased = save_antialiased
 
@@ -545,8 +634,8 @@ class FreeTypeFaceTest(unittest.TestCase):
         # of None.
         face = self._TEST_FONTS['sans']
 
-        img, size1 = face.render(None, unichr_(1), (0, 0, 0), ptsize=24)
-        img, size0 = face.render(None, "", (0, 0, 0), ptsize=24)
+        img, size1 = face.render(unichr_(1), (0, 0, 0), ptsize=24)
+        img, size0 = face.render("", (0, 0, 0), ptsize=24)
         self.assertTrue(size1.width > size0.width )
 
         metrics = face.get_metrics(unichr_(1) + unichr_(48), ptsize=24)
