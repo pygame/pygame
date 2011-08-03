@@ -500,6 +500,15 @@ class SurfaceTypeTest(unittest.TestCase):
 
         self.assertEquals(s.get_at((0,0)), (32,32,32,31))
 
+    def test_blit__SRCALPHA32_to_8(self):
+        # Bug: fatal
+        # SDL_DisplayConvert segfaults when video is uninitialized.
+        target = pygame.Surface((11, 8), 0, 8)
+        color = target.get_palette_at(2)
+        source = pygame.Surface((1, 1), pygame.SRCALPHA, 32)
+        source.set_at((0, 0), color)
+        target.blit(source, (0, 0))
+
     def todo_test_convert(self):
 
         # __doc__ (as of 2008-08-02) for pygame.surface.Surface.convert:
