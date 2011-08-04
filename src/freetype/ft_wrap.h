@@ -301,10 +301,10 @@ void __render_glyph_RGB3(int, int, FaceSurface *, FT_Bitmap *, FaceColor *);
 void __render_glyph_RGB4(int, int, FaceSurface *, FT_Bitmap *, FaceColor *);
 
 void __render_glyph_GRAY1(int, int, FaceSurface *, FT_Bitmap *, FaceColor *);
-void __render_glyph_MONO_as_GRAY1(int, int, FaceSurface *,
-                                  FT_Bitmap *, FaceColor *);
-void __render_glyph_GRAY_as_MONO1(int, int, FaceSurface *,
-                                  FT_Bitmap *, FaceColor *);
+void __render_glyph_MONO_as_GRAY1(int, int, FaceSurface *, FT_Bitmap *,
+                                  FaceColor *);
+void __render_glyph_GRAY_as_MONO1(int, int, FaceSurface *, FT_Bitmap *,
+                                  FaceColor *);
 
 
 /**************************************** Face text management ***************/
