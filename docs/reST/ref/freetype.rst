@@ -317,12 +317,11 @@ New in Pygame 1.9.2
       Any sequence, including Rect, for which the first two elements are
       positions x and y is accepted.
 
-      If such a sequence exists, and the destination surface is a valid
-      :mod:`pygame.Surface` (independently of its bit depth), the text will be
-      rendered directly on top of it at the passed coordinates, using the given
-      'fgcolor', and painting the background of the text with the given
-      'bgcolor', if available. The alpha values for both colors are always
-      taken into account.
+      If a background color is given, the surface is first filled with that
+      color. The text is blitted next. Both the background fill and text
+      rendering involve full alpha blits. That is, the alpha values of
+      both the foreground and background colors, as well as those of the
+      destination surface if it has per-pixel alpha.
 
       The return value is a rectangle giving the size and position of the
       rendered text within the surface.
@@ -330,12 +329,9 @@ New in Pygame 1.9.2
       If an empty string is passed for text then the returned Rect is zero
       width and the height of the face. The rect will test False.
 
-      The rendering is done using the face's default size in points and its
-      default style, without any rotation, and taking into account faces which
-      are set to be drawn vertically via the :meth:`Face.vertical` attribute.
-      Optionally you may specify another point size to use via the 'ptsize'
-      argument, a text rotation via the 'rotation' argument, or a new text
-      style via the 'style' argument.
+      By default, the point size and style set for the face are used
+      if not passed as arguments. The text is unrotated unless a non-zero
+      rotation value is given.
 
       If text is a char (byte) string, then its encoding is assumed to be
       ``LATIN1``.

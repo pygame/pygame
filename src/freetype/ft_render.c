@@ -25,8 +25,8 @@
 #include FT_OUTLINE_H
 
 static void render(FreeTypeInstance *, FaceText *, const FaceRenderMode *,
-                   FaceColor *, FaceSurface *, unsigned, unsigned, FT_Vector *,
-                   FT_Pos, FT_Fixed);
+                   FaceColor *, FaceSurface *, unsigned, unsigned,
+                   FT_Vector *, FT_Pos, FT_Fixed);
 
 int
 _PGFT_CheckStyle(FT_UInt32 style)
@@ -267,7 +267,7 @@ _PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PgFaceObject *faceobj,
      * if bg color exists, paint background
      */
     if (bgcolor) {
-        if (bgcolor->a == 0xFF) {
+        if (bgcolor->a == 255) {
             SDL_Rect    bg_fill;
             FT_UInt32   fillcolor;
 

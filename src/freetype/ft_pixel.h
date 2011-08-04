@@ -22,7 +22,7 @@
 
 #include "../surface.h"
 
-#define GET_RGB_VALS(pixel, fmt, r, g, b, a)                            \
+#define UNMAP_RGB_VALUE(pixel, fmt, r, g, b, a)                         \
     (r) = ((pixel) & (fmt)->Rmask) >> (fmt)->Rshift;                    \
     (r) = ((r) << (fmt)->Rloss) + ((r) >> (8 - ((fmt)->Rloss << 1)));   \
     (g) = ((pixel) & (fmt)->Gmask) >> (fmt)->Gshift;                    \
@@ -38,7 +38,7 @@
         (a) = 255;                                                      \
     }
 
-#define GET_PALETTE_VALS(pixel, fmt, sr, sg, sb, sa)                    \
+#define UNMAP_PALETTE_INDEX(pixel, fmt, sr, sg, sb, sa)                 \
     (sr) = (fmt)->palette->colors[(Uint8) (pixel)].r;                   \
     (sg) = (fmt)->palette->colors[(Uint8) (pixel)].g;                   \
     (sb) = (fmt)->palette->colors[(Uint8) (pixel)].b;                   \
@@ -53,25 +53,37 @@
     }
 
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
-#define GET_PIXEL24(b) ((b)[0] + ((b)[1] << 8) + ((b)[2] << 16))
-#define SET_PIXEL24_RGB(buf,format,r,g,b)                               \
-    *((buf) + ((format)->Rshift >> 3)) = (r);                           \
-    *((buf) + ((format)->Gshift >> 3)) = (g);                           \
-    *((buf) + ((format)->Bshift >> 3)) = (b);
-#define SET_PIXEL24(buf,format,rgb)                                     \
-    *((buf) + ((format)->Rshift >> 3)) = (rgb)[0];                      \
-    *((buf) + ((format)->Gshift >> 3)) = (rgb)[1];                      \
-    *((buf) + ((format)->Bshift >> 3)) = (rgb)[2];
+#define GET_PIXEL24(bufp) ((bufp)[0] + ((bufp)[1] << 8) + ((bufp)[2] << 16))
+#define MAP_PIXEL24(bufp, format, r, g, b)                              \
+    do {                                                                \
+        (bufp)[(format)->Rshift >> 3] = (r);                            \
+        (bufp)[(format)->Gshift >> 3] = (g);                            \
+        (bufp)[(format)->Bshift >> 3] = (b);                            \
+    }                                                                   \
+    while (0)
+#define SET_PIXEL24(bufp, pix)                  \
+    do {                                        \
+        (bufp)[0] = (FT_Byte)(pix);             \
+        (bufp)[1] = (FT_Byte)(pix >> 8);        \
+        (bufp)[2] = (FT_Byte)(pix >> 16);       \
+    }                                           \
+    while (0)
 #else
-#define GET_PIXEL24(b) ((b)[2] + ((b)[1] << 8) + ((b)[0] << 16))
-#define SET_PIXEL24_RGB(buf,format,r,g,b)                               \
-    *((buf) + 2 - ((format)->Rshift >> 3)) = (r);                       \
-    *((buf) + 2 - ((format)->Gshift >> 3)) = (g);                       \
-    *((buf) + 2 - ((format)->Bshift >> 3)) = (b);
-#define SET_PIXEL24(buf,format,rgb)                                     \
-    *((buf) + 2 - ((format)->Rshift >> 3)) = (rgb)[0];                  \
-    *((buf) + 2 - ((format)->Gshift >> 3)) = (rgb)[1];                  \
-    *((buf) + 2 - ((format)->Bshift >> 3)) = (rgb)[2];
+#define GET_PIXEL24(bufp) ((bufp)[2] + ((bufp)[1] << 8) + ((bufp)[0] << 16))
+#define MAP_PIXEL24(bufp, format, r, g, b)                              \
+    do {                                                                \
+        (bufp)[2 - (format)->Rshift >> 3] = (r);                        \
+        (bufp)[2 - (format)->Gshift >> 3] = (g);                        \
+        (bufp)[2 - (format)->Bshift >> 3] = (b);                        \
+    }                                                                   \
+    while (0)
+#define SET_PIXEL24(bufp, pix)                  \
+    do {                                        \
+        (bufp)[2] = (FT_Byte)(pix);             \
+        (bufp)[1] = (FT_Byte)(pix >> 8);        \
+        (bufp)[0] = (FT_Byte)(pix >> 16);       \
+    }                                           \
+    while (0)
 #endif
 
 #endif

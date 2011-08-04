@@ -621,22 +621,18 @@ using the color &#8216;fgcolor&#8217;.</p>
 or y is not an integer it is converted to one if possible.
 Any sequence, including Rect, for which the first two elements are
 positions x and y is accepted.</p>
-<p>If such a sequence exists, and the destination surface is a valid
-<a class="tooltip reference internal" href="surface.html#pygame.Surface" title=""><tt class="xref py py-mod docutils literal"><span class="pre">pygame.Surface</span></tt><span class="tooltip-content">pygame object for representing images</span></a> (independently of its bit depth), the text will be
-rendered directly on top of it at the passed coordinates, using the given
-&#8216;fgcolor&#8217;, and painting the background of the text with the given
-&#8216;bgcolor&#8217;, if available. The alpha values for both colors are always
-taken into account.</p>
+<p>If a background color is given, the surface is first filled with that
+color. The text is blitted next. Both the background fill and text
+rendering involve full alpha blits. That is, the alpha values of
+both the foreground and background colors, as well as those of the
+destination surface if it has per-pixel alpha.</p>
 <p>The return value is a rectangle giving the size and position of the
 rendered text within the surface.</p>
 <p>If an empty string is passed for text then the returned Rect is zero
 width and the height of the face. The rect will test False.</p>
-<p>The rendering is done using the face&#8217;s default size in points and its
-default style, without any rotation, and taking into account faces which
-are set to be drawn vertically via the <a class="reference internal" href="#pygame.freetype.Face.vertical" title="pygame.freetype.Face.vertical"><tt class="xref py py-meth docutils literal"><span class="pre">Face.vertical()</span></tt></a> attribute.
-Optionally you may specify another point size to use via the &#8216;ptsize&#8217;
-argument, a text rotation via the &#8216;rotation&#8217; argument, or a new text
-style via the &#8216;style&#8217; argument.</p>
+<p>By default, the point size and style set for the face are used
+if not passed as arguments. The text is unrotated unless a non-zero
+rotation value is given.</p>
 <p>If text is a char (byte) string, then its encoding is assumed to be
 <tt class="docutils literal"><span class="pre">LATIN1</span></tt>.</p>
 </dd></dl>
