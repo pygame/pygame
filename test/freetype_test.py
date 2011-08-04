@@ -354,14 +354,16 @@ class FreeTypeFaceTest(unittest.TestCase):
             face.antialiased = save_antialiased
 
     def test_freetype_Face_render_to_mono(self):
-        # Rendering to an existing target surface is equivalent to
-        # blitting a surface returned by Face.render with the target.
+        # Blitting is done in two stages. First the target is alpha filled
+        # with the background color, if any. Second, the foreground
+        # color is alpha blitted to the background.
         face = self._TEST_FONTS['sans']
         text = " ."
         rect = face.get_rect(text, ptsize=24)
         size = rect.size
         fg = pygame.Surface((1, 1), pygame.SRCALPHA, 32)
         bg = pygame.Surface((1, 1), pygame.SRCALPHA, 32)
+        surrogate = pygame.Surface((1, 1), pygame.SRCALPHA, 32)
         surfaces = [pygame.Surface(size, 0, 8),
                     pygame.Surface(size, 0, 16),
                     pygame.Surface(size, pygame.SRCALPHA, 16),
@@ -376,7 +378,7 @@ class FreeTypeFaceTest(unittest.TestCase):
             (128, 97, 213),
             (128, 97, 213, 60)]
         fg_colors = [pygame.Color(*c) for c in fg_colors]
-        self.assertEqual(len(surfaces), len(fg_colors))  # safety check
+        self.assertEqual(len(surfaces), len(fg_colors))  # integrity check
         bg_colors = [
             surfaces[0].get_palette_at(4),
             surfaces[1].unmap_rgb(surfaces[1].map_rgb((220, 20, 99))),
@@ -385,7 +387,7 @@ class FreeTypeFaceTest(unittest.TestCase):
             (255, 120, 13),
             (255, 120, 13, 180)]
         bg_colors = [pygame.Color(*c) for c in bg_colors]
-        self.assertEqual(len(surfaces), len(bg_colors))  # safety check
+        self.assertEqual(len(surfaces), len(bg_colors))  # integrity check
 
         save_antialiased = face.antialiased
         face.antialiased = False
@@ -412,15 +414,34 @@ class FreeTypeFaceTest(unittest.TestCase):
                 bg_color = bg_colors[i]
                 bg.set_at((0, 0), bg_color)
                 fg.set_at((0, 0), fg_color)
-                bg.blit(fg, (0, 0))
-                surf.blit(bg, (0, 0))
-                r_fg_color = surf.get_at((0, 0))
-                surf.set_at((0, 0), fill_color)
+                if surf.get_bitsize() == 24:
+                    # For a 24 bit target surface test against Pygame's alpha
+                    # blit as there appears to be a problem with SDL's alpha
+                    # blit:
+                    #
+                    # self.assertEqual(surf.get_at(bottomright), r_fg_color)
+                    #
+                    # raises
+                    #
+                    # AssertionError: (128, 97, 213, 255) != (129, 98, 213, 255)
+                    #
+                    surrogate.set_at((0, 0), fill_color)
+                    surrogate.blit(bg, (0, 0))
+                    r_bg_color = surrogate.get_at((0, 0))
+                    surrogate.blit(fg, (0, 0))
+                    r_fg_color = surrogate.get_at((0, 0))
+                else:
+                    # Surface blit values for comparison.
+                    surf.blit(bg, (0, 0))
+                    r_bg_color = surf.get_at((0, 0))
+                    surf.blit(fg, (0, 0))
+                    r_fg_color = surf.get_at((0, 0))
+                    surf.set_at((0, 0), fill_color)
                 rrect = face.render_to(surf, (0, 0), text, fg_color,
                                        bg_color, ptsize=24)
                 bottomleft = 0, rrect.height - 1
-                self.assertEqual(surf.get_at(bottomleft), bg_color)
-                bottomleft = rrect.width - 1, rrect.height - 1
+                self.assertEqual(surf.get_at(bottomleft), r_bg_color)
+                bottomright = rrect.width - 1, rrect.height - 1
                 self.assertEqual(surf.get_at(bottomright), r_fg_color)
         finally:
             face.antialiased = save_antialiased
