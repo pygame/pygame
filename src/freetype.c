@@ -730,7 +730,7 @@ _ftface_init(PgFaceObject *self, PyObject *args, PyObject *kwds)
         }
     }
     else {
-        SDL_RWops *source = RWopsFromFileObject(original_file);
+        SDL_RWops *source = RWopsFromFileObjectThreaded(original_file);
         PyObject *str = 0;
         PyObject *path = 0;
 
