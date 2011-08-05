@@ -267,7 +267,7 @@ _PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PgFaceObject *faceobj,
      * if bg color exists, paint background
      */
     if (bgcolor) {
-        if (bgcolor->a == 255) {
+        if (bgcolor->a == SDL_ALPHA_OPAQUE) {
             SDL_Rect    bg_fill;
             FT_UInt32   fillcolor;
 
@@ -391,9 +391,9 @@ SDL_Surface *_PGFT_Render_NewSurface(FreeTypeInstance *ft,
                 bgcolor->r, bgcolor->g, bgcolor->b, bgcolor->a);
         }
         else {
-            fillcolor = SDL_MapRGBA(surface->format, 0, 0, 0, 0);
+            fillcolor = SDL_MapRGBA(surface->format,
+                                    0, 0, 0, SDL_ALPHA_TRANSPARENT);
         }
-
         SDL_FillRect(surface, 0, fillcolor);
     }
     else {
