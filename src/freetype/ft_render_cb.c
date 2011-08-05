@@ -30,13 +30,8 @@
 #   include "surface.h"
 #endif
 
-typedef FT_Byte _T1;
-typedef FT_UInt16 _T2;
-typedef FT_UInt32 _T3;
-typedef FT_UInt32 _T4;
-
 void __render_glyph_GRAY1(int x, int y, FaceSurface *surface,
-                          FT_Bitmap *bitmap, FaceColor *color)
+                          FT_Bitmap *bitmap, FaceColor *fg_color)
 {
     FT_Byte *dst = ((FT_Byte *)surface->buffer) + x + (y * surface->pitch);
     FT_Byte *dst_cpy;
@@ -50,6 +45,7 @@ void __render_glyph_GRAY1(int x, int y, FaceSurface *surface,
     /*
      * Assumption, target buffer was filled with zeros before any rendering.
      */
+
     for (j = 0; j < bitmap->rows; ++j) {
         src_cpy = src;
         dst_cpy = dst;
@@ -69,7 +65,7 @@ void __render_glyph_GRAY1(int x, int y, FaceSurface *surface,
 }
 
 void __render_glyph_MONO_as_GRAY1(int x, int y, FaceSurface *surface,
-                                  FT_Bitmap *bitmap, FaceColor *color)
+                                  FT_Bitmap *bitmap, FaceColor *fg_color)
 {
     const int off_x = (x < 0) ? -x : 0;
     const int off_y = (y < 0) ? -y : 0;
@@ -86,7 +82,7 @@ void __render_glyph_MONO_as_GRAY1(int x, int y, FaceSurface *surface,
     unsigned char*  src_cpy;
     unsigned char*  dst_cpy;
     FT_UInt32       val;
-    FT_Byte shade = color->a;
+    FT_Byte shade = fg_color->a;
 
     src  = bitmap->buffer + (off_y * bitmap->pitch) + (off_x >> 3);
     dst = (unsigned char *)surface->buffer + rx + (ry * surface->pitch);
@@ -116,11 +112,11 @@ void __render_glyph_MONO_as_GRAY1(int x, int y, FaceSurface *surface,
 }
 
 void __render_glyph_GRAY_as_MONO1(int x, int y, FaceSurface *surface,
-                                  FT_Bitmap *bitmap, FaceColor *color)
+    FT_Bitmap *bitmap, FaceColor *fg_color)
 {
     FT_Byte *dst = ((FT_Byte *)surface->buffer) + x + (y * surface->pitch);
     FT_Byte *dst_cpy;
-    FT_Byte shade = color->a;
+    FT_Byte shade = fg_color->a;
 
     const FT_Byte *src = bitmap->buffer;
     const FT_Byte *src_cpy;
@@ -149,8 +145,8 @@ void __render_glyph_GRAY_as_MONO1(int x, int y, FaceSurface *surface,
     }
 }
 
-void __fill_glyph_GRAY1(int x, int y, int w, int h, FaceSurface *surface,
-                        FaceColor *color)
+void __fill_glyph_GRAY1(int x, int y, int w, int h,
+        FaceSurface *surface, FaceColor *color)
 {
     int i, j;
     FT_Byte *dst;
@@ -182,20 +178,15 @@ void __fill_glyph_GRAY1(int x, int y, int w, int h, FaceSurface *surface,
 
 #ifdef HAVE_PYGAME_SDL_VIDEO
 
-#define _CREATE_RGB_FILLER(_bpp)                            \
+#define _CREATE_RGB_FILLER(_bpp, _getp, _setp, _blendp)     \
     void __fill_glyph_RGB##_bpp(int x, int y, int w, int h, \
                                 FaceSurface *surface,       \
                                 FaceColor *color)           \
     {                                                       \
-        SDL_PixelFormat *format = surface->format;          \
-        FT_UInt32 bgR, bgG, bgB, bgA;                       \
         int i, j;                                           \
         unsigned char *dst;                                 \
+        FT_UInt32 bgR, bgG, bgB, bgA;                       \
                                                             \
-        if (color->a == 0) {                                \
-            /* Nothing to do. */                            \
-            return;                                         \
-        }                                                   \
         x = MAX(0, x);                                      \
         y = MAX(0, y);                                      \
                                                             \
@@ -214,19 +205,25 @@ void __fill_glyph_GRAY1(int x, int y, int w, int h, FaceSurface *surface,
             unsigned char *_dst = dst;                      \
                                                             \
             for (i = 0; i < w; ++i, _dst += _bpp) {         \
-                FT_UInt32 pixel =                           \
-                    (FT_UInt32)_GET_PIXEL(_bpp, _dst);      \
+                FT_UInt32 pixel = (FT_UInt32)_getp;         \
                                                             \
-                _UNMAP_PIXEL(_bpp, bgR, bgG, bgB, bgA,      \
-                             format, pixel);                \
-                                                            \
-                ALPHA_BLEND(color->r, color->g,             \
-                            color->b, color->a,             \
+                if (_bpp == 1) {                            \
+                    GET_PALETTE_VALS(                       \
+                            pixel, surface->format,         \
+                            bgR, bgG, bgB, bgA);            \
+                }                                           \
+                else {                                      \
+                    GET_RGB_VALS(                           \
+                            pixel, surface->format,         \
                             bgR, bgG, bgB, bgA);            \
                                                             \
-                _MAP_PIXEL(_bpp, pixel, format,             \
-                           bgR, bgG, bgB, bgA);             \
-                _SET_PIXEL(_bpp, _dst, pixel);              \
+                }                                           \
+                                                            \
+                ALPHA_BLEND(                                \
+                        color->r, color->g, color->b,       \
+                        color->a, bgR, bgG, bgB, bgA);      \
+                                                            \
+                _blendp;                                    \
             }                                               \
                                                             \
             dst += surface->pitch;                          \
@@ -245,7 +242,9 @@ void __fill_glyph_GRAY1(int x, int y, int w, int h, FaceSurface *surface,
             if (val & 0x10000) {                            \
                 val = (FT_UInt32)(*_src++ | 0x100);         \
             }                                               \
-            _code(_bpp, val & 0x80);                        \
+            if (val & 0x80) {                               \
+                _code;                                      \
+            }                                               \
             val <<= 1;                                      \
         }                                                   \
                                                             \
@@ -253,30 +252,11 @@ void __fill_glyph_GRAY1(int x, int y, int w, int h, FaceSurface *surface,
         dst += surface->pitch;                              \
     }                                                       \
 
-#define __MONO_RENDER_PIXEL_OPAQUE(_bpp, is_foreground)     \
-    if (is_foreground) {                                    \
-        _SET_PIXEL(_bpp, _dst, full_color);                 \
-    }
-
-#define __MONO_RENDER_PIXEL_ALPHA(_bpp, is_foreground)        \
-    if (is_foreground) {                                      \
-        FT_UInt32 pixel =                                     \
-            (FT_UInt32)_GET_PIXEL(_bpp, _dst);                \
-                                                              \
-        _UNMAP_PIXEL(_bpp, bgR, bgG, bgB, bgA,                \
-                     format, pixel);                          \
-        ALPHA_BLEND(fgR_full, fgG_full,                       \
-                    fgB_full, fgA_full,                       \
-                    bgR, bgG, bgB, bgA);                      \
-        _MAP_PIXEL(_bpp, pixel, format, bgR, bgG, bgB, bgA);  \
-        _SET_PIXEL(_bpp, _dst, pixel);                        \
-    }
-
-#define _CREATE_MONO_RENDER(_bpp)                           \
+#define _CREATE_MONO_RENDER(_bpp, _getp, _setp, _blendp)    \
     void __render_glyph_MONO##_bpp(int x, int y,            \
                                    FaceSurface *surface,    \
                                    FT_Bitmap *bitmap,       \
-                                   FaceColor *color)        \
+                                FaceColor *color)           \
     {                                                       \
         const int off_x = (x < 0) ? -x : 0;                 \
         const int off_y = (y < 0) ? -y : 0;                 \
@@ -289,37 +269,56 @@ void __fill_glyph_GRAY1(int x, int y, int w, int h, FaceSurface *surface,
         const int rx = MAX(0, x);                           \
         const int ry = MAX(0, y);                           \
                                                             \
-        SDL_PixelFormat *format = surface->format;                      \
-        int i, j, shift;                                                \
-        unsigned char *src;                                             \
-        unsigned char *dst;                                             \
-        FT_UInt32 fgR_full = color->r;                                  \
-        FT_UInt32 fgG_full = color->g;                                  \
-        FT_UInt32 fgB_full = color->b;                                  \
-        FT_UInt32 fgA_full = color->a;                                  \
-        _T(_bpp) full_color;                                            \
+        int             i, j, shift;                                    \
+        unsigned char*  src;                                            \
+        unsigned char*  dst;                                            \
+        FT_UInt32       full_color;                                     \
         FT_UInt32 bgR, bgG, bgB, bgA;                                   \
                                                                         \
         src  = bitmap->buffer + (off_y * bitmap->pitch) + (off_x >> 3); \
         dst = (unsigned char *)surface->buffer + (rx * _bpp) +          \
                     (ry * surface->pitch);                              \
                                                                         \
-        _MAP_PIXEL(_bpp, full_color, format,                            \
-                   fgR_full, fgG_full, fgB_full, fgA_full);             \
+        full_color = SDL_MapRGBA(surface->format, (FT_Byte)color->r,    \
+                (FT_Byte)color->g, (FT_Byte)color->b, 255);             \
                                                                         \
         shift = off_x & 7;                                              \
                                                                         \
-        if (color->a == SDL_ALPHA_OPAQUE) {                             \
-            __MONO_RENDER_INNER_LOOP(_bpp, __MONO_RENDER_PIXEL_OPAQUE); \
+        if (color->a == 0xFF) {                                         \
+            __MONO_RENDER_INNER_LOOP(_bpp,                              \
+            {                                                           \
+                _setp;                                                  \
+            });                                                         \
         }                                                               \
-        else if (color->a > SDL_ALPHA_TRANSPARENT) {                    \
-            __MONO_RENDER_INNER_LOOP(_bpp, __MONO_RENDER_PIXEL_ALPHA);  \
+        else if (color->a > 0) {                                        \
+            __MONO_RENDER_INNER_LOOP(_bpp,                              \
+            {                                                           \
+                FT_UInt32 pixel = (FT_UInt32)_getp;                     \
+                                                                        \
+                if (_bpp == 1) {                                        \
+                    GET_PALETTE_VALS(                                   \
+                            pixel, surface->format,                     \
+                            bgR, bgG, bgB, bgA);                        \
+                }                                                       \
+                else {                                                  \
+                    GET_RGB_VALS(                                       \
+                            pixel, surface->format,                     \
+                            bgR, bgG, bgB, bgA);                        \
+                                                                        \
+                }                                                       \
+                                                                        \
+                ALPHA_BLEND(                                            \
+                        color->r, color->g, color->b, color->a,         \
+                        bgR, bgG, bgB, bgA);                            \
+                                                                        \
+                _blendp;                                                \
+            });                                                         \
         }                                                               \
     }
 
-#define _CREATE_RGB_RENDER(_bpp)                                        \
+#define _CREATE_RGB_RENDER(_bpp, _getp, _setp, _blendp)                 \
     void __render_glyph_RGB##_bpp(int x, int y, FaceSurface *surface,   \
-                                  FT_Bitmap *bitmap, FaceColor *color)  \
+        FT_Bitmap *bitmap, FaceColor *color)                            \
     {                                                                   \
         const int off_x = (x < 0) ? -x : 0;                             \
         const int off_y = (y < 0) ? -y : 0;                             \
@@ -330,7 +329,6 @@ void __fill_glyph_GRAY1(int x, int y, int w, int h, FaceSurface *surface,
         const int rx = MAX(0, x);                                       \
         const int ry = MAX(0, y);                                       \
                                                                         \
-        SDL_PixelFormat *format = surface->format;                      \
         FT_Byte *dst = ((FT_Byte*)surface->buffer) + (rx * _bpp) +      \
                         (ry * surface->pitch);                          \
         FT_Byte *_dst;                                                  \
@@ -339,45 +337,47 @@ void __fill_glyph_GRAY1(int x, int y, int w, int h, FaceSurface *surface,
                                 (off_y * bitmap->pitch);                \
         const FT_Byte *_src;                                            \
                                                                         \
-        FT_UInt32 bgR, bgG, bgB, bgA;                                   \
-        FT_UInt32 fgR_full = color->r;                                  \
-        FT_UInt32 fgG_full = color->g;                                  \
-        FT_UInt32 fgB_full = color->b;                                  \
-        FT_UInt32 fgA_full = color->a;                                  \
-        _T(_bpp) full_color;                                            \
-        int j, i;                                                       \
+	_DECLARE_full_color##_bpp(surface, color)			\
+        /*                                                              \
+        const FT_UInt32 full_color =                                    \
+            SDL_MapRGBA(surface->format, (FT_Byte)color->r,             \
+                    (FT_Byte)color->g, (FT_Byte)color->b, 255);         \
+	*/                                                              \
                                                                         \
-        _MAP_PIXEL(_bpp, full_color, format,                            \
-                   fgR_full, fgG_full, fgB_full, fgA_full);             \
+        FT_UInt32 bgR, bgG, bgB, bgA;                                   \
+        int j, i;                                                       \
                                                                         \
         for (j = ry; j < max_y; ++j) {                                  \
             _src = src;                                                 \
             _dst = dst;                                                 \
                                                                         \
             for (i = rx; i < max_x; ++i, _dst += _bpp) {                \
-                FT_UInt32 alpha = (*_src++) * fgA_full / 255;           \
+                FT_UInt32 alpha = (*_src++);                            \
+                alpha = (alpha * color->a) / 255;                       \
                                                                         \
-                if (alpha == SDL_ALPHA_OPAQUE) {                        \
-                    _SET_PIXEL(_bpp, _dst, full_color);                 \
+                if (alpha == 0xFF) {                                    \
+                    _setp;                                              \
                 }                                                       \
-                else if (alpha != SDL_ALPHA_TRANSPARENT) {              \
-                    FT_UInt32 pixel =                                   \
-                        (FT_UInt32)_GET_PIXEL(_bpp, _dst);              \
+                else if (alpha > 0) {                                   \
+                    FT_UInt32 pixel = (FT_UInt32)_getp;                 \
                                                                         \
-                    _UNMAP_PIXEL(_bpp, bgR, bgG, bgB, bgA,              \
-                                 format, pixel);                        \
+                if (_bpp == 1) {                                        \
+                    GET_PALETTE_VALS(                                   \
+                            pixel, surface->format,                     \
+                            bgR, bgG, bgB, bgA);                        \
+                }                                                       \
+                else {                                                  \
+                    GET_RGB_VALS(                                       \
+                            pixel, surface->format,                     \
+                            bgR, bgG, bgB, bgA);                        \
                                                                         \
-                    if (bgA == 0) {                                     \
-                        _SET_PIXEL(_bpp, _dst, full_color);             \
-                    }                                                   \
-                    else {                                              \
-                        ALPHA_BLEND(fgR_full, fgG_full, fgB_full,       \
-                                    alpha,                              \
-                                    bgR, bgG, bgB, bgA);                \
-                        _MAP_PIXEL(_bpp, pixel, format,                 \
-                                   bgR, bgG, bgB, bgA);                 \
-                        _SET_PIXEL(_bpp, _dst, pixel);                  \
-                    }                                                   \
+                }                                                       \
+                                                                        \
+                    ALPHA_BLEND(                                        \
+                            color->r, color->g, color->b, alpha,        \
+                            bgR, bgG, bgB, bgA);                        \
+                                                                        \
+                    _blendp;                                            \
                 }                                                       \
             }                                                           \
                                                                         \
@@ -386,72 +386,50 @@ void __fill_glyph_GRAY1(int x, int y, int w, int h, FaceSurface *surface,
         }                                                               \
     }
 
-#define _T(_bpp) _T##_bpp
+/* These macros removes a gcc unused variable warning for __render_glyph_RGB3 */
+#define _DECLARE_full_color(s, c) const FT_UInt32 full_color =          \
+    SDL_MapRGBA((s)->format, (FT_Byte)(c)->r, (FT_Byte)(c)->g,          \
+                (FT_Byte)(c)->b, 255);
+#define _DECLARE_full_color1(s, c) _DECLARE_full_color(s, c)
+#define _DECLARE_full_color2(s, c) _DECLARE_full_color(s, c)
+#define _DECLARE_full_color3(s, c)
+#define _DECLARE_full_color4(s, c) _DECLARE_full_color(s, c)
 
-#define _GET_PIXEL(_bpp, _sp) _GET_PIXEL##_bpp(_sp)
-#define _GET_PIXELT(_T, _sp) (*(_T *)(_sp))
-#define _GET_PIXEL1(_sp) _GET_PIXELT(_T1, _sp)
-#define _GET_PIXEL2(_sp) _GET_PIXELT(_T2, _sp)
-#define _GET_PIXEL3(_sp) GET_PIXEL24((FT_Byte *)(_sp))
-#define _GET_PIXEL4(_sp) _GET_PIXELT(_T4, _sp)
 
-#define _SET_PIXEL(_bpp, _bufp, _s) _SET_PIXEL##_bpp(_bufp, _s)
-#define _SET_PIXELT(_T, _bufp, _s) (*(_T *)(_bufp)) = (_T)(_s)
-#define _SET_PIXEL1(_bufp, _s) _SET_PIXELT(_T1, _bufp, _s)
-#define _SET_PIXEL2(_bufp, _s) _SET_PIXELT(_T2, _bufp, _s)
-#define _SET_PIXEL3(_bufp, _s) SET_PIXEL24((FT_Byte *)(_bufp), _s)
-#define _SET_PIXEL4(_bufp, _s) _SET_PIXELT(_T4, _bufp, _s)
+#define _SET_PIXEL_24   \
+    SET_PIXEL24_RGB(_dst, surface->format, color->r, color->g, color->b);
 
-#define _UNMAP_PIXEL(_bpp, _r, _g, _b, _a, _fmtp, _pix) \
-    _UNMAP_PIXEL##_bpp(_r, _g, _b, _a, _fmtp, _pix)
-#define _UNMAP_PIXEL1(_r, _g, _b, _a, _fmtp, _i)        \
-    UNMAP_PALETTE_INDEX(_i, _fmtp, _r, _g, _b, _a)
-#define _UNMAP_PIXEL2(_r, _g, _b, _a, _fmtp, _pix)      \
-    UNMAP_RGB_VALUE(_pix, _fmtp, _r, _g, _b, _a)
-#define _UNMAP_PIXEL3(_r, _g, _b, _a, _fmtp, _pix)      \
-    UNMAP_RGB_VALUE(_pix, _fmtp, _r, _g, _b, _a)
-#define _UNMAP_PIXEL4(_r, _g, _b, _a, _fmtp, _pix)      \
-    UNMAP_RGB_VALUE(_pix, _fmtp, _r, _g, _b, _a)
+#define _BLEND_PIXEL_24 \
+    SET_PIXEL24_RGB(_dst, surface->format, bgR, bgG, bgB);
 
-#define _MAP_PIXEL(_bpp, _pix, _fmtp, _r, _g, _b, _a)  \
-    _MAP_PIXEL##_bpp(_pix, _fmtp, _r, _g, _b, _a)
-#define _MAP_PIXELT(_T, _pix, _fmtp, _r, _g, _b, _a)    \
-    do {                                                \
-        _pix = (_T)(                                    \
-            (((_r) >> _fmtp->Rloss) << _fmtp->Rshift) | \
-            (((_g) >> _fmtp->Gloss) << _fmtp->Gshift) | \
-            (((_b) >> _fmtp->Bloss) << _fmtp->Bshift) | \
-            (((_a) >> _fmtp->Aloss) << _fmtp->Ashift  & \
-             surface->format->Amask));                  \
-    }                                                   \
-    while (0)
-#define _MAP_PIXEL_GENERIC(_T, _pix, _fmtp, _r, _g, _b, _a)             \
-    do {                                                                \
-        _pix = (_T)(SDL_MapRGB((_fmtp), (FT_Byte)(_r),                  \
-                               (FT_Byte)(_g), (FT_Byte)(_b)));          \
-    }                                                                   \
-    while (0)
-#define _MAP_PIXEL1(_pix, _fmtp, _r, _g, _b, _a)                \
-    _MAP_PIXEL_GENERIC(_T1, _pix, _fmtp, _r, _g, _b, _a)
-#define _MAP_PIXEL2(_pix, _fmtp, _r, _g, _b, _a)        \
-    _MAP_PIXELT(_T2, _pix, _fmtp, _r, _g, _b, _a)
-#define _MAP_PIXEL3(_pix, _fmtp, _r, _g, _b, _a)                \
-    MAP_PIXEL24((FT_Byte *)(&(_pix)), _fmtp, _r, _g, _b)
-#define _MAP_PIXEL4(_pix, _fmtp, _r, _g, _b, _a)        \
-    _MAP_PIXELT(_T4, _pix, _fmtp, _r, _g, _b, _a)
+#define _SET_PIXEL(T) \
+    *(T*)_dst = (T)full_color;
 
-_CREATE_RGB_RENDER(4)
-_CREATE_RGB_RENDER(3)
-_CREATE_RGB_RENDER(2)
-_CREATE_RGB_RENDER(1)
+#define _BLEND_PIXEL(T) *((T*)_dst) = (T)(                          \
+    ((bgR >> surface->format->Rloss) << surface->format->Rshift) |  \
+    ((bgG >> surface->format->Gloss) << surface->format->Gshift) |  \
+    ((bgB >> surface->format->Bloss) << surface->format->Bshift) |  \
+    ((bgA >> surface->format->Aloss) << surface->format->Ashift  &  \
+     surface->format->Amask)                                        )
 
-_CREATE_MONO_RENDER(4)
-_CREATE_MONO_RENDER(3)
-_CREATE_MONO_RENDER(2)
-_CREATE_MONO_RENDER(1)
+#define _BLEND_PIXEL_GENERIC(T) *(T*)_dst = (T)(    \
+    SDL_MapRGB(surface->format,                     \
+        (FT_Byte)bgR, (FT_Byte)bgG, (FT_Byte)bgB)   )
 
-_CREATE_RGB_FILLER(4)
-_CREATE_RGB_FILLER(3)
-_CREATE_RGB_FILLER(2)
-_CREATE_RGB_FILLER(1)
+#define _GET_PIXEL(T)    (*((T*)_dst))
+
+_CREATE_RGB_RENDER(4,  _GET_PIXEL(FT_UInt32),   _SET_PIXEL(FT_UInt32),  _BLEND_PIXEL(FT_UInt32))
+_CREATE_RGB_RENDER(3,  GET_PIXEL24(_dst),       _SET_PIXEL_24,          _BLEND_PIXEL_24)
+_CREATE_RGB_RENDER(2,  _GET_PIXEL(FT_UInt16),   _SET_PIXEL(FT_UInt16),  _BLEND_PIXEL(FT_UInt16))
+_CREATE_RGB_RENDER(1,  _GET_PIXEL(FT_Byte),     _SET_PIXEL(FT_Byte),    _BLEND_PIXEL_GENERIC(FT_Byte))
+
+_CREATE_MONO_RENDER(4,  _GET_PIXEL(FT_UInt32),   _SET_PIXEL(FT_UInt32),  _BLEND_PIXEL(FT_UInt32))
+_CREATE_MONO_RENDER(3,  GET_PIXEL24(_dst),       _SET_PIXEL_24,          _BLEND_PIXEL_24)
+_CREATE_MONO_RENDER(2,  _GET_PIXEL(FT_UInt16),   _SET_PIXEL(FT_UInt16),  _BLEND_PIXEL(FT_UInt16))
+_CREATE_MONO_RENDER(1,  _GET_PIXEL(FT_Byte),     _SET_PIXEL(FT_Byte),    _BLEND_PIXEL_GENERIC(FT_Byte))
+
+_CREATE_RGB_FILLER(4,  _GET_PIXEL(FT_UInt32),   _SET_PIXEL(FT_UInt32),  _BLEND_PIXEL(FT_UInt32))
+_CREATE_RGB_FILLER(3,  GET_PIXEL24(_dst),       _SET_PIXEL_24,          _BLEND_PIXEL_24)
+_CREATE_RGB_FILLER(2,  _GET_PIXEL(FT_UInt16),   _SET_PIXEL(FT_UInt16),  _BLEND_PIXEL(FT_UInt16))
+_CREATE_RGB_FILLER(1,  _GET_PIXEL(FT_Byte),     _SET_PIXEL(FT_Byte),    _BLEND_PIXEL_GENERIC(FT_Byte))
 #endif
