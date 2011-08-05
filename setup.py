@@ -375,15 +375,17 @@ if sys.platform == 'win32':
     def replace_scale_mmx():
         for e in extensions:
             if e.name == 'transform':
-                e.extra_objects.append(
-                    os.path.join('obj', 'win32', 'scale_mmx.obj'))
-                for i in range(len(e.sources)):
-                    if e.sources[i].endswith('scale_mmx.c'):
-                        del e.sources[i]
-                        return
-    # linking to 64-bit mingw generated scale_mmx.obj fails
-    if not '64 bit' in sys.version:
-        replace_scale_mmx()
+                if '64 bit' in sys.version:
+                    e.extra_objects.append(
+                        os.path.join('obj', 'win64', 'scale_mmx64_gcc.obj'))
+                else:
+                    e.extra_objects.append(
+                        os.path.join('obj', 'win32', 'scale_mmx.obj'))
+                    for i in range(len(e.sources)):
+                        if e.sources[i].endswith('scale_mmx.c'):
+                            del e.sources[i]
+                            return
+    replace_scale_mmx()
 
 
 #clean up the list of extensions
