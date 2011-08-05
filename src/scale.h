@@ -56,6 +56,18 @@ void filter_expand_Y_MMX(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, 
 
 void filter_expand_Y_SSE(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, int dstpitch, int srcheight, int dstheight);
 
+#if defined(_M_X64)
+
+void filter_shrink_Y_MMX_gcc(Uint8 *srcpix, Uint8 *dstpix, Uint16 *templine, int width, int srcpitch, int dstpitch, int srcheight, int dstheight);
+
+void filter_shrink_Y_SSE_gcc(Uint8 *srcpix, Uint8 *dstpix, Uint16 *templine, int width, int srcpitch, int dstpitch, int srcheight, int dstheight);
+
+void filter_expand_X_MMX_gcc(Uint8 *srcpix, Uint8 *dstpix, int *xidx0, int *xmult0, int *xmult1, int height, int srcpitch, int dstpitch, int srcwidth, int dstwidth);
+
+void filter_expand_X_SSE_gcc(Uint8 *srcpix, Uint8 *dstpix, int *xidx0, int *xmult0, int *xmult1, int height, int srcpitch, int dstpitch, int srcwidth, int dstwidth);
+
+#endif /* #if defined(_M_X64) */
+
 #endif /* #if (defined(__GNUC__) && .....) */
 
 #endif /* #if !defined(SCALE_HEADER) */
