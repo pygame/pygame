@@ -6,7 +6,7 @@ from distutils.sysconfig import get_python_inc
 from config_unix import DependencyProg
 
 class Dependency:
-    libext = '.a'
+    libext = '.dylib'
     def __init__(self, name, checkhead, checklib, libs):
         self.name = name
         self.inc_dir = None
@@ -67,7 +67,7 @@ class DependencyPython:
         self.ver = '0'
         self.module = module
         self.header = header
-
+ 
     def configure(self, incdirs, libdirs):
         self.found = 1
         if self.module:
@@ -78,7 +78,7 @@ class DependencyPython:
         if self.found and self.header:
             fullpath = os.path.join(get_python_inc(0), self.header)
             if not os.path.isfile(fullpath):
-                found = 0
+                self.found = 0
             else:
                 self.inc_dir = os.path.split(fullpath)[0]
         if self.found:
@@ -87,11 +87,16 @@ class DependencyPython:
             print (self.name + '        '[len(self.name):] + ': not found')
 
 DEPS = [
-    FrameworkDependency('SDL', 'SDL.h', 'libSDL', 'SDL'),
-    FrameworkDependency('FONT', 'SDL_ttf.h', 'libSDL_ttf', 'SDL_ttf'),
-    FrameworkDependency('IMAGE', 'SDL_image.h', 'libSDL_image', 'SDL_image'),
-    FrameworkDependency('MIXER', 'SDL_mixer.h', 'libSDL_mixer', 'SDL_mixer'),
-    FrameworkDependency('SMPEG', 'smpeg.h', 'libsmpeg', 'smpeg'),
+    [DependencyProg('SDL', 'SDL_CONFIG', 'sdl-config', '1.2', ['sdl']),
+         FrameworkDependency('SDL', 'SDL.h', 'libSDL', 'SDL')],
+    [Dependency('FONT', 'SDL_ttf.h', 'libSDL_ttf', ['SDL_ttf']),
+         FrameworkDependency('FONT', 'SDL_ttf.h', 'libSDL_ttf', 'SDL_ttf')],     
+    [Dependency('IMAGE', 'SDL_image.h', 'libSDL_image', ['SDL_image']),
+         FrameworkDependency('IMAGE', 'SDL_image.h', 'libSDL_image', 'SDL_image')],
+    [Dependency('MIXER', 'SDL_mixer.h', 'libSDL_mixer', ['SDL_mixer']),
+         FrameworkDependency('MIXER', 'SDL_mixer.h', 'libSDL_mixer', 'SDL_mixer')],
+    [DependencyProg('SMPEG', 'SMPEG_CONFIG', 'smpeg-config', '0.4.3', ['smpeg']),
+         FrameworkDependency('SMPEG', 'smpeg.h', 'libsmpeg', 'smpeg')],
     FrameworkDependency('PORTTIME', 'CoreMidi.h', 'CoreMidi', 'CoreMidi'),
     FrameworkDependency('QUICKTIME', 'QuickTime.h', 'QuickTime', 'QuickTime'),
     Dependency('PNG', 'png.h', 'libpng', ['png']),
@@ -109,11 +114,24 @@ def main():
     global DEPS
 
     print ('Hunting dependencies...')
-    incdirs = ['/usr/local/include','/opt/local/include', '/opt/local/include/freetype2/freetype']
-    libdirs = ['/usr/local/lib','/opt/local/lib']
-    newconfig = []
+    incdirs = ['/usr/local/include', '/usr/local/include/SDL', 
+                '/usr/X11/include', '/opt/local/include', 
+                '/opt/local/include/freetype2/freetype']
+    libdirs = ['/usr/local/lib', '/usr/X11/lib', '/opt/local/lib']
+
     for d in DEPS:
-        d.configure(incdirs, libdirs)
+        if type(d)==list:
+            found = False
+            for deptype in d:
+                if deptype.found:
+                    found = True
+                    DEPS[DEPS.index(d)] = deptype
+                    break
+            if not found:
+                DEPS[DEPS.index(d)] = d[0]
+    
+    for d in DEPS:
+      d.configure(incdirs, libdirs)
     DEPS[0].cflags = '-Ddarwin '+ DEPS[0].cflags
     return DEPS
 
