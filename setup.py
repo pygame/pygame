@@ -377,7 +377,7 @@ if sys.platform == 'win32':
             if e.name == 'transform':
                 if '64 bit' in sys.version:
                     e.extra_objects.append(
-                        os.path.join('obj', 'win64', 'scale_mmx64_gcc.obj'))
+                        os.path.join('obj', 'win64', 'scale_mmx.obj'))
                 else:
                     e.extra_objects.append(
                         os.path.join('obj', 'win32', 'scale_mmx.obj'))
