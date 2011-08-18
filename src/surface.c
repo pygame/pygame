@@ -1802,7 +1802,7 @@ static PyObject*
 surf_subsurface (PyObject *self, PyObject *args)
 {
     SDL_Surface *surf = PySurface_AsSurface (self);
-    SDL_PixelFormat *format = surf->format;
+    SDL_PixelFormat *format;
     GAME_Rect *rect, temp;
     SDL_Surface *sub;
     PyObject *subobj;
@@ -1815,6 +1815,7 @@ surf_subsurface (PyObject *self, PyObject *args)
     if (surf->flags & SDL_OPENGL)
         return RAISE (PyExc_SDLError, "Cannot call on OPENGL Surfaces");
 
+    format = surf->format;
     if (!(rect = GameRect_FromObject (args, &temp)))
         return RAISE (PyExc_ValueError, "invalid rectstyle argument");
     if (rect->x < 0 || rect->y < 0 || rect->x + rect->w > surf->w
