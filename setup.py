@@ -381,10 +381,10 @@ if sys.platform == 'win32':
                 else:
                     e.extra_objects.append(
                         os.path.join('obj', 'win32', 'scale_mmx.obj'))
-                    for i in range(len(e.sources)):
-                        if e.sources[i].endswith('scale_mmx.c'):
-                            del e.sources[i]
-                            return
+                for i in range(len(e.sources)):
+                    if e.sources[i].endswith('scale_mmx.c'):
+                        del e.sources[i]
+                        return
     replace_scale_mmx()
 
 
