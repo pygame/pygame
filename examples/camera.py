@@ -22,7 +22,7 @@ class VideoCapturePlayer(object):
 
         # gets a list of available cameras.
         self.clist = pygame.camera.list_cameras()
-        print self.clist
+        print (self.clist)
 
         if not self.clist:
             raise ValueError("Sorry, no cameras detected.")
