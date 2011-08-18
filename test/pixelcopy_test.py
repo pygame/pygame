@@ -108,7 +108,7 @@ class PixelcopyModuleTest (unittest.TestCase):
                                       surf.get_flags(), surf.get_bitsize(),
                                       posn))
                 del view
-                    
+
                 if surf.get_masks()[3]:
                     dst.fill((0, 0, 0, 0))
                     view = dst.get_view('2')
@@ -200,7 +200,7 @@ class PixelcopyModuleTest (unittest.TestCase):
                    self._make_surface(32),
                    self._make_surface(32, srcalpha=True),
                    ]
-        
+
         w, h = self.surf_size
 
         # broadcast column
@@ -241,9 +241,9 @@ class PixelcopyModuleTest (unittest.TestCase):
             p = pixel.get_at_mapped((0, 0))
             for x in range(w):
                 for y in range(h):
-                     self.assertEqual(target.get_at_mapped((x, y)), p)
+                    self.assertEqual(target.get_at_mapped((x, y)), p)
 
-            
+
 class PixelCopyTestWithArray(unittest.TestCase):
     try:
         import numpy
@@ -274,8 +274,8 @@ class PixelCopyTestWithArray(unittest.TestCase):
         import numpy
 
         self.dst_types = [numpy.uint8, numpy.uint16, numpy.uint32]
-        try:    
-            self.dst_types.append(numpy.uint64) 
+        try:
+            self.dst_types.append(numpy.uint64)
         except AttributeError:
             pass
         pygame.display.init()
@@ -356,7 +356,7 @@ class PixelCopyTestWithArray(unittest.TestCase):
                                       surf.get_flags(), surf.get_bitsize(),
                                       dst.dtype,
                                       posn))
-                    
+
                 if surf.get_masks()[3]:
                     posn = (2, 1)
                     surf.set_at(posn, alpha_color)
@@ -380,7 +380,7 @@ class PixelCopyTestWithArray(unittest.TestCase):
                                   surf.get_flags(), surf.get_bitsize(),
                                   dst.dtype,
                                   posn))
-                
+
             if surf.get_masks()[3]:
                 posn = (2, 1)
                 surf.set_at(posn, alpha_color)
@@ -435,7 +435,7 @@ class PixelCopyTestWithArray(unittest.TestCase):
                                      (r_arr, r_surf,
                                       surf.get_flags(), surf.get_bitsize(),
                                       posn))
-        
+
             swapped_dst[...] = 0
             self.assertFalse(surf.get_locked())
             surface_to_array(swapped_dst, surf)
@@ -461,7 +461,7 @@ class PixelCopyTestWithArray(unittest.TestCase):
                                  (r_arr, r_surf,
                                   surf.get_flags(), surf.get_bitsize(),
                                   posn))
-        
+
     def test_map_array(self):
         try:
             from numpy import array, zeros, uint8, int32, alltrue
