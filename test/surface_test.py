@@ -995,7 +995,9 @@ class SurfaceTypeTest(unittest.TestCase):
         self.assertEquals(s.get_masks(), surf.get_masks())
         self.assertEquals(s.get_losses(), surf.get_losses())
 
-
+        # Issue 2 at Bitbucket.org/pygame/pygame
+        surf = pygame.Surface.__new__(pygame.Surface)
+        self.assertRaises(pygame.error, surf.subsurface, (0, 0, 0, 0))
 
 
 
