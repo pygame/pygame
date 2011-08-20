@@ -356,7 +356,7 @@ class FontTypeTest( unittest.TestCase ):
         f.set_italic(True)
         self.failUnless(f.get_italic())
         f.set_italic(False)
-        self.failIf(f.get_bold())
+        self.failIf(f.get_italic())
 
     def test_set_underline(self):
         f = pygame.font.Font(None, 20)
