@@ -1,11 +1,14 @@
 /* array structure interface version 3 declarations */
 
-const int PAI_CONTIGUOUS = 0x01;
-const int PAI_FORTRAN = 0x02;
-const int PAI_ALIGNED = 0x100;
-const int PAI_NOTSWAPPED = 0x200;
-const int PAI_WRITEABLE = 0x400;
-const int PAI_ARR_HAS_DESCR = 0x800;
+#if !defined(PG_ARRAYINTER_HEADER)
+#define PG_ARRAYINTER_HEADER
+
+static const int PAI_CONTIGUOUS = 0x01;
+static const int PAI_FORTRAN = 0x02;
+static const int PAI_ALIGNED = 0x100;
+static const int PAI_NOTSWAPPED = 0x200;
+static const int PAI_WRITEABLE = 0x400;
+static const int PAI_ARR_HAS_DESCR = 0x800;
 
 typedef struct {
     int two;              /* contains the integer 2 -- simple sanity check */
@@ -19,3 +22,5 @@ typedef struct {
     void *data;           /* A pointer to the first element of the array */
     PyObject *descr;      /* NULL or a data-description */
 } PyArrayInterface;
+
+#endif

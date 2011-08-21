@@ -25,6 +25,7 @@
 #include "pgcompat.h"
 #include "doc/pixelcopy_doc.h"
 #include "pgarrinter.h"
+#include "pgview.h"
 #include <SDL_byteorder.h>
 
 #if !defined(DOC_PYGAMEBLITARRAY)
@@ -108,45 +109,6 @@ _view_kind(PyObject *obj, void *view_kind_vptr)
         return 0;
     }
     return 1;
-}
-
-static int
-_get_array_interface(PyObject *obj,
-                     PyObject **cobj_p,
-                     PyArrayInterface **inter_p)
-{
-    PyObject *cobj = PyObject_GetAttrString(obj, "__array_struct__");
-    PyArrayInterface *inter = NULL;
-
-    if (cobj == NULL) {
-        if (PyErr_ExceptionMatches(PyExc_AttributeError)) {
-                PyErr_Clear();
-                PyErr_SetString(PyExc_ValueError,
-                                "no C-struct array interface");
-        }
-        return -1;
-    }
-
-#if PG_HAVE_COBJECT
-    if (PyCObject_Check(cobj)) {
-        inter = (PyArrayInterface *)PyCObject_AsVoidPtr(cobj);
-    }
-#endif
-#if PG_HAVE_CAPSULE
-    if (PyCapsule_IsValid(cobj, NULL)) {
-        inter = (PyArrayInterface *)PyCapsule_GetPointer(cobj, NULL);
-    }
-#endif
-    if (inter == NULL ||   /* conditional or */
-        inter->two != 2  ) {
-        Py_DECREF(cobj);
-        PyErr_SetString(PyExc_ValueError, "invalid array interface");
-        return -1;
-    }
-
-    *cobj_p = cobj;
-    *inter_p = inter;
-    return 0;
 }
 
 static int
@@ -478,7 +440,7 @@ array_to_surface(PyObject *self, PyObject *arg)
     surf = PySurface_AsSurface(surfobj);
     format = surf->format;
     
-    if (_get_array_interface(arrayobj, &cobj, &inter)) {
+    if (Pg_GetArrayInterface(arrayobj, &cobj, &inter)) {
         return 0;
     }
 
@@ -771,7 +733,7 @@ surface_to_array(PyObject *self, PyObject *args, PyObject *kwds)
     }
     surf = PySurface_AsSurface(surfobj);
     
-    if (_get_array_interface(arrayobj, &cobj, &inter)) {
+    if (Pg_GetArrayInterface(arrayobj, &cobj, &inter)) {
         PySurface_Unlock(surfobj);
         return 0;
     }
@@ -889,7 +851,7 @@ map_array(PyObject *self, PyObject *args)
 
     /* Determine array shapes and check validity
      */
-    if (_get_array_interface(tar_array, &tar_cobj, &tar_inter)) {
+    if (Pg_GetArrayInterface(tar_array, &tar_cobj, &tar_inter)) {
         goto fail;
     }
     if (!(tar_inter->flags & PAI_WRITEABLE)) {
@@ -915,7 +877,7 @@ map_array(PyObject *self, PyObject *args)
                      (int)PIXELCOPY_MAX_DIM);
         goto fail;
     }
-    if (_get_array_interface(src_array, &src_cobj, &src_inter)) {
+    if (Pg_GetArrayInterface(src_array, &src_cobj, &src_inter)) {
         goto fail;
     }
     if (src_inter->typekind != 'u' && src_inter->typekind != 'i') {
@@ -1098,7 +1060,7 @@ make_surface (PyObject* self, PyObject* arg)
     int sizex, sizey, bitsperpixel;
     Uint32 rmask, gmask, bmask;
 
-    if (_get_array_interface(arg, &capsule, &inter)) {
+    if (Pg_GetArrayInterface(arg, &capsule, &inter)) {
         return 0;
     }
     
@@ -1204,6 +1166,10 @@ MODINIT_DEFINE(pixelcopy)
         MODINIT_ERROR;
     }
     import_pygame_surface();
+    if (PyErr_Occurred()) {
+        MODINIT_ERROR;
+    }
+    import_pygame_view();
     if (PyErr_Occurred()) {
         MODINIT_ERROR;
     }
