@@ -28,7 +28,7 @@
 #include "pgcompat.h"
 #include "doc/mixer_doc.h"
 #include "mixer.h"
-#include "pgarrinter.h"
+#include "pgview.h"
 
 #if !defined(EXPORT_BUFFER)
 #define EXPORT_BUFFER HAVE_NEW_BUFPROTO
@@ -117,45 +117,6 @@ _format_itemsize(Uint16 format)
                      (int)format);
     }
     return size;
-}
-
-static int
-_get_array_interface(PyObject *obj,
-                     PyObject **cobj_p,
-                     PyArrayInterface **inter_p)
-{
-    PyObject *cobj = PyObject_GetAttrString(obj, "__array_struct__");
-    PyArrayInterface *inter = NULL;
-
-    if (cobj == NULL) {
-        if (PyErr_ExceptionMatches(PyExc_AttributeError)) {
-                PyErr_Clear();
-                PyErr_SetString(PyExc_ValueError,
-                                "no C-struct array interface");
-        }
-        return -1;
-    }
-
-#if PG_HAVE_COBJECT
-    if (PyCObject_Check(cobj)) {
-        inter = (PyArrayInterface *)PyCObject_AsVoidPtr(cobj);
-    }
-#endif
-#if PG_HAVE_CAPSULE
-    if (PyCapsule_IsValid(cobj, NULL)) {
-        inter = (PyArrayInterface *)PyCapsule_GetPointer(cobj, NULL);
-    }
-#endif
-    if (inter == NULL ||   /* conditional or */
-        inter->two != 2  ) {
-        Py_DECREF(cobj);
-        PyErr_SetString(PyExc_ValueError, "invalid array interface");
-        return -1;
-    }
-
-    *cobj_p = cobj;
-    *inter_p = inter;
-    return 0;
 }
 
 static PG_sample_format_t
@@ -1836,7 +1797,7 @@ sound_init(PyObject *self, PyObject *arg, PyObject *kwarg)
         PG_sample_format_t array_format;
         int rcode;
 
-        if (_get_array_interface(array, &cobj, &inter)) {
+        if (Pg_GetArrayInterface(array, &cobj, &inter)) {
             return -1;
         }
         if (!(inter->flags & PAI_CONTIGUOUS)) {
@@ -1970,6 +1931,10 @@ MODINIT_DEFINE (mixer)
         MODINIT_ERROR;
     }
     import_pygame_bufferproxy ();
+    if (PyErr_Occurred ()) {
+        MODINIT_ERROR;
+    }
+    import_pygame_view ();
     if (PyErr_Occurred ()) {
         MODINIT_ERROR;
     }

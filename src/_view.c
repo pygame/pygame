@@ -39,6 +39,9 @@ typedef struct {
     PyObject *weakrefs;           /* There can be reference cycles   */
 } PgViewObject;
 
+static int Pg_GetArrayInterface(PyObject *, PyObject **, PyArrayInterface **);
+static PyObject *Pg_ArrayStructAsDict(PyArrayInterface *);
+
 /**
  * Helper functions.
  */
@@ -81,6 +84,76 @@ _view_new_from_type(PyTypeObject *type,
     Py_XINCREF(pydestructor);
     self->pydestructor = pydestructor;
     return (PyObject *)self;
+}
+
+static PyObject *
+_shape_as_tuple(PyArrayInterface *inter_p)
+{
+    PyObject *shapeobj = PyTuple_New((Py_ssize_t)inter_p->nd);
+    PyObject *lengthobj;
+    Py_ssize_t i;
+
+    if (!shapeobj) {
+        return 0;
+    }
+    for (i = 0; i < inter_p->nd; ++i) {
+        lengthobj = PyInt_FromLong((long)inter_p->shape[i]);
+        if (!lengthobj) {
+            Py_DECREF(shapeobj);
+            return 0;
+        }
+        PyTuple_SET_ITEM(shapeobj, i, lengthobj);
+    }
+    return shapeobj;
+}
+
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+#define MY_ENDIAN '<'
+#define OTHER_ENDIAN '>'
+#else
+#define MY_ENDIAN '>'
+#define OTHER_ENDIAN '<'
+#endif
+
+static PyObject *
+_typekind_as_str(PyArrayInterface *inter_p)
+{
+    return Text_FromFormat("%c%c%i", 
+                           inter_p->flags & PAI_NOTSWAPPED ?
+                           MY_ENDIAN : OTHER_ENDIAN,
+                           inter_p->typekind, inter_p->itemsize);
+}
+
+#undef MY_ENDIAN
+#undef OTHER_ENDIAN
+
+static PyObject *_strides_as_tuple(PyArrayInterface *inter_p)
+{
+    PyObject *stridesobj = PyTuple_New((Py_ssize_t)inter_p->nd);
+    PyObject *lengthobj;
+    Py_ssize_t i;
+
+    if (!stridesobj) {
+        return 0;
+    }
+    for (i = 0; i < inter_p->nd; ++i) {
+        lengthobj = PyInt_FromLong((long)inter_p->strides[i]);
+        if (!lengthobj) {
+            Py_DECREF(stridesobj);
+            return 0;
+        }
+        PyTuple_SET_ITEM(stridesobj, i, lengthobj);
+    }
+    return stridesobj;
+}
+
+static PyObject *_data_as_tuple(PyArrayInterface *inter_p)
+{
+    long readonly = (inter_p->flags & PAI_WRITEABLE) == 0;
+
+    return Py_BuildValue("NN",
+                         PyLong_FromVoidPtr(inter_p->data),
+                         PyBool_FromLong(readonly));
 }
 
 /**
@@ -227,6 +300,29 @@ static PyTypeObject PgView_Type =
 };
 
 
+/**** Module methods ***/
+
+static PyObject *
+get_array_interface(PyObject *self, PyObject *arg)
+{
+    PyObject *cobj;
+    PyArrayInterface *inter_p;
+    PyObject *dictobj;
+
+    if (Pg_GetArrayInterface(arg, &cobj, &inter_p)) {
+        return 0;
+    }
+    dictobj = Pg_ArrayStructAsDict(inter_p);
+    Py_DECREF(cobj);
+    return dictobj;
+}
+
+static PyMethodDef _view_methods[] = {
+    { "get_array_interface", get_array_interface, METH_O,
+      "return an array struct interface as an interface dictionary" },
+    {0, 0, 0, 0}
+};
+
 /**** Public C api ***/
 
 static PyObject *
@@ -259,6 +355,73 @@ PgView_GetParent(PyObject *view)
     return parent;
 }
 
+static int
+Pg_GetArrayInterface(PyObject *obj,
+                     PyObject **cobj_p,
+                     PyArrayInterface **inter_p)
+{
+    PyObject *cobj = PyObject_GetAttrString(obj, "__array_struct__");
+    PyArrayInterface *inter = NULL;
+
+    if (cobj == NULL) {
+        if (PyErr_ExceptionMatches(PyExc_AttributeError)) {
+                PyErr_Clear();
+                PyErr_SetString(PyExc_ValueError,
+                                "no C-struct array interface");
+        }
+        return -1;
+    }
+
+#if PG_HAVE_COBJECT
+    if (PyCObject_Check(cobj)) {
+        inter = (PyArrayInterface *)PyCObject_AsVoidPtr(cobj);
+    }
+#endif
+#if PG_HAVE_CAPSULE
+    if (PyCapsule_IsValid(cobj, NULL)) {
+        inter = (PyArrayInterface *)PyCapsule_GetPointer(cobj, NULL);
+    }
+#endif
+    if (inter == NULL ||   /* conditional or */
+        inter->two != 2  ) {
+        Py_DECREF(cobj);
+        PyErr_SetString(PyExc_ValueError, "invalid array interface");
+        return -1;
+    }
+
+    *cobj_p = cobj;
+    *inter_p = inter;
+    return 0;
+}
+
+static PyObject *
+Pg_ArrayStructAsDict(PyArrayInterface *inter_p)
+{
+    PyObject *dictobj = Py_BuildValue("{sisNsNsNsN}",
+                                      "version", (int)3,
+                                      "typestr", _typekind_as_str(inter_p),
+                                      "shape", _shape_as_tuple(inter_p),
+                                      "strides", _strides_as_tuple(inter_p),
+                                      "data", _data_as_tuple(inter_p));
+
+    if (!dictobj) {
+        return 0;
+    }
+    if (inter_p->flags & PAI_ARR_HAS_DESCR) {
+        if (!inter_p->descr) {
+            Py_DECREF(dictobj);
+            PyErr_SetString(PyExc_ValueError,
+                            "Array struct has descr flag set"
+                            " but no descriptor");
+            return 0;
+        }
+        if (PyDict_SetItemString(dictobj, "descr", inter_p->descr)) {
+            return 0;
+        }
+    }
+    return dictobj;
+}
+
 /*DOC*/ static char _view_doc[] =
 /*DOC*/    "exports View, a generic wrapper object for an array "
 /*DOC*/    "struct capsule";
@@ -275,7 +438,8 @@ MODINIT_DEFINE(_view)
         "_view",
         _view_doc,
         -1,
-        NULL, NULL, NULL, NULL, NULL
+        _view_methods,
+        NULL, NULL, NULL, NULL
     };
 #endif
 
@@ -287,7 +451,7 @@ MODINIT_DEFINE(_view)
 #if PY3
     module = PyModule_Create(&_module);
 #else
-    module = Py_InitModule3(MODPREFIX "_view", NULL, _view_doc);
+    module = Py_InitModule3(MODPREFIX "_view", _view_methods, _view_doc);
 #endif
 
     Py_INCREF(&PgView_Type);
@@ -296,13 +460,15 @@ MODINIT_DEFINE(_view)
         DECREF_MOD(module);
         MODINIT_ERROR;
     }
-#if PYGAMEAPI_VIEW_NUMSLOTS != 4
+#if PYGAMEAPI_VIEW_NUMSLOTS != 6
 #error export slot count mismatch
 #endif
     c_api[0] = &PgView_Type;
     c_api[1] = PgView_New;
     c_api[2] = PgView_GetCapsule;
     c_api[3] = PgView_GetParent;
+    c_api[4] = Pg_GetArrayInterface;
+    c_api[5] = Pg_ArrayStructAsDict;
     apiobj = encapsulate_api(c_api, "_view");
     if (apiobj == NULL) {
         DECREF_MOD(module);
