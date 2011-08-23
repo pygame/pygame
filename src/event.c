@@ -380,9 +380,11 @@ PyObject*
 event_str (PyObject* self)
 {
     PyEventObject* e = (PyEventObject*)self;
-    char str[1024];
+    char *str;
     PyObject *strobj;
+    PyObject * pyobj;
     char *s;
+    int size;
 #if PY3
     PyObject *encodedobj;
 #endif
@@ -403,11 +405,17 @@ event_str (PyObject* self)
 #else
     s = PyString_AsString (strobj);
 #endif
+    size = (11 + strlen(name_from_eventtype (e->type)) + strlen(s) + sizeof(e->type) * 3 + 1);
+    str = (char *) PyMem_Malloc(size);
     sprintf (str, "<Event(%d-%s %s)>", e->type, name_from_eventtype (e->type),
              s);
 
     Py_DECREF (strobj);
-    return Text_FromUTF8 (str);
+
+    pyobj = Text_FromUTF8 (str);
+    PyMem_Free(str);
+
+    return (pyobj);
 }
 
 static int
