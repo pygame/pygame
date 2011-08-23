@@ -133,6 +133,14 @@ class EventModuleTest(unittest.TestCase):
             self.assertEquals (
                 pygame.event.poll().type, i, race_condition_notification
             )
+    def test_post_large_user_event(self):
+        pygame.event.post(pygame.event.Event(pygame.USEREVENT, {'a': "a" * 1024}))
+
+        e = pygame.event.poll()
+        self.assertEquals(e.type, pygame.USEREVENT)
+        self.assertEquals(e.a, "a" * 1024)
+
+
 
     def test_get(self):
         # __doc__ (as of 2008-06-25) for pygame.event.get:
