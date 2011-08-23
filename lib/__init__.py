@@ -42,6 +42,10 @@ if not 'SDL_VIDEODRIVER' in os.environ:
         except:
             pass
 
+# when running under X11, always set the SDL window WM_CLASS to make the
+# window managers correctly match the pygame window.
+if 'DISPLAY' in os.environ and not 'SDL_VIDEO_X11_WMCLASS' in os.environ:
+    os.environ['SDL_VIDEO_X11_WMCLASS'] = os.path.basename(sys.argv[0])
 
 class MissingModule:
     _NOT_IMPLEMENTED_ = True
