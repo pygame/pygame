@@ -18,6 +18,9 @@ localbase = os.environ.get('LOCALBASE', '')
 origincdirs = ['/include', '/include/SDL', '/include/SDL',
                '/include/smpeg']
 origlibdirs = ['/lib','/lib64','/X11R6/lib']
+if 'ORIGLIBDIRS' in os.environ and os.environ['ORIGLIBDIRS'] != "":
+    origlibdirs = os.environ['ORIGLIBDIRS'].split(":")
+
 
 def confirm(message):
     "ask a yes/no question, return result"
