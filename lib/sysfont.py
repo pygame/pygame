@@ -581,15 +581,27 @@ def SysFont(name, size, bold=False, italic=False, constructor=None):
             if not styles:
                 styles = Sysalias.get(name)
             if styles:
-                while not fontname:
-                    plainname = styles.get((False, False))
-                    fontname = styles.get((bold, italic))
-                    if not fontname:
-                        fontname = plainname
-                    elif plainname != fontname:
-                        gotbold = bold
-                        gotitalic = italic
-            if fontname: break
+                plainname = styles.get((False, False))
+                fontname = styles.get((bold, italic))
+                if not fontname and not plainname:
+                    # Neither requested style, nor plain font exists, so
+                    # return a font with the name requested, but an
+                    # arbitrary style.
+                    (style, fontname) = list(styles.items())[0]
+                    # Attempt to style it as requested. This can't
+                    # unbold or unitalicize anything, but it can
+                    # fake bold and/or fake italicize.
+                    if bold and style[0]:
+                        gotbold = True
+                    if italic and style[1]:
+                        gotitalic = True
+                elif not fontname:
+                    fontname = plainname
+                elif plainname != fontname:
+                    gotbold = bold
+                    gotitalic = italic
+            if fontname: 
+                break
 
     set_bold = set_italic = False
     if bold and not gotbold:
