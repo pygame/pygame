@@ -45,7 +45,9 @@
 
 #define DOC_FACERENDERTO "render(surf, dest, text, fgcolor, bgcolor=None, style=STYLE_DEFAULT, rotation=0, ptsize=default) -> Rect\nRenders text to an existing surface"
 
-#define DOC_FACERENDERRAW "render_raw(text, style=STYLE_DEFAULT, rotation=0, ptsize=default) -> (bytes, (int, int))\nRenders text as a string of bytes"
+#define DOC_FACERENDERRAW "render_raw(text, style=STYLE_DEFAULT, rotation=0, ptsize=default, invert=False) -> (bytes, (int, int))\nRenders text as a string of bytes"
+
+#define DOC_FACERENDERRAWTO "render_raw_to(array, text, dest=None, style=STYLE_DEFAULT, rotation=0, ptsize=default, invert=False) -> (int, int)\nRenders text as a string of ints to an array"
 
 #define DOC_FACESTYLE "style -> int\nGets or sets the face's style"
 
@@ -181,8 +183,12 @@ pygame.freetype.Face.render_to
 Renders text to an existing surface
 
 pygame.freetype.Face.render_raw
- render_raw(text, style=STYLE_DEFAULT, rotation=0, ptsize=default) -> (bytes, (int, int))
+ render_raw(text, style=STYLE_DEFAULT, rotation=0, ptsize=default, invert=False) -> (bytes, (int, int))
 Renders text as a string of bytes
+
+pygame.freetype.Face.render_raw_to
+ render_raw_to(array, text, dest=None, style=STYLE_DEFAULT, rotation=0, ptsize=default, invert=False) -> (int, int)
+Renders text as a string of ints to an array
 
 pygame.freetype.Face.style
  style -> int

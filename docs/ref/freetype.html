@@ -337,6 +337,10 @@ module, but it can also be bundled in separate archives.</p>
 <td>—</td>
 <td>Renders text as a string of bytes</td>
 </tr>
+<tr><td><a class="toc reference external" href="freetype.html#pygame.freetype.Face.render_raw_to">pygame.freetype.Face.render_raw_to</a></td>
+<td>—</td>
+<td>Renders text as a string of ints to an array</td>
+</tr>
 <tr><td><a class="toc reference external" href="freetype.html#pygame.freetype.Face.style">pygame.freetype.Face.style</a></td>
 <td>—</td>
 <td>Gets or sets the face&#8217;s style</td>
@@ -642,11 +646,23 @@ rotation value is given.</p>
 <tt class="descname">render_raw</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.freetype.Face.render_raw" title="Permalink to this definition">¶</a></dt>
 <dd><div class="line-block">
 <div class="line"><span class="summaryline">Renders text as a string of bytes</span></div>
-<div class="line"><span class="signature">render_raw(text, style=STYLE_DEFAULT, rotation=0, ptsize=default) -&gt; (bytes, (int, int))</span></div>
+<div class="line"><span class="signature">render_raw(text, style=STYLE_DEFAULT, rotation=0, ptsize=default, invert=False) -&gt; (bytes, (int, int))</span></div>
 </div>
-<p>Like <tt class="docutils literal"><span class="pre">Face.render(None,</span> <span class="pre">...)</span></tt> but the tuple returned is an 8 bit
+<p>Like <tt class="docutils literal"><span class="pre">Face.render()</span></tt> but the tuple returned is an 8 bit
 monochrome string of bytes and its size. The forground color is 255, the
 background 0, useful as an alpha mask for a foreground pattern.</p>
+</dd></dl>
+
+<dl class="definition method">
+<dt class="title" id="pygame.freetype.Face.render_raw_to">
+<tt class="descname">render_raw_to</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.freetype.Face.render_raw_to" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Renders text as a string of ints to an array</span></div>
+<div class="line"><span class="signature">render_raw_to(array, text, dest=None, style=STYLE_DEFAULT, rotation=0, ptsize=default, invert=False) -&gt; (int, int)</span></div>
+</div>
+<p>Render to an array object exposing an array struct interface. The array
+must be two dimensional with integer items. The default dest value, None,
+is equivalent to (0, 0).</p>
 </dd></dl>
 
 <dl class="definition attribute">

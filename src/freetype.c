@@ -24,6 +24,7 @@
 #include "freetype.h"
 #include "freetype/ft_wrap.h"
 #include "doc/freetype_doc.h"
+#include "pgview.h"
 
 #define MODULE_NAME "freetype"
 #define FACE_TYPE_NAME "Face"
@@ -62,6 +63,7 @@ static PyObject *_ftface_getmetrics(PgFaceObject *, PyObject *, PyObject *);
 static PyObject *_ftface_render(PgFaceObject *, PyObject *, PyObject *);
 static PyObject *_ftface_render_to(PgFaceObject *, PyObject *, PyObject *);
 static PyObject *_ftface_render_raw(PgFaceObject *, PyObject *, PyObject *);
+static PyObject *_ftface_render_raw_to(PgFaceObject *, PyObject *, PyObject *);
 static PyObject *_ftface_getsizedascender(PgFaceObject *, PyObject *);
 static PyObject *_ftface_getsizeddescender(PgFaceObject *, PyObject *);
 static PyObject *_ftface_getsizedheight(PgFaceObject *, PyObject *);
@@ -351,6 +353,12 @@ static PyMethodDef _ftface_methods[] = {
         (PyCFunction)_ftface_render_raw,
         METH_VARARGS | METH_KEYWORDS,
         DOC_FACERENDERRAW
+    },
+    {
+        "render_raw_to",
+        (PyCFunction)_ftface_render_raw_to,
+        METH_VARARGS | METH_KEYWORDS,
+        DOC_FACERENDERRAWTO
     },
     {
         "get_transform",
@@ -1344,7 +1352,7 @@ _ftface_render_raw(PgFaceObject *self, PyObject *args, PyObject *kwds)
 {
     /* keyword list */
     static char *kwlist[] =  {
-        "text", "style", "rotation", "ptsize", 0
+        "text", "style", "rotation", "ptsize", "invert", 0
     };
 
     FaceRenderMode mode;
@@ -1352,9 +1360,10 @@ _ftface_render_raw(PgFaceObject *self, PyObject *args, PyObject *kwds)
     /* input arguments */
     PyObject *textobj;
     PGFT_String *text;
+    int style = FT_STYLE_DEFAULT;
     int rotation = 0;
     int ptsize = -1;
-    int style = FT_STYLE_DEFAULT;
+    int invert = 0;
 
     /* output arguments */
     PyObject *rbuffer = 0;
@@ -1364,8 +1373,9 @@ _ftface_render_raw(PgFaceObject *self, PyObject *args, PyObject *kwds)
     FreeTypeInstance *ft;
     ASSERT_GRAB_FREETYPE(ft, 0);
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|iii", kwlist,
-                                     &textobj, &style, &rotation, &ptsize)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|iiii", kwlist,
+                                     &textobj,
+                                     &style, &rotation, &ptsize, &invert)) {
         return 0;
     }
 
@@ -1386,7 +1396,8 @@ _ftface_render_raw(PgFaceObject *self, PyObject *args, PyObject *kwds)
         return 0;
     }
 
-    rbuffer = _PGFT_Render_PixelArray(ft, self, &mode, text, &width, &height);
+    rbuffer = _PGFT_Render_PixelArray(ft, self, &mode, text, invert,
+                                      &width, &height);
     _PGFT_FreeString(text);
 
     if (!rbuffer) {
@@ -1395,6 +1406,75 @@ _ftface_render_raw(PgFaceObject *self, PyObject *args, PyObject *kwds)
     rtuple = Py_BuildValue("O(ii)", rbuffer, width, height);
     Py_DECREF(rbuffer);
     return rtuple;
+}
+
+static PyObject *
+_ftface_render_raw_to(PgFaceObject *self, PyObject *args, PyObject *kwds)
+{
+    /* keyword list */
+    static char *kwlist[] =  {
+        "array", "text", "dest", "style", "rotation", "ptsize", "invert", 0
+    };
+
+    FaceRenderMode mode;
+
+    /* input arguments */
+    PyObject *arrayobj;
+    PyObject *textobj;
+    PGFT_String *text;
+    PyObject *dest = 0;
+    int xpos = 0;
+    int ypos = 0;
+    int style = FT_STYLE_DEFAULT;
+    int rotation = 0;
+    int ptsize = -1;
+    int invert = 0;
+
+    /* output arguments */
+    SDL_Rect r;
+
+    /* internal */
+    int rcode;
+    FreeTypeInstance *ft;
+    ASSERT_GRAB_FREETYPE(ft, 0);
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OO|Oiiii", kwlist,
+                                     &arrayobj, &textobj,
+                                     &dest, &style, &rotation,
+                                     &ptsize, &invert)) {
+        return 0;
+    }
+
+    if (dest && dest != Py_None) {
+        if (parse_dest(dest, &xpos, &ypos)) {
+            return 0;
+        }
+    }
+
+    /* Encode text */
+    text = _PGFT_EncodePyString(textobj, self->render_flags & FT_RFLAG_UCS4);
+    if (!text) {
+        return 0;
+    }
+
+    ASSERT_SELF_IS_ALIVE(self);
+
+    /*
+     * Build the render mode with the given size and no
+     * rotation/styles/vertical text
+     */
+    if (_PGFT_BuildRenderMode(ft, self, &mode, ptsize, style, rotation)) {
+        _PGFT_FreeString(text);
+        return 0;
+    }
+
+    rcode = _PGFT_Render_Array(ft, self, &mode,
+                               arrayobj, text, invert, xpos, ypos, &r);
+    _PGFT_FreeString(text);
+    if (rcode) {
+        return 0;
+    }
+    return PyRect_New(&r);
 }
 
 static PyObject *
@@ -1865,6 +1945,11 @@ MODINIT_DEFINE (freetype)
     }
 
     import_pygame_rect();
+    if (PyErr_Occurred())  {
+        MODINIT_ERROR;
+    }
+
+    import_pygame_view();
     if (PyErr_Occurred())  {
         MODINIT_ERROR;
     }

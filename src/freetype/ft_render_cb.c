@@ -31,7 +31,7 @@
 #endif
 
 void __render_glyph_GRAY1(int x, int y, FaceSurface *surface,
-                          FT_Bitmap *bitmap, FaceColor *fg_color)
+                          const FT_Bitmap *bitmap, const FaceColor *fg_color)
 {
     FT_Byte *dst = ((FT_Byte *)surface->buffer) + x + (y * surface->pitch);
     FT_Byte *dst_cpy;
@@ -65,7 +65,8 @@ void __render_glyph_GRAY1(int x, int y, FaceSurface *surface,
 }
 
 void __render_glyph_MONO_as_GRAY1(int x, int y, FaceSurface *surface,
-                                  FT_Bitmap *bitmap, FaceColor *fg_color)
+                                  const FT_Bitmap *bitmap,
+                                  const FaceColor *fg_color)
 {
     const int off_x = (x < 0) ? -x : 0;
     const int off_y = (y < 0) ? -y : 0;
@@ -76,12 +77,12 @@ void __render_glyph_MONO_as_GRAY1(int x, int y, FaceSurface *surface,
     const int rx = MAX(0, x);
     const int ry = MAX(0, y);
 
-    int             i, j, shift;
-    unsigned char*  src;
-    unsigned char*  dst;
-    unsigned char*  src_cpy;
-    unsigned char*  dst_cpy;
-    FT_UInt32       val;
+    int i, j, shift;
+    const unsigned char* src;
+    unsigned char* dst;
+    const unsigned char*  src_cpy;
+    unsigned char* dst_cpy;
+    FT_UInt32 val;
     FT_Byte shade = fg_color->a;
 
     src  = bitmap->buffer + (off_y * bitmap->pitch) + (off_x >> 3);
@@ -92,7 +93,7 @@ void __render_glyph_MONO_as_GRAY1(int x, int y, FaceSurface *surface,
     for (j = ry; j < max_y; ++j) {
         src_cpy = src;
         dst_cpy = dst;
-         val = (FT_UInt32)(*src_cpy++ | 0x100) << shift;
+        val = (FT_UInt32)(*src_cpy++ | 0x100) << shift;
 
         for (i = rx; i < max_x; ++i, ++dst_cpy) {
             if (val & 0x10000) {
@@ -112,7 +113,8 @@ void __render_glyph_MONO_as_GRAY1(int x, int y, FaceSurface *surface,
 }
 
 void __render_glyph_GRAY_as_MONO1(int x, int y, FaceSurface *surface,
-    FT_Bitmap *bitmap, FaceColor *fg_color)
+                                  const FT_Bitmap *bitmap,
+                                  const FaceColor *fg_color)
 {
     FT_Byte *dst = ((FT_Byte *)surface->buffer) + x + (y * surface->pitch);
     FT_Byte *dst_cpy;
@@ -146,7 +148,7 @@ void __render_glyph_GRAY_as_MONO1(int x, int y, FaceSurface *surface,
 }
 
 void __fill_glyph_GRAY1(int x, int y, int w, int h,
-        FaceSurface *surface, FaceColor *color)
+        FaceSurface *surface, const FaceColor *color)
 {
     int i, j;
     FT_Byte *dst;
@@ -176,12 +178,221 @@ void __fill_glyph_GRAY1(int x, int y, int w, int h,
     }
 }
 
+void __render_glyph_INT(int x, int y, FaceSurface *surface,
+                        const FT_Bitmap *bitmap, const FaceColor *fg_color)
+{
+    FT_Byte *dst = ((FT_Byte *)surface->buffer +
+                    x * surface->item_stride + y * surface->pitch);
+    int item_size = surface->format->BytesPerPixel;
+    int item_stride = surface->item_stride;
+    FT_Byte *dst_cpy;
+
+    const FT_Byte *src = bitmap->buffer;
+    const FT_Byte *src_cpy;
+    FT_Byte src_byte;
+    FT_Byte dst_byte;
+    FT_Byte mask = ~fg_color->a;
+
+    int j, i;
+    int b, int_offset;
+
+    /*
+     * Assumption, target buffer was filled with the background color before
+     * any rendering.
+     */
+
+    if (item_size == 1) {
+        for (j = 0; j < bitmap->rows; ++j) {
+            src_cpy = src;
+            dst_cpy = dst;
+
+            for (i = 0; i < bitmap->width; ++i) {
+                src_byte = *src_cpy;
+                if (src_byte) {
+                    *dst_cpy = ((src_byte + *dst_cpy -
+                                src_byte * *dst_cpy / 255) ^ mask);
+                }
+                ++src_cpy;
+                dst_cpy += item_stride;
+            }
+
+            dst += surface->pitch;
+            src += bitmap->pitch;
+        }
+    }
+    else {
+        int_offset = surface->format->Ashift / 8;
+
+        for (j = 0; j < bitmap->rows; ++j) {
+            src_cpy = src;
+            dst_cpy = dst;
+
+            for (i = 0; i < bitmap->width; ++i) {
+                dst_byte = dst_cpy[int_offset];
+                for (b = 0; b < item_size; ++b) {
+                    dst_cpy[b] = 0;
+                }
+
+                src_byte = *src_cpy;
+                if (src_byte) {
+                    dst_cpy[int_offset] = ((src_byte + dst_byte -
+                                            src_byte * dst_byte / 255) ^ mask);
+                }
+                ++src_cpy;
+                dst_cpy += item_stride;
+            }
+
+            dst += surface->pitch;
+            src += bitmap->pitch;
+        }
+    }
+}
+
+void __render_glyph_MONO_as_INT(int x, int y, FaceSurface *surface,
+                                const FT_Bitmap *bitmap,
+                                const FaceColor *fg_color)
+{
+    const int off_x = (x < 0) ? -x : 0;
+    const int off_y = (y < 0) ? -y : 0;
+
+    const int max_x = MIN(x + bitmap->width, surface->width);
+    const int max_y = MIN(y + bitmap->rows, surface->height);
+
+    const int rx = MAX(0, x);
+    const int ry = MAX(0, y);
+
+    int i, j, shift;
+    int b, int_offset;
+    int item_stride = surface->item_stride;
+    int item_size = surface->format->BytesPerPixel;
+    unsigned char *src;
+    unsigned char *dst;
+    unsigned char *src_cpy;
+    unsigned char *dst_cpy;
+    FT_UInt32 val;
+    FT_Byte shade = fg_color->a;
+
+    /*
+     * Assumption, target buffer was filled with the background color before
+     * any rendering.
+     */
+
+    src  = bitmap->buffer + (off_y * bitmap->pitch) + (off_x >> 3);
+    dst = ((unsigned char *)surface->buffer +
+           rx * surface->item_stride + ry * surface->pitch);
+
+    shift = off_x & 7;
+
+    if (item_size == 1) {
+        /* Slightly optimized loop for 1 byte target int */
+        for (j = ry; j < max_y; ++j) {
+            src_cpy = src;
+            dst_cpy = dst;
+            val = (FT_UInt32)(*src_cpy++ | 0x100) << shift;
+
+            for (i = rx; i < max_x; ++i, dst_cpy += item_stride) {
+                if (val & 0x10000) {
+                    val = (FT_UInt32)(*src_cpy++ | 0x100);
+                }
+
+                if (val & 0x80) {
+                    *dst_cpy = shade;
+                }
+
+                val   <<= 1;
+            }
+
+            src += bitmap->pitch;
+            dst += surface->pitch;
+        }
+    }
+    else {
+        /* Generic copy for arbitrary target int size */
+        int_offset = surface->format->Ashift / 8;
+
+        for (j = ry; j < max_y; ++j) {
+            src_cpy = src;
+            dst_cpy = dst;
+            val = (FT_UInt32)(*src_cpy++ | 0x100) << shift;
+
+            for (i = rx; i < max_x; ++i, dst_cpy += item_stride) {
+                for (b = 0; b < item_size; ++b) {
+                    dst_cpy[b] = 0;
+                }
+
+                if (val & 0x10000) {
+                    val = (FT_UInt32)(*src_cpy++ | 0x100);
+                }
+
+                if (val & 0x80) {
+                    dst_cpy[int_offset] = shade;
+                }
+
+                val   <<= 1;
+            }
+
+            src += bitmap->pitch;
+            dst += surface->pitch;
+        }
+    }
+}
+
+void __fill_glyph_INT(int x, int y, int w, int h,
+                      FaceSurface *surface, const FaceColor *color)
+{
+    int b, i, j;
+    FT_Byte *dst;
+    int itemsize = surface->format->BytesPerPixel;
+    int item_stride = surface->item_stride;
+    int byteoffset = surface->format->Ashift / 8;
+    FT_Byte *dst_cpy;
+    FT_Byte shade = color->a;
+
+    x = MAX(0, x);
+    y = MAX(0, y);
+
+    if (x + w > surface->width) {
+        w = surface->width - x;
+    }
+    if (y + h > surface->height) {
+        h = surface->height - y;
+    }
+
+    dst = (FT_Byte *)surface->buffer + x + (y * surface->pitch);
+
+    if (itemsize == 1) {
+        for (j = 0; j < h; ++j) {
+            dst_cpy = dst;
+
+            for (i = 0; i < w; ++i, dst_cpy += item_stride) {
+                *dst_cpy = shade;
+            }
+
+            dst += surface->pitch;
+        }
+    }
+    else {
+        for (j = 0; j < h; ++j) {
+            dst_cpy = dst;
+
+            for (i = 0; i < w; ++i, dst_cpy += item_stride) {
+                for (b = 0; b < itemsize; ++b) {
+                    dst_cpy[b] = 0;
+                }
+                dst_cpy[byteoffset] = shade;
+            }
+
+            dst += surface->pitch;
+        }
+    }
+}
+
 #ifdef HAVE_PYGAME_SDL_VIDEO
 
 #define _CREATE_RGB_FILLER(_bpp, _getp, _setp, _blendp)     \
     void __fill_glyph_RGB##_bpp(int x, int y, int w, int h, \
                                 FaceSurface *surface,       \
-                                FaceColor *color)           \
+                                const FaceColor *color)     \
     {                                                       \
         int i, j;                                           \
         unsigned char *dst;                                 \
@@ -233,7 +444,7 @@ void __fill_glyph_GRAY1(int x, int y, int w, int h,
 #define __MONO_RENDER_INNER_LOOP(_bpp, _code)               \
     for (j = ry; j < max_y; ++j)                            \
     {                                                       \
-        unsigned char* _src = src;                          \
+        const unsigned char* _src = src;                    \
         unsigned char* _dst = dst;                          \
         FT_UInt32 val =                                     \
             (FT_UInt32)(*_src++ | 0x100) << shift;          \
@@ -255,8 +466,8 @@ void __fill_glyph_GRAY1(int x, int y, int w, int h,
 #define _CREATE_MONO_RENDER(_bpp, _getp, _setp, _blendp)    \
     void __render_glyph_MONO##_bpp(int x, int y,            \
                                    FaceSurface *surface,    \
-                                   FT_Bitmap *bitmap,       \
-                                FaceColor *color)           \
+                                   const FT_Bitmap *bitmap, \
+                                   const FaceColor *color)  \
     {                                                       \
         const int off_x = (x < 0) ? -x : 0;                 \
         const int off_y = (y < 0) ? -y : 0;                 \
@@ -269,10 +480,10 @@ void __fill_glyph_GRAY1(int x, int y, int w, int h,
         const int rx = MAX(0, x);                           \
         const int ry = MAX(0, y);                           \
                                                             \
-        int             i, j, shift;                                    \
-        unsigned char*  src;                                            \
-        unsigned char*  dst;                                            \
-        FT_UInt32       full_color;                                     \
+        int i, j, shift;                                                \
+        const unsigned char* src;                                       \
+        unsigned char* dst;                                             \
+        FT_UInt32 full_color;                                           \
         FT_UInt32 bgR, bgG, bgB, bgA;                                   \
                                                                         \
         src  = bitmap->buffer + (off_y * bitmap->pitch) + (off_x >> 3); \
@@ -318,7 +529,8 @@ void __fill_glyph_GRAY1(int x, int y, int w, int h,
 
 #define _CREATE_RGB_RENDER(_bpp, _getp, _setp, _blendp)                 \
     void __render_glyph_RGB##_bpp(int x, int y, FaceSurface *surface,   \
-        FT_Bitmap *bitmap, FaceColor *color)                            \
+                                  const FT_Bitmap *bitmap,              \
+                                  const FaceColor *color)               \
     {                                                                   \
         const int off_x = (x < 0) ? -x : 0;                             \
         const int off_y = (y < 0) ? -y : 0;                             \
