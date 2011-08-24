@@ -21,11 +21,15 @@
 #define PYGAME_FREETYPE_INTERNAL
 
 #include "ft_wrap.h"
+#include "../pgview.h"
 #include FT_MODULE_H
 #include FT_OUTLINE_H
 
+static const FaceColor mono_opaque = {0, 0, 0, SDL_ALPHA_OPAQUE};
+static const FaceColor mono_transparent = {0, 0, 0, SDL_ALPHA_TRANSPARENT};
+
 static void render(FreeTypeInstance *, FaceText *, const FaceRenderMode *,
-                   FaceColor *, FaceSurface *, unsigned, unsigned,
+                   const FaceColor *, FaceSurface *, unsigned, unsigned,
                    FT_Vector *, FT_Pos, FT_Fixed);
 
 int
@@ -457,7 +461,8 @@ SDL_Surface *_PGFT_Render_NewSurface(FreeTypeInstance *ft,
 
 PyObject *_PGFT_Render_PixelArray(FreeTypeInstance *ft, PgFaceObject *faceobj,
                                   const FaceRenderMode *mode,
-                                  PGFT_String *text, int *_width, int *_height)
+                                  PGFT_String *text, int invert,
+                                  int *_width, int *_height)
 {
     FT_Byte *buffer = 0;
     PyObject *array = 0;
@@ -470,7 +475,6 @@ PyObject *_PGFT_Render_PixelArray(FreeTypeInstance *ft, PgFaceObject *faceobj,
     FT_Pos underline_top;
     FT_Fixed underline_size;
     int array_size;
-    FaceColor mono_opaque = {0, 0, 0, SDL_ALPHA_OPAQUE};
 
     if (PGFT_String_GET_LENGTH(text) == 0) {
         /* Empty array */
@@ -503,7 +507,12 @@ PyObject *_PGFT_Render_PixelArray(FreeTypeInstance *ft, PgFaceObject *faceobj,
         return 0;
     }
     buffer = (FT_Byte *)Bytes_AS_STRING(array);
-    memset(buffer, 0x00, (size_t)array_size);
+    if (invert) {
+        memset(buffer, SDL_ALPHA_OPAQUE, (size_t)array_size);
+    }
+    else {
+        memset(buffer, SDL_ALPHA_TRANSPARENT, (size_t)array_size);
+    }
     surf.buffer = buffer;
     surf.width = width;
     surf.height = height;
@@ -513,8 +522,8 @@ PyObject *_PGFT_Render_PixelArray(FreeTypeInstance *ft, PgFaceObject *faceobj,
     surf.render_mono = __render_glyph_MONO_as_GRAY1;
     surf.fill = __fill_glyph_GRAY1;
 
-    render(ft, font_text, mode, &mono_opaque, &surf,
-           width, height, &offset, underline_top, underline_size);
+    render(ft, font_text, mode, invert ? &mono_transparent : &mono_opaque,
+           &surf, width, height, &offset, underline_top, underline_size);
 
     *_width = width;
     *_height = height;
@@ -522,6 +531,137 @@ PyObject *_PGFT_Render_PixelArray(FreeTypeInstance *ft, PgFaceObject *faceobj,
     return array;
 }
 
+int
+_PGFT_Render_Array(FreeTypeInstance *ft, PgFaceObject *faceobj,
+                   const FaceRenderMode *mode, PyObject *arrayobj,
+                   PGFT_String *text, int invert,
+                   int x, int y, SDL_Rect *r)
+{
+    static int view_init = 0;
+
+    PyObject *cobj = 0;
+    PyArrayInterface *inter_p;
+
+    unsigned width;
+    unsigned height;
+    int itemsize;
+    FT_Vector offset;
+    FT_Vector array_offset;
+    FT_Pos underline_top;
+    FT_Fixed underline_size;
+
+    FaceSurface font_surf;
+    SDL_PixelFormat format;
+    FaceText *font_text;
+
+    /* Get target buffer */
+    if (!view_init) {
+        import_pygame_view();
+        if (PyErr_Occurred()) {
+            return -1;
+        }
+    }
+    if (Pg_GetArrayInterface(arrayobj, &cobj, &inter_p)) {
+        return -1;
+    }
+    if (inter_p->nd != 2) {
+        Py_DECREF(cobj);
+        PyErr_Format(PyExc_ValueError,
+                     "expecting a 2d target array: got %id array instead",
+                     (int)inter_p->nd);
+        return -1;
+    }
+    switch (inter_p->typekind) {
+
+    case 'i':  /* integer */
+        break;
+    case 'u':  /* unsigned integer */ 
+        break;
+    case 'S':  /* fixed length character field */
+        break;
+    default:
+        Py_DECREF(cobj);
+        PyErr_Format(PyExc_ValueError, "unsupported target array type '%c'",
+                     inter_p->typekind);
+        return -1;
+    }
+
+    width = inter_p->shape[0];
+    height = inter_p->shape[1];
+    itemsize = inter_p->itemsize;
+
+    /* if empty string, then nothing more to do */
+    if (PGFT_String_GET_LENGTH(text) == 0) {
+        Py_DECREF(cobj);
+        r->x = 0;
+        r->y = 0;
+        r->w = 0;
+        r->h = _PGFT_Face_GetHeightSized(ft, faceobj, mode->pt_size);
+        return 0;
+    }
+
+    /* build face text */
+    font_text = _PGFT_LoadFaceText(ft, faceobj, mode, text);
+    if (!font_text) {
+        Py_DECREF(cobj);
+        return -1;
+    }
+
+    _PGFT_GetRenderMetrics(mode, font_text, &width, &height, &offset,
+                           &underline_top, &underline_size);
+    if (width == 0 || height == 0) {
+        /* Nothing more to do. */
+        Py_DECREF(cobj);
+        r->x = 0;
+        r->y = 0;
+        r->w = 0;
+        r->h = _PGFT_Face_GetHeightSized(ft, faceobj, mode->pt_size);
+        return 0;
+    }
+    array_offset.x = INT_TO_FX6(x);
+    array_offset.y = INT_TO_FX6(y);
+    if (mode->render_flags & FT_RFLAG_ORIGIN) {
+        x -= FX6_TRUNC(FX6_CEIL(offset.x));
+        y -= FX6_TRUNC(FX6_CEIL(offset.y));
+    }
+    else {
+        array_offset.x += offset.x;
+        array_offset.y += offset.y;
+    }
+
+    /*
+     * Setup target surface struct
+     */
+    format.BytesPerPixel = itemsize;
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+    format.Ashift = ((inter_p->flags & PAI_NOTSWAPPED) ?
+                     0 : (itemsize - 1) * 8);
+#else
+    format.Ashift = ((inter_p->flags & PAI_NOTSWAPPED) ?
+                     (itemsize - 1) * 8 : 0);
+#endif
+    font_surf.buffer = inter_p->data;
+    font_surf.width = inter_p->shape[0];
+    font_surf.height = inter_p->shape[1];
+    font_surf.item_stride = inter_p->strides[0];
+    font_surf.pitch = inter_p->strides[1];
+    font_surf.format = &format;
+    font_surf.render_gray = __render_glyph_INT;
+    font_surf.render_mono = __render_glyph_MONO_as_INT;
+    font_surf.fill = __fill_glyph_INT;
+
+    render(ft, font_text, mode, invert ? &mono_transparent : &mono_opaque,
+           &font_surf, width, height, &array_offset, underline_top,
+           underline_size);
+
+    Py_DECREF(cobj);
+    r->x = -(Sint16)FX6_TRUNC(FX6_FLOOR(offset.x));
+    r->y = (Sint16)FX6_TRUNC(FX6_CEIL(offset.y));
+    r->w = (Uint16)width;
+    r->h = (Uint16)height;
+
+    return 0;
+}
 
 /*********************************************************
  *
@@ -530,7 +670,7 @@ PyObject *_PGFT_Render_PixelArray(FreeTypeInstance *ft, PgFaceObject *faceobj,
  *********************************************************/
 static void
 render(FreeTypeInstance *ft, FaceText *text, const FaceRenderMode *mode,
-       FaceColor *fg_color, FaceSurface *surface,
+       const FaceColor *fg_color, FaceSurface *surface,
        unsigned width, unsigned height, FT_Vector *offset,
        FT_Pos underline_top, FT_Fixed underline_size)
 {
