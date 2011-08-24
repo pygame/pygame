@@ -159,15 +159,16 @@ typedef struct facetext_ {
 struct facesurface_;
 
 typedef void (* FaceRenderPtr)(int, int, struct facesurface_ *,
-                               FT_Bitmap *, FaceColor *);
+                               const FT_Bitmap *, const FaceColor *);
 typedef void (* FaceFillPtr)(int, int, int, int, struct facesurface_ *,
-                             FaceColor *);
+                             const FaceColor *);
 
 typedef struct facesurface_ {
     void *buffer;
 
     unsigned width;
     unsigned height;
+    int item_stride;
     int pitch;
 
     SDL_PixelFormat *format;
@@ -269,7 +270,7 @@ void _PGFT_GetRenderMetrics(const FaceRenderMode *, FaceText *,
 /**************************************** Rendering **************************/
 PyObject *_PGFT_Render_PixelArray(FreeTypeInstance *, PgFaceObject *,
                                   const FaceRenderMode *,
-                                  PGFT_String *, int *, int *);
+                                  PGFT_String *, int, int *, int *);
 SDL_Surface *_PGFT_Render_NewSurface(FreeTypeInstance *, PgFaceObject *,
                                      const FaceRenderMode *, PGFT_String *,
                                      FaceColor *, FaceColor *, SDL_Rect *);
@@ -277,34 +278,53 @@ int _PGFT_Render_ExistingSurface(FreeTypeInstance *, PgFaceObject *,
                                  const FaceRenderMode *, PGFT_String *,
                                  SDL_Surface *, int, int,
                                  FaceColor *, FaceColor *, SDL_Rect *);
+int _PGFT_Render_Array(FreeTypeInstance *, PgFaceObject *,
+                       const FaceRenderMode *, PyObject *,
+                       PGFT_String *, int, int, int, SDL_Rect *);
 int _PGFT_BuildRenderMode(FreeTypeInstance *, PgFaceObject *,
                           FaceRenderMode *, int, int, int);
 int _PGFT_CheckStyle(FT_UInt32);
 
 
 /**************************************** Render callbacks *******************/
-void __fill_glyph_RGB1(int, int, int, int, FaceSurface *, FaceColor *);
-void __fill_glyph_RGB2(int, int, int, int, FaceSurface *, FaceColor *);
-void __fill_glyph_RGB3(int, int, int, int, FaceSurface *, FaceColor *);
-void __fill_glyph_RGB4(int, int, int, int, FaceSurface *, FaceColor *);
+void __fill_glyph_RGB1(int, int, int, int, FaceSurface *, const FaceColor *);
+void __fill_glyph_RGB2(int, int, int, int, FaceSurface *, const FaceColor *);
+void __fill_glyph_RGB3(int, int, int, int, FaceSurface *, const FaceColor *);
+void __fill_glyph_RGB4(int, int, int, int, FaceSurface *, const FaceColor *);
 
-void __fill_glyph_GRAY1(int, int, int, int, FaceSurface *, FaceColor *);
+void __fill_glyph_GRAY1(int, int, int, int, FaceSurface *, const FaceColor *);
 
-void __render_glyph_MONO1(int, int, FaceSurface *, FT_Bitmap *, FaceColor *);
-void __render_glyph_MONO2(int, int, FaceSurface *, FT_Bitmap *, FaceColor *);
-void __render_glyph_MONO3(int, int, FaceSurface *, FT_Bitmap *, FaceColor *);
-void __render_glyph_MONO4(int, int, FaceSurface *, FT_Bitmap *, FaceColor *);
+void __fill_glyph_INT(int, int, int, int, FaceSurface *, const FaceColor *);
 
-void __render_glyph_RGB1(int, int, FaceSurface *, FT_Bitmap *, FaceColor *);
-void __render_glyph_RGB2(int, int, FaceSurface *, FT_Bitmap *, FaceColor *);
-void __render_glyph_RGB3(int, int, FaceSurface *, FT_Bitmap *, FaceColor *);
-void __render_glyph_RGB4(int, int, FaceSurface *, FT_Bitmap *, FaceColor *);
+void __render_glyph_MONO1(int, int, FaceSurface *, const FT_Bitmap *,
+                          const FaceColor *);
+void __render_glyph_MONO2(int, int, FaceSurface *, const FT_Bitmap *,
+                          const FaceColor *);
+void __render_glyph_MONO3(int, int, FaceSurface *, const FT_Bitmap *,
+                          const FaceColor *);
+void __render_glyph_MONO4(int, int, FaceSurface *, const FT_Bitmap *,
+                          const FaceColor *);
 
-void __render_glyph_GRAY1(int, int, FaceSurface *, FT_Bitmap *, FaceColor *);
-void __render_glyph_MONO_as_GRAY1(int, int, FaceSurface *, FT_Bitmap *,
-                                  FaceColor *);
-void __render_glyph_GRAY_as_MONO1(int, int, FaceSurface *, FT_Bitmap *,
-                                  FaceColor *);
+void __render_glyph_RGB1(int, int, FaceSurface *, const FT_Bitmap *,
+                         const FaceColor *);
+void __render_glyph_RGB2(int, int, FaceSurface *, const FT_Bitmap *,
+                         const FaceColor *);
+void __render_glyph_RGB3(int, int, FaceSurface *, const FT_Bitmap *,
+                         const FaceColor *);
+void __render_glyph_RGB4(int, int, FaceSurface *, const FT_Bitmap *,
+                         const FaceColor *);
+
+void __render_glyph_GRAY1(int, int, FaceSurface *, const FT_Bitmap *,
+                          const FaceColor *);
+void __render_glyph_MONO_as_GRAY1(int, int, FaceSurface *, const FT_Bitmap *,
+                                  const FaceColor *);
+void __render_glyph_GRAY_as_MONO1(int, int, FaceSurface *, const FT_Bitmap *,
+                                  const FaceColor *);
+
+void __render_glyph_INT(int, int, FaceSurface *, const FT_Bitmap *,
+                        const FaceColor *);
+void __render_glyph_MONO_as_INT(int, int, FaceSurface *, const FT_Bitmap *,
+                                const FaceColor *);
 
 
 /**************************************** Face text management ***************/

@@ -478,6 +478,87 @@ class FreeTypeFaceTest(unittest.TestCase):
         text = unicode_("").join([unichr_(i) for i in range(31, 64)])
         rend = face.render_raw(text, ptsize=10)
 
+    def test_freetype_Face_render_raw_to(self):
+
+        # This only checks that blits do not crash. It needs to check:
+        # - int values
+        # - invert option
+        #
+
+        face = self._TEST_FONTS['sans']
+        text = "abc"
+
+        # No frills antialiased render to int1 (__render_glyph_INT)
+        srect = face.get_rect(text, ptsize=24)
+        surf = pygame.Surface(srect.size, 0, 8)
+        rrect = face.render_raw_to(surf.get_view('2'), text, ptsize=24)
+        self.assertEqual(rrect, srect)
+
+        for bpp in [24, 32]:
+            surf = pygame.Surface(srect.size, 0, bpp)
+            rrect = face.render_raw_to(surf.get_view('r'), text, ptsize=24)
+            self.assertEqual(rrect, srect)
+
+        # Underlining to int1 (__fill_glyph_INT)
+        srect = face.get_rect(text, ptsize=24, style=ft.STYLE_UNDERLINE)
+        surf = pygame.Surface(srect.size, 0, 8)
+        rrect = face.render_raw_to(surf.get_view('2'), text, ptsize=24,
+                                  style=ft.STYLE_UNDERLINE)
+        self.assertEqual(rrect, srect)
+
+        for bpp in [24, 32]:
+            surf = pygame.Surface(srect.size, 0, bpp)
+            rrect = face.render_raw_to(surf.get_view('r'), text, ptsize=24,
+                                       style=ft.STYLE_UNDERLINE)
+            self.assertEqual(rrect, srect)
+
+        # Unaliased (mono) rendering to int1 (__render_glyph_MONO_as_INT)
+        face.antialiased = False
+        try:
+            srect = face.get_rect(text, ptsize=24)
+            surf = pygame.Surface(srect.size, 0, 8)
+            rrect = face.render_raw_to(surf.get_view('2'), text, ptsize=24)
+            self.assertEqual(rrect, srect)
+
+            for bpp in [24, 32]:
+                surf = pygame.Surface(srect.size, 0, bpp)
+                rrect = face.render_raw_to(surf.get_view('r'), text, ptsize=24)
+                self.assertEqual(rrect, srect)
+        finally:
+            face.antialiased = True
+
+        # Antialiased render to ints sized greater than 1 byte
+        # (__render_glyph_INT)
+        srect = face.get_rect(text, ptsize=24)
+
+        for bpp in [16, 24, 32]:
+            surf = pygame.Surface(srect.size, 0, bpp)
+            rrect = face.render_raw_to(surf.get_view('2'), text, ptsize=24)
+            self.assertEqual(rrect, srect)
+
+        # Underline render to ints sized greater than 1 byte
+        # (__fill_glyph_INT)
+        srect = face.get_rect(text, ptsize=24, style=ft.STYLE_UNDERLINE)
+
+        for bpp in [16, 24, 32]:
+            surf = pygame.Surface(srect.size, 0, bpp)
+            rrect = face.render_raw_to(surf.get_view('2'), text, ptsize=24,
+                                       style=ft.STYLE_UNDERLINE)
+            self.assertEqual(rrect, srect)
+
+        # Unaliased (mono) rendering to ints greater than 1 byte
+        # (__render_glyph_MONO_as_INT)
+        face.antialiased = False
+        try:
+            srect = face.get_rect(text, ptsize=24)
+
+            for bpp in [16, 24, 32]:
+                surf = pygame.Surface(srect.size, 0, bpp)
+                rrect = face.render_raw_to(surf.get_view('2'), text, ptsize=24)
+                self.assertEqual(rrect, srect)
+        finally:
+            face.antialiased = True
+
     def test_freetype_Face_style(self):
 
         face = self._TEST_FONTS['sans']

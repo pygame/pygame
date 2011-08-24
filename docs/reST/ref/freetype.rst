@@ -339,11 +339,20 @@ New in Pygame 1.9.2
    .. method:: render_raw
 
       | :sl:`Renders text as a string of bytes`
-      | :sg:`render_raw(text, style=STYLE_DEFAULT, rotation=0, ptsize=default) -> (bytes, (int, int))`
+      | :sg:`render_raw(text, style=STYLE_DEFAULT, rotation=0, ptsize=default, invert=False) -> (bytes, (int, int))`
 
-      Like ``Face.render(None, ...)`` but the tuple returned is an 8 bit
+      Like ``Face.render()`` but the tuple returned is an 8 bit
       monochrome string of bytes and its size. The forground color is 255, the
       background 0, useful as an alpha mask for a foreground pattern.
+
+   .. method:: render_raw_to
+
+      | :sl:`Renders text as a string of ints to an array`
+      | :sg:`render_raw_to(array, text, dest=None, style=STYLE_DEFAULT, rotation=0, ptsize=default, invert=False) -> (int, int)`
+
+      Render to an array object exposing an array struct interface. The array
+      must be two dimensional with integer items. The default dest value, None,
+      is equivalent to (0, 0).
 
    .. attribute:: style
 
