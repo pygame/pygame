@@ -26,7 +26,7 @@
 #include "doc/freetype_doc.h"
 #include "pgview.h"
 
-#define MODULE_NAME "freetype"
+#define MODULE_NAME "_freetype"
 #define FACE_TYPE_NAME "Face"
 
 /*
@@ -542,7 +542,7 @@ static PyGetSetDef _ftface_getsets[] = {
 /*
  * FREETYPE FACE BASE TYPE TABLE
  */
-#define FULL_TYPE_NAME MODULE_NAME FACE_TYPE_NAME
+#define FULL_TYPE_NAME MODULE_NAME "." FACE_TYPE_NAME
 
 PyTypeObject PgFace_Type = {
     TYPE_HEAD(0,0)
@@ -1919,7 +1919,7 @@ struct PyModuleDef _freetypemodule =
 _FreeTypeState _modstate;
 #endif
 
-MODINIT_DEFINE (freetype)
+MODINIT_DEFINE (_freetype)
 {
     PyObject *module, *apiobj, *pygame, *pygame_register_quit, *quit, *rval;
     static void* c_api[PYGAMEAPI_FREETYPE_NUMSLOTS];
