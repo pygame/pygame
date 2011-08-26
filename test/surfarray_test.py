@@ -27,7 +27,8 @@ else:
     arraytype = pygame.surfarray.get_arraytype()
     if arraytype == 'numpy':
         from numpy import \
-             uint8, uint16, uint32, uint64, zeros, float64, alltrue
+            uint8, uint16, uint32, uint64, zeros, \
+            float32, float64, alltrue, rint, arange
     elif arraytype == 'numeric':
         from Numeric import \
              UInt8 as uint8, UInt16 as uint16, UInt32 as uint32, zeros, \
@@ -431,10 +432,25 @@ class SurfarrayModuleTest (unittest.TestCase):
         arr.shape = (1, 1, 1, 4)
         self.failUnlessRaises(ValueError, do_blit, surf, arr)
 
-        arr = zeros((10, 10), float64)
-        surf = pygame.Surface((10, 10), 0, 32)
-        self.failUnlessRaises(ValueError, do_blit, surf, arr)
-        
+        # Issue #81: round from float to int
+        try:
+            rint
+        except NameError:
+            pass
+        else:
+            surf = pygame.Surface((10, 10), pygame.SRCALPHA, 32)
+            w, h = surf.get_size()
+            length = w * h
+            for dtype in [float32, float64]:
+                surf.fill((255, 255, 255, 0))
+                farr = arange(0, length, dtype=dtype)
+                farr.shape = w, h
+                pygame.surfarray.blit_array(surf, farr)
+                for x in range(w):
+                    for y in range(h):
+                        self.assertEqual(surf.get_at_mapped((x, y)),
+                                         int(rint(farr[x, y])))
+            
     def test_get_arraytype(self):
         if not arraytype:
             self.fail("no array package installed")
@@ -485,6 +501,24 @@ class SurfarrayModuleTest (unittest.TestCase):
             surf = pygame.surfarray.make_surface(self._make_src_array3d(dtype))
             self._assert_surface(surf)
 
+        # Issue #81: round from float to int
+        try:
+            rint
+        except NameError:
+            pass
+        else:
+            w = 9
+            h = 11
+            length = w * h
+            for dtype in [float32, float64]:
+                farr = arange(0, length, dtype=dtype)
+                farr.shape = w, h
+                surf = pygame.surfarray.make_surface(farr)
+                for x in range(w):
+                    for y in range(h):
+                        self.assertEqual(surf.get_at_mapped((x, y)),
+                                         int(rint(farr[x, y])))
+            
     def test_map_array(self):
         if not arraytype:
             self.fail("no array package installed")
