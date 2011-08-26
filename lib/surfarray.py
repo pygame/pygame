@@ -106,7 +106,11 @@ def blit_array (surface, array):
     This function will temporarily lock the Surface as the new values are
     copied.
     """
-    return array_to_surface(surface, array)
+    if __arraytype == "numeric":
+        return numericsf.blit_array (surface, array)
+    elif __arraytype == "numpy":
+        return numpysf.blit_array (surface, array)
+    raise NotImplementedError("surface arrays are not supported")
 
 def array2d (surface):
     """pygame.surfarray.array2d (Surface): return array
@@ -314,7 +318,11 @@ def make_surface(array):
     Create a new Surface that best resembles the data and format on the
     array. The array can be 2D or 3D with any sized integer values.
     """ 
-    return pc_make_surface(array)
+    if __arraytype == "numeric":
+        return numericsf.make_surface (array)
+    elif __arraytype == "numpy":
+        return numpysf.make_surface (array)
+    raise NotImplementedError("surface arrays are not supported")
 
 def map_array (surface, array):
     """pygame.surfarray.map_array (Surface, array3d): return array2d

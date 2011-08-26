@@ -46,10 +46,43 @@ with 16bit data will be treated as unsigned integers.
 
 import pygame
 from pygame.compat import bytes_
-from pygame.pixelcopy import array_to_surface, surface_to_array
-from pygame.pixelcopy import map_array as pix_map_array
+from pygame.pixelcopy import array_to_surface, surface_to_array, \
+    map_array as pix_map_array, make_surface as pix_make_surface
 import numpy
-from numpy import array as numpy_array, empty as numpy_empty
+from numpy import array as numpy_array, empty as numpy_empty, \
+                  rint as numpy_rint, uint32 as numpy_uint32, \
+                  ndarray as numpy_ndarray
+
+numpy_floats = [numpy.float, numpy.float32, numpy.float64, numpy.float96]
+
+def blit_array (surface, array):
+    """pygame.surfarray.blit_array(Surface, array): return None
+
+    Blit directly from a array values.
+
+    Directly copy values from an array into a Surface. This is faster than
+    converting the array into a Surface and blitting. The array must be the
+    same dimensions as the Surface and will completely replace all pixel
+    values. Only integer, ascii character and record arrays are accepted.
+
+    This function will temporarily lock the Surface as the new values are
+    copied.
+    """
+    if isinstance(array, numpy_ndarray) and array.dtype in numpy_floats:
+        array = numpy_rint(array, numpy_empty(array.shape, dtype=numpy_uint32))
+    return array_to_surface(surface, array)
+
+def make_surface(array):
+    """pygame.surfarray.make_surface (array): return Surface
+
+    Copy an array to a new surface.
+
+    Create a new Surface that best resembles the data and format on the
+    array. The array can be 2D or 3D with any sized integer values.
+    """ 
+    if isinstance(array, numpy_ndarray) and array.dtype in numpy_floats:
+        array = numpy_rint(array, numpy_empty(array.shape, dtype=numpy_uint32))
+    return pix_make_surface (array)
 
 def array2d(surface):
     """pygame.numpyarray.array2d(Surface): return array
