@@ -68,9 +68,6 @@ static PyObject *_ftface_getsizedascender(PgFaceObject *, PyObject *);
 static PyObject *_ftface_getsizeddescender(PgFaceObject *, PyObject *);
 static PyObject *_ftface_getsizedheight(PgFaceObject *, PyObject *);
 static PyObject *_ftface_getsizedglyphheight(PgFaceObject *, PyObject *);
-static PyObject *_ftface_gettransform(PgFaceObject *);
-static PyObject *_ftface_settransform(PgFaceObject *, PyObject *);
-static PyObject *_ftface_deletetransform(PgFaceObject *);
 
 /* static PyObject *_ftface_copy(PgFaceObject *); */
 
@@ -359,24 +356,6 @@ static PyMethodDef _ftface_methods[] = {
         (PyCFunction)_ftface_render_raw_to,
         METH_VARARGS | METH_KEYWORDS,
         DOC_FACERENDERRAWTO
-    },
-    {
-        "get_transform",
-        (PyCFunction)_ftface_gettransform,
-        METH_NOARGS,
-        DOC_FACEGETTRANSFORM
-    },
-    {
-        "set_transform",
-        (PyCFunction)_ftface_settransform,
-        METH_VARARGS,
-        DOC_FACESETTRANSFORM
-    },
-    {
-        "delete_transform",
-        (PyCFunction)_ftface_deletetransform,
-        METH_NOARGS,
-        DOC_FACEDELETETRANSFORM
     },
 
     { 0, 0, 0, 0 }
@@ -1668,56 +1647,6 @@ _ftface_render_to(PgFaceObject *self, PyObject *args, PyObject *kwds)
     return PyRect_New(&r);
 
 #endif // HAVE_PYGAME_SDL_VIDEO
-}
-
-static PyObject *
-_ftface_gettransform(PgFaceObject *self)
-{
-    if (!(self->render_flags & FT_RFLAG_TRANSFORM)) {
-        Py_RETURN_NONE;
-    }
-    return Py_BuildValue("dddd",
-                         FX16_TO_DBL(self->transform.xx),
-                         FX16_TO_DBL(self->transform.xy),
-                         FX16_TO_DBL(self->transform.yx),
-                         FX16_TO_DBL(self->transform.yy));
-}
-
-static PyObject *
-_ftface_settransform(PgFaceObject *self, PyObject *args)
-{
-    double xx;
-    double xy;
-    double yx;
-    double yy;
-
-    if (!PyArg_ParseTuple(args, "dddd", &xx, &xy, &yx, &yy)) {
-        return 0;
-    }
-    /* Sanity check: only accept numbers between -2.0 and 2.0 inclusive */
-    if (xx < -2.0 || xx > 2.0 || xy < -2.0 || xy > 2.0 ||
-        yx < -2.0 || yx > 2.0 || yy < -2.0 || yy > 2.0) {
-        PyErr_SetString(PyExc_ValueError,
-                        "received a value outside range [-2.0,2.0]");
-        return 0;
-    }
-    self->transform.xx = FX16_TO_DBL(xx);
-    self->transform.xy = FX16_TO_DBL(xy);
-    self->transform.yx = FX16_TO_DBL(yx);
-    self->transform.yy = FX16_TO_DBL(yy);
-    self->render_flags |= FT_RFLAG_TRANSFORM;
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-_ftface_deletetransform(PgFaceObject *self)
-{
-    self->render_flags &= ~FT_RFLAG_TRANSFORM;
-    self->transform.xx = 0x00010000;
-    self->transform.xy = 0x00000000;
-    self->transform.yx = 0x00000000;
-    self->transform.yy = 0x00010000;
-    Py_RETURN_NONE;
 }
 
 /****************************************************

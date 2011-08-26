@@ -31,7 +31,6 @@ typedef struct keyfields_ {
     unsigned short render_flags;
     unsigned short rotation;
     FT_Fixed strength;
-    FT_Matrix transform;
 } KeyFields;
 
 typedef union cachenodekey_ {
@@ -73,10 +72,6 @@ set_node_key(NodeKey *key, PGFT_char ch, const FaceRenderMode *mode)
     fields->render_flags = mode->render_flags & rflag_mask;
     fields->rotation = rot;
     fields->strength = mode->strength;
-    fields->transform.xx = mode->transform.xx;
-    fields->transform.xy = mode->transform.xy;
-    fields->transform.yx = mode->transform.yx;
-    fields->transform.yy = mode->transform.yy;
 }
 
 static int
