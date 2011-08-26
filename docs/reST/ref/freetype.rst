@@ -533,27 +533,3 @@ New in Pygame 1.9.2
       | :sg:`resolution -> int`
 
       Gets the pixel size used in scaling face glyphs for this Face instance.
-
-   .. method:: set_transform
-
-      | :sl:`assign a glyph transformation matrix`
-      | :sg:`set_transform(xx, xy, yx, yy) -> None`
-
-      Set a transform matrix for the face. If None, no matrix assigned.
-      The arguments can be any numeric type that can be converted
-      to a double. The matrix is applied after the strong transformation,
-      but before oblique and rotation.
-
-   .. method:: delete_transform
-
-      | :sl:`delete a glyph transformation matrix`
-      | :sg:`set_transform(xx, xy, yx, yy) -> None`
-
-      Remove the transformation matrix, if any.
-
-   .. method:: get_transform
-
-      | :sl:`return the user assigned transformation matrix, or None`
-      | :sg:`get_transform() -> (double, double, double, double) or None`
-
-      Return the transform matrix for the face. If None, no matrix is assigned.
