@@ -1,0 +1,139 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>File Path Function Arguments &mdash; Pygame v1.9.2 documentation</title>
+    <link rel="stylesheet" href="_static/pygame.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.9.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="shortcut icon" href="_static/pygame.ico"/>
+    <link rel="top" title="Pygame v1.9.2 documentation" href="index.html" />
+    <link rel="prev" title="pygame.transform" href="ref/transform.html" /> 
+  </head>
+  <body>  
+
+    <div class="document">
+
+  <div class="header">
+    <table>
+      <tr>
+	<td class="logo">
+	  <a href="http://www.pygame.org/">
+	    <img src="_static/pygame_tiny.png"/>
+	  </a>
+	  <h5>pygame documentation</h5>
+	</td>
+	<td class="pagelinks">
+	  <p class="top">
+	    ||
+	    <a href="http://www.pygame.org/">Pygame Home</a> ||
+	    <a href="index.html">Help Contents</a> ||
+	    <a href="genindex.html">Reference Index</a> ||
+	  </p>
+	  <p class="bottom">
+	    <a href="ref/camera.html">camera</a> || 
+	    <a href="ref/cdrom.html">cdrom</a> || 
+	    <a href="ref/color.html">Color</a> || 
+	    <a href="ref/cursors.html">cursors</a> || 
+	    <a href="ref/display.html">display</a> || 
+	    <a href="ref/draw.html">draw</a> || 
+	    <a href="ref/event.html">event</a> || 
+	    <a href="ref/examples.html">examples</a> || 
+	    <a href="ref/font.html">font</a> || 
+	    <a href="ref/gfxdraw.html">gfxdraw</a> || 
+	    <a href="ref/image.html">image</a> || 
+	    <a href="ref/joystick.html">joystick</a> || 
+	    <a href="ref/key.html">key</a> || 
+	    <a href="ref/locals.html">locals</a> || 
+	    <a href="ref/mask.html">mask</a> || 
+	    <a href="ref/math.html">math</a> || 
+	    <a href="ref/midi.html">midi</a> || 
+	    <a href="ref/mixer.html">mixer</a> || 
+	    <a href="ref/mouse.html">mouse</a> || 
+	    <a href="ref/movie.html">movie</a> || 
+	    <a href="ref/music.html">music</a> || 
+	    <a href="ref/overlay.html">Overlay</a> || 
+	    <a href="ref/pixelarray.html">PixelArray</a> || 
+	    <a href="ref/pixelcopy.html">pixelcopy</a> || 
+	    <a href="ref/pygame.html">pygame</a> || 
+	    <a href="ref/rect.html">Rect</a> || 
+	    <a href="ref/scrap.html">scrap</a> || 
+	    <a href="ref/sndarray.html">sndarray</a> || 
+	    <a href="ref/sprite.html">sprite</a> || 
+	    <a href="ref/surface.html">Surface</a> || 
+	    <a href="ref/surfarray.html">surfarray</a> || 
+	    <a href="ref/tests.html">tests</a> || 
+	    <a href="ref/time.html">time</a> || 
+	    <a href="ref/transform.html">transform</a> || 
+	    <a href="ref/pygame.html#module-pygame.version">version</a>
+	  </p>
+	</td>
+      </tr>
+    </table>
+  </div>
+
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <div class="sectionwrapper">
+<div class="section" id="file-path-function-arguments">
+<div class="section" id="id1">
+<h2>File Path Function Arguments<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><p>A Pygame function or method which takes a file path argument
+will accept either an Unicode or a byte — 8-bit or ASCII character — string.
+Unicode strings are translated to Python&#8217;s default file system encoding,
+as returned by sys.getfilesystemencoding().
+An Unicode code point above U+FFFF — &#8217;uFFFF&#8217; — can
+be coded directly with a 32-bit escape
+sequences — &#8217;Uxxxxxxxx&#8217; — ,
+even for Python interpreters built with an UCS-2 (16-bit character) unicode type.
+Byte strings are passed to the operating system unchanged.</p>
+<p>Null characters — &#8217;x00&#8217; —
+are not permitted in the path, raising an exception.
+An exception is also raised if an Unicode file path cannot be encoded.
+How UTF-16 surrogate codes are handled is Python interpreter dependent.
+Use UTF-32 code points and 32-bit escape sequences instead.
+The exception types are function dependent.</p>
+</div></blockquote>
+</div>
+</div>
+
+  </div>
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="ref/transform.html" title="pygame.transform"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Pygame v1.9.2 documentation</a> &raquo;</li>
+    <script type="text/javascript" src="jquery.plugin.docscomments.js"></script>
+
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Pygame Developers.
+    </div>
+  </body>
+</html>
