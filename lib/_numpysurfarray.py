@@ -53,7 +53,12 @@ from numpy import array as numpy_array, empty as numpy_empty, \
                   rint as numpy_rint, uint32 as numpy_uint32, \
                   ndarray as numpy_ndarray
 
-numpy_floats = [numpy.float, numpy.float32, numpy.float64, numpy.float96]
+#float96 not available on all numpy versions.
+numpy_floats = []
+for type_name in "float float32 float64 float96".split():
+    if hasattr(numpy, type_name):
+        numpy_floats.append(getattr(numpy, type_name))
+
 
 def blit_array (surface, array):
     """pygame.surfarray.blit_array(Surface, array): return None
