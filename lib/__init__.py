@@ -105,6 +105,8 @@ from pygame.rwobject import encode_string, encode_file_path
 import pygame.surflock
 import pygame.color
 Color = color.Color
+import pygame._view
+
 __version__ = ver
 
 #next, the "standard" modules
