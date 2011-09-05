@@ -131,7 +131,7 @@ def main():
                 DEPS[DEPS.index(d)] = d[0]
     
     for d in DEPS:
-      d.configure(incdirs, libdirs)
+        d.configure(incdirs, libdirs)
     DEPS[0].cflags = '-Ddarwin '+ DEPS[0].cflags
     return DEPS
 
