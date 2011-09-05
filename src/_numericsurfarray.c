@@ -20,6 +20,7 @@
   pete@shinners.org
 */
 
+#include <SDL.h>
 #include "pygame.h"
 #include "doc/surfarray_doc.h"
 #include "numeric_arrayobject.h"
