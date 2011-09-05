@@ -333,12 +333,19 @@ font_render(PyObject* self, PyObject* args)
     foreg.b = rgba[2];
     if (bg_rgba_obj != NULL) {
         if (!RGBAFromColorObj(bg_rgba_obj, rgba)) {
-            return RAISE(PyExc_TypeError, "Invalid background RGBA argument");
+            bg_rgba_obj = NULL;
+            backg.r = 0;
+            backg.g = 0;
+            backg.b = 0;
+            backg.unused = 0;
         }
-        backg.r = rgba[0];
-        backg.g = rgba[1];
-        backg.b = rgba[2];
-        backg.unused = 0;
+        else
+        {
+            backg.r = rgba[0];
+            backg.g = rgba[1];
+            backg.b = rgba[2];
+            backg.unused = 0;
+        }
     }
     else {
         backg.r = 0;
