@@ -226,9 +226,9 @@ pygame.mouse.set_cursor().
            step = step - 1
            if c == black:
                maskitem = maskitem | 1
+               fillitem = fillitem | 1
            elif c == white:
                maskitem = maskitem | 1
-               fillitem = fillitem | 1
            elif c == xor:
                fillitem = fillitem | 1
            if not step:
