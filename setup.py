@@ -195,7 +195,7 @@ add_datafiles(data_files, 'pygame/tests',
 #examples
 add_datafiles(data_files, 'pygame/examples',
               ['examples',
-                  ['readme.txt',
+                  ['readme.rst',
                    ['data',
                        ['*']],
                    ['macosx',
