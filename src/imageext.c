@@ -163,11 +163,15 @@ image_load_ext(PyObject *self, PyObject *arg)
 #ifdef PNG_H
 
 static int
-write_png (const char *file_name, png_bytep *rows, int w, int h,
-           int colortype, int bitdepth)
+write_png (const char *file_name, 
+           png_bytep *rows, 
+           int w, 
+           int h,
+           int colortype, 
+           int bitdepth)
 {
-    png_structp png_ptr;
-    png_infop info_ptr;
+    png_structp png_ptr = NULL;
+    png_infop info_ptr =  NULL;
     FILE *fp = NULL;
     char *doing = "open for writing";
 
@@ -205,9 +209,20 @@ write_png (const char *file_name, png_bytep *rows, int w, int h,
     doing = "closing file";
     if(0 != fclose (fp))
         goto fail;
+    png_destroy_write_struct(&png_ptr, &info_ptr);
     return 0;
 
 fail:
+    /*
+     * I don't see how to handle the case where png_ptr
+     * was allocated but info_ptr was not. However, those
+     * calls should only fail if memory is out and you are
+     * probably screwed regardless then. The resulting memory
+     * leak is the least of your concerns.
+     */
+    if( png_ptr && info_ptr ) {
+        png_destroy_write_struct(&png_ptr, &info_ptr);
+    }
     SDL_SetError ("SavePNG: could not %s", doing);
     return -1;
 }
