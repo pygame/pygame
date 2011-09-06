@@ -35,6 +35,9 @@ slightly by blocking certain event types from the queue, use the
 ``pygame.event.set_allowed()`` and ``pygame.event.set_blocked()`` to work with
 this filtering. All events default to allowed.
 
+The event subsystem should be called from the main thread.  If you want to post
+events into the queue from other threads, please use the fastevent package.
+
 Joysticks will not send any events until the device has been initialized.
 
 An Event object contains an event type and a readonly set of member data. The
