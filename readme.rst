@@ -1,18 +1,18 @@
 
-   Pygame Readme
-   Version 1.9.2pre Python Game Development
-   Originally by Pete Shinners, now an open source community project.
-   http://www.pygame.org
-   pygame@seul.org
 
-   About
+About pygame
+============
 
      Pygame is a cross-platfrom library designed to make it easy to
      write multimedia software, such as games, in Python. Pygame
      requires the Python language and SDL multimedia library. It can
      also make use of several other popular libraries.
 
-   Installation
+     http://www.pygame.org
+
+
+Installation
+============
 
      You should definitely begin by installing a binary package for your
      system. The binary packages usually come with or give the
@@ -28,7 +28,8 @@
      Much more information about installing and compiling is available
      in the install.html file.
 
-   Help
+Help
+====
 
      If you are just getting started with pygame, you should be able to
      get started fairly quickly. Pygame comes with many tutorials and
@@ -44,7 +45,9 @@
      Best of all the examples directory has many playable small programs
      which can get started playing with the code right away.
 
-   Credits
+Credits
+=======
+
 
      Thanks to everyone who has helped contribute to this library.
      Special thanks are also in order.
@@ -78,7 +81,7 @@
      Bob Ippolito - MacOS and OS X porting (much work!)
 
      Jan Ekhol, Ray Kelm, and Peter Nicolai - putting up with my early
-   design ideas
+     design ideas
 
      Nat Pryce for starting our unit tests
 
@@ -91,37 +94,38 @@
      Alex Folkner - for pygame-ctypes
 
      Thanks to those sending in patches and fixes: Niki Spahiev, Gordon
-   Tyler, Nathaniel Pryce, Dave Wallace, John Popplewell, Michael Urman,
-   Andrew Straw, Michael Hudson, Ole Martin Bjoerndalen, Hervé Cauwelier,
-   James Mazer, Lalo Martins, Timothy Stranex, Chad Lester, Matthias
-   Spiller, Bo Jangeborg, Dmitry Borisov, Campbell Barton, Diego Essaya,
-   Eyal Lotem, Regis Desgroppes, Emmanuel Hainry, Randy Kaelber
-   Matthew L Daniel, Nirav Patel, Forrest Voight, Charlie Nolan, 
-   Frankie Robertson, John Krukoff, Lorenz Quack, Nick Irvine,
-   Michael George, Saul Spatz, Thomas Ibbotson, Tom Rothamel, Evan Kroske,
-   Cambell Barton.
+     Tyler, Nathaniel Pryce, Dave Wallace, John Popplewell, Michael Urman,
+     Andrew Straw, Michael Hudson, Ole Martin Bjoerndalen, Hervé Cauwelier,
+     James Mazer, Lalo Martins, Timothy Stranex, Chad Lester, Matthias
+     Spiller, Bo Jangeborg, Dmitry Borisov, Campbell Barton, Diego Essaya,
+     Eyal Lotem, Regis Desgroppes, Emmanuel Hainry, Randy Kaelber
+     Matthew L Daniel, Nirav Patel, Forrest Voight, Charlie Nolan, 
+     Frankie Robertson, John Krukoff, Lorenz Quack, Nick Irvine,
+     Michael George, Saul Spatz, Thomas Ibbotson, Tom Rothamel, Evan Kroske,
+     Cambell Barton.
 
      And our bug hunters above and beyond: Angus, Guillaume Proux, Frank
-   Raiser, Austin Henry, Kaweh Kazemi, Arturo Aldama, Mike Mulcheck, 
-   Michael Benfield, David Lau
+     Raiser, Austin Henry, Kaweh Kazemi, Arturo Aldama, Mike Mulcheck, 
+     Michael Benfield, David Lau
 
-   There's many more folks out there who've submitted helpful ideas, kept
-   this project going, and basically made my life easer, Thanks!
+     There's many more folks out there who've submitted helpful ideas, kept
+     this project going, and basically made my life easer, Thanks!
 
-   Many thank you's for people making documentation comments, and adding to the
-   pygame.org wiki.  
+     Many thank you's for people making documentation comments, and adding to the
+     pygame.org wiki.  
    
-   Also many thanks for people creating games and putting them on the 
-   pygame.org website for others to learn from and enjoy.
+     Also many thanks for people creating games and putting them on the 
+     pygame.org website for others to learn from and enjoy.
 
-   Lots of thanks to James Paige for hosting the pygame bugzilla.
+     Lots of thanks to James Paige for hosting the pygame bugzilla.
 
-   Also a big thanks to Roger Dingledine and the crew at SEUL.ORG for our
-   excellent hosting.
+     Also a big thanks to Roger Dingledine and the crew at SEUL.ORG for our
+     excellent hosting.
 
 
 
-   Dependencies
+Dependencies
+============
 
      Pygame is obviously strongly dependent on SDL and Python. It also
      links to and embeds several other smaller libraries. The font
@@ -132,10 +136,13 @@
      own rotozoom function. The surfarray module requires the python
      Numeric package for its multidimensional numeric arrays.
 
-   Todo / Ideas (feel free to submit)
+Todo / Ideas (feel free to submit)
+==================================
+
        http://www.pygame.org/wiki/todo/
 
-   License
+License
+=======
 
      This library is distributed under GNU LGPL version 2.1, which can
      be found in the file "doc/LGPL". I reserve the right to place
