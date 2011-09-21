@@ -2171,6 +2171,7 @@ surf_get_view(PyObject *self, PyObject *args, PyObject *kwds)
         return 0;
     }
     view = PgView_New(capsule, self, surf_view_destr);
+    Py_DECREF(capsule);
     if (!view) {
         return 0;
     }
