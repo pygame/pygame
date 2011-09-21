@@ -29,6 +29,9 @@ from pygame.locals import *
 from pygame.compat import xrange_, as_bytes, as_unicode
 from pygame._view import View
 
+import gc
+import weakref
+
 def intify(i):
     """If i is a long, cast to an int while preserving the bits"""
     if 0x80000000 & i:
@@ -382,6 +385,22 @@ class SurfaceTypeTest(unittest.TestCase):
         s = pygame.Surface((2, 4), 0, 32)
         s.get_view(as_unicode('2'))
         s.get_view(as_bytes('2'))
+        
+        # Garbage collection
+        s = pygame.Surface((2, 4), 0, 32)
+        weak_s = weakref.ref(s)
+        v = s.get_view('3')
+        weak_v = weakref.ref(v)
+        gc.collect()
+        self.assertTrue(weak_s() is s)
+        self.assertTrue(weak_v() is v)
+        del v
+        gc.collect()
+        self.assertTrue(weak_s() is s)
+        self.assertTrue(weak_v() is None)
+        del s
+        gc.collect()
+        self.assertTrue(weak_s() is None)
 
     def test_set_colorkey(self):
 
