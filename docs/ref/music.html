@@ -1,0 +1,397 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pygame.mixer.music &mdash; Pygame v1.9.2 documentation</title>
+    <link rel="stylesheet" href="../_static/pygame.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.9.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/pygame.ico"/>
+    <link rel="top" title="Pygame v1.9.2 documentation" href="../index.html" />
+    <link rel="next" title="pygame.Overlay" href="overlay.html" />
+    <link rel="prev" title="pygame.movie" href="movie.html" /> 
+  </head>
+  <body>  
+
+    <div class="document">
+
+  <div class="header">
+    <table>
+      <tr>
+	<td class="logo">
+	  <a href="http://www.pygame.org/">
+	    <img src="../_static/pygame_tiny.png"/>
+	  </a>
+	  <h5>pygame documentation</h5>
+	</td>
+	<td class="pagelinks">
+	  <p class="top">
+	    ||
+	    <a href="http://www.pygame.org/">Pygame Home</a> ||
+	    <a href="../index.html">Help Contents</a> ||
+	    <a href="../genindex.html">Reference Index</a> ||
+	  </p>
+	  <p class="bottom">
+	    <a href="camera.html">camera</a> || 
+	    <a href="cdrom.html">cdrom</a> || 
+	    <a href="color.html">Color</a> || 
+	    <a href="cursors.html">cursors</a> || 
+	    <a href="display.html">display</a> || 
+	    <a href="draw.html">draw</a> || 
+	    <a href="event.html">event</a> || 
+	    <a href="examples.html">examples</a> || 
+	    <a href="font.html">font</a> || 
+	    <a href="gfxdraw.html">gfxdraw</a> || 
+	    <a href="image.html">image</a> || 
+	    <a href="joystick.html">joystick</a> || 
+	    <a href="key.html">key</a> || 
+	    <a href="locals.html">locals</a> || 
+	    <a href="mask.html">mask</a> || 
+	    <a href="math.html">math</a> || 
+	    <a href="midi.html">midi</a> || 
+	    <a href="mixer.html">mixer</a> || 
+	    <a href="mouse.html">mouse</a> || 
+	    <a href="movie.html">movie</a> || 
+	    <a href="music.html">music</a> || 
+	    <a href="overlay.html">Overlay</a> || 
+	    <a href="pixelarray.html">PixelArray</a> || 
+	    <a href="pixelcopy.html">pixelcopy</a> || 
+	    <a href="pygame.html">pygame</a> || 
+	    <a href="rect.html">Rect</a> || 
+	    <a href="scrap.html">scrap</a> || 
+	    <a href="sndarray.html">sndarray</a> || 
+	    <a href="sprite.html">sprite</a> || 
+	    <a href="surface.html">Surface</a> || 
+	    <a href="surfarray.html">surfarray</a> || 
+	    <a href="tests.html">tests</a> || 
+	    <a href="time.html">time</a> || 
+	    <a href="transform.html">transform</a> || 
+	    <a href="pygame.html#module-pygame.version">version</a>
+	  </p>
+	</td>
+      </tr>
+    </table>
+  </div>
+
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <div class="sectionwrapper">
+<div class="section" id="module-pygame.mixer.music">
+<span id="pygame-mixer-music"></span><dl class="definition module">
+<dt class="title module">
+<tt class="docutils literal"><span class="pre">pygame.mixer.music</span></tt></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">pygame module for controlling streamed audio</span></div>
+</div>
+<table border="1" class="toc docutils">
+<colgroup>
+<col width="35%" />
+<col width="1%" />
+<col width="63%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="toc reference external" href="music.html#pygame.mixer.music.load">pygame.mixer.music.load</a></td>
+<td>—</td>
+<td>Load a music file for playback</td>
+</tr>
+<tr><td><a class="toc reference external" href="music.html#pygame.mixer.music.play">pygame.mixer.music.play</a></td>
+<td>—</td>
+<td>Start the playback of the music stream</td>
+</tr>
+<tr><td><a class="toc reference external" href="music.html#pygame.mixer.music.rewind">pygame.mixer.music.rewind</a></td>
+<td>—</td>
+<td>restart music</td>
+</tr>
+<tr><td><a class="toc reference external" href="music.html#pygame.mixer.music.stop">pygame.mixer.music.stop</a></td>
+<td>—</td>
+<td>stop the music playback</td>
+</tr>
+<tr><td><a class="toc reference external" href="music.html#pygame.mixer.music.pause">pygame.mixer.music.pause</a></td>
+<td>—</td>
+<td>temporarily stop music playback</td>
+</tr>
+<tr><td><a class="toc reference external" href="music.html#pygame.mixer.music.unpause">pygame.mixer.music.unpause</a></td>
+<td>—</td>
+<td>resume paused music</td>
+</tr>
+<tr><td><a class="toc reference external" href="music.html#pygame.mixer.music.fadeout">pygame.mixer.music.fadeout</a></td>
+<td>—</td>
+<td>stop music playback after fading out</td>
+</tr>
+<tr><td><a class="toc reference external" href="music.html#pygame.mixer.music.set_volume">pygame.mixer.music.set_volume</a></td>
+<td>—</td>
+<td>set the music volume</td>
+</tr>
+<tr><td><a class="toc reference external" href="music.html#pygame.mixer.music.get_volume">pygame.mixer.music.get_volume</a></td>
+<td>—</td>
+<td>get the music volume</td>
+</tr>
+<tr><td><a class="toc reference external" href="music.html#pygame.mixer.music.get_busy">pygame.mixer.music.get_busy</a></td>
+<td>—</td>
+<td>check if the music stream is playing</td>
+</tr>
+<tr><td><a class="toc reference external" href="music.html#pygame.mixer.music.set_pos">pygame.mixer.music.set_pos</a></td>
+<td>—</td>
+<td>set position to play from</td>
+</tr>
+<tr><td><a class="toc reference external" href="music.html#pygame.mixer.music.get_pos">pygame.mixer.music.get_pos</a></td>
+<td>—</td>
+<td>get the music play time</td>
+</tr>
+<tr><td><a class="toc reference external" href="music.html#pygame.mixer.music.queue">pygame.mixer.music.queue</a></td>
+<td>—</td>
+<td>queue a music file to follow the current</td>
+</tr>
+<tr><td><a class="toc reference external" href="music.html#pygame.mixer.music.set_endevent">pygame.mixer.music.set_endevent</a></td>
+<td>—</td>
+<td>have the music send an event when playback stops</td>
+</tr>
+<tr><td><a class="toc reference external" href="music.html#pygame.mixer.music.get_endevent">pygame.mixer.music.get_endevent</a></td>
+<td>—</td>
+<td>get the event a channel sends when playback stops</td>
+</tr>
+</tbody>
+</table>
+<p>The music module is closely tied to <a class="tooltip reference internal" href="mixer.html#module-pygame.mixer" title=""><tt class="xref py py-mod docutils literal"><span class="pre">pygame.mixer</span></tt><span class="tooltip-content">pygame module for loading and playing sounds</span></a>. Use the music module
+to control the playback of music in the sound mixer.</p>
+<p>The difference between the music playback and regular Sound playback is that
+the music is streamed, and never actually loaded all at once. The mixer system
+only supports a single music stream at once.</p>
+<p>Be aware that <tt class="docutils literal"><span class="pre">MP3</span></tt> support is limited. On some systems an unsupported format
+can crash the program, <tt class="docutils literal"><span class="pre">e.g</span></tt>. Debian Linux. Consider using <tt class="docutils literal"><span class="pre">OGG</span></tt> instead.</p>
+<dl class="definition function">
+<dt class="title" id="pygame.mixer.music.load">
+<tt class="descclassname">pygame.mixer.music.</tt><tt class="descname">load</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.mixer.music.load" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Load a music file for playback</span></div>
+<div class="line"><span class="signature">load(filename) -&gt; None</span></div>
+<div class="line"><span class="signature">load(object) -&gt; None</span></div>
+</div>
+<p>This will load a music filename/file object and prepare it for playback. If
+a music stream is already playing it will be stopped. This does not start
+the music playing.</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.mixer.music.play">
+<tt class="descclassname">pygame.mixer.music.</tt><tt class="descname">play</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.mixer.music.play" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Start the playback of the music stream</span></div>
+<div class="line"><span class="signature">play(loops=0, start=0.0) -&gt; None</span></div>
+</div>
+<p>This will play the loaded music stream. If the music is already playing it
+will be restarted.</p>
+<p>The loops argument controls the number of repeats a music will play.
+<tt class="docutils literal"><span class="pre">play(5)</span></tt> will cause the music to played once, then repeated five times,
+for a total of six. If the loops is -1 then the music will repeat
+indefinitely.</p>
+<p>The starting position argument controls where in the music the song starts
+playing. The starting position is dependent on the format of music playing.
+<tt class="docutils literal"><span class="pre">MP3</span></tt> and <tt class="docutils literal"><span class="pre">OGG</span></tt> use the position as time (in seconds). <tt class="docutils literal"><span class="pre">MOD</span></tt> music it
+is the pattern order number. Passing a startpos will raise a
+NotImplementedError if it cannot set the start position</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.mixer.music.rewind">
+<tt class="descclassname">pygame.mixer.music.</tt><tt class="descname">rewind</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.mixer.music.rewind" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">restart music</span></div>
+<div class="line"><span class="signature">rewind() -&gt; None</span></div>
+</div>
+<p>Resets playback of the current music to the beginning.</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.mixer.music.stop">
+<tt class="descclassname">pygame.mixer.music.</tt><tt class="descname">stop</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.mixer.music.stop" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">stop the music playback</span></div>
+<div class="line"><span class="signature">stop() -&gt; None</span></div>
+</div>
+<p>Stops the music playback if it is currently playing.</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.mixer.music.pause">
+<tt class="descclassname">pygame.mixer.music.</tt><tt class="descname">pause</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.mixer.music.pause" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">temporarily stop music playback</span></div>
+<div class="line"><span class="signature">pause() -&gt; None</span></div>
+</div>
+<p>Temporarily stop playback of the music stream. It can be resumed with the
+<tt class="docutils literal"><span class="pre">pygame.mixer.music.unpause()</span></tt> function.</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.mixer.music.unpause">
+<tt class="descclassname">pygame.mixer.music.</tt><tt class="descname">unpause</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.mixer.music.unpause" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">resume paused music</span></div>
+<div class="line"><span class="signature">unpause() -&gt; None</span></div>
+</div>
+<p>This will resume the playback of a music stream after it has been paused.</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.mixer.music.fadeout">
+<tt class="descclassname">pygame.mixer.music.</tt><tt class="descname">fadeout</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.mixer.music.fadeout" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">stop music playback after fading out</span></div>
+<div class="line"><span class="signature">fadeout(time) -&gt; None</span></div>
+</div>
+<p>This will stop the music playback after it has been faded out over the
+specified time (measured in milliseconds).</p>
+<p>Note, that this function blocks until the music has faded out.</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.mixer.music.set_volume">
+<tt class="descclassname">pygame.mixer.music.</tt><tt class="descname">set_volume</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.mixer.music.set_volume" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">set the music volume</span></div>
+<div class="line"><span class="signature">set_volume(value) -&gt; None</span></div>
+</div>
+<p>Set the volume of the music playback. The value argument is between 0.0 and
+1.0. When new music is loaded the volume is reset.</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.mixer.music.get_volume">
+<tt class="descclassname">pygame.mixer.music.</tt><tt class="descname">get_volume</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.mixer.music.get_volume" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">get the music volume</span></div>
+<div class="line"><span class="signature">get_volume() -&gt; value</span></div>
+</div>
+<p>Returns the current volume for the mixer. The value will be between 0.0 and
+1.0.</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.mixer.music.get_busy">
+<tt class="descclassname">pygame.mixer.music.</tt><tt class="descname">get_busy</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.mixer.music.get_busy" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">check if the music stream is playing</span></div>
+<div class="line"><span class="signature">get_busy() -&gt; bool</span></div>
+</div>
+<p>Returns True when the music stream is actively playing. When the music is
+idle this returns False.</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.mixer.music.set_pos">
+<tt class="descclassname">pygame.mixer.music.</tt><tt class="descname">set_pos</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.mixer.music.set_pos" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">set position to play from</span></div>
+<div class="line"><span class="signature">set_pos(pos) -&gt; None</span></div>
+</div>
+<p>This sets the position in the music file where playback will start. The
+meaning of &#8220;pos&#8221;, a float (or a number that can be converted to a float),
+depends on the music format. Newer versions of SDL_mixer have better
+positioning support than earlier. An SDLError is raised if a particular
+format does not support positioning.</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.mixer.music.get_pos">
+<tt class="descclassname">pygame.mixer.music.</tt><tt class="descname">get_pos</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.mixer.music.get_pos" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">get the music play time</span></div>
+<div class="line"><span class="signature">get_pos() -&gt; time</span></div>
+</div>
+<p>This gets the number of milliseconds that the music has been playing for.
+The returned time only represents how long the music has been playing; it
+does not take into account any starting position offsets.</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.mixer.music.queue">
+<tt class="descclassname">pygame.mixer.music.</tt><tt class="descname">queue</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.mixer.music.queue" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">queue a music file to follow the current</span></div>
+<div class="line"><span class="signature">queue(filename) -&gt; None</span></div>
+</div>
+<p>This will load a music file and queue it. A queued music file will begin as
+soon as the current music naturally ends. If the current music is ever
+stopped or changed, the queued song will be lost.</p>
+<p>The following example will play music by Bach six times, then play music by
+Mozart once:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">pygame</span><span class="o">.</span><span class="n">mixer</span><span class="o">.</span><span class="n">music</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s">&#39;bach.ogg&#39;</span><span class="p">)</span>
+<span class="n">pygame</span><span class="o">.</span><span class="n">mixer</span><span class="o">.</span><span class="n">music</span><span class="o">.</span><span class="n">play</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>        <span class="c"># Plays six times, not five!</span>
+<span class="n">pygame</span><span class="o">.</span><span class="n">mixer</span><span class="o">.</span><span class="n">music</span><span class="o">.</span><span class="n">queue</span><span class="p">(</span><span class="s">&#39;mozart.ogg&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.mixer.music.set_endevent">
+<tt class="descclassname">pygame.mixer.music.</tt><tt class="descname">set_endevent</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.mixer.music.set_endevent" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">have the music send an event when playback stops</span></div>
+<div class="line"><span class="signature">set_endevent() -&gt; None</span></div>
+<div class="line"><span class="signature">set_endevent(type) -&gt; None</span></div>
+</div>
+<p>This causes Pygame to signal (by means of the event queue) when the music is
+done playing. The argument determines the type of event that will be queued.</p>
+<p>The event will be queued every time the music finishes, not just the first
+time. To stop the event from being queued, call this method with no
+argument.</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.mixer.music.get_endevent">
+<tt class="descclassname">pygame.mixer.music.</tt><tt class="descname">get_endevent</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.mixer.music.get_endevent" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">get the event a channel sends when playback stops</span></div>
+<div class="line"><span class="signature">get_endevent() -&gt; type</span></div>
+</div>
+<p>Returns the event type to be sent every time the music finishes playback. If
+there is no endevent the function returns <tt class="docutils literal"><span class="pre">pygame.NOEVENT</span></tt>.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+  </div>
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="overlay.html" title="pygame.Overlay"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="movie.html" title="pygame.movie"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">Pygame v1.9.2 documentation</a> &raquo;</li>
+    <script type="text/javascript" src="jquery.plugin.docscomments.js"></script>
+
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Pygame Developers.
+    </div>
+  </body>
+</html>
