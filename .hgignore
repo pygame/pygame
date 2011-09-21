@@ -1,0 +1,6 @@
+syntax: glob
+Setup
+*.pyc
+*~
+build
+prebuilt
