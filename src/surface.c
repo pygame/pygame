@@ -2354,7 +2354,10 @@ surf_arraystruct_capsule_destr(PyObject *capsule)
 static void
 surf_view_destr(PyObject *view)
 {
-    PySurface_UnlockBy(PgView_GetParent(view), view);
+    PyObject *surf = PgView_GetParent(view);
+
+    PySurface_UnlockBy(surf, view);
+    Py_DECREF(surf);
 }
 
 static PyObject *
