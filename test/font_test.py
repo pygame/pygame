@@ -286,8 +286,9 @@ class FontTypeTest( unittest.TestCase ):
         else:
             self.assert_(not equal_images(su, sb))
 
-        if UCS_4:
-            # SDL_ttf only handles UCS-2
+        # If the font module is SDL_ttf based, then it can only supports  UCS-2;
+        # it will raise an exception for an out-of-range UCS-4 code point.
+        if UCS_4 and not hasattr(f, 'ucs4'):
             ucs_2 = as_unicode(r"\uFFEE")
             s = f.render(ucs_2, False, [0, 0, 0], [255, 255, 255])
             ucs_4 = as_unicode(r"\U00010000")
