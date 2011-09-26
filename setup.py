@@ -55,7 +55,7 @@ if "-warnings" in sys.argv:
                        "-Wnested-externs -Wshadow -Wredundant-decls"
     sys.argv.remove ("-warnings")
 
-import os.path, glob, stat
+import os.path, glob, stat, shutil
 import distutils.sysconfig
 from distutils.core import setup, Extension, Command
 from distutils.extension import read_setup_file
@@ -167,6 +167,20 @@ if sys.version_info >= (3, 0, 0):
         else:
             extensions.append(e)
     del tmp_extensions
+
+# if not building font, try replacing with ftfont
+alternate_font = os.path.join('lib', 'font.py')
+if os.path.exists(alternate_font):
+    os.remove(alternate_font)
+have_font = False
+have_freetype = False
+for e in extensions:
+    if e.name == 'font':
+        have_font = True
+    if e.name == '_freetype':
+        have_freetype = True
+if not have_font and have_freetype:
+    shutil.copyfile(os.path.join('lib', 'ftfont.py'), alternate_font)
 
 #extra files to install
 data_path = os.path.join(distutils.sysconfig.get_python_lib(), 'pygame')
