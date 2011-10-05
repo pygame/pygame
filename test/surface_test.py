@@ -1527,6 +1527,42 @@ class SurfaceBlendTest (unittest.TestCase):
                                      (dst.get_at((x, y)), tst.get_at((x, y)),
                                       x, y))
 
+
+
+
+    def test_blit_blend_big_rect(self):
+        """ test that an oversized rect works ok.
+        """
+        color = (1, 2, 3, 255)
+        area = (1, 1, 30, 30)
+        s1 = pygame.Surface((4, 4), 0, 32)
+        r = s1.fill(special_flags=pygame.BLEND_ADD, color=color, rect=area)
+        self.assertEquals(pygame.Rect((1, 1, 3, 3)), r)
+        self.assert_(s1.get_at((0, 0)) == (0, 0, 0, 255))
+        self.assert_(s1.get_at((1, 1)) == color)
+
+
+        black = pygame.Color("black")
+        red = pygame.Color("red")
+        self.assertNotEqual(black, red)
+
+        surf = pygame.Surface((10, 10), 0, 32)
+        surf.fill(black)
+        subsurf = surf.subsurface(pygame.Rect(0, 1, 10, 8))
+        self.assertEqual(surf.get_at((0, 0)), black)
+        self.assertEqual(surf.get_at((0, 9)), black)
+
+        subsurf.fill(red, (0, -1, 10, 1), pygame.BLEND_RGB_ADD)
+        self.assertEqual(surf.get_at((0, 0)), black)
+        self.assertEqual(surf.get_at((0, 9)), black)
+
+        subsurf.fill(red, (0, 8, 10, 1), pygame.BLEND_RGB_ADD)
+        self.assertEqual(surf.get_at((0, 0)), black)
+        self.assertEqual(surf.get_at((0, 9)), black)
+
+
+
+
     def test_GET_PIXELVALS(self):
         # surface.h GET_PIXELVALS bug regarding whether of not
         # a surface has per-pixel alpha. Looking at the Amask
