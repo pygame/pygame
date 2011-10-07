@@ -36,7 +36,10 @@
     #include <sys/mman.h>
     #include <sys/ioctl.h>
 
-    #include <asm/types.h>          /* for videodev2.h */
+    /* on freebsd there is no asm/types */
+    #ifdef linux
+        #include <asm/types.h>          /* for videodev2.h */
+    #endif
 
     #include <linux/videodev2.h>
 #elif defined(__APPLE__)
