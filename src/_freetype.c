@@ -43,6 +43,7 @@ static PyObject *_ft_get_version(PyObject *);
 static PyObject *_ft_get_error(PyObject *);
 static PyObject *_ft_was_init(PyObject *);
 static PyObject *_ft_autoinit(PyObject *);
+static void _ft_autoquit(void);
 static PyObject *_ft_get_default_resolution(PyObject *);
 static PyObject *_ft_set_default_resolution(PyObject *, PyObject *);
 static PyObject *_ft_get_default_font(PyObject* self);
@@ -1703,6 +1704,8 @@ _ft_autoinit(PyObject *self)
     FT_Error result = 1;
 
     if (!FREETYPE_MOD_STATE(self)->freetype) {
+        PyGame_RegisterQuit(_ft_autoquit);
+
         if (_PGFT_Init(&(FREETYPE_MOD_STATE(self)->freetype),
                        FREETYPE_MOD_STATE(self)->cache_size)) {
             return 0;
@@ -1712,13 +1715,21 @@ _ft_autoinit(PyObject *self)
     return PyInt_FromLong(result);
 }
 
+static void
+_ft_autoquit(void)
+{
+    _FreeTypeState *state = FREETYPE_STATE;
+
+    if (state->freetype) {
+        _PGFT_Quit(state->freetype);
+        state->freetype = 0;
+    }
+}
+
 static PyObject *
 _ft_quit(PyObject *self)
 {
-    if (FREETYPE_MOD_STATE(self)->freetype) {
-        _PGFT_Quit(FREETYPE_MOD_STATE(self)->freetype);
-        FREETYPE_MOD_STATE(self)->freetype = 0;
-    }
+    _ft_autoquit();
     Py_RETURN_NONE;
 }
 
@@ -1850,7 +1861,7 @@ _FreeTypeState _modstate;
 
 MODINIT_DEFINE (_freetype)
 {
-    PyObject *module, *apiobj, *pygame, *pygame_register_quit, *quit, *rval;
+    PyObject *module, *apiobj;
     static void* c_api[PYGAMEAPI_FREETYPE_NUMSLOTS];
 
     import_pygame_base();
@@ -1883,22 +1894,8 @@ MODINIT_DEFINE (_freetype)
         MODINIT_ERROR;
     }
 
-    /* import needed modules. Do this first so if there is an error
-       the module is not loaded.
-    */
-    pygame = PyImport_ImportModule ("pygame");
-    if (!pygame) {
-        MODINIT_ERROR;
-    }
-    pygame_register_quit = PyObject_GetAttrString (pygame, "register_quit");
-    Py_DECREF (pygame);
-    if (!pygame_register_quit) {
-        MODINIT_ERROR;
-    }
-
     /* type preparation */
     if (PyType_Ready(&PgFace_Type) < 0)  {
-        Py_DECREF(pygame_register_quit);
         MODINIT_ERROR;
     }
 
@@ -1910,7 +1907,6 @@ MODINIT_DEFINE (_freetype)
 #endif
 
     if (!module)  {
-        Py_DECREF(pygame_register_quit);
         MODINIT_ERROR;
     }
 
@@ -1921,7 +1917,6 @@ MODINIT_DEFINE (_freetype)
     Py_INCREF((PyObject *)&PgFace_Type);
     if (PyModule_AddObject(module, FACE_TYPE_NAME,
                            (PyObject *)&PgFace_Type) == -1)  {
-        Py_DECREF(pygame_register_quit);
         Py_DECREF((PyObject *) &PgFace_Type);
         DECREF_MOD(module);
         MODINIT_ERROR;
@@ -1949,32 +1944,15 @@ MODINIT_DEFINE (_freetype)
 
     apiobj = encapsulate_api(c_api, "freetype");
     if (!apiobj)  {
-        Py_DECREF (pygame_register_quit);
         DECREF_MOD(module);
         MODINIT_ERROR;
     }
 
     if (PyModule_AddObject(module, PYGAMEAPI_LOCAL_ENTRY, apiobj) == -1)  {
-        Py_DECREF(pygame_register_quit);
         Py_DECREF(apiobj);
         DECREF_MOD(module);
         MODINIT_ERROR;
     }
-
-    quit = PyObject_GetAttrString (module, "quit");
-    if (!quit) {  /* assertion */
-        Py_DECREF (pygame_register_quit);
-        DECREF_MOD (module);
-        MODINIT_ERROR;
-    }
-    rval = PyObject_CallFunctionObjArgs (pygame_register_quit, quit, 0);
-    Py_DECREF (pygame_register_quit);
-    Py_DECREF (quit);
-    if (!rval) {
-        DECREF_MOD (module);
-        MODINIT_ERROR;
-    }
-    Py_DECREF (rval);
 
     MODINIT_RETURN(module);
 }
