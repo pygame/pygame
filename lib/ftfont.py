@@ -1,7 +1,10 @@
 """pygame module for loading and rendering fonts (freetype alternative)"""
 
-from pygame._freetype import (init, Face as _Face, get_default_resolution,
-                              quit, get_default_font, was_init as _was_init)
+__all__ = ['Font', 'init', 'quit', 'get_default_font', 'get_init', 'SysFont']
+
+from pygame._freetype import init, Face as _Face, get_default_resolution
+from pygame._freetype import quit, get_default_font, was_init as _was_init
+from pygame._freetype import __PYGAMEinit__
 from pygame.sysfont import match_font, get_fonts, SysFont as _SysFont
 from pygame import encode_file_path
 from pygame.compat import bytes_, unicode_, as_unicode, as_bytes

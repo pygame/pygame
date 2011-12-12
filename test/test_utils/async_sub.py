@@ -214,24 +214,17 @@ class Popen(subprocess.Popen):
             if conn is None:
                 return None
             
-            flags = fcntl.fcntl(conn, fcntl.F_GETFL)
-            if not conn.closed:
-                fcntl.fcntl(conn, fcntl.F_SETFL, flags| os.O_NONBLOCK)
+            if not select.select([conn], [], [], 0)[0]:
+                return ''
             
-            try:
-                if not select.select([conn], [], [], 0)[0]:
-                    return ''
-                
-                r = conn.read(maxsize)
-                if not r:
-                    return self._close(which)
-    
-                if self.universal_newlines:
-                    r = r.replace("\r\n", "\n").replace("\r", "\n")
-                return r
-            finally:
-                if not conn.closed:
-                    fcntl.fcntl(conn, fcntl.F_SETFL, flags)
+            r = conn.read(maxsize)
+            if not r:
+                return self._close(which)
+
+            if self.universal_newlines:
+                r = r.replace("\r\n", "\n").replace("\r", "\n")
+            return r
+
 
 ################################################################################
 

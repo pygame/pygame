@@ -765,6 +765,17 @@ class FreeTypeTest(unittest.TestCase):
             if was_init:
                 ft.quit()
 
+    def test_autoinit_and_autoquit(self):
+        pygame.init()
+        self.assertTrue(ft.was_init())
+        pygame.quit()
+        self.assertFalse(ft.was_init())
+
+        # Ensure autoquit is replaced at init time
+        pygame.init()
+        self.assertTrue(ft.was_init())
+        pygame.quit()
+        self.assertFalse(ft.was_init())
 
 if __name__ == '__main__':
     unittest.main()
