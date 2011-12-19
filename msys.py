@@ -3,7 +3,7 @@
 
 """MSYS specifics for Msys terminal IO and for running shell scripts
 
-Configured for MSYS 1.0.13.
+Configured for MSYS 1.0.17.
 
 exports msys_raw_input, MsysException, Msys
 
@@ -36,8 +36,8 @@ else:
     def encode_script(s):
         return s
 
-FSTAB_REGEX = (r'^[ \t]*(?P<path>'
-               r'([a-zA-Z]:){0,1}([\\/][^\s*^?:%\\/]+)+)'
+FSTAB_REGEX = (r'^[ \t]*'
+               r'(?P<path>([a-zA-Z]:)?[^\s*^?:%]+)'
                r'[ \t]+/mingw(\s|$)'
                )
 
@@ -107,18 +107,21 @@ def find_msys_registry():
     """
     
     #!! Leave until known if new MSYS package manager makes a registry entry.
-    
-    subkey = (
-        'Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\MSYS-1.0_is1')
-    try:
-        key = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE, subkey)
+    subkey = ('Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall'
+              '\\{AC2C1BDB-1E91-4F94-B99C-E716FE2E9C75}_is1')
+    for hkey in [_winreg.HKEY_CURRENT_USER, _winreg.HKEY_LOCAL_MACHINE]:
         try:
-            return _winreg.QueryValueEx(key, 'Inno Setup: App Path')[0].encode()
-        finally:
-            key.Close()
-    except WindowsError:
-        raise LookupError("MSYS not found in the registry")
-
+            key = _winreg.OpenKey(hkey, subkey)
+            try:
+                mingw_path = _winreg.QueryValueEx(key, 'Inno Setup: App Path')[0].encode()
+            finally:
+                key.Close()
+        except WindowsError:
+            pass
+        else:
+            return os.path.join(mingw_path, 'msys', '1.0')
+    raise LookupError("MSYS not found in the registry")
+        
 def as_shell(msys_root):
     """Append MSYS shell program to MSYS root directory path"""
 
