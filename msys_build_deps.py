@@ -47,12 +47,10 @@ ffmpeg revision 24482 from SVN (swscale revision 31785)
 
 The build environment used: 
 
-GCC 4.5.0
-MSYS 1.0.13
+GCC 4.6.1
+MSYS 1.0.17
 dx7 headers
-yasm 1.0.1
-
-see mingw_installer.py and msys_installer.py
+yasm 1.2.0
 
 
 The build has been performed on Windows XP, SP3.
@@ -208,7 +206,7 @@ class Preparation(object):
             raise BuildError("Preparation '%s' failed with code %d" %
                              (self.name, return_code))
 
-def configure(dependencies):
+def configure(dependencies, hunt_paths):
     """Find source directories of all dependencies"""
     
     success = True
@@ -247,7 +245,7 @@ def command_line():
              "no more user input is required. The build process will"
              "abort on the first error, as library build order is important.\n"
              "\n"
-             "See --include and --help-args.\n"
+             "See --help-args.\n"
              "\n"
              "For more details see the program's document string\n")
     
@@ -285,9 +283,14 @@ def command_line():
                       help="MSYS directory path, which may include"
                            " the 1.x subdirectory")
     parser.set_defaults(msys_directory='')
+    parser.add_option('-s', '--sources', action='store',
+                      dest='sources',
+                      help="Paths to search for library source directories"
+                           " as a semicolon ';' separated list: defaults to %s"
+                           % (';'.join(hunt_paths),))
     parser.add_option('-p', '--prefix', action='store',
                       dest='prefix',
-                      help="Destination directory of the build: defaults to MSYS %s)"
+                      help="Destination directory of the build: defaults to MSYS %s"
                            % (default_prefix_mp,))
     parser.set_defaults(prefix='')
     parser.add_option('--help-args', action='store_true', dest='arg_help',
@@ -471,8 +474,12 @@ def main(dependencies, msvcr71_preparation, msys_preparation):
     print_("common CPPFLAGS:", m.environ.get('CPPFLAGS', ''))
     print_("common CFLAGS:", m.environ.get('CFLAGS', ''))
     print_("common LDFLAGS:", m.environ.get('LDFLAGS', ''))
+    sources = hunt_paths
+    if options.sources:
+        sources = options.sources.split(';')
+    print_("library source directories search paths: %s" % (';'.join(sources),))
     try:
-        configure(chosen_deps)
+        configure(chosen_deps, sources)
     except BuildError:
         print_("Build aborted:", geterror())
     else:
@@ -1482,11 +1489,11 @@ mkdir -p "$PREFIX/share"
 if [ ! -f "$PREFIX/lib/null.dll.a" ]; then
   dest_lib="$PREFIX/lib"
   dlltool -D null.dll -l "$PREFIX/lib/null.dll.a"
-  cp -fp /mingw/lib/gcc/mingw32/4.5.0/libstdc++.a "$dest_lib/libstdc++_pg.a"
+  cp -fp /mingw/lib/gcc/mingw32/4.6.1/libstdc++.a "$dest_lib/libstdc++_pg.a"
   sed -e "s~^\\(library_names='\\)[^']\\+~\\1null.dll.a~" \
       -e "s~^\\(dependency_libs='\\)[^']\\+~\\1 -lstdc++_pg -lgcc_eh~" \
       -e "s~^\\(libdir='\\)[^']\\+~\\1$PREFIX/lib~" \
-      /mingw/lib/gcc/mingw32/4.5.0/libstdc++.la >"$dest_lib/libstdc++.la"
+      /mingw/lib/gcc/mingw32/4.6.1/libstdc++.la >"$dest_lib/libstdc++.la"
   sed -e "s~^\\(old_library='\\)[^']\\+~\\1libgcc.a~" \
       -e "s~^\\(dependency_libs='\\)[^']\\+~\\1 -lgcc~" \
       "$dest_lib/libstdc++.la" >"$dest_lib/libgcc_s.la"
