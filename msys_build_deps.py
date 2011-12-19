@@ -28,22 +28,22 @@ python build_deps.py --help
 
 This program has been tested against the following libraries:
 
-SDL 1.2.14 
-SDL_image 1.2.10
-SDL_mixer 1.2.11 and revision 6ed75d34edc9 tip from hg
-SDL_ttf 2.0.9
-smpeg revision 389 from SVN
-freetype 2.3.12
-libogg 1.2.0
-libvorbis 1.3.1
-FLAC 1.2.1
-mikmod 3.1.12 patched (included with SDL_mixer 1.2.11)
-tiff 3.9.4
-libpng 1.4.3
-jpeg 8b
+SDL 1.2(.14+) hg changeset c5d651a8b679
+  SDL_image 1.2.10
+  SDL_mixer 1.2.11 and revision 6ed75d34edc9 tip from hg
+  SDL_ttf 2.0.9
+ smpeg SVN revision 391
+  freetype 2.3.12
+  libogg 1.2.0
+  libvorbis 1.3.1
+  FLAC 1.2.1
+  mikmod 3.1.12 patched (included with SDL_mixer 1.2.11)
+  tiff 3.9.4
+libpng 1.6.0b1
+  jpeg 8b
 zlib 1.2.5
-PortMidi revision 201 from SVN
-ffmpeg revision 24482 from SVN (swscale revision 31785)
+  PortMidi revision 201 from SVN
+  ffmpeg revision 24482 from SVN (swscale revision 31785)
 
 The build environment used: 
 
@@ -342,6 +342,10 @@ def set_environment_variables(msys, options):
         # Their subdirectory is in the same directory as the SDL library.
         msvcr71_mp = lib_mp + '/msvcr71'
         environ['DBMSVCR71'] = msvcr71_mp
+    if prefix_wp:
+        environ['CPPFLAGS'] = merge_strings('-I"%s/include"' % (prefix_mp,),
+                                            environ.get('CPPFLAGS', ''),
+                                            sep=' ')
     subsystem = ''
     if not options.subsystem_noforce:
         subsystem = '-mwindows'
@@ -678,28 +682,32 @@ if [ x$BDCLEAN == x1 ]; then
   make clean
 fi
 """),
-    Dependency('PNG', ['l*png*[1-9][1-9.]*'], ['libpng14.dll'], """
+    Dependency('PNG', ['l*png*[1-9][1-9.]*'], ['libpng16-16.dll'], """
 
 set -e
 export PATH="$PREFIX/bin:$PATH"
 cd "$BDWD"
 
 if [ x$BDCONF == x1 ]; then
-  # Use the provided MinGW makefile.
-  cp -fp scripts/Makefile.mingw .
+  ./configure --prefix="$PREFIX" CPPFLAGS="$CPPFLAGS" LDFLAGS="$LDFLAGS"
+  
+  # check for MSYS permission errors
+  if [ x"`grep 'Permission denied' config.log`" != x ]; then
+      echo '**** MSYS problems; build aborted.'
+      exit 1
+  fi
 fi
 
 if [ x$BDCOMP == x1 ]; then
-  make -fMakefile.mingw prefix="$PREFIX" \
-       MINGW_CCFLAGS="-I$PREFIX/include $CFLAGS" MINGW_LDFLAGS="$LDFLAGS"
+  make
 fi
 
 if [ x$BDINST == x1 ]; then
-  make install -fMakefile.mingw prefix="$PREFIX"
+  make install
 fi
 
 if [ x$BDSTRIP == x1 ]; then
-  strip --strip-all "$PREFIX/bin/libpng14.dll"
+  strip --strip-all "$PREFIX/bin/libpng16-16.dll"
 fi
 
 if [ x$BDCLEAN == x1 ]; then
