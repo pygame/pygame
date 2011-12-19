@@ -1,0 +1,241 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pygame.pixelcopy &mdash; Pygame v1.9.2 documentation</title>
+    <link rel="stylesheet" href="../_static/pygame.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.9.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/pygame.ico"/>
+    <link rel="top" title="Pygame v1.9.2 documentation" href="../index.html" />
+    <link rel="next" title="pygame" href="pygame.html" />
+    <link rel="prev" title="pygame.PixelArray" href="pixelarray.html" /> 
+  </head>
+  <body>  
+
+    <div class="document">
+
+  <div class="header">
+    <table>
+      <tr>
+	<td class="logo">
+	  <a href="http://www.pygame.org/">
+	    <img src="../_static/pygame_tiny.png"/>
+	  </a>
+	  <h5>pygame documentation</h5>
+	</td>
+	<td class="pagelinks">
+	  <p class="top">
+	    ||
+	    <a href="http://www.pygame.org/">Pygame Home</a> ||
+	    <a href="../index.html">Help Contents</a> ||
+	    <a href="../genindex.html">Reference Index</a> ||
+	  </p>
+	  <p class="bottom">
+	    <a href="camera.html">camera</a> || 
+	    <a href="cdrom.html">cdrom</a> || 
+	    <a href="color.html">Color</a> || 
+	    <a href="cursors.html">cursors</a> || 
+	    <a href="display.html">display</a> || 
+	    <a href="draw.html">draw</a> || 
+	    <a href="event.html">event</a> || 
+	    <a href="examples.html">examples</a> || 
+	    <a href="font.html">font</a> || 
+	    <a href="gfxdraw.html">gfxdraw</a> || 
+	    <a href="image.html">image</a> || 
+	    <a href="joystick.html">joystick</a> || 
+	    <a href="key.html">key</a> || 
+	    <a href="locals.html">locals</a> || 
+	    <a href="mask.html">mask</a> || 
+	    <a href="math.html">math</a> || 
+	    <a href="midi.html">midi</a> || 
+	    <a href="mixer.html">mixer</a> || 
+	    <a href="mouse.html">mouse</a> || 
+	    <a href="movie.html">movie</a> || 
+	    <a href="music.html">music</a> || 
+	    <a href="overlay.html">Overlay</a> || 
+	    <a href="pixelarray.html">PixelArray</a> || 
+	    <a href="pixelcopy.html">pixelcopy</a> || 
+	    <a href="pygame.html">pygame</a> || 
+	    <a href="rect.html">Rect</a> || 
+	    <a href="scrap.html">scrap</a> || 
+	    <a href="sndarray.html">sndarray</a> || 
+	    <a href="sprite.html">sprite</a> || 
+	    <a href="surface.html">Surface</a> || 
+	    <a href="surfarray.html">surfarray</a> || 
+	    <a href="tests.html">tests</a> || 
+	    <a href="time.html">time</a> || 
+	    <a href="transform.html">transform</a> || 
+	    <a href="pygame.html#module-pygame.version">version</a>
+	  </p>
+	</td>
+      </tr>
+    </table>
+  </div>
+
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <div class="sectionwrapper">
+<div class="section" id="module-pygame.pixelcopy">
+<span id="pygame-pixelcopy"></span><dl class="definition module">
+<dt class="title module">
+<tt class="docutils literal"><span class="pre">pygame.pixelcopy</span></tt></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">pygame module for general pixel array copying</span></div>
+</div>
+<table border="1" class="toc docutils">
+<colgroup>
+<col width="36%" />
+<col width="1%" />
+<col width="63%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="toc reference external" href="pixelcopy.html#pygame.pixelcopy.surface_to_array">pygame.pixelcopy.surface_to_array</a></td>
+<td>—</td>
+<td>copy surface pixels to an array object</td>
+</tr>
+<tr><td><a class="toc reference external" href="pixelcopy.html#pygame.pixelcopy.array_to_surface">pygame.pixelcopy.array_to_surface</a></td>
+<td>—</td>
+<td>copy an array object to a surface</td>
+</tr>
+<tr><td><a class="toc reference external" href="pixelcopy.html#pygame.pixelcopy.map_array">pygame.pixelcopy.map_array</a></td>
+<td>—</td>
+<td>copy an array to another array, using surface format</td>
+</tr>
+<tr><td><a class="toc reference external" href="pixelcopy.html#pygame.pixelcopy.make_surface">pygame.pixelcopy.make_surface</a></td>
+<td>—</td>
+<td>Copy an array to a new surface</td>
+</tr>
+</tbody>
+</table>
+<p>EXPERIMENTAL, though any future changes are likely to be backward-compatible.</p>
+<p>The <a class="tooltip reference internal" href="#module-pygame.pixelcopy" title=""><tt class="xref py py-mod docutils literal"><span class="pre">pygame.pixelcopy</span></tt><span class="tooltip-content">pygame module for general pixel array copying</span></a> module contains methods for copying between
+surfaces and objects exporting an array structure interface. It is a backend
+for <a class="tooltip reference internal" href="surfarray.html#module-pygame.surfarray" title=""><tt class="xref py py-mod docutils literal"><span class="pre">pygame.surfarray</span></tt><span class="tooltip-content">pygame module for accessing surface pixel data using array interfaces</span></a>, adding NumPy support. But pixelcopy is more,
+general, and intended for direct use (see the
+<tt class="xref py py-func docutils literal"><span class="pre">pygame.examples.pixelcopy.main()</span></tt> example.</p>
+<p>The array struct interface exposes an array&#8217;s data in a standard way.
+It was introduced in NumPy. In Python 2.7 and above it is replaced by the
+new buffer protocol, though the buffer protocol is still a work in progress.
+The array struct interface, on the other hand, is stable and works with earlier
+Python versions. So for now the array struct interface is the predominate way
+Pygame handles array introspection.</p>
+<p>New in pygame 1.9.2.</p>
+<dl class="definition function">
+<dt class="title" id="pygame.pixelcopy.surface_to_array">
+<tt class="descclassname">pygame.pixelcopy.</tt><tt class="descname">surface_to_array</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.pixelcopy.surface_to_array" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">copy surface pixels to an array object</span></div>
+<div class="line"><span class="signature">surface_to_array(array, surface, kind=&#8217;P&#8217;, opaque=255, clear=0) -&gt; None</span></div>
+</div>
+<p>The surface_to_array function copies pixels from a Surface object
+to a 2D or 3D array. Depending on argument <tt class="docutils literal"><span class="pre">kind</span></tt> and the target array
+dimension, a copy may be raw pixel value, RGB, a color component slice,
+or colorkey alpha transparency value. Recognized <tt class="docutils literal"><span class="pre">kind</span></tt> values are the
+single character codes &#8216;P&#8217;, &#8216;R&#8217;, &#8216;G&#8217;, &#8216;B&#8217;, &#8216;A&#8217;, and &#8216;C&#8217;. Kind codes are case
+insensitive, so &#8216;p&#8217; is equivalent to &#8216;P&#8217;. The first two dimensions
+of the target must be the surface size (w, h).</p>
+<p>The default &#8216;P&#8217; kind code does a direct raw integer pixel (mapped) value
+copy to a 2D array and a &#8216;RGB&#8217; pixel component (unmapped) copy to a 3D array
+having shape (w, h, 3). For an 8 bit colormap surface this means the
+table index is copied to a 2D array, not the table value itself. A 2D
+array&#8217;s item size must be at least as large as the surface&#8217;s pixel
+byte size. The item size of a 3D array must be at least one byte.</p>
+<p>For the &#8216;R&#8217;, &#8216;G&#8217;, &#8216;B&#8217;, and &#8216;A&#8217; copy kinds a single color component
+of the unmapped surface pixels are copied to the target 2D array.
+For kind &#8216;A&#8217; and surfaces with source alpha (the surface was created with
+the SRCALPHA flag), has a colorkey (set with <tt class="xref py py-meth docutils literal"><span class="pre">Surface.set_colorkey()</span></tt>),
+or has a blanket alpha (set with <tt class="xref py py-meth docutils literal"><span class="pre">Surface.set_alpha()</span></tt>) then the
+alpha values are those expected for a SDL surface. If a surface has
+no explicit alpha value, then the target array is filled with the
+value of the optional <tt class="docutils literal"><span class="pre">opaque</span></tt> surface_to_array argument (default
+255: not transparent).</p>
+<p>Copy kind &#8216;C&#8217; is a special case for alpha copy of a source surface
+with colorkey. Unlike the &#8216;A&#8217; color component copy, the <tt class="docutils literal"><span class="pre">clear</span></tt>
+argument value is used for colorkey matches, <tt class="docutils literal"><span class="pre">opaque</span></tt> otherwise.
+By default, a match has alpha 0 (totally transparent), while everything
+else is alpha 255 (totally opaque). It is a more general implementation
+of <a class="tooltip reference internal" href="surfarray.html#pygame.surfarray.array_colorkey" title=""><tt class="xref py py-meth docutils literal"><span class="pre">pygame.surfarray.array_colorkey()</span></tt><span class="tooltip-content">Copy the colorkey values into a 2d array</span></a>.</p>
+<p>Specific to surface_to_array, a ValueError is raised for target arrays
+with incorrect shape or item size. A TypeError is raised for an incorrect
+kind code. Surface specific problems, such as locking, raise a pygame.error.</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.pixelcopy.array_to_surface">
+<tt class="descclassname">pygame.pixelcopy.</tt><tt class="descname">array_to_surface</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.pixelcopy.array_to_surface" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">copy an array object to a surface</span></div>
+<div class="line"><span class="signature">array_to_surface(&lt;surface&gt;, &lt;array&gt;) -&gt; None</span></div>
+</div>
+<p>See <a class="tooltip reference internal" href="surfarray.html#pygame.surfarray.blit_array" title=""><tt class="xref py py-func docutils literal"><span class="pre">pygame.surfarray.blit_array()</span></tt><span class="tooltip-content">Blit directly from a array values</span></a>.</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.pixelcopy.map_array">
+<tt class="descclassname">pygame.pixelcopy.</tt><tt class="descname">map_array</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.pixelcopy.map_array" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">copy an array to another array, using surface format</span></div>
+<div class="line"><span class="signature">map_array(&lt;array&gt;, &lt;array&gt;, &lt;surface&gt;) -&gt; None</span></div>
+</div>
+<p>Map an array of color element values - (w, h, ..., 3) - to an array of
+pixels - (w, h) according to the format of &lt;&lt;urface&gt;.</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.pixelcopy.make_surface">
+<tt class="descclassname">pygame.pixelcopy.</tt><tt class="descname">make_surface</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.pixelcopy.make_surface" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Copy an array to a new surface</span></div>
+<div class="line"><span class="signature">pygame.pixelcopy.make_surface(array) -&gt; Surface</span></div>
+</div>
+<p>Create a new Surface that best resembles the data and format of the array.
+The array can be 2D or 3D with any sized integer values.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+  </div>
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="pygame.html" title="pygame"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pixelarray.html" title="pygame.PixelArray"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">Pygame v1.9.2 documentation</a> &raquo;</li>
+    <script type="text/javascript" src="jquery.plugin.docscomments.js"></script>
+
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Pygame Developers.
+    </div>
+  </body>
+</html>
