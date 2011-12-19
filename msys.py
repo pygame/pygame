@@ -252,10 +252,11 @@ class Msys(object):
                        doc="True if the execution environment is MSYS")
 
     def windows_to_msys(self, path):
-        """Return an MSYS translation of an absolute Windows path
+        """Return an MSYS translation of a Windows path
 
         """
         
+        path = os.path.abspath(path)
         msys_root = self.msys_root
         mingw_root = self.mingw_root
         path_lower = path.lower()
