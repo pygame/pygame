@@ -29,18 +29,18 @@ python build_deps.py --help
 This program has been tested against the following libraries:
 
 SDL 1.2(.14+) hg changeset c5d651a8b679
-  SDL_image 1.2.10
+ SDL_image 1.2(.10+) hg changset 45748e6e2f81
   SDL_mixer 1.2.11 and revision 6ed75d34edc9 tip from hg
   SDL_ttf 2.0.9
- smpeg SVN revision 391
-  freetype 2.3.12
+smpeg SVN revision 391
+freetype 2.4.8
   libogg 1.2.0
   libvorbis 1.3.1
   FLAC 1.2.1
   mikmod 3.1.12 patched (included with SDL_mixer 1.2.11)
-  tiff 3.9.4
+tiff 3.9.4
 libpng 1.6.0b1
-  jpeg 8b
+jpeg 8c
 zlib 1.2.5
   PortMidi revision 201 from SVN
   ffmpeg revision 24482 from SVN (swscale revision 31785)
@@ -549,7 +549,7 @@ if [ x$BDCONF == x1 ]; then
     BDDXHDR=
   done
 
-  # If this comes from SVN it has no configure script
+  # If this comes from the repository it has no configure script
   if [ ! -f "./configure" ]; then
     ./autogen.sh
   fi
@@ -753,7 +753,7 @@ if [ x$BDCLEAN == x1 ]; then
   make clean
 fi
 """),
-    Dependency('TIFF', ['tiff-[3-9].*'], ['libtiff-3.dll'], """
+    Dependency('TIFF', ['tiff-[3-9].*'], ['libtiff-5.dll'], """
 
 set -e
 export PATH="$PREFIX/bin:$PATH"
@@ -778,7 +778,7 @@ if [ x$BDINST == x1 ]; then
 fi
 
 if [ x$BDSTRIP == x1 ]; then
-  strip --strip-all "$PREFIX/bin/libtiff-3.dll"
+  strip --strip-all "$PREFIX/bin/libtiff-5.dll"
 fi
 
 if [ x$BDCLEAN == x1 ]; then
@@ -795,6 +795,11 @@ export PATH="$PREFIX/bin:$PATH"
 cd "$BDWD"
 
 if [ x$BDCONF == x1 ]; then
+  # If this comes from the repository it has no configure script
+  if [ ! -f "./configure" ]; then
+    ./autogen.sh
+  fi
+
   # Disable dynamic loading of image libraries as that uses the wrong DLL
   # search path. --disable-libtool-lock: Prevent libtool deadlocks (maybe).
   ./configure --disable-jpg-shared --disable-png-shared --disable-tif-shared \
@@ -839,8 +844,7 @@ if [ x$BDCONF == x1 ]; then
 
   # Don't need the toys.
   ./configure --disable-gtk-player --disable-opengl-player \
-              --prefix="$PREFIX" \
-              LDFLAGS="-static-libstdc++ -static-libgcc $LDFLAGS"
+              --prefix="$PREFIX"
   
   # check for MSYS permission errors
   if [ x"`grep 'Permission denied' config.log`" != x ]; then
@@ -1491,21 +1495,6 @@ mkdir -p "$PREFIX/bin"
 mkdir -p "$PREFIX/doc"
 mkdir -p "$PREFIX/man"
 mkdir -p "$PREFIX/share"
-
-# Have libtool link against static stdc++ and gcc libraries. Use hacked .la files.
-# This works when the destination directory comes early in the library search path.
-if [ ! -f "$PREFIX/lib/null.dll.a" ]; then
-  dest_lib="$PREFIX/lib"
-  dlltool -D null.dll -l "$PREFIX/lib/null.dll.a"
-  cp -fp /mingw/lib/gcc/mingw32/4.6.1/libstdc++.a "$dest_lib/libstdc++_pg.a"
-  sed -e "s~^\\(library_names='\\)[^']\\+~\\1null.dll.a~" \
-      -e "s~^\\(dependency_libs='\\)[^']\\+~\\1 -lstdc++_pg -lgcc_eh~" \
-      -e "s~^\\(libdir='\\)[^']\\+~\\1$PREFIX/lib~" \
-      /mingw/lib/gcc/mingw32/4.6.1/libstdc++.la >"$dest_lib/libstdc++.la"
-  sed -e "s~^\\(old_library='\\)[^']\\+~\\1libgcc.a~" \
-      -e "s~^\\(dependency_libs='\\)[^']\\+~\\1 -lgcc~" \
-      "$dest_lib/libstdc++.la" >"$dest_lib/libgcc_s.la"
-fi
 """)
     
 msvcr71_prep = Preparation('msvcr71.dll linkage', r"""
@@ -1522,6 +1511,29 @@ if [ ! -f "$DBMSVCR71/libmoldname.a" ]; then
   cp -fp /mingw/lib/libmoldname71d.a "$DBMSVCR71/libmoldnamed.a"
   cp -fp /mingw/lib/libmsvcr71.a "$DBMSVCR71/libmsvcrt.a"
   cp -fp /mingw/lib/libmsvcr71d.a "$DBMSVCR71/libmsvcrtd.a"
+fi
+
+if [ ! -f "$PREFIX/bin/libgcc_s_dw2-1.dll" ]; then
+  echo "Building libgcc_s_dw2-l.dll linked to msvcr71.dll."
+  pexports /mingw/bin/libgcc_s_dw2-1.dll >"$PREFIX/lib/libgcc.def"
+  gcc -shared -def "$PREFIX/lib/libgcc.def" \
+              /mingw/lib/gcc/mingw32/4.6.1/libgcc.a -mwindows -lkernel32 \
+              -o "$PREFIX/bin/libgcc_s_dw2-1.dll"
+fi
+
+if [ ! -f "$PREFIX/bin/libstdc++-6.dll" ]; then
+  echo "Building libstdc++.dll linked to msvcr71.dll."
+
+#   The linker does not like the '+' character in a library name.
+#   The fix: put the name in quotes.
+  pexports /mingw/bin/libstdc++-6.dll >"$PREFIX/lib/libstdc++.def_"
+  sed -e '1 s|\(LIBRARY  *\)\(..*\)|\1"\2"|' "$PREFIX/lib/libstdc++.def_" \
+      >"$PREFIX/lib/libstdc++.def"
+  rm "$PREFIX/lib/libstdc++.def_"
+
+  gcc -shared -shared-libgcc -def "$PREFIX/lib/libstdc++.def" \
+              /mingw/lib/gcc/mingw32/4.6.1/libstdc++.a -mwindows -lkernel32 \
+              -o "$PREFIX/bin/libstdc++-6.dll"
 fi
 """)
 
