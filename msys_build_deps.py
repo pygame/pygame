@@ -115,6 +115,13 @@ def as_linker_lib_path(p):
         return '-L' + p
     return ''
 
+def as_preprocessor_header_path(p):
+    """Return as a C preprocessor header include path argument"""
+    
+    if p:
+        return '-I' + p
+    return ''
+
 def merge_strings(*args, **kwds):
     """Returns non empty string joined by sep
 
@@ -343,7 +350,7 @@ def set_environment_variables(msys, options):
         msvcr71_mp = lib_mp + '/msvcr71'
         environ['DBMSVCR71'] = msvcr71_mp
     if prefix_wp:
-        environ['CPPFLAGS'] = merge_strings('-I"%s/include"' % (prefix_mp,),
+        environ['CPPFLAGS'] = merge_strings(as_preprocessor_header_path(prefix_mp + '/include'),
                                             environ.get('CPPFLAGS', ''),
                                             sep=' ')
     subsystem = ''
@@ -456,12 +463,12 @@ def main(dependencies, msvcr71_preparation, msys_preparation):
             print_("No libraries specified.")
         elif options.build_all:
             print_("All libraries excluded")
-    if options.msvcr71:
+    if options.msvcr71 and not options.clean_only:
         chosen_deps.insert(0, msvcr71_preparation)
         print_("Linking to msvcr71.dll.")
     else:
         print_("Linking to MinGW default C runtime library.")
-    if chosen_deps:
+    if chosen_deps and not options.clean_only:
         chosen_deps.insert(0, msys_preparation)
     try:
         m = msys.Msys(options.msys_directory)
@@ -473,8 +480,9 @@ def main(dependencies, msvcr71_preparation, msys_preparation):
     start_time = None
     return_code = 1
     set_environment_variables(m, options)
-    print_("Destination directory:",
-           m.msys_to_windows(m.environ['PREFIX']).replace('/', os.sep))
+    if not options.clean_only:
+        print_("Destination directory:",
+               m.msys_to_windows(m.environ['PREFIX']).replace('/', os.sep))
     print_("common CPPFLAGS:", m.environ.get('CPPFLAGS', ''))
     print_("common CFLAGS:", m.environ.get('CFLAGS', ''))
     print_("common LDFLAGS:", m.environ.get('LDFLAGS', ''))
@@ -487,7 +495,10 @@ def main(dependencies, msvcr71_preparation, msys_preparation):
     except BuildError:
         print_("Build aborted:", geterror())
     else:
-        print_("\n=== Starting build ===")
+        if options.clean_only:
+            print_("\n=== Performing clean ===")
+        else:
+            print_("\n=== Starting build ===")
         start_time = time.time()  # For file timestamp checks.
         try:
             build(chosen_deps, m)
@@ -496,7 +507,8 @@ def main(dependencies, msvcr71_preparation, msys_preparation):
         else:
             # A successful build!
             return_code = 0
-    summary(dependencies, m, start_time, chosen_deps)
+    if not options.clean_only:
+        summary(dependencies, m, start_time, chosen_deps)
 
     # MinGW configure file for setup.py (optional).
     try:
@@ -800,11 +812,24 @@ if [ x$BDCONF == x1 ]; then
     ./autogen.sh
   fi
 
-  # Disable dynamic loading of image libraries as that uses the wrong DLL
-  # search path. --disable-libtool-lock: Prevent libtool deadlocks (maybe).
+  # configure searches for the JPEG dll. Unfortunately it uses the wrong file
+  # name. Correct this.
+  mv configure configure~
+  sed -e 's|jpeg\.dll|libjpeg-*.dll|' configure~ >configure
+  
+  # Add the destination bin directory to the library search path so
+  # configure can find its precious DLL files.
+  export LDFLAGS="$LDFLAGS -L$PREFIX/bin"
+  
+  # Add path to PNG headers
+  CPPFLAGS="$CPPFLAGS `$PREFIX/bin/libpng-config --I_opts`"
+  
+  # Disable dynamic loading of image libraries as it uses the wrong DLL
+  # search path: does not check in the same directory.
+  #  --disable-libtool-lock: Prevent libtool deadlocks (maybe).
   ./configure --disable-jpg-shared --disable-png-shared --disable-tif-shared \
               --disable-libtool-lock \
-              --prefix="$PREFIX" LDFLAGS="$LDFLAGS"
+              --prefix="$PREFIX" CPPFLAGS="$CPPFLAGS" LDFLAGS="$LDFLAGS"
   
   # check for MSYS permission errors
   if [ x"`grep 'Permission denied' config.log`" != x ]; then
