@@ -1013,178 +1013,6 @@ export PATH="$PREFIX/bin:$PATH"
 cd "$BDWD"
 
 if [ x$BDCONF == x1 ]; then
-  cat > win32/Makefile.static.mingw << 'THE_END'
-# MinGW Makefile adapted from template for use under win32
-#
-# libmikmod subdirectory
-
-# Your compiler here
-CC=gcc
-# Compiler flags
-CPPFLAGS_MIKMOD=-c -DWIN32 -DDRV_DS -DDRV_WIN -DHAVE_FCNTL_H -DHAVE_MALLOC_H -DHAVE_LIMITS_H $(CPPFLAGS)
-COMPILE=$(CC) $(CPPFLAGS_MIKMOD) -I../include -I.. -I../win32 $(CFLAGS)
-
-.SUFFIXES:
-.SUFFIXES: .o .c
-
-LIBNAME=libmikmod.a
-
-LIBS=$(LIBNAME)
-
-DRIVER_OBJ=drv_ds.o drv_win.o
-
-OBJ=$(DRIVER_OBJ) \\
-    drv_nos.o drv_raw.o drv_stdout.o drv_wav.o \\
-    load_669.o load_amf.o load_dsm.o load_far.o load_gdm.o load_it.o  \\
-    load_imf.o load_m15.o load_med.o load_mod.o load_mtm.o load_okt.o \\
-    load_s3m.o load_stm.o load_stx.o load_ult.o load_uni.o load_xm.o \\
-    mmalloc.o mmerror.o mmio.o \\
-    mdriver.o mdreg.o mloader.o mlreg.o mlutil.o mplayer.o munitrk.o mwav.o \\
-    npertab.o sloader.o virtch.o virtch2.o virtch_common.o
-
-all:            $(LIBS)
-
-clean:
-\tfor f in $(LIBS) ; do rm -f $f; done
-\trm -f *.o
-
-distclean:
-\trm -f ../include/mikmod.h
-
-install:
-\tcp -fp libmikmod.a "$(PREFIX)/lib"
-\tcp -fp ../include/mikmod.h "$(PREFIX)/include"
-\tcp -fp ../libmikmod-config "$(PREFIX)/bin"
-
-$(LIBNAME):     $(OBJ)
-\tar -r $(LIBNAME) *.o
-\tranlib $(LIBNAME)
-
-../include/mikmod.h ../win32/mikmod_build.h:\tmikmod_build.h
-\tcp -f mikmod_build.h ../win32/mikmod_build.h
-\tcp -f mikmod_build.h ../include/mikmod.h
-
-drv_ds.o:       ../drivers/drv_ds.c \\
-\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
-\t$(COMPILE) -o $@ ../drivers/drv_ds.c
-drv_nos.o:      ../drivers/drv_nos.c \\
-\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
-\t$(COMPILE) -o $@ ../drivers/drv_nos.c
-drv_raw.o:      ../drivers/drv_raw.c \\
-\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
-\t$(COMPILE) -o $@ ../drivers/drv_raw.c
-drv_stdout.o:   ../drivers/drv_stdout.c \\
-\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
-\t$(COMPILE) -o $@ ../drivers/drv_stdout.c
-drv_wav.o:      ../drivers/drv_wav.c \\
-\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
-\t$(COMPILE) -o $@ ../drivers/drv_wav.c
-drv_win.o:       ../drivers/drv_win.c \\
-\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
-\t$(COMPILE) -o $@ ../drivers/drv_win.c
-load_669.o:     ../loaders/load_669.c \\
-\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
-\t$(COMPILE) -o $@ ../loaders/load_669.c
-load_amf.o:     ../loaders/load_amf.c \\
-\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
-\t$(COMPILE) -o $@ ../loaders/load_amf.c
-load_dsm.o:     ../loaders/load_dsm.c \\
-\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
-\t$(COMPILE) -o $@ ../loaders/load_dsm.c
-load_far.o:     ../loaders/load_far.c \\
-\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
-\t$(COMPILE) -o $@ ../loaders/load_far.c
-load_gdm.o:     ../loaders/load_gdm.c \\
-\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
-\t$(COMPILE) -o $@ ../loaders/load_gdm.c
-load_it.o:      ../loaders/load_it.c \\
-\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
-\t$(COMPILE) -o $@ ../loaders/load_it.c
-load_imf.o:     ../loaders/load_imf.c \\
-\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
-\t$(COMPILE) -o $@ ../loaders/load_imf.c
-load_m15.o:     ../loaders/load_m15.c \\
-\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
-\t$(COMPILE) -o $@ ../loaders/load_m15.c
-load_med.o:     ../loaders/load_med.c \\
-\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
-\t$(COMPILE) -o $@ ../loaders/load_med.c
-load_mod.o:     ../loaders/load_mod.c \\
-\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
-\t$(COMPILE) -o $@ ../loaders/load_mod.c
-load_mtm.o:     ../loaders/load_mtm.c \\
-\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
-\t$(COMPILE) -o $@ ../loaders/load_mtm.c
-load_okt.o:     ../loaders/load_okt.c \\
-\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
-\t$(COMPILE) -o $@ ../loaders/load_okt.c
-load_s3m.o:     ../loaders/load_s3m.c \\
-\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
-\t$(COMPILE) -o $@ ../loaders/load_s3m.c
-load_stm.o:     ../loaders/load_stm.c \\
-\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
-\t$(COMPILE) -o $@ ../loaders/load_stm.c
-load_stx.o:     ../loaders/load_stx.c \\
-\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
-\t$(COMPILE) -o $@ ../loaders/load_stx.c
-load_ult.o:     ../loaders/load_ult.c \\
-\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
-\t$(COMPILE) -o $@ ../loaders/load_ult.c
-load_uni.o:     ../loaders/load_uni.c \\
-\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
-\t$(COMPILE) -o $@ ../loaders/load_uni.c
-load_xm.o:      ../loaders/load_xm.c \\
-\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
-\t$(COMPILE) -o $@ ../loaders/load_xm.c
-mmalloc.o:      ../mmio/mmalloc.c \\
-\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
-\t$(COMPILE) -o $@ ../mmio/mmalloc.c
-mmerror.o:      ../mmio/mmerror.c \\
-\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
-\t$(COMPILE) -o $@ ../mmio/mmerror.c
-mmio.o:         ../mmio/mmio.c \\
-\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
-\t$(COMPILE) -o $@ ../mmio/mmio.c
-mdriver.o:      ../playercode/mdriver.c \\
-\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
-\t$(COMPILE) -o $@ ../playercode/mdriver.c
-mdreg.o:        ../playercode/mdreg.c \\
-\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
-\t$(COMPILE) -o $@ ../playercode/mdreg.c
-mloader.o:      ../playercode/mloader.c \\
-\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
-\t$(COMPILE) -o $@ ../playercode/mloader.c
-mlreg.o:        ../playercode/mlreg.c \\
-\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
-\t$(COMPILE) -o $@ ../playercode/mlreg.c
-mlutil.o:       ../playercode/mlutil.c \\
-\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
-\t$(COMPILE) -o $@ ../playercode/mlutil.c
-mplayer.o:      ../playercode/mplayer.c \\
-\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
-\t$(COMPILE) -o $@ ../playercode/mplayer.c
-munitrk.o:      ../playercode/munitrk.c \\
-\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
-\t$(COMPILE) -o $@ ../playercode/munitrk.c
-mwav.o:         ../playercode/mwav.c \\
-\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
-\t$(COMPILE) -o $@ ../playercode/mwav.c
-npertab.o:      ../playercode/npertab.c \\
-\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
-\t$(COMPILE) -o $@ ../playercode/npertab.c
-sloader.o:      ../playercode/sloader.c \\
-\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
-\t$(COMPILE) -o $@ ../playercode/sloader.c
-virtch.o:       ../playercode/virtch.c ../playercode/virtch_common.c \\
-\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
-\t$(COMPILE) -o $@ ../playercode/virtch.c
-virtch2.o:      ../playercode/virtch2.c ../playercode/virtch_common.c \\
-\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
-\t$(COMPILE) -o $@ ../playercode/virtch2.c
-virtch_common.o:        ../playercode/virtch_common.c \\
-\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
-\t$(COMPILE) -o $@ ../playercode/virtch_common.c
-THE_END
 
   function mikmod_getver
   {
@@ -1197,18 +1025,198 @@ THE_END
       /^LIBMIKMOD_MAJOR_VERSION *= *[0-9]+/ { major = getnum($0); next}
       /^LIBMIKMOD_MINOR_VERSION *= *[0-9]+/ { minor = getnum($0); next}
       /^LIBMIKMOD_MICRO_VERSION *= *[0-9]+/ { micro = getnum($0); next}
-      END { printf "%s.%s.%s", major, minor, micro }' \
+      END { printf "%s %s %s", major, minor, micro }' \
       $1
     }
 
-  mikmod_version=`mikmod_getver configure.in`
+  export mikmod_version=(`mikmod_getver configure.in`)
   sed -e "s~@prefix@~$PREFIX~g" \
       -e "s~@exec_prefix@~$PREFIX~g" \
-      -e "s~@LIBMIKMOD_VERSION@~$mikmod_version~g" \
+      -e "s~@LIBMIKMOD_VERSION@~${mikmod_version[0]}.${mikmod_version[1]}.${mikmod_version[2]}~g" \
       -e "s~@REENTRANT@~-D_REENTRANT~g" \
       -e "s~@LIB_LDADD@~~g" \
       -e "s~@LIBRARY_LIB@~-lpthread~g" \
-  libmikmod-config.in >libmikmod-config
+      libmikmod-config.in >libmikmod-config
+
+  cat > win32/Makefile.static.mingw << THE_END
+# MinGW Makefile adapted from template for use under win32
+#
+# libmikmod subdirectory
+
+# Your compiler here
+CC=gcc
+# Compiler flags
+CPPFLAGS_MIKMOD=-c -DWIN32 -DDRV_DS -DDRV_WIN -DHAVE_FCNTL_H -DHAVE_MALLOC_H -DHAVE_LIMITS_H \\$(CPPFLAGS)
+COMPILE=\\$(CC) \\$(CPPFLAGS_MIKMOD) -I../include -I.. -I../win32 \\$(CFLAGS)
+
+.SUFFIXES:
+.SUFFIXES: .o .c
+
+LIBNAME=libmikmod.a
+
+LIBS=\\$(LIBNAME)
+
+DRIVER_OBJ=drv_ds.o drv_win.o
+
+OBJ=\\$(DRIVER_OBJ) \\
+    drv_nos.o drv_raw.o drv_stdout.o drv_wav.o \\
+    load_669.o load_amf.o load_dsm.o load_far.o load_gdm.o load_it.o  \\
+    load_imf.o load_m15.o load_med.o load_mod.o load_mtm.o load_okt.o \\
+    load_s3m.o load_stm.o load_stx.o load_ult.o load_uni.o load_xm.o \\
+    mmalloc.o mmerror.o mmio.o \\
+    mdriver.o mdreg.o mloader.o mlreg.o mlutil.o mplayer.o munitrk.o mwav.o \\
+    npertab.o sloader.o virtch.o virtch2.o virtch_common.o
+
+all:            \\$(LIBS)
+
+clean:
+\tfor f in \\$(LIBS) ; do rm -f $f; done
+\trm -f *.o
+\trm -f mikmod_build.h
+
+distclean:
+\trm -f ../include/mikmod.h
+
+install:
+\tcp -fp libmikmod.a "\\$(PREFIX)/lib"
+\tcp -fp ../include/mikmod.h "\\$(PREFIX)/include"
+\tcp -fp ../libmikmod-config "\\$(PREFIX)/bin"
+
+\\$(LIBNAME):     \\$(OBJ)
+\tar -r \\$(LIBNAME) *.o
+\tranlib \\$(LIBNAME)
+
+../include/mikmod.h ../win32/mikmod_build.h:\t../include/mikmod.h.in
+\tsed -e "s~@LIBMIKMOD_MAJOR_VERSION@~${mikmod_version[0]}~" \\
+\t    -e "s~@LIBMIKMOD_MINOR_VERSION@~${mikmod_version[1]}~" \\
+\t    -e "s~@LIBMIKMOD_MICRO_VERSION@~${mikmod_version[2]}~" \\
+\t    -e "s~@DOES_NOT_HAVE_SIGNED@~~" \\
+\t    ../include/mikmod.h.in >../win32/mikmod_build.h
+\tcp -f ../win32/mikmod_build.h ../include/mikmod.h
+
+drv_ds.o:       ../drivers/drv_ds.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t\\$(COMPILE) -o \\$@ ../drivers/drv_ds.c
+drv_nos.o:      ../drivers/drv_nos.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t\\$(COMPILE) -o \\$@ ../drivers/drv_nos.c
+drv_raw.o:      ../drivers/drv_raw.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t\\$(COMPILE) -o \\$@ ../drivers/drv_raw.c
+drv_stdout.o:   ../drivers/drv_stdout.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t\\$(COMPILE) -o \\$@ ../drivers/drv_stdout.c
+drv_wav.o:      ../drivers/drv_wav.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t\\$(COMPILE) -o \\$@ ../drivers/drv_wav.c
+drv_win.o:       ../drivers/drv_win.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t\\$(COMPILE) -o \\$@ ../drivers/drv_win.c
+load_669.o:     ../loaders/load_669.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t\\$(COMPILE) -o \\$@ ../loaders/load_669.c
+load_amf.o:     ../loaders/load_amf.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t\\$(COMPILE) -o \\$@ ../loaders/load_amf.c
+load_dsm.o:     ../loaders/load_dsm.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t\\$(COMPILE) -o \\$@ ../loaders/load_dsm.c
+load_far.o:     ../loaders/load_far.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t\\$(COMPILE) -o \\$@ ../loaders/load_far.c
+load_gdm.o:     ../loaders/load_gdm.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t\\$(COMPILE) -o \\$@ ../loaders/load_gdm.c
+load_it.o:      ../loaders/load_it.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t\\$(COMPILE) -o \\$@ ../loaders/load_it.c
+load_imf.o:     ../loaders/load_imf.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t\\$(COMPILE) -o \\$@ ../loaders/load_imf.c
+load_m15.o:     ../loaders/load_m15.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t\\$(COMPILE) -o \\$@ ../loaders/load_m15.c
+load_med.o:     ../loaders/load_med.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t\\$(COMPILE) -o \\$@ ../loaders/load_med.c
+load_mod.o:     ../loaders/load_mod.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t\\$(COMPILE) -o \\$@ ../loaders/load_mod.c
+load_mtm.o:     ../loaders/load_mtm.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t\\$(COMPILE) -o \\$@ ../loaders/load_mtm.c
+load_okt.o:     ../loaders/load_okt.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t\\$(COMPILE) -o \\$@ ../loaders/load_okt.c
+load_s3m.o:     ../loaders/load_s3m.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t\\$(COMPILE) -o \\$@ ../loaders/load_s3m.c
+load_stm.o:     ../loaders/load_stm.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t\\$(COMPILE) -o \\$@ ../loaders/load_stm.c
+load_stx.o:     ../loaders/load_stx.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t\\$(COMPILE) -o \\$@ ../loaders/load_stx.c
+load_ult.o:     ../loaders/load_ult.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t\\$(COMPILE) -o \\$@ ../loaders/load_ult.c
+load_uni.o:     ../loaders/load_uni.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t\\$(COMPILE) -o \\$@ ../loaders/load_uni.c
+load_xm.o:      ../loaders/load_xm.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t\\$(COMPILE) -o \\$@ ../loaders/load_xm.c
+mmalloc.o:      ../mmio/mmalloc.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t\\$(COMPILE) -o \\$@ ../mmio/mmalloc.c
+mmerror.o:      ../mmio/mmerror.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t\\$(COMPILE) -o \\$@ ../mmio/mmerror.c
+mmio.o:         ../mmio/mmio.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t\\$(COMPILE) -o \\$@ ../mmio/mmio.c
+mdriver.o:      ../playercode/mdriver.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t\\$(COMPILE) -o \\$@ ../playercode/mdriver.c
+mdreg.o:        ../playercode/mdreg.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t\\$(COMPILE) -o \\$@ ../playercode/mdreg.c
+mloader.o:      ../playercode/mloader.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t\\$(COMPILE) -o \\$@ ../playercode/mloader.c
+mlreg.o:        ../playercode/mlreg.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t\\$(COMPILE) -o \\$@ ../playercode/mlreg.c
+mlutil.o:       ../playercode/mlutil.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t\\$(COMPILE) -o \\$@ ../playercode/mlutil.c
+mplayer.o:      ../playercode/mplayer.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t\\$(COMPILE) -o \\$@ ../playercode/mplayer.c
+munitrk.o:      ../playercode/munitrk.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t\\$(COMPILE) -o \\$@ ../playercode/munitrk.c
+mwav.o:         ../playercode/mwav.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t\\$(COMPILE) -o \\$@ ../playercode/mwav.c
+npertab.o:      ../playercode/npertab.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t\\$(COMPILE) -o \\$@ ../playercode/npertab.c
+sloader.o:      ../playercode/sloader.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t\\$(COMPILE) -o \\$@ ../playercode/sloader.c
+virtch.o:       ../playercode/virtch.c ../playercode/virtch_common.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t\\$(COMPILE) -o \\$@ ../playercode/virtch.c
+virtch2.o:      ../playercode/virtch2.c ../playercode/virtch_common.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t\\$(COMPILE) -o \\$@ ../playercode/virtch2.c
+virtch_common.o:        ../playercode/virtch_common.c \\
+\t                ../win32/mikmod_build.h ../include/mikmod_internals.h
+\t\\$(COMPILE) -o \\$@ ../playercode/virtch_common.c
+THE_END
+
+    unset -v mikmod_version
 fi
 
 if [ x$BDCOMP == x1 ]; then
@@ -1375,7 +1383,7 @@ $(pmlib) : $(src) $(hdr)
 \tranlib $(pmlib)
 
 $(pmdll) : $(pmlib) $(def)
-\tg++ -shared -static-libgcc $(LDFLAGS) -def $(def) $(pmlib) $(LIBS) -o $@
+\tg++ -shared -static-libgcc $(LDFLAGS) -def $(def) $(pmlib) $(LIBS) -o \\$@
 \tdlltool -D $(pmdll) -d $(def) -l $(pmimplib)
 \tranlib $(pmimplib)
 
