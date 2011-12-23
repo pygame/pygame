@@ -348,7 +348,7 @@ def set_environment_variables(msys, options):
         # Hide the msvcrt.dll import libraries with those for msvcr71.dll.
         # Their subdirectory is in the same directory as the SDL library.
         msvcr71_mp = lib_mp + '/msvcr71'
-        environ['DBMSVCR71'] = msvcr71_mp
+        environ['BDMSVCR71'] = msvcr71_mp
     if prefix_wp:
         environ['CPPFLAGS'] = merge_strings(as_preprocessor_header_path(prefix_mp + '/include'),
                                             environ.get('CPPFLAGS', ''),
@@ -535,7 +535,7 @@ def main(dependencies, msvcr71_preparation, msys_preparation):
 # represent configure, compile, install and clean respectively. When '1' the
 # corresponding action is performed. When '0' it is skipped. The installation
 # directory is given by PREFIX. The script needs to prepend it to PATH. The
-# source code root directory is DBWD. A script will cd to it before doing
+# source code root directory is BDWD. A script will cd to it before doing
 # starting the build. Various gcc flags are in CPATH, CPPFLAGS, CFLAGS and
 # LDFLAGS.
 #
@@ -1537,13 +1537,13 @@ set -e
 #
 #   msvcr71.dll support
 #
-if [ ! -f "$DBMSVCR71/libmoldname.a" ]; then
-  echo "Making directory $DBMSVCR71 for msvcr71.dll linking."
-  mkdir -p "$DBMSVCR71"
-  cp -fp /mingw/lib/libmoldname71.a "$DBMSVCR71/libmoldname.a"
-  cp -fp /mingw/lib/libmoldname71d.a "$DBMSVCR71/libmoldnamed.a"
-  cp -fp /mingw/lib/libmsvcr71.a "$DBMSVCR71/libmsvcrt.a"
-  cp -fp /mingw/lib/libmsvcr71d.a "$DBMSVCR71/libmsvcrtd.a"
+if [ ! -f "$BDMSVCR71/libmoldname.a" ]; then
+  echo "Making directory $BDMSVCR71 for msvcr71.dll linking."
+  mkdir -p "$BDMSVCR71"
+  cp -fp /mingw/lib/libmoldname71.a "$BDMSVCR71/libmoldname.a"
+  cp -fp /mingw/lib/libmoldname71d.a "$BDMSVCR71/libmoldnamed.a"
+  cp -fp /mingw/lib/libmsvcr71.a "$BDMSVCR71/libmsvcrt.a"
+  cp -fp /mingw/lib/libmsvcr71d.a "$BDMSVCR71/libmsvcrtd.a"
 fi
 
 if [ ! -f "$PREFIX/bin/libgcc_s_dw2-1.dll" ]; then
