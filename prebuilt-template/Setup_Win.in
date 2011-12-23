@@ -42,5 +42,3 @@ COPYLIB_avformat -lavcodec -lavutil -Lprebuilt/lib/avformat-52.dll
 COPYLIB_swscale -lavutil -Lprebuilt/lib/swscale-0.dll
 COPYLIB_avcodec -lavutil -Lprebuilt/lib/avcodec-52.dll
 COPYLIB_avutil -Lprebuilt/lib/avutil-50.dll
-COPYLIB_gcc -Lprebuilt/lib/libgcc_s_dw2-1.dll
-COPYLIB_stdcpp -Lprebuilt/lib/libstdc++-6.dll
