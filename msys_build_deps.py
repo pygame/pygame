@@ -29,20 +29,20 @@ python build_deps.py --help
 This program has been tested against the following libraries:
 
 SDL 1.2(.14+) hg changeset c5d651a8b679
- SDL_image 1.2(.10+) hg changset 45748e6e2f81
-  SDL_mixer 1.2.11 and revision 6ed75d34edc9 tip from hg
-  SDL_ttf 2.0.9
+SDL_image 1.2(.10+) hg changset 45748e6e2f81
+SDL_mixer 1.2.11 hg changeset 6ed75d34edc9
+SDL_ttf 2.0.11 hg changeset d9a600fa3c4a
 smpeg SVN revision 391
 freetype 2.4.8
-  libogg 1.2.0
-  libvorbis 1.3.1
-  FLAC 1.2.1
-  mikmod 3.1.12 patched (included with SDL_mixer 1.2.11)
-tiff 3.9.4
+libogg 1.3.0
+libvorbis 1.3.2
+FLAC 1.2.1
+mikmod 3.1.12 patched (included with SDL_mixer 1.2.11)
+tiff 4.0b7
 libpng 1.6.0b1
 jpeg 8c
 zlib 1.2.5
-  PortMidi revision 201 from SVN
+PortMidi revision 217 from SVN
   ffmpeg revision 24482 from SVN (swscale revision 31785)
 
 The build environment used: 
