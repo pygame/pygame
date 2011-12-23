@@ -1,0 +1,312 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pygame.draw &mdash; Pygame v1.9.2 documentation</title>
+    <link rel="stylesheet" href="../_static/pygame.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.9.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/pygame.ico"/>
+    <link rel="top" title="Pygame v1.9.2 documentation" href="../index.html" />
+    <link rel="next" title="pygame.event" href="event.html" />
+    <link rel="prev" title="pygame.display" href="display.html" /> 
+  </head>
+  <body>  
+
+    <div class="document">
+
+  <div class="header">
+    <table>
+      <tr>
+	<td class="logo">
+	  <a href="http://www.pygame.org/">
+	    <img src="../_static/pygame_tiny.png"/>
+	  </a>
+	  <h5>pygame documentation</h5>
+	</td>
+	<td class="pagelinks">
+	  <p class="top">
+	    ||
+	    <a href="http://www.pygame.org/">Pygame Home</a> ||
+	    <a href="../index.html">Help Contents</a> ||
+	    <a href="../genindex.html">Reference Index</a> ||
+	  </p>
+	  <p class="bottom">
+	    <a href="camera.html">camera</a> || 
+	    <a href="cdrom.html">cdrom</a> || 
+	    <a href="color.html">Color</a> || 
+	    <a href="cursors.html">cursors</a> || 
+	    <a href="display.html">display</a> || 
+	    <a href="draw.html">draw</a> || 
+	    <a href="event.html">event</a> || 
+	    <a href="examples.html">examples</a> || 
+	    <a href="font.html">font</a> || 
+	    <a href="gfxdraw.html">gfxdraw</a> || 
+	    <a href="image.html">image</a> || 
+	    <a href="joystick.html">joystick</a> || 
+	    <a href="key.html">key</a> || 
+	    <a href="locals.html">locals</a> || 
+	    <a href="mask.html">mask</a> || 
+	    <a href="math.html">math</a> || 
+	    <a href="midi.html">midi</a> || 
+	    <a href="mixer.html">mixer</a> || 
+	    <a href="mouse.html">mouse</a> || 
+	    <a href="movie.html">movie</a> || 
+	    <a href="music.html">music</a> || 
+	    <a href="overlay.html">Overlay</a> || 
+	    <a href="pixelarray.html">PixelArray</a> || 
+	    <a href="pixelcopy.html">pixelcopy</a> || 
+	    <a href="pygame.html">pygame</a> || 
+	    <a href="rect.html">Rect</a> || 
+	    <a href="scrap.html">scrap</a> || 
+	    <a href="sndarray.html">sndarray</a> || 
+	    <a href="sprite.html">sprite</a> || 
+	    <a href="surface.html">Surface</a> || 
+	    <a href="surfarray.html">surfarray</a> || 
+	    <a href="tests.html">tests</a> || 
+	    <a href="time.html">time</a> || 
+	    <a href="transform.html">transform</a> || 
+	    <a href="pygame.html#module-pygame.version">version</a>
+	  </p>
+	</td>
+      </tr>
+    </table>
+  </div>
+
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <div class="sectionwrapper">
+<div class="section" id="module-pygame.draw">
+<span id="pygame-draw"></span><dl class="definition module">
+<dt class="title module">
+<tt class="docutils literal"><span class="pre">pygame.draw</span></tt></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">pygame module for drawing shapes</span></div>
+</div>
+<table border="1" class="toc docutils">
+<colgroup>
+<col width="27%" />
+<col width="1%" />
+<col width="72%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="toc reference external" href="draw.html#pygame.draw.rect">pygame.draw.rect</a></td>
+<td>—</td>
+<td>draw a rectangle shape</td>
+</tr>
+<tr><td><a class="toc reference external" href="draw.html#pygame.draw.polygon">pygame.draw.polygon</a></td>
+<td>—</td>
+<td>draw a shape with any number of sides</td>
+</tr>
+<tr><td><a class="toc reference external" href="draw.html#pygame.draw.circle">pygame.draw.circle</a></td>
+<td>—</td>
+<td>draw a circle around a point</td>
+</tr>
+<tr><td><a class="toc reference external" href="draw.html#pygame.draw.ellipse">pygame.draw.ellipse</a></td>
+<td>—</td>
+<td>draw a round shape inside a rectangle</td>
+</tr>
+<tr><td><a class="toc reference external" href="draw.html#pygame.draw.arc">pygame.draw.arc</a></td>
+<td>—</td>
+<td>draw a partial section of an ellipse</td>
+</tr>
+<tr><td><a class="toc reference external" href="draw.html#pygame.draw.line">pygame.draw.line</a></td>
+<td>—</td>
+<td>draw a straight line segment</td>
+</tr>
+<tr><td><a class="toc reference external" href="draw.html#pygame.draw.lines">pygame.draw.lines</a></td>
+<td>—</td>
+<td>draw multiple contiguous line segments</td>
+</tr>
+<tr><td><a class="toc reference external" href="draw.html#pygame.draw.aaline">pygame.draw.aaline</a></td>
+<td>—</td>
+<td>draw fine antialiased lines</td>
+</tr>
+<tr><td><a class="toc reference external" href="draw.html#pygame.draw.aalines">pygame.draw.aalines</a></td>
+<td>—</td>
+<td>draw a connected sequence of antialiased lines</td>
+</tr>
+</tbody>
+</table>
+<p>Draw several simple shapes to a Surface. These functions will work for
+rendering to any format of Surface. Rendering to hardware Surfaces will be
+slower than regular software Surfaces.</p>
+<p>Most of the functions take a width argument to represent the size of stroke
+around the edge of the shape. If a width of 0 is passed the function will
+actually solid fill the entire shape.</p>
+<p>All the drawing functions respect the clip area for the Surface, and will be
+constrained to that area. The functions return a rectangle representing the
+bounding area of changed pixels.</p>
+<p>Most of the arguments accept a color argument that is an <tt class="docutils literal"><span class="pre">RGB</span></tt> triplet. These
+can also accept an <tt class="docutils literal"><span class="pre">RGBA</span></tt> quadruplet. The alpha value will be written
+directly into the Surface if it contains pixel alphas, but the draw function
+will not draw transparently. The color argument can also be an integer pixel
+value that is already mapped to the Surface&#8217;s pixel format.</p>
+<p>These functions must temporarily lock the Surface they are operating on. Many
+sequential drawing calls can be sped up by locking and unlocking the Surface
+object around the draw calls.</p>
+<dl class="definition function">
+<dt class="title" id="pygame.draw.rect">
+<tt class="descclassname">pygame.draw.</tt><tt class="descname">rect</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.draw.rect" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">draw a rectangle shape</span></div>
+<div class="line"><span class="signature">rect(Surface, color, Rect, width=0) -&gt; Rect</span></div>
+</div>
+<p>Draws a rectangular shape on the Surface. The given Rect is the area of the
+rectangle. The width argument is the thickness to draw the outer edge. If
+width is zero then the rectangle will be filled.</p>
+<p>Keep in mind the <tt class="docutils literal"><span class="pre">Surface.fill()</span></tt> method works just as well for drawing
+filled rectangles. In fact the <tt class="docutils literal"><span class="pre">Surface.fill()</span></tt> can be hardware
+accelerated on some platforms with both software and hardware display modes.</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.draw.polygon">
+<tt class="descclassname">pygame.draw.</tt><tt class="descname">polygon</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.draw.polygon" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">draw a shape with any number of sides</span></div>
+<div class="line"><span class="signature">polygon(Surface, color, pointlist, width=0) -&gt; Rect</span></div>
+</div>
+<p>Draws a polygonal shape on the Surface. The pointlist argument is the
+vertices of the polygon. The width argument is the thickness to draw the
+outer edge. If width is zero then the polygon will be filled.</p>
+<p>For aapolygon, use aalines with the &#8216;closed&#8217; parameter.</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.draw.circle">
+<tt class="descclassname">pygame.draw.</tt><tt class="descname">circle</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.draw.circle" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">draw a circle around a point</span></div>
+<div class="line"><span class="signature">circle(Surface, color, pos, radius, width=0) -&gt; Rect</span></div>
+</div>
+<p>Draws a circular shape on the Surface. The pos argument is the center of the
+circle, and radius is the size. The width argument is the thickness to draw
+the outer edge. If width is zero then the circle will be filled.</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.draw.ellipse">
+<tt class="descclassname">pygame.draw.</tt><tt class="descname">ellipse</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.draw.ellipse" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">draw a round shape inside a rectangle</span></div>
+<div class="line"><span class="signature">ellipse(Surface, color, Rect, width=0) -&gt; Rect</span></div>
+</div>
+<p>Draws an elliptical shape on the Surface. The given rectangle is the area
+that the circle will fill. The width argument is the thickness to draw the
+outer edge. If width is zero then the ellipse will be filled.</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.draw.arc">
+<tt class="descclassname">pygame.draw.</tt><tt class="descname">arc</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.draw.arc" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">draw a partial section of an ellipse</span></div>
+<div class="line"><span class="signature">arc(Surface, color, Rect, start_angle, stop_angle, width=1) -&gt; Rect</span></div>
+</div>
+<p>Draws an elliptical arc on the Surface. The rect argument is the area that
+the ellipse will fill. The two angle arguments are the initial and final
+angle in radians, with the zero on the right. The width argument is the
+thickness to draw the outer edge.</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.draw.line">
+<tt class="descclassname">pygame.draw.</tt><tt class="descname">line</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.draw.line" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">draw a straight line segment</span></div>
+<div class="line"><span class="signature">line(Surface, color, start_pos, end_pos, width=1) -&gt; Rect</span></div>
+</div>
+<p>Draw a straight line segment on a Surface. There are no endcaps, the ends
+are squared off for thick lines.</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.draw.lines">
+<tt class="descclassname">pygame.draw.</tt><tt class="descname">lines</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.draw.lines" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">draw multiple contiguous line segments</span></div>
+<div class="line"><span class="signature">lines(Surface, color, closed, pointlist, width=1) -&gt; Rect</span></div>
+</div>
+<p>Draw a sequence of lines on a Surface. The pointlist argument is a series of
+points that are connected by a line. If the closed argument is true an
+additional line segment is drawn between the first and last points.</p>
+<p>This does not draw any endcaps or miter joints. Lines with sharp corners and
+wide line widths can have improper looking corners.</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.draw.aaline">
+<tt class="descclassname">pygame.draw.</tt><tt class="descname">aaline</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.draw.aaline" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">draw fine antialiased lines</span></div>
+<div class="line"><span class="signature">aaline(Surface, color, startpos, endpos, blend=1) -&gt; Rect</span></div>
+</div>
+<p>Draws an anti-aliased line on a surface. This will respect the clipping
+rectangle. A bounding box of the affected area is returned returned as a
+rectangle. If blend is true, the shades will be be blended with existing
+pixel shades instead of overwriting them. This function accepts floating
+point values for the end points.</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.draw.aalines">
+<tt class="descclassname">pygame.draw.</tt><tt class="descname">aalines</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.draw.aalines" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">draw a connected sequence of antialiased lines</span></div>
+<div class="line"><span class="signature">aalines(Surface, color, closed, pointlist, blend=1) -&gt; Rect</span></div>
+</div>
+<p>Draws a sequence on a surface. You must pass at least two points in the
+sequence of points. The closed argument is a simple boolean and if true, a
+line will be draw between the first and last points. The boolean blend
+argument set to true will blend the shades with existing shades instead of
+overwriting them. This function accepts floating point values for the end
+points.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+  </div>
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="event.html" title="pygame.event"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="display.html" title="pygame.display"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">Pygame v1.9.2 documentation</a> &raquo;</li>
+    <script type="text/javascript" src="jquery.plugin.docscomments.js"></script>
+
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Pygame Developers.
+    </div>
+  </body>
+</html>
