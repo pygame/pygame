@@ -1,0 +1,62 @@
+// CBAAPP.RSS
+//
+// Copyright (c) 1997-1999 Symbian Ltd.  All rights reserved.
+//
+
+// CbaApp app
+//
+
+NAME SDLT
+
+#include <eikon.rh>
+#include <avkon.rh>
+#include <avkon.rsg>
+//#include <avkon.hrh>
+#include <appinfo.rh>
+//#include <data_caging_paths_strings.hrh>
+#include "pygame.hrh"
+
+RESOURCE RSS_SIGNATURE { }
+
+RESOURCE TBUF r_default_document_name 
+    { buf="pygame"; }
+
+RESOURCE EIK_APP_INFO
+    {
+    menubar=r_app_menubar;
+    cba=R_AVKON_SOFTKEYS_EMPTY;
+    }
+
+RESOURCE MENU_BAR r_app_menubar
+    {
+    titles=
+        {
+        //MENU_TITLE { menu_pane=r_cbaapp_file_menu; }
+        };
+    }
+
+/*
+RESOURCE MENU_PANE r_cbaapp_file_menu
+    {
+    items=
+        { 
+        MENU_ITEM { command=EAknCmdExit; txt="Run script"; }
+        };
+    }
+*/
+
+RESOURCE LOCALISABLE_APP_INFO r_localisable_app_info
+    {
+    short_caption = "pygame";
+    caption_and_icon = CAPTION_AND_ICON_INFO
+        {
+        caption = "pygame";
+
+        number_of_icons = 1;
+        icon_file = "\\resource\\apps\\pygame_aif.mif";
+        
+        };
+    }
+
+
+// End of File
