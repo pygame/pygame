@@ -867,10 +867,10 @@ if [ x$BDCONF == x1 ]; then
     ./autogen.sh
   fi
 
-  # Don't need the toys.
+  # Don't need the toys. Disable dynamic linking of libgcc and libstdc++
   ./configure --disable-gtk-player --disable-opengl-player \
-              --prefix="$PREFIX"
-  
+              --prefix="$PREFIX" CFLAGS="-static-libgcc $CFLAGS"
+              
   # check for MSYS permission errors
   if [ x"`grep 'Permission denied' config.log`" != x ]; then
       echo '**** MSYS problems; build aborted.'
@@ -1544,29 +1544,6 @@ if [ ! -f "$DBMSVCR71/libmoldname.a" ]; then
   cp -fp /mingw/lib/libmoldname71d.a "$DBMSVCR71/libmoldnamed.a"
   cp -fp /mingw/lib/libmsvcr71.a "$DBMSVCR71/libmsvcrt.a"
   cp -fp /mingw/lib/libmsvcr71d.a "$DBMSVCR71/libmsvcrtd.a"
-fi
-
-if [ ! -f "$PREFIX/bin/libgcc_s_dw2-1.dll" ]; then
-  echo "Building libgcc_s_dw2-l.dll linked to msvcr71.dll."
-  pexports /mingw/bin/libgcc_s_dw2-1.dll >"$PREFIX/lib/libgcc.def"
-  gcc -shared -def "$PREFIX/lib/libgcc.def" \
-              /mingw/lib/gcc/mingw32/4.6.1/libgcc.a -mwindows -lkernel32 \
-              -o "$PREFIX/bin/libgcc_s_dw2-1.dll"
-fi
-
-if [ ! -f "$PREFIX/bin/libstdc++-6.dll" ]; then
-  echo "Building libstdc++.dll linked to msvcr71.dll."
-
-#   The linker does not like the '+' character in a library name.
-#   The fix: put the name in quotes.
-  pexports /mingw/bin/libstdc++-6.dll >"$PREFIX/lib/libstdc++.def_"
-  sed -e '1 s|\(LIBRARY  *\)\(..*\)|\1"\2"|' "$PREFIX/lib/libstdc++.def_" \
-      >"$PREFIX/lib/libstdc++.def"
-  rm "$PREFIX/lib/libstdc++.def_"
-
-  gcc -shared -shared-libgcc -def "$PREFIX/lib/libstdc++.def" \
-              /mingw/lib/gcc/mingw32/4.6.1/libstdc++.a -mwindows -lkernel32 \
-              -o "$PREFIX/bin/libstdc++-6.dll"
 fi
 """)
 
