@@ -115,6 +115,13 @@ def as_linker_lib_path(p):
         return '-L' + p
     return ''
 
+def as_linker_option(p):
+    """Return as an ld library path argument"""
+    
+    if p:
+        return '-Wl,' + p
+    return ''
+
 def as_preprocessor_header_path(p):
     """Return as a C preprocessor header include path argument"""
     
@@ -375,10 +382,12 @@ def set_environment_variables(msys, options):
     subsystem = ''
     if not options.subsystem_noforce:
         subsystem = '-mwindows'
+    # Need to make the resources object file an explicit linker option to
+    # bypass libtool (freetype).
     environ['LDFLAGS'] = merge_strings(environ.get('LDFLAGS', ''),
                                        as_linker_lib_path(lib_mp),
                                        as_linker_lib_path(msvcr_mp),
-                                       resources_mp,
+                                       as_linker_option(resources_mp),
                                        subsystem,
                                        sep=' ')
 
@@ -3088,7 +3097,6 @@ THE_END
   ranlib libmsvcr90d.dll.a
   cp -f libmsvcr90d.dll.a "$BDMSVCR90"
   mv -f libmsvcr90d.dll.a "$BDMSVCR90/libmsvcrtd.dll.a"
-  mv -f manifest.o "$BDMSVCR90"
   
   # These definitions are taken from mingw-runtime-3.12 .
   # The file was generated with the following command:
