@@ -690,6 +690,11 @@ export PATH="$PREFIX/bin:$PATH"
 cd "$BDWD"
 
 if [ x$BDCONF == x1 ]; then
+  # If this comes from the repository it has no configure script
+  if [ ! -f "./configure" ]; then
+    ./autogen.sh
+  fi
+
   ./configure --prefix="$PREFIX" LDFLAGS="$LDFLAGS"
   
   # check for MSYS permission errors
