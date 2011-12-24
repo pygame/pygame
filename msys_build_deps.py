@@ -820,13 +820,11 @@ export PATH="$PREFIX/bin:$PATH"
 
 # Only build the library; the tools can be built, but do not install
 # for msvcr90.dll because of a strange linker error.
-export BDWD="$BDWD/libtiff"
+bd_subdirs="port libtiff"
 
 cd "$BDWD"
 
 if [ x$BDCONF == x1 ]; then
-  # Run in parent tiff distribution directory
-  cd ..
   ./configure --disable-cxx --prefix="$PREFIX" LDFLAGS="$LDFLAGS"
   
   # check for MSYS permission errors
@@ -834,15 +832,14 @@ if [ x$BDCONF == x1 ]; then
       echo '**** MSYS problems; build aborted.'
       exit 1
   fi
-  cd "$BDWD"
 fi
 
 if [ x$BDCOMP == x1 ]; then
-  make
+  make SUBDIRS="$bd_subdirs"
 fi
 
 if [ x$BDINST == x1 ]; then
-  make install
+  make install SUBDIRS="$bd_subdirs"
 fi
 
 if [ x$BDSTRIP == x1 ]; then
@@ -851,7 +848,7 @@ fi
 
 if [ x$BDCLEAN == x1 ]; then
   set +e
-  make clean
+  make clean SUBDIRS="$bd_subdirs"
   rm -f libtiff.dll.a
   rm -f libtiff.dll
 fi
