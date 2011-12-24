@@ -820,7 +820,7 @@ export PATH="$PREFIX/bin:$PATH"
 
 # Only build the library; the tools can be built, but do not install
 # for msvcr90.dll because of a strange linker error.
-set "$BDWD/libtiff"
+export BDWD="$BDWD/libtiff"
 
 cd "$BDWD"
 
@@ -838,15 +838,11 @@ if [ x$BDCONF == x1 ]; then
 fi
 
 if [ x$BDCOMP == x1 ]; then
-  cd ./libtiff
   make
-  cd ..
 fi
 
 if [ x$BDINST == x1 ]; then
-  cd ./libtiff
   make install
-  cd ..
 fi
 
 if [ x$BDSTRIP == x1 ]; then
@@ -854,12 +850,10 @@ if [ x$BDSTRIP == x1 ]; then
 fi
 
 if [ x$BDCLEAN == x1 ]; then
-  cd libtiff
   set +e
   make clean
   rm -f libtiff.dll.a
   rm -f libtiff.dll
-  cd ..
 fi
 """),
     Dependency('IMAGE', ['SDL_image-[1-9].*'], ['SDL_image.dll'], """
