@@ -1436,7 +1436,7 @@ $(pmlib) : $(src) $(hdr)
 \tranlib $(pmlib)
 
 $(pmdll) : $(pmlib) $(def)
-\tg++ -shared -static-libgcc $(LDFLAGS) -def $(def) $(pmlib) $(LIBS) -o \\$@
+\tg++ -shared -static-libgcc $(LDFLAGS) -def $(def) $(pmlib) $(LIBS) -o $@
 \tdlltool -D $(pmdll) -d $(def) -l $(pmimplib)
 \tranlib $(pmimplib)
 
