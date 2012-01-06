@@ -286,6 +286,7 @@ def packager_imports():
     import pygame.mac_scrap
     import pygame.bufferproxy
     import pygame.colordict
+    import pygame._view
 
 #make Rects pickleable
 try:
