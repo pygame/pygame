@@ -171,7 +171,7 @@ class FontTest(unittest.TestCase):
     def test_render_args(self):
         screen = pygame.display.set_mode((600, 400))
         rect = screen.get_rect()
-        f = pygame.font.Font(None, 20)
+        f = pygame_font.Font(None, 20)
         screen.fill((10, 10, 10))
         font_surface = f.render("   bar", True, (0, 0, 0), (255, 255, 255))
         font_rect = font_surface.get_rect()
