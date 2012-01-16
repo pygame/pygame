@@ -19,8 +19,8 @@ The recognized, and optional, environment variables are:
   PREFIX - Destination directory
   MSYS_ROOT_DIRECTORY - MSYS home directory (may omit 1.0 subdirectory)
   CPPFLAGS - preprocessor options, appended to options set by the program
-  LDFLAGS - linker options - prepended to flags set by the program
-  CPATH - C/C++ header file paths - appended to the paths used by this program
+  CFLAGS - compiler flags, appended to options set by the program
+  LDFLAGS - linker options, prepended to flags set by the program
 
 To get a list of command line options run
 
@@ -145,7 +145,7 @@ def merge_strings(*args, **kwds):
     sep = kwds.get('sep', '')
     return sep.join([s for s in args if s])
 
-def get_python_msvcr_version():
+def get_python_msvcrt_version():
     """Return the Visual C runtime version Python is linked to, as an int"""
     
     python_version = sys.version_info[0:2]
@@ -284,10 +284,10 @@ def command_line():
     parser.add_option('-a', '--all', action='store_true', dest='build_all',
                       help="Include all libraries in the build")
     parser.set_defaults(build_all=False)
-    parser.add_option('--msvcr-version', action='store', dest='msvcr_version',
+    parser.add_option('--msvcr-version', action='store', dest='msvcrt_version',
                       type='choice', choices=['60', '71', '90'],
                       help="Visual C runtime library version")
-    parser.set_defaults(msvcr_version=get_python_msvcr_version())
+    parser.set_defaults(msvcrt_version=get_python_msvcrt_version())
     parser.add_option('--no-configure', action='store_false', dest='configure',
                       help="Do not prepare the makefiles")
     parser.set_defaults(configure=True)
@@ -368,45 +368,40 @@ def set_environment_variables(msys, options):
     environ['BDCLEAN'] = as_flag(options.clean or options.clean_only)
     environ.pop('INCLUDE', None)  # INCLUDE causes problems with MIXER.
     lib_mp = prefix_mp + '/lib'
-    msvcr_mp = ''
+    msvcrt_mp = ''
     resources_mp = ''
-    if options.msvcr_version == '71':
+    if options.msvcrt_version == 71:
         # Hide the msvcrt.dll import libraries with those for msvcr71.dll.
         # Their subdirectory is in the same directory as the SDL library.
-        msvcr_mp = lib_mp + '/msvcr71'
-        environ['BDMSVCR71'] = msvcr_mp
-        msvcr_version = '0x0710'
-    elif options.msvcr_version == '90':
+        msvcrt_mp = lib_mp + '/msvcr71'
+    elif options.msvcrt_version == 90:
         # Hide the msvcrt.dll import libraries with those for msvcr90.dll.
         # Their subdirectory is in the same directory as the SDL library.
-        msvcr_mp = lib_mp + '/msvcr90'
-        environ['BDMSVCR90'] = msvcr_mp
-        resources_mp = msvcr_mp + '/resources.o'
+        msvcrt_mp = lib_mp + '/msvcr90'
+        resources_mp = msvcrt_mp + '/resources.o'
         environ['BDRESOURCES'] = resources_mp
+    environ['BDMSVCRT_VERSION'] = '%i' % (options.msvcrt_version,)
+    environ['BDMSVCRT'] = msvcrt_mp
+    include_wp = ''
     if prefix_wp:
-        environ['CPPFLAGS'] = merge_strings(as_preprocessor_header_path(prefix_mp + '/include'),
-                                            environ.get('CPPFLAGS', ''),
-                                            sep=' ')
-    environ['CFLAGS'] = merge_strings(as_macro_define('__MSVCRT_VERSION__',
-                                                      '0x0%s0' % (options.msvcr_version,)),
-                                      environ.get('CPPFLAGS', ''),
-                                      sep=' ')
+        include_wp = os.path.join(prefix_wp, 'include')
+    environ['CPPFLAGS'] = merge_strings(as_macro_define('__MSVCRT_VERSION__',
+                                                       '0x0%02i0' % (options.msvcrt_version,)),
+                                        as_preprocessor_header_path(include_wp),
+                                        environ.get('CPPFLAGS', ''),
+                                        sep=' ')
+
     subsystem = ''
     if not options.subsystem_noforce:
         subsystem = '-mwindows'
     # Need to make the resources object file an explicit linker option to
     # bypass libtool (freetype).
-    environ['LDFLAGS'] = merge_strings(as_linker_lib_path(msvcr_mp),
+    environ['LDFLAGS'] = merge_strings(as_linker_lib_path(msvcrt_mp),
                                        environ.get('LDFLAGS', ''),
                                        as_linker_lib_path(lib_mp),
                                        as_linker_option(resources_mp),
                                        subsystem,
                                        sep=' ')
-
-    # For dependency headers.
-    include_wp = prefix_wp + '/include'
-    environ['CPATH'] = merge_strings(include_wp, environ.get('CPATH', ''),
-                                     sep=';')
 
 class ChooseError(Exception):
     """Failer to select dependencies"""
@@ -504,10 +499,10 @@ def main(dependencies, msvcr71_preparation, msvcr90_preparation, msys_preparatio
             print_("No libraries specified.")
         elif options.build_all:
             print_("All libraries excluded")
-    if options.msvcr_version == '71' and not options.clean_only:
+    if options.msvcrt_version == 71 and not options.clean_only:
         chosen_deps.insert(0, msvcr71_preparation)
         print_("Linking to msvcr71.dll.")
-    elif options.msvcr_version == '90' and not options.clean_only:
+    elif options.msvcrt_version == 90 and not options.clean_only:
         chosen_deps.insert(0, msvcr90_preparation)
     else:
         print_("Linking to C runtime library msvcrt.dll.")
@@ -579,8 +574,10 @@ def main(dependencies, msvcr71_preparation, msvcr90_preparation, msys_preparatio
 # corresponding action is performed. When '0' it is skipped. The installation
 # directory is given by PREFIX. The script needs to prepend it to PATH. The
 # source code root directory is BDWD. A script will cd to it before doing
-# starting the build. Various gcc flags are in CPATH, CPPFLAGS, CFLAGS and
-# LDFLAGS.
+# starting the build. The msvcrt version is given as BDMSVCRT_VERSION. BDMSVCRT
+# is where to place a shadow libraries which hide the normal MinGW C runtime
+# export libraries. Various gcc flags are in CPPFLAGS, CFLAGS, and LDFLAGS.
+# INCLUDE is undefined.
 #
 # None of these scripts end with an "exit". Exit, possibly, leads to Msys
 # freezing on some versions of Windows (98).
@@ -609,7 +606,8 @@ if [ x$BDCONF == x1 ]; then
     ./autogen.sh
   fi
   # Prevent libtool deadlocks (maybe).
-  ./configure --disable-libtool-lock --prefix="$PREFIX" LDFLAGS="$LDFLAGS"
+  ./configure --disable-libtool-lock --prefix="$PREFIX" \
+              CPPFLAGS="$CPPFLAGS" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
   
   # check for MSYS permission errors
   if [ x"`grep 'Permission denied' config.log`" != x ]; then
@@ -650,10 +648,10 @@ if [ x$BDCONF == x1 ]; then
 fi
 
 if [ x$BDCOMP == x1 ]; then
-  # Build with the import library renamed, using asm code, our CFLAGS
-  # and LDFLAGS.
-  make IMPLIB=libz.dll.a CFLAGS="$CFLAGS" LOC="-DASMV $LDFLAGS" \
-    OBJA=match.o -fMakefile.gcc
+  # Build with the import library renamed, using asm code, our CPPFLAGS,
+  # CFLAGS, and LDFLAGS (passed in as LOC).
+  make IMPLIB=libz.dll.a OBJA=match.o -fMakefile.gcc
+       CPPFLAGS="$CPPFLAGS" CFLAGS="$CFLAGS" LOC="-DASMV $LDFLAGS"
 fi
 
 if [ x$BDINST == x1 ]; then
@@ -678,7 +676,8 @@ export PATH="$PREFIX/bin:$PATH"
 cd "$BDWD"
 
 if [ x$BDCONF == x1 ]; then
-  ./configure --prefix="$PREFIX" LDFLAGS="$LDFLAGS"
+  ./configure --prefix="$PREFIX" \
+              CPPFLAGS="$CPPFLAGS" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
   
   # check for MSYS permission errors
   if [ x"`grep 'Permission denied' builds/unix/config.log`" != x ]; then
@@ -716,7 +715,8 @@ if [ x$BDCONF == x1 ]; then
     ./autogen.sh
   fi
 
-  ./configure --prefix="$PREFIX" LDFLAGS="$LDFLAGS"
+  ./configure --prefix="$PREFIX" \
+              CPPFLAGS="$CPPFLAGS" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
   
   # check for MSYS permission errors
   if [ x"`grep 'Permission denied' config.log`" != x ]; then
@@ -749,7 +749,8 @@ export PATH="$PREFIX/bin:$PATH"
 cd "$BDWD"
 
 if [ x$BDCONF == x1 ]; then
-  ./configure --prefix="$PREFIX" CPPFLAGS="$CPPFLAGS" LDFLAGS="$LDFLAGS"
+  ./configure --prefix="$PREFIX" \
+              CPPFLAGS="$CPPFLAGS" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
   
   # check for MSYS permission errors
   if [ x"`grep 'Permission denied' config.log`" != x ]; then
@@ -783,7 +784,8 @@ cd "$BDWD"
 
 if [ x$BDCONF == x1 ]; then
   # This will only build a static library.
-  ./configure --prefix="$PREFIX" LDFLAGS="$LDFLAGS"
+  ./configure --prefix="$PREFIX" \
+              CPPFLAGS="$CPPFLAGS" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
   
   # check for MSYS permission errors
   if [ x"`grep 'Permission denied' config.log`" != x ]; then
@@ -825,7 +827,8 @@ bd_subdirs="port libtiff"
 cd "$BDWD"
 
 if [ x$BDCONF == x1 ]; then
-  ./configure --disable-cxx --prefix="$PREFIX" LDFLAGS="$LDFLAGS"
+  ./configure --disable-cxx --prefix="$PREFIX" \
+              CPPFLAGS="$CPPFLAGS" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
   
   # check for MSYS permission errors
   if [ x"`grep 'Permission denied' config.log`" != x ]; then
@@ -881,8 +884,8 @@ if [ x$BDCONF == x1 ]; then
   # search path: does not check in the same directory.
   #  --disable-libtool-lock: Prevent libtool deadlocks (maybe).
   ./configure --disable-jpg-shared --disable-png-shared --disable-tif-shared \
-              --disable-libtool-lock \
-              --prefix="$PREFIX" CPPFLAGS="$CPPFLAGS" LDFLAGS="$LDFLAGS"
+              --disable-libtool-lock --prefix="$PREFIX" \
+              CPPFLAGS="$CPPFLAGS" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
   
   # check for MSYS permission errors
   if [ x"`grep 'Permission denied' config.log`" != x ]; then
@@ -921,8 +924,8 @@ if [ x$BDCONF == x1 ]; then
   fi
 
   # Don't need the toys. Disable dynamic linking of libgcc and libstdc++
-  ./configure --disable-gtk-player --disable-opengl-player \
-              --prefix="$PREFIX" CFLAGS="-static-libgcc $CFLAGS"
+  ./configure --disable-gtk-player --disable-opengl-player --prefix="$PREFIX" \
+              CPPFLAGS="$CPPFLAGS" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
               
   # check for MSYS permission errors
   if [ x"`grep 'Permission denied' config.log`" != x ]; then
@@ -956,7 +959,8 @@ export PATH="$PREFIX/bin:$PATH"
 cd "$BDWD"
 
 if [ x$BDCONF == x1 ]; then
-  ./configure --prefix="$PREFIX" LDFLAGS="$LDFLAGS"
+  ./configure --prefix="$PREFIX" \
+              CPPFLAGS="$CPPFLAGS" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
   
   # check for MSYS permission errors
   if [ x"`grep 'Permission denied' config.log`" != x ]; then
@@ -991,8 +995,8 @@ export PATH="$PREFIX/bin:$PATH"
 cd "$BDWD"
 
 if [ x$BDCONF == x1 ]; then
-  ./configure --prefix="$PREFIX" LDFLAGS="$LDFLAGS" LIBS='-logg'
-  
+  ./configure --prefix="$PREFIX" \
+              CPPFLAGS="$CPPFLAGS" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" LIBS='-logg'
   # check for MSYS permission errors
   if [ x"`grep 'Permission denied' config.log`" != x ]; then
       echo '**** MSYS problems; build aborted.'
@@ -1035,7 +1039,8 @@ if [ x$BDCONF == x1 ]; then
 
   # Will only install a static library, but that is all that is needed.
   ./configure --disable-shared --disable-ogg --disable-cpplibs \
-    --disable-doxygen-docs --prefix="$PREFIX" LDFLAGS="$LDFLAGS"
+    --disable-doxygen-docs --prefix="$PREFIX" \
+              CPPFLAGS="$CPPFLAGS" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
   
   # check for MSYS permission errors
   if [ x"`grep 'Permission denied' config.log`" != x ]; then
@@ -1091,6 +1096,7 @@ if [ x$BDCONF == x1 ]; then
       -e "s~@LIBRARY_LIB@~-lpthread~g" \
       libmikmod-config.in >libmikmod-config
 
+  # Enviroment variable expansion is used in writing the makefile...
   cat > win32/Makefile.static.mingw << THE_END
 # MinGW Makefile adapted from template for use under win32
 #
@@ -1274,13 +1280,15 @@ fi
 
 if [ x$BDCOMP == x1 ]; then
   cd win32
-  make LDFLAGS="$LDFLAGS" -fMakefile.static.mingw
+  make -fMakefile.static.mingw \
+       CPPFLAGS="$CPPFLAGS" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
+
   cd ..
 fi
 
 if [ x$BDINST == x1 ]; then
   cd win32
-  make install PREFIX="$PREFIX" -fMakefile.static.mingw
+  make install -fMakefile.static.mingw PREFIX="$PREFIX"
   cd ..
 fi
 
@@ -1309,12 +1317,19 @@ if [ x$BDCONF == x1 ]; then
     ./autogen.sh
   fi
 
+  # For msvcr90.dll linkage, remap SDL_strdup and SDL_vsnprintf calls.
+  if (( $BDMSVCRT_VERSION == 90 )); then
+    export CPPFLAGS="$CPPFLAGS -DSDL_strdup=_strdup -DSDL_vsnprintf=_vsnprintf"
+  fi
+  
   # No dynamic loading of dependent libraries. Use LIBS so FLAC test
   # builds (unfortunately LIBS is not passed on to Makefile).
   export LIBS="$mikmod_dependencies $flac_dependencies"
   ./configure --disable-music-ogg-shared --disable-music-mp3-shared \
-    --disable-music-mod-shared --disable-music-flac-shared \
-    --disable-libtool-lock --prefix="$PREFIX" LDFLAGS="$LDFLAGS"
+              --disable-music-mod-shared --disable-music-flac-shared \
+              --disable-music-fluidsynth-midi \
+              --disable-libtool-lock --prefix="$PREFIX" \
+              CPPFLAGS="$CPPFLAGS" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
   
   # check for MSYS permission errors
   if [ x"`grep 'Permission denied' config.log`" != x ]; then
@@ -1495,7 +1510,7 @@ THE_END
 fi
 
 if [ x$BDCOMP == x1 ]; then
-  make LDFLAGS="$LDFLAGS"
+  make CPPFLAGS="$CPPFLAGS" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
 fi
 
 if [ x$BDINST == x1 ]; then
@@ -1524,8 +1539,9 @@ if [ x$BDCONF == x1 ]; then
   # Don't want the pthreads dll, which links to msvcrt.dll.
   ./configure --enable-shared --enable-memalign-hack \
               --disable-pthreads --prefix="$PREFIX" \
-              --enable-runtime-cpudetect
-              
+              --enable-runtime-cpudetect \
+              CPPFLAGS="$CPPFLAGS" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
+
   # check for MSYS permission errors
   if [ x"`grep 'Permission denied' config.log`" != x ]; then
       echo '**** MSYS problems; build aborted.'
@@ -1590,13 +1606,13 @@ set -e
 #
 #   msvcr71.dll support
 #
-if [ ! -f "$BDMSVCR71/libmoldname.a" ]; then
-  echo "Making directory $BDMSVCR71 for msvcr71.dll linking."
-  mkdir -p "$BDMSVCR71"
-  cp -fp /mingw/lib/libmoldname71.a "$BDMSVCR71/libmoldname.a"
-  cp -fp /mingw/lib/libmoldname71d.a "$BDMSVCR71/libmoldnamed.a"
-  cp -fp /mingw/lib/libmsvcr71.a "$BDMSVCR71/libmsvcrt.a"
-  cp -fp /mingw/lib/libmsvcr71d.a "$BDMSVCR71/libmsvcrtd.a"
+if [ ! -f "$BDMSVCRT/libmoldname.a" ]; then
+  echo "Making directory $BDMSVCRT for msvcr71.dll linking."
+  mkdir -p "$BDMSVCRT"
+  cp -fp /mingw/lib/libmoldname71.a "$BDMSVCRT/libmoldname.a"
+  cp -fp /mingw/lib/libmoldname71d.a "$BDMSVCRT/libmoldnamed.a"
+  cp -fp /mingw/lib/libmsvcr71.a "$BDMSVCRT/libmsvcrt.a"
+  cp -fp /mingw/lib/libmsvcr71d.a "$BDMSVCRT/libmsvcrtd.a"
 fi
 """)
 
@@ -1607,10 +1623,10 @@ set -e
 #
 #   msvcr90.dll support
 #
-if [ ! -f "$BDMSVCR90/libmoldname.a" ]; then
-  echo "Making directory $BDMSVCR90 for msvcr90.dll linking."
-  mkdir -p "$BDMSVCR90"
-  cd "$BDMSVCR90"
+if [ ! -f "$BDMSVCRT/libmoldname.a" ]; then
+  echo "Making directory $BDMSVCRT for msvcr90.dll linking."
+  mkdir -p "$BDMSVCRT"
+  cd "$BDMSVCRT"
   # Need libmsvcr90.a as libmoldname links to it.
   cp -fp /mingw/lib/libmsvcr90.a .
   cp -fp libmsvcr90.a libmsvcrt.a
@@ -1673,13 +1689,13 @@ THE_END
   gcc -c -O2 -D__MSVCRT_VERSION__=0x0900 fstat.c
   ar rc libmoldname.a fstat.o
   ranlib libmoldname.a
-  mv -f libmoldname.a "$BDMSVCR90"
+  mv -f libmoldname.a "$BDMSVCRT"
   cp /mingw/lib/libmoldname90d.a libmoldnamed.a
   ar d libmoldnamed.a dsxks00032.o
   gcc -c -g -D__MSVCRT_VERSION__=0x0900 fstat.c
   ar rc libmoldnamed.a fstat.o
   ranlib libmoldnamed.a
-  mv -f libmoldnamed.a "$BDMSVCR90"
+  mv -f libmoldnamed.a "$BDMSVCRT"
 
   # Cleanup
   cd ..
