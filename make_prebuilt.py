@@ -44,7 +44,7 @@ def copy_dir(src, dest):
         ignore, dest = os.path.split(src)
     if src == dest:
         raise IOError("%s: Source and destination are identical" % src)
-    mkdir(dest)
+    makedirs(dest)
     for name in os.listdir(src):
         src_path = os.path.join(src, name)
         if os.path.isfile(src_path):
@@ -59,12 +59,12 @@ def confirm(message):
 
 created_dirs = set()
 
-def mkdir(path):
+def makedirs(path):
     path = os.path.abspath(path)
     if path in created_dirs:
         pass
     elif not os.path.exists(path):
-        os.mkdir(path)
+        os.makedirs(path)
         created_dirs.add(path)
     elif not os.path.isdir(path):
         raise MakePrebuiltError("%s is not a directory" % path)
@@ -120,7 +120,7 @@ def main(dest_dir=None, src_dir=None, msys_dir=None, force=None):
     if not force and os.path.isdir(dest_dir):
         if not confirm("Directory %s already exists;\ncontinue" % dest_dir):
             return 1
-    mkdir(dest_dir)
+    makedirs(dest_dir)
     if not src_dir:
         try:
             m = msys.Msys()
@@ -136,6 +136,22 @@ def main(dest_dir=None, src_dir=None, msys_dir=None, force=None):
     prebuilt_template = os.path.abspath('prebuilt-template')
     dest_lib_dir = os.path.join(dest_dir, lib_subdir)
     
+    # msvcr71.dll or msvcr90.dll linking support.
+    src_msvcr71_dir = os.path.join(src_dir, 'lib', 'msvcr71')
+    have_msvcr71 = os.path.isdir(src_msvcr71_dir)
+    src_msvcr90_dir = os.path.join(src_dir, 'lib', 'msvcr90')
+    have_msvcr90 = os.path.isdir(src_msvcr90_dir)
+    if have_msvcr71 and have_msvcr90:
+        print_("Conflicting builds: "
+               "found both msvcr71.dll and msvcr90.dll linkage")
+        return 1
+    if have_msvcr71:
+        dest_msvcr71_dir = os.path.join(dest_dir, 'lib', 'msvcr71')
+        copy_dir(src_msvcr71_dir, dest_msvcr71_dir)
+    elif have_msvcr90:
+        dest_msvcr90_dir = os.path.join(dest_dir, 'lib', 'msvcr90')
+        copy_dir(src_msvcr90_dir, dest_msvcr90_dir)
+
     # Read setup file.
     src_file = os.path.join(prebuilt_template, 'Setup_Win.in')
     file_copy(src_file, dest_dir)
@@ -168,7 +184,7 @@ def main(dest_dir=None, src_dir=None, msys_dir=None, force=None):
             dest_dll_dir = dest_dir
             for dir_name in path_elements[:-1]:
                 dest_dll_dir = os.path.join(dest_dll_dir, dir_name)
-                mkdir(dest_dll_dir)
+                makedirs(dest_dll_dir)
             file_copy(os.path.join(src_bin_dir, dll_name),
                       os.path.join(dest_dll_dir, dll_name))
             have_dlls.add(dep.name[8:])
@@ -176,7 +192,7 @@ def main(dest_dir=None, src_dir=None, msys_dir=None, force=None):
     # Copy required import libraries only.
     copied_files = set()
     src_lib_dir = os.path.join(src_dir, 'lib')
-    mkdir(dest_lib_dir)
+    makedirs(dest_lib_dir)
     for ignore, libs in macros:
         use = False
         for lib in libs:
@@ -214,7 +230,7 @@ def main(dest_dir=None, src_dir=None, msys_dir=None, force=None):
                 dest_header_dir = dest_dir
                 for dir_name in path_elements:
                     dest_header_dir = os.path.join(dest_header_dir, dir_name)
-                    mkdir(dest_header_dir)
+                    makedirs(dest_header_dir)
                 if not src_header_dir in copied_dirs:
                     copy_dir(src_header_dir, dest_header_dir)
                     copied_dirs.add(src_header_dir)
@@ -224,11 +240,6 @@ def main(dest_dir=None, src_dir=None, msys_dir=None, force=None):
         file_copy(
             os.path.join(src_dir, 'include', 'SDL', 'SDL_config_win32.h'),
             os.path.join(dest_dir, 'include', 'SDL', 'SDL_config.h'))
-
-    # msvcr71.dll linking support.
-    src_msvcr71_dir = os.path.join(src_dir, 'lib', 'msvcr71')
-    dest_msvcr71_dir = os.path.join(dest_dir, 'lib', 'msvcr71')
-    copy_dir(src_msvcr71_dir, dest_msvcr71_dir)
 
     # Def file bat.
     make_defs = open(os.path.join(dest_lib_dir, 'MakeDefs.bat'), 'w')
