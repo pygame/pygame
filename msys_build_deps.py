@@ -30,20 +30,20 @@ This program has been tested against the following libraries:
 
 SDL 1.2(.14+) hg changeset c5d651a8b679
 SDL_image 1.2(.10+) hg changset 45748e6e2f81
-SDL_mixer 1.2.11 hg changeset 6ed75d34edc9
+SDL_mixer 1.2.12 hg changeset b455bc681654
 SDL_ttf 2.0.11 hg changeset d9a600fa3c4a
-smpeg SVN revision 391
+smpeg SVN revision 391 (built separately with MSVC++)
 freetype 2.4.8
 libogg 1.3.0
 libvorbis 1.3.2
 FLAC 1.2.1
-mikmod 3.1.12 patched (included with SDL_mixer 1.2.11)
+mikmod 3.1.12 patched (included with SDL_mixer 1.2.12)
 tiff 4.0b7
 libpng 1.6.0b1
 jpeg 8c
 zlib 1.2.5
 PortMidi revision 217 from SVN
-  ffmpeg revision 24482 from SVN (swscale revision 31785)
+untested with GCC 4.6.1: ffmpeg revision 24482 from SVN (swscale revision 31785)
 
 The build environment used: 
 
@@ -210,8 +210,15 @@ class Dependency(object):
 
     def build(self, msys):
         if self.path is not None:
-            msys.environ['BDWD'] = msys.windows_to_msys(self.path)
-            return_code = msys.run_shell_script(self.shell_script)
+            env_home = msys.environ.get('HOME', None)
+            msys.environ['HOME'] = self.path
+            try:
+                return_code = msys.run_shell_script(self.shell_script)
+            finally:
+                if env_home is not None:
+                    msys.environ['HOME'] = env_home
+                else:
+                    del msys.environ['HOME']
             if return_code != 0:
                 raise BuildError("The build for %s failed with code %d" %
                                  (self.name, return_code))
@@ -344,6 +351,7 @@ def set_environment_variables(msys, options):
     """Set the environment variables used by the scripts"""
     
     environ = msys.environ
+
     msys_root_wp = msys.msys_root
     prefix_wp = options.prefix
     if not prefix_wp:
@@ -353,7 +361,39 @@ def set_environment_variables(msys, options):
     else:
         prefix_mp = default_prefix_mp
         prefix_wp = msys.msys_to_windows(prefix_mp)
+    include_mp = prefix_mp + '/include'
+    lib_mp = prefix_mp + '/lib'
+    subsystem = ''
+    if not options.subsystem_noforce:
+        subsystem = '-mwindows'
+    msvcrt_mp = ''
+    resources_mp = ''
+    if options.msvcrt_version == 71:
+        # Hide the msvcrt.dll import libraries with those for msvcr71.dll.
+        # Their subdirectory is in the same directory as the SDL library.
+        msvcrt_mp = lib_mp + '/msvcr71'
+    elif options.msvcrt_version == 90:
+        # Hide the msvcrt.dll import libraries with those for msvcr90.dll.
+        # Their subdirectory is in the same directory as the SDL library.
+        msvcrt_mp = lib_mp + '/msvcr90'
+        resources_mp = msvcrt_mp + '/resources.o'
+
     environ['PREFIX'] = prefix_mp
+    environ.pop('INCLUDE', None)  # INCLUDE causes problems with MIXER.
+    environ['CPPFLAGS'] = merge_strings(as_macro_define('__MSVCRT_VERSION__',
+                                                       '0x0%02i0' % (options.msvcrt_version,)),
+                                        as_preprocessor_header_path(include_mp),
+                                        environ.get('CPPFLAGS', ''),
+                                        sep=' ')
+    # Need to make the resources object file an explicit linker option to
+    # bypass libtool (freetype).
+    environ['LDFLAGS'] = merge_strings(as_linker_lib_path(msvcrt_mp),
+                                       environ.get('LDFLAGS', ''),
+                                       as_linker_lib_path(lib_mp),
+                                       as_linker_option(resources_mp),
+                                       subsystem,
+                                       sep=' ')
+
     environ['BDCONF'] = as_flag(options.configure and
                                 not options.clean_only)
     environ['BDCOMP'] = as_flag(options.compile and
@@ -366,42 +406,9 @@ def set_environment_variables(msys, options):
                                  options.strip and
                                  not options.clean_only)
     environ['BDCLEAN'] = as_flag(options.clean or options.clean_only)
-    environ.pop('INCLUDE', None)  # INCLUDE causes problems with MIXER.
-    lib_mp = prefix_mp + '/lib'
-    msvcrt_mp = ''
-    resources_mp = ''
-    if options.msvcrt_version == 71:
-        # Hide the msvcrt.dll import libraries with those for msvcr71.dll.
-        # Their subdirectory is in the same directory as the SDL library.
-        msvcrt_mp = lib_mp + '/msvcr71'
-    elif options.msvcrt_version == 90:
-        # Hide the msvcrt.dll import libraries with those for msvcr90.dll.
-        # Their subdirectory is in the same directory as the SDL library.
-        msvcrt_mp = lib_mp + '/msvcr90'
-        resources_mp = msvcrt_mp + '/resources.o'
-        environ['BDRESOURCES'] = resources_mp
+    environ['BDRESOURCES'] = resources_mp
     environ['BDMSVCRT_VERSION'] = '%i' % (options.msvcrt_version,)
     environ['BDMSVCRT'] = msvcrt_mp
-    include_wp = ''
-    if prefix_wp:
-        include_wp = os.path.join(prefix_wp, 'include')
-    environ['CPPFLAGS'] = merge_strings(as_macro_define('__MSVCRT_VERSION__',
-                                                       '0x0%02i0' % (options.msvcrt_version,)),
-                                        as_preprocessor_header_path(include_wp),
-                                        environ.get('CPPFLAGS', ''),
-                                        sep=' ')
-
-    subsystem = ''
-    if not options.subsystem_noforce:
-        subsystem = '-mwindows'
-    # Need to make the resources object file an explicit linker option to
-    # bypass libtool (freetype).
-    environ['LDFLAGS'] = merge_strings(as_linker_lib_path(msvcrt_mp),
-                                       environ.get('LDFLAGS', ''),
-                                       as_linker_lib_path(lib_mp),
-                                       as_linker_option(resources_mp),
-                                       subsystem,
-                                       sep=' ')
 
 class ChooseError(Exception):
     """Failer to select dependencies"""
@@ -573,11 +580,10 @@ def main(dependencies, msvcr71_preparation, msvcr90_preparation, msys_preparatio
 # represent configure, compile, install and clean respectively. When '1' the
 # corresponding action is performed. When '0' it is skipped. The installation
 # directory is given by PREFIX. The script needs to prepend it to PATH. The
-# source code root directory is BDWD. A script will cd to it before doing
-# starting the build. The msvcrt version is given as BDMSVCRT_VERSION. BDMSVCRT
-# is where to place a shadow libraries which hide the normal MinGW C runtime
-# export libraries. Various gcc flags are in CPPFLAGS, CFLAGS, and LDFLAGS.
-# INCLUDE is undefined.
+# script's HOME directory is the source code root directory. The msvcrt version
+# is given as BDMSVCRT_VERSION. BDMSVCRT is where to place a shadow libraries
+# which hide the normal MinGW C runtime export libraries. Various gcc flags are
+# in CPPFLAGS, CFLAGS, and LDFLAGS. INCLUDE is undefined.
 #
 # None of these scripts end with an "exit". Exit, possibly, leads to Msys
 # freezing on some versions of Windows (98).
@@ -588,7 +594,6 @@ dependencies = [
 
 set -e
 export PATH="$PREFIX/bin:$PATH"
-cd "$BDWD"
 
 if [ x$BDCONF == x1 ]; then
   # Remove NONAMELESSUNION from directx.h headers.
@@ -623,7 +628,7 @@ fi
 if [ x$BDINST == x1 ]; then
   make install
   # Make SDL_config_win32.h available for prebuilt and MSVC
-  cp -f "$BDWD/include/SDL_config_win32.h" "$PREFIX/include/SDL"
+  cp -f "$HOME/include/SDL_config_win32.h" "$PREFIX/include/SDL"
 fi
 
 if [ x$BDSTRIP == x1 ]; then
@@ -639,7 +644,6 @@ fi
 
 set -e
 export PATH="$PREFIX/bin:$PATH"
-cd "$BDWD"
 
 if [ x$BDCONF == x1 ]; then
   cp -fp win32/Makefile.gcc .
@@ -673,7 +677,6 @@ fi
 
 set -e
 export PATH="$PREFIX/bin:$PATH"
-cd "$BDWD"
 
 if [ x$BDCONF == x1 ]; then
   ./configure --prefix="$PREFIX" \
@@ -707,7 +710,6 @@ fi
 
 set -e
 export PATH="$PREFIX/bin:$PATH"
-cd "$BDWD"
 
 if [ x$BDCONF == x1 ]; then
   # If this comes from the repository it has no configure script
@@ -746,7 +748,6 @@ fi
 
 set -e
 export PATH="$PREFIX/bin:$PATH"
-cd "$BDWD"
 
 if [ x$BDCONF == x1 ]; then
   ./configure --prefix="$PREFIX" \
@@ -780,7 +781,6 @@ fi
 
 set -e
 export PATH="$PREFIX/bin:$PATH"
-cd "$BDWD"
 
 if [ x$BDCONF == x1 ]; then
   # This will only build a static library.
@@ -824,7 +824,6 @@ export PATH="$PREFIX/bin:$PATH"
 # for msvcr90.dll because of a strange linker error.
 bd_subdirs="port libtiff"
 
-cd "$BDWD"
 
 if [ x$BDCONF == x1 ]; then
   ./configure --disable-cxx --prefix="$PREFIX" \
@@ -860,7 +859,6 @@ fi
 
 set -e
 export PATH="$PREFIX/bin:$PATH"
-cd "$BDWD"
 
 if [ x$BDCONF == x1 ]; then
   # If this comes from the repository it has no configure script
@@ -913,9 +911,13 @@ fi
 """),
     Dependency('SMPEG', ['smpeg-[0-9].*', 'smpeg'], ['smpeg.dll'], """
 
+if (( $BDMSVCRT_VERSION != 60 )); then
+    echo The smpeg build has been disabled\\.
+    exit 0
+fi
+
 set -e
 export PATH="$PREFIX/bin:$PATH"
-cd "$BDWD"
 
 if [ x$BDCONF == x1 ]; then
   # This comes straight from SVN so has no configure script
@@ -956,7 +958,6 @@ fi
 
 set -e
 export PATH="$PREFIX/bin:$PATH"
-cd "$BDWD"
 
 if [ x$BDCONF == x1 ]; then
   ./configure --prefix="$PREFIX" \
@@ -992,7 +993,6 @@ fi
 
 set -e
 export PATH="$PREFIX/bin:$PATH"
-cd "$BDWD"
 
 if [ x$BDCONF == x1 ]; then
   ./configure --prefix="$PREFIX" \
@@ -1026,7 +1026,6 @@ fi
 
 set -e
 export PATH="$PREFIX/bin:$PATH"
-cd "$BDWD"
 
 if [ x$BDCONF == x1 ]; then
   # Add __MINGW32__ to SIZE_T_MAX declaration test in alloc.h header.
@@ -1068,7 +1067,6 @@ fi
 
 set -e
 export PATH="$PREFIX/bin:$PATH"
-cd "$BDWD"
 
 if [ x$BDCONF == x1 ]; then
 
@@ -1306,7 +1304,6 @@ fi
 
 set -e
 export PATH="$PREFIX/bin:$PATH"
-cd "$BDWD"
 
 mikmod_dependencies='-ldsound'
 flac_dependencies='-lWs2_32'
@@ -1370,7 +1367,6 @@ fi
 
 set -e
 export PATH="$PREFIX/bin:$PATH"
-cd "$BDWD"
 
 if [ x$BDCONF == x1 ]; then
   # Fix up some g++ 4.5.0 issues in the source code.
@@ -1533,7 +1529,6 @@ fi
 
 set -e
 export PATH="$PREFIX/bin:$PATH"
-cd "$BDWD"
 
 if [ x$BDCONF == x1 ]; then
   # Don't want the pthreads dll, which links to msvcrt.dll.

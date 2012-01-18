@@ -265,8 +265,9 @@ class Msys(object):
         if mingw_root is not None and path_lower.startswith(mingw_root.lower()):
             return '/mingw' + path[len(mingw_root):].replace(os.sep, '/')
         drive, tail = os.path.splitdrive(path)
-        tail = tail.replace(os.sep, '/')
-        return '/%s%s' % (drive[0], tail)
+        drive_mount_point = drive[0].lower()
+        drive_subpath = tail.replace(os.sep, '/')
+        return '/%s%s' % (drive_mount_point, drive_subpath)
 
     def msys_to_windows(self, path):
         """Return a Windows translation of an MSYS path
