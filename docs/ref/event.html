@@ -55,6 +55,7 @@
 	    <a href="event.html">event</a> || 
 	    <a href="examples.html">examples</a> || 
 	    <a href="font.html">font</a> || 
+	    <a href="freetype.html">freetype</a> || 
 	    <a href="gfxdraw.html">gfxdraw</a> || 
 	    <a href="image.html">image</a> || 
 	    <a href="joystick.html">joystick</a> || 
@@ -185,6 +186,8 @@ function usually once per game loop.</p>
 slightly by blocking certain event types from the queue, use the
 <tt class="docutils literal"><span class="pre">pygame.event.set_allowed()</span></tt> and <tt class="docutils literal"><span class="pre">pygame.event.set_blocked()</span></tt> to work with
 this filtering. All events default to allowed.</p>
+<p>The event subsystem should be called from the main thread.  If you want to post
+events into the queue from other threads, please use the fastevent package.</p>
 <p>Joysticks will not send any events until the device has been initialized.</p>
 <p>An Event object contains an event type and a readonly set of member data. The
 Event object contains no method functions, just member data. Event objects are

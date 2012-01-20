@@ -401,18 +401,6 @@ module, but it can also be bundled in separate archives.</p>
 <td>—</td>
 <td>Output pixel resolution in dots per inch</td>
 </tr>
-<tr><td><a class="toc reference external" href="freetype.html#pygame.freetype.Face.set_transform">pygame.freetype.Face.set_transform</a></td>
-<td>—</td>
-<td>assign a glyph transformation matrix</td>
-</tr>
-<tr><td><a class="toc reference external" href="freetype.html#pygame.freetype.Face.delete_transform">pygame.freetype.Face.delete_transform</a></td>
-<td>—</td>
-<td>delete a glyph transformation matrix</td>
-</tr>
-<tr><td><a class="toc reference external" href="freetype.html#pygame.freetype.Face.get_transform">pygame.freetype.Face.get_transform</a></td>
-<td>—</td>
-<td>return the user assigned transformation matrix, or None</td>
-</tr>
 </tbody>
 </table>
 <p>&#8216;file&#8217; can be either a string representing the font&#8217;s filename, a file-like
@@ -880,39 +868,6 @@ the full UCS-4 character range.</p>
 <div class="line"><span class="signature">resolution -&gt; int</span></div>
 </div>
 <p>Gets the pixel size used in scaling face glyphs for this Face instance.</p>
-</dd></dl>
-
-<dl class="definition method">
-<dt class="title" id="pygame.freetype.Face.set_transform">
-<tt class="descname">set_transform</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.freetype.Face.set_transform" title="Permalink to this definition">¶</a></dt>
-<dd><div class="line-block">
-<div class="line"><span class="summaryline">assign a glyph transformation matrix</span></div>
-<div class="line"><span class="signature">set_transform(xx, xy, yx, yy) -&gt; None</span></div>
-</div>
-<p>Set a transform matrix for the face. If None, no matrix assigned.
-The arguments can be any numeric type that can be converted
-to a double. The matrix is applied after the strong transformation,
-but before oblique and rotation.</p>
-</dd></dl>
-
-<dl class="definition method">
-<dt class="title" id="pygame.freetype.Face.delete_transform">
-<tt class="descname">delete_transform</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.freetype.Face.delete_transform" title="Permalink to this definition">¶</a></dt>
-<dd><div class="line-block">
-<div class="line"><span class="summaryline">delete a glyph transformation matrix</span></div>
-<div class="line"><span class="signature">set_transform(xx, xy, yx, yy) -&gt; None</span></div>
-</div>
-<p>Remove the transformation matrix, if any.</p>
-</dd></dl>
-
-<dl class="definition method">
-<dt class="title" id="pygame.freetype.Face.get_transform">
-<tt class="descname">get_transform</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.freetype.Face.get_transform" title="Permalink to this definition">¶</a></dt>
-<dd><div class="line-block">
-<div class="line"><span class="summaryline">return the user assigned transformation matrix, or None</span></div>
-<div class="line"><span class="signature">get_transform() -&gt; (double, double, double, double) or None</span></div>
-</div>
-<p>Return the transform matrix for the face. If None, no matrix is assigned.</p>
 </dd></dl>
 
 </dd></dl>
