@@ -79,12 +79,6 @@
 
 #define DOC_FACERESOLUTION "resolution -> int\nOutput pixel resolution in dots per inch"
 
-#define DOC_FACESETTRANSFORM "set_transform(xx, xy, yx, yy) -> None\nassign a glyph transformation matrix"
-
-#define DOC_FACEDELETETRANSFORM "set_transform(xx, xy, yx, yy) -> None\ndelete a glyph transformation matrix"
-
-#define DOC_FACEGETTRANSFORM "get_transform() -> (double, double, double, double) or None\nreturn the user assigned transformation matrix, or None"
-
 
 
 /* Docs in a comment... slightly easier to read. */
@@ -249,17 +243,5 @@ Enables UCS-4 mode
 pygame.freetype.Face.resolution
  resolution -> int
 Output pixel resolution in dots per inch
-
-pygame.freetype.Face.set_transform
- set_transform(xx, xy, yx, yy) -> None
-assign a glyph transformation matrix
-
-pygame.freetype.Face.delete_transform
- set_transform(xx, xy, yx, yy) -> None
-delete a glyph transformation matrix
-
-pygame.freetype.Face.get_transform
- get_transform() -> (double, double, double, double) or None
-return the user assigned transformation matrix, or None
 
 */
