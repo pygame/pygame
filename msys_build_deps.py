@@ -611,7 +611,7 @@ if [ x$BDCONF == x1 ]; then
     ./autogen.sh
   fi
   # Prevent libtool deadlocks (maybe).
-  ./configure --disable-libtool-lock --prefix="$PREFIX" \
+  ./configure --disable-libtool-lock --prefix="$PREFIX" --disable-stdio-redirect \
               CPPFLAGS="$CPPFLAGS" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
   
   # check for MSYS permission errors
