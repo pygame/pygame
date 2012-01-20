@@ -231,6 +231,11 @@ try: import pygame.transform
 except (ImportError,IOError):transform=MissingModule("transform", geterror(), 1)
 
 #lastly, the "optional" pygame modules
+if 'PYGAME_FREETYPE' in os.environ:
+    try:
+        import pygame.ftfont as font
+        sys.modules['pygame.font'] = font
+    except (ImportError,IOError): pass
 try:
     import pygame.font
     import pygame.sysfont

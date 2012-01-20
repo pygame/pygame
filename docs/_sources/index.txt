@@ -105,6 +105,9 @@ Reference
 :doc:`ref/font`
   Loading and rendering Truetype fonts.
 
+:doc:`ref/freetype`
+  Enhanced Pygame module for loading and rendering font faces.
+
 :doc:`ref/gfxdraw`
   Anti-aliasing draw functions.
 

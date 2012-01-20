@@ -62,7 +62,7 @@ release = '1.9.2'
 #today_fmt = '%B %d, %Y'
 
 # List of documents that shouldn't be included in the build.
-unused_docs = ['ref/freetype']
+unused_docs = []
 
 # List of directories, relative to source directory, that shouldn't be searched
 # for source files.
