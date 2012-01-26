@@ -28,7 +28,7 @@ python build_deps.py --help
 
 This program has been tested against the following libraries:
 
-SDL 1.2(.14+) hg changeset c5d651a8b679
+SDL 1.2.15
 SDL_image 1.2(.10+) hg changset 45748e6e2f81
 SDL_mixer 1.2.12 hg changeset b455bc681654
 SDL_ttf 2.0.11 hg changeset d9a600fa3c4a
@@ -610,8 +610,8 @@ if [ x$BDCONF == x1 ]; then
   if [ ! -f "./configure" ]; then
     ./autogen.sh
   fi
-  # Prevent libtool deadlocks (maybe).
-  ./configure --disable-libtool-lock --prefix="$PREFIX" --disable-stdio-redirect \
+
+  ./configure --prefix="$PREFIX" --disable-static --disable-stdio-redirect \
               CPPFLAGS="$CPPFLAGS" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
   
   # check for MSYS permission errors
@@ -626,7 +626,7 @@ if [ x$BDCOMP == x1 ]; then
 fi
 
 if [ x$BDINST == x1 ]; then
-  make install
+  make install-bin install-hdrs install-lib
   # Make SDL_config_win32.h available for prebuilt and MSVC
   cp -f "$HOME/include/SDL_config_win32.h" "$PREFIX/include/SDL"
 fi
