@@ -125,7 +125,7 @@ _PGFT_Face_GetHeight(FreeTypeInstance *ft, PgFaceObject *faceobj)
 
 long
 _PGFT_Face_GetHeightSized(FreeTypeInstance *ft, PgFaceObject *faceobj,
-			 FT_UInt16 ptsize)
+                          FT_UInt16 ptsize)
 {
     FT_Face face = _PGFT_GetFaceSized(ft, faceobj, ptsize);
 
@@ -150,7 +150,7 @@ _PGFT_Face_GetAscender(FreeTypeInstance *ft, PgFaceObject *faceobj)
 
 long
 _PGFT_Face_GetAscenderSized(FreeTypeInstance *ft, PgFaceObject *faceobj,
-			   FT_UInt16 ptsize)
+                           FT_UInt16 ptsize)
 {
     FT_Face face = _PGFT_GetFaceSized(ft, faceobj, ptsize);
 
@@ -175,7 +175,7 @@ _PGFT_Face_GetDescender(FreeTypeInstance *ft, PgFaceObject *faceobj)
 
 long
 _PGFT_Face_GetDescenderSized(FreeTypeInstance *ft, PgFaceObject *faceobj,
-			    FT_UInt16 ptsize)
+                             FT_UInt16 ptsize)
 {
     FT_Face face = _PGFT_GetFaceSized(ft, faceobj, ptsize);
 
@@ -188,7 +188,7 @@ _PGFT_Face_GetDescenderSized(FreeTypeInstance *ft, PgFaceObject *faceobj,
 
 long
 _PGFT_Face_GetGlyphHeightSized(FreeTypeInstance *ft, PgFaceObject *faceobj,
-			      FT_UInt16 ptsize)
+                               FT_UInt16 ptsize)
 {
     /*
      * Based on the SDL_ttf height calculation.
@@ -258,8 +258,7 @@ _PGFT_GetFaceSized(FreeTypeInstance *ft,
 }
 
 FT_Face
-_PGFT_GetFace(FreeTypeInstance *ft,
-    PgFaceObject *faceobj)
+_PGFT_GetFace(FreeTypeInstance *ft, PgFaceObject *faceobj)
 {
     FT_Error error;
     FT_Face face;
@@ -387,7 +386,7 @@ _PGFT_TryLoadFont_Filename(FreeTypeInstance *ft,
 #ifdef HAVE_PYGAME_SDL_RWOPS
 static unsigned long
 RWops_read(FT_Stream stream, unsigned long offset,
-    unsigned char *buffer, unsigned long count)
+           unsigned char *buffer, unsigned long count)
 {
     SDL_RWops *src;
 
@@ -401,8 +400,8 @@ RWops_read(FT_Stream stream, unsigned long offset,
 }
 
 int
-_PGFT_TryLoadFont_RWops(FreeTypeInstance *ft,
-        PgFaceObject *faceobj, SDL_RWops *src, int face_index)
+_PGFT_TryLoadFont_RWops(FreeTypeInstance *ft, PgFaceObject *faceobj,
+                        SDL_RWops *src, int face_index)
 {
     FT_Stream stream;
     int position;

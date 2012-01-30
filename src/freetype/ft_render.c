@@ -46,8 +46,8 @@ _PGFT_CheckStyle(FT_UInt32 style)
 }
 
 int
-_PGFT_BuildRenderMode(FreeTypeInstance *ft, 
-                      PgFaceObject *faceobj, FaceRenderMode *mode, 
+_PGFT_BuildRenderMode(FreeTypeInstance *ft,
+                      PgFaceObject *faceobj, FaceRenderMode *mode,
                       int pt_size, int style, int rotation)
 {
     int angle;
@@ -575,7 +575,7 @@ _PGFT_Render_Array(FreeTypeInstance *ft, PgFaceObject *faceobj,
 
     case 'i':  /* integer */
         break;
-    case 'u':  /* unsigned integer */ 
+    case 'u':  /* unsigned integer */
         break;
     case 'S':  /* fixed length character field */
         break;
