@@ -1,6 +1,7 @@
 """Enhanced Pygame module for loading and rendering font faces"""
 
 from pygame._freetype import *
+from pygame.sysfont import match_font, get_fonts, SysFont as _SysFont
 
 def SysFont(name, size, bold=0, italic=0, constructor=None):
     """pygame.ftfont.SysFont(name, size, bold=False, italic=False, constructor=None) -> Font
@@ -22,14 +23,11 @@ def SysFont(name, size, bold=0, italic=0, constructor=None):
 
        if optional contructor is provided, it must be a function with
        signature constructor(fontpath, size, bold, italic) which returns
-       a Font instance. If None, a pygame.ftfont.Font object is created.
+       a Font instance. If None, a pygame.freetype.Face object is created.
     """
     if constructor is None:
         def constructor(fontpath, size, bold, italic):
-            font = Face(fontpath, size)
-            font.bold = bold
-            font.oblique = italic
-            return font
+            return Face(fontpath, size)
 
     return _SysFont(name, size, bold, italic, constructor)
 
