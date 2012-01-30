@@ -549,12 +549,12 @@ void __fill_glyph_INT(int x, int y, int w, int h,
                                 (off_y * bitmap->pitch);                \
         const FT_Byte *_src;                                            \
                                                                         \
-	_DECLARE_full_color##_bpp(surface, color)			\
+        _DECLARE_full_color##_bpp(surface, color)                       \
         /*                                                              \
         const FT_UInt32 full_color =                                    \
             SDL_MapRGBA(surface->format, (FT_Byte)color->r,             \
                     (FT_Byte)color->g, (FT_Byte)color->b, 255);         \
-	*/                                                              \
+        */                                                              \
                                                                         \
         FT_UInt32 bgR, bgG, bgB, bgA;                                   \
         int j, i;                                                       \

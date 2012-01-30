@@ -101,7 +101,7 @@ _PGFT_FaceTextFree(PgFaceObject *faceobj)
 
 FaceText *
 _PGFT_LoadFaceText(FreeTypeInstance *ft, PgFaceObject *faceobj,
-                  const FaceRenderMode *mode, PGFT_String *text)
+                   const FaceRenderMode *mode, PGFT_String *text)
 {
     Py_ssize_t  string_length = PGFT_String_GET_LENGTH(text);
 
@@ -236,8 +236,8 @@ _PGFT_LoadFaceText(FreeTypeInstance *ft, PgFaceObject *faceobj,
         }
 
         prev_glyph_index = glyph->glyph_index;
-	metrics = vertical ? &glyph->v_metrics : &glyph->h_metrics;
-	if (metrics->bearing_rotated.y > top) {
+        metrics = vertical ? &glyph->v_metrics : &glyph->h_metrics;
+        if (metrics->bearing_rotated.y > top) {
             top = metrics->bearing_rotated.y;
         }
         if (pen.x + metrics->bearing_rotated.x < min_x) {

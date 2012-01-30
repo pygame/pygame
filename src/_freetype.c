@@ -477,7 +477,7 @@ static PyGetSetDef _ftface_getsets[] = {
         (setter)_ftface_setstrength,
         DOC_FACESTRENGTH,
         0
-    }, 
+    },
     {
         "underline_adjustment",
         (getter)_ftface_getunderlineadjustment,
@@ -1463,7 +1463,7 @@ _ftface_render(PgFaceObject *self, PyObject *args, PyObject *kwds)
 #ifndef HAVE_PYGAME_SDL_VIDEO
 
     PyErr_SetString(PyExc_RuntimeError,
-		    "SDL support is missing. Cannot render on surfaces");
+                    "SDL support is missing. Cannot render on surfaces");
     return 0;
 
 #else
@@ -1561,7 +1561,7 @@ _ftface_render_to(PgFaceObject *self, PyObject *args, PyObject *kwds)
 #ifndef HAVE_PYGAME_SDL_VIDEO
 
     PyErr_SetString(PyExc_RuntimeError,
-		    "SDL support is missing. Cannot render on surfaces");
+                    "SDL support is missing. Cannot render on surfaces");
     return 0;
 
 #else
