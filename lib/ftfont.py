@@ -2,7 +2,7 @@
 
 __all__ = ['Font', 'init', 'quit', 'get_default_font', 'get_init', 'SysFont']
 
-from pygame._freetype import init, Face as _Face, get_default_resolution
+from pygame._freetype import init, Font as _Font, get_default_resolution
 from pygame._freetype import quit, get_default_font, was_init as _was_init
 from pygame._freetype import __PYGAMEinit__
 from pygame.sysfont import match_font, get_fonts, SysFont as _SysFont
@@ -10,7 +10,7 @@ from pygame import encode_file_path
 from pygame.compat import bytes_, unicode_, as_unicode, as_bytes
 from pygame import Surface as _Surface, Color as _Color, SRCALPHA as _SRCALPHA
 
-class Font(_Face):
+class Font(_Font):
     """Font(filename, size) -> Font
        Font(object, size) -> Font
        create a new Font object from a file (freetype alternative)
@@ -175,11 +175,11 @@ def SysFont(name, size, bold=0, italic=0, constructor=None):
     if constructor is None:
         def constructor(fontpath, size, bold, italic):
             font = Font(fontpath, size)
-            font.bold = bold
-            font.oblique = italic
+            font.set_bold(bold)
+            font.set_italic(italic)
             return font
 
     return _SysFont(name, size, bold, italic, constructor)
 
-del _Face, get_default_resolution, encode_file_path, as_unicode, as_bytes
+del _Font, get_default_resolution, encode_file_path, as_unicode, as_bytes
 
