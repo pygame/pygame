@@ -39,18 +39,18 @@ typedef union cachenodekey_ {
 } NodeKey;
 
 typedef struct cachenode_ {
-    FaceGlyph glyph;
+    FontGlyph glyph;
     struct cachenode_ *next;
     NodeKey key;
     FT_UInt32 hash;
 } CacheNode;
 
 static FT_UInt32 get_hash(const NodeKey *);
-static CacheNode *allocate_node(FaceCache *,
-                                    const FaceRenderMode *,
+static CacheNode *allocate_node(FontCache *,
+                                    const FontRenderMode *,
                                     FT_UInt, void *);
-static void free_node(FaceCache *, CacheNode *);
-static void set_node_key(NodeKey *, PGFT_char, const FaceRenderMode *);
+static void free_node(FontCache *, CacheNode *);
+static void set_node_key(NodeKey *, PGFT_char, const FontRenderMode *);
 static int equal_node_keys(const NodeKey *, const NodeKey *);
 
 const int render_flags_mask = (FT_RFLAG_ANTIALIAS |
@@ -58,7 +58,7 @@ const int render_flags_mask = (FT_RFLAG_ANTIALIAS |
                                FT_RFLAG_AUTOHINT);
 
 static void
-set_node_key(NodeKey *key, PGFT_char ch, const FaceRenderMode *mode)
+set_node_key(NodeKey *key, PGFT_char ch, const FontRenderMode *mode)
 {
     KeyFields *fields = &key->fields;
     const FT_UInt16 style_mask = ~(FT_STYLE_UNDERLINE);
@@ -128,7 +128,7 @@ get_hash(const NodeKey *key)
 }
 
 int
-_PGFT_Cache_Init(FreeTypeInstance *ft, FaceCache *cache)
+_PGFT_Cache_Init(FreeTypeInstance *ft, FontCache *cache)
 {
     int cache_size = MAX(ft->cache_size - 1, PGFT_MIN_CACHE_SIZE - 1);
     int i;
@@ -144,7 +144,7 @@ _PGFT_Cache_Init(FreeTypeInstance *ft, FaceCache *cache)
 
     cache_size = cache_size + 1;
 
-    cache->nodes = _PGFT_malloc((size_t)cache_size * sizeof(FaceGlyph *));
+    cache->nodes = _PGFT_malloc((size_t)cache_size * sizeof(FontGlyph *));
     if (!cache->nodes)
         return -1;
     for (i=0; i < cache_size; ++i)
@@ -170,7 +170,7 @@ _PGFT_Cache_Init(FreeTypeInstance *ft, FaceCache *cache)
 }
 
 void
-_PGFT_Cache_Destroy(FaceCache *cache)
+_PGFT_Cache_Destroy(FontCache *cache)
 {
     FT_UInt i;
     CacheNode *node, *next;
@@ -201,7 +201,7 @@ _PGFT_Cache_Destroy(FaceCache *cache)
 }
 
 void
-_PGFT_Cache_Cleanup(FaceCache *cache)
+_PGFT_Cache_Cleanup(FontCache *cache)
 {
     const FT_Byte MAX_BUCKET_DEPTH = 2;
     CacheNode *node, *prev;
@@ -230,9 +230,9 @@ _PGFT_Cache_Cleanup(FaceCache *cache)
     }
 }
 
-FaceGlyph *
-_PGFT_Cache_FindGlyph(PGFT_char character, const FaceRenderMode *render,
-                     FaceCache *cache, void *internal)
+FontGlyph *
+_PGFT_Cache_FindGlyph(PGFT_char character, const FontRenderMode *render,
+                     FontCache *cache, void *internal)
 {
     CacheNode **nodes = cache->nodes;
     CacheNode *node, *prev;
@@ -280,7 +280,7 @@ _PGFT_Cache_FindGlyph(PGFT_char character, const FaceRenderMode *render,
 }
 
 static void
-free_node(FaceCache *cache, CacheNode *node)
+free_node(FontCache *cache, CacheNode *node)
 {
     if (!node) {
         return;
@@ -297,7 +297,7 @@ free_node(FaceCache *cache, CacheNode *node)
 }
 
 static CacheNode *
-allocate_node(FaceCache *cache, const FaceRenderMode *render,
+allocate_node(FontCache *cache, const FontRenderMode *render,
               PGFT_char character, void *internal)
 {
     CacheNode *node = _PGFT_malloc(sizeof(CacheNode));

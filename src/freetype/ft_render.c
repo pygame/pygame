@@ -25,11 +25,11 @@
 #include FT_MODULE_H
 #include FT_OUTLINE_H
 
-static const FaceColor mono_opaque = {0, 0, 0, SDL_ALPHA_OPAQUE};
-static const FaceColor mono_transparent = {0, 0, 0, SDL_ALPHA_TRANSPARENT};
+static const FontColor mono_opaque = {0, 0, 0, SDL_ALPHA_OPAQUE};
+static const FontColor mono_transparent = {0, 0, 0, SDL_ALPHA_TRANSPARENT};
 
-static void render(FreeTypeInstance *, FaceText *, const FaceRenderMode *,
-                   const FaceColor *, FaceSurface *, unsigned, unsigned,
+static void render(FreeTypeInstance *, FontText *, const FontRenderMode *,
+                   const FontColor *, FontSurface *, unsigned, unsigned,
                    FT_Vector *, FT_Pos, FT_Fixed);
 
 int
@@ -47,20 +47,20 @@ _PGFT_CheckStyle(FT_UInt32 style)
 
 int
 _PGFT_BuildRenderMode(FreeTypeInstance *ft,
-                      PgFaceObject *faceobj, FaceRenderMode *mode,
+                      PgFontObject *fontobj, FontRenderMode *mode,
                       int pt_size, int style, int rotation)
 {
     int angle;
 
     if (pt_size == -1) {
-        if (faceobj->ptsize == -1) {
+        if (fontobj->ptsize == -1) {
             PyErr_SetString(PyExc_ValueError,
-                  "No face point size specified"
-                  " and no default face size in typeface");
+                  "No font point size specified"
+                  " and no default font size in typeface");
             return -1;
         }
 
-        pt_size = faceobj->ptsize;
+        pt_size = fontobj->ptsize;
     }
     if (pt_size <= 0) {
         PyErr_SetString(PyExc_ValueError, "Invalid point size for font.");
@@ -69,7 +69,7 @@ _PGFT_BuildRenderMode(FreeTypeInstance *ft,
     mode->pt_size = (FT_UInt16)pt_size;
 
     if (style == FT_STYLE_DEFAULT) {
-        mode->style = faceobj->style;
+        mode->style = fontobj->style;
     }
     else {
         if (_PGFT_CheckStyle((FT_UInt32)style)) {
@@ -79,13 +79,13 @@ _PGFT_BuildRenderMode(FreeTypeInstance *ft,
 
         mode->style = (FT_UInt16)style;
     }
-    mode->strength = DBL_TO_FX16(faceobj->strength);
-    mode->underline_adjustment = DBL_TO_FX16(faceobj->underline_adjustment);
-    mode->render_flags = faceobj->render_flags;
+    mode->strength = DBL_TO_FX16(fontobj->strength);
+    mode->underline_adjustment = DBL_TO_FX16(fontobj->underline_adjustment);
+    mode->render_flags = fontobj->render_flags;
     angle = rotation % 360;
     while (angle < 0) angle += 360;
     mode->rotation_angle = INT_TO_FX16(angle);
-    mode->transform = faceobj->transform;
+    mode->transform = fontobj->transform;
 
     if (mode->rotation_angle != 0) {
         if (mode->style & FT_STYLE_WIDE) {
@@ -117,7 +117,7 @@ _PGFT_BuildRenderMode(FreeTypeInstance *ft,
 }
 
 void
-_PGFT_GetRenderMetrics(const FaceRenderMode *mode, FaceText *text,
+_PGFT_GetRenderMetrics(const FontRenderMode *mode, FontText *text,
                        unsigned *w, unsigned *h, FT_Vector *offset,
                        FT_Pos *underline_top, FT_Fixed *underline_size)
 {
@@ -163,13 +163,13 @@ _PGFT_GetRenderMetrics(const FaceRenderMode *mode, FaceText *text,
  *********************************************************/
 #ifdef HAVE_PYGAME_SDL_VIDEO
 int
-_PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PgFaceObject *faceobj,
-                             const FaceRenderMode *mode, PGFT_String *text,
+_PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PgFontObject *fontobj,
+                             const FontRenderMode *mode, PGFT_String *text,
                              SDL_Surface *surface, int x, int y,
-                             FaceColor *fgcolor, FaceColor *bgcolor,
+                             FontColor *fgcolor, FontColor *bgcolor,
                              SDL_Rect *r)
 {
-    static const FaceRenderPtr __SDLrenderFuncs[] = {
+    static const FontRenderPtr __SDLrenderFuncs[] = {
         0,
         __render_glyph_RGB1,
         __render_glyph_RGB2,
@@ -177,7 +177,7 @@ _PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PgFaceObject *faceobj,
         __render_glyph_RGB4
     };
 
-    static const FaceRenderPtr __MONOrenderFuncs[] = {
+    static const FontRenderPtr __MONOrenderFuncs[] = {
         0,
         __render_glyph_MONO1,
         __render_glyph_MONO2,
@@ -185,7 +185,7 @@ _PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PgFaceObject *faceobj,
         __render_glyph_MONO4
     };
 
-    static const FaceFillPtr __RGBfillFuncs[] = {
+    static const FontFillPtr __RGBfillFuncs[] = {
         0,
         __fill_glyph_RGB1,
         __fill_glyph_RGB2,
@@ -201,15 +201,15 @@ _PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PgFaceObject *faceobj,
     FT_Pos underline_top;
     FT_Fixed underline_size;
 
-    FaceSurface font_surf;
-    FaceText *font_text;
+    FontSurface font_surf;
+    FontText *font_text;
 
     if (PGFT_String_GET_LENGTH(text) == 0) {
         /* No rendering */
         r->x = 0;
         r->y = 0;
         r->w = 0;
-        r->h = _PGFT_Face_GetHeightSized(ft, faceobj, mode->pt_size);
+        r->h = _PGFT_Font_GetHeightSized(ft, fontobj, mode->pt_size);
         return 0;
     }
 
@@ -222,8 +222,8 @@ _PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PgFaceObject *faceobj,
         locked = 1;
     }
 
-    /* build face text */
-    font_text = _PGFT_LoadFaceText(ft, faceobj, mode, text);
+    /* build font text */
+    font_text = _PGFT_LoadFontText(ft, fontobj, mode, text);
     if (!font_text) {
         if (locked) {
             SDL_UnlockSurface(surface);
@@ -241,7 +241,7 @@ _PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PgFaceObject *faceobj,
         r->x = 0;
         r->y = 0;
         r->w = 0;
-        r->h = _PGFT_Face_GetHeightSized(ft, faceobj, mode->pt_size);
+        r->h = _PGFT_Font_GetHeightSized(ft, fontobj, mode->pt_size);
         return 0;
     }
     surf_offset.x = INT_TO_FX6(x);
@@ -309,10 +309,10 @@ _PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PgFaceObject *faceobj,
 }
 
 SDL_Surface *_PGFT_Render_NewSurface(FreeTypeInstance *ft,
-                                     PgFaceObject *faceobj,
-                                     const FaceRenderMode *mode,
+                                     PgFontObject *fontobj,
+                                     const FontRenderMode *mode,
                                      PGFT_String *text,
-                                     FaceColor *fgcolor, FaceColor *bgcolor,
+                                     FontColor *fgcolor, FontColor *bgcolor,
                                      SDL_Rect *r)
 {
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
@@ -333,18 +333,18 @@ SDL_Surface *_PGFT_Render_NewSurface(FreeTypeInstance *ft,
         (bgcolor || mode->render_flags & FT_RFLAG_ANTIALIAS) ? 32 : 8;
     FT_UInt32 surface_flags = SDL_SWSURFACE;
 
-    FaceSurface font_surf;
-    FaceText *font_text;
+    FontSurface font_surf;
+    FontText *font_text;
     unsigned width;
     unsigned height;
     FT_Vector offset;
     FT_Pos underline_top;
     FT_Fixed underline_size;
-    FaceColor mono_fgcolor = {0, 0, 0, 1};
-    FaceColor mono_bgcolor = {0, 0, 0, 0};
+    FontColor mono_fgcolor = {0, 0, 0, 1};
+    FontColor mono_bgcolor = {0, 0, 0, 0};
 
     /* build font text */
-    font_text = _PGFT_LoadFaceText(ft, faceobj, mode, text);
+    font_text = _PGFT_LoadFontText(ft, fontobj, mode, text);
     if (!font_text) {
         return 0;
     }
@@ -355,7 +355,7 @@ SDL_Surface *_PGFT_Render_NewSurface(FreeTypeInstance *ft,
     }
     else {
         width = 1;
-        height = _PGFT_Face_GetHeightSized(ft, faceobj, mode->pt_size);
+        height = _PGFT_Font_GetHeightSized(ft, fontobj, mode->pt_size);
         offset.x = -font_text->min_x;
         offset.y = -font_text->min_y;
     }
@@ -459,16 +459,16 @@ SDL_Surface *_PGFT_Render_NewSurface(FreeTypeInstance *ft,
  *
  *********************************************************/
 
-PyObject *_PGFT_Render_PixelArray(FreeTypeInstance *ft, PgFaceObject *faceobj,
-                                  const FaceRenderMode *mode,
+PyObject *_PGFT_Render_PixelArray(FreeTypeInstance *ft, PgFontObject *fontobj,
+                                  const FontRenderMode *mode,
                                   PGFT_String *text, int invert,
                                   int *_width, int *_height)
 {
     FT_Byte *buffer = 0;
     PyObject *array = 0;
-    FaceSurface surf;
+    FontSurface surf;
 
-    FaceText *font_text;
+    FontText *font_text;
     unsigned width;
     unsigned height;
     FT_Vector offset;
@@ -479,12 +479,12 @@ PyObject *_PGFT_Render_PixelArray(FreeTypeInstance *ft, PgFaceObject *faceobj,
     if (PGFT_String_GET_LENGTH(text) == 0) {
         /* Empty array */
         *_width = 0;
-        *_height = _PGFT_Face_GetHeight(ft, faceobj);
+        *_height = _PGFT_Font_GetHeight(ft, fontobj);
         return Bytes_FromStringAndSize("", 0);
     }
 
-    /* build face text */
-    font_text = _PGFT_LoadFaceText(ft, faceobj, mode, text);
+    /* build font text */
+    font_text = _PGFT_LoadFontText(ft, fontobj, mode, text);
 
     if (!font_text) {
         return 0;
@@ -532,8 +532,8 @@ PyObject *_PGFT_Render_PixelArray(FreeTypeInstance *ft, PgFaceObject *faceobj,
 }
 
 int
-_PGFT_Render_Array(FreeTypeInstance *ft, PgFaceObject *faceobj,
-                   const FaceRenderMode *mode, PyObject *arrayobj,
+_PGFT_Render_Array(FreeTypeInstance *ft, PgFontObject *fontobj,
+                   const FontRenderMode *mode, PyObject *arrayobj,
                    PGFT_String *text, int invert,
                    int x, int y, SDL_Rect *r)
 {
@@ -550,9 +550,9 @@ _PGFT_Render_Array(FreeTypeInstance *ft, PgFaceObject *faceobj,
     FT_Pos underline_top;
     FT_Fixed underline_size;
 
-    FaceSurface font_surf;
+    FontSurface font_surf;
     SDL_PixelFormat format;
-    FaceText *font_text;
+    FontText *font_text;
 
     /* Get target buffer */
     if (!view_init) {
@@ -596,12 +596,12 @@ _PGFT_Render_Array(FreeTypeInstance *ft, PgFaceObject *faceobj,
         r->x = 0;
         r->y = 0;
         r->w = 0;
-        r->h = _PGFT_Face_GetHeightSized(ft, faceobj, mode->pt_size);
+        r->h = _PGFT_Font_GetHeightSized(ft, fontobj, mode->pt_size);
         return 0;
     }
 
-    /* build face text */
-    font_text = _PGFT_LoadFaceText(ft, faceobj, mode, text);
+    /* build font text */
+    font_text = _PGFT_LoadFontText(ft, fontobj, mode, text);
     if (!font_text) {
         Py_DECREF(cobj);
         return -1;
@@ -615,7 +615,7 @@ _PGFT_Render_Array(FreeTypeInstance *ft, PgFaceObject *faceobj,
         r->x = 0;
         r->y = 0;
         r->w = 0;
-        r->h = _PGFT_Face_GetHeightSized(ft, faceobj, mode->pt_size);
+        r->h = _PGFT_Font_GetHeightSized(ft, fontobj, mode->pt_size);
         return 0;
     }
     array_offset.x = INT_TO_FX6(x);
@@ -669,8 +669,8 @@ _PGFT_Render_Array(FreeTypeInstance *ft, PgFaceObject *faceobj,
  *
  *********************************************************/
 static void
-render(FreeTypeInstance *ft, FaceText *text, const FaceRenderMode *mode,
-       const FaceColor *fg_color, FaceSurface *surface,
+render(FreeTypeInstance *ft, FontText *text, const FontRenderMode *mode,
+       const FontColor *fg_color, FontSurface *surface,
        unsigned width, unsigned height, FT_Vector *offset,
        FT_Pos underline_top, FT_Fixed underline_size)
 {
@@ -680,11 +680,11 @@ render(FreeTypeInstance *ft, FaceText *text, const FaceRenderMode *mode,
     int y;
     int n;
     int length = text->length;
-    FaceGlyph **glyphs = text->glyphs;
+    FontGlyph **glyphs = text->glyphs;
     FT_BitmapGlyph image;
     FT_Vector *posns = text->posns;
-    FaceRenderPtr render_gray = surface->render_gray;
-    FaceRenderPtr render_mono = surface->render_mono;
+    FontRenderPtr render_gray = surface->render_gray;
+    FontRenderPtr render_mono = surface->render_mono;
 
     if (length <= 0) {
         return;

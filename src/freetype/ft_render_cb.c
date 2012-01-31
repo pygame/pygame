@@ -30,8 +30,8 @@
 #   include "surface.h"
 #endif
 
-void __render_glyph_GRAY1(int x, int y, FaceSurface *surface,
-                          const FT_Bitmap *bitmap, const FaceColor *fg_color)
+void __render_glyph_GRAY1(int x, int y, FontSurface *surface,
+                          const FT_Bitmap *bitmap, const FontColor *fg_color)
 {
     FT_Byte *dst = ((FT_Byte *)surface->buffer) + x + (y * surface->pitch);
     FT_Byte *dst_cpy;
@@ -64,9 +64,9 @@ void __render_glyph_GRAY1(int x, int y, FaceSurface *surface,
     }
 }
 
-void __render_glyph_MONO_as_GRAY1(int x, int y, FaceSurface *surface,
+void __render_glyph_MONO_as_GRAY1(int x, int y, FontSurface *surface,
                                   const FT_Bitmap *bitmap,
-                                  const FaceColor *fg_color)
+                                  const FontColor *fg_color)
 {
     const int off_x = (x < 0) ? -x : 0;
     const int off_y = (y < 0) ? -y : 0;
@@ -112,9 +112,9 @@ void __render_glyph_MONO_as_GRAY1(int x, int y, FaceSurface *surface,
     }
 }
 
-void __render_glyph_GRAY_as_MONO1(int x, int y, FaceSurface *surface,
+void __render_glyph_GRAY_as_MONO1(int x, int y, FontSurface *surface,
                                   const FT_Bitmap *bitmap,
-                                  const FaceColor *fg_color)
+                                  const FontColor *fg_color)
 {
     FT_Byte *dst = ((FT_Byte *)surface->buffer) + x + (y * surface->pitch);
     FT_Byte *dst_cpy;
@@ -148,7 +148,7 @@ void __render_glyph_GRAY_as_MONO1(int x, int y, FaceSurface *surface,
 }
 
 void __fill_glyph_GRAY1(int x, int y, int w, int h,
-        FaceSurface *surface, const FaceColor *color)
+        FontSurface *surface, const FontColor *color)
 {
     int i, j;
     FT_Byte *dst;
@@ -178,8 +178,8 @@ void __fill_glyph_GRAY1(int x, int y, int w, int h,
     }
 }
 
-void __render_glyph_INT(int x, int y, FaceSurface *surface,
-                        const FT_Bitmap *bitmap, const FaceColor *fg_color)
+void __render_glyph_INT(int x, int y, FontSurface *surface,
+                        const FT_Bitmap *bitmap, const FontColor *fg_color)
 {
     FT_Byte *dst = ((FT_Byte *)surface->buffer +
                     x * surface->item_stride + y * surface->pitch);
@@ -248,9 +248,9 @@ void __render_glyph_INT(int x, int y, FaceSurface *surface,
     }
 }
 
-void __render_glyph_MONO_as_INT(int x, int y, FaceSurface *surface,
+void __render_glyph_MONO_as_INT(int x, int y, FontSurface *surface,
                                 const FT_Bitmap *bitmap,
-                                const FaceColor *fg_color)
+                                const FontColor *fg_color)
 {
     const int off_x = (x < 0) ? -x : 0;
     const int off_y = (y < 0) ? -y : 0;
@@ -338,7 +338,7 @@ void __render_glyph_MONO_as_INT(int x, int y, FaceSurface *surface,
 }
 
 void __fill_glyph_INT(int x, int y, int w, int h,
-                      FaceSurface *surface, const FaceColor *color)
+                      FontSurface *surface, const FontColor *color)
 {
     int b, i, j;
     FT_Byte *dst;
@@ -391,8 +391,8 @@ void __fill_glyph_INT(int x, int y, int w, int h,
 
 #define _CREATE_RGB_FILLER(_bpp, _getp, _setp, _blendp)     \
     void __fill_glyph_RGB##_bpp(int x, int y, int w, int h, \
-                                FaceSurface *surface,       \
-                                const FaceColor *color)     \
+                                FontSurface *surface,       \
+                                const FontColor *color)     \
     {                                                       \
         int i, j;                                           \
         unsigned char *dst;                                 \
@@ -465,9 +465,9 @@ void __fill_glyph_INT(int x, int y, int w, int h,
 
 #define _CREATE_MONO_RENDER(_bpp, _getp, _setp, _blendp)    \
     void __render_glyph_MONO##_bpp(int x, int y,            \
-                                   FaceSurface *surface,    \
+                                   FontSurface *surface,    \
                                    const FT_Bitmap *bitmap, \
-                                   const FaceColor *color)  \
+                                   const FontColor *color)  \
     {                                                       \
         const int off_x = (x < 0) ? -x : 0;                 \
         const int off_y = (y < 0) ? -y : 0;                 \
@@ -528,9 +528,9 @@ void __fill_glyph_INT(int x, int y, int w, int h,
     }
 
 #define _CREATE_RGB_RENDER(_bpp, _getp, _setp, _blendp)                 \
-    void __render_glyph_RGB##_bpp(int x, int y, FaceSurface *surface,   \
+    void __render_glyph_RGB##_bpp(int x, int y, FontSurface *surface,   \
                                   const FT_Bitmap *bitmap,              \
-                                  const FaceColor *color)               \
+                                  const FontColor *color)               \
     {                                                                   \
         const int off_x = (x < 0) ? -x : 0;                             \
         const int off_y = (y < 0) ? -y : 0;                             \

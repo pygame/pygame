@@ -78,13 +78,13 @@
  **********************************************************/
 
 typedef struct {
-    int face_index;
+    int font_index;
     FT_Open_Args open_args;
-} PgFaceId;
+} PgFontId;
 
 typedef struct {
     PyObject_HEAD
-    PgFaceId id;
+    PgFontId id;
     PyObject *path;
 
     FT_Int16 ptsize;
@@ -96,10 +96,10 @@ typedef struct {
     FT_Matrix transform;
 
     void *_internals;
-} PgFaceObject;
+} PgFontObject;
 
-#define PgFace_IS_ALIVE(o) \
-    (((PgFaceObject *)(o))->_internals != 0)
+#define PgFont_IS_ALIVE(o) \
+    (((PgFontObject *)(o))->_internals != 0)
 
 /**********************************************************
  * Module declaration
@@ -109,9 +109,9 @@ typedef struct {
 
 #ifndef PYGAME_FREETYPE_INTERNAL
 
-#define PgFace_Check(x) ((x)->ob_type == (PyTypeObject*)PgFREETYPE_C_API[0])
-#define PgFace_Type (*(PyTypeObject*)PgFREETYPE_C_API[1])
-#define PgFace_New (*(PyObject*(*)(const char*, int))PgFREETYPE_C_API[1])
+#define PgFont_Check(x) ((x)->ob_type == (PyTypeObject*)PgFREETYPE_C_API[0])
+#define PgFont_Type (*(PyTypeObject*)PgFREETYPE_C_API[1])
+#define PgFont_New (*(PyObject*(*)(const char*, int))PgFREETYPE_C_API[1])
 
 #define import_pygame_freetype() \
     _IMPORT_PYGAME_MODULE(freetype, FREETYPE, PgFREETYPE_C_API)

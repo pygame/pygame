@@ -151,13 +151,13 @@ objects with <tt class="docutils literal"><span class="pre">pygame.font.Font()</
 function. There are a few other functions to help lookup the system fonts.</p>
 <p>Pygame comes with a builtin default font. This can always be accessed by
 passing None as the font name.</p>
-<p>To use the <a class="tooltip reference internal" href="freetype.html#module-pygame.freetype" title=""><tt class="xref py py-mod docutils literal"><span class="pre">pygame.freetype</span></tt><span class="tooltip-content">Enhanced Pygame module for loading and rendering font faces</span></a> based <tt class="xref py py-mod docutils literal"><span class="pre">pygame.ftfont</span></tt> as
+<p>To use the <a class="tooltip reference internal" href="freetype.html#module-pygame.freetype" title=""><tt class="xref py py-mod docutils literal"><span class="pre">pygame.freetype</span></tt><span class="tooltip-content">Enhanced Pygame module for loading and rendering computer fonts</span></a> based <tt class="xref py py-mod docutils literal"><span class="pre">pygame.ftfont</span></tt> as
 <a class="tooltip reference internal" href="#module-pygame.font" title=""><tt class="xref py py-mod docutils literal"><span class="pre">pygame.font</span></tt><span class="tooltip-content">pygame module for loading and rendering fonts</span></a> define the enviroment variable PYGAME_FREETYPE before the
 first import of <a class="tooltip reference internal" href="pygame.html#module-pygame" title=""><tt class="xref py py-mod docutils literal"><span class="pre">pygame</span></tt><span class="tooltip-content">the top level pygame package</span></a>. <tt class="xref py py-mod docutils literal"><span class="pre">pygame.ftfont</span></tt> is a <a class="tooltip reference internal" href="#module-pygame.font" title=""><tt class="xref py py-mod docutils literal"><span class="pre">pygame.font</span></tt><span class="tooltip-content">pygame module for loading and rendering fonts</span></a>
 compatible module that passes all but one of the font module unit tests:
 it does not have the UCS-2 limitation of the SDL_ttf based font module, so
 fails to raise an exception for a code point greater than &#8216;uFFFF&#8217;. If
-<a class="tooltip reference internal" href="freetype.html#module-pygame.freetype" title=""><tt class="xref py py-mod docutils literal"><span class="pre">pygame.freetype</span></tt><span class="tooltip-content">Enhanced Pygame module for loading and rendering font faces</span></a> is unavailable then the SDL_ttf font module will be
+<a class="tooltip reference internal" href="freetype.html#module-pygame.freetype" title=""><tt class="xref py py-mod docutils literal"><span class="pre">pygame.freetype</span></tt><span class="tooltip-content">Enhanced Pygame module for loading and rendering computer fonts</span></a> is unavailable then the SDL_ttf font module will be
 loaded instead.</p>
 <dl class="definition function">
 <dt class="title" id="pygame.font.init">
