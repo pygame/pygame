@@ -4,15 +4,15 @@
 ======================
 
 .. module:: pygame.freetype
-   :synopsis: Enhanced Pygame module for loading and rendering font faces
+   :synopsis: Enhanced Pygame module for loading and rendering computer fonts
 
-| :sl:`Enhanced Pygame module for loading and rendering font faces`
+| :sl:`Enhanced Pygame module for loading and rendering computer fonts`
 
 --- Note that some features may change before a formal release
 
-This module allows for rendering all face formats supported by FreeType, namely
+This module allows for rendering all font file formats supported by FreeType, namely
 ``TTF``, Type1, ``CFF``, OpenType, ``SFNT``, ``PCF``, ``FNT``, ``BDF``, ``PFR``
-and Type42 faces. It can render any UTF-32 character in a font file.
+and Type42 fonts. It can render any UTF-32 character in a font file.
 
 This module is optional, and replaces all of the functionality of the original
 'font' module, whilst expanding it. This module depends in no way on the
@@ -22,18 +22,18 @@ You should test that :mod:`pygame.freetype` is initialized before attempting to
 use the module; if the module is available and loaded, it will be automatically
 initialized by ``pygame.init()``
 
-Most of the work done with faces is done by using the actual Face objects. The
-module by itself only has routines to initialize itself and create Face objects
-with ``pygame.freetype.Face()``.
+Most of the work done with fonts is done by using the actual Font objects. The
+module by itself only has routines to initialize itself and create Font objects
+with ``pygame.freetype.Font()``.
 
-You can load faces from the system by using the ``pygame.freetype.SysFont()``
+You can load fonts from the system by using the ``pygame.freetype.SysFont()``
 function. There are a few other functions to help lookup the system fonts.
 
 For now undefined character codes are replaced with the ``undefined character``.
 How undefined codes are handled may become configurable in a future release.
 
 Pygame comes with a builtin default font. This can always be accessed by
-passing None as the font name to the Face constructor.
+passing None as the font name to the Font constructor.
 
 New in Pygame 1.9.2
 
@@ -74,7 +74,7 @@ New in Pygame 1.9.2
    maximum amount of glyphs that will be cached at any given time by the
    module. Exceedingly small values will be automatically tuned for
    performance. Also a default pixel resolution, in dots per inch, can
-   be given to adjust face scaling.
+   be given to adjust font scaling.
 
 .. function:: quit
 
@@ -119,50 +119,50 @@ New in Pygame 1.9.2
    file. This file can usually be found in the same directory as the font
    module, but it can also be bundled in separate archives.
 
-.. class:: Face
+.. class:: Font
 
-   | :sl:`Creates a new Face instance from a supported font file.`
-   | :sg:`Face(file, style=STYLE_NONE, ptsize=-1, face_index=0, vertical=0, ucs4=0, resolution=0) -> Face`
+   | :sl:`Creates a new Font instance from a supported font file.`
+   | :sg:`Font(file, style=STYLE_NONE, ptsize=-1, font_index=0, vertical=0, ucs4=0, resolution=0) -> Font`
 
    'file' can be either a string representing the font's filename, a file-like
    object containing the font, or None; in this last case the default, built-in
    font will be used.
 
    Optionally, a \*ptsize* argument may be specified to set the default size in
-   points which will be used to render the face. Such size can also be
+   points which will be used to render the font. Such size can also be
    specified manually on each method call. Because of the way the caching
    system works, specifying a default size on the constructor doesn't imply a
    performance gain over manually passing the size on each function call.
 
-   If the font file has more than one face, the \*index* argument may be
-   specified to specify which face index to load. Defaults to 0; face loading
+   If the font file has more than one font, the \*index* argument may be
+   specified to specify which font index to load. Defaults to 0; font loading
    will fail if the given index is not contained in the font.
 
    The 'style' argument will set the default style (oblique, underline, strong)
-   used to draw this face. This style may be overriden on any ``Face.render()``
+   used to draw this font. This style may be overriden on any ``Font.render()``
    call.
 
    The optional vertical argument, an integer, sets the default orientation
-   for the face: 0 (False) for horizontal, any other value (True) for vertical.
-   See :attr:`Face.vertical`.
+   for the font: 0 (False) for horizontal, any other value (True) for vertical.
+   See :attr:`Font.vertical`.
 
    The optional ucs4 argument, an integer, sets the default text translation
    mode: 0 (False) recognize UTF-16 surrogate pairs, any other value (True),
    to treat unicode text as UCS-4, with no surrogate pairs. See
-   :attr:`Face.ucs4`.
+   :attr:`Font.ucs4`.
 
    The optional resolution argument sets the pixel size, in dots per inch,
-   to use for scaling glyphs for this Face instance. If 0 then the default
-   module value, set by :meth:`freetype.init`, is used. The Face object's
+   to use for scaling glyphs for this Font instance. If 0 then the default
+   module value, set by :meth:`freetype.init`, is used. The Font object's
    resolution can only be changed by reinitializing the instance.
 
    .. attribute:: name
 
-      | :sl:`Gets the name of the font face.`
+      | :sl:`Gets the name of the font.`
       | :sg:`name -> string`
 
-      Read only. Returns the real (long) name of the font type face, as
-      specified on the font file.
+      Read only. Returns the real (long) name of the font, as
+      recorded in the font file.
 
    .. attribute:: path
 
@@ -179,7 +179,7 @@ New in Pygame 1.9.2
       Gets the final dimensions and origin, in pixels, of 'text' using the
       current point size, style, rotation and orientation. These are either
       taken from the arguments, if given, else from the default values set
-      for the face object.
+      for the font object.
 
       Returns a rect containing the width and height of the text's bounding
       box and the position of the text's origin. The origin can be used
@@ -191,7 +191,7 @@ New in Pygame 1.9.2
 
    .. method:: get_metrics
 
-      | :sl:`Gets glyph metrics for the face's characters`
+      | :sl:`Gets glyph metrics for the font's characters`
       | :sg:`get_metrics(text, ptsize=default) -> [(...), ...]`
 
       Returns the glyph metrics for each character in 'text'.
@@ -207,7 +207,7 @@ New in Pygame 1.9.2
       grid-fitted pixel coordinates of type int. The advance values are 
       float values.
 
-      The calculations are done using the face's default size in points.
+      The calculations are done using the font's default size in points.
       Optionally you may specify another point size to use.
 
       The metrics are adjusted for the current rotation, strong, and oblique
@@ -218,60 +218,60 @@ New in Pygame 1.9.2
 
    .. attribute:: height
 
-      | :sl:`Gets the unscaled height of the face in font units`
+      | :sl:`Gets the unscaled height of the font in font units`
       | :sg:`height -> int`
 
-      Read only. Gets the height of the face. This is the average value of all
-      glyphs in the face.
+      Read only. Gets the height of the font. This is the average value of all
+      glyphs in the font.
 
    .. method:: ascender
 
-      | :sl:`get the unscaled ascent of the face in font units`
+      | :sl:`get the unscaled ascent of the font in font units`
       | :sg:`ascender -> int`
 
-      Read only. Return the number of units from the face's baseline to
+      Read only. Return the number of units from the font's baseline to
       the top of the bounding box.
 
    .. attribute:: descender
 
-      | :sl:`get the unscaled descent of the face in font units`
+      | :sl:`get the unscaled descent of the font in font units`
       | :sg:`descender -> int`
 
-      Read only. Return the height in font units for the face descent.
-      The descent is the number of units from the face's baseline to the
+      Read only. Return the height in font units for the font descent.
+      The descent is the number of units from the font's baseline to the
       bottom of the bounding box.
 
    .. attribute:: get_sized_ascender
 
-      | :sl:`Gets the scaled ascent the face in pixels`
+      | :sl:`Gets the scaled ascent the font in pixels`
       | :sg:`get_sized_ascender() -> int`
 
-      Return the number of units from the face's baseline to the top of the
+      Return the number of units from the font's baseline to the top of the
       bounding box. It is not adjusted for strong or rotation.
 
    .. method:: get_sized_descender
 
-      | :sl:`Gets the scaled descent the face in pixels`
+      | :sl:`Gets the scaled descent the font in pixels`
       | :sg:`get_sized_descender() -> int`
 
-      Return the number of pixels from the face's baseline to the top of the
+      Return the number of pixels from the font's baseline to the top of the
       bounding box. It is not adjusted for strong or rotation.
 
    .. attribute:: get_sized_height
 
-      | :sl:`Gets the scaled height of the face in pixels`
+      | :sl:`Gets the scaled height of the font in pixels`
       | :sg:`get_sized_height() -> int`
 
-      Read only. Gets the height of the face. This is the average value of all
-      glyphs in the face. It is not adjusted for strong or rotation.
+      Read only. Gets the height of the font. This is the average value of all
+      glyphs in the font. It is not adjusted for strong or rotation.
 
    .. method:: get_sized_glyph_height
 
-      | :sl:`Gets the scaled height of the face in pixels`
+      | :sl:`Gets the scaled height of the font in pixels`
       | :sg:`get_sized_glyph_height() -> int`
 
-      Return the glyph bounding box height of the face in pixels.
-      This is the average value of all glyphs in the face.
+      Return the glyph bounding box height of the font in pixels.
+      This is the average value of all glyphs in the font.
       It is not adjusted for strong or rotation.
 
    .. method:: render
@@ -291,12 +291,12 @@ New in Pygame 1.9.2
       rectangle giving the size and origin of the rendered text.
 
       If an empty string is passed for text then the returned Rect is zero
-      width and the height of the face. If dest is None the returned surface is
+      width and the height of the font. If dest is None the returned surface is
       the same dimensions as the boundary rect. The rect will test False.
 
-      The rendering is done using the face's default size in points and its
-      default style, without any rotation, and taking into account faces which
-      are set to be drawn vertically via the :meth:`Face.vertical` attribute.
+      The rendering is done using the font's default size in points and its
+      default style, without any rotation, and taking into account fonts which
+      are set to be drawn vertically via the :meth:`Font.vertical` attribute.
       Optionally you may specify another point size to use via the 'ptsize'
       argument, a text rotation via the 'rotation' argument, or a new text
       style via the 'style' argument.
@@ -327,9 +327,9 @@ New in Pygame 1.9.2
       rendered text within the surface.
 
       If an empty string is passed for text then the returned Rect is zero
-      width and the height of the face. The rect will test False.
+      width and the height of the font. The rect will test False.
 
-      By default, the point size and style set for the face are used
+      By default, the point size and style set for the font are used
       if not passed as arguments. The text is unrotated unless a non-zero
       rotation value is given.
 
@@ -341,7 +341,7 @@ New in Pygame 1.9.2
       | :sl:`Renders text as a string of bytes`
       | :sg:`render_raw(text, style=STYLE_DEFAULT, rotation=0, ptsize=default, invert=False) -> (bytes, (int, int))`
 
-      Like ``Face.render()`` but the tuple returned is an 8 bit
+      Like ``Font.render()`` but the tuple returned is an 8 bit
       monochrome string of bytes and its size. The forground color is 255, the
       background 0, useful as an alpha mask for a foreground pattern.
 
@@ -356,10 +356,10 @@ New in Pygame 1.9.2
 
    .. attribute:: style
 
-      | :sl:`Gets or sets the face's style`
+      | :sl:`Gets or sets the font's style`
       | :sg:`style -> int`
 
-      Gets or sets the default style of the Face. This default style will be
+      Gets or sets the default style of the Font. This default style will be
       used for all text rendering and size calculations unless overriden
       specifically in the \`render()` or \`get_size()` calls. The style value
       may be a bitwise ``OR`` of one or more of the following constants:
@@ -378,40 +378,40 @@ New in Pygame 1.9.2
 
    .. attribute:: underline
 
-      | :sl:`Gets or sets the face's underline style`
+      | :sl:`Gets or sets the font's underline style`
       | :sg:`underline -> bool`
 
-      Gets or sets whether the face will be underlined when drawing text. This
+      Gets or sets whether the font will be underlined when drawing text. This
       default style value will be used for all text rendering and size
       calculations unless overriden specifically in the \`render()` or
       \`get_size()` calls, via the 'style' parameter.
 
    .. attribute:: strong
 
-      | :sl:`Gets or sets the face's strong style`
+      | :sl:`Gets or sets the font's strong style`
       | :sg:`strong -> bool`
 
-      Gets or sets whether the face will be bold when drawing text. This
+      Gets or sets whether the font will be bold when drawing text. This
       default style value will be used for all text rendering and size
       calculations unless overriden specifically in the \`render()` or
       \`get_size()` calls, via the 'style' parameter.
 
    .. attribute:: oblique
 
-      | :sl:`Gets or sets the face's oblique style`
+      | :sl:`Gets or sets the font's oblique style`
       | :sg:`oblique -> bool`
 
-      Gets or sets whether the face will be rendered as oblique. This
+      Gets or sets whether the font will be rendered as oblique. This
       default style value will be used for all text rendering and size
       calculations unless overriden specifically in the \`render()` or
       \`get_size()` calls, via the 'style' parameter.
 
    .. attribute:: wide
 
-      | :sl:`Gets or sets the face's wide style`
+      | :sl:`Gets or sets the font's wide style`
       | :sg:`wide -> bool`
 
-      Gets or sets whether the face will be stretched horizontally
+      Gets or sets whether the font will be stretched horizontally
       when drawing text. It produces a result simular to font.Font's
       bold. This style is only available for unrotated text.
 
@@ -420,7 +420,7 @@ New in Pygame 1.9.2
       | :sl:`Gets or sets the strength of the strong or wide styles`
       | :sg:`strength -> float`
 
-      The amount by which a face glyph's size is enlarged for the
+      The amount by which a font glyph's size is enlarged for the
       strong or wide transformations, as a fraction of the untransformed
       size. For the wide style only the horizontal dimension is
       increased. For strong text both the horizontal and vertical
@@ -433,7 +433,7 @@ New in Pygame 1.9.2
       | :sg:`underline_adjustment -> float`
 
       Gets or sets a factor which, when positive, is multiplied with the
-      face's underline offset to adjust the underline position. A negative
+      font's underline offset to adjust the underline position. A negative
       value turns an underline into a strikethrough or overline. It is
       multiplied with the ascender. Accepted values are between -2.0 and 2.0
       inclusive. A value of 0.5 closely matches Tango underlining. A value of
@@ -441,22 +441,22 @@ New in Pygame 1.9.2
 
    .. attribute:: fixed_width
 
-      | :sl:`Gets whether the face is fixed-width`
+      | :sl:`Gets whether the font is fixed-width`
       | :sg:`fixed_width -> bool`
 
-      Read only. Returns whether this Face is a fixed-width (bitmap) face.
+      Read only. Returns whether this Font is a fixed-width (bitmap) font.
 
-      Note that scalable faces whose glyphs are all the same width (i.e.
+      Note that scalable fonts whose glyphs are all the same width (i.e.
       monospace ``TTF`` fonts used for programming) are not considered fixed
       width.
 
    .. attribute:: antialiased
 
-      | :sl:`Face antialiasing mode`
+      | :sl:`Font antialiasing mode`
       | :sg:`antialiased -> bool`
 
-      Gets or sets the face's antialiasing mode. This defaults to ``True`` on
-      all faces, which are rendered with full 8 bit blending.
+      Gets or sets the font's antialiasing mode. This defaults to ``True`` on
+      all fonts, which are rendered with full 8 bit blending.
 
       Setting this to ``False`` will enable monochrome rendering. This should
       provide a small speed gain and reduce cache memory size.
@@ -466,8 +466,8 @@ New in Pygame 1.9.2
       | :sl:`Character kerning mode`
       | :sg:`kerning -> bool`
 
-      Gets or sets the face's kerning mode. This defaults to False on all
-      faces, which will be rendered by default without kerning.
+      Gets or sets the font's kerning mode. This defaults to False on all
+      fonts, which will be rendered by default without kerning.
 
       Setting this to true will change all rendering methods to do kerning
       between character pairs for surface size calculation and all
@@ -475,27 +475,27 @@ New in Pygame 1.9.2
 
    .. attribute:: vertical
 
-      | :sl:`Face vertical mode`
+      | :sl:`Font vertical mode`
       | :sg:`vertical -> bool`
 
-      Gets or sets whether the face is a vertical face such as faces in fonts
+      Gets or sets whether the font is a vertical font such as fonts in fonts
       representing Kanji glyphs or other styles of vertical writing.
 
-      Changing this attribute will cause the face to be rendering vertically,
+      Changing this attribute will cause the font to be rendering vertically,
       and affects all other methods which manage glyphs or text layouts to use
       vertical metrics accordingly.
 
       Note that the FreeType library doesn't automatically detect whether a
-      face contains glyphs which are always supposed to be drawn vertically, so
+      font contains glyphs which are always supposed to be drawn vertically, so
       this attribute must be set manually by the user.
 
-      Also note that several face formats (specially bitmap based ones) don't
+      Also note that several font formats (specially bitmap based ones) don't
       contain the necessary metrics to draw glyphs vertically, so drawing in
       those cases will give unspecified results.
 
    .. attribute:: origin
 
-      | :sl:`Face render to text origin mode`
+      | :sl:`Font render to text origin mode`
       | :sg:`vertical -> bool`
 
       If set True, then when rendering to an existing surface, the position
@@ -532,4 +532,4 @@ New in Pygame 1.9.2
       | :sl:`Output pixel resolution in dots per inch`
       | :sg:`resolution -> int`
 
-      Gets the pixel size used in scaling face glyphs for this Face instance.
+      Gets the pixel size used in scaling font glyphs for this Font instance.
