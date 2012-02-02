@@ -4,3 +4,6 @@ Setup
 *~
 build
 prebuilt
+docs/\.buildinfo
+docs/objects.inv
+docs/doctrees/*
