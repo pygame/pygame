@@ -129,7 +129,7 @@ PyObject* surf_colorspace (PyObject* self, PyObject* arg) {
 
 /* list_cameras() - lists cameras available on the computer */
 PyObject* list_cameras (PyObject* self, PyObject* arg) {
-#if defined(__unix__) || defined (__APPLE__)
+#if defined(__unix__) || defined (PYGAME_MAC_CAMERA_OLD)
     PyObject* ret_list;
     PyObject* string;
     char** devices;
@@ -143,7 +143,7 @@ PyObject* list_cameras (PyObject* self, PyObject* arg) {
     
     #if defined(__unix__)
     devices = v4l2_list_cameras(&num_devices);
-    # elif defined(__APPLE__)
+    # elif defined(PYGAME_MAC_CAMERA_OLD)
     devices = mac_list_cameras(&num_devices);
     # endif
     
@@ -178,7 +178,7 @@ PyObject* camera_start (PyCameraObject* self) {
             return NULL;
         }
     }
-#elif defined(__APPLE__)
+#elif defined(PYGAME_MAC_CAMERA_OLD)
     if (! (mac_open_device(self) == 1 && mac_init_device(self) == 1 && mac_start_capturing(self) == 1)) {
         mac_close_device(self);
         return NULL;
@@ -196,7 +196,7 @@ PyObject* camera_stop (PyCameraObject* self) {
         return NULL;
     if (v4l2_close_device(self) == 0)
         return NULL;
-#elif defined(__APPLE__)
+#elif defined(PYGAME_MAC_CAMERA_OLD)
     if (mac_stop_capturing(self) == 0)
         return NULL;
     if (mac_close_device(self) == 0)
@@ -220,7 +220,7 @@ PyObject* camera_get_controls (PyCameraObject* self) {
         self->brightness = value;
     
     return Py_BuildValue ("(NNN)", PyBool_FromLong(self->hflip), PyBool_FromLong(self->vflip), PyInt_FromLong(self->brightness));
-#elif defined(__APPLE__)
+#elif defined(PYGAME_MAC_CAMERA_OLD)
     return Py_BuildValue ("(NNN)", PyBool_FromLong(self->hflip), PyBool_FromLong(self->vflip), PyInt_FromLong(-1));
 #endif
     Py_RETURN_NONE;
@@ -252,7 +252,7 @@ PyObject* camera_set_controls (PyCameraObject* self, PyObject* arg, PyObject *kw
            
     return Py_BuildValue ("(NNN)", PyBool_FromLong(self->hflip), PyBool_FromLong(self->vflip), PyInt_FromLong(self->brightness));
 
-#elif defined(__APPLE__)
+#elif defined(PYGAME_MAC_CAMERA_OLD)
     int hflip = 0, vflip = 0, brightness = 0;
     char *kwids[] = {"hflip", "vflip", "brightness", NULL};
 
@@ -276,7 +276,7 @@ PyObject* camera_set_controls (PyCameraObject* self, PyObject* arg, PyObject *kw
 PyObject* camera_get_size (PyCameraObject* self) {
 #if defined(__unix__)
     return Py_BuildValue ("(ii)", self->width, self->height);
-#elif defined(__APPLE__)
+#elif defined(PYGAME_MAC_CAMERA_OLD)
     return Py_BuildValue ("(ii)", self->boundsRect.right, self->boundsRect.bottom);
 #endif
     Py_RETURN_NONE;
@@ -329,7 +329,7 @@ PyObject* camera_get_image (PyCameraObject* self, PyObject* arg) {
     } else {
         return PySurface_New (surf);
     }
-#elif defined(__APPLE__)
+#elif defined(PYGAME_MAC_CAMERA_OLD)
         SDL_Surface* surf = NULL;
         PyObject *surfobj = NULL;
 
@@ -381,7 +381,7 @@ PyObject* camera_get_image (PyCameraObject* self, PyObject* arg) {
 PyObject* camera_get_raw(PyCameraObject* self) {
 #if defined(__unix__)
     return v4l2_read_raw(self);
-#elif defined(__APPLE__)
+#elif defined(PYGAME_MAC_CAMERA_OLD)
     return mac_read_raw(self);
 #endif
     Py_RETURN_NONE;
@@ -1468,7 +1468,7 @@ PyObject* Camera (PyCameraObject* self, PyObject* arg) {
     
     return (PyObject*)cameraobj;
     
-# elif defined(__APPLE__)
+# elif defined(PYGAME_MAC_CAMERA_OLD)
     int w, h;
     char* dev_name = NULL;
     char* color = NULL;
