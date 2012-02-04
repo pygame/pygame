@@ -43,10 +43,17 @@
 
     #include <linux/videodev2.h>
 #elif defined(__APPLE__)
-    #include <QuickTime/QuickTime.h>
-    #include <QuickTime/Movies.h>
-    #include <QuickTime/ImageCompression.h>
-    
+    #include <AvailabilityMacros.h>
+    /* We support OSX 10.6 and below. */
+    #if __MAC_OS_X_VERSION_MAX_ALLOWED <= 1060
+        #define #PYGAME_MAC_CAMERA_OLD 1
+    #endif
+#endif
+
+#if defined(PYGAME_MAC_CAMERA_OLD)
+        #include <QuickTime/QuickTime.h>
+        #include <QuickTime/Movies.h>
+        #include <QuickTime/ImageCompression.h>
 #endif
 
 /* some constants used which are not defined on non-v4l machines. */
@@ -91,7 +98,7 @@ typedef struct PyCameraObject {
     int brightness;
     int fd;
 } PyCameraObject;
-#elif defined(__APPLE__)
+#elif defined(PYGAME_MAC_CAMERA_OLD)
 typedef struct PyCameraObject {
     PyObject_HEAD
     char* device_name;              /* unieke name of the device */
@@ -167,7 +174,7 @@ int v4l2_init_device (PyCameraObject* self);
 int v4l2_close_device (PyCameraObject* self);
 int v4l2_open_device (PyCameraObject* self);
 
-#elif defined(__APPLE__)
+#elif defined(PYGAME_MAC_CAMERA_OLD)
 /* internal functions specific to mac */
 char** mac_list_cameras(int* num_devices);
 int mac_open_device (PyCameraObject* self);

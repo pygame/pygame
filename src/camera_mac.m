@@ -8,6 +8,8 @@
 #import "camera.h"
 #import "pgcompat.h"
 
+#if defined(PYGAME_MAC_CAMERA_OLD)
+
 
 
 /* Flips the image array horizontally and/or vertically by reverse copying
@@ -413,3 +415,6 @@ int mac_camera_idle(PyCameraObject* self) {
     
     return 1;
 }
+
+
+#endif
