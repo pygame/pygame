@@ -147,34 +147,54 @@ void __render_glyph_GRAY_as_MONO1(int x, int y, FontSurface *surface,
     }
 }
 
-void __fill_glyph_GRAY1(int x, int y, int w, int h,
-        FontSurface *surface, const FontColor *color)
+void __fill_glyph_GRAY1(FT_Fixed x, FT_Fixed y, FT_Fixed w, FT_Fixed h,
+                        FontSurface *surface, const FontColor *color)
 {
     int i, j;
     FT_Byte *dst;
     FT_Byte *dst_cpy;
     FT_Byte shade = color->a;
+    FT_Byte edge_shade;
 
     x = MAX(0, x);
     y = MAX(0, y);
 
-    if (x + w > surface->width) {
-        w = surface->width - x;
+    if (x + w > INT_TO_FX6(surface->width)) {
+        w = INT_TO_FX6(surface->width) - x;
     }
-    if (y + h > surface->height) {
-        h = surface->height - y;
+    if (y + h > INT_TO_FX6(surface->height)) {
+        h = INT_TO_FX6(surface->height) - y;
     }
 
-    dst = (FT_Byte *)surface->buffer + x + (y * surface->pitch);
+    dst = ((FT_Byte *)surface->buffer +
+           FX6_TRUNC(FX6_CEIL(x)) +
+           FX6_TRUNC(FX6_CEIL(y)) * surface->pitch);
 
-    for (j = 0; j < h; ++j) {
+    if (y < FX6_CEIL(y)) {
+        dst_cpy = dst - surface->pitch;
+        edge_shade = FX6_TRUNC(FX6_ROUND(shade * (FX6_CEIL(y) - y)));
+
+        for (i = 0; i < FX6_TRUNC(FX6_CEIL(w)); ++i, ++dst_cpy) {
+            *dst_cpy = edge_shade;
+        }
+    }
+        
+    for (j = 0; j < FX6_TRUNC(FX6_FLOOR(h + y) - FX6_CEIL(y)); ++j) {
         dst_cpy = dst;
 
-        for (i = 0; i < w; ++i, ++dst_cpy) {
+        for (i = 0; i < FX6_TRUNC(FX6_CEIL(w)); ++i, ++dst_cpy) {
             *dst_cpy = shade;
         }
 
         dst += surface->pitch;
+    }
+
+    if (h > FX6_FLOOR(h + y) - y) {
+        dst_cpy = dst;
+        edge_shade = FX6_TRUNC(FX6_ROUND(shade * (y + y - FX6_FLOOR(h + y))));
+        for (i = 0; i < FX6_TRUNC(FX6_CEIL(w)); ++i, ++dst_cpy) {
+            *dst_cpy = edge_shade;
+        }
     }
 }
 
@@ -337,7 +357,7 @@ void __render_glyph_MONO_as_INT(int x, int y, FontSurface *surface,
     }
 }
 
-void __fill_glyph_INT(int x, int y, int w, int h,
+void __fill_glyph_INT(FT_Fixed x, FT_Fixed y, FT_Fixed w, FT_Fixed h,
                       FontSurface *surface, const FontColor *color)
 {
     int b, i, j;
@@ -347,35 +367,78 @@ void __fill_glyph_INT(int x, int y, int w, int h,
     int byteoffset = surface->format->Ashift / 8;
     FT_Byte *dst_cpy;
     FT_Byte shade = color->a;
+    FT_Byte edge_shade;
 
     x = MAX(0, x);
     y = MAX(0, y);
 
-    if (x + w > surface->width) {
-        w = surface->width - x;
+    if (x + w > INT_TO_FX6(surface->width)) {
+        w = INT_TO_FX6(surface->width) - x;
     }
-    if (y + h > surface->height) {
-        h = surface->height - y;
+    if (y + h > INT_TO_FX6(surface->height)) {
+        h = INT_TO_FX6(surface->height) - y;
     }
 
-    dst = (FT_Byte *)surface->buffer + x + (y * surface->pitch);
+    dst = ((FT_Byte *)surface->buffer +
+           FX6_TRUNC(FX6_CEIL(x)) * itemsize +
+           FX6_TRUNC(FX6_CEIL(y)) * surface->pitch);
 
     if (itemsize == 1) {
-        for (j = 0; j < h; ++j) {
+        if (y < FX6_CEIL(y)) {
+            dst_cpy = dst - surface->pitch;
+            edge_shade = FX6_TRUNC(FX6_ROUND(shade * (FX6_CEIL(y) - y)));
+
+            for (i = 0;
+                 i < FX6_TRUNC(FX6_CEIL(w));
+                 ++i, dst_cpy += item_stride) {
+                *dst_cpy = edge_shade;
+            }
+        }
+        
+        for (j = 0; j < FX6_TRUNC(FX6_FLOOR(h + y) - FX6_CEIL(y)); ++j) {
             dst_cpy = dst;
 
-            for (i = 0; i < w; ++i, dst_cpy += item_stride) {
+            for (i = 0;
+                 i < FX6_TRUNC(FX6_CEIL(w));
+                 ++i, dst_cpy += item_stride) {
                 *dst_cpy = shade;
             }
 
             dst += surface->pitch;
         }
+
+        if (h > FX6_FLOOR(h + y) - y) {
+            dst_cpy = dst;
+            edge_shade = FX6_TRUNC(FX6_ROUND(shade *
+                                             (y + y - FX6_FLOOR(h + y))));
+            for (i = 0;
+                 i < FX6_TRUNC(FX6_CEIL(w));
+                 ++i, dst_cpy += item_stride) {
+                *dst_cpy = edge_shade;
+            }
+        }
     }
     else {
-        for (j = 0; j < h; ++j) {
+        if (y < FX6_CEIL(y)) {
+            dst_cpy = dst - surface->pitch;
+            edge_shade = FX6_TRUNC(FX6_ROUND(shade * (FX6_CEIL(y) - y)));
+
+            for (i = 0;
+                 i < FX6_TRUNC(FX6_CEIL(w));
+                 ++i, dst_cpy += item_stride) {
+                for (b = 0; b < itemsize; ++b) {
+                    dst_cpy[b] = 0;
+                }
+                dst_cpy[byteoffset] = edge_shade;
+            }
+        }
+        
+        for (j = 0; j < FX6_TRUNC(FX6_FLOOR(h + y) - FX6_CEIL(y)); ++j) {
             dst_cpy = dst;
 
-            for (i = 0; i < w; ++i, dst_cpy += item_stride) {
+            for (i = 0;
+                 i < FX6_TRUNC(FX6_CEIL(w));
+                 ++i, dst_cpy += item_stride) {
                 for (b = 0; b < itemsize; ++b) {
                     dst_cpy[b] = 0;
                 }
@@ -384,38 +447,90 @@ void __fill_glyph_INT(int x, int y, int w, int h,
 
             dst += surface->pitch;
         }
+
+        if (h > FX6_FLOOR(h + y) - y) {
+            dst_cpy = dst;
+            edge_shade = FX6_TRUNC(FX6_ROUND(shade *
+                                             (h + y - FX6_FLOOR(h + y))));
+            for (i = 0;
+                 i < FX6_TRUNC(FX6_CEIL(w));
+                 ++i, dst_cpy += item_stride) {
+                for (b = 0; b < itemsize; ++b) {
+                    dst_cpy[b] = 0;
+                }
+                dst_cpy[byteoffset] = edge_shade;
+            }
+        }
     }
 }
 
 #ifdef HAVE_PYGAME_SDL_VIDEO
 
 #define _CREATE_RGB_FILLER(_bpp, _getp, _setp, _blendp)     \
-    void __fill_glyph_RGB##_bpp(int x, int y, int w, int h, \
+    void __fill_glyph_RGB##_bpp(FT_Fixed x, FT_Fixed y,     \
+                                FT_Fixed w, FT_Fixed h,     \
                                 FontSurface *surface,       \
                                 const FontColor *color)     \
     {                                                       \
         int i, j;                                           \
         unsigned char *dst;                                 \
         FT_UInt32 bgR, bgG, bgB, bgA;                       \
+        FT_Byte edge_a;                                     \
                                                             \
         x = MAX(0, x);                                      \
         y = MAX(0, y);                                      \
                                                             \
-        if (x + w > surface->width) {                       \
-            w = surface->width - x;                         \
+        if (x + w > INT_TO_FX6(surface->width)) {           \
+            w = INT_TO_FX6(surface->width) - x;             \
         }                                                   \
-        if (y + h > surface->height) {                      \
-            h = surface->height - y;                        \
+        if (y + h > INT_TO_FX6(surface->height)) {          \
+            h = INT_TO_FX6(surface->height) - y;            \
         }                                                   \
                                                             \
-        dst = ((unsigned char *)surface->buffer +           \
-               (x * _bpp) +                                 \
-               (y * surface->pitch));                       \
+        dst = ((FT_Byte *)surface->buffer +                 \
+               FX6_TRUNC(FX6_CEIL(x)) * _bpp +              \
+               FX6_TRUNC(FX6_CEIL(y)) * surface->pitch);    \
                                                             \
-        for (j = 0; j < h; ++j) {                           \
+        if (y < FX6_CEIL(y)) {                              \
+            unsigned char *_dst = dst - surface->pitch;     \
+                                                            \
+            edge_a = (                                      \
+                FX6_TRUNC(FX6_ROUND(color->a *              \
+                                    (FX6_CEIL(y) - y))));   \
+                                                            \
+            for (i = 0;                                     \
+                 i < FX6_TRUNC(FX6_CEIL(w));                \
+                 ++i, _dst += _bpp) {                       \
+                FT_UInt32 pixel = (FT_UInt32)_getp;         \
+                                                            \
+                if (_bpp == 1) {                            \
+                    GET_PALETTE_VALS(                       \
+                            pixel, surface->format,         \
+                            bgR, bgG, bgB, bgA);            \
+                }                                           \
+                else {                                      \
+                    GET_RGB_VALS(                           \
+                            pixel, surface->format,         \
+                            bgR, bgG, bgB, bgA);            \
+                                                            \
+                }                                           \
+                                                            \
+                ALPHA_BLEND(                                \
+                        color->r, color->g, color->b,       \
+                        edge_a, bgR, bgG, bgB, bgA);        \
+                                                            \
+                _blendp;                                    \
+            }                                               \
+        }                                                   \
+                                                            \
+        for (j = 0;                                         \
+             j < FX6_TRUNC(FX6_FLOOR(h + y) - FX6_CEIL(y)); \
+             ++j) {                                         \
             unsigned char *_dst = dst;                      \
                                                             \
-            for (i = 0; i < w; ++i, _dst += _bpp) {         \
+            for (i = 0;                                     \
+                 i < FX6_TRUNC(FX6_CEIL(w));                \
+                 ++i, _dst += _bpp) {                       \
                 FT_UInt32 pixel = (FT_UInt32)_getp;         \
                                                             \
                 if (_bpp == 1) {                            \
@@ -438,6 +553,39 @@ void __fill_glyph_INT(int x, int y, int w, int h,
             }                                               \
                                                             \
             dst += surface->pitch;                          \
+        }                                                   \
+                                                            \
+        if (h > FX6_FLOOR(h + y) - y) {                     \
+            unsigned char *_dst = dst;                      \
+                                                            \
+            edge_a = (                                      \
+                FX6_TRUNC(FX6_ROUND(color->a *              \
+                                    (h + y -                \
+                                     FX6_FLOOR(h + y)))));  \
+                                                            \
+            for (i = 0;                                     \
+                 i < FX6_TRUNC(FX6_CEIL(w));                \
+                 ++i, _dst += _bpp) {                       \
+                FT_UInt32 pixel = (FT_UInt32)_getp;         \
+                                                            \
+                if (_bpp == 1) {                            \
+                    GET_PALETTE_VALS(                       \
+                            pixel, surface->format,         \
+                            bgR, bgG, bgB, bgA);            \
+                }                                           \
+                else {                                      \
+                    GET_RGB_VALS(                           \
+                            pixel, surface->format,         \
+                            bgR, bgG, bgB, bgA);            \
+                                                            \
+                }                                           \
+                                                            \
+                ALPHA_BLEND(                                \
+                        color->r, color->g, color->b,       \
+                        edge_a, bgR, bgG, bgB, bgA);        \
+                                                            \
+                _blendp;                                    \
+            }                                               \
         }                                                   \
     }
 

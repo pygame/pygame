@@ -286,7 +286,9 @@ _PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PgFontObject *fontobj,
             SDL_FillRect(surface, &bg_fill, fillcolor);
         }
         else {
-            font_surf.fill(x, y, width, height, &font_surf, bgcolor);
+            font_surf.fill(INT_TO_FX6(x), INT_TO_FX6(y),
+                           INT_TO_FX6(width), INT_TO_FX6(height),
+                           &font_surf, bgcolor);
         }
     }
 
@@ -685,6 +687,7 @@ render(FreeTypeInstance *ft, FontText *text, const FontRenderMode *mode,
     FT_Vector *posns = text->posns;
     FontRenderPtr render_gray = surface->render_gray;
     FontRenderPtr render_mono = surface->render_mono;
+    int is_underline_gray = 0;
 
     if (length <= 0) {
         return;
@@ -697,6 +700,7 @@ render(FreeTypeInstance *ft, FontText *text, const FontRenderMode *mode,
         y = FX6_TRUNC(FX6_CEIL(top + posns[n].y));
         if (image->bitmap.pixel_mode == FT_PIXEL_MODE_GRAY) {
             render_gray(x, y, surface, &(image->bitmap), fg_color);
+            is_underline_gray = 1;
         }
         else {
             render_mono(x, y, surface, &(image->bitmap), fg_color);
@@ -704,10 +708,16 @@ render(FreeTypeInstance *ft, FontText *text, const FontRenderMode *mode,
     }
 
     if (underline_size > 0) {
-        surface->fill(
-            FX6_TRUNC(FX6_CEIL(left - text->min_x)),
-            FX6_TRUNC(FX6_CEIL(top + underline_top)),
-            width, FX6_TRUNC(FX6_CEIL(underline_size)),
-            surface, fg_color);
+        if (is_underline_gray) {
+            surface->fill(left + text->min_x, top + underline_top,
+                          INT_TO_FX6(width), underline_size,
+                          surface, fg_color);
+        }
+        else {
+            surface->fill(FX6_CEIL(left + text->min_x),
+                          FX6_CEIL(top + underline_top),
+                          INT_TO_FX6(width), FX6_CEIL(underline_size),
+                          surface, fg_color);
+        }
     }
 }
