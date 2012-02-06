@@ -160,8 +160,8 @@ struct fontsurface_;
 
 typedef void (* FontRenderPtr)(int, int, struct fontsurface_ *,
                                const FT_Bitmap *, const FontColor *);
-typedef void (* FontFillPtr)(int, int, int, int, struct fontsurface_ *,
-                             const FontColor *);
+typedef void (* FontFillPtr)(FT_Fixed, FT_Fixed, FT_Fixed, FT_Fixed,
+                             struct fontsurface_ *, const FontColor *);
 
 typedef struct fontsurface_ {
     void *buffer;
@@ -287,14 +287,20 @@ int _PGFT_CheckStyle(FT_UInt32);
 
 
 /**************************************** Render callbacks *******************/
-void __fill_glyph_RGB1(int, int, int, int, FontSurface *, const FontColor *);
-void __fill_glyph_RGB2(int, int, int, int, FontSurface *, const FontColor *);
-void __fill_glyph_RGB3(int, int, int, int, FontSurface *, const FontColor *);
-void __fill_glyph_RGB4(int, int, int, int, FontSurface *, const FontColor *);
+void __fill_glyph_RGB1(FT_Fixed, FT_Fixed, FT_Fixed, FT_Fixed,
+                       FontSurface *, const FontColor *);
+void __fill_glyph_RGB2(FT_Fixed, FT_Fixed, FT_Fixed, FT_Fixed,
+                       FontSurface *, const FontColor *);
+void __fill_glyph_RGB3(FT_Fixed, FT_Fixed, FT_Fixed, FT_Fixed,
+                       FontSurface *, const FontColor *);
+void __fill_glyph_RGB4(FT_Fixed, FT_Fixed, FT_Fixed, FT_Fixed,
+                       FontSurface *, const FontColor *);
 
-void __fill_glyph_GRAY1(int, int, int, int, FontSurface *, const FontColor *);
+void __fill_glyph_GRAY1(FT_Fixed, FT_Fixed, FT_Fixed, FT_Fixed,
+                        FontSurface *, const FontColor *);
 
-void __fill_glyph_INT(int, int, int, int, FontSurface *, const FontColor *);
+void __fill_glyph_INT(FT_Fixed, FT_Fixed, FT_Fixed, FT_Fixed,
+                      FontSurface *, const FontColor *);
 
 void __render_glyph_MONO1(int, int, FontSurface *, const FT_Bitmap *,
                           const FontColor *);
