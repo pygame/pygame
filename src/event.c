@@ -360,6 +360,11 @@ dict_from_event (SDL_Event* event)
         break;
 /* SDL_VIDEOEXPOSE and SDL_QUIT have no attributes */
     }
+    if (event->type == SDL_USEREVENT && event->user.code == 0x1000) {
+		insobj (dict, "filename", PyString_FromString(event->user.data1));
+		free(event->user.data1);
+		event->user.data1 = NULL;
+	}
     if (event->type >= SDL_USEREVENT && event->type < SDL_NUMEVENTS)
         insobj (dict, "code", PyInt_FromLong (event->user.code));
 
