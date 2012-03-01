@@ -80,6 +80,12 @@ members that are defined with each type.
 Events support equality comparison. Two events are equal if they are the same
 type and have identical attribute values. Inequality checks also work.
 
+.. versionadded:: 1.9.2
+
+    On MacOSX, USEREVENT can have `code = pygame.USEREVENT_DROPFILE`. That's
+    mean the user is trying to open a file with your application. The filename
+    can be found at `event.filename` 
+
 .. function:: pump
 
    | :sl:`internally process pygame event handlers`
