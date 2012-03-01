@@ -1,0 +1,224 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pygame.tests &mdash; Pygame v1.9.2 documentation</title>
+    <link rel="stylesheet" href="../_static/pygame.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.9.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/pygame.ico"/>
+    <link rel="top" title="Pygame v1.9.2 documentation" href="../index.html" />
+    <link rel="next" title="pygame.time" href="time.html" />
+    <link rel="prev" title="pygame.surfarray" href="surfarray.html" /> 
+  </head>
+  <body>  
+
+    <div class="document">
+
+  <div class="header">
+    <table>
+      <tr>
+	<td class="logo">
+	  <a href="http://www.pygame.org/">
+	    <img src="../_static/pygame_tiny.png"/>
+	  </a>
+	  <h5>pygame documentation</h5>
+	</td>
+	<td class="pagelinks">
+	  <p class="top">
+	    ||
+	    <a href="http://www.pygame.org/">Pygame Home</a> ||
+	    <a href="../index.html">Help Contents</a> ||
+	    <a href="../genindex.html">Reference Index</a> ||
+	  </p>
+	  <p class="bottom">
+	    <a href="camera.html">camera</a> || 
+	    <a href="cdrom.html">cdrom</a> || 
+	    <a href="color.html">Color</a> || 
+	    <a href="cursors.html">cursors</a> || 
+	    <a href="display.html">display</a> || 
+	    <a href="draw.html">draw</a> || 
+	    <a href="event.html">event</a> || 
+	    <a href="examples.html">examples</a> || 
+	    <a href="font.html">font</a> || 
+	    <a href="freetype.html">freetype</a> || 
+	    <a href="gfxdraw.html">gfxdraw</a> || 
+	    <a href="image.html">image</a> || 
+	    <a href="joystick.html">joystick</a> || 
+	    <a href="key.html">key</a> || 
+	    <a href="locals.html">locals</a> || 
+	    <a href="mask.html">mask</a> || 
+	    <a href="math.html">math</a> || 
+	    <a href="midi.html">midi</a> || 
+	    <a href="mixer.html">mixer</a> || 
+	    <a href="mouse.html">mouse</a> || 
+	    <a href="movie.html">movie</a> || 
+	    <a href="music.html">music</a> || 
+	    <a href="overlay.html">Overlay</a> || 
+	    <a href="pixelarray.html">PixelArray</a> || 
+	    <a href="pixelcopy.html">pixelcopy</a> || 
+	    <a href="pygame.html">pygame</a> || 
+	    <a href="rect.html">Rect</a> || 
+	    <a href="scrap.html">scrap</a> || 
+	    <a href="sndarray.html">sndarray</a> || 
+	    <a href="sprite.html">sprite</a> || 
+	    <a href="surface.html">Surface</a> || 
+	    <a href="surfarray.html">surfarray</a> || 
+	    <a href="tests.html">tests</a> || 
+	    <a href="time.html">time</a> || 
+	    <a href="transform.html">transform</a> || 
+	    <a href="pygame.html#module-pygame.version">version</a>
+	  </p>
+	</td>
+      </tr>
+    </table>
+  </div>
+
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <div class="sectionwrapper">
+<div class="section" id="module-pygame.tests">
+<span id="pygame-tests"></span><dl class="definition module">
+<dt class="title module">
+<tt class="docutils literal"><span class="pre">pygame.tests</span></tt></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Pygame unit test suite package</span></div>
+</div>
+<table border="1" class="toc docutils">
+<colgroup>
+<col width="31%" />
+<col width="2%" />
+<col width="68%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="toc reference external" href="tests.html#pygame.tests.run">pygame.tests.run</a></td>
+<td>—</td>
+<td>Run the Pygame unit test suite</td>
+</tr>
+</tbody>
+</table>
+<p>A quick way to run the test suite package from the command line is to import
+the go submodule with the Python -m option:</p>
+<div class="highlight-python"><pre>python -m pygame.tests [&lt;test options&gt;]</pre>
+</div>
+<p>Command line option &#8211;help displays a usage message. Available options
+correspond to the <a class="tooltip reference internal" href="#pygame.tests.run" title=""><tt class="xref py py-func docutils literal"><span class="pre">pygame.tests.run()</span></tt><span class="tooltip-content">Run the Pygame unit test suite</span></a> arguments.</p>
+<p>The xxxx_test submodules of the tests package are unit test suites for
+individual parts of Pygame. Each can also be run as a main program. This is
+useful if the test, such as cdrom_test, is interactive.</p>
+<p>For Pygame development the test suite can be run from a Pygame distribution
+root directory. Program <tt class="docutils literal"><span class="pre">run_tests.py</span></tt> is provided for convenience, though
+test/go.py can be run directly.</p>
+<p>Module level tags control which modules are included in a unit test run. Tags
+are assigned to a unit test module with a corresponding &lt;&lt;ame&gt;_tags.py module.
+The tags module has the global __tags__, a list of tag names. For example,
+<tt class="docutils literal"><span class="pre">cdrom_test.py</span></tt> has a tag file <tt class="docutils literal"><span class="pre">cdrom_tags.py</span></tt> containing a tags list that
+has the &#8216;interactive&#8217; string. The &#8216;interactive&#8217; tag indicates <tt class="docutils literal"><span class="pre">cdrom_test.py</span></tt>
+expects user input. It is excluded from a <tt class="docutils literal"><span class="pre">run_tests.py</span></tt> or
+<tt class="docutils literal"><span class="pre">pygame.tests.go</span></tt> run. Two other tags that are excluded are &#8216;ignore&#8217; and
+&#8216;subprocess_ignore&#8217;. These two tags indicate unit tests that will not run on a
+particular platform, or for which no corresponding Pygame module is available.
+The test runner will list each excluded module along with the tag responsible.</p>
+<dl class="definition function">
+<dt class="title" id="pygame.tests.run">
+<tt class="descclassname">pygame.tests.</tt><tt class="descname">run</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.tests.run" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Run the Pygame unit test suite</span></div>
+<div class="line"><span class="signature">run(*args, **kwds) -&gt; tuple</span></div>
+</div>
+<p>Positional arguments (optional):</p>
+<div class="highlight-python"><pre>The names of tests to include. If omitted then all tests are run. Test names
+need not include the trailing '_test'.</pre>
+</div>
+<p>Keyword arguments:</p>
+<div class="highlight-python"><pre>incomplete - fail incomplete tests (default False)
+nosubprocess - run all test suites in the current process
+               (default False, use separate subprocesses)
+dump - dump failures/errors as dict ready to eval (default False)
+file - if provided, the name of a file into which to dump failures/errors
+timings - if provided, the number of times to run each individual test to
+          get an average run time (default is run each test once)
+exclude - A list of TAG names to exclude from the run
+show_output - show silenced stderr/stdout on errors (default False)
+all - dump all results, not just errors (default False)
+randomize - randomize order of tests (default False)
+seed - if provided, a seed randomizer integer
+multi_thread - if provided, the number of THREADS in which to run
+               subprocessed tests
+time_out - if subprocess is True then the time limit in seconds before
+           killing a test (default 30)
+fake - if provided, the name of the fake tests package in the
+       run_tests__tests subpackage to run instead of the normal
+       Pygame tests
+python - the path to a python executable to run subprocessed tests
+         (default sys.executable)</pre>
+</div>
+<p>Return value:</p>
+<div class="highlight-python"><pre>A tuple of total number of tests run, dictionary of error information.
+The dictionary is empty if no errors were recorded.</pre>
+</div>
+<p>By default individual test modules are run in separate subprocesses. This
+recreates normal Pygame usage where <tt class="docutils literal"><span class="pre">pygame.init()</span></tt> and <tt class="docutils literal"><span class="pre">pygame.quit()</span></tt>
+are called only once per program execution, and avoids unfortunate
+interactions between test modules. Also, a time limit is placed on test
+execution, so frozen tests are killed when there time allotment expired. Use
+the single process option if threading is not working properly or if tests
+are taking too long. It is not guaranteed that all tests will pass in single
+process mode.</p>
+<p>Tests are run in a randomized order if the randomize argument is True or a
+seed argument is provided. If no seed integer is provided then the system
+time is used.</p>
+<p>Individual test modules may have a __tags__ attribute, a list of tag strings
+used to selectively omit modules from a run. By default only &#8216;interactive&#8217;
+modules such as cdrom_test are ignored. An interactive module must be run
+from the console as a Python program.</p>
+<p>This function can only be called once per Python session. It is not
+reentrant.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+  </div>
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="time.html" title="pygame.time"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="surfarray.html" title="pygame.surfarray"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">Pygame v1.9.2 documentation</a> &raquo;</li>
+    <script type="text/javascript" src="jquery.plugin.docscomments.js"></script>
+
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Pygame Developers.
+    </div>
+  </body>
+</html>
