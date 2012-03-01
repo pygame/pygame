@@ -140,6 +140,24 @@ _RunningFromBundleWithNSApplication(PyObject* self)
 }
 @end
 
+@interface SDLApplicationDelegate : NSObject
+@end
+@implementation SDLApplicationDelegate
+- (BOOL)application:(NSApplication *)theApplication openFile:(NSString *)filename
+{
+    int posted;
+
+    /* Post the event, if desired */
+    posted = 0;
+	SDL_Event event;
+	event.type = SDL_USEREVENT;
+	event.user.code = 0x1000;
+	event.user.data1 = SDL_strdup([filename UTF8String]);
+	posted = (SDL_PushEvent(&event) > 0);
+    return (BOOL)(posted);
+}
+@end
+
 static void setApplicationMenu(void)
 {
     NSMenu *appleMenu;
@@ -207,6 +225,7 @@ _InstallNSApplication(PyObject* self, PyObject* arg)
 {
     char* icon_data = NULL;
     int data_len = 0;
+    SDLApplicationDelegate *sdlApplicationDelegate = NULL;
 
     NSAutoreleasePool	*pool = [[NSAutoreleasePool alloc] init];
 
@@ -231,6 +250,10 @@ _InstallNSApplication(PyObject* self, PyObject* arg)
     [NSApp activateIgnoringOtherApps:true];
 
     HasInstalledApplication = 1;
+
+    /* Create SDLApplicationDelegate and make it the app delegate */
+    sdlApplicationDelegate = [[SDLApplicationDelegate alloc] init];
+    [NSApp setDelegate:sdlApplicationDelegate];
     
 	Py_RETURN_TRUE;
 }
