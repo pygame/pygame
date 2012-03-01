@@ -149,11 +149,11 @@ _RunningFromBundleWithNSApplication(PyObject* self)
 
     /* Post the event, if desired */
     posted = 0;
-	SDL_Event event;
-	event.type = SDL_USEREVENT;
-	event.user.code = 0x1000;
-	event.user.data1 = SDL_strdup([filename UTF8String]);
-	posted = (SDL_PushEvent(&event) > 0);
+    SDL_Event event;
+    event.type = SDL_USEREVENT;
+    event.user.code = 0x1000;
+    event.user.data1 = SDL_strdup([filename UTF8String]);
+    posted = (SDL_PushEvent(&event) > 0);
     return (BOOL)(posted);
 }
 @end
