@@ -49,7 +49,7 @@ class SysFont(object):
                 self._isBold and 'Bold' or '',
                 self._isOblique and 'Oblique' or '')
         self._font = NSFont.fontWithName_size_(name, self._size)
-        print name, self._font
+        print (name, self._font)
         if self._font is None:
             if self._isBold:
                 self._font = NSFont.boldSystemFontOfSize(self._size)
