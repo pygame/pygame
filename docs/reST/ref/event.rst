@@ -82,9 +82,9 @@ type and have identical attribute values. Inequality checks also work.
 
 .. versionadded:: 1.9.2
 
-    On MacOSX, USEREVENT can have `code = pygame.USEREVENT_DROPFILE`. That's
-    mean the user is trying to open a file with your application. The filename
-    can be found at `event.filename` 
+    On MacOSX, USEREVENT can have `code = pygame.USEREVENT_DROPFILE`. That
+    means the user is trying to open a file with your application. The filename
+    can be found at `event.filename`
 
 .. function:: pump
 
