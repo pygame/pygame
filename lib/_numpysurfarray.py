@@ -50,7 +50,7 @@ from pygame.pixelcopy import array_to_surface, surface_to_array, \
     map_array as pix_map_array, make_surface as pix_make_surface
 import numpy
 from numpy import array as numpy_array, empty as numpy_empty, \
-                  rint as numpy_rint, uint32 as numpy_uint32, \
+                  around as numpy_around, uint32 as numpy_uint32, \
                   ndarray as numpy_ndarray
 
 #float96 not available on all numpy versions.
@@ -74,7 +74,7 @@ def blit_array (surface, array):
     copied.
     """
     if isinstance(array, numpy_ndarray) and array.dtype in numpy_floats:
-        array = numpy_rint(array, numpy_empty(array.shape, dtype=numpy_uint32))
+        array = array.round(0).astype(numpy_uint32)
     return array_to_surface(surface, array)
 
 def make_surface(array):
@@ -86,7 +86,7 @@ def make_surface(array):
     array. The array can be 2D or 3D with any sized integer values.
     """ 
     if isinstance(array, numpy_ndarray) and array.dtype in numpy_floats:
-        array = numpy_rint(array, numpy_empty(array.shape, dtype=numpy_uint32))
+        array = array.round(0).astype(numpy_uint32)
     return pix_make_surface (array)
 
 def array2d(surface):
