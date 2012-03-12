@@ -78,7 +78,7 @@
  **********************************************************/
 
 typedef struct {
-    int font_index;
+    FT_Long font_index;
     FT_Open_Args open_args;
 } PgFontId;
 
@@ -111,7 +111,7 @@ typedef struct {
 
 #define PgFont_Check(x) ((x)->ob_type == (PyTypeObject*)PgFREETYPE_C_API[0])
 #define PgFont_Type (*(PyTypeObject*)PgFREETYPE_C_API[1])
-#define PgFont_New (*(PyObject*(*)(const char*, int))PgFREETYPE_C_API[1])
+#define PgFont_New (*(PyObject*(*)(const char*, long))PgFREETYPE_C_API[1])
 
 #define import_pygame_freetype() \
     _IMPORT_PYGAME_MODULE(freetype, FREETYPE, PgFREETYPE_C_API)

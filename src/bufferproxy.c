@@ -20,6 +20,7 @@
 
 #define PYGAMEAPI_BUFFERPROXY_INTERNAL
 
+#define PY_SSIZE_T_CLEAN
 #define NO_PYGAME_C_API
 #include "pygame.h"
 #include "pgcompat.h"
@@ -255,7 +256,13 @@ _bufferproxy_write (PyBufferProxy *buffer, PyObject *args)
     Py_ssize_t length;
     char *buf;
 
-    if (!PyArg_ParseTuple (args, "s#i", &buf, &length, &offset))
+#if PY_VERSION_HEX < 0x02050000
+#define FORMAT_STRING "s#i"
+#else
+#define FORMAT_STRING "s#n"
+#endif
+
+    if (!PyArg_ParseTuple (args, FORMAT_STRING, &buf, &length, &offset))
         return NULL;
 
     if (offset + length > buffer->length)
@@ -266,6 +273,8 @@ _bufferproxy_write (PyBufferProxy *buffer, PyObject *args)
     memcpy (((Uint8 *)buffer->buffer) + offset, buf, (size_t) length);
 
     Py_RETURN_NONE;
+
+#undef FORMAT_STRING
 }   
 
 /**** Buffer interfaces ****/

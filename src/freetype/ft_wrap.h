@@ -246,10 +246,10 @@ long _PGFT_Font_GetGlyphHeightSized(FreeTypeInstance *, PgFontObject *,
 int _PGFT_Font_IsFixedWidth(FreeTypeInstance *, PgFontObject *);
 const char *_PGFT_Font_GetName(FreeTypeInstance *, PgFontObject *);
 int _PGFT_TryLoadFont_Filename(FreeTypeInstance *,
-                               PgFontObject *, const char *, int);
+                               PgFontObject *, const char *, long);
 #ifdef HAVE_PYGAME_SDL_RWOPS
 int _PGFT_TryLoadFont_RWops(FreeTypeInstance *,
-                            PgFontObject *, SDL_RWops *, int);
+                            PgFontObject *, SDL_RWops *, long);
 #endif
 void _PGFT_UnloadFont(FreeTypeInstance *, PgFontObject *);
 
