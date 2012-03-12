@@ -361,7 +361,7 @@ int
 _PGFT_TryLoadFont_Filename(FreeTypeInstance *ft,
     PgFontObject *fontobj,
     const char *filename,
-    int font_index)
+    long font_index)
 {
     char *filename_alloc;
     size_t file_len;
@@ -376,7 +376,7 @@ _PGFT_TryLoadFont_Filename(FreeTypeInstance *ft,
     strcpy(filename_alloc, filename);
     filename_alloc[file_len] = 0;
 
-    fontobj->id.font_index = font_index;
+    fontobj->id.font_index = (FT_Long) font_index;
     fontobj->id.open_args.flags = FT_OPEN_PATHNAME;
     fontobj->id.open_args.pathname = filename_alloc;
 
@@ -401,7 +401,7 @@ RWops_read(FT_Stream stream, unsigned long offset,
 
 int
 _PGFT_TryLoadFont_RWops(FreeTypeInstance *ft, PgFontObject *fontobj,
-                        SDL_RWops *src, int font_index)
+                        SDL_RWops *src, long font_index)
 {
     FT_Stream stream;
     int position;
@@ -425,7 +425,7 @@ _PGFT_TryLoadFont_RWops(FreeTypeInstance *ft, PgFontObject *fontobj,
     stream->size = (unsigned long)(SDL_RWtell(src) - position);
     SDL_RWseek(src, position, SEEK_SET);
 
-    fontobj->id.font_index = font_index;
+    fontobj->id.font_index = (FT_Long) font_index;
     fontobj->id.open_args.flags = FT_OPEN_STREAM;
     fontobj->id.open_args.stream = stream;
 

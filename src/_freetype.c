@@ -626,7 +626,7 @@ _ftfont_init(PgFontObject *self, PyObject *args, PyObject *kwds)
     };
 
     PyObject *file, *original_file;
-    int font_index = 0;
+    long font_index = 0;
     int ptsize;
     int style;
     int ucs4;
@@ -643,7 +643,7 @@ _ftfont_init(PgFontObject *self, PyObject *args, PyObject *kwds)
     vertical = self->render_flags & FT_RFLAG_VERTICAL ? 1 : 0;
     origin = self->render_flags & FT_RFLAG_ORIGIN ? 1 : 0;
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|iiIiiIi", kwlist,
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|iiliiIi", kwlist,
                                      &file, &ptsize, &style, &font_index,
                                      &vertical, &ucs4, &resolution, &origin)) {
         return -1;
@@ -1654,7 +1654,7 @@ _ftfont_render_to(PgFontObject *self, PyObject *args, PyObject *kwds)
  * C API CALLS
  ****************************************************/
 static PyObject *
-PgFont_New(const char *filename, int font_index)
+PgFont_New(const char *filename, long font_index)
 {
     PgFontObject *font;
 
