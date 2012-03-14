@@ -1607,8 +1607,20 @@ _color_set_length (PyColor *color, PyObject *args)
 {
     Py_ssize_t clength;
 
-    if (!PyArg_ParseTuple (args, "k", &clength))
-        return NULL;
+#if PY_VERSION_HEX < 0x02050000
+#define FORMAT_STRING "k"
+#else
+#define FORMAT_STRING "n"
+#endif
+
+    if (!PyArg_ParseTuple (args, FORMAT_STRING, &clength)) {
+        if (!PyErr_ExceptionMatches(PyExc_OverflowError)) {
+            return NULL;
+        }
+        /* OverflowError also means the value is out-of-range */
+        PyErr_Clear();
+        clength = PY_SSIZE_T_MAX;
+    }
 
     if (clength > 4 || clength < 1) {
         return RAISE (PyExc_ValueError, "Length needs to be 1,2,3, or 4.");
@@ -1617,6 +1629,8 @@ _color_set_length (PyColor *color, PyObject *args)
     color->len = clength;
 
     Py_RETURN_NONE;
+
+#undef FORMAT_STRING
 }
 
 
