@@ -156,8 +156,8 @@ if sys.version_info >= (3, 0, 0):
                     '_numericsurfarray',
                     '_numericsndarray',
                    ]
-    if (sys.platform != 'linux2'):
-        python3_skip.append('scrap')
+#    if (sys.platform != 'linux2'):
+#        python3_skip.append('scrap')
     tmp_extensions = extensions
     extensions = []
     for e in tmp_extensions:
