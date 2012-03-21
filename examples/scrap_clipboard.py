@@ -44,7 +44,7 @@ while going:
                 elif r is None:
                     print ("Type %s : None" % (t,))
                 else:
-                    print ("Type %s : '%s'" % (t, r.decode('ascii', 'replace')))
+                    print ("Type %s : '%s'" % (t, r.decode('ascii', 'ignore')))
                 if "image" in t:
                     namehint = t.split("/")[1]
                     if namehint in ['bmp', 'png', 'jpg']:
