@@ -3,7 +3,7 @@
 
 #define DOC_PYGAMESCRAPINIT "init () -> None\nInitializes the scrap module."
 
-#define DOC_PYGAMESCRAPGET "get (type) -> string\nGets the data for the specified type from the clipboard."
+#define DOC_PYGAMESCRAPGET "get (type) -> bytes\nGets the data for the specified type from the clipboard."
 
 #define DOC_PYGAMESCRAPGETTYPES "get_types () -> list\nGets a list of the available clipboard types."
 
@@ -29,7 +29,7 @@ pygame.scrap.init
 Initializes the scrap module.
 
 pygame.scrap.get
- get (type) -> string
+ get (type) -> bytes
 Gets the data for the specified type from the clipboard.
 
 pygame.scrap.get_types
