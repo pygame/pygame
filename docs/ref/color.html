@@ -1,0 +1,337 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pygame.Color &mdash; Pygame v1.9.2 documentation</title>
+    <link rel="stylesheet" href="../_static/pygame.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.9.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/pygame.ico"/>
+    <link rel="top" title="Pygame v1.9.2 documentation" href="../index.html" />
+    <link rel="next" title="pygame.cursors" href="cursors.html" />
+    <link rel="prev" title="pygame.cdrom" href="cdrom.html" /> 
+  </head>
+  <body>  
+
+    <div class="document">
+
+  <div class="header">
+    <table>
+      <tr>
+	<td class="logo">
+	  <a href="http://www.pygame.org/">
+	    <img src="../_static/pygame_tiny.png"/>
+	  </a>
+	  <h5>pygame documentation</h5>
+	</td>
+	<td class="pagelinks">
+	  <p class="top">
+	    ||
+	    <a href="http://www.pygame.org/">Pygame Home</a> ||
+	    <a href="../index.html">Help Contents</a> ||
+	    <a href="../genindex.html">Reference Index</a> ||
+	  </p>
+	  <p class="bottom">
+	    <a href="camera.html">camera</a> || 
+	    <a href="cdrom.html">cdrom</a> || 
+	    <a href="color.html">Color</a> || 
+	    <a href="cursors.html">cursors</a> || 
+	    <a href="display.html">display</a> || 
+	    <a href="draw.html">draw</a> || 
+	    <a href="event.html">event</a> || 
+	    <a href="examples.html">examples</a> || 
+	    <a href="font.html">font</a> || 
+	    <a href="freetype.html">freetype</a> || 
+	    <a href="gfxdraw.html">gfxdraw</a> || 
+	    <a href="image.html">image</a> || 
+	    <a href="joystick.html">joystick</a> || 
+	    <a href="key.html">key</a> || 
+	    <a href="locals.html">locals</a> || 
+	    <a href="mask.html">mask</a> || 
+	    <a href="math.html">math</a> || 
+	    <a href="midi.html">midi</a> || 
+	    <a href="mixer.html">mixer</a> || 
+	    <a href="mouse.html">mouse</a> || 
+	    <a href="movie.html">movie</a> || 
+	    <a href="music.html">music</a> || 
+	    <a href="overlay.html">Overlay</a> || 
+	    <a href="pixelarray.html">PixelArray</a> || 
+	    <a href="pixelcopy.html">pixelcopy</a> || 
+	    <a href="pygame.html">pygame</a> || 
+	    <a href="rect.html">Rect</a> || 
+	    <a href="scrap.html">scrap</a> || 
+	    <a href="sndarray.html">sndarray</a> || 
+	    <a href="sprite.html">sprite</a> || 
+	    <a href="surface.html">Surface</a> || 
+	    <a href="surfarray.html">surfarray</a> || 
+	    <a href="tests.html">tests</a> || 
+	    <a href="time.html">time</a> || 
+	    <a href="transform.html">transform</a> || 
+	    <a href="pygame.html#module-pygame.version">version</a>
+	  </p>
+	</td>
+      </tr>
+    </table>
+  </div>
+
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <div class="sectionwrapper">
+<div class="section" id="pygame-color">
+<dl class="definition class">
+<dt class="title" id="pygame.Color">
+<em class="property">class </em><tt class="descclassname">pygame.</tt><tt class="descname">Color</tt><a class="headerlink" href="#pygame.Color" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">pygame object for color representations</span></div>
+<div class="line"><span class="signature">Color(name) -&gt; Color</span></div>
+<div class="line"><span class="signature">Color(r, g, b, a) -&gt; Color</span></div>
+<div class="line"><span class="signature">Color(rgbvalue) -&gt; Color</span></div>
+</div>
+<table border="1" class="toc docutils">
+<colgroup>
+<col width="30%" />
+<col width="1%" />
+<col width="69%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="toc reference external" href="color.html#pygame.Color.r">pygame.Color.r</a></td>
+<td>—</td>
+<td>Gets or sets the red value of the Color.</td>
+</tr>
+<tr><td><a class="toc reference external" href="color.html#pygame.Color.g">pygame.Color.g</a></td>
+<td>—</td>
+<td>Gets or sets the green value of the Color.</td>
+</tr>
+<tr><td><a class="toc reference external" href="color.html#pygame.Color.b">pygame.Color.b</a></td>
+<td>—</td>
+<td>Gets or sets the blue value of the Color.</td>
+</tr>
+<tr><td><a class="toc reference external" href="color.html#pygame.Color.a">pygame.Color.a</a></td>
+<td>—</td>
+<td>Gets or sets the alpha value of the Color.</td>
+</tr>
+<tr><td><a class="toc reference external" href="color.html#pygame.Color.cmy">pygame.Color.cmy</a></td>
+<td>—</td>
+<td>Gets or sets the CMY representation of the Color.</td>
+</tr>
+<tr><td><a class="toc reference external" href="color.html#pygame.Color.hsva">pygame.Color.hsva</a></td>
+<td>—</td>
+<td>Gets or sets the HSVA representation of the Color.</td>
+</tr>
+<tr><td><a class="toc reference external" href="color.html#pygame.Color.hsla">pygame.Color.hsla</a></td>
+<td>—</td>
+<td>Gets or sets the HSLA representation of the Color.</td>
+</tr>
+<tr><td><a class="toc reference external" href="color.html#pygame.Color.i1i2i3">pygame.Color.i1i2i3</a></td>
+<td>—</td>
+<td>Gets or sets the I1I2I3 representation of the Color.</td>
+</tr>
+<tr><td><a class="toc reference external" href="color.html#pygame.Color.normalize">pygame.Color.normalize</a></td>
+<td>—</td>
+<td>Returns the normalized RGBA values of the Color.</td>
+</tr>
+<tr><td><a class="toc reference external" href="color.html#pygame.Color.correct_gamma">pygame.Color.correct_gamma</a></td>
+<td>—</td>
+<td>Applies a certain gamma value to the Color.</td>
+</tr>
+<tr><td><a class="toc reference external" href="color.html#pygame.Color.set_length">pygame.Color.set_length</a></td>
+<td>—</td>
+<td>Set the number of elements in the Color to 1,2,3, or 4.</td>
+</tr>
+</tbody>
+</table>
+<p>The Color class represents <tt class="docutils literal"><span class="pre">RGBA</span></tt> color values using a value range of
+0-255. It allows basic arithmetic operations to create new colors, supports
+conversions to other color spaces such as <tt class="docutils literal"><span class="pre">HSV</span></tt> or <tt class="docutils literal"><span class="pre">HSL</span></tt> and lets you
+adjust single color channels. Alpha defaults to 255 when not given.</p>
+<p>&#8216;rgbvalue&#8217; can be either a color name, an <tt class="docutils literal"><span class="pre">HTML</span></tt> color format string, a
+hex number string, or an integer pixel value. The <tt class="docutils literal"><span class="pre">HTML</span></tt> format is
+&#8216;#rrggbbaa&#8217;, where rr, gg, bb, and aa are 2 digit hex numbers. The alpha aa
+is optional. A hex number string has the form &#8216;0xrrggbbaa&#8217;, where aa is
+optional.</p>
+<p>Color objects support equality comparison with other color objects and 3 or
+4 element tuples of integers (New in 1.9.0). There was a bug in pygame 1.8.1
+where the default alpha was 0, not 255 like previously.</p>
+<p>New implementation of Color was done in pygame 1.8.1.</p>
+<dl class="definition attribute">
+<dt class="title" id="pygame.Color.r">
+<tt class="descname">r</tt><a class="headerlink" href="#pygame.Color.r" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Gets or sets the red value of the Color.</span></div>
+<div class="line"><span class="signature">r -&gt; int</span></div>
+</div>
+<p>The red value of the Color.</p>
+</dd></dl>
+
+<dl class="definition attribute">
+<dt class="title" id="pygame.Color.g">
+<tt class="descname">g</tt><a class="headerlink" href="#pygame.Color.g" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Gets or sets the green value of the Color.</span></div>
+<div class="line"><span class="signature">g -&gt; int</span></div>
+</div>
+<p>The green value of the Color.</p>
+</dd></dl>
+
+<dl class="definition attribute">
+<dt class="title" id="pygame.Color.b">
+<tt class="descname">b</tt><a class="headerlink" href="#pygame.Color.b" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Gets or sets the blue value of the Color.</span></div>
+<div class="line"><span class="signature">b -&gt; int</span></div>
+</div>
+<p>The blue value of the Color.</p>
+</dd></dl>
+
+<dl class="definition attribute">
+<dt class="title" id="pygame.Color.a">
+<tt class="descname">a</tt><a class="headerlink" href="#pygame.Color.a" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Gets or sets the alpha value of the Color.</span></div>
+<div class="line"><span class="signature">a -&gt; int</span></div>
+</div>
+<p>The alpha value of the Color.</p>
+</dd></dl>
+
+<dl class="definition attribute">
+<dt class="title" id="pygame.Color.cmy">
+<tt class="descname">cmy</tt><a class="headerlink" href="#pygame.Color.cmy" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Gets or sets the CMY representation of the Color.</span></div>
+<div class="line"><span class="signature">cmy -&gt; tuple</span></div>
+</div>
+<p>The <tt class="docutils literal"><span class="pre">CMY</span></tt> representation of the Color. The <tt class="docutils literal"><span class="pre">CMY</span></tt> components are in
+the ranges <tt class="docutils literal"><span class="pre">C</span></tt> = [0, 1], <tt class="docutils literal"><span class="pre">M</span></tt> = [0, 1], <tt class="docutils literal"><span class="pre">Y</span></tt> = [0, 1]. Note that this
+will not return the absolutely exact <tt class="docutils literal"><span class="pre">CMY</span></tt> values for the set <tt class="docutils literal"><span class="pre">RGB</span></tt>
+values in all cases. Due to the <tt class="docutils literal"><span class="pre">RGB</span></tt> mapping from 0-255 and the
+<tt class="docutils literal"><span class="pre">CMY</span></tt> mapping from 0-1 rounding errors may cause the <tt class="docutils literal"><span class="pre">CMY</span></tt> values to
+differ slightly from what you might expect.</p>
+</dd></dl>
+
+<dl class="definition attribute">
+<dt class="title" id="pygame.Color.hsva">
+<tt class="descname">hsva</tt><a class="headerlink" href="#pygame.Color.hsva" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Gets or sets the HSVA representation of the Color.</span></div>
+<div class="line"><span class="signature">hsva -&gt; tuple</span></div>
+</div>
+<p>The <tt class="docutils literal"><span class="pre">HSVA</span></tt> representation of the Color. The <tt class="docutils literal"><span class="pre">HSVA</span></tt> components are in
+the ranges <tt class="docutils literal"><span class="pre">H</span></tt> = [0, 360], <tt class="docutils literal"><span class="pre">S</span></tt> = [0, 100], <tt class="docutils literal"><span class="pre">V</span></tt> = [0, 100], A = [0,
+100]. Note that this will not return the absolutely exact <tt class="docutils literal"><span class="pre">HSV</span></tt> values
+for the set <tt class="docutils literal"><span class="pre">RGB</span></tt> values in all cases. Due to the <tt class="docutils literal"><span class="pre">RGB</span></tt> mapping from
+0-255 and the <tt class="docutils literal"><span class="pre">HSV</span></tt> mapping from 0-100 and 0-360 rounding errors may
+cause the <tt class="docutils literal"><span class="pre">HSV</span></tt> values to differ slightly from what you might expect.</p>
+</dd></dl>
+
+<dl class="definition attribute">
+<dt class="title" id="pygame.Color.hsla">
+<tt class="descname">hsla</tt><a class="headerlink" href="#pygame.Color.hsla" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Gets or sets the HSLA representation of the Color.</span></div>
+<div class="line"><span class="signature">hsla -&gt; tuple</span></div>
+</div>
+<p>The <tt class="docutils literal"><span class="pre">HSLA</span></tt> representation of the Color. The <tt class="docutils literal"><span class="pre">HSLA</span></tt> components are in
+the ranges <tt class="docutils literal"><span class="pre">H</span></tt> = [0, 360], <tt class="docutils literal"><span class="pre">S</span></tt> = [0, 100], <tt class="docutils literal"><span class="pre">V</span></tt> = [0, 100], A = [0,
+100]. Note that this will not return the absolutely exact <tt class="docutils literal"><span class="pre">HSL</span></tt> values
+for the set <tt class="docutils literal"><span class="pre">RGB</span></tt> values in all cases. Due to the <tt class="docutils literal"><span class="pre">RGB</span></tt> mapping from
+0-255 and the <tt class="docutils literal"><span class="pre">HSL</span></tt> mapping from 0-100 and 0-360 rounding errors may
+cause the <tt class="docutils literal"><span class="pre">HSL</span></tt> values to differ slightly from what you might expect.</p>
+</dd></dl>
+
+<dl class="definition attribute">
+<dt class="title" id="pygame.Color.i1i2i3">
+<tt class="descname">i1i2i3</tt><a class="headerlink" href="#pygame.Color.i1i2i3" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Gets or sets the I1I2I3 representation of the Color.</span></div>
+<div class="line"><span class="signature">i1i2i3 -&gt; tuple</span></div>
+</div>
+<p>The <tt class="docutils literal"><span class="pre">I1I2I3</span></tt> representation of the Color. The <tt class="docutils literal"><span class="pre">I1I2I3</span></tt> components are
+in the ranges <tt class="docutils literal"><span class="pre">I1</span></tt> = [0, 1], <tt class="docutils literal"><span class="pre">I2</span></tt> = [-0.5, 0.5], <tt class="docutils literal"><span class="pre">I3</span></tt> = [-0.5,
+0.5]. Note that this will not return the absolutely exact <tt class="docutils literal"><span class="pre">I1I2I3</span></tt>
+values for the set <tt class="docutils literal"><span class="pre">RGB</span></tt> values in all cases. Due to the <tt class="docutils literal"><span class="pre">RGB</span></tt>
+mapping from 0-255 and the <tt class="docutils literal"><span class="pre">I1I2I3</span></tt> mapping from 0-1 rounding errors
+may cause the <tt class="docutils literal"><span class="pre">I1I2I3</span></tt> values to differ slightly from what you might
+expect.</p>
+</dd></dl>
+
+<dl class="definition method">
+<dt class="title" id="pygame.Color.normalize">
+<tt class="descname">normalize</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.Color.normalize" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Returns the normalized RGBA values of the Color.</span></div>
+<div class="line"><span class="signature">normalize() -&gt; tuple</span></div>
+</div>
+<p>Returns the normalized <tt class="docutils literal"><span class="pre">RGBA</span></tt> values of the Color as floating point
+values.</p>
+</dd></dl>
+
+<dl class="definition method">
+<dt class="title" id="pygame.Color.correct_gamma">
+<tt class="descname">correct_gamma</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.Color.correct_gamma" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Applies a certain gamma value to the Color.</span></div>
+<div class="line"><span class="signature">correct_gamma (gamma) -&gt; Color</span></div>
+</div>
+<p>Applies a certain gamma value to the Color and returns a new Color with
+the adjusted <tt class="docutils literal"><span class="pre">RGBA</span></tt> values.</p>
+</dd></dl>
+
+<dl class="definition method">
+<dt class="title" id="pygame.Color.set_length">
+<tt class="descname">set_length</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.Color.set_length" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Set the number of elements in the Color to 1,2,3, or 4.</span></div>
+<div class="line"><span class="signature">set_length(len) -&gt; None</span></div>
+</div>
+<p>The default Color length is 4. Colors can have lengths 1,2,3 or 4. This
+is useful if you want to unpack to r,g,b and not r,g,b,a. If you want to
+get the length of a Color do <tt class="docutils literal"><span class="pre">len(acolor)</span></tt>.</p>
+<p>New in pygame 1.9.0.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+  </div>
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="cursors.html" title="pygame.cursors"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="cdrom.html" title="pygame.cdrom"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">Pygame v1.9.2 documentation</a> &raquo;</li>
+    <script type="text/javascript" src="jquery.plugin.docscomments.js"></script>
+
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Pygame Developers.
+    </div>
+  </body>
+</html>

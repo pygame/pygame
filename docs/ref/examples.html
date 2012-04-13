@@ -1,0 +1,696 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pygame.examples &mdash; Pygame v1.9.2 documentation</title>
+    <link rel="stylesheet" href="../_static/pygame.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.9.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/pygame.ico"/>
+    <link rel="top" title="Pygame v1.9.2 documentation" href="../index.html" />
+    <link rel="next" title="pygame.font" href="font.html" />
+    <link rel="prev" title="pygame.event" href="event.html" /> 
+  </head>
+  <body>  
+
+    <div class="document">
+
+  <div class="header">
+    <table>
+      <tr>
+	<td class="logo">
+	  <a href="http://www.pygame.org/">
+	    <img src="../_static/pygame_tiny.png"/>
+	  </a>
+	  <h5>pygame documentation</h5>
+	</td>
+	<td class="pagelinks">
+	  <p class="top">
+	    ||
+	    <a href="http://www.pygame.org/">Pygame Home</a> ||
+	    <a href="../index.html">Help Contents</a> ||
+	    <a href="../genindex.html">Reference Index</a> ||
+	  </p>
+	  <p class="bottom">
+	    <a href="camera.html">camera</a> || 
+	    <a href="cdrom.html">cdrom</a> || 
+	    <a href="color.html">Color</a> || 
+	    <a href="cursors.html">cursors</a> || 
+	    <a href="display.html">display</a> || 
+	    <a href="draw.html">draw</a> || 
+	    <a href="event.html">event</a> || 
+	    <a href="examples.html">examples</a> || 
+	    <a href="font.html">font</a> || 
+	    <a href="freetype.html">freetype</a> || 
+	    <a href="gfxdraw.html">gfxdraw</a> || 
+	    <a href="image.html">image</a> || 
+	    <a href="joystick.html">joystick</a> || 
+	    <a href="key.html">key</a> || 
+	    <a href="locals.html">locals</a> || 
+	    <a href="mask.html">mask</a> || 
+	    <a href="math.html">math</a> || 
+	    <a href="midi.html">midi</a> || 
+	    <a href="mixer.html">mixer</a> || 
+	    <a href="mouse.html">mouse</a> || 
+	    <a href="movie.html">movie</a> || 
+	    <a href="music.html">music</a> || 
+	    <a href="overlay.html">Overlay</a> || 
+	    <a href="pixelarray.html">PixelArray</a> || 
+	    <a href="pixelcopy.html">pixelcopy</a> || 
+	    <a href="pygame.html">pygame</a> || 
+	    <a href="rect.html">Rect</a> || 
+	    <a href="scrap.html">scrap</a> || 
+	    <a href="sndarray.html">sndarray</a> || 
+	    <a href="sprite.html">sprite</a> || 
+	    <a href="surface.html">Surface</a> || 
+	    <a href="surfarray.html">surfarray</a> || 
+	    <a href="tests.html">tests</a> || 
+	    <a href="time.html">time</a> || 
+	    <a href="transform.html">transform</a> || 
+	    <a href="pygame.html#module-pygame.version">version</a>
+	  </p>
+	</td>
+      </tr>
+    </table>
+  </div>
+
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <div class="sectionwrapper">
+<div class="section" id="module-pygame.examples">
+<span id="pygame-examples"></span><dl class="definition module">
+<dt class="title module">
+<tt class="docutils literal"><span class="pre">pygame.examples</span></tt></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">module of example programs</span></div>
+</div>
+<table border="1" class="toc docutils">
+<colgroup>
+<col width="37%" />
+<col width="1%" />
+<col width="62%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="toc reference external" href="examples.html#pygame.examples.aliens.main">pygame.examples.aliens.main</a></td>
+<td>—</td>
+<td>play the full aliens example</td>
+</tr>
+<tr><td><a class="toc reference external" href="examples.html#pygame.examples.oldalien.main">pygame.examples.oldalien.main</a></td>
+<td>—</td>
+<td>play the original aliens example</td>
+</tr>
+<tr><td><a class="toc reference external" href="examples.html#pygame.examples.stars.main">pygame.examples.stars.main</a></td>
+<td>—</td>
+<td>run a simple starfield example</td>
+</tr>
+<tr><td><a class="toc reference external" href="examples.html#pygame.examples.chimp.main">pygame.examples.chimp.main</a></td>
+<td>—</td>
+<td>hit the moving chimp</td>
+</tr>
+<tr><td><a class="toc reference external" href="examples.html#pygame.examples.moveit.main">pygame.examples.moveit.main</a></td>
+<td>—</td>
+<td>display animated objects on the screen</td>
+</tr>
+<tr><td><a class="toc reference external" href="examples.html#pygame.examples.fonty.main">pygame.examples.fonty.main</a></td>
+<td>—</td>
+<td>run a font rendering example</td>
+</tr>
+<tr><td><a class="toc reference external" href="examples.html#pygame.examples.vgrade.main">pygame.examples.vgrade.main</a></td>
+<td>—</td>
+<td>display a vertical gradient</td>
+</tr>
+<tr><td><a class="toc reference external" href="examples.html#pygame.examples.eventlist.main">pygame.examples.eventlist.main</a></td>
+<td>—</td>
+<td>display pygame events</td>
+</tr>
+<tr><td><a class="toc reference external" href="examples.html#pygame.examples.arraydemo.main">pygame.examples.arraydemo.main</a></td>
+<td>—</td>
+<td>show various surfarray effects</td>
+</tr>
+<tr><td><a class="toc reference external" href="examples.html#pygame.examples.sound.main">pygame.examples.sound.main</a></td>
+<td>—</td>
+<td>load and play a sound</td>
+</tr>
+<tr><td><a class="toc reference external" href="examples.html#pygame.examples.sound_array_demos.main">pygame.examples.sound_array_demos.main</a></td>
+<td>—</td>
+<td>play various sndarray effects</td>
+</tr>
+<tr><td><a class="toc reference external" href="examples.html#pygame.examples.liquid.main">pygame.examples.liquid.main</a></td>
+<td>—</td>
+<td>display an animated liquid effect</td>
+</tr>
+<tr><td><a class="toc reference external" href="examples.html#pygame.examples.glcube.main">pygame.examples.glcube.main</a></td>
+<td>—</td>
+<td>display an animated 3D cube using OpenGL</td>
+</tr>
+<tr><td><a class="toc reference external" href="examples.html#pygame.examples.scrap_clipboard.main">pygame.examples.scrap_clipboard.main</a></td>
+<td>—</td>
+<td>access the clipboard</td>
+</tr>
+<tr><td><a class="toc reference external" href="examples.html#pygame.examples.mask.main">pygame.examples.mask.main</a></td>
+<td>—</td>
+<td>display multiple images bounce off each other using collision detection</td>
+</tr>
+<tr><td><a class="toc reference external" href="examples.html#pygame.examples.testsprite.main">pygame.examples.testsprite.main</a></td>
+<td>—</td>
+<td>show lots of sprites moving around</td>
+</tr>
+<tr><td><a class="toc reference external" href="examples.html#pygame.examples.headless_no_windows_needed.main">pygame.examples.headless_no_windows_needed.main</a></td>
+<td>—</td>
+<td>write an image file that is smoothscaled copy of an input file</td>
+</tr>
+<tr><td><a class="toc reference external" href="examples.html#pygame.examples.fastevents.main">pygame.examples.fastevents.main</a></td>
+<td>—</td>
+<td>stress test the fastevents module</td>
+</tr>
+<tr><td><a class="toc reference external" href="examples.html#pygame.examples.overlay.main">pygame.examples.overlay.main</a></td>
+<td>—</td>
+<td>play a .pgm video using overlays</td>
+</tr>
+<tr><td><a class="toc reference external" href="examples.html#pygame.examples.blend_fill.main">pygame.examples.blend_fill.main</a></td>
+<td>—</td>
+<td>demonstrate the various surface.fill method blend options</td>
+</tr>
+<tr><td><a class="toc reference external" href="examples.html#pygame.examples.blit_blends.main">pygame.examples.blit_blends.main</a></td>
+<td>—</td>
+<td>uses alternative additive fill to that of surface.fill</td>
+</tr>
+<tr><td><a class="toc reference external" href="examples.html#pygame.examples.cursors.main">pygame.examples.cursors.main</a></td>
+<td>—</td>
+<td>display two different custom cursors</td>
+</tr>
+<tr><td><a class="toc reference external" href="examples.html#pygame.examples.pixelarray.main">pygame.examples.pixelarray.main</a></td>
+<td>—</td>
+<td>display various pixelarray generated effects</td>
+</tr>
+<tr><td><a class="toc reference external" href="examples.html#pygame.examples.scaletest.main">pygame.examples.scaletest.main</a></td>
+<td>—</td>
+<td>interactively scale an image using smoothscale</td>
+</tr>
+<tr><td><a class="toc reference external" href="examples.html#pygame.examples.midi.main">pygame.examples.midi.main</a></td>
+<td>—</td>
+<td>run a midi example</td>
+</tr>
+<tr><td><a class="toc reference external" href="examples.html#pygame.examples.scroll.main">pygame.examples.scroll.main</a></td>
+<td>—</td>
+<td>run a Surface.scroll example that shows a magnified image</td>
+</tr>
+<tr><td><a class="toc reference external" href="examples.html#pygame.examples.movieplayer.main">pygame.examples.movieplayer.main</a></td>
+<td>—</td>
+<td>play an MPEG movie</td>
+</tr>
+<tr><td><a class="toc reference external" href="examples.html#pygame.examples.camera.main">pygame.examples.camera.main</a></td>
+<td>—</td>
+<td>display video captured live from an attached camera</td>
+</tr>
+</tbody>
+</table>
+<p>These examples should help get you started with pygame. Here is a brief rundown
+of what you get. The source code for these examples is in the public domain.
+Feel free to use for your own projects.</p>
+<p>There are several ways to run the examples. First they can be run as
+stand-alone programs. Second they can be imported and their <tt class="docutils literal"><span class="pre">main()</span></tt> methods
+called (see below). Finally, the easiest way is to use the python -m option:</p>
+<div class="highlight-python"><pre>python -m pygame.examples.&lt;example name&gt; &lt;example arguments&gt;</pre>
+</div>
+<p>eg:</p>
+<div class="highlight-python"><pre>python -m pygame.examples.scaletest someimage.png</pre>
+</div>
+<p>Resources such as images and sounds for the examples are found in the
+pygame/examples/data subdirectory.</p>
+<p>You can find where the example files are installed by using the following
+commands inside the python interpreter.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pygame.examples.scaletest</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pygame</span><span class="o">.</span><span class="n">examples</span><span class="o">.</span><span class="n">scaletest</span><span class="o">.</span><span class="n">__file__</span>
+<span class="go">&#39;/usr/lib/python2.6/site-packages/pygame/examples/scaletest.py&#39;</span>
+</pre></div>
+</div>
+<p>On each OS and version of python the location will be slightly different.
+For example on windows it might be in &#8216;C:/Python26/Lib/site-packages/pygame/examples/&#8217;
+On Mac OS X it might be in &#8216;/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/pygame/examples/&#8217;</p>
+<p>You can also run the examples in the python interpreter by calling each modules main() function.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pygame.examples.scaletest</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pygame</span><span class="o">.</span><span class="n">examples</span><span class="o">.</span><span class="n">scaletest</span><span class="o">.</span><span class="n">main</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>We&#8217;re always on the lookout for more examples and/or example requests. Code
+like this is probably the best way to start getting involved with python
+gaming.</p>
+<p>examples as a package is new to pygame 1.9.0. But most of the examples came with
+pygame much earlier.</p>
+<dl class="definition function">
+<dt class="title" id="pygame.examples.aliens.main">
+<tt class="descclassname">aliens.</tt><tt class="descname">main</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.examples.aliens.main" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">play the full aliens example</span></div>
+<div class="line"><span class="signature">aliens.main() -&gt; None</span></div>
+</div>
+<p>This started off as a port of the <tt class="docutils literal"><span class="pre">SDL</span></tt> demonstration, Aliens. Now it has
+evolved into something sort of resembling fun. This demonstrates a lot of
+different uses of sprites and optimized blitting. Also transparency,
+colorkeys, fonts, sound, music, joystick, and more. (PS, my high score is
+117! goodluck)</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.examples.oldalien.main">
+<tt class="descclassname">oldalien.</tt><tt class="descname">main</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.examples.oldalien.main" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">play the original aliens example</span></div>
+<div class="line"><span class="signature">oldalien.main() -&gt; None</span></div>
+</div>
+<p>This more closely resembles a port of the <tt class="docutils literal"><span class="pre">SDL</span></tt> Aliens demo. The code is a
+lot simpler, so it makes a better starting point for people looking at code
+for the first times. These blitting routines are not as optimized as they
+should/could be, but the code is easier to follow, and it plays quick
+enough.</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.examples.stars.main">
+<tt class="descclassname">stars.</tt><tt class="descname">main</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.examples.stars.main" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">run a simple starfield example</span></div>
+<div class="line"><span class="signature">stars.main() -&gt; None</span></div>
+</div>
+<p>A simple starfield example. You can change the center of perspective by
+leftclicking the mouse on the screen.</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.examples.chimp.main">
+<tt class="descclassname">chimp.</tt><tt class="descname">main</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.examples.chimp.main" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">hit the moving chimp</span></div>
+<div class="line"><span class="signature">chimp.main() -&gt; None</span></div>
+</div>
+<p>This simple example is derived from the line-by-line tutorial that comes
+with pygame. It is based on a &#8216;popular&#8217; web banner. Note there are comments
+here, but for the full explanation, follow along in the tutorial.</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.examples.moveit.main">
+<tt class="descclassname">moveit.</tt><tt class="descname">main</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.examples.moveit.main" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">display animated objects on the screen</span></div>
+<div class="line"><span class="signature">moveit.main() -&gt; None</span></div>
+</div>
+<p>This is the full and final example from the Pygame Tutorial, &#8220;How Do I Make
+It Move&#8221;. It creates 10 objects and animates them on the screen.</p>
+<p>Note it&#8217;s a bit scant on error checking, but it&#8217;s easy to read. :]
+Fortunately, this is python, and we needn&#8217;t wrestle with a pile of error
+codes.</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.examples.fonty.main">
+<tt class="descclassname">fonty.</tt><tt class="descname">main</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.examples.fonty.main" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">run a font rendering example</span></div>
+<div class="line"><span class="signature">fonty.main() -&gt; None</span></div>
+</div>
+<p>Super quick, super simple application demonstrating the different ways to
+render fonts with the font module</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.examples.vgrade.main">
+<tt class="descclassname">vgrade.</tt><tt class="descname">main</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.examples.vgrade.main" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">display a vertical gradient</span></div>
+<div class="line"><span class="signature">vgrade.main() -&gt; None</span></div>
+</div>
+<p>Demonstrates creating a vertical gradient with pixelcopy and NumPy python.
+The app will create a new gradient every half second and report the time
+needed to create and display the image. If you&#8217;re not prepared to start
+working with the NumPy arrays, don&#8217;t worry about the source for this one :]</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.examples.eventlist.main">
+<tt class="descclassname">eventlist.</tt><tt class="descname">main</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.examples.eventlist.main" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">display pygame events</span></div>
+<div class="line"><span class="signature">eventlist.main() -&gt; None</span></div>
+</div>
+<p>Eventlist is a sloppy style of pygame, but is a handy tool for learning
+about pygame events and input. At the top of the screen are the state of
+several device values, and a scrolling list of events are displayed on the
+bottom.</p>
+<p>This is not quality &#8216;ui&#8217; code at all, but you can see how to implement very
+non-interactive status displays, or even a crude text output control.</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.examples.arraydemo.main">
+<tt class="descclassname">arraydemo.</tt><tt class="descname">main</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.examples.arraydemo.main" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">show various surfarray effects</span></div>
+<div class="line"><span class="signature">arraydemo.main(arraytype=None) -&gt; None</span></div>
+</div>
+<p>Another example filled with various surfarray effects. It requires the
+surfarray and image modules to be installed. This little demo can also make
+a good starting point for any of your own tests with surfarray</p>
+<p>If arraytype is provided then use that array package. Valid values are
+&#8216;numeric&#8217; or &#8216;numpy&#8217;. Otherwise default to NumPy, or fall back on Numeric if
+NumPy is not installed. As a program <tt class="docutils literal"><span class="pre">surfarray.py</span></tt> accepts an optional
+&#8211;numeric or &#8211;numpy flag. (New pygame 1.9.0)</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.examples.sound.main">
+<tt class="descclassname">sound.</tt><tt class="descname">main</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.examples.sound.main" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">load and play a sound</span></div>
+<div class="line"><span class="signature">sound.main(file_path=None) -&gt; None</span></div>
+</div>
+<p>Extremely basic testing of the mixer module. Load a sound and play it. All
+from the command shell, no graphics.</p>
+<p>If provided, use the audio file &#8216;file_path&#8217;, otherwise use a default file.</p>
+<p><tt class="docutils literal"><span class="pre">sound.py</span></tt> optional command line argument: an audio file</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.examples.sound_array_demos.main">
+<tt class="descclassname">sound_array_demos.</tt><tt class="descname">main</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.examples.sound_array_demos.main" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">play various sndarray effects</span></div>
+<div class="line"><span class="signature">sound_array_demos.main(arraytype=None) -&gt; None</span></div>
+</div>
+<p>If arraytype is provided then use that array package. Valid values are
+&#8216;numeric&#8217; or &#8216;numpy&#8217;. Otherwise default to NumPy, or fall back on Numeric if
+NumPy is not installed.</p>
+<p>Uses sndarray and NumPy ( or Numeric) to create offset faded copies of the
+original sound. Currently it just uses hardcoded values for the number of
+echos and the delay. Easy for you to recreate as needed. Run as a program
+<tt class="docutils literal"><span class="pre">sound_array_demos.py</span></tt> takes an optional command line option, &#8211;numpy or
+&#8211;numeric, specifying which array package to use.</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.examples.liquid.main">
+<tt class="descclassname">liquid.</tt><tt class="descname">main</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.examples.liquid.main" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">display an animated liquid effect</span></div>
+<div class="line"><span class="signature">liquid.main() -&gt; None</span></div>
+</div>
+<p>This example was created in a quick comparison with the BlitzBasic gaming
+language. Nonetheless, it demonstrates a quick 8-bit setup (with colormap).</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.examples.glcube.main">
+<tt class="descclassname">glcube.</tt><tt class="descname">main</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.examples.glcube.main" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">display an animated 3D cube using OpenGL</span></div>
+<div class="line"><span class="signature">glcube.main() -&gt; None</span></div>
+</div>
+<p>Using PyOpenGL and pygame, this creates a spinning 3D multicolored cube.</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.examples.scrap_clipboard.main">
+<tt class="descclassname">scrap_clipboard.</tt><tt class="descname">main</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.examples.scrap_clipboard.main" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">access the clipboard</span></div>
+<div class="line"><span class="signature">scrap_clipboard.main() -&gt; None</span></div>
+</div>
+<p>A simple demonstration example for the clipboard support.</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.examples.mask.main">
+<tt class="descclassname">mask.</tt><tt class="descname">main</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.examples.mask.main" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">display multiple images bounce off each other using collision detection</span></div>
+<div class="line"><span class="signature">mask.main(*args) -&gt; None</span></div>
+</div>
+<p>Positional arguments:</p>
+<div class="highlight-python"><pre>one or more image file names.</pre>
+</div>
+<p>This <tt class="docutils literal"><span class="pre">pygame.masks</span></tt> demo will display multiple moving sprites bouncing off
+each other. More than one sprite image can be provided.</p>
+<p>If run as a program then <tt class="docutils literal"><span class="pre">mask.py</span></tt> takes one or more image files as
+command line arguments.</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.examples.testsprite.main">
+<tt class="descclassname">testsprite.</tt><tt class="descname">main</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.examples.testsprite.main" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">show lots of sprites moving around</span></div>
+<div class="line"><span class="signature">testsprite.main(update_rects = True, use_static = False, use_FastRenderGroup = False, screen_dims = [640, 480], use_alpha = False, flags = 0) -&gt; None</span></div>
+</div>
+<p>Optional keyword arguments:</p>
+<div class="highlight-python"><pre>update_rects - use the RenderUpdate sprite group class
+use_static - include non-moving images
+use_FastRenderGroup - Use the FastRenderGroup sprite group
+screen_dims - pygame window dimensions
+use_alpha - use alpha blending
+flags - additional display mode flags</pre>
+</div>
+<p>Like the <tt class="docutils literal"><span class="pre">testsprite.c</span></tt> that comes with sdl, this pygame version shows
+lots of sprites moving around.</p>
+<p>If run as a stand-alone program then no command line arguments are taken.</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.examples.headless_no_windows_needed.main">
+<tt class="descclassname">headless_no_windows_needed.</tt><tt class="descname">main</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.examples.headless_no_windows_needed.main" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">write an image file that is smoothscaled copy of an input file</span></div>
+<div class="line"><span class="signature">headless_no_windows_needed.main(fin, fout, w, h) -&gt; None</span></div>
+</div>
+<p>arguments:</p>
+<div class="highlight-python"><pre>fin - name of an input image file
+fout - name of the output file to create/overwrite
+w, h - size of the rescaled image, as integer width and height</pre>
+</div>
+<p>How to use pygame with no windowing system, like on headless servers.</p>
+<p>Thumbnail generation with scaling is an example of what you can do with
+pygame.</p>
+<p><tt class="docutils literal"><span class="pre">NOTE</span></tt>: the pygame scale function uses mmx/sse if available, and can be
+run in multiple threads.</p>
+<p>If <tt class="docutils literal"><span class="pre">headless_no_windows_needed.py</span></tt> is run as a program it takes the
+following command line arguments:</p>
+<div class="highlight-python"><pre>-scale inputimage outputimage new_width new_height
+eg. -scale in.png outpng 50 50</pre>
+</div>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.examples.fastevents.main">
+<tt class="descclassname">fastevents.</tt><tt class="descname">main</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.examples.fastevents.main" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">stress test the fastevents module</span></div>
+<div class="line"><span class="signature">fastevents.main() -&gt; None</span></div>
+</div>
+<p>This is a stress test for the fastevents module.</p>
+<blockquote>
+<ul class="simple">
+<li>Fast events does not appear faster!</li>
+<li></li>
+</ul>
+</blockquote>
+<p>So far it looks like normal <a class="tooltip reference internal" href="event.html#module-pygame.event" title=""><tt class="xref py py-mod docutils literal"><span class="pre">pygame.event</span></tt><span class="tooltip-content">pygame module for interacting with events and queues</span></a> is faster by up to two
+times. So maybe fastevent isn&#8217;t fast at all.</p>
+<p>Tested on windowsXP sp2 athlon, and freebsd.</p>
+<p>However... on my debian duron 850 machine fastevents is faster.</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.examples.overlay.main">
+<tt class="descclassname">overlay.</tt><tt class="descname">main</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.examples.overlay.main" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">play a .pgm video using overlays</span></div>
+<div class="line"><span class="signature">overlay.main(fname) -&gt; None</span></div>
+</div>
+<p>Play the .pgm video fila a path fname.</p>
+<p>If run as a program <tt class="docutils literal"><span class="pre">overlay.py</span></tt> takes the file name as a command line
+argument.</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.examples.blend_fill.main">
+<tt class="descclassname">blend_fill.</tt><tt class="descname">main</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.examples.blend_fill.main" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">demonstrate the various surface.fill method blend options</span></div>
+<div class="line"><span class="signature">blend_fill.main() -&gt; None</span></div>
+</div>
+<p>A interactive demo that lets one choose which BLEND_xxx option to apply to a
+surface.</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.examples.blit_blends.main">
+<tt class="descclassname">blit_blends.</tt><tt class="descname">main</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.examples.blit_blends.main" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">uses alternative additive fill to that of surface.fill</span></div>
+<div class="line"><span class="signature">blit_blends.main() -&gt; None</span></div>
+</div>
+<p>Fake additive blending. Using NumPy. it doesn&#8217;t clamp. Press r,g,b Somewhat
+like blend_fill.</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.examples.cursors.main">
+<tt class="descclassname">cursors.</tt><tt class="descname">main</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.examples.cursors.main" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">display two different custom cursors</span></div>
+<div class="line"><span class="signature">cursors.main() -&gt; None</span></div>
+</div>
+<p>Display an arrow or circle with crossbar cursor.</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.examples.pixelarray.main">
+<tt class="descclassname">pixelarray.</tt><tt class="descname">main</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.examples.pixelarray.main" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">display various pixelarray generated effects</span></div>
+<div class="line"><span class="signature">pixelarray.main() -&gt; None</span></div>
+</div>
+<p>Display various pixelarray generated effects.</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.examples.scaletest.main">
+<tt class="descclassname">scaletest.</tt><tt class="descname">main</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.examples.scaletest.main" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">interactively scale an image using smoothscale</span></div>
+<div class="line"><span class="signature">scaletest.main(imagefile, convert_alpha=False, run_speed_test=True) -&gt; None</span></div>
+</div>
+<p>arguments:</p>
+<div class="highlight-python"><pre>imagefile - file name of source image (required)
+convert_alpha - use convert_alpha() on the surf (default False)
+run_speed_test - (default False)</pre>
+</div>
+<p>A smoothscale example that resized an image on the screen. Vertical and
+horizontal arrow keys are used to change the width and height of the
+displayed image. If the convert_alpha option is True then the source image
+is forced to have source alpha, whether or not the original images does. If
+run_speed_test is True then a background timing test is performed instead of
+the interactive scaler.</p>
+<p>If <tt class="docutils literal"><span class="pre">scaletest.py</span></tt> is run as a program then the command line options are:</p>
+<div class="highlight-python"><pre>ImageFile [-t] [-convert_alpha]
+[-t] = Run Speed Test
+[-convert_alpha] = Use convert_alpha() on the surf.</pre>
+</div>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.examples.midi.main">
+<tt class="descclassname">midi.</tt><tt class="descname">main</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.examples.midi.main" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">run a midi example</span></div>
+<div class="line"><span class="signature">midi.main(mode=&#8217;output&#8217;, device_id=None) -&gt; None</span></div>
+</div>
+<p>Arguments:</p>
+<div class="highlight-python"><pre>mode - if 'output' run a midi keyboard output example
+          'input' run a midi event logger input example
+          'list' list available midi devices
+       (default 'output')
+device_id - midi device number; if None then use the default midi input or
+            output device for the system</pre>
+</div>
+<p>The output example shows how to translate mouse clicks or computer keyboard
+events into midi notes. It implements a rudimentary button widget and state
+machine.</p>
+<p>The input example shows how to translate midi input to pygame events.</p>
+<p>With the use of a virtual midi patch cord the output and input examples can
+be run as separate processes and connected so the keyboard output is
+displayed on a console.</p>
+<p>new to pygame 1.9.0</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.examples.scroll.main">
+<tt class="descclassname">scroll.</tt><tt class="descname">main</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.examples.scroll.main" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">run a Surface.scroll example that shows a magnified image</span></div>
+<div class="line"><span class="signature">scroll.main(image_file=None) -&gt; None</span></div>
+</div>
+<p>This example shows a scrollable image that has a zoom factor of eight. It
+uses the <tt class="xref py py-func docutils literal"><span class="pre">Surface.scroll()</span></tt> function to shift the image on the display
+surface. A clip rectangle protects a margin area. If called as a function,
+the example accepts an optional image file path. If run as a program it
+takes an optional file path command line argument. If no file is provided a
+default image file is used.</p>
+<p>When running click on a black triangle to move one pixel in the direction
+the triangle points. Or use the arrow keys. Close the window or press
+<tt class="docutils literal"><span class="pre">ESC</span></tt> to quit.</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.examples.movieplayer.main">
+<tt class="descclassname">movieplayer.</tt><tt class="descname">main</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.examples.movieplayer.main" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">play an MPEG movie</span></div>
+<div class="line"><span class="signature">movieplayer.main(filepath) -&gt; None</span></div>
+</div>
+<p>A simple movie player that plays an <tt class="docutils literal"><span class="pre">MPEG</span></tt> movie in a Pygame window. It
+showcases the <a class="tooltip reference internal" href="movie.html#module-pygame.movie" title=""><tt class="xref py py-mod docutils literal"><span class="pre">pygame.movie</span></tt><span class="tooltip-content">pygame module for playback of mpeg video</span></a> module. The window adjusts to the size of
+the movie image. It is given a border to demonstrate that a movie can play
+autonomously in a sub- window. Also, the file is copied to a file like
+object to show that not just Python files can be used as a movie source.</p>
+<p>The <a class="tooltip reference internal" href="movie.html#module-pygame.movie" title=""><tt class="xref py py-mod docutils literal"><span class="pre">pygame.movie</span></tt><span class="tooltip-content">pygame module for playback of mpeg video</span></a> module is problematic and may not work on all
+systems. It is intended to replace it with an ffmpeg based version.</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.examples.camera.main">
+<tt class="descclassname">camera.</tt><tt class="descname">main</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.examples.camera.main" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">display video captured live from an attached camera</span></div>
+<div class="line"><span class="signature">camera.main() -&gt; None</span></div>
+</div>
+<p>A simple live video player, it uses the first available camera it finds on
+the system.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+  </div>
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="font.html" title="pygame.font"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="event.html" title="pygame.event"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">Pygame v1.9.2 documentation</a> &raquo;</li>
+    <script type="text/javascript" src="jquery.plugin.docscomments.js"></script>
+
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Pygame Developers.
+    </div>
+  </body>
+</html>

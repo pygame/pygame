@@ -1,0 +1,141 @@
+== Instructions to build pygame for PyS60. ==
+
+Basic requirements:
+- S60 3rd or 5th ed. SDK 
+- SVN client
+- Python 2.5.x
+
+=== Getting necessary libraries ===
+
+Run 'makeref.py --no-code-docs'
+- This regenerates pygame module documentation without documentation in code.
+-- Not very useful on the phone.
+
+- The build scripts use SCons for Symbian. 
+-- http://code.google.com/p/scons-for-symbian/
+-- Follow the installation instructions
+
+
+The used libraries are stored in pygame-for-s60 project page at code.google.com.
+They must be copied to symbian/deps directory.
+
+Go to the symbian folder and execute SVN checkout:
+
+svn checkout http://pygame-symbian-s60.googlecode.com/svn/trunk/deps deps
+
+== Install PyS60 stuff ==
+
+- Make sure your EPOCROOT environment variable points to your Symbian SDK
+- Run: 
+    deps\misc\get_pys60.py --tools-path=deps
+
+-- This gets the latest PyS60 release and unzips it into your EPOCROOT
+
+Or do it manually:
+
+Get latest PyS60 & OpenC SDKs from Maemo Garage
+- https://garage.maemo.org/frs/?group_id=854&release_id=2673
+-- Unzip the stuff to your Symbian epocroot
+
+Get PyS60 packaging tool( from maemo )
+- Get the tar.gz package.
+-- Copy the PythonForS60 folder to 'deps'
+
+
+== The original sources of external libraries ==
+
+Checkout ogg to symbian/deps/ogg
+- IMPORTANT: Revision 7524
+- SVN: http://svn.xiph.org/trunk/ogg 
+
+Checkout vorbis to symbian/deps/vorbis
+- IMPORTANT: Revision 7543
+- SVN: http://svn.xiph.org/trunk/vorbis
+- Changes for OpenC
+-- os.h:
+	#if defined(__SYMBIAN32__) && defined(__WINS__)
+	#include <sys/types.h> // <-- Add this
+	void* _alloca(size_t size);
+	#  define alloca _alloca
+	#endif
+
+Get SDL for Series60
+- Available at: http://koti.mbnet.fi/mertama/sdl.html
+- Follow the instructions and copy the patched SDL S60 folder to symbian/deps/SDL
+
+Get SDL_mixer to symbian/deps/SDL_mixer
+- http://www.libsdl.org/projects/SDL_mixer/
+
+Get SDL_ttf to symbian/deps/SDL_ttf
+- http://www.libsdl.org/projects/SDL_ttf/
+
+Get Symbian FreeType2 port to symbian/deps/sft2
+- SVN: https://sft2.svn.sourceforge.net/svnroot/sft2/trunk/sft2
+- Changes for OpenC
+-- libsft2.cpp:
+  #include <sys/reent.h> // <-- Remove
+  ...
+  CloseSTDLIB(); in ~CSymbianFreeType() // <-- Remove
+
+Get SDL_image to symbian/deps/SDL_image
+- http://www.libsdl.org/projects/SDL_image/
+
+
+Checkout jpeg library to symbian/deps/jpeg
+- https://movino.svn.sourceforge.net/svnroot/movino/libjpeg/trunk
+
+Checkout PNG library to symbian/deps/libpng
+- http://pamp.svn.sourceforge.net/svnroot/pamp/libpng/trunk/libpng-1.2.18
+
+
+=== Building ===
+
+==== Basic configuration ====
+
+1. Get certificates for the installer.
+-- http://wiki.forum.nokia.com/index.php/Creating_and_using_self-signed_certificate
+2. Go to pygame/symbian directory
+3. Run configure.py
+-- python configure.py cert=<path to .cer> privkey=<path to .key> passphrase=<password>
+-- Now you don't need to give this information each time you build.
+
+==== Optional configurations ====
+
+The pygame can be built against the official(or any) pys60 version. 
+
+- Initialize the release script by giving it information about the python dll to be linked with
+- Optionally the sis file to be embedded.( UID is read directly from the sis package )
+configure.py pythondll=python25 pys60_sis=Python_1.9.0_3rdEd.sis
+
+or
+!!! DEPRECATED. PyS60 CE based on Python 2.2 and not supported anymore. Maybe in the future.
+
+- Use BuildPygameRelease.py script to build the 'pygame_python' with PyS60 Community Edition,
+  the depended libraries and the pygame itself. All in one.
+- Give the path to the PyS60 CE's 'src' directory as a parameter for the script 
+- The CE version is used to do some customizations for the Python installation. 
+- The above parameters are handled automatically in that case.
+- Of course, you can build the PyS60 CE manually and configure the build script as above.
+
+# Build everything, including PyS60 CE
+configure.py pys60_ce_src=\projects\pys60ce\trunk\src
+
+# Use existing python sis. Need to configure the python dll for linker.
+configure.py build_python=False pys60_sis=official_python.sisx pythondll=python222.dll
+
+
+==== Do the build ====
+
+Emulator:
+- Run: BuildPygameRelease.py 
+
+Device:
+- Run: BuildPygameRelease.py compiler=gcce release=urel
+
+
+=== Misc info ===
+
+pygame library
+- The pygame is implemented as static library to be statically linked to pygame application.
+
+
