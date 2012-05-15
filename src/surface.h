@@ -49,6 +49,7 @@
 #define PYGAME_BLEND_RGBA_MULT 0x8
 #define PYGAME_BLEND_RGBA_MIN  0x9
 #define PYGAME_BLEND_RGBA_MAX  0x10
+#define PYGAME_BLEND_PREMULTIPLIED  0x11
 
 
 
@@ -309,7 +310,18 @@
             dA = sA;                                \
         }                                           \
     } while(0)
+
+#define ALPHA_BLEND_PREMULTIPLIED_COMP(sC, dC, sA) (sC + dC - ((dC * sA) >> 8))
+
+#define ALPHA_BLEND_PREMULTIPLIED(tmp, sR, sG, sB, sA, dR, dG, dB, dA) \
+    do {                                            \
+            tmp = ALPHA_BLEND_PREMULTIPLIED_COMP(sR, dR, sA); dR = (tmp > 255 ? 255 : tmp); \
+            tmp = ALPHA_BLEND_PREMULTIPLIED_COMP(sG, dG, sA); dG = (tmp > 255 ? 255 : tmp); \
+            tmp = ALPHA_BLEND_PREMULTIPLIED_COMP(sB, dB, sA); dB = (tmp > 255 ? 255 : tmp); \
+            dA = sA + dA - ((sA * dA) / 255);       \
+    } while(0)
 #elif 0
+
 #define ALPHA_BLEND(sR, sG, sB, sA, dR, dG, dB, dA)    \
     do {                                               \
         if(sA){                                        \
