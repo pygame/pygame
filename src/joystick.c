@@ -202,7 +202,7 @@ joy_get_axis (PyObject* self, PyObject* args)
 
     value = SDL_JoystickGetAxis (joy, axis);
 #ifdef DEBUG
-    printf("SDL_JoystickGetAxis value:%d:\n", value);
+    /*printf("SDL_JoystickGetAxis value:%d:\n", value);*/
 #endif
 
     return PyFloat_FromDouble (value / 32768.0);
@@ -243,7 +243,7 @@ joy_get_button (PyObject* self, PyObject* args)
 
     value = SDL_JoystickGetButton (joy, _index);
 #ifdef DEBUG
-    printf("SDL_JoystickGetButton value:%d:\n", value);
+    /*printf("SDL_JoystickGetButton value:%d:\n", value);*/
 #endif
     return PyInt_FromLong (value);
 }
@@ -280,7 +280,7 @@ joy_get_ball (PyObject* self, PyObject* args)
     }
     value = SDL_JoystickNumBalls (joy);
 #ifdef DEBUG
-    printf("SDL_JoystickNumBalls value:%d:\n", value);
+    /*printf("SDL_JoystickNumBalls value:%d:\n", value);*/
 #endif
     if (_index < 0 || _index >= value) {
         return RAISE (PyExc_SDLError, "Invalid joystick trackball");
@@ -304,7 +304,7 @@ joy_get_numhats (PyObject* self)
 
     value = SDL_JoystickNumHats (joy);
 #ifdef DEBUG
-    printf("SDL_JoystickNumHats value:%d:\n", value);
+    /*printf("SDL_JoystickNumHats value:%d:\n", value);*/
 #endif
     return PyInt_FromLong (value);
 }
@@ -332,7 +332,7 @@ joy_get_hat (PyObject* self, PyObject* args)
     px = py = 0;
     value = SDL_JoystickGetHat (joy, _index);
 #ifdef DEBUG
-    printf("SDL_JoystickGetHat value:%d:\n", value);
+    /*printf("SDL_JoystickGetHat value:%d:\n", value);*/
 #endif
     if (value & SDL_HAT_UP) {
         py = 1;

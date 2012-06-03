@@ -89,11 +89,12 @@ the next release.
 .. function:: get
 
    | :sl:`Gets the data for the specified type from the clipboard.`
-   | :sg:`get (type) -> string`
+   | :sg:`get (type) -> bytes`
 
    Returns the data for the specified type from the clipboard. The data is
-   returned as string and might need further processing. If no data for the
-   passed type is available, None is returned.
+   returned as a byte string and might need further processing,
+   such as decoding to Unicode.
+   If no data for the passed type is available, None is returned.
 
    ::
 
