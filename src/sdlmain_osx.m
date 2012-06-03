@@ -361,16 +361,16 @@ _ScrapLost(PyObject *self) {
 static PyMethodDef macosx_builtins[] =
 {
     { "WMEnable", (PyCFunction) _WMEnable, METH_NOARGS, "Enables Foreground Operation when Window Manager is not available" },
-	{ "RunningFromBundleWithNSApplication", (PyCFunction) _RunningFromBundleWithNSApplication, METH_NOARGS, "Returns true if we are running from an AppBundle with a variable named NSApp" },
-	{ "InstallNSApplication", _InstallNSApplication, METH_VARARGS, "Creates an NSApplication with the right behaviors for SDL" },
-	{ "ScrapInit", (PyCFunction) _ScrapInit, METH_NOARGS, "Initialize scrap for osx" },
-	{ "ScrapGet", (PyCFunction) _ScrapGet, METH_VARARGS, "Get a element from the scrap for osx" },
-	{ "ScrapPut", (PyCFunction) _ScrapPut, METH_VARARGS, "Set a element from the scrap for osx" },
-	{ "ScrapGetTypes", (PyCFunction) _ScrapGetTypes, METH_NOARGS, "Get scrap types for osx" },
-	{ "ScrapSetMode", (PyCFunction) _ScrapSetMode, METH_VARARGS, "Set mode for osx scrap (not used)" },
-	{ "ScrapContains", (PyCFunction) _ScrapContains, METH_VARARGS, "Check if a type is allowed on osx scrap (not used)" },
-	{ "ScrapLost", (PyCFunction) _ScrapLost, METH_NOARGS, "Check if our type is lost from scrap for osx" },
-	{ NULL, NULL, 0, NULL}
+    { "RunningFromBundleWithNSApplication", (PyCFunction) _RunningFromBundleWithNSApplication, METH_NOARGS, "Returns true if we are running from an AppBundle with a variable named NSApp" },
+    { "InstallNSApplication", _InstallNSApplication, METH_VARARGS, "Creates an NSApplication with the right behaviors for SDL" },
+    { "ScrapInit", (PyCFunction) _ScrapInit, METH_NOARGS, "Initialize scrap for osx" },
+    { "ScrapGet", (PyCFunction) _ScrapGet, METH_VARARGS, "Get a element from the scrap for osx" },
+    { "ScrapPut", (PyCFunction) _ScrapPut, METH_VARARGS, "Set a element from the scrap for osx" },
+    { "ScrapGetTypes", (PyCFunction) _ScrapGetTypes, METH_NOARGS, "Get scrap types for osx" },
+    { "ScrapSetMode", (PyCFunction) _ScrapSetMode, METH_VARARGS, "Set mode for osx scrap (not used)" },
+    { "ScrapContains", (PyCFunction) _ScrapContains, METH_VARARGS, "Check if a type is allowed on osx scrap (not used)" },
+    { "ScrapLost", (PyCFunction) _ScrapLost, METH_NOARGS, "Check if our type is lost from scrap for osx" },
+    { NULL, NULL, 0, NULL}
 };
 
 
