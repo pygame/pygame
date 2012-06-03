@@ -261,22 +261,22 @@ _InstallNSApplication(PyObject* self, PyObject* arg)
 
 static PyObject*
 _ScrapInit(PyObject* self) {
-    Py_RETURN_TRUE;
+	Py_RETURN_TRUE;
 }
 
 static PyObject*
 _ScrapGet(PyObject *self, PyObject *args) {
 	PyObject *ret = Py_None;
-    char *scrap_type;
+	char *scrap_type;
 
-    if (!PyArg_ParseTuple (args, "s", &scrap_type))
-        return Py_None;
+	if (!PyArg_ParseTuple (args, "s", &scrap_type))
+		return Py_None;
 
 	// anything else than text is not implemented
 	if (strcmp(scrap_type, PYGAME_SCRAP_TEXT))
 		return Py_None;
 
-    NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
+	NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
 	NSString *info = [[NSPasteboard generalPasteboard]stringForType:NSStringPboardType];
 	if (info != nil)
 		ret = PyUnicode_FromString([info UTF8String]);
@@ -287,7 +287,7 @@ _ScrapGet(PyObject *self, PyObject *args) {
 static PyObject*
 _ScrapGetTypes(PyObject *self) {
 	PyObject *l = PyList_New(0);
-    NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
+	NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
 	NSPasteboard *pb = [NSPasteboard generalPasteboard];
 	NSArray *types = [pb types];
 	for (NSString *type in types)
@@ -299,17 +299,17 @@ _ScrapGetTypes(PyObject *self) {
 static PyObject*
 _ScrapPut(PyObject *self, PyObject *args) {
 	PyObject *ret = NULL;
-    char *scrap_type;
+	char *scrap_type;
 	char *data;
 
-    if (!PyArg_ParseTuple (args, "ss", &scrap_type, &data))
-        return Py_None;
+	if (!PyArg_ParseTuple (args, "ss", &scrap_type, &data))
+		return Py_None;
 
 	// anything else than text is not implemented
 	if (strcmp(scrap_type, PYGAME_SCRAP_TEXT))
 		return Py_None;
 
-    NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
+	NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
 	NSPasteboard *pb = [NSPasteboard generalPasteboard];
 	NSString *ndata = [NSString stringWithCString:(char *)data encoding:NSUTF8StringEncoding];
 	[pb declareTypes: [NSArray arrayWithObject:NSStringPboardType] owner: pb];
@@ -321,8 +321,8 @@ _ScrapPut(PyObject *self, PyObject *args) {
 static PyObject*
 _ScrapSetMode(PyObject *self, PyObject *args) {
 	char *mode;
-    if (!PyArg_ParseTuple (args, "s", &mode))
-        return Py_None;
+	if (!PyArg_ParseTuple (args, "s", &mode))
+		return Py_None;
 	return Py_None;
 }
 
@@ -330,10 +330,10 @@ static PyObject*
 _ScrapContains(PyObject *self, PyObject *args) {
 	char *mode;
 	int found = 0;
-    if (!PyArg_ParseTuple (args, "s", &mode))
-        return Py_None;
+	if (!PyArg_ParseTuple (args, "s", &mode))
+		return Py_None;
 
-    NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
+	NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
 	NSPasteboard *pb = [NSPasteboard generalPasteboard];
 	NSArray *types = [pb types];
 	for (NSString *type in types)
@@ -347,7 +347,7 @@ _ScrapContains(PyObject *self, PyObject *args) {
 static PyObject*
 _ScrapLost(PyObject *self) {
 	int found = 0;
-    NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
+	NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
 	NSArray *supportedTypes =
 		[NSArray arrayWithObjects: NSStringPboardType, nil];
 	NSString *bestType = [[NSPasteboard generalPasteboard]
