@@ -39,7 +39,7 @@ def init():
 
     # the _camera module has some code which can be reused by other modules.
     #  it will also be the default one.
-    import _camera
+    from pygame import _camera
     colorspace = _camera.colorspace
 
     if use__camera:
@@ -48,7 +48,7 @@ def init():
 
     if use_opencv:
         try:
-            import _camera_opencv_highgui
+            from pygame import _camera_opencv_highgui
         except:
             _camera_opencv_highgui = None
 
@@ -60,7 +60,7 @@ def init():
 
     if use_vidcapture:
         try:
-            import _camera_vidcapture
+            from pygame import _camera_vidcapture
         except:
             _camera_vidcapture = None
 
