@@ -32,6 +32,7 @@
 
    ::
 
+       x,y
        top, left, bottom, right
        topleft, bottomleft, topright, bottomright
        midtop, midleft, midbottom, midright
@@ -77,7 +78,7 @@
       | :sl:`copy the rectangle`
       | :sg:`copy() -> Rect`
 
-      Returns a new rectangle having the same position and size as the orginal.
+      Returns a new rectangle having the same position and size as the original.
 
       New in pygame 1.9
 

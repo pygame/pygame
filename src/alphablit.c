@@ -57,6 +57,7 @@ static void blit_blend_rgba_mul (SDL_BlitInfo * info);
 static void blit_blend_rgba_min (SDL_BlitInfo * info);
 static void blit_blend_rgba_max (SDL_BlitInfo * info);
 
+static void blit_blend_premultiplied (SDL_BlitInfo * info);
 
 
 static int 
@@ -206,6 +207,11 @@ SoftBlitPyGame (SDL_Surface * src, SDL_Rect * srcrect, SDL_Surface * dst,
         case PYGAME_BLEND_RGBA_MAX:
         {
             blit_blend_rgba_max (&info);
+            break;
+        }
+        case PYGAME_BLEND_PREMULTIPLIED:
+        {
+            blit_blend_premultiplied (&info);
             break;
         }
 
@@ -938,6 +944,112 @@ blit_blend_rgba_max (SDL_BlitInfo * info)
     }
 }
 
+static void
+blit_blend_premultiplied (SDL_BlitInfo * info)
+{
+    int             n;
+    int             width = info->width;
+    int             height = info->height;
+    Uint8          *src = info->s_pixels;
+    int             srcpxskip = info->s_pxskip;
+    int             srcskip = info->s_skip;
+    Uint8          *dst = info->d_pixels;
+    int             dstpxskip = info->d_pxskip;
+    int             dstskip = info->d_skip;
+    SDL_PixelFormat *srcfmt = info->src;
+    SDL_PixelFormat *dstfmt = info->dst;
+    int             srcbpp = srcfmt->BytesPerPixel;
+    int             dstbpp = dstfmt->BytesPerPixel;
+    Uint8           dR, dG, dB, dA, sR, sG, sB, sA;
+    Uint32          pixel;
+    int             srcppa = (info->src_flags & SDL_SRCALPHA && srcfmt->Amask);
+    int             dstppa = (info->dst_flags & SDL_SRCALPHA && dstfmt->Amask);
+    int tmp;
+
+    /*
+    printf ("Premultiplied alpha blit with %d and %d\n", srcbpp, dstbpp);
+    */
+
+    if (srcbpp == 1)
+    {
+        if (dstbpp == 1)
+        {
+            while (height--)
+            {
+                LOOP_UNROLLED4(
+                {
+                    GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
+                    GET_PIXELVALS_1(dR, dG, dB, dA, dst, dstfmt);
+                    ALPHA_BLEND_PREMULTIPLIED (tmp, sR, sG, sB, sA, dR, dG, dB, dA);
+                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
+                    src += srcpxskip;
+                    dst += dstpxskip;
+                }, n, width);
+                src += srcskip;
+                dst += dstskip;
+            }
+        }
+        else /* dstbpp > 1 */
+        {
+            while (height--)
+            {
+                LOOP_UNROLLED4(
+                {
+                    GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
+                    GET_PIXEL (pixel, dstbpp, dst);
+                    GET_PIXELVALS (dR, dG, dB, dA, pixel, dstfmt, dstppa);
+                    ALPHA_BLEND_PREMULTIPLIED (tmp, sR, sG, sB, sA, dR, dG, dB, dA);
+                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
+                    src += srcpxskip;
+                    dst += dstpxskip;
+                }, n, width);
+                src += srcskip;
+                dst += dstskip;
+            }
+        }
+    }
+    else /* srcbpp > 1 */
+    {
+        if (dstbpp == 1)
+        {
+            while (height--)
+            {
+                LOOP_UNROLLED4(
+                {
+                    GET_PIXEL(pixel, srcbpp, src);
+                    GET_PIXELVALS (sR, sG, sB, sA, pixel, srcfmt, srcppa);
+                    GET_PIXELVALS_1(dR, dG, dB, dA, dst, dstfmt);
+                    ALPHA_BLEND_PREMULTIPLIED (tmp, sR, sG, sB, sA, dR, dG, dB, dA);
+                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
+                    src += srcpxskip;
+                    dst += dstpxskip;
+                }, n, width);
+                src += srcskip;
+                dst += dstskip;
+            }
+
+        }
+        else /* dstbpp > 1 */
+        {
+            while (height--)
+            {
+                LOOP_UNROLLED4(
+                {
+                    GET_PIXEL(pixel, srcbpp, src);
+                    GET_PIXELVALS (sR, sG, sB, sA, pixel, srcfmt, srcppa);
+                    GET_PIXEL (pixel, dstbpp, dst);
+                    GET_PIXELVALS (dR, dG, dB, dA, pixel, dstfmt, dstppa);
+                    ALPHA_BLEND_PREMULTIPLIED (tmp, sR, sG, sB, sA, dR, dG, dB, dA);
+                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
+                    src += srcpxskip;
+                    dst += dstpxskip;
+                }, n, width);
+                src += srcskip;
+                dst += dstskip;
+            }
+        }
+    }
+}
 
 
 

@@ -202,11 +202,12 @@ sure, you acquired one earlier using <tt class="docutils literal"><span class="p
 <tt class="descclassname">pygame.scrap.</tt><tt class="descname">get</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.scrap.get" title="Permalink to this definition">¶</a></dt>
 <dd><div class="line-block">
 <div class="line"><span class="summaryline">Gets the data for the specified type from the clipboard.</span></div>
-<div class="line"><span class="signature">get (type) -&gt; string</span></div>
+<div class="line"><span class="signature">get (type) -&gt; bytes</span></div>
 </div>
 <p>Returns the data for the specified type from the clipboard. The data is
-returned as string and might need further processing. If no data for the
-passed type is available, None is returned.</p>
+returned as a byte string and might need further processing,
+such as decoding to Unicode.
+If no data for the passed type is available, None is returned.</p>
 <div class="highlight-python"><pre>text = pygame.scrap.get (SCRAP_TEXT)
 if text:
     # Do stuff with it.
