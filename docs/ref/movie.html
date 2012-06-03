@@ -1,0 +1,420 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pygame.movie &mdash; Pygame v1.9.2 documentation</title>
+    <link rel="stylesheet" href="../_static/pygame.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.9.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/pygame.ico"/>
+    <link rel="top" title="Pygame v1.9.2 documentation" href="../index.html" />
+    <link rel="next" title="pygame.mixer.music" href="music.html" />
+    <link rel="prev" title="pygame.mouse" href="mouse.html" /> 
+  </head>
+  <body>  
+
+    <div class="document">
+
+  <div class="header">
+    <table>
+      <tr>
+	<td class="logo">
+	  <a href="http://www.pygame.org/">
+	    <img src="../_static/pygame_tiny.png"/>
+	  </a>
+	  <h5>pygame documentation</h5>
+	</td>
+	<td class="pagelinks">
+	  <p class="top">
+	    ||
+	    <a href="http://www.pygame.org/">Pygame Home</a> ||
+	    <a href="../index.html">Help Contents</a> ||
+	    <a href="../genindex.html">Reference Index</a> ||
+	  </p>
+	  <p class="bottom">
+	    <a href="camera.html">camera</a> || 
+	    <a href="cdrom.html">cdrom</a> || 
+	    <a href="color.html">Color</a> || 
+	    <a href="cursors.html">cursors</a> || 
+	    <a href="display.html">display</a> || 
+	    <a href="draw.html">draw</a> || 
+	    <a href="event.html">event</a> || 
+	    <a href="examples.html">examples</a> || 
+	    <a href="font.html">font</a> || 
+	    <a href="freetype.html">freetype</a> || 
+	    <a href="gfxdraw.html">gfxdraw</a> || 
+	    <a href="image.html">image</a> || 
+	    <a href="joystick.html">joystick</a> || 
+	    <a href="key.html">key</a> || 
+	    <a href="locals.html">locals</a> || 
+	    <a href="mask.html">mask</a> || 
+	    <a href="math.html">math</a> || 
+	    <a href="midi.html">midi</a> || 
+	    <a href="mixer.html">mixer</a> || 
+	    <a href="mouse.html">mouse</a> || 
+	    <a href="movie.html">movie</a> || 
+	    <a href="music.html">music</a> || 
+	    <a href="overlay.html">Overlay</a> || 
+	    <a href="pixelarray.html">PixelArray</a> || 
+	    <a href="pixelcopy.html">pixelcopy</a> || 
+	    <a href="pygame.html">pygame</a> || 
+	    <a href="rect.html">Rect</a> || 
+	    <a href="scrap.html">scrap</a> || 
+	    <a href="sndarray.html">sndarray</a> || 
+	    <a href="sprite.html">sprite</a> || 
+	    <a href="surface.html">Surface</a> || 
+	    <a href="surfarray.html">surfarray</a> || 
+	    <a href="tests.html">tests</a> || 
+	    <a href="time.html">time</a> || 
+	    <a href="transform.html">transform</a> || 
+	    <a href="pygame.html#module-pygame.version">version</a>
+	  </p>
+	</td>
+      </tr>
+    </table>
+  </div>
+
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <div class="sectionwrapper">
+<div class="section" id="module-pygame.movie">
+<span id="pygame-movie"></span><dl class="definition module">
+<dt class="title module">
+<tt class="docutils literal"><span class="pre">pygame.movie</span></tt></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">pygame module for playback of mpeg video</span></div>
+</div>
+<table border="1" class="toc docutils">
+<colgroup>
+<col width="37%" />
+<col width="2%" />
+<col width="61%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="toc reference external" href="movie.html#pygame.movie.Movie">pygame.movie.Movie</a></td>
+<td>—</td>
+<td>load an mpeg movie file</td>
+</tr>
+</tbody>
+</table>
+<p><tt class="docutils literal"><span class="pre">NOTE</span></tt>: On <tt class="docutils literal"><span class="pre">NT</span></tt> derived Windows versions (e.g. <tt class="docutils literal"><span class="pre">XT</span></tt>) the default <tt class="docutils literal"><span class="pre">SDL</span></tt>
+directx video driver is problematic. For <a class="tooltip reference internal" href="#module-pygame.movie" title=""><tt class="xref py py-mod docutils literal"><span class="pre">pygame.movie</span></tt><span class="tooltip-content">pygame module for playback of mpeg video</span></a>, use the windib
+driver instead. To enable windib set the <tt class="docutils literal"><span class="pre">SDL_VIDEODRIVER</span></tt> environment
+variable to &#8216;windib&#8217; before importing pygame (see the
+<a class="tooltip reference internal" href="examples.html#pygame.examples.movieplayer.main" title=""><tt class="xref py py-func docutils literal"><span class="pre">pygame.examples.movieplayer.main()</span></tt><span class="tooltip-content">play an MPEG movie</span></a> example).</p>
+<p>Pygame can playback video and audio from basic encoded MPEG-1 video files.
+Movie playback happens in background threads, which makes playback easy to
+manage.</p>
+<p>The audio for Movies must have full control over the sound system. This means
+the <a class="tooltip reference internal" href="mixer.html#module-pygame.mixer" title=""><tt class="xref py py-mod docutils literal"><span class="pre">pygame.mixer</span></tt><span class="tooltip-content">pygame module for loading and playing sounds</span></a> module must be uninitialized if the movie&#8217;s sound is to
+be played. The common solution is to call <tt class="docutils literal"><span class="pre">pygame.mixer.quit()</span></tt> before the
+movie begins. The mixer can be reinitialized after the movie is finished.</p>
+<p>The video overlay planes are drawn on top of everything in the display window.
+To draw the movie as normal graphics into the display window, create an
+offscreen Surface and set that as the movie target. Then once per frame blit
+that surface to the screen.</p>
+<p>Videos can be converted to the .mpg file format (MPEG-1 video, MPEG-1 Audio
+Layer <tt class="docutils literal"><span class="pre">III</span></tt> (MP3) sound) using ffmpeg video conversion program
+(<a class="reference external" href="http://ffmpeg.org/">http://ffmpeg.org/</a>):</p>
+<div class="highlight-python"><pre>ffmpeg -i &lt;infile&gt; -vcodec mpeg1video -acodec libmp3lame -intra &lt;outfile.mpg&gt;</pre>
+</div>
+<dl class="definition class">
+<dt class="title" id="pygame.movie.Movie">
+<em class="property">class </em><tt class="descclassname">pygame.movie.</tt><tt class="descname">Movie</tt><a class="headerlink" href="#pygame.movie.Movie" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">load an mpeg movie file</span></div>
+<div class="line"><span class="signature">Movie(filename) -&gt; Movie</span></div>
+<div class="line"><span class="signature">Movie(object) -&gt; Movie</span></div>
+</div>
+<table border="1" class="toc docutils">
+<colgroup>
+<col width="39%" />
+<col width="1%" />
+<col width="60%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="toc reference external" href="movie.html#pygame.movie.Movie.play">pygame.movie.Movie.play</a></td>
+<td>—</td>
+<td>start playback of a movie</td>
+</tr>
+<tr><td><a class="toc reference external" href="movie.html#pygame.movie.Movie.stop">pygame.movie.Movie.stop</a></td>
+<td>—</td>
+<td>stop movie playback</td>
+</tr>
+<tr><td><a class="toc reference external" href="movie.html#pygame.movie.Movie.pause">pygame.movie.Movie.pause</a></td>
+<td>—</td>
+<td>temporarily stop and resume playback</td>
+</tr>
+<tr><td><a class="toc reference external" href="movie.html#pygame.movie.Movie.skip">pygame.movie.Movie.skip</a></td>
+<td>—</td>
+<td>advance the movie playback position</td>
+</tr>
+<tr><td><a class="toc reference external" href="movie.html#pygame.movie.Movie.rewind">pygame.movie.Movie.rewind</a></td>
+<td>—</td>
+<td>restart the movie playback</td>
+</tr>
+<tr><td><a class="toc reference external" href="movie.html#pygame.movie.Movie.render_frame">pygame.movie.Movie.render_frame</a></td>
+<td>—</td>
+<td>set the current video frame</td>
+</tr>
+<tr><td><a class="toc reference external" href="movie.html#pygame.movie.Movie.get_frame">pygame.movie.Movie.get_frame</a></td>
+<td>—</td>
+<td>get the current video frame</td>
+</tr>
+<tr><td><a class="toc reference external" href="movie.html#pygame.movie.Movie.get_time">pygame.movie.Movie.get_time</a></td>
+<td>—</td>
+<td>get the current vide playback time</td>
+</tr>
+<tr><td><a class="toc reference external" href="movie.html#pygame.movie.Movie.get_busy">pygame.movie.Movie.get_busy</a></td>
+<td>—</td>
+<td>check if the movie is currently playing</td>
+</tr>
+<tr><td><a class="toc reference external" href="movie.html#pygame.movie.Movie.get_length">pygame.movie.Movie.get_length</a></td>
+<td>—</td>
+<td>the total length of the movie in seconds</td>
+</tr>
+<tr><td><a class="toc reference external" href="movie.html#pygame.movie.Movie.get_size">pygame.movie.Movie.get_size</a></td>
+<td>—</td>
+<td>get the resolution of the video</td>
+</tr>
+<tr><td><a class="toc reference external" href="movie.html#pygame.movie.Movie.has_video">pygame.movie.Movie.has_video</a></td>
+<td>—</td>
+<td>check if the movie file contains video</td>
+</tr>
+<tr><td><a class="toc reference external" href="movie.html#pygame.movie.Movie.has_audio">pygame.movie.Movie.has_audio</a></td>
+<td>—</td>
+<td>check if the movie file contains audio</td>
+</tr>
+<tr><td><a class="toc reference external" href="movie.html#pygame.movie.Movie.set_volume">pygame.movie.Movie.set_volume</a></td>
+<td>—</td>
+<td>set the audio playback volume</td>
+</tr>
+<tr><td><a class="toc reference external" href="movie.html#pygame.movie.Movie.set_display">pygame.movie.Movie.set_display</a></td>
+<td>—</td>
+<td>set the video target Surface</td>
+</tr>
+</tbody>
+</table>
+<p>Load a new <tt class="docutils literal"><span class="pre">MPEG</span></tt> movie stream from a file or a python file object. The
+Movie object operates similar to the Sound objects from <a class="tooltip reference internal" href="mixer.html#module-pygame.mixer" title=""><tt class="xref py py-mod docutils literal"><span class="pre">pygame.mixer</span></tt><span class="tooltip-content">pygame module for loading and playing sounds</span></a>.</p>
+<p>Movie objects have a target display Surface. The movie is rendered into this
+Surface in a background thread. If the target Surface is the display
+Surface, the movie will try to use the hardware accelerated video overlay.
+The default target is the display Surface.</p>
+<dl class="definition method">
+<dt class="title" id="pygame.movie.Movie.play">
+<tt class="descname">play</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.movie.Movie.play" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">start playback of a movie</span></div>
+<div class="line"><span class="signature">play(loops=0) -&gt; None</span></div>
+</div>
+<p>Starts playback of the movie. Sound and video will begin playing if they
+are not disabled. The optional loops argument controls how many times the
+movie will be repeated. A loop value of -1 means the movie will repeat
+forever.</p>
+</dd></dl>
+
+<dl class="definition method">
+<dt class="title" id="pygame.movie.Movie.stop">
+<tt class="descname">stop</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.movie.Movie.stop" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">stop movie playback</span></div>
+<div class="line"><span class="signature">stop() -&gt; None</span></div>
+</div>
+<p>Stops the playback of a movie. The video and audio playback will be
+stopped at their current position.</p>
+</dd></dl>
+
+<dl class="definition method">
+<dt class="title" id="pygame.movie.Movie.pause">
+<tt class="descname">pause</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.movie.Movie.pause" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">temporarily stop and resume playback</span></div>
+<div class="line"><span class="signature">pause() -&gt; None</span></div>
+</div>
+<p>This will temporarily stop or restart movie playback.</p>
+</dd></dl>
+
+<dl class="definition method">
+<dt class="title" id="pygame.movie.Movie.skip">
+<tt class="descname">skip</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.movie.Movie.skip" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">advance the movie playback position</span></div>
+<div class="line"><span class="signature">skip(seconds) -&gt; None</span></div>
+</div>
+<p>Advance the movie playback time in seconds. This can be called before the
+movie is played to set the starting playback time. This can only skip the
+movie forward, not backwards. The argument is a floating point number.</p>
+</dd></dl>
+
+<dl class="definition method">
+<dt class="title" id="pygame.movie.Movie.rewind">
+<tt class="descname">rewind</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.movie.Movie.rewind" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">restart the movie playback</span></div>
+<div class="line"><span class="signature">rewind() -&gt; None</span></div>
+</div>
+<p>Sets the movie playback position to the start of the movie. The movie
+will automatically begin playing even if it stopped.</p>
+<p>The can raise a ValueError if the movie cannot be rewound. If the rewind
+fails the movie object is considered invalid.</p>
+</dd></dl>
+
+<dl class="definition method">
+<dt class="title" id="pygame.movie.Movie.render_frame">
+<tt class="descname">render_frame</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.movie.Movie.render_frame" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">set the current video frame</span></div>
+<div class="line"><span class="signature">render_frame(frame_number) -&gt; frame_number</span></div>
+</div>
+<p>This takes an integer frame number to render. It attempts to render the
+given frame from the movie to the target Surface. It returns the real
+frame number that got rendered.</p>
+</dd></dl>
+
+<dl class="definition method">
+<dt class="title" id="pygame.movie.Movie.get_frame">
+<tt class="descname">get_frame</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.movie.Movie.get_frame" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">get the current video frame</span></div>
+<div class="line"><span class="signature">get_frame() -&gt; frame_number</span></div>
+</div>
+<p>Returns the integer frame number of the current video frame.</p>
+</dd></dl>
+
+<dl class="definition method">
+<dt class="title" id="pygame.movie.Movie.get_time">
+<tt class="descname">get_time</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.movie.Movie.get_time" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">get the current vide playback time</span></div>
+<div class="line"><span class="signature">get_time() -&gt; seconds</span></div>
+</div>
+<p>Return the current playback time as a floating point value in seconds.
+This method currently seems broken and always returns 0.0.</p>
+</dd></dl>
+
+<dl class="definition method">
+<dt class="title" id="pygame.movie.Movie.get_busy">
+<tt class="descname">get_busy</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.movie.Movie.get_busy" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">check if the movie is currently playing</span></div>
+<div class="line"><span class="signature">get_busy() -&gt; bool</span></div>
+</div>
+<p>Returns true if the movie is currently being played.</p>
+</dd></dl>
+
+<dl class="definition method">
+<dt class="title" id="pygame.movie.Movie.get_length">
+<tt class="descname">get_length</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.movie.Movie.get_length" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">the total length of the movie in seconds</span></div>
+<div class="line"><span class="signature">get_length() -&gt; seconds</span></div>
+</div>
+<p>Returns the length of the movie in seconds as a floating point value.</p>
+</dd></dl>
+
+<dl class="definition method">
+<dt class="title" id="pygame.movie.Movie.get_size">
+<tt class="descname">get_size</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.movie.Movie.get_size" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">get the resolution of the video</span></div>
+<div class="line"><span class="signature">get_size() -&gt; (width, height)</span></div>
+</div>
+<p>Gets the resolution of the movie video. The movie will be stretched to
+the size of any Surface, but this will report the natural video size.</p>
+</dd></dl>
+
+<dl class="definition method">
+<dt class="title" id="pygame.movie.Movie.has_video">
+<tt class="descname">has_video</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.movie.Movie.has_video" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">check if the movie file contains video</span></div>
+<div class="line"><span class="signature">has_video() -&gt; bool</span></div>
+</div>
+<p>True when the opened movie file contains a video stream.</p>
+</dd></dl>
+
+<dl class="definition method">
+<dt class="title" id="pygame.movie.Movie.has_audio">
+<tt class="descname">has_audio</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.movie.Movie.has_audio" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">check if the movie file contains audio</span></div>
+<div class="line"><span class="signature">has_audio() -&gt; bool</span></div>
+</div>
+<p>True when the opened movie file contains an audio stream.</p>
+</dd></dl>
+
+<dl class="definition method">
+<dt class="title" id="pygame.movie.Movie.set_volume">
+<tt class="descname">set_volume</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.movie.Movie.set_volume" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">set the audio playback volume</span></div>
+<div class="line"><span class="signature">set_volume(value) -&gt; None</span></div>
+</div>
+<p>Set the playback volume for this movie. The argument is a value between
+0.0 and 1.0. If the volume is set to 0 the movie audio will not be
+decoded.</p>
+</dd></dl>
+
+<dl class="definition method">
+<dt class="title" id="pygame.movie.Movie.set_display">
+<tt class="descname">set_display</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.movie.Movie.set_display" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">set the video target Surface</span></div>
+<div class="line"><span class="signature">set_display(Surface, rect=None) -&gt; None</span></div>
+</div>
+<p>Set the output target Surface for the movie video. You may also pass a
+rectangle argument for the position, which will move and stretch the
+video into the given area.</p>
+<p>If None is passed as the target Surface, the video decoding will be
+disabled.</p>
+</dd></dl>
+
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+  </div>
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="music.html" title="pygame.mixer.music"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="mouse.html" title="pygame.mouse"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">Pygame v1.9.2 documentation</a> &raquo;</li>
+    <script type="text/javascript" src="jquery.plugin.docscomments.js"></script>
+
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Pygame Developers.
+    </div>
+  </body>
+</html>
