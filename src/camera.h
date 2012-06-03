@@ -46,7 +46,7 @@
     #include <AvailabilityMacros.h>
     /* We support OSX 10.6 and below. */
     #if __MAC_OS_X_VERSION_MAX_ALLOWED <= 1060
-        #define #PYGAME_MAC_CAMERA_OLD 1
+        #define PYGAME_MAC_CAMERA_OLD 1
     #endif
 #endif
 
