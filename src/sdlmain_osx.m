@@ -31,6 +31,7 @@
 #include <AppKit/NSImage.h>
 
 #include "pgcompat.h"
+#include "scrap.h"
 
 struct CPSProcessSerNum
 {
@@ -258,11 +259,117 @@ _InstallNSApplication(PyObject* self, PyObject* arg)
 	Py_RETURN_TRUE;
 }
 
+static PyObject*
+_ScrapInit(PyObject* self) {
+    Py_RETURN_TRUE;
+}
+
+static PyObject*
+_ScrapGet(PyObject *self, PyObject *args) {
+	PyObject *ret = Py_None;
+    char *scrap_type;
+
+    if (!PyArg_ParseTuple (args, "s", &scrap_type))
+        return Py_None;
+
+	// anything else than text is not implemented
+	if (strcmp(scrap_type, PYGAME_SCRAP_TEXT))
+		return Py_None;
+
+    NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
+	NSString *info = [[NSPasteboard generalPasteboard]stringForType:NSStringPboardType];
+	if (info != nil)
+		ret = PyUnicode_FromString([info UTF8String]);
+	[pool release];
+	return ret;
+}
+
+static PyObject*
+_ScrapGetTypes(PyObject *self) {
+	PyObject *l = PyList_New(0);
+    NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
+	NSPasteboard *pb = [NSPasteboard generalPasteboard];
+	NSArray *types = [pb types];
+	for (NSString *type in types)
+		PyList_Append(l, PyUnicode_FromString([type UTF8String]));
+	[pool release];
+	return l;
+}
+
+static PyObject*
+_ScrapPut(PyObject *self, PyObject *args) {
+	PyObject *ret = NULL;
+    char *scrap_type;
+	char *data;
+
+    if (!PyArg_ParseTuple (args, "ss", &scrap_type, &data))
+        return Py_None;
+
+	// anything else than text is not implemented
+	if (strcmp(scrap_type, PYGAME_SCRAP_TEXT))
+		return Py_None;
+
+    NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
+	NSPasteboard *pb = [NSPasteboard generalPasteboard];
+	NSString *ndata = [NSString stringWithCString:(char *)data encoding:NSUTF8StringEncoding];
+	[pb declareTypes: [NSArray arrayWithObject:NSStringPboardType] owner: pb];
+	[pb setString:ndata forType: NSStringPboardType];
+	[pool release];
+	return Py_None;
+}
+
+static PyObject*
+_ScrapSetMode(PyObject *self, PyObject *args) {
+	char *mode;
+    if (!PyArg_ParseTuple (args, "s", &mode))
+        return Py_None;
+	return Py_None;
+}
+
+static PyObject*
+_ScrapContains(PyObject *self, PyObject *args) {
+	char *mode;
+	int found = 0;
+    if (!PyArg_ParseTuple (args, "s", &mode))
+        return Py_None;
+
+    NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
+	NSPasteboard *pb = [NSPasteboard generalPasteboard];
+	NSArray *types = [pb types];
+	for (NSString *type in types)
+		if (strcmp([type UTF8String], mode) == 0)
+			found = 1;
+	[pool release];
+
+	return found ? Py_True : Py_False;
+}
+
+static PyObject*
+_ScrapLost(PyObject *self) {
+	int found = 0;
+    NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
+	NSArray *supportedTypes =
+		[NSArray arrayWithObjects: NSStringPboardType, nil];
+	NSString *bestType = [[NSPasteboard generalPasteboard]
+		availableTypeFromArray:supportedTypes];
+	found = bestType != nil;
+	[pool release];
+
+	return found ? Py_False : Py_True;
+}
+
 static PyMethodDef macosx_builtins[] =
 {
     { "WMEnable", (PyCFunction) _WMEnable, METH_NOARGS, "Enables Foreground Operation when Window Manager is not available" },
     { "RunningFromBundleWithNSApplication", (PyCFunction) _RunningFromBundleWithNSApplication, METH_NOARGS, "Returns true if we are running from an AppBundle with a variable named NSApp" },
     { "InstallNSApplication", _InstallNSApplication, METH_VARARGS, "Creates an NSApplication with the right behaviors for SDL" },
+	{ "ScrapInit", (PyCFunction) _ScrapInit, METH_NOARGS, "Initialize scrap for osx" },
+	{ "ScrapGet", (PyCFunction) _ScrapGet, METH_VARARGS, "Get a element from the scrap for osx" },
+	{ "ScrapPut", (PyCFunction) _ScrapPut, METH_VARARGS, "Set a element from the scrap for osx" },
+	{ "ScrapGetTypes", (PyCFunction) _ScrapGetTypes, METH_NOARGS, "Get scrap types for osx" },
+	{ "ScrapSetMode", (PyCFunction) _ScrapSetMode, METH_VARARGS, "Set mode for osx scrap (not used)" },
+	{ "ScrapContains", (PyCFunction) _ScrapContains, METH_VARARGS, "Check if a type is allowed on osx scrap (not used)" },
+	{ "ScrapLost", (PyCFunction) _ScrapLost, METH_NOARGS, "Check if our type is lost from scrap for osx" },
     { NULL, NULL, 0, NULL}
 };
 
