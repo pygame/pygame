@@ -288,7 +288,6 @@ def packager_imports():
     import numpy
     import OpenGL.GL
     import pygame.macosx
-    import pygame.mac_scrap
     import pygame.bufferproxy
     import pygame.colordict
     import pygame._view

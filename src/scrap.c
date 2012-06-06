@@ -322,8 +322,7 @@ static PyMethodDef scrap_builtins[] =
     /*
      * Only initialise these functions for ones we know about.
      *
-     * Note, the macosx stuff is done in pygame/__init__.py 
-     *   by importing pygame.mac_scrap
+     * Note, the macosx stuff is done in sdlosx_main.m 
      */
 #if (defined(X11_SCRAP) || defined(WIN_SCRAP) || defined(QNX_SCRAP) \
      || defined(MAC_SCRAP))
