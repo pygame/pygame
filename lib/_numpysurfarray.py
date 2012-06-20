@@ -130,7 +130,7 @@ def pixels2d(surface):
     """
     try:
         return numpy_array(surface.get_view('2'), copy=False)
-    except ValueError:
+    except (ValueError, TypeError):
         raise ValueError("bit depth %i unsupported for 2D reference array" %
                          (surface.get_bitsize(),))
 
