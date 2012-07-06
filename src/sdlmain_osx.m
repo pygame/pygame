@@ -33,6 +33,15 @@
 #include "pgcompat.h"
 #include "scrap.h"
 
+#include <AvailabilityMacros.h>
+/* We support OSX 10.6 and below. */
+#if __MAC_OS_X_VERSION_MAX_ALLOWED <= 1060
+	#define PYGAME_MAC_SCRAP_OLD 1
+#endif
+
+
+
+
 struct CPSProcessSerNum
 {
 	UInt32 lo;
@@ -268,7 +277,9 @@ static PyObject*
 _ScrapGet(PyObject *self, PyObject *args) {
 	PyObject *ret = Py_None;
 	char *scrap_type;
-
+#if defined (PYGAME_MAC_SCRAP_OLD)
+	return Py_None;
+#else
 	if (!PyArg_ParseTuple (args, "s", &scrap_type))
 		return Py_None;
 
@@ -282,6 +293,7 @@ _ScrapGet(PyObject *self, PyObject *args) {
 		ret = PyUnicode_FromString([info UTF8String]);
 	[pool release];
 	return ret;
+#endif
 }
 
 static PyObject*
