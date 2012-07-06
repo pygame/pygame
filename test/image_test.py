@@ -12,15 +12,16 @@ else:
 
 if is_pygame_pkg:
     from pygame.tests.test_utils \
-         import test_not_implemented, example_path, unittest
+         import test_not_implemented, example_path, unittest, png
 else:
     from test.test_utils \
-         import test_not_implemented, example_path, unittest
+         import test_not_implemented, example_path, unittest, png
 import pygame, pygame.image, pygame.pkgdata
 from pygame.compat import xrange_, ord_
 
 import os
 import array
+import tempfile
 
 def test_magic(f, magic_hex):
     """ tests a given file to see if the magic hex matches.
@@ -51,16 +52,51 @@ class ImageModuleTest( unittest.TestCase ):
         self.assertEqual(surf.get_width(),32)
 
     def testLoadPNG(self):
-        """ see if we can load a png.
+        """ see if we can load a png with color values in the proper channels.
         """
-        f = example_path('data/alien1.png') # normalized
-        # f = os.path.join("examples", "data", "alien1.png")
-        surf = pygame.image.load(f)
+        # Create a PNG file with known colors
+        reddish_pixel = (210, 0, 0, 255)
+        greenish_pixel = (0, 220, 0, 255)
+        bluish_pixel = (0, 0, 230, 255)
+        greyish_pixel = (110, 120, 130, 140)
+        pixel_array = [reddish_pixel + greenish_pixel,
+                       bluish_pixel + greyish_pixel]
 
-        f = open(f, 'rb')
-        # f = open(os.path.join("examples", "data", "alien1.png"), "rb")
-        surf = pygame.image.load(f)
+        f_descriptor, f_path = tempfile.mkstemp(suffix='.png')
+        f = os.fdopen(f_descriptor, 'wb')
+        w = png.Writer(2, 2, alpha=True)
+        w.write(f, pixel_array)
+        f.close()
 
+        # Read the PNG file and verify that pygame interprets it correctly
+        surf = pygame.image.load(f_path)
+
+        pixel_x0_y0 = surf.get_at((0, 0))
+        pixel_x1_y0 = surf.get_at((1, 0))
+        pixel_x0_y1 = surf.get_at((0, 1))
+        pixel_x1_y1 = surf.get_at((1, 1))
+
+        self.assertEquals(pixel_x0_y0, reddish_pixel)
+        self.assertEquals(pixel_x1_y0, greenish_pixel)
+        self.assertEquals(pixel_x0_y1, bluish_pixel)
+        self.assertEquals(pixel_x1_y1, greyish_pixel)
+
+        # Read the PNG file obj. and verify that pygame interprets it correctly
+        f = open(f_path, 'rb')
+        surf = pygame.image.load(f)
+        f.close()
+
+        pixel_x0_y0 = surf.get_at((0, 0))
+        pixel_x1_y0 = surf.get_at((1, 0))
+        pixel_x0_y1 = surf.get_at((0, 1))
+        pixel_x1_y1 = surf.get_at((1, 1))
+
+        self.assertEquals(pixel_x0_y0, reddish_pixel)
+        self.assertEquals(pixel_x1_y0, greenish_pixel)
+        self.assertEquals(pixel_x0_y1, bluish_pixel)
+        self.assertEquals(pixel_x1_y1, greyish_pixel)
+
+        os.remove(f_path) 
 
     def testLoadJPG(self):
         """ see if we can load a jpg.
@@ -78,6 +114,36 @@ class ImageModuleTest( unittest.TestCase ):
         
         # surf = pygame.image.load(open(os.path.join("examples", "data", "alien1.jpg"), "rb"))
 
+    def testSavePNG(self):
+        """ see if we can save a png with color values in the proper channels.
+        """
+        # Create a PNG file with known colors
+        reddish_pixel = (215, 0, 0, 255)
+        greenish_pixel = (0, 225, 0, 255)
+        bluish_pixel = (0, 0, 235, 255)
+        greyish_pixel = (115, 125, 135, 145)
+
+        surf = pygame.Surface((1, 4), pygame.SRCALPHA, 32)
+        surf.set_at((0, 0), reddish_pixel)
+        surf.set_at((0, 1), greenish_pixel)
+        surf.set_at((0, 2), bluish_pixel)
+        surf.set_at((0, 3), greyish_pixel)
+
+        f_path = tempfile.mktemp(suffix='.png')
+        pygame.image.save(surf, f_path)
+
+        # Read the PNG file and verify that pygame saved it correctly
+        width, height, pixels, metadata = png.Reader(filename=f_path).asRGBA8()
+        pixels_as_tuples = []
+        for pixel in pixels:
+            pixels_as_tuples.append(tuple(pixel))
+
+        self.assertEquals(pixels_as_tuples[0], reddish_pixel)
+        self.assertEquals(pixels_as_tuples[1], greenish_pixel)
+        self.assertEquals(pixels_as_tuples[2], bluish_pixel)
+        self.assertEquals(pixels_as_tuples[3], greyish_pixel)
+
+        os.remove(f_path)
 
     def test_save(self):
 
