@@ -1060,9 +1060,15 @@ int audio_thread(void *arg)
     RELEASEGIL
     AVPacket *pkt = &movie->audio_pkt;
     AVCodecContext *dec= movie->audio_st->codec;
-    int len1, data_size;
+    AVFrame *frame;
+    int len1, data_size, got_frame_ptr;
     int filled =0;
     len1=0;
+
+    frame=avcodec_alloc_frame();
+
+    dec->get_buffer(dec, frame);
+
     for(;;)
     {
         if(movie->stop || movie->audioq.abort_request)
@@ -1098,11 +1104,19 @@ int audio_thread(void *arg)
         //fill up the buffer
         while(movie->audio_pkt_size > 0)
         {
+
+            //printf("asdf\n");
+            /* TODO: attempt to fix below... but this is just wrong... */
             data_size = sizeof(movie->audio_buf1);
-            len1 += avcodec_decode_audio2(dec, (int16_t *)movie->audio_buf1, &data_size, movie->audio_pkt_data, movie->audio_pkt_size);
+            len1 = avcodec_decode_audio4(dec, 
+                                         frame, 
+                                         &data_size, 
+                                         pkt);
+
+            movie->audio_pkt_size= frame->nb_samples;
             if (len1 < 0)
             {
-                /* if error, we skip the frame */
+                // if error, we skip the frame 
                 movie->audio_pkt_size = 0;
                 break;
             }
@@ -1112,6 +1126,29 @@ int audio_thread(void *arg)
                 continue;
             //reformat_ctx here, but deleted
             filled=1;
+
+
+
+            /* TODO: FIXME uses old functions.
+            data_size = sizeof(movie->audio_buf1);
+            len1 += avcodec_decode_audio2(dec, 
+                                          (int16_t *)movie->audio_buf1, 
+                                          &data_size, 
+                                          movie->audio_pkt_data, 
+                                          movie->audio_pkt_size);
+            if (len1 < 0)
+            {
+                // if error, we skip the frame 
+                movie->audio_pkt_size = 0;
+                break;
+            }
+            movie->audio_pkt_data += len1;
+            movie->audio_pkt_size -= len1;
+            if (data_size <= 0)
+                continue;
+            //reformat_ctx here, but deleted
+            filled=1;
+            */
 
         }
         if(filled)
@@ -1192,11 +1229,11 @@ int stream_component_open(PyMovie *movie, int stream_index, int threaded)
     enc = ic->streams[stream_index]->codec;
     switch(enc->codec_type)
     {
-    case CODEC_TYPE_AUDIO:
+    case PYG_MEDIA_TYPE_AUDIO:
         movie->audio_stream = stream_index;
         movie->audio_st = ic->streams[stream_index];
         break;
-    case CODEC_TYPE_VIDEO:
+    case PYG_MEDIA_TYPE_VIDEO:
         movie->video_stream = stream_index;
         movie->video_st = ic->streams[stream_index];
         break;
@@ -1254,7 +1291,7 @@ int stream_component_start(PyMovie *movie, int stream_index, int threaded)
     enc = ic->streams[stream_index]->codec;
     switch(enc->codec_type)
     {
-    case CODEC_TYPE_AUDIO:
+    case PYG_MEDIA_TYPE_AUDIO:
         if(movie->replay)
         {
             movie->audio_st = ic->streams[stream_index];
@@ -1266,7 +1303,7 @@ int stream_component_start(PyMovie *movie, int stream_index, int threaded)
         soundStart();
         movie->audio_tid = SDL_CreateThread(audio_thread, movie);
         break;
-    case CODEC_TYPE_VIDEO:
+    case PYG_MEDIA_TYPE_VIDEO:
         if(movie->replay)
         {
             movie->video_stream = stream_index;
@@ -1342,7 +1379,7 @@ void stream_component_end(PyMovie *movie, int stream_index, int threaded)
     //SubPicture *sp;
     switch(enc->codec_type)
     {
-    case CODEC_TYPE_AUDIO:
+    case PYG_MEDIA_TYPE_AUDIO:
         packet_queue_abort(&movie->audioq);
         SDL_WaitThread(movie->audio_tid, NULL);
         SDL_DestroyMutex(movie->audio_mutex);
@@ -1350,7 +1387,7 @@ void stream_component_end(PyMovie *movie, int stream_index, int threaded)
         memset(&movie->audio_buf1, 0, sizeof(movie->audio_buf1));
         packet_queue_flush(&movie->audioq);
         break;
-    case CODEC_TYPE_VIDEO:
+    case PYG_MEDIA_TYPE_VIDEO:
         for(i=0;i<VIDEO_PICTURE_QUEUE_SIZE;i++)
         {
             vp = &movie->pictq[i];
@@ -1422,11 +1459,11 @@ void stream_component_close(PyMovie *movie, int stream_index, int threaded)
     int end = movie->loops;
     switch(enc->codec_type)
     {
-    case CODEC_TYPE_AUDIO:
+    case PYG_MEDIA_TYPE_AUDIO:
         soundQuit();
         packet_queue_end(&movie->audioq, end);
         break;
-    case CODEC_TYPE_VIDEO:
+    case PYG_MEDIA_TYPE_VIDEO:
         packet_queue_end(&movie->videoq, end);
         break;
     default:
@@ -1437,11 +1474,11 @@ void stream_component_close(PyMovie *movie, int stream_index, int threaded)
     avcodec_close(enc);
     switch(enc->codec_type)
     {
-    case CODEC_TYPE_AUDIO:
+    case PYG_MEDIA_TYPE_AUDIO:
         movie->audio_st = NULL;
         movie->audio_stream = -1;
         break;
-    case CODEC_TYPE_VIDEO:
+    case PYG_MEDIA_TYPE_VIDEO:
         movie->video_st = NULL;
         movie->video_stream = -1;
         break;
@@ -1537,15 +1574,15 @@ void stream_open(PyMovie *movie, const char *filename, AVInputFormat *iformat, i
         movie->ic->streams[i]->discard = AVDISCARD_ALL;
         switch(enc->codec_type)
         {
-        case CODEC_TYPE_AUDIO:
+        case PYG_MEDIA_TYPE_AUDIO:
             if (wanted_audio_stream-- >= 0 && !movie->audio_disable)
                 audio_index = i;
             break;
-        case CODEC_TYPE_VIDEO:
+        case PYG_MEDIA_TYPE_VIDEO:
             if (wanted_video_stream-- >= 0 && !movie->video_disable)
                 video_index = i;
             break;
-        case CODEC_TYPE_SUBTITLE:
+        case PYG_MEDIA_TYPE_SUBTITLE:
             //if(wanted_subti_stream -- >= 0 && !movie->subtitle_disable)
             //	subtitle_index=i;
         default:
@@ -1700,7 +1737,7 @@ int initialize_codec(PyMovie *movie, int stream_index, int threaded)
     int freq, channels;
     enc = ic->streams[stream_index]->codec;
     /* prepare audio output */
-    if (enc->codec_type == CODEC_TYPE_AUDIO)
+    if (enc->codec_type == PYG_MEDIA_TYPE_AUDIO)
     {
 #if LIBAVCODEC_VERSION_INT>=3412992 //(52<<16)+(20<<8)+0 ie 52.20.0
         if (enc->channels > 0)
@@ -1747,7 +1784,7 @@ int initialize_codec(PyMovie *movie, int stream_index, int threaded)
         return -1;
     }
     /* prepare audio output */
-    if (enc->codec_type == CODEC_TYPE_AUDIO)
+    if (enc->codec_type == PYG_MEDIA_TYPE_AUDIO)
     {
 
         freq = enc->sample_rate;
@@ -1863,9 +1900,9 @@ void stream_cycle_channel(PyMovie *movie, int codec_type)
     Py_INCREF(movie);
     RELEASEGIL
 
-    if (codec_type == CODEC_TYPE_VIDEO)
+    if (codec_type == PYG_MEDIA_TYPE_VIDEO)
         start_index = movie->video_stream;
-    else if (codec_type == CODEC_TYPE_AUDIO)
+    else if (codec_type == PYG_MEDIA_TYPE_AUDIO)
         start_index = movie->audio_stream;
     stream_index = start_index;
     for(;;)
@@ -1882,12 +1919,12 @@ void stream_cycle_channel(PyMovie *movie, int codec_type)
             /* check that parameters are OK */
             switch(codec_type)
             {
-            case CODEC_TYPE_AUDIO:
+            case PYG_MEDIA_TYPE_AUDIO:
                 if (st->codec->sample_rate != 0 &&
                         st->codec->channels != 0)
                     goto the_end;
                 break;
-            case CODEC_TYPE_VIDEO:
+            case PYG_MEDIA_TYPE_VIDEO:
             default:
                 break;
             }
@@ -2214,7 +2251,18 @@ int decoder(void *arg)
                         int bytesDecoded, frameFinished;
                         AVFrame *frame;
                         frame=avcodec_alloc_frame();
-                        bytesDecoded = avcodec_decode_video(movie->video_st->codec, frame, &frameFinished, pkt->data, pkt->size);
+                        /* TODO: FIXME avcodec_decode_video is old api.
+                        bytesDecoded = avcodec_decode_video(movie->video_st->codec, 
+                                                            frame, 
+                                                            &frameFinished, 
+                                                            pkt->data, 
+                                                            pkt->size);
+                        */
+                        bytesDecoded = avcodec_decode_video2(movie->video_st->codec, 
+                                                             frame, 
+                                                             &frameFinished, 
+                                                             pkt);
+
                         if(frameFinished)
                         {
                             if((pkt->pts >= vid_seek_target) || (pkt->dts >= vid_seek_target))
@@ -2495,9 +2543,17 @@ int video_render(PyMovie *movie)
 #else
         movie->video_st->codec->reordered_opaque= pkt->pts;
 #endif
+
+        /* TODO: FIXME: avcodec_decode_video is old API.
         len1 = avcodec_decode_video(movie->video_st->codec,
                                     frame, &got_picture,
                                     pkt->data, pkt->size);
+        */
+        len1 = avcodec_decode_video2(movie->video_st->codec,
+                                    frame, &got_picture,
+                                    pkt);
+
+
 #if LIBAVCODEC_VERSION_INT<3412992
 		if((pkt->dts == AV_NOPTS_VALUE)) //(52<<16)+(20<<8)+0 ie 52.20.0
         {
