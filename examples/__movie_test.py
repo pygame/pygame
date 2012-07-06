@@ -8,7 +8,7 @@ import pygame._movie as movie
 
 print ("Please give an (absolute)filename of a movie file you'd like to play: ")
 #filename = raw_input()
-filename="/home/tyler/War3.avi"
+filename="/tmp/testit.avi"
 #initialization. It could also have a surface as a second argument, and every 
 # frame will be blitted to that surface. It is the programmer's responsibility
 # to be on time for rendering that surface.
@@ -28,7 +28,7 @@ try:
     #this is to test that the movie module tests filenames to make sure they exist
     m=movie.Movie("gsdsjgsdj")
 except Exception:
-    e = pygame.compat.get_error()
+    e = pygame.compat.geterror()
     print (e)
     del m
 
@@ -52,7 +52,7 @@ surf = pygame.surface.Surface((100, 100))
 try:
     m.surface = surf
 except Exception:
-    e = pygame.compat.get_error()
+    e = pygame.compat.geterror()
 
     print (e)
     del e
