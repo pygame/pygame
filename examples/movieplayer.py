@@ -2,12 +2,14 @@
 
 import sys
 import os
+import time
 
 if sys.platform == 'win32' and sys.getwindowsversion()[0] >= 5: # condi. and
     # On NT like Windows versions smpeg video needs windb.
     os.environ['SDL_VIDEODRIVER'] = 'windib'
     
 import pygame
+import pygame._movie
 from pygame.locals import *
 
 try:
@@ -34,28 +36,65 @@ def main(filepath):
     pygame.mixer.quit()
     pygame.display.init()
 
-    f = BytesIO(open(filepath, 'rb').read())
-    movie = pygame.movie.Movie(f)
-    w, h = movie.get_size()
-    w = int(w * 1.3 + 0.5)
-    h = int(h * 1.3 + 0.5)
-    wsize = (w+10, h+10)
+    #f = BytesIO(open(filepath, 'rb').read())
+    #movie = pygame.movie.Movie(f)
+    #w, h = movie.get_size()
+    info = pygame._movie.MovieInfo(filepath)
+    w, h = info.width, info.height
     msize = (w, h)
-    screen = pygame.display.set_mode(wsize)
-    movie.set_display(screen, Rect((5, 5), msize))
 
-    pygame.event.set_allowed((QUIT, KEYDOWN))
-    pygame.time.set_timer(USEREVENT, 1000)
-    movie.play()
-    while movie.get_busy():
-        evt = pygame.event.wait()
-        if evt.type == QUIT:
-            break
-        if evt.type == KEYDOWN and evt.unicode == QUIT_CHAR:
-            break
-    if movie.get_busy():
+
+    print "new screen..."
+    screen = pygame.display.set_mode(msize)
+
+
+    pygame.display.set_caption(os.path.split(info.filename)[-1])
+
+
+    print "before movie = pygame._movie.Movie(filepath, screen)"
+    #surf = screen.copy().convert()
+    #movie = pygame._movie.Movie(filepath, screen)
+    movie = pygame._movie.Movie(filepath)
+    #movie.surface = surf
+    print "after movie = pygame._movie.Movie(filepath, screen)"
+    #movie.set_display(screen, Rect((5, 5), msize))
+
+    print dir(movie)
+    print movie.surface
+    #movie.xleft = 300
+    print "before movie.play()"
+    movie.play(0)
+    print "after movie.play()"
+
+    while movie.playing:
+
+        events = pygame.event.get()
+        for e in events:
+            print e
+            if e.type == QUIT or e.type == KEYDOWN and e.key == K_ESCAPE:
+                movie.stop()
+
+
+        if 1:
+            if(not screen.get_locked()):
+                try:
+                    #pygame.display.update()
+                    #pygame.display.flip()
+                    pass
+                except pygame.error:
+                    break
+        else:
+            if(not surf.get_locked() and not screen.get_locked()):
+                try:
+                    screen.blit(surf, (0,0))
+                except pygame.error:
+                    pass
+            
+        time.sleep(0.1) # release the GIL.
+
+
+    if movie.playing:
         movie.stop()
-    pygame.time.set_timer(USEREVENT, 0)
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:
