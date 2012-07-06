@@ -713,13 +713,13 @@ void _info_init_internal(PyMovieInfo *self, const char *filename)
 	
         switch(enc->codec_type)
         {
-        case CODEC_TYPE_AUDIO:
+        case PYG_MEDIA_TYPE_AUDIO:
             self->sample_rate=enc->sample_rate;
 	    	self->channels = enc->channels;
 	    	self->aud_codec = (char *)PyMem_Malloc((sizeof(char)*strlen(codec->name))+sizeof(char));
 	    	strncpy(self->aud_codec, codec->name, strlen(codec->name)+1);
 	    	break;
-        case CODEC_TYPE_VIDEO:
+        case PYG_MEDIA_TYPE_VIDEO:
             self->width = enc->width;
 	    	self->height = enc->height;
 	    	self->aspect_ratio = (double)self->width/(double)self->height;
