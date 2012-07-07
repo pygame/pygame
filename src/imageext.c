@@ -263,7 +263,7 @@ SavePNG (SDL_Surface *surface, const char *file)
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
                                        0xff0000, 0xff00, 0xff, 0x000000ff
 #else
-                                       0xff, 0xff00, 0xff0000, 0xff000000
+                                       0xff00, 0xff, 0xff0000, 0xff000000
 #endif
         );
 
@@ -455,7 +455,7 @@ int SaveJPEG (SDL_Surface *surface, const char *file) {
         ss_surface = SDL_CreateRGBSurface (SDL_SWSURFACE,
                                        ss_w, ss_h, pixel_bits,
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
-                                       0xff0000, 0xff00, 0xff, 0x000000ff
+                                       0xff00, 0xff, 0xff0000, 0xff000000
 #else
                                        0xff, 0xff00, 0xff0000, 0xff000000
 #endif
