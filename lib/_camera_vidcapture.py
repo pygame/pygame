@@ -111,6 +111,8 @@ class Camera:
                 # if there is a destination surface given, we blit onto that.
                 if dest_surf:
                     dest_surf.blit(surf, (0,0))
+                else:
+                    dest_surf = surf
                 return dest_surf
 
             else:
