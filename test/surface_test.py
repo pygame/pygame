@@ -208,6 +208,29 @@ class SurfaceTypeTest(unittest.TestCase):
         for pt in test_utils.rect_outer_bounds(fill_rect):
             self.assert_(s1.get_at(pt) != color )
 
+
+
+    def test_fill_negative_coordinates(self):
+
+        # negative coordinates should be clipped by fill, and not draw outside the surface.
+        color = (25, 25, 25, 25)
+        color2 = (20, 20, 20, 25)
+        fill_rect = pygame.Rect(-10, -10, 16, 16)
+        
+        s1 = pygame.Surface((32,32), pygame.SRCALPHA, 32)
+        s1.fill(color, fill_rect)   
+        c = s1.get_at((0,0))
+        self.assertEqual(c, color)
+
+        # make subsurface in the middle.
+        s2 = s1.subsurface((5, 5, 5, 5))
+        s2.fill(color2, (-3, -3, 5, 5))
+        c2 = s1.get_at((4,4))
+        self.assertEqual(c, color)
+
+
+
+
     def test_fill_keyword_args(self):
         color = (1, 2, 3, 255)
         area = (1, 1, 2, 2)
