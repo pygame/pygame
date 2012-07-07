@@ -1445,11 +1445,13 @@ surf_fill (PyObject *self, PyObject *args, PyObject *keywds)
         sdlrect.y = rect->y;
         sdlrect.w = rect->w;
         sdlrect.h = rect->h;
-        
-
-
 
         // clip the rect to be within the surface.
+        if(sdlrect.x + sdlrect.w <= 0 || sdlrect.y + sdlrect.h <= 0) {
+            sdlrect.w = 0;
+            sdlrect.h = 0;
+        }
+
         if (sdlrect.x < 0) {
             sdlrect.x = 0;
         }
@@ -1464,6 +1466,7 @@ surf_fill (PyObject *self, PyObject *args, PyObject *keywds)
             sdlrect.h = sdlrect.h + (surf->h - (sdlrect.y + sdlrect.h));
         }
 
+        /* printf("%d, %d, %d, %d\n", sdlrect.x, sdlrect.y, sdlrect.w, sdlrect.h); */
 
 
         if (blendargs != 0) {
