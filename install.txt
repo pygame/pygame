@@ -7,7 +7,7 @@ document will give you information on either type of installation.
 Windows Binary Installer
 This is probably the most popular method of installation. If you are
 running on windows, it is highly recommended you use this form of
-installing. The installers come with with nearly everything you need,
+installing. The installers come with with nearly everything you need
 and have an easy point and click installers.
 
 The first thing you will need is an installation of Python. Python
@@ -18,8 +18,8 @@ fairly up to date.
 Once that is in place, you want to download the appropriate windows
 binary. From the pygame downloads page you can find the .EXE file you
 need. This will automatically install all of pygame and all the SDL
-dependencies. The windows binaries have filenames like this;
-"http://www3.telus.net/len_l/pygame-1.8.0release.win32-py2.5.msi".
+dependencies. The windows binaries have filenames like this:
+"pygame-1.8.0release.win32-py2.5.msi".
 This would be the installer for pygame version 1.8.0, for Python
 version 2.5. You shouldn't have trouble finding the correct binary
 from the "Windows" section of the download page.
@@ -28,7 +28,7 @@ You will also probably want to install the windows documentation and
 installation package. This will add easy links to the different
 documentation and games that come with pygame. The installer for this
 is found next to the other windows binary downloads. The filename
-looks like this; "pygame-docs-1.8.0.exe". And this would install the
+looks like this: "pygame-docs-1.8.0.exe". And this would install the
 documentation and examples for pygame-1.8.0
 
 One other thing the windows binaries are missing is the Numeric or
