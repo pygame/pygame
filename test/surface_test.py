@@ -208,6 +208,35 @@ class SurfaceTypeTest(unittest.TestCase):
         for pt in test_utils.rect_outer_bounds(fill_rect):
             self.assert_(s1.get_at(pt) != color )
 
+
+
+    def test_fill_negative_coordinates(self):
+
+        # negative coordinates should be clipped by fill, and not draw outside the surface.
+        color = (25, 25, 25, 25)
+        color2 = (20, 20, 20, 25)
+        fill_rect = pygame.Rect(-10, -10, 16, 16)
+        
+        s1 = pygame.Surface((32,32), pygame.SRCALPHA, 32)
+        r1 = s1.fill(color, fill_rect)   
+        c = s1.get_at((0,0))
+        self.assertEqual(c, color)
+
+        # make subsurface in the middle to test it doesn't over write.
+        s2 = s1.subsurface((5, 5, 5, 5))
+        r2 = s2.fill(color2, (-3, -3, 5, 5))
+        c2 = s1.get_at((4,4))
+        self.assertEqual(c, color)
+
+        # rect returns the area we actually fill.
+        r3 = s2.fill(color2, (-30, -30, 5, 5))
+        # since we are using negative coords, it should be an zero sized rect.
+        self.assertEqual(tuple(r3), (0, 0, 0, 0))
+
+
+
+
+
     def test_fill_keyword_args(self):
         color = (1, 2, 3, 255)
         area = (1, 1, 2, 2)
@@ -1821,7 +1850,54 @@ class SurfaceSelfBlitTest(unittest.TestCase):
             d.blit(s, (0, 0))
         sub = surf.subsurface((1, 1, 2, 2))
         self.failUnlessRaises(pygame.error, do_blit, surf, sub)
-        
+
+
+class SurfaceFillTest(unittest.TestCase):
+    def test_fill(self):
+        pygame.init()
+        try:
+            screen = pygame.display.set_mode((640, 480))
+
+            # Green and blue test pattern
+            screen.fill((0, 255, 0), (0, 0, 320, 240))
+            screen.fill((0, 255, 0), (320, 240, 320, 240))
+            screen.fill((0, 0, 255), (320, 0, 320, 240))
+            screen.fill((0, 0, 255), (0, 240, 320, 240))
+
+            # Now apply a clip rect, such that only the left side of the
+            # screen should be effected by blit opperations.
+            screen.set_clip((0, 0, 320, 480))
+
+            # Test fills with each special flag, and additionaly without any.
+            screen.fill((255, 0, 0, 127), (160, 0, 320, 30), 0)
+            screen.fill((255, 0, 0, 127), (160, 30, 320, 30), pygame.BLEND_ADD)
+            screen.fill((0, 127, 127, 127), (160, 60, 320, 30), pygame.BLEND_SUB)
+            screen.fill((0, 63, 63, 127), (160, 90, 320, 30), pygame.BLEND_MULT)
+            screen.fill((0, 127, 127, 127), (160, 120, 320, 30), pygame.BLEND_MIN)
+            screen.fill((127, 0, 0, 127), (160, 150, 320, 30), pygame.BLEND_MAX)
+            screen.fill((255, 0, 0, 127), (160, 180, 320, 30), pygame.BLEND_RGBA_ADD)
+            screen.fill((0, 127, 127, 127), (160, 210, 320, 30), pygame.BLEND_RGBA_SUB)
+            screen.fill((0, 63, 63, 127), (160, 240, 320, 30), pygame.BLEND_RGBA_MULT)
+            screen.fill((0, 127, 127, 127), (160, 270, 320, 30), pygame.BLEND_RGBA_MIN)
+            screen.fill((127, 0, 0, 127), (160, 300, 320, 30), pygame.BLEND_RGBA_MAX)
+            screen.fill((255, 0, 0, 127), (160, 330, 320, 30), pygame.BLEND_RGB_ADD)
+            screen.fill((0, 127, 127, 127), (160, 360, 320, 30), pygame.BLEND_RGB_SUB)
+            screen.fill((0, 63, 63, 127), (160, 390, 320, 30), pygame.BLEND_RGB_MULT)
+            screen.fill((0, 127, 127, 127), (160, 420, 320, 30), pygame.BLEND_RGB_MIN)
+            screen.fill((255, 0, 0, 127), (160, 450, 320, 30), pygame.BLEND_RGB_MAX)
+
+            # Update the display so we can see the results
+            pygame.display.flip()
+
+            # Compare colors on both sides of window
+            y = 5
+            while y < 480:
+                self.assertEquals(screen.get_at((10, y)),
+                        screen.get_at((330, 480 - y)))
+                y += 10
+
+        finally:
+            pygame.quit()
 
 if __name__ == '__main__':
     unittest.main()

@@ -20,6 +20,60 @@
 #define NO_PYGAME_C_API
 #include "surface.h"
 
+/*
+ * Changes SDL_Rect to respect any clipping rect defined on the surface.
+ * Necessary when modifying surface->pixels directly instead of through an
+ * SDL interface.
+ */
+void surface_respect_clip_rect (SDL_Surface *surface, SDL_Rect *rect)
+{
+	SDL_Rect tmp;
+	SDL_Rect *A, *B;
+    int x, y, w, h;
+
+    A = rect;
+	B = &tmp;
+    SDL_GetClipRect(surface, B);
+	
+	/* Code here is nearly identical to rect_clip in rect.c */
+
+    /* Left */
+    if ((A->x >= B->x) && (A->x < (B->x + B->w)))
+        x = A->x;
+    else if ((B->x >= A->x) && (B->x < (A->x + A->w)))
+        x = B->x;
+    else
+        return;
+
+    /* Right */
+    if (((A->x + A->w) > B->x) && ((A->x + A->w) <= (B->x + B->w)))
+        w = (A->x + A->w) - x;
+    else if (((B->x + B->w) > A->x) && ((B->x + B->w) <= (A->x + A->w)))
+        w = (B->x + B->w) - x;
+    else
+        return;
+
+    /* Top */
+    if ((A->y >= B->y) && (A->y < (B->y + B->h)))
+        y = A->y;
+    else if ((B->y >= A->y) && (B->y < (A->y + A->h)))
+        y = B->y;
+    else
+        return;
+
+    /* Bottom */
+    if (((A->y + A->h) > B->y) && ((A->y + A->h) <= (B->y + B->h)))
+        h = (A->y + A->h) - y;
+    else if (((B->y + B->h) > A->y) && ((B->y + B->h) <= (A->y + A->h)))
+        h = (B->y + B->h) - y;
+    else
+        return;
+
+    rect->x = x;
+    rect->y = y;
+    rect->w = w;
+    rect->h = h;
+}
 
 static int
 surface_fill_blend_add (SDL_Surface *surface, SDL_Rect *rect, Uint32 color)
@@ -800,6 +854,8 @@ surface_fill_blend (SDL_Surface *surface, SDL_Rect *rect, Uint32 color,
 {
     int result = -1;
     int locked = 0;
+    
+    surface_respect_clip_rect(surface, rect);
 
     /* Lock the surface, if needed */
     if (SDL_MUSTLOCK (surface))
