@@ -218,15 +218,21 @@ class SurfaceTypeTest(unittest.TestCase):
         fill_rect = pygame.Rect(-10, -10, 16, 16)
         
         s1 = pygame.Surface((32,32), pygame.SRCALPHA, 32)
-        s1.fill(color, fill_rect)   
+        r1 = s1.fill(color, fill_rect)   
         c = s1.get_at((0,0))
         self.assertEqual(c, color)
 
-        # make subsurface in the middle.
+        # make subsurface in the middle to test it doesn't over write.
         s2 = s1.subsurface((5, 5, 5, 5))
-        s2.fill(color2, (-3, -3, 5, 5))
+        r2 = s2.fill(color2, (-3, -3, 5, 5))
         c2 = s1.get_at((4,4))
         self.assertEqual(c, color)
+
+        # rect returns the area we actually fill.
+        r3 = s2.fill(color2, (-30, -30, 5, 5))
+        # since we are using negative coords, it should be an zero sized rect.
+        self.assertEqual(tuple(r3), (0, 0, 0, 0))
+
 
 
 
