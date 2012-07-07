@@ -609,8 +609,8 @@ _color_new (PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (!PyArg_ParseTuple (args, "O|OOO", &obj, &obj1, &obj2, &obj3))
         return NULL;
-
-    if (Text_Check (obj))
+    
+    if (Text_Check (obj) || PyUnicode_Check (obj))
     {
         /* Named color */
         PyObject *color = NULL;
