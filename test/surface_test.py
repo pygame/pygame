@@ -12,14 +12,14 @@ else:
 
 if is_pygame_pkg:
     from pygame.tests import test_utils
-    from pygame.tests.test_utils import test_not_implemented, unittest
+    from pygame.tests.test_utils import test_not_implemented, unittest, example_path
     try:
         from pygame.tests.test_utils.arrinter import *
     except ImportError:
         pass
 else:
     from test import test_utils
-    from test.test_utils import test_not_implemented, unittest
+    from test.test_utils import test_not_implemented, unittest, example_path
     try:
         from test.test_utils.arrinter import *
     except ImportError:
@@ -556,6 +556,21 @@ class SurfaceTypeTest(unittest.TestCase):
         source = pygame.Surface((1, 1), pygame.SRCALPHA, 32)
         source.set_at((0, 0), color)
         target.blit(source, (0, 0))
+
+    def test_image_convert_bug_131(self):
+        # Bitbucket bug #131: Unable to Surface.convert(32) some 1-bit images.
+        # https://bitbucket.org/pygame/pygame/issue/131/unable-to-surfaceconvert-32-some-1-bit
+        pygame.display.init()
+        pygame.display.set_mode((640,480))
+
+        im  = pygame.image.load(example_path(os.path.join("data", "city.png")))
+        im2 = pygame.image.load(example_path(os.path.join("data", "brick.png")))
+
+        self.assertEquals( im.get_palette(),  ((0, 0, 0, 255), (255, 255, 255, 255)) )
+        self.assertEquals( im2.get_palette(), ((0, 0, 0, 255), (0, 0, 0, 255)) )
+
+        self.assertEqual(repr(im.convert(32)),  '<Surface(24x24x32 SW)>')
+        self.assertEqual(repr(im2.convert(32)), '<Surface(469x137x32 SW)>')
 
     def todo_test_convert(self):
 
