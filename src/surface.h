@@ -344,6 +344,9 @@
 int
 surface_fill_blend (SDL_Surface *surface, SDL_Rect *rect, Uint32 color,
                     int blendargs);
+                    
+void
+surface_respect_clip_rect (SDL_Surface *surface, SDL_Rect *rect);
 
 int 
 pygame_AlphaBlit (SDL_Surface * src, SDL_Rect * srcrect,
