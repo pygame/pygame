@@ -118,6 +118,12 @@ headers = glob.glob(os.path.join('src', '*.h'))
 headers.remove(os.path.join('src', 'numeric_arrayobject.h'))
 headers.remove(os.path.join('src', 'scale.h'))
 
+# option for not installing the headers.
+if "-noheaders" in sys.argv:
+    headers = []
+    sys.argv.remove ("-noheaders")
+
+
 #sanity check for any arguments
 if len(sys.argv) == 1:
     reply = raw_input('\nNo Arguments Given, Perform Default Install? [Y/n]')
