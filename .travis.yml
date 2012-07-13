@@ -6,10 +6,13 @@ python:
   - "2.6"
   - "2.7"
   - "3.2"
-# command to install dependencies
-#install:
+# command to install
+install:
 #  - pip install . --use-mirrors
 #  - pip install -r requirements.txt --use-mirrors
+  - python setup.py install
+
+
 # command to run tests
 script: 
   - python -m pygame.tests.__main__
