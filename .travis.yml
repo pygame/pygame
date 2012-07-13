@@ -1,3 +1,5 @@
+# travisci continuous integration config file.
+
 language: python
 python:
   - "2.5"
