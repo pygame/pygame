@@ -24,27 +24,51 @@ language. The package is highly portable, with games running on
 Windows, MacOS, OS X, BeOS, FreeBSD, IRIX, and Linux.
 """
 
-import sys, os, string
+import sys, os
 
-# check if is old windows... if so use directx video driver by default.
-# if someone sets this respect their setting...
-if not 'SDL_VIDEODRIVER' in os.environ:
-    # http://docs.python.org/lib/module-sys.html
-    # 0 (VER_PLATFORM_WIN32s) 	Win32s on Windows 3.1
-    # 1 (VER_PLATFORM_WIN32_WINDOWS) 	Windows 95/98/ME
-    # 2 (VER_PLATFORM_WIN32_NT) 	Windows NT/2000/XP
-    # 3 (VER_PLATFORM_WIN32_CE) 	Windows CE
-    if hasattr(sys, "getwindowsversion"):
-        try:
-            if (sys.getwindowsversion()[3] in [1,2] and
-                sys.getwindowsversion()[0] in [0,1,2,3,4,5]):
-                os.environ['SDL_VIDEODRIVER'] = 'directx'
-        except:
-            pass
+# Choose Windows display driver
+if os.name == 'nt':
+
+    # Respect existing SDL_VIDEODRIVER setting if it has been set
+    if 'SDL_VIDEODRIVER' not in os.environ:
+
+        # If the Windows version is 95/98/ME and DirectX 5 or greater is
+        # installed, then use the directx driver rather than the default 
+        # windib driver.
+
+        # http://docs.python.org/lib/module-sys.html
+        # 0 (VER_PLATFORM_WIN32s)          Win32s on Windows 3.1
+        # 1 (VER_PLATFORM_WIN32_WINDOWS)   Windows 95/98/ME
+        # 2 (VER_PLATFORM_WIN32_NT)        Windows NT/2000/XP
+        # 3 (VER_PLATFORM_WIN32_CE)        Windows CE
+        if sys.getwindowsversion()[0] == 1:
+
+            # To interpret DirectX version numbers, see this page:
+            # http://en.wikipedia.org/wiki/DirectX#Releases
+            try:
+
+                import _winreg
+
+                # Get DirectX version from registry
+                key = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE,
+                                      'SOFTWARE\\Microsoft\\DirectX')
+                dx_version_string = _winreg.QueryValueEx(key, 'Version')
+                minor_dx_version = int(dx_version_string.split('.')[1])
+
+                # Set video driver to directx if DirectX 5 or better is 
+                # installed.
+                if minor_dx_version >= 5:
+                    os.environ['SDL_VIDEODRIVER'] = 'directx'
+
+                # Clean up namespace
+                del _winreg, key, dx_version_string, minor_dx_version
+
+            except:
+                pass
 
 # when running under X11, always set the SDL window WM_CLASS to make the
 #   window managers correctly match the pygame window.
-if 'DISPLAY' in os.environ and not 'SDL_VIDEO_X11_WMCLASS' in os.environ:
+elif 'DISPLAY' in os.environ and not 'SDL_VIDEO_X11_WMCLASS' in os.environ:
     os.environ['SDL_VIDEO_X11_WMCLASS'] = os.path.basename(sys.argv[0])
 
 class MissingModule:
@@ -298,10 +322,10 @@ try:
 except ImportError:
     import copyreg as copy_reg
 def __rect_constructor(x,y,w,h):
-	return Rect(x,y,w,h)
+    return Rect(x,y,w,h)
 def __rect_reduce(r):
-	assert type(r) == Rect
-	return __rect_constructor, (r.x, r.y, r.w, r.h)
+    assert type(r) == Rect
+    return __rect_constructor, (r.x, r.y, r.w, r.h)
 copy_reg.pickle(Rect, __rect_reduce, __rect_constructor)
 
 
