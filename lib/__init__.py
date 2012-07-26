@@ -43,28 +43,32 @@ if os.name == 'nt':
         # 3 (VER_PLATFORM_WIN32_CE)        Windows CE
         if sys.getwindowsversion()[0] == 1:
 
-            # To interpret DirectX version numbers, see this page:
-            # http://en.wikipedia.org/wiki/DirectX#Releases
-            try:
+            import _winreg
 
-                import _winreg
+            try:
 
                 # Get DirectX version from registry
                 key = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE,
                                       'SOFTWARE\\Microsoft\\DirectX')
                 dx_version_string = _winreg.QueryValueEx(key, 'Version')
-                minor_dx_version = int(dx_version_string.split('.')[1])
+                key.Close()
 
                 # Set video driver to directx if DirectX 5 or better is 
                 # installed.
+                # To interpret DirectX version numbers, see this page:
+                # http://en.wikipedia.org/wiki/DirectX#Releases
+                minor_dx_version = int(dx_version_string.split('.')[1])
                 if minor_dx_version >= 5:
                     os.environ['SDL_VIDEODRIVER'] = 'directx'
 
                 # Clean up namespace
-                del _winreg, key, dx_version_string, minor_dx_version
+                del key, dx_version_string, minor_dx_version
 
             except:
                 pass
+
+            # Clean up namespace
+            del _winreg
 
 # when running under X11, always set the SDL window WM_CLASS to make the
 #   window managers correctly match the pygame window.
