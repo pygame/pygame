@@ -425,7 +425,7 @@ filter_expand_X_MMX(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int 
              " movl             %5,      %%ecx;           "
              " pxor          %%mm0,      %%mm0;           "
              "1:                                          "
-             " movsxl         (%3),      %%rax;           " /* get xidx0[x] */
+             " movslq         (%3),      %%rax;           " /* get xidx0[x] */
              " add              $4,         %3;           "
              " movq           (%0),      %%mm1;           " /* load mult0 */
              " add              $8,         %0;           "
@@ -500,7 +500,7 @@ filter_expand_X_SSE(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int 
              " movl             %5,      %%ecx;           "
              " pxor          %%mm0,      %%mm0;           "
              "1:                                          "
-             " movsxl         (%3),      %%rax;           " /* get xidx0[x] */
+             " movslq         (%3),      %%rax;           " /* get xidx0[x] */
              " add              $4,         %3;           "
              " movq           (%0),      %%mm1;           " /* load mult0 */
              " add              $8,         %0;           "
