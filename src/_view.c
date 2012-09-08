@@ -19,10 +19,10 @@
 */
 
 /*
-  This module exports an object which provides a C level interface to
-  another object's buffer. For now only an array structure -
-  __array_struct__ - interface is exposed. When memoryview is ready it
-  will replace the View object.
+  This module exports an object which provides an array interface to
+  another object's buffer. Both the C level array structure -
+  __array_struct__ - interface and Python level - __array_interface__ -
+  are exposed.
  */
 
 #define NO_PYGAME_C_API
@@ -215,6 +215,22 @@ _view_get_arraystruct(PgViewObject *self, PyObject *closure)
 }
 
 static PyObject *
+_view_get_arrayinterface(PyObject *self, PyObject *closure)
+{
+    PyObject *cobj = 0;
+    PyArrayInterface *inter_p = 0;
+    PyObject *dict;
+    
+    if (Pg_GetArrayInterface(self, &cobj, &inter_p)) {
+        return 0;
+    }
+    
+    dict = Pg_ArrayStructAsDict(inter_p);
+    Py_DECREF(cobj);
+    return dict;
+}
+
+static PyObject *
 _view_get_parent(PgViewObject *self, PyObject *closure)
 {
     if (!self->parent) {
@@ -241,6 +257,7 @@ _view_repr (PgViewObject *self)
 static PyGetSetDef _view_getsets[] =
 {
     {"__array_struct__", (getter)_view_get_arraystruct, 0, 0, 0},
+    {"__array_interface__", (getter)_view_get_arrayinterface, 0, 0, 0},
     {"parent", (getter)_view_get_parent, 0, 0, 0},
     {0, 0, 0, 0, 0}
 };
