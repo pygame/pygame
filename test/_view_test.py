@@ -116,5 +116,19 @@ class GetArrayInterfaceTest(unittest.TestCase):
         self.assertEqual(d['strides'], (4, 28))
         self.assertEqual(d['data'], (surf._pixels_address, False))
 
+    def test___array_interface__(self):
+        surf = pygame.Surface((7, 11), 0, 32)
+        d = surf.get_view("2").__array_interface__
+        self.assertEqual(len(d), 5)
+        self.assertEqual(d['version'], 3)
+        if pygame.get_sdl_byteorder() == pygame.LIL_ENDIAN:
+            byteorder = '<'
+        else:
+            byteorder = '>'
+        self.assertEqual(d['typestr'], byteorder + 'u4')
+        self.assertEqual(d['shape'], (7, 11))
+        self.assertEqual(d['strides'], (4, 28))
+        self.assertEqual(d['data'], (surf._pixels_address, False))
+
 if __name__ == '__main__':
     unittest.main()
