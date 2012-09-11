@@ -1161,7 +1161,10 @@ class LayeredDirty(LayeredUpdates):
         screen_rect is in screen coordinates.
 
         """
-        self.lostsprites.append(screen_rect.clip(self._clip))
+        if self._clip:
+            self.lostsprites.append(screen_rect.clip(self._clip))
+        else:
+            self.lostsprites.append(Rect(screen_rect))
 
     def set_clip(self, screen_rect=None):
         """clip the area where to draw; pass None (default) to reset the clip

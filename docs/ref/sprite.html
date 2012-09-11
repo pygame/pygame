@@ -899,7 +899,7 @@ uses linear search and the sprites are not removed from layer.</p>
 </tr>
 <tr><td><a class="toc reference external" href="sprite.html#pygame.sprite.LayeredDirty.get_clip">pygame.sprite.LayeredDirty.get_clip</a></td>
 <td>—</td>
-<td>clip the area where to draw. Just pass None (default) to reset the clip</td>
+<td>get the area where drawing will occur</td>
 </tr>
 <tr><td><a class="toc reference external" href="sprite.html#pygame.sprite.LayeredDirty.change_layer">pygame.sprite.LayeredDirty.change_layer</a></td>
 <td>—</td>
@@ -954,7 +954,7 @@ bgd argument has no effect.</p>
 <div class="line"><span class="summaryline">repaints the given area</span></div>
 <div class="line"><span class="signature">repaint_rect(screen_rect) -&gt; None</span></div>
 </div>
-<p>screen_rect is in screencoordinates.</p>
+<p>screen_rect is in screencoordinates. This method does not do any drawing by itself; the area specified by the rect attributes will be redrawn when the draw method is called.</p>
 </dd></dl>
 
 <dl class="definition method">
@@ -970,7 +970,7 @@ bgd argument has no effect.</p>
 <dt class="title" id="pygame.sprite.LayeredDirty.get_clip">
 <tt class="descname">get_clip</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.sprite.LayeredDirty.get_clip" title="Permalink to this definition">¶</a></dt>
 <dd><div class="line-block">
-<div class="line"><span class="summaryline">clip the area where to draw. Just pass None (default) to reset the clip</span></div>
+<div class="line"><span class="summaryline">get the area where drawing will occur</span></div>
 <div class="line"><span class="signature">get_clip() -&gt; Rect</span></div>
 </div>
 </dd></dl>
