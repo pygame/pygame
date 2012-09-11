@@ -30,14 +30,13 @@
 #include "pgcompat.h"
 #include "pgview.h"
 
-typedef struct {
-    PyObject_HEAD
-    PyObject *capsule;            /* Wrapped array struct            */
-    PyObject *parent;             /* Object responsible for the view */
-    PgView_Destructor destructor; /* Optional release callback       */
-    PyObject *pydestructor;       /* Python callable destructor      */
-    PyObject *weakrefs;           /* There can be reference cycles   */
-} PgViewObject;
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+#define VIEW_MY_ENDIAN '<'
+#define VIEW_OTHER_ENDIAN '>'
+#else
+#define VIEW_MY_ENDIAN '>'
+#define VIEW_OTHER_ENDIAN '<'
+#endif
 
 static int Pg_GetArrayInterface(PyObject *, PyObject **, PyArrayInterface **);
 static PyObject *Pg_ArrayStructAsDict(PyArrayInterface *);
@@ -45,44 +44,134 @@ static PyObject *Pg_ArrayStructAsDict(PyArrayInterface *);
 /**
  * Helper functions.
  */
+static int
+_view_null_prelude(PyObject *view) {
+    return 0;
+}
+
 static void
-_view_default_destructor(PyObject *view) {
+_view_null_postscript(PyObject *view) {
+    return;
+}
+
+static int
+_view_python_prelude(PyObject *view)
+{
+    PgViewObject *v = (PgViewObject *)view;
+    PyObject *rvalue;
+    int failed = 0;
+    
+    rvalue = PyObject_CallFunctionObjArgs(v->pyprelude, v->parent, 0);
+    if (rvalue) {
+        Py_DECREF(rvalue);
+    }
+    else {
+        failed = -1;
+    }
+    return failed;
+}
+
+static void
+_view_python_postscript(PyObject *view)
+{
     PgViewObject *v = (PgViewObject *)view;
     PyObject *rvalue;
 
-    if (v->pydestructor) {
-        rvalue = PyObject_CallFunctionObjArgs(v->pydestructor,
-                                              v->capsule,
-                                              v->parent,
-                                              0);
-        PyErr_Clear();
-        Py_XDECREF(rvalue);
-    }
+    rvalue = PyObject_CallFunctionObjArgs(v->pypostscript, v->parent, 0);
+    PyErr_Clear();
+    Py_XDECREF(rvalue);
 }
 
 static PyObject *
 _view_new_from_type(PyTypeObject *type,
-                    PyObject *capsule,
+                    PyArrayInterface *inter_p,
                     PyObject *parent,
-                    PgView_Destructor destructor,
-                    PyObject *pydestructor)
+                    PgView_PreludeCallback prelude,
+                    PgView_PostscriptCallback postscript,
+                    PyObject *pyprelude,
+                    PyObject *pypostscript)
 {
-    PgViewObject *self = (PgViewObject *)type->tp_alloc(type, 0);
+    int nd = inter_p->nd;
+    PgViewObject *self;
+    Py_intptr_t *intmem;
+    int i;
 
-    if (!self) {
+    if (inter_p->two != 2) {
+        PyErr_SetString(PyExc_SystemError,
+                        "pygame: _view_new_from_type:"
+                        " array interface two.");
         return 0;
     }
+    if ((inter_p->flags & PAI_ARR_HAS_DESCR) && !inter_p->descr) {
+        PyErr_SetString(PyExc_SystemError,
+                        "pygame: _view_new_from_type:"
+                        " array interface descr");
+        return 0;
+    }
+    
+    intmem = PyMem_New(Py_intptr_t, (inter_p->strides ? 2 : 1) * nd);
+    if (!intmem) {
+        return PyErr_NoMemory();
+    }
+    
+    self = (PgViewObject *)type->tp_alloc(type, 0);
+    if (!self) {
+        PyMem_Free(intmem);
+        return 0;
+    }
+    
     self->weakrefs = 0;
-    Py_INCREF(capsule);
-    self->capsule = capsule;
+    self->inter.two = 2;
+    self->inter.nd = nd;
+    self->inter.typekind = inter_p->typekind;
+    self->inter.itemsize = inter_p->itemsize;
+    self->inter.flags = inter_p->flags;
+    self->inter.shape = intmem;
+    for (i = 0; i < nd; ++i) {
+        intmem[i] = inter_p->shape[i];
+    }
+    if (inter_p->strides) {
+        intmem += nd;
+        self->inter.strides = intmem;
+        for (i = 0; i < nd; ++i) {
+            intmem[i] = inter_p->strides[i];
+        }
+    }
+    else {
+        inter_p->strides = 0;
+    }
+    self->inter.data = inter_p->data;
+    if (inter_p->flags & PAI_ARR_HAS_DESCR) {
+        Py_INCREF(inter_p->descr);
+        self->inter.descr = inter_p->descr;
+    }
+    else {
+        self->inter.descr = 0;
+    }
     if (!parent) {
         parent = Py_None;
     }
     Py_INCREF(parent);
     self->parent = parent;
-    self->destructor = destructor ? destructor : _view_default_destructor;
-    Py_XINCREF(pydestructor);
-    self->pydestructor = pydestructor;
+    self->prelude = _view_null_prelude;
+    if (pyprelude) {
+        Py_INCREF(pyprelude);
+        self->prelude = _view_python_prelude;
+    }
+    else if (prelude) {
+        self->prelude = prelude;
+    }
+    self->pyprelude = pyprelude;
+    self->postscript = _view_null_postscript;
+    if (pypostscript) {
+        Py_INCREF(pypostscript);
+        self->postscript = _view_python_postscript;
+    }
+    else if (postscript) {
+        self->postscript = postscript;
+    }
+    self->pypostscript = pypostscript;
+    self->global_release = 0;
     return (PyObject *)self;
 }
 
@@ -107,27 +196,20 @@ _shape_as_tuple(PyArrayInterface *inter_p)
     return shapeobj;
 }
 
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
-#define MY_ENDIAN '<'
-#define OTHER_ENDIAN '>'
-#else
-#define MY_ENDIAN '>'
-#define OTHER_ENDIAN '<'
-#endif
-
 static PyObject *
 _typekind_as_str(PyArrayInterface *inter_p)
 {
     return Text_FromFormat("%c%c%i", 
-                           inter_p->flags & PAI_NOTSWAPPED ?
-                           MY_ENDIAN : OTHER_ENDIAN,
+                           inter_p->itemsize > 1 ?
+                               (inter_p->flags & PAI_NOTSWAPPED ?
+                                    VIEW_MY_ENDIAN :
+                                    VIEW_OTHER_ENDIAN) :
+                               '|',
                            inter_p->typekind, inter_p->itemsize);
 }
 
-#undef MY_ENDIAN
-#undef OTHER_ENDIAN
-
-static PyObject *_strides_as_tuple(PyArrayInterface *inter_p)
+static PyObject *
+_strides_as_tuple(PyArrayInterface *inter_p)
 {
     PyObject *stridesobj = PyTuple_New((Py_ssize_t)inter_p->nd);
     PyObject *lengthobj;
@@ -147,7 +229,8 @@ static PyObject *_strides_as_tuple(PyArrayInterface *inter_p)
     return stridesobj;
 }
 
-static PyObject *_data_as_tuple(PyArrayInterface *inter_p)
+static PyObject *
+_data_as_tuple(PyArrayInterface *inter_p)
 {
     long readonly = (inter_p->flags & PAI_WRITEABLE) == 0;
 
@@ -156,29 +239,266 @@ static PyObject *_data_as_tuple(PyArrayInterface *inter_p)
                          PyBool_FromLong(readonly));
 }
 
+static int
+_tuple_as_ints(PyObject *o,
+               const char *keyword,
+               Py_ssize_t **array,
+               int *length)
+{
+    /* Convert o as a C array of integers and return 1, otherwise
+     * raise a Python exception and return 0. keyword is the function
+     * argument name to use in the exception.
+     */
+    Py_ssize_t i, n;
+    Py_ssize_t *a;
+    
+    if (!PyTuple_Check(o)) {
+        PyErr_Format(PyExc_TypeError,
+                     "Expected a tuple for argument %s: found %s",
+                     keyword, Py_TYPE(o)->tp_name);
+        return 0;
+    }
+    n = PyTuple_GET_SIZE(o);
+    a = PyMem_New(Py_intptr_t, n);
+    for (i = 0; i < n; ++i) {
+        a[i] = PyInt_AsSsize_t(PyTuple_GET_ITEM(o, i));
+        if (a[i] == -1 && PyErr_Occurred() /* conditional && */) {
+            PyMem_Free(a);
+            PyErr_Format(PyExc_TypeError,
+                         "%s tuple has a non-integer at position %d",
+                         keyword, (int)i);
+            return 0;
+        }
+    }
+    *array = a;
+    *length = n;
+    return 1;
+}
+
+static int
+_shape_arg_convert(PyObject *o, void *a)
+{
+    PyArrayInterface *inter_p = (PyArrayInterface *)a;
+    
+    if (!_tuple_as_ints(o, "shape", &(inter_p->shape), &(inter_p->nd))) {
+        return 0;
+    }
+    return 1;
+}
+
+static int
+_typestr_arg_convert(PyObject *o, void *a)
+{
+    /* Due to incompatibilities between the array and new buffer interfaces,
+     * as well as significant unicode changes in Python 3.3, this will
+     * only handle integer types.
+     */
+    PyArrayInterface *inter_p = (PyArrayInterface *)a;
+    int flags = inter_p->flags;
+    char typekind;
+    int itemsize;
+    PyObject *s;
+    const char *typestr;
+    
+    if (PyUnicode_Check(o)) {
+        s = PyUnicode_AsASCIIString(o);
+        if (!s) {
+            return 0;
+        }
+    }
+    else {
+        Py_INCREF(o);
+        s = o;
+    }
+    if (!Bytes_Check(s)) {
+        PyErr_Format(PyExc_TypeError, "Expected a string for typestr: got %s",
+                     Py_TYPE(s)->tp_name);
+        Py_DECREF(s);
+        return 0;
+    }
+    if (Bytes_GET_SIZE(s) != 3) {
+        PyErr_SetString(PyExc_TypeError, "Expected typestr to be length 3");
+        Py_DECREF(s);
+        return 0;
+    }
+    typestr = Bytes_AsString(s);
+    switch (typestr[0]) {
+
+    case VIEW_MY_ENDIAN:
+        flags |= PAI_NOTSWAPPED;
+        break;
+    case VIEW_OTHER_ENDIAN:
+        break;
+    case '|':
+        break;
+    default:
+        PyErr_Format(PyExc_ValueError,
+                     "unknown byteorder character %c in typestr",
+                     typestr[0]);
+        Py_DECREF(s);
+        return 0;
+    }
+    typekind = typestr[1];
+    switch (typekind) {
+
+    case 'i':
+        break;
+    case 'u':
+        break;
+    default:
+        PyErr_Format(PyExc_ValueError,
+                     "unsupported typekind %c in typestr",
+                     typekind);
+        Py_DECREF(s);
+        return 0;
+    }
+    switch (typestr[2]) {
+
+    case '1':
+        itemsize = 1;
+        break;
+    case '2':
+        itemsize = 2;
+        break;
+    case '3':
+        itemsize = 3;
+        break;
+    case '4':
+        itemsize = 4;
+        break;
+    case '6':
+        itemsize = 6;
+        break;
+    case '8':
+        itemsize = 8;
+        break;
+    default:
+        PyErr_Format(PyExc_ValueError,
+                     "unsupported size %c in typestr",
+                     typestr[2]);
+        Py_DECREF(s);
+        return 0;
+    }
+    inter_p->typekind = typekind;
+    inter_p->itemsize = itemsize;
+    inter_p->flags = flags;
+    return 1;
+}
+
+static int
+_strides_arg_convert(PyObject *o, void *a)
+{
+    /* Must be called after the array interface nd field has been filled in.
+     */
+    PyArrayInterface *inter_p = (PyArrayInterface *)a;
+    int n = 0;
+
+    if (o == Py_None) {
+        return 1; /* no strides (optional) given */
+    }
+    if (!_tuple_as_ints(o, "strides", &(inter_p->strides), &n)) {
+        return 0;
+    }
+    if (n != inter_p->nd) {
+        PyErr_SetString(PyExc_TypeError,
+                        "strides and shape tuple lengths differ");
+        return 0;
+    }
+    return 1;
+}
+
+static int
+_data_arg_convert(PyObject *o, void *a)
+{
+    PyArrayInterface *inter_p = (PyArrayInterface *)a;
+    Py_ssize_t address;
+    int readonly;
+    
+    if (!PyTuple_Check(o)) {
+        PyErr_Format(PyExc_TypeError, "expected a tuple for data: got %s",
+                     Py_TYPE(o)->tp_name);
+        return 0;
+    }
+    if (PyTuple_GET_SIZE(o) != 2) {
+        PyErr_SetString(PyExc_TypeError, "expected a length 2 tuple for data");
+        return 0;
+    }
+    address = PyInt_AsSsize_t(PyTuple_GET_ITEM(o, 0));
+    if (address == -1 && PyErr_Occurred()) {
+        PyErr_Clear();
+        PyErr_Format(PyExc_TypeError,
+                     "expected an integer address for data item 0: got %s",
+                     Py_TYPE(PyTuple_GET_ITEM(o, 0))->tp_name);
+        return 0;
+    }
+    readonly = PyObject_IsTrue(PyTuple_GET_ITEM(o, 1));
+    if (readonly == -1) {
+        PyErr_Clear();
+        PyErr_Format(PyExc_TypeError,
+                     "expected a boolean flag for data item 1: got %s",
+                     Py_TYPE(PyTuple_GET_ITEM(o, 0))->tp_name);
+        return 0;
+    }
+    inter_p->data = (void *)address;
+    inter_p->flags |= readonly ? 0 : PAI_WRITEABLE;
+    return 1;
+}
+
+static void
+_free_inter(PyArrayInterface *inter_p)
+{
+    if (inter_p->shape) {
+        PyMem_Free(inter_p->shape);
+    }
+    if (inter_p->strides) {
+        PyMem_Free(inter_p->strides);
+    }
+}
+
 /**
- * Creates a new PgViewObject.
+ * Return a new PgViewObject (Python level constructor).
  */
 static PyObject *
 _view_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
-    PyObject *capsule;
+    PyArrayInterface inter = {0, 0, '\0', 0, 0, 0, 0, 0, 0};
     PyObject *parent = 0;
-    PyObject *pydestructor = 0;
-    char *keywords[] = {"capsule", "parent", "destructor", 0};
-
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|OO:View", keywords,
-                                     &capsule, &parent, &pydestructor)) {
+    PyObject *pyprelude = 0;
+    PyObject *pypostscript = 0;
+    void *inter_vp = (void *)&inter;
+    PyObject *self = 0;
+    /* The argument evaluation order is important: strides must follow shape. */
+    char *keywords[] = {"shape", "typestr", "data", "strides", "parent",
+                        "prelude", "postscript", 0};
+                        
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&O&O&|O&OOO:View", keywords,
+                                     _shape_arg_convert, inter_vp,
+                                     _typestr_arg_convert, inter_vp,
+                                     _data_arg_convert, inter_vp,
+                                     _strides_arg_convert, inter_vp,
+                                     &parent, &pyprelude, &pypostscript)) {
+        _free_inter(&inter);
         return 0;
     }
-    if (pydestructor == Py_None) {
-        pydestructor = 0;
+    if (parent == Py_None) {
+        parent = 0;
     }
-    return _view_new_from_type(type,
-                               capsule,
+    if (pyprelude == Py_None) {
+        pyprelude = 0;
+    }
+    if (pypostscript == Py_None) {
+        pypostscript = 0;
+    }
+    inter.two = 2;
+    self = _view_new_from_type(type,
+                               &inter,
                                parent,
                                0,
-                               pydestructor);
+                               0,
+                               pyprelude,
+                               pypostscript);
+    _free_inter(&inter);
+    return self;
 }
 
 /**
@@ -187,46 +507,63 @@ _view_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static void
 _view_dealloc(PgViewObject *self)
 {
-    PgView_Destructor destructor = self->destructor;
-
     /* Guard against recursion */
-    self->destructor = 0;
-    if (!destructor) {
+    if (self->inter.two == 0) {
         return;
     }
-
-    destructor((PyObject *)self);
-    Py_DECREF(self->capsule);
+    self->inter.two = 0;
+    
+    if (self->global_release) {
+        self->postscript((PyObject *)self);
+    }
     Py_DECREF(self->parent);
-    Py_XDECREF(self->pydestructor);
+    Py_XDECREF(self->pyprelude);
+    Py_XDECREF(self->pypostscript);
     if (self->weakrefs) {
         PyObject_ClearWeakRefs((PyObject *)self);
     }
+    PyMem_Free(self->inter.shape);
     Py_TYPE(self)->tp_free(self);
 }
 
 /**** Getter and setter access ****/
+#if PY3
+#define Capsule_New(p) PyCapsule_New((p), 0, 0);
+#else
+#define Capsule_New(p) PyCObject_FromVoidPtr((p), 0);
+#endif
 
 static PyObject *
 _view_get_arraystruct(PgViewObject *self, PyObject *closure)
 {
-    Py_INCREF(self->capsule);
-    return self->capsule;
+    PyObject *capsule = Capsule_New(&self->inter);
+
+    if (capsule && !self->global_release /* conditional && */ ) {
+        if (self->prelude((PyObject *)self)) {
+            Py_DECREF(capsule);
+            capsule = 0;
+        }
+        else {
+            self->global_release = 1;
+        }
+    }
+    return capsule;
 }
 
 static PyObject *
-_view_get_arrayinterface(PyObject *self, PyObject *closure)
+_view_get_arrayinterface(PgViewObject *self, PyObject *closure)
 {
-    PyObject *cobj = 0;
-    PyArrayInterface *inter_p = 0;
-    PyObject *dict;
+    PyObject *dict = Pg_ArrayStructAsDict(&self->inter);
     
-    if (Pg_GetArrayInterface(self, &cobj, &inter_p)) {
-        return 0;
+    if (dict && !self->global_release) {
+        if (self->prelude((PyObject *)self)) {
+            Py_DECREF(dict);
+            dict = 0;
+        }
+        else {
+            self->global_release = 1;
+        }
     }
-    
-    dict = Pg_ArrayStructAsDict(inter_p);
-    Py_DECREF(cobj);
     return dict;
 }
 
@@ -248,7 +585,7 @@ _view_get_parent(PgViewObject *self, PyObject *closure)
 static PyObject *
 _view_repr (PgViewObject *self)
 {
-    return Text_FromFormat("<%s(%p)>", Py_TYPE(self)->tp_name, self->capsule);
+    return Text_FromFormat("<%s(%p)>", Py_TYPE(self)->tp_name, self);
 }
 
 /**
@@ -343,33 +680,18 @@ static PyMethodDef _view_methods[] = {
 /**** Public C api ***/
 
 static PyObject *
-PgView_New(PyObject *capsule,
+PgView_New(PyArrayInterface *inter_p,
            PyObject *parent,
-           PgView_Destructor destructor)
+           PgView_PreludeCallback prelude,
+           PgView_PostscriptCallback postscript)
 {
-    if (!capsule) {
-        PyErr_SetString(PyExc_TypeError, "the capsule argument is required");
-        return 0;
-    }
-    return _view_new_from_type(&PgView_Type, capsule, parent, destructor, 0);
-}
-
-static PyObject *
-PgView_GetCapsule(PyObject *view)
-{
-    PyObject *capsule = ((PgViewObject *)view)->capsule;
-
-    Py_INCREF(capsule);
-    return capsule;
-}
-
-static PyObject *
-PgView_GetParent(PyObject *view)
-{
-    PyObject *parent = ((PgViewObject *)view)->parent;
-
-    Py_INCREF(parent);
-    return parent;
+    return _view_new_from_type(&PgView_Type,
+                               inter_p,
+                               parent,
+                               prelude,
+                               postscript,
+                               0,
+                               0);
 }
 
 static int
@@ -477,15 +799,13 @@ MODINIT_DEFINE(_view)
         DECREF_MOD(module);
         MODINIT_ERROR;
     }
-#if PYGAMEAPI_VIEW_NUMSLOTS != 6
+#if PYGAMEAPI_VIEW_NUMSLOTS != 4
 #error export slot count mismatch
 #endif
     c_api[0] = &PgView_Type;
     c_api[1] = PgView_New;
-    c_api[2] = PgView_GetCapsule;
-    c_api[3] = PgView_GetParent;
-    c_api[4] = Pg_GetArrayInterface;
-    c_api[5] = Pg_ArrayStructAsDict;
+    c_api[2] = Pg_GetArrayInterface;
+    c_api[3] = Pg_ArrayStructAsDict;
     apiobj = encapsulate_api(c_api, "_view");
     if (apiobj == NULL) {
         DECREF_MOD(module);
