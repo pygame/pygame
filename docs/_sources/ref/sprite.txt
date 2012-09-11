@@ -577,7 +577,7 @@ Sprites are not thread safe. So lock them yourself if using threads.
       | :sl:`repaints the given area`
       | :sg:`repaint_rect(screen_rect) -> None`
 
-      screen_rect is in screencoordinates.
+      screen_rect is in screencoordinates. This method does not do any drawing by itself; the area specified by the rect attributes will be redrawn when the draw method is called.
 
       .. ## LayeredDirty.repaint_rect ##
 
@@ -590,7 +590,7 @@ Sprites are not thread safe. So lock them yourself if using threads.
 
    .. method:: get_clip
 
-      | :sl:`clip the area where to draw. Just pass None (default) to reset the clip`
+      | :sl:`get the area where drawing will occur`
       | :sg:`get_clip() -> Rect`
 
       .. ## LayeredDirty.get_clip ##
