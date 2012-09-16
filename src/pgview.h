@@ -31,46 +31,37 @@
 typedef int (*PgView_PreludeCallback)(PyObject *);
 typedef void (*PgView_PostscriptCallback)(PyObject *);
 
-typedef struct PgViewObject_s {
-    PyObject_HEAD
-    PyArrayInterface inter;
-    PyObject *parent;                     /* Object responsible for the view  */
-    PgView_PreludeCallback prelude;       /* Lock callback                    */
-    PgView_PostscriptCallback postscript; /* Release callback                 */
-    PyObject *pyprelude;                  /* Python lock callable             */
-    PyObject *pypostscript;               /* Python release callback          */
-    int global_release;                   /* dealloc callback flag            */
-    PyObject *weakrefs;                   /* There can be reference cycles    */
-} PgViewObject;
+/* View flags */
+#define VIEW_CONTIGUOUS    1
+#define VIEW_C_ORDER       2
+#define VIEW_F_ORDER       4 
 
-#define PYGAMEAPI_VIEW_NUMSLOTS 4
+#define PYGAMEAPI_VIEW_NUMSLOTS 5
 #define PYGAMEAPI_VIEW_FIRSTSLOT 0
 
 #if !(defined(PYGAMEAPI_VIEW_INTERNAL) || defined(NO_PYGAME_C_API))
 static void *PgVIEW_C_API[PYGAMEAPI_VIEW_NUMSLOTS];
 
-typedef PyObject *(*_pgview_new_t)(PyArrayInterface *inter_p,
-                                   PyObject *parent,
-                                   PgView_PreludeCallback prelude,
-                                   PgView_PostscriptCallback postscript);
-typedef PyObject *(*_pgview_get_t)(PyObject *view);
-typedef int *(*_pg_getarrayinterface_t)(PyObject *obj,
-                                        PyObject **cobj_p,
-                                        PyArrayInterface **inter_p);
+typedef PyObject *(*_pgview_new_t)(Py_buffer *,
+                                   int,
+                                   PgView_PreludeCallback,
+                                   PgView_PostscriptCallback);
+typedef PyObject *(*_pgview_get_obj_t)(PyObject *);
+typedef int *(*_pg_getarrayinterface_t)(PyObject *,
+                                        PyObject **,
+                                        PyArrayInterface **);
 typedef PyObject *(*_pg_arraystructasdict_t)(PyArrayInterface *inter_p);
 
 #define PgView_Type (*(PyTypeObject*)PgVIEW_C_API[0])
 #define PgView_New (*(_pgview_new_t)PgVIEW_C_API[1])
-#define Pg_GetArrayInterface (*(_pg_getarrayinterface_t)PgVIEW_C_API[2])
-#define Pg_ArrayStructAsDict (*(_pg_arraystructasdict_t)PgVIEW_C_API[3])
+#define PgView_GetParent (*(_pgview_get_obj_t)PgVIEW_C_API[2])
+#define Pg_GetArrayInterface (*(_pg_getarrayinterface_t)PgVIEW_C_API[3])
+#define Pg_ArrayStructAsDict (*(_pg_arraystructasdict_t)PgVIEW_C_API[4])
 #define PgView_Check(x) ((x)->ob_type == (PgView_Type))
 #define import_pygame_view() \
     _IMPORT_PYGAME_MODULE(_view, VIEW, PgVIEW_C_API)
 
 #endif /* #if !(defined(PYGAMEAPI_VIEW_INTERNAL) || ... */
-
-#define PgView_GET_PYARRAYINTERFACE(o) (&(((PgViewObject *)(o))->inter))
-#define PgView_GET_PARENT(o) (((PgViewObject *)(o))->parent)
 
 #define PG_VIEW_HEADER
 
