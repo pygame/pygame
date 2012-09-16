@@ -185,4 +185,21 @@
 #define PyInt_AsSsize_t PyInt_AsLong
 #endif
 
+/* Python 2.5 and earlier (PEP 3118) Py_buffer */
+#if PY_VERSION_HEX < 0x02060000
+struct bufferinfo {
+    void *obj;
+    void *buf;
+    Py_ssize_t len;
+    int readonly;
+    const char *format;
+    int ndim;
+    Py_ssize_t *shape;
+    Py_ssize_t *strides;
+    Py_ssize_t *suboffsets;
+    Py_ssize_t itemsize;
+    void *internal;
+} Py_buffer;
+#endif
+
 #endif /* #if !defined(PGCOMPAT_H) */

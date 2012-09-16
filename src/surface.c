@@ -107,9 +107,9 @@ static PyObject *surf_get_bounding_rect (PyObject *self, PyObject *args,
                                          PyObject *kwargs);
 static PyObject *surf_get_pixels_address (PyObject *self,
                                           PyObject *closure);
-static int surf_view_kind(PyObject *obj, void *view_kind_vptr);
-static int _surf_view_prelude(PyObject *view);
-static void _surf_view_postscript(PyObject *view);
+static int _view_kind(PyObject *obj, void *view_kind_vptr);
+static int _view_prelude(PyObject *view);
+static void _view_postscript(PyObject *view);
 static PyObject *_raise_get_view_ndim_error(int bitsize, SurfViewKind kind);
 
 
@@ -2070,8 +2070,8 @@ surf_get_bounding_rect (PyObject *self, PyObject *args, PyObject *kwargs)
     return rect;
 }
 
-static PyObject
-*surf_get_buffer (PyObject *self)
+static PyObject*
+surf_get_buffer (PyObject *self)
 {
     PyObject *buffer;
     PyObject *lock;
@@ -2134,77 +2134,86 @@ _raise_get_view_ndim_error(int bitsize, SurfViewKind kind) {
     return 0;
 }
 
-static PyObject *
-surf_get_view(PyObject *self, PyObject *args, PyObject *kwds)
+static PyObject*
+surf_get_view (PyObject *self, PyObject *args, PyObject *kwds)
 {
 #   define SURF_GET_VIEW_MAXDIM 3
     const int lilendian = (SDL_BYTEORDER == SDL_LIL_ENDIAN);
     const int maxdim = SURF_GET_VIEW_MAXDIM;
-    Py_intptr_t shape[SURF_GET_VIEW_MAXDIM];
-    Py_intptr_t strides[SURF_GET_VIEW_MAXDIM];
-    PyArrayInterface inter = {0, 0, 'u', 0,
-                              PAI_ALIGNED | PAI_NOTSWAPPED | PAI_WRITEABLE,
-                              shape, strides, 0, 0};
+    Py_ssize_t shape[SURF_GET_VIEW_MAXDIM];
+    Py_ssize_t strides[SURF_GET_VIEW_MAXDIM];
+    char format[] = {'B', '\0', '\0'};
+    Py_buffer bufview;
 #   undef SURF_GET_VIEW_MAXDIM
     SurfViewKind view_kind = VIEWKIND_2D;
     int ndim = maxdim;
-    SDL_Surface *surface = PySurface_AsSurface(self);
+    SDL_Surface *surface = PySurface_AsSurface (self);
     int pixelsize;
-    int itemsize = 0;
+    Py_ssize_t itemsize = 0;
     Uint8 *startpixel;
     Uint32 mask = 0;
     int pixelstep;
+    int flags = 0;
     
     char *keywords[] = {"kind", 0};
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "|O&", keywords,
-                     surf_view_kind, &view_kind)) {
+    if (!PyArg_ParseTupleAndKeywords (args, kwds, "|O&", keywords,
+                                      _view_kind, &view_kind)) {
         return 0;
     }
 
     if (!surface) {
-        return RAISE(PyExc_SDLError, "display Surface quit");
+        return RAISE (PyExc_SDLError, "display Surface quit");
     }
 
+    bufview.readonly = 0;
+    bufview.shape = shape;
+    bufview.strides = strides;
+    bufview.format = format;
+    bufview.suboffsets = 0;
+    bufview.internal = 0;
+    
     startpixel = surface->pixels;
     pixelsize = surface->format->BytesPerPixel;
-    shape[0] = (Py_intptr_t)surface->w;
-    shape[1] = (Py_intptr_t)surface->h;
-    strides[0] = (Py_intptr_t)pixelsize;
-    strides[1] = (Py_intptr_t)surface->pitch;
+    shape[0] = (Py_ssize_t)surface->w;
+    shape[1] = (Py_ssize_t)surface->h;
+    strides[0] = (Py_ssize_t)pixelsize;
+    strides[1] = (Py_ssize_t)surface->pitch;
     switch (view_kind) {
 
     case VIEWKIND_2D:
         ndim = 2;
         itemsize = pixelsize;
-        if (strides[1] == shape[0] * pixelsize) {
-            inter.flags |= PAI_CONTIGUOUS;
+        flags |= VIEW_F_ORDER;
+        if (strides[1] == shape[0] * itemsize) {
+            flags |= VIEW_CONTIGUOUS;
         }
         break;
     case VIEWKIND_3D:
         if (pixelsize < 3) {
-            return _raise_get_view_ndim_error(pixelsize * 8, view_kind);
+            return _raise_get_view_ndim_error (pixelsize * 8, view_kind);
         }
         ndim = 3;
         itemsize = 1;
         shape[2] = 3;
         if (surface->format->Rmask == 0xff0000 &&
             surface->format->Gmask == 0x00ff00 &&
-            surface->format->Bmask == 0x0000ff)
-        {
+            surface->format->Bmask == 0x0000ff)   {
             strides[2] = lilendian ? -1 : 1;
             startpixel += lilendian ? 2 : 1;
         }
         else if (surface->format->Bmask == 0xff0000 &&
                  surface->format->Gmask == 0x00ff00 &&
-                 surface->format->Rmask == 0x0000ff)
-        {
+                 surface->format->Rmask == 0x0000ff)   {
             strides[2] = lilendian ? 1 : -1;
             startpixel += lilendian ? 0 : (pixelsize - 1);
         }
         else {
-            return RAISE(PyExc_ValueError,
-                         "unsupport colormasks for 3D reference array");
+            return RAISE (PyExc_ValueError,
+                          "unsupport colormasks for 3D reference array");
+        }
+        if (strides[1] == shape[2] * shape[1]) {
+            flags |= VIEW_CONTIGUOUS;
         }
         break;
     case VIEWKIND_RED:
@@ -2220,9 +2229,9 @@ surf_get_view(PyObject *self, PyObject *args, PyObject *kwds)
         mask = surface->format->Amask;
         break;
     default:
-        PyErr_Format(PyExc_SystemError,
-                     "pygame bug in surf_get_view:"
-                     " unrecognized view kind %d", (int)view_kind);
+        PyErr_Format (PyExc_SystemError,
+                      "pygame bug in surf_get_view:"
+                      " unrecognized view kind %d", (int)view_kind);
         return 0;
     }
     if (!itemsize) {
@@ -2230,6 +2239,7 @@ surf_get_view(PyObject *self, PyObject *args, PyObject *kwds)
         ndim = 2;
         pixelstep = pixelsize;
         itemsize = 1;
+        flags |= VIEW_F_ORDER;
         switch (mask) {
 
         case 0x000000ffU:
@@ -2245,47 +2255,71 @@ surf_get_view(PyObject *self, PyObject *args, PyObject *kwds)
             startpixel += lilendian ? 3 : 0;
             break;
         default:
-            return RAISE(PyExc_ValueError,
-                         "unsupported colormasks for alpha reference array");
+            return RAISE (PyExc_ValueError,
+                          "unsupported colormasks for alpha reference array");
         }
     }
-    if (ndim < 3) {
-        inter.flags |= PAI_FORTRAN;
-    }
-    inter.nd = ndim;
-    inter.itemsize = itemsize;
-    inter.data = startpixel;
-    inter.two = 2;
+    bufview.ndim = ndim;
+    bufview.buf = startpixel;
+    bufview.itemsize = itemsize;
+    switch (itemsize) {
     
-    return PgView_New(&inter, self, _surf_view_prelude, _surf_view_postscript);
+    case 1:
+        break; /* default */
+    case 2:
+        format[0] = '=';
+        format[1] = 'H';
+        break;
+    case 3:
+        format[0] = 's';
+        break;
+    case 4:
+        format[0] = '=';
+        format[1] = 'I';
+        break;
+    default:
+        /* Should not get here. */
+        PyErr_Format (PyExc_SystemError,
+                      "Pygame: Surface.get_item: unrecognized itemsize %d",
+                      (int)itemsize);
+        return 0;
+    }
+    bufview.len = itemsize * shape[0] * shape[1];
+    if (ndim == 3) {
+        bufview.len *= shape[2];
+    }
+    bufview.obj = self;
+    Py_INCREF (self);
+
+    return PgView_New (&bufview, flags, _view_prelude, _view_postscript);
 }
 
 static int
-surf_view_kind(PyObject *obj, void *view_kind_vptr)
+_view_kind (PyObject *obj, void *view_kind_vptr)
 {
     unsigned long ch;
     SurfViewKind *view_kind_ptr = (SurfViewKind *)view_kind_vptr;
 
-    if (PyUnicode_Check(obj)) {
-        if (PyUnicode_GET_SIZE(obj) != 1) {
-            PyErr_SetString(PyExc_TypeError,
-                            "expected a length 1 string for argument 1");
+    if (PyUnicode_Check (obj)) {
+        if (PyUnicode_GET_SIZE (obj) != 1) {
+            PyErr_SetString (PyExc_TypeError,
+                             "expected a length 1 string for argument 1");
             return 0;
         }
-        ch = *PyUnicode_AS_UNICODE(obj);
+        ch = *PyUnicode_AS_UNICODE (obj);
     }
-    else if (Bytes_Check(obj)) {
-        if (Bytes_GET_SIZE(obj) != 1) {
-            PyErr_SetString(PyExc_TypeError,
-                            "expected a length 1 string for argument 1");
+    else if (Bytes_Check (obj)) {
+        if (Bytes_GET_SIZE (obj) != 1) {
+            PyErr_SetString (PyExc_TypeError,
+                             "expected a length 1 string for argument 1");
             return 0;
         }
-        ch = *Bytes_AS_STRING(obj);
+        ch = *Bytes_AS_STRING (obj);
     }
     else {
-        PyErr_Format(PyExc_TypeError,
-                     "expected a length one string for argument 1: got '%s'",
-                     Py_TYPE(obj)->tp_name);
+        PyErr_Format (PyExc_TypeError,
+                      "expected a length one string for argument 1: got '%s'",
+                      Py_TYPE (obj)->tp_name);
         return 0;
     }
     switch (ch) {
@@ -2313,27 +2347,31 @@ surf_view_kind(PyObject *obj, void *view_kind_vptr)
         *view_kind_ptr = VIEWKIND_3D;
         break;
     default:
-        PyErr_Format(PyExc_TypeError,
-                     "unrecognized view kind '%c' for argument 1", (int)ch);
+        PyErr_Format (PyExc_TypeError,
+                      "unrecognized view kind '%c' for argument 1", (int)ch);
         return 0;
     }
     return 1;
 }
 
 static int
-_surf_view_prelude(PyObject *view)
+_view_prelude (PyObject *view)
 {
-    PyObject *surf = PgView_GET_PARENT(view);
+    PyObject *surf = PgView_GetParent (view);
+    int rcode;
     
-    return PySurface_LockBy(surf, view) ? 0 : -1;
+    rcode = PySurface_LockBy (surf, view) ? 0 : -1;
+    Py_DECREF (surf);
+    return rcode;
 }
 
 static void
-_surf_view_postscript(PyObject *view)
+_view_postscript (PyObject *view)
 {
-    PyObject *surf = PgView_GET_PARENT(view);
-
-    PySurface_UnlockBy(surf, view);
+    PyObject *surf = PgView_GetParent(view);
+    
+    PySurface_UnlockBy (surf, view);
+    Py_DECREF (surf);
 }
 
 static PyObject *
