@@ -198,16 +198,15 @@ def main():
         print ('Unable to run "sdl-config". Please make sure a development version of SDL is installed.')
         raise SystemExit
 
-    if localbase:
-        incdirs = [localbase+d for d in origincdirs]
-        libdirs = [localbase+d for d in origlibdirs]
-    else:
-        incdirs = []
-        libdirs = []
+    incdirs = []
+    libdirs = []
     incdirs += ["/usr"+d for d in origincdirs]
     libdirs += ["/usr"+d for d in origlibdirs]
     incdirs += ["/usr/local"+d for d in origincdirs]
     libdirs += ["/usr/local"+d for d in origlibdirs]
+    if localbase:
+        incdirs = [localbase+d for d in origincdirs]
+        libdirs = [localbase+d for d in origlibdirs]
 
     for arg in DEPS[0].cflags.split():
         if arg[:2] == '-I':
