@@ -69,7 +69,7 @@ Tutorials
   watch live streams, and do some basic computer vision.
   This tutorial covers those use cases.
 
-`Newbie Guide`_
+:doc:`Newbie Guide <tut/newbieguide>`
   A list of thirteen helpful tips for people to get comfortable using Pygame.
 
 `Making Games Tutorial`_
