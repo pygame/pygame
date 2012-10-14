@@ -1,0 +1,492 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pygame.gfxdraw &mdash; Pygame v1.9.2 documentation</title>
+    <link rel="stylesheet" href="../_static/pygame.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.9.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/pygame.ico"/>
+    <link rel="top" title="Pygame v1.9.2 documentation" href="../index.html" />
+    <link rel="next" title="pygame.image" href="image.html" />
+    <link rel="prev" title="pygame.freetype" href="freetype.html" /> 
+  </head>
+  <body>  
+
+    <div class="document">
+
+  <div class="header">
+    <table>
+      <tr>
+	<td class="logo">
+	  <a href="http://www.pygame.org/">
+	    <img src="../_static/pygame_tiny.png"/>
+	  </a>
+	  <h5>pygame documentation</h5>
+	</td>
+	<td class="pagelinks">
+	  <p class="top">
+	    ||
+	    <a href="http://www.pygame.org/">Pygame Home</a> ||
+	    <a href="../index.html">Help Contents</a> ||
+	    <a href="../genindex.html">Reference Index</a> ||
+	  </p>
+	  <p class="bottom">
+	    <a href="camera.html">camera</a> || 
+	    <a href="cdrom.html">cdrom</a> || 
+	    <a href="color.html">Color</a> || 
+	    <a href="cursors.html">cursors</a> || 
+	    <a href="display.html">display</a> || 
+	    <a href="draw.html">draw</a> || 
+	    <a href="event.html">event</a> || 
+	    <a href="examples.html">examples</a> || 
+	    <a href="font.html">font</a> || 
+	    <a href="freetype.html">freetype</a> || 
+	    <a href="gfxdraw.html">gfxdraw</a> || 
+	    <a href="image.html">image</a> || 
+	    <a href="joystick.html">joystick</a> || 
+	    <a href="key.html">key</a> || 
+	    <a href="locals.html">locals</a> || 
+	    <a href="mask.html">mask</a> || 
+	    <a href="math.html">math</a> || 
+	    <a href="midi.html">midi</a> || 
+	    <a href="mixer.html">mixer</a> || 
+	    <a href="mouse.html">mouse</a> || 
+	    <a href="movie.html">movie</a> || 
+	    <a href="music.html">music</a> || 
+	    <a href="overlay.html">Overlay</a> || 
+	    <a href="pixelarray.html">PixelArray</a> || 
+	    <a href="pixelcopy.html">pixelcopy</a> || 
+	    <a href="pygame.html">pygame</a> || 
+	    <a href="rect.html">Rect</a> || 
+	    <a href="scrap.html">scrap</a> || 
+	    <a href="sndarray.html">sndarray</a> || 
+	    <a href="sprite.html">sprite</a> || 
+	    <a href="surface.html">Surface</a> || 
+	    <a href="surfarray.html">surfarray</a> || 
+	    <a href="tests.html">tests</a> || 
+	    <a href="time.html">time</a> || 
+	    <a href="transform.html">transform</a> || 
+	    <a href="pygame.html#module-pygame.version">version</a>
+	  </p>
+	</td>
+      </tr>
+    </table>
+  </div>
+
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <div class="sectionwrapper">
+<div class="section" id="module-pygame.gfxdraw">
+<span id="pygame-gfxdraw"></span><dl class="definition module">
+<dt class="title module">
+<tt class="docutils literal"><span class="pre">pygame.gfxdraw</span></tt></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">pygame module for drawing shapes</span></div>
+</div>
+<table border="1" class="toc docutils">
+<colgroup>
+<col width="45%" />
+<col width="1%" />
+<col width="53%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="toc reference external" href="gfxdraw.html#pygame.gfxdraw.pixel">pygame.gfxdraw.pixel</a></td>
+<td>—</td>
+<td>place a pixel</td>
+</tr>
+<tr><td><a class="toc reference external" href="gfxdraw.html#pygame.gfxdraw.hline">pygame.gfxdraw.hline</a></td>
+<td>—</td>
+<td>draw a horizontal line</td>
+</tr>
+<tr><td><a class="toc reference external" href="gfxdraw.html#pygame.gfxdraw.vline">pygame.gfxdraw.vline</a></td>
+<td>—</td>
+<td>draw a vertical line</td>
+</tr>
+<tr><td><a class="toc reference external" href="gfxdraw.html#pygame.gfxdraw.rectangle">pygame.gfxdraw.rectangle</a></td>
+<td>—</td>
+<td>draw a rectangle</td>
+</tr>
+<tr><td><a class="toc reference external" href="gfxdraw.html#pygame.gfxdraw.box">pygame.gfxdraw.box</a></td>
+<td>—</td>
+<td>draw a box</td>
+</tr>
+<tr><td><a class="toc reference external" href="gfxdraw.html#pygame.gfxdraw.line">pygame.gfxdraw.line</a></td>
+<td>—</td>
+<td>draw a line</td>
+</tr>
+<tr><td><a class="toc reference external" href="gfxdraw.html#pygame.gfxdraw.circle">pygame.gfxdraw.circle</a></td>
+<td>—</td>
+<td>draw a circle</td>
+</tr>
+<tr><td><a class="toc reference external" href="gfxdraw.html#pygame.gfxdraw.arc">pygame.gfxdraw.arc</a></td>
+<td>—</td>
+<td>draw an arc</td>
+</tr>
+<tr><td><a class="toc reference external" href="gfxdraw.html#pygame.gfxdraw.aacircle">pygame.gfxdraw.aacircle</a></td>
+<td>—</td>
+<td>draw an anti-aliased circle</td>
+</tr>
+<tr><td><a class="toc reference external" href="gfxdraw.html#pygame.gfxdraw.filled_circle">pygame.gfxdraw.filled_circle</a></td>
+<td>—</td>
+<td>draw a filled circle</td>
+</tr>
+<tr><td><a class="toc reference external" href="gfxdraw.html#pygame.gfxdraw.ellipse">pygame.gfxdraw.ellipse</a></td>
+<td>—</td>
+<td>draw an ellipse</td>
+</tr>
+<tr><td><a class="toc reference external" href="gfxdraw.html#pygame.gfxdraw.aaellipse">pygame.gfxdraw.aaellipse</a></td>
+<td>—</td>
+<td>draw an anti-aliased ellipse</td>
+</tr>
+<tr><td><a class="toc reference external" href="gfxdraw.html#pygame.gfxdraw.filled_ellipse">pygame.gfxdraw.filled_ellipse</a></td>
+<td>—</td>
+<td>draw a filled ellipse</td>
+</tr>
+<tr><td><a class="toc reference external" href="gfxdraw.html#pygame.gfxdraw.pie">pygame.gfxdraw.pie</a></td>
+<td>—</td>
+<td>draw a pie</td>
+</tr>
+<tr><td><a class="toc reference external" href="gfxdraw.html#pygame.gfxdraw.trigon">pygame.gfxdraw.trigon</a></td>
+<td>—</td>
+<td>draw a triangle</td>
+</tr>
+<tr><td><a class="toc reference external" href="gfxdraw.html#pygame.gfxdraw.aatrigon">pygame.gfxdraw.aatrigon</a></td>
+<td>—</td>
+<td>draw an anti-aliased triangle</td>
+</tr>
+<tr><td><a class="toc reference external" href="gfxdraw.html#pygame.gfxdraw.filled_trigon">pygame.gfxdraw.filled_trigon</a></td>
+<td>—</td>
+<td>draw a filled trigon</td>
+</tr>
+<tr><td><a class="toc reference external" href="gfxdraw.html#pygame.gfxdraw.polygon">pygame.gfxdraw.polygon</a></td>
+<td>—</td>
+<td>draw a polygon</td>
+</tr>
+<tr><td><a class="toc reference external" href="gfxdraw.html#pygame.gfxdraw.aapolygon">pygame.gfxdraw.aapolygon</a></td>
+<td>—</td>
+<td>draw an anti-aliased polygon</td>
+</tr>
+<tr><td><a class="toc reference external" href="gfxdraw.html#pygame.gfxdraw.filled_polygon">pygame.gfxdraw.filled_polygon</a></td>
+<td>—</td>
+<td>draw a filled polygon</td>
+</tr>
+<tr><td><a class="toc reference external" href="gfxdraw.html#pygame.gfxdraw.textured_polygon">pygame.gfxdraw.textured_polygon</a></td>
+<td>—</td>
+<td>draw a textured polygon</td>
+</tr>
+<tr><td><a class="toc reference external" href="gfxdraw.html#pygame.gfxdraw.bezier">pygame.gfxdraw.bezier</a></td>
+<td>—</td>
+<td>draw a bezier curve</td>
+</tr>
+</tbody>
+</table>
+<p>EXPERIMENTAL!: meaning this api may change, or dissapear in later pygame
+releases. If you use this, your code will break with the next pygame release.</p>
+<p>Draw several shapes to a surface.</p>
+<p>Most of the functions accept a color argument that is an <tt class="docutils literal"><span class="pre">RGB</span></tt> triplet. These
+can also accept an <tt class="docutils literal"><span class="pre">RGBA</span></tt> quadruplet. The color argument can also be an
+integer pixel value that is already mapped to the Surface&#8217;s pixel format.</p>
+<p>For all functions the arguments are strictly positional. Only integers are
+accepted for coordinates and radii.</p>
+<p>For functions like rectangle that accept a rect argument any (x, y, w, h)
+sequence is accepted, though <a class="tooltip reference internal" href="rect.html#pygame.Rect" title=""><tt class="xref py py-mod docutils literal"><span class="pre">pygame.Rect</span></tt><span class="tooltip-content">pygame object for storing rectangular coordinates</span></a> instances are prefered. Note
+that for a <a class="tooltip reference internal" href="rect.html#pygame.Rect" title=""><tt class="xref py py-mod docutils literal"><span class="pre">pygame.Rect</span></tt><span class="tooltip-content">pygame object for storing rectangular coordinates</span></a> the drawing will not include
+<tt class="docutils literal"><span class="pre">Rect.bottomright</span></tt>. The right and bottom attributes of a Rect lie one pixel
+outside of the Rect&#8217;s boarder.</p>
+<p>To draw an anti aliased and filled shape, first use the aa* version of
+the function, and then use the filled version.  For example</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">col</span> <span class="o">=</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">surf</span><span class="o">.</span><span class="n">fill</span><span class="p">((</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">))</span>
+<span class="n">pygame</span><span class="o">.</span><span class="n">gfxdraw</span><span class="o">.</span><span class="n">aacircle</span><span class="p">(</span><span class="n">surf</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="n">col</span><span class="p">)</span>
+<span class="n">pygame</span><span class="o">.</span><span class="n">gfxdraw</span><span class="o">.</span><span class="n">filled_circle</span><span class="p">(</span><span class="n">surf</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="n">col</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Note that pygame does not automatically import pygame.gfxdraw, so you need to
+import pygame.gfxdraw before using it.</p>
+<p>Threading note: each of the functions releases the GIL during the C part of the call.</p>
+<p>The pygame.gfxdraw module differs from the draw module in the API it uses, and
+also the different functions available to draw.  It also wraps the primitives
+from the library called SDL_gfx, rather than using modified versions.</p>
+<p>New in pygame 1.9.0.</p>
+<dl class="definition function">
+<dt class="title" id="pygame.gfxdraw.pixel">
+<tt class="descclassname">pygame.gfxdraw.</tt><tt class="descname">pixel</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.gfxdraw.pixel" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">place a pixel</span></div>
+<div class="line"><span class="signature">pixel(surface, x, y, color) -&gt; None</span></div>
+</div>
+<p>Draws a single pixel onto a surface.</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.gfxdraw.hline">
+<tt class="descclassname">pygame.gfxdraw.</tt><tt class="descname">hline</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.gfxdraw.hline" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">draw a horizontal line</span></div>
+<div class="line"><span class="signature">hline(surface, x1, x2, y, color) -&gt; None</span></div>
+</div>
+<p>Draws a straight horizontal line on a Surface from x1 to x2 for
+the given y coordinate.</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.gfxdraw.vline">
+<tt class="descclassname">pygame.gfxdraw.</tt><tt class="descname">vline</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.gfxdraw.vline" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">draw a vertical line</span></div>
+<div class="line"><span class="signature">vline(surface, x, y1, y2, color) -&gt; None</span></div>
+</div>
+<p>Draws a straight vertical line on a Surface from y1 to y2 on
+the given x coordinate.</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.gfxdraw.rectangle">
+<tt class="descclassname">pygame.gfxdraw.</tt><tt class="descname">rectangle</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.gfxdraw.rectangle" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">draw a rectangle</span></div>
+<div class="line"><span class="signature">rectangle(surface, rect, color) -&gt; None</span></div>
+</div>
+<p>Draws the rectangle edges onto the surface. The given Rect is the area of the
+rectangle.</p>
+<p>Keep in mind the <tt class="docutils literal"><span class="pre">Surface.fill()</span></tt> method works just as well for drawing
+filled rectangles. In fact the <tt class="docutils literal"><span class="pre">Surface.fill()</span></tt> can be hardware
+accelerated on some platforms with both software and hardware display modes.</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.gfxdraw.box">
+<tt class="descclassname">pygame.gfxdraw.</tt><tt class="descname">box</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.gfxdraw.box" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">draw a box</span></div>
+<div class="line"><span class="signature">box(surface, rect, color) -&gt; None</span></div>
+</div>
+<p>Draws a box (a rect) onto a surface.</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.gfxdraw.line">
+<tt class="descclassname">pygame.gfxdraw.</tt><tt class="descname">line</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.gfxdraw.line" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">draw a line</span></div>
+<div class="line"><span class="signature">line(surface, x1, y1, x2, y2, color) -&gt; None</span></div>
+</div>
+<p>Draws a straight line on a Surface. There are no endcaps.</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.gfxdraw.circle">
+<tt class="descclassname">pygame.gfxdraw.</tt><tt class="descname">circle</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.gfxdraw.circle" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">draw a circle</span></div>
+<div class="line"><span class="signature">circle(surface, x, y, r, color) -&gt; None</span></div>
+</div>
+<p>Draws the edges of a circular shape on the Surface. The pos argument is
+the center of the circle, and radius is the size.  The circle is not
+filled with color.</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.gfxdraw.arc">
+<tt class="descclassname">pygame.gfxdraw.</tt><tt class="descname">arc</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.gfxdraw.arc" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">draw an arc</span></div>
+<div class="line"><span class="signature">arc(surface, x, y, r, start, end, color) -&gt; None</span></div>
+</div>
+<p>Draws an arc onto a surface.</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.gfxdraw.aacircle">
+<tt class="descclassname">pygame.gfxdraw.</tt><tt class="descname">aacircle</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.gfxdraw.aacircle" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">draw an anti-aliased circle</span></div>
+<div class="line"><span class="signature">aacircle(surface, x, y, r, color) -&gt; None</span></div>
+</div>
+<p>Draws the edges of an anti aliased circle onto a surface.</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.gfxdraw.filled_circle">
+<tt class="descclassname">pygame.gfxdraw.</tt><tt class="descname">filled_circle</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.gfxdraw.filled_circle" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">draw a filled circle</span></div>
+<div class="line"><span class="signature">filled_circle(surface, x, y, r, color) -&gt; None</span></div>
+</div>
+<p>Draws a filled circle onto a surface.  So the inside of the circle will
+be filled with the given color.</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.gfxdraw.ellipse">
+<tt class="descclassname">pygame.gfxdraw.</tt><tt class="descname">ellipse</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.gfxdraw.ellipse" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">draw an ellipse</span></div>
+<div class="line"><span class="signature">ellipse(surface, x, y, rx, ry, color) -&gt; None</span></div>
+</div>
+<p>Draws the edges of an ellipse onto a surface.</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.gfxdraw.aaellipse">
+<tt class="descclassname">pygame.gfxdraw.</tt><tt class="descname">aaellipse</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.gfxdraw.aaellipse" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">draw an anti-aliased ellipse</span></div>
+<div class="line"><span class="signature">aaellipse(surface, x, y, rx, ry, color) -&gt; None</span></div>
+</div>
+<p>Draws anti aliased edges of an ellipse onto a surface.</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.gfxdraw.filled_ellipse">
+<tt class="descclassname">pygame.gfxdraw.</tt><tt class="descname">filled_ellipse</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.gfxdraw.filled_ellipse" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">draw a filled ellipse</span></div>
+<div class="line"><span class="signature">filled_ellipse(surface, x, y, rx, ry, color) -&gt; None</span></div>
+</div>
+<p>Draws a filled ellipse onto a surface.  So the inside of the elipse will
+be filled with the given color.</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.gfxdraw.pie">
+<tt class="descclassname">pygame.gfxdraw.</tt><tt class="descname">pie</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.gfxdraw.pie" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">draw a pie</span></div>
+<div class="line"><span class="signature">pie(surface, x, y, r, start, end, color) -&gt; None</span></div>
+</div>
+<p>Draws a pie onto the surface.</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.gfxdraw.trigon">
+<tt class="descclassname">pygame.gfxdraw.</tt><tt class="descname">trigon</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.gfxdraw.trigon" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">draw a triangle</span></div>
+<div class="line"><span class="signature">trigon(surface, x1, y1, x2, y2, x3, y3, color) -&gt; None</span></div>
+</div>
+<p>Draws the edges of a trigon onto a surface.  A trigon is a triangle.</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.gfxdraw.aatrigon">
+<tt class="descclassname">pygame.gfxdraw.</tt><tt class="descname">aatrigon</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.gfxdraw.aatrigon" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">draw an anti-aliased triangle</span></div>
+<div class="line"><span class="signature">aatrigon(surface, x1, y1, x2, y2, x3, y3, color) -&gt; None</span></div>
+</div>
+<p>Draws the anti aliased edges of a trigon onto a surface.  A trigon is a triangle.</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.gfxdraw.filled_trigon">
+<tt class="descclassname">pygame.gfxdraw.</tt><tt class="descname">filled_trigon</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.gfxdraw.filled_trigon" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">draw a filled trigon</span></div>
+<div class="line"><span class="signature">filled_trigon(surface, x1, y1, x2, y2, x3, y3, color) -&gt; None</span></div>
+</div>
+<p>Draws a filled trigon onto a surface.  So the inside of the trigon will
+be filled with the given color.</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.gfxdraw.polygon">
+<tt class="descclassname">pygame.gfxdraw.</tt><tt class="descname">polygon</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.gfxdraw.polygon" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">draw a polygon</span></div>
+<div class="line"><span class="signature">polygon(surface, points, color) -&gt; None</span></div>
+</div>
+<p>Draws the edges of a polygon onto a surface.</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.gfxdraw.aapolygon">
+<tt class="descclassname">pygame.gfxdraw.</tt><tt class="descname">aapolygon</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.gfxdraw.aapolygon" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">draw an anti-aliased polygon</span></div>
+<div class="line"><span class="signature">aapolygon(surface, points, color) -&gt; None</span></div>
+</div>
+<p>Draws the anti aliased edges of a polygon onto a surface.</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.gfxdraw.filled_polygon">
+<tt class="descclassname">pygame.gfxdraw.</tt><tt class="descname">filled_polygon</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.gfxdraw.filled_polygon" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">draw a filled polygon</span></div>
+<div class="line"><span class="signature">filled_polygon(surface, points, color) -&gt; None</span></div>
+</div>
+<p>Draws a filled polygon onto a surface.  So the inside of the polygon will
+be filled with the given color.</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.gfxdraw.textured_polygon">
+<tt class="descclassname">pygame.gfxdraw.</tt><tt class="descname">textured_polygon</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.gfxdraw.textured_polygon" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">draw a textured polygon</span></div>
+<div class="line"><span class="signature">textured_polygon(surface, points, texture, tx, ty) -&gt; None</span></div>
+</div>
+<p>Draws a textured polygon onto a surface.</p>
+<p>A per-pixel alpha texture blit to a per-pixel alpha surface will differ from
+a <tt class="docutils literal"><span class="pre">Surface.blit()</span></tt> blit. Also, a per-pixel alpha texture cannot be used
+with an 8-bit per pixel destination.</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.gfxdraw.bezier">
+<tt class="descclassname">pygame.gfxdraw.</tt><tt class="descname">bezier</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.gfxdraw.bezier" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">draw a bezier curve</span></div>
+<div class="line"><span class="signature">bezier(surface, points, steps, color) -&gt; None</span></div>
+</div>
+<p>Draws a bezier onto a surface.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+  </div>
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="image.html" title="pygame.image"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="freetype.html" title="pygame.freetype"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">Pygame v1.9.2 documentation</a> &raquo;</li>
+    <script type="text/javascript" src="jquery.plugin.docscomments.js"></script>
+
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Pygame Developers.
+    </div>
+  </body>
+</html>

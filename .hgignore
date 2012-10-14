@@ -1,0 +1,9 @@
+syntax: glob
+Setup
+*.pyc
+*~
+build
+prebuilt
+docs/\.buildinfo
+docs/objects.inv
+docs/doctrees/*

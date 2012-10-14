@@ -1,0 +1,743 @@
+WARNING, DLL for tiff library not found.
+running build
+running build_py
+creating build
+creating build\lib.win32-2.5
+creating build\lib.win32-2.5\pygame
+copying lib\colordict.py -> build\lib.win32-2.5\pygame
+copying lib\cursors.py -> build\lib.win32-2.5\pygame
+copying lib\locals.py -> build\lib.win32-2.5\pygame
+copying lib\macosx.py -> build\lib.win32-2.5\pygame
+copying lib\mac_scrap.py -> build\lib.win32-2.5\pygame
+copying lib\pkgdata.py -> build\lib.win32-2.5\pygame
+copying lib\sndarray.py -> build\lib.win32-2.5\pygame
+copying lib\sprite.py -> build\lib.win32-2.5\pygame
+copying lib\surfarray.py -> build\lib.win32-2.5\pygame
+copying lib\sysfont.py -> build\lib.win32-2.5\pygame
+copying lib\version.py -> build\lib.win32-2.5\pygame
+copying lib\_numpysndarray.py -> build\lib.win32-2.5\pygame
+copying lib\_numpysurfarray.py -> build\lib.win32-2.5\pygame
+copying lib\__init__.py -> build\lib.win32-2.5\pygame
+creating build\lib.win32-2.5\pygame\gp2x
+copying lib\gp2x\constants.py -> build\lib.win32-2.5\pygame\gp2x
+copying lib\gp2x\locals.py -> build\lib.win32-2.5\pygame\gp2x
+copying lib\gp2x\__init__.py -> build\lib.win32-2.5\pygame\gp2x
+creating build\lib.win32-2.5\pygame\threads
+copying lib\threads\Py25Queue.py -> build\lib.win32-2.5\pygame\threads
+copying lib\threads\__init__.py -> build\lib.win32-2.5\pygame\threads
+running build_ext
+building 'pygame.imageext' extension
+creating build\temp.win32-2.5
+creating build\temp.win32-2.5\Release
+creating build\temp.win32-2.5\Release\src
+c:\mingw\bin\gcc.exe -mno-cygwin -mdll -O -Wall -D_GNU_SOURCE= -Dmain=DL_main -Ic:/msys/1.0/local/include/SDL -Ic:/msys/1.0/local/include/SDL -Ic:/msys/1.0/local/include -Ic:/msys/1.0/local/include -IC:\Python25\include -IC:\Python25\PC -c src/imageext.c -o build\temp.win32-2.5\Release\src\imageext.o
+In file included from C:/Python25/include/Python.h:8,
+                 from src/pygame.h:60,
+                 from src/imageext.c:31:
+C:/Python25/include/pyconfig.h:615:1: warning: "HAVE_STDDEF_H" redefined
+In file included from c:/msys/1.0/local/include/jpeglib.h:24,
+                 from src/imageext.c:30:
+c:/msys/1.0/local/include/jconfig.h:11:1: warning: this is the location of the previous definition
+In file included from c:/msys/1.0/local/include/SDL/SDL_stdinc.h:28,
+                 from c:/msys/1.0/local/include/SDL/SDL_main.h:26,
+                 from c:/msys/1.0/local/include/SDL/SDL.h:28,
+                 from src/pygame.h:68,
+                 from src/imageext.c:31:
+c:/msys/1.0/local/include/SDL/SDL_config.h:67:1: warning: "HAVE_STDLIB_H" redefined
+In file included from c:/msys/1.0/local/include/jpeglib.h:24,
+                 from src/imageext.c:30:
+c:/msys/1.0/local/include/jconfig.h:12:1: warning: this is the location of the previous definition
+In file included from c:/msys/1.0/local/include/SDL/SDL_stdinc.h:28,
+                 from c:/msys/1.0/local/include/SDL/SDL_main.h:26,
+                 from c:/msys/1.0/local/include/SDL/SDL.h:28,
+                 from src/pygame.h:68,
+                 from src/imageext.c:31:
+c:/msys/1.0/local/include/SDL/SDL_config.h:131:1: warning: "HAVE_SNPRINTF" redefined
+In file included from C:/Python25/include/Python.h:114,
+                 from src/pygame.h:60,
+                 from src/imageext.c:31:
+C:/Python25/include/pyerrors.h:320:1: warning: this is the location of the previous definition
+In file included from c:/msys/1.0/local/include/SDL/SDL.h:28,
+                 from src/pygame.h:68,
+                 from src/imageext.c:31:
+c:/msys/1.0/local/include/SDL/SDL_main.h:50:1: warning: "main" redefined
+<command line>:2:1: warning: this is the location of the previous definition
+src/imageext.c: In function `opengltosdl':
+src/imageext.c:356: warning: unused variable `pyopengl'
+src/imageext.c:356: warning: unused variable `readpixels'
+src/imageext.c:357: warning: unused variable `typeflag'
+src/imageext.c:357: warning: unused variable `formatflag'
+writing build\temp.win32-2.5\Release\src\imageext.def
+c:\mingw\bin\gcc.exe -mno-cygwin -shared -mwindows -s build\temp.win32-2.5\Release\src\imageext.o build\temp.win32-2.5\Release\src\imageext.def -Lc:/msys/1.0/local/lib -Lc:/msys/1.0/local/lib -Lc:/msys/1.0/local/lib -Lc:/msys/1.0/local/lib -LC:\Python25\libs -LC:\Python25\PCBuild -lmingw32 -lSDLmain -lSDL -lSDL_image -lpng -ljpeg -lpython25 -lmsvcr71 -o build\lib.win32-2.5\pygame\imageext.pyd
+building 'pygame.font' extension
+c:\mingw\bin\gcc.exe -mno-cygwin -mdll -O -Wall -D_GNU_SOURCE= -Dmain=DL_main -Ic:/msys/1.0/local/include/SDL -Ic:/msys/1.0/local/include/SDL -IC:\Python25\include -IC:\Python25\PC -c src/font.c -o build\temp.win32-2.5\Release\src\font.o
+In file included from c:/msys/1.0/local/include/SDL/SDL_stdinc.h:28,
+                 from c:/msys/1.0/local/include/SDL/SDL_main.h:26,
+                 from c:/msys/1.0/local/include/SDL/SDL.h:28,
+                 from c:/msys/1.0/local/include/SDL/SDL_ttf.h:33,
+                 from src/font.h:24,
+                 from src/font.c:28:
+c:/msys/1.0/local/include/SDL/SDL_config.h:131:1: warning: "HAVE_SNPRINTF" redefined
+In file included from C:/Python25/include/Python.h:114,
+                 from src/font.h:23,
+                 from src/font.c:28:
+C:/Python25/include/pyerrors.h:320:1: warning: this is the location of the previous definition
+In file included from c:/msys/1.0/local/include/SDL/SDL.h:28,
+                 from c:/msys/1.0/local/include/SDL/SDL_ttf.h:33,
+                 from src/font.h:24,
+                 from src/font.c:28:
+c:/msys/1.0/local/include/SDL/SDL_main.h:50:1: warning: "main" redefined
+<command line>:2:1: warning: this is the location of the previous definition
+writing build\temp.win32-2.5\Release\src\font.def
+c:\mingw\bin\gcc.exe -mno-cygwin -shared -mwindows -s build\temp.win32-2.5\Release\src\font.o build\temp.win32-2.5\Release\src\font.def -Lc:/msys/1.0/local/lib -Lc:/msys/1.0/local/lib -LC:\Python25\libs -LC:\Python25\PCBuild -lmingw32 -lSDLmain -lSDL -lSDL_ttf -lpython25 -lmsvcr71 -o build\lib.win32-2.5\pygame\font.pyd
+building 'pygame.mixer' extension
+c:\mingw\bin\gcc.exe -mno-cygwin -mdll -O -Wall -D_GNU_SOURCE= -Dmain=DL_main -Ic:/msys/1.0/local/include/SDL -Ic:/msys/1.0/local/include/SDL -IC:\Python25\include -IC:\Python25\PC -c src/mixer.c -o build\temp.win32-2.5\Release\src\mixer.o
+In file included from c:/msys/1.0/local/include/SDL/SDL_stdinc.h:28,
+                 from c:/msys/1.0/local/include/SDL/SDL_main.h:26,
+                 from c:/msys/1.0/local/include/SDL/SDL.h:28,
+                 from src/pygame.h:68,
+                 from src/mixer.c:27:
+c:/msys/1.0/local/include/SDL/SDL_config.h:131:1: warning: "HAVE_SNPRINTF" redefined
+In file included from C:/Python25/include/Python.h:114,
+                 from src/pygame.h:60,
+                 from src/mixer.c:27:
+C:/Python25/include/pyerrors.h:320:1: warning: this is the location of the previous definition
+In file included from c:/msys/1.0/local/include/SDL/SDL.h:28,
+                 from src/pygame.h:68,
+                 from src/mixer.c:27:
+c:/msys/1.0/local/include/SDL/SDL_main.h:50:1: warning: "main" redefined
+<command line>:2:1: warning: this is the location of the previous definition
+writing build\temp.win32-2.5\Release\src\mixer.def
+c:\mingw\bin\gcc.exe -mno-cygwin -shared -mwindows -s build\temp.win32-2.5\Release\src\mixer.o build\temp.win32-2.5\Release\src\mixer.def -Lc:/msys/1.0/local/lib -Lc:/msys/1.0/local/lib -LC:\Python25\libs -LC:\Python25\PCBuild -lmingw32 -lSDLmain -lSDL -lSDL_mixer -lpython25 -lmsvcr71 -o build\lib.win32-2.5\pygame\mixer.pyd
+building 'pygame.mixer_music' extension
+c:\mingw\bin\gcc.exe -mno-cygwin -mdll -O -Wall -D_GNU_SOURCE= -Dmain=DL_main -Ic:/msys/1.0/local/include/SDL -Ic:/msys/1.0/local/include/SDL -IC:\Python25\include -IC:\Python25\PC -c src/music.c -o build\temp.win32-2.5\Release\src\music.o
+In file included from c:/msys/1.0/local/include/SDL/SDL_stdinc.h:28,
+                 from c:/msys/1.0/local/include/SDL/SDL_main.h:26,
+                 from c:/msys/1.0/local/include/SDL/SDL.h:28,
+                 from src/pygame.h:68,
+                 from src/music.c:27:
+c:/msys/1.0/local/include/SDL/SDL_config.h:131:1: warning: "HAVE_SNPRINTF" redefined
+In file included from C:/Python25/include/Python.h:114,
+                 from src/pygame.h:60,
+                 from src/music.c:27:
+C:/Python25/include/pyerrors.h:320:1: warning: this is the location of the previous definition
+In file included from c:/msys/1.0/local/include/SDL/SDL.h:28,
+                 from src/pygame.h:68,
+                 from src/music.c:27:
+c:/msys/1.0/local/include/SDL/SDL_main.h:50:1: warning: "main" redefined
+<command line>:2:1: warning: this is the location of the previous definition
+writing build\temp.win32-2.5\Release\src\mixer_music.def
+c:\mingw\bin\gcc.exe -mno-cygwin -shared -mwindows -s build\temp.win32-2.5\Release\src\music.o build\temp.win32-2.5\Release\src\mixer_music.def -Lc:/msys/1.0/local/lib -Lc:/msys/1.0/local/lib -LC:\Python25\libs -LC:\Python25\PCBuild -lmingw32 -lSDLmain -lSDL -lSDL_mixer -lpython25 -lmsvcr71 -o build\lib.win32-2.5\pygame\mixer_music.pyd
+building 'pygame._numericsurfarray' extension
+c:\mingw\bin\gcc.exe -mno-cygwin -mdll -O -Wall -D_GNU_SOURCE= -Dmain=DL_main -Ic:/msys/1.0/local/include/SDL -IC:\Python25\include -IC:\Python25\PC -c src/_numericsurfarray.c -o build\temp.win32-2.5\Release\src\_numericsurfarray.o
+In file included from c:/msys/1.0/local/include/SDL/SDL_stdinc.h:28,
+                 from c:/msys/1.0/local/include/SDL/SDL_main.h:26,
+                 from c:/msys/1.0/local/include/SDL/SDL.h:28,
+                 from src/pygame.h:68,
+                 from src/_numericsurfarray.c:23:
+c:/msys/1.0/local/include/SDL/SDL_config.h:131:1: warning: "HAVE_SNPRINTF" redefined
+In file included from C:/Python25/include/Python.h:114,
+                 from src/pygame.h:60,
+                 from src/_numericsurfarray.c:23:
+C:/Python25/include/pyerrors.h:320:1: warning: this is the location of the previous definition
+In file included from c:/msys/1.0/local/include/SDL/SDL.h:28,
+                 from src/pygame.h:68,
+                 from src/_numericsurfarray.c:23:
+c:/msys/1.0/local/include/SDL/SDL_main.h:50:1: warning: "main" redefined
+<command line>:2:1: warning: this is the location of the previous definition
+writing build\temp.win32-2.5\Release\src\_numericsurfarray.def
+c:\mingw\bin\gcc.exe -mno-cygwin -shared -mwindows -s build\temp.win32-2.5\Release\src\_numericsurfarray.o build\temp.win32-2.5\Release\src\_numericsurfarray.def -Lc:/msys/1.0/local/lib -LC:\Python25\libs -LC:\Python25\PCBuild -lmingw32 -lSDLmain -lSDL -lpython25 -lmsvcr71 -o build\lib.win32-2.5\pygame\_numericsurfarray.pyd
+building 'pygame._numericsndarray' extension
+c:\mingw\bin\gcc.exe -mno-cygwin -mdll -O -Wall -D_GNU_SOURCE= -Dmain=DL_main -Ic:/msys/1.0/local/include/SDL -Ic:/msys/1.0/local/include/SDL -IC:\Python25\include -IC:\Python25\PC -c src/_numericsndarray.c -o build\temp.win32-2.5\Release\src\_numericsndarray.o
+In file included from c:/msys/1.0/local/include/SDL/SDL_stdinc.h:28,
+                 from c:/msys/1.0/local/include/SDL/SDL_main.h:26,
+                 from c:/msys/1.0/local/include/SDL/SDL.h:28,
+                 from src/pygame.h:68,
+                 from src/_numericsndarray.c:23:
+c:/msys/1.0/local/include/SDL/SDL_config.h:131:1: warning: "HAVE_SNPRINTF" redefined
+In file included from C:/Python25/include/Python.h:114,
+                 from src/pygame.h:60,
+                 from src/_numericsndarray.c:23:
+C:/Python25/include/pyerrors.h:320:1: warning: this is the location of the previous definition
+In file included from c:/msys/1.0/local/include/SDL/SDL.h:28,
+                 from src/pygame.h:68,
+                 from src/_numericsndarray.c:23:
+c:/msys/1.0/local/include/SDL/SDL_main.h:50:1: warning: "main" redefined
+<command line>:2:1: warning: this is the location of the previous definition
+writing build\temp.win32-2.5\Release\src\_numericsndarray.def
+c:\mingw\bin\gcc.exe -mno-cygwin -shared -mwindows -s build\temp.win32-2.5\Release\src\_numericsndarray.o build\temp.win32-2.5\Release\src\_numericsndarray.def -Lc:/msys/1.0/local/lib -Lc:/msys/1.0/local/lib -LC:\Python25\libs -LC:\Python25\PCBuild -lmingw32 -lSDLmain -lSDL -lSDL_mixer -lpython25 -lmsvcr71 -o build\lib.win32-2.5\pygame\_numericsndarray.pyd
+building 'pygame.movie' extension
+c:\mingw\bin\gcc.exe -mno-cygwin -mdll -O -Wall -D_GNU_SOURCE= -Dmain=DL_main -D_GNU_SOURCE= -Dmain=DL_main -Ic:/msys/1.0/local/include/SDL -Ic:/msys/1.0/local/include -Ic:/msys/1.0/local/include/smpeg -Ic:/msys/1.0/local/include/SDL -IC:\Python25\include -IC:\Python25\PC -c src/movie.c -o build\temp.win32-2.5\Release\src\movie.o
+In file included from c:/msys/1.0/local/include/SDL/SDL_stdinc.h:28,
+                 from c:/msys/1.0/local/include/SDL/SDL_main.h:26,
+                 from c:/msys/1.0/local/include/SDL/SDL.h:28,
+                 from src/pygame.h:68,
+                 from src/movie.c:26:
+c:/msys/1.0/local/include/SDL/SDL_config.h:131:1: warning: "HAVE_SNPRINTF" redefined
+In file included from C:/Python25/include/Python.h:114,
+                 from src/pygame.h:60,
+                 from src/movie.c:26:
+C:/Python25/include/pyerrors.h:320:1: warning: this is the location of the previous definition
+In file included from c:/msys/1.0/local/include/SDL/SDL.h:28,
+                 from src/pygame.h:68,
+                 from src/movie.c:26:
+c:/msys/1.0/local/include/SDL/SDL_main.h:50:1: warning: "main" redefined
+<command line>:4:1: warning: this is the location of the previous definition
+src/movie.c:356: warning: initialization from incompatible pointer type
+writing build\temp.win32-2.5\Release\src\movie.def
+c:\mingw\bin\gcc.exe -mno-cygwin -shared -mwindows -s build\temp.win32-2.5\Release\src\movie.o build\temp.win32-2.5\Release\src\movie.def -Lc:/msys/1.0/local/lib -Lc:/msys/1.0/local/lib -Lc:/msys/1.0/local/lib -LC:\Python25\libs -LC:\Python25\PCBuild -lmingw32 -lSDLmain -lSDL -lsmpeg -lmingw32 -lSDLmain -lSDL -lpython25 -lmsvcr71 -o build\lib.win32-2.5\pygame\movie.pyd
+building 'pygame.scrap' extension
+c:\mingw\bin\gcc.exe -mno-cygwin -mdll -O -Wall -D_GNU_SOURCE= -Dmain=DL_main -Ic:/msys/1.0/local/include/SDL -IC:\Python25\include -IC:\Python25\PC -c src/scrap.c -o build\temp.win32-2.5\Release\src\scrap.o
+In file included from c:/msys/1.0/local/include/SDL/SDL.h:28,
+                 from src/scrap.c:27:
+c:/msys/1.0/local/include/SDL/SDL_main.h:50:1: warning: "main" redefined
+<command line>:2:1: warning: this is the location of the previous definition
+In file included from src/scrap.c:63:
+src/scrap_win.c: In function `pygame_scrap_get':
+src/scrap_win.c:275: warning: 'src' might be used uninitialized in this function
+src/scrap.c: At top level:
+src/scrap.c:62: warning: '_cliptype' defined but not used
+writing build\temp.win32-2.5\Release\src\scrap.def
+c:\mingw\bin\gcc.exe -mno-cygwin -shared -mwindows -s build\temp.win32-2.5\Release\src\scrap.o build\temp.win32-2.5\Release\src\scrap.def -Lc:/msys/1.0/local/lib -LC:\Python25\libs -LC:\Python25\PCBuild -lmingw32 -lSDLmain -lSDL -luser32 -lgdi32 -lpython25 -lmsvcr71 -o build\lib.win32-2.5\pygame\scrap.pyd
+building 'pygame.base' extension
+c:\mingw\bin\gcc.exe -mno-cygwin -mdll -O -Wall -D_GNU_SOURCE= -Dmain=DL_main -Ic:/msys/1.0/local/include/SDL -IC:\Python25\include -IC:\Python25\PC -c src/base.c -o build\temp.win32-2.5\Release\src\base.o
+In file included from c:/msys/1.0/local/include/SDL/SDL_stdinc.h:28,
+                 from c:/msys/1.0/local/include/SDL/SDL_main.h:26,
+                 from c:/msys/1.0/local/include/SDL/SDL.h:28,
+                 from src/pygame.h:68,
+                 from src/base.c:24:
+c:/msys/1.0/local/include/SDL/SDL_config.h:131:1: warning: "HAVE_SNPRINTF" redefined
+In file included from C:/Python25/include/Python.h:114,
+                 from src/pygame.h:60,
+                 from src/base.c:24:
+C:/Python25/include/pyerrors.h:320:1: warning: this is the location of the previous definition
+In file included from c:/msys/1.0/local/include/SDL/SDL.h:28,
+                 from src/pygame.h:68,
+                 from src/base.c:24:
+c:/msys/1.0/local/include/SDL/SDL_main.h:50:1: warning: "main" redefined
+<command line>:2:1: warning: this is the location of the previous definition
+writing build\temp.win32-2.5\Release\src\base.def
+c:\mingw\bin\gcc.exe -mno-cygwin -shared -mwindows -s build\temp.win32-2.5\Release\src\base.o build\temp.win32-2.5\Release\src\base.def -Lc:/msys/1.0/local/lib -LC:\Python25\libs -LC:\Python25\PCBuild -lmingw32 -lSDLmain -lSDL -lpython25 -lmsvcr71 -o build\lib.win32-2.5\pygame\base.pyd
+building 'pygame.cdrom' extension
+c:\mingw\bin\gcc.exe -mno-cygwin -mdll -O -Wall -D_GNU_SOURCE= -Dmain=DL_main -Ic:/msys/1.0/local/include/SDL -IC:\Python25\include -IC:\Python25\PC -c src/cdrom.c -o build\temp.win32-2.5\Release\src\cdrom.o
+In file included from c:/msys/1.0/local/include/SDL/SDL_stdinc.h:28,
+                 from c:/msys/1.0/local/include/SDL/SDL_main.h:26,
+                 from c:/msys/1.0/local/include/SDL/SDL.h:28,
+                 from src/pygame.h:68,
+                 from src/cdrom.c:24:
+c:/msys/1.0/local/include/SDL/SDL_config.h:131:1: warning: "HAVE_SNPRINTF" redefined
+In file included from C:/Python25/include/Python.h:114,
+                 from src/pygame.h:60,
+                 from src/cdrom.c:24:
+C:/Python25/include/pyerrors.h:320:1: warning: this is the location of the previous definition
+In file included from c:/msys/1.0/local/include/SDL/SDL.h:28,
+                 from src/pygame.h:68,
+                 from src/cdrom.c:24:
+c:/msys/1.0/local/include/SDL/SDL_main.h:50:1: warning: "main" redefined
+<command line>:2:1: warning: this is the location of the previous definition
+writing build\temp.win32-2.5\Release\src\cdrom.def
+c:\mingw\bin\gcc.exe -mno-cygwin -shared -mwindows -s build\temp.win32-2.5\Release\src\cdrom.o build\temp.win32-2.5\Release\src\cdrom.def -Lc:/msys/1.0/local/lib -LC:\Python25\libs -LC:\Python25\PCBuild -lmingw32 -lSDLmain -lSDL -lpython25 -lmsvcr71 -o build\lib.win32-2.5\pygame\cdrom.pyd
+building 'pygame.color' extension
+c:\mingw\bin\gcc.exe -mno-cygwin -mdll -O -Wall -D_GNU_SOURCE= -Dmain=DL_main -Ic:/msys/1.0/local/include/SDL -IC:\Python25\include -IC:\Python25\PC -c src/color.c -o build\temp.win32-2.5\Release\src\color.o
+In file included from c:/msys/1.0/local/include/SDL/SDL_stdinc.h:28,
+                 from c:/msys/1.0/local/include/SDL/SDL_main.h:26,
+                 from c:/msys/1.0/local/include/SDL/SDL.h:28,
+                 from src/pygame.h:68,
+                 from src/color.c:23:
+c:/msys/1.0/local/include/SDL/SDL_config.h:131:1: warning: "HAVE_SNPRINTF" redefined
+In file included from C:/Python25/include/Python.h:114,
+                 from src/pygame.h:60,
+                 from src/color.c:23:
+C:/Python25/include/pyerrors.h:320:1: warning: this is the location of the previous definition
+In file included from c:/msys/1.0/local/include/SDL/SDL.h:28,
+                 from src/pygame.h:68,
+                 from src/color.c:23:
+c:/msys/1.0/local/include/SDL/SDL_main.h:50:1: warning: "main" redefined
+<command line>:2:1: warning: this is the location of the previous definition
+writing build\temp.win32-2.5\Release\src\color.def
+c:\mingw\bin\gcc.exe -mno-cygwin -shared -mwindows -s build\temp.win32-2.5\Release\src\color.o build\temp.win32-2.5\Release\src\color.def -Lc:/msys/1.0/local/lib -LC:\Python25\libs -LC:\Python25\PCBuild -lmingw32 -lSDLmain -lSDL -lpython25 -lmsvcr71 -o build\lib.win32-2.5\pygame\color.pyd
+building 'pygame.constants' extension
+c:\mingw\bin\gcc.exe -mno-cygwin -mdll -O -Wall -D_GNU_SOURCE= -Dmain=DL_main -Ic:/msys/1.0/local/include/SDL -IC:\Python25\include -IC:\Python25\PC -c src/constants.c -o build\temp.win32-2.5\Release\src\constants.o
+In file included from c:/msys/1.0/local/include/SDL/SDL_stdinc.h:28,
+                 from c:/msys/1.0/local/include/SDL/SDL_main.h:26,
+                 from c:/msys/1.0/local/include/SDL/SDL.h:28,
+                 from src/pygame.h:68,
+                 from src/constants.c:23:
+c:/msys/1.0/local/include/SDL/SDL_config.h:131:1: warning: "HAVE_SNPRINTF" redefined
+In file included from C:/Python25/include/Python.h:114,
+                 from src/pygame.h:60,
+                 from src/constants.c:23:
+C:/Python25/include/pyerrors.h:320:1: warning: this is the location of the previous definition
+In file included from c:/msys/1.0/local/include/SDL/SDL.h:28,
+                 from src/pygame.h:68,
+                 from src/constants.c:23:
+c:/msys/1.0/local/include/SDL/SDL_main.h:50:1: warning: "main" redefined
+<command line>:2:1: warning: this is the location of the previous definition
+writing build\temp.win32-2.5\Release\src\constants.def
+c:\mingw\bin\gcc.exe -mno-cygwin -shared -mwindows -s build\temp.win32-2.5\Release\src\constants.o build\temp.win32-2.5\Release\src\constants.def -Lc:/msys/1.0/local/lib -LC:\Python25\libs -LC:\Python25\PCBuild -lmingw32 -lSDLmain -lSDL -lpython25 -lmsvcr71 -o build\lib.win32-2.5\pygame\constants.pyd
+building 'pygame.display' extension
+c:\mingw\bin\gcc.exe -mno-cygwin -mdll -O -Wall -D_GNU_SOURCE= -Dmain=DL_main -Ic:/msys/1.0/local/include/SDL -IC:\Python25\include -IC:\Python25\PC -c src/display.c -o build\temp.win32-2.5\Release\src\display.o
+In file included from c:/msys/1.0/local/include/SDL/SDL_stdinc.h:28,
+                 from c:/msys/1.0/local/include/SDL/SDL_main.h:26,
+                 from c:/msys/1.0/local/include/SDL/SDL.h:28,
+                 from src/pygame.h:68,
+                 from src/display.c:27:
+c:/msys/1.0/local/include/SDL/SDL_config.h:131:1: warning: "HAVE_SNPRINTF" redefined
+In file included from C:/Python25/include/Python.h:114,
+                 from src/pygame.h:60,
+                 from src/display.c:27:
+C:/Python25/include/pyerrors.h:320:1: warning: this is the location of the previous definition
+In file included from c:/msys/1.0/local/include/SDL/SDL.h:28,
+                 from src/pygame.h:68,
+                 from src/display.c:27:
+c:/msys/1.0/local/include/SDL/SDL_main.h:50:1: warning: "main" redefined
+<command line>:2:1: warning: this is the location of the previous definition
+writing build\temp.win32-2.5\Release\src\display.def
+c:\mingw\bin\gcc.exe -mno-cygwin -shared -mwindows -s build\temp.win32-2.5\Release\src\display.o build\temp.win32-2.5\Release\src\display.def -Lc:/msys/1.0/local/lib -LC:\Python25\libs -LC:\Python25\PCBuild -lmingw32 -lSDLmain -lSDL -lpython25 -lmsvcr71 -o build\lib.win32-2.5\pygame\display.pyd
+building 'pygame.event' extension
+c:\mingw\bin\gcc.exe -mno-cygwin -mdll -O -Wall -D_GNU_SOURCE= -Dmain=DL_main -Ic:/msys/1.0/local/include/SDL -IC:\Python25\include -IC:\Python25\PC -c src/event.c -o build\temp.win32-2.5\Release\src\event.o
+In file included from c:/msys/1.0/local/include/SDL/SDL_stdinc.h:28,
+                 from c:/msys/1.0/local/include/SDL/SDL_main.h:26,
+                 from c:/msys/1.0/local/include/SDL/SDL.h:28,
+                 from src/pygame.h:68,
+                 from src/event.c:27:
+c:/msys/1.0/local/include/SDL/SDL_config.h:131:1: warning: "HAVE_SNPRINTF" redefined
+In file included from C:/Python25/include/Python.h:114,
+                 from src/pygame.h:60,
+                 from src/event.c:27:
+C:/Python25/include/pyerrors.h:320:1: warning: this is the location of the previous definition
+In file included from c:/msys/1.0/local/include/SDL/SDL.h:28,
+                 from src/pygame.h:68,
+                 from src/event.c:27:
+c:/msys/1.0/local/include/SDL/SDL_main.h:50:1: warning: "main" redefined
+<command line>:2:1: warning: this is the location of the previous definition
+writing build\temp.win32-2.5\Release\src\event.def
+c:\mingw\bin\gcc.exe -mno-cygwin -shared -mwindows -s build\temp.win32-2.5\Release\src\event.o build\temp.win32-2.5\Release\src\event.def -Lc:/msys/1.0/local/lib -LC:\Python25\libs -LC:\Python25\PCBuild -lmingw32 -lSDLmain -lSDL -lpython25 -lmsvcr71 -o build\lib.win32-2.5\pygame\event.pyd
+building 'pygame.fastevent' extension
+c:\mingw\bin\gcc.exe -mno-cygwin -mdll -O -Wall -D_GNU_SOURCE= -Dmain=DL_main -Ic:/msys/1.0/local/include/SDL -IC:\Python25\include -IC:\Python25\PC -c src/fastevent.c -o build\temp.win32-2.5\Release\src\fastevent.o
+In file included from c:/msys/1.0/local/include/SDL/SDL_stdinc.h:28,
+                 from c:/msys/1.0/local/include/SDL/SDL_main.h:26,
+                 from c:/msys/1.0/local/include/SDL/SDL.h:28,
+                 from src/pygame.h:68,
+                 from src/fastevent.c:27:
+c:/msys/1.0/local/include/SDL/SDL_config.h:131:1: warning: "HAVE_SNPRINTF" redefined
+In file included from C:/Python25/include/Python.h:114,
+                 from src/pygame.h:60,
+                 from src/fastevent.c:27:
+C:/Python25/include/pyerrors.h:320:1: warning: this is the location of the previous definition
+In file included from c:/msys/1.0/local/include/SDL/SDL.h:28,
+                 from src/pygame.h:68,
+                 from src/fastevent.c:27:
+c:/msys/1.0/local/include/SDL/SDL_main.h:50:1: warning: "main" redefined
+<command line>:2:1: warning: this is the location of the previous definition
+c:\mingw\bin\gcc.exe -mno-cygwin -mdll -O -Wall -D_GNU_SOURCE= -Dmain=DL_main -Ic:/msys/1.0/local/include/SDL -IC:\Python25\include -IC:\Python25\PC -c src/fastevents.c -o build\temp.win32-2.5\Release\src\fastevents.o
+In file included from c:/msys/1.0/local/include/SDL/SDL.h:28,
+                 from src/fastevents.c:30:
+c:/msys/1.0/local/include/SDL/SDL_main.h:50:1: warning: "main" redefined
+<command line>:2:1: warning: this is the location of the previous definition
+writing build\temp.win32-2.5\Release\src\fastevent.def
+c:\mingw\bin\gcc.exe -mno-cygwin -shared -mwindows -s build\temp.win32-2.5\Release\src\fastevent.o build\temp.win32-2.5\Release\src\fastevents.o build\temp.win32-2.5\Release\src\fastevent.def -Lc:/msys/1.0/local/lib -LC:\Python25\libs -LC:\Python25\PCBuild -lmingw32 -lSDLmain -lSDL -lpython25 -lmsvcr71 -o build\lib.win32-2.5\pygame\fastevent.pyd
+building 'pygame.key' extension
+c:\mingw\bin\gcc.exe -mno-cygwin -mdll -O -Wall -D_GNU_SOURCE= -Dmain=DL_main -Ic:/msys/1.0/local/include/SDL -IC:\Python25\include -IC:\Python25\PC -c src/key.c -o build\temp.win32-2.5\Release\src\key.o
+In file included from c:/msys/1.0/local/include/SDL/SDL_stdinc.h:28,
+                 from c:/msys/1.0/local/include/SDL/SDL_main.h:26,
+                 from c:/msys/1.0/local/include/SDL/SDL.h:28,
+                 from src/pygame.h:68,
+                 from src/key.c:26:
+c:/msys/1.0/local/include/SDL/SDL_config.h:131:1: warning: "HAVE_SNPRINTF" redefined
+In file included from C:/Python25/include/Python.h:114,
+                 from src/pygame.h:60,
+                 from src/key.c:26:
+C:/Python25/include/pyerrors.h:320:1: warning: this is the location of the previous definition
+In file included from c:/msys/1.0/local/include/SDL/SDL.h:28,
+                 from src/pygame.h:68,
+                 from src/key.c:26:
+c:/msys/1.0/local/include/SDL/SDL_main.h:50:1: warning: "main" redefined
+<command line>:2:1: warning: this is the location of the previous definition
+writing build\temp.win32-2.5\Release\src\key.def
+c:\mingw\bin\gcc.exe -mno-cygwin -shared -mwindows -s build\temp.win32-2.5\Release\src\key.o build\temp.win32-2.5\Release\src\key.def -Lc:/msys/1.0/local/lib -LC:\Python25\libs -LC:\Python25\PCBuild -lmingw32 -lSDLmain -lSDL -lpython25 -lmsvcr71 -o build\lib.win32-2.5\pygame\key.pyd
+building 'pygame.mouse' extension
+c:\mingw\bin\gcc.exe -mno-cygwin -mdll -O -Wall -D_GNU_SOURCE= -Dmain=DL_main -Ic:/msys/1.0/local/include/SDL -IC:\Python25\include -IC:\Python25\PC -c src/mouse.c -o build\temp.win32-2.5\Release\src\mouse.o
+In file included from c:/msys/1.0/local/include/SDL/SDL_stdinc.h:28,
+                 from c:/msys/1.0/local/include/SDL/SDL_main.h:26,
+                 from c:/msys/1.0/local/include/SDL/SDL.h:28,
+                 from src/pygame.h:68,
+                 from src/mouse.c:26:
+c:/msys/1.0/local/include/SDL/SDL_config.h:131:1: warning: "HAVE_SNPRINTF" redefined
+In file included from C:/Python25/include/Python.h:114,
+                 from src/pygame.h:60,
+                 from src/mouse.c:26:
+C:/Python25/include/pyerrors.h:320:1: warning: this is the location of the previous definition
+In file included from c:/msys/1.0/local/include/SDL/SDL.h:28,
+                 from src/pygame.h:68,
+                 from src/mouse.c:26:
+c:/msys/1.0/local/include/SDL/SDL_main.h:50:1: warning: "main" redefined
+<command line>:2:1: warning: this is the location of the previous definition
+writing build\temp.win32-2.5\Release\src\mouse.def
+c:\mingw\bin\gcc.exe -mno-cygwin -shared -mwindows -s build\temp.win32-2.5\Release\src\mouse.o build\temp.win32-2.5\Release\src\mouse.def -Lc:/msys/1.0/local/lib -LC:\Python25\libs -LC:\Python25\PCBuild -lmingw32 -lSDLmain -lSDL -lpython25 -lmsvcr71 -o build\lib.win32-2.5\pygame\mouse.pyd
+building 'pygame.rect' extension
+c:\mingw\bin\gcc.exe -mno-cygwin -mdll -O -Wall -D_GNU_SOURCE= -Dmain=DL_main -Ic:/msys/1.0/local/include/SDL -IC:\Python25\include -IC:\Python25\PC -c src/rect.c -o build\temp.win32-2.5\Release\src\rect.o
+In file included from c:/msys/1.0/local/include/SDL/SDL_stdinc.h:28,
+                 from c:/msys/1.0/local/include/SDL/SDL_main.h:26,
+                 from c:/msys/1.0/local/include/SDL/SDL.h:28,
+                 from src/pygame.h:68,
+                 from src/rect.c:27:
+c:/msys/1.0/local/include/SDL/SDL_config.h:131:1: warning: "HAVE_SNPRINTF" redefined
+In file included from C:/Python25/include/Python.h:114,
+                 from src/pygame.h:60,
+                 from src/rect.c:27:
+C:/Python25/include/pyerrors.h:320:1: warning: this is the location of the previous definition
+In file included from c:/msys/1.0/local/include/SDL/SDL.h:28,
+                 from src/pygame.h:68,
+                 from src/rect.c:27:
+c:/msys/1.0/local/include/SDL/SDL_main.h:50:1: warning: "main" redefined
+<command line>:2:1: warning: this is the location of the previous definition
+src/rect.c:888: warning: initialization from incompatible pointer type
+writing build\temp.win32-2.5\Release\src\rect.def
+c:\mingw\bin\gcc.exe -mno-cygwin -shared -mwindows -s build\temp.win32-2.5\Release\src\rect.o build\temp.win32-2.5\Release\src\rect.def -Lc:/msys/1.0/local/lib -LC:\Python25\libs -LC:\Python25\PCBuild -lmingw32 -lSDLmain -lSDL -lpython25 -lmsvcr71 -o build\lib.win32-2.5\pygame\rect.pyd
+building 'pygame.rwobject' extension
+c:\mingw\bin\gcc.exe -mno-cygwin -mdll -O -Wall -D_GNU_SOURCE= -Dmain=DL_main -Ic:/msys/1.0/local/include/SDL -IC:\Python25\include -IC:\Python25\PC -c src/rwobject.c -o build\temp.win32-2.5\Release\src\rwobject.o
+In file included from c:/msys/1.0/local/include/SDL/SDL_stdinc.h:28,
+                 from c:/msys/1.0/local/include/SDL/SDL_main.h:26,
+                 from c:/msys/1.0/local/include/SDL/SDL.h:28,
+                 from src/pygame.h:68,
+                 from src/rwobject.c:28:
+c:/msys/1.0/local/include/SDL/SDL_config.h:131:1: warning: "HAVE_SNPRINTF" redefined
+In file included from C:/Python25/include/Python.h:114,
+                 from src/pygame.h:60,
+                 from src/rwobject.c:28:
+C:/Python25/include/pyerrors.h:320:1: warning: this is the location of the previous definition
+In file included from c:/msys/1.0/local/include/SDL/SDL.h:28,
+                 from src/pygame.h:68,
+                 from src/rwobject.c:28:
+c:/msys/1.0/local/include/SDL/SDL_main.h:50:1: warning: "main" redefined
+<command line>:2:1: warning: this is the location of the previous definition
+writing build\temp.win32-2.5\Release\src\rwobject.def
+c:\mingw\bin\gcc.exe -mno-cygwin -shared -mwindows -s build\temp.win32-2.5\Release\src\rwobject.o build\temp.win32-2.5\Release\src\rwobject.def -Lc:/msys/1.0/local/lib -LC:\Python25\libs -LC:\Python25\PCBuild -lmingw32 -lSDLmain -lSDL -lpython25 -lmsvcr71 -o build\lib.win32-2.5\pygame\rwobject.pyd
+building 'pygame.surface' extension
+c:\mingw\bin\gcc.exe -mno-cygwin -mdll -O -Wall -D_GNU_SOURCE= -Dmain=DL_main -Ic:/msys/1.0/local/include/SDL -IC:\Python25\include -IC:\Python25\PC -c src/surface.c -o build\temp.win32-2.5\Release\src\surface.o
+In file included from c:/msys/1.0/local/include/SDL/SDL.h:28,
+                 from src/surface.h:27,
+                 from src/surface.c:26:
+c:/msys/1.0/local/include/SDL/SDL_main.h:50:1: warning: "main" redefined
+<command line>:2:1: warning: this is the location of the previous definition
+src/surface.c: In function `surf_set_at':
+src/surface.c:582: warning: unused variable `intobj'
+src/surface.c: In function `surf_get_bounding_rect':
+src/surface.c:1828: warning: suggest parentheses around && within ||
+src/surface.c:1848: warning: suggest parentheses around && within ||
+src/surface.c:1869: warning: suggest parentheses around && within ||
+src/surface.c:1889: warning: suggest parentheses around && within ||
+src/surface.c: In function `surf_get_buffer':
+src/surface.c:1913: warning: unused variable `format'
+c:\mingw\bin\gcc.exe -mno-cygwin -mdll -O -Wall -D_GNU_SOURCE= -Dmain=DL_main -Ic:/msys/1.0/local/include/SDL -IC:\Python25\include -IC:\Python25\PC -c src/alphablit.c -o build\temp.win32-2.5\Release\src\alphablit.o
+In file included from c:/msys/1.0/local/include/SDL/SDL.h:28,
+                 from src/surface.h:27,
+                 from src/alphablit.c:25:
+c:/msys/1.0/local/include/SDL/SDL_main.h:50:1: warning: "main" redefined
+<command line>:2:1: warning: this is the location of the previous definition
+src/pygame.h:633: warning: 'PyGAME_C_API' defined but not used
+c:\mingw\bin\gcc.exe -mno-cygwin -mdll -O -Wall -D_GNU_SOURCE= -Dmain=DL_main -Ic:/msys/1.0/local/include/SDL -IC:\Python25\include -IC:\Python25\PC -c src/surface_fill.c -o build\temp.win32-2.5\Release\src\surface_fill.o
+In file included from c:/msys/1.0/local/include/SDL/SDL.h:28,
+                 from src/surface.h:27,
+                 from src/surface_fill.c:20:
+c:/msys/1.0/local/include/SDL/SDL_main.h:50:1: warning: "main" redefined
+<command line>:2:1: warning: this is the location of the previous definition
+src/pygame.h:633: warning: 'PyGAME_C_API' defined but not used
+writing build\temp.win32-2.5\Release\src\surface.def
+c:\mingw\bin\gcc.exe -mno-cygwin -shared -mwindows -s build\temp.win32-2.5\Release\src\surface.o build\temp.win32-2.5\Release\src\alphablit.o build\temp.win32-2.5\Release\src\surface_fill.o build\temp.win32-2.5\Release\src\surface.def -Lc:/msys/1.0/local/lib -LC:\Python25\libs -LC:\Python25\PCBuild -lmingw32 -lSDLmain -lSDL -lpython25 -lmsvcr71 -o build\lib.win32-2.5\pygame\surface.pyd
+building 'pygame.surflock' extension
+c:\mingw\bin\gcc.exe -mno-cygwin -mdll -O -Wall -D_GNU_SOURCE= -Dmain=DL_main -Ic:/msys/1.0/local/include/SDL -IC:\Python25\include -IC:\Python25\PC -c src/surflock.c -o build\temp.win32-2.5\Release\src\surflock.o
+In file included from c:/msys/1.0/local/include/SDL/SDL_stdinc.h:28,
+                 from c:/msys/1.0/local/include/SDL/SDL_main.h:26,
+                 from c:/msys/1.0/local/include/SDL/SDL.h:28,
+                 from src/pygame.h:68,
+                 from src/surflock.c:28:
+c:/msys/1.0/local/include/SDL/SDL_config.h:131:1: warning: "HAVE_SNPRINTF" redefined
+In file included from C:/Python25/include/Python.h:114,
+                 from src/pygame.h:60,
+                 from src/surflock.c:28:
+C:/Python25/include/pyerrors.h:320:1: warning: this is the location of the previous definition
+In file included from c:/msys/1.0/local/include/SDL/SDL.h:28,
+                 from src/pygame.h:68,
+                 from src/surflock.c:28:
+c:/msys/1.0/local/include/SDL/SDL_main.h:50:1: warning: "main" redefined
+<command line>:2:1: warning: this is the location of the previous definition
+writing build\temp.win32-2.5\Release\src\surflock.def
+c:\mingw\bin\gcc.exe -mno-cygwin -shared -mwindows -s build\temp.win32-2.5\Release\src\surflock.o build\temp.win32-2.5\Release\src\surflock.def -Lc:/msys/1.0/local/lib -LC:\Python25\libs -LC:\Python25\PCBuild -lmingw32 -lSDLmain -lSDL -lpython25 -lmsvcr71 -o build\lib.win32-2.5\pygame\surflock.pyd
+building 'pygame.time' extension
+c:\mingw\bin\gcc.exe -mno-cygwin -mdll -O -Wall -D_GNU_SOURCE= -Dmain=DL_main -Ic:/msys/1.0/local/include/SDL -IC:\Python25\include -IC:\Python25\PC -c src/time.c -o build\temp.win32-2.5\Release\src\time.o
+In file included from c:/msys/1.0/local/include/SDL/SDL_stdinc.h:28,
+                 from c:/msys/1.0/local/include/SDL/SDL_main.h:26,
+                 from c:/msys/1.0/local/include/SDL/SDL.h:28,
+                 from src/pygame.h:68,
+                 from src/time.c:23:
+c:/msys/1.0/local/include/SDL/SDL_config.h:131:1: warning: "HAVE_SNPRINTF" redefined
+In file included from C:/Python25/include/Python.h:114,
+                 from src/pygame.h:60,
+                 from src/time.c:23:
+C:/Python25/include/pyerrors.h:320:1: warning: this is the location of the previous definition
+In file included from c:/msys/1.0/local/include/SDL/SDL.h:28,
+                 from src/pygame.h:68,
+                 from src/time.c:23:
+c:/msys/1.0/local/include/SDL/SDL_main.h:50:1: warning: "main" redefined
+<command line>:2:1: warning: this is the location of the previous definition
+writing build\temp.win32-2.5\Release\src\time.def
+c:\mingw\bin\gcc.exe -mno-cygwin -shared -mwindows -s build\temp.win32-2.5\Release\src\time.o build\temp.win32-2.5\Release\src\time.def -Lc:/msys/1.0/local/lib -LC:\Python25\libs -LC:\Python25\PCBuild -lmingw32 -lSDLmain -lSDL -lpython25 -lmsvcr71 -o build\lib.win32-2.5\pygame\time.pyd
+building 'pygame.joystick' extension
+c:\mingw\bin\gcc.exe -mno-cygwin -mdll -O -Wall -D_GNU_SOURCE= -Dmain=DL_main -Ic:/msys/1.0/local/include/SDL -IC:\Python25\include -IC:\Python25\PC -c src/joystick.c -o build\temp.win32-2.5\Release\src\joystick.o
+In file included from c:/msys/1.0/local/include/SDL/SDL_stdinc.h:28,
+                 from c:/msys/1.0/local/include/SDL/SDL_main.h:26,
+                 from c:/msys/1.0/local/include/SDL/SDL.h:28,
+                 from src/pygame.h:68,
+                 from src/joystick.c:24:
+c:/msys/1.0/local/include/SDL/SDL_config.h:131:1: warning: "HAVE_SNPRINTF" redefined
+In file included from C:/Python25/include/Python.h:114,
+                 from src/pygame.h:60,
+                 from src/joystick.c:24:
+C:/Python25/include/pyerrors.h:320:1: warning: this is the location of the previous definition
+In file included from c:/msys/1.0/local/include/SDL/SDL.h:28,
+                 from src/pygame.h:68,
+                 from src/joystick.c:24:
+c:/msys/1.0/local/include/SDL/SDL_main.h:50:1: warning: "main" redefined
+<command line>:2:1: warning: this is the location of the previous definition
+writing build\temp.win32-2.5\Release\src\joystick.def
+c:\mingw\bin\gcc.exe -mno-cygwin -shared -mwindows -s build\temp.win32-2.5\Release\src\joystick.o build\temp.win32-2.5\Release\src\joystick.def -Lc:/msys/1.0/local/lib -LC:\Python25\libs -LC:\Python25\PCBuild -lmingw32 -lSDLmain -lSDL -lpython25 -lmsvcr71 -o build\lib.win32-2.5\pygame\joystick.pyd
+building 'pygame.draw' extension
+c:\mingw\bin\gcc.exe -mno-cygwin -mdll -O -Wall -D_GNU_SOURCE= -Dmain=DL_main -Ic:/msys/1.0/local/include/SDL -IC:\Python25\include -IC:\Python25\PC -c src/draw.c -o build\temp.win32-2.5\Release\src\draw.o
+In file included from c:/msys/1.0/local/include/SDL/SDL_stdinc.h:28,
+                 from c:/msys/1.0/local/include/SDL/SDL_main.h:26,
+                 from c:/msys/1.0/local/include/SDL/SDL.h:28,
+                 from src/pygame.h:68,
+                 from src/draw.c:26:
+c:/msys/1.0/local/include/SDL/SDL_config.h:131:1: warning: "HAVE_SNPRINTF" redefined
+In file included from C:/Python25/include/Python.h:114,
+                 from src/pygame.h:60,
+                 from src/draw.c:26:
+C:/Python25/include/pyerrors.h:320:1: warning: this is the location of the previous definition
+In file included from c:/msys/1.0/local/include/SDL/SDL.h:28,
+                 from src/pygame.h:68,
+                 from src/draw.c:26:
+c:/msys/1.0/local/include/SDL/SDL_main.h:50:1: warning: "main" redefined
+<command line>:2:1: warning: this is the location of the previous definition
+writing build\temp.win32-2.5\Release\src\draw.def
+c:\mingw\bin\gcc.exe -mno-cygwin -shared -mwindows -s build\temp.win32-2.5\Release\src\draw.o build\temp.win32-2.5\Release\src\draw.def -Lc:/msys/1.0/local/lib -LC:\Python25\libs -LC:\Python25\PCBuild -lmingw32 -lSDLmain -lSDL -lpython25 -lmsvcr71 -o build\lib.win32-2.5\pygame\draw.pyd
+building 'pygame.image' extension
+c:\mingw\bin\gcc.exe -mno-cygwin -mdll -O -Wall -D_GNU_SOURCE= -Dmain=DL_main -Ic:/msys/1.0/local/include/SDL -IC:\Python25\include -IC:\Python25\PC -c src/image.c -o build\temp.win32-2.5\Release\src\image.o
+In file included from c:/msys/1.0/local/include/SDL/SDL_stdinc.h:28,
+                 from c:/msys/1.0/local/include/SDL/SDL_main.h:26,
+                 from c:/msys/1.0/local/include/SDL/SDL.h:28,
+                 from src/pygame.h:68,
+                 from src/image.c:27:
+c:/msys/1.0/local/include/SDL/SDL_config.h:131:1: warning: "HAVE_SNPRINTF" redefined
+In file included from C:/Python25/include/Python.h:114,
+                 from src/pygame.h:60,
+                 from src/image.c:27:
+C:/Python25/include/pyerrors.h:320:1: warning: this is the location of the previous definition
+In file included from c:/msys/1.0/local/include/SDL/SDL.h:28,
+                 from src/pygame.h:68,
+                 from src/image.c:27:
+c:/msys/1.0/local/include/SDL/SDL_main.h:50:1: warning: "main" redefined
+<command line>:2:1: warning: this is the location of the previous definition
+src/image.c: In function `opengltosdl':
+src/image.c:89: warning: unused variable `pyopengl'
+src/image.c:89: warning: unused variable `readpixels'
+src/image.c:90: warning: unused variable `typeflag'
+src/image.c:90: warning: unused variable `formatflag'
+src/image.c: In function `image_save':
+src/image.c:223: warning: suggest explicit braces to avoid ambiguous `else'
+writing build\temp.win32-2.5\Release\src\image.def
+c:\mingw\bin\gcc.exe -mno-cygwin -shared -mwindows -s build\temp.win32-2.5\Release\src\image.o build\temp.win32-2.5\Release\src\image.def -Lc:/msys/1.0/local/lib -LC:\Python25\libs -LC:\Python25\PCBuild -lmingw32 -lSDLmain -lSDL -lpython25 -lmsvcr71 -o build\lib.win32-2.5\pygame\image.pyd
+building 'pygame.overlay' extension
+c:\mingw\bin\gcc.exe -mno-cygwin -mdll -O -Wall -D_GNU_SOURCE= -Dmain=DL_main -Ic:/msys/1.0/local/include/SDL -IC:\Python25\include -IC:\Python25\PC -c src/overlay.c -o build\temp.win32-2.5\Release\src\overlay.o
+In file included from c:/msys/1.0/local/include/SDL/SDL_stdinc.h:28,
+                 from c:/msys/1.0/local/include/SDL/SDL_main.h:26,
+                 from c:/msys/1.0/local/include/SDL/SDL.h:28,
+                 from src/pygame.h:68,
+                 from src/overlay.c:27:
+c:/msys/1.0/local/include/SDL/SDL_config.h:131:1: warning: "HAVE_SNPRINTF" redefined
+In file included from C:/Python25/include/Python.h:114,
+                 from src/overlay.c:26:
+C:/Python25/include/pyerrors.h:320:1: warning: this is the location of the previous definition
+In file included from c:/msys/1.0/local/include/SDL/SDL.h:28,
+                 from src/pygame.h:68,
+                 from src/overlay.c:27:
+c:/msys/1.0/local/include/SDL/SDL_main.h:50:1: warning: "main" redefined
+<command line>:2:1: warning: this is the location of the previous definition
+writing build\temp.win32-2.5\Release\src\overlay.def
+c:\mingw\bin\gcc.exe -mno-cygwin -shared -mwindows -s build\temp.win32-2.5\Release\src\overlay.o build\temp.win32-2.5\Release\src\overlay.def -Lc:/msys/1.0/local/lib -LC:\Python25\libs -LC:\Python25\PCBuild -lmingw32 -lSDLmain -lSDL -lpython25 -lmsvcr71 -o build\lib.win32-2.5\pygame\overlay.pyd
+building 'pygame.transform' extension
+c:\mingw\bin\gcc.exe -mno-cygwin -mdll -O -Wall -D_GNU_SOURCE= -Dmain=DL_main -Ic:/msys/1.0/local/include/SDL -IC:\Python25\include -IC:\Python25\PC -c src/transform.c -o build\temp.win32-2.5\Release\src\transform.o
+In file included from c:/msys/1.0/local/include/SDL/SDL_stdinc.h:28,
+                 from c:/msys/1.0/local/include/SDL/SDL_main.h:26,
+                 from c:/msys/1.0/local/include/SDL/SDL.h:28,
+                 from src/pygame.h:68,
+                 from src/transform.c:27:
+c:/msys/1.0/local/include/SDL/SDL_config.h:131:1: warning: "HAVE_SNPRINTF" redefined
+In file included from C:/Python25/include/Python.h:114,
+                 from src/pygame.h:60,
+                 from src/transform.c:27:
+C:/Python25/include/pyerrors.h:320:1: warning: this is the location of the previous definition
+In file included from c:/msys/1.0/local/include/SDL/SDL.h:28,
+                 from src/pygame.h:68,
+                 from src/transform.c:27:
+c:/msys/1.0/local/include/SDL/SDL_main.h:50:1: warning: "main" redefined
+<command line>:2:1: warning: this is the location of the previous definition
+src/transform.c: In function `filter_shrink_X_ONLYC':
+src/transform.c:974: warning: integer constant is too large for "long" type
+src/transform.c: In function `filter_shrink_X_MMX':
+src/transform.c:1015: warning: unused variable `x'
+src/transform.c:1015: warning: unused variable `y'
+src/transform.c: In function `filter_shrink_Y_ONLYC':
+src/transform.c:1185: warning: integer constant is too large for "long" type
+src/transform.c: In function `filter_shrink_Y_MMX':
+src/transform.c:1244: warning: unused variable `x'
+src/transform.c:1244: warning: unused variable `y'
+src/transform.c: In function `filter_expand_X_MMX':
+src/transform.c:1559: warning: integer constant is too large for "long" type
+src/transform.c:1526: warning: unused variable `xm1'
+src/transform.c:1491: warning: unused variable `dstdiff'
+src/transform.c: In function `filter_expand_Y_ONLYC':
+src/transform.c:1600: warning: unused variable `dstdiff'
+src/transform.c: In function `filter_expand_Y_MMX':
+src/transform.c:1623: warning: unused variable `dstdiff'
+src/transform.c:1624: warning: unused variable `x'
+src/transform.c: In function `get_threshold':
+src/transform.c:1964: warning: 'destpixels' might be used uninitialized in this function
+src/transform.c:1964: warning: 'pixels2' might be used uninitialized in this function
+src/transform.c:1968: warning: 'destformat' might be used uninitialized in this function
+src/transform.c:1968: warning: 'format2' might be used uninitialized in this function
+src/transform.c: In function `laplacian':
+src/transform.c:2492: warning: unused variable `total2'
+src/transform.c:2493: warning: unused variable `total3'
+src/transform.c:2506: warning: unused variable `format2'
+src/transform.c:2507: warning: unused variable `pixels2'
+src/transform.c: In function `surf_average_surfaces':
+src/transform.c:2845: warning: unused variable `surfobj'
+src/transform.c:2847: warning: 'newsurf' might be used uninitialized in this function
+c:\mingw\bin\gcc.exe -mno-cygwin -mdll -O -Wall -D_GNU_SOURCE= -Dmain=DL_main -Ic:/msys/1.0/local/include/SDL -IC:\Python25\include -IC:\Python25\PC -c src/rotozoom.c -o build\temp.win32-2.5\Release\src\rotozoom.o
+In file included from c:/msys/1.0/local/include/SDL/SDL_stdinc.h:28,
+                 from c:/msys/1.0/local/include/SDL/SDL_main.h:26,
+                 from c:/msys/1.0/local/include/SDL/SDL.h:28,
+                 from src/pygame.h:68,
+                 from src/rotozoom.c:15:
+c:/msys/1.0/local/include/SDL/SDL_config.h:131:1: warning: "HAVE_SNPRINTF" redefined
+In file included from C:/Python25/include/Python.h:114,
+                 from src/pygame.h:60,
+                 from src/rotozoom.c:15:
+C:/Python25/include/pyerrors.h:320:1: warning: this is the location of the previous definition
+In file included from c:/msys/1.0/local/include/SDL/SDL.h:28,
+                 from src/pygame.h:68,
+                 from src/rotozoom.c:15:
+c:/msys/1.0/local/include/SDL/SDL_main.h:50:1: warning: "main" redefined
+<command line>:2:1: warning: this is the location of the previous definition
+c:\mingw\bin\gcc.exe -mno-cygwin -mdll -O -Wall -D_GNU_SOURCE= -Dmain=DL_main -Ic:/msys/1.0/local/include/SDL -IC:\Python25\include -IC:\Python25\PC -c src/scale2x.c -o build\temp.win32-2.5\Release\src\scale2x.o
+In file included from c:/msys/1.0/local/include/SDL/SDL.h:28,
+                 from src/scale2x.c:35:
+c:/msys/1.0/local/include/SDL/SDL_main.h:50:1: warning: "main" redefined
+<command line>:2:1: warning: this is the location of the previous definition
+writing build\temp.win32-2.5\Release\src\transform.def
+c:\mingw\bin\gcc.exe -mno-cygwin -shared -mwindows -s build\temp.win32-2.5\Release\src\transform.o build\temp.win32-2.5\Release\src\rotozoom.o build\temp.win32-2.5\Release\src\scale2x.o build\temp.win32-2.5\Release\src\transform.def -Lc:/msys/1.0/local/lib -LC:\Python25\libs -LC:\Python25\PCBuild -lmingw32 -lSDLmain -lSDL -lpython25 -lmsvcr71 -o build\lib.win32-2.5\pygame\transform.pyd
+building 'pygame.mask' extension
+c:\mingw\bin\gcc.exe -mno-cygwin -mdll -O -Wall -D_GNU_SOURCE= -Dmain=DL_main -Ic:/msys/1.0/local/include/SDL -IC:\Python25\include -IC:\Python25\PC -c src/mask.c -o build\temp.win32-2.5\Release\src\mask.o
+In file included from c:/msys/1.0/local/include/SDL/SDL_stdinc.h:28,
+                 from c:/msys/1.0/local/include/SDL/SDL_main.h:26,
+                 from c:/msys/1.0/local/include/SDL/SDL.h:28,
+                 from src/pygame.h:68,
+                 from src/mask.c:23:
+c:/msys/1.0/local/include/SDL/SDL_config.h:131:1: warning: "HAVE_SNPRINTF" redefined
+In file included from C:/Python25/include/Python.h:114,
+                 from src/pygame.h:60,
+                 from src/mask.c:23:
+C:/Python25/include/pyerrors.h:320:1: warning: this is the location of the previous definition
+In file included from c:/msys/1.0/local/include/SDL/SDL.h:28,
+                 from src/pygame.h:68,
+                 from src/mask.c:23:
+c:/msys/1.0/local/include/SDL/SDL_main.h:50:1: warning: "main" redefined
+<command line>:2:1: warning: this is the location of the previous definition
+c:\mingw\bin\gcc.exe -mno-cygwin -mdll -O -Wall -D_GNU_SOURCE= -Dmain=DL_main -Ic:/msys/1.0/local/include/SDL -IC:\Python25\include -IC:\Python25\PC -c src/bitmask.c -o build\temp.win32-2.5\Release\src\bitmask.o
+src/bitmask.c: In function `bitcount':
+src/bitmask.c:314: warning: integer constant is too large for "long" type
+src/bitmask.c:314: warning: integer constant is too large for "long" type
+src/bitmask.c:315: warning: integer constant is too large for "long" type
+src/bitmask.c:315: warning: integer constant is too large for "long" type
+src/bitmask.c:316: warning: integer constant is too large for "long" type
+src/bitmask.c:319: warning: right shift count >= width of type
+writing build\temp.win32-2.5\Release\src\mask.def
+c:\mingw\bin\gcc.exe -mno-cygwin -shared -mwindows -s build\temp.win32-2.5\Release\src\mask.o build\temp.win32-2.5\Release\src\bitmask.o build\temp.win32-2.5\Release\src\mask.def -Lc:/msys/1.0/local/lib -LC:\Python25\libs -LC:\Python25\PCBuild -lmingw32 -lSDLmain -lSDL -lpython25 -lmsvcr71 -o build\lib.win32-2.5\pygame\mask.pyd
+building 'pygame.bufferproxy' extension
+c:\mingw\bin\gcc.exe -mno-cygwin -mdll -O -Wall -D_GNU_SOURCE= -Dmain=DL_main -Ic:/msys/1.0/local/include/SDL -IC:\Python25\include -IC:\Python25\PC -c src/bufferproxy.c -o build\temp.win32-2.5\Release\src\bufferproxy.o
+In file included from c:/msys/1.0/local/include/SDL/SDL_stdinc.h:28,
+                 from c:/msys/1.0/local/include/SDL/SDL_main.h:26,
+                 from c:/msys/1.0/local/include/SDL/SDL.h:28,
+                 from src/pygame.h:68,
+                 from src/bufferproxy.c:23:
+c:/msys/1.0/local/include/SDL/SDL_config.h:131:1: warning: "HAVE_SNPRINTF" redefined
+In file included from C:/Python25/include/Python.h:114,
+                 from src/pygame.h:60,
+                 from src/bufferproxy.c:23:
+C:/Python25/include/pyerrors.h:320:1: warning: this is the location of the previous definition
+In file included from c:/msys/1.0/local/include/SDL/SDL.h:28,
+                 from src/pygame.h:68,
+                 from src/bufferproxy.c:23:
+c:/msys/1.0/local/include/SDL/SDL_main.h:50:1: warning: "main" redefined
+<command line>:2:1: warning: this is the location of the previous definition
+src/pygame.h:633: warning: 'PyGAME_C_API' defined but not used
+writing build\temp.win32-2.5\Release\src\bufferproxy.def
+c:\mingw\bin\gcc.exe -mno-cygwin -shared -mwindows -s build\temp.win32-2.5\Release\src\bufferproxy.o build\temp.win32-2.5\Release\src\bufferproxy.def -Lc:/msys/1.0/local/lib -LC:\Python25\libs -LC:\Python25\PCBuild -lmingw32 -lSDLmain -lSDL -lpython25 -lmsvcr71 -o build\lib.win32-2.5\pygame\bufferproxy.pyd
+building 'pygame.pixelarray' extension
+c:\mingw\bin\gcc.exe -mno-cygwin -mdll -O -Wall -D_GNU_SOURCE= -Dmain=DL_main -Ic:/msys/1.0/local/include/SDL -IC:\Python25\include -IC:\Python25\PC -c src/pixelarray.c -o build\temp.win32-2.5\Release\src\pixelarray.o
+In file included from c:/msys/1.0/local/include/SDL/SDL_stdinc.h:28,
+                 from c:/msys/1.0/local/include/SDL/SDL_main.h:26,
+                 from c:/msys/1.0/local/include/SDL/SDL.h:28,
+                 from src/pygame.h:68,
+                 from src/pixelarray.c:23:
+c:/msys/1.0/local/include/SDL/SDL_config.h:131:1: warning: "HAVE_SNPRINTF" redefined
+In file included from C:/Python25/include/Python.h:114,
+                 from src/pygame.h:60,
+                 from src/pixelarray.c:23:
+C:/Python25/include/pyerrors.h:320:1: warning: this is the location of the previous definition
+In file included from c:/msys/1.0/local/include/SDL/SDL.h:28,
+                 from src/pygame.h:68,
+                 from src/pixelarray.c:23:
+c:/msys/1.0/local/include/SDL/SDL_main.h:50:1: warning: "main" redefined
+<command line>:2:1: warning: this is the location of the previous definition
+writing build\temp.win32-2.5\Release\src\pixelarray.def
+c:\mingw\bin\gcc.exe -mno-cygwin -shared -mwindows -s build\temp.win32-2.5\Release\src\pixelarray.o build\temp.win32-2.5\Release\src\pixelarray.def -Lc:/msys/1.0/local/lib -LC:\Python25\libs -LC:\Python25\PCBuild -lmingw32 -lSDLmain -lSDL -lpython25 -lmsvcr71 -o build\lib.win32-2.5\pygame\pixelarray.pyd
+running install
+running install_lib
+copying build\lib.win32-2.5\pygame\base.pyd -> C:\Python25\Lib\site-packages\pygame
+copying build\lib.win32-2.5\pygame\bufferproxy.pyd -> C:\Python25\Lib\site-packages\pygame
+copying build\lib.win32-2.5\pygame\cdrom.pyd -> C:\Python25\Lib\site-packages\pygame
+copying build\lib.win32-2.5\pygame\color.pyd -> C:\Python25\Lib\site-packages\pygame
+copying build\lib.win32-2.5\pygame\constants.pyd -> C:\Python25\Lib\site-packages\pygame
+copying build\lib.win32-2.5\pygame\display.pyd -> C:\Python25\Lib\site-packages\pygame
+copying build\lib.win32-2.5\pygame\draw.pyd -> C:\Python25\Lib\site-packages\pygame
+copying build\lib.win32-2.5\pygame\event.pyd -> C:\Python25\Lib\site-packages\pygame
+copying build\lib.win32-2.5\pygame\fastevent.pyd -> C:\Python25\Lib\site-packages\pygame
+copying build\lib.win32-2.5\pygame\font.pyd -> C:\Python25\Lib\site-packages\pygame
+copying build\lib.win32-2.5\pygame\image.pyd -> C:\Python25\Lib\site-packages\pygame
+copying build\lib.win32-2.5\pygame\imageext.pyd -> C:\Python25\Lib\site-packages\pygame
+copying build\lib.win32-2.5\pygame\joystick.pyd -> C:\Python25\Lib\site-packages\pygame
+copying build\lib.win32-2.5\pygame\key.pyd -> C:\Python25\Lib\site-packages\pygame
+copying build\lib.win32-2.5\pygame\mask.pyd -> C:\Python25\Lib\site-packages\pygame
+copying build\lib.win32-2.5\pygame\mixer.pyd -> C:\Python25\Lib\site-packages\pygame
+copying build\lib.win32-2.5\pygame\mixer_music.pyd -> C:\Python25\Lib\site-packages\pygame
+copying build\lib.win32-2.5\pygame\mouse.pyd -> C:\Python25\Lib\site-packages\pygame
+copying build\lib.win32-2.5\pygame\movie.pyd -> C:\Python25\Lib\site-packages\pygame
+copying build\lib.win32-2.5\pygame\overlay.pyd -> C:\Python25\Lib\site-packages\pygame
+copying build\lib.win32-2.5\pygame\pixelarray.pyd -> C:\Python25\Lib\site-packages\pygame
+copying build\lib.win32-2.5\pygame\rect.pyd -> C:\Python25\Lib\site-packages\pygame
+copying build\lib.win32-2.5\pygame\rwobject.pyd -> C:\Python25\Lib\site-packages\pygame
+copying build\lib.win32-2.5\pygame\scrap.pyd -> C:\Python25\Lib\site-packages\pygame
+copying build\lib.win32-2.5\pygame\surface.pyd -> C:\Python25\Lib\site-packages\pygame
+copying build\lib.win32-2.5\pygame\surflock.pyd -> C:\Python25\Lib\site-packages\pygame
+copying build\lib.win32-2.5\pygame\time.pyd -> C:\Python25\Lib\site-packages\pygame
+copying build\lib.win32-2.5\pygame\transform.pyd -> C:\Python25\Lib\site-packages\pygame
+copying build\lib.win32-2.5\pygame\_numericsndarray.pyd -> C:\Python25\Lib\site-packages\pygame
+copying build\lib.win32-2.5\pygame\_numericsurfarray.pyd -> C:\Python25\Lib\site-packages\pygame
+running install_headers
+running install_data
+running install_egg_info
+Removing C:\Python25\Lib\site-packages\pygame-1.9.0pre-py2.5.egg-info
+Writing C:\Python25\Lib\site-packages\pygame-1.9.0pre-py2.5.egg-info
