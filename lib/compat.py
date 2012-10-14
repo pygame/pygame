@@ -77,7 +77,7 @@ def filesystem_encode(u):
 #   e.g.: as_unicode(r"Bo\u00F6tes") == u"Bo\u00F6tes" # Python 2.x
 #         as_unicode(r"Bo\u00F6tes") == "Bo\u00F6tes"  # Python 3.x
 try:
-    eval("u'a'")
+    unicode
     def as_bytes(string):
         """ '<binary literal>' => '<binary literal>' """
         return string
@@ -85,7 +85,7 @@ try:
     def as_unicode(rstring):
         """ r'<Unicode literal>' => u'<Unicode literal>' """
         return rstring.decode('unicode_escape', 'strict')
-except SyntaxError:
+except NameError:
     def as_bytes(string):
         """ '<binary literal>' => b'<binary literal>' """
         return string.encode('latin-1', 'strict')
@@ -94,5 +94,20 @@ except SyntaxError:
         """ r'<Unicode literal>' => '<Unicode literal>' """
         return rstring.encode('ascii', 'strict').decode('unicode_escape',
                                                         'stict')
+# Include a next compatible function for Python versions < 2.6
+try:
+    next_ = next
+except NameError:
+    def next_(i, *args):
+        try:
+            return i.next()
+        except StopIteration:
+            if args:
+                return args[0]
+            raise
 
-
+# itertools.imap is missing in 3.x
+try:
+    import itertools.imap as imap_
+except ImportError:
+    imap_ = map
