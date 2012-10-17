@@ -17,7 +17,7 @@ import traceback, sys
 from pygame.compat import geterror
 
 if sys.version_info[0] == 3:
-    from multiprocessing import JoinableQueue as Queue
+    from queue import Queue
     from queue import Empty
 elif (sys.version_info[0] == 2 and sys.version_info[1] < 5):
     from Py25Queue import Queue
@@ -301,7 +301,7 @@ def tmap(f, seq_args, num_workers = 20, worker_queue = None, wait = True, stop_o
         # TODO: the traceback doesn't show up nicely.
         # NOTE: TODO: we might want to return the results anyway?  This should be an option.
         if stop_on_error:
-            error_ones = filter(lambda x:x.exception, results)
+            error_ones = list(filter(lambda x:x.exception, results))
             if error_ones:
                 raise error_ones[0].exception
         
