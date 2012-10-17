@@ -1,0 +1,210 @@
+<!--
+TUTORIAL:David Clark's Newbie Guide To Pygame
+--><html>
+<title>A Newbie Guide to pygame</title>
+
+<body bgcolor="#FFFFFF" text="#000000">
+<div align="center">
+<H2>A Newbie Guide to pygame</H2>
+
+<H4>or</H4>
+
+<H2>Things I learned by trial and error so you don't have to.</H2>
+
+<H4>or</H4>
+
+<H2>How I learned to stop worrying and love the blit.</H2>
+</div>
+
+
+<p><a href="http://www.pygame.org/">Pygame</a> is a python wrapper for <a href="http://www.libsdl.org">SDL</a>, written by Pete Shinners.  What this means is that, using pygame, you can write games or other multimedia applications in Python that will run unaltered on any of SDL's supported platforms (Windows, Unix, Mac, beOS and others).</p>
+
+<p>Pygame may be easy to learn, but the world of graphics programming can be pretty confusing to the newcomer.  I wrote this to try to distill the practical knowledge I've gained over the past year or so of working with pygame, and it's predecessor, pySDL.  I've tried to rank these suggestions in order of importance, but how relevent any particular hint is will depend on your own background and the details of your project.</p>
+
+
+<H3>1. Get comfortable working in Python.</H3>
+
+<p>The most important thing is to feel confident using python. Learning something as potentially complicated as graphics programming will be a real chore if you're also unfamiliar with the language you're using. Write a few sizable non-graphical programs in python - parse some text files, write a guessing game or a journal-entry program or something. Get comfortable with string and list manipulation - know how to split, slice and combine strings and lists. Know how <b>import</b> works - try writing a program that is spread across several source files.  Write your own functions, and practice manipulating numbers and characters; know how to convert between the two.  Get to the point where the syntax for using lists and dictionaries is second-nature - you don't want to have to run to the documentation every time you need to slice a list or sort a set of keys.  Resist the temptation to run to a mailing list, comp.lang.python, or irc when you run into trouble.  Instead, fire up the interpreter and play with the problem for a few hours.  Print out the <a href="http://www.brunningonline.net/simon/python/quick-ref2_0.html">Python 2.0 Quick Reference</a> and keep it by your computer.</p>
+
+<p>This may sound incredibly dull, but the confidence you'll gain through your familiarity with python will work wonders when it comes time to write your game.  The time you spend making python code second-nature will be nothing compared to the time you'll save when you're writing real code.</p>
+
+
+<h3>2. Recognize which parts of pygame you really need.</h3>
+
+<p>Looking at the jumble of classes at the top of the pygame Documentation index may be confusing.  The important thing is to realize that you can do a great deal with only a tiny subset of functions.  Many classes you'll probably never use - in a year, I haven't touched the Channel, Joystick, cursors, Userrect, surfarray or version functions.</p>
+
+
+<H3>3. Know what a surface is</H3>
+
+<p>The most important part of pygame is the surface.  Just think of a surface as a blank piece of paper.  You can do a lot of things with a surface - you can draw lines on it, fill parts of it with color, copy images to and from it, and set or read individual pixel colors on it.  A surface can be any size (within reason) and you can have as many of them as you like (again, within reason).  One surface is special - the one you create with <b>pygame.display.set_mode()</b>.  This 'display surface' represents the screen; whatever you do to it will appear on the user's screen.  You can only have one of these - that's an SDL limitation, not a pygame one.</p>
+
+<P>So how do you create surfaces?  As mentioned above, you create the special 'display surface' with <b>pygame.display.set_mode()</b>.  You can create a surface that contains an image by using <b>image.load()</b>, or you can make a surface that contains text with <b>font.render()</b>.  You can even create a surface that contains nothing at all with <b>Surface()</b>.</p>
+
+<p>Most of the surface functions are not critical. Just learn <b>blit()</b>, <b>fill()</b>, <b>set_at()</b> and <b>get_at()</b>, and you'll be fine.</p>
+
+
+<H3>4. Use surface.convert()</H3>
+
+<p>When I first read the documentation for <b>surface.convert()</b>, I didn't think it was something I had to worry about. &quot;I only use pngs, therefore everything I do will be in the same format. So I don't need convert()&quot;. It turns out I was very, very wrong.</p>
+
+<p>The 'format' that <b>convert()</b> refers to isn't the <i>file</i> format (ie png, jpeg, gif), it's what's called the 'pixel format'.  This refers to the particular way that a surface records individual colors in a specific pixel.  If the surface format isn't the same as the display format, SDL will have to convert it on-the-fly for every blit - a fairly time-consuming process.  Don't worry too much about the explanation; just note that <b>convert()</b> is necessary if you want to get any kind of speed out of your blits.</p>
+
+<p>How do you use convert? Just call it after creating a surface with the <b>image.load()</b> function. Instead of just doing:</p>
+
+<pre>surface = pygame.image.load('foo.png')</pre>
+
+<p>Do:</p>
+
+<pre>surface = pygame.image.load('foo.png').convert()</pre>
+
+<p>It's that easy. You just need to call it once per surface, when you load an image off the disk.  You'll be pleased with the results; I see about a 6x increase in blitting speed by calling <b>convert()</b>.</p>
+
+<p>The only times you don't want to use <b>convert()</b> is when you really need to have absolute control over an image's internal format - say you were writing an image conversion program or something, and you needed to ensure that the output file had the same pixel format as the input file.  If you're writing a game, you need speed.  Use <b>convert()</b>.</p>
+
+
+<h3>5. Dirty rect animation</H3>
+
+<p>The most common cause of inadequate frame rates in pygame programs results from misunderstanding the <b>pygame.display.update()</b> function.  With pygame, merely drawing something to the display surface doesn't cause it to appear on the screen - you need to call <b>pygame.display.update()</b>.  There are three ways of calling this function:</p>
+
+<OL>
+	<LI><b>pygame.display.update()</b> - This updates the whole window (or the whole screen for fullscreen displays).
+	<LI><b>pygame.display.flip()</b> - This does the same thing, and will also do the right thing if you're using doublebuffered hardware acceleration, which you're not, so on to...
+	<LI><b>pygame.display.update(a rectangle or some list of rectangles)</b> - This updates just the rectangular areas of the screen you specify.
+</OL>
+
+<p>Most people new to graphics programming use the first option - they update the whole screen every frame.  The problem is that this is unacceptably slow for most people.  Calling <b>update()</b> takes 35 milliseconds on my machine, which doesn't sound like much, until you realize that 1000 / 35 = 28 frames per second <i>maximum</i>. And that's with no game logic, no blits, no input, no AI, nothing.  I'm just sitting there updating the screen, and 28 fps is my maximum framerate. Ugh.</p>
+
+<p>The solution is called 'dirty rect animation'.  Instead of updating the whole screen every frame, only the parts that changed since the last frame are updated.  I do this by keeping track of those rectangles in a list, then calling <b>update(the_dirty_rectangles)</b> at the end of the frame.  In detail for a moving sprite, I:</p>
+
+<OL>
+	<LI>Blit a piece of the background over the sprite's current location, erasing it.
+	<LI>Append the sprite's current location rectangle to a list called dirty_rects.
+	<LI>Move the sprite.
+        <LI>Draw the sprite at it's new location.
+	<LI>Append the sprite's new location to my dirty_rects list.
+	<LI>Call <B>display.update(dirty_rects)</b>
+</OL>
+
+<p>The difference in speed is astonishing. Consider that <a href="http://shredwheat.zopesite.com/solarwolf">Solarwolf</a> has dozens of constantly moving sprites updating smoothly, and still has enough time left over to display a parallax starfield in the background, and update that too.</p>
+
+<p>There are two cases where this technique just won't work. The first is where the whole window or screen really is being updated every frame - think of a smooth-scrolling engine like an overhead real-time strategy game or a side-scroller.  So what do you do in this case?  Well, the short answer is - don't write this kind of game in pygame.  The long answer is to scroll in steps of several pixels at a time; don't try to make scrolling perfectly smooth.  Your player will appreciate a game that scrolls quickly, and won't notice the background jumping along too much.</p>
+
+<p>A final note - not every game requires high framerates. A strategic wargame could easily get by on just a few updates per second - in this case, the added complexity of dirty rect animation may not be necessary.</p>
+
+
+<h3>6. There is NO rule six.</h3>
+
+
+<h3>7. Hardware surfaces are more trouble than they're worth.</h3>
+
+<p>If you've been looking at the various flags you can use with <b>pygame.display.set_mode()</b>, you may have thought like this: &quot;Hey, HWSURFACE! Well, I want that - who doesn't like hardware acceleration. Ooo... DOUBLEBUF; well, that sounds fast, I guess I want that too!&quot;.  It's not your fault; we've been trained by years of 3-d gaming to believe that hardware acceleration is good, and software rendering is slow.</p>
+
+<p>Unfortunately, hardware rendering comes with a long list of drawbacks:</p>
+
+<UL>
+	<LI>It only works on some platforms. Windows machines can usually get hardware surfaces if you ask for them. Most other platforms can't. Linux, for example, may be able to provide a hardware surface if X4 is installed, if DGA2 is working properly, and if the moons are aligned correctly. If a hardware surface is unavailable, sdl will silently give you a software surface instead.
+
+	<LI>It only works fullscreen.
+
+	<LI>It complicates per-pixel access.  If you have a hardware surface, you need to Lock the surface before writing or reading individual pixel values on it.  If you don't, Bad Things Happen. Then you need to quickly Unlock the surface again, before the OS gets all confused and starts to panic.  Most of this process is automated for you in pygame, but it's something else to take into account.
+
+	<LI>You lose the mouse pointer. If you specify HWSURFACE (and actually get it), your pointer will usually just vanish (or worse, hang around in a half-there, half-not flickery state).  You'll need to create a sprite to act as a manual mouse pointer, and you'll need to worry about pointer acceleration and sensitivity. What a pain.
+
+	<LI>It might be slower anyway. Many drivers are not accelerated for the types of drawing that we do, and since everything has to be blitted across the video bus (unless you can cram your source surface into video memory as well), it might end up being slower than software access anyway.
+</UL>
+
+<p>Hardware rendering has it's place. It works pretty reliably under Windows, so if you're not interested in cross-platform performance, it may provide you with a substantial speed increase.  However, it comes at a cost - increased headaches and complexity.  It's best to stick with good old reliable SWSURFACEs until you're sure you know what you're doing.</p>
+
+
+<h3>8. Don't get distracted by side issues.</h3>
+
+<p>Sometimes, new game programmers spend too much time worrying about issues that aren't really critical to their game's success.  The desire to get secondary issues 'right' is understandable, but early in the process of creating a game, you cannot even know what the important questions are, let alone what answers you should choose.  The result can be a lot of needless prevarication.</p>
+
+<p>For example, consider the question of how to organize your graphics files.  Should each frame have its own graphics file, or each sprite?  Perhaps all the graphics should be zipped up into one archive?  A great deal of time has been wasted on a lot of projects, asking these questions on mailing lists, debating the answers, profiling, etc, etc.  This is a secondary issue; any time spent discussing it should have been spent coding the actual game.</p>
+
+<p>The insight here is that it is far better to have a 'pretty good' solution that was actually implemented, than a perfect solution that you never got around to writing.</p>
+
+
+<h3>9. Rects are your friends.</h3>
+
+<p>Pete Shinners' wrapper may have cool alpha effects and fast blitting speeds, but I have to admit my favorite part of pygame is the lowly Rect class.  A rect is simply a rectangle - defined only by the position of its top left corner, its width, and its height.  Many pygame functions take rects as arguments, and they also take 'rectstyles', a sequence that has the same values as a rect. So if I need a rectangle that defines the area between 10, 20 and 40, 50, I can do any of the following:</p>
+
+<pre>
+rect = pygame.Rect(10, 20, 30, 30)
+rect = pygame.Rect((10, 20, 30, 30))
+rect = pygame.Rect((10, 20), (30, 30))
+rect = (10, 20, 30, 30)
+rect = ((10, 20, 30, 30))
+</pre>
+
+<p>If you use any of the first three versions, however, you get access to Rect's utility functions.  These include functions to move, shrink and inflate rects, find the union of two rects, and a variety of collision-detection functions.</p>
+
+<p>For example, suppose I'd like to get a list of all the sprites that contain a point (x, y) - maybe the player clicked there, or maybe that's the current location of a bullet. It's simple if each sprite has a .rect member - I just do:</p>
+
+<pre>
+sprites_clicked = [sprite for sprite in all_my_sprites_list if sprite.rect.collidepoint(x, y)]
+</pre>
+
+<p>Rects have no other relation to surfaces or graphics functions, other than the fact that you can use them as arguments.  You can also use them in places that have nothing to do with graphics, but still need to be defined as rectangles.  Every project I discover a few new places to use rects where I never thought I'd need them.</p>
+
+
+<h3>10. Don't bother with pixel-perfect collision detection.</h3>
+
+<p>So you've got your sprites moving around, and you need to know whether or not they're bumping into one another. It's tempting to write something like the following:
+
+<OL>
+	<LI>Check to see if the rects are in collision. If they aren't, ignore them.
+	<LI>For each pixel in the overlapping area, see if the corresponding pixels from both sprites are opaque. If so, there's a collision.
+</OL>
+
+<p>There are other ways to do this, with ANDing sprite masks and so on, but any way you do it in pygame, it's probably going to be too slow. For most games, it's probably better just to do 'sub-rect collision' - create a rect for each sprite that's a little smaller than the actual image, and use that for collisions instead. It will be much faster, and in most cases the player won't notice the inprecision.</p>
+
+
+<h3>11. Managing the event subsystem</h3>
+
+<p>Pygame's event system is kind of tricky.  There are actually two different ways to find out what an input device (keyboard, mouse or joystick) is doing.</p>
+
+<p>The first is by directly checking the state of the device.  You do this by calling, say, <b>pygame.mouse.get_pos()</b> or <b>pygame.key.get_pressed()</b>. This will tell you the state of that device <i>at the moment you call the function</i>.</p>
+
+<p>The second method uses the SDL event queue.  This queue is a list of events - events are added to the list as they're detected, and they're deleted from the queue as they're read off.</p>
+
+<p>There are advantages and disadvantages to each system.  State-checking (system 1) gives you precision - you know exactly when a given input was made - if <b>mouse.get_pressed([0])</b> is 1, that means that the left mouse button is down <i>right at this moment</i>.  The event queue merely reports that the mouse was down at some time in the past; if you check the queue fairly often, that can be ok, but if you're delayed from checking it by other code, input latency can grow.  Another advantage of the state-checking system is that it detects "chording" easily; that is, several states at the same time.  If you want to know whether the t and f keys are down at the same time, just check:</p>
+
+<pre>
+if (key.get_pressed[K_t] and key.get_pressed[K_f]):
+     print "Yup!"
+</pre>
+
+<p>In the queue system, however, each keypress arrives in the queue as a completely separate event, so you'd need to remember that the t key was down, and hadn't come up yet, while checking for the f key.  A little more complicated.</p>
+
+<p>The state system has one great weakness, however. It only reports what the state of the device is at the moment it's called; if the user hits a mouse button then releases it just before a call to <b>mouse.get_pressed()</b>, the mouse button will return 0 - <b>get_pressed()</b> missed the mouse button press completely.  The two events, MOUSEBUTTONDOWN and MOUSEBUTTONUP, will still be sitting in the event queue, however, waiting to be retrieved and processed.</p>
+
+<p>The lesson is: choose the system that meets your requirements.  If you don't have much going on in your loop - say you're just sitting in a '<b>while 1</b>' loop, waiting for input, use <b>get_pressed()</b> or another state function; the latency will be lower.  On the other hand, if every keypress is crucial, but latency isn't as important - say your user is typing something in an editbox, use the event queue.  Some keypresses may be slightly late, but at least you'll get them all.</p>
+
+<p>A note about <b>event.poll()</b> vs. <b>wait()</b> - <b>poll()</b> may seem better, since it doesn't block your program from doing anything while it's waiting for input - <b>wait()</b> suspends the program until an event is received.  However, <b>poll()</b> will consume 100% of available cpu time while it runs, and it will fill the event queue with NOEVENTS.  Use <b>set_blocked()</b> to select just those event types you're interested in - your queue will be much more manageable.</p>
+
+
+<h3>12. Colorkey vs. Alpha</h3>
+
+<p>There's a lot of confusion around these two techniques, and much of it comes from the terminology used.</p>
+
+<p>'Colorkey blitting' involves telling pygame that all pixels of a certain color in a certain image are transparent instead of whatever color they happen to be. These transparent pixels are not blitted when the rest of the image is blitted, and so don't obscure the background.  This is how we make sprites that aren't rectangular in shape.  Simply call <b>surface.set_colorkey(color)</b>, where color is a rgb tuple - say (0,0,0). This would make every pixel in the source image transparent instead of black.</p>
+
+<p>'Alpha' is different, and it comes in two flavors. 'Image alpha' applies to the whole image, and is probably what you want.  Properly known as 'translucency', alpha causes each pixel in the source image to be only <i>partially</i> opaque. For example, if you set a surface's alpha to 192 and then blitted it onto a background, 3/4 of each pixel's color would come from the source image, and 1/4 from the background.  Alpha is measured from 255 to 0, where 0 is completely transparent, and 255 is completely opaque.  Note that colorkey and alpha blitting can be combined - this produces an image that is fully transparent in some spots, and semi-transparent in others.</p>
+
+<p>'Per-pixel alpha' is the other flavor of alpha, and it's more complicated.  Basically, each pixel in the source image has its own alpha value, from 0 to 255.  Each pixel, therefore, can have a different opacity when blitted onto a background.  This type of alpha can't be mixed with colorkey blitting, and it overrides per-image alpha.  Per-pixel alpha is rarely used in games, and to use it you have to save your source image in a graphic editor with a special <i>alpha channel</i>.  It's complicated - don't use it yet.</p>
+
+
+<h3>13. Do things the pythony way.</h3>
+
+<p>A final note (this isn't the least important one; it just comes at the end).  Pygame is a pretty lightweight wrapper around SDL, which is in turn a pretty lightweight wrapper around your native OS graphics calls.  Chances are pretty good that if your code is still slow, and you've done the things I've mentioned above, then the problem lies in the way you're addressing your data in python.  Certain idioms are just going to be slow in python no matter what you do.  Luckily, python is a very clear language - if a piece of code looks awkward or unweildy, chances are its speed can be improved, too.  Read over <a href="http://musi-cal.mojam.com/~skip/python/fastpython.html">Python Performance Tips</a> for some great advice on how you can improve the speed of your code.  That said, premature optimisation is the root of all evil; if it's just not fast enough, don't torture the code trying to make it faster.  Some things are just not meant to be :)</p>
+
+
+<p>There you go. Now you know practically everything I know about using pygame.  Now, go write that game!</p>
+
+<hr>
+
+<p>David Clark is an avid pygame user and the editor of the Pygame Code Repository, a showcase for community-submitted python game code.  He is also the author of Twitch, an entirely average pygame arcade game.</p>
+
+</body>
+</html>
