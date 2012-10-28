@@ -399,8 +399,14 @@ class SurfaceTypeTest(unittest.TestCase):
         s = pygame.Surface((2, 4), 0, 32)
         self.assert_(not s.get_locked())
         v = s.get_view()
+        self.assert_(not s.get_locked())
+        c = v.__array_interface__
         self.assert_(s.get_locked())
-        del v
+        c = None
+        gc.collect()
+        self.assert_(s.get_locked())
+        v = None
+        gc.collect()
         self.assert_(not s.get_locked())
 
         # Check invalid view kind values.
