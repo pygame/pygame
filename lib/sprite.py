@@ -244,7 +244,7 @@ class DirtySprite(Sprite):
         change visible to 1, you must set dirty to 1 for it to be erased from
         the screen.)
 
-    layer = 0
+    _layer = 0
         A READ ONLY value, it is read when adding it to the LayeredUpdates
         group. For details see documentation of sprite.LayeredUpdates.
 
@@ -318,7 +318,7 @@ class AbstractGroup(object):
 
     def remove_internal(self, sprite):
         r = self.spritedict[sprite]
-        if r is not 0:
+        if r:
             self.lostsprites.append(r)
         del self.spritedict[sprite]
 
@@ -490,14 +490,14 @@ class AbstractGroup(object):
             for r in self.lostsprites:
                 bgd(surface, r)
             for r in self.spritedict.values():
-                if r is not 0:
+                if r:
                     bgd(surface, r)
         else:
             surface_blit = surface.blit
             for r in self.lostsprites:
                 surface_blit(bgd, r, r)
             for r in self.spritedict.values():
-                if r is not 0:
+                if r:
                     surface_blit(bgd, r, r)
 
     def empty(self):
@@ -572,14 +572,14 @@ class RenderUpdates(Group):
        for s in self.sprites():
            r = spritedict[s]
            newrect = surface_blit(s.image, s.rect)
-           if r is 0:
-               dirty_append(newrect)
-           else:
+           if r:
                if newrect.colliderect(r):
                    dirty_append(newrect.union(r))
                else:
                    dirty_append(newrect)
                    dirty_append(r)
+           else:
+               dirty_append(newrect)
            spritedict[s] = newrect
        return dirty
 
@@ -620,17 +620,19 @@ class LayeredUpdates(AbstractGroup):
 
     """
 
+    _init_rect = Rect(0, 0, 0, 0)
+
     def __init__(self, *sprites, **kwargs):
         """initialize an instance of LayeredUpdates with the given attributes
 
         You can set the default layer through kwargs using 'default_layer'
         and an integer for the layer. The default layer is 0.
 
-        If the sprite you add has an attribute layer, then that layer will be
+        If the sprite you add has an attribute _layer, then that layer will be
         used. If **kwarg contains 'layer', then the passed sprites will be
-        added to that layer (overriding the sprite.layer attribute). If neither
-        the sprite nor **kwarg has a 'layer', then the default layer is used to
-        add the sprites.
+        added to that layer (overriding the sprite._layer attribute). If
+        neither the sprite nor **kwarg has a 'layer', then the default layer is
+        used to add the sprites.
 
         """
         self._spritelayers = {}
@@ -646,7 +648,7 @@ class LayeredUpdates(AbstractGroup):
         It is used by the group to add a sprite internally.
 
         """
-        self.spritedict[sprite] = Rect(0, 0, 0, 0) # add a old rect
+        self.spritedict[sprite] = self._init_rect
 
         if layer is None:
             try:
@@ -681,11 +683,11 @@ class LayeredUpdates(AbstractGroup):
 
         LayeredUpdates.add(*sprites, **kwargs): return None
 
-        If the sprite you add has an attribute layer, then that layer will be
+        If the sprite you add has an attribute _layer, then that layer will be
         used. If **kwarg contains 'layer', then the passed sprites will be
-        added to that layer (overriding the sprite.layer attribute). If neither
-        the sprite nor **kwarg has a 'layer', then the default layer is used to
-        add the sprites.
+        added to that layer (overriding the sprite._layer attribute). If
+        neither the sprite nor **kwarg has a 'layer', then the default layer is
+        used to add the sprites.
 
         """
 
@@ -730,12 +732,14 @@ class LayeredUpdates(AbstractGroup):
         """
         self._spritelist.remove(sprite)
         # these dirty rects are suboptimal for one frame
-        self.lostsprites.append(self.spritedict[sprite]) # dirty rect
+        r = self.spritedict[sprite]
+        if r is not self._init_rect:
+            self.lostsprites.append(r) # dirty rect
         if hasattr(sprite, 'rect'):
             self.lostsprites.append(sprite.rect) # dirty rect
 
-        self.spritedict.pop(sprite, 0)
-        self._spritelayers.pop(sprite)
+        del self.spritedict[sprite]
+        del self._spritelayers[sprite]
 
     def sprites(self):
         """return a ordered list of sprites (first back, last top).
@@ -756,10 +760,11 @@ class LayeredUpdates(AbstractGroup):
         dirty = self.lostsprites
         self.lostsprites = []
         dirty_append = dirty.append
+        init_rect = self._init_rect
         for spr in self.sprites():
             rec = spritedict[spr]
             newrect = surface_blit(spr.image, spr.rect)
-            if rec is 0:
+            if rec is init_rect:
                 dirty_append(newrect)
             else:
                 if newrect.colliderect(rec):
@@ -1042,6 +1047,7 @@ class LayeredDirty(LayeredUpdates):
         if bgd is not None:
             self._bgd = bgd
         _bgd = self._bgd
+        init_rect = self._init_rect
 
         _surf.set_clip(_clip)
         # -------
@@ -1068,15 +1074,16 @@ class LayeredDirty(LayeredUpdates):
                         i = _union_rect_collidelist(_update)
                     _update_append(_union_rect.clip(_clip))
 
-                    _union_rect = _rect(_old_rect[spr])
-                    _union_rect_collidelist = _union_rect.collidelist
-                    _union_rect_union_ip = _union_rect.union_ip
-                    i = _union_rect_collidelist(_update)
-                    while -1 < i:
-                        _union_rect_union_ip(_update[i])
-                        del _update[i]
+                    if _old_rect[spr] is not init_rect:
+                        _union_rect = _rect(_old_rect[spr])
+                        _union_rect_collidelist = _union_rect.collidelist
+                        _union_rect_union_ip = _union_rect.union_ip
                         i = _union_rect_collidelist(_update)
-                    _update_append(_union_rect.clip(_clip))
+                        while -1 < i:
+                            _union_rect_union_ip(_update[i])
+                            del _update[i]
+                            i = _union_rect_collidelist(_update)
+                        _update_append(_union_rect.clip(_clip))
             # can it be done better? because that is an O(n**2) algorithm in
             # worst case
 
