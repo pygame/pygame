@@ -183,6 +183,7 @@
 /* Python 2.4 (PEP 353) ssize_t */
 #if PY_VERSION_HEX < 0x02050000
 #define PyInt_AsSsize_t PyInt_AsLong
+#define PyInt_FromSsizt_t PyInt_FromLong
 #endif
 
 /* Python 2.5 and earlier (PEP 3118) Py_buffer */
