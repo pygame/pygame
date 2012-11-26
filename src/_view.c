@@ -49,6 +49,7 @@ typedef struct PgViewObject_s {
     PyObject *pyprelude;                  /* Python lock callable             */
     PyObject *pypostscript;               /* Python release callback          */
     int global_release;                   /* dealloc callback flag            */
+    PyObject *dict;                       /* Allow arbitrary attributes       */
     PyObject *weakrefs;                   /* There can be reference cycles    */
 } PgViewObject;
 
@@ -175,6 +176,7 @@ _view_new_from_type(PyTypeObject *type,
     if (!format) {
         format = self->cmem;
     }
+    self->dict = 0;
     self->weakrefs = 0;
     memcpy(&(self->bufview), bufview, sizeof(Py_buffer));
     self->bufview.format = format;
@@ -756,6 +758,7 @@ _view_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject *pyprelude = 0;
     PyObject *pypostscript = 0;
     PyObject *self = 0;
+    int i;
     /* The argument evaluation order is important: strides must follow shape. */
     char *keywords[] = {"shape", "typestr", "data", "strides", "parent",
                         "prelude", "postscript", 0};
@@ -787,6 +790,10 @@ _view_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         pypostscript = 0;
     }
     Py_XINCREF((PyObject *)bufview.obj);
+    bufview.len = bufview.itemsize;
+    for (i = 0; i < bufview.ndim; ++i) {
+        bufview.len *= bufview.shape[i];
+    }
     self = _view_new_from_type(type, &bufview, 0,
                                0, 0, pyprelude, pypostscript);
     _free_bufview(&bufview);
@@ -811,6 +818,7 @@ _view_dealloc(PgViewObject *self)
     Py_XDECREF((PyObject *)self->bufview.obj);
     Py_XDECREF(self->pyprelude);
     Py_XDECREF(self->pypostscript);
+    Py_XDECREF(self->dict);
     if (self->weakrefs) {
         PyObject_ClearWeakRefs((PyObject *)self);
     }
@@ -894,6 +902,38 @@ _view_get_parent(PgViewObject *self, PyObject *closure)
     return parent;
 }
 
+static PyObject *
+_view_get___dict__(PgViewObject *self, PyObject *closure)
+{
+    if (!self->dict) {
+	self->dict = PyDict_New();
+        if (!self->dict) {
+            return 0;
+        }
+    }
+
+    Py_INCREF(self->dict);
+    return self->dict;
+}
+
+static PyObject *
+_view_get_raw(PgViewObject *self, PyObject *closure)
+{
+    if (!(self->flags & VIEW_CONTIGUOUS)) {
+        PyErr_SetString(PyExc_ValueError, "the bytes are not contiguous");
+        return 0;
+    }
+
+    return Bytes_FromStringAndSize((char *)self->bufview.buf,
+                                   self->bufview.len);
+}
+
+static PyObject *
+_view_get_length(PgViewObject *self, PyObject *closure)
+{
+    return PyInt_FromSsize_t(self->bufview.len);
+}
+
 /**** Methods ****/
 
 /**
@@ -913,6 +953,9 @@ static PyGetSetDef _view_getsets[] =
     {"__array_struct__", (getter)_view_get_arraystruct, 0, 0, 0},
     {"__array_interface__", (getter)_view_get_arrayinterface, 0, 0, 0},
     {"parent", (getter)_view_get_parent, 0, 0, 0},
+    {"__dict__", (getter)_view_get___dict__, 0, 0, 0},
+    {"raw", (getter)_view_get_raw, 0, 0, 0},
+    {"length", (getter)_view_get_length, 0, 0, 0},
     {0, 0, 0, 0, 0}
 };
 
@@ -1011,7 +1054,7 @@ static PyTypeObject PgView_Type =
 #else
     0,                          /* tp_as_buffer */
 #endif
-    Py_TPFLAGS_DEFAULT,         /* tp_flags */
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,  /* tp_flags */
     "Object view as an array struct\n",
     0,                          /* tp_traverse */
     0,                          /* tp_clear */
@@ -1026,7 +1069,7 @@ static PyTypeObject PgView_Type =
     0,                          /* tp_dict */
     0,                          /* tp_descr_get */
     0,                          /* tp_descr_set */
-    0,                          /* tp_dictoffset */
+    offsetof(PgViewObject, dict), /* tp_dictoffset */
     0,                          /* tp_init */
     0,                          /* tp_alloc */
     _view_new,                  /* tp_new */
