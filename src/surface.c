@@ -2146,7 +2146,7 @@ surf_get_view (PyObject *self, PyObject *args, PyObject *kwds)
     Py_ssize_t shape[SURF_GET_VIEW_MAXDIM];
     Py_ssize_t strides[SURF_GET_VIEW_MAXDIM];
     char format[] = {'B', '\0', '\0'};
-    Py_buffer bufview;
+    Py_buffer view;
 #   undef SURF_GET_VIEW_MAXDIM
     SurfViewKind view_kind = VIEWKIND_2D;
     int ndim = maxdim;
@@ -2169,12 +2169,12 @@ surf_get_view (PyObject *self, PyObject *args, PyObject *kwds)
         return RAISE (PyExc_SDLError, "display Surface quit");
     }
 
-    bufview.readonly = 0;
-    bufview.shape = shape;
-    bufview.strides = strides;
-    bufview.format = format;
-    bufview.suboffsets = 0;
-    bufview.internal = 0;
+    view.readonly = 0;
+    view.shape = shape;
+    view.strides = strides;
+    view.format = format;
+    view.suboffsets = 0;
+    view.internal = 0;
     
     startpixel = surface->pixels;
     pixelsize = surface->format->BytesPerPixel;
@@ -2187,9 +2187,9 @@ surf_get_view (PyObject *self, PyObject *args, PyObject *kwds)
     case VIEWKIND_2D:
         ndim = 2;
         itemsize = pixelsize;
-        flags |= VIEW_F_ORDER;
+        flags |= BUFFERPROXY_F_ORDER;
         if (strides[1] == shape[0] * itemsize) {
-            flags |= VIEW_CONTIGUOUS;
+            flags |= BUFFERPROXY_CONTIGUOUS;
         }
         break;
     case VIEWKIND_3D:
@@ -2216,7 +2216,7 @@ surf_get_view (PyObject *self, PyObject *args, PyObject *kwds)
                           "unsupport colormasks for 3D reference array");
         }
         if (strides[1] == shape[2] * shape[1]) {
-            flags |= VIEW_CONTIGUOUS;
+            flags |= BUFFERPROXY_CONTIGUOUS;
         }
         break;
     case VIEWKIND_RED:
@@ -2242,7 +2242,7 @@ surf_get_view (PyObject *self, PyObject *args, PyObject *kwds)
         ndim = 2;
         pixelstep = pixelsize;
         itemsize = 1;
-        flags |= VIEW_F_ORDER;
+        flags |= BUFFERPROXY_F_ORDER;
         switch (mask) {
 
         case 0x000000ffU:
@@ -2262,9 +2262,9 @@ surf_get_view (PyObject *self, PyObject *args, PyObject *kwds)
                           "unsupported colormasks for alpha reference array");
         }
     }
-    bufview.ndim = ndim;
-    bufview.buf = startpixel;
-    bufview.itemsize = itemsize;
+    view.ndim = ndim;
+    view.buf = startpixel;
+    view.itemsize = itemsize;
     switch (itemsize) {
     
     case 1:
@@ -2287,14 +2287,14 @@ surf_get_view (PyObject *self, PyObject *args, PyObject *kwds)
                       (int)itemsize);
         return 0;
     }
-    bufview.len = itemsize * shape[0] * shape[1];
+    view.len = itemsize * shape[0] * shape[1];
     if (ndim == 3) {
-        bufview.len *= shape[2];
+        view.len *= shape[2];
     }
-    bufview.obj = self;
+    view.obj = self;
     Py_INCREF (self);
 
-    return PgView_New (&bufview, flags, _view_prelude, _view_postscript);
+    return PgBufferProxy_New (&view, flags, _view_prelude, _view_postscript);
 }
 
 static int
@@ -2360,7 +2360,7 @@ _view_kind (PyObject *obj, void *view_kind_vptr)
 static int
 _view_prelude (PyObject *view)
 {
-    PyObject *surf = PgView_GetParent (view);
+    PyObject *surf = PgBufferProxy_GetParent (view);
     int rcode;
     
     rcode = PySurface_LockBy (surf, view) ? 0 : -1;
@@ -2371,7 +2371,7 @@ _view_prelude (PyObject *view)
 static void
 _view_postscript (PyObject *view)
 {
-    PyObject *surf = PgView_GetParent(view);
+    PyObject *surf = PgBufferProxy_GetParent(view);
     
     PySurface_UnlockBy (surf, view);
     Py_DECREF (surf);

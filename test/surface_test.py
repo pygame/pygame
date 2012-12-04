@@ -27,7 +27,7 @@ else:
 import pygame
 from pygame.locals import *
 from pygame.compat import xrange_, as_bytes, as_unicode
-from pygame._view import View
+from pygame._view import BufferProxy
 
 import gc
 import weakref
@@ -335,65 +335,65 @@ class SurfaceTypeTest(unittest.TestCase):
                 self.assertEquals(s.get_size(), (w, h))
 
     def test_get_view(self):
-        # Check that Views are returned when array depth is supported,
+        # Check that BufferProxys are returned when array depth is supported,
         # ValueErrors returned otherwise.
         Error = ValueError
 
         s = pygame.Surface((5, 7), 0, 8)
         v = s.get_view('2')
-        self.assert_(isinstance(v, View))
+        self.assert_(isinstance(v, BufferProxy))
         self.assertRaises(Error, s.get_view, '3')
 
         s = pygame.Surface((5, 7), 0, 16)
         v = s.get_view('2')
-        self.assert_(isinstance(v, View))
+        self.assert_(isinstance(v, BufferProxy))
         self.assertRaises(Error, s.get_view, '3')
 
         s = pygame.Surface((5, 7), pygame.SRCALPHA, 16)
         v = s.get_view('2')
-        self.assert_(isinstance(v, View))
+        self.assert_(isinstance(v, BufferProxy))
         self.assertRaises(Error, s.get_view, '3')
 
         s = pygame.Surface((5, 7), 0, 24)
         v = s.get_view('2')
-        self.assert_(isinstance(v, View))
+        self.assert_(isinstance(v, BufferProxy))
         v = s.get_view('3')
-        self.assert_(isinstance(v, View))
+        self.assert_(isinstance(v, BufferProxy))
 
         s = pygame.Surface((5, 7), 0, 32)
         v = s.get_view('2')
-        self.assert_(isinstance(v, View))
+        self.assert_(isinstance(v, BufferProxy))
         v = s.get_view('3')
-        self.assert_(isinstance(v, View))
+        self.assert_(isinstance(v, BufferProxy))
 
         s = pygame.Surface((5, 7), pygame.SRCALPHA, 32)
         v = s.get_view('2')
-        self.assert_(isinstance(v, View))
+        self.assert_(isinstance(v, BufferProxy))
         v = s.get_view('3')
-        self.assert_(isinstance(v, View))
+        self.assert_(isinstance(v, BufferProxy))
         v = s.get_view('a')
-        self.assert_(isinstance(v, View))
+        self.assert_(isinstance(v, BufferProxy))
         v = s.get_view('A')
-        self.assert_(isinstance(v, View))
+        self.assert_(isinstance(v, BufferProxy))
         v = s.get_view('r')
-        self.assert_(isinstance(v, View))
+        self.assert_(isinstance(v, BufferProxy))
         v = s.get_view('G')
-        self.assert_(isinstance(v, View))
+        self.assert_(isinstance(v, BufferProxy))
         v = s.get_view('g')
-        self.assert_(isinstance(v, View))
+        self.assert_(isinstance(v, BufferProxy))
         v = s.get_view('B')
-        self.assert_(isinstance(v, View))
+        self.assert_(isinstance(v, BufferProxy))
         v = s.get_view('b')
 
         # Check argument defaults.
         s = pygame.Surface((5, 7), 0, 16)
         v = s.get_view()
-        self.assert_(isinstance(v, View))
+        self.assert_(isinstance(v, BufferProxy))
 
         # Check keyword arguments.
         s = pygame.Surface((5, 7), 0, 24)
         v = s.get_view(kind='3')
-        self.assert_(isinstance(v, View))
+        self.assert_(isinstance(v, BufferProxy))
 
         # Check locking.
         s = pygame.Surface((2, 4), 0, 32)

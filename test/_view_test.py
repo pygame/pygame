@@ -19,10 +19,10 @@ if is_pygame_pkg:
 else:
     from test.test_utils import test_not_implemented, unittest
 import pygame
-from pygame._view import View
+from pygame._view import BufferProxy
 from pygame.compat import as_bytes
 
-class ViewTest(unittest.TestCase):
+class BufferProxyTest(unittest.TestCase):
     view_keywords = {'shape': (5, 4, 3),
                      'typestr': '|u1',
                      'data': (0, True),
@@ -30,7 +30,7 @@ class ViewTest(unittest.TestCase):
 
     def test___array_struct___property(self):
         kwds = self.view_keywords
-        v = View(**kwds)
+        v = BufferProxy(**kwds)
         d = pygame._view.get_array_interface(v)
         self.assertEqual(len(d), 5)
         self.assertEqual(d['version'], 3)
@@ -41,7 +41,7 @@ class ViewTest(unittest.TestCase):
 
     def test___array_interface___property(self):
         kwds = self.view_keywords
-        v = View(**kwds)
+        v = BufferProxy(**kwds)
         d = v.__array_interface__
         self.assertEqual(len(d), 5)
         self.assertEqual(d['version'], 3)
@@ -52,7 +52,7 @@ class ViewTest(unittest.TestCase):
 
     def test_parent_property(self):
         p = []
-        v = View(parent=p, **self.view_keywords)
+        v = BufferProxy(parent=p, **self.view_keywords)
         self.assert_(v.parent is p)
     
     def test_prelude(self):
@@ -69,7 +69,7 @@ class ViewTest(unittest.TestCase):
         
         # For array interface
         success = []
-        v = View(parent=p, prelude=callback, **self.view_keywords)
+        v = BufferProxy(parent=p, prelude=callback, **self.view_keywords)
         self.assertEqual(len(success), 0)
         d = v.__array_interface__
         self.assertEqual(len(success), 1)
@@ -82,7 +82,7 @@ class ViewTest(unittest.TestCase):
 
         # For array struct
         success = []
-        v = View(parent=p, prelude=callback, **self.view_keywords)
+        v = BufferProxy(parent=p, prelude=callback, **self.view_keywords)
         self.assertEqual(len(success), 0)
         c = v.__array_struct__
         self.assertEqual(len(success), 1)
@@ -94,7 +94,7 @@ class ViewTest(unittest.TestCase):
         self.assertEqual(len(success), 1)
         
         # Callback raises an exception
-        v = View(prelude=raise_exception, **self.view_keywords)
+        v = BufferProxy(prelude=raise_exception, **self.view_keywords)
         self.assertRaises(MyException, lambda : v.__array_struct__)
 
     def test_postscript(self):
@@ -105,7 +105,7 @@ class ViewTest(unittest.TestCase):
         
         # For array interface
         success = []
-        v = View(parent=p, postscript=callback, **self.view_keywords)
+        v = BufferProxy(parent=p, postscript=callback, **self.view_keywords)
         self.assertEqual(len(success), 0)
         d = v.__array_interface__
         self.assertEqual(len(success), 0)
@@ -118,7 +118,7 @@ class ViewTest(unittest.TestCase):
 
         # For array struct
         success = []
-        v = View(parent=p, postscript=callback, **self.view_keywords)
+        v = BufferProxy(parent=p, postscript=callback, **self.view_keywords)
         self.assertEqual(len(success), 0)
         c = v.__array_struct__
         self.assertEqual(len(success), 0)
@@ -130,7 +130,7 @@ class ViewTest(unittest.TestCase):
         self.assertTrue(success[0])
 
     def test_weakref(self):
-        v = View(**self.view_keywords)
+        v = BufferProxy(**self.view_keywords)
         weak_v = weakref.ref(v)
         self.assert_(weak_v() is v)
         v = None
@@ -152,7 +152,7 @@ class ViewTest(unittest.TestCase):
         weak_r1 = weakref.ref(r[1])
         weak_prelude = weakref.ref(prelude_callback)
         weak_postscript = weakref.ref(postscript_callback)
-        v = View(parent=p,
+        v = BufferProxy(parent=p,
                  prelude=prelude_callback,
                  postscript=postscript_callback,
                  **self.view_keywords)
@@ -180,17 +180,17 @@ class ViewTest(unittest.TestCase):
         self.assert_(isinstance(api, type(pygame.base._PYGAME_C_API)))
 
     def test_repr(self):
-        v = View(**self.view_keywords)
-        cname = re.findall(r"'([^']+)'", repr(View))[0]
+        v = BufferProxy(**self.view_keywords)
+        cname = re.findall(r"'([^']+)'", repr(BufferProxy))[0]
         oname, ovalue = re.findall(r"<([^)]+)\(([^)]+)\)>", repr(v))[0]
         self.assertEqual(oname, cname)
         self.assertEqual(id(v), int(ovalue, 16))
 
     def test_subclassing(self):
-        class MyView(View):
+        class MyBufferProxy(BufferProxy):
             def __repr__(self):
-                return "*%s*" % (View.__repr__(self),)
-        v = MyView(parent=0, **self.view_keywords)
+                return "*%s*" % (BufferProxy.__repr__(self),)
+        v = MyBufferProxy(parent=0, **self.view_keywords)
         self.assertEqual(v.parent, 0)
         r = repr(v)
         self.assertEqual(r[:2], '*<')
@@ -206,12 +206,12 @@ class BufferProxyLegacyTest(unittest.TestCase):
         # __doc__ (as of 2008-08-02) for pygame.bufferproxy.BufferProxy.length:
 
           # The size of the buffer data in bytes.
-        bf = View(shape=(3, 4),
+        bf = BufferProxy(shape=(3, 4),
                   typestr='|u4',
                   data=self.data,
                   strides=(12, 4))
         self.assertEqual(bf.length, len(self.content))
-        bf = View(shape=(3, 3),
+        bf = BufferProxy(shape=(3, 3),
                   typestr='|u4',
                   data=self.data,
                   strides=(12, 4))
