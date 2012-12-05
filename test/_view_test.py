@@ -54,7 +54,7 @@ class BufferProxyTest(unittest.TestCase):
         p = []
         v = BufferProxy(parent=p, **self.view_keywords)
         self.assert_(v.parent is p)
-    
+
     def test_prelude(self):
         def callback(parent):
             success.append(parent is p)
@@ -66,7 +66,7 @@ class BufferProxyTest(unittest.TestCase):
             raise MyException("Just a test.")
 
         p = []
-        
+
         # For array interface
         success = []
         v = BufferProxy(parent=p, prelude=callback, **self.view_keywords)
@@ -92,7 +92,7 @@ class BufferProxyTest(unittest.TestCase):
         c = v = None
         gc.collect()
         self.assertEqual(len(success), 1)
-        
+
         # Callback raises an exception
         v = BufferProxy(prelude=raise_exception, **self.view_keywords)
         self.assertRaises(MyException, lambda : v.__array_struct__)
@@ -102,7 +102,7 @@ class BufferProxyTest(unittest.TestCase):
             success.append(parent is p)
 
         p = []
-        
+
         # For array interface
         success = []
         v = BufferProxy(parent=p, postscript=callback, **self.view_keywords)
@@ -174,7 +174,7 @@ class BufferProxyTest(unittest.TestCase):
         gc.collect()
         self.assertTrue(weak_r0() is None)
         self.assertTrue(weak_r1() is None)
-        
+
     def test_c_api(self):
         api = pygame._view._PYGAME_C_API
         self.assert_(isinstance(api, type(pygame.base._PYGAME_C_API)))
@@ -223,23 +223,23 @@ class BufferProxyLegacyTest(unittest.TestCase):
 
           # The raw buffer data as string. The string may contain NUL bytes.
 
-        self.fail() 
+        self.fail()
 
     def todo_test_write(self):
 
         # __doc__ (as of 2008-08-02) for pygame.bufferproxy.BufferProxy.write:
 
           # B.write (bufferproxy, buffer, offset) -> None
-          # 
+          #
           # Writes raw data to the bufferproxy.
-          # 
+          #
           # Writes the raw data from buffer to the BufferProxy object, starting
           # at the specified offset within the BufferProxy.
           # If the length of the passed buffer exceeds the length of the
           # BufferProxy (reduced by the offset), an IndexError will be raised.
 
-        self.fail() 
-        
+        self.fail()
+
 
 if __name__ == '__main__':
     unittest.main()

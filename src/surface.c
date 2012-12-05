@@ -293,7 +293,7 @@ surface_new (PyTypeObject *type, PyObject *args, PyObject *kwds)
 }
 
 /* surface object internals */
-static void 
+static void
 surface_cleanup (PySurfaceObject *self)
 {
     if (self->surf) {
@@ -321,7 +321,7 @@ surface_cleanup (PySurfaceObject *self)
     }
 }
 
-static void 
+static void
 surface_dealloc (PyObject *self)
 {
     if (((PySurfaceObject *) self)->weakreflist)
@@ -349,7 +349,7 @@ surface_str (PyObject *self)
     return Text_FromUTF8 (str);
 }
 
-static intptr_t 
+static intptr_t
 surface_init (PySurfaceObject *self, PyObject *args, PyObject *kwds)
 {
     Uint32 flags = 0;
@@ -366,7 +366,7 @@ surface_init (PySurfaceObject *self, PyObject *args, PyObject *kwds)
        return -1;
 
     if (PySequence_Check (size) && (length = PySequence_Length (size)) == 2) {
-        if ( (!IntFromObjIndex (size, 0, &width)) || 
+        if ( (!IntFromObjIndex (size, 0, &width)) ||
              (!IntFromObjIndex (size, 1, &height)) ) {
             RAISE (PyExc_ValueError, "size needs to be (int width, int height)");
             return -1;
@@ -522,7 +522,7 @@ surface_init (PySurfaceObject *self, PyObject *args, PyObject *kwds)
         RAISE (PyExc_SDLError, SDL_GetError ());
         return -1;
     }
-    
+
     if (masks) {
     /* Confirm the surface was created correctly (masks were valid).
        Also ensure that 24 and 32 bit surfaces have 8 bit fields
@@ -551,7 +551,7 @@ surface_init (PySurfaceObject *self, PyObject *args, PyObject *kwds)
         self->surf = surface;
         self->subsurface = NULL;
     }
-    
+
     return 0;
 }
 
@@ -828,7 +828,7 @@ surf_get_locks (PyObject *self)
     tuple = PyTuple_New (len);
     if (!tuple)
         return NULL;
-    
+
     for (i = 0; i < len; i++) {
         tmp = PyWeakref_GetObject (PyList_GetItem (surf->locklist, i));
         Py_INCREF (tmp);
@@ -978,7 +978,7 @@ surf_set_palette_at (PyObject *self, PyObject *args)
         return RAISE (PyExc_ValueError,
                       "takes a sequence of integers of RGB for argument 2");
     }
-    
+
     if (!pal) {
         PyErr_SetString (PyExc_SDLError, "Surface is not palettized\n");
         return NULL;
@@ -1468,8 +1468,8 @@ surf_fill (PyObject *self, PyObject *args, PyObject *keywds)
 
 
         if (blendargs != 0) {
-            
-            /* 
+
+            /*
             printf ("Using blendargs: %d\n", blendargs);
             */
             result = surface_fill_blend (surf, &sdlrect, color, blendargs);
@@ -1981,7 +1981,7 @@ surf_get_bounding_rect (PyObject *self, PyObject *args, PyObject *kwargs)
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|i", kwids, &min_alpha))
        return RAISE (PyExc_ValueError,
                      "get_bounding_rect only accepts a single optional min_alpha argument");
-    
+
     if (!surf)
         return RAISE (PyExc_SDLError, "display Surface quit");
 
@@ -1994,9 +1994,9 @@ surf_get_bounding_rect (PyObject *self, PyObject *args, PyObject *kwargs)
                      surf->format,
                      &keyr, &keyg, &keyb, &a);
     }
-    
+
     pixels = (Uint8 *) surf->pixels;
-    
+
     min_y = 0;
     min_x = 0;
     max_x = surf->w;
@@ -2088,7 +2088,7 @@ surf_get_buffer (PyObject *self)
         return RAISE (PyExc_SDLError,
             "could not acquire a buffer for the surface");
     }
-    
+
     lock = PySurface_LockLifetime (self, buffer);
     if (!lock) {
         Py_DECREF (buffer);
@@ -2131,7 +2131,7 @@ _raise_get_view_ndim_error(int bitsize, SurfViewKind kind) {
                      " unknown view kind %d", (int) kind);
         return 0;
     }
-    PyErr_Format(PyExc_ValueError, 
+    PyErr_Format(PyExc_ValueError,
          "unsupported bit depth %d for %s reference array",
                  bitsize, name);
     return 0;
@@ -2157,7 +2157,7 @@ surf_get_view (PyObject *self, PyObject *args, PyObject *kwds)
     Uint32 mask = 0;
     int pixelstep;
     int flags = 0;
-    
+
     char *keywords[] = {"kind", 0};
 
     if (!PyArg_ParseTupleAndKeywords (args, kwds, "|O&", keywords,
@@ -2175,7 +2175,7 @@ surf_get_view (PyObject *self, PyObject *args, PyObject *kwds)
     view.format = format;
     view.suboffsets = 0;
     view.internal = 0;
-    
+
     startpixel = surface->pixels;
     pixelsize = surface->format->BytesPerPixel;
     shape[0] = (Py_ssize_t)surface->w;
@@ -2266,7 +2266,7 @@ surf_get_view (PyObject *self, PyObject *args, PyObject *kwds)
     view.buf = startpixel;
     view.itemsize = itemsize;
     switch (itemsize) {
-    
+
     case 1:
         break; /* default */
     case 2:
@@ -2362,7 +2362,7 @@ _view_prelude (PyObject *view)
 {
     PyObject *surf = PgBufferProxy_GetParent (view);
     int rcode;
-    
+
     rcode = PySurface_LockBy (surf, view) ? 0 : -1;
     Py_DECREF (surf);
     return rcode;
@@ -2372,7 +2372,7 @@ static void
 _view_postscript (PyObject *view)
 {
     PyObject *surf = PgBufferProxy_GetParent(view);
-    
+
     PySurface_UnlockBy (surf, view);
     Py_DECREF (surf);
 }
@@ -2488,7 +2488,7 @@ surface_do_overlap (SDL_Surface *src, SDL_Rect *srcrect,
     }
 
     span = w * src->format->BytesPerPixel;
-    
+
     if (dstpixels >= srcpixels + (h - 1) * src->pitch + span) {
         return 0;
     }
@@ -2499,7 +2499,7 @@ surface_do_overlap (SDL_Surface *src, SDL_Rect *srcrect,
 }
 
 /*this internal blit function is accessable through the C api*/
-int 
+int
 PySurface_Blit (PyObject * dstobj, PyObject * srcobj, SDL_Rect * dstrect,
                 SDL_Rect * srcrect, int the_args)
 {
@@ -2648,7 +2648,7 @@ MODINIT_DEFINE (surface)
     PyObject *module, *dict, *apiobj, *lockmodule;
     int ecode;
     static void* c_api[PYGAMEAPI_SURFACE_NUMSLOTS];
-    
+
 #if PY3
     static struct PyModuleDef _module = {
         PyModuleDef_HEAD_INIT,
@@ -2692,7 +2692,7 @@ MODINIT_DEFINE (surface)
 
         if (PyCapsule_CheckExact (_c_api)) {
             int i;
-            void **localptr = 
+            void **localptr =
                 (void *)PyCapsule_GetPointer (_c_api,
                                               PG_CAPSULE_NAME("surflock"));
 
@@ -2709,7 +2709,7 @@ MODINIT_DEFINE (surface)
     if (PyType_Ready(&PySurface_Type) < 0) {
         MODINIT_ERROR;
     }
-    
+
     /* create the module */
 #if PY3
     module = PyModule_Create (&_module);
