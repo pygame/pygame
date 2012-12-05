@@ -83,7 +83,7 @@ _bufferproxy_python_prelude(PyObject *bufferproxy)
     PyObject *rvalue;
     PyObject *parent;
     int failed = 0;
-    
+
     parent = (PyObject *)v->view.obj;
     if (!parent) {
         parent = Py_None;
@@ -157,7 +157,7 @@ _bufferproxy_new_from_type(PyTypeObject *type,
         }
         strides = shape + ndim;
     }
-    
+
     self = (PgBufferProxyObject *)type->tp_alloc(type, 0);
     if (!self) {
         if (format) {
@@ -195,7 +195,7 @@ _bufferproxy_new_from_type(PyTypeObject *type,
         self->view.strides = strides;
         memcpy(strides, view->strides, sizeof(Py_ssize_t) * ndim);
     }
-    
+
     self->flags = flags;
     self->prelude = _bufferproxy_null_prelude;
     if (pyprelude) {
@@ -224,9 +224,9 @@ _as_arrayinter_typekind(const Py_buffer *view)
 {
     char type = view->format[0];
     char typekind;
-    
+
     switch (type) {
-    
+
     case '<':
     case '>':
     case '=':
@@ -235,7 +235,7 @@ _as_arrayinter_typekind(const Py_buffer *view)
         type = view->format[1];
     }
     switch (type) {
-        
+
     case 'c':
     case 'h':
     case 'i':
@@ -264,9 +264,9 @@ _as_arrayinter_byteorder(const Py_buffer *view)
 {
     char format_0 = view->format[0];
     char byteorder;
-    
+
     switch (format_0) {
-        
+
     case '<':
     case '>':
         byteorder = format_0;
@@ -291,12 +291,12 @@ static int
 _as_arrayinter_flags(const Py_buffer *view, int flags)
 {
     int inter_flags = PAI_ALIGNED; /* atomic int types always aligned */
-    
+
     if (!view->readonly) {
         inter_flags |= PAI_WRITEABLE;
     }
     switch (view->format[0]) {
-        
+
     case '<':
         inter_flags |= SDL_BYTEORDER == SDL_LIL_ENDIAN ? PAI_NOTSWAPPED : 0;
         break;
@@ -323,7 +323,7 @@ _new_capsuleinterface(const Py_buffer *view, int flags)
     Py_ssize_t cinter_size;
     CapsuleInterface *cinter_p;
     int i;
-    
+
     cinter_size = (sizeof(CapsuleInterface) +
                    sizeof(Py_intptr_t) * (2 * ndim - 1));
     cinter_p = (CapsuleInterface *)PyMem_Malloc(cinter_size);
@@ -359,7 +359,7 @@ static void
 _free_capsuleinterface(void *p)
 {
     CapsuleInterface *cinter_p = (CapsuleInterface *)p;
-    
+
     Py_XDECREF(cinter_p->parent);
     PyMem_Free(p);
 }
@@ -455,7 +455,7 @@ _shape_as_tuple(PyArrayInterface *inter_p)
 static PyObject *
 _typekind_as_str(PyArrayInterface *inter_p)
 {
-    return Text_FromFormat("%c%c%i", 
+    return Text_FromFormat("%c%c%i",
                            inter_p->itemsize > 1 ?
                                (inter_p->flags & PAI_NOTSWAPPED ?
                                     BUFFERPROXY_MY_ENDIAN :
@@ -507,7 +507,7 @@ _tuple_as_ints(PyObject *o,
      */
     Py_ssize_t i, n;
     Py_ssize_t *a;
-    
+
     if (!PyTuple_Check(o)) {
         PyErr_Format(PyExc_TypeError,
                      "Expected a tuple for argument %s: found %s",
@@ -535,7 +535,7 @@ static int
 _shape_arg_convert(PyObject *o, void *a)
 {
     Py_buffer *view = (Py_buffer *)a;
-    
+
     if (!_tuple_as_ints(o, "shape", &view->shape, &view->ndim)) {
         return 0;
     }
@@ -558,7 +558,7 @@ _typestr_arg_convert(PyObject *o, void *a)
     char *format;
     PyObject *s;
     const char *typestr;
-    
+
     format = (char *)&view->internal;
     if (PyUnicode_Check(o)) {
         s = PyUnicode_AsASCIIString(o);
@@ -693,7 +693,7 @@ _data_arg_convert(PyObject *o, void *a)
     Py_buffer *view = (Py_buffer *)a;
     Py_ssize_t address;
     int readonly;
-    
+
     if (!PyTuple_Check(o)) {
         PyErr_Format(PyExc_TypeError, "expected a tuple for data: got %s",
                      Py_TYPE(o)->tp_name);
@@ -728,7 +728,7 @@ static int
 _parent_arg_convert(PyObject *o, void *a)
 {
     Py_buffer *view = (Py_buffer *)a;
-    
+
     if (o != Py_None) {
         view->obj = o;
         Py_INCREF(o);
@@ -762,7 +762,7 @@ _bufferproxy_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     /* The argument evaluation order is important: strides must follow shape. */
     char *keywords[] = {"shape", "typestr", "data", "strides", "parent",
                         "prelude", "postscript", 0};
-               
+
     view.obj = 0;
     view.len = 0;
     view.readonly = 1;
@@ -772,7 +772,7 @@ _bufferproxy_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     view.suboffsets = 0;
     view.itemsize = 0;
     view.internal = 0;
-    
+
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&O&O&|O&O&OO:BufferProxy",
                                      keywords,
                                      _shape_arg_convert, &view,
@@ -812,7 +812,7 @@ _bufferproxy_dealloc(PgBufferProxyObject *self)
         return;
     }
     self->prelude = 0;
-    
+
     if (self->global_release) {
         self->postscript((PyObject *)self);
     }
@@ -844,7 +844,7 @@ _bufferproxy_get_arraystruct(PgBufferProxyObject *self, PyObject *closure)
 {
     void *cinter_p;
     PyObject *capsule;
-    
+
     cinter_p = _new_capsuleinterface(&self->view, self->flags);
     if (!cinter_p) {
         return 0;
@@ -878,7 +878,7 @@ static PyObject *
 _bufferproxy_get_arrayinterface(PgBufferProxyObject *self, PyObject *closure)
 {
     PyObject *dict = Pg_BufferBufferProxyAsDict(&self->view);
-    
+
     if (dict && !self->global_release) {
         if (self->prelude((PyObject *)self)) {
             Py_DECREF(dict);
@@ -895,7 +895,7 @@ static PyObject *
 _bufferproxy_get_parent(PgBufferProxyObject *self, PyObject *closure)
 {
     PyObject *parent = (PyObject *)self->view.obj;
-    
+
     if (!parent) {
         Py_RETURN_NONE;
     }
@@ -907,7 +907,7 @@ static PyObject *
 _bufferproxy_get___dict__(PgBufferProxyObject *self, PyObject *closure)
 {
     if (!self->dict) {
-	self->dict = PyDict_New();
+        self->dict = PyDict_New();
         if (!self->dict) {
             return 0;
         }
@@ -965,7 +965,7 @@ static int
 _bufferproxy_getbuffer(PyObject *obj, Py_buffer *view, int flags)
 {
     PgBufferProxyObject *v = (PgBufferProxyObject *)obj;
-    
+
     if (flags == PyBUF_SIMPLE && !(v->flags & BUFFERPROXY_CONTIGUOUS)) {
         PyErr_SetString(PyExc_BufferError, "buffer not contiguous");
         return -1;
@@ -986,9 +986,9 @@ _bufferproxy_getbuffer(PyObject *obj, Py_buffer *view, int flags)
              !(v->flags & (BUFFERPROXY_CONTIGUOUS | BUFFERPROXY_C_ORDER))) {
         PyErr_SetString(PyExc_BufferError, "buffer not C contiguous");
         return -1;
-    }            
+    }
     if (flags & PyBUF_ANY_CONTIGUOUS &&
-        !(v->flags & (BUFFERPROXY_CONTIGUOUS | 
+        !(v->flags & (BUFFERPROXY_CONTIGUOUS |
                       BUFFERPROXY_C_ORDER |
                       BUFFERPROXY_F_ORDER))) {
         PyErr_SetString(PyExc_BufferError, "buffer not contiguous");
@@ -1028,7 +1028,7 @@ _bufferproxy_releasebuffer(PyObject *obj, Py_buffer *view)
     ((PgBufferProxyObject *)obj)->postscript(obj);
 }
 
-static PyBufferProcs _bufferproxy_bufferprocs = 
+static PyBufferProcs _bufferproxy_bufferprocs =
     {_bufferproxy_getbuffer, _bufferproxy_releasebuffer};
 #endif
 
@@ -1134,7 +1134,7 @@ PgBufferProxy_GetParent(PyObject *bufferproxy)
 {
     PyObject *parent =
         (PyObject *)((PgBufferProxyObject *) bufferproxy)->view.obj;
-    
+
     if (!parent) {
         parent = Py_None;
     }
