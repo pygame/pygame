@@ -108,8 +108,8 @@ static PyObject *surf_get_bounding_rect (PyObject *self, PyObject *args,
 static PyObject *surf_get_pixels_address (PyObject *self,
                                           PyObject *closure);
 static int _view_kind(PyObject *obj, void *view_kind_vptr);
-static int _view_prelude(PyObject *view);
-static void _view_postscript(PyObject *view);
+static int _view_before(PyObject *view);
+static void _view_after(PyObject *view);
 static PyObject *_raise_get_view_ndim_error(int bitsize, SurfViewKind kind);
 
 
@@ -2294,7 +2294,7 @@ surf_get_view (PyObject *self, PyObject *args, PyObject *kwds)
     view.obj = self;
     Py_INCREF (self);
 
-    return PgBufproxy_New (&view, flags, _view_prelude, _view_postscript);
+    return PgBufproxy_New (&view, flags, _view_before, _view_after);
 }
 
 static int
@@ -2358,7 +2358,7 @@ _view_kind (PyObject *obj, void *view_kind_vptr)
 }
 
 static int
-_view_prelude (PyObject *view)
+_view_before (PyObject *view)
 {
     PyObject *surf = PgBufproxy_GetParent (view);
     int rcode;
@@ -2369,7 +2369,7 @@ _view_prelude (PyObject *view)
 }
 
 static void
-_view_postscript (PyObject *view)
+_view_after (PyObject *view)
 {
     PyObject *surf = PgBufproxy_GetParent(view);
 

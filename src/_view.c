@@ -41,16 +41,16 @@
 typedef struct PgBufproxyObject_s {
     PyObject_HEAD
     Py_buffer view;
-    Py_ssize_t imem[6];                   /* shape/stride alloc for ndim <= 3 */
-    char cmem[3];                         /* format alloc for simple types    */
-    int flags;                            /* contiguity and array shape order */
-    PgBufproxy_PreludeCallback prelude;       /* Lock callback             */
-    PgBufproxy_PostscriptCallback postscript; /* Release callback          */
-    PyObject *pyprelude;                  /* Python lock callable             */
-    PyObject *pypostscript;               /* Python release callback          */
-    int global_release;                   /* dealloc callback flag            */
-    PyObject *dict;                       /* Allow arbitrary attributes       */
-    PyObject *weakrefs;                   /* There can be reference cycles    */
+    Py_ssize_t imem[6];                /* shape/stride alloc for ndim <= 3 */
+    char cmem[3];                      /* format alloc for simple types    */
+    int flags;                         /* contiguity and array shape order */
+    PgBufproxy_CallbackBefore before;  /* Lock callback                    */
+    PgBufproxy_CallbackAfter after;    /* Release callback                 */
+    PyObject *pybefore;                /* Python lock callable             */
+    PyObject *pyafter;                 /* Python release callback          */
+    int global_release;                /* dealloc callback flag            */
+    PyObject *dict;                    /* Allow arbitrary attributes       */
+    PyObject *weakrefs;                /* There can be reference cycles    */
 } PgBufproxyObject;
 
 typedef struct capsule_interface_s {
@@ -67,17 +67,17 @@ static PyObject *Pg_ViewAsDict(Py_buffer *);
  * Helper functions.
  */
 static int
-_bufproxy_null_prelude(PyObject *bufproxy) {
+_bufproxy_null_before(PyObject *bufproxy) {
     return 0;
 }
 
 static void
-_bufproxy_null_postscript(PyObject *bufproxy) {
+_bufproxy_null_after(PyObject *bufproxy) {
     return;
 }
 
 static int
-_bufproxy_python_prelude(PyObject *bufproxy)
+_bufproxy_python_before(PyObject *bufproxy)
 {
     PgBufproxyObject *v = (PgBufproxyObject *)bufproxy;
     PyObject *rvalue;
@@ -89,7 +89,7 @@ _bufproxy_python_prelude(PyObject *bufproxy)
         parent = Py_None;
     }
     Py_INCREF(parent);
-    rvalue = PyObject_CallFunctionObjArgs(v->pyprelude, parent, 0);
+    rvalue = PyObject_CallFunctionObjArgs(v->pybefore, parent, 0);
     Py_DECREF(parent);
     if (rvalue) {
         Py_DECREF(rvalue);
@@ -101,7 +101,7 @@ _bufproxy_python_prelude(PyObject *bufproxy)
 }
 
 static void
-_bufproxy_python_postscript(PyObject *bufproxy)
+_bufproxy_python_after(PyObject *bufproxy)
 {
     PgBufproxyObject *v = (PgBufproxyObject *)bufproxy;
     PyObject *rvalue;
@@ -112,7 +112,7 @@ _bufproxy_python_postscript(PyObject *bufproxy)
         parent = Py_None;
     }
     Py_INCREF(parent);
-    rvalue = PyObject_CallFunctionObjArgs(v->pypostscript, parent, 0);
+    rvalue = PyObject_CallFunctionObjArgs(v->pyafter, parent, 0);
     PyErr_Clear();
     Py_XDECREF(rvalue);
     Py_DECREF(parent);
@@ -122,10 +122,10 @@ static PyObject *
 _bufproxy_new_from_type(PyTypeObject *type,
                     Py_buffer *view,
                     int flags,
-                    PgBufproxy_PreludeCallback prelude,
-                    PgBufproxy_PostscriptCallback postscript,
-                    PyObject *pyprelude,
-                    PyObject *pypostscript)
+                    PgBufproxy_CallbackBefore before,
+                    PgBufproxy_CallbackAfter after,
+                    PyObject *pybefore,
+                    PyObject *pyafter)
 {
     int ndim = view->ndim;
     PgBufproxyObject *self;
@@ -197,24 +197,24 @@ _bufproxy_new_from_type(PyTypeObject *type,
     }
 
     self->flags = flags;
-    self->prelude = _bufproxy_null_prelude;
-    if (pyprelude) {
-        Py_INCREF(pyprelude);
-        self->prelude = _bufproxy_python_prelude;
+    self->before = _bufproxy_null_before;
+    if (pybefore) {
+        Py_INCREF(pybefore);
+        self->before = _bufproxy_python_before;
     }
-    else if (prelude) {
-        self->prelude = prelude;
+    else if (before) {
+        self->before = before;
     }
-    self->pyprelude = pyprelude;
-    self->postscript = _bufproxy_null_postscript;
-    if (pypostscript) {
-        Py_INCREF(pypostscript);
-        self->postscript = _bufproxy_python_postscript;
+    self->pybefore = pybefore;
+    self->after = _bufproxy_null_after;
+    if (pyafter) {
+        Py_INCREF(pyafter);
+        self->after = _bufproxy_python_after;
     }
-    else if (postscript) {
-        self->postscript = postscript;
+    else if (after) {
+        self->after = after;
     }
-    self->pypostscript = pypostscript;
+    self->pyafter = pyafter;
     self->global_release = 0;
     return (PyObject *)self;
 }
@@ -755,13 +755,13 @@ static PyObject *
 _bufproxy_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     Py_buffer view;
-    PyObject *pyprelude = 0;
-    PyObject *pypostscript = 0;
+    PyObject *pybefore = 0;
+    PyObject *pyafter = 0;
     PyObject *self = 0;
     int i;
     /* The argument evaluation order is important: strides must follow shape. */
     char *keywords[] = {"shape", "typestr", "data", "strides", "parent",
-                        "prelude", "postscript", 0};
+                        "before", "after", 0};
 
     view.obj = 0;
     view.len = 0;
@@ -780,15 +780,15 @@ _bufproxy_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
                                      _data_arg_convert, &view,
                                      _strides_arg_convert, &view,
                                      _parent_arg_convert, &view,
-                                     &pyprelude, &pypostscript)) {
+                                     &pybefore, &pyafter)) {
         _free_view(&view);
         return 0;
     }
-    if (pyprelude == Py_None) {
-        pyprelude = 0;
+    if (pybefore == Py_None) {
+        pybefore = 0;
     }
-    if (pypostscript == Py_None) {
-        pypostscript = 0;
+    if (pyafter == Py_None) {
+        pyafter = 0;
     }
     Py_XINCREF((PyObject *)view.obj);
     view.len = view.itemsize;
@@ -796,7 +796,7 @@ _bufproxy_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         view.len *= view.shape[i];
     }
     self = _bufproxy_new_from_type(type, &view, 0,
-                               0, 0, pyprelude, pypostscript);
+                               0, 0, pybefore, pyafter);
     _free_view(&view);
     return self;
 }
@@ -808,17 +808,17 @@ static void
 _bufproxy_dealloc(PgBufproxyObject *self)
 {
     /* Guard against recursion */
-    if (!self->prelude) {
+    if (!self->before) {
         return;
     }
-    self->prelude = 0;
+    self->before = 0;
 
     if (self->global_release) {
-        self->postscript((PyObject *)self);
+        self->after((PyObject *)self);
     }
     Py_XDECREF((PyObject *)self->view.obj);
-    Py_XDECREF(self->pyprelude);
-    Py_XDECREF(self->pypostscript);
+    Py_XDECREF(self->pybefore);
+    Py_XDECREF(self->pyafter);
     Py_XDECREF(self->dict);
     if (self->weakrefs) {
         PyObject_ClearWeakRefs((PyObject *)self);
@@ -859,7 +859,7 @@ _bufproxy_get_arraystruct(PgBufproxyObject *self, PyObject *closure)
         return 0;
     }
     if (!self->global_release) {
-        if (self->prelude((PyObject *)self)) {
+        if (self->before((PyObject *)self)) {
             Py_DECREF(capsule);
             capsule = 0;
         }
@@ -880,7 +880,7 @@ _bufproxy_get_arrayinterface(PgBufproxyObject *self, PyObject *closure)
     PyObject *dict = Pg_ViewAsDict(&self->view);
 
     if (dict && !self->global_release) {
-        if (self->prelude((PyObject *)self)) {
+        if (self->before((PyObject *)self)) {
             Py_DECREF(dict);
             dict = 0;
         }
@@ -1004,7 +1004,7 @@ _bufproxy_getbuffer(PyObject *obj, Py_buffer *view, int flags)
         PyErr_SetString(PyExc_BufferError, "buffer not F contiguous");
         return -1;
     }
-    if (v->prelude(obj)) {
+    if (v->before(obj)) {
         return -1;
     }
     view->obj = obj;
@@ -1025,7 +1025,7 @@ _bufproxy_getbuffer(PyObject *obj, Py_buffer *view, int flags)
 static void
 _bufproxy_releasebuffer(PyObject *obj, Py_buffer *view)
 {
-    ((PgBufproxyObject *)obj)->postscript(obj);
+    ((PgBufproxyObject *)obj)->after(obj);
 }
 
 static PyBufferProcs _bufproxy_bufferprocs =
@@ -1034,8 +1034,8 @@ static PyBufferProcs _bufproxy_bufferprocs =
 
 static PyTypeObject PgBufproxy_Type =
 {
-    TYPE_HEAD (NULL, 0)
-    "pygame._view.Bufproxy"     /* tp_name */
+    TYPE_HEAD(NULL, 0)
+    "pygame._view.Bufproxy",    /* tp_name */
     sizeof (PgBufproxyObject),  /* tp_basicsize */
     0,                          /* tp_itemsize */
     (destructor)_bufproxy_dealloc,  /* tp_dealloc */
@@ -1117,14 +1117,14 @@ static PyMethodDef _bufproxy_methods[] = {
 static PyObject *
 PgBufproxy_New(Py_buffer *view,
            int flags,
-           PgBufproxy_PreludeCallback prelude,
-           PgBufproxy_PostscriptCallback postscript)
+           PgBufproxy_CallbackBefore before,
+           PgBufproxy_CallbackAfter after)
 {
     return _bufproxy_new_from_type(&PgBufproxy_Type,
                                view,
                                flags,
-                               prelude,
-                               postscript,
+                               before,
+                               after,
                                0,
                                0);
 }

@@ -55,7 +55,7 @@ class BufferProxyTest(unittest.TestCase):
         v = BufferProxy(parent=p, **self.view_keywords)
         self.assert_(v.parent is p)
 
-    def test_prelude(self):
+    def test_before(self):
         def callback(parent):
             success.append(parent is p)
 
@@ -69,7 +69,7 @@ class BufferProxyTest(unittest.TestCase):
 
         # For array interface
         success = []
-        v = BufferProxy(parent=p, prelude=callback, **self.view_keywords)
+        v = BufferProxy(parent=p, before=callback, **self.view_keywords)
         self.assertEqual(len(success), 0)
         d = v.__array_interface__
         self.assertEqual(len(success), 1)
@@ -82,7 +82,7 @@ class BufferProxyTest(unittest.TestCase):
 
         # For array struct
         success = []
-        v = BufferProxy(parent=p, prelude=callback, **self.view_keywords)
+        v = BufferProxy(parent=p, before=callback, **self.view_keywords)
         self.assertEqual(len(success), 0)
         c = v.__array_struct__
         self.assertEqual(len(success), 1)
@@ -94,10 +94,10 @@ class BufferProxyTest(unittest.TestCase):
         self.assertEqual(len(success), 1)
 
         # Callback raises an exception
-        v = BufferProxy(prelude=raise_exception, **self.view_keywords)
+        v = BufferProxy(before=raise_exception, **self.view_keywords)
         self.assertRaises(MyException, lambda : v.__array_struct__)
 
-    def test_postscript(self):
+    def test_after(self):
         def callback(parent):
             success.append(parent is p)
 
@@ -105,7 +105,7 @@ class BufferProxyTest(unittest.TestCase):
 
         # For array interface
         success = []
-        v = BufferProxy(parent=p, postscript=callback, **self.view_keywords)
+        v = BufferProxy(parent=p, after=callback, **self.view_keywords)
         self.assertEqual(len(success), 0)
         d = v.__array_interface__
         self.assertEqual(len(success), 0)
@@ -118,7 +118,7 @@ class BufferProxyTest(unittest.TestCase):
 
         # For array struct
         success = []
-        v = BufferProxy(parent=p, postscript=callback, **self.view_keywords)
+        v = BufferProxy(parent=p, after=callback, **self.view_keywords)
         self.assertEqual(len(success), 0)
         c = v.__array_struct__
         self.assertEqual(len(success), 0)
@@ -139,9 +139,9 @@ class BufferProxyTest(unittest.TestCase):
 
     def test_gc(self):
         """refcount agnostic check that contained objects are freed"""
-        def prelude_callback(parent):
+        def before_callback(parent):
             return r[0]
-        def postscript_callback(parent):
+        def after_callback(parent):
             return r[1]
         class Obj(object):
             pass
@@ -150,24 +150,24 @@ class BufferProxyTest(unittest.TestCase):
         weak_p = weakref.ref(p)
         weak_r0 = weakref.ref(r[0])
         weak_r1 = weakref.ref(r[1])
-        weak_prelude = weakref.ref(prelude_callback)
-        weak_postscript = weakref.ref(postscript_callback)
+        weak_before = weakref.ref(before_callback)
+        weak_after = weakref.ref(after_callback)
         v = BufferProxy(parent=p,
-                 prelude=prelude_callback,
-                 postscript=postscript_callback,
+                 before=before_callback,
+                 after=after_callback,
                  **self.view_keywords)
         weak_v = weakref.ref(v)
-        p = prelude_callback = postscript_callback = None
+        p = before_callback = after_callback = None
         gc.collect()
         self.assertTrue(weak_p() is not None)
-        self.assertTrue(weak_prelude() is not None)
-        self.assertTrue(weak_postscript() is not None)
+        self.assertTrue(weak_before() is not None)
+        self.assertTrue(weak_after() is not None)
         v = None
         gc.collect()
         self.assertTrue(weak_v() is None)
         self.assertTrue(weak_p() is None)
-        self.assertTrue(weak_prelude() is None)
-        self.assertTrue(weak_postscript() is None)
+        self.assertTrue(weak_before() is None)
+        self.assertTrue(weak_after() is None)
         self.assertTrue(weak_r0() is not None)
         self.assertTrue(weak_r1() is not None)
         r = None
