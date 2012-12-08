@@ -2187,9 +2187,9 @@ surf_get_view (PyObject *self, PyObject *args, PyObject *kwds)
     case VIEWKIND_2D:
         ndim = 2;
         itemsize = pixelsize;
-        flags |= BUFFERPROXY_F_ORDER;
+        flags |= BUFPROXY_F_ORDER;
         if (strides[1] == shape[0] * itemsize) {
-            flags |= BUFFERPROXY_CONTIGUOUS;
+            flags |= BUFPROXY_CONTIGUOUS;
         }
         break;
     case VIEWKIND_3D:
@@ -2216,7 +2216,7 @@ surf_get_view (PyObject *self, PyObject *args, PyObject *kwds)
                           "unsupport colormasks for 3D reference array");
         }
         if (strides[1] == shape[2] * shape[1]) {
-            flags |= BUFFERPROXY_CONTIGUOUS;
+            flags |= BUFPROXY_CONTIGUOUS;
         }
         break;
     case VIEWKIND_RED:
@@ -2242,7 +2242,7 @@ surf_get_view (PyObject *self, PyObject *args, PyObject *kwds)
         ndim = 2;
         pixelstep = pixelsize;
         itemsize = 1;
-        flags |= BUFFERPROXY_F_ORDER;
+        flags |= BUFPROXY_F_ORDER;
         switch (mask) {
 
         case 0x000000ffU:
@@ -2294,7 +2294,7 @@ surf_get_view (PyObject *self, PyObject *args, PyObject *kwds)
     view.obj = self;
     Py_INCREF (self);
 
-    return PgBufferProxy_New (&view, flags, _view_prelude, _view_postscript);
+    return PgBufproxy_New (&view, flags, _view_prelude, _view_postscript);
 }
 
 static int
@@ -2360,7 +2360,7 @@ _view_kind (PyObject *obj, void *view_kind_vptr)
 static int
 _view_prelude (PyObject *view)
 {
-    PyObject *surf = PgBufferProxy_GetParent (view);
+    PyObject *surf = PgBufproxy_GetParent (view);
     int rcode;
 
     rcode = PySurface_LockBy (surf, view) ? 0 : -1;
@@ -2371,7 +2371,7 @@ _view_prelude (PyObject *view)
 static void
 _view_postscript (PyObject *view)
 {
-    PyObject *surf = PgBufferProxy_GetParent(view);
+    PyObject *surf = PgBufproxy_GetParent(view);
 
     PySurface_UnlockBy (surf, view);
     Py_DECREF (surf);
