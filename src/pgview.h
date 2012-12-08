@@ -28,39 +28,39 @@
 
 #include "pgarrinter.h"
 
-typedef int (*PgBufferProxy_PreludeCallback)(PyObject *);
-typedef void (*PgBufferProxy_PostscriptCallback)(PyObject *);
+typedef int (*PgBufproxy_PreludeCallback)(PyObject *);
+typedef void (*PgBufproxy_PostscriptCallback)(PyObject *);
 
 /* Bufferproxy flags */
-#define BUFFERPROXY_CONTIGUOUS    1
-#define BUFFERPROXY_C_ORDER       2
-#define BUFFERPROXY_F_ORDER       4
+#define BUFPROXY_CONTIGUOUS    1
+#define BUFPROXY_C_ORDER       2
+#define BUFPROXY_F_ORDER       4
 
 #define PYGAMEAPI_VIEW_NUMSLOTS 5
 #define PYGAMEAPI_VIEW_FIRSTSLOT 0
 
 #if !(defined(PYGAMEAPI_VIEW_INTERNAL) || defined(NO_PYGAME_C_API))
-static void *PgBUFFERPROXY_C_API[PYGAMEAPI_VIEW_NUMSLOTS];
+static void *PgBUFPROXY_C_API[PYGAMEAPI_VIEW_NUMSLOTS];
 
-typedef PyObject *(*_pgbufferproxy_new_t)(Py_buffer *,
+typedef PyObject *(*_pgbufproxy_new_t)(Py_buffer *,
                                    int,
-                                   PgBufferProxy_PreludeCallback,
-                                   PgBufferProxy_PostscriptCallback);
-typedef PyObject *(*_pgbufferproxy_get_obj_t)(PyObject *);
+                                   PgBufproxy_PreludeCallback,
+                                   PgBufproxy_PostscriptCallback);
+typedef PyObject *(*_pgbufproxy_get_obj_t)(PyObject *);
 typedef int *(*_pg_getarrayinterface_t)(PyObject *,
                                         PyObject **,
                                         PyArrayInterface **);
 typedef PyObject *(*_pg_arraystructasdict_t)(PyArrayInterface *inter_p);
 
-#define PgBufferProxy_Type (*(PyTypeObject*)PgBUFFERPROXY_C_API[0])
-#define PgBufferProxy_New (*(_pgbufferproxy_new_t)PgBUFFERPROXY_C_API[1])
-#define PgBufferProxy_GetParent \
-    (*(_pgbufferproxy_get_obj_t)PgBUFFERPROXY_C_API[2])
-#define Pg_GetArrayInterface (*(_pg_getarrayinterface_t)PgBUFFERPROXY_C_API[3])
-#define Pg_ArrayStructAsDict (*(_pg_arraystructasdict_t)PgBUFFERPROXY_C_API[4])
-#define PgBufferProxy_Check(x) ((x)->ob_type == (PgBufferProxy_Type))
+#define PgBufproxy_Type (*(PyTypeObject*)PgBUFPROXY_C_API[0])
+#define PgBufproxy_New (*(_pgbufproxy_new_t)PgBUFPROXY_C_API[1])
+#define PgBufproxy_GetParent \
+    (*(_pgbufproxy_get_obj_t)PgBUFPROXY_C_API[2])
+#define Pg_GetArrayInterface (*(_pg_getarrayinterface_t)PgBUFPROXY_C_API[3])
+#define Pg_ArrayStructAsDict (*(_pg_arraystructasdict_t)PgBUFPROXY_C_API[4])
+#define PgBufproxy_Check(x) ((x)->ob_type == (PgBufproxy_Type))
 #define import_pygame_view() \
-    _IMPORT_PYGAME_MODULE(_view, VIEW, PgBUFFERPROXY_C_API)
+    _IMPORT_PYGAME_MODULE(_view, VIEW, PgBUFPROXY_C_API)
 
 #endif /* #if !(defined(PYGAMEAPI_VIEW_INTERNAL) || ... */
 
