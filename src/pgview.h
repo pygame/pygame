@@ -28,8 +28,8 @@
 
 #include "pgarrinter.h"
 
-typedef int (*PgBufproxy_PreludeCallback)(PyObject *);
-typedef void (*PgBufproxy_PostscriptCallback)(PyObject *);
+typedef int (*PgBufproxy_CallbackBefore)(PyObject *);
+typedef void (*PgBufproxy_CallbackAfter)(PyObject *);
 
 /* Bufferproxy flags */
 #define BUFPROXY_CONTIGUOUS    1
@@ -44,8 +44,8 @@ static void *PgBUFPROXY_C_API[PYGAMEAPI_VIEW_NUMSLOTS];
 
 typedef PyObject *(*_pgbufproxy_new_t)(Py_buffer *,
                                    int,
-                                   PgBufproxy_PreludeCallback,
-                                   PgBufproxy_PostscriptCallback);
+                                   PgBufproxy_CallbackBefore,
+                                   PgBufproxy_CallbackAfter);
 typedef PyObject *(*_pgbufproxy_get_obj_t)(PyObject *);
 typedef int *(*_pg_getarrayinterface_t)(PyObject *,
                                         PyObject **,
