@@ -67,17 +67,17 @@ static PyObject *Pg_ViewAsDict(Py_buffer *);
  * Helper functions.
  */
 static int
-_bufproxy_null_before(PyObject *bufproxy) {
+proxy_null_before(PyObject *bufproxy) {
     return 0;
 }
 
 static void
-_bufproxy_null_after(PyObject *bufproxy) {
+proxy_null_after(PyObject *bufproxy) {
     return;
 }
 
 static int
-_bufproxy_python_before(PyObject *bufproxy)
+proxy_python_before(PyObject *bufproxy)
 {
     PgBufproxyObject *v = (PgBufproxyObject *)bufproxy;
     PyObject *rvalue;
@@ -101,7 +101,7 @@ _bufproxy_python_before(PyObject *bufproxy)
 }
 
 static void
-_bufproxy_python_after(PyObject *bufproxy)
+proxy_python_after(PyObject *bufproxy)
 {
     PgBufproxyObject *v = (PgBufproxyObject *)bufproxy;
     PyObject *rvalue;
@@ -119,7 +119,7 @@ _bufproxy_python_after(PyObject *bufproxy)
 }
 
 static PyObject *
-_bufproxy_new_from_type(PyTypeObject *type,
+proxy_new_from_type(PyTypeObject *type,
                     Py_buffer *view,
                     int flags,
                     PgBufproxy_CallbackBefore before,
@@ -197,19 +197,19 @@ _bufproxy_new_from_type(PyTypeObject *type,
     }
 
     self->flags = flags;
-    self->before = _bufproxy_null_before;
+    self->before = proxy_null_before;
     if (pybefore) {
         Py_INCREF(pybefore);
-        self->before = _bufproxy_python_before;
+        self->before = proxy_python_before;
     }
     else if (before) {
         self->before = before;
     }
     self->pybefore = pybefore;
-    self->after = _bufproxy_null_after;
+    self->after = proxy_null_after;
     if (pyafter) {
         Py_INCREF(pyafter);
-        self->after = _bufproxy_python_after;
+        self->after = proxy_python_after;
     }
     else if (after) {
         self->after = after;
@@ -373,7 +373,7 @@ _capsule_free_capsuleinterface(PyObject *capsule)
 #endif
 
 static PyObject *
-_bufproxy_get_typestr_obj(Py_buffer *view)
+proxy_get_typestr_obj(Py_buffer *view)
 {
     return Text_FromFormat("%c%c%i",
                            _as_arrayinter_byteorder(view),
@@ -382,7 +382,7 @@ _bufproxy_get_typestr_obj(Py_buffer *view)
 }
 
 static PyObject *
-_bufproxy_get_shape_obj(Py_buffer *view)
+proxy_get_shape_obj(Py_buffer *view)
 {
     PyObject *shapeobj = PyTuple_New(view->ndim);
     PyObject *lengthobj;
@@ -403,7 +403,7 @@ _bufproxy_get_shape_obj(Py_buffer *view)
 }
 
 static PyObject *
-_bufproxy_get_strides_obj(Py_buffer *view)
+proxy_get_strides_obj(Py_buffer *view)
 {
     PyObject *shapeobj = PyTuple_New(view->ndim);
     PyObject *lengthobj;
@@ -424,7 +424,7 @@ _bufproxy_get_strides_obj(Py_buffer *view)
 }
 
 static PyObject *
-_bufproxy_get_data_obj(Py_buffer *view)
+proxy_get_data_obj(Py_buffer *view)
 {
     return Py_BuildValue("NN",
                          PyLong_FromVoidPtr(view->buf),
@@ -752,7 +752,7 @@ _free_view(Py_buffer *view)
  * Return a new PgBufproxyObject (Python level constructor).
  */
 static PyObject *
-_bufproxy_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+proxy_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     Py_buffer view;
     PyObject *pybefore = 0;
@@ -795,7 +795,7 @@ _bufproxy_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     for (i = 0; i < view.ndim; ++i) {
         view.len *= view.shape[i];
     }
-    self = _bufproxy_new_from_type(type, &view, 0,
+    self = proxy_new_from_type(type, &view, 0,
                                0, 0, pybefore, pyafter);
     _free_view(&view);
     return self;
@@ -805,7 +805,7 @@ _bufproxy_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
  * Deallocates the PgBufproxyObject and its members.
  */
 static void
-_bufproxy_dealloc(PgBufproxyObject *self)
+proxy_dealloc(PgBufproxyObject *self)
 {
     /* Guard against recursion */
     if (!self->before) {
@@ -840,7 +840,7 @@ _bufproxy_dealloc(PgBufproxyObject *self)
 #endif
 
 static PyObject *
-_bufproxy_get_arraystruct(PgBufproxyObject *self, PyObject *closure)
+proxy_get_arraystruct(PgBufproxyObject *self, PyObject *closure)
 {
     void *cinter_p;
     PyObject *capsule;
@@ -875,7 +875,7 @@ _bufproxy_get_arraystruct(PgBufproxyObject *self, PyObject *closure)
 #endif
 
 static PyObject *
-_bufproxy_get_arrayinterface(PgBufproxyObject *self, PyObject *closure)
+proxy_get_arrayinterface(PgBufproxyObject *self, PyObject *closure)
 {
     PyObject *dict = Pg_ViewAsDict(&self->view);
 
@@ -892,7 +892,7 @@ _bufproxy_get_arrayinterface(PgBufproxyObject *self, PyObject *closure)
 }
 
 static PyObject *
-_bufproxy_get_parent(PgBufproxyObject *self, PyObject *closure)
+proxy_get_parent(PgBufproxyObject *self, PyObject *closure)
 {
     PyObject *parent = (PyObject *)self->view.obj;
 
@@ -904,7 +904,7 @@ _bufproxy_get_parent(PgBufproxyObject *self, PyObject *closure)
 }
 
 static PyObject *
-_bufproxy_get___dict__(PgBufproxyObject *self, PyObject *closure)
+proxy_get___dict__(PgBufproxyObject *self, PyObject *closure)
 {
     if (!self->dict) {
         self->dict = PyDict_New();
@@ -918,7 +918,7 @@ _bufproxy_get___dict__(PgBufproxyObject *self, PyObject *closure)
 }
 
 static PyObject *
-_bufproxy_get_raw(PgBufproxyObject *self, PyObject *closure)
+proxy_get_raw(PgBufproxyObject *self, PyObject *closure)
 {
     if (!(self->flags & BUFPROXY_CONTIGUOUS)) {
         PyErr_SetString(PyExc_ValueError, "the bytes are not contiguous");
@@ -930,7 +930,7 @@ _bufproxy_get_raw(PgBufproxyObject *self, PyObject *closure)
 }
 
 static PyObject *
-_bufproxy_get_length(PgBufproxyObject *self, PyObject *closure)
+proxy_get_length(PgBufproxyObject *self, PyObject *closure)
 {
     return PyInt_FromSsize_t(self->view.len);
 }
@@ -941,7 +941,7 @@ _bufproxy_get_length(PgBufproxyObject *self, PyObject *closure)
  * Representation method.
  */
 static PyObject *
-_bufproxy_repr (PgBufproxyObject *self)
+proxy_repr (PgBufproxyObject *self)
 {
     return Text_FromFormat("<%s(%p)>", Py_TYPE(self)->tp_name, self);
 }
@@ -949,20 +949,20 @@ _bufproxy_repr (PgBufproxyObject *self)
 /**
  * Getters and setters for the PgBufproxyObject.
  */
-static PyGetSetDef _bufproxy_getsets[] =
+static PyGetSetDef proxy_getsets[] =
 {
-    {"__array_struct__", (getter)_bufproxy_get_arraystruct, 0, 0, 0},
-    {"__array_interface__", (getter)_bufproxy_get_arrayinterface, 0, 0, 0},
-    {"parent", (getter)_bufproxy_get_parent, 0, 0, 0},
-    {"__dict__", (getter)_bufproxy_get___dict__, 0, 0, 0},
-    {"raw", (getter)_bufproxy_get_raw, 0, 0, 0},
-    {"length", (getter)_bufproxy_get_length, 0, 0, 0},
+    {"__array_struct__", (getter)proxy_get_arraystruct, 0, 0, 0},
+    {"__array_interface__", (getter)proxy_get_arrayinterface, 0, 0, 0},
+    {"parent", (getter)proxy_get_parent, 0, 0, 0},
+    {"__dict__", (getter)proxy_get___dict__, 0, 0, 0},
+    {"raw", (getter)proxy_get_raw, 0, 0, 0},
+    {"length", (getter)proxy_get_length, 0, 0, 0},
     {0, 0, 0, 0, 0}
 };
 
 #if PY3
 static int
-_bufproxy_getbuffer(PyObject *obj, Py_buffer *view, int flags)
+proxy_getbuffer(PyObject *obj, Py_buffer *view, int flags)
 {
     PgBufproxyObject *v = (PgBufproxyObject *)obj;
 
@@ -1023,13 +1023,13 @@ _bufproxy_getbuffer(PyObject *obj, Py_buffer *view, int flags)
 }
 
 static void
-_bufproxy_releasebuffer(PyObject *obj, Py_buffer *view)
+proxy_releasebuffer(PyObject *obj, Py_buffer *view)
 {
     ((PgBufproxyObject *)obj)->after(obj);
 }
 
-static PyBufferProcs _bufproxy_bufferprocs =
-    {_bufproxy_getbuffer, _bufproxy_releasebuffer};
+static PyBufferProcs proxy_bufferprocs =
+    {proxy_getbuffer, proxy_releasebuffer};
 #endif
 
 static PyTypeObject PgBufproxy_Type =
@@ -1038,12 +1038,12 @@ static PyTypeObject PgBufproxy_Type =
     "pygame._view.Bufproxy",    /* tp_name */
     sizeof (PgBufproxyObject),  /* tp_basicsize */
     0,                          /* tp_itemsize */
-    (destructor)_bufproxy_dealloc,  /* tp_dealloc */
+    (destructor)proxy_dealloc,  /* tp_dealloc */
     0,                          /* tp_print */
     0,                          /* tp_getattr */
     0,                          /* tp_setattr */
     0,                          /* tp_compare */
-    (reprfunc)_bufproxy_repr,       /* tp_repr */
+    (reprfunc)proxy_repr,       /* tp_repr */
     0,                          /* tp_as_number */
     0,                          /* tp_as_sequence */
     0,                          /* tp_as_mapping */
@@ -1053,7 +1053,7 @@ static PyTypeObject PgBufproxy_Type =
     0,                          /* tp_getattro */
     0,                          /* tp_setattro */
 #if PY3
-    &_bufproxy_bufferprocs,     /* tp_as_buffer */
+    &proxy_bufferprocs,         /* tp_as_buffer */
 #else
     0,                          /* tp_as_buffer */
 #endif
@@ -1067,7 +1067,7 @@ static PyTypeObject PgBufproxy_Type =
     0,                          /* tp_iternext */
     0,                          /* tp_methods */
     0,                          /* tp_members */
-    _bufproxy_getsets,          /* tp_getset */
+    proxy_getsets,              /* tp_getset */
     0,                          /* tp_base */
     0,                          /* tp_dict */
     0,                          /* tp_descr_get */
@@ -1075,7 +1075,7 @@ static PyTypeObject PgBufproxy_Type =
     offsetof(PgBufproxyObject, dict), /* tp_dictoffset */
     0,                          /* tp_init */
     0,                          /* tp_alloc */
-    _bufproxy_new,              /* tp_new */
+    proxy_new,                  /* tp_new */
     0,                          /* tp_free */
 #ifndef __SYMBIAN32__
     0,                          /* tp_is_gc */
@@ -1106,7 +1106,7 @@ get_array_interface(PyObject *self, PyObject *arg)
     return dictobj;
 }
 
-static PyMethodDef _bufproxy_methods[] = {
+static PyMethodDef proxy_methods[] = {
     { "get_array_interface", get_array_interface, METH_O,
       "return an array struct interface as an interface dictionary" },
     {0, 0, 0, 0}
@@ -1120,7 +1120,7 @@ PgBufproxy_New(Py_buffer *view,
            PgBufproxy_CallbackBefore before,
            PgBufproxy_CallbackAfter after)
 {
-    return _bufproxy_new_from_type(&PgBufproxy_Type,
+    return proxy_new_from_type(&PgBufproxy_Type,
                                view,
                                flags,
                                before,
@@ -1235,10 +1235,10 @@ Pg_ViewAsDict(Py_buffer *view)
     PyObject *dictobj =
         Py_BuildValue("{sisNsNsNsN}",
                       "version", (int)3,
-                      "typestr", _bufproxy_get_typestr_obj(view),
-                      "shape", _bufproxy_get_shape_obj(view),
-                      "strides", _bufproxy_get_strides_obj(view),
-                      "data", _bufproxy_get_data_obj(view));
+                      "typestr", proxy_get_typestr_obj(view),
+                      "shape", proxy_get_shape_obj(view),
+                      "strides", proxy_get_strides_obj(view),
+                      "data", proxy_get_data_obj(view));
     PyObject *obj = (PyObject *)view->obj;
 
     if (!dictobj) {
@@ -1269,7 +1269,7 @@ MODINIT_DEFINE(_view)
         "_view",
         _view_doc,
         -1,
-        _bufproxy_methods,
+        proxy_methods,
         NULL, NULL, NULL, NULL
     };
 #endif
@@ -1282,7 +1282,7 @@ MODINIT_DEFINE(_view)
 #if PY3
     module = PyModule_Create(&_module);
 #else
-    module = Py_InitModule3(MODPREFIX "_view", _bufproxy_methods, _view_doc);
+    module = Py_InitModule3(MODPREFIX "_view", proxy_methods, _view_doc);
 #endif
 
     Py_INCREF(&PgBufproxy_Type);
