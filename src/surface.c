@@ -37,6 +37,7 @@ typedef enum {
     VIEWKIND_GREEN,
     VIEWKIND_BLUE,
     VIEWKIND_ALPHA,
+    VIEWKIND_RAW
 } SurfViewKind;
 
 int
@@ -2102,28 +2103,30 @@ surf_get_buffer (PyObject *self)
 
 static PyObject *
 _raise_get_view_ndim_error(int bitsize, SurfViewKind kind) {
-    const char *kind_names[] = {"2D", "3D", "red", "green", "blue", "alpha"};
     const char *name;
 
     switch (kind) {
 
+    case VIEWKIND_RAW:
+        name = "raw";
+        break;
     case VIEWKIND_2D:
-        name = kind_names[0];
+        name = "2D";
         break;
     case VIEWKIND_3D:
-        name = kind_names[1];
+        name = "3D";
         break;
     case VIEWKIND_RED:
-        name = kind_names[2];
+        name = "red";
         break;
     case VIEWKIND_GREEN:
-        name = kind_names[3];
+        name = "green";
         break;
     case VIEWKIND_BLUE:
-        name = kind_names[4];
+        name = "blue";
         break;
     case VIEWKIND_ALPHA:
-        name = kind_names[5];
+        name = "alpha";
         break;
     default:
         PyErr_Format(PyExc_SystemError,
@@ -2148,7 +2151,7 @@ surf_get_view (PyObject *self, PyObject *args, PyObject *kwds)
     char format[] = {'B', '\0', '\0'};
     Py_buffer view;
 #   undef SURF_GET_VIEW_MAXDIM
-    SurfViewKind view_kind = VIEWKIND_2D;
+    SurfViewKind view_kind = VIEWKIND_RAW;
     int ndim = maxdim;
     SDL_Surface *surface = PySurface_AsSurface (self);
     int pixelsize;
@@ -2157,6 +2160,7 @@ surf_get_view (PyObject *self, PyObject *args, PyObject *kwds)
     Uint32 mask = 0;
     int pixelstep;
     int flags = 0;
+    PyObject *proxy_obj;
 
     char *keywords[] = {"kind", 0};
 
@@ -2231,6 +2235,10 @@ surf_get_view (PyObject *self, PyObject *args, PyObject *kwds)
     case VIEWKIND_ALPHA:
         mask = surface->format->Amask;
         break;
+    case VIEWKIND_RAW:
+        ndim = 0;
+        itemsize = 1;
+        break;
     default:
         PyErr_Format (PyExc_SystemError,
                       "pygame bug in surf_get_view:"
@@ -2287,14 +2295,36 @@ surf_get_view (PyObject *self, PyObject *args, PyObject *kwds)
                       (int)itemsize);
         return 0;
     }
-    view.len = itemsize * shape[0] * shape[1];
-    if (ndim == 3) {
-        view.len *= shape[2];
+    switch (ndim) {
+
+    case 0:
+        view.len = pixelsize * shape[0] * shape[1];
+        break;
+    case 2:
+        view.len = itemsize * shape[0] * shape[1];
+        break;
+    case 3:
+        view.len = itemsize * shape[0] * shape[1] * shape[2];
+        break;
+    default:
+        /* Bug! Should not get here. */
+        PyErr_Format (PyExc_SystemError,
+                      "Pygame bug: Surface.get_buffer: "
+                      "unrecognized array dimension %d",
+                      (int)ndim);
+        return 0;
     }
     view.obj = self;
     Py_INCREF (self);
 
-    return PgBufproxy_New (&view, flags, _view_before, _view_after);
+    proxy_obj = PgBufproxy_New (&view, flags, _view_before, _view_after);
+    if (proxy_obj && view_kind == VIEWKIND_RAW) {
+        if (PgBufproxy_Trip (proxy_obj)) {
+            Py_DECREF (proxy_obj);
+            proxy_obj = 0;
+        }
+    }
+    return proxy_obj;
 }
 
 static int
@@ -2348,6 +2378,9 @@ _view_kind (PyObject *obj, void *view_kind_vptr)
         break;
     case '3':
         *view_kind_ptr = VIEWKIND_3D;
+        break;
+    case '&':
+        *view_kind_ptr = VIEWKIND_RAW;
         break;
     default:
         PyErr_Format (PyExc_TypeError,

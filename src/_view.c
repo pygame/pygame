@@ -1180,6 +1180,26 @@ Pg_GetArrayInterface(PyObject *obj,
     return 0;
 }
 
+static int
+PgBufproxy_Trip(PyObject *obj)
+{
+    PgBufproxyObject *proxy = (PgBufproxyObject *)obj;
+
+    if (!PyObject_IsInstance(obj, (PyObject *)&PgBufproxy_Type)) {
+        PyErr_Format(PyExc_TypeError,
+                     "Expected a BufferProxy instance: got type %s",
+                     Py_TYPE(obj)->tp_name);
+        return -1;
+    }
+    if (!proxy->global_release) {
+        if (proxy->before(obj)) {
+            return -1;
+        }
+        proxy->global_release = 1;
+    }
+    return 0;
+}
+
 static PyObject *
 Pg_ArrayStructAsDict(PyArrayInterface *inter_p)
 {
@@ -1273,7 +1293,7 @@ MODINIT_DEFINE(_view)
         DECREF_MOD(module);
         MODINIT_ERROR;
     }
-#if PYGAMEAPI_VIEW_NUMSLOTS != 5
+#if PYGAMEAPI_VIEW_NUMSLOTS != 6
 #error export slot count mismatch
 #endif
     c_api[0] = &PgBufproxy_Type;
@@ -1281,6 +1301,7 @@ MODINIT_DEFINE(_view)
     c_api[2] = PgBufproxy_GetParent;
     c_api[3] = Pg_GetArrayInterface;
     c_api[4] = Pg_ArrayStructAsDict;
+    c_api[5] = PgBufproxy_Trip;
     apiobj = encapsulate_api(c_api, "_view");
     if (apiobj == NULL) {
         DECREF_MOD(module);

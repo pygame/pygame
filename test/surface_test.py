@@ -385,6 +385,16 @@ class SurfaceTypeTest(unittest.TestCase):
         self.assert_(isinstance(v, BufferProxy))
         v = s.get_view('b')
 
+        s = pygame.Surface((5, 7), 0, 24)
+        length = s.get_width() * s.get_height() * s.get_bytesize()
+        v = s.get_view('&')
+        self.assert_(isinstance(v, BufferProxy))
+        self.assertEqual(v.length, length)
+        v = s.get_view()
+        self.assert_(isinstance(v, BufferProxy))
+        self.assertEqual(v.length, length)
+        
+
         # Check argument defaults.
         s = pygame.Surface((5, 7), 0, 16)
         v = s.get_view()
@@ -398,12 +408,18 @@ class SurfaceTypeTest(unittest.TestCase):
         # Check locking.
         s = pygame.Surface((2, 4), 0, 32)
         self.assert_(not s.get_locked())
-        v = s.get_view()
+        v = s.get_view('2')
         self.assert_(not s.get_locked())
         c = v.__array_interface__
         self.assert_(s.get_locked())
         c = None
         gc.collect()
+        self.assert_(s.get_locked())
+        v = None
+        gc.collect()
+        self.assert_(not s.get_locked())
+
+        v = s.get_view('&')
         self.assert_(s.get_locked())
         v = None
         gc.collect()
