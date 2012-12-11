@@ -31,6 +31,7 @@ from pygame._view import BufferProxy
 
 import gc
 import weakref
+import ctypes
 
 def intify(i):
     """If i is a long, cast to an int while preserving the bits"""
@@ -385,20 +386,28 @@ class SurfaceTypeTest(unittest.TestCase):
         self.assert_(isinstance(v, BufferProxy))
         v = s.get_view('b')
 
+        # Check backward compatibility.
         s = pygame.Surface((5, 7), 0, 24)
-        length = s.get_width() * s.get_height() * s.get_bytesize()
+        length = s.get_pitch() * s.get_height()
         v = s.get_view('&')
         self.assert_(isinstance(v, BufferProxy))
         self.assertEqual(v.length, length)
         v = s.get_view()
         self.assert_(isinstance(v, BufferProxy))
         self.assertEqual(v.length, length)
-        
 
-        # Check argument defaults.
+        # Check default argument ('&' for backward compatibility).
+        # The default may change in Pygame 1.9.3.
         s = pygame.Surface((5, 7), 0, 16)
+        length = s.get_pitch() * s.get_height()
         v = s.get_view()
         self.assert_(isinstance(v, BufferProxy))
+        # Simple buffer length check using ctype, which is portable,
+        # unlike buffer, and works ndim 0 views, unlike memoryview.
+        c_byte_Array = ctypes.c_byte * length
+        b = c_byte_Array.from_buffer(v)
+        c_byte_Array_plus_1 = ctypes.c_byte * (length + 1)
+        self.assertRaises(ValueError, c_byte_Array_plus_1.from_buffer, v)
 
         # Check keyword arguments.
         s = pygame.Surface((5, 7), 0, 24)
