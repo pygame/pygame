@@ -19,10 +19,12 @@
 */
 
 /*
-  This module exports an object which provides an array interface to
-  another object's buffer. Both the C level array structure -
-  __array_struct__ - interface and Python level - __array_interface__ -
-  are exposed.
+  This module exports a proxy object that exposes another object's
+  data throught the Python buffer protocol or the array interface.
+  The new buffer protocol is available for Python 3.x. For Python 2.x
+  only the old protocol is implemented (for PyPy compatibility).
+  Both the C level array structure - __array_struct__ - interface and
+  Python level - __array_interface__ - are exposed.
  */
 
 #define NO_PYGAME_C_API
@@ -59,6 +61,7 @@ typedef struct capsule_interface_s {
     Py_intptr_t imem[1];
 } CapsuleInterface;
 
+static int PgBufproxy_Trip(PyObject *);
 static int Pg_GetArrayInterface(PyObject *, PyObject **, PyArrayInterface **);
 static PyObject *Pg_ArrayStructAsDict(PyArrayInterface *);
 static PyObject *Pg_ViewAsDict(Py_buffer *);
@@ -1028,9 +1031,73 @@ proxy_releasebuffer(PyObject *obj, Py_buffer *view)
     ((PgBufproxyObject *)obj)->after(obj);
 }
 
-static PyBufferProcs proxy_bufferprocs =
-    {proxy_getbuffer, proxy_releasebuffer};
+static PyBufferProcs proxy_bufferprocs = {
+    proxy_getbuffer,
+    proxy_releasebuffer
+};
+
+#else
+
+static Py_ssize_t
+proxy_getreadbuf(PgBufproxyObject *buffer, Py_ssize_t _index, const void **ptr)
+{
+    if (_index != 0) {
+        PyErr_SetString(PyExc_TypeError,
+                        "Accessing non-existent buffer segment");
+        return -1;
+    }
+
+    if (PgBufproxy_Trip((PyObject *)buffer)) {
+        return -1;
+    }
+    *ptr = buffer->view.buf;
+    return buffer->view.len;
+}
+
+static Py_ssize_t
+proxy_getwritebuf(PgBufproxyObject *buffer, Py_ssize_t _index, const void **ptr)
+{
+    if (buffer->view.readonly) {
+        PyErr_SetString(PyExc_TypeError,
+                        "Attempting to get write access to a readonly buffer");
+        return -1;
+    }
+
+    if (_index != 0) {
+        PyErr_SetString(PyExc_TypeError, 
+                        "Accessing non-existent array segment");
+        return -1;
+    }
+
+    if (PgBufproxy_Trip((PyObject *)buffer)) {
+        return -1;
+    }
+    *ptr = buffer->view.buf;
+    return buffer->view.len;
+}
+
+static Py_ssize_t
+proxy_getsegcount(PgBufproxyObject *buffer, Py_ssize_t *lenp)
+{
+    if (lenp) {
+        *lenp = buffer->view.len;
+    }
+    return 1;
+}
+
+static PyBufferProcs proxy_bufferprocs = {
+    (readbufferproc)proxy_getreadbuf,
+    (writebufferproc)proxy_getwritebuf,
+    (segcountproc)proxy_getsegcount,
+    0
+#if PY_VERSION_HEX >= 0x02060000
+    ,
+    0,
+    0
 #endif
+};
+
+#endif /* #if PY3 */
 
 static PyTypeObject PgBufproxy_Type =
 {
@@ -1052,11 +1119,7 @@ static PyTypeObject PgBufproxy_Type =
     0,                          /* tp_str */
     0,                          /* tp_getattro */
     0,                          /* tp_setattro */
-#if PY3
     &proxy_bufferprocs,         /* tp_as_buffer */
-#else
-    0,                          /* tp_as_buffer */
-#endif
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,  /* tp_flags */
     "Object bufproxy as an array struct\n",
     0,                          /* tp_traverse */

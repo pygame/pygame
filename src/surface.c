@@ -2153,6 +2153,7 @@ surf_get_view (PyObject *self, PyObject *args, PyObject *kwds)
 #   undef SURF_GET_VIEW_MAXDIM
     SurfViewKind view_kind = VIEWKIND_RAW;
     int ndim = maxdim;
+    Py_ssize_t len = 0;
     SDL_Surface *surface = PySurface_AsSurface (self);
     int pixelsize;
     Py_ssize_t itemsize = 0;
@@ -2191,6 +2192,7 @@ surf_get_view (PyObject *self, PyObject *args, PyObject *kwds)
     case VIEWKIND_2D:
         ndim = 2;
         itemsize = pixelsize;
+        len = itemsize * shape[0] * shape[1];
         flags |= BUFPROXY_F_ORDER;
         if (strides[1] == shape[0] * itemsize) {
             flags |= BUFPROXY_CONTIGUOUS;
@@ -2203,6 +2205,7 @@ surf_get_view (PyObject *self, PyObject *args, PyObject *kwds)
         ndim = 3;
         itemsize = 1;
         shape[2] = 3;
+        len = itemsize * shape[0] * shape[1] * shape[2];
         if (surface->format->Rmask == 0xff0000 &&
             surface->format->Gmask == 0x00ff00 &&
             surface->format->Bmask == 0x0000ff)   {
@@ -2238,6 +2241,8 @@ surf_get_view (PyObject *self, PyObject *args, PyObject *kwds)
     case VIEWKIND_RAW:
         ndim = 0;
         itemsize = 1;
+        flags |= BUFPROXY_CONTIGUOUS; /* Assumes knowledgable consumers */
+        len = surface->pitch * surface->h;
         break;
     default:
         PyErr_Format (PyExc_SystemError,
@@ -2250,6 +2255,7 @@ surf_get_view (PyObject *self, PyObject *args, PyObject *kwds)
         ndim = 2;
         pixelstep = pixelsize;
         itemsize = 1;
+        len = itemsize * shape[0] * shape[1];
         flags |= BUFPROXY_F_ORDER;
         switch (mask) {
 
@@ -2295,25 +2301,7 @@ surf_get_view (PyObject *self, PyObject *args, PyObject *kwds)
                       (int)itemsize);
         return 0;
     }
-    switch (ndim) {
-
-    case 0:
-        view.len = pixelsize * shape[0] * shape[1];
-        break;
-    case 2:
-        view.len = itemsize * shape[0] * shape[1];
-        break;
-    case 3:
-        view.len = itemsize * shape[0] * shape[1] * shape[2];
-        break;
-    default:
-        /* Bug! Should not get here. */
-        PyErr_Format (PyExc_SystemError,
-                      "Pygame bug: Surface.get_buffer: "
-                      "unrecognized array dimension %d",
-                      (int)ndim);
-        return 0;
-    }
+    view.len = len;
     view.obj = self;
     Py_INCREF (self);
 
