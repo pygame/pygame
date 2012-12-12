@@ -31,6 +31,8 @@
 #include "pgarrinter.h"
 
 typedef enum {
+    VIEWKIND_0D = 0,
+    VIEWKIND_1D = 1,
     VIEWKIND_2D = 2,
     VIEWKIND_3D = 3,
     VIEWKIND_RED,
@@ -2189,6 +2191,17 @@ surf_get_view (PyObject *self, PyObject *args, PyObject *kwds)
     strides[1] = (Py_ssize_t)surface->pitch;
     switch (view_kind) {
 
+    case VIEWKIND_0D:
+        ndim = 0;
+        itemsize = pixelsize;
+        if (strides[1] != itemsize * shape[0]) {
+            PyErr_SetString (PyExc_ValueError,
+                             "Surface data is not contiguous");
+            return 0;
+        }
+        flags |= BUFPROXY_CONTIGUOUS;
+        len = itemsize * shape[0] * shape[1];
+        break;
     case VIEWKIND_2D:
         ndim = 2;
         itemsize = pixelsize;
@@ -2345,6 +2358,9 @@ _view_kind (PyObject *obj, void *view_kind_vptr)
     }
     switch (ch) {
 
+    case '0':
+        *view_kind_ptr = VIEWKIND_0D;
+        break;
     case '2':
         *view_kind_ptr = VIEWKIND_2D;
         break;
