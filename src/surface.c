@@ -2192,15 +2192,27 @@ surf_get_view (PyObject *self, PyObject *args, PyObject *kwds)
     switch (view_kind) {
 
     case VIEWKIND_0D:
-        ndim = 0;
-        itemsize = pixelsize;
-        if (strides[1] != itemsize * shape[0]) {
+        if (strides[1] != pixelsize * shape[0]) {
             PyErr_SetString (PyExc_ValueError,
                              "Surface data is not contiguous");
             return 0;
         }
+        ndim = 0;
+        itemsize = 1;
         flags |= BUFPROXY_CONTIGUOUS;
-        len = itemsize * shape[0] * shape[1];
+        len = pixelsize * shape[0] * shape[1];
+        break;
+    case VIEWKIND_1D:
+        if (strides[1] != pixelsize * shape[0]) {
+            PyErr_SetString (PyExc_ValueError,
+                             "Surface data is not contiguous");
+            return 0;
+        }
+        ndim = 1;
+        len = pixelsize * shape[0] * shape[1];
+        shape[0] = shape[0] * shape[1];
+        itemsize = pixelsize;
+        flags |= BUFPROXY_CONTIGUOUS | BUFPROXY_C_ORDER | BUFPROXY_F_ORDER;
         break;
     case VIEWKIND_2D:
         ndim = 2;
@@ -2360,6 +2372,9 @@ _view_kind (PyObject *obj, void *view_kind_vptr)
 
     case '0':
         *view_kind_ptr = VIEWKIND_0D;
+        break;
+    case '1':
+        *view_kind_ptr = VIEWKIND_1D;
         break;
     case '2':
         *view_kind_ptr = VIEWKIND_2D;
