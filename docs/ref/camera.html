@@ -1,0 +1,369 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pygame.camera &mdash; Pygame v1.9.2 documentation</title>
+    <link rel="stylesheet" href="../_static/pygame.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.9.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/pygame.ico"/>
+    <link rel="top" title="Pygame v1.9.2 documentation" href="../index.html" />
+    <link rel="next" title="pygame.cdrom" href="cdrom.html" />
+    <link rel="prev" title="Pygame Front Page" href="../index.html" /> 
+  </head>
+  <body>  
+
+    <div class="document">
+
+  <div class="header">
+    <table>
+      <tr>
+	<td class="logo">
+	  <a href="http://www.pygame.org/">
+	    <img src="../_static/pygame_tiny.png"/>
+	  </a>
+	  <h5>pygame documentation</h5>
+	</td>
+	<td class="pagelinks">
+	  <p class="top">
+	    ||
+	    <a href="http://www.pygame.org/">Pygame Home</a> ||
+	    <a href="../index.html">Help Contents</a> ||
+	    <a href="../genindex.html">Reference Index</a> ||
+	  </p>
+	  <p class="bottom">
+	    <a href="camera.html">camera</a> || 
+	    <a href="cdrom.html">cdrom</a> || 
+	    <a href="color.html">Color</a> || 
+	    <a href="cursors.html">cursors</a> || 
+	    <a href="display.html">display</a> || 
+	    <a href="draw.html">draw</a> || 
+	    <a href="event.html">event</a> || 
+	    <a href="examples.html">examples</a> || 
+	    <a href="font.html">font</a> || 
+	    <a href="freetype.html">freetype</a> || 
+	    <a href="gfxdraw.html">gfxdraw</a> || 
+	    <a href="image.html">image</a> || 
+	    <a href="joystick.html">joystick</a> || 
+	    <a href="key.html">key</a> || 
+	    <a href="locals.html">locals</a> || 
+	    <a href="mask.html">mask</a> || 
+	    <a href="math.html">math</a> || 
+	    <a href="midi.html">midi</a> || 
+	    <a href="mixer.html">mixer</a> || 
+	    <a href="mouse.html">mouse</a> || 
+	    <a href="movie.html">movie</a> || 
+	    <a href="music.html">music</a> || 
+	    <a href="overlay.html">Overlay</a> || 
+	    <a href="pixelarray.html">PixelArray</a> || 
+	    <a href="pixelcopy.html">pixelcopy</a> || 
+	    <a href="pygame.html">pygame</a> || 
+	    <a href="rect.html">Rect</a> || 
+	    <a href="scrap.html">scrap</a> || 
+	    <a href="sndarray.html">sndarray</a> || 
+	    <a href="sprite.html">sprite</a> || 
+	    <a href="surface.html">Surface</a> || 
+	    <a href="surfarray.html">surfarray</a> || 
+	    <a href="tests.html">tests</a> || 
+	    <a href="time.html">time</a> || 
+	    <a href="transform.html">transform</a> || 
+	    <a href="pygame.html#module-pygame.version">version</a>
+	  </p>
+	</td>
+      </tr>
+    </table>
+  </div>
+
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <div class="sectionwrapper">
+<div class="section" id="module-pygame.camera">
+<span id="pygame-camera"></span><dl class="definition module">
+<dt class="title module">
+<tt class="docutils literal"><span class="pre">pygame.camera</span></tt></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">pygame module for camera use</span></div>
+</div>
+<table border="1" class="toc docutils">
+<colgroup>
+<col width="38%" />
+<col width="1%" />
+<col width="61%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="toc reference external" href="camera.html#pygame.camera.colorspace">pygame.camera.colorspace</a></td>
+<td>—</td>
+<td>Surface colorspace conversion</td>
+</tr>
+<tr><td><a class="toc reference external" href="camera.html#pygame.camera.list_cameras">pygame.camera.list_cameras</a></td>
+<td>—</td>
+<td>returns a list of available cameras</td>
+</tr>
+<tr><td><a class="toc reference external" href="camera.html#pygame.camera.Camera">pygame.camera.Camera</a></td>
+<td>—</td>
+<td>load a camera</td>
+</tr>
+</tbody>
+</table>
+<p>Pygame currently supports only Linux and v4l2 cameras.</p>
+<p>EXPERIMENTAL!: This api may change or disappear in later pygame releases. If
+you use this, your code will very likely break with the next pygame release.</p>
+<p>The Bayer to <tt class="docutils literal"><span class="pre">RGB</span></tt> function is based on:</p>
+<div class="highlight-python"><pre>Sonix SN9C101 based webcam basic I/F routines
+Copyright (C) 2004 Takafumi Mizuno &lt;taka-qce@ls-a.jp&gt;
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGE.</pre>
+</div>
+<p>New in pygame 1.9.0.</p>
+<dl class="definition function">
+<dt class="title" id="pygame.camera.colorspace">
+<tt class="descclassname">pygame.camera.</tt><tt class="descname">colorspace</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.camera.colorspace" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Surface colorspace conversion</span></div>
+<div class="line"><span class="signature">colorspace(Surface, format, DestSurface = None) -&gt; Surface</span></div>
+</div>
+<p>Allows for conversion from &#8220;RGB&#8221; to a destination colorspace of &#8220;HSV&#8221; or
+&#8220;YUV&#8221;. The source and destination surfaces must be the same size and pixel
+depth. This is useful for computer vision on devices with limited processing
+power. Capture as small of an image as possible, <tt class="docutils literal"><span class="pre">transform.scale()</span></tt> it
+even smaller, and then convert the colorspace to <tt class="docutils literal"><span class="pre">YUV</span></tt> or <tt class="docutils literal"><span class="pre">HSV</span></tt> before
+doing any processing on it.</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.camera.list_cameras">
+<tt class="descclassname">pygame.camera.</tt><tt class="descname">list_cameras</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.camera.list_cameras" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">returns a list of available cameras</span></div>
+<div class="line"><span class="signature">list_cameras() -&gt; [cameras]</span></div>
+</div>
+<p>Checks the computer for available cameras and returns a list of strings of
+camera names, ready to be fed into <a class="tooltip reference internal" href="#pygame.camera.Camera" title=""><tt class="xref py py-class docutils literal"><span class="pre">pygame.camera.Camera</span></tt><span class="tooltip-content">load a camera</span></a>.</p>
+</dd></dl>
+
+<dl class="definition class">
+<dt class="title" id="pygame.camera.Camera">
+<em class="property">class </em><tt class="descclassname">pygame.camera.</tt><tt class="descname">Camera</tt><a class="headerlink" href="#pygame.camera.Camera" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">load a camera</span></div>
+<div class="line"><span class="signature">Camera(device, (width, height), format) -&gt; Camera</span></div>
+</div>
+<table border="1" class="toc docutils">
+<colgroup>
+<col width="36%" />
+<col width="1%" />
+<col width="63%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="toc reference external" href="camera.html#pygame.camera.Camera.start">pygame.camera.Camera.start</a></td>
+<td>—</td>
+<td>opens, initializes, and starts capturing</td>
+</tr>
+<tr><td><a class="toc reference external" href="camera.html#pygame.camera.Camera.stop">pygame.camera.Camera.stop</a></td>
+<td>—</td>
+<td>stops, uninitializes, and closes the camera</td>
+</tr>
+<tr><td><a class="toc reference external" href="camera.html#pygame.camera.Camera.get_controls">pygame.camera.Camera.get_controls</a></td>
+<td>—</td>
+<td>gets current values of user controls</td>
+</tr>
+<tr><td><a class="toc reference external" href="camera.html#pygame.camera.Camera.set_controls">pygame.camera.Camera.set_controls</a></td>
+<td>—</td>
+<td>changes camera settings if supported by the camera</td>
+</tr>
+<tr><td><a class="toc reference external" href="camera.html#pygame.camera.Camera.get_size">pygame.camera.Camera.get_size</a></td>
+<td>—</td>
+<td>returns the dimensions of the images being recorded</td>
+</tr>
+<tr><td><a class="toc reference external" href="camera.html#pygame.camera.Camera.query_image">pygame.camera.Camera.query_image</a></td>
+<td>—</td>
+<td>checks if a frame is ready</td>
+</tr>
+<tr><td><a class="toc reference external" href="camera.html#pygame.camera.Camera.get_image">pygame.camera.Camera.get_image</a></td>
+<td>—</td>
+<td>captures an image as a Surface</td>
+</tr>
+<tr><td><a class="toc reference external" href="camera.html#pygame.camera.Camera.get_raw">pygame.camera.Camera.get_raw</a></td>
+<td>—</td>
+<td>returns an unmodified image as a string</td>
+</tr>
+</tbody>
+</table>
+<p>Loads a v4l2 camera. The device is typically something like &#8220;/dev/video0&#8221;.
+Default width and height are 640 by 480. Format is the desired colorspace of
+the output. This is useful for computer vision purposes. The default is
+<tt class="docutils literal"><span class="pre">RGB</span></tt>. The following are supported:</p>
+<blockquote>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">RGB</span></tt> - Red, Green, Blue</li>
+<li><tt class="docutils literal"><span class="pre">YUV</span></tt> - Luma, Blue Chrominance, Red Chrominance</li>
+<li><tt class="docutils literal"><span class="pre">HSV</span></tt> - Hue, Saturation, Value</li>
+</ul>
+</blockquote>
+<dl class="definition method">
+<dt class="title" id="pygame.camera.Camera.start">
+<tt class="descname">start</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.camera.Camera.start" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">opens, initializes, and starts capturing</span></div>
+<div class="line"><span class="signature">start() -&gt; None</span></div>
+</div>
+<p>Opens the camera device, attempts to initialize it, and begins recording
+images to a buffer. The camera must be started before any of the below
+functions can be used.</p>
+</dd></dl>
+
+<dl class="definition method">
+<dt class="title" id="pygame.camera.Camera.stop">
+<tt class="descname">stop</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.camera.Camera.stop" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">stops, uninitializes, and closes the camera</span></div>
+<div class="line"><span class="signature">stop() -&gt; None</span></div>
+</div>
+<p>Stops recording, uninitializes the camera, and closes it. Once a camera
+is stopped, the below functions cannot be used until it is started again.</p>
+</dd></dl>
+
+<dl class="definition method">
+<dt class="title" id="pygame.camera.Camera.get_controls">
+<tt class="descname">get_controls</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.camera.Camera.get_controls" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">gets current values of user controls</span></div>
+<div class="line"><span class="signature">get_controls() -&gt; (hflip = bool, vflip = bool, brightness)</span></div>
+</div>
+<p>If the camera supports it, get_controls will return the current settings
+for horizontal and vertical image flip as bools and brightness as an int.
+If unsupported, it will return the default values of (0, 0, 0). Note that
+the return values here may be different than those returned by
+set_controls, though these are more likely to be correct.</p>
+</dd></dl>
+
+<dl class="definition method">
+<dt class="title" id="pygame.camera.Camera.set_controls">
+<tt class="descname">set_controls</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.camera.Camera.set_controls" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">changes camera settings if supported by the camera</span></div>
+<div class="line"><span class="signature">set_controls(hflip = bool, vflip = bool, brightness) -&gt; (hflip = bool, vflip = bool, brightness)</span></div>
+</div>
+<p>Allows you to change camera settings if the camera supports it. The
+return values will be the input values if the camera claims it succeeded
+or the values previously in use if not. Each argument is optional, and
+the desired one can be chosen by supplying the keyword, like hflip. Note
+that the actual settings being used by the camera may not be the same as
+those returned by set_controls.</p>
+</dd></dl>
+
+<dl class="definition method">
+<dt class="title" id="pygame.camera.Camera.get_size">
+<tt class="descname">get_size</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.camera.Camera.get_size" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">returns the dimensions of the images being recorded</span></div>
+<div class="line"><span class="signature">get_size() -&gt; (width, height)</span></div>
+</div>
+<p>Returns the current dimensions of the images being captured by the
+camera. This will return the actual size, which may be different than the
+one specified during initialization if the camera did not support that
+size.</p>
+</dd></dl>
+
+<dl class="definition method">
+<dt class="title" id="pygame.camera.Camera.query_image">
+<tt class="descname">query_image</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.camera.Camera.query_image" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">checks if a frame is ready</span></div>
+<div class="line"><span class="signature">query_image() -&gt; bool</span></div>
+</div>
+<p>If an image is ready to get, it returns true. Otherwise it returns false.
+Note that some webcams will always return False and will only queue a
+frame when called with a blocking function like <tt class="docutils literal"><span class="pre">get_image()</span></tt>. This is
+useful to separate the framerate of the game from that of the camera
+without having to use threading.</p>
+</dd></dl>
+
+<dl class="definition method">
+<dt class="title" id="pygame.camera.Camera.get_image">
+<tt class="descname">get_image</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.camera.Camera.get_image" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">captures an image as a Surface</span></div>
+<div class="line"><span class="signature">get_image(Surface = None) -&gt; Surface</span></div>
+</div>
+<p>Pulls an image off of the buffer as an <tt class="docutils literal"><span class="pre">RGB</span></tt> Surface. It can optionally
+reuse an existing Surface to save time. The bit depth of the surface is
+either 24bits or the same as the optionally supplied Surface.</p>
+</dd></dl>
+
+<dl class="definition method">
+<dt class="title" id="pygame.camera.Camera.get_raw">
+<tt class="descname">get_raw</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.camera.Camera.get_raw" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">returns an unmodified image as a string</span></div>
+<div class="line"><span class="signature">get_raw() -&gt; string</span></div>
+</div>
+<p>Gets an image from a camera as a string in the native pixelformat of the
+camera. Useful for integration with other libraries.</p>
+</dd></dl>
+
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+  </div>
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="cdrom.html" title="pygame.cdrom"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../index.html" title="Pygame Front Page"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">Pygame v1.9.2 documentation</a> &raquo;</li>
+    <script type="text/javascript" src="jquery.plugin.docscomments.js"></script>
+
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Pygame Developers.
+    </div>
+  </body>
+</html>
