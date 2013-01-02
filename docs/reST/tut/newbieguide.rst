@@ -330,7 +330,7 @@ latency isn't as important -- say your user is typing something in an editbox,
 use the event queue.  Some keypresses may be slightly late, but at least you'll
 get them all.
 
-A note about ``event.poll()` vs. ``wait()`` -- ``poll()`` may seem better,
+A note about ``event.poll()`` vs. ``wait()`` -- ``poll()`` may seem better,
 since it doesn't block your program from doing anything while it's waiting for
 input -- ``wait()`` suspends the program until an event is received.
 However, ``poll()`` will consume 100% of available cpu time while it runs,
