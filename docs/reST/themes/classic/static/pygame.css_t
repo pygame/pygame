@@ -182,6 +182,7 @@ div.header .pagelinks {
 
 div.header p.top {
     margin-top: 0;
+    margin-bottom: 1em;
 }
 
 div.header p.bottom {
@@ -348,11 +349,20 @@ a:hover {
 }
 
 p {
-    margin-top: 1em;
+    margin: 0.5em 0;
+}
+
+strong {
+    font-weight: bold;
+}
+
+em {
+    font-style: italic;
 }
 
 dl {
-    padding-top: 2em;
+    padding-top: 1em;
+    padding-bottom: 1em;
 }
 
 dd {
@@ -370,6 +380,7 @@ dt.module {
 
 table.toc {
     margin-left: 2em;
+    margin-bottom: 0.5em;
 }
 
 table.toc td {
@@ -387,6 +398,7 @@ span.summaryline {
 
 span.signature {
     font-family: {{ theme_sigfont }};
+    margin-bottom: 0.5em;
 }
 
 table.docutils td.toc {
@@ -414,8 +426,7 @@ div.body h5,
 div.body h6 {
     font-family: {{ theme_headfont }};
     font-weight: bold;
-    margin: 12.5% 0 12.5% 0
-    padding: 12.5% 0 12.5% 0;
+    margin: 1em 0 0.5em;
     text-align: left;
 }
 
@@ -513,7 +524,7 @@ p.linklist {
 pre {
     font-family: monospace;
     padding: 5px;
-    margin-left: 30px;
+    padding-left: 15px;
     margin-bottom: 1em;
     background-color: {{ theme_codebgcolor }};
     color: {{ theme_codetextcolor }};

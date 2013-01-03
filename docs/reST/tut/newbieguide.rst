@@ -3,16 +3,9 @@
 A Newbie Guide to pygame
 ************************
 
-**or**
+or **Things I learned by trial and error so you don't have to,**
 
-Things I learned by trial and error so you don't have to.
-=========================================================
-
-**or**
-
-How I learned to stop worrying and love the blit.
-=================================================
-
+or **How I learned to stop worrying and love the blit.**
 
 Pygame_ is a python wrapper for SDL_, written by Pete Shinners.  What this
 means is that, using pygame, you can write games or other multimedia
@@ -394,9 +387,9 @@ Now, go write that game!
 
 ----
 
-David Clark is an avid pygame user and the editor of the Pygame Code
+*David Clark is an avid pygame user and the editor of the Pygame Code
 Repository, a showcase for community-submitted python game code.  He is also
-the author of Twitch, an entirely average pygame arcade game.
+the author of Twitch, an entirely average pygame arcade game.*
 
 .. _Pygame: http://www.pygame.org/
 .. _SDL: http://libsdl.org
