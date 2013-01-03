@@ -38,8 +38,8 @@ $(document).ready(function () {
 		};
 
 		var searchButtonHtml = [
-			'<form action="http://www.google.com/codesearch" class="addcomment"><input type="hidden" value="file:\.py$ ', 
-			'" name="q"><input type="submit" value="Search examples for ',
+			'<form action="http://nullege.com/codes/search" class="addcomment"><input type="hidden" value="', 
+			'" name="cq"><input type="submit" value="Search examples for ',
 			'"></form>'
 		];
 
