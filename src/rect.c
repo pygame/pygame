@@ -164,10 +164,10 @@ PyRect_New4 (int x, int y, int w, int h)
 static int
 DoRectsIntersect (GAME_Rect *A, GAME_Rect *B)
 {
-    return ((A->x >= B->x && A->x < B->x + B->w)  ||
-            (B->x >= A->x && B->x < A->x + A->w)) &&
-        ((A->y >= B->y && A->y < B->y + B->h)	||
-         (B->y >= A->y && B->y < A->y + A->h));
+    //A.topleft < B.bottomright &&
+    //A.bottomright > B.topleft
+    return (A->x < B->x + B->w && A->y < B->y + B->h &&
+            A->x + A->w > B->x && A->y + A->h > B->y);
 }
 
 static PyObject*
