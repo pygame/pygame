@@ -1,10 +1,9 @@
-Pygame 1.9.0 partially builds with Python 3.x. setup.py installs Pygame 
+Pygame 1.9.2 mostly builds with Python 3.x. setup.py installs Pygame 
 without any special preparations. However not all modules will be 
 included. All SDL only extension modules are available. And some of the 
 optional modules are as well.
 
-
-If this is an SVN checkout then the state of each source file can be 
+If this is a hg clone then the state of each source file can be 
 checked with the python3 property. Its value is a comma separated list 
 of tags:
 
