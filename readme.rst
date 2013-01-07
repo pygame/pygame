@@ -39,7 +39,7 @@ Help
 
      On the pygame website, there is also an online copy of this
      documentation. You should know that the online documentation stays
-     up to date with the development version of pygame in svn. This may
+     up to date with the development version of pygame in hg. This may
      be a bit newer than the version of pygame you are using.
 
      Best of all the examples directory has many playable small programs
@@ -70,7 +70,6 @@ Credits
      Ulf Ekström for his pixel perfect collision detection code.
 
      Pete Shinners - orginal author.
-
 
      David Clark - for filling the right-hand-man position
 

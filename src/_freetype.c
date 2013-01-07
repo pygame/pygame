@@ -772,7 +772,7 @@ _ftfont_repr(PgFontObject *self)
 {
     if (PgFont_IS_ALIVE(self)) {
 #if PY3
-        return PyUnicode_FromFormat("Font('%.1024u')", self->path);
+        return PyUnicode_FromFormat("Font('%.1024U')", self->path);
 #else
         PyObject *str = PyUnicode_AsEncodedString(self->path,
                                                   "raw_unicode_escape",

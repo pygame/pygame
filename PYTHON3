@@ -1,40 +1,9 @@
-Pygame 1.9.0 partially builds with Python 3.x. setup.py installs Pygame 
+Pygame 1.9.2 mostly builds with Python 3.x. setup.py installs Pygame 
 without any special preparations. However not all modules will be 
 included. All SDL only extension modules are available. And some of the 
 optional modules are as well.
 
-
-If this is an SVN checkout then the state of each source file can be 
-checked with the python3 property. Its value is a comma separated list 
-of tags:
-
-	compiles - A C or Python file that will compile without errors, 
-	but may not work correctly with Python 3.
-
-	passes - This module compiles and passes the unit tests for 
-	Python 3.
-
-	runs - A module or program that compiles and runs without known 
-	problems, but has no related unit tests for validation.
-
-	partial_file - This module has a partial solution for Python 3 
-	file support. Python 3.x replaces the PyFile_Type extension type 
-	with an abstract interface and specific implementation types. 
-	Unfortunately it doesn't make any of this directly available 
-	with a C level api. So for now disk file objects are just 
-	treated as another file-like object. This applies to extension 
-	modules that pass open files to SDL in Python 2.x.
-
-	partial_unicode - This module has a partial solution to unicode 
-	support. This can apply to file names and stream content. For 
-	Python 3 untested assumptions are made as to which encodings to 
-	use. They may be wrong.
-
-	released - This module is considered fully Python 3 compatible. 
-	It passes its unit tests and has been used in the wild for 
-	awhile. There are no outstanding Python 3 specific bugs.
-
+Use the tests to see which modules are working.
 
 On Windows Pygame uses the same dependencies for Python 3.x as Python 
 2.6.
-
