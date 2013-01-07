@@ -44,33 +44,33 @@ def main(filepath):
     msize = (w, h)
 
 
-    print "new screen..."
+    print ("new screen...")
     screen = pygame.display.set_mode(msize)
 
 
     pygame.display.set_caption(os.path.split(info.filename)[-1])
 
 
-    print "before movie = pygame._movie.Movie(filepath, screen)"
+    print ("before movie = pygame._movie.Movie(filepath, screen)")
     #surf = screen.copy().convert()
     #movie = pygame._movie.Movie(filepath, screen)
     movie = pygame._movie.Movie(filepath)
     #movie.surface = surf
-    print "after movie = pygame._movie.Movie(filepath, screen)"
+    print ("after movie = pygame._movie.Movie(filepath, screen)")
     #movie.set_display(screen, Rect((5, 5), msize))
 
-    print dir(movie)
-    print movie.surface
+    print (dir(movie))
+    print (movie.surface)
     #movie.xleft = 300
-    print "before movie.play()"
+    print ("before movie.play()")
     movie.play(0)
-    print "after movie.play()"
+    print ("after movie.play()")
 
     while movie.playing:
 
         events = pygame.event.get()
         for e in events:
-            print e
+            print (e)
             if e.type == QUIT or e.type == KEYDOWN and e.key == K_ESCAPE:
                 movie.stop()
 

@@ -18,9 +18,8 @@ check tests:
 test: build test src
 	$(PYTHON) run_tests.py
 
-docs:	install
-	cd docs/utils
-	$(PYTHON) makedocs.py
+docs:
+	$(PYTHON) makeref.py
 
 clean:
 	rm -rf build dist
