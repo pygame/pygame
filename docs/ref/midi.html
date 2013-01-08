@@ -1,0 +1,617 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pygame.midi &mdash; Pygame v1.9.2 documentation</title>
+    <link rel="stylesheet" href="../_static/pygame.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.9.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/pygame.ico"/>
+    <link rel="top" title="Pygame v1.9.2 documentation" href="../index.html" />
+    <link rel="next" title="pygame.mixer" href="mixer.html" />
+    <link rel="prev" title="pygame.math" href="math.html" /> 
+  </head>
+  <body>  
+
+    <div class="document">
+
+  <div class="header">
+    <table>
+      <tr>
+	<td class="logo">
+	  <a href="http://www.pygame.org/">
+	    <img src="../_static/pygame_tiny.png"/>
+	  </a>
+	  <h5>pygame documentation</h5>
+	</td>
+	<td class="pagelinks">
+	  <p class="top">
+	    ||
+	    <a href="http://www.pygame.org/">Pygame Home</a> ||
+	    <a href="../index.html">Help Contents</a> ||
+	    <a href="../genindex.html">Reference Index</a> ||
+	  </p>
+	  <p class="bottom">
+	    <a href="camera.html">camera</a> || 
+	    <a href="cdrom.html">cdrom</a> || 
+	    <a href="color.html">Color</a> || 
+	    <a href="cursors.html">cursors</a> || 
+	    <a href="display.html">display</a> || 
+	    <a href="draw.html">draw</a> || 
+	    <a href="event.html">event</a> || 
+	    <a href="examples.html">examples</a> || 
+	    <a href="font.html">font</a> || 
+	    <a href="freetype.html">freetype</a> || 
+	    <a href="gfxdraw.html">gfxdraw</a> || 
+	    <a href="image.html">image</a> || 
+	    <a href="joystick.html">joystick</a> || 
+	    <a href="key.html">key</a> || 
+	    <a href="locals.html">locals</a> || 
+	    <a href="mask.html">mask</a> || 
+	    <a href="math.html">math</a> || 
+	    <a href="midi.html">midi</a> || 
+	    <a href="mixer.html">mixer</a> || 
+	    <a href="mouse.html">mouse</a> || 
+	    <a href="movie.html">movie</a> || 
+	    <a href="music.html">music</a> || 
+	    <a href="overlay.html">Overlay</a> || 
+	    <a href="pixelarray.html">PixelArray</a> || 
+	    <a href="pixelcopy.html">pixelcopy</a> || 
+	    <a href="pygame.html">pygame</a> || 
+	    <a href="rect.html">Rect</a> || 
+	    <a href="scrap.html">scrap</a> || 
+	    <a href="sndarray.html">sndarray</a> || 
+	    <a href="sprite.html">sprite</a> || 
+	    <a href="surface.html">Surface</a> || 
+	    <a href="surfarray.html">surfarray</a> || 
+	    <a href="tests.html">tests</a> || 
+	    <a href="time.html">time</a> || 
+	    <a href="transform.html">transform</a> || 
+	    <a href="pygame.html#module-pygame.version">version</a>
+	  </p>
+	</td>
+      </tr>
+    </table>
+  </div>
+
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <div class="sectionwrapper">
+<div class="section" id="module-pygame.midi">
+<span id="pygame-midi"></span><dl class="definition module">
+<dt class="title module">
+<tt class="docutils literal"><span class="pre">pygame.midi</span></tt></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">pygame module for interacting with midi input and output.</span></div>
+</div>
+<table border="1" class="toc docutils">
+<colgroup>
+<col width="34%" />
+<col width="1%" />
+<col width="65%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="toc reference external" href="midi.html#pygame.midi.Input">pygame.midi.Input</a></td>
+<td>—</td>
+<td>Input is used to get midi input from midi devices.</td>
+</tr>
+<tr><td><a class="toc reference external" href="midi.html#pygame.midi.MidiException">pygame.midi.MidiException</a></td>
+<td>—</td>
+<td>exception that pygame.midi functions and classes can raise</td>
+</tr>
+<tr><td><a class="toc reference external" href="midi.html#pygame.midi.Output">pygame.midi.Output</a></td>
+<td>—</td>
+<td>Output is used to send midi to an output device</td>
+</tr>
+<tr><td><a class="toc reference external" href="midi.html#pygame.midi.get_count">pygame.midi.get_count</a></td>
+<td>—</td>
+<td>gets the number of devices.</td>
+</tr>
+<tr><td><a class="toc reference external" href="midi.html#pygame.midi.get_default_input_id">pygame.midi.get_default_input_id</a></td>
+<td>—</td>
+<td>gets default input device number</td>
+</tr>
+<tr><td><a class="toc reference external" href="midi.html#pygame.midi.get_default_output_id">pygame.midi.get_default_output_id</a></td>
+<td>—</td>
+<td>gets default output device number</td>
+</tr>
+<tr><td><a class="toc reference external" href="midi.html#pygame.midi.get_device_info">pygame.midi.get_device_info</a></td>
+<td>—</td>
+<td>returns information about a midi device</td>
+</tr>
+<tr><td><a class="toc reference external" href="midi.html#pygame.midi.init">pygame.midi.init</a></td>
+<td>—</td>
+<td>initialize the midi module</td>
+</tr>
+<tr><td><a class="toc reference external" href="midi.html#pygame.midi.midis2events">pygame.midi.midis2events</a></td>
+<td>—</td>
+<td>converts midi events to pygame events</td>
+</tr>
+<tr><td><a class="toc reference external" href="midi.html#pygame.midi.quit">pygame.midi.quit</a></td>
+<td>—</td>
+<td>uninitialize the midi module</td>
+</tr>
+<tr><td><a class="toc reference external" href="midi.html#pygame.midi.time">pygame.midi.time</a></td>
+<td>—</td>
+<td>returns the current time in ms of the PortMidi timer</td>
+</tr>
+</tbody>
+</table>
+<p>The midi module can send output to midi devices, and get input from midi
+devices. It can also list midi devices on the system.</p>
+<p>Including real midi devices, and virtual ones.</p>
+<p>It uses the portmidi library. Is portable to which ever platforms portmidi
+supports (currently windows, <tt class="docutils literal"><span class="pre">OSX</span></tt>, and linux).</p>
+<p>This uses pyportmidi for now, but may use its own bindings at some point in the
+future. The pyportmidi bindings are included with pygame.</p>
+<p>New in pygame 1.9.0.</p>
+<dl class="definition class">
+<dt class="title" id="pygame.midi.Input">
+<em class="property">class </em><tt class="descclassname">pygame.midi.</tt><tt class="descname">Input</tt><a class="headerlink" href="#pygame.midi.Input" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Input is used to get midi input from midi devices.</span></div>
+<div class="line"><span class="signature">Input(device_id) -&gt; None</span></div>
+<div class="line"><span class="signature">Input(device_id, buffer_size) -&gt; None</span></div>
+</div>
+<table border="1" class="toc docutils">
+<colgroup>
+<col width="29%" />
+<col width="1%" />
+<col width="70%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="toc reference external" href="midi.html#pygame.midi.Input.close">pygame.midi.Input.close</a></td>
+<td>—</td>
+<td>closes a midi stream, flushing any pending buffers.</td>
+</tr>
+<tr><td><a class="toc reference external" href="midi.html#pygame.midi.Input.poll">pygame.midi.Input.poll</a></td>
+<td>—</td>
+<td>returns true if there&#8217;s data, or false if not.</td>
+</tr>
+<tr><td><a class="toc reference external" href="midi.html#pygame.midi.Input.read">pygame.midi.Input.read</a></td>
+<td>—</td>
+<td>reads num_events midi events from the buffer.</td>
+</tr>
+</tbody>
+</table>
+<p>buffer_size -the number of input events to be buffered waiting to</p>
+<div class="highlight-python"><pre>be read using Input.read()</pre>
+</div>
+<dl class="definition method">
+<dt class="title" id="pygame.midi.Input.close">
+<tt class="descname">close</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.midi.Input.close" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">closes a midi stream, flushing any pending buffers.</span></div>
+<div class="line"><span class="signature">close() -&gt; None</span></div>
+</div>
+<p>PortMidi attempts to close open streams when the application exits &#8211;
+this is particularly difficult under Windows.</p>
+</dd></dl>
+
+<dl class="definition method">
+<dt class="title" id="pygame.midi.Input.poll">
+<tt class="descname">poll</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.midi.Input.poll" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">returns true if there&#8217;s data, or false if not.</span></div>
+<div class="line"><span class="signature">poll() -&gt; Bool</span></div>
+</div>
+<p>raises a MidiException on error.</p>
+</dd></dl>
+
+<dl class="definition method">
+<dt class="title" id="pygame.midi.Input.read">
+<tt class="descname">read</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.midi.Input.read" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">reads num_events midi events from the buffer.</span></div>
+<div class="line"><span class="signature">read(num_events) -&gt; midi_event_list</span></div>
+</div>
+<p>Reads from the Input buffer and gives back midi events.
+[[[status,data1,data2,data3],timestamp],</p>
+<div class="highlight-python"><pre>[[status,data1,data2,data3],timestamp],...]</pre>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.midi.MidiException">
+<tt class="descclassname">pygame.midi.</tt><tt class="descname">MidiException</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.midi.MidiException" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">exception that pygame.midi functions and classes can raise</span></div>
+<div class="line"><span class="signature">MidiException(errno) -&gt; None</span></div>
+</div>
+</dd></dl>
+
+<dl class="definition class">
+<dt class="title" id="pygame.midi.Output">
+<em class="property">class </em><tt class="descclassname">pygame.midi.</tt><tt class="descname">Output</tt><a class="headerlink" href="#pygame.midi.Output" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">Output is used to send midi to an output device</span></div>
+<div class="line"><span class="signature">Output(device_id) -&gt; None</span></div>
+<div class="line"><span class="signature">Output(device_id, latency = 0) -&gt; None</span></div>
+<div class="line"><span class="signature">Output(device_id, buffer_size = 4096) -&gt; None</span></div>
+<div class="line"><span class="signature">Output(device_id, latency, buffer_size) -&gt; None</span></div>
+</div>
+<table border="1" class="toc docutils">
+<colgroup>
+<col width="36%" />
+<col width="1%" />
+<col width="63%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="toc reference external" href="midi.html#pygame.midi.Output.abort">pygame.midi.Output.abort</a></td>
+<td>—</td>
+<td>terminates outgoing messages immediately</td>
+</tr>
+<tr><td><a class="toc reference external" href="midi.html#pygame.midi.Output.close">pygame.midi.Output.close</a></td>
+<td>—</td>
+<td>closes a midi stream, flushing any pending buffers.</td>
+</tr>
+<tr><td><a class="toc reference external" href="midi.html#pygame.midi.Output.note_off">pygame.midi.Output.note_off</a></td>
+<td>—</td>
+<td>turns a midi note off.  Note must be on.</td>
+</tr>
+<tr><td><a class="toc reference external" href="midi.html#pygame.midi.Output.note_on">pygame.midi.Output.note_on</a></td>
+<td>—</td>
+<td>turns a midi note on.  Note must be off.</td>
+</tr>
+<tr><td><a class="toc reference external" href="midi.html#pygame.midi.Output.set_instrument">pygame.midi.Output.set_instrument</a></td>
+<td>—</td>
+<td>select an instrument, with a value between 0 and 127</td>
+</tr>
+<tr><td><a class="toc reference external" href="midi.html#pygame.midi.Output.write">pygame.midi.Output.write</a></td>
+<td>—</td>
+<td>writes a list of midi data to the Output</td>
+</tr>
+<tr><td><a class="toc reference external" href="midi.html#pygame.midi.Output.write_short">pygame.midi.Output.write_short</a></td>
+<td>—</td>
+<td>write_short(status &lt;, data1&gt;&lt;, data2&gt;)</td>
+</tr>
+<tr><td><a class="toc reference external" href="midi.html#pygame.midi.Output.write_sys_ex">pygame.midi.Output.write_sys_ex</a></td>
+<td>—</td>
+<td>writes a timestamped system-exclusive midi message.</td>
+</tr>
+</tbody>
+</table>
+<p>The buffer_size specifies the number of output events to be buffered waiting
+for output. (In some cases &#8211; see below &#8211; PortMidi does not buffer output
+at all and merely passes data to a lower-level <tt class="docutils literal"><span class="pre">API</span></tt>, in which case
+buffersize is ignored.)</p>
+<p>latency is the delay in milliseconds applied to timestamps to determine when
+the output should actually occur. (If latency is &lt;&lt;0, 0 is assumed.)</p>
+<p>If latency is zero, timestamps are ignored and all output is delivered
+immediately. If latency is greater than zero, output is delayed until the
+message timestamp plus the latency. (NOTE: time is measured relative to the
+time source indicated by time_proc. Timestamps are absolute, not relative
+delays or offsets.) In some cases, PortMidi can obtain better timing than
+your application by passing timestamps along to the device driver or
+hardware. Latency may also help you to synchronize midi data to audio data
+by matching midi latency to the audio buffer latency.</p>
+<dl class="definition method">
+<dt class="title" id="pygame.midi.Output.abort">
+<tt class="descname">abort</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.midi.Output.abort" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">terminates outgoing messages immediately</span></div>
+<div class="line"><span class="signature">abort() -&gt; None</span></div>
+</div>
+<p>The caller should immediately close the output port; this call may result
+in transmission of a partial midi message. There is no abort for Midi
+input because the user can simply ignore messages in the buffer and close
+an input device at any time.</p>
+</dd></dl>
+
+<dl class="definition method">
+<dt class="title" id="pygame.midi.Output.close">
+<tt class="descname">close</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.midi.Output.close" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">closes a midi stream, flushing any pending buffers.</span></div>
+<div class="line"><span class="signature">close() -&gt; None</span></div>
+</div>
+<p>PortMidi attempts to close open streams when the application exits &#8211;
+this is particularly difficult under Windows.</p>
+</dd></dl>
+
+<dl class="definition method">
+<dt class="title" id="pygame.midi.Output.note_off">
+<tt class="descname">note_off</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.midi.Output.note_off" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">turns a midi note off.  Note must be on.</span></div>
+<div class="line"><span class="signature">note_off(note, velocity=None, channel = 0) -&gt; None</span></div>
+</div>
+<p>Turn a note off in the output stream. The note must already be on for
+this to work correctly.</p>
+</dd></dl>
+
+<dl class="definition method">
+<dt class="title" id="pygame.midi.Output.note_on">
+<tt class="descname">note_on</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.midi.Output.note_on" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">turns a midi note on.  Note must be off.</span></div>
+<div class="line"><span class="signature">note_on(note, velocity=None, channel = 0) -&gt; None</span></div>
+</div>
+<p>Turn a note on in the output stream. The note must already be off for
+this to work correctly.</p>
+</dd></dl>
+
+<dl class="definition method">
+<dt class="title" id="pygame.midi.Output.set_instrument">
+<tt class="descname">set_instrument</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.midi.Output.set_instrument" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">select an instrument, with a value between 0 and 127</span></div>
+<div class="line"><span class="signature">set_instrument(instrument_id, channel = 0) -&gt; None</span></div>
+</div>
+</dd></dl>
+
+<dl class="definition method">
+<dt class="title" id="pygame.midi.Output.write">
+<tt class="descname">write</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.midi.Output.write" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">writes a list of midi data to the Output</span></div>
+<div class="line"><span class="signature">write(data) -&gt; None</span></div>
+</div>
+<p>writes series of <tt class="docutils literal"><span class="pre">MIDI</span></tt> information in the form of a list:</p>
+<div class="highlight-python"><pre>write([[[status &lt;,data1&gt;&lt;,data2&gt;&lt;,data3&gt;],timestamp],
+       [[status &lt;,data1&gt;&lt;,data2&gt;&lt;,data3&gt;],timestamp],...])</pre>
+</div>
+<p>&lt;&lt;ata&gt; fields are optional example: choose program change 1 at time 20000
+and send note 65 with velocity 100 500 ms later.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">write</span><span class="p">([[[</span><span class="mh">0xc0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="mi">20000</span><span class="p">],[[</span><span class="mh">0x90</span><span class="p">,</span><span class="mi">60</span><span class="p">,</span><span class="mi">100</span><span class="p">],</span><span class="mi">20500</span><span class="p">]])</span>
+</pre></div>
+</div>
+<p>notes:</p>
+<div class="highlight-python"><pre>1. timestamps will be ignored if latency = 0.
+2. To get a note to play immediately, send MIDI info with
+   timestamp read from function Time.
+3. understanding optional data fields:
+     write([[[0xc0,0,0],20000]]) is equivalent to
+     write([[[0xc0],20000]])</pre>
+</div>
+<p>Can send up to 1024 elements in your data list, otherwise an</p>
+<div class="highlight-python"><pre>IndexError exception is raised.</pre>
+</div>
+</dd></dl>
+
+<dl class="definition method">
+<dt class="title" id="pygame.midi.Output.write_short">
+<tt class="descname">write_short</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.midi.Output.write_short" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">write_short(status &lt;, data1&gt;&lt;, data2&gt;)</span></div>
+<div class="line"><span class="signature">write_short(status) -&gt; None</span></div>
+<div class="line"><span class="signature">write_short(status, data1 = 0, data2 = 0) -&gt; None</span></div>
+</div>
+<p>output <tt class="docutils literal"><span class="pre">MIDI</span></tt> information of 3 bytes or less. data fields are optional
+status byte could be:</p>
+<div class="highlight-python"><pre>0xc0 = program change
+0x90 = note on
+etc.
+data bytes are optional and assumed 0 if omitted</pre>
+</div>
+<p>example: note 65 on with velocity 100</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">write_short</span><span class="p">(</span><span class="mh">0x90</span><span class="p">,</span><span class="mi">65</span><span class="p">,</span><span class="mi">100</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="definition method">
+<dt class="title" id="pygame.midi.Output.write_sys_ex">
+<tt class="descname">write_sys_ex</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.midi.Output.write_sys_ex" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">writes a timestamped system-exclusive midi message.</span></div>
+<div class="line"><span class="signature">write_sys_ex(when, msg) -&gt; None</span></div>
+</div>
+<p>msg - can be a *list* or a *string* when - a timestamp in miliseconds
+example:</p>
+<div class="highlight-python"><pre>(assuming o is an onput MIDI stream)
+  o.write_sys_ex(0,'\xF0\x7D\x10\x11\x12\x13\xF7')
+is equivalent to
+  o.write_sys_ex(pygame.midi.time(),
+                 [0xF0,0x7D,0x10,0x11,0x12,0x13,0xF7])</pre>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.midi.get_count">
+<tt class="descclassname">pygame.midi.</tt><tt class="descname">get_count</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.midi.get_count" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">gets the number of devices.</span></div>
+<div class="line"><span class="signature">get_count() -&gt; num_devices</span></div>
+</div>
+<p>Device ids range from 0 to <tt class="docutils literal"><span class="pre">get_count()</span></tt> -1</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.midi.get_default_input_id">
+<tt class="descclassname">pygame.midi.</tt><tt class="descname">get_default_input_id</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.midi.get_default_input_id" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">gets default input device number</span></div>
+<div class="line"><span class="signature">get_default_input_id() -&gt; default_id</span></div>
+</div>
+<p>Return the default device <tt class="docutils literal"><span class="pre">ID</span></tt> or -1 if there are no devices. The result
+can be passed to the Input()/Ouput() class.</p>
+<p>On the <tt class="docutils literal"><span class="pre">PC</span></tt>, the user can specify a default device by setting an
+environment variable. For example, to use device #1.</p>
+<div class="highlight-python"><pre>set PM_RECOMMENDED_INPUT_DEVICE=1</pre>
+</div>
+<p>The user should first determine the available device <tt class="docutils literal"><span class="pre">ID</span></tt> by using the
+supplied application &#8220;testin&#8221; or &#8220;testout&#8221;.</p>
+<p>In general, the registry is a better place for this kind of info, and with
+<tt class="docutils literal"><span class="pre">USB</span></tt> devices that can come and go, using integers is not very reliable
+for device identification. Under Windows, if
+<tt class="docutils literal"><span class="pre">PM_RECOMMENDED_OUTPUT_DEVICE</span></tt> (or <tt class="docutils literal"><span class="pre">PM_RECOMMENDED_INPUT_DEVICE</span></tt>) is
+*NOT* found in the environment, then the default device is obtained by
+looking for a string in the registry under:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">HKEY_LOCAL_MACHINE</span><span class="o">/</span><span class="n">SOFTWARE</span><span class="o">/</span><span class="n">PortMidi</span><span class="o">/</span><span class="n">Recommended_Input_Device</span>
+</pre></div>
+</div>
+<p>and HKEY_LOCAL_MACHINE/SOFTWARE/PortMidi/Recommended_Output_Device for a
+string. The number of the first device with a substring that matches the
+string exactly is returned. For example, if the string in the registry is
+&#8220;USB&#8221;, and device 1 is named &#8220;In <tt class="docutils literal"><span class="pre">USB</span></tt> MidiSport 1x1&#8221;, then that will be
+the default input because it contains the string &#8220;USB&#8221;.</p>
+<p>In addition to the name, <tt class="docutils literal"><span class="pre">get_device_info()</span></tt> returns &#8220;interf&#8221;, which is
+the interface name. (The &#8220;interface&#8221; is the underlying software system or
+<tt class="docutils literal"><span class="pre">API</span></tt> used by PortMidi to access devices. Examples are MMSystem, DirectX
+(not implemented), <tt class="docutils literal"><span class="pre">ALSA</span></tt>, <tt class="docutils literal"><span class="pre">OSS</span></tt> (not implemented), etc.) At present,
+the only Win32 interface is &#8220;MMSystem&#8221;, the only Linux interface is &#8220;ALSA&#8221;,
+and the only Max <tt class="docutils literal"><span class="pre">OS</span></tt> <tt class="docutils literal"><span class="pre">X</span></tt> interface is &#8220;CoreMIDI&#8221;. To specify both the
+interface and the device name in the registry, separate the two with a comma
+and a space, <tt class="docutils literal"><span class="pre">e.g.</span></tt>:</p>
+<div class="highlight-python"><pre>MMSystem, In USB MidiSport 1x1</pre>
+</div>
+<p>In this case, the string before the comma must be a substring of the
+&#8220;interf&#8221; string, and the string after the space must be a substring of the
+&#8220;name&#8221; name string in order to match the device.</p>
+<p>Note: in the current release, the default is simply the first device (the
+input or output device with the lowest PmDeviceID).</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.midi.get_default_output_id">
+<tt class="descclassname">pygame.midi.</tt><tt class="descname">get_default_output_id</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.midi.get_default_output_id" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">gets default output device number</span></div>
+<div class="line"><span class="signature">get_default_output_id() -&gt; default_id</span></div>
+</div>
+<p>Return the default device <tt class="docutils literal"><span class="pre">ID</span></tt> or -1 if there are no devices. The result
+can be passed to the Input()/Ouput() class.</p>
+<p>On the <tt class="docutils literal"><span class="pre">PC</span></tt>, the user can specify a default device by setting an
+environment variable. For example, to use device #1.</p>
+<div class="highlight-python"><pre>set PM_RECOMMENDED_OUTPUT_DEVICE=1</pre>
+</div>
+<p>The user should first determine the available device <tt class="docutils literal"><span class="pre">ID</span></tt> by using the
+supplied application &#8220;testin&#8221; or &#8220;testout&#8221;.</p>
+<p>In general, the registry is a better place for this kind of info, and with
+<tt class="docutils literal"><span class="pre">USB</span></tt> devices that can come and go, using integers is not very reliable
+for device identification. Under Windows, if
+<tt class="docutils literal"><span class="pre">PM_RECOMMENDED_OUTPUT_DEVICE</span></tt> (or <tt class="docutils literal"><span class="pre">PM_RECOMMENDED_INPUT_DEVICE</span></tt>) is
+*NOT* found in the environment, then the default device is obtained by
+looking for a string in the registry under:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">HKEY_LOCAL_MACHINE</span><span class="o">/</span><span class="n">SOFTWARE</span><span class="o">/</span><span class="n">PortMidi</span><span class="o">/</span><span class="n">Recommended_Input_Device</span>
+</pre></div>
+</div>
+<p>and HKEY_LOCAL_MACHINE/SOFTWARE/PortMidi/Recommended_Output_Device for a
+string. The number of the first device with a substring that matches the
+string exactly is returned. For example, if the string in the registry is
+&#8220;USB&#8221;, and device 1 is named &#8220;In <tt class="docutils literal"><span class="pre">USB</span></tt> MidiSport 1x1&#8221;, then that will be
+the default input because it contains the string &#8220;USB&#8221;.</p>
+<p>In addition to the name, <tt class="docutils literal"><span class="pre">get_device_info()</span></tt> returns &#8220;interf&#8221;, which is
+the interface name. (The &#8220;interface&#8221; is the underlying software system or
+<tt class="docutils literal"><span class="pre">API</span></tt> used by PortMidi to access devices. Examples are MMSystem, DirectX
+(not implemented), <tt class="docutils literal"><span class="pre">ALSA</span></tt>, <tt class="docutils literal"><span class="pre">OSS</span></tt> (not implemented), etc.) At present,
+the only Win32 interface is &#8220;MMSystem&#8221;, the only Linux interface is &#8220;ALSA&#8221;,
+and the only Max <tt class="docutils literal"><span class="pre">OS</span></tt> <tt class="docutils literal"><span class="pre">X</span></tt> interface is &#8220;CoreMIDI&#8221;. To specify both the
+interface and the device name in the registry, separate the two with a comma
+and a space, <tt class="docutils literal"><span class="pre">e.g.</span></tt>:</p>
+<div class="highlight-python"><pre>MMSystem, In USB MidiSport 1x1</pre>
+</div>
+<p>In this case, the string before the comma must be a substring of the
+&#8220;interf&#8221; string, and the string after the space must be a substring of the
+&#8220;name&#8221; name string in order to match the device.</p>
+<p>Note: in the current release, the default is simply the first device (the
+input or output device with the lowest PmDeviceID).</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.midi.get_device_info">
+<tt class="descclassname">pygame.midi.</tt><tt class="descname">get_device_info</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.midi.get_device_info" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">returns information about a midi device</span></div>
+<div class="line"><span class="signature">get_device_info(an_id) -&gt; (interf, name, input, output, opened)</span></div>
+</div>
+<p>interf - a text string describing the device interface, eg &#8216;ALSA&#8217;. name - a
+text string for the name of the device, eg &#8216;Midi Through Port-0&#8217; input - 0,
+or 1 if the device is an input device. output - 0, or 1 if the device is an
+output device. opened - 0, or 1 if the device is opened.</p>
+<p>If the id is out of range, the function returns None.</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.midi.init">
+<tt class="descclassname">pygame.midi.</tt><tt class="descname">init</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.midi.init" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">initialize the midi module</span></div>
+<div class="line"><span class="signature">init() -&gt; None</span></div>
+</div>
+<p>Call the initialisation function before using the midi module.</p>
+<p>It is safe to call this more than once.</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.midi.midis2events">
+<tt class="descclassname">pygame.midi.</tt><tt class="descname">midis2events</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.midi.midis2events" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">converts midi events to pygame events</span></div>
+<div class="line"><span class="signature">midis2events(midis, device_id) -&gt; [Event, ...]</span></div>
+</div>
+<p>Takes a sequence of midi events and returns list of pygame events.</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.midi.quit">
+<tt class="descclassname">pygame.midi.</tt><tt class="descname">quit</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.midi.quit" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">uninitialize the midi module</span></div>
+<div class="line"><span class="signature">quit() -&gt; None</span></div>
+</div>
+<p>Called automatically atexit if you don&#8217;t call it.</p>
+<p>It is safe to call this function more than once.</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.midi.time">
+<tt class="descclassname">pygame.midi.</tt><tt class="descname">time</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.midi.time" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">returns the current time in ms of the PortMidi timer</span></div>
+<div class="line"><span class="signature">time() -&gt; time</span></div>
+</div>
+<p>The time is reset to 0, when the module is inited.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+  </div>
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="mixer.html" title="pygame.mixer"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="math.html" title="pygame.math"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">Pygame v1.9.2 documentation</a> &raquo;</li>
+    <script type="text/javascript" src="jquery.plugin.docscomments.js"></script>
+
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Pygame Developers.
+    </div>
+  </body>
+</html>
