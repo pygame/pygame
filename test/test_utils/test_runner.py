@@ -183,7 +183,9 @@ def combine_results(all_results, t):
 ################################################################################
 
 TEST_RESULTS_START = "<--!! TEST RESULTS START HERE !!-->"
-TEST_RESULTS_RE = re.compile('%s\n(.*)' % TEST_RESULTS_START, re.DOTALL | re.M)
+TEST_RESULTS_END = "<--!! TEST RESULTS END HERE !!-->"
+_test_re_str = '%s\n(.*)%s' % (TEST_RESULTS_START, TEST_RESULTS_END)
+TEST_RESULTS_RE = re.compile(_test_re_str, re.DOTALL | re.M)
 
 def get_test_results(raw_return):
     test_results = TEST_RESULTS_RE.search(raw_return)
@@ -290,6 +292,7 @@ def run_test(module, **kwds):
     if not option_nosubprocess:
         print (TEST_RESULTS_START)
         print (pformat(results))
+        print (TEST_RESULTS_END)
     else:
         return results
 
