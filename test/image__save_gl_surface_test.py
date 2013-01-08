@@ -21,7 +21,7 @@ from pygame.locals import *
 
 class GL_ImageSave(unittest.TestCase):
     def test_image_save_works_with_opengl_surfaces(self):
-        "|tags:display,slow|"
+        "|tags:display,slow,opengl|"
 
         pygame.display.init()
         
