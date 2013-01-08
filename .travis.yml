@@ -13,10 +13,12 @@ install:
   - python config.py -auto
   - python setup.py install -noheaders
 
+env:
+  - SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=disk
 
 # command to run tests
 script: 
-  - python -m pygame.tests.__main__
+  - python -m pygame.tests.__main__ --exclude opengl
 
 
 # Here we install the ubuntu dependencies with apt-get.
