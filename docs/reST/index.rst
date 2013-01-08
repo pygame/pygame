@@ -53,7 +53,7 @@ Tutorials
   This was inspired by the annoying flash banner of the early 2000's.
   This tutorial examines every line of coded used in the example.
 
-`Sprite Module Introduction`_
+:doc:`Sprite Module Introduction <tut/SpriteIntro>`
   Pygame includes a higher level sprite module to help organize games.
   The sprite module includes several classes that help manage details found in almost all games types.
   The Sprite classes are a bit more advanced than the regular Pygame modules,
