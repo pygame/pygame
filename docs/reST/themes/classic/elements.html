@@ -1,0 +1,60 @@
+{%- extends "!layout.html" %}
+
+{%- if not theme_relbar %}
+{%-   block relbar1 %}{# Do not want bar accross the top #}{% endblock %}
+{%- endif %}
+
+{#- Classic header with Snakey on the left, page links on the right.
+ #}
+{%- macro header() %}
+  <div class="header">
+    <table>
+      <tr>
+	<td class="logo">
+	  <a href="{{ theme_home_uri }}">
+{%-         set logo_path = '_static/' + logo %}
+	    <img src="{{ pathto(logo_path, 1) }}"/>
+	  </a>
+	  <h5>pygame documentation</h5>
+	</td>
+	<td class="pagelinks">
+	  <p class="top">
+	    ||
+	    <a href="{{ theme_home_uri }}">Pygame Home</a> ||
+	    <a href="{{ pathto(master_doc) }}">Help Contents</a> ||
+	    <a href="{{ pathto('genindex') }}">Reference Index</a> ||
+	  </p>
+{%-   if pyg_sections %}
+	  <p class="bottom">
+{%      set sep = joiner(" || \n") %}
+{%-     for section in pyg_sections %}
+{%-       set docname = section['docname'] %}
+{%-       set simpledocname = docname.split('/')[-1] %}
+{%-       set name = section['fullname'].split('.')[-1] %}
+{%-       set uri = pathto(docname, 1) + file_suffix -%}
+{%-       if name|lower != simpledocname %}
+{%-         set uri = uri + '#' + section['refid'] %}
+{%-       endif %}
+{{- sep() }}	    <a href="{{ uri }}">{{ name }}</a>
+{%-     endfor %}
+	  </p>
+{%-   endif  %}
+	</td>
+      </tr>
+    </table>
+  </div>
+{%- endmacro %}
+
+{#- Add one more div level
+ #}
+{%- block body %}
+  <div class="sectionwrapper">
+    <h1>{{ title }}</h1>
+{%-   block section %}{% endblock %}
+  </div>
+{%- endblock %}
+
+
+{%- block relbaritems %}
+    <script type="text/javascript" src="jquery.plugin.docscomments.js"></script>
+{% endblock %} 
