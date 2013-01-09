@@ -26,10 +26,10 @@ else:
     is_pygame_pkg = __name__.startswith('pygame.tests.')
 
 if is_pygame_pkg:
-    from pygame.tests.test_utils.run_tests import run
+    from pygame.tests.test_utils.run_tests import run_and_exit
     from pygame.tests.test_utils.test_runner import opt_parser
 else:
-    from test.test_utils.run_tests import run
+    from test.test_utils.run_tests import run_and_exit
     from test.test_utils.test_runner import opt_parser
 
 if is_pygame_pkg:
@@ -128,6 +128,6 @@ if options.interactive:
 
 ###########################################################################
 # Run the test suite.
-run(*args, **kwds)
+run_and_exit(*args, **kwds)
 
 
