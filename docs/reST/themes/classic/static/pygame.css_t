@@ -204,6 +204,7 @@ div.document {
 div.documentwrapper {
     float: left;
     width: 100%;
+    padding: 0.5em;
 }
 
 div.bodywrapper {
@@ -218,7 +219,6 @@ div.heading {
 }
 
 div.sectionwrapper {
-    padding: 0 2em 1em 0.5em;
 }
 
 {% if theme_rightsidebar|tobool %}
@@ -360,9 +360,9 @@ em {
     font-style: italic;
 }
 
-dl {
-    padding-top: 1em;
-    padding-bottom: 1em;
+dl.definition {
+    padding-top: 0.7em;
+    padding-bottom: 0.7em;
 }
 
 dd {
