@@ -1,0 +1,550 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pygame.cdrom &mdash; Pygame v1.9.2 documentation</title>
+    <link rel="stylesheet" href="../_static/pygame.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.9.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/pygame.ico"/>
+    <link rel="top" title="Pygame v1.9.2 documentation" href="../index.html" />
+    <link rel="next" title="pygame.Color" href="color.html" />
+    <link rel="prev" title="pygame.camera" href="camera.html" /> 
+  </head>
+  <body>  
+
+    <div class="document">
+
+  <div class="header">
+    <table>
+      <tr>
+	<td class="logo">
+	  <a href="http://www.pygame.org/">
+	    <img src="../_static/pygame_tiny.png"/>
+	  </a>
+	  <h5>pygame documentation</h5>
+	</td>
+	<td class="pagelinks">
+	  <p class="top">
+	    ||
+	    <a href="http://www.pygame.org/">Pygame Home</a> ||
+	    <a href="../index.html">Help Contents</a> ||
+	    <a href="../genindex.html">Reference Index</a> ||
+	  </p>
+	  <p class="bottom">
+	    <a href="camera.html">camera</a> || 
+	    <a href="cdrom.html">cdrom</a> || 
+	    <a href="color.html">Color</a> || 
+	    <a href="cursors.html">cursors</a> || 
+	    <a href="display.html">display</a> || 
+	    <a href="draw.html">draw</a> || 
+	    <a href="event.html">event</a> || 
+	    <a href="examples.html">examples</a> || 
+	    <a href="font.html">font</a> || 
+	    <a href="freetype.html">freetype</a> || 
+	    <a href="gfxdraw.html">gfxdraw</a> || 
+	    <a href="image.html">image</a> || 
+	    <a href="joystick.html">joystick</a> || 
+	    <a href="key.html">key</a> || 
+	    <a href="locals.html">locals</a> || 
+	    <a href="mask.html">mask</a> || 
+	    <a href="math.html">math</a> || 
+	    <a href="midi.html">midi</a> || 
+	    <a href="mixer.html">mixer</a> || 
+	    <a href="mouse.html">mouse</a> || 
+	    <a href="movie.html">movie</a> || 
+	    <a href="music.html">music</a> || 
+	    <a href="overlay.html">Overlay</a> || 
+	    <a href="pixelarray.html">PixelArray</a> || 
+	    <a href="pixelcopy.html">pixelcopy</a> || 
+	    <a href="pygame.html">pygame</a> || 
+	    <a href="rect.html">Rect</a> || 
+	    <a href="scrap.html">scrap</a> || 
+	    <a href="sndarray.html">sndarray</a> || 
+	    <a href="sprite.html">sprite</a> || 
+	    <a href="surface.html">Surface</a> || 
+	    <a href="surfarray.html">surfarray</a> || 
+	    <a href="tests.html">tests</a> || 
+	    <a href="time.html">time</a> || 
+	    <a href="transform.html">transform</a> || 
+	    <a href="pygame.html#module-pygame.version">version</a>
+	  </p>
+	</td>
+      </tr>
+    </table>
+  </div>
+
+      <div class="documentwrapper">
+          <div class="body">
+            
+  <div class="sectionwrapper">
+<div class="section" id="module-pygame.cdrom">
+<span id="pygame-cdrom"></span><dl class="definition module">
+<dt class="title module">
+<tt class="docutils literal"><span class="pre">pygame.cdrom</span></tt></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">pygame module for audio cdrom control</span></div>
+</div>
+<table border="1" class="toc docutils">
+<colgroup>
+<col width="32%" />
+<col width="1%" />
+<col width="66%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="toc reference external" href="cdrom.html#pygame.cdrom.init">pygame.cdrom.init</a></td>
+<td>—</td>
+<td>initialize the cdrom module</td>
+</tr>
+<tr><td><a class="toc reference external" href="cdrom.html#pygame.cdrom.quit">pygame.cdrom.quit</a></td>
+<td>—</td>
+<td>uninitialize the cdrom module</td>
+</tr>
+<tr><td><a class="toc reference external" href="cdrom.html#pygame.cdrom.get_init">pygame.cdrom.get_init</a></td>
+<td>—</td>
+<td>true if the cdrom module is initialized</td>
+</tr>
+<tr><td><a class="toc reference external" href="cdrom.html#pygame.cdrom.get_count">pygame.cdrom.get_count</a></td>
+<td>—</td>
+<td>number of cd drives on the system</td>
+</tr>
+<tr><td><a class="toc reference external" href="cdrom.html#pygame.cdrom.CD">pygame.cdrom.CD</a></td>
+<td>—</td>
+<td>class to manage a cdrom drive</td>
+</tr>
+</tbody>
+</table>
+<p>The cdrom module manages the <tt class="docutils literal"><span class="pre">CD</span></tt> and <tt class="docutils literal"><span class="pre">DVD</span></tt> drives on a computer. It can
+also control the playback of audio cd&#8217;s. This module needs to be initialized
+before it can do anything. Each <tt class="docutils literal"><span class="pre">CD</span></tt> object you create represents a cdrom
+drive and must also be initialized individually before it can do most things.</p>
+<dl class="definition function">
+<dt class="title" id="pygame.cdrom.init">
+<tt class="descclassname">pygame.cdrom.</tt><tt class="descname">init</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.cdrom.init" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">initialize the cdrom module</span></div>
+<div class="line"><span class="signature">init() -&gt; None</span></div>
+</div>
+<p>Initialize the cdrom module. This will scan the system for all <tt class="docutils literal"><span class="pre">CD</span></tt>
+devices. The module must be initialized before any other functions will
+work. This automatically happens when you call <tt class="docutils literal"><span class="pre">pygame.init()</span></tt>.</p>
+<p>It is safe to call this function more than once.</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.cdrom.quit">
+<tt class="descclassname">pygame.cdrom.</tt><tt class="descname">quit</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.cdrom.quit" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">uninitialize the cdrom module</span></div>
+<div class="line"><span class="signature">quit() -&gt; None</span></div>
+</div>
+<p>Uninitialize the cdrom module. After you call this any existing <tt class="docutils literal"><span class="pre">CD</span></tt>
+objects will no longer work.</p>
+<p>It is safe to call this function more than once.</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.cdrom.get_init">
+<tt class="descclassname">pygame.cdrom.</tt><tt class="descname">get_init</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.cdrom.get_init" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">true if the cdrom module is initialized</span></div>
+<div class="line"><span class="signature">get_init() -&gt; bool</span></div>
+</div>
+<p>Test if the cdrom module is initialized or not. This is different than the
+<tt class="docutils literal"><span class="pre">CD.init()</span></tt> since each drive must also be initialized individually.</p>
+</dd></dl>
+
+<dl class="definition function">
+<dt class="title" id="pygame.cdrom.get_count">
+<tt class="descclassname">pygame.cdrom.</tt><tt class="descname">get_count</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.cdrom.get_count" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">number of cd drives on the system</span></div>
+<div class="line"><span class="signature">get_count() -&gt; count</span></div>
+</div>
+<p>Return the number of cd drives on the system. When you create <tt class="docutils literal"><span class="pre">CD</span></tt> objects
+you need to pass an integer id that must be lower than this count. The count
+will be 0 if there are no drives on the system.</p>
+</dd></dl>
+
+<dl class="definition class">
+<dt class="title" id="pygame.cdrom.CD">
+<em class="property">class </em><tt class="descclassname">pygame.cdrom.</tt><tt class="descname">CD</tt><a class="headerlink" href="#pygame.cdrom.CD" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">class to manage a cdrom drive</span></div>
+<div class="line"><span class="signature">CD(id) -&gt; CD</span></div>
+</div>
+<table border="1" class="toc docutils">
+<colgroup>
+<col width="41%" />
+<col width="1%" />
+<col width="58%" />
+</colgroup>
+<tbody valign="top">
+<tr><td><a class="toc reference external" href="cdrom.html#pygame.cdrom.CD.init">pygame.cdrom.CD.init</a></td>
+<td>—</td>
+<td>initialize a cdrom drive for use</td>
+</tr>
+<tr><td><a class="toc reference external" href="cdrom.html#pygame.cdrom.CD.quit">pygame.cdrom.CD.quit</a></td>
+<td>—</td>
+<td>uninitialize a cdrom drive for use</td>
+</tr>
+<tr><td><a class="toc reference external" href="cdrom.html#pygame.cdrom.CD.get_init">pygame.cdrom.CD.get_init</a></td>
+<td>—</td>
+<td>true if this cd device initialized</td>
+</tr>
+<tr><td><a class="toc reference external" href="cdrom.html#pygame.cdrom.CD.play">pygame.cdrom.CD.play</a></td>
+<td>—</td>
+<td>start playing audio</td>
+</tr>
+<tr><td><a class="toc reference external" href="cdrom.html#pygame.cdrom.CD.stop">pygame.cdrom.CD.stop</a></td>
+<td>—</td>
+<td>stop audio playback</td>
+</tr>
+<tr><td><a class="toc reference external" href="cdrom.html#pygame.cdrom.CD.pause">pygame.cdrom.CD.pause</a></td>
+<td>—</td>
+<td>temporarily stop audio playback</td>
+</tr>
+<tr><td><a class="toc reference external" href="cdrom.html#pygame.cdrom.CD.resume">pygame.cdrom.CD.resume</a></td>
+<td>—</td>
+<td>unpause audio playback</td>
+</tr>
+<tr><td><a class="toc reference external" href="cdrom.html#pygame.cdrom.CD.eject">pygame.cdrom.CD.eject</a></td>
+<td>—</td>
+<td>eject or open the cdrom drive</td>
+</tr>
+<tr><td><a class="toc reference external" href="cdrom.html#pygame.cdrom.CD.get_id">pygame.cdrom.CD.get_id</a></td>
+<td>—</td>
+<td>the index of the cdrom drive</td>
+</tr>
+<tr><td><a class="toc reference external" href="cdrom.html#pygame.cdrom.CD.get_name">pygame.cdrom.CD.get_name</a></td>
+<td>—</td>
+<td>the system name of the cdrom drive</td>
+</tr>
+<tr><td><a class="toc reference external" href="cdrom.html#pygame.cdrom.CD.get_busy">pygame.cdrom.CD.get_busy</a></td>
+<td>—</td>
+<td>true if the drive is playing audio</td>
+</tr>
+<tr><td><a class="toc reference external" href="cdrom.html#pygame.cdrom.CD.get_paused">pygame.cdrom.CD.get_paused</a></td>
+<td>—</td>
+<td>true if the drive is paused</td>
+</tr>
+<tr><td><a class="toc reference external" href="cdrom.html#pygame.cdrom.CD.get_current">pygame.cdrom.CD.get_current</a></td>
+<td>—</td>
+<td>the current audio playback position</td>
+</tr>
+<tr><td><a class="toc reference external" href="cdrom.html#pygame.cdrom.CD.get_empty">pygame.cdrom.CD.get_empty</a></td>
+<td>—</td>
+<td>False if a cdrom is in the drive</td>
+</tr>
+<tr><td><a class="toc reference external" href="cdrom.html#pygame.cdrom.CD.get_numtracks">pygame.cdrom.CD.get_numtracks</a></td>
+<td>—</td>
+<td>the number of tracks on the cdrom</td>
+</tr>
+<tr><td><a class="toc reference external" href="cdrom.html#pygame.cdrom.CD.get_track_audio">pygame.cdrom.CD.get_track_audio</a></td>
+<td>—</td>
+<td>true if the cdrom track has audio data</td>
+</tr>
+<tr><td><a class="toc reference external" href="cdrom.html#pygame.cdrom.CD.get_all">pygame.cdrom.CD.get_all</a></td>
+<td>—</td>
+<td>get all track information</td>
+</tr>
+<tr><td><a class="toc reference external" href="cdrom.html#pygame.cdrom.CD.get_track_start">pygame.cdrom.CD.get_track_start</a></td>
+<td>—</td>
+<td>start time of a cdrom track</td>
+</tr>
+<tr><td><a class="toc reference external" href="cdrom.html#pygame.cdrom.CD.get_track_length">pygame.cdrom.CD.get_track_length</a></td>
+<td>—</td>
+<td>length of a cdrom track</td>
+</tr>
+</tbody>
+</table>
+<p>You can create a <tt class="docutils literal"><span class="pre">CD</span></tt> object for each cdrom on the system. Use
+<tt class="docutils literal"><span class="pre">pygame.cdrom.get_count()</span></tt> to determine how many drives actually exist.
+The id argument is an integer of the drive, starting at zero.</p>
+<p>The <tt class="docutils literal"><span class="pre">CD</span></tt> object is not initialized, you can only call <tt class="docutils literal"><span class="pre">CD.get_id()</span></tt> and
+<tt class="docutils literal"><span class="pre">CD.get_name()</span></tt> on an uninitialized drive.</p>
+<p>It is safe to create multiple <tt class="docutils literal"><span class="pre">CD</span></tt> objects for the same drive, they will
+all cooperate normally.</p>
+<dl class="definition method">
+<dt class="title" id="pygame.cdrom.CD.init">
+<tt class="descname">init</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.cdrom.CD.init" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">initialize a cdrom drive for use</span></div>
+<div class="line"><span class="signature">init() -&gt; None</span></div>
+</div>
+<p>Initialize the cdrom drive for use. The drive must be initialized for
+most <tt class="docutils literal"><span class="pre">CD</span></tt> methods to work. Even if the rest of pygame has been
+initialized.</p>
+<p>There may be a brief pause while the drive is initialized. Avoid
+<tt class="docutils literal"><span class="pre">CD.init()</span></tt> if the program should not stop for a second or two.</p>
+</dd></dl>
+
+<dl class="definition method">
+<dt class="title" id="pygame.cdrom.CD.quit">
+<tt class="descname">quit</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.cdrom.CD.quit" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">uninitialize a cdrom drive for use</span></div>
+<div class="line"><span class="signature">quit() -&gt; None</span></div>
+</div>
+<p>Uninitialize a drive for use. Call this when your program will not be
+accessing the drive for awhile.</p>
+</dd></dl>
+
+<dl class="definition method">
+<dt class="title" id="pygame.cdrom.CD.get_init">
+<tt class="descname">get_init</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.cdrom.CD.get_init" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">true if this cd device initialized</span></div>
+<div class="line"><span class="signature">get_init() -&gt; bool</span></div>
+</div>
+<p>Test if this <tt class="docutils literal"><span class="pre">CDROM</span></tt> device is initialized. This is different than the
+<tt class="docutils literal"><span class="pre">pygame.cdrom.init()</span></tt> since each drive must also be initialized
+individually.</p>
+</dd></dl>
+
+<dl class="definition method">
+<dt class="title" id="pygame.cdrom.CD.play">
+<tt class="descname">play</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.cdrom.CD.play" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">start playing audio</span></div>
+<div class="line"><span class="signature">play(track, start=None, end=None) -&gt; None</span></div>
+</div>
+<p>Playback audio from an audio cdrom in the drive. Besides the track number
+argument, you can also pass a starting and ending time for playback. The
+start and end time are in seconds, and can limit the section of an audio
+track played.</p>
+<p>If you pass a start time but no end, the audio will play to the end of
+the track. If you pass a start time and &#8216;None&#8217; for the end time, the
+audio will play to the end of the entire disc.</p>
+<p>See the <tt class="docutils literal"><span class="pre">CD.get_numtracks()</span></tt> and <tt class="docutils literal"><span class="pre">CD.get_track_audio()</span></tt> to find
+tracks to playback.</p>
+<p>Note, track 0 is the first track on the <tt class="docutils literal"><span class="pre">CD</span></tt>. Track numbers start at
+zero.</p>
+</dd></dl>
+
+<dl class="definition method">
+<dt class="title" id="pygame.cdrom.CD.stop">
+<tt class="descname">stop</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.cdrom.CD.stop" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">stop audio playback</span></div>
+<div class="line"><span class="signature">stop() -&gt; None</span></div>
+</div>
+<p>Stops playback of audio from the cdrom. This will also lose the current
+playback position. This method does nothing if the drive isn&#8217;t already
+playing audio.</p>
+</dd></dl>
+
+<dl class="definition method">
+<dt class="title" id="pygame.cdrom.CD.pause">
+<tt class="descname">pause</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.cdrom.CD.pause" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">temporarily stop audio playback</span></div>
+<div class="line"><span class="signature">pause() -&gt; None</span></div>
+</div>
+<p>Temporarily stop audio playback on the <tt class="docutils literal"><span class="pre">CD</span></tt>. The playback can be
+resumed at the same point with the <tt class="docutils literal"><span class="pre">CD.resume()</span></tt> method. If the <tt class="docutils literal"><span class="pre">CD</span></tt>
+is not playing this method does nothing.</p>
+<p>Note, track 0 is the first track on the <tt class="docutils literal"><span class="pre">CD</span></tt>. Track numbers start at
+zero.</p>
+</dd></dl>
+
+<dl class="definition method">
+<dt class="title" id="pygame.cdrom.CD.resume">
+<tt class="descname">resume</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.cdrom.CD.resume" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">unpause audio playback</span></div>
+<div class="line"><span class="signature">resume() -&gt; None</span></div>
+</div>
+<p>Unpause a paused <tt class="docutils literal"><span class="pre">CD</span></tt>. If the <tt class="docutils literal"><span class="pre">CD</span></tt> is not paused or already playing,
+this method does nothing.</p>
+</dd></dl>
+
+<dl class="definition method">
+<dt class="title" id="pygame.cdrom.CD.eject">
+<tt class="descname">eject</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.cdrom.CD.eject" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">eject or open the cdrom drive</span></div>
+<div class="line"><span class="signature">eject() -&gt; None</span></div>
+</div>
+<p>This will open the cdrom drive and eject the cdrom. If the drive is
+playing or paused it will be stopped.</p>
+</dd></dl>
+
+<dl class="definition method">
+<dt class="title" id="pygame.cdrom.CD.get_id">
+<tt class="descname">get_id</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.cdrom.CD.get_id" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">the index of the cdrom drive</span></div>
+<div class="line"><span class="signature">get_id() -&gt; id</span></div>
+</div>
+<p>Returns the integer id that was used to create the <tt class="docutils literal"><span class="pre">CD</span></tt> instance. This
+method can work on an uninitialized <tt class="docutils literal"><span class="pre">CD</span></tt>.</p>
+</dd></dl>
+
+<dl class="definition method">
+<dt class="title" id="pygame.cdrom.CD.get_name">
+<tt class="descname">get_name</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.cdrom.CD.get_name" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">the system name of the cdrom drive</span></div>
+<div class="line"><span class="signature">get_name() -&gt; name</span></div>
+</div>
+<p>Return the string name of the drive. This is the system name used to
+represent the drive. It is often the drive letter or device name. This
+method can work on an uninitialized <tt class="docutils literal"><span class="pre">CD</span></tt>.</p>
+</dd></dl>
+
+<dl class="definition method">
+<dt class="title" id="pygame.cdrom.CD.get_busy">
+<tt class="descname">get_busy</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.cdrom.CD.get_busy" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">true if the drive is playing audio</span></div>
+<div class="line"><span class="signature">get_busy() -&gt; bool</span></div>
+</div>
+<p>Returns True if the drive busy playing back audio.</p>
+</dd></dl>
+
+<dl class="definition method">
+<dt class="title" id="pygame.cdrom.CD.get_paused">
+<tt class="descname">get_paused</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.cdrom.CD.get_paused" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">true if the drive is paused</span></div>
+<div class="line"><span class="signature">get_paused() -&gt; bool</span></div>
+</div>
+<p>Returns True if the drive is currently paused.</p>
+</dd></dl>
+
+<dl class="definition method">
+<dt class="title" id="pygame.cdrom.CD.get_current">
+<tt class="descname">get_current</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.cdrom.CD.get_current" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">the current audio playback position</span></div>
+<div class="line"><span class="signature">get_current() -&gt; track, seconds</span></div>
+</div>
+<p>Returns both the current track and time of that track. This method works
+when the drive is either playing or paused.</p>
+<p>Note, track 0 is the first track on the <tt class="docutils literal"><span class="pre">CD</span></tt>. Track numbers start at
+zero.</p>
+</dd></dl>
+
+<dl class="definition method">
+<dt class="title" id="pygame.cdrom.CD.get_empty">
+<tt class="descname">get_empty</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.cdrom.CD.get_empty" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">False if a cdrom is in the drive</span></div>
+<div class="line"><span class="signature">get_empty() -&gt; bool</span></div>
+</div>
+<p>Return False if there is a cdrom currently in the drive. If the drive is
+empty this will return True.</p>
+</dd></dl>
+
+<dl class="definition method">
+<dt class="title" id="pygame.cdrom.CD.get_numtracks">
+<tt class="descname">get_numtracks</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.cdrom.CD.get_numtracks" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">the number of tracks on the cdrom</span></div>
+<div class="line"><span class="signature">get_numtracks() -&gt; count</span></div>
+</div>
+<p>Return the number of tracks on the cdrom in the drive. This will return
+zero of the drive is empty or has no tracks.</p>
+</dd></dl>
+
+<dl class="definition method">
+<dt class="title" id="pygame.cdrom.CD.get_track_audio">
+<tt class="descname">get_track_audio</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.cdrom.CD.get_track_audio" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">true if the cdrom track has audio data</span></div>
+<div class="line"><span class="signature">get_track_audio(track) -&gt; bool</span></div>
+</div>
+<p>Determine if a track on a cdrom contains audio data. You can also call
+<tt class="docutils literal"><span class="pre">CD.num_tracks()</span></tt> and <tt class="docutils literal"><span class="pre">CD.get_all()</span></tt> to determine more information
+about the cdrom.</p>
+<p>Note, track 0 is the first track on the <tt class="docutils literal"><span class="pre">CD</span></tt>. Track numbers start at
+zero.</p>
+</dd></dl>
+
+<dl class="definition method">
+<dt class="title" id="pygame.cdrom.CD.get_all">
+<tt class="descname">get_all</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.cdrom.CD.get_all" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">get all track information</span></div>
+<div class="line"><span class="signature">get_all() -&gt; [(audio, start, end, lenth), ...]</span></div>
+</div>
+<p>Return a list with information for every track on the cdrom. The
+information consists of a tuple with four values. The audio value is True
+if the track contains audio data. The start, end, and length values are
+floating point numbers in seconds. Start and end represent absolute times
+on the entire disc.</p>
+</dd></dl>
+
+<dl class="definition method">
+<dt class="title" id="pygame.cdrom.CD.get_track_start">
+<tt class="descname">get_track_start</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.cdrom.CD.get_track_start" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">start time of a cdrom track</span></div>
+<div class="line"><span class="signature">get_track_start(track) -&gt; seconds</span></div>
+</div>
+<p>Return the absolute time in seconds where at start of the cdrom track.</p>
+<p>Note, track 0 is the first track on the <tt class="docutils literal"><span class="pre">CD</span></tt>. Track numbers start at
+zero.</p>
+</dd></dl>
+
+<dl class="definition method">
+<dt class="title" id="pygame.cdrom.CD.get_track_length">
+<tt class="descname">get_track_length</tt><big>(</big><big>)</big><a class="headerlink" href="#pygame.cdrom.CD.get_track_length" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line"><span class="summaryline">length of a cdrom track</span></div>
+<div class="line"><span class="signature">get_track_length(track) -&gt; seconds</span></div>
+</div>
+<p>Return a floating point value in seconds of the length of the cdrom
+track.</p>
+<p>Note, track 0 is the first track on the <tt class="docutils literal"><span class="pre">CD</span></tt>. Track numbers start at
+zero.</p>
+</dd></dl>
+
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+  </div>
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="color.html" title="pygame.Color"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="camera.html" title="pygame.camera"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">Pygame v1.9.2 documentation</a> &raquo;</li>
+    <script type="text/javascript" src="jquery.plugin.docscomments.js"></script>
+
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Pygame Developers.
+    </div>
+  </body>
+</html>
