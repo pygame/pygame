@@ -13,3 +13,7 @@ docs/genindex.html
 docs/search.html
 docs/searchindex.js
 docs/tut/newbieguide.html
+docs/filepaths.html
+docs/index.html
+docs/ref/*.html
+docs/tut/SpriteIntro.html
