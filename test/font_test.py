@@ -93,7 +93,7 @@ class FontModuleTest( unittest.TestCase ):
         for name in fnts:
             # note, on ubuntu 2.6 they are all unicode strings.
 
-            self.failUnless(isinstance(name, (str, unicod)))
+            self.failUnless(isinstance(name, (str, unicod)), name)
             self.failUnless(name.islower(), name)
             self.failUnless(name.isalnum(), name)
 
