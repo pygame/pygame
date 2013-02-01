@@ -126,7 +126,10 @@ if "-noheaders" in sys.argv:
 
 #sanity check for any arguments
 if len(sys.argv) == 1:
-    reply = raw_input('\nNo Arguments Given, Perform Default Install? [Y/n]')
+    if sys.version_info[0] >= 3:
+        reply = input('\nNo Arguments Given, Perform Default Install? [Y/n]')
+    else:
+        reply = raw_input('\nNo Arguments Given, Perform Default Install? [Y/n]')
     if not reply or reply[0].lower() != 'n':
         sys.argv.append('install')
 
