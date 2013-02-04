@@ -780,24 +780,39 @@
 
    .. method:: get_view
 
-      | :sl:`return a view of a surface's pixel data.`
-      | :sg:`get_view(kind='2') -> <view>`
+      | :sl:`return a buffer view of the Surface's pixels.`
+      | :sg:`get_buffer(<kind>='&') -> BufferProxy`
 
-      Return an object which exposes a surface's internal pixel buffer to a
-      NumPy array. For now a custom object with an array struct interface is
-      returned. A Python memoryview may be returned in the future. The buffer
-      is writeable.
+      To be renamed, and therefore replace, get_buffer.
 
-      The kind argument is the length 1 string '2', '3', 'r', 'g', 'b', or 'a'.
-      The letters are case insensitive; 'A' will work as well. The argument can
-      be either a Unicode or byte (char) string. The default is '2'.
+      Return an object which exposes a surface's internal pixel buffer as
+      an array interface or a buffer interface. The buffer is writeable. For
+      Python 2.x, only the classic buffer view is only available,
+      for the '&' kind.
+      For Python 3.x the new buffer interface is exposed, and is available
+      for all buffer kinds.
 
-      A kind '2' view is a (surface-width, surface-height) array of raw pixels.
+      The kind argument is the length 1 string '&', '0', '1', '2', '3',
+      'r', 'g', 'b', or 'a'. The letters are case insensitive;
+      'A' will work as well. The argument can be either a Unicode or byte (char)
+      string. The default is '&'.
+
+      A kind '&' view is unstructured bytes. It is for backwards compatibility
+      with Pygame 1.9.1. Consider it deprecated, with '0' becoming the
+      default method argument value in a future Pygame release.
+      
+      '0' returns a continguous unstructured bytes view.
+      A ValueError is raised if the surface's pixels are discontinuous.
+      
+      '1' returns a (surface-width * surface-height) array of continguous pixels.
+      A ValueError is raised if the surface pixels are discontinuous.
+      
+      '2' returns a (surface-width, surface-height) array of raw pixels.
       The pixels are surface bytesized unsigned integers. The pixel format is
       surface specific. The 3 byte unsigned integers of 24 bit surfaces are
       unlikely accepted by anything other than other Pygame functions.
 
-      '3' returns a (surface-width, surface-height, 3) view of ``RGB`` color
+      '3' returns a (surface-width, surface-height, 3) array of ``RGB`` color
       components. Each of the red, green, and blue components are unsigned
       bytes. Only 24-bit and 32-bit surfaces are supported. The color
       components must be in either ``RGB`` or ``BGR`` order within the pixel.
@@ -808,25 +823,15 @@
       and 32-bit surfaces support 'r', 'g', and 'b'. Only 32-bit surfaces with
       ``SRCALPHA`` support 'a'.
 
-      This method implicitly locks the Surface. The lock will be released, once
-      the returned view object is deleted.
-
-      New in pygame 1.9.2.
-
-      .. ## Surface.get_view ##
-
-   .. method:: get_buffer
-
-      | :sl:`acquires a buffer object for the pixels of the Surface.`
-      | :sg:`get_buffer() -> BufferProxy`
-
-      Return a buffer object for the pixels of the Surface. The buffer can be
-      used for direct pixel access and manipulation.
-
-      This method implicitly locks the Surface. The lock will be released, once
-      the returned BufferProxy object is deleted.
+      For kind '&', the method call also locks the surface. The lock is released
+      when the BufferProxy object is deleted. With all other kinds, the surface
+      is locked only when an exposed interface is accessed. For new buffer
+      interace accesses, the surface is unlocked once the last buffer view is
+      released. For array interface accesses, the surface remains locked until the
+      BufferProxy object is released.
 
       New in pygame 1.8.
+      Extended in pygame 1.9.2.
 
       .. ## Surface.get_buffer ##
 
