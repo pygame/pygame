@@ -90,7 +90,7 @@ class PixelcopyModuleTest (unittest.TestCase):
             for dst_bitsize in self.bitsizes:
                 dst = pygame.Surface(surf.get_size(), 0, dst_bitsize)
                 dst.fill((0, 0, 0, 0))
-                view = dst.get_view('2')
+                view = dst.get_buffer('2')
                 self.assertFalse(surf.get_locked())
                 if dst_bitsize < src_bitsize:
                     self.assertRaises(ValueError, surface_to_array, view, surf)
@@ -111,7 +111,7 @@ class PixelcopyModuleTest (unittest.TestCase):
 
                 if surf.get_masks()[3]:
                     dst.fill((0, 0, 0, 0))
-                    view = dst.get_view('2')
+                    view = dst.get_buffer('2')
                     posn = (2, 1)
                     surf.set_at(posn, alpha_color)
                     self.assertFalse(surf.get_locked())
@@ -132,7 +132,7 @@ class PixelcopyModuleTest (unittest.TestCase):
         for surf in self.sources:
             dst.fill((0, 0, 0, 0))
             src_bitsize = surf.get_bitsize()
-            view = dst.get_view('3')
+            view = dst.get_buffer('3')
             self.assertFalse(surf.get_locked())
             surface_to_array(view, surf)
             self.assertFalse(surf.get_locked())
@@ -157,9 +157,9 @@ class PixelcopyModuleTest (unittest.TestCase):
                    ]
         source = pygame.Surface(self.surf_size, 0, 24,
                                 masks=[0xff, 0xff00, 0xff0000, 0])
-        source_view = source.get_view('3')  # (w, h, 3)
+        source_view = source.get_buffer('3')  # (w, h, 3)
         for t in targets:
-            map_array(t.get_view('2'), source_view, t)
+            map_array(t.get_buffer('2'), source_view, t)
             for posn, i in self.test_points:
                 sc = t.map_rgb(source.get_at(posn))
                 dc = t.get_at_mapped(posn)
@@ -173,7 +173,7 @@ class PixelcopyModuleTest (unittest.TestCase):
         color = pygame.Color("salmon")
         color.set_length(3)
         for t in targets:
-            map_array(t.get_view('2'), color, t)
+            map_array(t.get_buffer('2'), color, t)
             sc = t.map_rgb(color)
             for posn, i in self.test_points:
                 dc = t.get_at_mapped(posn)
@@ -210,8 +210,8 @@ class PixelcopyModuleTest (unittest.TestCase):
             for y in range(h):
                 source.set_at((0, y),
                               pygame.Color(y + 1, y + h + 1, y + 2 * h + 1))
-            pygame.pixelcopy.surface_to_array(column.get_view('2'), source)
-            pygame.pixelcopy.array_to_surface(target, column.get_view('2'))
+            pygame.pixelcopy.surface_to_array(column.get_buffer('2'), source)
+            pygame.pixelcopy.array_to_surface(target, column.get_buffer('2'))
             for x in range(w):
                 for y in range(h):
                     self.assertEqual(target.get_at_mapped((x, y)),
@@ -224,8 +224,8 @@ class PixelcopyModuleTest (unittest.TestCase):
             for x in range(w):
                 source.set_at((x, 0),
                               pygame.Color(x + 1, x + w + 1, x + 2 * w + 1))
-            pygame.pixelcopy.surface_to_array(row.get_view('2'), source)
-            pygame.pixelcopy.array_to_surface(target, row.get_view('2'))
+            pygame.pixelcopy.surface_to_array(row.get_buffer('2'), source)
+            pygame.pixelcopy.array_to_surface(target, row.get_buffer('2'))
             for x in range(w):
                 for y in range(h):
                     self.assertEqual(target.get_at_mapped((x, y)),
@@ -236,8 +236,8 @@ class PixelcopyModuleTest (unittest.TestCase):
         for target in targets:
             source = pygame.Surface((1, 1), 0, target)
             source.set_at((0, 0), pygame.Color(13, 47, 101))
-            pygame.pixelcopy.surface_to_array(pixel.get_view('2'), source)
-            pygame.pixelcopy.array_to_surface(target, pixel.get_view('2'))
+            pygame.pixelcopy.surface_to_array(pixel.get_buffer('2'), source)
+            pygame.pixelcopy.array_to_surface(target, pixel.get_buffer('2'))
             p = pixel.get_at_mapped((0, 0))
             for x in range(w):
                 for y in range(h):

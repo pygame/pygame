@@ -476,36 +476,9 @@ typedef struct {
 #define RWopsCheckPythonThreaded RWopsCheckObjectThreaded
 #endif
 
-/* BufferProxy */
-typedef struct
-{
-    PyObject_HEAD
-    PyObject *dict;     /* dict for subclassing */
-    PyObject *weakrefs; /* Weakrefs for subclassing */
-    void *buffer;       /* Pointer to the buffer of the parent object. */
-    Py_ssize_t length;  /* Length of the buffer. */
-    PyObject *parent;   /* Parent object associated with this object. */
-    PyObject *lock;     /* Lock object for the surface. */
-
-} PyBufferProxy;
-
-#define PYGAMEAPI_BUFFERPROXY_FIRSTSLOT                                 \
-    (PYGAMEAPI_RWOBJECT_FIRSTSLOT + PYGAMEAPI_RWOBJECT_NUMSLOTS)
-#define PYGAMEAPI_BUFFERPROXY_NUMSLOTS 2
-#ifndef PYGAMEAPI_BUFFERPROXY_INTERNAL
-#define PyBufferProxy_Check(x)                                          \
-    ((x)->ob_type == (PyTypeObject*)                                    \
-     PyGAME_C_API[PYGAMEAPI_BUFFERPROXY_FIRSTSLOT + 0])
-#define PyBufferProxy_New                                               \
-    (*(PyObject*(*)(PyObject*, void*, Py_ssize_t, PyObject*))           \
-    PyGAME_C_API[PYGAMEAPI_BUFFERPROXY_FIRSTSLOT + 1])
-#define import_pygame_bufferproxy() \
-    IMPORT_PYGAME_MODULE(bufferproxy, BUFFERPROXY)
-#endif /* PYGAMEAPI_BUFFERPROXY_INTERNAL */
-
 /* PixelArray */
 #define PYGAMEAPI_PIXELARRAY_FIRSTSLOT                                 \
-    (PYGAMEAPI_BUFFERPROXY_FIRSTSLOT + PYGAMEAPI_BUFFERPROXY_NUMSLOTS)
+    (PYGAMEAPI_RWOBJECT_FIRSTSLOT + PYGAMEAPI_RWOBJECT_NUMSLOTS)
 #define PYGAMEAPI_PIXELARRAY_NUMSLOTS 2
 #ifndef PYGAMEAPI_PIXELARRAY_INTERNAL
 #define PyPixelArray_Check(x)                                           \

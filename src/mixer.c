@@ -28,7 +28,7 @@
 #include "pgcompat.h"
 #include "doc/mixer_doc.h"
 #include "mixer.h"
-#include "pgview.h"
+#include "pgbufferproxy.h"
 
 #if !defined(EXPORT_BUFFER)
 #define EXPORT_BUFFER HAVE_NEW_BUFPROTO
@@ -637,18 +637,14 @@ snd_get_length (PyObject* self)
 }
 
 static PyObject*
-snd_get_buffer (PyObject* self)
+snd_get_raw (PyObject* self)
 {
-    PyObject *buffer;
-    Mix_Chunk* chunk;
+    Mix_Chunk* chunk = PySound_AsChunk (self);
+    
     MIXER_INIT_CHECK ();
 
-    chunk = PySound_AsChunk (self);
-    buffer = PyBufferProxy_New (self, chunk->abuf, (Py_ssize_t) chunk->alen,
-                                NULL);
-    if (!buffer)
-        return RAISE (PyExc_SDLError, "could acquire a buffer for the sound");
-    return buffer;
+    return Bytes_FromStringAndSize ((const char *)chunk->abuf,
+                                    (Py_ssize_t)chunk->alen);
 }
 
 #if PY3
@@ -769,7 +765,21 @@ snd_get_arraystruct(PyObject *self, void *closure)
     return cobj;
 }
 
-static PyMethodDef sound_methods[] =
+static PyObject *
+snd_get_samples_address(PyObject *self, PyObject *closure)
+{
+    Mix_Chunk *chunk = PySound_AsChunk(self);
+
+    MIXER_INIT_CHECK();
+
+#if SIZEOF_VOID_P > SIZEOF_LONG
+    return PyLong_FromUnsignedLongLong((unsigned PY_LONG_LONG)chunk->abuf);
+#else
+    return PyLong_FromUnsignedLong((unsigned long)chunk->abuf);
+#endif
+}
+
+PyMethodDef sound_methods[] =
 {
     { "play", (PyCFunction) snd_play, METH_VARARGS | METH_KEYWORDS,
       DOC_SOUNDPLAY },
@@ -782,14 +792,16 @@ static PyMethodDef sound_methods[] =
       DOC_SOUNDGETVOLUME },
     { "get_length", (PyCFunction) snd_get_length, METH_NOARGS,
       DOC_SOUNDGETLENGTH },
-    { "get_buffer", (PyCFunction) snd_get_buffer, METH_NOARGS,
-      DOC_SOUNDGETBUFFER },
+    { "get_raw", (PyCFunction) snd_get_raw, METH_NOARGS,
+      DOC_SOUNDGETRAW },
     { NULL, NULL, 0, NULL }
 };
 
 static PyGetSetDef sound_getset[] =
 {
     {"__array_struct__", snd_get_arraystruct, NULL, "Version 3", NULL},
+    {"_samples_address", (getter)snd_get_samples_address,
+     NULL, "samples buffer address (readonly)", NULL },
     {NULL, NULL, NULL, NULL, NULL}
 };
 
@@ -1931,10 +1943,6 @@ MODINIT_DEFINE (mixer)
         MODINIT_ERROR;
     }
     import_pygame_bufferproxy ();
-    if (PyErr_Occurred ()) {
-        MODINIT_ERROR;
-    }
-    import_pygame_view ();
     if (PyErr_Occurred ()) {
         MODINIT_ERROR;
     }

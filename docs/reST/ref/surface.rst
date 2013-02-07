@@ -778,17 +778,14 @@
 
       .. ## Surface.get_bounding_rect ##
 
-   .. method:: get_view
+   .. method:: get_buffer
 
       | :sl:`return a buffer view of the Surface's pixels.`
       | :sg:`get_buffer(<kind>='&') -> BufferProxy`
 
-      To be renamed, and therefore replace, get_buffer.
-
       Return an object which exposes a surface's internal pixel buffer as
       an array interface or a buffer interface. The buffer is writeable. For
-      Python 2.x, only the classic buffer view is only available,
-      for the '&' kind.
+      Python 2.x, only the classic buffer view is available, for the '&' kind.
       For Python 3.x the new buffer interface is exposed, and is available
       for all buffer kinds.
 
