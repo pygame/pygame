@@ -27,7 +27,7 @@ else:
 import pygame
 from pygame.locals import *
 from pygame.compat import xrange_, as_bytes, as_unicode
-from pygame._view import BufferProxy
+from pygame.bufferproxy import BufferProxy
 
 import gc
 import weakref
@@ -335,109 +335,109 @@ class SurfaceTypeTest(unittest.TestCase):
                 self.assertEquals(s.get_height(), h)
                 self.assertEquals(s.get_size(), (w, h))
 
-    def test_get_view(self):
+    def test_get_buffer(self):
         # Check that BufferProxys are returned when array depth is supported,
         # ValueErrors returned otherwise.
         Error = ValueError
 
         s = pygame.Surface((5, 7), 0, 8)
-        self.assertRaises(Error, s.get_view, '0')
-        self.assertRaises(Error, s.get_view, '1')
-        v = s.get_view('2')
+        self.assertRaises(Error, s.get_buffer, '0')
+        self.assertRaises(Error, s.get_buffer, '1')
+        v = s.get_buffer('2')
         self.assert_(isinstance(v, BufferProxy))
-        self.assertRaises(Error, s.get_view, '3')
+        self.assertRaises(Error, s.get_buffer, '3')
 
         s = pygame.Surface((8, 7), 0, 8)
         length = s.get_bytesize() * s.get_width() * s.get_height()
-        v = s.get_view('0')
+        v = s.get_buffer('0')
         self.assert_(isinstance(v, BufferProxy))
         self.assertEqual(v.length, length)
-        v = s.get_view('1')
+        v = s.get_buffer('1')
         self.assert_(isinstance(v, BufferProxy))
         self.assertEqual(v.length, length)
 
         s = pygame.Surface((5, 7), 0, 16)
-        self.assertRaises(Error, s.get_view, '0')
-        self.assertRaises(Error, s.get_view, '1')
-        v = s.get_view('2')
+        self.assertRaises(Error, s.get_buffer, '0')
+        self.assertRaises(Error, s.get_buffer, '1')
+        v = s.get_buffer('2')
         self.assert_(isinstance(v, BufferProxy))
-        self.assertRaises(Error, s.get_view, '3')
+        self.assertRaises(Error, s.get_buffer, '3')
 
         s = pygame.Surface((8, 7), 0, 16)
         length = s.get_bytesize() * s.get_width() * s.get_height()
-        v = s.get_view('0')
+        v = s.get_buffer('0')
         self.assert_(isinstance(v, BufferProxy))
         self.assertEqual(v.length, length)
-        v = s.get_view('1')
+        v = s.get_buffer('1')
         self.assert_(isinstance(v, BufferProxy))
         self.assertEqual(v.length, length)
 
         s = pygame.Surface((5, 7), pygame.SRCALPHA, 16)
-        v = s.get_view('2')
+        v = s.get_buffer('2')
         self.assert_(isinstance(v, BufferProxy))
-        self.assertRaises(Error, s.get_view, '3')
+        self.assertRaises(Error, s.get_buffer, '3')
 
         s = pygame.Surface((5, 7), 0, 24)
-        self.assertRaises(Error, s.get_view, '0')
-        self.assertRaises(Error, s.get_view, '1')
-        v = s.get_view('2')
+        self.assertRaises(Error, s.get_buffer, '0')
+        self.assertRaises(Error, s.get_buffer, '1')
+        v = s.get_buffer('2')
         self.assert_(isinstance(v, BufferProxy))
-        v = s.get_view('3')
+        v = s.get_buffer('3')
         self.assert_(isinstance(v, BufferProxy))
 
         s = pygame.Surface((8, 7), 0, 24)
         length = s.get_bytesize() * s.get_width() * s.get_height()
-        v = s.get_view('0')
+        v = s.get_buffer('0')
         self.assert_(isinstance(v, BufferProxy))
         self.assertEqual(v.length, length)
-        v = s.get_view('1')
+        v = s.get_buffer('1')
         self.assert_(isinstance(v, BufferProxy))
         self.assertEqual(v.length, length)
 
         s = pygame.Surface((5, 7), 0, 32)
         length = s.get_bytesize() * s.get_width() * s.get_height()
-        v = s.get_view('0')
+        v = s.get_buffer('0')
         self.assert_(isinstance(v, BufferProxy))
         self.assertEqual(v.length, length)
-        v = s.get_view('1')
+        v = s.get_buffer('1')
         self.assert_(isinstance(v, BufferProxy))
         self.assertEqual(v.length, length)
-        v = s.get_view('2')
+        v = s.get_buffer('2')
         self.assert_(isinstance(v, BufferProxy))
-        v = s.get_view('3')
+        v = s.get_buffer('3')
         self.assert_(isinstance(v, BufferProxy))
 
         s2 = s.subsurface((0, 0, 4, 7))
-        self.assertRaises(Error, s2.get_view, '0')
-        self.assertRaises(Error, s2.get_view, '1')
+        self.assertRaises(Error, s2.get_buffer, '0')
+        self.assertRaises(Error, s2.get_buffer, '1')
         s2 = None
 
         s = pygame.Surface((5, 7), pygame.SRCALPHA, 32)
-        v = s.get_view('2')
+        v = s.get_buffer('2')
         self.assert_(isinstance(v, BufferProxy))
-        v = s.get_view('3')
+        v = s.get_buffer('3')
         self.assert_(isinstance(v, BufferProxy))
-        v = s.get_view('a')
+        v = s.get_buffer('a')
         self.assert_(isinstance(v, BufferProxy))
-        v = s.get_view('A')
+        v = s.get_buffer('A')
         self.assert_(isinstance(v, BufferProxy))
-        v = s.get_view('r')
+        v = s.get_buffer('r')
         self.assert_(isinstance(v, BufferProxy))
-        v = s.get_view('G')
+        v = s.get_buffer('G')
         self.assert_(isinstance(v, BufferProxy))
-        v = s.get_view('g')
+        v = s.get_buffer('g')
         self.assert_(isinstance(v, BufferProxy))
-        v = s.get_view('B')
+        v = s.get_buffer('B')
         self.assert_(isinstance(v, BufferProxy))
-        v = s.get_view('b')
+        v = s.get_buffer('b')
 
         # Check backward compatibility.
         s = pygame.Surface((5, 7), 0, 24)
         length = s.get_pitch() * s.get_height()
-        v = s.get_view('&')
+        v = s.get_buffer('&')
         self.assert_(isinstance(v, BufferProxy))
         self.assertEqual(v.length, length)
-        v = s.get_view()
+        v = s.get_buffer()
         self.assert_(isinstance(v, BufferProxy))
         self.assertEqual(v.length, length)
 
@@ -445,7 +445,7 @@ class SurfaceTypeTest(unittest.TestCase):
         # The default may change in Pygame 1.9.3.
         s = pygame.Surface((5, 7), 0, 16)
         length = s.get_pitch() * s.get_height()
-        v = s.get_view()
+        v = s.get_buffer()
         self.assert_(isinstance(v, BufferProxy))
         # Simple buffer length check using ctype, which is portable,
         # unlike buffer, and works ndim 0 views, unlike memoryview.
@@ -454,15 +454,10 @@ class SurfaceTypeTest(unittest.TestCase):
         c_byte_Array_plus_1 = ctypes.c_byte * (length + 1)
         self.assertRaises(ValueError, c_byte_Array_plus_1.from_buffer, v)
 
-        # Check keyword arguments.
-        s = pygame.Surface((5, 7), 0, 24)
-        v = s.get_view(kind='3')
-        self.assert_(isinstance(v, BufferProxy))
-
         # Check locking.
         s = pygame.Surface((2, 4), 0, 32)
         self.assert_(not s.get_locked())
-        v = s.get_view('2')
+        v = s.get_buffer('2')
         self.assert_(not s.get_locked())
         c = v.__array_interface__
         self.assert_(s.get_locked())
@@ -473,7 +468,7 @@ class SurfaceTypeTest(unittest.TestCase):
         gc.collect()
         self.assert_(not s.get_locked())
 
-        v = s.get_view('&')
+        v = s.get_buffer('&')
         self.assert_(s.get_locked())
         v = None
         gc.collect()
@@ -481,20 +476,20 @@ class SurfaceTypeTest(unittest.TestCase):
 
         # Check invalid view kind values.
         s = pygame.Surface((2, 4), pygame.SRCALPHA, 32)
-        self.assertRaises(TypeError, s.get_view, '')
-        self.assertRaises(TypeError, s.get_view, '9')
-        self.assertRaises(TypeError, s.get_view, 'RGBA')
-        self.assertRaises(TypeError, s.get_view, 2)
+        self.assertRaises(TypeError, s.get_buffer, '')
+        self.assertRaises(TypeError, s.get_buffer, '9')
+        self.assertRaises(TypeError, s.get_buffer, 'RGBA')
+        self.assertRaises(TypeError, s.get_buffer, 2)
 
         # Both unicode and bytes strings are allowed for kind.
         s = pygame.Surface((2, 4), 0, 32)
-        s.get_view(as_unicode('2'))
-        s.get_view(as_bytes('2'))
+        s.get_buffer(as_unicode('2'))
+        s.get_buffer(as_bytes('2'))
 
         # Garbage collection
         s = pygame.Surface((2, 4), 0, 32)
         weak_s = weakref.ref(s)
-        v = s.get_view('3')
+        v = s.get_buffer('3')
         weak_v = weakref.ref(v)
         gc.collect()
         self.assertTrue(weak_s() is s)
@@ -1270,7 +1265,7 @@ class SurfaceGetViewTest (unittest.TestCase):
         s_pixels = s._pixels_address
 
         # check the array interface structure fields.
-        v = s.get_view('2')
+        v = s.get_buffer('2')
         inter = ArrayInterface(v)
         flags = PAI_FORTRAN | PAI_ALIGNED | PAI_NOTSWAPPED | PAI_WRITEABLE
         if (s.get_pitch() == s_w * s_bytesize):
@@ -1314,7 +1309,7 @@ class SurfaceGetViewTest (unittest.TestCase):
             return
 
         # check the array interface structure fields.
-        v = s.get_view('3')
+        v = s.get_buffer('3')
         inter = ArrayInterface(v)
         flags = PAI_ALIGNED | PAI_NOTSWAPPED | PAI_WRITEABLE
         self.assertEqual(inter.two, 2)
@@ -1347,7 +1342,7 @@ class SurfaceGetViewTest (unittest.TestCase):
             offset = s_bytesize - offset - 1
 
         # check the array interface structure fields.
-        v = s.get_view('rgba'[plane])
+        v = s.get_buffer('rgba'[plane])
         inter = ArrayInterface(v)
         flags = PAI_ALIGNED | PAI_NOTSWAPPED | PAI_WRITEABLE | PAI_FORTRAN
         self.assertEqual(inter.two, 2)
@@ -1393,10 +1388,10 @@ class SurfaceGetViewTest (unittest.TestCase):
         # Unsupported RGB byte orders
         masks = [0xff00, 0xff0000, 0xff000000, 0]
         self.assertRaises(ValueError,
-                          pygame.Surface(sz, 0, 32, masks).get_view, '3')
+                          pygame.Surface(sz, 0, 32, masks).get_buffer, '3')
         masks = [0xff00, 0xff, 0xff0000, 0]
         self.assertRaises(ValueError,
-                          pygame.Surface(sz, 0, 24, masks).get_view, '3')
+                          pygame.Surface(sz, 0, 24, masks).get_buffer, '3')
 
     def test_array_interface_alpha(self):
         for shifts in [[0, 8, 16, 24], [8, 16, 24, 0],

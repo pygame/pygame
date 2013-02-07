@@ -43,7 +43,7 @@
 
 #define DOC_SOUNDGETLENGTH "get_length() -> seconds\nget the length of the Sound"
 
-#define DOC_SOUNDGETBUFFER "get_buffer() -> BufferProxy\nacquires a buffer object for the samples of the Sound."
+#define DOC_SOUNDGETRAW "get_raw() -> bytes\nreturn a bytestring copy of the Sound samples."
 
 #define DOC_PYGAMEMIXERCHANNEL "Channel(id) -> Channel\nCreate a Channel object for controlling playback"
 
@@ -172,9 +172,9 @@ pygame.mixer.Sound.get_length
  get_length() -> seconds
 get the length of the Sound
 
-pygame.mixer.Sound.get_buffer
- get_buffer() -> BufferProxy
-acquires a buffer object for the samples of the Sound.
+pygame.mixer.Sound.get_raw
+ get_raw() -> bytes
+return a bytestring copy of the Sound samples.
 
 pygame.mixer.Channel
  Channel(id) -> Channel

@@ -27,7 +27,7 @@
 #include "doc/surface_doc.h"
 #include "structmember.h"
 #include "pgcompat.h"
-#include "pgview.h"
+#include "pgbufferproxy.h"
 #include "pgarrinter.h"
 
 typedef enum {
@@ -104,15 +104,14 @@ static PyObject *surf_set_masks (PyObject *self, PyObject *args);
 static PyObject *surf_get_offset (PyObject *self);
 static PyObject *surf_get_parent (PyObject *self);
 static PyObject *surf_subsurface (PyObject *self, PyObject *args);
-static PyObject *surf_get_buffer (PyObject *self);
-static PyObject *surf_get_view (PyObject *self, PyObject *args, PyObject *kwds);
+static PyObject *surf_get_buffer (PyObject *self, PyObject *args);
 static PyObject *surf_get_bounding_rect (PyObject *self, PyObject *args,
                                          PyObject *kwargs);
 static PyObject *surf_get_pixels_address (PyObject *self,
                                           PyObject *closure);
 static int _view_kind(PyObject *obj, void *view_kind_vptr);
-static int _view_before(PyObject *view);
-static void _view_after(PyObject *view);
+static int _proxy_before(PyObject *proxy);
+static void _proxy_after(PyObject *proxy);
 static PyObject *_raise_get_view_ndim_error(int bitsize, SurfViewKind kind);
 
 
@@ -212,10 +211,8 @@ static struct PyMethodDef surface_methods[] = {
     { "get_bounding_rect", (PyCFunction) surf_get_bounding_rect,
       METH_VARARGS | METH_KEYWORDS,
       DOC_SURFACEGETBOUNDINGRECT},
-    { "get_buffer", (PyCFunction) surf_get_buffer, METH_NOARGS,
+    { "get_buffer", (PyCFunction) surf_get_buffer, METH_VARARGS,
       DOC_SURFACEGETBUFFER},
-    { "get_view", (PyCFunction) surf_get_view, METH_VARARGS | METH_KEYWORDS,
-      DOC_SURFACEGETVIEW},
 
     { NULL, NULL, 0, NULL }
 };
@@ -2076,33 +2073,6 @@ surf_get_bounding_rect (PyObject *self, PyObject *args, PyObject *kwargs)
     return rect;
 }
 
-static PyObject*
-surf_get_buffer (PyObject *self)
-{
-    PyObject *buffer;
-    PyObject *lock;
-    SDL_Surface *surface = PySurface_AsSurface (self);
-    Py_ssize_t length;
-
-    length = (Py_ssize_t) surface->pitch * surface->h;
-
-    buffer = PyBufferProxy_New (self, NULL, length, NULL);
-    if (!buffer) {
-        return RAISE (PyExc_SDLError,
-            "could not acquire a buffer for the surface");
-    }
-
-    lock = PySurface_LockLifetime (self, buffer);
-    if (!lock) {
-        Py_DECREF (buffer);
-        return RAISE (PyExc_SDLError, "could not lock surface");
-    }
-    ((PyBufferProxy *) buffer)->buffer = surface->pixels;
-    ((PyBufferProxy *) buffer)->lock = lock;
-
-    return buffer;
-}
-
 static PyObject *
 _raise_get_view_ndim_error(int bitsize, SurfViewKind kind) {
     const char *name;
@@ -2143,16 +2113,16 @@ _raise_get_view_ndim_error(int bitsize, SurfViewKind kind) {
 }
 
 static PyObject*
-surf_get_view (PyObject *self, PyObject *args, PyObject *kwds)
+surf_get_buffer (PyObject *self, PyObject *args)
 {
-#   define SURF_GET_VIEW_MAXDIM 3
+#   define SURF_GET_BUFFER_MAXDIM 3
     const int lilendian = (SDL_BYTEORDER == SDL_LIL_ENDIAN);
-    const int maxdim = SURF_GET_VIEW_MAXDIM;
-    Py_ssize_t shape[SURF_GET_VIEW_MAXDIM];
-    Py_ssize_t strides[SURF_GET_VIEW_MAXDIM];
+    const int maxdim = SURF_GET_BUFFER_MAXDIM;
+    Py_ssize_t shape[SURF_GET_BUFFER_MAXDIM];
+    Py_ssize_t strides[SURF_GET_BUFFER_MAXDIM];
     char format[] = {'B', '\0', '\0'};
     Py_buffer view;
-#   undef SURF_GET_VIEW_MAXDIM
+#   undef SURF_GET_BUFFER_MAXDIM
     SurfViewKind view_kind = VIEWKIND_RAW;
     int ndim = maxdim;
     Py_ssize_t len = 0;
@@ -2165,10 +2135,7 @@ surf_get_view (PyObject *self, PyObject *args, PyObject *kwds)
     int flags = 0;
     PyObject *proxy_obj;
 
-    char *keywords[] = {"kind", 0};
-
-    if (!PyArg_ParseTupleAndKeywords (args, kwds, "|O&", keywords,
-                                      _view_kind, &view_kind)) {
+    if (!PyArg_ParseTuple (args, "|O&", _view_kind, &view_kind)) {
         return 0;
     }
 
@@ -2330,7 +2297,7 @@ surf_get_view (PyObject *self, PyObject *args, PyObject *kwds)
     view.obj = self;
     Py_INCREF (self);
 
-    proxy_obj = PgBufproxy_New (&view, flags, _view_before, _view_after);
+    proxy_obj = PgBufproxy_New (&view, flags, _proxy_before, _proxy_after);
     if (proxy_obj && view_kind == VIEWKIND_RAW) {
         if (PgBufproxy_Trip (proxy_obj)) {
             Py_DECREF (proxy_obj);
@@ -2410,22 +2377,22 @@ _view_kind (PyObject *obj, void *view_kind_vptr)
 }
 
 static int
-_view_before (PyObject *view)
+_proxy_before (PyObject *proxy)
 {
-    PyObject *surf = PgBufproxy_GetParent (view);
+    PyObject *surf = PgBufproxy_GetParent (proxy);
     int rcode;
 
-    rcode = PySurface_LockBy (surf, view) ? 0 : -1;
+    rcode = PySurface_LockBy (surf, proxy) ? 0 : -1;
     Py_DECREF (surf);
     return rcode;
 }
 
 static void
-_view_after (PyObject *view)
+_proxy_after (PyObject *proxy)
 {
-    PyObject *surf = PgBufproxy_GetParent(view);
+    PyObject *surf = PgBufproxy_GetParent (proxy);
 
-    PySurface_UnlockBy (surf, view);
+    PySurface_UnlockBy (surf, proxy);
     Py_DECREF (surf);
 }
 
@@ -2728,10 +2695,6 @@ MODINIT_DEFINE (surface)
         MODINIT_ERROR;
     }
     import_pygame_bufferproxy ();
-    if (PyErr_Occurred ()) {
-        MODINIT_ERROR;
-    }
-    import_pygame_view ();
     if (PyErr_Occurred ()) {
         MODINIT_ERROR;
     }

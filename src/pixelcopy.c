@@ -25,7 +25,7 @@
 #include "pgcompat.h"
 #include "doc/pixelcopy_doc.h"
 #include "pgarrinter.h"
-#include "pgview.h"
+#include "pgbufferproxy.h"
 #include <SDL_byteorder.h>
 
 #if !defined(DOC_PYGAMEBLITARRAY)
@@ -1169,7 +1169,7 @@ MODINIT_DEFINE(pixelcopy)
     if (PyErr_Occurred()) {
         MODINIT_ERROR;
     }
-    import_pygame_view();
+    import_pygame_bufferproxy();
     if (PyErr_Occurred()) {
         MODINIT_ERROR;
     }
