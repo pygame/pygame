@@ -21,7 +21,7 @@
 #define PYGAME_FREETYPE_INTERNAL
 
 #include "ft_wrap.h"
-#include "../pgview.h"
+#include "../pgbufferproxy.h"
 #include FT_MODULE_H
 #include FT_OUTLINE_H
 

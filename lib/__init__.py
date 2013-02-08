@@ -133,7 +133,7 @@ from pygame.rwobject import encode_string, encode_file_path
 import pygame.surflock
 import pygame.color
 Color = color.Color
-import pygame._view
+import pygame.bufferproxy
 
 __version__ = ver
 

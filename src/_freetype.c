@@ -24,7 +24,7 @@
 #include "freetype.h"
 #include "freetype/ft_wrap.h"
 #include "doc/freetype_doc.h"
-#include "pgview.h"
+#include "pgbufferproxy.h"
 
 #define MODULE_NAME "_freetype"
 #define FONT_TYPE_NAME "Font"
@@ -1889,7 +1889,7 @@ MODINIT_DEFINE (_freetype)
         MODINIT_ERROR;
     }
 
-    import_pygame_view();
+    import_pygame_bufferproxy();
     if (PyErr_Occurred())  {
         MODINIT_ERROR;
     }
