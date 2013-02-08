@@ -22,6 +22,7 @@
 #define NO_PYGAME_C_API
 #define PYGAMEAPI_BASE_INTERNAL
 #include "pygame.h"
+#include "pgarrinter.h"
 #include "pgcompat.h"
 #include "doc/pygame_doc.h"
 #include <signal.h>
@@ -46,6 +47,14 @@ QDGlobals qd;
 #endif
 #endif
 
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+#define PAI_MY_ENDIAN '<'
+#define PAI_OTHER_ENDIAN '>'
+#else
+#define PAI_MY_ENDIAN '>'
+#define PAI_OTHER_ENDIAN '<'
+#endif
+
 /* Only one instance of the state per process. */
 static PyObject* quitfunctions = NULL;
 static int sdl_was_init = 0;
@@ -56,6 +65,20 @@ static void _quit (void);
 static void atexit_quit (void);
 static int PyGame_Video_AutoInit (void);
 static void PyGame_Video_AutoQuit (void);
+static int GetArrayInterface (PyObject*, PyObject**, PyArrayInterface**);
+static PyObject* ArrayStructAsDict (PyArrayInterface*);
+static PyObject* ViewAsDict (Py_buffer*);
+static PyObject* view_get_typestr_obj (Py_buffer*);
+static PyObject* view_get_shape_obj (Py_buffer*);
+static PyObject* view_get_strides_obj (Py_buffer*);
+static PyObject* view_get_data_obj (Py_buffer*);
+static char _as_arrayinter_typekind (const Py_buffer*);
+static char _as_arrayinter_byteorder (const Py_buffer*);
+static PyObject* _shape_as_tuple (PyArrayInterface*);
+static PyObject* _typekind_as_str (PyArrayInterface*);
+static PyObject* _strides_as_tuple (PyArrayInterface*);
+static PyObject* _data_as_tuple (PyArrayInterface*);
+static PyObject* get_array_interface (PyObject*, PyObject*);
 
 static int
 CheckSDLVersions (void) /*compare compiled to linked*/
@@ -459,6 +482,306 @@ PyGame_Video_AutoInit (void)
     return 1;
 }
 
+/*array interface*/
+
+static int
+GetArrayInterface (PyObject* obj,
+                   PyObject** cobj_p,
+                   PyArrayInterface** inter_p)
+{
+    PyObject* cobj = PyObject_GetAttrString (obj, "__array_struct__");
+    PyArrayInterface* inter = NULL;
+
+    if (cobj == NULL) {
+        if (PyErr_ExceptionMatches (PyExc_AttributeError)) {
+                PyErr_Clear ();
+                PyErr_SetString (PyExc_ValueError,
+                                 "no C-struct array interface");
+        }
+        return -1;
+    }
+
+#if PG_HAVE_COBJECT
+    if (PyCObject_Check (cobj)) {
+        inter = (PyArrayInterface *)PyCObject_AsVoidPtr (cobj);
+    }
+#endif
+#if PG_HAVE_CAPSULE
+    if (PyCapsule_IsValid (cobj, NULL)) {
+        inter = (PyArrayInterface*)PyCapsule_GetPointer (cobj, NULL);
+    }
+#endif
+    if (inter == NULL || inter->two != 2 /* conditional or */) {
+        Py_DECREF (cobj);
+        PyErr_SetString (PyExc_ValueError, "invalid array interface");
+        return -1;
+    }
+
+    *cobj_p = cobj;
+    *inter_p = inter;
+    return 0;
+}
+
+static PyObject*
+ArrayStructAsDict (PyArrayInterface* inter_p)
+{
+    PyObject *dictobj = Py_BuildValue ("{sisNsNsNsN}",
+                                       "version", (int)3,
+                                       "typestr", _typekind_as_str (inter_p),
+                                       "shape", _shape_as_tuple (inter_p),
+                                       "strides", _strides_as_tuple (inter_p),
+                                       "data", _data_as_tuple (inter_p));
+
+    if (!dictobj) {
+        return 0;
+    }
+    if (inter_p->flags & PAI_ARR_HAS_DESCR) {
+        if (!inter_p->descr) {
+            Py_DECREF (dictobj);
+            PyErr_SetString (PyExc_ValueError,
+                             "Array struct has descr flag set"
+                             " but no descriptor");
+            return 0;
+        }
+        if (PyDict_SetItemString (dictobj, "descr", inter_p->descr)) {
+            Py_DECREF (dictobj);
+            return 0;
+        }
+    }
+    return dictobj;
+}
+
+static PyObject*
+ViewAsDict (Py_buffer* view)
+{
+    PyObject *dictobj =
+        Py_BuildValue ("{sisNsNsNsN}",
+                       "version", (int)3,
+                       "typestr", view_get_typestr_obj (view),
+                       "shape", view_get_shape_obj (view),
+                       "strides", view_get_strides_obj (view),
+                       "data", view_get_data_obj (view));
+    PyObject *obj = (PyObject *)view->obj;
+
+    if (!dictobj) {
+        return 0;
+    }
+    if (obj) {
+        if (PyDict_SetItemString (dictobj, "__obj", obj)) {
+            Py_DECREF (dictobj);
+            return 0;
+        }
+    }
+    return dictobj;
+}
+
+static PyObject*
+view_get_typestr_obj (Py_buffer* view)
+{
+    return Text_FromFormat ("%c%c%i",
+                            _as_arrayinter_byteorder (view),
+                            _as_arrayinter_typekind (view),
+                            (int)view->itemsize);
+}
+
+static PyObject*
+view_get_shape_obj (Py_buffer* view)
+{
+    PyObject *shapeobj = PyTuple_New (view->ndim);
+    PyObject *lengthobj;
+    Py_ssize_t i;
+
+    if (!shapeobj) {
+        return 0;
+    }
+    for (i = 0; i < view->ndim; ++i) {
+        lengthobj = PyInt_FromLong ((long)view->shape[i]);
+        if (!lengthobj) {
+            Py_DECREF (shapeobj);
+            return 0;
+        }
+        PyTuple_SET_ITEM (shapeobj, i, lengthobj);
+    }
+    return shapeobj;
+}
+
+static PyObject*
+view_get_strides_obj (Py_buffer* view)
+{
+    PyObject *shapeobj = PyTuple_New (view->ndim);
+    PyObject *lengthobj;
+    Py_ssize_t i;
+
+    if (!shapeobj) {
+        return 0;
+    }
+    for (i = 0; i < view->ndim; ++i) {
+        lengthobj = PyInt_FromLong ((long)view->strides[i]);
+        if (!lengthobj) {
+            Py_DECREF (shapeobj);
+            return 0;
+        }
+        PyTuple_SET_ITEM (shapeobj, i, lengthobj);
+    }
+    return shapeobj;
+}
+
+static PyObject*
+view_get_data_obj (Py_buffer* view)
+{
+    return Py_BuildValue ("NN",
+                          PyLong_FromVoidPtr (view->buf),
+                          PyBool_FromLong ((long)view->readonly));
+}
+
+static char
+_as_arrayinter_typekind (const Py_buffer* view)
+{
+    char type = view->format[0];
+    char typekind;
+
+    switch (type) {
+
+    case '<':
+    case '>':
+    case '=':
+    case '@':
+    case '!':
+        type = view->format[1];
+    }
+    switch (type) {
+
+    case 'c':
+    case 'h':
+    case 'i':
+    case 'l':
+    case 'q':
+        typekind = 'i';
+        break;
+    case 'b':
+    case 'B':
+    case 'H':
+    case 'I':
+    case 'L':
+    case 'Q':
+    case 's':
+        typekind = 'u';
+        break;
+    default:
+        /* Unknown type */
+        typekind = 's';
+    }
+    return typekind;
+}
+
+static char
+_as_arrayinter_byteorder (const Py_buffer* view)
+{
+    char format_0 = view->format[0];
+    char byteorder;
+
+    switch (format_0) {
+
+    case '<':
+    case '>':
+        byteorder = format_0;
+        break;
+    case '!':
+        byteorder = '>';
+        break;
+    case 'c':
+    case 's':
+    case 'p':
+    case 'b':
+    case 'B':
+        byteorder = '|';
+        break;
+    default:
+        byteorder = PAI_MY_ENDIAN;
+    }
+    return byteorder;
+}
+
+
+static PyObject*
+_shape_as_tuple (PyArrayInterface* inter_p)
+{
+    PyObject *shapeobj = PyTuple_New ((Py_ssize_t)inter_p->nd);
+    PyObject *lengthobj;
+    Py_ssize_t i;
+
+    if (!shapeobj) {
+        return 0;
+    }
+    for (i = 0; i < inter_p->nd; ++i) {
+        lengthobj = PyInt_FromLong ((long)inter_p->shape[i]);
+        if (!lengthobj) {
+            Py_DECREF (shapeobj);
+            return 0;
+        }
+        PyTuple_SET_ITEM (shapeobj, i, lengthobj);
+    }
+    return shapeobj;
+}
+
+static PyObject*
+_typekind_as_str (PyArrayInterface* inter_p)
+{
+    return Text_FromFormat ("%c%c%i",
+                            inter_p->itemsize > 1 ?
+                                (inter_p->flags & PAI_NOTSWAPPED ?
+                                     PAI_MY_ENDIAN :
+                                     PAI_OTHER_ENDIAN) :
+                                '|',
+                            inter_p->typekind, inter_p->itemsize);
+}
+
+static PyObject*
+_strides_as_tuple (PyArrayInterface* inter_p)
+{
+    PyObject *stridesobj = PyTuple_New ((Py_ssize_t)inter_p->nd);
+    PyObject *lengthobj;
+    Py_ssize_t i;
+
+    if (!stridesobj) {
+        return 0;
+    }
+    for (i = 0; i < inter_p->nd; ++i) {
+        lengthobj = PyInt_FromLong ((long)inter_p->strides[i]);
+        if (!lengthobj) {
+            Py_DECREF (stridesobj);
+            return 0;
+        }
+        PyTuple_SET_ITEM (stridesobj, i, lengthobj);
+    }
+    return stridesobj;
+}
+
+static PyObject*
+_data_as_tuple (PyArrayInterface* inter_p)
+{
+    long readonly = (inter_p->flags & PAI_WRITEABLE) == 0;
+
+    return Py_BuildValue ("NN",
+                          PyLong_FromVoidPtr (inter_p->data),
+                          PyBool_FromLong (readonly));
+}
+
+static PyObject*
+get_array_interface (PyObject* self, PyObject* arg)
+{
+    PyObject *cobj;
+    PyArrayInterface *inter_p;
+    PyObject *dictobj;
+
+    if (GetArrayInterface (arg, &cobj, &inter_p)) {
+        return 0;
+    }
+    dictobj = ArrayStructAsDict (inter_p);
+    Py_DECREF (cobj);
+    return dictobj;
+}
+
 /*error signal handlers (replacing SDL parachute)*/
 static void
 pygame_parachute (int sig)
@@ -595,6 +918,9 @@ static PyMethodDef _base_methods[] =
     { "get_sdl_byteorder", (PyCFunction) get_sdl_byteorder, METH_NOARGS,
       DOC_PYGAMEGETSDLBYTEORDER },
 
+    { "get_array_interface", (PyCFunction) get_array_interface, METH_O,
+      "return an array struct interface as an interface dictionary" },
+
     { "segfault", (PyCFunction) do_segfault, METH_NOARGS, "crash" },
     { NULL, NULL, 0, NULL }
 };
@@ -675,6 +1001,8 @@ MODINIT_DEFINE(base)
     c_api[10] = PyGame_Video_AutoQuit;
     c_api[11] = PyGame_Video_AutoInit;
     c_api[12] = RGBAFromObj;
+    c_api[13] = ArrayStructAsDict;
+    c_api[14] = ViewAsDict;
     apiobj = encapsulate_api (c_api, "base");
     if (apiobj == NULL) {
         Py_XDECREF (atexit_register);
