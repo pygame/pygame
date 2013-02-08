@@ -1,6 +1,8 @@
 import docutils.nodes
 import sphinx.addnodes
 
+import sys
+
 
 class GetError(LookupError):
     pass
@@ -93,8 +95,7 @@ except NameError:
 # as_unicode: Allow a Python "r" string to represent a unicode string.
 #   e.g.: as_unicode(r"Bo\u00F6tes") == u"Bo\u00F6tes" # Python 2.x
 #         as_unicode(r"Bo\u00F6tes") == "Bo\u00F6tes"  # Python 3.x
-try:
-    eval("u'a'")
+if sys.version_info < (3,):
     def as_bytes(string):
         """ '<binary literal>' => '<binary literal>' """
         return string
@@ -103,7 +104,7 @@ try:
         """ r'<Unicode literal>' => u'<Unicode literal>' """
         return rstring.decode('unicode_escape', 'strict')
         
-except SyntaxError:
+else:
     def as_bytes(string):
         """ '<binary literal>' => b'<binary literal>' """
         return string.encode('latin-1', 'strict')
