@@ -182,7 +182,7 @@ typedef getcharbufferproc charbufferproc;
 
 /* BASE */
 #define PYGAMEAPI_BASE_FIRSTSLOT 0
-#define PYGAMEAPI_BASE_NUMSLOTS 13
+#define PYGAMEAPI_BASE_NUMSLOTS 15
 #ifndef PYGAMEAPI_BASE_INTERNAL
 #define PyExc_SDLError ((PyObject*)PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT])
 
@@ -224,6 +224,13 @@ typedef getcharbufferproc charbufferproc;
 
 #define RGBAFromObj                                                     \
     (*(int(*)(PyObject*, Uint8*))PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 12])
+
+#define ArrayStructAsDict                                               \
+    (*(PyObject*(*)(Py_buffer*)) PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 13])
+
+#define ViewAsDict                                                      \
+    (*(PyObject*(*)(PyArrayInterface*))                                 \
+     PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 14])
 
 #define import_pygame_base() IMPORT_PYGAME_MODULE(base, BASE)
 #endif
