@@ -73,6 +73,9 @@ static PyObject* PyChannel_New (int);
 #define PySound_Check(x) (Py_TYPE(x) == &PySound_Type)
 #define PyChannel_Check(x) (Py_TYPE(x) == &PyChannel_Type)
 
+static int snd_getbuffer (PyObject*, Py_buffer*, int);
+static void snd_releasebuffer (PyObject*, Py_buffer*);
+
 static int request_frequency = PYGAME_MIXER_DEFAULT_FREQUENCY;
 static int request_size = PYGAME_MIXER_DEFAULT_SIZE;
 static int request_stereo = PYGAME_MIXER_DEFAULT_CHANNELS;
@@ -647,121 +650,22 @@ snd_get_raw (PyObject* self)
                                     (Py_ssize_t)chunk->alen);
 }
 
-#if PY3
-static void
-snd_arraystruct_capsule_destr(PyObject *capsule)
+static PyObject*
+snd_get_arraystruct (PyObject* self, void* closure)
 {
-    PyArrayInterface *inter =
-        (PyArrayInterface *)PyCapsule_GetPointer(capsule, 0);
+    Py_buffer view;
+    PyObject* cobj;
+    int view_flags = VIEW_CONTIGUOUS | VIEW_C_ORDER;
 
-    PyMem_Free(inter->shape);
-    PyMem_Free(inter);
-
-    /* The context may be NULL in the unlike case PyCapsule_SetContext failed.
-     */
-    Py_XDECREF((PyObject *)PyCapsule_GetContext(capsule));
-}
-#else
-static void
-snd_arraystruct_cobject_destr(void *inter_vp, void *desc_vp)
-{
-    PyArrayInterface *inter = (PyArrayInterface *)inter_vp;
-
-    PyMem_Free(inter->shape);
-    PyMem_Free(inter);
-    Py_DECREF((PyObject *)desc_vp);
-}
-#endif
-
-static PyObject *
-snd_get_arraystruct(PyObject *self, void *closure)
-{
-    Mix_Chunk *chunk = PySound_AsChunk(self);
-    PyArrayInterface *inter;
-    int nd;
-    Py_intptr_t *shape;
-    Py_intptr_t *strides;
-    int freq = 0;
-    int channels;
-    Py_ssize_t len;
-    Uint16 format;
-    PyObject *desc;
-    PyObject *cobj;
-
-    MIXER_INIT_CHECK();
-    desc = Py_BuildValue("sO", "PyArrayInterface Version 3", self);
-    if (!desc) {
-        return NULL;
+    if (snd_getbuffer (self, &view, PyBUF_STRIDES)) {
+        return 0;
     }
-    inter = PyMem_New(PyArrayInterface, 1);
-    if (!inter) {
-        Py_DECREF(desc);
-        return PyErr_NoMemory();
+    if (view.ndim == 1) {
+        view_flags |= VIEW_F_ORDER;
     }
-    Mix_QuerySpec(&freq, &format, &channels);
-    nd = channels > 1 ? 2 : 1;
-    len = chunk->alen;
-    inter->two = 2;
-    inter->nd = nd;
-    switch (format) {
-        case AUDIO_U8:
-        inter->typekind = 'u';
-        inter->itemsize = 1;
-        break;
-
-        case AUDIO_S8:
-        inter->typekind = 'i';
-        inter->itemsize = 1;
-        break;
-
-        case AUDIO_U16SYS:
-        inter->typekind = 'u';
-        inter->itemsize = 2;
-        break;
-
-        default:
-        inter->typekind = 'i';
-        inter->itemsize = 2;
-        break;
-    }
-    inter->flags = PAI_CONTIGUOUS | PAI_ALIGNED |
-                   PAI_NOTSWAPPED | PAI_WRITEABLE;
-    shape = PyMem_New(Py_intptr_t, 2 * nd);
-    if (!shape) {
-        Py_DECREF(desc);
-        PyMem_Free(inter);
-        return PyErr_NoMemory();
-    }
-    strides = shape + nd;
-    strides[0] = inter->itemsize * channels;
-    shape[0] = len / strides[0];
-    if (nd == 2) {
-        shape[1] = channels;
-        strides[1] = inter->itemsize;
-    }
-    inter->shape = shape;
-    inter->strides = strides;
-    inter->data = chunk->abuf;
-    inter->descr = 0;
-#if PY3
-    cobj = PyCapsule_New(inter, 0, snd_arraystruct_capsule_destr);
-#else
-    cobj = PyCObject_FromVoidPtrAndDesc(inter,
-                                        desc,
-                                        snd_arraystruct_cobject_destr);
-#endif
-    if (!cobj) {
-        Py_DECREF(desc);
-        PyMem_Free(inter->shape);
-        PyMem_Free(inter);
-        return NULL;
-    }
-#if PY3
-    else if (PyCapsule_SetContext(cobj, desc)) {
-        Py_DECREF(cobj);
-        return NULL;
-    }
-#endif
+    cobj = ViewAndFlagsAsArrayStruct (&view, view_flags);
+    snd_releasebuffer (view.obj, &view);
+    Py_XDECREF (view.obj);
     return cobj;
 }
 
@@ -808,7 +712,6 @@ static PyGetSetDef sound_getset[] =
 
 /*buffer protocol*/
 
-#if EXPORT_BUFFER
 static int
 snd_buffer_iteminfo(char **format, Py_ssize_t *itemsize, int *channels)
 {
@@ -922,6 +825,8 @@ snd_releasebuffer(PyObject *obj, Py_buffer *view)
         view->internal = 0;
     }
 }
+
+#if EXPORT_BUFFER
 
 #if HAVE_OLD_BUFPROTO
 #define snd_getreadbuffer 0

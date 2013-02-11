@@ -201,6 +201,36 @@ struct bufferinfo {
     Py_ssize_t itemsize;
     void *internal;
 } Py_buffer;
-#endif
+
+/* Flags for getting buffers */
+#define PyBUF_SIMPLE 0
+#define PyBUF_WRITABLE 0x0001
+/*  we used to include an E, backwards compatible alias  */
+#define PyBUF_WRITEABLE PyBUF_WRITABLE
+#define PyBUF_FORMAT 0x0004
+#define PyBUF_ND 0x0008
+#define PyBUF_STRIDES (0x0010 | PyBUF_ND)
+#define PyBUF_C_CONTIGUOUS (0x0020 | PyBUF_STRIDES)
+#define PyBUF_F_CONTIGUOUS (0x0040 | PyBUF_STRIDES)
+#define PyBUF_ANY_CONTIGUOUS (0x0080 | PyBUF_STRIDES)
+#define PyBUF_INDIRECT (0x0100 | PyBUF_STRIDES)
+
+#define PyBUF_CONTIG (PyBUF_ND | PyBUF_WRITABLE)
+#define PyBUF_CONTIG_RO (PyBUF_ND)
+
+#define PyBUF_STRIDED (PyBUF_STRIDES | PyBUF_WRITABLE)
+#define PyBUF_STRIDED_RO (PyBUF_STRIDES)
+
+#define PyBUF_RECORDS (PyBUF_STRIDES | PyBUF_WRITABLE | PyBUF_FORMAT)
+#define PyBUF_RECORDS_RO (PyBUF_STRIDES | PyBUF_FORMAT)
+
+#define PyBUF_FULL (PyBUF_INDIRECT | PyBUF_WRITABLE | PyBUF_FORMAT)
+#define PyBUF_FULL_RO (PyBUF_INDIRECT | PyBUF_FORMAT)
+
+
+#define PyBUF_READ  0x100
+#define PyBUF_WRITE 0x200
+#define PyBUF_SHADOW 0x400
+#endif /* #if PY_VERSION_HEX < 0x02060000 */
 
 #endif /* #if !defined(PGCOMPAT_H) */
