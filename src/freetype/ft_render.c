@@ -21,7 +21,7 @@
 #define PYGAME_FREETYPE_INTERNAL
 
 #include "ft_wrap.h"
-#include "../pgbufferproxy.h"
+#include "../pgarrinter.h"
 #include FT_MODULE_H
 #include FT_OUTLINE_H
 
@@ -558,12 +558,12 @@ _PGFT_Render_Array(FreeTypeInstance *ft, PgFontObject *fontobj,
 
     /* Get target buffer */
     if (!view_init) {
-        import_pygame_view();
+        import_pygame_base();
         if (PyErr_Occurred()) {
             return -1;
         }
     }
-    if (Pg_GetArrayInterface(arrayobj, &cobj, &inter_p)) {
+    if (GetArrayInterface(arrayobj, &cobj, &inter_p)) {
         return -1;
     }
     if (inter_p->nd != 2) {
