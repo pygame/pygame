@@ -26,9 +26,9 @@
 #define PYGAMEAPI_MIXER_INTERNAL
 #include "pygame.h"
 #include "pgcompat.h"
+#include "pgarrinter.h"
 #include "doc/mixer_doc.h"
 #include "mixer.h"
-#include "pgbufferproxy.h"
 
 #if !defined(EXPORT_BUFFER)
 #define EXPORT_BUFFER HAVE_NEW_BUFPROTO
@@ -1809,7 +1809,7 @@ sound_init(PyObject *self, PyObject *arg, PyObject *kwarg)
         PG_sample_format_t array_format;
         int rcode;
 
-        if (Pg_GetArrayInterface(array, &cobj, &inter)) {
+        if (GetArrayInterface(array, &cobj, &inter)) {
             return -1;
         }
         if (!(inter->flags & PAI_CONTIGUOUS)) {
@@ -1939,10 +1939,6 @@ MODINIT_DEFINE (mixer)
         MODINIT_ERROR;
     }
     import_pygame_rwobject ();
-    if (PyErr_Occurred ()) {
-        MODINIT_ERROR;
-    }
-    import_pygame_bufferproxy ();
     if (PyErr_Occurred ()) {
         MODINIT_ERROR;
     }

@@ -2166,7 +2166,7 @@ surf_get_buffer (PyObject *self, PyObject *args)
         }
         ndim = 0;
         itemsize = 1;
-        flags |= BUFPROXY_CONTIGUOUS;
+        flags |= VIEW_CONTIGUOUS;
         len = pixelsize * shape[0] * shape[1];
         break;
     case VIEWKIND_1D:
@@ -2179,15 +2179,15 @@ surf_get_buffer (PyObject *self, PyObject *args)
         len = pixelsize * shape[0] * shape[1];
         shape[0] = shape[0] * shape[1];
         itemsize = pixelsize;
-        flags |= BUFPROXY_CONTIGUOUS | BUFPROXY_C_ORDER | BUFPROXY_F_ORDER;
+        flags |= VIEW_CONTIGUOUS | VIEW_C_ORDER | VIEW_F_ORDER;
         break;
     case VIEWKIND_2D:
         ndim = 2;
         itemsize = pixelsize;
         len = itemsize * shape[0] * shape[1];
-        flags |= BUFPROXY_F_ORDER;
+        flags |= VIEW_F_ORDER;
         if (strides[1] == shape[0] * itemsize) {
-            flags |= BUFPROXY_CONTIGUOUS;
+            flags |= VIEW_CONTIGUOUS;
         }
         break;
     case VIEWKIND_3D:
@@ -2215,7 +2215,7 @@ surf_get_buffer (PyObject *self, PyObject *args)
                           "unsupport colormasks for 3D reference array");
         }
         if (strides[1] == shape[2] * shape[1]) {
-            flags |= BUFPROXY_CONTIGUOUS;
+            flags |= VIEW_CONTIGUOUS;
         }
         break;
     case VIEWKIND_RED:
@@ -2233,7 +2233,7 @@ surf_get_buffer (PyObject *self, PyObject *args)
     case VIEWKIND_RAW:
         ndim = 0;
         itemsize = 1;
-        flags |= BUFPROXY_CONTIGUOUS; /* Assumes knowledgable consumers */
+        flags |= VIEW_CONTIGUOUS; /* Assumes knowledgable consumers */
         len = surface->pitch * surface->h;
         break;
     default:
@@ -2248,7 +2248,7 @@ surf_get_buffer (PyObject *self, PyObject *args)
         pixelstep = pixelsize;
         itemsize = 1;
         len = itemsize * shape[0] * shape[1];
-        flags |= BUFPROXY_F_ORDER;
+        flags |= VIEW_F_ORDER;
         switch (mask) {
 
         case 0x000000ffU:
