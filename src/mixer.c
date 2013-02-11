@@ -877,7 +877,6 @@ snd_getbuffer(PyObject *obj, Py_buffer *view, int flags)
                 PyErr_NoMemory();
                 return -1;
             }
-	    view->internal = shape;
             if (fortran_order) {
                 shape[0] = channels;
                 shape[ndim - 1] = samples;
@@ -900,16 +899,18 @@ snd_getbuffer(PyObject *obj, Py_buffer *view, int flags)
         }
     }
 
-    if (PyBuffer_FillInfo(view, obj, chunk->abuf, chunk->alen, 0, flags)) {
-        return -1;
-    }
-    if (flags != PyBUF_SIMPLE) {
-        view->format = format;
-        view->ndim = ndim;
-        view->shape = shape;
-        view->strides = strides;
-        view->itemsize = itemsize;
-    }
+    Py_INCREF(obj);
+    view->obj = obj;
+    view->buf = chunk->abuf;
+    view->len = (Py_ssize_t)chunk->alen;
+    view->readonly = 0;
+    view->itemsize = itemsize;
+    view->format = format;
+    view->ndim = ndim;
+    view->shape = shape;
+    view->strides = strides;
+    view->suboffsets = 0;
+    view->internal = shape;
     return 0;
 }
 
