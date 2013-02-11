@@ -31,7 +31,7 @@ class BufferProxyTest(unittest.TestCase):
     def test___array_struct___property(self):
         kwds = self.view_keywords
         v = BufferProxy(**kwds)
-        d = pygame.bufferproxy.get_array_interface(v)
+        d = pygame.get_array_interface(v)
         self.assertEqual(len(d), 5)
         self.assertEqual(d['version'], 3)
         self.assertEqual(d['shape'], kwds['shape'])

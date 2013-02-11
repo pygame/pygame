@@ -55,6 +55,13 @@ QDGlobals qd;
 #define PAI_OTHER_ENDIAN '<'
 #endif
 
+/* Extended array struct */
+typedef struct capsule_interface_s {
+    PyArrayInterface inter;
+    PyObject *parent;
+    Py_intptr_t imem[1];
+} CapsuleInterface;
+
 /* Only one instance of the state per process. */
 static PyObject* quitfunctions = NULL;
 static int sdl_was_init = 0;
@@ -68,12 +75,19 @@ static void PyGame_Video_AutoQuit (void);
 static int GetArrayInterface (PyObject*, PyObject**, PyArrayInterface**);
 static PyObject* ArrayStructAsDict (PyArrayInterface*);
 static PyObject* ViewAsDict (Py_buffer*);
+static PyObject* ViewAndFlagsAsArrayStruct (Py_buffer*, int);
 static PyObject* view_get_typestr_obj (Py_buffer*);
 static PyObject* view_get_shape_obj (Py_buffer*);
 static PyObject* view_get_strides_obj (Py_buffer*);
 static PyObject* view_get_data_obj (Py_buffer*);
 static char _as_arrayinter_typekind (const Py_buffer*);
 static char _as_arrayinter_byteorder (const Py_buffer*);
+static int _as_arrayinter_flags (const Py_buffer*, int);
+static CapsuleInterface* _new_capsuleinterface (const Py_buffer*, int);
+static void _free_capsuleinterface (void*);
+#if PY3
+static void _capsule_free_capsuleinterface (PyObject*);
+#endif
 static PyObject* _shape_as_tuple (PyArrayInterface*);
 static PyObject* _typekind_as_str (PyArrayInterface*);
 static PyObject* _strides_as_tuple (PyArrayInterface*);
@@ -576,6 +590,112 @@ ViewAsDict (Py_buffer* view)
 }
 
 static PyObject*
+ViewAndFlagsAsArrayStruct (Py_buffer* view, int flags)
+{
+    void *cinter_p  = _new_capsuleinterface (view, flags);
+    PyObject *capsule;
+
+    if (!cinter_p) {
+        return 0;
+    }
+#if PY3
+    capsule = PyCapsule_New (cinter_p, 0, _capsule_free_capsuleinterface);
+#else
+    capsule = PyCObject_FromVoidPtr (cinter_p, _free_capsuleinterface);
+#endif
+    if (!capsule) {
+        _free_capsuleinterface ((void *)cinter_p);
+        return 0;
+    }
+    return capsule;
+}
+
+static CapsuleInterface*
+_new_capsuleinterface (const Py_buffer *view, int flags)
+{
+    int ndim = view->ndim;
+    Py_ssize_t cinter_size;
+    CapsuleInterface *cinter_p;
+    int i;
+
+    cinter_size = (sizeof (CapsuleInterface) +
+                   sizeof (Py_intptr_t) * (2 * ndim - 1));
+    cinter_p = (CapsuleInterface *)PyMem_Malloc (cinter_size);
+    if (!cinter_p) {
+        PyErr_NoMemory ();
+        return 0;
+    }
+    cinter_p->inter.two = 2;
+    cinter_p->inter.nd = ndim;
+    cinter_p->inter.typekind = _as_arrayinter_typekind (view);
+    cinter_p->inter.itemsize = view->itemsize;
+    cinter_p->inter.flags = _as_arrayinter_flags (view, flags);
+    if (view->shape) {
+        cinter_p->inter.shape = cinter_p->imem;
+        for (i = 0; i < ndim; ++i) {
+            cinter_p->inter.shape[i] = (Py_intptr_t)view->shape[i];
+        }
+    }
+    if (view->strides) {
+        cinter_p->inter.strides = cinter_p->imem + ndim;
+        for (i = 0; i < ndim; ++i) {
+            cinter_p->inter.strides[i] = (Py_intptr_t)view->strides[i];
+        }
+    }
+    cinter_p->inter.data = view->buf;
+    cinter_p->inter.descr = 0;
+    cinter_p->parent = (PyObject *)view->obj;
+    Py_XINCREF (cinter_p->parent);
+    return cinter_p;
+}
+
+static void
+_free_capsuleinterface (void *p)
+{
+    CapsuleInterface *cinter_p = (CapsuleInterface *)p;
+
+    Py_XDECREF (cinter_p->parent);
+    PyMem_Free (p);
+}
+
+#if PY3
+static void
+_capsule_free_capsuleinterface (PyObject *capsule)
+{
+    _free_capsuleinterface (PyCapsule_GetPointer (capsule, 0));
+}
+#endif
+
+static int
+_as_arrayinter_flags (const Py_buffer* view, int flags)
+{
+    int inter_flags = PAI_ALIGNED; /* atomic int types always aligned */
+
+    if (!view->readonly) {
+        inter_flags |= PAI_WRITEABLE;
+    }
+    switch (view->format[0]) {
+
+    case '<':
+        inter_flags |= SDL_BYTEORDER == SDL_LIL_ENDIAN ? PAI_NOTSWAPPED : 0;
+        break;
+    case '>':
+    case '!':
+        inter_flags |= SDL_BYTEORDER == SDL_BIG_ENDIAN ? PAI_NOTSWAPPED : 0;
+        break;
+    default:
+        inter_flags |= PAI_NOTSWAPPED;
+    }
+    if (flags & VIEW_CONTIGUOUS) {
+        inter_flags |= PAI_CONTIGUOUS;
+    }
+    if (flags & VIEW_F_ORDER) {
+        inter_flags |= PAI_FORTRAN;
+    }
+    return inter_flags;
+}
+
+static PyObject*
 view_get_typestr_obj (Py_buffer* view)
 {
     return Text_FromFormat ("%c%c%i",
@@ -988,6 +1108,9 @@ MODINIT_DEFINE(base)
     }
 
     /* export the c api */
+#if PYGAMEAPI_BASE_NUMSLOTS != 17
+#error export slot count mismatch
+#endif
     c_api[0] = PyExc_SDLError;
     c_api[1] = PyGame_RegisterQuit;
     c_api[2] = IntFromObj;
@@ -1003,6 +1126,8 @@ MODINIT_DEFINE(base)
     c_api[12] = RGBAFromObj;
     c_api[13] = ArrayStructAsDict;
     c_api[14] = ViewAsDict;
+    c_api[15] = GetArrayInterface;
+    c_api[16] = ViewAndFlagsAsArrayStruct;
     apiobj = encapsulate_api (c_api, "base");
     if (apiobj == NULL) {
         Py_XDECREF (atexit_register);

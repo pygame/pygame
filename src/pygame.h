@@ -181,8 +181,12 @@ typedef getcharbufferproc charbufferproc;
         return RAISE(PyExc_SDLError, "joystick system not initialized")
 
 /* BASE */
+#define VIEW_CONTIGUOUS    1
+#define VIEW_C_ORDER       2
+#define VIEW_F_ORDER       4
+
 #define PYGAMEAPI_BASE_FIRSTSLOT 0
-#define PYGAMEAPI_BASE_NUMSLOTS 15
+#define PYGAMEAPI_BASE_NUMSLOTS 17
 #ifndef PYGAMEAPI_BASE_INTERNAL
 #define PyExc_SDLError ((PyObject*)PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT])
 
@@ -226,11 +230,19 @@ typedef getcharbufferproc charbufferproc;
     (*(int(*)(PyObject*, Uint8*))PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 12])
 
 #define ArrayStructAsDict                                               \
-    (*(PyObject*(*)(Py_buffer*)) PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 13])
+    (*(PyObject*(*)(PyArrayInterface*))                                 \
+     PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 13])
 
 #define ViewAsDict                                                      \
-    (*(PyObject*(*)(PyArrayInterface*))                                 \
-     PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 14])
+    (*(PyObject*(*)(Py_buffer*)) PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 14])
+
+#define GetArrayInterface                                               \
+    (*(int(*)(PyObject*, PyObject**, PyArrayInterface**))               \
+     PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 15])
+
+#define ViewAndFlagsAsArrayStruct                                       \
+    (*(PyObject*(*)(Py_buffer*, int))                                   \
+     PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 16])
 
 #define import_pygame_base() IMPORT_PYGAME_MODULE(base, BASE)
 #endif
