@@ -15,7 +15,7 @@ immediately visible onscreen, you must choose one of the two flipping functions
 to update the actual display.
 
 The origin of the display, where x = 0, and y = 0 is the top left of the
-screen. Both axis increase positively towards the botom right of the screen.
+screen. Both axis increase positively towards the bottom right of the screen.
 
 The pygame display can actually be initialized in one of several modes. By
 default the display is a basic software driven framebuffer. You can request
@@ -44,7 +44,7 @@ be redrawn.
 
 .. function:: init
 
-   | :sl:`initialize the display module`
+   | :sl:`Initialize the display module`
    | :sg:`init() -> None`
 
    Initializes the pygame display module. The display module cannot do anything
@@ -74,7 +74,7 @@ be redrawn.
 
 .. function:: quit
 
-   | :sl:`uninitialize the display module`
+   | :sl:`Uninitialize the display module`
    | :sg:`quit() -> None`
 
    This will shut down the entire display module. This means any active
@@ -87,7 +87,7 @@ be redrawn.
 
 .. function:: get_init
 
-   | :sl:`true if the display module is initialized`
+   | :sl:`Returns True if the display module has been initialized`
    | :sg:`get_init() -> bool`
 
    Returns True if the :mod:`pygame.display` module is currently initialized.
@@ -96,7 +96,7 @@ be redrawn.
 
 .. function:: set_mode
 
-   | :sl:`initialize a window or screen for display`
+   | :sl:`Initialize a window or screen for display`
    | :sg:`set_mode(resolution=(0,0), flags=0, depth=0) -> Surface`
 
    This function will create a display Surface. The arguments passed in are
@@ -123,7 +123,7 @@ be redrawn.
 
    When requesting fullscreen display modes, sometimes an exact match for the
    requested resolution cannot be made. In these situations pygame will select
-   the closest compatable match. The returned surface will still always match
+   the closest compatible match. The returned surface will still always match
    the requested resolution.
 
    The flags argument controls which type of display you want. There are
@@ -137,15 +137,24 @@ be redrawn.
       pygame.FULLSCREEN    create a fullscreen display
       pygame.DOUBLEBUF     recommended for HWSURFACE or OPENGL
       pygame.HWSURFACE     hardware accelerated, only in FULLSCREEN
-      pygame.OPENGL        create an opengl renderable display
+      pygame.OPENGL        create an OpenGL renderable display
       pygame.RESIZABLE     display window should be sizeable
       pygame.NOFRAME       display window will have no border or controls
 
+   For example:
+    
+   ::
+    
+        # Open a window on the screen
+        screen_width=700
+        screen_height=400
+        screen=pygame.display.set_mode([screen_width,screen_height])
+    
    .. ## pygame.display.set_mode ##
 
 .. function:: get_surface
 
-   | :sl:`get a reference to the currently set display surface`
+   | :sl:`Get a reference to the currently set display surface`
    | :sg:`get_surface() -> Surface`
 
    Return a reference to the currently set display Surface. If no display mode
@@ -155,7 +164,7 @@ be redrawn.
 
 .. function:: flip
 
-   | :sl:`update the full display Surface to the screen`
+   | :sl:`Update the full display Surface to the screen`
    | :sg:`flip() -> None`
 
    This will update the contents of the entire display. If your display mode is
@@ -171,7 +180,7 @@ be redrawn.
 
 .. function:: update
 
-   | :sl:`update portions of the screen for software displays`
+   | :sl:`Update portions of the screen for software displays`
    | :sg:`update(rectangle=None) -> None`
    | :sg:`update(rectangle_list) -> None`
 
@@ -193,7 +202,7 @@ be redrawn.
 
 .. function:: get_driver
 
-   | :sl:`get the name of the pygame display backend`
+   | :sl:`Get the name of the pygame display backend`
    | :sg:`get_driver() -> name`
 
    Pygame chooses one of many available display backends when it is
@@ -255,7 +264,7 @@ be redrawn.
 
 .. function:: list_modes
 
-   | :sl:`get list of available fullscreen modes`
+   | :sl:`Get list of available fullscreen modes`
    | :sg:`list_modes(depth=0, flags=pygame.FULLSCREEN) -> list`
 
    This function returns a list of possible dimensions for a specified color
@@ -272,11 +281,11 @@ be redrawn.
 
 .. function:: mode_ok
 
-   | :sl:`pick the best color depth for a display mode`
+   | :sl:`Pick the best color depth for a display mode`
    | :sg:`mode_ok(size, flags=0, depth=0) -> depth`
 
    This function uses the same arguments as ``pygame.display.set_mode()``. It
-   is used to depermine if a requested display mode is available. It will
+   is used to determine if a requested display mode is available. It will
    return 0 if the display mode cannot be set. Otherwise it will return a pixel
    depth that best matches the display asked for.
 
@@ -292,7 +301,7 @@ be redrawn.
 
 .. function:: gl_get_attribute
 
-   | :sl:`get the value for an opengl flag for the current display`
+   | :sl:`Get the value for an OpenGL flag for the current display`
    | :sg:`gl_get_attribute(flag) -> value`
 
    After calling ``pygame.display.set_mode()`` with the ``pygame.OPENGL`` flag,
@@ -303,7 +312,7 @@ be redrawn.
 
 .. function:: gl_set_attribute
 
-   | :sl:`request an opengl display attribute for the display mode`
+   | :sl:`Request an OpenGL display attribute for the display mode`
    | :sg:`gl_set_attribute(flag, value) -> None`
 
    When calling ``pygame.display.set_mode()`` with the ``pygame.OPENGL`` flag,
@@ -324,7 +333,7 @@ be redrawn.
 
 .. function:: get_active
 
-   | :sl:`true when the display is active on the display`
+   | :sl:`Returns True when the display is active on the display`
    | :sg:`get_active() -> bool`
 
    After ``pygame.display.set_mode()`` is called the display Surface will be
@@ -335,12 +344,12 @@ be redrawn.
 
 .. function:: iconify
 
-   | :sl:`iconify the display surface`
+   | :sl:`Iconify the display surface`
    | :sg:`iconify() -> bool`
 
    Request the window for the display surface be iconified or hidden. Not all
    systems and displays support an iconified display. The function will return
-   True if successfull.
+   True if successful.
 
    When the display is iconified ``pygame.display.get_active()`` will return
    False. The event queue should receive a ``ACTIVEEVENT`` event when the
@@ -350,7 +359,7 @@ be redrawn.
 
 .. function:: toggle_fullscreen
 
-   | :sl:`switch between fullscreen and windowed displays`
+   | :sl:`Switch between fullscreen and windowed displays`
    | :sg:`toggle_fullscreen() -> bool`
 
    Switches the display window between windowed and fullscreen modes. This
@@ -361,7 +370,7 @@ be redrawn.
 
 .. function:: set_gamma
 
-   | :sl:`change the hardware gamma ramps`
+   | :sl:`Change the hardware gamma ramps`
    | :sg:`set_gamma(red, green=None, blue=None) -> bool`
 
    Set the red, green, and blue gamma values on the display hardware. If the
@@ -376,7 +385,7 @@ be redrawn.
 
 .. function:: set_gamma_ramp
 
-   | :sl:`change the hardware gamma ramps with a custom lookup`
+   | :sl:`Change the hardware gamma ramps with a custom lookup`
    | :sg:`set_gamma_ramp(red, green, blue) -> bool`
 
    Set the red, green, and blue gamma ramps with an explicit lookup table. Each
@@ -388,7 +397,7 @@ be redrawn.
 
 .. function:: set_icon
 
-   | :sl:`change the system image for the display window`
+   | :sl:`Change the system image for the display window`
    | :sg:`set_icon(Surface) -> None`
 
    Sets the runtime icon the system will use to represent the display window.
@@ -406,7 +415,7 @@ be redrawn.
 
 .. function:: set_caption
 
-   | :sl:`set the current window caption`
+   | :sl:`Set the current window caption`
    | :sg:`set_caption(title, icontitle=None) -> None`
 
    If the display has a window title, this function will change the name on the
@@ -417,7 +426,7 @@ be redrawn.
 
 .. function:: get_caption
 
-   | :sl:`get the current window caption`
+   | :sl:`Get the current window caption`
    | :sg:`get_caption() -> (title, icontitle)`
 
    Returns the title and icontitle for the display Surface. These will often be
@@ -427,7 +436,7 @@ be redrawn.
 
 .. function:: set_palette
 
-   | :sl:`set the display color palette for indexed displays`
+   | :sl:`Set the display color palette for indexed displays`
    | :sg:`set_palette(palette=None) -> None`
 
    This will change the video display color palette for 8bit displays. This
