@@ -204,7 +204,6 @@ div.document {
 div.documentwrapper {
     float: left;
     width: 100%;
-    padding: 0.5em;
 }
 
 div.bodywrapper {
@@ -212,6 +211,7 @@ div.bodywrapper {
 }
 
 div.body {
+    padding: 0.5em;
 }
 
 div.heading {
