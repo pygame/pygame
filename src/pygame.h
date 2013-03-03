@@ -186,7 +186,7 @@ typedef getcharbufferproc charbufferproc;
 #define VIEW_F_ORDER       4
 
 #define PYGAMEAPI_BASE_FIRSTSLOT 0
-#define PYGAMEAPI_BASE_NUMSLOTS 17
+#define PYGAMEAPI_BASE_NUMSLOTS 20
 #ifndef PYGAMEAPI_BASE_INTERNAL
 #define PyExc_SDLError ((PyObject*)PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT])
 
@@ -243,6 +243,17 @@ typedef getcharbufferproc charbufferproc;
 #define ViewAndFlagsAsArrayStruct                                       \
     (*(PyObject*(*)(Py_buffer*, int))                                   \
      PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 16])
+
+#define ViewIsByteSwapped                                               \
+    (*(int(*)(const Py_buffer*)) PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 17])
+
+#define GetView                                                         \
+    (*(int(*)(PyObject*, Py_buffer*)                                    \
+       PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 18])
+
+#define ReleaseView                                                     \
+    (*(void(*)(Py_buffer*)                                              \
+       PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 19])
 
 #define import_pygame_base() IMPORT_PYGAME_MODULE(base, BASE)
 #endif
