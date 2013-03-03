@@ -62,6 +62,13 @@ typedef struct capsule_interface_s {
     Py_intptr_t imem[1];
 } CapsuleInterface;
 
+/* Py_buffer internal data for an array struct */
+typedef struct view_internals_s {
+    PyObject *obj;
+    char format[4];      /* make 4 byte word sized */
+    Py_ssize_t imem[1];
+} ViewInternals;
+
 /* Only one instance of the state per process. */
 static PyObject* quitfunctions = NULL;
 static int sdl_was_init = 0;
@@ -76,6 +83,9 @@ static int GetArrayInterface (PyObject*, PyObject**, PyArrayInterface**);
 static PyObject* ArrayStructAsDict (PyArrayInterface*);
 static PyObject* ViewAsDict (Py_buffer*);
 static PyObject* ViewAndFlagsAsArrayStruct (Py_buffer*, int);
+static int ViewIsByteSwapped (const Py_buffer*);
+static int GetView (PyObject*, Py_buffer*);
+static void ReleaseView (Py_buffer*);
 static PyObject* view_get_typestr_obj (Py_buffer*);
 static PyObject* view_get_shape_obj (Py_buffer*);
 static PyObject* view_get_strides_obj (Py_buffer*);
@@ -674,18 +684,7 @@ _as_arrayinter_flags (const Py_buffer* view, int flags)
     if (!view->readonly) {
         inter_flags |= PAI_WRITEABLE;
     }
-    switch (view->format[0]) {
-
-    case '<':
-        inter_flags |= SDL_BYTEORDER == SDL_LIL_ENDIAN ? PAI_NOTSWAPPED : 0;
-        break;
-    case '>':
-    case '!':
-        inter_flags |= SDL_BYTEORDER == SDL_BIG_ENDIAN ? PAI_NOTSWAPPED : 0;
-        break;
-    default:
-        inter_flags |= PAI_NOTSWAPPED;
-    }
+    inter_flags |= ViewIsByteSwapped (view) ? 0 : PAI_NOTSWAPPED;
     if (flags & VIEW_CONTIGUOUS) {
         inter_flags |= PAI_CONTIGUOUS;
     }
@@ -902,6 +901,207 @@ get_array_interface (PyObject* self, PyObject* arg)
     return dictobj;
 }
 
+static int
+GetView (PyObject* obj, Py_buffer* view)
+{
+    PyObject* cobj = 0;
+    PyArrayInterface* inter_p = 0;
+    ViewInternals* internal_p;
+    Py_ssize_t sz;
+    char fchar;
+    Py_ssize_t i;
+
+#if PY3
+    char *fchar_p;
+
+    if (PyObject_CheckBuffer (obj)) {
+        if (PyObject_GetBuffer (obj, &view, PyBUF_RECORDS)) {
+            return -1;
+        }
+        fchar_p = view->format;
+        switch (*fchar_p) {
+
+        case '@':
+        case '=':
+        case '<':
+        case '>':
+        case '!':
+            ++fchar_p;
+            break;
+        default:
+            break;
+        }
+        if (*fchar_p == 1) {
+            ++fchar_p;
+        }
+        switch (*fchar_p) {
+
+        case 'b':
+        case 'B':
+        case 'h':
+        case 'H':
+        case 'i':
+        case 'I':
+            ++fchar_p;
+            break;
+        case 'q':
+        case 'Q':
+            PyErr_FromString (PyExc_ValueError,
+                              "Unsupported integer size of 8 bytes");
+            PyBuffer_Release (view);
+            return -1;
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+            /* A record: will raise exception later */
+            break;
+        default:
+            PyErr_FromString (PyExc_ValueError,
+                              "Unsupported array element type");
+            PyBuffer_Release (view);
+            return -1;
+        }
+        if (fchar_p != '\0') {
+            PyErr_FromString (PyExc_ValueError,
+                              "Arrays of records are unsupported");
+            PyBuffer_Release (view);
+            return -1;
+        }
+    }
+    else
+#endif
+    if (PyObject_HasAttrString (obj, "__array_struct__")) {
+        if (!GetArrayInterface (obj, &cobj, &inter_p)) {
+            return -1;
+        }
+        sz = (sizeof (ViewInternals) + 
+              (2 * inter_p->nd - 1) * sizeof (Py_ssize_t));
+        internal_p = (ViewInternals*)PyMem_Malloc (sz);
+        if (!internal_p) {
+            Py_DECREF (cobj);
+            PyErr_NoMemory ();
+            return -1;
+        }
+        switch (inter_p->typekind) {
+
+        case 'i':
+            switch (inter_p->itemsize) {
+
+            case 1:
+                fchar = 'b';
+                break; 
+            case 2:
+                fchar = 'h';
+                break;
+            case 4:
+                fchar = 'i';
+                break;
+            default:
+                PyErr_Format (PyExc_ValueError,
+                              "Unsupported signed interger size %d",
+                              (int)inter_p->itemsize);
+                Py_DECREF (cobj);
+                return -1;
+            }
+            break;
+        case 'u':
+            switch (inter_p->itemsize) {
+
+            case 1:
+                fchar = 'B';
+                break; 
+            case 2:
+                fchar = 'H';
+                break;
+            case 4:
+                fchar = 'I';
+                break;
+            default:
+                PyErr_Format (PyExc_ValueError,
+                              "Unsupported unsigned interger size %d",
+                              (int)inter_p->itemsize);
+                Py_DECREF (cobj);
+                return -1;
+            }
+            break;
+        default:
+            PyErr_Format (PyExc_ValueError,
+                          "Unsupported value type '%c'",
+                          (int)inter_p->typekind);
+            Py_DECREF (cobj);
+            return -1;
+        }
+        view->internal = internal_p;
+        view->format = internal_p->format;
+        view->shape = internal_p->imem;
+        view->strides = view->shape + view->ndim;
+        internal_p->obj = obj;
+        Py_INCREF (obj);
+        view->obj = cobj;
+        view->ndim = (Py_ssize_t)inter_p->nd;
+        view->itemsize = (Py_ssize_t)inter_p->itemsize;
+        view->readonly = inter_p->flags & PAI_WRITEABLE ? 0 : 1;
+        view->format[0] = (inter_p->flags & PAI_NOTSWAPPED ?
+                           PAI_MY_ENDIAN : PAI_OTHER_ENDIAN);
+        view->format[1] = fchar;
+        view->format[2] = '\0';
+        for (i = 0; i < view->ndim; ++i) {
+            view->shape[i] = (Py_ssize_t)inter_p->shape[i];
+            view->strides[i] = (Py_ssize_t)inter_p->strides[i];
+        }
+        view->suboffsets = 0;
+    }
+    else {
+        PyErr_Format (PyExc_TypeError,
+                      "%s object does not export a C level array buffer",
+                      Py_TYPE (obj)->tp_name);
+        return -1;
+    }
+    return 0;
+}
+
+static void
+ReleaseView (Py_buffer* view)
+{
+#if PY3
+    if (PyCapsule_CheckExact (view->obj)) {
+        Py_DECREF (view->obj);
+        Py_XDECREF (((ViewInternals*)view->internal)->obj);
+        PyMem_Free (view->internal);
+    }
+    else {
+        PyBuffer_Release (view);
+    }
+#else
+    Py_DECREF (view->obj);
+    Py_XDECREF (((ViewInternals*)view->internal)->obj);
+    PyMem_Free (view->internal);
+#endif
+}
+
+static int
+ViewIsByteSwapped (const Py_buffer* view)
+{
+    if (view->format) {
+        switch (view->format[0]) {
+
+        case '<':
+            return SDL_BYTEORDER != SDL_LIL_ENDIAN;
+        case '>':
+        case '!':
+            return SDL_BYTEORDER != SDL_BIG_ENDIAN;
+        }
+    }
+    return 0;
+}
+
 /*error signal handlers (replacing SDL parachute)*/
 static void
 pygame_parachute (int sig)
@@ -1108,7 +1308,7 @@ MODINIT_DEFINE(base)
     }
 
     /* export the c api */
-#if PYGAMEAPI_BASE_NUMSLOTS != 17
+#if PYGAMEAPI_BASE_NUMSLOTS != 20
 #error export slot count mismatch
 #endif
     c_api[0] = PyExc_SDLError;
@@ -1128,6 +1328,9 @@ MODINIT_DEFINE(base)
     c_api[14] = ViewAsDict;
     c_api[15] = GetArrayInterface;
     c_api[16] = ViewAndFlagsAsArrayStruct;
+    c_api[17] = ViewIsByteSwapped;
+    c_api[18] = GetView;
+    c_api[19] = ReleaseView;
     apiobj = encapsulate_api (c_api, "base");
     if (apiobj == NULL) {
         Py_XDECREF (atexit_register);
