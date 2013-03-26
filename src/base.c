@@ -915,7 +915,7 @@ GetView (PyObject* obj, Py_buffer* view)
     char *fchar_p;
 
     if (PyObject_CheckBuffer (obj)) {
-        if (PyObject_GetBuffer (obj, &view, PyBUF_RECORDS)) {
+        if (PyObject_GetBuffer (obj, view, PyBUF_RECORDS)) {
             return -1;
         }
         fchar_p = view->format;
@@ -946,7 +946,7 @@ GetView (PyObject* obj, Py_buffer* view)
             break;
         case 'q':
         case 'Q':
-            PyErr_FromString (PyExc_ValueError,
+            PyErr_SetString (PyExc_ValueError,
                               "Unsupported integer size of 8 bytes");
             PyBuffer_Release (view);
             return -1;
@@ -963,13 +963,13 @@ GetView (PyObject* obj, Py_buffer* view)
             /* A record: will raise exception later */
             break;
         default:
-            PyErr_FromString (PyExc_ValueError,
+            PyErr_SetString (PyExc_ValueError,
                               "Unsupported array element type");
             PyBuffer_Release (view);
             return -1;
         }
         if (fchar_p != '\0') {
-            PyErr_FromString (PyExc_ValueError,
+            PyErr_SetString (PyExc_ValueError,
                               "Arrays of records are unsupported");
             PyBuffer_Release (view);
             return -1;
