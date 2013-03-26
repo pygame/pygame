@@ -129,6 +129,7 @@ proxy_new_from_type(PyTypeObject *type,
     char *format = 0;
 
     if (view->suboffsets) {
+        Py_XDECREF(view->obj);
         PyErr_SetString(PyExc_BufferError, "unable to handle suboffsets");
         return 0;
     }
@@ -137,6 +138,7 @@ proxy_new_from_type(PyTypeObject *type,
         if (format_len > 2) {
             format = PyMem_New(char, format_len + 1);
             if (!format) {
+                Py_XDECREF(view->obj);
                 return PyErr_NoMemory();
             }
         }
@@ -147,12 +149,13 @@ proxy_new_from_type(PyTypeObject *type,
             if (format) {
                 PyMem_Free(format);
             }
+            Py_XDECREF(view->obj);
             return PyErr_NoMemory();
         }
         strides = shape + ndim;
     }
 
-    self = (PgBufproxyObject *)type->tp_alloc(type, 0);
+    self = PyObject_GC_New(PgBufproxyObject, type);
     if (!self) {
         if (format) {
             PyMem_Free(format);
@@ -160,6 +163,7 @@ proxy_new_from_type(PyTypeObject *type,
         if (shape) {
             PyMem_Free(shape);
         }
+        Py_XDECREF(view->obj);
         return 0;
     }
 
@@ -210,6 +214,7 @@ proxy_new_from_type(PyTypeObject *type,
     }
     self->pyafter = pyafter;
     self->global_release = 0;
+    PyObject_GC_Track(self);
     return (PyObject *)self;
 }
 
@@ -463,23 +468,68 @@ _free_view(Py_buffer *view)
     if (view->strides) {
         PyMem_Free(view->strides);
     }
-    Py_XDECREF(view->obj);
 }
 
 /**
  * Return a new PgBufproxyObject (Python level constructor).
  */
+static int
+_fill_view_from_array_interface(PyObject *dict, Py_buffer *view)
+{
+    PyObject *pyshape = PyDict_GetItemString(dict, "shape");
+    PyObject *pytypestr = PyDict_GetItemString(dict, "typestr");
+    PyObject *pydata = PyDict_GetItemString(dict, "data");
+    PyObject *pystrides = PyDict_GetItemString(dict, "strides");
+    int i;
+
+    if (!pyshape) {
+        PyErr_SetString(PyExc_ValueError,
+                        "required \"shape\" item is missing");
+        return -1;
+    }
+    if (!pytypestr) {
+        PyErr_SetString(PyExc_ValueError,
+                        "required \"typestr\" item is missing");
+        return -1;
+    }
+    if (!pydata) {
+        PyErr_SetString(PyExc_ValueError,
+                        "required \"data\" item is missing");
+        return -1;
+    }
+    /* The item processing order is important: "strides" must follow "shape". */
+    if (!_shape_arg_convert(pyshape, view)) {
+        return -1;
+    }
+    if (!_typestr_arg_convert(pytypestr, view)) {
+        return -1;
+    }
+    if (!_data_arg_convert(pydata, view)) {
+        return -1;
+    }
+    if (pystrides && !_strides_arg_convert(pystrides, view)) { /* cond. && */
+        return -1;
+    }
+    view->len = view->itemsize;
+    for (i = 0; i < view->ndim; ++i) {
+        view->len *= view->shape[i];
+    }
+    return 0;
+}
+
 static PyObject *
 proxy_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
-    Py_buffer view;
+    PyObject *buffer;
     PyObject *pybefore = 0;
     PyObject *pyafter = 0;
+    PyObject *parent = 0;
+    Py_buffer view;
     PyObject *self = 0;
-    int i;
-    /* The argument evaluation order is important: strides must follow shape. */
-    char *keywords[] = {"shape", "typestr", "data", "strides", "parent",
-                        "before", "after", 0};
+
+    if (!PyArg_ParseTuple(args, "O:Bufproxy", &buffer)) {
+        return 0;
+    }
 
     view.obj = 0;
     view.len = 0;
@@ -491,31 +541,27 @@ proxy_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     view.itemsize = 0;
     view.internal = 0;
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&O&O&|O&O&OO:Bufproxy",
-                                     keywords,
-                                     _shape_arg_convert, &view,
-                                     _typestr_arg_convert, &view,
-                                     _data_arg_convert, &view,
-                                     _strides_arg_convert, &view,
-                                     _parent_arg_convert, &view,
-                                     &pybefore, &pyafter)) {
+    if (PyDict_Check(buffer)) {
+        if (_fill_view_from_array_interface(buffer, &view)) {
+            _free_view(&view);
+            return 0;
+        }
+        parent = PyDict_GetItemString(buffer, "parent");
+        if (parent && !_parent_arg_convert(parent, &view)) { /* cond. && */
+            _free_view(&view);
+            return 0;
+        }
+        pybefore = PyDict_GetItemString(buffer, "before");
+        pyafter = PyDict_GetItemString(buffer, "after");
+        self = proxy_new_from_type(type, &view, 0,
+                                   0, 0, pybefore, pyafter);
         _free_view(&view);
+    }
+    else {
+        PyErr_SetString(PyExc_TypeError,
+                        "From buffer interface: unfinished code");
         return 0;
     }
-    if (pybefore == Py_None) {
-        pybefore = 0;
-    }
-    if (pyafter == Py_None) {
-        pyafter = 0;
-    }
-    Py_XINCREF((PyObject *)view.obj);
-    view.len = view.itemsize;
-    for (i = 0; i < view.ndim; ++i) {
-        view.len *= view.shape[i];
-    }
-    self = proxy_new_from_type(type, &view, 0,
-                               0, 0, pybefore, pyafter);
-    _free_view(&view);
     return self;
 }
 
@@ -531,6 +577,7 @@ proxy_dealloc(PgBufproxyObject *self)
     }
     self->before = 0;
 
+    PyObject_GC_UnTrack(self);
     if (self->global_release) {
         self->after((PyObject *)self);
     }
@@ -548,6 +595,20 @@ proxy_dealloc(PgBufproxyObject *self)
         PyMem_Free(self->view.format);
     }
     Py_TYPE(self)->tp_free(self);
+}
+
+static int
+proxy_traverse(PgBufproxyObject *self, visitproc visit, void *arg) {
+    if (self->view.obj) {
+        Py_VISIT((PyObject *)self->view.obj);
+    }
+    if (self->pybefore) {
+        Py_VISIT(self->pybefore);
+    }
+    if (self->pyafter) {
+        Py_VISIT(self->pyafter);
+    }
+    return 0;
 }
 
 /**** Getter and setter access ****/
@@ -855,10 +916,10 @@ static PyTypeObject PgBufproxy_Type =
     &proxy_bufferprocs,         /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,  /* tp_flags */
     "Object bufproxy as an array struct\n",
-    0,                          /* tp_traverse */
+    (traverseproc)proxy_traverse,  /* tp_traverse */
     0,                          /* tp_clear */
     0,                          /* tp_richcompare */
-    offsetof(PgBufproxyObject, weakrefs),    /* tp_weaklistoffset */
+    offsetof(PgBufproxyObject, weakrefs),  /* tp_weaklistoffset */
     0,                          /* tp_iter */
     0,                          /* tp_iternext */
     0,                          /* tp_methods */
@@ -868,11 +929,11 @@ static PyTypeObject PgBufproxy_Type =
     0,                          /* tp_dict */
     0,                          /* tp_descr_get */
     0,                          /* tp_descr_set */
-    offsetof(PgBufproxyObject, dict), /* tp_dictoffset */
+    offsetof(PgBufproxyObject, dict),  /* tp_dictoffset */
     0,                          /* tp_init */
     0,                          /* tp_alloc */
     proxy_new,                  /* tp_new */
-    0,                          /* tp_free */
+    PyObject_GC_Del,            /* tp_free */
 #ifndef __SYMBIAN32__
     0,                          /* tp_is_gc */
     0,                          /* tp_bases */
