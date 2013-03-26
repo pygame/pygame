@@ -30,7 +30,7 @@ class BufferProxyTest(unittest.TestCase):
 
     def test___array_struct___property(self):
         kwds = self.view_keywords
-        v = BufferProxy(**kwds)
+        v = BufferProxy(kwds)
         d = pygame.get_array_interface(v)
         self.assertEqual(len(d), 5)
         self.assertEqual(d['version'], 3)
@@ -41,7 +41,7 @@ class BufferProxyTest(unittest.TestCase):
 
     def test___array_interface___property(self):
         kwds = self.view_keywords
-        v = BufferProxy(**kwds)
+        v = BufferProxy(kwds)
         d = v.__array_interface__
         self.assertEqual(len(d), 5)
         self.assertEqual(d['version'], 3)
@@ -51,8 +51,10 @@ class BufferProxyTest(unittest.TestCase):
         self.assertEqual(d['strides'], kwds['strides'])
 
     def test_parent_property(self):
+        kwds = dict(self.view_keywords)
         p = []
-        v = BufferProxy(parent=p, **self.view_keywords)
+        kwds['parent'] = p
+        v = BufferProxy(kwds)
         self.assert_(v.parent is p)
 
     def test_before(self):
@@ -65,11 +67,14 @@ class BufferProxyTest(unittest.TestCase):
         def raise_exception(parent):
             raise MyException("Just a test.")
 
+        kwds = dict(self.view_keywords)
         p = []
+        kwds['parent'] = p
 
         # For array interface
         success = []
-        v = BufferProxy(parent=p, before=callback, **self.view_keywords)
+        kwds['before'] = callback
+        v = BufferProxy(kwds)
         self.assertEqual(len(success), 0)
         d = v.__array_interface__
         self.assertEqual(len(success), 1)
@@ -82,7 +87,8 @@ class BufferProxyTest(unittest.TestCase):
 
         # For array struct
         success = []
-        v = BufferProxy(parent=p, before=callback, **self.view_keywords)
+        kwds['before'] = callback
+        v = BufferProxy(kwds)
         self.assertEqual(len(success), 0)
         c = v.__array_struct__
         self.assertEqual(len(success), 1)
@@ -94,18 +100,22 @@ class BufferProxyTest(unittest.TestCase):
         self.assertEqual(len(success), 1)
 
         # Callback raises an exception
-        v = BufferProxy(before=raise_exception, **self.view_keywords)
+        kwds['before'] = raise_exception
+        v = BufferProxy(kwds)
         self.assertRaises(MyException, lambda : v.__array_struct__)
 
     def test_after(self):
         def callback(parent):
             success.append(parent is p)
 
+        kwds = dict(self.view_keywords)
         p = []
+        kwds['parent'] = p
 
         # For array interface
         success = []
-        v = BufferProxy(parent=p, after=callback, **self.view_keywords)
+        kwds['after'] = callback
+        v = BufferProxy(kwds)
         self.assertEqual(len(success), 0)
         d = v.__array_interface__
         self.assertEqual(len(success), 0)
@@ -118,7 +128,8 @@ class BufferProxyTest(unittest.TestCase):
 
         # For array struct
         success = []
-        v = BufferProxy(parent=p, after=callback, **self.view_keywords)
+        kwds['after'] = callback
+        v = BufferProxy(kwds)
         self.assertEqual(len(success), 0)
         c = v.__array_struct__
         self.assertEqual(len(success), 0)
@@ -130,7 +141,7 @@ class BufferProxyTest(unittest.TestCase):
         self.assertTrue(success[0])
 
     def test_weakref(self):
-        v = BufferProxy(**self.view_keywords)
+        v = BufferProxy(self.view_keywords)
         weak_v = weakref.ref(v)
         self.assert_(weak_v() is v)
         v = None
@@ -152,12 +163,13 @@ class BufferProxyTest(unittest.TestCase):
         weak_r1 = weakref.ref(r[1])
         weak_before = weakref.ref(before_callback)
         weak_after = weakref.ref(after_callback)
-        v = BufferProxy(parent=p,
-                 before=before_callback,
-                 after=after_callback,
-                 **self.view_keywords)
+        kwds = dict(self.view_keywords)
+        kwds['parent'] = p
+        kwds['before'] = before_callback
+        kwds['after'] = after_callback
+        v = BufferProxy(kwds)
         weak_v = weakref.ref(v)
-        p = before_callback = after_callback = None
+        kwds = p = before_callback = after_callback = None
         gc.collect()
         self.assertTrue(weak_p() is not None)
         self.assertTrue(weak_before() is not None)
@@ -175,12 +187,32 @@ class BufferProxyTest(unittest.TestCase):
         self.assertTrue(weak_r0() is None)
         self.assertTrue(weak_r1() is None)
 
+        # Cycle removal
+        kwds = dict(self.view_keywords)
+        kwds['parent'] = []
+        v = BufferProxy(kwds)
+        tracked = True
+        for o in gc.get_objects():
+            if o is v:
+                break
+        else:
+            tracked = False
+        self.assertTrue(tracked)
+        kwds['parent'].append(v)
+        kwds = None
+        gc.collect()
+        n1 = len(gc.garbage)
+        v = None
+        gc.collect()
+        n2 = len(gc.garbage)
+        self.assertEqual(n2, n1)
+
     def test_c_api(self):
         api = pygame.bufferproxy._PYGAME_C_API
         self.assert_(isinstance(api, type(pygame.base._PYGAME_C_API)))
 
     def test_repr(self):
-        v = BufferProxy(**self.view_keywords)
+        v = BufferProxy(self.view_keywords)
         cname = re.findall(r"'([^']+)'", repr(BufferProxy))[0]
         oname, ovalue = re.findall(r"<([^)]+)\(([^)]+)\)>", repr(v))[0]
         self.assertEqual(oname, cname)
@@ -190,7 +222,9 @@ class BufferProxyTest(unittest.TestCase):
         class MyBufferProxy(BufferProxy):
             def __repr__(self):
                 return "*%s*" % (BufferProxy.__repr__(self),)
-        v = MyBufferProxy(parent=0, **self.view_keywords)
+        kwds = dict(self.view_keywords)
+        kwds['parent'] = 0
+        v = MyBufferProxy(kwds)
         self.assertEqual(v.parent, 0)
         r = repr(v)
         self.assertEqual(r[:2], '*<')
@@ -206,15 +240,15 @@ class BufferProxyLegacyTest(unittest.TestCase):
         # __doc__ (as of 2008-08-02) for pygame.bufferproxy.BufferProxy.length:
 
           # The size of the buffer data in bytes.
-        bf = BufferProxy(shape=(3, 4),
-                  typestr='|u4',
-                  data=self.data,
-                  strides=(12, 4))
+        bf = BufferProxy({'shape': (3, 4),
+                          'typestr': '|u4',
+                          'data': self.data,
+                          'strides': (12, 4)})
         self.assertEqual(bf.length, len(self.content))
-        bf = BufferProxy(shape=(3, 3),
-                  typestr='|u4',
-                  data=self.data,
-                  strides=(12, 4))
+        bf = BufferProxy({'shape': (3, 3),
+                          'typestr': '|u4',
+                          'data': self.data,
+                          'strides': (12, 4)})
         self.assertEqual(bf.length, 3*3*4)
 
     def todo_test_raw(self):
