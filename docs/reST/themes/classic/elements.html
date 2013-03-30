@@ -57,5 +57,6 @@
 
 
 {%- block relbaritems %}
-    <script type="text/javascript" src="_static/jquery.plugin.docscomments.js"></script>
+{%- set jquerydocscomments_path = '_static/jquery.plugin.docscomments.js' %}
+    <script type="text/javascript" src="{{ pathto(jquerydocscomments_path, 1) }}"></script>
 {% endblock %} 
