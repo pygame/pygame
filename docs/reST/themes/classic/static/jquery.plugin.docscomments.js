@@ -67,8 +67,8 @@ $(document).ready(function () {
 			}
 
 			// Add "search internet for source code" buttons.
-			var searchButton = $(searchButtonHtml[0] + link + searchButtonHtml[1] + link + searchButtonHtml[2]);
-			$(el).next().append(searchButton);
+			//var searchButton = $(searchButtonHtml[0] + link + searchButtonHtml[1] + link + searchButtonHtml[2]);
+			//$(el).next().append(searchButton);
 
 			// Add show comments buttons.
 			var comments = getComments(link);
@@ -120,12 +120,17 @@ $(document).ready(function () {
 				})
 			}
 		});
-
-
-
 	});
 
 
 
-
+    // Add "search internet for source code" buttons.
+    $('dt.title').each(function (idx, el) {
+        var link = $(el).attr('id');
+        if (typeof link === "undefined") {
+            return;
+        }
+        var searchButton = $(searchButtonHtml[0] + link + searchButtonHtml[1] + link + searchButtonHtml[2]);
+        $(el).next().append(searchButton);
+    });
 });
