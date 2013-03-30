@@ -522,16 +522,17 @@ p.linklist {
 }
 
 pre {
-    font-family: monospace;
-    padding: 5px;
-    padding-left: 15px;
-    margin-bottom: 1em;
-    background-color: {{ theme_codebgcolor }};
-    color: {{ theme_codetextcolor }};
-    line-height: 120%;
+    background-color: #eeffcc;
     border: 1px solid #ac9;
     border-left: none;
     border-right: none;
+    color: #333333;
+    display: inline-block;
+    font-family: monospace;
+    line-height: 120%;
+    margin-bottom: 1em;
+    padding: 5px;
+    padding-left: 15px;
 }
 
 .warning tt {
