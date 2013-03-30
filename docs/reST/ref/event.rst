@@ -8,7 +8,7 @@
 
 | :sl:`pygame module for interacting with events and queues`
 
-Pygame handles all it's event messaging through an event queue. The routines in
+Pygame handles all its event messaging through an event queue. The routines in
 this module help you manage that event queue. The input queue is heavily
 dependent on the pygame display module. If the display has not been initialized
 and a video mode not set, the event queue will not really work.
