@@ -1,7 +1,7 @@
 /* Auto generated file: with makeref.py .  Docs go in src/ *.doc . */
 #define DOC_PYGAMESPRITE "pygame module with basic game object classes"
 
-#define DOC_PYGAMESPRITESPRITE "Sprite(*groups) -> Sprite\nsimple base class for visible game objects"
+#define DOC_PYGAMESPRITESPRITE "Sprite(*groups) -> Sprite\nSimple base class for visible game objects."
 
 #define DOC_SPRITEUPDATE "update(*args) -> None\nmethod to control sprite behavior"
 
@@ -15,9 +15,9 @@
 
 #define DOC_SPRITEGROUPS "groups() -> group_list\nlist of Groups that contain this Sprite"
 
-#define DOC_PYGAMESPRITEDIRTYSPRITE "DirtySprite(*groups) -> DirtySprite\na more featureful subclass of Sprite with more attributes"
+#define DOC_PYGAMESPRITEDIRTYSPRITE "DirtySprite(*groups) -> DirtySprite\nA subclass of Sprite with more attributes and features."
 
-#define DOC_PYGAMESPRITEGROUP "Group(*sprites) -> Group\ncontainer class for many Sprites"
+#define DOC_PYGAMESPRITEGROUP "Group(*sprites) -> Group\nA container class to hold and manage multiple Sprite objects."
 
 #define DOC_GROUPSPRITES "sprites() -> sprite_list\nlist of the Sprites this Group contains"
 
@@ -37,17 +37,17 @@
 
 #define DOC_GROUPEMPTY "empty() -> None\nremove all Sprites"
 
-#define DOC_PYGAMESPRITERENDERPLAIN ""
+#define DOC_PYGAMESPRITERENDERPLAIN "Same as pygame.sprite.Group"
 
-#define DOC_PYGAMESPRITERENDERCLEAR ""
+#define DOC_PYGAMESPRITERENDERCLEAR "Same as pygame.sprite.Group"
 
-#define DOC_PYGAMESPRITERENDERUPDATES "RenderUpdates(*sprites) -> RenderUpdates\nGroup class that tracks dirty updates"
+#define DOC_PYGAMESPRITERENDERUPDATES "RenderUpdates(*sprites) -> RenderUpdates\nGroup sub-class that tracks dirty updates."
 
 #define DOC_RENDERUPDATESDRAW "draw(surface) -> Rect_list\nblit the Sprite images and track changed areas"
 
-#define DOC_PYGAMESPRITEORDEREDUPDATES "OrderedUpdates(*spites) -> OrderedUpdates\nRenderUpdates class that draws Sprites in order of addition"
+#define DOC_PYGAMESPRITEORDEREDUPDATES "OrderedUpdates(*spites) -> OrderedUpdates\nRenderUpdates sub-class that draws Sprites in order of addition."
 
-#define DOC_PYGAMESPRITELAYEREDUPDATES "LayeredUpdates(*spites, **kwargs) -> LayeredUpdates\nLayeredUpdates Group handles layers, that draws like OrderedUpdates."
+#define DOC_PYGAMESPRITELAYEREDUPDATES "LayeredUpdates(*spites, **kwargs) -> LayeredUpdates\nLayeredUpdates is a sprite group that handles layers and draws like OrderedUpdates."
 
 #define DOC_LAYEREDUPDATESADD "add(*sprites, **kwargs) -> None\nadd a sprite or sequence of sprites to a group"
 
@@ -81,7 +81,7 @@
 
 #define DOC_LAYEREDUPDATESSWITCHLAYER "switch_layer(layer1_nr, layer2_nr) -> None\nswitches the sprites from layer1 to layer2"
 
-#define DOC_PYGAMESPRITELAYEREDDIRTY "LayeredDirty(*spites, **kwargs) -> LayeredDirty\nLayeredDirty Group is for DirtySprites.  Subclasses LayeredUpdates."
+#define DOC_PYGAMESPRITELAYEREDDIRTY "LayeredDirty(*spites, **kwargs) -> LayeredDirty\nLayeredDirty group is for DirtySprite objects.  Subclasses LayeredUpdates."
 
 #define DOC_LAYEREDDIRTYDRAW "draw(surface, bgd=None) -> Rect_list\ndraw all sprites in the right order onto the passed surface."
 
@@ -97,23 +97,23 @@
 
 #define DOC_LAYEREDDIRTYSETTIMINGTRESHOLD "set_timing_treshold(time_ms) -> None\nsets the treshold in milliseconds"
 
-#define DOC_PYGAMESPRITEGROUPSINGLE "GroupSingle(sprite=None) -> GroupSingle\nGroup container that holds a single Sprite"
+#define DOC_PYGAMESPRITEGROUPSINGLE "GroupSingle(sprite=None) -> GroupSingle\nGroup container that holds a single sprite."
 
-#define DOC_PYGAMESPRITESPRITECOLLIDE "spritecollide(sprite, group, dokill, collided = None) -> Sprite_list\nfind Sprites in a Group that intersect another Sprite"
+#define DOC_PYGAMESPRITESPRITECOLLIDE "spritecollide(sprite, group, dokill, collided = None) -> Sprite_list\nFind sprites in a group that intersect another sprite."
 
-#define DOC_PYGAMESPRITECOLLIDERECT "collide_rect(left, right) -> bool\ncollision detection between two sprites, using rects."
+#define DOC_PYGAMESPRITECOLLIDERECT "collide_rect(left, right) -> bool\nCollision detection between two sprites, using rects."
 
-#define DOC_PYGAMESPRITECOLLIDERECTRATIO "collide_rect_ratio(ratio) -> collided_callable\ncollision detection between two sprites, using rects scaled to a ratio."
+#define DOC_PYGAMESPRITECOLLIDERECTRATIO "collide_rect_ratio(ratio) -> collided_callable\nCollision detection between two sprites, using rects scaled to a ratio."
 
-#define DOC_PYGAMESPRITECOLLIDECIRCLE "collide_circle(left, right) -> bool\ncollision detection between two sprites, using circles."
+#define DOC_PYGAMESPRITECOLLIDECIRCLE "collide_circle(left, right) -> bool\nCollision detection between two sprites, using circles."
 
-#define DOC_PYGAMESPRITECOLLIDECIRCLERATIO "collide_circle_ratio(ratio) -> collided_callable\ncollision detection between two sprites, using circles scaled to a ratio."
+#define DOC_PYGAMESPRITECOLLIDECIRCLERATIO "collide_circle_ratio(ratio) -> collided_callable\nCollision detection between two sprites, using circles scaled to a ratio."
 
-#define DOC_PYGAMESPRITECOLLIDEMASK "collide_mask(SpriteLeft, SpriteRight) -> point\ncollision detection between two sprites, using masks."
+#define DOC_PYGAMESPRITECOLLIDEMASK "collide_mask(SpriteLeft, SpriteRight) -> point\nCollision detection between two sprites, using masks."
 
-#define DOC_PYGAMESPRITEGROUPCOLLIDE "groupcollide(group1, group2, dokill1, dokill2, collided = None) -> Sprite_dict\nfind all Sprites that collide between two Groups"
+#define DOC_PYGAMESPRITEGROUPCOLLIDE "groupcollide(group1, group2, dokill1, dokill2, collided = None) -> Sprite_dict\nFind all sprites that collide between two groups."
 
-#define DOC_PYGAMESPRITESPRITECOLLIDEANY "spritecollideany(sprite, group, collided = None) -> Sprite\nspritecollideany(sprite, group, collided = None) -> None\nsimple test if a Sprite intersects anything in a Group"
+#define DOC_PYGAMESPRITESPRITECOLLIDEANY "spritecollideany(sprite, group, collided = None) -> Sprite\nspritecollideany(sprite, group, collided = None) -> None\nSimple test if a sprite intersects anything in a group."
 
 
 
@@ -126,7 +126,7 @@ pygame module with basic game object classes
 
 pygame.sprite.Sprite
  Sprite(*groups) -> Sprite
-simple base class for visible game objects
+Simple base class for visible game objects.
 
 pygame.sprite.Sprite.update
  update(*args) -> None
@@ -154,11 +154,11 @@ list of Groups that contain this Sprite
 
 pygame.sprite.DirtySprite
  DirtySprite(*groups) -> DirtySprite
-a more featureful subclass of Sprite with more attributes
+A subclass of Sprite with more attributes and features.
 
 pygame.sprite.Group
  Group(*sprites) -> Group
-container class for many Sprites
+A container class to hold and manage multiple Sprite objects.
 
 pygame.sprite.Group.sprites
  sprites() -> sprite_list
@@ -197,14 +197,14 @@ pygame.sprite.Group.empty
 remove all Sprites
 
 pygame.sprite.RenderPlain
-
+Same as pygame.sprite.Group
 
 pygame.sprite.RenderClear
-
+Same as pygame.sprite.Group
 
 pygame.sprite.RenderUpdates
  RenderUpdates(*sprites) -> RenderUpdates
-Group class that tracks dirty updates
+Group sub-class that tracks dirty updates.
 
 pygame.sprite.RenderUpdates.draw
  draw(surface) -> Rect_list
@@ -212,11 +212,11 @@ blit the Sprite images and track changed areas
 
 pygame.sprite.OrderedUpdates
  OrderedUpdates(*spites) -> OrderedUpdates
-RenderUpdates class that draws Sprites in order of addition
+RenderUpdates sub-class that draws Sprites in order of addition.
 
 pygame.sprite.LayeredUpdates
  LayeredUpdates(*spites, **kwargs) -> LayeredUpdates
-LayeredUpdates Group handles layers, that draws like OrderedUpdates.
+LayeredUpdates is a sprite group that handles layers and draws like OrderedUpdates.
 
 pygame.sprite.LayeredUpdates.add
  add(*sprites, **kwargs) -> None
@@ -284,7 +284,7 @@ switches the sprites from layer1 to layer2
 
 pygame.sprite.LayeredDirty
  LayeredDirty(*spites, **kwargs) -> LayeredDirty
-LayeredDirty Group is for DirtySprites.  Subclasses LayeredUpdates.
+LayeredDirty group is for DirtySprite objects.  Subclasses LayeredUpdates.
 
 pygame.sprite.LayeredDirty.draw
  draw(surface, bgd=None) -> Rect_list
@@ -316,39 +316,39 @@ sets the treshold in milliseconds
 
 pygame.sprite.GroupSingle
  GroupSingle(sprite=None) -> GroupSingle
-Group container that holds a single Sprite
+Group container that holds a single sprite.
 
 pygame.sprite.spritecollide
  spritecollide(sprite, group, dokill, collided = None) -> Sprite_list
-find Sprites in a Group that intersect another Sprite
+Find sprites in a group that intersect another sprite.
 
 pygame.sprite.collide_rect
  collide_rect(left, right) -> bool
-collision detection between two sprites, using rects.
+Collision detection between two sprites, using rects.
 
 pygame.sprite.collide_rect_ratio
  collide_rect_ratio(ratio) -> collided_callable
-collision detection between two sprites, using rects scaled to a ratio.
+Collision detection between two sprites, using rects scaled to a ratio.
 
 pygame.sprite.collide_circle
  collide_circle(left, right) -> bool
-collision detection between two sprites, using circles.
+Collision detection between two sprites, using circles.
 
 pygame.sprite.collide_circle_ratio
  collide_circle_ratio(ratio) -> collided_callable
-collision detection between two sprites, using circles scaled to a ratio.
+Collision detection between two sprites, using circles scaled to a ratio.
 
 pygame.sprite.collide_mask
  collide_mask(SpriteLeft, SpriteRight) -> point
-collision detection between two sprites, using masks.
+Collision detection between two sprites, using masks.
 
 pygame.sprite.groupcollide
  groupcollide(group1, group2, dokill1, dokill2, collided = None) -> Sprite_dict
-find all Sprites that collide between two Groups
+Find all sprites that collide between two groups.
 
 pygame.sprite.spritecollideany
  spritecollideany(sprite, group, collided = None) -> Sprite
  spritecollideany(sprite, group, collided = None) -> None
-simple test if a Sprite intersects anything in a Group
+Simple test if a sprite intersects anything in a group.
 
 */
