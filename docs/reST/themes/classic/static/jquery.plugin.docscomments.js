@@ -37,11 +37,6 @@ $(document).ready(function () {
 			return _comments[link];
 		};
 
-		var searchButtonHtml = [
-			'<form action="http://nullege.com/codes/search" class="addcomment"><input type="hidden" value="', 
-			'" name="cq"><input type="submit" value="Search examples for ',
-			'"></form>'
-		];
 
 		var addCommentHtml = [
 			'<form action="http://www.pygame.org/docs/ref/comment_new.php" class="addcomment"><input type="hidden" value="',
@@ -123,6 +118,11 @@ $(document).ready(function () {
 	});
 
 
+    var searchButtonHtml = [
+        '<form action="http://nullege.com/codes/search" class="addcomment"><input type="hidden" value="', 
+        '" name="cq"><input type="submit" value="Search examples for ',
+        '"></form>'
+    ];
 
     // Add "search internet for source code" buttons.
     $('dt.title').each(function (idx, el) {
