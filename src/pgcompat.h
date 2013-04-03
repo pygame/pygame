@@ -188,17 +188,17 @@
 
 /* Python 2.5 and earlier (PEP 3118) Py_buffer */
 #if PY_VERSION_HEX < 0x02060000
-struct bufferinfo {
-    void *obj;
+typedef struct bufferinfo {
     void *buf;
+    PyObject *obj;
     Py_ssize_t len;
+    Py_ssize_t itemsize;
     int readonly;
-    const char *format;
     int ndim;
+    char *format;
     Py_ssize_t *shape;
     Py_ssize_t *strides;
     Py_ssize_t *suboffsets;
-    Py_ssize_t itemsize;
     void *internal;
 } Py_buffer;
 

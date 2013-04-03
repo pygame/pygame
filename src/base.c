@@ -64,7 +64,8 @@ typedef struct capsule_interface_s {
 
 /* Py_buffer internal data for an array struct */
 typedef struct view_internals_s {
-    PyObject *obj;
+    PyObject* cobj;
+    PyObject* obj;
     char format[4];      /* make 4 byte word sized */
     Py_ssize_t imem[1];
 } ViewInternals;
@@ -84,8 +85,14 @@ static PyObject* ArrayStructAsDict (PyArrayInterface*);
 static PyObject* ViewAsDict (Py_buffer*);
 static PyObject* ViewAndFlagsAsArrayStruct (Py_buffer*, int);
 static int ViewIsByteSwapped (const Py_buffer*);
-static int GetView (PyObject*, Py_buffer*);
 static void ReleaseView (Py_buffer*);
+static int GetView (PyObject*, Py_buffer*);
+static int ArrayInterface_AsView (Py_buffer*, PyObject*);
+static int Dict_AsView (Py_buffer*, PyObject*);
+static int _shape_arg_convert (PyObject *, Py_buffer*);
+static int _typestr_arg_convert (PyObject *, Py_buffer*);
+static int _data_arg_convert (PyObject*, Py_buffer*);
+static int _strides_arg_convert (PyObject*, Py_buffer*);
 static PyObject* view_get_typestr_obj (Py_buffer*);
 static PyObject* view_get_shape_obj (Py_buffer*);
 static PyObject* view_get_strides_obj (Py_buffer*);
@@ -103,6 +110,8 @@ static PyObject* _typekind_as_str (PyArrayInterface*);
 static PyObject* _strides_as_tuple (PyArrayInterface*);
 static PyObject* _data_as_tuple (PyArrayInterface*);
 static PyObject* get_array_interface (PyObject*, PyObject*);
+
+static PyObject _None[1];  /* Unique object address; do not reference count */
 
 static int
 CheckSDLVersions (void) /*compare compiled to linked*/
@@ -578,25 +587,12 @@ ArrayStructAsDict (PyArrayInterface* inter_p)
 static PyObject*
 ViewAsDict (Py_buffer* view)
 {
-    PyObject *dictobj =
-        Py_BuildValue ("{sisNsNsNsN}",
-                       "version", (int)3,
-                       "typestr", view_get_typestr_obj (view),
-                       "shape", view_get_shape_obj (view),
-                       "strides", view_get_strides_obj (view),
-                       "data", view_get_data_obj (view));
-    PyObject *obj = (PyObject *)view->obj;
-
-    if (!dictobj) {
-        return 0;
-    }
-    if (obj) {
-        if (PyDict_SetItemString (dictobj, "__obj", obj)) {
-            Py_DECREF (dictobj);
-            return 0;
-        }
-    }
-    return dictobj;
+    return Py_BuildValue ("{sisNsNsNsN}",
+                          "version", (int)3,
+                          "typestr", view_get_typestr_obj (view),
+                          "shape", view_get_shape_obj (view),
+                          "strides", view_get_strides_obj (view),
+                          "data", view_get_data_obj (view));
 }
 
 static PyObject*
@@ -654,7 +650,7 @@ _new_capsuleinterface (const Py_buffer *view, int flags)
     }
     cinter_p->inter.data = view->buf;
     cinter_p->inter.descr = 0;
-    cinter_p->parent = (PyObject *)view->obj;
+    cinter_p->parent = view->obj;
     Py_XINCREF (cinter_p->parent);
     return cinter_p;
 }
@@ -907,7 +903,7 @@ GetView (PyObject* obj, Py_buffer* view)
     PyObject* cobj = 0;
     PyArrayInterface* inter_p = 0;
     ViewInternals* internal_p;
-    Py_ssize_t sz;
+    size_t sz;
     char fchar;
     Py_ssize_t i;
 
@@ -968,7 +964,7 @@ GetView (PyObject* obj, Py_buffer* view)
             PyBuffer_Release (view);
             return -1;
         }
-        if (fchar_p != '\0') {
+        if (*fchar_p != '\0') {
             PyErr_SetString (PyExc_ValueError,
                               "Arrays of records are unsupported");
             PyBuffer_Release (view);
@@ -1042,9 +1038,10 @@ GetView (PyObject* obj, Py_buffer* view)
         view->format = internal_p->format;
         view->shape = internal_p->imem;
         view->strides = view->shape + view->ndim;
+        internal_p->cobj = cobj;
         internal_p->obj = obj;
         Py_INCREF (obj);
-        view->obj = cobj;
+        view->obj = _None;
         view->ndim = (Py_ssize_t)inter_p->nd;
         view->itemsize = (Py_ssize_t)inter_p->itemsize;
         view->readonly = inter_p->flags & PAI_WRITEABLE ? 0 : 1;
@@ -1058,6 +1055,11 @@ GetView (PyObject* obj, Py_buffer* view)
         }
         view->suboffsets = 0;
     }
+    else if (PyObject_HasAttrString (obj, "__array_interface__")) {
+        if (ArrayInterface_AsView (view, obj)) {
+            return -1;
+        }
+    }
     else {
         PyErr_Format (PyExc_TypeError,
                       "%s object does not export a C level array buffer",
@@ -1070,19 +1072,17 @@ GetView (PyObject* obj, Py_buffer* view)
 static void
 ReleaseView (Py_buffer* view)
 {
-#if PY3
-    if (PyCapsule_CheckExact (view->obj)) {
-        Py_DECREF (view->obj);
+    if (view->obj == _None && view->internal) {
+        Py_XDECREF (((ViewInternals*)view->internal)->cobj);
         Py_XDECREF (((ViewInternals*)view->internal)->obj);
         PyMem_Free (view->internal);
+        view->obj = 0;
+        view->internal = 0;
     }
+#if PY3
     else {
         PyBuffer_Release (view);
     }
-#else
-    Py_DECREF (view->obj);
-    Py_XDECREF (((ViewInternals*)view->internal)->obj);
-    PyMem_Free (view->internal);
 #endif
 }
 
@@ -1099,6 +1099,332 @@ ViewIsByteSwapped (const Py_buffer* view)
             return SDL_BYTEORDER != SDL_BIG_ENDIAN;
         }
     }
+    return 0;
+}
+
+static int
+ArrayInterface_AsView (Py_buffer* view, PyObject* obj)
+{
+    PyObject* dict = PyObject_GetAttrString (obj, "__array_interface__");
+
+    if (dict == NULL) {
+        if (PyErr_ExceptionMatches (PyExc_AttributeError)) {
+                PyErr_Clear ();
+                PyErr_SetString (PyExc_ValueError, "no array interface");
+        }
+        return -1;
+    }
+    if (!PyDict_Check (dict)) {
+        PyErr_Format (PyExc_ValueError,
+                      "expected __array_interface__ to return a dict: got a %s",
+                      Py_TYPE (dict)->tp_name);
+        Py_DECREF (dict);
+        return -1;
+    }
+    if (Dict_AsView (view, dict)) {
+        Py_DECREF (dict);
+        return -1;
+    }
+    ((ViewInternals*)view->internal)->obj = obj;
+    Py_INCREF (obj);
+    Py_DECREF (dict);
+    return 0;
+}
+
+static int
+Dict_AsView (Py_buffer* view, PyObject* dict)
+{
+    PyObject* pyshape = PyDict_GetItemString (dict, "shape");
+    PyObject* pytypestr = PyDict_GetItemString (dict, "typestr");
+    PyObject* pydata = PyDict_GetItemString (dict, "data");
+    PyObject* pystrides = PyDict_GetItemString (dict, "strides");
+    int i;
+
+    if (!pyshape) {
+        PyErr_SetString (PyExc_ValueError,
+                         "required \"shape\" item is missing");
+        return -1;
+    }
+    if (!pytypestr) {
+        PyErr_SetString (PyExc_ValueError,
+                         "required \"typestr\" item is missing");
+        return -1;
+    }
+    if (!pydata) {
+        PyErr_SetString (PyExc_ValueError,
+                         "required \"data\" item is missing");
+        return -1;
+    }
+    /* The item processing order is important:
+       "strides" and "typestr" must follow "shape". */
+    view->internal = 0;
+    view->obj = _None;
+    if (_shape_arg_convert (pyshape, view)) {
+        ReleaseView (view);
+        return -1;
+    }
+    if (_typestr_arg_convert (pytypestr, view)) {
+        ReleaseView (view);
+        return -1;
+    }
+    if (_data_arg_convert (pydata, view)) {
+        ReleaseView (view);
+        return -1;
+    }
+    if (pystrides && _strides_arg_convert (pystrides, view)) { /* cond. && */
+        ReleaseView (view);
+        return -1;
+    }
+    view->len = view->itemsize;
+    for (i = 0; i < view->ndim; ++i) {
+        view->len *= view->shape[i];
+    }
+    return 0;
+}
+
+static int
+_shape_arg_convert (PyObject* o, Py_buffer* view)
+{
+    /* Convert o as a C array of integers and return 1, otherwise
+     * raise a Python exception and return 0.
+     */
+    ViewInternals* internal_p;
+    Py_ssize_t i, n;
+    Py_ssize_t* a;
+    size_t sz;
+
+    view->internal = 0;
+    if (!PyTuple_Check (o)) {
+        PyErr_Format (PyExc_TypeError,
+                      "Expected a tuple for shape: found %s",
+                      Py_TYPE (o)->tp_name);
+        return -1;
+    }
+    n = PyTuple_GET_SIZE (o);
+    sz = sizeof (ViewInternals) + (2 * n - 1) * sizeof (Py_ssize_t);
+    internal_p = (ViewInternals*)PyMem_Malloc (sz);
+    if (!internal_p) {
+        PyErr_NoMemory ();
+        return -1;
+    }
+    internal_p->cobj = 0;
+    internal_p->obj = 0;
+    a = internal_p->imem;
+    for (i = 0; i < n; ++i) {
+        a[i] = PyInt_AsSsize_t (PyTuple_GET_ITEM (o, i));
+        if (a[i] == -1 && PyErr_Occurred () /* conditional && */) {
+            PyMem_Free (internal_p);
+            PyErr_Format (PyExc_TypeError,
+                          "shape tuple has a non-integer at position %d",
+                          (int)i);
+            return -1;
+        }
+    }
+    view->ndim = n;
+    view->internal = internal_p;
+    view->shape = a;
+    view->strides = a + n;
+    view->format = internal_p->format;
+    return 0;
+}
+
+static int
+_typestr_arg_convert (PyObject* o, Py_buffer* view)
+{
+    /* Due to incompatibilities between the array and new buffer interfaces,
+     * as well as significant unicode changes in Python 3.3, this will
+     * only handle integer types. Must call _shape_arg_convert first.
+     */
+    char type;
+    int is_signed;
+    int is_swapped;
+    char byteorder = '\0';
+    int itemsize;
+    PyObject* s;
+    const char* typestr;
+
+    if (PyUnicode_Check (o)) {
+        s = PyUnicode_AsASCIIString (o);
+        if (!s) {
+            return -1;
+        }
+    }
+    else {
+        Py_INCREF (o);
+        s = o;
+    }
+    if (!Bytes_Check (s)) {
+        PyErr_Format( PyExc_TypeError, "Expected a string for typestr: got %s",
+                     Py_TYPE (s)->tp_name);
+        Py_DECREF (s);
+        return -1;
+    }
+    if (Bytes_GET_SIZE (s) != 3) {
+        PyErr_SetString (PyExc_TypeError, "Expected typestr to be length 3");
+        Py_DECREF (s);
+        return -1;
+    }
+    typestr = Bytes_AsString (s);
+    switch (typestr[0]) {
+
+    case PAI_MY_ENDIAN:
+        is_swapped = 0;
+        break;
+    case PAI_OTHER_ENDIAN:
+        is_swapped = 1;
+        break;
+    case '|':
+        is_swapped = 0;
+        break;
+    default:
+        PyErr_Format( PyExc_ValueError,
+                      "unknown byteorder character %c in typestr",
+                      typestr[0]);
+        Py_DECREF (s);
+        return -1;
+    }
+    switch (typestr[1]) {
+
+    case 'i':
+        is_signed = 1;
+        break;
+    case 'u':
+        is_signed = 0;
+        break;
+    default:
+        PyErr_Format (PyExc_ValueError,
+                      "unsupported typekind %c in typestr",
+                      typestr[1]);
+        Py_DECREF (s);
+        return -1;
+    }
+    switch (typestr[2]) {
+
+    case '1':
+        type = is_signed ? 'c' : 'B';
+        itemsize = 1;
+        break;
+    case '2':
+        byteorder = is_swapped ? PAI_OTHER_ENDIAN : '=';
+        type = is_signed ? 'h' : 'H';
+        itemsize = 2;
+        break;
+    case '3':
+        type = 's';
+        itemsize = 3;
+        break;
+    case '4':
+        byteorder = is_swapped ? PAI_OTHER_ENDIAN : '=';
+        type = is_signed ? 'i' : 'I';
+        itemsize = 4;
+        break;
+    case '6':
+        type = 's';
+        itemsize = 6;
+        break;
+    case '8':
+        byteorder = is_swapped ? PAI_OTHER_ENDIAN : '=';
+        type = is_signed ? 'q' : 'Q';
+        itemsize = 8;
+        break;
+    default:
+        PyErr_Format (PyExc_ValueError,
+                      "unsupported size %c in typestr",
+                      typestr[2]);
+        Py_DECREF (s);
+        return -1;
+    }
+    if (byteorder != '\0') {
+        view->format[0] = byteorder;
+        view->format[1] = type;
+        view->format[2] = '\0';
+    }
+    else {
+        view->format[0] = type;
+        view->format[1] = '\0';
+    }
+    view->itemsize = itemsize;
+    return 0;
+}
+
+static int
+_strides_arg_convert (PyObject* o, Py_buffer* view)
+{
+    /* Must called _shape_arg_convert first.
+     */
+    int n;
+    Py_ssize_t* a;
+    size_t i;
+
+    if (o == Py_None) {
+        /* no strides (optional) given */
+        view->strides = 0;
+        return 0;
+    }
+    a = view->strides;
+    
+    if (!PyTuple_Check (o)) {
+        PyErr_Format (PyExc_TypeError,
+                      "Expected a tuple for strides: found %s",
+                      Py_TYPE (o)->tp_name);
+        return -1;
+    }
+    n = PyTuple_GET_SIZE (o);
+    if (n != view->ndim) {
+        PyErr_SetString (PyExc_TypeError,
+                         "Missmatch in strides and shape length");
+        return -1;
+    }
+    for (i = 0; i < n; ++i) {
+        a[i] = PyInt_AsSsize_t (PyTuple_GET_ITEM (o, i));
+        if (a[i] == -1 && PyErr_Occurred () /* conditional && */) {
+            PyErr_Format (PyExc_TypeError,
+                          "strides tuple has a non-integer at position %d",
+                          (int)i);
+            return -1;
+        }
+    }
+    if (n != view->ndim) {
+        PyErr_SetString (PyExc_TypeError,
+                         "strides and shape tuple lengths differ");
+        return -1;
+    }
+    return 0;
+}
+
+static int
+_data_arg_convert(PyObject *o, Py_buffer *view)
+{
+    void* address;
+    int readonly;
+
+    if (!PyTuple_Check (o)) {
+        PyErr_Format (PyExc_TypeError, "expected a tuple for data: got %s",
+                      Py_TYPE (o)->tp_name);
+        return -1;
+    }
+    if (PyTuple_GET_SIZE (o) != 2) {
+        PyErr_SetString (PyExc_TypeError, "expected a length 2 tuple for data");
+        return -1;
+    }
+    address = PyLong_AsVoidPtr (PyTuple_GET_ITEM (o, 0));
+    if (!address && PyErr_Occurred ()) {
+        PyErr_Clear ();
+        PyErr_Format (PyExc_TypeError,
+                      "expected an integer address for data item 0: got %s",
+                      Py_TYPE (PyTuple_GET_ITEM (o, 0))->tp_name);
+        return -1;
+    }
+    readonly = PyObject_IsTrue (PyTuple_GET_ITEM (o, 1));
+    if (readonly == -1) {
+        PyErr_Clear ();
+        PyErr_Format (PyExc_TypeError,
+                      "expected a boolean flag for data item 1: got %s",
+                      Py_TYPE (PyTuple_GET_ITEM (o, 0))->tp_name);
+        return -1;
+    }
+    view->buf = address;
+    view->readonly = readonly;
     return 0;
 }
 
@@ -1308,8 +1634,8 @@ MODINIT_DEFINE(base)
     }
 
     /* export the c api */
-#if PYGAMEAPI_BASE_NUMSLOTS != 20
-#error export slot count mismatch
+#if PYGAMEAPI_BASE_NUMSLOTS != 21
+#warning export slot count mismatch
 #endif
     c_api[0] = PyExc_SDLError;
     c_api[1] = PyGame_RegisterQuit;
@@ -1331,6 +1657,7 @@ MODINIT_DEFINE(base)
     c_api[17] = ViewIsByteSwapped;
     c_api[18] = GetView;
     c_api[19] = ReleaseView;
+    c_api[20] = Dict_AsView;
     apiobj = encapsulate_api (c_api, "base");
     if (apiobj == NULL) {
         Py_XDECREF (atexit_register);
