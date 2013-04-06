@@ -46,197 +46,25 @@
 
 typedef struct PgBufproxyObject_s {
     PyObject_HEAD
-    Py_buffer view;
-    Py_ssize_t imem[6];                /* shape/stride alloc for ndim <= 3 */
-    char cmem[3];                      /* format alloc for simple types    */
-    int flags;                         /* contiguity and array shape order */
-    PgBufproxy_CallbackBefore before;  /* Lock callback                    */
-    PgBufproxy_CallbackAfter after;    /* Release callback                 */
-    PyObject *pybefore;                /* Python lock callable             */
-    PyObject *pyafter;                 /* Python release callback          */
-    int global_release;                /* dealloc after callback flag      */
-    PgBufproxy_CallbackAfter release;  /* view dealloc callback            */
-    PyObject *dict;                    /* Allow arbitrary attributes       */
-    PyObject *weakrefs;                /* There can be reference cycles    */
+    PyObject *obj;                             /* Wrapped object              */
+    Py_buffer *view_p;                         /* For array interface export  */
+    PgBufproxy_CallbackGet get_buffer;         /* Py_buffer get callback      */
+    PgBufproxy_CallbackRelease release_buffer; /* Py_buffer release callback  */
+    PyObject *dict;                            /* Allow arbitrary attributes  */
+    PyObject *weakrefs;                        /* Reference cycles can happen */
 } PgBufproxyObject;
 
 static int PgBufproxy_Trip(PyObject *);
 static void _free_view(Py_buffer *);
 
-/**
- * Helper functions.
- */
-static int
-proxy_null_before(PyObject *bufproxy) {
-    return 0;
-}
+/* $$ Transitional stuff */
+#warning Transitional stuff: must disappear!
 
-static void
-proxy_null_after(PyObject *bufproxy) {
-    return;
-}
+#define NOTIMPLEMENTED(rcode) \
+    PyErr_Format(PyExc_NotImplementedError, \
+                 "Not ready yet. (line %i in %s)", __LINE__, __FILE__); \
+    return rcode
 
-static int
-proxy_python_before(PyObject *bufproxy)
-{
-    PgBufproxyObject *v = (PgBufproxyObject *)bufproxy;
-    PyObject *rvalue;
-    PyObject *parent;
-    int failed = 0;
-
-    parent = (PyObject *)v->view.obj;
-    if (!parent) {
-        parent = Py_None;
-    }
-    Py_INCREF(parent);
-    rvalue = PyObject_CallFunctionObjArgs(v->pybefore, parent, 0);
-    Py_DECREF(parent);
-    if (rvalue) {
-        Py_DECREF(rvalue);
-    }
-    else {
-        failed = -1;
-    }
-    return failed;
-}
-
-static void
-proxy_python_after(PyObject *bufproxy)
-{
-    PgBufproxyObject *v = (PgBufproxyObject *)bufproxy;
-    PyObject *rvalue;
-    PyObject *parent;
-
-    parent = (PyObject *)v->view.obj;
-    if (!parent) {
-        parent = Py_None;
-    }
-    Py_INCREF(parent);
-    rvalue = PyObject_CallFunctionObjArgs(v->pyafter, parent, 0);
-    PyErr_Clear();
-    Py_XDECREF(rvalue);
-    Py_DECREF(parent);
-}
-
-static void
-proxy_view_release(PyObject *bufproxy) {
-    PgBufproxyObject *self = (PgBufproxyObject *)bufproxy;
-
-    Py_XDECREF(self->view.obj);
-    if (self->view.shape && self->view.shape != self->imem) {
-        PyMem_Free(self->view.shape);
-    }
-    if (self->view.format && self->view.format != self->cmem) {
-        PyMem_Free(self->view.format);
-    }
-}
-
-static PyObject *
-proxy_new_from_view(PyTypeObject *type,
-                    Py_buffer *view,
-                    int flags,
-                    PgBufproxy_CallbackBefore before,
-                    PgBufproxy_CallbackAfter after,
-                    PyObject *pybefore,
-                    PyObject *pyafter)
-{
-    int ndim = view->ndim;
-    PgBufproxyObject *self;
-    Py_ssize_t *shape = 0;
-    Py_ssize_t *strides = 0;
-    Py_ssize_t format_len = 0;
-    char *format = 0;
-
-    if (view->suboffsets) {
-        Py_XDECREF(view->obj);
-        PyErr_SetString(PyExc_BufferError, "unable to handle suboffsets");
-        return 0;
-    }
-    if (view->format) {
-        format_len = strlen(view->format);
-        if (format_len > 2) {
-            format = PyMem_New(char, format_len + 1);
-            if (!format) {
-                Py_XDECREF(view->obj);
-                return PyErr_NoMemory();
-            }
-        }
-    }
-    if (ndim > 3) {
-        shape = PyMem_New(Py_ssize_t, 2 * ndim);
-        if (!shape) {
-            if (format) {
-                PyMem_Free(format);
-            }
-            Py_XDECREF(view->obj);
-            return PyErr_NoMemory();
-        }
-        strides = shape + ndim;
-    }
-
-    self = PyObject_GC_New(PgBufproxyObject, type);
-    if (!self) {
-        if (format) {
-            PyMem_Free(format);
-        }
-        if (shape) {
-            PyMem_Free(shape);
-        }
-        Py_XDECREF(view->obj);
-        return 0;
-    }
-
-    if (!shape) {
-        shape = self->imem;
-        strides = shape + ndim;
-    }
-    if (!format) {
-        format = self->cmem;
-    }
-    self->dict = 0;
-    self->weakrefs = 0;
-    memcpy(&(self->view), view, sizeof(Py_buffer));
-    self->view.format = format;
-    if (view->format) {
-        strcpy(format, view->format);
-    }
-    else {
-        format[0] = 'B';
-        format[1] = '\0';
-    }
-    if (view->shape) {
-        self->view.shape = shape;
-        memcpy(shape, view->shape, sizeof(Py_ssize_t) * ndim);
-    }
-    if (view->strides) {
-        self->view.strides = strides;
-        memcpy(strides, view->strides, sizeof(Py_ssize_t) * ndim);
-    }
-
-    self->flags = flags;
-    self->before = proxy_null_before;
-    if (pybefore) {
-        Py_INCREF(pybefore);
-        self->before = proxy_python_before;
-    }
-    else if (before) {
-        self->before = before;
-    }
-    self->pybefore = pybefore;
-    self->after = proxy_null_after;
-    if (pyafter) {
-        Py_INCREF(pyafter);
-        self->after = proxy_python_after;
-    }
-    else if (after) {
-        self->after = after;
-    }
-    self->pyafter = pyafter;
-    self->global_release = 0;
-    self->release = proxy_view_release;
-    PyObject_GC_Track(self);
-    return (PyObject *)self;
-}
 
 #if PY_VERSION_HEX < 0x02060000
 static int
@@ -297,43 +125,196 @@ PyBuffer_IsContiguous(Py_buffer *view, char fort)
 }
 #endif /* #if PY_VERSION_HEX < 0x02060000 */
 
-static void
-proxy_GetView_release(PyObject *bufproxy) {
-    Py_buffer *view_p = &((PgBufproxyObject *)bufproxy)->view;
-
-    ReleaseView(view_p);
-    view_p->obj = 0;
-    view_p->shape = 0;
-    view_p->strides = 0;
-    view_p->format = 0;
+/* Stub for base.c function */
+static int
+PgObject_GetBuffer(PyObject *obj, Py_buffer *view_p, int flags)
+{
+#if PY3
+    if (PyObject_CheckBuffer(obj)) {
+        return PyObject_GetBuffer(obj, view_p, flags);
+    }
+#endif
+    PyErr_SetString(PyExc_NotImplementedError, "TODO: implement in base.c");
+    return -1;
 }
 
+/* Stub for base.c function */
 static PyObject *
-proxy_new_from_obj(PyTypeObject *type, PyObject *obj)
+PgBuffer_AsArrayStruct(Py_buffer *view_p) {
+    int flags = 0;
+
+    if (PyBuffer_IsContiguous(view_p, 'C')) {
+        flags |= VIEW_CONTIGUOUS | VIEW_C_ORDER;
+    }
+    if (PyBuffer_IsContiguous(view_p, 'F')) {
+        flags |= VIEW_CONTIGUOUS | VIEW_F_ORDER;
+    }
+    return ViewAndFlagsAsArrayStruct(view_p, flags);
+}
+
+/* Stub for base.c function */
+static PyObject *
+PgBuffer_AsArrayInterface(Py_buffer *view_p) {
+    return ViewAsDict(view_p);
+}
+
+/* Stub for base.c function */
+static void
+PgBuffer_Release(Py_buffer *view_p)
 {
-    PgBufproxyObject *self = PyObject_GC_New(PgBufproxyObject, type);
+#if PY3
+    if (view_p && view_p->obj && PyObject_CheckBuffer(view_p->obj)) {
+        PyBuffer_Release(view_p);
+    }
+#endif
+    printf("How did I get here? (line %i in %s)\n", __LINE__, __FILE__);
+}
+
+/* Use Dict_AsView alternative with flags arg. */
+#warning This is a major hack that needs to be removed when base.c is updated.
+static PyObject *_hack_01 = 0;
+
+static int
+_get_buffer_from_dict(PyObject *dict, Py_buffer *view_p, int flags) {
+    PyObject *obj;
+    Py_buffer *dict_view_p;
+    PyObject *py_callback;
+    PyObject *py_rval;
+
+    assert(dict && PyDict_Check(dict));
+    assert(view_p);
+    view_p->obj = 0;
+    dict_view_p = PyMem_New(Py_buffer, 1);
+    if (!dict_view_p) {
+        PyErr_NoMemory();
+        return -1;
+    }
+    if (Dict_AsView(dict_view_p, dict)/* $$ Change here */) {
+        PyMem_Free(dict_view_p);
+        return -1;
+    }
+    obj = PyDict_GetItemString(dict, "parent");
+    if (!obj) {
+        obj = Py_None;
+    }
+    Py_INCREF(obj);
+    py_callback = PyDict_GetItemString(dict, "before");
+    if (py_callback) {
+        Py_INCREF(py_callback);
+        py_rval = PyObject_CallFunctionObjArgs(py_callback, obj, NULL);
+        Py_DECREF(py_callback);
+        if (!py_rval) {
+            ReleaseView(dict_view_p);
+            Py_DECREF(obj);
+            return -1;
+        }
+        Py_DECREF(py_rval);
+    }
+    Py_INCREF(dict);
+    _hack_01 = dict_view_p->obj;  /* $$ hack */
+    dict_view_p->obj = dict;
+    view_p->obj = obj;
+    view_p->buf = dict_view_p->buf;
+    view_p->len = dict_view_p->len;
+    view_p->readonly = dict_view_p->readonly;
+    view_p->itemsize = dict_view_p->itemsize;
+    view_p->format = dict_view_p->format;
+    view_p->ndim = dict_view_p->ndim;
+    view_p->shape = dict_view_p->shape;
+    view_p->strides = dict_view_p->strides;
+    view_p->suboffsets = dict_view_p->suboffsets;
+    view_p->internal = dict_view_p;
+    return 0;
+}
+
+/* This will need changes, including replacing ReleaseView call. */
+static void
+_release_buffer_from_dict(Py_buffer *view_p)
+{
+    Py_buffer *dict_view_p;
+    PyObject *dict;
+    PyObject *obj;
+    PyObject *py_callback;
+    PyObject *py_rval;
+
+    assert(view_p && view_p->internal);
+    obj = view_p->obj;
+    dict_view_p = (Py_buffer *)view_p->internal;
+    assert(dict_view_p);
+    dict = dict_view_p->obj;
+    assert(PyDict_Check(dict));
+    py_callback = PyDict_GetItemString(dict, "after");
+    if (py_callback) {
+        Py_INCREF(py_callback);
+        py_rval = PyObject_CallFunctionObjArgs(py_callback, obj, NULL);
+        if (py_rval) {
+            Py_DECREF(py_rval);
+        }
+        else {
+            PyErr_Clear();
+        }
+        Py_DECREF(py_callback);
+    }
+/*    dict_view_p->obj = 0; */
+    dict_view_p->obj = _hack_01;  /* $$ hack */
+    ReleaseView(dict_view_p);
+    Py_DECREF(dict);
+    PyMem_Free(dict_view_p);
+    view_p->obj = 0;
+    Py_DECREF(obj);
+}
+
+/* Backward compatible stub: replace me */
+static int
+mok_PgBufproxy_New(Py_buffer *view,
+                   int flags,
+                   PgBufproxy_CallbackBefore before,
+                   PgBufproxy_CallbackAfter after)
+{
+    NOTIMPLEMENTED(-1);
+}
+
+/* Stub functions */
+static PyObject *proxy_get_raw(PgBufproxyObject *, PyObject *);
+
+/* End transitional stuff */
+
+static PyObject *
+_proxy_subtype_new(PyTypeObject *type,
+                   PyObject *obj,
+                   PgBufproxy_CallbackGet get_buffer,
+                   PgBufproxy_CallbackRelease release_buffer)
+{
+    PgBufproxyObject *self = (PgBufproxyObject *)type->tp_alloc(type, 0);
 
     if (!self) {
         return 0;
     }
-    if (GetView(obj, &self->view)) {
-        PyObject_GC_Del(self);
-        return 0;
-    }
-    self->flags = ((PyBuffer_IsContiguous(&self->view, 'C') ?
-                    VIEW_CONTIGUOUS | VIEW_C_ORDER : 0) |
-                   (PyBuffer_IsContiguous(&self->view, 'F') ?
-                    VIEW_CONTIGUOUS | VIEW_F_ORDER : 0));
-    self->pybefore = 0;
-    self->pyafter = 0;
-    self->before = proxy_null_before;
-    self->after = proxy_null_after;
-    self->global_release = 0;
-    self->release = proxy_GetView_release;
-    self->dict = 0;
-    self->weakrefs = 0;
-    PyObject_GC_Track(self);
+    Py_XINCREF(obj);
+    self->obj = obj;
+    self->get_buffer = get_buffer;
+    self->release_buffer = release_buffer;
     return (PyObject *)self;
+}
+
+static Py_buffer *
+_proxy_get_view(PgBufproxyObject *proxy) {
+    Py_buffer *view_p = proxy->view_p;
+
+    if (!view_p) {
+        view_p = PyMem_New(Py_buffer, 1);
+        if (!view_p) {
+            PyErr_NoMemory();
+        }
+        else if (proxy->get_buffer(proxy->obj, view_p, PyBUF_RECORDS)) {
+            PyMem_Free(view_p);
+            view_p = 0;
+        }
+        else {
+            proxy->view_p = view_p;
+        }
+    }
+    return view_p;
 }
 
 static int
@@ -638,47 +619,18 @@ _fill_view_from_array_interface(PyObject *dict, Py_buffer *view)
 static PyObject *
 proxy_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
-    PyObject *buffer;
-    PyObject *pybefore = 0;
-    PyObject *pyafter = 0;
-    PyObject *parent = 0;
-    Py_buffer view;
-    PyObject *self = 0;
+    PyObject *obj = 0;
+    PgBufproxy_CallbackGet get_buffer = 0;
+    PgBufproxy_CallbackRelease release_buffer = 0;
 
-    if (!PyArg_ParseTuple(args, "O:Bufproxy", &buffer)) {
+    if (!PyArg_ParseTuple(args, "O:Bufproxy", &obj)) {
         return 0;
     }
-
-    view.obj = 0;
-    view.len = 0;
-    view.readonly = 1;
-    view.ndim = 0;
-    view.shape = 0;
-    view.strides = 0;
-    view.suboffsets = 0;
-    view.itemsize = 0;
-    view.internal = 0;
-
-    if (PyDict_Check(buffer)) {
-        if (_fill_view_from_array_interface(buffer, &view)) {
-            _free_view(&view);
-            return 0;
-        }
-        parent = PyDict_GetItemString(buffer, "parent");
-        if (parent && !_parent_arg_convert(parent, &view)) { /* cond. && */
-            _free_view(&view);
-            return 0;
-        }
-        pybefore = PyDict_GetItemString(buffer, "before");
-        pyafter = PyDict_GetItemString(buffer, "after");
-        self = proxy_new_from_view(type, &view, 0,
-                                   0, 0, pybefore, pyafter);
-        _free_view(&view);
+    if (PyDict_Check(obj)) {
+        get_buffer = _get_buffer_from_dict;
+        release_buffer = _release_buffer_from_dict;
     }
-    else {
-        self = proxy_new_from_obj(type, buffer);
-    }
-    return self;
+    return _proxy_subtype_new(type, obj, get_buffer, release_buffer);
 }
 
 /**
@@ -687,19 +639,12 @@ proxy_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static void
 proxy_dealloc(PgBufproxyObject *self)
 {
-    /* Guard against recursion */
-    if (!self->before) {
-        return;
-    }
-    self->before = 0;
-
     PyObject_GC_UnTrack(self);
-    if (self->global_release) {
-        self->after((PyObject *)self);
+    if (self->view_p) {
+        self->release_buffer(self->view_p);
+        PyMem_Free(self->view_p);
     }
-    self->release((PyObject *)self);
-    Py_XDECREF(self->pybefore);
-    Py_XDECREF(self->pyafter);
+    Py_XDECREF(self->obj);
     Py_XDECREF(self->dict);
     if (self->weakrefs) {
         PyObject_ClearWeakRefs((PyObject *)self);
@@ -709,14 +654,14 @@ proxy_dealloc(PgBufproxyObject *self)
 
 static int
 proxy_traverse(PgBufproxyObject *self, visitproc visit, void *arg) {
-    if (self->view.obj) {
-        Py_VISIT((PyObject *)self->view.obj);
+    if (self->obj) {
+        Py_VISIT(self->obj);
     }
-    if (self->pybefore) {
-        Py_VISIT(self->pybefore);
+    if (self->view_p && self->view_p->obj) /* conditional && */ {
+        Py_VISIT(self->view_p->obj);
     }
-    if (self->pyafter) {
-        Py_VISIT(self->pyafter);
+    if (self->dict) {
+        Py_VISIT(self->dict);
     }
     return 0;
 }
@@ -731,48 +676,72 @@ proxy_traverse(PgBufproxyObject *self, visitproc visit, void *arg) {
 static PyObject *
 proxy_get_arraystruct(PgBufproxyObject *self, PyObject *closure)
 {
-    PyObject* capsule =  ViewAndFlagsAsArrayStruct (&self->view, self->flags);
+    Py_buffer *view_p = self->view_p;
+    PyObject *capsule;
 
-    if (capsule && !self->global_release) {
-        if (self->before ((PyObject *)self)) {
-            Py_DECREF (capsule);
-            capsule = 0;
+    if (!view_p) {
+        view_p = PyMem_New(Py_buffer, 1);
+        if (!view_p) {
+            return PyErr_NoMemory();
         }
-        else {
-            self->global_release = 1;
+        if (self->get_buffer(self->obj, view_p, PyBUF_RECORDS)) {
+            PyMem_Free(view_p);
+            return 0;
         }
     }
+    capsule = PgBuffer_AsArrayStruct(view_p);
+    if (!capsule) {
+        if (!self->view_p) {
+            self->release_buffer(view_p);
+            PyMem_Free(view_p);
+        }
+        return 0;
+    }
+    self->view_p = view_p;
     return capsule;
 }
 
 static PyObject *
 proxy_get_arrayinterface(PgBufproxyObject *self, PyObject *closure)
 {
-    PyObject *dict = ViewAsDict(&self->view);
+    Py_buffer *view_p = self->view_p;
+    PyObject *dict;
 
-    if (dict && !self->global_release) {
-        if (self->before((PyObject *)self)) {
-            Py_DECREF(dict);
-            dict = 0;
+    if (!view_p) {
+        view_p = PyMem_New(Py_buffer, 1);
+        if (!view_p) {
+            return PyErr_NoMemory();
         }
-        else {
-            self->global_release = 1;
+        if (self->get_buffer(self->obj, view_p, PyBUF_RECORDS)) {
+            PyMem_Free(view_p);
+            return 0;
         }
     }
+    dict = PgBuffer_AsArrayInterface(view_p);
+    if (!dict) {
+        if (!self->view_p) {
+            self->release_buffer(view_p);
+            PyMem_Free(view_p);
+        }
+        return 0;
+    }
+    self->view_p = view_p;
     return dict;
 }
 
 static PyObject *
 proxy_get_parent(PgBufproxyObject *self, PyObject *closure)
 {
-#error proxy_get_parent: This is broken.
-    PyObject *parent = (PyObject *)self->view.obj;
+    Py_buffer *view_p = _proxy_get_view(self);
 
-    if (!parent) {
+    if (!view_p) {
+        return 0;
+    }
+    if (!view_p->obj) {
         Py_RETURN_NONE;
     }
-    Py_INCREF(parent);
-    return parent;
+    Py_INCREF(view_p->obj);
+    return view_p->obj;
 }
 
 static PyObject *
@@ -784,7 +753,6 @@ proxy_get___dict__(PgBufproxyObject *self, PyObject *closure)
             return 0;
         }
     }
-
     Py_INCREF(self->dict);
     return self->dict;
 }
@@ -792,19 +760,15 @@ proxy_get___dict__(PgBufproxyObject *self, PyObject *closure)
 static PyObject *
 proxy_get_raw(PgBufproxyObject *self, PyObject *closure)
 {
-    if (!(self->flags & VIEW_CONTIGUOUS)) {
-        PyErr_SetString(PyExc_ValueError, "the bytes are not contiguous");
-        return 0;
-    }
-
-    return Bytes_FromStringAndSize((char *)self->view.buf,
-                                   self->view.len);
+    NOTIMPLEMENTED(0);
 }
 
 static PyObject *
 proxy_get_length(PgBufproxyObject *self, PyObject *closure)
 {
-    return PyInt_FromSsize_t(self->view.len);
+    Py_buffer *view_p = _proxy_get_view(self);
+
+    return view_p ? PyInt_FromSsize_t(view_p->len) : 0;
 }
 
 /**** Methods ****/
@@ -824,35 +788,14 @@ proxy_repr (PgBufproxyObject *self)
 static PyObject *
 proxy_write(PgBufproxyObject *buffer, PyObject *args, PyObject *kwds)
 {
-    char *buf;
-    Py_ssize_t length;
-    Py_ssize_t offset = 0;
-
-    char *keywords[] = {"bytes", "length", "offset", 0};
-
-#if PY_VERSION_HEX < 0x02050000
-#define FORMAT_STRING "s#|i"
-#else
-#define FORMAT_STRING "s#|n"
-#endif
-
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, FORMAT_STRING, keywords,
-                                     &buf, &length, &offset)) {
-        return 0;
-    }
-
-    if (buffer->view.readonly) {
-        return RAISE(PyExc_ValueError, "cannot overwrite readonly data");
-    }
-
-    if (offset + length > buffer->view.len) {
-        return RAISE(PyExc_IndexError, "bytes to write exceed buffer size");
-    }
-
-    Py_RETURN_NONE;
-
-#undef FORMAT_STRING
+    NOTIMPLEMENTED(0);
 }
+
+static struct PyMethodDef proxy_methods[] = {
+    {"write", (PyCFunction)proxy_write, METH_VARARGS | METH_KEYWORDS,
+     "write raw bytes to object buffer"},
+    {0, 0, 0, 0}
+};
 
 /**
  * Getters and setters for the PgBufproxyObject.
@@ -870,75 +813,44 @@ static PyGetSetDef proxy_getsets[] =
 
 #if PY3
 static int
-proxy_getbuffer(PyObject *obj, Py_buffer *view, int flags)
+proxy_getbuffer(PgBufproxyObject *self, Py_buffer *view_p, int flags)
 {
-    PgBufproxyObject *v = (PgBufproxyObject *)obj;
+    Py_buffer *obj_view_p = PyMem_New(Py_buffer, 1);
 
-    if (flags == PyBUF_SIMPLE && !(v->flags & VIEW_CONTIGUOUS)) {
-        PyErr_SetString(PyExc_BufferError, "buffer not contiguous");
+    view_p->obj = 0;
+    if (!obj_view_p) {
+        PyErr_NoMemory();
         return -1;
     }
-    if (flags & PyBUF_WRITABLE && v->view.readonly) {
-        PyErr_SetString(PyExc_BufferError, "buffer is readonly");
+    if (self->get_buffer(self->obj, view_p, flags)) {
+        PyMem_Free(obj_view_p);
         return -1;
     }
-    if (flags & PyBUF_ND && !v->view.shape) {
-        PyErr_SetString(PyExc_BufferError, "buffer shape unavailable");
-        return -1;
-    }
-    if (flags & PyBUF_STRIDES && !v->view.strides) {
-        PyErr_SetString(PyExc_BufferError, "buffer strides unavailable");
-        return -1;
-    }
-    else if (flags & PyBUF_ND &&
-             !(v->flags & (VIEW_CONTIGUOUS | VIEW_C_ORDER))) {
-        PyErr_SetString(PyExc_BufferError, "buffer not C contiguous");
-        return -1;
-    }
-    if (flags & PyBUF_ANY_CONTIGUOUS &&
-        !(v->flags & (VIEW_CONTIGUOUS |
-                      VIEW_C_ORDER |
-                      VIEW_F_ORDER))) {
-        PyErr_SetString(PyExc_BufferError, "buffer not contiguous");
-        return -1;
-    }
-    if (flags & PyBUF_C_CONTIGUOUS &&
-        !(v->flags & (VIEW_CONTIGUOUS | VIEW_C_ORDER))) {
-        PyErr_SetString(PyExc_BufferError, "buffer not C contiguous");
-        return -1;
-    }
-    if (flags & PyBUF_F_CONTIGUOUS &&
-        !(v->flags & (VIEW_CONTIGUOUS | VIEW_F_ORDER))) {
-        PyErr_SetString(PyExc_BufferError, "buffer not F contiguous");
-        return -1;
-    }
-    if (v->before(obj)) {
-        return -1;
-    }
-    view->obj = obj;
-    Py_INCREF(obj);
-    view->buf = v->view.buf;
-    view->len = v->view.len;
-    view->readonly = v->view.readonly;
-    view->format = v->view.format;
-    view->ndim = v->view.ndim;
-    view->shape = v->view.shape;
-    view->strides = v->view.strides;
-    view->suboffsets = v->view.suboffsets;
-    view->itemsize = v->view.itemsize;
-    view->internal = 0;
+    Py_INCREF(self);
+    view_p->obj = (PyObject *)self;
+    view_p->buf = obj_view_p->buf;
+    view_p->len = obj_view_p->len;
+    view_p->readonly = obj_view_p->readonly;
+    view_p->itemsize = obj_view_p->itemsize;
+    view_p->format = obj_view_p->format;
+    view_p->ndim = obj_view_p->ndim;
+    view_p->shape = obj_view_p->shape;
+    view_p->strides = obj_view_p->strides;
+    view_p->suboffsets = obj_view_p->suboffsets;
+    view_p->internal = obj_view_p;
     return 0;
 }
 
 static void
-proxy_releasebuffer(PyObject *obj, Py_buffer *view)
+proxy_releasebuffer(PgBufproxyObject *self, Py_buffer *view_p)
 {
-    ((PgBufproxyObject *)obj)->after(obj);
+    self->release_buffer((Py_buffer *)view_p->internal);
+    PyMem_Free(view_p->internal);
 }
 
 static PyBufferProcs proxy_bufferprocs = {
-    proxy_getbuffer,
-    proxy_releasebuffer
+    (getbufferproc)proxy_getbuffer,
+    (releasebufferproc)proxy_releasebuffer
 };
 
 #else
@@ -946,48 +858,19 @@ static PyBufferProcs proxy_bufferprocs = {
 static Py_ssize_t
 proxy_getreadbuf(PgBufproxyObject *buffer, Py_ssize_t _index, const void **ptr)
 {
-    if (_index != 0) {
-        PyErr_SetString(PyExc_TypeError,
-                        "Accessing non-existent buffer segment");
-        return -1;
-    }
-
-    if (PgBufproxy_Trip((PyObject *)buffer)) {
-        return -1;
-    }
-    *ptr = buffer->view.buf;
-    return buffer->view.len;
+    NOTIMPLEMENTED(-1);
 }
 
 static Py_ssize_t
 proxy_getwritebuf(PgBufproxyObject *buffer, Py_ssize_t _index, const void **ptr)
 {
-    if (buffer->view.readonly) {
-        PyErr_SetString(PyExc_TypeError,
-                        "Attempting to get write access to a readonly buffer");
-        return -1;
-    }
-
-    if (_index != 0) {
-        PyErr_SetString(PyExc_TypeError, 
-                        "Accessing non-existent array segment");
-        return -1;
-    }
-
-    if (PgBufproxy_Trip((PyObject *)buffer)) {
-        return -1;
-    }
-    *ptr = buffer->view.buf;
-    return buffer->view.len;
+    NOTIMPLEMENTED(-1);
 }
 
 static Py_ssize_t
 proxy_getsegcount(PgBufproxyObject *buffer, Py_ssize_t *lenp)
 {
-    if (lenp) {
-        *lenp = buffer->view.len;
-    }
-    return 1;
+    NOTIMPLEMENTED(-1);
 }
 
 static PyBufferProcs proxy_bufferprocs = {
@@ -1003,6 +886,9 @@ static PyBufferProcs proxy_bufferprocs = {
 };
 
 #endif /* #if PY3 */
+
+#define PROXY_TPFLAGS \
+    (Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC)
 
 static PyTypeObject PgBufproxy_Type =
 {
@@ -1025,7 +911,7 @@ static PyTypeObject PgBufproxy_Type =
     0,                          /* tp_getattro */
     0,                          /* tp_setattro */
     &proxy_bufferprocs,         /* tp_as_buffer */
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,  /* tp_flags */
+    PROXY_TPFLAGS,              /* tp_flags */
     "Object bufproxy as an array struct\n",
     (traverseproc)proxy_traverse,  /* tp_traverse */
     0,                          /* tp_clear */
@@ -1033,7 +919,7 @@ static PyTypeObject PgBufproxy_Type =
     offsetof(PgBufproxyObject, weakrefs),  /* tp_weaklistoffset */
     0,                          /* tp_iter */
     0,                          /* tp_iternext */
-    0,                          /* tp_methods */
+    proxy_methods,              /* tp_methods */
     0,                          /* tp_members */
     proxy_getsets,              /* tp_getset */
     0,                          /* tp_base */
@@ -1042,7 +928,7 @@ static PyTypeObject PgBufproxy_Type =
     0,                          /* tp_descr_set */
     offsetof(PgBufproxyObject, dict),  /* tp_dictoffset */
     0,                          /* tp_init */
-    0,                          /* tp_alloc */
+    PyType_GenericAlloc,        /* tp_alloc */
     proxy_new,                  /* tp_new */
     PyObject_GC_Del,            /* tp_free */
 #ifndef __SYMBIAN32__
@@ -1056,35 +942,48 @@ static PyTypeObject PgBufproxy_Type =
 #endif
 };
 
-
 /**** Module methods ***/
 
-static PyMethodDef proxy_methods[] = {
+static PyMethodDef bufferproxy_methods[] = {
     {0, 0, 0, 0}
 };
 
 /**** Public C api ***/
 
 static PyObject *
-PgBufproxy_New(Py_buffer *view,
-           int flags,
-           PgBufproxy_CallbackBefore before,
-           PgBufproxy_CallbackAfter after)
+PgBufproxy_New(PyObject *obj,
+               PgBufproxy_CallbackGet get_buffer,
+               PgBufproxy_CallbackRelease release_buffer)
 {
-    return proxy_new_from_view(&PgBufproxy_Type,
-                               view,
-                               flags,
-                               before,
-                               after,
-                               0,
-                               0);
+    if (!get_buffer) {
+        if (!obj) {
+            PyErr_SetString(PyExc_ValueError,
+                            "One of arguments 'obj' or 'get_buffer' is "
+                            "required: both NULL instead");
+            return 0;
+        }
+        get_buffer = PgObject_GetBuffer;
+    }
+    if (!release_buffer) {
+        if (!obj) {
+            PyErr_SetString(PyExc_ValueError,
+                            "One of arguments 'obj' or 'release_buffer' is "
+                            "required: both NULL instead");
+            return 0;
+        }
+        release_buffer = PgBuffer_Release;
+    }
+    return _proxy_subtype_new(&PgBufproxy_Type,
+                              obj,
+                              get_buffer,
+                              release_buffer);
 }
 
 static PyObject *
 PgBufproxy_GetParent(PyObject *bufproxy)
 {
     PyObject *parent =
-        (PyObject *)((PgBufproxyObject *) bufproxy)->view.obj;
+        (PyObject *)((PgBufproxyObject *) bufproxy)->obj;
 
     if (!parent) {
         parent = Py_None;
@@ -1096,21 +995,7 @@ PgBufproxy_GetParent(PyObject *bufproxy)
 static int
 PgBufproxy_Trip(PyObject *obj)
 {
-    PgBufproxyObject *proxy = (PgBufproxyObject *)obj;
-
-    if (!PyObject_IsInstance(obj, (PyObject *)&PgBufproxy_Type)) {
-        PyErr_Format(PyExc_TypeError,
-                     "Expected a BufferProxy instance: got type %s",
-                     Py_TYPE(obj)->tp_name);
-        return -1;
-    }
-    if (!proxy->global_release) {
-        if (proxy->before(obj)) {
-            return -1;
-        }
-        proxy->global_release = 1;
-    }
-    return 0;
+    NOTIMPLEMENTED(-1);
 }
 
 /*DOC*/ static char bufferproxy_doc[] =
@@ -1128,7 +1013,7 @@ MODINIT_DEFINE(bufferproxy)
         PROXY_MODNAME,
         bufferproxy_doc,
         -1,
-        proxy_methods,
+        bufferproxy_methods,
         NULL, NULL, NULL, NULL
     };
 #endif
@@ -1150,7 +1035,7 @@ MODINIT_DEFINE(bufferproxy)
 #if PY3
     module = PyModule_Create(&_module);
 #else
-    module = Py_InitModule3(MODPREFIX PROXY_MODNAME, proxy_methods,
+    module = Py_InitModule3(MODPREFIX PROXY_MODNAME, bufferproxy_methods,
                             bufferproxy_doc);
 #endif
 
@@ -1166,7 +1051,8 @@ MODINIT_DEFINE(bufferproxy)
 #error export slot count mismatch
 #endif
     c_api[0] = &PgBufproxy_Type;
-    c_api[1] = PgBufproxy_New;
+/*    c_api[1] = PgBufproxy_New; */
+    c_api[1] = mok_PgBufproxy_New; /* $$ **Temporary** */
     c_api[2] = PgBufproxy_GetParent;
     c_api[3] = PgBufproxy_Trip;
     apiobj = encapsulate_api(c_api, PROXY_MODNAME);

@@ -26,14 +26,14 @@
  */
 #if !defined(PG_BUFPROXY_HEADER)
 
-#include "pgarrinter.h"
-
+/* $$ Transitional stuff: to be removed */
+#warning Transitional stuff: Remove me!
 typedef int (*PgBufproxy_CallbackBefore)(PyObject *);
 typedef void (*PgBufproxy_CallbackAfter)(PyObject *);
+/* end transitional stuff */
 
-#define BUFPROXY_CONTIGUOUS    1
-#define BUFPROXY_C_ORDER       2
-#define BUFPROXY_F_ORDER       4
+typedef int (*PgBufproxy_CallbackGet)(PyObject *, Py_buffer *, int);
+typedef void (*PgBufproxy_CallbackRelease)(Py_buffer *);
 
 #define PYGAMEAPI_BUFPROXY_NUMSLOTS 4
 #define PYGAMEAPI_BUFPROXY_FIRSTSLOT 0
