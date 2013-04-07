@@ -54,6 +54,11 @@ typedef struct PgBufproxyObject_s {
     PyObject *weakrefs;                        /* Reference cycles can happen */
 } PgBufproxyObject;
 
+typedef struct Py_buffer_d_s {
+    Py_buffer view;
+    PyObject *dict;
+} Py_buffer_d;
+
 static int PgBufproxy_Trip(PyObject *);
 static void _free_view(Py_buffer *);
 
@@ -166,30 +171,28 @@ PgBuffer_Release(Py_buffer *view_p)
     if (view_p && view_p->obj && PyObject_CheckBuffer(view_p->obj)) {
         PyBuffer_Release(view_p);
     }
-#endif
+#else
     printf("How did I get here? (line %i in %s)\n", __LINE__, __FILE__);
+#endif
 }
 
 /* Use Dict_AsView alternative with flags arg. */
-#warning This is a major hack that needs to be removed when base.c is updated.
-static PyObject *_hack_01 = 0;
-
 static int
 _get_buffer_from_dict(PyObject *dict, Py_buffer *view_p, int flags) {
     PyObject *obj;
-    Py_buffer *dict_view_p;
+    Py_buffer_d *dict_view_p;
     PyObject *py_callback;
     PyObject *py_rval;
 
     assert(dict && PyDict_Check(dict));
     assert(view_p);
     view_p->obj = 0;
-    dict_view_p = PyMem_New(Py_buffer, 1);
+    dict_view_p = PyMem_New(Py_buffer_d, 1);
     if (!dict_view_p) {
         PyErr_NoMemory();
         return -1;
     }
-    if (Dict_AsView(dict_view_p, dict)/* $$ Change here */) {
+    if (Dict_AsView(&dict_view_p->view, dict)/* $$ Change here */) {
         PyMem_Free(dict_view_p);
         return -1;
     }
@@ -204,25 +207,24 @@ _get_buffer_from_dict(PyObject *dict, Py_buffer *view_p, int flags) {
         py_rval = PyObject_CallFunctionObjArgs(py_callback, obj, NULL);
         Py_DECREF(py_callback);
         if (!py_rval) {
-            ReleaseView(dict_view_p);
+            ReleaseView(&dict_view_p->view);
             Py_DECREF(obj);
             return -1;
         }
         Py_DECREF(py_rval);
     }
     Py_INCREF(dict);
-    _hack_01 = dict_view_p->obj;  /* $$ hack */
-    dict_view_p->obj = dict;
+    dict_view_p->dict = dict;
     view_p->obj = obj;
-    view_p->buf = dict_view_p->buf;
-    view_p->len = dict_view_p->len;
-    view_p->readonly = dict_view_p->readonly;
-    view_p->itemsize = dict_view_p->itemsize;
-    view_p->format = dict_view_p->format;
-    view_p->ndim = dict_view_p->ndim;
-    view_p->shape = dict_view_p->shape;
-    view_p->strides = dict_view_p->strides;
-    view_p->suboffsets = dict_view_p->suboffsets;
+    view_p->buf = dict_view_p->view.buf;
+    view_p->len = dict_view_p->view.len;
+    view_p->readonly = dict_view_p->view.readonly;
+    view_p->itemsize = dict_view_p->view.itemsize;
+    view_p->format = dict_view_p->view.format;
+    view_p->ndim = dict_view_p->view.ndim;
+    view_p->shape = dict_view_p->view.shape;
+    view_p->strides = dict_view_p->view.strides;
+    view_p->suboffsets = dict_view_p->view.suboffsets;
     view_p->internal = dict_view_p;
     return 0;
 }
@@ -231,7 +233,7 @@ _get_buffer_from_dict(PyObject *dict, Py_buffer *view_p, int flags) {
 static void
 _release_buffer_from_dict(Py_buffer *view_p)
 {
-    Py_buffer *dict_view_p;
+    Py_buffer_d *dict_view_p;
     PyObject *dict;
     PyObject *obj;
     PyObject *py_callback;
@@ -239,10 +241,9 @@ _release_buffer_from_dict(Py_buffer *view_p)
 
     assert(view_p && view_p->internal);
     obj = view_p->obj;
-    dict_view_p = (Py_buffer *)view_p->internal;
-    assert(dict_view_p);
-    dict = dict_view_p->obj;
-    assert(PyDict_Check(dict));
+    dict_view_p = (Py_buffer_d *)view_p->internal;
+    dict = dict_view_p->dict;
+    assert(dict && PyDict_Check(dict));
     py_callback = PyDict_GetItemString(dict, "after");
     if (py_callback) {
         Py_INCREF(py_callback);
@@ -255,9 +256,7 @@ _release_buffer_from_dict(Py_buffer *view_p)
         }
         Py_DECREF(py_callback);
     }
-/*    dict_view_p->obj = 0; */
-    dict_view_p->obj = _hack_01;  /* $$ hack */
-    ReleaseView(dict_view_p);
+    ReleaseView(&dict_view_p->view);
     Py_DECREF(dict);
     PyMem_Free(dict_view_p);
     view_p->obj = 0;
@@ -620,8 +619,8 @@ static PyObject *
 proxy_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     PyObject *obj = 0;
-    PgBufproxy_CallbackGet get_buffer = 0;
-    PgBufproxy_CallbackRelease release_buffer = 0;
+    PgBufproxy_CallbackGet get_buffer = PgObject_GetBuffer;
+    PgBufproxy_CallbackRelease release_buffer = PgBuffer_Release;
 
     if (!PyArg_ParseTuple(args, "O:Bufproxy", &obj)) {
         return 0;
@@ -760,7 +759,16 @@ proxy_get___dict__(PgBufproxyObject *self, PyObject *closure)
 static PyObject *
 proxy_get_raw(PgBufproxyObject *self, PyObject *closure)
 {
-    NOTIMPLEMENTED(0);
+    Py_buffer *view_p = _proxy_get_view(self);
+
+    if (!view_p) {
+        return 0;
+    }
+    if (!PyBuffer_IsContiguous(view_p, 'A')) {
+        PyErr_SetString(PyExc_ValueError, "the bytes are not contiguous");
+        return 0;
+    }
+    return Bytes_FromStringAndSize((char *)view_p->buf, view_p->len);
 }
 
 static PyObject *
