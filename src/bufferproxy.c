@@ -88,6 +88,7 @@ _get_buffer_from_dict(PyObject *dict, Pg_buffer *pg_view_p, int flags) {
         PyErr_NoMemory();
         return -1;
     }
+    pg_dict_view_p->consumer = pg_view_p->consumer;
     if (PgDict_AsBuffer(pg_dict_view_p, dict, flags)) {
         PyMem_Free(pg_dict_view_p);
         return -1;
@@ -189,14 +190,14 @@ _proxy_get_view(PgBufproxyObject *proxy) {
         view_p = PyMem_New(Pg_buffer, 1);
         if (!view_p) {
             PyErr_NoMemory();
+            return 0;
         }
-        else if (proxy->get_buffer(proxy->obj, view_p, PyBUF_RECORDS)) {
+        view_p->consumer = (PyObject *)proxy;
+        if (proxy->get_buffer(proxy->obj, view_p, PyBUF_RECORDS)) {
             PyMem_Free(view_p);
-            view_p = 0;
+            return 0;
         }
-        else {
-            proxy->view_p = view_p;
-        }
+        proxy->view_p = view_p;
     }
     return (Py_buffer *)view_p;
 }
@@ -210,6 +211,20 @@ _proxy_release_view(PgBufproxyObject *proxy) {
         PgBuffer_Release(view_p);
         PyMem_Free(view_p);
     }
+}
+
+static int
+_proxy_zombie_get_buffer(PyObject *obj, Pg_buffer *pg_view_p, int flags)
+{
+    PyObject *proxy = pg_view_p->consumer;
+
+    ((Py_buffer *)pg_view_p)->obj = 0;
+    PyErr_Format (PyExc_RuntimeError,
+                  "Attempted buffer export on <%s at %p, parent=<%s at %p>> "
+                  "while deallocating it",
+                  Py_TYPE(proxy)->tp_name, (void *)proxy,
+                  Py_TYPE(obj)->tp_name, (void *)obj);
+    return -1;
 }
 
 /**
@@ -232,10 +247,18 @@ proxy_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 /**
  * Deallocates the PgBufproxyObject and its members.
+ * Is reentrant.
  */
 static void
 proxy_dealloc(PgBufproxyObject *self)
 {
+    /* Prevent infinite recursion from a reentrant call */
+    if (self->get_buffer == _proxy_zombie_get_buffer) {
+        return;
+    }
+    self->get_buffer = _proxy_zombie_get_buffer;
+
+    /* Non reentrant call; deallocate */
     PyObject_GC_UnTrack(self);
     _proxy_release_view(self);
     Py_XDECREF(self->obj);
@@ -395,6 +418,7 @@ proxy_getbuffer(PgBufproxyObject *self, Py_buffer *view_p, int flags)
         PyErr_NoMemory();
         return -1;
     }
+    pg_obj_view_p->consumer = (PyObject *)self;
     if (self->get_buffer(self->obj, pg_obj_view_p, flags)) {
         PyMem_Free(pg_obj_view_p);
         return -1;

@@ -28,6 +28,13 @@ class BufferProxyTest(unittest.TestCase):
                      'data': (0, True),
                      'strides': (4, 20, 1)}
 
+    def test_module_name(self):
+        self.assertEqual(pygame.bufferproxy.__name__,
+                         "pygame.bufferproxy")
+
+    def test_class_name(self):
+        self.assertEqual(BufferProxy.__name__, "BufferProxy")
+
     def test___array_struct___property(self):
         kwds = self.view_keywords
         v = BufferProxy(kwds)
@@ -140,6 +147,14 @@ class BufferProxyTest(unittest.TestCase):
         self.assertEqual(len(success), 1)
         self.assertTrue(success[0])
 
+    def test_attribute(self):
+        v = BufferProxy(self.view_keywords)
+        self.assertRaises(AttributeError, getattr, v, 'undefined')
+        v.undefined = 12;
+        self.assertEqual(v.undefined, 12)
+        del v.undefined
+        self.assertRaises(AttributeError, getattr, v, 'undefined')
+
     def test_weakref(self):
         v = BufferProxy(self.view_keywords)
         weak_v = weakref.ref(v)
@@ -157,8 +172,10 @@ class BufferProxyTest(unittest.TestCase):
         class Obj(object):
             pass
         p = Obj()
+        a = Obj()
         r = [Obj(), Obj()]
         weak_p = weakref.ref(p)
+        weak_a = weakref.ref(a)
         weak_r0 = weakref.ref(r[0])
         weak_r1 = weakref.ref(r[1])
         weak_before = weakref.ref(before_callback)
@@ -168,16 +185,19 @@ class BufferProxyTest(unittest.TestCase):
         kwds['before'] = before_callback
         kwds['after'] = after_callback
         v = BufferProxy(kwds)
+        v.some_attribute = a
         weak_v = weakref.ref(v)
-        kwds = p = before_callback = after_callback = None
+        kwds = p = a = before_callback = after_callback = None
         gc.collect()
         self.assertTrue(weak_p() is not None)
+        self.assertTrue(weak_a() is not None)
         self.assertTrue(weak_before() is not None)
         self.assertTrue(weak_after() is not None)
         v = None
         gc.collect()
         self.assertTrue(weak_v() is None)
         self.assertTrue(weak_p() is None)
+        self.assertTrue(weak_a() is None)
         self.assertTrue(weak_before() is None)
         self.assertTrue(weak_after() is None)
         self.assertTrue(weak_r0() is not None)
@@ -191,6 +211,7 @@ class BufferProxyTest(unittest.TestCase):
         kwds = dict(self.view_keywords)
         kwds['parent'] = []
         v = BufferProxy(kwds)
+        v.some_attribute = v
         tracked = True
         for o in gc.get_objects():
             if o is v:
@@ -229,6 +250,46 @@ class BufferProxyTest(unittest.TestCase):
         r = repr(v)
         self.assertEqual(r[:2], '*<')
         self.assertEqual(r[-2:], '>*')
+
+    def test_newbuf_arg(self):
+        from array import array
+
+        raw = as_bytes('abc\x00def')
+        b = array('B', raw)
+        b_address, b_nitems = b.buffer_info()
+        v = BufferProxy(b)
+        self.assertEqual(v.length, len(b))
+        self.assertEqual(v.raw, raw)
+        d = v.__array_interface__
+        try:
+            self.assertEqual(d['typestr'], '|u1')
+            self.assertEqual(d['shape'], (b_nitems,))
+            self.assertEqual(d['strides'], (b.itemsize,))
+            self.assertEqual(d['data'], (b_address, False))
+        finally:
+            d = None
+        b = array('h', [-1, 0, 2])
+        v = BufferProxy(b)
+        b_address, b_nitems = b.buffer_info()
+        b_nbytes = b.itemsize * b_nitems
+        self.assertEqual(v.length, b_nbytes)
+        try:
+            s = b.tostring()
+        except AttributeError:
+            s = b.tobytes()
+        self.assertEqual(v.raw, s)
+        d = v.__array_interface__
+        try:
+            lil_endian = pygame.get_sdl_byteorder() == pygame.LIL_ENDIAN
+            f = '{}i{}'.format('<' if lil_endian else '>', b.itemsize)
+            self.assertEqual(d['typestr'], f)
+            self.assertEqual(d['shape'], (b_nitems,))
+            self.assertEqual(d['strides'], (b.itemsize,))
+            self.assertEqual(d['data'], (b_address, False))
+        finally:
+            d = None
+    if sys.version_info < (3,):
+        del test_newbuf_arg
 
 class BufferProxyLegacyTest(unittest.TestCase):
     content = as_bytes('\x01\x00\x00\x02') * 12

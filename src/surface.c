@@ -42,6 +42,16 @@ typedef enum {
     VIEWKIND_RAW
 } SurfViewKind;
 
+/* To avoid problems with non-const Py_buffer format field */
+static char FormatUint8[] = "B";
+static char FormatUint16[] = "=H";
+static char FormatUint32[] = "=I";
+
+typedef struct pg_bufferinternal_s {
+    PyObject *consumer_ref;    /* A weak reference to a bufferproxy object   */
+    Py_ssize_t mem[6];         /* Enough memory for dim 3 shape and strides  */
+} Pg_bufferinternal;
+
 int
 PySurface_Blit (PyObject * dstobj, PyObject * srcobj, SDL_Rect * dstrect,
                 SDL_Rect * srcrect, int the_args);
@@ -123,8 +133,8 @@ static int _get_buffer_colorplane (PyObject *obj,
                                    int flags,
                                    char *name,
                                    Uint32 mask);
+static int _init_buffer(PyObject *surf, Pg_buffer *pg_view_p, int flags);
 static void _release_buffer(Py_buffer *view_p);
-static void _release_buffer_nomem(Py_buffer *view_p);
 static PyObject *_raise_get_view_ndim_error(int bitsize, SurfViewKind kind);
 
 static PyGetSetDef surface_getsets[] = {
@@ -2254,23 +2264,24 @@ _get_buffer_0D (PyObject *obj, Pg_buffer *pg_view_p, int flags)
     Py_buffer *view_p = (Py_buffer *)pg_view_p;
 
     view_p->obj = 0;
-    if (!PySurface_Lock (obj)) {
-        PyErr_SetString (PyExc_BufferError, "Unable to lock the surface");
+    if (_init_buffer (obj, pg_view_p, flags)) {
         return -1;
     }
     view_p->buf = surface->pixels;
     view_p->itemsize = 1;
     view_p->len = surface->pitch * surface->h;
     view_p->readonly = 0;
-    view_p->internal = 0;
-    view_p->format = (flags & PyBUF_FORMAT) ? "B" : 0;
-    view_p->shape = (flags & PyBUF_ND) ? &view_p->len : 0;
-    view_p->strides = (flags & PyBUF_STRIDES) ? &view_p->itemsize : 0;
-    view_p->suboffsets = 0;
-    view_p->internal = 0;
+    if (flags & PyBUF_FORMAT) {
+        view_p->format = FormatUint8;
+    }
+    if (flags & PyBUF_ND) {
+        view_p->shape[0] = view_p->len;
+    }
+    if (flags & PyBUF_STRIDES) {
+        view_p->strides[0] = view_p->itemsize;
+    }
     Py_INCREF (obj);
     view_p->obj = obj;
-    pg_view_p->release_buffer = _release_buffer_nomem;
     return 0;
 }
 
@@ -2280,6 +2291,7 @@ _get_buffer_1D (PyObject *obj, Pg_buffer *pg_view_p, int flags)
     Py_buffer *view_p = (Py_buffer *)pg_view_p;
     SDL_Surface *surface = PySurface_AsSurface (obj);
     Py_ssize_t itemsize = surface->format->BytesPerPixel;
+    char *format;
 
     view_p->obj = 0;
     if (itemsize == 1) {
@@ -2306,10 +2318,10 @@ _get_buffer_1D (PyObject *obj, Pg_buffer *pg_view_p, int flags)
     switch (itemsize) {
 
     case 2:
-        view_p->format = "=H";
+        format = FormatUint16;
         break;
     case 4:
-        view_p->format = "=I";
+        format = FormatUint32;
         break;
     default:
         /* Should not get here! */
@@ -2319,22 +2331,20 @@ _get_buffer_1D (PyObject *obj, Pg_buffer *pg_view_p, int flags)
                       (int)__LINE__, __FILE__, itemsize);
         return -1;
     }
-    if (!PySurface_Lock (obj)) {
-        PyErr_SetString (PyExc_BufferError, "Unable to lock the surface");
+    if (_init_buffer (obj, pg_view_p, flags)) {
         return -1;
     }
-    view_p->internal = (void *)(surface->w * surface->h);
+    view_p->format = format;
     view_p->buf = surface->pixels;
     view_p->itemsize = itemsize;
     view_p->ndim = 1;
     view_p->readonly = 0;
-    view_p->len = (Py_ssize_t)view_p->internal * itemsize;
+    view_p->len = surface->w * surface->h * itemsize;
     view_p->shape = (Py_ssize_t *)&view_p->internal;
     view_p->strides = (flags & PyBUF_STRIDES) ? &itemsize : 0;
     view_p->suboffsets = 0;
     Py_INCREF (obj);
     view_p->obj = obj;
-    pg_view_p->release_buffer = _release_buffer_nomem;
     return 0;
 }
 
@@ -2344,6 +2354,7 @@ _get_buffer_2D (PyObject *obj, Pg_buffer *pg_view_p, int flags)
     Py_buffer *view_p = (Py_buffer *)pg_view_p;
     SDL_Surface *surface = PySurface_AsSurface (obj);
     int itemsize = surface->format->BytesPerPixel;
+    char *format;
 
     view_p->obj = 0;
     if ((flags & PyBUF_RECORDS) != PyBUF_RECORDS) {
@@ -2372,13 +2383,13 @@ _get_buffer_2D (PyObject *obj, Pg_buffer *pg_view_p, int flags)
     switch (itemsize) {
 
     case 1:
-        view_p->format = "B";
+        format = FormatUint8;
         break;
     case 2:
-        view_p->format = "=H";
+        format = FormatUint16;
         break;
     case 4:
-        view_p->format = "=I";
+        format = FormatUint32;
         break;
     default:
         /* Should not get here! */
@@ -2388,18 +2399,10 @@ _get_buffer_2D (PyObject *obj, Pg_buffer *pg_view_p, int flags)
                       (int)__LINE__, __FILE__, itemsize);
         return -1;
     }
-    view_p->internal = PyMem_New (Py_ssize_t, 4);
-    if (!view_p->internal) {
-        PyErr_NoMemory ();
+    if (_init_buffer (obj, pg_view_p, flags)) {
         return -1;
     }
-    view_p->shape = (Py_ssize_t *)view_p->internal;
-    view_p->strides = view_p->shape + 2;
-    if (!PySurface_Lock (obj)) {
-        PyErr_SetString (PyExc_BufferError, "Unable to lock the surface");
-        PyMem_Free (view_p->internal);
-        return -1;
-    }
+    view_p->format = format;
     view_p->buf = surface->pixels;
     view_p->itemsize = itemsize;
     view_p->ndim = 2;
@@ -2413,7 +2416,6 @@ _get_buffer_2D (PyObject *obj, Pg_buffer *pg_view_p, int flags)
     view_p->suboffsets = 0;
     Py_INCREF (obj);
     view_p->obj = obj;
-    pg_view_p->release_buffer = _release_buffer;
     return 0;
 }
 
@@ -2440,19 +2442,10 @@ _get_buffer_3D (PyObject *obj, Pg_buffer *pg_view_p, int flags)
                          "A 3D surface view is not contiguous");
         return -1;
     }
-    view_p->internal = PyMem_New (Py_ssize_t, 6);
-    if (!view_p->internal) {
-        PyErr_NoMemory ();
+    if (_init_buffer (obj, pg_view_p, flags)) {
         return -1;
     }
-    view_p->shape = (Py_ssize_t *)view_p->internal;
-    view_p->strides = view_p->shape + 3;
-    if (!PySurface_Lock (obj)) {
-        PyErr_SetString (PyExc_BufferError, "Unable to lock the surface");
-        PyMem_Free (view_p->internal);
-        return -1;
-    }
-    view_p->format = "B";
+    view_p->format = FormatUint8;
     view_p->itemsize = 1;
     view_p->ndim = 3;
     view_p->readonly = 0;
@@ -2473,7 +2466,6 @@ _get_buffer_3D (PyObject *obj, Pg_buffer *pg_view_p, int flags)
     view_p->buf = startpixel;
     Py_INCREF (obj);
     view_p->obj = obj;
-    pg_view_p->release_buffer = _release_buffer;
     return 0;
 }
 
@@ -2566,20 +2558,11 @@ _get_buffer_colorplane (PyObject *obj,
                       (int)__LINE__, __FILE__, (void *)mask);
         return -1;
     }
-    view_p->internal = PyMem_New (Py_ssize_t, 4);
-    if (!view_p->internal) {
-        PyErr_NoMemory ();
-        return -1;
-    }
-    view_p->shape = (Py_ssize_t *)view_p->internal;
-    view_p->strides = view_p->shape + 2;
-    if (!PySurface_Lock (obj)) {
-        PyErr_SetString (PyExc_BufferError, "Unable to lock the surface");
-        PyMem_Free (view_p->internal);
+    if (_init_buffer (obj, pg_view_p, flags)) {
         return -1;
     }
     view_p->buf = startpixel;
-    view_p->format = "B";
+    view_p->format = FormatUint8;
     view_p->itemsize = 1;
     view_p->ndim = 2;
     view_p->readonly = 0;
@@ -2590,6 +2573,57 @@ _get_buffer_colorplane (PyObject *obj,
     view_p->strides[1] = surface->pitch;
     Py_INCREF (obj);
     view_p->obj = obj;
+    return 0;
+}
+
+static int
+_init_buffer (PyObject *surf, Pg_buffer *pg_view_p, int flags)
+{
+    PyObject *consumer;
+    Pg_bufferinternal *internal;
+
+/* A friendly self reminder */
+#warning To: len-l@telus.net, Msg: Please clean this up!
+    assert (surf &&
+            pg_view_p &&
+            PyObject_IsInstance (surf, (PyObject *)&PySurface_Type));
+    consumer = pg_view_p->consumer;
+    assert (consumer);
+    internal = PyMem_New (Pg_bufferinternal, 1);
+    if (!internal) {
+        PyErr_NoMemory ();
+        return -1;
+    }
+    internal->consumer_ref = PyWeakref_NewRef (consumer, 0);
+    if (!internal->consumer_ref) {
+        PyMem_Free (internal);
+        return -1;
+    }
+    if (!PySurface_LockBy (surf, consumer)) {
+        PyErr_Format (PyExc_BufferError,
+                      "Unable to lock <%s at %p> by <%s at %p>",
+                      Py_TYPE(surf)->tp_name, (void *)surf,
+                      Py_TYPE(consumer)->tp_name, (void *)consumer);
+        Py_DECREF (internal->consumer_ref);
+        PyMem_Free (internal);
+        return -1;
+    }
+    if ((flags & PyBUF_ND) == PyBUF_ND) {
+        ((Py_buffer *)pg_view_p)->shape = internal->mem;
+        if ((flags & PyBUF_STRIDES) == PyBUF_STRIDES) {
+            ((Py_buffer *)pg_view_p)->strides = internal->mem + 3;
+        }
+        else {
+            ((Py_buffer *)pg_view_p)->strides = 0;
+        }
+    }
+    else {
+        ((Py_buffer *)pg_view_p)->shape = 0;
+        ((Py_buffer *)pg_view_p)->strides = 0;
+    }
+    ((Py_buffer *)pg_view_p)->format = 0;
+    ((Py_buffer *)pg_view_p)->suboffsets = 0;
+    ((Py_buffer *)pg_view_p)->internal = internal;
     pg_view_p->release_buffer = _release_buffer;
     return 0;
 }
@@ -2597,16 +2631,22 @@ _get_buffer_colorplane (PyObject *obj,
 static void
 _release_buffer (Py_buffer *view_p)
 {
-    PyMem_Free (view_p->internal);
-    PySurface_Unlock (view_p->obj);
-    Py_DECREF (view_p->obj);
-    view_p->obj = 0;
-}
+    Pg_bufferinternal *internal;
+    PyObject *consumer_ref;
+    PyObject *consumer;
 
-static void
-_release_buffer_nomem (Py_buffer *view_p)
-{
-    PySurface_Unlock (view_p->obj);
+    assert (view_p && view_p->obj && view_p->internal);
+    internal  = (Pg_bufferinternal *)view_p->internal;
+    consumer_ref = internal->consumer_ref;
+    assert (consumer_ref && PyWeakref_CheckRef (consumer_ref));
+    consumer = PyWeakref_GetObject (consumer_ref);
+    if (consumer) {
+        if (!PySurface_UnlockBy (view_p->obj, consumer)) {
+            PyErr_Clear ();
+        }
+    }
+    Py_DECREF (consumer_ref);
+    PyMem_Free (internal);
     Py_DECREF (view_p->obj);
     view_p->obj = 0;
 }
