@@ -96,6 +96,65 @@ void* _alloca(size_t size);
 #define PyCapsule_CheckExact(obj) PyCObject_Check(obj)
 #endif
 
+/* Pygame uses Py_buffer (PEP 3118) to exchange array information internally;
+ * define here as needed.
+ */
+#if !defined(PyBUF_SIMPLE)
+typedef struct bufferinfo {
+    void *buf;
+    PyObject *obj;
+    Py_ssize_t len;
+    Py_ssize_t itemsize;
+    int readonly;
+    int ndim;
+    char *format;
+    Py_ssize_t *shape;
+    Py_ssize_t *strides;
+    Py_ssize_t *suboffsets;
+    void *internal;
+} Py_buffer;
+
+/* Flags for getting buffers */
+#define PyBUF_SIMPLE 0
+#define PyBUF_WRITABLE 0x0001
+/*  we used to include an E, backwards compatible alias  */
+#define PyBUF_WRITEABLE PyBUF_WRITABLE
+#define PyBUF_FORMAT 0x0004
+#define PyBUF_ND 0x0008
+#define PyBUF_STRIDES (0x0010 | PyBUF_ND)
+#define PyBUF_C_CONTIGUOUS (0x0020 | PyBUF_STRIDES)
+#define PyBUF_F_CONTIGUOUS (0x0040 | PyBUF_STRIDES)
+#define PyBUF_ANY_CONTIGUOUS (0x0080 | PyBUF_STRIDES)
+#define PyBUF_INDIRECT (0x0100 | PyBUF_STRIDES)
+
+#define PyBUF_CONTIG (PyBUF_ND | PyBUF_WRITABLE)
+#define PyBUF_CONTIG_RO (PyBUF_ND)
+
+#define PyBUF_STRIDED (PyBUF_STRIDES | PyBUF_WRITABLE)
+#define PyBUF_STRIDED_RO (PyBUF_STRIDES)
+
+#define PyBUF_RECORDS (PyBUF_STRIDES | PyBUF_WRITABLE | PyBUF_FORMAT)
+#define PyBUF_RECORDS_RO (PyBUF_STRIDES | PyBUF_FORMAT)
+
+#define PyBUF_FULL (PyBUF_INDIRECT | PyBUF_WRITABLE | PyBUF_FORMAT)
+#define PyBUF_FULL_RO (PyBUF_INDIRECT | PyBUF_FORMAT)
+
+
+#define PyBUF_READ  0x100
+#define PyBUF_WRITE 0x200
+#define PyBUF_SHADOW 0x400
+#endif /* #if !defined(PyBUF_SIMPLE) */
+
+/* Array information exchange struct C type; inherits from Py_buffer */
+
+struct pg_bufferinfo_s;
+typedef void (*pg_releasebufferfunc)(struct bufferinfo *);
+
+typedef struct pg_bufferinfo_s {
+    Py_buffer view;
+    pg_releasebufferfunc release_buffer;
+} Pg_buffer;
+
 // No signal()
 #if defined(__SYMBIAN32__) && defined(HAVE_SIGNAL_H)
 #undef HAVE_SIGNAL_H
@@ -186,7 +245,7 @@ typedef getcharbufferproc charbufferproc;
 #define VIEW_F_ORDER       4
 
 #define PYGAMEAPI_BASE_FIRSTSLOT 0
-#define PYGAMEAPI_BASE_NUMSLOTS 21
+#define PYGAMEAPI_BASE_NUMSLOTS 20
 #ifndef PYGAMEAPI_BASE_INTERNAL
 #define PyExc_SDLError ((PyObject*)PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT])
 
@@ -233,31 +292,28 @@ typedef getcharbufferproc charbufferproc;
     (*(PyObject*(*)(PyArrayInterface*))                                 \
      PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 13])
 
-#define ViewAsDict                                                      \
+#define PgBuffer_AsArrayInterface                                       \
     (*(PyObject*(*)(Py_buffer*)) PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 14])
 
 #define GetArrayInterface                                               \
     (*(int(*)(PyObject*, PyObject**, PyArrayInterface**))               \
      PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 15])
 
-#define ViewAndFlagsAsArrayStruct                                       \
-    (*(PyObject*(*)(Py_buffer*, int))                                   \
+#define PgBuffer_AsArrayStruct                                          \
+    (*(PyObject*(*)(Py_buffer*))                                        \
      PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 16])
 
-#define ViewIsByteSwapped                                               \
-    (*(int(*)(const Py_buffer*)) PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 17])
+#define PgObject_GetBuffer                                              \
+    (*(int(*)(PyObject*, Pg_buffer*, int))                              \
+     PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 17])
 
-#define GetView                                                         \
-    (*(int(*)(PyObject*, Py_buffer*))                                   \
+#define PgBuffer_Release                                                \
+    (*(void(*)(Pg_buffer*))                                             \
      PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 18])
 
-#define ReleaseView                                                     \
-    (*(void(*)(Py_buffer*))                                             \
+#define PgDict_AsBuffer                                                 \
+    (*(int(*)(Pg_buffer*, PyObject*, int))                              \
      PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 19])
-
-#define Dict_AsView                                                     \
-    (*(int(*)(Py_buffer*, PyObject*))                                   \
-     PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 20])
 
 #define import_pygame_base() IMPORT_PYGAME_MODULE(base, BASE)
 #endif

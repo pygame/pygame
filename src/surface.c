@@ -109,11 +109,23 @@ static PyObject *surf_get_bounding_rect (PyObject *self, PyObject *args,
                                          PyObject *kwargs);
 static PyObject *surf_get_pixels_address (PyObject *self,
                                           PyObject *closure);
-static int _view_kind(PyObject *obj, void *view_kind_vptr);
-static int _proxy_before(PyObject *proxy);
-static void _proxy_after(PyObject *proxy);
+static int _view_kind (PyObject *obj, void *view_kind_vptr);
+static int _get_buffer_0D (PyObject *obj, Pg_buffer *pg_view_p, int flags);
+static int _get_buffer_1D (PyObject *obj, Pg_buffer *pg_view_p, int flags);
+static int _get_buffer_2D (PyObject *obj, Pg_buffer *pg_view_p, int flags);
+static int _get_buffer_3D (PyObject *obj, Pg_buffer *pg_view_p, int flags);
+static int _get_buffer_red (PyObject *obj, Pg_buffer *pg_view_p, int flags);
+static int _get_buffer_green (PyObject *obj, Pg_buffer *pg_view_p, int flags);
+static int _get_buffer_blue (PyObject *obj, Pg_buffer *pg_view_p, int flags);
+static int _get_buffer_alpha (PyObject *obj, Pg_buffer *pg_view_p, int flags);
+static int _get_buffer_colorplane (PyObject *obj,
+                                   Pg_buffer *pg_view_p,
+                                   int flags,
+                                   char *name,
+                                   Uint32 mask);
+static void _release_buffer(Py_buffer *view_p);
+static void _release_buffer_nomem(Py_buffer *view_p);
 static PyObject *_raise_get_view_ndim_error(int bitsize, SurfViewKind kind);
-
 
 static PyGetSetDef surface_getsets[] = {
     { "_pixels_address", (getter)surf_get_pixels_address,
@@ -2115,24 +2127,11 @@ _raise_get_view_ndim_error(int bitsize, SurfViewKind kind) {
 static PyObject*
 surf_get_buffer (PyObject *self, PyObject *args)
 {
-#   define SURF_GET_BUFFER_MAXDIM 3
-    const int lilendian = (SDL_BYTEORDER == SDL_LIL_ENDIAN);
-    const int maxdim = SURF_GET_BUFFER_MAXDIM;
-    Py_ssize_t shape[SURF_GET_BUFFER_MAXDIM];
-    Py_ssize_t strides[SURF_GET_BUFFER_MAXDIM];
-    char format[] = {'B', '\0', '\0'};
-    Py_buffer view;
-#   undef SURF_GET_BUFFER_MAXDIM
-    SurfViewKind view_kind = VIEWKIND_RAW;
-    int ndim = maxdim;
-    Py_ssize_t len = 0;
     SDL_Surface *surface = PySurface_AsSurface (self);
-    int pixelsize;
-    Py_ssize_t itemsize = 0;
-    Uint8 *startpixel;
+    SDL_PixelFormat *format;
     Uint32 mask = 0;
-    int pixelstep;
-    int flags = 0;
+    SurfViewKind view_kind = VIEWKIND_RAW;
+    pg_getbufferfunc get_buffer = 0;
     PyObject *proxy_obj;
 
     if (!PyArg_ParseTuple (args, "|O&", _view_kind, &view_kind)) {
@@ -2143,98 +2142,93 @@ surf_get_buffer (PyObject *self, PyObject *args)
         return RAISE (PyExc_SDLError, "display Surface quit");
     }
 
-    view.readonly = 0;
-    view.shape = shape;
-    view.strides = strides;
-    view.format = format;
-    view.suboffsets = 0;
-    view.internal = 0;
-
-    startpixel = surface->pixels;
-    pixelsize = surface->format->BytesPerPixel;
-    shape[0] = (Py_ssize_t)surface->w;
-    shape[1] = (Py_ssize_t)surface->h;
-    strides[0] = (Py_ssize_t)pixelsize;
-    strides[1] = (Py_ssize_t)surface->pitch;
+    format = surface->format;
     switch (view_kind) {
 
     case VIEWKIND_0D:
-        if (strides[1] != pixelsize * shape[0]) {
+        if (surface->pitch != format->BytesPerPixel * surface->w) {
             PyErr_SetString (PyExc_ValueError,
                              "Surface data is not contiguous");
             return 0;
         }
-        ndim = 0;
-        itemsize = 1;
-        flags |= VIEW_CONTIGUOUS;
-        len = pixelsize * shape[0] * shape[1];
+        get_buffer = _get_buffer_0D;
         break;
     case VIEWKIND_1D:
-        if (strides[1] != pixelsize * shape[0]) {
+        if (surface->pitch != format->BytesPerPixel * surface->w) {
             PyErr_SetString (PyExc_ValueError,
                              "Surface data is not contiguous");
             return 0;
         }
-        ndim = 1;
-        len = pixelsize * shape[0] * shape[1];
-        shape[0] = shape[0] * shape[1];
-        itemsize = pixelsize;
-        flags |= VIEW_CONTIGUOUS | VIEW_C_ORDER | VIEW_F_ORDER;
+        if (format->BytesPerPixel == 3) {
+            return _raise_get_view_ndim_error (format->BytesPerPixel * 8,
+                                               view_kind);
+        }
+        get_buffer = _get_buffer_1D;
         break;
     case VIEWKIND_2D:
-        ndim = 2;
-        itemsize = pixelsize;
-        len = itemsize * shape[0] * shape[1];
-        flags |= VIEW_F_ORDER;
-        if (strides[1] == shape[0] * itemsize) {
-            flags |= VIEW_CONTIGUOUS;
+        if (format->BytesPerPixel == 3) {
+            return _raise_get_view_ndim_error (format->BytesPerPixel * 8,
+                                               view_kind);
         }
+        get_buffer = _get_buffer_2D;
         break;
     case VIEWKIND_3D:
-        if (pixelsize < 3) {
-            return _raise_get_view_ndim_error (pixelsize * 8, view_kind);
+        if (format->BytesPerPixel < 3) {
+            return _raise_get_view_ndim_error (format->BytesPerPixel * 8,
+                                               view_kind);
         }
-        ndim = 3;
-        itemsize = 1;
-        shape[2] = 3;
-        len = itemsize * shape[0] * shape[1] * shape[2];
-        if (surface->format->Rmask == 0xff0000 &&
-            surface->format->Gmask == 0x00ff00 &&
-            surface->format->Bmask == 0x0000ff)   {
-            strides[2] = lilendian ? -1 : 1;
-            startpixel += lilendian ? 2 : 1;
-        }
-        else if (surface->format->Bmask == 0xff0000 &&
-                 surface->format->Gmask == 0x00ff00 &&
-                 surface->format->Rmask == 0x0000ff)   {
-            strides[2] = lilendian ? 1 : -1;
-            startpixel += lilendian ? 0 : (pixelsize - 1);
-        }
-        else {
+        if (format->Gmask != 0x00ff00) {
             return RAISE (PyExc_ValueError,
                           "unsupport colormasks for 3D reference array");
         }
-        if (strides[1] == shape[2] * shape[1]) {
-            flags |= VIEW_CONTIGUOUS;
-        }
+        get_buffer = _get_buffer_3D;
         break;
     case VIEWKIND_RED:
-        mask = surface->format->Rmask;
+        mask = format->Rmask;
+        if (mask != 0x000000ffU &&
+            mask != 0x0000ff00U &&
+            mask != 0x00ff0000U &&
+            mask != 0xff000000U    ) {
+            return RAISE (PyExc_ValueError,
+                          "unsupported colormasks for red reference array");
+        }
+        get_buffer = _get_buffer_red;
         break;
     case VIEWKIND_GREEN:
-        mask = surface->format->Gmask;
+        mask = format->Gmask;
+        if (mask != 0x000000ffU &&
+            mask != 0x0000ff00U &&
+            mask != 0x00ff0000U &&
+            mask != 0xff000000U    ) {
+            return RAISE (PyExc_ValueError,
+                          "unsupported colormasks for green reference array");
+        }
+        get_buffer = _get_buffer_green;
         break;
     case VIEWKIND_BLUE:
-        mask = surface->format->Bmask;
+        mask = format->Bmask;
+        if (mask != 0x000000ffU &&
+            mask != 0x0000ff00U &&
+            mask != 0x00ff0000U &&
+            mask != 0xff000000U    ) {
+            return RAISE (PyExc_ValueError,
+                          "unsupported colormasks for blue reference array");
+        }
+        get_buffer = _get_buffer_blue;
         break;
     case VIEWKIND_ALPHA:
-        mask = surface->format->Amask;
+        mask = format->Amask;
+        if (mask != 0x000000ffU &&
+            mask != 0x0000ff00U &&
+            mask != 0x00ff0000U &&
+            mask != 0xff000000U    ) {
+            return RAISE (PyExc_ValueError,
+                          "unsupported colormasks for alpha reference array");
+        }
+        get_buffer = _get_buffer_alpha;
         break;
     case VIEWKIND_RAW:
-        ndim = 0;
-        itemsize = 1;
-        flags |= VIEW_CONTIGUOUS; /* Assumes knowledgable consumers */
-        len = surface->pitch * surface->h;
+        get_buffer = _get_buffer_0D;
         break;
     default:
         PyErr_Format (PyExc_SystemError,
@@ -2242,62 +2236,8 @@ surf_get_buffer (PyObject *self, PyObject *args)
                       " unrecognized view kind %d", (int)view_kind);
         return 0;
     }
-    if (!itemsize) {
-        /* Color plane */
-        ndim = 2;
-        pixelstep = pixelsize;
-        itemsize = 1;
-        len = itemsize * shape[0] * shape[1];
-        flags |= VIEW_F_ORDER;
-        switch (mask) {
-
-        case 0x000000ffU:
-            startpixel += lilendian ? 0 : 3;
-            break;
-        case 0x0000ff00U:
-            startpixel += lilendian ? 1 : 2;
-            break;
-        case 0x00ff0000U:
-            startpixel += lilendian ? 2 : 1;
-            break;
-        case 0xff000000U:
-            startpixel += lilendian ? 3 : 0;
-            break;
-        default:
-            return RAISE (PyExc_ValueError,
-                          "unsupported colormasks for alpha reference array");
-        }
-    }
-    view.ndim = ndim;
-    view.buf = startpixel;
-    view.itemsize = itemsize;
-    switch (itemsize) {
-
-    case 1:
-        break; /* default */
-    case 2:
-        format[0] = '=';
-        format[1] = 'H';
-        break;
-    case 3:
-        format[0] = 's';
-        break;
-    case 4:
-        format[0] = '=';
-        format[1] = 'I';
-        break;
-    default:
-        /* Should not get here. */
-        PyErr_Format (PyExc_SystemError,
-                      "Pygame: Surface.get_item: unrecognized itemsize %d",
-                      (int)itemsize);
-        return 0;
-    }
-    view.len = len;
-    view.obj = self;
-    Py_INCREF (self);
-
-    proxy_obj = PgBufproxy_New (&view, flags, _proxy_before, _proxy_after);
+    assert (get_buffer);
+    proxy_obj = PgBufproxy_New (self, get_buffer);
     if (proxy_obj && view_kind == VIEWKIND_RAW) {
         if (PgBufproxy_Trip (proxy_obj)) {
             Py_DECREF (proxy_obj);
@@ -2305,6 +2245,370 @@ surf_get_buffer (PyObject *self, PyObject *args)
         }
     }
     return proxy_obj;
+}
+
+static int
+_get_buffer_0D (PyObject *obj, Pg_buffer *pg_view_p, int flags)
+{
+    SDL_Surface *surface = PySurface_AsSurface (obj);
+    Py_buffer *view_p = (Py_buffer *)pg_view_p;
+
+    view_p->obj = 0;
+    if (!PySurface_Lock (obj)) {
+        PyErr_SetString (PyExc_BufferError, "Unable to lock the surface");
+        return -1;
+    }
+    view_p->buf = surface->pixels;
+    view_p->itemsize = 1;
+    view_p->len = surface->pitch * surface->h;
+    view_p->readonly = 0;
+    view_p->internal = 0;
+    view_p->format = (flags & PyBUF_FORMAT) ? "B" : 0;
+    view_p->shape = (flags & PyBUF_ND) ? &view_p->len : 0;
+    view_p->strides = (flags & PyBUF_STRIDES) ? &view_p->itemsize : 0;
+    view_p->suboffsets = 0;
+    view_p->internal = 0;
+    Py_INCREF (obj);
+    view_p->obj = obj;
+    pg_view_p->release_buffer = _release_buffer_nomem;
+    return 0;
+}
+
+static int
+_get_buffer_1D (PyObject *obj, Pg_buffer *pg_view_p, int flags)
+{
+    Py_buffer *view_p = (Py_buffer *)pg_view_p;
+    SDL_Surface *surface = PySurface_AsSurface (obj);
+    Py_ssize_t itemsize = surface->format->BytesPerPixel;
+
+    view_p->obj = 0;
+    if (itemsize == 1) {
+        return _get_buffer_0D (obj, pg_view_p, flags);
+    }
+    if (flags == PyBUF_SIMPLE) {
+        PyErr_Format (PyExc_BufferError,
+                      "PyBUF_SIMPLE flag unsupported for a "
+                      "%i bytes-per-pixel 1D surface view", itemsize);
+        return -1;
+    }
+    if (!(flags & PyBUF_ND)) {
+        PyErr_Format (PyExc_BufferError,
+                      "PyBUF_ND flag required for a "
+                      "%i bytes-per-pixel 1D surface view", itemsize);
+        return -1;
+    }
+    if (!(flags & PyBUF_FORMAT)) {
+        PyErr_Format (PyExc_BufferError,
+                      "PyBUF_FORMAT required for a 1D view of a "
+                      "%i bytes-per-pixel surface", itemsize);
+        return -1;
+    }
+    switch (itemsize) {
+
+    case 2:
+        view_p->format = "=H";
+        break;
+    case 4:
+        view_p->format = "=I";
+        break;
+    default:
+        /* Should not get here! */
+        PyErr_Format (PyExc_SystemError,
+                      "Pygame bug caught at line %i in file %s: "
+                      "unknown pixel size %i. Please report",
+                      (int)__LINE__, __FILE__, itemsize);
+        return -1;
+    }
+    if (!PySurface_Lock (obj)) {
+        PyErr_SetString (PyExc_BufferError, "Unable to lock the surface");
+        return -1;
+    }
+    view_p->internal = (void *)(surface->w * surface->h);
+    view_p->buf = surface->pixels;
+    view_p->itemsize = itemsize;
+    view_p->ndim = 1;
+    view_p->readonly = 0;
+    view_p->len = (Py_ssize_t)view_p->internal * itemsize;
+    view_p->shape = (Py_ssize_t *)&view_p->internal;
+    view_p->strides = (flags & PyBUF_STRIDES) ? &itemsize : 0;
+    view_p->suboffsets = 0;
+    Py_INCREF (obj);
+    view_p->obj = obj;
+    pg_view_p->release_buffer = _release_buffer_nomem;
+    return 0;
+}
+
+static int
+_get_buffer_2D (PyObject *obj, Pg_buffer *pg_view_p, int flags)
+{
+    Py_buffer *view_p = (Py_buffer *)pg_view_p;
+    SDL_Surface *surface = PySurface_AsSurface (obj);
+    int itemsize = surface->format->BytesPerPixel;
+
+    view_p->obj = 0;
+    if ((flags & PyBUF_RECORDS) != PyBUF_RECORDS) {
+        PyErr_SetString (PyExc_BufferError,
+                         "A PyBUF_RECORDS flag is required for a "
+                         "2D surface view");
+        return -1;
+    }
+    if ((flags & PyBUF_C_CONTIGUOUS) == PyBUF_C_CONTIGUOUS) {
+        PyErr_SetString (PyExc_BufferError,
+                         "A 2D surface view is not C contiguous");
+        return -1;
+    }
+    if ((flags & PyBUF_F_CONTIGUOUS) == PyBUF_F_CONTIGUOUS &&
+        surface->pitch != surface->w * itemsize) {
+        PyErr_SetString (PyExc_BufferError,
+                         "This 2D surface view is not F contiguous");
+        return -1;
+    }
+    if ((flags & PyBUF_ANY_CONTIGUOUS) == PyBUF_ANY_CONTIGUOUS &&
+        surface->pitch != surface->w * itemsize) {
+        PyErr_SetString (PyExc_BufferError,
+                         "This 2D surface view is not contiguous");
+        return -1;
+    }
+    switch (itemsize) {
+
+    case 1:
+        view_p->format = "B";
+        break;
+    case 2:
+        view_p->format = "=H";
+        break;
+    case 4:
+        view_p->format = "=I";
+        break;
+    default:
+        /* Should not get here! */
+        PyErr_Format (PyExc_SystemError,
+                      "Pygame bug caught at line %i in file %s: "
+                      "unknown pixel size %i. Please report",
+                      (int)__LINE__, __FILE__, itemsize);
+        return -1;
+    }
+    view_p->internal = PyMem_New (Py_ssize_t, 4);
+    if (!view_p->internal) {
+        PyErr_NoMemory ();
+        return -1;
+    }
+    view_p->shape = (Py_ssize_t *)view_p->internal;
+    view_p->strides = view_p->shape + 2;
+    if (!PySurface_Lock (obj)) {
+        PyErr_SetString (PyExc_BufferError, "Unable to lock the surface");
+        PyMem_Free (view_p->internal);
+        return -1;
+    }
+    view_p->buf = surface->pixels;
+    view_p->itemsize = itemsize;
+    view_p->ndim = 2;
+    view_p->readonly = 0;
+    view_p->len = surface->w * surface->h * itemsize;
+    view_p->shape[0] = surface->w;
+    view_p->shape[1] = surface->h;
+    view_p->len = view_p->itemsize * view_p->shape[0] * view_p->shape[1];
+    view_p->strides[0] = itemsize;
+    view_p->strides[1] = surface->pitch;
+    view_p->suboffsets = 0;
+    Py_INCREF (obj);
+    view_p->obj = obj;
+    pg_view_p->release_buffer = _release_buffer;
+    return 0;
+}
+
+static int
+_get_buffer_3D (PyObject *obj, Pg_buffer *pg_view_p, int flags)
+{
+    const int lilendian = (SDL_BYTEORDER == SDL_LIL_ENDIAN);
+    Py_buffer *view_p = (Py_buffer *)pg_view_p;
+    SDL_Surface *surface = PySurface_AsSurface (obj);
+    int pixelsize = surface->format->BytesPerPixel;
+    char *startpixel = (char *)surface->pixels;
+
+    view_p->obj = 0;
+    if ((flags & PyBUF_RECORDS) != PyBUF_RECORDS) {
+        PyErr_SetString (PyExc_BufferError,
+                         "A PyBUF_RECORDS flag is required for a "
+                         "2D surface view");
+        return -1;
+    }
+    if ((flags & PyBUF_C_CONTIGUOUS) == PyBUF_C_CONTIGUOUS ||
+        (flags & PyBUF_F_CONTIGUOUS) == PyBUF_F_CONTIGUOUS ||
+        (flags & PyBUF_ANY_CONTIGUOUS) == PyBUF_ANY_CONTIGUOUS) {
+        PyErr_SetString (PyExc_BufferError,
+                         "A 3D surface view is not contiguous");
+        return -1;
+    }
+    view_p->internal = PyMem_New (Py_ssize_t, 6);
+    if (!view_p->internal) {
+        PyErr_NoMemory ();
+        return -1;
+    }
+    view_p->shape = (Py_ssize_t *)view_p->internal;
+    view_p->strides = view_p->shape + 3;
+    if (!PySurface_Lock (obj)) {
+        PyErr_SetString (PyExc_BufferError, "Unable to lock the surface");
+        PyMem_Free (view_p->internal);
+        return -1;
+    }
+    view_p->format = "B";
+    view_p->itemsize = 1;
+    view_p->ndim = 3;
+    view_p->readonly = 0;
+    view_p->len = surface->w * surface->h * 3;
+    view_p->shape[0] = surface->w;
+    view_p->shape[1] = surface->h;
+    view_p->shape[2] = 3;
+    view_p->strides[0] = pixelsize;
+    view_p->strides[1] = surface->pitch;
+    if (surface->format->Rmask == 0x00ff0000U) {
+        view_p->strides[2] = lilendian ? -1 : 1;
+        startpixel += lilendian ? 2 : 1;
+    }
+    else {
+        view_p->strides[2] = lilendian ? 1 : -1;
+        startpixel += lilendian ? 0 : (pixelsize - 1);
+    }
+    view_p->buf = startpixel;
+    Py_INCREF (obj);
+    view_p->obj = obj;
+    pg_view_p->release_buffer = _release_buffer;
+    return 0;
+}
+
+static int
+_get_buffer_red (PyObject *obj, Pg_buffer *pg_view_p, int flags)
+{
+    return _get_buffer_colorplane(obj,
+                                  pg_view_p,
+                                  flags,
+                                  "red",
+                                  PySurface_AsSurface (obj)->format->Rmask);
+}
+
+static int
+_get_buffer_green (PyObject *obj, Pg_buffer *pg_view_p, int flags)
+{
+    return _get_buffer_colorplane(obj,
+                                  pg_view_p,
+                                  flags,
+                                  "green",
+                                  PySurface_AsSurface (obj)->format->Gmask);
+}
+
+static int
+_get_buffer_blue (PyObject *obj, Pg_buffer *pg_view_p, int flags)
+{
+    return _get_buffer_colorplane(obj,
+                                  pg_view_p,
+                                  flags,
+                                  "blue",
+                                  PySurface_AsSurface (obj)->format->Bmask);
+}
+
+static int
+_get_buffer_alpha (PyObject *obj, Pg_buffer *pg_view_p, int flags)
+{
+    return _get_buffer_colorplane(obj,
+                                  pg_view_p,
+                                  flags,
+                                  "alpha",
+                                  PySurface_AsSurface (obj)->format->Amask);
+}
+
+static int
+_get_buffer_colorplane (PyObject *obj,
+                        Pg_buffer *pg_view_p,
+                        int flags,
+                        char *name,
+                        Uint32 mask)
+{
+    const int lilendian = (SDL_BYTEORDER == SDL_LIL_ENDIAN);
+    Py_buffer *view_p = (Py_buffer *)pg_view_p;
+    SDL_Surface *surface = PySurface_AsSurface (obj);
+    int pixelsize = surface->format->BytesPerPixel;
+    char *startpixel = (char *)surface->pixels;
+
+    view_p->obj = 0;
+    if ((flags & PyBUF_RECORDS) != PyBUF_RECORDS) {
+        PyErr_SetString (PyExc_BufferError,
+                         "A PyBUF_RECORDS flag is required for a "
+                         "surface colorplane view");
+        return -1;
+    }
+    if ((flags & PyBUF_C_CONTIGUOUS) == PyBUF_C_CONTIGUOUS ||
+        (flags & PyBUF_F_CONTIGUOUS) == PyBUF_F_CONTIGUOUS ||
+        (flags & PyBUF_ANY_CONTIGUOUS) == PyBUF_ANY_CONTIGUOUS) {
+        PyErr_SetString (PyExc_BufferError,
+                         "A surface colorplane view is not contiguous");
+        return -1;
+    }
+    switch (mask) {
+
+    case 0x000000ffU:
+        startpixel += lilendian ? 0 : 3;
+        break;
+    case 0x0000ff00U:
+        startpixel += lilendian ? 1 : 2;
+        break;
+    case 0x00ff0000U:
+        startpixel += lilendian ? 2 : 1;
+        break;
+    case 0xff000000U:
+        startpixel += lilendian ? 3 : 0;
+        break;
+    default:
+        /* Should not get here! */
+        PyErr_Format (PyExc_SystemError,
+                      "Pygame bug caught at line %i in file %s: "
+                      "unknown mask value %p. Please report",
+                      (int)__LINE__, __FILE__, (void *)mask);
+        return -1;
+    }
+    view_p->internal = PyMem_New (Py_ssize_t, 4);
+    if (!view_p->internal) {
+        PyErr_NoMemory ();
+        return -1;
+    }
+    view_p->shape = (Py_ssize_t *)view_p->internal;
+    view_p->strides = view_p->shape + 2;
+    if (!PySurface_Lock (obj)) {
+        PyErr_SetString (PyExc_BufferError, "Unable to lock the surface");
+        PyMem_Free (view_p->internal);
+        return -1;
+    }
+    view_p->buf = startpixel;
+    view_p->format = "B";
+    view_p->itemsize = 1;
+    view_p->ndim = 2;
+    view_p->readonly = 0;
+    view_p->len = surface->w * surface->h;
+    view_p->shape[0] = surface->w;
+    view_p->shape[1] = surface->h;
+    view_p->strides[0] = pixelsize;
+    view_p->strides[1] = surface->pitch;
+    Py_INCREF (obj);
+    view_p->obj = obj;
+    pg_view_p->release_buffer = _release_buffer;
+    return 0;
+}
+
+static void
+_release_buffer (Py_buffer *view_p)
+{
+    PyMem_Free (view_p->internal);
+    PySurface_Unlock (view_p->obj);
+    Py_DECREF (view_p->obj);
+    view_p->obj = 0;
+}
+
+static void
+_release_buffer_nomem (Py_buffer *view_p)
+{
+    PySurface_Unlock (view_p->obj);
+    Py_DECREF (view_p->obj);
+    view_p->obj = 0;
 }
 
 static int
@@ -2374,26 +2678,6 @@ _view_kind (PyObject *obj, void *view_kind_vptr)
         return 0;
     }
     return 1;
-}
-
-static int
-_proxy_before (PyObject *proxy)
-{
-    PyObject *surf = PgBufproxy_GetParent (proxy);
-    int rcode;
-
-    rcode = PySurface_LockBy (surf, proxy) ? 0 : -1;
-    Py_DECREF (surf);
-    return rcode;
-}
-
-static void
-_proxy_after (PyObject *proxy)
-{
-    PyObject *surf = PgBufproxy_GetParent (proxy);
-
-    PySurface_UnlockBy (surf, proxy);
-    Py_DECREF (surf);
 }
 
 static PyObject *

@@ -122,36 +122,6 @@ _format_itemsize(Uint16 format)
     return size;
 }
 
-static PG_sample_format_t
-_format_inter_to_audio(PyArrayInterface *inter)
-{
-    PG_sample_format_t format = 0;
-    int itemsize = inter->itemsize;
-
-    switch (inter->typekind) {
-        case 'u':
-        break;
-
-        case 'i':
-        format |= PG_SAMPLE_SIGNED;
-        break;
-
-        default:
-        PyErr_Format(PyExc_ValueError,
-                     "Array has unsupported item format '%c'",
-                     (int)inter->typekind);
-        return 0;
-    }
-    if (itemsize <= 0 || itemsize > 0xFFFFl) {
-        PyErr_Format(PyExc_ValueError,
-                     "Array has unsupported integer size %d", itemsize);
-        return 0;
-    }
-    format += itemsize;
-    format |= inter->flags & PAI_NOTSWAPPED ? PG_SAMPLE_NATIVE_ENDIAN : 0;
-    return format;
-}
-
 #if HAVE_NEW_BUFPROTO
 static PG_sample_format_t
 _format_view_to_audio(Py_buffer *view)
@@ -224,6 +194,15 @@ _format_view_to_audio(Py_buffer *view)
 
     case 'H':
         format += native_size ? sizeof(unsigned short int) : 2;
+        break;
+
+    case 'i':
+        format |= PG_SAMPLE_SIGNED;
+        format += native_size ? sizeof(short int) : 4;
+        break;
+
+    case 'I':
+        format += native_size ? sizeof(unsigned short int) : 4;
         break;
 
     case 'l':
@@ -655,15 +634,11 @@ snd_get_arraystruct (PyObject* self, void* closure)
 {
     Py_buffer view;
     PyObject* cobj;
-    int view_flags = VIEW_CONTIGUOUS | VIEW_C_ORDER;
 
-    if (snd_getbuffer (self, &view, PyBUF_STRIDES)) {
+    if (snd_getbuffer (self, &view, PyBUF_RECORDS)) {
         return 0;
     }
-    if (view.ndim == 1) {
-        view_flags |= VIEW_F_ORDER;
-    }
-    cobj = ViewAndFlagsAsArrayStruct (&view, view_flags);
+    cobj = PgBuffer_AsArrayStruct (&view);
     snd_releasebuffer (view.obj, &view);
     Py_XDECREF (view.obj);
     return cobj;
@@ -1681,63 +1656,28 @@ sound_init(PyObject *self, PyObject *arg, PyObject *kwarg)
     }
 #endif
 
-#if HAVE_NEW_BUFPROTO
-    if (array != NULL && /* conditional and */
-        PyObject_CheckBuffer(array)) {
-        Py_buffer view;
+    if (array != NULL) {
+        Pg_buffer pg_view;
         PG_sample_format_t view_format;
         int rcode;
 
-        view.itemsize = 0;
-        view.obj = 0;
-        if (PyObject_GetBuffer(array, &view, PyBUF_FORMAT | PyBUF_ND)) {
+        pg_view.view.itemsize = 0;
+        pg_view.view.obj = 0;
+        if (PgObject_GetBuffer(array, &pg_view, PyBUF_FORMAT | PyBUF_ND)) {
             return -1;
         }
-        view_format = _format_view_to_audio(&view);
+        view_format = _format_view_to_audio((Py_buffer *)&pg_view);
         if (!view_format) {
-            PyBuffer_Release(&view);
+            PgBuffer_Release(&pg_view);
             return -1;
         }
-        rcode = _chunk_from_array(view.buf, view_format, view.ndim,
-                                  view.shape, view.strides,
+        rcode = _chunk_from_array(pg_view.view.buf,
+                                  view_format,
+                                  pg_view.view.ndim,
+                                  pg_view.view.shape,
+                                  pg_view.view.strides,
                                   &chunk, &mem);
-        PyBuffer_Release(&view);
-        if (rcode) {
-            return -1;
-        }
-        ((PySoundObject *)self)->mem = mem;
-    }
-#endif
-
-    if (chunk == NULL && array != NULL) {
-        PyArrayInterface *inter = 0;
-        PyObject *cobj = 0;
-        PG_sample_format_t array_format;
-        int rcode;
-
-        if (GetArrayInterface(array, &cobj, &inter)) {
-            return -1;
-        }
-        if (!(inter->flags & PAI_CONTIGUOUS)) {
-            RAISE(PyExc_ValueError,
-                  "Array is discontiguous");
-            Py_DECREF(cobj);
-            return -1;
-        }
-        if (inter->nd > 1 && inter->flags & PAI_FORTRAN) {
-            RAISE(PyExc_ValueError, "Array is channel first");
-            Py_DECREF(cobj);
-            return -1;
-        }
-        array_format = _format_inter_to_audio(inter);
-        if (!array_format) {
-            Py_DECREF(cobj);
-            return -1;
-        }
-        rcode = _chunk_from_array(inter->data, array_format, inter->nd,
-                                  inter->shape, inter->strides,
-                                  &chunk, &mem);
-        Py_DECREF(cobj);
+        PgBuffer_Release(&pg_view);
         if (rcode) {
             return -1;
         }
