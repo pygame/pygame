@@ -152,6 +152,7 @@ typedef void (*pg_releasebufferfunc)(struct bufferinfo *);
 
 typedef struct pg_bufferinfo_s {
     Py_buffer view;
+    PyObject *consumer;                   /* Input: Borrowed reference */
     pg_releasebufferfunc release_buffer;
 } Pg_buffer;
 

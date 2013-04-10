@@ -380,17 +380,13 @@ class SurfaceTypeTest(unittest.TestCase):
         s = pygame.Surface((5, 7), 0, 24)
         self.assertRaises(Error, s.get_buffer, '0')
         self.assertRaises(Error, s.get_buffer, '1')
-        v = s.get_buffer('2')
-        self.assert_(isinstance(v, BufferProxy))
+        self.assertRaises(Error, s.get_buffer, '2')
         v = s.get_buffer('3')
         self.assert_(isinstance(v, BufferProxy))
 
         s = pygame.Surface((8, 7), 0, 24)
         length = s.get_bytesize() * s.get_width() * s.get_height()
         v = s.get_buffer('0')
-        self.assert_(isinstance(v, BufferProxy))
-        self.assertEqual(v.length, length)
-        v = s.get_buffer('1')
         self.assert_(isinstance(v, BufferProxy))
         self.assertEqual(v.length, length)
 
@@ -1267,9 +1263,9 @@ class SurfaceGetViewTest (unittest.TestCase):
         # check the array interface structure fields.
         v = s.get_buffer('2')
         inter = ArrayInterface(v)
-        flags = PAI_FORTRAN | PAI_ALIGNED | PAI_NOTSWAPPED | PAI_WRITEABLE
+        flags = PAI_ALIGNED | PAI_NOTSWAPPED | PAI_WRITEABLE
         if (s.get_pitch() == s_w * s_bytesize):
-            flags |= PAI_CONTIGUOUS
+            flags |= PAI_FORTRAN
         self.assertEqual(inter.two, 2)
         self.assertEqual(inter.nd, 2)
         self.assertEqual(inter.typekind, 'u')
@@ -1344,7 +1340,7 @@ class SurfaceGetViewTest (unittest.TestCase):
         # check the array interface structure fields.
         v = s.get_buffer('rgba'[plane])
         inter = ArrayInterface(v)
-        flags = PAI_ALIGNED | PAI_NOTSWAPPED | PAI_WRITEABLE | PAI_FORTRAN
+        flags = PAI_ALIGNED | PAI_NOTSWAPPED | PAI_WRITEABLE
         self.assertEqual(inter.two, 2)
         self.assertEqual(inter.nd, 2)
         self.assertEqual(inter.typekind, 'u')

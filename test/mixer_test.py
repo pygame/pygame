@@ -345,6 +345,8 @@ class MixerModuleTest(unittest.TestCase):
         except ValueError:
             if not test_pass:
                 return
+            self.fail("Raised ValueError: Format %i, dtype %s" %
+                      (format, a.dtype))
         if not test_pass:
             self.fail("Did not raise ValueError: Format %i, dtype %s" %
                       (format, a.dtype))
