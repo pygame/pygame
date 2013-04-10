@@ -26,14 +26,7 @@
  */
 #if !defined(PG_BUFPROXY_HEADER)
 
-/* $$ Transitional stuff: to be removed */
-#warning Transitional stuff: Remove me!
-typedef int (*PgBufproxy_CallbackBefore)(PyObject *);
-typedef void (*PgBufproxy_CallbackAfter)(PyObject *);
-/* end transitional stuff */
-
-typedef int (*PgBufproxy_CallbackGet)(PyObject *, Py_buffer *, int);
-typedef void (*PgBufproxy_CallbackRelease)(Py_buffer *);
+typedef int (*pg_getbufferfunc)(PyObject *, struct pg_bufferinfo_s *, int);
 
 #define PYGAMEAPI_BUFPROXY_NUMSLOTS 4
 #define PYGAMEAPI_BUFPROXY_FIRSTSLOT 0
@@ -41,10 +34,7 @@ typedef void (*PgBufproxy_CallbackRelease)(Py_buffer *);
 #if !(defined(PYGAMEAPI_BUFPROXY_INTERNAL) || defined(NO_PYGAME_C_API))
 static void *PgBUFPROXY_C_API[PYGAMEAPI_BUFPROXY_NUMSLOTS];
 
-typedef PyObject *(*_pgbufproxy_new_t)(Py_buffer *,
-                                   int,
-                                   PgBufproxy_CallbackBefore,
-                                   PgBufproxy_CallbackAfter);
+typedef PyObject *(*_pgbufproxy_new_t)(PyObject *, pg_getbufferfunc);
 typedef PyObject *(*_pgbufproxy_get_obj_t)(PyObject *);
 typedef int (*_pgbufproxy_trip_t)(PyObject *);
 

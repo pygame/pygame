@@ -47,20 +47,18 @@
 typedef struct PgBufproxyObject_s {
     PyObject_HEAD
     PyObject *obj;                             /* Wrapped object              */
-    Py_buffer *view_p;                         /* For array interface export  */
-    PgBufproxy_CallbackGet get_buffer;         /* Py_buffer get callback      */
-    PgBufproxy_CallbackRelease release_buffer; /* Py_buffer release callback  */
+    Pg_buffer *view_p;                         /* For array interface export  */
+    pg_getbufferfunc get_buffer;               /* Pg_buffer get callback      */
     PyObject *dict;                            /* Allow arbitrary attributes  */
     PyObject *weakrefs;                        /* Reference cycles can happen */
 } PgBufproxyObject;
 
-typedef struct Py_buffer_d_s {
-    Py_buffer view;
+typedef struct Pg_buffer_d_s {
+    Pg_buffer view;
     PyObject *dict;
-} Py_buffer_d;
+} Pg_buffer_d;
 
 static int PgBufproxy_Trip(PyObject *);
-static void _free_view(Py_buffer *);
 
 /* $$ Transitional stuff */
 #warning Transitional stuff: must disappear!
@@ -70,132 +68,31 @@ static void _free_view(Py_buffer *);
                  "Not ready yet. (line %i in %s)", __LINE__, __FILE__); \
     return rcode
 
-
-#if PY_VERSION_HEX < 0x02060000
-static int
-_IsFortranContiguous(Py_buffer *view)
-{
-    Py_ssize_t sd, dim;
-    int i;
-
-    if (view->ndim == 0) return 1;
-    if (view->strides == NULL) return (view->ndim == 1);
-
-    sd = view->itemsize;
-    if (view->ndim == 1) return (view->shape[0] == 1 ||
-                               sd == view->strides[0]);
-    for (i=0; i<view->ndim; i++) {
-        dim = view->shape[i];
-        if (dim == 0) return 1;
-        if (view->strides[i] != sd) return 0;
-        sd *= dim;
-    }
-    return 1;
-}
-
-static int
-_IsCContiguous(Py_buffer *view)
-{
-    Py_ssize_t sd, dim;
-    int i;
-
-    if (view->ndim == 0) return 1;
-    if (view->strides == NULL) return 1;
-
-    sd = view->itemsize;
-    if (view->ndim == 1) return (view->shape[0] == 1 ||
-                               sd == view->strides[0]);
-    for (i=view->ndim-1; i>=0; i--) {
-        dim = view->shape[i];
-        if (dim == 0) return 1;
-        if (view->strides[i] != sd) return 0;
-        sd *= dim;
-    }
-    return 1;
-}
-
-int
-PyBuffer_IsContiguous(Py_buffer *view, char fort)
-{
-
-    if (view->suboffsets != NULL) return 0;
-
-    if (fort == 'C')
-        return _IsCContiguous(view);
-    else if (fort == 'F')
-        return _IsFortranContiguous(view);
-    else if (fort == 'A')
-        return (_IsCContiguous(view) || _IsFortranContiguous(view));
-    return 0;
-}
-#endif /* #if PY_VERSION_HEX < 0x02060000 */
-
-/* Stub for base.c function */
-static int
-PgObject_GetBuffer(PyObject *obj, Py_buffer *view_p, int flags)
-{
-#if PY3
-    if (PyObject_CheckBuffer(obj)) {
-        return PyObject_GetBuffer(obj, view_p, flags);
-    }
-#endif
-    PyErr_SetString(PyExc_NotImplementedError, "TODO: implement in base.c");
-    return -1;
-}
-
-/* Stub for base.c function */
-static PyObject *
-PgBuffer_AsArrayStruct(Py_buffer *view_p) {
-    int flags = 0;
-
-    if (PyBuffer_IsContiguous(view_p, 'C')) {
-        flags |= VIEW_CONTIGUOUS | VIEW_C_ORDER;
-    }
-    if (PyBuffer_IsContiguous(view_p, 'F')) {
-        flags |= VIEW_CONTIGUOUS | VIEW_F_ORDER;
-    }
-    return ViewAndFlagsAsArrayStruct(view_p, flags);
-}
-
-/* Stub for base.c function */
-static PyObject *
-PgBuffer_AsArrayInterface(Py_buffer *view_p) {
-    return ViewAsDict(view_p);
-}
-
-/* Stub for base.c function */
-static void
-PgBuffer_Release(Py_buffer *view_p)
-{
-#if PY3
-    if (view_p && view_p->obj && PyObject_CheckBuffer(view_p->obj)) {
-        PyBuffer_Release(view_p);
-    }
-#else
-    printf("How did I get here? (line %i in %s)\n", __LINE__, __FILE__);
-#endif
-}
-
 /* Use Dict_AsView alternative with flags arg. */
+static void _release_buffer_from_dict(Py_buffer *);
+
 static int
-_get_buffer_from_dict(PyObject *dict, Py_buffer *view_p, int flags) {
+_get_buffer_from_dict(PyObject *dict, Pg_buffer *pg_view_p, int flags) {
     PyObject *obj;
-    Py_buffer_d *dict_view_p;
+    Py_buffer *view_p = (Py_buffer *)pg_view_p;
+    Pg_buffer *pg_dict_view_p;
+    Py_buffer *dict_view_p;
     PyObject *py_callback;
     PyObject *py_rval;
 
     assert(dict && PyDict_Check(dict));
     assert(view_p);
     view_p->obj = 0;
-    dict_view_p = PyMem_New(Py_buffer_d, 1);
-    if (!dict_view_p) {
+    pg_dict_view_p = PyMem_New(Pg_buffer, 1);
+    if (!pg_dict_view_p) {
         PyErr_NoMemory();
         return -1;
     }
-    if (Dict_AsView(&dict_view_p->view, dict)/* $$ Change here */) {
-        PyMem_Free(dict_view_p);
+    if (PgDict_AsBuffer(pg_dict_view_p, dict, flags)) {
+        PyMem_Free(pg_dict_view_p);
         return -1;
     }
+    dict_view_p = (Py_buffer *)pg_dict_view_p;
     obj = PyDict_GetItemString(dict, "parent");
     if (!obj) {
         obj = Py_None;
@@ -207,33 +104,34 @@ _get_buffer_from_dict(PyObject *dict, Py_buffer *view_p, int flags) {
         py_rval = PyObject_CallFunctionObjArgs(py_callback, obj, NULL);
         Py_DECREF(py_callback);
         if (!py_rval) {
-            ReleaseView(&dict_view_p->view);
+            PgBuffer_Release(pg_dict_view_p);
             Py_DECREF(obj);
             return -1;
         }
         Py_DECREF(py_rval);
     }
     Py_INCREF(dict);
-    dict_view_p->dict = dict;
+    dict_view_p->obj = dict;
     view_p->obj = obj;
-    view_p->buf = dict_view_p->view.buf;
-    view_p->len = dict_view_p->view.len;
-    view_p->readonly = dict_view_p->view.readonly;
-    view_p->itemsize = dict_view_p->view.itemsize;
-    view_p->format = dict_view_p->view.format;
-    view_p->ndim = dict_view_p->view.ndim;
-    view_p->shape = dict_view_p->view.shape;
-    view_p->strides = dict_view_p->view.strides;
-    view_p->suboffsets = dict_view_p->view.suboffsets;
-    view_p->internal = dict_view_p;
+    view_p->buf = dict_view_p->buf;
+    view_p->len = dict_view_p->len;
+    view_p->readonly = dict_view_p->readonly;
+    view_p->itemsize = dict_view_p->itemsize;
+    view_p->format = dict_view_p->format;
+    view_p->ndim = dict_view_p->ndim;
+    view_p->shape = dict_view_p->shape;
+    view_p->strides = dict_view_p->strides;
+    view_p->suboffsets = dict_view_p->suboffsets;
+    view_p->internal = pg_dict_view_p;
+    pg_view_p->release_buffer = _release_buffer_from_dict;
     return 0;
 }
 
-/* This will need changes, including replacing ReleaseView call. */
+/* This will need changes */
 static void
 _release_buffer_from_dict(Py_buffer *view_p)
 {
-    Py_buffer_d *dict_view_p;
+    Py_buffer *dict_view_p;
     PyObject *dict;
     PyObject *obj;
     PyObject *py_callback;
@@ -241,8 +139,8 @@ _release_buffer_from_dict(Py_buffer *view_p)
 
     assert(view_p && view_p->internal);
     obj = view_p->obj;
-    dict_view_p = (Py_buffer_d *)view_p->internal;
-    dict = dict_view_p->dict;
+    dict_view_p = (Py_buffer *)view_p->internal;
+    dict = dict_view_p->obj;
     assert(dict && PyDict_Check(dict));
     py_callback = PyDict_GetItemString(dict, "after");
     if (py_callback) {
@@ -256,21 +154,10 @@ _release_buffer_from_dict(Py_buffer *view_p)
         }
         Py_DECREF(py_callback);
     }
-    ReleaseView(&dict_view_p->view);
-    Py_DECREF(dict);
+    PgBuffer_Release((Pg_buffer *)dict_view_p);
     PyMem_Free(dict_view_p);
     view_p->obj = 0;
     Py_DECREF(obj);
-}
-
-/* Backward compatible stub: replace me */
-static int
-mok_PgBufproxy_New(Py_buffer *view,
-                   int flags,
-                   PgBufproxy_CallbackBefore before,
-                   PgBufproxy_CallbackAfter after)
-{
-    NOTIMPLEMENTED(-1);
 }
 
 /* Stub functions */
@@ -281,8 +168,7 @@ static PyObject *proxy_get_raw(PgBufproxyObject *, PyObject *);
 static PyObject *
 _proxy_subtype_new(PyTypeObject *type,
                    PyObject *obj,
-                   PgBufproxy_CallbackGet get_buffer,
-                   PgBufproxy_CallbackRelease release_buffer)
+                   pg_getbufferfunc get_buffer)
 {
     PgBufproxyObject *self = (PgBufproxyObject *)type->tp_alloc(type, 0);
 
@@ -292,16 +178,15 @@ _proxy_subtype_new(PyTypeObject *type,
     Py_XINCREF(obj);
     self->obj = obj;
     self->get_buffer = get_buffer;
-    self->release_buffer = release_buffer;
     return (PyObject *)self;
 }
 
 static Py_buffer *
 _proxy_get_view(PgBufproxyObject *proxy) {
-    Py_buffer *view_p = proxy->view_p;
+    Pg_buffer *view_p = proxy->view_p;
 
     if (!view_p) {
-        view_p = PyMem_New(Py_buffer, 1);
+        view_p = PyMem_New(Pg_buffer, 1);
         if (!view_p) {
             PyErr_NoMemory();
         }
@@ -313,323 +198,36 @@ _proxy_get_view(PgBufproxyObject *proxy) {
             proxy->view_p = view_p;
         }
     }
-    return view_p;
-}
-
-static int
-_tuple_as_ints(PyObject *o,
-               const char *keyword,
-               Py_ssize_t **array,
-               int *length)
-{
-    /* Convert o as a C array of integers and return 1, otherwise
-     * raise a Python exception and return 0. keyword is the function
-     * argument name to use in the exception.
-     */
-    Py_ssize_t i, n;
-    Py_ssize_t *a;
-
-    if (!PyTuple_Check(o)) {
-        PyErr_Format(PyExc_TypeError,
-                     "Expected a tuple for argument %s: found %s",
-                     keyword, Py_TYPE(o)->tp_name);
-        return 0;
-    }
-    n = PyTuple_GET_SIZE(o);
-    a = PyMem_New(Py_intptr_t, n);
-    for (i = 0; i < n; ++i) {
-        a[i] = PyInt_AsSsize_t(PyTuple_GET_ITEM(o, i));
-        if (a[i] == -1 && PyErr_Occurred() /* conditional && */) {
-            PyMem_Free(a);
-            PyErr_Format(PyExc_TypeError,
-                         "%s tuple has a non-integer at position %d",
-                         keyword, (int)i);
-            return 0;
-        }
-    }
-    *array = a;
-    *length = n;
-    return 1;
-}
-
-static int
-_shape_arg_convert(PyObject *o, void *a)
-{
-    Py_buffer *view = (Py_buffer *)a;
-
-    if (!_tuple_as_ints(o, "shape", &view->shape, &view->ndim)) {
-        return 0;
-    }
-    return 1;
-}
-
-static int
-_typestr_arg_convert(PyObject *o, void *a)
-{
-    /* Due to incompatibilities between the array and new buffer interfaces,
-     * as well as significant unicode changes in Python 3.3, this will
-     * only handle integer types.
-     */
-    Py_buffer *view = (Py_buffer *)a;
-    char type;
-    int is_signed;
-    int is_swapped;
-    char byteorder = '\0';
-    int itemsize;
-    char *format;
-    PyObject *s;
-    const char *typestr;
-
-    format = (char *)&view->internal;
-    if (PyUnicode_Check(o)) {
-        s = PyUnicode_AsASCIIString(o);
-        if (!s) {
-            return 0;
-        }
-    }
-    else {
-        Py_INCREF(o);
-        s = o;
-    }
-    if (!Bytes_Check(s)) {
-        PyErr_Format(PyExc_TypeError, "Expected a string for typestr: got %s",
-                     Py_TYPE(s)->tp_name);
-        Py_DECREF(s);
-        return 0;
-    }
-    if (Bytes_GET_SIZE(s) != 3) {
-        PyErr_SetString(PyExc_TypeError, "Expected typestr to be length 3");
-        Py_DECREF(s);
-        return 0;
-    }
-    typestr = Bytes_AsString(s);
-    switch (typestr[0]) {
-
-    case BUFPROXY_MY_ENDIAN:
-        is_swapped = 0;
-        break;
-    case BUFPROXY_OTHER_ENDIAN:
-        is_swapped = 1;
-        break;
-    case '|':
-        is_swapped = 0;
-        break;
-    default:
-        PyErr_Format(PyExc_ValueError,
-                     "unknown byteorder character %c in typestr",
-                     typestr[0]);
-        Py_DECREF(s);
-        return 0;
-    }
-    switch (typestr[1]) {
-
-    case 'i':
-        is_signed = 1;
-        break;
-    case 'u':
-        is_signed = 0;
-        break;
-    default:
-        PyErr_Format(PyExc_ValueError,
-                     "unsupported typekind %c in typestr",
-                     typestr[1]);
-        Py_DECREF(s);
-        return 0;
-    }
-    switch (typestr[2]) {
-
-    case '1':
-        type = is_signed ? 'c' : 'B';
-        itemsize = 1;
-        break;
-    case '2':
-        byteorder = is_swapped ? BUFPROXY_OTHER_ENDIAN : '=';
-        type = is_signed ? 'h' : 'H';
-        itemsize = 2;
-        break;
-    case '3':
-        type = 's';
-        itemsize = 3;
-        break;
-    case '4':
-        byteorder = is_swapped ? BUFPROXY_OTHER_ENDIAN : '=';
-        type = is_signed ? 'i' : 'I';
-        itemsize = 4;
-        break;
-    case '6':
-        type = 's';
-        itemsize = 6;
-        break;
-    case '8':
-        byteorder = is_swapped ? BUFPROXY_OTHER_ENDIAN : '=';
-        type = is_signed ? 'q' : 'Q';
-        itemsize = 8;
-        break;
-    default:
-        PyErr_Format(PyExc_ValueError,
-                     "unsupported size %c in typestr",
-                     typestr[2]);
-        Py_DECREF(s);
-        return 0;
-    }
-    if (byteorder != '\0') {
-        format[0] = byteorder;
-        format[1] = type;
-        format[2] = '\0';
-    }
-    else {
-        format[0] = type;
-        format[1] = '\0';
-    }
-    view->format = format;
-    view->itemsize = itemsize;
-    return 1;
-}
-
-static int
-_strides_arg_convert(PyObject *o, void *a)
-{
-    /* Must be called after the array interface nd field has been filled in.
-     */
-    Py_buffer *view = (Py_buffer *)a;
-    int n = 0;
-
-    if (o == Py_None) {
-        return 1; /* no strides (optional) given */
-    }
-    if (!_tuple_as_ints(o, "strides", &view->strides, &n)) {
-        return 0;
-    }
-    if (n != view->ndim) {
-        PyErr_SetString(PyExc_TypeError,
-                        "strides and shape tuple lengths differ");
-        return 0;
-    }
-    return 1;
-}
-
-static int
-_data_arg_convert(PyObject *o, void *a)
-{
-    Py_buffer *view = (Py_buffer *)a;
-    Py_ssize_t address;
-    int readonly;
-
-    if (!PyTuple_Check(o)) {
-        PyErr_Format(PyExc_TypeError, "expected a tuple for data: got %s",
-                     Py_TYPE(o)->tp_name);
-        return 0;
-    }
-    if (PyTuple_GET_SIZE(o) != 2) {
-        PyErr_SetString(PyExc_TypeError, "expected a length 2 tuple for data");
-        return 0;
-    }
-    address = PyInt_AsSsize_t(PyTuple_GET_ITEM(o, 0));
-    if (address == -1 && PyErr_Occurred()) {
-        PyErr_Clear();
-        PyErr_Format(PyExc_TypeError,
-                     "expected an integer address for data item 0: got %s",
-                     Py_TYPE(PyTuple_GET_ITEM(o, 0))->tp_name);
-        return 0;
-    }
-    readonly = PyObject_IsTrue(PyTuple_GET_ITEM(o, 1));
-    if (readonly == -1) {
-        PyErr_Clear();
-        PyErr_Format(PyExc_TypeError,
-                     "expected a boolean flag for data item 1: got %s",
-                     Py_TYPE(PyTuple_GET_ITEM(o, 0))->tp_name);
-        return 0;
-    }
-    view->buf = (void *)address;
-    view->readonly = readonly;
-    return 1;
-}
-
-static int
-_parent_arg_convert(PyObject *o, void *a)
-{
-    Py_buffer *view = (Py_buffer *)a;
-
-    if (o != Py_None) {
-        view->obj = o;
-        Py_INCREF(o);
-    }
-    return 1;
+    return (Py_buffer *)view_p;
 }
 
 static void
-_free_view(Py_buffer *view)
-{
-    if (view->shape) {
-        PyMem_Free(view->shape);
-    }
-    if (view->strides) {
-        PyMem_Free(view->strides);
+_proxy_release_view(PgBufproxyObject *proxy) {
+    Pg_buffer *view_p = proxy->view_p;
+
+    if (view_p) {
+        proxy->view_p = 0;
+        PgBuffer_Release(view_p);
+        PyMem_Free(view_p);
     }
 }
 
 /**
  * Return a new PgBufproxyObject (Python level constructor).
  */
-static int
-_fill_view_from_array_interface(PyObject *dict, Py_buffer *view)
-{
-    PyObject *pyshape = PyDict_GetItemString(dict, "shape");
-    PyObject *pytypestr = PyDict_GetItemString(dict, "typestr");
-    PyObject *pydata = PyDict_GetItemString(dict, "data");
-    PyObject *pystrides = PyDict_GetItemString(dict, "strides");
-    int i;
-
-    if (!pyshape) {
-        PyErr_SetString(PyExc_ValueError,
-                        "required \"shape\" item is missing");
-        return -1;
-    }
-    if (!pytypestr) {
-        PyErr_SetString(PyExc_ValueError,
-                        "required \"typestr\" item is missing");
-        return -1;
-    }
-    if (!pydata) {
-        PyErr_SetString(PyExc_ValueError,
-                        "required \"data\" item is missing");
-        return -1;
-    }
-    /* The item processing order is important: "strides" must follow "shape". */
-    if (!_shape_arg_convert(pyshape, view)) {
-        return -1;
-    }
-    if (!_typestr_arg_convert(pytypestr, view)) {
-        return -1;
-    }
-    if (!_data_arg_convert(pydata, view)) {
-        return -1;
-    }
-    if (pystrides && !_strides_arg_convert(pystrides, view)) { /* cond. && */
-        return -1;
-    }
-    view->len = view->itemsize;
-    for (i = 0; i < view->ndim; ++i) {
-        view->len *= view->shape[i];
-    }
-    return 0;
-}
-
 static PyObject *
 proxy_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     PyObject *obj = 0;
-    PgBufproxy_CallbackGet get_buffer = PgObject_GetBuffer;
-    PgBufproxy_CallbackRelease release_buffer = PgBuffer_Release;
+    pg_getbufferfunc get_buffer = PgObject_GetBuffer;
 
     if (!PyArg_ParseTuple(args, "O:Bufproxy", &obj)) {
         return 0;
     }
     if (PyDict_Check(obj)) {
         get_buffer = _get_buffer_from_dict;
-        release_buffer = _release_buffer_from_dict;
     }
-    return _proxy_subtype_new(type, obj, get_buffer, release_buffer);
+    return _proxy_subtype_new(type, obj, get_buffer);
 }
 
 /**
@@ -639,10 +237,7 @@ static void
 proxy_dealloc(PgBufproxyObject *self)
 {
     PyObject_GC_UnTrack(self);
-    if (self->view_p) {
-        self->release_buffer(self->view_p);
-        PyMem_Free(self->view_p);
-    }
+    _proxy_release_view(self);
     Py_XDECREF(self->obj);
     Py_XDECREF(self->dict);
     if (self->weakrefs) {
@@ -656,8 +251,8 @@ proxy_traverse(PgBufproxyObject *self, visitproc visit, void *arg) {
     if (self->obj) {
         Py_VISIT(self->obj);
     }
-    if (self->view_p && self->view_p->obj) /* conditional && */ {
-        Py_VISIT(self->view_p->obj);
+    if (self->view_p && ((Py_buffer *)self->view_p)->obj) /* conditional && */ {
+        Py_VISIT(((Py_buffer *)self->view_p)->obj);
     }
     if (self->dict) {
         Py_VISIT(self->dict);
@@ -666,65 +261,35 @@ proxy_traverse(PgBufproxyObject *self, visitproc visit, void *arg) {
 }
 
 /**** Getter and setter access ****/
-#if PY3
-#define Capsule_New(p) PyCapsule_New((p), 0, 0);
-#else
-#define Capsule_New(p) PyCObject_FromVoidPtr((p), 0);
-#endif
-
 static PyObject *
 proxy_get_arraystruct(PgBufproxyObject *self, PyObject *closure)
 {
-    Py_buffer *view_p = self->view_p;
+    Py_buffer *view_p = _proxy_get_view(self);
     PyObject *capsule;
 
     if (!view_p) {
-        view_p = PyMem_New(Py_buffer, 1);
-        if (!view_p) {
-            return PyErr_NoMemory();
-        }
-        if (self->get_buffer(self->obj, view_p, PyBUF_RECORDS)) {
-            PyMem_Free(view_p);
-            return 0;
-        }
+        return 0;
     }
     capsule = PgBuffer_AsArrayStruct(view_p);
     if (!capsule) {
-        if (!self->view_p) {
-            self->release_buffer(view_p);
-            PyMem_Free(view_p);
-        }
-        return 0;
+        _proxy_release_view(self);
     }
-    self->view_p = view_p;
     return capsule;
 }
 
 static PyObject *
 proxy_get_arrayinterface(PgBufproxyObject *self, PyObject *closure)
 {
-    Py_buffer *view_p = self->view_p;
+    Py_buffer *view_p = _proxy_get_view(self);
     PyObject *dict;
 
     if (!view_p) {
-        view_p = PyMem_New(Py_buffer, 1);
-        if (!view_p) {
-            return PyErr_NoMemory();
-        }
-        if (self->get_buffer(self->obj, view_p, PyBUF_RECORDS)) {
-            PyMem_Free(view_p);
-            return 0;
-        }
+        return 0;
     }
     dict = PgBuffer_AsArrayInterface(view_p);
     if (!dict) {
-        if (!self->view_p) {
-            self->release_buffer(view_p);
-            PyMem_Free(view_p);
-        }
-        return 0;
+        _proxy_release_view(self);
     }
-    self->view_p = view_p;
     return dict;
 }
 
@@ -732,15 +297,14 @@ static PyObject *
 proxy_get_parent(PgBufproxyObject *self, PyObject *closure)
 {
     Py_buffer *view_p = _proxy_get_view(self);
+    PyObject *obj;
 
     if (!view_p) {
         return 0;
     }
-    if (!view_p->obj) {
-        Py_RETURN_NONE;
-    }
-    Py_INCREF(view_p->obj);
-    return view_p->obj;
+    obj = view_p->obj ? view_p->obj : Py_None;
+    Py_INCREF(obj);
+    return obj;
 }
 
 static PyObject *
@@ -819,19 +383,20 @@ static PyGetSetDef proxy_getsets[] =
     {0, 0, 0, 0, 0}
 };
 
-#if PY3
+#if PG_ENABLE_NEWBUF
 static int
 proxy_getbuffer(PgBufproxyObject *self, Py_buffer *view_p, int flags)
 {
-    Py_buffer *obj_view_p = PyMem_New(Py_buffer, 1);
+    Pg_buffer *pg_obj_view_p = PyMem_New(Pg_buffer, 1);
+    Py_buffer *obj_view_p = (Py_buffer *)pg_obj_view_p;
 
     view_p->obj = 0;
-    if (!obj_view_p) {
+    if (!pg_obj_view_p) {
         PyErr_NoMemory();
         return -1;
     }
-    if (self->get_buffer(self->obj, view_p, flags)) {
-        PyMem_Free(obj_view_p);
+    if (self->get_buffer(self->obj, pg_obj_view_p, flags)) {
+        PyMem_Free(pg_obj_view_p);
         return -1;
     }
     Py_INCREF(self);
@@ -852,7 +417,7 @@ proxy_getbuffer(PgBufproxyObject *self, Py_buffer *view_p, int flags)
 static void
 proxy_releasebuffer(PgBufproxyObject *self, Py_buffer *view_p)
 {
-    self->release_buffer((Py_buffer *)view_p->internal);
+    PgBuffer_Release((Pg_buffer *)view_p->internal);
     PyMem_Free(view_p->internal);
 }
 
@@ -893,7 +458,7 @@ static PyBufferProcs proxy_bufferprocs = {
 #endif
 };
 
-#endif /* #if PY3 */
+#endif /* #if PG_ENABLE_NEWBUF */
 
 #define PROXY_TPFLAGS \
     (Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC)
@@ -959,9 +524,7 @@ static PyMethodDef bufferproxy_methods[] = {
 /**** Public C api ***/
 
 static PyObject *
-PgBufproxy_New(PyObject *obj,
-               PgBufproxy_CallbackGet get_buffer,
-               PgBufproxy_CallbackRelease release_buffer)
+PgBufproxy_New(PyObject *obj, pg_getbufferfunc get_buffer)
 {
     if (!get_buffer) {
         if (!obj) {
@@ -972,38 +535,31 @@ PgBufproxy_New(PyObject *obj,
         }
         get_buffer = PgObject_GetBuffer;
     }
-    if (!release_buffer) {
-        if (!obj) {
-            PyErr_SetString(PyExc_ValueError,
-                            "One of arguments 'obj' or 'release_buffer' is "
-                            "required: both NULL instead");
-            return 0;
-        }
-        release_buffer = PgBuffer_Release;
-    }
-    return _proxy_subtype_new(&PgBufproxy_Type,
-                              obj,
-                              get_buffer,
-                              release_buffer);
+    return _proxy_subtype_new(&PgBufproxy_Type, obj, get_buffer);
 }
 
 static PyObject *
-PgBufproxy_GetParent(PyObject *bufproxy)
+PgBufproxy_GetParent(PyObject *obj)
 {
-    PyObject *parent =
-        (PyObject *)((PgBufproxyObject *) bufproxy)->obj;
-
-    if (!parent) {
-        parent = Py_None;
+    if (!PyObject_IsInstance (obj, (PyObject *)&PgBufproxy_Type)) {
+        PyErr_Format(PyExc_TypeError,
+                     "Expected a BufferProxy object: got %s instance instead",
+                     Py_TYPE(obj)->tp_name);
+        return 0;
     }
-    Py_INCREF(parent);
-    return parent;
+    return proxy_get_parent((PgBufproxyObject *)obj, 0);
 }
 
 static int
 PgBufproxy_Trip(PyObject *obj)
 {
-    NOTIMPLEMENTED(-1);
+    if (!PyObject_IsInstance (obj, (PyObject *)&PgBufproxy_Type)) {
+        PyErr_Format(PyExc_TypeError,
+                     "Expected a BufferProxy object: got %s instance instead",
+                     Py_TYPE(obj)->tp_name);
+        return -1;
+    }
+    return _proxy_get_view((PgBufproxyObject *)obj) ? 0 : -1;
 }
 
 /*DOC*/ static char bufferproxy_doc[] =
@@ -1059,8 +615,7 @@ MODINIT_DEFINE(bufferproxy)
 #error export slot count mismatch
 #endif
     c_api[0] = &PgBufproxy_Type;
-/*    c_api[1] = PgBufproxy_New; */
-    c_api[1] = mok_PgBufproxy_New; /* $$ **Temporary** */
+    c_api[1] = PgBufproxy_New;
     c_api[2] = PgBufproxy_GetParent;
     c_api[3] = PgBufproxy_Trip;
     apiobj = encapsulate_api(c_api, PROXY_MODNAME);
