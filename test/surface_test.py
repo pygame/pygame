@@ -380,7 +380,8 @@ class SurfaceTypeTest(unittest.TestCase):
         s = pygame.Surface((5, 7), 0, 24)
         self.assertRaises(Error, s.get_buffer, '0')
         self.assertRaises(Error, s.get_buffer, '1')
-        self.assertRaises(Error, s.get_buffer, '2')
+        v = s.get_buffer('2')
+        self.assertTrue(isinstance(v, BufferProxy))
         v = s.get_buffer('3')
         self.assert_(isinstance(v, BufferProxy))
 
@@ -388,6 +389,9 @@ class SurfaceTypeTest(unittest.TestCase):
         length = s.get_bytesize() * s.get_width() * s.get_height()
         v = s.get_buffer('0')
         self.assert_(isinstance(v, BufferProxy))
+        self.assertEqual(v.length, length)
+        v = s.get_buffer('1')
+        self.assertTrue(isinstance(v, BufferProxy))
         self.assertEqual(v.length, length)
 
         s = pygame.Surface((5, 7), 0, 32)

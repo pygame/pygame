@@ -45,6 +45,7 @@ typedef enum {
 /* To avoid problems with non-const Py_buffer format field */
 static char FormatUint8[] = "B";
 static char FormatUint16[] = "=H";
+static char FormatUint24[] = "3x";
 static char FormatUint32[] = "=I";
 
 typedef struct pg_bufferinternal_s {
@@ -2169,17 +2170,9 @@ surf_get_buffer (PyObject *self, PyObject *args)
                              "Surface data is not contiguous");
             return 0;
         }
-        if (format->BytesPerPixel == 3) {
-            return _raise_get_view_ndim_error (format->BytesPerPixel * 8,
-                                               view_kind);
-        }
         get_buffer = _get_buffer_1D;
         break;
     case VIEWKIND_2D:
-        if (format->BytesPerPixel == 3) {
-            return _raise_get_view_ndim_error (format->BytesPerPixel * 8,
-                                               view_kind);
-        }
         get_buffer = _get_buffer_2D;
         break;
     case VIEWKIND_3D:
@@ -2320,6 +2313,9 @@ _get_buffer_1D (PyObject *obj, Pg_buffer *pg_view_p, int flags)
     case 2:
         format = FormatUint16;
         break;
+    case 3:
+        format = FormatUint24;
+        break;
     case 4:
         format = FormatUint32;
         break;
@@ -2387,6 +2383,9 @@ _get_buffer_2D (PyObject *obj, Pg_buffer *pg_view_p, int flags)
         break;
     case 2:
         format = FormatUint16;
+        break;
+    case 3:
+        format = FormatUint24;
         break;
     case 4:
         format = FormatUint32;
