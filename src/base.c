@@ -811,7 +811,7 @@ static char
 _as_arrayinter_typekind (Py_buffer* view)
 {
     char type = view->format ? view->format[0] : 'B';
-    char typekind;
+    char typekind = 'V';
 
     switch (type) {
 
@@ -838,13 +838,24 @@ _as_arrayinter_typekind (Py_buffer* view)
     case 'Q':
         typekind = 'u';
         break;
+    case '1':
+    case '2':
+    case '3':
+    case '4':
+    case '5':
+    case '6':
+    case '7':
+    case '8':
+    case '9':
+        typekind = (view->format[1] == 'x') ? 'u' : 'V';
+        break;
     case 'f':
     case 'd':
         typekind = 'f';
         break;
     default:
         /* Unknown type */
-        typekind = 's';
+        typekind = 'V';
     }
     return typekind;
 }
@@ -970,14 +981,13 @@ PgObject_GetBuffer (PyObject* obj, Pg_buffer* pg_view_p, int flags)
     PyArrayInterface* inter_p = 0;
     ViewInternals* internal_p;
     size_t sz;
-    char fchar;
+    char *fchar_p;
     Py_ssize_t i;
 
     pg_view_p->release_buffer = _release_buffer_generic;
     view_p->len = 0;
 
 #if PG_ENABLE_NEWBUF
-    char *fchar_p;
 
     if (PyObject_CheckBuffer (obj)) {
         if (PyObject_GetBuffer (obj, view_p, flags)) {
@@ -1008,6 +1018,8 @@ PgObject_GetBuffer (PyObject* obj, Pg_buffer* pg_view_p, int flags)
         case 'H':
         case 'i':
         case 'I':
+        case 'l':
+        case 'L':
         case 'q':
         case 'Q':
         case 'f':
@@ -1024,7 +1036,10 @@ PgObject_GetBuffer (PyObject* obj, Pg_buffer* pg_view_p, int flags)
         case '7':
         case '8':
         case '9':
-            /* A record: will raise exception later */
+            ++fchar_p;
+            if (*fchar_p == 'x') {
+                ++fchar_p;
+            }
             break;
         default:
             PgBuffer_Release (pg_view_p);
@@ -1053,22 +1068,26 @@ PgObject_GetBuffer (PyObject* obj, Pg_buffer* pg_view_p, int flags)
             PyErr_NoMemory ();
             return -1;
         }
+        fchar_p = internal_p->format;
         switch (inter_p->typekind) {
 
         case 'i':
+            *fchar_p = (inter_p->flags & PAI_NOTSWAPPED ?
+                        PAI_MY_ENDIAN : PAI_OTHER_ENDIAN);
+            ++fchar_p;
             switch (inter_p->itemsize) {
 
             case 1:
-                fchar = 'b';
+                *fchar_p = 'b';
                 break; 
             case 2:
-                fchar = 'h';
+                *fchar_p = 'h';
                 break;
             case 4:
-                fchar = 'i';
+                *fchar_p = 'i';
                 break;
             case 8:
-                fchar = 'q';
+                *fchar_p = 'q';
                 break;
             default:
                 PyErr_Format (PyExc_ValueError,
@@ -1079,19 +1098,22 @@ PgObject_GetBuffer (PyObject* obj, Pg_buffer* pg_view_p, int flags)
             }
             break;
         case 'u':
+            *fchar_p = (inter_p->flags & PAI_NOTSWAPPED ?
+                        PAI_MY_ENDIAN : PAI_OTHER_ENDIAN);
+            ++fchar_p;
             switch (inter_p->itemsize) {
 
             case 1:
-                fchar = 'B';
+                *fchar_p = 'B';
                 break; 
             case 2:
-                fchar = 'H';
+                *fchar_p = 'H';
                 break;
             case 4:
-                fchar = 'I';
+                *fchar_p = 'I';
                 break;
             case 8:
-                fchar = 'Q';
+                *fchar_p = 'Q';
                 break;
             default:
                 PyErr_Format (PyExc_ValueError,
@@ -1102,13 +1124,16 @@ PgObject_GetBuffer (PyObject* obj, Pg_buffer* pg_view_p, int flags)
             }
             break;
         case 'f':
+            *fchar_p = (inter_p->flags & PAI_NOTSWAPPED ?
+                        PAI_MY_ENDIAN : PAI_OTHER_ENDIAN);
+            ++fchar_p;
             switch (inter_p->itemsize) {
 
             case 4:
-                fchar = 'f';
+                *fchar_p = 'f';
                 break;
             case 8:
-                fchar = 'd';
+                *fchar_p = 'd';
                 break;
             default:
                 PyErr_Format (PyExc_ValueError,
@@ -1118,6 +1143,53 @@ PgObject_GetBuffer (PyObject* obj, Pg_buffer* pg_view_p, int flags)
                 return -1;
             }
             break;
+        case 'V':
+            if (inter_p->itemsize > 9) {
+                PyErr_Format (PyExc_ValueError,
+                              "Unsupported void size %d",
+                              (int)inter_p->itemsize);
+                Py_DECREF (cobj);
+                return -1;
+            }
+            switch (inter_p->itemsize) {
+
+            case 1:
+                *fchar_p = '1';
+                break;
+            case 2:
+                *fchar_p = '2';
+                break;
+            case 3:
+                *fchar_p = '3';
+                break;
+            case 4:
+                *fchar_p = '4';
+                break;
+            case 5:
+                *fchar_p = '5';
+                break;
+            case 6:
+                *fchar_p = '6';
+                break;
+            case 7:
+                *fchar_p = '7';
+                break;
+            case 8:
+                *fchar_p = '8';
+                break;
+            case 9:
+                *fchar_p = '9';
+                break;
+            default:
+                PyErr_Format (PyExc_ValueError,
+                              "Unsupported void size %d",
+                              (int)inter_p->itemsize);
+                Py_DECREF (cobj);
+                return -1;
+            }
+            ++fchar_p;
+            *fchar_p = 'x';
+            break;
         default:
             PyErr_Format (PyExc_ValueError,
                           "Unsupported value type '%c'",
@@ -1125,6 +1197,8 @@ PgObject_GetBuffer (PyObject* obj, Pg_buffer* pg_view_p, int flags)
             Py_DECREF (cobj);
             return -1;
         }
+        ++fchar_p;
+        *fchar_p = '\0';
         view_p->internal = internal_p;
         view_p->format = internal_p->format;
         view_p->shape = internal_p->imem;
@@ -1136,10 +1210,6 @@ PgObject_GetBuffer (PyObject* obj, Pg_buffer* pg_view_p, int flags)
         view_p->ndim = (Py_ssize_t)inter_p->nd;
         view_p->itemsize = (Py_ssize_t)inter_p->itemsize;
         view_p->readonly = inter_p->flags & PAI_WRITEABLE ? 0 : 1;
-        view_p->format[0] = (inter_p->flags & PAI_NOTSWAPPED ?
-                           PAI_MY_ENDIAN : PAI_OTHER_ENDIAN);
-        view_p->format[1] = fchar;
-        view_p->format[2] = '\0';
         for (i = 0; i < view_p->ndim; ++i) {
             view_p->shape[i] = (Py_ssize_t)inter_p->shape[i];
             view_p->strides[i] = (Py_ssize_t)inter_p->strides[i];
@@ -1354,11 +1424,9 @@ _typestr_arg_convert (PyObject* o, Py_buffer* view)
      * as well as significant unicode changes in Python 3.3, this will
      * only handle integer types. Must call _shape_arg_convert first.
      */
-    char type;
-    int is_signed;
+    char *fchar_p;
     int is_swapped;
-    char byteorder = '\0';
-    int itemsize;
+    int itemsize = 0;
     PyObject* s;
     const char* typestr;
 
@@ -1384,6 +1452,7 @@ _typestr_arg_convert (PyObject* o, Py_buffer* view)
         return -1;
     }
     typestr = Bytes_AsString (s);
+    fchar_p = view->format;
     switch (typestr[0]) {
 
     case PAI_MY_ENDIAN:
@@ -1396,111 +1465,153 @@ _typestr_arg_convert (PyObject* o, Py_buffer* view)
         is_swapped = 0;
         break;
     default:
-        PyErr_Format( PyExc_ValueError,
-                      "unknown byteorder character %c in typestr",
-                      typestr[0]);
+        PyErr_Format (PyExc_ValueError, "unsupported typestr %s", typestr);
         Py_DECREF (s);
         return -1;
     }
     switch (typestr[1]) {
 
     case 'i':
-        switch (typestr[2]) {
-
-        case '1':
-            type = 'b';
-            itemsize = 1;
-            break;
-        case '2':
-            byteorder = is_swapped ? PAI_OTHER_ENDIAN : '=';
-            type = 'h';
-            itemsize = 2;
-            break;
-        case '4':
-            byteorder = is_swapped ? PAI_OTHER_ENDIAN : '=';
-            type = 'i';
-            itemsize = 4;
-            break;
-        case '8':
-            byteorder = is_swapped ? PAI_OTHER_ENDIAN : '=';
-            type = 'q';
-            itemsize = 8;
-            break;
-        default:
-            PyErr_Format (PyExc_ValueError,
-                          "unsupported size %c in typestr",
-                          typestr[2]);
-            Py_DECREF (s);
-            return -1;
-        }
-        break;
     case 'u':
         switch (typestr[2]) {
 
         case '1':
-            type = 'B';
+            *fchar_p = '=';
+            ++fchar_p;
+            *fchar_p = 'B';
             itemsize = 1;
             break;
         case '2':
-            byteorder = is_swapped ? PAI_OTHER_ENDIAN : '=';
-            type = 'H';
+            *fchar_p = is_swapped ? PAI_OTHER_ENDIAN : '=';
+            ++fchar_p;
+            *fchar_p = 'H';
             itemsize = 2;
             break;
+        case '3':
+            *fchar_p = '3';
+            ++fchar_p;
+            *fchar_p = 'x';
+            itemsize = 3;
+            break;
         case '4':
-            byteorder = is_swapped ? PAI_OTHER_ENDIAN : '=';
-            type = 'H';
+            *fchar_p = is_swapped ? PAI_OTHER_ENDIAN : '=';
+            ++fchar_p;
+            *fchar_p = 'I';
             itemsize = 4;
             break;
+        case '5':
+            *fchar_p = '5';
+            ++fchar_p;
+            *fchar_p = 'x';
+            itemsize = 5;
+            break;
+        case '6':
+            *fchar_p = '6';
+            ++fchar_p;
+            *fchar_p = 'x';
+            itemsize = 6;
+            break;
+        case '7':
+            *fchar_p = '7';
+            ++fchar_p;
+            *fchar_p = 'x';
+            itemsize = 7;
+            break;
         case '8':
-            byteorder = is_swapped ? PAI_OTHER_ENDIAN : '=';
-            type = 'Q';
+            *fchar_p = is_swapped ? PAI_OTHER_ENDIAN : '=';
+            ++fchar_p;
+            *fchar_p = 'Q';
             itemsize = 8;
             break;
+        case '9':
+            *fchar_p = '9';
+            ++fchar_p;
+            *fchar_p = 'x';
+            itemsize = 9;
+            break;
         default:
-            PyErr_Format (PyExc_ValueError,
-                          "unsupported size %c in typestr",
-                          typestr[2]);
+            PyErr_Format (PyExc_ValueError, "unsupported typestr %s", typestr);
             Py_DECREF (s);
             return -1;
+        }
+        if (typestr[1] == 'i') {
+            /* This leaves 'x' uneffected. */
+            *fchar_p = tolower(*fchar_p);
         }
         break;
     case 'f':
+        *fchar_p = is_swapped ? PAI_OTHER_ENDIAN : '=';
+        ++fchar_p;
         switch (typestr[2]) {
 
         case '4':
-            byteorder = is_swapped ? PAI_OTHER_ENDIAN : '=';
-            type = 'f';
+            *fchar_p = 'f';
             itemsize = 4;
             break;
         case '8':
-            byteorder = is_swapped ? PAI_OTHER_ENDIAN : '=';
-            type = 'd';
+            *fchar_p = 'd';
             itemsize = 8;
             break;
         default:
-            PyErr_Format (PyExc_ValueError,
-                          "unsupported size %c in typestr",
-                          typestr[2]);
+            PyErr_Format (PyExc_ValueError, "unsupported typestr %s", typestr);
             Py_DECREF (s);
             return -1;
         }
         break;
+    case 'V':
+        switch (typestr[2]) {
+
+        case '1':
+            *fchar_p = '1';
+            itemsize = 1;
+            break;
+        case '2':
+            *fchar_p = '2';
+            itemsize = 2;
+            break;
+        case '3':
+            *fchar_p = '3';
+            itemsize = 3;
+            break;
+        case '4':
+            *fchar_p = '4';
+            itemsize = 4;
+            break;
+        case '5':
+            *fchar_p = '5';
+            itemsize = 5;
+            break;
+        case '6':
+            *fchar_p = '6';
+            itemsize = 6;
+            break;
+        case '7':
+            *fchar_p = '7';
+            itemsize = 7;
+            break;
+        case '8':
+            *fchar_p = '8';
+            itemsize = 8;
+            break;
+        case '9':
+            *fchar_p = '9';
+            itemsize = 9;
+            break;
+        default:
+            PyErr_Format (PyExc_ValueError, "unsupported typestr %s", typestr);
+            Py_DECREF (s);
+            return -1;
+        }
+        ++fchar_p;
+        *fchar_p = 'x';
+        break;
     default:
-        PyErr_Format (PyExc_ValueError,
-                      "unsupported typekind %c in typestr",
-                      typestr[1]);
+        PyErr_Format (PyExc_ValueError, "unsupported typestr %s", typestr);
         Py_DECREF (s);
         return -1;
     }
-    if (byteorder != '\0') {
-        view->format[0] = byteorder;
-        view->format[1] = type;
-        view->format[2] = '\0';
-    }
-    else {
-        view->format[0] = type;
-        view->format[1] = '\0';
-    }
+    ++fchar_p;
+    *fchar_p = '\0';
     view->itemsize = itemsize;
     return 0;
 }
