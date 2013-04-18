@@ -32,6 +32,14 @@
 #include "pgcompat.h"
 #include "pgbufferproxy.h"
 
+/* No build will support the new and old buffer protocols simultaneously. */
+#if !PG_ENABLE_NEWBUF && HAVE_OLD_BUFPROTO
+#define PG_ENABLE_OLDBUF 1
+#else
+#define PG_ENABLE_OLDBUF 0
+#endif
+
+
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
 #define BUFPROXY_MY_ENDIAN '<'
 #define BUFPROXY_OTHER_ENDIAN '>'
@@ -48,6 +56,10 @@ typedef struct PgBufproxyObject_s {
     PyObject_HEAD
     PyObject *obj;                             /* Wrapped object              */
     Pg_buffer *view_p;                         /* For array interface export  */
+#if PG_ENABLE_OLDBUF
+    Py_ssize_t segcount;                       /* bf_getsegcount return value */
+    Py_ssize_t seglen;                         /* bf_getsegcount len argument */
+#endif
     pg_getbufferfunc get_buffer;               /* Pg_buffer get callback      */
     PyObject *dict;                            /* Allow arbitrary attributes  */
     PyObject *weakrefs;                        /* Reference cycles can happen */
@@ -59,6 +71,7 @@ typedef struct Pg_buffer_d_s {
 } Pg_buffer_d;
 
 static int PgBufproxy_Trip(PyObject *);
+static Py_buffer *_proxy_get_view (PgBufproxyObject*);
 
 /* $$ Transitional stuff */
 #warning Transitional stuff: must disappear!
@@ -199,6 +212,7 @@ _proxy_get_view(PgBufproxyObject *proxy) {
         }
         proxy->view_p = view_p;
     }
+    assert(((Py_buffer *)view_p)->len && ((Py_buffer *)view_p)->itemsize);
     return (Py_buffer *)view_p;
 }
 
@@ -406,6 +420,9 @@ static PyGetSetDef proxy_getsets[] =
     {0, 0, 0, 0, 0}
 };
 
+
+#if PG_ENABLE_NEWBUF || PG_ENABLE_OLDBUF
+
 #if PG_ENABLE_NEWBUF
 static int
 proxy_getbuffer(PgBufproxyObject *self, Py_buffer *view_p, int flags)
@@ -445,44 +462,140 @@ proxy_releasebuffer(PgBufproxyObject *self, Py_buffer *view_p)
     PyMem_Free(view_p->internal);
 }
 
+#endif /* #if PG_ENABLE_NEWBUF */
+
+
+#if PG_ENABLE_OLDBUF
+static int
+_is_byte_view(Py_buffer *view_p) {
+    const char *format = view_p->format;
+
+    /* Conditional ||'s */
+    return ((!format)                                                   ||
+            (format[0] == 'B' && format[1] == '\0')                     ||
+            (format[0] == '=' && format[1] == 'B' && format[2] == '\0') ||
+            (format[0] == '<' && format[1] == 'B' && format[2] == '\0') ||
+            (format[0] == '>' && format[1] == 'B' && format[2] == '\0') ||
+            (format[0] == '@' && format[1] == 'B' && format[2] == '\0') ||
+            (format[0] == '!' && format[1] == 'B' && format[2] == '\0')    );
+}
+
+static Py_ssize_t
+proxy_getreadbuf(PgBufproxyObject *self, Py_ssize_t _index, void **ptr)
+{
+    Py_buffer *view_p = (Py_buffer *)self->view_p;
+    Py_ssize_t offset = 0;
+    Py_ssize_t dim;
+
+    if (_index < 0 || _index >= self->segcount) {
+        if (_index == 0 && self->segcount == 0) {
+            *ptr = 0;
+            return 0;
+        }
+        PyErr_SetString(PyExc_IndexError, "segment index out of range");
+        return -1;
+    }
+    if (!view_p) {
+        *ptr = 0;
+        return 0;
+    }
+    if (self->segcount == 1) {
+        assert(_index == 0);
+        *ptr = view_p->buf;
+        return view_p->len;
+    }
+    /* Segments will be strictly in C contiguous order, which may
+       differ from the actual order in memory. It can affect buffer
+       copying. This may never be an issue, though, since Python
+       never directly supported multi-segment buffers. And besides,
+       the old buffer is deprecated. */
+    for (dim = view_p->ndim - 1; dim != -1; --dim) {
+        offset += _index % view_p->shape[dim] * view_p->strides[dim];
+        _index /= view_p->shape[dim];
+    }
+    *ptr = (char *)view_p->buf + offset;
+    return view_p->itemsize;
+}
+
+static Py_ssize_t
+proxy_getwritebuf(PgBufproxyObject *self, Py_ssize_t _index, void **ptr)
+{
+    void *p;
+    Py_ssize_t seglen = proxy_getreadbuf(self, _index, &p);
+
+    if (seglen < 0) {
+        return -1;
+    }
+    if (seglen > 0 && ((Py_buffer *)self->view_p)->readonly) /* cond. && */ {
+        PyErr_SetString(PyExc_ValueError, "buffer is not writeable");
+        return -1;
+    }
+    *ptr = p;
+    return seglen;
+}
+
+static Py_ssize_t
+proxy_getsegcount(PgBufproxyObject *self, Py_ssize_t *lenp)
+{
+    Py_buffer *view_p = _proxy_get_view(self);
+
+    if (!view_p) {
+        PyErr_Clear();
+        self->seglen = 0;
+        self->segcount = 0;
+    }
+    else if (view_p->ndim == 0 ||
+             (view_p->ndim == 1 && _is_byte_view(view_p))) {
+        self->seglen = view_p->len;
+        self->segcount = 1;
+    }
+    else {
+        self->seglen = view_p->len;
+        self->segcount = view_p->len / view_p->itemsize;
+    }
+    if (lenp) {
+        *lenp = self->seglen;
+    }
+    return self->segcount;
+}
+
+#endif /* #if PG_ENABLE_OLDBUF */
+
+
+#define PROXY_BUFFERPROCS (&proxy_bufferprocs)
+
 static PyBufferProcs proxy_bufferprocs = {
-    (getbufferproc)proxy_getbuffer,
-    (releasebufferproc)proxy_releasebuffer
-};
-
-#else
-
-static Py_ssize_t
-proxy_getreadbuf(PgBufproxyObject *buffer, Py_ssize_t _index, const void **ptr)
-{
-    NOTIMPLEMENTED(-1);
-}
-
-static Py_ssize_t
-proxy_getwritebuf(PgBufproxyObject *buffer, Py_ssize_t _index, const void **ptr)
-{
-    NOTIMPLEMENTED(-1);
-}
-
-static Py_ssize_t
-proxy_getsegcount(PgBufproxyObject *buffer, Py_ssize_t *lenp)
-{
-    NOTIMPLEMENTED(-1);
-}
-
-static PyBufferProcs proxy_bufferprocs = {
+#if PG_ENABLE_OLDBUF
     (readbufferproc)proxy_getreadbuf,
     (writebufferproc)proxy_getwritebuf,
     (segcountproc)proxy_getsegcount,
     0
-#if PY_VERSION_HEX >= 0x02060000
-    ,
+#elif HAVE_OLD_BUFPROTO
+    0,
+    0,
+    0,
+    0
+#endif
+
+#if HAVE_OLD_BUFPROTO && HAVE_NEW_BUFPROTO
+     ,
+#endif
+
+#if PG_ENABLE_NEWBUF
+    (getbufferproc)proxy_getbuffer,
+    (releasebufferproc)proxy_releasebuffer
+#elif HAVE_NEW_BUFPROTO
     0,
     0
 #endif
 };
 
-#endif /* #if PG_ENABLE_NEWBUF */
+#endif /* #if PG_ENABLE_NEWBUF || PG_ENABLE_OLDBUF */
+
+
+#if !defined(PROXY_BUFFERPROCS)
+#define PROXY_BUFFERPROCS 0
+#endif
 
 #define PROXY_TPFLAGS \
     (Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC)
@@ -507,7 +620,7 @@ static PyTypeObject PgBufproxy_Type =
     0,                          /* tp_str */
     0,                          /* tp_getattro */
     0,                          /* tp_setattro */
-    &proxy_bufferprocs,         /* tp_as_buffer */
+    PROXY_BUFFERPROCS,          /* tp_as_buffer */
     PROXY_TPFLAGS,              /* tp_flags */
     "Object bufproxy as an array struct\n",
     (traverseproc)proxy_traverse,  /* tp_traverse */
@@ -541,7 +654,98 @@ static PyTypeObject PgBufproxy_Type =
 
 /**** Module methods ***/
 
+#if PG_ENABLE_OLDBUF
+static PyObject *
+get_read_buffer(PyObject *self, PyObject *args, PyObject *kwds)
+{
+    long segment = 0;
+    PyObject *obj = 0;
+    Py_ssize_t len = 0;
+    void *ptr = 0;
+    readbufferproc getreadbuffer = 0;
+    static char *keywords[] = {"obj", "segment", 0};
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "Ol", keywords,
+                                     &obj, &segment)) {
+        return 0;
+    }
+    if (!Py_TYPE(obj)->tp_as_buffer) {
+        PyErr_SetString(PyExc_ValueError, "No tp_as_buffer struct");
+        return 0;
+    }
+    getreadbuffer = Py_TYPE(obj)->tp_as_buffer->bf_getreadbuffer;
+    if (!getreadbuffer) {
+        PyErr_SetString(PyExc_ValueError, "No bf_getreadbuffer slot function");
+        return 0;
+    }
+    len = getreadbuffer(obj, segment, &ptr);
+    if (len < 0) {
+        return 0;
+    }
+    return Py_BuildValue("ll", (long)len, (long)ptr);
+}
+
+static PyObject *
+get_write_buffer(PyObject *self, PyObject *args, PyObject *kwds)
+{
+    long segment = 0;
+    PyObject *obj = 0;
+    Py_ssize_t len = 0;
+    void *ptr = 0;
+    writebufferproc getwritebuffer = 0;
+    static char *keywords[] = {"obj", "segment", 0};
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "Ol", keywords,
+                                     &obj, &segment)) {
+        return 0;
+    }
+    if (!Py_TYPE(obj)->tp_as_buffer) {
+        PyErr_SetString(PyExc_ValueError, "No tp_as_buffer struct");
+        return 0;
+    }
+    getwritebuffer = Py_TYPE(obj)->tp_as_buffer->bf_getwritebuffer;
+    if (!getwritebuffer) {
+        PyErr_SetString(PyExc_ValueError, "No bf_getwritebuffer slot function");
+        return 0;
+    }
+    len = getwritebuffer(obj, segment, &ptr);
+    if (len < 0) {
+        return 0;
+    }
+    return Py_BuildValue("ll", (long)len, (long)ptr);
+}
+
+static PyObject *
+get_segcount(PyObject *self, PyObject *obj)
+{
+    Py_ssize_t segcount = 0;
+    Py_ssize_t len = 0;
+    segcountproc getsegcount = 0;
+
+    if (!Py_TYPE(obj)->tp_as_buffer) {
+        PyErr_SetString(PyExc_ValueError, "No tp_as_buffer struct");
+        return 0;
+    }
+    getsegcount = Py_TYPE(obj)->tp_as_buffer->bf_getsegcount;
+    if (!getsegcount) {
+        PyErr_SetString(PyExc_ValueError, "No bf_getsegcount slot function");
+        return 0;
+    }
+    segcount = getsegcount(obj, &len);
+    return Py_BuildValue("ll", (long)segcount, (long)len);
+}
+
+#endif
+
 static PyMethodDef bufferproxy_methods[] = {
+#if PG_ENABLE_OLDBUF
+    {"get_read_buffer", (PyCFunction)get_read_buffer,
+     METH_VARARGS | METH_KEYWORDS, "call bf_getreadbuffer slot function"},
+    {"get_write_buffer", (PyCFunction)get_write_buffer,
+     METH_VARARGS | METH_KEYWORDS, "call bf_getwritebuffer slot function"},
+    {"get_segcount", (PyCFunction)get_segcount,
+     METH_O, "call bf_getsegcount slot function"},
+#endif
     {0, 0, 0, 0}
 };
 
