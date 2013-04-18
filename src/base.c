@@ -69,6 +69,9 @@ typedef struct view_internals_s {
     Py_ssize_t imem[1];
 } ViewInternals;
 
+/* Custom exceptions */
+static PyObject* PgExc_BufferError = NULL;
+
 /* Only one instance of the state per process. */
 static PyObject* quitfunctions = NULL;
 static int sdl_was_init = 0;
@@ -1902,8 +1905,28 @@ MODINIT_DEFINE(base)
         MODINIT_ERROR;
     }
 
+#if PG_ENABLE_NEWBUF
+    PgExc_BufferError = PyErr_NewException ("pygame.BufferError",
+                                            PyExc_BufferError, NULL);
+#else
+    PgExc_BufferError = PyErr_NewException ("pygame.BufferError",
+                                            PyExc_RuntimeError, NULL);
+#endif
+    if (PyExc_SDLError == NULL) {
+        Py_XDECREF (atexit_register);
+        DECREF_MOD (module);
+        MODINIT_ERROR;
+    }
+    ecode = PyDict_SetItemString (dict, "BufferError", PyExc_SDLError);
+    if (ecode) {
+        Py_DECREF (PgExc_BufferError);
+        Py_XDECREF (atexit_register);
+        DECREF_MOD (module);
+        MODINIT_ERROR;
+    }
+
     /* export the c api */
-#if PYGAMEAPI_BASE_NUMSLOTS != 20
+#if PYGAMEAPI_BASE_NUMSLOTS != 21
 #warning export slot count mismatch
 #endif
     c_api[0] = PyExc_SDLError;
@@ -1926,9 +1949,11 @@ MODINIT_DEFINE(base)
     c_api[17] = PgObject_GetBuffer;
     c_api[18] = PgBuffer_Release;
     c_api[19] = PgDict_AsBuffer;
+    c_api[20] = PgExc_BufferError;
     apiobj = encapsulate_api (c_api, "base");
     if (apiobj == NULL) {
         Py_XDECREF (atexit_register);
+        Py_DECREF (PgExc_BufferError);
         DECREF_MOD (module);
         MODINIT_ERROR;
     }
@@ -1936,6 +1961,7 @@ MODINIT_DEFINE(base)
     Py_DECREF (apiobj);
     if (ecode) {
         Py_XDECREF (atexit_register);
+        Py_DECREF (PgExc_BufferError);
         DECREF_MOD (module);
         MODINIT_ERROR;
     }
@@ -1945,6 +1971,7 @@ MODINIT_DEFINE(base)
         quit = PyObject_GetAttrString (module, "quit");
         if (quit == NULL) {  /* assertion */
             Py_DECREF (atexit_register);
+            Py_DECREF (PgExc_BufferError);
             DECREF_MOD (module);
             MODINIT_ERROR;
         }
@@ -1953,6 +1980,7 @@ MODINIT_DEFINE(base)
         Py_DECREF (quit);
         if (rval == NULL) {
             DECREF_MOD (module);
+            Py_DECREF (PgExc_BufferError);
             MODINIT_ERROR;
         }
         Py_DECREF (rval);
