@@ -502,6 +502,33 @@ class SurfaceTypeTest(unittest.TestCase):
         gc.collect()
         self.assertTrue(weak_s() is None)
 
+    try:
+        pygame.bufferproxy.get_segcount
+    except AttributeError:
+        pass
+    else:
+        def test_get_buffer_oldbuf(self):
+            self.OLDBUF_get_buffer_oldbuf()
+
+    def OLDBUF_get_buffer_oldbuf(self):
+        from pygame.bufferproxy import get_segcount, get_write_buffer
+
+        s = pygame.Surface((2, 4), pygame.SRCALPHA, 32)
+        v = s.get_buffer()
+        segcount, buflen = get_segcount(v)
+        self.assertEqual(segcount, 1)
+        self.assertEqual(buflen, s.get_pitch() * s.get_height())
+        seglen, segaddr = get_write_buffer(v, 0)
+        self.assertEqual(segaddr, s._pixels_address)
+        self.assertEqual(seglen, buflen)
+        v = s.get_buffer('1')
+        segcount, buflen = get_segcount(v)
+        self.assertEqual(segcount, 8)
+        self.assertEqual(buflen, s.get_pitch() * s.get_height())
+        seglen, segaddr = get_write_buffer(v, 7)
+        self.assertEqual(segaddr, s._pixels_address + s.get_bytesize() * 7)
+        self.assertEqual(seglen, s.get_bytesize())
+        
     def test_set_colorkey(self):
 
         # __doc__ (as of 2008-06-25) for pygame.surface.Surface.set_colorkey:

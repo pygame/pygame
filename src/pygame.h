@@ -246,7 +246,7 @@ typedef getcharbufferproc charbufferproc;
 #define VIEW_F_ORDER       4
 
 #define PYGAMEAPI_BASE_FIRSTSLOT 0
-#define PYGAMEAPI_BASE_NUMSLOTS 20
+#define PYGAMEAPI_BASE_NUMSLOTS 21
 #ifndef PYGAMEAPI_BASE_INTERNAL
 #define PyExc_SDLError ((PyObject*)PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT])
 
@@ -315,6 +315,9 @@ typedef getcharbufferproc charbufferproc;
 #define PgDict_AsBuffer                                                 \
     (*(int(*)(Pg_buffer*, PyObject*, int))                              \
      PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 19])
+
+#define PgExc_BufferError                                               \
+    ((PyObject*)PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 20])
 
 #define import_pygame_base() IMPORT_PYGAME_MODULE(base, BASE)
 #endif

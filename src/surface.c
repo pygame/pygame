@@ -2263,6 +2263,7 @@ _get_buffer_0D (PyObject *obj, Pg_buffer *pg_view_p, int flags)
     view_p->buf = surface->pixels;
     view_p->itemsize = 1;
     view_p->len = surface->pitch * surface->h;
+    view_p->ndim = 1;
     view_p->readonly = 0;
     if (flags & PyBUF_FORMAT) {
         view_p->format = FormatUint8;
@@ -2291,19 +2292,19 @@ _get_buffer_1D (PyObject *obj, Pg_buffer *pg_view_p, int flags)
         return _get_buffer_0D (obj, pg_view_p, flags);
     }
     if (flags == PyBUF_SIMPLE) {
-        PyErr_Format (PyExc_BufferError,
+        PyErr_Format (PgExc_BufferError,
                       "PyBUF_SIMPLE flag unsupported for a "
                       "%i bytes-per-pixel 1D surface view", itemsize);
         return -1;
     }
-    if (!(flags & PyBUF_ND)) {
-        PyErr_Format (PyExc_BufferError,
+    if ((flags & PyBUF_ND) != PyBUF_ND) {
+        PyErr_Format (PgExc_BufferError,
                       "PyBUF_ND flag required for a "
                       "%i bytes-per-pixel 1D surface view", itemsize);
         return -1;
     }
-    if (!(flags & PyBUF_FORMAT)) {
-        PyErr_Format (PyExc_BufferError,
+    if ((flags & PyBUF_FORMAT) != PyBUF_FORMAT) {
+        PyErr_Format (PgExc_BufferError,
                       "PyBUF_FORMAT required for a 1D view of a "
                       "%i bytes-per-pixel surface", itemsize);
         return -1;
@@ -2336,8 +2337,10 @@ _get_buffer_1D (PyObject *obj, Pg_buffer *pg_view_p, int flags)
     view_p->ndim = 1;
     view_p->readonly = 0;
     view_p->len = surface->w * surface->h * itemsize;
-    view_p->shape = (Py_ssize_t *)&view_p->internal;
-    view_p->strides = (flags & PyBUF_STRIDES) ? &itemsize : 0;
+    view_p->shape[0] = surface->w * surface->h;
+    if ((flags & PyBUF_STRIDES) == PyBUF_STRIDES) {
+        view_p->strides[0] = itemsize;
+    }
     view_p->suboffsets = 0;
     Py_INCREF (obj);
     view_p->obj = obj;
@@ -2354,25 +2357,25 @@ _get_buffer_2D (PyObject *obj, Pg_buffer *pg_view_p, int flags)
 
     view_p->obj = 0;
     if ((flags & PyBUF_RECORDS) != PyBUF_RECORDS) {
-        PyErr_SetString (PyExc_BufferError,
+        PyErr_SetString (PgExc_BufferError,
                          "A PyBUF_RECORDS flag is required for a "
                          "2D surface view");
         return -1;
     }
     if ((flags & PyBUF_C_CONTIGUOUS) == PyBUF_C_CONTIGUOUS) {
-        PyErr_SetString (PyExc_BufferError,
+        PyErr_SetString (PgExc_BufferError,
                          "A 2D surface view is not C contiguous");
         return -1;
     }
     if ((flags & PyBUF_F_CONTIGUOUS) == PyBUF_F_CONTIGUOUS &&
         surface->pitch != surface->w * itemsize) {
-        PyErr_SetString (PyExc_BufferError,
+        PyErr_SetString (PgExc_BufferError,
                          "This 2D surface view is not F contiguous");
         return -1;
     }
     if ((flags & PyBUF_ANY_CONTIGUOUS) == PyBUF_ANY_CONTIGUOUS &&
         surface->pitch != surface->w * itemsize) {
-        PyErr_SetString (PyExc_BufferError,
+        PyErr_SetString (PgExc_BufferError,
                          "This 2D surface view is not contiguous");
         return -1;
     }
@@ -2429,7 +2432,7 @@ _get_buffer_3D (PyObject *obj, Pg_buffer *pg_view_p, int flags)
 
     view_p->obj = 0;
     if ((flags & PyBUF_RECORDS) != PyBUF_RECORDS) {
-        PyErr_SetString (PyExc_BufferError,
+        PyErr_SetString (PgExc_BufferError,
                          "A PyBUF_RECORDS flag is required for a "
                          "2D surface view");
         return -1;
@@ -2437,7 +2440,7 @@ _get_buffer_3D (PyObject *obj, Pg_buffer *pg_view_p, int flags)
     if ((flags & PyBUF_C_CONTIGUOUS) == PyBUF_C_CONTIGUOUS ||
         (flags & PyBUF_F_CONTIGUOUS) == PyBUF_F_CONTIGUOUS ||
         (flags & PyBUF_ANY_CONTIGUOUS) == PyBUF_ANY_CONTIGUOUS) {
-        PyErr_SetString (PyExc_BufferError,
+        PyErr_SetString (PgExc_BufferError,
                          "A 3D surface view is not contiguous");
         return -1;
     }
@@ -2523,7 +2526,7 @@ _get_buffer_colorplane (PyObject *obj,
 
     view_p->obj = 0;
     if ((flags & PyBUF_RECORDS) != PyBUF_RECORDS) {
-        PyErr_SetString (PyExc_BufferError,
+        PyErr_SetString (PgExc_BufferError,
                          "A PyBUF_RECORDS flag is required for a "
                          "surface colorplane view");
         return -1;
@@ -2531,7 +2534,7 @@ _get_buffer_colorplane (PyObject *obj,
     if ((flags & PyBUF_C_CONTIGUOUS) == PyBUF_C_CONTIGUOUS ||
         (flags & PyBUF_F_CONTIGUOUS) == PyBUF_F_CONTIGUOUS ||
         (flags & PyBUF_ANY_CONTIGUOUS) == PyBUF_ANY_CONTIGUOUS) {
-        PyErr_SetString (PyExc_BufferError,
+        PyErr_SetString (PgExc_BufferError,
                          "A surface colorplane view is not contiguous");
         return -1;
     }
@@ -2599,7 +2602,7 @@ _init_buffer (PyObject *surf, Pg_buffer *pg_view_p, int flags)
         return -1;
     }
     if (!PySurface_LockBy (surf, consumer)) {
-        PyErr_Format (PyExc_BufferError,
+        PyErr_Format (PgExc_BufferError,
                       "Unable to lock <%s at %p> by <%s at %p>",
                       Py_TYPE(surf)->tp_name, (void *)surf,
                       Py_TYPE(consumer)->tp_name, (void *)consumer);
