@@ -333,11 +333,11 @@ class MixerModuleTest(unittest.TestCase):
                         # Some formats (e.g. -8) may not be supported.
                         continue
                     for c, a in a_lists[format]:
-                        self._test_array_interface(format, a, c == channels)
+                        self._test_array_argument(format, a, c == channels)
                 finally:
                     mixer.quit()
 
-    def _test_array_interface(self, format, a, test_pass):
+    def _test_array_argument(self, format, a, test_pass):
         from numpy import array, all as all_
 
         try:
@@ -362,6 +362,23 @@ class MixerModuleTest(unittest.TestCase):
     def _test_array_interface_fail(self, a):
         self.assertRaises(ValueError, mixer.Sound, array=a)
  
+    def test_array_interface(self):
+        mixer.init(22050, -16, 1)
+        try:
+            snd = mixer.Sound(as_bytes('\x00\x7f') * 20)
+            d = snd.__array_interface__
+            self.assertTrue(isinstance(d, dict))
+            if pygame.get_sdl_byteorder() == pygame.LIL_ENDIAN:
+                typestr = '<i2'
+            else:
+                typestr = '>i2'
+            self.assertEqual(d['typestr'], typestr)
+            self.assertEqual(d['shape'], (20,))
+            self.assertEqual(d['strides'], (2,))
+            self.assertEqual(d['data'], (snd._samples_address, False))
+        finally:
+            mixer.quit()
+
     def test_get_raw(self):
         from ctypes import pythonapi, c_void_p, py_object
 
