@@ -192,6 +192,13 @@ class BaseModuleTest(unittest.TestCase):
             v = BufferProxy(o)
             self.assertSame(v, o)
 
+    def test_PgObject_GetBuffer_exception(self):
+        # For consistency with surfarray
+        from pygame.bufferproxy import BufferProxy
+
+        bp = BufferProxy(1)
+        self.assertRaises(ValueError, getattr, bp, 'length')
+
     def not_init_assertions(self):
         self.assert_(not pygame.display.get_init(),
                      "display shouldn't be initialized" )
