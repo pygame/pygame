@@ -1094,7 +1094,7 @@ PgObject_GetBuffer (PyObject* obj, Pg_buffer* pg_view_p, int flags)
                 break;
             default:
                 PyErr_Format (PyExc_ValueError,
-                              "Unsupported signed interger size %d",
+                              "Unsupported signed integer size %d",
                               (int)inter_p->itemsize);
                 Py_DECREF (cobj);
                 return -1;
@@ -1120,7 +1120,7 @@ PgObject_GetBuffer (PyObject* obj, Pg_buffer* pg_view_p, int flags)
                 break;
             default:
                 PyErr_Format (PyExc_ValueError,
-                              "Unsupported unsigned interger size %d",
+                              "Unsupported unsigned integer size %d",
                               (int)inter_p->itemsize);
                 Py_DECREF (cobj);
                 return -1;
