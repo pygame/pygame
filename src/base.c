@@ -1242,7 +1242,7 @@ PgObject_GetBuffer (PyObject* obj, Pg_buffer* pg_view_p, int flags)
     }
 
     if (!success) {
-        PyErr_Format (PyExc_TypeError,
+        PyErr_Format (PyExc_ValueError,
                       "%s object does not export an array buffer",
                       Py_TYPE (obj)->tp_name);
         return -1;
