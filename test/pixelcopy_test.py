@@ -18,7 +18,10 @@ import pygame
 from pygame.locals import *
 
 
-from pygame.pixelcopy import surface_to_array, map_array
+from pygame.pixelcopy import (surface_to_array, map_array, array_to_surface,
+                              make_surface)
+
+import ctypes
 
 def unsigned32(i):
     """cast signed 32 bit integer to an unsigned integer"""
@@ -519,6 +522,107 @@ class PixelCopyTestWithArray(unittest.TestCase):
         del test_map_array
     else:
         del numpy
+
+
+class PixelCopyTestWithArray(unittest.TestCase):
+    surface = pygame.Surface((3, 5), 0, 32)
+
+    class Array2D(pygame.bufferproxy.BufferProxy):
+        c_int_arr = ctypes.c_uint32 * 15
+        def __new__(cls, initializer):
+            content = cls.c_int_arr(*initializer)
+            d = {"shape": (3, 5),
+                 "typestr": '|u4',
+                 "strides": (20, 4),
+                 "data": (ctypes.addressof(content), False)}
+            MyType = PixelCopyTestWithArray.Array2D
+            obj = pygame.bufferproxy.BufferProxy.__new__(MyType, d)
+            obj.content = content
+            return obj
+        def _not_implemented(self):
+            raise AttributeError()
+        __array_interface__ = property(_not_implemented)
+        __array_struct__ = property(_not_implemented)
+        def __getitem__(self, key):
+            return self.content[5 * key[0] + key[1]]
+
+    class Array3D(pygame.bufferproxy.BufferProxy):
+        c_int_arr = ctypes.c_uint32 * 15
+        def __new__(cls, initializer):
+            content = cls.c_int_arr(*initializer)
+            if pygame.get_sdl_byteorder() == pygame.LIL_ENDIAN:
+                stride2 = 1
+                offset = 0
+            else:
+                stride2 = -1
+                offset = 2
+            d = {"shape": (3, 5, 3),
+                 "typestr": '|u1',
+                 "strides": (20, 4, stride2),
+                 "data": (ctypes.addressof(content) + offset, False)}
+            MyType = PixelCopyTestWithArray.Array3D
+            obj = pygame.bufferproxy.BufferProxy.__new__(MyType, d)
+            obj.int_content = content
+            obj.content = ctypes.cast(content, ctypes.POINTER(ctypes.c_uint8))
+            obj.stride2 = stride2
+            return obj
+        def _not_implemented(self):
+            raise AttributeError()
+        __array_interface__ = property(_not_implemented)
+        __array_struct__ = property(_not_implemented)
+        def __getitem__(self, key):
+            byte_index = key[0] * 20 + key[1] * 4 + key[2] * self.stride2
+            if not (0 <= byte_index < 60):
+                raise IndexError("%s is out of range", key)
+            return self.content[byte_index]
+
+    def setUp(self):
+        surf = self.surface
+        for y in range(5):
+            for x in range(3):
+                surf.set_at((x, y), (x + 1, 0, y + 1))
+
+    def assertCopy2D(self, surface, array):
+        for x in range(0, 3):
+            for y in range(0, 5):
+                self.assertEqual(surface.get_at_mapped((x, y)),
+                                 array[x, y])
+
+    def test_surface_to_array_newbuf(self):
+        array = self.Array2D(range(0, 15))
+        self.assertNotEqual(array.content[0],
+                            self.surface.get_at_mapped((0, 0)))
+        surface_to_array(array, self.surface)
+        self.assertCopy2D(self.surface, array)
+
+    def test_array_to_surface_newbuf(self):
+        array = self.Array2D(range(0, 15))
+        self.assertNotEqual(array.content[0],
+                            self.surface.get_at_mapped((0, 0)))
+        array_to_surface(self.surface, array)
+        self.assertCopy2D(self.surface, array)
+
+    def test_map_array_newbuf(self):
+        array2D = self.Array2D([0] * 15)
+        elements = [i + (255 - i << 8) + (99 << 16) for i in range(0,15)]
+        array3D = self.Array3D(elements)
+        map_array(array2D, array3D, self.surface)
+        for x in range(0, 3):
+            for y in range(0, 5):
+                p = array3D[x, y, 0], array3D[x, y, 1], array3D[x, y, 2]
+                self.assertEqual(self.surface.unmap_rgb(array2D[x, y]), p)
+
+    def test_make_surface_newbuf(self):
+        array = self.Array2D(range(10, 160, 10))
+        surface = make_surface(array)
+        self.assertCopy2D(surface, array)
+
+    if not pygame.HAVE_NEWBUF:
+        del test_surface_to_array_newbuf
+        del test_array_to_surface_newbuf
+        del test_map_array_newbuf
+        del test_make_surface_newbuf
+
 
 if __name__ == '__main__':
     unittest.main()
