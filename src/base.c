@@ -82,14 +82,14 @@ static void _quit (void);
 static void atexit_quit (void);
 static int PyGame_Video_AutoInit (void);
 static void PyGame_Video_AutoQuit (void);
-static int GetArrayInterface (PyObject*, PyObject**, PyArrayInterface**);
+static int GetArrayStruct (PyObject*, PyObject**, PyArrayInterface**);
 static PyObject* ArrayStructAsDict (PyArrayInterface*);
 static PyObject* PgBuffer_AsArrayInterface (Py_buffer*);
 static PyObject* PgBuffer_AsArrayStruct (Py_buffer*);
 static int _buffer_is_byteswapped (Py_buffer*);
 static void PgBuffer_Release (Pg_buffer*);
 static int PgObject_GetBuffer (PyObject*, Pg_buffer*, int);
-static int ArrayInterface_AsView (Pg_buffer*, PyObject*, int);
+static int GetArrayInterface (PyObject**, PyObject*);
 static int PgDict_AsBuffer (Pg_buffer*, PyObject*, int);
 static int _shape_arg_convert (PyObject *, Py_buffer*);
 static int _typestr_arg_convert (PyObject *, Py_buffer*);
@@ -579,7 +579,7 @@ PyGame_Video_AutoInit (void)
 /*array interface*/
 
 static int
-GetArrayInterface (PyObject* obj,
+GetArrayStruct (PyObject* obj,
                    PyObject** cobj_p,
                    PyArrayInterface** inter_p)
 {
@@ -968,7 +968,7 @@ get_array_interface (PyObject* self, PyObject* arg)
     PyArrayInterface *inter_p;
     PyObject *dictobj;
 
-    if (GetArrayInterface (arg, &cobj, &inter_p)) {
+    if (GetArrayStruct (arg, &cobj, &inter_p)) {
         return 0;
     }
     dictobj = ArrayStructAsDict (inter_p);
@@ -981,11 +981,13 @@ PgObject_GetBuffer (PyObject* obj, Pg_buffer* pg_view_p, int flags)
 {
     Py_buffer* view_p = (Py_buffer*)pg_view_p;
     PyObject* cobj = 0;
+    PyObject* dict = 0;
     PyArrayInterface* inter_p = 0;
     ViewInternals* internal_p;
     size_t sz;
     char *fchar_p;
     Py_ssize_t i;
+    int success = 0;
 
     pg_view_p->release_buffer = _release_buffer_generic;
     view_p->len = 0;
@@ -1056,13 +1058,11 @@ PgObject_GetBuffer (PyObject* obj, Pg_buffer* pg_view_p, int flags)
                              "Arrays of records are unsupported");
             return -1;
         }
+        success = 1;
     }
-    else
+
 #endif
-    if (PyObject_HasAttrString (obj, "__array_struct__")) {
-        if (GetArrayInterface (obj, &cobj, &inter_p)) {
-            return -1;
-        }
+    if (!success && GetArrayStruct (obj, &cobj, &inter_p) == 0) {
         sz = (sizeof (ViewInternals) + 
               (2 * inter_p->nd - 1) * sizeof (Py_ssize_t));
         internal_p = (ViewInternals*)PyMem_Malloc (sz);
@@ -1223,18 +1223,31 @@ PgObject_GetBuffer (PyObject* obj, Pg_buffer* pg_view_p, int flags)
             view_p->len *= view_p->shape[i];
         }
         pg_view_p->release_buffer = _release_buffer_array;
+        success = 1;
     }
-    else if (PyObject_HasAttrString (obj, "__array_interface__")) {
-        if (ArrayInterface_AsView (pg_view_p, obj, flags)) {
+    else if (!success) {
+        PyErr_Clear ();
+    }
+
+    if (!success && GetArrayInterface (&dict, obj) == 0) {
+        if (PgDict_AsBuffer (pg_view_p, dict, flags)) {
             return -1;
         }
+        Py_INCREF (obj);
+        view_p->obj = obj;
+        success = 1;
     }
-    else {
+    else if (!success) {
+        PyErr_Clear ();
+    }
+
+    if (!success) {
         PyErr_Format (PyExc_TypeError,
-                      "%s object does not export a C level array buffer",
+                      "%s object does not export an array buffer",
                       Py_TYPE (obj)->tp_name);
         return -1;
     }
+
     if (!view_p->len) {
         view_p->len = view_p->itemsize;
         for (i = 0; i < view_p->ndim; ++i) {
@@ -1292,31 +1305,25 @@ _buffer_is_byteswapped (Py_buffer* view)
 }
 
 static int
-ArrayInterface_AsView (Pg_buffer* pg_view_p, PyObject* obj, int flags)
+GetArrayInterface (PyObject **dict, PyObject *obj)
 {
-    PyObject* dict = PyObject_GetAttrString (obj, "__array_interface__");
+    PyObject* inter = PyObject_GetAttrString (obj, "__array_interface__");
 
-    if (dict == NULL) {
+    if (inter == NULL) {
         if (PyErr_ExceptionMatches (PyExc_AttributeError)) {
                 PyErr_Clear ();
                 PyErr_SetString (PyExc_ValueError, "no array interface");
         }
         return -1;
     }
-    if (!PyDict_Check (dict)) {
+    if (!PyDict_Check (inter)) {
         PyErr_Format (PyExc_ValueError,
                       "expected __array_interface__ to return a dict: got a %s",
                       Py_TYPE (dict)->tp_name);
-        Py_DECREF (dict);
+        Py_DECREF (inter);
         return -1;
     }
-    if (PgDict_AsBuffer (pg_view_p, dict, flags)) {
-        Py_DECREF (dict);
-        return -1;
-    }
-    Py_INCREF (obj);
-    ((Py_buffer*)pg_view_p)->obj = obj;
-    Py_DECREF (dict);
+    *dict = inter;
     return 0;
 }
 
@@ -1944,7 +1951,7 @@ MODINIT_DEFINE(base)
     c_api[12] = RGBAFromObj;
     c_api[13] = ArrayStructAsDict;
     c_api[14] = PgBuffer_AsArrayInterface;
-    c_api[15] = GetArrayInterface;
+    c_api[15] = GetArrayStruct;
     c_api[16] = PgBuffer_AsArrayStruct;
     c_api[17] = PgObject_GetBuffer;
     c_api[18] = PgBuffer_Release;
@@ -1960,6 +1967,13 @@ MODINIT_DEFINE(base)
     ecode = PyDict_SetItemString (dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
     Py_DECREF (apiobj);
     if (ecode) {
+        Py_XDECREF (atexit_register);
+        Py_DECREF (PgExc_BufferError);
+        DECREF_MOD (module);
+        MODINIT_ERROR;
+    }
+
+    if (PyModule_AddIntConstant (module, "HAVE_NEWBUF", PG_ENABLE_NEWBUF)) {
         Py_XDECREF (atexit_register);
         Py_DECREF (PgExc_BufferError);
         DECREF_MOD (module);

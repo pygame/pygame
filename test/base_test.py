@@ -99,11 +99,14 @@ class BaseModuleTest(unittest.TestCase):
 
         class Exporter(self.ExporterBase):
             def get__array_interface__(self):
-                return {'typestr': self.typestr,
+                return {'version': 3,
+                        'typestr': self.typestr,
                         'shape': self.shape,
                         'strides': self.strides,
                         'data': self.data}
             __array_interface__ = property(get__array_interface__)
+            # Should be ignored by PgObject_GetBuffer
+            __array_struct__ = property(lambda self: None)
 
         _shape = [2, 3, 5, 7, 11]  # Some prime numbers
         for ndim in range(1, len(_shape)):
@@ -133,6 +136,8 @@ class BaseModuleTest(unittest.TestCase):
             def get__array_struct__(self):
                 return self.view.__array_struct__
             __array_struct__ = property(get__array_struct__)
+            # Should not cause PgObject_GetBuffer to fail
+            __array_interface__ = property(lambda self: None)
 
         _shape = [2, 3, 5, 7, 11]  # Some prime numbers
         for ndim in range(1, len(_shape)):
@@ -151,11 +156,42 @@ class BaseModuleTest(unittest.TestCase):
             v = BufferProxy(o)
             self.assertSame(v, o)
 
-    def test_GetView_newbuf(self):
-        self.fail()
-    if sys.version_info < (3, 0):
-        del test_GetView_newbuf
-        
+    if (pygame.HAVE_NEWBUF):
+        def test_GetView_newbuf(self):
+            self.NEWBUF_test_GetView_newbuf()
+
+    def NEWBUF_test_GetView_newbuf(self):
+        from pygame.bufferproxy import BufferProxy
+
+        def exporter(shape, typechar, itemsize):
+            # Use a BufferProxy object as the new buffer exporter, as none
+            # of the Python standard types are multidimensional arrays.
+            e = self.ExporterBase(shape, typechar, itemsize)
+            bp = BufferProxy(e.__dict__)
+            bp.size = e.size
+            bp.typestr = e.typestr
+            bp.shape = e.shape
+            bp.strides = e.strides
+            bp.data = e.data
+            return bp
+
+        _shape = [2, 3, 5, 7, 11]  # Some prime numbers
+        for ndim in range(1, len(_shape)):
+            o = exporter(_shape[0:ndim], 'i', 2)
+            v = BufferProxy(o)
+            self.assertSame(v, o)
+        ndim = 2
+        shape = _shape[0:ndim]
+        for typechar in ('i', 'u'):
+            for itemsize in (1, 2, 4, 8):
+                o = exporter(shape, typechar, itemsize)
+                v = BufferProxy(o)
+                self.assertSame(v, o)
+        for itemsize in (4, 8):
+            o = exporter(shape, 'f', itemsize)
+            v = BufferProxy(o)
+            self.assertSame(v, o)
+
     def not_init_assertions(self):
         self.assert_(not pygame.display.get_init(),
                      "display shouldn't be initialized" )
