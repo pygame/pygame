@@ -2356,9 +2356,9 @@ _get_buffer_2D (PyObject *obj, Pg_buffer *pg_view_p, int flags)
     char *format;
 
     view_p->obj = 0;
-    if ((flags & PyBUF_RECORDS) != PyBUF_RECORDS) {
+    if ((flags & PyBUF_RECORDS_RO) != PyBUF_RECORDS_RO) {
         PyErr_SetString (PgExc_BufferError,
-                         "A PyBUF_RECORDS flag is required for a "
+                         "A PyBUF_RECORDS(_RO) flag is required for a "
                          "2D surface view");
         return -1;
     }
@@ -2431,9 +2431,9 @@ _get_buffer_3D (PyObject *obj, Pg_buffer *pg_view_p, int flags)
     char *startpixel = (char *)surface->pixels;
 
     view_p->obj = 0;
-    if ((flags & PyBUF_RECORDS) != PyBUF_RECORDS) {
+    if ((flags & PyBUF_RECORDS_RO) != PyBUF_RECORDS_RO) {
         PyErr_SetString (PgExc_BufferError,
-                         "A PyBUF_RECORDS flag is required for a "
+                         "A PyBUF_RECORDS(_RO) flag is required for a "
                          "2D surface view");
         return -1;
     }
@@ -2525,9 +2525,9 @@ _get_buffer_colorplane (PyObject *obj,
     char *startpixel = (char *)surface->pixels;
 
     view_p->obj = 0;
-    if ((flags & PyBUF_RECORDS) != PyBUF_RECORDS) {
+    if ((flags & PyBUF_RECORDS_RO) != PyBUF_RECORDS_RO) {
         PyErr_SetString (PgExc_BufferError,
-                         "A PyBUF_RECORDS flag is required for a "
+                         "A PyBUF_RECORDS(_RO) flag is required for a "
                          "surface colorplane view");
         return -1;
     }
