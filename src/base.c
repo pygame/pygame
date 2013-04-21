@@ -841,17 +841,6 @@ _as_arrayinter_typekind (Py_buffer* view)
     case 'Q':
         typekind = 'u';
         break;
-    case '1':
-    case '2':
-    case '3':
-    case '4':
-    case '5':
-    case '6':
-    case '7':
-    case '8':
-    case '9':
-        typekind = (view->format[1] == 'x') ? 'u' : 'V';
-        break;
     case 'f':
     case 'd':
         typekind = 'f';
