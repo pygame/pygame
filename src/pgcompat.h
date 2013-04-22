@@ -187,7 +187,7 @@
 #endif
 
 /* Support new buffer protocol? */
-#if PY3
+#if HAVE_NEW_BUFPROTO && !defined(PYPY_VERSION)
 #define PG_ENABLE_NEWBUF 1
 #else
 #define PG_ENABLE_NEWBUF 0

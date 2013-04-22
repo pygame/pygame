@@ -33,7 +33,7 @@
 #include "pgbufferproxy.h"
 
 /* No build will support the new and old buffer protocols simultaneously. */
-#if !PG_ENABLE_NEWBUF && HAVE_OLD_BUFPROTO
+#if HAVE_OLD_BUFPROTO
 #define PG_ENABLE_OLDBUF 1
 #else
 #define PG_ENABLE_OLDBUF 0
@@ -597,8 +597,14 @@ static PyBufferProcs proxy_bufferprocs = {
 #define PROXY_BUFFERPROCS 0
 #endif
 
+#if PY2 && PG_ENABLE_NEWBUF
+#define PROXY_TPFLAGS \
+    (Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | \
+     Py_TPFLAGS_HAVE_NEWBUFFER)
+#else
 #define PROXY_TPFLAGS \
     (Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC)
+#endif
 
 static PyTypeObject PgBufproxy_Type =
 {
