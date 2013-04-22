@@ -560,6 +560,24 @@ class FreeTypeFontTest(unittest.TestCase):
         finally:
             font.antialiased = True
 
+    if pygame.HAVE_NEWBUF:
+        def test_newbuf(self):
+            self.NEWBUF_test_newbuf()
+
+    def NEWBUF_test_newbuf(self):
+        class MyView(pygame.bufferproxy.BufferProxy):
+            # A BufferProxy with the array interface disabled; only exports
+            # the new buffer interface.
+            __array_interface__ = property(lambda self: None)
+            __array_struct__ = property(lambda self: None)
+
+        font = self._TEST_FONTS['sans']
+        srect = font.get_rect("Hi", ptsize=12)
+        surf = pygame.Surface(srect.size, 0, 16)
+        newbuf = MyView(surf.get_buffer('2'))
+        rrect = font.render_raw_to(newbuf, "Hi", ptsize=12)
+        self.assertEqual(rrect, srect)
+
     def test_freetype_Font_style(self):
 
         font = self._TEST_FONTS['sans']
