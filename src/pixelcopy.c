@@ -24,7 +24,6 @@
 #include "pygame.h"
 #include "pgcompat.h"
 #include "doc/pixelcopy_doc.h"
-#include "pgarrinter.h"
 #include <SDL_byteorder.h>
 
 #if !defined(DOC_PYGAMEBLITARRAY)
