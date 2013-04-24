@@ -190,7 +190,7 @@ _copy_colorplane(PyArrayInterface *inter,
     Py_intptr_t dz_pix;
     Py_intptr_t x, y, z;
     Uint8 r, g, b, a;
-    Uint8 *element;
+    Uint8 *element = 0;
     _pc_pixel_t pixel = { 0 };
     Uint32 colorkey;
 
@@ -1145,8 +1145,6 @@ static PyMethodDef _pixelcopy_methods[] =
 
 MODINIT_DEFINE(pixelcopy)
 {
-    PyObject *module;
-
 #if PY3
     static struct PyModuleDef _module = {
         PyModuleDef_HEAD_INIT,
@@ -1175,11 +1173,8 @@ MODINIT_DEFINE(pixelcopy)
     }
 
 #if PY3
-    module = PyModule_Create(&_module);
+    return PyModule_Create(&_module);
 #else
-    module = Py_InitModule3("pixelcopy",
-                            _pixelcopy_methods,
-                            DOC_PYGAMEPIXELCOPY);
+    Py_InitModule3("pixelcopy", _pixelcopy_methods, DOC_PYGAMEPIXELCOPY);
 #endif
-    MODINIT_RETURN(module);
 }

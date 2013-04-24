@@ -113,7 +113,6 @@ _PGFT_LoadFontText(FreeTypeInstance *ft, PgFontObject *fontobj,
     FontGlyph   *glyph = 0;
     FontGlyph   **glyph_array = 0;
     FontMetrics *metrics;
-    FT_BitmapGlyph image;
     TextContext context;
 
     FT_Face     font;
@@ -208,7 +207,6 @@ _PGFT_LoadFontText(FreeTypeInstance *ft, PgFontObject *fontobj,
             --ftext->length;
             continue;
         }
-        image = glyph->image;
         glyph_width = glyph->width;
         glyph_height = glyph->height;
 

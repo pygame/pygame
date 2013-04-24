@@ -782,7 +782,6 @@ _compare(PyPixelArray *array, PyObject *args, PyObject *kwds)
     Py_ssize_t y;
     PyPixelArray *new_array;
     PyObject *new_surface;
-    SDL_Surface *new_surf;
     SDL_PixelFormat *new_format;
     Py_ssize_t stride0;
     Py_ssize_t stride1;
@@ -840,7 +839,6 @@ _compare(PyPixelArray *array, PyObject *args, PyObject *kwds)
         return 0;
     }
 
-    new_surf = PySurface_AsSurface(new_surface);
     new_format = surf->format;
     stride0 = new_array->stride0;
     stride1 = new_array->stride1;

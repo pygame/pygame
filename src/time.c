@@ -414,8 +414,6 @@ void initpygame_time (void)
 MODINIT_DEFINE (time)
 #endif    
 {
-    PyObject *module;
-    
 #if PY3
     static struct PyModuleDef _module = {
         PyModuleDef_HEAD_INIT,
@@ -442,9 +440,8 @@ MODINIT_DEFINE (time)
     
     /* create the module */
 #if PY3
-    module = PyModule_Create (&_module);
+    return PyModule_Create (&_module);
 #else
-    module = Py_InitModule3 (MODPREFIX "time", _time_methods, DOC_PYGAMETIME);
+    Py_InitModule3 (MODPREFIX "time", _time_methods, DOC_PYGAMETIME);
 #endif
-    MODINIT_RETURN (module);
 }
