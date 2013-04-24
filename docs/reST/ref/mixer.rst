@@ -337,17 +337,17 @@ change the default buffer by calling :func:`pygame.mixer.pre_init` before
 
       .. ## Sound.get_length ##
 
-   .. method:: get_buffer
+   .. method:: get_raw
 
-      | :sl:`acquires a buffer object for the samples of the Sound.`
-      | :sg:`get_buffer() -> BufferProxy`
+      | :sl:`return a bytestring copy of the Sound samples.`
+      | :sg:`get_raw() -> bytes`
 
-      Return a buffer object for the Sound samples. The buffer can be used for
-      direct access and manipulation.
+      Return a copy of the Sound object buffer as a bytes (for Python 3.x)
+      or str (for Python 2.x) object.
 
-      New in pygame 1.8.
+      New in pygame 1.9.2.
 
-      .. ## Sound.get_buffer ##
+      .. ## Sound.get_raw ##
 
    .. ## pygame.mixer.Sound ##
 

@@ -26,9 +26,9 @@
 #define PYGAMEAPI_MIXER_INTERNAL
 #include "pygame.h"
 #include "pgcompat.h"
+#include "pgarrinter.h"
 #include "doc/mixer_doc.h"
 #include "mixer.h"
-#include "pgview.h"
 
 #if !defined(EXPORT_BUFFER)
 #define EXPORT_BUFFER HAVE_NEW_BUFPROTO
@@ -72,6 +72,9 @@ static PyObject* PySound_New (Mix_Chunk*);
 static PyObject* PyChannel_New (int);
 #define PySound_Check(x) (Py_TYPE(x) == &PySound_Type)
 #define PyChannel_Check(x) (Py_TYPE(x) == &PyChannel_Type)
+
+static int snd_getbuffer (PyObject*, Py_buffer*, int);
+static void snd_releasebuffer (PyObject*, Py_buffer*);
 
 static int request_frequency = PYGAME_MIXER_DEFAULT_FREQUENCY;
 static int request_size = PYGAME_MIXER_DEFAULT_SIZE;
@@ -117,36 +120,6 @@ _format_itemsize(Uint16 format)
                      (int)format);
     }
     return size;
-}
-
-static PG_sample_format_t
-_format_inter_to_audio(PyArrayInterface *inter)
-{
-    PG_sample_format_t format = 0;
-    int itemsize = inter->itemsize;
-
-    switch (inter->typekind) {
-        case 'u':
-        break;
-
-        case 'i':
-        format |= PG_SAMPLE_SIGNED;
-        break;
-
-        default:
-        PyErr_Format(PyExc_ValueError,
-                     "Array has unsupported item format '%c'",
-                     (int)inter->typekind);
-        return 0;
-    }
-    if (itemsize <= 0 || itemsize > 0xFFFFl) {
-        PyErr_Format(PyExc_ValueError,
-                     "Array has unsupported integer size %d", itemsize);
-        return 0;
-    }
-    format += itemsize;
-    format |= inter->flags & PAI_NOTSWAPPED ? PG_SAMPLE_NATIVE_ENDIAN : 0;
-    return format;
 }
 
 #if HAVE_NEW_BUFPROTO
@@ -221,6 +194,15 @@ _format_view_to_audio(Py_buffer *view)
 
     case 'H':
         format += native_size ? sizeof(unsigned short int) : 2;
+        break;
+
+    case 'i':
+        format |= PG_SAMPLE_SIGNED;
+        format += native_size ? sizeof(short int) : 4;
+        break;
+
+    case 'I':
+        format += native_size ? sizeof(unsigned short int) : 4;
         break;
 
     case 'l':
@@ -637,139 +619,60 @@ snd_get_length (PyObject* self)
 }
 
 static PyObject*
-snd_get_buffer (PyObject* self)
+snd_get_raw (PyObject* self)
 {
-    PyObject *buffer;
-    Mix_Chunk* chunk;
+    Mix_Chunk* chunk = PySound_AsChunk (self);
+    
     MIXER_INIT_CHECK ();
 
-    chunk = PySound_AsChunk (self);
-    buffer = PyBufferProxy_New (self, chunk->abuf, (Py_ssize_t) chunk->alen,
-                                NULL);
-    if (!buffer)
-        return RAISE (PyExc_SDLError, "could acquire a buffer for the sound");
-    return buffer;
+    return Bytes_FromStringAndSize ((const char *)chunk->abuf,
+                                    (Py_ssize_t)chunk->alen);
 }
 
-#if PY3
-static void
-snd_arraystruct_capsule_destr(PyObject *capsule)
+static PyObject*
+snd_get_arraystruct (PyObject* self, void* closure)
 {
-    PyArrayInterface *inter =
-        (PyArrayInterface *)PyCapsule_GetPointer(capsule, 0);
+    Py_buffer view;
+    PyObject* cobj;
 
-    PyMem_Free(inter->shape);
-    PyMem_Free(inter);
-
-    /* The context may be NULL in the unlike case PyCapsule_SetContext failed.
-     */
-    Py_XDECREF((PyObject *)PyCapsule_GetContext(capsule));
-}
-#else
-static void
-snd_arraystruct_cobject_destr(void *inter_vp, void *desc_vp)
-{
-    PyArrayInterface *inter = (PyArrayInterface *)inter_vp;
-
-    PyMem_Free(inter->shape);
-    PyMem_Free(inter);
-    Py_DECREF((PyObject *)desc_vp);
-}
-#endif
-
-static PyObject *
-snd_get_arraystruct(PyObject *self, void *closure)
-{
-    Mix_Chunk *chunk = PySound_AsChunk(self);
-    PyArrayInterface *inter;
-    int nd;
-    Py_intptr_t *shape;
-    Py_intptr_t *strides;
-    int freq = 0;
-    int channels;
-    Py_ssize_t len;
-    Uint16 format;
-    PyObject *desc;
-    PyObject *cobj;
-
-    MIXER_INIT_CHECK();
-    desc = Py_BuildValue("sO", "PyArrayInterface Version 3", self);
-    if (!desc) {
-        return NULL;
+    if (snd_getbuffer (self, &view, PyBUF_RECORDS)) {
+        return 0;
     }
-    inter = PyMem_New(PyArrayInterface, 1);
-    if (!inter) {
-        Py_DECREF(desc);
-        return PyErr_NoMemory();
-    }
-    Mix_QuerySpec(&freq, &format, &channels);
-    nd = channels > 1 ? 2 : 1;
-    len = chunk->alen;
-    inter->two = 2;
-    inter->nd = nd;
-    switch (format) {
-        case AUDIO_U8:
-        inter->typekind = 'u';
-        inter->itemsize = 1;
-        break;
-
-        case AUDIO_S8:
-        inter->typekind = 'i';
-        inter->itemsize = 1;
-        break;
-
-        case AUDIO_U16SYS:
-        inter->typekind = 'u';
-        inter->itemsize = 2;
-        break;
-
-        default:
-        inter->typekind = 'i';
-        inter->itemsize = 2;
-        break;
-    }
-    inter->flags = PAI_CONTIGUOUS | PAI_ALIGNED |
-                   PAI_NOTSWAPPED | PAI_WRITEABLE;
-    shape = PyMem_New(Py_intptr_t, 2 * nd);
-    if (!shape) {
-        Py_DECREF(desc);
-        PyMem_Free(inter);
-        return PyErr_NoMemory();
-    }
-    strides = shape + nd;
-    strides[0] = inter->itemsize * channels;
-    shape[0] = len / strides[0];
-    if (nd == 2) {
-        shape[1] = channels;
-        strides[1] = inter->itemsize;
-    }
-    inter->shape = shape;
-    inter->strides = strides;
-    inter->data = chunk->abuf;
-    inter->descr = 0;
-#if PY3
-    cobj = PyCapsule_New(inter, 0, snd_arraystruct_capsule_destr);
-#else
-    cobj = PyCObject_FromVoidPtrAndDesc(inter,
-                                        desc,
-                                        snd_arraystruct_cobject_destr);
-#endif
-    if (!cobj) {
-        Py_DECREF(desc);
-        PyMem_Free(inter->shape);
-        PyMem_Free(inter);
-        return NULL;
-    }
-#if PY3
-    else if (PyCapsule_SetContext(cobj, desc)) {
-        Py_DECREF(cobj);
-        return NULL;
-    }
-#endif
+    cobj = PgBuffer_AsArrayStruct (&view);
+    snd_releasebuffer (view.obj, &view);
+    Py_XDECREF (view.obj);
     return cobj;
 }
 
-static PyMethodDef sound_methods[] =
+static PyObject*
+snd_get_arrayinterface (PyObject* self, void* closure)
+{
+    Py_buffer view;
+    PyObject* dict;
+
+    if (PyObject_GetBuffer (self, &view, PyBUF_RECORDS)) {
+        return 0;
+    }
+    dict = PgBuffer_AsArrayInterface (&view);
+    PyBuffer_Release (&view);
+    return dict;
+}
+
+static PyObject *
+snd_get_samples_address(PyObject *self, PyObject *closure)
+{
+    Mix_Chunk *chunk = PySound_AsChunk(self);
+
+    MIXER_INIT_CHECK();
+
+#if SIZEOF_VOID_P > SIZEOF_LONG
+    return PyLong_FromUnsignedLongLong((unsigned PY_LONG_LONG)chunk->abuf);
+#else
+    return PyLong_FromUnsignedLong((unsigned long)chunk->abuf);
+#endif
+}
+
+PyMethodDef sound_methods[] =
 {
     { "play", (PyCFunction) snd_play, METH_VARARGS | METH_KEYWORDS,
       DOC_SOUNDPLAY },
@@ -782,21 +685,23 @@ static PyMethodDef sound_methods[] =
       DOC_SOUNDGETVOLUME },
     { "get_length", (PyCFunction) snd_get_length, METH_NOARGS,
       DOC_SOUNDGETLENGTH },
-    { "get_buffer", (PyCFunction) snd_get_buffer, METH_NOARGS,
-      DOC_SOUNDGETBUFFER },
+    { "get_raw", (PyCFunction) snd_get_raw, METH_NOARGS,
+      DOC_SOUNDGETRAW },
     { NULL, NULL, 0, NULL }
 };
 
 static PyGetSetDef sound_getset[] =
 {
     {"__array_struct__", snd_get_arraystruct, NULL, "Version 3", NULL},
+    {"__array_interface__", snd_get_arrayinterface, NULL, "Version 3", NULL},
+    {"_samples_address", (getter)snd_get_samples_address,
+     NULL, "samples buffer address (readonly)", NULL },
     {NULL, NULL, NULL, NULL, NULL}
 };
 
 
 /*buffer protocol*/
 
-#if EXPORT_BUFFER
 static int
 snd_buffer_iteminfo(char **format, Py_ssize_t *itemsize, int *channels)
 {
@@ -865,7 +770,6 @@ snd_getbuffer(PyObject *obj, Py_buffer *view, int flags)
                 PyErr_NoMemory();
                 return -1;
             }
-	    view->internal = shape;
             if (fortran_order) {
                 shape[0] = channels;
                 shape[ndim - 1] = samples;
@@ -888,16 +792,18 @@ snd_getbuffer(PyObject *obj, Py_buffer *view, int flags)
         }
     }
 
-    if (PyBuffer_FillInfo(view, obj, chunk->abuf, chunk->alen, 0, flags)) {
-        return -1;
-    }
-    if (flags != PyBUF_SIMPLE) {
-        view->format = format;
-        view->ndim = ndim;
-        view->shape = shape;
-        view->strides = strides;
-        view->itemsize = itemsize;
-    }
+    Py_INCREF(obj);
+    view->obj = obj;
+    view->buf = chunk->abuf;
+    view->len = (Py_ssize_t)chunk->alen;
+    view->readonly = 0;
+    view->itemsize = itemsize;
+    view->format = format;
+    view->ndim = ndim;
+    view->shape = shape;
+    view->strides = strides;
+    view->suboffsets = 0;
+    view->internal = shape;
     return 0;
 }
 
@@ -909,6 +815,8 @@ snd_releasebuffer(PyObject *obj, Py_buffer *view)
         view->internal = 0;
     }
 }
+
+#if EXPORT_BUFFER
 
 #if HAVE_OLD_BUFPROTO
 #define snd_getreadbuffer 0
@@ -1768,63 +1676,28 @@ sound_init(PyObject *self, PyObject *arg, PyObject *kwarg)
     }
 #endif
 
-#if HAVE_NEW_BUFPROTO
-    if (array != NULL && /* conditional and */
-        PyObject_CheckBuffer(array)) {
-        Py_buffer view;
+    if (array != NULL) {
+        Pg_buffer pg_view;
         PG_sample_format_t view_format;
         int rcode;
 
-        view.itemsize = 0;
-        view.obj = 0;
-        if (PyObject_GetBuffer(array, &view, PyBUF_FORMAT | PyBUF_ND)) {
+        pg_view.view.itemsize = 0;
+        pg_view.view.obj = 0;
+        if (PgObject_GetBuffer(array, &pg_view, PyBUF_FORMAT | PyBUF_ND)) {
             return -1;
         }
-        view_format = _format_view_to_audio(&view);
+        view_format = _format_view_to_audio((Py_buffer *)&pg_view);
         if (!view_format) {
-            PyBuffer_Release(&view);
+            PgBuffer_Release(&pg_view);
             return -1;
         }
-        rcode = _chunk_from_array(view.buf, view_format, view.ndim,
-                                  view.shape, view.strides,
+        rcode = _chunk_from_array(pg_view.view.buf,
+                                  view_format,
+                                  pg_view.view.ndim,
+                                  pg_view.view.shape,
+                                  pg_view.view.strides,
                                   &chunk, &mem);
-        PyBuffer_Release(&view);
-        if (rcode) {
-            return -1;
-        }
-        ((PySoundObject *)self)->mem = mem;
-    }
-#endif
-
-    if (chunk == NULL && array != NULL) {
-        PyArrayInterface *inter = 0;
-        PyObject *cobj = 0;
-        PG_sample_format_t array_format;
-        int rcode;
-
-        if (Pg_GetArrayInterface(array, &cobj, &inter)) {
-            return -1;
-        }
-        if (!(inter->flags & PAI_CONTIGUOUS)) {
-            RAISE(PyExc_ValueError,
-                  "Array is discontiguous");
-            Py_DECREF(cobj);
-            return -1;
-        }
-        if (inter->nd > 1 && inter->flags & PAI_FORTRAN) {
-            RAISE(PyExc_ValueError, "Array is channel first");
-            Py_DECREF(cobj);
-            return -1;
-        }
-        array_format = _format_inter_to_audio(inter);
-        if (!array_format) {
-            Py_DECREF(cobj);
-            return -1;
-        }
-        rcode = _chunk_from_array(inter->data, array_format, inter->nd,
-                                  inter->shape, inter->strides,
-                                  &chunk, &mem);
-        Py_DECREF(cobj);
+        PgBuffer_Release(&pg_view);
         if (rcode) {
             return -1;
         }
@@ -1932,14 +1805,6 @@ MODINIT_DEFINE (mixer)
         MODINIT_ERROR;
     }
     import_pygame_rwobject ();
-    if (PyErr_Occurred ()) {
-        MODINIT_ERROR;
-    }
-    import_pygame_bufferproxy ();
-    if (PyErr_Occurred ()) {
-        MODINIT_ERROR;
-    }
-    import_pygame_view ();
     if (PyErr_Occurred ()) {
         MODINIT_ERROR;
     }
