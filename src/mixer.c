@@ -1116,7 +1116,9 @@ chan_set_volume (PyObject* self, PyObject* args)
 {
     int channelnum = PyChannel_AsInt (self);
     float volume, stereovolume=-1.11f;
+#ifdef Py_DEBUG
     int result;
+#endif
     Uint8 left, right;
 
     if (!PyArg_ParseTuple (args, "f|f", &volume, &stereovolume))
@@ -1159,7 +1161,10 @@ chan_set_volume (PyObject* self, PyObject* args)
         volume = (volume + stereovolume) * 0.5f;
 #endif
 
-    result = Mix_Volume (channelnum, (int)(volume*128));
+#ifdef Py_DEBUG
+    result = 
+#endif
+    Mix_Volume (channelnum, (int)(volume*128));
     Py_RETURN_NONE;
 }
 

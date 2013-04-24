@@ -341,8 +341,6 @@ static PyMethodDef scrap_builtins[] =
 
 MODINIT_DEFINE (scrap)
 {
-    PyObject *module;
-
 #if PY3
     static struct PyModuleDef _module = {
         PyModuleDef_HEAD_INIT,
@@ -364,10 +362,8 @@ MODINIT_DEFINE (scrap)
 
     /* create the module */
 #if PY3
-    module = PyModule_Create (&_module);
+    return PyModule_Create (&_module);
 #else
-    module = Py_InitModule3 (MODPREFIX "scrap", scrap_builtins, NULL);
+    Py_InitModule3 (MODPREFIX "scrap", scrap_builtins, NULL);
 #endif
-
-    MODINIT_RETURN (module);
 }
