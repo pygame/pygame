@@ -59,6 +59,10 @@ for type_name in "float float32 float64 float96".split():
     if hasattr(numpy, type_name):
         numpy_floats.append(getattr(numpy, type_name))
 
+# Pixel sizes corresponding to NumPy supported integer sizes, and therefore
+# permissible for 2D reference arrays.
+_pixel2d_bitdepths = set([8, 16, 32])
+
 
 def blit_array (surface, array):
     """pygame.surfarray.blit_array(Surface, array): return None
@@ -128,8 +132,10 @@ def pixels2d(surface):
     the array (see the Surface.lock - lock the Surface memory for pixel
     access method).
     """
+    if (surface.get_bitsize() not in _pixel2d_bitdepths):
+        raise ValueError("unsupport bit depth for 2D reference array")
     try:
-        return numpy_array(surface.get_view('2'), copy=False)
+        return numpy_array(surface.get_buffer('2'), copy=False)
     except (ValueError, TypeError):
         raise ValueError("bit depth %i unsupported for 2D reference array" %
                          (surface.get_bitsize(),))
@@ -168,7 +174,7 @@ def pixels3d (surface):
     the array (see the Surface.lock - lock the Surface memory for pixel
     access method).
     """
-    return numpy_array(surface.get_view('3'), copy=False)
+    return numpy_array(surface.get_buffer('3'), copy=False)
 
 def array_alpha(surface):
     """pygame.numpyarray.array_alpha(Surface): return array
@@ -204,7 +210,7 @@ def pixels_alpha(surface):
     The Surface this array references will remain locked for the
     lifetime of the array.
     """
-    return numpy.array(surface.get_view('A'), copy=False)
+    return numpy.array(surface.get_buffer('A'), copy=False)
 
 def pixels_red(surface):
     """pygame.surfarray.pixels_red(Surface): return array
@@ -220,7 +226,7 @@ def pixels_red(surface):
     The Surface this array references will remain locked for the
     lifetime of the array.
     """
-    return numpy.array(surface.get_view('R'), copy=False)
+    return numpy.array(surface.get_buffer('R'), copy=False)
 
 def array_red(surface):
     """pygame.numpyarray.array_red(Surface): return array
@@ -253,7 +259,7 @@ def pixels_green(surface):
     The Surface this array references will remain locked for the
     lifetime of the array.
     """
-    return numpy.array(surface.get_view('G'), copy=False)
+    return numpy.array(surface.get_buffer('G'), copy=False)
 
 def array_green(surface):
     """pygame.numpyarray.array_green(Surface): return array
@@ -286,7 +292,7 @@ def pixels_blue (surface):
     The Surface this array references will remain locked for the
     lifetime of the array.
     """
-    return numpy.array(surface.get_view('B'), copy=False)
+    return numpy.array(surface.get_buffer('B'), copy=False)
 
 def array_blue(surface):
     """pygame.numpyarray.array_blue(Surface): return array

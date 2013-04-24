@@ -18,7 +18,7 @@ else:
     from test.test_utils import test_not_implemented, unittest, example_path
 import pygame
 from pygame import mixer
-from pygame.compat import xrange_, unicode_, as_bytes, geterror
+from pygame.compat import xrange_, unicode_, as_bytes, geterror, bytes_
 
 import sys
 import os
@@ -175,7 +175,7 @@ class MixerModuleTest(unittest.TestCase):
 
     def test_sound_args(self):
         def get_bytes(snd):
-            return snd.get_buffer().raw
+            return snd.get_raw()
         
         mixer.init()
         try:
@@ -267,7 +267,7 @@ class MixerModuleTest(unittest.TestCase):
             else:
                 self.fail("no exception")
             snd2 = mixer.Sound(array=snd)
-            self.assertEqual(snd.get_buffer().raw, snd2.get_buffer().raw)
+            self.assertEqual(snd.get_raw(), snd2.get_raw())
             
         finally:
             mixer.quit()
@@ -333,11 +333,11 @@ class MixerModuleTest(unittest.TestCase):
                         # Some formats (e.g. -8) may not be supported.
                         continue
                     for c, a in a_lists[format]:
-                        self._test_array_interface(format, a, c == channels)
+                        self._test_array_argument(format, a, c == channels)
                 finally:
                     mixer.quit()
 
-    def _test_array_interface(self, format, a, test_pass):
+    def _test_array_argument(self, format, a, test_pass):
         from numpy import array, all as all_
 
         try:
@@ -345,6 +345,8 @@ class MixerModuleTest(unittest.TestCase):
         except ValueError:
             if not test_pass:
                 return
+            self.fail("Raised ValueError: Format %i, dtype %s" %
+                      (format, a.dtype))
         if not test_pass:
             self.fail("Did not raise ValueError: Format %i, dtype %s" %
                       (format, a.dtype))
@@ -360,6 +362,43 @@ class MixerModuleTest(unittest.TestCase):
     def _test_array_interface_fail(self, a):
         self.assertRaises(ValueError, mixer.Sound, array=a)
  
+    def test_array_interface(self):
+        mixer.init(22050, -16, 1)
+        try:
+            snd = mixer.Sound(as_bytes('\x00\x7f') * 20)
+            d = snd.__array_interface__
+            self.assertTrue(isinstance(d, dict))
+            if pygame.get_sdl_byteorder() == pygame.LIL_ENDIAN:
+                typestr = '<i2'
+            else:
+                typestr = '>i2'
+            self.assertEqual(d['typestr'], typestr)
+            self.assertEqual(d['shape'], (20,))
+            self.assertEqual(d['strides'], (2,))
+            self.assertEqual(d['data'], (snd._samples_address, False))
+        finally:
+            mixer.quit()
+
+    def test_get_raw(self):
+        from ctypes import pythonapi, c_void_p, py_object
+
+        try:
+            Bytes_FromString = pythonapi.PyBytes_FromString
+        except:
+            Bytes_FromString = pythonapi.PyString_FromString
+        Bytes_FromString.restype = c_void_p
+        Bytes_FromString.argtypes = [py_object]
+        mixer.init()
+        try:
+            samples = as_bytes('abcdefgh') # keep byte size a multiple of 4
+            snd = mixer.Sound(buffer=samples)
+            raw = snd.get_raw()
+            self.assertTrue(isinstance(raw, bytes_))
+            self.assertNotEqual(snd._samples_address, Bytes_FromString(samples))
+            self.assertEqual(raw, samples)
+        finally:
+            mixer.quit()
+
     def todo_test_fadeout(self):
 
         # __doc__ (as of 2008-08-02) for pygame.mixer.fadeout:
@@ -767,20 +806,6 @@ class SoundTypeTest(unittest.TestCase):
           # time argument in milliseconds. The Sound will fade and stop on all
           # actively playing channels.
           # 
-
-        self.fail() 
-
-    def todo_test_get_buffer(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.mixer.Sound.get_buffer:
-
-          # Sound.get_buffer(): return BufferProxy
-          # acquires a buffer object for the sameples of the Sound.
-          # 
-          # Return a buffer object for the Sound samples. The buffer can be used
-          # for direct access and manipulation.
-          # 
-          # New in pygame 1.8. 
 
         self.fail() 
 
