@@ -1564,8 +1564,6 @@ static PyMethodDef _draw_methods[] =
 
 MODINIT_DEFINE (draw)
 {
-        PyObject *module;
-
 #if PY3
         static struct PyModuleDef _module = {
             PyModuleDef_HEAD_INIT,
@@ -1599,11 +1597,10 @@ MODINIT_DEFINE (draw)
 
 	/* create the module */
 #if PY3
-        module = PyModule_Create (&_module);
+        return PyModule_Create (&_module);
 #else
-	module = Py_InitModule3(MODPREFIX "draw", _draw_methods, DOC_PYGAMEDRAW);
+	Py_InitModule3(MODPREFIX "draw", _draw_methods, DOC_PYGAMEDRAW);
 #endif
-        MODINIT_RETURN (module);
 }
 
 
