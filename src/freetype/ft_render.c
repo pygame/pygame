@@ -21,7 +21,6 @@
 #define PYGAME_FREETYPE_INTERNAL
 
 #include "ft_wrap.h"
-#include "../pgview.h"
 #include FT_MODULE_H
 #include FT_OUTLINE_H
 
@@ -31,6 +30,81 @@ static const FontColor mono_transparent = {0, 0, 0, SDL_ALPHA_TRANSPARENT};
 static void render(FreeTypeInstance *, FontText *, const FontRenderMode *,
                    const FontColor *, FontSurface *, unsigned, unsigned,
                    FT_Vector *, FT_Pos, FT_Fixed);
+
+static int
+_validate_view_format(const char *format)
+{
+    int i = 0;
+
+    switch (format[i]) {
+
+    case '@':
+    case '=':
+    case '<':
+    case '>':
+    case '!':
+        ++i;
+        break;
+    case '1':
+    case '2':
+    case '3':
+    case '4':
+    case '5':
+    case '6':
+    case '7':
+    case '8':
+    case '9':
+        if (format[i + 1] == 'x') {
+            ++i;
+        }
+        break;
+    default:
+        /* Unrecognized */
+        break;
+    }
+    switch (format[i]) {
+
+    case 'x':
+    case 'b':
+    case 'B':
+    case 'h':
+    case 'H':
+    case 'i':
+    case 'I':
+    case 'l':
+    case 'L':
+    case 'q':
+    case 'Q':
+        ++i;
+        break;
+    default:
+        /* Unrecognized */
+        break;
+    }
+    if (format[i] != '\0') {
+        PyErr_SetString(PyExc_ValueError, "Unsupport array item type");
+        return -1;
+    }
+
+    return 0;
+}
+
+static int
+_is_swapped(Py_buffer *view_p)
+{
+    char ch = view_p->format[0];
+
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+    if (ch == '>' || ch == '!') {
+        return 1;
+    }
+#else
+    if (ch == '<') {
+        return 1;
+    }
+#endif
+    return 0;
+}
 
 int
 _PGFT_CheckStyle(FT_UInt32 style)
@@ -541,8 +615,8 @@ _PGFT_Render_Array(FreeTypeInstance *ft, PgFontObject *fontobj,
 {
     static int view_init = 0;
 
-    PyObject *cobj = 0;
-    PyArrayInterface *inter_p;
+    Pg_buffer pg_view;
+    Py_buffer *view_p = (Py_buffer *)&pg_view;
 
     unsigned width;
     unsigned height;
@@ -558,43 +632,33 @@ _PGFT_Render_Array(FreeTypeInstance *ft, PgFontObject *fontobj,
 
     /* Get target buffer */
     if (!view_init) {
-        import_pygame_view();
+        import_pygame_base();
         if (PyErr_Occurred()) {
             return -1;
         }
     }
-    if (Pg_GetArrayInterface(arrayobj, &cobj, &inter_p)) {
+    if (PgObject_GetBuffer(arrayobj, &pg_view, PyBUF_RECORDS)) {
         return -1;
     }
-    if (inter_p->nd != 2) {
-        Py_DECREF(cobj);
+    if (view_p->ndim != 2) {
         PyErr_Format(PyExc_ValueError,
                      "expecting a 2d target array: got %id array instead",
-                     (int)inter_p->nd);
+                     (int)view_p->ndim);
+        PgBuffer_Release(&pg_view);
         return -1;
     }
-    switch (inter_p->typekind) {
-
-    case 'i':  /* integer */
-        break;
-    case 'u':  /* unsigned integer */
-        break;
-    case 'S':  /* fixed length character field */
-        break;
-    default:
-        Py_DECREF(cobj);
-        PyErr_Format(PyExc_ValueError, "unsupported target array type '%c'",
-                     inter_p->typekind);
+    if (_validate_view_format(view_p->format)) {
+        PgBuffer_Release(&pg_view);
         return -1;
     }
 
-    width = inter_p->shape[0];
-    height = inter_p->shape[1];
-    itemsize = inter_p->itemsize;
+    width = (unsigned)view_p->shape[0];
+    height = (unsigned)view_p->shape[1];
+    itemsize = (unsigned)view_p->itemsize;
 
     /* if empty string, then nothing more to do */
     if (PGFT_String_GET_LENGTH(text) == 0) {
-        Py_DECREF(cobj);
+        PgBuffer_Release(&pg_view);
         r->x = 0;
         r->y = 0;
         r->w = 0;
@@ -605,7 +669,7 @@ _PGFT_Render_Array(FreeTypeInstance *ft, PgFontObject *fontobj,
     /* build font text */
     font_text = _PGFT_LoadFontText(ft, fontobj, mode, text);
     if (!font_text) {
-        Py_DECREF(cobj);
+        PgBuffer_Release(&pg_view);
         return -1;
     }
 
@@ -613,7 +677,7 @@ _PGFT_Render_Array(FreeTypeInstance *ft, PgFontObject *fontobj,
                            &underline_top, &underline_size);
     if (width == 0 || height == 0) {
         /* Nothing more to do. */
-        Py_DECREF(cobj);
+        PgBuffer_Release(&pg_view);
         r->x = 0;
         r->y = 0;
         r->w = 0;
@@ -636,17 +700,15 @@ _PGFT_Render_Array(FreeTypeInstance *ft, PgFontObject *fontobj,
      */
     format.BytesPerPixel = itemsize;
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
-    format.Ashift = ((inter_p->flags & PAI_NOTSWAPPED) ?
-                     0 : (itemsize - 1) * 8);
+    format.Ashift = _is_swapped(view_p) ? (itemsize - 1) * 8 : 0;
 #else
-    format.Ashift = ((inter_p->flags & PAI_NOTSWAPPED) ?
-                     (itemsize - 1) * 8 : 0);
+    format.Ashift = _is_swapped(view_p) ? 0 : (itemsize - 1) * 8;
 #endif
-    font_surf.buffer = inter_p->data;
-    font_surf.width = inter_p->shape[0];
-    font_surf.height = inter_p->shape[1];
-    font_surf.item_stride = inter_p->strides[0];
-    font_surf.pitch = inter_p->strides[1];
+    font_surf.buffer = view_p->buf;
+    font_surf.width = (unsigned)view_p->shape[0];
+    font_surf.height = (unsigned)view_p->shape[1];
+    font_surf.item_stride = (unsigned)view_p->strides[0];
+    font_surf.pitch = (unsigned)view_p->strides[1];
     font_surf.format = &format;
     font_surf.render_gray = __render_glyph_INT;
     font_surf.render_mono = __render_glyph_MONO_as_INT;
@@ -656,7 +718,7 @@ _PGFT_Render_Array(FreeTypeInstance *ft, PgFontObject *fontobj,
            &font_surf, width, height, &array_offset, underline_top,
            underline_size);
 
-    Py_DECREF(cobj);
+    PgBuffer_Release(&pg_view);
     r->x = -(Sint16)FX6_TRUNC(FX6_FLOOR(offset.x));
     r->y = (Sint16)FX6_TRUNC(FX6_CEIL(offset.y));
     r->w = (Uint16)width;

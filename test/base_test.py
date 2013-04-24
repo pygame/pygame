@@ -57,6 +57,148 @@ class BaseModuleTest(unittest.TestCase):
 
         self.assert_( len(pygame.get_sdl_version()) == 3) 
 
+    class ExporterBase(object):
+        def __init__(self, shape, typechar, itemsize):
+            import ctypes
+
+            ndim = len(shape)
+            self.ndim = ndim
+            self.shape = tuple(shape)
+            array_len = 1
+            for d in shape:
+                array_len *= d
+            self.size = itemsize * array_len
+            self.parent = ctypes.create_string_buffer(self.size)
+            self.itemsize = itemsize
+            strides = [itemsize] * ndim
+            for i in range(ndim - 1, 0, -1):
+                strides[i - 1] = strides[i] * shape[i]
+            self.strides = tuple(strides)
+            self.data = ctypes.addressof(self.parent), False
+            if self.itemsize == 1:
+                byteorder = '|'
+            elif sys.byteorder == 'big':
+                byteorder = '>'
+            else:
+                byteorder = '<'
+            self.typestr = byteorder + typechar + str(self.itemsize)
+
+    def assertSame(self, proxy, obj):
+        self.assertEqual(proxy.length, obj.size)
+        d = proxy.__array_interface__
+        try:
+            self.assertEqual(d['typestr'], obj.typestr)
+            self.assertEqual(d['shape'], obj.shape)
+            self.assertEqual(d['strides'], obj.strides)
+            self.assertEqual(d['data'], obj.data)
+        finally:
+            d = None
+
+    def test_PgObject_GetBuffer_array_interface(self):
+        from pygame.bufferproxy import BufferProxy
+
+        class Exporter(self.ExporterBase):
+            def get__array_interface__(self):
+                return {'version': 3,
+                        'typestr': self.typestr,
+                        'shape': self.shape,
+                        'strides': self.strides,
+                        'data': self.data}
+            __array_interface__ = property(get__array_interface__)
+            # Should be ignored by PgObject_GetBuffer
+            __array_struct__ = property(lambda self: None)
+
+        _shape = [2, 3, 5, 7, 11]  # Some prime numbers
+        for ndim in range(1, len(_shape)):
+            o = Exporter(_shape[0:ndim], 'i', 2)
+            v = BufferProxy(o)
+            self.assertSame(v, o)
+        ndim = 2
+        shape = _shape[0:ndim]
+        for typechar in ('i', 'u'):
+            for itemsize in (1, 2, 4, 8):
+                o = Exporter(shape, typechar, itemsize)
+                v = BufferProxy(o)
+                self.assertSame(v, o)
+        for itemsize in (4, 8):
+            o = Exporter(shape, 'f', itemsize)
+            v = BufferProxy(o)
+            self.assertSame(v, o)
+        
+    def test_GetView_array_struct(self):
+        from pygame.bufferproxy import BufferProxy
+
+        class Exporter(self.ExporterBase):
+            def __init__(self, shape, typechar, itemsize):
+                super(Exporter, self).__init__(shape, typechar, itemsize)
+                self.view = BufferProxy(self.__dict__)
+
+            def get__array_struct__(self):
+                return self.view.__array_struct__
+            __array_struct__ = property(get__array_struct__)
+            # Should not cause PgObject_GetBuffer to fail
+            __array_interface__ = property(lambda self: None)
+
+        _shape = [2, 3, 5, 7, 11]  # Some prime numbers
+        for ndim in range(1, len(_shape)):
+            o = Exporter(_shape[0:ndim], 'i', 2)
+            v = BufferProxy(o)
+            self.assertSame(v, o)
+        ndim = 2
+        shape = _shape[0:ndim]
+        for typechar in ('i', 'u'):
+            for itemsize in (1, 2, 4, 8):
+                o = Exporter(shape, typechar, itemsize)
+                v = BufferProxy(o)
+                self.assertSame(v, o)
+        for itemsize in (4, 8):
+            o = Exporter(shape, 'f', itemsize)
+            v = BufferProxy(o)
+            self.assertSame(v, o)
+
+    if (pygame.HAVE_NEWBUF):
+        def test_GetView_newbuf(self):
+            self.NEWBUF_test_GetView_newbuf()
+
+    def NEWBUF_test_GetView_newbuf(self):
+        from pygame.bufferproxy import BufferProxy
+
+        def exporter(shape, typechar, itemsize):
+            # Use a BufferProxy object as the new buffer exporter, as none
+            # of the Python standard types are multidimensional arrays.
+            e = self.ExporterBase(shape, typechar, itemsize)
+            bp = BufferProxy(e.__dict__)
+            bp.size = e.size
+            bp.typestr = e.typestr
+            bp.shape = e.shape
+            bp.strides = e.strides
+            bp.data = e.data
+            return bp
+
+        _shape = [2, 3, 5, 7, 11]  # Some prime numbers
+        for ndim in range(1, len(_shape)):
+            o = exporter(_shape[0:ndim], 'i', 2)
+            v = BufferProxy(o)
+            self.assertSame(v, o)
+        ndim = 2
+        shape = _shape[0:ndim]
+        for typechar in ('i', 'u'):
+            for itemsize in (1, 2, 4, 8):
+                o = exporter(shape, typechar, itemsize)
+                v = BufferProxy(o)
+                self.assertSame(v, o)
+        for itemsize in (4, 8):
+            o = exporter(shape, 'f', itemsize)
+            v = BufferProxy(o)
+            self.assertSame(v, o)
+
+    def test_PgObject_GetBuffer_exception(self):
+        # For consistency with surfarray
+        from pygame.bufferproxy import BufferProxy
+
+        bp = BufferProxy(1)
+        self.assertRaises(ValueError, getattr, bp, 'length')
+
     def not_init_assertions(self):
         self.assert_(not pygame.display.get_init(),
                      "display shouldn't be initialized" )

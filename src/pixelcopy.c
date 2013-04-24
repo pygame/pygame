@@ -24,8 +24,6 @@
 #include "pygame.h"
 #include "pgcompat.h"
 #include "doc/pixelcopy_doc.h"
-#include "pgarrinter.h"
-#include "pgview.h"
 #include <SDL_byteorder.h>
 
 #if !defined(DOC_PYGAMEBLITARRAY)
@@ -48,6 +46,81 @@ typedef union {
     Uint32 value;
     Uint8 bytes[sizeof(Uint32)];
 } _pc_pixel_t;
+
+static int
+_validate_view_format(const char *format)
+{
+    int i = 0;
+
+    switch (format[i]) {
+
+    case '@':
+    case '=':
+    case '<':
+    case '>':
+    case '!':
+        ++i;
+        break;
+    case '1':
+    case '2':
+    case '3':
+    case '4':
+    case '5':
+    case '6':
+    case '7':
+    case '8':
+    case '9':
+        if (format[i + 1] == 'x') {
+            ++i;
+        }
+        break;
+    default:
+        /* Unrecognized */
+        break;
+    }
+    switch (format[i]) {
+
+    case 'x':
+    case 'b':
+    case 'B':
+    case 'h':
+    case 'H':
+    case 'i':
+    case 'I':
+    case 'l':
+    case 'L':
+    case 'q':
+    case 'Q':
+        ++i;
+        break;
+    default:
+        /* Unrecognized */
+        break;
+    }
+    if (format[i] != '\0') {
+        PyErr_SetString(PyExc_ValueError, "Unsupport array item type");
+        return -1;
+    }
+
+    return 0;
+}
+
+static int
+_is_swapped(Py_buffer *view_p)
+{
+    char ch = view_p->format[0];
+
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+    if (ch == '>' || ch == '!') {
+        return 1;
+    }
+#else
+    if (ch == '<') {
+        return 1;
+    }
+#endif
+    return 0;
+}
 
 static int
 _view_kind(PyObject *obj, void *view_kind_vptr)
@@ -112,26 +185,26 @@ _view_kind(PyObject *obj, void *view_kind_vptr)
 }
 
 static int
-_copy_mapped(PyArrayInterface *inter, SDL_Surface *surf)
+_copy_mapped(Py_buffer *view_p, SDL_Surface *surf)
 {
     int pixelsize = surf->format->BytesPerPixel;
-    int intsize = inter->itemsize;
+    int intsize = view_p->itemsize;
     char *src = (char *)surf->pixels;
-    char *dst = (char *)inter->data;
+    char *dst = (char *)view_p->buf;
     int w = surf->w;
     int h = surf->h;
     Py_intptr_t dx_src = surf->format->BytesPerPixel;
     Py_intptr_t dy_src = surf->pitch;
     Py_intptr_t dz_src = 1;
-    Py_intptr_t dx_dst = inter->strides[0];
-    Py_intptr_t dy_dst = inter->strides[1];
+    Py_intptr_t dx_dst = view_p->strides[0];
+    Py_intptr_t dy_dst = view_p->strides[1];
     Py_intptr_t dz_dst = 1;
     Py_intptr_t x, y, z;
 
-    if (inter->shape[0] != w || inter->shape[1] != h) {
+    if (view_p->shape[0] != w || view_p->shape[1] != h) {
         PyErr_Format(PyExc_ValueError,
                      "Expected a (%d, %d) target: got (%d, %d)",
-                     w, h, (int)inter->shape[0], (int)inter->shape[1]);
+                     w, h, (int)view_p->shape[0], (int)view_p->shape[1]);
         return -1;
     }
     if (intsize < pixelsize) {
@@ -141,12 +214,12 @@ _copy_mapped(PyArrayInterface *inter, SDL_Surface *surf)
         return -1;
     }
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
-    if (!(inter->flags & PAI_NOTSWAPPED)) {
+    if (_is_swapped(view_p)) {
         dst += intsize - 1;
         dz_dst = -1;
     }
 #else
-    if (inter->flags & PAI_NOTSWAPPED) {
+    if (!_is_swapped(view_p) {
         dst += intsize - 1;
         dz_dst = -1;
     }
@@ -168,7 +241,7 @@ _copy_mapped(PyArrayInterface *inter, SDL_Surface *surf)
 }
 
 static int
-_copy_colorplane(PyArrayInterface *inter,
+_copy_colorplane(Py_buffer *view_p,
                  SDL_Surface *surf,
                  _pc_view_kind_t view_kind,
                  Uint8 opaque,
@@ -177,15 +250,15 @@ _copy_colorplane(PyArrayInterface *inter,
     SDL_PixelFormat *format = surf->format;
     int pixelsize = surf->format->BytesPerPixel;
     Uint32 flags = surf->flags;
-    int intsize = inter->itemsize;
+    int intsize = (int)view_p->itemsize;
     char *src = (char *)surf->pixels;
-    char *dst = (char *)inter->data;
+    char *dst = (char *)view_p->buf;
     int w = surf->w;
     int h = surf->h;
     Py_intptr_t dx_src = surf->format->BytesPerPixel;
     Py_intptr_t dy_src = surf->pitch;
-    Py_intptr_t dx_dst = inter->strides[0];
-    Py_intptr_t dy_dst = inter->strides[1];
+    Py_intptr_t dx_dst = view_p->strides[0];
+    Py_intptr_t dy_dst = view_p->strides[1];
     Py_intptr_t dz_dst = 1;
     Py_intptr_t dz_pix;
     Py_intptr_t x, y, z;
@@ -194,10 +267,10 @@ _copy_colorplane(PyArrayInterface *inter,
     _pc_pixel_t pixel = { 0 };
     Uint32 colorkey;
 
-    if (inter->shape[0] != w || inter->shape[1] != h) {
+    if (view_p->shape[0] != w || view_p->shape[1] != h) {
         PyErr_Format(PyExc_ValueError,
                      "Expected a (%d, %d) target: got (%d, %d)",
-                     w, h, (int)inter->shape[0], (int)inter->shape[1]);
+                     w, h, (int)view_p->shape[0], (int)view_p->shape[1]);
         return -1;
     }
     if (intsize < 1) {
@@ -229,13 +302,13 @@ _copy_colorplane(PyArrayInterface *inter,
     }
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
     dz_pix = 0;
-    if (!(inter->flags & PAI_NOTSWAPPED)) {
+    if (_is_swapped(view_p)) {
         dst += intsize - 1;
         dz_dst = -1;
     }
 #else
     dz_pix = (unsigned)(sizeof(Uint32) - pixelsize - 1);
-    if (inter->flags & PAI_NOTSWAPPED) {
+    if (!_is_swapped(view_p)) {
         dst += intsize - 1;
         dz_dst = -1;
     }
@@ -285,35 +358,35 @@ _copy_colorplane(PyArrayInterface *inter,
 }
 
 static int
-_copy_unmapped(PyArrayInterface *inter, SDL_Surface *surf)
+_copy_unmapped(Py_buffer *view_p, SDL_Surface *surf)
 {
     SDL_PixelFormat *format = surf->format;
     int pixelsize = surf->format->BytesPerPixel;
-    int intsize = inter->itemsize;
+    int intsize = (int)view_p->itemsize;
     char *src = (char *)surf->pixels;
-    char *dst = (char *)inter->data;
+    char *dst = (char *)view_p->buf;
     int w = surf->w;
     int h = surf->h;
     Py_intptr_t dx_src = surf->format->BytesPerPixel;
     Py_intptr_t dy_src = surf->pitch;
-    Py_intptr_t dx_dst = inter->strides[0];
-    Py_intptr_t dy_dst = inter->strides[1];
-    Py_intptr_t dp_dst = inter->strides[2];
+    Py_intptr_t dx_dst = view_p->strides[0];
+    Py_intptr_t dy_dst = view_p->strides[1];
+    Py_intptr_t dp_dst = view_p->strides[2];
     Py_intptr_t dz_dst = 1;
     Py_intptr_t dz_pix;
     Py_intptr_t x, y, z;
     _pc_pixel_t pixel = { 0 };
     Uint8 r, g, b;
 
-    if (inter->shape[0] != w ||
-        inter->shape[1] != h ||
-        inter->shape[2] != 3    ) {
+    if (view_p->shape[0] != w ||
+        view_p->shape[1] != h ||
+        view_p->shape[2] != 3    ) {
         PyErr_Format(PyExc_ValueError,
                      "Expected a (%d, %d, 3) target: got (%d, %d, %d)",
                      w, h,
-                     (int)inter->shape[0],
-                     (int)inter->shape[1],
-                     (int)inter->shape[2]);
+                     (int)view_p->shape[0],
+                     (int)view_p->shape[1],
+                     (int)view_p->shape[2]);
         return -1;
     }
     if (intsize < 1) {
@@ -324,13 +397,13 @@ _copy_unmapped(PyArrayInterface *inter, SDL_Surface *surf)
     }
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
     dz_pix = 0;
-    if (!(inter->flags & PAI_NOTSWAPPED)) {
+    if (_is_swapped(view_p)) {
         dst += intsize - 1;
         dz_dst = -1;
     }
 #else
     dz_pix = (unsigned)(sizeof(Uint32) - pixelsize - 1);
-    if (inter->flags & PAI_NOTSWAPPED) {
+    if (!_is_swapped(view_p)) {
         dst += intsize - 1;
         dz_dst = -1;
     }
@@ -425,8 +498,8 @@ static PyObject*
 array_to_surface(PyObject *self, PyObject *arg)
 {
     PyObject *surfobj, *arrayobj;
-    PyObject *cobj;
-    PyArrayInterface *inter;
+    Pg_buffer pg_view;
+    Py_buffer *view_p = (Py_buffer *)&pg_view;
     char *array_data;
     SDL_Surface* surf;
     SDL_PixelFormat* format;
@@ -440,40 +513,29 @@ array_to_surface(PyObject *self, PyObject *arg)
     surf = PySurface_AsSurface(surfobj);
     format = surf->format;
     
-    if (Pg_GetArrayInterface(arrayobj, &cobj, &inter)) {
+    if (PgObject_GetBuffer(arrayobj, &pg_view, PyBUF_RECORDS_RO)) {
         return 0;
     }
 
-    switch (inter->typekind) {
-    case 'i':  /* integer */
-        break;
-    case 'u':  /* unsigned integer */ 
-        break;
-    case 'S':  /* fixed length character field */
-        break;
-    case 'V':  /* structured element: record */
-        break;
-    default:
-        Py_DECREF(cobj);
-        PyErr_Format(PyExc_ValueError, "unsupported array type '%c'",
-                     inter->typekind);
-        return NULL;
+    if (_validate_view_format(view_p->format)) {
+        return 0;
     }
 
-    if (!(inter->nd == 2 || (inter->nd == 3 && inter->shape[2] == 3)))
+    if (!(view_p->ndim == 2 || (view_p->ndim == 3 && view_p->shape[2] == 3))) {
         return RAISE(PyExc_ValueError, "must be a valid 2d or 3d array\n");
+    }
 
     if (surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4)
         return RAISE(PyExc_ValueError, "unsupport bit depth for surface");
 
-    stridex = inter->strides[0];
-    stridey = inter->strides[1];
-    if (inter->nd == 3) {
-        stridez = inter->strides[2];
+    stridex = view_p->strides[0];
+    stridey = view_p->strides[1];
+    if (view_p->ndim == 3) {
+        stridez = view_p->strides[2];
         stridez2 = stridez*2;
     }
-    sizex = inter->shape[0];
-    sizey = inter->shape[1];
+    sizex = view_p->shape[0];
+    sizey = view_p->shape[1];
     Rloss = format->Rloss; Gloss = format->Gloss; Bloss = format->Bloss;
     Rshift = format->Rshift; Gshift = format->Gshift; Bshift = format->Bshift;
 
@@ -488,20 +550,20 @@ array_to_surface(PyObject *self, PyObject *arg)
     }
 
     if (sizex != surf->w || sizey != surf->h) {
-        Py_DECREF(cobj);
+        PgBuffer_Release(&pg_view);
         return RAISE(PyExc_ValueError, "array must match surface dimensions");
     }
     if (!PySurface_LockBy(surfobj, arrayobj)) {
-        Py_DECREF(cobj);
+        PgBuffer_Release(&pg_view);
         return NULL;
     }
     
-    array_data = (char *)inter->data;
+    array_data = (char *)view_p->buf;
 
     switch (surf->format->BytesPerPixel) {
     case 1:
-        if (inter->nd == 2) {
-            switch (inter->itemsize) {
+        if (view_p->ndim == 2) {
+            switch (view_p->itemsize) {
             case sizeof (Uint8):
                 COPYMACRO_2D(Uint8, Uint8);
                 break;
@@ -515,7 +577,7 @@ array_to_surface(PyObject *self, PyObject *arg)
                 COPYMACRO_2D(Uint8, Uint64);
                 break;
             default:
-                Py_DECREF(cobj);
+                PgBuffer_Release(&pg_view);
                 if (!PySurface_UnlockBy(surfobj, arrayobj)) {
                     return NULL;
                 }
@@ -524,7 +586,7 @@ array_to_surface(PyObject *self, PyObject *arg)
             }
         }
         else {
-            Py_DECREF(cobj);
+            PgBuffer_Release(&pg_view);
             if (!PySurface_UnlockBy(surfobj, arrayobj)) {
                 return NULL;
             }
@@ -533,8 +595,8 @@ array_to_surface(PyObject *self, PyObject *arg)
         }
         break;
     case 2:
-        if (inter->nd == 2) {
-            switch (inter->itemsize) {
+        if (view_p->ndim == 2) {
+            switch (view_p->itemsize) {
             case sizeof (Uint16):
                 COPYMACRO_2D(Uint16, Uint16);
                 break;
@@ -545,7 +607,7 @@ array_to_surface(PyObject *self, PyObject *arg)
                 COPYMACRO_2D(Uint16, Uint64);
                 break;
             default:
-                Py_DECREF(cobj);
+                PgBuffer_Release(&pg_view);
                 if (!PySurface_UnlockBy(surfobj, arrayobj)) {
                     return NULL;
                 }
@@ -558,7 +620,7 @@ array_to_surface(PyObject *self, PyObject *arg)
             if (format->Amask) {
                 alpha = 255 >> format->Aloss << format->Ashift;
             }
-            switch (inter->itemsize) {
+            switch (view_p->itemsize) {
             case sizeof (Uint8):
                 COPYMACRO_3D(Uint16, Uint8);
                 break;
@@ -572,7 +634,7 @@ array_to_surface(PyObject *self, PyObject *arg)
                 COPYMACRO_3D(Uint16, Uint64);
                 break;
             default:
-                Py_DECREF(cobj);
+                PgBuffer_Release(&pg_view);
                 if (!PySurface_UnlockBy(surfobj, arrayobj)) {
                     return NULL;
                 }
@@ -585,8 +647,8 @@ array_to_surface(PyObject *self, PyObject *arg)
         /* Assumption: The rgb components of a 24 bit pixel are in
            separate bytes.
         */
-        if (inter->nd == 2) {
-            switch (inter->itemsize) {
+        if (view_p->ndim == 2) {
+            switch (view_p->itemsize) {
             case sizeof (Uint32):
                 COPYMACRO_2D_24(Uint32);
                 break;
@@ -594,7 +656,7 @@ array_to_surface(PyObject *self, PyObject *arg)
                 COPYMACRO_2D_24(Uint64);
                 break;
             default:
-                Py_DECREF(cobj);
+                PgBuffer_Release(&pg_view);
                 if (!PySurface_UnlockBy(surfobj, arrayobj)) {
                     return NULL;
                 }
@@ -624,7 +686,7 @@ array_to_surface(PyObject *self, PyObject *arg)
                                 Gshift == 16 ? stridez  :
                                                stridez2   );
 #endif
-            switch (inter->itemsize) {
+            switch (view_p->itemsize) {
             case sizeof (Uint8):
                 COPYMACRO_3D_24(Uint8);
                 break;
@@ -638,7 +700,7 @@ array_to_surface(PyObject *self, PyObject *arg)
                 COPYMACRO_3D_24(Uint64);
                 break;
             default:
-                Py_DECREF(cobj);
+                PgBuffer_Release(&pg_view);
                 if (!PySurface_UnlockBy(surfobj, arrayobj)) {
                     return NULL;
                 }
@@ -648,8 +710,8 @@ array_to_surface(PyObject *self, PyObject *arg)
         }
         break;
     case 4:
-        if (inter->nd == 2) {
-            switch (inter->itemsize) {
+        if (view_p->ndim == 2) {
+            switch (view_p->itemsize) {
             case sizeof (Uint32):
                 COPYMACRO_2D(Uint32, Uint32);
                 break;
@@ -657,7 +719,7 @@ array_to_surface(PyObject *self, PyObject *arg)
                 COPYMACRO_2D(Uint32, Uint64);
                 break;
             default:
-                Py_DECREF(cobj);
+                PgBuffer_Release(&pg_view);
                 if (!PySurface_UnlockBy(surfobj, arrayobj)) {
                     return NULL;
                 }
@@ -670,7 +732,7 @@ array_to_surface(PyObject *self, PyObject *arg)
             if (format->Amask) {
                 alpha = 255 >> format->Aloss << format->Ashift;
             }
-            switch (inter->itemsize) {
+            switch (view_p->itemsize) {
             case sizeof (Uint8):
                 COPYMACRO_3D(Uint32, Uint8);
                 break;
@@ -684,7 +746,7 @@ array_to_surface(PyObject *self, PyObject *arg)
                 COPYMACRO_3D(Uint32, Uint64);
                 break;
             default:
-                Py_DECREF(cobj);
+                PgBuffer_Release(&pg_view);
                 if (!PySurface_UnlockBy(surfobj, arrayobj)) {
                     return NULL;
                 }
@@ -694,14 +756,14 @@ array_to_surface(PyObject *self, PyObject *arg)
         }
         break;
     default:
-        Py_DECREF(cobj);
+        PgBuffer_Release(&pg_view);
         if (!PySurface_UnlockBy(surfobj, arrayobj)) {
             return NULL;
         }
         return RAISE(PyExc_RuntimeError, "unsupported bit depth for image");
     }
     
-    Py_DECREF(cobj);
+    PgBuffer_Release(&pg_view);
     if (!PySurface_UnlockBy(surfobj, arrayobj)) {
         return NULL;
     }
@@ -713,12 +775,12 @@ surface_to_array(PyObject *self, PyObject *args, PyObject *kwds)
 {
     PyObject *arrayobj;
     PyObject *surfobj;
-    PyObject *cobj;
+    Pg_buffer pg_view;
+    Py_buffer *view_p = (Py_buffer *)&pg_view;
     _pc_view_kind_t view_kind = VIEWKIND_RGB;
     Uint8 opaque = 255;
     Uint8 clear = 0;
     SDL_Surface *surf;
-    PyArrayInterface *inter;
     char *keywords[] = {"array", "surface", "kind", "opaque", "clear", 0};
 
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "OO!|O&BB", keywords,
@@ -733,62 +795,55 @@ surface_to_array(PyObject *self, PyObject *args, PyObject *kwds)
     }
     surf = PySurface_AsSurface(surfobj);
     
-    if (Pg_GetArrayInterface(arrayobj, &cobj, &inter)) {
+    if (PgObject_GetBuffer(arrayobj, &pg_view, PyBUF_RECORDS)) {
         PySurface_Unlock(surfobj);
         return 0;
     }
-    if (!(inter->flags & PAI_WRITEABLE)) {
-        PyErr_SetString(PyExc_ValueError, "target not writeable");
-        Py_DECREF(cobj);
-        PySurface_Unlock(surfobj);
-        return 0;
-    }
-    if (!(inter->typekind == 'u' || inter->typekind == 'i')) {
-        PyErr_SetString(PyExc_ValueError, "unsupported array item type");
-        Py_DECREF(cobj);
+    if (_validate_view_format(view_p->format)) {
+        PgBuffer_Release(&pg_view);
         PySurface_Unlock(surfobj);
         return 0;
     }
 
-    if (inter->nd == 2) {
+    if (view_p->ndim == 2) {
         if (view_kind == VIEWKIND_RGB) {
-            if (_copy_mapped(inter, surf)) {
-                Py_DECREF(cobj);
+            if (_copy_mapped(view_p, surf)) {
+                PgBuffer_Release(&pg_view);
                 PySurface_Unlock(surfobj);
                 return 0;
             }
         }
         else {
-            if (_copy_colorplane(inter, surf, view_kind, opaque, clear)) {
-                Py_DECREF(cobj);
+            if (_copy_colorplane(view_p, surf, view_kind, opaque, clear)) {
+                PgBuffer_Release(&pg_view);
                 PySurface_Unlock(surfobj);
                 return 0;
             }
         }
     }
-    else if (inter->nd == 3) {
+    else if (view_p->ndim == 3) {
         if (view_kind != VIEWKIND_RGB) {
             PyErr_SetString(PyExc_ValueError,
                             "color planes only supported for 2d targets");
-            Py_DECREF(cobj);
+            PgBuffer_Release(&pg_view);
             PySurface_Unlock(surfobj);
             return 0;
         }
-        if (_copy_unmapped(inter, surf)) {
-            Py_DECREF(cobj);
+        if (_copy_unmapped(view_p, surf)) {
+            PgBuffer_Release(&pg_view);
             PySurface_Unlock(surfobj);
             return 0;
         }
     }
     else {
-        Py_DECREF(cobj);
+        PgBuffer_Release(&pg_view);
         PySurface_Unlock(surfobj);
         PyErr_Format(PyExc_ValueError,
-                     "Unsupported array depth %d", (int)inter->nd);
+                     "Unsupported array depth %d", (int)view_p->ndim);
         return 0;
     }
 
-    Py_DECREF(cobj);
+    PgBuffer_Release(&pg_view);
     if (!PySurface_Unlock(surfobj)) {
         return 0;
     }
@@ -803,16 +858,16 @@ map_array(PyObject *self, PyObject *args)
     PyObject *tar_array;
     PyObject *format_surf;
     SDL_PixelFormat *format;
-    PyObject *src_cobj = 0;
-    PyObject *tar_cobj = 0;
-    PyArrayInterface *src_inter;
+    Pg_buffer src_pg_view;
+    Py_buffer *src_view_p = 0;
     Uint8 *src;
     int src_ndim;
     Py_intptr_t src_strides[PIXELCOPY_MAX_DIM];
     const int src_red = 0;
     int src_green;
     int src_blue;
-    PyArrayInterface *tar_inter;
+    Pg_buffer tar_pg_view;
+    Py_buffer *tar_view_p = 0;
     Uint8 *tar;
     int ndim;
     Py_intptr_t *shape;
@@ -851,22 +906,19 @@ map_array(PyObject *self, PyObject *args)
 
     /* Determine array shapes and check validity
      */
-    if (Pg_GetArrayInterface(tar_array, &tar_cobj, &tar_inter)) {
+    if (PgObject_GetBuffer(tar_array, &tar_pg_view, PyBUF_RECORDS)) {
         goto fail;
     }
-    if (!(tar_inter->flags & PAI_WRITEABLE)) {
-        PyErr_SetString(PyExc_ValueError, "target not writeable");
-        goto fail;
-    }
-    tar = (Uint8 *)tar_inter->data;
-    if (tar_inter->typekind != 'u' && tar_inter->typekind != 'i') {
+    tar_view_p = (Py_buffer *)&tar_pg_view;
+    tar = (Uint8 *)tar_view_p->buf;
+    if (_validate_view_format(tar_view_p->format)) {
         PyErr_SetString(PyExc_ValueError, "expected an integer target array");
         goto fail;
     }
-    ndim = tar_inter->nd;
-    tar_itemsize = tar_inter->itemsize;
-    shape = tar_inter->shape;
-    tar_strides = tar_inter->strides;
+    ndim = tar_view_p->ndim;
+    tar_itemsize = tar_view_p->itemsize;
+    shape = tar_view_p->shape;
+    tar_strides = tar_view_p->strides;
     if (ndim < 1) {
         PyErr_SetString(PyExc_ValueError, "target array must be at least 1D");
         goto fail;
@@ -877,23 +929,23 @@ map_array(PyObject *self, PyObject *args)
                      (int)PIXELCOPY_MAX_DIM);
         goto fail;
     }
-    if (Pg_GetArrayInterface(src_array, &src_cobj, &src_inter)) {
+    if (PgObject_GetBuffer(src_array, &src_pg_view, PyBUF_RECORDS_RO)) {
         goto fail;
     }
-    if (src_inter->typekind != 'u' && src_inter->typekind != 'i') {
-        PyErr_SetString(PyExc_ValueError, "expected an integer source array");
+    src_view_p = (Py_buffer *)&src_pg_view;
+    if (_validate_view_format(src_view_p->format)) {
         goto fail;
     }
-    src = (Uint8 *)src_inter->data;
-    src_ndim = src_inter->nd;
+    src = (Uint8 *)src_view_p->buf;
+    src_ndim = src_view_p->ndim;
     if (src_ndim < 1) {
         PyErr_SetString(PyExc_ValueError, "source array must be at least 1D");
         goto fail;
     }
-    if (src_inter->shape[src_ndim - 1] != 3) {
+    if (src_view_p->shape[src_ndim - 1] != 3) {
         PyErr_Format(PyExc_ValueError,
                      "Expected a (..., 3) source array: got (..., %d)",
-                     src_inter->shape[src_ndim - 1]);
+                     src_view_p->shape[src_ndim - 1]);
         goto fail;
     }
     if (ndim < src_ndim - 1) {
@@ -908,11 +960,11 @@ map_array(PyObject *self, PyObject *args)
     }
     dim_diff = ndim - src_ndim + 1;
     for (dim = dim_diff; dim != ndim; ++dim) {
-        if (src_inter->shape[dim - dim_diff] == 1) {
+        if (src_view_p->shape[dim - dim_diff] == 1) {
             src_strides[dim] = 0;
         }
-        else if (src_inter->shape[dim - dim_diff] == shape[dim]) {
-            src_strides[dim] = src_inter->strides[dim - dim_diff];
+        else if (src_view_p->shape[dim - dim_diff] == shape[dim]) {
+            src_strides[dim] = src_view_p->strides[dim - dim_diff];
         }
         else {
             PyErr_Format(PyExc_ValueError,
@@ -938,7 +990,7 @@ map_array(PyObject *self, PyObject *args)
                         "target array itemsize is too small for pixel format");
         goto fail;
     }
-    src_green = src_inter->strides[src_ndim - 1];
+    src_green = src_view_p->strides[src_ndim - 1];
     src_blue = 2 * src_green;
     tar_byte4 = pix_bytesize;
     tar_bytes_end = tar_itemsize;
@@ -970,20 +1022,20 @@ map_array(PyObject *self, PyObject *args)
     pix_byte2 = tar_byte2;
     pix_byte3 = tar_byte3;
 
-#define NEED_BYTESWAP(inter) (!((inter)->flags & PAI_NOTSWAPPED))
+#define NEED_BYTESWAP(view_p) _is_swapped(view_p)
 #else
     pix_byte0 = 3 - tar_byte0;
     pix_byte1 = 3 - tar_byte1;
     pix_byte2 = 3 - tar_byte2;
     pix_byte3 = 3 - tar_byte3;
 
-#define NEED_BYTESWAP(inter) ((inter)->flags & PAI_NOTSWAPPED)
+#define NEED_BYTESWAP(view_p) (!_is_swapped(view_p))
 #endif
-    if (NEED_BYTESWAP(src_inter)) {
-        src += src_inter->strides[src_ndim - 1] - 1;
+    if (NEED_BYTESWAP(src_view_p)) {
+        src += src_view_p->strides[src_ndim - 1] - 1;
     }
-    if (NEED_BYTESWAP(tar_inter)) {
-        tar += tar_strides[ndim - 1] - 1;
+    if (NEED_BYTESWAP(tar_view_p)) {
+        tar += tar_view_p->strides[ndim - 1] - 1;
         tar_byte1 = -tar_byte1;
         tar_byte2 = -tar_byte2;
         tar_byte3 = -tar_byte3;
@@ -1034,16 +1086,20 @@ map_array(PyObject *self, PyObject *args)
 
     /* Cleanup
      */
-    Py_DECREF(src_cobj);
-    Py_DECREF(tar_cobj);
+    PgBuffer_Release(&src_pg_view);
+    PgBuffer_Release(&tar_pg_view);
     if (!PySurface_Unlock(format_surf)) {
         return 0;
     }
     Py_RETURN_NONE;
 
   fail:
-    Py_XDECREF(src_cobj);
-    Py_XDECREF(tar_cobj);
+    if (src_view_p) {
+        PgBuffer_Release(&src_pg_view);
+    }
+    if (tar_view_p) {
+        PgBuffer_Release(&tar_pg_view);
+    }
     PySurface_Unlock(format_surf);
     return 0;
 }
@@ -1051,8 +1107,8 @@ map_array(PyObject *self, PyObject *args)
 static PyObject*
 make_surface (PyObject* self, PyObject* arg)
 {
-    PyArrayInterface *inter;
-    PyObject *capsule;
+    Pg_buffer pg_view;
+    Py_buffer *view_p = (Py_buffer *)&pg_view;
     PyObject *surfobj;
     PyObject *args;
     PyObject *result;
@@ -1060,30 +1116,20 @@ make_surface (PyObject* self, PyObject* arg)
     int sizex, sizey, bitsperpixel;
     Uint32 rmask, gmask, bmask;
 
-    if (Pg_GetArrayInterface(arg, &capsule, &inter)) {
+    if (PgObject_GetBuffer(arg, &pg_view, PyBUF_RECORDS_RO)) {
         return 0;
     }
     
-    if (!(inter->nd == 2 || (inter->nd == 3 && inter->shape[2] == 3))) {
+    if (!(view_p->ndim == 2 || (view_p->ndim == 3 && view_p->shape[2] == 3))) {
+        PgBuffer_Release(&pg_view);
         return RAISE (PyExc_ValueError, "must be a valid 2d or 3d array\n");
     }
-    switch (inter->typekind) {
-    case 'i':  /* integer */
-        break;
-    case 'u':  /* unsigned integer */ 
-        break;
-    case 'S':  /* fixed length character field */
-        break;
-    case 'V':  /* structured element: record */
-        break;
-    default:
-        Py_DECREF(capsule);
-        PyErr_Format(PyExc_ValueError, "unsupported array type '%c'",
-                     inter->typekind);
+    if (_validate_view_format(view_p->format)) {
+        PgBuffer_Release(&pg_view);
         return NULL;
     }
     
-    if (inter->nd == 2) {
+    if (view_p->ndim == 2) {
         bitsperpixel = 8;
         rmask = 0xFF >> 6 << 5;
         gmask = 0xFF >> 5 << 2;
@@ -1095,31 +1141,31 @@ make_surface (PyObject* self, PyObject* arg)
         gmask = 0xFF << 8;
         bmask = 0xFF;
     }
-    sizex = inter->shape[0];
-    sizey = inter->shape[1];
+    sizex = view_p->shape[0];
+    sizey = view_p->shape[1];
 
     surf = SDL_CreateRGBSurface (0, sizex, sizey, bitsperpixel, rmask, gmask,
                                  bmask, 0);
     if (!surf) {
-        Py_DECREF(capsule);
+        PgBuffer_Release(&pg_view);
         return RAISE(PyExc_SDLError, SDL_GetError());
     }
     surfobj = PySurface_New(surf);
     if (!surfobj) {
-        Py_DECREF(capsule);
+        PgBuffer_Release(&pg_view);
         SDL_FreeSurface(surf);
         return 0;
     }
     
     args = Py_BuildValue("(OO)", surfobj, arg);
     if (!args) {
-        Py_DECREF(capsule);
+        PgBuffer_Release(&pg_view);
         Py_DECREF(surfobj);
         return 0;
     }
     
     result = array_to_surface(self, args);
-    Py_DECREF(capsule);
+    PgBuffer_Release(&pg_view);
     Py_DECREF(args);
 
     if (!result)
@@ -1164,10 +1210,6 @@ MODINIT_DEFINE(pixelcopy)
         MODINIT_ERROR;
     }
     import_pygame_surface();
-    if (PyErr_Occurred()) {
-        MODINIT_ERROR;
-    }
-    import_pygame_view();
     if (PyErr_Occurred()) {
         MODINIT_ERROR;
     }
