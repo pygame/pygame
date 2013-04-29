@@ -251,15 +251,53 @@ class BufferProxyTest(unittest.TestCase):
         self.assertEqual(r[:2], '*<')
         self.assertEqual(r[-2:], '>*')
 
-    if sys.version_info >= (3,):
+    if pygame.HAVE_NEWBUF:
         def test_newbuf_arg(self):
             self.NEWBUF_test_newbuf_arg()
 
     def NEWBUF_test_newbuf_arg(self):
-        from array import array
+        from pygame.newbuffer import BufferMixin
+        from ctypes import (c_char, c_short, c_ssize_t, addressof, sizeof,
+                            create_string_buffer, cast, POINTER)
+        
+        class Array(BufferMixin):
+            def __init__(self, format, init):
+                if format == 'B':
+                    c_itemtype = c_char
+                elif format == 'h':
+                    c_itemtype = c_short
+                else:
+                    raise ValueError("Unknown item format '" + format + "'")
+                self._format = create_string_buffer(format.encode('ascii'))
+                self.itemsize = sizeof(c_itemtype)
+                self._nitems = len(init)
+                self._len = self._nitems * self.itemsize
+                self.buffer = (c_itemtype * self._nitems)(*init)
+                self._len = sizeof(self.buffer)
+                self.ndim = 1
+                self.shape = (c_ssize_t * 1)(self._nitems)
+                self.strides = (c_ssize_t * 1)(self.itemsize)
+            def buffer_info(self):
+                return (addressof(self.buffer), self._nitems)
+            def tobytes(self):
+                return cast(self.buffer, POINTER(c_char))[0:self._len]
+            def __len__(self):
+                return self._nitems
+            def _get_buffer(self, view, flags):
+                view.buf = addressof(self.buffer)
+                view.len = self._len
+                view.readonly = False
+                view.format = addressof(self._format)
+                view.itemsize = self.itemsize
+                view.ndim = self.ndim
+                view.shape = addressof(self.shape)
+                view.strides = addressof(self.strides)
+                view.suboffsets = None
+                view.internal = None
+                view.obj = self
 
         raw = as_bytes('abc\x00def')
-        b = array('B', raw)
+        b = Array('B', raw)
         b_address, b_nitems = b.buffer_info()
         v = BufferProxy(b)
         self.assertEqual(v.length, len(b))
@@ -272,7 +310,7 @@ class BufferProxyTest(unittest.TestCase):
             self.assertEqual(d['data'], (b_address, False))
         finally:
             d = None
-        b = array('h', [-1, 0, 2])
+        b = Array('h', [-1, 0, 2])
         v = BufferProxy(b)
         b_address, b_nitems = b.buffer_info()
         b_nbytes = b.itemsize * b_nitems

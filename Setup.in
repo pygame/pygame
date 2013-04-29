@@ -74,4 +74,4 @@ bufferproxy src/bufferproxy.c $(SDL) $(DEBUG)
 pixelarray src/pixelarray.c $(SDL) $(DEBUG)
 math src/math.c $(SDL) $(DEBUG)
 pixelcopy src/pixelcopy.c $(SDL) $(DEBUG)
-
+newbuffer src/newbuffer.c $(DEBUG)
