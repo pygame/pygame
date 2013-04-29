@@ -177,6 +177,15 @@ if sys.version_info >= (3, 0, 0):
             extensions.append(e)
     del tmp_extensions
 
+#python2.5 and lower: remove new buffer testing framework
+if sys.version_info < (2, 6, 0):
+    posn = None
+    for i, e in enumerate(extensions):
+        if e.name == 'newbuffer':
+            posn = i
+    if (posn is not None):
+        del extensions[i]
+
 # if not building font, try replacing with ftfont
 alternate_font = os.path.join('lib', 'font.py')
 if os.path.exists(alternate_font):
