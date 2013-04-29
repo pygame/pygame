@@ -1922,7 +1922,7 @@ MODINIT_DEFINE(base)
     }
 
     /* export the c api */
-#if PYGAMEAPI_BASE_NUMSLOTS != 21
+#if PYGAMEAPI_BASE_NUMSLOTS != 19
 #warning export slot count mismatch
 #endif
     c_api[0] = PyExc_SDLError;
@@ -1938,14 +1938,12 @@ MODINIT_DEFINE(base)
     c_api[10] = PyGame_Video_AutoQuit;
     c_api[11] = PyGame_Video_AutoInit;
     c_api[12] = RGBAFromObj;
-    c_api[13] = ArrayStructAsDict;
-    c_api[14] = PgBuffer_AsArrayInterface;
-    c_api[15] = GetArrayStruct;
-    c_api[16] = PgBuffer_AsArrayStruct;
-    c_api[17] = PgObject_GetBuffer;
-    c_api[18] = PgBuffer_Release;
-    c_api[19] = PgDict_AsBuffer;
-    c_api[20] = PgExc_BufferError;
+    c_api[13] = PgBuffer_AsArrayInterface;
+    c_api[14] = PgBuffer_AsArrayStruct;
+    c_api[15] = PgObject_GetBuffer;
+    c_api[16] = PgBuffer_Release;
+    c_api[17] = PgDict_AsBuffer;
+    c_api[18] = PgExc_BufferError;
     apiobj = encapsulate_api (c_api, "base");
     if (apiobj == NULL) {
         Py_XDECREF (atexit_register);

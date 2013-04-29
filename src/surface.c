@@ -28,7 +28,6 @@
 #include "structmember.h"
 #include "pgcompat.h"
 #include "pgbufferproxy.h"
-#include "pgarrinter.h"
 
 typedef enum {
     VIEWKIND_0D = 0,
