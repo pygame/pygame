@@ -956,15 +956,20 @@ class PixelArrayArrayInterfaceTest (unittest.TestCase, TestMixin):
     def test_flags (self):
         aim = arrinter
         common_flags = (aim.PAI_NOTSWAPPED | aim.PAI_WRITEABLE |
-                        aim.PAI_ALIGNED | aim.PAI_FORTRAN)
+                        aim.PAI_ALIGNED)
         s = pygame.Surface ((10, 2), 0, 32)
         ar = pygame.PixelArray (s)
         ai = aim.ArrayInterface (ar)
-        self.assertEqual (ai.flags, common_flags | aim.PAI_CONTIGUOUS)
+        self.assertEqual (ai.flags, common_flags | aim.PAI_FORTRAN)
 
         ar2 = ar[::2,:]
         ai = aim.ArrayInterface (ar2)
         self.assertEqual (ai.flags, common_flags)
+
+        s = pygame.Surface ((8, 2), 0, 24)
+        ar = pygame.PixelArray (s)
+        ai = aim.ArrayInterface (ar)
+        self.assertEqual (ai.flags, common_flags | aim.PAI_FORTRAN)
 
         s = pygame.Surface ((7, 2), 0, 24)
         ar = pygame.PixelArray (s)
@@ -1032,6 +1037,40 @@ class PixelArrayArrayInterfaceTest (unittest.TestCase, TestMixin):
             sf2 = ar2.make_surface ()
             sf3 = pygame.pixelcopy.make_surface (ar2)
             self.assert_surfaces_equal (sf3, sf2)
+
+
+class PixelArrayNewBufferTest (unittest.TestCase, TestMixin):
+    if pygame.HAVE_NEWBUF:
+        def test_newbuf (self):
+            self.NEWBUF_test_newbuf()
+
+    def NEWBUF_test_newbuf (self):
+        class PixelArrayNewbuf (pygame.PixelArray):
+            __array_struct__ = property (lambda self: None)
+            __array_interface__ = property (lambda self: None)
+
+        typechar_of_bitsize = {8: 'u', 16: 'u', 24: 'V', 32: 'u'}
+        
+        s = pygame.Surface ((10, 2), 0, 32)
+        ar = PixelArrayNewbuf (s)
+        self.assertTrue (ar.__array_struct__ is None)
+        self.assertTrue (ar.__array_interface__ is None)
+
+        for bit_size in [8, 16, 24, 32]:
+            s = pygame.Surface ((10, 2), 0, bit_size)
+            ar = PixelArrayNewbuf (s)
+            bp = pygame.bufferproxy.BufferProxy (ar)
+            ai = arrinter.ArrayInterface (bp)
+            itemsize = s.get_bytesize()
+            self.assertEqual (ai.nd, 2)
+            self.assertEqual (ai.itemsize, itemsize)
+            self.assertEqual (ai.typekind, typechar_of_bitsize[bit_size])
+            self.assertEqual ((ai.shape[0], ai.shape[1]), s.get_size())
+            self.assertEqual ((ai.strides[0], ai.strides[1]),
+                              (itemsize, s.get_pitch()))
+            self.assertEqual (ai.data, s._pixels_address)
+            self.assertTrue (ai.flags & arrinter.PAI_WRITEABLE)
+
 
 if __name__ == '__main__':
     unittest.main()

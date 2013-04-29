@@ -91,7 +91,9 @@ _get_color_from_object(PyObject *val, SDL_PixelFormat *format, Uint32 *color)
 static PyObject *
 _get_single_pixel(PyPixelArray *array, Uint32 x, Uint32 y)
 {
-    Uint8 *pixel_p = array->pixels + x * array->stride0 + y * array->stride1;
+    Uint8 *pixel_p = (array->pixels +
+                      x * array->strides[0] +
+                      y * array->strides[1]);
     SDL_Surface *surf = PySurface_AsSurface(array->surface);
     int bpp;
     Uint32 pixel;
@@ -135,10 +137,10 @@ _make_surface(PyPixelArray *array)
 {
     SDL_Surface *surf = PySurface_AsSurface(array->surface);
     int bpp;
-    Py_ssize_t dim0 = array->dim0;
-    Py_ssize_t dim1 = array->dim1 ? array->dim1 : 1;
-    Py_ssize_t stride0 = array->stride0;
-    Py_ssize_t stride1 = array->stride1;
+    Py_ssize_t dim0 = array->shape[0];
+    Py_ssize_t dim1 = array->shape[1] ? array->shape[1] : 1;
+    Py_ssize_t stride0 = array->strides[0];
+    Py_ssize_t stride1 = array->strides[1];
     PyObject *new_surface;
     SDL_Surface *temp_surf;
     SDL_Surface *new_surf;
@@ -356,10 +358,10 @@ _replace_color(PyPixelArray *array, PyObject *args, PyObject *kwds)
     PyObject *replcolor = 0;
     SDL_Surface *surf = PySurface_AsSurface(array->surface);
     SDL_PixelFormat *format;
-    Py_ssize_t dim0 = array->dim0;
-    Py_ssize_t dim1 = array->dim1;
-    Py_ssize_t stride0 = array->stride0;
-    Py_ssize_t stride1 = array->stride1;
+    Py_ssize_t dim0 = array->shape[0];
+    Py_ssize_t dim1 = array->shape[1];
+    Py_ssize_t stride0 = array->strides[0];
+    Py_ssize_t stride1 = array->strides[1];
     Uint8 *pixels = array->pixels;
     int bpp;
     Uint32 dcolor;
@@ -583,10 +585,10 @@ _extract_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
     surf = PySurface_AsSurface(surface);
     format = surf->format;
     bpp = surf->format->BytesPerPixel;
-    dim0 = new_array->dim0;
-    dim1 = new_array->dim1;
-    stride0 = new_array->stride0;
-    stride1 = new_array->stride1;
+    dim0 = new_array->shape[0];
+    dim1 = new_array->shape[1];
+    stride0 = new_array->strides[0];
+    stride1 = new_array->strides[1];
     pixels = new_array->pixels;
 
     black = SDL_MapRGBA(format, 0, 0, 0, 255);
@@ -757,8 +759,8 @@ _extract_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
 static PyObject *
 _compare(PyPixelArray *array, PyObject *args, PyObject *kwds)
 {
-    Py_ssize_t dim0 = array->dim0;
-    Py_ssize_t dim1 = array->dim1;
+    Py_ssize_t dim0 = array->shape[0];
+    Py_ssize_t dim1 = array->shape[1];
     SDL_Surface *surf = PySurface_AsSurface(array->surface);
     SDL_PixelFormat *format;
     PyPixelArray *other_array;
@@ -805,7 +807,7 @@ _compare(PyPixelArray *array, PyObject *args, PyObject *kwds)
         return 0;
     }
 
-    if (other_array->dim0 != dim0 || other_array->dim1 != dim1) {
+    if (other_array->shape[0] != dim0 || other_array->shape[1] != dim1) {
          /* Bounds do not match. */
         PyErr_SetString(PyExc_ValueError, "array sizes do not match");
         return 0;
@@ -823,8 +825,8 @@ _compare(PyPixelArray *array, PyObject *args, PyObject *kwds)
         return 0;
     }
 
-    other_stride0 = other_array->stride0;
-    other_stride1 = other_array->stride1;
+    other_stride0 = other_array->strides[0];
+    other_stride1 = other_array->strides[1];
     other_pixels = other_array->pixels;
 
     /* Create the b/w mask surface. */
@@ -840,8 +842,8 @@ _compare(PyPixelArray *array, PyObject *args, PyObject *kwds)
     }
 
     new_format = surf->format;
-    stride0 = new_array->stride0;
-    stride1 = new_array->stride1;
+    stride0 = new_array->strides[0];
+    stride1 = new_array->strides[1];
     pixels = new_array->pixels;
 
     black = SDL_MapRGBA(format, 0, 0, 0, 255);
@@ -1043,13 +1045,13 @@ static PyObject *
 _transpose(PyPixelArray *array)
 {
     SDL_Surface *surf = PySurface_AsSurface(array->surface);
-    Py_ssize_t dim0 = array->dim1 ? array->dim1 : 1;
-    Py_ssize_t dim1 = array->dim0;
+    Py_ssize_t dim0 = array->shape[1] ? array->shape[1] : 1;
+    Py_ssize_t dim1 = array->shape[0];
     Py_ssize_t stride0;
-    Py_ssize_t stride1 = array->stride0;
+    Py_ssize_t stride1 = array->strides[0];
 
-    stride0 = array->dim1 ?
-        array->stride1 : array->dim0 * surf->format->BytesPerPixel;
+    stride0 = array->shape[1] ?
+        array->strides[1] : array->shape[0] * surf->format->BytesPerPixel;
 
     return (PyObject *)_pxarray_new_internal(&PyPixelArray_Type,
                                              0, array, array->pixels,
