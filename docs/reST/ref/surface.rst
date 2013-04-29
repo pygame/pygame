@@ -783,11 +783,13 @@
       | :sl:`return a buffer view of the Surface's pixels.`
       | :sg:`get_buffer(<kind>='&') -> BufferProxy`
 
-      Return an object which exposes a surface's internal pixel buffer as
-      an array interface or a buffer interface. The buffer is writeable. For
+      Return an object which exports a surface's internal pixel buffer as
+      a C level array struct, Python level array interface or a C level 
+      buffer interface. The pixel buffer is writeable. The new buffer protocol
+      is supported for Python 2.6 and up in CPython. The old buffer protocol
+      is also supported for Python 2.x. The old buffer data is in one segment
+      for kind '&' and '0', multi-segment for other buffer view kinds.
       Python 2.x, only the classic buffer view is available, for the '&' kind.
-      For Python 3.x the new buffer interface is exposed, and is available
-      for all buffer kinds.
 
       The kind argument is the length 1 string '&', '0', '1', '2', '3',
       'r', 'g', 'b', or 'a'. The letters are case insensitive;
@@ -801,8 +803,8 @@
       '0' returns a continguous unstructured bytes view.
       A ValueError is raised if the surface's pixels are discontinuous.
       
-      '1' returns a (surface-width * surface-height) array of continguous pixels.
-      A ValueError is raised if the surface pixels are discontinuous.
+      '1' returns a (surface-width * surface-height) array of continguous
+      pixels. A ValueError is raised if the surface pixels are discontinuous.
       
       '2' returns a (surface-width, surface-height) array of raw pixels.
       The pixels are surface bytesized unsigned integers. The pixel format is
@@ -824,8 +826,8 @@
       when the BufferProxy object is deleted. With all other kinds, the surface
       is locked only when an exposed interface is accessed. For new buffer
       interace accesses, the surface is unlocked once the last buffer view is
-      released. For array interface accesses, the surface remains locked until the
-      BufferProxy object is released.
+      released. For array interface accesses, the surface remains locked until
+      the BufferProxy object is released.
 
       New in pygame 1.8.
       Extended in pygame 1.9.2.
