@@ -8,9 +8,7 @@
 
 | :sl:`pygame module for general pixel array copying`
 
-EXPERIMENTAL, though any future changes are likely to be backward-compatible.
-
-The :mod:`pygame.pixelcopy` module contains methods for copying between
+The :mod:`pygame.pixelcopy` module contains functions for copying between
 surfaces and objects exporting an array structure interface. It is a backend
 for :mod:`pygame.surfarray`, adding NumPy support. But pixelcopy is more,
 general, and intended for direct use (see the
