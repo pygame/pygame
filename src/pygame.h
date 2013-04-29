@@ -246,7 +246,7 @@ typedef getcharbufferproc charbufferproc;
 #define VIEW_F_ORDER       4
 
 #define PYGAMEAPI_BASE_FIRSTSLOT 0
-#define PYGAMEAPI_BASE_NUMSLOTS 21
+#define PYGAMEAPI_BASE_NUMSLOTS 19
 #ifndef PYGAMEAPI_BASE_INTERNAL
 #define PyExc_SDLError ((PyObject*)PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT])
 
@@ -289,35 +289,27 @@ typedef getcharbufferproc charbufferproc;
 #define RGBAFromObj                                                     \
     (*(int(*)(PyObject*, Uint8*))PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 12])
 
-#define ArrayStructAsDict                                               \
-    (*(PyObject*(*)(PyArrayInterface*))                                 \
-     PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 13])
-
 #define PgBuffer_AsArrayInterface                                       \
-    (*(PyObject*(*)(Py_buffer*)) PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 14])
-
-#define GetArrayInterface                                               \
-    (*(int(*)(PyObject*, PyObject**, PyArrayInterface**))               \
-     PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 15])
+    (*(PyObject*(*)(Py_buffer*)) PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 13])
 
 #define PgBuffer_AsArrayStruct                                          \
     (*(PyObject*(*)(Py_buffer*))                                        \
-     PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 16])
+     PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 14])
 
 #define PgObject_GetBuffer                                              \
     (*(int(*)(PyObject*, Pg_buffer*, int))                              \
-     PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 17])
+     PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 15])
 
 #define PgBuffer_Release                                                \
     (*(void(*)(Pg_buffer*))                                             \
-     PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 18])
+     PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 16])
 
 #define PgDict_AsBuffer                                                 \
     (*(int(*)(Pg_buffer*, PyObject*, int))                              \
-     PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 19])
+     PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 17])
 
 #define PgExc_BufferError                                               \
-    ((PyObject*)PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 20])
+    ((PyObject*)PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 18])
 
 #define import_pygame_base() IMPORT_PYGAME_MODULE(base, BASE)
 #endif
