@@ -74,7 +74,6 @@ static int PgBufproxy_Trip(PyObject *);
 static Py_buffer *_proxy_get_view (PgBufproxyObject*);
 
 /* $$ Transitional stuff */
-#warning Transitional stuff: must disappear!
 
 #define NOTIMPLEMENTED(rcode) \
     PyErr_Format(PyExc_NotImplementedError, \
