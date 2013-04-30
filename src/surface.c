@@ -2583,8 +2583,6 @@ _init_buffer (PyObject *surf, Pg_buffer *pg_view_p, int flags)
     PyObject *consumer;
     Pg_bufferinternal *internal;
 
-/* A friendly self reminder */
-#warning To: len-l@telus.net, Msg: Please clean this up!
     assert (surf &&
             pg_view_p &&
             PyObject_IsInstance (surf, (PyObject *)&PySurface_Type));

@@ -1326,7 +1326,6 @@ PgDict_AsBuffer (Pg_buffer* pg_view_p, PyObject* dict, int flags)
     PyObject* pystrides = PyDict_GetItemString (dict, "strides");
     int i;
 
-#warning I really do not know what to do with the flags argument.
     if (!pyshape) {
         PyErr_SetString (PyExc_ValueError,
                          "required \"shape\" item is missing");
@@ -1923,7 +1922,7 @@ MODINIT_DEFINE(base)
 
     /* export the c api */
 #if PYGAMEAPI_BASE_NUMSLOTS != 19
-#warning export slot count mismatch
+#error export slot count mismatch
 #endif
     c_api[0] = PyExc_SDLError;
     c_api[1] = PyGame_RegisterQuit;
