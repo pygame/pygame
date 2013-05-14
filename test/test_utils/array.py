@@ -98,22 +98,28 @@ class BufferExporter(pygame.newbuffer.BufferMixin):
         except KeyError:
             raise ValueError("Unknown item format '" + format + "'")
         self.readonly = bool(readonly)
-        self.format = ctypes.create_string_buffer(format.encode('latin_1'))
+        self.format = format
+        self._format = ctypes.create_string_buffer(format.encode('latin_1'))
         self.ndim = len(shape)
         self.itemsize = ctypes.sizeof(c_itemtype)
         self.len = reduce(operator.mul, shape, 1) * self.itemsize
-        self.shape = (ctypes.c_ssize_t * self.ndim)(*shape)
+        self.shape = tuple(shape)
+        self._shape = (ctypes.c_ssize_t * self.ndim)(*self.shape)
         if strides is None:
-            self.strides = (ctypes.c_ssize_t * self.ndim)()
-            self.strides[self.ndim - 1] = self.itemsize
+            self._strides = (ctypes.c_ssize_t * self.ndim)()
+            self._strides[self.ndim - 1] = self.itemsize
             for i in range(self.ndim - 1, 0, -1):
-                self.strides[i - 1] = self.shape[i] * self.strides[i]
+                self._strides[i - 1] = self.shape[i] * self._strides[i]
+            self.strides = tuple(self._strides)
         elif len(strides) == self.ndim:
-            self.strides = (ctypes.c_ssize_t * self.ndim)(*strides)
+            self.strides = tuple(strides)
+            self._strides = (ctypes.c_ssize_t * self.ndim)(*self.strides)
         else:
             raise ValueError("Mismatch in length of strides and shape")
         buflen =  max(self.shape[i] * self.strides[i] for i in range(self.ndim))
-        self.buffer = (ctypes.c_ubyte * buflen)()
+        self.buflen = buflen
+        self._buf = (ctypes.c_ubyte * buflen)()
+        self.buf = ctypes.addressof(self._buf)
 
     def buffer_info(self):
         return (addressof(self.buffer), self.shape[0])
@@ -137,27 +143,28 @@ class BufferExporter(pygame.newbuffer.BufferMixin):
         if ((flags & PyBUF_ANY_CONTIGUOUS) == PyBUF_ANY_CONTIGUOUS and
             not self.is_contiguous('A')):
             raise BufferError("data is not contiguous")
-        view.buf = addressof(self.buffer)
+        view.buf = self.buf
         view.readonly = self.readonly
         view.len = self.len
         if flags == PyBUF_SIMPLE:
-            view.itemsize = view.len
+            view.itemsize = 1
+            view.ndim = 0
         else:
             view.itemsize = self.itemsize
         if (flags & PyBUF_FORMAT) == PyBUF_FORMAT:
-            view.format = addressof(self.format)
+            view.format = addressof(self._format)
         else:
             view.format = None
         if (flags & PyBUF_ND) == PyBUF_ND:
             view.ndim = self.ndim
-            view.shape = addressof(self.shape)
+            view.shape = addressof(self._shape)
         elif self.ndim == 1:
             view.shape = None
         else:
             raise BufferError(
                 "shape required for {} dimensional data".format(self.ndim))
         if (flags & PyBUF_STRIDES) == PyBUF_STRIDES:
-            view.strides = ctypes.addressof(self.strides)
+            view.strides = ctypes.addressof(self._strides)
         elif self.is_contiguous('C'):
             view.strides = None
         else:
@@ -393,8 +400,8 @@ class BufferExporterTest(unittest.TestCase):
         b = BufferImporter(a, PyBUF_SIMPLE)
         self.assertTrue(b.obj is a)
         self.assertTrue(b.format is None)
-        self.assertEqual(b.len, 10)
-        self.assertEqual(b.itemsize, 10)
+        self.assertEqual(b.len, a.len)
+        self.assertEqual(b.itemsize, 1)
         self.assertTrue(b.shape is None)
         self.assertTrue(b.strides is None)
         self.assertTrue(b.suboffsets is None)
@@ -403,7 +410,7 @@ class BufferExporterTest(unittest.TestCase):
         b = BufferImporter(a, PyBUF_ND)
         self.assertTrue(b.obj is a)
         self.assertTrue(b.format is None)
-        self.assertEqual(b.len, 10)
+        self.assertEqual(b.len, a.len)
         self.assertEqual(b.itemsize, 1)
         self.assertEqual(b.shape, (10,))
         self.assertTrue(b.strides is None)
@@ -438,13 +445,41 @@ class BufferExporterTest(unittest.TestCase):
         self.assertRaises(BufferError, BufferImporter, a, PyBUF_ANY_CONTIGUOUS)
         self.assertRaises(BufferError, BufferImporter, a, PyBUF_CONTIG)
 
+    def test_attributes(self):
+        a = BufferExporter((13, 5, 11, 3), '=h', (440, 88, 8, 2))
+        self.assertEqual(a.ndim, 4)
+        self.assertEqual(a.itemsize, 2)
+        self.assertFalse(a.readonly)
+        self.assertEqual(a.shape, (13, 5, 11, 3))
+        self.assertEqual(a.format, '=h')
+        self.assertEqual(a.strides, (440, 88, 8, 2))
+        self.assertEqual(a.len, 4290)
+        self.assertEqual(a.buflen, 5720)
+        self.assertEqual(a.buf, ctypes.addressof(a._buf))
+        a = BufferExporter((8,))
+        self.assertEqual(a.ndim, 1)
+        self.assertEqual(a.itemsize, 1)
+        self.assertFalse(a.readonly)
+        self.assertEqual(a.shape, (8,))
+        self.assertEqual(a.format, 'B')
+        self.assertTrue(isinstance(a.strides, tuple))
+        self.assertEqual(a.strides, (1,))
+        self.assertEqual(a.len, 8)
+        self.assertEqual(a.buflen, 8)
+        a = BufferExporter([13, 5, 11, 3], '=h', [440, 88, 8, 2])
+        self.assertTrue(isinstance(a.shape, tuple))
+        self.assertTrue(isinstance(a.strides, tuple))
+        self.assertEqual(a.shape, (13, 5, 11, 3))
+        self.assertEqual(a.strides, (440, 88, 8, 2))
+
     def check_args(self, call_flags,
                    shape, format, strides, length, bufsize, itemsize):
         format_arg = format if call_flags & 1 else None
         strides_arg = strides if call_flags & 2 else None
         a = BufferExporter(shape, format_arg, strides_arg)
-        self.assertEqual(len(a.buffer), bufsize)
+        self.assertEqual(a.buflen, bufsize)
         m = BufferImporter(a, PyBUF_RECORDS_RO)
+        self.assertEqual(m.buf, a.buf)
         self.assertEqual(m.len, length)
         self.assertEqual(m.format, format)
         self.assertEqual(m.itemsize, itemsize)
