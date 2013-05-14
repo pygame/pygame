@@ -1,11 +1,20 @@
 """Package pygame.tests.test_utils.array
 
-Export an BufferExporter class with configurable shape and strides. Objects of
-class BufferExporter provide a convient target for unit tests on Pygame objects
-and functionsthat import a new buffer interface.
+Export the BufferExporter and BufferImporter classes.
 
-Unit tests for this package included internally, and can be run with the
-following command from within the array package directory:
+Class BufferExporter has configurable shape and strides. BufferExporter objects
+provide a convient target for unit tests on Pygame objects and functions that
+import a new buffer interface.
+
+Class BufferImporter imports a buffer interface with the given PyBUF_* flags.
+It returns NULL Py_buffer fields as None. The shape, strides, and suboffsets
+arrays are returned as tuples of ints. All Py_buffer field properties are
+read-only. This class is useful in comparing exported buffer interfaces
+with the actual request. The simular Python builtin memoryview currently
+does not support configurable PyBUF_* flags.
+
+This package contains its own unit tests. These can be run from within 
+the array package directory with the following command line statement:
 
 python __init__.py
 
@@ -152,6 +161,7 @@ class BufferExporter(pygame.newbuffer.BufferMixin):
         else:
             raise BufferError("strides required for none C contiguous data")
         view.suboffsets = None
+        view.internal = None
         view.obj = self
 
     def is_contiguous(self, fortran):
@@ -230,12 +240,14 @@ class BufferImporter(object):
     def _to_ssize_tuple(self, addr):
         from ctypes import cast, POINTER, c_ssize_t
 
+        if addr is None:
+            return None
         return tuple(cast(addr, POINTER(c_ssize_t))[0:self._view.ndim])
 
 
 class BufferExporterTest(unittest.TestCase):
     """Class BufferExporter unit tests"""
-    def test_args(self):
+    def test_formats(self):
         char_sz = ctypes.sizeof(ctypes.c_char)
         short_sz = ctypes.sizeof(ctypes.c_short)
         int_sz = ctypes.sizeof(ctypes.c_int)
@@ -294,6 +306,12 @@ class BufferExporterTest(unittest.TestCase):
         self.check_args(1, (1,), '=L', (4,), 4, 4, 4)
         self.check_args(1, (1,), '=q', (8,), 8, 8, 8)
         self.check_args(1, (1,), '=Q', (8,), 8, 8, 8)
+        self.check_args(1, (1,), '<h', (2,), 2, 2, 2)
+        self.check_args(1, (1,), '>h', (2,), 2, 2, 2)
+        self.check_args(1, (1,), '!h', (2,), 2, 2, 2)
+        self.check_args(1, (1,), '<q', (8,), 8, 8, 8)
+        self.check_args(1, (1,), '>q', (8,), 8, 8, 8)
+        self.check_args(1, (1,), '!q', (8,), 8, 8, 8)
         self.check_args(1, (1,), '1x', (1,), 1, 1, 1)
         self.check_args(1, (1,), '2x', (2,), 2, 2, 2)
         self.check_args(1, (1,), '3x', (3,), 3, 3, 3)
@@ -303,17 +321,121 @@ class BufferExporterTest(unittest.TestCase):
         self.check_args(1, (1,), '7x', (7,), 7, 7, 7)
         self.check_args(1, (1,), '8x', (8,), 8, 8, 8)
         self.check_args(1, (1,), '9x', (9,), 9, 9, 9)
+        self.assertRaises(ValueError, BufferExporter, (2, 1), '')
+        self.assertRaises(ValueError, BufferExporter, (2, 1), 'W')
+        self.assertRaises(ValueError, BufferExporter, (2, 1), '^Q')
+        self.assertRaises(ValueError, BufferExporter, (2, 1), '=W')
+        self.assertRaises(ValueError, BufferExporter, (2, 1), '=f')
+        self.assertRaises(ValueError, BufferExporter, (2, 1), '=d')
+        self.assertRaises(ValueError, BufferExporter, (2, 1), '<f')
+        self.assertRaises(ValueError, BufferExporter, (2, 1), '<d')
+        self.assertRaises(ValueError, BufferExporter, (2, 1), '>f')
+        self.assertRaises(ValueError, BufferExporter, (2, 1), '>d')
+        self.assertRaises(ValueError, BufferExporter, (2, 1), '!f')
+        self.assertRaises(ValueError, BufferExporter, (2, 1), '!d')
+        self.assertRaises(ValueError, BufferExporter, (2, 1), '0x')
+        self.assertRaises(ValueError, BufferExporter, (2, 1), '1h')
+        self.assertRaises(ValueError, BufferExporter, (2, 1), '11x')
+        self.assertRaises(ValueError, BufferExporter, (2, 1), 'BB')
+
+    def test_strides(self):
         self.check_args(1, (10,), '=h', (2,), 20, 20, 2)
         self.check_args(1, (5, 3), '=h', (6, 2), 30, 30, 2)
         self.check_args(1, (7, 3, 5), '=h', (30, 10, 2), 210, 210, 2)
+        self.check_args(1, (13, 5, 11, 3), '=h', (330, 66, 6, 2), 4290, 4290, 2)
         self.check_args(3, (7, 3, 5), '=h', (2, 14, 42), 210, 210, 2)
         self.check_args(3, (7, 3, 5), '=h', (2, 16, 48), 210, 240, 2)
+        self.check_args(3, (13, 5, 11, 3), '=h', (440, 88, 8, 2), 4290, 5720, 2)
         self.check_args(3, (7, 5), '3x', (15, 3), 105, 105, 3)
         self.check_args(3, (7, 5), '3x', (3, 21), 105, 105, 3)
         self.check_args(3, (7, 5), '3x', (3, 24), 105, 120, 3)
 
+    def test_readonly(self):
         a = BufferExporter((2,), 'h', readonly=True)
         self.assertTrue(a.readonly)
+        b = BufferImporter(a, PyBUF_STRIDED_RO)
+        self.assertRaises(BufferError, BufferImporter, a, PyBUF_STRIDED)
+        b = BufferImporter(a, PyBUF_STRIDED_RO)
+
+    def test_is_contiguous(self):
+        a = BufferExporter((10,), '=h')
+        self.assertTrue(a.is_contiguous('C'))
+        self.assertTrue(a.is_contiguous('F'))
+        self.assertTrue(a.is_contiguous('A'))
+        a = BufferExporter((10, 4), '=h')
+        self.assertTrue(a.is_contiguous('C'))
+        self.assertTrue(a.is_contiguous('A'))
+        self.assertFalse(a.is_contiguous('F'))
+        a = BufferExporter((13, 5, 11, 3), '=h', (330, 66, 6, 2))
+        self.assertTrue(a.is_contiguous('C'))
+        self.assertTrue(a.is_contiguous('A'))
+        self.assertFalse(a.is_contiguous('F'))
+        a = BufferExporter((10, 4), '=h', (2, 20))
+        self.assertTrue(a.is_contiguous('F'))
+        self.assertTrue(a.is_contiguous('A'))
+        self.assertFalse(a.is_contiguous('C'))
+        a = BufferExporter((13, 5, 11, 3), '=h', (2, 26, 130, 1430))
+        self.assertTrue(a.is_contiguous('F'))
+        self.assertTrue(a.is_contiguous('A'))
+        self.assertFalse(a.is_contiguous('C'))
+        a = BufferExporter((2, 11, 6, 4), '=h', (576, 48, 8, 2))
+        self.assertFalse(a.is_contiguous('A'))
+        a = BufferExporter((2, 11, 6, 4), '=h', (2, 4, 48, 288))
+        self.assertFalse(a.is_contiguous('A'))
+        a = BufferExporter((3, 2, 2), '=h', (16, 8, 4))
+        self.assertFalse(a.is_contiguous('A'))
+        a = BufferExporter((3, 2, 2), '=h', (4, 12, 24))
+        self.assertFalse(a.is_contiguous('A'))
+
+    def test_PyBUF_flags(self):
+        a = BufferExporter((10,), 'B')
+        b = BufferImporter(a, PyBUF_SIMPLE)
+        self.assertTrue(b.obj is a)
+        self.assertTrue(b.format is None)
+        self.assertEqual(b.len, 10)
+        self.assertEqual(b.itemsize, 10)
+        self.assertTrue(b.shape is None)
+        self.assertTrue(b.strides is None)
+        self.assertTrue(b.suboffsets is None)
+        self.assertTrue(b.internal is None)
+        self.assertFalse(b.readonly)
+        b = BufferImporter(a, PyBUF_ND)
+        self.assertTrue(b.obj is a)
+        self.assertTrue(b.format is None)
+        self.assertEqual(b.len, 10)
+        self.assertEqual(b.itemsize, 1)
+        self.assertEqual(b.shape, (10,))
+        self.assertTrue(b.strides is None)
+        self.assertTrue(b.suboffsets is None)
+        self.assertTrue(b.internal is None)
+        self.assertFalse(b.readonly)
+        a = BufferExporter((5, 10), '=h', (24, 2))
+        b = BufferImporter(a, PyBUF_STRIDES)
+        self.assertTrue(b.obj is a)
+        self.assertTrue(b.format is None)
+        self.assertEqual(b.len, 100)
+        self.assertEqual(b.itemsize, 2)
+        self.assertEqual(b.shape, (5, 10))
+        self.assertEqual(b.strides, (24, 2))
+        self.assertTrue(b.suboffsets is None)
+        self.assertTrue(b.internal is None)
+        self.assertFalse(b.readonly)
+        b = BufferImporter(a, PyBUF_FULL)
+        self.assertTrue(b.obj is a)
+        self.assertEqual(b.format, '=h')
+        self.assertEqual(b.len, 100)
+        self.assertEqual(b.itemsize, 2)
+        self.assertEqual(b.shape, (5, 10))
+        self.assertEqual(b.strides, (24, 2))
+        self.assertTrue(b.suboffsets is None)
+        self.assertTrue(b.internal is None)
+        self.assertFalse(b.readonly)
+        self.assertRaises(BufferError, BufferImporter, a, PyBUF_SIMPLE)
+        self.assertRaises(BufferError, BufferImporter, a, PyBUF_ND)
+        self.assertRaises(BufferError, BufferImporter, a, PyBUF_C_CONTIGUOUS)
+        self.assertRaises(BufferError, BufferImporter, a, PyBUF_F_CONTIGUOUS)
+        self.assertRaises(BufferError, BufferImporter, a, PyBUF_ANY_CONTIGUOUS)
+        self.assertRaises(BufferError, BufferImporter, a, PyBUF_CONTIG)
 
     def check_args(self, call_flags,
                    shape, format, strides, length, bufsize, itemsize):
@@ -327,19 +449,6 @@ class BufferExporterTest(unittest.TestCase):
         self.assertEqual(m.itemsize, itemsize)
         self.assertEqual(m.shape, shape)
         self.assertEqual(m.strides, strides)
-
-    def test_exceptions(self):
-        self.assertRaises(ValueError, BufferExporter, (2, 1), '^B')
-        self.assertRaises(ValueError, BufferExporter, (2, 1), '=W')
-        a = BufferExporter((2, 1), '=B', readonly=True)
-        self.assertRaises(BufferError, BufferImporter, a, PyBUF_STRIDED)
-        a = BufferExporter((5, 10), '=h', (24, 2))
-        self.assertRaises(BufferError, BufferImporter, a, PyBUF_ND)
-        self.assertRaises(BufferError, BufferImporter, a, PyBUF_C_CONTIGUOUS)
-        self.assertRaises(BufferError, BufferImporter, a, PyBUF_F_CONTIGUOUS)
-        self.assertRaises(BufferError, BufferImporter, a, PyBUF_ANY_CONTIGUOUS)
-
-        self.fail("Need more exception checks.")
         
         
 if __name__ == '__main__':
