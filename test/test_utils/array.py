@@ -1,4 +1,4 @@
-"""Package pygame.tests.test_utils.array
+"""Module pygame.tests.test_utils.array
 
 Export the BufferExporter and BufferImporter classes.
 
@@ -13,13 +13,16 @@ read-only. This class is useful in comparing exported buffer interfaces
 with the actual request. The simular Python builtin memoryview currently
 does not support configurable PyBUF_* flags.
 
-This package contains its own unit tests. These can be run from within 
-the array package directory with the following command line statement:
+This module contains its own unit tests. When Pygame is installed, these tests
+can be run with the following command line statement:
 
-python __init__.py
+python -m pygame.tests.test_utils.array
 
 """
-
+import pygame
+if not pygame.HAVE_NEWBUF:
+    emsg = "This Pygame build does not support the new buffer protocol"
+    raise ImportError(emsg)
 import pygame.newbuffer
 from pygame.newbuffer import (PyBUF_SIMPLE, PyBUF_FORMAT, PyBUF_ND,
                               PyBUF_WRITABLE, PyBUF_STRIDES, PyBUF_C_CONTIGUOUS,
@@ -41,8 +44,7 @@ def _prop_get(fn):
 class BufferExporter(pygame.newbuffer.BufferMixin):
     """An object that exports a multi-dimension new buffer interface
 
-       The only array operation this type supports is to export a
-       writable buffer.
+       The only array operation this type supports is to export a buffer.
     """
     prefixes = {'@': '', '=': '=', '<': '=', '>': '=',
                 '!': '=', '1': '1', '2': '2', '3': '3',
@@ -185,9 +187,8 @@ class BufferExporter(pygame.newbuffer.BufferMixin):
 class BufferImporter(object):
     """An object that imports a new buffer interface
 
-       The fields of the Py_buffer C struct are exposed by corresponding
-       BufferImporter read-only properties.
-       obj field: 
+       The fields of the Py_buffer C struct are exposed by identically
+       named BufferImporter read-only properties.
     """
     def __init__(self, obj, flags):
         self._view = pygame.newbuffer.Py_buffer()
