@@ -27,6 +27,7 @@
   Python level - __array_interface__ - are exposed.
  */
 
+#define PY_SSIZE_T_CLEAN
 #define PYGAMEAPI_BUFPROXY_INTERNAL
 #include "pygame.h"
 #include "pgcompat.h"
@@ -73,14 +74,6 @@ typedef struct Pg_buffer_d_s {
 static int PgBufproxy_Trip(PyObject *);
 static Py_buffer *_proxy_get_view (PgBufproxyObject*);
 
-/* $$ Transitional stuff */
-
-#define NOTIMPLEMENTED(rcode) \
-    PyErr_Format(PyExc_NotImplementedError, \
-                 "Not ready yet. (line %i in %s)", __LINE__, __FILE__); \
-    return rcode
-
-/* Use Dict_AsView alternative with flags arg. */
 static void _release_buffer_from_dict(Py_buffer *);
 
 static int
@@ -205,7 +198,7 @@ _proxy_get_view(PgBufproxyObject *proxy) {
             return 0;
         }
         view_p->consumer = (PyObject *)proxy;
-        if (proxy->get_buffer(proxy->obj, view_p, PyBUF_RECORDS)) {
+        if (proxy->get_buffer(proxy->obj, view_p, PyBUF_RECORDS_RO)) {
             PyMem_Free(view_p);
             return 0;
         }
@@ -360,23 +353,37 @@ static PyObject *
 proxy_get_raw(PgBufproxyObject *self, PyObject *closure)
 {
     Py_buffer *view_p = _proxy_get_view(self);
+    PyObject *py_raw = 0;
 
     if (!view_p) {
         return 0;
     }
     if (!PyBuffer_IsContiguous(view_p, 'A')) {
+        _proxy_release_view(self);
         PyErr_SetString(PyExc_ValueError, "the bytes are not contiguous");
         return 0;
     }
-    return Bytes_FromStringAndSize((char *)view_p->buf, view_p->len);
+    py_raw = Bytes_FromStringAndSize((char *)view_p->buf, view_p->len);
+    if (!py_raw) {
+        _proxy_release_view(self);
+        return 0;
+    }
+    return py_raw;        
 }
 
 static PyObject *
 proxy_get_length(PgBufproxyObject *self, PyObject *closure)
 {
     Py_buffer *view_p = _proxy_get_view(self);
+    PyObject *py_length = 0;
 
-    return view_p ? PyInt_FromSsize_t(view_p->len) : 0;
+    if (view_p) {
+        py_length = PyInt_FromSsize_t(view_p->len);
+        if (!py_length) {
+            _proxy_release_view(self);
+        }
+    }
+    return py_length;
 }
 
 /**** Methods ****/
@@ -394,9 +401,50 @@ proxy_repr (PgBufproxyObject *self)
  * Writes raw data to the buffer.
  */
 static PyObject *
-proxy_write(PgBufproxyObject *buffer, PyObject *args, PyObject *kwds)
+proxy_write(PgBufproxyObject *self, PyObject *args, PyObject *kwds)
 {
-    NOTIMPLEMENTED(0);
+    Py_buffer view;
+    const char *buf = 0;
+    Py_ssize_t buflen = 0;
+    Py_ssize_t offset = 0;
+    char *keywords[] = {"buffer", "offset", 0};
+
+#if Py_VERSION_HEX >= 0x02050000
+#define ARG_FORMAT "s#|n"
+#else
+#define ARG_FORMAT "s#|i"  /* In this case Py_ssize_t is an int */
+#endif
+    if (!PyArg_ParseTupleAndKeywords(args, kwds,
+                                     ARG_FORMAT, keywords,
+                                     &buf, &buflen, &offset)) {
+        return 0;
+    }
+#undef ARG_FORMAT
+
+    if (PyObject_GetBuffer((PyObject *)self, &view, PyBUF_RECORDS)) {
+        return 0;
+    }
+    if (!PyBuffer_IsContiguous(&view, 'A')) {
+        PyBuffer_Release(&view);
+        PyErr_SetString(PyExc_ValueError,
+                        "the BufferProxy bytes are not contiguous");
+        return 0;
+    }
+    if (buflen > view.len) {
+        PyBuffer_Release(&view);
+        PyErr_SetString(PyExc_ValueError,
+                        "'buffer' object length is too large");
+        return 0;
+    }
+    if (offset < 0 || buflen + offset > view.len) {
+        PyBuffer_Release(&view);
+        PyErr_SetString(PyExc_IndexError,
+                        "'offset' is out of range");
+        return 0;
+    }
+    memcpy((char *)view.buf + offset, buf, (size_t)buflen);
+    PyBuffer_Release(&view);
+    Py_RETURN_NONE;
 }
 
 static struct PyMethodDef proxy_methods[] = {
@@ -646,15 +694,6 @@ static PyTypeObject PgBufproxy_Type =
     PyType_GenericAlloc,        /* tp_alloc */
     proxy_new,                  /* tp_new */
     PyObject_GC_Del,            /* tp_free */
-#ifndef __SYMBIAN32__
-    0,                          /* tp_is_gc */
-    0,                          /* tp_bases */
-    0,                          /* tp_mro */
-    0,                          /* tp_cache */
-    0,                          /* tp_subclasses */
-    0,                          /* tp_weaklist */
-    0                           /* tp_del */
-#endif
 };
 
 /**** Module methods ***/
