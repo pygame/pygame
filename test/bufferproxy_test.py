@@ -254,15 +254,16 @@ class BufferProxyTest(unittest.TestCase):
     if pygame.HAVE_NEWBUF:
         def test_newbuf(self):
             self.NEWBUF_test_newbuf()
+        if is_pygame_pkg:
+            from pygame.tests.test_utils import buftools
+        else:
+            from test.test_utils import buftools
 
     def NEWBUF_test_newbuf(self):
-        if is_pygame_pkg:
-            from pygame.tests.test_utils import array
-        else:
-            from test.test_utils import array
         from ctypes import string_at
 
-        exp = array.BufferExporter((10,), 'B', readonly=True)
+        buftools = self.buftools
+        exp = buftools.BufferExporter((10,), 'B', readonly=True)
         b = BufferProxy(exp)
         self.assertEqual(b.length, exp.len)
         self.assertEqual(b.raw, string_at(exp.buf, exp.len))
@@ -274,7 +275,7 @@ class BufferProxyTest(unittest.TestCase):
             self.assertEqual(d['data'], (exp.buf, True))
         finally:
             d = None
-        exp = array.BufferExporter((3,), '=h')
+        exp = buftools.BufferExporter((3,), '=h')
         b = BufferProxy(exp)
         self.assertEqual(b.length, exp.len)
         self.assertEqual(b.raw, string_at(exp.buf, exp.len))
@@ -289,9 +290,9 @@ class BufferProxyTest(unittest.TestCase):
         finally:
             d = None
 
-        exp = array.BufferExporter((10, 2), '=i')
+        exp = buftools.BufferExporter((10, 2), '=i')
         b = BufferProxy(exp)
-        imp = array.BufferImporter(b, array.PyBUF_RECORDS)
+        imp = buftools.BufferImporter(b, buftools.PyBUF_RECORDS)
         self.assertTrue(imp.obj is b)
         self.assertEqual(imp.buf, exp.buf)
         self.assertEqual(imp.ndim, exp.ndim)
@@ -308,7 +309,7 @@ class BufferProxyTest(unittest.TestCase):
              'strides': (1,),
              'data': (9, True)} # 9? Will not reading the data anyway.
         b = BufferProxy(d)
-        imp = array.BufferImporter(b, array.PyBUF_SIMPLE)
+        imp = buftools.BufferImporter(b, buftools.PyBUF_SIMPLE)
         self.assertTrue(imp.obj is b)
         self.assertEqual(imp.buf, 9)
         self.assertEqual(imp.len, 10)
