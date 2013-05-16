@@ -157,40 +157,128 @@ class BaseModuleTest(unittest.TestCase):
             self.assertSame(v, o)
 
     if (pygame.HAVE_NEWBUF):
-        def test_GetView_newbuf(self):
-            self.NEWBUF_test_GetView_newbuf()
+        def test_newbuf(self):
+            self.NEWBUF_test_newbuf()
+        def test_newbuf_PyBUF_flags(self):
+            self.NEWBUF_test_newbuf_PyBUF_flags()
+        if is_pygame_pkg:
+            from pygame.tests.test_utils import array as NEWBUF_array
+        else:
+            from test.test_utils import array as NEWBUF_array
 
-    def NEWBUF_test_GetView_newbuf(self):
+    def NEWBUF_assertSame(self, proxy, exp):
+        array = self.NEWBUF_array
+        self.assertEqual(proxy.length, exp.len)
+        imp = array.BufferImporter(proxy, array.PyBUF_RECORDS_RO)
+        try:
+            self.assertEqual(imp.readonly, exp.readonly)
+            self.assertEqual(imp.format, exp.format)
+            self.assertEqual(imp.itemsize, exp.itemsize)
+            self.assertEqual(imp.ndim, exp.ndim)
+            self.assertEqual(imp.shape, exp.shape)
+            self.assertEqual(imp.strides, exp.strides)
+            self.assertTrue(imp.suboffsets is None)
+        finally:
+            imp = None
+
+    def NEWBUF_test_newbuf(self):
         from pygame.bufferproxy import BufferProxy
 
-        def exporter(shape, typechar, itemsize):
-            # Use a BufferProxy object as the new buffer exporter, as none
-            # of the Python standard types are multidimensional arrays.
-            e = self.ExporterBase(shape, typechar, itemsize)
-            bp = BufferProxy(e.__dict__)
-            bp.size = e.size
-            bp.typestr = e.typestr
-            bp.shape = e.shape
-            bp.strides = e.strides
-            bp.data = e.data
-            return bp
-
+        Exporter = self.NEWBUF_array.BufferExporter
         _shape = [2, 3, 5, 7, 11]  # Some prime numbers
         for ndim in range(1, len(_shape)):
-            o = exporter(_shape[0:ndim], 'i', 2)
+            o = Exporter(_shape[0:ndim], '=h')
             v = BufferProxy(o)
-            self.assertSame(v, o)
+            self.NEWBUF_assertSame(v, o)
         ndim = 2
         shape = _shape[0:ndim]
-        for typechar in ('i', 'u'):
-            for itemsize in (1, 2, 4, 8):
-                o = exporter(shape, typechar, itemsize)
-                v = BufferProxy(o)
-                self.assertSame(v, o)
-        for itemsize in (4, 8):
-            o = exporter(shape, 'f', itemsize)
+        for format in ['b', 'B', '=h', '=H', '=i', '=I', '=q', '=Q', 'f', 'd']:
+            o = Exporter(shape, format)
             v = BufferProxy(o)
-            self.assertSame(v, o)
+            self.NEWBUF_assertSame(v, o)
+
+    def NEWBUF_test_newbuf_PyBUF_flags(self):
+        from pygame.bufferproxy import BufferProxy
+
+        is_lil_endian = pygame.get_sdl_byteorder() == pygame.LIL_ENDIAN
+        fsys, frev = ('<', '>') if is_lil_endian else ('>', '<')
+        array = self.NEWBUF_array
+        BufferImporter = array.BufferImporter
+        a = BufferProxy({'typestr': '|u1',
+                         'shape': (10,),
+                         'data': (9, False)}) # 9? No data accesses.
+        b = BufferImporter(a, array.PyBUF_SIMPLE)
+        self.assertTrue(b.format is None)
+        self.assertEqual(b.len, 10)
+        self.assertEqual(b.itemsize, 1)
+        self.assertTrue(b.shape is None)
+        self.assertTrue(b.strides is None)
+        self.assertTrue(b.suboffsets is None)
+        self.assertFalse(b.readonly)
+        self.assertEqual(b.buf, 9)
+        b = BufferImporter(a, array.PyBUF_ND)
+        self.assertTrue(b.format is None)
+        self.assertEqual(b.len, a.length)
+        self.assertEqual(b.itemsize, 1)
+        self.assertEqual(b.shape, (10,))
+        self.assertTrue(b.strides is None)
+        self.assertTrue(b.suboffsets is None)
+        self.assertFalse(b.readonly)
+        self.assertEqual(b.buf, 9)
+        a = BufferProxy({'typestr': fsys + 'i2',
+                         'shape': (5, 10),
+                         'strides': (24, 2),
+                         'data': (42, False)}) # 42? No data accesses.
+        b = BufferImporter(a, array.PyBUF_STRIDES)
+        self.assertTrue(b.format is None)
+        self.assertEqual(b.len, 100)
+        self.assertEqual(b.itemsize, 2)
+        self.assertEqual(b.shape, (5, 10))
+        self.assertEqual(b.strides, (24, 2))
+        self.assertTrue(b.suboffsets is None)
+        self.assertFalse(b.readonly)
+        self.assertEqual(b.buf, 42)
+        b = BufferImporter(a, array.PyBUF_FULL_RO)
+        self.assertEqual(b.format, '=h')
+        self.assertEqual(b.len, 100)
+        self.assertEqual(b.itemsize, 2)
+        self.assertEqual(b.shape, (5, 10))
+        self.assertEqual(b.strides, (24, 2))
+        self.assertTrue(b.suboffsets is None)
+        self.assertFalse(b.readonly)
+        self.assertEqual(b.buf, 42)
+        self.assertRaises(BufferError, BufferImporter, a, array.PyBUF_SIMPLE)
+        self.assertRaises(BufferError, BufferImporter, a, array.PyBUF_ND)
+        self.assertRaises(BufferError, BufferImporter, a,
+                          array.PyBUF_C_CONTIGUOUS)
+        self.assertRaises(BufferError, BufferImporter, a,
+                          array.PyBUF_F_CONTIGUOUS)
+        self.assertRaises(BufferError, BufferImporter, a,
+                          array.PyBUF_ANY_CONTIGUOUS)
+        self.assertRaises(BufferError, BufferImporter, a, array.PyBUF_CONTIG)
+        self.assertRaises(BufferError, BufferImporter, a, array.PyBUF_SIMPLE)
+        self.assertRaises(BufferError, BufferImporter, a, array.PyBUF_ND)
+        self.assertRaises(BufferError, BufferImporter, a,
+                          array.PyBUF_C_CONTIGUOUS)
+        self.assertRaises(BufferError, BufferImporter, a,
+                          array.PyBUF_F_CONTIGUOUS)
+        self.assertRaises(BufferError, BufferImporter, a,
+                          array.PyBUF_ANY_CONTIGUOUS)
+        self.assertRaises(BufferError, BufferImporter, a, array.PyBUF_CONTIG)
+        a = BufferProxy({'typestr': frev + 'i2',
+                         'shape': (5, 10),
+                         'strides': (24, 2),
+                         'data': (1000000, True)}) # 1000000? No data accesses.
+        b = BufferImporter(a, array.PyBUF_FULL_RO)
+        self.assertEqual(b.format, frev + 'h')
+        self.assertEqual(b.len, 100)
+        self.assertEqual(b.itemsize, 2)
+        self.assertEqual(b.shape, (5, 10))
+        self.assertEqual(b.strides, (24, 2))
+        self.assertTrue(b.suboffsets is None)
+        self.assertTrue(b.readonly)
+        self.assertEqual(b.buf, 1000000)
+        self.assertRaises(BufferError, BufferImporter, a, array.PyBUF_FULL)
 
     def test_PgObject_GetBuffer_exception(self):
         # For consistency with surfarray
