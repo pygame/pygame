@@ -434,7 +434,7 @@ class BufferProxyLegacyTest(unittest.TestCase):
                           'strides': (16, 4)})
         self.assertRaises(ValueError, getattr, bf, 'raw')
 
-    def todo_test_write(self):
+    def test_write(self):
 
         # __doc__ (as of 2008-08-02) for pygame.bufferproxy.BufferProxy.write:
 
@@ -446,9 +446,41 @@ class BufferProxyLegacyTest(unittest.TestCase):
           # at the specified offset within the BufferProxy.
           # If the length of the passed buffer exceeds the length of the
           # BufferProxy (reduced by the offset), an IndexError will be raised.
+        from ctypes import c_byte, sizeof, addressof, string_at, memset
 
-        buf = ctypes.create_string_buffer(self.content)
-        self.fail()
+        nullbyte = '\x00'.encode('latin_1')
+        Buf = c_byte * 10
+        data_buf = Buf(*range(1, 3 * sizeof(Buf) + 1, 3))
+        data = string_at(data_buf, sizeof(data_buf))
+        buf = Buf()
+        bp = BufferProxy({'typestr': '|u1',
+                          'shape': (sizeof(buf),),
+                          'data': (addressof(buf), False)})
+        try:
+            self.assertEqual(bp.raw, nullbyte * sizeof(Buf))
+            bp.write(data)
+            self.assertEqual(bp.raw, data)
+            memset(buf, 0, sizeof(buf))
+            bp.write(data[:3], 2)
+            raw = bp.raw
+            self.assertEqual(raw[:2], nullbyte * 2)
+            self.assertEqual(raw[2:5], data[:3])
+            self.assertEqual(raw[5:], nullbyte * (sizeof(Buf) - 5))
+            bp.write(data[:3], bp.length - 3)
+            raw = bp.raw
+            self.assertEqual(raw[-3:], data[:3])
+            self.assertRaises(IndexError, bp.write, data, 1)
+            self.assertRaises(IndexError, bp.write, data[:5], -1)
+            self.assertRaises(IndexError, bp.write, data[:5], bp.length)
+            self.assertRaises(TypeError, bp.write, 12)
+            bp = BufferProxy({'typestr': '|u1',
+                              'shape': (sizeof(buf),),
+                              'data': (addressof(buf), True)})
+            self.assertRaises(BufferError, bp.write, '123'.encode('latin_1'))
+        finally:
+            # Make sure bp is garbage collected before buf
+            bp = None
+            gc.collect()
 
 
 if __name__ == '__main__':
