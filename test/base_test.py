@@ -162,14 +162,14 @@ class BaseModuleTest(unittest.TestCase):
         def test_newbuf_PyBUF_flags(self):
             self.NEWBUF_test_newbuf_PyBUF_flags()
         if is_pygame_pkg:
-            from pygame.tests.test_utils import array as NEWBUF_array
+            from pygame.tests.test_utils import buftools
         else:
-            from test.test_utils import array as NEWBUF_array
+            from test.test_utils import buftool
 
     def NEWBUF_assertSame(self, proxy, exp):
-        array = self.NEWBUF_array
+        buftools = self.buftools
         self.assertEqual(proxy.length, exp.len)
-        imp = array.BufferImporter(proxy, array.PyBUF_RECORDS_RO)
+        imp = buftools.BufferImporter(proxy, buftools.PyBUF_RECORDS_RO)
         try:
             self.assertEqual(imp.readonly, exp.readonly)
             self.assertEqual(imp.format, exp.format)
@@ -184,7 +184,7 @@ class BaseModuleTest(unittest.TestCase):
     def NEWBUF_test_newbuf(self):
         from pygame.bufferproxy import BufferProxy
 
-        Exporter = self.NEWBUF_array.BufferExporter
+        Exporter = self.buftools.BufferExporter
         _shape = [2, 3, 5, 7, 11]  # Some prime numbers
         for ndim in range(1, len(_shape)):
             o = Exporter(_shape[0:ndim], '=h')
@@ -202,12 +202,12 @@ class BaseModuleTest(unittest.TestCase):
 
         is_lil_endian = pygame.get_sdl_byteorder() == pygame.LIL_ENDIAN
         fsys, frev = ('<', '>') if is_lil_endian else ('>', '<')
-        array = self.NEWBUF_array
-        BufferImporter = array.BufferImporter
+        buftools = self.buftools
+        BufferImporter = buftools.BufferImporter
         a = BufferProxy({'typestr': '|u1',
                          'shape': (10,),
                          'data': (9, False)}) # 9? No data accesses.
-        b = BufferImporter(a, array.PyBUF_SIMPLE)
+        b = BufferImporter(a, buftools.PyBUF_SIMPLE)
         self.assertTrue(b.format is None)
         self.assertEqual(b.len, 10)
         self.assertEqual(b.itemsize, 1)
@@ -216,7 +216,7 @@ class BaseModuleTest(unittest.TestCase):
         self.assertTrue(b.suboffsets is None)
         self.assertFalse(b.readonly)
         self.assertEqual(b.buf, 9)
-        b = BufferImporter(a, array.PyBUF_ND)
+        b = BufferImporter(a, buftools.PyBUF_ND)
         self.assertTrue(b.format is None)
         self.assertEqual(b.len, a.length)
         self.assertEqual(b.itemsize, 1)
@@ -229,7 +229,7 @@ class BaseModuleTest(unittest.TestCase):
                          'shape': (5, 10),
                          'strides': (24, 2),
                          'data': (42, False)}) # 42? No data accesses.
-        b = BufferImporter(a, array.PyBUF_STRIDES)
+        b = BufferImporter(a, buftools.PyBUF_STRIDES)
         self.assertTrue(b.format is None)
         self.assertEqual(b.len, 100)
         self.assertEqual(b.itemsize, 2)
@@ -238,7 +238,7 @@ class BaseModuleTest(unittest.TestCase):
         self.assertTrue(b.suboffsets is None)
         self.assertFalse(b.readonly)
         self.assertEqual(b.buf, 42)
-        b = BufferImporter(a, array.PyBUF_FULL_RO)
+        b = BufferImporter(a, buftools.PyBUF_FULL_RO)
         self.assertEqual(b.format, '=h')
         self.assertEqual(b.len, 100)
         self.assertEqual(b.itemsize, 2)
@@ -247,29 +247,29 @@ class BaseModuleTest(unittest.TestCase):
         self.assertTrue(b.suboffsets is None)
         self.assertFalse(b.readonly)
         self.assertEqual(b.buf, 42)
-        self.assertRaises(BufferError, BufferImporter, a, array.PyBUF_SIMPLE)
-        self.assertRaises(BufferError, BufferImporter, a, array.PyBUF_ND)
+        self.assertRaises(BufferError, BufferImporter, a, buftools.PyBUF_SIMPLE)
+        self.assertRaises(BufferError, BufferImporter, a, buftools.PyBUF_ND)
         self.assertRaises(BufferError, BufferImporter, a,
-                          array.PyBUF_C_CONTIGUOUS)
+                          buftools.PyBUF_C_CONTIGUOUS)
         self.assertRaises(BufferError, BufferImporter, a,
-                          array.PyBUF_F_CONTIGUOUS)
+                          buftools.PyBUF_F_CONTIGUOUS)
         self.assertRaises(BufferError, BufferImporter, a,
-                          array.PyBUF_ANY_CONTIGUOUS)
-        self.assertRaises(BufferError, BufferImporter, a, array.PyBUF_CONTIG)
-        self.assertRaises(BufferError, BufferImporter, a, array.PyBUF_SIMPLE)
-        self.assertRaises(BufferError, BufferImporter, a, array.PyBUF_ND)
+                          buftools.PyBUF_ANY_CONTIGUOUS)
+        self.assertRaises(BufferError, BufferImporter, a, buftools.PyBUF_CONTIG)
+        self.assertRaises(BufferError, BufferImporter, a, buftools.PyBUF_SIMPLE)
+        self.assertRaises(BufferError, BufferImporter, a, buftools.PyBUF_ND)
         self.assertRaises(BufferError, BufferImporter, a,
-                          array.PyBUF_C_CONTIGUOUS)
+                          buftools.PyBUF_C_CONTIGUOUS)
         self.assertRaises(BufferError, BufferImporter, a,
-                          array.PyBUF_F_CONTIGUOUS)
+                          buftools.PyBUF_F_CONTIGUOUS)
         self.assertRaises(BufferError, BufferImporter, a,
-                          array.PyBUF_ANY_CONTIGUOUS)
-        self.assertRaises(BufferError, BufferImporter, a, array.PyBUF_CONTIG)
+                          buftools.PyBUF_ANY_CONTIGUOUS)
+        self.assertRaises(BufferError, BufferImporter, a, buftools.PyBUF_CONTIG)
         a = BufferProxy({'typestr': frev + 'i2',
                          'shape': (5, 10),
                          'strides': (24, 2),
                          'data': (1000000, True)}) # 1000000? No data accesses.
-        b = BufferImporter(a, array.PyBUF_FULL_RO)
+        b = BufferImporter(a, buftools.PyBUF_FULL_RO)
         self.assertEqual(b.format, frev + 'h')
         self.assertEqual(b.len, 100)
         self.assertEqual(b.itemsize, 2)
@@ -278,7 +278,7 @@ class BaseModuleTest(unittest.TestCase):
         self.assertTrue(b.suboffsets is None)
         self.assertTrue(b.readonly)
         self.assertEqual(b.buf, 1000000)
-        self.assertRaises(BufferError, BufferImporter, a, array.PyBUF_FULL)
+        self.assertRaises(BufferError, BufferImporter, a, buftools.PyBUF_FULL)
 
     def test_PgObject_GetBuffer_exception(self):
         # For consistency with surfarray
