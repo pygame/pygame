@@ -35,6 +35,10 @@ import unittest
 import sys
 import ctypes
 import operator
+try:
+    reduce
+except NameError:
+    from functools import reduce
 
 __all__ = ["BufferExporter", "BufferImporter"]
 
@@ -219,7 +223,10 @@ class BufferImporter(object):
     @property
     def format(self):
         """return bytes or None for NULL field"""
-        return ctypes.cast(self._view.format, ctypes.c_char_p).value
+        format_addr = self._view.format
+        if format_addr is None:
+            return None
+        return ctypes.cast(format_addr, ctypes.c_char_p).value.decode('ascii')
     @property
     def itemsize(self):
         """return int"""

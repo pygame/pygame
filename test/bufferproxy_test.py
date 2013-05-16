@@ -265,7 +265,7 @@ class BufferProxyTest(unittest.TestCase):
         exp = array.BufferExporter((10,), 'B', readonly=True)
         b = BufferProxy(exp)
         self.assertEqual(b.length, exp.len)
-        self.assertEqual(b.raw, string_at(exp.buf, exp.len).encode('latin_1'))
+        self.assertEqual(b.raw, string_at(exp.buf, exp.len))
         d = b.__array_interface__
         try:
             self.assertEqual(d['typestr'], '|u1')
