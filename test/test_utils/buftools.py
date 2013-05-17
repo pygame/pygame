@@ -150,26 +150,25 @@ class BufferExporter(pygame.newbuffer.BufferMixin):
         view.buf = self.buf
         view.readonly = self.readonly
         view.len = self.len
-        if flags == PyBUF_SIMPLE:
-            view.itemsize = 1
+        if flags | PyBUF_WRITABLE == PyBUF_WRITABLE:
             view.ndim = 0
         else:
-            view.itemsize = self.itemsize
+            view.ndim = self.ndim
+        view.itemsize = self.itemsize
         if (flags & PyBUF_FORMAT) == PyBUF_FORMAT:
             view.format = addressof(self._format)
         else:
             view.format = None
         if (flags & PyBUF_ND) == PyBUF_ND:
-            view.ndim = self.ndim
             view.shape = addressof(self._shape)
-        elif self.ndim == 1:
+        elif self.is_contiguous('C'):
             view.shape = None
         else:
             raise BufferError(
                 "shape required for {} dimensional data".format(self.ndim))
         if (flags & PyBUF_STRIDES) == PyBUF_STRIDES:
             view.strides = ctypes.addressof(self._strides)
-        elif self.is_contiguous('C'):
+        elif view.shape is None or self.is_contiguous('C'):
             view.strides = None
         else:
             raise BufferError("strides required for none C contiguous data")
@@ -403,12 +402,22 @@ class BufferExporterTest(unittest.TestCase):
         self.assertFalse(a.is_contiguous('A'))
 
     def test_PyBUF_flags(self):
-        a = BufferExporter((10,), 'B')
+        a = BufferExporter((10, 2), 'd')
         b = BufferImporter(a, PyBUF_SIMPLE)
         self.assertTrue(b.obj is a)
         self.assertTrue(b.format is None)
         self.assertEqual(b.len, a.len)
-        self.assertEqual(b.itemsize, 1)
+        self.assertEqual(b.itemsize, a.itemsize)
+        self.assertTrue(b.shape is None)
+        self.assertTrue(b.strides is None)
+        self.assertTrue(b.suboffsets is None)
+        self.assertTrue(b.internal is None)
+        self.assertFalse(b.readonly)
+        b = BufferImporter(a, PyBUF_WRITABLE)
+        self.assertTrue(b.obj is a)
+        self.assertTrue(b.format is None)
+        self.assertEqual(b.len, a.len)
+        self.assertEqual(b.itemsize, a.itemsize)
         self.assertTrue(b.shape is None)
         self.assertTrue(b.strides is None)
         self.assertTrue(b.suboffsets is None)
@@ -418,8 +427,8 @@ class BufferExporterTest(unittest.TestCase):
         self.assertTrue(b.obj is a)
         self.assertTrue(b.format is None)
         self.assertEqual(b.len, a.len)
-        self.assertEqual(b.itemsize, 1)
-        self.assertEqual(b.shape, (10,))
+        self.assertEqual(b.itemsize, a.itemsize)
+        self.assertEqual(b.shape, a.shape)
         self.assertTrue(b.strides is None)
         self.assertTrue(b.suboffsets is None)
         self.assertTrue(b.internal is None)
@@ -428,24 +437,25 @@ class BufferExporterTest(unittest.TestCase):
         b = BufferImporter(a, PyBUF_STRIDES)
         self.assertTrue(b.obj is a)
         self.assertTrue(b.format is None)
-        self.assertEqual(b.len, 100)
-        self.assertEqual(b.itemsize, 2)
-        self.assertEqual(b.shape, (5, 10))
-        self.assertEqual(b.strides, (24, 2))
+        self.assertEqual(b.len, a.len)
+        self.assertEqual(b.itemsize, a.itemsize)
+        self.assertEqual(b.shape, a.shape)
+        self.assertEqual(b.strides, a.strides)
         self.assertTrue(b.suboffsets is None)
         self.assertTrue(b.internal is None)
         self.assertFalse(b.readonly)
         b = BufferImporter(a, PyBUF_FULL)
         self.assertTrue(b.obj is a)
         self.assertEqual(b.format, '=h')
-        self.assertEqual(b.len, 100)
-        self.assertEqual(b.itemsize, 2)
-        self.assertEqual(b.shape, (5, 10))
-        self.assertEqual(b.strides, (24, 2))
+        self.assertEqual(b.len, a.len)
+        self.assertEqual(b.itemsize, a.itemsize)
+        self.assertEqual(b.shape, a.shape)
+        self.assertEqual(b.strides, a.strides)
         self.assertTrue(b.suboffsets is None)
         self.assertTrue(b.internal is None)
         self.assertFalse(b.readonly)
         self.assertRaises(BufferError, BufferImporter, a, PyBUF_SIMPLE)
+        self.assertRaises(BufferError, BufferImporter, a, PyBUF_WRITABLE)
         self.assertRaises(BufferError, BufferImporter, a, PyBUF_ND)
         self.assertRaises(BufferError, BufferImporter, a, PyBUF_C_CONTIGUOUS)
         self.assertRaises(BufferError, BufferImporter, a, PyBUF_F_CONTIGUOUS)

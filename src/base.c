@@ -50,10 +50,13 @@ QDGlobals qd;
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
 #define PAI_MY_ENDIAN '<'
 #define PAI_OTHER_ENDIAN '>'
+#define BUF_OTHER_ENDIAN '>'
 #else
 #define PAI_MY_ENDIAN '>'
 #define PAI_OTHER_ENDIAN '<'
+#define BUF_OTHER_ENDIAN '<'
 #endif
+#define BUF_MY_ENDIAN '='
 
 #if PY3
 #define INT_CHECK(o) PyLong_Check(o)
@@ -98,6 +101,15 @@ static int _buffer_is_byteswapped (Py_buffer*);
 static void PgBuffer_Release (Pg_buffer*);
 static int PgObject_GetBuffer (PyObject*, Pg_buffer*, int);
 static int GetArrayInterface (PyObject**, PyObject*);
+static int PgArrayStruct_AsBuffer (Pg_buffer*,
+                                   PyObject*,
+                                   PyArrayInterface*,
+                                   int);
+static int _arraystruct_as_buffer (Py_buffer*,
+                                   PyObject*,
+                                   PyArrayInterface*,
+                                   int);
+static int _arraystruct_to_format (char*, PyArrayInterface*, int);
 static int PgDict_AsBuffer (Pg_buffer*, PyObject*, int);
 static int _pyshape_check (PyObject*);
 static int _pytypestr_check (PyObject*);
@@ -990,10 +1002,7 @@ PgObject_GetBuffer (PyObject* obj, Pg_buffer* pg_view_p, int flags)
     PyObject* cobj = 0;
     PyObject* dict = 0;
     PyArrayInterface* inter_p = 0;
-    ViewInternals* internal_p;
-    size_t sz;
     char *fchar_p;
-    Py_ssize_t i;
     int success = 0;
 
     pg_view_p->release_buffer = _release_buffer_generic;
@@ -1070,166 +1079,11 @@ PgObject_GetBuffer (PyObject* obj, Pg_buffer* pg_view_p, int flags)
 
 #endif
     if (!success && GetArrayStruct (obj, &cobj, &inter_p) == 0) {
-        sz = (sizeof (ViewInternals) + 
-              (2 * inter_p->nd - 1) * sizeof (Py_ssize_t));
-        internal_p = (ViewInternals*)PyMem_Malloc (sz);
-        if (!internal_p) {
-            Py_DECREF (cobj);
-            PyErr_NoMemory ();
+        if (PgArrayStruct_AsBuffer (pg_view_p, cobj, inter_p, flags)) {
             return -1;
         }
-        fchar_p = internal_p->format;
-        switch (inter_p->typekind) {
-
-        case 'i':
-            *fchar_p = (inter_p->flags & PAI_NOTSWAPPED ?
-                        PAI_MY_ENDIAN : PAI_OTHER_ENDIAN);
-            ++fchar_p;
-            switch (inter_p->itemsize) {
-
-            case 1:
-                *fchar_p = 'b';
-                break; 
-            case 2:
-                *fchar_p = 'h';
-                break;
-            case 4:
-                *fchar_p = 'i';
-                break;
-            case 8:
-                *fchar_p = 'q';
-                break;
-            default:
-                PyErr_Format (PyExc_ValueError,
-                              "Unsupported signed integer size %d",
-                              (int)inter_p->itemsize);
-                Py_DECREF (cobj);
-                return -1;
-            }
-            break;
-        case 'u':
-            *fchar_p = (inter_p->flags & PAI_NOTSWAPPED ?
-                        PAI_MY_ENDIAN : PAI_OTHER_ENDIAN);
-            ++fchar_p;
-            switch (inter_p->itemsize) {
-
-            case 1:
-                *fchar_p = 'B';
-                break; 
-            case 2:
-                *fchar_p = 'H';
-                break;
-            case 4:
-                *fchar_p = 'I';
-                break;
-            case 8:
-                *fchar_p = 'Q';
-                break;
-            default:
-                PyErr_Format (PyExc_ValueError,
-                              "Unsupported unsigned integer size %d",
-                              (int)inter_p->itemsize);
-                Py_DECREF (cobj);
-                return -1;
-            }
-            break;
-        case 'f':
-            *fchar_p = (inter_p->flags & PAI_NOTSWAPPED ?
-                        PAI_MY_ENDIAN : PAI_OTHER_ENDIAN);
-            ++fchar_p;
-            switch (inter_p->itemsize) {
-
-            case 4:
-                *fchar_p = 'f';
-                break;
-            case 8:
-                *fchar_p = 'd';
-                break;
-            default:
-                PyErr_Format (PyExc_ValueError,
-                              "Unsupported float size %d",
-                              (int)inter_p->itemsize);
-                Py_DECREF (cobj);
-                return -1;
-            }
-            break;
-        case 'V':
-            if (inter_p->itemsize > 9) {
-                PyErr_Format (PyExc_ValueError,
-                              "Unsupported void size %d",
-                              (int)inter_p->itemsize);
-                Py_DECREF (cobj);
-                return -1;
-            }
-            switch (inter_p->itemsize) {
-
-            case 1:
-                *fchar_p = '1';
-                break;
-            case 2:
-                *fchar_p = '2';
-                break;
-            case 3:
-                *fchar_p = '3';
-                break;
-            case 4:
-                *fchar_p = '4';
-                break;
-            case 5:
-                *fchar_p = '5';
-                break;
-            case 6:
-                *fchar_p = '6';
-                break;
-            case 7:
-                *fchar_p = '7';
-                break;
-            case 8:
-                *fchar_p = '8';
-                break;
-            case 9:
-                *fchar_p = '9';
-                break;
-            default:
-                PyErr_Format (PyExc_ValueError,
-                              "Unsupported void size %d",
-                              (int)inter_p->itemsize);
-                Py_DECREF (cobj);
-                return -1;
-            }
-            ++fchar_p;
-            *fchar_p = 'x';
-            break;
-        default:
-            PyErr_Format (PyExc_ValueError,
-                          "Unsupported value type '%c'",
-                          (int)inter_p->typekind);
-            Py_DECREF (cobj);
-            return -1;
-        }
-        ++fchar_p;
-        *fchar_p = '\0';
-        view_p->internal = internal_p;
-        view_p->format = internal_p->format;
-        view_p->shape = internal_p->imem;
-        view_p->strides = view_p->shape + inter_p->nd;
-        internal_p->cobj = cobj;
-        view_p->buf = inter_p->data;
         Py_INCREF (obj);
         view_p->obj = obj;
-        view_p->ndim = (Py_ssize_t)inter_p->nd;
-        view_p->itemsize = (Py_ssize_t)inter_p->itemsize;
-        view_p->readonly = inter_p->flags & PAI_WRITEABLE ? 0 : 1;
-        for (i = 0; i < view_p->ndim; ++i) {
-            view_p->shape[i] = (Py_ssize_t)inter_p->shape[i];
-            view_p->strides[i] = (Py_ssize_t)inter_p->strides[i];
-        }
-        view_p->suboffsets = 0;
-        view_p->len = view_p->itemsize;
-        for (i = 0; i < view_p->ndim; ++i) {
-            view_p->len *= view_p->shape[i];
-        }
-        pg_view_p->release_buffer = _release_buffer_array;
         success = 1;
     }
     else if (!success) {
@@ -1253,13 +1107,6 @@ PgObject_GetBuffer (PyObject* obj, Pg_buffer* pg_view_p, int flags)
                       "%s object does not export an array buffer",
                       Py_TYPE (obj)->tp_name);
         return -1;
-    }
-
-    if (!view_p->len) {
-        view_p->len = view_p->itemsize;
-        for (i = 0; i < view_p->ndim; ++i) {
-            view_p->len *= view_p->shape[i];
-        }
     }
     return 0;
 }
@@ -1331,6 +1178,254 @@ GetArrayInterface (PyObject **dict, PyObject *obj)
         return -1;
     }
     *dict = inter;
+    return 0;
+}
+
+static int
+PgArrayStruct_AsBuffer (Pg_buffer* pg_view_p, PyObject* cobj,
+                        PyArrayInterface* inter_p, int flags)
+{
+    pg_view_p->release_buffer = _release_buffer_array;
+    if (_arraystruct_as_buffer ((Py_buffer*)pg_view_p,
+                                cobj, inter_p, flags)) {
+        PgBuffer_Release (pg_view_p);
+        Py_DECREF (cobj);
+        return -1;
+    }
+    return 0;
+}
+
+static int
+_arraystruct_as_buffer (Py_buffer* view_p, PyObject* cobj,
+                        PyArrayInterface* inter_p, int flags)
+{
+    ViewInternals* internal_p;
+    ssize_t sz = (sizeof (ViewInternals) + 
+                  (2 * inter_p->nd - 1) * sizeof (Py_ssize_t));
+    int readonly = inter_p->flags & PAI_WRITEABLE ? 0 : 1;
+    Py_ssize_t i;
+
+    view_p->obj = 0;
+    view_p->internal = 0;
+    if (PyBUF_HAS_FLAG (flags, PyBUF_WRITABLE) && readonly) {
+        PyErr_SetString (PgExc_BufferError,
+                         "require writable buffer, but it is read-only");
+        return -1;
+    }
+    if (PyBUF_HAS_FLAG (flags, PyBUF_ANY_CONTIGUOUS)) {
+        if (!(inter_p->flags & (PAI_CONTIGUOUS | PAI_FORTRAN))) {
+            PyErr_SetString (PgExc_BufferError,
+                             "buffer data is not contiguous");
+            return -1;
+        }
+    }
+    else if (PyBUF_HAS_FLAG (flags, PyBUF_C_CONTIGUOUS)) {
+        if (!(inter_p->flags & PAI_CONTIGUOUS)) {
+            PyErr_SetString (PgExc_BufferError,
+                             "buffer data is not C contiguous");
+            return -1;
+        }
+    }
+    else if (PyBUF_HAS_FLAG (flags, PyBUF_F_CONTIGUOUS)) {
+        if (!(inter_p->flags & PAI_FORTRAN)) {
+            PyErr_SetString (PgExc_BufferError,
+                             "buffer data is not F contiguous");
+            return -1;
+        }
+    }
+    internal_p = (ViewInternals*)PyMem_Malloc (sz);
+    if (!internal_p) {
+        PyErr_NoMemory ();
+        return -1;
+    }
+    internal_p->cobj = 0;
+    view_p->internal = internal_p;
+    if (PyBUF_HAS_FLAG (flags, PyBUF_FORMAT)) {
+        if (_arraystruct_to_format(internal_p->format, inter_p, 3)) {
+            return -1;
+        }
+    view_p->format = internal_p->format;
+    }
+    else {
+        view_p->format = 0;
+    }
+    view_p->buf = inter_p->data;
+    if ((flags | PyBUF_WRITABLE) == PyBUF_WRITABLE) {
+        view_p->ndim = 0;
+    }
+    else {
+        view_p->ndim = (Py_ssize_t)inter_p->nd;
+    }
+    view_p->itemsize = (Py_ssize_t)inter_p->itemsize;
+    view_p->readonly = readonly;
+    if (PyBUF_HAS_FLAG (flags, PyBUF_ND)) {
+        view_p->shape = internal_p->imem;
+        for (i = 0; i < view_p->ndim; ++i) {
+            view_p->shape[i] = (Py_ssize_t)inter_p->shape[i];
+        }
+    }
+    else if (inter_p->flags & PAI_CONTIGUOUS) {
+        view_p->shape = 0;
+    }
+    else {
+        PyErr_SetString (PgExc_BufferError,
+                         "buffer data is not C contiguous, shape needed");
+        return -1;
+    }
+    if (PyBUF_HAS_FLAG (flags, PyBUF_STRIDES)) {
+        view_p->strides = view_p->shape + inter_p->nd;
+        for (i = 0; i < view_p->ndim; ++i) {
+            view_p->strides[i] = (Py_ssize_t)inter_p->strides[i];
+        }
+    }
+    else if (inter_p->flags & (PAI_CONTIGUOUS | PAI_FORTRAN)) {
+        view_p->strides = 0;
+    }
+    else {
+        PyErr_SetString (PgExc_BufferError,
+                         "buffer is not contiguous, strides needed");
+        return -1;
+    }
+    view_p->suboffsets = 0;
+    view_p->len = view_p->itemsize;
+    for (i = 0; i < inter_p->nd; ++i) {
+        view_p->len *= (Py_ssize_t)inter_p->shape[i];
+    }
+    internal_p->cobj = cobj;
+    return 0;
+}
+
+static int _arraystruct_to_format (char* format,
+                                   PyArrayInterface* inter_p,
+                                   int max_format_len)
+{
+    char* fchar_p = format;
+
+    assert (max_format_len >= 4);
+    switch (inter_p->typekind) {
+
+    case 'i':
+        *fchar_p = (inter_p->flags & PAI_NOTSWAPPED ?
+                    BUF_MY_ENDIAN : BUF_OTHER_ENDIAN);
+        ++fchar_p;
+        switch (inter_p->itemsize) {
+
+        case 1:
+            *fchar_p = 'b';
+            break; 
+        case 2:
+            *fchar_p = 'h';
+            break;
+        case 4:
+            *fchar_p = 'i';
+            break;
+        case 8:
+            *fchar_p = 'q';
+            break;
+        default:
+            PyErr_Format (PyExc_ValueError,
+                          "Unsupported signed integer size %d",
+                          (int)inter_p->itemsize);
+            return -1;
+        }
+        break;
+    case 'u':
+        *fchar_p = (inter_p->flags & PAI_NOTSWAPPED ?
+                    BUF_MY_ENDIAN : BUF_OTHER_ENDIAN);
+        ++fchar_p;
+        switch (inter_p->itemsize) {
+
+        case 1:
+            *fchar_p = 'B';
+            break; 
+        case 2:
+            *fchar_p = 'H';
+            break;
+        case 4:
+            *fchar_p = 'I';
+            break;
+        case 8:
+            *fchar_p = 'Q';
+            break;
+        default:
+            PyErr_Format (PyExc_ValueError,
+                          "Unsupported unsigned integer size %d",
+                          (int)inter_p->itemsize);
+            return -1;
+        }
+        break;
+    case 'f':
+        *fchar_p = (inter_p->flags & PAI_NOTSWAPPED ?
+                    BUF_MY_ENDIAN : BUF_OTHER_ENDIAN);
+        ++fchar_p;
+        switch (inter_p->itemsize) {
+
+        case 4:
+            *fchar_p = 'f';
+            break;
+        case 8:
+            *fchar_p = 'd';
+            break;
+        default:
+            PyErr_Format (PyExc_ValueError,
+                          "Unsupported float size %d",
+                          (int)inter_p->itemsize);
+            return -1;
+        }
+        break;
+    case 'V':
+        if (inter_p->itemsize > 9) {
+            PyErr_Format (PyExc_ValueError,
+                          "Unsupported void size %d",
+                          (int)inter_p->itemsize);
+            return -1;
+        }
+        switch (inter_p->itemsize) {
+
+        case 1:
+            *fchar_p = '1';
+            break;
+        case 2:
+            *fchar_p = '2';
+            break;
+        case 3:
+            *fchar_p = '3';
+            break;
+        case 4:
+            *fchar_p = '4';
+            break;
+        case 5:
+            *fchar_p = '5';
+            break;
+        case 6:
+            *fchar_p = '6';
+            break;
+        case 7:
+            *fchar_p = '7';
+            break;
+        case 8:
+            *fchar_p = '8';
+            break;
+        case 9:
+            *fchar_p = '9';
+            break;
+        default:
+            PyErr_Format (PyExc_ValueError,
+                          "Unsupported void size %d",
+                          (int)inter_p->itemsize);
+            return -1;
+        }
+        ++fchar_p;
+        *fchar_p = 'x';
+        break;
+    default:
+        PyErr_Format (PyExc_ValueError,
+                      "Unsupported value type '%c'",
+                      (int)inter_p->typekind);
+        return -1;
+    }
+    ++fchar_p;
+    *fchar_p = '\0';
     return 0;
 }
 
@@ -1510,6 +1605,10 @@ _pyvalues_as_buffer(Py_buffer* view_p, int flags, PyObject* obj,
     }
     sz = sizeof (ViewInternals) + (2 * ndim - 1) * sizeof (Py_ssize_t);
     internal_p = (ViewInternals*)PyMem_Malloc (sz);
+    if (!internal_p) {
+        PyErr_NoMemory ();
+        return -1;
+    }
     internal_p->cobj = 0;
     view_p->internal = internal_p;
     view_p->format = internal_p->format;
@@ -1572,19 +1671,19 @@ _pyvalues_as_buffer(Py_buffer* view_p, int flags, PyObject* obj,
         }
     }
     if (!PyBUF_HAS_FLAG (flags, PyBUF_ND)) {
-        if (ndim == 1) {
+        if (PyBuffer_IsContiguous (view_p, 'C')) {
             view_p->shape = 0;
         }
         else {
             PyErr_SetString (PgExc_BufferError,
-                             "buffer data is multi-dimensional, shape needed");
+                             "buffer data is not C contiguous, shape needed");
             return -1;
         }
     }
     if (!PyBUF_HAS_FLAG (flags, PyBUF_FORMAT)) {
         view_p->format = 0;
     }
-    if (flags == PyBUF_SIMPLE) {
+    if ((flags | PyBUF_WRITABLE) == PyBUF_WRITABLE) {
         view_p->ndim = 0;
     }
     Py_XINCREF (obj);
@@ -1649,7 +1748,7 @@ _pytypestr_as_format (PyObject* sp, char* format, Py_ssize_t* itemsize_p)
             itemsize = 1;
             break;
         case '2':
-            *fchar_p = is_swapped ? PAI_OTHER_ENDIAN : '=';
+            *fchar_p = is_swapped ? BUF_OTHER_ENDIAN : BUF_MY_ENDIAN;
             ++fchar_p;
             *fchar_p = 'H';
             itemsize = 2;
@@ -1661,7 +1760,7 @@ _pytypestr_as_format (PyObject* sp, char* format, Py_ssize_t* itemsize_p)
             itemsize = 3;
             break;
         case '4':
-            *fchar_p = is_swapped ? PAI_OTHER_ENDIAN : '=';
+            *fchar_p = is_swapped ? BUF_OTHER_ENDIAN : BUF_MY_ENDIAN;
             ++fchar_p;
             *fchar_p = 'I';
             itemsize = 4;
@@ -1685,7 +1784,7 @@ _pytypestr_as_format (PyObject* sp, char* format, Py_ssize_t* itemsize_p)
             itemsize = 7;
             break;
         case '8':
-            *fchar_p = is_swapped ? PAI_OTHER_ENDIAN : '=';
+            *fchar_p = is_swapped ? BUF_OTHER_ENDIAN : BUF_MY_ENDIAN;
             ++fchar_p;
             *fchar_p = 'Q';
             itemsize = 8;
@@ -1707,7 +1806,7 @@ _pytypestr_as_format (PyObject* sp, char* format, Py_ssize_t* itemsize_p)
         }
         break;
     case 'f':
-        *fchar_p = is_swapped ? PAI_OTHER_ENDIAN : '=';
+        *fchar_p = is_swapped ? BUF_OTHER_ENDIAN : BUF_MY_ENDIAN;
         ++fchar_p;
         switch (typestr[2]) {
 
