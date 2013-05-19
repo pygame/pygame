@@ -1493,7 +1493,7 @@ class SurfaceGetBufferTest (unittest.TestCase):
         self.assertTrue(b.format is None)
         self.assertEqual(b.strides, (1,))
         s2 = s.subsurface((1, 1, 7, 4)) # Not contiguous
-        a = s.get_buffer('&')
+        a = s2.get_buffer('&')
         b = BufferImporter(a, buftools.PyBUF_SIMPLE)
         self.assertEqual(b.ndim, 0)
         self.assertTrue(b.format is None)
@@ -1505,11 +1505,14 @@ class SurfaceGetBufferTest (unittest.TestCase):
         self.assertFalse(b.readonly)
         self.assertEqual(b.buf, s2._pixels_address)
         b = BufferImporter(a, buftools.PyBUF_C_CONTIGUOUS)
-        self.assertEqual(b.ndim, 0)
+        self.assertEqual(b.ndim, 1)
+        self.assertEqual(b.strides, (1,))
         b = BufferImporter(a, buftools.PyBUF_F_CONTIGUOUS)
-        self.assertEqual(b.ndim, 0)
+        self.assertEqual(b.ndim, 1)
+        self.assertEqual(b.strides, (1,))
         b = BufferImporter(a, buftools.PyBUF_ANY_CONTIGUOUS)
-        self.assertEqual(b.ndim, 0)
+        self.assertEqual(b.ndim, 1)
+        self.assertEqual(b.strides, (1,))
 
     def NEWBUF_test_newbuf_PyBUF_flags_0D(self):
         self.fail()
