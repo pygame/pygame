@@ -41,6 +41,10 @@ typedef enum {
     VIEWKIND_RAW
 } SurfViewKind;
 
+#define PyBUF_HAS_FLAG(f, F) (((f) & (F)) == (F))
+#define PyBUF_NO_DIM (PyBUF_WRITABLE | PyBUF_FORMAT)
+#define PyBUF_IS_DIMLESS(f) (((f) | PyBUF_NO_DIM) == PyBUF_NO_DIM)
+
 /* To avoid problems with non-const Py_buffer format field */
 static char FormatUint8[] = "B";
 static char FormatUint16[] = "=H";
@@ -2262,7 +2266,9 @@ _get_buffer_0D (PyObject *obj, Pg_buffer *pg_view_p, int flags)
     view_p->buf = surface->pixels;
     view_p->itemsize = 1;
     view_p->len = surface->pitch * surface->h;
-    view_p->ndim = 1;
+    if (!PyBUF_IS_DIMLESS(flags)) {
+        view_p->ndim = 1;
+    }
     view_p->readonly = 0;
     if (flags & PyBUF_FORMAT) {
         view_p->format = FormatUint8;
@@ -2620,6 +2626,7 @@ _init_buffer (PyObject *surf, Pg_buffer *pg_view_p, int flags)
         ((Py_buffer *)pg_view_p)->shape = 0;
         ((Py_buffer *)pg_view_p)->strides = 0;
     }
+    ((Py_buffer *)pg_view_p)->ndim = 0;
     ((Py_buffer *)pg_view_p)->format = 0;
     ((Py_buffer *)pg_view_p)->suboffsets = 0;
     ((Py_buffer *)pg_view_p)->internal = internal;

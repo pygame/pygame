@@ -1273,7 +1273,7 @@ class SurfaceTypeTest(unittest.TestCase):
         surf.scroll(dx=-3, dy=-3)
         self.failUnlessEqual(surf.get_at((0, 0)), spot_color)
 
-class SurfaceGetViewTest (unittest.TestCase):
+class SurfaceGetBufferTest (unittest.TestCase):
 
     # These tests requires ctypes. They are disabled if ctypes
     # is not installed.
@@ -1437,6 +1437,90 @@ class SurfaceGetViewTest (unittest.TestCase):
                 self._check_interface_rgba(s, plane)
                 s = pygame.Surface((4, 2), 0, 32)
                 self._check_interface_rgba(s, plane)
+
+    if pygame.HAVE_NEWBUF:
+        def test_newbuf_PyBUF_flags_bytes(self):
+            self.NEWBUF_test_newbuf_PyBUF_flags_bytes()
+        def test_newbuf_PyBUF_flags_0D(self):
+            self.NEWBUF_test_newbuf_PyBUF_flags_2D()
+        def test_newbuf_PyBUF_flags_1D(self):
+            self.NEWBUF_test_newbuf_PyBUF_flags_2D()
+        def test_newbuf_PyBUF_flags_2D(self):
+            self.NEWBUF_test_newbuf_PyBUF_flags_2D()
+        def test_newbuf_PyBUF_flags_3D(self):
+            self.NEWBUF_test_newbuf_PyBUF_flags_2D()
+        def test_newbuf_PyBUF_flags_rgba(self):
+            self.NEWBUF_test_newbuf_PyBUF_flags_2D()
+        if is_pygame_pkg:
+            from pygame.tests.test_utils import buftools
+        else:
+            from test.test_utils import buftools
+
+    def NEWBUF_test_newbuf_PyBUF_flags_bytes(self):
+        buftools = self.buftools
+        BufferImporter = buftools.BufferImporter
+        s = pygame.Surface((10, 6), 0, 32)
+        a = s.get_buffer('&')
+        b = BufferImporter(a, buftools.PyBUF_SIMPLE)
+        self.assertEqual(b.ndim, 0)
+        self.assertTrue(b.format is None)
+        self.assertEqual(b.len, a.length)
+        self.assertEqual(b.itemsize, 1)
+        self.assertTrue(b.shape is None)
+        self.assertTrue(b.strides is None)
+        self.assertTrue(b.suboffsets is None)
+        self.assertFalse(b.readonly)
+        self.assertEqual(b.buf, s._pixels_address)
+        b = BufferImporter(a, buftools.PyBUF_WRITABLE)
+        self.assertEqual(b.ndim, 0)
+        self.assertTrue(b.format is None)
+        self.assertFalse(b.readonly)
+        b = BufferImporter(a, buftools.PyBUF_FORMAT)
+        self.assertEqual(b.ndim, 0)
+        self.assertEqual(b.format, 'B')
+        b = BufferImporter(a, buftools.PyBUF_ND)
+        self.assertEqual(b.ndim, 1)
+        self.assertTrue(b.format is None)
+        self.assertEqual(b.len, a.length)
+        self.assertEqual(b.itemsize, 1)
+        self.assertEqual(b.shape, (a.length,))
+        self.assertTrue(b.strides is None)
+        self.assertTrue(b.suboffsets is None)
+        self.assertFalse(b.readonly)
+        self.assertEqual(b.buf, s._pixels_address)
+        b = BufferImporter(a, buftools.PyBUF_STRIDES)
+        self.assertEqual(b.ndim, 1)
+        self.assertTrue(b.format is None)
+        self.assertEqual(b.strides, (1,))
+        s2 = s.subsurface((1, 1, 7, 4)) # Not contiguous
+        a = s.get_buffer('&')
+        b = BufferImporter(a, buftools.PyBUF_SIMPLE)
+        self.assertEqual(b.ndim, 0)
+        self.assertTrue(b.format is None)
+        self.assertEqual(b.len, a.length)
+        self.assertEqual(b.itemsize, 1)
+        self.assertTrue(b.shape is None)
+        self.assertTrue(b.strides is None)
+        self.assertTrue(b.suboffsets is None)
+        self.assertFalse(b.readonly)
+        self.assertEqual(b.buf, s2._pixels_address)
+        b = BufferImporter(a, buftools.PyBUF_C_CONTIGUOUS)
+        self.assertEqual(b.ndim, 0)
+        b = BufferImporter(a, buftools.PyBUF_F_CONTIGUOUS)
+        self.assertEqual(b.ndim, 0)
+        b = BufferImporter(a, buftools.PyBUF_ANY_CONTIGUOUS)
+        self.assertEqual(b.ndim, 0)
+
+    def NEWBUF_test_newbuf_PyBUF_flags_0D(self):
+        self.fail()
+    def NEWBUF_test_newbuf_PyBUF_flags_1D(self):
+        self.fail()
+    def NEWBUF_test_newbuf_PyBUF_flags_2D(self):
+        self.fail()
+    def NEWBUF_test_newbuf_PyBUF_flags_3D(self):
+        self.fail()
+    def NEWBUF_test_newbuf_PyBUF_flags_rgba(self):
+        self.fail()
 
 class SurfaceBlendTest (unittest.TestCase):
 
