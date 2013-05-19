@@ -2270,13 +2270,13 @@ _get_buffer_0D (PyObject *obj, Pg_buffer *pg_view_p, int flags)
         view_p->ndim = 1;
     }
     view_p->readonly = 0;
-    if (flags & PyBUF_FORMAT) {
+    if (PyBUF_HAS_FLAG(flags, PyBUF_FORMAT)) {
         view_p->format = FormatUint8;
     }
-    if (flags & PyBUF_ND) {
+    if (PyBUF_HAS_FLAG(flags, PyBUF_ND)) {
         view_p->shape[0] = view_p->len;
     }
-    if (flags & PyBUF_STRIDES) {
+    if (PyBUF_HAS_FLAG(flags, PyBUF_STRIDES)) {
         view_p->strides[0] = view_p->itemsize;
     }
     Py_INCREF (obj);
