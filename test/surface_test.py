@@ -1442,15 +1442,15 @@ class SurfaceGetBufferTest (unittest.TestCase):
         def test_newbuf_PyBUF_flags_bytes(self):
             self.NEWBUF_test_newbuf_PyBUF_flags_bytes()
         def test_newbuf_PyBUF_flags_0D(self):
-            self.NEWBUF_test_newbuf_PyBUF_flags_2D()
+            self.NEWBUF_test_newbuf_PyBUF_flags_0D()
         def test_newbuf_PyBUF_flags_1D(self):
-            self.NEWBUF_test_newbuf_PyBUF_flags_2D()
+            self.NEWBUF_test_newbuf_PyBUF_flags_1D()
         def test_newbuf_PyBUF_flags_2D(self):
             self.NEWBUF_test_newbuf_PyBUF_flags_2D()
         def test_newbuf_PyBUF_flags_3D(self):
-            self.NEWBUF_test_newbuf_PyBUF_flags_2D()
+            self.NEWBUF_test_newbuf_PyBUF_flags_3D()
         def test_newbuf_PyBUF_flags_rgba(self):
-            self.NEWBUF_test_newbuf_PyBUF_flags_2D()
+            self.NEWBUF_test_newbuf_PyBUF_flags_rgba()
         if is_pygame_pkg:
             from pygame.tests.test_utils import buftools
         else:
@@ -1515,11 +1515,134 @@ class SurfaceGetBufferTest (unittest.TestCase):
         self.assertEqual(b.strides, (1,))
 
     def NEWBUF_test_newbuf_PyBUF_flags_0D(self):
-        self.fail()
+        # This is the same handler as for the '&' buffer kind, so just
+        # confirm that it succeeds for one case.
+        buftools = self.buftools
+        BufferImporter = buftools.BufferImporter
+        s = pygame.Surface((10, 6), 0, 32)
+        a = s.get_buffer('0')
+        b = BufferImporter(a, buftools.PyBUF_SIMPLE)
+        self.assertEqual(b.ndim, 0)
+        self.assertTrue(b.format is None)
+        self.assertEqual(b.len, a.length)
+        self.assertEqual(b.itemsize, 1)
+        self.assertTrue(b.shape is None)
+        self.assertTrue(b.strides is None)
+        self.assertTrue(b.suboffsets is None)
+        self.assertFalse(b.readonly)
+        self.assertEqual(b.buf, s._pixels_address)
+
     def NEWBUF_test_newbuf_PyBUF_flags_1D(self):
-        self.fail()
+        buftools = self.buftools
+        BufferImporter = buftools.BufferImporter
+        s = pygame.Surface((10, 6), 0, 32)
+        a = s.get_buffer('1')
+        b = BufferImporter(a, buftools.PyBUF_SIMPLE)
+        self.assertEqual(b.ndim, 0)
+        self.assertTrue(b.format is None)
+        self.assertEqual(b.len, a.length)
+        self.assertEqual(b.itemsize, s.get_bytesize())
+        self.assertTrue(b.shape is None)
+        self.assertTrue(b.strides is None)
+        self.assertTrue(b.suboffsets is None)
+        self.assertFalse(b.readonly)
+        self.assertEqual(b.buf, s._pixels_address)
+        b = BufferImporter(a, buftools.PyBUF_WRITABLE)
+        self.assertEqual(b.ndim, 0)
+        self.assertTrue(b.format is None)
+        self.assertFalse(b.readonly)
+        b = BufferImporter(a, buftools.PyBUF_FORMAT)
+        self.assertEqual(b.ndim, 0)
+        self.assertEqual(b.format, '=I')
+        b = BufferImporter(a, buftools.PyBUF_ND)
+        self.assertEqual(b.ndim, 1)
+        self.assertTrue(b.format is None)
+        self.assertEqual(b.len, a.length)
+        self.assertEqual(b.itemsize, s.get_bytesize())
+        self.assertEqual(b.shape, (s.get_width() * s.get_height(),))
+        self.assertTrue(b.strides is None)
+        self.assertTrue(b.suboffsets is None)
+        self.assertFalse(b.readonly)
+        self.assertEqual(b.buf, s._pixels_address)
+        b = BufferImporter(a, buftools.PyBUF_STRIDES)
+        self.assertEqual(b.ndim, 1)
+        self.assertTrue(b.format is None)
+        self.assertEqual(b.strides, (s.get_bytesize(),))
+
     def NEWBUF_test_newbuf_PyBUF_flags_2D(self):
-        self.fail()
+        buftools = self.buftools
+        BufferImporter = buftools.BufferImporter
+        s = pygame.Surface((10, 6), 0, 32)
+        a = s.get_buffer('2')
+        # Non dimensional requests, no PyDEF_ND, are handled by the
+        # 1D surface buffer code, so only need to confirm a success.
+        b = BufferImporter(a, buftools.PyBUF_SIMPLE)
+        self.assertEqual(b.ndim, 0)
+        self.assertTrue(b.format is None)
+        self.assertEqual(b.len, a.length)
+        self.assertEqual(b.itemsize, s.get_bytesize())
+        self.assertTrue(b.shape is None)
+        self.assertTrue(b.strides is None)
+        self.assertTrue(b.suboffsets is None)
+        self.assertFalse(b.readonly)
+        self.assertEqual(b.buf, s._pixels_address)
+        # Uniquely 2D
+        b = BufferImporter(a, buftools.PyBUF_STRIDES)
+        self.assertEqual(b.ndim, 2)
+        self.assertTrue(b.format is None)
+        self.assertEqual(b.len, a.length)
+        self.assertEqual(b.itemsize, s.get_bytesize())
+        self.assertEqual(b.shape, s.get_size())
+        self.assertEqual(b.strides, (s.get_bytesize(), s.get_pitch()))
+        self.assertTrue(b.suboffsets is None)
+        self.assertFalse(b.readonly)
+        self.assertEqual(b.buf, s._pixels_address)
+        b = BufferImporter(a, buftools.PyBUF_RECORDS_RO)
+        self.assertEqual(b.ndim, 2)
+        self.assertEqual(b.format, '=I')
+        self.assertEqual(b.strides, (s.get_bytesize(), s.get_pitch()))
+        b = BufferImporter(a, buftools.PyBUF_RECORDS)
+        self.assertEqual(b.ndim, 2)
+        self.assertEqual(b.format, '=I')
+        self.assertEqual(b.strides, (s.get_bytesize(), s.get_pitch()))
+        b = BufferImporter(a, buftools.PyBUF_F_CONTIGUOUS)
+        self.assertEqual(b.ndim, 2)
+        self.assertEqual(b.format, None)
+        self.assertEqual(b.strides, (s.get_bytesize(), s.get_pitch()))
+        b = BufferImporter(a, buftools.PyBUF_ANY_CONTIGUOUS)
+        self.assertEqual(b.ndim, 2)
+        self.assertEqual(b.format, None)
+        self.assertEqual(b.strides, (s.get_bytesize(), s.get_pitch()))
+        self.assertRaises(BufferError, BufferImporter, a, buftools.PyBUF_ND)
+        self.assertRaises(BufferError, BufferImporter, a,
+                          buftools.PyBUF_C_CONTIGUOUS)
+        s2 = s.subsurface((1, 1, 7, 4)) # Not contiguous
+        a = s2.get_buffer('2')
+        b = BufferImporter(a, buftools.PyBUF_STRIDES)
+        self.assertEqual(b.ndim, 2)
+        self.assertTrue(b.format is None)
+        self.assertEqual(b.len, a.length)
+        self.assertEqual(b.itemsize, s2.get_bytesize())
+        self.assertEqual(b.shape, s2.get_size())
+        self.assertEqual(b.strides, (s2.get_bytesize(), s.get_pitch()))
+        self.assertTrue(b.suboffsets is None)
+        self.assertFalse(b.readonly)
+        self.assertEqual(b.buf, s2._pixels_address)
+        b = BufferImporter(a, buftools.PyBUF_RECORDS)
+        self.assertEqual(b.ndim, 2)
+        self.assertEqual(b.format, '=I')
+        self.assertRaises(BufferError, BufferImporter, a, buftools.PyBUF_SIMPLE)
+        self.assertRaises(BufferError, BufferImporter, a, buftools.PyBUF_FORMAT)
+        self.assertRaises(BufferError, BufferImporter, a,
+                          buftools.PyBUF_WRITABLE)
+        self.assertRaises(BufferError, BufferImporter, a, buftools.PyBUF_ND)
+        self.assertRaises(BufferError, BufferImporter, a,
+                          buftools.PyBUF_C_CONTIGUOUS)
+        self.assertRaises(BufferError, BufferImporter, a,
+                          buftools.PyBUF_F_CONTIGUOUS)
+        self.assertRaises(BufferError, BufferImporter, a,
+                          buftools.PyBUF_ANY_CONTIGUOUS)
+
     def NEWBUF_test_newbuf_PyBUF_flags_3D(self):
         self.fail()
     def NEWBUF_test_newbuf_PyBUF_flags_rgba(self):
