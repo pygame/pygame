@@ -2266,18 +2266,16 @@ _get_buffer_0D (PyObject *obj, Pg_buffer *pg_view_p, int flags)
     view_p->buf = surface->pixels;
     view_p->itemsize = 1;
     view_p->len = surface->pitch * surface->h;
-    if (!PyBUF_IS_DIMLESS(flags)) {
-        view_p->ndim = 1;
-    }
     view_p->readonly = 0;
     if (PyBUF_HAS_FLAG(flags, PyBUF_FORMAT)) {
         view_p->format = FormatUint8;
     }
     if (PyBUF_HAS_FLAG(flags, PyBUF_ND)) {
+        view_p->ndim = 1;
         view_p->shape[0] = view_p->len;
-    }
-    if (PyBUF_HAS_FLAG(flags, PyBUF_STRIDES)) {
-        view_p->strides[0] = view_p->itemsize;
+        if (PyBUF_HAS_FLAG(flags, PyBUF_STRIDES)) {
+            view_p->strides[0] = view_p->itemsize;
+        }
     }
     Py_INCREF (obj);
     view_p->obj = obj;
@@ -2290,61 +2288,45 @@ _get_buffer_1D (PyObject *obj, Pg_buffer *pg_view_p, int flags)
     Py_buffer *view_p = (Py_buffer *)pg_view_p;
     SDL_Surface *surface = PySurface_AsSurface (obj);
     Py_ssize_t itemsize = surface->format->BytesPerPixel;
-    char *format;
 
     view_p->obj = 0;
     if (itemsize == 1) {
         return _get_buffer_0D (obj, pg_view_p, flags);
     }
-    if (flags == PyBUF_SIMPLE) {
-        PyErr_Format (PgExc_BufferError,
-                      "PyBUF_SIMPLE flag unsupported for a "
-                      "%i bytes-per-pixel 1D surface view", itemsize);
-        return -1;
-    }
-    if ((flags & PyBUF_ND) != PyBUF_ND) {
-        PyErr_Format (PgExc_BufferError,
-                      "PyBUF_ND flag required for a "
-                      "%i bytes-per-pixel 1D surface view", itemsize);
-        return -1;
-    }
-    if ((flags & PyBUF_FORMAT) != PyBUF_FORMAT) {
-        PyErr_Format (PgExc_BufferError,
-                      "PyBUF_FORMAT required for a 1D view of a "
-                      "%i bytes-per-pixel surface", itemsize);
-        return -1;
-    }
-    switch (itemsize) {
-
-    case 2:
-        format = FormatUint16;
-        break;
-    case 3:
-        format = FormatUint24;
-        break;
-    case 4:
-        format = FormatUint32;
-        break;
-    default:
-        /* Should not get here! */
-        PyErr_Format (PyExc_SystemError,
-                      "Pygame bug caught at line %i in file %s: "
-                      "unknown pixel size %i. Please report",
-                      (int)__LINE__, __FILE__, itemsize);
-        return -1;
-    }
     if (_init_buffer (obj, pg_view_p, flags)) {
         return -1;
     }
-    view_p->format = format;
+    if (PyBUF_HAS_FLAG (flags, PyBUF_FORMAT)) {
+        switch (itemsize) {
+
+        case 2:
+            view_p->format = FormatUint16;
+            break;
+        case 3:
+            view_p->format = FormatUint24;
+            break;
+        case 4:
+            view_p->format = FormatUint32;
+            break;
+        default:
+            /* Should not get here! */
+            PyErr_Format (PyExc_SystemError,
+                          "Pygame bug caught at line %i in file %s: "
+                          "unknown pixel size %i. Please report",
+                          (int)__LINE__, __FILE__, itemsize);
+            return -1;
+        }
+    }
     view_p->buf = surface->pixels;
     view_p->itemsize = itemsize;
-    view_p->ndim = 1;
     view_p->readonly = 0;
-    view_p->len = surface->w * surface->h * itemsize;
-    view_p->shape[0] = surface->w * surface->h;
-    if ((flags & PyBUF_STRIDES) == PyBUF_STRIDES) {
-        view_p->strides[0] = itemsize;
+    view_p->len = surface->pitch * surface->h;
+    if (PyBUF_HAS_FLAG (flags, PyBUF_ND)) {
+        view_p->ndim = 1;
+        view_p->shape[0] = surface->w * surface->h;
+        if (PyBUF_HAS_FLAG (flags, PyBUF_STRIDES)) {
+            view_p->strides[0] = itemsize;
+        }
     }
     view_p->suboffsets = 0;
     Py_INCREF (obj);
@@ -2358,58 +2340,66 @@ _get_buffer_2D (PyObject *obj, Pg_buffer *pg_view_p, int flags)
     Py_buffer *view_p = (Py_buffer *)pg_view_p;
     SDL_Surface *surface = PySurface_AsSurface (obj);
     int itemsize = surface->format->BytesPerPixel;
-    char *format;
 
     view_p->obj = 0;
-    if ((flags & PyBUF_RECORDS_RO) != PyBUF_RECORDS_RO) {
-        PyErr_SetString (PgExc_BufferError,
-                         "A PyBUF_RECORDS(_RO) flag is required for a "
-                         "2D surface view");
-        return -1;
+    if (PyBUF_IS_DIMLESS (flags)) {
+        if (surface->pitch != surface->w * itemsize) {
+            PyErr_SetString (PgExc_BufferError,
+                             "A 2D surface view is not C contiguous");
+            return -1;
+        }
+        return _get_buffer_1D (obj, pg_view_p, flags);
     }
-    if ((flags & PyBUF_C_CONTIGUOUS) == PyBUF_C_CONTIGUOUS) {
+    if (!PyBUF_HAS_FLAG (flags, PyBUF_STRIDES)) {
+            PyErr_SetString (PgExc_BufferError,
+                             "A 2D surface view is not C contiguous: "
+                             "need strides");
+            return -1;
+    }
+    if (PyBUF_HAS_FLAG (flags, PyBUF_C_CONTIGUOUS)) {
         PyErr_SetString (PgExc_BufferError,
                          "A 2D surface view is not C contiguous");
         return -1;
     }
-    if ((flags & PyBUF_F_CONTIGUOUS) == PyBUF_F_CONTIGUOUS &&
+    if (PyBUF_HAS_FLAG (flags, PyBUF_F_CONTIGUOUS) &&
         surface->pitch != surface->w * itemsize) {
         PyErr_SetString (PgExc_BufferError,
                          "This 2D surface view is not F contiguous");
         return -1;
     }
-    if ((flags & PyBUF_ANY_CONTIGUOUS) == PyBUF_ANY_CONTIGUOUS &&
+    if (PyBUF_HAS_FLAG (flags, PyBUF_ANY_CONTIGUOUS) &&
         surface->pitch != surface->w * itemsize) {
         PyErr_SetString (PgExc_BufferError,
                          "This 2D surface view is not contiguous");
         return -1;
     }
-    switch (itemsize) {
-
-    case 1:
-        format = FormatUint8;
-        break;
-    case 2:
-        format = FormatUint16;
-        break;
-    case 3:
-        format = FormatUint24;
-        break;
-    case 4:
-        format = FormatUint32;
-        break;
-    default:
-        /* Should not get here! */
-        PyErr_Format (PyExc_SystemError,
-                      "Pygame bug caught at line %i in file %s: "
-                      "unknown pixel size %i. Please report",
-                      (int)__LINE__, __FILE__, itemsize);
-        return -1;
-    }
     if (_init_buffer (obj, pg_view_p, flags)) {
         return -1;
     }
-    view_p->format = format;
+    if (PyBUF_HAS_FLAG (flags, PyBUF_FORMAT)) {
+        switch (itemsize) {
+
+        case 1:
+            view_p->format = FormatUint8;
+            break;
+        case 2:
+            view_p->format = FormatUint16;
+            break;
+        case 3:
+            view_p->format = FormatUint24;
+            break;
+        case 4:
+            view_p->format = FormatUint32;
+            break;
+        default:
+            /* Should not get here! */
+            PyErr_Format (PyExc_SystemError,
+                          "Pygame bug caught at line %i in file %s: "
+                          "unknown pixel size %i. Please report",
+                          (int)__LINE__, __FILE__, itemsize);
+            return -1;
+        }
+    }
     view_p->buf = surface->pixels;
     view_p->itemsize = itemsize;
     view_p->ndim = 2;
@@ -2417,7 +2407,6 @@ _get_buffer_2D (PyObject *obj, Pg_buffer *pg_view_p, int flags)
     view_p->len = surface->w * surface->h * itemsize;
     view_p->shape[0] = surface->w;
     view_p->shape[1] = surface->h;
-    view_p->len = view_p->itemsize * view_p->shape[0] * view_p->shape[1];
     view_p->strides[0] = itemsize;
     view_p->strides[1] = surface->pitch;
     view_p->suboffsets = 0;
@@ -2613,9 +2602,9 @@ _init_buffer (PyObject *surf, Pg_buffer *pg_view_p, int flags)
         PyMem_Free (internal);
         return -1;
     }
-    if ((flags & PyBUF_ND) == PyBUF_ND) {
+    if (PyBUF_HAS_FLAG (flags, PyBUF_ND)) {
         ((Py_buffer *)pg_view_p)->shape = internal->mem;
-        if ((flags & PyBUF_STRIDES) == PyBUF_STRIDES) {
+        if (PyBUF_HAS_FLAG (flags, PyBUF_STRIDES)) {
             ((Py_buffer *)pg_view_p)->strides = internal->mem + 3;
         }
         else {
