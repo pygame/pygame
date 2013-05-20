@@ -1644,9 +1644,108 @@ class SurfaceGetBufferTest (unittest.TestCase):
                           buftools.PyBUF_ANY_CONTIGUOUS)
 
     def NEWBUF_test_newbuf_PyBUF_flags_3D(self):
-        self.fail()
+        buftools = self.buftools
+        BufferImporter = buftools.BufferImporter
+        s = pygame.Surface((12, 6), 0, 24)
+        rmask, gmask, bmask, amask = s.get_masks()
+        if (self.lilendian):
+            if (rmask == 0x0000ff):
+                color_step = 1
+                addr_offset = 0
+            else:
+                color_step = -1
+                addr_offset = 2
+        else:
+            if (rmask == 0xff0000):
+                color_step = 1
+                addr_offset = 0
+            else:
+                color_step = -1
+                addr_offset = 2
+        a = s.get_buffer('3')
+        b = BufferImporter(a, buftools.PyBUF_STRIDES)
+        w, h = s.get_size()
+        shape = w, h, 3
+        strides = 3, s.get_pitch(), color_step
+        self.assertEqual(b.ndim, 3)
+        self.assertTrue(b.format is None)
+        self.assertEqual(b.len, a.length)
+        self.assertEqual(b.itemsize, 1)
+        self.assertEqual(b.shape, shape)
+        self.assertEqual(b.strides, strides)
+        self.assertTrue(b.suboffsets is None)
+        self.assertFalse(b.readonly)
+        self.assertEqual(b.buf, s._pixels_address + addr_offset)
+        b = BufferImporter(a, buftools.PyBUF_RECORDS_RO)
+        self.assertEqual(b.ndim, 3)
+        self.assertEqual(b.format, 'B')
+        self.assertEqual(b.strides, strides)
+        b = BufferImporter(a, buftools.PyBUF_RECORDS)
+        self.assertEqual(b.ndim, 3)
+        self.assertEqual(b.format, 'B')
+        self.assertEqual(b.strides, strides)
+        self.assertRaises(BufferError, BufferImporter, a, buftools.PyBUF_SIMPLE)
+        self.assertRaises(BufferError, BufferImporter, a, buftools.PyBUF_FORMAT)
+        self.assertRaises(BufferError, BufferImporter, a,
+                          buftools.PyBUF_WRITABLE)
+        self.assertRaises(BufferError, BufferImporter, a, buftools.PyBUF_ND)
+        self.assertRaises(BufferError, BufferImporter, a,
+                          buftools.PyBUF_C_CONTIGUOUS)
+        self.assertRaises(BufferError, BufferImporter, a,
+                          buftools.PyBUF_F_CONTIGUOUS)
+        self.assertRaises(BufferError, BufferImporter, a,
+                          buftools.PyBUF_ANY_CONTIGUOUS)
+
     def NEWBUF_test_newbuf_PyBUF_flags_rgba(self):
-        self.fail()
+        # All color plane views are handled by the same routine,
+        # so only one plane need be checked.
+        buftools = self.buftools
+        BufferImporter = buftools.BufferImporter
+        s = pygame.Surface((12, 6), 0, 24)
+        rmask, gmask, bmask, amask = s.get_masks()
+        if (self.lilendian):
+            if (rmask == 0x0000ff):
+                addr_offset = 0
+            else:
+                addr_offset = 2
+        else:
+            if (rmask == 0xff0000):
+                addr_offset = 0
+            else:
+                addr_offset = 2
+        a = s.get_buffer('R')
+        b = BufferImporter(a, buftools.PyBUF_STRIDES)
+        w, h = s.get_size()
+        shape = w, h
+        strides = s.get_bytesize(), s.get_pitch()
+        self.assertEqual(b.ndim, 2)
+        self.assertTrue(b.format is None)
+        self.assertEqual(b.len, a.length)
+        self.assertEqual(b.itemsize, 1)
+        self.assertEqual(b.shape, shape)
+        self.assertEqual(b.strides, strides)
+        self.assertTrue(b.suboffsets is None)
+        self.assertFalse(b.readonly)
+        self.assertEqual(b.buf, s._pixels_address + addr_offset)
+        b = BufferImporter(a, buftools.PyBUF_RECORDS_RO)
+        self.assertEqual(b.ndim, 2)
+        self.assertEqual(b.format, 'B')
+        self.assertEqual(b.strides, strides)
+        b = BufferImporter(a, buftools.PyBUF_RECORDS)
+        self.assertEqual(b.ndim, 2)
+        self.assertEqual(b.format, 'B')
+        self.assertEqual(b.strides, strides)
+        self.assertRaises(BufferError, BufferImporter, a, buftools.PyBUF_SIMPLE)
+        self.assertRaises(BufferError, BufferImporter, a, buftools.PyBUF_FORMAT)
+        self.assertRaises(BufferError, BufferImporter, a,
+                          buftools.PyBUF_WRITABLE)
+        self.assertRaises(BufferError, BufferImporter, a, buftools.PyBUF_ND)
+        self.assertRaises(BufferError, BufferImporter, a,
+                          buftools.PyBUF_C_CONTIGUOUS)
+        self.assertRaises(BufferError, BufferImporter, a,
+                          buftools.PyBUF_F_CONTIGUOUS)
+        self.assertRaises(BufferError, BufferImporter, a,
+                          buftools.PyBUF_ANY_CONTIGUOUS)
 
 class SurfaceBlendTest (unittest.TestCase):
 
