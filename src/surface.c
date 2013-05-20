@@ -2425,15 +2425,14 @@ _get_buffer_3D (PyObject *obj, Pg_buffer *pg_view_p, int flags)
     char *startpixel = (char *)surface->pixels;
 
     view_p->obj = 0;
-    if ((flags & PyBUF_RECORDS_RO) != PyBUF_RECORDS_RO) {
+    if (!PyBUF_HAS_FLAG (flags, PyBUF_STRIDES)) {
         PyErr_SetString (PgExc_BufferError,
-                         "A PyBUF_RECORDS(_RO) flag is required for a "
-                         "2D surface view");
+                         "A 3D surface view is not contiguous: needs strides");
         return -1;
     }
-    if ((flags & PyBUF_C_CONTIGUOUS) == PyBUF_C_CONTIGUOUS ||
-        (flags & PyBUF_F_CONTIGUOUS) == PyBUF_F_CONTIGUOUS ||
-        (flags & PyBUF_ANY_CONTIGUOUS) == PyBUF_ANY_CONTIGUOUS) {
+    if (PyBUF_HAS_FLAG (flags, PyBUF_C_CONTIGUOUS) ||
+        PyBUF_HAS_FLAG (flags, PyBUF_F_CONTIGUOUS) ||
+        PyBUF_HAS_FLAG (flags, PyBUF_ANY_CONTIGUOUS)) {
         PyErr_SetString (PgExc_BufferError,
                          "A 3D surface view is not contiguous");
         return -1;
@@ -2441,7 +2440,9 @@ _get_buffer_3D (PyObject *obj, Pg_buffer *pg_view_p, int flags)
     if (_init_buffer (obj, pg_view_p, flags)) {
         return -1;
     }
-    view_p->format = FormatUint8;
+    if (PyBUF_HAS_FLAG (flags, PyBUF_FORMAT)) {
+        view_p->format = FormatUint8;
+    }
     view_p->itemsize = 1;
     view_p->ndim = 3;
     view_p->readonly = 0;
@@ -2519,17 +2520,17 @@ _get_buffer_colorplane (PyObject *obj,
     char *startpixel = (char *)surface->pixels;
 
     view_p->obj = 0;
-    if ((flags & PyBUF_RECORDS_RO) != PyBUF_RECORDS_RO) {
+    if (!PyBUF_HAS_FLAG (flags, PyBUF_STRIDES)) {
         PyErr_SetString (PgExc_BufferError,
-                         "A PyBUF_RECORDS(_RO) flag is required for a "
-                         "surface colorplane view");
+                         "A surface color plane view is not contiguous: "
+                         "need strides");
         return -1;
     }
-    if ((flags & PyBUF_C_CONTIGUOUS) == PyBUF_C_CONTIGUOUS ||
-        (flags & PyBUF_F_CONTIGUOUS) == PyBUF_F_CONTIGUOUS ||
-        (flags & PyBUF_ANY_CONTIGUOUS) == PyBUF_ANY_CONTIGUOUS) {
+    if (PyBUF_HAS_FLAG (flags, PyBUF_C_CONTIGUOUS) ||
+        PyBUF_HAS_FLAG (flags, PyBUF_F_CONTIGUOUS) ||
+        PyBUF_HAS_FLAG (flags, PyBUF_ANY_CONTIGUOUS)) {
         PyErr_SetString (PgExc_BufferError,
-                         "A surface colorplane view is not contiguous");
+                         "A surface color plane view is not contiguous");
         return -1;
     }
     switch (mask) {
@@ -2558,7 +2559,9 @@ _get_buffer_colorplane (PyObject *obj,
         return -1;
     }
     view_p->buf = startpixel;
-    view_p->format = FormatUint8;
+    if (PyBUF_HAS_FLAG (flags, PyBUF_FORMAT)) {
+            view_p->format = FormatUint8;
+    }
     view_p->itemsize = 1;
     view_p->ndim = 2;
     view_p->readonly = 0;
