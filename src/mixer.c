@@ -33,6 +33,8 @@
 #define EXPORT_BUFFER HAVE_NEW_BUFPROTO
 #endif
 
+#define PyBUF_HAS_FLAG(f, F) (((f) & (F)) == (F))
+
 /* The SDL audio format constants are not defined for anything larger
    than 2 byte samples. Define our own. Low two bytes gives sample
    size in bytes. Higher bytes are flags.
@@ -746,58 +748,46 @@ snd_getbuffer(PyObject *obj, Py_buffer *view, int flags)
 {
     Mix_Chunk *chunk = PySound_AsChunk(obj);
     int channels;
-    char *format = '\0';
-    int ndim = 1;
+    char *format;
+    int ndim = 0;
     Py_ssize_t *shape = 0;
     Py_ssize_t *strides = 0;
-    Py_ssize_t itemsize = 0;
+    Py_ssize_t itemsize;
     Py_ssize_t samples;
-    int fortran_order = (flags & PyBUF_F_CONTIGUOUS) == PyBUF_F_CONTIGUOUS;
 
-    if (flags != PyBUF_SIMPLE) {
-        if (snd_buffer_iteminfo(&format, &itemsize, &channels)) {
+    view->obj = 0;
+    if (snd_buffer_iteminfo(&format, &itemsize, &channels)) {
+        return -1;
+    }
+    if (channels != 1 &&
+        PyBUF_HAS_FLAG (flags, PyBUF_F_CONTIGUOUS)) {
+        PyErr_SetString(PyExc_BufferError,
+                        "polyphonic sound is not Fortran contiguous");
+        return -1;
+    }
+    if (PyBUF_HAS_FLAG(flags, PyBUF_ND)) {
+        ndim = channels > 1 ? 2 : 1;
+        samples = chunk->alen / (itemsize * channels);
+        shape = PyMem_New(Py_ssize_t, 2 * ndim);
+        if (!shape) {
+            PyErr_NoMemory();
             return -1;
         }
-        if ((flags & PyBUF_FORMAT) != PyBUF_FORMAT) {
-            format = 0;
-        }
-        if ((flags & PyBUF_ND) == PyBUF_ND) {
-            ndim = channels > 1 ? 2 : 1;
-            samples = chunk->alen / (itemsize * channels);
-            shape = PyMem_New(Py_ssize_t, 2 * ndim);
-            if (!shape) {
-                PyErr_NoMemory();
-                return -1;
-            }
-            if (fortran_order) {
-                shape[0] = channels;
-                shape[ndim - 1] = samples;
-            }
-            else {
-                shape[ndim - 1] = channels;
-                shape[0] = samples;
-            }
-        }
-        if ((flags & PyBUF_STRIDES) == PyBUF_STRIDES) {
+        shape[ndim - 1] = channels;
+        shape[0] = samples;
+        if (PyBUF_HAS_FLAG(flags, PyBUF_STRIDES)) {
             strides = shape + ndim;
-            if (fortran_order) {
-                strides[ndim - 1] = itemsize * channels;
-                strides[0] = itemsize;
-            }
-            else {
-                strides[0] = itemsize * channels;
-                strides[ndim - 1] = itemsize;
-            }
+            strides[0] = itemsize * channels;
+            strides[ndim - 1] = itemsize;
         }
     }
-
     Py_INCREF(obj);
     view->obj = obj;
     view->buf = chunk->abuf;
     view->len = (Py_ssize_t)chunk->alen;
     view->readonly = 0;
     view->itemsize = itemsize;
-    view->format = format;
+    view->format = PyBUF_HAS_FLAG(flags, PyBUF_FORMAT) ? format : 0;
     view->ndim = ndim;
     view->shape = shape;
     view->strides = strides;

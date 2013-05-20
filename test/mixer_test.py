@@ -379,6 +379,135 @@ class MixerModuleTest(unittest.TestCase):
         finally:
             mixer.quit()
 
+    if pygame.HAVE_NEWBUF:
+        def test_newbuf(self):
+            self.NEWBUF_test_newbuf()
+        if is_pygame_pkg:
+            from pygame.tests.test_utils import buftools
+        else:
+            from test.test_utils import buftools
+
+    def NEWBUF_test_newbuf(self):
+        mixer.init(22050, -16, 1)
+        try:
+            self.NEWBUF_export_check()
+        finally:
+            mixer.quit()
+        mixer.init(22050, -16, 2)
+        try:
+            self.NEWBUF_export_check()
+        finally:
+            mixer.quit()
+
+    def NEWBUF_export_check(self):
+        freq, fmt, channels = mixer.get_init()
+        if channels == 1:
+            ndim = 1
+        else:
+            ndim = 2
+        itemsize = abs(fmt) // 8
+        formats = {8: 'B', -8: 'b',
+                   16: '=H', -16: '=h',
+                   32: '=I', -32: '=i',  # 32 and 64 for future consideration
+                   64: '=Q', -64: '=q'}
+        format = formats[fmt]
+        buftools = self.buftools
+        BufferExporter = buftools.BufferExporter
+        BufferImporter = buftools.BufferImporter
+        is_lil_endian = pygame.get_sdl_byteorder() == pygame.LIL_ENDIAN
+        fsys, frev = ('<', '>') if is_lil_endian else ('>', '<')
+        shape = (10, channels)[:ndim]
+        strides = (channels * itemsize, itemsize)[2 - ndim:]
+        exp = BufferExporter(shape, format=frev + 'i')
+        snd = mixer.Sound(array=exp)
+        buflen = len(exp) * itemsize * channels
+        imp = BufferImporter(snd, buftools.PyBUF_SIMPLE)
+        self.assertEqual(imp.ndim, 0)
+        self.assertTrue(imp.format is None)
+        self.assertEqual(imp.len, buflen)
+        self.assertEqual(imp.itemsize, itemsize)
+        self.assertTrue(imp.shape is None)
+        self.assertTrue(imp.strides is None)
+        self.assertTrue(imp.suboffsets is None)
+        self.assertFalse(imp.readonly)
+        self.assertEqual(imp.buf, snd._samples_address)
+        imp = BufferImporter(snd, buftools.PyBUF_WRITABLE)
+        self.assertEqual(imp.ndim, 0)
+        self.assertTrue(imp.format is None)
+        self.assertEqual(imp.len, buflen)
+        self.assertEqual(imp.itemsize, itemsize)
+        self.assertTrue(imp.shape is None)
+        self.assertTrue(imp.strides is None)
+        self.assertTrue(imp.suboffsets is None)
+        self.assertFalse(imp.readonly)
+        self.assertEqual(imp.buf, snd._samples_address)
+        imp = BufferImporter(snd, buftools.PyBUF_FORMAT)
+        self.assertEqual(imp.ndim, 0)
+        self.assertEqual(imp.format, format)
+        self.assertEqual(imp.len, buflen)
+        self.assertEqual(imp.itemsize, itemsize)
+        self.assertTrue(imp.shape is None)
+        self.assertTrue(imp.strides is None)
+        self.assertTrue(imp.suboffsets is None)
+        self.assertFalse(imp.readonly)
+        self.assertEqual(imp.buf, snd._samples_address)
+        imp = BufferImporter(snd, buftools.PyBUF_ND)
+        self.assertEqual(imp.ndim, ndim)
+        self.assertTrue(imp.format is None)
+        self.assertEqual(imp.len, buflen)
+        self.assertEqual(imp.itemsize, itemsize)
+        self.assertEqual(imp.shape, shape)
+        self.assertTrue(imp.strides is None)
+        self.assertTrue(imp.suboffsets is None)
+        self.assertFalse(imp.readonly)
+        self.assertEqual(imp.buf, snd._samples_address)
+        imp = BufferImporter(snd, buftools.PyBUF_STRIDES)
+        self.assertEqual(imp.ndim, ndim)
+        self.assertTrue(imp.format is None)
+        self.assertEqual(imp.len, buflen)
+        self.assertEqual(imp.itemsize, itemsize)
+        self.assertEqual(imp.shape, shape)
+        self.assertEqual(imp.strides, strides)
+        self.assertTrue(imp.suboffsets is None)
+        self.assertFalse(imp.readonly)
+        self.assertEqual(imp.buf, snd._samples_address)
+        imp = BufferImporter(snd, buftools.PyBUF_FULL_RO)
+        self.assertEqual(imp.ndim, ndim)
+        self.assertEqual(imp.format, format)
+        self.assertEqual(imp.len, buflen)
+        self.assertEqual(imp.itemsize, 2)
+        self.assertEqual(imp.shape, shape)
+        self.assertEqual(imp.strides, strides)
+        self.assertTrue(imp.suboffsets is None)
+        self.assertFalse(imp.readonly)
+        self.assertEqual(imp.buf, snd._samples_address)
+        imp = BufferImporter(snd, buftools.PyBUF_FULL_RO)
+        self.assertEqual(imp.ndim, ndim)
+        self.assertEqual(imp.format, format)
+        self.assertEqual(imp.len, buflen)
+        self.assertEqual(imp.itemsize, itemsize)
+        self.assertEqual(imp.shape, exp.shape)
+        self.assertEqual(imp.strides, strides)
+        self.assertTrue(imp.suboffsets is None)
+        self.assertFalse(imp.readonly)
+        self.assertEqual(imp.buf, snd._samples_address)
+        imp = BufferImporter(snd, buftools.PyBUF_C_CONTIGUOUS)
+        self.assertEqual(imp.ndim, ndim)
+        self.assertTrue(imp.format is None)
+        self.assertEqual(imp.strides, strides)
+        imp = BufferImporter(snd, buftools.PyBUF_ANY_CONTIGUOUS)
+        self.assertEqual(imp.ndim, ndim)
+        self.assertTrue(imp.format is None)
+        self.assertEqual(imp.strides, strides)
+        if (ndim == 1):
+            imp = BufferImporter(snd, buftools.PyBUF_F_CONTIGUOUS)
+            self.assertEqual(imp.ndim, 1)
+            self.assertTrue(imp.format is None)
+            self.assertEqual(imp.strides, strides)
+        else:
+            self.assertRaises(BufferError, BufferImporter, snd,
+                              buftools.PyBUF_F_CONTIGUOUS)
+
     def test_get_raw(self):
         from ctypes import pythonapi, c_void_p, py_object
 
