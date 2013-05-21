@@ -64,8 +64,6 @@ QDGlobals qd;
 #define INT_CHECK(o) (PyInt_Check(o) || PyLong_Check(o))
 #endif
 
-#define PyBUF_HAS_FLAG(f, F) (((f) & (F)) == (F))
-
 /* Extended array struct */
 typedef struct capsule_interface_s {
     PyArrayInterface inter;

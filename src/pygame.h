@@ -145,6 +145,8 @@ typedef struct bufferinfo {
 #define PyBUF_SHADOW 0x400
 #endif /* #if !defined(PyBUF_SIMPLE) */
 
+#define PyBUF_HAS_FLAG(f, F) (((f) & (F)) == (F))
+
 /* Array information exchange struct C type; inherits from Py_buffer */
 
 struct pg_bufferinfo_s;
