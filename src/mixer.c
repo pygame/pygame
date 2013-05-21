@@ -651,7 +651,7 @@ snd_get_arrayinterface (PyObject* self, void* closure)
     Py_buffer view;
     PyObject* dict;
 
-    if (PyObject_GetBuffer (self, &view, PyBUF_RECORDS)) {
+    if (snd_getbuffer (self, &view, PyBUF_RECORDS)) {
         return 0;
     }
     dict = PgBuffer_AsArrayInterface (&view);
