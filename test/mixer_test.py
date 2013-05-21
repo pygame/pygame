@@ -412,16 +412,16 @@ class MixerModuleTest(unittest.TestCase):
                    64: '=Q', -64: '=q'}
         format = formats[fmt]
         buftools = self.buftools
-        BufferExporter = buftools.BufferExporter
-        BufferImporter = buftools.BufferImporter
+        Exporter = buftools.Exporter
+        Importer = buftools.Importer
         is_lil_endian = pygame.get_sdl_byteorder() == pygame.LIL_ENDIAN
         fsys, frev = ('<', '>') if is_lil_endian else ('>', '<')
         shape = (10, channels)[:ndim]
         strides = (channels * itemsize, itemsize)[2 - ndim:]
-        exp = BufferExporter(shape, format=frev + 'i')
+        exp = Exporter(shape, format=frev + 'i')
         snd = mixer.Sound(array=exp)
         buflen = len(exp) * itemsize * channels
-        imp = BufferImporter(snd, buftools.PyBUF_SIMPLE)
+        imp = Importer(snd, buftools.PyBUF_SIMPLE)
         self.assertEqual(imp.ndim, 0)
         self.assertTrue(imp.format is None)
         self.assertEqual(imp.len, buflen)
@@ -431,7 +431,7 @@ class MixerModuleTest(unittest.TestCase):
         self.assertTrue(imp.suboffsets is None)
         self.assertFalse(imp.readonly)
         self.assertEqual(imp.buf, snd._samples_address)
-        imp = BufferImporter(snd, buftools.PyBUF_WRITABLE)
+        imp = Importer(snd, buftools.PyBUF_WRITABLE)
         self.assertEqual(imp.ndim, 0)
         self.assertTrue(imp.format is None)
         self.assertEqual(imp.len, buflen)
@@ -441,7 +441,7 @@ class MixerModuleTest(unittest.TestCase):
         self.assertTrue(imp.suboffsets is None)
         self.assertFalse(imp.readonly)
         self.assertEqual(imp.buf, snd._samples_address)
-        imp = BufferImporter(snd, buftools.PyBUF_FORMAT)
+        imp = Importer(snd, buftools.PyBUF_FORMAT)
         self.assertEqual(imp.ndim, 0)
         self.assertEqual(imp.format, format)
         self.assertEqual(imp.len, buflen)
@@ -451,7 +451,7 @@ class MixerModuleTest(unittest.TestCase):
         self.assertTrue(imp.suboffsets is None)
         self.assertFalse(imp.readonly)
         self.assertEqual(imp.buf, snd._samples_address)
-        imp = BufferImporter(snd, buftools.PyBUF_ND)
+        imp = Importer(snd, buftools.PyBUF_ND)
         self.assertEqual(imp.ndim, ndim)
         self.assertTrue(imp.format is None)
         self.assertEqual(imp.len, buflen)
@@ -461,7 +461,7 @@ class MixerModuleTest(unittest.TestCase):
         self.assertTrue(imp.suboffsets is None)
         self.assertFalse(imp.readonly)
         self.assertEqual(imp.buf, snd._samples_address)
-        imp = BufferImporter(snd, buftools.PyBUF_STRIDES)
+        imp = Importer(snd, buftools.PyBUF_STRIDES)
         self.assertEqual(imp.ndim, ndim)
         self.assertTrue(imp.format is None)
         self.assertEqual(imp.len, buflen)
@@ -471,7 +471,7 @@ class MixerModuleTest(unittest.TestCase):
         self.assertTrue(imp.suboffsets is None)
         self.assertFalse(imp.readonly)
         self.assertEqual(imp.buf, snd._samples_address)
-        imp = BufferImporter(snd, buftools.PyBUF_FULL_RO)
+        imp = Importer(snd, buftools.PyBUF_FULL_RO)
         self.assertEqual(imp.ndim, ndim)
         self.assertEqual(imp.format, format)
         self.assertEqual(imp.len, buflen)
@@ -481,7 +481,7 @@ class MixerModuleTest(unittest.TestCase):
         self.assertTrue(imp.suboffsets is None)
         self.assertFalse(imp.readonly)
         self.assertEqual(imp.buf, snd._samples_address)
-        imp = BufferImporter(snd, buftools.PyBUF_FULL_RO)
+        imp = Importer(snd, buftools.PyBUF_FULL_RO)
         self.assertEqual(imp.ndim, ndim)
         self.assertEqual(imp.format, format)
         self.assertEqual(imp.len, buflen)
@@ -491,21 +491,21 @@ class MixerModuleTest(unittest.TestCase):
         self.assertTrue(imp.suboffsets is None)
         self.assertFalse(imp.readonly)
         self.assertEqual(imp.buf, snd._samples_address)
-        imp = BufferImporter(snd, buftools.PyBUF_C_CONTIGUOUS)
+        imp = Importer(snd, buftools.PyBUF_C_CONTIGUOUS)
         self.assertEqual(imp.ndim, ndim)
         self.assertTrue(imp.format is None)
         self.assertEqual(imp.strides, strides)
-        imp = BufferImporter(snd, buftools.PyBUF_ANY_CONTIGUOUS)
+        imp = Importer(snd, buftools.PyBUF_ANY_CONTIGUOUS)
         self.assertEqual(imp.ndim, ndim)
         self.assertTrue(imp.format is None)
         self.assertEqual(imp.strides, strides)
         if (ndim == 1):
-            imp = BufferImporter(snd, buftools.PyBUF_F_CONTIGUOUS)
+            imp = Importer(snd, buftools.PyBUF_F_CONTIGUOUS)
             self.assertEqual(imp.ndim, 1)
             self.assertTrue(imp.format is None)
             self.assertEqual(imp.strides, strides)
         else:
-            self.assertRaises(BufferError, BufferImporter, snd,
+            self.assertRaises(BufferError, Importer, snd,
                               buftools.PyBUF_F_CONTIGUOUS)
 
     def test_get_raw(self):
