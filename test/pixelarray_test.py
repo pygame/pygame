@@ -1041,35 +1041,251 @@ class PixelArrayArrayInterfaceTest (unittest.TestCase, TestMixin):
 
 class PixelArrayNewBufferTest (unittest.TestCase, TestMixin):
     if pygame.HAVE_NEWBUF:
-        def test_newbuf (self):
-            self.NEWBUF_test_newbuf()
+        def test_newbuf_2D (self):
+            self.NEWBUF_test_newbuf_2D ()
+        def test_newbuf_1D (self):
+            self.NEWBUF_test_newbuf_1D ()
+        if is_pygame_pkg:
+            from pygame.tests.test_utils import buftools
+        else:
+            from test.test_utils import buftools
 
-    def NEWBUF_test_newbuf (self):
-        class PixelArrayNewbuf (pygame.PixelArray):
-            __array_struct__ = property (lambda self: None)
-            __array_interface__ = property (lambda self: None)
+    bitsize_to_format = {8: 'B', 16: '=H', 24: '3x', 32: '=I'}
 
-        typechar_of_bitsize = {8: 'u', 16: 'u', 24: 'V', 32: 'u'}
-        
-        s = pygame.Surface ((10, 2), 0, 32)
-        ar = PixelArrayNewbuf (s)
-        self.assertTrue (ar.__array_struct__ is None)
-        self.assertTrue (ar.__array_interface__ is None)
+    def NEWBUF_test_newbuf_2D (self):
+        buftools = self.buftools
+        BufferImporter = buftools.BufferImporter
 
         for bit_size in [8, 16, 24, 32]:
             s = pygame.Surface ((10, 2), 0, bit_size)
-            ar = PixelArrayNewbuf (s)
-            bp = pygame.bufferproxy.BufferProxy (ar)
-            ai = arrinter.ArrayInterface (bp)
-            itemsize = s.get_bytesize()
-            self.assertEqual (ai.nd, 2)
-            self.assertEqual (ai.itemsize, itemsize)
-            self.assertEqual (ai.typekind, typechar_of_bitsize[bit_size])
-            self.assertEqual ((ai.shape[0], ai.shape[1]), s.get_size())
-            self.assertEqual ((ai.strides[0], ai.strides[1]),
-                              (itemsize, s.get_pitch()))
-            self.assertEqual (ai.data, s._pixels_address)
-            self.assertTrue (ai.flags & arrinter.PAI_WRITEABLE)
+            ar = pygame.PixelArray (s)
+            format = self.bitsize_to_format[bit_size]
+            itemsize = ar.itemsize
+            shape = ar.shape
+            w, h = shape
+            strides = ar.strides
+            length = w * h * itemsize
+            imp = BufferImporter (ar, buftools.PyBUF_FULL)
+            self.assertTrue (imp.obj, ar)
+            self.assertEqual (imp.len, length)
+            self.assertEqual (imp.ndim, 2)
+            self.assertEqual (imp.itemsize, itemsize)
+            self.assertEqual (imp.format, format)
+            self.assertFalse (imp.readonly)
+            self.assertEqual (imp.shape, shape)
+            self.assertEqual (imp.strides, strides)
+            self.assertTrue (imp.suboffsets is None)
+            self.assertEqual (imp.buf, s._pixels_address)
+
+        s = pygame.Surface ((8, 16), 0, 32)
+        ar = pygame.PixelArray (s)
+        format = self.bitsize_to_format[s.get_bitsize ()]
+        itemsize = ar.itemsize
+        shape = ar.shape
+        w, h = shape
+        strides = ar.strides
+        length = w * h * itemsize
+        imp = BufferImporter (ar, buftools.PyBUF_SIMPLE)
+        self.assertTrue (imp.obj, ar)
+        self.assertEqual (imp.len, length)
+        self.assertEqual (imp.ndim, 0)
+        self.assertEqual (imp.itemsize, itemsize)
+        self.assertTrue (imp.format is None)
+        self.assertFalse (imp.readonly)
+        self.assertTrue (imp.shape is None)
+        self.assertTrue (imp.strides is None)
+        self.assertTrue (imp.suboffsets is None)
+        self.assertEqual (imp.buf, s._pixels_address)
+        imp = BufferImporter (ar, buftools.PyBUF_FORMAT)
+        self.assertEqual (imp.ndim, 0)
+        self.assertEqual (imp.format, format)
+        imp = BufferImporter (ar, buftools.PyBUF_WRITABLE)
+        self.assertEqual (imp.ndim, 0)
+        self.assertTrue (imp.format is None)
+        imp = BufferImporter (ar, buftools.PyBUF_F_CONTIGUOUS)
+        self.assertEqual (imp.ndim, 2)
+        self.assertTrue (imp.format is None)
+        self.assertEqual (imp.shape, shape)
+        self.assertEqual (imp.strides, strides)
+        imp = BufferImporter (ar, buftools.PyBUF_ANY_CONTIGUOUS)
+        self.assertEqual (imp.ndim, 2)
+        self.assertTrue (imp.format is None)
+        self.assertEqual (imp.shape, shape)
+        self.assertEqual (imp.strides, strides)
+        self.assertRaises (BufferError, BufferImporter, ar,
+                           buftools.PyBUF_C_CONTIGUOUS)
+        self.assertRaises (BufferError, BufferImporter, ar, buftools.PyBUF_ND)
+
+        ar_sliced = ar[:,::2]
+        format = self.bitsize_to_format[s.get_bitsize ()]
+        itemsize = ar_sliced.itemsize
+        shape = ar_sliced.shape
+        w, h = shape
+        strides = ar_sliced.strides
+        length = w * h * itemsize
+        imp = BufferImporter (ar_sliced, buftools.PyBUF_STRIDED)
+        self.assertEqual (imp.len, length)
+        self.assertEqual (imp.ndim, 2)
+        self.assertEqual (imp.itemsize, itemsize)
+        self.assertTrue (imp.format is None)
+        self.assertFalse (imp.readonly)
+        self.assertEqual (imp.shape, shape)
+        self.assertEqual (imp.strides, strides)
+        self.assertEqual (imp.buf, s._pixels_address)
+        self.assertRaises (BufferError, BufferImporter, ar_sliced,
+                           buftools.PyBUF_SIMPLE)
+        self.assertRaises (BufferError, BufferImporter, ar_sliced,
+                           buftools.PyBUF_ND)
+        self.assertRaises (BufferError, BufferImporter, ar_sliced,
+                           buftools.PyBUF_C_CONTIGUOUS)
+        self.assertRaises (BufferError, BufferImporter, ar_sliced,
+                           buftools.PyBUF_F_CONTIGUOUS)
+        self.assertRaises (BufferError, BufferImporter, ar_sliced,
+                           buftools.PyBUF_ANY_CONTIGUOUS)
+
+        ar_sliced = ar[::2,:]
+        format = self.bitsize_to_format[s.get_bitsize ()]
+        itemsize = ar_sliced.itemsize
+        shape = ar_sliced.shape
+        w, h = shape
+        strides = ar_sliced.strides
+        length = w * h * itemsize
+        imp = BufferImporter (ar_sliced, buftools.PyBUF_STRIDED)
+        self.assertEqual (imp.len, length)
+        self.assertEqual (imp.ndim, 2)
+        self.assertEqual (imp.itemsize, itemsize)
+        self.assertTrue (imp.format is None)
+        self.assertFalse (imp.readonly)
+        self.assertEqual (imp.shape, shape)
+        self.assertEqual (imp.strides, strides)
+        self.assertEqual (imp.buf, s._pixels_address)
+        self.assertRaises (BufferError, BufferImporter, ar_sliced,
+                           buftools.PyBUF_SIMPLE)
+        self.assertRaises (BufferError, BufferImporter, ar_sliced,
+                           buftools.PyBUF_ND)
+        self.assertRaises (BufferError, BufferImporter, ar_sliced,
+                           buftools.PyBUF_C_CONTIGUOUS)
+        self.assertRaises (BufferError, BufferImporter, ar_sliced,
+                           buftools.PyBUF_F_CONTIGUOUS)
+        self.assertRaises (BufferError, BufferImporter, ar_sliced,
+                           buftools.PyBUF_ANY_CONTIGUOUS)
+
+        s2 = s.subsurface ((2, 3, 5, 7))
+        ar = pygame.PixelArray (s2)
+        format = self.bitsize_to_format[s.get_bitsize ()]
+        itemsize = ar.itemsize
+        shape = ar.shape
+        w, h = shape
+        strides = ar.strides
+        length = w * h * itemsize
+        imp = BufferImporter (ar, buftools.PyBUF_STRIDES)
+        self.assertTrue (imp.obj, ar)
+        self.assertEqual (imp.len, length)
+        self.assertEqual (imp.ndim, 2)
+        self.assertEqual (imp.itemsize, itemsize)
+        self.assertTrue (imp.format is None)
+        self.assertFalse (imp.readonly)
+        self.assertEqual (imp.shape, shape)
+        self.assertEqual (imp.strides, strides)
+        self.assertTrue (imp.suboffsets is None)
+        self.assertEqual (imp.buf, s2._pixels_address)
+        self.assertRaises (BufferError, BufferImporter, ar,
+                           buftools.PyBUF_SIMPLE)
+        self.assertRaises (BufferError, BufferImporter, ar,
+                           buftools.PyBUF_FORMAT)
+        self.assertRaises (BufferError, BufferImporter, ar,
+                           buftools.PyBUF_WRITABLE)
+        self.assertRaises (BufferError, BufferImporter, ar,
+                           buftools.PyBUF_ND)
+        self.assertRaises (BufferError, BufferImporter, ar,
+                           buftools.PyBUF_C_CONTIGUOUS)
+        self.assertRaises (BufferError, BufferImporter, ar,
+                           buftools.PyBUF_F_CONTIGUOUS)
+        self.assertRaises (BufferError, BufferImporter, ar,
+                           buftools.PyBUF_ANY_CONTIGUOUS)
+
+    def NEWBUF_test_newbuf_1D (self):
+        buftools = self.buftools
+        BufferImporter = buftools.BufferImporter
+
+        s = pygame.Surface ((2, 16), 0, 32)
+        ar_2D = pygame.PixelArray (s)
+        x = 0
+        ar = ar_2D[x]
+        format = self.bitsize_to_format[s.get_bitsize ()]
+        itemsize = ar.itemsize
+        shape = ar.shape
+        h = shape[0]
+        strides = ar.strides
+        length = h * itemsize
+        buf = s._pixels_address + x * itemsize
+        imp = BufferImporter (ar, buftools.PyBUF_STRIDES)
+        self.assertTrue (imp.obj, ar)
+        self.assertEqual (imp.len, length)
+        self.assertEqual (imp.ndim, 1)
+        self.assertEqual (imp.itemsize, itemsize)
+        self.assertTrue (imp.format is None)
+        self.assertFalse (imp.readonly)
+        self.assertEqual (imp.shape, shape)
+        self.assertEqual (imp.strides, strides)
+        self.assertTrue (imp.suboffsets is None)
+        self.assertEqual (imp.buf, buf)
+        imp = BufferImporter (ar, buftools.PyBUF_FULL)
+        self.assertEqual (imp.ndim, 1)
+        self.assertEqual (imp.format, format)
+        self.assertRaises (BufferError, BufferImporter, ar,
+                           buftools.PyBUF_SIMPLE)
+        self.assertRaises (BufferError, BufferImporter, ar,
+                           buftools.PyBUF_FORMAT)
+        self.assertRaises (BufferError, BufferImporter, ar,
+                           buftools.PyBUF_WRITABLE)
+        self.assertRaises (BufferError, BufferImporter, ar,
+                           buftools.PyBUF_ND)
+        self.assertRaises (BufferError, BufferImporter, ar,
+                           buftools.PyBUF_C_CONTIGUOUS)
+        self.assertRaises (BufferError, BufferImporter, ar,
+                           buftools.PyBUF_F_CONTIGUOUS)
+        self.assertRaises (BufferError, BufferImporter, ar,
+                           buftools.PyBUF_ANY_CONTIGUOUS)
+        y = 10
+        ar = ar_2D[:,y]
+        shape = ar.shape
+        w = shape[0]
+        strides = ar.strides
+        length = w * itemsize
+        buf = s._pixels_address + y * s.get_pitch()
+        imp = BufferImporter (ar, buftools.PyBUF_FULL)
+        self.assertEqual (imp.len, length)
+        self.assertEqual (imp.ndim, 1)
+        self.assertEqual (imp.itemsize, itemsize)
+        self.assertEqual (imp.format, format)
+        self.assertFalse (imp.readonly)
+        self.assertEqual (imp.shape, shape)
+        self.assertEqual (imp.strides, strides)
+        self.assertEqual (imp.buf, buf)
+        self.assertTrue (imp.suboffsets is None)
+        imp = BufferImporter (ar, buftools.PyBUF_SIMPLE)
+        self.assertEqual (imp.len, length)
+        self.assertEqual (imp.ndim, 0)
+        self.assertEqual (imp.itemsize, itemsize)
+        self.assertTrue (imp.format is None)
+        self.assertFalse (imp.readonly)
+        self.assertTrue (imp.shape is None)
+        self.assertTrue (imp.strides is None)
+        imp = BufferImporter (ar, buftools.PyBUF_ND)
+        self.assertEqual (imp.len, length)
+        self.assertEqual (imp.ndim, 1)
+        self.assertEqual (imp.itemsize, itemsize)
+        self.assertTrue (imp.format is None)
+        self.assertFalse (imp.readonly)
+        self.assertEqual (imp.shape, shape)
+        self.assertTrue (imp.strides is None)
+        imp = BufferImporter (ar, buftools.PyBUF_C_CONTIGUOUS)
+        self.assertEqual (imp.ndim, 1)
+        imp = BufferImporter (ar, buftools.PyBUF_F_CONTIGUOUS)
+        self.assertEqual (imp.ndim, 1)
+        imp = BufferImporter (ar, buftools.PyBUF_ANY_CONTIGUOUS)
+        self.assertEqual (imp.ndim, 1)
 
 
 if __name__ == '__main__':
