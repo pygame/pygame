@@ -170,8 +170,9 @@ class BaseModuleTest(unittest.TestCase):
 
     def NEWBUF_assertSame(self, proxy, exp):
         buftools = self.buftools
+        Importer = buftools.Importer
         self.assertEqual(proxy.length, exp.len)
-        imp = buftools.BufferImporter(proxy, buftools.PyBUF_RECORDS_RO)
+        imp = Importer(proxy, buftools.PyBUF_RECORDS_RO)
         try:
             self.assertEqual(imp.readonly, exp.readonly)
             self.assertEqual(imp.format, exp.format)
@@ -186,7 +187,7 @@ class BaseModuleTest(unittest.TestCase):
     def NEWBUF_test_newbuf(self):
         from pygame.bufferproxy import BufferProxy
 
-        Exporter = self.buftools.BufferExporter
+        Exporter = self.buftools.Exporter
         _shape = [2, 3, 5, 7, 11]  # Some prime numbers
         for ndim in range(1, len(_shape)):
             o = Exporter(_shape[0:ndim], '=h')
@@ -205,11 +206,11 @@ class BaseModuleTest(unittest.TestCase):
         is_lil_endian = pygame.get_sdl_byteorder() == pygame.LIL_ENDIAN
         fsys, frev = ('<', '>') if is_lil_endian else ('>', '<')
         buftools = self.buftools
-        BufferImporter = buftools.BufferImporter
+        Importer = buftools.Importer
         a = BufferProxy({'typestr': '|u4',
                          'shape': (10, 2),
                          'data': (9, False)}) # 9? No data accesses.
-        b = BufferImporter(a, buftools.PyBUF_SIMPLE)
+        b = Importer(a, buftools.PyBUF_SIMPLE)
         self.assertEqual(b.ndim, 0)
         self.assertTrue(b.format is None)
         self.assertEqual(b.len, a.length)
@@ -219,7 +220,7 @@ class BaseModuleTest(unittest.TestCase):
         self.assertTrue(b.suboffsets is None)
         self.assertFalse(b.readonly)
         self.assertEqual(b.buf, 9)
-        b = BufferImporter(a, buftools.PyBUF_WRITABLE)
+        b = Importer(a, buftools.PyBUF_WRITABLE)
         self.assertEqual(b.ndim, 0)
         self.assertTrue(b.format is None)
         self.assertEqual(b.len, a.length)
@@ -229,7 +230,7 @@ class BaseModuleTest(unittest.TestCase):
         self.assertTrue(b.suboffsets is None)
         self.assertFalse(b.readonly)
         self.assertEqual(b.buf, 9)
-        b = BufferImporter(a, buftools.PyBUF_ND)
+        b = Importer(a, buftools.PyBUF_ND)
         self.assertEqual(b.ndim, 2)
         self.assertTrue(b.format is None)
         self.assertEqual(b.len, a.length)
@@ -243,7 +244,7 @@ class BaseModuleTest(unittest.TestCase):
                          'shape': (5, 10),
                          'strides': (24, 2),
                          'data': (42, False)}) # 42? No data accesses.
-        b = BufferImporter(a, buftools.PyBUF_STRIDES)
+        b = Importer(a, buftools.PyBUF_STRIDES)
         self.assertEqual(b.ndim, 2)
         self.assertTrue(b.format is None)
         self.assertEqual(b.len, 100)
@@ -253,7 +254,7 @@ class BaseModuleTest(unittest.TestCase):
         self.assertTrue(b.suboffsets is None)
         self.assertFalse(b.readonly)
         self.assertEqual(b.buf, 42)
-        b = BufferImporter(a, buftools.PyBUF_FULL_RO)
+        b = Importer(a, buftools.PyBUF_FULL_RO)
         self.assertEqual(b.ndim, 2)
         self.assertEqual(b.format, '=h')
         self.assertEqual(b.len, 100)
@@ -263,29 +264,29 @@ class BaseModuleTest(unittest.TestCase):
         self.assertTrue(b.suboffsets is None)
         self.assertFalse(b.readonly)
         self.assertEqual(b.buf, 42)
-        self.assertRaises(BufferError, BufferImporter, a, buftools.PyBUF_SIMPLE)
-        self.assertRaises(BufferError, BufferImporter, a, buftools.PyBUF_ND)
-        self.assertRaises(BufferError, BufferImporter, a,
+        self.assertRaises(BufferError, Importer, a, buftools.PyBUF_SIMPLE)
+        self.assertRaises(BufferError, Importer, a, buftools.PyBUF_ND)
+        self.assertRaises(BufferError, Importer, a,
                           buftools.PyBUF_C_CONTIGUOUS)
-        self.assertRaises(BufferError, BufferImporter, a,
+        self.assertRaises(BufferError, Importer, a,
                           buftools.PyBUF_F_CONTIGUOUS)
-        self.assertRaises(BufferError, BufferImporter, a,
+        self.assertRaises(BufferError, Importer, a,
                           buftools.PyBUF_ANY_CONTIGUOUS)
-        self.assertRaises(BufferError, BufferImporter, a, buftools.PyBUF_CONTIG)
-        self.assertRaises(BufferError, BufferImporter, a, buftools.PyBUF_SIMPLE)
-        self.assertRaises(BufferError, BufferImporter, a, buftools.PyBUF_ND)
-        self.assertRaises(BufferError, BufferImporter, a,
+        self.assertRaises(BufferError, Importer, a, buftools.PyBUF_CONTIG)
+        self.assertRaises(BufferError, Importer, a, buftools.PyBUF_SIMPLE)
+        self.assertRaises(BufferError, Importer, a, buftools.PyBUF_ND)
+        self.assertRaises(BufferError, Importer, a,
                           buftools.PyBUF_C_CONTIGUOUS)
-        self.assertRaises(BufferError, BufferImporter, a,
+        self.assertRaises(BufferError, Importer, a,
                           buftools.PyBUF_F_CONTIGUOUS)
-        self.assertRaises(BufferError, BufferImporter, a,
+        self.assertRaises(BufferError, Importer, a,
                           buftools.PyBUF_ANY_CONTIGUOUS)
-        self.assertRaises(BufferError, BufferImporter, a, buftools.PyBUF_CONTIG)
+        self.assertRaises(BufferError, Importer, a, buftools.PyBUF_CONTIG)
         a = BufferProxy({'typestr': frev + 'i2',
                          'shape': (3, 5, 10),
                          'strides': (120, 24, 2),
                          'data': (1000000, True)}) # 1000000? No data accesses.
-        b = BufferImporter(a, buftools.PyBUF_FULL_RO)
+        b = Importer(a, buftools.PyBUF_FULL_RO)
         self.assertEqual(b.ndim, 3)
         self.assertEqual(b.format, frev + 'h')
         self.assertEqual(b.len, 300)
@@ -295,7 +296,7 @@ class BaseModuleTest(unittest.TestCase):
         self.assertTrue(b.suboffsets is None)
         self.assertTrue(b.readonly)
         self.assertEqual(b.buf, 1000000)
-        self.assertRaises(BufferError, BufferImporter, a, buftools.PyBUF_FULL)
+        self.assertRaises(BufferError, Importer, a, buftools.PyBUF_FULL)
 
     def NEWBUF_test_PgObject_AsBuffer_PyBUF_flags(self):
         from pygame.bufferproxy import BufferProxy
@@ -304,11 +305,11 @@ class BaseModuleTest(unittest.TestCase):
         is_lil_endian = pygame.get_sdl_byteorder() == pygame.LIL_ENDIAN
         fsys, frev = ('<', '>') if is_lil_endian else ('>', '<')
         buftools = self.buftools
-        BufferImporter = buftools.BufferImporter
+        Importer = buftools.Importer
         e = arrinter.Exporter((10, 2), typekind='f',
                               itemsize=ctypes.sizeof(ctypes.c_double))
         a = BufferProxy(e)
-        b = BufferImporter(a, buftools.PyBUF_SIMPLE)
+        b = Importer(a, buftools.PyBUF_SIMPLE)
         self.assertEqual(b.ndim, 0)
         self.assertTrue(b.format is None)
         self.assertEqual(b.len, e.len)
@@ -318,7 +319,7 @@ class BaseModuleTest(unittest.TestCase):
         self.assertTrue(b.suboffsets is None)
         self.assertFalse(b.readonly)
         self.assertEqual(b.buf, e.data)
-        b = BufferImporter(a, buftools.PyBUF_WRITABLE)
+        b = Importer(a, buftools.PyBUF_WRITABLE)
         self.assertEqual(b.ndim, 0)
         self.assertTrue(b.format is None)
         self.assertEqual(b.len, e.len)
@@ -328,7 +329,7 @@ class BaseModuleTest(unittest.TestCase):
         self.assertTrue(b.suboffsets is None)
         self.assertFalse(b.readonly)
         self.assertEqual(b.buf, e.data)
-        b = BufferImporter(a, buftools.PyBUF_ND)
+        b = Importer(a, buftools.PyBUF_ND)
         self.assertEqual(b.ndim, e.nd)
         self.assertTrue(b.format is None)
         self.assertEqual(b.len, a.length)
@@ -341,7 +342,7 @@ class BaseModuleTest(unittest.TestCase):
         e = arrinter.Exporter((5, 10), typekind='i', itemsize=2,
                               strides=(24, 2))
         a = BufferProxy(e)
-        b = BufferImporter(a, buftools.PyBUF_STRIDES)
+        b = Importer(a, buftools.PyBUF_STRIDES)
         self.assertEqual(b.ndim, e.nd)
         self.assertTrue(b.format is None)
         self.assertEqual(b.len, e.len)
@@ -351,7 +352,7 @@ class BaseModuleTest(unittest.TestCase):
         self.assertTrue(b.suboffsets is None)
         self.assertFalse(b.readonly)
         self.assertEqual(b.buf, e.data)
-        b = BufferImporter(a, buftools.PyBUF_FULL_RO)
+        b = Importer(a, buftools.PyBUF_FULL_RO)
         self.assertEqual(b.ndim, e.nd)
         self.assertEqual(b.format, '=h')
         self.assertEqual(b.len, e.len)
@@ -361,33 +362,33 @@ class BaseModuleTest(unittest.TestCase):
         self.assertTrue(b.suboffsets is None)
         self.assertFalse(b.readonly)
         self.assertEqual(b.buf, e.data)
-        self.assertRaises(BufferError, BufferImporter, a, buftools.PyBUF_SIMPLE)
-        self.assertRaises(BufferError, BufferImporter, a,
+        self.assertRaises(BufferError, Importer, a, buftools.PyBUF_SIMPLE)
+        self.assertRaises(BufferError, Importer, a,
                           buftools.PyBUF_WRITABLE)
-        self.assertRaises(BufferError, BufferImporter, a,
+        self.assertRaises(BufferError, Importer, a,
                           buftools.PyBUF_WRITABLE)
-        self.assertRaises(BufferError, BufferImporter, a, buftools.PyBUF_ND)
-        self.assertRaises(BufferError, BufferImporter, a,
+        self.assertRaises(BufferError, Importer, a, buftools.PyBUF_ND)
+        self.assertRaises(BufferError, Importer, a,
                           buftools.PyBUF_C_CONTIGUOUS)
-        self.assertRaises(BufferError, BufferImporter, a,
+        self.assertRaises(BufferError, Importer, a,
                           buftools.PyBUF_F_CONTIGUOUS)
-        self.assertRaises(BufferError, BufferImporter, a,
+        self.assertRaises(BufferError, Importer, a,
                           buftools.PyBUF_ANY_CONTIGUOUS)
-        self.assertRaises(BufferError, BufferImporter, a, buftools.PyBUF_CONTIG)
-        self.assertRaises(BufferError, BufferImporter, a, buftools.PyBUF_SIMPLE)
-        self.assertRaises(BufferError, BufferImporter, a, buftools.PyBUF_ND)
-        self.assertRaises(BufferError, BufferImporter, a,
+        self.assertRaises(BufferError, Importer, a, buftools.PyBUF_CONTIG)
+        self.assertRaises(BufferError, Importer, a, buftools.PyBUF_SIMPLE)
+        self.assertRaises(BufferError, Importer, a, buftools.PyBUF_ND)
+        self.assertRaises(BufferError, Importer, a,
                           buftools.PyBUF_C_CONTIGUOUS)
-        self.assertRaises(BufferError, BufferImporter, a,
+        self.assertRaises(BufferError, Importer, a,
                           buftools.PyBUF_F_CONTIGUOUS)
-        self.assertRaises(BufferError, BufferImporter, a,
+        self.assertRaises(BufferError, Importer, a,
                           buftools.PyBUF_ANY_CONTIGUOUS)
-        self.assertRaises(BufferError, BufferImporter, a, buftools.PyBUF_CONTIG)
+        self.assertRaises(BufferError, Importer, a, buftools.PyBUF_CONTIG)
         e = arrinter.Exporter((3, 5, 10), typekind='i', itemsize=2,
                               strides=(120, 24, 2),
                               flags=arrinter.PAI_ALIGNED)
         a = BufferProxy(e)
-        b = BufferImporter(a, buftools.PyBUF_FULL_RO)
+        b = Importer(a, buftools.PyBUF_FULL_RO)
         self.assertEqual(b.ndim, e.nd)
         self.assertEqual(b.format, frev + 'h')
         self.assertEqual(b.len, e.len)
@@ -397,7 +398,7 @@ class BaseModuleTest(unittest.TestCase):
         self.assertTrue(b.suboffsets is None)
         self.assertTrue(b.readonly)
         self.assertEqual(b.buf, e.data)
-        self.assertRaises(BufferError, BufferImporter, a, buftools.PyBUF_FULL)
+        self.assertRaises(BufferError, Importer, a, buftools.PyBUF_FULL)
 
     def test_PgObject_GetBuffer_exception(self):
         # For consistency with surfarray
