@@ -41,10 +41,6 @@ typedef enum {
     VIEWKIND_RAW
 } SurfViewKind;
 
-#define PyBUF_HAS_FLAG(f, F) (((f) & (F)) == (F))
-#define PyBUF_NO_DIM (PyBUF_WRITABLE | PyBUF_FORMAT)
-#define PyBUF_IS_DIMLESS(f) (((f) | PyBUF_NO_DIM) == PyBUF_NO_DIM)
-
 /* To avoid problems with non-const Py_buffer format field */
 static char FormatUint8[] = "B";
 static char FormatUint16[] = "=H";
@@ -2342,7 +2338,7 @@ _get_buffer_2D (PyObject *obj, Pg_buffer *pg_view_p, int flags)
     int itemsize = surface->format->BytesPerPixel;
 
     view_p->obj = 0;
-    if (PyBUF_IS_DIMLESS (flags)) {
+    if (!PyBUF_HAS_FLAG (flags, PyBUF_ND)) {
         if (surface->pitch != surface->w * itemsize) {
             PyErr_SetString (PgExc_BufferError,
                              "A 2D surface view is not C contiguous");
