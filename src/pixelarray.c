@@ -55,6 +55,8 @@ typedef struct _pixelarray_t {
                            /* Parent pixel array: NULL if no parent */
 } PyPixelArray;
 
+static int array_is_contiguous(PyPixelArray *ap, char fortran);
+
 static PyPixelArray *_pxarray_new_internal(
     PyTypeObject *type, PyObject *surface, PyPixelArray *parent, Uint8 *pixels,
     Py_ssize_t dim0, Py_ssize_t dim1, Py_ssize_t stride0, Py_ssize_t stride1);
@@ -121,6 +123,23 @@ static PyTypeObject PyPixelArray_Type;
 
 #define SURFACE_EQUALS(x,y) \
     (((PyPixelArray *)x)->surface == ((PyPixelArray *)y)->surface)
+
+static int
+array_is_contiguous(PyPixelArray *ap, char fortran)
+{
+    int itemsize = PySurface_AsSurface(ap->surface)->format->BytesPerPixel;
+
+    if (ap->strides[0] == itemsize) {
+        if (ap->shape[1] == 0) {
+            return 1;
+        }
+        if ((fortran == 'F' || fortran == 'A') &&
+            (ap->strides[1] == ap->shape[0] * itemsize)) {
+            return 1;
+        }
+    }
+    return 0;
+}
 
 #include "pixelarray_methods.c"
     
@@ -518,43 +537,85 @@ _pxarray_getbuffer(PyPixelArray *self, Py_buffer *view_p, int flags)
 {
     Py_ssize_t itemsize = 
         PySurface_AsSurface(self->surface)->format->BytesPerPixel;
+    int ndim = self->shape[1] ? 2 : 1;
+    Py_ssize_t *shape = 0;
+    Py_ssize_t *strides = 0;
+    Py_ssize_t len;
 
+    len = self->shape[0] * (ndim == 2 ? self->shape[1] : 1) * itemsize;
     view_p->obj = 0;
-    if ((flags & PyBUF_RECORDS_RO) != PyBUF_RECORDS_RO) {
+    if (PyBUF_HAS_FLAG(flags, PyBUF_C_CONTIGUOUS) &&
+        !array_is_contiguous(self, 'C')) {
         PyErr_SetString(PyExc_BufferError,
-                        "Only PyBUF_RECORDS(_RO) requests supported");
+                        "this pixel array is not C contiguous");
         return -1;
     }
-    switch (itemsize) {
-
-    case 1:
-        view_p->format = FormatUint8;
-        break;
-    case 2:
-        view_p->format = FormatUint16;
-        break;
-    case 3:
-        view_p->format = FormatUint24;
-        break;
-    case 4:
-        view_p->format = FormatUint32;
-        break;
-    default:
-        PyErr_Format(PyExc_SystemError,
-                     "Internal Pygame error at line %d in %s: "
-                     "unknown item size %d; please report",
-                     (int)__LINE__, __FILE__, (int)itemsize);
+    if (PyBUF_HAS_FLAG(flags, PyBUF_F_CONTIGUOUS) &&
+        !array_is_contiguous(self, 'F')) {
+        PyErr_SetString(PyExc_BufferError,
+                        "this pixel array is not F contiguous");
         return -1;
+    }
+    if (PyBUF_HAS_FLAG(flags, PyBUF_ANY_CONTIGUOUS) &&
+        !array_is_contiguous(self, 'A')) {
+        PyErr_SetString(PyExc_BufferError,
+                        "this pixel array is not contiguous");
+        return -1;
+    }
+    if (PyBUF_HAS_FLAG(flags, PyBUF_ND)) {
+        shape = self->shape;
+        if (PyBUF_HAS_FLAG(flags, PyBUF_STRIDES)) {
+            strides = self->strides;
+        }
+        else if (!array_is_contiguous(self, 'C')) {
+            PyErr_SetString(PyExc_BufferError,
+                            "this pixel array is not contiguous: need strides");
+            return -1;
+        }
+    }
+    else if (array_is_contiguous(self, 'F')) {
+        ndim = 0;
+    }
+    else {
+        PyErr_SetString(PyExc_BufferError,
+                        "this pixel array is not C contiguous: need strides");
+        return -1;
+    }
+    if (PyBUF_HAS_FLAG(flags, PyBUF_FORMAT)) {
+        switch (itemsize) {
+
+        case 1:
+            view_p->format = FormatUint8;
+            break;
+        case 2:
+            view_p->format = FormatUint16;
+            break;
+        case 3:
+            view_p->format = FormatUint24;
+            break;
+        case 4:
+            view_p->format = FormatUint32;
+            break;
+        default:
+            PyErr_Format(PyExc_SystemError,
+                         "Internal Pygame error at line %d in %s: "
+                         "unknown item size %d; please report",
+                         (int)__LINE__, __FILE__, (int)itemsize);
+            return -1;
+        }
+    }
+    else {
+        view_p->format = 0;
     }
     Py_INCREF(self);
     view_p->obj = (PyObject *)self;
     view_p->buf = self->pixels;
-    view_p->len = self->shape[0] * self->shape[1] * itemsize;
+    view_p->len = len;
     view_p->readonly = 0;
     view_p->itemsize = itemsize;
-    view_p->ndim = self->shape[1] ? 2 : 1;
-    view_p->shape = self->shape;
-    view_p->strides = self->strides;
+    view_p->ndim = ndim;
+    view_p->shape = shape;
+    view_p->strides = strides;
     view_p->suboffsets = 0;
     view_p->internal = 0;
     return 0;
