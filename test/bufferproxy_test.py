@@ -263,7 +263,9 @@ class BufferProxyTest(unittest.TestCase):
         from ctypes import string_at
 
         buftools = self.buftools
-        exp = buftools.BufferExporter((10,), 'B', readonly=True)
+        Exporter = buftools.Exporter
+        Importer = buftools.Importer
+        exp = Exporter((10,), 'B', readonly=True)
         b = BufferProxy(exp)
         self.assertEqual(b.length, exp.len)
         self.assertEqual(b.raw, string_at(exp.buf, exp.len))
@@ -275,7 +277,7 @@ class BufferProxyTest(unittest.TestCase):
             self.assertEqual(d['data'], (exp.buf, True))
         finally:
             d = None
-        exp = buftools.BufferExporter((3,), '=h')
+        exp = Exporter((3,), '=h')
         b = BufferProxy(exp)
         self.assertEqual(b.length, exp.len)
         self.assertEqual(b.raw, string_at(exp.buf, exp.len))
@@ -290,9 +292,9 @@ class BufferProxyTest(unittest.TestCase):
         finally:
             d = None
 
-        exp = buftools.BufferExporter((10, 2), '=i')
+        exp = Exporter((10, 2), '=i')
         b = BufferProxy(exp)
-        imp = buftools.BufferImporter(b, buftools.PyBUF_RECORDS)
+        imp = Importer(b, buftools.PyBUF_RECORDS)
         self.assertTrue(imp.obj is b)
         self.assertEqual(imp.buf, exp.buf)
         self.assertEqual(imp.ndim, exp.ndim)
@@ -309,7 +311,7 @@ class BufferProxyTest(unittest.TestCase):
              'strides': (1,),
              'data': (9, True)} # 9? Will not reading the data anyway.
         b = BufferProxy(d)
-        imp = buftools.BufferImporter(b, buftools.PyBUF_SIMPLE)
+        imp = Importer(b, buftools.PyBUF_SIMPLE)
         self.assertTrue(imp.obj is b)
         self.assertEqual(imp.buf, 9)
         self.assertEqual(imp.len, 10)
