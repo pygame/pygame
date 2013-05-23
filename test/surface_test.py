@@ -447,12 +447,7 @@ class SurfaceTypeTest(unittest.TestCase):
         length = s.get_pitch() * s.get_height()
         v = s.get_buffer()
         self.assert_(isinstance(v, BufferProxy))
-        # Simple buffer length check using ctype, which is portable,
-        # unlike buffer, and works ndim 0 views, unlike memoryview.
-        c_byte_Array = ctypes.c_byte * length
-        b = c_byte_Array.from_buffer(v)
-        c_byte_Array_plus_1 = ctypes.c_byte * (length + 1)
-        self.assertRaises(ValueError, c_byte_Array_plus_1.from_buffer, v)
+        self.assertEqual(v.length, length)
 
         # Check locking.
         s = pygame.Surface((2, 4), 0, 32)

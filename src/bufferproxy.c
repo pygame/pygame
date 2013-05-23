@@ -33,13 +33,6 @@
 #include "pgcompat.h"
 #include "pgbufferproxy.h"
 
-/* No build will support the new and old buffer protocols simultaneously. */
-#if HAVE_OLD_BUFPROTO
-#define PG_ENABLE_OLDBUF 1
-#else
-#define PG_ENABLE_OLDBUF 0
-#endif
-
 
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
 #define BUFPROXY_MY_ENDIAN '<'
@@ -72,9 +65,70 @@ typedef struct Pg_buffer_d_s {
 } Pg_buffer_d;
 
 static int PgBufproxy_Trip(PyObject *);
-static Py_buffer *_proxy_get_view (PgBufproxyObject*);
+static Py_buffer *_proxy_get_view(PgBufproxyObject *);
+static int proxy_getbuffer(PgBufproxyObject *, Py_buffer *, int);
+static void proxy_releasebuffer(PgBufproxyObject *, Py_buffer *);
 
 static void _release_buffer_from_dict(Py_buffer *);
+
+#if PY_VERSION_HEX < 0x02060000
+static int
+_IsFortranContiguous(Py_buffer *view)
+{
+    Py_ssize_t sd, dim;
+    int i;
+
+    if (view->ndim == 0) return 1;
+    if (view->strides == NULL) return (view->ndim == 1);
+
+    sd = view->itemsize;
+    if (view->ndim == 1) return (view->shape[0] == 1 ||
+                               sd == view->strides[0]);
+    for (i=0; i<view->ndim; i++) {
+        dim = view->shape[i];
+        if (dim == 0) return 1;
+        if (view->strides[i] != sd) return 0;
+        sd *= dim;
+    }
+    return 1;
+}
+
+static int
+_IsCContiguous(Py_buffer *view)
+{
+    Py_ssize_t sd, dim;
+    int i;
+
+    if (view->ndim == 0) return 1;
+    if (view->strides == NULL) return 1;
+
+    sd = view->itemsize;
+    if (view->ndim == 1) return (view->shape[0] == 1 ||
+                               sd == view->strides[0]);
+    for (i=view->ndim-1; i>=0; i--) {
+        dim = view->shape[i];
+        if (dim == 0) return 1;
+        if (view->strides[i] != sd) return 0;
+        sd *= dim;
+    }
+    return 1;
+}
+
+static int
+PyBuffer_IsContiguous(Py_buffer *view, char fort)
+{
+
+    if (view->suboffsets != NULL) return 0;
+
+    if (fort == 'C')
+        return _IsCContiguous(view);
+    else if (fort == 'F')
+        return _IsFortranContiguous(view);
+    else if (fort == 'A')
+        return (_IsCContiguous(view) || _IsFortranContiguous(view));
+    return 0;
+}
+#endif /* #if PY_VERSION_HEX < 0x02060000 */
 
 static int
 _get_buffer_from_dict(PyObject *dict, Pg_buffer *pg_view_p, int flags) {
@@ -421,29 +475,33 @@ proxy_write(PgBufproxyObject *self, PyObject *args, PyObject *kwds)
     }
 #undef ARG_FORMAT
 
-    if (PyObject_GetBuffer((PyObject *)self, &view, PyBUF_RECORDS)) {
+    if (proxy_getbuffer(self, &view, PyBUF_RECORDS)) {
         return 0;
     }
     if (!PyBuffer_IsContiguous(&view, 'A')) {
-        PyBuffer_Release(&view);
+        proxy_releasebuffer(self, &view);
+        Py_DECREF(self);
         PyErr_SetString(PyExc_ValueError,
                         "the BufferProxy bytes are not contiguous");
         return 0;
     }
     if (buflen > view.len) {
-        PyBuffer_Release(&view);
+        proxy_releasebuffer(self, &view);
+        Py_DECREF(self);
         PyErr_SetString(PyExc_ValueError,
                         "'buffer' object length is too large");
         return 0;
     }
     if (offset < 0 || buflen + offset > view.len) {
-        PyBuffer_Release(&view);
+        proxy_releasebuffer(self, &view);
+        Py_DECREF(self);
         PyErr_SetString(PyExc_IndexError,
                         "'offset' is out of range");
         return 0;
     }
     memcpy((char *)view.buf + offset, buf, (size_t)buflen);
-    PyBuffer_Release(&view);
+    proxy_releasebuffer(self, &view);
+    Py_DECREF(self);
     Py_RETURN_NONE;
 }
 
@@ -468,9 +526,6 @@ static PyGetSetDef proxy_getsets[] =
 };
 
 
-#if PG_ENABLE_NEWBUF || PG_ENABLE_OLDBUF
-
-#if PG_ENABLE_NEWBUF
 static int
 proxy_getbuffer(PgBufproxyObject *self, Py_buffer *view_p, int flags)
 {
@@ -509,7 +564,7 @@ proxy_releasebuffer(PgBufproxyObject *self, Py_buffer *view_p)
     PyMem_Free(view_p->internal);
 }
 
-#endif /* #if PG_ENABLE_NEWBUF */
+#if PG_ENABLE_NEWBUF || PG_ENABLE_OLDBUF
 
 
 #if PG_ENABLE_OLDBUF

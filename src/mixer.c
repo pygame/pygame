@@ -29,10 +29,6 @@
 #include "doc/mixer_doc.h"
 #include "mixer.h"
 
-#if !defined(EXPORT_BUFFER)
-#define EXPORT_BUFFER HAVE_NEW_BUFPROTO
-#endif
-
 #define PyBUF_HAS_FLAG(f, F) (((f) & (F)) == (F))
 
 /* The SDL audio format constants are not defined for anything larger
@@ -123,7 +119,6 @@ _format_itemsize(Uint16 format)
     return size;
 }
 
-#if HAVE_NEW_BUFPROTO
 static PG_sample_format_t
 _format_view_to_audio(Py_buffer *view)
 {
@@ -238,7 +233,6 @@ _format_view_to_audio(Py_buffer *view)
     }
     return format;
 }
-#endif
 
 static void
 endsound_callback (int channel)
@@ -655,7 +649,8 @@ snd_get_arrayinterface (PyObject* self, void* closure)
         return 0;
     }
     dict = PgBuffer_AsArrayInterface (&view);
-    PyBuffer_Release (&view);
+    snd_releasebuffer (self, &view);
+    Py_DECREF(self);
     return dict;
 }
 
@@ -761,7 +756,7 @@ snd_getbuffer(PyObject *obj, Py_buffer *view, int flags)
     }
     if (channels != 1 &&
         PyBUF_HAS_FLAG (flags, PyBUF_F_CONTIGUOUS)) {
-        PyErr_SetString(PyExc_BufferError,
+        PyErr_SetString(PgExc_BufferError,
                         "polyphonic sound is not Fortran contiguous");
         return -1;
     }
@@ -805,23 +800,16 @@ snd_releasebuffer(PyObject *obj, Py_buffer *view)
     }
 }
 
-#if EXPORT_BUFFER
-
-#if HAVE_OLD_BUFPROTO
-#define snd_getreadbuffer 0
-#define snd_getwritebuffer 0
-#define snd_getsegcount 0
-#define snd_getcharbuffer 0
-#endif
+#if PG_ENABLE_NEWBUF
 
 static PyBufferProcs sound_as_buffer[] =
 {
     {
 #if HAVE_OLD_BUFPROTO
-        snd_getreadbuffer,
-        snd_getwritebuffer,
-        snd_getsegcount,
-        snd_getcharbuffer,
+        0,
+        0,
+        0,
+        0,
 #endif
         snd_getbuffer,
         snd_releasebuffer
@@ -829,7 +817,7 @@ static PyBufferProcs sound_as_buffer[] =
 };
 #else
 #define sound_as_buffer 0
-#endif /* #if EXPORT_BUFFER */
+#endif /* #if PG_ENABLE_NEWBUF */
 
 
 /*sound object internals*/

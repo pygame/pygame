@@ -2099,7 +2099,7 @@ MODINIT_DEFINE(base)
         DECREF_MOD (module);
         MODINIT_ERROR;
     }
-    ecode = PyDict_SetItemString (dict, "BufferError", PyExc_SDLError);
+    ecode = PyDict_SetItemString (dict, "BufferError", PgExc_BufferError);
     if (ecode) {
         Py_DECREF (PgExc_BufferError);
         Py_XDECREF (atexit_register);
