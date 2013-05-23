@@ -184,7 +184,7 @@ if sys.version_info < (2, 6, 0):
         if e.name == 'newbuffer':
             posn = i
     if (posn is not None):
-        del extensions[i]
+        del extensions[posn]
 
 # if not building font, try replacing with ftfont
 alternate_font = os.path.join('lib', 'font.py')

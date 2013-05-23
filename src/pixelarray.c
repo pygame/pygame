@@ -64,6 +64,7 @@ static PyPixelArray *_pxarray_new_internal(
 static PyObject *_pxarray_new(
     PyTypeObject *type, PyObject *args, PyObject *kwds);
 static void _pxarray_dealloc(PyPixelArray *self);
+static int _pxarray_traverse(PyPixelArray *self, visitproc visit, void *arg);
 
 static PyObject *_pxarray_get_dict(PyPixelArray *self, void *closure);
 static PyObject *_pxarray_get_surface(PyPixelArray *self, void *closure);
@@ -101,10 +102,8 @@ static PyObject *_pxarray_subscript(PyPixelArray *array, PyObject *op);
 static int _pxarray_ass_subscript(
     PyPixelArray *array, PyObject* op, PyObject* value);
 
-#if PG_ENABLE_NEWBUF
-/* New buffer protocol */
+/* New buffer protocol; also used for internally for array interface */
 static int _pxarray_getbuffer(PyPixelArray *self, Py_buffer *view_p, int flags);
-#endif
 
 static PyObject *_pxarray_subscript_internal(
     PyPixelArray *array,
@@ -246,7 +245,7 @@ static PyBufferProcs _pxarray_bufferprocs = {
 
 #else
 #define PXARRAY_BUFFERPROCS 0
-#endif
+#endif /* #if PG_ENABLE_NEWBUF */
 
 #if PY2 && PG_ENABLE_NEWBUF
 #define PXARRAY_TPFLAGS \
@@ -281,7 +280,7 @@ static PyTypeObject PyPixelArray_Type =
     PXARRAY_BUFFERPROCS,        /* tp_as_buffer */
     PXARRAY_TPFLAGS,
     DOC_PYGAMEPIXELARRAY,       /* tp_doc */
-    0,                          /* tp_traverse */
+    (traverseproc)_pxarray_traverse,  /* tp_traverse */
     0,                          /* tp_clear */
     0,                          /* tp_richcompare */
     offsetof(PyPixelArray, weakrefs),  /* tp_weaklistoffset */
@@ -400,6 +399,7 @@ _pxarray_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static void
 _pxarray_dealloc(PyPixelArray *self)
 {
+    PyObject_GC_UnTrack(self);
     if (self->weakrefs) {
         PyObject_ClearWeakRefs ((PyObject *) self);
     }
@@ -408,6 +408,25 @@ _pxarray_dealloc(PyPixelArray *self)
     Py_XDECREF(self->dict);
     Py_DECREF(self->surface);
     Py_TYPE(self)->tp_free((PyObject *)self);
+}
+
+/**
+ * Garbage collector support
+ */
+static int
+_pxarray_traverse(PyPixelArray *self, visitproc visit, void *arg)
+{
+    Py_VISIT(self->surface);
+    if (self->dict) {
+        Py_VISIT(self->dict);
+    }
+    if (self->lock) {
+        Py_VISIT(self->lock);
+    }
+    if (self->parent) {
+        Py_VISIT((PyObject *)self->parent);
+    }
+    return 0;
 }
 
 /**** Getter and setter access ****/
@@ -546,19 +565,19 @@ _pxarray_getbuffer(PyPixelArray *self, Py_buffer *view_p, int flags)
     view_p->obj = 0;
     if (PyBUF_HAS_FLAG(flags, PyBUF_C_CONTIGUOUS) &&
         !array_is_contiguous(self, 'C')) {
-        PyErr_SetString(PyExc_BufferError,
+        PyErr_SetString(PgExc_BufferError,
                         "this pixel array is not C contiguous");
         return -1;
     }
     if (PyBUF_HAS_FLAG(flags, PyBUF_F_CONTIGUOUS) &&
         !array_is_contiguous(self, 'F')) {
-        PyErr_SetString(PyExc_BufferError,
+        PyErr_SetString(PgExc_BufferError,
                         "this pixel array is not F contiguous");
         return -1;
     }
     if (PyBUF_HAS_FLAG(flags, PyBUF_ANY_CONTIGUOUS) &&
         !array_is_contiguous(self, 'A')) {
-        PyErr_SetString(PyExc_BufferError,
+        PyErr_SetString(PgExc_BufferError,
                         "this pixel array is not contiguous");
         return -1;
     }
@@ -568,7 +587,7 @@ _pxarray_getbuffer(PyPixelArray *self, Py_buffer *view_p, int flags)
             strides = self->strides;
         }
         else if (!array_is_contiguous(self, 'C')) {
-            PyErr_SetString(PyExc_BufferError,
+            PyErr_SetString(PgExc_BufferError,
                             "this pixel array is not contiguous: need strides");
             return -1;
         }
@@ -577,7 +596,7 @@ _pxarray_getbuffer(PyPixelArray *self, Py_buffer *view_p, int flags)
         ndim = 0;
     }
     else {
-        PyErr_SetString(PyExc_BufferError,
+        PyErr_SetString(PgExc_BufferError,
                         "this pixel array is not C contiguous: need strides");
         return -1;
     }

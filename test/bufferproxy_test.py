@@ -21,6 +21,10 @@ else:
 import pygame
 from pygame.bufferproxy import BufferProxy
 from pygame.compat import as_bytes
+try:
+    BufferError
+except NameError:
+    from pygame import BufferError
 
 class BufferProxyTest(unittest.TestCase):
     view_keywords = {'shape': (5, 4, 3),

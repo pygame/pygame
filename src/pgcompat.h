@@ -163,6 +163,12 @@
 
 #define HAVE_OLD_BUFPROTO PY2
 
+#if HAVE_OLD_BUFPROTO
+#define PG_ENABLE_OLDBUF 1
+#else
+#define PG_ENABLE_OLDBUF 0
+#endif
+
 #ifndef Py_TPFLAGS_HAVE_NEWBUFFER
 #define Py_TPFLAGS_HAVE_NEWBUFFER 0
 #endif
