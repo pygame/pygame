@@ -177,8 +177,23 @@ if sys.version_info >= (3, 0, 0):
             extensions.append(e)
     del tmp_extensions
 
-#python2.5 and lower: remove new buffer testing framework
-if sys.version_info < (2, 6, 0):
+#decide whether or not to enable new buffer protocol support
+enable_newbuf = False
+if sys.version_info >= (2, 6, 0):
+    try:
+        sys.pypy_version_info
+    except AttributeError:
+        enable_newbuf = True
+
+if enable_newbuf:
+    enable_newbuf_value = '1'
+else:
+    enable_newbuf_value = '0'
+for e in extensions:
+    e.define_macros.append(('ENABLE_NEWBUF', enable_newbuf_value))
+
+#if new buffer protocol support is disabled then remove the testing framework
+if not enable_newbuf:
     posn = None
     for i, e in enumerate(extensions):
         if e.name == 'newbuffer':

@@ -163,10 +163,12 @@
 
 #define HAVE_OLD_BUFPROTO PY2
 
+#if !defined(PG_ENABLE_OLDBUF)  /* allow for command line override */
 #if HAVE_OLD_BUFPROTO
 #define PG_ENABLE_OLDBUF 1
 #else
 #define PG_ENABLE_OLDBUF 0
+#endif
 #endif
 
 #ifndef Py_TPFLAGS_HAVE_NEWBUFFER
@@ -193,10 +195,12 @@
 #endif
 
 /* Support new buffer protocol? */
+#if !defined(PG_ENABLE_NEWBUF)  /* allow for command line override */
 #if HAVE_NEW_BUFPROTO && !defined(PYPY_VERSION)
 #define PG_ENABLE_NEWBUF 1
 #else
 #define PG_ENABLE_NEWBUF 0
+#endif
 #endif
 
 #endif /* #if !defined(PGCOMPAT_H) */
