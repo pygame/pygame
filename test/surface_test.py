@@ -431,7 +431,7 @@ class SurfaceTypeTest(unittest.TestCase):
         self.assert_(isinstance(v, BufferProxy))
         v = s.get_buffer('b')
 
-        # Check backward compatibility.
+        # Check '&' argument, the default.
         s = pygame.Surface((5, 7), 0, 24)
         length = s.get_pitch() * s.get_height()
         v = s.get_buffer('&')
@@ -440,9 +440,6 @@ class SurfaceTypeTest(unittest.TestCase):
         v = s.get_buffer()
         self.assert_(isinstance(v, BufferProxy))
         self.assertEqual(v.length, length)
-
-        # Check default argument ('&' for backward compatibility).
-        # The default may change in Pygame 1.9.3.
         s = pygame.Surface((5, 7), 0, 16)
         length = s.get_pitch() * s.get_height()
         v = s.get_buffer()
