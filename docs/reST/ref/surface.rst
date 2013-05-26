@@ -789,19 +789,19 @@
       is supported for Python 2.6 and up in CPython. The old buffer protocol
       is also supported for Python 2.x. The old buffer data is in one segment
       for kind '&' and '0', multi-segment for other buffer view kinds.
-      Python 2.x, only the classic buffer view is available, for the '&' kind.
 
       The kind argument is the length 1 string '&', '0', '1', '2', '3',
       'r', 'g', 'b', or 'a'. The letters are case insensitive;
       'A' will work as well. The argument can be either a Unicode or byte (char)
       string. The default is '&'.
 
-      A kind '&' view is unstructured bytes. It is for backwards compatibility
-      with Pygame 1.9.1. Consider it deprecated, with '0' becoming the
-      default method argument value in a future Pygame release.
+      A kind '&' view is unstructured bytes. The surface pixels are treated
+      as a single, contiguous stretch of bytes. No shape or pitch information
+      is provided. The importer needs to get this information elsewhere.
       
-      '0' returns a continguous unstructured bytes view.
-      A ValueError is raised if the surface's pixels are discontinuous.
+      '0' returns a continguous unstructured bytes view. No surface shape
+      information is given. A ValueError is raised if the surface's pixels
+      are discontinuous.
       
       '1' returns a (surface-width * surface-height) array of continguous
       pixels. A ValueError is raised if the surface pixels are discontinuous.
