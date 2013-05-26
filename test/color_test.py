@@ -805,6 +805,90 @@ class ColorTypeTest (unittest.TestCase):
             for j in range(i):
                 self.assertEqual(data[j], c[j])
 
+    if pygame.HAVE_NEWBUF:
+        def test_newbuf(self):
+            self.NEWBUF_test_newbuf()
+        if is_pygame_pkg:
+            from pygame.tests.test_utils import buftools
+        else:
+            from test.test_utils import buftools
+
+    def NEWBUF_test_newbuf(self):
+        from ctypes import cast, POINTER, c_uint8
+        buftools = self.buftools
+
+        class ColorImporter(buftools.Importer):
+            def __init__(self, color, flags):
+                super(ColorImporter, self).__init__(color, flags)
+                self.items = cast(self.buf, POINTER(c_uint8))
+            def __getitem__(self, index):
+                if 0 <= index < 4:
+                    return self.items[index]
+                raise IndexError("valid index values are between 0 and 3: "
+                                 "got {}".format(index))
+            def __setitem__(self, index, value):
+                if 0 <= index < 4:
+                    self.items[index] = value
+                else:
+                    raise IndexError("valid index values are between 0 and 3: "
+                                     "got {}".format(index))
+
+        c = pygame.Color(50, 100, 150, 200)
+        imp = ColorImporter(c, buftools.PyBUF_SIMPLE)
+        self.assertTrue(imp.obj is c)
+        self.assertEqual(imp.ndim, 0)
+        self.assertEqual(imp.itemsize, 1)
+        self.assertEqual(imp.len, 4)
+        self.assertTrue(imp.readonly)
+        self.assertTrue(imp.format is None)
+        self.assertTrue(imp.shape is None)
+        self.assertTrue(imp.strides is None)
+        self.assertTrue(imp.suboffsets is None)
+        for i in range(4):
+            self.assertEqual(c[i], imp[i])
+        imp[0] = 60
+        self.assertEqual(c.r, 60)
+        imp[1] = 110
+        self.assertEqual(c.g, 110)
+        imp[2] = 160
+        self.assertEqual(c.b, 160)
+        imp[3] = 210
+        self.assertEqual(c.a, 210)
+        imp = ColorImporter(c, buftools.PyBUF_FORMAT)
+        self.assertEqual(imp.ndim, 0)
+        self.assertEqual(imp.itemsize, 1)
+        self.assertEqual(imp.len, 4)
+        self.assertEqual(imp.format, 'B')
+        self.assertEqual(imp.ndim, 0)
+        self.assertEqual(imp.itemsize, 1)
+        self.assertEqual(imp.len, 4)
+        imp = ColorImporter(c, buftools.PyBUF_ND)
+        self.assertEqual(imp.ndim, 1)
+        self.assertEqual(imp.itemsize, 1)
+        self.assertEqual(imp.len, 4)
+        self.assertTrue(imp.format is None)
+        self.assertEqual(imp.shape, (4,))
+        self.assertEqual(imp.strides, None)
+        imp = ColorImporter(c, buftools.PyBUF_STRIDES)
+        self.assertEqual(imp.ndim, 1)
+        self.assertTrue(imp.format is None)
+        self.assertEqual(imp.shape, (4,))
+        self.assertEqual(imp.strides, (1,))
+        imp = ColorImporter(c, buftools.PyBUF_C_CONTIGUOUS)
+        self.assertEqual(imp.ndim, 1)
+        imp = ColorImporter(c, buftools.PyBUF_F_CONTIGUOUS)
+        self.assertEqual(imp.ndim, 1)
+        imp = ColorImporter(c, buftools.PyBUF_ANY_CONTIGUOUS)
+        self.assertEqual(imp.ndim, 1)
+        for i in range(1, 5):
+            c.set_length(i)
+            imp = ColorImporter(c, buftools.PyBUF_ND)
+            self.assertEqual(imp.ndim, 1)
+            self.assertEqual(imp.len, i)
+            self.assertEqual(imp.shape, (i,))
+        self.assertRaises(BufferError, ColorImporter,
+                          c, buftools.PyBUF_WRITABLE)
+
     try:
         import ctypes
     except ImportError:

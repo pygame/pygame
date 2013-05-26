@@ -27,6 +27,12 @@
    4 element tuples of integers (New in 1.9.0). There was a bug in pygame 1.8.1
    where the default alpha was 0, not 255 like previously.
 
+   Color objects export the C level array interface. The interface exports a
+   read-only one dimensional unsigned byte array of the same assigned length
+   as the color. For CPython 2.6 and later, the new buffer interface is also
+   exported, with the same characteristics as the array interface. New in
+   pygame 1.9.2.
+
    New implementation of Color was done in pygame 1.8.1.
 
    .. attribute:: r
