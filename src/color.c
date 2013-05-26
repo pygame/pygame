@@ -99,8 +99,8 @@ static PyObject* _color_hex (PyColor *color);
 static Py_ssize_t _color_length (PyColor *color);
 static PyObject* _color_item (PyColor *color, Py_ssize_t _index);
 static int _color_ass_item (PyColor *color, Py_ssize_t _index, PyObject *value);
-static PyObject * _color_slice(register PyColor *a, 
-                               register Py_ssize_t ilow, 
+static PyObject * _color_slice(register PyColor *a,
+                               register Py_ssize_t ilow,
                                register Py_ssize_t ihigh);
 
 /* Mapping protocol methods. */
@@ -322,7 +322,7 @@ static PyTypeObject PyColor_Type =
     0,                          /* tp_subclasses */
     0,                          /* tp_weaklist */
     0                           /* tp_del */
-#endif    
+#endif
 };
 
 #define PyColor_Check(o) \
@@ -375,7 +375,7 @@ _get_color (PyObject *val, Uint32 *color)
         *color = (Uint32) longval;
         return 1;
     }
-    
+
     /* Failed */
     PyErr_SetString (PyExc_ValueError, "invalid color argument");
     return 0;
@@ -577,11 +577,11 @@ _coerce_obj (PyObject *obj, Uint8 rgba[])
 {
     if (PyType_IsSubtype (obj->ob_type, &PyColor_Type))
     {
-	rgba[0] = ((PyColor *) obj)->data[0];
-	rgba[1] = ((PyColor *) obj)->data[1];
-	rgba[2] = ((PyColor *) obj)->data[2];
-	rgba[3] = ((PyColor *) obj)->data[3];
-	return 1;
+        rgba[0] = ((PyColor *) obj)->data[0];
+        rgba[1] = ((PyColor *) obj)->data[1];
+        rgba[2] = ((PyColor *) obj)->data[2];
+        rgba[3] = ((PyColor *) obj)->data[3];
+        return 1;
     }
     else if (PyType_IsSubtype (obj->ob_type, &PyTuple_Type))
     {
@@ -633,7 +633,7 @@ _color_new (PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (!PyArg_ParseTuple (args, "O|OOO", &obj, &obj1, &obj2, &obj3))
         return NULL;
-    
+
     if (Text_Check (obj) || PyUnicode_Check (obj))
     {
         /* Named color */
@@ -641,7 +641,7 @@ _color_new (PyTypeObject *type, PyObject *args, PyObject *kwds)
         PyObject *name1 = NULL, *name2 = NULL;
         if (obj1 || obj2 || obj3)
             return RAISE (PyExc_ValueError, "invalid arguments");
-        
+
         name1 = PyObject_CallMethod(obj, "replace", "(ss)", " ", "");
         if (!name1)
         {
@@ -694,7 +694,7 @@ _color_new (PyTypeObject *type, PyObject *args, PyObject *kwds)
     else
     {
         Uint32 color = 0;
-        
+
         /* Color (R,G,B[,A]) */
         if (!_get_color (obj, &color) || color > 255)
             return RAISE (PyExc_ValueError, "invalid color argument");
@@ -763,7 +763,7 @@ _color_correct_gamma (PyColor *color, PyObject *args)
     double frgba[4];
     Uint8 rgba[4];
     double _gamma;
-    
+
     if (!PyArg_ParseTuple (args, "d", &_gamma))
         return NULL;
 
@@ -924,7 +924,7 @@ _color_get_hsva (PyColor *color, void *closure)
     }
     /* Calculate S */
     hsv[1] = 100. * (maxv - minv) / maxv;
-    
+
     /* Calculate H */
     if (maxv == frgb[0])
         hsv[0] = fmod ((60 * ((frgb[1] - frgb[2]) / diff)), 360.f);
@@ -1090,7 +1090,7 @@ _color_get_hsla (PyColor *color, void *closure)
     else
         hsl[1] = diff / (2 - maxv - minv);
     hsl[1] *= 100.f;
-    
+
     /* Calculate H */
     if (maxv == frgb[0])
         hsl[0] = fmod ((60 * ((frgb[1] - frgb[2]) / diff)), 360.f);
@@ -1251,11 +1251,11 @@ _color_get_i1i2i3 (PyColor *color, void *closure)
     frgb[0] = color->data[0] / 255.0;
     frgb[1] = color->data[1] / 255.0;
     frgb[2] = color->data[2] / 255.0;
-    
+
     i1i2i3[0] = (frgb[0] + frgb[1] + frgb[2]) / 3.0f;
     i1i2i3[1] = (frgb[0] - frgb[2]) / 2.0f;
     i1i2i3[2] = (2 * frgb[1] - frgb[0] - frgb[2]) / 4.0f;
- 
+
     return Py_BuildValue ("(fff)", i1i2i3[0], i1i2i3[1], i1i2i3[2]);
 }
 
@@ -1320,11 +1320,11 @@ _color_get_cmy (PyColor *color, void *closure)
     frgb[0] = color->data[0] / 255.0;
     frgb[1] = color->data[1] / 255.0;
     frgb[2] = color->data[2] / 255.0;
-    
+
     cmy[0] = 1.0 - frgb[0];
     cmy[1] = 1.0 - frgb[1];
     cmy[2] = 1.0 - frgb[2];
-    
+
     return Py_BuildValue ("(fff)", cmy[0], cmy[1], cmy[2]);
 }
 
@@ -1363,7 +1363,7 @@ _color_set_cmy (PyColor *color, PyObject *value, void *closure)
         return -1;
     }
     Py_DECREF (item);
-    
+
     color->data[0] = (Uint8) ((1.0 - cmy[0]) * 255);
     color->data[1] = (Uint8) ((1.0 - cmy[1]) * 255);
     color->data[2] = (Uint8) ((1.0 - cmy[2]) * 255);
@@ -1498,7 +1498,7 @@ _color_coerce (PyObject **pv, PyObject **pw)
 static PyObject*
 _color_int (PyColor *color)
 {
-    Uint32 tmp = (color->data[0] << 24) + (color->data[1] << 16) + 
+    Uint32 tmp = (color->data[0] << 24) + (color->data[1] << 16) +
                  (color->data[2] << 8) + color->data[3];
 #if !PY3
     if (tmp < LONG_MAX)
@@ -1740,8 +1740,8 @@ _color_ass_item (PyColor *color, Py_ssize_t _index, PyObject *value)
 
 
 static PyObject *
-_color_slice(register PyColor *a, 
-             register Py_ssize_t ilow, 
+_color_slice(register PyColor *a,
+             register Py_ssize_t ilow,
              register Py_ssize_t ihigh)
 {
 
@@ -1760,7 +1760,7 @@ _color_slice(register PyColor *a,
 
         len = ihigh - ilow;
         /* printf("2 ilow :%d:, ihigh:%d: len:%d:\n", ilow, ihigh, len); */
-        
+
         if(ilow == 0) {
             c1 = a->data[0];
             c2 = a->data[1];
@@ -1818,18 +1818,18 @@ _color_richcompare(PyObject *o1, PyObject *o2, int opid)
     switch (_coerce_obj (o1, rgba1.bytes))
     {
     case -1:
-	return 0;
+        return 0;
     case 0:
-	goto Unimplemented;
+        goto Unimplemented;
     default:
         break;
     }
     switch (_coerce_obj (o2, rgba2.bytes))
     {
     case -1:
-	return 0;
+        return 0;
     case 0:
-	goto Unimplemented;
+        goto Unimplemented;
     default:
         break;
     }
@@ -1935,7 +1935,7 @@ MODINIT_DEFINE (color)
     PyObject *module;
     PyObject *apiobj;
     static void* c_api[PYGAMEAPI_COLOR_NUMSLOTS];
-    
+
 #if PY3
     static struct PyModuleDef _module = {
         PyModuleDef_HEAD_INIT,
@@ -1968,14 +1968,14 @@ MODINIT_DEFINE (color)
     {
         MODINIT_ERROR;
     }
-    
+
     /* type preparation */
     if (PyType_Ready (&PyColor_Type) < 0)
     {
         Py_DECREF (_COLORDICT);
         MODINIT_ERROR;
     }
-    
+
     /* create the module */
 #if PY3
     module = PyModule_Create (&_module);

@@ -43,7 +43,7 @@
  * must be set. Also, the BUFOBJ_MEMFREE must not be set.
  *
  * The view_p->obj field should always be valid. It either points to
- * an object or is NULL. 
+ * an object or is NULL.
  */
 #define BUFOBJ_FILLED 0x0001
 #define BUFOBJ_MEMFREE 0x0002

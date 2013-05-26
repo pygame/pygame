@@ -364,7 +364,7 @@ class BufferProxyTest(unittest.TestCase):
         seglen, segaddr = get_write_buffer(bf, 0)
         self.assertEqual(segaddr, memaddr)
         self.assertEqual(seglen, len(content))
-        
+
         bf = BufferProxy({'shape': (len(content),),
                           'typestr': '|u1',
                           'data': (memaddr, True),

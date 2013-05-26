@@ -123,7 +123,7 @@
 
 #define MODINIT_ERROR MODINIT_RETURN (NULL)
 
-/* Module state. These macros are used to define per-module macros. 
+/* Module state. These macros are used to define per-module macros.
  * v - global state variable (Python 2.x)
  * s - global state structure (Python 3.x)
  */

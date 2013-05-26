@@ -84,7 +84,7 @@ class PixelArrayTypeTest (unittest.TestCase, TestMixin):
             del ar
             if sf.mustlock ():
                 self.assertFalse (sf.get_locked ())
- 
+
     def test_as_class (self):
         # Check general new-style class freatures.
         sf = pygame.Surface ((2, 3), 0, 32)
@@ -110,7 +110,7 @@ class PixelArrayTypeTest (unittest.TestCase, TestMixin):
         del ar
         gc.collect ()
         self.assertTrue (r() is None)
-        
+
     # Sequence interfaces
     def test_get_column (self):
         for bpp in (8, 16, 24, 32):
@@ -165,7 +165,7 @@ class PixelArrayTypeTest (unittest.TestCase, TestMixin):
                 self.assertEqual (ar2, mapped_fg_color_y,
                                   "ar[1][%i] == %i, mapped_fg_color_y == %i" %
                                   (y, ar2, mapped_fg_color_y))
-                
+
             sf.set_at ((1, 1), bg_color)
             for x in xrange_ (w):
                 ar2 = ar.__getitem__ (x).__getitem__ (1)
@@ -180,13 +180,13 @@ class PixelArrayTypeTest (unittest.TestCase, TestMixin):
 
             ar2 = ar.__getitem__ (0).__getitem__ (0)
             self.assertEqual (ar2, mapped_bg_color, "bpp = %i" % (bpp,))
-        
+
             ar2 = ar.__getitem__ (1).__getitem__ (0)
             self.assertEqual (ar2, mapped_fg_color_y, "bpp = %i" % (bpp,))
-            
+
             ar2 = ar.__getitem__ (-4).__getitem__ (1)
             self.assertEqual (ar2, mapped_fg_color_x, "bpp = %i" % (bpp,))
-        
+
             ar2 = ar.__getitem__ (-4).__getitem__ (5)
             self.assertEqual (ar2, mapped_bg_color, "bpp = %i" % (bpp,))
 
@@ -225,10 +225,10 @@ class PixelArrayTypeTest (unittest.TestCase, TestMixin):
 
             ar.__getitem__ (1).__setitem__ (1, (128, 128, 128))
             self.assertEqual (ar[1][1], sf.map_rgb ((128, 128, 128)))
-            
+
             ar.__getitem__(-1).__setitem__ (-1, (128, 128, 128))
             self.assertEqual (ar[9][19], sf.map_rgb ((128, 128, 128)))
-            
+
             ar.__getitem__ (-2).__setitem__ (-2, (128, 128, 128))
             self.assertEqual (ar[8][-2], sf.map_rgb ((128, 128, 128)))
 
@@ -246,15 +246,15 @@ class PixelArrayTypeTest (unittest.TestCase, TestMixin):
             ar.__setitem__ (2, (128, 128, 128))
             self.assertEqual (ar[2][0], sf.map_rgb ((128, 128, 128)))
             self.assertEqual (ar[2][1], sf.map_rgb ((128, 128, 128)))
-        
+
             ar.__setitem__ (-1, (0, 255, 255))
             self.assertEqual (ar[5][0], sf.map_rgb ((0, 255, 255)))
             self.assertEqual (ar[-1][1], sf.map_rgb ((0, 255, 255)))
-        
+
             ar.__setitem__ (-2, (255, 255, 0))
             self.assertEqual (ar[4][0], sf.map_rgb ((255, 255, 0)))
             self.assertEqual (ar[-2][1], sf.map_rgb ((255, 255, 0)))
-        
+
             # Test list assignment.
             ar.__setitem__ (0, [(255, 255, 255)] * 8)
             self.assertEqual (ar[0][0], sf.map_rgb ((255, 255, 255)))
@@ -266,7 +266,7 @@ class PixelArrayTypeTest (unittest.TestCase, TestMixin):
                                ((204, 0, 204), (17, 17, 17), (204, 0, 204),
                                 (17, 17, 17), (204, 0, 204), (17, 17, 17),
                                 (204, 0, 204), (17, 17, 17)))
-        
+
             # Test pixel array assignment.
             ar.__setitem__ (1, ar2.__getitem__ (3))
             self.assertEqual (ar[1][0], sf.map_rgb ((0, 255, 255)))
@@ -284,7 +284,7 @@ class PixelArrayTypeTest (unittest.TestCase, TestMixin):
             self.assertEqual (ar[0:0], None)
             self.assertEqual (ar[5:5], None)
             self.assertEqual (ar[9:9], None)
-        
+
             # Has to resolve to ar[7:8]
             self.assertEqual (len (ar[-3:-2]), 1)      # 2D
             self.assertEqual (len (ar[-3:-2][0]), 20)  # 1D
@@ -445,7 +445,7 @@ class PixelArrayTypeTest (unittest.TestCase, TestMixin):
             self.assertEqual (ar[2,::2][0], 2)
             self.assertEqual (ar[2,::2][1], 2)
             self.assertEqual (ar[2,::2][2], 2)
-            
+
             # Should create a 3x3 array of [0,2,4]
             ar2 = ar[::2,::2]
             self.assertEqual (len (ar2), 3)
@@ -511,7 +511,7 @@ class PixelArrayTypeTest (unittest.TestCase, TestMixin):
             self.assertEqual (ar2.shape, sf2.get_size ())
             sf2 = pygame.Surface ((7, 1), 0, 32)
             ar2 = pygame.PixelArray (sf2)
-            self.assertEqual (ar2.shape, sf2.get_size ()) 
+            self.assertEqual (ar2.shape, sf2.get_size ())
 
             # Array has a single ellipsis subscript: the identity operator
             ar2 = ar[...]
@@ -540,7 +540,7 @@ class PixelArrayTypeTest (unittest.TestCase, TestMixin):
             self.assertEqual (ar[0,0], sf.map_rgb ((0, 255, 0)))
             self.assertEqual (ar[1,0], sf.map_rgb ((0, 255, 0)))
             self.assertEqual (ar[-1,-1], sf.map_rgb ((0, 255, 0)))
-            
+
     def test_pixels_field(self):
         for bpp in [1, 2, 3, 4]:
             sf = pygame.Surface ((11, 7), 0, bpp * 8)
@@ -655,7 +655,7 @@ class PixelArrayTypeTest (unittest.TestCase, TestMixin):
             self.assertEqual (ar[3][6], oval)
             self.assertEqual (ar[8][9], rval)
             self.assertEqual (ar[9][9], oval)
-            
+
             ar[::2].replace ((0, 0, 255), (255, 0, 0), weights=(10, 20, 50))
             self.assertEqual (ar[0][0], oval)
             self.assertEqual (ar[2][3], oval)
@@ -806,19 +806,19 @@ class PixelArrayTypeTest (unittest.TestCase, TestMixin):
                 ar[i % w, i // w] = i
             ar[:,:] = ar[::-1,:]
             for i in range (w * h):
-                self.assertEqual (ar[max_x - i % w, i // w], i) 
+                self.assertEqual (ar[max_x - i % w, i // w], i)
             ar = pygame.PixelArray (sf)
             for i in range (w * h):
                 ar[i % w, i // w] = i
             ar[:,:] = ar[:,::-1]
             for i in range (w * h):
-                self.assertEqual (ar[i % w, max_y - i // w ], i) 
+                self.assertEqual (ar[i % w, max_y - i // w ], i)
             ar = pygame.PixelArray (sf)
             for i in range(w * h):
                 ar[i % w, i // w] = i
             ar[:,:] = ar[::-1,::-1]
             for i in range (w * h):
-                self.assertEqual (ar[max_x - i % w, max_y - i // w], i) 
+                self.assertEqual (ar[max_x - i % w, max_y - i // w], i)
 
     def test_color_value (self):
         # Confirm that a PixelArray slice assignment distinguishes between
@@ -875,7 +875,7 @@ class PixelArrayTypeTest (unittest.TestCase, TestMixin):
         self.assertEqual (ar2D.shape, (1, w))
         for x in range (2):
             self.assertEqual (ar1D[x], ar2D[0, x])
- 
+
     def test_length_1_dimension_broadcast (self):
         w = 5
         sf = pygame.Surface ((w, w), 0, 32)

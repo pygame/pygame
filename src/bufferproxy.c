@@ -422,7 +422,7 @@ proxy_get_raw(PgBufproxyObject *self, PyObject *closure)
         _proxy_release_view(self);
         return 0;
     }
-    return py_raw;        
+    return py_raw;
 }
 
 static PyObject *
