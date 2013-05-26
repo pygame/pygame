@@ -55,7 +55,7 @@ class BaseModuleTest(unittest.TestCase):
           # pygame.get_sdl_version(): return major, minor, patch
           # get the version number of SDL
 
-        self.assert_( len(pygame.get_sdl_version()) == 3) 
+        self.assert_( len(pygame.get_sdl_version()) == 3)
 
     class ExporterBase(object):
         def __init__(self, shape, typechar, itemsize):
@@ -124,7 +124,7 @@ class BaseModuleTest(unittest.TestCase):
             o = Exporter(shape, 'f', itemsize)
             v = BufferProxy(o)
             self.assertSame(v, o)
-        
+
     def test_GetView_array_struct(self):
         from pygame.bufferproxy import BufferProxy
 
@@ -427,7 +427,7 @@ class BaseModuleTest(unittest.TestCase):
         except NotImplementedError:
             # Scrap is optional.
             pass
-        
+
         # pygame.cdrom
         # pygame.joystick
 
@@ -443,19 +443,19 @@ class BaseModuleTest(unittest.TestCase):
 
           # pygame.quit(): return None
           # uninitialize all pygame modules
-        
+
         # Make sure everything is not init
         self.not_init_assertions()
-    
+
         # Initiate it
         pygame.init()
-        
+
         # Check
         self.init_assertions()
 
         # Quit
         pygame.quit()
-        
+
         # All modules have quit
         self.not_init_assertions()
 
@@ -465,7 +465,7 @@ class BaseModuleTest(unittest.TestCase):
 
           # register_quit(callable): return None
           # register a function to be called when pygame quits
-        
+
         self.assert_(not quit_hook_ran)
 
         pygame.init()
@@ -480,11 +480,11 @@ class BaseModuleTest(unittest.TestCase):
 
           # pygame.get_error(): return errorstr
           # get the current error message
-          # 
+          #
           # SDL maintains an internal error message. This message will usually
           # be given to you when pygame.error is raised. You will rarely need to
           # call this function.
-          # 
+          #
 
         self.assertEqual(pygame.get_error(), "")
         pygame.set_error("hi")
@@ -510,36 +510,36 @@ class BaseModuleTest(unittest.TestCase):
 
         # pygame.init(): return (numpass, numfail)
         # initialize all imported pygame modules
-        # 
+        #
         # Initialize all imported Pygame modules. No exceptions will be raised
         # if a module fails, but the total number if successful and failed
         # inits will be returned as a tuple. You can always initialize
         # individual modules manually, but pygame.init is a convenient way to
         # get everything started. The init() functions for individual modules
         # will raise exceptions when they fail.
-        # 
+        #
         # You may want to initalise the different modules seperately to speed
         # up your program or to not use things your game does not.
-        # 
+        #
         # It is safe to call this init() more than once: repeated calls will
         # have no effect. This is true even if you have pygame.quit() all the
         # modules.
-        # 
+        #
 
 
 
         # Make sure everything is not init
         self.not_init_assertions()
-    
+
         # Initiate it
         pygame.init()
-        
+
         # Check
         self.init_assertions()
 
         # Quit
         pygame.quit()
-        
+
         # All modules have quit
         self.not_init_assertions()
 
@@ -550,7 +550,7 @@ class BaseModuleTest(unittest.TestCase):
 
           # crash
 
-        self.fail() 
+        self.fail()
 
 if __name__ == '__main__':
     unittest.main()

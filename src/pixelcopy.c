@@ -1,7 +1,7 @@
 /*
   pygame - Python Game Library
   Copyright (C) 2000-2001  Pete Shinners
-  
+
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Library General Public
   License as published by the Free Software Foundation; either
@@ -506,13 +506,13 @@ array_to_surface(PyObject *self, PyObject *arg)
     int loopx, loopy;
     int stridex, stridey, stridez=0, stridez2=0, sizex, sizey;
     int Rloss, Gloss, Bloss, Rshift, Gshift, Bshift;
-    
+
     if (!PyArg_ParseTuple(arg, "O!O", &PySurface_Type, &surfobj, &arrayobj)) {
         return NULL;
     }
     surf = PySurface_AsSurface(surfobj);
     format = surf->format;
-    
+
     if (PgObject_GetBuffer(arrayobj, &pg_view, PyBUF_RECORDS_RO)) {
         return 0;
     }
@@ -557,7 +557,7 @@ array_to_surface(PyObject *self, PyObject *arg)
         PgBuffer_Release(&pg_view);
         return NULL;
     }
-    
+
     array_data = (char *)view_p->buf;
 
     switch (surf->format->BytesPerPixel) {
@@ -762,7 +762,7 @@ array_to_surface(PyObject *self, PyObject *arg)
         }
         return RAISE(PyExc_RuntimeError, "unsupported bit depth for image");
     }
-    
+
     PgBuffer_Release(&pg_view);
     if (!PySurface_UnlockBy(surfobj, arrayobj)) {
         return NULL;
@@ -794,7 +794,7 @@ surface_to_array(PyObject *self, PyObject *args, PyObject *kwds)
         return 0;
     }
     surf = PySurface_AsSurface(surfobj);
-    
+
     if (PgObject_GetBuffer(arrayobj, &pg_view, PyBUF_RECORDS)) {
         PySurface_Unlock(surfobj);
         return 0;
@@ -1119,7 +1119,7 @@ make_surface (PyObject* self, PyObject* arg)
     if (PgObject_GetBuffer(arg, &pg_view, PyBUF_RECORDS_RO)) {
         return 0;
     }
-    
+
     if (!(view_p->ndim == 2 || (view_p->ndim == 3 && view_p->shape[2] == 3))) {
         PgBuffer_Release(&pg_view);
         return RAISE (PyExc_ValueError, "must be a valid 2d or 3d array\n");
@@ -1128,7 +1128,7 @@ make_surface (PyObject* self, PyObject* arg)
         PgBuffer_Release(&pg_view);
         return NULL;
     }
-    
+
     if (view_p->ndim == 2) {
         bitsperpixel = 8;
         rmask = 0xFF >> 6 << 5;
@@ -1156,14 +1156,14 @@ make_surface (PyObject* self, PyObject* arg)
         SDL_FreeSurface(surf);
         return 0;
     }
-    
+
     args = Py_BuildValue("(OO)", surfobj, arg);
     if (!args) {
         PgBuffer_Release(&pg_view);
         Py_DECREF(surfobj);
         return 0;
     }
-    
+
     result = array_to_surface(self, args);
     PgBuffer_Release(&pg_view);
     Py_DECREF(args);

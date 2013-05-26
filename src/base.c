@@ -215,9 +215,10 @@ CheckSDLVersions (void) /*compare compiled to linked*/
 
     if (compiled.major != linked->major || compiled.minor != linked->minor)
     {
-		PyErr_Format(PyExc_RuntimeError, "SDL compiled with version %d.%d.%d, linked to %d.%d.%d",
-                 compiled.major, compiled.minor, compiled.patch,
-                 linked->major, linked->minor, linked->patch);
+        PyErr_Format(PyExc_RuntimeError,
+                     "SDL compiled with version %d.%d.%d, linked to %d.%d.%d",
+                     compiled.major, compiled.minor, compiled.patch,
+                     linked->major, linked->minor, linked->patch);
         return 0;
     }
     return 1;
@@ -331,7 +332,7 @@ static PyObject*
 get_sdl_version (PyObject* self)
 {
     const SDL_version *v;
-	
+
     v = SDL_Linked_Version ();
     return Py_BuildValue ("iii", v->major, v->minor, v->patch);
 }
@@ -431,10 +432,10 @@ FloatFromObj (PyObject* obj, float* val)
     float f= (float)PyFloat_AsDouble (obj);
 
     if (f==-1 && PyErr_Occurred()) {
-		PyErr_Clear ();
+        PyErr_Clear ();
         return 0;
-	}
-    
+    }
+
     *val = f;
     return 1;
 }
@@ -577,7 +578,7 @@ PyGame_Video_AutoInit (void)
         module = PyImport_ImportModule ("pygame.macosx");
         if (!module)
         {
-        	printf("ERROR: pygame.macosx import FAILED\n");
+            printf("ERROR: pygame.macosx import FAILED\n");
             return -1;
         }
 
@@ -585,7 +586,7 @@ PyGame_Video_AutoInit (void)
         Py_DECREF (module);
         if (!rval)
         {
-        	printf("ERROR: pygame.macosx.Video_AutoInit() call FAILED\n");
+            printf("ERROR: pygame.macosx.Video_AutoInit() call FAILED\n");
             return -1;
         }
 
@@ -1198,7 +1199,7 @@ _arraystruct_as_buffer (Py_buffer* view_p, PyObject* cobj,
                         PyArrayInterface* inter_p, int flags)
 {
     ViewInternals* internal_p;
-    ssize_t sz = (sizeof (ViewInternals) + 
+    ssize_t sz = (sizeof (ViewInternals) +
                   (2 * inter_p->nd - 1) * sizeof (Py_ssize_t));
     int readonly = inter_p->flags & PAI_WRITEABLE ? 0 : 1;
     Py_ssize_t i;
@@ -1310,7 +1311,7 @@ static int _arraystruct_to_format (char* format,
 
         case 1:
             *fchar_p = 'b';
-            break; 
+            break;
         case 2:
             *fchar_p = 'h';
             break;
@@ -1335,7 +1336,7 @@ static int _arraystruct_to_format (char* format,
 
         case 1:
             *fchar_p = 'B';
-            break; 
+            break;
         case 2:
             *fchar_p = 'H';
             break;
@@ -1888,7 +1889,7 @@ pygame_parachute (int sig)
 {
 #ifdef HAVE_SIGNAL_H
     char* signaltype;
-    
+
     signal (sig, SIG_DFL);
     switch (sig)
     {
@@ -1919,7 +1920,7 @@ pygame_parachute (int sig)
 
     _quit ();
     Py_FatalError (signaltype);
-#endif    
+#endif
 }
 
 
@@ -1957,8 +1958,8 @@ install_parachute (void)
         if (ohandler != SIG_DFL)
             signal (fatal_signals[i], ohandler);
     }
-    
-#if defined(SIGALRM) && defined(HAVE_SIGACTION) 
+
+#if defined(SIGALRM) && defined(HAVE_SIGACTION)
     {/* Set SIGALRM to be ignored -- necessary on Solaris */
         struct sigaction action, oaction;
         /* Set SIG_IGN action */
@@ -1970,7 +1971,7 @@ install_parachute (void)
             sigaction (SIGALRM, &oaction, NULL);
     }
 #endif
-#endif    
+#endif
     return;
 }
 
@@ -1992,7 +1993,7 @@ uninstall_parachute (void)
         if (ohandler != pygame_parachute)
             signal (fatal_signals[i], ohandler);
     }
-#endif    
+#endif
 }
 
 /* bind functions to python */
@@ -2172,7 +2173,7 @@ MODINIT_DEFINE(base)
         }
         Py_DECREF (rval);
         Py_AtExit (atexit_quit);
-#ifdef HAVE_SIGNAL_H    
+#ifdef HAVE_SIGNAL_H
         install_parachute ();
 #endif
 

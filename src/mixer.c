@@ -617,7 +617,7 @@ static PyObject*
 snd_get_raw (PyObject* self)
 {
     Mix_Chunk* chunk = PySound_AsChunk (self);
-    
+
     MIXER_INIT_CHECK ();
 
     return Bytes_FromStringAndSize ((const char *)chunk->abuf,
@@ -1047,7 +1047,7 @@ chan_set_volume (PyObject* self, PyObject* args)
 #endif
 
 #ifdef Py_DEBUG
-    result = 
+    result =
 #endif
     Mix_Volume (channelnum, (int)(volume*128));
     Py_RETURN_NONE;
