@@ -22,17 +22,13 @@
 #include "doc/color_doc.h"
 #include "pygame.h"
 #include "pgcompat.h"
-#include "pgarrinter.h"
 #include <ctype.h>
+
 
 typedef struct
 {
     PyObject_HEAD
     /* RGBA */
-    Uint8 r;
-    Uint8 g;
-    Uint8 b;
-    Uint8 a;
     Uint8 data[4];
     Uint8 len;
 } PyColor;
@@ -61,9 +57,6 @@ static PyObject* _color_repr (PyColor *color);
 static PyObject* _color_normalize (PyColor *color);
 static PyObject* _color_correct_gamma (PyColor *color, PyObject *args);
 static PyObject* _color_set_length (PyColor *color, PyObject *args);
-#if PY3
-static void _color_freeview (PyObject *c);
-#endif
 
 /* Getters/setters */
 static PyObject* _color_get_r (PyColor *color, void *closure);
@@ -116,6 +109,9 @@ static PyObject * _color_subscript(PyColor* self, PyObject* item);
 
 /* Comparison */
 static PyObject* _color_richcompare(PyObject *o1, PyObject *o2, int opid);
+
+/* New buffer protocol methods. */
+static int _color_getbuffer (PyColor *color, Py_buffer *view, int flags);
 
 /* C API interfaces */
 static PyObject* PyColor_New (Uint8 rgba[]);
@@ -239,6 +235,30 @@ static PyMappingMethods _color_as_mapping = {
 
 
 
+#if PG_ENABLE_NEWBUF
+static PyBufferProcs _color_as_buffer = {
+#if HAVE_OLD_BUFPROTO
+    0,
+    0,
+    0,
+    0,
+#endif
+    (getbufferproc)_color_getbuffer,
+    0
+};
+
+#endif
+
+#if PY2 && PG_ENABLE_NEWBUF
+#define COLOR_TPFLAGS \
+    (Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE |  Py_TPFLAGS_HAVE_NEWBUFFER)
+#else
+#define COLOR_TPFLAGS \
+    (Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE)
+#endif
+
+
+
 
 
 
@@ -269,8 +289,12 @@ static PyTypeObject PyColor_Type =
     0,                          /* tp_str */
     0,                          /* tp_getattro */
     0,                          /* tp_setattro */
+#if PG_ENABLE_NEWBUF
+    &_color_as_buffer,          /* tp_as_buffer */
+#else
     0,                          /* tp_as_buffer */
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+#endif
+    COLOR_TPFLAGS,
     DOC_PYGAMECOLOR,            /* tp_doc */
     0,                          /* tp_traverse */
     0,                          /* tp_clear */
@@ -1350,48 +1374,16 @@ _color_set_cmy (PyColor *color, PyObject *value, void *closure)
 static PyObject*
 _color_get_arraystruct(PyColor *color, void *closure)
 {
-    typedef struct {
-        PyArrayInterface inter;
-        Py_intptr_t shape[1];
-        Py_intptr_t strides[1];
-    } _color_view_t;
-    _color_view_t *view = PyMem_New(_color_view_t, 1);
-    PyObject *cobj;
+    Py_buffer view;
+    PyObject *capsule;
 
-    if (!view) {
-        return PyErr_NoMemory();
-    }
-    view->shape[0] = (Py_intptr_t)color->len;
-    view->inter.two = 2;
-    view->inter.nd = 1;
-    view->inter.typekind = 'u';
-    view->inter.itemsize = 1;
-    view->inter.flags = (PAI_CONTIGUOUS | PAI_FORTRAN |
-                         PAI_ALIGNED | PAI_NOTSWAPPED);
-    view->inter.shape = view->shape;
-    view->strides[0] = (Py_intptr_t)view->inter.itemsize;
-    view->inter.strides = view->strides;
-    view->inter.data = color->data;
-    
-#if PY3
-    cobj = PyCapsule_New(view, 0, _color_freeview);
-#else
-    cobj = PyCObject_FromVoidPtr(view, PyMem_Free);
-#endif
-    if (!cobj) {
-        PyMem_Free(view);
+    if (_color_getbuffer (color, &view, PyBUF_FULL_RO)) {
         return 0;
     }
-    return cobj;
+    capsule = PgBuffer_AsArrayStruct(&view);
+    Py_DECREF (color);
+    return capsule;
 }
-
-#if PY3
-static void
-_color_freeview (PyObject *c)
-{
-    PyMem_Free(PyCapsule_GetPointer (c, NULL));
-}
-#endif
 
 /* Number protocol methods */
 
@@ -1856,6 +1848,48 @@ Unimplemented:
     Py_INCREF (Py_NotImplemented);
     return Py_NotImplemented;
 }
+
+
+static int
+_color_getbuffer (PyColor *color, Py_buffer *view, int flags)
+{
+    static char format[] = "B";
+
+    if (PyBUF_HAS_FLAG (flags, PyBUF_WRITABLE)) {
+        PyErr_SetString (PgExc_BufferError, "color buffer is read-only");
+        return -1;
+    }
+    view->buf = color->data;
+    view->ndim = 1;
+    view->itemsize = 1;
+    view->len = color->len;
+    view->readonly = 1;
+    if (PyBUF_HAS_FLAG (flags, PyBUF_ND)) {
+        view->ndim = 1;
+        view->shape = &view->len;
+    }
+    else {
+        view->ndim = 0;
+        view->shape = 0;
+    }
+    if (PyBUF_HAS_FLAG (flags, PyBUF_FORMAT)) {
+        view->format = format;
+    }
+    else {
+        view->format = 0;
+    }
+    if (PyBUF_HAS_FLAG (flags, PyBUF_STRIDES)) {
+        view->strides = &view->itemsize;
+    }
+    else {
+        view->strides = 0;
+    }
+    view->suboffsets = 0;
+    Py_INCREF (color);
+    view->obj = (PyObject *)color;
+    return 0;
+}
+
 
 /**** C API interfaces ****/
 static PyObject*
