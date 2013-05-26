@@ -141,7 +141,7 @@ array_is_contiguous(PyPixelArray *ap, char fortran)
 }
 
 #include "pixelarray_methods.c"
-    
+
 /**
  * Methods, which are bound to the PyPixelArray type.
  */
@@ -186,7 +186,7 @@ Text_ConcatAndDel(PyObject **string, PyObject *newpart)
 static PyGetSetDef _pxarray_getsets[] =
 {
     { "__dict__", (getter)_pxarray_get_dict, 0, 0, 0 },
-    { "surface", (getter)_pxarray_get_surface, 0, DOC_PIXELARRAYSURFACE, 0 }, 
+    { "surface", (getter)_pxarray_get_surface, 0, DOC_PIXELARRAYSURFACE, 0 },
     { "itemsize", (getter)_pxarray_get_itemsize, 0, DOC_PIXELARRAYITEMSIZE, 0 },
     { "shape", (getter)_pxarray_get_shape, 0, DOC_PIXELARRAYSHAPE, 0 },
     { "strides", (getter)_pxarray_get_strides, 0, DOC_PIXELARRAYSTRIDES, 0 },
@@ -306,7 +306,7 @@ static PyTypeObject PyPixelArray_Type =
     0,                          /* tp_subclasses */
     0,                          /* tp_weaklist */
     0                           /* tp_del */
-#endif    
+#endif
 };
 
 static PyPixelArray *
@@ -438,7 +438,7 @@ static PyObject *
 _pxarray_get_dict(PyPixelArray *self, void *closure)
 {
     if (!self->dict) {
-	self->dict = PyDict_New();
+        self->dict = PyDict_New();
         if (!self->dict) {
             return 0;
         }
@@ -554,7 +554,7 @@ _pxarray_get_pixelsaddress(PyPixelArray *self, void *closure)
 static int
 _pxarray_getbuffer(PyPixelArray *self, Py_buffer *view_p, int flags)
 {
-    Py_ssize_t itemsize = 
+    Py_ssize_t itemsize =
         PySurface_AsSurface(self->surface)->format->BytesPerPixel;
     int ndim = self->shape[1] ? 2 : 1;
     Py_ssize_t *shape = 0;
@@ -799,11 +799,11 @@ _pxarray_repr(PyPixelArray *array)
 static PyObject *
 _pxarray_subscript_internal(PyPixelArray *array,
                             Py_ssize_t xstart,
-			    Py_ssize_t xstop,
-			    Py_ssize_t xstep,
-			    Py_ssize_t ystart,
-			    Py_ssize_t ystop,
-			    Py_ssize_t ystep)
+                            Py_ssize_t xstop,
+                            Py_ssize_t xstep,
+                            Py_ssize_t ystart,
+                            Py_ssize_t ystop,
+                            Py_ssize_t ystep)
 {
     /* Special case: if xstep or ystep are zero, then the corresponding
      * dimension is removed. If both are zero, then a single integer
@@ -846,11 +846,11 @@ _pxarray_subscript_internal(PyPixelArray *array,
         stride1 = 0;
     }
     pixels = (array->pixels +
-              xstart * array->strides[0] + 
+              xstart * array->strides[0] +
               ystart * array->strides[1]);
     return (PyObject *)_pxarray_new_internal(&PyPixelArray_Type, 0,
-					     array, pixels,
-					     dim0, dim1, stride0, stride1);
+                                             array, pixels,
+                                             dim0, dim1, stride0, stride1);
 }
 
 /**
@@ -1071,7 +1071,7 @@ _array_assign_array(PyPixelArray *array,
 static int
 _array_assign_sequence(PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
                        PyObject *val)
-{ 
+{
     SDL_Surface *surf = PySurface_AsSurface(array->surface);
     SDL_PixelFormat *format;
     Py_ssize_t dim0 = ABS (high - low);
@@ -1349,7 +1349,7 @@ _pxarray_ass_item(PyPixelArray *array, Py_ssize_t index, PyObject *value)
     if (!dim1) {
         dim1 = 1;
     }
-    
+
     Py_BEGIN_ALLOW_THREADS;
     /* Single value assignment. */
     switch (bpp) {
@@ -1413,7 +1413,7 @@ _pxarray_ass_slice(PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
     else if (low > (Sint32)array->shape[0]) {
         low = array->shape[0];
     }
-    
+
     if (high < low) {
         high = low;
     }
@@ -1567,7 +1567,7 @@ _get_subslice(PyObject *op, Py_ssize_t length, Py_ssize_t *start,
         if (*start >= length || *start < 0) {
             PyErr_SetString(PyExc_IndexError, "invalid index");
             return -1;
-        }   
+        }
         *stop = (*start) + 1;
         *step = 0;
     }
@@ -1588,7 +1588,7 @@ _get_subslice(PyObject *op, Py_ssize_t length, Py_ssize_t *start,
         if (*start >= length || *start < 0) {
             PyErr_SetString(PyExc_IndexError, "invalid index");
             return -1;
-        }   
+        }
         *stop = (*start) + 1;
         *step = 0;
     }
@@ -1615,7 +1615,7 @@ _pxarray_subscript(PyPixelArray *array, PyObject *op)
         Py_ssize_t size = PySequence_Size(op);
         Py_ssize_t xstart, xstop, xstep;
         Py_ssize_t ystart, ystop, ystep;
-    
+
         if (size == 0) {
             /* array[,], array[()] ... */
             Py_INCREF(array);
@@ -1666,8 +1666,8 @@ _pxarray_subscript(PyPixelArray *array, PyObject *op)
         }
 
         return _pxarray_subscript_internal(array,
-					   xstart, xstop, xstep,
-					   ystart, ystop, ystep);
+                                           xstart, xstop, xstep,
+                                           ystart, ystop, ystep);
     }
     else if (op == Py_Ellipsis) {
         Py_INCREF(array);
@@ -1690,7 +1690,7 @@ _pxarray_subscript(PyPixelArray *array, PyObject *op)
             Py_RETURN_NONE;
         }
         return _pxarray_subscript_internal(array,
-					   start, stop, step, 0, dim1, 1);
+                                           start, stop, step, 0, dim1, 1);
     }
     else if (PyIndex_Check(op) || PyInt_Check(op) || PyLong_Check(op)) {
         Py_ssize_t i;
@@ -1707,9 +1707,9 @@ _pxarray_subscript(PyPixelArray *array, PyObject *op)
         if (i == -1 && PyErr_Occurred()) {
             return 0;
         }
-	if (i < 0) {
+        if (i < 0) {
             i += dim0;
-        }  
+        }
         if (i < 0 || i >= dim0) {
             return RAISE(PyExc_IndexError, "array index out of range");
         }
@@ -1728,7 +1728,7 @@ _pxarray_ass_subscript(PyPixelArray *array, PyObject* op, PyObject* value)
      */
     Py_ssize_t dim0 = array->shape[0];
     Py_ssize_t dim1 = array->shape[1];
-    
+
     /* Note: order matters here.
      * First check array[x,y], then array[x:y:z], then array[x]
      * Otherwise it'll fail.
@@ -1872,7 +1872,7 @@ _pxarray_ass_subscript(PyPixelArray *array, PyObject* op, PyObject* value)
         i = PyNumber_AsSsize_t(val, PyExc_IndexError);
 #else
         i = PyInt_Check(op) ? PyInt_AsLong (op) : PyLong_AsLong (op);
-#endif 
+#endif
         if (i == -1 && PyErr_Occurred()) {
             return -1;
         }
@@ -1953,7 +1953,7 @@ MODINIT_DEFINE(pixelarray)
     if (PyType_Ready(&PyPixelArray_Type)) {
         MODINIT_ERROR;
     }
-    
+
     /* create the module */
 #if PY3
     module = PyModule_Create(&_module);

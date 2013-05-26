@@ -502,7 +502,7 @@ class ExporterTest(unittest.TestCase):
         self.assertEqual(m.itemsize, itemsize)
         self.assertEqual(m.shape, shape)
         self.assertEqual(m.strides, strides)
-        
-        
+
+
 if __name__ == '__main__':
     unittest.main()

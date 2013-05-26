@@ -520,7 +520,7 @@ class SurfaceTypeTest(unittest.TestCase):
         seglen, segaddr = get_write_buffer(v, 7)
         self.assertEqual(segaddr, s._pixels_address + s.get_bytesize() * 7)
         self.assertEqual(seglen, s.get_bytesize())
-        
+
     def test_set_colorkey(self):
 
         # __doc__ (as of 2008-06-25) for pygame.surface.Surface.set_colorkey:

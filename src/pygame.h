@@ -618,11 +618,11 @@ typedef struct {
 #define PG_CAPSULE_NAME(m) (IMPPREFIX m "." PYGAMEAPI_LOCAL_ENTRY)
 
 #define _IMPORT_PYGAME_MODULE(module, MODULE, api_root) {                   \
-	    PyObject *_module = PyImport_ImportModule (IMPPREFIX #module);      \
+        PyObject *_module = PyImport_ImportModule (IMPPREFIX #module);      \
                                                                             \
-	    if (_module != NULL) {                                              \
-	        PyObject *_c_api =                                              \
-	            PyObject_GetAttrString (_module, PYGAMEAPI_LOCAL_ENTRY);    \
+        if (_module != NULL) {                                              \
+            PyObject *_c_api =                                              \
+                PyObject_GetAttrString (_module, PYGAMEAPI_LOCAL_ENTRY);    \
                                                                             \
             Py_DECREF (_module);                                            \
             if (_c_api != NULL && PyCapsule_CheckExact (_c_api)) {          \
@@ -675,10 +675,10 @@ static void* PyGAME_C_API[PYGAMEAPI_TOTALSLOTS] = { NULL };
 #ifndef intrptr_t
 #define intptr_t int
 
-// No PySlice_GetIndicesEx on Py 2.2        
+// No PySlice_GetIndicesEx on Py 2.2
 #define PySlice_GetIndicesEx(a,b,c,d,e,f) PySlice_GetIndices(a,b,c,d,e)
 
-#define PyBool_FromLong(x) 	Py_BuildValue("b", x)
+#define PyBool_FromLong(x) Py_BuildValue("b", x)
 #endif
 
 // _symport_free and malloc are not exported in python.dll

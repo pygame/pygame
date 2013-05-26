@@ -186,7 +186,7 @@ class ColorTypeTest (unittest.TestCase):
 
         self.failIf(Color(255, 0, 0, 0) == [255, 0, 0, 0])
         self.failUnless(Color(255, 0, 0, 0) != [255, 0, 0, 0])
-        
+
         self.failIf([255, 0, 0, 0] == Color(255, 0, 0 ,0))
         self.failUnless([255, 0, 0, 0] != Color(255, 0, 0, 0))
 
@@ -223,41 +223,41 @@ class ColorTypeTest (unittest.TestCase):
         # slicing a color gives you back a tuple.
         # do all sorts of slice combinations.
         c = pygame.Color(1,2,3,4)
-        
+
         self.assertEquals((1,2,3,4), c[:])
         self.assertEquals((1,2,3), c[:-1])
-        
+
         self.assertEquals((), c[:-5])
-        
+
         self.assertEquals((1,2,3,4), c[:4])
         self.assertEquals((1,2,3,4), c[:5])
         self.assertEquals((1,2), c[:2])
         self.assertEquals((1,), c[:1])
         self.assertEquals((), c[:0])
-        
-        
+
+
         self.assertEquals((2,), c[1:-2])
         self.assertEquals((3, 4), c[-2:])
         self.assertEquals((4,), c[-1:])
-        
-        
+
+
         # NOTE: assigning to a slice is currently unsupported.
-        
-        
+
+
     def test_unpack(self):
         # should be able to unpack to r,g,b,a and r,g,b
         c = pygame.Color(1,2,3,4)
         r,g,b,a = c
         self.assertEquals((1,2,3,4), (r,g,b,a))
         self.assertEquals(c, (r,g,b,a))
-        
+
         c.set_length(3)
         r,g,b = c
         self.assertEquals((1,2,3), (r,g,b))
 
 
 
-        
+
 
 
     def test_length(self):
@@ -284,11 +284,11 @@ class ColorTypeTest (unittest.TestCase):
         self.assertRaises (ValueError, c.set_length, -1)
         self.assertRaises (ValueError, c.set_length, 0)
         self.assertRaises (ValueError, c.set_length, pow(2,long_(33)))
-        
-        
+
+
     def test_case_insensitivity_of_string_args(self):
         self.assertEquals(pygame.color.Color('red'), pygame.color.Color('Red'))
-    
+
     def test_color (self):
         c = pygame.Color (10, 20, 30, 40)
         self.assertEquals (c.r, 10)
@@ -348,7 +348,7 @@ class ColorTypeTest (unittest.TestCase):
         self.assertEquals (c.a, 255)
         self.assertRaises (ValueError, _assigna, c, -10)
         self.assertEquals (c.a, 255)
-        
+
     def test_repr (self):
         c = pygame.Color (68, 38, 26, 69)
         t = "(68, 38, 26, 69)"
@@ -636,10 +636,10 @@ class ColorTypeTest (unittest.TestCase):
         self.assertEquals (c[1], 48)
         self.assertRaises (ValueError, _assign_item, c, 2, "Hello")
         self.assertEquals (c[2], 173)
-        
+
     def test_Color_type_works_for_Surface_get_and_set_colorkey(self):
         s = pygame.Surface((32, 32))
-        
+
         c = pygame.Color(33, 22, 11, 255)
         s.set_colorkey(c)
 
@@ -675,7 +675,7 @@ class ColorTypeTest (unittest.TestCase):
             self.assert_(0 <= m <= 1)
             self.assert_(0 <= y <= 1)
 
-    def test_i1i2i3__all_elements_within_limits (self):        
+    def test_i1i2i3__all_elements_within_limits (self):
         for c in rgba_combos_Color_generator():
             i1, i2, i3 = c.i1i2i3
             self.assert_(  0   <= i1 <= 1)
@@ -690,9 +690,9 @@ class ColorTypeTest (unittest.TestCase):
         x = 0
         for c in rgba_combos_Color_generator():
             x += 1
-            
+
             other = pygame.Color(0)
-            
+
             try:
                 setattr(other, prop, getattr(c, prop))
                 #eg other.hsla = c.hsla
@@ -724,26 +724,26 @@ class ColorTypeTest (unittest.TestCase):
             try:
                 setattr(other, prop, getattr(c, prop))
                 #eg other.hsla = c.hsla
-                
+
                 self.assert_(abs(other.r - c.r) <= 1)
                 self.assert_(abs(other.b - c.b) <= 1)
                 self.assert_(abs(other.g - c.g) <= 1)
                 # CMY and I1I2I3 do not care about the alpha
                 if not prop in ("cmy", "i1i2i3"):
                     self.assert_(abs(other.a - c.a) <= 1)
-                
+
             except ValueError:
                 pass        # other tests will notify, this tests equation
 
     def test_hsla__sanity_testing_converted_should_equate_bar_rounding(self):
         self.colorspaces_converted_should_equate_bar_rounding('hsla')
-        
+
     def test_hsva__sanity_testing_converted_should_equate_bar_rounding(self):
         self.colorspaces_converted_should_equate_bar_rounding('hsva')
 
     def test_cmy__sanity_testing_converted_should_equate_bar_rounding(self):
         self.colorspaces_converted_should_equate_bar_rounding('cmy')
-                    
+
     def test_i1i2i3__sanity_testing_converted_should_equate_bar_rounding(self):
         self.colorspaces_converted_should_equate_bar_rounding('i1i2i3')
 
@@ -759,7 +759,7 @@ class ColorTypeTest (unittest.TestCase):
         for i, c in enumerate(rgba_combos_Color_generator()):
             gamma = gammas[i % gammas_len]
 
-            corrected = pygame.Color(*[gamma_correct(x, gamma) 
+            corrected = pygame.Color(*[gamma_correct(x, gamma)
                                                  for x in tuple(c)])
             lib_corrected = c.correct_gamma(gamma)
 
@@ -778,7 +778,7 @@ class ColorTypeTest (unittest.TestCase):
         #c2 = pygame.Color(255,254,253,252)
         pickle_string = pickle.dumps(c1)
         c1_frompickle = pickle.loads(pickle_string)
-        self.assertEqual(c1,c1_frompickle) 
+        self.assertEqual(c1,c1_frompickle)
 
 ################################################################################
 # only available if ctypes module is also available
