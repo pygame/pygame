@@ -4,6 +4,37 @@
 # BREAK = change breaks existing code
 # BUG    = fixed a bug that was (or could have been) crashing
 
+[HG 962e528796ab] May 26, 2013
+    Add full Python new buffer protocol support to Pygame 1.9.2. In addition
+    Python level array interface support is added to several Pygame objects
+    and function. This changeset marks the end of a series of commits,
+    starting with revision 98e3a61592c1 on September 8, 2012.
+
+    Affected Pygame buffer exporting objects are BufferProxy, Surface
+    (through method get_buffer), Sound, PixelArray, and Color. Affected
+    importers are Sound, freetype.Font, BufferProxy, and the
+    pixelcopy module functions (array_to_surface, surface_to_array, map_array,
+    and make_surface).
+
+    Internally, Pygame has been rewritten to use the C Py_buffer to represent
+    external array objects. For Python 2.5 and earlier, which do not support
+    the new buffer protocol, Py_buffer is defined in pygame.h. The details
+    of translating between Py_buffer and the array interface are now found
+    in only on C file, base.c. Consequently, the base module exports several new
+    Pygame C api functions and a new exception: PgBuffer_AsArrayInterface,
+    PgBuffer_AsArrayStruct, PgObject_GetBuffer, PgBuffer_Release,
+    PgDict_AsBuffer, and PgExc_BufferError. These api additions also reduce
+    the amount of conditional compilation code required to support Python
+    versions which lack the new buffer protocol.
+
+    Finally, for proper testing, additions are made to the unit test framework.
+    A new extension module, pygame.newbuffer, adds new classes for importing
+    and exporting the new buffer interface at the Python level. It is built
+    conditionally. The new pygame.tests.test_utils.buftools Python module
+    implements the high level classes used in the actual unit tests. Also,
+    a new class in pygame.tests.test_utils.arrinter exports a C level
+    array interface from the Python level.
+    
 [SVN 3062] Mar 30, 2011
     Port scrap module to Python 3.x (merge with branches/port_scrap_py3).
     Accidently committed in rev 3061.
