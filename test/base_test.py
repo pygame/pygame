@@ -163,6 +163,8 @@ class BaseModuleTest(unittest.TestCase):
             self.NEWBUF_test_PgDict_AsBuffer_PyBUF_flags()
         def test_PgObject_AsBuffer_PyBUF_flags(self):
             self.NEWBUF_test_PgObject_AsBuffer_PyBUF_flags()
+        def test_bad_format(self):
+            self.NEWBUF_test_bad_format()
         if is_pygame_pkg:
             from pygame.tests.test_utils import buftools
         else:
@@ -196,10 +198,33 @@ class BaseModuleTest(unittest.TestCase):
         ndim = 2
         shape = _shape[0:ndim]
         for format in ['b', 'B', '=h', '=H', '=i', '=I', '=q', '=Q', 'f', 'd',
-                       '1h', '=1h']:
+                       '1h', '=1h', 'x', '1x', '2x', '3x', '4x', '5x', '6x',
+                       '7x', '8x', '9x']:
             o = Exporter(shape, format)
             v = BufferProxy(o)
             self.NEWBUF_assertSame(v, o)
+
+    def NEWBUF_test_bad_format(self):
+        from pygame.bufferproxy import BufferProxy
+        from pygame.newbuffer import BufferMixin
+        from ctypes import create_string_buffer, addressof
+
+        buftools = self.buftools
+        Importer = buftools.Importer
+        PyBUF_FORMAT = buftools.PyBUF_FORMAT
+
+        class Exporter(BufferMixin):
+            def __init__(self, format):
+                self.format = create_string_buffer(format)
+            def _get_buffer(self, view, flags):
+                view.obj = self
+                view.format = addressof(self.format)
+
+        for format in ['', '=', '1', ' ', '2h', '=2h',
+                       '0x', '11x', '=!', 'h ', ' h', 'hh', '?']:
+            exp = Exporter(format)
+            b = BufferProxy(exp)
+            self.assertRaises(ValueError, Importer, b, PyBUF_FORMAT)
 
     def NEWBUF_test_PgDict_AsBuffer_PyBUF_flags(self):
         from pygame.bufferproxy import BufferProxy

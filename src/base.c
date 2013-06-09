@@ -1014,7 +1014,11 @@ PgObject_GetBuffer (PyObject* obj, Pg_buffer* pg_view_p, int flags)
             return -1;
         }
         pg_view_p->release_buffer = PyBuffer_Release;
+
+        /* Check the format is a numeric type or pad bytes
+         */
         fchar_p = view_p->format;
+        /* Skip valid size/byte order code */
         switch (*fchar_p) {
 
         case '@':
@@ -1024,13 +1028,33 @@ PgObject_GetBuffer (PyObject* obj, Pg_buffer* pg_view_p, int flags)
         case '!':
             ++fchar_p;
             break;
-        default:
-            break;
+
+        /* default: assume it is a format type character or item count */
         }
-        /* Skip a leading count of 1 */
-        if (*fchar_p == '1') {
+        /* Skip a leading digit */
+        switch (*fchar_p) {
+
+        case '1':
+            /* valid count for all item types */
             ++fchar_p;
+            break;
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+            /* only valid as a pad byte count */
+            if (*(fchar_p + 1) == 'x') {
+                ++fchar_p;
+            }
+            break;
+
+        /* default: assume it is a format character */
         }
+        /* verify is a format type character */
         switch (*fchar_p) {
 
         case 'b':
@@ -1045,22 +1069,8 @@ PgObject_GetBuffer (PyObject* obj, Pg_buffer* pg_view_p, int flags)
         case 'Q':
         case 'f':
         case 'd':
+        case 'x':
             ++fchar_p;
-            break;
-        case '0':
-        case '1':
-        case '2':
-        case '3':
-        case '4':
-        case '5':
-        case '6':
-        case '7':
-        case '8':
-        case '9':
-            ++fchar_p;
-            if (*fchar_p == 'x') {
-                ++fchar_p;
-            }
             break;
         default:
             PgBuffer_Release (pg_view_p);
