@@ -195,7 +195,8 @@ class BaseModuleTest(unittest.TestCase):
             self.NEWBUF_assertSame(v, o)
         ndim = 2
         shape = _shape[0:ndim]
-        for format in ['b', 'B', '=h', '=H', '=i', '=I', '=q', '=Q', 'f', 'd']:
+        for format in ['b', 'B', '=h', '=H', '=i', '=I', '=q', '=Q', 'f', 'd',
+                       '1h', '=1h']:
             o = Exporter(shape, format)
             v = BufferProxy(o)
             self.NEWBUF_assertSame(v, o)

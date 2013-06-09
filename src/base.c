@@ -1027,7 +1027,8 @@ PgObject_GetBuffer (PyObject* obj, Pg_buffer* pg_view_p, int flags)
         default:
             break;
         }
-        if (*fchar_p == 1) {
+        /* Skip a leading count of 1 */
+        if (*fchar_p == '1') {
             ++fchar_p;
         }
         switch (*fchar_p) {
