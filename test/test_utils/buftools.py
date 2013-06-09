@@ -267,6 +267,7 @@ class ExporterTest(unittest.TestCase):
         float_sz = ctypes.sizeof(ctypes.c_float)
         double_sz = ctypes.sizeof(ctypes.c_double)
         voidp_sz = ctypes.sizeof(ctypes.c_void_p)
+        bool_sz = ctypes.sizeof(ctypes.c_bool)
 
         self.check_args(0, (1,), 'B', (1,), 1, 1, 1)
         self.check_args(1, (1,), 'b', (1,), 1, 1, 1)
@@ -287,6 +288,7 @@ class ExporterTest(unittest.TestCase):
                         double_sz, double_sz, double_sz)
         self.check_args(1, (1,), 'x', (1,), 1, 1, 1)
         self.check_args(1, (1,), 'P', (voidp_sz,), voidp_sz, voidp_sz, voidp_sz)
+        self.check_args(1, (1,), '?', (bool_sz,), bool_sz, bool_sz, bool_sz)
         self.check_args(1, (1,), '@b', (1,), 1, 1, 1)
         self.check_args(1, (1,), '@B', (1,), 1, 1, 1)
         self.check_args(1, (1,), '@c', (char_sz,), char_sz, char_sz, char_sz)
@@ -306,6 +308,7 @@ class ExporterTest(unittest.TestCase):
                         float_sz, float_sz, float_sz)
         self.check_args(1, (1,), '@d', (double_sz,),
                         double_sz, double_sz, double_sz)
+        self.check_args(1, (1,), '@?', (bool_sz,), bool_sz, bool_sz, bool_sz)
         self.check_args(1, (1,), '=b', (1,), 1, 1, 1)
         self.check_args(1, (1,), '=B', (1,), 1, 1, 1)
         self.check_args(1, (1,), '=c', (1,), 1, 1, 1)
@@ -317,6 +320,7 @@ class ExporterTest(unittest.TestCase):
         self.check_args(1, (1,), '=L', (4,), 4, 4, 4)
         self.check_args(1, (1,), '=q', (8,), 8, 8, 8)
         self.check_args(1, (1,), '=Q', (8,), 8, 8, 8)
+        self.check_args(1, (1,), '=?', (1,), 1, 1, 1)
         self.check_args(1, (1,), '<h', (2,), 2, 2, 2)
         self.check_args(1, (1,), '>h', (2,), 2, 2, 2)
         self.check_args(1, (1,), '!h', (2,), 2, 2, 2)
