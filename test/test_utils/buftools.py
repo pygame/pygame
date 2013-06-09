@@ -50,14 +50,9 @@ class Exporter(pygame.newbuffer.BufferMixin):
 
        The only array operation this type supports is to export a buffer.
     """
-    prefixes = {'@': '', '=': '=', '<': '=', '>': '=',
-                '!': '=', '1': '1', '2': '2', '3': '3',
-                '4': '4', '5': '5', '6': '6', '7': '7',
-                '8': '8', '9': '9', 'c': 'c', 'b': 'b',
-                'B': 'B', 'h': 'h', 'H': 'H', 'i': 'i',
-                'I': 'I', 'l': 'l', 'L': 'L', 'q': 'q',
-                'Q': 'Q', 'f': 'f', 'd': 'd', 'P': 'P',
-                'x': 'x'}
+    prefixes = {'@': '', '=': '=', '<': '=', '>': '=', '!': '=',
+                '2': '2', '3': '3', '4': '4', '5': '5',
+                '6': '6', '7': '7', '8': '8', '9': '9'}
     types = {'c': ctypes.c_char, 'b': ctypes.c_byte, 'B': ctypes.c_ubyte,
              '=c': ctypes.c_int8, '=b': ctypes.c_int8, '=B': ctypes.c_uint8,
              '?': ctypes.c_bool, '=?': ctypes.c_int8,
@@ -72,7 +67,6 @@ class Exporter(pygame.newbuffer.BufferMixin):
              'f': ctypes.c_float, 'd': ctypes.c_double,
              'P': ctypes.c_void_p,
              'x': ctypes.c_ubyte * 1,
-             '1x': ctypes.c_ubyte * 1,
              '2x': ctypes.c_ubyte * 2,
              '3x': ctypes.c_ubyte * 3,
              '4x': ctypes.c_ubyte * 4,
@@ -87,16 +81,19 @@ class Exporter(pygame.newbuffer.BufferMixin):
             format = 'B'
         if readonly is None:
             readonly = False
-        try:
-            prefix = self.prefixes[format[0]]
-        except LookupError:
-            prefix = ' '   # Will fail later
-        if len(format) == 2:
-            typecode = format[1]
-        elif len(format) == 1:
-            typecode = ''
-        else:
-            typecode = ' '   # Will fail later
+        prefix = ''
+        typecode = ''
+        i = 0
+        if i < len(format):
+            try:
+                prefix = self.prefixes[format[i]]
+                i += 1
+            except LookupError:
+                pass
+        if i < len(format) and format[i] == '1':
+            i += 1
+        if i == len(format) - 1:
+            typecode = format[i]
         try:
             c_itemtype = self.types[prefix + typecode]
         except KeyError:
@@ -335,6 +332,8 @@ class ExporterTest(unittest.TestCase):
         self.check_args(1, (1,), '7x', (7,), 7, 7, 7)
         self.check_args(1, (1,), '8x', (8,), 8, 8, 8)
         self.check_args(1, (1,), '9x', (9,), 9, 9, 9)
+        self.check_args(1, (1,), '1h', (2,), 2, 2, 2)
+        self.check_args(1, (1,), '=1h', (2,), 2, 2, 2)
         self.assertRaises(ValueError, Exporter, (2, 1), '')
         self.assertRaises(ValueError, Exporter, (2, 1), 'W')
         self.assertRaises(ValueError, Exporter, (2, 1), '^Q')
@@ -348,7 +347,6 @@ class ExporterTest(unittest.TestCase):
         self.assertRaises(ValueError, Exporter, (2, 1), '!f')
         self.assertRaises(ValueError, Exporter, (2, 1), '!d')
         self.assertRaises(ValueError, Exporter, (2, 1), '0x')
-        self.assertRaises(ValueError, Exporter, (2, 1), '1h')
         self.assertRaises(ValueError, Exporter, (2, 1), '11x')
         self.assertRaises(ValueError, Exporter, (2, 1), 'BB')
 
