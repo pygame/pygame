@@ -100,7 +100,9 @@ _get_single_pixel(PyPixelArray *array, Uint32 x, Uint32 y)
 
     bpp = surf->format->BytesPerPixel;
 
+    /* Find the start of the pixel */
     switch (bpp) {
+        /* This switch statement is exhaustive over all surface pixel sizes */
 
     case 1:
         pixel = (Uint32)*pixel_p;
@@ -118,11 +120,16 @@ _get_single_pixel(PyPixelArray *array, Uint32 x, Uint32 y)
     case 4:
         pixel = *((Uint32 *)pixel_p);
         break;
-    default: /* Should not get here. */
+
+#ifndef NDEBUG
+        /* Assert that bpp is valid */
+    default:
+        /* Should not get here */
         PyErr_Format(PyExc_SystemError,
                      "Pygame internal error in _get_single_pixel: "
                      "unexpected pixel size %i", bpp);
         return 0;
+#endif
     }
     
     return PyInt_FromLong((long)pixel);

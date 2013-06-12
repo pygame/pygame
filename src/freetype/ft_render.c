@@ -36,6 +36,7 @@ _validate_view_format(const char *format)
 {
     int i = 0;
 
+    /* Check if the format starts with a size/byte order code or a item count */
     switch (format[i]) {
 
     case '@':
@@ -54,14 +55,15 @@ _validate_view_format(const char *format)
     case '7':
     case '8':
     case '9':
+        /* Only allowed for fill bytes */
         if (format[i + 1] == 'x') {
             ++i;
         }
         break;
-    default:
-        /* Unrecognized */
-        break;
+
+    /* default: assume the first character is a format character */
     }
+    /* Verify the next character is a format character */
     switch (format[i]) {
 
     case 'x':
@@ -77,9 +79,8 @@ _validate_view_format(const char *format)
     case 'Q':
         ++i;
         break;
-    default:
-        /* Unrecognized */
-        break;
+
+    /* default: an unrecognized format character; raise exception later */
     }
     if (format[i] != '\0') {
         PyErr_SetString(PyExc_ValueError, "Unsupport array item type");
