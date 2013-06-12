@@ -2097,12 +2097,20 @@ surf_get_bounding_rect (PyObject *self, PyObject *args, PyObject *kwargs)
 
 static PyObject *
 _raise_get_view_ndim_error(int bitsize, SurfViewKind kind) {
-    const char *name;
+    const char *name = "<unknown>";  /* guard against a segfault */
 
+    /* Put a human readable name to a surface view kind */
     switch (kind) {
+        /* This switch statement is exhaustive over the SurfViewKind enum */
 
     case VIEWKIND_RAW:
         name = "raw";
+        break;
+    case VIEWKIND_0D:
+        name = "contiguous bytes";
+        break;
+    case VIEWKIND_1D:
+        name = "contigous pixels";
         break;
     case VIEWKIND_2D:
         name = "2D";
@@ -2122,11 +2130,16 @@ _raise_get_view_ndim_error(int bitsize, SurfViewKind kind) {
     case VIEWKIND_ALPHA:
         name = "alpha";
         break;
+
+#ifndef NDEBUG
+        /* Assert this switch statement is exhaustive */
     default:
+        /* Should not be here */
         PyErr_Format(PyExc_SystemError,
                      "pygame bug in _raise_get_view_ndim_error:"
                      " unknown view kind %d", (int) kind);
         return 0;
+#endif
     }
     PyErr_Format(PyExc_ValueError,
          "unsupported bit depth %d for %s reference array",
@@ -2154,6 +2167,7 @@ surf_get_buffer (PyObject *self, PyObject *args)
 
     format = surface->format;
     switch (view_kind) {
+        /* This switch statement is exhaustive over the SurfViewKind enum */
 
     case VIEWKIND_0D:
         if (surface->pitch != format->BytesPerPixel * surface->w) {
@@ -2232,11 +2246,16 @@ surf_get_buffer (PyObject *self, PyObject *args)
     case VIEWKIND_RAW:
         get_buffer = _get_buffer_0D;
         break;
+
+#ifndef NDEBUG
+        /* Assert this switch statement is exhaustive */
     default:
+        /* Should not be here */
         PyErr_Format (PyExc_SystemError,
                       "pygame bug in surf_get_view:"
                       " unrecognized view kind %d", (int)view_kind);
         return 0;
+#endif
     }
     assert (get_buffer);
     proxy_obj = PgBufproxy_New (self, get_buffer);
@@ -2294,6 +2313,9 @@ _get_buffer_1D (PyObject *obj, Pg_buffer *pg_view_p, int flags)
     }
     if (PyBUF_HAS_FLAG (flags, PyBUF_FORMAT)) {
         switch (itemsize) {
+            /* This switch statement is exhaustive over all remaining possible
+               itemsize values, the valid pixel byte sizes of non color-mapped
+               images */
 
         case 2:
             view_p->format = FormatUint16;
@@ -2304,13 +2326,17 @@ _get_buffer_1D (PyObject *obj, Pg_buffer *pg_view_p, int flags)
         case 4:
             view_p->format = FormatUint32;
             break;
+
+#ifndef NDEBUG
+            /* Assert this switch statement is exhaustive */
         default:
-            /* Should not get here! */
+            /* Should not be here */
             PyErr_Format (PyExc_SystemError,
                           "Pygame bug caught at line %i in file %s: "
                           "unknown pixel size %i. Please report",
                           (int)__LINE__, __FILE__, itemsize);
             return -1;
+#endif
         }
     }
     view_p->buf = surface->pixels;
@@ -2374,6 +2400,8 @@ _get_buffer_2D (PyObject *obj, Pg_buffer *pg_view_p, int flags)
     }
     if (PyBUF_HAS_FLAG (flags, PyBUF_FORMAT)) {
         switch (itemsize) {
+            /* This switch statement is exhaustive over all possible itemsize
+               values, valid pixel byte sizes */
 
         case 1:
             view_p->format = FormatUint8;
@@ -2387,13 +2415,17 @@ _get_buffer_2D (PyObject *obj, Pg_buffer *pg_view_p, int flags)
         case 4:
             view_p->format = FormatUint32;
             break;
+
+#ifndef NDEBUG
+            /* Assert this switch statement is exhaustive */
         default:
-            /* Should not get here! */
+            /* Should not be here */
             PyErr_Format (PyExc_SystemError,
                           "Pygame bug caught at line %i in file %s: "
                           "unknown pixel size %i. Please report",
                           (int)__LINE__, __FILE__, itemsize);
             return -1;
+#endif
         }
     }
     view_p->buf = surface->pixels;
@@ -2530,6 +2562,8 @@ _get_buffer_colorplane (PyObject *obj,
         return -1;
     }
     switch (mask) {
+        /* This switch statement is exhaustive over possible mask value,
+           the allowable masks for 24 bit and 32 bit surfaces */
 
     case 0x000000ffU:
         startpixel += lilendian ? 0 : 3;
@@ -2543,13 +2577,17 @@ _get_buffer_colorplane (PyObject *obj,
     case 0xff000000U:
         startpixel += lilendian ? 3 : 0;
         break;
+
+#ifndef NDEBUG
+        /* Assert this switch statement is exhaustive */
     default:
-        /* Should not get here! */
+        /* Should not be here */
         PyErr_Format (PyExc_SystemError,
                       "Pygame bug caught at line %i in file %s: "
                       "unknown mask value %p. Please report",
                       (int)__LINE__, __FILE__, (void *)mask);
         return -1;
+#endif
     }
     if (_init_buffer (obj, pg_view_p, flags)) {
         return -1;
