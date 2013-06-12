@@ -215,7 +215,7 @@ class BaseModuleTest(unittest.TestCase):
 
         class Exporter(BufferMixin):
             def __init__(self, format):
-                self.format = create_string_buffer(format)
+                self.format = create_string_buffer(format.encode('ascii'))
             def _get_buffer(self, view, flags):
                 view.obj = self
                 view.format = addressof(self.format)
