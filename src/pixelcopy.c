@@ -52,6 +52,7 @@ _validate_view_format(const char *format)
 {
     int i = 0;
 
+    /* Skip size/byte order prefix or item count */
     switch (format[i]) {
 
     case '@':
@@ -70,13 +71,13 @@ _validate_view_format(const char *format)
     case '7':
     case '8':
     case '9':
+        /* Only skip if for pad bytes */
         if (format[i + 1] == 'x') {
             ++i;
         }
         break;
-    default:
-        /* Unrecognized */
-        break;
+
+    /* default: assume it is a format character */
     }
     switch (format[i]) {
 
@@ -93,9 +94,8 @@ _validate_view_format(const char *format)
     case 'Q':
         ++i;
         break;
-    default:
-        /* Unrecognized */
-        break;
+
+    /* default: unrecognized character; raise error later */
     }
     if (format[i] != '\0') {
         PyErr_SetString(PyExc_ValueError, "Unsupport array item type");
