@@ -279,7 +279,10 @@ _copy_colorplane(Py_buffer *view_p,
                      intsize);
         return -1;
     }
+    /* Select appropriate color plane element within the pixel */
     switch (view_kind) {
+        /* This switch statement is exhaustive over possible view_kind values */
+
     case VIEWKIND_RED:
         element = &r;
         break;
@@ -294,11 +297,16 @@ _copy_colorplane(Py_buffer *view_p,
         break;
     case VIEWKIND_COLORKEY:
         break;
+
+#ifndef NDEBUG
+        /* Assert this switch statement is exhaustive */
     default:
+        /* Should not get here */
         PyErr_Format(PyExc_SystemError,
                      "pygame bug in _copy_colorplane: unknown view kind %d",
                      (int)view_kind);
         return -1;
+#endif
     }
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
     dz_pix = 0;

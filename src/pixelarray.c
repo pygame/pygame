@@ -601,7 +601,10 @@ _pxarray_getbuffer(PyPixelArray *self, Py_buffer *view_p, int flags)
         return -1;
     }
     if (PyBUF_HAS_FLAG(flags, PyBUF_FORMAT)) {
+        /* Find the appropriate format for given pixel size */
         switch (itemsize) {
+            /* This switch statement is exhaustive over possible itemsize
+               values, the supported surface pixel byte sizes */
 
         case 1:
             view_p->format = FormatUint8;
@@ -615,12 +618,17 @@ _pxarray_getbuffer(PyPixelArray *self, Py_buffer *view_p, int flags)
         case 4:
             view_p->format = FormatUint32;
             break;
+
+#ifndef NDEBUG
+            /* Assert that itemsize is valid */
         default:
+            /* Should not get here */
             PyErr_Format(PyExc_SystemError,
                          "Internal Pygame error at line %d in %s: "
                          "unknown item size %d; please report",
                          (int)__LINE__, __FILE__, (int)itemsize);
             return -1;
+#endif
         }
     }
     else {
