@@ -117,10 +117,12 @@ class Exporter(pygame.newbuffer.BufferMixin):
             self._strides = (ctypes.c_ssize_t * self.ndim)(*self.strides)
         else:
             raise ValueError("Mismatch in length of strides and shape")
-        buflen =  max(self.shape[i] * self.strides[i] for i in range(self.ndim))
+        buflen =  max(d * abs(s) for d, s in zip(self.shape, self.strides))
         self.buflen = buflen
         self._buf = (ctypes.c_ubyte * buflen)()
-        self.buf = ctypes.addressof(self._buf)
+        offset = sum((d - 1) * abs(s)
+                     for d, s in zip(self.shape, self.strides) if s < 0)
+        self.buf = ctypes.addressof(self._buf) + offset
 
     def buffer_info(self):
         return (addressof(self.buffer), self.shape[0])
@@ -464,6 +466,13 @@ class ExporterTest(unittest.TestCase):
         self.assertRaises(BufferError, Importer, a, PyBUF_ANY_CONTIGUOUS)
         self.assertRaises(BufferError, Importer, a, PyBUF_CONTIG)
 
+    def test_negative_strides(self):
+        self.check_args(3, (3, 5, 4), 'B', (20, 4, -1), 60, 60, 1, 3)
+        self.check_args(3, (3, 5, 3), 'B', (20, 4, -1), 45, 60, 1, 2)
+        self.check_args(3, (3, 5, 4), 'B', (20, -4, 1), 60, 60, 1, 16)
+        self.check_args(3, (3, 5, 4), 'B', (-20, -4, -1), 60, 60, 1, 59)
+        self.check_args(3, (3, 5, 3), 'B', (-20, -4, -1), 45, 60, 1, 58)
+
     def test_attributes(self):
         a = Exporter((13, 5, 11, 3), '=h', (440, 88, 8, 2))
         self.assertEqual(a.ndim, 4)
@@ -492,11 +501,13 @@ class ExporterTest(unittest.TestCase):
         self.assertEqual(a.strides, (440, 88, 8, 2))
 
     def check_args(self, call_flags,
-                   shape, format, strides, length, bufsize, itemsize):
+                   shape, format, strides, length, bufsize, itemsize,
+                   offset=0):
         format_arg = format if call_flags & 1 else None
         strides_arg = strides if call_flags & 2 else None
         a = Exporter(shape, format_arg, strides_arg)
         self.assertEqual(a.buflen, bufsize)
+        self.assertEqual(a.buf, ctypes.addressof(a._buf) + offset)
         m = Importer(a, PyBUF_RECORDS_RO)
         self.assertEqual(m.buf, a.buf)
         self.assertEqual(m.len, length)
