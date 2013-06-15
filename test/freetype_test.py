@@ -491,24 +491,24 @@ class FreeTypeFontTest(unittest.TestCase):
         # No frills antialiased render to int1 (__render_glyph_INT)
         srect = font.get_rect(text, ptsize=24)
         surf = pygame.Surface(srect.size, 0, 8)
-        rrect = font.render_raw_to(surf.get_buffer('2'), text, ptsize=24)
+        rrect = font.render_raw_to(surf.get_view('2'), text, ptsize=24)
         self.assertEqual(rrect, srect)
 
         for bpp in [24, 32]:
             surf = pygame.Surface(srect.size, 0, bpp)
-            rrect = font.render_raw_to(surf.get_buffer('r'), text, ptsize=24)
+            rrect = font.render_raw_to(surf.get_view('r'), text, ptsize=24)
             self.assertEqual(rrect, srect)
 
         # Underlining to int1 (__fill_glyph_INT)
         srect = font.get_rect(text, ptsize=24, style=ft.STYLE_UNDERLINE)
         surf = pygame.Surface(srect.size, 0, 8)
-        rrect = font.render_raw_to(surf.get_buffer('2'), text, ptsize=24,
+        rrect = font.render_raw_to(surf.get_view('2'), text, ptsize=24,
                                   style=ft.STYLE_UNDERLINE)
         self.assertEqual(rrect, srect)
 
         for bpp in [24, 32]:
             surf = pygame.Surface(srect.size, 0, bpp)
-            rrect = font.render_raw_to(surf.get_buffer('r'), text, ptsize=24,
+            rrect = font.render_raw_to(surf.get_view('r'), text, ptsize=24,
                                        style=ft.STYLE_UNDERLINE)
             self.assertEqual(rrect, srect)
 
@@ -517,12 +517,12 @@ class FreeTypeFontTest(unittest.TestCase):
         try:
             srect = font.get_rect(text, ptsize=24)
             surf = pygame.Surface(srect.size, 0, 8)
-            rrect = font.render_raw_to(surf.get_buffer('2'), text, ptsize=24)
+            rrect = font.render_raw_to(surf.get_view('2'), text, ptsize=24)
             self.assertEqual(rrect, srect)
 
             for bpp in [24, 32]:
                 surf = pygame.Surface(srect.size, 0, bpp)
-                rrect = font.render_raw_to(surf.get_buffer('r'), text, ptsize=24)
+                rrect = font.render_raw_to(surf.get_view('r'), text, ptsize=24)
                 self.assertEqual(rrect, srect)
         finally:
             font.antialiased = True
@@ -533,7 +533,7 @@ class FreeTypeFontTest(unittest.TestCase):
 
         for bpp in [16, 24, 32]:
             surf = pygame.Surface(srect.size, 0, bpp)
-            rrect = font.render_raw_to(surf.get_buffer('2'), text, ptsize=24)
+            rrect = font.render_raw_to(surf.get_view('2'), text, ptsize=24)
             self.assertEqual(rrect, srect)
 
         # Underline render to ints sized greater than 1 byte
@@ -542,7 +542,7 @@ class FreeTypeFontTest(unittest.TestCase):
 
         for bpp in [16, 24, 32]:
             surf = pygame.Surface(srect.size, 0, bpp)
-            rrect = font.render_raw_to(surf.get_buffer('2'), text, ptsize=24,
+            rrect = font.render_raw_to(surf.get_view('2'), text, ptsize=24,
                                        style=ft.STYLE_UNDERLINE)
             self.assertEqual(rrect, srect)
 
@@ -554,7 +554,7 @@ class FreeTypeFontTest(unittest.TestCase):
 
             for bpp in [16, 24, 32]:
                 surf = pygame.Surface(srect.size, 0, bpp)
-                rrect = font.render_raw_to(surf.get_buffer('2'),
+                rrect = font.render_raw_to(surf.get_view('2'),
                                            text, ptsize=24)
                 self.assertEqual(rrect, srect)
         finally:

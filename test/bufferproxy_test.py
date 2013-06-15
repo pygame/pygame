@@ -238,10 +238,10 @@ class BufferProxyTest(unittest.TestCase):
 
     def test_repr(self):
         v = BufferProxy(self.view_keywords)
-        cname = re.findall(r"'([^']+)'", repr(BufferProxy))[0]
+        cname = BufferProxy.__name__
         oname, ovalue = re.findall(r"<([^)]+)\(([^)]+)\)>", repr(v))[0]
         self.assertEqual(oname, cname)
-        self.assertEqual(id(v), int(ovalue, 16))
+        self.assertEqual(v.length, int(ovalue))
 
     def test_subclassing(self):
         class MyBufferProxy(BufferProxy):
