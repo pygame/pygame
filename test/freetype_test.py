@@ -563,20 +563,26 @@ class FreeTypeFontTest(unittest.TestCase):
     if pygame.HAVE_NEWBUF:
         def test_newbuf(self):
             self.NEWBUF_test_newbuf()
+        if is_pygame_pkg:
+            from pygame.tests.test_utils import buftools
+        else:
+            from test.test_utils import buftools
 
     def NEWBUF_test_newbuf(self):
-        class MyView(pygame.bufferproxy.BufferProxy):
-            # A BufferProxy with the array interface disabled; only exports
-            # the new buffer interface.
-            __array_interface__ = property(lambda self: None)
-            __array_struct__ = property(lambda self: None)
-
+        Exporter = self.buftools.Exporter
         font = self._TEST_FONTS['sans']
         srect = font.get_rect("Hi", ptsize=12)
-        surf = pygame.Surface(srect.size, 0, 16)
-        newbuf = MyView(surf.get_buffer('2'))
-        rrect = font.render_raw_to(newbuf, "Hi", ptsize=12)
-        self.assertEqual(rrect, srect)
+        for format in ['b', 'B', 'h', 'H', 'i', 'I', 'l', 'L', 'q', 'Q',
+                       'x', '1x', '2x', '3x', '4x', '5x', '6x', '7x',
+                       '8x', '9x', '<h', '>h', '=h', '@h', '!h', '1h', '=1h']:
+            newbuf = Exporter(srect.size, format=format)
+            rrect = font.render_raw_to(newbuf, "Hi", ptsize=12)
+            self.assertEqual(rrect, srect)
+        # Some unsupported formats
+        for format in ['f', 'd', '2h', '?', 'hh']:
+            newbuf = Exporter(srect.size, format=format, itemsize=4)
+            self.assertRaises(ValueError, font.render_raw_to,
+                              newbuf, "Hi", ptsize=12)
 
     def test_freetype_Font_style(self):
 
