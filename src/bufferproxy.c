@@ -446,9 +446,19 @@ proxy_get_length(PgBufproxyObject *self, PyObject *closure)
  * Representation method.
  */
 static PyObject *
-proxy_repr (PgBufproxyObject *self)
+proxy_repr(PgBufproxyObject *self)
 {
-    return Text_FromFormat("<%s(%p)>", Py_TYPE(self)->tp_name, self);
+    Py_buffer *view_p = _proxy_get_view(self);
+
+    if (!view_p) {
+        return 0;
+    }
+    /* zd is for Py_size_t which python < 2.5 doesn't have. */
+#if PY_VERSION_HEX < 0x02050000
+    return PyString_FromFormat("<BufferProxy(%d)>", view_p->len);
+#else
+    return Text_FromFormat("<BufferProxy(%zd)>", view_p->len);
+#endif
 }
 
 /**
