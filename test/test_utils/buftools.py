@@ -76,7 +76,12 @@ class Exporter(pygame.newbuffer.BufferMixin):
              '8x': ctypes.c_ubyte * 8,
              '9x': ctypes.c_ubyte * 9}
 
-    def __init__(self, shape, format=None, strides=None, readonly=None):
+    def __init__(self,
+                 shape,
+                 format=None,
+                 strides=None,
+                 readonly=None,
+                 itemsize=None):
         if format is None:
             format = 'B'
         if readonly is None:
@@ -94,21 +99,22 @@ class Exporter(pygame.newbuffer.BufferMixin):
             i += 1
         if i == len(format) - 1:
             typecode = format[i]
-        try:
-            c_itemtype = self.types[prefix + typecode]
-        except KeyError:
-            raise ValueError("Unknown item format '" + format + "'")
+        if itemsize is None:
+            try:
+                itemsize = ctypes.sizeof(self.types[prefix + typecode])
+            except KeyError:
+                raise ValueError("Unknown item format '" + format + "'")
         self.readonly = bool(readonly)
         self.format = format
         self._format = ctypes.create_string_buffer(format.encode('latin_1'))
         self.ndim = len(shape)
-        self.itemsize = ctypes.sizeof(c_itemtype)
+        self.itemsize = itemsize
         self.len = reduce(operator.mul, shape, 1) * self.itemsize
         self.shape = tuple(shape)
         self._shape = (ctypes.c_ssize_t * self.ndim)(*self.shape)
         if strides is None:
             self._strides = (ctypes.c_ssize_t * self.ndim)()
-            self._strides[self.ndim - 1] = self.itemsize
+            self._strides[self.ndim - 1] = itemsize
             for i in range(self.ndim - 1, 0, -1):
                 self._strides[i - 1] = self.shape[i] * self._strides[i]
             self.strides = tuple(self._strides)
@@ -499,6 +505,18 @@ class ExporterTest(unittest.TestCase):
         self.assertTrue(isinstance(a.strides, tuple))
         self.assertEqual(a.shape, (13, 5, 11, 3))
         self.assertEqual(a.strides, (440, 88, 8, 2))
+
+    def test_itemsize(self):
+        exp = Exporter((4, 5), format='B', itemsize=8)
+        imp = Importer(exp, PyBUF_RECORDS)
+        self.assertEqual(imp.itemsize, 8)
+        self.assertEqual(imp.format, 'B')
+        self.assertEqual(imp.strides, (40, 8))
+        exp = Exporter((4, 5), format='weird', itemsize=5)
+        imp = Importer(exp, PyBUF_RECORDS)
+        self.assertEqual(imp.itemsize, 5)
+        self.assertEqual(imp.format, 'weird')
+        self.assertEqual(imp.strides, (25, 5))
 
     def check_args(self, call_flags,
                    shape, format, strides, length, bufsize, itemsize,

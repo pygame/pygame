@@ -210,19 +210,13 @@ class BaseModuleTest(unittest.TestCase):
         from ctypes import create_string_buffer, addressof
 
         buftools = self.buftools
+        Exporter = buftools.Exporter
         Importer = buftools.Importer
         PyBUF_FORMAT = buftools.PyBUF_FORMAT
 
-        class Exporter(BufferMixin):
-            def __init__(self, format):
-                self.format = create_string_buffer(format.encode('ascii'))
-            def _get_buffer(self, view, flags):
-                view.obj = self
-                view.format = addressof(self.format)
-
         for format in ['', '=', '1', ' ', '2h', '=2h',
                        '0x', '11x', '=!', 'h ', ' h', 'hh', '?']:
-            exp = Exporter(format)
+            exp = Exporter((1,), format, itemsize=2)
             b = BufferProxy(exp)
             self.assertRaises(ValueError, Importer, b, PyBUF_FORMAT)
 
