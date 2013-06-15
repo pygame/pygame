@@ -46,7 +46,6 @@ _validate_view_format(const char *format)
     case '!':
         ++i;
         break;
-    case '1':
     case '2':
     case '3':
     case '4':
@@ -62,6 +61,10 @@ _validate_view_format(const char *format)
         break;
 
     /* default: assume the first character is a format character */
+    }
+    /* A item count of 1 is accepted */
+    if (format[i] == '1') {
+        ++i;
     }
     /* Verify the next character is a format character */
     switch (format[i]) {
@@ -83,7 +86,8 @@ _validate_view_format(const char *format)
     /* default: an unrecognized format character; raise exception later */
     }
     if (format[i] != '\0') {
-        PyErr_SetString(PyExc_ValueError, "Unsupport array item type");
+        PyErr_Format(PyExc_ValueError,
+                     "Unsupport array item format '%100s'", format);
         return -1;
     }
 

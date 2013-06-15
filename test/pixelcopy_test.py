@@ -525,56 +525,55 @@ class PixelCopyTestWithArray(unittest.TestCase):
 
 
 class PixelCopyTestWithArray(unittest.TestCase):
+    try:
+        if is_pygame_pkg:
+            from pygame.tests.test_utils import buftools
+        else:
+            from test.test_utils import buftools
+    except ImportError:
+        pass
+    else:
+        class Array2D(buftools.Exporter):
+            def __init__(self, initializer):
+                from ctypes import cast, POINTER, c_uint32
+
+                Array2D = PixelCopyTestWithArray.Array2D
+                super(Array2D, self).__init__((3, 5),
+                                              format='=I',
+                                              strides=(20, 4))
+                self.content = cast(self.buf, POINTER(c_uint32))
+                for i, v in enumerate(initializer):
+                    self.content[i] = v
+            def __getitem__(self, key):
+                byte_index = key[0] * 5 + key[1]
+                if not (0 <= byte_index < 15):
+                    raise IndexError("%s is out of range", key)
+                return self.content[byte_index]
+
+        class Array3D(buftools.Exporter):
+            def __init__(self, initializer):
+                from ctypes import cast, POINTER, c_uint8
+
+                if pygame.get_sdl_byteorder() == pygame.LIL_ENDIAN:
+                    stride2 = 1
+                else:
+                    stride2 = -1
+                self.stride2 = stride2
+                Array3D = PixelCopyTestWithArray.Array3D
+                super(Array3D, self).__init__((3, 5, 3),
+                                              format='B',
+                                              strides=(20, 4, stride2))
+                self.content = cast(self.buf, POINTER(c_uint8))
+                for i, v in enumerate(initializer):
+                    self.content[i] = v
+            def __getitem__(self, key):
+                byte_index = key[0] * 20 + key[1] * 4 + key[2] * self.stride2
+                if not (0 <= byte_index < 60):
+                    raise IndexError("%s is out of range", key)
+                return self.content[byte_index]
+
+
     surface = pygame.Surface((3, 5), 0, 32)
-
-    class Array2D(pygame.bufferproxy.BufferProxy):
-        c_int_arr = ctypes.c_uint32 * 15
-        def __new__(cls, initializer):
-            content = cls.c_int_arr(*initializer)
-            d = {"shape": (3, 5),
-                 "typestr": '|u4',
-                 "strides": (20, 4),
-                 "data": (ctypes.addressof(content), False)}
-            MyType = PixelCopyTestWithArray.Array2D
-            obj = pygame.bufferproxy.BufferProxy.__new__(MyType, d)
-            obj.content = content
-            return obj
-        def _not_implemented(self):
-            raise AttributeError()
-        __array_interface__ = property(_not_implemented)
-        __array_struct__ = property(_not_implemented)
-        def __getitem__(self, key):
-            return self.content[5 * key[0] + key[1]]
-
-    class Array3D(pygame.bufferproxy.BufferProxy):
-        c_int_arr = ctypes.c_uint32 * 15
-        def __new__(cls, initializer):
-            content = cls.c_int_arr(*initializer)
-            if pygame.get_sdl_byteorder() == pygame.LIL_ENDIAN:
-                stride2 = 1
-                offset = 0
-            else:
-                stride2 = -1
-                offset = 2
-            d = {"shape": (3, 5, 3),
-                 "typestr": '|u1',
-                 "strides": (20, 4, stride2),
-                 "data": (ctypes.addressof(content) + offset, False)}
-            MyType = PixelCopyTestWithArray.Array3D
-            obj = pygame.bufferproxy.BufferProxy.__new__(MyType, d)
-            obj.int_content = content
-            obj.content = ctypes.cast(content, ctypes.POINTER(ctypes.c_uint8))
-            obj.stride2 = stride2
-            return obj
-        def _not_implemented(self):
-            raise AttributeError()
-        __array_interface__ = property(_not_implemented)
-        __array_struct__ = property(_not_implemented)
-        def __getitem__(self, key):
-            byte_index = key[0] * 20 + key[1] * 4 + key[2] * self.stride2
-            if not (0 <= byte_index < 60):
-                raise IndexError("%s is out of range", key)
-            return self.content[byte_index]
 
     def setUp(self):
         surf = self.surface
@@ -617,11 +616,32 @@ class PixelCopyTestWithArray(unittest.TestCase):
         surface = make_surface(array)
         self.assertCopy2D(surface, array)
 
+    def test_format_newbuf(self):
+        Exporter = self.buftools.Exporter
+        surface = self.surface
+        shape = surface.get_size()
+        w, h = shape
+        for format in ['=i', '=I', '=l', '=L', '=q', '=Q', '<i', '>i',
+                       '!i', '1i', '=1i', '@q', 'q', '4x', '8x']:
+            surface.fill((255, 254, 253))
+            exp = Exporter(shape, format=format)
+            exp._buf[:] = [42] * exp.buflen
+            array_to_surface(surface, exp)
+            for x in range(w):
+                for y in range(h):
+                    self.assertEqual(surface.get_at((x, y)), (42, 42, 42, 255))
+        # Some unsupported formats for array_to_surface and a 32 bit surface
+        for format in ['f', 'd', '?', 'x',
+                       '1x', '2x', '3x', '5x', '6x', '7x', '9x']:
+            exp = Exporter(shape, format=format)
+            self.assertRaises(ValueError, array_to_surface, surface, exp)
+
     if not pygame.HAVE_NEWBUF:
         del test_surface_to_array_newbuf
         del test_array_to_surface_newbuf
         del test_map_array_newbuf
         del test_make_surface_newbuf
+        del test_format_newbuf
 
 
 if __name__ == '__main__':

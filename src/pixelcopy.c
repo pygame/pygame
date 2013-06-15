@@ -62,7 +62,6 @@ _validate_view_format(const char *format)
     case '!':
         ++i;
         break;
-    case '1':
     case '2':
     case '3':
     case '4':
@@ -71,13 +70,17 @@ _validate_view_format(const char *format)
     case '7':
     case '8':
     case '9':
-        /* Only skip if for pad bytes */
+        /* Only allowed for fill bytes */
         if (format[i + 1] == 'x') {
             ++i;
         }
         break;
 
     /* default: assume it is a format character */
+    }
+    /* an item count of 1 is accepted */
+    if (format[i] == '1') {
+        ++i;
     }
     switch (format[i]) {
 
