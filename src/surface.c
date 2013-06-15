@@ -37,8 +37,7 @@ typedef enum {
     VIEWKIND_RED,
     VIEWKIND_GREEN,
     VIEWKIND_BLUE,
-    VIEWKIND_ALPHA,
-    VIEWKIND_RAW
+    VIEWKIND_ALPHA
 } SurfViewKind;
 
 /* To avoid problems with non-const Py_buffer format field */
@@ -114,7 +113,8 @@ static PyObject *surf_set_masks (PyObject *self, PyObject *args);
 static PyObject *surf_get_offset (PyObject *self);
 static PyObject *surf_get_parent (PyObject *self);
 static PyObject *surf_subsurface (PyObject *self, PyObject *args);
-static PyObject *surf_get_buffer (PyObject *self, PyObject *args);
+static PyObject *surf_get_view (PyObject *self, PyObject *args);
+static PyObject *surf_get_buffer (PyObject *self);
 static PyObject *surf_get_bounding_rect (PyObject *self, PyObject *args,
                                          PyObject *kwargs);
 static PyObject *surf_get_pixels_address (PyObject *self,
@@ -233,7 +233,9 @@ static struct PyMethodDef surface_methods[] = {
     { "get_bounding_rect", (PyCFunction) surf_get_bounding_rect,
       METH_VARARGS | METH_KEYWORDS,
       DOC_SURFACEGETBOUNDINGRECT},
-    { "get_buffer", (PyCFunction) surf_get_buffer, METH_VARARGS,
+    { "get_view", (PyCFunction) surf_get_view, METH_VARARGS,
+      DOC_SURFACEGETVIEW},
+    { "get_buffer", (PyCFunction) surf_get_buffer, METH_NOARGS,
       DOC_SURFACEGETBUFFER},
 
     { NULL, NULL, 0, NULL }
@@ -2103,9 +2105,6 @@ _raise_get_view_ndim_error(int bitsize, SurfViewKind kind) {
     switch (kind) {
         /* This switch statement is exhaustive over the SurfViewKind enum */
 
-    case VIEWKIND_RAW:
-        name = "raw";
-        break;
     case VIEWKIND_0D:
         name = "contiguous bytes";
         break;
@@ -2148,14 +2147,13 @@ _raise_get_view_ndim_error(int bitsize, SurfViewKind kind) {
 }
 
 static PyObject*
-surf_get_buffer (PyObject *self, PyObject *args)
+surf_get_view (PyObject *self, PyObject *args)
 {
     SDL_Surface *surface = PySurface_AsSurface (self);
     SDL_PixelFormat *format;
     Uint32 mask = 0;
-    SurfViewKind view_kind = VIEWKIND_RAW;
+    SurfViewKind view_kind = VIEWKIND_2D;
     pg_getbufferfunc get_buffer = 0;
-    PyObject *proxy_obj;
 
     if (!PyArg_ParseTuple (args, "|O&", _view_kind, &view_kind)) {
         return 0;
@@ -2243,9 +2241,6 @@ surf_get_buffer (PyObject *self, PyObject *args)
         }
         get_buffer = _get_buffer_alpha;
         break;
-    case VIEWKIND_RAW:
-        get_buffer = _get_buffer_0D;
-        break;
 
 #ifndef NDEBUG
         /* Assert this switch statement is exhaustive */
@@ -2258,8 +2253,21 @@ surf_get_buffer (PyObject *self, PyObject *args)
 #endif
     }
     assert (get_buffer);
-    proxy_obj = PgBufproxy_New (self, get_buffer);
-    if (proxy_obj && view_kind == VIEWKIND_RAW) {
+    return PgBufproxy_New (self, get_buffer);
+}
+
+static PyObject*
+surf_get_buffer (PyObject *self)
+{
+    SDL_Surface *surface = PySurface_AsSurface (self);
+    PyObject *proxy_obj;
+
+    if (!surface) {
+        return RAISE (PyExc_SDLError, "display Surface quit");
+    }
+
+    proxy_obj = PgBufproxy_New (self, _get_buffer_0D);
+    if (proxy_obj) {
         if (PgBufproxy_Trip (proxy_obj)) {
             Py_DECREF (proxy_obj);
             proxy_obj = 0;
@@ -2740,9 +2748,6 @@ _view_kind (PyObject *obj, void *view_kind_vptr)
         break;
     case '3':
         *view_kind_ptr = VIEWKIND_3D;
-        break;
-    case '&':
-        *view_kind_ptr = VIEWKIND_RAW;
         break;
     default:
         PyErr_Format (PyExc_TypeError,

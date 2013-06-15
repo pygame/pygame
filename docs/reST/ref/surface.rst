@@ -778,32 +778,28 @@
 
       .. ## Surface.get_bounding_rect ##
 
-   .. method:: get_buffer
+   .. method:: get_view
 
       | :sl:`return a buffer view of the Surface's pixels.`
-      | :sg:`get_buffer(<kind>='&') -> BufferProxy`
+      | :sg:`get_view(<kind>='2') -> BufferProxy`
 
       Return an object which exports a surface's internal pixel buffer as
       a C level array struct, Python level array interface or a C level 
       buffer interface. The pixel buffer is writeable. The new buffer protocol
       is supported for Python 2.6 and up in CPython. The old buffer protocol
       is also supported for Python 2.x. The old buffer data is in one segment
-      for kind '&' and '0', multi-segment for other buffer view kinds.
+      for kind '0', multi-segment for other buffer view kinds.
 
-      The kind argument is the length 1 string '&', '0', '1', '2', '3',
+      The kind argument is the length 1 string '0', '1', '2', '3',
       'r', 'g', 'b', or 'a'. The letters are case insensitive;
       'A' will work as well. The argument can be either a Unicode or byte (char)
-      string. The default is '&'.
+      string. The default is '2'.
 
-      A kind '&' view is unstructured bytes. The surface pixels are treated
-      as a single, contiguous stretch of bytes. No shape or pitch information
-      is provided. The importer needs to get this information elsewhere.
-      
-      '0' returns a continguous unstructured bytes view. No surface shape
+      '0' returns a contiguous unstructured bytes view. No surface shape
       information is given. A ValueError is raised if the surface's pixels
       are discontinuous.
       
-      '1' returns a (surface-width * surface-height) array of continguous
+      '1' returns a (surface-width * surface-height) array of continuous
       pixels. A ValueError is raised if the surface pixels are discontinuous.
       
       '2' returns a (surface-width, surface-height) array of raw pixels.
@@ -822,15 +818,29 @@
       and 32-bit surfaces support 'r', 'g', and 'b'. Only 32-bit surfaces with
       ``SRCALPHA`` support 'a'.
 
-      For kind '&', the method call also locks the surface. The lock is released
-      when the BufferProxy object is deleted. With all other kinds, the surface
-      is locked only when an exposed interface is accessed. For new buffer
-      interace accesses, the surface is unlocked once the last buffer view is
-      released. For array interface accesses, the surface remains locked until
-      the BufferProxy object is released.
+      The surface is locked only when an exposed interface is accessed.
+      For new buffer interface accesses, the surface is unlocked once the
+      last buffer view is released. For array interface and old buffer
+      interface accesses, the surface remains locked until the BufferProxy
+      object is released.
 
-      New in pygame 1.8.
-      Extended in pygame 1.9.2.
+      New in Pygame 1.9.2.
+
+   .. method:: get_buffer
+
+      | :sl:`acquires a buffer object for the pixels of the Surface.`
+      | :sg:`get_buffer() -> BufferProxy`
+
+      Return a buffer object for the pixels of the Surface. The buffer can be
+      used for direct pixel access and manipulation. Surface pixel data is
+      represented as an unstructured block of memory, with a start address
+      and length in bytes. The data need not be contiguous. Any gaps are
+      included in the length, but otherwise ignored.
+
+      This method implicitly locks the Surface. The lock will be released, once
+      the returned BufferProxy object is deleted.
+
+      New in Pygame 1.8.
 
       .. ## Surface.get_buffer ##
 
