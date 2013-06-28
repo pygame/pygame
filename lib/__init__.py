@@ -134,6 +134,7 @@ import pygame.surflock
 import pygame.color
 Color = color.Color
 import pygame.bufferproxy
+BufferProxy = bufferproxy.BufferProxy
 
 __version__ = ver
 
