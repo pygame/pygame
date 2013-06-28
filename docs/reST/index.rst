@@ -81,6 +81,9 @@ Reference
 :ref:`genindex`
   A list of all functions, classes, and methods in the Pygame package.
 
+:doc:`ref/bufferproxy`
+  An array protocol view of surface pixels
+
 :doc:`ref/cdrom`
   How to access and control the CD audio devices.
 
