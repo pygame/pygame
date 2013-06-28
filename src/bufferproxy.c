@@ -32,6 +32,7 @@
 #include "pygame.h"
 #include "pgcompat.h"
 #include "pgbufferproxy.h"
+#include "doc/bufferproxy_doc.h"
 
 
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
@@ -44,7 +45,7 @@
 
 #define PROXY_MODNAME "bufferproxy"
 #define PROXY_TYPE_NAME "BufferProxy"
-#define PROXY_TYPE_FULLNAME (IMPPREFIX PROXY_MODNAME "." PROXY_TYPE_NAME)
+#define PROXY_TYPE_FULLNAME (IMPPREFIX PROXY_TYPE_NAME)
 
 typedef struct PgBufproxyObject_s {
     PyObject_HEAD
@@ -517,7 +518,7 @@ proxy_write(PgBufproxyObject *self, PyObject *args, PyObject *kwds)
 
 static struct PyMethodDef proxy_methods[] = {
     {"write", (PyCFunction)proxy_write, METH_VARARGS | METH_KEYWORDS,
-     "write raw bytes to object buffer"},
+     DOC_BUFFERPROXYWRITE},
     {0, 0, 0, 0}
 };
 
@@ -526,12 +527,18 @@ static struct PyMethodDef proxy_methods[] = {
  */
 static PyGetSetDef proxy_getsets[] =
 {
-    {"__array_struct__", (getter)proxy_get_arraystruct, 0, 0, 0},
-    {"__array_interface__", (getter)proxy_get_arrayinterface, 0, 0, 0},
-    {"parent", (getter)proxy_get_parent, 0, 0, 0},
-    {"__dict__", (getter)proxy_get___dict__, 0, 0, 0},
-    {"raw", (getter)proxy_get_raw, 0, 0, 0},
-    {"length", (getter)proxy_get_length, 0, 0, 0},
+    {"__array_struct__", (getter)proxy_get_arraystruct, 0,
+     "Version 3 array interface, C level", 0},
+    {"__array_interface__", (getter)proxy_get_arrayinterface, 0,
+     "Version 3 array interface, Python level", 0},
+    {"parent", (getter)proxy_get_parent, 0,
+     DOC_BUFFERPROXYPARENT, 0},
+    {"__dict__", (getter)proxy_get___dict__, 0,
+     "The object's attribute dictionary, read-only", 0},
+    {"raw", (getter)proxy_get_raw, 0,
+     DOC_BUFFERPROXYRAW, 0},
+    {"length", (getter)proxy_get_length, 0,
+     DOC_BUFFERPROXYLENGTH, 0},
     {0, 0, 0, 0, 0}
 };
 
@@ -740,7 +747,7 @@ static PyTypeObject PgBufproxy_Type =
     0,                          /* tp_setattro */
     PROXY_BUFFERPROCS,          /* tp_as_buffer */
     PROXY_TPFLAGS,              /* tp_flags */
-    "Object bufproxy as an array struct\n",
+    DOC_PYGAMEBUFFERPROXY,
     (traverseproc)proxy_traverse,  /* tp_traverse */
     0,                          /* tp_clear */
     0,                          /* tp_richcompare */
@@ -899,8 +906,7 @@ PgBufproxy_Trip(PyObject *obj)
     return _proxy_get_view((PgBufproxyObject *)obj) ? 0 : -1;
 }
 
-/*DOC*/ static char bufferproxy_doc[] =
-/*DOC*/    "exports BufferProxy, a generic wrapper object for an py_buffer";
+/*DOC*/ static char bufferproxy_doc[] = DOC_PYGAMEBUFFERPROXY;
 
 MODINIT_DEFINE(bufferproxy)
 {
