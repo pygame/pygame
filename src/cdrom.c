@@ -178,7 +178,7 @@ cd_play (PyObject* self, PyObject* args)
     if (cdrom->track[track].type != SDL_AUDIO_TRACK) {
         return RAISE (PyExc_SDLError, "CD track type is not audio");
     }
-	
+
     /*validate times*/
     if (playforever) {
         end = start;
@@ -186,7 +186,7 @@ cd_play (PyObject* self, PyObject* args)
     else if (start == end && start != 0.0f) {
         Py_RETURN_NONE;
     }
-	
+
     startframe = (int)(start * CD_FPS);
     numframes = 0;
     if (startframe < 0) {
@@ -556,7 +556,7 @@ static PyTypeObject PyCD_Type =
     0,                          /* tp_clear */
     0,                          /* tp_richcompare */
     0,                          /* tp_weaklistoffset */
-    0,	                        /* tp_iter */
+    0,                          /* tp_iter */
     0,                          /* tp_iternext */
     cd_methods,                 /* tp_methods */
     0,                          /* tp_members */
@@ -567,8 +567,8 @@ static PyTypeObject PyCD_Type =
     0,                          /* tp_descr_set */
     0,                          /* tp_dictoffset */
     0,                          /* tp_init */
-    0,				/* tp_alloc */
-    0,			        /* tp_new */
+    0,                          /* tp_alloc */
+    0,                          /* tp_new */
 };
 
 static PyObject*
@@ -626,7 +626,7 @@ MODINIT_DEFINE (cdrom)
     */
     import_pygame_base ();
     if (PyErr_Occurred ()) {
-	MODINIT_ERROR;
+        MODINIT_ERROR;
     }
 
     /* type preparation */
@@ -638,8 +638,8 @@ MODINIT_DEFINE (cdrom)
 #if PY3
     module = PyModule_Create (&_module);
 #else
-    module = Py_InitModule3 (MODPREFIX "cdrom", 
-                             _cdrom_methods, 
+    module = Py_InitModule3 (MODPREFIX "cdrom",
+                             _cdrom_methods,
                              DOC_PYGAMECDROM);
 #endif
     if (module == NULL) {

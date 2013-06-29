@@ -536,9 +536,9 @@ static PyTypeObject PyEvent_Type =
     0,                               /* tp_traverse */
     0,                               /* tp_clear */
     event_richcompare,               /* tp_richcompare */
-    0,		                     /* tp_weaklistoffset */
-    0,		                     /* tp_iter */
-    0,		                     /* tp_iternext */
+    0,                               /* tp_weaklistoffset */
+    0,                               /* tp_iter */
+    0,                               /* tp_iternext */
     0,                               /* tp_methods */
     event_members,                   /* tp_members */
     0,                               /* tp_getset */
@@ -864,7 +864,7 @@ event_post (PyObject* self, PyObject* args)
 
     /* see if the event is blocked before posting it. */
         isblocked = SDL_EventState (e->type, SDL_QUERY) == SDL_IGNORE;
-    
+
     if (isblocked) {
         /* event is blocked, so we do not post it. */
         Py_RETURN_NONE;

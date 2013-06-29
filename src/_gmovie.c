@@ -14,7 +14,7 @@
   You should have received a copy of the GNU Library General Public
   License along with this library; if not, write to the Free
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-  
+
 */
 
 /*
@@ -25,7 +25,7 @@
  *  of a video file. Any format supported by ffmpeg is supported by this
  *  video player. Any bugs, please email trinioler@gmail.com :)
  */
- 
+
 
 #ifndef _GMOVIE_H_
 #include "_gmovie.h"
@@ -463,14 +463,14 @@ inline void jamPixels(int ix, AVPicture *picture, uint32_t *rgb, SDL_Surface *su
 void WritePicture2Surface(AVPicture *picture, SDL_Surface *surface, int w, int h)
 {
     /* AVPicture initialized with PIX_FMT_RGBA only fills pict->data[0]
-     *  This however is only in {R,G,B, A} format. So we just copy the data over. 
+     *  This however is only in {R,G,B, A} format. So we just copy the data over.
      */
     /* Loop unrolling:
-     * 	We define a blocksize, and so we increment the index counter by blocksize*rgbstep
-     * 	All common resolutions are nicely divisible by 8(because 8 is a power of 2...)
-     *  An uncommon resolution  could have between 1 and 7 bytes left to convert... 
+     *     We define a blocksize, and so we increment the index counter by blocksize*rgbstep
+     *     All common resolutions are nicely divisible by 8(because 8 is a power of 2...)
+     *  An uncommon resolution  could have between 1 and 7 bytes left to convert...
      *   which I guess we'll leave alone. Its just 1-2 pixels in the lower right corner.
-     *  So we repeat the same actions blocksize times.  
+     *  So we repeat the same actions blocksize times.
      */
     int64_t   blocksize     = 8;
     uint32_t *rgb           = surface->pixels;
@@ -526,7 +526,7 @@ int video_image_display(PyMovie *movie)
     //RELEASEGIL
     //set up the aspect ratio values..
 #if LIBAVFORMAT_VERSION_INT>= 3415808
-    
+
         if (movie->video_st->sample_aspect_ratio.num)
             aspect_ratio = av_q2d(movie->video_st->sample_aspect_ratio);
         else if (movie->video_st->codec->sample_aspect_ratio.num)
@@ -535,11 +535,11 @@ int video_image_display(PyMovie *movie)
             aspect_ratio = 0;
         if (aspect_ratio <= 0.0)
             aspect_ratio = 1.0;
-    
+
 #else
-    
+
         aspect_ratio = 1.0;
-    
+
 #endif
     //then we load in width and height values based on the aspect ration and w/h.
     int w=0;
@@ -558,13 +558,13 @@ int video_image_display(PyMovie *movie)
     y = (vp->height - height) / 2;
 
     //we set the rect to have the values we need for blitting/overlay display
-    	
-	    vp->dest_rect.x = vp->xleft + x;
-    	vp->dest_rect.y = vp->ytop  + y;
 
-    	vp->dest_rect.w=width;
- 	   	vp->dest_rect.h=height;
-	
+    vp->dest_rect.x = vp->xleft + x;
+    vp->dest_rect.y = vp->ytop  + y;
+
+    vp->dest_rect.w=width;
+    vp->dest_rect.h=height;
+
     if (vp->dest_overlay && vp->overlay>0 && !movie->skip_frame)
     {
         //SDL_Delay(10);
@@ -703,7 +703,7 @@ int video_open(PyMovie *movie, int index)
                 {
                     GRABGIL
                     RAISE(PyExc_SDLError, "No video surface given."); //ideally this should have
-                    RELEASEGIL										  // happen if there's some cleaning up.
+                    RELEASEGIL                                          // happen if there's some cleaning up.
                     return -1;
                 }
                 if(screen->h!=h)
@@ -1108,15 +1108,15 @@ int audio_thread(void *arg)
             //printf("asdf\n");
             /* TODO: attempt to fix below... but this is just wrong... */
             data_size = sizeof(movie->audio_buf1);
-            len1 = avcodec_decode_audio4(dec, 
-                                         frame, 
-                                         &data_size, 
+            len1 = avcodec_decode_audio4(dec,
+                                         frame,
+                                         &data_size,
                                          pkt);
 
             movie->audio_pkt_size= frame->nb_samples;
             if (len1 < 0)
             {
-                // if error, we skip the frame 
+                // if error, we skip the frame
                 movie->audio_pkt_size = 0;
                 break;
             }
@@ -1131,14 +1131,14 @@ int audio_thread(void *arg)
 
             /* TODO: FIXME uses old functions.
             data_size = sizeof(movie->audio_buf1);
-            len1 += avcodec_decode_audio2(dec, 
-                                          (int16_t *)movie->audio_buf1, 
-                                          &data_size, 
-                                          movie->audio_pkt_data, 
+            len1 += avcodec_decode_audio2(dec,
+                                          (int16_t *)movie->audio_buf1,
+                                          &data_size,
+                                          movie->audio_pkt_data,
                                           movie->audio_pkt_size);
             if (len1 < 0)
             {
-                // if error, we skip the frame 
+                // if error, we skip the frame
                 movie->audio_pkt_size = 0;
                 break;
             }
@@ -1278,13 +1278,13 @@ int stream_component_start(PyMovie *movie, int stream_index, int threaded)
     {
         if(threaded)
         {
-	    GRABGIL
-	} 
+            GRABGIL
+        }
         Py_DECREF(movie);
         if(threaded)
-	{
+        {
             RELEASEGIL
-	}
+        }
         return -1;
     }
     initialize_codec(movie, stream_index, threaded);
@@ -1367,9 +1367,9 @@ void stream_component_end(PyMovie *movie, int stream_index, int threaded)
             Py_DECREF(movie);
         }
         if(threaded)
-        {        
+        {
             RELEASEGIL
-	}
+    }
         return;
     }
     movie->replay=1;
@@ -1413,15 +1413,15 @@ void stream_component_end(PyMovie *movie, int stream_index, int threaded)
     if(threaded)
     {
         GRABGIL
-    }    
+    }
     if(movie->ob_refcnt!=0)
     {
         Py_DECREF( movie);
     }
     if(threaded)
-    {    
-    	RELEASEGIL
-    }    
+    {
+        RELEASEGIL
+    }
 }
 void stream_component_close(PyMovie *movie, int stream_index, int threaded)
 {
@@ -1442,17 +1442,17 @@ void stream_component_close(PyMovie *movie, int stream_index, int threaded)
     if (stream_index < 0 || stream_index >= ic->nb_streams)
     {
         if(threaded)
-	{
-		GRABGIL
-	}
-    	if(movie->ob_refcnt!=0)
-    	{
-     	   Py_DECREF(movie);
-    	}
+        {
+            GRABGIL
+        }
+        if(movie->ob_refcnt!=0)
+        {
+            Py_DECREF(movie);
+        }
         if(threaded)
-    	{
-        	RELEASEGIL
-    	}
+        {
+            RELEASEGIL
+        }
         return;
     }
     enc = ic->streams[stream_index]->codec;
@@ -1504,7 +1504,7 @@ void stream_component_close(PyMovie *movie, int stream_index, int threaded)
     if(threaded)
     {
         RELEASEGIL
-    }    
+    }
 }
 
 void stream_open(PyMovie *movie, const char *filename, AVInputFormat *iformat, int threaded)
@@ -1544,7 +1544,7 @@ void stream_open(PyMovie *movie, const char *filename, AVInputFormat *iformat, i
 
     int wanted_video_stream=1;
     int wanted_audio_stream=1;
-    
+
     /* if seeking requested, we execute it */
     if (movie->start_time != AV_NOPTS_VALUE)
     {
@@ -1560,13 +1560,14 @@ void stream_open(PyMovie *movie, const char *filename, AVInputFormat *iformat, i
             if(threaded)
             {
                 GRABGIL
- 	    }           
-	    PyErr_Format(PyExc_IOError, "%s: could not seek to position %0.3f", movie->filename, (double)timestamp/AV_TIME_BASE);
+            }
+            PyErr_Format(PyExc_IOError, "%s: could not seek to position %0.3f",
+                         movie->filename, (double)timestamp/AV_TIME_BASE);
             if(threaded)
-	    {
+            {
                 RELEASEGIL
- 	    }           
-	}
+            }
+        }
     }
     for(i = 0; i < movie->ic->nb_streams; i++)
     {
@@ -1584,7 +1585,7 @@ void stream_open(PyMovie *movie, const char *filename, AVInputFormat *iformat, i
             break;
         case PYG_MEDIA_TYPE_SUBTITLE:
             //if(wanted_subti_stream -- >= 0 && !movie->subtitle_disable)
-            //	subtitle_index=i;
+            //    subtitle_index=i;
         default:
             break;
         }
@@ -1686,10 +1687,10 @@ int initialize_context(PyMovie *movie, int threaded)
         }
         PyErr_Format(PyExc_IOError, "There was a problem opening up %s, due to %i", movie->filename, err);
         if(threaded)
- 	{       
-	    RELEASEGIL
-	}           
-	ret = -1;
+        {
+            RELEASEGIL
+        }
+        ret = -1;
         goto fail;
     }
     err = av_find_stream_info(ic);
@@ -1699,11 +1700,11 @@ int initialize_context(PyMovie *movie, int threaded)
         {
             GRABGIL
         }
-            PyErr_Format(PyExc_IOError, "%s: could not find codec parameters", movie->filename);
+        PyErr_Format(PyExc_IOError, "%s: could not find codec parameters", movie->filename);
         if(threaded)
- 	{       
-	    RELEASEGIL
-	}           
+        {
+            RELEASEGIL
+        }
         ret = -1;
         goto fail;
     }
@@ -1762,7 +1763,7 @@ int initialize_codec(PyMovie *movie, int stream_index, int threaded)
     enc->skip_idct= AVDISCARD_DEFAULT;
     enc->skip_loop_filter= AVDISCARD_DEFAULT;
 #if LIBAVCODEC_VERSION_INT>=3412992 //(52<<16)+(20<<8)+0 ie 52.20.0
-    
+
         enc->error_recognition= FF_ER_CAREFUL;
 #endif
     enc->error_concealment= 3;
@@ -1880,13 +1881,13 @@ void stream_close(PyMovie *movie, int threaded)
         if(threaded)
         {
             GRABGIL
-    	}    
+        }
         Py_DECREF(movie);
         if(threaded)
-	{        
-    	    RELEASEGIL
+        {
+            RELEASEGIL
         }
-     }
+    }
 }
 
 void stream_cycle_channel(PyMovie *movie, int codec_type)
@@ -1960,7 +1961,7 @@ int decoder_wrapper(void *arg)
             initialize_context(movie, 1);
         /*starting a stream is different from opening it.
          * *nix weenies see that they are the same, when really, they're not.
-         * In this case, starting a stream means we set all the values and stuff we need 
+         * In this case, starting a stream means we set all the values and stuff we need
          * to play it as if it had just started, like initial time values, etc.
          */
 
@@ -1980,10 +1981,10 @@ int decoder_wrapper(void *arg)
         /* We've returned... for any number of reasons, like stopping, we're finished
          * or as an omen of the impending apocalypse. I recommend you use the
          * necronomicon to diagnose this.
-         * 
-         * And now, we need to end a stream. Again, this is different from closing a stream. 
+         *
+         * And now, we need to end a stream. Again, this is different from closing a stream.
          * This just sets various variables and structs to their ended state, but they're still
-         * ready to be started again. We only close streams when we dealloc the movie. We want 
+         * ready to be started again. We only close streams when we dealloc the movie. We want
          * to be able to reuse the memory.  Every memory page we reuse is another
          * electronic tree saved!
          */
@@ -2018,15 +2019,15 @@ int decoder_wrapper(void *arg)
 
             }
             /*if (SDL_WasInit (SDL_INIT_VIDEO))
-            	SDL_QuitSubSystem (SDL_INIT_VIDEO);*/
+                SDL_QuitSubSystem (SDL_INIT_VIDEO);*/
         }
         if(state==-1)
         {
-        	if(PyErr_Occurred())
-        	{
-        		PyErr_Print();
-        	}
-        	break;
+            if(PyErr_Occurred())
+            {
+                PyErr_Print();
+            }
+            break;
         }
     }
     GRABGIL
@@ -2042,21 +2043,21 @@ int decoder(void *arg)
     /* This is the most-hardworking function in the entire module. So respect it!
      * He's the blue collar worker amongst the white-collar data pushing functions. There's
      * a few other blue collar functions, but decoder is boss o' them all.
-     * 
+     *
      * Here's decoder's work schedule:
-     * 	loop:
-     * 		checks status
-     * 		deals with seeking
-     * 		handles eofs and stuff
-     * 		read frame
-     * 		load frame into A/V queue
-     * 		video_render()
-     * 		//audio_thread()
-     * 		first two loops:
-     * 			video_refresh_timer <--- we do this or else we'd never start display frames
-     * 		if timing AND timing >=now:
-     * 			video_display
-     * 
+     *     loop:
+     *         checks status
+     *         deals with seeking
+     *         handles eofs and stuff
+     *         read frame
+     *         load frame into A/V queue
+     *         video_render()
+     *         //audio_thread()
+     *         first two loops:
+     *             video_refresh_timer <--- we do this or else we'd never start display frames
+     *         if timing AND timing >=now:
+     *             video_display
+     *
      * And thats it! decoder does this till it ends. Then it cleans some stuff up, and exits gracefully for most any situation.
      */
     PyMovie *movie = arg;
@@ -2078,7 +2079,7 @@ int decoder(void *arg)
     ic=movie->ic;
     int co=0;
     int video_packet=0;
-	//we do video open as a batch, instead of on-demand. Much better performance that way.
+    //we do video open as a batch, instead of on-demand. Much better performance that way.
     video_open(movie, 0);
     movie->last_showtime = av_gettime()/1000.0;
     int seeking =0;
@@ -2252,15 +2253,15 @@ int decoder(void *arg)
                         AVFrame *frame;
                         frame=avcodec_alloc_frame();
                         /* TODO: FIXME avcodec_decode_video is old api.
-                        bytesDecoded = avcodec_decode_video(movie->video_st->codec, 
-                                                            frame, 
-                                                            &frameFinished, 
-                                                            pkt->data, 
+                        bytesDecoded = avcodec_decode_video(movie->video_st->codec,
+                                                            frame,
+                                                            &frameFinished,
+                                                            pkt->data,
                                                             pkt->size);
                         */
-                        bytesDecoded = avcodec_decode_video2(movie->video_st->codec, 
-                                                             frame, 
-                                                             &frameFinished, 
+                        bytesDecoded = avcodec_decode_video2(movie->video_st->codec,
+                                                             frame,
+                                                             &frameFinished,
                                                              pkt);
 
                         if(frameFinished)
@@ -2312,7 +2313,7 @@ int decoder(void *arg)
             if (ret < 0)
             {
 #if LIBAVCODEC_VERSION_INT>=3412992
-				if (ret != AVERROR_EOF && url_ferror(ic->pb) == 0)
+                if (ret != AVERROR_EOF && url_ferror(ic->pb) == 0)
                 {
                     goto fail;
                 }
@@ -2321,9 +2322,9 @@ int decoder(void *arg)
                     break;
                 }
 #else
-				goto fail;
+                goto fail;
 #endif
-				}
+                }
             if (pkt->stream_index == movie->audio_stream)
             {
                 if(seeking)
@@ -2407,16 +2408,16 @@ int decoder(void *arg)
             video_render(movie);
             video_packet=0;
         }
-		/*This is very important: without this if check, 
-		 * The video frames will not be displayed, ever. */
+        /*This is very important: without this if check,
+         * The video frames will not be displayed, ever. */
         if(co<1)
             movie->timing=40;
         co++;
 
         if(movie->timing>0)
         {
-			/* Here, we check if the current time in milliseconds exceeds the scheduled time 
-			 * and if so, we display the frame. */ 
+            /* Here, we check if the current time in milliseconds exceeds the scheduled time
+             * and if so, we display the frame. */
             double showtime = movie->timing+movie->last_showtime;
             double now = av_gettime()/1000.0;
             if(now >= showtime)
@@ -2511,9 +2512,9 @@ fail:
 
 int video_render(PyMovie *movie)
 {
-	/* Video render function. Only executed when there is a packet to decode. 
-	 *  Here, we get the packet, check it, decode the packet, and queue it up.
-	 */
+    /* Video render function. Only executed when there is a packet to decode.
+     *  Here, we get the packet, check it, decode the packet, and queue it up.
+     */
     AVPacket pkt1, *pkt = &pkt1;
     int len1, got_picture;
     AVFrame *frame= avcodec_alloc_frame();
@@ -2555,7 +2556,7 @@ int video_render(PyMovie *movie)
 
 
 #if LIBAVCODEC_VERSION_INT<3412992
-		if((pkt->dts == AV_NOPTS_VALUE)) //(52<<16)+(20<<8)+0 ie 52.20.0
+        if((pkt->dts == AV_NOPTS_VALUE)) //(52<<16)+(20<<8)+0 ie 52.20.0
         {
             //due to short circuiting this checks first, then if that fails it does the invalid old checks. :)
             pts=opaque;

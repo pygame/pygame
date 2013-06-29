@@ -91,9 +91,9 @@ typedef struct FFMovie {
     SDL_Rect dest_rect;
 
     double time_offset; /*track paused time*/
-    
+
     int audio_disable;
-    
+
     const char *sourcename;
 } FFMovie;
 
