@@ -228,7 +228,7 @@ PySurface_LockLifetime (PyObject* surfobj, PyObject *lockobj)
     PyLifetimeLock* life;
     if (!surfobj)
         return RAISE (PyExc_SDLError, SDL_GetError ());
-    
+
     life = PyObject_NEW (PyLifetimeLock, &PyLifetimeLock_Type);
     if (life)
     {
@@ -255,7 +255,7 @@ MODINIT_DEFINE (surflock)
     PyObject *module, *dict, *apiobj;
     int ecode;
     static void* c_api[PYGAMEAPI_SURFLOCK_NUMSLOTS];
-    
+
 #if PY3
     static struct PyModuleDef _module = {
         PyModuleDef_HEAD_INIT,
@@ -275,15 +275,15 @@ MODINIT_DEFINE (surflock)
 #if PY3
     module = PyModule_Create (&_module);
 #else
-    module = Py_InitModule3 (MODPREFIX "surflock", 
-                             _surflock_methods, 
+    module = Py_InitModule3 (MODPREFIX "surflock",
+                             _surflock_methods,
                              _surflock_doc);
 #endif
     if (module == NULL) {
         MODINIT_ERROR;
     }
     dict = PyModule_GetDict (module);
-    
+
     /* export the c api */
     c_api[0] = &PyLifetimeLock_Type;
     c_api[1] = PySurface_Prep;

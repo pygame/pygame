@@ -1,7 +1,7 @@
 /*
   pygame - Python Game Library
   Copyright (C) 2000-2001  Pete Shinners
-  Copyright (C) 2007  Rene Dudfield, Richard Goedeken 
+  Copyright (C) 2007  Rene Dudfield, Richard Goedeken
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Library General Public
@@ -45,7 +45,7 @@ filter_shrink_Y_MMX(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, int d
     templine = (Uint16 *) malloc(dstpitch * 2);
     if (templine == 0) return;
     memset(templine, 0, dstpitch * 2);
-    
+
     filter_shrink_Y_MMX_gcc(srcpix, dstpix, templine, width, srcpitch, dstpitch, srcheight, dstheight);
 
     /* free the temporary memory */
@@ -61,7 +61,7 @@ filter_shrink_Y_SSE(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, int d
     templine = (Uint16 *) malloc(dstpitch * 2);
     if (templine == 0) return;
     memset(templine, 0, dstpitch * 2);
-    
+
     filter_shrink_Y_SSE_gcc(srcpix, dstpix, templine, width, srcpitch, dstpitch, srcheight, dstheight);
 
     /* free the temporary memory */

@@ -131,7 +131,7 @@ _get_single_pixel(PyPixelArray *array, Uint32 x, Uint32 y)
         return 0;
 #endif
     }
-    
+
     return PyInt_FromLong((long)pixel);
 }
 
@@ -167,13 +167,13 @@ _make_surface(PyPixelArray *array)
     /* Create the second surface. */
 
     temp_surf = SDL_CreateRGBSurface(surf->flags,
-				     (int)dim0,
-				     (int)dim1,
-				     bpp, 
-				     surf->format->Rmask,
-				     surf->format->Gmask,
-				     surf->format->Bmask,
-				     surf->format->Amask);
+                                     (int)dim0,
+                                     (int)dim1,
+                                     bpp,
+                                     surf->format->Rmask,
+                                     surf->format->Gmask,
+                                     surf->format->Bmask,
+                                     surf->format->Amask);
     if (!temp_surf) {
         return RAISE(PyExc_SDLError, SDL_GetError());
     }
@@ -272,18 +272,18 @@ _get_weights(PyObject *weights, float *wr, float *wg, float *wb)
 {
     int success = 1;
     float rgb[3] = { 0 };
-    
+
     if (!weights) {
         *wr = (float)WR_NTSC;
         *wg = (float)WG_NTSC;
         *wb = (float)WB_NTSC;
         return 1;
     }
-    
+
     if (!PySequence_Check(weights)) {
         PyErr_SetString(PyExc_TypeError, "weights must be a sequence");
         success = 0;
-    } 
+    }
     else if (PySequence_Size(weights) < 3) {
         PyErr_SetString(PyExc_TypeError,
             "weights must contain at least 3 values");
@@ -292,7 +292,7 @@ _get_weights(PyObject *weights, float *wr, float *wg, float *wb)
     else {
         PyObject *item;
         int i;
-        
+
         for (i = 0; i < 3; ++i) {
             item = PySequence_GetItem(weights, i);
             if (PyNumber_Check(item)) {
@@ -331,11 +331,11 @@ _get_weights(PyObject *weights, float *wr, float *wg, float *wb)
             }
         }
     }
-    
+
     if (success)
     {
         float sum = 0;
-        
+
         *wr = rgb[0];
         *wg = rgb[1];
         *wb = rgb[2];
@@ -351,7 +351,7 @@ _get_weights(PyObject *weights, float *wr, float *wg, float *wb)
         *wr = *wr / sum;
         *wg = *wg / sum;
         *wb = *wb / sum;
-        
+
         return success;
     }
     return 0;
@@ -381,7 +381,7 @@ _replace_color(PyPixelArray *array, PyObject *args, PyObject *kwds)
     Py_ssize_t x;
     Py_ssize_t y;
     static char *keys[] = { "color", "repcolor", "distance", "weights", NULL };
-    
+
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "OO|fO", keys, &delcolor,
                                      &replcolor, &distance, &weights)) {
         return 0;
@@ -443,7 +443,7 @@ _replace_color(PyPixelArray *array, PyObject *args, PyObject *kwds)
     case 2:
     {
         Uint16 *px_p;
-	int ppa = (surf->flags & SDL_SRCALPHA && format->Amask);
+        int ppa = (surf->flags & SDL_SRCALPHA && format->Amask);
 
         for (y = 0; y < dim1; ++y) {
             pixel_p = pixelrow;
@@ -477,7 +477,7 @@ _replace_color(PyPixelArray *array, PyObject *args, PyObject *kwds)
         Uint32 Boffset = 2 - (format->Bshift >> 3);
 #endif
         Uint32 pxcolor;
-	int ppa = (surf->flags & SDL_SRCALPHA && format->Amask);
+        int ppa = (surf->flags & SDL_SRCALPHA && format->Amask);
 
         for (y = 0; y < dim1; ++y) {
             pixel_p = pixelrow;
@@ -508,7 +508,7 @@ _replace_color(PyPixelArray *array, PyObject *args, PyObject *kwds)
     default: /* case 4: */
     {
         Uint32 *px_p;
-	int ppa = (surf->flags & SDL_SRCALPHA && surf->format->Amask);
+        int ppa = (surf->flags & SDL_SRCALPHA && surf->format->Amask);
 
         for (y = 0; y < dim1; ++y) {
             pixel_p = pixelrow;
@@ -648,7 +648,7 @@ _extract_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
     case 2:
     {
         Uint16 *px_p;
-	int ppa = (surf->flags & SDL_SRCALPHA && format->Amask);
+    int ppa = (surf->flags & SDL_SRCALPHA && format->Amask);
 
         for (y = 0; y < dim1; ++y) {
             pixel_p = pixelrow;
@@ -691,7 +691,7 @@ _extract_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
         Uint8 black_g = (Uint8)(black >> 8);
         Uint8 black_b = (Uint8)black;
         Uint32 pxcolor;
-	int ppa = (surf->flags & SDL_SRCALPHA && format->Amask);
+    int ppa = (surf->flags & SDL_SRCALPHA && format->Amask);
 
         for (y = 0; y < dim1; ++y) {
             pixel_p = pixelrow;
@@ -732,7 +732,7 @@ _extract_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
     default: /* case 4: */
     {
         Uint32 *px_p;
-	int ppa = (surf->flags & SDL_SRCALPHA && surf->format->Amask);
+    int ppa = (surf->flags & SDL_SRCALPHA && surf->format->Amask);
 
         for (y = 0; y < dim1; ++y) {
             pixel_p = pixelrow;
@@ -798,8 +798,8 @@ _compare(PyPixelArray *array, PyObject *args, PyObject *kwds)
 
     static char *keys[] = { "array", "distance", "weights", NULL };
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O!|fO", keys, 
-				     &PyPixelArray_Type, &other_array,
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O!|fO", keys,
+                                     &PyPixelArray_Type, &other_array,
                                      &distance, &weights)) {
         return 0;
     }
@@ -904,7 +904,7 @@ _compare(PyPixelArray *array, PyObject *args, PyObject *kwds)
     {
         Uint16 *pixel_p;
         Uint16 *other_pixel_p;
-	int ppa = (surf->flags & SDL_SRCALPHA && format->Amask);
+        int ppa = (surf->flags & SDL_SRCALPHA && format->Amask);
         int other_ppa = (other_surf->flags & SDL_SRCALPHA &&
                          other_format->Amask);
 
@@ -1009,7 +1009,7 @@ _compare(PyPixelArray *array, PyObject *args, PyObject *kwds)
     {
         Uint32 *pixel_p;
         Uint32 *other_pixel_p;
-	int ppa = (surf->flags & SDL_SRCALPHA && surf->format->Amask);
+        int ppa = (surf->flags & SDL_SRCALPHA && surf->format->Amask);
         int other_ppa = (other_surf->flags & SDL_SRCALPHA &&
                          other_format->Amask);
 

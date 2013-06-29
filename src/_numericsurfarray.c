@@ -37,11 +37,11 @@ pixels3d (PyObject* self, PyObject* arg)
     const int lilendian = (SDL_BYTEORDER == SDL_LIL_ENDIAN);
     PyObject* lifelock;
     int rgb = 0;
-    
+
     if (!PyArg_ParseTuple (arg, "O!", &PySurface_Type, &surfobj))
         return NULL;
     surf = PySurface_AsSurface (surfobj);
-    
+
     if (surf->format->BytesPerPixel <= 2 || surf->format->BytesPerPixel > 4)
         return RAISE (PyExc_ValueError,
                       "unsupport bit depth for 3D reference array");
@@ -107,16 +107,16 @@ pixels2d (PyObject* self, PyObject* arg)
     PyObject *array, *surfobj;
     SDL_Surface* surf;
     PyObject* lifelock;
-    
+
     if (!PyArg_ParseTuple (arg, "O!", &PySurface_Type, &surfobj))
         return NULL;
     surf = PySurface_AsSurface (surfobj);
-    
-    if (surf->format->BytesPerPixel == 3 || surf->format->BytesPerPixel < 1 
+
+    if (surf->format->BytesPerPixel == 3 || surf->format->BytesPerPixel < 1
         || surf->format->BytesPerPixel > 4)
         return RAISE (PyExc_ValueError,
                       "unsupport bit depth for 2D reference array");
-    
+
     dim[0] = surf->w;
     dim[1] = surf->h;
     type = types[surf->format->BytesPerPixel-1];
@@ -153,10 +153,10 @@ pixels_alpha (PyObject* self, PyObject* arg)
     if (!PyArg_ParseTuple(arg, "O!", &PySurface_Type, &surfobj))
         return NULL;
     surf = PySurface_AsSurface (surfobj);
-    
+
     if (surf->format->BytesPerPixel != 4)
         return RAISE (PyExc_ValueError, "unsupport bit depth for alpha array");
-    
+
     /*must discover information about how data is packed*/
     if (surf->format->Amask == 0xff << 24)
         startoffset = (lilendian ? 3 : 0);
@@ -195,21 +195,21 @@ array2d (PyObject* self, PyObject* arg)
     PyObject *surfobj, *array;
     SDL_Surface* surf;
     int stridex, stridey;
-    
+
     if (!PyArg_ParseTuple (arg, "O!", &PySurface_Type, &surfobj))
         return NULL;
     surf = PySurface_AsSurface (surfobj);
 
     dim[0] = surf->w;
     dim[1] = surf->h;
-    
+
     if (surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4)
         return RAISE (PyExc_ValueError,
                       "unsupport bit depth for surface array");
     array = PyArray_FromDims (2, dim, PyArray_INT);
     if (!array)
         return NULL;
-    
+
     stridex = ((PyArrayObject*) array)->strides[0];
     stridey = ((PyArrayObject*) array)->strides[1];
 
@@ -279,7 +279,7 @@ array2d (PyObject* self, PyObject* arg)
         }
         break;
     }
-    
+
     if (!PySurface_UnlockBy (surfobj, array))
     {
         Py_DECREF (array);
@@ -299,11 +299,11 @@ array3d (PyObject* self, PyObject* arg)
     int Rmask, Gmask, Bmask, Rshift, Gshift, Bshift, Rloss, Gloss, Bloss;
     int stridex, stridey;
     SDL_Color* palette;
-    
+
     if (!PyArg_ParseTuple (arg, "O!", &PySurface_Type, &surfobj))
         return NULL;
     surf = PySurface_AsSurface (surfobj);
-    
+
     format = surf->format;
     dim[0] = surf->w;
     dim[1] = surf->h;
@@ -317,15 +317,15 @@ array3d (PyObject* self, PyObject* arg)
     Rloss = format->Rloss;
     Gloss = format->Gloss;
     Bloss = format->Bloss;
-    
+
     if (surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4)
         return RAISE (PyExc_ValueError,
                       "unsupport bit depth for surface array");
-    
+
     array = PyArray_FromDims (3, dim, PyArray_UBYTE);
     if (!array)
         return NULL;
-    
+
     stridex = ((PyArrayObject*) array)->strides[0];
     stridey = ((PyArrayObject*) array)->strides[1];
 
@@ -420,7 +420,7 @@ array3d (PyObject* self, PyObject* arg)
         }
         break;
     }
-    
+
     if (!PySurface_UnlockBy (surfobj, array))
     {
         Py_DECREF (array);
@@ -439,35 +439,35 @@ array_alpha (PyObject* self, PyObject* arg)
     SDL_Surface* surf;
     int stridex, stridey;
     int Ashift, Amask, Aloss;
-    
+
     if (!PyArg_ParseTuple (arg, "O!", &PySurface_Type, &surfobj))
         return NULL;
     surf = PySurface_AsSurface (surfobj);
-    
+
     dim[0] = surf->w;
     dim[1] = surf->h;
-    
+
     if (surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4)
         return RAISE (PyExc_ValueError, "unsupport bit depth for alpha array");
 
     array = PyArray_FromDims (2, dim, PyArray_UBYTE);
     if (!array)
         return NULL;
-    
+
     Amask = surf->format->Amask;
     Ashift = surf->format->Ashift;
     Aloss = surf->format->Aloss;
-    
+
     if (!Amask || surf->format->BytesPerPixel==1) /*no pixel alpha*/
     {
         memset (((PyArrayObject*) array)->data, 255,
             (size_t) surf->w * surf->h);
         return array;
     }
-    
+
     stridex = ((PyArrayObject*) array)->strides[0];
     stridey = ((PyArrayObject*) array)->strides[1];
-    
+
     if (!PySurface_LockBy (surfobj, array))
     {
         Py_DECREF (array);
@@ -525,7 +525,7 @@ array_alpha (PyObject* self, PyObject* arg)
         }
         break;
     }
-    
+
     if (!PySurface_UnlockBy (surfobj, array))
     {
         Py_DECREF (array);
@@ -543,14 +543,14 @@ array_colorkey (PyObject* self, PyObject* arg)
     PyObject *array, *surfobj;
     SDL_Surface* surf;
     int stridex, stridey;
-    
+
     if (!PyArg_ParseTuple (arg, "O!", &PySurface_Type, &surfobj))
         return NULL;
     surf = PySurface_AsSurface (surfobj);
-    
+
     dim[0] = surf->w;
     dim[1] = surf->h;
-    
+
     if (surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4)
         return RAISE (PyExc_ValueError,
                       "unsupport bit depth for colorkey array");
@@ -558,7 +558,7 @@ array_colorkey (PyObject* self, PyObject* arg)
     array = PyArray_FromDims (2, dim, PyArray_UBYTE);
     if(!array)
         return NULL;
-    
+
     colorkey = surf->format->colorkey;
     if (!(surf->flags & SDL_SRCCOLORKEY)) /*no pixel alpha*/
     {
@@ -566,10 +566,10 @@ array_colorkey (PyObject* self, PyObject* arg)
             (size_t) surf->w * surf->h);
         return array;
     }
-    
+
     stridex = ((PyArrayObject*) array)->strides[0];
     stridey = ((PyArrayObject*) array)->strides[1];
-    
+
     if (!PySurface_LockBy (surfobj, array))
     {
         Py_DECREF (array);
@@ -640,7 +640,7 @@ array_colorkey (PyObject* self, PyObject* arg)
         }
         break;
     }
-    
+
     if (!PySurface_UnlockBy (surfobj, array))
     {
         Py_DECREF (array);
@@ -660,22 +660,22 @@ map_array (PyObject* self, PyObject* arg)
     int loopx, loopy;
     int stridex, stridey, stridez, stridez2, sizex, sizey;
     int dims[2];
-    
+
     if (!PyArg_ParseTuple (arg, "O!O!", &PySurface_Type, &surfobj,
                            &PyArray_Type, &arrayobj))
         return NULL;
     surf = PySurface_AsSurface (surfobj);
     format = surf->format;
     array = (PyArrayObject*) arrayobj;
-    
+
     if (!array->nd || array->dimensions[array->nd - 1] != 3)
         return RAISE (PyExc_ValueError,
                       "array must be a 3d array of 3-value color data\n");
-    
+
     if (surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4)
         return RAISE (PyExc_ValueError,
                       "unsupport bit depth for surface array");
-    
+
     switch (array->nd)
     {
     case 3: /*image of colors*/
@@ -721,7 +721,7 @@ map_array (PyObject* self, PyObject* arg)
         return RAISE (PyExc_ValueError, "unsupported array shape");
     }
     stridez2 = stridez * 2;
-    
+
     switch (array->descr->elsize)
     {
     case sizeof (char):
@@ -843,14 +843,14 @@ blit_array (PyObject* self, PyObject* arg)
     int loopx, loopy;
     int stridex, stridey, stridez=0, stridez2=0, sizex, sizey;
     int Rloss, Gloss, Bloss, Rshift, Gshift, Bshift;
-    
+
     if (!PyArg_ParseTuple(arg, "O!O!", &PySurface_Type, &surfobj, &PyArray_Type,
                           &arrayobj))
         return NULL;
     surf = PySurface_AsSurface (surfobj);
     format = surf->format;
     array = (PyArrayObject*) arrayobj;
-    
+
     if (!(array->nd == 2 || (array->nd == 3 && array->dimensions[2] == 3)))
         return RAISE (PyExc_ValueError, "must be a valid 2d or 3d array\n");
 
@@ -868,12 +868,12 @@ blit_array (PyObject* self, PyObject* arg)
     sizey = array->dimensions[1];
     Rloss = format->Rloss; Gloss = format->Gloss; Bloss = format->Bloss;
     Rshift = format->Rshift; Gshift = format->Gshift; Bshift = format->Bshift;
-    
+
     if (sizex != surf->w || sizey != surf->h)
         return RAISE (PyExc_ValueError, "array must match surface dimensions");
     if (!PySurface_LockBy (surfobj, (PyObject *) array))
         return NULL;
-    
+
     switch (surf->format->BytesPerPixel)
     {
     case 1:
@@ -1050,7 +1050,7 @@ blit_array (PyObject* self, PyObject* arg)
             return NULL;
         return RAISE (PyExc_RuntimeError, "unsupported bit depth for image");
     }
-    
+
     if (!PySurface_UnlockBy (surfobj, (PyObject *) array))
         return NULL;
     Py_RETURN_NONE;
@@ -1064,16 +1064,16 @@ make_surface (PyObject* self, PyObject* arg)
     PyArrayObject* array;
     int sizex, sizey, bitsperpixel;
     Uint32 rmask, gmask, bmask;
-    
+
     if (!PyArg_ParseTuple (arg, "O!", &PyArray_Type, &arrayobj))
         return NULL;
     array = (PyArrayObject*) arrayobj;
-    
+
     if (!(array->nd == 2 || (array->nd == 3 && array->dimensions[2] == 3)))
         return RAISE (PyExc_ValueError, "must be a valid 2d or 3d array\n");
     if (array->descr->type_num > PyArray_LONG)
         return RAISE (PyExc_ValueError, "Invalid array datatype for surface");
-    
+
     if (array->nd == 2)
     {
         bitsperpixel = 8;
@@ -1101,7 +1101,7 @@ make_surface (PyObject* self, PyObject* arg)
         SDL_FreeSurface (surf);
         return NULL;
     }
-    
+
     args = Py_BuildValue ("(OO)", surfobj, array);
     if (!args)
     {
@@ -1110,7 +1110,7 @@ make_surface (PyObject* self, PyObject* arg)
     }
     blit_array (NULL, args);
     Py_DECREF (args);
-    
+
     if (PyErr_Occurred ())
     {
         Py_DECREF (surfobj);
@@ -1148,15 +1148,15 @@ void init_numericsurfarray (void)
     */
     import_pygame_base ();
     if (PyErr_Occurred ()) {
-	return;
+        return;
     }
     import_pygame_surface ();
     if (PyErr_Occurred ()) {
-	return;
+        return;
     }
     import_array ();
     if (PyErr_Occurred ()) {
-	return;
+        return;
     }
 
     /* create the module */

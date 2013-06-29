@@ -3,10 +3,10 @@
  * Numeric dependency obsolete.
  */
 
-/* 
+/*
  * Legal Notice
  *
- * *** Legal Notice for all LLNL-contributed files *** 
+ * *** Legal Notice for all LLNL-contributed files ***
  *
  * Copyright (c) 1996. The Regents of the University of California. All
  * rights reserved.
@@ -22,7 +22,7 @@
  * between the U.S. Department of Energy and The Regents of the
  * University of California for the operation of UC LLNL.
  *
- * DISCLAIMER 
+ * DISCLAIMER
  *
  * This software was prepared as an account of work sponsored by an
  * agency of the United States Government. Neither the United States
@@ -52,14 +52,14 @@ extern "C" {
 
 #define PyArray_UNSIGNED_TYPES
 
-enum PyArray_TYPES {    PyArray_CHAR, PyArray_UBYTE, PyArray_SBYTE,
-		        PyArray_SHORT, PyArray_USHORT,
-		        PyArray_INT, PyArray_UINT,
-			PyArray_LONG,
-			PyArray_FLOAT, PyArray_DOUBLE,
-			PyArray_CFLOAT, PyArray_CDOUBLE,
-			PyArray_OBJECT,
-			PyArray_NTYPES, PyArray_NOTYPE};
+enum PyArray_TYPES {PyArray_CHAR, PyArray_UBYTE, PyArray_SBYTE,
+                    PyArray_SHORT, PyArray_USHORT,
+                    PyArray_INT, PyArray_UINT,
+                    PyArray_LONG,
+                    PyArray_FLOAT, PyArray_DOUBLE,
+                    PyArray_CFLOAT, PyArray_CDOUBLE,
+                    PyArray_OBJECT,
+                    PyArray_NTYPES, PyArray_NOTYPE};
 
 typedef void (PyArray_VectorUnaryFunc) (char *, int, char *, int, int);
 
@@ -68,7 +68,7 @@ typedef int (PyArray_SetItemFunc) (PyObject *, char *);
 
 typedef struct {
   PyArray_VectorUnaryFunc *cast[PyArray_NTYPES]; /* Functions to cast to */
-					           /* all other types */
+                                                 /* all other types */
   PyArray_GetItemFunc *getitem;
   PyArray_SetItemFunc *setitem;
 

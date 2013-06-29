@@ -8,12 +8,12 @@
     modify it under the terms of the GNU Lesser General Public License
     as published by the Free Software Foundation; either version 2.1
     of the License, or (at your option) any later version.
-    
+
     This library is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
     Lesser General Public License for more details.
-    
+
     You should have received a copy of the GNU Lesser General Public
     License along with this library; if not, write to the Free
     Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
@@ -21,7 +21,7 @@
 
     If you do not wish to comply with the terms of the LGPL please
     contact the author as other terms are available for a fee.
-    
+
     Bob Pendleton
     Bob@Pendleton.com
 */
@@ -32,15 +32,15 @@
 extern "C" {
 #endif
 
-  int FE_Init(void);                         // Initialize FE
-  void FE_Quit(void);                        // shutdown FE
+  int FE_Init(void);                     // Initialize FE
+  void FE_Quit(void);                    // shutdown FE
 
-  void FE_PumpEvents(void);                  // replacement for SDL_PumpEvents
+  void FE_PumpEvents(void);              // replacement for SDL_PumpEvents
   int FE_PollEvent(SDL_Event *event);    // replacement for SDL_PollEvent
   int FE_WaitEvent(SDL_Event *event);    // replacement for SDL_WaitEvent
   int FE_PushEvent(SDL_Event *event);    // replacement for SDL_PushEvent
 
-  char *FE_GetError(void);                   // get the last error
+  char *FE_GetError(void);               // get the last error
 #ifdef __cplusplus
 }
 #endif

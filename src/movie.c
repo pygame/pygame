@@ -48,7 +48,7 @@ movie_play (PyObject* self)
     SMPEG* movie = PyMovie_AsSMPEG (self);
     int loops = 0;
 
-	if (!SDL_WasInit (SDL_INIT_VIDEO))
+    if (!SDL_WasInit (SDL_INIT_VIDEO))
         return RAISE (PyExc_SDLError,
                       "cannot convert without pygame.display initialized");
 
@@ -64,7 +64,7 @@ movie_stop (PyObject* self)
 {
     SMPEG* movie = PyMovie_AsSMPEG (self);
 
-	if (!SDL_WasInit (SDL_INIT_VIDEO))
+    if (!SDL_WasInit (SDL_INIT_VIDEO))
         return RAISE (PyExc_SDLError,
                       "cannot convert without pygame.display initialized");
 
@@ -78,7 +78,7 @@ static PyObject*
 movie_pause (PyObject* self) {
     SMPEG* movie = PyMovie_AsSMPEG (self);
 
-	if (!SDL_WasInit (SDL_INIT_VIDEO))
+    if (!SDL_WasInit (SDL_INIT_VIDEO))
         return RAISE (PyExc_SDLError,
                       "cannot convert without pygame.display initialized");
 
@@ -94,7 +94,7 @@ movie_rewind (PyObject* self)
 {
     SMPEG* movie = PyMovie_AsSMPEG (self);
 
-	if (!SDL_WasInit (SDL_INIT_VIDEO))
+    if (!SDL_WasInit (SDL_INIT_VIDEO))
         return RAISE (PyExc_SDLError,
                       "cannot convert without pygame.display initialized");
 
@@ -110,12 +110,12 @@ movie_skip (PyObject* self, PyObject* args)
     SMPEG* movie = PyMovie_AsSMPEG (self);
     float seconds;
 
-	if (!SDL_WasInit (SDL_INIT_VIDEO))
-	return RAISE (PyExc_SDLError,
-				  "cannot convert without pygame.display initialized");
+    if (!SDL_WasInit (SDL_INIT_VIDEO))
+    return RAISE (PyExc_SDLError,
+                  "cannot convert without pygame.display initialized");
 
-	
-	if (!PyArg_ParseTuple (args, "f", &seconds))
+
+    if (!PyArg_ParseTuple (args, "f", &seconds))
         return NULL;
     Py_BEGIN_ALLOW_THREADS;
     SMPEG_skip (movie, seconds);
@@ -132,7 +132,7 @@ movie_set_volume (PyObject* self, PyObject* args)
     if (!PyArg_ParseTuple (args, "f", &value))
         return NULL;
 
-	if (!SDL_WasInit (SDL_INIT_VIDEO))
+    if (!SDL_WasInit (SDL_INIT_VIDEO))
         return RAISE (PyExc_SDLError,
                       "cannot convert without pygame.display initialized");
 
@@ -159,7 +159,7 @@ movie_set_display (PyObject* self, PyObject* args)
         return NULL;
 
 
-	if (!SDL_WasInit (SDL_INIT_VIDEO))
+    if (!SDL_WasInit (SDL_INIT_VIDEO))
         return RAISE (PyExc_SDLError,
                       "cannot convert without pygame.display initialized");
 
@@ -225,7 +225,7 @@ movie_has_video (PyObject* self)
     SMPEG* movie = PyMovie_AsSMPEG (self);
     SMPEG_Info info;
 
-	if (!SDL_WasInit (SDL_INIT_VIDEO))
+    if (!SDL_WasInit (SDL_INIT_VIDEO))
         return RAISE (PyExc_SDLError,
                       "cannot convert without pygame.display initialized");
 
@@ -241,7 +241,7 @@ movie_has_audio (PyObject* self)
     SMPEG* movie = PyMovie_AsSMPEG (self);
     SMPEG_Info info;
 
-	if (!SDL_WasInit (SDL_INIT_VIDEO))
+    if (!SDL_WasInit (SDL_INIT_VIDEO))
         return RAISE (PyExc_SDLError,
                       "cannot convert without pygame.display initialized");
 
@@ -258,7 +258,7 @@ movie_get_size (PyObject* self)
     SMPEG* movie = PyMovie_AsSMPEG (self);
     SMPEG_Info info;
 
-	if (!SDL_WasInit (SDL_INIT_VIDEO))
+    if (!SDL_WasInit (SDL_INIT_VIDEO))
         return RAISE (PyExc_SDLError,
                       "cannot convert without pygame.display initialized");
 
@@ -274,7 +274,7 @@ movie_get_frame (PyObject* self)
     SMPEG* movie = PyMovie_AsSMPEG (self);
     SMPEG_Info info;
 
-	if (!SDL_WasInit (SDL_INIT_VIDEO))
+    if (!SDL_WasInit (SDL_INIT_VIDEO))
         return RAISE (PyExc_SDLError,
                       "cannot convert without pygame.display initialized");
 
@@ -290,7 +290,7 @@ movie_get_time (PyObject* self)
     SMPEG* movie = PyMovie_AsSMPEG (self);
     SMPEG_Info info;
 
-	if (!SDL_WasInit (SDL_INIT_VIDEO))
+    if (!SDL_WasInit (SDL_INIT_VIDEO))
         return RAISE (PyExc_SDLError,
                       "cannot convert without pygame.display initialized");
 
@@ -303,14 +303,14 @@ movie_get_time (PyObject* self)
 static PyObject*
 movie_get_length (PyObject* self)
 {
-	SMPEG* movie;
+    SMPEG* movie;
     SMPEG_Info info;
 
-	if (!SDL_WasInit (SDL_INIT_VIDEO))
+    if (!SDL_WasInit (SDL_INIT_VIDEO))
         return RAISE (PyExc_SDLError,
                       "cannot convert without pygame.display initialized");
 
-	movie = PyMovie_AsSMPEG (self);
+    movie = PyMovie_AsSMPEG (self);
 
     Py_BEGIN_ALLOW_THREADS;
     SMPEG_getinfo (movie, &info);
@@ -323,7 +323,7 @@ movie_get_busy (PyObject* self)
 {
     SMPEG* movie;
 
-	if (!SDL_WasInit (SDL_INIT_VIDEO))
+    if (!SDL_WasInit (SDL_INIT_VIDEO))
         return RAISE (PyExc_SDLError,
                       "cannot convert without pygame.display initialized");
 
@@ -359,10 +359,10 @@ static PyMethodDef movie_methods[] =
     { "pause", (PyCFunction) movie_pause, METH_NOARGS, DOC_MOVIEPAUSE },
     { "rewind", (PyCFunction) movie_rewind, METH_NOARGS, DOC_MOVIEREWIND },
     { "skip", movie_skip, METH_VARARGS, DOC_MOVIESKIP },
-    
+
     { "set_volume", movie_set_volume, METH_VARARGS, DOC_MOVIESETVOLUME },
     { "set_display", movie_set_display, METH_VARARGS, DOC_MOVIESETDISPLAY },
-    
+
     { "has_video", (PyCFunction) movie_has_video, METH_NOARGS,
       DOC_MOVIEHASVIDEO },
     { "has_audio", (PyCFunction) movie_has_audio, METH_NOARGS,
@@ -420,7 +420,7 @@ static PyTypeObject PyMovie_Type =
     0,                          /* tp_clear */
     0,                          /* tp_richcompare */
     0,                          /* tp_weaklistoffset */
-    0,	                        /* tp_iter */
+    0,                          /* tp_iter */
     0,                          /* tp_iternext */
     movie_methods,              /* tp_methods */
     0,                          /* tp_members */
@@ -431,8 +431,8 @@ static PyTypeObject PyMovie_Type =
     0,                          /* tp_descr_set */
     0,                          /* tp_dictoffset */
     0,                          /* tp_init */
-    0,				/* tp_alloc */
-    0,			        /* tp_new */
+    0,                          /* tp_alloc */
+    0,                          /* tp_new */
 };
 
 /*movie module methods*/
@@ -481,7 +481,7 @@ Movie (PyObject* self, PyObject* arg)
     else
     {
         SDL_RWops *rw = RWopsFromFileObjectThreaded (file);
-        
+
         Py_DECREF(oencoded);
         if (!rw)
             return NULL;
@@ -562,19 +562,19 @@ MODINIT_DEFINE (movie)
     */
     import_pygame_base ();
     if (PyErr_Occurred ()) {
-	MODINIT_ERROR;
+        MODINIT_ERROR;
     }
     import_pygame_surface ();
     if (PyErr_Occurred ()) {
-	MODINIT_ERROR;
+        MODINIT_ERROR;
     }
     import_pygame_rwobject ();
     if (PyErr_Occurred ()) {
-	MODINIT_ERROR;
+        MODINIT_ERROR;
     }
     import_pygame_rect ();
     if (PyErr_Occurred ()) {
-	MODINIT_ERROR;
+        MODINIT_ERROR;
     }
 
     /* type preparation */

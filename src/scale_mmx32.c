@@ -1,7 +1,7 @@
 /*
   pygame - Python Game Library
   Copyright (C) 2000-2001  Pete Shinners
-  Copyright (C) 2007  Rene Dudfield, Richard Goedeken 
+  Copyright (C) 2007  Rene Dudfield, Richard Goedeken
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Library General Public
@@ -383,7 +383,7 @@ filter_expand_X_MMX(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int 
     int *xidx0, *xmult0, *xmult1;
     int x, y;
     int factorwidth = 8;
-  	long long One64 = 0x0100010001000100ULL;
+    long long One64 = 0x0100010001000100ULL;
 
     /* Allocate memory for factors */
     xidx0 = malloc(dstwidth * 4);
@@ -416,7 +416,7 @@ filter_expand_X_MMX(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int 
         Uint8 *dstrow = dstpix + y * dstpitch;
         int *xm0 = xmult0;
         int *x0 = xidx0;
-    	int width = dstwidth;
+        int width = dstwidth;
         asm __volatile__( " /* MMX code for inner loop of X bilinear filter */ "
              " pxor          %%mm0,      %%mm0;           "
              " movq             %5,      %%mm7;           "
@@ -459,7 +459,7 @@ filter_expand_X_SSE(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int 
     int *xidx0, *xmult0, *xmult1;
     int x, y;
     int factorwidth = 8;
-  	long long One64 = 0x0100010001000100ULL;
+    long long One64 = 0x0100010001000100ULL;
 
     /* Allocate memory for factors */
     xidx0 = malloc(dstwidth * 4);
@@ -492,7 +492,7 @@ filter_expand_X_SSE(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int 
         Uint8 *dstrow = dstpix + y * dstpitch;
         int *xm0 = xmult0;
         int *x0 = xidx0;
-    	int width = dstwidth;
+        int width = dstwidth;
         asm __volatile__( " /* MMX code for inner loop of X bilinear filter */ "
              " pxor          %%mm0,      %%mm0;           "
              " movq             %5,      %%mm7;           "

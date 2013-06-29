@@ -178,7 +178,7 @@ void __fill_glyph_GRAY1(FT_Fixed x, FT_Fixed y, FT_Fixed w, FT_Fixed h,
             *dst_cpy = edge_shade;
         }
     }
-        
+
     for (j = 0; j < FX6_TRUNC(FX6_FLOOR(h + y) - FX6_CEIL(y)); ++j) {
         dst_cpy = dst;
 
@@ -394,7 +394,7 @@ void __fill_glyph_INT(FT_Fixed x, FT_Fixed y, FT_Fixed w, FT_Fixed h,
                 *dst_cpy = edge_shade;
             }
         }
-        
+
         for (j = 0; j < FX6_TRUNC(FX6_FLOOR(h + y) - FX6_CEIL(y)); ++j) {
             dst_cpy = dst;
 
@@ -432,7 +432,7 @@ void __fill_glyph_INT(FT_Fixed x, FT_Fixed y, FT_Fixed w, FT_Fixed h,
                 dst_cpy[byteoffset] = edge_shade;
             }
         }
-        
+
         for (j = 0; j < FX6_TRUNC(FX6_FLOOR(h + y) - FX6_CEIL(y)); ++j) {
             dst_cpy = dst;
 

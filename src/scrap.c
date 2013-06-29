@@ -103,7 +103,7 @@ _scrap_init (PyObject *self, PyObject *args)
         return RAISE (PyExc_SDLError, "No display mode is set");
     if (!pygame_scrap_init ())
         return RAISE (PyExc_SDLError, SDL_GetError ());
-    
+
     Py_RETURN_NONE;
 }
 #endif
@@ -121,7 +121,7 @@ _scrap_get_types (PyObject *self, PyObject *args)
     char *type;
     PyObject *list;
     PyObject *tmp;
-    
+
     PYGAME_SCRAP_INIT_CHECK ();
     if (!pygame_scrap_lost ())
     {
@@ -322,7 +322,7 @@ static PyMethodDef scrap_builtins[] =
     /*
      * Only initialise these functions for ones we know about.
      *
-     * Note, the macosx stuff is done in sdlosx_main.m 
+     * Note, the macosx stuff is done in sdlosx_main.m
      */
 #if (defined(X11_SCRAP) || defined(WIN_SCRAP) || defined(QNX_SCRAP) \
      || defined(MAC_SCRAP))

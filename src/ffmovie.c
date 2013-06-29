@@ -608,7 +608,7 @@ static int decode_thread(void *arg)
             }
         }
 
-        
+
         if(movie->paused) {
             double endpause, startpause = SDL_GetTicks() / 1000.0;
             while(movie->paused && !movie->abort_request && !Global_abort_all) {
@@ -713,7 +713,7 @@ FFMovie *ffmovie_open(const char *filename)
         ffmovie_initialized = 1;
         av_register_all();
     }
-    
+
     movie = av_mallocz(sizeof(FFMovie));
     if (!movie)
         return NULL;
@@ -866,10 +866,10 @@ void ffmovie_setdisplay(FFMovie *movie, SDL_Surface *dest, SDL_Rect *rect)
     }
 
     SDL_UnlockMutex(movie->dest_mutex);
-    
+
     /*set display time to now, force redraw*/
     movie->dest_showtime = get_master_clock(movie);
-   
+
 }
 
 void ffmovie_setvolume(FFMovie *movie, int volume) {
@@ -912,10 +912,10 @@ FFMovie *ffmovie_reopen(FFMovie *movie) {
     SDL_UnlockMutex(movie->dest_mutex);
 
     ffmovie_close(movie);
-    
+
     movie = ffmovie_open(filename);
     free((void*)filename);
-    
+
     if(movie) {
         if(dest_overlay) {
             SDL_LockMutex(movie->dest_mutex);
@@ -928,7 +928,7 @@ FFMovie *ffmovie_reopen(FFMovie *movie) {
             ffmovie_play(movie);
         }
     }
-   
+
     return movie;
 }
 

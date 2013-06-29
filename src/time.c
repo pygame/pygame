@@ -46,7 +46,7 @@ accurate_delay (int ticks)
     int funcstart, delay;
     if (ticks <= 0)
         return 0;
-    
+
     if (!SDL_WasInit (SDL_INIT_TIMER))
     {
         if (SDL_InitSubSystem (SDL_INIT_TIMER))
@@ -55,7 +55,7 @@ accurate_delay (int ticks)
             return -1;
         }
     }
-    
+
     funcstart = SDL_GetTicks ();
     if (ticks >= WORST_CLOCK_ACCURACY)
     {
@@ -69,11 +69,11 @@ accurate_delay (int ticks)
     }
     do
     {
-        delay = ticks - (SDL_GetTicks () - funcstart);	
+        delay = ticks - (SDL_GetTicks () - funcstart);
     }
     while (delay > 0);
-	
-    return SDL_GetTicks () - funcstart;	
+
+    return SDL_GetTicks () - funcstart;
 }
 
 static PyObject*
@@ -89,7 +89,7 @@ time_delay (PyObject* self, PyObject* arg)
 {
     int ticks;
     PyObject* arg0;
-    
+
     /*for some reason PyArg_ParseTuple is puking on -1's! BLARG!*/
     if (PyTuple_Size (arg) != 1)
         return RAISE (PyExc_ValueError,
@@ -101,7 +101,7 @@ time_delay (PyObject* self, PyObject* arg)
     ticks = PyInt_AsLong (arg0);
     if (ticks < 0)
         ticks = 0;
-    
+
     ticks = accurate_delay (ticks);
     if (ticks == -1)
         return NULL;
@@ -113,14 +113,14 @@ time_wait (PyObject* self, PyObject* arg)
 {
     int ticks, start;
     PyObject* arg0;
-    
+
     /*for some reason PyArg_ParseTuple is puking on -1's! BLARG!*/
     if (PyTuple_Size (arg) != 1)
         return RAISE (PyExc_ValueError, "delay requires one integer argument");
     arg0 = PyTuple_GET_ITEM (arg, 0);
     if (!PyInt_Check (arg0))
         return RAISE (PyExc_TypeError, "delay requires one integer argument");
-    
+
     if (!SDL_WasInit (SDL_INIT_TIMER))
     {
         if (SDL_InitSubSystem (SDL_INIT_TIMER))
@@ -129,7 +129,7 @@ time_wait (PyObject* self, PyObject* arg)
             return NULL;
         }
     }
-    
+
     ticks = PyInt_AsLong (arg0);
     if (ticks < 0)
         ticks = 0;
@@ -138,7 +138,7 @@ time_wait (PyObject* self, PyObject* arg)
     Py_BEGIN_ALLOW_THREADS;
     SDL_Delay (ticks);
     Py_END_ALLOW_THREADS;
-	
+
     return PyInt_FromLong (SDL_GetTicks () - start);
 }
 
@@ -150,7 +150,7 @@ time_set_timer (PyObject* self, PyObject* arg)
     intptr_t event = SDL_NOEVENT;
     if (!PyArg_ParseTuple (arg, "ii", &event, &ticks))
         return NULL;
-    
+
     if (event <= SDL_NOEVENT || event >= SDL_NUMEVENTS)
         return RAISE (PyExc_ValueError,
                       "Event id must be between NOEVENT(0) and NUMEVENTS(32)");
@@ -161,7 +161,7 @@ time_set_timer (PyObject* self, PyObject* arg)
         SDL_RemoveTimer (event_timers[event]);
         event_timers[event] = NULL;
     }
-    
+
     if (ticks <= 0)
         Py_RETURN_NONE;
 
@@ -171,12 +171,12 @@ time_set_timer (PyObject* self, PyObject* arg)
         if (SDL_InitSubSystem (SDL_INIT_TIMER))
             return RAISE (PyExc_SDLError, SDL_GetError ());
     }
-    
+
     newtimer = SDL_AddTimer (ticks, timer_callback, (void*) event);
     if (!newtimer)
         return RAISE (PyExc_SDLError, SDL_GetError ());
     event_timers[event] = newtimer;
-    
+
     Py_RETURN_NONE;
 }
 
@@ -198,16 +198,16 @@ clock_tick_base(PyObject* self, PyObject* arg, int use_accurate_delay)
     PyClockObject* _clock = (PyClockObject*) self;
     float framerate = 0.0f;
     int nowtime;
-    
+
     if (!PyArg_ParseTuple (arg, "|f", &framerate))
         return NULL;
-    
+
     if (framerate)
     {
         int delay, endtime = (int) ((1.0f / framerate) * 1000.0f);
         _clock->rawpassed = SDL_GetTicks () - _clock->last_tick;
         delay = endtime - _clock->rawpassed;
-        
+
         /*just doublecheck that timer is initialized*/
         if (!SDL_WasInit (SDL_INIT_TIMER))
         {
@@ -217,7 +217,7 @@ clock_tick_base(PyObject* self, PyObject* arg, int use_accurate_delay)
                 return NULL;
             }
         }
-        
+
         if (use_accurate_delay)
             delay = accurate_delay (delay);
         else
@@ -225,7 +225,7 @@ clock_tick_base(PyObject* self, PyObject* arg, int use_accurate_delay)
             // this uses sdls delay, which can be inaccurate.
             if (delay < 0)
                 delay = 0;
-            
+
             Py_BEGIN_ALLOW_THREADS;
             SDL_Delay ((Uint32) delay);
             Py_END_ALLOW_THREADS;
@@ -234,14 +234,14 @@ clock_tick_base(PyObject* self, PyObject* arg, int use_accurate_delay)
         if (delay == -1)
             return NULL;
     }
-        
+
     nowtime = SDL_GetTicks ();
     _clock->timepassed = nowtime - _clock->last_tick;
     _clock->fps_count += 1;
     _clock->last_tick = nowtime;
     if (!framerate)
         _clock->rawpassed = _clock->timepassed;
-    
+
     if (!_clock->fps_tick)
     {
         _clock->fps_count = 0;
@@ -259,13 +259,13 @@ clock_tick_base(PyObject* self, PyObject* arg, int use_accurate_delay)
 }
 
 static PyObject*
-clock_tick (PyObject* self, PyObject* arg) 
+clock_tick (PyObject* self, PyObject* arg)
 {
     return clock_tick_base (self, arg, 0);
 }
 
 static PyObject*
-clock_tick_busy_loop (PyObject* self, PyObject* arg) 
+clock_tick_busy_loop (PyObject* self, PyObject* arg)
 {
     return clock_tick_base (self, arg, 1);
 }
@@ -311,7 +311,7 @@ clock_dealloc (PyObject* self)
 {
     PyClockObject* _clock = (PyClockObject*) self;
     Py_XDECREF (_clock->rendered);
-    PyObject_DEL (self);	
+    PyObject_DEL (self);
 }
 
 PyObject*
@@ -319,9 +319,9 @@ clock_str (PyObject* self)
 {
     char str[1024];
     PyClockObject* _clock = (PyClockObject*) self;
-    
+
     sprintf (str, "<Clock(fps=%.2f)>", (float) _clock->fps);
-    
+
     return Text_FromUTF8 (str);
 }
 
@@ -352,7 +352,7 @@ static PyTypeObject PyClock_Type =
     0,                          /* tp_clear */
     0,                          /* tp_richcompare */
     0,                          /* tp_weaklistoffset */
-    0,	                        /* tp_iter */
+    0,                          /* tp_iter */
     0,                          /* tp_iternext */
     clock_methods,              /* tp_methods */
     0,                          /* tp_members */
@@ -363,8 +363,8 @@ static PyTypeObject PyClock_Type =
     0,                          /* tp_descr_set */
     0,                          /* tp_dictoffset */
     0,                          /* tp_init */
-    0,				/* tp_alloc */
-    0,			        /* tp_new */
+    0,                          /* tp_alloc */
+    0,                          /* tp_new */
 };
 
 PyObject*
@@ -375,14 +375,14 @@ ClockInit (PyObject* self)
     if (!_clock) {
         return NULL;
     }
-    
+
     /*just doublecheck that timer is initialized*/
     if (!SDL_WasInit (SDL_INIT_TIMER))
     {
         if (SDL_InitSubSystem (SDL_INIT_TIMER))
             return RAISE (PyExc_SDLError, SDL_GetError ());
     }
-    
+
     _clock->fps_tick = 0;
     _clock->timepassed = 0;
     _clock->rawpassed = 0;
@@ -390,7 +390,7 @@ ClockInit (PyObject* self)
     _clock->fps = 0.0f;
     _clock->fps_count = 0;
     _clock->rendered = NULL;
-    
+
     return (PyObject*) _clock;
 }
 
@@ -401,9 +401,9 @@ static PyMethodDef _time_methods[] =
     { "delay", time_delay, METH_VARARGS, DOC_PYGAMETIMEDELAY },
     { "wait", time_wait, METH_VARARGS, DOC_PYGAMETIMEWAIT },
     { "set_timer", time_set_timer, METH_VARARGS, DOC_PYGAMETIMESETTIMER },
-    
+
     { "Clock", (PyCFunction) ClockInit, METH_NOARGS, DOC_PYGAMETIMECLOCK },
-    
+
     { NULL, NULL, 0, NULL }
 };
 
@@ -412,7 +412,7 @@ PYGAME_EXPORT
 void initpygame_time (void)
 #else
 MODINIT_DEFINE (time)
-#endif    
+#endif
 {
 #if PY3
     static struct PyModuleDef _module = {
@@ -437,7 +437,7 @@ MODINIT_DEFINE (time)
     if (PyType_Ready (&PyClock_Type) < 0) {
         MODINIT_ERROR;
     }
-    
+
     /* create the module */
 #if PY3
     return PyModule_Create (&_module);

@@ -87,7 +87,7 @@ image_load_basic(PyObject *self, PyObject *arg)
             Py_END_ALLOW_THREADS;
         }
     }
-            
+
     if (surf == NULL) {
         return RAISE(PyExc_SDLError, SDL_GetError());
     }
@@ -112,7 +112,7 @@ opengltosdl ()
 
     GL_glReadPixels_Func p_glReadPixels = NULL;
 
-    p_glReadPixels = (GL_glReadPixels_Func) SDL_GL_GetProcAddress("glReadPixels"); 
+    p_glReadPixels = (GL_glReadPixels_Func) SDL_GL_GetProcAddress("glReadPixels");
 
     surf = SDL_GetVideoSurface ();
 
@@ -127,7 +127,7 @@ opengltosdl ()
         return NULL;
     }
 
-    /* 
+    /*
     GL_UNSIGNED_BYTE = 5121
     GL_RGB = 6407
     */
@@ -183,7 +183,7 @@ image_save(PyObject *self, PyObject *arg)
     if (!PyArg_ParseTuple(arg, "O!O", &PySurface_Type, &surfobj, &obj)) {
         return NULL;
     }
-    
+
     surf = PySurface_AsSurface(surfobj);
     if (surf->flags & SDL_OPENGL) {
         temp = surf = opengltosdl();
@@ -234,10 +234,10 @@ image_save(PyObject *self, PyObject *arg)
                 imgext = PyImport_ImportModule(IMPPREFIX "imageext");
                 if (imgext != NULL)
                 {
-                    PyObject *extsave = 
+                    PyObject *extsave =
                         PyObject_GetAttrString(imgext, "save_extended");
                     PyObject *data;
-                    
+
                     Py_DECREF(imgext);
                     if (extsave != NULL) {
                         data = PyObject_CallObject(extsave, arg);
@@ -278,7 +278,7 @@ image_save(PyObject *self, PyObject *arg)
     else {
         PySurface_Unprep (surfobj);
     }
-        
+
     if (result == -2) {
         /* Python error raised elsewhere */
         return NULL;
@@ -699,7 +699,7 @@ image_tostring (PyObject* self, PyObject* arg)
                     {
                         data[0] = (char) ((((color & Rmask) >> Rshift) << Rloss)*alpha/255);
                         data[1] = (char) ((((color & Gmask) >> Gshift) << Gloss)*alpha/255);
-                        data[2] = (char) ((((color & Bmask) >> Bshift) << Bloss)*alpha/255);                    
+                        data[2] = (char) ((((color & Bmask) >> Bshift) << Bloss)*alpha/255);
                     }
                     data[3] = (char) alpha;
                     data += 4;
@@ -783,7 +783,7 @@ image_tostring (PyObject* self, PyObject* arg)
                     {
                         data[1] = (char) ((((color & Rmask) >> Rshift) << Rloss)*alpha/255);
                         data[2] = (char) ((((color & Gmask) >> Gshift) << Gloss)*alpha/255);
-                        data[3] = (char) ((((color & Bmask) >> Bshift) << Bloss)*alpha/255);                    
+                        data[3] = (char) ((((color & Bmask) >> Bshift) << Bloss)*alpha/255);
                     }
                     data[0] = (char) alpha;
                     data += 4;
@@ -955,7 +955,7 @@ image_frombuffer (PyObject* self, PyObject* arg)
     /* breaking constness here, we should really not change this string */
     if (PyObject_AsCharBuffer (buffer, (const char**)&data, &len) == -1)
         return NULL;
-        
+
     if (!strcmp (format, "P"))
     {
         if (len != w * h)
