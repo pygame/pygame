@@ -27,15 +27,15 @@
  */
 void surface_respect_clip_rect (SDL_Surface *surface, SDL_Rect *rect)
 {
-	SDL_Rect tmp;
-	SDL_Rect *A, *B;
+    SDL_Rect tmp;
+    SDL_Rect *A, *B;
     int x, y, w, h;
 
     A = rect;
-	B = &tmp;
+    B = &tmp;
     SDL_GetClipRect(surface, B);
-	
-	/* Code here is nearly identical to rect_clip in rect.c */
+
+    /* Code here is nearly identical to rect_clip in rect.c */
 
     /* Left */
     if ((A->x >= B->x) && (A->x < (B->x + B->w)))
@@ -116,8 +116,8 @@ surface_fill_blend_add (SDL_Surface *surface, SDL_Rect *rect, Uint32 color)
     }
     case 3:
     {
-	size_t offsetR, offsetG, offsetB;
-	SET_OFFSETS_24 (offsetR, offsetG, offsetB, fmt);
+        size_t offsetR, offsetG, offsetB;
+        SET_OFFSETS_24 (offsetR, offsetG, offsetB, fmt);
         GET_PIXELVALS (cR, cG, cB, cA, color, fmt, ppa);
         while (height--)
         {
@@ -126,15 +126,15 @@ surface_fill_blend_add (SDL_Surface *surface, SDL_Rect *rect, Uint32 color)
                 GET_PIXEL (pixel, bpp, pixels);
                 GET_PIXELVALS (sR, sG, sB, sA, pixel, fmt, ppa);
                 BLEND_ADD (tmp, cR, cG, cB, cA, sR, sG, sB, sA);
-		pixels[offsetR] = sR;
-		pixels[offsetG] = sG;
-		pixels[offsetB] = sB;
+        pixels[offsetR] = sR;
+        pixels[offsetG] = sG;
+        pixels[offsetB] = sB;
                 pixels += bpp;
             }, n, width);
             pixels += skip;
         }
         result = 0;
-	break;
+        break;
     }
     default:
     {
@@ -202,8 +202,8 @@ surface_fill_blend_sub (SDL_Surface *surface, SDL_Rect *rect, Uint32 color)
     }
     case 3:
     {
-	size_t offsetR, offsetG, offsetB;
-	SET_OFFSETS_24 (offsetR, offsetG, offsetB, fmt);
+        size_t offsetR, offsetG, offsetB;
+        SET_OFFSETS_24 (offsetR, offsetG, offsetB, fmt);
         GET_PIXELVALS (cR, cG, cB, cA, color, fmt, ppa);
         while (height--)
         {
@@ -212,15 +212,15 @@ surface_fill_blend_sub (SDL_Surface *surface, SDL_Rect *rect, Uint32 color)
                 GET_PIXEL (pixel, bpp, pixels);
                 GET_PIXELVALS (sR, sG, sB, sA, pixel, fmt, ppa);
                 BLEND_SUB (tmp2, cR, cG, cB, cA, sR, sG, sB, sA);
-		pixels[offsetR] = sR;
-		pixels[offsetG] = sG;
-		pixels[offsetB] = sB;
+        pixels[offsetR] = sR;
+        pixels[offsetG] = sG;
+        pixels[offsetB] = sB;
                 pixels += bpp;
             }, n, width);
             pixels += skip;
         }
         result = 0;
-	break;
+        break;
     }
     default:
     {
@@ -287,8 +287,8 @@ surface_fill_blend_mult (SDL_Surface *surface, SDL_Rect *rect, Uint32 color)
     }
     case 3:
     {
-	size_t offsetR, offsetG, offsetB;
-	SET_OFFSETS_24 (offsetR, offsetG, offsetB, fmt);
+        size_t offsetR, offsetG, offsetB;
+        SET_OFFSETS_24 (offsetR, offsetG, offsetB, fmt);
         GET_PIXELVALS (cR, cG, cB, cA, color, fmt, ppa);
         while (height--)
         {
@@ -297,15 +297,15 @@ surface_fill_blend_mult (SDL_Surface *surface, SDL_Rect *rect, Uint32 color)
                 GET_PIXEL (pixel, bpp, pixels);
                 GET_PIXELVALS (sR, sG, sB, sA, pixel, fmt, ppa);
                 BLEND_MULT (cR, cG, cB, cA, sR, sG, sB, sA);
-		pixels[offsetR] = sR;
-		pixels[offsetG] = sG;
-		pixels[offsetB] = sB;
+        pixels[offsetR] = sR;
+        pixels[offsetG] = sG;
+        pixels[offsetB] = sB;
                 pixels += bpp;
             }, n, width);
             pixels += skip;
         }
         result = 0;
-	break;
+        break;
     }
     default:
     {
@@ -372,8 +372,8 @@ surface_fill_blend_min (SDL_Surface *surface, SDL_Rect *rect, Uint32 color)
     }
     case 3:
     {
-	size_t offsetR, offsetG, offsetB;
-	SET_OFFSETS_24 (offsetR, offsetG, offsetB, fmt);
+        size_t offsetR, offsetG, offsetB;
+        SET_OFFSETS_24 (offsetR, offsetG, offsetB, fmt);
         GET_PIXELVALS (cR, cG, cB, cA, color, fmt, ppa);
         while (height--)
         {
@@ -382,15 +382,15 @@ surface_fill_blend_min (SDL_Surface *surface, SDL_Rect *rect, Uint32 color)
                 GET_PIXEL (pixel, bpp, pixels);
                 GET_PIXELVALS (sR, sG, sB, sA, pixel, fmt, ppa);
                 BLEND_MIN (cR, cG, cB, cA, sR, sG, sB, sA);
-		pixels[offsetR] = sR;
-		pixels[offsetG] = sG;
-		pixels[offsetB] = sB;
+        pixels[offsetR] = sR;
+        pixels[offsetG] = sG;
+        pixels[offsetB] = sB;
                 pixels += bpp;
             }, n, width);
             pixels += skip;
         }
         result = 0;
-	break;
+        break;
     }
     default:
     {
@@ -457,8 +457,8 @@ surface_fill_blend_max (SDL_Surface *surface, SDL_Rect *rect, Uint32 color)
     }
     case 3:
     {
-	size_t offsetR, offsetG, offsetB;
-	SET_OFFSETS_24 (offsetR, offsetG, offsetB, fmt);
+        size_t offsetR, offsetG, offsetB;
+        SET_OFFSETS_24 (offsetR, offsetG, offsetB, fmt);
         GET_PIXELVALS (cR, cG, cB, cA, color, fmt, ppa);
         while (height--)
         {
@@ -467,15 +467,15 @@ surface_fill_blend_max (SDL_Surface *surface, SDL_Rect *rect, Uint32 color)
                 GET_PIXEL (pixel, bpp, pixels);
                 GET_PIXELVALS (sR, sG, sB, sA, pixel, fmt, ppa);
                 BLEND_MAX (cR, cG, cB, cA, sR, sG, sB, sA);
-		pixels[offsetR] = sR;
-		pixels[offsetG] = sG;
-		pixels[offsetB] = sB;
+        pixels[offsetR] = sR;
+        pixels[offsetG] = sG;
+        pixels[offsetB] = sB;
                 pixels += bpp;
             }, n, width);
             pixels += skip;
         }
         result = 0;
-	break;
+        break;
     }
     default:
     {
@@ -523,7 +523,7 @@ surface_fill_blend_rgba_add (SDL_Surface *surface, SDL_Rect *rect, Uint32 color)
 
     if (!ppa)
     {
-	return surface_fill_blend_add (surface, rect, color);
+        return surface_fill_blend_add (surface, rect, color);
     }
 
     pixels = (Uint8 *) surface->pixels + surface->offset +
@@ -592,7 +592,7 @@ surface_fill_blend_rgba_sub (SDL_Surface *surface, SDL_Rect *rect, Uint32 color)
 
     if (!ppa)
     {
-	return surface_fill_blend_sub (surface, rect, color);
+        return surface_fill_blend_sub (surface, rect, color);
     }
 
     pixels = (Uint8 *) surface->pixels + surface->offset +
@@ -660,7 +660,7 @@ surface_fill_blend_rgba_mult (SDL_Surface *surface, SDL_Rect *rect, Uint32 color
 
     if (!ppa)
     {
-	return surface_fill_blend_mult (surface, rect, color);
+        return surface_fill_blend_mult (surface, rect, color);
     }
 
     pixels = (Uint8 *) surface->pixels + surface->offset +
@@ -728,7 +728,7 @@ surface_fill_blend_rgba_min (SDL_Surface *surface, SDL_Rect *rect, Uint32 color)
 
     if (!ppa)
     {
-	return surface_fill_blend_min (surface, rect, color);
+        return surface_fill_blend_min (surface, rect, color);
     }
 
     pixels = (Uint8 *) surface->pixels + surface->offset +
@@ -796,7 +796,7 @@ surface_fill_blend_rgba_max (SDL_Surface *surface, SDL_Rect *rect, Uint32 color)
 
     if (!ppa)
     {
-	return surface_fill_blend_max (surface, rect, color);
+        return surface_fill_blend_max (surface, rect, color);
     }
 
     pixels = (Uint8 *) surface->pixels + surface->offset +
@@ -854,7 +854,7 @@ surface_fill_blend (SDL_Surface *surface, SDL_Rect *rect, Uint32 color,
 {
     int result = -1;
     int locked = 0;
-    
+
     surface_respect_clip_rect(surface, rect);
 
     /* Lock the surface, if needed */
@@ -933,7 +933,7 @@ surface_fill_blend (SDL_Surface *surface, SDL_Rect *rect, Uint32 color,
 
     if (locked)
     {
-	SDL_UnlockSurface (surface);
+        SDL_UnlockSurface (surface);
     }
     return result;
 }

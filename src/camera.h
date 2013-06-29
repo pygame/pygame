@@ -14,7 +14,7 @@
   You should have received a copy of the GNU Library General Public
   License along with this library; if not, write to the Free
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-  
+
 */
 
 #include "pygame.h"
@@ -113,8 +113,8 @@ typedef struct PyCameraObject {
     long size;                      /* size of the image in our buffer to draw */
     int hflip;
     int vflip;
-    short depth;                    
-    struct buffer pixels;           
+    short depth;
+    struct buffer pixels;
     //struct buffer tmp_pixels        /* place where the flipped image in temporarly stored if hflip or vflip is true.*/
 } PyCameraObject;
 
@@ -144,17 +144,17 @@ typedef struct PyCameraObject {
 void colorspace (SDL_Surface *src, SDL_Surface *dst, int cspace);
 void rgb24_to_rgb (const void* src, void* dst, int length, SDL_PixelFormat* format);
 void rgb444_to_rgb (const void* src, void* dst, int length, SDL_PixelFormat* format);
-void rgb_to_yuv (const void* src, void* dst, int length, 
+void rgb_to_yuv (const void* src, void* dst, int length,
                  unsigned long source, SDL_PixelFormat* format);
 void rgb_to_hsv (const void* src, void* dst, int length,
                  unsigned long source, SDL_PixelFormat* format);
 void yuyv_to_rgb (const void* src, void* dst, int length, SDL_PixelFormat* format);
 void yuyv_to_yuv (const void* src, void* dst, int length, SDL_PixelFormat* format);
-void sbggr8_to_rgb (const void* src, void* dst, int width, int height, 
+void sbggr8_to_rgb (const void* src, void* dst, int width, int height,
                     SDL_PixelFormat* format);
-void yuv420_to_rgb (const void* src, void* dst, int width, int height, 
+void yuv420_to_rgb (const void* src, void* dst, int width, int height,
                     SDL_PixelFormat* format);
-void yuv420_to_yuv (const void* src, void* dst, int width, int height, 
+void yuv420_to_yuv (const void* src, void* dst, int width, int height,
                     SDL_PixelFormat* format);
 
 #if defined(__unix__)
@@ -164,7 +164,7 @@ int v4l2_get_control (int fd, int id, int *value);
 int v4l2_set_control (int fd, int id, int value);
 PyObject* v4l2_read_raw (PyCameraObject* self);
 int v4l2_xioctl (int fd, int request, void *arg);
-int v4l2_process_image (PyCameraObject* self, const void *image, 
+int v4l2_process_image (PyCameraObject* self, const void *image,
                                unsigned int buffer_size, SDL_Surface* surf);
 int v4l2_query_buffer (PyCameraObject* self);
 int v4l2_read_frame (PyCameraObject* self, SDL_Surface* surf);

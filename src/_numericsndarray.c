@@ -64,7 +64,7 @@ sndarray_samples (PyObject* self, PyObject* arg)
     numdims = (numchannels > 1) ? 2 : 1;
     dim[0] = chunk->alen / (numchannels*formatbytes);
     dim[1] = numchannels;
-    
+
     array = PyArray_FromDimsAndData (numdims, dim, type, (char*)chunk->abuf);
     if(array)
     {
@@ -79,7 +79,7 @@ PyObject*
 sndarray_array (PyObject* self, PyObject* arg)
 {
     PyObject *array, *arraycopy=NULL;
-    
+
     /*we'll let numeric do the copying for us*/
     array = sndarray_samples (self, arg);
     if(array)
@@ -102,19 +102,19 @@ sndarray_make_sound (PyObject* self, PyObject* arg)
     Uint8 *src, *dst;
 
     if (!PyArg_ParseTuple (arg, "O!", &PyArray_Type, &arrayobj))
-	return NULL;
+        return NULL;
     array = (PyArrayObject*) arrayobj;
-    
+
     if (!Mix_QuerySpec (NULL, &format, &numchannels))
         return RAISE (PyExc_SDLError, "Mixer not initialized");
     if (array->descr->type_num > PyArray_LONG)
         return RAISE (PyExc_ValueError, "Invalid array datatype for sound");
-    
+
     if (format==AUDIO_S8 || format==AUDIO_U8)
         mixerbytes = 1;
     else
         mixerbytes = 2;
-    
+
     /*test array dimensions*/
     if (numchannels == 1)
     {
@@ -136,13 +136,13 @@ sndarray_make_sound (PyObject* self, PyObject* arg)
     if (array->nd == 2)
     {
         length2 = array->dimensions[1];
-	step2 = array->strides[1];
+        step2 = array->strides[1];
     }
-    else 
+    else
     {
         length2 = 1;
         /*since length2 == 1, this won't be used for looping*/
-	step2 = mixerbytes; 
+        step2 = mixerbytes;
     }
 
     /*create chunk, we are screwed if SDL_mixer ever does more than
@@ -211,7 +211,7 @@ sndarray_make_sound (PyObject* self, PyObject* arg)
             }
         }
     }
-    
+
     return PySound_New (chunk);
 }
 
@@ -232,15 +232,15 @@ void init_numericsndarray (void)
     */
     import_pygame_base ();
     if (PyErr_Occurred ()) {
-	return;
+        return;
     }
     import_pygame_mixer ();
     if (PyErr_Occurred ()) {
-	return;
+        return;
     }
     import_array ();
     if (PyErr_Occurred ()) {
-	return;
+        return;
     }
 
     /* create the module */

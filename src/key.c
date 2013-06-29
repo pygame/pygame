@@ -97,7 +97,7 @@ key_get_pressed (PyObject* self)
         {
             Py_DECREF (key_tuple);
             return NULL;
-        }		
+        }
         PyTuple_SET_ITEM (key_tuple, i, key_elem);
     }
     return key_tuple;
@@ -107,11 +107,11 @@ static PyObject*
 key_name (PyObject* self, PyObject* args)
 {
     int key;
-	
+
     if (!PyArg_ParseTuple (args, "i", &key))
         return NULL;
 
-    return Text_FromUTF8 (SDL_GetKeyName (key));	
+    return Text_FromUTF8 (SDL_GetKeyName (key));
 }
 
 static PyObject*
@@ -187,8 +187,8 @@ MODINIT_DEFINE (key)
 #if PY3
     module = PyModule_Create (&_module);
 #else
-    module = Py_InitModule3 (MODPREFIX "key", 
-                             _key_methods, 
+    module = Py_InitModule3 (MODPREFIX "key",
+                             _key_methods,
                              DOC_PYGAMEKEY);
 #endif
     if (module == NULL) {

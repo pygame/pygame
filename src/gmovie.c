@@ -8,9 +8,9 @@ void _movie_init_internal(PyMovie *self, const char *filename, SDL_Surface *surf
     self->_backend="FFMPEG_WRAPPER";
     self->commands = (CommandQueue *)PyMem_Malloc(sizeof(CommandQueue));
     self->commands->q_mutex = SDL_CreateMutex();
-	self->commands->size=0;
-	self->commands->reg_ix=0;
-	registerCommands(self);
+    self->commands->size=0;
+    self->commands->reg_ix=0;
+    registerCommands(self);
     self->commands->size=0;
     if(!surf)
     {
@@ -28,22 +28,22 @@ void _movie_init_internal(PyMovie *self, const char *filename, SDL_Surface *surf
     PyObject *dict = PyModule_GetDict(path);
     PyObject *key = Py_BuildValue("s", "exists");
     Py_INCREF(key);
-	PyObject *existsFunc  = PyDict_GetItem(dict, key);
-	PyObject *boolean = PyObject_CallFunction(existsFunc, "s", filename);
-	Py_INCREF(boolean);
-	if(boolean==Py_False)
-	{
-		Py_DECREF(boolean);
-		Py_DECREF(key);
-		Py_DECREF(path);
-		RAISE(PyExc_ValueError, "This filename does not exist.");
-		return;
-		//Py_RETURN_NONE;
-	}
-	Py_DECREF(boolean);
-	Py_DECREF(key);
-	Py_DECREF(path);    
-    
+    PyObject *existsFunc  = PyDict_GetItem(dict, key);
+    PyObject *boolean = PyObject_CallFunction(existsFunc, "s", filename);
+    Py_INCREF(boolean);
+    if(boolean==Py_False)
+    {
+        Py_DECREF(boolean);
+        Py_DECREF(key);
+        Py_DECREF(path);
+        RAISE(PyExc_ValueError, "This filename does not exist.");
+        return;
+        //Py_RETURN_NONE;
+    }
+    Py_DECREF(boolean);
+    Py_DECREF(key);
+    Py_DECREF(path);
+
     self->start_time = AV_NOPTS_VALUE;
     stream_open(self, filename, NULL, 0);
     //PySys_WriteStdout("Time-base-a: %f\n", av_q2d(self->audio_st->codec->time_base));
@@ -53,22 +53,22 @@ void _movie_init_internal(PyMovie *self, const char *filename, SDL_Surface *surf
         Py_DECREF(self);
         return;
     }
-	if(self->canon_surf)
-	{
-		/*Here we check if the surface's dimensions match the aspect ratio of the video. If not, 
-		 * we throw an error. 
-		 */
-		int width = self->canon_surf->w;
-		int height = self->canon_surf->h;
-		double aspect_ratio = (double)self->video_st->codec->width/(double)self->video_st->codec->height;
-		double surf_ratio = (double)width/(double)height;
-		if (surf_ratio!=aspect_ratio)
-		{
-			PyErr_SetString(PyExc_ValueError, "surface does not have the same aspect ratio as the video. This would cause surface corruption.");
-			Py_DECREF(self);
-			return;
-		}
-	}
+    if(self->canon_surf)
+    {
+        /*Here we check if the surface's dimensions match the aspect ratio of the video. If not,
+         * we throw an error.
+         */
+        int width = self->canon_surf->w;
+        int height = self->canon_surf->h;
+        double aspect_ratio = (double)self->video_st->codec->width/(double)self->video_st->codec->height;
+        double surf_ratio = (double)width/(double)height;
+        if (surf_ratio!=aspect_ratio)
+        {
+            PyErr_SetString(PyExc_ValueError, "surface does not have the same aspect ratio as the video. This would cause surface corruption.");
+            Py_DECREF(self);
+            return;
+        }
+    }
     //PySys_WriteStdout("Movie->filename: %s\n", self->filename);
     Py_DECREF(self);
     return;
@@ -85,7 +85,7 @@ int _movie_init(PyObject *self, PyObject *args, PyObject *kwds)
         PyErr_SetString(PyExc_TypeError, "No valid arguments");
         return -1;
     }
-	
+
     if(surf && PySurface_Check(surf))
     {
         SDL_Surface *target = PySurface_AsSurface(surf);
@@ -117,27 +117,27 @@ int _movie_init(PyObject *self, PyObject *args, PyObject *kwds)
 
 void _movie_dealloc(PyMovie *movie)
 {
-	//PySys_WriteStdout("Deleting\n");
-	if(movie->_tstate)
-	{
-		PyThreadState_Clear(movie->_tstate);
-		//PyThreadState_Delete(movie->_tstate);
-	}
-	#ifdef PROFILE
-		TimeSampleNode *cur = movie->istats->first;
-		TimeSampleNode *prev;
-		while(cur!=NULL) 
-    	{
-    		prev=cur;
-    		cur=cur->next;
-			PyMem_Free(prev);
-    	}
-    	PyMem_Free(movie->istats);
+    //PySys_WriteStdout("Deleting\n");
+    if(movie->_tstate)
+    {
+        PyThreadState_Clear(movie->_tstate);
+        //PyThreadState_Delete(movie->_tstate);
+    }
+    #ifdef PROFILE
+        TimeSampleNode *cur = movie->istats->first;
+        TimeSampleNode *prev;
+        while(cur!=NULL)
+        {
+            prev=cur;
+            cur=cur->next;
+            PyMem_Free(prev);
+        }
+        PyMem_Free(movie->istats);
     #endif
     SDL_DestroyMutex(movie->commands->q_mutex);
     PyMem_Free(movie->commands);
     movie->commands=NULL;
-	stream_close(movie, 0);
+    stream_close(movie, 0);
     movie->ob_type->tp_free((PyObject *) movie);
 }
 
@@ -225,9 +225,9 @@ PyObject* _movie_play(PyMovie *movie, PyObject* args)
     //movie has been stopped, need to close down streams and that.
     if(movie->stop)
     {
-    	//first we release the GIL, then we release all the resources associated with the streams, if they exist.
-    	PyEval_ReleaseLock();
-		_movie_stop(movie);
+        //first we release the GIL, then we release all the resources associated with the streams, if they exist.
+        PyEval_ReleaseLock();
+        _movie_stop(movie);
     }
 
     SDL_LockMutex(movie->dest_mutex);
@@ -276,10 +276,10 @@ PyObject* _movie_resize       (PyMovie *movie, PyObject* args)
     }
     if(movie->canon_surf)
     {
-    	Py_RETURN_NONE;
+        Py_RETURN_NONE;
     }
     ALLOC_COMMAND(resizeCommand, resize);
-    
+
     resize->h = h;
     resize->w  = w;
     addCommand(movie->commands, (Command *)resize);
@@ -289,55 +289,55 @@ PyObject* _movie_resize       (PyMovie *movie, PyObject* args)
 
 PyObject *_movie_shift(PyMovie *movie, PyObject*args)
 {
-	int x=0;
-	int y=0;
-	if(PyArg_ParseTuple(args, "ii", &x, &y)<0)
-	{
-		return NULL;	
-	}
-	ALLOC_COMMAND(shiftCommand, shift);
-	shift->xleft=x;
-	shift->ytop=y;
-	addCommand(movie->commands, (Command *)shift);
-	Py_RETURN_NONE;
+    int x=0;
+    int y=0;
+    if(PyArg_ParseTuple(args, "ii", &x, &y)<0)
+    {
+        return NULL;
+    }
+    ALLOC_COMMAND(shiftCommand, shift);
+    shift->xleft=x;
+    shift->ytop=y;
+    addCommand(movie->commands, (Command *)shift);
+    Py_RETURN_NONE;
 }
 
 PyObject* _movie_easy_seek (PyMovie *movie, PyObject* args)
 {
-	int64_t pos=0;
-	int hour=0;
-	int minute=0;
-	int second=0;
-	int reverse=0;
-	//int relative=0;
-	//char *keywords[4] = {"second", "minute", "hour", "reverse"};
-	if(!PyArg_ParseTuple(args, "iiii", &second, &minute, &hour, &reverse))
-	{
-		Py_RETURN_NONE;
-	}
-	if(second)
-	{
-		pos+=(int64_t)second;
-	}
-	if(minute)
-	{
-		pos+=60*(int64_t)minute;
-	}
-	if(hour)
-	{
-		pos+=3600*(int64_t)hour;
-	}
-	if(reverse)
-	{
-		reverse=-1;
-	}
-	else
-	{
-		reverse=1;
-	}
-	pos *= AV_TIME_BASE;
-	stream_seek(movie, pos, reverse);
-	Py_RETURN_NONE;
+    int64_t pos=0;
+    int hour=0;
+    int minute=0;
+    int second=0;
+    int reverse=0;
+    //int relative=0;
+    //char *keywords[4] = {"second", "minute", "hour", "reverse"};
+    if(!PyArg_ParseTuple(args, "iiii", &second, &minute, &hour, &reverse))
+    {
+        Py_RETURN_NONE;
+    }
+    if(second)
+    {
+        pos+=(int64_t)second;
+    }
+    if(minute)
+    {
+        pos+=60*(int64_t)minute;
+    }
+    if(hour)
+    {
+        pos+=3600*(int64_t)hour;
+    }
+    if(reverse)
+    {
+        reverse=-1;
+    }
+    else
+    {
+        reverse=1;
+    }
+    pos *= AV_TIME_BASE;
+    stream_seek(movie, pos, reverse);
+    Py_RETURN_NONE;
 }
 
 PyObject* _movie_get_paused (PyMovie *movie, void *closure)
@@ -353,7 +353,7 @@ PyObject* _movie_get_playing (PyMovie *movie, void *closure)
 
 PyObject* _movie_get_finished(PyMovie *movie,  void *closure)
 {
-	return PyBool_FromLong((long)movie->finished);	
+    return PyBool_FromLong((long)movie->finished);
 }
 
 PyObject* _movie_get_width (PyMovie *movie, void *closure)
@@ -391,10 +391,10 @@ int _movie_set_width (PyMovie *movie, PyObject *width, void *closure)
     {
         w = (int)PyInt_AsLong(width);
         ALLOC_COMMAND(resizeCommand, resize);
-    
-    	resize->h = 0;
-    	resize->w  = w;
-		addCommand(movie->commands, (Command *)resize);
+
+        resize->h = 0;
+        resize->w  = w;
+        addCommand(movie->commands, (Command *)resize);
         return 0;
     }
     else
@@ -430,11 +430,11 @@ int _movie_set_height (PyMovie *movie, PyObject *height, void *closure)
     if(PyInt_Check(height)  && !movie->canon_surf)
     {
         h = (int)PyInt_AsLong(height);
-    	
+
         ALLOC_COMMAND(resizeCommand, resize);
-    	resize->h = h;
-    	resize->w  = 0;
-		addCommand(movie->commands, (Command *)resize);
+        resize->h = h;
+        resize->w  = 0;
+        addCommand(movie->commands, (Command *)resize);
         return 0;
     }
     else
@@ -522,17 +522,17 @@ int _movie_set_surface(PyObject *mov, PyObject *surface, void *closure)
     surfaceCommand *surf;
     if(PySurface_Check(surface))
     {
-		SDL_Surface *surfa = PySurface_AsSurface(surface);
+        SDL_Surface *surfa = PySurface_AsSurface(surface);
         int width = surfa->w;
-		int height = surfa->h;
-		double aspect_ratio = (double)movie->video_st->codec->width/(double)movie->video_st->codec->height;
-		double surf_ratio = (double)width/(double)height;
-		if (surf_ratio!=aspect_ratio)
-		{
-			RAISE(PyExc_ValueError, "surface does not have the same aspect ratio as the video. This would cause surface corruption.");
-			return -1;
-		}
-		/*movie->canon_surf=PySurface_AsSurface(surface);
+        int height = surfa->h;
+        double aspect_ratio = (double)movie->video_st->codec->width/(double)movie->video_st->codec->height;
+        double surf_ratio = (double)width/(double)height;
+        if (surf_ratio!=aspect_ratio)
+        {
+            RAISE(PyExc_ValueError, "surface does not have the same aspect ratio as the video. This would cause surface corruption.");
+            return -1;
+        }
+        /*movie->canon_surf=PySurface_AsSurface(surface);
         movie->overlay=0;*/
         surf = (surfaceCommand *)PyMem_Malloc(sizeof(surfaceCommand));
         surf->type = movie->surfaceCommandType;
@@ -542,11 +542,11 @@ int _movie_set_surface(PyObject *mov, PyObject *surface, void *closure)
     }
     else if(surface == Py_None)
     {
-    	surf = (surfaceCommand *)PyMem_Malloc(sizeof(surfaceCommand));
+        surf = (surfaceCommand *)PyMem_Malloc(sizeof(surfaceCommand));
         surf->type = movie->surfaceCommandType;
         surf->surface = NULL;
         addCommand(movie->commands, (Command *)surf);
-    	return 0;
+        return 0;
     }
     return -1;
 }
@@ -638,33 +638,33 @@ static char _movie_doc[] =
 
 void _info_init_internal(PyMovieInfo *self, const char *filename)
 {
-	/* filename checking... */
+    /* filename checking... */
     self->vid_codec = "";
     self->aud_codec = "";
-    
+
     PyObject *path = PyImport_ImportModule("os.path");
     Py_INCREF(path);
     PyObject *dict = PyModule_GetDict(path);
-   	PyObject *key = Py_BuildValue("s", "exists");
-   	Py_INCREF(key);
-	PyObject *existsFunc  = PyDict_GetItem(dict, key);
-	PyObject *boolean = PyObject_CallFunction(existsFunc, "s", filename);
-	Py_INCREF(boolean);
-	if(boolean==Py_False)
-	{
-		Py_DECREF(boolean);
-		Py_DECREF(key);
-		Py_DECREF(path);
-		RAISE(PyExc_ValueError, "This filename does not exist.");
-		return;
-		//Py_RETURN_NONE;
-	}
-	Py_DECREF(boolean);
-	Py_DECREF(key);
-	Py_DECREF(path);    
-    	
+    PyObject *key = Py_BuildValue("s", "exists");
+    Py_INCREF(key);
+    PyObject *existsFunc  = PyDict_GetItem(dict, key);
+    PyObject *boolean = PyObject_CallFunction(existsFunc, "s", filename);
+    Py_INCREF(boolean);
+    if(boolean==Py_False)
+    {
+        Py_DECREF(boolean);
+        Py_DECREF(key);
+        Py_DECREF(path);
+        RAISE(PyExc_ValueError, "This filename does not exist.");
+        return;
+        //Py_RETURN_NONE;
+    }
+    Py_DECREF(boolean);
+    Py_DECREF(key);
+    Py_DECREF(path);
+
     self->filename = (char *)PyMem_Malloc((sizeof(char)*strlen(filename))+sizeof(char));
-	strncpy(self->filename, filename, strlen(filename)+1);
+    strncpy(self->filename, filename, strlen(filename)+1);
     AVFormatContext *ic;
     AVFormatParameters params, *ap = &params;
     int ret, err;
@@ -677,12 +677,12 @@ void _info_init_internal(PyMovieInfo *self, const char *filename)
                        1, 25
                    };
     ap->pix_fmt = PIX_FMT_NONE;
-    
+
     err = av_open_input_file(&ic, filename, NULL, 0, ap);
     if (err < 0)
     {
-        PyErr_Format(PyExc_IOError, "There was a problem opening up %s, due to %i", filename, err);  
-		ret = -1;
+        PyErr_Format(PyExc_IOError, "There was a problem opening up %s, due to %i", filename, err);
+        ret = -1;
         goto fail;
     }
     err = av_find_stream_info(ic);
@@ -692,41 +692,41 @@ void _info_init_internal(PyMovieInfo *self, const char *filename)
         ret = -1;
         goto fail;
     }
-    
+
     if(ic->duration > 0)
     {
-		double duration =(double)ic->duration;
-		duration /=AV_TIME_BASE;
-		//should now be number of seconds in a double
-		self->duration=duration;
+        double duration =(double)ic->duration;
+        duration /=AV_TIME_BASE;
+        //should now be number of seconds in a double
+        self->duration=duration;
     }
     else
     {
-		self->duration = -1; //to indicate a negative duration value
+        self->duration = -1; //to indicate a negative duration value
     }
     int i;
     for(i =0; i<ic->nb_streams; i++)
     {
-		AVCodecContext *enc = ic->streams[i]->codec;
-		AVCodec *codec;
-		codec = avcodec_find_decoder(enc->codec_id);
-	
+        AVCodecContext *enc = ic->streams[i]->codec;
+        AVCodec *codec;
+        codec = avcodec_find_decoder(enc->codec_id);
+
         switch(enc->codec_type)
         {
         case PYG_MEDIA_TYPE_AUDIO:
             self->sample_rate=enc->sample_rate;
-	    	self->channels = enc->channels;
-	    	self->aud_codec = (char *)PyMem_Malloc((sizeof(char)*strlen(codec->name))+sizeof(char));
-	    	strncpy(self->aud_codec, codec->name, strlen(codec->name)+1);
-	    	break;
+            self->channels = enc->channels;
+            self->aud_codec = (char *)PyMem_Malloc((sizeof(char)*strlen(codec->name))+sizeof(char));
+            strncpy(self->aud_codec, codec->name, strlen(codec->name)+1);
+            break;
         case PYG_MEDIA_TYPE_VIDEO:
             self->width = enc->width;
-	    	self->height = enc->height;
-	    	self->aspect_ratio = (double)self->width/(double)self->height;
-	    	self->vid_codec = (char *)PyMem_Malloc((sizeof(char)*strlen(codec->name))+sizeof(char));
-	    	strncpy(self->vid_codec, codec->name, strlen(codec->name)+1);
+            self->height = enc->height;
+            self->aspect_ratio = (double)self->width/(double)self->height;
+            self->vid_codec = (char *)PyMem_Malloc((sizeof(char)*strlen(codec->name))+sizeof(char));
+            strncpy(self->vid_codec, codec->name, strlen(codec->name)+1);
             break;
-        
+
         default:
             break;
         }
@@ -735,21 +735,21 @@ void _info_init_internal(PyMovieInfo *self, const char *filename)
     ret=0;
 fail:
    //av_freep(ic);
-	return;
-	
+    return;
+
 }
 
 int _info_init(PyObject *self, PyObject *args, PyObject *kwds)
 {
-	Py_INCREF(self);
+    Py_INCREF(self);
     const char *c;
-    
+
     if (!PyArg_ParseTuple (args, "s", &c))
     {
         PyErr_SetString(PyExc_TypeError, "No valid arguments");
         return -1;
     }
-	
+
     _info_init_internal((PyMovieInfo *)self, c);
 
     PyObject *er;
@@ -833,7 +833,7 @@ static PyGetSetDef _info_getsets[] =
         { "channels",     (getter) _info_get_channels,     NULL,  NULL, NULL },
         { "video_codec",  (getter) _info_get_video_codec,  NULL,  NULL, NULL },
         { "audio_codec",  (getter) _info_get_audio_codec,  NULL,  NULL, NULL },
-		{ "filename",     (getter) _info_get_filename,     NULL,  NULL, NULL },
+        { "filename",     (getter) _info_get_filename,     NULL,  NULL, NULL },
         { NULL,            NULL,                           NULL,  NULL, NULL }
     };
 

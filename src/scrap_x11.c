@@ -206,7 +206,7 @@ _clipboard_filter (const SDL_Event *event)
     {
         XSelectionRequestEvent *req = &xevent.xselectionrequest;
         XEvent ev;
-        
+
         /* Prepare answer. */
         ev.xselection.type      = SelectionNotify;
         ev.xselection.display   = req->display;
@@ -249,7 +249,7 @@ _clipboard_filter (const SDL_Event *event)
             return 1;
         }
 
-        /* 
+        /*
          * TODO: We have to make it ICCCM compatible at some point by
          * implementing the MULTIPLE atom request.
          */
@@ -257,7 +257,7 @@ _clipboard_filter (const SDL_Event *event)
         /* Old client? */
         if (req->property == None)
             ev.xselection.property = req->target;
-        
+
         if (req->target == _atom_TARGETS)
         {
             /* The requestor wants to know, what we've got. */
@@ -316,7 +316,7 @@ _set_targets (PyObject *data, Display *display, Window window, Atom property)
 #endif
         targets[i + 2] = _convert_format (format);
 #if PY3
-	Py_DECREF (chars);
+        Py_DECREF (chars);
 #endif
     }
     XChangeProperty (display, window, property, XA_ATOM, 32, PropModeReplace,
@@ -365,9 +365,9 @@ _set_data (PyObject *data, Display *display, Window window, Atom property,
  *         - XA_PRIMARY
  *         - XA_SECONDARY
  *         - XA_CUT_BUFFER0 - 7
- *        
+ *
  *         in this order.
- * 
+ *
  * \param selection The Atom type, that should be tried before any of the
  *                  fixed XA_* buffers.
  * \return The Window handle, that owns the selection or None if none was
@@ -400,7 +400,7 @@ _get_scrap_owner (Atom *selection)
         }
         i++;
     }
-    
+
     return None;
 }
 
@@ -454,7 +454,7 @@ _get_data_as (Atom source, Atom format, unsigned long *length)
     }
 
     Lock_Display ();
-    
+
     /* Find a selection owner. */
     owner = _get_scrap_owner (&source);
     if (owner == None)
@@ -466,7 +466,7 @@ _get_data_as (Atom source, Atom format, unsigned long *length)
     timestamp = (source == XA_PRIMARY) ?  _selectiontime : _cliptime;
 
     /* Copy and convert the selection into our SDL_SELECTION atom of the
-     * window. 
+     * window.
      * Flush afterwards, so we have an immediate effect and do not receive
      * the old buffer anymore.
      */
@@ -551,7 +551,7 @@ _get_data_as (Atom source, Atom format, unsigned long *length)
             {
                 break;
             }
-            
+
             offset += nbytes / (32 / sel_format);
             nbytes *= step * sel_format / 8;
             memcpy (retval + boffset, src, nbytes);
@@ -654,7 +654,7 @@ pygame_scrap_init (void)
             SDL_Window = info.info.x11.window;
             Lock_Display = info.info.x11.lock_func;
             Unlock_Display = info.info.x11.unlock_func;
-            
+
             Lock_Display ();
 
             /* We need the PropertyNotify event for the timestap, so
@@ -822,7 +822,7 @@ pygame_scrap_get_types (void)
     char **types;
     Atom *targetdata;
     unsigned long length;
-    
+
     if (!pygame_scrap_lost ())
     {
         PyObject *key;
@@ -833,7 +833,7 @@ pygame_scrap_get_types (void)
         int i = 0;
         PyObject *dict = (_currentmode == SCRAP_SELECTION) ? _selectiondata :
             _clipdata;
-       
+
         types = malloc (sizeof (char*) * (PyDict_Size (dict) + 1));
         if (!types)
             return NULL;
@@ -870,7 +870,7 @@ pygame_scrap_get_types (void)
         types[i] = NULL;
         return types;
     }
-    
+
     targetdata = (Atom *) _get_data_as (GET_CLIPATOM (_currentmode),
                                         _atom_TARGETS, &length);
     if (length > 0 && targetdata != NULL)

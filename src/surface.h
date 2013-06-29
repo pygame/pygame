@@ -2,21 +2,21 @@
   pygame - Python Game Library
   Copyright (C) 2000-2001  Pete Shinners
   Copyright (C) 2007 Marcus von Appen
-  
+
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Library General Public
   License as published by the Free Software Foundation; either
   version 2 of the License, or (at your option) any later version.
-  
+
   This library is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
   Library General Public License for more details.
-  
+
   You should have received a copy of the GNU Library General Public
   License along with this library; if not, write to the Free
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-  
+
   Pete Shinners
   pete@shinners.org
 */
@@ -73,19 +73,19 @@
     default:                                      \
     {                                             \
         Uint8 *b = (Uint8 *) source;              \
-        pxl = GET_PIXEL_24(b);			  \
+        pxl = GET_PIXEL_24(b);                    \
     }                                             \
     break;                                        \
     }
 
-#define GET_PIXELVALS(_sR, _sG, _sB, _sA, px, fmt, ppa)		      \
+#define GET_PIXELVALS(_sR, _sG, _sB, _sA, px, fmt, ppa)               \
     _sR = ((px & fmt->Rmask) >> fmt->Rshift);                         \
     _sR = (_sR << fmt->Rloss) + (_sR >> (8 - (fmt->Rloss << 1)));     \
     _sG = ((px & fmt->Gmask) >> fmt->Gshift);                         \
     _sG = (_sG << fmt->Gloss) + (_sG >> (8 - (fmt->Gloss << 1)));     \
     _sB = ((px & fmt->Bmask) >> fmt->Bshift);                         \
     _sB = (_sB << fmt->Bloss) + (_sB >> (8 - (fmt->Bloss << 1)));     \
-    if (ppa)							      \
+    if (ppa)                                                          \
     {                                                                 \
         _sA = ((px & fmt->Amask) >> fmt->Ashift);                     \
         _sA = (_sA << fmt->Aloss) + (_sA >> (8 - (fmt->Aloss << 1))); \
@@ -107,18 +107,18 @@
 
 
 
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN               
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
 #define SET_OFFSETS_24(or, og, ob, fmt)           \
     {                                             \
     or = (fmt->Rshift == 0 ? 0 :                  \
           fmt->Rshift == 8 ? 1 :                  \
-	                     2   );               \
+                         2   );                   \
     og = (fmt->Gshift == 0 ? 0 :                  \
           fmt->Gshift == 8 ? 1 :                  \
-	                     2   );               \
+                         2   );                   \
     ob = (fmt->Bshift == 0 ? 0 :                  \
           fmt->Bshift == 8 ? 1 :                  \
-	                     2   );               \
+                         2   );                   \
     }
 
 #define SET_OFFSETS_32(or, og, ob, fmt)           \
@@ -126,28 +126,28 @@
     or = (fmt->Rshift == 0  ? 0 :                 \
           fmt->Rshift == 8  ? 1 :                 \
           fmt->Rshift == 16 ? 2 :                 \
-	                      3   );              \
+                          3   );                  \
     og = (fmt->Gshift == 0  ? 0 :                 \
           fmt->Gshift == 8  ? 1 :                 \
           fmt->Gshift == 16 ? 2 :                 \
-	                      3   );              \
+                          3   );                  \
     ob = (fmt->Bshift == 0  ? 0 :                 \
           fmt->Bshift == 8  ? 1 :                 \
           fmt->Bshift == 16 ? 2 :                 \
-	                      3   );              \
+                          3   );                  \
     }
 #else
 #define SET_OFFSETS_24(or, og, ob, fmt)           \
     {                                             \
     or = (fmt->Rshift == 0 ? 2 :                  \
           fmt->Rshift == 8 ? 1 :                  \
-	                     0   );               \
+                         0   );                   \
     og = (fmt->Gshift == 0 ? 2 :                  \
           fmt->Gshift == 8 ? 1 :                  \
-	                     0   );               \
+                         0   );                   \
     ob = (fmt->Bshift == 0 ? 2 :                  \
           fmt->Bshift == 8 ? 1 :                  \
-	                     0   );               \
+                         0   );                   \
     }
 
 #define SET_OFFSETS_32(or, og, ob, fmt)           \
@@ -155,15 +155,15 @@
     or = (fmt->Rshift == 0  ? 3 :                 \
           fmt->Rshift == 8  ? 2 :                 \
           fmt->Rshift == 16 ? 1 :                 \
-	                      0   );              \
+                          0   );                  \
     og = (fmt->Gshift == 0  ? 3 :                 \
           fmt->Gshift == 8  ? 2 :                 \
           fmt->Gshift == 16 ? 1 :                 \
-	                      0   );              \
+                          0   );                  \
     ob = (fmt->Bshift == 0  ? 3 :                 \
           fmt->Bshift == 8  ? 2 :                 \
           fmt->Bshift == 16 ? 1 :                 \
-	                      0   );              \
+                          0   );                  \
     }
 #endif
 
@@ -344,15 +344,15 @@
 int
 surface_fill_blend (SDL_Surface *surface, SDL_Rect *rect, Uint32 color,
                     int blendargs);
-                    
+
 void
 surface_respect_clip_rect (SDL_Surface *surface, SDL_Rect *rect);
 
-int 
+int
 pygame_AlphaBlit (SDL_Surface * src, SDL_Rect * srcrect,
                   SDL_Surface * dst, SDL_Rect * dstrect, int the_args);
 
-int 
+int
 pygame_Blit (SDL_Surface * src, SDL_Rect * srcrect,
              SDL_Surface * dst, SDL_Rect * dstrect, int the_args);
 

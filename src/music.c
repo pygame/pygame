@@ -464,18 +464,18 @@ MODINIT_DEFINE (mixer_music)
     */
     import_pygame_base ();
     if (PyErr_Occurred ()) {
-	MODINIT_ERROR;
+        MODINIT_ERROR;
     }
     import_pygame_rwobject ();
     if (PyErr_Occurred ()) {
-	MODINIT_ERROR;
+        MODINIT_ERROR;
     }
 
     /* create the module */
 #if PY3
     module = PyModule_Create (&_module);
 #else
-    module = Py_InitModule3 (MODPREFIX "mixer_music", 
+    module = Py_InitModule3 (MODPREFIX "mixer_music",
                              _music_methods,
                              DOC_PYGAMEMIXERMUSIC);
 #endif

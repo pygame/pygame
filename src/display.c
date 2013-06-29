@@ -72,7 +72,7 @@ display_resource (char *filename)
         (imagemodule, load_basicfunc_name);
     if (!load_basicfunc)
         goto display_resource_end;
-	
+
     fresult = PyObject_CallFunction (resourcefunc, "s", filename);
     if (!fresult)
         goto display_resource_end;
@@ -81,9 +81,9 @@ display_resource (char *filename)
     name = PyObject_GetAttrString (fresult, "name");
     if (name != NULL) {
         if (Text_Check (name)) {
-	    Py_DECREF (fresult);
+            Py_DECREF (fresult);
             fresult = name;
-	    name = NULL;
+            name = NULL;
         }
     }
     else {
@@ -227,7 +227,7 @@ vidinfo_getattr (PyObject *self, char *name)
         return PyInt_FromLong (current_h);
     else if (!strcmp (name, "current_w"))
         return PyInt_FromLong (current_w);
-    
+
     return RAISE (PyExc_AttributeError, "does not exist in vidinfo");
 }
 
@@ -250,13 +250,13 @@ vidinfo_str (PyObject* self)
     }
 
     sprintf (str, "<VideoInfo(hw = %d, wm = %d,video_mem = %d\n"
-             "	     blit_hw = %d, blit_hw_CC = %d, blit_hw_A = %d,\n"
-             "	     blit_sw = %d, blit_sw_CC = %d, blit_sw_A = %d,\n"
-             "	     bitsize  = %d, bytesize = %d,\n"
-             "	     masks =  (%d, %d, %d, %d),\n"
-             "	     shifts = (%d, %d, %d, %d),\n"
-             "	     losses =  (%d, %d, %d, %d),\n"
-             "	     current_w = %d, current_h = %d\n"
+             "         blit_hw = %d, blit_hw_CC = %d, blit_hw_A = %d,\n"
+             "         blit_sw = %d, blit_sw_CC = %d, blit_sw_A = %d,\n"
+             "         bitsize  = %d, bytesize = %d,\n"
+             "         masks =  (%d, %d, %d, %d),\n"
+             "         shifts = (%d, %d, %d, %d),\n"
+             "         losses =  (%d, %d, %d, %d),\n"
+             "         current_w = %d, current_h = %d\n"
              ">\n",
              info->hw_available, info->wm_available, info->video_mem,
              info->blit_hw, info->blit_hw_CC, info->blit_hw_A,
@@ -331,7 +331,7 @@ get_wm_info (PyObject* self)
     VIDEO_INIT_CHECK ();
 
     SDL_VERSION (&(info.version))
-	dict = PyDict_New ();
+    dict = PyDict_New ();
     if (!dict || !SDL_GetWMInfo (&info))
         return dict;
 
@@ -352,7 +352,7 @@ get_wm_info (PyObject* self)
     tmp = PyCapsule_New (info.info.x11.lock_func, "lock_func", NULL);
     PyDict_SetItemString (dict, "lock_func", tmp);
     Py_DECREF (tmp);
-    
+
     tmp = PyCapsule_New (info.info.x11.unlock_func, "unlock_func", NULL);
     PyDict_SetItemString (dict, "unlock_func", tmp);
     Py_DECREF (tmp);
@@ -396,7 +396,7 @@ get_wm_info (PyObject* self)
     PyDict_SetItemString (dict, "data", tmp);
     Py_DECREF (tmp);
 #endif
-		
+
     return dict;
 }
 
@@ -477,8 +477,8 @@ set_mode (PyObject* self, PyObject* arg)
     {
         SDL_version versioninfo;
         SDL_VERSION (&versioninfo);
-        if (!(versioninfo.major > 1 || 
-             (versioninfo.major == 1 && versioninfo.minor > 2) || 
+        if (!(versioninfo.major > 1 ||
+             (versioninfo.major == 1 && versioninfo.minor > 2) ||
              (versioninfo.major == 1 && versioninfo.minor == 2 && versioninfo.patch >= 10 )))
         {
             return RAISE (PyExc_SDLError, "Cannot set 0 sized display mode");
@@ -1012,7 +1012,7 @@ static PyMethodDef _display_methods[] =
     { "get_active", (PyCFunction) get_active, METH_NOARGS,
       DOC_PYGAMEDISPLAYGETACTIVE },
 
-/*	{ "set_driver", set_driver, 1, doc_set_driver },*/
+/*    { "set_driver", set_driver, 1, doc_set_driver },*/
     { "get_driver", (PyCFunction) get_driver, METH_NOARGS,
       DOC_PYGAMEDISPLAYGETDRIVER },
     { "get_wm_info", (PyCFunction) get_wm_info, METH_NOARGS,
@@ -1073,15 +1073,15 @@ MODINIT_DEFINE (display)
     */
     import_pygame_base ();
     if (PyErr_Occurred ()) {
-    	MODINIT_ERROR;
+        MODINIT_ERROR;
     }
     import_pygame_rect ();
     if (PyErr_Occurred ()) {
-    	MODINIT_ERROR;
+        MODINIT_ERROR;
     }
     import_pygame_surface ();
     if (PyErr_Occurred ()) {
-    	MODINIT_ERROR;
+        MODINIT_ERROR;
     }
 
     /* type preparation */
@@ -1093,8 +1093,8 @@ MODINIT_DEFINE (display)
 #if PY3
     module = PyModule_Create (&_module);
 #else
-    module = Py_InitModule3 (MODPREFIX "display", 
-                             _display_methods, 
+    module = Py_InitModule3 (MODPREFIX "display",
+                             _display_methods,
                              DOC_PYGAMEDISPLAY);
 #endif
     if (module == NULL) {

@@ -39,7 +39,7 @@ static int FE_WasInit = 0;
     }                                                                   \
     while (0)
 
-static void 
+static void
 fastevent_cleanup (void)
 {
     if (FE_WasInit)
@@ -278,18 +278,18 @@ MODINIT_DEFINE (fastevent)
     */
     import_pygame_base ();
     if (PyErr_Occurred ()) {
-	MODINIT_ERROR;
+        MODINIT_ERROR;
     }
     import_pygame_event ();
     if (PyErr_Occurred ()) {
-	MODINIT_ERROR;
+        MODINIT_ERROR;
     }
 
     /* create the module */
 #if PY3
     module = PyModule_Create (&_module);
 #else
-    module = Py_InitModule3 (MODPREFIX "fastevent", 
+    module = Py_InitModule3 (MODPREFIX "fastevent",
                              _fastevent_methods,
                              doc_fastevent_MODULE);
 #endif

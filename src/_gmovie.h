@@ -14,7 +14,7 @@
   You should have received a copy of the GNU Library General Public
   License along with this library; if not, write to the Free
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-  
+
 */
 
 /*
@@ -25,7 +25,7 @@
  *  of a video file. Any format supported by ffmpeg is supported by this
  *  video player. Any bugs, please email trinioler@gmail.com :)
  */
- 
+
 
 #ifndef _GMOVIE_H_
 #define _GMOVIE_H_
@@ -47,7 +47,7 @@
 #include <libavformat/avformat.h>
 #include <libswscale/swscale.h>
 
-	
+
 /*constant definitions */
 #define MAX_VIDEOQ_SIZE (5 * 256 * 1024)
 #define MAX_AUDIOQ_SIZE (5 * 16 * 1024)
@@ -63,13 +63,13 @@
 
 /*Thread management macros to save me a load of typing...*/
 #if THREADFREE!=1
-	#define DECLAREGIL PyThreadState *_oldtstate;
-	#define GRABGIL    PyEval_AcquireLock();_oldtstate = PyThreadState_Swap(movie->_tstate);
-	#define RELEASEGIL PyThreadState_Swap(_oldtstate); PyEval_ReleaseLock();
+    #define DECLAREGIL PyThreadState *_oldtstate;
+    #define GRABGIL    PyEval_AcquireLock();_oldtstate = PyThreadState_Swap(movie->_tstate);
+    #define RELEASEGIL PyThreadState_Swap(_oldtstate); PyEval_ReleaseLock();
 #else
-	#define DECLAREGIL
-	#define GRABGIL
-	#define RELEASEGIL
+    #define DECLAREGIL
+    #define GRABGIL
+    #define RELEASEGIL
 #endif
 
 /* Used to indicate when to flush the queues for seeking */
@@ -84,9 +84,9 @@ AVPacket flush_pkt;
 #define RGBA  0
 
 #if RGB24
-	#define RGBSTEP 3
+    #define RGBSTEP 3
 #else
-	#define RGBSTEP 4
+    #define RGBSTEP 4
 #endif
 
 #define BPP 1
@@ -136,25 +136,25 @@ AVPacket flush_pkt;
 
 #ifdef PROFILE
 #include <math.h>
-	typedef struct TimeSampleNode
-	{
-		int64_t sample;
-		struct TimeSampleNode *next;
-	}TimeSampleNode;
-	typedef struct ImageScaleStats
-	{
-		double mean;
-		int64_t max;
-		int64_t min;
-		double stdev;
-		double median;
-		double firstqu;
-		double thirdqu;
-		double serror;
-		int64_t n_samples;
-		struct TimeSampleNode *first;
-		struct TimeSampleNode *last;
-	}ImageScaleStats;
+    typedef struct TimeSampleNode
+    {
+        int64_t sample;
+        struct TimeSampleNode *next;
+    }TimeSampleNode;
+    typedef struct ImageScaleStats
+    {
+        double mean;
+        int64_t max;
+        int64_t min;
+        double stdev;
+        double median;
+        double firstqu;
+        double thirdqu;
+        double serror;
+        int64_t n_samples;
+        struct TimeSampleNode *first;
+        struct TimeSampleNode *last;
+    }ImageScaleStats;
 #endif
 //included from ffmpeg header files, as the header file is not publically available.
 #if defined(__ICC) || defined(__SUNPRO_C)
@@ -229,28 +229,28 @@ typedef struct PacketQueue
 PacketQueue;
 
 /* Holds already loaded pictures, so that decoding, and writing to a overlay/surface can happen while waiting
- * the <strong> very </strong> long time(in computer terms) to show the next frame. 
+ * the <strong> very </strong> long time(in computer terms) to show the next frame.
  */
 typedef struct VidPicture
 {
     SDL_Overlay *dest_overlay; /* Overlay for fast speedy yuv-rendering of the video */
     SDL_Surface *dest_surface; /* Surface for other desires, for example, rendering a video in a small portion of the screen */
-    SDL_Rect    dest_rect;	   /* Dest-rect, which tells where to locate the video */
+    SDL_Rect    dest_rect;     /* Dest-rect, which tells where to locate the video */
     int         width;         /* Width and height */
     int         height;
-    int         xleft;		   /* Where left border of video is located */
-    int         ytop;		   /* Where top border of video is located */
-    int         overlay;	   /* Whether or not to use the overlay */
-    int         ready; 		   /* Boolean to indicate this picture is ready to be used. After displaying the contents, it changes to False */
-    double      pts;		   /* presentation time-stamp of the picture */
+    int         xleft;         /* Where left border of video is located */
+    int         ytop;          /* Where top border of video is located */
+    int         overlay;       /* Whether or not to use the overlay */
+    int         ready;         /* Boolean to indicate this picture is ready to be used. After displaying the contents, it changes to False */
+    double      pts;           /* presentation time-stamp of the picture */
 }
 VidPicture;
 
 #if 0
 typedef struct SubPicture
 {
-	double pts;
-	AVSubtitle sub;
+    double pts;
+    AVSubtitle sub;
 } SubPicture;
 #endif
 enum {
@@ -266,9 +266,9 @@ typedef struct PyMovie
     /* General purpose members */
     SDL_Thread      *parse_tid;      /* Thread id for the decode_thread call */
     int              abort_request;  /* Tells whether or not to stop playing and return */
-    int              paused; 		 /* Boolean for communicating to the threads to pause playback */
+    int              paused;         /* Boolean for communicating to the threads to pause playback */
     int              last_paused;    /* For comparing the state of paused to what it was last time around. */
-    int 			 working;
+    int              working;
     char             filename[1024];
     char            *_backend;       //"FFMPEG_WRAPPER";
     int              overlay;        //>0 if we are to use the overlay, otherwise <=0
@@ -280,7 +280,7 @@ typedef struct PyMovie
     int              loops;          //Number of times to play the video
     int              resize_h;       //Indicator values that we have resized the video screen from the default
     int              resize_w;
-    int 		     replay;         //we've played this once before, we're playing it again.
+    int              replay;         //we've played this once before, we're playing it again.
     AVInputFormat   *iformat;        //Format of the file
     SDL_mutex       *dest_mutex;     //mutex to control access to important info
     int              av_sync_type;   //determines the clock type we use
@@ -288,13 +288,13 @@ typedef struct PyMovie
     int              stop;           //whether we're in a stop state...
     SDL_Surface     *canon_surf;     //pointer to the surface given by the programmer. We do NOT free this... it is not ours. We just write to it.
     PyThreadState   *_tstate;        //really do not touch this unless you have to. This is used for threading control and primitives.
-	int finished;
-	int skip_frame;
-	
-	/* command queue stuff */
+    int finished;
+    int skip_frame;
+
+    /* command queue stuff */
     CommandQueue *commands;
-	int seekCommandType;   
-	int pauseCommandType; 
+    int seekCommandType;
+    int pauseCommandType;
     int stopCommandType;
     int resizeCommandType;
     int shiftCommandType;
@@ -303,16 +303,16 @@ typedef struct PyMovie
 
     /* Seek-info */
     int      seek_req;
-    int      seek_flags; 
+    int      seek_flags;
     int64_t  seek_pos;
-	int64_t  start_time;     //used for seeking
-    
+    int64_t  start_time;     //used for seeking
+
     /* external clock members */
     double  external_clock; /* external clock base */
     int64_t external_clock_time;
 
     /* Audio stream members */
-    double      audio_clock; 
+    double      audio_clock;
     AVStream   *audio_st;    //audio stream struct
     PacketQueue audioq;      //audio packets
     /* samples output by the codec. we reserve more space for avsync compensation */
@@ -321,7 +321,7 @@ typedef struct PyMovie
     AVPacket audio_pkt;      //current packet
     uint8_t *audio_pkt_data; //current packet data
     int      audio_pkt_size; //current packet size
-    int64_t  audio_pts;      
+    int64_t  audio_pts;
     //int audio_volume; /*must self implement*/
     enum SampleFormat audio_src_fmt;
     //AVAudioConvert   *reformat_ctx;
@@ -359,18 +359,18 @@ typedef struct PyMovie
     SDL_cond   *videoq_cond;
     struct SwsContext *img_convert_ctx;
 #if 0
-	/*subtitle */
-	int sub_stream;
-	int sub_stream_changed;
-	AVStream *sub_st;
-	PacketQueue subq;
-	SubPicture subpq[SUBPICTURE_QUEUE_SIZE];
-	int subpq_rindex, subpq_windex, subpq_size;
-	SDL_mutex *subpq_mutex;
-	int subtitle_disable;
+    /*subtitle */
+    int sub_stream;
+    int sub_stream_changed;
+    AVStream *sub_st;
+    PacketQueue subq;
+    SubPicture subpq[SUBPICTURE_QUEUE_SIZE];
+    int subpq_rindex, subpq_windex, subpq_size;
+    SDL_mutex *subpq_mutex;
+    int subtitle_disable;
 #endif
 #ifdef PROFILE
-	ImageScaleStats *istats;
+    ImageScaleStats *istats;
 #endif
 
 }
@@ -390,53 +390,53 @@ typedef struct PyMovieInfo
     char *filename;//check
     double aspect_ratio;//check
 } PyMovieInfo;
-    
+
 
 
 /*command definitions */
 typedef struct seekCommand
 {
-	FULL_COMMAND
-	int64_t pos;
-	int rel;
+    FULL_COMMAND
+    int64_t pos;
+    int rel;
 } seekCommand;
 
 
 typedef struct pauseCommand
 {
-	FULL_COMMAND
+    FULL_COMMAND
 } pauseCommand;
 
 typedef struct stopCommand
 {
-	FULL_COMMAND
+    FULL_COMMAND
 } stopCommand;
 
 typedef struct resizeCommand
 {
-	FULL_COMMAND
-	int h;
-	int w;
+    FULL_COMMAND
+    int h;
+    int w;
 } resizeCommand;
 
 typedef struct shiftCommand
 {
-	FULL_COMMAND
-	int barrier;
-	int ytop;
-	int xleft;	
+    FULL_COMMAND
+    int barrier;
+    int ytop;
+    int xleft;
 } shiftCommand;
 
 typedef struct surfaceCommand
 {
-	FULL_COMMAND
-	SDL_Surface *surface;	
+    FULL_COMMAND
+    SDL_Surface *surface;
 } surfaceCommand;
 
 /* end of struct definitions */
 /* function definitions */
 
-/* 		PacketQueue Management */
+/*         PacketQueue Management */
 void packet_queue_init  (PacketQueue *q);
 void packet_queue_flush (PacketQueue *q);
 void packet_queue_end   (PacketQueue *q, int end);
@@ -444,10 +444,10 @@ int  packet_queue_put   (PacketQueue *q, AVPacket *pkt);
 void packet_queue_abort (PacketQueue *q);
 int  packet_queue_get   (PacketQueue *q, AVPacket *pkt, int block);
 
-/* 		Misc*/
+/*         Misc*/
 int  initialize_context     (PyMovie *movie, int threaded);
 int  initialize_codec       (PyMovie *movie, int stream_index, int threaded);
-/* 		Video Management */
+/*         Video Management */
 int  video_open          (PyMovie *is, int index);
 int  video_image_display (PyMovie *is);
 int  video_display       (PyMovie *is);
@@ -456,11 +456,11 @@ int  queue_picture       (PyMovie *is, AVFrame *src_frame);
 void update_video_clock  (PyMovie *movie, AVFrame* frame, double pts);
 void video_refresh_timer (PyMovie *movie); //unlike in ffplay, this does the job of compute_frame_delay
 
-/* 		Audio management */
+/*         Audio management */
 int  synchronize_audio        (PyMovie *is, short *samples, int samples_size1, double pts);
 int  audio_decode_frame       (PyMovie *is, double *pts_ptr);
 
-/* 		General Movie Management */
+/*         General Movie Management */
 void stream_seek            (PyMovie *is, int64_t pos, int rel);
 void stream_pause           (PyMovie *is);
 int  stream_component_open  (PyMovie *is, int stream_index, int threaded); //TODO: break down into separate functions
@@ -473,16 +473,16 @@ void stream_close           (PyMovie *is, int threaded);
 void stream_cycle_channel   (PyMovie *is, int codec_type);
 int  decoder_wrapper        (void *arg);
 
-/* 		Clock Management */
+/*         Clock Management */
 double get_audio_clock    (PyMovie *is);
 double get_video_clock    (PyMovie *is);
 double get_external_clock (PyMovie *is);
 double get_master_clock   (PyMovie *is);
 
-/* 		Command management */
+/*         Command management */
 void registerCommands(PyMovie *movie);
 
-/* 		MovieInfo management*/
+/*         MovieInfo management*/
 int _info_init(PyObject *self, PyObject *args, PyObject *kwds);
 void _info_init_internal(PyMovieInfo *self, const char *filename);
 void _info_dealloc(PyMovieInfo *info);
@@ -498,7 +498,7 @@ PyObject* _info_get_filename(PyMovieInfo *info, void *closure);
 
 
 #if 0
-/*		Subtitle Management*/
+/*        Subtitle Management*/
 int subtitle_render(void *arg);
 void blend_subrect(AVPicture *dst, const AVSubtitleRect *rect, int imgw, int imgh);
 void free_subpicture(SubPicture *sp);

@@ -14,7 +14,7 @@
   You should have received a copy of the GNU Library General Public
   License along with this library; if not, write to the Free
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-  
+
 */
 
 /*
@@ -25,7 +25,7 @@
  *  of a video file. Any format supported by ffmpeg is supported by this
  *  video player. Any bugs, please email trinioler@gmail.com :)
  */
- 
+
 
 #ifndef _GSOUND_H_
 #define _GSOUND_H_
@@ -47,7 +47,7 @@ typedef struct BufferNode
 }
 BufferNode;
 
-/* Queue Struct for handling sound samples. This enables one thread pushing 
+/* Queue Struct for handling sound samples. This enables one thread pushing
  * samples onto the queue with minimal interruption of grabbing a sample off the queue
  */
 typedef struct BufferQueue
@@ -70,12 +70,12 @@ typedef struct AudioInfo
     int         playing;            //if we've started playing any buffers
     int         channel;            //what channel the last buffer played on
     int         ended;              //whether or not we've "ended", so we know to output silence.
-	int			paused;
+    int            paused;
     BufferQueue queue;              //queue of our buffers
     SDL_mutex   *mutex;
-	//PyThreadState *_tstate;
-	int restart;
-	double time_base;
+    //PyThreadState *_tstate;
+    int restart;
+    double time_base;
 }
 AudioInfo;
 
