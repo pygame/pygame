@@ -60,11 +60,6 @@ typedef struct PgBufproxyObject_s {
     PyObject *weakrefs;                        /* Reference cycles can happen */
 } PgBufproxyObject;
 
-typedef struct Pg_buffer_d_s {
-    Pg_buffer view;
-    PyObject *dict;
-} Pg_buffer_d;
-
 static int PgBufproxy_Trip(PyObject *);
 static Py_buffer *_proxy_get_view(PgBufproxyObject *);
 static int proxy_getbuffer(PgBufproxyObject *, Py_buffer *, int);
