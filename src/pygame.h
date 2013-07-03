@@ -143,21 +143,34 @@ typedef struct bufferinfo {
 #define PyBUF_READ  0x100
 #define PyBUF_WRITE 0x200
 #define PyBUF_SHADOW 0x400
+
+typedef int (*getbufferproc)(PyObject *, Py_buffer *, int);
+typedef void (*releasebufferproc)(Py_buffer *);
 #endif /* #if !defined(PyBUF_SIMPLE) */
+
+/* Flag indicating a Pg_buffer; used for assertions within callbacks */
+#ifndef NDEBUG
+#define PyBUF_PYGAME 0x4000
+#endif
 
 #define PyBUF_HAS_FLAG(f, F) (((f) & (F)) == (F))
 
-/* Array information exchange struct C type; inherits from Py_buffer */
-
-struct pg_bufferinfo_s;
-typedef void (*pg_releasebufferfunc)(struct bufferinfo *);
+/* Array information exchange struct C type; inherits from Py_buffer
+ *
+ * Pygame uses its own Py_buffer derived C struct as an internal representation
+ * of an imported array buffer. The extended Py_buffer allows for a
+ * per-instance release callback, 
+ */
+typedef void (*pybuffer_releaseproc)(Py_buffer *);
 
 typedef struct pg_bufferinfo_s {
     Py_buffer view;
     PyObject *consumer;                   /* Input: Borrowed reference */
-    pg_releasebufferfunc release_buffer;
+    pybuffer_releaseproc release_buffer;
 } Pg_buffer;
 
+/* Operating system specific adjustments
+ */
 // No signal()
 #if defined(__SYMBIAN32__) && defined(HAVE_SIGNAL_H)
 #undef HAVE_SIGNAL_H
