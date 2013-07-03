@@ -120,20 +120,20 @@ static PyObject *surf_get_bounding_rect (PyObject *self, PyObject *args,
 static PyObject *surf_get_pixels_address (PyObject *self,
                                           PyObject *closure);
 static int _view_kind (PyObject *obj, void *view_kind_vptr);
-static int _get_buffer_0D (PyObject *obj, Pg_buffer *pg_view_p, int flags);
-static int _get_buffer_1D (PyObject *obj, Pg_buffer *pg_view_p, int flags);
-static int _get_buffer_2D (PyObject *obj, Pg_buffer *pg_view_p, int flags);
-static int _get_buffer_3D (PyObject *obj, Pg_buffer *pg_view_p, int flags);
-static int _get_buffer_red (PyObject *obj, Pg_buffer *pg_view_p, int flags);
-static int _get_buffer_green (PyObject *obj, Pg_buffer *pg_view_p, int flags);
-static int _get_buffer_blue (PyObject *obj, Pg_buffer *pg_view_p, int flags);
-static int _get_buffer_alpha (PyObject *obj, Pg_buffer *pg_view_p, int flags);
+static int _get_buffer_0D (PyObject *obj, Py_buffer *view_p, int flags);
+static int _get_buffer_1D (PyObject *obj, Py_buffer *view_p, int flags);
+static int _get_buffer_2D (PyObject *obj, Py_buffer *view_p, int flags);
+static int _get_buffer_3D (PyObject *obj, Py_buffer *view_p, int flags);
+static int _get_buffer_red (PyObject *obj, Py_buffer *view_p, int flags);
+static int _get_buffer_green (PyObject *obj, Py_buffer *view_p, int flags);
+static int _get_buffer_blue (PyObject *obj, Py_buffer *view_p, int flags);
+static int _get_buffer_alpha (PyObject *obj, Py_buffer *view_p, int flags);
 static int _get_buffer_colorplane (PyObject *obj,
-                                   Pg_buffer *pg_view_p,
+                                   Py_buffer *view_p,
                                    int flags,
                                    char *name,
                                    Uint32 mask);
-static int _init_buffer(PyObject *surf, Pg_buffer *pg_view_p, int flags);
+static int _init_buffer(PyObject *surf, Py_buffer *view_p, int flags);
 static void _release_buffer(Py_buffer *view_p);
 static PyObject *_raise_get_view_ndim_error(int bitsize, SurfViewKind kind);
 
@@ -2153,7 +2153,7 @@ surf_get_view (PyObject *self, PyObject *args)
     SDL_PixelFormat *format;
     Uint32 mask = 0;
     SurfViewKind view_kind = VIEWKIND_2D;
-    pg_getbufferfunc get_buffer = 0;
+    getbufferproc get_buffer = 0;
 
     if (!PyArg_ParseTuple (args, "|O&", _view_kind, &view_kind)) {
         return 0;
@@ -2277,13 +2277,12 @@ surf_get_buffer (PyObject *self)
 }
 
 static int
-_get_buffer_0D (PyObject *obj, Pg_buffer *pg_view_p, int flags)
+_get_buffer_0D (PyObject *obj, Py_buffer *view_p, int flags)
 {
     SDL_Surface *surface = PySurface_AsSurface (obj);
-    Py_buffer *view_p = (Py_buffer *)pg_view_p;
 
     view_p->obj = 0;
-    if (_init_buffer (obj, pg_view_p, flags)) {
+    if (_init_buffer (obj, view_p, flags)) {
         return -1;
     }
     view_p->buf = surface->pixels;
@@ -2306,17 +2305,16 @@ _get_buffer_0D (PyObject *obj, Pg_buffer *pg_view_p, int flags)
 }
 
 static int
-_get_buffer_1D (PyObject *obj, Pg_buffer *pg_view_p, int flags)
+_get_buffer_1D (PyObject *obj, Py_buffer *view_p, int flags)
 {
-    Py_buffer *view_p = (Py_buffer *)pg_view_p;
     SDL_Surface *surface = PySurface_AsSurface (obj);
     Py_ssize_t itemsize = surface->format->BytesPerPixel;
 
     view_p->obj = 0;
     if (itemsize == 1) {
-        return _get_buffer_0D (obj, pg_view_p, flags);
+        return _get_buffer_0D (obj, view_p, flags);
     }
-    if (_init_buffer (obj, pg_view_p, flags)) {
+    if (_init_buffer (obj, view_p, flags)) {
         return -1;
     }
     if (PyBUF_HAS_FLAG (flags, PyBUF_FORMAT)) {
@@ -2365,9 +2363,8 @@ _get_buffer_1D (PyObject *obj, Pg_buffer *pg_view_p, int flags)
 }
 
 static int
-_get_buffer_2D (PyObject *obj, Pg_buffer *pg_view_p, int flags)
+_get_buffer_2D (PyObject *obj, Py_buffer *view_p, int flags)
 {
-    Py_buffer *view_p = (Py_buffer *)pg_view_p;
     SDL_Surface *surface = PySurface_AsSurface (obj);
     int itemsize = surface->format->BytesPerPixel;
 
@@ -2378,7 +2375,7 @@ _get_buffer_2D (PyObject *obj, Pg_buffer *pg_view_p, int flags)
                              "A 2D surface view is not C contiguous");
             return -1;
         }
-        return _get_buffer_1D (obj, pg_view_p, flags);
+        return _get_buffer_1D (obj, view_p, flags);
     }
     if (!PyBUF_HAS_FLAG (flags, PyBUF_STRIDES)) {
             PyErr_SetString (PgExc_BufferError,
@@ -2403,7 +2400,7 @@ _get_buffer_2D (PyObject *obj, Pg_buffer *pg_view_p, int flags)
                          "This 2D surface view is not contiguous");
         return -1;
     }
-    if (_init_buffer (obj, pg_view_p, flags)) {
+    if (_init_buffer (obj, view_p, flags)) {
         return -1;
     }
     if (PyBUF_HAS_FLAG (flags, PyBUF_FORMAT)) {
@@ -2452,10 +2449,9 @@ _get_buffer_2D (PyObject *obj, Pg_buffer *pg_view_p, int flags)
 }
 
 static int
-_get_buffer_3D (PyObject *obj, Pg_buffer *pg_view_p, int flags)
+_get_buffer_3D (PyObject *obj, Py_buffer *view_p, int flags)
 {
     const int lilendian = (SDL_BYTEORDER == SDL_LIL_ENDIAN);
-    Py_buffer *view_p = (Py_buffer *)pg_view_p;
     SDL_Surface *surface = PySurface_AsSurface (obj);
     int pixelsize = surface->format->BytesPerPixel;
     char *startpixel = (char *)surface->pixels;
@@ -2473,7 +2469,7 @@ _get_buffer_3D (PyObject *obj, Pg_buffer *pg_view_p, int flags)
                          "A 3D surface view is not contiguous");
         return -1;
     }
-    if (_init_buffer (obj, pg_view_p, flags)) {
+    if (_init_buffer (obj, view_p, flags)) {
         return -1;
     }
     if (PyBUF_HAS_FLAG (flags, PyBUF_FORMAT)) {
@@ -2503,40 +2499,40 @@ _get_buffer_3D (PyObject *obj, Pg_buffer *pg_view_p, int flags)
 }
 
 static int
-_get_buffer_red (PyObject *obj, Pg_buffer *pg_view_p, int flags)
+_get_buffer_red (PyObject *obj, Py_buffer *view_p, int flags)
 {
     return _get_buffer_colorplane(obj,
-                                  pg_view_p,
+                                  view_p,
                                   flags,
                                   "red",
                                   PySurface_AsSurface (obj)->format->Rmask);
 }
 
 static int
-_get_buffer_green (PyObject *obj, Pg_buffer *pg_view_p, int flags)
+_get_buffer_green (PyObject *obj, Py_buffer *view_p, int flags)
 {
     return _get_buffer_colorplane(obj,
-                                  pg_view_p,
+                                  view_p,
                                   flags,
                                   "green",
                                   PySurface_AsSurface (obj)->format->Gmask);
 }
 
 static int
-_get_buffer_blue (PyObject *obj, Pg_buffer *pg_view_p, int flags)
+_get_buffer_blue (PyObject *obj, Py_buffer *view_p, int flags)
 {
     return _get_buffer_colorplane(obj,
-                                  pg_view_p,
+                                  view_p,
                                   flags,
                                   "blue",
                                   PySurface_AsSurface (obj)->format->Bmask);
 }
 
 static int
-_get_buffer_alpha (PyObject *obj, Pg_buffer *pg_view_p, int flags)
+_get_buffer_alpha (PyObject *obj, Py_buffer *view_p, int flags)
 {
     return _get_buffer_colorplane(obj,
-                                  pg_view_p,
+                                  view_p,
                                   flags,
                                   "alpha",
                                   PySurface_AsSurface (obj)->format->Amask);
@@ -2544,13 +2540,12 @@ _get_buffer_alpha (PyObject *obj, Pg_buffer *pg_view_p, int flags)
 
 static int
 _get_buffer_colorplane (PyObject *obj,
-                        Pg_buffer *pg_view_p,
+                        Py_buffer *view_p,
                         int flags,
                         char *name,
                         Uint32 mask)
 {
     const int lilendian = (SDL_BYTEORDER == SDL_LIL_ENDIAN);
-    Py_buffer *view_p = (Py_buffer *)pg_view_p;
     SDL_Surface *surface = PySurface_AsSurface (obj);
     int pixelsize = surface->format->BytesPerPixel;
     char *startpixel = (char *)surface->pixels;
@@ -2597,7 +2592,7 @@ _get_buffer_colorplane (PyObject *obj,
         return -1;
 #endif
     }
-    if (_init_buffer (obj, pg_view_p, flags)) {
+    if (_init_buffer (obj, view_p, flags)) {
         return -1;
     }
     view_p->buf = startpixel;
@@ -2618,15 +2613,16 @@ _get_buffer_colorplane (PyObject *obj,
 }
 
 static int
-_init_buffer (PyObject *surf, Pg_buffer *pg_view_p, int flags)
+_init_buffer (PyObject *surf, Py_buffer *view_p, int flags)
 {
     PyObject *consumer;
     Pg_bufferinternal *internal;
 
-    assert (surf &&
-            pg_view_p &&
-            PyObject_IsInstance (surf, (PyObject *)&PySurface_Type));
-    consumer = pg_view_p->consumer;
+    assert (surf);
+    assert (pg_view_p);
+    assert (PyObject_IsInstance (surf, (PyObject *)&PySurface_Type));
+    assert (PyBUF_HAS_FLAG (flags, PyBUF_PYGAME));
+    consumer = ((Pg_buffer *)view_p)->consumer;
     assert (consumer);
     internal = PyMem_New (Pg_bufferinternal, 1);
     if (!internal) {
@@ -2648,23 +2644,23 @@ _init_buffer (PyObject *surf, Pg_buffer *pg_view_p, int flags)
         return -1;
     }
     if (PyBUF_HAS_FLAG (flags, PyBUF_ND)) {
-        ((Py_buffer *)pg_view_p)->shape = internal->mem;
+        view_p->shape = internal->mem;
         if (PyBUF_HAS_FLAG (flags, PyBUF_STRIDES)) {
-            ((Py_buffer *)pg_view_p)->strides = internal->mem + 3;
+            view_p->strides = internal->mem + 3;
         }
         else {
-            ((Py_buffer *)pg_view_p)->strides = 0;
+            view_p->strides = 0;
         }
     }
     else {
-        ((Py_buffer *)pg_view_p)->shape = 0;
-        ((Py_buffer *)pg_view_p)->strides = 0;
+        view_p->shape = 0;
+        view_p->strides = 0;
     }
-    ((Py_buffer *)pg_view_p)->ndim = 0;
-    ((Py_buffer *)pg_view_p)->format = 0;
-    ((Py_buffer *)pg_view_p)->suboffsets = 0;
-    ((Py_buffer *)pg_view_p)->internal = internal;
-    pg_view_p->release_buffer = _release_buffer;
+    view_p->ndim = 0;
+    view_p->format = 0;
+    view_p->suboffsets = 0;
+    view_p->internal = internal;
+    ((Pg_buffer *)view_p)->release_buffer = _release_buffer;
     return 0;
 }
 

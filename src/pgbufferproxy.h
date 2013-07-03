@@ -26,15 +26,13 @@
  */
 #if !defined(PG_BUFPROXY_HEADER)
 
-typedef int (*pg_getbufferfunc)(PyObject *, struct pg_bufferinfo_s *, int);
-
 #define PYGAMEAPI_BUFPROXY_NUMSLOTS 4
 #define PYGAMEAPI_BUFPROXY_FIRSTSLOT 0
 
 #if !(defined(PYGAMEAPI_BUFPROXY_INTERNAL) || defined(NO_PYGAME_C_API))
 static void *PgBUFPROXY_C_API[PYGAMEAPI_BUFPROXY_NUMSLOTS];
 
-typedef PyObject *(*_pgbufproxy_new_t)(PyObject *, pg_getbufferfunc);
+typedef PyObject *(*_pgbufproxy_new_t)(PyObject *, getbufferproc);
 typedef PyObject *(*_pgbufproxy_get_obj_t)(PyObject *);
 typedef int (*_pgbufproxy_trip_t)(PyObject *);
 
