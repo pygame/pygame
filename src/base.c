@@ -1007,6 +1007,12 @@ PgObject_GetBuffer (PyObject* obj, Pg_buffer* pg_view_p, int flags)
     pg_view_p->release_buffer = _release_buffer_generic;
     view_p->len = 0;
 
+#ifndef NDEBUG
+    /* Allow a callback to assert that it recieved a Pg_buffer,
+       not a Py_buffer */
+    flags |= PyBUF_PYGAME;
+#endif
+
 #if PG_ENABLE_NEWBUF
 
     if (PyObject_CheckBuffer (obj)) {
