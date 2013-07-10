@@ -222,7 +222,7 @@ _copy_mapped(Py_buffer *view_p, SDL_Surface *surf)
         dz_dst = -1;
     }
 #else
-    if (!_is_swapped(view_p) {
+    if (!_is_swapped(view_p)) {
         dst += intsize - 1;
         dz_dst = -1;
     }
