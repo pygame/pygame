@@ -2619,7 +2619,7 @@ _init_buffer (PyObject *surf, Py_buffer *view_p, int flags)
     Pg_bufferinternal *internal;
 
     assert (surf);
-    assert (pg_view_p);
+    assert (view_p);
     assert (PyObject_IsInstance (surf, (PyObject *)&PySurface_Type));
     assert (PyBUF_HAS_FLAG (flags, PyBUF_PYGAME));
     consumer = ((Pg_buffer *)view_p)->consumer;

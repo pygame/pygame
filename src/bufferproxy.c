@@ -47,6 +47,14 @@
 #define PROXY_TYPE_NAME "BufferProxy"
 #define PROXY_TYPE_FULLNAME (IMPPREFIX PROXY_TYPE_NAME)
 
+#ifdef NDEBUG
+#define PyBUF_PG_VIEW PyBUF_RECORDS
+#define PyBUF_PG_VIEW_RO PyBUF_RECORDS_RO
+#else
+#define PyBUF_PG_VIEW (PyBUF_RECORDS | PyBUF_PYGAME)
+#define PyBUF_PG_VIEW_RO (PyBUF_RECORDS_RO | PyBUF_PYGAME)
+#endif
+
 typedef struct PgBufproxyObject_s {
     PyObject_HEAD
     PyObject *obj;                             /* Wrapped object (parent)     */
@@ -249,13 +257,13 @@ _proxy_get_view(PgBufproxyObject *proxy) {
         pg_view_p->consumer = (PyObject *)proxy;
         if (proxy->get_buffer(proxy->obj,
                               (Py_buffer *)pg_view_p,
-                              PyBUF_RECORDS_RO)) {
+                              PyBUF_PG_VIEW_RO)) {
             PyMem_Free(pg_view_p);
             return 0;
         }
         proxy->pg_view_p = pg_view_p;
     }
-    assert(((Py_buffer *)view_p)->len && ((Py_buffer *)view_p)->itemsize);
+    assert(((Py_buffer *)pg_view_p)->len && ((Py_buffer *)pg_view_p)->itemsize);
     return (Py_buffer *)pg_view_p;
 }
 
@@ -483,7 +491,7 @@ proxy_write(PgBufproxyObject *self, PyObject *args, PyObject *kwds)
     }
 #undef ARG_FORMAT
 
-    if (proxy_getbuffer(self, &view, PyBUF_RECORDS)) {
+    if (proxy_getbuffer(self, &view, PyBUF_PG_VIEW)) {
         return 0;
     }
     if (!PyBuffer_IsContiguous(&view, 'A')) {
@@ -545,6 +553,9 @@ proxy_getbuffer(PgBufproxyObject *self, Py_buffer *view_p, int flags)
 {
     Py_buffer *obj_view_p = PyMem_Malloc(sizeof (Pg_buffer));
 
+#ifndef NDEBUG
+    flags |= PyBUF_PYGAME;
+#endif
     view_p->obj = 0;
     if (!obj_view_p) {
         PyErr_NoMemory();

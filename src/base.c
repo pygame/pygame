@@ -1257,7 +1257,9 @@ _arraystruct_as_buffer (Py_buffer* view_p, PyObject* cobj,
     internal_p->cobj = 0;
     view_p->internal = internal_p;
     if (PyBUF_HAS_FLAG (flags, PyBUF_FORMAT)) {
-        if (_arraystruct_to_format(internal_p->format, inter_p, 3)) {
+        if (_arraystruct_to_format(internal_p->format,
+                                   inter_p,
+                                   sizeof (internal_p->format))) {
             return -1;
         }
     view_p->format = internal_p->format;
@@ -1266,21 +1268,17 @@ _arraystruct_as_buffer (Py_buffer* view_p, PyObject* cobj,
         view_p->format = 0;
     }
     view_p->buf = inter_p->data;
-    if ((flags | PyBUF_WRITABLE) == PyBUF_WRITABLE) {
-        view_p->ndim = 0;
-    }
-    else {
-        view_p->ndim = (Py_ssize_t)inter_p->nd;
-    }
     view_p->itemsize = (Py_ssize_t)inter_p->itemsize;
     view_p->readonly = readonly;
     if (PyBUF_HAS_FLAG (flags, PyBUF_ND)) {
+        view_p->ndim = (Py_ssize_t)inter_p->nd;
         view_p->shape = internal_p->imem;
         for (i = 0; i < view_p->ndim; ++i) {
             view_p->shape[i] = (Py_ssize_t)inter_p->shape[i];
         }
     }
     else if (inter_p->flags & PAI_CONTIGUOUS) {
+        view_p->ndim = 0;
         view_p->shape = 0;
     }
     else {
@@ -1699,7 +1697,7 @@ _pyvalues_as_buffer(Py_buffer* view_p, int flags, PyObject* obj,
     if (!PyBUF_HAS_FLAG (flags, PyBUF_FORMAT)) {
         view_p->format = 0;
     }
-    if ((flags | PyBUF_WRITABLE) == PyBUF_WRITABLE) {
+    if (!PyBUF_HAS_FLAG (flags, PyBUF_ND)) {
         view_p->ndim = 0;
     }
     Py_XINCREF (obj);
