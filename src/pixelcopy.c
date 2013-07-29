@@ -26,13 +26,6 @@
 #include "doc/pixelcopy_doc.h"
 #include <SDL_byteorder.h>
 
-#if !defined(DOC_PYGAMEBLITARRAY)
-#define DOC_PYGAMEBLITARRAY DOC_PYGAMESURFARRAYBLITARRAY
-#endif
-#if !defined(DOC_PYGAMECOPYSURFACE)
-#define DOC_PYGAMECOPYSURFACE "Copy surface pixels to an array object"
-#endif
-
 typedef enum {
     VIEWKIND_RED,
     VIEWKIND_GREEN,
@@ -192,13 +185,21 @@ _copy_mapped(Py_buffer *view_p, SDL_Surface *surf)
 {
     int pixelsize = surf->format->BytesPerPixel;
     int intsize = view_p->itemsize;
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
     char *src = (char *)surf->pixels;
+#else
+    char *src = (char *)surf->pixels + pixelsize - 1;
+#endif
     char *dst = (char *)view_p->buf;
     int w = surf->w;
     int h = surf->h;
     Py_intptr_t dx_src = surf->format->BytesPerPixel;
     Py_intptr_t dy_src = surf->pitch;
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
     Py_intptr_t dz_src = 1;
+#else
+    Py_intptr_t dz_src = -1;
+#endif
     Py_intptr_t dx_dst = view_p->strides[0];
     Py_intptr_t dy_dst = view_p->strides[1];
     Py_intptr_t dz_dst = 1;
@@ -318,7 +319,7 @@ _copy_colorplane(Py_buffer *view_p,
         dz_dst = -1;
     }
 #else
-    dz_pix = (unsigned)(sizeof(Uint32) - pixelsize - 1);
+    dz_pix = (unsigned)(sizeof(Uint32) - pixelsize);
     if (!_is_swapped(view_p)) {
         dst += intsize - 1;
         dz_dst = -1;
@@ -413,7 +414,7 @@ _copy_unmapped(Py_buffer *view_p, SDL_Surface *surf)
         dz_dst = -1;
     }
 #else
-    dz_pix = (unsigned)(sizeof(Uint32) - pixelsize - 1);
+    dz_pix = (unsigned)(sizeof(Uint32) - pixelsize);
     if (!_is_swapped(view_p)) {
         dst += intsize - 1;
         dz_dst = -1;
@@ -453,30 +454,6 @@ _copy_unmapped(Py_buffer *view_p, SDL_Surface *surf)
             *(imgrow + loopx) = (DST)*(SRC*)(datarow + stridex * loopx);  \
     }
 
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
-#define COPYMACRO_2D_24_PIXEL(pix, data, SRC)                             \
-    *pix++ = *data;                                                       \
-    *pix++ = *(data + 1);                                                 \
-    *pix++ = *(data + 2);
-#else
-#define COPYMACRO_2D_24_PIXEL(pix, data, SRC)                             \
-    *pix++ = *(data + sizeof (SRC) - 1);                                  \
-    *pix++ = *(data + sizeof (SRC) - 2);                                  \
-    *pix++ = *(data + sizeof (SRC) - 3);
-#endif
-
-#define COPYMACRO_2D_24(SRC)                                              \
-    for (loopy = 0; loopy < sizey; ++loopy)                               \
-    {                                                                     \
-        Uint8 *pix = ((Uint8 *)surf->pixels) + loopy * surf->pitch;       \
-        Uint8 *data = (Uint8 *)array_data + stridey * loopy;              \
-        Uint8 *end = pix + 3 * sizex;                                     \
-        while (pix != end) {                                              \
-            COPYMACRO_2D_24_PIXEL(pix, data, SRC)                         \
-            data += stridex;                                              \
-        }                                                                 \
-    }
-
 #define COPYMACRO_3D(DST, SRC)                                            \
     for (loopy = 0; loopy < sizey; ++loopy)                               \
     {                                                                     \
@@ -489,20 +466,6 @@ _copy_unmapped(Py_buffer *view_p, SDL_Surface *surf)
                 alpha);                                                   \
             data += stridex;                                              \
         }                                                                 \
-    }
-
-#define COPYMACRO_3D_24(SRC)                                            \
-    for (loopy = 0; loopy < sizey; ++loopy)                             \
-    {                                                                   \
-        Uint8 *pix = ((Uint8*)surf->pixels) + surf->pitch * loopy;      \
-        Uint8 *data = (Uint8*)array_data + stridey * loopy;             \
-        Uint8 *end = pix + 3 * sizex;                                   \
-        while (pix != end) {                                            \
-            *pix++ = (Uint8)*(SRC*)(data + stridez_0);                  \
-            *pix++ = (Uint8)*(SRC*)(data + stridez_1);                  \
-            *pix++ = (Uint8)*(SRC*)(data + stridez_2);                  \
-            data += stridex;                                            \
-        }                                                               \
     }
 
 static PyObject*
@@ -544,6 +507,10 @@ array_to_surface(PyObject *self, PyObject *arg)
     if (view_p->ndim == 3) {
         stridez = view_p->strides[2];
         stridez2 = stridez*2;
+    }
+    else {
+        stridez = 1;
+        stridez2 = 2;
     }
     sizex = view_p->shape[0];
     sizey = view_p->shape[1];
@@ -658,66 +625,67 @@ array_to_surface(PyObject *self, PyObject *arg)
         /* Assumption: The rgb components of a 24 bit pixel are in
            separate bytes.
         */
-        if (view_p->ndim == 2) {
-            switch (view_p->itemsize) {
-            case sizeof (Uint32):
-                COPYMACRO_2D_24(Uint32);
-                break;
-            case sizeof (Uint64):
-                COPYMACRO_2D_24(Uint64);
-                break;
-            default:
-                PgBuffer_Release(&pg_view);
-                if (!PySurface_UnlockBy(surfobj, arrayobj)) {
-                    return NULL;
+        if (view_p->itemsize >= (view_p->ndim == 2 ? 3 : 1) &&
+            view_p->itemsize <= 9) {
+            size_t stridez_0 = 0;
+            size_t stridez_1 = 0;
+            size_t stridez_2 = 0;
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+            if (view_p->ndim == 2) {
+                stridez_1 = 1;
+                stridez_2 = 2;
+            }
+            else {
+                size_t offset = _is_swapped(view_p) ? view_p->itemsize - 1 : 0;
+                stridez_0 = ((Rshift ==  0 ?
+                              0 : (Gshift ==  0 ? stridez : stridez2)) +
+                             offset);
+                stridez_1 = ((Rshift ==  8 ?
+                              0 : (Gshift ==  8 ? stridez : stridez2)) +
+                             offset);
+                stridez_2 = ((Rshift == 16 ?
+                              0 : (Gshift == 16 ? stridez : stridez2)) +
+                             offset);
+            }
+#else
+            if (view_p->ndim == 2) {
+                stridez_0 = view_p->itemsize - 3;
+                stridez_1 = stridez_0 + 1;
+                stridez_2 = stridez_1 + 1;
+            }
+            else {
+                size_t offset = _is_swapped(view_p) ? 0 : view_p->itemsize - 1;
+                stridez_2 = ((Rshift ==  0 ?
+                              0 : (Gshift ==  0 ? stridez : stridez2)) +
+                             offset);
+                stridez_1 = ((Rshift ==  8 ?
+                              0 : (Gshift ==  8 ? stridez : stridez2)) +
+                             offset);
+                stridez_0 = ((Rshift == 16 ?
+                              0 : (Gshift == 16 ? stridez : stridez2)) +
+                             offset);
+            }
+#endif
+            for (loopy = 0; loopy < sizey; ++loopy)
+            {
+                Uint8 *pix = ((Uint8*)surf->pixels) + surf->pitch * loopy;
+                Uint8 *data = (Uint8*)array_data + stridey * loopy;
+                Uint8 *end = pix + 3 * sizex;
+                while (pix != end) {
+                    *pix++ = *(data + stridez_0);
+                    *pix++ = *(data + stridez_1);
+                    *pix++ = *(data + stridez_2);
+                    data += stridex;
                 }
-                return RAISE(PyExc_ValueError,
-                             "unsupported datatype for array\n");
             }
         }
         else {
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
-            size_t stridez_0 = (Rshift ==  0 ? 0        :
-                                Gshift ==  0 ? stridez  :
-                                               stridez2   );
-            size_t stridez_1 = (Rshift ==  8 ? 0        :
-                                Gshift ==  8 ? stridez  :
-                                               stridez2   );
-            size_t stridez_2 = (Rshift == 16 ? 0        :
-                                Gshift == 16 ? stridez  :
-                                               stridez2   );
-#else
-            size_t stridez_2 = (Rshift ==  0 ? 0        :
-                                Gshift ==  0 ? stridez  :
-                                               stridez2   );
-            size_t stridez_1 = (Rshift ==  8 ? 0        :
-                                Gshift ==  8 ? stridez  :
-                                               stridez2   );
-            size_t stridez_0 = (Rshift == 16 ? 0        :
-                                Gshift == 16 ? stridez  :
-                                               stridez2   );
-#endif
-            switch (view_p->itemsize) {
-            case sizeof (Uint8):
-                COPYMACRO_3D_24(Uint8);
-                break;
-            case sizeof (Uint16):
-                COPYMACRO_3D_24(Uint16);
-                break;
-            case sizeof (Uint32):
-                COPYMACRO_3D_24(Uint32);
-                break;
-            case sizeof (Uint64):
-                COPYMACRO_3D_24(Uint64);
-                break;
-            default:
-                PgBuffer_Release(&pg_view);
-                if (!PySurface_UnlockBy(surfobj, arrayobj)) {
-                    return NULL;
-                }
-                return RAISE(PyExc_ValueError,
-                             "unsupported datatype for array\n");
+            PgBuffer_Release(&pg_view);
+            if (!PySurface_UnlockBy(surfobj, arrayobj)) {
+                return NULL;
             }
+            return RAISE(PyExc_ValueError,
+                         "unsupported datatype for array\n");
         }
         break;
     case 4:
@@ -888,9 +856,8 @@ map_array(PyObject *self, PyObject *args)
     int tar_byte1 = 0;
     int tar_byte2 = 0;
     int tar_byte3 = 0;
-    int tar_byte4 = 0;
-    int tar_bytes_end;
-    int tar_bytes_incr = 1;
+    int tar_padding_start;
+    int tar_padding_end;
     Py_intptr_t counters[PIXELCOPY_MAX_DIM];
     int src_advances[PIXELCOPY_MAX_DIM];
     int tar_advances[PIXELCOPY_MAX_DIM];
@@ -899,10 +866,6 @@ map_array(PyObject *self, PyObject *args)
     int topdim;
     _pc_pixel_t pixel = { 0 };
     int pix_bytesize;
-    int pix_byte0;
-    int pix_byte1;
-    int pix_byte2;
-    int pix_byte3;
     int i;
 
     if (!PyArg_ParseTuple(args, "OOO!",
@@ -1003,23 +966,60 @@ map_array(PyObject *self, PyObject *args)
     }
     src_green = src_view_p->strides[src_ndim - 1];
     src_blue = 2 * src_green;
-    tar_byte4 = pix_bytesize;
-    tar_bytes_end = tar_itemsize;
     switch (pix_bytesize) {
 
     case 1:
         break;
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
     case 2:
-        tar_byte3 = 1;
+        if (_is_swapped(tar_view_p)) {
+            tar_byte2 = 1;
+        }
+        else {
+            tar_byte3 = 1;
+        }
         break;
     case 3:
-        tar_byte2 = 1;
-        tar_byte3 = 2;
+        if (_is_swapped(tar_view_p)) {
+            tar_byte1 = 2;
+            tar_byte2 = 1;
+        }
+        else {
+            tar_byte2 = 1;
+            tar_byte3 = 2;
+        }
         break;
+#else
+    case 2:
+        if (_is_swapped(tar_view_p)) {
+            tar_byte0 = 1;
+        }
+        else {
+            tar_byte1 = 1;
+        }
+        break;
+    case 3:
+        if (_is_swapped(tar_view_p)) {
+            tar_byte0 = 2;
+            tar_byte1 = 1;
+        }
+        else {
+            tar_byte1 = 1;
+            tar_byte2 = 2;
+        }
+        break;
+#endif
     case 4:
-        tar_byte1 = 1;
-        tar_byte2 = 2;
-        tar_byte3 = 3;
+        if (_is_swapped(tar_view_p)) {
+            tar_byte0 = 3;
+            tar_byte1 = 2;
+            tar_byte2 = 1;
+        }
+        else {
+            tar_byte1 = 1;
+            tar_byte2 = 2;
+            tar_byte3 = 3;
+        }
         break;
     default:
         PyErr_Format(PyExc_ValueError,
@@ -1027,33 +1027,28 @@ map_array(PyObject *self, PyObject *args)
                      pix_bytesize);
         goto fail;
     }
-#if SDL_endian == SDL_lilendian
-    pix_byte0 = tar_byte0;
-    pix_byte1 = tar_byte1;
-    pix_byte2 = tar_byte2;
-    pix_byte3 = tar_byte3;
 
-#define NEED_BYTESWAP(view_p) _is_swapped(view_p)
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+    if (_is_swapped(tar_view_p)) {
+        tar += tar_itemsize - pix_bytesize;
+        tar_padding_start = pix_bytesize - tar_itemsize;
+        tar_padding_end = 0;
+    }
+    else {
+        tar_padding_start = pix_bytesize;
+        tar_padding_end = tar_itemsize;
+    }
 #else
-    pix_byte0 = 3 - tar_byte0;
-    pix_byte1 = 3 - tar_byte1;
-    pix_byte2 = 3 - tar_byte2;
-    pix_byte3 = 3 - tar_byte3;
-
-#define NEED_BYTESWAP(view_p) (!_is_swapped(view_p))
+    if (_is_swapped(tar_view_p)) {
+        tar_padding_start = pix_bytesize;
+        tar_padding_end = tar_itemsize;
+    }
+    else {
+        tar += tar_itemsize - pix_bytesize;
+        tar_padding_start = pix_bytesize - tar_itemsize;
+        tar_padding_end = 0;
+    }
 #endif
-    if (NEED_BYTESWAP(src_view_p)) {
-        src += src_view_p->strides[src_ndim - 1] - 1;
-    }
-    if (NEED_BYTESWAP(tar_view_p)) {
-        tar += tar_view_p->strides[ndim - 1] - 1;
-        tar_byte1 = -tar_byte1;
-        tar_byte2 = -tar_byte2;
-        tar_byte3 = -tar_byte3;
-        tar_byte4 = -tar_byte4;
-        tar_bytes_end = -tar_bytes_end;
-        tar_bytes_incr = -tar_bytes_incr;
-    }
 
     /* Iterate over arrays, left index varying slowest, copying pixels
      */
@@ -1074,14 +1069,24 @@ map_array(PyObject *self, PyObject *args)
              */
             pixel.value =
                 SDL_MapRGB(format, src[src_red], src[src_green], src[src_blue]);
-            tar[tar_byte0] = pixel.bytes[pix_byte0];
-            tar[tar_byte1] = pixel.bytes[pix_byte1];
-            tar[tar_byte2] = pixel.bytes[pix_byte2];
-            tar[tar_byte3] = pixel.bytes[pix_byte3];
-            for (i = tar_byte4;
-                 i != tar_bytes_end;
-                 i += tar_bytes_incr) {
-                 tar[i] = 0;
+            /* Bytes are copied from the pixel in most to least significant
+             * byte order. If destination bytes get overwritten, when the
+             * destination size is less than 4 bytes, only zero pad bytes
+             * of a pixel get clobbered in the destination write.
+             */
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+            tar[tar_byte3] = pixel.bytes[3];
+            tar[tar_byte2] = pixel.bytes[2];
+            tar[tar_byte1] = pixel.bytes[1];
+            tar[tar_byte0] = pixel.bytes[0];
+#else
+            tar[tar_byte0] = pixel.bytes[0];
+            tar[tar_byte1] = pixel.bytes[1];
+            tar[tar_byte2] = pixel.bytes[2];
+            tar[tar_byte3] = pixel.bytes[3];
+#endif
+            for (i = tar_padding_start; i < tar_padding_end; ++i) {
+                tar[i] = 0;
             }
             tar += tar_strides[dim];
             src += src_strides[dim];

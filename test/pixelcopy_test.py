@@ -11,15 +11,17 @@ else:
     is_pygame_pkg = __name__.startswith('pygame.tests.')
 
 if is_pygame_pkg:
-    from pygame.tests.test_utils import test_not_implemented, unittest
+    from pygame.tests.test_utils import test_not_implemented, unittest, endian
+    from pygame.tests.test_utils import arrinter
 else:
-    from test.test_utils import test_not_implemented, unittest
+    from test.test_utils import test_not_implemented, unittest, endian
+    from test.test_utils import arrinter
 import pygame
 from pygame.locals import *
 
 
 from pygame.pixelcopy import (surface_to_array, map_array, array_to_surface,
-                              make_surface)
+                               make_surface)
 
 import ctypes
 
@@ -91,6 +93,8 @@ class PixelcopyModuleTest (unittest.TestCase):
         for surf in self.sources:
             src_bitsize = surf.get_bitsize()
             for dst_bitsize in self.bitsizes:
+                # dst in a surface standing in for a 2 dimensional array
+                # of unsigned integers. The byte order is system dependent.
                 dst = pygame.Surface(surf.get_size(), 0, dst_bitsize)
                 dst.fill((0, 0, 0, 0))
                 view = dst.get_view('2')
@@ -126,12 +130,35 @@ class PixelcopyModuleTest (unittest.TestCase):
                                      "%s != %s: bpp: %i" %
                                      (dp, sp, surf.get_bitsize()))
 
+        # Swapped endian destination array
+        pai_flags = arrinter.PAI_ALIGNED | arrinter.PAI_WRITEABLE
+        for surf in self.sources:
+            for itemsize in [1, 2, 4, 8]:
+                if itemsize < surf.get_bytesize():
+                    continue
+                a = arrinter.Array(surf.get_size(), 'u', itemsize,
+                                   flags=pai_flags)
+                surface_to_array(a, surf)
+                for posn, i in self.test_points:
+                    sp = unsigned32(surf.get_at_mapped(posn))
+                    dp = a[posn]
+                    self.assertEqual(dp, sp,
+                                     "%s != %s: itemsize: %i, flags: %i"
+                                     ", bpp: %i, posn: %s" %
+                                     (dp, sp, itemsize,
+                                      surf.get_flags(), surf.get_bitsize(),
+                                      posn))
+                
     def test_surface_to_array_3d(self):
-        if pygame.get_sdl_byteorder() == pygame.LIL_ENDIAN:
-            masks = (0xff, 0xff00, 0xff0000, 0)
-        else:
-            masks = (0xff000000, 0xff0000, 0xff00, 0)
+        # dst is a 3 bytes-per-pixel surface with the red component in
+        # the lowest byte, blue in the highest.
+        red_mask = endian.little_endian_uint32(0xff)
+        green_mask = endian.little_endian_uint32(0xff00)
+        blue_mask = endian.little_endian_uint32(0xff0000)
+        alpha_mask = 0
+        masks = red_mask, green_mask, blue_mask, alpha_mask
         dst = pygame.Surface(self.surf_size, 0, 24, masks=masks)
+
         for surf in self.sources:
             dst.fill((0, 0, 0, 0))
             src_bitsize = surf.get_bitsize()
@@ -160,6 +187,7 @@ class PixelcopyModuleTest (unittest.TestCase):
                    ]
         source = pygame.Surface(self.surf_size, 0, 24,
                                 masks=[0xff, 0xff00, 0xff0000, 0])
+        self._fill_surface(source)
         source_view = source.get_view('3')  # (w, h, 3)
         for t in targets:
             map_array(t.get_view('2'), source_view, t)
