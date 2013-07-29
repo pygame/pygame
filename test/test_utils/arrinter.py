@@ -7,6 +7,20 @@ __all__ = ['PAI_CONTIGUOUS', 'PAI_FORTRAN', 'PAI_ALIGNED',
            'PAI_NOTSWAPPED', 'PAI_WRITEABLE', 'PAI_ARR_HAS_DESCR',
            'ArrayInterface',]
 
+try:
+    c_ssize_t  # Undefined in early Python versions
+except NameError:
+    if sizeof(c_uint) == sizeof(c_void_p):
+        c_size_t = c_uint
+        c_ssize_t = c_int
+    elif sizeof(c_ulong) == sizeof(c_void_p):
+        c_size_t = c_ulong
+        c_ssize_t = c_long
+    elif sizeof(c_ulonglong) == sizeof(c_void_p):
+        c_size_t = c_ulonglong
+        c_ssize_t = c_longlong
+
+
 PY3 = 0
 if sys.version_info >= (3,):
     PY3 = 1
