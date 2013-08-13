@@ -542,8 +542,10 @@ vector_generic_math(PyObject *o1, PyObject *o2, int op)
     else
         op |= OP_ARG_UNKNOWN;
 
-    if (op & OP_INPLACE)
-        ret = vec;
+    if (op & OP_INPLACE) {
+         ret = vec;
+        Py_INCREF(ret);
+    }
     else if (op != (OP_MUL | OP_ARG_VECTOR) &&
              op != (OP_MUL | OP_ARG_VECTOR | OP_ARG_REVERSE)) {
         ret = (PyVector*)PyVector_NEW(dim);
@@ -606,9 +608,7 @@ vector_generic_math(PyObject *o1, PyObject *o2, int op)
             ret->coords[i] = floor(vec_coords[i] * tmp);
         break;
     default:
-        if (!(op & OP_INPLACE)) {
-            Py_XDECREF(ret);
-        }
+        Py_XDECREF(ret);
         Py_INCREF(Py_NotImplemented);
         return Py_NotImplemented;
     }
