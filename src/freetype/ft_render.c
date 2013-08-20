@@ -205,6 +205,7 @@ _PGFT_GetRenderMetrics(const FontRenderMode *mode, FontText *text,
     FT_Pos min_y = text->min_y;
     FT_Pos max_y = text->max_y;
 
+    *underline_top = 0;
     *underline_size = 0;
     if (mode->style & FT_STYLE_UNDERLINE) {
         FT_Fixed half_size = (text->underline_size + 1) / 2;
@@ -572,7 +573,7 @@ PyObject *_PGFT_Render_PixelArray(FreeTypeInstance *ft, PgFontObject *fontobj,
     }
 
     _PGFT_GetRenderMetrics(mode, font_text, &width, &height, &offset,
-                           &underline_size, &underline_top);
+                           &underline_top, &underline_size);
 
     array_size = width * height;
     if (array_size == 0) {

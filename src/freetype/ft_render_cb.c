@@ -42,6 +42,14 @@ void __render_glyph_GRAY1(int x, int y, FontSurface *surface,
     FT_Byte src_byte;
     int j, i;
 
+#ifndef NDEBUG
+    const FT_Byte *src_end = src + (bitmap->rows * bitmap->pitch);
+    const FT_Byte *dst_end = ((FT_Byte *)surface->buffer +
+                              (surface->height * surface->pitch));
+#endif
+
+    assert(dst >= (FT_Byte *)surface->buffer && dst < dst_end);
+
     /*
      * Assumption, target buffer was filled with zeros before any rendering.
      */
@@ -51,8 +59,10 @@ void __render_glyph_GRAY1(int x, int y, FontSurface *surface,
         dst_cpy = dst;
 
         for (i = 0; i < bitmap->width; ++i) {
+            assert(src_cpy < src_end);
             src_byte = *src_cpy;
             if (src_byte) {
+                assert(dst_cpy < dst_end);
                 *dst_cpy = src_byte + *dst_cpy - src_byte * *dst_cpy / 255;
             }
             ++src_cpy;
@@ -156,6 +166,11 @@ void __fill_glyph_GRAY1(FT_Fixed x, FT_Fixed y, FT_Fixed w, FT_Fixed h,
     FT_Byte shade = color->a;
     FT_Byte edge_shade;
 
+#ifndef NDEBUG
+    FT_Byte *dst_end = ((FT_Byte *)surface->buffer +
+                        (surface->height * surface->pitch));
+#endif
+
     x = MAX(0, x);
     y = MAX(0, y);
 
@@ -175,6 +190,7 @@ void __fill_glyph_GRAY1(FT_Fixed x, FT_Fixed y, FT_Fixed w, FT_Fixed h,
         edge_shade = FX6_TRUNC(FX6_ROUND(shade * (FX6_CEIL(y) - y)));
 
         for (i = 0; i < FX6_TRUNC(FX6_CEIL(w)); ++i, ++dst_cpy) {
+            assert(dst_cpy < dst_end);
             *dst_cpy = edge_shade;
         }
     }
@@ -183,6 +199,7 @@ void __fill_glyph_GRAY1(FT_Fixed x, FT_Fixed y, FT_Fixed w, FT_Fixed h,
         dst_cpy = dst;
 
         for (i = 0; i < FX6_TRUNC(FX6_CEIL(w)); ++i, ++dst_cpy) {
+            assert(dst_cpy < dst_end);
             *dst_cpy = shade;
         }
 
@@ -193,6 +210,7 @@ void __fill_glyph_GRAY1(FT_Fixed x, FT_Fixed y, FT_Fixed w, FT_Fixed h,
         dst_cpy = dst;
         edge_shade = FX6_TRUNC(FX6_ROUND(shade * (y + y - FX6_FLOOR(h + y))));
         for (i = 0; i < FX6_TRUNC(FX6_CEIL(w)); ++i, ++dst_cpy) {
+            assert(dst_cpy < dst_end);
             *dst_cpy = edge_shade;
         }
     }
