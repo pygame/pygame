@@ -197,7 +197,7 @@ _PGFT_BuildRenderMode(FreeTypeInstance *ft,
 
 void
 _PGFT_GetRenderMetrics(const FontRenderMode *mode, FontText *text,
-                       unsigned *w, unsigned *h, FT_Vector *offset,
+                       int *w, int *h, FT_Vector *offset,
                        FT_Pos *underline_top, FT_Fixed *underline_size)
 {
     FT_Pos min_x = text->min_x;
@@ -231,8 +231,8 @@ _PGFT_GetRenderMetrics(const FontRenderMode *mode, FontText *text,
 
     offset->x = -min_x;
     offset->y = -min_y;
-    *w = (unsigned)FX6_TRUNC(FX6_CEIL(max_x) - FX6_FLOOR(min_x));
-    *h = (unsigned)FX6_TRUNC(FX6_CEIL(max_y) - FX6_FLOOR(min_y));
+    *w = (int)FX6_TRUNC(FX6_CEIL(max_x) - FX6_FLOOR(min_x));
+    *h = (int)FX6_TRUNC(FX6_CEIL(max_y) - FX6_FLOOR(min_y));
 }
 
 
@@ -411,14 +411,14 @@ SDL_Surface *_PGFT_Render_NewSurface(FreeTypeInstance *ft,
     int locked = 0;
     FT_UInt32 fillcolor;
     SDL_Surface *surface = 0;
-    FT_UInt32 bits_per_pixel =
+    int bits_per_pixel =
         (bgcolor || mode->render_flags & FT_RFLAG_ANTIALIAS) ? 32 : 8;
     FT_UInt32 surface_flags = SDL_SWSURFACE;
 
     FontSurface font_surf;
     FontText *font_text;
-    unsigned width;
-    unsigned height;
+    int width;
+    int height;
     FT_Vector offset;
     FT_Pos underline_top;
     FT_Fixed underline_size;
