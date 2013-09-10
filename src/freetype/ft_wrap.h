@@ -29,16 +29,16 @@
  **********************************************************/
 
 /* Fixed point (26.6) math macros */
-#define FX6_ONE 64
-#define FX16_ONE 65536
-#define FX6_MIN ((FT_Pos)0x80000000)
-#define FX6_MAX ((FT_Pos)0x7FFFFFFF)
+#define FX6_ONE 64L
+#define FX16_ONE 65536L
+#define FX6_MAX (0x7FFFFFFFL)
+#define FX6_MIN (~FX6_MAX)
 
-#define FX6_FLOOR(x) ((x) & -64)
-#define FX6_CEIL(x) (((x) + 63) & -64)
-#define FX6_ROUND(x) (((x) + 32) & -64)
+#define FX6_FLOOR(x) ((x) & -64L)
+#define FX6_CEIL(x) (((x) + 63L) & -64L)
+#define FX6_ROUND(x) (((x) + 32L) & -64L)
 #define FX6_TRUNC(x)  ((x) >> 6)
-#define FX16_CEIL_TO_FX6(x) (((x) + 1023) >> 10)
+#define FX16_CEIL_TO_FX6(x) (((x) + 1023L) >> 10)
 #define INT_TO_FX6(i) ((FT_Fixed)((i) << 6))
 #define INT_TO_FX16(i) ((FT_Fixed)((i) << 16))
 #define FX16_TO_DBL(x) ((x) * 1.5259e-5 /* 65536.0^-1 */)
@@ -263,7 +263,7 @@ int _PGFT_GetMetrics(FreeTypeInstance *, PgFontObject *,
                      FT_UInt *, long *, long *, long *, long *,
                      double *, double *);
 void _PGFT_GetRenderMetrics(const FontRenderMode *, FontText *,
-                            unsigned *, unsigned *, FT_Vector *,
+                            int *, int *, FT_Vector *,
                             FT_Pos *, FT_Fixed *);
 
 
