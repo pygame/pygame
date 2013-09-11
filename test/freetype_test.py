@@ -770,6 +770,18 @@ class FreeTypeFontTest(unittest.TestCase):
         self.assertTrue(metrics[0] is None)
         self.assertTrue(isinstance(metrics[1], tuple))
 
+    def test_issue_144(self):
+        """Issue #144: unable to render text"""
+
+        # The bug came in two parts. The first was a convertion bug from
+        # FT_Fixed to integer in for an Intel x86_64 Pygame build. The second
+        # was to have the raised exception disappear before Font.render
+        # returned to Python level.
+        #
+        font = ft.Font(None, ptsize=64)
+        s = 'M' * 100000  # Way too long for an SDL surface
+        self.assertRaises(pygame.error, font.render, s, (0, 0, 0))
+
 class FreeTypeTest(unittest.TestCase):
 
     def test_resolution(self):

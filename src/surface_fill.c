@@ -18,7 +18,7 @@
 */
 
 #define NO_PYGAME_C_API
-#include "surface.h"
+#include "_surface.h"
 
 /*
  * Changes SDL_Rect to respect any clipping rect defined on the surface.
