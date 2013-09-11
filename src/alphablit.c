@@ -23,7 +23,7 @@
 */
 
 #define NO_PYGAME_C_API
-#include "surface.h"
+#include "_surface.h"
 
 /* The structure passed to the low level blit functions */
 typedef struct
