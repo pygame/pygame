@@ -22,6 +22,7 @@
 #define _PYGAME_FREETYPE_WRAP_H_
 
 #define PYGAME_FREETYPE_INTERNAL
+#include "../_pygame.h"
 #include "../freetype.h"
 
 /**********************************************************

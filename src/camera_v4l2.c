@@ -19,7 +19,7 @@
 
 #if defined(__unix__)
 
-#include "camera.h"
+#include "_camera.h"
 #include "pgcompat.h"
 
 int v4l2_pixelformat (int fd, struct v4l2_format* fmt,
