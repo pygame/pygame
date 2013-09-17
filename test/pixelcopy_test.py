@@ -150,14 +150,11 @@ class PixelcopyModuleTest (unittest.TestCase):
                                       posn))
                 
     def test_surface_to_array_3d(self):
-        # dst is a 3 bytes-per-pixel surface with the red component in
-        # the lowest byte, blue in the highest.
-        red_mask = endian.little_endian_uint32(0xff)
-        green_mask = endian.little_endian_uint32(0xff00)
-        blue_mask = endian.little_endian_uint32(0xff0000)
-        alpha_mask = 0
-        masks = red_mask, green_mask, blue_mask, alpha_mask
-        dst = pygame.Surface(self.surf_size, 0, 24, masks=masks)
+        self.iter_surface_to_array_3d((0xff, 0xff00, 0xff0000, 0))
+        self.iter_surface_to_array_3d((0xff0000, 0xff00, 0xff, 0))
+
+    def iter_surface_to_array_3d(self, rgba_masks):
+        dst = pygame.Surface(self.surf_size, 0, 24, masks=rgba_masks)
 
         for surf in self.sources:
             dst.fill((0, 0, 0, 0))
@@ -175,7 +172,7 @@ class PixelcopyModuleTest (unittest.TestCase):
                                  (dc, sc,
                                   surf.get_flags(), surf.get_bitsize(),
                                   posn))
-            del view
+            view = None
 
     def test_map_array(self):
         targets = [self._make_surface(8),
@@ -582,20 +579,15 @@ class PixelCopyTestWithArray(unittest.TestCase):
             def __init__(self, initializer):
                 from ctypes import cast, POINTER, c_uint8
 
-                if pygame.get_sdl_byteorder() == pygame.LIL_ENDIAN:
-                    stride2 = 1
-                else:
-                    stride2 = -1
-                self.stride2 = stride2
                 Array3D = PixelCopyTestWithArray.Array3D
                 super(Array3D, self).__init__((3, 5, 3),
                                               format='B',
-                                              strides=(20, 4, stride2))
+                                              strides=(20, 4, 1))
                 self.content = cast(self.buf, POINTER(c_uint8))
                 for i, v in enumerate(initializer):
                     self.content[i] = v
             def __getitem__(self, key):
-                byte_index = key[0] * 20 + key[1] * 4 + key[2] * self.stride2
+                byte_index = key[0] * 20 + key[1] * 4 + key[2]
                 if not (0 <= byte_index < 60):
                     raise IndexError("%s is out of range", key)
                 return self.content[byte_index]
