@@ -2191,7 +2191,10 @@ surf_get_view (PyObject *self, PyObject *args)
             return _raise_get_view_ndim_error (format->BytesPerPixel * 8,
                                                view_kind);
         }
-        if (format->Gmask != 0x00ff00) {
+        if ((format->Gmask << 8 != format->Rmask ||
+             format->Gmask >> 8 != format->Bmask    ) &&
+            (format->Gmask >> 8 != format->Rmask ||
+             format->Gmask << 8 != format->Bmask    )    ) {
             return RAISE (PyExc_ValueError,
                           "unsupport colormasks for 3D reference array");
         }
@@ -2486,7 +2489,7 @@ _get_buffer_3D (PyObject *obj, Py_buffer *view_p, int flags)
     view_p->strides[1] = surface->pitch;
     if (surface->format->Rmask == 0x00ff0000U) {
         view_p->strides[2] = lilendian ? -1 : 1;
-        startpixel += lilendian ? 2 : 1;
+        startpixel += lilendian ? 2 : pixelsize - 3;
     }
     else {
         view_p->strides[2] = lilendian ? 1 : -1;
