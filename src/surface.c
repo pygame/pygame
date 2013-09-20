@@ -722,7 +722,7 @@ surf_get_at_mapped (PyObject *self, PyObject *args)
     SDL_PixelFormat *format = surf->format;
     Uint8 *pixels = (Uint8 *) surf->pixels;
     int x, y;
-    Sint32 color;
+    Uint32 color;
     Uint8 *pix;
 
     if (!PyArg_ParseTuple (args, "(ii)", &x, &y))
@@ -1771,7 +1771,7 @@ surf_set_masks (PyObject *self, PyObject *args)
 {
     SDL_Surface *surf = PySurface_AsSurface (self);
     /* Need to use 64bit vars so this works on 64 bit pythons. */
-    Uint64 r, g, b, a;
+    unsigned long r, g, b, a;
 
     if (!PyArg_ParseTuple (args, "(kkkk)", &r, &g, &b, &a))
         return NULL;
@@ -1811,7 +1811,7 @@ static PyObject*
 surf_set_shifts (PyObject *self, PyObject *args)
 {
     SDL_Surface *surf = PySurface_AsSurface (self);
-    Uint64 r, g, b, a;
+    unsigned long r, g, b, a;
 
     if (!PyArg_ParseTuple (args, "(kkkk)", &r, &g, &b, &a))
         return NULL;
@@ -2020,6 +2020,9 @@ surf_get_bounding_rect (PyObject *self, PyObject *args, PyObject *kwargs)
     }
 
     pixels = (Uint8 *) surf->pixels;
+    if (SDL_BYTEORDER == SDL_BIG_ENDIAN) {
+        pixels += format->BytesPerPixel - sizeof (Uint32);
+    }
 
     min_y = 0;
     min_x = 0;
@@ -2191,10 +2194,9 @@ surf_get_view (PyObject *self, PyObject *args)
             return _raise_get_view_ndim_error (format->BytesPerPixel * 8,
                                                view_kind);
         }
-        if ((format->Gmask << 8 != format->Rmask ||
-             format->Gmask >> 8 != format->Bmask    ) &&
-            (format->Gmask >> 8 != format->Rmask ||
-             format->Gmask << 8 != format->Bmask    )    ) {
+        if (format->Gmask != 0x00ff00 &&
+            (format->BytesPerPixel != 4 ||
+             format->Gmask != 0xff0000)) {
             return RAISE (PyExc_ValueError,
                           "unsupport colormasks for 3D reference array");
         }
@@ -2487,13 +2489,25 @@ _get_buffer_3D (PyObject *obj, Py_buffer *view_p, int flags)
     view_p->shape[2] = 3;
     view_p->strides[0] = pixelsize;
     view_p->strides[1] = surface->pitch;
-    if (surface->format->Rmask == 0x00ff0000U) {
-        view_p->strides[2] = lilendian ? -1 : 1;
-        startpixel += lilendian ? 2 : pixelsize - 3;
-    }
-    else {
+    switch (surface->format->Rmask) {
+
+    case 0xffU:
         view_p->strides[2] = lilendian ? 1 : -1;
-        startpixel += lilendian ? 0 : (pixelsize - 1);
+        startpixel += lilendian ? 0 : pixelsize - 1;
+        break;
+    case 0xff00U:
+        assert(pixelsize == 4);
+        view_p->strides[2] = lilendian ? 1 : -1;
+        startpixel += lilendian ? 1 : pixelsize - 2;
+        break;
+    case 0xff0000U:
+        view_p->strides[2] = lilendian ?  -1 : 1;
+        startpixel += lilendian ? 3 : pixelsize - 3;
+        break;
+    default: /* 0xff000000U */
+        assert(pixelsize == 4);
+        view_p->strides[2] = lilendian ? -1 : 1;
+        startpixel += lilendian ? 3 : 0;
     }
     view_p->buf = startpixel;
     Py_INCREF (obj);
@@ -2572,13 +2586,13 @@ _get_buffer_colorplane (PyObject *obj,
            the allowable masks for 24 bit and 32 bit surfaces */
 
     case 0x000000ffU:
-        startpixel += lilendian ? 0 : 3;
+        startpixel += lilendian ? 0 : pixelsize - 1;
         break;
     case 0x0000ff00U:
-        startpixel += lilendian ? 1 : 2;
+        startpixel += lilendian ? 1 : pixelsize - 2;
         break;
     case 0x00ff0000U:
-        startpixel += lilendian ? 2 : 1;
+        startpixel += lilendian ? 2 : pixelsize - 3;
         break;
     case 0xff000000U:
         startpixel += lilendian ? 3 : 0;
