@@ -1323,21 +1323,41 @@ class SurfaceGetBufferTest (unittest.TestCase):
 
         # Check for RGB or BGR surface.
         if s_shifts[0:3] == [0, 8, 16]:
-            # RGB
             if self.lilendian:
+                # RGB
                 offset = 0
                 step = 1
             else:
+                # BGR
                 offset = s_bytesize - 1
                 step = -1
-        elif s_shifts[0:3] == [16, 8, 0]:
-            # BGR
+        elif s_shifts[0:3] == [8, 16, 24]:
             if self.lilendian:
+                # xRGB
+                offset = 1
+                step = 1
+            else:
+                # BGRx
+                offset = s_bytesize - 2
+                step = -1
+        elif s_shifts[0:3] == [16, 8, 0]:
+            if self.lilendian:
+                # BGR
                 offset = 2
                 step = -1
             else:
-                offset = 1
+                # RGB
+                offset = s_bytesize - 3
                 step = 1
+        elif s_shifts[0:3] == [24, 16, 8]:
+            if self.lilendian:
+                # BGRx
+                offset = 2
+                step = -1
+            else:
+                # RGBx
+                offset = s_bytesize - 4
+                step = -1
         else:
             return
 
@@ -1418,10 +1438,10 @@ class SurfaceGetBufferTest (unittest.TestCase):
             masks = s_masks[2::-1] + s_masks[3:4]
             self._check_interface_3D(pygame.Surface(sz, 0, 24, masks))
 
-        # Unsupported RGB byte orders
         masks = [0xff00, 0xff0000, 0xff000000, 0]
-        self.assertRaises(ValueError,
-                          pygame.Surface(sz, 0, 32, masks).get_view, '3')
+        self._check_interface_3D(pygame.Surface(sz, 0, 32, masks))
+
+        # Unsupported RGB byte orders
         masks = [0xff00, 0xff, 0xff0000, 0]
         self.assertRaises(ValueError,
                           pygame.Surface(sz, 0, 24, masks).get_view, '3')
