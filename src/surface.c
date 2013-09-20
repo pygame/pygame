@@ -2502,7 +2502,7 @@ _get_buffer_3D (PyObject *obj, Py_buffer *view_p, int flags)
         break;
     case 0xff0000U:
         view_p->strides[2] = lilendian ?  -1 : 1;
-        startpixel += lilendian ? 3 : pixelsize - 3;
+        startpixel += lilendian ? 2 : pixelsize - 3;
         break;
     default: /* 0xff000000U */
         assert(pixelsize == 4);
