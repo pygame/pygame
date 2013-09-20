@@ -112,9 +112,13 @@ _get_single_pixel(PyPixelArray *array, Uint32 x, Uint32 y)
         break;
     case 3:
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
-        pixel = (pixel_p[0]) + (pixel_p[1] << 8) + (pixel_p[2] << 16);
+        pixel = ((Uint32)pixel_p[0] +
+      	         ((Uint32)pixel_p[1] << 8) +
+                 ((Uint32)pixel_p[2] << 16));
 #else
-        pixel = (pixel_p[2]) + (pixel_p[1] << 8) + (pixel_p[0] << 16);
+        pixel = ((Uint32)pixel_p[2] +
+                 ((Uint32)pixel_p[1] << 8) +
+                 ((Uint32)pixel_p[0] << 16));
 #endif
         break;
     case 4:
