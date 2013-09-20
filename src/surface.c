@@ -722,7 +722,7 @@ surf_get_at_mapped (PyObject *self, PyObject *args)
     SDL_PixelFormat *format = surf->format;
     Uint8 *pixels = (Uint8 *) surf->pixels;
     int x, y;
-    Uint32 color;
+    Sint32 color;
     Uint8 *pix;
 
     if (!PyArg_ParseTuple (args, "(ii)", &x, &y))
