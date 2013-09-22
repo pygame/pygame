@@ -915,6 +915,16 @@ class PixelArrayTypeTest (unittest.TestCase, TestMixin):
         self.assertRaises (ValueError, ar.__setitem__, Ellipsis, ar[:, 0:2])
         self.assertRaises (ValueError, ar.__setitem__, Ellipsis, ar[0:2, :])
 
+    def test_repr (self):
+        # Python 3.x bug: the tp_repr slot function returned NULL instead
+        # of a Unicode string, triggering an exception.
+        sf = pygame.Surface ((3, 1), pygame.SRCALPHA, 16)
+        ar = pygame.PixelArray(sf)
+        ar[...] = 42
+        pixel = sf.get_at_mapped ((0, 0))
+        self.assertEqual(repr (ar),
+                         type (ar).__name__ + "([\n  [42, 42, 42]]\n)")
+
 class PixelArrayArrayInterfaceTest (unittest.TestCase, TestMixin):
     def test_basic (self):
         # Check unchanging fields.

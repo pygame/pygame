@@ -166,7 +166,7 @@ Text_ConcatAndDel(PyObject **string, PyObject *newpart)
 {
     PyObject *result = 0;
     if (*string && newpart) {
-        PyUnicode_Concat(*string, newpart);
+        result = PyUnicode_Concat(*string, newpart);
         Py_DECREF(*string);
         Py_DECREF(newpart);
     }
