@@ -1709,6 +1709,7 @@ _pxarray_subscript(PyPixelArray *array, PyObject *op)
         }
         /* A simple index. */
         i = PyNumber_AsSsize_t(val, PyExc_IndexError);
+        Py_DECREF(val);
 #else
         i = PyInt_Check(op) ? PyInt_AsLong(op) : PyLong_AsLong(op);
 #endif
