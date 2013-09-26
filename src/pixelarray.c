@@ -322,6 +322,8 @@ _pxarray_new_internal(PyTypeObject *type,
         return 0;
     }
 
+    self->weakrefs = 0;
+    self->dict = 0;
     if (!parent) {
         if (!surface) {
             Py_TYPE(self)->tp_free((PyObject *)self);
@@ -354,8 +356,6 @@ _pxarray_new_internal(PyTypeObject *type,
     self->strides[0] = stride0;
     self->strides[1] = stride1;
     self->pixels = pixels;
-    self->weakrefs = 0;
-    self->dict = 0;
 
     return self;
 }
