@@ -1030,12 +1030,12 @@ _array_assign_array(PyPixelArray *array,
         Uint32 vGoffset = val_surf->format->Gshift >> 3;
         Uint32 vBoffset = val_surf->format->Bshift >> 3;
 #else
-        Uint32 Roffset = 2 - surf->format->Rshift >> 3;
-        Uint32 Goffset = 2 - surf->format->Gshift >> 3;
-        Uint32 Boffset = 2 - surf->format->Bshift >> 3;
-        Uint32 vRoffset = 2 - val_surf->format->Rshift >> 3;
-        Uint32 vGoffset = 2 - val_surf->format->Gshift >> 3;
-        Uint32 vBoffset = 2 - val_surf->format->Bshift >> 3;
+        Uint32 Roffset = 2 - (surf->format->Rshift >> 3);
+        Uint32 Goffset = 2 - (surf->format->Gshift >> 3);
+        Uint32 Boffset = 2 - (surf->format->Bshift >> 3);
+        Uint32 vRoffset = 2 - (val_surf->format->Rshift >> 3);
+        Uint32 vGoffset = 2 - (val_surf->format->Gshift >> 3);
+        Uint32 vBoffset = 2 - (val_surf->format->Bshift >> 3);
 #endif
         for (y = 0; y < dim1; ++y) {
             pixel_p = pixelrow;
@@ -1155,9 +1155,9 @@ _array_assign_sequence(PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
         Uint32 Goffset = surf->format->Gshift >> 3;
         Uint32 Boffset = surf->format->Bshift >> 3;
 #else
-        Uint32 Roffset = 2 - surf->format->Rshift >> 3;
-        Uint32 Goffset = 2 - surf->format->Gshift >> 3;
-        Uint32 Boffset = 2 - surf->format->Bshift >> 3;
+        Uint32 Roffset = 2 - (surf->format->Rshift >> 3);
+        Uint32 Goffset = 2 - (surf->format->Gshift >> 3);
+        Uint32 Boffset = 2 - (surf->format->Bshift >> 3);
 #endif
         for (y = 0; y < dim1; ++y) {
             pixel_p = pixelrow;
@@ -1253,9 +1253,9 @@ _array_assign_slice(PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
         Uint32 Goffset = surf->format->Gshift >> 3;
         Uint32 Boffset = surf->format->Bshift >> 3;
 #else
-        Uint32 Roffset = 2 - surf->format->Rshift >> 3;
-        Uint32 Goffset = 2 - surf->format->Gshift >> 3;
-        Uint32 Boffset = 2 - surf->format->Bshift >> 3;
+        Uint32 Roffset = 2 - (surf->format->Rshift >> 3);
+        Uint32 Goffset = 2 - (surf->format->Gshift >> 3);
+        Uint32 Boffset = 2 - (surf->format->Bshift >> 3);
 #endif
         Uint8 r = (Uint8)(color >> 16);
         Uint8 g = (Uint8)(color >> 8);

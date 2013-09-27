@@ -42,6 +42,22 @@ except NameError:
 
 __all__ = ["Exporter", "Importer"]
 
+try:
+    ctypes.c_ssize_t
+except AttributeError:
+    void_p_sz = ctypes.sizeof(ctypes.c_void_p)
+    if ctypes.sizeof(ctypes.c_short) == void_p_sz:
+        ctypes.c_ssize_t = ctypes.c_short
+    elif ctypes.sizeof(ctypes.c_int) == void_p_sz:
+        ctypes.c_ssize_t = ctypes.c_int
+    elif ctypes.sizeof(ctypes.c_long) == void_p_sz:
+        ctypes.c_ssize_t = ctypes.c_long
+    elif ctypes.sizeof(ctypes.c_longlong) == void_p_sz:
+        ctypes.c_ssize_t = ctypes.c_longlong
+    else:
+        raise RuntimeError("Cannot set c_ssize_t: sizeof(void *) is %i" %
+                           void_p_sz)
+
 def _prop_get(fn):
     return property(fn)
 
