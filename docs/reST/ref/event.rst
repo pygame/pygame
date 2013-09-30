@@ -13,9 +13,9 @@ this module help you manage that event queue. The input queue is heavily
 dependent on the pygame display module. If the display has not been initialized
 and a video mode not set, the event queue will not really work.
 
-The queue is a regular queue of Event objects, there are a variety of ways to
-access the events it contains. From simply checking for the existance of
-events, to grabbing them directly off the stack.
+The queue is a regular queue of :class:`pygame.event.EventType` event objects,
+there are a variety of ways to access the events it contains. From simply
+checking for the existence of events, to grabbing them directly off the stack.
 
 All events have a type identifier. This event type is in between the values of
 ``NOEVENT`` and ``NUMEVENTS``. All user defined events can have the value of
@@ -40,24 +40,24 @@ events into the queue from other threads, please use the fastevent package.
 
 Joysticks will not send any events until the device has been initialized.
 
-An Event object contains an event type and a readonly set of member data. The
-Event object contains no method functions, just member data. Event objects are
-retrieved from the pygame event queue. You can create your own new events with
-the ``pygame.event.Event()`` function.
+An ``EventType`` event object contains an event type identifier and a set of
+member data. The event object contains no method functions, just member data.
+EventType objects are retrieved from the pygame event queue. You can create
+your own new events with the ``pygame.event.Event()`` function.
 
 Your program must take steps to keep the event queue from overflowing. If the
 program is not clearing or getting all events off the queue at regular
 intervals, it can overflow. When the queue overflows an exception is thrown.
 
-All Event objects contain an event type identifier in the ``Event.type``
-member. You may also get full access to the Event's member data through the
-``Event.dict`` method. All other member lookups will be passed through to the
-Event's dictionary values.
+All EventType instances have an event type identifier, accessible as the
+``EventType.type`` property. You may also get full access to the event object's
+attributes through the ``EventType.__dict__`` attribute. All other member
+lookups will be passed through to the object's dictionary values.
 
-While debugging and experimenting, you can print the Event objects for a quick
+While debugging and experimenting, you can print an event object for a quick
 display of its type and members. Events that come from the system will have a
-guaranteed set of member items based on the type. Here is a list of the Event
-members that are defined with each type.
+guaranteed set of member items based on the type. Here is a list of the
+event attributes defined with each event type.
 
 ::
 
@@ -126,7 +126,7 @@ type and have identical attribute values. Inequality checks also work.
 .. function:: poll
 
    | :sl:`get a single event from the queue`
-   | :sg:`poll() -> Event`
+   | :sg:`poll() -> EventType instance`
 
    Returns a single event from the queue. If the event queue is empty an event
    of type ``pygame.NOEVENT`` will be returned immediately. The returned event
@@ -137,7 +137,7 @@ type and have identical attribute values. Inequality checks also work.
 .. function:: wait
 
    | :sl:`wait for a single event from the queue`
-   | :sg:`wait() -> Event`
+   | :sg:`wait() -> EventType instance`
 
    Returns a single event from the queue. If the queue is empty this function
    will wait until one is created. The event is removed from the queue once it
@@ -168,7 +168,7 @@ type and have identical attribute values. Inequality checks also work.
 
    Remove all events or events of a specific type from the queue. This has the
    same effect as ``pygame.event.get()`` except nothing is returned. This can
-   be slightly more effecient when clearing a full event queue.
+   be slightly more efficient when clearing a full event queue.
 
    .. ## pygame.event.clear ##
 
@@ -259,7 +259,7 @@ type and have identical attribute values. Inequality checks also work.
    later be retrieved from the other queue functions.
 
    This is usually used for placing ``pygame.USEREVENT`` events on the queue.
-   Although any type of event can be placed, if using the sytem event types
+   Although any type of event can be placed, if using the system event types
    your program should be sure to create the standard attributes with
    appropriate values.
 
@@ -268,17 +268,39 @@ type and have identical attribute values. Inequality checks also work.
 .. function:: Event
 
    | :sl:`create a new event object`
-   | :sg:`Event(type, dict) -> Event`
-   | :sg:`Event(type, **attributes) -> Event`
+   | :sg:`Event(type, dict) -> EventType instance`
+   | :sg:`Event(type, **attributes) -> EventType instance`
 
    Creates a new event with the given type. The event is created with the given
    attributes and values. The attributes can come from a dictionary argument
-   with string keys, or from keyword arguments. The event object exposes its
-   dictionary as attribute __dict__, and also as dict for backward
-   compatibility.
+   with string keys, or from keyword arguments.
 
-   Attributes type, __dict__, and dict are readonly. Other attributes are
-   mutable. There are no methods attached to an Event object.
+.. class:: EventType
+
+   | :sl:`pygame object for representing SDL events`
+
+   A Python object that represents an SDL event. User event instances are
+   created with an `Event` function call. The `EventType` type is not directly
+   callable. `EventType` instances support attribute assignment and deletion.
+
+   .. attribute:: type
+
+      | :sl:`SDL event type identifier.`
+      | :sg:`type -> int`
+
+      Read only. Predefined event identifiers are `QUIT` and `MOUSEMOTION`, for
+      example. For user created event objects, this is the `type` argument
+      passed to :func:`pygame.event.Event`.
+
+   .. attribute:: __dict__
+
+      | :sl:`Event object attribute dictionary`
+      | :sg:`__dict__ -> dict`
+
+      Read only. The event type specific attributes of an event. As an example,
+      this would contain the `unicode`, `key`, and `mod` attributes of a
+      `KEYDOWN` event. The `dict` attribute is a synonym, for backward
+      compatibility.
 
    Mutable attributes are new to Pygame 1.9.2.
 
