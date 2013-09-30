@@ -5,9 +5,9 @@
 
 #define DOC_PYGAMEEVENTGET "get() -> Eventlist\nget(type) -> Eventlist\nget(typelist) -> Eventlist\nget events from the queue"
 
-#define DOC_PYGAMEEVENTPOLL "poll() -> Event\nget a single event from the queue"
+#define DOC_PYGAMEEVENTPOLL "poll() -> EventType instance\nget a single event from the queue"
 
-#define DOC_PYGAMEEVENTWAIT "wait() -> Event\nwait for a single event from the queue"
+#define DOC_PYGAMEEVENTWAIT "wait() -> EventType instance\nwait for a single event from the queue"
 
 #define DOC_PYGAMEEVENTPEEK "peek(type) -> bool\npeek(typelist) -> bool\ntest if event types are waiting on the queue"
 
@@ -27,7 +27,13 @@
 
 #define DOC_PYGAMEEVENTPOST "post(Event) -> None\nplace a new event on the queue"
 
-#define DOC_PYGAMEEVENTEVENT "Event(type, dict) -> Event\nEvent(type, **attributes) -> Event\ncreate a new event object"
+#define DOC_PYGAMEEVENTEVENT "Event(type, dict) -> EventType instance\nEvent(type, **attributes) -> EventType instance\ncreate a new event object"
+
+#define DOC_PYGAMEEVENTEVENTTYPE "pygame object for representing SDL events"
+
+#define DOC_EVENTTYPETYPE "type -> int\nSDL event type identifier."
+
+#define DOC_EVENTTYPEDICT "__dict__ -> dict\nEvent object attribute dictionary"
 
 
 
@@ -49,11 +55,11 @@ pygame.event.get
 get events from the queue
 
 pygame.event.poll
- poll() -> Event
+ poll() -> EventType instance
 get a single event from the queue
 
 pygame.event.wait
- wait() -> Event
+ wait() -> EventType instance
 wait for a single event from the queue
 
 pygame.event.peek
@@ -100,8 +106,19 @@ pygame.event.post
 place a new event on the queue
 
 pygame.event.Event
- Event(type, dict) -> Event
- Event(type, **attributes) -> Event
+ Event(type, dict) -> EventType instance
+ Event(type, **attributes) -> EventType instance
 create a new event object
+
+pygame.event.EventType
+pygame object for representing SDL events
+
+pygame.event.EventType.type
+ type -> int
+SDL event type identifier.
+
+pygame.event.EventType.__dict__
+ __dict__ -> dict
+Event object attribute dictionary
 
 */
