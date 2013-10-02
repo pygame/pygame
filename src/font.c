@@ -187,6 +187,8 @@ fontmodule_init (PyObject* self)
     int istrue;
 
     result = font_autoinit (self);
+    if (result == NULL)
+        return NULL;
     istrue = PyObject_IsTrue (result);
     Py_DECREF (result);
     if (!istrue)
@@ -315,7 +317,7 @@ font_render(PyObject* self, PyObject* args)
     int aa;
     PyObject* text, *final;
     PyObject* fg_rgba_obj, *bg_rgba_obj = NULL;
-    Uint8 rgba[4];
+    Uint8 rgba[] = {0, 0, 0, 0};
     SDL_Surface* surf;
     SDL_Color foreg, backg;
     int just_return;
@@ -331,6 +333,7 @@ font_render(PyObject* self, PyObject* args)
     foreg.r = rgba[0];
     foreg.g = rgba[1];
     foreg.b = rgba[2];
+    foreg.unused = 0;
     if (bg_rgba_obj != NULL) {
         if (!RGBAFromColorObj(bg_rgba_obj, rgba)) {
             bg_rgba_obj = NULL;
