@@ -578,7 +578,7 @@ image_save_ext(PyObject *self, PyObject *arg)
 {
     PyObject *surfobj;
     PyObject *obj;
-    PyObject *oencoded;
+    PyObject *oencoded = NULL;
     SDL_Surface *surf;
     SDL_Surface *temp = NULL;
     int result = 1;
@@ -586,7 +586,6 @@ image_save_ext(PyObject *self, PyObject *arg)
     if (!PyArg_ParseTuple(arg, "O!O", &PySurface_Type, &surfobj, &obj)) {
         return NULL;
     }
-    surf = PySurface_AsSurface(surfobj);
 
     surf = PySurface_AsSurface(surfobj);
     if (surf->flags & SDL_OPENGL) {
@@ -658,6 +657,7 @@ image_save_ext(PyObject *self, PyObject *arg)
         PySurface_Unprep(surfobj);
     }
 
+    Py_XDECREF(oencoded);
     if (result == -2) {
         /* Python error raised elsewhere */
         return NULL;
