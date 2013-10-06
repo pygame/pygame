@@ -49,7 +49,7 @@ _RGBAFromColorObj (PyObject *obj, Uint8 rgba[4]) {
 static int
 _get_color_from_object(PyObject *val, SDL_PixelFormat *format, Uint32 *color)
 {
-    Uint8 rgba[4];
+    Uint8 rgba[] = {0, 0, 0, 0};
 
     if (!val) {
         return 0;
@@ -102,7 +102,6 @@ _get_single_pixel(PyPixelArray *array, Uint32 x, Uint32 y)
 
     /* Find the start of the pixel */
     switch (bpp) {
-        /* This switch statement is exhaustive over all surface pixel sizes */
 
     case 1:
         pixel = (Uint32)*pixel_p;
@@ -121,19 +120,9 @@ _get_single_pixel(PyPixelArray *array, Uint32 x, Uint32 y)
                  ((Uint32)pixel_p[0] << 16));
 #endif
         break;
-    case 4:
+    default:  /* 4 */
+        assert(bpp == 4);
         pixel = *((Uint32 *)pixel_p);
-        break;
-
-#ifndef NDEBUG
-        /* Assert that bpp is valid */
-    default:
-        /* Should not get here */
-        PyErr_Format(PyExc_SystemError,
-                     "Pygame internal error in _get_single_pixel: "
-                     "unexpected pixel size %i", bpp);
-        return 0;
-#endif
     }
 
     return PyInt_FromLong((long)pixel);
@@ -588,8 +577,8 @@ _extract_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
     }
 
     new_array = (PyPixelArray *)PyPixelArray_New(surface);
+    Py_DECREF(surface);
     if (!new_array) {
-        Py_DECREF(surface);
         return 0;
     }
 
@@ -847,8 +836,8 @@ _compare(PyPixelArray *array, PyObject *args, PyObject *kwds)
     }
 
     new_array = (PyPixelArray *)PyPixelArray_New(new_surface);
+    Py_DECREF(new_surface);
     if (!new_array) {
-        Py_DECREF(new_surface);
         return 0;
     }
 
