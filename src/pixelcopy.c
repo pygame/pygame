@@ -285,7 +285,6 @@ _copy_colorplane(Py_buffer *view_p,
     }
     /* Select appropriate color plane element within the pixel */
     switch (view_kind) {
-        /* This switch statement is exhaustive over possible view_kind values */
 
     case VIEWKIND_RED:
         element = &r;
@@ -296,21 +295,10 @@ _copy_colorplane(Py_buffer *view_p,
     case VIEWKIND_BLUE:
         element = &b;
         break;
-    case VIEWKIND_ALPHA:
+    default: /* VIEWKIND_ALPHA or VIEWKIND_COLORKEY */
+        /* element is unused for VIEWKIND_COLORKEY */
+        assert(view_kind == VIEWKIND_ALPHA || view_kind == VIEWKIND_COLORKEY);
         element = &a;
-        break;
-    case VIEWKIND_COLORKEY:
-        break;
-
-#ifndef NDEBUG
-        /* Assert this switch statement is exhaustive */
-    default:
-        /* Should not get here */
-        PyErr_Format(PyExc_SystemError,
-                     "pygame bug in _copy_colorplane: unknown view kind %d",
-                     (int)view_kind);
-        return -1;
-#endif
     }
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
     dz_pix = 0;
@@ -765,7 +753,7 @@ surface_to_array(PyObject *self, PyObject *args, PyObject *kwds)
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "OO!|O&BB", keywords,
                                      &arrayobj,
                                      &PySurface_Type, &surfobj,
-                                     _view_kind, &view_kind,
+                                     _view_kind, (void *)&view_kind,
                                      &opaque, &clear)) {
         return 0;
     }
