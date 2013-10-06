@@ -434,15 +434,17 @@ _pxarray_traverse(PyPixelArray *self, visitproc visit, void *arg)
 static PyObject *
 _pxarray_get_dict(PyPixelArray *self, void *closure)
 {
-    if (!self->dict) {
-        self->dict = PyDict_New();
-        if (!self->dict) {
+    PyObject *dict = self->dict;
+
+    if (!dict) {
+        dict = PyDict_New();
+        if (!dict) {
             return 0;
         }
+        self->dict = dict;
     }
-
-    Py_INCREF(self->dict);
-    return self->dict;
+    Py_INCREF(dict);
+    return dict;
 }
 
 /**
