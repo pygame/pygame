@@ -125,6 +125,49 @@ class BaseModuleTest(unittest.TestCase):
             v = BufferProxy(o)
             self.assertSame(v, o)
 
+        # Is the dict received from an exporting object properly released?
+        # The dict should be freed before PgObject_GetBuffer returns.
+        # When the BufferProxy v's length property is referenced, v calls
+        # PgObject_GetBuffer, which in turn references Exporter2 o's
+        # __array_interface__ property. The Exporter2 instance o returns a
+        # dict subclass for which it keeps both a regular reference and a
+        # weak reference. The regular reference should be the only
+        # remaining reference when PgObject_GetBuffer returns. This is
+        # verified by first checking the weak reference both before and
+        # after the regular reference held by o is removed.
+
+        import weakref, gc
+
+        class NoDictError(RuntimeError):
+            pass
+
+        class WRDict(dict):
+            """Weak referenceable dict"""
+            pass
+
+        class Exporter2(Exporter):
+            def get__array_interface__2(self):
+                self.d = WRDict(Exporter.get__array_interface__(self))
+                self.dict_ref = weakref.ref(self.d)
+                return self.d
+            __array_interface__ = property(get__array_interface__2)
+            def free_dict(self):
+                self.d = None
+            def is_dict_alive(self):
+                try:
+                    return self.dict_ref() is not None
+                except AttributeError:
+                    raise NoDictError("__array_interface__ is unread")
+
+        o = Exporter2((2, 4), 'u', 4)
+        v = BufferProxy(o)
+        self.assertRaises(NoDictError, o.is_dict_alive)
+        length = v.length
+        self.assertTrue(o.is_dict_alive())
+        o.free_dict()
+        gc.collect()
+        self.assertFalse(o.is_dict_alive())
+
     def test_GetView_array_struct(self):
         from pygame.bufferproxy import BufferProxy
 
@@ -156,6 +199,16 @@ class BaseModuleTest(unittest.TestCase):
             v = BufferProxy(o)
             self.assertSame(v, o)
 
+        # Check returned cobject/capsule reference count
+        try:
+            from sys import getrefcount
+        except ImportError:
+            # PyPy: no reference counting
+            pass
+        else:
+            o = Exporter(shape, typechar, itemsize)
+            self.assertEqual(getrefcount(o.__array_struct__), 1)
+ 
     if (pygame.HAVE_NEWBUF):
         def test_newbuf(self):
             self.NEWBUF_test_newbuf()

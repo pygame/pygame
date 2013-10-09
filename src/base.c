@@ -67,13 +67,11 @@ QDGlobals qd;
 /* Extended array struct */
 typedef struct capsule_interface_s {
     PyArrayInterface inter;
-    PyObject *parent;
     Py_intptr_t imem[1];
 } CapsuleInterface;
 
 /* Py_buffer internal data for an array interface/struct */
 typedef struct view_internals_s {
-    PyObject* cobj;
     char format[4];      /* make 4 byte word sized */
     Py_ssize_t imem[1];
 } ViewInternals;
@@ -119,7 +117,6 @@ static int _pyvalues_as_buffer(Py_buffer*,
                                PyObject*,
                                PyObject*,
                                PyObject*,
-                               PyObject*,
                                PyObject*);
 static int _pyinttuple_as_ssize_arr (PyObject*, Py_ssize_t*);
 static int _pytypestr_as_format (PyObject*, char*, Py_ssize_t*);
@@ -131,9 +128,8 @@ static char _as_arrayinter_typekind (Py_buffer*);
 static char _as_arrayinter_byteorder (Py_buffer*);
 static int _as_arrayinter_flags (Py_buffer*);
 static CapsuleInterface* _new_capsuleinterface (Py_buffer*);
-static void _free_capsuleinterface (void*);
 #if PY3
-static void _capsule_free_capsuleinterface (PyObject*);
+static void _capsule_PyMem_Free (PyObject*);
 #endif
 static PyObject* _shape_as_tuple (PyArrayInterface*);
 static PyObject* _typekind_as_str (PyArrayInterface*);
@@ -695,12 +691,12 @@ PgBuffer_AsArrayStruct (Py_buffer* view_p)
         return 0;
     }
 #if PY3
-    capsule = PyCapsule_New (cinter_p, 0, _capsule_free_capsuleinterface);
+    capsule = PyCapsule_New (cinter_p, 0, _capsule_PyMem_Free);
 #else
-    capsule = PyCObject_FromVoidPtr (cinter_p, _free_capsuleinterface);
+    capsule = PyCObject_FromVoidPtr (cinter_p, PyMem_Free);
 #endif
     if (!capsule) {
-        _free_capsuleinterface ((void*)cinter_p);
+        PyMem_Free (cinter_p);
         return 0;
     }
     return capsule;
@@ -740,25 +736,14 @@ _new_capsuleinterface (Py_buffer *view_p)
     }
     cinter_p->inter.data = view_p->buf;
     cinter_p->inter.descr = 0;
-    cinter_p->parent = view_p->obj;
-    Py_XINCREF (cinter_p->parent);
     return cinter_p;
-}
-
-static void
-_free_capsuleinterface (void *p)
-{
-    CapsuleInterface *cinter_p = (CapsuleInterface *)p;
-
-    Py_XDECREF (cinter_p->parent);
-    PyMem_Free (p);
 }
 
 #if PY3
 static void
-_capsule_free_capsuleinterface (PyObject *capsule)
+_capsule_PyMem_Free (PyObject *capsule)
 {
-    _free_capsuleinterface (PyCapsule_GetPointer (capsule, 0));
+    PyMem_Free (PyCapsule_GetPointer (capsule, 0));
 }
 #endif
 
@@ -1096,10 +1081,12 @@ PgObject_GetBuffer (PyObject* obj, Pg_buffer* pg_view_p, int flags)
 #endif
     if (!success && GetArrayStruct (obj, &cobj, &inter_p) == 0) {
         if (PgArrayStruct_AsBuffer (pg_view_p, cobj, inter_p, flags)) {
+            Py_DECREF (cobj);
             return -1;
         }
         Py_INCREF (obj);
         view_p->obj = obj;
+        Py_DECREF (cobj);
         success = 1;
     }
     else if (!success) {
@@ -1108,10 +1095,12 @@ PgObject_GetBuffer (PyObject* obj, Pg_buffer* pg_view_p, int flags)
 
     if (!success && GetArrayInterface (&dict, obj) == 0) {
         if (PgDict_AsBuffer (pg_view_p, dict, flags)) {
+            Py_DECREF (dict);
             return -1;
         }
         Py_INCREF (obj);
         view_p->obj = obj;
+        Py_DECREF (dict);
         success = 1;
     }
     else if (!success) {
@@ -1148,14 +1137,10 @@ _release_buffer_array (Py_buffer* view_p)
 {
     /* This is deliberately made safe for use on an unitialized *view_p */
     if (view_p->internal) {
-        Py_XDECREF (((ViewInternals*)view_p->internal)->cobj);
         PyMem_Free (view_p->internal);
         view_p->internal = 0;
     }
-    if (view_p->obj) {
-        Py_DECREF (view_p->obj);
-        view_p->obj = 0;
-    }
+    _release_buffer_generic (view_p);
 }
 
 static int
@@ -1205,7 +1190,6 @@ PgArrayStruct_AsBuffer (Pg_buffer* pg_view_p, PyObject* cobj,
     if (_arraystruct_as_buffer ((Py_buffer*)pg_view_p,
                                 cobj, inter_p, flags)) {
         PgBuffer_Release (pg_view_p);
-        Py_DECREF (cobj);
         return -1;
     }
     return 0;
@@ -1254,7 +1238,6 @@ _arraystruct_as_buffer (Py_buffer* view_p, PyObject* cobj,
         PyErr_NoMemory ();
         return -1;
     }
-    internal_p->cobj = 0;
     view_p->internal = internal_p;
     if (PyBUF_HAS_FLAG (flags, PyBUF_FORMAT)) {
         if (_arraystruct_to_format(internal_p->format,
@@ -1305,7 +1288,6 @@ _arraystruct_as_buffer (Py_buffer* view_p, PyObject* cobj,
     for (i = 0; i < inter_p->nd; ++i) {
         view_p->len *= (Py_ssize_t)inter_p->shape[i];
     }
-    internal_p->cobj = cobj;
     return 0;
 }
 
@@ -1464,7 +1446,7 @@ PgDict_AsBuffer (Pg_buffer* pg_view_p, PyObject* dict, int flags)
         return -1;
     }
     pg_view_p->release_buffer = _release_buffer_array;
-    if (_pyvalues_as_buffer ((Py_buffer*)pg_view_p, flags, dict,
+    if (_pyvalues_as_buffer ((Py_buffer*)pg_view_p, flags,
                              pytypestr, pyshape, pydata, pystrides)) {
         PgBuffer_Release (pg_view_p);
         return -1;
@@ -1584,7 +1566,7 @@ _is_inttuple (PyObject* op)
 }
 
 static int
-_pyvalues_as_buffer(Py_buffer* view_p, int flags, PyObject* obj,
+_pyvalues_as_buffer(Py_buffer* view_p, int flags,
                     PyObject* pytypestr,
                     PyObject* pyshape,
                     PyObject* pydata,
@@ -1623,7 +1605,6 @@ _pyvalues_as_buffer(Py_buffer* view_p, int flags, PyObject* obj,
         PyErr_NoMemory ();
         return -1;
     }
-    internal_p->cobj = 0;
     view_p->internal = internal_p;
     view_p->format = internal_p->format;
     view_p->shape = internal_p->imem;
@@ -1700,8 +1681,6 @@ _pyvalues_as_buffer(Py_buffer* view_p, int flags, PyObject* obj,
     if (!PyBUF_HAS_FLAG (flags, PyBUF_ND)) {
         view_p->ndim = 0;
     }
-    Py_XINCREF (obj);
-    view_p->obj = obj;
     return 0;
 }
 
