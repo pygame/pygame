@@ -264,7 +264,7 @@ int _PGFT_GetMetrics(FreeTypeInstance *, PgFontObject *,
                      FT_UInt *, long *, long *, long *, long *,
                      double *, double *);
 void _PGFT_GetRenderMetrics(const FontRenderMode *, FontText *,
-                            int *, int *, FT_Vector *,
+                            unsigned *, unsigned *, FT_Vector *,
                             FT_Pos *, FT_Fixed *);
 
 
