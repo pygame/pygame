@@ -491,6 +491,7 @@ cmdclass['install_data'] = smart_install_data
             
 if "bdist_msi" in sys.argv:
     # if you are making an msi, we want it to overwrite files
+    # we also want to include the repository revision in the file name
     from distutils.command import bdist_msi
     import msilib
 
@@ -518,6 +519,11 @@ if "bdist_msi" in sys.argv:
             msilib.add_data(self.db, "Property", [("REINSTALLMODE", "amus")])
             self.db.Commit()
     
+        def get_installer_filename(self, fullname):
+            if revision:
+                fullname += '-hg_' + revision
+            return bdist_msi.bdist_msi.get_installer_filename(self, fullname)
+
     cmdclass['bdist_msi'] = bdist_msi_overwrite_on_install
 
 
