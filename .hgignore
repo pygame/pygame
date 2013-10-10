@@ -9,6 +9,7 @@ docs/objects.inv
 docs/doctrees/*
 docs/_sources
 docs/_static
+docs/_images
 docs/genindex.html
 docs/search.html
 docs/searchindex.js
