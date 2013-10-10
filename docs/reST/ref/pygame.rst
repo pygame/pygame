@@ -213,6 +213,16 @@ variables to check with version of pygame has been imported.
 
    .. ## pygame.version.vernum ##
 
+.. data:: rev
+
+   | :sl:`repository revision of the build`
+   | :sg:`rev = 'a6f89747b551+'`
+
+   The Mercurial node identifier of the repository checkout from which this
+   package was built. If the identifier ends with a plus sign '+' then the
+   package contains uncommitted changes. Please include this revision number
+   in bug reports, especially for non-release Pygame builds.
+
 .. ## pygame.version ##
 
 .. ## pygame ##
