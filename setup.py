@@ -61,6 +61,22 @@ from distutils.core import setup, Extension, Command
 from distutils.extension import read_setup_file
 from distutils.command.install_data import install_data
 
+# Retrieve the repository revision (HG node identifier), if possible.
+def get_hg_identifier():
+    from subprocess import Popen, PIPE
+
+    ident = ""
+    try:
+        p = Popen(['hg', 'identify', '-i'], stdout=PIPE, stderr=PIPE)
+        stdout, stderr = p.communicate()
+        if stdout and not stderr:
+            ident = stdout.decode('ascii').rstrip('\n')
+    except Exception:
+        pass
+    return ident
+
+revision = get_hg_identifier()
+
 # Python 3.0 patch
 if sys.version_info[0:2] == (3, 0):
     import distutils.version
@@ -292,6 +308,23 @@ add_datafiles(data_files, 'pygame/docs',
                         ['*.txt',
                          ['ref',
                             ['*.txt']]]]]])
+
+#generate the version module
+def parse_version(ver):
+    from re import findall
+    return ', '.join(s for s in findall('\d+', ver)[0:3])
+
+def write_version_module(pygame_version, revision):
+    vernum = parse_version(pygame_version)
+    with open('version.py.in', 'r') as header_file:
+        header = header_file.read()
+    with open(os.path.join('lib', 'version.py'), 'w') as version_file:
+        version_file.write(header)
+        version_file.write('ver = "' + pygame_version + '"\n')
+        version_file.write('vernum = ' + vernum + '\n')
+        version_file.write('rev = "' + revision + '"\n')
+
+write_version_module(METADATA['version'], revision)
               
 #required. This will be filled if doing a Windows build.
 cmdclass = {}
