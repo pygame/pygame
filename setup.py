@@ -5,6 +5,8 @@
 #
 # To configure, compile, install, just run this script.
 
+from __future__ import with_statement
+
 DESCRIPTION = """Pygame is a Python wrapper module for the
 SDL multimedia library. It contains python functions and classes
 that will allow you to use SDL's support for playing cdroms,
