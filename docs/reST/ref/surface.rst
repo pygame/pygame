@@ -837,11 +837,20 @@
       and length in bytes. The data need not be contiguous. Any gaps are
       included in the length, but otherwise ignored.
 
-      This method implicitly locks the Surface. The lock will be released, once
-      the returned BufferProxy object is deleted.
+      This method implicitly locks the Surface. The lock will be released when
+      the returned BufferProxy object is garbage collected.
 
       New in Pygame 1.8.
 
       .. ## Surface.get_buffer ##
+
+   .. attribute:: _pixels_address
+
+      | :sl:`pixel buffer address`
+      | :sg:`_pixels_address -> int`
+
+      The starting address of the surface's raw pixel bytes.
+
+      New in Pygame 1.9.2
 
    .. ## pygame.Surface ##
