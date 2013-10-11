@@ -10,7 +10,7 @@
 .. class:: BufferProxy
 
    | :sl:`pygame object to export a surface buffer through an array protocol`
-   | :sg:`BufferProxy(<parent>) -> BufferProxy instance`
+   | :sg:`BufferProxy(<parent>) -> BufferProxy`
 
    :class:`BufferProxy` is a Pygame support type, designed as the return value
    of the :meth:`Surface.get_buffer` and :meth:`Surface.get_view` methods.
@@ -83,7 +83,7 @@
    .. attribute:: length
 
       | :sl:`The size, in bytes, of the exported buffer.`
-      | :sg:`length -> Int`
+      | :sg:`length -> int`
 
       The number of valid bytes of data exported. For discontinuous data,
       that is data which is not a single block of memory, the bytes within
@@ -101,7 +101,7 @@
    .. method:: write
 
       | :sl:`Write raw bytes to object buffer.`
-      | :sg:`write(buffer, offset=0) -> None`
+      | :sg:`write(buffer, offset=0)`
 
       Overwrite bytes in the parent object's data. The data must be C or F
       contiguous, otherwise a ValueError is raised. Argument `buffer` is a

@@ -95,6 +95,8 @@
 
 #define DOC_SURFACEGETBUFFER "get_buffer() -> BufferProxy\nacquires a buffer object for the pixels of the Surface."
 
+#define DOC_SURFACEPIXELSADDRESS "_pixels_address -> int\npixel buffer address"
+
 
 
 /* Docs in a comment... slightly easier to read. */
@@ -300,5 +302,9 @@ return a buffer view of the Surface's pixels.
 pygame.Surface.get_buffer
  get_buffer() -> BufferProxy
 acquires a buffer object for the pixels of the Surface.
+
+pygame.Surface._pixels_address
+ _pixels_address -> int
+pixel buffer address
 
 */
