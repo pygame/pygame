@@ -1,13 +1,13 @@
 /* Auto generated file: with makeref.py .  Docs go in src/ *.doc . */
-#define DOC_PYGAMEBUFFERPROXY "BufferProxy(<parent>) -> BufferProxy instance\npygame object to export a surface buffer through an array protocol"
+#define DOC_PYGAMEBUFFERPROXY "BufferProxy(<parent>) -> BufferProxy\npygame object to export a surface buffer through an array protocol"
 
 #define DOC_BUFFERPROXYPARENT "parent -> Surface\nparent -> <parent>\nReturn wrapped exporting object."
 
-#define DOC_BUFFERPROXYLENGTH "length -> Int\nThe size, in bytes, of the exported buffer."
+#define DOC_BUFFERPROXYLENGTH "length -> int\nThe size, in bytes, of the exported buffer."
 
 #define DOC_BUFFERPROXYRAW "raw -> bytes\nA copy of the exported buffer as a single block of bytes."
 
-#define DOC_BUFFERPROXYWRITE "write(buffer, offset=0) -> None\nWrite raw bytes to object buffer."
+#define DOC_BUFFERPROXYWRITE "write(buffer, offset=0)\nWrite raw bytes to object buffer."
 
 
 
@@ -16,7 +16,7 @@
 /*
 
 pygame.BufferProxy
- BufferProxy(<parent>) -> BufferProxy instance
+ BufferProxy(<parent>) -> BufferProxy
 pygame object to export a surface buffer through an array protocol
 
 pygame.BufferProxy.parent
@@ -25,7 +25,7 @@ pygame.BufferProxy.parent
 Return wrapped exporting object.
 
 pygame.BufferProxy.length
- length -> Int
+ length -> int
 The size, in bytes, of the exported buffer.
 
 pygame.BufferProxy.raw
@@ -33,7 +33,7 @@ pygame.BufferProxy.raw
 A copy of the exported buffer as a single block of bytes.
 
 pygame.BufferProxy.write
- write(buffer, offset=0) -> None
+ write(buffer, offset=0)
 Write raw bytes to object buffer.
 
 */
