@@ -255,7 +255,7 @@ add_datafiles(data_files, 'pygame/tests',
                       [['xbm_cursors',
                           ['*.xbm']],
                        ['fonts',
-                          ['*.ttf', '*.otf']]]]]])
+                          ['*.ttf', '*.otf', '*.bdf']]]]]])
 
 #examples
 add_datafiles(data_files, 'pygame/examples',

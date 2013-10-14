@@ -35,6 +35,8 @@ class FreeTypeFontTest(unittest.TestCase):
 
     _fixed_path = os.path.join(FONTDIR, 'test_fixed.otf')
     _sans_path = os.path.join(FONTDIR, 'test_sans.ttf')
+    _mono_path = os.path.join(FONTDIR, 'PyGameMono.otf')
+    _bmp_path = os.path.join(FONTDIR, 'PyGameMono-8.bdf')
     _TEST_FONTS = {}
 
     def setUp(self):
@@ -51,6 +53,18 @@ class FreeTypeFontTest(unittest.TestCase):
             # Licensed under the GNU GPL
             # https://fedorahosted.org/liberation-fonts/
             self._TEST_FONTS['sans'] = ft.Font(self._sans_path)
+
+        if 'mono' not in self._TEST_FONTS:
+            # A scalable mono test font made for Pygame. It contains only
+            # a few glyphs: '\0', 'A', 'B', 'C', and U+13079.
+            # It also contains two bitmap sizes: 8.0 X 8.0 and 19.0 X 19.0.
+            self._TEST_FONTS['mono'] = ft.Font(self._mono_path)
+
+        if 'bmp' not in self._TEST_FONTS:
+            # A fixed size bitmap mono test font made for Pygame.
+            # It contains only a few glyphs: '\0', 'A', 'B', 'C', and U+13079.
+            # The size is 8.0 X 8.0.
+            self._TEST_FONTS['bmp'] = ft.Font(self._bmp_path)
 
     def test_freetype_defaultfont(self):
         font = ft.Font(None)
@@ -75,6 +89,7 @@ class FreeTypeFontTest(unittest.TestCase):
         # Test attribute preservation during reinitalization
         f = ft.Font(self._sans_path, ptsize=24, ucs4=True)
         self.assertEqual(f.name, 'Liberation Sans')
+        self.assertTrue(f.scalable)
         self.assertFalse(f.fixed_width)
         self.assertTrue(f.antialiased)
         self.assertFalse(f.oblique)
@@ -83,22 +98,61 @@ class FreeTypeFontTest(unittest.TestCase):
         f.oblique = True
         f.__init__(self._fixed_path)
         self.assertEqual(f.name, 'Inconsolata')
+        self.assertTrue(f.scalable)
         ##self.assertTrue(f.fixed_width)
         self.assertFalse(f.fixed_width)  # need a properly marked Mono font
         self.assertFalse(f.antialiased)
         self.assertTrue(f.oblique)
         self.assertTrue(f.ucs4)
 
+    def test_freetype_Font_scalable(self):
+
+        f = self._TEST_FONTS['sans']
+        self.assertTrue(f.scalable)
+
+        self.assertRaises(RuntimeError, lambda : nullfont().scalable)
+
     def test_freetype_Font_fixed_width(self):
 
         f = self._TEST_FONTS['sans']
         self.assertFalse(f.fixed_width)
 
-        f = self._TEST_FONTS['fixed']
-        ##self.assertTrue(f.fixed_width)
-        self.assertFalse(f.fixed_width)  # need a properly marked Mone font
+        f = self._TEST_FONTS['mono']
+        self.assertTrue(f.fixed_width)
 
         self.assertRaises(RuntimeError, lambda : nullfont().fixed_width)
+
+    def test_freetype_Font_fixed_sizes(self):
+        
+        f = self._TEST_FONTS['sans']
+        self.assertEqual(f.fixed_sizes, 0)
+        f = self._TEST_FONTS['bmp']
+        self.assertEqual(f.fixed_sizes, 1)
+        f = self._TEST_FONTS['mono']
+        self.assertEqual(f.fixed_sizes, 2)
+
+    def test_freetype_Font_get_sizes(self):
+        f = self._TEST_FONTS['sans']
+        szlist = f.get_sizes()
+        self.assertTrue(isinstance(szlist, list))
+        self.assertEqual(len(szlist), 0)
+        f = self._TEST_FONTS['bmp']
+        szlist = f.get_sizes()
+        self.assertTrue(isinstance(szlist, list))
+        self.assertEqual(len(szlist), 1)
+        size8 = szlist[0]
+        self.assertEqual(int(size8[3] * 64.0 + 0.5), 8 * 64)
+        self.assertEqual(int(size8[4] * 64.0 + 0.5), 8 * 64)
+        f = self._TEST_FONTS['mono']
+        szlist = f.get_sizes()
+        self.assertTrue(isinstance(szlist, list))
+        self.assertEqual(len(szlist), 2)
+        size8 = szlist[0]
+        self.assertEqual(int(size8[3] * 64.0 + 0.5), 8 * 64)
+        self.assertEqual(int(size8[4] * 64.0 + 0.5), 8 * 64)
+        size19 = szlist[1]
+        self.assertEqual(int(size19[3] * 64.0 + 0.5), 19 * 64)
+        self.assertEqual(int(size19[4] * 64.0 + 0.5), 19 * 64)
 
     def test_freetype_Font_get_metrics(self):
 
@@ -288,18 +342,18 @@ class FreeTypeFontTest(unittest.TestCase):
                           style=97, ptsize=24)
 
         # valid surrogate pairs
-#        rend1 = font.render(None, as_unicode(r'\uD800\uDC00'), color, ptsize=24)
-#        rend1 = font.render(None, as_unicode(r'\uDBFF\uDFFF'), color, ptsize=24)
-#        rend1 = font.render(None, as_unicode(r'\uD80C\uDCA7'), color, ptsize=24)
-#        rend2 = font.render(None, as_unicode(r'\U000130A7'), color, ptsize=24)
-#        self.assertEqual(rend1[1], rend2[1])
-#        font.utf16_surrogates = False
-#        try:
-#            rend1 = font.render(None, as_unicode(r'\uD80C\uDCA7'),
-#                                color, ptsize=24)
-#        finally:
-#            font.utf16_surrogates = True
-#        self.assertNotEqual(rend1[1], rend2[1])
+        font2 = self._TEST_FONTS['mono']
+        ucs4 = font2.ucs4
+        try:
+            font2.ucs4 = False
+            rend1 = font2.render(as_unicode(r'\uD80C\uDC79'), color, ptsize=24)
+            rend2 = font2.render(as_unicode(r'\U00013079'), color, ptsize=24)
+            self.assertEqual(rend1[1], rend2[1])
+            font2.ucs4 = True
+            rend1 = font2.render(as_unicode(r'\uD80C\uDC79'), color, ptsize=24)
+            self.assertNotEqual(rend1[1], rend2[1])
+        finally:
+            font2.ucs4 = ucs4
             
         # malformed surrogate pairs
         self.assertRaises(UnicodeEncodeError, font.render,
