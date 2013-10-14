@@ -42,8 +42,9 @@
 #define FX16_CEIL_TO_FX6(x) (((x) + 1023L) >> 10)
 #define INT_TO_FX6(i) ((FT_Fixed)((i) << 6))
 #define INT_TO_FX16(i) ((FT_Fixed)((i) << 16))
-#define FX16_TO_DBL(x) ((x) * 1.5259e-5 /* 65536.0^-1 */)
+#define FX16_TO_DBL(x) ((x) * 1.52587890625e-5 /* 2.0^-16 */)
 #define DBL_TO_FX16(d) ((FT_Fixed)((d) * 65536.0))
+#define FX6_TO_DBL(x) ((x) * 1.5625e-2 /* 2.0^-6 */)
 
 /* Internal configuration variables */
 #define PGFT_DEFAULT_CACHE_SIZE 64
@@ -244,7 +245,11 @@ long _PGFT_Font_GetHeightSized(FreeTypeInstance *, PgFontObject *,
                                FT_UInt16);
 long _PGFT_Font_GetGlyphHeightSized(FreeTypeInstance *, PgFontObject *,
                                     FT_UInt16);
+int _PGFT_Font_IsScalable(FreeTypeInstance *, PgFontObject *);
 int _PGFT_Font_IsFixedWidth(FreeTypeInstance *, PgFontObject *);
+int _PGFT_Font_NumFixedSizes(FreeTypeInstance *, PgFontObject *);
+int _PGFT_Font_GetAvailableSize(FreeTypeInstance *, PgFontObject *, unsigned,
+                                long *, long *, double *, double *, double *);
 const char *_PGFT_Font_GetName(FreeTypeInstance *, PgFontObject *);
 int _PGFT_TryLoadFont_Filename(FreeTypeInstance *,
                                PgFontObject *, const char *, long);

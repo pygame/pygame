@@ -68,6 +68,7 @@ static PyObject *_ftfont_getsizedascender(PgFontObject *, PyObject *);
 static PyObject *_ftfont_getsizeddescender(PgFontObject *, PyObject *);
 static PyObject *_ftfont_getsizedheight(PgFontObject *, PyObject *);
 static PyObject *_ftfont_getsizedglyphheight(PgFontObject *, PyObject *);
+static PyObject *_ftfont_getsizes(PgFontObject *);
 
 /* static PyObject *_ftfont_copy(PgFontObject *); */
 
@@ -78,7 +79,9 @@ static PyObject *_ftfont_getstyle(PgFontObject *, void *);
 static int _ftfont_setstyle(PgFontObject *, PyObject *, void *);
 static PyObject *_ftfont_getname(PgFontObject *, void *);
 static PyObject *_ftfont_getpath(PgFontObject *, void *);
+static PyObject *_ftfont_getscalable(PgFontObject *, void *);
 static PyObject *_ftfont_getfixedwidth(PgFontObject *, void *);
+static PyObject *_ftfont_getfixedsizes(PgFontObject *, void *);
 static PyObject *_ftfont_getstrength(PgFontObject *, void *);
 static int _ftfont_setstrength(PgFontObject *, PyObject *, void *);
 static PyObject *_ftfont_getunderlineadjustment(PgFontObject *, void *);
@@ -334,6 +337,12 @@ static PyMethodDef _ftfont_methods[] = {
         DOC_FONTGETMETRICS
     },
     {
+        "get_sizes",
+        (PyCFunction) _ftfont_getsizes,
+        METH_NOARGS,
+        DOC_FONTGETSIZES
+    },
+    {
         "render",
         (PyCFunction)_ftfont_render,
         METH_VARARGS | METH_KEYWORDS,
@@ -408,10 +417,24 @@ static PyGetSetDef _ftfont_getsets[] = {
         0
     },
     {
+        "scalable",
+        (getter)_ftfont_getscalable,
+        0,
+        DOC_FONTSCALABLE,
+        0
+    },
+    {
         "fixed_width",
         (getter)_ftfont_getfixedwidth,
         0,
         DOC_FONTFIXEDWIDTH,
+        0
+    },
+    {
+        "fixed_sizes",
+        (getter)_ftfont_getfixedsizes,
+        0,
+        DOC_FONTFIXEDSIZES,
         0
     },
     {
@@ -962,6 +985,18 @@ _ftfont_getpath(PgFontObject *self, void *closure)
 }
 
 static PyObject *
+_ftfont_getscalable(PgFontObject *self, void *closure)
+{
+    FreeTypeInstance *ft;
+    long scalable;
+    ASSERT_GRAB_FREETYPE(ft, 0);
+
+    ASSERT_SELF_IS_ALIVE(self);
+    scalable = _PGFT_Font_IsScalable(ft, self);
+    return scalable >= 0 ? PyBool_FromLong(scalable) : 0;
+}
+
+static PyObject *
 _ftfont_getfixedwidth(PgFontObject *self, void *closure)
 {
     FreeTypeInstance *ft;
@@ -971,6 +1006,18 @@ _ftfont_getfixedwidth(PgFontObject *self, void *closure)
     ASSERT_SELF_IS_ALIVE(self);
     fixed_width = _PGFT_Font_IsFixedWidth(ft, (PgFontObject *)self);
     return fixed_width >= 0 ? PyBool_FromLong(fixed_width) : 0;
+}
+
+static PyObject *
+_ftfont_getfixedsizes(PgFontObject *self, void *closure)
+{
+    FreeTypeInstance *ft;
+    long num_fixed_sizes;
+    ASSERT_GRAB_FREETYPE(ft, 0);
+
+    ASSERT_SELF_IS_ALIVE(self);
+    num_fixed_sizes = _PGFT_Font_NumFixedSizes(ft, (PgFontObject *)self);
+    return num_fixed_sizes >= 0 ? PyInt_FromLong(num_fixed_sizes) : 0;
 }
 
 
@@ -1324,6 +1371,41 @@ _ftfont_getsizedglyphheight(PgFontObject *self, PyObject *args)
         return 0;
     }
     return PyInt_FromLong(value);
+}
+
+static PyObject *
+_ftfont_getsizes(PgFontObject *self)
+{
+    int nsizes;
+    unsigned i;
+    int rc;
+    long height = 0, width = 0;
+    double size = 0.0;
+    double x_ppem = 0.0, y_ppem = 0.0;
+    PyObject *size_list = 0;
+    PyObject *size_item;
+    FreeTypeInstance *ft;
+    ASSERT_GRAB_FREETYPE(ft, 0);
+
+    nsizes = _PGFT_Font_NumFixedSizes(ft, self);
+    if (nsizes < 0) goto error;
+    size_list = PyList_New(nsizes);
+    if (!size_list) goto error;
+    for (i = 0; i < nsizes; ++i) {
+        rc = _PGFT_Font_GetAvailableSize(ft, self, i,
+                                         &height, &width,
+                                         &size, &x_ppem, &y_ppem);
+        if (rc < 0) goto error;
+        assert(rc > 0);
+        size_item = Py_BuildValue("llddd", height, width, size, x_ppem, y_ppem);
+        if (!size_item) goto error;
+        PyList_SET_ITEM(size_list, i, size_item);
+    }
+    return size_list;
+
+  error:
+    Py_XDECREF(size_list);
+    return 0;
 }
 
 static PyObject *
