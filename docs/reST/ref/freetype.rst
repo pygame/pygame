@@ -8,8 +8,6 @@
 
 | :sl:`Enhanced Pygame module for loading and rendering computer fonts`
 
---- Note that some features may change before a formal release
-
 The :mod:`pygame.freetype` module allows for the rendering of all font file formats
 supported by FreeType, namely ``TTF``, Type1, ``CFF``, OpenType, ``SFNT``, ``PCF``,
 ``FNT``, ``BDF``, ``PFR`` and Type42 fonts. It can render any UTF-32 character in a
@@ -59,7 +57,7 @@ New in Pygame 1.9.2
 .. function:: init
 
    | :sl:`Initialize the underlying FreeType 2 library.`
-   | :sg:`init(cache_size=64, resolution=72) -> None`
+   | :sg:`init(cache_size=64, resolution=72)`
 
    This function initializes the underlying FreeType 2 library and must be
    called before trying to use any of the functionality of the 'freetype'
@@ -77,7 +75,7 @@ New in Pygame 1.9.2
 .. function:: quit
 
    | :sl:`Shut down the underlying FreeType 2 library.`
-   | :sg:`quit() -> None`
+   | :sg:`quit()`
 
    This function de-initializes the ``freetype`` module. After calling this
    function, you should not invoke any class, method or function related to the
@@ -103,7 +101,7 @@ New in Pygame 1.9.2
 .. function:: set_default_resolution
 
    | :sl:`Set the default pixel size in dots per inch for the module`
-   | :sg:`set_default_resolution([resolution]) -> None`
+   | :sg:`set_default_resolution([resolution])`
 
    Set the default pixel size, in dots per inch, for the module. If the
    optional argument is omitted or zero the resolution is reset to 72.
@@ -272,6 +270,20 @@ New in Pygame 1.9.2
       This is the average value of all glyphs in the font.
       It is not adjusted for strong or rotation.
 
+   .. method:: get_sizes
+
+      | :sl:`return the available sizes of embedded bitmaps`
+      | :sg:`get_sizes() -> [(int, int, float, float, float), ...]`
+      | :sg:`get_sizes() -> []`
+
+      This returns a list of tuple records, one for each point size
+      supported. Each tuple containing the height in pixels, width in pixels,
+      nominal size of the strike in fractional points, horizontal ppem
+      (nominal width) in fractional pixels, and vertical ppem (nominal height)
+      in fractional pixels. The point size is equivalent to the rounded
+      vertical ppem ― index 3 ― of the tuple. Use it for the ptsize argument
+      of the render methods.
+
    .. method:: render
 
       | :sl:`Return rendered text as a surface`
@@ -355,7 +367,7 @@ New in Pygame 1.9.2
    .. attribute:: style
 
       | :sl:`The font's style flags`
-      | :sg:`style <-> int`
+      | :sg:`style -> int`
 
       Gets or sets the default style of the Font. This default style will be
       used for all text rendering and size calculations unless overridden
@@ -377,7 +389,7 @@ New in Pygame 1.9.2
    .. attribute:: underline
 
       | :sl:`The state of the font's underline style flag`
-      | :sg:`underline <-> bool`
+      | :sg:`underline -> bool`
 
       Gets or sets whether the font will be underlined when drawing text. This
       default style value will be used for all text rendering and size
@@ -387,7 +399,7 @@ New in Pygame 1.9.2
    .. attribute:: strong
 
       | :sl:`The state of the font's strong style flag`
-      | :sg:`strong <-> bool`
+      | :sg:`strong -> bool`
 
       Gets or sets whether the font will be bold when drawing text. This
       default style value will be used for all text rendering and size
@@ -397,7 +409,7 @@ New in Pygame 1.9.2
    .. attribute:: oblique
 
       | :sl:`The state of the font's oblique style flag`
-      | :sg:`oblique <-> bool`
+      | :sg:`oblique -> bool`
 
       Gets or sets whether the font will be rendered as oblique. This
       default style value will be used for all text rendering and size
@@ -407,7 +419,7 @@ New in Pygame 1.9.2
    .. attribute:: wide
 
       | :sl:`The state of the font's wide style flag`
-      | :sg:`wide <-> bool`
+      | :sg:`wide -> bool`
 
       Gets or sets whether the font will be stretched horizontally
       when drawing text. It produces a result similar to font.Font's
@@ -416,7 +428,7 @@ New in Pygame 1.9.2
    .. attribute:: strength
 
       | :sl:`The strength associated with the strong or wide font styles`
-      | :sg:`strength <-> float`
+      | :sg:`strength -> float`
 
       The amount by which a font glyph's size is enlarged for the
       strong or wide transformations, as a fraction of the untransformed
@@ -428,7 +440,7 @@ New in Pygame 1.9.2
    .. attribute:: underline_adjustment
 
       | :sl:`Adjustment factor for the underline position`
-      | :sg:`underline_adjustment <-> float`
+      | :sg:`underline_adjustment -> float`
 
       Gets or sets a factor which, when positive, is multiplied with the
       font's underline offset to adjust the underline position. A negative
@@ -442,16 +454,30 @@ New in Pygame 1.9.2
       | :sl:`Gets whether the font is fixed-width`
       | :sg:`fixed_width -> bool`
 
-      Read only. Returns whether this Font is a fixed-width (bitmap) font.
+      Read only. Return True if the font contains fixed-width characters
+      (for example Courier, Bitstream Vera Sans Mono, Andale Mono).
 
-      Note that scalable fonts whose glyphs are all the same width (i.e.
-      monospace ``TTF`` fonts used for programming) are not considered fixed
-      width.
+   .. attribute:: fixed_sizes
+
+      | :sl:`the number of embedded bitmap sizes the font`
+      | :sg:`fixed_sizes -> int`
+
+      Read only. Return the number of point sizes for which the font contains
+      bitmap character images. If zero then the font is not a bitmap font. 
+      A scalable font may contain pre-rendered point sizes.
+
+   .. attribute:: scalable
+
+      | :sl:`Gets whether the font is scalable`
+      | :sg:`scalable -> bool`
+
+      Read only. Return True if the font contains outline glyphs. If so,
+      the point size is not limited to available bitmap sizes.
 
    .. attribute:: antialiased
 
       | :sl:`Font anti-aliasing mode`
-      | :sg:`antialiased <-> bool`
+      | :sg:`antialiased -> bool`
 
       Gets or sets the font's anti-aliasing mode. This defaults to ``True`` on
       all fonts, which are rendered with full 8 bit blending.
@@ -494,7 +520,7 @@ New in Pygame 1.9.2
    .. attribute:: origin
 
       | :sl:`Font render to text origin mode`
-      | :sg:`vertical -> bool`
+      | :sg:`origin -> bool`
 
       If set True, then when rendering to an existing surface, the position
       is taken to be that of the text origin. Otherwise the render position is
@@ -512,7 +538,7 @@ New in Pygame 1.9.2
    .. attribute:: ucs4
 
       | :sl:`Enable UCS-4 mode`
-      | :sg:`ucs4 <-> bool`
+      | :sg:`ucs4 -> bool`
 
       Gets or sets the decoding of Unicode text. By default, the
       freetype module performs UTF-16 surrogate pair decoding on Unicode text.
