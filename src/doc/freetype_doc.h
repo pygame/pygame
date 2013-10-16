@@ -17,11 +17,13 @@
 
 #define DOC_PYGAMEFREETYPEGETDEFAULTFONT "get_default_font() -> string\nGet the filename of the default font"
 
-#define DOC_PYGAMEFREETYPEFONT "Font(file, style=STYLE_NONE, ptsize=-1, font_index=0, vertical=0, ucs4=0, resolution=0) -> Font\nCreate a new Font instance from a supported font file."
+#define DOC_PYGAMEFREETYPEFONT "Font(file, ptsize=-1, font_index=0, resolution=0, ucs4=False) -> Font\nCreate a new Font instance from a supported font file."
 
 #define DOC_FONTNAME "name -> string\nProper font name."
 
 #define DOC_FONTPATH "path -> unicode\nFont file path"
+
+#define DOC_FONTPTSIZE "ptsize -> int\nThe default point size used in rendering"
 
 #define DOC_FONTGETRECT "get_rect(text, style=STYLE_DEFAULT, rotation=0, ptsize=default) -> rect\nReturn the size and offset of rendered text"
 
@@ -129,7 +131,7 @@ pygame.freetype.get_default_font
 Get the filename of the default font
 
 pygame.freetype.Font
- Font(file, style=STYLE_NONE, ptsize=-1, font_index=0, vertical=0, ucs4=0, resolution=0) -> Font
+ Font(file, ptsize=-1, font_index=0, resolution=0, ucs4=False) -> Font
 Create a new Font instance from a supported font file.
 
 pygame.freetype.Font.name
@@ -139,6 +141,10 @@ Proper font name.
 pygame.freetype.Font.path
  path -> unicode
 Font file path
+
+pygame.freetype.Font.ptsize
+ ptsize -> int
+The default point size used in rendering
 
 pygame.freetype.Font.get_rect
  get_rect(text, style=STYLE_DEFAULT, rotation=0, ptsize=default) -> rect
