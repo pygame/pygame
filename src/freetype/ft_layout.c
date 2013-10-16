@@ -621,5 +621,12 @@ get_load_flags(const FontRenderMode *mode)
         load_flags |= FT_LOAD_NO_HINTING;
     }
 
+    if (!(mode->render_flags & FT_RFLAG_USE_BITMAP_STRIKES) ||
+        (mode->render_flags & FT_RFLAG_TRANSFORM) ||
+        (mode->rotation_angle != 0) ||
+        (mode->style & (FT_STYLE_STRONG | FT_STYLE_OBLIQUE))) {
+        load_flags |= FT_LOAD_NO_BITMAP;
+    }
+
     return load_flags;
 }

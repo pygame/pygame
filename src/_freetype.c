@@ -515,6 +515,13 @@ static PyGetSetDef _ftfont_getsets[] = {
         (void *)FT_RFLAG_UCS4
     },
     {
+        "use_bitmap_strikes",
+        (getter)_ftfont_getrender_flag,
+        (setter)_ftfont_setrender_flag,
+        DOC_FONTUSEBITMAPSTRIKES,
+        (void *)FT_RFLAG_USE_BITMAP_STRIKES
+    },
+    {
         "resolution",
         (getter)_ftfont_getresolution,
         0,
@@ -1379,8 +1386,8 @@ _ftfont_getsizes(PgFontObject *self)
     int nsizes;
     unsigned i;
     int rc;
+    long ptsize = 0;
     long height = 0, width = 0;
-    double size = 0.0;
     double x_ppem = 0.0, y_ppem = 0.0;
     PyObject *size_list = 0;
     PyObject *size_item;
@@ -1393,11 +1400,12 @@ _ftfont_getsizes(PgFontObject *self)
     if (!size_list) goto error;
     for (i = 0; i < nsizes; ++i) {
         rc = _PGFT_Font_GetAvailableSize(ft, self, i,
-                                         &height, &width,
-                                         &size, &x_ppem, &y_ppem);
+                                         &ptsize, &height, &width,
+                                         &x_ppem, &y_ppem);
         if (rc < 0) goto error;
         assert(rc > 0);
-        size_item = Py_BuildValue("llddd", height, width, size, x_ppem, y_ppem);
+        size_item = Py_BuildValue("llldd",
+                                  ptsize, height, width, x_ppem, y_ppem);
         if (!size_item) goto error;
         PyList_SET_ITEM(size_list, i, size_item);
     }

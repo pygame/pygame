@@ -249,7 +249,7 @@ int _PGFT_Font_IsScalable(FreeTypeInstance *, PgFontObject *);
 int _PGFT_Font_IsFixedWidth(FreeTypeInstance *, PgFontObject *);
 int _PGFT_Font_NumFixedSizes(FreeTypeInstance *, PgFontObject *);
 int _PGFT_Font_GetAvailableSize(FreeTypeInstance *, PgFontObject *, unsigned,
-                                long *, long *, double *, double *, double *);
+                                long *, long *, long *, double *, double *);
 const char *_PGFT_Font_GetName(FreeTypeInstance *, PgFontObject *);
 int _PGFT_TryLoadFont_Filename(FreeTypeInstance *,
                                PgFontObject *, const char *, long);

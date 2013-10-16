@@ -56,17 +56,20 @@
 #define FT_BBOX_PIXEL_GRIDFIT   FT_GLYPH_BBOX_PIXELS
 
 /* Rendering flags */
-#define FT_RFLAG_NONE           (0)
-#define FT_RFLAG_ANTIALIAS      (1 << 0)
-#define FT_RFLAG_AUTOHINT       (1 << 1)
-#define FT_RFLAG_VERTICAL       (1 << 2)
-#define FT_RFLAG_HINTED         (1 << 3)
-#define FT_RFLAG_KERNING        (1 << 4)
-#define FT_RFLAG_TRANSFORM      (1 << 5)
-#define FT_RFLAG_PAD            (1 << 6)
-#define FT_RFLAG_ORIGIN         (1 << 7)
-#define FT_RFLAG_UCS4           (1 << 8)
-#define FT_RFLAG_DEFAULTS       (FT_RFLAG_HINTED | FT_RFLAG_ANTIALIAS)
+#define FT_RFLAG_NONE                  (0)
+#define FT_RFLAG_ANTIALIAS             (1 << 0)
+#define FT_RFLAG_AUTOHINT              (1 << 1)
+#define FT_RFLAG_VERTICAL              (1 << 2)
+#define FT_RFLAG_HINTED                (1 << 3)
+#define FT_RFLAG_KERNING               (1 << 4)
+#define FT_RFLAG_TRANSFORM             (1 << 5)
+#define FT_RFLAG_PAD                   (1 << 6)
+#define FT_RFLAG_ORIGIN                (1 << 7)
+#define FT_RFLAG_UCS4                  (1 << 8)
+#define FT_RFLAG_USE_BITMAP_STRIKES    (1 << 9)
+#define FT_RFLAG_DEFAULTS              (FT_RFLAG_HINTED | \
+                                        FT_RFLAG_USE_BITMAP_STRIKES | \
+                                        FT_RFLAG_ANTIALIAS)
 
 
 #define FT_RENDER_NEWBYTEARRAY      0x0
