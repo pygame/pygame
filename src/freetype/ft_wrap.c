@@ -121,8 +121,9 @@ _PGFT_Font_NumFixedSizes(FreeTypeInstance *ft, PgFontObject *fontobj)
 
 int
 _PGFT_Font_GetAvailableSize(FreeTypeInstance *ft, PgFontObject *fontobj,
-                            unsigned n, long *height_p, long *width_p,
-                            double *size_p, double *x_ppem_p, double *y_ppem_p)
+                            unsigned n, long *ptsize_p,
+                            long *height_p, long *width_p,
+                            double *x_ppem_p, double *y_ppem_p)
 {
     FT_Face font = _PGFT_GetFont(ft, fontobj);
     FT_Bitmap_Size *bitmap_size_p;
@@ -135,9 +136,9 @@ _PGFT_Font_GetAvailableSize(FreeTypeInstance *ft, PgFontObject *fontobj,
         return 0;
     }
     bitmap_size_p = font->available_sizes + n;
+    *ptsize_p = FX6_TRUNC(FX6_ROUND(bitmap_size_p->size));
     *height_p = (long)bitmap_size_p->height;
     *width_p = (long)bitmap_size_p->width;
-    *size_p = FX6_TO_DBL(bitmap_size_p->size);
     *x_ppem_p = FX6_TO_DBL(bitmap_size_p->x_ppem);
     *y_ppem_p = FX6_TO_DBL(bitmap_size_p->y_ppem);
     return 1;

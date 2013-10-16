@@ -41,7 +41,7 @@
 
 #define DOC_FONTGETSIZEDGLYPHHEIGHT "get_sized_glyph_height() -> int\nThe scaled bounding box height of the font in pixels"
 
-#define DOC_FONTGETSIZES "get_sizes() -> [(int, int, float, float, float), ...]\nget_sizes() -> []\nreturn the available sizes of embedded bitmaps"
+#define DOC_FONTGETSIZES "get_sizes() -> [(int, int, int, float, float), ...]\nget_sizes() -> []\nreturn the available sizes of embedded bitmaps"
 
 #define DOC_FONTRENDER "render(text, fgcolor, bgcolor=None, style=STYLE_DEFAULT, rotation=0, ptsize=default) -> (Surface, Rect)\nReturn rendered text as a surface"
 
@@ -70,6 +70,8 @@
 #define DOC_FONTFIXEDSIZES "fixed_sizes -> int\nthe number of embedded bitmap sizes the font"
 
 #define DOC_FONTSCALABLE "scalable -> bool\nGets whether the font is scalable"
+
+#define DOC_FONTUSEBITMAPSTRIKES "use_bitmap_strikes -> bool\nallow the use of embeddeded bitmaps in an outline font file"
 
 #define DOC_FONTANTIALIASED "antialiased -> bool\nFont anti-aliasing mode"
 
@@ -175,7 +177,7 @@ pygame.freetype.Font.get_sized_glyph_height
 The scaled bounding box height of the font in pixels
 
 pygame.freetype.Font.get_sizes
- get_sizes() -> [(int, int, float, float, float), ...]
+ get_sizes() -> [(int, int, int, float, float), ...]
  get_sizes() -> []
 return the available sizes of embedded bitmaps
 
@@ -234,6 +236,10 @@ the number of embedded bitmap sizes the font
 pygame.freetype.Font.scalable
  scalable -> bool
 Gets whether the font is scalable
+
+pygame.freetype.Font.use_bitmap_strikes
+ use_bitmap_strikes -> bool
+allow the use of embeddeded bitmaps in an outline font file
 
 pygame.freetype.Font.antialiased
  antialiased -> bool
