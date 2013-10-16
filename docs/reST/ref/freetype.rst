@@ -273,16 +273,13 @@ New in Pygame 1.9.2
    .. method:: get_sizes
 
       | :sl:`return the available sizes of embedded bitmaps`
-      | :sg:`get_sizes() -> [(int, int, float, float, float), ...]`
+      | :sg:`get_sizes() -> [(int, int, int, float, float), ...]`
       | :sg:`get_sizes() -> []`
 
       This returns a list of tuple records, one for each point size
-      supported. Each tuple containing the height in pixels, width in pixels,
-      nominal size of the strike in fractional points, horizontal ppem
-      (nominal width) in fractional pixels, and vertical ppem (nominal height)
-      in fractional pixels. The point size is equivalent to the rounded
-      vertical ppem ― index 3 ― of the tuple. Use it for the ptsize argument
-      of the render methods.
+      supported. Each tuple containing the point size, the height in pixels,
+      width in pixels, horizontal ppem (nominal width) in fractional pixels,
+      and vertical ppem (nominal height) in fractional pixels.
 
    .. method:: render
 
@@ -473,6 +470,20 @@ New in Pygame 1.9.2
 
       Read only. Return True if the font contains outline glyphs. If so,
       the point size is not limited to available bitmap sizes.
+
+   .. attribute:: use_bitmap_strikes
+
+      | :sl:`allow the use of embeddeded bitmaps in an outline font file`
+      | :sg:`use_bitmap_strikes -> bool`
+
+      Some scalable fonts contain embedded bitmaps for particular point
+      sizes. This property controls whether or not those bitmap strikes
+      are used. Setting ``False`` disables the loading of any bitmap strike.
+      Setting ``True``, the default value, allows bitmap strikes for an
+      unrotated render when no style other than :attr:`wide` or
+      :attr:`underline` is set. This property has no effect on bitmap files.
+
+      See also :attr:`fixed_sizes` and :meth:`get_sizes`.
 
    .. attribute:: antialiased
 

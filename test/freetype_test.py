@@ -141,18 +141,109 @@ class FreeTypeFontTest(unittest.TestCase):
         self.assertTrue(isinstance(szlist, list))
         self.assertEqual(len(szlist), 1)
         size8 = szlist[0]
+        self.assertTrue(isinstance(size8[0], int))
+        self.assertEqual(size8[0], 8)
+        self.assertTrue(isinstance(size8[1], int))
+        self.assertTrue(isinstance(size8[2], int))
+        self.assertTrue(isinstance(size8[3], float))
         self.assertEqual(int(size8[3] * 64.0 + 0.5), 8 * 64)
+        self.assertTrue(isinstance(size8[4], float))
         self.assertEqual(int(size8[4] * 64.0 + 0.5), 8 * 64)
         f = self._TEST_FONTS['mono']
         szlist = f.get_sizes()
         self.assertTrue(isinstance(szlist, list))
         self.assertEqual(len(szlist), 2)
         size8 = szlist[0]
+        self.assertEqual(size8[3], 8)
         self.assertEqual(int(size8[3] * 64.0 + 0.5), 8 * 64)
         self.assertEqual(int(size8[4] * 64.0 + 0.5), 8 * 64)
         size19 = szlist[1]
+        self.assertEqual(size19[3], 19)
         self.assertEqual(int(size19[3] * 64.0 + 0.5), 19 * 64)
         self.assertEqual(int(size19[4] * 64.0 + 0.5), 19 * 64)
+
+    def test_freetype_Font_use_bitmap_strikes(self):
+        f = self._TEST_FONTS['mono']
+        try:
+            # use_bitmap_strikes == True
+            #
+            self.assertTrue(f.use_bitmap_strikes)
+
+            # bitmap compatible properties
+            s_strike, sz = f.render_raw('A', ptsize=19)
+            try:
+                f.vertical = True
+                s_strike_vert, sz = f.render_raw('A', ptsize=19)
+            finally:
+                f.vertical = False
+            try:
+                f.wide = True
+                s_strike_wide, sz = f.render_raw('A', ptsize=19)
+            finally:
+                f.wide = False
+            try:
+                f.underline = True
+                s_strike_underline, sz = f.render_raw('A', ptsize=19)
+            finally:
+                f.underline = False
+
+            # bitmap incompatible properties
+            s_strike_rot45, sz = f.render_raw('A', ptsize=19, rotation=45)
+            try:
+                f.strong = True
+                s_strike_strong, sz = f.render_raw('A', ptsize=19)
+            finally:
+                f.strong = False
+            try:
+                f.oblique = True
+                s_strike_oblique, sz = f.render_raw('A', ptsize=19)
+            finally:
+                f.oblique = False
+
+            # compare with use_bitmap_strikes == False
+            #
+            f.use_bitmap_strikes = False
+            self.assertFalse(f.use_bitmap_strikes)
+
+            # bitmap compatible properties
+            s_outline, sz = f.render_raw('A', ptsize=19)
+            self.assertNotEqual(s_outline, s_strike)
+            try:
+                f.vertical = True
+                s_outline, sz = f.render_raw('A', ptsize=19)
+                self.assertNotEqual(s_outline, s_strike_vert)
+            finally:
+                f.vertical = False
+            try:
+                f.wide = True
+                s_outline, sz = f.render_raw('A', ptsize=19)
+                self.assertNotEqual(s_outline, s_strike_wide)
+            finally:
+                f.wide = False
+            try:
+                f.underline = True
+                s_outline, sz = f.render_raw('A', ptsize=19)
+                self.assertNotEqual(s_outline, s_strike_underline)
+            finally:
+                f.underline = False
+
+            # bitmap incompatible properties
+            s_outline, sz = f.render_raw('A', ptsize=19, rotation=45)
+            self.assertEqual(s_outline, s_strike_rot45)
+            try:
+                f.strong = True
+                s_outline, sz = f.render_raw('A', ptsize=19)
+                self.assertEqual(s_outline, s_strike_strong)
+            finally:
+                f.strong = False
+            try:
+                f.oblique = True
+                s_outline, sz = f.render_raw('A', ptsize=19)
+                self.assertEqual(s_outline, s_strike_oblique)
+            finally:
+                f.oblique = False
+        finally:
+            f.use_bitmap_strikes = True
 
     def test_freetype_Font_get_metrics(self):
 
