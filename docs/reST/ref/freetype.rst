@@ -118,7 +118,7 @@ New in Pygame 1.9.2
 .. class:: Font
 
    | :sl:`Create a new Font instance from a supported font file.`
-   | :sg:`Font(file, style=STYLE_NONE, ptsize=-1, font_index=0, vertical=0, ucs4=0, resolution=0) -> Font`
+   | :sg:`Font(file, ptsize=-1, font_index=0, resolution=0, ucs4=False) -> Font`
 
    Argument *file* can be either a string representing the font's filename, a
    file-like object containing the font, or None; if None, the default, built-in font
@@ -134,23 +134,15 @@ New in Pygame 1.9.2
    the *index* argument. An exception is raised for an out-of-range font index
    value.
 
-   The *style* argument will set the default style (oblique, underline, strong)
-   used to draw this font. This style may be overridden on any :meth:`Font.render`
-   call.
-
-   The optional vertical argument, an integer, sets the default orientation
-   for the font: 0 (False) for horizontal, any other value (True) for vertical.
-   See :attr:`Font.vertical`.
+   The optional resolution argument sets the pixel size, in dots per inch,
+   for use in scaling glyphs for this Font instance. If 0 then the default
+   module value, set by :meth:`freetype.init`, is used. The Font object's
+   resolution can only be changed by reinitializing the Font instance.
 
    The optional ucs4 argument, an integer, sets the default text translation
    mode: 0 (False) recognize UTF-16 surrogate pairs, any other value (True),
    to treat Unicode text as UCS-4, with no surrogate pairs. See
    :attr:`Font.ucs4`.
-
-   The optional resolution argument sets the pixel size, in dots per inch,
-   for use in scaling glyphs for this Font instance. If 0 then the default
-   module value, set by :meth:`freetype.init`, is used. The Font object's
-   resolution can only be changed by reinitializing the Font instance.
 
    .. attribute:: name
 
@@ -166,6 +158,13 @@ New in Pygame 1.9.2
       | :sg:`path -> unicode`
 
       Read only. Returns the path of the loaded font file
+
+   .. attribute:: ptsize
+
+      | :sl:`The default point size used in rendering`
+      | :sg:`ptsize -> int`
+
+      Get or set a default point size used by metric or render methods.
 
    .. method:: get_rect
 

@@ -75,6 +75,8 @@ static PyObject *_ftfont_getsizes(PgFontObject *);
 /*
  * Getters/setters
  */
+static PyObject *_ftfont_getptsize(PgFontObject *, void *);
+static int _ftfont_setptsize(PgFontObject *, PyObject *, void *);
 static PyObject *_ftfont_getstyle(PgFontObject *, void *);
 static int _ftfont_setstyle(PgFontObject *, PyObject *, void *);
 static PyObject *_ftfont_getname(PgFontObject *, void *);
@@ -375,6 +377,13 @@ static PyMethodDef _ftfont_methods[] = {
  */
 static PyGetSetDef _ftfont_getsets[] = {
     {
+        "ptsize",
+        (getter)_ftfont_getptsize,
+        (setter)_ftfont_setptsize,
+        DOC_FONTPTSIZE,
+        0
+    },
+    {
         "style",
         (getter)_ftfont_getstyle,
         (setter)_ftfont_setstyle,
@@ -650,31 +659,25 @@ static int
 _ftfont_init(PgFontObject *self, PyObject *args, PyObject *kwds)
 {
     static char *kwlist[] =  {
-        "font", "ptsize", "style", "font_index", "vertical",
-        "ucs4", "resolution", "origin", 0
+        "file", "ptsize", "font_index", "resolution", "ucs4", 0
     };
 
     PyObject *file, *original_file;
     long font_index = 0;
-    int ptsize;
-    int style;
-    int ucs4;
-    int vertical;
+    int ptsize = self->ptsize;
+    int ucs4 = self->render_flags & FT_RFLAG_UCS4 ? 1 : 0;
     unsigned resolution = 0;
-    int origin;
 
     FreeTypeInstance *ft;
     ASSERT_GRAB_FREETYPE(ft, -1);
 
-    ptsize = self->ptsize;
-    style = self->style;
-    ucs4 = self->render_flags & FT_RFLAG_UCS4 ? 1 : 0;
-    vertical = self->render_flags & FT_RFLAG_VERTICAL ? 1 : 0;
-    origin = self->render_flags & FT_RFLAG_ORIGIN ? 1 : 0;
-
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|iiliiIi", kwlist,
-                                     &file, &ptsize, &style, &font_index,
-                                     &vertical, &ucs4, &resolution, &origin)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|ilIi", kwlist,
+                                     &file, &ptsize, &font_index,
+                                     &resolution, &ucs4)) {
+        return -1;
+    }
+    if (ptsize > 0x7FFF) {
+        PyErr_SetString(PyExc_ValueError, "ptsize argument value too large");
         return -1;
     }
 
@@ -684,30 +687,12 @@ _ftfont_init(PgFontObject *self, PyObject *args, PyObject *kwds)
     Py_XDECREF(self->path);
     self->path = 0;
 
-    if (_PGFT_CheckStyle(style)) {
-        PyErr_Format(PyExc_ValueError,
-                     "Invalid style value %x", (int)style);
-        return -1;
-    }
-    self->ptsize = (FT_Int16)((ptsize <= 0) ? -1 : ptsize);
-    self->style = (FT_Int16)style;
+    self->ptsize = (FT_Int16)((ptsize > 0) ? ptsize : -1);
     if (ucs4) {
         self->render_flags |= FT_RFLAG_UCS4;
     }
     else {
         self->render_flags &= ~FT_RFLAG_UCS4;
-    }
-    if (vertical) {
-        self->render_flags |= FT_RFLAG_VERTICAL;
-    }
-    else {
-        self->render_flags &= ~FT_RFLAG_VERTICAL;
-    }
-    if (origin) {
-        self->render_flags |= FT_RFLAG_ORIGIN;
-    }
-    else {
-        self->render_flags &= ~FT_RFLAG_ORIGIN;
     }
     if (resolution) {
         self->resolution = (FT_UInt)resolution;
@@ -911,6 +896,34 @@ _ftfont_setstrength(PgFontObject *self, PyObject *value, void *closure)
         return -1;
     }
     self->strength = strength;
+    return 0;
+}
+
+static PyObject *
+_ftfont_getptsize(PgFontObject *self, void *closure)
+{
+    return PyInt_FromLong(self->ptsize);
+}
+
+static int
+_ftfont_setptsize(PgFontObject *self, PyObject *value, void *closure)
+{
+    PyObject *ptsizeobj = PyNumber_Int(value);
+    long ptsize;
+
+    if (!ptsizeobj) {
+        return -1;
+    }
+    ptsize = PyInt_AsLong(ptsizeobj);
+    Py_DECREF(ptsizeobj);
+    if (ptsize == -1 && PyErr_Occurred()) {
+        return -1;
+    }
+    if (ptsize > 0x7FFFL) {
+        PyErr_SetString(PyExc_ValueError, "ptsize value too large");
+        return -1;
+    }
+    self->ptsize = (FT_Int16)(ptsize > 0 ? ptsize : -1);
     return 0;
 }
 

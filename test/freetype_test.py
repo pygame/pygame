@@ -80,6 +80,19 @@ class FreeTypeFontTest(unittest.TestCase):
         f = self._TEST_FONTS['fixed']
         self.assertTrue(isinstance(f, ft.Font))
 
+        # Test keyword arguments
+        f = ft.Font(ptsize=22, file=None)
+        self.assertEqual(f.ptsize, 22)
+        f = ft.Font(font_index=0, file=None)
+        self.assertNotEqual(ft.get_default_resolution(), 100)
+        f = ft.Font(resolution=100, file=None)
+        self.assertEqual(f.resolution, 100)
+        f = ft.Font(ucs4=True, file=None)
+        self.assertTrue(f.ucs4)
+        self.assertRaises(ValueError, ft.Font, file=None, ptsize=0x8000)
+        f = ft.Font(None, ptsize=-0x10000)
+        self.assertEqual(f.ptsize, -1)
+
         f = ft.Font(None, ptsize=24)
         self.assert_(f.height > 0)
         self.assertRaises(IOError, f.__init__,
@@ -342,6 +355,17 @@ class FreeTypeFontTest(unittest.TestCase):
 
         nf = nullfont()
         self.assertEqual(nf.name, repr(nf))
+
+    def test_freetype_Font_ptsize(self):
+
+        f = ft.Font(None, ptsize=12)
+        self.assertEqual(f.ptsize, 12)
+        f.ptsize = 22
+        self.assertEqual(f.ptsize, 22)
+        for i in [0, -1, -2, -0x10000]:
+            f.ptsize = i
+            self.assertEqual(f.ptsize, -1)
+        self.assertRaises(ValueError, setattr, f, 'ptsize', 0x8000)
 
     def test_freetype_Font_render_to(self):
         # Rendering to an existing target surface is equivalent to
@@ -812,7 +836,8 @@ class FreeTypeFontTest(unittest.TestCase):
         hit = 0
         miss = 0
 
-        f = ft.Font(None, ptsize=24, style=ft.STYLE_NORMAL, vertical=False)
+        f = ft.Font(None, ptsize=24, font_index=0, resolution=72, ucs4=False)
+        f.style = ft.STYLE_NORMAL
         f.antialiased = True
 
         # Ensure debug counters are zero
