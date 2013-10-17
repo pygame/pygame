@@ -127,25 +127,21 @@ _PGFT_CheckStyle(FT_UInt32 style)
 int
 _PGFT_BuildRenderMode(FreeTypeInstance *ft,
                       PgFontObject *fontobj, FontRenderMode *mode,
-                      int pt_size, int style, int rotation)
+                      Scale_t face_size, int style, int rotation)
 {
     int angle;
 
-    if (pt_size == -1) {
-        if (fontobj->ptsize == -1) {
+    if (face_size == 0) {
+        if (fontobj->face_size == 0) {
             PyErr_SetString(PyExc_ValueError,
                   "No font point size specified"
                   " and no default font size in typeface");
             return -1;
         }
 
-        pt_size = fontobj->ptsize;
+        face_size = fontobj->face_size;
     }
-    if (pt_size <= 0) {
-        PyErr_SetString(PyExc_ValueError, "Invalid point size for font.");
-        return -1;
-    }
-    mode->pt_size = (FT_UInt16)pt_size;
+    mode->face_size = face_size;
 
     if (style == FT_STYLE_DEFAULT) {
         mode->style = fontobj->style;
@@ -289,7 +285,7 @@ _PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PgFontObject *fontobj,
         r->x = 0;
         r->y = 0;
         r->w = 0;
-        r->h = _PGFT_Font_GetHeightSized(ft, fontobj, mode->pt_size);
+        r->h = _PGFT_Font_GetHeightSized(ft, fontobj, mode->face_size);
         return 0;
     }
 
@@ -321,7 +317,7 @@ _PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PgFontObject *fontobj,
         r->x = 0;
         r->y = 0;
         r->w = 0;
-        r->h = _PGFT_Font_GetHeightSized(ft, fontobj, mode->pt_size);
+        r->h = _PGFT_Font_GetHeightSized(ft, fontobj, mode->face_size);
         return 0;
     }
     surf_offset.x = INT_TO_FX6(x);
@@ -437,7 +433,7 @@ SDL_Surface *_PGFT_Render_NewSurface(FreeTypeInstance *ft,
     }
     else {
         width = 1;
-        height = _PGFT_Font_GetHeightSized(ft, fontobj, mode->pt_size);
+        height = _PGFT_Font_GetHeightSized(ft, fontobj, mode->face_size);
         offset.x = -font_text->min_x;
         offset.y = -font_text->min_y;
     }
@@ -668,7 +664,7 @@ _PGFT_Render_Array(FreeTypeInstance *ft, PgFontObject *fontobj,
         r->x = 0;
         r->y = 0;
         r->w = 0;
-        r->h = _PGFT_Font_GetHeightSized(ft, fontobj, mode->pt_size);
+        r->h = _PGFT_Font_GetHeightSized(ft, fontobj, mode->face_size);
         return 0;
     }
 
@@ -687,7 +683,7 @@ _PGFT_Render_Array(FreeTypeInstance *ft, PgFontObject *fontobj,
         r->x = 0;
         r->y = 0;
         r->w = 0;
-        r->h = _PGFT_Font_GetHeightSized(ft, fontobj, mode->pt_size);
+        r->h = _PGFT_Font_GetHeightSized(ft, fontobj, mode->face_size);
         return 0;
     }
     array_offset.x = INT_TO_FX6(x);

@@ -118,13 +118,13 @@ New in Pygame 1.9.2
 .. class:: Font
 
    | :sl:`Create a new Font instance from a supported font file.`
-   | :sg:`Font(file, ptsize=-1, font_index=0, resolution=0, ucs4=False) -> Font`
+   | :sg:`Font(file, size=0, font_index=0, resolution=0, ucs4=False) -> Font`
 
    Argument *file* can be either a string representing the font's filename, a
    file-like object containing the font, or None; if None, the default, built-in font
    is used.
 
-   Optionally, a *ptsize* argument may be specified to set the default size in
+   Optionally, a *size* argument may be specified to set the default size in
    points, which will be used when rendering the font. The size can also be
    passed explicitly to each method call. Because of the way the caching
    system works, specifying a default size on the constructor doesn't imply a
@@ -159,17 +159,17 @@ New in Pygame 1.9.2
 
       Read only. Returns the path of the loaded font file
 
-   .. attribute:: ptsize
+   .. attribute:: size
 
       | :sl:`The default point size used in rendering`
-      | :sg:`ptsize -> int`
+      | :sg:`size -> int`
 
       Get or set a default point size used by metric or render methods.
 
    .. method:: get_rect
 
       | :sl:`Return the size and offset of rendered text`
-      | :sg:`get_rect(text, style=STYLE_DEFAULT, rotation=0, ptsize=default) -> rect`
+      | :sg:`get_rect(text, style=STYLE_DEFAULT, rotation=0, size=0) -> rect`
 
       Gets the final dimensions and origin, in pixels, of 'text' using the
       current point size, style, rotation and orientation. These are either
@@ -187,7 +187,7 @@ New in Pygame 1.9.2
    .. method:: get_metrics
 
       | :sl:`Return the glyph metrics for the given text`
-      | :sg:`get_metrics(text, ptsize=default) -> [(...), ...]`
+      | :sg:`get_metrics(text, size=0) -> [(...), ...]`
 
       Returns the glyph metrics for each character in 'text'.
 
@@ -283,7 +283,7 @@ New in Pygame 1.9.2
    .. method:: render
 
       | :sl:`Return rendered text as a surface`
-      | :sg:`render(text, fgcolor, bgcolor=None, style=STYLE_DEFAULT, rotation=0, ptsize=default) -> (Surface, Rect)`
+      | :sg:`render(text, fgcolor, bgcolor=None, style=STYLE_DEFAULT, rotation=0, size=0) -> (Surface, Rect)`
 
       Returns a new :mod:`pygame.Surface`, with the text rendered to it
       in the color given by 'fgcolor'. If ``bgcolor`` is given, the surface
@@ -303,7 +303,7 @@ New in Pygame 1.9.2
       The rendering is done using the font's default size in points and its
       default style, without any rotation, and taking into account fonts which
       are set to be drawn vertically via the :meth:`Font.vertical` attribute.
-      Optionally you may specify another point size to use via the 'ptsize'
+      Optionally you may specify another point size to use via the 'size'
       argument, a text rotation via the 'rotation' argument, or a new text
       style via the 'style' argument.
 
@@ -313,7 +313,7 @@ New in Pygame 1.9.2
    .. method:: render_to
 
       | :sl:`Render text onto an existing surface`
-      | :sg:`render(surf, dest, text, fgcolor, bgcolor=None, style=STYLE_DEFAULT, rotation=0, ptsize=default) -> Rect`
+      | :sg:`render(surf, dest, text, fgcolor, bgcolor=None, style=STYLE_DEFAULT, rotation=0, size=0) -> Rect`
 
       Renders the string 'text' to a :mod:`pygame.Surface` 'surf',
       using the color 'fgcolor'.
@@ -345,7 +345,7 @@ New in Pygame 1.9.2
    .. method:: render_raw
 
       | :sl:`Return rendered text as a string of bytes`
-      | :sg:`render_raw(text, style=STYLE_DEFAULT, rotation=0, ptsize=default, invert=False) -> (bytes, (int, int))`
+      | :sg:`render_raw(text, style=STYLE_DEFAULT, rotation=0, size=0, invert=False) -> (bytes, (int, int))`
 
       Like ``Font.render()`` but the tuple returned is an 8 bit
       monochrome string of bytes and its size. The foreground color is 255, the
@@ -354,7 +354,7 @@ New in Pygame 1.9.2
    .. method:: render_raw_to
 
       | :sl:`Render text into an array of ints`
-      | :sg:`render_raw_to(array, text, dest=None, style=STYLE_DEFAULT, rotation=0, ptsize=default, invert=False) -> (int, int)`
+      | :sg:`render_raw_to(array, text, dest=None, style=STYLE_DEFAULT, rotation=0, size=0, invert=False) -> (int, int)`
 
       Render to an array object exposing an array struct interface. The array
       must be two dimensional with integer items. The default dest value, None,

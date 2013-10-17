@@ -26,7 +26,7 @@
 
 typedef struct keyfields_ {
     PGFT_char ch;
-    unsigned short pt_size;
+    Scale_t face_size;
     unsigned short style;
     unsigned short render_flags;
     unsigned short rotation;
@@ -67,7 +67,7 @@ set_node_key(NodeKey *key, PGFT_char ch, const FontRenderMode *mode)
 
     memset(key, 0, sizeof(key));
     fields->ch = ch;
-    fields->pt_size = mode->pt_size;
+    fields->face_size = mode->face_size;
     fields->style = mode->style & style_mask;
     fields->render_flags = mode->render_flags & rflag_mask;
     fields->rotation = rot;

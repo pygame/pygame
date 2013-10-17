@@ -17,17 +17,17 @@
 
 #define DOC_PYGAMEFREETYPEGETDEFAULTFONT "get_default_font() -> string\nGet the filename of the default font"
 
-#define DOC_PYGAMEFREETYPEFONT "Font(file, ptsize=-1, font_index=0, resolution=0, ucs4=False) -> Font\nCreate a new Font instance from a supported font file."
+#define DOC_PYGAMEFREETYPEFONT "Font(file, size=0, font_index=0, resolution=0, ucs4=False) -> Font\nCreate a new Font instance from a supported font file."
 
 #define DOC_FONTNAME "name -> string\nProper font name."
 
 #define DOC_FONTPATH "path -> unicode\nFont file path"
 
-#define DOC_FONTPTSIZE "ptsize -> int\nThe default point size used in rendering"
+#define DOC_FONTSIZE "size -> int\nThe default point size used in rendering"
 
-#define DOC_FONTGETRECT "get_rect(text, style=STYLE_DEFAULT, rotation=0, ptsize=default) -> rect\nReturn the size and offset of rendered text"
+#define DOC_FONTGETRECT "get_rect(text, style=STYLE_DEFAULT, rotation=0, size=0) -> rect\nReturn the size and offset of rendered text"
 
-#define DOC_FONTGETMETRICS "get_metrics(text, ptsize=default) -> [(...), ...]\nReturn the glyph metrics for the given text"
+#define DOC_FONTGETMETRICS "get_metrics(text, size=0) -> [(...), ...]\nReturn the glyph metrics for the given text"
 
 #define DOC_FONTHEIGHT "height -> int\nThe unscaled height of the font in font units"
 
@@ -45,13 +45,13 @@
 
 #define DOC_FONTGETSIZES "get_sizes() -> [(int, int, int, float, float), ...]\nget_sizes() -> []\nreturn the available sizes of embedded bitmaps"
 
-#define DOC_FONTRENDER "render(text, fgcolor, bgcolor=None, style=STYLE_DEFAULT, rotation=0, ptsize=default) -> (Surface, Rect)\nReturn rendered text as a surface"
+#define DOC_FONTRENDER "render(text, fgcolor, bgcolor=None, style=STYLE_DEFAULT, rotation=0, size=0) -> (Surface, Rect)\nReturn rendered text as a surface"
 
-#define DOC_FONTRENDERTO "render(surf, dest, text, fgcolor, bgcolor=None, style=STYLE_DEFAULT, rotation=0, ptsize=default) -> Rect\nRender text onto an existing surface"
+#define DOC_FONTRENDERTO "render(surf, dest, text, fgcolor, bgcolor=None, style=STYLE_DEFAULT, rotation=0, size=0) -> Rect\nRender text onto an existing surface"
 
-#define DOC_FONTRENDERRAW "render_raw(text, style=STYLE_DEFAULT, rotation=0, ptsize=default, invert=False) -> (bytes, (int, int))\nReturn rendered text as a string of bytes"
+#define DOC_FONTRENDERRAW "render_raw(text, style=STYLE_DEFAULT, rotation=0, size=0, invert=False) -> (bytes, (int, int))\nReturn rendered text as a string of bytes"
 
-#define DOC_FONTRENDERRAWTO "render_raw_to(array, text, dest=None, style=STYLE_DEFAULT, rotation=0, ptsize=default, invert=False) -> (int, int)\nRender text into an array of ints"
+#define DOC_FONTRENDERRAWTO "render_raw_to(array, text, dest=None, style=STYLE_DEFAULT, rotation=0, size=0, invert=False) -> (int, int)\nRender text into an array of ints"
 
 #define DOC_FONTSTYLE "style -> int\nThe font's style flags"
 
@@ -131,7 +131,7 @@ pygame.freetype.get_default_font
 Get the filename of the default font
 
 pygame.freetype.Font
- Font(file, ptsize=-1, font_index=0, resolution=0, ucs4=False) -> Font
+ Font(file, size=0, font_index=0, resolution=0, ucs4=False) -> Font
 Create a new Font instance from a supported font file.
 
 pygame.freetype.Font.name
@@ -142,16 +142,16 @@ pygame.freetype.Font.path
  path -> unicode
 Font file path
 
-pygame.freetype.Font.ptsize
- ptsize -> int
+pygame.freetype.Font.size
+ size -> int
 The default point size used in rendering
 
 pygame.freetype.Font.get_rect
- get_rect(text, style=STYLE_DEFAULT, rotation=0, ptsize=default) -> rect
+ get_rect(text, style=STYLE_DEFAULT, rotation=0, size=0) -> rect
 Return the size and offset of rendered text
 
 pygame.freetype.Font.get_metrics
- get_metrics(text, ptsize=default) -> [(...), ...]
+ get_metrics(text, size=0) -> [(...), ...]
 Return the glyph metrics for the given text
 
 pygame.freetype.Font.height
@@ -188,19 +188,19 @@ pygame.freetype.Font.get_sizes
 return the available sizes of embedded bitmaps
 
 pygame.freetype.Font.render
- render(text, fgcolor, bgcolor=None, style=STYLE_DEFAULT, rotation=0, ptsize=default) -> (Surface, Rect)
+ render(text, fgcolor, bgcolor=None, style=STYLE_DEFAULT, rotation=0, size=0) -> (Surface, Rect)
 Return rendered text as a surface
 
 pygame.freetype.Font.render_to
- render(surf, dest, text, fgcolor, bgcolor=None, style=STYLE_DEFAULT, rotation=0, ptsize=default) -> Rect
+ render(surf, dest, text, fgcolor, bgcolor=None, style=STYLE_DEFAULT, rotation=0, size=0) -> Rect
 Render text onto an existing surface
 
 pygame.freetype.Font.render_raw
- render_raw(text, style=STYLE_DEFAULT, rotation=0, ptsize=default, invert=False) -> (bytes, (int, int))
+ render_raw(text, style=STYLE_DEFAULT, rotation=0, size=0, invert=False) -> (bytes, (int, int))
 Return rendered text as a string of bytes
 
 pygame.freetype.Font.render_raw_to
- render_raw_to(array, text, dest=None, style=STYLE_DEFAULT, rotation=0, ptsize=default, invert=False) -> (int, int)
+ render_raw_to(array, text, dest=None, style=STYLE_DEFAULT, rotation=0, size=0, invert=False) -> (int, int)
 Render text into an array of ints
 
 pygame.freetype.Font.style
