@@ -1,5 +1,6 @@
 import sys
 import os
+import ctypes
 if __name__ == '__main__':
     pkg_dir = os.path.split(os.path.abspath(__file__))[0]
     parent_dir, pkg_name = os.path.split(pkg_dir)
@@ -30,6 +31,12 @@ FONTDIR = os.path.join(os.path.dirname (os.path.abspath (__file__)),
 def nullfont():
     """return an uninitialized font instance"""
     return ft.Font.__new__(ft.Font)
+
+max_point_size = 0
+for i in range(0, ctypes.sizeof(ctypes.c_uint)):
+    max_point_size <<= 8
+    max_point_size |= 0xff
+max_point_size >>= 6
 
 class FreeTypeFontTest(unittest.TestCase):
 
@@ -81,26 +88,26 @@ class FreeTypeFontTest(unittest.TestCase):
         self.assertTrue(isinstance(f, ft.Font))
 
         # Test keyword arguments
-        f = ft.Font(ptsize=22, file=None)
-        self.assertEqual(f.ptsize, 22)
+        f = ft.Font(size=22, file=None)
+        self.assertEqual(f.size, 22)
         f = ft.Font(font_index=0, file=None)
         self.assertNotEqual(ft.get_default_resolution(), 100)
         f = ft.Font(resolution=100, file=None)
         self.assertEqual(f.resolution, 100)
         f = ft.Font(ucs4=True, file=None)
         self.assertTrue(f.ucs4)
-        self.assertRaises(ValueError, ft.Font, file=None, ptsize=0x8000)
-        f = ft.Font(None, ptsize=-0x10000)
-        self.assertEqual(f.ptsize, -1)
+        self.assertRaises(OverflowError, ft.Font, file=None,
+                          size=(max_point_size + 1))
+        self.assertRaises(OverflowError, ft.Font, file=None, size=-1)
 
-        f = ft.Font(None, ptsize=24)
+        f = ft.Font(None, size=24)
         self.assert_(f.height > 0)
         self.assertRaises(IOError, f.__init__,
                           os.path.join(FONTDIR, 'nonexistant.ttf'))
-        self.assertRaises(RuntimeError, f.get_rect, 'a', ptsize=24)
+        self.assertRaises(RuntimeError, f.get_rect, 'a', size=24)
         
         # Test attribute preservation during reinitalization
-        f = ft.Font(self._sans_path, ptsize=24, ucs4=True)
+        f = ft.Font(self._sans_path, size=24, ucs4=True)
         self.assertEqual(f.name, 'Liberation Sans')
         self.assertTrue(f.scalable)
         self.assertFalse(f.fixed_width)
@@ -183,33 +190,33 @@ class FreeTypeFontTest(unittest.TestCase):
             self.assertTrue(f.use_bitmap_strikes)
 
             # bitmap compatible properties
-            s_strike, sz = f.render_raw('A', ptsize=19)
+            s_strike, sz = f.render_raw('A', size=19)
             try:
                 f.vertical = True
-                s_strike_vert, sz = f.render_raw('A', ptsize=19)
+                s_strike_vert, sz = f.render_raw('A', size=19)
             finally:
                 f.vertical = False
             try:
                 f.wide = True
-                s_strike_wide, sz = f.render_raw('A', ptsize=19)
+                s_strike_wide, sz = f.render_raw('A', size=19)
             finally:
                 f.wide = False
             try:
                 f.underline = True
-                s_strike_underline, sz = f.render_raw('A', ptsize=19)
+                s_strike_underline, sz = f.render_raw('A', size=19)
             finally:
                 f.underline = False
 
             # bitmap incompatible properties
-            s_strike_rot45, sz = f.render_raw('A', ptsize=19, rotation=45)
+            s_strike_rot45, sz = f.render_raw('A', size=19, rotation=45)
             try:
                 f.strong = True
-                s_strike_strong, sz = f.render_raw('A', ptsize=19)
+                s_strike_strong, sz = f.render_raw('A', size=19)
             finally:
                 f.strong = False
             try:
                 f.oblique = True
-                s_strike_oblique, sz = f.render_raw('A', ptsize=19)
+                s_strike_oblique, sz = f.render_raw('A', size=19)
             finally:
                 f.oblique = False
 
@@ -219,39 +226,39 @@ class FreeTypeFontTest(unittest.TestCase):
             self.assertFalse(f.use_bitmap_strikes)
 
             # bitmap compatible properties
-            s_outline, sz = f.render_raw('A', ptsize=19)
+            s_outline, sz = f.render_raw('A', size=19)
             self.assertNotEqual(s_outline, s_strike)
             try:
                 f.vertical = True
-                s_outline, sz = f.render_raw('A', ptsize=19)
+                s_outline, sz = f.render_raw('A', size=19)
                 self.assertNotEqual(s_outline, s_strike_vert)
             finally:
                 f.vertical = False
             try:
                 f.wide = True
-                s_outline, sz = f.render_raw('A', ptsize=19)
+                s_outline, sz = f.render_raw('A', size=19)
                 self.assertNotEqual(s_outline, s_strike_wide)
             finally:
                 f.wide = False
             try:
                 f.underline = True
-                s_outline, sz = f.render_raw('A', ptsize=19)
+                s_outline, sz = f.render_raw('A', size=19)
                 self.assertNotEqual(s_outline, s_strike_underline)
             finally:
                 f.underline = False
 
             # bitmap incompatible properties
-            s_outline, sz = f.render_raw('A', ptsize=19, rotation=45)
+            s_outline, sz = f.render_raw('A', size=19, rotation=45)
             self.assertEqual(s_outline, s_strike_rot45)
             try:
                 f.strong = True
-                s_outline, sz = f.render_raw('A', ptsize=19)
+                s_outline, sz = f.render_raw('A', size=19)
                 self.assertEqual(s_outline, s_strike_strong)
             finally:
                 f.strong = False
             try:
                 f.oblique = True
-                s_outline, sz = f.render_raw('A', ptsize=19)
+                s_outline, sz = f.render_raw('A', size=19)
                 self.assertEqual(s_outline, s_strike_oblique)
             finally:
                 f.oblique = False
@@ -262,7 +269,7 @@ class FreeTypeFontTest(unittest.TestCase):
 
         font = self._TEST_FONTS['sans']
 
-        metrics = font.get_metrics('ABCD', ptsize=24)
+        metrics = font.get_metrics('ABCD', size=24)
         self.assertEqual(len(metrics), len('ABCD'))
         self.assertTrue(isinstance(metrics, list))
 
@@ -275,7 +282,7 @@ class FreeTypeFontTest(unittest.TestCase):
                 self.assertTrue(isinstance(m, float))
 
         # test for empty string
-        metrics = font.get_metrics('', ptsize=24)
+        metrics = font.get_metrics('', size=24)
         self.assertEqual(metrics, [])
 
         # test for invalid string
@@ -283,7 +290,7 @@ class FreeTypeFontTest(unittest.TestCase):
 
         # raises exception when uninitalized
         self.assertRaises(RuntimeError, nullfont().get_metrics,
-                          'a', ptsize=24)
+                          'a', size=24)
 
     def test_freetype_Font_get_rect(self):
 
@@ -292,47 +299,47 @@ class FreeTypeFontTest(unittest.TestCase):
         def test_rect(r):
             self.assertTrue(isinstance(r, pygame.Rect))
 
-        rect_default = font.get_rect("ABCDabcd", ptsize=24)
+        rect_default = font.get_rect("ABCDabcd", size=24)
         test_rect(rect_default)
         self.assertTrue(rect_default.size > (0, 0))
         self.assertTrue(rect_default.width > rect_default.height)
 
-        rect_bigger = font.get_rect("ABCDabcd", ptsize=32)
+        rect_bigger = font.get_rect("ABCDabcd", size=32)
         test_rect(rect_bigger)
         self.assertTrue(rect_bigger.size > rect_default.size)
 
-        rect_strong = font.get_rect("ABCDabcd", ptsize=24, style=ft.STYLE_STRONG)
+        rect_strong = font.get_rect("ABCDabcd", size=24, style=ft.STYLE_STRONG)
         test_rect(rect_strong)
         self.assertTrue(rect_strong.size > rect_default.size)
 
         font.vertical = True
-        rect_vert = font.get_rect("ABCDabcd", ptsize=24)
+        rect_vert = font.get_rect("ABCDabcd", size=24)
         test_rect(rect_vert)
         self.assertTrue(rect_vert.width < rect_vert.height)
         font.vertical = False
 
-        rect_oblique = font.get_rect("ABCDabcd", ptsize=24, style=ft.STYLE_OBLIQUE)
+        rect_oblique = font.get_rect("ABCDabcd", size=24, style=ft.STYLE_OBLIQUE)
         test_rect(rect_oblique)
         self.assertTrue(rect_oblique.width > rect_default.width)
         self.assertTrue(rect_oblique.height == rect_default.height)
 
-        rect_under = font.get_rect("ABCDabcd", ptsize=24, style=ft.STYLE_UNDERLINE)
+        rect_under = font.get_rect("ABCDabcd", size=24, style=ft.STYLE_UNDERLINE)
         test_rect(rect_under)
         self.assertTrue(rect_under.width == rect_default.width)
         self.assertTrue(rect_under.height > rect_default.height)
 
-#        size_utf32 = font.get_size(as_unicode(r'\U000130A7'), ptsize=24)
-#        size_utf16 = font.get_size(as_unicode(r'\uD80C\uDCA7'), ptsize=24)
+#        size_utf32 = font.get_size(as_unicode(r'\U000130A7'), size=24)
+#        size_utf16 = font.get_size(as_unicode(r'\uD80C\uDCA7'), size=24)
 #        self.assertEqual(size_utf16[0], size_utf32[0]);
 #        font.utf16_surrogates = False
 #        try:
-#            size_utf16 = font.get_size(as_unicode(r'\uD80C\uDCA7'), ptsize=24)
+#            size_utf16 = font.get_size(as_unicode(r'\uD80C\uDCA7'), size=24)
 #        finally:
 #            font.utf16_surrogates = True
 #        self.assertNotEqual(size_utf16[0], size_utf32[0]);
         
         self.assertRaises(RuntimeError,
-                          nullfont().get_rect, 'a', ptsize=24)
+                          nullfont().get_rect, 'a', size=24)
 
     def test_freetype_Font_height(self):
 
@@ -356,16 +363,20 @@ class FreeTypeFontTest(unittest.TestCase):
         nf = nullfont()
         self.assertEqual(nf.name, repr(nf))
 
-    def test_freetype_Font_ptsize(self):
+    def test_freetype_Font_size(self):
 
-        f = ft.Font(None, ptsize=12)
-        self.assertEqual(f.ptsize, 12)
-        f.ptsize = 22
-        self.assertEqual(f.ptsize, 22)
-        for i in [0, -1, -2, -0x10000]:
-            f.ptsize = i
-            self.assertEqual(f.ptsize, -1)
-        self.assertRaises(ValueError, setattr, f, 'ptsize', 0x8000)
+        f = ft.Font(None, size=12)
+        self.assertEqual(f.size, 12)
+        f.size = 22
+        self.assertEqual(f.size, 22)
+        f.size = 0
+        self.assertEqual(f.size, 0)
+        f.size = max_point_size
+        self.assertEqual(f.size, max_point_size)
+        self.assertRaises(OverflowError, setattr, f, 'size', -1)
+        self.assertRaises(OverflowError, setattr, f, 'size',
+                          (max_point_size + 1))
+        self.assertRaises(TypeError, setattr, f, 'size', 0.0)
 
     def test_freetype_Font_render_to(self):
         # Rendering to an existing target surface is equivalent to
@@ -376,7 +387,7 @@ class FreeTypeFontTest(unittest.TestCase):
         color = pygame.Color(0, 0, 0)
 
         rrect = font.render_to(surf, (32, 32),
-                               'FoobarBaz', color, None, ptsize=24)
+                               'FoobarBaz', color, None, size=24)
         self.assertTrue(isinstance(rrect, pygame.Rect))
         self.assertEqual(rrect.top, rrect.height)
 ##        self.assertEqual(rrect.left, something or other)
@@ -385,14 +396,14 @@ class FreeTypeFontTest(unittest.TestCase):
         self.assertTrue(surf.get_rect().contains(rcopy))
         
         rect = pygame.Rect(20, 20, 2, 2)
-        rrect = font.render_to(surf, rect, 'FoobarBax', color, None, ptsize=24)
+        rrect = font.render_to(surf, rect, 'FoobarBax', color, None, size=24)
         self.assertEqual(rrect.top, rrect.height)
         self.assertNotEqual(rrect.size, rect.size)
         rrect = font.render_to(surf, (20.1, 18.9), 'FoobarBax',
-                               color, None, ptsize=24)
+                               color, None, size=24)
 ##        self.assertEqual(tuple(rend[1].topleft), (20, 18))
 
-        rrect = font.render_to(surf, rect, '', color, None, ptsize=24)
+        rrect = font.render_to(surf, rect, '', color, None, size=24)
         self.assertFalse(rrect)
         self.assertEqual(rrect.height, font.get_sized_height(24))
 
@@ -407,19 +418,19 @@ class FreeTypeFontTest(unittest.TestCase):
                      (), (1,), ('a', 2), (1, 'a'), (1+2j, 2), (1, 1+2j),
                      (1, int), (int, 1)]: 
             self.assertRaises(TypeError, font.render,
-                              surf, dest, 'foobar', color, ptsize=24)
+                              surf, dest, 'foobar', color, size=24)
 
         # misc parameter test
         self.assertRaises(ValueError, font.render_to, surf, (0, 0),
                           'foobar', color)
         self.assertRaises(TypeError, font.render_to, surf, (0, 0),
-                          'foobar', color, "", ptsize=24)
+                          'foobar', color, "", size=24)
         self.assertRaises(ValueError, font.render_to, surf, (0, 0),
-                          'foobar', color, None, style=42, ptsize=24)
+                          'foobar', color, None, style=42, size=24)
         self.assertRaises(TypeError, font.render_to, surf, (0, 0),
-                          'foobar', color, None, style=None, ptsize=24)
+                          'foobar', color, None, style=None, size=24)
         self.assertRaises(ValueError, font.render_to, surf, (0, 0),
-                          'foobar', color, None, style=97, ptsize=24)
+                          'foobar', color, None, style=97, size=24)
 
 
     def test_freetype_Font_render(self):
@@ -433,13 +444,13 @@ class FreeTypeFontTest(unittest.TestCase):
         self.assertRaises(TypeError, font.render, 'FoobarBaz')
         self.assertRaises(TypeError, font.render, 'FoobarBaz', None)
 
-        rend = font.render('FoobarBaz', pygame.Color(0, 0, 0), None, ptsize=24)
+        rend = font.render('FoobarBaz', pygame.Color(0, 0, 0), None, size=24)
         self.assertTrue(isinstance(rend, tuple))
         self.assertEqual(len(rend), 2)
         self.assertTrue(isinstance(rend[0], pygame.Surface))
         self.assertTrue(isinstance(rend[1], pygame.Rect))
         self.assertEqual(rend[0].get_rect().size, rend[1].size)
-        s, r = font.render('', pygame.Color(0, 0, 0), None, ptsize=24)
+        s, r = font.render('', pygame.Color(0, 0, 0), None, size=24)
         self.assertEqual(r.width, 1)
         self.assertEqual(r.height, font.get_sized_height(24))
         self.assertEqual(s.get_size(), r.size)
@@ -448,45 +459,45 @@ class FreeTypeFontTest(unittest.TestCase):
         # misc parameter test
         self.assertRaises(ValueError, font.render, 'foobar', color)
         self.assertRaises(TypeError, font.render, 'foobar', color, "",
-                          ptsize=24)
+                          size=24)
         self.assertRaises(ValueError, font.render, 'foobar', color, None,
-                          style=42, ptsize=24)
+                          style=42, size=24)
         self.assertRaises(TypeError, font.render, 'foobar', color, None,
-                          style=None, ptsize=24)
+                          style=None, size=24)
         self.assertRaises(ValueError, font.render, 'foobar', color, None,
-                          style=97, ptsize=24)
+                          style=97, size=24)
 
         # valid surrogate pairs
         font2 = self._TEST_FONTS['mono']
         ucs4 = font2.ucs4
         try:
             font2.ucs4 = False
-            rend1 = font2.render(as_unicode(r'\uD80C\uDC79'), color, ptsize=24)
-            rend2 = font2.render(as_unicode(r'\U00013079'), color, ptsize=24)
+            rend1 = font2.render(as_unicode(r'\uD80C\uDC79'), color, size=24)
+            rend2 = font2.render(as_unicode(r'\U00013079'), color, size=24)
             self.assertEqual(rend1[1], rend2[1])
             font2.ucs4 = True
-            rend1 = font2.render(as_unicode(r'\uD80C\uDC79'), color, ptsize=24)
+            rend1 = font2.render(as_unicode(r'\uD80C\uDC79'), color, size=24)
             self.assertNotEqual(rend1[1], rend2[1])
         finally:
             font2.ucs4 = ucs4
             
         # malformed surrogate pairs
         self.assertRaises(UnicodeEncodeError, font.render,
-                          as_unicode(r'\uD80C'), color, ptsize=24)
+                          as_unicode(r'\uD80C'), color, size=24)
         self.assertRaises(UnicodeEncodeError, font.render,
-                          as_unicode(r'\uDCA7'), color, ptsize=24)
+                          as_unicode(r'\uDCA7'), color, size=24)
         self.assertRaises(UnicodeEncodeError, font.render,
-                          as_unicode(r'\uD7FF\uDCA7'), color, ptsize=24)
+                          as_unicode(r'\uD7FF\uDCA7'), color, size=24)
         self.assertRaises(UnicodeEncodeError, font.render,
-                          as_unicode(r'\uDC00\uDCA7'), color, ptsize=24)
+                          as_unicode(r'\uDC00\uDCA7'), color, size=24)
         self.assertRaises(UnicodeEncodeError, font.render,
-                          as_unicode(r'\uD80C\uDBFF'), color, ptsize=24)
+                          as_unicode(r'\uD80C\uDBFF'), color, size=24)
         self.assertRaises(UnicodeEncodeError, font.render,
-                          as_unicode(r'\uD80C\uE000'), color, ptsize=24)
+                          as_unicode(r'\uD80C\uE000'), color, size=24)
 
         # raises exception when uninitalized
         self.assertRaises(RuntimeError, nullfont().render,
-                          'a', (0, 0, 0), ptsize=24)
+                          'a', (0, 0, 0), size=24)
 
         # *** need more unicode testing to ensure the proper glyphs are rendered
 
@@ -499,7 +510,7 @@ class FreeTypeFontTest(unittest.TestCase):
         save_antialiased = font.antialiased
         font.antialiased = False
         try:
-            surf, r = font.render(text, color, ptsize=24)
+            surf, r = font.render(text, color, size=24)
             self.assertEqual(surf.get_bitsize(), 8)
             flags = surf.get_flags()
             self.assertTrue(flags & pygame.SRCCOLORKEY)
@@ -509,7 +520,7 @@ class FreeTypeFontTest(unittest.TestCase):
 
             translucent_color = pygame.Color(*color)
             translucent_color.a = 55
-            surf, r = font.render(text, translucent_color, ptsize=24)
+            surf, r = font.render(text, translucent_color, size=24)
             self.assertEqual(surf.get_bitsize(), 8)
             flags = surf.get_flags()
             self.assertTrue(flags & (pygame.SRCCOLORKEY | pygame.SRCALPHA))
@@ -517,7 +528,7 @@ class FreeTypeFontTest(unittest.TestCase):
             self.assertEqual(surf.get_colorkey(), colorkey)
             self.assertEqual(surf.get_alpha(), translucent_color.a)
 
-            surf, r = font.render(text, color, colorkey, ptsize=24)
+            surf, r = font.render(text, color, colorkey, size=24)
             self.assertEqual(surf.get_bitsize(), 32)
         finally:
             font.antialiased = save_antialiased
@@ -528,7 +539,7 @@ class FreeTypeFontTest(unittest.TestCase):
         # color is alpha blitted to the background.
         font = self._TEST_FONTS['sans']
         text = " ."
-        rect = font.get_rect(text, ptsize=24)
+        rect = font.get_rect(text, size=24)
         size = rect.size
         fg = pygame.Surface((1, 1), pygame.SRCALPHA, 32)
         bg = pygame.Surface((1, 1), pygame.SRCALPHA, 32)
@@ -571,7 +582,7 @@ class FreeTypeFontTest(unittest.TestCase):
                 r_fg_color = surf.get_at((0, 0))
                 surf.set_at((0, 0), fill_color)
                 rrect = font.render_to(surf, (0, 0), text, fg_color,
-                                       ptsize=24)
+                                       size=24)
                 bottomleft = 0, rrect.height - 1
                 self.assertEqual(surf.get_at(bottomleft), fill_color)
                 bottomright = rrect.width - 1, rrect.height - 1
@@ -607,7 +618,7 @@ class FreeTypeFontTest(unittest.TestCase):
                     r_fg_color = surf.get_at((0, 0))
                     surf.set_at((0, 0), fill_color)
                 rrect = font.render_to(surf, (0, 0), text, fg_color,
-                                       bg_color, ptsize=24)
+                                       bg_color, size=24)
                 bottomleft = 0, rrect.height - 1
                 self.assertEqual(surf.get_at(bottomleft), r_bg_color)
                 bottomright = rrect.width - 1, rrect.height - 1
@@ -620,8 +631,8 @@ class FreeTypeFontTest(unittest.TestCase):
         font = self._TEST_FONTS['sans']
         
         text = "abc"
-        size = font.get_rect(text, ptsize=24).size
-        rend = font.render_raw(text, ptsize=24)
+        size = font.get_rect(text, size=24).size
+        rend = font.render_raw(text, size=24)
         self.assertTrue(isinstance(rend, tuple))
         self.assertEqual(len(rend), 2)
         r, s = rend
@@ -634,18 +645,18 @@ class FreeTypeFontTest(unittest.TestCase):
         self.assertEqual(s, size)
         self.assertEqual(len(r), w * h)
         
-        r, (w, h) = font.render_raw('', ptsize=24)
+        r, (w, h) = font.render_raw('', size=24)
         self.assertEqual(w, 0)
         self.assertEqual(h, font.height)
         self.assertEqual(len(r), 0)
         
         # bug with decenders: this would crash
-        rend = font.render_raw('render_raw', ptsize=24)
+        rend = font.render_raw('render_raw', size=24)
 
         # bug with non-printable characters: this would cause a crash
         # because the text length was not adjusted for skipped characters.
         text = unicode_("").join([unichr_(i) for i in range(31, 64)])
-        rend = font.render_raw(text, ptsize=10)
+        rend = font.render_raw(text, size=10)
 
     def test_freetype_Font_render_raw_to(self):
 
@@ -658,60 +669,60 @@ class FreeTypeFontTest(unittest.TestCase):
         text = "abc"
 
         # No frills antialiased render to int1 (__render_glyph_INT)
-        srect = font.get_rect(text, ptsize=24)
+        srect = font.get_rect(text, size=24)
         surf = pygame.Surface(srect.size, 0, 8)
-        rrect = font.render_raw_to(surf.get_view('2'), text, ptsize=24)
+        rrect = font.render_raw_to(surf.get_view('2'), text, size=24)
         self.assertEqual(rrect, srect)
 
         for bpp in [24, 32]:
             surf = pygame.Surface(srect.size, 0, bpp)
-            rrect = font.render_raw_to(surf.get_view('r'), text, ptsize=24)
+            rrect = font.render_raw_to(surf.get_view('r'), text, size=24)
             self.assertEqual(rrect, srect)
 
         # Underlining to int1 (__fill_glyph_INT)
-        srect = font.get_rect(text, ptsize=24, style=ft.STYLE_UNDERLINE)
+        srect = font.get_rect(text, size=24, style=ft.STYLE_UNDERLINE)
         surf = pygame.Surface(srect.size, 0, 8)
-        rrect = font.render_raw_to(surf.get_view('2'), text, ptsize=24,
+        rrect = font.render_raw_to(surf.get_view('2'), text, size=24,
                                   style=ft.STYLE_UNDERLINE)
         self.assertEqual(rrect, srect)
 
         for bpp in [24, 32]:
             surf = pygame.Surface(srect.size, 0, bpp)
-            rrect = font.render_raw_to(surf.get_view('r'), text, ptsize=24,
+            rrect = font.render_raw_to(surf.get_view('r'), text, size=24,
                                        style=ft.STYLE_UNDERLINE)
             self.assertEqual(rrect, srect)
 
         # Unaliased (mono) rendering to int1 (__render_glyph_MONO_as_INT)
         font.antialiased = False
         try:
-            srect = font.get_rect(text, ptsize=24)
+            srect = font.get_rect(text, size=24)
             surf = pygame.Surface(srect.size, 0, 8)
-            rrect = font.render_raw_to(surf.get_view('2'), text, ptsize=24)
+            rrect = font.render_raw_to(surf.get_view('2'), text, size=24)
             self.assertEqual(rrect, srect)
 
             for bpp in [24, 32]:
                 surf = pygame.Surface(srect.size, 0, bpp)
-                rrect = font.render_raw_to(surf.get_view('r'), text, ptsize=24)
+                rrect = font.render_raw_to(surf.get_view('r'), text, size=24)
                 self.assertEqual(rrect, srect)
         finally:
             font.antialiased = True
 
         # Antialiased render to ints sized greater than 1 byte
         # (__render_glyph_INT)
-        srect = font.get_rect(text, ptsize=24)
+        srect = font.get_rect(text, size=24)
 
         for bpp in [16, 24, 32]:
             surf = pygame.Surface(srect.size, 0, bpp)
-            rrect = font.render_raw_to(surf.get_view('2'), text, ptsize=24)
+            rrect = font.render_raw_to(surf.get_view('2'), text, size=24)
             self.assertEqual(rrect, srect)
 
         # Underline render to ints sized greater than 1 byte
         # (__fill_glyph_INT)
-        srect = font.get_rect(text, ptsize=24, style=ft.STYLE_UNDERLINE)
+        srect = font.get_rect(text, size=24, style=ft.STYLE_UNDERLINE)
 
         for bpp in [16, 24, 32]:
             surf = pygame.Surface(srect.size, 0, bpp)
-            rrect = font.render_raw_to(surf.get_view('2'), text, ptsize=24,
+            rrect = font.render_raw_to(surf.get_view('2'), text, size=24,
                                        style=ft.STYLE_UNDERLINE)
             self.assertEqual(rrect, srect)
 
@@ -719,12 +730,12 @@ class FreeTypeFontTest(unittest.TestCase):
         # (__render_glyph_MONO_as_INT)
         font.antialiased = False
         try:
-            srect = font.get_rect(text, ptsize=24)
+            srect = font.get_rect(text, size=24)
 
             for bpp in [16, 24, 32]:
                 surf = pygame.Surface(srect.size, 0, bpp)
                 rrect = font.render_raw_to(surf.get_view('2'),
-                                           text, ptsize=24)
+                                           text, size=24)
                 self.assertEqual(rrect, srect)
         finally:
             font.antialiased = True
@@ -740,18 +751,18 @@ class FreeTypeFontTest(unittest.TestCase):
     def NEWBUF_test_newbuf(self):
         Exporter = self.buftools.Exporter
         font = self._TEST_FONTS['sans']
-        srect = font.get_rect("Hi", ptsize=12)
+        srect = font.get_rect("Hi", size=12)
         for format in ['b', 'B', 'h', 'H', 'i', 'I', 'l', 'L', 'q', 'Q',
                        'x', '1x', '2x', '3x', '4x', '5x', '6x', '7x',
                        '8x', '9x', '<h', '>h', '=h', '@h', '!h', '1h', '=1h']:
             newbuf = Exporter(srect.size, format=format)
-            rrect = font.render_raw_to(newbuf, "Hi", ptsize=12)
+            rrect = font.render_raw_to(newbuf, "Hi", size=12)
             self.assertEqual(rrect, srect)
         # Some unsupported formats
         for format in ['f', 'd', '2h', '?', 'hh']:
             newbuf = Exporter(srect.size, format=format, itemsize=4)
             self.assertRaises(ValueError, font.render_raw_to,
-                              newbuf, "Hi", ptsize=12)
+                              newbuf, "Hi", size=12)
 
     def test_freetype_Font_style(self):
 
@@ -797,8 +808,8 @@ class FreeTypeFontTest(unittest.TestCase):
         resolution = ft.get_default_resolution()
         new_font = ft.Font(self._sans_path, resolution=2 * resolution)
         self.assertEqual(new_font.resolution, 2 * resolution)
-        size_normal = self._TEST_FONTS['sans'].get_rect(text, ptsize=24).size
-        size_scaled = new_font.get_rect(text, ptsize=24).size
+        size_normal = self._TEST_FONTS['sans'].get_rect(text, size=24).size
+        size_scaled = new_font.get_rect(text, size=24).size
         size_by_2 = size_normal[0] * 2
         self.assertTrue(size_by_2 + 2 >= size_scaled[0] >= size_by_2 - 2,
                         "%i not equal %i" % (size_scaled[1], size_by_2))
@@ -836,7 +847,7 @@ class FreeTypeFontTest(unittest.TestCase):
         hit = 0
         miss = 0
 
-        f = ft.Font(None, ptsize=24, font_index=0, resolution=72, ucs4=False)
+        f = ft.Font(None, size=24, font_index=0, resolution=72, ucs4=False)
         f.style = ft.STYLE_NORMAL
         f.antialiased = True
 
@@ -863,7 +874,7 @@ class FreeTypeFontTest(unittest.TestCase):
         count += glen
         access += glen
         miss += glen
-        f.render_raw(glyphs, ptsize=12)
+        f.render_raw(glyphs, size=12)
         self.assertEqual(f._debug_cache_stats, (count, 0, access, hit, miss))
         # Underline style does not
         access += oglen
@@ -912,8 +923,8 @@ class FreeTypeFontTest(unittest.TestCase):
         count += 2 * mglen
         access += 2 * mglen
         miss += 2 * mglen
-        f.get_metrics(many_glyphs, ptsize=8)
-        f.get_metrics(many_glyphs, ptsize=10)
+        f.get_metrics(many_glyphs, size=8)
+        f.get_metrics(many_glyphs, size=10)
         ccount, cdelete_count, caccess, chit, cmiss = f._debug_cache_stats
         print (ccount, cdelete_count, caccess, chit, cmiss)
         self.assertTrue(ccount < count)
@@ -931,11 +942,11 @@ class FreeTypeFontTest(unittest.TestCase):
         # of None.
         font = self._TEST_FONTS['sans']
 
-        img, size1 = font.render(unichr_(1), (0, 0, 0), ptsize=24)
-        img, size0 = font.render("", (0, 0, 0), ptsize=24)
+        img, size1 = font.render(unichr_(1), (0, 0, 0), size=24)
+        img, size0 = font.render("", (0, 0, 0), size=24)
         self.assertTrue(size1.width > size0.width )
 
-        metrics = font.get_metrics(unichr_(1) + unichr_(48), ptsize=24)
+        metrics = font.get_metrics(unichr_(1) + unichr_(48), size=24)
         self.assertEqual(len(metrics), 2)
         self.assertTrue(metrics[0] is None)
         self.assertTrue(isinstance(metrics[1], tuple))
@@ -948,7 +959,7 @@ class FreeTypeFontTest(unittest.TestCase):
         # was to have the raised exception disappear before Font.render
         # returned to Python level.
         #
-        font = ft.Font(None, ptsize=64)
+        font = ft.Font(None, size=64)
         s = 'M' * 100000  # Way too long for an SDL surface
         self.assertRaises(pygame.error, font.render, s, (0, 0, 0))
 

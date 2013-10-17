@@ -80,6 +80,8 @@
  * Global module types
  **********************************************************/
 
+typedef FT_UInt Scale_t;
+
 typedef struct {
     FT_Long font_index;
     FT_Open_Args open_args;
@@ -90,7 +92,7 @@ typedef struct {
     PgFontId id;
     PyObject *path;
 
-    FT_Int16 ptsize;
+    Scale_t face_size;
     FT_Int16 style;
     FT_Int16 render_flags;
     double strength;

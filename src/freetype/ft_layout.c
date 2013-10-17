@@ -146,7 +146,7 @@ _PGFT_LoadFontText(FreeTypeInstance *ft, PgFontObject *fontobj,
     FT_Error    error = 0;
 
     /* load our sized font */
-    font = _PGFT_GetFontSized(ft, fontobj, mode->pt_size);
+    font = _PGFT_GetFontSized(ft, fontobj, mode->face_size);
     if (!font) {
         PyErr_SetString(PyExc_SDLError, _PGFT_GetError(ft));
         return 0;
@@ -359,7 +359,7 @@ int _PGFT_GetMetrics(FreeTypeInstance *ft, PgFontObject *fontobj,
     FT_Face     font;
 
     /* load our sized font */
-    font = _PGFT_GetFontSized(ft, fontobj, mode->pt_size);
+    font = _PGFT_GetFontSized(ft, fontobj, mode->face_size);
     if (!font) {
         return -1;
     }

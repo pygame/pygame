@@ -121,7 +121,7 @@ _PGFT_Font_NumFixedSizes(FreeTypeInstance *ft, PgFontObject *fontobj)
 
 int
 _PGFT_Font_GetAvailableSize(FreeTypeInstance *ft, PgFontObject *fontobj,
-                            unsigned n, long *ptsize_p,
+                            unsigned n, long *size_p,
                             long *height_p, long *width_p,
                             double *x_ppem_p, double *y_ppem_p)
 {
@@ -136,7 +136,7 @@ _PGFT_Font_GetAvailableSize(FreeTypeInstance *ft, PgFontObject *fontobj,
         return 0;
     }
     bitmap_size_p = font->available_sizes + n;
-    *ptsize_p = FX6_TRUNC(FX6_ROUND(bitmap_size_p->size));
+    *size_p = (long)FX6_TRUNC(FX6_ROUND(bitmap_size_p->size));
     *height_p = (long)bitmap_size_p->height;
     *width_p = (long)bitmap_size_p->width;
     *x_ppem_p = FX6_TO_DBL(bitmap_size_p->x_ppem);
@@ -174,9 +174,9 @@ _PGFT_Font_GetHeight(FreeTypeInstance *ft, PgFontObject *fontobj)
 
 long
 _PGFT_Font_GetHeightSized(FreeTypeInstance *ft, PgFontObject *fontobj,
-                          FT_UInt16 ptsize)
+                          Scale_t face_size)
 {
-    FT_Face font = _PGFT_GetFontSized(ft, fontobj, ptsize);
+    FT_Face font = _PGFT_GetFontSized(ft, fontobj, face_size);
 
     if (!font) {
         RAISE(PyExc_RuntimeError, _PGFT_GetError(ft));
@@ -199,9 +199,9 @@ _PGFT_Font_GetAscender(FreeTypeInstance *ft, PgFontObject *fontobj)
 
 long
 _PGFT_Font_GetAscenderSized(FreeTypeInstance *ft, PgFontObject *fontobj,
-                           FT_UInt16 ptsize)
+                            Scale_t face_size)
 {
-    FT_Face font = _PGFT_GetFontSized(ft, fontobj, ptsize);
+    FT_Face font = _PGFT_GetFontSized(ft, fontobj, face_size);
 
     if (!font) {
         RAISE(PyExc_RuntimeError, _PGFT_GetError(ft));
@@ -224,9 +224,9 @@ _PGFT_Font_GetDescender(FreeTypeInstance *ft, PgFontObject *fontobj)
 
 long
 _PGFT_Font_GetDescenderSized(FreeTypeInstance *ft, PgFontObject *fontobj,
-                             FT_UInt16 ptsize)
+                             Scale_t face_size)
 {
-    FT_Face font = _PGFT_GetFontSized(ft, fontobj, ptsize);
+    FT_Face font = _PGFT_GetFontSized(ft, fontobj, face_size);
 
     if (!font) {
         RAISE(PyExc_RuntimeError, _PGFT_GetError(ft));
@@ -237,12 +237,12 @@ _PGFT_Font_GetDescenderSized(FreeTypeInstance *ft, PgFontObject *fontobj,
 
 long
 _PGFT_Font_GetGlyphHeightSized(FreeTypeInstance *ft, PgFontObject *fontobj,
-                               FT_UInt16 ptsize)
+                               Scale_t face_size)
 {
     /*
      * Based on the SDL_ttf height calculation.
      */
-    FT_Face font = _PGFT_GetFontSized(ft, fontobj, ptsize);
+    FT_Face font = _PGFT_GetFontSized(ft, fontobj, face_size);
     FT_Size_Metrics *metrics;
 
     if (!font) {
@@ -287,13 +287,13 @@ _PGFT_GetTextRect(FreeTypeInstance *ft, PgFontObject *fontobj,
 FT_Face
 _PGFT_GetFontSized(FreeTypeInstance *ft,
     PgFontObject *fontobj,
-    int font_size)
+    Scale_t face_size)
 {
     FT_Error error;
     FTC_ScalerRec scale;
     FT_Size _fts;
 
-    _PGFT_BuildScaler(fontobj, &scale, font_size);
+    _PGFT_BuildScaler(fontobj, &scale, face_size);
 
     error = FTC_Manager_LookupSize(ft->cache_manager,
         &scale, &_fts);
@@ -333,10 +333,10 @@ _PGFT_GetFont(FreeTypeInstance *ft, PgFontObject *fontobj)
  *
  *********************************************************/
 void
-_PGFT_BuildScaler(PgFontObject *fontobj, FTC_Scaler scale, int size)
+_PGFT_BuildScaler(PgFontObject *fontobj, FTC_Scaler scale, Scale_t face_size)
 {
     scale->face_id = (FTC_FaceID)(&fontobj->id);
-    scale->width = scale->height = (FT_UInt32)(size * 64);
+    scale->width = scale->height = (FT_UInt)face_size;
     scale->pixel = 0;
     scale->x_res = scale->y_res = fontobj->resolution;
 }

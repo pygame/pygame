@@ -83,7 +83,7 @@ typedef struct fontcolor_ {
 } FontColor;
 
 typedef struct rendermode_ {
-    FT_UInt16 pt_size;
+    Scale_t face_size;
     FT_Angle rotation_angle;
     FT_UInt16 render_flags;
     FT_UInt16 style;
@@ -236,15 +236,15 @@ void _PGFT_Quit(FreeTypeInstance *);
 int _PGFT_Init(FreeTypeInstance **, int);
 long _PGFT_Font_GetAscender(FreeTypeInstance *, PgFontObject *);
 long _PGFT_Font_GetAscenderSized(FreeTypeInstance *, PgFontObject *,
-                                 FT_UInt16);
+                                 Scale_t);
 long _PGFT_Font_GetDescender(FreeTypeInstance *, PgFontObject *);
 long _PGFT_Font_GetDescenderSized(FreeTypeInstance *, PgFontObject *,
-                                  FT_UInt16);
+                                  Scale_t);
 long _PGFT_Font_GetHeight(FreeTypeInstance *, PgFontObject *);
 long _PGFT_Font_GetHeightSized(FreeTypeInstance *, PgFontObject *,
-                               FT_UInt16);
+                               Scale_t);
 long _PGFT_Font_GetGlyphHeightSized(FreeTypeInstance *, PgFontObject *,
-                                    FT_UInt16);
+                                    Scale_t);
 int _PGFT_Font_IsScalable(FreeTypeInstance *, PgFontObject *);
 int _PGFT_Font_IsFixedWidth(FreeTypeInstance *, PgFontObject *);
 int _PGFT_Font_NumFixedSizes(FreeTypeInstance *, PgFontObject *);
@@ -288,7 +288,7 @@ int _PGFT_Render_Array(FreeTypeInstance *, PgFontObject *,
                        const FontRenderMode *, PyObject *,
                        PGFT_String *, int, int, int, SDL_Rect *);
 int _PGFT_BuildRenderMode(FreeTypeInstance *, PgFontObject *,
-                          FontRenderMode *, int, int, int);
+                          FontRenderMode *, Scale_t, int, int);
 int _PGFT_CheckStyle(FT_UInt32);
 
 
@@ -365,8 +365,8 @@ PGFT_String *_PGFT_EncodePyString(PyObject *, int);
 /**************************************** Internals **************************/
 void _PGFT_SetError(FreeTypeInstance *, const char *, FT_Error);
 FT_Face _PGFT_GetFont(FreeTypeInstance *, PgFontObject *);
-FT_Face _PGFT_GetFontSized(FreeTypeInstance *, PgFontObject *, int);
-void _PGFT_BuildScaler(PgFontObject *, FTC_Scaler, int);
+FT_Face _PGFT_GetFontSized(FreeTypeInstance *, PgFontObject *, Scale_t);
+void _PGFT_BuildScaler(PgFontObject *, FTC_Scaler, Scale_t);
 #define _PGFT_malloc PyMem_Malloc
 #define _PGFT_free   PyMem_Free
 

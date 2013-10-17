@@ -75,8 +75,8 @@ static PyObject *_ftfont_getsizes(PgFontObject *);
 /*
  * Getters/setters
  */
-static PyObject *_ftfont_getptsize(PgFontObject *, void *);
-static int _ftfont_setptsize(PgFontObject *, PyObject *, void *);
+static PyObject *_ftfont_getsize(PgFontObject *, void *);
+static int _ftfont_setsize(PgFontObject *, PyObject *, void *);
 static PyObject *_ftfont_getstyle(PgFontObject *, void *);
 static int _ftfont_setstyle(PgFontObject *, PyObject *, void *);
 static PyObject *_ftfont_getname(PgFontObject *, void *);
@@ -110,7 +110,7 @@ static PyObject *get_metrics(FreeTypeInstance *, FontRenderMode *,
                              PgFontObject *, PGFT_String *);
 static PyObject *load_font_res(const char *);
 static int parse_dest(PyObject *, int *, int *);
-
+static int obj_to_scale(PyObject *, void *);
 
 /*
  * Auxiliar defines
@@ -233,6 +233,59 @@ parse_dest(PyObject *dest, int *x, int *y)
     *x = i;
     *y = j;
     return 0;
+}
+
+/* Point size PyArg_ParseTuple converter: int -> Scale_t */
+static int
+obj_to_scale(PyObject *o, void *p)
+{
+    long size;
+    PyObject *lower_limit = 0;
+    PyObject *upper_limit = 0;
+    int cmp_result;
+    int rval = 0;
+
+    if (PyLong_Check(o)) {
+        ;
+    }
+#if PY2
+    else if (PyInt_Check(o)) {
+        ;
+    }
+#endif
+    else {
+        PyErr_Format(PyExc_TypeError, "integer point size expected, got %s",
+                     Py_TYPE(o)->tp_name);
+        goto finish;
+    }
+    lower_limit = PyInt_FromLong(0);
+    if (!lower_limit) goto finish;
+    cmp_result = PyObject_RichCompareBool(o, lower_limit, Py_LT);
+    if (cmp_result == -1) goto finish;
+    if (cmp_result == 1) {
+        PyErr_SetString(PyExc_OverflowError,
+                        "point size is >= 0, got negative integer value");
+        goto finish;
+    }
+    upper_limit = PyInt_FromLong(FX6_TRUNC(~(Scale_t)0));
+    if (!upper_limit) goto finish;
+    cmp_result = PyObject_RichCompareBool(o, upper_limit, Py_GT);
+    if (cmp_result == -1) goto finish;
+    if (cmp_result == 1) {
+        PyErr_SetString(PyExc_OverflowError,
+                        "integer value too large"
+                        " to convert to a point size");
+        goto finish;
+    }
+    size = PyInt_AsLong(o);
+    if (size == -1) goto finish;
+    *(Scale_t *)p = (Scale_t)INT_TO_FX6(size);
+    rval = 1;
+
+  finish:
+    Py_XDECREF(lower_limit);
+    Py_XDECREF(upper_limit);
+    return rval;
 }
 
 /*
@@ -377,10 +430,10 @@ static PyMethodDef _ftfont_methods[] = {
  */
 static PyGetSetDef _ftfont_getsets[] = {
     {
-        "ptsize",
-        (getter)_ftfont_getptsize,
-        (setter)_ftfont_setptsize,
-        DOC_FONTPTSIZE,
+        "size",
+        (getter)_ftfont_getsize,
+        (setter)_ftfont_setsize,
+        DOC_FONTSIZE,
         0
     },
     {
@@ -631,7 +684,7 @@ _ftfont_new(PyTypeObject *subtype, PyObject *args, PyObject *kwds)
         obj->path = 0;
         obj->resolution = 0;
         obj->_internals = 0;
-        obj->ptsize = -1;
+        obj->face_size = 0;
         obj->style = FT_STYLE_NORMAL;
         obj->render_flags = FT_RFLAG_DEFAULTS;
         obj->strength = PGFT_DBL_DEFAULT_STRENGTH;
@@ -659,25 +712,22 @@ static int
 _ftfont_init(PgFontObject *self, PyObject *args, PyObject *kwds)
 {
     static char *kwlist[] =  {
-        "file", "ptsize", "font_index", "resolution", "ucs4", 0
+        "file", "size", "font_index", "resolution", "ucs4", 0
     };
 
     PyObject *file, *original_file;
     long font_index = 0;
-    int ptsize = self->ptsize;
+    Scale_t face_size = self->face_size;
     int ucs4 = self->render_flags & FT_RFLAG_UCS4 ? 1 : 0;
     unsigned resolution = 0;
 
     FreeTypeInstance *ft;
     ASSERT_GRAB_FREETYPE(ft, -1);
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|ilIi", kwlist,
-                                     &file, &ptsize, &font_index,
-                                     &resolution, &ucs4)) {
-        return -1;
-    }
-    if (ptsize > 0x7FFF) {
-        PyErr_SetString(PyExc_ValueError, "ptsize argument value too large");
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|O&lIi", kwlist,
+                                     &file,
+                                     obj_to_scale, (void *)&face_size,
+                                     &font_index, &resolution, &ucs4)) {
         return -1;
     }
 
@@ -687,7 +737,7 @@ _ftfont_init(PgFontObject *self, PyObject *args, PyObject *kwds)
     Py_XDECREF(self->path);
     self->path = 0;
 
-    self->ptsize = (FT_Int16)((ptsize > 0) ? ptsize : -1);
+    self->face_size = face_size;
     if (ucs4) {
         self->render_flags |= FT_RFLAG_UCS4;
     }
@@ -900,31 +950,22 @@ _ftfont_setstrength(PgFontObject *self, PyObject *value, void *closure)
 }
 
 static PyObject *
-_ftfont_getptsize(PgFontObject *self, void *closure)
+_ftfont_getsize(PgFontObject *self, void *closure)
 {
-    return PyInt_FromLong(self->ptsize);
+    return PyInt_FromLong(FX6_TRUNC(self->face_size));
 }
 
 static int
-_ftfont_setptsize(PgFontObject *self, PyObject *value, void *closure)
+_ftfont_setsize(PgFontObject *self, PyObject *value, void *closure)
 {
-    PyObject *ptsizeobj = PyNumber_Int(value);
-    long ptsize;
+    Scale_t face_size;
 
-    if (!ptsizeobj) {
-        return -1;
-    }
-    ptsize = PyInt_AsLong(ptsizeobj);
-    Py_DECREF(ptsizeobj);
-    if (ptsize == -1 && PyErr_Occurred()) {
-        return -1;
-    }
-    if (ptsize > 0x7FFFL) {
-        PyErr_SetString(PyExc_ValueError, "ptsize value too large");
-        return -1;
-    }
-    self->ptsize = (FT_Int16)(ptsize > 0 ? ptsize : -1);
+    if (!obj_to_scale(value, &face_size)) goto error;
+    self->face_size = face_size;
     return 0;
+
+  error:
+    return -1;
 }
 
 static PyObject *
@@ -1112,14 +1153,14 @@ _ftfont_getrect(PgFontObject *self, PyObject *args, PyObject *kwds)
  */
     /* keyword list */
     static char *kwlist[] =  {
-        "text", "style", "rotation", "ptsize", 0
+        "text", "style", "rotation", "size", 0
     };
 
     PyObject *textobj;
     PGFT_String *text;
     PyObject *rectobj = 0;
     FT_Error error;
-    int ptsize = -1;
+    int face_size = 0;
     SDL_Rect r;
 
     FontRenderMode render;
@@ -1129,8 +1170,9 @@ _ftfont_getrect(PgFontObject *self, PyObject *args, PyObject *kwds)
     FreeTypeInstance *ft;
     ASSERT_GRAB_FREETYPE(ft, 0);
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|iii", kwlist,
-                                     &textobj, &style, &rotation, &ptsize)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|iiO&", kwlist,
+                                     &textobj, &style, &rotation,
+                                     obj_to_scale, (void *)&face_size)) {
         return 0;
     }
 
@@ -1144,7 +1186,7 @@ _ftfont_getrect(PgFontObject *self, PyObject *args, PyObject *kwds)
 
     /* Build rendering mode, always anti-aliased by default */
     if (_PGFT_BuildRenderMode(ft, self, &render,
-                             ptsize, style, rotation)) {
+                              face_size, style, rotation)) {
         return 0;
     }
 
@@ -1208,7 +1250,7 @@ _ftfont_getmetrics(PgFontObject *self, PyObject *args, PyObject *kwds)
 {
     /* keyword list */
     static char *kwlist[] =  {
-        "text", "ptsize", 0
+        "text", "size", 0
     };
 
     FontRenderMode render;
@@ -1217,15 +1259,15 @@ _ftfont_getmetrics(PgFontObject *self, PyObject *args, PyObject *kwds)
     /* arguments */
     PyObject *textobj;
     PGFT_String *text;
-    int ptsize = -1;
+    Scale_t face_size = 0;
 
     /* grab freetype */
     FreeTypeInstance *ft;
     ASSERT_GRAB_FREETYPE(ft, 0);
 
     /* parse args */
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist,
-                                     &textobj, &ptsize)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|O&", kwlist, &textobj,
+                                     obj_to_scale, (void *)&face_size)) {
         return 0;
     }
 
@@ -1241,7 +1283,7 @@ _ftfont_getmetrics(PgFontObject *self, PyObject *args, PyObject *kwds)
      * Build the render mode with the given size and no
      * rotation/styles/vertical text
      */
-    if (_PGFT_BuildRenderMode(ft, self, &render, ptsize, FT_STYLE_NORMAL, 0)) {
+    if (_PGFT_BuildRenderMode(ft, self, &render, face_size, FT_STYLE_NORMAL, 0)) {
         _PGFT_FreeString(text);
         return 0;
     }
@@ -1256,32 +1298,27 @@ _ftfont_getmetrics(PgFontObject *self, PyObject *args, PyObject *kwds)
 static PyObject *
 _ftfont_getsizedascender(PgFontObject *self, PyObject *args)
 {
-    int pt_size = -1;
+    Scale_t face_size = 0;
     long value;
 
     FreeTypeInstance *ft;
     ASSERT_GRAB_FREETYPE(ft, 0);
 
-    if (!PyArg_ParseTuple(args, "|i", &pt_size)) {
+    if (!PyArg_ParseTuple(args, "|O&", obj_to_scale, (void *)&face_size)) {
         return 0;
     }
 
-    if (pt_size == -1) {
-        if (self->ptsize == -1) {
+    if (face_size == 0) {
+        if (self->face_size == 0) {
             RAISE(PyExc_ValueError,
                   "No font point size specified"
                   " and no default font size in typefont");
             return 0;
         }
 
-        pt_size = self->ptsize;
+        face_size = self->face_size;
     }
-
-    if (pt_size <= 0) {
-        RAISE(PyExc_ValueError, "Invalid point size for font.");
-        return 0;
-    }
-    value = (long)_PGFT_Font_GetAscenderSized(ft, self, (FT_UInt16)pt_size);
+    value = (long)_PGFT_Font_GetAscenderSized(ft, self, face_size);
     if (!value && PyErr_Occurred()) {
         return 0;
     }
@@ -1291,32 +1328,27 @@ _ftfont_getsizedascender(PgFontObject *self, PyObject *args)
 static PyObject *
 _ftfont_getsizeddescender(PgFontObject *self, PyObject *args)
 {
-    int pt_size = -1;
+    Scale_t face_size = 0;
     long value;
 
     FreeTypeInstance *ft;
     ASSERT_GRAB_FREETYPE(ft, 0);
 
-    if (!PyArg_ParseTuple(args, "|i", &pt_size)) {
+    if (!PyArg_ParseTuple(args, "|O&", obj_to_scale, (void *)&face_size)) {
         return 0;
     }
 
-    if (pt_size == -1) {
-        if (self->ptsize == -1) {
+    if (face_size == 0) {
+        if (self->face_size == 0) {
             RAISE(PyExc_ValueError,
                   "No font point size specified"
                   " and no default font size in typefont");
             return 0;
         }
 
-        pt_size = self->ptsize;
+        face_size = self->face_size;
     }
-
-    if (pt_size <= 0) {
-        RAISE(PyExc_ValueError, "Invalid point size for font.");
-        return 0;
-    }
-    value = (long)_PGFT_Font_GetDescenderSized(ft, self, (FT_UInt16)pt_size);
+    value = (long)_PGFT_Font_GetDescenderSized(ft, self, face_size);
     if (!value && PyErr_Occurred()) {
         return 0;
     }
@@ -1326,32 +1358,27 @@ _ftfont_getsizeddescender(PgFontObject *self, PyObject *args)
 static PyObject *
 _ftfont_getsizedheight(PgFontObject *self, PyObject *args)
 {
-    int pt_size = -1;
+    Scale_t face_size = 0;
     long value;
 
     FreeTypeInstance *ft;
     ASSERT_GRAB_FREETYPE(ft, 0);
 
-    if (!PyArg_ParseTuple(args, "|i", &pt_size)) {
+    if (!PyArg_ParseTuple(args, "|O&", obj_to_scale, (void *)&face_size)) {
         return 0;
     }
 
-    if (pt_size == -1) {
-        if (self->ptsize == -1) {
+    if (face_size == 0) {
+        if (self->face_size == 0) {
             RAISE(PyExc_ValueError,
                   "No font point size specified"
                   " and no default font size in typeface");
             return 0;
         }
 
-        pt_size = self->ptsize;
+        face_size = self->face_size;
     }
-
-    if (pt_size <= 0) {
-        RAISE(PyExc_ValueError, "Invalid point size for font.");
-        return 0;
-    }
-    value = _PGFT_Font_GetHeightSized(ft, self, (FT_UInt16)pt_size);
+    value = _PGFT_Font_GetHeightSized(ft, self, face_size);
     if (!value && PyErr_Occurred()) {
         return 0;
     }
@@ -1361,32 +1388,27 @@ _ftfont_getsizedheight(PgFontObject *self, PyObject *args)
 static PyObject *
 _ftfont_getsizedglyphheight(PgFontObject *self, PyObject *args)
 {
-    int pt_size = -1;
+    Scale_t face_size = -1;
     long value;
 
     FreeTypeInstance *ft;
     ASSERT_GRAB_FREETYPE(ft, 0);
 
-    if (!PyArg_ParseTuple(args, "|i", &pt_size)) {
+    if (!PyArg_ParseTuple(args, "|O&", obj_to_scale, (void *)&face_size)) {
         return 0;
     }
 
-    if (pt_size == -1) {
-        if (self->ptsize == -1) {
+    if (face_size == 0) {
+        if (self->face_size == 0) {
             RAISE(PyExc_ValueError,
                   "No font point size specified"
                   " and no default font size in typeface");
             return 0;
         }
 
-        pt_size = self->ptsize;
+        face_size = self->face_size;
     }
-
-    if (pt_size <= 0) {
-        RAISE(PyExc_ValueError, "Invalid point size for font.");
-        return 0;
-    }
-    value = (long)_PGFT_Font_GetGlyphHeightSized(ft, self, (FT_UInt16)pt_size);
+    value = (long)_PGFT_Font_GetGlyphHeightSized(ft, self, face_size);
     if (!value && PyErr_Occurred()) {
         return 0;
     }
@@ -1399,7 +1421,7 @@ _ftfont_getsizes(PgFontObject *self)
     int nsizes;
     unsigned i;
     int rc;
-    long ptsize = 0;
+    long size = 0;
     long height = 0, width = 0;
     double x_ppem = 0.0, y_ppem = 0.0;
     PyObject *size_list = 0;
@@ -1413,12 +1435,12 @@ _ftfont_getsizes(PgFontObject *self)
     if (!size_list) goto error;
     for (i = 0; i < nsizes; ++i) {
         rc = _PGFT_Font_GetAvailableSize(ft, self, i,
-                                         &ptsize, &height, &width,
+                                         &size, &height, &width,
                                          &x_ppem, &y_ppem);
         if (rc < 0) goto error;
         assert(rc > 0);
         size_item = Py_BuildValue("llldd",
-                                  ptsize, height, width, x_ppem, y_ppem);
+                                  size, height, width, x_ppem, y_ppem);
         if (!size_item) goto error;
         PyList_SET_ITEM(size_list, i, size_item);
     }
@@ -1434,7 +1456,7 @@ _ftfont_render_raw(PgFontObject *self, PyObject *args, PyObject *kwds)
 {
     /* keyword list */
     static char *kwlist[] =  {
-        "text", "style", "rotation", "ptsize", "invert", 0
+        "text", "style", "rotation", "size", "invert", 0
     };
 
     FontRenderMode mode;
@@ -1444,7 +1466,7 @@ _ftfont_render_raw(PgFontObject *self, PyObject *args, PyObject *kwds)
     PGFT_String *text;
     int style = FT_STYLE_DEFAULT;
     int rotation = 0;
-    int ptsize = -1;
+    Scale_t face_size = 0;
     int invert = 0;
 
     /* output arguments */
@@ -1455,9 +1477,11 @@ _ftfont_render_raw(PgFontObject *self, PyObject *args, PyObject *kwds)
     FreeTypeInstance *ft;
     ASSERT_GRAB_FREETYPE(ft, 0);
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|iiii", kwlist,
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|iiO&i", kwlist,
                                      &textobj,
-                                     &style, &rotation, &ptsize, &invert)) {
+                                     &style, &rotation,
+                                     obj_to_scale, (void *)&face_size,
+                                     &invert)) {
         return 0;
     }
 
@@ -1473,7 +1497,7 @@ _ftfont_render_raw(PgFontObject *self, PyObject *args, PyObject *kwds)
      * Build the render mode with the given size and no
      * rotation/styles/vertical text
      */
-    if (_PGFT_BuildRenderMode(ft, self, &mode, ptsize, style, rotation)) {
+    if (_PGFT_BuildRenderMode(ft, self, &mode, face_size, style, rotation)) {
         _PGFT_FreeString(text);
         return 0;
     }
@@ -1495,7 +1519,7 @@ _ftfont_render_raw_to(PgFontObject *self, PyObject *args, PyObject *kwds)
 {
     /* keyword list */
     static char *kwlist[] =  {
-        "array", "text", "dest", "style", "rotation", "ptsize", "invert", 0
+        "array", "text", "dest", "style", "rotation", "size", "invert", 0
     };
 
     FontRenderMode mode;
@@ -1509,7 +1533,7 @@ _ftfont_render_raw_to(PgFontObject *self, PyObject *args, PyObject *kwds)
     int ypos = 0;
     int style = FT_STYLE_DEFAULT;
     int rotation = 0;
-    int ptsize = -1;
+    Scale_t face_size = 0;
     int invert = 0;
 
     /* output arguments */
@@ -1520,10 +1544,11 @@ _ftfont_render_raw_to(PgFontObject *self, PyObject *args, PyObject *kwds)
     FreeTypeInstance *ft;
     ASSERT_GRAB_FREETYPE(ft, 0);
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OO|Oiiii", kwlist,
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OO|OiiO&i", kwlist,
                                      &arrayobj, &textobj,
                                      &dest, &style, &rotation,
-                                     &ptsize, &invert)) {
+                                     obj_to_scale, (void *)&face_size,
+                                     &invert)) {
         return 0;
     }
 
@@ -1545,7 +1570,7 @@ _ftfont_render_raw_to(PgFontObject *self, PyObject *args, PyObject *kwds)
      * Build the render mode with the given size and no
      * rotation/styles/vertical text
      */
-    if (_PGFT_BuildRenderMode(ft, self, &mode, ptsize, style, rotation)) {
+    if (_PGFT_BuildRenderMode(ft, self, &mode, face_size, style, rotation)) {
         _PGFT_FreeString(text);
         return 0;
     }
@@ -1571,13 +1596,13 @@ _ftfont_render(PgFontObject *self, PyObject *args, PyObject *kwds)
 #else
     /* keyword list */
     static char *kwlist[] =  {
-        "text", "fgcolor", "bgcolor", "style", "rotation", "ptsize", 0
+        "text", "fgcolor", "bgcolor", "style", "rotation", "size", 0
     };
 
     /* input arguments */
     PyObject *textobj = 0;
     PGFT_String *text;
-    int ptsize = -1;
+    Scale_t face_size = 0;
     PyObject *fg_color_obj = 0;
     PyObject *bg_color_obj = 0;
     int rotation = 0;
@@ -1597,12 +1622,13 @@ _ftfont_render(PgFontObject *self, PyObject *args, PyObject *kwds)
     FreeTypeInstance *ft;
     ASSERT_GRAB_FREETYPE(ft, 0);
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OO|Oiii", kwlist,
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OO|OiiO&", kwlist,
                                      /* required */
                                      &textobj, &fg_color_obj,
                                      /* optional */
                                      &bg_color_obj, &style,
-                                     &rotation, &ptsize)) {
+                                     &rotation,
+                                     obj_to_scale, (void *)&face_size)) {
         return 0;
     }
 
@@ -1628,7 +1654,7 @@ _ftfont_render(PgFontObject *self, PyObject *args, PyObject *kwds)
 
     ASSERT_SELF_IS_ALIVE(self);
 
-    if (_PGFT_BuildRenderMode(ft, self, &render, ptsize, style, rotation)) {
+    if (_PGFT_BuildRenderMode(ft, self, &render, face_size, style, rotation)) {
         _PGFT_FreeString(text);
         return 0;
     }
@@ -1670,14 +1696,14 @@ _ftfont_render_to(PgFontObject *self, PyObject *args, PyObject *kwds)
     /* keyword list */
     static char *kwlist[] =  {
         "surf", "dest", "text", "fgcolor", "bgcolor",
-        "style", "rotation", "ptsize", 0
+        "style", "rotation", "size", 0
     };
 
     /* input arguments */
     PyObject *surface_obj = 0;
     PyObject *textobj = 0;
     PGFT_String *text;
-    int ptsize = -1;
+    Scale_t face_size = 0;
     PyObject *dest = 0;
     int xpos = 0;
     int ypos = 0;
@@ -1698,13 +1724,14 @@ _ftfont_render_to(PgFontObject *self, PyObject *args, PyObject *kwds)
     FreeTypeInstance *ft;
     ASSERT_GRAB_FREETYPE(ft, 0);
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O!OOO|Oiii", kwlist,
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O!OOO|OiiO&", kwlist,
                                      /* required */
                                      &PySurface_Type, &surface_obj, &dest,
                                      &textobj, &fg_color_obj,
                                      /* optional */
                                      &bg_color_obj, &style,
-                                     &rotation, &ptsize)) {
+                                     &rotation,
+                                     obj_to_scale, (void *)&face_size)) {
         return 0;
     }
 
@@ -1733,7 +1760,7 @@ _ftfont_render_to(PgFontObject *self, PyObject *args, PyObject *kwds)
         return 0;
     }
 
-    if (_PGFT_BuildRenderMode(ft, self, &render, ptsize, style, rotation)) {
+    if (_PGFT_BuildRenderMode(ft, self, &render, face_size, style, rotation)) {
         _PGFT_FreeString(text);
         return 0;
     }
