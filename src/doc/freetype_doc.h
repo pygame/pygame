@@ -81,6 +81,8 @@
 
 #define DOC_FONTVERTICAL "vertical -> bool\nFont vertical mode"
 
+#define DOC_FONTROTATION "rotation -> int\ntext rotation in degrees counterclockwise"
+
 #define DOC_FONTORIGIN "origin -> bool\nFont render to text origin mode"
 
 #define DOC_FONTPAD "pad -> bool\npadded boundary mode"
@@ -258,6 +260,10 @@ Character kerning mode
 pygame.freetype.Font.vertical
  vertical -> bool
 Font vertical mode
+
+pygame.freetype.Font.rotation
+ rotation -> int
+text rotation in degrees counterclockwise
 
 pygame.freetype.Font.origin
  origin -> bool
