@@ -152,6 +152,11 @@ _PGFT_BuildRenderMode(FreeTypeInstance *ft,
 
         mode->style = (FT_UInt16)style;
     }
+    if ((mode->style & FT_STYLES_SCALABLE_ONLY) && !fontobj->is_scalable ) {
+        PyErr_SetString(PyExc_ValueError,
+                        "Unsupported style(s) for a bitmap font");
+        return -1;
+    }
     mode->strength = DBL_TO_FX16(fontobj->strength);
     mode->underline_adjustment = DBL_TO_FX16(fontobj->underline_adjustment);
     mode->render_flags = fontobj->render_flags;
@@ -159,6 +164,11 @@ _PGFT_BuildRenderMode(FreeTypeInstance *ft,
     mode->transform = fontobj->transform;
 
     if (mode->rotation_angle != 0) {
+        if (!fontobj->is_scalable) {
+            PyErr_SetString(PyExc_ValueError,
+                  "rotated text is unsupported for a bitmap font");
+            return -1;
+        }
         if (mode->style & FT_STYLE_WIDE) {
             PyErr_SetString(PyExc_ValueError,
                   "the wide style is unsupported for rotated text");

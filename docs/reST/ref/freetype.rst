@@ -302,10 +302,11 @@ New in Pygame 1.9.2
 
       The rendering is done using the font's default size in points and its
       default style, without any rotation, and taking into account fonts which
-      are set to be drawn vertically via the :meth:`Font.vertical` attribute.
+      are set to be drawn vertically via the :attr:`vertical` attribute.
       Optionally you may specify another point size to use via the 'size'
       argument, a text rotation via the 'rotation' argument, or a new text
-      style via the 'style' argument.
+      style via the 'style' argument. See the attr :attr:`size`,
+      :attr:`rotation`, and :attr:`style` attributes.
 
       If text is a char (byte) string, then its encoding is assumed to be
       ``LATIN1``.
@@ -382,6 +383,11 @@ New in Pygame 1.9.2
       Optionally, the default style can be modified or obtained accessing the
       individual style attributes (underline, oblique, strong).
 
+      The ``STYLE_OBLIQUE`` and ``STYLE_STRONG`` styles are for scalable fonts
+      only. An attempt to set either for a bitmap font raises an AttributeError.
+      An attempt to set either for an inactive font, as returned by
+      ``Font.__new__()``, raises a RuntimeError.
+
    .. attribute:: underline
 
       | :sl:`The state of the font's underline style flag`
@@ -412,6 +418,11 @@ New in Pygame 1.9.2
       calculations unless overridden specifically in the \`render()` or
       \`get_size()` calls, via the 'style' parameter.
 
+      The oblique style is only supported for scalable (outline) fonts.
+      An attempt to set this property will raise an AttributeError.
+      If the font object is inactive, as returned by Font.__new__,
+      setting this property raises a RuntimeError.
+
    .. attribute:: wide
 
       | :sl:`The state of the font's wide style flag`
@@ -432,6 +443,11 @@ New in Pygame 1.9.2
       increased. For strong text both the horizontal and vertical
       dimensions are enlarged. A wide style of strength 1/12 is
       equivalent to the font.Font bold style. The default is 1/36.
+
+      The strength style is only supported for scalable (outline) fonts.
+      An attempt to set this property will raise an AttributeError.
+      If the font object is inactive, as returned by Font.__new__,
+      setting this property raises a RuntimeError.
 
    .. attribute:: underline_adjustment
 
@@ -480,7 +496,7 @@ New in Pygame 1.9.2
       are used. Setting ``False`` disables the loading of any bitmap strike.
       Setting ``True``, the default value, allows bitmap strikes for an
       unrotated render when no style other than :attr:`wide` or
-      :attr:`underline` is set. This property has no effect on bitmap files.
+      :attr:`underline` is set. This property has no effect on bitmap fonts.
 
       See also :attr:`fixed_sizes` and :meth:`get_sizes`.
 
@@ -539,6 +555,11 @@ New in Pygame 1.9.2
       Degree values outside of the range 0 to 359 inclusive are reduced to the
       corresponding angle within the range (eg. 390 -> 390 - 360 -> 30,
       -45 -> 360 + -45 -> 315, 720 -> 720 - (2 * 360) -> 0).
+
+      Text rotation is only supported for scalable (outline) fonts. An attempt
+      to change the rotation of a bitmap font raises an AttributeError.
+      An attempt to change the rotation of an inactive font objects, as
+      returned by Font.__new__(), raises a RuntimeError.
 
    .. attribute:: origin
 
