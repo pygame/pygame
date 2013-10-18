@@ -559,7 +559,14 @@ class BaseModuleTest(unittest.TestCase):
           # call this function.
           #
 
-        self.assertEqual(pygame.get_error(), "")
+        e = pygame.get_error()
+        self.assertTrue(e == "" or
+                        # This may be returned by SDL_mixer built with
+                        # FluidSynth support. Setting environment variable
+                        # SDL_SOUNDFONTS to the path of a valid sound font
+                        # file removes the error message.
+                        e == "No SoundFonts have been requested",
+                        e)
         pygame.set_error("hi")
         self.assertEqual(pygame.get_error(), "hi")
         pygame.set_error("")
@@ -569,7 +576,14 @@ class BaseModuleTest(unittest.TestCase):
 
     def test_set_error(self):
 
-        self.assertEqual(pygame.get_error(), "")
+        e = pygame.get_error()
+        self.assertTrue(e == "" or
+                        # This may be returned by SDL_mixer built with
+                        # FluidSynth support. Setting environment variable
+                        # SDL_SOUNDFONTS to the path of a valid sf2 file
+                        # removes the error message.
+                        e == "No SoundFonts have been requested",
+                        e)
         pygame.set_error("hi")
         self.assertEqual(pygame.get_error(), "hi")
         pygame.set_error("")
