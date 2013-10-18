@@ -40,6 +40,7 @@
 #define FX6_ROUND(x) (((x) + 32L) & -64L)
 #define FX6_TRUNC(x)  ((x) >> 6)
 #define FX16_CEIL_TO_FX6(x) (((x) + 1023L) >> 10)
+#define FX16_ROUND_TO_INT(x) (((x) + 32768L) >> 16)
 #define INT_TO_FX6(i) ((FT_Fixed)((i) << 6))
 #define INT_TO_FX16(i) ((FT_Fixed)((i) << 16))
 #define FX16_TO_DBL(x) ((x) * 1.52587890625e-5 /* 2.0^-16 */)
@@ -288,7 +289,7 @@ int _PGFT_Render_Array(FreeTypeInstance *, PgFontObject *,
                        const FontRenderMode *, PyObject *,
                        PGFT_String *, int, int, int, SDL_Rect *);
 int _PGFT_BuildRenderMode(FreeTypeInstance *, PgFontObject *,
-                          FontRenderMode *, Scale_t, int, int);
+                          FontRenderMode *, Scale_t, int, Angle_t);
 int _PGFT_CheckStyle(FT_UInt32);
 
 
