@@ -84,18 +84,6 @@ _PGFT_GetError(FreeTypeInstance *ft)
  *
  *********************************************************/
 int
-_PGFT_Font_IsScalable(FreeTypeInstance *ft, PgFontObject *fontobj)
-{
-    FT_Face font = _PGFT_GetFont(ft, fontobj);
-
-    if (!font) {
-        RAISE(PyExc_RuntimeError, _PGFT_GetError(ft));
-        return -1;
-    }
-    return FT_IS_SCALABLE(font) ? 1 : 0;
-}
-
-int
 _PGFT_Font_IsFixedWidth(FreeTypeInstance *ft, PgFontObject *fontobj)
 {
     FT_Face font = _PGFT_GetFont(ft, fontobj);
@@ -373,12 +361,15 @@ _PGFT_font_request(FTC_FaceID font_id, FT_Library library,
 
 static int init(FreeTypeInstance *ft, PgFontObject *fontobj)
 {
+    FT_Face font;
     fontobj->_internals = 0;
 
-    if (!_PGFT_GetFont(ft, fontobj)) {
+    font = _PGFT_GetFont(ft, fontobj);
+    if (!font) {
         RAISE(PyExc_IOError, _PGFT_GetError(ft));
         return -1;
     }
+    fontobj->is_scalable = FT_IS_SCALABLE(font) ? ~0 : 0;
 
     fontobj->_internals = _PGFT_malloc(sizeof(FontInternals));
     if (!fontobj->_internals) {

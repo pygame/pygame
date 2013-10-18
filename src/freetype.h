@@ -92,6 +92,7 @@ typedef struct {
     PyObject_HEAD
     PgFontId id;
     PyObject *path;
+    int is_scalable;
 
     Scale_t face_size;
     FT_Int16 style;

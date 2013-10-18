@@ -25,6 +25,7 @@
 #include "../_pygame.h"
 #include "../freetype.h"
 
+
 /**********************************************************
  * Internal module defines
  **********************************************************/
@@ -56,6 +57,9 @@
 #define PGFT_DEFAULT_RESOLUTION 72 /* dots per inch */
 
 #define PGFT_DBL_DEFAULT_STRENGTH (1.0 / 36.0)
+
+/* Rendering styles unsupported for bitmap fonts */
+#define FT_STYLES_SCALABLE_ONLY  (FT_STYLE_STRONG | FT_STYLE_OBLIQUE)
 
 /**********************************************************
  * Internal basic types
@@ -246,7 +250,6 @@ long _PGFT_Font_GetHeightSized(FreeTypeInstance *, PgFontObject *,
                                Scale_t);
 long _PGFT_Font_GetGlyphHeightSized(FreeTypeInstance *, PgFontObject *,
                                     Scale_t);
-int _PGFT_Font_IsScalable(FreeTypeInstance *, PgFontObject *);
 int _PGFT_Font_IsFixedWidth(FreeTypeInstance *, PgFontObject *);
 int _PGFT_Font_NumFixedSizes(FreeTypeInstance *, PgFontObject *);
 int _PGFT_Font_GetAvailableSize(FreeTypeInstance *, PgFontObject *, unsigned,
