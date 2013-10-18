@@ -81,6 +81,7 @@
  **********************************************************/
 
 typedef FT_UInt Scale_t;
+typedef FT_Angle Angle_t;
 
 typedef struct {
     FT_Long font_index;
@@ -98,6 +99,7 @@ typedef struct {
     double strength;
     double underline_adjustment;
     FT_UInt resolution;
+    Angle_t rotation;
     FT_Matrix transform;
 
     void *_internals;

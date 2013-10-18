@@ -527,6 +527,19 @@ New in Pygame 1.9.2
       contain the necessary metrics to draw glyphs vertically, so drawing in
       those cases will give unspecified results.
 
+   .. attribute:: rotation
+
+      | :sl:`text rotation in degrees counterclockwise`
+      | :sg:`rotation -> int`
+
+      Get or set the baseline angle of the rendered text. The angle is
+      represented as integer degrees. The default angle is 0, with horizontal
+      text rendered along the X axis, and vertical text along the Y axis.
+      A non-zero value rotates these axes counterclockwise that many degrees.
+      Degree values outside of the range 0 to 359 inclusive are reduced to the
+      corresponding angle within the range (eg. 390 -> 390 - 360 -> 30,
+      -45 -> 360 + -45 -> 315, 720 -> 720 - (2 * 360) -> 0).
+
    .. attribute:: origin
 
       | :sl:`Font render to text origin mode`

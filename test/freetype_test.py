@@ -378,6 +378,24 @@ class FreeTypeFontTest(unittest.TestCase):
                           (max_point_size + 1))
         self.assertRaises(TypeError, setattr, f, 'size', 0.0)
 
+    def test_freetype_Font_rotation(self):
+
+        test_angles = [(30, 30),
+                       (360, 0), (390, 30),
+                       (720, 0), (764, 44),
+                       (-30, 330),
+                       (-360, 0), (-390, 330),
+                       (-720, 0), (-764, 316)]
+
+        f = ft.Font(None)
+        self.assertEqual(f.rotation, 0)
+        for r, r_reduced in test_angles:
+            f.rotation = r
+            self.assertEqual(f.rotation, r_reduced,
+                             "for angle %d: %d != %d" %
+                             (r, f.rotation, r_reduced))
+        self.assertRaises(TypeError, setattr, f, 'rotation', '12')
+
     def test_freetype_Font_render_to(self):
         # Rendering to an existing target surface is equivalent to
         # blitting a surface returned by Font.render with the target.

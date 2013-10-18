@@ -127,10 +127,8 @@ _PGFT_CheckStyle(FT_UInt32 style)
 int
 _PGFT_BuildRenderMode(FreeTypeInstance *ft,
                       PgFontObject *fontobj, FontRenderMode *mode,
-                      Scale_t face_size, int style, int rotation)
+                      Scale_t face_size, int style, Angle_t rotation)
 {
-    int angle;
-
     if (face_size == 0) {
         if (fontobj->face_size == 0) {
             PyErr_SetString(PyExc_ValueError,
@@ -157,9 +155,7 @@ _PGFT_BuildRenderMode(FreeTypeInstance *ft,
     mode->strength = DBL_TO_FX16(fontobj->strength);
     mode->underline_adjustment = DBL_TO_FX16(fontobj->underline_adjustment);
     mode->render_flags = fontobj->render_flags;
-    angle = rotation % 360;
-    while (angle < 0) angle += 360;
-    mode->rotation_angle = INT_TO_FX16(angle);
+    mode->rotation_angle = rotation;
     mode->transform = fontobj->transform;
 
     if (mode->rotation_angle != 0) {

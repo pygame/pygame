@@ -88,6 +88,8 @@ static PyObject *_ftfont_getstrength(PgFontObject *, void *);
 static int _ftfont_setstrength(PgFontObject *, PyObject *, void *);
 static PyObject *_ftfont_getunderlineadjustment(PgFontObject *, void *);
 static int _ftfont_setunderlineadjustment(PgFontObject *, PyObject *, void *);
+static PyObject *_ftfont_getrotation(PgFontObject *, void *);
+static int _ftfont_setrotation(PgFontObject *, PyObject *, void *);
 
 static PyObject *_ftfont_getresolution(PgFontObject *, void *);
 
@@ -111,6 +113,7 @@ static PyObject *get_metrics(FreeTypeInstance *, FontRenderMode *,
 static PyObject *load_font_res(const char *);
 static int parse_dest(PyObject *, int *, int *);
 static int obj_to_scale(PyObject *, void *);
+static int obj_to_rotation(PyObject *, void *);
 
 /*
  * Auxiliar defines
@@ -235,7 +238,7 @@ parse_dest(PyObject *dest, int *x, int *y)
     return 0;
 }
 
-/* Point size PyArg_ParseTuple converter: int -> Scale_t */
+/** Point size PyArg_ParseTuple converter: int -> Scale_t */
 static int
 obj_to_scale(PyObject *o, void *p)
 {
@@ -285,6 +288,43 @@ obj_to_scale(PyObject *o, void *p)
   finish:
     Py_XDECREF(lower_limit);
     Py_XDECREF(upper_limit);
+    return rval;
+}
+
+/** rotation: int -> Angle_t */
+int
+obj_to_rotation(PyObject *o, void *p)
+{
+    PyObject *full_circle_obj = 0;
+    PyObject *angle_obj = 0;
+    long angle;
+    int rval = 0;
+
+    if (PyLong_Check(o)) {
+        ;
+    }
+#if PY2
+    else if (PyInt_Check(o)) {
+        ;
+    }
+#endif
+    else {
+        PyErr_Format(PyExc_TypeError, "integer rotation expected, got %s",
+                     Py_TYPE(o)->tp_name);
+        goto finish;
+    }
+    full_circle_obj = PyLong_FromLong(360L);
+    if (!full_circle_obj) goto finish;
+    angle_obj = PyNumber_Remainder(o, full_circle_obj);
+    if (!angle_obj) goto finish;
+    angle = PyLong_AsLong(angle_obj);
+    if (angle == -1) goto finish;
+    *(Scale_t *)p = (Scale_t)INT_TO_FX16(angle);
+    rval = 1;
+
+  finish:
+    Py_XDECREF(full_circle_obj);
+    Py_XDECREF(angle_obj);
     return rval;
 }
 
@@ -591,6 +631,13 @@ static PyGetSetDef _ftfont_getsets[] = {
         0
     },
     {
+        "rotation",
+        (getter)_ftfont_getrotation,
+        (setter)_ftfont_setrotation,
+        DOC_FONTROTATION,
+        0
+    },
+    {
         "origin",
         (getter)_ftfont_getrender_flag,
         (setter)_ftfont_setrender_flag,
@@ -689,6 +736,7 @@ _ftfont_new(PyTypeObject *subtype, PyObject *args, PyObject *kwds)
         obj->render_flags = FT_RFLAG_DEFAULTS;
         obj->strength = PGFT_DBL_DEFAULT_STRENGTH;
         obj->underline_adjustment = 1.0;
+        obj->rotation = 0;
         obj->transform.xx = FX16_ONE;
         obj->transform.xy = 0;
         obj->transform.yx = 0;
@@ -1121,6 +1169,19 @@ _ftfont_getresolution(PgFontObject *self, void *closure)
 }
 
 
+/** text rotation attribute */
+static PyObject *
+_ftfont_getrotation(PgFontObject *self, void *closure)
+{
+    return PyLong_FromLong((long)FX16_ROUND_TO_INT(self->rotation));
+}
+
+static int
+_ftfont_setrotation(PgFontObject *self, PyObject *value, void *closure)
+{
+    return obj_to_rotation(value, &self->rotation) ? 0 : -1;
+}
+
 /** testing and debugging */
 #if defined(PGFT_DEBUG_CACHE)
 static PyObject *
@@ -1164,14 +1225,15 @@ _ftfont_getrect(PgFontObject *self, PyObject *args, PyObject *kwds)
     SDL_Rect r;
 
     FontRenderMode render;
-    int rotation = 0;
+    Angle_t rotation = self->rotation;
     int style = 0;
 
     FreeTypeInstance *ft;
     ASSERT_GRAB_FREETYPE(ft, 0);
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|iiO&", kwlist,
-                                     &textobj, &style, &rotation,
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|iO&O&", kwlist,
+                                     &textobj, &style,
+                                     obj_to_rotation, (void *)&rotation,
                                      obj_to_scale, (void *)&face_size)) {
         return 0;
     }
@@ -1465,7 +1527,7 @@ _ftfont_render_raw(PgFontObject *self, PyObject *args, PyObject *kwds)
     PyObject *textobj;
     PGFT_String *text;
     int style = FT_STYLE_DEFAULT;
-    int rotation = 0;
+    Angle_t rotation = self->rotation;
     Scale_t face_size = 0;
     int invert = 0;
 
@@ -1477,9 +1539,10 @@ _ftfont_render_raw(PgFontObject *self, PyObject *args, PyObject *kwds)
     FreeTypeInstance *ft;
     ASSERT_GRAB_FREETYPE(ft, 0);
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|iiO&i", kwlist,
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|iO&O&i", kwlist,
                                      &textobj,
-                                     &style, &rotation,
+                                     &style,
+                                     obj_to_rotation, (void *)&rotation,
                                      obj_to_scale, (void *)&face_size,
                                      &invert)) {
         return 0;
@@ -1532,7 +1595,7 @@ _ftfont_render_raw_to(PgFontObject *self, PyObject *args, PyObject *kwds)
     int xpos = 0;
     int ypos = 0;
     int style = FT_STYLE_DEFAULT;
-    int rotation = 0;
+    Angle_t rotation = self->rotation;
     Scale_t face_size = 0;
     int invert = 0;
 
@@ -1544,9 +1607,10 @@ _ftfont_render_raw_to(PgFontObject *self, PyObject *args, PyObject *kwds)
     FreeTypeInstance *ft;
     ASSERT_GRAB_FREETYPE(ft, 0);
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OO|OiiO&i", kwlist,
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OO|OiO&O&i", kwlist,
                                      &arrayobj, &textobj,
-                                     &dest, &style, &rotation,
+                                     &dest, &style,
+                                     obj_to_rotation, (void *)&rotation,
                                      obj_to_scale, (void *)&face_size,
                                      &invert)) {
         return 0;
@@ -1605,7 +1669,7 @@ _ftfont_render(PgFontObject *self, PyObject *args, PyObject *kwds)
     Scale_t face_size = 0;
     PyObject *fg_color_obj = 0;
     PyObject *bg_color_obj = 0;
-    int rotation = 0;
+    Angle_t rotation = self->rotation;
     int style = FT_STYLE_DEFAULT;
 
     /* output arguments */
@@ -1622,12 +1686,12 @@ _ftfont_render(PgFontObject *self, PyObject *args, PyObject *kwds)
     FreeTypeInstance *ft;
     ASSERT_GRAB_FREETYPE(ft, 0);
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OO|OiiO&", kwlist,
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OO|OiO&O&", kwlist,
                                      /* required */
                                      &textobj, &fg_color_obj,
                                      /* optional */
                                      &bg_color_obj, &style,
-                                     &rotation,
+                                     obj_to_rotation, (void *)&rotation,
                                      obj_to_scale, (void *)&face_size)) {
         return 0;
     }
@@ -1709,7 +1773,7 @@ _ftfont_render_to(PgFontObject *self, PyObject *args, PyObject *kwds)
     int ypos = 0;
     PyObject *fg_color_obj = 0;
     PyObject *bg_color_obj = 0;
-    int rotation = 0;
+    Angle_t rotation = self->rotation;
     int style = FT_STYLE_DEFAULT;
     SDL_Surface *surface = 0;
 
@@ -1724,13 +1788,13 @@ _ftfont_render_to(PgFontObject *self, PyObject *args, PyObject *kwds)
     FreeTypeInstance *ft;
     ASSERT_GRAB_FREETYPE(ft, 0);
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O!OOO|OiiO&", kwlist,
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O!OOO|OiO&O&", kwlist,
                                      /* required */
                                      &PySurface_Type, &surface_obj, &dest,
                                      &textobj, &fg_color_obj,
                                      /* optional */
                                      &bg_color_obj, &style,
-                                     &rotation,
+                                     obj_to_rotation, (void *)&rotation,
                                      obj_to_scale, (void *)&face_size)) {
         return 0;
     }
