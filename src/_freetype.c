@@ -730,6 +730,7 @@ _ftfont_new(PyTypeObject *subtype, PyObject *args, PyObject *kwds)
         obj->id.open_args.pathname = 0;
         obj->path = 0;
         obj->resolution = 0;
+        obj->is_scalable = 0;
         obj->_internals = 0;
         obj->face_size = 0;
         obj->style = FT_STYLE_NORMAL;
@@ -784,6 +785,7 @@ _ftfont_init(PgFontObject *self, PyObject *args, PyObject *kwds)
     _PGFT_UnloadFont(ft, self);
     Py_XDECREF(self->path);
     self->path = 0;
+    self->is_scalable = 0;
 
     self->face_size = face_size;
     if (ucs4) {
@@ -927,6 +929,18 @@ _ftfont_setstyle_flag(PgFontObject *self, PyObject *value, void *closure)
         return -1;
     }
 
+    if ((style_flag & FT_STYLES_SCALABLE_ONLY) && !self->is_scalable) {
+        if (PgFont_IS_ALIVE(self)) {
+            PyErr_SetString(PyExc_AttributeError,
+                            "this style is unsupported for a bitmap font");
+        }
+        else {
+            PyErr_SetString(PyExc_RuntimeError,
+                            MODULE_NAME "." FONT_TYPE_NAME
+                            " instance is not initialized");
+        }
+        return -1;
+    }
     if (PyObject_IsTrue(value)) {
         self->style |= (FT_UInt16)style_flag;
     }
@@ -962,6 +976,18 @@ _ftfont_setstyle(PgFontObject *self, PyObject *value, void *closure)
     if (_PGFT_CheckStyle(style)) {
         PyErr_Format(PyExc_ValueError,
                      "Invalid style value %x", (int)style);
+        return -1;
+    }
+    if ((style & FT_STYLES_SCALABLE_ONLY) && !self->is_scalable) {
+        if (PgFont_IS_ALIVE(self)) {
+            PyErr_SetString(PyExc_AttributeError,
+                            "this style is unsupported for a bitmap font");
+        }
+        else {
+            PyErr_SetString(PyExc_RuntimeError,
+                            MODULE_NAME "." FONT_TYPE_NAME
+                            " instance is not initialized");
+        }
         return -1;
     }
 
@@ -1096,13 +1122,8 @@ _ftfont_getpath(PgFontObject *self, void *closure)
 static PyObject *
 _ftfont_getscalable(PgFontObject *self, void *closure)
 {
-    FreeTypeInstance *ft;
-    long scalable;
-    ASSERT_GRAB_FREETYPE(ft, 0);
-
-    ASSERT_SELF_IS_ALIVE(self);
-    scalable = _PGFT_Font_IsScalable(ft, self);
-    return scalable >= 0 ? PyBool_FromLong(scalable) : 0;
+    ASSERT_SELF_IS_ALIVE(self)
+    return PyBool_FromLong(self->is_scalable);
 }
 
 static PyObject *
@@ -1179,6 +1200,18 @@ _ftfont_getrotation(PgFontObject *self, void *closure)
 static int
 _ftfont_setrotation(PgFontObject *self, PyObject *value, void *closure)
 {
+    if (!self->is_scalable) {
+        if (PgFont_IS_ALIVE(self)) {
+            PyErr_SetString(PyExc_AttributeError,
+                            "rotation is unsupported for a bitmap font");
+        }
+        else {
+            PyErr_SetString(PyExc_RuntimeError,
+                            MODULE_NAME "." FONT_TYPE_NAME
+                            " instance is not initialized");
+        }
+        return -1;
+    }
     return obj_to_rotation(value, &self->rotation) ? 0 : -1;
 }
 
