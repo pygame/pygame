@@ -23,7 +23,7 @@
 
 #define DOC_FONTPATH "path -> unicode\nFont file path"
 
-#define DOC_FONTSIZE "size -> int\nThe default point size used in rendering"
+#define DOC_FONTSIZE "size -> float\nsize -> (float, float)\nThe default point size used in rendering"
 
 #define DOC_FONTGETRECT "get_rect(text, style=STYLE_DEFAULT, rotation=0, size=0) -> rect\nReturn the size and offset of rendered text"
 
@@ -145,7 +145,8 @@ pygame.freetype.Font.path
 Font file path
 
 pygame.freetype.Font.size
- size -> int
+ size -> float
+ size -> (float, float)
 The default point size used in rendering
 
 pygame.freetype.Font.get_rect

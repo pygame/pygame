@@ -32,18 +32,18 @@ def nullfont():
     """return an uninitialized font instance"""
     return ft.Font.__new__(ft.Font)
 
-max_point_size = 0
-for i in range(0, ctypes.sizeof(ctypes.c_uint)):
-    max_point_size <<= 8
-    max_point_size |= 0xff
-max_point_size >>= 6
+max_point_size_FX6 = 0x7FFFFFFF
+max_point_size = max_point_size_FX6 >> 6
+max_point_size_f = max_point_size_FX6 * 0.015625
 
 class FreeTypeFontTest(unittest.TestCase):
 
     _fixed_path = os.path.join(FONTDIR, 'test_fixed.otf')
     _sans_path = os.path.join(FONTDIR, 'test_sans.ttf')
     _mono_path = os.path.join(FONTDIR, 'PyGameMono.otf')
-    _bmp_path = os.path.join(FONTDIR, 'PyGameMono-8.bdf')
+    _bmp_8_75dpi_path = os.path.join(FONTDIR, 'PyGameMono-8.bdf')
+    _bmp_18_75dpi_path = os.path.join(FONTDIR, 'PyGameMono-18-75dpi.bdf')
+    _bmp_18_100dpi_path = os.path.join(FONTDIR, 'PyGameMono-18-100dpi.bdf')
     _TEST_FONTS = {}
 
     def setUp(self):
@@ -67,11 +67,24 @@ class FreeTypeFontTest(unittest.TestCase):
             # It also contains two bitmap sizes: 8.0 X 8.0 and 19.0 X 19.0.
             self._TEST_FONTS['mono'] = ft.Font(self._mono_path)
 
-        if 'bmp' not in self._TEST_FONTS:
+        if 'bmp-8-75dpi' not in self._TEST_FONTS:
             # A fixed size bitmap mono test font made for Pygame.
             # It contains only a few glyphs: '\0', 'A', 'B', 'C', and U+13079.
             # The size is 8.0 X 8.0.
-            self._TEST_FONTS['bmp'] = ft.Font(self._bmp_path)
+            self._TEST_FONTS['bmp-8-75dpi'] = ft.Font(self._bmp_8_75dpi_path)
+
+        if 'bmp-18-75dpi' not in self._TEST_FONTS:
+            # A fixed size bitmap mono test font made for Pygame.
+            # It contains only a few glyphs: '\0', 'A', 'B', 'C', and U+13079.
+            # The size is 8.0 X 8.0.
+            self._TEST_FONTS['bmp-18-75dpi'] = ft.Font(self._bmp_18_75dpi_path)
+
+        if 'bmp-18-100dpi' not in self._TEST_FONTS:
+            # A fixed size bitmap mono test font made for Pygame.
+            # It contains only a few glyphs: '\0', 'A', 'B', 'C', and U+13079.
+            # The size is 8.0 X 8.0.
+            self._TEST_FONTS['bmp-18-100dpi'] = (
+                ft.Font(self._bmp_18_100dpi_path))
 
     def test_freetype_defaultfont(self):
         font = ft.Font(None)
@@ -146,7 +159,7 @@ class FreeTypeFontTest(unittest.TestCase):
         
         f = self._TEST_FONTS['sans']
         self.assertEqual(f.fixed_sizes, 0)
-        f = self._TEST_FONTS['bmp']
+        f = self._TEST_FONTS['bmp-8-75dpi']
         self.assertEqual(f.fixed_sizes, 1)
         f = self._TEST_FONTS['mono']
         self.assertEqual(f.fixed_sizes, 2)
@@ -156,7 +169,7 @@ class FreeTypeFontTest(unittest.TestCase):
         szlist = f.get_sizes()
         self.assertTrue(isinstance(szlist, list))
         self.assertEqual(len(szlist), 0)
-        f = self._TEST_FONTS['bmp']
+        f = self._TEST_FONTS['bmp-8-75dpi']
         szlist = f.get_sizes()
         self.assertTrue(isinstance(szlist, list))
         self.assertEqual(len(szlist), 1)
@@ -267,7 +280,7 @@ class FreeTypeFontTest(unittest.TestCase):
 
     def test_freetype_Font_bitmap_files(self):
         """Ensure bitmap file restrictions are caught"""
-        f = self._TEST_FONTS['bmp']
+        f = self._TEST_FONTS['bmp-8-75dpi']
         f_null = nullfont()
         s = pygame.Surface((10, 10), 0, 32)
         a = s.get_view('3')
@@ -399,6 +412,16 @@ class FreeTypeFontTest(unittest.TestCase):
         self.assertRaises(RuntimeError,
                           nullfont().get_rect, 'a', size=24)
 
+        # text stretching
+        rect12 = font.get_rect('A', size=12.0)
+        rect24 = font.get_rect('A', size=24.0)
+        rect_x = font.get_rect('A', size=(24.0, 12.0))
+        self.assertEqual(rect_x.width, rect24.width)
+        self.assertEqual(rect_x.height, rect12.height)
+        rect_y = font.get_rect('A', size=(12.0, 24.0))
+        self.assertEqual(rect_y.width, rect12.width)
+        self.assertEqual(rect_y.height, rect24.height)
+
     def test_freetype_Font_height(self):
 
         f = self._TEST_FONTS['sans']
@@ -431,10 +454,70 @@ class FreeTypeFontTest(unittest.TestCase):
         self.assertEqual(f.size, 0)
         f.size = max_point_size
         self.assertEqual(f.size, max_point_size)
+        f.size = 6.5
+        self.assertEqual(f.size, 6.5)
+        f.size = max_point_size_f
+        self.assertEqual(f.size, max_point_size_f)
         self.assertRaises(OverflowError, setattr, f, 'size', -1)
         self.assertRaises(OverflowError, setattr, f, 'size',
                           (max_point_size + 1))
-        self.assertRaises(TypeError, setattr, f, 'size', 0.0)
+
+        f.size = 24.0, 0
+        size = f.size
+        self.assertTrue(isinstance(size, float))
+        self.assertEqual(size, 24.0)
+        f.size = 16, 16
+        size = f.size
+        self.assertTrue(isinstance(size, tuple))
+        self.assertEqual(len(size), 2)
+        x, y = size
+        self.assertTrue(isinstance(x, float))
+        self.assertEqual(x, 16.0)
+        self.assertTrue(isinstance(y, float))
+        self.assertEqual(y, 16.0)
+        f.size = 20.5, 22.25
+        x, y = f.size
+        self.assertEqual(x, 20.5)
+        self.assertEqual(y, 22.25)
+        f.size = 0, 0
+        size = f.size
+        self.assertTrue(isinstance(size, float))
+        self.assertEqual(size, 0.0)
+        self.assertRaises(ValueError, setattr, f, 'size', (0, 24.0))
+        self.assertRaises(TypeError, setattr, f, 'size', (24.0,))
+        self.assertRaises(TypeError, setattr, f, 'size', (24.0, 0, 0))
+        self.assertRaises(TypeError, setattr, f, 'size', (24.0j, 24.0))
+        self.assertRaises(TypeError, setattr, f, 'size', (24.0, 24.0j))
+        self.assertRaises(OverflowError, setattr, f, 'size', (-1, 16))
+        self.assertRaises(OverflowError, setattr, f, 'size',
+                          (max_point_size + 1, 16))
+        self.assertRaises(OverflowError, setattr, f, 'size', (16, -1))
+        self.assertRaises(OverflowError, setattr, f, 'size',
+                          (16, max_point_size + 1))
+
+        # bitmap files with identical point size but differing ppems.
+        f75 = self._TEST_FONTS['bmp-18-75dpi']
+        sizes = f75.get_sizes()
+        self.assertEqual(len(sizes), 1)
+        size_pt, width_px, height_px, x_ppem, y_ppem = sizes[0]
+        self.assertEqual(size_pt, 18)
+        self.assertEqual(x_ppem, 19.0)
+        self.assertEqual(y_ppem, 19.0)
+        rect = f75.get_rect('A', size=18)
+        rect = f75.get_rect('A', size=19)
+        rect = f75.get_rect('A', size=(19.0, 19.0))
+        self.assertRaises(pygame.error, f75.get_rect, 'A', size=17)
+        f100 = self._TEST_FONTS['bmp-18-100dpi']
+        sizes = f100.get_sizes()
+        self.assertEqual(len(sizes), 1)
+        size_pt, width_px, height_px, x_ppem, y_ppem = sizes[0]
+        self.assertEqual(size_pt, 18)
+        self.assertEqual(x_ppem, 25.0)
+        self.assertEqual(y_ppem, 25.0)
+        rect = f100.get_rect('A', size=18)
+        rect = f100.get_rect('A', size=25)
+        rect = f100.get_rect('A', size=(25.0, 25.0))
+        self.assertRaises(pygame.error, f100.get_rect, 'A', size=17)
 
     def test_freetype_Font_rotation(self):
 

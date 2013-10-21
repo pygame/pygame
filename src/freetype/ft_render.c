@@ -129,8 +129,8 @@ _PGFT_BuildRenderMode(FreeTypeInstance *ft,
                       PgFontObject *fontobj, FontRenderMode *mode,
                       Scale_t face_size, int style, Angle_t rotation)
 {
-    if (face_size == 0) {
-        if (fontobj->face_size == 0) {
+    if (face_size.x == 0) {
+        if (fontobj->face_size.x == 0) {
             PyErr_SetString(PyExc_ValueError,
                   "No font point size specified"
                   " and no default font size in typeface");

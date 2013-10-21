@@ -55,7 +55,7 @@ def run():
     # Some pinwheels
     font.origin = True
     for angle in range(0, 360, 45):
-        font.render_to(screen, (200, 500), ")", pygame.Color('black'),
+        font.render_to(screen, (150, 420), ")", pygame.Color('black'),
                        size=48, rotation=angle)
     font.vertical = True
     for angle in range(15, 375, 30):
@@ -75,6 +75,21 @@ def run():
     font.render_to(screen, (380, 380), "...yes, this is an SDL surface",
                    pygame.Color(0, 0, 0),
                    None, size=24, style=freetype.STYLE_STRONG)
+
+    font.origin = True
+    r = font.render_to(screen, (100, 530), "stretch",
+                   pygame.Color('red'),
+                   None, size=(24, 24), style=freetype.STYLE_NORMAL)
+    font.render_to(screen, (100 + r.width, 530), " VERTICAL",
+                   pygame.Color('red'),
+                   None, size=(24, 48), style=freetype.STYLE_NORMAL)
+
+    r = font.render_to(screen, (100, 580), "stretch",
+                   pygame.Color('blue'),
+                   None, size=(24, 24), style=freetype.STYLE_NORMAL)
+    font.render_to(screen, (100 + r.width, 580), " HORIZONTAL",
+                   pygame.Color('blue'),
+                   None, size=(48, 24), style=freetype.STYLE_NORMAL)
 
     pygame.display.flip()
 
