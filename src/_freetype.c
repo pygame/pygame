@@ -852,6 +852,12 @@ _ftfont_init(PgFontObject *self, PyObject *args, PyObject *kwds)
     Scale_t face_size = self->face_size;
     int ucs4 = self->render_flags & FT_RFLAG_UCS4 ? 1 : 0;
     unsigned resolution = 0;
+    long size = 0;
+    long height = 0;
+    long width = 0;
+    double x_ppem = 0;
+    double y_ppem = 0;
+    int rval = -1;
 
     FreeTypeInstance *ft;
     ASSERT_GRAB_FREETYPE(ft, -1);
@@ -897,11 +903,6 @@ _ftfont_init(PgFontObject *self, PyObject *args, PyObject *kwds)
         return -1;
     }
     if (Bytes_Check(file)) {
-        if (_PGFT_TryLoadFont_Filename(ft, self, Bytes_AS_STRING(file),
-                                       font_index)) {
-            goto end;
-        }
-
         if (PyUnicode_Check(original_file)) {
             /* Make sure to save a pure Unicode object to prevent possible
              * cycles from a derived class. This means no tp_traverse or
@@ -913,6 +914,14 @@ _ftfont_init(PgFontObject *self, PyObject *args, PyObject *kwds)
             self->path = PyUnicode_FromEncodedObject(file, "raw_unicode_escape",
                                                      "replace");
         }
+        if (!self->path) {
+            goto end;
+        }
+
+        if (_PGFT_TryLoadFont_Filename(ft, self, Bytes_AS_STRING(file),
+                                       font_index)) {
+            goto end;
+        }
     }
     else {
         SDL_RWops *source = RWopsFromFileObjectThreaded(original_file);
@@ -920,10 +929,6 @@ _ftfont_init(PgFontObject *self, PyObject *args, PyObject *kwds)
         PyObject *path = 0;
 
         if (!source) {
-            goto end;
-        }
-
-        if (_PGFT_TryLoadFont_RWops(ft, self, source, font_index)) {
             goto end;
         }
 
@@ -953,15 +958,34 @@ _ftfont_init(PgFontObject *self, PyObject *args, PyObject *kwds)
             self->path = Object_Unicode(path);
         }
         Py_XDECREF(path);
+        if (!self->path) {
+            goto end;
+        }
+
+        if (_PGFT_TryLoadFont_RWops(ft, self, source, font_index)) {
+            goto end;
+        }
     }
 
-end:
+    if (!self->is_scalable && self->face_size.x == 0) {
+        if (_PGFT_Font_GetAvailableSize(ft, self, 0,
+                                        &size, &height, &width,
+                                        &x_ppem, &y_ppem)) {
+            self->face_size.x = DBL_TO_FX6(x_ppem);
+            self->face_size.y = DBL_TO_FX6(y_ppem);
+        }
+        else {
+            PyErr_Clear();
+        }
+    }
+    rval = 0;
 
+end:
     if (file != original_file) {
         Py_XDECREF(file);
     }
 
-    return PyErr_Occurred() ? -1 : 0;
+    return rval;
 }
 
 static PyObject *

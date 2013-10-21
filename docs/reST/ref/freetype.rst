@@ -129,6 +129,8 @@ New in Pygame 1.9.2
    passed explicitly to each method call. Because of the way the caching
    system works, specifying a default size on the constructor doesn't imply a
    performance gain over manually passing the size on each function call.
+   If the font is bitmap and no *size* is given, the default size is set
+   to the first available size for the font, if possible.
 
    If the font file has more than one font, the font to load can be chosen with
    the *index* argument. An exception is raised for an out-of-range font index
