@@ -129,11 +129,10 @@ class FreeTypeFontTest(unittest.TestCase):
         self.assertTrue(f.ucs4)
         f.antialiased = False
         f.oblique = True
-        f.__init__(self._fixed_path)
-        self.assertEqual(f.name, 'Inconsolata')
+        f.__init__(self._mono_path)
+        self.assertEqual(f.name, 'PyGameMono')
         self.assertTrue(f.scalable)
-        ##self.assertTrue(f.fixed_width)
-        self.assertFalse(f.fixed_width)  # need a properly marked Mono font
+        self.assertTrue(f.fixed_width)
         self.assertFalse(f.antialiased)
         self.assertTrue(f.oblique)
         self.assertTrue(f.ucs4)
