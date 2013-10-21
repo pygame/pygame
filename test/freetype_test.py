@@ -399,15 +399,16 @@ class FreeTypeFontTest(unittest.TestCase):
         self.assertTrue(rect_under.width == rect_default.width)
         self.assertTrue(rect_under.height > rect_default.height)
 
-#        size_utf32 = font.get_size(as_unicode(r'\U000130A7'), size=24)
-#        size_utf16 = font.get_size(as_unicode(r'\uD80C\uDCA7'), size=24)
-#        self.assertEqual(size_utf16[0], size_utf32[0]);
-#        font.utf16_surrogates = False
-#        try:
-#            size_utf16 = font.get_size(as_unicode(r'\uD80C\uDCA7'), size=24)
-#        finally:
-#            font.utf16_surrogates = True
-#        self.assertNotEqual(size_utf16[0], size_utf32[0]);
+        ufont = self._TEST_FONTS['mono']
+        size_utf32 = ufont.get_rect(as_unicode(r'\U00013079'), size=24)
+        size_utf16 = ufont.get_rect(as_unicode(r'\uD80C\uDC79'), size=24)
+        self.assertEqual(size_utf16[0], size_utf32[0]);
+        ufont.ucs4 = True
+        try:
+            size_utf16 = ufont.get_rect(as_unicode(r'\uD80C\uDC79'), size=24)
+        finally:
+            ufont.ucs4 = False
+        self.assertNotEqual(size_utf16[0], size_utf32[0]);
         
         self.assertRaises(RuntimeError,
                           nullfont().get_rect, 'a', size=24)
