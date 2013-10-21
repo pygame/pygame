@@ -218,7 +218,21 @@ BDFChar: 3 67 19 0 14 0 14
 "5j^b4</SMDueerhuM[8huM[8Dub+e4<+n,"5j.Z
 BDFChar: 4 77945 19 0 14 4 10
 &)]E,@uTH.@uNB,&)[Ef
-BDFChar: -1 68 19 0 0 0 0
-z
+EndBitmapFont
+BitmapFont: 25 5 20 5 1 
+BDFChar: 0 65 25 0 19 1 21
+"8i-@s+!?6^jH7Bn,Vt9!-$irE:<ksqucHgs7$'gnGiOXrt"UH"7UO9i-57[Dueg8!+917?m#G7
++94Y,
+BDFChar: 1 66 25 1 18 0 19
+s8E#us+#P'J9V+1Dud[-!5L8g^c2A14pQU&rr>:`!'UX<3!"O`!5L8g^b>c(GQGU/#JgB>JH,TK
+
+BDFChar: 2 0 25 0 19 0 19
+s8VTgs7$!mnG!%Rn,Vt9!-$irE52H-^]6((!&21g0YdZB^]6(H!-$irE:<ksp]9m`#OqcnnGiOX
+
+BDFChar: 3 67 25 0 19 0 19
+!;lg!rr<T0J0+mO4ofPL!"aAT!;HNon,NIX!!)Kg!:Tsgp](;=!!%BH&3^)5*s(:1s1ea:J,oQK
+
+BDFChar: 4 77945 25 0 20 5 14
+"8i-0s*u/3^j,YDnG%6Ipi&33i#W!9&-%.^qu?]s
 EndBitmapFont
 EndSplineFont

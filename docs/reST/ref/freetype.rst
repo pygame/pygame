@@ -162,9 +162,28 @@ New in Pygame 1.9.2
    .. attribute:: size
 
       | :sl:`The default point size used in rendering`
-      | :sg:`size -> int`
+      | :sg:`size -> float`
+      | :sg:`size -> (float, float)`
 
-      Get or set a default point size used by metric or render methods.
+      Get or set the default size for text metrics and rendering. It can be
+      a single point size, given as an Python ``int`` or ``float``, or a
+      font ppem (width, height) ``tuple``. Size values are non-negative.
+      A zero size or width represents an undefined size. In this case
+      the size must be given as a method argument, or an exception is
+      raised. A zero width but non-zero height is a ValueError.
+
+      For a scalable font, a single number value is equivalent to a tuple
+      with width equal height. A font can be stretched vertically with
+      height set greater than width, or horizontally with width set
+      greater than height. For embedded bitmaps, as listed by :meth:`get_sizes`,
+      use the nominal width and height to select an available size.
+
+      Font size differs for a non-scalable, bitmap, font. During a
+      method call it must match one of the available sizes returned by
+      method :meth:`get_sizes`. If not, an exception is raised.
+      If the size is a single number, the size is first matched against the
+      point size value. If no match, then the available size with the
+      same nominal width and height is chosen.
 
    .. method:: get_rect
 

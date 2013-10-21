@@ -80,7 +80,9 @@
  * Global module types
  **********************************************************/
 
-typedef FT_UInt Scale_t;
+typedef struct _scale_s {
+    FT_UInt x, y;
+} Scale_t;
 typedef FT_Angle Angle_t;
 
 typedef struct {

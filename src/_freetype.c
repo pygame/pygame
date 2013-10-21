@@ -31,6 +31,8 @@
 /*
  * FreeType module declarations
  */
+static const Scale_t FACE_SIZE_NONE = {0, 0};
+
 #if PY3
 static int _ft_traverse(PyObject *, visitproc, void *);
 static int _ft_clear(PyObject *);
@@ -113,6 +115,10 @@ static PyObject *get_metrics(FreeTypeInstance *, FontRenderMode *,
 static PyObject *load_font_res(const char *);
 static int parse_dest(PyObject *, int *, int *);
 static int obj_to_scale(PyObject *, void *);
+static int objs_to_scale(PyObject *, PyObject *, Scale_t *);
+static int numbers_to_scale(PyObject *, PyObject *, Scale_t *);
+static int build_scale(PyObject *, PyObject *, Scale_t *);
+static FT_UInt number_to_FX6_unsigned(PyObject *);
 static int obj_to_rotation(PyObject *, void *);
 
 /*
@@ -242,53 +248,130 @@ parse_dest(PyObject *dest, int *x, int *y)
 static int
 obj_to_scale(PyObject *o, void *p)
 {
-    long size;
-    PyObject *lower_limit = 0;
-    PyObject *upper_limit = 0;
+    if (PyTuple_Check(o)) {
+        if (PyTuple_GET_SIZE(o) != 2) {
+            PyErr_Format(PyExc_TypeError,
+                         "expected a 2-tuple for size, got %zd-tuple",
+                         PyTuple_GET_SIZE(o));
+            return 0;
+        }
+        return objs_to_scale(PyTuple_GET_ITEM(o, 0),
+                             PyTuple_GET_ITEM(o, 1),
+                             (Scale_t *)p);
+    }
+    return objs_to_scale(o, 0, (Scale_t *)p);
+}
+
+static int
+objs_to_scale(PyObject *x, PyObject *y, Scale_t *size)
+{
+    PyObject *o;
+    int do_y;
+
+    for (o = x, do_y = 1; o; o = (do_y--) ? y : 0) {
+        if (!PyLong_Check(o) &&
+#if PY2
+            !PyInt_Check(o) &&
+#endif
+            !PyFloat_Check(o)) {
+            if (y) {
+                PyErr_Format(PyExc_TypeError,
+                             "expected a (float, float) tuple for size"
+                             ", got (%128s, %128s)",
+                             Py_TYPE(x)->tp_name,
+                             Py_TYPE(y)->tp_name);
+            }
+            else {
+                PyErr_Format(PyExc_TypeError,
+                             "expected a float for size, got %128s",
+                             Py_TYPE(o)->tp_name);
+            }
+            return 0;
+        }
+    }
+
+    return numbers_to_scale(x, y, size);
+}
+
+static int
+numbers_to_scale(PyObject *x, PyObject *y, Scale_t *size)
+{
+    PyObject *o;
+    PyObject *min_obj = 0;
+    PyObject *max_obj = 0;
+    int do_y;
     int cmp_result;
     int rval = 0;
 
-    if (PyLong_Check(o)) {
-        ;
+    min_obj = PyFloat_FromDouble(0.0);
+    if (!min_obj) goto finish;
+    max_obj = PyFloat_FromDouble(FX6_TO_DBL(FX6_MAX));
+    if (!max_obj) goto finish;
+
+    for (o = x, do_y = 1; o; o = (do_y--) ? y : 0) {
+        cmp_result = PyObject_RichCompareBool(o, min_obj, Py_LT);
+        if (cmp_result == -1) goto finish;
+        if (cmp_result == 1) {
+            PyErr_Format(PyExc_OverflowError,
+                         "%128s value is negative"
+                         " while size value is zero or positive",
+                         Py_TYPE(o)->tp_name);
+            goto finish;
+        }
+        cmp_result = PyObject_RichCompareBool(o, max_obj, Py_GT);
+        if (cmp_result == -1) goto finish;
+        if (cmp_result == 1) {
+            PyErr_Format(PyExc_OverflowError,
+                         "%128s value too large to convert to a size value",
+                         Py_TYPE(o)->tp_name);
+            goto finish;
+        }
     }
-#if PY2
-    else if (PyInt_Check(o)) {
-        ;
-    }
-#endif
-    else {
-        PyErr_Format(PyExc_TypeError, "integer point size expected, got %s",
-                     Py_TYPE(o)->tp_name);
-        goto finish;
-    }
-    lower_limit = PyInt_FromLong(0);
-    if (!lower_limit) goto finish;
-    cmp_result = PyObject_RichCompareBool(o, lower_limit, Py_LT);
-    if (cmp_result == -1) goto finish;
-    if (cmp_result == 1) {
-        PyErr_SetString(PyExc_OverflowError,
-                        "point size is >= 0, got negative integer value");
-        goto finish;
-    }
-    upper_limit = PyInt_FromLong(FX6_TRUNC(~(Scale_t)0));
-    if (!upper_limit) goto finish;
-    cmp_result = PyObject_RichCompareBool(o, upper_limit, Py_GT);
-    if (cmp_result == -1) goto finish;
-    if (cmp_result == 1) {
-        PyErr_SetString(PyExc_OverflowError,
-                        "integer value too large"
-                        " to convert to a point size");
-        goto finish;
-    }
-    size = PyInt_AsLong(o);
-    if (size == -1) goto finish;
-    *(Scale_t *)p = (Scale_t)INT_TO_FX6(size);
-    rval = 1;
+
+    rval = build_scale(x, y, size);
 
   finish:
-    Py_XDECREF(lower_limit);
-    Py_XDECREF(upper_limit);
+    Py_XDECREF(min_obj);
+    Py_XDECREF(max_obj);
     return rval;
+}
+
+static int
+build_scale(PyObject *x, PyObject *y, Scale_t *size)
+{
+    FT_UInt sz_x = 0, sz_y = 0;
+
+    sz_x = number_to_FX6_unsigned(x);
+    if (PyErr_Occurred()) {
+        return 0;
+    }
+    if (y) {
+        sz_y = number_to_FX6_unsigned(y);
+        if (PyErr_Occurred()) {
+            return 0;
+        }
+    }
+    if (sz_x == 0 && sz_y != 0) {
+        PyErr_SetString(PyExc_ValueError,
+                        "expected zero size height when width is zero");
+        return 0;
+    }
+    size->x = sz_x;
+    size->y = sz_y;
+    return 1;
+}
+
+static FT_UInt
+number_to_FX6_unsigned(PyObject *n)
+{
+    PyObject *f_obj = PyNumber_Float(n);
+    double f;
+
+    if (!f_obj) return 0;
+    f = PyFloat_AsDouble(f_obj);
+    Py_XDECREF(f_obj);
+    if (PyErr_Occurred()) return 0;
+    return DBL_TO_FX6(f);
 }
 
 /** rotation: int -> Angle_t */
@@ -319,7 +402,7 @@ obj_to_rotation(PyObject *o, void *p)
     if (!angle_obj) goto finish;
     angle = PyLong_AsLong(angle_obj);
     if (angle == -1) goto finish;
-    *(Scale_t *)p = (Scale_t)INT_TO_FX16(angle);
+    *(Angle_t *)p = (Angle_t)INT_TO_FX16(angle);
     rval = 1;
 
   finish:
@@ -732,7 +815,7 @@ _ftfont_new(PyTypeObject *subtype, PyObject *args, PyObject *kwds)
         obj->resolution = 0;
         obj->is_scalable = 0;
         obj->_internals = 0;
-        obj->face_size = 0;
+        obj->face_size = FACE_SIZE_NONE;
         obj->style = FT_STYLE_NORMAL;
         obj->render_flags = FT_RFLAG_DEFAULTS;
         obj->strength = PGFT_DBL_DEFAULT_STRENGTH;
@@ -1026,7 +1109,12 @@ _ftfont_setstrength(PgFontObject *self, PyObject *value, void *closure)
 static PyObject *
 _ftfont_getsize(PgFontObject *self, void *closure)
 {
-    return PyInt_FromLong(FX6_TRUNC(self->face_size));
+    if (self->face_size.y == 0) {
+        return PyFloat_FromDouble(FX6_TO_DBL(self->face_size.x));
+    }
+    return Py_BuildValue("dd",
+                         FX6_TO_DBL(self->face_size.x),
+                         FX6_TO_DBL(self->face_size.y));
 }
 
 static int
@@ -1254,7 +1342,7 @@ _ftfont_getrect(PgFontObject *self, PyObject *args, PyObject *kwds)
     PGFT_String *text;
     PyObject *rectobj = 0;
     FT_Error error;
-    int face_size = 0;
+    Scale_t face_size = FACE_SIZE_NONE;
     SDL_Rect r;
 
     FontRenderMode render;
@@ -1358,7 +1446,7 @@ _ftfont_getmetrics(PgFontObject *self, PyObject *args, PyObject *kwds)
     /* arguments */
     PyObject *textobj;
     PGFT_String *text;
-    Scale_t face_size = 0;
+    Scale_t face_size = FACE_SIZE_NONE;;
 
     /* grab freetype */
     FreeTypeInstance *ft;
@@ -1397,7 +1485,7 @@ _ftfont_getmetrics(PgFontObject *self, PyObject *args, PyObject *kwds)
 static PyObject *
 _ftfont_getsizedascender(PgFontObject *self, PyObject *args)
 {
-    Scale_t face_size = 0;
+    Scale_t face_size = FACE_SIZE_NONE;
     long value;
 
     FreeTypeInstance *ft;
@@ -1407,8 +1495,8 @@ _ftfont_getsizedascender(PgFontObject *self, PyObject *args)
         return 0;
     }
 
-    if (face_size == 0) {
-        if (self->face_size == 0) {
+    if (face_size.x == 0) {
+        if (self->face_size.x == 0) {
             RAISE(PyExc_ValueError,
                   "No font point size specified"
                   " and no default font size in typefont");
@@ -1427,7 +1515,7 @@ _ftfont_getsizedascender(PgFontObject *self, PyObject *args)
 static PyObject *
 _ftfont_getsizeddescender(PgFontObject *self, PyObject *args)
 {
-    Scale_t face_size = 0;
+    Scale_t face_size = FACE_SIZE_NONE;;
     long value;
 
     FreeTypeInstance *ft;
@@ -1437,8 +1525,8 @@ _ftfont_getsizeddescender(PgFontObject *self, PyObject *args)
         return 0;
     }
 
-    if (face_size == 0) {
-        if (self->face_size == 0) {
+    if (face_size.x == 0) {
+        if (self->face_size.x == 0) {
             RAISE(PyExc_ValueError,
                   "No font point size specified"
                   " and no default font size in typefont");
@@ -1457,7 +1545,7 @@ _ftfont_getsizeddescender(PgFontObject *self, PyObject *args)
 static PyObject *
 _ftfont_getsizedheight(PgFontObject *self, PyObject *args)
 {
-    Scale_t face_size = 0;
+    Scale_t face_size = FACE_SIZE_NONE;;
     long value;
 
     FreeTypeInstance *ft;
@@ -1467,8 +1555,8 @@ _ftfont_getsizedheight(PgFontObject *self, PyObject *args)
         return 0;
     }
 
-    if (face_size == 0) {
-        if (self->face_size == 0) {
+    if (face_size.x == 0) {
+        if (self->face_size.x == 0) {
             RAISE(PyExc_ValueError,
                   "No font point size specified"
                   " and no default font size in typeface");
@@ -1487,7 +1575,7 @@ _ftfont_getsizedheight(PgFontObject *self, PyObject *args)
 static PyObject *
 _ftfont_getsizedglyphheight(PgFontObject *self, PyObject *args)
 {
-    Scale_t face_size = -1;
+    Scale_t face_size = FACE_SIZE_NONE;;
     long value;
 
     FreeTypeInstance *ft;
@@ -1497,8 +1585,8 @@ _ftfont_getsizedglyphheight(PgFontObject *self, PyObject *args)
         return 0;
     }
 
-    if (face_size == 0) {
-        if (self->face_size == 0) {
+    if (face_size.x == 0) {
+        if (self->face_size.x == 0) {
             RAISE(PyExc_ValueError,
                   "No font point size specified"
                   " and no default font size in typeface");
@@ -1565,7 +1653,7 @@ _ftfont_render_raw(PgFontObject *self, PyObject *args, PyObject *kwds)
     PGFT_String *text;
     int style = FT_STYLE_DEFAULT;
     Angle_t rotation = self->rotation;
-    Scale_t face_size = 0;
+    Scale_t face_size = FACE_SIZE_NONE;;
     int invert = 0;
 
     /* output arguments */
@@ -1633,7 +1721,7 @@ _ftfont_render_raw_to(PgFontObject *self, PyObject *args, PyObject *kwds)
     int ypos = 0;
     int style = FT_STYLE_DEFAULT;
     Angle_t rotation = self->rotation;
-    Scale_t face_size = 0;
+    Scale_t face_size = FACE_SIZE_NONE;;
     int invert = 0;
 
     /* output arguments */
@@ -1703,7 +1791,7 @@ _ftfont_render(PgFontObject *self, PyObject *args, PyObject *kwds)
     /* input arguments */
     PyObject *textobj = 0;
     PGFT_String *text;
-    Scale_t face_size = 0;
+    Scale_t face_size = FACE_SIZE_NONE;;
     PyObject *fg_color_obj = 0;
     PyObject *bg_color_obj = 0;
     Angle_t rotation = self->rotation;
@@ -1804,7 +1892,7 @@ _ftfont_render_to(PgFontObject *self, PyObject *args, PyObject *kwds)
     PyObject *surface_obj = 0;
     PyObject *textobj = 0;
     PGFT_String *text;
-    Scale_t face_size = 0;
+    Scale_t face_size = FACE_SIZE_NONE;;
     PyObject *dest = 0;
     int xpos = 0;
     int ypos = 0;

@@ -280,7 +280,24 @@ _PGFT_GetFontSized(FreeTypeInstance *ft,
     FT_Error error;
     FTC_ScalerRec scale;
     FT_Size _fts;
+    FT_Face font;
+    FT_Int i;
+    FT_Pos size;
 
+    if (!fontobj->is_scalable && !face_size.y) {
+        font = _PGFT_GetFont(ft, fontobj);
+        if (!font) {
+            return 0;
+        }
+        size = FX6_ROUND(face_size.x);
+        for (i = 0; i < font->num_fixed_sizes; ++i) {
+            if (size == FX6_ROUND(font->available_sizes[i].size)) {
+                face_size.x = font->available_sizes[i].x_ppem;
+                face_size.y = font->available_sizes[i].y_ppem;
+                break;
+            }
+        }
+    }
     _PGFT_BuildScaler(fontobj, &scale, face_size);
 
     error = FTC_Manager_LookupSize(ft->cache_manager,
@@ -324,7 +341,8 @@ void
 _PGFT_BuildScaler(PgFontObject *fontobj, FTC_Scaler scale, Scale_t face_size)
 {
     scale->face_id = (FTC_FaceID)(&fontobj->id);
-    scale->width = scale->height = (FT_UInt)face_size;
+    scale->width = face_size.x;
+    scale->height = face_size.y ? face_size.y : face_size.x;
     scale->pixel = 0;
     scale->x_res = scale->y_res = fontobj->resolution;
 }
