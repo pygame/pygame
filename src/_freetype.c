@@ -1297,7 +1297,7 @@ _ftfont_getrect(PgFontObject *self, PyObject *args, PyObject *kwds)
 
 static PyObject *
 get_metrics(FreeTypeInstance *ft, FontRenderMode *render,
-          PgFontObject *font, PGFT_String *text)
+            PgFontObject *font, PGFT_String *text)
 {
     Py_ssize_t length = PGFT_String_GET_LENGTH(text);
     PGFT_char *data = PGFT_String_GET_DATA(text);
@@ -1309,6 +1309,10 @@ get_metrics(FreeTypeInstance *ft, FontRenderMode *render,
     double advance_y;
     Py_ssize_t i;
 
+    if (!_PGFT_GetFontSized(ft, font, render->face_size)) {
+        PyErr_SetString(PyExc_SDLError, _PGFT_GetError(ft));
+        return 0;
+    }
     list = PyList_New(length);
     if (!list) {
         return 0;

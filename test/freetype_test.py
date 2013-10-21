@@ -314,6 +314,15 @@ class FreeTypeFontTest(unittest.TestCase):
         self.assertRaises(exception, f.get_rect,
                           'A', size=8, style=ft.STYLE_STRONG)
 
+        # Unsupported point size
+        exception = pygame.error
+        self.assertRaises(exception, f.get_rect, 'A', size=42)
+        self.assertRaises(exception, f.get_metrics, 'A', size=42)
+        self.assertRaises(exception, f.get_sized_ascender, 42)
+        self.assertRaises(exception, f.get_sized_descender, 42)
+        self.assertRaises(exception, f.get_sized_height, 42)
+        self.assertRaises(exception, f.get_sized_glyph_height, 42)
+
     def test_freetype_Font_get_metrics(self):
 
         font = self._TEST_FONTS['sans']
