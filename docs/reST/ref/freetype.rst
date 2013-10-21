@@ -219,7 +219,7 @@ New in Pygame 1.9.2
       Read only. Gets the height of the font. This is the average value of all
       glyphs in the font.
 
-   .. method:: ascender
+   .. attribute:: ascender
 
       | :sl:`The unscaled ascent of the font in font units`
       | :sg:`ascender -> int`
@@ -236,10 +236,10 @@ New in Pygame 1.9.2
       The descent is the number of units from the font's baseline to the
       bottom of the bounding box.
 
-   .. attribute:: get_sized_ascender
+   .. method:: get_sized_ascender
 
       | :sl:`The scaled ascent of the font in pixels`
-      | :sg:`get_sized_ascender() -> int`
+      | :sg:`get_sized_ascender(<size>=0) -> int`
 
       Return the number of units from the font's baseline to the top of the
       bounding box. It is not adjusted for strong or rotation.
@@ -247,15 +247,15 @@ New in Pygame 1.9.2
    .. method:: get_sized_descender
 
       | :sl:`The scaled descent of the font in pixels`
-      | :sg:`get_sized_descender() -> int`
+      | :sg:`get_sized_descender(<size>=0) -> int`
 
       Return the number of pixels from the font's baseline to the top of the
       bounding box. It is not adjusted for strong or rotation.
 
-   .. attribute:: get_sized_height
+   .. method:: get_sized_height
 
       | :sl:`The scaled height of the font in pixels`
-      | :sg:`get_sized_height() -> int`
+      | :sg:`get_sized_height(<size>=0) -> int`
 
       Read only. Gets the height of the font. This is the average value of all
       glyphs in the font. It is not adjusted for strong or rotation.
@@ -263,7 +263,7 @@ New in Pygame 1.9.2
    .. method:: get_sized_glyph_height
 
       | :sl:`The scaled bounding box height of the font in pixels`
-      | :sg:`get_sized_glyph_height() -> int`
+      | :sg:`get_sized_glyph_height(<size>=0) -> int`
 
       Return the glyph bounding box height of the font in pixels.
       This is the average value of all glyphs in the font.

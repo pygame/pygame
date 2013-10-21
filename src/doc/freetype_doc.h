@@ -35,13 +35,13 @@
 
 #define DOC_FONTDESCENDER "descender -> int\nThe unscaled descent of the font in font units"
 
-#define DOC_FONTGETSIZEDASCENDER "get_sized_ascender() -> int\nThe scaled ascent of the font in pixels"
+#define DOC_FONTGETSIZEDASCENDER "get_sized_ascender(<size>=0) -> int\nThe scaled ascent of the font in pixels"
 
-#define DOC_FONTGETSIZEDDESCENDER "get_sized_descender() -> int\nThe scaled descent of the font in pixels"
+#define DOC_FONTGETSIZEDDESCENDER "get_sized_descender(<size>=0) -> int\nThe scaled descent of the font in pixels"
 
-#define DOC_FONTGETSIZEDHEIGHT "get_sized_height() -> int\nThe scaled height of the font in pixels"
+#define DOC_FONTGETSIZEDHEIGHT "get_sized_height(<size>=0) -> int\nThe scaled height of the font in pixels"
 
-#define DOC_FONTGETSIZEDGLYPHHEIGHT "get_sized_glyph_height() -> int\nThe scaled bounding box height of the font in pixels"
+#define DOC_FONTGETSIZEDGLYPHHEIGHT "get_sized_glyph_height(<size>=0) -> int\nThe scaled bounding box height of the font in pixels"
 
 #define DOC_FONTGETSIZES "get_sizes() -> [(int, int, int, float, float), ...]\nget_sizes() -> []\nreturn the available sizes of embedded bitmaps"
 
@@ -169,19 +169,19 @@ pygame.freetype.Font.descender
 The unscaled descent of the font in font units
 
 pygame.freetype.Font.get_sized_ascender
- get_sized_ascender() -> int
+ get_sized_ascender(<size>=0) -> int
 The scaled ascent of the font in pixels
 
 pygame.freetype.Font.get_sized_descender
- get_sized_descender() -> int
+ get_sized_descender(<size>=0) -> int
 The scaled descent of the font in pixels
 
 pygame.freetype.Font.get_sized_height
- get_sized_height() -> int
+ get_sized_height(<size>=0) -> int
 The scaled height of the font in pixels
 
 pygame.freetype.Font.get_sized_glyph_height
- get_sized_glyph_height() -> int
+ get_sized_glyph_height(<size>=0) -> int
 The scaled bounding box height of the font in pixels
 
 pygame.freetype.Font.get_sizes
