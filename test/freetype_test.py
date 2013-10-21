@@ -137,6 +137,16 @@ class FreeTypeFontTest(unittest.TestCase):
         self.assertTrue(f.oblique)
         self.assertTrue(f.ucs4)
 
+        # For a bitmap font, the size is automatically set to the first
+        # size in the available sizes list.
+        f = ft.Font(self._bmp_8_75dpi_path)
+        sizes = f.get_sizes()
+        self.assertEqual(len(sizes), 1)
+        size_pt, width_px, height_px, x_ppem, y_ppem = sizes[0]
+        self.assertEqual(f.size, (x_ppem, y_ppem))
+        f.__init__(self._bmp_8_75dpi_path, size=12)
+        self.assertEqual(f.size, 12.0)
+
     def test_freetype_Font_scalable(self):
 
         f = self._TEST_FONTS['sans']
