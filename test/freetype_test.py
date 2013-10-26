@@ -622,10 +622,6 @@ class FreeTypeFontTest(unittest.TestCase):
         surf = pygame.Surface((800, 600))
         color = pygame.Color(0, 0, 0)
 
-        # make sure we always have a valid fg color
-        self.assertRaises(TypeError, font.render, 'FoobarBaz')
-        self.assertRaises(TypeError, font.render, 'FoobarBaz', None)
-
         rend = font.render('FoobarBaz', pygame.Color(0, 0, 0), None, size=24)
         self.assertTrue(isinstance(rend, tuple))
         self.assertEqual(len(rend), 2)
@@ -977,6 +973,34 @@ class FreeTypeFontTest(unittest.TestCase):
 
         # this method will not support None text
         self.assertRaises(TypeError, f.get_metrics, None)
+
+    def test_freetype_Font_fgcolor(self):
+        f = ft.Font(self._bmp_8_75dpi_path)
+        notdef = '\0'  # the PyGameMono .notdef glyph has a pixel at (0, 0)
+        f.origin = False
+        f.pad = False
+        black = pygame.Color('black')  # initial color
+        green = pygame.Color('green')
+        alpha128 = pygame.Color(10, 20, 30, 128)
+
+        c = f.fgcolor
+        self.assertTrue(isinstance(c, pygame.Color))
+        self.assertEqual(c, black)
+        s, r = f.render(notdef)
+        self.assertEqual(s.get_at((0, 0)), black)
+        f.fgcolor = green
+        self.assertEqual(f.fgcolor, green)
+        s, r = f.render(notdef)
+        self.assertEqual(s.get_at((0, 0)), green)
+        f.fgcolor = alpha128
+        s, r = f.render(notdef)
+        self.assertEqual(s.get_at((0, 0)), alpha128)
+
+        surf = pygame.Surface(f.get_rect(notdef).size, pygame.SRCALPHA, 32)
+        f.render_to(surf, (0, 0), None)
+        self.assertEqual(surf.get_at((0, 0)), alpha128)
+
+        self.assertRaises(AttributeError, setattr, f, 'fgcolor', None)
 
     if pygame.HAVE_NEWBUF:
         def test_newbuf(self):
