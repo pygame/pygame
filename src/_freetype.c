@@ -92,6 +92,8 @@ static PyObject *_ftfont_getunderlineadjustment(PgFontObject *, void *);
 static int _ftfont_setunderlineadjustment(PgFontObject *, PyObject *, void *);
 static PyObject *_ftfont_getrotation(PgFontObject *, void *);
 static int _ftfont_setrotation(PgFontObject *, PyObject *, void *);
+static PyObject *_ftfont_getfgcolor(PgFontObject *, void *);
+static int _ftfont_setfgcolor(PgFontObject *, PyObject *, void *);
 
 static PyObject *_ftfont_getresolution(PgFontObject *, void *);
 
@@ -728,6 +730,13 @@ static PyGetSetDef _ftfont_getsets[] = {
         0
     },
     {
+        "fgcolor",
+        (getter)_ftfont_getfgcolor,
+        (setter)_ftfont_setfgcolor,
+        DOC_FONTFGCOLOR,
+        0
+    },
+    {
         "origin",
         (getter)_ftfont_getrender_flag,
         (setter)_ftfont_setrender_flag,
@@ -832,6 +841,10 @@ _ftfont_new(PyTypeObject *subtype, PyObject *args, PyObject *kwds)
         obj->transform.xy = 0;
         obj->transform.yx = 0;
         obj->transform.yy = FX16_ONE;
+        obj->fgcolor[0] = 0;  /* rgba opaque black */
+        obj->fgcolor[1] = 0;
+        obj->fgcolor[2] = 0;
+        obj->fgcolor[3] = 255;
     }
     return (PyObject *)obj;
 }
@@ -1332,6 +1345,25 @@ _ftfont_setrotation(PgFontObject *self, PyObject *value, void *closure)
         return -1;
     }
     return obj_to_rotation(value, &self->rotation) ? 0 : -1;
+}
+
+/** default glyph color */
+static PyObject *
+_ftfont_getfgcolor(PgFontObject *self, void *closure)
+{
+    return PyColor_New(self->fgcolor);
+}
+
+static int
+_ftfont_setfgcolor(PgFontObject *self, PyObject *value, void *closure)
+{
+    if (!RGBAFromObj(value, self->fgcolor)) {
+        PyErr_Format(PyExc_AttributeError,
+                     "unable to convert %128s object to a color",
+                     Py_TYPE(value)->tp_name);
+        return -1;
+    }
+    return 0;
 }
 
 /** testing and debugging */
@@ -1840,24 +1872,36 @@ _ftfont_render(PgFontObject *self, PyObject *args, PyObject *kwds)
     ASSERT_SELF_IS_ALIVE(self);
     ASSERT_GRAB_FREETYPE(ft, 0);
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OO|OiO&O&", kwlist,
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|OOiO&O&", kwlist,
                                      /* required */
-                                     &textobj, &fg_color_obj,
+                                     &textobj,
                                      /* optional */
-                                     &bg_color_obj, &style,
+                                     &fg_color_obj, &bg_color_obj, &style,
                                      obj_to_rotation, (void *)&rotation,
                                      obj_to_scale, (void *)&face_size))
         goto error;
 
-    if (!RGBAFromColorObj(fg_color_obj, (Uint8 *)&fg_color)) {
-        PyErr_SetString(PyExc_TypeError, "fgcolor must be a Color");
-        goto error;
+    if (fg_color_obj == Py_None) {
+        fg_color_obj = 0;
+    }
+    if (bg_color_obj == Py_None) {
+        bg_color_obj = 0;
+    }
+
+    if (fg_color_obj) {
+        if (!RGBAFromColorObj(fg_color_obj, (Uint8 *)&fg_color)) {
+            PyErr_SetString(PyExc_TypeError, "fgcolor must be a Color");
+            goto error;
+        }
+    }
+    else {
+        fg_color.r = self->fgcolor[0];
+        fg_color.g = self->fgcolor[1];
+        fg_color.b = self->fgcolor[2];
+        fg_color.a = self->fgcolor[3];
     }
     if (bg_color_obj) {
-        if (bg_color_obj == Py_None) {
-            bg_color_obj = 0;
-        }
-        else if (!RGBAFromColorObj(bg_color_obj, (Uint8 *)&bg_color)) {
+        if (!RGBAFromColorObj(bg_color_obj, (Uint8 *)&bg_color)) {
             PyErr_SetString(PyExc_TypeError, "bgcolor must be a Color");
             goto error;
         }
@@ -1944,7 +1988,7 @@ _ftfont_render_to(PgFontObject *self, PyObject *args, PyObject *kwds)
     FreeTypeInstance *ft;
     ASSERT_GRAB_FREETYPE(ft, 0);
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O!OOO|OiO&O&", kwlist,
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O!OO|OOiO&O&", kwlist,
                                      /* required */
                                      &PySurface_Type, &surface_obj, &dest,
                                      &textobj, &fg_color_obj,
@@ -1954,16 +1998,28 @@ _ftfont_render_to(PgFontObject *self, PyObject *args, PyObject *kwds)
                                      obj_to_scale, (void *)&face_size))
         goto error;
 
+    if (fg_color_obj == Py_None) {
+        fg_color_obj = 0;
+    }
+    if (bg_color_obj == Py_None) {
+        bg_color_obj = 0;
+    }
+
     if (parse_dest(dest, &xpos, &ypos)) goto error;
-    if (!RGBAFromColorObj(fg_color_obj, (Uint8 *)&fg_color)) {
-        PyErr_SetString(PyExc_TypeError, "fgcolor must be a Color");
-        goto error;
+    if (fg_color_obj) {
+        if (!RGBAFromColorObj(fg_color_obj, (Uint8 *)&fg_color)) {
+            PyErr_SetString(PyExc_TypeError, "fgcolor must be a Color");
+            goto error;
+        }
+    }
+    else {
+        fg_color.r = self->fgcolor[0];
+        fg_color.g = self->fgcolor[1];
+        fg_color.b = self->fgcolor[2];
+        fg_color.a = self->fgcolor[3];
     }
     if (bg_color_obj) {
-        if (bg_color_obj == Py_None) {
-            bg_color_obj = 0;
-        }
-        else if (!RGBAFromColorObj(bg_color_obj, (Uint8 *)&bg_color)) {
+        if (!RGBAFromColorObj(bg_color_obj, (Uint8 *)&bg_color)) {
             PyErr_SetString(PyExc_TypeError, "bgcolor must be a Color");
             goto error;
         }

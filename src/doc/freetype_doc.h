@@ -45,9 +45,9 @@
 
 #define DOC_FONTGETSIZES "get_sizes() -> [(int, int, int, float, float), ...]\nget_sizes() -> []\nreturn the available sizes of embedded bitmaps"
 
-#define DOC_FONTRENDER "render(text, fgcolor, bgcolor=None, style=STYLE_DEFAULT, rotation=0, size=0) -> (Surface, Rect)\nReturn rendered text as a surface"
+#define DOC_FONTRENDER "render(text, fgcolor=None, bgcolor=None, style=STYLE_DEFAULT, rotation=0, size=0) -> (Surface, Rect)\nReturn rendered text as a surface"
 
-#define DOC_FONTRENDERTO "render(surf, dest, text, fgcolor, bgcolor=None, style=STYLE_DEFAULT, rotation=0, size=0) -> Rect\nRender text onto an existing surface"
+#define DOC_FONTRENDERTO "render_to(surf, dest, text, fgcolor=None, bgcolor=None, style=STYLE_DEFAULT, rotation=0, size=0) -> Rect\nRender text onto an existing surface"
 
 #define DOC_FONTRENDERRAW "render_raw(text, style=STYLE_DEFAULT, rotation=0, size=0, invert=False) -> (bytes, (int, int))\nReturn rendered text as a string of bytes"
 
@@ -82,6 +82,8 @@
 #define DOC_FONTVERTICAL "vertical -> bool\nFont vertical mode"
 
 #define DOC_FONTROTATION "rotation -> int\ntext rotation in degrees counterclockwise"
+
+#define DOC_FONTFGCOLOR "fgcolor -> Color\ndefault foreground color"
 
 #define DOC_FONTORIGIN "origin -> bool\nFont render to text origin mode"
 
@@ -191,11 +193,11 @@ pygame.freetype.Font.get_sizes
 return the available sizes of embedded bitmaps
 
 pygame.freetype.Font.render
- render(text, fgcolor, bgcolor=None, style=STYLE_DEFAULT, rotation=0, size=0) -> (Surface, Rect)
+ render(text, fgcolor=None, bgcolor=None, style=STYLE_DEFAULT, rotation=0, size=0) -> (Surface, Rect)
 Return rendered text as a surface
 
 pygame.freetype.Font.render_to
- render(surf, dest, text, fgcolor, bgcolor=None, style=STYLE_DEFAULT, rotation=0, size=0) -> Rect
+ render_to(surf, dest, text, fgcolor=None, bgcolor=None, style=STYLE_DEFAULT, rotation=0, size=0) -> Rect
 Render text onto an existing surface
 
 pygame.freetype.Font.render_raw
@@ -265,6 +267,10 @@ Font vertical mode
 pygame.freetype.Font.rotation
  rotation -> int
 text rotation in degrees counterclockwise
+
+pygame.freetype.Font.fgcolor
+ fgcolor -> Color
+default foreground color
 
 pygame.freetype.Font.origin
  origin -> bool

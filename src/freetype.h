@@ -106,6 +106,7 @@ typedef struct {
     FT_UInt resolution;
     Angle_t rotation;
     FT_Matrix transform;
+    FT_Byte fgcolor[4];
 
     struct fontinternals_ *_internals;
 } PgFontObject;
