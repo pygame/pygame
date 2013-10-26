@@ -246,17 +246,15 @@ int
 _PGFT_GetTextRect(FreeTypeInstance *ft, PgFontObject *fontobj,
                   const FontRenderMode *mode, PGFT_String *text, SDL_Rect *r)
 {
-    FontText *font_text;
+    Layout *font_text;
     unsigned width;
     unsigned height;
     FT_Vector offset;
     FT_Pos underline_size;
     FT_Pos underline_top;
 
-    font_text = _PGFT_LoadFontText(ft, fontobj, mode, text);
-    if (!font_text) {
-        return -1;
-    }
+    font_text = _PGFT_LoadLayout(ft, fontobj, mode, text);
+    if (!font_text) goto error;
     _PGFT_GetRenderMetrics(mode, font_text, &width, &height, &offset,
                            &underline_size, &underline_top);
     r->x = -(Sint16)FX6_TRUNC(FX6_FLOOR(offset.x));
@@ -264,6 +262,9 @@ _PGFT_GetTextRect(FreeTypeInstance *ft, PgFontObject *fontobj,
     r->w = (Uint16)width;
     r->h = (Uint16)height;
     return 0;
+
+  error:
+    return -1;
 }
 
 
@@ -396,7 +397,7 @@ static int init(FreeTypeInstance *ft, PgFontObject *fontobj)
     }
     memset(fontobj->_internals, 0x0, sizeof(FontInternals));
 
-    if (_PGFT_FontTextInit(ft, fontobj)) {
+    if (_PGFT_LayoutInit(ft, fontobj)) {
         _PGFT_free(fontobj->_internals);
         fontobj->_internals = 0;
         return -1;
@@ -409,7 +410,7 @@ static void
 quit(PgFontObject *fontobj)
 {
     if (fontobj->_internals) {
-        _PGFT_FontTextFree(fontobj);
+        _PGFT_LayoutFree(fontobj);
         _PGFT_free(fontobj->_internals);
         fontobj->_internals = 0;
     }
