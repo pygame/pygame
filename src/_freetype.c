@@ -1505,7 +1505,7 @@ _ftfont_getmetrics(PgFontObject *self, PyObject *args, PyObject *kwds)
     /* arguments */
     PyObject *textobj;
     PGFT_String *text = 0;
-    Scale_t face_size = FACE_SIZE_NONE;;
+    Scale_t face_size = FACE_SIZE_NONE;
 
     /* grab freetype */
     FreeTypeInstance *ft;
@@ -1576,7 +1576,7 @@ _ftfont_getsizedascender(PgFontObject *self, PyObject *args)
 static PyObject *
 _ftfont_getsizeddescender(PgFontObject *self, PyObject *args)
 {
-    Scale_t face_size = FACE_SIZE_NONE;;
+    Scale_t face_size = FACE_SIZE_NONE;
     long value;
 
     FreeTypeInstance *ft;
@@ -1606,7 +1606,7 @@ _ftfont_getsizeddescender(PgFontObject *self, PyObject *args)
 static PyObject *
 _ftfont_getsizedheight(PgFontObject *self, PyObject *args)
 {
-    Scale_t face_size = FACE_SIZE_NONE;;
+    Scale_t face_size = FACE_SIZE_NONE;
     long value;
 
     FreeTypeInstance *ft;
@@ -1636,7 +1636,7 @@ _ftfont_getsizedheight(PgFontObject *self, PyObject *args)
 static PyObject *
 _ftfont_getsizedglyphheight(PgFontObject *self, PyObject *args)
 {
-    Scale_t face_size = FACE_SIZE_NONE;;
+    Scale_t face_size = FACE_SIZE_NONE;
     long value;
 
     FreeTypeInstance *ft;
@@ -1714,7 +1714,7 @@ _ftfont_render_raw(PgFontObject *self, PyObject *args, PyObject *kwds)
     PGFT_String *text = 0;
     int style = FT_STYLE_DEFAULT;
     Angle_t rotation = self->rotation;
-    Scale_t face_size = FACE_SIZE_NONE;;
+    Scale_t face_size = FACE_SIZE_NONE;
     int invert = 0;
 
     /* output arguments */
@@ -1785,7 +1785,7 @@ _ftfont_render_raw_to(PgFontObject *self, PyObject *args, PyObject *kwds)
     int ypos = 0;
     int style = FT_STYLE_DEFAULT;
     Angle_t rotation = self->rotation;
-    Scale_t face_size = FACE_SIZE_NONE;;
+    Scale_t face_size = FACE_SIZE_NONE;
     int invert = 0;
 
     /* output arguments */
@@ -1851,7 +1851,7 @@ _ftfont_render(PgFontObject *self, PyObject *args, PyObject *kwds)
     /* input arguments */
     PyObject *textobj = 0;
     PGFT_String *text = 0;
-    Scale_t face_size = FACE_SIZE_NONE;;
+    Scale_t face_size = FACE_SIZE_NONE;
     PyObject *fg_color_obj = 0;
     PyObject *bg_color_obj = 0;
     Angle_t rotation = self->rotation;
@@ -1968,7 +1968,7 @@ _ftfont_render_to(PgFontObject *self, PyObject *args, PyObject *kwds)
     PyObject *surface_obj = 0;
     PyObject *textobj = 0;
     PGFT_String *text = 0;
-    Scale_t face_size = FACE_SIZE_NONE;;
+    Scale_t face_size = FACE_SIZE_NONE;
     PyObject *dest = 0;
     int xpos = 0;
     int ypos = 0;
