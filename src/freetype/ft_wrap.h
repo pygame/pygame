@@ -67,6 +67,7 @@
  **********************************************************/
 
 typedef FT_UInt32 PGFT_char;
+typedef FT_UInt GlyphIndex_t;
 
 
 /**********************************************************
@@ -132,7 +133,6 @@ typedef struct fontmetrics_ {
 } FontMetrics;
 
 typedef struct fontglyph_ {
-    FT_UInt glyph_index;
     FT_BitmapGlyph image;
 
     FT_Pos width;         /* 26.6 */
@@ -141,7 +141,16 @@ typedef struct fontglyph_ {
     FontMetrics v_metrics;
 } FontGlyph;
 
-typedef struct fonttext_ {
+typedef struct glyphslot_ {
+    GlyphIndex_t id;
+    FontGlyph *glyph;
+    FT_Vector posn;
+    FT_Vector kerning;
+} GlyphSlot;
+
+typedef struct layout_ {
+    FontRenderMode mode;
+
     int length;
 
     int top;       /* In pixels */
@@ -154,15 +163,15 @@ typedef struct fonttext_ {
     FT_Vector offset;
     FT_Vector advance;
     FT_Pos ascender;
+    FT_Pos descender;
+    FT_Pos height;
+    FT_Pos max_advance;
     FT_Fixed underline_size;
     FT_Pos underline_pos;
 
     int buffer_size;
-    FontGlyph **glyphs;
-    FT_Vector *posns;
-
-    FontCache glyph_cache;
-} FontText;
+    GlyphSlot *glyphs;
+} Layout;
 
 struct fontsurface_;
 
@@ -187,9 +196,9 @@ typedef struct fontsurface_ {
 
 } FontSurface;
 
-#define PGFT_INTERNALS(f) ((FontInternals *)((f)->_internals))
-typedef struct FontInternals_ {
-    FontText active_text;
+typedef struct fontinternals_ {
+    Layout active_text;
+    FontCache glyph_cache;
 } FontInternals;
 
 typedef struct PGFT_String_ {
@@ -198,7 +207,7 @@ typedef struct PGFT_String_ {
 } PGFT_String;
 
 #if defined(PGFT_DEBUG_CACHE)
-#define PGFT_FONT_CACHE(f) (PGFT_INTERNALS(f)->active_text.glyph_cache)
+#define PGFT_FONT_CACHE(f) ((f)->_internals->glyph_cache)
 #endif
 
 /**********************************************************
@@ -273,7 +282,7 @@ int _PGFT_GetMetrics(FreeTypeInstance *, PgFontObject *,
                      PGFT_char, const FontRenderMode *,
                      FT_UInt *, long *, long *, long *, long *,
                      double *, double *);
-void _PGFT_GetRenderMetrics(const FontRenderMode *, FontText *,
+void _PGFT_GetRenderMetrics(const FontRenderMode *, Layout *,
                             unsigned *, unsigned *, FT_Vector *,
                             FT_Pos *, FT_Fixed *);
 
@@ -344,12 +353,12 @@ void __render_glyph_MONO_as_INT(int, int, FontSurface *, const FT_Bitmap *,
                                 const FontColor *);
 
 
-/**************************************** Font text management ***************/
-int _PGFT_FontTextInit(FreeTypeInstance *, PgFontObject *);
-void _PGFT_FontTextFree(PgFontObject *);
-FontText *_PGFT_LoadFontText(FreeTypeInstance *, PgFontObject *,
-                            const FontRenderMode *, PGFT_String *);
-int _PGFT_LoadGlyph(FontGlyph *, PGFT_char, const FontRenderMode *, void *);
+/**************************************** Layout management ******************/
+int _PGFT_LayoutInit(FreeTypeInstance *, PgFontObject *);
+void _PGFT_LayoutFree(PgFontObject *);
+Layout *_PGFT_LoadLayout(FreeTypeInstance *, PgFontObject *,
+                         const FontRenderMode *, PGFT_String *);
+int _PGFT_LoadGlyph(FontGlyph *, GlyphIndex_t, const FontRenderMode *, void *);
 
 
 /**************************************** Glyph cache management *************/

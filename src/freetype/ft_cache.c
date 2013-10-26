@@ -25,7 +25,7 @@
 #include FT_MODULE_H
 
 typedef struct keyfields_ {
-    PGFT_char ch;
+    GlyphIndex_t id;
     Scale_t face_size;
     unsigned short style;
     unsigned short render_flags;
@@ -47,10 +47,10 @@ typedef struct cachenode_ {
 
 static FT_UInt32 get_hash(const NodeKey *);
 static CacheNode *allocate_node(FontCache *,
-                                    const FontRenderMode *,
-                                    FT_UInt, void *);
+                                const FontRenderMode *,
+                                GlyphIndex_t, void *);
 static void free_node(FontCache *, CacheNode *);
-static void set_node_key(NodeKey *, PGFT_char, const FontRenderMode *);
+static void set_node_key(NodeKey *, GlyphIndex_t, const FontRenderMode *);
 static int equal_node_keys(const NodeKey *, const NodeKey *);
 
 const int render_flags_mask = (FT_RFLAG_ANTIALIAS |
@@ -58,15 +58,15 @@ const int render_flags_mask = (FT_RFLAG_ANTIALIAS |
                                FT_RFLAG_AUTOHINT);
 
 static void
-set_node_key(NodeKey *key, PGFT_char ch, const FontRenderMode *mode)
+set_node_key(NodeKey *key, GlyphIndex_t id, const FontRenderMode *mode)
 {
     KeyFields *fields = &key->fields;
     const FT_UInt16 style_mask = ~(FT_STYLE_UNDERLINE);
     const FT_UInt16 rflag_mask = ~(FT_RFLAG_VERTICAL | FT_RFLAG_KERNING);
     unsigned short rot = (unsigned short)FX6_TRUNC(mode->rotation_angle);
 
-    memset(key, 0, sizeof(key));
-    fields->ch = ch;
+    memset(key, 0, sizeof(*key));
+    fields->id = id;
     fields->face_size = mode->face_size;
     fields->style = mode->style & style_mask;
     fields->render_flags = mode->render_flags & rflag_mask;
@@ -231,8 +231,8 @@ _PGFT_Cache_Cleanup(FontCache *cache)
 }
 
 FontGlyph *
-_PGFT_Cache_FindGlyph(PGFT_char character, const FontRenderMode *render,
-                     FontCache *cache, void *internal)
+_PGFT_Cache_FindGlyph(GlyphIndex_t id, const FontRenderMode *render,
+                      FontCache *cache, void *internal)
 {
     CacheNode **nodes = cache->nodes;
     CacheNode *node, *prev;
@@ -241,7 +241,7 @@ _PGFT_Cache_FindGlyph(PGFT_char character, const FontRenderMode *render,
     FT_UInt32 hash;
     FT_UInt32 bucket;
 
-    set_node_key(&key, character, render);
+    set_node_key(&key, id, render);
     hash = get_hash(&key);
     bucket = hash & cache->size_mask;
     node = nodes[bucket];
@@ -270,7 +270,7 @@ _PGFT_Cache_FindGlyph(PGFT_char character, const FontRenderMode *render,
         node = node->next;
     }
 
-    node = allocate_node(cache, render, character, internal);
+    node = allocate_node(cache, render, id, internal);
 
 #ifdef PGFT_DEBUG_CACHE
     cache->_debug_miss++;
@@ -298,7 +298,7 @@ free_node(FontCache *cache, CacheNode *node)
 
 static CacheNode *
 allocate_node(FontCache *cache, const FontRenderMode *render,
-              PGFT_char character, void *internal)
+              GlyphIndex_t id, void *internal)
 {
     CacheNode *node = _PGFT_malloc(sizeof(CacheNode));
     FT_UInt32 bucket;
@@ -308,11 +308,11 @@ allocate_node(FontCache *cache, const FontRenderMode *render,
     }
     memset(node, 0, sizeof(CacheNode));
 
-    if (_PGFT_LoadGlyph(&node->glyph, character, render, internal)) {
+    if (_PGFT_LoadGlyph(&node->glyph, id, render, internal)) {
         goto cleanup;
     }
 
-    set_node_key(&node->key, character, render);
+    set_node_key(&node->key, id, render);
     node->hash = get_hash(&node->key);
     bucket = node->hash & cache->size_mask;
     node->next = cache->nodes[bucket];
