@@ -310,10 +310,12 @@ New in Pygame 1.9.2
    .. method:: render
 
       | :sl:`Return rendered text as a surface`
-      | :sg:`render(text, fgcolor, bgcolor=None, style=STYLE_DEFAULT, rotation=0, size=0) -> (Surface, Rect)`
+      | :sg:`render(text, fgcolor=None, bgcolor=None, style=STYLE_DEFAULT, rotation=0, size=0) -> (Surface, Rect)`
 
       Returns a new :mod:`pygame.Surface`, with the text rendered to it
-      in the color given by 'fgcolor'. If ``bgcolor`` is given, the surface
+      in the color given by 'fgcolor'. If no foreground color is given,
+      the default foreground color, :attr:`fgcolor` is used.
+      If ``bgcolor`` is given, the surface
       will be filled with this color. If no background color is given,
       the surface is filled with zero alpha opacity. Normally the returned
       surface has a 32 bit pixel size. However, if ``bgcolor`` is :const:`None`
@@ -348,10 +350,11 @@ New in Pygame 1.9.2
    .. method:: render_to
 
       | :sl:`Render text onto an existing surface`
-      | :sg:`render(surf, dest, text, fgcolor, bgcolor=None, style=STYLE_DEFAULT, rotation=0, size=0) -> Rect`
+      | :sg:`render_to(surf, dest, text, fgcolor=None, bgcolor=None, style=STYLE_DEFAULT, rotation=0, size=0) -> Rect`
 
       Renders the string 'text' to a :mod:`pygame.Surface` 'surf',
-      using the color 'fgcolor'.
+      using the color 'fgcolor', if given, or the default foreground
+      color, :attr:`fgcolor`, otherwise.
 
       Argument 'dest' is an (x, y) surface coordinate pair. If either x
       or y is not an integer it is converted to one if possible.
@@ -628,6 +631,14 @@ New in Pygame 1.9.2
       to change the rotation of a bitmap font raises an AttributeError.
       An attempt to change the rotation of an inactive font objects, as
       returned by Font.__new__(), raises a RuntimeError.
+
+   .. attribute:: fgcolor
+
+      | :sl:`default foreground color`
+      | :sg:`fgcolor -> Color`
+
+      Get or set the default glyph rendering color. It is initially opaque
+      black ― (0, 0, 0, 255). Applies to :meth:`render` and :meth:`render_to`.
 
    .. attribute:: origin
 
