@@ -85,6 +85,8 @@ typedef struct _scale_s {
 } Scale_t;
 typedef FT_Angle Angle_t;
 
+struct fontinternals_;
+
 typedef struct {
     FT_Long font_index;
     FT_Open_Args open_args;
@@ -105,7 +107,7 @@ typedef struct {
     Angle_t rotation;
     FT_Matrix transform;
 
-    void *_internals;
+    struct fontinternals_ *_internals;
 } PgFontObject;
 
 #define PgFont_IS_ALIVE(o) \

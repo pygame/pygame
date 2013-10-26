@@ -205,6 +205,12 @@ New in Pygame 1.9.2
       If text is a char (byte) string, then its encoding is assumed to be
       ``LATIN1``.
 
+      Optionally, text can be :const:`None`, which will return the bounding
+      rectangle for the text passed to a previous :meth:`get_rect`,
+      :meth:`render`, :meth:`render_to`, :meth:`render_raw`, or
+      :meth:`render_raw_to` call. See :meth:`render_to` for more
+      details.
+
    .. method:: get_metrics
 
       | :sl:`Return the glyph metrics for the given text`
@@ -310,7 +316,7 @@ New in Pygame 1.9.2
       in the color given by 'fgcolor'. If ``bgcolor`` is given, the surface
       will be filled with this color. If no background color is given,
       the surface is filled with zero alpha opacity. Normally the returned
-      surface has a 32 bit pixel size. However, if ``bgcolor`` is ``None``
+      surface has a 32 bit pixel size. However, if ``bgcolor`` is :const:`None`
       and anti-aliasing is disabled a two color 8 bit surface with colorkey
       set for the background color is returned.
 
@@ -318,8 +324,9 @@ New in Pygame 1.9.2
       rectangle giving the size and origin of the rendered text.
 
       If an empty string is passed for text then the returned Rect is zero
-      width and the height of the font. If dest is None the returned surface is
-      the same dimensions as the boundary rect. The rect will test False.
+      width and the height of the font. If dest is :const:`None` the returned
+      surface is the same dimensions as the boundary rect.
+      The rect will test False.
 
       The rendering is done using the font's default size in points and its
       default style, without any rotation, and taking into account fonts which
@@ -332,6 +339,12 @@ New in Pygame 1.9.2
       If text is a char (byte) string, then its encoding is assumed to be
       ``LATIN1``.
 
+      Optionally, text can be None, which will return the bounding
+      rectangle for the text passed to a previous :meth:`get_rect`,
+      :meth:`render`, :meth:`render_to`, :meth:`render_raw`, or
+      :meth:`render_raw_to` call. See :meth:`render_to` for more
+      details.
+
    .. method:: render_to
 
       | :sl:`Render text onto an existing surface`
@@ -342,8 +355,8 @@ New in Pygame 1.9.2
 
       Argument 'dest' is an (x, y) surface coordinate pair. If either x
       or y is not an integer it is converted to one if possible.
-      Any sequence, including Rect, for which the first two elements are
-      positions x and y is accepted.
+      Any sequence, including :class:`Rect`, for which the first
+      two elements are positions x and y is accepted.
 
       If a background color is given, the surface is first filled with that
       color. The text is blitted next. Both the background fill and text
@@ -354,8 +367,42 @@ New in Pygame 1.9.2
       The return value is a rectangle giving the size and position of the
       rendered text within the surface.
 
-      If an empty string is passed for text then the returned Rect is zero
-      width and the height of the font. The rect will test False.
+      If an empty string is passed for text then the returned :class:`Rect`
+      is zero width and the height of the font. The rect will test False.
+
+      Optionally, text can be set :const:`None`, which will re-render text
+      passed to a previous :meth:`render_to`, :meth:`get_rect`, :meth:`render`,
+      :meth:`render_raw`, or :meth:`render_raw_to` call. Primarily, this
+      feature is an aid to using :meth:`render_to` in combination with
+      :meth:`get_rect`. An example: ::
+
+	  def word_wrap(surf, text, font, color=(0, 0, 0)):
+              font.origin = True
+              words = text.split(' ')
+              width, height = surf.get_size()
+              line_spacing = font.get_sized_height() + 2
+              x, y = 0, line_spacing
+              space = font.get_rect(' ' * 2)  # second space given width 0
+              for word in words:
+                  bounds = font.get_rect(word)
+                  if x + bounds.width + bounds.x >= width:
+                      x, y = 0, y + line_spacing
+                  if x + bounds.width + bounds.x >= width:
+                      raise ValueError("word too wide for the surface")
+                  if y + bounds.height - bounds.y >= height:
+                      raise ValueError("text to long for the surface")
+                  font.render_to(surf, (x, y), None, color)
+                  x += bounds.width + space.width
+              return x, y
+
+      When :meth:`render_to` is called with the same
+      font properties ― :attr:`size`, :attr:`style`, :attr:`strength`,
+      :attr:`wide`, :attr:`antialiase`, :attr:`vertical`, :attr:`rotation`,
+      :attr:`kerning`, and :attr:`use_bitmap_strikes` ― as :meth:`get_rect`,
+      :meth:`render_to` will use the layout calculated by :meth:`get_rect`.
+      Otherwise, :meth:`render_to` will recalculate the layout if called
+      with a text string or one of the above properties has changed
+      after the :meth:`get_rect` call.
 
       By default, the point size and style set for the font are used
       if not passed as arguments. The text is unrotated unless a non-zero
@@ -369,7 +416,7 @@ New in Pygame 1.9.2
       | :sl:`Return rendered text as a string of bytes`
       | :sg:`render_raw(text, style=STYLE_DEFAULT, rotation=0, size=0, invert=False) -> (bytes, (int, int))`
 
-      Like ``Font.render()`` but the tuple returned is an 8 bit
+      Like :meth:`render` but the tuple returned is an 8 bit
       monochrome string of bytes and its size. The foreground color is 255, the
       background 0, useful as an alpha mask for a foreground pattern.
 
@@ -380,7 +427,7 @@ New in Pygame 1.9.2
 
       Render to an array object exposing an array struct interface. The array
       must be two dimensional with integer items. The default dest value, None,
-      is equivalent to (0, 0).
+      is equivalent to (0, 0). See :meth:`render_to`.
 
    .. attribute:: style
 

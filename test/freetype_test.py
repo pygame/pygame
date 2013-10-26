@@ -1,6 +1,8 @@
 import sys
 import os
 import ctypes
+import weakref
+import gc
 if __name__ == '__main__':
     pkg_dir = os.path.split(os.path.abspath(__file__))[0]
     parent_dir, pkg_name = os.path.split(pkg_dir)
@@ -13,9 +15,10 @@ else:
 
 if is_pygame_pkg:
     from pygame.tests.test_utils import test_not_implemented, unittest, \
-                                        geterror
+                                        geterror, arrinter
 else:
-    from test.test_utils import test_not_implemented, unittest, geterror
+    from test.test_utils import test_not_implemented, unittest, geterror, \
+                                arrinter
 
 import pygame
 try:
@@ -35,6 +38,17 @@ def nullfont():
 max_point_size_FX6 = 0x7FFFFFFF
 max_point_size = max_point_size_FX6 >> 6
 max_point_size_f = max_point_size_FX6 * 0.015625
+
+def surf_same_image(a, b):
+    """Return True if a's pixel buffer is identical to b's"""
+
+    a_sz = a.get_height() * a.get_pitch()
+    b_sz = b.get_height() * b.get_pitch()
+    if a_sz != b_sz:
+        return False
+    a_bytes = ctypes.string_at(a._pixels_address, a_sz)
+    b_bytes = ctypes.string_at(b._pixels_address, b_sz)
+    return a_bytes == b_bytes
 
 class FreeTypeFontTest(unittest.TestCase):
 
@@ -601,7 +615,6 @@ class FreeTypeFontTest(unittest.TestCase):
         self.assertRaises(ValueError, font.render_to, surf, (0, 0),
                           'foobar', color, None, style=97, size=24)
 
-
     def test_freetype_Font_render(self):
 
         font = self._TEST_FONTS['sans']
@@ -909,6 +922,62 @@ class FreeTypeFontTest(unittest.TestCase):
         finally:
             font.antialiased = True
 
+    def test_freetype_Font_text_is_None(self):
+        f = ft.Font(self._sans_path, 36)
+        f.style = ft.STYLE_NORMAL
+        f.rotation = 0
+        text = 'ABCD'
+
+        # reference values
+        get_rect = f.get_rect(text)
+        f.vertical = True
+        get_rect_vert = f.get_rect(text)
+        self.assertTrue(get_rect_vert.width < get_rect.width)
+        self.assertTrue(get_rect_vert.height > get_rect.height)
+        f.vertical = False
+        render_to_surf = pygame.Surface(get_rect.size, pygame.SRCALPHA, 32)
+        arr = arrinter.Array(get_rect.size, 'u', 1)
+        render = f.render(text, (0, 0, 0))
+        render_to = f.render_to(render_to_surf, (0, 0), text, (0, 0, 0))
+        render_raw = f.render_raw(text)
+        render_raw_to = f.render_raw_to(arr, text)
+
+        # comparisons
+        surf = pygame.Surface(get_rect.size, pygame.SRCALPHA, 32)
+        self.assertEqual(f.get_rect(None), get_rect)
+        s, r = f.render(None, (0, 0, 0))
+        self.assertEqual(r, render[1])
+        self.assertTrue(surf_same_image(s, render[0]))
+        r = f.render_to(surf, (0, 0), None, (0, 0, 0))
+        self.assertEqual(r, render_to)
+        self.assertTrue(surf_same_image(surf, render_to_surf))
+        px, sz = f.render_raw(None)
+        self.assertEqual(sz, render_raw[1])
+        self.assertEqual(px, render_raw[0])
+        sz = f.render_raw_to(arr, None)
+        self.assertEqual(sz, render_raw_to)
+
+        # vertical: trigger glyph positioning.
+        f.vertical = True
+        r = f.get_rect(None)
+        self.assertEqual(r, get_rect_vert)
+        f.vertical = False
+
+        # wide style: trigger glyph reload
+        r = f.get_rect(None, style=ft.STYLE_WIDE)
+        self.assertEqual(r.height, get_rect.height)
+        self.assertTrue(r.width > get_rect.width)
+        r = f.get_rect(None)
+        self.assertEqual(r, get_rect)
+
+        # rotated: trigger glyph reload
+        r = f.get_rect(None, rotation=90)
+        self.assertEqual(r.width, get_rect.height)
+        self.assertEqual(r.height, get_rect.width)
+
+        # this method will not support None text
+        self.assertRaises(TypeError, f.get_metrics, None)
+
     if pygame.HAVE_NEWBUF:
         def test_newbuf(self):
             self.NEWBUF_test_newbuf()
@@ -1095,7 +1164,6 @@ class FreeTypeFontTest(unittest.TestCase):
         f.get_metrics(many_glyphs, size=8)
         f.get_metrics(many_glyphs, size=10)
         ccount, cdelete_count, caccess, chit, cmiss = f._debug_cache_stats
-        print (ccount, cdelete_count, caccess, chit, cmiss)
         self.assertTrue(ccount < count)
         self.assertEqual((ccount + cdelete_count, caccess, chit, cmiss),
                          (count, access, hit, miss))
@@ -1131,6 +1199,49 @@ class FreeTypeFontTest(unittest.TestCase):
         font = ft.Font(None, size=64)
         s = 'M' * 100000  # Way too long for an SDL surface
         self.assertRaises(pygame.error, font.render, s, (0, 0, 0))
+
+    def test_garbage_collection(self):
+        """Check reference counting on returned new references"""
+        def ref_items(seq):
+            return [weakref.ref(o) for o in seq]
+
+        font = self._TEST_FONTS['bmp-8-75dpi']
+        font.size = font.get_sizes()[0][0]
+        text = 'A'
+        rect = font.get_rect(text)
+        surf = pygame.Surface(rect.size, pygame.SRCALPHA, 32)
+        refs = []
+        refs.extend(ref_items(font.render(text, (0, 0, 0))))
+        refs.append(weakref.ref(font.render_to(surf, (0, 0), text, (0, 0, 0))))
+        refs.append(weakref.ref(font.get_rect(text)))
+
+        n = len(refs)
+        self.assertTrue(n > 0)
+        gc.collect()
+        for i in range(n):
+            self.assertTrue(refs[i]() is None, "ref %d not collected" % i)
+
+        try:
+            from sys import getrefcount
+        except ImportError:
+            pass
+        else:
+            array = arrinter.Array(rect.size, 'u', 1)
+            o = font.render_raw(text)
+            self.assertEqual(getrefcount(o), 2)
+            self.assertEqual(getrefcount(o[0]), 2)
+            self.assertEqual(getrefcount(o[1]), 2)
+            self.assertEqual(getrefcount(font.render_raw_to(array, text)), 1)
+            o = font.get_metrics('AB')
+            self.assertEqual(getrefcount(o), 2)
+            for i in range(len(o)):
+                self.assertEqual(getrefcount(o[i]), 2,
+                                 "refcount fail for item %d" % i)
+            o = font.get_sizes()
+            self.assertEqual(getrefcount(o), 2)
+            for i in range(len(o)):
+                self.assertEqual(getrefcount(o[i]), 2,
+                                 "refcount fail for item %d" % i)
 
 class FreeTypeTest(unittest.TestCase):
 
