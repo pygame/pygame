@@ -165,6 +165,15 @@ class SurfaceTypeTest(unittest.TestCase):
         self.assertEqual(bound_rect.width, 31)
         self.assertEqual(bound_rect.height, 31)
 
+        # Issue #180
+        pygame.display.init()
+        try:
+            surf = pygame.Surface((4, 1), 0, 8)
+            surf.fill((255, 255, 255))
+            surf.get_bounding_rect()  # Segfault.
+        finally:
+            pygame.quit()
+
     def test_copy(self):
 
         # __doc__ (as of 2008-06-25) for pygame.surface.Surface.copy:
