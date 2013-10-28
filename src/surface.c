@@ -1988,6 +1988,15 @@ surf_get_abs_parent (PyObject *self)
 static PyObject *
 surf_get_bounding_rect (PyObject *self, PyObject *args, PyObject *kwargs)
 {
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+    const int BYTE0 = 0;
+    const int BYTE1 = 1;
+    const int BYTE2 = 2;
+#else
+    const int BYTE0 = 2;
+    const int BYTE1 = 1;
+    const int BYTE2 = 0;
+#endif
     PyObject *rect;
     SDL_Surface *surf = PySurface_AsSurface (self);
     SDL_PixelFormat *format = surf->format;
@@ -1997,6 +2006,7 @@ surf_get_bounding_rect (PyObject *self, PyObject *args, PyObject *kwargs)
     int min_x, min_y, max_x, max_y;
     int min_alpha = 1;
     int found_alpha = 0;
+    Uint32 value;
     Uint8 r, g, b, a;
     int has_colorkey = 0;
     Uint8 keyr, keyg, keyb;
@@ -2033,7 +2043,24 @@ surf_get_bounding_rect (PyObject *self, PyObject *args, PyObject *kwargs)
     for (y = max_y - 1; y >= min_y; --y) {
         for (x = min_x; x < max_x; ++x) {
             pixel = (pixels + y * surf->pitch) + x*format->BytesPerPixel;
-            SDL_GetRGBA (*((Uint32*)pixel), surf->format, &r, &g, &b, &a);
+            switch (format->BytesPerPixel) {
+
+            case 1:
+                value = *pixel;
+                break;
+            case 2:
+                value = *(Uint16 *)pixel;
+                break;
+            case 3:
+                value = pixel[BYTE0];
+                value |= pixel[BYTE1] << 8;
+                value |= pixel[BYTE2] << 16;
+                break;
+            default:
+                assert(format->BytesPerPixel == 4);
+                value = *(Uint32 *)pixel;
+            }
+            SDL_GetRGBA (value, surf->format, &r, &g, &b, &a);
             if ((a >= min_alpha && has_colorkey == 0) ||
                 (has_colorkey != 0 && (r != keyr || g != keyg || b != keyb))) {
                 found_alpha = 1;
@@ -2049,7 +2076,24 @@ surf_get_bounding_rect (PyObject *self, PyObject *args, PyObject *kwargs)
     for (x = max_x - 1; x >= min_x; --x) {
         for (y = min_y; y < max_y; ++y) {
             pixel = (pixels + y * surf->pitch) + x*format->BytesPerPixel;
-            SDL_GetRGBA (*((Uint32*)pixel), surf->format, &r, &g, &b, &a);
+            switch (format->BytesPerPixel) {
+
+            case 1:
+                value = *pixel;
+                break;
+            case 2:
+                value = *(Uint16 *)pixel;
+                break;
+            case 3:
+                value = pixel[BYTE0];
+                value |= pixel[BYTE1] << 8;
+                value |= pixel[BYTE2] << 16;
+                break;
+            default:
+                assert(format->BytesPerPixel == 4);
+                value = *(Uint32 *)pixel;
+            }
+            SDL_GetRGBA (value, surf->format, &r, &g, &b, &a);
             if ((a >= min_alpha && has_colorkey == 0) ||
                 (has_colorkey != 0 && (r != keyr || g != keyg || b != keyb))) {
                 found_alpha = 1;
@@ -2066,7 +2110,24 @@ surf_get_bounding_rect (PyObject *self, PyObject *args, PyObject *kwargs)
         min_y = y;
         for (x = min_x; x < max_x; ++x) {
             pixel = (pixels + y * surf->pitch) + x*format->BytesPerPixel;
-            SDL_GetRGBA (*((Uint32*)pixel), surf->format, &r, &g, &b, &a);
+            switch (format->BytesPerPixel) {
+
+            case 1:
+                value = *pixel;
+                break;
+            case 2:
+                value = *(Uint16 *)pixel;
+                break;
+            case 3:
+                value = pixel[BYTE0];
+                value |= pixel[BYTE1] << 8;
+                value |= pixel[BYTE2] << 16;
+                break;
+            default:
+                assert(format->BytesPerPixel == 4);
+                value = *(Uint32 *)pixel;
+            }
+            SDL_GetRGBA (value, surf->format, &r, &g, &b, &a);
             if ((a >= min_alpha && has_colorkey == 0) ||
                 (has_colorkey != 0 && (r != keyr || g != keyg || b != keyb))) {
                 found_alpha = 1;
@@ -2082,7 +2143,24 @@ surf_get_bounding_rect (PyObject *self, PyObject *args, PyObject *kwargs)
         min_x = x;
         for (y = min_y; y < max_y; ++y) {
             pixel = (pixels + y * surf->pitch) + x*format->BytesPerPixel;
-            SDL_GetRGBA (*((Uint32*)pixel), surf->format, &r, &g, &b, &a);
+            switch (format->BytesPerPixel) {
+
+            case 1:
+                value = *pixel;
+                break;
+            case 2:
+                value = *(Uint16 *)pixel;
+                break;
+            case 3:
+                value = pixel[BYTE0];
+                value |= pixel[BYTE1] << 8;
+                value |= pixel[BYTE2] << 16;
+                break;
+            default:
+                assert(format->BytesPerPixel == 4);
+                value = *(Uint32 *)pixel;
+            }
+            SDL_GetRGBA (value, surf->format, &r, &g, &b, &a);
             if ((a >= min_alpha && has_colorkey == 0) ||
                 (has_colorkey != 0 && (r != keyr || g != keyg || b != keyb))) {
                 found_alpha = 1;
