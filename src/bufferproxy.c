@@ -806,7 +806,7 @@ get_read_buffer(PyObject *self, PyObject *args, PyObject *kwds)
     if (len < 0) {
         return 0;
     }
-    return Py_BuildValue("ll", (long)len, (long)ptr);
+    return Py_BuildValue("nN", len, PyLong_FromVoidPtr(ptr));
 }
 
 static PyObject *
@@ -836,7 +836,7 @@ get_write_buffer(PyObject *self, PyObject *args, PyObject *kwds)
     if (len < 0) {
         return 0;
     }
-    return Py_BuildValue("ll", (long)len, (long)ptr);
+    return Py_BuildValue("nN", len, PyLong_FromVoidPtr(ptr));
 }
 
 static PyObject *
