@@ -677,7 +677,35 @@ class FreeTypeFontTest(unittest.TestCase):
         self.assertRaises(RuntimeError, nullfont().render,
                           'a', (0, 0, 0), size=24)
 
-        # *** need more unicode testing to ensure the proper glyphs are rendered
+        # Confirm the correct glpyhs are returned for a couple of
+        # unicode code points, 'A' and '\U00023079'. For each code point
+        # the rendered glyph is compared with an image of glyph bitmap
+        # as exported by FontForge.
+        path = os.path.join(FONTDIR, 'A_PyGameMono-8.png')
+        A = pygame.image.load(path)
+        path = os.path.join(FONTDIR, 'u13079_PyGameMono-8.png')
+        u13079 = pygame.image.load(path)
+
+        font = self._TEST_FONTS['mono']
+        font.ucs4 = False
+        A_rendered, r = font.render('A', bgcolor=pygame.Color('white'), size=8)
+        u13079_rendered, r = font.render(as_unicode(r'\U00013079'),
+                                         bgcolor=pygame.Color('white'), size=8)
+
+        ## before comparing the surfaces, make sure they are the same
+        ## pixel format. Use 32-bit SRCALPHA to avoid row padding and
+        ## undefined bytes (the alpha byte will be set to 255.)
+        bitmap = pygame.Surface(A.get_size(), pygame.SRCALPHA, 32)
+        bitmap.blit(A, (0, 0))
+        rendering = pygame.Surface(A_rendered.get_size(), pygame.SRCALPHA, 32)
+        rendering.blit(A_rendered, (0, 0))
+        self.assertTrue(surf_same_image(rendering, bitmap))
+        bitmap = pygame.Surface(u13079.get_size(), pygame.SRCALPHA, 32)
+        bitmap.blit(u13079, (0, 0))
+        rendering = pygame.Surface(u13079_rendered.get_size(),
+                                   pygame.SRCALPHA, 32)
+        rendering.blit(u13079_rendered, (0, 0))
+        self.assertTrue(surf_same_image(rendering, bitmap))
 
     def test_freetype_Font_render_mono(self):
         font = self._TEST_FONTS['sans']
