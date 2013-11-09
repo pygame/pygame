@@ -1,19 +1,21 @@
 /* Auto generated file: with makeref.py .  Docs go in src/ *.doc . */
 #define DOC_PYGAMEFREETYPE "Enhanced Pygame module for loading and rendering computer fonts"
 
-#define DOC_PYGAMEFREETYPEGETERROR "get_error() -> str\nReturn the latest FreeType2 error"
+#define DOC_PYGAMEFREETYPEGETERROR "get_error() -> str\nReturn the latest FreeType error"
 
-#define DOC_PYGAMEFREETYPEGETVERSION "get_version() -> (int, int, int)\nReturn the FreeType 2 version"
+#define DOC_PYGAMEFREETYPEGETVERSION "get_version() -> (int, int, int)\nReturn the FreeType version"
 
-#define DOC_PYGAMEFREETYPEINIT "init(cache_size=64, resolution=72)\nInitialize the underlying FreeType 2 library."
+#define DOC_PYGAMEFREETYPEINIT "init(cache_size=64, resolution=72)\nInitialize the underlying FreeType library."
 
-#define DOC_PYGAMEFREETYPEQUIT "quit()\nShut down the underlying FreeType 2 library."
+#define DOC_PYGAMEFREETYPEQUIT "quit()\nShut down the underlying FreeType library."
 
-#define DOC_PYGAMEFREETYPEWASINIT "was_init() -> bool\nReturn whether the the FreeType 2 library is initialized."
+#define DOC_PYGAMEFREETYPEWASINIT "was_init() -> bool\nReturn whether the the FreeType library is initialized."
 
 #define DOC_PYGAMEFREETYPEGETDEFAULTRESOLUTION "get_default_resolution() -> long\nReturn the default pixel size in dots per inch"
 
 #define DOC_PYGAMEFREETYPESETDEFAULTRESOLUTION "set_default_resolution([resolution])\nSet the default pixel size in dots per inch for the module"
+
+#define DOC_PYGAMEFREETYPESYSFONT "SysFont(name, size, bold=False, italic=False) -> Font\ncreate a Font object from the system fonts"
 
 #define DOC_PYGAMEFREETYPEGETDEFAULTFONT "get_default_font() -> string\nGet the filename of the default font"
 
@@ -69,11 +71,11 @@
 
 #define DOC_FONTFIXEDWIDTH "fixed_width -> bool\nGets whether the font is fixed-width"
 
-#define DOC_FONTFIXEDSIZES "fixed_sizes -> int\nthe number of embedded bitmap sizes the font"
+#define DOC_FONTFIXEDSIZES "fixed_sizes -> int\nthe number of available bitmap sizes for the font"
 
 #define DOC_FONTSCALABLE "scalable -> bool\nGets whether the font is scalable"
 
-#define DOC_FONTUSEBITMAPSTRIKES "use_bitmap_strikes -> bool\nallow the use of embeddeded bitmaps in an outline font file"
+#define DOC_FONTUSEBITMAPSTRIKES "use_bitmap_strikes -> bool\nallow the use of embedded bitmaps in an outline font file"
 
 #define DOC_FONTANTIALIASED "antialiased -> bool\nFont anti-aliasing mode"
 
@@ -104,23 +106,23 @@ Enhanced Pygame module for loading and rendering computer fonts
 
 pygame.freetype.get_error
  get_error() -> str
-Return the latest FreeType2 error
+Return the latest FreeType error
 
 pygame.freetype.get_version
  get_version() -> (int, int, int)
-Return the FreeType 2 version
+Return the FreeType version
 
 pygame.freetype.init
  init(cache_size=64, resolution=72)
-Initialize the underlying FreeType 2 library.
+Initialize the underlying FreeType library.
 
 pygame.freetype.quit
  quit()
-Shut down the underlying FreeType 2 library.
+Shut down the underlying FreeType library.
 
 pygame.freetype.was_init
  was_init() -> bool
-Return whether the the FreeType 2 library is initialized.
+Return whether the the FreeType library is initialized.
 
 pygame.freetype.get_default_resolution
  get_default_resolution() -> long
@@ -129,6 +131,10 @@ Return the default pixel size in dots per inch
 pygame.freetype.set_default_resolution
  set_default_resolution([resolution])
 Set the default pixel size in dots per inch for the module
+
+pygame.freetype.SysFont
+ SysFont(name, size, bold=False, italic=False) -> Font
+create a Font object from the system fonts
 
 pygame.freetype.get_default_font
  get_default_font() -> string
@@ -242,7 +248,7 @@ Gets whether the font is fixed-width
 
 pygame.freetype.Font.fixed_sizes
  fixed_sizes -> int
-the number of embedded bitmap sizes the font
+the number of available bitmap sizes for the font
 
 pygame.freetype.Font.scalable
  scalable -> bool
@@ -250,7 +256,7 @@ Gets whether the font is scalable
 
 pygame.freetype.Font.use_bitmap_strikes
  use_bitmap_strikes -> bool
-allow the use of embeddeded bitmaps in an outline font file
+allow the use of embedded bitmaps in an outline font file
 
 pygame.freetype.Font.antialiased
  antialiased -> bool
