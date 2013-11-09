@@ -129,6 +129,19 @@ pygame much earlier.
 
    .. ## pygame.examples.fonty.main ##
 
+.. function:: freetype_misc.main
+
+   | :sl:`run a freetype rendering example`
+   | :sg:`freetype_misc.main() -> None`
+
+   A showcase of rendering features the :class:`pygame.freetype.Font`
+   class provides in addition to those available with :class:`pygame.font.Font`.
+   It is a demonstration of direct to surface rendering, with vertical text
+   and rotated text, opaque text and semi transparent text, horizontally
+   stretched text and vertically stretched text.
+
+   .. ## pygame.examples.fonty.main ##
+
 .. function:: vgrade.main
 
    | :sl:`display a vertical gradient`
