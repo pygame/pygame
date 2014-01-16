@@ -416,7 +416,7 @@ def initsysfonts_darwin():
     #  Not likely to be there on pre 10.4.x ...
     #    so still need to do other OSX specific method below.
     if os.path.exists("/usr/X11/bin/fc-list"):
-        fonts = initsysfonts_unix()
+        fonts = initsysfonts_unix("/usr/X11/bin/fc-list")
     else:
         fonts = {}
     
@@ -444,7 +444,7 @@ def initsysfonts_darwin():
 
 
 #read the fonts on unix
-def initsysfonts_unix():
+def initsysfonts_unix(path = "fc-list"):
     import subprocess
 
     fonts = {}
@@ -453,7 +453,7 @@ def initsysfonts_unix():
 
     try:
         # note, we capture stderr so if fc-list isn't there to stop stderr printing.
-        flout, flerr = subprocess.Popen('fc-list : file family style', shell=True,
+        flout, flerr = subprocess.Popen('%s : file family style' % path, shell=True,
                                         stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                         close_fds=True).communicate()
     except Exception:
