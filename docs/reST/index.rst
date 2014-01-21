@@ -51,7 +51,7 @@ Tutorials
 `Chimp Tutorial, Line by Line`_
   The pygame examples include a simple program with an interactive fist and a chimpanzee.
   This was inspired by the annoying flash banner of the early 2000's.
-  This tutorial examines every line of coded used in the example.
+  This tutorial examines every line of code used in the example.
 
 :doc:`Sprite Module Introduction <tut/SpriteIntro>`
   Pygame includes a higher level sprite module to help organize games.
