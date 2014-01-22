@@ -22,6 +22,9 @@ def Video_AutoInit():
             default_icon_data = getResource('pygame_icon.tiff').read()
         except IOError:
             default_icon_data = None
+        except NotImplementedError:
+            default_icon_data = None
+
         sdlmain_osx.InstallNSApplication(default_icon_data)
     if (os.getcwd() == '/') and len(sys.argv) > 1:
         os.chdir(os.path.dirname(sys.argv[0]))
