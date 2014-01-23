@@ -1495,6 +1495,26 @@ class Vector3TypeTest(unittest.TestCase):
         v.from_spherical((.5, 90, 90))
         self.assertEqual(v, .5 * self.e2)
         
+    def test_inplace_operators(self):
+
+        v = Vector3(1,1,1)
+        v *= 2
+        self.assertEqual(v, (2.0,2.0,2.0))
+
+        v = Vector3(4,4,4)
+        v /= 2
+        self.assertEqual(v, (2.0,2.0,2.0))
+
+
+        v = Vector3(3.0,3.0,3.0)
+        v -= (1,1,1)
+        self.assertEqual(v, (2.0,2.0,2.0))
+
+        v = Vector3(3.0,3.0,3.0)
+        v += (1,1,1)
+        self.assertEqual(v, (4.0,4.0,4.0))
+
+
 
 
 
