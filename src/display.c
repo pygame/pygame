@@ -123,6 +123,8 @@ display_autoquit (void)
         PySurface_AsSurface (DisplaySurfaceObject) = NULL;
         Py_DECREF (DisplaySurfaceObject);
         DisplaySurfaceObject = NULL;
+
+        icon_was_set = 0;
     }
 }
 
