@@ -263,7 +263,7 @@ SavePNG (SDL_Surface *surface, const char *file)
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
                                        0xff0000, 0xff00, 0xff, 0x000000ff
 #else
-                                       0xff00, 0xff, 0xff0000, 0xff000000
+                                       0xff, 0xff00, 0xff0000, 0xff000000
 #endif
         );
 
