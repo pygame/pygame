@@ -1,0 +1,9 @@
+Pygame 1.9.2 mostly builds with Python 3.x. setup.py installs Pygame 
+without any special preparations. However not all modules will be 
+included. All SDL only extension modules are available. And some of the 
+optional modules are as well.
+
+Use the tests to see which modules are working.
+
+On Windows Pygame uses the same dependencies for Python 3.x as Python 
+2.6.
