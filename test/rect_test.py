@@ -504,7 +504,9 @@ class RectTypeTest( unittest.TestCase ):
 
         class foo (Rect):
             def __eq__(self,other):
-                return id(self) == id(other);
+                return id(self) == id(other)
+            def __ne__(self,other):
+                return id(self) != id(other)
 
         class foo2 (Rect):
             pass
