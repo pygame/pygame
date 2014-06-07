@@ -19,3 +19,5 @@ docs/index.html
 docs/ref/*.html
 docs/tut/SpriteIntro.html
 lib/version.py
+envdev*
+.virtualenv*
