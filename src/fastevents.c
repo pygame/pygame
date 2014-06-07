@@ -72,8 +72,8 @@ FE_PushEvent (SDL_Event * ev)
     SDL_LockMutex (eventLock);
     while (-1 == SDL_PushEvent (ev))
         SDL_CondWait (eventWait, eventLock);
-    SDL_UnlockMutex (eventLock);
     SDL_CondSignal (eventWait);
+    SDL_UnlockMutex (eventLock);
 
     return 1;
 }
@@ -103,10 +103,9 @@ FE_PollEvent (SDL_Event * event)
 
     SDL_LockMutex (eventLock);
     val = SDL_PollEvent (event);
-    SDL_UnlockMutex (eventLock);
-
     if (0 < val)
         SDL_CondSignal (eventWait);
+    SDL_UnlockMutex (eventLock);
 
     return val;
 }
@@ -124,8 +123,8 @@ FE_WaitEvent (SDL_Event * event)
     SDL_LockMutex (eventLock);
     while (0 >= (val = SDL_PollEvent (event)))
         SDL_CondWait (eventWait, eventLock);
-    SDL_UnlockMutex (eventLock);
     SDL_CondSignal (eventWait);
+    SDL_UnlockMutex (eventLock);
 
     return val;
 }
@@ -138,7 +137,9 @@ FE_WaitEvent (SDL_Event * event)
 static Uint32
 timerCallback (Uint32 interval, void *param)
 {
+    SDL_LockMutex (eventLock);
     SDL_CondBroadcast (eventWait);
+    SDL_UnlockMutex (eventLock);
     return interval;
 }
 
