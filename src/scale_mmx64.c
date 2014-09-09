@@ -197,6 +197,7 @@ void
 filter_shrink_Y_MMX(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, int dstpitch, int srcheight, int dstheight)
 {
     Uint16 *templine;
+    long long srcdiff64, dstdiff64;
     int srcdiff = srcpitch - (width * 4);
     int dstdiff = dstpitch - (width * 4);
     int yspace = 0x4000 * srcheight / dstheight; /* must be > 1 */
@@ -207,8 +208,8 @@ filter_shrink_Y_MMX(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, int d
     templine = (Uint16 *) malloc(dstpitch * 2);
     if (templine == 0) return;
     memset(templine, 0, dstpitch * 2);
-    long long srcdiff64 = srcdiff;
-    long long dstdiff64 = dstdiff;
+    srcdiff64 = srcdiff;
+    dstdiff64 = dstdiff;
     asm __volatile__(" /* MMX code for Y-shrink area average filter */ "
         " movl             %5,      %%ecx;           " /* ecx == ycounter */
         " pxor          %%mm0,      %%mm0;           "
@@ -304,6 +305,7 @@ void
 filter_shrink_Y_SSE(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, int dstpitch, int srcheight, int dstheight)
 {
     Uint16 *templine;
+    long long srcdiff64, dstdiff64;
     int srcdiff = srcpitch - (width * 4);
     int dstdiff = dstpitch - (width * 4);
     int yspace = 0x4000 * srcheight / dstheight; /* must be > 1 */
@@ -314,8 +316,8 @@ filter_shrink_Y_SSE(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, int d
     templine = (Uint16 *) malloc(dstpitch * 2);
     if (templine == 0) return;
     memset(templine, 0, dstpitch * 2);
-    long long srcdiff64 = srcdiff;
-    long long dstdiff64 = dstdiff;
+    srcdiff64 = srcdiff;
+    dstdiff64 = dstdiff;
     asm __volatile__(" /* MMX code for Y-shrink area average filter */ "
         " movl             %5,      %%ecx;           " /* ecx == ycounter */
         " pxor          %%mm0,      %%mm0;           "
