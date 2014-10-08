@@ -551,10 +551,11 @@ class Output(object):
         self.write_short(0x80 + channel, note, velocity)
 
 
-    def set_instrument(self, instrument_id, channel = 0):
-        """select an instrument, with a value between 0 and 127
-        Output.set_instrument(instrument_id, channel = 0)
+    def set_instrument(self, instrument_id, channel=0):
+        """select an instrument for a channel, with a value between 0 and 127
+        Output.set_instrument(instrument_id, channel=0)
 
+        Also called "patch change" or "program change".
         """
         if not (0 <= instrument_id <= 127):
             raise ValueError("Undefined instrument id: %d" % instrument_id)
@@ -562,7 +563,7 @@ class Output(object):
         if not (0 <= channel <= 15):
             raise ValueError("Channel not between 0 and 15.")
 
-        self.write_short(0xc0+channel, instrument_id)
+        self.write_short(0xc0 + channel, instrument_id)
 
 
 
