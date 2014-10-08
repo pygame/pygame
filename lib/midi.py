@@ -519,20 +519,21 @@ class Output(object):
         self._output.WriteSysEx(when, msg)
 
 
-    def note_on(self, note, velocity=None, channel = 0):
+    def note_on(self, note, velocity, channel=0):
         """turns a midi note on.  Note must be off.
-        Output.note_on(note, velocity=None, channel = 0)
+        Output.note_on(note, velocity, channel=0)
+
+        note is an integer from 0 to 127
+        velocity is an integer from 0 to 127
+        channel is an integer from 0 to 15
 
         Turn a note on in the output stream.  The note must already
         be off for this to work correctly.
         """
-        if velocity is None:
-            velocity = 0
-
         if not (0 <= channel <= 15):
             raise ValueError("Channel not between 0 and 15.")
 
-        self.write_short(0x90+channel, note, velocity)
+        self.write_short(0x90 + channel, note, velocity)
 
     def note_off(self, note, velocity=0, channel=0):
         """turns a midi note off.  Note must be on.
