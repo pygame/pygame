@@ -37,6 +37,7 @@
 #include <math.h>
 #include <stddef.h>
 #include <string.h>
+#include <assert.h>
 
 /* on some windows platforms math.h doesn't define M_PI */
 #ifndef M_PI
@@ -135,26 +136,17 @@ static PyObject *vector_pos(PyVector *self);
 static int vector_nonzero(PyVector *self);
 static Py_ssize_t vector_len(PyVector *self);
 static PyObject *vector_GetItem(PyVector *self, Py_ssize_t index);
-static int vector_SetItem(PyVector *self, Py_ssize_t index, PyObject *value);
 static PyObject *vector_GetSlice(PyVector *self, Py_ssize_t ilow, Py_ssize_t ihigh);
-static int vector_SetSlice(PyVector *self, Py_ssize_t ilow, Py_ssize_t ihigh, PyObject *v);
 static PyObject *vector_getx (PyVector *self, void *closure);
 static PyObject *vector_gety (PyVector *self, void *closure);
 static PyObject *vector_getz (PyVector *self, void *closure);
 #ifdef PYGAME_MATH_VECTOR_HAVE_W
 static PyObject *vector_getw (PyVector *self, void *closure);
 #endif
-static int vector_setx (PyVector *self, PyObject *value, void *closure);
-static int vector_sety (PyVector *self, PyObject *value, void *closure);
-static int vector_setz (PyVector *self, PyObject *value, void *closure);
-#ifdef PYGAME_MATH_VECTOR_HAVE_W
-static int vector_setw (PyVector *self, PyObject *value, void *closure);
-#endif
 static PyObject *vector_richcompare(PyObject *o1, PyObject *o2, int op);
 static PyObject *vector_length(PyVector *self);
 static PyObject *vector_length_squared(PyVector *self);
 static PyObject *vector_normalize(PyVector *self);
-static PyObject *vector_normalize_ip(PyVector *self);
 static PyObject *vector_dot(PyVector *self, PyObject *other);
 static PyObject *vector_scale_to_length(PyVector *self, PyObject *length);
 static PyObject *vector_slerp(PyVector *self, PyObject *args);
@@ -162,12 +154,10 @@ static PyObject *vector_lerp(PyVector *self, PyObject *args);
 static int _vector_reflect_helper(double *dst_coords, const double *src_coords,
                                   PyObject *normal, int dim, double epsilon);
 static PyObject *vector_reflect(PyVector *self, PyObject *normal);
-static PyObject *vector_reflect_ip(PyVector *self, PyObject *normal);
 static double _vector_distance_helper(PyVector *self, PyObject *other);
 static PyObject *vector_distance_to(PyVector *self, PyObject *other);
 static PyObject *vector_distance_squared_to(PyVector *self, PyObject *other);
 static PyObject *vector_getAttr_swizzle(PyVector *self, PyObject *attr_name);
-static int vector_setAttr_swizzle(PyVector *self, PyObject *attr_name, PyObject *val);
 static PyObject *vector_elementwise(PyVector *self);
 static int _vector_check_snprintf_success(int return_code);
 static PyObject *vector_repr(PyVector *self);
@@ -184,11 +174,10 @@ static int vector2_init(PyVector *self, PyObject *args, PyObject *kwds);
 static int _vector2_rotate_helper(double *dst_coords, const double *src_coords,
                                   double angle, double epsilon);
 static PyObject *vector2_rotate(PyVector *self, PyObject *args);
-static PyObject *vector2_rotate_ip(PyVector *self, PyObject *args);
 static PyObject *vector2_cross(PyVector *self, PyObject *other);
 static PyObject *vector2_angle_to(PyVector *self, PyObject *other);
 static PyObject *vector2_as_polar(PyVector *self);
-static PyObject *vector2_from_polar(PyVector *self, PyObject *args);
+static PyObject *vector2_from_polar(PyObject *cls, PyObject *args);
 
 /* vector3 specific functions */
 static PyObject *vector3_new(PyTypeObject *type, PyObject *args, PyObject *kwds);
@@ -197,11 +186,10 @@ static int _vector3_rotate_helper(double *dst_coords, const double *src_coords,
                                   const double *axis_coords,
                                   double angle, double epsilon);
 static PyObject *vector3_rotate(PyVector *self, PyObject *args);
-static PyObject *vector3_rotate_ip(PyVector *self, PyObject *args);
 static PyObject *vector3_cross(PyVector *self, PyObject *other);
 static PyObject *vector3_angle_to(PyVector *self, PyObject *other);
 static PyObject *vector3_as_spherical(PyVector *self);
-static PyObject *vector3_from_spherical(PyVector *self, PyObject *args);
+static PyObject *vector3_from_spherical(PyObject *cls, PyObject *args);
 
 /* vector iterator functions */
 static void vectoriter_dealloc(vectoriter *it);
@@ -542,12 +530,8 @@ vector_generic_math(PyObject *o1, PyObject *o2, int op)
     else
         op |= OP_ARG_UNKNOWN;
 
-    if (op & OP_INPLACE) {
-         ret = vec;
-        Py_INCREF(ret);
-    }
-    else if (op != (OP_MUL | OP_ARG_VECTOR) &&
-             op != (OP_MUL | OP_ARG_VECTOR | OP_ARG_REVERSE)) {
+    if (op != (OP_MUL | OP_ARG_VECTOR) &&
+        op != (OP_MUL | OP_ARG_VECTOR | OP_ARG_REVERSE)) {
         ret = (PyVector*)PyVector_NEW(dim);
         if (ret == NULL)
             return NULL;
@@ -776,25 +760,6 @@ vector_GetItem(PyVector *self, Py_ssize_t index)
     return PyFloat_FromDouble(self->coords[index]);
 }
 
-static int
-vector_SetItem(PyVector *self, Py_ssize_t index, PyObject *value)
-{
-    if (index < 0 || index >= self->dim) {
-        PyErr_SetString(PyExc_IndexError, "subscript out of range.");
-        return -1;
-    }
-    if (value == NULL) {
-        PyErr_SetString(PyExc_TypeError, "item deletion is not supported");
-        return -1;
-    }
-
-    self->coords[index] = PyFloat_AsDouble(value);
-    if (PyErr_Occurred())
-        return -1;
-    return 0;
-}
-
-
 static PyObject *
 vector_GetSlice(PyVector *self, Py_ssize_t ilow, Py_ssize_t ihigh)
 {
@@ -825,38 +790,6 @@ vector_GetSlice(PyVector *self, Py_ssize_t ilow, Py_ssize_t ihigh)
     return (PyObject *)slice;
 }
 
-static int
-vector_SetSlice(PyVector *self, Py_ssize_t ilow, Py_ssize_t ihigh, PyObject *v)
-{
-    Py_ssize_t i, len;
-    double new_coords[VECTOR_MAX_SIZE];
-
-    if (v == NULL) {
-        PyErr_SetString(PyExc_TypeError,
-                        "Vector object doesn't support item deletion");
-        return -1;
-    }
-
-    if (ilow < 0)
-        ilow = 0;
-    else if (ilow > self->dim)
-        ilow = self->dim;
-    if (ihigh < ilow)
-        ihigh = ilow;
-    else if (ihigh > self->dim)
-        ihigh = self->dim;
-
-    len = ihigh - ilow;
-    if (!PySequence_AsVectorCoords(v, new_coords, len)) {
-        return -1;
-    }
-
-    for (i = 0; i < len; ++i) {
-        self->coords[i + ilow] = new_coords[i];
-    }
-    return 0;
-}
-
 
 static PySequenceMethods vector_as_sequence = {
     (lenfunc)vector_len,             /* sq_length;    __len__ */
@@ -864,8 +797,8 @@ static PySequenceMethods vector_as_sequence = {
     (ssizeargfunc)0,                 /* sq_repeat;    __mul__ */
     (ssizeargfunc)vector_GetItem,    /* sq_item;      __getitem__ */
     (ssizessizeargfunc)vector_GetSlice, /* sq_slice;     __getslice__ */
-    (ssizeobjargproc)vector_SetItem, /* sq_ass_item;  __setitem__ */
-    (ssizessizeobjargproc)vector_SetSlice, /* sq_ass_slice; __setslice__ */
+    (ssizeobjargproc)0,              /* sq_ass_item;  __setitem__ */
+    (ssizessizeobjargproc)0,         /* sq_ass_slice; __setslice__ */
 };
 
 
@@ -936,108 +869,18 @@ vector_subscript (PyVector *self, PyObject *key)
     }
 }
 
-/* Parts of this function are adapted from python's list_ass_subscript */
-static int
-vector_ass_subscript (PyVector *self, PyObject *key, PyObject *value)
-{
-    Py_ssize_t i;
-#if PY_VERSION_HEX >= 0x02050000
-    if (PyIndex_Check (key)) {
-        i = PyNumber_AsSsize_t (key, PyExc_IndexError);
-#else
-    if (PyInt_Check (key) || PyLong_Check (key)) {
-        if (PyInt_Check (key))
-            i = PyInt_AsLong (key);
-        else
-            i = PyLong_AsLong (key);
-#endif
-        if (i == -1 && PyErr_Occurred())
-            return -1;
-        if (i < 0)
-            i += self->dim;
-        return vector_SetItem (self, i, value);
-    }
-    else if (PySlice_Check (key)) {
-        Py_ssize_t start, stop, step, slicelength;
-
-        if (PySlice_GetIndicesEx ((PySliceObject*)key, self->dim,
-                                  &start, &stop, &step, &slicelength) < 0) {
-            return -1;
-        }
-
-        if (step == 1)
-            return vector_SetSlice(self, start, stop, value);
-
-        /* Make sure s[5:2] = [..] inserts at the right place:
-           before 5, not before 2. */
-        if ((step < 0 && start < stop) ||
-            (step > 0 && start > stop))
-            stop = start;
-
-        if (value == NULL) {
-            /* delete slice not supported */
-            PyErr_SetString (PyExc_TypeError,
-                             "Deletion of vector components is not supported.");
-            return -1;
-        }
-        else {
-            /* assign slice */
-            double seqitems[VECTOR_MAX_SIZE];
-            Py_ssize_t cur, i;
-
-            if (!PySequence_AsVectorCoords (value, seqitems, slicelength))
-                return -1;
-            for (cur = start, i = 0; i < slicelength;
-                 cur += step, i++) {
-                self->coords[cur] = seqitems[i];
-            }
-            return 0;
-        }
-    }
-    else {
-        PyErr_Format (PyExc_TypeError,
-                      "list indices must be integers, not %.200s",
-                      key->ob_type->tp_name);
-        return -1;
-    }
-}
-
 static PyMappingMethods vector_as_mapping = {
     (lenfunc)vector_len,                 /* mp_length */
     (binaryfunc)vector_subscript,        /* mp_subscript */
-    (objobjargproc)vector_ass_subscript  /* mp_ass_subscript */
+    (objobjargproc)0                     /* mp_ass_subscript */
 };
 
 
-
-static int
-vector_set_component (PyVector *self, PyObject *value, int component)
-{
-    if (value == NULL) {
-        PyErr_SetString(PyExc_TypeError, "Cannot delete the x attribute");
-        return -1;
-    }
-    if (component >= self->dim) {
-        PyErr_BadInternalCall();
-        return -1;
-    }
-
-    self->coords[component] = PyFloat_AsDouble(value);
-    if (PyErr_Occurred())
-        return -1;
-    return 0;
-}
 
 static PyObject*
 vector_getx (PyVector *self, void *closure)
 {
     return PyFloat_FromDouble(self->coords[0]);
-}
-
-static int
-vector_setx (PyVector *self, PyObject *value, void *closure)
-{
-    return vector_set_component (self, value, 0);
 }
 
 static PyObject*
@@ -1046,22 +889,10 @@ vector_gety (PyVector *self, void *closure)
     return PyFloat_FromDouble(self->coords[1]);
 }
 
-static int
-vector_sety (PyVector *self, PyObject *value, void *closure)
-{
-    return vector_set_component (self, value, 1);
-}
-
 static PyObject*
 vector_getz (PyVector *self, void *closure)
 {
     return PyFloat_FromDouble(self->coords[2]);
-}
-
-static int
-vector_setz (PyVector *self, PyObject *value, void *closure)
-{
-    return vector_set_component (self, value, 2);
 }
 
 #ifdef PYGAME_MATH_VECTOR_HAVE_W
@@ -1069,12 +900,6 @@ static PyObject*
 vector_getw (PyVector *self, void *closure)
 {
     return PyFloat_FromDouble(self->coords[3]);
-}
-
-static int
-vector_setw (PyVector *self, PyObject *value, void *closure)
-{
-    return vector_set_component (self, value, 3);
 }
 #endif
 
@@ -1164,37 +989,26 @@ static PyObject *
 vector_normalize(PyVector *self)
 {
     PyVector *ret;
-
-    ret = (PyVector*)PyVector_NEW(self->dim);
-    if (ret == NULL) {
-        return NULL;
-    }
-    memcpy(ret->coords, self->coords, sizeof(ret->coords[0]) * ret->dim);
-
-    if (!vector_normalize_ip(ret)) {
-        return NULL;
-    }
-    return (PyObject*)ret;
-}
-
-static PyObject *
-vector_normalize_ip(PyVector *self)
-{
     int i;
     double length;
 
     length = sqrt(_scalar_product(self->coords, self->coords, self->dim));
 
-    if (length == 0) {
+    if (length < self->epsilon) {
         PyErr_SetString(PyExc_ValueError,
                         "Can't normalize Vector of length Zero");
         return NULL;
     }
 
-    for (i = 0; i < self->dim; ++i)
-        self->coords[i] /= length;
+    ret = (PyVector*)PyVector_NEW(self->dim);
+    if (ret == NULL) {
+        return NULL;
+    }
 
-    Py_RETURN_NONE;
+    for (i = 0; i < self->dim; ++i)
+        ret->coords[i] = self->coords[i] / length;
+
+    return (PyObject*)ret;
 }
 
 static PyObject *
@@ -1227,6 +1041,7 @@ vector_scale_to_length(PyVector *self, PyObject *length)
     int i;
     double new_length, old_length;
     double fraction;
+    PyVector *ret;
 
     new_length = PyFloat_AsDouble(length);
     if (PyErr_Occurred()) {
@@ -1240,11 +1055,16 @@ vector_scale_to_length(PyVector *self, PyObject *length)
         return NULL;
     }
 
+    ret = (PyVector*)PyVector_NEW(self->dim);
+    if (ret == NULL) {
+        return NULL;
+    }
+
     fraction = new_length / old_length;
     for (i = 0; i < self->dim; ++i)
-        self->coords[i] *= fraction;
+        ret->coords[i] = self->coords[i] * fraction;
 
-    Py_RETURN_NONE;
+    return (PyObject*)ret;
 }
 
 static PyObject *
@@ -1393,19 +1213,6 @@ vector_reflect(PyVector *self, PyObject *normal)
         return NULL;
     }
     return (PyObject *)ret;
-}
-
-static PyObject *
-vector_reflect_ip(PyVector *self, PyObject *normal)
-{
-    double tmp_coords[VECTOR_MAX_SIZE];
-
-    if (!_vector_reflect_helper(tmp_coords, self->coords,
-                                normal, self->dim, self->epsilon)) {
-        return NULL;
-    }
-    memcpy(self->coords, tmp_coords, self->dim * sizeof(tmp_coords[0]));
-    Py_RETURN_NONE;
 }
 
 static double
@@ -1581,87 +1388,6 @@ internal_error:
     return NULL;
 }
 
-static int
-vector_setAttr_swizzle(PyVector *self, PyObject *attr_name, PyObject *val)
-{
-    Py_UNICODE *attr;
-    PyObject *attr_unicode;
-    Py_ssize_t len = PySequence_Length(attr_name);
-    double entry[VECTOR_MAX_SIZE];
-    int entry_was_set[VECTOR_MAX_SIZE];
-    int swizzle_err = SWIZZLE_ERR_NO_ERR;
-    int i;
-
-    /* if swizzling is disabled always default to generic implementation */
-    if (!swizzling_enabled)
-        return PyObject_GenericSetAttr((PyObject*)self, attr_name, val);
-
-    /* if swizzling is enabled first try swizzle */
-    for (i = 0; i < self->dim; ++i)
-        entry_was_set[i] = 0;
-
-    /* handle string and unicode uniformly */
-    attr_unicode = PyUnicode_FromObject(attr_name);
-    if (attr_unicode == NULL)
-        return -1;
-    attr = PyUnicode_AsUnicode(attr_unicode);
-    if (attr == NULL) {
-        Py_DECREF (attr_unicode);
-        return -1;
-    }
-
-    for (i = 0; i < len; ++i) {
-        int idx;
-        switch (attr[i]) {
-        case 'x':
-        case 'y':
-        case 'z':
-            idx = attr[i] - 'x';
-            break;
-        case 'w':
-            idx = 3;
-            break;
-        default:
-            /* swizzle failed. attempt generic attribute setting */
-            Py_DECREF(attr_unicode);
-            return PyObject_GenericSetAttr((PyObject*)self, attr_name, val);
-        }
-        if (idx >= self->dim) {
-            /* swizzle failed. attempt generic attribute setting */
-            Py_DECREF(attr_unicode);
-            return PyObject_GenericSetAttr((PyObject*)self, attr_name, val);
-        }
-        if (entry_was_set[idx])
-            swizzle_err = SWIZZLE_ERR_DOUBLE_IDX;
-        if (swizzle_err == SWIZZLE_ERR_NO_ERR) {
-            entry_was_set[idx] = 1;
-            entry[idx] = PySequence_GetItem_AsDouble(val, i);
-            if (PyErr_Occurred())
-                swizzle_err = SWIZZLE_ERR_EXTRACTION_ERR;
-        }
-    }
-    Py_DECREF(attr_unicode);
-
-    switch (swizzle_err) {
-    case SWIZZLE_ERR_NO_ERR:
-        /* swizzle successful */
-        for (i = 0; i < self->dim; ++i)
-            if (entry_was_set[i])
-                self->coords[i] = entry[i];
-        return 0;
-    case SWIZZLE_ERR_DOUBLE_IDX:
-        PyErr_SetString(PyExc_AttributeError,
-                        "Attribute assignment conflicts with swizzling.");
-        return -1;
-    case SWIZZLE_ERR_EXTRACTION_ERR:
-        /* exception was set by PySequence_GetItem_AsDouble */
-        return -1;
-    default:
-        /* this should NEVER happen and means a bug in the code */
-        PyErr_SetString(PyExc_RuntimeError, "Unhandled error in swizzle code. Please report this bug to pygame-users@seul.org");
-        return -1;
-    }
-}
 
 #if 0
 static Py_ssize_t
@@ -1886,23 +1612,6 @@ vector2_rotate(PyVector *self, PyObject *args)
     return (PyObject*)ret;
 }
 
-static PyObject *
-vector2_rotate_ip(PyVector *self, PyObject *args)
-{
-    double angle;
-    double tmp[2];
-
-    if (!PyArg_ParseTuple(args, "d:rotate_ip", &angle)) {
-        return NULL;
-    }
-
-    tmp[0] = self->coords[0];
-    tmp[1] = self->coords[1];
-    if (!_vector2_rotate_helper(self->coords, tmp, angle, self->epsilon)) {
-        return NULL;
-    }
-    Py_RETURN_NONE;
-}
 
 static PyObject *
 vector2_cross(PyVector *self, PyObject *other)
@@ -1951,22 +1660,22 @@ vector2_as_polar(PyVector *self)
     return Py_BuildValue("(dd)", r, phi);
 }
 
+/* class method */
 static PyObject *
-vector2_from_polar(PyVector *self, PyObject *args)
+vector2_from_polar(PyObject *cls, PyObject *args)
 {
     double r, phi;
     if (!PyArg_ParseTuple(args, "(dd):Vector2.from_polar", &r, &phi)) {
         return NULL;
     }
     phi = DEG2RAD(phi);
-    self->coords[0] = r * cos(phi);
-    self->coords[1] = r * sin(phi);
-
-    Py_RETURN_NONE;
+    return PyObject_CallFunction(cls, "dd", r * cos(phi), r * sin(phi));
 }
 
 
 static PyMethodDef vector2_methods[] = {
+    {"x", (PyCFunction)vector_getx, METH_NOARGS, DOC_VECTORX },
+    {"y", (PyCFunction)vector_gety, METH_NOARGS, DOC_VECTORY },
     {"length", (PyCFunction)vector_length, METH_NOARGS,
      DOC_VECTOR2LENGTH
     },
@@ -1976,9 +1685,6 @@ static PyMethodDef vector2_methods[] = {
     {"rotate", (PyCFunction)vector2_rotate, METH_VARARGS,
      DOC_VECTOR2ROTATE
     },
-    {"rotate_ip", (PyCFunction)vector2_rotate_ip, METH_VARARGS,
-     DOC_VECTOR2ROTATEIP
-    },
     {"slerp", (PyCFunction)vector_slerp, METH_VARARGS,
      DOC_VECTOR2SLERP
     },
@@ -1987,9 +1693,6 @@ static PyMethodDef vector2_methods[] = {
     },
     {"normalize", (PyCFunction)vector_normalize, METH_NOARGS,
      DOC_VECTOR2NORMALIZE
-    },
-    {"normalize_ip", (PyCFunction)vector_normalize_ip, METH_NOARGS,
-     DOC_VECTOR2NORMALIZEIP
     },
     {"is_normalized", (PyCFunction)vector_is_normalized, METH_NOARGS,
      DOC_VECTOR2ISNORMALIZED
@@ -2009,9 +1712,6 @@ static PyMethodDef vector2_methods[] = {
     {"reflect", (PyCFunction)vector_reflect, METH_O,
      DOC_VECTOR2REFLECT
     },
-    {"reflect_ip", (PyCFunction)vector_reflect_ip, METH_O,
-     DOC_VECTOR2REFLECTIP
-    },
     {"distance_to", (PyCFunction)vector_distance_to, METH_O,
      DOC_VECTOR2DISTANCETO
     },
@@ -2024,19 +1724,13 @@ static PyMethodDef vector2_methods[] = {
     {"as_polar", (PyCFunction)vector2_as_polar, METH_NOARGS,
      DOC_VECTOR2ASPOLAR
     },
-    {"from_polar", (PyCFunction)vector2_from_polar, METH_VARARGS,
+    {"from_polar", (PyCFunction)vector2_from_polar, METH_VARARGS | METH_CLASS,
      DOC_VECTOR2FROMPOLAR
     },
 
     {NULL}  /* Sentinel */
 };
 
-
-static PyGetSetDef vector2_getsets[] = {
-    { "x", (getter)vector_getx, (setter)vector_setx, NULL, NULL },
-    { "y", (getter)vector_gety, (setter)vector_sety, NULL, NULL },
-    { NULL, 0, NULL, NULL, NULL }  /* Sentinel */
-};
 
 
 /********************************
@@ -2064,7 +1758,7 @@ static PyTypeObject PyVector2_Type = {
     0,                         /* tp_call */
     (reprfunc)vector_str,      /* tp_str */
     (getattrofunc)vector_getAttr_swizzle, /* tp_getattro */
-    (setattrofunc)vector_setAttr_swizzle, /* tp_setattro */
+    (setattrofunc)0,           /* tp_setattro */
     /* Functions to access object as input/output buffer */
     0,                         /* tp_as_buffer */
     /* Flags to define presence of optional/expanded features */
@@ -2096,7 +1790,7 @@ static PyTypeObject PyVector2_Type = {
     /* Attribute descriptor and subclassing stuff */
     vector2_methods,           /* tp_methods */
     vector_members,            /* tp_members */
-    vector2_getsets,           /* tp_getset */
+    0,                         /* tp_getset */
     0,                         /* tp_base */
     0,                         /* tp_dict */
     0,                         /* tp_descr_get */
@@ -2352,32 +2046,6 @@ vector3_rotate(PyVector *self, PyObject *args)
     return (PyObject*)ret;
 }
 
-static PyObject *
-vector3_rotate_ip(PyVector *self, PyObject *args)
-{
-    PyObject *axis;
-    double axis_coords[3];
-    double angle;
-    double tmp[3];
-
-    if (!PyArg_ParseTuple(args, "dO:rotate_ip", &angle, &axis)) {
-        return NULL;
-    }
-    if (!PyVectorCompatible_Check(axis, self->dim)) {
-        PyErr_SetString(PyExc_TypeError, "axis must be a 3D Vector");
-        return NULL;
-    }
-    if (!PySequence_AsVectorCoords(axis, axis_coords, 3)) {
-        return NULL;
-    }
-
-    memcpy(tmp, self->coords, 3 * sizeof(self->coords[0]));
-    if (!_vector3_rotate_helper(self->coords, tmp, axis_coords,
-                                angle, self->epsilon)) {
-        return NULL;
-    }
-    Py_RETURN_NONE;
-}
 
 static PyObject *
 vector3_rotate_x(PyVector *self, PyObject *angleObject)
@@ -2401,26 +2069,6 @@ vector3_rotate_x(PyVector *self, PyObject *angleObject)
     ret->coords[1] = self->coords[1] * cosValue - self->coords[2] * sinValue;
     ret->coords[2] = self->coords[1] * sinValue + self->coords[2] * cosValue;
     return (PyObject*)ret;
-}
-
-static PyObject *
-vector3_rotate_x_ip(PyVector *self, PyObject *angleObject)
-{
-    double tmp_coords[3];
-    double sinValue, cosValue;
-    double angle;
-
-    angle = DEG2RAD(PyFloat_AsDouble(angleObject));
-    if (PyErr_Occurred()) {
-        return NULL;
-    }
-    sinValue = sin(angle);
-    cosValue = cos(angle);
-    memcpy(tmp_coords, self->coords, 3 * sizeof(tmp_coords[0]));
-
-    self->coords[1] = tmp_coords[1] * cosValue - tmp_coords[2] * sinValue;
-    self->coords[2] = tmp_coords[1] * sinValue + tmp_coords[2] * cosValue;
-    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2449,26 +2097,6 @@ vector3_rotate_y(PyVector *self, PyObject *angleObject)
 }
 
 static PyObject *
-vector3_rotate_y_ip(PyVector *self, PyObject *angleObject)
-{
-    double tmp_coords[3];
-    double sinValue, cosValue;
-    double angle;
-
-    angle = DEG2RAD(PyFloat_AsDouble(angleObject));
-    if (PyErr_Occurred()) {
-        return NULL;
-    }
-    sinValue = sin(angle);
-    cosValue = cos(angle);
-    memcpy(tmp_coords, self->coords, 3 * sizeof(tmp_coords[0]));
-
-    self->coords[0] = tmp_coords[0] * cosValue + tmp_coords[2] * sinValue;
-    self->coords[2] = -tmp_coords[0] * sinValue + tmp_coords[2] * cosValue;
-    Py_RETURN_NONE;
-}
-
-static PyObject *
 vector3_rotate_z(PyVector *self, PyObject *angleObject)
 {
     PyVector *ret;
@@ -2491,26 +2119,6 @@ vector3_rotate_z(PyVector *self, PyObject *angleObject)
     ret->coords[2] = self->coords[2];
 
     return (PyObject*)ret;
-}
-
-static PyObject *
-vector3_rotate_z_ip(PyVector *self, PyObject *angleObject)
-{
-    double tmp_coords[3];
-    double sinValue, cosValue;
-    double angle;
-
-    angle = DEG2RAD(PyFloat_AsDouble(angleObject));
-    if (PyErr_Occurred()) {
-        return NULL;
-    }
-    sinValue = sin(angle);
-    cosValue = cos(angle);
-    memcpy(tmp_coords, self->coords, 3 * sizeof(tmp_coords[0]));
-
-    self->coords[0] = tmp_coords[0] * cosValue - tmp_coords[1] * sinValue;
-    self->coords[1] = tmp_coords[0] * sinValue + tmp_coords[1] * cosValue;
-    Py_RETURN_NONE;
 }
 
 
@@ -2598,24 +2206,35 @@ vector3_as_spherical(PyVector *self)
 }
 
 static PyObject *
-vector3_from_spherical(PyVector *self, PyObject *args)
+vector3_from_spherical(PyObject *cls, PyObject *args)
 {
     double r, theta, phi;
 
-    if (!PyArg_ParseTuple(args, "(ddd):vector3_from_spherical",
+    if (!PyArg_ParseTuple(args, "(ddd):Vector3.from_spherical",
                           &r, &theta, &phi)) {
         return NULL;
     }
     theta = DEG2RAD(theta);
     phi = DEG2RAD(phi);
-    self->coords[0] = r * sin(theta) * cos(phi);
-    self->coords[1] = r * sin(theta) * sin(phi);
-    self->coords[2] = r * cos(theta);
+    return PyObject_CallFunction(cls, "ddd", r * sin(theta) * cos(phi),
+                                 r * sin(theta) * sin(phi), r * cos(theta));
 
-    Py_RETURN_NONE;
+/*    new_args = Py_BuildValue("(ddd)", r * sin(theta) * cos(phi),
+                             r * sin(theta) * sin(phi), r * cos(theta));
+    if (!new_args) {
+        return NULL;
+    }
+    ret = PyInstance_New(cls, new_args, NULL);
+//    ret = PyType_GenericNew(cls, new_args, NULL);
+    Py_XDECREF(new_args);
+    return ret;*/
 }
 
+
 static PyMethodDef vector3_methods[] = {
+    {"x", (PyCFunction)vector_getx, METH_NOARGS, DOC_VECTORX},
+    {"y", (PyCFunction)vector_gety, METH_NOARGS, DOC_VECTORY},
+    {"z", (PyCFunction)vector_getz, METH_NOARGS, DOC_VECTORZ},
     {"length", (PyCFunction)vector_length, METH_NOARGS,
      DOC_VECTOR3LENGTH
     },
@@ -2625,26 +2244,14 @@ static PyMethodDef vector3_methods[] = {
     {"rotate", (PyCFunction)vector3_rotate, METH_VARARGS,
      DOC_VECTOR3ROTATE
     },
-    {"rotate_ip", (PyCFunction)vector3_rotate_ip, METH_VARARGS,
-     DOC_VECTOR3ROTATEIP
-    },
     {"rotate_x", (PyCFunction)vector3_rotate_x, METH_O,
      DOC_VECTOR3ROTATEX
-    },
-    {"rotate_x_ip", (PyCFunction)vector3_rotate_x_ip, METH_O,
-     DOC_VECTOR3ROTATEXIP
     },
     {"rotate_y", (PyCFunction)vector3_rotate_y, METH_O,
      DOC_VECTOR3ROTATEY
     },
-    {"rotate_y_ip", (PyCFunction)vector3_rotate_y_ip, METH_O,
-     DOC_VECTOR3ROTATEYIP
-    },
     {"rotate_z", (PyCFunction)vector3_rotate_z, METH_O,
      DOC_VECTOR3ROTATEZ
-    },
-    {"rotate_z_ip", (PyCFunction)vector3_rotate_z_ip, METH_O,
-     DOC_VECTOR3ROTATEZIP
     },
     {"slerp", (PyCFunction)vector_slerp, METH_VARARGS,
      DOC_VECTOR3SLERP
@@ -2654,9 +2261,6 @@ static PyMethodDef vector3_methods[] = {
     },
     {"normalize", (PyCFunction)vector_normalize, METH_NOARGS,
      DOC_VECTOR3NORMALIZE
-    },
-    {"normalize_ip", (PyCFunction)vector_normalize_ip, METH_NOARGS,
-     DOC_VECTOR3NORMALIZEIP
     },
     {"is_normalized", (PyCFunction)vector_is_normalized, METH_NOARGS,
      DOC_VECTOR3ISNORMALIZED
@@ -2676,9 +2280,6 @@ static PyMethodDef vector3_methods[] = {
     {"reflect", (PyCFunction)vector_reflect, METH_O,
      DOC_VECTOR3REFLECT
     },
-    {"reflect_ip", (PyCFunction)vector_reflect_ip, METH_O,
-     DOC_VECTOR3REFLECTIP
-    },
     {"distance_to", (PyCFunction)vector_distance_to, METH_O,
      DOC_VECTOR3DISTANCETO
     },
@@ -2691,19 +2292,14 @@ static PyMethodDef vector3_methods[] = {
     {"as_spherical", (PyCFunction)vector3_as_spherical, METH_NOARGS,
      DOC_VECTOR3ASSPHERICAL
     },
-    {"from_spherical", (PyCFunction)vector3_from_spherical, METH_VARARGS,
+    {"from_spherical", (PyCFunction)vector3_from_spherical, METH_VARARGS | METH_CLASS,
      DOC_VECTOR3FROMSPHERICAL
     },
 
     {NULL}  /* Sentinel */
 };
 
-static PyGetSetDef vector3_getsets[] = {
-    { "x", (getter)vector_getx, (setter)vector_setx, NULL, NULL },
-    { "y", (getter)vector_gety, (setter)vector_sety, NULL, NULL },
-    { "z", (getter)vector_getz, (setter)vector_setz, NULL, NULL },
-    { NULL, 0, NULL, NULL, NULL }  /* Sentinel */
-};
+
 
 /********************************
  * PyVector3 type definition
@@ -2730,7 +2326,7 @@ static PyTypeObject PyVector3_Type = {
     0,                         /* tp_call */
     (reprfunc)vector_str,      /* tp_str */
     (getattrofunc)vector_getAttr_swizzle, /* tp_getattro */
-    (setattrofunc)vector_setAttr_swizzle, /* tp_setattro */
+    (setattrofunc)0,           /* tp_setattro */
     /* Functions to access object as input/output buffer */
     0,                         /* tp_as_buffer */
     /* Flags to define presence of optional/expanded features */
@@ -2762,7 +2358,7 @@ static PyTypeObject PyVector3_Type = {
     /* Attribute descriptor and subclassing stuff */
     vector3_methods,           /* tp_methods */
     vector_members,            /* tp_members */
-    vector3_getsets,           /* tp_getset */
+    0,                         /* tp_getset */
     0,                         /* tp_base */
     0,                         /* tp_dict */
     0,                         /* tp_descr_get */

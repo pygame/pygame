@@ -21,6 +21,12 @@ In addition vec*vec will perform a scalar-product (a.k.a. dot-product). If you
 want to multiply every element from vector v with every element from vector w
 you can use the elementwise method: ``v.elementwise()`` ``\*`` w
 
+Furthermore, element access is provided via the sequence notation
+(``Vector3()[1]``) or accessor methods (``Vector3().y()``). It is
+however noteworthy that Vectors are immutable. In other words they
+behave more like tuple or strings than like lists.  For example ``a =
+b = Vector2()`` you can safely change ``b`` without affecting ``a``.
+
 New in Pygame 1.10
 
 .. function:: enable_swizzling
@@ -52,6 +58,20 @@ New in Pygame 1.10
    | :sg:`Vector2((x, y)) -> Vector2`
 
    Some general information about the Vector2 class.
+
+   .. method:: x
+
+      | :sl:`return the first component of the vector`
+      | :sg:`x() -> float`
+
+      .. ## Vector2.x ##
+
+   .. method:: y
+
+      | :sl:`return the second component of the vector`
+      | :sg:`y() -> float`
+
+      .. ## Vector2.y ##
 
    .. method:: dot
 
@@ -100,16 +120,6 @@ New in Pygame 1.10
 
       .. ## Vector2.normalize ##
 
-   .. method:: normalize_ip
-
-      | :sl:`normalizes the vector in place so that its length is 1.`
-      | :sg:`normalize_ip() -> None`
-
-      Normalizes the vector so that it has length == 1. The direction of the
-      vector is not changed.
-
-      .. ## Vector2.normalize_ip ##
-
    .. method:: is_normalized
 
       | :sl:`tests if the vector is normalized i.e. has length == 1.`
@@ -121,12 +131,12 @@ New in Pygame 1.10
 
    .. method:: scale_to_length
 
-      | :sl:`scales the vector to a given length.`
-      | :sg:`scale_to_length(float) -> None`
+      | :sl:`returns a vector in the direction of self and magnitude length.`
+      | :sg:`scale_to_length(float) -> Vector2`
 
-      Scales the vector so that it has the given length. The direction of the
-      vector is not changed. You can also scale to length 0. If the vector is
-      the zero vector (i.e. has length 0 thus no direction) an
+      Returns a Vector that points in the direction of self and has
+      the given length. You can also scale to length 0. If the vector
+      is the zero vector (i.e. has length 0 thus no direction) an
       ZeroDivisionError is raised.
 
       .. ## Vector2.scale_to_length ##
@@ -141,16 +151,6 @@ New in Pygame 1.10
       new vector is the same as self's.
 
       .. ## Vector2.reflect ##
-
-   .. method:: reflect_ip
-
-      | :sl:`reflect the vector of a given normal in place.`
-      | :sg:`reflect_ip(Vector2) -> None`
-
-      Changes the direction of self as if it would have been reflected of a
-      surface with the given surface normal.
-
-      .. ## Vector2.reflect_ip ##
 
    .. method:: distance_to
 
@@ -210,16 +210,6 @@ New in Pygame 1.10
 
       .. ## Vector2.rotate ##
 
-   .. method:: rotate_ip
-
-      | :sl:`rotates the vector by a given angle in degrees in place.`
-      | :sg:`rotate_ip(float) -> None`
-
-      Rotates the vector counterclockwise by the given angle in degrees. The
-      length of the vector is not changed.
-
-      .. ## Vector2.rotate_ip ##
-
    .. method:: angle_to
 
       | :sl:`calculates the angle to a given vector in degrees.`
@@ -239,13 +229,13 @@ New in Pygame 1.10
 
       .. ## Vector2.as_polar ##
 
-   .. method:: from_polar
+   .. classmethod:: from_polar
 
-      | :sl:`Sets x and y from a polar coordinates tuple.`
-      | :sg:`from_polar((r, phi)) -> None`
+      | :sl:`Creates a new Vector from a radius and an angle.`
+      | :sg:`from_polar((r, phi)) -> Vector2`
 
-      Sets x and y from a tuple (r, phi) where r is the radial distance, and
-      phi is the azimuthal angle.
+      Creates a new Vector from a tuple (r, phi) where r is the radial
+      distance, and phi is the azimuthal angle.
 
       .. ## Vector2.from_polar ##
 
@@ -260,6 +250,27 @@ New in Pygame 1.10
    | :sg:`Vector3((x, y, z)) -> Vector3`
 
    Some general information about the Vector3 class.
+
+   .. method:: x
+
+      | :sl:`return the first component of the vector`
+      | :sg:`x() -> float`
+
+      .. ## Vector3.x ##
+
+   .. method:: y
+
+      | :sl:`return the second component of the vector`
+      | :sg:`y() -> float`
+
+      .. ## Vector3.y ##
+
+   .. method:: z
+
+      | :sl:`return the third component of the vector`
+      | :sg:`z() -> float`
+
+      .. ## Vector3.z ##
 
    .. method:: dot
 
@@ -309,16 +320,6 @@ New in Pygame 1.10
 
       .. ## Vector3.normalize ##
 
-   .. method:: normalize_ip
-
-      | :sl:`normalizes the vector in place so that its length is 1.`
-      | :sg:`normalize_ip() -> None`
-
-      Normalizes the vector so that it has length == 1. The direction of the
-      vector is not changed.
-
-      .. ## Vector3.normalize_ip ##
-
    .. method:: is_normalized
 
       | :sl:`tests if the vector is normalized i.e. has length == 1.`
@@ -350,16 +351,6 @@ New in Pygame 1.10
       new vector is the same as self's.
 
       .. ## Vector3.reflect ##
-
-   .. method:: reflect_ip
-
-      | :sl:`reflect the vector of a given normal in place.`
-      | :sg:`reflect_ip(Vector3) -> None`
-
-      Changes the direction of self as if it would have been reflected of a
-      surface with the given surface normal.
-
-      .. ## Vector3.reflect_ip ##
 
    .. method:: distance_to
 
@@ -419,16 +410,6 @@ New in Pygame 1.10
 
       .. ## Vector3.rotate ##
 
-   .. method:: rotate_ip
-
-      | :sl:`rotates the vector by a given angle in degrees in place.`
-      | :sg:`rotate_ip(Vector3, float) -> None`
-
-      Rotates the vector counterclockwise around the given axis by the given
-      angle in degrees. The length of the vector is not changed.
-
-      .. ## Vector3.rotate_ip ##
-
    .. method:: rotate_x
 
       | :sl:`rotates a vector around the x-axis by the angle in degrees.`
@@ -438,16 +419,6 @@ New in Pygame 1.10
       counterclockwise around the x-axis by the given angle in degrees.
 
       .. ## Vector3.rotate_x ##
-
-   .. method:: rotate_x_ip
-
-      | :sl:`rotates the vector around the x-axis by the angle in degrees in place.`
-      | :sg:`rotate_x_ip(float) -> None`
-
-      Rotates the vector counterclockwise around the x-axis by the given angle
-      in degrees. The length of the vector is not changed.
-
-      .. ## Vector3.rotate_x_ip ##
 
    .. method:: rotate_y
 
@@ -459,16 +430,6 @@ New in Pygame 1.10
 
       .. ## Vector3.rotate_y ##
 
-   .. method:: rotate_y_ip
-
-      | :sl:`rotates the vector around the y-axis by the angle in degrees in place.`
-      | :sg:`rotate_y_ip(float) -> None`
-
-      Rotates the vector counterclockwise around the y-axis by the given angle
-      in degrees. The length of the vector is not changed.
-
-      .. ## Vector3.rotate_y_ip ##
-
    .. method:: rotate_z
 
       | :sl:`rotates a vector around the z-axis by the angle in degrees.`
@@ -478,16 +439,6 @@ New in Pygame 1.10
       counterclockwise around the z-axis by the given angle in degrees.
 
       .. ## Vector3.rotate_z ##
-
-   .. method:: rotate_z_ip
-
-      | :sl:`rotates the vector around the z-axis by the angle in degrees in place.`
-      | :sg:`rotate_z_ip(float) -> None`
-
-      Rotates the vector counterclockwise around the z-axis by the given angle
-      in degrees. The length of the vector is not changed.
-
-      .. ## Vector3.rotate_z_ip ##
 
    .. method:: angle_to
 
@@ -508,12 +459,12 @@ New in Pygame 1.10
 
       .. ## Vector3.as_spherical ##
 
-   .. method:: from_spherical
+   .. classmethod:: from_spherical
 
-      | :sl:`Sets x, y and z from a spherical coordinates 3-tuple.`
-      | :sg:`from_spherical((r, theta, phi)) -> None`
+      | :sl:`Create a new Vector from a spherical coordinates 3-tuple.`
+      | :sg:`from_spherical((r, theta, phi)) -> Vector3`
 
-      Sets x, y and z from a tuple (r, theta, phi) where r is the radial
+      Creates a new Vector3 from a tuple (r, theta, phi) where r is the radial
       distance, theta is the inclination angle and phi is the azimuthal angle.
 
       .. ## Vector3.from_spherical ##

@@ -346,4 +346,4 @@ copy_reg.pickle(Color, __color_reduce, __color_constructor)
 
 
 #cleanup namespace
-del pygame, os, sys, surflock, MissingModule, copy_reg, geterror
+del pygame, os, sys, MissingModule, copy_reg, geterror
