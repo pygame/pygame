@@ -12,21 +12,26 @@
 might change. Please report bug and suggestions to pygame-users@seul.org
 
 The pygame math module currently provides Vector classes in two and three
-dimensions, Vector2 and Vector3 respectively.
+dimensions, :py:class:`Vector2` and :py:class:`Vector3` respectively.
 
 They support the following numerical operations: vec+vec, vec-vec, vec*number,
 number*vec, vec/number, vec//number, vec+=vec, vec-=vec, vec*=number,
 vec/=number, vec//=number. All these operations will be performed elementwise.
 In addition vec*vec will perform a scalar-product (a.k.a. dot-product). If you
 want to multiply every element from vector v with every element from vector w
-you can use the elementwise method: ``v.elementwise()`` ``\*`` w
+you can use the elementwise method: v.elementwise() * w
 
 Furthermore, element access is provided via the sequence notation
-(``Vector3()[1]``) or accessor methods (``Vector3().y()``). It is
-however noteworthy that Vectors are immutable. In other words they
-behave more like tuple or strings than like lists.  For example ``a =
-b = Vector2()`` you can safely change ``b`` without affecting ``a``.
+(``Vector3()[1]``) or direct (read-only) attribute access
+(``Vector3().y``).
 
+Vectors are immutable. In other words they behave more like tuple or
+strings than like lists.  For example::
+ 
+  a = b = Vector2(1, 2)
+  a += Vector2(3, 4)    # b is unaffected by the change to a
+  assert a == Vector2(4, 6) and b == Vector2(1, 2)
+  
 New in Pygame 1.10
 
 .. function:: enable_swizzling
