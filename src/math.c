@@ -62,7 +62,7 @@
 #define OP_FLOOR_DIV    9
 /* #define OP_IFLOOR_DIV  10 */
 #define OP_MOD         11
-#define OP_INPLACE     16
+//#define OP_INPLACE     16   // not needed for immutable objects
 #define OP_ARG_REVERSE 32
 #define OP_ARG_UNKNOWN 64
 #define OP_ARG_VECTOR 128
@@ -126,11 +126,6 @@ static PyObject *vector_sub(PyObject *o1, PyObject *o2);
 static PyObject *vector_mul(PyObject *o1, PyObject *o2);
 static PyObject *vector_div(PyVector *self, PyObject *other);
 static PyObject *vector_floor_div(PyVector *self, PyObject *other);
-static PyObject *vector_inplace_add(PyVector *self, PyObject *other);
-static PyObject *vector_inplace_sub(PyVector *self, PyObject *other);
-static PyObject *vector_inplace_mul(PyVector *self, PyObject *other);
-static PyObject *vector_inplace_div(PyVector *self, PyObject *other);
-static PyObject *vector_inplace_floor_div(PyVector *self, PyObject *other);
 static PyObject *vector_neg(PyVector *self);
 static PyObject *vector_pos(PyVector *self);
 static int vector_nonzero(PyVector *self);
@@ -540,12 +535,10 @@ vector_generic_math(PyObject *o1, PyObject *o2, int op)
     switch (op) {
     case OP_ADD | OP_ARG_VECTOR:
     case OP_ADD | OP_ARG_VECTOR | OP_ARG_REVERSE:
-    case OP_ADD | OP_ARG_VECTOR | OP_INPLACE:
         for (i = 0; i < dim; i++)
             ret->coords[i] = vec_coords[i] + other_coords[i];
         break;
     case OP_SUB | OP_ARG_VECTOR:
-    case OP_SUB | OP_ARG_VECTOR | OP_INPLACE:
         for (i = 0; i < dim; i++)
             ret->coords[i] = vec_coords[i] - other_coords[i];
         break;
@@ -562,13 +555,11 @@ vector_generic_math(PyObject *o1, PyObject *o2, int op)
         break;
     case OP_MUL | OP_ARG_NUMBER:
     case OP_MUL | OP_ARG_NUMBER | OP_ARG_REVERSE:
-    case OP_MUL | OP_ARG_NUMBER | OP_INPLACE:
         tmp = PyFloat_AsDouble(other);
         for (i = 0; i < dim; i++)
             ret->coords[i] = vec_coords[i] * tmp;
         break;
     case OP_DIV | OP_ARG_NUMBER:
-    case OP_DIV | OP_ARG_NUMBER | OP_INPLACE:
         tmp = PyFloat_AsDouble(other);
         if (tmp == 0.) {
             PyErr_SetString(PyExc_ZeroDivisionError, "division by zero");
@@ -580,7 +571,6 @@ vector_generic_math(PyObject *o1, PyObject *o2, int op)
             ret->coords[i] = vec_coords[i] * tmp;
         break;
     case OP_FLOOR_DIV | OP_ARG_NUMBER:
-    case OP_FLOOR_DIV | OP_ARG_NUMBER | OP_INPLACE:
         tmp = PyFloat_AsDouble(other);
         if (tmp == 0.) {
             PyErr_SetString(PyExc_ZeroDivisionError, "division by zero");
@@ -606,19 +596,9 @@ vector_add(PyObject *o1, PyObject *o2)
     return vector_generic_math(o1, o2, OP_ADD);
 }
 static PyObject *
-vector_inplace_add(PyVector *o1, PyObject *o2)
-{
-    return vector_generic_math((PyObject*)o1, o2, OP_ADD | OP_INPLACE);
-}
-static PyObject *
 vector_sub(PyObject *o1, PyObject *o2)
 {
     return vector_generic_math(o1, o2, OP_SUB);
-}
-static PyObject *
-vector_inplace_sub(PyVector *o1, PyObject *o2)
-{
-    return vector_generic_math((PyObject*)o1, o2, OP_SUB | OP_INPLACE);
 }
 static PyObject *
 vector_mul(PyObject *o1, PyObject *o2)
@@ -626,29 +606,14 @@ vector_mul(PyObject *o1, PyObject *o2)
     return vector_generic_math(o1, o2, OP_MUL);
 }
 static PyObject *
-vector_inplace_mul(PyVector *o1, PyObject *o2)
-{
-    return vector_generic_math((PyObject*)o1, o2, OP_MUL | OP_INPLACE);
-}
-static PyObject *
 vector_div(PyVector *o1, PyObject *o2)
 {
     return vector_generic_math((PyObject*)o1, o2, OP_DIV);
 }
 static PyObject *
-vector_inplace_div(PyVector *o1, PyObject *o2)
-{
-    return vector_generic_math((PyObject*)o1, o2, OP_DIV | OP_INPLACE);
-}
-static PyObject *
 vector_floor_div(PyVector *o1, PyObject *o2)
 {
     return vector_generic_math((PyObject*)o1, o2, OP_FLOOR_DIV);
-}
-static PyObject *
-vector_inplace_floor_div(PyVector *o1, PyObject *o2)
-{
-    return vector_generic_math((PyObject*)o1, o2, OP_FLOOR_DIV | OP_INPLACE);
 }
 
 static PyObject *
@@ -717,11 +682,11 @@ static PyNumberMethods vector_as_number = {
     (unaryfunc)0,                   /* nb_hex;       __hex__ */
 #endif
     /* Added in release 2.0 */
-    (binaryfunc)vector_inplace_add, /* nb_inplace_add;       __iadd__ */
-    (binaryfunc)vector_inplace_sub, /* nb_inplace_subtract;  __isub__ */
-    (binaryfunc)vector_inplace_mul, /* nb_inplace_multiply;  __imul__ */
+    (binaryfunc)0,                  /* nb_inplace_add;       __iadd__ */
+    (binaryfunc)0,                  /* nb_inplace_subtract;  __isub__ */
+    (binaryfunc)0,                  /* nb_inplace_multiply;  __imul__ */
 #if !PY3
-    (binaryfunc)vector_inplace_div, /* nb_inplace_divide;    __idiv__ */
+    (binaryfunc)0,                  /* nb_inplace_divide;    __idiv__ */
 #endif
     (binaryfunc)0,                  /* nb_inplace_remainder; __imod__ */
     (ternaryfunc)0,                 /* nb_inplace_power;     __pow__ */
@@ -734,8 +699,8 @@ static PyNumberMethods vector_as_number = {
     /* Added in release 2.2 */
     (binaryfunc)vector_floor_div,   /* nb_floor_divide;         __floor__ */
     (binaryfunc)vector_div,         /* nb_true_divide;          __truediv__ */
-    (binaryfunc)vector_inplace_floor_div, /* nb_inplace_floor_divide; __ifloor__ */
-    (binaryfunc)vector_inplace_div, /* nb_inplace_true_divide;  __itruediv__ */
+    (binaryfunc)0,                  /* nb_inplace_floor_divide; __ifloor__ */
+    (binaryfunc)0,                  /* nb_inplace_true_divide;  __itruediv__ */
 };
 
 
