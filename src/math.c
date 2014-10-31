@@ -1674,8 +1674,6 @@ vector2_from_polar(PyObject *cls, PyObject *args)
 
 
 static PyMethodDef vector2_methods[] = {
-    {"x", (PyCFunction)vector_getx, METH_NOARGS, DOC_VECTORX },
-    {"y", (PyCFunction)vector_gety, METH_NOARGS, DOC_VECTORY },
     {"length", (PyCFunction)vector_length, METH_NOARGS,
      DOC_VECTOR2LENGTH
     },
@@ -1731,6 +1729,12 @@ static PyMethodDef vector2_methods[] = {
     {NULL}  /* Sentinel */
 };
 
+
+static PyGetSetDef vector2_getsets[] = {
+    { "x", (getter)vector_getx, NULL, DOC_VECTORX, NULL },
+    { "y", (getter)vector_gety, NULL, DOC_VECTORY, NULL },
+    { NULL, 0, NULL, NULL, NULL }  /* Sentinel */
+};
 
 
 /********************************
@@ -1790,7 +1794,7 @@ static PyTypeObject PyVector2_Type = {
     /* Attribute descriptor and subclassing stuff */
     vector2_methods,           /* tp_methods */
     vector_members,            /* tp_members */
-    0,                         /* tp_getset */
+    vector2_getsets,           /* tp_getset */
     0,                         /* tp_base */
     0,                         /* tp_dict */
     0,                         /* tp_descr_get */
@@ -2232,9 +2236,6 @@ vector3_from_spherical(PyObject *cls, PyObject *args)
 
 
 static PyMethodDef vector3_methods[] = {
-    {"x", (PyCFunction)vector_getx, METH_NOARGS, DOC_VECTORX},
-    {"y", (PyCFunction)vector_gety, METH_NOARGS, DOC_VECTORY},
-    {"z", (PyCFunction)vector_getz, METH_NOARGS, DOC_VECTORZ},
     {"length", (PyCFunction)vector_length, METH_NOARGS,
      DOC_VECTOR3LENGTH
     },
@@ -2300,6 +2301,13 @@ static PyMethodDef vector3_methods[] = {
 };
 
 
+static PyGetSetDef vector3_getsets[] = {
+    { "x", (getter)vector_getx, NULL, DOC_VECTORX, NULL },
+    { "y", (getter)vector_gety, NULL, DOC_VECTORY, NULL },
+    { "z", (getter)vector_getz, NULL, DOC_VECTORZ, NULL },
+    { NULL, 0, NULL, NULL, NULL }  /* Sentinel */
+};
+
 
 /********************************
  * PyVector3 type definition
@@ -2358,7 +2366,7 @@ static PyTypeObject PyVector3_Type = {
     /* Attribute descriptor and subclassing stuff */
     vector3_methods,           /* tp_methods */
     vector_members,            /* tp_members */
-    0,                         /* tp_getset */
+    vector3_getsets,           /* tp_getset */
     0,                         /* tp_base */
     0,                         /* tp_dict */
     0,                         /* tp_descr_get */

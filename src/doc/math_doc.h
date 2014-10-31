@@ -7,9 +7,11 @@
 
 #define DOC_PYGAMEMATHVECTOR2 "Vector2() -> Vector2\nVector2(Vector2) -> Vector2\nVector2(x, y) -> Vector2\nVector2((x, y)) -> Vector2\na 2-Dimensional Vector"
 
-#define DOC_VECTOR2X "x() -> float\nreturn the first component of the vector"
+#define DOC_VECTORX "read-only access to the vector's first component"
 
-#define DOC_VECTOR2Y "y() -> float\nreturn the second component of the vector"
+#define DOC_VECTORY "read-only access to the vector's second component"
+
+#define DOC_VECTORZ "read-only access to the vector's third component"
 
 #define DOC_VECTOR2DOT "dot(Vector2) -> float\ncalculates the dot- or scalar-product with the other vector"
 

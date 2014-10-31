@@ -48,39 +48,39 @@ class Vector2TypeTest(unittest.TestCase):
         
     def testConstructionDefault(self):
         v = Vector2()
-        self.assertEqual(v.x(), 0.)
-        self.assertEqual(v.y(), 0.)
+        self.assertEqual(v.x, 0.)
+        self.assertEqual(v.y, 0.)
 
     def testConstructionXY(self):
         v = Vector2(1.2, 3.4)
-        self.assertEqual(v.x(), 1.2)
-        self.assertEqual(v.y(), 3.4)
+        self.assertEqual(v.x, 1.2)
+        self.assertEqual(v.y, 3.4)
 
     def testConstructionTuple(self):
         v = Vector2((1.2, 3.4))
-        self.assertEqual(v.x(), 1.2)
-        self.assertEqual(v.y(), 3.4)
+        self.assertEqual(v.x, 1.2)
+        self.assertEqual(v.y, 3.4)
 
     def testConstructionList(self):
         v = Vector2([1.2, 3.4])
-        self.assertEqual(v.x(), 1.2)
-        self.assertEqual(v.y(), 3.4)
+        self.assertEqual(v.x, 1.2)
+        self.assertEqual(v.y, 3.4)
 
     def testConstructionVector2(self):
         v = Vector2(Vector2(1.2, 3.4))
-        self.assertEqual(v.x(), 1.2)
-        self.assertEqual(v.y(), 3.4)
+        self.assertEqual(v.x, 1.2)
+        self.assertEqual(v.y, 3.4)
 
     def testAttributeAccess(self):
-        tmp = self.v1.x()
-        self.assertEqual(tmp, self.v1.x())
+        tmp = self.v1.x
+        self.assertEqual(tmp, self.v1.x)
         self.assertEqual(tmp, self.v1[0])
-        tmp = self.v1.y()
-        self.assertEqual(tmp, self.v1.y())
+        tmp = self.v1.y
+        self.assertEqual(tmp, self.v1.y)
         self.assertEqual(tmp, self.v1[1])
         self.v1 = Vector2(3.141, 2.718)
-        self.assertEqual(self.v1.x(), 3.141)
-        self.assertEqual(self.v1.y(), 2.718)
+        self.assertEqual(self.v1.x, 3.141)
+        self.assertEqual(self.v1.y, 2.718)
         def assign_nonfloat():
             v = Vector2("spam", "eggs")
         self.assertRaises(ValueError, assign_nonfloat)
@@ -158,65 +158,65 @@ class Vector2TypeTest(unittest.TestCase):
     def testAdd(self):
         v3 = self.v1 + self.v2
         self.assert_(isinstance(v3, type(self.v1)))
-        self.assertEqual(v3.x(), self.v1.x() + self.v2.x())
-        self.assertEqual(v3.y(), self.v1.y() + self.v2.y())
+        self.assertEqual(v3.x, self.v1.x + self.v2.x)
+        self.assertEqual(v3.y, self.v1.y + self.v2.y)
         v3 = self.v1 + self.t2
         self.assert_(isinstance(v3, type(self.v1)))
-        self.assertEqual(v3.x(), self.v1.x() + self.t2[0])
-        self.assertEqual(v3.y(), self.v1.y() + self.t2[1])
+        self.assertEqual(v3.x, self.v1.x + self.t2[0])
+        self.assertEqual(v3.y, self.v1.y + self.t2[1])
         v3 = self.v1 + self.l2
         self.assert_(isinstance(v3, type(self.v1)))
-        self.assertEqual(v3.x(), self.v1.x() + self.l2[0])
-        self.assertEqual(v3.y(), self.v1.y() + self.l2[1])
+        self.assertEqual(v3.x, self.v1.x + self.l2[0])
+        self.assertEqual(v3.y, self.v1.y + self.l2[1])
         v3 = self.t1 + self.v2
         self.assert_(isinstance(v3, type(self.v1)))
-        self.assertEqual(v3.x(), self.t1[0] + self.v2.x())
-        self.assertEqual(v3.y(), self.t1[1] + self.v2.y())
+        self.assertEqual(v3.x, self.t1[0] + self.v2.x)
+        self.assertEqual(v3.y, self.t1[1] + self.v2.y)
         v3 = self.l1 + self.v2
         self.assert_(isinstance(v3, type(self.v1)))
-        self.assertEqual(v3.x(), self.l1[0] + self.v2.x())
-        self.assertEqual(v3.y(), self.l1[1] + self.v2.y())
+        self.assertEqual(v3.x, self.l1[0] + self.v2.x)
+        self.assertEqual(v3.y, self.l1[1] + self.v2.y)
 
     def testSub(self):
         v3 = self.v1 - self.v2
         self.assert_(isinstance(v3, type(self.v1)))
-        self.assertEqual(v3.x(), self.v1.x() - self.v2.x())
-        self.assertEqual(v3.y(), self.v1.y() - self.v2.y())
+        self.assertEqual(v3.x, self.v1.x - self.v2.x)
+        self.assertEqual(v3.y, self.v1.y - self.v2.y)
         v3 = self.v1 - self.t2
         self.assert_(isinstance(v3, type(self.v1)))
-        self.assertEqual(v3.x(), self.v1.x() - self.t2[0])
-        self.assertEqual(v3.y(), self.v1.y() - self.t2[1])
+        self.assertEqual(v3.x, self.v1.x - self.t2[0])
+        self.assertEqual(v3.y, self.v1.y - self.t2[1])
         v3 = self.v1 - self.l2
         self.assert_(isinstance(v3, type(self.v1)))
-        self.assertEqual(v3.x(), self.v1.x() - self.l2[0])
-        self.assertEqual(v3.y(), self.v1.y() - self.l2[1])
+        self.assertEqual(v3.x, self.v1.x - self.l2[0])
+        self.assertEqual(v3.y, self.v1.y - self.l2[1])
         v3 = self.t1 - self.v2
         self.assert_(isinstance(v3, type(self.v1)))
-        self.assertEqual(v3.x(), self.t1[0] - self.v2.x())
-        self.assertEqual(v3.y(), self.t1[1] - self.v2.y())
+        self.assertEqual(v3.x, self.t1[0] - self.v2.x)
+        self.assertEqual(v3.y, self.t1[1] - self.v2.y)
         v3 = self.l1 - self.v2
         self.assert_(isinstance(v3, type(self.v1)))
-        self.assertEqual(v3.x(), self.l1[0] - self.v2.x())
-        self.assertEqual(v3.y(), self.l1[1] - self.v2.y())
+        self.assertEqual(v3.x, self.l1[0] - self.v2.x)
+        self.assertEqual(v3.y, self.l1[1] - self.v2.y)
 
     def testScalarMultiplication(self):
         v = self.s1 * self.v1
         self.assert_(isinstance(v, type(self.v1)))
-        self.assertEqual(v.x(), self.s1 * self.v1.x())
-        self.assertEqual(v.y(), self.s1 * self.v1.y())
+        self.assertEqual(v.x, self.s1 * self.v1.x)
+        self.assertEqual(v.y, self.s1 * self.v1.y)
         v = self.v1 * self.s2
-        self.assertEqual(v.x(), self.v1.x() * self.s2)
-        self.assertEqual(v.y(), self.v1.y() * self.s2)
+        self.assertEqual(v.x, self.v1.x * self.s2)
+        self.assertEqual(v.y, self.v1.y * self.s2)
 
     def testScalarDivision(self):
         v = self.v1 / self.s1
         self.assert_(isinstance(v, type(self.v1)))
-        self.assertAlmostEqual(v.x(), self.v1.x() / self.s1)
-        self.assertAlmostEqual(v.y(), self.v1.y() / self.s1)
+        self.assertAlmostEqual(v.x, self.v1.x / self.s1)
+        self.assertAlmostEqual(v.y, self.v1.y / self.s1)
         v = self.v1 // self.s2
         self.assert_(isinstance(v, type(self.v1)))
-        self.assertEqual(v.x(), self.v1.x() // self.s2)
-        self.assertEqual(v.y(), self.v1.y() // self.s2)
+        self.assertEqual(v.x, self.v1.x // self.s2)
+        self.assertEqual(v.y, self.v1.y // self.s2)
 
     def testBool(self):
         self.assertEqual(bool(self.zeroVec), False)
@@ -227,13 +227,13 @@ class Vector2TypeTest(unittest.TestCase):
     def testUnary(self):
         v = +self.v1
         self.assert_(isinstance(v, type(self.v1)))
-        self.assertEqual(v.x(), self.v1.x())
-        self.assertEqual(v.y(), self.v1.y())
+        self.assertEqual(v.x, self.v1.x)
+        self.assertEqual(v.y, self.v1.y)
         self.assertNotEqual(id(v), id(self.v1))
         v = -self.v1
         self.assert_(isinstance(v, type(self.v1)))
-        self.assertEqual(v.x(), -self.v1.x())
-        self.assertEqual(v.y(), -self.v1.y())
+        self.assertEqual(v.x, -self.v1.x)
+        self.assertEqual(v.y, -self.v1.y)
         self.assertNotEqual(id(v), id(self.v1))
         
     def testCompare(self):
@@ -264,7 +264,7 @@ class Vector2TypeTest(unittest.TestCase):
 
     def testIter(self):
         it = self.v1.__iter__()
-        # support py2.x() and 3.x()
+        # support py2.x and 3.x
         if hasattr(it, "next"):
             next_ = it.next
         elif hasattr(it, "__next__"):
@@ -289,32 +289,32 @@ class Vector2TypeTest(unittest.TestCase):
         v1 = Vector2(1, 0)
         v2 = v1.rotate(90)
         v3 = v1.rotate(90 + 360)
-        self.assertEqual(v1.x(), 1)
-        self.assertEqual(v1.y(), 0)
-        self.assertEqual(v2.x(), 0)
-        self.assertEqual(v2.y(), 1)
-        self.assertEqual(v3.x(), v2.x())
-        self.assertEqual(v3.y(), v2.y())
+        self.assertEqual(v1.x, 1)
+        self.assertEqual(v1.y, 0)
+        self.assertEqual(v2.x, 0)
+        self.assertEqual(v2.y, 1)
+        self.assertEqual(v3.x, v2.x)
+        self.assertEqual(v3.y, v2.y)
         v1 = Vector2(-1, -1)
         v2 = v1.rotate(-90)
-        self.assertEqual(v2.x(), -1)
-        self.assertEqual(v2.y(), 1)
+        self.assertEqual(v2.x, -1)
+        self.assertEqual(v2.y, 1)
         v2 = v1.rotate(360)
-        self.assertEqual(v1.x(), v2.x())
-        self.assertEqual(v1.y(), v2.y())
+        self.assertEqual(v1.x, v2.x)
+        self.assertEqual(v1.y, v2.y)
         v2 = v1.rotate(0)
-        self.assertEqual(v1.x(), v2.x())
-        self.assertEqual(v1.y(), v2.y())
+        self.assertEqual(v1.x, v2.x)
+        self.assertEqual(v1.y, v2.y)
 
     def test_normalize(self):
         v = self.v1.normalize()
         # length is 1
-        self.assertAlmostEqual(v.x() * v.x() + v.y() * v.y(), 1.)
+        self.assertAlmostEqual(v.x * v.x + v.y * v.y, 1.)
         # v1 is unchanged
-        self.assertEqual(self.v1.x(), self.l1[0])
-        self.assertEqual(self.v1.y(), self.l1[1])
+        self.assertEqual(self.v1.x, self.l1[0])
+        self.assertEqual(self.v1.y, self.l1[1])
         # v2 is paralell to v1
-        self.assertAlmostEqual(self.v1.x() * v.y() - self.v1.y() * v.x(), 0.)
+        self.assertAlmostEqual(self.v1.x * v.y - self.v1.y * v.x, 0.)
         self.assertRaises(ValueError, lambda : self.zeroVec.normalize())
         
     def test_is_normalized(self):
@@ -326,21 +326,21 @@ class Vector2TypeTest(unittest.TestCase):
         
     def test_cross(self):
         self.assertEqual(self.v1.cross(self.v2),
-                         self.v1.x() * self.v2.y() - self.v1.y() * self.v2.x())
+                         self.v1.x * self.v2.y - self.v1.y * self.v2.x)
         self.assertEqual(self.v1.cross(self.l2),
-                         self.v1.x() * self.l2[1] - self.v1.y() * self.l2[0])
+                         self.v1.x * self.l2[1] - self.v1.y * self.l2[0])
         self.assertEqual(self.v1.cross(self.t2),
-                         self.v1.x() * self.t2[1] - self.v1.y() * self.t2[0])
+                         self.v1.x * self.t2[1] - self.v1.y * self.t2[0])
         self.assertEqual(self.v1.cross(self.v2), -self.v2.cross(self.v1))
         self.assertEqual(self.v1.cross(self.v1), 0)
 
     def test_dot(self):
         self.assertEqual(self.v1.dot(self.v2),
-                         self.v1.x() * self.v2.x() + self.v1.y() * self.v2.y())
+                         self.v1.x * self.v2.x + self.v1.y * self.v2.y)
         self.assertEqual(self.v1.dot(self.l2),
-                         self.v1.x() * self.l2[0] + self.v1.y() * self.l2[1])
+                         self.v1.x * self.l2[0] + self.v1.y * self.l2[1])
         self.assertEqual(self.v1.dot(self.t2),
-                         self.v1.x() * self.t2[0] + self.v1.y() * self.t2[1])
+                         self.v1.x * self.t2[0] + self.v1.y * self.t2[1])
         self.assertEqual(self.v1.dot(self.v2), self.v2.dot(self.v1))
         self.assertEqual(self.v1.dot(self.v2), self.v1 * self.v2)
 
@@ -382,7 +382,7 @@ class Vector2TypeTest(unittest.TestCase):
         diff = self.v1 - self.v2
         self.assertEqual(self.e1.distance_to(self.e2), math.sqrt(2))
         self.assertEqual(self.v1.distance_to(self.v2),
-                         math.sqrt(diff.x() * diff.x() + diff.y() * diff.y()))
+                         math.sqrt(diff.x * diff.x + diff.y * diff.y))
         self.assertEqual(self.v1.distance_to(self.v1), 0)
         self.assertEqual(self.v1.distance_to(self.v2),
                          self.v2.distance_to(self.v1))
@@ -391,7 +391,7 @@ class Vector2TypeTest(unittest.TestCase):
         diff = self.v1 - self.v2
         self.assertEqual(self.e1.distance_squared_to(self.e2), 2)
         self.assertEqual(self.v1.distance_squared_to(self.v2),
-                         diff.x() * diff.x() + diff.y() * diff.y())
+                         diff.x * diff.x + diff.y * diff.y)
         self.assertEqual(self.v1.distance_squared_to(self.v1), 0)
         self.assertEqual(self.v1.distance_squared_to(self.v2),
                          self.v2.distance_squared_to(self.v1))
@@ -403,9 +403,9 @@ class Vector2TypeTest(unittest.TestCase):
         self.assertRaises(AttributeError, lambda : self.v1.yx)
         pygame.math.enable_swizzling()
 
-        self.assertEqual(self.v1.yx, (self.v1.y(), self.v1.x()))
-        self.assertEqual(self.v1.xxyyxy, (self.v1.x(), self.v1.x(), self.v1.y(),
-                                          self.v1.y(), self.v1.x(), self.v1.y()))
+        self.assertEqual(self.v1.yx, (self.v1.y, self.v1.x))
+        self.assertEqual(self.v1.xxyyxy, (self.v1.x, self.v1.x, self.v1.y,
+                                          self.v1.y, self.v1.x, self.v1.y))
         def assignSwizzle1():
             Vector2().xy = self.t2
         self.assertRaises(AttributeError, assignSwizzle1)
@@ -425,97 +425,97 @@ class Vector2TypeTest(unittest.TestCase):
     def test_elementwise(self):
         # behaviour for "elementwise op scalar"
         self.assertEqual(self.v1.elementwise() + self.s1,
-                         (self.v1.x() + self.s1, self.v1.y() + self.s1))
+                         (self.v1.x + self.s1, self.v1.y + self.s1))
         self.assertEqual(self.v1.elementwise() - self.s1,
-                         (self.v1.x() - self.s1, self.v1.y() - self.s1))
+                         (self.v1.x - self.s1, self.v1.y - self.s1))
         self.assertEqual(self.v1.elementwise() * self.s2,
-                         (self.v1.x() * self.s2, self.v1.y() * self.s2))
+                         (self.v1.x * self.s2, self.v1.y * self.s2))
         self.assertEqual(self.v1.elementwise() / self.s2,
-                         (self.v1.x() / self.s2, self.v1.y() / self.s2))
+                         (self.v1.x / self.s2, self.v1.y / self.s2))
         self.assertEqual(self.v1.elementwise() // self.s1,
-                         (self.v1.x() // self.s1, self.v1.y() // self.s1))
+                         (self.v1.x // self.s1, self.v1.y // self.s1))
         self.assertEqual(self.v1.elementwise() ** self.s1,
-                         (self.v1.x() ** self.s1, self.v1.y() ** self.s1))
+                         (self.v1.x ** self.s1, self.v1.y ** self.s1))
         self.assertEqual(self.v1.elementwise() % self.s1,
-                         (self.v1.x() % self.s1, self.v1.y() % self.s1))
+                         (self.v1.x % self.s1, self.v1.y % self.s1))
         self.assertEqual(self.v1.elementwise() > self.s1,
-                         self.v1.x() > self.s1 and self.v1.y() > self.s1)
+                         self.v1.x > self.s1 and self.v1.y > self.s1)
         self.assertEqual(self.v1.elementwise() < self.s1,
-                         self.v1.x() < self.s1 and self.v1.y() < self.s1)
+                         self.v1.x < self.s1 and self.v1.y < self.s1)
         self.assertEqual(self.v1.elementwise() == self.s1,
-                         self.v1.x() == self.s1 and self.v1.y() == self.s1)
+                         self.v1.x == self.s1 and self.v1.y == self.s1)
         self.assertEqual(self.v1.elementwise() != self.s1,
-                         self.v1.x() != self.s1 and self.v1.y() != self.s1)
+                         self.v1.x != self.s1 and self.v1.y != self.s1)
         self.assertEqual(self.v1.elementwise() >= self.s1,
-                         self.v1.x() >= self.s1 and self.v1.y() >= self.s1)
+                         self.v1.x >= self.s1 and self.v1.y >= self.s1)
         self.assertEqual(self.v1.elementwise() <= self.s1,
-                         self.v1.x() <= self.s1 and self.v1.y() <= self.s1)
+                         self.v1.x <= self.s1 and self.v1.y <= self.s1)
         self.assertEqual(self.v1.elementwise() != self.s1,
-                         self.v1.x() != self.s1 and self.v1.y() != self.s1)
+                         self.v1.x != self.s1 and self.v1.y != self.s1)
         # behaviour for "scalar op elementwise"
         self.assertEqual(5 + self.v1.elementwise(), Vector2(5, 5) + self.v1)
         self.assertEqual(3.5 - self.v1.elementwise(), Vector2(3.5, 3.5) - self.v1)
         self.assertEqual(7.5 * self.v1.elementwise() , 7.5 * self.v1)
-        self.assertEqual(-3.5 / self.v1.elementwise(), (-3.5 / self.v1.x(), -3.5 / self.v1.y()))
-        self.assertEqual(-3.5 // self.v1.elementwise(), (-3.5 // self.v1.x(), -3.5 // self.v1.y()))
-        self.assertEqual(-3.5 ** self.v1.elementwise(), (-3.5 ** self.v1.x(), -3.5 ** self.v1.y()))
-        self.assertEqual(3 % self.v1.elementwise(), (3 % self.v1.x(), 3 % self.v1.y()))
-        self.assertEqual(2 < self.v1.elementwise(), 2 < self.v1.x() and 2 < self.v1.y())
-        self.assertEqual(2 > self.v1.elementwise(), 2 > self.v1.x() and 2 > self.v1.y())
-        self.assertEqual(1 == self.v1.elementwise(), 1 == self.v1.x() and 1 == self.v1.y())
-        self.assertEqual(1 != self.v1.elementwise(), 1 != self.v1.x() and 1 != self.v1.y())
-        self.assertEqual(2 <= self.v1.elementwise(), 2 <= self.v1.x() and 2 <= self.v1.y())
-        self.assertEqual(-7 >= self.v1.elementwise(), -7 >= self.v1.x() and -7 >= self.v1.y())
-        self.assertEqual(-7 != self.v1.elementwise(), -7 != self.v1.x() and -7 != self.v1.y())
+        self.assertEqual(-3.5 / self.v1.elementwise(), (-3.5 / self.v1.x, -3.5 / self.v1.y))
+        self.assertEqual(-3.5 // self.v1.elementwise(), (-3.5 // self.v1.x, -3.5 // self.v1.y))
+        self.assertEqual(-3.5 ** self.v1.elementwise(), (-3.5 ** self.v1.x, -3.5 ** self.v1.y))
+        self.assertEqual(3 % self.v1.elementwise(), (3 % self.v1.x, 3 % self.v1.y))
+        self.assertEqual(2 < self.v1.elementwise(), 2 < self.v1.x and 2 < self.v1.y)
+        self.assertEqual(2 > self.v1.elementwise(), 2 > self.v1.x and 2 > self.v1.y)
+        self.assertEqual(1 == self.v1.elementwise(), 1 == self.v1.x and 1 == self.v1.y)
+        self.assertEqual(1 != self.v1.elementwise(), 1 != self.v1.x and 1 != self.v1.y)
+        self.assertEqual(2 <= self.v1.elementwise(), 2 <= self.v1.x and 2 <= self.v1.y)
+        self.assertEqual(-7 >= self.v1.elementwise(), -7 >= self.v1.x and -7 >= self.v1.y)
+        self.assertEqual(-7 != self.v1.elementwise(), -7 != self.v1.x and -7 != self.v1.y)
 
         # behaviour for "elementwise op vector"
         self.assertEqual(type(self.v1.elementwise() * self.v2), type(self.v1))
         self.assertEqual(self.v1.elementwise() + self.v2, self.v1 + self.v2)
         self.assertEqual(self.v1.elementwise() + self.v2, self.v1 + self.v2)
         self.assertEqual(self.v1.elementwise() - self.v2, self.v1 - self.v2)
-        self.assertEqual(self.v1.elementwise() * self.v2, (self.v1.x() * self.v2.x(), self.v1.y() * self.v2.y()))
-        self.assertEqual(self.v1.elementwise() / self.v2, (self.v1.x() / self.v2.x(), self.v1.y() / self.v2.y()))
-        self.assertEqual(self.v1.elementwise() // self.v2, (self.v1.x() // self.v2.x(), self.v1.y() // self.v2.y()))
-        self.assertEqual(self.v1.elementwise() ** self.v2, (self.v1.x() ** self.v2.x(), self.v1.y() ** self.v2.y()))
-        self.assertEqual(self.v1.elementwise() % self.v2, (self.v1.x() % self.v2.x(), self.v1.y() % self.v2.y()))
-        self.assertEqual(self.v1.elementwise() > self.v2, self.v1.x() > self.v2.x() and self.v1.y() > self.v2.y())
-        self.assertEqual(self.v1.elementwise() < self.v2, self.v1.x() < self.v2.x() and self.v1.y() < self.v2.y())
-        self.assertEqual(self.v1.elementwise() >= self.v2, self.v1.x() >= self.v2.x() and self.v1.y() >= self.v2.y())
-        self.assertEqual(self.v1.elementwise() <= self.v2, self.v1.x() <= self.v2.x() and self.v1.y() <= self.v2.y())
-        self.assertEqual(self.v1.elementwise() == self.v2, self.v1.x() == self.v2.x() and self.v1.y() == self.v2.y())
-        self.assertEqual(self.v1.elementwise() != self.v2, self.v1.x() != self.v2.x() and self.v1.y() != self.v2.y())
+        self.assertEqual(self.v1.elementwise() * self.v2, (self.v1.x * self.v2.x, self.v1.y * self.v2.y))
+        self.assertEqual(self.v1.elementwise() / self.v2, (self.v1.x / self.v2.x, self.v1.y / self.v2.y))
+        self.assertEqual(self.v1.elementwise() // self.v2, (self.v1.x // self.v2.x, self.v1.y // self.v2.y))
+        self.assertEqual(self.v1.elementwise() ** self.v2, (self.v1.x ** self.v2.x, self.v1.y ** self.v2.y))
+        self.assertEqual(self.v1.elementwise() % self.v2, (self.v1.x % self.v2.x, self.v1.y % self.v2.y))
+        self.assertEqual(self.v1.elementwise() > self.v2, self.v1.x > self.v2.x and self.v1.y > self.v2.y)
+        self.assertEqual(self.v1.elementwise() < self.v2, self.v1.x < self.v2.x and self.v1.y < self.v2.y)
+        self.assertEqual(self.v1.elementwise() >= self.v2, self.v1.x >= self.v2.x and self.v1.y >= self.v2.y)
+        self.assertEqual(self.v1.elementwise() <= self.v2, self.v1.x <= self.v2.x and self.v1.y <= self.v2.y)
+        self.assertEqual(self.v1.elementwise() == self.v2, self.v1.x == self.v2.x and self.v1.y == self.v2.y)
+        self.assertEqual(self.v1.elementwise() != self.v2, self.v1.x != self.v2.x and self.v1.y != self.v2.y)
         # behaviour for "vector op elementwise"
         self.assertEqual(self.v2 + self.v1.elementwise(), self.v2 + self.v1)
         self.assertEqual(self.v2 - self.v1.elementwise(), self.v2 - self.v1)
-        self.assertEqual(self.v2 * self.v1.elementwise(), (self.v2.x() * self.v1.x(), self.v2.y() * self.v1.y()))
-        self.assertEqual(self.v2 / self.v1.elementwise(), (self.v2.x() / self.v1.x(), self.v2.y() / self.v1.y()))
-        self.assertEqual(self.v2 // self.v1.elementwise(), (self.v2.x() // self.v1.x(), self.v2.y() // self.v1.y()))
-        self.assertEqual(self.v2 ** self.v1.elementwise(), (self.v2.x() ** self.v1.x(), self.v2.y() ** self.v1.y()))
-        self.assertEqual(self.v2 % self.v1.elementwise(), (self.v2.x() % self.v1.x(), self.v2.y() % self.v1.y()))
-        self.assertEqual(self.v2 < self.v1.elementwise(), self.v2.x() < self.v1.x() and self.v2.y() < self.v1.y())
-        self.assertEqual(self.v2 > self.v1.elementwise(), self.v2.x() > self.v1.x() and self.v2.y() > self.v1.y())
-        self.assertEqual(self.v2 <= self.v1.elementwise(), self.v2.x() <= self.v1.x() and self.v2.y() <= self.v1.y())
-        self.assertEqual(self.v2 >= self.v1.elementwise(), self.v2.x() >= self.v1.x() and self.v2.y() >= self.v1.y())
-        self.assertEqual(self.v2 == self.v1.elementwise(), self.v2.x() == self.v1.x() and self.v2.y() == self.v1.y())
-        self.assertEqual(self.v2 != self.v1.elementwise(), self.v2.x() != self.v1.x() and self.v2.y() != self.v1.y())
+        self.assertEqual(self.v2 * self.v1.elementwise(), (self.v2.x * self.v1.x, self.v2.y * self.v1.y))
+        self.assertEqual(self.v2 / self.v1.elementwise(), (self.v2.x / self.v1.x, self.v2.y / self.v1.y))
+        self.assertEqual(self.v2 // self.v1.elementwise(), (self.v2.x // self.v1.x, self.v2.y // self.v1.y))
+        self.assertEqual(self.v2 ** self.v1.elementwise(), (self.v2.x ** self.v1.x, self.v2.y ** self.v1.y))
+        self.assertEqual(self.v2 % self.v1.elementwise(), (self.v2.x % self.v1.x, self.v2.y % self.v1.y))
+        self.assertEqual(self.v2 < self.v1.elementwise(), self.v2.x < self.v1.x and self.v2.y < self.v1.y)
+        self.assertEqual(self.v2 > self.v1.elementwise(), self.v2.x > self.v1.x and self.v2.y > self.v1.y)
+        self.assertEqual(self.v2 <= self.v1.elementwise(), self.v2.x <= self.v1.x and self.v2.y <= self.v1.y)
+        self.assertEqual(self.v2 >= self.v1.elementwise(), self.v2.x >= self.v1.x and self.v2.y >= self.v1.y)
+        self.assertEqual(self.v2 == self.v1.elementwise(), self.v2.x == self.v1.x and self.v2.y == self.v1.y)
+        self.assertEqual(self.v2 != self.v1.elementwise(), self.v2.x != self.v1.x and self.v2.y != self.v1.y)
 
         # behaviour for "elementwise op elementwise"
         self.assertEqual(self.v2.elementwise() + self.v1.elementwise(), self.v2 + self.v1)
         self.assertEqual(self.v2.elementwise() - self.v1.elementwise(), self.v2 - self.v1)
-        self.assertEqual(self.v2.elementwise() * self.v1.elementwise(), (self.v2.x() * self.v1.x(), self.v2.y() * self.v1.y()))
-        self.assertEqual(self.v2.elementwise() / self.v1.elementwise(), (self.v2.x() / self.v1.x(), self.v2.y() / self.v1.y()))
-        self.assertEqual(self.v2.elementwise() // self.v1.elementwise(), (self.v2.x() // self.v1.x(), self.v2.y() // self.v1.y()))
-        self.assertEqual(self.v2.elementwise() ** self.v1.elementwise(), (self.v2.x() ** self.v1.x(), self.v2.y() ** self.v1.y()))
-        self.assertEqual(self.v2.elementwise() % self.v1.elementwise(), (self.v2.x() % self.v1.x(), self.v2.y() % self.v1.y()))
-        self.assertEqual(self.v2.elementwise() < self.v1.elementwise(), self.v2.x() < self.v1.x() and self.v2.y() < self.v1.y())
-        self.assertEqual(self.v2.elementwise() > self.v1.elementwise(), self.v2.x() > self.v1.x() and self.v2.y() > self.v1.y())
-        self.assertEqual(self.v2.elementwise() <= self.v1.elementwise(), self.v2.x() <= self.v1.x() and self.v2.y() <= self.v1.y())
-        self.assertEqual(self.v2.elementwise() >= self.v1.elementwise(), self.v2.x() >= self.v1.x() and self.v2.y() >= self.v1.y())
-        self.assertEqual(self.v2.elementwise() == self.v1.elementwise(), self.v2.x() == self.v1.x() and self.v2.y() == self.v1.y())
-        self.assertEqual(self.v2.elementwise() != self.v1.elementwise(), self.v2.x() != self.v1.x() and self.v2.y() != self.v1.y())
+        self.assertEqual(self.v2.elementwise() * self.v1.elementwise(), (self.v2.x * self.v1.x, self.v2.y * self.v1.y))
+        self.assertEqual(self.v2.elementwise() / self.v1.elementwise(), (self.v2.x / self.v1.x, self.v2.y / self.v1.y))
+        self.assertEqual(self.v2.elementwise() // self.v1.elementwise(), (self.v2.x // self.v1.x, self.v2.y // self.v1.y))
+        self.assertEqual(self.v2.elementwise() ** self.v1.elementwise(), (self.v2.x ** self.v1.x, self.v2.y ** self.v1.y))
+        self.assertEqual(self.v2.elementwise() % self.v1.elementwise(), (self.v2.x % self.v1.x, self.v2.y % self.v1.y))
+        self.assertEqual(self.v2.elementwise() < self.v1.elementwise(), self.v2.x < self.v1.x and self.v2.y < self.v1.y)
+        self.assertEqual(self.v2.elementwise() > self.v1.elementwise(), self.v2.x > self.v1.x and self.v2.y > self.v1.y)
+        self.assertEqual(self.v2.elementwise() <= self.v1.elementwise(), self.v2.x <= self.v1.x and self.v2.y <= self.v1.y)
+        self.assertEqual(self.v2.elementwise() >= self.v1.elementwise(), self.v2.x >= self.v1.x and self.v2.y >= self.v1.y)
+        self.assertEqual(self.v2.elementwise() == self.v1.elementwise(), self.v2.x == self.v1.x and self.v2.y == self.v1.y)
+        self.assertEqual(self.v2.elementwise() != self.v1.elementwise(), self.v2.x != self.v1.x and self.v2.y != self.v1.y)
 
         # other behaviour
-        self.assertEqual(abs(self.v1.elementwise()), (abs(self.v1.x()), abs(self.v1.y())))
+        self.assertEqual(abs(self.v1.elementwise()), (abs(self.v1.x), abs(self.v1.y)))
         self.assertEqual(-self.v1.elementwise(), -self.v1)
         self.assertEqual(+self.v1.elementwise(), +self.v1)
         self.assertEqual(bool(self.v1.elementwise()), bool(self.v1))
@@ -530,83 +530,83 @@ class Vector2TypeTest(unittest.TestCase):
         s1 = self.s1
         s2 = self.s2
         # behaviour for "elementwise op scalar"
-        self.assertEqual(v1.elementwise() + s1, (v1.x() + s1, v1.y() + s1))
-        self.assertEqual(v1.elementwise() - s1, (v1.x() - s1, v1.y() - s1))
-        self.assertEqual(v1.elementwise() * s2, (v1.x() * s2, v1.y() * s2))
-        self.assertEqual(v1.elementwise() / s2, (v1.x() / s2, v1.y() / s2))
-        self.assertEqual(v1.elementwise() // s1, (v1.x() // s1, v1.y() // s1))
-        self.assertEqual(v1.elementwise() ** s1, (v1.x() ** s1, v1.y() ** s1))
-        self.assertEqual(v1.elementwise() % s1, (v1.x() % s1, v1.y() % s1))
-        self.assertEqual(v1.elementwise() > s1, v1.x() > s1 and v1.y() > s1)
-        self.assertEqual(v1.elementwise() < s1, v1.x() < s1 and v1.y() < s1)
-        self.assertEqual(v1.elementwise() == s1, v1.x() == s1 and v1.y() == s1)
-        self.assertEqual(v1.elementwise() != s1, v1.x() != s1 and v1.y() != s1)
-        self.assertEqual(v1.elementwise() >= s1, v1.x() >= s1 and v1.y() >= s1)
-        self.assertEqual(v1.elementwise() <= s1, v1.x() <= s1 and v1.y() <= s1)
-        self.assertEqual(v1.elementwise() != s1, v1.x() != s1 and v1.y() != s1)
+        self.assertEqual(v1.elementwise() + s1, (v1.x + s1, v1.y + s1))
+        self.assertEqual(v1.elementwise() - s1, (v1.x - s1, v1.y - s1))
+        self.assertEqual(v1.elementwise() * s2, (v1.x * s2, v1.y * s2))
+        self.assertEqual(v1.elementwise() / s2, (v1.x / s2, v1.y / s2))
+        self.assertEqual(v1.elementwise() // s1, (v1.x // s1, v1.y // s1))
+        self.assertEqual(v1.elementwise() ** s1, (v1.x ** s1, v1.y ** s1))
+        self.assertEqual(v1.elementwise() % s1, (v1.x % s1, v1.y % s1))
+        self.assertEqual(v1.elementwise() > s1, v1.x > s1 and v1.y > s1)
+        self.assertEqual(v1.elementwise() < s1, v1.x < s1 and v1.y < s1)
+        self.assertEqual(v1.elementwise() == s1, v1.x == s1 and v1.y == s1)
+        self.assertEqual(v1.elementwise() != s1, v1.x != s1 and v1.y != s1)
+        self.assertEqual(v1.elementwise() >= s1, v1.x >= s1 and v1.y >= s1)
+        self.assertEqual(v1.elementwise() <= s1, v1.x <= s1 and v1.y <= s1)
+        self.assertEqual(v1.elementwise() != s1, v1.x != s1 and v1.y != s1)
         # behaviour for "scalar op elementwise"
-        self.assertEqual(s1 + v1.elementwise(), (s1 + v1.x(), s1 + v1.y()))
-        self.assertEqual(s1 - v1.elementwise(), (s1 - v1.x(), s1 - v1.y()))
-        self.assertEqual(s1 * v1.elementwise(), (s1 * v1.x(), s1 * v1.y()))
-        self.assertEqual(s1 / v1.elementwise(), (s1 / v1.x(), s1 / v1.y()))
-        self.assertEqual(s1 // v1.elementwise(), (s1 // v1.x(), s1 // v1.y()))
-        self.assertEqual(s1 ** v1.elementwise(), (s1 ** v1.x(), s1 ** v1.y()))
-        self.assertEqual(s1 % v1.elementwise(), (s1 % v1.x(), s1 % v1.y()))
-        self.assertEqual(s1 < v1.elementwise(), s1 < v1.x() and s1 < v1.y())
-        self.assertEqual(s1 > v1.elementwise(), s1 > v1.x() and s1 > v1.y())
-        self.assertEqual(s1 == v1.elementwise(), s1 == v1.x() and s1 == v1.y())
-        self.assertEqual(s1 != v1.elementwise(), s1 != v1.x() and s1 != v1.y())
-        self.assertEqual(s1 <= v1.elementwise(), s1 <= v1.x() and s1 <= v1.y())
-        self.assertEqual(s1 >= v1.elementwise(), s1 >= v1.x() and s1 >= v1.y())
-        self.assertEqual(s1 != v1.elementwise(), s1 != v1.x() and s1 != v1.y())
+        self.assertEqual(s1 + v1.elementwise(), (s1 + v1.x, s1 + v1.y))
+        self.assertEqual(s1 - v1.elementwise(), (s1 - v1.x, s1 - v1.y))
+        self.assertEqual(s1 * v1.elementwise(), (s1 * v1.x, s1 * v1.y))
+        self.assertEqual(s1 / v1.elementwise(), (s1 / v1.x, s1 / v1.y))
+        self.assertEqual(s1 // v1.elementwise(), (s1 // v1.x, s1 // v1.y))
+        self.assertEqual(s1 ** v1.elementwise(), (s1 ** v1.x, s1 ** v1.y))
+        self.assertEqual(s1 % v1.elementwise(), (s1 % v1.x, s1 % v1.y))
+        self.assertEqual(s1 < v1.elementwise(), s1 < v1.x and s1 < v1.y)
+        self.assertEqual(s1 > v1.elementwise(), s1 > v1.x and s1 > v1.y)
+        self.assertEqual(s1 == v1.elementwise(), s1 == v1.x and s1 == v1.y)
+        self.assertEqual(s1 != v1.elementwise(), s1 != v1.x and s1 != v1.y)
+        self.assertEqual(s1 <= v1.elementwise(), s1 <= v1.x and s1 <= v1.y)
+        self.assertEqual(s1 >= v1.elementwise(), s1 >= v1.x and s1 >= v1.y)
+        self.assertEqual(s1 != v1.elementwise(), s1 != v1.x and s1 != v1.y)
 
         # behaviour for "elementwise op vector"
         self.assertEqual(type(v1.elementwise() * v2), type(v1))
         self.assertEqual(v1.elementwise() + v2, v1 + v2)
         self.assertEqual(v1.elementwise() - v2, v1 - v2)
-        self.assertEqual(v1.elementwise() * v2, (v1.x() * v2.x(), v1.y() * v2.y()))
-        self.assertEqual(v1.elementwise() / v2, (v1.x() / v2.x(), v1.y() / v2.y()))
-        self.assertEqual(v1.elementwise() // v2, (v1.x() // v2.x(), v1.y() // v2.y()))
-        self.assertEqual(v1.elementwise() ** v2, (v1.x() ** v2.x(), v1.y() ** v2.y()))
-        self.assertEqual(v1.elementwise() % v2, (v1.x() % v2.x(), v1.y() % v2.y()))
-        self.assertEqual(v1.elementwise() > v2, v1.x() > v2.x() and v1.y() > v2.y())
-        self.assertEqual(v1.elementwise() < v2, v1.x() < v2.x() and v1.y() < v2.y())
-        self.assertEqual(v1.elementwise() >= v2, v1.x() >= v2.x() and v1.y() >= v2.y())
-        self.assertEqual(v1.elementwise() <= v2, v1.x() <= v2.x() and v1.y() <= v2.y())
-        self.assertEqual(v1.elementwise() == v2, v1.x() == v2.x() and v1.y() == v2.y())
-        self.assertEqual(v1.elementwise() != v2, v1.x() != v2.x() and v1.y() != v2.y())
+        self.assertEqual(v1.elementwise() * v2, (v1.x * v2.x, v1.y * v2.y))
+        self.assertEqual(v1.elementwise() / v2, (v1.x / v2.x, v1.y / v2.y))
+        self.assertEqual(v1.elementwise() // v2, (v1.x // v2.x, v1.y // v2.y))
+        self.assertEqual(v1.elementwise() ** v2, (v1.x ** v2.x, v1.y ** v2.y))
+        self.assertEqual(v1.elementwise() % v2, (v1.x % v2.x, v1.y % v2.y))
+        self.assertEqual(v1.elementwise() > v2, v1.x > v2.x and v1.y > v2.y)
+        self.assertEqual(v1.elementwise() < v2, v1.x < v2.x and v1.y < v2.y)
+        self.assertEqual(v1.elementwise() >= v2, v1.x >= v2.x and v1.y >= v2.y)
+        self.assertEqual(v1.elementwise() <= v2, v1.x <= v2.x and v1.y <= v2.y)
+        self.assertEqual(v1.elementwise() == v2, v1.x == v2.x and v1.y == v2.y)
+        self.assertEqual(v1.elementwise() != v2, v1.x != v2.x and v1.y != v2.y)
         # behaviour for "vector op elementwise"
         self.assertEqual(v2 + v1.elementwise(), v2 + v1)
         self.assertEqual(v2 - v1.elementwise(), v2 - v1)
-        self.assertEqual(v2 * v1.elementwise(), (v2.x() * v1.x(), v2.y() * v1.y()))
-        self.assertEqual(v2 / v1.elementwise(), (v2.x() / v1.x(), v2.y() / v1.y()))
-        self.assertEqual(v2 // v1.elementwise(), (v2.x() // v1.x(), v2.y() // v1.y()))
-        self.assertEqual(v2 ** v1.elementwise(), (v2.x() ** v1.x(), v2.y() ** v1.y()))
-        self.assertEqual(v2 % v1.elementwise(), (v2.x() % v1.x(), v2.y() % v1.y()))
-        self.assertEqual(v2 < v1.elementwise(), v2.x() < v1.x() and v2.y() < v1.y())
-        self.assertEqual(v2 > v1.elementwise(), v2.x() > v1.x() and v2.y() > v1.y())
-        self.assertEqual(v2 <= v1.elementwise(), v2.x() <= v1.x() and v2.y() <= v1.y())
-        self.assertEqual(v2 >= v1.elementwise(), v2.x() >= v1.x() and v2.y() >= v1.y())
-        self.assertEqual(v2 == v1.elementwise(), v2.x() == v1.x() and v2.y() == v1.y())
-        self.assertEqual(v2 != v1.elementwise(), v2.x() != v1.x() and v2.y() != v1.y())
+        self.assertEqual(v2 * v1.elementwise(), (v2.x * v1.x, v2.y * v1.y))
+        self.assertEqual(v2 / v1.elementwise(), (v2.x / v1.x, v2.y / v1.y))
+        self.assertEqual(v2 // v1.elementwise(), (v2.x // v1.x, v2.y // v1.y))
+        self.assertEqual(v2 ** v1.elementwise(), (v2.x ** v1.x, v2.y ** v1.y))
+        self.assertEqual(v2 % v1.elementwise(), (v2.x % v1.x, v2.y % v1.y))
+        self.assertEqual(v2 < v1.elementwise(), v2.x < v1.x and v2.y < v1.y)
+        self.assertEqual(v2 > v1.elementwise(), v2.x > v1.x and v2.y > v1.y)
+        self.assertEqual(v2 <= v1.elementwise(), v2.x <= v1.x and v2.y <= v1.y)
+        self.assertEqual(v2 >= v1.elementwise(), v2.x >= v1.x and v2.y >= v1.y)
+        self.assertEqual(v2 == v1.elementwise(), v2.x == v1.x and v2.y == v1.y)
+        self.assertEqual(v2 != v1.elementwise(), v2.x != v1.x and v2.y != v1.y)
 
         # behaviour for "elementwise op elementwise"
         self.assertEqual(v2.elementwise() + v1.elementwise(), v2 + v1)
         self.assertEqual(v2.elementwise() - v1.elementwise(), v2 - v1)
-        self.assertEqual(v2.elementwise() * v1.elementwise(), (v2.x() * v1.x(), v2.y() * v1.y()))
-        self.assertEqual(v2.elementwise() / v1.elementwise(), (v2.x() / v1.x(), v2.y() / v1.y()))
-        self.assertEqual(v2.elementwise() // v1.elementwise(), (v2.x() // v1.x(), v2.y() // v1.y()))
-        self.assertEqual(v2.elementwise() ** v1.elementwise(), (v2.x() ** v1.x(), v2.y() ** v1.y()))
-        self.assertEqual(v2.elementwise() % v1.elementwise(), (v2.x() % v1.x(), v2.y() % v1.y()))
-        self.assertEqual(v2.elementwise() < v1.elementwise(), v2.x() < v1.x() and v2.y() < v1.y())
-        self.assertEqual(v2.elementwise() > v1.elementwise(), v2.x() > v1.x() and v2.y() > v1.y())
-        self.assertEqual(v2.elementwise() <= v1.elementwise(), v2.x() <= v1.x() and v2.y() <= v1.y())
-        self.assertEqual(v2.elementwise() >= v1.elementwise(), v2.x() >= v1.x() and v2.y() >= v1.y())
-        self.assertEqual(v2.elementwise() == v1.elementwise(), v2.x() == v1.x() and v2.y() == v1.y())
-        self.assertEqual(v2.elementwise() != v1.elementwise(), v2.x() != v1.x() and v2.y() != v1.y())
+        self.assertEqual(v2.elementwise() * v1.elementwise(), (v2.x * v1.x, v2.y * v1.y))
+        self.assertEqual(v2.elementwise() / v1.elementwise(), (v2.x / v1.x, v2.y / v1.y))
+        self.assertEqual(v2.elementwise() // v1.elementwise(), (v2.x // v1.x, v2.y // v1.y))
+        self.assertEqual(v2.elementwise() ** v1.elementwise(), (v2.x ** v1.x, v2.y ** v1.y))
+        self.assertEqual(v2.elementwise() % v1.elementwise(), (v2.x % v1.x, v2.y % v1.y))
+        self.assertEqual(v2.elementwise() < v1.elementwise(), v2.x < v1.x and v2.y < v1.y)
+        self.assertEqual(v2.elementwise() > v1.elementwise(), v2.x > v1.x and v2.y > v1.y)
+        self.assertEqual(v2.elementwise() <= v1.elementwise(), v2.x <= v1.x and v2.y <= v1.y)
+        self.assertEqual(v2.elementwise() >= v1.elementwise(), v2.x >= v1.x and v2.y >= v1.y)
+        self.assertEqual(v2.elementwise() == v1.elementwise(), v2.x == v1.x and v2.y == v1.y)
+        self.assertEqual(v2.elementwise() != v1.elementwise(), v2.x != v1.x and v2.y != v1.y)
 
         # other behaviour
-        self.assertEqual(abs(v1.elementwise()), (abs(v1.x()), abs(v1.y())))
+        self.assertEqual(abs(v1.elementwise()), (abs(v1.x), abs(v1.y)))
         self.assertEqual(-v1.elementwise(), -v1)
         self.assertEqual(+v1.elementwise(), +v1)
         self.assertEqual(bool(v1.elementwise()), bool(v1))
@@ -699,49 +699,49 @@ class Vector3TypeTest(unittest.TestCase):
         
     def testConstructionDefault(self):
         v = Vector3()
-        self.assertEqual(v.x(), 0.)
-        self.assertEqual(v.y(), 0.)
-        self.assertEqual(v.z(), 0.)
+        self.assertEqual(v.x, 0.)
+        self.assertEqual(v.y, 0.)
+        self.assertEqual(v.z, 0.)
 
 
     def testConstructionXYZ(self):
         v = Vector3(1.2, 3.4, 9.6)
-        self.assertEqual(v.x(), 1.2)
-        self.assertEqual(v.y(), 3.4)
-        self.assertEqual(v.z(), 9.6)
+        self.assertEqual(v.x, 1.2)
+        self.assertEqual(v.y, 3.4)
+        self.assertEqual(v.z, 9.6)
 
     def testConstructionTuple(self):
         v = Vector3((1.2, 3.4, 9.6))
-        self.assertEqual(v.x(), 1.2)
-        self.assertEqual(v.y(), 3.4)
-        self.assertEqual(v.z(), 9.6)
+        self.assertEqual(v.x, 1.2)
+        self.assertEqual(v.y, 3.4)
+        self.assertEqual(v.z, 9.6)
 
     def testConstructionList(self):
         v = Vector3([1.2, 3.4, -9.6])
-        self.assertEqual(v.x(), 1.2)
-        self.assertEqual(v.y(), 3.4)
-        self.assertEqual(v.z(), -9.6)
+        self.assertEqual(v.x, 1.2)
+        self.assertEqual(v.y, 3.4)
+        self.assertEqual(v.z, -9.6)
 
     def testConstructionVector3(self):
         v = Vector3(Vector3(1.2, 3.4, -9.6))
-        self.assertEqual(v.x(), 1.2)
-        self.assertEqual(v.y(), 3.4)
-        self.assertEqual(v.z(), -9.6)
+        self.assertEqual(v.x, 1.2)
+        self.assertEqual(v.y, 3.4)
+        self.assertEqual(v.z, -9.6)
 
     def testAttributAccess(self):
-        tmp = self.v1.x()
-        self.assertEqual(tmp, self.v1.x())
+        tmp = self.v1.x
+        self.assertEqual(tmp, self.v1.x)
         self.assertEqual(tmp, self.v1[0])
-        tmp = self.v1.y()
-        self.assertEqual(tmp, self.v1.y())
+        tmp = self.v1.y
+        self.assertEqual(tmp, self.v1.y)
         self.assertEqual(tmp, self.v1[1])
-        tmp = self.v1.z()
-        self.assertEqual(tmp, self.v1.z())
+        tmp = self.v1.z
+        self.assertEqual(tmp, self.v1.z)
         self.assertEqual(tmp, self.v1[2])
         self.v1 = Vector3(3.141, 2.718, -10)
-        self.assertEqual(self.v1.x(), 3.141)
-        self.assertEqual(self.v1.y(), 2.718)
-        self.assertEqual(self.v1.z(), -10)
+        self.assertEqual(self.v1.x, 3.141)
+        self.assertEqual(self.v1.y, 2.718)
+        self.assertEqual(self.v1.z, -10)
         def assign_nonfloat():
             v = Vector3("spam", "eggs", "fnord")
         self.assertRaises(ValueError, assign_nonfloat)
@@ -826,79 +826,79 @@ class Vector3TypeTest(unittest.TestCase):
     def testAdd(self):
         v3 = self.v1 + self.v2
         self.assert_(isinstance(v3, type(self.v1)))
-        self.assertEqual(v3.x(), self.v1.x() + self.v2.x())
-        self.assertEqual(v3.y(), self.v1.y() + self.v2.y())
-        self.assertEqual(v3.z(), self.v1.z() + self.v2.z())
+        self.assertEqual(v3.x, self.v1.x + self.v2.x)
+        self.assertEqual(v3.y, self.v1.y + self.v2.y)
+        self.assertEqual(v3.z, self.v1.z + self.v2.z)
         v3 = self.v1 + self.t2
         self.assert_(isinstance(v3, type(self.v1)))
-        self.assertEqual(v3.x(), self.v1.x() + self.t2[0])
-        self.assertEqual(v3.y(), self.v1.y() + self.t2[1])
-        self.assertEqual(v3.z(), self.v1.z() + self.t2[2])
+        self.assertEqual(v3.x, self.v1.x + self.t2[0])
+        self.assertEqual(v3.y, self.v1.y + self.t2[1])
+        self.assertEqual(v3.z, self.v1.z + self.t2[2])
         v3 = self.v1 + self.l2
         self.assert_(isinstance(v3, type(self.v1)))
-        self.assertEqual(v3.x(), self.v1.x() + self.l2[0])
-        self.assertEqual(v3.y(), self.v1.y() + self.l2[1])
-        self.assertEqual(v3.z(), self.v1.z() + self.l2[2])
+        self.assertEqual(v3.x, self.v1.x + self.l2[0])
+        self.assertEqual(v3.y, self.v1.y + self.l2[1])
+        self.assertEqual(v3.z, self.v1.z + self.l2[2])
         v3 = self.t1 + self.v2
         self.assert_(isinstance(v3, type(self.v1)))
-        self.assertEqual(v3.x(), self.t1[0] + self.v2.x())
-        self.assertEqual(v3.y(), self.t1[1] + self.v2.y())
-        self.assertEqual(v3.z(), self.t1[2] + self.v2.z())
+        self.assertEqual(v3.x, self.t1[0] + self.v2.x)
+        self.assertEqual(v3.y, self.t1[1] + self.v2.y)
+        self.assertEqual(v3.z, self.t1[2] + self.v2.z)
         v3 = self.l1 + self.v2
         self.assert_(isinstance(v3, type(self.v1)))
-        self.assertEqual(v3.x(), self.l1[0] + self.v2.x())
-        self.assertEqual(v3.y(), self.l1[1] + self.v2.y())
-        self.assertEqual(v3.z(), self.l1[2] + self.v2.z())
+        self.assertEqual(v3.x, self.l1[0] + self.v2.x)
+        self.assertEqual(v3.y, self.l1[1] + self.v2.y)
+        self.assertEqual(v3.z, self.l1[2] + self.v2.z)
 
     def testSub(self):
         v3 = self.v1 - self.v2
         self.assert_(isinstance(v3, type(self.v1)))
-        self.assertEqual(v3.x(), self.v1.x() - self.v2.x())
-        self.assertEqual(v3.y(), self.v1.y() - self.v2.y())
-        self.assertEqual(v3.z(), self.v1.z() - self.v2.z())
+        self.assertEqual(v3.x, self.v1.x - self.v2.x)
+        self.assertEqual(v3.y, self.v1.y - self.v2.y)
+        self.assertEqual(v3.z, self.v1.z - self.v2.z)
         v3 = self.v1 - self.t2
         self.assert_(isinstance(v3, type(self.v1)))
-        self.assertEqual(v3.x(), self.v1.x() - self.t2[0])
-        self.assertEqual(v3.y(), self.v1.y() - self.t2[1])
-        self.assertEqual(v3.z(), self.v1.z() - self.t2[2])
+        self.assertEqual(v3.x, self.v1.x - self.t2[0])
+        self.assertEqual(v3.y, self.v1.y - self.t2[1])
+        self.assertEqual(v3.z, self.v1.z - self.t2[2])
         v3 = self.v1 - self.l2
         self.assert_(isinstance(v3, type(self.v1)))
-        self.assertEqual(v3.x(), self.v1.x() - self.l2[0])
-        self.assertEqual(v3.y(), self.v1.y() - self.l2[1])
-        self.assertEqual(v3.z(), self.v1.z() - self.l2[2])
+        self.assertEqual(v3.x, self.v1.x - self.l2[0])
+        self.assertEqual(v3.y, self.v1.y - self.l2[1])
+        self.assertEqual(v3.z, self.v1.z - self.l2[2])
         v3 = self.t1 - self.v2
         self.assert_(isinstance(v3, type(self.v1)))
-        self.assertEqual(v3.x(), self.t1[0] - self.v2.x())
-        self.assertEqual(v3.y(), self.t1[1] - self.v2.y())
-        self.assertEqual(v3.z(), self.t1[2] - self.v2.z())
+        self.assertEqual(v3.x, self.t1[0] - self.v2.x)
+        self.assertEqual(v3.y, self.t1[1] - self.v2.y)
+        self.assertEqual(v3.z, self.t1[2] - self.v2.z)
         v3 = self.l1 - self.v2
         self.assert_(isinstance(v3, type(self.v1)))
-        self.assertEqual(v3.x(), self.l1[0] - self.v2.x())
-        self.assertEqual(v3.y(), self.l1[1] - self.v2.y())
-        self.assertEqual(v3.z(), self.l1[2] - self.v2.z())
+        self.assertEqual(v3.x, self.l1[0] - self.v2.x)
+        self.assertEqual(v3.y, self.l1[1] - self.v2.y)
+        self.assertEqual(v3.z, self.l1[2] - self.v2.z)
 
     def testScalarMultiplication(self):
         v = self.s1 * self.v1
         self.assert_(isinstance(v, type(self.v1)))
-        self.assertEqual(v.x(), self.s1 * self.v1.x())
-        self.assertEqual(v.y(), self.s1 * self.v1.y())
-        self.assertEqual(v.z(), self.s1 * self.v1.z())
+        self.assertEqual(v.x, self.s1 * self.v1.x)
+        self.assertEqual(v.y, self.s1 * self.v1.y)
+        self.assertEqual(v.z, self.s1 * self.v1.z)
         v = self.v1 * self.s2
-        self.assertEqual(v.x(), self.v1.x() * self.s2)
-        self.assertEqual(v.y(), self.v1.y() * self.s2)
-        self.assertEqual(v.z(), self.v1.z() * self.s2)
+        self.assertEqual(v.x, self.v1.x * self.s2)
+        self.assertEqual(v.y, self.v1.y * self.s2)
+        self.assertEqual(v.z, self.v1.z * self.s2)
 
     def testScalarDivision(self):
         v = self.v1 / self.s1
         self.assert_(isinstance(v, type(self.v1)))
-        self.assertAlmostEqual(v.x(), self.v1.x() / self.s1)
-        self.assertAlmostEqual(v.y(), self.v1.y() / self.s1)
-        self.assertAlmostEqual(v.z(), self.v1.z() / self.s1)
+        self.assertAlmostEqual(v.x, self.v1.x / self.s1)
+        self.assertAlmostEqual(v.y, self.v1.y / self.s1)
+        self.assertAlmostEqual(v.z, self.v1.z / self.s1)
         v = self.v1 // self.s2
         self.assert_(isinstance(v, type(self.v1)))
-        self.assertEqual(v.x(), self.v1.x() // self.s2)
-        self.assertEqual(v.y(), self.v1.y() // self.s2)
-        self.assertEqual(v.z(), self.v1.z() // self.s2)
+        self.assertEqual(v.x, self.v1.x // self.s2)
+        self.assertEqual(v.y, self.v1.y // self.s2)
+        self.assertEqual(v.z, self.v1.z // self.s2)
 
     def testBool(self):
         self.assertEqual(bool(self.zeroVec), False)
@@ -909,15 +909,15 @@ class Vector3TypeTest(unittest.TestCase):
     def testUnary(self):
         v = +self.v1
         self.assert_(isinstance(v, type(self.v1)))
-        self.assertEqual(v.x(), self.v1.x())
-        self.assertEqual(v.y(), self.v1.y())
-        self.assertEqual(v.z(), self.v1.z())
+        self.assertEqual(v.x, self.v1.x)
+        self.assertEqual(v.y, self.v1.y)
+        self.assertEqual(v.z, self.v1.z)
         self.assertNotEqual(id(v), id(self.v1))
         v = -self.v1
         self.assert_(isinstance(v, type(self.v1)))
-        self.assertEqual(v.x(), -self.v1.x())
-        self.assertEqual(v.y(), -self.v1.y())
-        self.assertEqual(v.z(), -self.v1.z())
+        self.assertEqual(v.x, -self.v1.x)
+        self.assertEqual(v.y, -self.v1.y)
+        self.assertEqual(v.z, -self.v1.z)
         self.assertNotEqual(id(v), id(self.v1))
         
     def testCompare(self):
@@ -948,7 +948,7 @@ class Vector3TypeTest(unittest.TestCase):
 
     def testIter(self):
         it = self.v1.__iter__()
-        # support py2.x() and 3.x()
+        # support py2.x and 3.x
         if hasattr(it, "next"):
             next_ = it.next
         elif hasattr(it, "__next__"):
@@ -975,122 +975,122 @@ class Vector3TypeTest(unittest.TestCase):
         axis = Vector3(0, 1, 0)
         v2 = v1.rotate(90, axis)
         v3 = v1.rotate(90 + 360, axis)
-        self.assertEqual(v1.x(), 1)
-        self.assertEqual(v1.y(), 0)
-        self.assertEqual(v1.z(), 0)
-        self.assertEqual(v2.x(), 0)
-        self.assertEqual(v2.y(), 0)
-        self.assertEqual(v2.z(), -1)
-        self.assertEqual(v3.x(), v2.x())
-        self.assertEqual(v3.y(), v2.y())
-        self.assertEqual(v3.z(), v2.z())
+        self.assertEqual(v1.x, 1)
+        self.assertEqual(v1.y, 0)
+        self.assertEqual(v1.z, 0)
+        self.assertEqual(v2.x, 0)
+        self.assertEqual(v2.y, 0)
+        self.assertEqual(v2.z, -1)
+        self.assertEqual(v3.x, v2.x)
+        self.assertEqual(v3.y, v2.y)
+        self.assertEqual(v3.z, v2.z)
         v1 = Vector3(-1, -1, -1)
         v2 = v1.rotate(-90, axis)
-        self.assertEqual(v2.x(), 1)
-        self.assertEqual(v2.y(), -1)
-        self.assertEqual(v2.z(), -1)
+        self.assertEqual(v2.x, 1)
+        self.assertEqual(v2.y, -1)
+        self.assertEqual(v2.z, -1)
         v2 = v1.rotate(360, axis)
-        self.assertEqual(v1.x(), v2.x())
-        self.assertEqual(v1.y(), v2.y())
-        self.assertEqual(v1.z(), v2.z())
+        self.assertEqual(v1.x, v2.x)
+        self.assertEqual(v1.y, v2.y)
+        self.assertEqual(v1.z, v2.z)
         v2 = v1.rotate(0, axis)
-        self.assertEqual(v1.x(), v2.x())
-        self.assertEqual(v1.y(), v2.y())
-        self.assertEqual(v1.z(), v2.z())
+        self.assertEqual(v1.x, v2.x)
+        self.assertEqual(v1.y, v2.y)
+        self.assertEqual(v1.z, v2.z)
 
     def test_rotate_x(self):
         v1 = Vector3(1, 0, 0)
         v2 = v1.rotate_x(90)
         v3 = v1.rotate_x(90 + 360)
-        self.assertEqual(v1.x(), 1)
-        self.assertEqual(v1.y(), 0)
-        self.assertEqual(v1.z(), 0)
-        self.assertEqual(v2.x(), 1)
-        self.assertEqual(v2.y(), 0)
-        self.assertEqual(v2.z(), 0)
-        self.assertEqual(v3.x(), v2.x())
-        self.assertEqual(v3.y(), v2.y())
-        self.assertEqual(v3.z(), v2.z())
+        self.assertEqual(v1.x, 1)
+        self.assertEqual(v1.y, 0)
+        self.assertEqual(v1.z, 0)
+        self.assertEqual(v2.x, 1)
+        self.assertEqual(v2.y, 0)
+        self.assertEqual(v2.z, 0)
+        self.assertEqual(v3.x, v2.x)
+        self.assertEqual(v3.y, v2.y)
+        self.assertEqual(v3.z, v2.z)
         v1 = Vector3(-1, -1, -1)
         v2 = v1.rotate_x(-90)
-        self.assertEqual(v2.x(), -1)
-        self.assertAlmostEqual(v2.y(), -1)
-        self.assertAlmostEqual(v2.z(), 1)
+        self.assertEqual(v2.x, -1)
+        self.assertAlmostEqual(v2.y, -1)
+        self.assertAlmostEqual(v2.z, 1)
         v2 = v1.rotate_x(360)
-        self.assertAlmostEqual(v1.x(), v2.x())
-        self.assertAlmostEqual(v1.y(), v2.y())
-        self.assertAlmostEqual(v1.z(), v2.z())
+        self.assertAlmostEqual(v1.x, v2.x)
+        self.assertAlmostEqual(v1.y, v2.y)
+        self.assertAlmostEqual(v1.z, v2.z)
         v2 = v1.rotate_x(0)
-        self.assertEqual(v1.x(), v2.x())
-        self.assertAlmostEqual(v1.y(), v2.y())
-        self.assertAlmostEqual(v1.z(), v2.z())
+        self.assertEqual(v1.x, v2.x)
+        self.assertAlmostEqual(v1.y, v2.y)
+        self.assertAlmostEqual(v1.z, v2.z)
 
     def test_rotate_y(self):
         v1 = Vector3(1, 0, 0)
         v2 = v1.rotate_y(90)
         v3 = v1.rotate_y(90 + 360)
-        self.assertEqual(v1.x(), 1)
-        self.assertEqual(v1.y(), 0)
-        self.assertEqual(v1.z(), 0)
-        self.assertAlmostEqual(v2.x(), 0)
-        self.assertEqual(v2.y(), 0)
-        self.assertAlmostEqual(v2.z(), -1)
-        self.assertAlmostEqual(v3.x(), v2.x())
-        self.assertEqual(v3.y(), v2.y())
-        self.assertAlmostEqual(v3.z(), v2.z())
+        self.assertEqual(v1.x, 1)
+        self.assertEqual(v1.y, 0)
+        self.assertEqual(v1.z, 0)
+        self.assertAlmostEqual(v2.x, 0)
+        self.assertEqual(v2.y, 0)
+        self.assertAlmostEqual(v2.z, -1)
+        self.assertAlmostEqual(v3.x, v2.x)
+        self.assertEqual(v3.y, v2.y)
+        self.assertAlmostEqual(v3.z, v2.z)
         v1 = Vector3(-1, -1, -1)
         v2 = v1.rotate_y(-90)
-        self.assertAlmostEqual(v2.x(), 1)
-        self.assertEqual(v2.y(), -1)
-        self.assertAlmostEqual(v2.z(), -1)
+        self.assertAlmostEqual(v2.x, 1)
+        self.assertEqual(v2.y, -1)
+        self.assertAlmostEqual(v2.z, -1)
         v2 = v1.rotate_y(360)
-        self.assertAlmostEqual(v1.x(), v2.x())
-        self.assertEqual(v1.y(), v2.y())
-        self.assertAlmostEqual(v1.z(), v2.z())
+        self.assertAlmostEqual(v1.x, v2.x)
+        self.assertEqual(v1.y, v2.y)
+        self.assertAlmostEqual(v1.z, v2.z)
         v2 = v1.rotate_y(0)
-        self.assertEqual(v1.x(), v2.x())
-        self.assertEqual(v1.y(), v2.y())
-        self.assertEqual(v1.z(), v2.z())
+        self.assertEqual(v1.x, v2.x)
+        self.assertEqual(v1.y, v2.y)
+        self.assertEqual(v1.z, v2.z)
 
     def test_rotate_z(self):
         v1 = Vector3(1, 0, 0)
         v2 = v1.rotate_z(90)
         v3 = v1.rotate_z(90 + 360)
-        self.assertEqual(v1.x(), 1)
-        self.assertEqual(v1.y(), 0)
-        self.assertEqual(v1.z(), 0)
-        self.assertAlmostEqual(v2.x(), 0)
-        self.assertAlmostEqual(v2.y(), 1)
-        self.assertEqual(v2.z(), 0)
-        self.assertAlmostEqual(v3.x(), v2.x())
-        self.assertAlmostEqual(v3.y(), v2.y())
-        self.assertEqual(v3.z(), v2.z())
+        self.assertEqual(v1.x, 1)
+        self.assertEqual(v1.y, 0)
+        self.assertEqual(v1.z, 0)
+        self.assertAlmostEqual(v2.x, 0)
+        self.assertAlmostEqual(v2.y, 1)
+        self.assertEqual(v2.z, 0)
+        self.assertAlmostEqual(v3.x, v2.x)
+        self.assertAlmostEqual(v3.y, v2.y)
+        self.assertEqual(v3.z, v2.z)
         v1 = Vector3(-1, -1, -1)
         v2 = v1.rotate_z(-90)
-        self.assertAlmostEqual(v2.x(), -1)
-        self.assertAlmostEqual(v2.y(), 1)
-        self.assertEqual(v2.z(), -1)
+        self.assertAlmostEqual(v2.x, -1)
+        self.assertAlmostEqual(v2.y, 1)
+        self.assertEqual(v2.z, -1)
         v2 = v1.rotate_z(360)
-        self.assertAlmostEqual(v1.x(), v2.x())
-        self.assertAlmostEqual(v1.y(), v2.y())
-        self.assertEqual(v1.z(), v2.z())
+        self.assertAlmostEqual(v1.x, v2.x)
+        self.assertAlmostEqual(v1.y, v2.y)
+        self.assertEqual(v1.z, v2.z)
         v2 = v1.rotate_z(0)
-        self.assertAlmostEqual(v1.x(), v2.x())
-        self.assertAlmostEqual(v1.y(), v2.y())
-        self.assertEqual(v1.z(), v2.z())
+        self.assertAlmostEqual(v1.x, v2.x)
+        self.assertAlmostEqual(v1.y, v2.y)
+        self.assertEqual(v1.z, v2.z)
 
     def test_normalize(self):
         v = self.v1.normalize()
         # length is 1
-        self.assertAlmostEqual(v.x() * v.x() + v.y() * v.y() + v.z() * v.z(), 1.)
+        self.assertAlmostEqual(v.x * v.x + v.y * v.y + v.z * v.z, 1.)
         # v1 is unchanged
-        self.assertEqual(self.v1.x(), self.l1[0])
-        self.assertEqual(self.v1.y(), self.l1[1])
-        self.assertEqual(self.v1.z(), self.l1[2])
+        self.assertEqual(self.v1.x, self.l1[0])
+        self.assertEqual(self.v1.y, self.l1[1])
+        self.assertEqual(self.v1.z, self.l1[2])
         # v2 is paralell to v1 (tested via cross product)
-        cross = ((self.v1.y() * v.z() - self.v1.z() * v.y()) ** 2 +
-                 (self.v1.z() * v.x() - self.v1.x() * v.z()) ** 2 +
-                 (self.v1.x() * v.y() - self.v1.y() * v.x()) ** 2)
+        cross = ((self.v1.y * v.z - self.v1.z * v.y) ** 2 +
+                 (self.v1.z * v.x - self.v1.x * v.z) ** 2 +
+                 (self.v1.x * v.y - self.v1.y * v.x) ** 2)
         self.assertAlmostEqual(cross, 0.)
         self.assertRaises(ValueError, lambda : self.zeroVec.normalize())
 
@@ -1114,11 +1114,11 @@ class Vector3TypeTest(unittest.TestCase):
 
     def test_dot(self):
         self.assertAlmostEqual(self.v1.dot(self.v2),
-                               self.v1.x() * self.v2.x() + self.v1.y() * self.v2.y() + self.v1.z() * self.v2.z())
+                               self.v1.x * self.v2.x + self.v1.y * self.v2.y + self.v1.z * self.v2.z)
         self.assertAlmostEqual(self.v1.dot(self.l2),
-                               self.v1.x() * self.l2[0] + self.v1.y() * self.l2[1] + self.v1.z() * self.l2[2])
+                               self.v1.x * self.l2[0] + self.v1.y * self.l2[1] + self.v1.z * self.l2[2])
         self.assertAlmostEqual(self.v1.dot(self.t2),
-                         self.v1.x() * self.t2[0] + self.v1.y() * self.t2[1] + self.v1.z() * self.t2[2])
+                         self.v1.x * self.t2[0] + self.v1.y * self.t2[1] + self.v1.z * self.t2[2])
         self.assertAlmostEqual(self.v1.dot(self.v2), self.v2.dot(self.v1))
         self.assertAlmostEqual(self.v1.dot(self.v2), self.v1 * self.v2)
 
@@ -1162,7 +1162,7 @@ class Vector3TypeTest(unittest.TestCase):
         diff = self.v1 - self.v2
         self.assertEqual(self.e1.distance_to(self.e2), math.sqrt(2))
         self.assertEqual(self.v1.distance_to(self.v2),
-                         math.sqrt(diff.x() * diff.x() + diff.y() * diff.y() + diff.z() * diff.z()))
+                         math.sqrt(diff.x * diff.x + diff.y * diff.y + diff.z * diff.z))
         self.assertEqual(self.v1.distance_to(self.v1), 0)
         self.assertEqual(self.v1.distance_to(self.v2),
                          self.v2.distance_to(self.v1))
@@ -1171,7 +1171,7 @@ class Vector3TypeTest(unittest.TestCase):
         diff = self.v1 - self.v2
         self.assertEqual(self.e1.distance_squared_to(self.e2), 2)
         self.assertEqual(self.v1.distance_squared_to(self.v2),
-                         diff.x() * diff.x() + diff.y() * diff.y() + diff.z() * diff.z())
+                         diff.x * diff.x + diff.y * diff.y + diff.z * diff.z)
         self.assertEqual(self.v1.distance_squared_to(self.v1), 0)
         self.assertEqual(self.v1.distance_squared_to(self.v2),
                          self.v2.distance_squared_to(self.v1))
@@ -1183,10 +1183,10 @@ class Vector3TypeTest(unittest.TestCase):
         self.assertRaises(AttributeError, lambda : self.v1.yx)
         pygame.math.enable_swizzling()
         
-        self.assertEqual(self.v1.yxz, (self.v1.y(), self.v1.x(), self.v1.z()))
-        self.assertEqual(self.v1.xxyyzzxyz, (self.v1.x(), self.v1.x(), self.v1.y(),
-                                             self.v1.y(), self.v1.z(), self.v1.z(),
-                                             self.v1.x(), self.v1.y(), self.v1.z()))
+        self.assertEqual(self.v1.yxz, (self.v1.y, self.v1.x, self.v1.z))
+        self.assertEqual(self.v1.xxyyzzxyz, (self.v1.x, self.v1.x, self.v1.y,
+                                             self.v1.y, self.v1.z, self.v1.z,
+                                             self.v1.x, self.v1.y, self.v1.z))
         def swizzleAssignment1():
             Vector3().xyz = self.t2
         self.assertRaises(AttributeError, swizzleAssignment1)
@@ -1215,106 +1215,106 @@ class Vector3TypeTest(unittest.TestCase):
     def test_elementwise(self):
         # behaviour for "elementwise op scalar"
         self.assertEqual(self.v1.elementwise() + self.s1,
-                         (self.v1.x() + self.s1, self.v1.y() + self.s1, self.v1.z() + self.s1))
+                         (self.v1.x + self.s1, self.v1.y + self.s1, self.v1.z + self.s1))
         self.assertEqual(self.v1.elementwise() - self.s1,
-                         (self.v1.x() - self.s1, self.v1.y() - self.s1, self.v1.z() - self.s1))
+                         (self.v1.x - self.s1, self.v1.y - self.s1, self.v1.z - self.s1))
         self.assertEqual(self.v1.elementwise() * self.s2,
-                         (self.v1.x() * self.s2, self.v1.y() * self.s2, self.v1.z() * self.s2))
+                         (self.v1.x * self.s2, self.v1.y * self.s2, self.v1.z * self.s2))
         self.assertEqual(self.v1.elementwise() / self.s2,
-                         (self.v1.x() / self.s2, self.v1.y() / self.s2, self.v1.z() / self.s2))
+                         (self.v1.x / self.s2, self.v1.y / self.s2, self.v1.z / self.s2))
         self.assertEqual(self.v1.elementwise() // self.s1,
-                         (self.v1.x() // self.s1, self.v1.y() // self.s1, self.v1.z() // self.s1))
+                         (self.v1.x // self.s1, self.v1.y // self.s1, self.v1.z // self.s1))
         self.assertEqual(self.v1.elementwise() ** self.s1,
-                         (self.v1.x() ** self.s1, self.v1.y() ** self.s1, self.v1.z() ** self.s1))
+                         (self.v1.x ** self.s1, self.v1.y ** self.s1, self.v1.z ** self.s1))
         self.assertEqual(self.v1.elementwise() % self.s1,
-                         (self.v1.x() % self.s1, self.v1.y() % self.s1, self.v1.z() % self.s1))
+                         (self.v1.x % self.s1, self.v1.y % self.s1, self.v1.z % self.s1))
         self.assertEqual(self.v1.elementwise() > self.s1,
-                         self.v1.x() > self.s1 and self.v1.y() > self.s1 and self.v1.z() > self.s1)
+                         self.v1.x > self.s1 and self.v1.y > self.s1 and self.v1.z > self.s1)
         self.assertEqual(self.v1.elementwise() < self.s1,
-                         self.v1.x() < self.s1 and self.v1.y() < self.s1 and self.v1.z() < self.s1)
+                         self.v1.x < self.s1 and self.v1.y < self.s1 and self.v1.z < self.s1)
         self.assertEqual(self.v1.elementwise() == self.s1,
-                         self.v1.x() == self.s1 and self.v1.y() == self.s1 and self.v1.z() == self.s1)
+                         self.v1.x == self.s1 and self.v1.y == self.s1 and self.v1.z == self.s1)
         self.assertEqual(self.v1.elementwise() != self.s1,
-                         self.v1.x() != self.s1 and self.v1.y() != self.s1 and self.v1.z() != self.s1)
+                         self.v1.x != self.s1 and self.v1.y != self.s1 and self.v1.z != self.s1)
         self.assertEqual(self.v1.elementwise() >= self.s1,
-                         self.v1.x() >= self.s1 and self.v1.y() >= self.s1 and self.v1.z() >= self.s1)
+                         self.v1.x >= self.s1 and self.v1.y >= self.s1 and self.v1.z >= self.s1)
         self.assertEqual(self.v1.elementwise() <= self.s1,
-                         self.v1.x() <= self.s1 and self.v1.y() <= self.s1 and self.v1.z() <= self.s1)
+                         self.v1.x <= self.s1 and self.v1.y <= self.s1 and self.v1.z <= self.s1)
         # behaviour for "scalar op elementwise"
         self.assertEqual(5 + self.v1.elementwise(), Vector3(5, 5, 5) + self.v1)
         self.assertEqual(3.5 - self.v1.elementwise(), Vector3(3.5, 3.5, 3.5) - self.v1)
         self.assertEqual(7.5 * self.v1.elementwise() , 7.5 * self.v1)
-        self.assertEqual(-3.5 / self.v1.elementwise(), (-3.5 / self.v1.x(), -3.5 / self.v1.y(), -3.5 / self.v1.z()))
-        self.assertEqual(-3.5 // self.v1.elementwise(), (-3.5 // self.v1.x(), -3.5 // self.v1.y(), -3.5 // self.v1.z()))
-        self.assertEqual(-3.5 ** self.v1.elementwise(), (-3.5 ** self.v1.x(), -3.5 ** self.v1.y(), -3.5 ** self.v1.z()))
-        self.assertEqual(3 % self.v1.elementwise(), (3 % self.v1.x(), 3 % self.v1.y(), 3 % self.v1.z()))
-        self.assertEqual(2 < self.v1.elementwise(), 2 < self.v1.x() and 2 < self.v1.y() and 2 < self.v1.z())
-        self.assertEqual(2 > self.v1.elementwise(), 2 > self.v1.x() and 2 > self.v1.y() and 2 > self.v1.z())
-        self.assertEqual(1 == self.v1.elementwise(), 1 == self.v1.x() and 1 == self.v1.y() and 1 == self.v1.z())
-        self.assertEqual(1 != self.v1.elementwise(), 1 != self.v1.x() and 1 != self.v1.y() and 1 != self.v1.z())
-        self.assertEqual(2 <= self.v1.elementwise(), 2 <= self.v1.x() and 2 <= self.v1.y() and 2 <= self.v1.z())
-        self.assertEqual(-7 >= self.v1.elementwise(), -7 >= self.v1.x() and -7 >= self.v1.y() and -7 >= self.v1.z())
-        self.assertEqual(-7 != self.v1.elementwise(), -7 != self.v1.x() and -7 != self.v1.y() and -7 != self.v1.z())
+        self.assertEqual(-3.5 / self.v1.elementwise(), (-3.5 / self.v1.x, -3.5 / self.v1.y, -3.5 / self.v1.z))
+        self.assertEqual(-3.5 // self.v1.elementwise(), (-3.5 // self.v1.x, -3.5 // self.v1.y, -3.5 // self.v1.z))
+        self.assertEqual(-3.5 ** self.v1.elementwise(), (-3.5 ** self.v1.x, -3.5 ** self.v1.y, -3.5 ** self.v1.z))
+        self.assertEqual(3 % self.v1.elementwise(), (3 % self.v1.x, 3 % self.v1.y, 3 % self.v1.z))
+        self.assertEqual(2 < self.v1.elementwise(), 2 < self.v1.x and 2 < self.v1.y and 2 < self.v1.z)
+        self.assertEqual(2 > self.v1.elementwise(), 2 > self.v1.x and 2 > self.v1.y and 2 > self.v1.z)
+        self.assertEqual(1 == self.v1.elementwise(), 1 == self.v1.x and 1 == self.v1.y and 1 == self.v1.z)
+        self.assertEqual(1 != self.v1.elementwise(), 1 != self.v1.x and 1 != self.v1.y and 1 != self.v1.z)
+        self.assertEqual(2 <= self.v1.elementwise(), 2 <= self.v1.x and 2 <= self.v1.y and 2 <= self.v1.z)
+        self.assertEqual(-7 >= self.v1.elementwise(), -7 >= self.v1.x and -7 >= self.v1.y and -7 >= self.v1.z)
+        self.assertEqual(-7 != self.v1.elementwise(), -7 != self.v1.x and -7 != self.v1.y and -7 != self.v1.z)
 
         # behaviour for "elementwise op vector"
         self.assertEqual(type(self.v1.elementwise() * self.v2), type(self.v1))
         self.assertEqual(self.v1.elementwise() + self.v2, self.v1 + self.v2)
         self.assertEqual(self.v1.elementwise() + self.v2, self.v1 + self.v2)
         self.assertEqual(self.v1.elementwise() - self.v2, self.v1 - self.v2)
-        self.assertEqual(self.v1.elementwise() * self.v2, (self.v1.x() * self.v2.x(), self.v1.y() * self.v2.y(), self.v1.z() * self.v2.z()))
-        self.assertEqual(self.v1.elementwise() / self.v2, (self.v1.x() / self.v2.x(), self.v1.y() / self.v2.y(), self.v1.z() / self.v2.z()))
-        self.assertEqual(self.v1.elementwise() // self.v2, (self.v1.x() // self.v2.x(), self.v1.y() // self.v2.y(), self.v1.z() // self.v2.z()))
-        self.assertEqual(self.v1.elementwise() ** self.v2, (self.v1.x() ** self.v2.x(), self.v1.y() ** self.v2.y(), self.v1.z() ** self.v2.z()))
-        self.assertEqual(self.v1.elementwise() % self.v2, (self.v1.x() % self.v2.x(), self.v1.y() % self.v2.y(), self.v1.z() % self.v2.z()))
-        self.assertEqual(self.v1.elementwise() > self.v2, self.v1.x() > self.v2.x() and self.v1.y() > self.v2.y() and self.v1.z() > self.v2.z())
-        self.assertEqual(self.v1.elementwise() < self.v2, self.v1.x() < self.v2.x() and self.v1.y() < self.v2.y() and self.v1.z() < self.v2.z())
-        self.assertEqual(self.v1.elementwise() >= self.v2, self.v1.x() >= self.v2.x() and self.v1.y() >= self.v2.y() and self.v1.z() >= self.v2.z())
-        self.assertEqual(self.v1.elementwise() <= self.v2, self.v1.x() <= self.v2.x() and self.v1.y() <= self.v2.y() and self.v1.z() <= self.v2.z())
-        self.assertEqual(self.v1.elementwise() == self.v2, self.v1.x() == self.v2.x() and self.v1.y() == self.v2.y() and self.v1.z() == self.v2.z())
-        self.assertEqual(self.v1.elementwise() != self.v2, self.v1.x() != self.v2.x() and self.v1.y() != self.v2.y() and self.v1.z() != self.v2.z())
+        self.assertEqual(self.v1.elementwise() * self.v2, (self.v1.x * self.v2.x, self.v1.y * self.v2.y, self.v1.z * self.v2.z))
+        self.assertEqual(self.v1.elementwise() / self.v2, (self.v1.x / self.v2.x, self.v1.y / self.v2.y, self.v1.z / self.v2.z))
+        self.assertEqual(self.v1.elementwise() // self.v2, (self.v1.x // self.v2.x, self.v1.y // self.v2.y, self.v1.z // self.v2.z))
+        self.assertEqual(self.v1.elementwise() ** self.v2, (self.v1.x ** self.v2.x, self.v1.y ** self.v2.y, self.v1.z ** self.v2.z))
+        self.assertEqual(self.v1.elementwise() % self.v2, (self.v1.x % self.v2.x, self.v1.y % self.v2.y, self.v1.z % self.v2.z))
+        self.assertEqual(self.v1.elementwise() > self.v2, self.v1.x > self.v2.x and self.v1.y > self.v2.y and self.v1.z > self.v2.z)
+        self.assertEqual(self.v1.elementwise() < self.v2, self.v1.x < self.v2.x and self.v1.y < self.v2.y and self.v1.z < self.v2.z)
+        self.assertEqual(self.v1.elementwise() >= self.v2, self.v1.x >= self.v2.x and self.v1.y >= self.v2.y and self.v1.z >= self.v2.z)
+        self.assertEqual(self.v1.elementwise() <= self.v2, self.v1.x <= self.v2.x and self.v1.y <= self.v2.y and self.v1.z <= self.v2.z)
+        self.assertEqual(self.v1.elementwise() == self.v2, self.v1.x == self.v2.x and self.v1.y == self.v2.y and self.v1.z == self.v2.z)
+        self.assertEqual(self.v1.elementwise() != self.v2, self.v1.x != self.v2.x and self.v1.y != self.v2.y and self.v1.z != self.v2.z)
         # behaviour for "vector op elementwise"
         self.assertEqual(self.v2 + self.v1.elementwise(), self.v2 + self.v1)
         self.assertEqual(self.v2 - self.v1.elementwise(), self.v2 - self.v1)
-        self.assertEqual(self.v2 * self.v1.elementwise(), (self.v2.x() * self.v1.x(), self.v2.y() * self.v1.y(), self.v2.z() * self.v1.z()))
-        self.assertEqual(self.v2 / self.v1.elementwise(), (self.v2.x() / self.v1.x(), self.v2.y() / self.v1.y(), self.v2.z() / self.v1.z()))
-        self.assertEqual(self.v2 // self.v1.elementwise(), (self.v2.x() // self.v1.x(), self.v2.y() // self.v1.y(), self.v2.z() // self.v1.z()))
-        self.assertEqual(self.v2 ** self.v1.elementwise(), (self.v2.x() ** self.v1.x(), self.v2.y() ** self.v1.y(), self.v2.z() ** self.v1.z()))
-        self.assertEqual(self.v2 % self.v1.elementwise(), (self.v2.x() % self.v1.x(), self.v2.y() % self.v1.y(), self.v2.z() % self.v1.z()))
-        self.assertEqual(self.v2 < self.v1.elementwise(), self.v2.x() < self.v1.x() and self.v2.y() < self.v1.y() and self.v2.z() < self.v1.z())
-        self.assertEqual(self.v2 > self.v1.elementwise(), self.v2.x() > self.v1.x() and self.v2.y() > self.v1.y() and self.v2.z() > self.v1.z)
-        self.assertEqual(self.v2 <= self.v1.elementwise(), self.v2.x() <= self.v1.x() and self.v2.y() <= self.v1.y() and self.v2.z() <= self.v1.z)
-        self.assertEqual(self.v2 >= self.v1.elementwise(), self.v2.x() >= self.v1.x() and self.v2.y() >= self.v1.y() and self.v2.z() >= self.v1.z)
-        self.assertEqual(self.v2 == self.v1.elementwise(), self.v2.x() == self.v1.x() and self.v2.y() == self.v1.y() and self.v2.z() == self.v1.z)
-        self.assertEqual(self.v2 != self.v1.elementwise(), self.v2.x() != self.v1.x() and self.v2.y() != self.v1.y() and self.v2.z() != self.v1.z)
+        self.assertEqual(self.v2 * self.v1.elementwise(), (self.v2.x * self.v1.x, self.v2.y * self.v1.y, self.v2.z * self.v1.z))
+        self.assertEqual(self.v2 / self.v1.elementwise(), (self.v2.x / self.v1.x, self.v2.y / self.v1.y, self.v2.z / self.v1.z))
+        self.assertEqual(self.v2 // self.v1.elementwise(), (self.v2.x // self.v1.x, self.v2.y // self.v1.y, self.v2.z // self.v1.z))
+        self.assertEqual(self.v2 ** self.v1.elementwise(), (self.v2.x ** self.v1.x, self.v2.y ** self.v1.y, self.v2.z ** self.v1.z))
+        self.assertEqual(self.v2 % self.v1.elementwise(), (self.v2.x % self.v1.x, self.v2.y % self.v1.y, self.v2.z % self.v1.z))
+        self.assertEqual(self.v2 < self.v1.elementwise(), self.v2.x < self.v1.x and self.v2.y < self.v1.y and self.v2.z < self.v1.z)
+        self.assertEqual(self.v2 > self.v1.elementwise(), self.v2.x > self.v1.x and self.v2.y > self.v1.y and self.v2.z > self.v1.z)
+        self.assertEqual(self.v2 <= self.v1.elementwise(), self.v2.x <= self.v1.x and self.v2.y <= self.v1.y and self.v2.z <= self.v1.z)
+        self.assertEqual(self.v2 >= self.v1.elementwise(), self.v2.x >= self.v1.x and self.v2.y >= self.v1.y and self.v2.z >= self.v1.z)
+        self.assertEqual(self.v2 == self.v1.elementwise(), self.v2.x == self.v1.x and self.v2.y == self.v1.y and self.v2.z == self.v1.z)
+        self.assertEqual(self.v2 != self.v1.elementwise(), self.v2.x != self.v1.x and self.v2.y != self.v1.y and self.v2.z != self.v1.z)
 
         # behaviour for "elementwise op elementwise"
         self.assertEqual(self.v2.elementwise() + self.v1.elementwise(), self.v2 + self.v1)
         self.assertEqual(self.v2.elementwise() - self.v1.elementwise(), self.v2 - self.v1)
         self.assertEqual(self.v2.elementwise() * self.v1.elementwise(),
-                         (self.v2.x() * self.v1.x(), self.v2.y() * self.v1.y(), self.v2.z() * self.v1.z()))
+                         (self.v2.x * self.v1.x, self.v2.y * self.v1.y, self.v2.z * self.v1.z))
         self.assertEqual(self.v2.elementwise() / self.v1.elementwise(),
-                         (self.v2.x() / self.v1.x(), self.v2.y() / self.v1.y(), self.v2.z() / self.v1.z()))
+                         (self.v2.x / self.v1.x, self.v2.y / self.v1.y, self.v2.z / self.v1.z))
         self.assertEqual(self.v2.elementwise() // self.v1.elementwise(),
-                         (self.v2.x() // self.v1.x(), self.v2.y() // self.v1.y(), self.v2.z() // self.v1.z()))
+                         (self.v2.x // self.v1.x, self.v2.y // self.v1.y, self.v2.z // self.v1.z))
         self.assertEqual(self.v2.elementwise() ** self.v1.elementwise(),
-                         (self.v2.x() ** self.v1.x(), self.v2.y() ** self.v1.y(), self.v2.z() ** self.v1.z()))
+                         (self.v2.x ** self.v1.x, self.v2.y ** self.v1.y, self.v2.z ** self.v1.z))
         self.assertEqual(self.v2.elementwise() % self.v1.elementwise(),
-                         (self.v2.x() % self.v1.x(), self.v2.y() % self.v1.y(), self.v2.z() % self.v1.z()))
+                         (self.v2.x % self.v1.x, self.v2.y % self.v1.y, self.v2.z % self.v1.z))
         self.assertEqual(self.v2.elementwise() < self.v1.elementwise(),
-                         self.v2.x() < self.v1.x() and self.v2.y() < self.v1.y() and self.v2.z() < self.v1.z())
+                         self.v2.x < self.v1.x and self.v2.y < self.v1.y and self.v2.z < self.v1.z)
         self.assertEqual(self.v2.elementwise() > self.v1.elementwise(),
-                         self.v2.x() > self.v1.x() and self.v2.y() > self.v1.y() and self.v2.z() > self.v1.z())
+                         self.v2.x > self.v1.x and self.v2.y > self.v1.y and self.v2.z > self.v1.z)
         self.assertEqual(self.v2.elementwise() <= self.v1.elementwise(),
-                         self.v2.x() <= self.v1.x() and self.v2.y() <= self.v1.y() and self.v2.z() <= self.v1.z())
+                         self.v2.x <= self.v1.x and self.v2.y <= self.v1.y and self.v2.z <= self.v1.z)
         self.assertEqual(self.v2.elementwise() >= self.v1.elementwise(),
-                         self.v2.x() >= self.v1.x() and self.v2.y() >= self.v1.y() and self.v2.z() >= self.v1.z())
+                         self.v2.x >= self.v1.x and self.v2.y >= self.v1.y and self.v2.z >= self.v1.z)
         self.assertEqual(self.v2.elementwise() == self.v1.elementwise(),
-                         self.v2.x() == self.v1.x() and self.v2.y() == self.v1.y() and self.v2.z() == self.v1.z())
+                         self.v2.x == self.v1.x and self.v2.y == self.v1.y and self.v2.z == self.v1.z)
         self.assertEqual(self.v2.elementwise() != self.v1.elementwise(),
-                         self.v2.x() != self.v1.x() and self.v2.y() != self.v1.y() and self.v2.z() != self.v1.z())
+                         self.v2.x != self.v1.x and self.v2.y != self.v1.y and self.v2.z != self.v1.z)
 
         # other behaviour
-        self.assertEqual(abs(self.v1.elementwise()), (abs(self.v1.x()), abs(self.v1.y()), abs(self.v1.z())))
+        self.assertEqual(abs(self.v1.elementwise()), (abs(self.v1.x), abs(self.v1.y), abs(self.v1.z)))
         self.assertEqual(-self.v1.elementwise(), -self.v1)
         self.assertEqual(+self.v1.elementwise(), +self.v1)
         self.assertEqual(bool(self.v1.elementwise()), bool(self.v1))
