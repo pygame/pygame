@@ -673,6 +673,41 @@ class Vector2TypeTest(unittest.TestCase):
         v.from_polar((1,2))
         self.assertEqual(v, self.e1)
 
+    def test_inplace_operators(self):
+        v1 = v2 = Vector2(1, 1)
+        self.assertEqual(id(v1), id(v2))
+        v1 *= 2
+        self.assertNotEqual(id(v1), id(v2))
+        self.assertEqual(v1, (2.0, 2.0))
+        self.assertEqual(v2, (1.0, 1.0))
+
+        v1 = v2 = Vector2(5, 5)
+        self.assertEqual(id(v1), id(v2))
+        v1 /= 2
+        self.assertNotEqual(id(v1), id(v2))
+        self.assertEqual(v1, (2.5, 2.5))
+        self.assertEqual(v2, (5.0, 5.0))
+
+        v1 = v2 = Vector2(5, 5)
+        self.assertEqual(id(v1), id(v2))
+        v1 //= 2
+        self.assertNotEqual(id(v1), id(v2))
+        self.assertEqual(v1, (2.0, 2.0))
+        self.assertEqual(v2, (5.0, 5.0))
+
+        v1 = v2 = Vector2(3, 3)
+        self.assertEqual(id(v1), id(v2))
+        v1 -= (1, 1)
+        self.assertNotEqual(id(v1), id(v2))
+        self.assertEqual(v1, (2.0, 2.0))
+        self.assertEqual(v2, (3.0, 3.0))
+
+        v1 = v2 = Vector2(3.0, 3.0)
+        self.assertEqual(id(v1), id(v2))
+        v1 += (1, 1)
+        self.assertNotEqual(id(v1), id(v2))
+        self.assertEqual(v1, (4.0, 4.0))
+        self.assertEqual(v2, (3.0, 3.0))
 
 
 
@@ -1379,23 +1414,40 @@ class Vector3TypeTest(unittest.TestCase):
         self.assertEqual(v, .5 * self.e2)
         
     def test_inplace_operators(self):
+        v1 = v2 = Vector3(1, 1, 1)
+        self.assertEqual(id(v1), id(v2))
+        v1 *= 2
+        self.assertNotEqual(id(v1), id(v2))
+        self.assertEqual(v1, (2.0, 2.0, 2.0))
+        self.assertEqual(v2, (1.0, 1.0, 1.0))
 
-        v = Vector3(1,1,1)
-        v *= 2
-        self.assertEqual(v, (2.0,2.0,2.0))
+        v1 = v2 = Vector3(5, 5, 5)
+        self.assertEqual(id(v1), id(v2))
+        v1 /= 2
+        self.assertNotEqual(id(v1), id(v2))
+        self.assertEqual(v1, (2.5, 2.5, 2.5))
+        self.assertEqual(v2, (5.0, 5.0, 5.0))
 
-        v = Vector3(4,4,4)
-        v /= 2
-        self.assertEqual(v, (2.0,2.0,2.0))
+        v1 = v2 = Vector3(5, 5, 5)
+        self.assertEqual(id(v1), id(v2))
+        v1 //= 2
+        self.assertNotEqual(id(v1), id(v2))
+        self.assertEqual(v1, (2.0, 2.0, 2.0))
+        self.assertEqual(v2, (5.0, 5.0, 5.0))
 
+        v1 = v2 = Vector3(3, 3, 3)
+        self.assertEqual(id(v1), id(v2))
+        v1 -= (1, 1, 1)
+        self.assertNotEqual(id(v1), id(v2))
+        self.assertEqual(v1, (2.0, 2.0, 2.0))
+        self.assertEqual(v2, (3.0, 3.0, 3.0))
 
-        v = Vector3(3.0,3.0,3.0)
-        v -= (1,1,1)
-        self.assertEqual(v, (2.0,2.0,2.0))
-
-        v = Vector3(3.0,3.0,3.0)
-        v += (1,1,1)
-        self.assertEqual(v, (4.0,4.0,4.0))
+        v1 = v2 = Vector3(3.0, 3.0, 3.0)
+        self.assertEqual(id(v1), id(v2))
+        v1 += (1, 1, 1)
+        self.assertNotEqual(id(v1), id(v2))
+        self.assertEqual(v1, (4.0, 4.0, 4.0))
+        self.assertEqual(v2, (3.0, 3.0, 3.0))
 
 
 
