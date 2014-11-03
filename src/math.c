@@ -1524,6 +1524,7 @@ _vector2_rotate_helper(double *dst_coords, const double *src_coords,
     if (fmod(angle + epsilon, 90.) < 2 * epsilon) {
         switch ((int)((angle + epsilon) / 90)) {
         case 0: /* 0 degrees */
+        case 4: /* 360 degree (see issue 214) */
             dst_coords[0] = src_coords[0];
             dst_coords[1] = src_coords[1];
             break;
@@ -1926,6 +1927,7 @@ _vector3_rotate_helper(double *dst_coords, const double *src_coords,
     if (fmod(angle + epsilon, 90.) < 2 * epsilon) {
         switch ((int)((angle + epsilon) / 90)) {
         case 0: /* 0 degrees */
+        case 4: /* 360 degrees (see issue 214) */
             memcpy(dst_coords, src_coords, 3 * sizeof(src_coords[0]));
             break;
         case 1: /* 90 degrees */
