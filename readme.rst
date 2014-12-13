@@ -67,7 +67,7 @@ Credits
 
      Richard Goedeken for his smoothscale function.
 
-     Ulf Ekström for his pixel perfect collision detection code.
+     Ulf EkstrÃ¶m for his pixel perfect collision detection code.
 
      Pete Shinners - orginal author.
 
@@ -94,7 +94,7 @@ Credits
 
      Thanks to those sending in patches and fixes: Niki Spahiev, Gordon
      Tyler, Nathaniel Pryce, Dave Wallace, John Popplewell, Michael Urman,
-     Andrew Straw, Michael Hudson, Ole Martin Bjoerndalen, Hervé Cauwelier,
+     Andrew Straw, Michael Hudson, Ole Martin Bjoerndalen, Hervï¿½ Cauwelier,
      James Mazer, Lalo Martins, Timothy Stranex, Chad Lester, Matthias
      Spiller, Bo Jangeborg, Dmitry Borisov, Campbell Barton, Diego Essaya,
      Eyal Lotem, Regis Desgroppes, Emmanuel Hainry, Randy Kaelber
@@ -138,7 +138,7 @@ Dependencies
 Todo / Ideas (feel free to submit)
 ==================================
 
-       http://www.pygame.org/wiki/todo/
+       http://www.pygame.org/wiki/todo
 
 License
 =======
