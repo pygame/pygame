@@ -273,6 +273,10 @@ class MixerModuleTest(unittest.TestCase):
             mixer.quit()
 
     def test_array_keyword(self):
+        # If we don't have a real sound card don't do this test because it will fail.
+        if 'SDL_AUDIODRIVER' in os.environ and os.environ['SDL_AUDIODRIVER'] == 'disk':
+            return        
+        
         try:
             from numpy import (array, arange, zeros,
                                int8, uint8,
