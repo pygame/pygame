@@ -1,3 +1,5 @@
+__tags__ = ('ignore', 'subprocess_ignore')
+
 if __name__ == '__main__':
     import sys
     import os
