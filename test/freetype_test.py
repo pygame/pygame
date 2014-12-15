@@ -1,7 +1,8 @@
-__tags__ = ('ignore', 'subprocess_ignore')
+import os
+if os.environ.get('SDL_VIDEODRIVER') == 'dummy':
+    __tags__ = ('ignore', 'subprocess_ignore')
 
 import sys
-import os
 import ctypes
 import weakref
 import gc
