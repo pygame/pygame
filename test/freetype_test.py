@@ -1,3 +1,5 @@
+__tags__ = ('ignore', 'subprocess_ignore')
+
 import sys
 import os
 import ctypes
