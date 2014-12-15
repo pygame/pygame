@@ -1,8 +1,8 @@
 #################################### IMPORTS ###################################
+import os
 
 if __name__ == '__main__':
     import sys
-    import os
     pkg_dir = os.path.split(os.path.abspath(__file__))[0]
     parent_dir, pkg_name = os.path.split(pkg_dir)
     is_pygame_pkg = (pkg_name == 'tests' and
@@ -239,6 +239,10 @@ class EventModuleTest(unittest.TestCase):
 
           # pygame.event.set_grab(bool): return None
           # control the sharing of input devices with other applications
+
+        # If we don't have a real display, don't do the test.
+        if os.environ.get('SDL_VIDEODRIVER') == 'dummy':
+            return
 
         pygame.event.set_grab(True)
         self.assert_(pygame.event.get_grab())
