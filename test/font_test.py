@@ -184,7 +184,7 @@ class FontTest(unittest.TestCase):
         
         # If we don't have a real display, don't do this test.
         # Transparent background doesn't seem to work without a read video card.
-        if not('SDL_VIDEODRIVER' in os.environ and os.environ['SDL_VIDEODRIVER'] == 'dummy'):        
+        if os.environ.get('SDL_VIDEODRIVER') == 'dummy':       
             screen.fill((10, 10, 10))
             font_surface = f.render("   bar", True, (0, 0, 0), None)
             font_rect = font_surface.get_rect()
