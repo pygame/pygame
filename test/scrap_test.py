@@ -1,8 +1,9 @@
-__tags__ = ('ignore', 'subprocess_ignore')
+import os
+if os.environ.get('SDL_VIDEODRIVER') == 'dummy':
+    __tags__ = ('ignore', 'subprocess_ignore')
 
 if __name__ == '__main__':
     import sys
-    import os
     pkg_dir = os.path.split(os.path.abspath(__file__))[0]
     parent_dir, pkg_name = os.path.split(pkg_dir)
     is_pygame_pkg = (pkg_name == 'tests' and
