@@ -19,7 +19,8 @@ Here are some steps for making a new release of pygame.  So everyone knows what 
 *  release binaries, not before sources.
 *  announce to the mailing list, and the world that a new pygame is released.
 *  the version of pygame is incremented by 1 and pre appended.  eg 1.7.1 goes to 1.7.2.dev
-
+*  For a full description of Python version numbering standards see:
+*  https://www.python.org/dev/peps/pep-0440/
 
 == Some definitions and explanations. ==
 
