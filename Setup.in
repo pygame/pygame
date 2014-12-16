@@ -9,7 +9,7 @@
 #--StartConfig
 SDL = -I/usr/include/SDL -D_REENTRANT -lSDL
 FONT = -lSDL_ttf
-IMAGE = -lSDL_image
+IMAGE = -l/usr/lib/x86_64-linux-gnu/libSDL_image
 MIXER = -lSDL_mixer
 SMPEG = -lsmpeg
 PNG = -lpng
