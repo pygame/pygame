@@ -17,7 +17,7 @@ localbase = os.environ.get('LOCALBASE', '')
 #these get prefixes with '/usr' and '/usr/local' or the $LOCALBASE
 origincdirs = ['/include', '/include/SDL', '/include/SDL',
                '/include/smpeg']
-origlibdirs = ['/lib','/lib64','/X11R6/lib','/lib/x86_64-linux-gnu']
+origlibdirs = ['/lib','/lib64','/X11R6/lib']
 if 'ORIGLIBDIRS' in os.environ and os.environ['ORIGLIBDIRS'] != "":
     origlibdirs = os.environ['ORIGLIBDIRS'].split(":")
 
