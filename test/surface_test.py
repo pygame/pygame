@@ -673,6 +673,11 @@ class SurfaceTypeTest(unittest.TestCase):
     def test_image_convert_bug_131(self):
         # Bitbucket bug #131: Unable to Surface.convert(32) some 1-bit images.
         # https://bitbucket.org/pygame/pygame/issue/131/unable-to-surfaceconvert-32-some-1-bit
+
+        # Skip test_image_convert_bug_131 for headless tests.
+        if os.environ.get('SDL_VIDEODRIVER') == 'dummy':
+            return
+
         pygame.display.init()
         pygame.display.set_mode((640,480))
 
