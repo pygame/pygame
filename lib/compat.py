@@ -66,7 +66,12 @@ else:
     filesystem_errors = "strict"
     
 def filesystem_encode(u):
-    return u.encode(sys.getfilesystemencoding(), filesystem_errors)
+    fsencoding = sys.getfilesystemencoding()
+    if (fsencoding.lower() == 'ascii') and sys.platform.startswith('linux'):
+        # Don't believe Linux systems claiming ASCII-only filesystems. In
+        # practice, arbitrary bytes are allowed, and most things expect UTF-8.
+        fsencoding = 'utf-8'
+    return u.encode(fsencoding, filesystem_errors)
 
 # Represent escaped bytes and strings in a portable way.
 #
