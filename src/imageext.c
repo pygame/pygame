@@ -33,6 +33,8 @@
 #include <png.h>
 #endif
 #include <jpeglib.h>
+#include <jerror.h>
+
 /* Keep a stray macro from conflicting with python.h */
 #if defined(HAVE_PROTOTYPES)
 #undef HAVE_PROTOTYPES
@@ -162,7 +164,26 @@ image_load_ext(PyObject *self, PyObject *arg)
 
 #ifdef PNG_H
 
-static int
+static void
+png_write_fn (png_structp png_ptr, png_bytep data, png_size_t length)
+{
+    FILE *fp = (FILE *)png_get_io_ptr(png_ptr);
+    if (fwrite(data, 1, length, fp) != length) {
+        fclose(fp);
+        png_error(png_ptr, "Error while writing to the PNG file (fwrite)");
+    }
+}
+
+static void
+png_flush_fn (png_structp png_ptr)
+{
+    FILE *fp = (FILE *)png_get_io_ptr(png_ptr);
+    if (fflush(fp) == EOF) {
+        fclose(fp);
+        png_error(png_ptr, "Error while writing to PNG file (fflush)");
+    }
+}
+
 write_png (const char *file_name,
            png_bytep *rows,
            int w,
@@ -190,7 +211,7 @@ write_png (const char *file_name,
         goto fail;
 
     doing = "init IO";
-    png_init_io (png_ptr, fp);
+    png_set_write_fn (png_ptr, fp, png_write_fn, png_flush_fn);
 
     doing = "write header";
     png_set_IHDR (png_ptr, info_ptr, w, h, bitdepth, colortype,
@@ -263,7 +284,7 @@ SavePNG (SDL_Surface *surface, const char *file)
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
                                        0xff0000, 0xff00, 0xff, 0x000000ff
 #else
-                                       0xff, 0xff00, 0xff0000, 0xff000000
+                                       0xff00, 0xff, 0xff0000, 0xff000000
 #endif
         );
 
@@ -326,6 +347,94 @@ SavePNG (SDL_Surface *surface, const char *file)
 
 #define NUM_LINES_TO_WRITE 500
 
+/* Avoid conflicts with the libjpeg libraries C runtime bindings.
+ * Adapted from code in the libjpeg file jdatadst.c .
+ */
+ 
+#define OUTPUT_BUF_SIZE  4096	/* choose an efficiently fwrite'able size */
+ 
+/* Expanded data destination object for stdio output */
+typedef struct {
+    struct jpeg_destination_mgr pub; /* public fields */
+
+    FILE *outfile;    /* target stream */
+    JOCTET *buffer;   /* start of buffer */
+} j_outfile_mgr;
+
+static void
+j_init_destination (j_compress_ptr cinfo)
+{
+    j_outfile_mgr *dest = (j_outfile_mgr *) cinfo->dest;
+
+    /* Allocate the output buffer --- it will be released when done with image */
+    dest->buffer = (JOCTET *)
+        (*cinfo->mem->alloc_small) ((j_common_ptr) cinfo, JPOOL_IMAGE,
+		                            OUTPUT_BUF_SIZE * sizeof(JOCTET));
+
+    dest->pub.next_output_byte = dest->buffer;
+    dest->pub.free_in_buffer = OUTPUT_BUF_SIZE;
+}
+
+static boolean
+j_empty_output_buffer (j_compress_ptr cinfo)
+{
+    j_outfile_mgr *dest = (j_outfile_mgr *) cinfo->dest;
+
+    if (fwrite(dest->buffer, 1, OUTPUT_BUF_SIZE, dest->outfile) !=
+        (size_t) OUTPUT_BUF_SIZE) {
+        ERREXIT(cinfo, JERR_FILE_WRITE);
+    }
+    dest->pub.next_output_byte = dest->buffer;
+    dest->pub.free_in_buffer = OUTPUT_BUF_SIZE;
+
+    return TRUE;
+}
+
+static void
+j_term_destination (j_compress_ptr cinfo)
+{
+    j_outfile_mgr *dest = (j_outfile_mgr *) cinfo->dest;
+    size_t datacount = OUTPUT_BUF_SIZE - dest->pub.free_in_buffer;
+
+    /* Write any data remaining in the buffer */
+    if (datacount > 0) {
+        if (fwrite(dest->buffer, 1, datacount, dest->outfile) != datacount) {
+            ERREXIT(cinfo, JERR_FILE_WRITE);
+        }
+    }
+    fflush(dest->outfile);
+    /* Make sure we wrote the output file OK */
+    if (ferror(dest->outfile)) {
+        ERREXIT(cinfo, JERR_FILE_WRITE);
+    }
+}
+
+static void
+j_stdio_dest (j_compress_ptr cinfo, FILE *outfile)
+{
+    j_outfile_mgr *dest;
+
+  /* The destination object is made permanent so that multiple JPEG images
+   * can be written to the same file without re-executing jpeg_stdio_dest.
+   * This makes it dangerous to use this manager and a different destination
+   * manager serially with the same JPEG object, because their private object
+   * sizes may be different.  Caveat programmer.
+   */
+    if (cinfo->dest == NULL) {	/* first time for this JPEG object? */
+        cinfo->dest = (struct jpeg_destination_mgr *)
+            (*cinfo->mem->alloc_small) ((j_common_ptr) cinfo, JPOOL_PERMANENT,
+                                        sizeof(j_outfile_mgr));
+    }
+
+    dest = (j_outfile_mgr *) cinfo->dest;
+    dest->pub.init_destination = j_init_destination;
+    dest->pub.empty_output_buffer = j_empty_output_buffer;
+    dest->pub.term_destination = j_term_destination;
+    dest->outfile = outfile;
+}
+
+/* End borrowed code
+ */
 
 int write_jpeg (const char *file_name, unsigned char** image_buffer,
                 int image_width, int image_height, int quality) {
@@ -352,7 +461,7 @@ int write_jpeg (const char *file_name, unsigned char** image_buffer,
         SDL_SetError ("SaveJPEG: could not open %s", file_name);
         return -1;
     }
-    jpeg_stdio_dest (&cinfo, outfile);
+    j_stdio_dest (&cinfo, outfile);
 
     cinfo.image_width = image_width;
     cinfo.image_height = image_height;
