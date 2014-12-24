@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: ascii -*-
 # Program msys_build_deps.py
-# Requires Python 2.5 or later and win32api.
+# Requires Python 2.7 or later and win32api.
 
 """Build Pygame dependencies using MinGW and MSYS
 
-Configured for Pygame 1.9.2 and Python 2.5 and up.
+Configured for Pygame 1.9.2 and Python 2.7 or higher.
 
 By default the libraries are installed in the MSYS directory /usr/local unless
-a diffrent directory is specified by the --prefix command line argument.
+a different directory is specified by the --prefix command line argument.
 
 This program can be run from a Windows cmd.exe or MSYS terminal. The current
 directory and its outer directory are searched for the library source
@@ -29,34 +29,34 @@ python build_deps.py --help
 This program has been tested against the following libraries:
 
 SDL 1.2.15
-SDL_image 1.2(.10+) hg changset 45748e6e2f81
-SDL_mixer 1.2.12 hg changeset b455bc681654
-SDL_ttf 2.0.11 hg changeset d9a600fa3c4a
-smpeg SVN revision 391 (built separately with MSVC++)
-freetype 2.4.8
+SDL_image 1.2.12
+SDL_mixer 1.2.12
+SDL_ttf 2.0.11
+smpeg-0.4.5
+freetype 2.4.10
 libogg 1.3.0
-libvorbis 1.3.2
+libvorbis 1.3.3
 FLAC 1.2.1
 mikmod 3.1.12 patched (included with SDL_mixer 1.2.12)
-tiff 4.0b7
-libpng 1.6.0b1
-jpeg 8c
-zlib 1.2.5
-PortMidi revision 217 from SVN
-untested with GCC 4.6.1: ffmpeg revision 24482 from SVN (swscale revision 31785)
+tiff 4.0.3
+libpng 1.6.2
+jpeg 9
+zlib 1.2.8
+PortMidi revision 217
 
 The build environment used: 
 
-GCC 4.6.1
+GCC 4.8.1
 MSYS 1.0.17
 dx7 headers
-yasm 1.2.0
+nasm 2.11.06
 
+The libraries are linked to the msvcrt.dll, the VC 6.0 runtime library.
 
 The build has been performed on Windows XP, SP3.
 
 Build issues:
-  An intermitent problem was noted with SDL's configure involving locking of
+  An intermittent problem was noted with SDL's configure involving locking of
   conftest.exe resulting in various C library functions being reported unavailable
   when in fact they are present. This does not appear to be a problem with the
   configure script itself but rather Msys. If it happens then just rerun
@@ -144,17 +144,7 @@ def merge_strings(*args, **kwds):
 
     sep = kwds.get('sep', '')
     return sep.join([s for s in args if s])
-
-def get_python_msvcrt_version():
-    """Return the Visual C runtime version Python is linked to, as an int"""
-    
-    python_version = sys.version_info[0:2]
-    if python_version < (2.4):
-        return 60
-    if python_version < (2.6):
-        return 71
-    return 90
-    
+   
 class BuildError(Exception):
     """Raised for missing source paths and failed script runs"""
     pass
@@ -226,7 +216,7 @@ class Dependency(object):
             raise BuildError("No source directory for %s" % self.name)
 
 class Preparation(object):
-    """Perform necessary build environment preperations"""
+    """Perform necessary build environment preparations"""
     
     def __init__(self, name, shell_script):
         self.name = name
@@ -280,7 +270,7 @@ def command_line():
              "At startup this program may prompt for missing information.\n"
              "Be aware of this before redirecting output or leaving the\n"
              "program unattended. Once the 'Starting build' message appears\n"
-             "no more user input is required. The build process will"
+             "no more user input is required. The build process will\n"
              "abort on the first error, as library build order is important.\n"
              "\n"
              "See --help-args.\n"
@@ -291,10 +281,6 @@ def command_line():
     parser.add_option('-a', '--all', action='store_true', dest='build_all',
                       help="Include all libraries in the build")
     parser.set_defaults(build_all=False)
-    parser.add_option('--msvcr-version', action='store', dest='msvcrt_version',
-                      type='choice', choices=['60', '71', '90'],
-                      help="Visual C runtime library version")
-    parser.set_defaults(msvcrt_version=get_python_msvcrt_version())
     parser.add_option('--no-configure', action='store_false', dest='configure',
                       help="Do not prepare the makefiles")
     parser.set_defaults(configure=True)
@@ -366,29 +352,16 @@ def set_environment_variables(msys, options):
     subsystem = ''
     if not options.subsystem_noforce:
         subsystem = '-mwindows'
-    msvcrt_mp = ''
     resources_mp = ''
-    if options.msvcrt_version == 71:
-        # Hide the msvcrt.dll import libraries with those for msvcr71.dll.
-        # Their subdirectory is in the same directory as the SDL library.
-        msvcrt_mp = lib_mp + '/msvcr71'
-    elif options.msvcrt_version == 90:
-        # Hide the msvcrt.dll import libraries with those for msvcr90.dll.
-        # Their subdirectory is in the same directory as the SDL library.
-        msvcrt_mp = lib_mp + '/msvcr90'
-        resources_mp = msvcrt_mp + '/resources.o'
 
     environ['PREFIX'] = prefix_mp
     environ.pop('INCLUDE', None)  # INCLUDE causes problems with MIXER.
-    environ['CPPFLAGS'] = merge_strings(as_macro_define('__MSVCRT_VERSION__',
-                                                       '0x0%02i0' % (options.msvcrt_version,)),
-                                        as_preprocessor_header_path(include_mp),
+    environ['CPPFLAGS'] = merge_strings(as_preprocessor_header_path(include_mp),
                                         environ.get('CPPFLAGS', ''),
                                         sep=' ')
     # Need to make the resources object file an explicit linker option to
     # bypass libtool (freetype).
-    environ['LDFLAGS'] = merge_strings(as_linker_lib_path(msvcrt_mp),
-                                       environ.get('LDFLAGS', ''),
+    environ['LDFLAGS'] = merge_strings(environ.get('LDFLAGS', ''),
                                        as_linker_lib_path(lib_mp),
                                        as_linker_option(resources_mp),
                                        subsystem,
@@ -406,12 +379,11 @@ def set_environment_variables(msys, options):
                                  options.strip and
                                  not options.clean_only)
     environ['BDCLEAN'] = as_flag(options.clean or options.clean_only)
-    environ['BDRESOURCES'] = resources_mp
     environ['BDMSVCRT_VERSION'] = '%i' % (options.msvcrt_version,)
-    environ['BDMSVCRT'] = msvcrt_mp
+    environ['BDRESOURCES'] = resources_mp
 
 class ChooseError(Exception):
-    """Failer to select dependencies"""
+    """Failure to select dependencies"""
     pass
 
 def choose_dependencies(dependencies, options, args):
@@ -487,7 +459,7 @@ def summary(dependencies, msys, start_time, chosen_deps):
                 msg = "Internal error: unknown library type %s" % (lib,)
             print_("  %-10s: %s" % (d.name, msg))
     
-def main(dependencies, msvcr71_preparation, msvcr90_preparation, msys_preparation):
+def main(dependencies, msys_preparation):
     """Build the dependencies according to the command line options."""
 
     options, args = command_line()
@@ -496,6 +468,10 @@ def main(dependencies, msvcr71_preparation, msvcr90_preparation, msys_preparatio
         for dep in dependencies:
             print_(" ", dep.name)
         return 0
+        
+    # Only building against msvcrt.dll for now.
+    options.msvcrt_version = 60
+    
     try:
         chosen_deps = choose_dependencies(dependencies, options, args)
     except ChooseError:
@@ -506,13 +482,7 @@ def main(dependencies, msvcr71_preparation, msvcr90_preparation, msys_preparatio
             print_("No libraries specified.")
         elif options.build_all:
             print_("All libraries excluded")
-    if options.msvcrt_version == 71 and not options.clean_only:
-        chosen_deps.insert(0, msvcr71_preparation)
-        print_("Linking to msvcr71.dll.")
-    elif options.msvcrt_version == 90 and not options.clean_only:
-        chosen_deps.insert(0, msvcr90_preparation)
-    else:
-        print_("Linking to C runtime library msvcrt.dll.")
+    print_("Linking to C runtime library msvcrt.dll.")
     if chosen_deps and not options.clean_only:
         chosen_deps.insert(0, msys_preparation)
     try:
@@ -580,10 +550,8 @@ def main(dependencies, msvcr71_preparation, msvcr90_preparation, msys_preparatio
 # represent configure, compile, install and clean respectively. When '1' the
 # corresponding action is performed. When '0' it is skipped. The installation
 # directory is given by PREFIX. The script needs to prepend it to PATH. The
-# script's HOME directory is the source code root directory. The msvcrt version
-# is given as BDMSVCRT_VERSION. BDMSVCRT is where to place a shadow libraries
-# which hide the normal MinGW C runtime export libraries. Various gcc flags are
-# in CPPFLAGS, CFLAGS, and LDFLAGS. INCLUDE is undefined.
+# script's HOME directory is the source code root directory. Various gcc flags
+# are in CPPFLAGS, CFLAGS, and LDFLAGS. INCLUDE is undefined.
 #
 # None of these scripts end with an "exit". Exit, possibly, leads to Msys
 # freezing on some versions of Windows (98).
@@ -611,24 +579,33 @@ if [ x$BDCONF == x1 ]; then
     ./autogen.sh
   fi
 
-  ./configure --prefix="$PREFIX" --disable-static --disable-stdio-redirect \
-              CPPFLAGS="$CPPFLAGS" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
+  mkdir -p ./pgbuild
+  
+  cd ./pgbuild
+  ../configure --prefix="$PREFIX" --disable-static --disable-stdio-redirect \
+               CPPFLAGS="$CPPFLAGS" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
   
   # check for MSYS permission errors
   if [ x"`grep 'Permission denied' config.log`" != x ]; then
       echo '**** MSYS problems; build aborted.'
       exit 1
   fi
+  cd ..
 fi
 
 if [ x$BDCOMP == x1 ]; then
+  cd ./pgbuild
   make
+  cd ..
 fi
 
 if [ x$BDINST == x1 ]; then
+  cd ./pgbuild
   make install-bin install-hdrs install-lib
-  # Make SDL_config_win32.h available for prebuilt and MSVC
+  # Need SDL_config.h.default and SDL_config_win32.h for Windows.
   cp -f "$HOME/include/SDL_config_win32.h" "$PREFIX/include/SDL"
+  cp -f "$HOME/include/SDL_config.h.default" "$PREFIX/include/SDL/SDL_config.h"
+  cd ..
 fi
 
 if [ x$BDSTRIP == x1 ]; then
@@ -636,8 +613,10 @@ if [ x$BDSTRIP == x1 ]; then
 fi
 
 if [ x$BDCLEAN == x1 ]; then
+  cd ./pgbuild
   set +e
   make clean
+  cd ..
 fi
 """),
     Dependency('Z', ['zlib-[1-9].*'], ['zlib1.dll'], """
@@ -679,22 +658,30 @@ set -e
 export PATH="$PREFIX/bin:$PATH"
 
 if [ x$BDCONF == x1 ]; then
-  ./configure --prefix="$PREFIX" \
-              CPPFLAGS="$CPPFLAGS" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
+  mkdir -p ./pgbuild
+  
+  cd ./pgbuild
+  ../configure --prefix="$PREFIX" \
+               CPPFLAGS="$CPPFLAGS" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
   
   # check for MSYS permission errors
   if [ x"`grep 'Permission denied' builds/unix/config.log`" != x ]; then
       echo '**** MSYS problems; build aborted.'
       exit 1
   fi
+  cd ..
 fi
 
 if [ x$BDCOMP == x1 ]; then
+  cd ./pgbuild
   make
+  cd ..
 fi
 
 if [ x$BDINST == x1 ]; then
+  cd ./pgbuild
   make install
+  cd ..
 fi
 
 if [ x$BDSTRIP == x1 ]; then
@@ -702,8 +689,10 @@ if [ x$BDSTRIP == x1 ]; then
 fi
 
 if [ x$BDCLEAN == x1 ]; then
+  cd ./pgbuild
   set +e
   make clean
+  cd ..
 fi
 """),
     Dependency('FONT', ['SDL_ttf-[2-9].*'], ['SDL_ttf.dll'], """
@@ -717,22 +706,30 @@ if [ x$BDCONF == x1 ]; then
     ./autogen.sh
   fi
 
-  ./configure --prefix="$PREFIX" \
-              CPPFLAGS="$CPPFLAGS" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
+  mkdir -p ./pgbuild
+  
+  cd ./pgbuild
+  ../configure --prefix="$PREFIX" \
+               CPPFLAGS="$CPPFLAGS" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
   
   # check for MSYS permission errors
   if [ x"`grep 'Permission denied' config.log`" != x ]; then
       echo '**** MSYS problems; build aborted.'
       exit 1
   fi
+  cd ..
 fi
 
 if [ x$BDCOMP == x1 ]; then
+  cd ./pgbuild
   make
+  cd ..
 fi
 
 if [ x$BDINST == x1 ]; then
+  cd ./pgbuild
   make install
+  cd ..
 fi
 
 if [ x$BDSTRIP == x1 ]; then
@@ -740,8 +737,10 @@ if [ x$BDSTRIP == x1 ]; then
 fi
 
 if [ x$BDCLEAN == x1 ]; then
+  cd ./pgbuild
   set +e
   make clean
+  cd ..
 fi
 """),
     Dependency('PNG', ['l*png*[1-9][1-9.]*'], ['libpng16-16.dll'], """
@@ -750,22 +749,30 @@ set -e
 export PATH="$PREFIX/bin:$PATH"
 
 if [ x$BDCONF == x1 ]; then
-  ./configure --prefix="$PREFIX" \
-              CPPFLAGS="$CPPFLAGS" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
+  mkdir -p ./pgbuild
+  
+  cd ./pgbuild
+  ../configure --prefix="$PREFIX" \
+               CPPFLAGS="$CPPFLAGS" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
   
   # check for MSYS permission errors
   if [ x"`grep 'Permission denied' config.log`" != x ]; then
       echo '**** MSYS problems; build aborted.'
       exit 1
   fi
+  cd ..
 fi
 
 if [ x$BDCOMP == x1 ]; then
+  cd ./pgbuild
   make
+  cd ..
 fi
 
 if [ x$BDINST == x1 ]; then
+  cd ./pgbuild
   make install
+  cd ..
 fi
 
 if [ x$BDSTRIP == x1 ]; then
@@ -773,19 +780,23 @@ if [ x$BDSTRIP == x1 ]; then
 fi
 
 if [ x$BDCLEAN == x1 ]; then
+  cd ./pgbuild
   set +e
   make clean -fMakefile.mingw prefix="$PREFIX"
+  cd ..
 fi
 """),
-    Dependency('JPEG', ['jpeg-[6-9]*'], ['libjpeg-8.dll'], """
+    Dependency('JPEG', ['jpeg-[6-9]*'], ['libjpeg-9.dll'], """
 
 set -e
 export PATH="$PREFIX/bin:$PATH"
 
 if [ x$BDCONF == x1 ]; then
-  # This will only build a static library.
-  ./configure --prefix="$PREFIX" \
-              CPPFLAGS="$CPPFLAGS" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
+  mkdir -p ./pgbuild
+  
+  cd ./pgbuild
+  ../configure --prefix="$PREFIX" \
+               CPPFLAGS="$CPPFLAGS" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
   
   # check for MSYS permission errors
   if [ x"`grep 'Permission denied' config.log`" != x ]; then
@@ -793,26 +804,31 @@ if [ x$BDCONF == x1 ]; then
       exit 1
   fi
 
-  cp jconfig.vc jconfig.h
+  cp ../jconfig.vc jconfig.h
+  cd ..
 fi
 
 if [ x$BDCOMP == x1 ]; then
+  cd ./pgbuild
   make
+  cd ..
 fi
 
 if [ x$BDINST == x1 ]; then
-  # Only install the headers and import library, otherwise SDL_image will
-  # statically link to jpeg.
+  cd ./pgbuild
   make install
+  cd ..
 fi
 
 if [ x$BDSTRIP == x1 ]; then
-  strip --strip-all "$PREFIX/bin/libjpeg-8.dll"
+  strip --strip-all "$PREFIX/bin/libjpeg-9.dll"
 fi
 
 if [ x$BDCLEAN == x1 ]; then
+  cd ./pgbuild
   set +e
   make clean
+  cd ..
 fi
 """),
     Dependency('TIFF', ['tiff-[3-9].*'], ['libtiff-5.dll'], """
@@ -820,28 +836,35 @@ fi
 set -e
 export PATH="$PREFIX/bin:$PATH"
 
-# Only build the library; the tools can be built, but do not install
-# for msvcr90.dll because of a strange linker error.
+# Only building the library.
 bd_subdirs="port libtiff"
 
 
 if [ x$BDCONF == x1 ]; then
-  ./configure --disable-cxx --prefix="$PREFIX" \
-              CPPFLAGS="$CPPFLAGS" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
+  mkdir -p ./pgbuild
+  
+  cd ./pgbuild
+  ../configure --disable-cxx --prefix="$PREFIX" \
+               CPPFLAGS="$CPPFLAGS" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
   
   # check for MSYS permission errors
   if [ x"`grep 'Permission denied' config.log`" != x ]; then
       echo '**** MSYS problems; build aborted.'
       exit 1
   fi
+  cd ..
 fi
 
 if [ x$BDCOMP == x1 ]; then
+  cd ./pgbuild
   make SUBDIRS="$bd_subdirs"
+  cd ..
 fi
 
 if [ x$BDINST == x1 ]; then
+  cd ./pgbuild
   make install SUBDIRS="$bd_subdirs"
+  cd ..
 fi
 
 if [ x$BDSTRIP == x1 ]; then
@@ -849,10 +872,56 @@ if [ x$BDSTRIP == x1 ]; then
 fi
 
 if [ x$BDCLEAN == x1 ]; then
+  cd ./pgbuild
   set +e
   make clean SUBDIRS="$bd_subdirs"
   rm -f libtiff.dll.a
   rm -f libtiff.dll
+  cd ..
+fi
+"""),
+    Dependency('WEBP', ['libwebp-[0].*'], ['libwebp-4.dll'], """
+
+set -e
+export PATH="$PREFIX/bin:$PATH"
+
+if [ x$BDCONF == x1 ]; then
+  mkdir -p ./pgbuild
+
+  cd ./pgbuild
+  ../configure --prefix="$PREFIX" \
+               CPPFLAGS="$CPPFLAGS" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" \
+               --disable-static
+  
+  # check for MSYS permission errors
+  if [ x"`grep 'Permission denied' config.log`" != x ]; then
+      echo '**** MSYS problems; build aborted.'
+      exit 1
+  fi
+  cd ..
+fi
+
+if [ x$BDCOMP == x1 ]; then
+  cd ./pgbuild
+  make
+  cd ..
+fi
+
+if [ x$BDINST == x1 ]; then
+  cd ./pgbuild
+  make install
+  cd ..
+fi
+
+if [ x$BDSTRIP == x1 ]; then
+  strip --strip-all "$PREFIX/bin/libwebp-4.dll"
+fi
+
+if [ x$BDCLEAN == x1 ]; then
+  cd ./pgbuild
+  set +e
+  make clean
+  cd ..
 fi
 """),
     Dependency('IMAGE', ['SDL_image-[1-9].*'], ['SDL_image.dll'], """
@@ -878,26 +947,34 @@ if [ x$BDCONF == x1 ]; then
   # Add path to PNG headers
   CPPFLAGS="$CPPFLAGS `$PREFIX/bin/libpng-config --I_opts`"
   
+  mkdir -p ./pgbuild
+  
+  cd ./pgbuild
   # Disable dynamic loading of image libraries as it uses the wrong DLL
   # search path: does not check in the same directory.
   #  --disable-libtool-lock: Prevent libtool deadlocks (maybe).
-  ./configure --disable-jpg-shared --disable-png-shared --disable-tif-shared \
-              --disable-libtool-lock --prefix="$PREFIX" \
-              CPPFLAGS="$CPPFLAGS" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
+  ../configure --disable-jpg-shared --disable-png-shared --disable-tif-shared \
+               --disable-webp-shared --disable-libtool-lock --prefix="$PREFIX" \
+               CPPFLAGS="$CPPFLAGS" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
   
   # check for MSYS permission errors
   if [ x"`grep 'Permission denied' config.log`" != x ]; then
       echo '**** MSYS problems; build aborted.'
       exit 1
   fi
+  cd ..
 fi
 
 if [ x$BDCOMP == x1 ]; then
+  cd ./pgbuild
   make
+  cd ..
 fi
 
 if [ x$BDINST == x1 ]; then
+  cd ./pgbuild
   make install
+  cd ..
 fi
 
 if [ x$BDSTRIP == x1 ]; then
@@ -905,19 +982,21 @@ if [ x$BDSTRIP == x1 ]; then
 fi
 
 if [[ x$BDCLEAN == x1 && -f Makefile ]]; then
+  cd ./pgbuild
   set +e
   make clean
+  cd ..
 fi
 """),
     Dependency('SMPEG', ['smpeg-[0-9].*', 'smpeg'], ['smpeg.dll'], """
 
-if (( $BDMSVCRT_VERSION != 60 )); then
-    echo The smpeg build has been disabled\\.
-    exit 0
-fi
-
 set -e
 export PATH="$PREFIX/bin:$PATH"
+
+if (( $BDMSVCRT_VERSION != 60 )); then
+  echo The smpeg build has been disabled\\.
+  exit 0
+fi
 
 if [ x$BDCONF == x1 ]; then
   # This comes straight from SVN so has no configure script
@@ -925,24 +1004,34 @@ if [ x$BDCONF == x1 ]; then
     ./autogen.sh
   fi
 
+  mkdir -p ./pgbuild
+  
+  cd ./pgbuild
   # Don't need the toys. Disable dynamic linking of libgcc and libstdc++
-  ./configure --disable-gtk-player --disable-opengl-player --prefix="$PREFIX" \
-              CPPFLAGS="$CPPFLAGS" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
+  ../configure --disable-gtk-player --disable-opengl-player --prefix="$PREFIX" \
+               CPPFLAGS="$CPPFLAGS" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
               
   # check for MSYS permission errors
   if [ x"`grep 'Permission denied' config.log`" != x ]; then
       echo '**** MSYS problems; build aborted.'
       exit 1
   fi
+  cd ..
 fi
 
 if [ x$BDCOMP == x1 ]; then
-  # Leave out undefined symbols so a dll will build.
-  make CXXLD='$(CXX) -no-undefined'
+  cd ./pgbuild
+  # Only build the DLL. Leave out undefined symbols so the DLL will build.
+  make libsmpeg.la CXXLD='$(CXX) -no-undefined'
+  cd ..
 fi
 
 if [ x$BDINST == x1 ]; then
-  make install
+  cd ./pgbuild
+  make install-libLTLIBRARIES \
+       install-libsmpegincludeHEADERS \
+       install-binSCRIPTS
+  cd ..
 fi
 
 if [ x$BDSTRIP == x1 ]; then
@@ -950,8 +1039,10 @@ if [ x$BDSTRIP == x1 ]; then
 fi
 
 if [[ x$BDCLEAN == x1 && -f Makefile ]]; then
+  cd ./pgbuild
   set +e
   make clean
+  cd ..
 fi
 """),
     Dependency('OGG', ['libogg-[1-9].*'], ['libogg-0.dll'], """
@@ -960,22 +1051,34 @@ set -e
 export PATH="$PREFIX/bin:$PATH"
 
 if [ x$BDCONF == x1 ]; then
-  ./configure --prefix="$PREFIX" \
-              CPPFLAGS="$CPPFLAGS" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
+  mkdir -p ./pgbuild
+  
+  cd ./pgbuild
+  # configure looks for a previous build. Remove if found.
+  if [ -f "Makefile" ]; then
+    make distclean
+  fi
+  ../configure --prefix="$PREFIX" --disable-static \
+               CPPFLAGS="$CPPFLAGS" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
   
   # check for MSYS permission errors
   if [ x"`grep 'Permission denied' config.log`" != x ]; then
       echo '**** MSYS problems; build aborted.'
       exit 1
   fi
+  cd ..
 fi
 
 if [ x$BDCOMP == x1 ]; then
+  cd ./pgbuild
   make
+  cd ..
 fi
 
 if [ x$BDINST == x1 ]; then
+  cd ./pgbuild
   make install
+  cd ..
 fi
 
 if [ x$BDSTRIP == x1 ]; then
@@ -983,8 +1086,10 @@ if [ x$BDSTRIP == x1 ]; then
 fi
 
 if [[ x$BDCLEAN == x1 && -f Makefile ]]; then
+  cd ./pgbuild
   set +e
   make clean
+  cd ..
 fi
 """),
     Dependency('VORBIS',
@@ -995,21 +1100,33 @@ set -e
 export PATH="$PREFIX/bin:$PATH"
 
 if [ x$BDCONF == x1 ]; then
-  ./configure --prefix="$PREFIX" \
-              CPPFLAGS="$CPPFLAGS" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" LIBS='-logg'
+  mkdir -p ./pgbuild
+  
+  cd ./pgbuild
+  # configure looks for a previous build. Remove if found.
+  if [ -f "Makefile" ]; then
+    make distclean
+  fi
+  ../configure --prefix="$PREFIX" --disable-static \
+               CPPFLAGS="$CPPFLAGS" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" LIBS='-logg'
   # check for MSYS permission errors
   if [ x"`grep 'Permission denied' config.log`" != x ]; then
       echo '**** MSYS problems; build aborted.'
       exit 1
   fi
+  cd ..
 fi
 
 if [ x$BDCOMP == x1 ]; then
+  cd ./pgbuild
   make
+  cd ..
 fi
 
 if [ x$BDINST == x1 ]; then
+  cd ./pgbuild
   make install
+  cd ..
 fi
 
 if [ x$BDSTRIP == x1 ]; then
@@ -1018,8 +1135,10 @@ if [ x$BDSTRIP == x1 ]; then
 fi
 
 if [[ x$BDCLEAN == x1 && -f Makefile ]]; then
+  cd ./pgbuild
   set +e
   make clean
+  cd ..
 fi
 """),
     Dependency('FLAC', ['flac-[1-9].*'], ['libFLAC.a'], """
@@ -1314,19 +1433,17 @@ if [ x$BDCONF == x1 ]; then
     ./autogen.sh
   fi
 
-  # For msvcr90.dll linkage, remap SDL_strdup and SDL_vsnprintf calls.
-  if (( $BDMSVCRT_VERSION == 90 )); then
-    export CPPFLAGS="$CPPFLAGS -DSDL_strdup=_strdup -DSDL_vsnprintf=_vsnprintf"
-  fi
+  mkdir -p ./pgbuild
   
+  cd ./pgbuild
   # No dynamic loading of dependent libraries. Use LIBS so FLAC test
   # builds (unfortunately LIBS is not passed on to Makefile).
   export LIBS="$mikmod_dependencies $flac_dependencies"
-  ./configure --disable-music-ogg-shared --disable-music-mp3-shared \
-              --disable-music-mod-shared --disable-music-flac-shared \
-              --disable-music-fluidsynth-midi \
-              --disable-libtool-lock --prefix="$PREFIX" \
-              CPPFLAGS="$CPPFLAGS" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
+  ../configure --disable-music-ogg-shared --disable-music-mp3-shared \
+               --disable-music-mod-shared --disable-music-flac-shared \
+               --disable-music-fluidsynth-midi --disable-static \
+               --disable-libtool-lock --prefix="$PREFIX" \
+               CPPFLAGS="$CPPFLAGS" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
   
   # check for MSYS permission errors
   if [ x"`grep 'Permission denied' config.log`" != x ]; then
@@ -1344,14 +1461,21 @@ if [ x$BDCONF == x1 ]; then
       -e "s~\\(-lFLAC\\)~\\1 $flac_dependencies~" \
       -e "s~\\(-lmikmod\\)~\\1 $mikmod_dependencies~" \
       Makefile~ >Makefile
+   
+  cd ..
 fi
 
 if [ x$BDCOMP == x1 ]; then
-  make
+  cd ./pgbuild
+  # Only build the DLL. The executables link to WinMain, which is not found.
+  make build/libSDL_mixer.la
+  cd ..
 fi
 
 if [ x$BDINST == x1 ]; then
-  make install
+  cd ./pgbuild
+  make install-hdrs install-lib
+  cd ..
 fi
 
 if [ x$BDSTRIP == x1 ]; then
@@ -1359,8 +1483,10 @@ if [ x$BDSTRIP == x1 ]; then
 fi
 
 if [[ x$BDCLEAN == x1 && -f Makefile ]]; then
+  cd ./pgbuild
   set +e
   make clean
+  cd ..
 fi
 """),
     Dependency('PORTMIDI', ['portmidi', 'portmidi-[1-9].*'], ['portmidi.dll'], """
@@ -1523,62 +1649,6 @@ if [[ x$BDCLEAN == x1 && -f Makefile ]]; then
   rm -f GNUmakefile portmidi.def
 fi
 """),
-    Dependency('FFMPEG', ['ffmpeg'],
-    ['avformat-52.dll', 'swscale-0.dll',
-     'avcodec-52.dll', 'avutil-50.dll' ], """
-
-set -e
-export PATH="$PREFIX/bin:$PATH"
-
-if [ x$BDCONF == x1 ]; then
-  # Don't want the pthreads dll, which links to msvcrt.dll.
-  ./configure --enable-shared --enable-memalign-hack \
-              --disable-pthreads --prefix="$PREFIX" \
-              --enable-runtime-cpudetect \
-              CPPFLAGS="$CPPFLAGS" CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
-
-  # check for MSYS permission errors
-  if [ x"`grep 'Permission denied' config.log`" != x ]; then
-      echo '**** MSYS problems; build aborted.'
-      exit 1
-  fi
-
-  # Fix incompatibilities between ffmpeg and MinGW notions of the C99 standard.
-  mv config.mak config.mak~
-  sed -e "s~\\\\(-std=\\\\)c99~\\\\1gnu99~g" \
-      config.mak~ >config.mak
-fi
-
-if [ x$BDCOMP == x1 ]; then
-  make
-  cd libswscale/
-  make
-  cd ..
-fi
-
-if [ x$BDINST == x1 ]; then
-  make install
-  cd libswscale/
-  make install
-  cd ..
-fi
-
-if [ x$BDSTRIP == x1 ]; then
-  strip --strip-all "$PREFIX/bin/avformat-52.dll"
-  strip --strip-all "$PREFIX/bin/swscale-0.dll"
-  strip --strip-all "$PREFIX/bin/avcodec-52.dll"
-  strip --strip-all "$PREFIX/bin/avutil-50.dll"
-fi
-
-if [ x$BDCLEAN == x1 ]; then
-  set +e
-  make clean
-  cd libswscale/
-  make clean
-  cd ..
-fi
-"""),
-
     
     ]  # End dependencies = [.
 
@@ -1592,110 +1662,6 @@ mkdir -p "$PREFIX/bin"
 mkdir -p "$PREFIX/doc"
 mkdir -p "$PREFIX/man"
 mkdir -p "$PREFIX/share"
-""")
-    
-msvcr71_prep = Preparation('msvcr71.dll linkage', r"""
-
-set -e
-
-#
-#   msvcr71.dll support
-#
-if [ ! -f "$BDMSVCRT/libmoldname.a" ]; then
-  echo "Making directory $BDMSVCRT for msvcr71.dll linking."
-  mkdir -p "$BDMSVCRT"
-  cp -fp /mingw/lib/libmoldname71.a "$BDMSVCRT/libmoldname.a"
-  cp -fp /mingw/lib/libmoldname71d.a "$BDMSVCRT/libmoldnamed.a"
-  cp -fp /mingw/lib/libmsvcr71.a "$BDMSVCRT/libmsvcrt.a"
-  cp -fp /mingw/lib/libmsvcr71d.a "$BDMSVCRT/libmsvcrtd.a"
-fi
-""")
-
-msvcr90_prep = Preparation('msvcr90.dll linkage', r"""
-
-set -e
-
-#
-#   msvcr90.dll support
-#
-if [ ! -f "$BDMSVCRT/libmoldname.a" ]; then
-  echo "Making directory $BDMSVCRT for msvcr90.dll linking."
-  mkdir -p "$BDMSVCRT"
-  cd "$BDMSVCRT"
-  # Need libmsvcr90.a as libmoldname links to it.
-  cp -fp /mingw/lib/libmsvcr90.a .
-  cp -fp libmsvcr90.a libmsvcrt.a
-  cp -fp /mingw/lib/libmsvcr90d.a .
-  cp -fp libmsvcr90d.a libmsvcrtd.a
-
-  # Will be creating extra files; this will simplify cleanup
-  mkdir -p tmp
-  cd tmp
-
-  # The manifest resource
-  cat > manifest.xml << 'THE_END'
-<assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
-  <trustInfo xmlns="urn:schemas-microsoft-com:asm.v3">
-    <security>
-      <requestedPrivileges>
-        <requestedExecutionLevel level="asInvoker" uiAccess="false"></requestedExecutionLevel>
-      </requestedPrivileges>
-    </security>
-  </trustInfo>
-  <dependency>
-    <dependentAssembly>
-      <assemblyIdentity type="win32" name="Microsoft.VC90.CRT" version="9.0.21022.8" processorArchitecture="x86" publicKeyToken="1fc8b3b9a1e18e3b"></assemblyIdentity>
-    </dependentAssembly>
-  </dependency>
-</assembly>
-THE_END
-
-  cat > manifest.rc << 'THE_END'
-#include <winuser.h>
-1 RT_MANIFEST manifest.xml
-THE_END
-
-  windres -o "$BDRESOURCES" manifest.rc
-
-  # Update libmoldname for msvcr90.dll
-  #
-  # _fstab inlined in MSVC 9.0. Replace the fstab entry with a wrapper
-  # function.
-  #
-  # This is quick and dirty surgery on a MinGW 4.6.1 libmoldname90.a copy.  
-
-  # Provide the fstat function required by TIFF.
-  cat > fstat.c << 'THE_END'
-/* Stub function for fstat.
- * This is an inlined function in Visual C 2008 so is missing from msvcr90.dll
- */
-#include <sys/stat.h>
-
-_CRTIMP int __cdecl __MINGW_NOTHROW fstat(int fd, struct stat *buffer)
-{
-    return _fstat(fd, (struct _stat *)buffer);
-}
-THE_END
-
-  # When compiling, make sure __MSVCRT_VERSION__ is set for msvcr90.dll,
-  # otherwise will have undefined symbols.
-  cp /mingw/lib/libmoldname90.a libmoldname.a
-  ar d libmoldname.a dyoks00032.o
-  gcc -c -O2 -D__MSVCRT_VERSION__=0x0900 fstat.c
-  ar rc libmoldname.a fstat.o
-  ranlib libmoldname.a
-  mv -f libmoldname.a "$BDMSVCRT"
-  cp /mingw/lib/libmoldname90d.a libmoldnamed.a
-  ar d libmoldnamed.a dsxks00032.o
-  gcc -c -g -D__MSVCRT_VERSION__=0x0900 fstat.c
-  ar rc libmoldnamed.a fstat.o
-  ranlib libmoldnamed.a
-  mv -f libmoldnamed.a "$BDMSVCRT"
-
-  # Cleanup
-  cd ..
-  rm -Rf ./tmp
-fi
 """)
 
 alert = Preparation('computer beeper', r"""
@@ -1714,4 +1680,4 @@ done
 """)
 
 if __name__ == '__main__':
-    sys.exit(main(dependencies, msvcr71_prep, msvcr90_prep, msys_prep))
+    sys.exit(main(dependencies, msys_prep))
