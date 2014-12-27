@@ -114,7 +114,7 @@ class ImageModuleTest( unittest.TestCase ):
         
         # surf = pygame.image.load(open(os.path.join("examples", "data", "alien1.jpg"), "rb"))
 
-    def testSavePNG(self):
+    def testSavePNG32(self):
         """ see if we can save a png with color values in the proper channels.
         """
         # Create a PNG file with known colors
@@ -134,6 +134,37 @@ class ImageModuleTest( unittest.TestCase ):
 
         # Read the PNG file and verify that pygame saved it correctly
         width, height, pixels, metadata = png.Reader(filename=f_path).asRGBA8()
+        pixels_as_tuples = []
+        for pixel in pixels:
+            pixels_as_tuples.append(tuple(pixel))
+
+        self.assertEquals(pixels_as_tuples[0], reddish_pixel)
+        self.assertEquals(pixels_as_tuples[1], greenish_pixel)
+        self.assertEquals(pixels_as_tuples[2], bluish_pixel)
+        self.assertEquals(pixels_as_tuples[3], greyish_pixel)
+
+        os.remove(f_path)
+
+    def testSavePNG24(self):
+        """ see if we can save a png with color values in the proper channels.
+        """
+        # Create a PNG file with known colors
+        reddish_pixel = (215, 0, 0)
+        greenish_pixel = (0, 225, 0)
+        bluish_pixel = (0, 0, 235)
+        greyish_pixel = (115, 125, 135)
+
+        surf = pygame.Surface((1, 4), 0, 24)
+        surf.set_at((0, 0), reddish_pixel)
+        surf.set_at((0, 1), greenish_pixel)
+        surf.set_at((0, 2), bluish_pixel)
+        surf.set_at((0, 3), greyish_pixel)
+
+        f_path = tempfile.mktemp(suffix='.png')
+        pygame.image.save(surf, f_path)
+
+        # Read the PNG file and verify that pygame saved it correctly
+        width, height, pixels, metadata = png.Reader(filename=f_path).asRGB8()
         pixels_as_tuples = []
         for pixel in pixels:
             pixels_as_tuples.append(tuple(pixel))
