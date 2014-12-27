@@ -258,7 +258,6 @@ SavePNG (SDL_Surface *surface, const char *file)
     SDL_Rect ss_rect;
     int r, i;
     int alpha = 0;
-    int pixel_bits = 32;
 
     unsigned surf_flags;
     unsigned surf_alpha;
@@ -274,19 +273,26 @@ SavePNG (SDL_Surface *surface, const char *file)
     if (surface->format->Amask)
     {
         alpha = 1;
-        pixel_bits = 32;
-    }
-    else
-        pixel_bits = 24;
-
-    ss_surface = SDL_CreateRGBSurface (SDL_SWSURFACE|SDL_SRCALPHA,
-                                       ss_w, ss_h, pixel_bits,
+        ss_surface = SDL_CreateRGBSurface (SDL_SWSURFACE|SDL_SRCALPHA,
+                                           ss_w, ss_h, 32,
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
-                                       0xff0000, 0xff00, 0xff, 0x000000ff
+                                           0xff000000, 0xff0000, 0xff00, 0xff
 #else
-                                       0xff00, 0xff, 0xff0000, 0xff000000
+                                           0xff, 0xff00, 0xff0000, 0xff000000
 #endif
         );
+    }
+    else
+    {
+        ss_surface = SDL_CreateRGBSurface (SDL_SWSURFACE,
+                                           ss_w, ss_h, 24,
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+                                           0xff0000, 0xff00, 0xff, 0
+#else
+                                           0xff, 0xff00, 0xff0000, 0
+#endif
+        );
+    }
 
     if (ss_surface == NULL)
         return -1;
