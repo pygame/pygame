@@ -25,10 +25,10 @@ SWSCALE = -Iprebuilt/include -lswscale -lavutil
 # Ensure make_prebuilt.py includes the freetype2 headers.
 COPYHDRS_FREETYPE = -lfreetype -Iprebuilt/include/freetype2/freetype -Iprebuilt/include/freetype2/freetype/config
 # The DLL's
-COPYLIB_SDL -Lprebuilt/lib/SDL.dll
+COPYLIB_SDL -lgcc -Lprebuilt/lib/SDL.dll
 COPYLIB_SDL_ttf -lSDL -lfreetype -Lprebuilt/lib/SDL_ttf.dll
 COPYLIB_SDL_image -lSDL -ljpef -lpng -ltiff -Lprebuilt/lib/SDL_image.dll
-COPYLIB_SDL_mixer -lSDL -lvorbisfile -lsmpeg -Lprebuilt/lib/SDL_mixer.dll
+COPYLIB_SDL_mixer -lstdcpp -lSDL -lvorbisfile -lsmpeg -Lprebuilt/lib/SDL_mixer.dll
 COPYLIB_freetype -lz -Lprebuilt/lib/libfreetype-6.dll
 COPYLIB_smpeg -lSDL -Lprebuilt/lib/smpeg.dll
 COPYLIB_tiff -ljpeg -lz -Lprebuilt/lib/libtiff-5.dll
@@ -44,3 +44,5 @@ COPYLIB_portmidi -Lprebuilt/lib/portmidi.dll
 #COPYLIB_swscale -lavutil -Lprebuilt/lib/swscale-0.dll
 #COPYLIB_avcodec -lavutil -Lprebuilt/lib/avcodec-52.dll
 #COPYLIB_avutil -Lprebuilt/lib/avutil-50.dll
+COPYLIB_stdcpp -Lprebuilt/lib/libstdc++-6.dll
+COPYLIB_gcc -Lprebuilt/lib/libgcc_s_dw2-1.dll
