@@ -86,8 +86,6 @@ _validate_view_format(const char *format)
     /* default: an unrecognized format character; raise exception later */
     }
     if (format[i] != '\0') {
-        PyErr_Format(PyExc_ValueError,
-                     "Unsupport array item format '%100s'", format);
         return -1;
     }
 
@@ -664,7 +662,12 @@ _PGFT_Render_Array(FreeTypeInstance *ft, PgFontObject *fontobj,
         return -1;
     }
     if (_validate_view_format(view_p->format)) {
+        static const char fmt[] = "Unsupported array item format '%.*s'";
+        char msg[100 + sizeof(fmt)];
+
+        sprintf(msg, fmt, (int)(sizeof(msg) - sizeof(fmt)), view_p->format);
         PgBuffer_Release(&pg_view);
+        PyErr_SetString(PyExc_ValueError, msg);
         return -1;
     }
 
