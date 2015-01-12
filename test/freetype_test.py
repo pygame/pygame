@@ -1330,5 +1330,16 @@ class FreeTypeTest(unittest.TestCase):
         pygame.quit()
         self.assertFalse(ft.was_init())
 
+    def test_cache_size(self):
+        DEFAULT_CACHE_SIZE = 64
+        ft.init()
+        self.assertEqual(ft.get_cache_size(), DEFAULT_CACHE_SIZE)
+        ft.quit()
+        self.assertEqual(ft.get_cache_size(), 0)
+        new_cache_size = DEFAULT_CACHE_SIZE * 2
+        ft.init(cache_size=new_cache_size)
+        self.assertEqual(ft.get_cache_size(), new_cache_size)
+        ft.quit()
+
 if __name__ == '__main__':
     unittest.main()

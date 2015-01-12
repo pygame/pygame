@@ -532,7 +532,9 @@ _PGFT_Init(FreeTypeInstance **_instance, int cache_size)
         goto error_cleanup;
     }
 
-    memset(inst, 0, sizeof(FreeTypeInstance));
+    inst->ref_count = 1;
+    inst->cache_manager = 0;
+    inst->library = 0;
     inst->cache_size = cache_size;
 
     error = FT_Init_FreeType(&inst->library);
@@ -558,7 +560,6 @@ _PGFT_Init(FreeTypeInstance **_instance, int cache_size)
     }
 
     *_instance = inst;
-    inst->ref_count = 1;
     return 0;
 
 error_cleanup:
