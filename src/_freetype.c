@@ -2135,11 +2135,13 @@ _ft_init(PyObject *self, PyObject *args, PyObject *kwds)
                              (FT_UInt)resolution : PGFT_DEFAULT_RESOLUTION);
         result = _ft_autoinit(self);
 
-        if (!PyObject_IsTrue(result)) {
+        if (!result) {
+            PyErr_Clear();
             PyErr_SetString(PyExc_RuntimeError,
                             "Failed to initialize the FreeType2 library");
             return 0;
         }
+        Py_DECREF(result);
     }
 
     Py_RETURN_NONE;
