@@ -45,6 +45,7 @@ static PyObject *_ft_get_error(PyObject *);
 static PyObject *_ft_was_init(PyObject *);
 static PyObject *_ft_autoinit(PyObject *);
 static void _ft_autoquit(void);
+static PyObject *_ft_get_cache_size(PyObject *);
 static PyObject *_ft_get_default_resolution(PyObject *);
 static PyObject *_ft_set_default_resolution(PyObject *, PyObject *);
 static PyObject *_ft_get_default_font(PyObject* self);
@@ -458,6 +459,12 @@ static PyMethodDef _ft_methods[] = {
         (PyCFunction) _ft_get_version,
         METH_NOARGS,
         DOC_PYGAMEFREETYPEGETVERSION
+    },
+    {
+        "get_cache_size",
+        (PyCFunction) _ft_get_cache_size,
+        METH_NOARGS,
+        DOC_PYGAMEFREETYPEGETCACHESIZE
     },
     {
         "get_default_resolution",
@@ -2081,15 +2088,19 @@ PgFont_New(const char *filename, long font_index)
 static PyObject *
 _ft_autoinit(PyObject *self)
 {
+    int cache_size = FREETYPE_MOD_STATE(self)->cache_size;
     FT_Error result = 1;
 
     if (!FREETYPE_MOD_STATE(self)->freetype) {
         PyGame_RegisterQuit(_ft_autoquit);
 
-        if (_PGFT_Init(&(FREETYPE_MOD_STATE(self)->freetype),
-                       FREETYPE_MOD_STATE(self)->cache_size)) {
+        if (cache_size == 0) {
+            cache_size = PGFT_DEFAULT_CACHE_SIZE;
+        }
+        if (_PGFT_Init(&(FREETYPE_MOD_STATE(self)->freetype), cache_size)) {
             return 0;
         }
+        FREETYPE_MOD_STATE(self)->cache_size = cache_size;
     }
 
     return PyInt_FromLong(result);
@@ -2102,6 +2113,7 @@ _ft_autoquit(void)
 
     if (state->freetype) {
         _PGFT_Quit(state->freetype);
+        state->cache_size = 0;
         state->freetype = 0;
     }
 }
@@ -2121,16 +2133,17 @@ _ft_init(PyObject *self, PyObject *args, PyObject *kwds)
     };
 
     PyObject *result;
-    int cache_size = PGFT_DEFAULT_CACHE_SIZE;
+    unsigned cache_size = 0;
     unsigned resolution = 0;
     _FreeTypeState *state = FREETYPE_MOD_STATE(self);
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "|iI", kwlist,
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "|II", kwlist,
                                      &cache_size, &resolution)) {
         return 0;
     }
 
     if (!state->freetype) {
+        state->cache_size = cache_size;
         state->resolution = (resolution ?
                              (FT_UInt)resolution : PGFT_DEFAULT_RESOLUTION);
         result = _ft_autoinit(self);
@@ -2166,6 +2179,12 @@ _ft_get_version(PyObject *self)
 {
     /* Return the linked FreeType2 version */
     return Py_BuildValue("iii", FREETYPE_MAJOR, FREETYPE_MINOR, FREETYPE_PATCH);
+}
+
+static PyObject *
+_ft_get_cache_size(PyObject *self)
+{
+    return PyLong_FromUnsignedLong((unsigned long)(FREETYPE_STATE->cache_size));
 }
 
 static PyObject *
@@ -2288,7 +2307,7 @@ MODINIT_DEFINE (_freetype)
     }
 
     FREETYPE_MOD_STATE(module)->freetype = 0;
-    FREETYPE_MOD_STATE(module)->cache_size = PGFT_DEFAULT_CACHE_SIZE;
+    FREETYPE_MOD_STATE(module)->cache_size = 0;
     FREETYPE_MOD_STATE(module)->resolution = PGFT_DEFAULT_RESOLUTION;
 
     Py_INCREF((PyObject *)&PgFont_Type);
