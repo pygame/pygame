@@ -116,6 +116,13 @@ The :mod:`freetype` module is new in Pygame 1.9.2
 
    Returns whether the the FreeType library is initialized.
 
+.. function:: get_cache_size
+
+   | :sl:`Return the glyph case size`
+   | :sg:`get_cache_size() -> long`
+
+   See :meth:`pygame.freetype.init()`.
+
 .. function:: get_default_resolution
 
    | :sl:`Return the default pixel size in dots per inch`
