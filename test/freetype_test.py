@@ -425,16 +425,18 @@ class FreeTypeFontTest(unittest.TestCase):
         self.assertTrue(rect_under.width == rect_default.width)
         self.assertTrue(rect_under.height > rect_default.height)
 
+        # Rect size should change if UTF surrogate pairs are treated as
+        # one code point or two.
         ufont = self._TEST_FONTS['mono']
-        size_utf32 = ufont.get_rect(as_unicode(r'\U00013079'), size=24)
-        size_utf16 = ufont.get_rect(as_unicode(r'\uD80C\uDC79'), size=24)
-        self.assertEqual(size_utf16[0], size_utf32[0]);
+        rect_utf32 = ufont.get_rect(as_unicode(r'\U00013079'), size=24)
+        rect_utf16 = ufont.get_rect(as_unicode(r'\uD80C\uDC79'), size=24)
+        self.assertEqual(rect_utf16, rect_utf32);
         ufont.ucs4 = True
         try:
-            size_utf16 = ufont.get_rect(as_unicode(r'\uD80C\uDC79'), size=24)
+            rect_utf16 = ufont.get_rect(as_unicode(r'\uD80C\uDC79'), size=24)
         finally:
             ufont.ucs4 = False
-        self.assertNotEqual(size_utf16[0], size_utf32[0]);
+        self.assertNotEqual(rect_utf16, rect_utf32);
         
         self.assertRaises(RuntimeError,
                           nullfont().get_rect, 'a', size=24)
