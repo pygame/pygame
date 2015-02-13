@@ -1,0 +1,146 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html>
+<head>
+    <title>Prebuilt library sources</title>
+    <style type='text/css'>
+    body {
+      font-family: arial, helvetica, sans-serif;
+      font-size: 1em;
+      color: black;
+      background-color: #aaeebb;
+    }
+
+    h1 {
+      font-size: 2em;
+      color: black;
+      background-color: #c2fc20;
+      text-align: center;
+      border: medium black solid;
+    }
+
+    h4 { 
+      font-size: 1.1em;
+    }
+
+    table { 
+      border-top: 1px solid #888888;
+      border-left: 1px solid #888888;
+      border-spacing: 0px; border-collapse: collapse;
+    }
+
+    td {
+      border-bottom: 1px solid #888888;
+      border-right: 1px solid #888888;
+      padding: 3px;
+    }
+
+    th {
+      background: #eeeeee;
+      border-bottom: 1px solid #888888;
+      border-right: 1px solid #888888;
+      padding: 3px;
+      }
+
+    .footnote { 
+      font-size: 0.9em;
+      font-style: italic;
+    }
+
+    .divider { 
+      line-height: 5;
+    }
+    </style>
+</head>
+<body>
+<h3>pygame dependencies on windows</h3>
+
+<p>
+These dependencies are built for Pygame 1.9.2 and Python 2.7 and later.
+They were built using the <tt>msys_build_deps.py</tt> script included with the Pygame source files.
+The dependencies were compiled and linked with MinGW 4.8.1.
+See the wiki at <a href="http://www.pygame.org/wiki/index">pygame.org</a> for details.
+Binaries were stripped, <tt>strip --strip-all</tt>, to reduce size.
+They are linked to the Windows C runtime library msvcrt.dll.
+The list shows the library versions contained in prebuilt as well as links to their source bundles.
+</p>
+
+<table>
+    <tr>
+        <td><a href="http://www.libsdl.org/">SDL 1.2.15</a></td>
+        <td><a href="http://www.libsdl.org/release/SDL-1.2.15.zip">SDL-1.2.15.zip</a></td>
+    </tr>
+    
+    <tr>
+        <td><a href="http://www.zlib.net/">zlib 1.2.8</a></td>
+        <td><a href="http://www.libsdl.org/projects/SDL_image/libs/zlib-1.2.8.zip">zlib-1.2.8.zip</a> at <a href="http://www.libsdl.org/">libsdl.org</a></td>
+    </tr>
+    
+    <tr>
+        <td><a href="http://www.libpng.org/pub/png/libpng.html">libpng 1.6.2.zip</a></td>
+        <td><a href="http://www.libsdl.org/projects/SDL_image/libs/libpng-1.6.2.zip">libpng-1.6.2.zip</a> at <a href="http://www.libsdl.org/">libsdl.org</a></td>
+    </tr>
+    
+    <tr>
+        <td><a href="http://www.ijg.org/">libjpeg 9</a></td>
+        <td><a href="http://www.libsdl.org/projects/SDL_image/libs/jpegsrc.v9.zip">jpegsrc.v9.zip</a> at <a href="http://www.libsdl.org/">libsdl.org</a></td>
+    </tr>
+    
+    <tr>
+        <td><a href="http://www.libtiff.org/">libtiff 4.0.3</a></td>
+        <td><a href="http://www.libsdl.org/projects/SDL_image/libs/tiff-4.0.3.zip">tiff-4.0.3.zip</a> at <a href="http://www.libsdl.org/">libsdl.org</a></td>
+    </tr>
+    
+    <tr>
+        <td><a href="http://www.webmproject.org/">libwebp 0.3.0</a></td>
+        <td><a href="http://www.libsdl.org/projects/SDL_image/libs/libwebp-0.3.0.zip">libwebp-0.3.0.zip</a> at <a href="http://www.libsdl.org/">libsdl.org</a></td>
+    </tr>
+    
+    <tr>
+        <td><a href="http://www.libsdl.org/projects/SDL_image/release-1.2.html">SDL_image 1.2.12</a></td>
+        <td><a href="http://www.libsdl.org/projects/SDL_image/release/SDL_image-1.2.12.zip">SDL_image-1.2.12.zip</a></td>
+    </tr>
+    
+    <tr>
+        <td><a href="http://www.freetype.org/freetype2/">freetype 2.4.10</a></td>
+        <td><a href="http://sourceforge.net/projects/freetype/files/freetype2/2.4.10/">ft2410.zip</a> at <a href="http://sourceforge.net/">SourceForge.net</a></td>
+    </tr>
+
+    <tr>
+        <td><a href="http://www.libsdl.org/projects/SDL_ttf/release-1.2.html">SDL_ttf 2.0.11</a></td>
+        <td><a href="http://www.libsdl.org/projects/SDL_ttf/release/SDL_ttf-2.0.11.zip">SDL_ttf-2.0.11.zip</a></td>
+    </tr>
+
+    <tr>
+        <td><a href="http://www.vorbis.com/">libvorbis 1.3.3</a></td>
+        <td><a href="http://downloads.xiph.org/releases/vorbis/libvorbis-1.3.3.zip">libvorbis-1.3.3.zip</a></td>
+    </tr>
+
+    <tr>
+        <td><a href="http://www.vorbis.com/">libogg 1.3.0</a></td>
+        <td><a href="http://www.libsdl.org/projects/SDL_mixer/libs/old/libogg-1.3.0.zip">libogg-1.3.0.zip</a> at <a href="http://www.libsdl.org/">libsdl.org</a></td>
+    </tr>
+
+    <tr>
+        <td><a href="http://flac.sourceforge.net/">FLAC 1.2.1</a></td>
+        <td><a href="http://www.libsdl.org/projects/SDL_mixer/libs/old/flac-1.2.1.zip">flac-1.2.1.zip</a> at <a href="http://www.libsdl.org/">libsdl.org</a></td>
+    </tr>
+
+    <tr>
+        <td><a href="http://www.libsdl.org/projects/SDL_mixer/release-1.2.html">SDL_mixer 1.2.12</a></td>
+        <td><a href="http://www.libsdl.org/projects/SDL_mixer/release/SDL_mixer-1.2.12.zip">SDL_mixer-1.2.12.zip</a></td>
+    </tr>
+
+    <tr>
+        <td><a href="http://icculus.org/smpeg/">smpeg 0.4.5</a></td>
+        <td><a href="http://www.libsdl.org/projects/SDL_mixer/libs/old/smpeg-0.4.5.zip">smpeg-0.4.5.zip</a> at <a href="http://www.libsdl.org/">libsdl.org</a></td>
+    </tr>
+
+    <tr>
+        <td><a href="http://portmedia.sourceforge.net/">PortMidi version 217</a></td>
+        <td><a href="http://sourceforge.net/projects/portmedia/files/portmidi/217/portmidi-src-217.zip/download">portmidi-src-217.zip</a> at <a href="http://sourceforge.net/">SourceForge.net</a></td>
+    </tr>
+</table>
+</body>
+</html>
