@@ -184,6 +184,7 @@ png_flush_fn (png_structp png_ptr)
     }
 }
 
+static int
 write_png (const char *file_name,
            png_bytep *rows,
            int w,
@@ -449,12 +450,8 @@ int write_jpeg (const char *file_name, unsigned char** image_buffer,
     struct jpeg_error_mgr jerr;
     FILE * outfile;
     JSAMPROW row_pointer[NUM_LINES_TO_WRITE];
-    int row_stride;
     int num_lines_to_write;
-    int lines_written;
     int i;
-
-    row_stride = image_width * 3;
 
     num_lines_to_write = NUM_LINES_TO_WRITE;
 
@@ -495,19 +492,7 @@ int write_jpeg (const char *file_name, unsigned char** image_buffer,
             row_pointer[i] = image_buffer[cinfo.next_scanline + i];
         }
 
-
-        /*
-        num_lines_to_write = 1;
-        row_pointer[0] = image_buffer[cinfo.next_scanline];
-           printf("num_lines_to_write:%d:   cinfo.image_height:%d:  cinfo.next_scanline:%d:\n", num_lines_to_write, cinfo.image_height, cinfo.next_scanline);
-        */
-
-
-        lines_written = jpeg_write_scanlines (&cinfo, row_pointer, num_lines_to_write);
-
-        /*
-           printf("lines_written:%d:\n", lines_written);
-        */
+        jpeg_write_scanlines (&cinfo, row_pointer, num_lines_to_write);
 
     }
 
@@ -527,7 +512,6 @@ int SaveJPEG (SDL_Surface *surface, const char *file) {
     SDL_Surface *ss_surface;
     SDL_Rect ss_rect;
     int r, i;
-    int alpha = 0;
     int pixel_bits = 32;
     int free_ss_surface = 1;
 
@@ -540,7 +524,6 @@ int SaveJPEG (SDL_Surface *surface, const char *file) {
     ss_w = surface->w;
     ss_h = surface->h;
 
-    alpha = 0;
     pixel_bits = 24;
 
     if(!surface) {
@@ -801,8 +784,6 @@ static PyMethodDef _imageext_methods[] =
 
 MODINIT_DEFINE (imageext)
 {
-    PyObject *module;
-
 #if PY3
     static struct PyModuleDef _module = {
         PyModuleDef_HEAD_INIT,
@@ -834,11 +815,10 @@ MODINIT_DEFINE (imageext)
 
     /* create the module */
 #if PY3
-    module = PyModule_Create (&_module);
+    return PyModule_Create (&_module);
 #else
-    module = Py_InitModule3(MODPREFIX "imageext",
-                            _imageext_methods,
-                            _imageext_doc);
+    Py_InitModule3(MODPREFIX "imageext",
+                   _imageext_methods,
+                   _imageext_doc);
 #endif
-    MODINIT_RETURN (module);
 }
