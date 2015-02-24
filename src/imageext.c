@@ -506,6 +506,16 @@ int write_jpeg (const char *file_name, unsigned char** image_buffer,
 
 int SaveJPEG (SDL_Surface *surface, const char *file) {
 
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+#define RED_MASK 0xff0000
+#define GREEN_MASK 0xff00
+#define BLUE_MASK 0xff
+#else
+#define RED_MASK 0xff
+#define GREEN_MASK 0xff00
+#define BLUE_MASK 0xff0000
+#endif
+
     static unsigned char** ss_rows;
     static int ss_size;
     static int ss_w, ss_h;
@@ -534,7 +544,7 @@ int SaveJPEG (SDL_Surface *surface, const char *file) {
        So no conversion is needed.  24bit, RGB
     */
 
-    if((surface->format->BytesPerPixel == 3) && !(surface->flags & SDL_SRCALPHA) && (surface->format->Rshift == 0)) {
+    if((surface->format->BytesPerPixel == 3) && !(surface->flags & SDL_SRCALPHA) && (surface->format->Rmask == RED_MASK)) {
         /*
            printf("not creating...\n");
         */
@@ -551,14 +561,8 @@ int SaveJPEG (SDL_Surface *surface, const char *file) {
 
 
         ss_surface = SDL_CreateRGBSurface (SDL_SWSURFACE,
-                                       ss_w, ss_h, pixel_bits,
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-                                       0xff00, 0xff, 0xff0000, 0xff000000
-#else
-                                       0xff, 0xff00, 0xff0000, 0xff000000
-#endif
-                    );
-
+                                           ss_w, ss_h, pixel_bits,
+                                           RED_MASK, GREEN_MASK, BLUE_MASK, 0);
         if (ss_surface == NULL) {
             return -1;
         }
