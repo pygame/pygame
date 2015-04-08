@@ -1257,6 +1257,66 @@ class FreeTypeFontTest(unittest.TestCase):
         s = 'M' * 100000  # Way too long for an SDL surface
         self.assertRaises(pygame.error, font.render, s, (0, 0, 0))
 
+    def test_issue_242(self):
+        """Issue #242: get_rect() uses 0 as default style"""
+
+        # Issue #242: freetype.Font.get_rect() ignores style defaults when
+        #             the style argument is not given
+        #
+        # The text boundary rectangle returned by freetype.Font.get_rect()
+        # should match the boundary of the same text rendered directly to a
+        # surface. This permits accurate text positioning. To work properly,
+        # get_rect() should calculate the text boundary to reflect text style,
+        # such as underline. Instead, it ignores the style settings for the
+        # Font object when the style argument is omitted.
+        # 
+        # When the style argument is not given, freetype.get_rect() uses
+        # unstyled text when calculating the boundary rectangle. This is
+        # because _ftfont_getrect(), in _freetype.c, set the default
+        # style to 0 rather than FT_STYLE_DEFAULT.
+        #
+        font = self._TEST_FONTS['sans']
+
+        # Try wide style on a wide character.
+        prev_style = font.wide
+        font.wide = True
+        try:
+            rect = font.get_rect('M', size=64)
+            surf, rrect = font.render(None, size=64)
+            self.assertEqual(rect, rrect)
+        finally:
+            font.wide = prev_style
+
+        # Try strong style on several wide characters.
+        prev_style = font.strong
+        font.strong = True
+        try:
+            rect = font.get_rect('Mm_', size=64)
+            surf, rrect = font.render(None, size=64)
+            self.assertEqual(rect, rrect)
+        finally:
+            font.strong = prev_style
+
+        # Try oblique style on a tall, narrow character.
+        prev_style = font.oblique
+        font.oblique = True
+        try:
+            rect = font.get_rect('|', size=64)
+            surf, rrect = font.render(None, size=64)
+            self.assertEqual(rect, rrect)
+        finally:
+            font.oblique = prev_style
+
+        # Try underline style on a glyphless character.
+        prev_style = font.underline
+        font.underline = True
+        try:
+            rect = font.get_rect('  ', size=64)
+            surf, rrect = font.render(None, size=64)
+            self.assertEqual(rect, rrect)
+        finally:
+            font.underline = prev_style
+
     def test_garbage_collection(self):
         """Check reference counting on returned new references"""
         def ref_items(seq):
