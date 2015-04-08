@@ -1418,7 +1418,7 @@ _ftfont_getrect(PgFontObject *self, PyObject *args, PyObject *kwds)
 
     FontRenderMode render;
     Angle_t rotation = self->rotation;
-    int style = 0;
+    int style = FT_STYLE_DEFAULT;
 
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|iO&O&", kwlist,
                                      &textobj, &style,
