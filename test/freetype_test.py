@@ -1317,6 +1317,29 @@ class FreeTypeFontTest(unittest.TestCase):
         finally:
             font.underline = prev_style
 
+    def test_issue_237(self):
+        """Issue #237: Memory overrun when rendered with underlining"""
+
+        # Issue #237: Memory overrun when text without descenders is rendered
+        #             with underlining
+        #
+        # The bug crashes the Python interpreter. The bug is caught with C
+        # assertions in ft_render_cb.c when the Pygame module is compiled
+        # for debugging. So far it is only known to affect Times New Roman.
+        #
+        name = "Times New Roman"
+        font = ft.SysFont(name, 19)
+        if font.name != name:
+            # The font is unavailable, so skip the test.
+            return
+        font.underline = True
+        s, r = font.render("Amazon", size=19)
+
+        # Some other checks to make sure nothing else broke.
+        for adj in [-2, -1.9, -1, 0, 1.9, 2]:
+            font.underline_adjustment = adj
+            s, r = font.render("Amazon", size=19)
+
     def test_garbage_collection(self):
         """Check reference counting on returned new references"""
         def ref_items(seq):
