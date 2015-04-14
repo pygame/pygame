@@ -1311,7 +1311,7 @@ class FreeTypeFontTest(unittest.TestCase):
         prev_style = font.underline
         font.underline = True
         try:
-            rect = font.get_rect('  ', size=64)
+            rect = font.get_rect(' ', size=64)
             surf, rrect = font.render(None, size=64)
             self.assertEqual(rect, rrect)
         finally:
@@ -1339,6 +1339,18 @@ class FreeTypeFontTest(unittest.TestCase):
         for adj in [-2, -1.9, -1, 0, 1.9, 2]:
             font.underline_adjustment = adj
             s, r = font.render("Amazon", size=19)
+
+    def test_issue_243(self):
+        """Issue Y: trailing space ignored in boundary calculation"""
+
+        # Issue #243: For a string with trailing spaces, freetype ignores the
+        # last space in boundary calculations
+        #
+        font = self._TEST_FONTS['fixed']
+        r1 = font.get_rect(" ", size=64)
+        self.assertTrue(r1.width > 1)
+        r2 = font.get_rect("  ", size=64)
+        self.assertEqual(r2.width, 2 * r1.width)
 
     def test_garbage_collection(self):
         """Check reference counting on returned new references"""
