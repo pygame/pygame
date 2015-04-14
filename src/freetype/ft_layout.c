@@ -371,6 +371,30 @@ position_glyphs(Layout *ftext)
 
     }
 
+    /* Deal with the special case of a trailing space.
+     *
+     * In determining the bounding box of the text, the above loop omits
+     * the advance of the last character from the calculation. This is
+     * intensional. For a printing character with a bitmap, it avoids
+     * padding of the boundary. But a space is nothing but padding, so
+     * a trailing space gets left out. This adds it in.
+     */
+    if (n_glyphs > 0 &&  /* conditional && */
+        (glyph_array + n_glyphs - 1)->glyph->image->bitmap.width == 0) {
+        if (pen.x < min_x) {
+            min_x = pen.x;
+        }
+        else if (pen.x > max_x) {
+            max_x = pen.x;
+        }
+        if (pen.y < min_y) {
+            min_y = pen.y;
+        }
+        else if (pen.y > max_y) {
+            max_y = pen.y;
+        }
+    }
+
     fill_text_bounding_box(ftext, pen, min_x, max_x, min_y, max_y, top);
 }
 
