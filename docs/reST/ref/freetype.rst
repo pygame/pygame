@@ -422,7 +422,7 @@ The :mod:`freetype` module is new in Pygame 1.9.2
               width, height = surf.get_size()
               line_spacing = font.get_sized_height() + 2
               x, y = 0, line_spacing
-              space = font.get_rect(' ' * 2)  # second space given width 0
+              space = font.get_rect(' ')
               for word in words:
                   bounds = font.get_rect(word)
                   if x + bounds.width + bounds.x >= width:
