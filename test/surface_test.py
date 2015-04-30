@@ -690,6 +690,16 @@ class SurfaceTypeTest(unittest.TestCase):
         self.assertEqual(repr(im.convert(32)),  '<Surface(24x24x32 SW)>')
         self.assertEqual(repr(im2.convert(32)), '<Surface(469x137x32 SW)>')
 
+        # Ensure a palette format to palette format works.
+        im3 = im.convert(8)
+        self.assertEqual(repr(im3), '<Surface(24x24x8 SW)>')
+        self.assertEqual(im3.get_palette(), im.get_palette())
+
+        # It is still an error when the target format really does have
+        # an empty palette (all the entries are black).
+        self.assertRaises(pygame.error, im2.convert, 8)
+        self.assertEqual(pygame.get_error(), "Empty destination palette")
+
     def todo_test_convert(self):
 
         # __doc__ (as of 2008-08-02) for pygame.surface.Surface.convert:
