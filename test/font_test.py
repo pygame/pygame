@@ -18,6 +18,7 @@ else:
 import pygame
 from pygame import font as pygame_font  # So font can be replaced with ftfont
 from pygame.compat import as_unicode, as_bytes, xrange_, filesystem_errors
+from pygame.compat import PY_MAJOR_VERSION
 
 UCS_4 = sys.maxunicode > 0xFFFF
 
@@ -83,17 +84,17 @@ class FontModuleTest( unittest.TestCase ):
 
         self.failUnless(fnts)
 
-        # strange python 2.x bug... if you assign to unicode, 
-        #   all sorts of weirdness happens.
-        if sys.version_info <= (3, 0, 0):
-            unicod = unicode
+        if (PY_MAJOR_VERSION >= 3):
+            # For Python 3.x, names will always be unicode strings.
+            name_types = (str,)
         else:
-            unicod = str
+            # For Python 2.x, names may be either unicode or ascii strings.
+            name_types = (str, unicode)
 
         for name in fnts:
             # note, on ubuntu 2.6 they are all unicode strings.
 
-            self.failUnless(isinstance(name, (str, unicod)), name)
+            self.failUnless(isinstance(name, name_types), name)
             self.failUnless(name.islower(), name)
             self.failUnless(name.isalnum(), name)
 
