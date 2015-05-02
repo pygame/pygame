@@ -33,8 +33,8 @@ Sysalias = {}
 # Python 3 compatibility
 if PY_MAJOR_VERSION >= 3:
     def toascii(raw):
-        """convert bytes to ASCII-only string, then return that string as bytes"""
-        return raw.decode('ascii', 'ignore').encode('ascii')
+        """convert bytes to ASCII-only string"""
+        return raw.decode('ascii', 'ignore')
     if os.name == 'nt':
         import winreg as _winreg
     else:
