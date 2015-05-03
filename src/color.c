@@ -17,6 +17,24 @@
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 */
+
+/* The follow bug was reported for the pygame.math module:
+ *
+ * Adjust gcc 4.4 optimization for floating point on x86-32 PCs running Linux.
+ * This addresses bug 52:
+ * http://pygame.motherhamster.org/bugzilla/show_bug.cgi?id=52
+ *
+ * Apparently, the same problem plagues pygame.color, as it failed the
+ * test_hsva__all_elements_within_limits and
+ * test_hsva__sanity_testing_converted_should_not_raise test cases due
+ * to slight, on the order of 10e-14, discrepencies in calculated double
+ * values. 
+ */
+#if defined(__GNUC__) && defined(__linux__) && defined(__i386__) && \
+  __SIZEOF_POINTER__ == 4 &&  __GNUC__ == 4 && __GNUC_MINOR__ >= 4
+#pragma GCC optimize ("float-store")
+#endif
+
 #define PYGAMEAPI_COLOR_INTERNAL
 
 #include "doc/color_doc.h"
