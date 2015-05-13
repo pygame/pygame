@@ -1,6 +1,7 @@
 # coding: ascii
 """Python 2.x/3.x compatibility tools"""
 
+import codecs
 import sys
 
 __all__ = ['geterror', 'long_', 'xrange_', 'ord_', 'unichr_',
@@ -95,9 +96,11 @@ else:
 
 def filesystem_encode(u):
     fsencoding = sys.getfilesystemencoding()
-    if fsencoding.lower() == 'ascii' and sys.platform.startswith('linux'):
+    if sys.platform.startswith('linux') and \
+            (codecs.lookup(fsencoding).name == 'ascii'):
         # Don't believe Linux systems claiming ASCII-only filesystems. In
         # practice, arbitrary bytes are allowed, and most things expect UTF-8.
+        # We use codecs.lookup() because ascii has aliases, eg 'ANSI_X3.4-1968'
         fsencoding = 'utf-8'
     return u.encode(fsencoding, filesystem_errors)
 
