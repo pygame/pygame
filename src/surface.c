@@ -3052,16 +3052,6 @@ PySurface_Blit (PyObject * dstobj, PyObject * srcobj, SDL_Rect * dstrect,
         if (src->format->BytesPerPixel == 1) {
             result = pygame_Blit (src, srcrect, dst, dstrect, 0);
         }
-        else if (SDL_WasInit (SDL_INIT_VIDEO)) {
-            src = SDL_DisplayFormat (src);
-            if (src) {
-                result = SDL_BlitSurface (src, srcrect, dst, dstrect);
-                SDL_FreeSurface (src);
-            }
-            else {
-                result = -1;
-            }
-        }
         else {
             SDL_PixelFormat *fmt = src->format;
             SDL_PixelFormat newfmt;
