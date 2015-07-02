@@ -15,13 +15,6 @@ VORBIS = -Iprebuilt/include/vorbis -lvorbis
 OGG = -Iprebuilt/include/ogg -logg
 PORTMIDI = -lportmidi
 PORTTIME =
-AVFORMAT = -Iprebuilt/include -lavformat -lavcodec -lavutil
-SWSCALE = -Iprebuilt/include -lswscale -lavutil
-# Ensure make_prebuilt.py includes the ffmpeg headers.
-#COPYHDRS_AVFORMAT = -lavformat -Iprebuilt/include/libavformat
-#COPYHDRS_SWCALE = -lswscale -Iprebuilt/include/libswscale
-#COPYHDRS_AVCODEC = -lavcodec -Iprebuilt/include/libavcodec
-#COPYHDRS_AVUTIL = -lavutil -Iprebuilt/include/libavutil
 # Ensure make_prebuilt.py includes the freetype2 headers.
 COPYHDRS_FREETYPE = -lfreetype -Iprebuilt/include/freetype2/freetype -Iprebuilt/include/freetype2/freetype/config
 # The DLL's
@@ -40,9 +33,5 @@ COPYLIB_vorbisfile -lvorbis -Lprebuilt/lib/libvorbisfile-3.dll
 COPYLIB_vorbis -logg -Lprebuilt/lib/libvorbis-0.dll
 COPYLIB_ogg -Lprebuilt/lib/libogg-0.dll
 COPYLIB_portmidi -Lprebuilt/lib/portmidi.dll
-#COPYLIB_avformat -lavcodec -lavutil -Lprebuilt/lib/avformat-52.dll
-#COPYLIB_swscale -lavutil -Lprebuilt/lib/swscale-0.dll
-#COPYLIB_avcodec -lavutil -Lprebuilt/lib/avcodec-52.dll
-#COPYLIB_avutil -Lprebuilt/lib/avutil-50.dll
 COPYLIB_stdcpp -Lprebuilt/lib/libstdc++-6.dll
 COPYLIB_gcc -Lprebuilt/lib/libgcc_s_dw2-1.dll
