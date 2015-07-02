@@ -465,22 +465,6 @@ pygame much earlier.
 
    .. ## pygame.examples.scroll.main ##
 
-.. function:: movieplayer.main
-
-   | :sl:`play an MPEG movie`
-   | :sg:`movieplayer.main(filepath) -> None`
-
-   A simple movie player that plays an ``MPEG`` movie in a Pygame window. It
-   showcases the :mod:`pygame.movie` module. The window adjusts to the size of
-   the movie image. It is given a border to demonstrate that a movie can play
-   autonomously in a sub- window. Also, the file is copied to a file like
-   object to show that not just Python files can be used as a movie source.
-
-   The :mod:`pygame.movie` module is problematic and may not work on all
-   systems. It is intended to replace it with an ffmpeg based version.
-
-   .. ## pygame.examples.movieplayer.main ##
-
 .. function:: camera.main
 
    | :sl:`display video captured live from an attached camera`

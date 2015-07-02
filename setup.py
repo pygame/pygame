@@ -179,8 +179,7 @@ perhaps make a clean copy from "Setup.in".""")
 
 #python 3.x: remove modules not yet ported
 if sys.version_info >= (3, 0, 0):
-    python3_skip = ['_movie',
-                    '_numericsurfarray',
+    python3_skip = ['_numericsurfarray',
                     '_numericsndarray',
                    ]
 #    if (sys.platform != 'linux2'):
