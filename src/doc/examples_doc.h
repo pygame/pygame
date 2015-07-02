@@ -55,8 +55,6 @@
 
 #define DOC_PYGAMEEXAMPLESSCROLLMAIN "scroll.main(image_file=None) -> None\nrun a Surface.scroll example that shows a magnified image"
 
-#define DOC_PYGAMEEXAMPLESMOVIEPLAYERMAIN "movieplayer.main(filepath) -> None\nplay an MPEG movie"
-
 #define DOC_PYGAMEEXAMPLESCAMERAMAIN "camera.main() -> None\ndisplay video captured live from an attached camera"
 
 
@@ -175,10 +173,6 @@ run a midi example
 pygame.examples.scroll.main
  scroll.main(image_file=None) -> None
 run a Surface.scroll example that shows a magnified image
-
-pygame.examples.movieplayer.main
- movieplayer.main(filepath) -> None
-play an MPEG movie
 
 pygame.examples.camera.main
  camera.main() -> None
