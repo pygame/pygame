@@ -45,9 +45,13 @@ member data. The event object contains no method functions, just member data.
 EventType objects are retrieved from the pygame event queue. You can create
 your own new events with the ``pygame.event.Event()`` function.
 
-Your program must take steps to keep the event queue from overflowing. If the
-program is not clearing or getting all events off the queue at regular
-intervals, it can overflow. When the queue overflows an exception is thrown.
+The SDL event queue has an upper limit on the number of events it can hold
+(128  for standard SDL 1.2).
+When the queue becomes full new events are quietly dropped.
+To prevent lost events, especially input events which signal a quit
+command, your program must regularly check for events and process them.
+To speed up queue processing use :func:`pygame.event.set_blocked` to
+limit which events get queued.
 
 All EventType instances have an event type identifier, accessible as the
 ``EventType.type`` property. You may also get full access to the event object's
@@ -262,6 +266,8 @@ type and have identical attribute values. Inequality checks also work.
    Although any type of event can be placed, if using the system event types
    your program should be sure to create the standard attributes with
    appropriate values.
+
+   If the SDL event queue is full a :exc:`pygame.error` is raised.
 
    .. ## pygame.event.post ##
 
