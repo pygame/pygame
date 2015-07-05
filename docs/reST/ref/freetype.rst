@@ -416,7 +416,7 @@ The :mod:`freetype` module is new in Pygame 1.9.2
       feature is an aid to using :meth:`render_to` in combination with
       :meth:`get_rect`. An example: ::
 
-	  def word_wrap(surf, text, font, color=(0, 0, 0)):
+          def word_wrap(surf, text, font, color=(0, 0, 0)):
               font.origin = True
               words = text.split(' ')
               width, height = surf.get_size()
@@ -480,11 +480,12 @@ The :mod:`freetype` module is new in Pygame 1.9.2
 
       ::
 
-          STYLE_NONE
+          STYLE_NORMAL
           STYLE_UNDERLINE
           STYLE_OBLIQUE
           STYLE_STRONG
-	  STYLE_WIDE
+          STYLE_WIDE
+          STYLE_DEFAULT
 
       These constants may be found on the FreeType constants module.
       Optionally, the default style can be modified or obtained accessing the
@@ -494,6 +495,10 @@ The :mod:`freetype` module is new in Pygame 1.9.2
       scalable fonts only. An attempt to set either for a bitmap font raises
       an AttributeError. An attempt to set either for an inactive font,
       as returned by :meth:`Font.__new__`, raises a RuntimeError.
+
+      Assigning :const:`STYLE_DEFAULT` to the :attr:`style` property leaves
+      the property unchanged, as this property defines the default.
+      The :attr:`style` property will never return :const:`STYLE_DEFAULT`.
 
    .. attribute:: underline
 

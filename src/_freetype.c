@@ -1118,6 +1118,12 @@ _ftfont_setstyle(PgFontObject *self, PyObject *value, void *closure)
 
     style = (FT_UInt32)PyInt_AsLong(value);
 
+    if (style == FT_STYLE_DEFAULT) {
+        /* The Font object's style property is the Font's default style,
+         * so leave unchanged.
+         */
+        return 0;
+    }
     if (_PGFT_CheckStyle(style)) {
         PyErr_Format(PyExc_ValueError,
                      "Invalid style value %x", (int)style);
@@ -2325,6 +2331,7 @@ MODINIT_DEFINE (_freetype)
     DEC_CONST(STYLE_OBLIQUE);
     DEC_CONST(STYLE_UNDERLINE);
     DEC_CONST(STYLE_WIDE);
+    DEC_CONST(STYLE_DEFAULT);
 
     DEC_CONST(BBOX_EXACT);
     DEC_CONST(BBOX_EXACT_GRIDFIT);
