@@ -1094,6 +1094,11 @@ class FreeTypeFontTest(unittest.TestCase):
         font.style = st
         self.assertEqual(st, font.style)
 
+        # and that STYLE_DEFAULT has no effect (continued from above)
+        self.assertNotEqual(st, ft.STYLE_DEFAULT)
+        font.style = ft.STYLE_DEFAULT
+        self.assertEqual(st, font.style)
+
         # revert changes
         font.style = ft.STYLE_NORMAL
         self.assertEqual(ft.STYLE_NORMAL, font.style)
