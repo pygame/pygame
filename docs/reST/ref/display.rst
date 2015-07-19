@@ -11,14 +11,14 @@
 This module offers control over the pygame display. Pygame has a single display
 Surface that is either contained in a window or runs full screen. Once you
 create the display you treat it as a regular Surface. Changes are not
-immediately visible onscreen, you must choose one of the two flipping functions
+immediately visible onscreen; you must choose one of the two flipping functions
 to update the actual display.
 
-The origin of the display, where x = 0, and y = 0 is the top left of the
-screen. Both axis increase positively towards the bottom right of the screen.
+The origin of the display, where x = 0 and y = 0, is the top left of the
+screen. Both axes increase positively towards the bottom right of the screen.
 
 The pygame display can actually be initialized in one of several modes. By
-default the display is a basic software driven framebuffer. You can request
+default, the display is a basic software driven framebuffer. You can request
 special modules like hardware acceleration and OpenGL support. These are
 controlled by flags passed to ``pygame.display.set_mode()``.
 
@@ -28,12 +28,12 @@ control is needed over the pixel format or display resolutions, use the
 functions ``pygame.display.mode_ok()``, ``pygame.display.list_modes()``, and
 ``pygame.display.Info()`` to query information about the display.
 
-Once the display Surface is created, the functions from this module effect the
+Once the display Surface is created, the functions from this module affect the
 single existing display. The Surface becomes invalid if the module is
 uninitialized. If a new display mode is set, the existing Surface will
 automatically switch to operate on the new display.
 
-Then the display mode is set, several events are placed on the pygame event
+When the display mode is set, several events are placed on the pygame event
 queue. ``pygame.QUIT`` is sent when the user has requested the program to
 shutdown. The window will receive ``pygame.ACTIVEEVENT`` events as the display
 gains and loses input focus. If the display is set with the
@@ -41,6 +41,13 @@ gains and loses input focus. If the display is set with the
 user adjusts the window dimensions. Hardware displays that draw direct to the
 screen will get ``pygame.VIDEOEXPOSE`` events when portions of the window must
 be redrawn.
+
+Some display environments have an option for automatically stretching all
+windows. When this option is enabled, this automatic stretching distorts the
+appearance of the pygame window. In the pygame examples directory, there is
+example code (prevent_display_stretching.py) which shows how to disable this
+automatic stretching of the pygame display on Microsoft Windows (Vista or newer
+required).
 
 .. function:: init
 
