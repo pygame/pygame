@@ -10,6 +10,7 @@ About pygame
 
      http://www.pygame.org
 
+.. image:: https://travis-ci.org/illume/pygame.png?branch=master
 
 Installation
 ============
