@@ -256,16 +256,6 @@ RWopsFromFileObject(PyObject *obj)
     if (obj == NULL) {
         return (SDL_RWops *)RAISE(PyExc_TypeError, "Invalid filetype object");
     }
-#if PY2
-    if (PyFile_Check(obj))
-    {
-        rw = SDL_RWFromFP(PyFile_AsFile(obj), 0);
-        if (rw) {
-            return rw;
-        }
-        SDL_ClearError();
-    }
-#endif
     helper = PyMem_New(RWHelper, 1);
     if (helper == NULL) {
         return (SDL_RWops *)PyErr_NoMemory();
