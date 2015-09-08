@@ -3,7 +3,7 @@ Setup
 *.pyc
 *~
 build
-prebuilt
+prebuilt-x??
 docs/\.buildinfo
 docs/objects.inv
 docs/doctrees/*
