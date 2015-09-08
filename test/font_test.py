@@ -471,11 +471,10 @@ class FontTypeTest( unittest.TestCase ):
         f = pygame_font.Font(pygame_font.get_default_font(), 20)
 
     def test_load_from_file_unicode(self):
-        base_dir = os.path.split(pygame.__file__)[0]
-        sep = os.path.sep
-        if sep == '\\':
-            sep = '\\\\'
-        font_path = base_dir + sep + pygame_font.get_default_font()
+        base_dir = os.path.dirname(pygame.__file__)
+        font_path = os.path.join(base_dir, pygame_font.get_default_font())
+        if os.path.sep == '\\':
+            font_path = font_path.replace('\\', '\\\\')
         ufont_path = as_unicode(font_path)
         f = pygame_font.Font(ufont_path, 20)
 
