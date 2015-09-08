@@ -478,7 +478,7 @@ pygame much earlier.
 .. function:: playmus.main
 
    | :sl:`play an audio file`
-   | :sg:`playmus.main(file_path) -> None
+   | :sg:`playmus.main(file_path) -> None`
 
    A simple music player with window and keyboard playback control. Playback can
    be paused and rewound to the beginning.
