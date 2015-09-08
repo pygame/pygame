@@ -33,7 +33,7 @@ You can find where the example files are installed by using the following
 commands inside the python interpreter.
 
 ::
-    
+
    >>> import pygame.examples.scaletest
    >>> pygame.examples.scaletest.__file__
    '/usr/lib/python2.6/site-packages/pygame/examples/scaletest.py'
@@ -474,5 +474,15 @@ pygame much earlier.
    the system.
 
    .. ## pygame.examples.camera.main ##
+
+.. function:: playmus.main
+
+   | :sl:`play an audio file`
+   | :sg:`playmus.main(file_path) -> None
+
+   A simple music player with window and keyboard playback control. Playback can
+   be paused and rewound to the beginning.
+
+   .. ## pygame.examples.playmus.main ##
 
 .. ## pygame.examples ##
