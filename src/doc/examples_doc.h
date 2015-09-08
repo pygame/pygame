@@ -57,6 +57,8 @@
 
 #define DOC_PYGAMEEXAMPLESCAMERAMAIN "camera.main() -> None\ndisplay video captured live from an attached camera"
 
+#define DOC_PYGAMEEXAMPLESPLAYMUSMAIN "playmus.main(file_path) -> None\nplay an audio file"
+
 
 
 /* Docs in a comment... slightly easier to read. */
@@ -177,5 +179,9 @@ run a Surface.scroll example that shows a magnified image
 pygame.examples.camera.main
  camera.main() -> None
 display video captured live from an attached camera
+
+pygame.examples.playmus.main
+ playmus.main(file_path) -> None
+play an audio file
 
 */
