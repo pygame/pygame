@@ -164,7 +164,7 @@ License
 .. |TravisBuild| image:: https://travis-ci.org/illume/pygame.svg?branch=master
 .. _TravisBuild: https://travis-ci.org/illume/pygame
 
-.. |AppVeyorBuild| image:: https://ci.appveyor.com/api/projects/status/bvo1vn5vk83bsx67/branch/Update%20with%20Appveyor%20Build-bot%20Support?svg=true
+.. |AppVeyorBuild| image:: https://ci.appveyor.com/api/projects/status/bvo1vn5vk83bsx67?svg=true
 .. _AppVeyorBuild: https://ci.appveyor.com/project/pygame/pygame
 
 .. |PyPiVersion| image:: http://img.shields.io/pypi/v/pygame.svg?v=1
