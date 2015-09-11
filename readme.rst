@@ -10,10 +10,7 @@ About pygame
 
      http://www.pygame.org
 
-|TravisBuild|_
-
-.. |TravisBuild| image:: https://travis-ci.org/illume/pygame.png?branch=master
-.. _TravisBuild: https://travis-ci.org/illume/pygame
+|TravisBuild|_ |PyPiVersion|_ |PyPiLicense|_ |Python2| |Python3|
 
 Installation
 ============
@@ -160,3 +157,19 @@ License
 
      The programs in the "examples" subdirectory are in the public
      domain.
+
+
+
+
+.. |TravisBuild| image:: https://travis-ci.org/illume/pygame.svg?branch=master
+.. _TravisBuild: https://travis-ci.org/illume/pygame
+
+.. |PyPiVersion| image:: http://img.shields.io/pypi/v/pygame.svg?v=1
+.. _PyPiVersion: https://pypi.python.org/pypi/pygame
+
+.. |PyPiLicense| image:: http://img.shields.io/pypi/l/pygame.svg?v=1
+.. _PyPiLicense: https://pypi.python.org/pypi/pygame
+
+.. |Python2| image:: http://img.shields.io/badge/python-2-blue.svg?v=1
+.. |Python3| image:: http://img.shields.io/badge/python-3-blue.svg?v=1
+
