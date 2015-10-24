@@ -1032,11 +1032,6 @@ _color_set_hsva (PyColor *color, PyObject *value, void *closure)
 
     switch (hi)
     {
-    case 0:
-        color->data[0] = (Uint8) (v * 255);
-        color->data[1] = (Uint8) (t * 255);
-        color->data[2] = (Uint8) (p * 255);
-        break;
     case 1:
         color->data[0] = (Uint8) (q * 255);
         color->data[1] = (Uint8) (v * 255);
@@ -1063,9 +1058,11 @@ _color_set_hsva (PyColor *color, PyObject *value, void *closure)
         color->data[2] = (Uint8) (q * 255);
         break;
     default:
-        PyErr_SetString (PyExc_OverflowError,
-            "this is not allowed to happen ever");
-        return -1;
+        /* 0 or 6, which are equivalent. */
+        assert (hi == 0 || hi == 6);
+        color->data[0] = (Uint8) (v * 255);
+        color->data[1] = (Uint8) (t * 255);
+        color->data[2] = (Uint8) (p * 255);
     }
 
     return 0;
