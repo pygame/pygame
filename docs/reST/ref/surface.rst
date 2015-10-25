@@ -220,7 +220,7 @@
       | :sg:`set_colorkey(None) -> None`
 
       Set the current color key for the Surface. When blitting this Surface
-      onto a destination, and pixels that have the same color as the colorkey
+      onto a destination, any pixels that have the same color as the colorkey
       will be transparent. The color can be an ``RGB`` color or a mapped color
       integer. If None is passed, the colorkey will be unset.
 
