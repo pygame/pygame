@@ -150,5 +150,105 @@ class ScrapModuleTest(unittest.TestCase):
         r = scrap.get ("arbitrary buffer")
         self.assertEquals (r, as_bytes("buf"))
 
+class X11InteractiveTest(unittest.TestCase):
+    __tags__ = ['ignore', 'subprocess_ignore']
+    try:
+        pygame.display.init()
+    except Exception:
+        pass
+    else:
+        if pygame.display.get_driver() == 'x11':
+            __tags__ = ['interactive']
+        pygame.display.quit()
+
+    def test_issue_208(self):
+        """PATCH: pygame.scrap on X11, fix copying into PRIMARY selection
+
+           Copying into theX11 PRIMARY selection (mouse copy/paste) would not
+           work due to a confusion between content type and clipboard type.
+
+        """
+
+        from pygame import display, event, freetype
+        from pygame.locals import SCRAP_SELECTION, SCRAP_TEXT
+        from pygame.locals import KEYDOWN, K_y, QUIT
+
+        success = False
+        freetype.init()
+        font = freetype.Font(None, 24)
+        display.init()
+        display.set_caption("Interactive X11 Paste Test")
+        screen = display.set_mode((600, 200))
+        screen.fill(pygame.Color('white'))
+        text = "Scrap put() succeeded."
+        msg = ('Some text has been placed into the X11 clipboard.'
+               ' Please click the center mouse button in an open'
+               ' text window to retrieve it.'
+               '\n\nDid you get "{}"? (y/n)').format(text)
+        word_wrap(screen, msg, font, 6)
+        display.flip()
+        event.pump()
+        scrap.init()
+        scrap.set_mode(SCRAP_SELECTION)
+        scrap.put(SCRAP_TEXT, text.encode('UTF-8'))
+        while True:
+            e = event.wait()
+            if e.type == QUIT:
+                break
+            if e.type == KEYDOWN:
+                success = (e.key == K_y)
+                break
+        pygame.display.quit()
+        self.assertTrue(success)
+
+def word_wrap(surf, text, font, margin=0, color=(0, 0, 0)):
+    font.origin = True
+    surf_width, surf_height = surf.get_size()
+    width = surf_width - 2 * margin
+    height = surf_height - 2 * margin
+    line_spacing = int(1.25 * font.get_sized_height())
+    x, y = margin, margin + line_spacing
+    space = font.get_rect(' ')
+    for word in iwords(text):
+        if word == '\n':
+            x, y = margin, y + line_spacing
+        else:
+            bounds = font.get_rect(word)
+            if x + bounds.width + bounds.x >= width:
+                x, y = margin, y + line_spacing
+            if x + bounds.width + bounds.x >= width:
+                raise ValueError("word too wide for the surface")
+            if y + bounds.height - bounds.y >= height:
+                raise ValueError("text to long for the surface")
+            font.render_to(surf, (x, y), None, color)
+            x += bounds.width + space.width
+    return x, y
+
+def iwords(text):
+    #  r"\n|[^ ]+"
+    #
+    head = 0
+    tail = head
+    end = len(text)
+    while head < end:
+        if text[head] == ' ':
+            head += 1
+            tail = head + 1
+        elif text[head] == '\n':
+            head += 1
+            yield '\n'
+            tail = head + 1
+        elif tail == end:
+            yield text[head:]
+            head = end
+        elif text[tail] == '\n':
+            yield text[head:tail]
+            head = tail
+        elif text[tail] == ' ':
+            yield text[head:tail]
+            head = tail
+        else:
+            tail += 1
+
 if __name__ == '__main__':
     unittest.main()
