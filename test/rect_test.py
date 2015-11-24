@@ -469,7 +469,8 @@ class RectTypeTest( unittest.TestCase ):
         r1.unionall_ip( [r2,r3] )
         self.assertEqual( Rect(-2, -2, 5, 5), r1 )
 
-
+        # Bug for an empty list. Would return a Rect instead of None.
+        self.assertTrue(r1.unionall_ip( [] ) is None)
 
     def test_colliderect( self ):
         r1 = Rect(1,2,3,4)
