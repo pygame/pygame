@@ -21,6 +21,7 @@ else:
 import pygame
 from pygame.compat import long_
 import math
+import operator
 
 ################################### CONSTANTS ##################################
 
@@ -379,6 +380,10 @@ class ColorTypeTest (unittest.TestCase):
         self.assertEquals (c3.b, 164)
         self.assertEquals (c3.a, 255)
 
+        # Issue #286: Is type checking done for Python 3.x?
+        self.assertRaises (TypeError, operator.add, c1, None)
+        self.assertRaises (TypeError, operator.add, None, c1)
+
     def test_sub (self):
         c1 = pygame.Color (0xFFFFFFFF)
         self.assertEquals (c1.r, 255)
@@ -403,6 +408,10 @@ class ColorTypeTest (unittest.TestCase):
         self.assertEquals (c3.g, 189)
         self.assertEquals (c3.b, 91)
         self.assertEquals (c3.a, 0)
+
+        # Issue #286: Is type checking done for Python 3.x?
+        self.assertRaises (TypeError, operator.sub, c1, None)
+        self.assertRaises (TypeError, operator.sub, None, c1)
 
     def test_mul (self):
         c1 = pygame.Color (0x01010101)
@@ -429,6 +438,10 @@ class ColorTypeTest (unittest.TestCase):
         self.assertEquals (c3.b, 9)
         self.assertEquals (c3.a, 255)
 
+        # Issue #286: Is type checking done for Python 3.x?
+        self.assertRaises (TypeError, operator.mul, c1, None)
+        self.assertRaises (TypeError, operator.mul, None, c1)
+
     def test_div (self):
         c1 = pygame.Color (0x80808080)
         self.assertEquals (c1.r, 128)
@@ -454,6 +467,10 @@ class ColorTypeTest (unittest.TestCase):
         self.assertEquals (c3.b, 2)
         self.assertEquals (c3.a, 0)
 
+        # Issue #286: Is type checking done for Python 3.x?
+        self.assertRaises (TypeError, operator.floordiv, c1, None)
+        self.assertRaises (TypeError, operator.floordiv, None, c1)
+
     def test_mod (self):
         c1 = pygame.Color (0xFFFFFFFF)
         self.assertEquals (c1.r, 255)
@@ -472,6 +489,10 @@ class ColorTypeTest (unittest.TestCase):
         self.assertEquals (c3.g, 3)
         self.assertEquals (c3.b, 7)
         self.assertEquals (c3.a, 15)
+
+        # Issue #286: Is type checking done for Python 3.x?
+        self.assertRaises (TypeError, operator.mod, c1, None)
+        self.assertRaises (TypeError, operator.mod, None, c1)
 
     def test_float (self):
         c = pygame.Color (0xCC00CC00)
