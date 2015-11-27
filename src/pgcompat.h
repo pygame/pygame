@@ -179,6 +179,10 @@
 #define Py_TPFLAGS_HAVE_CLASS 0
 #endif
 
+#ifndef Py_TPFLAGS_CHECKTYPES
+#define Py_TPFLAGS_CHECKTYPES 0
+#endif
+
 #if PY_VERSION_HEX >= 0x03020000
 #define Slice_GET_INDICES_EX(slice, length, start, stop, step, slicelength) \
     PySlice_GetIndicesEx(slice, length, start, stop, step, slicelength)
