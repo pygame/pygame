@@ -61,6 +61,7 @@ static PyObject *surface_new (PyTypeObject *type, PyObject *args,
                               PyObject *kwds);
 static intptr_t surface_init (PySurfaceObject *self, PyObject *args,
                               PyObject *kwds);
+static PyObject *surf_subtype_new (PyTypeObject *type, SDL_Surface *s);
 static PyObject* surface_str (PyObject *self);
 static void surface_dealloc (PyObject *self);
 static void surface_cleanup (PySurfaceObject * self);
@@ -286,13 +287,19 @@ static PyTypeObject PySurface_Type = {
 static PyObject*
 PySurface_New (SDL_Surface *s)
 {
+    return surf_subtype_new (&PySurface_Type, s);
+}
+
+static PyObject*
+surf_subtype_new (PyTypeObject *type, SDL_Surface *s)
+{
     PySurfaceObject *self;
 
     if (!s)
         return RAISE (PyExc_SDLError, SDL_GetError ());
 
     self = (PySurfaceObject *)
-        PySurface_Type.tp_new (&PySurface_Type, NULL, NULL);
+        PySurface_Type.tp_new (type, NULL, NULL);
 
     if (self)
         self->surf = s;
@@ -1178,7 +1185,7 @@ surf_copy (PyObject *self)
     newsurf = SDL_ConvertSurface (surf, surf->format, surf->flags);
     PySurface_Unprep (self);
 
-    final = PySurface_New (newsurf);
+    final = surf_subtype_new (Py_TYPE (self), newsurf);
     if (!final)
         SDL_FreeSurface (newsurf);
     return final;
@@ -1330,7 +1337,7 @@ surf_convert (PyObject *self, PyObject *args)
     }
     PySurface_Unprep (self);
 
-    final = PySurface_New (newsurf);
+    final = surf_subtype_new (Py_TYPE (self), newsurf);
     if (!final)
         SDL_FreeSurface (newsurf);
     return final;
@@ -1364,7 +1371,7 @@ surf_convert_alpha (PyObject *self, PyObject *args)
         newsurf = SDL_DisplayFormatAlpha (surf);
     PySurface_Unprep (self);
 
-    final = PySurface_New (newsurf);
+    final = surf_subtype_new (Py_TYPE (self), newsurf);
     if (!final)
         SDL_FreeSurface (newsurf);
     return final;
@@ -1905,7 +1912,7 @@ surf_subsurface (PyObject *self, PyObject *args)
     if (!data)
         return NULL;
 
-    subobj = PySurface_New (sub);
+    subobj = surf_subtype_new (Py_TYPE (self), sub);
     if (!subobj) {
         PyMem_Del (data);
         return NULL;
