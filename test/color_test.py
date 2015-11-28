@@ -65,6 +65,20 @@ def _assign_item (x, p, y):
     x[p] = y
 
 class ColorTypeTest (unittest.TestCase):
+    def test_new(self):
+        c = pygame.Color.__new__(pygame.Color)
+        self.assertEqual (c, pygame.Color (0, 0, 0, 255))
+        self.assertEqual (len(c), 4)
+
+    def test_init(self):
+        c = pygame.Color (10, 20, 30, 200)
+        self.assertEqual (c, (10, 20, 30, 200))
+        c.set_length(3)
+        self.assertEqual (len(c), 3)
+        c.__init__ (100, 110, 120, 128)
+        self.assertEqual (len(c), 4)
+        self.assertEqual (c, (100, 110, 120, 128))
+
     def test_invalid_html_hex_codes(self):
         # This was a problem with the way 2 digit hex numbers were
         # calculated. The test_hex_digits test is related to the fix.
@@ -954,6 +968,76 @@ class ColorTypeTest (unittest.TestCase):
     except ImportError:
         del test_arraystruct
 
+
+class SubclassTest (unittest.TestCase):
+    class MyColor (pygame.Color):
+        def __init__ (self, *args, **kwds):
+            super (SubclassTest.MyColor, self).__init__ (*args, **kwds)
+            self.an_attribute = True
+
+    def test_add (self):
+        mc1 = self.MyColor (128, 128, 128, 255)
+        self.assertTrue (mc1.an_attribute)
+        c2 = pygame.Color (64, 64, 64, 255)
+        mc2 = mc1 + c2
+        self.assertTrue (isinstance (mc2, self.MyColor))
+        self.assertRaises (AttributeError, getattr, mc2, 'an_attribute')
+        c3 = c2 + mc1
+        self.assertTrue (type (c3) is pygame.Color)
+
+    def test_sub (self):
+        mc1 = self.MyColor (128, 128, 128, 255)
+        self.assertTrue (mc1.an_attribute)
+        c2 = pygame.Color (64, 64, 64, 255)
+        mc2 = mc1 - c2
+        self.assertTrue (isinstance (mc2, self.MyColor))
+        self.assertRaises (AttributeError, getattr, mc2, 'an_attribute')
+        c3 = c2 - mc1
+        self.assertTrue (type (c3) is pygame.Color)
+
+    def test_mul (self):
+        mc1 = self.MyColor (128, 128, 128, 255)
+        self.assertTrue (mc1.an_attribute)
+        c2 = pygame.Color (64, 64, 64, 255)
+        mc2 = mc1 * c2
+        self.assertTrue (isinstance (mc2, self.MyColor))
+        self.assertRaises (AttributeError, getattr, mc2, 'an_attribute')
+        c3 = c2 * mc1
+        self.assertTrue (type (c3) is pygame.Color)
+
+    def test_div (self):
+        mc1 = self.MyColor (128, 128, 128, 255)
+        self.assertTrue (mc1.an_attribute)
+        c2 = pygame.Color (64, 64, 64, 255)
+        mc2 = mc1 // c2
+        self.assertTrue (isinstance (mc2, self.MyColor))
+        self.assertRaises (AttributeError, getattr, mc2, 'an_attribute')
+        c3 = c2 // mc1
+        self.assertTrue (type (c3) is pygame.Color)
+
+    def test_mod (self):
+        mc1 = self.MyColor (128, 128, 128, 255)
+        self.assertTrue (mc1.an_attribute)
+        c2 = pygame.Color (64, 64, 64, 255)
+        mc2 = mc1 % c2
+        self.assertTrue (isinstance (mc2, self.MyColor))
+        self.assertRaises (AttributeError, getattr, mc2, 'an_attribute')
+        c3 = c2 % mc1
+        self.assertTrue (type (c3) is pygame.Color)
+
+    def test_inv (self):
+        mc1 = self.MyColor (64, 64, 64, 64)
+        self.assertTrue (mc1.an_attribute)
+        mc2 = ~mc1
+        self.assertTrue (isinstance (mc2, self.MyColor))
+        self.assertRaises (AttributeError, getattr, mc2, 'an_attribute')
+
+    def test_correct_gamma (self):
+        mc1 = self.MyColor (64, 70, 75, 255)
+        self.assertTrue (mc1.an_attribute)
+        mc2 = mc1.correct_gamma (.03)
+        self.assertTrue (isinstance (mc2, self.MyColor))
+        self.assertRaises (AttributeError, getattr, mc2, 'an_attribute')
 
 ################################################################################
 

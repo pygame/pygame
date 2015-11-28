@@ -143,6 +143,10 @@
       the original had them. See ``Surface.convert_alpha()`` for preserving or
       creating per-pixel alphas.
 
+      The new copy will have the same class as the copied surface. This lets
+      as Surface subclass inherit this method without the need to override,
+      unless subclass specific instance attributes also need copying.
+
       .. ## Surface.convert ##
 
    .. method:: convert_alpha
@@ -160,6 +164,9 @@
       image will not be exactly the same as the requested source, but it will
       be optimized for fast alpha blitting to the destination.
 
+      As with ``Surface.convert()`` the returned surface has the same class as
+      the converted surface.
+
       .. ## Surface.convert_alpha ##
 
    .. method:: copy
@@ -167,8 +174,10 @@
       | :sl:`create a new copy of a Surface`
       | :sg:`copy() -> Surface`
 
-      Makes a duplicate copy of a Surface. The new Surface will have the same
-      pixel formats, color palettes, and transparency settings as the original.
+      Makes a duplicate copy of a Surface. The new surface will have the same
+      pixel formats, color palettes, transparency settings, and class as the
+      original. If a Surface subclass also needs to copy any instance specific
+      attributes then it should override ``copy()``.
 
       .. ## Surface.copy ##
 
@@ -546,6 +555,8 @@
 
       See the ``Surface.get_offset()``, ``Surface.get_parent()`` to learn more
       about the state of a subsurface.
+
+      A subsurface will have the same class as the parent surface.
 
       .. ## Surface.subsurface ##
 
