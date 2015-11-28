@@ -33,6 +33,14 @@
    exported, with the same characteristics as the array interface. New in
    pygame 1.9.2.
 
+   The floor division, '``//``', and modulus, '``%``', operators do not raise
+   an exception for division by zero. Instead, if a color, or alpha, channel
+   in the right hand color is 0, then the result is 0. For example: ::
+
+       # These expressions are True
+       Color(255, 255, 255, 255) // Color(0, 64, 64, 64) == Color(0, 3, 3, 3)
+       Color(255, 255, 255, 255) % Color(64, 64, 64, 0) == Color(63, 63, 63, 0)
+
    New implementation of Color was done in pygame 1.8.1.
 
    .. attribute:: r

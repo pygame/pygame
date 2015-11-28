@@ -471,6 +471,15 @@ class ColorTypeTest (unittest.TestCase):
         self.assertRaises (TypeError, operator.floordiv, c1, None)
         self.assertRaises (TypeError, operator.floordiv, None, c1)
 
+        # Division by zero check
+        dividend = pygame.Color (255, 255, 255, 255)
+        for i in range (4):
+            divisor = pygame.Color (64, 64, 64, 64)
+            divisor[i] = 0
+            quotient = pygame.Color (3, 3, 3, 3)
+            quotient[i] = 0
+            self.assertEqual (dividend // divisor, quotient)
+
     def test_mod (self):
         c1 = pygame.Color (0xFFFFFFFF)
         self.assertEquals (c1.r, 255)
@@ -493,6 +502,15 @@ class ColorTypeTest (unittest.TestCase):
         # Issue #286: Is type checking done for Python 3.x?
         self.assertRaises (TypeError, operator.mod, c1, None)
         self.assertRaises (TypeError, operator.mod, None, c1)
+
+        # Division by zero check
+        dividend = pygame.Color (255, 255, 255, 255)
+        for i in range (4):
+            divisor = pygame.Color (64, 64, 64, 64)
+            divisor[i] = 0
+            quotient = pygame.Color (63, 63, 63, 63)
+            quotient[i] = 0
+            self.assertEqual (dividend % divisor, quotient)
 
     def test_float (self):
         c = pygame.Color (0xCC00CC00)
