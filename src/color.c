@@ -1497,7 +1497,7 @@ _color_div (PyObject *obj1, PyObject *obj2)
 static PyObject*
 _color_mod (PyObject *obj1, PyObject *obj2)
 {
-    Uint8 rgba[4];
+    Uint8 rgba[4] = { 0, 0, 0, 0 };
     PyColor *color1 = (PyColor *)obj1;
     PyColor *color2 = (PyColor *)obj2;
     if (!PyObject_IsInstance (obj1, (PyObject *)&PyColor_Type) ||
@@ -1505,10 +1505,14 @@ _color_mod (PyObject *obj1, PyObject *obj2)
         Py_INCREF (Py_NotImplemented);
         return Py_NotImplemented;
     }  
-    rgba[0] = color1->data[0] % color2->data[0];
-    rgba[1] = color1->data[1] % color2->data[1];
-    rgba[2] = color1->data[2] % color2->data[2];
-    rgba[3] = color1->data[3] % color2->data[3];
+    if (color2->data[0] != 0)
+        rgba[0] = color1->data[0] % color2->data[0];
+    if (color2->data[1] != 0)
+        rgba[1] = color1->data[1] % color2->data[1];
+    if (color2->data[2])
+        rgba[2] = color1->data[2] % color2->data[2];
+    if (color2->data[3])
+        rgba[3] = color1->data[3] % color2->data[3];
     return (PyObject*) _color_new_internal (&PyColor_Type, rgba);
 }
 
