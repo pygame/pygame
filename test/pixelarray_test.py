@@ -379,6 +379,22 @@ class PixelArrayTypeTest (unittest.TestCase, TestMixin):
             ar[:] = ar2[:]
             self.assertEqual (ar[0][0], val)
             self.assertEqual (ar[5][7], val)
+ 
+            # Ensure p1 ... pn are freed for array[...] = [p1, ..., pn]
+            # Bug fix: reference counting.
+            if hasattr(sys, 'getrefcount'):
+                class Int(int):
+                    """Unique int instances"""
+                    pass
+
+                sf = pygame.Surface ((5, 2), 0, 32)
+                ar = pygame.PixelArray (sf)
+                pixel_list = [Int(i) for i in range(ar.shape[0])]
+                refcnts_before = [sys.getrefcount (i) for i in pixel_list]
+                ar[...] = pixel_list
+                refcnts_after = [sys.getrefcount (i) for i in pixel_list]
+                gc.collect ()
+                self.assertEqual (refcnts_after, refcnts_before)
 
     def test_subscript (self):
         # By default we do not need to work with any special __***__
@@ -517,6 +533,22 @@ class PixelArrayTypeTest (unittest.TestCase, TestMixin):
             ar2 = ar[...]
             self.assert_ (ar2 is ar)
 
+            # Ensure x and y are freed for p = array[x, y]
+            # Bug fix: reference counting
+            if hasattr(sys, 'getrefcount'):
+                class Int(int):
+                    """Unique int instances"""
+                    pass
+
+                sf = pygame.Surface ((2, 2), 0, 32)
+                ar = pygame.PixelArray (sf)
+                x, y = Int(0), Int(1)
+                rx_before, ry_before = sys.getrefcount (x), sys.getrefcount (y)
+                p = ar[x, y]
+                rx_after, ry_after = sys.getrefcount (x), sys.getrefcount (y)
+                self.assertEqual (rx_after, rx_before)
+                self.assertEqual (ry_after, ry_before)
+
     def test_ass_subscript (self):
         for bpp in (8, 16, 24, 32):
             sf = pygame.Surface ((6, 8), 0, bpp)
@@ -540,6 +572,22 @@ class PixelArrayTypeTest (unittest.TestCase, TestMixin):
             self.assertEqual (ar[0,0], sf.map_rgb ((0, 255, 0)))
             self.assertEqual (ar[1,0], sf.map_rgb ((0, 255, 0)))
             self.assertEqual (ar[-1,-1], sf.map_rgb ((0, 255, 0)))
+
+            # Ensure x and y are freed for array[x, y] = p
+            # Bug fix: reference counting
+            if hasattr(sys, 'getrefcount'):
+                class Int(int):
+                    """Unique int instances"""
+                    pass
+
+                sf = pygame.Surface ((2, 2), 0, 32)
+                ar = pygame.PixelArray (sf)
+                x, y = Int(0), Int(1)
+                rx_before, ry_before = sys.getrefcount (x), sys.getrefcount (y)
+                ar[x, y] = 0
+                rx_after, ry_after = sys.getrefcount (x), sys.getrefcount (y)
+                self.assertEqual (rx_after, rx_before)
+                self.assertEqual (ry_after, ry_before)
 
     def test_pixels_field(self):
         for bpp in [1, 2, 3, 4]:
