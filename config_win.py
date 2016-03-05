@@ -215,17 +215,11 @@ DEPS.add('FONT', 'SDL_ttf', ['SDL_ttf-[2-9].*'], r'(lib){0,1}SDL_ttf\.dll$', ['S
 DEPS.add('IMAGE', 'SDL_image', ['SDL_image-[1-9].*'], r'(lib){0,1}SDL_image\.dll$',
          ['SDL', 'jpeg', 'png', 'tiff'], 0),
 DEPS.add('MIXER', 'SDL_mixer', ['SDL_mixer-[1-9].*'], r'(lib){0,1}SDL_mixer\.dll$',
-         ['SDL', 'vorbisfile', 'smpeg'])
-DEPS.add('SMPEG', 'smpeg', ['smpeg-[0-9].*', 'smpeg'], r'smpeg\.dll$', ['SDL'])
+         ['SDL', 'vorbisfile'])
 DEPS.add('PNG', 'png', ['libpng-[1-9].*'], r'(png|libpng13)\.dll$', ['z'])
 DEPS.add('JPEG', 'jpeg', ['jpeg-[6-9]*'], r'(lib){0,1}jpeg\.dll$')
 DEPS.add('PORTMIDI', 'portmidi', ['portmidi'], r'portmidi\.dll$')
-#DEPS.add('FFMPEG', 'libavformat/avformat.h', 'libavformat.a', ['avformat', 'swscale', 'SDL_mixer'], r'avformat-52\.dll')   
-dep = Dependency('FFMPEG', [r'avformat\.dll', r'swscale\.dll', r'SDL_mixer-[1-9].*'], ['avformat', 'swscale', 'SDL_mixer'], required=0)
-DEPS.dependencies.append(dep)
-DEPS.dlls.append(DependencyDLL(r'avformat\.dll', link=dep, libs=['avformat']))
-DEPS.dlls.append(DependencyDLL(r'swscale\.dll', link=dep, libs=['swscale']))
-DEPS.dlls.append(DependencyDLL(r'(lib){0,1}SDL_mixer\.dll$', link=dep, libs=['SDL', 'vorbisfile', 'smpeg']))
+DEPS.dlls.append(DependencyDLL(r'(lib){0,1}SDL_mixer\.dll$', link=dep, libs=['SDL', 'vorbisfile']))
 #DEPS.add('PORTTIME', 'porttime', ['porttime'], r'porttime\.dll$')
 DEPS.add_dll(r'(lib){0,1}tiff\.dll$', 'tiff', ['tiff-[3-9].*'], ['jpeg', 'z'])
 DEPS.add_dll(r'(z|zlib1)\.dll$', 'z', ['zlib-[1-9].*'])
