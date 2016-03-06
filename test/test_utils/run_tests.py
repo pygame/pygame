@@ -131,7 +131,6 @@ def run(*args, **kwds):
         option_exclude += ('python3_ignore',)
 
     main_dir, test_subdir, fake_test_subdir = prepare_test_env()
-    test_runner_py = os.path.join(test_subdir, "test_utils", "test_runner.py")
     cur_working_dir = os.path.abspath(os.getcwd())
 
     ###########################################################################
@@ -249,7 +248,8 @@ def run(*args, **kwds):
         def sub_test(module):
             print ('loading %s' % module)
 
-            cmd = [option_python, test_runner_py, module ] + pass_on_args
+            cmd = [option_python, '-m', 'test.test_utils.test_runner',
+                   module] + pass_on_args
 
             return (module,
                     (cmd, test_env, working_dir),
