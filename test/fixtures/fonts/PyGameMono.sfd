@@ -1,0 +1,238 @@
+SplineFontDB: 3.0
+FontName: PyGameMono
+FullName: PyGame Mono
+FamilyName: PyGameMono
+Weight: Medium
+Copyright: Created by Lenard Lindstrom,,, with FontForge 2.0 (http://fontforge.sf.net)
+UComments: "2013-10-11: Created.+AAoACgAA-pygame - Python Game Library+AAoA-Test font PyGameMono, Copyright (C) 2013  Lenard Lindstrom+AAoACgAA-This library is free software; you can redistribute it and/or+AAoA-modify it under the terms of the GNU Library General Public+AAoA-License as published by the Free Software Foundation; either+AAoA-version 2 of the License, or (at your option) any later version.+AAoACgAA-This library is distributed in the hope that it will be useful,+AAoA-but WITHOUT ANY WARRANTY; without even the implied warranty of+AAoA-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU+AAoA-Library General Public License for more details.+AAoACgAA-You should have received a copy of the GNU Library General Public+AAoA-License along with this library; if not, write to the Free+AAoA-Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA+AAoACgAA" 
+Version: 001.000
+ItalicAngle: 0
+UnderlinePosition: -100
+UnderlineWidth: 50
+Ascent: 800
+Descent: 200
+LayerCount: 2
+Layer: 0 0 "Back"  1
+Layer: 1 0 "Fore"  0
+XUID: [1021 912 78401767 10725709]
+FSType: 8
+OS2Version: 0
+OS2_WeightWidthSlopeOnly: 0
+OS2_UseTypoMetrics: 1
+CreationTime: 1381544181
+ModificationTime: 1381781368
+PfmFamily: 49
+TTFWeight: 500
+TTFWidth: 5
+LineGap: 90
+VLineGap: 0
+OS2TypoAscent: 0
+OS2TypoAOffset: 1
+OS2TypoDescent: 0
+OS2TypoDOffset: 1
+OS2TypoLinegap: 90
+OS2WinAscent: 0
+OS2WinAOffset: 1
+OS2WinDescent: 0
+OS2WinDOffset: 1
+HheadAscent: 0
+HheadAOffset: 1
+HheadDescent: 0
+HheadDOffset: 1
+OS2FamilyClass: 2319
+OS2Vendor: 'PfEd'
+MarkAttachClasses: 1
+DEI: 91125
+LangName: 1033 
+Encoding: UnicodeFull
+UnicodeInterp: none
+NameList: Adobe Glyph List
+DisplaySize: -24
+AntiAlias: 1
+FitToEm: 1
+WinInfo: 77904 24 18
+BeginPrivate: 0
+EndPrivate
+TeXData: 1 0 0 346030 173015 115343 0 1048576 115343 783286 444596 497025 792723 393216 433062 380633 303038 157286 324010 404750 52429 2506097 1059062 262144
+BeginChars: 1114112 5
+
+StartChar: A
+Encoding: 65 65 0
+Width: 1000
+VWidth: 0
+HStem: 0 21G<72.5 119.695 682.5 726.5> 384 111<312.148 495.257> 777 123<264.353 535.647>
+VStem: 0 139<585.021 689.951> 661 139<585.002 688.082>
+LayerCount: 2
+Fore
+SplineSet
+139 636 m 0
+ 139 558.168 255.928 495 400 495 c 0
+ 544.072 495 661 558.168 661 636 c 0
+ 661 713.832 544.072 777 400 777 c 0
+ 255.928 777 139 713.832 139 636 c 0
+100 0 m 1
+ 45 234 0 361.682 0 600 c 0
+ 0 834 205 900 400 900 c 24
+ 595 900 800 822 800 600 c 0
+ 800 360.834 753 234 700 0 c 1
+ 665 180 590.045 384 400 384 c 24
+ 209.955 384 139.39 149.76 100 0 c 1
+EndSplineSet
+Validated: 1
+EndChar
+
+StartChar: B
+Encoding: 66 66 1
+Width: 1000
+VWidth: 0
+HStem: 0 91<307.884 570.044> 355 97<317.65 572.008> 724 76.4445<315.347 574.736>
+VStem: 120 80<174.135 277.365 535.109 572> 694 106<173.306 274.441 532.71 643.215>
+LayerCount: 2
+Fore
+SplineSet
+200 223 m 0
+ 200 150 303 91 437 91 c 0
+ 571 91 694 150 694 223 c 0
+ 694 296 571 355 437 355 c 0
+ 303 355 200 296 200 223 c 0
+202 588 m 0
+ 202 513 312 452 448 452 c 0
+ 584 452 694 513 694 588 c 0
+ 694 663 584 724 448 724 c 0
+ 312 724 202 663 202 588 c 0
+800 200 m 0
+ 800 92 749 1 552 0 c 0
+ 430 -0 253 -0 0 0 c 1
+ 85 41 120 216 120 400 c 0
+ 120 572 73 756 0 800 c 1
+ 150 800 273.778 800.444 372.519 800.444 c 0
+ 421.889 800.444 465 800.333 502 800 c 0
+ 785 799 800 665 800 600 c 0
+ 800 540 781 510 760 490 c 0
+ 730 461 694 453 694 400 c 0
+ 694 358 723 339 760 310 c 0
+ 781 294 800 259 800 200 c 0
+EndSplineSet
+Validated: 1
+EndChar
+
+StartChar: .notdef
+Encoding: 0 0 2
+Width: 1000
+VWidth: 0
+HStem: 0 88<283.168 514.832> 712 88<283.168 514.832>
+VStem: 0 83<285.634 514.366> 715 85<285.634 514.366>
+LayerCount: 2
+Fore
+SplineSet
+83 400 m 0
+ 83 227.776 224.568 88 399 88 c 0
+ 573.432 88 715 227.776 715 400 c 0
+ 715 572.224 573.432 712 399 712 c 0
+ 224.568 712 83 572.224 83 400 c 0
+0 800 m 1
+ 800 800 l 1
+ 800 0 l 1
+ 0 0 l 1
+ 0 800 l 1
+EndSplineSet
+Validated: 1
+Comment: "Default character" 
+EndChar
+
+StartChar: C
+Encoding: 67 67 3
+Width: 1000
+VWidth: 0
+HStem: 0 110<323.65 572.264> 690 110<326.99 550.385>
+VStem: 0 147<291.893 504.85>
+LayerCount: 2
+Fore
+SplineSet
+425 110 m 0
+ 564 110 687 167 788 230 c 1
+ 796 230 796 230 800 230 c 1
+ 800 222 800 224 800 216 c 1
+ 753 98 621 -0 450 0 c 0
+ 227 0 0 165 0 400 c 24
+ 0 635 235 800 450 800 c 1
+ 580 800 745 668 800 584 c 1
+ 800 575 799 576 800 570 c 1
+ 796 570 796 570 791 570 c 1
+ 684 628 535 690 425 690 c 0
+ 277 690 147 557 147 400 c 0
+ 147 243 268 110 425 110 c 0
+EndSplineSet
+Validated: 1
+EndChar
+
+StartChar: u13079
+Encoding: 77945 77945 4
+Width: 1000
+VWidth: 0
+HStem: 200 66<262.666 534.533> 302 196<339.508 460.492> 534 66<262.278 535.629>
+VStem: 302 196<339.508 460.492>
+CounterMasks: 1 e0
+LayerCount: 2
+Fore
+SplineSet
+302 400 m 0
+ 302 454.096 345.904 498 400 498 c 0
+ 454.096 498 498 454.096 498 400 c 0
+ 498 345.904 454.096 302 400 302 c 0
+ 345.904 302 302 345.904 302 400 c 0
+146 400 m 0
+ 146 326.032 259.792 266 400 266 c 0
+ 540.208 266 654 326.032 654 400 c 0
+ 654 473.968 540.208 534 400 534 c 0
+ 259.792 534 146 473.968 146 400 c 0
+0 400 m 1
+ 124 550 225.587 600 400 600 c 24
+ 574.413 600 690 532 800 400 c 1
+ 720 254 574.413 200 400 200 c 24
+ 225.587 200 90 234 0 400 c 1
+EndSplineSet
+Validated: 1
+EndChar
+EndChars
+BitmapFont: 8 6 6 2 1 
+BDFChar: 0 65 8 0 5 0 6
+G_CbJKS5!Y
+BDFChar: 1 66 8 0 5 0 5
+r'Yd'7/R#b
+BDFChar: 2 0 8 0 5 0 5
+r.K`VK_tfM
+BDFChar: 3 67 8 0 5 0 5
+Gf7D5`-;7^
+BDFChar: 4 77945 8 0 5 1 4
+GdOi&
+EndBitmapFont
+BitmapFont: 19 6 15 4 1 
+BDFChar: 0 65 19 0 14 0 16
+&)]\IGWbI:i""ZTn/h?gs8N&tr-iT)E#`6o?jo:'5Qh&e
+BDFChar: 1 66 19 0 14 0 14
+s7h*AGRcD30EsKH5PRJ<5PR2J0Es38Hlde8s7cQo
+BDFChar: 2 0 19 0 14 0 14
+s8N&tr-n,Vi"!O,^]qRY^]qRYi"#5tr-n\Fs8Duu
+BDFChar: 3 67 19 0 14 0 14
+"5j^b4</SMDueerhuM[8huM[8Dub+e4<+n,"5j.Z
+BDFChar: 4 77945 19 0 14 4 10
+&)]E,@uTH.@uNB,&)[Ef
+EndBitmapFont
+BitmapFont: 25 5 20 5 1 
+BDFChar: 0 65 25 0 19 1 21
+"8i-@s+!?6^jH7Bn,Vt9!-$irE:<ksqucHgs7$'gnGiOXrt"UH"7UO9i-57[Dueg8!+917?m#G7
++94Y,
+BDFChar: 1 66 25 1 18 0 19
+s8E#us+#P'J9V+1Dud[-!5L8g^c2A14pQU&rr>:`!'UX<3!"O`!5L8g^b>c(GQGU/#JgB>JH,TK
+
+BDFChar: 2 0 25 0 19 0 19
+s8VTgs7$!mnG!%Rn,Vt9!-$irE52H-^]6((!&21g0YdZB^]6(H!-$irE:<ksp]9m`#OqcnnGiOX
+
+BDFChar: 3 67 25 0 19 0 19
+!;lg!rr<T0J0+mO4ofPL!"aAT!;HNon,NIX!!)Kg!:Tsgp](;=!!%BH&3^)5*s(:1s1ea:J,oQK
+
+BDFChar: 4 77945 25 0 20 5 14
+"8i-0s*u/3^j,YDnG%6Ipi&33i#W!9&-%.^qu?]s
+EndBitmapFont
+EndSplineFont
