@@ -95,7 +95,7 @@ else:
 
 def filesystem_encode(u):
     fsencoding = sys.getfilesystemencoding()
-    if fsencoding.lower() in ['ascii', 'ANSI_X3.4-1968'] and sys.platform.startswith('linux'):
+    if fsencoding.lower() in ['ascii', 'ansi_x3.4-1968'] and sys.platform.startswith('linux'):
         # Don't believe Linux systems claiming ASCII-only filesystems. In
         # practice, arbitrary bytes are allowed, and most things expect UTF-8.
         fsencoding = 'utf-8'
