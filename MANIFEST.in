@@ -1,0 +1,9 @@
+include Setup.in Setup_Darwin.in Setup_Unix.in Setup_Win_Common.in *.py WHATSNEW readme.rst install.html readme.html LGPL
+
+recursive-include docs *
+recursive-include lib *
+recursive-include src *
+recursive-include examples *
+recursive-include test *
+prune */CVS
+prune */*/CVS
