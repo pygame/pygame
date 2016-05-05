@@ -23,7 +23,7 @@
  * http://pygame.motherhamster.org/bugzilla/show_bug.cgi?id=52
  */
 #if defined(__GNUC__) && defined(__linux__) && defined(__i386__) && \
-  __SIZEOF_POINTER__ == 4 &&  __GNUC__ == 4 && __GNUC_MINOR__ == 4
+  __SIZEOF_POINTER__ == 4 &&  __GNUC__ == 4 && __GNUC_MINOR__ >= 4
 #pragma GCC optimize ("float-store")
 #endif
 

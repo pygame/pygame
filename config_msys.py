@@ -235,18 +235,12 @@ def main():
         Dependency('JPEG', 'jpeglib.h', 'libjpeg.dll.a'),
         Dependency('PORTMIDI', 'portmidi.h', 'libportmidi.dll.a'),
         Dependency('PORTTIME', 'portmidi.h', 'libportmidi.dll.a'),
-        Dependency('AVFORMAT', 'libavformat/avformat.h', 'libavformat.dll.a',
-                   ['avformat', 'avcodec', 'avutil']),
-        Dependency('SWSCALE', 'libswscale/swscale.h', 'libswscale.dll.a',
-                   ['swscale', 'avutil']),
         DependencyDLL('TIFF'),
         DependencyDLL('VORBISFILE'),
         DependencyDLL('VORBIS'),
         DependencyDLL('OGG'),
         DependencyDLL('FREETYPE'),
         DependencyDLL('Z'),
-        DependencyDLL('AVCODEC'),
-        DependencyDLL('AVUTIL'),
     ]
 
     if not DEPS[0].found:

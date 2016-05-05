@@ -132,9 +132,6 @@ Reference
 :doc:`ref/mouse`
   Manage the mouse device and display.
 
-:doc:`ref/movie`
-  Video playback from MPEG movies.
-
 :doc:`ref/music`
   Play streaming music tracks.
 

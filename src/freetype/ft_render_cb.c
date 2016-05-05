@@ -484,20 +484,41 @@ void __fill_glyph_INT(FT_Fixed x, FT_Fixed y, FT_Fixed w, FT_Fixed h,
 
 #ifdef HAVE_PYGAME_SDL_VIDEO
 
+#ifndef NDEBUG
+#define POINTER_ASSERT_DECLARATIONS(s) \
+    const unsigned char *PA_bstart = ((unsigned char *)(s)->buffer);\
+    const unsigned char *PA_bend =\
+        (PA_bstart + (s)->height * (s)->pitch);
+#define POINTER_ASSERT(p) \
+    assert((const unsigned char *)(p) >= PA_bstart);\
+    assert((const unsigned char *)(p) < PA_bend);
+#else
+#define POINTER_ASSERT_DECLARATIONS(s)
+#define POINTER_ASSERT(p)
+#endif
+
 #define _CREATE_RGB_FILLER(_bpp, _getp, _setp, _blendp)     \
     void __fill_glyph_RGB##_bpp(FT_Fixed x, FT_Fixed y,     \
                                 FT_Fixed w, FT_Fixed h,     \
                                 FontSurface *surface,       \
                                 const FontColor *color)     \
     {                                                       \
-        int i, j;                                           \
+        FT_Fixed dh = 0;                                    \
+        int i;                                              \
         unsigned char *dst;                                 \
         FT_UInt32 bgR, bgG, bgB, bgA;                       \
         FT_Byte edge_a;                                     \
+        POINTER_ASSERT_DECLARATIONS(surface)                \
                                                             \
+        /* Crop the rectangle to the top and left of the    \
+         * surface.                                         \
+         */                                                 \
         x = MAX(0, x);                                      \
         y = MAX(0, y);                                      \
                                                             \
+        /* Crop the rectangle to the bottom and right of    \
+         * the surface.                                     \
+         */                                                 \
         if (x + w > INT_TO_FX6(surface->width)) {           \
             w = INT_TO_FX6(surface->width) - x;             \
         }                                                   \
@@ -505,21 +526,34 @@ void __fill_glyph_INT(FT_Fixed x, FT_Fixed y, FT_Fixed w, FT_Fixed h,
             h = INT_TO_FX6(surface->height) - y;            \
         }                                                   \
                                                             \
+        /* Start at the first pixel of the first row.       \
+         */                                                 \
         dst = ((FT_Byte *)surface->buffer +                 \
                FX6_TRUNC(FX6_CEIL(x)) * _bpp +              \
                FX6_TRUNC(FX6_CEIL(y)) * surface->pitch);    \
                                                             \
-        if (y < FX6_CEIL(y)) {                              \
+        /* Take care of the top row of the rectangle if the \
+         * rectangle starts within the pixels: y is not on  \
+         * a pixel boundary. A special case is when the     \
+         * bottom of the rectangle is also with the pixel   \
+         * row.                                             \
+         */                                                 \
+        dh = FX6_CEIL(y) - y;                               \
+        if (dh > h) {                                       \
+            dh = h;                                         \
+        }                                                   \
+        h -= dh;                                            \
+        if (dh > 0) {                                       \
             unsigned char *_dst = dst - surface->pitch;     \
                                                             \
-            edge_a = (                                      \
-                FX6_TRUNC(FX6_ROUND(color->a *              \
-                                    (FX6_CEIL(y) - y))));   \
+            edge_a = FX6_TRUNC(FX6_ROUND(color->a * dh));   \
                                                             \
             for (i = 0;                                     \
                  i < FX6_TRUNC(FX6_CEIL(w));                \
                  ++i, _dst += _bpp) {                       \
                 FT_UInt32 pixel = (FT_UInt32)_getp;         \
+                                                            \
+                POINTER_ASSERT(_dst)                        \
                                                             \
                 if (_bpp == 1) {                            \
                     GET_PALETTE_VALS(                       \
@@ -539,17 +573,25 @@ void __fill_glyph_INT(FT_Fixed x, FT_Fixed y, FT_Fixed w, FT_Fixed h,
                                                             \
                 _blendp;                                    \
             }                                               \
+                                                            \
+            y += dh;                                        \
         }                                                   \
                                                             \
-        for (j = 0;                                         \
-             j < FX6_TRUNC(FX6_FLOOR(h + y) - FX6_CEIL(y)); \
-             ++j) {                                         \
+        /* Fill in all entirely covered rows. These are     \
+         * pixels which are entirely within the upper and   \
+         * lower edges of the rectangle.                    \
+         */                                                 \
+        dh = FX6_FLOOR(h);                                  \
+        h -= dh;                                            \
+        while (dh > 0) {                                    \
             unsigned char *_dst = dst;                      \
                                                             \
             for (i = 0;                                     \
                  i < FX6_TRUNC(FX6_CEIL(w));                \
                  ++i, _dst += _bpp) {                       \
                 FT_UInt32 pixel = (FT_UInt32)_getp;         \
+                                                            \
+                POINTER_ASSERT(_dst)                        \
                                                             \
                 if (_bpp == 1) {                            \
                     GET_PALETTE_VALS(                       \
@@ -571,20 +613,24 @@ void __fill_glyph_INT(FT_Fixed x, FT_Fixed y, FT_Fixed w, FT_Fixed h,
             }                                               \
                                                             \
             dst += surface->pitch;                          \
+            dh -= FX6_ONE;                                  \
+            y += FX6_ONE;                                   \
         }                                                   \
                                                             \
-        if (h > FX6_FLOOR(h + y) - y) {                     \
+        /* Fill in the bottom row of pixels if these pixels \
+         * are only partially covered: the rectangle bottom \
+         * is not on a pixel boundary. Otherwise, done.     \
+         */                                                 \
+        if (h > 0) {                                        \
             unsigned char *_dst = dst;                      \
-                                                            \
-            edge_a = (                                      \
-                FX6_TRUNC(FX6_ROUND(color->a *              \
-                                    (h + y -                \
-                                     FX6_FLOOR(h + y)))));  \
+            edge_a = FX6_TRUNC(FX6_ROUND(color->a * h));    \
                                                             \
             for (i = 0;                                     \
                  i < FX6_TRUNC(FX6_CEIL(w));                \
                  ++i, _dst += _bpp) {                       \
                 FT_UInt32 pixel = (FT_UInt32)_getp;         \
+                                                            \
+                POINTER_ASSERT(_dst)                        \
                                                             \
                 if (_bpp == 1) {                            \
                     GET_PALETTE_VALS(                       \
@@ -606,6 +652,7 @@ void __fill_glyph_INT(FT_Fixed x, FT_Fixed y, FT_Fixed w, FT_Fixed h,
             }                                               \
         }                                                   \
     }
+
 
 #define __MONO_RENDER_INNER_LOOP(_bpp, _code)               \
     for (j = ry; j < max_y; ++j)                            \

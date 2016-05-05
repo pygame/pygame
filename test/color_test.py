@@ -21,6 +21,7 @@ else:
 import pygame
 from pygame.compat import long_
 import math
+import operator
 
 ################################### CONSTANTS ##################################
 
@@ -64,6 +65,20 @@ def _assign_item (x, p, y):
     x[p] = y
 
 class ColorTypeTest (unittest.TestCase):
+    def test_new(self):
+        c = pygame.Color.__new__(pygame.Color)
+        self.assertEqual (c, pygame.Color (0, 0, 0, 255))
+        self.assertEqual (len(c), 4)
+
+    def test_init(self):
+        c = pygame.Color (10, 20, 30, 200)
+        self.assertEqual (c, (10, 20, 30, 200))
+        c.set_length(3)
+        self.assertEqual (len(c), 3)
+        c.__init__ (100, 110, 120, 128)
+        self.assertEqual (len(c), 4)
+        self.assertEqual (c, (100, 110, 120, 128))
+
     def test_invalid_html_hex_codes(self):
         # This was a problem with the way 2 digit hex numbers were
         # calculated. The test_hex_digits test is related to the fix.
@@ -379,6 +394,10 @@ class ColorTypeTest (unittest.TestCase):
         self.assertEquals (c3.b, 164)
         self.assertEquals (c3.a, 255)
 
+        # Issue #286: Is type checking done for Python 3.x?
+        self.assertRaises (TypeError, operator.add, c1, None)
+        self.assertRaises (TypeError, operator.add, None, c1)
+
     def test_sub (self):
         c1 = pygame.Color (0xFFFFFFFF)
         self.assertEquals (c1.r, 255)
@@ -403,6 +422,10 @@ class ColorTypeTest (unittest.TestCase):
         self.assertEquals (c3.g, 189)
         self.assertEquals (c3.b, 91)
         self.assertEquals (c3.a, 0)
+
+        # Issue #286: Is type checking done for Python 3.x?
+        self.assertRaises (TypeError, operator.sub, c1, None)
+        self.assertRaises (TypeError, operator.sub, None, c1)
 
     def test_mul (self):
         c1 = pygame.Color (0x01010101)
@@ -429,6 +452,10 @@ class ColorTypeTest (unittest.TestCase):
         self.assertEquals (c3.b, 9)
         self.assertEquals (c3.a, 255)
 
+        # Issue #286: Is type checking done for Python 3.x?
+        self.assertRaises (TypeError, operator.mul, c1, None)
+        self.assertRaises (TypeError, operator.mul, None, c1)
+
     def test_div (self):
         c1 = pygame.Color (0x80808080)
         self.assertEquals (c1.r, 128)
@@ -454,6 +481,19 @@ class ColorTypeTest (unittest.TestCase):
         self.assertEquals (c3.b, 2)
         self.assertEquals (c3.a, 0)
 
+        # Issue #286: Is type checking done for Python 3.x?
+        self.assertRaises (TypeError, operator.floordiv, c1, None)
+        self.assertRaises (TypeError, operator.floordiv, None, c1)
+
+        # Division by zero check
+        dividend = pygame.Color (255, 255, 255, 255)
+        for i in range (4):
+            divisor = pygame.Color (64, 64, 64, 64)
+            divisor[i] = 0
+            quotient = pygame.Color (3, 3, 3, 3)
+            quotient[i] = 0
+            self.assertEqual (dividend // divisor, quotient)
+
     def test_mod (self):
         c1 = pygame.Color (0xFFFFFFFF)
         self.assertEquals (c1.r, 255)
@@ -472,6 +512,19 @@ class ColorTypeTest (unittest.TestCase):
         self.assertEquals (c3.g, 3)
         self.assertEquals (c3.b, 7)
         self.assertEquals (c3.a, 15)
+
+        # Issue #286: Is type checking done for Python 3.x?
+        self.assertRaises (TypeError, operator.mod, c1, None)
+        self.assertRaises (TypeError, operator.mod, None, c1)
+
+        # Division by zero check
+        dividend = pygame.Color (255, 255, 255, 255)
+        for i in range (4):
+            divisor = pygame.Color (64, 64, 64, 64)
+            divisor[i] = 0
+            quotient = pygame.Color (63, 63, 63, 63)
+            quotient[i] = 0
+            self.assertEqual (dividend % divisor, quotient)
 
     def test_float (self):
         c = pygame.Color (0xCC00CC00)
@@ -681,6 +734,27 @@ class ColorTypeTest (unittest.TestCase):
             self.assert_(  0   <= i1 <= 1)
             self.assert_( -0.5 <= i2 <= 0.5)
             self.assert_( -0.5 <= i3 <= 0.5)
+
+    def test_issue_269 (self):
+        """PyColor OverflowError on HSVA with hue value of 360
+
+           >>> c = pygame.Color(0)
+           >>> c.hsva = (360,0,0,0)
+           Traceback (most recent call last):
+             File "<stdin>", line 1, in <module>
+           OverflowError: this is not allowed to happen ever
+           >>> pygame.ver
+           '1.9.1release'
+           >>>
+
+        """
+
+        c = pygame.Color(0)
+        c.hsva = 360, 0, 0, 0
+        self.assertEqual(c.hsva, (0, 0, 0, 0))
+        c.hsva = 360, 100, 100, 100
+        self.assertEqual(c.hsva, (0, 100, 100, 100))
+        self.assertEqual(c, (255, 0, 0, 255))
 
 ####################### COLORSPACE PROPERTY SANITY TESTS #######################
 
@@ -894,6 +968,76 @@ class ColorTypeTest (unittest.TestCase):
     except ImportError:
         del test_arraystruct
 
+
+class SubclassTest (unittest.TestCase):
+    class MyColor (pygame.Color):
+        def __init__ (self, *args, **kwds):
+            super (SubclassTest.MyColor, self).__init__ (*args, **kwds)
+            self.an_attribute = True
+
+    def test_add (self):
+        mc1 = self.MyColor (128, 128, 128, 255)
+        self.assertTrue (mc1.an_attribute)
+        c2 = pygame.Color (64, 64, 64, 255)
+        mc2 = mc1 + c2
+        self.assertTrue (isinstance (mc2, self.MyColor))
+        self.assertRaises (AttributeError, getattr, mc2, 'an_attribute')
+        c3 = c2 + mc1
+        self.assertTrue (type (c3) is pygame.Color)
+
+    def test_sub (self):
+        mc1 = self.MyColor (128, 128, 128, 255)
+        self.assertTrue (mc1.an_attribute)
+        c2 = pygame.Color (64, 64, 64, 255)
+        mc2 = mc1 - c2
+        self.assertTrue (isinstance (mc2, self.MyColor))
+        self.assertRaises (AttributeError, getattr, mc2, 'an_attribute')
+        c3 = c2 - mc1
+        self.assertTrue (type (c3) is pygame.Color)
+
+    def test_mul (self):
+        mc1 = self.MyColor (128, 128, 128, 255)
+        self.assertTrue (mc1.an_attribute)
+        c2 = pygame.Color (64, 64, 64, 255)
+        mc2 = mc1 * c2
+        self.assertTrue (isinstance (mc2, self.MyColor))
+        self.assertRaises (AttributeError, getattr, mc2, 'an_attribute')
+        c3 = c2 * mc1
+        self.assertTrue (type (c3) is pygame.Color)
+
+    def test_div (self):
+        mc1 = self.MyColor (128, 128, 128, 255)
+        self.assertTrue (mc1.an_attribute)
+        c2 = pygame.Color (64, 64, 64, 255)
+        mc2 = mc1 // c2
+        self.assertTrue (isinstance (mc2, self.MyColor))
+        self.assertRaises (AttributeError, getattr, mc2, 'an_attribute')
+        c3 = c2 // mc1
+        self.assertTrue (type (c3) is pygame.Color)
+
+    def test_mod (self):
+        mc1 = self.MyColor (128, 128, 128, 255)
+        self.assertTrue (mc1.an_attribute)
+        c2 = pygame.Color (64, 64, 64, 255)
+        mc2 = mc1 % c2
+        self.assertTrue (isinstance (mc2, self.MyColor))
+        self.assertRaises (AttributeError, getattr, mc2, 'an_attribute')
+        c3 = c2 % mc1
+        self.assertTrue (type (c3) is pygame.Color)
+
+    def test_inv (self):
+        mc1 = self.MyColor (64, 64, 64, 64)
+        self.assertTrue (mc1.an_attribute)
+        mc2 = ~mc1
+        self.assertTrue (isinstance (mc2, self.MyColor))
+        self.assertRaises (AttributeError, getattr, mc2, 'an_attribute')
+
+    def test_correct_gamma (self):
+        mc1 = self.MyColor (64, 70, 75, 255)
+        self.assertTrue (mc1.an_attribute)
+        mc2 = mc1.correct_gamma (.03)
+        self.assertTrue (isinstance (mc2, self.MyColor))
+        self.assertRaises (AttributeError, getattr, mc2, 'an_attribute')
 
 ################################################################################
 

@@ -194,11 +194,11 @@ _format_view_to_audio(Py_buffer *view)
 
     case 'i':
         format |= PG_SAMPLE_SIGNED;
-        format += native_size ? sizeof(short int) : 4;
+        format += native_size ? sizeof(int) : 4;
         break;
 
     case 'I':
-        format += native_size ? sizeof(unsigned short int) : 4;
+        format += native_size ? sizeof(unsigned int) : 4;
         break;
 
     case 'l':

@@ -135,11 +135,21 @@ can crash the program, ``e.g``. Debian Linux. Consider using ``OGG`` instead.
    | :sl:`set position to play from`
    | :sg:`set_pos(pos) -> None`
 
-   This sets the position in the music file where playback will start. The
-   meaning of "pos", a float (or a number that can be converted to a float),
-   depends on the music format. Newer versions of SDL_mixer have better
-   positioning support than earlier. An SDLError is raised if a particular
-   format does not support positioning.
+   This sets the position in the music file where playback will start.
+   The meaning of "pos", a float (or a number that can be converted to a float),
+   depends on the music format. For ``MOD`` files, it is the integer pattern
+   number in the module. For ``OGG`` it the absolute position, in seconds, from
+   the beginning of the sound. For ``MP3`` files, it is the relative position,
+   in seconds, from the current position. For absolute positioning in an ``MP3``
+   file, first call :func:`rewind`.
+   Other file formats are unsupported. Newer versions of SDL_mixer have
+   better positioning support than earlier. An SDLError is raised if a
+   particular format does not support positioning.
+
+   Function :func:`set_pos` calls underlining SDL_mixer function
+   ``Mix_SetMusicPosition``.
+
+   New in Pygame 1.9.2
 
    .. ## pygame.mixer.music.set_pos ##
 

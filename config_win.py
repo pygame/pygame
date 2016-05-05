@@ -17,6 +17,16 @@ except NameError:
 
 huntpaths = ['..', '..\\..', '..\\*', '..\\..\\*']
 
+def get_ptr_size():
+    return 64 if sys.maxsize > 2**32 else 32
+
+def as_machine_type(size):
+    """Return pointer bit size as a Windows machine type"""
+    if size == 32:
+        return "x86"
+    if size == 64:
+        return "x64"
+    raise BuildError("Unknown pointer size {}".format(size))
 
 class Dependency(object):
     inc_hunt = ['include']
@@ -228,13 +238,13 @@ for d in get_definitions():
     DEPS.add_win(d.name, d.value)
 
 
-def setup_prebuilt():
+def setup_prebuilt(prebuilt_dir):
     setup = open('Setup', 'w')
     try:
         try:
-            setup_win_in = open(os.path.join('prebuilt', 'Setup_Win.in'))
+            setup_win_in = open(os.path.join(prebuilt_dir, 'Setup_Win.in'))
         except IOError:
-            raise IOError("prebuilt missing required Setup_Win.in")
+            raise IOError("%s missing required Setup_Win.in" % prebuilt_dir)
 
         # Copy Setup.in to Setup, replacing the BeginConfig/EndConfig
         # block with prebuilt\Setup_Win.in .
@@ -265,10 +275,11 @@ def setup_prebuilt():
 
 
 def main():
-    if os.path.isdir('prebuilt'):
-        reply = raw_input('\nUse the SDL libraries in "prebuilt"? [Y/n]')
+    prebuilt_dir = 'prebuilt-' + as_machine_type(get_ptr_size())
+    if os.path.isdir(prebuilt_dir):
+        reply = raw_input('\nUse the SDL libraries in "%s"? [Y/n]' % prebuilt_dir)
         if not reply or reply[0].lower() != 'n':
-            setup_prebuilt()
+            setup_prebuilt(prebuilt_dir)
             raise SystemExit()
 
     global DEPS

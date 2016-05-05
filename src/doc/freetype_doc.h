@@ -11,6 +11,8 @@
 
 #define DOC_PYGAMEFREETYPEWASINIT "was_init() -> bool\nReturn whether the the FreeType library is initialized."
 
+#define DOC_PYGAMEFREETYPEGETCACHESIZE "get_cache_size() -> long\nReturn the glyph case size"
+
 #define DOC_PYGAMEFREETYPEGETDEFAULTRESOLUTION "get_default_resolution() -> long\nReturn the default pixel size in dots per inch"
 
 #define DOC_PYGAMEFREETYPESETDEFAULTRESOLUTION "set_default_resolution([resolution])\nSet the default pixel size in dots per inch for the module"
@@ -123,6 +125,10 @@ Shut down the underlying FreeType library.
 pygame.freetype.was_init
  was_init() -> bool
 Return whether the the FreeType library is initialized.
+
+pygame.freetype.get_cache_size
+ get_cache_size() -> long
+Return the glyph case size
 
 pygame.freetype.get_default_resolution
  get_default_resolution() -> long
