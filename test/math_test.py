@@ -363,12 +363,12 @@ class Vector2TypeTest(unittest.TestCase):
         self.assertEqual(self.v1.cross(self.v1), 0)
 
     def test_dot(self):
-        self.assertEqual(self.v1.dot(self.v2),
-                         self.v1.x * self.v2.x + self.v1.y * self.v2.y)
-        self.assertEqual(self.v1.dot(self.l2),
-                         self.v1.x * self.l2[0] + self.v1.y * self.l2[1])
-        self.assertEqual(self.v1.dot(self.t2),
-                         self.v1.x * self.t2[0] + self.v1.y * self.t2[1])
+        self.assertAlmostEqual(self.v1.dot(self.v2),
+                            self.v1.x * self.v2.x + self.v1.y * self.v2.y)
+        self.assertAlmostEqual(self.v1.dot(self.l2),
+                            self.v1.x * self.l2[0] + self.v1.y * self.l2[1])
+        self.assertAlmostEqual(self.v1.dot(self.t2),
+                            self.v1.x * self.t2[0] + self.v1.y * self.t2[1])
         self.assertEqual(self.v1.dot(self.v2), self.v2.dot(self.v1))
         self.assertEqual(self.v1.dot(self.v2), self.v1 * self.v2)
 
@@ -423,8 +423,8 @@ class Vector2TypeTest(unittest.TestCase):
     def test_distance_to(self):
         diff = self.v1 - self.v2
         self.assertEqual(self.e1.distance_to(self.e2), math.sqrt(2))
-        self.assertEqual(self.v1.distance_to(self.v2),
-                         math.sqrt(diff.x * diff.x + diff.y * diff.y))
+        self.assertAlmostEqual(self.v1.distance_to(self.v2),
+                            math.sqrt(diff.x * diff.x + diff.y * diff.y))
         self.assertEqual(self.v1.distance_to(self.v1), 0)
         self.assertEqual(self.v1.distance_to(self.v2),
                          self.v2.distance_to(self.v1))
@@ -432,8 +432,8 @@ class Vector2TypeTest(unittest.TestCase):
     def test_distance_squared_to(self):
         diff = self.v1 - self.v2
         self.assertEqual(self.e1.distance_squared_to(self.e2), 2)
-        self.assertEqual(self.v1.distance_squared_to(self.v2),
-                         diff.x * diff.x + diff.y * diff.y)
+        self.assertAlmostEqual(self.v1.distance_squared_to(self.v2),
+                            diff.x * diff.x + diff.y * diff.y)
         self.assertEqual(self.v1.distance_squared_to(self.v1), 0)
         self.assertEqual(self.v1.distance_squared_to(self.v2),
                          self.v2.distance_squared_to(self.v1))
@@ -1296,8 +1296,8 @@ class Vector3TypeTest(unittest.TestCase):
     def test_distance_squared_to(self):
         diff = self.v1 - self.v2
         self.assertEqual(self.e1.distance_squared_to(self.e2), 2)
-        self.assertEqual(self.v1.distance_squared_to(self.v2),
-                         diff.x * diff.x + diff.y * diff.y + diff.z * diff.z)
+        self.assertAlmostEqual(self.v1.distance_squared_to(self.v2),
+                            diff.x * diff.x + diff.y * diff.y + diff.z * diff.z)
         self.assertEqual(self.v1.distance_squared_to(self.v1), 0)
         self.assertEqual(self.v1.distance_squared_to(self.v2),
                          self.v2.distance_squared_to(self.v1))
