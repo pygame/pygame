@@ -18,25 +18,11 @@ import pygame
 from pygame.locals import *
 
 
-arraytype = ""
-try:
-    import pygame.surfarray
-except ImportError:
-    pass
-else:
-    arraytype = pygame.surfarray.get_arraytype()
-    if arraytype == 'numpy':
-        from numpy import \
-            uint8, uint16, uint32, uint64, zeros, \
-            float32, float64, alltrue, rint, arange
-    elif arraytype == 'numeric':
-        from Numeric import \
-             UInt8 as uint8, UInt16 as uint16, UInt32 as uint32, zeros, \
-             Float64 as float64, alltrue
-    else:
-        print ("Unknown array type %s; tests skipped" %
-               pygame.surfarray.get_arraytype())
-        arraytype = ""
+import pygame.surfarray
+from numpy import \
+    uint8, uint16, uint32, uint64, zeros, \
+    float32, float64, alltrue, rint, arange
+arraytype = 'numpy'
 
 class SurfarrayModuleTest (unittest.TestCase):
 
@@ -130,10 +116,6 @@ class SurfarrayModuleTest (unittest.TestCase):
     def test_array2d(self):
         if not arraytype:
             self.fail("no array package installed")
-        if arraytype == 'numeric':
-            # This is known to fail with Numeric (incompatible
-            # get_rgb and array element types).
-            return
 
         sources = [self._make_src_surface(8),
                    self._make_src_surface(16),
@@ -167,10 +149,6 @@ class SurfarrayModuleTest (unittest.TestCase):
     def test_array3d(self):
         if not arraytype:
             self.fail("no array package installed")
-        if arraytype == 'numeric':
-            # This is known to fail with Numeric (wrong color element
-            # values for 16 bit surfaces).
-            return
 
         sources = [self._make_src_surface(16),
                    self._make_src_surface(16, srcalpha=True),
@@ -196,10 +174,6 @@ class SurfarrayModuleTest (unittest.TestCase):
     def test_array_alpha(self):
         if not arraytype:
             self.fail("no array package installed")
-        if arraytype == 'numeric':
-            # This is known to fail with Numeric (differing values for
-            # get_rgb and array element for 16 bit surfaces).
-            return
 
         palette = [(0, 0, 0, 0),
                    (10, 50, 100, 255),
@@ -456,7 +430,7 @@ class SurfarrayModuleTest (unittest.TestCase):
             self.fail("no array package installed")
 
         self.failUnless((pygame.surfarray.get_arraytype() in
-                         ['numpy', 'numeric']),
+                         ['numpy']),
                         ("unknown array type %s" %
                          pygame.surfarray.get_arraytype()))
 
@@ -465,22 +439,10 @@ class SurfarrayModuleTest (unittest.TestCase):
             self.fail("no array package installed")
 
         arraytypes = pygame.surfarray.get_arraytypes()
-        try:
-            import numpy
-        except ImportError:
-            self.failIf('numpy' in arraytypes)
-        else:
-            self.failUnless('numpy' in arraytypes)
-
-        try:
-            import Numeric
-        except ImportError:
-            self.failIf('numeric' in arraytypes)
-        else:
-            self.failUnless('numeric' in arraytypes)
+        self.failUnless('numpy' in arraytypes)
 
         for atype in arraytypes:
-            self.failUnless(atype in ['numpy', 'numeric'],
+            self.failUnless(atype in ['numpy'],
                             "unknown array type %s" % atype)
 
     def test_make_surface(self):
@@ -522,11 +484,6 @@ class SurfarrayModuleTest (unittest.TestCase):
     def test_map_array(self):
         if not arraytype:
             self.fail("no array package installed")
-        if not arraytype == 'numpy':
-            # This test would probably fail for Numeric
-            # (incompatible get_rgb and array element types
-            #  and zero alpha for SRCALPHA surfaces).
-            return
 
         arr3d = self._make_src_array3d(uint8)
         targets = [self._make_surface(8),
@@ -553,10 +510,6 @@ class SurfarrayModuleTest (unittest.TestCase):
     def test_pixels2d(self):
         if not arraytype:
             self.fail("no array package installed")
-        if arraytype == 'numeric':
-            # This is known to fail with Numeric
-            # (incompatible get_rgb and array element types).
-            return
 
         sources = [self._make_surface(8),
                    self._make_surface(16, srcalpha=True),
@@ -566,9 +519,6 @@ class SurfarrayModuleTest (unittest.TestCase):
             self.failIf(surf.get_locked())
             arr = pygame.surfarray.pixels2d(surf)
             self.failUnless(surf.get_locked())
-            # Numpy uses the surface's buffer.
-            if arraytype == "numeric":
-                self.failUnlessEqual(surf.get_locks(), (ar,))
             self._fill_array2d(arr, surf)
             surf.unlock()
             self.failUnless(surf.get_locked())
@@ -593,9 +543,6 @@ class SurfarrayModuleTest (unittest.TestCase):
             self.failIf(surf.get_locked())
             arr = pygame.surfarray.pixels3d(surf)
             self.failUnless(surf.get_locked())
-            # Numpy uses the surface's buffer.
-            if arraytype == "numeric":
-                self.failUnlessEqual(surf.get_locks(), (arr,))
             self._fill_array3d(arr)
             surf.unlock()
             self.failUnless(surf.get_locked())
@@ -638,9 +585,6 @@ class SurfarrayModuleTest (unittest.TestCase):
         self.failIf(surf.get_locked())
         arr = pygame.surfarray.pixels_alpha(surf)
         self.failUnless(surf.get_locked())
-        # Numpy uses the surface's buffer.
-        if arraytype == 'numeric':
-            self.failUnlessEqual(surf.get_locks(), (arr,))
         surf.unlock()
         self.failUnless(surf.get_locked())
 
@@ -685,11 +629,6 @@ class SurfarrayModuleTest (unittest.TestCase):
         method_name = "pixels_" + operation
         if not arraytype:
             self.fail("no array package installed")
-        # unavailable for 'numeric'
-        if arraytype == 'numeric':
-            self.assertRaises(NotImplementedError,
-                              getattr(pygame.surfarray, method_name), 'r')
-            return
 
         pixels_rgb = getattr(pygame.surfarray, method_name)
         palette = [(0, 0, 0, 255),
@@ -733,23 +672,8 @@ class SurfarrayModuleTest (unittest.TestCase):
         def do_use_arraytype(atype):
             pygame.surfarray.use_arraytype(atype)
 
-        try:
-            import numpy
-        except ImportError:
-            self.failUnlessRaises(ValueError, do_use_arraytype, 'numpy')
-            self.failIfEqual(pygame.surfarray.get_arraytype(), 'numpy')
-        else:
-            pygame.surfarray.use_arraytype('numpy')
-            self.failUnlessEqual(pygame.surfarray.get_arraytype(), 'numpy')
-
-        try:
-            import Numeric
-        except ImportError:
-            self.failUnlessRaises(ValueError, do_use_arraytype, 'numeric')
-            self.failIfEqual(pygame.surfarray.get_arraytype(), 'numeric')
-        else:
-            pygame.surfarray.use_arraytype('numeric')
-            self.failUnlessEqual(pygame.surfarray.get_arraytype(), 'numeric')
+        pygame.surfarray.use_arraytype('numpy')
+        self.failUnlessEqual(pygame.surfarray.get_arraytype(), 'numpy')
 
         self.failUnlessRaises(ValueError, do_use_arraytype, 'not an option')
 
@@ -763,10 +687,6 @@ class SurfarrayModuleTest (unittest.TestCase):
             
             ar = pygame.surfarray.pixels2d (sf)
             self.assertEquals (sf.get_locked (), True)
-
-            # Numpy uses the Surface's buffer.
-            if atype == "numeric":
-                self.assertEquals (sf.get_locks (), (ar,))
                 
             sf.unlock ()
             self.assertEquals (sf.get_locked (), True)
