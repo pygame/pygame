@@ -20,9 +20,9 @@
 
 """pygame module for accessing sound sample data
 
-Functions to convert between Numeric or numpy arrays and Sound
+Functions to convert between numpy arrays and Sound
 objects. This module will only be available when pygame can use the
-external numpy or Numeric package.
+external numpy package.
 
 Sound data is made of thousands of samples per second, and each sample
 is the amplitude of the wave at a particular moment in time. For
@@ -36,25 +36,12 @@ only has one.
 Supported array systems are
 
   numpy
-  numeric (deprecated; to be removed in Pygame 1.9.3.)
-
-The default will be numpy, if installed. Otherwise, Numeric will be set
-as default if installed, and a deprecation warning will be issued.
-If neither numpy nor Numeric are installed, the module will raise an
-ImportError.
 
 The array type to use can be changed at runtime using the use_arraytype()
 method, which requires one of the above types as string.
 
-Note: numpy and Numeric are not completely compatible. Certain array
-manipulations, which work for one type, might behave differently or even
-completely break for the other.
-
-Additionally, in contrast to Numeric numpy can use unsigned 16-bit
-integers. Sounds with 16-bit data will be treated as unsigned integers,
-if the sound sample type requests this. Numeric instead always uses
-signed integers for the representation, which is important to keep in
-mind, if you use the module's functions and wonder about the values.
+Sounds with 16-bit data will be treated as unsigned integers,
+if the sound sample type requests this.
 """
 
 import pygame._numpysndarray as numpysnd
