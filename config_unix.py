@@ -20,7 +20,11 @@ origincdirs = ['/include', '/include/SDL', '/include/SDL',
 origlibdirs = ['/lib','/lib64','/X11R6/lib']
 if 'ORIGLIBDIRS' in os.environ and os.environ['ORIGLIBDIRS'] != "":
     origlibdirs = os.environ['ORIGLIBDIRS'].split(":")
-
+if os.environ.get('DEB_BUILD_MULTIARCH') != '':
+    multiarch = os.environ['DEB_BUILD_MULTIARCH']
+    print('Using multiarch tag: %r' % multiarch)
+    origincdirs.append('/include/'+multiarch)
+    origlibdirs.append('/lib/'+multiarch)
 
 def confirm(message):
     "ask a yes/no question, return result"
