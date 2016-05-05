@@ -5,12 +5,7 @@ exclude = False
 try:
     import numpy
 except ImportError:
-    try:
-        import Numeric
-        import pygame.pixelcopy
-        import pygame._arraysurfarray
-    except ImportError:
-        exclude = True
+    exclude = True
 else:
     try:
         import pygame.pixelcopy
