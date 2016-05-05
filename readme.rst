@@ -134,7 +134,7 @@ Dependencies
      depends on SDL_image, which also can use libjpeg and libpng. The
      transform module has an embedded version of SDL_rotozoom for its
      own rotozoom function. The surfarray module requires the python
-     Numeric package for its multidimensional numeric arrays.
+     numpy package for its multidimensional numeric arrays.
 
 Todo / Ideas (feel free to submit)
 ==================================
