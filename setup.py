@@ -177,21 +177,6 @@ except:
 perhaps make a clean copy from "Setup.in".""")
     raise
 
-#python 3.x: remove modules not yet ported
-if sys.version_info >= (3, 0, 0):
-    python3_skip = ['_numericsurfarray',
-                   ]
-#    if (sys.platform != 'linux2'):
-#        python3_skip.append('scrap')
-    tmp_extensions = extensions
-    extensions = []
-    for e in tmp_extensions:
-        if e.name in python3_skip:
-            print ("Skipping module %s for Python %s build." %
-                   (e.name, sys.version))
-        else:
-            extensions.append(e)
-    del tmp_extensions
 
 #decide whether or not to enable new buffer protocol support
 enable_newbuf = False
