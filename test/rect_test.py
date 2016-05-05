@@ -469,7 +469,8 @@ class RectTypeTest( unittest.TestCase ):
         r1.unionall_ip( [r2,r3] )
         self.assertEqual( Rect(-2, -2, 5, 5), r1 )
 
-
+        # Bug for an empty list. Would return a Rect instead of None.
+        self.assertTrue(r1.unionall_ip( [] ) is None)
 
     def test_colliderect( self ):
         r1 = Rect(1,2,3,4)
@@ -671,5 +672,67 @@ class RectTypeTest( unittest.TestCase ):
         c = r.copy()
         self.failUnlessEqual(c, r)
         
+class SubclassTest(unittest.TestCase):
+    class MyRect(Rect):
+        def __init__(self, *args, **kwds):
+            super(SubclassTest.MyRect, self).__init__(*args, **kwds)
+            self.an_attribute = True
+
+    def test_copy(self):
+        mr1 = self.MyRect(1, 2, 10, 20)
+        self.assertTrue(mr1.an_attribute)
+        mr2 = mr1.copy()
+        self.assertTrue(isinstance(mr2, self.MyRect))
+        self.assertRaises(AttributeError, getattr, mr2, "an_attribute")
+
+    def test_move(self):
+        mr1 = self.MyRect(1, 2, 10, 20)
+        self.assertTrue(mr1.an_attribute)
+        mr2 = mr1.move(1, 2)
+        self.assertTrue(isinstance(mr2, self.MyRect))
+        self.assertRaises(AttributeError, getattr, mr2, "an_attribute")
+
+    def test_inflate(self):
+        mr1 = self.MyRect(1, 2, 10, 20)
+        self.assertTrue(mr1.an_attribute)
+        mr2 = mr1.inflate(2, 4)
+        self.assertTrue(isinstance(mr2, self.MyRect))
+        self.assertRaises(AttributeError, getattr, mr2, "an_attribute")
+
+    def test_clamp(self):
+        mr1 = self.MyRect(19, 12, 5, 5)
+        self.assertTrue(mr1.an_attribute)
+        mr2 = mr1.clamp(Rect(10, 10, 10, 10))
+        self.assertTrue(isinstance(mr2, self.MyRect))
+        self.assertRaises(AttributeError, getattr, mr2, "an_attribute")
+
+    def test_clip(self):
+        mr1 = self.MyRect(1, 2, 3, 4)
+        self.assertTrue(mr1.an_attribute)
+        mr2 = mr1.clip(Rect(0, 0, 3, 4))
+        self.assertTrue(isinstance(mr2, self.MyRect))
+        self.assertRaises(AttributeError, getattr, mr2, "an_attribute")
+
+    def test_union(self):
+        mr1 = self.MyRect(1, 1, 1, 2)
+        self.assertTrue(mr1.an_attribute)
+        mr2 = mr1.union(Rect(-2, -2, 1, 2))
+        self.assertTrue(isinstance(mr2, self.MyRect))
+        self.assertRaises(AttributeError, getattr, mr2, "an_attribute")
+
+    def test_unionall(self):
+        mr1 = self.MyRect(0, 0, 1, 1)
+        self.assertTrue(mr1.an_attribute)
+        mr2 = mr1.unionall([Rect(-2, -2, 1, 1), Rect(2, 2, 1, 1)])
+        self.assertTrue(isinstance(mr2, self.MyRect))
+        self.assertRaises(AttributeError, getattr, mr2, "an_attribute")
+
+    def test_fit(self):
+        mr1 = self.MyRect(10, 10, 30, 30)
+        self.assertTrue(mr1.an_attribute)
+        mr2 = mr1.fit(Rect(30, 30, 15, 10))
+        self.assertTrue(isinstance(mr2, self.MyRect))
+        self.assertRaises(AttributeError, getattr, mr2, "an_attribute")
+
 if __name__ == '__main__':
     unittest.main()

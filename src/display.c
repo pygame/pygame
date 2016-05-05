@@ -43,6 +43,18 @@ static char* imagemodule_name = "pygame.image";
 static char* resourcefunc_name = "getResource";
 static char* load_basicfunc_name = "load_basic";
 
+static void
+close_file (PyObject *fileobj)
+{
+    PyObject* result = PyObject_CallMethod (fileobj, "close", NULL);
+    if (result) {
+        Py_DECREF (result);
+    }
+    else {
+        PyErr_Clear ();
+    }
+}
+
 static PyObject*
 display_resource (char *filename)
 {
@@ -81,6 +93,7 @@ display_resource (char *filename)
     name = PyObject_GetAttrString (fresult, "name");
     if (name != NULL) {
         if (Text_Check (name)) {
+            close_file (fresult);
             Py_DECREF (fresult);
             fresult = name;
             name = NULL;
@@ -93,6 +106,7 @@ display_resource (char *filename)
     if (PyFile_Check (fresult)) {
         PyObject *tmp = PyFile_Name (fresult);
         Py_INCREF (tmp);
+        close_file (fresult);
         Py_DECREF (fresult);
         fresult = tmp;
     }

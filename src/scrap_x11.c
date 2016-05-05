@@ -765,13 +765,13 @@ pygame_scrap_put (char *type, int srclen, char *src)
     {
         timestamp = ev.xproperty.time;
 
-        if (cliptype == XA_PRIMARY)
+        if (clip == XA_PRIMARY)
             _selectiontime = timestamp;
         else
             _cliptime = timestamp;
     }
     else
-        timestamp = (cliptype == XA_PRIMARY) ? _selectiontime : _cliptime;
+        timestamp = (clip == XA_PRIMARY) ? _selectiontime : _cliptime;
 
 SETSELECTIONOWNER:
     /* Set the selection owner to the own window. */

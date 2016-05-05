@@ -61,6 +61,7 @@ static PyObject *surface_new (PyTypeObject *type, PyObject *args,
                               PyObject *kwds);
 static intptr_t surface_init (PySurfaceObject *self, PyObject *args,
                               PyObject *kwds);
+static PyObject *surf_subtype_new (PyTypeObject *type, SDL_Surface *s);
 static PyObject* surface_str (PyObject *self);
 static void surface_dealloc (PyObject *self);
 static void surface_cleanup (PySurfaceObject * self);
@@ -286,13 +287,19 @@ static PyTypeObject PySurface_Type = {
 static PyObject*
 PySurface_New (SDL_Surface *s)
 {
+    return surf_subtype_new (&PySurface_Type, s);
+}
+
+static PyObject*
+surf_subtype_new (PyTypeObject *type, SDL_Surface *s)
+{
     PySurfaceObject *self;
 
     if (!s)
         return RAISE (PyExc_SDLError, SDL_GetError ());
 
     self = (PySurfaceObject *)
-        PySurface_Type.tp_new (&PySurface_Type, NULL, NULL);
+        PySurface_Type.tp_new (type, NULL, NULL);
 
     if (self)
         self->surf = s;
@@ -1178,7 +1185,7 @@ surf_copy (PyObject *self)
     newsurf = SDL_ConvertSurface (surf, surf->format, surf->flags);
     PySurface_Unprep (self);
 
-    final = PySurface_New (newsurf);
+    final = surf_subtype_new (Py_TYPE (self), newsurf);
     if (!final)
         SDL_FreeSurface (newsurf);
     return final;
@@ -1307,6 +1314,14 @@ surf_convert (PyObject *self, PyObject *args)
             }
             format.BitsPerPixel = (Uint8) bpp;
             format.BytesPerPixel = (bpp + 7) / 8;
+            if (format.BitsPerPixel > 8)
+                /* Allow a 8 bit source surface with an empty palette to be
+                 * converted to a format without a palette (Issue #131). 
+                 * If the target format has a non-NULL palette pointer then
+                 * SDL_ConvertSurface checks that the palette is not empty--
+                 * that at least one entry is not black.
+                 */
+                format.palette = NULL;
             if (flags == -1)
                 flags = surf->flags;
             if (format.Amask)
@@ -1322,7 +1337,7 @@ surf_convert (PyObject *self, PyObject *args)
     }
     PySurface_Unprep (self);
 
-    final = PySurface_New (newsurf);
+    final = surf_subtype_new (Py_TYPE (self), newsurf);
     if (!final)
         SDL_FreeSurface (newsurf);
     return final;
@@ -1356,7 +1371,7 @@ surf_convert_alpha (PyObject *self, PyObject *args)
         newsurf = SDL_DisplayFormatAlpha (surf);
     PySurface_Unprep (self);
 
-    final = PySurface_New (newsurf);
+    final = surf_subtype_new (Py_TYPE (self), newsurf);
     if (!final)
         SDL_FreeSurface (newsurf);
     return final;
@@ -1897,7 +1912,7 @@ surf_subsurface (PyObject *self, PyObject *args)
     if (!data)
         return NULL;
 
-    subobj = PySurface_New (sub);
+    subobj = surf_subtype_new (Py_TYPE (self), sub);
     if (!subobj) {
         PyMem_Del (data);
         return NULL;
@@ -3020,76 +3035,66 @@ PySurface_Blit (PyObject * dstobj, PyObject * srcobj, SDL_Rect * dstrect,
         !(src->format->Amask && !(src->flags & SDL_SRCALPHA)) &&
         /* special case, SDL works */
         (dst->format->BytesPerPixel == 2 || dst->format->BytesPerPixel == 4)) {
-    /* Py_BEGIN_ALLOW_THREADS */
+        /* Py_BEGIN_ALLOW_THREADS */
         result = pygame_AlphaBlit (src, srcrect, dst, dstrect, the_args);
-    /* Py_END_ALLOW_THREADS */
+        /* Py_END_ALLOW_THREADS */
     }
     else if (the_args != 0 ||
-         (src->flags & (SDL_SRCALPHA | SDL_SRCCOLORKEY) &&
-          /* This simplification is possible because a source subsurface
-         is converted to its owner with a clip rect and a dst
-         subsurface cannot be blitted to its owner because the
-         owner is locked.
-          */
-          dst->pixels == src->pixels &&
-          surface_do_overlap (src, srcrect, dst, dstrect))) {
-    /* Py_BEGIN_ALLOW_THREADS */
+             (src->flags & (SDL_SRCALPHA | SDL_SRCCOLORKEY) &&
+              /* This simplification is possible because a source subsurface
+                 is converted to its owner with a clip rect and a dst
+                 subsurface cannot be blitted to its owner because the
+                 owner is locked.
+                 */
+              dst->pixels == src->pixels &&
+              surface_do_overlap (src, srcrect, dst, dstrect))) {
+        /* Py_BEGIN_ALLOW_THREADS */
         result = pygame_Blit (src, srcrect, dst, dstrect, the_args);
-    /* Py_END_ALLOW_THREADS */
+        /* Py_END_ALLOW_THREADS */
     }
     /* can't blit alpha to 8bit, crashes SDL */
     else if (dst->format->BytesPerPixel == 1 &&
-         (src->format->Amask || src->flags & SDL_SRCALPHA)) {
-    /* Py_BEGIN_ALLOW_THREADS */
-    if (src->format->BytesPerPixel == 1) {
-        result = pygame_Blit (src, srcrect, dst, dstrect, 0);
-    }
-    else if (SDL_WasInit (SDL_INIT_VIDEO)) {
-        src = SDL_DisplayFormat (src);
-        if (src) {
-        result = SDL_BlitSurface (src, srcrect, dst, dstrect);
-        SDL_FreeSurface (src);
+             (src->format->Amask || src->flags & SDL_SRCALPHA)) {
+        /* Py_BEGIN_ALLOW_THREADS */
+        if (src->format->BytesPerPixel == 1) {
+            result = pygame_Blit (src, srcrect, dst, dstrect, 0);
         }
         else {
-        result = -1;
-        }
-    }
-    else {
-        SDL_PixelFormat *fmt = src->format;
-        SDL_PixelFormat newfmt;
+            SDL_PixelFormat *fmt = src->format;
+            SDL_PixelFormat newfmt;
 
-        newfmt.palette = 0;  /* Set NULL (or SDL gets confused) */
-        newfmt.BitsPerPixel = fmt->BitsPerPixel;
-        newfmt.BytesPerPixel = fmt->BytesPerPixel;
-        newfmt.Amask = 0;
-        newfmt.Rmask = fmt->Rmask;
-        newfmt.Gmask = fmt->Gmask;
-        newfmt.Bmask = fmt->Bmask;
-        newfmt.Ashift = 0;
-        newfmt.Rshift = fmt->Rshift;
-        newfmt.Gshift = fmt->Gshift;
-        newfmt.Bshift = fmt->Bshift;
-        newfmt.Aloss = 0;
-        newfmt.Rloss = fmt->Rloss;
-        newfmt.Gloss = fmt->Gloss;
-        newfmt.Bloss = fmt->Bloss;
-        newfmt.colorkey = 0;
-        newfmt.alpha = 0;
-        src = SDL_ConvertSurface (src, &newfmt, SDL_SWSURFACE);
-        if (src) {
-            result = SDL_BlitSurface (src, srcrect, dst, dstrect);
-            SDL_FreeSurface (src);
+            newfmt.palette = 0;  /* Set NULL (or SDL gets confused) */
+            newfmt.BitsPerPixel = fmt->BitsPerPixel;
+            newfmt.BytesPerPixel = fmt->BytesPerPixel;
+            newfmt.Amask = 0;
+            newfmt.Rmask = fmt->Rmask;
+            newfmt.Gmask = fmt->Gmask;
+            newfmt.Bmask = fmt->Bmask;
+            newfmt.Ashift = 0;
+            newfmt.Rshift = fmt->Rshift;
+            newfmt.Gshift = fmt->Gshift;
+            newfmt.Bshift = fmt->Bshift;
+            newfmt.Aloss = 0;
+            newfmt.Rloss = fmt->Rloss;
+            newfmt.Gloss = fmt->Gloss;
+            newfmt.Bloss = fmt->Bloss;
+            newfmt.colorkey = 0;
+            newfmt.alpha = 0;
+            src = SDL_ConvertSurface (src, &newfmt, SDL_SWSURFACE);
+            if (src) {
+                result = SDL_BlitSurface (src, srcrect, dst, dstrect);
+                SDL_FreeSurface (src);
+            }
+            else {
+                result = -1;
+            }
         }
-        else {
-            result = -1;
-        }
-    }
-    /* Py_END_ALLOW_THREADS */
+        /* Py_END_ALLOW_THREADS */
     }
     else {
-    /* Py_BEGIN_ALLOW_THREADS */
+        /* Py_BEGIN_ALLOW_THREADS */
         result = SDL_BlitSurface (src, srcrect, dst, dstrect);
-    /* Py_END_ALLOW_THREADS */
+        /* Py_END_ALLOW_THREADS */
     }
 
     if (subsurface) {

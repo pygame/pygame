@@ -17,6 +17,24 @@
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 */
+
+/* The follow bug was reported for the pygame.math module:
+ *
+ * Adjust gcc 4.4 optimization for floating point on x86-32 PCs running Linux.
+ * This addresses bug 52:
+ * http://pygame.motherhamster.org/bugzilla/show_bug.cgi?id=52
+ *
+ * Apparently, the same problem plagues pygame.color, as it failed the
+ * test_hsva__all_elements_within_limits and
+ * test_hsva__sanity_testing_converted_should_not_raise test cases due
+ * to slight, on the order of 10e-14, discrepencies in calculated double
+ * values. 
+ */
+#if defined(__GNUC__) && defined(__linux__) && defined(__i386__) && \
+  __SIZEOF_POINTER__ == 4 &&  __GNUC__ == 4 && __GNUC_MINOR__ >= 4
+#pragma GCC optimize ("float-store")
+#endif
+
 #define PYGAMEAPI_COLOR_INTERNAL
 
 #include "doc/color_doc.h"
@@ -47,11 +65,13 @@ static int _hextoint (char *hex, Uint8 *val);
 static tristate _hexcolor (PyObject *color, Uint8 rgba[]);
 static int _coerce_obj(PyObject *obj, Uint8 rgba[]);
 
-static PyColor* _color_new_internal (PyTypeObject *type, Uint8 rgba[]);
-static PyColor* _color_new_internal_length (PyTypeObject *type, Uint8 rgba[], Uint8 length);
+static PyColor* _color_new_internal (PyTypeObject *type, const Uint8 rgba[]);
+static PyColor* _color_new_internal_length (PyTypeObject *type,
+                                            const Uint8 rgba[], Uint8 length);
 
 static PyObject* _color_new (PyTypeObject *type, PyObject *args,
-    PyObject *kwds);
+                             PyObject *kwds);
+static int _color_init (PyColor *self, PyObject *args, PyObject *kwds);
 static void _color_dealloc (PyColor *color);
 static PyObject* _color_repr (PyColor *color);
 static PyObject* _color_normalize (PyColor *color);
@@ -78,19 +98,16 @@ static int _color_set_cmy (PyColor *color, PyObject *value, void *closure);
 static PyObject* _color_get_arraystruct(PyColor *color, void *closure);
 
 /* Number protocol methods */
-static PyObject* _color_add (PyColor *color1, PyColor *color2);
-static PyObject* _color_sub (PyColor *color1, PyColor *color2);
-static PyObject* _color_mul (PyColor *color1, PyColor *color2);
-static PyObject* _color_div (PyColor *color1, PyColor *color2);
-static PyObject* _color_mod (PyColor *color1, PyColor *color2);
+static PyObject* _color_add (PyObject *obj1, PyObject *obj2);
+static PyObject* _color_sub (PyObject *obj1, PyObject *obj2);
+static PyObject* _color_mul (PyObject *obj1, PyObject *obj2);
+static PyObject* _color_div (PyObject *obj1, PyObject *obj2);
+static PyObject* _color_mod (PyObject *obj1, PyObject *obj2);
 static PyObject* _color_inv (PyColor *color);
-#if !PY3
-static int _color_coerce (PyObject **pv, PyObject **pw);
-#endif
 static PyObject* _color_int (PyColor *color);
-static PyObject* _color_long (PyColor *color);
 static PyObject* _color_float (PyColor *color);
 #if !PY3
+static PyObject* _color_long (PyColor *color);
 static PyObject* _color_oct (PyColor *color);
 static PyObject* _color_hex (PyColor *color);
 #endif
@@ -177,10 +194,14 @@ static PyNumberMethods _color_as_number =
     0,                       /* nb_xor */
     0,                       /* nb_or */
 #if !PY3
-    _color_coerce,           /* nb_coerce */
+    0,                       /* nb_coerce */
 #endif
     (unaryfunc) _color_int,  /* nb_int */
+#if PY3
+    0,                       /* nb_reserved */
+#else
     (unaryfunc) _color_long, /* nb_long */
+#endif
     (unaryfunc) _color_float,/* nb_float */
 #if !PY3
     (unaryfunc) _color_oct,  /* nb_oct */
@@ -249,12 +270,12 @@ static PyBufferProcs _color_as_buffer = {
 
 #endif
 
+#define COLOR_TPFLAGS_COMMON \
+    (Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_CHECKTYPES)
 #if PY2 && PG_ENABLE_NEWBUF
-#define COLOR_TPFLAGS \
-    (Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE |  Py_TPFLAGS_HAVE_NEWBUFFER)
+#define COLOR_TPFLAGS (COLOR_TPFLAGS_COMMON |  Py_TPFLAGS_HAVE_NEWBUFFER)
 #else
-#define COLOR_TPFLAGS \
-    (Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE)
+#define COLOR_TPFLAGS COLOR_TPFLAGS_COMMON
 #endif
 
 
@@ -310,7 +331,7 @@ static PyTypeObject PyColor_Type =
     0,                          /* tp_descr_get */
     0,                          /* tp_descr_set */
     0,                          /* tp_dictoffset */
-    0,                          /* tp_init */
+    (initproc)_color_init,      /* tp_init */
     0,                          /* tp_alloc */
     _color_new,                 /* tp_new */
 #ifndef __SYMBIAN32__
@@ -599,7 +620,7 @@ _coerce_obj (PyObject *obj, Uint8 rgba[])
 }
 
 static PyColor*
-_color_new_internal (PyTypeObject *type, Uint8 rgba[])
+_color_new_internal (PyTypeObject *type, const Uint8 rgba[])
 {
     /* default length of 4 - r,g,b,a. */
     return _color_new_internal_length(type, rgba, 4);
@@ -607,7 +628,8 @@ _color_new_internal (PyTypeObject *type, Uint8 rgba[])
 
 
 static PyColor*
-_color_new_internal_length (PyTypeObject *type, Uint8 rgba[], Uint8 length)
+_color_new_internal_length (PyTypeObject *type,
+                            const Uint8 rgba[], Uint8 length)
 {
     PyColor *color = (PyColor *) type->tp_alloc (type, 0);
     if (!color)
@@ -628,30 +650,43 @@ _color_new_internal_length (PyTypeObject *type, Uint8 rgba[], Uint8 length)
 static PyObject*
 _color_new (PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
-    PyObject *obj = NULL, *obj1 = NULL, *obj2 = NULL, *obj3 = NULL;
-    Uint8 rgba[4];
+    static const Uint8 DEFAULT_RGBA[4] = {0, 0, 0, 255};
+    
+    return (PyObject *)_color_new_internal_length (type, DEFAULT_RGBA, 4);
+}
+
+static int
+_color_init (PyColor *self, PyObject *args, PyObject *kwds)
+{
+    Uint8 *rgba = self->data;
+    PyObject *obj;
+    PyObject *obj1 = NULL;
+    PyObject *obj2 = NULL;
+    PyObject *obj3 = NULL;
 
     if (!PyArg_ParseTuple (args, "O|OOO", &obj, &obj1, &obj2, &obj3))
-        return NULL;
+        return -1;
 
     if (Text_Check (obj) || PyUnicode_Check (obj))
     {
         /* Named color */
         PyObject *color = NULL;
         PyObject *name1 = NULL, *name2 = NULL;
-        if (obj1 || obj2 || obj3)
-            return RAISE (PyExc_ValueError, "invalid arguments");
+        if (obj1 || obj2 || obj3) {
+            RAISE (PyExc_ValueError, "invalid arguments");
+            return -1;
+        }
 
         name1 = PyObject_CallMethod(obj, "replace", "(ss)", " ", "");
         if (!name1)
         {
-            return NULL;
+            return -1;
         }
         name2 = PyObject_CallMethod(name1, "lower", NULL);
         Py_DECREF(name1);
         if (!name2)
         {
-            return NULL;
+            return -1;
         }
         color = PyDict_GetItem (_COLORDICT, name2);
         Py_DECREF(name2);
@@ -660,19 +695,19 @@ _color_new (PyTypeObject *type, PyObject *args, PyObject *kwds)
             switch (_hexcolor (obj, rgba))
             {
                 case TRISTATE_FAIL:
-                return RAISE (PyExc_ValueError, "invalid color name");
+                RAISE (PyExc_ValueError, "invalid color name");
+                return -1;
                 case TRISTATE_ERROR:
-                return NULL;
+                return -1;
                 default:
                 break;
             }
         }
         else if (!RGBAFromObj (color, rgba))
         {
-            return RAISE (PyExc_ValueError, "invalid color");
+            RAISE (PyExc_ValueError, "invalid color");
+            return -1;
         }
-
-        return (PyObject *) _color_new_internal (type, rgba);
     }
     else if (!obj1)
     {
@@ -685,37 +720,50 @@ _color_new (PyTypeObject *type, PyObject *args, PyObject *kwds)
             rgba[2] = (Uint8) (color >> 8);
             rgba[3] = (Uint8) color;
         }
-        else if (!RGBAFromObj (obj, rgba))
-            return RAISE (PyExc_ValueError, "invalid argument");
-        else
-            return RAISE (PyExc_ValueError, "invalid argument");
-        return (PyObject *) _color_new_internal (type, rgba);
+        else if (!RGBAFromObj (obj, rgba)) {
+            RAISE (PyExc_ValueError, "invalid argument");
+            return -1;
+        }
+        else {
+            RAISE (PyExc_ValueError, "invalid argument");
+            return -1;
+        }
     }
     else
     {
         Uint32 color = 0;
 
         /* Color (R,G,B[,A]) */
-        if (!_get_color (obj, &color) || color > 255)
-            return RAISE (PyExc_ValueError, "invalid color argument");
+        if (!_get_color (obj, &color) || color > 255) {
+            RAISE (PyExc_ValueError, "invalid color argument");
+            return -1;
+        }
         rgba[0] = (Uint8) color;
-        if (!_get_color (obj1, &color) || color > 255)
-            return RAISE (PyExc_ValueError, "invalid color argument");
+        if (!_get_color (obj1, &color) || color > 255) {
+            RAISE (PyExc_ValueError, "invalid color argument");
+            return -1;
+        }
         rgba[1] = (Uint8) color;
-        if (!obj2 || !_get_color (obj2, &color) || color > 255)
-            return RAISE (PyExc_ValueError, "invalid color argument");
+        if (!obj2 || !_get_color (obj2, &color) || color > 255) {
+            RAISE (PyExc_ValueError, "invalid color argument");
+            return -1;
+        }
         rgba[2] = (Uint8) color;
 
         if (obj3)
         {
-            if (!_get_color (obj3, &color) || color > 255)
-                return RAISE (PyExc_ValueError, "invalid color argument");
+            if (!_get_color (obj3, &color) || color > 255) {
+                RAISE (PyExc_ValueError, "invalid color argument");
+                return -1;
+            }
             rgba[3] = (Uint8) color;
         }
         else /* No alpha */
             rgba[3] = 255;
-        return (PyObject *) _color_new_internal (type, rgba);
     }
+
+    self->len = 4;
+    return 0;
 }
 
 /**
@@ -782,7 +830,7 @@ _color_correct_gamma (PyColor *color, PyObject *args)
         (Uint8) (frgba[2] * 255 + .5));
     rgba[3] = (frgba[3] > 1.0) ? 255 : ((frgba[3] < 0.0) ? 0 :
         (Uint8) (frgba[3] * 255 + .5));
-    return (PyObject *) _color_new_internal (&PyColor_Type, rgba);
+    return (PyObject *) _color_new_internal (Py_TYPE (color), rgba);
 }
 
 /**
@@ -1014,11 +1062,6 @@ _color_set_hsva (PyColor *color, PyObject *value, void *closure)
 
     switch (hi)
     {
-    case 0:
-        color->data[0] = (Uint8) (v * 255);
-        color->data[1] = (Uint8) (t * 255);
-        color->data[2] = (Uint8) (p * 255);
-        break;
     case 1:
         color->data[0] = (Uint8) (q * 255);
         color->data[1] = (Uint8) (v * 255);
@@ -1045,9 +1088,11 @@ _color_set_hsva (PyColor *color, PyObject *value, void *closure)
         color->data[2] = (Uint8) (q * 255);
         break;
     default:
-        PyErr_SetString (PyExc_OverflowError,
-            "this is not allowed to happen ever");
-        return -1;
+        /* 0 or 6, which are equivalent. */
+        assert (hi == 0 || hi == 6);
+        color->data[0] = (Uint8) (v * 255);
+        color->data[1] = (Uint8) (t * 255);
+        color->data[2] = (Uint8) (p * 255);
     }
 
     return 0;
@@ -1391,51 +1436,79 @@ _color_get_arraystruct(PyColor *color, void *closure)
  * color1 + color2
  */
 static PyObject*
-_color_add (PyColor *color1, PyColor *color2)
+_color_add (PyObject *obj1, PyObject *obj2)
 {
     Uint8 rgba[4];
+    PyColor *color1 = (PyColor *)obj1;
+    PyColor *color2 = (PyColor *)obj2;
+    if (!PyObject_IsInstance (obj1, (PyObject *)&PyColor_Type) ||
+        !PyObject_IsInstance (obj2, (PyObject *)&PyColor_Type))   {
+        Py_INCREF (Py_NotImplemented);
+        return Py_NotImplemented;
+    }  
     rgba[0] = MIN (color1->data[0] + color2->data[0], 255);
     rgba[1] = MIN (color1->data[1] + color2->data[1], 255);
     rgba[2] = MIN (color1->data[2] + color2->data[2], 255);
     rgba[3] = MIN (color1->data[3] + color2->data[3], 255);
-    return (PyObject*) _color_new_internal (&PyColor_Type, rgba);
+    return (PyObject*) _color_new_internal (Py_TYPE (obj1), rgba);
 }
 
 /**
  * color1 - color2
  */
 static PyObject*
-_color_sub (PyColor *color1, PyColor *color2)
+_color_sub (PyObject *obj1, PyObject *obj2)
 {
     Uint8 rgba[4];
+    PyColor *color1 = (PyColor *)obj1;
+    PyColor *color2 = (PyColor *)obj2;
+    if (!PyObject_IsInstance (obj1, (PyObject *)&PyColor_Type) ||
+        !PyObject_IsInstance (obj2, (PyObject *)&PyColor_Type))   {
+        Py_INCREF (Py_NotImplemented);
+        return Py_NotImplemented;
+    }  
     rgba[0] = MAX (color1->data[0] - color2->data[0], 0);
     rgba[1] = MAX (color1->data[1] - color2->data[1], 0);
     rgba[2] = MAX (color1->data[2] - color2->data[2], 0);
     rgba[3] = MAX (color1->data[3] - color2->data[3], 0);
-    return (PyObject*) _color_new_internal (&PyColor_Type, rgba);
+    return (PyObject*) _color_new_internal (Py_TYPE (obj1), rgba);
 }
 
 /**
  * color1 * color2
  */
 static PyObject*
-_color_mul (PyColor *color1, PyColor *color2)
+_color_mul (PyObject *obj1, PyObject *obj2)
 {
     Uint8 rgba[4];
+    PyColor *color1 = (PyColor *)obj1;
+    PyColor *color2 = (PyColor *)obj2;
+    if (!PyObject_IsInstance (obj1, (PyObject *)&PyColor_Type) ||
+        !PyObject_IsInstance (obj2, (PyObject *)&PyColor_Type))   {
+        Py_INCREF (Py_NotImplemented);
+        return Py_NotImplemented;
+    }  
     rgba[0] = MIN (color1->data[0] * color2->data[0], 255);
     rgba[1] = MIN (color1->data[1] * color2->data[1], 255);
     rgba[2] = MIN (color1->data[2] * color2->data[2], 255);
     rgba[3] = MIN (color1->data[3] * color2->data[3], 255);
-    return (PyObject*) _color_new_internal (&PyColor_Type, rgba);
+    return (PyObject*) _color_new_internal (Py_TYPE (obj1), rgba);
 }
 
 /**
  * color1 / color2
  */
 static PyObject*
-_color_div (PyColor *color1, PyColor *color2)
+_color_div (PyObject *obj1, PyObject *obj2)
 {
     Uint8 rgba[4] = { 0, 0, 0, 0 };
+    PyColor *color1 = (PyColor *)obj1;
+    PyColor *color2 = (PyColor *)obj2;
+    if (!PyObject_IsInstance (obj1, (PyObject *)&PyColor_Type) ||
+        !PyObject_IsInstance (obj2, (PyObject *)&PyColor_Type))   {
+        Py_INCREF (Py_NotImplemented);
+        return Py_NotImplemented;
+    }  
     if (color2->data[0] != 0)
         rgba[0] = color1->data[0] / color2->data[0];
     if (color2->data[1] != 0)
@@ -1444,21 +1517,32 @@ _color_div (PyColor *color1, PyColor *color2)
         rgba[2] = color1->data[2] / color2->data[2];
     if (color2->data[3])
         rgba[3] = color1->data[3] / color2->data[3];
-    return (PyObject*) _color_new_internal (&PyColor_Type, rgba);
+    return (PyObject*) _color_new_internal (Py_TYPE (obj1), rgba);
 }
 
 /**
  * color1 % color2
  */
 static PyObject*
-_color_mod (PyColor *color1, PyColor *color2)
+_color_mod (PyObject *obj1, PyObject *obj2)
 {
-    Uint8 rgba[4];
-    rgba[0] = color1->data[0] % color2->data[0];
-    rgba[1] = color1->data[1] % color2->data[1];
-    rgba[2] = color1->data[2] % color2->data[2];
-    rgba[3] = color1->data[3] % color2->data[3];
-    return (PyObject*) _color_new_internal (&PyColor_Type, rgba);
+    Uint8 rgba[4] = { 0, 0, 0, 0 };
+    PyColor *color1 = (PyColor *)obj1;
+    PyColor *color2 = (PyColor *)obj2;
+    if (!PyObject_IsInstance (obj1, (PyObject *)&PyColor_Type) ||
+        !PyObject_IsInstance (obj2, (PyObject *)&PyColor_Type))   {
+        Py_INCREF (Py_NotImplemented);
+        return Py_NotImplemented;
+    }  
+    if (color2->data[0] != 0)
+        rgba[0] = color1->data[0] % color2->data[0];
+    if (color2->data[1] != 0)
+        rgba[1] = color1->data[1] % color2->data[1];
+    if (color2->data[2])
+        rgba[2] = color1->data[2] % color2->data[2];
+    if (color2->data[3])
+        rgba[3] = color1->data[3] % color2->data[3];
+    return (PyObject*) _color_new_internal (Py_TYPE (obj1), rgba);
 }
 
 /**
@@ -1472,25 +1556,8 @@ _color_inv (PyColor *color)
     rgba[1] = 255 - color->data[1];
     rgba[2] = 255 - color->data[2];
     rgba[3] = 255 - color->data[3];
-    return (PyObject*) _color_new_internal (&PyColor_Type, rgba);
+    return (PyObject*) _color_new_internal (Py_TYPE (color), rgba);
 }
-
-#if !PY3
-/**
- * coerce (color1, color2)
- */
-static int
-_color_coerce (PyObject **pv, PyObject **pw)
-{
-    if (PyColor_Check (*pw))
-    {
-        Py_INCREF (*pv);
-        Py_INCREF (*pw);
-        return 0;
-    }
-    return 1;
-}
-#endif
 
 /**
  * int(color)
@@ -1508,19 +1575,6 @@ _color_int (PyColor *color)
 }
 
 /**
- * long(color)
- */
-static PyObject*
-_color_long (PyColor *color)
-{
-    Uint32 tmp = ((color->data[0] << 24) +
-                  (color->data[1] << 16) +
-                  (color->data[2] << 8) +
-                  color->data[3]);
-    return PyLong_FromUnsignedLong (tmp);
-}
-
-/**
  * float(color)
  */
 static PyObject*
@@ -1534,6 +1588,19 @@ _color_float (PyColor *color)
 }
 
 #if !PY3
+/**
+ * long(color)
+ */
+static PyObject*
+_color_long (PyColor *color)
+{
+    Uint32 tmp = ((color->data[0] << 24) +
+                  (color->data[1] << 16) +
+                  (color->data[2] << 8) +
+                  color->data[3]);
+    return PyLong_FromUnsignedLong (tmp);
+}
+
 /**
  * oct(color)
  */
