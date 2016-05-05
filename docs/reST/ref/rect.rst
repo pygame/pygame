@@ -67,11 +67,11 @@
    rect1.bottom=rect2.top), the two meet exactly on the screen but do not
    overlap, and ``rect1.colliderect(rect2)`` returns false.
 
-   Though Rect can be subclassed, methods that return new rectangles are not
-   subclass aware. That is, move or copy return a new :mod:`pygame.Rect`
-   instance, not an instance of the subclass. This may change. To make subclass
-   awareness work though, subclasses may have to maintain the same constructor
-   signature as Rect.
+   The Rect class can be subclassed. Methods such as ``copy()`` and ``move()``
+   will recognize this and return instances of the subclass.
+   However, the subclass's ``__init__()`` method is not called,
+   and ``__new__()`` is assumed to take no arguments. So these methods should be
+   overridden if any extra attributes need to be copied. New in Pygame 1.9.2.
 
    .. method:: copy
 
