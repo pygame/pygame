@@ -57,34 +57,7 @@ signed integers for the representation, which is important to keep in
 mind, if you use the module's functions and wonder about the values.
 """
 
-import pygame
-import imp
-
-# Global array type setting. See use_arraytype().
-__arraytype = None
-
-# Try to import the necessary modules.
-try:
-    import pygame._numpysndarray as numpysnd
-    __hasnumpy = True
-    __arraytype = "numpy"
-except ImportError:
-    __hasnumpy = False
-
-try:
-    if not __hasnumpy:
-        import pygame._numericsndarray as numericsnd
-        __arraytype = "numeric"
-        warnings.warn(warnings.DeprecationWarning(
-                "Numeric support to be removed in Pygame 1.9.3"))
-    else:
-        f, p, d = imp.find_module("Numeric")
-    __hasnumeric = True
-except ImportError:
-    __hasnumeric = False
-
-if not __hasnumpy and not __hasnumeric:
-    raise ImportError("no module named numpy or Numeric found")
+import pygame._numpysndarray as numpysnd
 
 def array (sound):
     """pygame.sndarray.array(Sound): return array
@@ -95,11 +68,7 @@ def array (sound):
     array will always be in the format returned from
     pygame.mixer.get_init().
     """
-    if __arraytype == "numeric":
-        return numericsnd.array (sound)
-    elif __arraytype == "numpy":
-        return numpysnd.array (sound)
-    raise NotImplementedError("sound arrays are not supported")
+    return numpysnd.array (sound)
 
 def samples (sound):
     """pygame.sndarray.samples(Sound): return array
@@ -110,11 +79,7 @@ def samples (sound):
     object. Modifying the array will change the Sound. The array will
     always be in the format returned from pygame.mixer.get_init().
     """
-    if __arraytype == "numeric":
-        return numericsnd.samples (sound)
-    elif __arraytype == "numpy":
-        return numpysnd.samples (sound)
-    raise NotImplementedError("sound arrays are not supported")
+    return numpysnd.samples (sound)
 
 def make_sound (array):
     """pygame.sndarray.make_sound(array): return Sound
@@ -125,70 +90,27 @@ def make_sound (array):
     must be initialized and the array format must be similar to the mixer
     audio format.
     """
-    if __arraytype == "numeric":
-        return numericsnd.make_sound (array)
-    elif __arraytype == "numpy":
-        return numpysnd.make_sound (array)
-    raise NotImplementedError("sound arrays are not supported")
+    return numpysnd.make_sound (array)
 
 def use_arraytype (arraytype):
     """pygame.sndarray.use_arraytype (arraytype): return None
 
-    Sets the array system to be used for sound arrays.
-
-    Uses the requested array type for the module functions.
-    Currently supported array types are:
-
-      numeric (deprecated; will be removed in Pygame 1.9.3.)
-      numpy
-
-    If the requested type is not available, a ValueError will be raised.
+    DEPRECATED - only numpy arrays are now supported.
     """
-    global __arraytype
-
     arraytype = arraytype.lower ()
-    if arraytype == "numeric":
-        if __hasnumeric:
-            import pygame._numericsndarray as numericsnd
-            __arraytype = arraytype
-        else:
-            raise ValueError("Numeric arrays are not available")
-        
-    elif arraytype == "numpy":
-        if __hasnumpy:
-            __arraytype = arraytype
-        else:
-            raise ValueError("numpy arrays are not available")
-    else:
+    if arraytype != 'numpy':
         raise ValueError("invalid array type")
 
 def get_arraytype ():
     """pygame.sndarray.get_arraytype (): return str
 
-    Gets the currently active array type.
-
-    Returns the currently active array type. This will be a value of the
-    get_arraytypes() tuple and indicates which type of array module is
-    used for the array creation.
+    DEPRECATED - only numpy arrays are now supported.
     """
-    return __arraytype
+    return 'numpy'
 
 def get_arraytypes ():
     """pygame.sndarray.get_arraytypes (): return tuple
 
-    Gets the array system types currently supported.
-
-    Checks, which array system types are available and returns them as a
-    tuple of strings. The values of the tuple can be used directly in
-    the use_arraytype () method.
-
-    If no supported array system could be found, None will be returned.
+    DEPRECATED - only numpy arrays are now supported.
     """
-    vals = []
-    if __hasnumeric:
-        vals.append ("numeric")
-    if __hasnumpy:
-        vals.append ("numpy")
-    if len (vals) == 0:
-        return None
-    return tuple (vals)
+    return ['numpy']
