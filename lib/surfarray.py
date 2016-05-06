@@ -60,36 +60,8 @@ which is important to keep in mind, if you use the module's functions
 and wonder about the values.
 """
 
-import pygame
-import imp
-import warnings
-
-# Global array type setting. See use_arraytype().
-__arraytype = None
-
 # Try to import the necessary modules.
-try:
-    import pygame._numpysurfarray as numpysf
-    __hasnumpy = True
-    __arraytype = "numpy"
-except ImportError:
-    __hasnumpy = False
-
-try:
-    if not __hasnumpy:
-        import pygame._numericsurfarray as numericsf
-        __arraytype = "numeric"
-        warnings.warn(warnings.DeprecationWarning(
-                "Numeric support to be removed in Pygame 1.9.3"))
-    else:
-        f, p, d = imp.find_module('Numeric')
-        f.close()
-    __hasnumeric = True
-except ImportError:
-    __hasnumeric = False
-
-if not __hasnumpy and not __hasnumeric:
-    raise ImportError("no module named numpy or Numeric found")
+import pygame._numpysurfarray as numpysf
 
 from pygame.pixelcopy import array_to_surface, make_surface as pc_make_surface
 
@@ -106,11 +78,7 @@ def blit_array (surface, array):
     This function will temporarily lock the Surface as the new values are
     copied.
     """
-    if __arraytype == "numeric":
-        return numericsf.blit_array (surface, array)
-    elif __arraytype == "numpy":
-        return numpysf.blit_array (surface, array)
-    raise NotImplementedError("surface arrays are not supported")
+    return numpysf.blit_array (surface, array)
 
 def array2d (surface):
     """pygame.surfarray.array2d (Surface): return array
@@ -125,11 +93,7 @@ def array2d (surface):
     (see the Surface.lock - lock the Surface memory for pixel access
     method).
     """
-    if __arraytype == "numeric":
-        return numericsf.array2d (surface)
-    elif __arraytype == "numpy":
-        return numpysf.array2d (surface)
-    raise NotImplementedError("surface arrays are not supported")
+    return numpysf.array2d (surface)
 
 def pixels2d (surface):
     """pygame.surfarray.pixels2d (Surface): return array
@@ -147,11 +111,7 @@ def pixels2d (surface):
     the array (see the Surface.lock - lock the Surface memory for pixel
     access method).
     """
-    if __arraytype == "numeric":
-        return numericsf.pixels2d (surface)
-    elif __arraytype == "numpy":
-        return numpysf.pixels2d (surface)
-    raise NotImplementedError("surface arrays are not supported")
+    return numpysf.pixels2d (surface)
 
 def array3d (surface):
     """pygame.surfarray.array3d (Surface): return array
@@ -166,11 +126,7 @@ def array3d (surface):
     (see the Surface.lock - lock the Surface memory for pixel access
     method).
     """
-    if __arraytype == "numeric":
-        return numericsf.array3d (surface)
-    elif __arraytype == "numpy":
-        return numpysf.array3d (surface)
-    raise NotImplementedError("surface arrays are not supported")
+    return numpysf.array3d (surface)
 
 def pixels3d (surface):
     """pygame.surfarray.pixels3d (Surface): return array
@@ -188,11 +144,7 @@ def pixels3d (surface):
     the array (see the Surface.lock - lock the Surface memory for pixel
     access method).
     """
-    if __arraytype == "numeric":
-        return numericsf.pixels3d (surface)
-    elif __arraytype == "numpy":
-        return numpysf.pixels3d (surface)
-    raise NotImplementedError("surface arrays are not supported")
+    return numpysf.pixels3d (surface)
 
 def array_alpha (surface):
     """pygame.surfarray.array_alpha (Surface): return array
@@ -208,11 +160,7 @@ def array_alpha (surface):
     (see the Surface.lock - lock the Surface memory for pixel access
     method).
     """
-    if __arraytype == "numeric":
-        return numericsf.array_alpha (surface)
-    elif __arraytype == "numpy":
-        return numpysf.array_alpha (surface)
-    raise NotImplementedError("surface arrays are not supported")
+    return numpysf.array_alpha (surface)
 
 def pixels_alpha (surface):
     """pygame.surfarray.pixels_alpha (Surface): return array
@@ -229,11 +177,7 @@ def pixels_alpha (surface):
     The Surface this array references will remain locked for the
     lifetime of the array.
     """
-    if __arraytype == "numeric":
-        return numericsf.pixels_alpha (surface)
-    elif __arraytype == "numpy":
-        return numpysf.pixels_alpha (surface)
-    raise NotImplementedError("surface arrays are not supported")
+    return numpysf.pixels_alpha (surface)
 
 def pixels_red (surface):
     """pygame.surfarray.pixels_red (Surface): return array
@@ -249,9 +193,7 @@ def pixels_red (surface):
     The Surface this array references will remain locked for the
     lifetime of the array.
     """
-    if __arraytype == "numpy":
-        return numpysf.pixels_red (surface)
-    raise NotImplementedError("surface arrays are not supported")
+    return numpysf.pixels_red (surface)
 
 def pixels_green (surface):
     """pygame.surfarray.pixels_green (Surface): return array
@@ -267,9 +209,7 @@ def pixels_green (surface):
     The Surface this array references will remain locked for the
     lifetime of the array.
     """
-    if __arraytype == "numpy":
-        return numpysf.pixels_green (surface)
-    raise NotImplementedError("surface arrays are not supported")
+    return numpysf.pixels_green (surface)
 
 def pixels_blue (surface):
     """pygame.surfarray.pixels_blue (Surface): return array
@@ -285,9 +225,7 @@ def pixels_blue (surface):
     The Surface this array references will remain locked for the
     lifetime of the array.
     """
-    if __arraytype == "numpy":
-        return numpysf.pixels_blue (surface)
-    raise NotImplementedError("surface arrays are not supported")
+    return numpysf.pixels_blue (surface)
 
 def array_colorkey (surface):
     """pygame.surfarray.array_colorkey (Surface): return array
@@ -304,11 +242,7 @@ def array_colorkey (surface):
     This function will temporarily lock the Surface as pixels are
     copied.
     """
-    if __arraytype == "numeric":
-        return numericsf.array_colorkey (surface)
-    elif __arraytype == "numpy":
-        return numpysf.array_colorkey (surface)
-    raise NotImplementedError("surface arrays are not supported")
+    return numpysf.array_colorkey (surface)
 
 def make_surface(array):
     """pygame.surfarray.make_surface (array): return Surface
@@ -317,12 +251,8 @@ def make_surface(array):
 
     Create a new Surface that best resembles the data and format on the
     array. The array can be 2D or 3D with any sized integer values.
-    """ 
-    if __arraytype == "numeric":
-        return numericsf.make_surface (array)
-    elif __arraytype == "numpy":
-        return numpysf.make_surface (array)
-    raise NotImplementedError("surface arrays are not supported")
+    """
+    return numpysf.make_surface (array)
 
 def map_array (surface, array):
     """pygame.surfarray.map_array (Surface, array3d): return array2d
@@ -333,71 +263,28 @@ def map_array (surface, array):
     format to control the conversion. Palette surface formats are not
     supported.
     """
-    if __arraytype == "numeric":
-        return numericsf.map_array (surface, array)
-    elif __arraytype == "numpy":
-        return numpysf.map_array (surface, array)
-    raise NotImplementedError("surface arrays are not supported")
+    return numpysf.map_array (surface, array)
 
 def use_arraytype (arraytype):
     """pygame.surfarray.use_arraytype (arraytype): return None
 
-    Sets the array system to be used for surface arrays.
-
-    Uses the requested array type for the module functions.
-    Currently supported array types are:
-
-      numeric (deprecated; to be removed in Pygame 1.9.3)
-      numpy
-
-    If the requested type is not available, a ValueError will be raised.
+    DEPRECATED - only numpy arrays are now supported.
     """
-    global __arraytype
-    global numericsf
-
     arraytype = arraytype.lower ()
-    if arraytype == "numeric":
-        if __hasnumeric:
-            import pygame._numericsurfarray as numericsf
-            __arraytype = arraytype
-        else:
-            raise ValueError("Numeric arrays are not available")
-    elif arraytype == "numpy":
-        if __hasnumpy:
-            __arraytype = arraytype
-        else:
-            raise ValueError("numpy arrays are not available")
-    else:
+    if arraytype != "numpy":
         raise ValueError("invalid array type")
 
 def get_arraytype ():
     """pygame.surfarray.get_arraytype (): return str
 
-    Gets the currently active array type.
-
-    Returns the currently active array type. This will be a value of the
-    get_arraytypes() tuple and indicates which type of array module is
-    used for the array creation.
+    DEPRECATED - only numpy arrays are now supported.
     """
-    return __arraytype
+    return "numpy"
 
 def get_arraytypes ():
     """pygame.surfarray.get_arraytypes (): return tuple
 
-    Gets the array system types currently supported.
-
-    Checks, which array system types are available and returns them as a
-    tuple of strings. The values of the tuple can be used directly in
-    the use_arraytype () method.
-
-    If no supported array system could be found, None will be returned.
+    DEPRECATED - only numpy arrays are now supported.
     """
-    vals = []
-    if __hasnumeric:
-        vals.append ("numeric")
-    if __hasnumpy:
-        vals.append ("numpy")
-    if len (vals) == 0:
-        return None
-    return tuple (vals)
+    return ("numpy",)
 
