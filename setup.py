@@ -16,7 +16,7 @@ EXTRAS = {}
 
 METADATA = {
     "name":             "pygame",
-    "version":          "1.9.2a0",
+    "version":          "1.9.2.dev1",
     "license":          "LGPL",
     "url":              "http://www.pygame.org",
     "author":           "Pete Shinners, Rene Dudfield, Marcus von Appen, Bob Pendleton, others...",
@@ -25,14 +25,7 @@ METADATA = {
     "long_description": DESCRIPTION,
 }
 
-import sys
-
-if "bdist_msi" in sys.argv:
-    # hack the version name to a format msi doesn't have trouble with
-    METADATA["version"] = METADATA["version"].replace("pre", "a0")
-    METADATA["version"] = METADATA["version"].replace("rc", "b0")
-    METADATA["version"] = METADATA["version"].replace("release", "")
-    
+import sys 
 
 if not hasattr(sys, 'version_info') or sys.version_info < (2,3):
     raise SystemExit("Pygame requires Python version 2.3 or above.")
