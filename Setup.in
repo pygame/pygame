@@ -11,7 +11,6 @@ SDL = -I/usr/include/SDL -D_REENTRANT -lSDL
 FONT = -lSDL_ttf
 IMAGE = -lSDL_image
 MIXER = -lSDL_mixer
-SMPEG = -lsmpeg
 PNG = -lpng
 JPEG = -ljpeg
 SCRAP = -lX11
