@@ -116,8 +116,6 @@ DEPS = [
     Dependency('PORTMIDI', 'portmidi.h', 'libportmidi', ['portmidi']),
     DependencyProg('FREETYPE', 'FREETYPE_CONFIG', '/usr/X11R6/bin/freetype-config', '2.0',
                    ['freetype'], '--ftversion'),
-    Dependency('AVFORMAT', '','',[]),
-    Dependency('SWSCALE', '','',[]),
     # Scrap is included in sdlmain_osx, there is nothing to look at.
     # Dependency('SCRAP', '','',[]),
 ]
