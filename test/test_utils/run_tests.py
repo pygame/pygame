@@ -6,6 +6,8 @@ if __name__ == '__main__':
 
 test_pkg_name = '.'.join(__name__.split('.')[0:-2])
 is_pygame_pkg = test_pkg_name == 'pygame.tests'
+test_runner_mod = test_pkg_name + '.test_utils.test_runner'
+
 if is_pygame_pkg:
     from pygame.tests import test_utils
     from pygame.tests.test_utils \
@@ -248,7 +250,7 @@ def run(*args, **kwds):
         def sub_test(module):
             print ('loading %s' % module)
 
-            cmd = [option_python, '-m', 'test.test_utils.test_runner',
+            cmd = [option_python, '-m', test_runner_mod,
                    module] + pass_on_args
 
             return (module,
