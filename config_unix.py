@@ -160,8 +160,7 @@ def main():
         #Dependency('GFX', 'SDL_gfxPrimitives.h', 'libSDL_gfx.so', ['SDL_gfx']),
     ]
     if not DEPS[0].found:
-        print ('Unable to run "sdl-config". Please make sure a development version of SDL is installed.')
-        raise SystemExit
+        sys.exit('Unable to run "sdl-config". Please make sure a development version of SDL is installed.')
 
     if localbase:
         incdirs = [localbase+d for d in origincdirs]
