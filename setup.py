@@ -143,7 +143,7 @@ if "-noheaders" in sys.argv:
 
 
 #sanity check for any arguments
-if len(sys.argv) == 1:
+if len(sys.argv) == 1 and sys.stdout.isatty():
     if sys.version_info[0] >= 3:
         reply = input('\nNo Arguments Given, Perform Default Install? [Y/n]')
     else:
