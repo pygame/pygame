@@ -24,10 +24,12 @@ if 'ORIGLIBDIRS' in os.environ and os.environ['ORIGLIBDIRS'] != "":
 
 def confirm(message):
     "ask a yes/no question, return result"
+    if not sys.stdout.isatty():
+        return False
     reply = raw_input('\n' + message + ' [Y/n]:')
     if reply and (reply[0].lower()) == 'n':
-        return 0
-    return 1
+        return False
+    return True
 
 class DependencyProg:
     def __init__(self, name, envname, exename, minver, defaultlibs, version_flag="--version"):
@@ -223,7 +225,7 @@ def main():
 Warning, some of the pygame dependencies were not found. Pygame can still
 compile and install, but games that depend on those missing dependencies
 will not run. Would you like to continue the configuration?"""):
-                raise SystemExit
+                raise SystemExit("Missing dependencies")
             break
 
     return DEPS
