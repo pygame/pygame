@@ -17,7 +17,6 @@ class MatchTestCase(unittest.TestCase):
         ('MIXER', ['SDL_mixer.dll', 'sdl_MIXER.DLL', 'libsdl_mixer.dll'], ['sdl_mixer.dll.a']),
         ('IMAGE', ['SDL_image.dll', 'sdl_IMAGE.DLL', 'libsdl_image.dll'], ['sdl_image.dll.a']),
         ('FONT', ['SDL_ttf.dll', 'sdl_TTF.DLL', 'libsdl_ttf.dll'], ['sdl_ttf.dll.a']),
-        ('SMPEG', ['smpeg.dll', 'SMPEG.DLL', 'libsmpeg.dll'], ['smpeg.dll.a']),
         ('TIFF', ['tiff.dll', 'TIFF.DLL', 'libtiff.dll'], ['tiff.dll.a']),
         ('JPEG', ['jpeg.dll', 'JPEG.DLL', 'libjpeg.dll'], ['jpeg.dll.a']),
         ('PNG', ['libpng13.dll', 'LIBPNG13.DLL', 'libpng12.dll', 'png12.dll', 'png13.dll', 'libpng12-0.dll'],

@@ -17,12 +17,11 @@ import re
 # name, root, File regex, Dependency list of names
 libraries = [
     ('MIXER', 'SDL_mixer', r'SDL_mixer\.dll$',
-     ['SDL', 'VORBISFILE', 'SMPEG']),
+     ['SDL', 'VORBISFILE']),
     ('VORBISFILE', 'vorbisfile',  r'libvorbisfile-3\.dll$',
      ['VORBIS']),
     ('VORBIS', 'vorbis', r'libvorbis-0\.dll$', ['OGG']),
     ('OGG', 'ogg', r'libogg-0\.dll$', []),
-    ('SMPEG', 'smpeg', r'smpeg\.dll$', ['SDL']),
     ('IMAGE', 'SDL_image', r'SDL_image\.dll$',
      ['SDL', 'JPEG', 'PNG', 'TIFF']),
     ('TIFF', 'tiff', r'libtiff-3\.dll$',  ['JPEG', 'Z']),

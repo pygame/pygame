@@ -19,7 +19,7 @@ localbase = os.environ.get('LOCALBASE', '')
 
 #these get prefixes with '/usr/local' and /mingw or the $LOCALBASE
 origincdirs = ['/include', '/include/SDL', '/include/SDL11',
-               '/include/smpeg', '/include/libpng12', ]
+               '/include/libpng12', ]
 origlibdirs = ['/lib']
 
 
@@ -232,7 +232,6 @@ def main():
         Dependency('FONT', 'SDL_ttf.h', 'libSDL_ttf.dll.a'),
         Dependency('IMAGE', 'SDL_image.h', 'libSDL_image.dll.a'),
         Dependency('MIXER', 'SDL_mixer.h', 'libSDL_mixer.dll.a'),
-        DependencyProg('SMPEG', 'SMPEG_CONFIG', 'smpeg-config', '0.4.3', m),
         Dependency('PNG', 'png.h', 'libpng.dll.a'),
         Dependency('JPEG', 'jpeglib.h', 'libjpeg.dll.a'),
         Dependency('PORTMIDI', 'portmidi.h', 'libportmidi.dll.a'),
