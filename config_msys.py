@@ -35,10 +35,12 @@ def print_(*args, **kwds):
 
 def confirm(message):
     "ask a yes/no question, return result"
+    if not sys.stdout.isatty():
+        return False
     reply = msys.msys_raw_input("\n%s [Y/n]:" % message)
     if reply and string.lower(reply[0]) == 'n':
-        return 0
-    return 1
+        return False
+    return True
 
 class DependencyProg:
     needs_dll = True
@@ -65,7 +67,7 @@ class DependencyProg:
             flags = flags.split()
             if minver and self.ver < minver:
                 err= 'WARNING: requires %s version %s (%s found)' % (self.name, self.ver, minver)
-                raise ValueError, err
+                raise ValueError(err)
             self.found = 1
             self.cflags = ''
             for f in flags:
@@ -287,7 +289,7 @@ def main():
 Warning, some of the pygame dependencies were not found. Pygame can still
 compile and install, but games that depend on those missing dependencies
 will not run. Would you like to continue the configuration?"""):
-                raise SystemExit()
+                raise SystemExit("Missing dependencies")
             break
 
     return DEPS
