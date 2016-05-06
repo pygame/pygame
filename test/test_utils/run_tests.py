@@ -30,6 +30,8 @@ import pygame.threads
 import sys
 import os
 import re
+import shutil
+import tempfile
 import time
 import optparse
 import random
@@ -142,6 +144,8 @@ def run(*args, **kwds):
     TEST_MODULE_RE = re.compile('^(.+_test)\.py$')
 
     test_mods_pkg_name = test_pkg_name
+
+    working_dir_temp = tempfile.mkdtemp()
     
     if option_fake is not None:
         test_mods_pkg_name = '.'.join([test_mods_pkg_name,
@@ -150,7 +154,7 @@ def run(*args, **kwds):
         test_subdir = os.path.join(fake_test_subdir, option_fake)
         working_dir = test_subdir
     else:
-        working_dir = main_dir
+        working_dir = working_dir_temp
 
 
     # Added in because some machines will need os.environ else there will be
@@ -316,6 +320,8 @@ def run(*args, **kwds):
             results_file.write(pformat(results))
         finally:
             results_file.close()
+
+    shutil.rmtree(working_dir_temp)
 
     return total, fails
 
