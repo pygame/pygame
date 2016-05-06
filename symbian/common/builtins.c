@@ -4,8 +4,6 @@ extern void initbase(void);
 extern void initconstants(void);
 extern void initrect(void);
 extern void initrwobject(void);
-extern void init_numericsndarray (void);
-extern void init_numericsurfarray (void);
 extern void initbufferproxy (void);
 extern void initcolor (void);
 extern void initconstants (void);

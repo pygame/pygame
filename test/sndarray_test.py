@@ -17,24 +17,10 @@ else:
 import pygame
 from pygame.compat import as_bytes
 
-arraytype = ""
-try:
-    import pygame.sndarray
-except ImportError:
-    pass
-else:
-    arraytype = pygame.sndarray.get_arraytype()
-    if arraytype == 'numpy':
-        from numpy import \
-             int8, int16, uint8, uint16, array, alltrue
-    elif arraytype == 'numeric':
-        from Numeric import \
-             Int8 as int8, Int16 as int16, UInt8 as uint8, UInt16 as uint16, \
-             array, alltrue
-    else:
-        print ("Unknown array type %s; tests skipped" %
-               (pygame.sndarray.get_arraytype(),))
-        arraytype = ""
+import pygame.sndarray
+from numpy import \
+     int8, int16, uint8, uint16, array, alltrue
+arraytype = "numpy"
 
 
 class SndarrayTest (unittest.TestCase):
@@ -95,7 +81,7 @@ class SndarrayTest (unittest.TestCase):
             self.fail("no array package installed")
 
         self.failUnless((pygame.sndarray.get_arraytype() in
-                         ['numpy', 'numeric']),
+                         ['numpy']),
                         ("unknown array type %s" %
                          pygame.sndarray.get_arraytype()))
 
@@ -104,22 +90,10 @@ class SndarrayTest (unittest.TestCase):
             self.fail("no array package installed")
 
         arraytypes = pygame.sndarray.get_arraytypes()
-        try:
-            import numpy
-        except ImportError:
-            self.failIf('numpy' in arraytypes)
-        else:
-            self.failUnless('numpy' in arraytypes)
-
-        try:
-            import Numeric
-        except ImportError:
-            self.failIf('numeric' in arraytypes)
-        else:
-            self.failUnless('numeric' in arraytypes)
+        self.failUnless('numpy' in arraytypes)
 
         for atype in arraytypes:
-            self.failUnless(atype in ['numpy', 'numeric'],
+            self.failUnless(atype in ['numpy'],
                             "unknown array type %s" % atype)
 
     def test_make_sound(self):
@@ -207,23 +181,8 @@ class SndarrayTest (unittest.TestCase):
         def do_use_arraytype(atype):
             pygame.sndarray.use_arraytype(atype)
 
-        try:
-            import numpy
-        except ImportError:
-            self.failUnlessRaises(ValueError, do_use_arraytype, 'numpy')
-            self.failIfEqual(pygame.sndarray.get_arraytype(), 'numpy')
-        else:
-            pygame.sndarray.use_arraytype('numpy')
-            self.failUnlessEqual(pygame.sndarray.get_arraytype(), 'numpy')
-
-        try:
-            import Numeric
-        except ImportError:
-            self.failUnlessRaises(ValueError, do_use_arraytype, 'numeric')
-            self.failIfEqual(pygame.sndarray.get_arraytype(), 'numeric')
-        else:
-            pygame.sndarray.use_arraytype('numeric')
-            self.failUnlessEqual(pygame.sndarray.get_arraytype(), 'numeric')
+        pygame.sndarray.use_arraytype('numpy')
+        self.failUnlessEqual(pygame.sndarray.get_arraytype(), 'numpy')
 
         self.failUnlessRaises(ValueError, do_use_arraytype, 'not an option')
 

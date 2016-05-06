@@ -26,8 +26,12 @@ def print_(*args, **kwds):
     # Python 3.0. Also, this function can be overridden for testing.
     msysio.print_(*args, **kwds)
 
-def confirm(message):
+def confirm(message, default=None):
     "ask a yes/no question, return result"
+    if not sys.stdout.isatty():
+        if default is None:
+            raise RuntimeError("Non interactive, tried to ask: %s" % message)
+        return default
     reply = msysio.raw_input_("\n%s [Y/n]:" % message)
     if reply and reply[0].lower() == 'n':
         return False
@@ -148,10 +152,10 @@ def main():
         additional_platform_setup = open("Setup_Unix.in", "r").readlines()
     
     if os.path.isfile('Setup'):
-        if "-auto" in sys.argv or confirm('Backup existing "Setup" file'):
+        if "-auto" in sys.argv or confirm('Backup existing "Setup" file', False):
             shutil.copyfile('Setup', 'Setup.bak')
     if not "-auto" in sys.argv and os.path.isdir('build'):
-        if confirm('Remove old build directory (force recompile)'):
+        if confirm('Remove old build directory (force recompile)', False):
             shutil.rmtree('build', 0)
 
     deps = CFG.main()
