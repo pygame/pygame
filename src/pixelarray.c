@@ -1094,6 +1094,7 @@ _array_assign_sequence(PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
     Uint32 *val_color_p;
     Py_ssize_t x;
     Py_ssize_t y;
+    PyObject *item;
 
     if (val_dim0 != dim0) {
         PyErr_SetString(PyExc_ValueError, "sequence size mismatch");
@@ -1114,11 +1115,13 @@ _array_assign_sequence(PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
         return -1;
     }
     for (x = 0; x < val_dim0; ++x) {
-        if (!_get_color_from_object(PySequence_ITEM(val, x),
-                                    format, (val_colors + x))) {
+        item = PySequence_ITEM(val, x);
+        if (!_get_color_from_object(item, format, (val_colors + x))) {
+            Py_DECREF(item);
             free (val_colors);
             return -1;
         }
+        Py_DECREF(item);
     }
 
     pixelrow = pixels;
@@ -1617,7 +1620,7 @@ _pxarray_subscript(PyPixelArray *array, PyObject *op)
      * First check array[x,y], then array[x:y:z], then array[x]
      * Otherwise it'll fail.
      */
-    if (PySequence_Check(op)) {
+    if (PyTuple_Check(op)) {
         PyObject *obj;
         Py_ssize_t size = PySequence_Size(op);
         Py_ssize_t xstart, xstop, xstep;
@@ -1632,7 +1635,7 @@ _pxarray_subscript(PyPixelArray *array, PyObject *op)
             return RAISE(PyExc_IndexError, "too many indices for the array");
         }
 
-        obj = PySequence_ITEM(op, 0);
+        obj = PyTuple_GET_ITEM(op, 0);
         if (obj == Py_Ellipsis || obj == Py_None) {
             /* Operator is the ellipsis or None
              * array[...,XXX], array[None,XXX]
@@ -1647,7 +1650,7 @@ _pxarray_subscript(PyPixelArray *array, PyObject *op)
         }
 
         if (size == 2) {
-            obj = PySequence_ITEM(op, 1);
+            obj = PyTuple_GET_ITEM(op, 1);
             if (obj == Py_Ellipsis || obj == Py_None) {
                 /* Operator is the ellipsis or None
                  * array[XXX,...], array[XXX,None]
@@ -1741,7 +1744,7 @@ _pxarray_ass_subscript(PyPixelArray *array, PyObject* op, PyObject* value)
      * First check array[x,y], then array[x:y:z], then array[x]
      * Otherwise it'll fail.
      */
-    if (PySequence_Check(op))
+    if (PyTuple_Check(op))
     {
         PyPixelArray *tmparray;
         PyObject *obj;
@@ -1755,7 +1758,7 @@ _pxarray_ass_subscript(PyPixelArray *array, PyObject* op, PyObject* value)
             return -1;
         }
 
-        obj = PySequence_ITEM(op, 0);
+        obj = PyTuple_GET_ITEM(op, 0);
         if (obj == Py_Ellipsis || obj == Py_None) {
             /* Operator is the ellipsis or None
              * array[...,XXX], array[None,XXX]
@@ -1770,7 +1773,7 @@ _pxarray_ass_subscript(PyPixelArray *array, PyObject* op, PyObject* value)
         }
 
         if (size == 2) {
-            obj = PySequence_ITEM(op, 1);
+            obj = PyTuple_GET_ITEM(op, 1);
             if (obj == Py_Ellipsis || obj == Py_None) {
                 /* Operator is the ellipsis or None
                  * array[XXX,...], array[XXX,None]

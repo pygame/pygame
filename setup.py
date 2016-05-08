@@ -16,7 +16,7 @@ EXTRAS = {}
 
 METADATA = {
     "name":             "pygame",
-    "version":          "1.9.2a0",
+    "version":          "1.9.2.dev1",
     "license":          "LGPL",
     "url":              "http://www.pygame.org",
     "author":           "Pete Shinners, Rene Dudfield, Marcus von Appen, Bob Pendleton, others...",
@@ -25,14 +25,7 @@ METADATA = {
     "long_description": DESCRIPTION,
 }
 
-import sys
-
-if "bdist_msi" in sys.argv:
-    # hack the version name to a format msi doesn't have trouble with
-    METADATA["version"] = METADATA["version"].replace("pre", "a0")
-    METADATA["version"] = METADATA["version"].replace("rc", "b0")
-    METADATA["version"] = METADATA["version"].replace("release", "")
-    
+import sys 
 
 if not hasattr(sys, 'version_info') or sys.version_info < (2,3):
     raise SystemExit("Pygame requires Python version 2.3 or above.")
@@ -143,7 +136,7 @@ if "-noheaders" in sys.argv:
 
 
 #sanity check for any arguments
-if len(sys.argv) == 1:
+if len(sys.argv) == 1 and sys.stdout.isatty():
     if sys.version_info[0] >= 3:
         reply = input('\nNo Arguments Given, Perform Default Install? [Y/n]')
     else:
@@ -177,23 +170,6 @@ except:
 perhaps make a clean copy from "Setup.in".""")
     raise
 
-#python 3.x: remove modules not yet ported
-if sys.version_info >= (3, 0, 0):
-    python3_skip = ['_movie',
-                    '_numericsurfarray',
-                    '_numericsndarray',
-                   ]
-#    if (sys.platform != 'linux2'):
-#        python3_skip.append('scrap')
-    tmp_extensions = extensions
-    extensions = []
-    for e in tmp_extensions:
-        if e.name in python3_skip:
-            print ("Skipping module %s for Python %s build." %
-                   (e.name, sys.version))
-        else:
-            extensions.append(e)
-    del tmp_extensions
 
 #decide whether or not to enable new buffer protocol support
 enable_newbuf = False

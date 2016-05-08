@@ -73,7 +73,21 @@ typedef FT_UInt GlyphIndex_t;
 /**********************************************************
  * Internal data structures
  **********************************************************/
-typedef struct {
+ 
+/* FreeTypeInstance: the global freetype 2 library state.
+ *
+ * Instances of this struct are created by _PGFT_Init, and
+ * destroyed by _PGFT_Quit. The instances are reference counted.
+ * When adding a local reference, be sure to increment ref_count;
+ * _PTFT_Init returns an instance with ref_count equal one.
+ * When removing a reference, call _PGFT_Quit, which will decrement
+ * the reference count and free the resource if the count reaches
+ * zero.
+ */
+typedef struct freetypeinstance_ {
+    ssize_t ref_count;
+
+    /* Internal */
     FT_Library library;
     FTC_Manager cache_manager;
     FTC_CMapCache cache_charmap;

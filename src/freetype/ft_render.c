@@ -86,8 +86,6 @@ _validate_view_format(const char *format)
     /* default: an unrecognized format character; raise exception later */
     }
     if (format[i] != '\0') {
-        PyErr_Format(PyExc_ValueError,
-                     "Unsupport array item format '%100s'", format);
         return -1;
     }
 
@@ -222,6 +220,8 @@ _PGFT_GetRenderMetrics(const FontRenderMode *mode, Layout *text,
     if (mode->style & FT_STYLE_UNDERLINE) {
         FT_Fixed half_size = (text->underline_size + 1) / 2;
         FT_Fixed adjusted_pos;
+        FT_Fixed uline_top;
+        FT_Fixed uline_bottom;
 
         if (mode->underline_adjustment < 0) {
             adjusted_pos = FT_MulFix(text->ascender,
@@ -231,14 +231,16 @@ _PGFT_GetRenderMetrics(const FontRenderMode *mode, Layout *text,
             adjusted_pos = FT_MulFix(text->underline_pos,
                                      mode->underline_adjustment);
         }
-        if (adjusted_pos + half_size > max_y) {
-            max_y = adjusted_pos + half_size;
+        uline_top = adjusted_pos - half_size;
+        uline_bottom = uline_top + text->underline_size;
+        if (uline_bottom > max_y) {
+            max_y = uline_bottom;
         }
-        if (adjusted_pos - half_size < min_y) {
-            min_y = adjusted_pos - half_size;
+        if (uline_top < min_y) {
+            min_y = uline_top;
         }
         *underline_size = text->underline_size;
-        *underline_top = adjusted_pos - half_size;
+        *underline_top = uline_top;
     }
 
     offset->x = -min_x;
@@ -664,7 +666,12 @@ _PGFT_Render_Array(FreeTypeInstance *ft, PgFontObject *fontobj,
         return -1;
     }
     if (_validate_view_format(view_p->format)) {
+        static const char fmt[] = "Unsupported array item format '%.*s'";
+        char msg[100 + sizeof(fmt)];
+
+        sprintf(msg, fmt, (int)(sizeof(msg) - sizeof(fmt)), view_p->format);
         PgBuffer_Release(&pg_view);
+        PyErr_SetString(PyExc_ValueError, msg);
         return -1;
     }
 

@@ -35,6 +35,21 @@ static PyTypeObject PyRect_Type;
 static PyObject* rect_new (PyTypeObject *type, PyObject *args, PyObject *kwds);
 static int rect_init (PyRectObject *self, PyObject *args, PyObject *kwds);
 
+PyObject*
+rect_subtype_new4 (PyTypeObject *type, int x, int y, int w, int h)
+{
+    PyRectObject* rect;
+    rect = (PyRectObject *) PyRect_Type.tp_new (type, NULL, NULL);
+    if (rect)
+    {
+        rect->r.x = x;
+        rect->r.y = y;
+        rect->r.w = w;
+        rect->r.h = h;
+    }
+    return (PyObject*)rect;
+}
+
 GAME_Rect*
 GameRect_FromObject (PyObject* obj, GAME_Rect* temp)
 {
@@ -134,31 +149,13 @@ GameRect_FromObject (PyObject* obj, GAME_Rect* temp)
 PyObject*
 PyRect_New (SDL_Rect* r)
 {
-    PyRectObject* rect;
-    rect = (PyRectObject *) PyRect_Type.tp_new (&PyRect_Type, NULL, NULL);
-    if (rect)
-    {
-        rect->r.x = r->x;
-        rect->r.y = r->y;
-        rect->r.w = r->w;
-        rect->r.h = r->h;
-    }
-    return (PyObject*)rect;
+    return rect_subtype_new4 (&PyRect_Type, r->x, r->y, r->w, r->h);
 }
 
 PyObject*
 PyRect_New4 (int x, int y, int w, int h)
 {
-    PyRectObject* rect;
-    rect = (PyRectObject *) PyRect_Type.tp_new (&PyRect_Type, NULL, NULL);
-    if (rect)
-    {
-        rect->r.x = x;
-        rect->r.y = y;
-        rect->r.w = w;
-        rect->r.h = h;
-    }
-    return (PyObject*)rect;
+    return rect_subtype_new4 (&PyRect_Type, x, y, w, h);
 }
 
 static int
@@ -198,7 +195,9 @@ rect_move (PyObject* oself, PyObject* args)
     if (!TwoIntsFromObj (args, &x, &y))
         return RAISE (PyExc_TypeError, "argument must contain two numbers");
 
-    return PyRect_New4 (self->r.x + x, self->r.y + y, self->r.w, self->r.h);
+    return rect_subtype_new4 (Py_TYPE (oself),
+                              self->r.x + x, self->r.y + y,
+                              self->r.w, self->r.h);
 }
 
 static PyObject*
@@ -224,8 +223,9 @@ rect_inflate (PyObject* oself, PyObject* args)
     if (!TwoIntsFromObj (args, &x, &y))
         return RAISE (PyExc_TypeError, "argument must contain two numbers");
 
-    return PyRect_New4 (self->r.x - x / 2, self->r.y - y / 2,
-                        self->r.w + x, self->r.h + y);
+    return rect_subtype_new4 (Py_TYPE (oself),
+                              self->r.x - x / 2, self->r.y - y / 2,
+                              self->r.w + x, self->r.h + y);
 }
 
 static PyObject*
@@ -257,7 +257,7 @@ rect_union (PyObject* oself, PyObject* args)
     y = MIN (self->r.y, argrect->y);
     w = MAX (self->r.x + self->r.w, argrect->x + argrect->w) - x;
     h = MAX (self->r.y + self->r.h, argrect->y + argrect->h) - y;
-    return PyRect_New4 (x, y, w, h);
+    return rect_subtype_new4 (Py_TYPE (oself), x, y, w, h);
 }
 
 static PyObject*
@@ -300,8 +300,14 @@ rect_unionall (PyObject* oself, PyObject* args)
     r = self->r.x + self->r.w;
     b = self->r.y + self->r.h;
     size = PySequence_Length (list); /*warning, size could be -1 on error?*/
-    if (size < 1)
-        return PyRect_New4 (l, t, r-l, b-t);
+    if (size < 1) {
+        if (size < 0) {
+            /*Error.*/
+            return NULL;
+        }
+        /*Empty list: nothing to be done.*/
+        return rect_subtype_new4 (Py_TYPE (oself), l, t, r-l, b-t);
+    }
 
     for (loop = 0; loop < size; ++loop)
     {
@@ -319,7 +325,7 @@ rect_unionall (PyObject* oself, PyObject* args)
         b = MAX (b, argrect->y + argrect->h);
         Py_DECREF (obj);
     }
-    return PyRect_New4 (l, t, r-l, b-t);
+    return rect_subtype_new4 (Py_TYPE (oself), l, t, r-l, b-t);
 }
 
 static PyObject*
@@ -343,8 +349,14 @@ rect_unionall_ip (PyObject* oself, PyObject* args)
     b = self->r.y + self->r.h;
 
     size = PySequence_Length (list); /*warning, size could be -1 on error?*/
-    if (size < 1)
-        return PyRect_New4 (l, t, r-l, b-t);
+    if (size < 1) {
+        if (size < 0) {
+            /*Error.*/
+            return NULL;
+        }
+        /*Empty list: nothing to be done.*/
+        Py_RETURN_NONE;
+    }
 
     for (loop = 0; loop < size; ++loop)
     {
@@ -630,10 +642,10 @@ rect_clip (PyObject* self, PyObject* args)
     else
         goto nointersect;
 
-    return PyRect_New4 (x, y, w, h);
+    return rect_subtype_new4 (Py_TYPE (self), x, y, w, h);
 
 nointersect:
-    return PyRect_New4 (A->x, A->y, 0, 0);
+    return rect_subtype_new4 (Py_TYPE (self), A->x, A->y, 0, 0);
 }
 
 static PyObject*
@@ -681,7 +693,7 @@ rect_clamp (PyObject* oself, PyObject* args)
     else
         y = self->r.y;
 
-    return PyRect_New4 (x, y, self->r.w, self->r.h);
+    return rect_subtype_new4 (Py_TYPE (oself), x, y, self->r.w, self->r.h);
 }
 
 static PyObject*
@@ -704,7 +716,7 @@ rect_fit (PyObject* oself, PyObject* args)
     x = argrect->x + (argrect->w - w)/2;
     y = argrect->y + (argrect->h - h)/2;
 
-    return PyRect_New4 (x, y, w, h);
+    return rect_subtype_new4 (Py_TYPE (oself), x, y, w, h);
 }
 
 static PyObject*
@@ -754,7 +766,8 @@ static PyObject*
 rect_copy (PyObject* oself)
 {
     PyRectObject* self = (PyRectObject*)oself;
-    return PyRect_New4 (self->r.x, self->r.y, self->r.w, self->r.h);
+    return rect_subtype_new4 (Py_TYPE (oself),
+                              self->r.x, self->r.y, self->r.w, self->r.h);
 }
 
 static struct PyMethodDef rect_methods[] =

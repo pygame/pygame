@@ -11,15 +11,12 @@ SDL = -I/usr/include/SDL -D_REENTRANT -lSDL
 FONT = -lSDL_ttf
 IMAGE = -lSDL_image
 MIXER = -lSDL_mixer
-SMPEG = -lsmpeg
 PNG = -lpng
 JPEG = -ljpeg
 SCRAP = -lX11
 PORTMIDI = -lportmidi
 PORTTIME = -lporttime
 FREETYPE = -lfreetype
-AVFORMAT = -lavformat 
-SWSCALE = -lswscale 
 #--EndConfig
 
 DEBUG = 
@@ -32,10 +29,6 @@ imageext src/imageext.c $(SDL) $(IMAGE) $(PNG) $(JPEG) $(DEBUG)
 font src/font.c $(SDL) $(FONT) $(DEBUG)
 mixer src/mixer.c $(SDL) $(MIXER) $(DEBUG)
 mixer_music src/music.c $(SDL) $(MIXER) $(DEBUG)
-_numericsurfarray src/_numericsurfarray.c $(SDL) $(DEBUG)
-_numericsndarray src/_numericsndarray.c $(SDL) $(MIXER) $(DEBUG)
-#movie src/movie.c $(SDL) $(SMPEG) $(DEBUG)
-#_movie src/_gsound.c src/_gmovie.c src/_gcommand.c src/gmovie.c $(SDL) $(AVFORMAT) $(SWSCALE) $(MIXER) $(DEBUG)
 scrap src/scrap.c $(SDL) $(SCRAP) $(DEBUG)
 pypm src/pypm.c $(SDL) $(PORTMIDI) $(PORTTIME) $(DEBUG)
 

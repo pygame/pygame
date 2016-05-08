@@ -20,7 +20,6 @@ scrap_mac.c
 scrap_qnx.c
 scrap_win.c
 scrap_x11.c
-_numericsndarray.c
 joystick.c
 cdrom.c""".split()
 

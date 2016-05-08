@@ -116,6 +116,13 @@ The :mod:`freetype` module is new in Pygame 1.9.2
 
    Returns whether the the FreeType library is initialized.
 
+.. function:: get_cache_size
+
+   | :sl:`Return the glyph case size`
+   | :sg:`get_cache_size() -> long`
+
+   See :meth:`pygame.freetype.init()`.
+
 .. function:: get_default_resolution
 
    | :sl:`Return the default pixel size in dots per inch`
@@ -409,13 +416,13 @@ The :mod:`freetype` module is new in Pygame 1.9.2
       feature is an aid to using :meth:`render_to` in combination with
       :meth:`get_rect`. An example: ::
 
-	  def word_wrap(surf, text, font, color=(0, 0, 0)):
+          def word_wrap(surf, text, font, color=(0, 0, 0)):
               font.origin = True
               words = text.split(' ')
               width, height = surf.get_size()
               line_spacing = font.get_sized_height() + 2
               x, y = 0, line_spacing
-              space = font.get_rect(' ' * 2)  # second space given width 0
+              space = font.get_rect(' ')
               for word in words:
                   bounds = font.get_rect(word)
                   if x + bounds.width + bounds.x >= width:
@@ -473,11 +480,12 @@ The :mod:`freetype` module is new in Pygame 1.9.2
 
       ::
 
-          STYLE_NONE
+          STYLE_NORMAL
           STYLE_UNDERLINE
           STYLE_OBLIQUE
           STYLE_STRONG
-	  STYLE_WIDE
+          STYLE_WIDE
+          STYLE_DEFAULT
 
       These constants may be found on the FreeType constants module.
       Optionally, the default style can be modified or obtained accessing the
@@ -487,6 +495,10 @@ The :mod:`freetype` module is new in Pygame 1.9.2
       scalable fonts only. An attempt to set either for a bitmap font raises
       an AttributeError. An attempt to set either for an inactive font,
       as returned by :meth:`Font.__new__`, raises a RuntimeError.
+
+      Assigning :const:`STYLE_DEFAULT` to the :attr:`style` property leaves
+      the property unchanged, as this property defines the default.
+      The :attr:`style` property will never return :const:`STYLE_DEFAULT`.
 
    .. attribute:: underline
 
