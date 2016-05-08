@@ -17,6 +17,16 @@ except NameError:
 
 huntpaths = ['..', '..\\..', '..\\*', '..\\..\\*']
 
+def get_ptr_size():
+    return 64 if sys.maxsize > 2**32 else 32
+
+def as_machine_type(size):
+    """Return pointer bit size as a Windows machine type"""
+    if size == 32:
+        return "x86"
+    if size == 64:
+        return "x64"
+    raise BuildError("Unknown pointer size {}".format(size))
 
 class Dependency(object):
     inc_hunt = ['include']
@@ -205,17 +215,11 @@ DEPS.add('FONT', 'SDL_ttf', ['SDL_ttf-[2-9].*'], r'(lib){0,1}SDL_ttf\.dll$', ['S
 DEPS.add('IMAGE', 'SDL_image', ['SDL_image-[1-9].*'], r'(lib){0,1}SDL_image\.dll$',
          ['SDL', 'jpeg', 'png', 'tiff'], 0),
 DEPS.add('MIXER', 'SDL_mixer', ['SDL_mixer-[1-9].*'], r'(lib){0,1}SDL_mixer\.dll$',
-         ['SDL', 'vorbisfile', 'smpeg'])
-DEPS.add('SMPEG', 'smpeg', ['smpeg-[0-9].*', 'smpeg'], r'smpeg\.dll$', ['SDL'])
+         ['SDL', 'vorbisfile'])
 DEPS.add('PNG', 'png', ['libpng-[1-9].*'], r'(png|libpng13)\.dll$', ['z'])
 DEPS.add('JPEG', 'jpeg', ['jpeg-[6-9]*'], r'(lib){0,1}jpeg\.dll$')
 DEPS.add('PORTMIDI', 'portmidi', ['portmidi'], r'portmidi\.dll$')
-#DEPS.add('FFMPEG', 'libavformat/avformat.h', 'libavformat.a', ['avformat', 'swscale', 'SDL_mixer'], r'avformat-52\.dll')   
-dep = Dependency('FFMPEG', [r'avformat\.dll', r'swscale\.dll', r'SDL_mixer-[1-9].*'], ['avformat', 'swscale', 'SDL_mixer'], required=0)
-DEPS.dependencies.append(dep)
-DEPS.dlls.append(DependencyDLL(r'avformat\.dll', link=dep, libs=['avformat']))
-DEPS.dlls.append(DependencyDLL(r'swscale\.dll', link=dep, libs=['swscale']))
-DEPS.dlls.append(DependencyDLL(r'(lib){0,1}SDL_mixer\.dll$', link=dep, libs=['SDL', 'vorbisfile', 'smpeg']))
+DEPS.dlls.append(DependencyDLL(r'(lib){0,1}SDL_mixer\.dll$', link=dep, libs=['SDL', 'vorbisfile']))
 #DEPS.add('PORTTIME', 'porttime', ['porttime'], r'porttime\.dll$')
 DEPS.add_dll(r'(lib){0,1}tiff\.dll$', 'tiff', ['tiff-[3-9].*'], ['jpeg', 'z'])
 DEPS.add_dll(r'(z|zlib1)\.dll$', 'z', ['zlib-[1-9].*'])
@@ -228,13 +232,13 @@ for d in get_definitions():
     DEPS.add_win(d.name, d.value)
 
 
-def setup_prebuilt():
+def setup_prebuilt(prebuilt_dir):
     setup = open('Setup', 'w')
     try:
         try:
-            setup_win_in = open(os.path.join('prebuilt', 'Setup_Win.in'))
+            setup_win_in = open(os.path.join(prebuilt_dir, 'Setup_Win.in'))
         except IOError:
-            raise IOError("prebuilt missing required Setup_Win.in")
+            raise IOError("%s missing required Setup_Win.in" % prebuilt_dir)
 
         # Copy Setup.in to Setup, replacing the BeginConfig/EndConfig
         # block with prebuilt\Setup_Win.in .
@@ -265,10 +269,11 @@ def setup_prebuilt():
 
 
 def main():
-    if os.path.isdir('prebuilt'):
-        reply = raw_input('\nUse the SDL libraries in "prebuilt"? [Y/n]')
+    prebuilt_dir = 'prebuilt-' + as_machine_type(get_ptr_size())
+    if os.path.isdir(prebuilt_dir):
+        reply = raw_input('\nUse the SDL libraries in "%s"? [Y/n]' % prebuilt_dir)
         if not reply or reply[0].lower() != 'n':
-            setup_prebuilt()
+            setup_prebuilt(prebuilt_dir)
             raise SystemExit()
 
     global DEPS

@@ -19,7 +19,7 @@ localbase = os.environ.get('LOCALBASE', '')
 
 #these get prefixes with '/usr/local' and /mingw or the $LOCALBASE
 origincdirs = ['/include', '/include/SDL', '/include/SDL11',
-               '/include/smpeg', '/include/libpng12', ]
+               '/include/libpng12', ]
 origlibdirs = ['/lib']
 
 
@@ -35,10 +35,12 @@ def print_(*args, **kwds):
 
 def confirm(message):
     "ask a yes/no question, return result"
+    if not sys.stdout.isatty():
+        return False
     reply = msys.msys_raw_input("\n%s [Y/n]:" % message)
     if reply and string.lower(reply[0]) == 'n':
-        return 0
-    return 1
+        return False
+    return True
 
 class DependencyProg:
     needs_dll = True
@@ -65,7 +67,7 @@ class DependencyProg:
             flags = flags.split()
             if minver and self.ver < minver:
                 err= 'WARNING: requires %s version %s (%s found)' % (self.name, self.ver, minver)
-                raise ValueError, err
+                raise ValueError(err)
             self.found = 1
             self.cflags = ''
             for f in flags:
@@ -230,23 +232,16 @@ def main():
         Dependency('FONT', 'SDL_ttf.h', 'libSDL_ttf.dll.a'),
         Dependency('IMAGE', 'SDL_image.h', 'libSDL_image.dll.a'),
         Dependency('MIXER', 'SDL_mixer.h', 'libSDL_mixer.dll.a'),
-        DependencyProg('SMPEG', 'SMPEG_CONFIG', 'smpeg-config', '0.4.3', m),
         Dependency('PNG', 'png.h', 'libpng.dll.a'),
         Dependency('JPEG', 'jpeglib.h', 'libjpeg.dll.a'),
         Dependency('PORTMIDI', 'portmidi.h', 'libportmidi.dll.a'),
         Dependency('PORTTIME', 'portmidi.h', 'libportmidi.dll.a'),
-        Dependency('AVFORMAT', 'libavformat/avformat.h', 'libavformat.dll.a',
-                   ['avformat', 'avcodec', 'avutil']),
-        Dependency('SWSCALE', 'libswscale/swscale.h', 'libswscale.dll.a',
-                   ['swscale', 'avutil']),
         DependencyDLL('TIFF'),
         DependencyDLL('VORBISFILE'),
         DependencyDLL('VORBIS'),
         DependencyDLL('OGG'),
         DependencyDLL('FREETYPE'),
         DependencyDLL('Z'),
-        DependencyDLL('AVCODEC'),
-        DependencyDLL('AVUTIL'),
     ]
 
     if not DEPS[0].found:
@@ -293,7 +288,7 @@ def main():
 Warning, some of the pygame dependencies were not found. Pygame can still
 compile and install, but games that depend on those missing dependencies
 will not run. Would you like to continue the configuration?"""):
-                raise SystemExit()
+                raise SystemExit("Missing dependencies")
             break
 
     return DEPS

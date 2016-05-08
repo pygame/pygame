@@ -33,7 +33,7 @@ You can find where the example files are installed by using the following
 commands inside the python interpreter.
 
 ::
-    
+
    >>> import pygame.examples.scaletest
    >>> pygame.examples.scaletest.__file__
    '/usr/lib/python2.6/site-packages/pygame/examples/scaletest.py'
@@ -465,22 +465,6 @@ pygame much earlier.
 
    .. ## pygame.examples.scroll.main ##
 
-.. function:: movieplayer.main
-
-   | :sl:`play an MPEG movie`
-   | :sg:`movieplayer.main(filepath) -> None`
-
-   A simple movie player that plays an ``MPEG`` movie in a Pygame window. It
-   showcases the :mod:`pygame.movie` module. The window adjusts to the size of
-   the movie image. It is given a border to demonstrate that a movie can play
-   autonomously in a sub- window. Also, the file is copied to a file like
-   object to show that not just Python files can be used as a movie source.
-
-   The :mod:`pygame.movie` module is problematic and may not work on all
-   systems. It is intended to replace it with an ffmpeg based version.
-
-   .. ## pygame.examples.movieplayer.main ##
-
 .. function:: camera.main
 
    | :sl:`display video captured live from an attached camera`
@@ -490,5 +474,15 @@ pygame much earlier.
    the system.
 
    .. ## pygame.examples.camera.main ##
+
+.. function:: playmus.main
+
+   | :sl:`play an audio file`
+   | :sg:`playmus.main(file_path) -> None`
+
+   A simple music player with window and keyboard playback control. Playback can
+   be paused and rewound to the beginning.
+
+   .. ## pygame.examples.playmus.main ##
 
 .. ## pygame.examples ##

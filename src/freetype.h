@@ -86,6 +86,7 @@ typedef struct _scale_s {
 typedef FT_Angle Angle_t;
 
 struct fontinternals_;
+struct freetypeinstance_;
 
 typedef struct {
     FT_Long font_index;
@@ -108,6 +109,7 @@ typedef struct {
     FT_Matrix transform;
     FT_Byte fgcolor[4];
 
+    struct freetypeinstance_ *freetype;  /* Personal reference */
     struct fontinternals_ *_internals;
 } PgFontObject;
 

@@ -3,9 +3,10 @@
 language: python
 python:
   #- "2.5"
-  - "2.6"
-  #- "2.7"
-  #- "3.2"
+  #- "2.6"
+  - "2.7"
+  - "3.4"
+  - "3.5"
 # command to install
 install:
 #  - pip install . --use-mirrors
@@ -24,7 +25,7 @@ script:
 # Here we install the ubuntu dependencies with apt-get.
 before_install:
   - sudo apt-get update
-  - sudo apt-get install python-dev libsdl-image1.2-dev libsdl-mixer1.2-dev libsdl-ttf2.0-dev libsdl1.2-dev libsmpeg-dev python-numpy libportmidi-dev ffmpeg libswscale-dev libavformat-dev libavcodec-dev libjpeg-dev libtiff4-dev libx11-6 libX11-dev xfonts-base xfonts-100dpi xfonts-75dpi xfonts-cyrillic
+  - sudo apt-get install python-dev libsdl-image1.2-dev libsdl-mixer1.2-dev libsdl-ttf2.0-dev libsdl1.2-dev python-numpy libportmidi-dev libjpeg-dev libtiff4-dev libx11-6 libX11-dev xfonts-base xfonts-100dpi xfonts-75dpi xfonts-cyrillic
 
 # Here we can notify the pygame irc chat.
 

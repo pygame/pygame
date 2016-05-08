@@ -6,6 +6,8 @@ if __name__ == '__main__':
 
 test_pkg_name = '.'.join(__name__.split('.')[0:-2])
 is_pygame_pkg = test_pkg_name == 'pygame.tests'
+test_runner_mod = test_pkg_name + '.test_utils.test_runner'
+
 if is_pygame_pkg:
     from pygame.tests import test_utils
     from pygame.tests.test_utils \
@@ -28,6 +30,8 @@ import pygame.threads
 import sys
 import os
 import re
+import shutil
+import tempfile
 import time
 import optparse
 import random
@@ -131,7 +135,6 @@ def run(*args, **kwds):
         option_exclude += ('python3_ignore',)
 
     main_dir, test_subdir, fake_test_subdir = prepare_test_env()
-    test_runner_py = os.path.join(test_subdir, "test_utils", "test_runner.py")
     cur_working_dir = os.path.abspath(os.getcwd())
 
     ###########################################################################
@@ -141,6 +144,8 @@ def run(*args, **kwds):
     TEST_MODULE_RE = re.compile('^(.+_test)\.py$')
 
     test_mods_pkg_name = test_pkg_name
+
+    working_dir_temp = tempfile.mkdtemp()
     
     if option_fake is not None:
         test_mods_pkg_name = '.'.join([test_mods_pkg_name,
@@ -149,7 +154,7 @@ def run(*args, **kwds):
         test_subdir = os.path.join(fake_test_subdir, option_fake)
         working_dir = test_subdir
     else:
-        working_dir = main_dir
+        working_dir = working_dir_temp
 
 
     # Added in because some machines will need os.environ else there will be
@@ -249,7 +254,8 @@ def run(*args, **kwds):
         def sub_test(module):
             print ('loading %s' % module)
 
-            cmd = [option_python, test_runner_py, module ] + pass_on_args
+            cmd = [option_python, '-m', test_runner_mod,
+                   module] + pass_on_args
 
             return (module,
                     (cmd, test_env, working_dir),
@@ -314,6 +320,8 @@ def run(*args, **kwds):
             results_file.write(pformat(results))
         finally:
             results_file.close()
+
+    shutil.rmtree(working_dir_temp)
 
     return total, fails
 
