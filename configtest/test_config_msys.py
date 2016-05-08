@@ -26,7 +26,6 @@ import unittest
 cwd = os.getcwd()
 m = msys.Msys(require_mingw=False)
 os.environ['SDL_CONFIG'] = m.windows_to_msys(os.path.join(cwd, 'test-sdl-config'))
-os.environ['SMPEG_CONFIG'] = m.windows_to_msys(os.path.join(cwd, 'test-smpeg-config'))
 dependencies = dict([(dep.name, dep) for dep in config_msys.main()])
 del m
 
@@ -68,10 +67,6 @@ class RunConfigTestCase(unittest.TestCase):
         'FONT': Dependency('FONT', 'include/sdl', 'lib'),
         'IMAGE': Dependency('IMAGE', 'include/sdl', 'lib'),
         'MIXER': Dependency('MIXER', 'include', 'lib'),  # A deviant include dir
-        'SMPEG': Dependency('SMPEG', 'include', 'lib',
-                            cflags='-I./smpeg/include -DSMPEG_MACRO=1 '
-                                   '-Xlinker -Wl,smpeg_xlinker '
-                                   '-L./smpeg/lib -lsmpeg '),  # uses test-smpeg-config script
         'PNG': Dependency('PNG', 'include/libpng12', 'lib'),
         'JPEG': Dependency('JPEG', 'include/sdl', 'lib'),  # A deviant include dir
         'SCRAP': Dependency(cflags='-luser32 -lgdi32'),
@@ -79,7 +74,6 @@ class RunConfigTestCase(unittest.TestCase):
         'COPYLIB_SDL_ttf': DependencyDLL('FONT', lib_dir_rel='bin/sdl_ttf.dll'),  # Where DLLs likely are
         'COPYLIB_SDL_image': DependencyDLL('IMAGE', lib_dir_rel='bin/sdl_image.dll'),
         'COPYLIB_SDL_mixer': DependencyDLL('MIXER', lib_dir_rel='lib/sdl_mixer.dll'),  # Where the search starts
-        'COPYLIB_smpeg': DependencyDLL('SMPEG', lib_dir_rel='bin/smpeg.dll'),
         'COPYLIB_tiff': DependencyDLL('TIFF', lib_dir_rel='bin/libtiff.dll'),
         'COPYLIB_png12': DependencyDLL('PNG', lib_dir_rel='bin/libpng12-0.dll'),
         'COPYLIB_jpeg': DependencyDLL('JPEG', lib_dir_rel='bin/jpeg.dll'),

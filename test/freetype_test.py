@@ -1,5 +1,8 @@
-import sys
 import os
+if os.environ.get('SDL_VIDEODRIVER') == 'dummy':
+    __tags__ = ('ignore', 'subprocess_ignore')
+
+import sys
 import ctypes
 import weakref
 import gc
@@ -422,16 +425,18 @@ class FreeTypeFontTest(unittest.TestCase):
         self.assertTrue(rect_under.width == rect_default.width)
         self.assertTrue(rect_under.height > rect_default.height)
 
+        # Rect size should change if UTF surrogate pairs are treated as
+        # one code point or two.
         ufont = self._TEST_FONTS['mono']
-        size_utf32 = ufont.get_rect(as_unicode(r'\U00013079'), size=24)
-        size_utf16 = ufont.get_rect(as_unicode(r'\uD80C\uDC79'), size=24)
-        self.assertEqual(size_utf16[0], size_utf32[0]);
+        rect_utf32 = ufont.get_rect(as_unicode(r'\U00013079'), size=24)
+        rect_utf16 = ufont.get_rect(as_unicode(r'\uD80C\uDC79'), size=24)
+        self.assertEqual(rect_utf16, rect_utf32);
         ufont.ucs4 = True
         try:
-            size_utf16 = ufont.get_rect(as_unicode(r'\uD80C\uDC79'), size=24)
+            rect_utf16 = ufont.get_rect(as_unicode(r'\uD80C\uDC79'), size=24)
         finally:
             ufont.ucs4 = False
-        self.assertNotEqual(size_utf16[0], size_utf32[0]);
+        self.assertNotEqual(rect_utf16, rect_utf32);
         
         self.assertRaises(RuntimeError,
                           nullfont().get_rect, 'a', size=24)
@@ -1089,6 +1094,11 @@ class FreeTypeFontTest(unittest.TestCase):
         font.style = st
         self.assertEqual(st, font.style)
 
+        # and that STYLE_DEFAULT has no effect (continued from above)
+        self.assertNotEqual(st, ft.STYLE_DEFAULT)
+        font.style = ft.STYLE_DEFAULT
+        self.assertEqual(st, font.style)
+
         # revert changes
         font.style = ft.STYLE_NORMAL
         self.assertEqual(ft.STYLE_NORMAL, font.style)
@@ -1252,6 +1262,101 @@ class FreeTypeFontTest(unittest.TestCase):
         s = 'M' * 100000  # Way too long for an SDL surface
         self.assertRaises(pygame.error, font.render, s, (0, 0, 0))
 
+    def test_issue_242(self):
+        """Issue #242: get_rect() uses 0 as default style"""
+
+        # Issue #242: freetype.Font.get_rect() ignores style defaults when
+        #             the style argument is not given
+        #
+        # The text boundary rectangle returned by freetype.Font.get_rect()
+        # should match the boundary of the same text rendered directly to a
+        # surface. This permits accurate text positioning. To work properly,
+        # get_rect() should calculate the text boundary to reflect text style,
+        # such as underline. Instead, it ignores the style settings for the
+        # Font object when the style argument is omitted.
+        # 
+        # When the style argument is not given, freetype.get_rect() uses
+        # unstyled text when calculating the boundary rectangle. This is
+        # because _ftfont_getrect(), in _freetype.c, set the default
+        # style to 0 rather than FT_STYLE_DEFAULT.
+        #
+        font = self._TEST_FONTS['sans']
+
+        # Try wide style on a wide character.
+        prev_style = font.wide
+        font.wide = True
+        try:
+            rect = font.get_rect('M', size=64)
+            surf, rrect = font.render(None, size=64)
+            self.assertEqual(rect, rrect)
+        finally:
+            font.wide = prev_style
+
+        # Try strong style on several wide characters.
+        prev_style = font.strong
+        font.strong = True
+        try:
+            rect = font.get_rect('Mm_', size=64)
+            surf, rrect = font.render(None, size=64)
+            self.assertEqual(rect, rrect)
+        finally:
+            font.strong = prev_style
+
+        # Try oblique style on a tall, narrow character.
+        prev_style = font.oblique
+        font.oblique = True
+        try:
+            rect = font.get_rect('|', size=64)
+            surf, rrect = font.render(None, size=64)
+            self.assertEqual(rect, rrect)
+        finally:
+            font.oblique = prev_style
+
+        # Try underline style on a glyphless character.
+        prev_style = font.underline
+        font.underline = True
+        try:
+            rect = font.get_rect(' ', size=64)
+            surf, rrect = font.render(None, size=64)
+            self.assertEqual(rect, rrect)
+        finally:
+            font.underline = prev_style
+
+    def test_issue_237(self):
+        """Issue #237: Memory overrun when rendered with underlining"""
+
+        # Issue #237: Memory overrun when text without descenders is rendered
+        #             with underlining
+        #
+        # The bug crashes the Python interpreter. The bug is caught with C
+        # assertions in ft_render_cb.c when the Pygame module is compiled
+        # for debugging. So far it is only known to affect Times New Roman.
+        #
+        name = "Times New Roman"
+        font = ft.SysFont(name, 19)
+        if font.name != name:
+            # The font is unavailable, so skip the test.
+            return
+        font.underline = True
+        s, r = font.render("Amazon", size=19)
+
+        # Some other checks to make sure nothing else broke.
+        for adj in [-2, -1.9, -1, 0, 1.9, 2]:
+            font.underline_adjustment = adj
+            s, r = font.render("Amazon", size=19)
+
+    def test_issue_243(self):
+        """Issue Y: trailing space ignored in boundary calculation"""
+
+        # Issue #243: For a string with trailing spaces, freetype ignores the
+        # last space in boundary calculations
+        #
+        font = self._TEST_FONTS['fixed']
+        r1 = font.get_rect(" ", size=64)
+        self.assertTrue(r1.width > 1)
+        r2 = font.get_rect("  ", size=64)
+        self.assertEqual(r2.width, 2 * r1.width)
+
     def test_garbage_collection(self):
         """Check reference counting on returned new references"""
         def ref_items(seq):
@@ -1326,6 +1431,17 @@ class FreeTypeTest(unittest.TestCase):
         self.assertTrue(ft.was_init())
         pygame.quit()
         self.assertFalse(ft.was_init())
+
+    def test_cache_size(self):
+        DEFAULT_CACHE_SIZE = 64
+        ft.init()
+        self.assertEqual(ft.get_cache_size(), DEFAULT_CACHE_SIZE)
+        ft.quit()
+        self.assertEqual(ft.get_cache_size(), 0)
+        new_cache_size = DEFAULT_CACHE_SIZE * 2
+        ft.init(cache_size=new_cache_size)
+        self.assertEqual(ft.get_cache_size(), new_cache_size)
+        ft.quit()
 
 if __name__ == '__main__':
     unittest.main()

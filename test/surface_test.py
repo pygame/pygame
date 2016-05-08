@@ -673,6 +673,11 @@ class SurfaceTypeTest(unittest.TestCase):
     def test_image_convert_bug_131(self):
         # Bitbucket bug #131: Unable to Surface.convert(32) some 1-bit images.
         # https://bitbucket.org/pygame/pygame/issue/131/unable-to-surfaceconvert-32-some-1-bit
+
+        # Skip test_image_convert_bug_131 for headless tests.
+        if os.environ.get('SDL_VIDEODRIVER') == 'dummy':
+            return
+
         pygame.display.init()
         pygame.display.set_mode((640,480))
 
@@ -684,6 +689,16 @@ class SurfaceTypeTest(unittest.TestCase):
 
         self.assertEqual(repr(im.convert(32)),  '<Surface(24x24x32 SW)>')
         self.assertEqual(repr(im2.convert(32)), '<Surface(469x137x32 SW)>')
+
+        # Ensure a palette format to palette format works.
+        im3 = im.convert(8)
+        self.assertEqual(repr(im3), '<Surface(24x24x8 SW)>')
+        self.assertEqual(im3.get_palette(), im.get_palette())
+
+        # It is still an error when the target format really does have
+        # an empty palette (all the entries are black).
+        self.assertRaises(pygame.error, im2.convert, 8)
+        self.assertEqual(pygame.get_error(), "Empty destination palette")
 
     def todo_test_convert(self):
 
@@ -1287,6 +1302,78 @@ class SurfaceTypeTest(unittest.TestCase):
         self.failUnlessEqual(surf.get_at((3, 3)), spot_color)
         surf.scroll(dx=-3, dy=-3)
         self.failUnlessEqual(surf.get_at((0, 0)), spot_color)
+
+class SurfaceSubtypeTest (unittest.TestCase):
+    """Issue #280: Methods that return a new Surface preserve subclasses"""
+
+    class MySurface(pygame.Surface):
+        def __init__(self, *args, **kwds):
+            super(SurfaceSubtypeTest.MySurface, self).__init__(*args, **kwds)
+            self.an_attribute = True
+
+    def test_copy(self):
+        """Ensure method copy() preserves the surface's class
+
+        When Surface is subclassed, the inherited copy() method will return
+        instances of the subclass. Non Surface fields are uncopied, however.
+        This includes instance attributes.
+        """
+        ms1 = self.MySurface((32, 32), pygame.SRCALPHA, 32)
+        ms2 = ms1.copy()
+        self.assertTrue(isinstance(ms2, self.MySurface))
+        self.assertTrue(ms1.an_attribute)
+        self.assertRaises(AttributeError, getattr, ms2, "an_attribute")
+
+    def test_convert(self):
+        """Ensure method convert() preserves the surface's class
+
+        When Surface is subclassed, the inherited convert() method will return
+        instances of the subclass. Non Surface fields are omitted, however.
+        This includes instance attributes.
+        """
+        pygame.display.init()
+        try:
+            ms1 = self.MySurface((32, 32), 0, 24)
+            ms2 = ms1.convert(24)
+            self.assertTrue(ms2 is not ms1)
+            self.assertTrue(isinstance(ms2, self.MySurface))
+            self.assertTrue(ms1.an_attribute)
+            self.assertRaises(AttributeError, getattr, ms2, "an_attribute")
+        finally:
+            pygame.display.quit()
+
+    def test_convert_alpha(self):
+        """Ensure method convert_alpha() preserves the surface's class
+
+        When Surface is subclassed, the inherited convert_alpha() method will
+        return instances of the subclass. Non Surface fields are omitted,
+        however. This includes instance attributes.
+        """
+        pygame.display.init()
+        try:
+            pygame.display.set_mode((40, 40))
+            s = pygame.Surface((32, 32), pygame.SRCALPHA, 16)
+            ms1 = self.MySurface((32, 32), pygame.SRCALPHA, 32)
+            ms2 = ms1.convert_alpha(s)
+            self.assertTrue(ms2 is not ms1)
+            self.assertTrue(isinstance(ms2, self.MySurface))
+            self.assertTrue(ms1.an_attribute)
+            self.assertRaises(AttributeError, getattr, ms2, "an_attribute")
+        finally:
+            pygame.display.quit()
+
+    def test_subsurface(self):
+        """Ensure method subsurface() preserves the surface's class
+
+        When Surface is subclassed, the inherited subsurface() method will
+        return instances of the subclass. Non Surface fields are uncopied,
+        however. This includes instance attributes.
+        """
+        ms1 = self.MySurface((32, 32), pygame.SRCALPHA, 32)
+        ms2 = ms1.subsurface((4, 5, 10, 12))
+        self.assertTrue(isinstance(ms2, self.MySurface))
+        self.assertTrue(ms1.an_attribute)
+        self.assertRaises(AttributeError, getattr, ms2, "an_attribute")
 
 class SurfaceGetBufferTest (unittest.TestCase):
 

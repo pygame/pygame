@@ -17,12 +17,11 @@ import re
 # name, root, File regex, Dependency list of names
 libraries = [
     ('MIXER', 'SDL_mixer', r'SDL_mixer\.dll$',
-     ['SDL', 'VORBISFILE', 'SMPEG']),
+     ['SDL', 'VORBISFILE']),
     ('VORBISFILE', 'vorbisfile',  r'libvorbisfile-3\.dll$',
      ['VORBIS']),
     ('VORBIS', 'vorbis', r'libvorbis-0\.dll$', ['OGG']),
     ('OGG', 'ogg', r'libogg-0\.dll$', []),
-    ('SMPEG', 'smpeg', r'smpeg\.dll$', ['SDL']),
     ('IMAGE', 'SDL_image', r'SDL_image\.dll$',
      ['SDL', 'JPEG', 'PNG', 'TIFF']),
     ('TIFF', 'tiff', r'libtiff-3\.dll$',  ['JPEG', 'Z']),
@@ -34,10 +33,6 @@ libraries = [
     ('SDL', 'SDL', r'SDL\.dll$', []),
     ('PORTMIDI', 'portmidi', r'portmidi\.dll', []),
     ('PORTTIME', 'portmidi', r'portmidi\.dll', []),
-    ('AVCODEC', 'avcodec', r'avcodec-52\.dll', ['AVUTIL', 'Z']),
-    ('AVFORMAT', 'avformat', r'avformat-52\.dll', ['AVCODEC', 'AVUTIL', 'Z']),
-    ('AVUTIL', 'avutil', r'avutil-50\.dll', []),
-    ('SWSCALE', 'swscale', r'swscale-0\.dll', ['AVUTIL']),
 ]
 
 # regexs: Maps name to DLL file name regex.

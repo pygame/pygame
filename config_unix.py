@@ -15,8 +15,7 @@ configcommand = configcommand + ' --version --cflags --libs'
 localbase = os.environ.get('LOCALBASE', '')
 
 #these get prefixes with '/usr' and '/usr/local' or the $LOCALBASE
-origincdirs = ['/include', '/include/SDL', '/include/SDL',
-               '/include/smpeg']
+origincdirs = ['/include', '/include/SDL', '/include/SDL']
 origlibdirs = ['/lib','/lib64','/X11R6/lib']
 if 'ORIGLIBDIRS' in os.environ and os.environ['ORIGLIBDIRS'] != "":
     origlibdirs = os.environ['ORIGLIBDIRS'].split(":")
@@ -24,10 +23,12 @@ if 'ORIGLIBDIRS' in os.environ and os.environ['ORIGLIBDIRS'] != "":
 
 def confirm(message):
     "ask a yes/no question, return result"
+    if not sys.stdout.isatty():
+        return False
     reply = raw_input('\n' + message + ' [Y/n]:')
     if reply and (reply[0].lower()) == 'n':
-        return 0
-    return 1
+        return False
+    return True
 
 class DependencyProg:
     def __init__(self, name, envname, exename, minver, defaultlibs, version_flag="--version"):
@@ -110,40 +111,7 @@ class Dependency:
         else:
             print (self.name + '        '[len(self.name):] + ': not found')
 
-        
-class FFMPEGDependency(Dependency):
-    def __init__(self, name, checkhead, checklib, libs, dirs):
-        self.dirs=dirs
-        Dependency.__init__(self, name, checkhead, checklib, libs)
-        self.cflags=""
-        
-    def configure(self, incdirs, libdirs):
-        incname = self.checkhead
-        libnames = self.checklib, self.name.lower()
-        
-        dirs=self.dirs[:]
-        self.dirs = ["/usr"+d for d in dirs]
-        self.dirs += ["/usr/local"+d for d in dirs]
-        loc_incdirs = incdirs[:]+self.dirs
-        if incname:
-            for dir in loc_incdirs:
-                path = os.path.join(dir, incname)
-                if os.path.isfile(path):
-                    self.inc_dir = dir
 
-        for dir in libdirs:
-            for name in libnames:
-                path = os.path.join(dir, name)
-                if filter(os.path.isfile, glob(path+'*')):
-                    self.lib_dir = dir
-
-        if (incname and self.lib_dir and self.inc_dir) or (not incname and self.lib_dir):
-            print (self.name + '        '[len(self.name):] + ': found')
-            self.found = 1
-        else:
-            print (self.name + '        '[len(self.name):] + ': not found')
-        
-        
 class DependencyPython:
     def __init__(self, name, module, header):
         self.name = name
@@ -183,20 +151,16 @@ def main():
         Dependency('FONT', 'SDL_ttf.h', 'libSDL_ttf.so', ['SDL_ttf']),
         Dependency('IMAGE', 'SDL_image.h', 'libSDL_image.so', ['SDL_image']),
         Dependency('MIXER', 'SDL_mixer.h', 'libSDL_mixer.so', ['SDL_mixer']),
-        DependencyProg('SMPEG', 'SMPEG_CONFIG', 'smpeg-config', '0.4.3', ['smpeg']),
         Dependency('PNG', 'png.h', 'libpng', ['png']),
         Dependency('JPEG', 'jpeglib.h', 'libjpeg', ['jpeg']),
         Dependency('SCRAP', '', 'libX11', ['X11']),
         Dependency('PORTMIDI', 'portmidi.h', 'libportmidi.so', ['portmidi']),
         Dependency('PORTTIME', 'porttime.h', 'libporttime.so', ['porttime']),
-        FFMPEGDependency('AVFORMAT', 'libavformat/avformat.h', 'libavformat.a', ['avformat'], ['/include', '/include/ffmpeg']),
-        FFMPEGDependency('SWSCALE', 'libswscale/swscale.h', 'libswscale.a', ['swscale'], ['/include', '/include/ffmpeg']),
         DependencyProg('FREETYPE', 'FREETYPE_CONFIG', 'freetype-config', '2.0', ['freetype'], '--ftversion'),
         #Dependency('GFX', 'SDL_gfxPrimitives.h', 'libSDL_gfx.so', ['SDL_gfx']),
     ]
     if not DEPS[0].found:
-        print ('Unable to run "sdl-config". Please make sure a development version of SDL is installed.')
-        raise SystemExit
+        sys.exit('Unable to run "sdl-config". Please make sure a development version of SDL is installed.')
 
     if localbase:
         incdirs = [localbase+d for d in origincdirs]
@@ -223,7 +187,7 @@ def main():
 Warning, some of the pygame dependencies were not found. Pygame can still
 compile and install, but games that depend on those missing dependencies
 will not run. Would you like to continue the configuration?"""):
-                raise SystemExit
+                raise SystemExit("Missing dependencies")
             break
 
     return DEPS
