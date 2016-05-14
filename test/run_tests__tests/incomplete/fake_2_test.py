@@ -20,16 +20,16 @@ class KeyModuleTest(unittest.TestCase):
         self.assert_(True) 
 
     def test_get_mods(self):
-        self.assert_(True) 
+        self.assert_(True)
 
-    def test_get_pressed(self):
-        self.assert_(test_utils.test_not_implemented()) 
+    def todo_test_get_pressed(self):
+        self.fail()
 
     def test_name(self):
-        self.assert_(True) 
+        self.assert_(True)
 
-    def test_set_mods(self):
-        self.assert_(test_utils.test_not_implemented()) 
+    def todo_test_set_mods(self):
+        self.fail()
 
     def test_set_repeat(self):
         self.assert_(True) 
