@@ -39,16 +39,6 @@ def example_path(path):
 
 sys.path.insert(0, trunk_relative_path('.'))
 
-############################### INCOMPLETE TESTS ###############################
-# TODO: PHASE THIS OUT
-# Just prefix TODO test names with todo_. 
-# eg def todo_test_sanity__is_overrated(self): self.fail()
-# Change test loader to load test_ and todo_ TestCase callables as tests
-
-fail_incomplete_tests = 0
-
-def test_not_implemented():
-    return not fail_incomplete_tests
 
 ################################## TEMP FILES ##################################
 

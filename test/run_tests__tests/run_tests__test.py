@@ -67,9 +67,6 @@ def assert_on_results(suite, single, sub):
         test(suite, single, sub)
         print ("assertions on %s OK" % (suite,))
 
-def incomplete_test(suite, *args):
-    for results in args:
-        assert 'self.assert_(test_utils.test_not_implemented())' in results
 
 # Don't modify tests in suites below. These assertions are in place to make sure
 # that tests are actually being ran
