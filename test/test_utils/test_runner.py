@@ -112,7 +112,7 @@ subprocess completely failed with return code of %(return_code)s
 cmd:          %(cmd)s
 test_env:     %(test_env)s
 working_dir:  %(working_dir)s
-return (top 5 lines):
+return (first 10 and last 10 lines):
 %(raw_return)s
 
 """  # Leave that last empty line else build page regex won't match
@@ -143,7 +143,12 @@ def combine_results(all_results, t):
 
         if not output or (return_code and RAN_TESTS_DIV not in output):
             # would this effect the original dict? TODO
-            results['raw_return'] = ''.join(raw_return.splitlines(1)[:5])
+            output_lines = raw_return.splitlines()
+            if len(output_lines) > 20:
+                results['raw_return'] = '\n'.join(output_lines[:10] +
+                                                  ['...'] +
+                                                  output_lines[-10:]
+                                                 )
             failures.append( COMPLETE_FAILURE_TEMPLATE % results )
             all_dots += 'E'
             continue
