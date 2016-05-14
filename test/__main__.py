@@ -85,6 +85,11 @@ opt_parser.add_option (
      "-I",  "--interactive", action = 'store_true',
      help   = "include tests requiring user input")
 
+opt_parser.add_option(
+    "-S",  "--seed", type = 'int',
+     help   = "Randomisation seed"
+)
+
 ###########################################################################
 # Set run() keyword arguements according to command line arguemnts.
 # args will be the test module list, passed as positional argumemts.
@@ -100,13 +105,10 @@ if options.dump:
     kwds['dump'] = True
 if options.file:
     kwds['file'] = options.file
-kwds['timings'] = options.timings
 if options.exclude:
     kwds['exclude'] = options.exclude
-if options.show_output:
-    kwds['show_output'] = True
-if options.all:
-    kwds['all'] = True
+if options.unbuffered:
+    kwds['unbuffered'] = True
 if options.randomize:
     kwds['randomize'] = True
 if options.seed is not None:
