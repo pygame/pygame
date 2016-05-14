@@ -1,7 +1,6 @@
-#################################### IMPORTS ##################################
+import sys
 
 if __name__ == '__main__':
-    import sys
     sys.exit("This module is for import only")
 
 test_pkg_name = '.'.join(__name__.split('.')[0:-2])
@@ -9,13 +8,11 @@ is_pygame_pkg = test_pkg_name == 'pygame.tests'
 test_runner_mod = test_pkg_name + '.test_utils.test_runner'
 
 if is_pygame_pkg:
-    from pygame.tests import test_utils
     from pygame.tests.test_utils import import_submodule
     from pygame.tests.test_utils.test_runner \
          import prepare_test_env, run_test, combine_results, \
                 get_test_results, TEST_RESULTS_START
 else:
-    from test import test_utils
     from test.test_utils import import_submodule
     from test.test_utils.test_runner \
          import prepare_test_env, run_test, combine_results, \
@@ -23,13 +20,11 @@ else:
 import pygame
 import pygame.threads
 
-import sys
 import os
 import re
 import shutil
 import tempfile
 import time
-import optparse
 import random
 from pprint import pformat
 
@@ -109,7 +104,6 @@ def run(*args, **kwds):
     option_nosubprocess = options.get('nosubprocess', False)
     option_dump = options.pop('dump', False)
     option_file = options.pop('file', None)
-    option_all = options.pop('all', False)
     option_randomize = options.get('randomize', False)
     option_seed = options.get('seed', None)
     option_multi_thread = options.pop('multi_thread', 1)
@@ -131,7 +125,6 @@ def run(*args, **kwds):
         option_exclude += ('python3_ignore',)
 
     main_dir, test_subdir, fake_test_subdir = prepare_test_env()
-    cur_working_dir = os.path.abspath(os.getcwd())
 
     ###########################################################################
     # Compile a list of test modules. If fake, then compile list of fake
@@ -187,7 +180,7 @@ def run(*args, **kwds):
                 tags = tag_module.__tags__
             except AttributeError:
                 print ("%s has no tags: ignoring" % (tag_module_name,))
-                test_module.append(name)
+                test_modules.append(name)
             else:
                 for tag in tags:
                     if tag in option_exclude:
@@ -229,21 +222,13 @@ def run(*args, **kwds):
     # Subprocess mode
     #
 
-    if not option_nosubprocess:
+    else:
         if is_pygame_pkg:
             from pygame.tests.test_utils.async_sub import proc_in_time_or_kill
         else:
             from test.test_utils.async_sub import proc_in_time_or_kill
 
         pass_on_args = ['--exclude', ','.join(option_exclude)]
-        for option in ['timings', 'seed']:
-            value = options.pop(option, None)
-            if value is not None:
-                pass_on_args.append('--%s' % option)
-                pass_on_args.append(str(value))
-        for option, value in options.items():
-            if value:
-                pass_on_args.append('--%s' % option)
 
         def sub_test(module):
             print ('loading %s' % module)

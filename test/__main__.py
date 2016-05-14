@@ -58,15 +58,11 @@ all failing tests info in the form of a dict.
 
 opt_parser.add_option (
      "-d",  "--dump", action = 'store_true',
-     help   = "dump failures/errors as dict ready to eval" )
+     help   = "dump results as dict ready to eval" )
 
 opt_parser.add_option (
      "-F",  "--file",
-     help   = "dump failures/errors to a file" )
-
-opt_parser.add_option (
-     "-a",  "--all", action = 'store_true',
-     help   = "dump all results not just errors eg. -da" )
+     help   = "dump results to a file" )
 
 opt_parser.add_option (
      "-m",  "--multi_thread", metavar = 'THREADS', type = 'int',
