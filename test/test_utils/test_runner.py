@@ -11,14 +11,8 @@ if __name__ == '__main__':
 else:
     is_pygame_pkg = __name__.startswith('pygame.tests.')
 
-if is_pygame_pkg:
-    from pygame.tests import test_utils
-    from pygame.tests.test_utils \
-         import unittest, unittest_patch, import_submodule
-else:
-    from test import test_utils
-    from test.test_utils \
-         import unittest, unittest_patch, import_submodule
+import unittest
+from .test_machinery import PygameTestLoader
 
 import re
 try:
@@ -244,47 +238,29 @@ RESULTS_TEMPLATE = {
 
 ################################################################################
 
-def run_test(module, **kwds):
+def run_test(module, incomplete=False, nosubprocess=False, randomize=False,
+             exclude=('interactive',)):
     """Run a unit test module
-
-    Recognized keyword arguments:
-    incomplete, nosubprocess
-
     """
-    
-    option_incomplete = kwds.get('incomplete', False)
-    option_nosubprocess = kwds.get('nosubprocess', False)
-
     suite = unittest.TestSuite()
-    test_utils.fail_incomplete_tests = option_incomplete
 
-    m = import_submodule(module)
-    if m.unittest is not unittest:
-        raise ImportError(
-            "%s is not using correct unittest\n\n" % module +
-            "should be: %s\n is using: %s" % (unittest.__file__,
-                                              m.unittest.__file__)
-        )
-    
     print ('loading %s' % module)
 
-    test = unittest.defaultTestLoader.loadTestsFromName(module)
-    suite.addTest(test)
+    loader = PygameTestLoader(randomize_tests=randomize,
+                              include_incomplete=incomplete,
+                              exclude=exclude)
+    suite.addTest(loader.loadTestsFromName(module))
 
     output = StringIO.StringIO()
-    runner = unittest.TextTestRunner(stream=output)
-
+    runner = unittest.TextTestRunner(stream=output, buffer=True)
     results = runner.run(suite)
-    output  = output.getvalue()
 
-    num_tests = results.testsRun
-    failures  = results.failures
-    errors    = results.errors
-    tests     = results.tests
+    results = {module: {
+        'output': output.getvalue(),
+        'num_tests': results.testsRun,
+    }}
 
-    results   = {module:from_namespace(locals(), RESULTS_TEMPLATE)}
-
-    if not option_nosubprocess:
+    if not nosubprocess:
         print (TEST_RESULTS_START)
         print (pformat(results))
         print (TEST_RESULTS_END)
@@ -295,12 +271,6 @@ def run_test(module, **kwds):
 
 if __name__ == '__main__':
     options, args = opt_parser.parse_args()
-    unittest_patch.patch(incomplete=options.incomplete,
-                         randomize=options.randomize,
-                         seed=options.seed,
-                         exclude=options.exclude,
-                         timings=options.timings,
-                         show_output=options.show_output)
     if not args:
         
         if is_pygame_pkg:
@@ -310,7 +280,10 @@ if __name__ == '__main__':
         sys.exit('No test module provided; consider using %s instead' % run_from)
     run_test(args[0],
              incomplete=options.incomplete,
-             nosubprocess=options.nosubprocess)
+             nosubprocess=options.nosubprocess,
+             randomize=options.randomize,
+             exclude=options.exclude,
+            )
 
 ################################################################################
 
