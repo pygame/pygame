@@ -29,10 +29,6 @@ def redirect_output():
 def restore_output(err, out):
     sys.stderr, sys.stdout = err, out
 
-def StringIOContents(io):
-    io.seek(0)
-    return io.read()
-
 ################################################################################
 # TestCase patching
 #
@@ -108,8 +104,8 @@ def TestCase_run(self, result=None):
 
         restore_output(realerr, realout)
 
-        tests["stdout"] = StringIOContents(stdout)
-        tests["stderr"] = StringIOContents(stderr)
+        tests["stdout"] = stdout.getvalue()
+        tests["stderr"] = stderr.getvalue()
         tests["tags"]   = test_tags
 
     ########################################################################

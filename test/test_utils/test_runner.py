@@ -17,12 +17,10 @@ if is_pygame_pkg:
     from pygame.tests import test_utils
     from pygame.tests.test_utils \
          import unittest, unittest_patch, import_submodule
-    from pygame.tests.test_utils.unittest_patch import StringIOContents
 else:
     from test import test_utils
     from test.test_utils \
          import unittest, unittest_patch, import_submodule
-    from test.test_utils.unittest_patch import StringIOContents
 
 import sys
 import os
@@ -280,7 +278,7 @@ def run_test(module, **kwds):
     runner = unittest.TextTestRunner(stream=output)
 
     results = runner.run(suite)
-    output  = StringIOContents(output)
+    output  = output.getvalue()
 
     num_tests = results.testsRun
     failures  = results.failures
