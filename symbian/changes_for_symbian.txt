@@ -1,0 +1,27 @@
+
+== Changes required to port pygame for Series 60 ==
+
+This file is an attempt to keep track of what has been changed
+and why to make pygame reality on PyS60.
+
+
+== Changes for extension modules ==
+
+The extension module names have been renamed. On PC the native extensions 
+can be put under pygame directory, but on Symbian this is not possible. 
+All native extensions must be placed under sys\bin directory. 
+
+The extensions are built-in to a single library to avoid polluting the 
+sys\bin directory with over 10 new dlls. The modules are set as built-in modules
+at application startup.
+
+The names of the extensions were changed to pygame_<extension>. A python wrappers 
+are used( see symbian/lib ) to simply import all attributes of the native extension 
+to keep the pygame API the same.
+
+To handle the pygame_ prefix, a new preprocessor definition MODPREFIX is defined
+in pygame.h. It is defined as empty string by default and set to "pygame_" for
+Symbian. 
+
+Jussi Toivola 
+"".join(reversed("moc.liamg@aloviotj"))
