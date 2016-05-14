@@ -185,56 +185,6 @@ def get_test_results(raw_return):
             print ("BUGGY TEST RESULTS EVAL:\n %s" % test_results.group(1))
             raise
 
-################################################################################
-# ERRORS
-# TODO
-
-def make_complete_failure_error(result):
-    return (
-        "ERROR: all_tests_for (%s.AllTestCases)" % result['module'],
-        "Complete Failure (ret code: %s)" % result['return_code'],
-        result['test_file'], 
-        '1',
-    )
-    
-# For combined results, plural
-def test_failures(results):
-    errors = {}
-    total =  sum([v.get('num_tests', 0) for v in results.values()])
-    for module, result in results.items():
-        num_errors = (
-            len(result.get('failures', [])) + len(result.get('errors', []))
-        )
-        if num_errors is 0 and result.get('return_code'):
-            result.update(RESULTS_TEMPLATE)
-            result['errors'].append(make_complete_failure_error(result))
-            num_errors += 1
-            total += 1
-        if num_errors: errors.update({module:result})
-
-    return total, errors
-
-# def combined_errs(results):
-#     for result in results.values():
-#         combined_errs = result['errors'] + result['failures']
-#         for err in combined_errs:
-#             yield err
-
-################################################################################
-# For complete failures (+ namespace saving)
-
-def from_namespace(ns, template):
-    if isinstance(template, dict):
-        return dict([(i, ns.get(i, template[i])) for i in template])
-    return dict([(i, ns[i]) for i in template])
-
-RESULTS_TEMPLATE = {
-    'output'     :  '',
-    'num_tests'  :   0,
-    'failures'   :  [],
-    'errors'     :  [],
-    'tests'      :  {},
-}
 
 ################################################################################
 
