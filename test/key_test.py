@@ -10,13 +10,8 @@ if __name__ == '__main__':
 else:
     is_pygame_pkg = __name__.startswith('pygame.tests.')
 
-if is_pygame_pkg:
-    from pygame.tests.test_utils import test_not_implemented, unittest
-else:
-    from test.test_utils import test_not_implemented, unittest
-import pygame
+import unittest
 
-import os
 
 class KeyModuleTest(unittest.TestCase):
     def test_import(self):

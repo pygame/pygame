@@ -10,12 +10,12 @@ if __name__ == '__main__':
 else:
     is_pygame_pkg = __name__.startswith('pygame.tests.')
 
+import unittest
 if is_pygame_pkg:
-    from pygame.tests.test_utils \
-         import test_not_implemented, example_path, unittest
+    from pygame.tests.test_utils import example_path
 else:
-    from test.test_utils \
-         import test_not_implemented, example_path, unittest
+    from test.test_utils import example_path
+
 import pygame, pygame.image, pygame.pkgdata
 from pygame.compat import as_unicode, unicode_
 imageext = sys.modules['pygame.imageext']
