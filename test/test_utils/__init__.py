@@ -1,10 +1,6 @@
 #################################### IMPORTS ###################################
 
 is_pygame_pkg = __name__.startswith('pygame.tests.')
-if is_pygame_pkg:
-    from pygame.tests.test_utils import unittest
-else:
-    from test.test_utils import unittest
 
 import tempfile, sys, pygame, time, os
 
@@ -205,12 +201,6 @@ def test():
         (1, 2), (0, 2),                         # br -> bl
         (0, 1)                                  # bl -> tl
     ]
-
-    if is_pygame_pkg:
-        module = 'pygame.tests.test_utils.unittest'
-    else:
-        module = 'test.test_utils.unittest'
-    assert import_submodule(module) is unittest
     
     print ('Tests: OK')
 

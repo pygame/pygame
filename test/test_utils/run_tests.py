@@ -10,16 +10,14 @@ test_runner_mod = test_pkg_name + '.test_utils.test_runner'
 
 if is_pygame_pkg:
     from pygame.tests import test_utils
-    from pygame.tests.test_utils \
-         import unittest, unittest_patch, import_submodule
+    from pygame.tests.test_utils import import_submodule
     from pygame.tests.test_utils.test_runner \
          import prepare_test_env, run_test, combine_results, test_failures, \
                 get_test_results, from_namespace, TEST_RESULTS_START, \
                 opt_parser
 else:
     from test import test_utils
-    from test.test_utils \
-         import unittest, unittest_patch, import_submodule
+    from test.test_utils import import_submodule
     from test.test_utils.test_runner \
          import prepare_test_env, run_test, combine_results, test_failures, \
                 get_test_results, from_namespace, TEST_RESULTS_START, \
@@ -223,8 +221,6 @@ def run(*args, **kwds):
     # Single process mode
 
     if option_nosubprocess:
-        unittest_patch.patch(**options)
-
         options['exclude'] = option_exclude
         t = time.time()
         for module in test_modules:
