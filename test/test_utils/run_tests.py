@@ -229,6 +229,9 @@ def run(*args, **kwds):
             from test.test_utils.async_sub import proc_in_time_or_kill
 
         pass_on_args = ['--exclude', ','.join(option_exclude)]
+        for field in ['randomize', 'incomplete', 'unbuffered']:
+            if kwds.get(field, False):
+                pass_on_args.append('--'+field)
 
         def sub_test(module):
             print ('loading %s' % module)
