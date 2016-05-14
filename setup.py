@@ -126,7 +126,6 @@ else:
 
 #headers to install
 headers = glob.glob(os.path.join('src', '*.h'))
-headers.remove(os.path.join('src', 'numeric_arrayobject.h'))
 headers.remove(os.path.join('src', 'scale.h'))
 
 # option for not installing the headers.
