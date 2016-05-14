@@ -1,9 +1,7 @@
-################################################################################
+import sys
+import os
 
 if __name__ == '__main__':
-    
-    import sys
-    import os
     pkg_dir = os.path.split(os.path.split(os.path.abspath(__file__))[0])[0]
     parent_dir, pkg_name = os.path.split(pkg_dir)
     is_pygame_pkg = (pkg_name == 'tests' and
@@ -22,21 +20,15 @@ else:
     from test.test_utils \
          import unittest, unittest_patch, import_submodule
 
-import sys
-import os
 import re
 try:
     import StringIO
 except ImportError:
     import io as StringIO
-import time
+
 import optparse
-from inspect import getdoc, getmembers, isclass
 from pprint import pformat
 
-# from safe_eval import safe_eval as eval
-
-################################################################################
 
 def prepare_test_env():
     test_subdir = os.path.split(os.path.split(os.path.abspath(__file__))[0])[0]
