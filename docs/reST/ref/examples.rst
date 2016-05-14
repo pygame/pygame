@@ -178,10 +178,8 @@ pygame much earlier.
    surfarray and image modules to be installed. This little demo can also make
    a good starting point for any of your own tests with surfarray
 
-   If arraytype is provided then use that array package. Valid values are
-   'numeric' or 'numpy'. Otherwise default to NumPy, or fall back on Numeric if
-   NumPy is not installed. As a program ``surfarray.py`` accepts an optional
-   --numeric or --numpy flag. (New pygame 1.9.0)
+   The ``arraytype`` parameter is deprecated; passing any value besides 'numpy'
+   will raise ValueError.
 
    .. ## pygame.examples.arraydemo.main ##
 
@@ -204,15 +202,13 @@ pygame much earlier.
    | :sl:`play various sndarray effects`
    | :sg:`sound_array_demos.main(arraytype=None) -> None`
 
-   If arraytype is provided then use that array package. Valid values are
-   'numeric' or 'numpy'. Otherwise default to NumPy, or fall back on Numeric if
-   NumPy is not installed.
 
-   Uses sndarray and NumPy ( or Numeric) to create offset faded copies of the
+   Uses sndarray and NumPy to create offset faded copies of the
    original sound. Currently it just uses hardcoded values for the number of
-   echos and the delay. Easy for you to recreate as needed. Run as a program
-   ``sound_array_demos.py`` takes an optional command line option, --numpy or
-   --numeric, specifying which array package to use.
+   echos and the delay. Easy for you to recreate as needed.
+
+   The ``arraytype`` parameter is deprecated; passing any value besides 'numpy'
+   will raise ValueError.
 
    .. ## pygame.examples.sound_array_demos.main ##
 

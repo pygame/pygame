@@ -21,23 +21,20 @@ __license__ = "Public Domain"
 __version__ = "2.0"
 
 
-import sys
 import os.path
 import pygame.mixer, pygame.time, pygame.sndarray, pygame
 import pygame.surfarray, pygame.transform
 from pygame import sndarray, mixer
 
+from numpy import zeros, int32, int16
+
 import time
-from math import sin
 
 
 #mixer.init(44100, -16, 0)
 mixer.init()
 #mixer.init(11025, -16, 0)
 #mixer.init(11025)
-
-
-
 
 
 
@@ -167,25 +164,10 @@ def main(arraytype=None):
 
     """
 
-    global zeros, int16, int32
-
     main_dir = os.path.split(os.path.abspath(__file__))[0]
-    
-    if arraytype is None:
-        if 'numpy' in sndarray.get_arraytypes():
-            sndarray.use_arraytype('numpy')
-        elif 'numeric' in sndarray.get_arraytype():
-            sndarray.use_arraytype('numeric')
-        else:
-            raise ImportError('No array package is installed')
-    else:
-        sndarray.use_arraytype(arraytype)
-    pygame.surfarray.use_arraytype(sndarray.get_arraytype())
 
-    if sndarray.get_arraytype() == 'numpy':
-        from numpy import zeros, int16, int32
-    else:
-        from Numeric import zeros, Int16 as int16, Int32 as int32
+    if arraytype not in ('numpy', None):
+        raise ValueError('Array type not supported: %r' % arraytype)
 
     print ("Using %s array package" % sndarray.get_arraytype())
     print ("mixer.get_init %s" % (mixer.get_init(),))
@@ -276,25 +258,5 @@ def main(arraytype=None):
     while mixer.get_busy():
         pygame.time.wait(200)
 
-
-def usage():
-    print ("Usage: command line option [--numpy|--numeric]")
-    print ("  The default is to use NumPy if installed,")
-    print ("  otherwise Numeric")
-
 if __name__ == '__main__':
-    if len(sys.argv) == 2:
-        if '--numpy' in sys.argv:
-            main('numpy')
-        elif '--numeric' in sys.argv:
-            main('numeric')
-        else:
-            usage()
-    elif len(sys.argv) == 1:
-        main()
-    else:
-        usage()
-
-
-
-
+    main()

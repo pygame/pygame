@@ -1,13 +1,10 @@
 #!/usr/bin/env python
 
-import sys
 import os
-try:
-    import pygame
-    from pygame import surfarray
-    from pygame.locals import *
-except ImportError:
-    raise ImportError('Error Importing Pygame/surfarray')
+
+import pygame
+from pygame import surfarray
+from pygame.locals import *
 
 main_dir = os.path.split(os.path.abspath(__file__))[0]
 
@@ -19,23 +16,11 @@ def main(arraytype=None):
     or fall back on Numeric if NumPy is not installed.
 
     """
+    if arraytype not in ('numpy', None):
+        raise ValueError('Array type not supported: %r' % arraytype)
 
-    if arraytype is None:
-        if 'numpy' in surfarray.get_arraytypes():
-            surfarray.use_arraytype('numpy')
-        elif 'numeric' in surfarray.get_arraytype():
-            surfarray.use_arraytype('numeric')
-        else:
-            raise ImportError('No array package is installed')
-    else:
-        surfarray.use_arraytype(arraytype)
-
-    if surfarray.get_arraytype() == 'numpy':
-        import numpy as N
-        from numpy import int32, uint8, uint
-    else:
-        import Numeric as N
-        from Numeric import Int32 as int32, UInt8 as uint8, UInt as uint
+    import numpy as N
+    from numpy import int32, uint8, uint
 
     pygame.init()
     print ('Using %s' % surfarray.get_arraytype().capitalize())
@@ -137,28 +122,11 @@ def main(arraytype=None):
     surfdemo_show(xfade, 'xfade')
 
 
-
-
     #alldone
     pygame.quit()
 
-def usage():
-    print ("Usage: command line option [--numpy|--numeric]")
-    print ("  The default is to use NumPy if installed,")
-    print ("  otherwise Numeric")
-
 if __name__ == '__main__':
-    if len(sys.argv) == 2:
-        if '--numpy' in sys.argv:
-            main('numpy')
-        elif '--numeric' in sys.argv:
-            main('numeric')
-        else:
-            usage()
-    elif len(sys.argv) == 1:
-        main()
-    else:
-        usage()
+    main()
 
         
 
