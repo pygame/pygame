@@ -12,16 +12,14 @@ if is_pygame_pkg:
     from pygame.tests import test_utils
     from pygame.tests.test_utils import import_submodule
     from pygame.tests.test_utils.test_runner \
-         import prepare_test_env, run_test, combine_results, test_failures, \
-                get_test_results, from_namespace, TEST_RESULTS_START, \
-                opt_parser
+         import prepare_test_env, run_test, combine_results, \
+                get_test_results, TEST_RESULTS_START
 else:
     from test import test_utils
     from test.test_utils import import_submodule
     from test.test_utils.test_runner \
-         import prepare_test_env, run_test, combine_results, test_failures, \
-                get_test_results, from_namespace, TEST_RESULTS_START, \
-                opt_parser
+         import prepare_test_env, run_test, combine_results, \
+                get_test_results, TEST_RESULTS_START
 import pygame
 import pygame.threads
 
@@ -280,12 +278,15 @@ def run(*args, **kwds):
             else:
                 results[module] = {}
 
-            add_to_results = [
-                'return_code', 'raw_return',  'cmd', 'test_file',
-                'test_env', 'working_dir', 'module',
-            ]
-
-            results[module].update(from_namespace(locals(), add_to_results))
+            results[module].update(dict(
+                return_code=return_code,
+                raw_return=raw_return,
+                cmd=cmd,
+                test_file=test_file,
+                test_env=test_env,
+                working_dir=working_dir,
+                module=module,
+            ))
 
         t = time.time() - t
 
