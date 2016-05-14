@@ -294,10 +294,12 @@ def run(*args, **kwds):
     #
 
     untrusty_total, combined = combine_results(results, t)
-    total, fails = test_failures(results)
+    total, n_errors, n_failures = count_results(results)
 
     meta['total_tests'] = total
     meta['combined'] = combined
+    meta['total_errors'] = n_errors
+    meta['total_failures'] = n_failures
     results.update(meta_results)
 
     if option_nosubprocess:
@@ -306,7 +308,6 @@ def run(*args, **kwds):
     if not option_dump:
         print (combined)
     else:
-        results = option_all and results or fails
         print (TEST_RESULTS_START)
         print (pformat(results))
 
@@ -319,7 +320,21 @@ def run(*args, **kwds):
 
     shutil.rmtree(working_dir_temp)
 
-    return total, fails
+    return total, n_errors + n_failures
+
+
+def count_results(results):
+    total = errors = failures = 0
+    for result in results.values():
+        if result.get('return_code', 0):
+            total += 1
+            errors += 1
+        else:
+            total += result['num_tests']
+            errors += result['num_errors']
+            failures += result['num_failures']
+
+    return total, errors, failures
 
 
 def run_and_exit(*args, **kwargs):

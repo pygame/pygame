@@ -258,6 +258,8 @@ def run_test(module, incomplete=False, nosubprocess=False, randomize=False,
     results = {module: {
         'output': output.getvalue(),
         'num_tests': results.testsRun,
+        'num_errors': len(results.errors),
+        'num_failures': len(results.failures),
     }}
 
     if not nosubprocess:
