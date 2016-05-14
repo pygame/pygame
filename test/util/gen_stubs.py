@@ -30,7 +30,7 @@ from os.path import normpath, join, dirname, abspath
 for relpath in ('../../','../'):
     sys.path.insert(0, abspath(normpath( join(dirname(__file__), relpath) )) )
 
-from test.test_utils.unittest import TestCase
+unittest import TestCase
 from makeref import docs_as_dict
 from test_utils import trunk_relative_path
 
