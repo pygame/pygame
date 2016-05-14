@@ -45,7 +45,7 @@ EXCLUDE_RE = re.compile("(%s,?\s*)+$" % (TAG_PAT,))
 
 def exclude_callback(option, opt, value, parser):
     if EXCLUDE_RE.match(value) is None:
-        raise opt_parser.OptionValueError("%s argument has invalid value" %
+        raise optparse.OptionValueError("%s argument has invalid value" %
                                           (opt,))
     parser.values.exclude = TAG_RE.findall(value)
 
@@ -61,11 +61,6 @@ opt_parser.add_option (
               " (default: use subprocesses)" )
 
 opt_parser.add_option (
-     "-T",  "--timings", type = 'int', default = 1, metavar = 'T',
-     help   = "get timings for individual tests.\n" 
-              "Run test T times, giving average time")
-
-opt_parser.add_option (
      "-e",  "--exclude",
      action = 'callback',
      type   = 'string',
@@ -73,16 +68,12 @@ opt_parser.add_option (
      callback = exclude_callback)
 
 opt_parser.add_option (
-     "-w",  "--show_output", action = 'store_true',
-     help   = "show silenced stderr/stdout on errors" )
+     "-v",  "--unbuffered", action = 'store_true',
+     help   = "Show stdout/stderr as tests run, rather than storing it and showing on failures" )
 
 opt_parser.add_option (
      "-r",  "--randomize", action = 'store_true',
      help   = "randomize order of tests" )
-
-opt_parser.add_option (
-     "-S",  "--seed", type = 'int',
-     help   = "seed randomizer" )
 
 ################################################################################
 # If an xxxx_test.py takes longer than TIME_OUT seconds it will be killed
@@ -189,7 +180,7 @@ def get_test_results(raw_return):
 ################################################################################
 
 def run_test(module, incomplete=False, nosubprocess=False, randomize=False,
-             exclude=('interactive',)):
+             exclude=('interactive',), buffer=True):
     """Run a unit test module
     """
     suite = unittest.TestSuite()
@@ -202,7 +193,7 @@ def run_test(module, incomplete=False, nosubprocess=False, randomize=False,
     suite.addTest(loader.loadTestsFromName(module))
 
     output = StringIO.StringIO()
-    runner = unittest.TextTestRunner(stream=output, buffer=True)
+    runner = unittest.TextTestRunner(stream=output, buffer=buffer)
     results = runner.run(suite)
 
     results = {module: {
@@ -235,6 +226,7 @@ if __name__ == '__main__':
              nosubprocess=options.nosubprocess,
              randomize=options.randomize,
              exclude=options.exclude,
+             buffer=(not options.unbuffered),
             )
 
 ################################################################################
