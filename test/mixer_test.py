@@ -1,8 +1,7 @@
-#################################### IMPORTS ###################################
+import sys
+import os
 
 if __name__ == '__main__':
-    import sys
-    import os
     pkg_dir = os.path.split(os.path.abspath(__file__))[0]
     parent_dir, pkg_name = os.path.split(pkg_dir)
     is_pygame_pkg = (pkg_name == 'tests' and
@@ -12,16 +11,15 @@ if __name__ == '__main__':
 else:
     is_pygame_pkg = __name__.startswith('pygame.tests.')
 
+import unittest
 if is_pygame_pkg:
-    from pygame.tests.test_utils import test_not_implemented, unittest, example_path
+    from pygame.tests.test_utils import example_path
 else:
-    from test.test_utils import test_not_implemented, unittest, example_path
+    from test.test_utils import example_path
 import pygame
 from pygame import mixer
 from pygame.compat import xrange_, unicode_, as_bytes, geterror, bytes_
 
-import sys
-import os
 
 ################################### CONSTANTS ##################################
 

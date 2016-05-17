@@ -12,11 +12,10 @@ if __name__ == '__main__':
 else:
     is_pygame_pkg = __name__.startswith('pygame.tests.')
 
+import unittest
 if is_pygame_pkg:
-    from pygame.tests.test_utils import test_not_implemented, unittest
     from pygame.tests.event_test import race_condition_notification
 else:
-    from test.test_utils import test_not_implemented, unittest
     from test.event_test import race_condition_notification
 import pygame
 from pygame import event, fastevent

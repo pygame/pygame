@@ -1,3 +1,5 @@
+import sys
+
 if __name__ == '__main__':
     import sys
     import os
@@ -10,12 +12,13 @@ if __name__ == '__main__':
 else:
     is_pygame_pkg = __name__.startswith('pygame.tests.')
 
+import unittest
 if is_pygame_pkg:
-    from pygame.tests.test_utils import test_not_implemented, unittest, arrinter
+    from pygame.tests.test_utils import arrinter
 else:
-    from test.test_utils import test_not_implemented, unittest, arrinter
+    from test.test_utils import arrinter
 import pygame
-import sys
+
 
 init_called = quit_called = 0
 def __PYGAMEinit__(): #called automatically by pygame.init()

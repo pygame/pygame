@@ -10,12 +10,11 @@ if __name__ == '__main__':
 else:
     is_pygame_pkg = __name__.startswith('pygame.tests.')
 
+import unittest
 if is_pygame_pkg:
-    from pygame.tests.test_utils \
-         import test_not_implemented, example_path, unittest, png
+    from pygame.tests.test_utils import example_path, png
 else:
-    from test.test_utils \
-         import test_not_implemented, example_path, unittest, png
+    from test.test_utils import example_path, png
 import pygame, pygame.image, pygame.pkgdata
 from pygame.compat import xrange_, ord_
 
