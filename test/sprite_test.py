@@ -13,12 +13,11 @@ if __name__ == '__main__':
 else:
     is_pygame_pkg = __name__.startswith('pygame.tests.')
 
+import unittest
 if is_pygame_pkg:
-    from pygame.tests.test_utils \
-         import test_not_implemented, unordered_equality, unittest
+    from pygame.tests.test_utils import unordered_equality
 else:
-    from test.test_utils \
-         import test_not_implemented, unordered_equality, unittest
+    from test.test_utils import unordered_equality
 import pygame
 from pygame import sprite
 

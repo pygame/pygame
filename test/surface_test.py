@@ -10,16 +10,17 @@ if __name__ == '__main__':
 else:
     is_pygame_pkg = __name__.startswith('pygame.tests.')
 
+import unittest
 if is_pygame_pkg:
     from pygame.tests import test_utils
-    from pygame.tests.test_utils import test_not_implemented, unittest, example_path
+    from pygame.tests.test_utils import example_path
     try:
         from pygame.tests.test_utils.arrinter import *
     except ImportError:
         pass
 else:
     from test import test_utils
-    from test.test_utils import test_not_implemented, unittest, example_path
+    from test.test_utils import example_path
     try:
         from test.test_utils.arrinter import *
     except ImportError:

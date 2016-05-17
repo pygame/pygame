@@ -3,6 +3,8 @@ import re
 import weakref
 import gc
 import ctypes
+import unittest
+
 if __name__ == '__main__':
     import os
     pkg_dir = os.path.split(os.path.abspath(__file__))[0]
@@ -14,13 +16,10 @@ if __name__ == '__main__':
 else:
     is_pygame_pkg = __name__.startswith('pygame.tests.')
 
-if is_pygame_pkg:
-    from pygame.tests.test_utils import test_not_implemented, unittest
-else:
-    from test.test_utils import test_not_implemented, unittest
 import pygame
 from pygame.bufferproxy import BufferProxy
 from pygame.compat import as_bytes
+
 try:
     BufferError
 except NameError:
