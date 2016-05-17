@@ -13,28 +13,23 @@ if __name__ == '__main__':
 else:
     is_pygame_pkg = __name__.startswith('pygame.tests.')
 
-if is_pygame_pkg:
-    from pygame.tests import test_utils
-    from pygame.tests.test_utils import unittest
-else:
-    from test import test_utils
-    from test.test_utils import unittest
+import unittest
 
 class KeyModuleTest(unittest.TestCase):
     def test_get_focused(self):
         self.assert_(True) 
 
     def test_get_mods(self):
-        self.assert_(True) 
+        self.assert_(True)
 
-    def test_get_pressed(self):
-        self.assert_(test_utils.test_not_implemented()) 
+    def todo_test_get_pressed(self):
+        self.fail()
 
     def test_name(self):
-        self.assert_(True) 
+        self.assert_(True)
 
-    def test_set_mods(self):
-        self.assert_(test_utils.test_not_implemented()) 
+    def todo_test_set_mods(self):
+        self.fail()
 
     def test_set_repeat(self):
         self.assert_(True) 

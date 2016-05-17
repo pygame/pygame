@@ -1,6 +1,4 @@
-#################################### IMPORTS ###################################
-
-from __future__ import generators
+import unittest
 
 if __name__ == '__main__':
     import sys
@@ -14,10 +12,6 @@ if __name__ == '__main__':
 else:
     is_pygame_pkg = __name__.startswith('pygame.tests.')
 
-if is_pygame_pkg:
-    from pygame.tests.test_utils import test_not_implemented, unittest
-else:
-    from test.test_utils import test_not_implemented, unittest
 import pygame
 from pygame.compat import long_
 import math
