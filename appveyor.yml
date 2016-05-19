@@ -1,0 +1,60 @@
+environment:
+
+  USER: 
+    secure: "vqkRNxewT2z/PD+0VquHTA=="
+  PASS:
+    secure: "ni4lUD07eVM5LR2qdot9b/eJZTf89cl0st/9/9wRcaw="
+
+  global:
+    # SDK v7.0 MSVC Express 2008's SetEnv.cmd script will fail if the
+    # /E:ON and /V:ON options are not enabled in the batch script intepreter
+    # See: http://stackoverflow.com/a/13751649/163740
+    WITH_COMPILER: "cmd /E:ON /V:ON /C .\\appveyor\\run_with_compiler.cmd"
+
+  matrix:
+    - PYTHON: "C:\\Python26"
+      PYTHON_VERSION: "2.6.6"
+      PYTHON_ARCH: "32"
+      DISTRIBUTIONS: "bdist_wheel"
+
+    - PYTHON: "C:\\Python27"
+      PYTHON_VERSION: "2.7.8"
+      PYTHON_ARCH: "32"
+      DISTRIBUTIONS: "sdist bdist_wheel"
+
+    - PYTHON: "C:\\Python32"
+      PYTHON_VERSION: "3.2.5"
+      PYTHON_ARCH: "32"
+      DISTRIBUTIONS: "bdist_wheel"
+
+    - PYTHON: "C:\\Python33"
+      PYTHON_VERSION: "3.3.5"
+      PYTHON_ARCH: "32"
+      DISTRIBUTIONS: "bdist_wheel"
+
+    - PYTHON: "C:\\Python34"
+      PYTHON_VERSION: "3.4.2"
+      PYTHON_ARCH: "32"
+      DISTRIBUTIONS: "bdist_wheel"
+
+init:
+  - "ECHO %PYTHON% %PYTHON_VERSION% %PYTHON_ARCH%"
+
+install:
+  - "powershell appveyor\\install.ps1"
+  - "set HOME=%APPVEYOR_BUILD_FOLDER%"
+
+build: off
+
+test_script:
+  - "%WITH_COMPILER% %PYTHON%/python config.py -auto"
+  - "%WITH_COMPILER% %PYTHON%/python setup.py build"
+
+after_test:
+  - "%WITH_COMPILER% %PYTHON%/python setup.py %DISTRIBUTIONS%"
+
+artifacts:
+  - path: dist\*
+
+on_success:
+  - "%PYTHON%/Scripts/twine upload -u %USER% -p %PASS% -r pypitest dist/*"
