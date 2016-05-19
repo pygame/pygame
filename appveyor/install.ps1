@@ -8,12 +8,10 @@ function DownloadPrebuilt () {
 
     $download_url = "https://bitbucket.org/llindstrom/pygame/downloads/"
     $build_date = "20150922"
-    $target = "x64"
+    $target = "x86"
     $prebuilt_file = "prebuilt-"+$target+"-pygame-1.9.2-"+$build_date+".zip"
     $prebuilt_url = $download_url + $prebuilt_file
     $prebuilt_zip = "prebuilt-" + $target + ".zip"
-    Write-Host "Downloading "
-    Write-Host "To"
 
     $basedir = $pwd.Path + "\"
     $filepath = $basedir + $prebuilt_zip
