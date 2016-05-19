@@ -1,29 +1,33 @@
-# Sample script to install Python and pip under Windows
-# Authors: Olivier Grisel and Kyle Kastner
-# License: CC0 1.0 Universal: http://creativecommons.org/publicdomain/zero/1.0/
-
 function InstallPackage ($python_home, $pkg) {
     $pip_path = $python_home + "/Scripts/pip.exe"
     & $pip_path install $pkg
 }
 
-function DownloadPrebuilt ($url) {
+function DownloadPrebuilt () {
     $webclient = New-Object System.Net.WebClient
 
-    $filename = "prebuilt.zip"
+    $download_url = "https://bitbucket.org/llindstrom/pygame/downloads/"
+    $build_date = "20150922"
+    $target = "x64"
+    $prebuilt_file = "prebuilt-"+$target+"-pygame-1.9.2-"+$build_date+".zip"
+    $prebuilt_url = $download_url + $prebuilt_file
+    $prebuilt_zip = "prebuilt-" + $target + ".zip"
+    Write-Host "Downloading "
+    Write-Host "To"
+
     $basedir = $pwd.Path + "\"
-    $filepath = $basedir + $filename
+    $filepath = $basedir + $prebuilt_zip
     if (Test-Path $filename) {
         Write-Host "Reusing" $filepath
         return $filepath
     }
 
     # Download and retry up to 5 times in case of network transient errors.
-    Write-Host "Downloading" $filename "from" $url
+    Write-Host "Downloading" $filename "from" $prebuilt_url
     $retry_attempts = 3
     for($i=0; $i -lt $retry_attempts; $i++){
         try {
-            $webclient.DownloadFile($url, $filepath)
+            $webclient.DownloadFile($prebuilt_url, $filepath)
             break
         }
         Catch [Exception]{
@@ -31,15 +35,14 @@ function DownloadPrebuilt ($url) {
         }
    }
    Write-Host "File saved at" $filepath
-   return $filepath
+
+   & 7z x $prebuilt_zip
 }
 
 
 function main () {
     InstallPackage $env:PYTHON wheel
-    DownloadPrebuilt("https://bitbucket.org/pcraven/pygame/downloads/prebuilt.zip")
-    & 7z x prebuilt.zip
-    Rename-Item prebuilt prebuilt-x86
+    DownloadPrebuilt()
 }
 
 main
