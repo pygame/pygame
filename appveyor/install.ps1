@@ -42,7 +42,7 @@ function DownloadPrebuilt () {
 
 function main () {
     InstallPackage $env:PYTHON wheel
-    DownloadPrebuilt()
+    & DownloadPrebuilt
 }
 
 main
