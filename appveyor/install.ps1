@@ -39,7 +39,7 @@ function main () {
     InstallPackage $env:PYTHON wheel
     DownloadPrebuilt("https://bitbucket.org/pcraven/pygame/downloads/prebuilt.zip")
     & 7z x prebuilt.zip
-
+    Rename-Item prebuilt prebuilt-x86
 }
 
 main

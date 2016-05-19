@@ -6,6 +6,7 @@ environment:
     # See: http://stackoverflow.com/a/13751649/163740
     WITH_COMPILER: "cmd /E:ON /V:ON /C .\\appveyor\\run_with_compiler.cmd"
     DISTRIBUTIONS: "bdist_wheel"
+    PYGAME_USE_PREBUILT: "1"
 
   matrix:
     - PYTHON: "C:\\Python27"
