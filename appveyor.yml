@@ -1,10 +1,5 @@
 environment:
 
-  USER: 
-    secure: "vqkRNxewT2z/PD+0VquHTA=="
-  PASS:
-    secure: "ni4lUD07eVM5LR2qdot9b/eJZTf89cl0st/9/9wRcaw="
-
   global:
     # SDK v7.0 MSVC Express 2008's SetEnv.cmd script will fail if the
     # /E:ON and /V:ON options are not enabled in the batch script intepreter
@@ -56,5 +51,3 @@ after_test:
 artifacts:
   - path: dist\*
 
-on_success:
-  - "%PYTHON%/Scripts/twine upload -u %USER% -p %PASS% -r pypitest dist/*"
