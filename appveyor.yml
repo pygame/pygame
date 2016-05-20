@@ -7,6 +7,8 @@ environment:
     WITH_COMPILER: "cmd /E:ON /V:ON /C .\\appveyor\\run_with_compiler.cmd"
     DISTRIBUTIONS: "bdist_wheel"
     PYGAME_USE_PREBUILT: "1"
+    SDL_VIDEODRIVER: "dummy"
+    SDL_AUDIODRIVER: "disk"
 
   matrix:
     - PYTHON: "C:\\Python27"
