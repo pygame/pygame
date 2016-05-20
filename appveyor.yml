@@ -27,6 +27,7 @@ init:
 install:
   - "powershell appveyor\\install.ps1"
   - "set HOME=%APPVEYOR_BUILD_FOLDER%"
+  - "%PYTHON%/python -m pip install -U pip"  # Upgrade pip
   - "%WITH_COMPILER% %PYTHON%/python config.py -auto"
   - "%WITH_COMPILER% %PYTHON%/python setup.py build"
   - "%WITH_COMPILER% %PYTHON%/python setup.py -setuptools %DISTRIBUTIONS%"
