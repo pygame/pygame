@@ -15,7 +15,7 @@ function DownloadPrebuilt () {
 
     $basedir = $pwd.Path + "\"
     $filepath = $basedir + $prebuilt_zip
-    if (Test-Path $filename) {
+    if (Test-Path $filepath) {
         Write-Host "Reusing" $filepath
         return $filepath
     }
