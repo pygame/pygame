@@ -33,7 +33,7 @@ install:
   - ps: "ls dist"
 
   # Install the wheel to test it
-  - "%PYTHON%/python -m pip install --pre --no-index --find-links dist/ pygame"
+  - "%PYTHON%/python -m pip install --ignore-installed --pre --no-index --find-links dist/ pygame"
 
 # Appveyor's build step is specific to .NET projects, so we build in the
 # install step instead.
