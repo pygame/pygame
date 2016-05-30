@@ -35,6 +35,21 @@ static PyTypeObject PyRect_Type;
 static PyObject* rect_new (PyTypeObject *type, PyObject *args, PyObject *kwds);
 static int rect_init (PyRectObject *self, PyObject *args, PyObject *kwds);
 
+PyObject*
+rect_subtype_new4 (PyTypeObject *type, int x, int y, int w, int h)
+{
+    PyRectObject* rect;
+    rect = (PyRectObject *) PyRect_Type.tp_new (type, NULL, NULL);
+    if (rect)
+    {
+        rect->r.x = x;
+        rect->r.y = y;
+        rect->r.w = w;
+        rect->r.h = h;
+    }
+    return (PyObject*)rect;
+}
+
 GAME_Rect*
 GameRect_FromObject (PyObject* obj, GAME_Rect* temp)
 {
@@ -82,7 +97,7 @@ GameRect_FromObject (PyObject* obj, GAME_Rect* temp)
             }
             temp->y = val;
             Py_DECREF (sub);
-            
+
             sub = PySequence_GetItem (obj, 1);
             if (!sub || !PySequence_Check (sub) || PySequence_Length (sub) != 2)
             {
@@ -134,40 +149,22 @@ GameRect_FromObject (PyObject* obj, GAME_Rect* temp)
 PyObject*
 PyRect_New (SDL_Rect* r)
 {
-    PyRectObject* rect;
-    rect = (PyRectObject *) PyRect_Type.tp_new (&PyRect_Type, NULL, NULL);
-    if (rect)
-    {
-        rect->r.x = r->x;
-        rect->r.y = r->y;
-        rect->r.w = r->w;
-        rect->r.h = r->h;
-    }
-    return (PyObject*)rect;
+    return rect_subtype_new4 (&PyRect_Type, r->x, r->y, r->w, r->h);
 }
 
 PyObject*
 PyRect_New4 (int x, int y, int w, int h)
 {
-    PyRectObject* rect;
-    rect = (PyRectObject *) PyRect_Type.tp_new (&PyRect_Type, NULL, NULL);
-    if (rect)
-    {
-        rect->r.x = x;
-        rect->r.y = y;
-        rect->r.w = w;
-        rect->r.h = h;
-    }
-    return (PyObject*)rect;
+    return rect_subtype_new4 (&PyRect_Type, x, y, w, h);
 }
 
 static int
 DoRectsIntersect (GAME_Rect *A, GAME_Rect *B)
 {
-    return ((A->x >= B->x && A->x < B->x + B->w)  ||
-            (B->x >= A->x && B->x < A->x + A->w)) &&
-        ((A->y >= B->y && A->y < B->y + B->h)	||
-         (B->y >= A->y && B->y < A->y + A->h));
+    //A.topleft < B.bottomright &&
+    //A.bottomright > B.topleft
+    return (A->x < B->x + B->w && A->y < B->y + B->h &&
+            A->x + A->w > B->x && A->y + A->h > B->y);
 }
 
 static PyObject*
@@ -198,7 +195,9 @@ rect_move (PyObject* oself, PyObject* args)
     if (!TwoIntsFromObj (args, &x, &y))
         return RAISE (PyExc_TypeError, "argument must contain two numbers");
 
-    return PyRect_New4 (self->r.x + x, self->r.y + y, self->r.w, self->r.h);
+    return rect_subtype_new4 (Py_TYPE (oself),
+                              self->r.x + x, self->r.y + y,
+                              self->r.w, self->r.h);
 }
 
 static PyObject*
@@ -224,8 +223,9 @@ rect_inflate (PyObject* oself, PyObject* args)
     if (!TwoIntsFromObj (args, &x, &y))
         return RAISE (PyExc_TypeError, "argument must contain two numbers");
 
-    return PyRect_New4 (self->r.x - x / 2, self->r.y - y / 2,
-                        self->r.w + x, self->r.h + y);
+    return rect_subtype_new4 (Py_TYPE (oself),
+                              self->r.x - x / 2, self->r.y - y / 2,
+                              self->r.w + x, self->r.h + y);
 }
 
 static PyObject*
@@ -257,7 +257,7 @@ rect_union (PyObject* oself, PyObject* args)
     y = MIN (self->r.y, argrect->y);
     w = MAX (self->r.x + self->r.w, argrect->x + argrect->w) - x;
     h = MAX (self->r.y + self->r.h, argrect->y + argrect->h) - y;
-    return PyRect_New4 (x, y, w, h);
+    return rect_subtype_new4 (Py_TYPE (oself), x, y, w, h);
 }
 
 static PyObject*
@@ -300,8 +300,14 @@ rect_unionall (PyObject* oself, PyObject* args)
     r = self->r.x + self->r.w;
     b = self->r.y + self->r.h;
     size = PySequence_Length (list); /*warning, size could be -1 on error?*/
-    if (size < 1)
-        return PyRect_New4 (l, t, r-l, b-t);
+    if (size < 1) {
+        if (size < 0) {
+            /*Error.*/
+            return NULL;
+        }
+        /*Empty list: nothing to be done.*/
+        return rect_subtype_new4 (Py_TYPE (oself), l, t, r-l, b-t);
+    }
 
     for (loop = 0; loop < size; ++loop)
     {
@@ -319,7 +325,7 @@ rect_unionall (PyObject* oself, PyObject* args)
         b = MAX (b, argrect->y + argrect->h);
         Py_DECREF (obj);
     }
-    return PyRect_New4 (l, t, r-l, b-t);
+    return rect_subtype_new4 (Py_TYPE (oself), l, t, r-l, b-t);
 }
 
 static PyObject*
@@ -343,8 +349,14 @@ rect_unionall_ip (PyObject* oself, PyObject* args)
     b = self->r.y + self->r.h;
 
     size = PySequence_Length (list); /*warning, size could be -1 on error?*/
-    if (size < 1)
-        return PyRect_New4 (l, t, r-l, b-t);
+    if (size < 1) {
+        if (size < 0) {
+            /*Error.*/
+            return NULL;
+        }
+        /*Empty list: nothing to be done.*/
+        Py_RETURN_NONE;
+    }
 
     for (loop = 0; loop < size; ++loop)
     {
@@ -630,10 +642,10 @@ rect_clip (PyObject* self, PyObject* args)
     else
         goto nointersect;
 
-    return PyRect_New4 (x, y, w, h);
+    return rect_subtype_new4 (Py_TYPE (self), x, y, w, h);
 
 nointersect:
-    return PyRect_New4 (A->x, A->y, 0, 0);
+    return rect_subtype_new4 (Py_TYPE (self), A->x, A->y, 0, 0);
 }
 
 static PyObject*
@@ -681,7 +693,7 @@ rect_clamp (PyObject* oself, PyObject* args)
     else
         y = self->r.y;
 
-    return PyRect_New4 (x, y, self->r.w, self->r.h);
+    return rect_subtype_new4 (Py_TYPE (oself), x, y, self->r.w, self->r.h);
 }
 
 static PyObject*
@@ -704,7 +716,7 @@ rect_fit (PyObject* oself, PyObject* args)
     x = argrect->x + (argrect->w - w)/2;
     y = argrect->y + (argrect->h - h)/2;
 
-    return PyRect_New4 (x, y, w, h);
+    return rect_subtype_new4 (Py_TYPE (oself), x, y, w, h);
 }
 
 static PyObject*
@@ -754,7 +766,8 @@ static PyObject*
 rect_copy (PyObject* oself)
 {
     PyRectObject* self = (PyRectObject*)oself;
-    return PyRect_New4 (self->r.x, self->r.y, self->r.w, self->r.h);
+    return rect_subtype_new4 (Py_TYPE (oself),
+                              self->r.x, self->r.y, self->r.w, self->r.h);
 }
 
 static struct PyMethodDef rect_methods[] =
@@ -834,7 +847,7 @@ rect_slice (PyObject *_self, Py_ssize_t ilow, Py_ssize_t ihigh)
     PyObject *list;
     int* data = (int*)&self->r;
     int numitems, loop, l = 4;
-    
+
     if (ihigh < 0)
         ihigh += l;
     if (ilow < 0)
@@ -852,12 +865,12 @@ rect_slice (PyObject *_self, Py_ssize_t ilow, Py_ssize_t ihigh)
 
     if (ihigh < ilow)
         ihigh = ilow;
-    
+
     numitems = ihigh - ilow;
     list = PyList_New (numitems);
     for (loop = 0; loop < numitems; ++loop)
         PyList_SET_ITEM (list, loop, PyInt_FromLong (data[loop + ilow]));
-    
+
     return list;
 }
 
@@ -868,13 +881,13 @@ rect_ass_slice(PyObject *_self, Py_ssize_t ilow, Py_ssize_t ihigh, PyObject *v)
     int* data = (int*)&self->r;
     int numitems, loop, l = 4;
     int val;
-    
+
     if (!PySequence_Check (v))
     {
         RAISE (PyExc_TypeError, "Assigned slice must be a sequence");
         return -1;
     }
-    
+
     if (ihigh < 0)
         ihigh += l;
     if (ilow  < 0)
@@ -891,21 +904,21 @@ rect_ass_slice(PyObject *_self, Py_ssize_t ilow, Py_ssize_t ihigh, PyObject *v)
 
     if (ihigh < ilow)
         ihigh = ilow;
-    
+
     numitems = ihigh - ilow;
     if (numitems != PySequence_Length (v))
     {
         RAISE (PyExc_ValueError, "Assigned slice must be same length");
         return -1;
     }
-    
+
     for (loop = 0; loop < numitems; ++loop)
     {
         if (!IntFromObjIndex (v, loop, &val))
             return -1;
         data[loop + ilow] = val;
     }
-    
+
     return 0;
 }
 
@@ -966,33 +979,33 @@ rect_coerce (PyObject** o1, PyObject** o2)
 
 static PyNumberMethods rect_as_number =
 {
-    (binaryfunc)NULL,		/*add*/
-    (binaryfunc)NULL,		/*subtract*/
-    (binaryfunc)NULL,		/*multiply*/
+    (binaryfunc)NULL,         /*add*/
+    (binaryfunc)NULL,         /*subtract*/
+    (binaryfunc)NULL,         /*multiply*/
 #if !PY3
-    (binaryfunc)NULL,		/*divide*/
+    (binaryfunc)NULL,         /*divide*/
 #endif
-    (binaryfunc)NULL,		/*remainder*/
-    (binaryfunc)NULL,		/*divmod*/
-    (ternaryfunc)NULL,		/*power*/
-    (unaryfunc)NULL,		/*negative*/
-    (unaryfunc)NULL,		/*pos*/
-    (unaryfunc)NULL,		/*abs*/
-    (inquiry)rect_nonzero,	/*nonzero / bool*/
-    (unaryfunc)NULL,		/*invert*/
-    (binaryfunc)NULL,		/*lshift*/
-    (binaryfunc)NULL,		/*rshift*/
-    (binaryfunc)NULL,		/*and*/
-    (binaryfunc)NULL,		/*xor*/
-    (binaryfunc)NULL,		/*or*/
+    (binaryfunc)NULL,         /*remainder*/
+    (binaryfunc)NULL,         /*divmod*/
+    (ternaryfunc)NULL,        /*power*/
+    (unaryfunc)NULL,          /*negative*/
+    (unaryfunc)NULL,          /*pos*/
+    (unaryfunc)NULL,          /*abs*/
+    (inquiry)rect_nonzero,    /*nonzero / bool*/
+    (unaryfunc)NULL,          /*invert*/
+    (binaryfunc)NULL,         /*lshift*/
+    (binaryfunc)NULL,         /*rshift*/
+    (binaryfunc)NULL,         /*and*/
+    (binaryfunc)NULL,         /*xor*/
+    (binaryfunc)NULL,         /*or*/
 #if !PY3
-    (coercion)rect_coerce,	/*coerce*/
+    (coercion)rect_coerce,    /*coerce*/
 #endif
-    (unaryfunc)NULL,		/*int*/
+    (unaryfunc)NULL,          /*int*/
 #if !PY3
-    (unaryfunc)NULL,		/*long*/
+    (unaryfunc)NULL,          /*long*/
 #endif
-    (unaryfunc)NULL,		/*float*/
+    (unaryfunc)NULL,          /*float*/
 };
 
 /* object type functions */
@@ -1486,44 +1499,44 @@ static PyGetSetDef rect_getsets[] = {
 static PyTypeObject PyRect_Type =
 {
     TYPE_HEAD (NULL, 0)
-    "pygame.Rect", 				/*name*/
-    sizeof(PyRectObject),		        /*basicsize*/
-    0,					/*itemsize*/
+    "pygame.Rect",                      /*name*/
+    sizeof(PyRectObject),               /*basicsize*/
+    0,                                  /*itemsize*/
     /* methods */
-    (destructor)rect_dealloc,	        /*dealloc*/
-    (printfunc)NULL,			/*print*/
-    NULL,	                                /*getattr*/
-    NULL,	                                /*setattr*/
+    (destructor)rect_dealloc,           /*dealloc*/
+    (printfunc)NULL,                    /*print*/
+    NULL,                               /*getattr*/
+    NULL,                               /*setattr*/
     NULL,                               /*compare/reserved*/
-    (reprfunc)rect_repr,		        /*repr*/
-    &rect_as_number,			/*as_number*/
-    &rect_as_sequence,			/*as_sequence*/
-    NULL,					/*as_mapping*/
-    (hashfunc)NULL, 			/*hash*/
-    (ternaryfunc)NULL,			/*call*/
-    (reprfunc)rect_str,			/*str*/
+    (reprfunc)rect_repr,                /*repr*/
+    &rect_as_number,                    /*as_number*/
+    &rect_as_sequence,                  /*as_sequence*/
+    NULL,                               /*as_mapping*/
+    (hashfunc)NULL,                     /*hash*/
+    (ternaryfunc)NULL,                  /*call*/
+    (reprfunc)rect_str,                 /*str*/
 
     /* Space for future expansion */
     0L,0L,0L,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags */
-    DOC_PYGAMERECT,                        /* Documentation string */
-    0,					/* tp_traverse */
-    0,					/* tp_clear */
-    (richcmpfunc)rect_richcompare,			/* tp_richcompare */
-    offsetof(PyRectObject, weakreflist),    /* tp_weaklistoffset */
-    0,					/* tp_iter */
-    0,					/* tp_iternext */
-    rect_methods,			        /* tp_methods */
-    0,				        /* tp_members */
-    rect_getsets,				/* tp_getset */
-    0,					/* tp_base */
-    0,					/* tp_dict */
-    0,					/* tp_descr_get */
-    0,					/* tp_descr_set */
-    0,					/* tp_dictoffset */
-    (initproc)rect_init,			/* tp_init */
-    0,					/* tp_alloc */
-    rect_new,			        /* tp_new */
+    DOC_PYGAMERECT,                     /* Documentation string */
+    0,                                  /* tp_traverse */
+    0,                                  /* tp_clear */
+    (richcmpfunc)rect_richcompare,      /* tp_richcompare */
+    offsetof(PyRectObject, weakreflist),  /* tp_weaklistoffset */
+    0,                                  /* tp_iter */
+    0,                                  /* tp_iternext */
+    rect_methods,                       /* tp_methods */
+    0,                                  /* tp_members */
+    rect_getsets,                       /* tp_getset */
+    0,                                  /* tp_base */
+    0,                                  /* tp_dict */
+    0,                                  /* tp_descr_get */
+    0,                                  /* tp_descr_set */
+    0,                                  /* tp_dictoffset */
+    (initproc)rect_init,                /* tp_init */
+    0,                                  /* tp_alloc */
+    rect_new,                           /* tp_new */
 };
 
 static PyObject*
@@ -1570,7 +1583,7 @@ MODINIT_DEFINE (rect)
     PyObject *module, *dict, *apiobj;
     int ecode;
     static void* c_api[PYGAMEAPI_RECT_NUMSLOTS];
-    
+
 #if PY3
     static struct PyModuleDef _module = {
         PyModuleDef_HEAD_INIT,

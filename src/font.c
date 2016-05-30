@@ -73,7 +73,7 @@ static int
 utf_8_needs_UCS_4(const char *str)
 {
     static const Uint8 first = '\xF0';
-    
+
     while (*str) {
         if ((Uint8)*str >= first) {
             return 1;
@@ -122,8 +122,8 @@ font_resource (const char *filename)
     }
 #else
     if (PyFile_Check(result))
-    {		
-        tmp = PyFile_Name(result);        
+    {
+        tmp = PyFile_Name(result);
         Py_INCREF(tmp);
         Py_DECREF(result);
         result = tmp;
@@ -187,6 +187,8 @@ fontmodule_init (PyObject* self)
     int istrue;
 
     result = font_autoinit (self);
+    if (result == NULL)
+        return NULL;
     istrue = PyObject_IsTrue (result);
     Py_DECREF (result);
     if (!istrue)
@@ -315,7 +317,7 @@ font_render(PyObject* self, PyObject* args)
     int aa;
     PyObject* text, *final;
     PyObject* fg_rgba_obj, *bg_rgba_obj = NULL;
-    Uint8 rgba[4];
+    Uint8 rgba[] = {0, 0, 0, 0};
     SDL_Surface* surf;
     SDL_Color foreg, backg;
     int just_return;
@@ -331,6 +333,7 @@ font_render(PyObject* self, PyObject* args)
     foreg.r = rgba[0];
     foreg.g = rgba[1];
     foreg.b = rgba[2];
+    foreg.unused = 0;
     if (bg_rgba_obj != NULL) {
         if (!RGBAFromColorObj(bg_rgba_obj, rgba)) {
             bg_rgba_obj = NULL;
@@ -379,7 +382,7 @@ font_render(PyObject* self, PyObject* args)
     else if (PyUnicode_Check(text)) {
         PyObject *bytes = PyUnicode_AsEncodedString(text, "utf-8", "replace");
         const char *astring = NULL;
-        
+
         if (!bytes) {
             return NULL;
         }
@@ -463,7 +466,7 @@ font_size(PyObject* self, PyObject* args)
     {
         PyObject* bytes = PyUnicode_AsEncodedString(text, "utf-8", "strict");
         int ecode;
-        
+
         if (!bytes) {
             return NULL;
         }
@@ -527,7 +530,7 @@ font_metrics(PyObject* self, PyObject* args)
     if (!list) {
         Py_DECREF (unicodeobj);
         return NULL;
-    }      
+    }
     buffer = PyUnicode_AS_UNICODE(unicodeobj);
     for (i = 0; i != length; ++i) {
         ch = buffer[i];
@@ -606,7 +609,7 @@ font_init(PyFontObject *self, PyObject *args, PyObject *kwds)
     TTF_Font *font = NULL;
     PyObject *obj;
     PyObject *oencoded;
-    
+
     self->font = NULL;
     if (!PyArg_ParseTuple(args, "Oi", &obj, &fontsize)) {
         return -1;
@@ -654,8 +657,8 @@ font_init(PyFontObject *self, PyObject *args, PyObject *kwds)
     }
     if (Bytes_Check(obj)) {
         const char *filename = Bytes_AS_STRING(obj);
-        FILE *test;        
-       		
+        FILE *test;
+
         /*check if it is a valid file, else SDL_ttf segfaults*/
         test = fopen(filename, "rb");
         if (test == NULL) {
@@ -739,7 +742,7 @@ static PyTypeObject PyFont_Type =
     0,
     (destructor)font_dealloc,
     0,
-    0, /*getattr*/
+    0,                                        /*getattr*/
     0,
     0,
     0,
@@ -751,27 +754,27 @@ static PyTypeObject PyFont_Type =
     (reprfunc)NULL,
     0L,0L,0L,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags */
-    DOC_PYGAMEFONTFONT, /* Documentation string */
-    0,					/* tp_traverse */
-    0,					/* tp_clear */
-    0,					/* tp_richcompare */
-    offsetof(PyFontObject, weakreflist),    /* tp_weaklistoffset */
-    0,					/* tp_iter */
-    0,					/* tp_iternext */
-    font_methods,			        /* tp_methods */
-    0,				        /* tp_members */
-    0,				        /* tp_getset */
-    0,					/* tp_base */
-    0,					/* tp_dict */
-    0,					/* tp_descr_get */
-    0,					/* tp_descr_set */
-    0,					/* tp_dictoffset */
-    (initproc)font_init,			/* tp_init */
-    0,					/* tp_alloc */
-    0,	                /* tp_new */
+    DOC_PYGAMEFONTFONT,                       /* Documentation string */
+    0,                                        /* tp_traverse */
+    0,                                        /* tp_clear */
+    0,                                        /* tp_richcompare */
+    offsetof(PyFontObject, weakreflist),      /* tp_weaklistoffset */
+    0,                                        /* tp_iter */
+    0,                                        /* tp_iternext */
+    font_methods,                             /* tp_methods */
+    0,                                        /* tp_members */
+    0,                                        /* tp_getset */
+    0,                                        /* tp_base */
+    0,                                        /* tp_dict */
+    0,                                        /* tp_descr_get */
+    0,                                        /* tp_descr_set */
+    0,                                        /* tp_dictoffset */
+    (initproc)font_init,                      /* tp_init */
+    0,                                        /* tp_alloc */
+    0,                                        /* tp_new */
 };
 
-//PyType_GenericNew,	                /* tp_new */
+//    PyType_GenericNew,                        /* tp_new */
 
 /*font module methods*/
 static PyObject*
@@ -830,19 +833,19 @@ MODINIT_DEFINE (font)
     */
     import_pygame_base ();
     if (PyErr_Occurred ()) {
-	MODINIT_ERROR;
+        MODINIT_ERROR;
     }
     import_pygame_color ();
     if (PyErr_Occurred ()) {
-	MODINIT_ERROR;
+        MODINIT_ERROR;
     }
     import_pygame_surface ();
     if (PyErr_Occurred ()) {
-	MODINIT_ERROR;
+        MODINIT_ERROR;
     }
     import_pygame_rwobject ();
     if (PyErr_Occurred ()) {
-	MODINIT_ERROR;
+        MODINIT_ERROR;
     }
 
     /* type preparation */
@@ -854,8 +857,8 @@ MODINIT_DEFINE (font)
 #if PY3
     module = PyModule_Create (&_module);
 #else
-    module = Py_InitModule3 (MODPREFIX "font", 
-                             _font_methods, 
+    module = Py_InitModule3 (MODPREFIX "font",
+                             _font_methods,
                              DOC_PYGAMEFONT);
 #endif
     if (module == NULL) {

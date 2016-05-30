@@ -1,10 +1,10 @@
 /*
  *   A part of the pydfb module. Provides interface for basic overlay
- *			manipulation functions.
- *      In this implementation overlay can use only one layer out of maximum
- *      possible. After getting overlay, no overlay can be created.
+ *                     manipulation functions.
+ * In this implementation overlay can use only one layer out of maximum
+ *     possible. After getting overlay, no overlay can be created.
  *
- *					Copyright (C) 2002-2003  Dmitry Borisov
+ *                    Copyright (C) 2002-2003  Dmitry Borisov
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -48,11 +48,11 @@ static PyObject*
 Overlay_SetLocation (PyGameOverlay *self, PyObject *args)
 {
     GAME_Rect *rect, temp;
-    
+
     rect = GameRect_FromObject (args, &temp);
     if (!rect)
         return RAISE (PyExc_TypeError, "Invalid rectstyle argument");
-    
+
     self->cRect.x = rect->x;
     self->cRect.y = rect->y;
     self->cRect.w = rect->w;
@@ -68,7 +68,7 @@ Overlay_Display (PyGameOverlay *self, PyObject *args)
     // Parse data params for frame
     int ls_y, ls_u, ls_v, y;
     unsigned char *src_y=0, *src_u=0, *src_v=0;
-	
+
     if (PyTuple_Size (args))
     {
         if (!PyArg_ParseTuple (args, "(s#s#s#)", &src_y, &ls_y, &src_u, &ls_u,
@@ -144,7 +144,7 @@ Overlay_New (PyTypeObject *type, PyObject *args, PyObject *kwds)
     screen = SDL_GetVideoSurface ();
     if (!screen)
         return RAISE (PyExc_SDLError, "Display mode not set");
-        
+
     // Create new Overlay object
     self= (PyGameOverlay *)type->tp_alloc (type, 0);
     if (!self)
@@ -179,7 +179,7 @@ PyTypeObject PyOverlay_Type =
     "pygame.overlay",        /*tp_name*/
     sizeof(PyGameOverlay),      /*tp_basicsize*/
     0,                         /*tp_itemsize*/
-    (destructor) overlay_dealloc,	/*tp_dealloc*/
+    (destructor) overlay_dealloc,    /*tp_dealloc*/
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
@@ -191,28 +191,28 @@ PyTypeObject PyOverlay_Type =
     0,                         /*tp_hash */
     0,                         /*tp_call*/
     0,                         /*tp_str*/
-    0,   /*tp_getattro*/
+    0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /*tp_flags*/
-    DOC_PYGAMEOVERLAY,           /* tp_doc */
-    0,		               /* tp_traverse */
-    0,		               /* tp_clear */
-    0,		               /* tp_richcompare */
-    0,		               /* tp_weaklistoffset */
-    0,		               /* tp_iter */
-    0,		               /* tp_iternext */
-    Overlay_methods,             /* tp_methods */
-    0,             /* tp_members */
+    DOC_PYGAMEOVERLAY,         /* tp_doc */
+    0,                         /* tp_traverse */
+    0,                         /* tp_clear */
+    0,                         /* tp_richcompare */
+    0,                         /* tp_weaklistoffset */
+    0,                         /* tp_iter */
+    0,                         /* tp_iternext */
+    Overlay_methods,           /* tp_methods */
+    0,                         /* tp_members */
     0,                         /* tp_getset */
     0,                         /* tp_base */
     0,                         /* tp_dict */
     0,                         /* tp_descr_get */
     0,                         /* tp_descr_set */
     0,                         /* tp_dictoffset */
-    0,    /* tp_init */
-    0,       /* tp_alloc */
-    Overlay_New,			   /* tp_new */
+    0,                         /* tp_init */
+    0,                         /* tp_alloc */
+    Overlay_New,               /* tp_new */
 };
 
 static PyMethodDef _overlay_methods[] =
@@ -243,7 +243,7 @@ MODINIT_DEFINE (overlay)
     if (PyErr_Occurred ()) {
         MODINIT_ERROR;
     }
-    import_pygame_rect ();    
+    import_pygame_rect ();
     if (PyErr_Occurred ()) {
         MODINIT_ERROR;
     }

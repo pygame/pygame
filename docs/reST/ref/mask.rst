@@ -221,7 +221,7 @@ New in pygame 1.8.
       | :sg:`convolve(othermask, outputmask = None, offset = (0,0)) -> Mask`
 
       Returns a mask with the (i-offset[0],j-offset[1]) bit set if shifting
-      othermask so that it's lower right corner pixel is at (i,j) would cause
+      othermask so that its lower right corner pixel is at (i,j) would cause
       it to overlap with self.
 
       If an outputmask is specified, the output is drawn onto outputmask and

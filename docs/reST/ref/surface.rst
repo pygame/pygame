@@ -143,6 +143,10 @@
       the original had them. See ``Surface.convert_alpha()`` for preserving or
       creating per-pixel alphas.
 
+      The new copy will have the same class as the copied surface. This lets
+      as Surface subclass inherit this method without the need to override,
+      unless subclass specific instance attributes also need copying.
+
       .. ## Surface.convert ##
 
    .. method:: convert_alpha
@@ -160,6 +164,9 @@
       image will not be exactly the same as the requested source, but it will
       be optimized for fast alpha blitting to the destination.
 
+      As with ``Surface.convert()`` the returned surface has the same class as
+      the converted surface.
+
       .. ## Surface.convert_alpha ##
 
    .. method:: copy
@@ -167,8 +174,10 @@
       | :sl:`create a new copy of a Surface`
       | :sg:`copy() -> Surface`
 
-      Makes a duplicate copy of a Surface. The new Surface will have the same
-      pixel formats, color palettes, and transparency settings as the original.
+      Makes a duplicate copy of a Surface. The new surface will have the same
+      pixel formats, color palettes, transparency settings, and class as the
+      original. If a Surface subclass also needs to copy any instance specific
+      attributes then it should override ``copy()``.
 
       .. ## Surface.copy ##
 
@@ -220,7 +229,7 @@
       | :sg:`set_colorkey(None) -> None`
 
       Set the current color key for the Surface. When blitting this Surface
-      onto a destination, and pixels that have the same color as the colorkey
+      onto a destination, any pixels that have the same color as the colorkey
       will be transparent. The color can be an ``RGB`` color or a mapped color
       integer. If None is passed, the colorkey will be unset.
 
@@ -547,6 +556,8 @@
       See the ``Surface.get_offset()``, ``Surface.get_parent()`` to learn more
       about the state of a subsurface.
 
+      A subsurface will have the same class as the parent surface.
+
       .. ## Surface.subsurface ##
 
    .. method:: get_parent
@@ -780,24 +791,34 @@
 
    .. method:: get_view
 
-      | :sl:`return a view of a surface's pixel data.`
-      | :sg:`get_view(kind='2') -> <view>`
+      | :sl:`return a buffer view of the Surface's pixels.`
+      | :sg:`get_view(<kind>='2') -> BufferProxy`
 
-      Return an object which exposes a surface's internal pixel buffer to a
-      NumPy array. For now a custom object with an array struct interface is
-      returned. A Python memoryview may be returned in the future. The buffer
-      is writeable.
+      Return an object which exports a surface's internal pixel buffer as
+      a C level array struct, Python level array interface or a C level 
+      buffer interface. The pixel buffer is writeable. The new buffer protocol
+      is supported for Python 2.6 and up in CPython. The old buffer protocol
+      is also supported for Python 2.x. The old buffer data is in one segment
+      for kind '0', multi-segment for other buffer view kinds.
 
-      The kind argument is the length 1 string '2', '3', 'r', 'g', 'b', or 'a'.
-      The letters are case insensitive; 'A' will work as well. The argument can
-      be either a Unicode or byte (char) string. The default is '2'.
+      The kind argument is the length 1 string '0', '1', '2', '3',
+      'r', 'g', 'b', or 'a'. The letters are case insensitive;
+      'A' will work as well. The argument can be either a Unicode or byte (char)
+      string. The default is '2'.
 
-      A kind '2' view is a (surface-width, surface-height) array of raw pixels.
+      '0' returns a contiguous unstructured bytes view. No surface shape
+      information is given. A ValueError is raised if the surface's pixels
+      are discontinuous.
+      
+      '1' returns a (surface-width * surface-height) array of continuous
+      pixels. A ValueError is raised if the surface pixels are discontinuous.
+      
+      '2' returns a (surface-width, surface-height) array of raw pixels.
       The pixels are surface bytesized unsigned integers. The pixel format is
       surface specific. The 3 byte unsigned integers of 24 bit surfaces are
       unlikely accepted by anything other than other Pygame functions.
 
-      '3' returns a (surface-width, surface-height, 3) view of ``RGB`` color
+      '3' returns a (surface-width, surface-height, 3) array of ``RGB`` color
       components. Each of the red, green, and blue components are unsigned
       bytes. Only 24-bit and 32-bit surfaces are supported. The color
       components must be in either ``RGB`` or ``BGR`` order within the pixel.
@@ -808,12 +829,13 @@
       and 32-bit surfaces support 'r', 'g', and 'b'. Only 32-bit surfaces with
       ``SRCALPHA`` support 'a'.
 
-      This method implicitly locks the Surface. The lock will be released, once
-      the returned view object is deleted.
+      The surface is locked only when an exposed interface is accessed.
+      For new buffer interface accesses, the surface is unlocked once the
+      last buffer view is released. For array interface and old buffer
+      interface accesses, the surface remains locked until the BufferProxy
+      object is released.
 
-      New in pygame 1.9.2.
-
-      .. ## Surface.get_view ##
+      New in Pygame 1.9.2.
 
    .. method:: get_buffer
 
@@ -821,13 +843,25 @@
       | :sg:`get_buffer() -> BufferProxy`
 
       Return a buffer object for the pixels of the Surface. The buffer can be
-      used for direct pixel access and manipulation.
+      used for direct pixel access and manipulation. Surface pixel data is
+      represented as an unstructured block of memory, with a start address
+      and length in bytes. The data need not be contiguous. Any gaps are
+      included in the length, but otherwise ignored.
 
-      This method implicitly locks the Surface. The lock will be released, once
-      the returned BufferProxy object is deleted.
+      This method implicitly locks the Surface. The lock will be released when
+      the returned BufferProxy object is garbage collected.
 
-      New in pygame 1.8.
+      New in Pygame 1.8.
 
       .. ## Surface.get_buffer ##
+
+   .. attribute:: _pixels_address
+
+      | :sl:`pixel buffer address`
+      | :sg:`_pixels_address -> int`
+
+      The starting address of the surface's raw pixel bytes.
+
+      New in Pygame 1.9.2
 
    .. ## pygame.Surface ##

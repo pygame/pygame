@@ -1,35 +1,30 @@
-#################################### IMPORTS ##################################
+import sys
 
 if __name__ == '__main__':
-    import sys
     sys.exit("This module is for import only")
 
 test_pkg_name = '.'.join(__name__.split('.')[0:-2])
 is_pygame_pkg = test_pkg_name == 'pygame.tests'
+test_runner_mod = test_pkg_name + '.test_utils.test_runner'
+
 if is_pygame_pkg:
-    from pygame.tests import test_utils
-    from pygame.tests.test_utils \
-         import unittest, unittest_patch, import_submodule
+    from pygame.tests.test_utils import import_submodule
     from pygame.tests.test_utils.test_runner \
-         import prepare_test_env, run_test, combine_results, test_failures, \
-                get_test_results, from_namespace, TEST_RESULTS_START, \
-                opt_parser
+         import prepare_test_env, run_test, combine_results, \
+                get_test_results, TEST_RESULTS_START
 else:
-    from test import test_utils
-    from test.test_utils \
-         import unittest, unittest_patch, import_submodule
+    from test.test_utils import import_submodule
     from test.test_utils.test_runner \
-         import prepare_test_env, run_test, combine_results, test_failures, \
-                get_test_results, from_namespace, TEST_RESULTS_START, \
-                opt_parser
+         import prepare_test_env, run_test, combine_results, \
+                get_test_results, TEST_RESULTS_START
 import pygame
 import pygame.threads
 
-import sys
 import os
 import re
+import shutil
+import tempfile
 import time
-import optparse
 import random
 from pprint import pformat
 
@@ -109,7 +104,6 @@ def run(*args, **kwds):
     option_nosubprocess = options.get('nosubprocess', False)
     option_dump = options.pop('dump', False)
     option_file = options.pop('file', None)
-    option_all = options.pop('all', False)
     option_randomize = options.get('randomize', False)
     option_seed = options.get('seed', None)
     option_multi_thread = options.pop('multi_thread', 1)
@@ -131,8 +125,6 @@ def run(*args, **kwds):
         option_exclude += ('python3_ignore',)
 
     main_dir, test_subdir, fake_test_subdir = prepare_test_env()
-    test_runner_py = os.path.join(test_subdir, "test_utils", "test_runner.py")
-    cur_working_dir = os.path.abspath(os.getcwd())
 
     ###########################################################################
     # Compile a list of test modules. If fake, then compile list of fake
@@ -141,6 +133,8 @@ def run(*args, **kwds):
     TEST_MODULE_RE = re.compile('^(.+_test)\.py$')
 
     test_mods_pkg_name = test_pkg_name
+
+    working_dir_temp = tempfile.mkdtemp()
     
     if option_fake is not None:
         test_mods_pkg_name = '.'.join([test_mods_pkg_name,
@@ -149,7 +143,7 @@ def run(*args, **kwds):
         test_subdir = os.path.join(fake_test_subdir, option_fake)
         working_dir = test_subdir
     else:
-        working_dir = main_dir
+        working_dir = working_dir_temp
 
 
     # Added in because some machines will need os.environ else there will be
@@ -186,7 +180,7 @@ def run(*args, **kwds):
                 tags = tag_module.__tags__
             except AttributeError:
                 print ("%s has no tags: ignoring" % (tag_module_name,))
-                test_module.append(name)
+                test_modules.append(name)
             else:
                 for tag in tags:
                     if tag in option_exclude:
@@ -218,8 +212,6 @@ def run(*args, **kwds):
     # Single process mode
 
     if option_nosubprocess:
-        unittest_patch.patch(**options)
-
         options['exclude'] = option_exclude
         t = time.time()
         for module in test_modules:
@@ -230,26 +222,22 @@ def run(*args, **kwds):
     # Subprocess mode
     #
 
-    if not option_nosubprocess:
+    else:
         if is_pygame_pkg:
             from pygame.tests.test_utils.async_sub import proc_in_time_or_kill
         else:
             from test.test_utils.async_sub import proc_in_time_or_kill
 
         pass_on_args = ['--exclude', ','.join(option_exclude)]
-        for option in ['timings', 'seed']:
-            value = options.pop(option, None)
-            if value is not None:
-                pass_on_args.append('--%s' % option)
-                pass_on_args.append(str(value))
-        for option, value in options.items():
-            if value:
-                pass_on_args.append('--%s' % option)
+        for field in ['randomize', 'incomplete', 'unbuffered']:
+            if kwds.get(field, False):
+                pass_on_args.append('--'+field)
 
         def sub_test(module):
             print ('loading %s' % module)
 
-            cmd = [option_python, test_runner_py, module ] + pass_on_args
+            cmd = [option_python, '-m', test_runner_mod,
+                   module] + pass_on_args
 
             return (module,
                     (cmd, test_env, working_dir),
@@ -278,12 +266,15 @@ def run(*args, **kwds):
             else:
                 results[module] = {}
 
-            add_to_results = [
-                'return_code', 'raw_return',  'cmd', 'test_file',
-                'test_env', 'working_dir', 'module',
-            ]
-
-            results[module].update(from_namespace(locals(), add_to_results))
+            results[module].update(dict(
+                return_code=return_code,
+                raw_return=raw_return,
+                cmd=cmd,
+                test_file=test_file,
+                test_env=test_env,
+                working_dir=working_dir,
+                module=module,
+            ))
 
         t = time.time() - t
 
@@ -292,10 +283,12 @@ def run(*args, **kwds):
     #
 
     untrusty_total, combined = combine_results(results, t)
-    total, fails = test_failures(results)
+    total, n_errors, n_failures = count_results(results)
 
     meta['total_tests'] = total
     meta['combined'] = combined
+    meta['total_errors'] = n_errors
+    meta['total_failures'] = n_failures
     results.update(meta_results)
 
     if option_nosubprocess:
@@ -304,7 +297,6 @@ def run(*args, **kwds):
     if not option_dump:
         print (combined)
     else:
-        results = option_all and results or fails
         print (TEST_RESULTS_START)
         print (pformat(results))
 
@@ -315,7 +307,33 @@ def run(*args, **kwds):
         finally:
             results_file.close()
 
-    return total, fails
+    shutil.rmtree(working_dir_temp)
 
-###############################################################################
+    return total, n_errors + n_failures
+
+
+def count_results(results):
+    total = errors = failures = 0
+    for result in results.values():
+        if result.get('return_code', 0):
+            total += 1
+            errors += 1
+        else:
+            total += result['num_tests']
+            errors += result['num_errors']
+            failures += result['num_failures']
+
+    return total, errors, failures
+
+
+def run_and_exit(*args, **kwargs):
+    """Run the tests, and if there are failures, exit with a return code of 1.
+    
+    This is needed for various buildbots to recognise that the tests have
+    failed.
+    """
+    total, fails = run(*args, **kwargs)
+    if fails:
+        sys.exit(1)
+    sys.exit(0)
 

@@ -4,15 +4,21 @@
 ======================
 
 .. module:: pygame.joystick
-   :synopsis: pygame module for interacting with joystick devices
+   :synopsis: Pygame module for interacting with joysticks, gamepads, and trackballs.
 
-| :sl:`pygame module for interacting with joystick devices`
+| :sl:`Pygame module for interacting with joysticks, gamepads, and trackballs.`
 
-The joystick module manages the joystick devices on a computer (there can be
-more than one). Joystick devices include trackballs and video-game-style
+The joystick module manages the joystick devices on a computer.
+Joystick devices include trackballs and video-game-style
 gamepads, and the module allows the use of multiple buttons and "hats".
+Computers may manage multiple joysticks at a time.
 
-To get initialise the joystick module and get a list of Joystick instances
+Each instance of the Joystick class represents one gaming device plugged 
+into the computer. If a gaming pad has multiple joysticks on it, than the
+joystick object can actually represent multiple joysticks on that single
+game device.
+
+For a quick way to initialise the joystick module and get a list of Joystick instances
 use the following code::
 
     pygame.joystick.init()
@@ -28,7 +34,7 @@ So call one of pygame.event.get, pygame.event.wait, or pygame.event.pump regular
 
 .. function:: init
 
-   | :sl:`initialize the joystick module`
+   | :sl:`Initialize the joystick module.`
    | :sg:`init() -> None`
 
    This function is called automatically by ``pygame.init()``.
@@ -43,7 +49,7 @@ So call one of pygame.event.get, pygame.event.wait, or pygame.event.pump regular
 
 .. function:: quit
 
-   | :sl:`uninitialize the joystick module`
+   | :sl:`Uninitialize the joystick module.`
    | :sg:`quit() -> None`
 
    Uninitialize the joystick module. After you call this any existing joystick
@@ -55,7 +61,7 @@ So call one of pygame.event.get, pygame.event.wait, or pygame.event.pump regular
 
 .. function:: get_init
 
-   | :sl:`true if the joystick module is initialized`
+   | :sl:`Returns True if the joystick module is initialized.`
    | :sg:`get_init() -> bool`
 
    Test if the ``pygame.joystick.init()`` function has been called.
@@ -64,7 +70,7 @@ So call one of pygame.event.get, pygame.event.wait, or pygame.event.pump regular
 
 .. function:: get_count
 
-   | :sl:`number of joysticks on the system`
+   | :sl:`Returns the number of joysticks.`
    | :sg:`get_count() -> count`
 
    Return the number of joystick devices on the system. The count will be 0 if
@@ -77,7 +83,7 @@ So call one of pygame.event.get, pygame.event.wait, or pygame.event.pump regular
 
 .. class:: Joystick
 
-   | :sl:`create a new Joystick object`
+   | :sl:`Create a new Joystick object.`
    | :sg:`Joystick(id) -> Joystick`
 
    Create a new joystick to access a physical device. The id argument must be a
@@ -271,3 +277,12 @@ So call one of pygame.event.get, pygame.event.wait, or pygame.event.pump regular
    .. ## pygame.joystick.Joystick ##
 
 .. ## pygame.joystick ##
+
+.. figure:: code_examples/joystick_calls.png
+   :scale: 100 %
+   :alt: joystick module example
+
+   Example code for joystick module.
+   
+.. literalinclude:: code_examples/joystick_calls.py
+   

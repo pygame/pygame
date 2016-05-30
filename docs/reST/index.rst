@@ -51,9 +51,9 @@ Tutorials
 `Chimp Tutorial, Line by Line`_
   The pygame examples include a simple program with an interactive fist and a chimpanzee.
   This was inspired by the annoying flash banner of the early 2000's.
-  This tutorial examines every line of coded used in the example.
+  This tutorial examines every line of code used in the example.
 
-`Sprite Module Introduction`_
+:doc:`Sprite Module Introduction <tut/SpriteIntro>`
   Pygame includes a higher level sprite module to help organize games.
   The sprite module includes several classes that help manage details found in almost all games types.
   The Sprite classes are a bit more advanced than the regular Pygame modules,
@@ -69,7 +69,7 @@ Tutorials
   watch live streams, and do some basic computer vision.
   This tutorial covers those use cases.
 
-`Newbie Guide`_
+:doc:`Newbie Guide <tut/newbieguide>`
   A list of thirteen helpful tips for people to get comfortable using Pygame.
 
 `Making Games Tutorial`_
@@ -80,6 +80,9 @@ Reference
 
 :ref:`genindex`
   A list of all functions, classes, and methods in the Pygame package.
+
+:doc:`ref/bufferproxy`
+  An array protocol view of surface pixels
 
 :doc:`ref/cdrom`
   How to access and control the CD audio devices.
@@ -128,9 +131,6 @@ Reference
 
 :doc:`ref/mouse`
   Manage the mouse device and display.
-
-:doc:`ref/movie`
-  Video playback from MPEG movies.
 
 :doc:`ref/music`
   Play streaming music tracks.

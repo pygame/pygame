@@ -23,7 +23,7 @@
 */
 
 #define NO_PYGAME_C_API
-#include "surface.h"
+#include "_surface.h"
 
 /* The structure passed to the low level blit functions */
 typedef struct
@@ -60,13 +60,13 @@ static void blit_blend_rgba_max (SDL_BlitInfo * info);
 static void blit_blend_premultiplied (SDL_BlitInfo * info);
 
 
-static int 
+static int
 SoftBlitPyGame (SDL_Surface * src, SDL_Rect * srcrect,
                 SDL_Surface * dst, SDL_Rect * dstrect, int the_args);
 extern int  SDL_RLESurface (SDL_Surface * surface);
 extern void SDL_UnRLESurface (SDL_Surface * surface, int recode);
 
-static int 
+static int
 SoftBlitPyGame (SDL_Surface * src, SDL_Rect * srcrect, SDL_Surface * dst,
                 SDL_Rect * dstrect, int the_args)
 {
@@ -102,49 +102,49 @@ SoftBlitPyGame (SDL_Surface * src, SDL_Rect * srcrect, SDL_Surface * dst,
         SDL_BlitInfo    info;
 
         /* Set up the blit information */
-	info.width = srcrect->w;
-	info.height = srcrect->h;
+        info.width = srcrect->w;
+        info.height = srcrect->h;
         info.s_pixels = (Uint8 *) src->pixels + src->offset +
             (Uint16) srcrect->y * src->pitch +
             (Uint16) srcrect->x * src->format->BytesPerPixel;
-	info.s_pxskip = src->format->BytesPerPixel;
+        info.s_pxskip = src->format->BytesPerPixel;
         info.s_skip = src->pitch - info.width * src->format->BytesPerPixel;
         info.d_pixels = (Uint8 *) dst->pixels + dst->offset +
             (Uint16) dstrect->y * dst->pitch +
             (Uint16) dstrect->x * dst->format->BytesPerPixel;
-	info.d_pxskip = dst->format->BytesPerPixel;
+        info.d_pxskip = dst->format->BytesPerPixel;
         info.d_skip = dst->pitch - info.width * dst->format->BytesPerPixel;
         info.src = src->format;
         info.dst = dst->format;
-	info.src_flags = src->flags;
-	info.dst_flags = dst->flags;
+        info.src_flags = src->flags;
+        info.dst_flags = dst->flags;
 
         if (info.d_pixels > info.s_pixels)
-	{
-	    int span = info.width * info.src->BytesPerPixel;
-	    Uint8 *srcpixend = 
-		info.s_pixels + (info.height - 1) * src->pitch + span;
-	    
-	    if (info.d_pixels < srcpixend)
-	    {
-		int dstoffset = (info.d_pixels - info.s_pixels) % src->pitch;
+        {
+            int span = info.width * info.src->BytesPerPixel;
+            Uint8 *srcpixend =
+                info.s_pixels + (info.height - 1) * src->pitch + span;
 
-		if (dstoffset < span || dstoffset > src->pitch - span)
-		{
-		    /* Overlapping Self blit with positive destination offset.
-		       Reverse direction of the blit.
-		    */
-		    info.s_pixels = srcpixend - info.s_pxskip;
-		    info.s_pxskip = -info.s_pxskip;
-		    info.s_skip = -info.s_skip;
-		    info.d_pixels = (info.d_pixels +
-				     (info.height - 1) * dst->pitch +
-				     span - info.d_pxskip);
-		    info.d_pxskip = -info.d_pxskip;
-		    info.d_skip = -info.d_skip;
-		}
-	    }
-	}
+            if (info.d_pixels < srcpixend)
+            {
+                int dstoffset = (info.d_pixels - info.s_pixels) % src->pitch;
+
+                if (dstoffset < span || dstoffset > src->pitch - span)
+                {
+                    /* Overlapping Self blit with positive destination offset.
+                       Reverse direction of the blit.
+                    */
+                    info.s_pixels = srcpixend - info.s_pxskip;
+                    info.s_pxskip = -info.s_pxskip;
+                    info.s_skip = -info.s_skip;
+                    info.d_pixels = (info.d_pixels +
+                                     (info.height - 1) * dst->pitch +
+                                     span - info.d_pxskip);
+                    info.d_pxskip = -info.d_pxskip;
+                    info.d_skip = -info.d_skip;
+                }
+            }
+        }
 
         switch (the_args)
         {
@@ -186,8 +186,8 @@ SoftBlitPyGame (SDL_Surface * src, SDL_Rect * srcrect, SDL_Surface * dst,
 
         case PYGAME_BLEND_RGBA_ADD:
         {
-	    blit_blend_rgba_add (&info);
-	    break;
+        blit_blend_rgba_add (&info);
+        break;
         }
         case PYGAME_BLEND_RGBA_SUB:
         {
@@ -269,23 +269,23 @@ blit_blend_rgba_add (SDL_BlitInfo * info)
 
     if (!dstppa)
     {
-	blit_blend_add (info);
-	return;
+        blit_blend_add (info);
+        return;
     }
 
     if (srcbpp == 4 && dstbpp == 4 &&
-	srcfmt->Rmask == dstfmt->Rmask &&
-	srcfmt->Gmask == dstfmt->Gmask &&
-	srcfmt->Bmask == dstfmt->Bmask &&
-	srcfmt->Amask == dstfmt->Amask &&
-	info->src_flags & SDL_SRCALPHA)
+        srcfmt->Rmask == dstfmt->Rmask &&
+        srcfmt->Gmask == dstfmt->Gmask &&
+        srcfmt->Bmask == dstfmt->Bmask &&
+        srcfmt->Amask == dstfmt->Amask &&
+        info->src_flags & SDL_SRCALPHA)
     {
-	int incr = srcpxskip > 0 ? 1 : -1;
-	if (incr < 0)
-	{
-	    src += 3;
-	    dst += 3;
-	}
+        int incr = srcpxskip > 0 ? 1 : -1;
+        if (incr < 0)
+        {
+            src += 3;
+            dst += 3;
+        }
         while (height--)
         {
             LOOP_UNROLLED4(
@@ -409,23 +409,23 @@ blit_blend_rgba_sub (SDL_BlitInfo * info)
 
     if (!dstppa)
     {
-	blit_blend_sub (info);
-	return;
+        blit_blend_sub (info);
+        return;
     }
 
     if (srcbpp == 4 && dstbpp == 4 &&
-	srcfmt->Rmask == dstfmt->Rmask &&
-	srcfmt->Gmask == dstfmt->Gmask &&
-	srcfmt->Bmask == dstfmt->Bmask &&
-	srcfmt->Amask == dstfmt->Amask &&
-	info->src_flags & SDL_SRCALPHA)
+        srcfmt->Rmask == dstfmt->Rmask &&
+        srcfmt->Gmask == dstfmt->Gmask &&
+        srcfmt->Bmask == dstfmt->Bmask &&
+        srcfmt->Amask == dstfmt->Amask &&
+        info->src_flags & SDL_SRCALPHA)
     {
-	int incr = srcpxskip > 0 ? 1 : -1;
-	if (incr < 0)
-	{
-	    src += 3;
-	    dst += 3;
-	}
+        int incr = srcpxskip > 0 ? 1 : -1;
+        if (incr < 0)
+        {
+            src += 3;
+            dst += 3;
+        }
         while (height--)
         {
             LOOP_UNROLLED4(
@@ -437,7 +437,7 @@ blit_blend_rgba_sub (SDL_BlitInfo * info)
                     src += incr;
                     dst += incr;
                 });
-            }, n, width);
+                }, n, width);
             src += srcskip;
             dst += dstskip;
         }
@@ -549,23 +549,23 @@ blit_blend_rgba_mul (SDL_BlitInfo * info)
 
     if (!dstppa)
     {
-	blit_blend_mul (info);
-	return;
+        blit_blend_mul (info);
+        return;
     }
 
     if (srcbpp == 4 && dstbpp == 4 &&
-	srcfmt->Rmask == dstfmt->Rmask &&
-	srcfmt->Gmask == dstfmt->Gmask &&
-	srcfmt->Bmask == dstfmt->Bmask &&
-	srcfmt->Amask == dstfmt->Amask &&
-	info->src_flags & SDL_SRCALPHA)
+        srcfmt->Rmask == dstfmt->Rmask &&
+        srcfmt->Gmask == dstfmt->Gmask &&
+        srcfmt->Bmask == dstfmt->Bmask &&
+        srcfmt->Amask == dstfmt->Amask &&
+        info->src_flags & SDL_SRCALPHA)
     {
-	int incr = srcpxskip > 0 ? 1 : -1;
-	if (incr < 0)
-	{
-	    src += 3;
-	    dst += 3;
-	}
+        int incr = srcpxskip > 0 ? 1 : -1;
+        if (incr < 0)
+        {
+            src += 3;
+            dst += 3;
+        }
         while (height--)
         {
             LOOP_UNROLLED4(
@@ -688,23 +688,23 @@ blit_blend_rgba_min (SDL_BlitInfo * info)
 
     if (!dstppa)
     {
-	blit_blend_min (info);
-	return;
+    blit_blend_min (info);
+    return;
     }
 
     if (srcbpp == 4 && dstbpp == 4 &&
-	srcfmt->Rmask == dstfmt->Rmask &&
-	srcfmt->Gmask == dstfmt->Gmask &&
-	srcfmt->Bmask == dstfmt->Bmask &&
-	srcfmt->Amask == dstfmt->Amask &&
-	info->src_flags & SDL_SRCALPHA)
+        srcfmt->Rmask == dstfmt->Rmask &&
+        srcfmt->Gmask == dstfmt->Gmask &&
+        srcfmt->Bmask == dstfmt->Bmask &&
+        srcfmt->Amask == dstfmt->Amask &&
+        info->src_flags & SDL_SRCALPHA)
     {
-	int incr = srcpxskip > 0 ? 1 : -1;
-	if (incr < 0)
-	{
-	    src += 3;
-	    dst += 3;
-	}
+        int incr = srcpxskip > 0 ? 1 : -1;
+        if (incr < 0)
+        {
+            src += 3;
+            dst += 3;
+        }
         while (height--)
         {
             LOOP_UNROLLED4(
@@ -712,7 +712,7 @@ blit_blend_rgba_min (SDL_BlitInfo * info)
                 REPEAT_4(
                 {
                     if ((*src) < (*dst))
-                        (*dst) = (*src);
+                    (*dst) = (*src);
                     src += incr;
                     dst += incr;
                 });
@@ -827,23 +827,23 @@ blit_blend_rgba_max (SDL_BlitInfo * info)
 
     if (!dstppa)
     {
-	blit_blend_max (info);
-	return;
+        blit_blend_max (info);
+        return;
     }
 
     if (srcbpp == 4 && dstbpp == 4 &&
-	srcfmt->Rmask == dstfmt->Rmask &&
-	srcfmt->Gmask == dstfmt->Gmask &&
-	srcfmt->Bmask == dstfmt->Bmask &&
-	srcfmt->Amask == dstfmt->Amask &&
-	info->src_flags & SDL_SRCALPHA)
+        srcfmt->Rmask == dstfmt->Rmask &&
+        srcfmt->Gmask == dstfmt->Gmask &&
+        srcfmt->Bmask == dstfmt->Bmask &&
+        srcfmt->Amask == dstfmt->Amask &&
+        info->src_flags & SDL_SRCALPHA)
     {
-	int incr = srcpxskip > 0 ? 1 : -1;
-	if (incr < 0)
-	{
-	    src += 3;
-	    dst += 3;
-	}
+        int incr = srcpxskip > 0 ? 1 : -1;
+        if (incr < 0)
+        {
+            src += 3;
+            dst += 3;
+        }
         while (height--)
         {
             LOOP_UNROLLED4(
@@ -851,7 +851,7 @@ blit_blend_rgba_max (SDL_BlitInfo * info)
                 REPEAT_4(
                 {
                     if ((*src) > (*dst))
-                        (*dst) = (*src);
+                    (*dst) = (*src);
                     src += incr;
                     dst += incr;
                 });
@@ -861,7 +861,6 @@ blit_blend_rgba_max (SDL_BlitInfo * info)
         }
         return;
     }
-
 
     if (srcbpp == 1)
     {
@@ -1090,34 +1089,34 @@ blit_blend_add (SDL_BlitInfo * info)
 
     if (srcbpp >= 3 && dstbpp >= 3 && !(info->src_flags & SDL_SRCALPHA))
     {
-	size_t srcoffsetR, srcoffsetG, srcoffsetB;
-	size_t dstoffsetR, dstoffsetG, dstoffsetB;
-	if (srcbpp == 3)
-	{
-	    SET_OFFSETS_24 (srcoffsetR, srcoffsetG, srcoffsetB, srcfmt);
-	}
-	else
-	{
-	    SET_OFFSETS_32 (srcoffsetR, srcoffsetG, srcoffsetB, srcfmt);
-	}
-	if (dstbpp == 3)
-	{
-	    SET_OFFSETS_24 (dstoffsetR, dstoffsetG, dstoffsetB, dstfmt);
-	}
-	else
-	{
-	    SET_OFFSETS_32 (dstoffsetR, dstoffsetG, dstoffsetB, dstfmt);
-	}
+        size_t srcoffsetR, srcoffsetG, srcoffsetB;
+        size_t dstoffsetR, dstoffsetG, dstoffsetB;
+        if (srcbpp == 3)
+        {
+            SET_OFFSETS_24 (srcoffsetR, srcoffsetG, srcoffsetB, srcfmt);
+        }
+        else
+        {
+            SET_OFFSETS_32 (srcoffsetR, srcoffsetG, srcoffsetB, srcfmt);
+        }
+        if (dstbpp == 3)
+        {
+            SET_OFFSETS_24 (dstoffsetR, dstoffsetG, dstoffsetB, dstfmt);
+        }
+        else
+        {
+            SET_OFFSETS_32 (dstoffsetR, dstoffsetG, dstoffsetB, dstfmt);
+        }
         while (height--)
         {
             LOOP_UNROLLED4(
             {
-		tmp = dst[dstoffsetR] + src[srcoffsetR];
-		dst[dstoffsetR] = (tmp <= 255 ? tmp : 255);
-		tmp = dst[dstoffsetG] + src[srcoffsetG];
-		dst[dstoffsetG] = (tmp <= 255 ? tmp : 255);
-		tmp = dst[dstoffsetB] + src[srcoffsetB];
-		dst[dstoffsetB] = (tmp <= 255 ? tmp : 255);
+                tmp = dst[dstoffsetR] + src[srcoffsetR];
+                dst[dstoffsetR] = (tmp <= 255 ? tmp : 255);
+                tmp = dst[dstoffsetG] + src[srcoffsetG];
+                dst[dstoffsetG] = (tmp <= 255 ? tmp : 255);
+                tmp = dst[dstoffsetB] + src[srcoffsetB];
+                dst[dstoffsetB] = (tmp <= 255 ? tmp : 255);
                 src += srcpxskip;
                 dst += dstpxskip;
             }, n, width);
@@ -1138,7 +1137,7 @@ blit_blend_add (SDL_BlitInfo * info)
                     GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
                     GET_PIXELVALS_1(dR, dG, dB, dA, dst, dstfmt);
                     BLEND_ADD (tmp, sR, sG, sB, sA, dR, dG, dB, dA);
-		    *dst = (Uint8) SDL_MapRGB (dstfmt, dR, dG, dB);
+                    *dst = (Uint8) SDL_MapRGB (dstfmt, dR, dG, dB);
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
@@ -1146,28 +1145,28 @@ blit_blend_add (SDL_BlitInfo * info)
                 dst += dstskip;
             }
         }
-	else if (dstbpp == 3)
-	{
-	    size_t offsetR, offsetG, offsetB;
-	    SET_OFFSETS_24 (offsetR, offsetG, offsetB, dstfmt);
-	    while (height--)
-	    {
-		LOOP_UNROLLED4(
-		{
-		    GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
-		    GET_PIXEL (pixel, dstbpp, dst);
-		    GET_PIXELVALS (dR, dG, dB, dA, pixel, dstfmt, dstppa);
-		    BLEND_ADD (tmp, sR, sG, sB, sA, dR, dG, dB, dA);
-		    dst[offsetR] = dR;
-		    dst[offsetG] = dG;
-		    dst[offsetB] = dB;
-		    src += srcpxskip;
-		    dst += dstpxskip;
-		}, n, width);
-		src += srcskip;
-		dst += dstskip;
-	    }
-	}
+        else if (dstbpp == 3)
+        {
+            size_t offsetR, offsetG, offsetB;
+            SET_OFFSETS_24 (offsetR, offsetG, offsetB, dstfmt);
+            while (height--)
+            {
+                LOOP_UNROLLED4(
+                {
+                    GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
+                    GET_PIXEL (pixel, dstbpp, dst);
+                    GET_PIXELVALS (dR, dG, dB, dA, pixel, dstfmt, dstppa);
+                    BLEND_ADD (tmp, sR, sG, sB, sA, dR, dG, dB, dA);
+                    dst[offsetR] = dR;
+                    dst[offsetG] = dG;
+                    dst[offsetB] = dB;
+                    src += srcpxskip;
+                    dst += dstpxskip;
+                }, n, width);
+                src += srcskip;
+                dst += dstskip;
+            }
+        }
         else /* even dstbpp */
         {
             while (height--)
@@ -1199,7 +1198,7 @@ blit_blend_add (SDL_BlitInfo * info)
                     GET_PIXELVALS (sR, sG, sB, sA, pixel, srcfmt, srcppa);
                     GET_PIXELVALS_1(dR, dG, dB, dA, dst, dstfmt);
                     BLEND_ADD (tmp, sR, sG, sB, sA, dR, dG, dB, dA);
-		    *dst = (Uint8) SDL_MapRGB (dstfmt, dR, dG, dB);
+                    *dst = (Uint8) SDL_MapRGB (dstfmt, dR, dG, dB);
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
@@ -1208,29 +1207,29 @@ blit_blend_add (SDL_BlitInfo * info)
             }
 
         }
-	else if (dstbpp == 3)
-	{
-	    size_t offsetR, offsetG, offsetB;
-	    SET_OFFSETS_24 (offsetR, offsetG, offsetB, dstfmt);
-	    while (height--)
-	    {
-		LOOP_UNROLLED4(
-		{
-		    GET_PIXEL(pixel, srcbpp, src);
-		    GET_PIXELVALS (sR, sG, sB, sA, pixel, srcfmt, srcppa);
-		    GET_PIXEL (pixel, dstbpp, dst);
-		    GET_PIXELVALS (dR, dG, dB, dA, pixel, dstfmt, dstppa);
-		    BLEND_ADD (tmp, sR, sG, sB, sA, dR, dG, dB, dA);
-		    dst[offsetR] = dR;
-		    dst[offsetG] = dG;
-		    dst[offsetB] = dB;
-		    src += srcpxskip;
-		    dst += dstpxskip;
-		}, n, width);
-		src += srcskip;
-		dst += dstskip;
-	    }
-	}
+        else if (dstbpp == 3)
+        {
+            size_t offsetR, offsetG, offsetB;
+            SET_OFFSETS_24 (offsetR, offsetG, offsetB, dstfmt);
+            while (height--)
+            {
+                LOOP_UNROLLED4(
+                {
+                    GET_PIXEL(pixel, srcbpp, src);
+                    GET_PIXELVALS (sR, sG, sB, sA, pixel, srcfmt, srcppa);
+                    GET_PIXEL (pixel, dstbpp, dst);
+                    GET_PIXELVALS (dR, dG, dB, dA, pixel, dstfmt, dstppa);
+                    BLEND_ADD (tmp, sR, sG, sB, sA, dR, dG, dB, dA);
+                    dst[offsetR] = dR;
+                    dst[offsetG] = dG;
+                    dst[offsetB] = dB;
+                    src += srcpxskip;
+                    dst += dstpxskip;
+                }, n, width);
+                src += srcskip;
+                dst += dstskip;
+            }
+        }
         else /* even dstbpp */
         {
             while (height--)
@@ -1277,34 +1276,34 @@ blit_blend_sub (SDL_BlitInfo * info)
 
     if (srcbpp >= 3 && dstbpp >= 3 && !(info->src_flags & SDL_SRCALPHA))
     {
-	size_t srcoffsetR, srcoffsetG, srcoffsetB;
-	size_t dstoffsetR, dstoffsetG, dstoffsetB;
-	if (srcbpp == 3)
-	{
-	    SET_OFFSETS_24 (srcoffsetR, srcoffsetG, srcoffsetB, srcfmt);
-	}
-	else
-	{
-	    SET_OFFSETS_32 (srcoffsetR, srcoffsetG, srcoffsetB, srcfmt);
-	}
-	if (dstbpp == 3)
-	{
-	    SET_OFFSETS_24 (dstoffsetR, dstoffsetG, dstoffsetB, dstfmt);
-	}
-	else
-	{
-	    SET_OFFSETS_32 (dstoffsetR, dstoffsetG, dstoffsetB, dstfmt);
-	}
+        size_t srcoffsetR, srcoffsetG, srcoffsetB;
+        size_t dstoffsetR, dstoffsetG, dstoffsetB;
+        if (srcbpp == 3)
+        {
+            SET_OFFSETS_24 (srcoffsetR, srcoffsetG, srcoffsetB, srcfmt);
+        }
+        else
+        {
+            SET_OFFSETS_32 (srcoffsetR, srcoffsetG, srcoffsetB, srcfmt);
+        }
+        if (dstbpp == 3)
+        {
+            SET_OFFSETS_24 (dstoffsetR, dstoffsetG, dstoffsetB, dstfmt);
+        }
+        else
+        {
+            SET_OFFSETS_32 (dstoffsetR, dstoffsetG, dstoffsetB, dstfmt);
+        }
         while (height--)
         {
             LOOP_UNROLLED4(
             {
-		tmp2 = dst[dstoffsetR] - src[srcoffsetR];
-		dst[dstoffsetR] = (tmp2 >= 0 ? tmp2 : 0);
-		tmp2 = dst[dstoffsetG] - src[srcoffsetG];
-		dst[dstoffsetG] = (tmp2 >= 0 ? tmp2 : 0);
-		tmp2 = dst[dstoffsetB] - src[srcoffsetB];
-		dst[dstoffsetB] = (tmp2 >= 0 ? tmp2 : 0);
+                tmp2 = dst[dstoffsetR] - src[srcoffsetR];
+                dst[dstoffsetR] = (tmp2 >= 0 ? tmp2 : 0);
+                tmp2 = dst[dstoffsetG] - src[srcoffsetG];
+                dst[dstoffsetG] = (tmp2 >= 0 ? tmp2 : 0);
+                tmp2 = dst[dstoffsetB] - src[srcoffsetB];
+                dst[dstoffsetB] = (tmp2 >= 0 ? tmp2 : 0);
                 src += srcpxskip;
                 dst += dstpxskip;
             }, n, width);
@@ -1325,7 +1324,7 @@ blit_blend_sub (SDL_BlitInfo * info)
                     GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
                     GET_PIXELVALS_1(dR, dG, dB, dA, dst, dstfmt);
                     BLEND_SUB (tmp2, sR, sG, sB, sA, dR, dG, dB, dA);
-		    *dst = (Uint8) SDL_MapRGB (dstfmt, dR, dG, dB);
+                    *dst = (Uint8) SDL_MapRGB (dstfmt, dR, dG, dB);
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
@@ -1333,28 +1332,28 @@ blit_blend_sub (SDL_BlitInfo * info)
                 dst += dstskip;
             }
         }
-	else if (dstbpp == 3)
-	{
-	    size_t offsetR, offsetG, offsetB;
-	    SET_OFFSETS_24 (offsetR, offsetG, offsetB, dstfmt);
-	    while (height--)
-	    {
-		LOOP_UNROLLED4(
-		{
-		    GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
-		    GET_PIXEL (pixel, dstbpp, dst);
-		    GET_PIXELVALS (dR, dG, dB, dA, pixel, dstfmt, dstfmt);
-		    BLEND_SUB (tmp2, sR, sG, sB, sA, dR, dG, dB, dA);
-		    dst[offsetR] = dR;
-		    dst[offsetG] = dG;
-		    dst[offsetB] = dB;
-		    src += srcpxskip;
-		    dst += dstpxskip;
-		}, n, width);
-		src += srcskip;
-		dst += dstskip;
-	    }
-	}
+        else if (dstbpp == 3)
+        {
+            size_t offsetR, offsetG, offsetB;
+            SET_OFFSETS_24 (offsetR, offsetG, offsetB, dstfmt);
+            while (height--)
+            {
+                LOOP_UNROLLED4(
+                {
+                    GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
+                    GET_PIXEL (pixel, dstbpp, dst);
+                    GET_PIXELVALS (dR, dG, dB, dA, pixel, dstfmt, dstfmt);
+                    BLEND_SUB (tmp2, sR, sG, sB, sA, dR, dG, dB, dA);
+                    dst[offsetR] = dR;
+                    dst[offsetG] = dG;
+                    dst[offsetB] = dB;
+                    src += srcpxskip;
+                    dst += dstpxskip;
+                }, n, width);
+                src += srcskip;
+                dst += dstskip;
+            }
+        }
         else /* even dstbpp */
         {
             while (height--)
@@ -1386,7 +1385,7 @@ blit_blend_sub (SDL_BlitInfo * info)
                     GET_PIXELVALS (sR, sG, sB, sA, pixel, srcfmt, srcppa);
                     GET_PIXELVALS_1(dR, dG, dB, dA, dst, dstfmt);
                     BLEND_SUB (tmp2, sR, sG, sB, sA, dR, dG, dB, dA);
-		    *dst = (Uint8) SDL_MapRGB (dstfmt, dR, dG, dB);
+                    *dst = (Uint8) SDL_MapRGB (dstfmt, dR, dG, dB);
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
@@ -1395,10 +1394,10 @@ blit_blend_sub (SDL_BlitInfo * info)
             }
 
         }
-	else if (dstbpp == 3)
+        else if (dstbpp == 3)
         {
-	    size_t offsetR, offsetG, offsetB;
-	    SET_OFFSETS_24 (offsetR, offsetG, offsetB, dstfmt);
+            size_t offsetR, offsetG, offsetB;
+            SET_OFFSETS_24 (offsetR, offsetG, offsetB, dstfmt);
             while (height--)
             {
                 LOOP_UNROLLED4(
@@ -1408,9 +1407,9 @@ blit_blend_sub (SDL_BlitInfo * info)
                     GET_PIXEL (pixel, dstbpp, dst);
                     GET_PIXELVALS (dR, dG, dB, dA, pixel, dstfmt, dstppa);
                     BLEND_SUB (tmp2, sR, sG, sB, sA, dR, dG, dB, dA);
-		    dst[offsetR] = dR;
-		    dst[offsetG] = dG;
-		    dst[offsetB] = dB;
+                    dst[offsetR] = dR;
+                    dst[offsetG] = dG;
+                    dst[offsetB] = dB;
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
@@ -1464,37 +1463,37 @@ blit_blend_mul (SDL_BlitInfo * info)
 
     if (srcbpp >= 3 && dstbpp >= 3 && !(info->src_flags & SDL_SRCALPHA))
     {
-	size_t srcoffsetR, srcoffsetG, srcoffsetB;
-	size_t dstoffsetR, dstoffsetG, dstoffsetB;
-	if (srcbpp == 3)
-	{
-	    SET_OFFSETS_24 (srcoffsetR, srcoffsetG, srcoffsetB, srcfmt);
-	}
-	else
-	{
-	    SET_OFFSETS_32 (srcoffsetR, srcoffsetG, srcoffsetB, srcfmt);
-	}
-	if (dstbpp == 3)
-	{
-	    SET_OFFSETS_24 (dstoffsetR, dstoffsetG, dstoffsetB, dstfmt);
-	}
-	else
-	{
-	    SET_OFFSETS_32 (dstoffsetR, dstoffsetG, dstoffsetB, dstfmt);
-	}
+        size_t srcoffsetR, srcoffsetG, srcoffsetB;
+        size_t dstoffsetR, dstoffsetG, dstoffsetB;
+        if (srcbpp == 3)
+        {
+            SET_OFFSETS_24 (srcoffsetR, srcoffsetG, srcoffsetB, srcfmt);
+        }
+        else
+        {
+            SET_OFFSETS_32 (srcoffsetR, srcoffsetG, srcoffsetB, srcfmt);
+        }
+        if (dstbpp == 3)
+        {
+            SET_OFFSETS_24 (dstoffsetR, dstoffsetG, dstoffsetB, dstfmt);
+        }
+        else
+        {
+            SET_OFFSETS_32 (dstoffsetR, dstoffsetG, dstoffsetB, dstfmt);
+        }
         while (height--)
         {
             LOOP_UNROLLED4(
             {
-		tmp = ((dst[dstoffsetR] && src[srcoffsetR]) ?
-		       (dst[dstoffsetR] * src[srcoffsetR]) >> 8 : 0);
-		dst[dstoffsetR] = (tmp <= 255 ? tmp : 255);
-		tmp = ((dst[dstoffsetG] && src[srcoffsetG]) ?
-		       (dst[dstoffsetG] * src[srcoffsetG]) >> 8 : 0);
-		dst[dstoffsetG] = (tmp <= 255 ? tmp : 255);
-		tmp = ((dst[dstoffsetB] && src[srcoffsetB]) ?
-		       (dst[dstoffsetB] * src[srcoffsetB]) >> 8 : 0);
-		dst[dstoffsetB] = (tmp <= 255 ? tmp : 255);
+                tmp = ((dst[dstoffsetR] && src[srcoffsetR]) ?
+                       (dst[dstoffsetR] * src[srcoffsetR]) >> 8 : 0);
+                dst[dstoffsetR] = (tmp <= 255 ? tmp : 255);
+                tmp = ((dst[dstoffsetG] && src[srcoffsetG]) ?
+                       (dst[dstoffsetG] * src[srcoffsetG]) >> 8 : 0);
+                dst[dstoffsetG] = (tmp <= 255 ? tmp : 255);
+                tmp = ((dst[dstoffsetB] && src[srcoffsetB]) ?
+                       (dst[dstoffsetB] * src[srcoffsetB]) >> 8 : 0);
+                dst[dstoffsetB] = (tmp <= 255 ? tmp : 255);
                 src += srcpxskip;
                 dst += dstpxskip;
             }, n, width);
@@ -1515,7 +1514,7 @@ blit_blend_mul (SDL_BlitInfo * info)
                     GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
                     GET_PIXELVALS_1(dR, dG, dB, dA, dst, dstfmt);
                     BLEND_MULT (sR, sG, sB, sA, dR, dG, dB, dA);
-		    *dst = (Uint8) SDL_MapRGB (dstfmt, dR, dG, dB);
+                    *dst = (Uint8) SDL_MapRGB (dstfmt, dR, dG, dB);
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
@@ -1523,28 +1522,28 @@ blit_blend_mul (SDL_BlitInfo * info)
                 dst += dstskip;
             }
         }
-	else if (dstbpp == 3)
-	{
-	    size_t offsetR, offsetG, offsetB;
-	    SET_OFFSETS_24 (offsetR, offsetG, offsetB, dstfmt);
-	    while (height--)
-	    {
-		LOOP_UNROLLED4(
-		{
-		    GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
-		    GET_PIXEL (pixel, dstbpp, dst);
-		    GET_PIXELVALS (dR, dG, dB, dA, pixel, dstfmt, dstppa);
-		    BLEND_MULT (sR, sG, sB, sA, dR, dG, dB, dA);
-		    dst[offsetR] = dR;
-		    dst[offsetG] = dG;
-		    dst[offsetB] = dB;
-		    src += srcpxskip;
-		    dst += dstpxskip;
-		}, n, width);
-		src += srcskip;
-		dst += dstskip;
-	    }
-	}
+        else if (dstbpp == 3)
+        {
+            size_t offsetR, offsetG, offsetB;
+            SET_OFFSETS_24 (offsetR, offsetG, offsetB, dstfmt);
+            while (height--)
+            {
+                LOOP_UNROLLED4(
+                {
+                    GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
+                    GET_PIXEL (pixel, dstbpp, dst);
+                    GET_PIXELVALS (dR, dG, dB, dA, pixel, dstfmt, dstppa);
+                    BLEND_MULT (sR, sG, sB, sA, dR, dG, dB, dA);
+                    dst[offsetR] = dR;
+                    dst[offsetG] = dG;
+                    dst[offsetB] = dB;
+                    src += srcpxskip;
+                    dst += dstpxskip;
+                }, n, width);
+                src += srcskip;
+                dst += dstskip;
+            }
+        }
         else /* even dstbpp */
         {
             while (height--)
@@ -1576,7 +1575,7 @@ blit_blend_mul (SDL_BlitInfo * info)
                     GET_PIXELVALS (sR, sG, sB, sA, pixel, srcfmt, srcppa);
                     GET_PIXELVALS_1(dR, dG, dB, dA, dst, dstfmt);
                     BLEND_MULT (sR, sG, sB, sA, dR, dG, dB, dA);
-		    *dst = (Uint8) SDL_MapRGB (dstfmt, dR, dG, dB);
+                    *dst = (Uint8) SDL_MapRGB (dstfmt, dR, dG, dB);
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
@@ -1585,29 +1584,29 @@ blit_blend_mul (SDL_BlitInfo * info)
             }
 
         }
-	else if (dstbpp == 3)
-	{
-	    size_t offsetR, offsetG, offsetB;
-	    SET_OFFSETS_24 (offsetR, offsetG, offsetB, dstfmt);
-	    while (height--)
-	    {
-		LOOP_UNROLLED4(
-		{
+        else if (dstbpp == 3)
+        {
+            size_t offsetR, offsetG, offsetB;
+            SET_OFFSETS_24 (offsetR, offsetG, offsetB, dstfmt);
+            while (height--)
+            {
+                LOOP_UNROLLED4(
+                {
                     GET_PIXEL(pixel, srcbpp, src);
                     GET_PIXELVALS (sR, sG, sB, sA, pixel, srcfmt, srcppa);
-		    GET_PIXEL (pixel, dstbpp, dst);
-		    GET_PIXELVALS (dR, dG, dB, dA, pixel, dstfmt, dstppa);
-		    BLEND_MULT (sR, sG, sB, sA, dR, dG, dB, dA);
-		    dst[offsetR] = dR;
-		    dst[offsetG] = dG;
-		    dst[offsetB] = dB;
-		    src += srcpxskip;
-		    dst += dstpxskip;
-		}, n, width);
-		src += srcskip;
-		dst += dstskip;
-	    }
-	}
+                    GET_PIXEL (pixel, dstbpp, dst);
+                    GET_PIXELVALS (dR, dG, dB, dA, pixel, dstfmt, dstppa);
+                    BLEND_MULT (sR, sG, sB, sA, dR, dG, dB, dA);
+                    dst[offsetR] = dR;
+                    dst[offsetG] = dG;
+                    dst[offsetB] = dB;
+                    src += srcpxskip;
+                    dst += dstpxskip;
+                }, n, width);
+                src += srcskip;
+                dst += dstskip;
+            }
+        }
         else /* even dstbpp */
         {
             while (height--)
@@ -1653,40 +1652,40 @@ blit_blend_min (SDL_BlitInfo * info)
 
     if (srcbpp >= 3 && dstbpp >= 3 && !(info->src_flags & SDL_SRCALPHA))
     {
-	size_t srcoffsetR, srcoffsetG, srcoffsetB;
-	size_t dstoffsetR, dstoffsetG, dstoffsetB;
-	if (srcbpp == 3)
-	{
-	    SET_OFFSETS_24 (srcoffsetR, srcoffsetG, srcoffsetB, srcfmt);
-	}
-	else
-	{
-	    SET_OFFSETS_32 (srcoffsetR, srcoffsetG, srcoffsetB, srcfmt);
-	}
-	if (dstbpp == 3)
-	{
-	    SET_OFFSETS_24 (dstoffsetR, dstoffsetG, dstoffsetB, dstfmt);
-	}
-	else
-	{
-	    SET_OFFSETS_32 (dstoffsetR, dstoffsetG, dstoffsetB, dstfmt);
-	}
+        size_t srcoffsetR, srcoffsetG, srcoffsetB;
+        size_t dstoffsetR, dstoffsetG, dstoffsetB;
+        if (srcbpp == 3)
+        {
+            SET_OFFSETS_24 (srcoffsetR, srcoffsetG, srcoffsetB, srcfmt);
+        }
+        else
+        {
+            SET_OFFSETS_32 (srcoffsetR, srcoffsetG, srcoffsetB, srcfmt);
+        }
+        if (dstbpp == 3)
+        {
+            SET_OFFSETS_24 (dstoffsetR, dstoffsetG, dstoffsetB, dstfmt);
+        }
+        else
+        {
+            SET_OFFSETS_32 (dstoffsetR, dstoffsetG, dstoffsetB, dstfmt);
+        }
         while (height--)
         {
             LOOP_UNROLLED4(
             {
-		if (src[srcoffsetR] < dst[dstoffsetR])
-		{
-		    dst[dstoffsetR] = src[srcoffsetR];
-		}
-		if (src[srcoffsetG] < dst[dstoffsetG])
-		{
-		    dst[dstoffsetG] = src[srcoffsetG];
-		}
-		if (src[srcoffsetB] < dst[dstoffsetB])
-		{
-		    dst[dstoffsetB] = src[srcoffsetB];
-		}
+                if (src[srcoffsetR] < dst[dstoffsetR])
+                {
+                    dst[dstoffsetR] = src[srcoffsetR];
+                }
+                if (src[srcoffsetG] < dst[dstoffsetG])
+                {
+                    dst[dstoffsetG] = src[srcoffsetG];
+                }
+                if (src[srcoffsetB] < dst[dstoffsetB])
+                {
+                    dst[dstoffsetB] = src[srcoffsetB];
+                }
                 src += srcpxskip;
                 dst += dstpxskip;
             }, n, width);
@@ -1707,7 +1706,7 @@ blit_blend_min (SDL_BlitInfo * info)
                     GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
                     GET_PIXELVALS_1(dR, dG, dB, dA, dst, dstfmt);
                     BLEND_MIN (sR, sG, sB, sA, dR, dG, dB, dA);
-		    *dst = (Uint8) SDL_MapRGB (dstfmt, dR, dG, dB);
+                    *dst = (Uint8) SDL_MapRGB (dstfmt, dR, dG, dB);
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
@@ -1715,28 +1714,28 @@ blit_blend_min (SDL_BlitInfo * info)
                 dst += dstskip;
             }
         }
-	else if (dstbpp == 3)
-	{
-	    size_t offsetR, offsetG, offsetB;
-	    SET_OFFSETS_24 (offsetR, offsetG, offsetB, dstfmt);
-	    while (height--)
-	    {
-		LOOP_UNROLLED4(
-		{
-		    GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
-		    GET_PIXEL (pixel, dstbpp, dst);
-		    GET_PIXELVALS (dR, dG, dB, dA, pixel, dstfmt, dstppa);
-		    BLEND_MIN (sR, sG, sB, sA, dR, dG, dB, dA);
-		    dst[offsetR] = dR;
-		    dst[offsetG] = dG;
-		    dst[offsetB] = dB;
-		    src += srcpxskip;
-		    dst += dstpxskip;
-		}, n, width);
-		src += srcskip;
-		dst += dstskip;
-	    }
-	}
+        else if (dstbpp == 3)
+        {
+            size_t offsetR, offsetG, offsetB;
+            SET_OFFSETS_24 (offsetR, offsetG, offsetB, dstfmt);
+            while (height--)
+            {
+                LOOP_UNROLLED4(
+                {
+                    GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
+                    GET_PIXEL (pixel, dstbpp, dst);
+                    GET_PIXELVALS (dR, dG, dB, dA, pixel, dstfmt, dstppa);
+                    BLEND_MIN (sR, sG, sB, sA, dR, dG, dB, dA);
+                    dst[offsetR] = dR;
+                    dst[offsetG] = dG;
+                    dst[offsetB] = dB;
+                    src += srcpxskip;
+                    dst += dstpxskip;
+                }, n, width);
+                src += srcskip;
+                dst += dstskip;
+            }
+        }
         else /* even dstbpp */
         {
             while (height--)
@@ -1768,7 +1767,7 @@ blit_blend_min (SDL_BlitInfo * info)
                     GET_PIXELVALS (sR, sG, sB, sA, pixel, srcfmt, srcppa);
                     GET_PIXELVALS_1(dR, dG, dB, dA, dst, dstfmt);
                     BLEND_MIN (sR, sG, sB, sA, dR, dG, dB, dA);
-		    *dst = (Uint8) SDL_MapRGB (dstfmt, dR, dG, dB);
+                    *dst = (Uint8) SDL_MapRGB (dstfmt, dR, dG, dB);
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
@@ -1777,29 +1776,29 @@ blit_blend_min (SDL_BlitInfo * info)
             }
 
         }
-	else if (dstbpp == 3)
-	{
-	    size_t offsetR, offsetG, offsetB;
-	    SET_OFFSETS_24 (offsetR, offsetG, offsetB, dstfmt);
-	    while (height--)
-	    {
-		LOOP_UNROLLED4(
-		{
+        else if (dstbpp == 3)
+        {
+            size_t offsetR, offsetG, offsetB;
+            SET_OFFSETS_24 (offsetR, offsetG, offsetB, dstfmt);
+            while (height--)
+            {
+                LOOP_UNROLLED4(
+                {
                     GET_PIXEL(pixel, srcbpp, src);
                     GET_PIXELVALS (sR, sG, sB, sA, pixel, srcfmt, srcppa);
-		    GET_PIXEL (pixel, dstbpp, dst);
-		    GET_PIXELVALS (dR, dG, dB, dA, pixel, dstfmt, dstppa);
-		    BLEND_MIN (sR, sG, sB, sA, dR, dG, dB, dA);
-		    dst[offsetR] = dR;
-		    dst[offsetG] = dG;
-		    dst[offsetB] = dB;
-		    src += srcpxskip;
-		    dst += dstpxskip;
-		}, n, width);
-		src += srcskip;
-		dst += dstskip;
-	    }
-	}
+                    GET_PIXEL (pixel, dstbpp, dst);
+                    GET_PIXELVALS (dR, dG, dB, dA, pixel, dstfmt, dstppa);
+                    BLEND_MIN (sR, sG, sB, sA, dR, dG, dB, dA);
+                    dst[offsetR] = dR;
+                    dst[offsetG] = dG;
+                    dst[offsetB] = dB;
+                    src += srcpxskip;
+                    dst += dstpxskip;
+                }, n, width);
+                src += srcskip;
+                dst += dstskip;
+            }
+        }
         else /* even dstbpp */
         {
             while (height--)
@@ -1845,40 +1844,40 @@ blit_blend_max (SDL_BlitInfo * info)
 
     if (srcbpp >= 3 && dstbpp >= 3 && !(info->src_flags & SDL_SRCALPHA))
     {
-	size_t srcoffsetR, srcoffsetG, srcoffsetB;
-	size_t dstoffsetR, dstoffsetG, dstoffsetB;
-	if (srcbpp == 3)
-	{
-	    SET_OFFSETS_24 (srcoffsetR, srcoffsetG, srcoffsetB, srcfmt);
-	}
-	else
-	{
-	    SET_OFFSETS_32 (srcoffsetR, srcoffsetG, srcoffsetB, srcfmt);
-	}
-	if (dstbpp == 3)
-	{
-	    SET_OFFSETS_24 (dstoffsetR, dstoffsetG, dstoffsetB, dstfmt);
-	}
-	else
-	{
-	    SET_OFFSETS_32 (dstoffsetR, dstoffsetG, dstoffsetB, dstfmt);
-	}
+        size_t srcoffsetR, srcoffsetG, srcoffsetB;
+        size_t dstoffsetR, dstoffsetG, dstoffsetB;
+        if (srcbpp == 3)
+        {
+            SET_OFFSETS_24 (srcoffsetR, srcoffsetG, srcoffsetB, srcfmt);
+        }
+        else
+        {
+            SET_OFFSETS_32 (srcoffsetR, srcoffsetG, srcoffsetB, srcfmt);
+        }
+        if (dstbpp == 3)
+        {
+            SET_OFFSETS_24 (dstoffsetR, dstoffsetG, dstoffsetB, dstfmt);
+        }
+        else
+        {
+            SET_OFFSETS_32 (dstoffsetR, dstoffsetG, dstoffsetB, dstfmt);
+        }
         while (height--)
         {
             LOOP_UNROLLED4(
             {
-		if (src[srcoffsetR] > dst[dstoffsetR])
-		{
-		    dst[dstoffsetR] = src[srcoffsetR];
-		}
-		if (src[srcoffsetG] > dst[dstoffsetG])
-		{
-		    dst[dstoffsetG] = src[srcoffsetG];
-		}
-		if (src[srcoffsetB] > dst[dstoffsetB])
-		{
-		    dst[dstoffsetB] = src[srcoffsetB];
-		}
+                if (src[srcoffsetR] > dst[dstoffsetR])
+                {
+                    dst[dstoffsetR] = src[srcoffsetR];
+                }
+                if (src[srcoffsetG] > dst[dstoffsetG])
+                {
+                    dst[dstoffsetG] = src[srcoffsetG];
+                }
+                if (src[srcoffsetB] > dst[dstoffsetB])
+                {
+                    dst[dstoffsetB] = src[srcoffsetB];
+                }
                 src += srcpxskip;
                 dst += dstpxskip;
             }, n, width);
@@ -1899,7 +1898,7 @@ blit_blend_max (SDL_BlitInfo * info)
                     GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
                     GET_PIXELVALS_1(dR, dG, dB, dA, dst, dstfmt);
                     BLEND_MAX (sR, sG, sB, sA, dR, dG, dB, dA);
-		    *dst = (Uint8) SDL_MapRGB (dstfmt, dR, dG, dB);
+                    *dst = (Uint8) SDL_MapRGB (dstfmt, dR, dG, dB);
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
@@ -1907,28 +1906,28 @@ blit_blend_max (SDL_BlitInfo * info)
                 dst += dstskip;
             }
         }
-	else if (dstbpp == 3)
-	{
-	    size_t offsetR, offsetG, offsetB;
-	    SET_OFFSETS_24 (offsetR, offsetG, offsetB, dstfmt);
-	    while (height--)
-	    {
-		LOOP_UNROLLED4(
-		{
-		    GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
-		    GET_PIXEL (pixel, dstbpp, dst);
-		    GET_PIXELVALS (dR, dG, dB, dA, pixel, dstfmt, dstppa);
-		    BLEND_MAX (sR, sG, sB, sA, dR, dG, dB, dA);
-		    dst[offsetR] = dR;
-		    dst[offsetG] = dG;
-		    dst[offsetB] = dB;
-		    src += srcpxskip;
-		    dst += dstpxskip;
-		}, n, width);
-		src += srcskip;
-		dst += dstskip;
-	    }
-	}
+        else if (dstbpp == 3)
+        {
+            size_t offsetR, offsetG, offsetB;
+            SET_OFFSETS_24 (offsetR, offsetG, offsetB, dstfmt);
+            while (height--)
+            {
+                LOOP_UNROLLED4(
+                {
+                    GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
+                    GET_PIXEL (pixel, dstbpp, dst);
+                    GET_PIXELVALS (dR, dG, dB, dA, pixel, dstfmt, dstppa);
+                    BLEND_MAX (sR, sG, sB, sA, dR, dG, dB, dA);
+                    dst[offsetR] = dR;
+                    dst[offsetG] = dG;
+                    dst[offsetB] = dB;
+                    src += srcpxskip;
+                    dst += dstpxskip;
+                }, n, width);
+                src += srcskip;
+                dst += dstskip;
+            }
+        }
         else /* even dstbpp */
         {
             while (height--)
@@ -1960,7 +1959,7 @@ blit_blend_max (SDL_BlitInfo * info)
                     GET_PIXELVALS (sR, sG, sB, sA, pixel, srcfmt, srcppa);
                     GET_PIXELVALS_1(dR, dG, dB, dA, dst, dstfmt);
                     BLEND_MAX (sR, sG, sB, sA, dR, dG, dB, dA);
-		    *dst = (Uint8) SDL_MapRGB (dstfmt, dR, dG, dB);
+                    *dst = (Uint8) SDL_MapRGB (dstfmt, dR, dG, dB);
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
@@ -1969,29 +1968,29 @@ blit_blend_max (SDL_BlitInfo * info)
             }
 
         }
-	else if (dstbpp == 3)
-	{
-	    size_t offsetR, offsetG, offsetB;
-	    SET_OFFSETS_24 (offsetR, offsetG, offsetB, dstfmt);
-	    while (height--)
-	    {
-		LOOP_UNROLLED4(
-		{
+        else if (dstbpp == 3)
+        {
+            size_t offsetR, offsetG, offsetB;
+            SET_OFFSETS_24 (offsetR, offsetG, offsetB, dstfmt);
+            while (height--)
+            {
+                LOOP_UNROLLED4(
+                {
                     GET_PIXEL(pixel, srcbpp, src);
                     GET_PIXELVALS (sR, sG, sB, sA, pixel, srcfmt, srcppa);
-		    GET_PIXEL (pixel, dstbpp, dst);
-		    GET_PIXELVALS (dR, dG, dB, dA, pixel, dstfmt, dstppa);
-		    BLEND_MAX (sR, sG, sB, sA, dR, dG, dB, dA);
-		    dst[offsetR] = dR;
-		    dst[offsetG] = dG;
-		    dst[offsetB] = dB;
-		    src += srcpxskip;
-		    dst += dstpxskip;
-		}, n, width);
-		src += srcskip;
-		dst += dstskip;
-	    }
-	}
+                    GET_PIXEL (pixel, dstbpp, dst);
+                    GET_PIXELVALS (dR, dG, dB, dA, pixel, dstfmt, dstppa);
+                    BLEND_MAX (sR, sG, sB, sA, dR, dG, dB, dA);
+                    dst[offsetR] = dR;
+                    dst[offsetG] = dG;
+                    dst[offsetB] = dB;
+                    src += srcpxskip;
+                    dst += dstpxskip;
+                }, n, width);
+                src += srcskip;
+                dst += dstskip;
+            }
+        }
         else /* even dstbpp */
         {
             while (height--)
@@ -2047,7 +2046,7 @@ blit_blend_max (SDL_BlitInfo * info)
 
 
 
-static void 
+static void
 alphablit_alpha (SDL_BlitInfo * info)
 {
     int             n;
@@ -2069,8 +2068,8 @@ alphablit_alpha (SDL_BlitInfo * info)
     int             dstppa = (info->dst_flags & SDL_SRCALPHA && dstfmt->Amask);
 
     /*
-    printf ("Alpha blit with %d and %d\n", srcbpp, dstbpp);
-    */
+       printf ("Alpha blit with %d and %d\n", srcbpp, dstbpp);
+       */
 
     if (srcbpp == 1)
     {
@@ -2153,7 +2152,7 @@ alphablit_alpha (SDL_BlitInfo * info)
     }
 }
 
-static void 
+static void
 alphablit_colorkey (SDL_BlitInfo * info)
 {
     int             n;
@@ -2177,8 +2176,8 @@ alphablit_colorkey (SDL_BlitInfo * info)
     int             dstppa = (info->dst_flags & SDL_SRCALPHA && dstfmt->Amask);
 
     /*
-    printf ("Colorkey blit with %d and %d\n", srcbpp, dstbpp);
-    */
+       printf ("Colorkey blit with %d and %d\n", srcbpp, dstbpp);
+       */
 
     if (srcbpp == 1)
     {
@@ -2192,7 +2191,7 @@ alphablit_colorkey (SDL_BlitInfo * info)
                     sA = (*src == colorkey) ? 0 : alpha;
                     GET_PIXELVALS_1(dR, dG, dB, dA, dst, dstfmt);
                     ALPHA_BLEND (sR, sG, sB, sA, dR, dG, dB, dA);
-		    *dst = (Uint8) SDL_MapRGB (dstfmt, dR, dG, dB);
+                    *dst = (Uint8) SDL_MapRGB (dstfmt, dR, dG, dB);
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
@@ -2233,7 +2232,7 @@ alphablit_colorkey (SDL_BlitInfo * info)
                     sA = (pixel == colorkey) ? 0 : alpha;
                     GET_PIXELVALS_1(dR, dG, dB, dA, dst, dstfmt);
                     ALPHA_BLEND (sR, sG, sB, sA, dR, dG, dB, dA);
-		    *dst = (Uint8) SDL_MapRGB (dstfmt, dR, dG, dB);
+                    *dst = (Uint8) SDL_MapRGB (dstfmt, dR, dG, dB);
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
@@ -2242,33 +2241,33 @@ alphablit_colorkey (SDL_BlitInfo * info)
             }
 
         }
-	else if (dstbpp == 3)
-	{
+        else if (dstbpp == 3)
+        {
             /* This is interim code until SDL can properly handle self
-	       blits of surfaces with blanket alpha.
-	    */
-	    size_t offsetR, offsetG, offsetB;
-	    SET_OFFSETS_24 (offsetR, offsetG, offsetB, dstfmt);
-	    while (height--)
-	    {
-		LOOP_UNROLLED4(
-		{
+               blits of surfaces with blanket alpha.
+               */
+            size_t offsetR, offsetG, offsetB;
+            SET_OFFSETS_24 (offsetR, offsetG, offsetB, dstfmt);
+            while (height--)
+            {
+                LOOP_UNROLLED4(
+                {
                     GET_PIXEL(pixel, srcbpp, src);
                     GET_PIXELVALS (sR, sG, sB, sA, pixel, srcfmt, srcppa);
-		    sA = (pixel == colorkey) ? 0 : alpha;
-		    GET_PIXEL (pixel, dstbpp, dst);
-		    GET_PIXELVALS (dR, dG, dB, dA, pixel, dstfmt, dstppa);
-		    ALPHA_BLEND (sR, sG, sB, sA, dR, dG, dB, dA);
-		    dst[offsetR] = dR;
-		    dst[offsetG] = dG;
-		    dst[offsetB] = dB;
-		    src += srcpxskip;
-		    dst += dstpxskip;
-		}, n, width);
-		src += srcskip;
-		dst += dstskip;
-	    }
-	}
+                    sA = (pixel == colorkey) ? 0 : alpha;
+                    GET_PIXEL (pixel, dstbpp, dst);
+                    GET_PIXELVALS (dR, dG, dB, dA, pixel, dstfmt, dstppa);
+                    ALPHA_BLEND (sR, sG, sB, sA, dR, dG, dB, dA);
+                    dst[offsetR] = dR;
+                    dst[offsetG] = dG;
+                    dst[offsetB] = dB;
+                    src += srcpxskip;
+                    dst += dstpxskip;
+                }, n, width);
+                src += srcskip;
+                dst += dstskip;
+            }
+        }
         else /* even dstbpp */
         {
             while (height--)
@@ -2292,7 +2291,7 @@ alphablit_colorkey (SDL_BlitInfo * info)
     }
 }
 
-static void 
+static void
 alphablit_solid (SDL_BlitInfo * info)
 {
     int             n;
@@ -2315,8 +2314,8 @@ alphablit_solid (SDL_BlitInfo * info)
     int             dstppa = (info->dst_flags & SDL_SRCALPHA && dstfmt->Amask);
 
     /*
-    printf ("Solid blit with %d and %d\n", srcbpp, dstbpp);
-    */
+       printf ("Solid blit with %d and %d\n", srcbpp, dstbpp);
+       */
 
     if (srcbpp == 1)
     {
@@ -2329,7 +2328,7 @@ alphablit_solid (SDL_BlitInfo * info)
                     GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
                     GET_PIXELVALS_1(dR, dG, dB, dA, dst, dstfmt);
                     ALPHA_BLEND (sR, sG, sB, alpha, dR, dG, dB, dA);
-		    *dst = (Uint8) SDL_MapRGB (dstfmt, dR, dG, dB);
+                    *dst = (Uint8) SDL_MapRGB (dstfmt, dR, dG, dB);
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
@@ -2368,7 +2367,7 @@ alphablit_solid (SDL_BlitInfo * info)
                     GET_PIXELVALS (sR, sG, sB, sA, pixel, srcfmt, srcppa);
                     GET_PIXELVALS_1(dR, dG, dB, dA, dst, dstfmt);
                     ALPHA_BLEND (sR, sG, sB, alpha, dR, dG, dB, dA);
-		    *dst = (Uint8) SDL_MapRGB (dstfmt, dR, dG, dB);
+                    *dst = (Uint8) SDL_MapRGB (dstfmt, dR, dG, dB);
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
@@ -2377,32 +2376,32 @@ alphablit_solid (SDL_BlitInfo * info)
             }
 
         }
-	else if (dstbpp == 3)
-	{
+        else if (dstbpp == 3)
+        {
             /* This is interim code until SDL can properly handle self
-	       blits of surfaces with blanket alpha.
-	    */
-	    size_t offsetR, offsetG, offsetB;
-	    SET_OFFSETS_24 (offsetR, offsetG, offsetB, dstfmt);
-	    while (height--)
-	    {
-		LOOP_UNROLLED4(
-		{
+               blits of surfaces with blanket alpha.
+               */
+            size_t offsetR, offsetG, offsetB;
+            SET_OFFSETS_24 (offsetR, offsetG, offsetB, dstfmt);
+            while (height--)
+            {
+                LOOP_UNROLLED4(
+                {
                     GET_PIXEL(pixel, srcbpp, src);
                     GET_PIXELVALS (sR, sG, sB, sA, pixel, srcfmt, srcppa);
-		    GET_PIXEL (pixel, dstbpp, dst);
-		    GET_PIXELVALS (dR, dG, dB, dA, pixel, dstfmt, dstppa);
-		    ALPHA_BLEND (sR, sG, sB, alpha, dR, dG, dB, dA);
-		    dst[offsetR] = dR;
-		    dst[offsetG] = dG;
-		    dst[offsetB] = dB;
-		    src += srcpxskip;
-		    dst += dstpxskip;
-		}, n, width);
-		src += srcskip;
-		dst += dstskip;
-	    }
-	}
+                    GET_PIXEL (pixel, dstbpp, dst);
+                    GET_PIXELVALS (dR, dG, dB, dA, pixel, dstfmt, dstppa);
+                    ALPHA_BLEND (sR, sG, sB, alpha, dR, dG, dB, dA);
+                    dst[offsetR] = dR;
+                    dst[offsetG] = dG;
+                    dst[offsetB] = dB;
+                    src += srcpxskip;
+                    dst += dstpxskip;
+                }, n, width);
+                src += srcskip;
+                dst += dstskip;
+            }
+        }
         else /* even dstbpp */
         {
             while (height--)
@@ -2426,7 +2425,7 @@ alphablit_solid (SDL_BlitInfo * info)
 }
 
 /*we assume the "dst" has pixel alpha*/
-int 
+int
 pygame_Blit (SDL_Surface * src, SDL_Rect * srcrect,
              SDL_Surface * dst, SDL_Rect * dstrect, int the_args)
 {
@@ -2531,7 +2530,7 @@ pygame_Blit (SDL_Surface * src, SDL_Rect * srcrect,
     return 0;
 }
 
-int 
+int
 pygame_AlphaBlit (SDL_Surface * src, SDL_Rect * srcrect,
                   SDL_Surface * dst, SDL_Rect * dstrect, int the_args)
 {

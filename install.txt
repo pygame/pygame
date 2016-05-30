@@ -31,18 +31,13 @@ is found next to the other windows binary downloads. The filename
 looks like this: "pygame-docs-1.8.0.exe". And this would install the
 documentation and examples for pygame-1.8.0
 
-One other thing the windows binaries are missing is the Numeric or
-numpy Python packages. You can easily install this separately and it
+One other thing the windows binaries are missing is the
+numpy Python package. You can easily install this separately and it
 will allow you to use the pygame "surfarray" module. This module is
-optional, so there is no need to do this. A Numeric for Windows python
-2.5 can be found on the download page:
-http://www.pygame.org/download.shtml. There are older binary
-installers from the Numeric download page.
-http://sourceforge.net/project/showfiles.php?group_id=1369.
+optional, so there is no need to do this.
 
 PixelArray, which is built into pygame 1.8+, and is usually quite a
-lot faster is the recommended array implementation to use. Numpy is
-newer than Numeric, however both are not entirely compatible.
+lot faster is the recommended array implementation to use.
 
 
 Unix Binary Packages
@@ -76,7 +71,7 @@ http://www.pygame.org/download.shtml
 
 This package includes almost of the dependencies required for pygame
 (SDL, SDL_image, etc.), but you need PyObjC 1.2 or later, and may also
-want to get Numeric, numpy and PyOpenGL. A PyObjC 1.4 installer is
+want to get numpy and PyOpenGL. A PyObjC 1.4 installer is
 also made available on the download page.
 
 If you want to use the Apple system python, you will need to compile

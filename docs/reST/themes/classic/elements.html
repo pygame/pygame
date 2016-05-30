@@ -19,14 +19,13 @@
 	</td>
 	<td class="pagelinks">
 	  <p class="top">
-	    ||
 	    <a href="{{ theme_home_uri }}">Pygame Home</a> ||
 	    <a href="{{ pathto(master_doc) }}">Help Contents</a> ||
-	    <a href="{{ pathto('genindex') }}">Reference Index</a> ||
+	    <a href="{{ pathto('genindex') }}">Reference Index</a>
 	  </p>
 {%-   if pyg_sections %}
 	  <p class="bottom">
-{%      set sep = joiner(" || \n") %}
+{%      set sep = joiner(" | \n") %}
 {%-     for section in pyg_sections %}
 {%-       set docname = section['docname'] %}
 {%-       set simpledocname = docname.split('/')[-1] %}
@@ -49,11 +48,15 @@
  #}
 {%- block body %}
   <div class="sectionwrapper">
+    {%- if pagename != 'index' %}
+    <h1>{{ title }}</h1>
+    {%- endif %}
 {%-   block section %}{% endblock %}
   </div>
 {%- endblock %}
 
 
 {%- block relbaritems %}
-    <script type="text/javascript" src="jquery.plugin.docscomments.js"></script>
+{%- set jquerydocscomments_path = '_static/jquery.plugin.docscomments.js' %}
+    <script type="text/javascript" src="{{ pathto(jquerydocscomments_path, 1) }}"></script>
 {% endblock %} 

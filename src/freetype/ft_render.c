@@ -21,16 +21,93 @@
 #define PYGAME_FREETYPE_INTERNAL
 
 #include "ft_wrap.h"
-#include "../pgview.h"
 #include FT_MODULE_H
 #include FT_OUTLINE_H
 
 static const FontColor mono_opaque = {0, 0, 0, SDL_ALPHA_OPAQUE};
 static const FontColor mono_transparent = {0, 0, 0, SDL_ALPHA_TRANSPARENT};
 
-static void render(FreeTypeInstance *, FontText *, const FontRenderMode *,
+static void render(FreeTypeInstance *, Layout *, const FontRenderMode *,
                    const FontColor *, FontSurface *, unsigned, unsigned,
                    FT_Vector *, FT_Pos, FT_Fixed);
+
+static int
+_validate_view_format(const char *format)
+{
+    int i = 0;
+
+    /* Check if the format starts with a size/byte order code or a item count */
+    switch (format[i]) {
+
+    case '@':
+    case '=':
+    case '<':
+    case '>':
+    case '!':
+        ++i;
+        break;
+    case '2':
+    case '3':
+    case '4':
+    case '5':
+    case '6':
+    case '7':
+    case '8':
+    case '9':
+        /* Only allowed for fill bytes */
+        if (format[i + 1] == 'x') {
+            ++i;
+        }
+        break;
+
+    /* default: assume the first character is a format character */
+    }
+    /* A item count of 1 is accepted */
+    if (format[i] == '1') {
+        ++i;
+    }
+    /* Verify the next character is a format character */
+    switch (format[i]) {
+
+    case 'x':
+    case 'b':
+    case 'B':
+    case 'h':
+    case 'H':
+    case 'i':
+    case 'I':
+    case 'l':
+    case 'L':
+    case 'q':
+    case 'Q':
+        ++i;
+        break;
+
+    /* default: an unrecognized format character; raise exception later */
+    }
+    if (format[i] != '\0') {
+        return -1;
+    }
+
+    return 0;
+}
+
+static int
+_is_swapped(Py_buffer *view_p)
+{
+    char ch = view_p->format[0];
+
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+    if (ch == '>' || ch == '!') {
+        return 1;
+    }
+#else
+    if (ch == '<') {
+        return 1;
+    }
+#endif
+    return 0;
+}
 
 int
 _PGFT_CheckStyle(FT_UInt32 style)
@@ -48,25 +125,21 @@ _PGFT_CheckStyle(FT_UInt32 style)
 int
 _PGFT_BuildRenderMode(FreeTypeInstance *ft,
                       PgFontObject *fontobj, FontRenderMode *mode,
-                      int pt_size, int style, int rotation)
+                      Scale_t face_size, int style, Angle_t rotation)
 {
-    int angle;
+    FT_Face font = 0;
 
-    if (pt_size == -1) {
-        if (fontobj->ptsize == -1) {
+    if (face_size.x == 0) {
+        if (fontobj->face_size.x == 0) {
             PyErr_SetString(PyExc_ValueError,
                   "No font point size specified"
                   " and no default font size in typeface");
             return -1;
         }
 
-        pt_size = fontobj->ptsize;
+        face_size = fontobj->face_size;
     }
-    if (pt_size <= 0) {
-        PyErr_SetString(PyExc_ValueError, "Invalid point size for font.");
-        return -1;
-    }
-    mode->pt_size = (FT_UInt16)pt_size;
+    mode->face_size = face_size;
 
     if (style == FT_STYLE_DEFAULT) {
         mode->style = fontobj->style;
@@ -79,15 +152,23 @@ _PGFT_BuildRenderMode(FreeTypeInstance *ft,
 
         mode->style = (FT_UInt16)style;
     }
+    if ((mode->style & FT_STYLES_SCALABLE_ONLY) && !fontobj->is_scalable ) {
+        PyErr_SetString(PyExc_ValueError,
+                        "Unsupported style(s) for a bitmap font");
+        return -1;
+    }
     mode->strength = DBL_TO_FX16(fontobj->strength);
     mode->underline_adjustment = DBL_TO_FX16(fontobj->underline_adjustment);
     mode->render_flags = fontobj->render_flags;
-    angle = rotation % 360;
-    while (angle < 0) angle += 360;
-    mode->rotation_angle = INT_TO_FX16(angle);
+    mode->rotation_angle = rotation;
     mode->transform = fontobj->transform;
 
     if (mode->rotation_angle != 0) {
+        if (!fontobj->is_scalable) {
+            PyErr_SetString(PyExc_ValueError,
+                  "rotated text is unsupported for a bitmap font");
+            return -1;
+        }
         if (mode->style & FT_STYLE_WIDE) {
             PyErr_SetString(PyExc_ValueError,
                   "the wide style is unsupported for rotated text");
@@ -113,11 +194,19 @@ _PGFT_BuildRenderMode(FreeTypeInstance *ft,
         }
     }
 
+    if (mode->render_flags & FT_RFLAG_KERNING) {
+        font = _PGFT_GetFontSized(ft, fontobj, mode->face_size);
+            PyErr_SetString(PyExc_SDLError, _PGFT_GetError(ft));
+            return -1;
+            if (!FT_HAS_KERNING(font)) {
+                mode->render_flags &= ~FT_RFLAG_KERNING;
+            }
+    }
     return 0;
 }
 
 void
-_PGFT_GetRenderMetrics(const FontRenderMode *mode, FontText *text,
+_PGFT_GetRenderMetrics(const FontRenderMode *mode, Layout *text,
                        unsigned *w, unsigned *h, FT_Vector *offset,
                        FT_Pos *underline_top, FT_Fixed *underline_size)
 {
@@ -126,10 +215,13 @@ _PGFT_GetRenderMetrics(const FontRenderMode *mode, FontText *text,
     FT_Pos min_y = text->min_y;
     FT_Pos max_y = text->max_y;
 
+    *underline_top = 0;
     *underline_size = 0;
     if (mode->style & FT_STYLE_UNDERLINE) {
         FT_Fixed half_size = (text->underline_size + 1) / 2;
         FT_Fixed adjusted_pos;
+        FT_Fixed uline_top;
+        FT_Fixed uline_bottom;
 
         if (mode->underline_adjustment < 0) {
             adjusted_pos = FT_MulFix(text->ascender,
@@ -139,14 +231,16 @@ _PGFT_GetRenderMetrics(const FontRenderMode *mode, FontText *text,
             adjusted_pos = FT_MulFix(text->underline_pos,
                                      mode->underline_adjustment);
         }
-        if (adjusted_pos + half_size > max_y) {
-            max_y = adjusted_pos + half_size;
+        uline_top = adjusted_pos - half_size;
+        uline_bottom = uline_top + text->underline_size;
+        if (uline_bottom > max_y) {
+            max_y = uline_bottom;
         }
-        if (adjusted_pos - half_size < min_y) {
-            min_y = adjusted_pos - half_size;
+        if (uline_top < min_y) {
+            min_y = uline_top;
         }
         *underline_size = text->underline_size;
-        *underline_top = adjusted_pos - half_size;
+        *underline_top = uline_top;
     }
 
     offset->x = -min_x;
@@ -202,16 +296,7 @@ _PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PgFontObject *fontobj,
     FT_Fixed underline_size;
 
     FontSurface font_surf;
-    FontText *font_text;
-
-    if (PGFT_String_GET_LENGTH(text) == 0) {
-        /* No rendering */
-        r->x = 0;
-        r->y = 0;
-        r->w = 0;
-        r->h = _PGFT_Font_GetHeightSized(ft, fontobj, mode->pt_size);
-        return 0;
-    }
+    Layout *font_text;
 
     if (SDL_MUSTLOCK(surface)) {
         if (SDL_LockSurface(surface) == -1) {
@@ -223,12 +308,20 @@ _PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PgFontObject *fontobj,
     }
 
     /* build font text */
-    font_text = _PGFT_LoadFontText(ft, fontobj, mode, text);
+    font_text = _PGFT_LoadLayout(ft, fontobj, mode, text);
     if (!font_text) {
         if (locked) {
             SDL_UnlockSurface(surface);
         }
         return -1;
+    }
+    if (font_text->length == 0) {
+        /* Nothing to rendering */
+        r->x = 0;
+        r->y = 0;
+        r->w = 0;
+        r->h = _PGFT_Font_GetHeightSized(ft, fontobj, mode->face_size);
+        return 0;
     }
 
     _PGFT_GetRenderMetrics(mode, font_text, &width, &height, &offset,
@@ -241,7 +334,7 @@ _PGFT_Render_ExistingSurface(FreeTypeInstance *ft, PgFontObject *fontobj,
         r->x = 0;
         r->y = 0;
         r->w = 0;
-        r->h = _PGFT_Font_GetHeightSized(ft, fontobj, mode->pt_size);
+        r->h = _PGFT_Font_GetHeightSized(ft, fontobj, mode->face_size);
         return 0;
     }
     surf_offset.x = INT_TO_FX6(x);
@@ -331,12 +424,12 @@ SDL_Surface *_PGFT_Render_NewSurface(FreeTypeInstance *ft,
     int locked = 0;
     FT_UInt32 fillcolor;
     SDL_Surface *surface = 0;
-    FT_UInt32 bits_per_pixel =
+    int bits_per_pixel =
         (bgcolor || mode->render_flags & FT_RFLAG_ANTIALIAS) ? 32 : 8;
     FT_UInt32 surface_flags = SDL_SWSURFACE;
 
     FontSurface font_surf;
-    FontText *font_text;
+    Layout *font_text;
     unsigned width;
     unsigned height;
     FT_Vector offset;
@@ -346,7 +439,7 @@ SDL_Surface *_PGFT_Render_NewSurface(FreeTypeInstance *ft,
     FontColor mono_bgcolor = {0, 0, 0, 0};
 
     /* build font text */
-    font_text = _PGFT_LoadFontText(ft, fontobj, mode, text);
+    font_text = _PGFT_LoadLayout(ft, fontobj, mode, text);
     if (!font_text) {
         return 0;
     }
@@ -357,7 +450,7 @@ SDL_Surface *_PGFT_Render_NewSurface(FreeTypeInstance *ft,
     }
     else {
         width = 1;
-        height = _PGFT_Font_GetHeightSized(ft, fontobj, mode->pt_size);
+        height = _PGFT_Font_GetHeightSized(ft, fontobj, mode->face_size);
         offset.x = -font_text->min_x;
         offset.y = -font_text->min_y;
     }
@@ -470,7 +563,7 @@ PyObject *_PGFT_Render_PixelArray(FreeTypeInstance *ft, PgFontObject *fontobj,
     PyObject *array = 0;
     FontSurface surf;
 
-    FontText *font_text;
+    Layout *font_text;
     unsigned width;
     unsigned height;
     FT_Vector offset;
@@ -478,22 +571,21 @@ PyObject *_PGFT_Render_PixelArray(FreeTypeInstance *ft, PgFontObject *fontobj,
     FT_Fixed underline_size;
     int array_size;
 
-    if (PGFT_String_GET_LENGTH(text) == 0) {
-        /* Empty array */
+    /* build font text */
+    font_text = _PGFT_LoadLayout(ft, fontobj, mode, text);
+    if (!font_text) {
+        return 0;
+    }
+
+    if (font_text->length == 0) {
+        /* Nothing to render */
         *_width = 0;
         *_height = _PGFT_Font_GetHeight(ft, fontobj);
         return Bytes_FromStringAndSize("", 0);
     }
 
-    /* build font text */
-    font_text = _PGFT_LoadFontText(ft, fontobj, mode, text);
-
-    if (!font_text) {
-        return 0;
-    }
-
     _PGFT_GetRenderMetrics(mode, font_text, &width, &height, &offset,
-                           &underline_size, &underline_top);
+                           &underline_top, &underline_size);
 
     array_size = width * height;
     if (array_size == 0) {
@@ -541,8 +633,8 @@ _PGFT_Render_Array(FreeTypeInstance *ft, PgFontObject *fontobj,
 {
     static int view_init = 0;
 
-    PyObject *cobj = 0;
-    PyArrayInterface *inter_p;
+    Pg_buffer pg_view;
+    Py_buffer *view_p = (Py_buffer *)&pg_view;
 
     unsigned width;
     unsigned height;
@@ -554,70 +646,65 @@ _PGFT_Render_Array(FreeTypeInstance *ft, PgFontObject *fontobj,
 
     FontSurface font_surf;
     SDL_PixelFormat format;
-    FontText *font_text;
+    Layout *font_text;
 
     /* Get target buffer */
     if (!view_init) {
-        import_pygame_view();
+        import_pygame_base();
         if (PyErr_Occurred()) {
             return -1;
         }
     }
-    if (Pg_GetArrayInterface(arrayobj, &cobj, &inter_p)) {
+    if (PgObject_GetBuffer(arrayobj, &pg_view, PyBUF_RECORDS)) {
         return -1;
     }
-    if (inter_p->nd != 2) {
-        Py_DECREF(cobj);
+    if (view_p->ndim != 2) {
         PyErr_Format(PyExc_ValueError,
                      "expecting a 2d target array: got %id array instead",
-                     (int)inter_p->nd);
+                     (int)view_p->ndim);
+        PgBuffer_Release(&pg_view);
         return -1;
     }
-    switch (inter_p->typekind) {
+    if (_validate_view_format(view_p->format)) {
+        static const char fmt[] = "Unsupported array item format '%.*s'";
+        char msg[100 + sizeof(fmt)];
 
-    case 'i':  /* integer */
-        break;
-    case 'u':  /* unsigned integer */
-        break;
-    case 'S':  /* fixed length character field */
-        break;
-    default:
-        Py_DECREF(cobj);
-        PyErr_Format(PyExc_ValueError, "unsupported target array type '%c'",
-                     inter_p->typekind);
+        sprintf(msg, fmt, (int)(sizeof(msg) - sizeof(fmt)), view_p->format);
+        PgBuffer_Release(&pg_view);
+        PyErr_SetString(PyExc_ValueError, msg);
         return -1;
     }
 
-    width = inter_p->shape[0];
-    height = inter_p->shape[1];
-    itemsize = inter_p->itemsize;
+    width = (unsigned)view_p->shape[0];
+    height = (unsigned)view_p->shape[1];
+    itemsize = (unsigned)view_p->itemsize;
+
+    /* build font text */
+    font_text = _PGFT_LoadLayout(ft, fontobj, mode, text);
+    if (!font_text) {
+        PgBuffer_Release(&pg_view);
+        return -1;
+    }
 
     /* if empty string, then nothing more to do */
-    if (PGFT_String_GET_LENGTH(text) == 0) {
-        Py_DECREF(cobj);
+    if (font_text->length == 0) {
+        PgBuffer_Release(&pg_view);
         r->x = 0;
         r->y = 0;
         r->w = 0;
-        r->h = _PGFT_Font_GetHeightSized(ft, fontobj, mode->pt_size);
+        r->h = _PGFT_Font_GetHeightSized(ft, fontobj, mode->face_size);
         return 0;
-    }
-
-    /* build font text */
-    font_text = _PGFT_LoadFontText(ft, fontobj, mode, text);
-    if (!font_text) {
-        Py_DECREF(cobj);
-        return -1;
     }
 
     _PGFT_GetRenderMetrics(mode, font_text, &width, &height, &offset,
                            &underline_top, &underline_size);
     if (width == 0 || height == 0) {
         /* Nothing more to do. */
-        Py_DECREF(cobj);
+        PgBuffer_Release(&pg_view);
         r->x = 0;
         r->y = 0;
         r->w = 0;
-        r->h = _PGFT_Font_GetHeightSized(ft, fontobj, mode->pt_size);
+        r->h = _PGFT_Font_GetHeightSized(ft, fontobj, mode->face_size);
         return 0;
     }
     array_offset.x = INT_TO_FX6(x);
@@ -636,17 +723,15 @@ _PGFT_Render_Array(FreeTypeInstance *ft, PgFontObject *fontobj,
      */
     format.BytesPerPixel = itemsize;
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
-    format.Ashift = ((inter_p->flags & PAI_NOTSWAPPED) ?
-                     0 : (itemsize - 1) * 8);
+    format.Ashift = _is_swapped(view_p) ? (itemsize - 1) * 8 : 0;
 #else
-    format.Ashift = ((inter_p->flags & PAI_NOTSWAPPED) ?
-                     (itemsize - 1) * 8 : 0);
+    format.Ashift = _is_swapped(view_p) ? 0 : (itemsize - 1) * 8;
 #endif
-    font_surf.buffer = inter_p->data;
-    font_surf.width = inter_p->shape[0];
-    font_surf.height = inter_p->shape[1];
-    font_surf.item_stride = inter_p->strides[0];
-    font_surf.pitch = inter_p->strides[1];
+    font_surf.buffer = view_p->buf;
+    font_surf.width = (unsigned)view_p->shape[0];
+    font_surf.height = (unsigned)view_p->shape[1];
+    font_surf.item_stride = (unsigned)view_p->strides[0];
+    font_surf.pitch = (unsigned)view_p->strides[1];
     font_surf.format = &format;
     font_surf.render_gray = __render_glyph_INT;
     font_surf.render_mono = __render_glyph_MONO_as_INT;
@@ -656,7 +741,7 @@ _PGFT_Render_Array(FreeTypeInstance *ft, PgFontObject *fontobj,
            &font_surf, width, height, &array_offset, underline_top,
            underline_size);
 
-    Py_DECREF(cobj);
+    PgBuffer_Release(&pg_view);
     r->x = -(Sint16)FX6_TRUNC(FX6_FLOOR(offset.x));
     r->y = (Sint16)FX6_TRUNC(FX6_CEIL(offset.y));
     r->w = (Uint16)width;
@@ -671,7 +756,7 @@ _PGFT_Render_Array(FreeTypeInstance *ft, PgFontObject *fontobj,
  *
  *********************************************************/
 static void
-render(FreeTypeInstance *ft, FontText *text, const FontRenderMode *mode,
+render(FreeTypeInstance *ft, Layout *text, const FontRenderMode *mode,
        const FontColor *fg_color, FontSurface *surface,
        unsigned width, unsigned height, FT_Vector *offset,
        FT_Pos underline_top, FT_Fixed underline_size)
@@ -682,9 +767,8 @@ render(FreeTypeInstance *ft, FontText *text, const FontRenderMode *mode,
     int y;
     int n;
     int length = text->length;
-    FontGlyph **glyphs = text->glyphs;
+    GlyphSlot *slots = text->glyphs;
     FT_BitmapGlyph image;
-    FT_Vector *posns = text->posns;
     FontRenderPtr render_gray = surface->render_gray;
     FontRenderPtr render_mono = surface->render_mono;
     int is_underline_gray = 0;
@@ -695,9 +779,9 @@ render(FreeTypeInstance *ft, FontText *text, const FontRenderMode *mode,
     left = offset->x;
     top = offset->y;
     for (n = 0; n < length; ++n) {
-        image = glyphs[n]->image;
-        x = FX6_TRUNC(FX6_CEIL(left + posns[n].x));
-        y = FX6_TRUNC(FX6_CEIL(top + posns[n].y));
+        image = slots[n].glyph->image;
+        x = FX6_TRUNC(FX6_CEIL(left + slots[n].posn.x));
+        y = FX6_TRUNC(FX6_CEIL(top + slots[n].posn.y));
         if (image->bitmap.pixel_mode == FT_PIXEL_MODE_GRAY) {
             render_gray(x, y, surface, &(image->bitmap), fg_color);
             is_underline_gray = 1;

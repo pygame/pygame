@@ -10,15 +10,19 @@ if __name__ == '__main__':
 else:
     is_pygame_pkg = __name__.startswith('pygame.tests.')
 
+import unittest
 if is_pygame_pkg:
-    from pygame.tests.test_utils import test_not_implemented, unittest
+    from pygame.tests.test_utils import arrinter
 else:
-    from test.test_utils import test_not_implemented, unittest
+    from test.test_utils import arrinter
 import pygame
 from pygame.locals import *
 
 
-from pygame.pixelcopy import surface_to_array, map_array
+from pygame.pixelcopy import (surface_to_array, map_array, array_to_surface,
+                               make_surface)
+
+import ctypes
 
 def unsigned32(i):
     """cast signed 32 bit integer to an unsigned integer"""
@@ -88,6 +92,8 @@ class PixelcopyModuleTest (unittest.TestCase):
         for surf in self.sources:
             src_bitsize = surf.get_bitsize()
             for dst_bitsize in self.bitsizes:
+                # dst in a surface standing in for a 2 dimensional array
+                # of unsigned integers. The byte order is system dependent.
                 dst = pygame.Surface(surf.get_size(), 0, dst_bitsize)
                 dst.fill((0, 0, 0, 0))
                 view = dst.get_view('2')
@@ -123,12 +129,32 @@ class PixelcopyModuleTest (unittest.TestCase):
                                      "%s != %s: bpp: %i" %
                                      (dp, sp, surf.get_bitsize()))
 
+        # Swapped endian destination array
+        pai_flags = arrinter.PAI_ALIGNED | arrinter.PAI_WRITEABLE
+        for surf in self.sources:
+            for itemsize in [1, 2, 4, 8]:
+                if itemsize < surf.get_bytesize():
+                    continue
+                a = arrinter.Array(surf.get_size(), 'u', itemsize,
+                                   flags=pai_flags)
+                surface_to_array(a, surf)
+                for posn, i in self.test_points:
+                    sp = unsigned32(surf.get_at_mapped(posn))
+                    dp = a[posn]
+                    self.assertEqual(dp, sp,
+                                     "%s != %s: itemsize: %i, flags: %i"
+                                     ", bpp: %i, posn: %s" %
+                                     (dp, sp, itemsize,
+                                      surf.get_flags(), surf.get_bitsize(),
+                                      posn))
+                
     def test_surface_to_array_3d(self):
-        if pygame.get_sdl_byteorder() == pygame.LIL_ENDIAN:
-            masks = (0xff, 0xff00, 0xff0000, 0)
-        else:
-            masks = (0xff000000, 0xff0000, 0xff00, 0)
-        dst = pygame.Surface(self.surf_size, 0, 24, masks=masks)
+        self.iter_surface_to_array_3d((0xff, 0xff00, 0xff0000, 0))
+        self.iter_surface_to_array_3d((0xff0000, 0xff00, 0xff, 0))
+
+    def iter_surface_to_array_3d(self, rgba_masks):
+        dst = pygame.Surface(self.surf_size, 0, 24, masks=rgba_masks)
+
         for surf in self.sources:
             dst.fill((0, 0, 0, 0))
             src_bitsize = surf.get_bitsize()
@@ -145,7 +171,7 @@ class PixelcopyModuleTest (unittest.TestCase):
                                  (dc, sc,
                                   surf.get_flags(), surf.get_bitsize(),
                                   posn))
-            del view
+            view = None
 
     def test_map_array(self):
         targets = [self._make_surface(8),
@@ -157,6 +183,7 @@ class PixelcopyModuleTest (unittest.TestCase):
                    ]
         source = pygame.Surface(self.surf_size, 0, 24,
                                 masks=[0xff, 0xff00, 0xff0000, 0])
+        self._fill_surface(source)
         source_view = source.get_view('3')  # (w, h, 3)
         for t in targets:
             map_array(t.get_view('2'), source_view, t)
@@ -519,6 +546,122 @@ class PixelCopyTestWithArray(unittest.TestCase):
         del test_map_array
     else:
         del numpy
+
+
+class PixelCopyTestWithArray(unittest.TestCase):
+    try:
+        if is_pygame_pkg:
+            from pygame.tests.test_utils import buftools
+        else:
+            from test.test_utils import buftools
+    except ImportError:
+        pass
+    else:
+        class Array2D(buftools.Exporter):
+            def __init__(self, initializer):
+                from ctypes import cast, POINTER, c_uint32
+
+                Array2D = PixelCopyTestWithArray.Array2D
+                super(Array2D, self).__init__((3, 5),
+                                              format='=I',
+                                              strides=(20, 4))
+                self.content = cast(self.buf, POINTER(c_uint32))
+                for i, v in enumerate(initializer):
+                    self.content[i] = v
+            def __getitem__(self, key):
+                byte_index = key[0] * 5 + key[1]
+                if not (0 <= byte_index < 15):
+                    raise IndexError("%s is out of range", key)
+                return self.content[byte_index]
+
+        class Array3D(buftools.Exporter):
+            def __init__(self, initializer):
+                from ctypes import cast, POINTER, c_uint8
+
+                Array3D = PixelCopyTestWithArray.Array3D
+                super(Array3D, self).__init__((3, 5, 3),
+                                              format='B',
+                                              strides=(20, 4, 1))
+                self.content = cast(self.buf, POINTER(c_uint8))
+                for i, v in enumerate(initializer):
+                    self.content[i] = v
+            def __getitem__(self, key):
+                byte_index = key[0] * 20 + key[1] * 4 + key[2]
+                if not (0 <= byte_index < 60):
+                    raise IndexError("%s is out of range", key)
+                return self.content[byte_index]
+
+
+    surface = pygame.Surface((3, 5), 0, 32)
+
+    def setUp(self):
+        surf = self.surface
+        for y in range(5):
+            for x in range(3):
+                surf.set_at((x, y), (x + 1, 0, y + 1))
+
+    def assertCopy2D(self, surface, array):
+        for x in range(0, 3):
+            for y in range(0, 5):
+                self.assertEqual(surface.get_at_mapped((x, y)),
+                                 array[x, y])
+
+    def test_surface_to_array_newbuf(self):
+        array = self.Array2D(range(0, 15))
+        self.assertNotEqual(array.content[0],
+                            self.surface.get_at_mapped((0, 0)))
+        surface_to_array(array, self.surface)
+        self.assertCopy2D(self.surface, array)
+
+    def test_array_to_surface_newbuf(self):
+        array = self.Array2D(range(0, 15))
+        self.assertNotEqual(array.content[0],
+                            self.surface.get_at_mapped((0, 0)))
+        array_to_surface(self.surface, array)
+        self.assertCopy2D(self.surface, array)
+
+    def test_map_array_newbuf(self):
+        array2D = self.Array2D([0] * 15)
+        elements = [i + (255 - i << 8) + (99 << 16) for i in range(0,15)]
+        array3D = self.Array3D(elements)
+        map_array(array2D, array3D, self.surface)
+        for x in range(0, 3):
+            for y in range(0, 5):
+                p = array3D[x, y, 0], array3D[x, y, 1], array3D[x, y, 2]
+                self.assertEqual(self.surface.unmap_rgb(array2D[x, y]), p)
+
+    def test_make_surface_newbuf(self):
+        array = self.Array2D(range(10, 160, 10))
+        surface = make_surface(array)
+        self.assertCopy2D(surface, array)
+
+    def test_format_newbuf(self):
+        Exporter = self.buftools.Exporter
+        surface = self.surface
+        shape = surface.get_size()
+        w, h = shape
+        for format in ['=i', '=I', '=l', '=L', '=q', '=Q', '<i', '>i',
+                       '!i', '1i', '=1i', '@q', 'q', '4x', '8x']:
+            surface.fill((255, 254, 253))
+            exp = Exporter(shape, format=format)
+            exp._buf[:] = [42] * exp.buflen
+            array_to_surface(surface, exp)
+            for x in range(w):
+                for y in range(h):
+                    self.assertEqual(surface.get_at((x, y)), (42, 42, 42, 255))
+        # Some unsupported formats for array_to_surface and a 32 bit surface
+        for format in ['f', 'd', '?', 'x',
+                       '1x', '2x', '3x', '5x', '6x', '7x', '9x']:
+            exp = Exporter(shape, format=format)
+            self.assertRaises(ValueError, array_to_surface, surface, exp)
+
+    if not pygame.HAVE_NEWBUF:
+        del test_surface_to_array_newbuf
+        del test_array_to_surface_newbuf
+        del test_map_array_newbuf
+        del test_make_surface_newbuf
+        del test_format_newbuf
+
 
 if __name__ == '__main__':
     unittest.main()

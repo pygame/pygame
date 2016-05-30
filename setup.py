@@ -5,6 +5,8 @@
 #
 # To configure, compile, install, just run this script.
 
+from __future__ import with_statement
+
 DESCRIPTION = """Pygame is a Python wrapper module for the
 SDL multimedia library. It contains python functions and classes
 that will allow you to use SDL's support for playing cdroms,
@@ -14,7 +16,7 @@ EXTRAS = {}
 
 METADATA = {
     "name":             "pygame",
-    "version":          "1.9.2pre",
+    "version":          "1.9.2.dev1",
     "license":          "LGPL",
     "url":              "http://www.pygame.org",
     "author":           "Pete Shinners, Rene Dudfield, Marcus von Appen, Bob Pendleton, others...",
@@ -23,14 +25,7 @@ METADATA = {
     "long_description": DESCRIPTION,
 }
 
-import sys
-
-if "bdist_msi" in sys.argv:
-    # hack the version name to a format msi doesn't have trouble with
-    METADATA["version"] = METADATA["version"].replace("pre", "a0")
-    METADATA["version"] = METADATA["version"].replace("rc", "b0")
-    METADATA["version"] = METADATA["version"].replace("release", "")
-    
+import sys 
 
 if not hasattr(sys, 'version_info') or sys.version_info < (2,3):
     raise SystemExit("Pygame requires Python version 2.3 or above.")
@@ -60,6 +55,22 @@ import distutils.sysconfig
 from distutils.core import setup, Extension, Command
 from distutils.extension import read_setup_file
 from distutils.command.install_data import install_data
+
+# Retrieve the repository revision (HG node identifier), if possible.
+def get_hg_identifier():
+    from subprocess import Popen, PIPE
+
+    ident = ""
+    try:
+        p = Popen(['hg', 'identify', '-i'], stdout=PIPE, stderr=PIPE)
+        stdout, stderr = p.communicate()
+        if stdout and not stderr:
+            ident = stdout.decode('ascii').rstrip('\n')
+    except Exception:
+        pass
+    return ident
+
+revision = get_hg_identifier()
 
 # Python 3.0 patch
 if sys.version_info[0:2] == (3, 0):
@@ -115,7 +126,6 @@ else:
 
 #headers to install
 headers = glob.glob(os.path.join('src', '*.h'))
-headers.remove(os.path.join('src', 'numeric_arrayobject.h'))
 headers.remove(os.path.join('src', 'scale.h'))
 
 # option for not installing the headers.
@@ -125,8 +135,11 @@ if "-noheaders" in sys.argv:
 
 
 #sanity check for any arguments
-if len(sys.argv) == 1:
-    reply = raw_input('\nNo Arguments Given, Perform Default Install? [Y/n]')
+if len(sys.argv) == 1 and sys.stdout.isatty():
+    if sys.version_info[0] >= 3:
+        reply = input('\nNo Arguments Given, Perform Default Install? [Y/n]')
+    else:
+        reply = raw_input('\nNo Arguments Given, Perform Default Install? [Y/n]')
     if not reply or reply[0].lower() != 'n':
         sys.argv.append('install')
 
@@ -156,23 +169,30 @@ except:
 perhaps make a clean copy from "Setup.in".""")
     raise
 
-#python 3.x: remove modules not yet ported
-if sys.version_info >= (3, 0, 0):
-    python3_skip = ['_movie',
-                    '_numericsurfarray',
-                    '_numericsndarray',
-                   ]
-#    if (sys.platform != 'linux2'):
-#        python3_skip.append('scrap')
-    tmp_extensions = extensions
-    extensions = []
-    for e in tmp_extensions:
-        if e.name in python3_skip:
-            print ("Skipping module %s for Python %s build." %
-                   (e.name, sys.version))
-        else:
-            extensions.append(e)
-    del tmp_extensions
+
+#decide whether or not to enable new buffer protocol support
+enable_newbuf = False
+if sys.version_info >= (2, 6, 0):
+    try:
+        sys.pypy_version_info
+    except AttributeError:
+        enable_newbuf = True
+
+if enable_newbuf:
+    enable_newbuf_value = '1'
+else:
+    enable_newbuf_value = '0'
+for e in extensions:
+    e.define_macros.append(('ENABLE_NEWBUF', enable_newbuf_value))
+
+#if new buffer protocol support is disabled then remove the testing framework
+if not enable_newbuf:
+    posn = None
+    for i, e in enumerate(extensions):
+        if e.name == 'newbuffer':
+            posn = i
+    if (posn is not None):
+        del extensions[posn]
 
 # if not building font, try replacing with ftfont
 alternate_font = os.path.join('lib', 'font.py')
@@ -210,7 +230,7 @@ add_datafiles(data_files, 'pygame/tests',
                       [['xbm_cursors',
                           ['*.xbm']],
                        ['fonts',
-                          ['*.ttf', '*.otf']]]]]])
+                          ['*.ttf', '*.otf', '*.bdf', '*.png']]]]]])
 
 #examples
 add_datafiles(data_files, 'pygame/examples',
@@ -265,6 +285,23 @@ add_datafiles(data_files, 'pygame/docs',
                         ['*.txt',
                          ['ref',
                             ['*.txt']]]]]])
+
+#generate the version module
+def parse_version(ver):
+    from re import findall
+    return ', '.join(s for s in findall('\d+', ver)[0:3])
+
+def write_version_module(pygame_version, revision):
+    vernum = parse_version(pygame_version)
+    with open('version.py.in', 'r') as header_file:
+        header = header_file.read()
+    with open(os.path.join('lib', 'version.py'), 'w') as version_file:
+        version_file.write(header)
+        version_file.write('ver = "' + pygame_version + '"\n')
+        version_file.write('vernum = ' + vernum + '\n')
+        version_file.write('rev = "' + revision + '"\n')
+
+write_version_module(METADATA['version'], revision)
               
 #required. This will be filled if doing a Windows build.
 cmdclass = {}
@@ -431,6 +468,7 @@ cmdclass['install_data'] = smart_install_data
             
 if "bdist_msi" in sys.argv:
     # if you are making an msi, we want it to overwrite files
+    # we also want to include the repository revision in the file name
     from distutils.command import bdist_msi
     import msilib
 
@@ -458,6 +496,11 @@ if "bdist_msi" in sys.argv:
             msilib.add_data(self.db, "Property", [("REINSTALLMODE", "amus")])
             self.db.Commit()
     
+        def get_installer_filename(self, fullname):
+            if revision:
+                fullname += '-hg_' + revision
+            return bdist_msi.bdist_msi.get_installer_filename(self, fullname)
+
     cmdclass['bdist_msi'] = bdist_msi_overwrite_on_install
 
 

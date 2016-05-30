@@ -13,6 +13,8 @@
 
 #define DOC_PYGAMEEXAMPLESFONTYMAIN "fonty.main() -> None\nrun a font rendering example"
 
+#define DOC_PYGAMEEXAMPLESFREETYPEMISCMAIN "freetype_misc.main() -> None\nrun a freetype rendering example"
+
 #define DOC_PYGAMEEXAMPLESVGRADEMAIN "vgrade.main() -> None\ndisplay a vertical gradient"
 
 #define DOC_PYGAMEEXAMPLESEVENTLISTMAIN "eventlist.main() -> None\ndisplay pygame events"
@@ -53,9 +55,9 @@
 
 #define DOC_PYGAMEEXAMPLESSCROLLMAIN "scroll.main(image_file=None) -> None\nrun a Surface.scroll example that shows a magnified image"
 
-#define DOC_PYGAMEEXAMPLESMOVIEPLAYERMAIN "movieplayer.main(filepath) -> None\nplay an MPEG movie"
-
 #define DOC_PYGAMEEXAMPLESCAMERAMAIN "camera.main() -> None\ndisplay video captured live from an attached camera"
+
+#define DOC_PYGAMEEXAMPLESPLAYMUSMAIN "playmus.main(file_path) -> None\nplay an audio file"
 
 
 
@@ -89,6 +91,10 @@ display animated objects on the screen
 pygame.examples.fonty.main
  fonty.main() -> None
 run a font rendering example
+
+pygame.examples.freetype_misc.main
+ freetype_misc.main() -> None
+run a freetype rendering example
 
 pygame.examples.vgrade.main
  vgrade.main() -> None
@@ -170,12 +176,12 @@ pygame.examples.scroll.main
  scroll.main(image_file=None) -> None
 run a Surface.scroll example that shows a magnified image
 
-pygame.examples.movieplayer.main
- movieplayer.main(filepath) -> None
-play an MPEG movie
-
 pygame.examples.camera.main
  camera.main() -> None
 display video captured live from an attached camera
+
+pygame.examples.playmus.main
+ playmus.main(file_path) -> None
+play an audio file
 
 */

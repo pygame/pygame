@@ -50,7 +50,7 @@ static PyMethodDef _constant_methods[] =
 MODINIT_DEFINE(constants)
 {
     PyObject* module;
-    
+
 
 
 #if PY3
@@ -70,8 +70,8 @@ MODINIT_DEFINE(constants)
 #if PY3
     module = PyModule_Create (&_module);
 #else
-    module = Py_InitModule3 (MODPREFIX "constants", 
-                             _constant_methods, 
+    module = Py_InitModule3 (MODPREFIX "constants",
+                             _constant_methods,
                              _constants_doc);
 #endif
     if (module == NULL) {
@@ -80,13 +80,13 @@ MODINIT_DEFINE(constants)
 
     DEC_CONST (LIL_ENDIAN);
     DEC_CONST (BIG_ENDIAN);
-    
+
     DEC_CONST(YV12_OVERLAY);
     DEC_CONST(IYUV_OVERLAY);
     DEC_CONST(YUY2_OVERLAY);
     DEC_CONST(UYVY_OVERLAY);
     DEC_CONST(YVYU_OVERLAY);
-    
+
     DEC_CONST(SWSURFACE);
     DEC_CONST(HWSURFACE);
     DEC_CONST(RESIZABLE);
@@ -104,7 +104,7 @@ MODINIT_DEFINE(constants)
     DEC_CONST(SRCALPHA);
     DEC_CONST(PREALLOC);
     DEC_CONST(NOFRAME);
-    
+
     DEC_CONST(GL_RED_SIZE);
     DEC_CONST(GL_GREEN_SIZE);
     DEC_CONST(GL_BLUE_SIZE);
@@ -154,7 +154,7 @@ MODINIT_DEFINE(constants)
 
 
     DEC_CONSTN(TIMER_RESOLUTION);
-    
+
     DEC_CONSTN(AUDIO_U8);
     DEC_CONSTN(AUDIO_S8);
     DEC_CONSTN(AUDIO_U16LSB);
@@ -241,7 +241,7 @@ MODINIT_DEFINE(constants)
     DEC_CONST(SYSWMEVENT);
     DEC_CONST(USEREVENT);
     DEC_CONST(NUMEVENTS);
-    
+
     DEC_CONST(HAT_CENTERED);
     DEC_CONST(HAT_UP);
     DEC_CONST(HAT_RIGHTUP);
@@ -251,7 +251,7 @@ MODINIT_DEFINE(constants)
     DEC_CONST(HAT_LEFTDOWN);
     DEC_CONST(HAT_LEFT);
     DEC_CONST(HAT_LEFTUP);
-    
+
     DEC_CONSTK(K_UNKNOWN);
     DEC_CONSTK(K_FIRST);
     DEC_CONSTK(K_BACKSPACE);
@@ -325,7 +325,7 @@ MODINIT_DEFINE(constants)
     DEC_CONSTK(K_y);
     DEC_CONSTK(K_z);
     DEC_CONSTK(K_DELETE);
-    
+
     DEC_CONSTK(K_KP0);
     DEC_CONSTK(K_KP1);
     DEC_CONSTK(K_KP2);
@@ -367,7 +367,7 @@ MODINIT_DEFINE(constants)
     DEC_CONSTK(K_F13);
     DEC_CONSTK(K_F14);
     DEC_CONSTK(K_F15);
-    
+
     DEC_CONSTK(K_NUMLOCK);
     DEC_CONSTK(K_CAPSLOCK);
     DEC_CONSTK(K_SCROLLOCK);
@@ -382,7 +382,7 @@ MODINIT_DEFINE(constants)
     DEC_CONSTK(K_LSUPER);
     DEC_CONSTK(K_RSUPER);
     DEC_CONSTK(K_MODE);
-    
+
     DEC_CONSTK(K_HELP);
     DEC_CONSTK(K_PRINT);
     DEC_CONSTK(K_SYSREQ);
@@ -391,7 +391,7 @@ MODINIT_DEFINE(constants)
     DEC_CONSTK(K_POWER);
     DEC_CONSTK(K_EURO);
     DEC_CONSTK(K_LAST);
-    
+
     DEC_CONSTN(KMOD_NONE);
     DEC_CONSTN(KMOD_LSHIFT);
     DEC_CONSTN(KMOD_RSHIFT);
@@ -404,7 +404,7 @@ MODINIT_DEFINE(constants)
     DEC_CONSTN(KMOD_NUM);
     DEC_CONSTN(KMOD_CAPS);
     DEC_CONSTN(KMOD_MODE);
-    
+
     DEC_CONSTN(KMOD_CTRL);
     DEC_CONSTN(KMOD_SHIFT);
     DEC_CONSTN(KMOD_ALT);

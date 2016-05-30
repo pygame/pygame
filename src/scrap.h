@@ -38,7 +38,7 @@
 
 /**
  * The supported scrap clipboard types.
- * 
+ *
  * This is only relevant in a X11 environment, which supports mouse
  * selections as well. For Win32 and MacOS environments the default
  * clipboard is used, no matter what value is passed.
@@ -112,7 +112,7 @@ pygame_scrap_put (char *type, int srclen, char *src);
  * \brief Gets the current content from the clipboard.
  *
  * \note The received content does not need to be the content previously
- *       placed in the clipboard using pygame_put_scrap(). See the 
+ *       placed in the clipboard using pygame_put_scrap(). See the
  *       pygame_put_scrap() notes for more details.
  *
  * \param type The type of the content to receive.

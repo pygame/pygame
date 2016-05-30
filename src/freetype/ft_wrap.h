@@ -22,27 +22,32 @@
 #define _PYGAME_FREETYPE_WRAP_H_
 
 #define PYGAME_FREETYPE_INTERNAL
+#include "../_pygame.h"
 #include "../freetype.h"
+
 
 /**********************************************************
  * Internal module defines
  **********************************************************/
 
 /* Fixed point (26.6) math macros */
-#define FX6_ONE 64
-#define FX16_ONE 65536
-#define FX6_MIN ((FT_Pos)0x80000000)
-#define FX6_MAX ((FT_Pos)0x7FFFFFFF)
+#define FX6_ONE 64L
+#define FX16_ONE 65536L
+#define FX6_MAX (0x7FFFFFFFL)
+#define FX6_MIN (~FX6_MAX)
 
-#define FX6_FLOOR(x) ((x) & -64)
-#define FX6_CEIL(x) (((x) + 63) & -64)
-#define FX6_ROUND(x) (((x) + 32) & -64)
+#define FX6_FLOOR(x) ((x) & -64L)
+#define FX6_CEIL(x) (((x) + 63L) & -64L)
+#define FX6_ROUND(x) (((x) + 32L) & -64L)
 #define FX6_TRUNC(x)  ((x) >> 6)
-#define FX16_CEIL_TO_FX6(x) (((x) + 1023) >> 10)
+#define FX16_CEIL_TO_FX6(x) (((x) + 1023L) >> 10)
+#define FX16_ROUND_TO_INT(x) (((x) + 32768L) >> 16)
 #define INT_TO_FX6(i) ((FT_Fixed)((i) << 6))
 #define INT_TO_FX16(i) ((FT_Fixed)((i) << 16))
-#define FX16_TO_DBL(x) ((x) * 1.5259e-5 /* 65536.0^-1 */)
+#define FX16_TO_DBL(x) ((x) * 1.52587890625e-5 /* 2.0^-16 */)
 #define DBL_TO_FX16(d) ((FT_Fixed)((d) * 65536.0))
+#define FX6_TO_DBL(x) ((x) * 1.5625e-2 /* 2.0^-6 */)
+#define DBL_TO_FX6(d) ((FT_Fixed)((d) * 64.0))
 
 /* Internal configuration variables */
 #define PGFT_DEFAULT_CACHE_SIZE 64
@@ -54,17 +59,35 @@
 
 #define PGFT_DBL_DEFAULT_STRENGTH (1.0 / 36.0)
 
+/* Rendering styles unsupported for bitmap fonts */
+#define FT_STYLES_SCALABLE_ONLY  (FT_STYLE_STRONG | FT_STYLE_OBLIQUE)
+
 /**********************************************************
  * Internal basic types
  **********************************************************/
 
 typedef FT_UInt32 PGFT_char;
+typedef FT_UInt GlyphIndex_t;
 
 
 /**********************************************************
  * Internal data structures
  **********************************************************/
-typedef struct {
+ 
+/* FreeTypeInstance: the global freetype 2 library state.
+ *
+ * Instances of this struct are created by _PGFT_Init, and
+ * destroyed by _PGFT_Quit. The instances are reference counted.
+ * When adding a local reference, be sure to increment ref_count;
+ * _PTFT_Init returns an instance with ref_count equal one.
+ * When removing a reference, call _PGFT_Quit, which will decrement
+ * the reference count and free the resource if the count reaches
+ * zero.
+ */
+typedef struct freetypeinstance_ {
+    ssize_t ref_count;
+
+    /* Internal */
     FT_Library library;
     FTC_Manager cache_manager;
     FTC_CMapCache cache_charmap;
@@ -81,7 +104,7 @@ typedef struct fontcolor_ {
 } FontColor;
 
 typedef struct rendermode_ {
-    FT_UInt16 pt_size;
+    Scale_t face_size;
     FT_Angle rotation_angle;
     FT_UInt16 render_flags;
     FT_UInt16 style;
@@ -124,7 +147,6 @@ typedef struct fontmetrics_ {
 } FontMetrics;
 
 typedef struct fontglyph_ {
-    FT_UInt glyph_index;
     FT_BitmapGlyph image;
 
     FT_Pos width;         /* 26.6 */
@@ -133,7 +155,16 @@ typedef struct fontglyph_ {
     FontMetrics v_metrics;
 } FontGlyph;
 
-typedef struct fonttext_ {
+typedef struct glyphslot_ {
+    GlyphIndex_t id;
+    FontGlyph *glyph;
+    FT_Vector posn;
+    FT_Vector kerning;
+} GlyphSlot;
+
+typedef struct layout_ {
+    FontRenderMode mode;
+
     int length;
 
     int top;       /* In pixels */
@@ -146,15 +177,15 @@ typedef struct fonttext_ {
     FT_Vector offset;
     FT_Vector advance;
     FT_Pos ascender;
+    FT_Pos descender;
+    FT_Pos height;
+    FT_Pos max_advance;
     FT_Fixed underline_size;
     FT_Pos underline_pos;
 
     int buffer_size;
-    FontGlyph **glyphs;
-    FT_Vector *posns;
-
-    FontCache glyph_cache;
-} FontText;
+    GlyphSlot *glyphs;
+} Layout;
 
 struct fontsurface_;
 
@@ -179,9 +210,9 @@ typedef struct fontsurface_ {
 
 } FontSurface;
 
-#define PGFT_INTERNALS(f) ((FontInternals *)((f)->_internals))
-typedef struct FontInternals_ {
-    FontText active_text;
+typedef struct fontinternals_ {
+    Layout active_text;
+    FontCache glyph_cache;
 } FontInternals;
 
 typedef struct PGFT_String_ {
@@ -190,7 +221,7 @@ typedef struct PGFT_String_ {
 } PGFT_String;
 
 #if defined(PGFT_DEBUG_CACHE)
-#define PGFT_FONT_CACHE(f) (PGFT_INTERNALS(f)->active_text.glyph_cache)
+#define PGFT_FONT_CACHE(f) ((f)->_internals->glyph_cache)
 #endif
 
 /**********************************************************
@@ -234,16 +265,19 @@ void _PGFT_Quit(FreeTypeInstance *);
 int _PGFT_Init(FreeTypeInstance **, int);
 long _PGFT_Font_GetAscender(FreeTypeInstance *, PgFontObject *);
 long _PGFT_Font_GetAscenderSized(FreeTypeInstance *, PgFontObject *,
-                                 FT_UInt16);
+                                 Scale_t);
 long _PGFT_Font_GetDescender(FreeTypeInstance *, PgFontObject *);
 long _PGFT_Font_GetDescenderSized(FreeTypeInstance *, PgFontObject *,
-                                  FT_UInt16);
+                                  Scale_t);
 long _PGFT_Font_GetHeight(FreeTypeInstance *, PgFontObject *);
 long _PGFT_Font_GetHeightSized(FreeTypeInstance *, PgFontObject *,
-                               FT_UInt16);
+                               Scale_t);
 long _PGFT_Font_GetGlyphHeightSized(FreeTypeInstance *, PgFontObject *,
-                                    FT_UInt16);
+                                    Scale_t);
 int _PGFT_Font_IsFixedWidth(FreeTypeInstance *, PgFontObject *);
+int _PGFT_Font_NumFixedSizes(FreeTypeInstance *, PgFontObject *);
+int _PGFT_Font_GetAvailableSize(FreeTypeInstance *, PgFontObject *, unsigned,
+                                long *, long *, long *, double *, double *);
 const char *_PGFT_Font_GetName(FreeTypeInstance *, PgFontObject *);
 int _PGFT_TryLoadFont_Filename(FreeTypeInstance *,
                                PgFontObject *, const char *, long);
@@ -262,7 +296,7 @@ int _PGFT_GetMetrics(FreeTypeInstance *, PgFontObject *,
                      PGFT_char, const FontRenderMode *,
                      FT_UInt *, long *, long *, long *, long *,
                      double *, double *);
-void _PGFT_GetRenderMetrics(const FontRenderMode *, FontText *,
+void _PGFT_GetRenderMetrics(const FontRenderMode *, Layout *,
                             unsigned *, unsigned *, FT_Vector *,
                             FT_Pos *, FT_Fixed *);
 
@@ -282,7 +316,7 @@ int _PGFT_Render_Array(FreeTypeInstance *, PgFontObject *,
                        const FontRenderMode *, PyObject *,
                        PGFT_String *, int, int, int, SDL_Rect *);
 int _PGFT_BuildRenderMode(FreeTypeInstance *, PgFontObject *,
-                          FontRenderMode *, int, int, int);
+                          FontRenderMode *, Scale_t, int, Angle_t);
 int _PGFT_CheckStyle(FT_UInt32);
 
 
@@ -333,12 +367,12 @@ void __render_glyph_MONO_as_INT(int, int, FontSurface *, const FT_Bitmap *,
                                 const FontColor *);
 
 
-/**************************************** Font text management ***************/
-int _PGFT_FontTextInit(FreeTypeInstance *, PgFontObject *);
-void _PGFT_FontTextFree(PgFontObject *);
-FontText *_PGFT_LoadFontText(FreeTypeInstance *, PgFontObject *,
-                            const FontRenderMode *, PGFT_String *);
-int _PGFT_LoadGlyph(FontGlyph *, PGFT_char, const FontRenderMode *, void *);
+/**************************************** Layout management ******************/
+int _PGFT_LayoutInit(FreeTypeInstance *, PgFontObject *);
+void _PGFT_LayoutFree(PgFontObject *);
+Layout *_PGFT_LoadLayout(FreeTypeInstance *, PgFontObject *,
+                         const FontRenderMode *, PGFT_String *);
+int _PGFT_LoadGlyph(FontGlyph *, GlyphIndex_t, const FontRenderMode *, void *);
 
 
 /**************************************** Glyph cache management *************/
@@ -359,8 +393,8 @@ PGFT_String *_PGFT_EncodePyString(PyObject *, int);
 /**************************************** Internals **************************/
 void _PGFT_SetError(FreeTypeInstance *, const char *, FT_Error);
 FT_Face _PGFT_GetFont(FreeTypeInstance *, PgFontObject *);
-FT_Face _PGFT_GetFontSized(FreeTypeInstance *, PgFontObject *, int);
-void _PGFT_BuildScaler(PgFontObject *, FTC_Scaler, int);
+FT_Face _PGFT_GetFontSized(FreeTypeInstance *, PgFontObject *, Scale_t);
+void _PGFT_BuildScaler(PgFontObject *, FTC_Scaler, Scale_t);
 #define _PGFT_malloc PyMem_Malloc
 #define _PGFT_free   PyMem_Free
 

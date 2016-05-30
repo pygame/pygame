@@ -30,7 +30,7 @@ mac_scrap_call (char *name, PyObject *args)
         mac_scrap_module = PyImport_ImportModule ("pygame.sdlmain_osx");
     if (!mac_scrap_module)
         return NULL;
-    
+
     method = PyObject_GetAttrString (mac_scrap_module, name);
     if (!method)
         return NULL;

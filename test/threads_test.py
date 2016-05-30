@@ -12,12 +12,10 @@ if __name__ == '__main__':
 else:
     is_pygame_pkg = __name__.startswith('pygame.tests.')
 
-if is_pygame_pkg:
-    from pygame.tests.test_utils import test_not_implemented, unittest
-else:
-    from test.test_utils import test_not_implemented, unittest
+import unittest
 from pygame.threads import FuncResult, tmap, WorkerQueue, Empty, STOP
 from pygame import threads
+from pygame.compat import xrange_
 
 import time
 
@@ -40,7 +38,7 @@ class WorkerQueueTypeTest(unittest.TestCase):
         wq.stop()
 
         self.assert_(fr.result  == 2)
-        self.assert_(fr2.result == 3)
+        self.assertEqual(fr2.result, 3)
 
     def test_do(self):
 
@@ -62,7 +60,7 @@ class WorkerQueueTypeTest(unittest.TestCase):
         self.assert_(len(wq.pool) > 0)
         for t in wq.pool: self.assert_(t.isAlive())
         
-        for i in xrange(200): wq.do(lambda x: x+1, i)
+        for i in xrange_(200): wq.do(lambda x: x+1, i)
         
         wq.stop()
         for t in wq.pool: self.assert_(not t.isAlive())
@@ -85,7 +83,7 @@ class WorkerQueueTypeTest(unittest.TestCase):
 
         wq = WorkerQueue()
         
-        for i in xrange(2000): wq.do(lambda x: x+1, i)
+        for i in xrange_(2000): wq.do(lambda x: x+1, i)
         wq.wait()
 
         self.assertRaises(Empty, wq.queue.get_nowait)
@@ -148,12 +146,12 @@ class ThreadsModuleTest(unittest.TestCase):
           #        results, is returned as a list of FuncResult instances.
           # stop_on_error -
 
-        func, data = lambda x:x+1, xrange(100)
+        func, data = lambda x:x+1, xrange_(100)
 
-        tmapped = tmap(func, data)
-        mapped = map(func, data)
+        tmapped = list(tmap(func, data))
+        mapped = list(map(func, data))
 
-        self.assert_(tmapped == mapped)
+        self.assertEqual(tmapped, mapped)
         
     def test_tmap__None_func_and_multiple_sequences(self):
         return     #TODO
@@ -178,7 +176,7 @@ class ThreadsModuleTest(unittest.TestCase):
         wq, results = tmap(lambda x:x, r, num_workers = 5, wait=False)
         wq.wait()
         r2 = map(lambda x:x.result, results)
-        self.assert_(r == r2)
+        self.assertEqual(list(r), list(r2))
 
     def test_FuncResult(self):
         # as of 2008-06-28
@@ -196,7 +194,7 @@ class ThreadsModuleTest(unittest.TestCase):
         # Results are stored in result attribute
         fr = FuncResult(lambda x:x+1)
         fr(2)
-        self.assert_(fr.result == 3)
+        self.assertEqual(fr.result, 3)
         
         # Exceptions are store in exception attribute
         self.assert_(fr.exception is None,  "when no exception raised")

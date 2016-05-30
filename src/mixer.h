@@ -27,8 +27,8 @@
 
 /* test mixer initializations */
 #define MIXER_INIT_CHECK() \
-	if(!SDL_WasInit(SDL_INIT_AUDIO)) \
-		return RAISE(PyExc_SDLError, "mixer system not initialized")
+    if(!SDL_WasInit(SDL_INIT_AUDIO)) \
+        return RAISE(PyExc_SDLError, "mixer system not initialized")
 
 
 

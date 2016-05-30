@@ -405,7 +405,7 @@ is what the main function for our program will look like.<br>
 <b>...</b>        screen.blit(background, o.pos, o.pos)
 <b>...</b>    for o in objects:
 <b>...</b>        o.move()
-<b>...</b>        screen.draw(o.image, o.pos)
+<b>...</b>        screen.blit(o.image, o.pos)
 <b>...</b>    pygame.display.update()
 <b>...</b>    pygame.time.delay(100)
 </pre></blockquote>
@@ -416,7 +416,7 @@ we need to erase all the objects before drawing any of them. In our sample
 here it may not matter, but when objects are overlapping, using two loops
 like this becomes important.<br>
 <br>
-<h2>Your On Your Own From Here</h2>
+<h2>You Are On Your Own From Here</h2>
 <p>So what would be next on your road to learning? Well first playing around
 with this example a bit. The full running version of this example is available
 in the pygame examples directory. It is the example named "moveit.py". Take

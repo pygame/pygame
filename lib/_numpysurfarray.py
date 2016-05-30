@@ -59,6 +59,10 @@ for type_name in "float float32 float64 float96".split():
     if hasattr(numpy, type_name):
         numpy_floats.append(getattr(numpy, type_name))
 
+# Pixel sizes corresponding to NumPy supported integer sizes, and therefore
+# permissible for 2D reference arrays.
+_pixel2d_bitdepths = set([8, 16, 32])
+
 
 def blit_array (surface, array):
     """pygame.surfarray.blit_array(Surface, array): return None
@@ -128,6 +132,8 @@ def pixels2d(surface):
     the array (see the Surface.lock - lock the Surface memory for pixel
     access method).
     """
+    if (surface.get_bitsize() not in _pixel2d_bitdepths):
+        raise ValueError("unsupport bit depth for 2D reference array")
     try:
         return numpy_array(surface.get_view('2'), copy=False)
     except (ValueError, TypeError):

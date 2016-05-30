@@ -33,6 +33,8 @@
 #include <png.h>
 #endif
 #include <jpeglib.h>
+#include <jerror.h>
+
 /* Keep a stray macro from conflicting with python.h */
 #if defined(HAVE_PROTOTYPES)
 #undef HAVE_PROTOTYPES
@@ -78,11 +80,11 @@ image_load_ext(PyObject *self, PyObject *arg)
     char *ext = NULL;
     SDL_Surface *surf;
     SDL_RWops *rw;
-    
+
     if (!PyArg_ParseTuple(arg, "O|s", &obj, &name)) {
         return NULL;
     }
-    
+
     oencoded = RWopsEncodeFilePath(obj, PyExc_SDLError);
     if (oencoded == NULL) {
         return NULL;
@@ -128,7 +130,7 @@ image_load_ext(PyObject *self, PyObject *arg)
             Py_XDECREF(oencoded);
             return NULL;
         }
-        
+
         cext = find_extension(name);
         if (cext != NULL) {
             ext = (char *)PyMem_Malloc(strlen(cext) + 1);
@@ -162,12 +164,32 @@ image_load_ext(PyObject *self, PyObject *arg)
 
 #ifdef PNG_H
 
+static void
+png_write_fn (png_structp png_ptr, png_bytep data, png_size_t length)
+{
+    FILE *fp = (FILE *)png_get_io_ptr(png_ptr);
+    if (fwrite(data, 1, length, fp) != length) {
+        fclose(fp);
+        png_error(png_ptr, "Error while writing to the PNG file (fwrite)");
+    }
+}
+
+static void
+png_flush_fn (png_structp png_ptr)
+{
+    FILE *fp = (FILE *)png_get_io_ptr(png_ptr);
+    if (fflush(fp) == EOF) {
+        fclose(fp);
+        png_error(png_ptr, "Error while writing to PNG file (fflush)");
+    }
+}
+
 static int
-write_png (const char *file_name, 
-           png_bytep *rows, 
-           int w, 
+write_png (const char *file_name,
+           png_bytep *rows,
+           int w,
            int h,
-           int colortype, 
+           int colortype,
            int bitdepth)
 {
     png_structp png_ptr = NULL;
@@ -190,13 +212,13 @@ write_png (const char *file_name,
         goto fail;
 
     doing = "init IO";
-    png_init_io (png_ptr, fp);
+    png_set_write_fn (png_ptr, fp, png_write_fn, png_flush_fn);
 
     doing = "write header";
-    png_set_IHDR (png_ptr, info_ptr, w, h, bitdepth, colortype, 
-                  PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE, 
+    png_set_IHDR (png_ptr, info_ptr, w, h, bitdepth, colortype,
+                  PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE,
                   PNG_FILTER_TYPE_BASE);
-    
+
     doing = "write info";
     png_write_info (png_ptr, info_ptr);
 
@@ -237,7 +259,6 @@ SavePNG (SDL_Surface *surface, const char *file)
     SDL_Rect ss_rect;
     int r, i;
     int alpha = 0;
-    int pixel_bits = 32;
 
     unsigned surf_flags;
     unsigned surf_alpha;
@@ -253,19 +274,26 @@ SavePNG (SDL_Surface *surface, const char *file)
     if (surface->format->Amask)
     {
         alpha = 1;
-        pixel_bits = 32;
-    }
-    else
-        pixel_bits = 24;
-
-    ss_surface = SDL_CreateRGBSurface (SDL_SWSURFACE|SDL_SRCALPHA,
-                                       ss_w, ss_h, pixel_bits,
+        ss_surface = SDL_CreateRGBSurface (SDL_SWSURFACE|SDL_SRCALPHA,
+                                           ss_w, ss_h, 32,
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
-                                       0xff0000, 0xff00, 0xff, 0x000000ff
+                                           0xff000000, 0xff0000, 0xff00, 0xff
 #else
-                                       0xff00, 0xff, 0xff0000, 0xff000000
+                                           0xff, 0xff00, 0xff0000, 0xff000000
 #endif
         );
+    }
+    else
+    {
+        ss_surface = SDL_CreateRGBSurface (SDL_SWSURFACE,
+                                           ss_w, ss_h, 24,
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+                                           0xff0000, 0xff00, 0xff, 0
+#else
+                                           0xff, 0xff00, 0xff0000, 0
+#endif
+        );
+    }
 
     if (ss_surface == NULL)
         return -1;
@@ -326,6 +354,94 @@ SavePNG (SDL_Surface *surface, const char *file)
 
 #define NUM_LINES_TO_WRITE 500
 
+/* Avoid conflicts with the libjpeg libraries C runtime bindings.
+ * Adapted from code in the libjpeg file jdatadst.c .
+ */
+ 
+#define OUTPUT_BUF_SIZE  4096	/* choose an efficiently fwrite'able size */
+ 
+/* Expanded data destination object for stdio output */
+typedef struct {
+    struct jpeg_destination_mgr pub; /* public fields */
+
+    FILE *outfile;    /* target stream */
+    JOCTET *buffer;   /* start of buffer */
+} j_outfile_mgr;
+
+static void
+j_init_destination (j_compress_ptr cinfo)
+{
+    j_outfile_mgr *dest = (j_outfile_mgr *) cinfo->dest;
+
+    /* Allocate the output buffer --- it will be released when done with image */
+    dest->buffer = (JOCTET *)
+        (*cinfo->mem->alloc_small) ((j_common_ptr) cinfo, JPOOL_IMAGE,
+		                            OUTPUT_BUF_SIZE * sizeof(JOCTET));
+
+    dest->pub.next_output_byte = dest->buffer;
+    dest->pub.free_in_buffer = OUTPUT_BUF_SIZE;
+}
+
+static boolean
+j_empty_output_buffer (j_compress_ptr cinfo)
+{
+    j_outfile_mgr *dest = (j_outfile_mgr *) cinfo->dest;
+
+    if (fwrite(dest->buffer, 1, OUTPUT_BUF_SIZE, dest->outfile) !=
+        (size_t) OUTPUT_BUF_SIZE) {
+        ERREXIT(cinfo, JERR_FILE_WRITE);
+    }
+    dest->pub.next_output_byte = dest->buffer;
+    dest->pub.free_in_buffer = OUTPUT_BUF_SIZE;
+
+    return TRUE;
+}
+
+static void
+j_term_destination (j_compress_ptr cinfo)
+{
+    j_outfile_mgr *dest = (j_outfile_mgr *) cinfo->dest;
+    size_t datacount = OUTPUT_BUF_SIZE - dest->pub.free_in_buffer;
+
+    /* Write any data remaining in the buffer */
+    if (datacount > 0) {
+        if (fwrite(dest->buffer, 1, datacount, dest->outfile) != datacount) {
+            ERREXIT(cinfo, JERR_FILE_WRITE);
+        }
+    }
+    fflush(dest->outfile);
+    /* Make sure we wrote the output file OK */
+    if (ferror(dest->outfile)) {
+        ERREXIT(cinfo, JERR_FILE_WRITE);
+    }
+}
+
+static void
+j_stdio_dest (j_compress_ptr cinfo, FILE *outfile)
+{
+    j_outfile_mgr *dest;
+
+  /* The destination object is made permanent so that multiple JPEG images
+   * can be written to the same file without re-executing jpeg_stdio_dest.
+   * This makes it dangerous to use this manager and a different destination
+   * manager serially with the same JPEG object, because their private object
+   * sizes may be different.  Caveat programmer.
+   */
+    if (cinfo->dest == NULL) {	/* first time for this JPEG object? */
+        cinfo->dest = (struct jpeg_destination_mgr *)
+            (*cinfo->mem->alloc_small) ((j_common_ptr) cinfo, JPOOL_PERMANENT,
+                                        sizeof(j_outfile_mgr));
+    }
+
+    dest = (j_outfile_mgr *) cinfo->dest;
+    dest->pub.init_destination = j_init_destination;
+    dest->pub.empty_output_buffer = j_empty_output_buffer;
+    dest->pub.term_destination = j_term_destination;
+    dest->outfile = outfile;
+}
+
+/* End borrowed code
+ */
 
 int write_jpeg (const char *file_name, unsigned char** image_buffer,
                 int image_width, int image_height, int quality) {
@@ -334,12 +450,8 @@ int write_jpeg (const char *file_name, unsigned char** image_buffer,
     struct jpeg_error_mgr jerr;
     FILE * outfile;
     JSAMPROW row_pointer[NUM_LINES_TO_WRITE];
-    int row_stride;
     int num_lines_to_write;
-    int lines_written;
     int i;
-
-    row_stride = image_width * 3;
 
     num_lines_to_write = NUM_LINES_TO_WRITE;
 
@@ -352,7 +464,7 @@ int write_jpeg (const char *file_name, unsigned char** image_buffer,
         SDL_SetError ("SaveJPEG: could not open %s", file_name);
         return -1;
     }
-    jpeg_stdio_dest (&cinfo, outfile);
+    j_stdio_dest (&cinfo, outfile);
 
     cinfo.image_width = image_width;
     cinfo.image_height = image_height;
@@ -362,7 +474,7 @@ int write_jpeg (const char *file_name, unsigned char** image_buffer,
      */
     /* cinfo.optimize_coding = FALSE;
      */
-  
+
     jpeg_set_defaults (&cinfo);
     jpeg_set_quality (&cinfo, quality, TRUE);
 
@@ -380,19 +492,7 @@ int write_jpeg (const char *file_name, unsigned char** image_buffer,
             row_pointer[i] = image_buffer[cinfo.next_scanline + i];
         }
 
-
-        /*
-        num_lines_to_write = 1;
-        row_pointer[0] = image_buffer[cinfo.next_scanline];
-           printf("num_lines_to_write:%d:   cinfo.image_height:%d:  cinfo.next_scanline:%d:\n", num_lines_to_write, cinfo.image_height, cinfo.next_scanline);
-        */
-
-
-        lines_written = jpeg_write_scanlines (&cinfo, row_pointer, num_lines_to_write);
-
-        /*
-           printf("lines_written:%d:\n", lines_written);
-        */
+        jpeg_write_scanlines (&cinfo, row_pointer, num_lines_to_write);
 
     }
 
@@ -406,13 +506,22 @@ int write_jpeg (const char *file_name, unsigned char** image_buffer,
 
 int SaveJPEG (SDL_Surface *surface, const char *file) {
 
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+#define RED_MASK 0xff0000
+#define GREEN_MASK 0xff00
+#define BLUE_MASK 0xff
+#else
+#define RED_MASK 0xff
+#define GREEN_MASK 0xff00
+#define BLUE_MASK 0xff0000
+#endif
+
     static unsigned char** ss_rows;
     static int ss_size;
     static int ss_w, ss_h;
     SDL_Surface *ss_surface;
     SDL_Rect ss_rect;
     int r, i;
-    int alpha = 0;
     int pixel_bits = 32;
     int free_ss_surface = 1;
 
@@ -425,7 +534,6 @@ int SaveJPEG (SDL_Surface *surface, const char *file) {
     ss_w = surface->w;
     ss_h = surface->h;
 
-    alpha = 0;
     pixel_bits = 24;
 
     if(!surface) {
@@ -436,7 +544,7 @@ int SaveJPEG (SDL_Surface *surface, const char *file) {
        So no conversion is needed.  24bit, RGB
     */
 
-    if((surface->format->BytesPerPixel == 3) && !(surface->flags & SDL_SRCALPHA) && (surface->format->Rshift == 0)) {
+    if((surface->format->BytesPerPixel == 3) && !(surface->flags & SDL_SRCALPHA) && (surface->format->Rmask == RED_MASK)) {
         /*
            printf("not creating...\n");
         */
@@ -453,14 +561,8 @@ int SaveJPEG (SDL_Surface *surface, const char *file) {
 
 
         ss_surface = SDL_CreateRGBSurface (SDL_SWSURFACE,
-                                       ss_w, ss_h, pixel_bits,
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-                                       0xff00, 0xff, 0xff0000, 0xff000000
-#else
-                                       0xff, 0xff00, 0xff0000, 0xff000000
-#endif
-                    );
-
+                                           ss_w, ss_h, pixel_bits,
+                                           RED_MASK, GREEN_MASK, BLUE_MASK, 0);
         if (ss_surface == NULL) {
             return -1;
         }
@@ -505,7 +607,7 @@ int SaveJPEG (SDL_Surface *surface, const char *file) {
 
 #endif /* end if JPEGLIB_H */
 
-/* NOTE XX HACK TODO FIXME: this opengltosdl is also in image.c  
+/* NOTE XX HACK TODO FIXME: this opengltosdl is also in image.c
    need to share it between both.
 */
 
@@ -522,7 +624,7 @@ opengltosdl (void)
 
     GL_glReadPixels_Func p_glReadPixels= NULL;
 
-    p_glReadPixels = (GL_glReadPixels_Func) SDL_GL_GetProcAddress("glReadPixels"); 
+    p_glReadPixels = (GL_glReadPixels_Func) SDL_GL_GetProcAddress("glReadPixels");
 
     surf = SDL_GetVideoSurface ();
 
@@ -578,7 +680,7 @@ image_save_ext(PyObject *self, PyObject *arg)
 {
     PyObject *surfobj;
     PyObject *obj;
-    PyObject *oencoded;
+    PyObject *oencoded = NULL;
     SDL_Surface *surf;
     SDL_Surface *temp = NULL;
     int result = 1;
@@ -586,7 +688,6 @@ image_save_ext(PyObject *self, PyObject *arg)
     if (!PyArg_ParseTuple(arg, "O!O", &PySurface_Type, &surfobj, &obj)) {
         return NULL;
     }
-    surf = PySurface_AsSurface(surfobj);
 
     surf = PySurface_AsSurface(surfobj);
     if (surf->flags & SDL_OPENGL) {
@@ -658,6 +759,7 @@ image_save_ext(PyObject *self, PyObject *arg)
         PySurface_Unprep(surfobj);
     }
 
+    Py_XDECREF(oencoded);
     if (result == -2) {
         /* Python error raised elsewhere */
         return NULL;
@@ -686,8 +788,6 @@ static PyMethodDef _imageext_methods[] =
 
 MODINIT_DEFINE (imageext)
 {
-    PyObject *module;
-
 #if PY3
     static struct PyModuleDef _module = {
         PyModuleDef_HEAD_INIT,
@@ -719,11 +819,10 @@ MODINIT_DEFINE (imageext)
 
     /* create the module */
 #if PY3
-    module = PyModule_Create (&_module);
+    return PyModule_Create (&_module);
 #else
-    module = Py_InitModule3(MODPREFIX "imageext", 
-                            _imageext_methods, 
-                            _imageext_doc);
+    Py_InitModule3(MODPREFIX "imageext",
+                   _imageext_methods,
+                   _imageext_doc);
 #endif
-    MODINIT_RETURN (module);
 }

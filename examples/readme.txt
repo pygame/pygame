@@ -25,10 +25,10 @@ fonty.py - Super quick, super simple application demonstrating
     the different ways to render fonts with the font module
 
 vgrade.py - Demonstrates creating a vertical gradient with
-    Numeric python. The app will create a new gradient every half
+    Numpy. The app will create a new gradient every half
     second and report the time needed to create and display the
     image. If you're not prepared to start working with the
-    Numeric arrays, don't worry about the source for this one :]
+    Numpy arrays, don't worry about the source for this one :]
 
 arraydemo.py - Another example filled with various surfarray
     effects. It requires the surfarray and image modules to

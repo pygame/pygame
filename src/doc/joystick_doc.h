@@ -1,15 +1,15 @@
 /* Auto generated file: with makeref.py .  Docs go in src/ *.doc . */
-#define DOC_PYGAMEJOYSTICK "pygame module for interacting with joystick devices"
+#define DOC_PYGAMEJOYSTICK "Pygame module for interacting with joysticks, gamepads, and trackballs."
 
-#define DOC_PYGAMEJOYSTICKINIT "init() -> None\ninitialize the joystick module"
+#define DOC_PYGAMEJOYSTICKINIT "init() -> None\nInitialize the joystick module."
 
-#define DOC_PYGAMEJOYSTICKQUIT "quit() -> None\nuninitialize the joystick module"
+#define DOC_PYGAMEJOYSTICKQUIT "quit() -> None\nUninitialize the joystick module."
 
-#define DOC_PYGAMEJOYSTICKGETINIT "get_init() -> bool\ntrue if the joystick module is initialized"
+#define DOC_PYGAMEJOYSTICKGETINIT "get_init() -> bool\nReturns True if the joystick module is initialized."
 
-#define DOC_PYGAMEJOYSTICKGETCOUNT "get_count() -> count\nnumber of joysticks on the system"
+#define DOC_PYGAMEJOYSTICKGETCOUNT "get_count() -> count\nReturns the number of joysticks."
 
-#define DOC_PYGAMEJOYSTICKJOYSTICK "Joystick(id) -> Joystick\ncreate a new Joystick object"
+#define DOC_PYGAMEJOYSTICKJOYSTICK "Joystick(id) -> Joystick\nCreate a new Joystick object."
 
 #define DOC_JOYSTICKINIT "init() -> None\ninitialize the Joystick"
 
@@ -44,27 +44,27 @@
 /*
 
 pygame.joystick
-pygame module for interacting with joystick devices
+Pygame module for interacting with joysticks, gamepads, and trackballs.
 
 pygame.joystick.init
  init() -> None
-initialize the joystick module
+Initialize the joystick module.
 
 pygame.joystick.quit
  quit() -> None
-uninitialize the joystick module
+Uninitialize the joystick module.
 
 pygame.joystick.get_init
  get_init() -> bool
-true if the joystick module is initialized
+Returns True if the joystick module is initialized.
 
 pygame.joystick.get_count
  get_count() -> count
-number of joysticks on the system
+Returns the number of joysticks.
 
 pygame.joystick.Joystick
  Joystick(id) -> Joystick
-create a new Joystick object
+Create a new Joystick object.
 
 pygame.joystick.Joystick.init
  init() -> None

@@ -39,7 +39,7 @@
 
 static char *error = NULL;
 
-static __inline__ void 
+static __inline__ void
 setError (char *err)
 {
     error = err;
@@ -66,14 +66,14 @@ static SDL_TimerID eventTimer = 0;
 //
 //
 
-int 
+int
 FE_PushEvent (SDL_Event * ev)
 {
     SDL_LockMutex (eventLock);
     while (-1 == SDL_PushEvent (ev))
         SDL_CondWait (eventWait, eventLock);
-    SDL_UnlockMutex (eventLock);
     SDL_CondSignal (eventWait);
+    SDL_UnlockMutex (eventLock);
 
     return 1;
 }
@@ -83,7 +83,7 @@ FE_PushEvent (SDL_Event * ev)
 //
 //
 
-void 
+void
 FE_PumpEvents ()
 {
     SDL_LockMutex (eventLock);
@@ -96,17 +96,16 @@ FE_PumpEvents ()
 //
 //
 
-int 
+int
 FE_PollEvent (SDL_Event * event)
 {
     int val = 0;
 
     SDL_LockMutex (eventLock);
     val = SDL_PollEvent (event);
-    SDL_UnlockMutex (eventLock);
-
     if (0 < val)
         SDL_CondSignal (eventWait);
+    SDL_UnlockMutex (eventLock);
 
     return val;
 }
@@ -116,7 +115,7 @@ FE_PollEvent (SDL_Event * event)
 //Replacement for SDL_WaitEvent
 //
 
-int 
+int
 FE_WaitEvent (SDL_Event * event)
 {
     int val = 0;
@@ -124,8 +123,8 @@ FE_WaitEvent (SDL_Event * event)
     SDL_LockMutex (eventLock);
     while (0 >= (val = SDL_PollEvent (event)))
         SDL_CondWait (eventWait, eventLock);
-    SDL_UnlockMutex (eventLock);
     SDL_CondSignal (eventWait);
+    SDL_UnlockMutex (eventLock);
 
     return val;
 }
@@ -135,10 +134,12 @@ FE_WaitEvent (SDL_Event * event)
 //
 //
 
-static Uint32 
+static Uint32
 timerCallback (Uint32 interval, void *param)
 {
+    SDL_LockMutex (eventLock);
     SDL_CondBroadcast (eventWait);
+    SDL_UnlockMutex (eventLock);
     return interval;
 }
 
@@ -147,7 +148,7 @@ timerCallback (Uint32 interval, void *param)
 //
 //
 
-int 
+int
 FE_Init ()
 {
     if (0 == (SDL_INIT_TIMER & SDL_WasInit (SDL_INIT_TIMER)))
@@ -182,7 +183,7 @@ FE_Init ()
 //
 //
 
-void 
+void
 FE_Quit ()
 {
     SDL_DestroyMutex (eventLock);

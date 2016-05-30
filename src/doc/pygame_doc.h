@@ -27,6 +27,8 @@
 
 #define DOC_PYGAMEVERSIONVERNUM "vernum = (1, 5, 3)\ntupled integers of the version"
 
+#define DOC_PYGAMEVERSIONREV "rev = 'a6f89747b551+'\nrepository revision of the build"
+
 
 
 /* Docs in a comment... slightly easier to read. */
@@ -86,5 +88,9 @@ version number as a string
 pygame.version.vernum
  vernum = (1, 5, 3)
 tupled integers of the version
+
+pygame.version.rev
+ rev = 'a6f89747b551+'
+repository revision of the build
 
 */

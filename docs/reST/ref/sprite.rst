@@ -53,7 +53,7 @@ Sprites are not thread safe. So lock them yourself if using threads.
 
 .. class:: Sprite
 
-   | :sl:`simple base class for visible game objects`
+   | :sl:`Simple base class for visible game objects.`
    | :sg:`Sprite(*groups) -> Sprite`
 
    The base class for visible game objects. Derived classes will want to
@@ -62,8 +62,27 @@ Sprites are not thread safe. So lock them yourself if using threads.
    instances to be added to.
 
    When subclassing the Sprite, be sure to call the base initializer before
-   adding the Sprite to Groups.
+   adding the Sprite to Groups. For example:
 
+   .. code-block:: python
+   
+       class Block(pygame.sprite.Sprite):
+            
+           # Constructor. Pass in the color of the block, 
+           # and its x and y position
+           def __init__(self, color, width, height):
+              # Call the parent class (Sprite) constructor
+              pygame.sprite.Sprite.__init__(self) 
+        
+              # Create an image of the block, and fill it with a color.
+              # This could also be an image loaded from the disk.
+              self.image = pygame.Surface([width, height])
+              self.image.fill(color)
+        
+              # Fetch the rectangle object that has the dimensions of the image
+              # Update the position of this object by setting the values of rect.x and rect.y
+              self.rect = self.image.get_rect()   
+      
    .. method:: update
 
       | :sl:`method to control sprite behavior`
@@ -132,7 +151,7 @@ Sprites are not thread safe. So lock them yourself if using threads.
 
 .. class:: DirtySprite
 
-   | :sl:`a more featureful subclass of Sprite with more attributes`
+   | :sl:`A subclass of Sprite with more attributes and features.`
    | :sg:`DirtySprite(*groups) -> DirtySprite`
 
    Extra DirtySprite attributes with their default values:
@@ -179,7 +198,7 @@ Sprites are not thread safe. So lock them yourself if using threads.
 
 .. class:: Group
 
-   | :sl:`container class for many Sprites`
+   | :sl:`A container class to hold and manage multiple Sprite objects.`
    | :sg:`Group(*sprites) -> Group`
 
    A simple container for Sprite objects. This class can be inherited to create
@@ -323,17 +342,23 @@ Sprites are not thread safe. So lock them yourself if using threads.
 
 .. class:: RenderPlain
 
-   same as pygame.sprite.Group
+   | :sl:`Same as pygame.sprite.Group`
+
+   This class is an alias to ``pygame.sprite.Group()``. It has no additional functionality.
+
+   .. ## pygame.sprite.RenderClear ##
 
 .. class:: RenderClear
 
-   same as pygame.sprite.Group
+   | :sl:`Same as pygame.sprite.Group`
 
+   This class is an alias to ``pygame.sprite.Group()``. It has no additional functionality.
 
+   .. ## pygame.sprite.RenderClear ##
 
 .. class:: RenderUpdates
 
-   | :sl:`Group class that tracks dirty updates`
+   | :sl:`Group sub-class that tracks dirty updates.`
    | :sg:`RenderUpdates(*sprites) -> RenderUpdates`
 
    This class is derived from ``pygame.sprite.Group()``. It has an extended
@@ -360,7 +385,7 @@ Sprites are not thread safe. So lock them yourself if using threads.
 
 .. function:: OrderedUpdates
 
-   | :sl:`RenderUpdates class that draws Sprites in order of addition`
+   | :sl:`RenderUpdates sub-class that draws Sprites in order of addition.`
    | :sg:`OrderedUpdates(*spites) -> OrderedUpdates`
 
    This class derives from ``pygame.sprite.RenderUpdates()``. It maintains the
@@ -372,7 +397,7 @@ Sprites are not thread safe. So lock them yourself if using threads.
 
 .. class:: LayeredUpdates
 
-   | :sl:`LayeredUpdates Group handles layers, that draws like OrderedUpdates.`
+   | :sl:`LayeredUpdates is a sprite group that handles layers and draws like OrderedUpdates.`
    | :sg:`LayeredUpdates(*spites, **kwargs) -> LayeredUpdates`
 
    This group is fully compatible with :class:`pygame.sprite.Sprite`.
@@ -528,7 +553,7 @@ Sprites are not thread safe. So lock them yourself if using threads.
 
 .. class:: LayeredDirty
 
-   | :sl:`LayeredDirty Group is for DirtySprites.  Subclasses LayeredUpdates.`
+   | :sl:`LayeredDirty group is for DirtySprite objects.  Subclasses LayeredUpdates.`
    | :sg:`LayeredDirty(*spites, **kwargs) -> LayeredDirty`
 
    This group requires :class:`pygame.sprite.DirtySprite` or any sprite that
@@ -618,7 +643,7 @@ Sprites are not thread safe. So lock them yourself if using threads.
 
 .. function:: GroupSingle
 
-   | :sl:`Group container that holds a single Sprite`
+   | :sl:`Group container that holds a single sprite.`
    | :sg:`GroupSingle(sprite=None) -> GroupSingle`
 
    The GroupSingle container only holds a single Sprite. When a new Sprite is
@@ -633,7 +658,7 @@ Sprites are not thread safe. So lock them yourself if using threads.
 
 .. function:: spritecollide
 
-   | :sl:`find Sprites in a Group that intersect another Sprite`
+   | :sl:`Find sprites in a group that intersect another sprite.`
    | :sg:`spritecollide(sprite, group, dokill, collided = None) -> Sprite_list`
 
    Return a list containing all Sprites in a Group that intersect with another
@@ -656,11 +681,23 @@ Sprites are not thread safe. So lock them yourself if using threads.
        collide_rect, collide_rect_ratio, collide_circle,
        collide_circle_ratio, collide_mask
 
+   Example:
+   
+   .. code-block:: python
+
+    # See if the Sprite block has collided with anything in the Group block_list
+    # The True flag will remove the sprite in block_list
+    blocks_hit_list = pygame.sprite.spritecollide(player, block_list, True)  
+     
+    # Check the list of colliding sprites, and add one to the score for each one
+    for block in blocks_hit_list:
+        score +=1
+       
    .. ## pygame.sprite.spritecollide ##
 
 .. function:: collide_rect
 
-   | :sl:`collision detection between two sprites, using rects.`
+   | :sl:`Collision detection between two sprites, using rects.`
    | :sg:`collide_rect(left, right) -> bool`
 
    Tests for collision between two sprites. Uses the pygame rect colliderect
@@ -674,7 +711,7 @@ Sprites are not thread safe. So lock them yourself if using threads.
 
 .. function:: collide_rect_ratio
 
-   | :sl:`collision detection between two sprites, using rects scaled to a ratio.`
+   | :sl:`Collision detection between two sprites, using rects scaled to a ratio.`
    | :sg:`collide_rect_ratio(ratio) -> collided_callable`
 
    A callable class that checks for collisions between two sprites, using a
@@ -692,7 +729,7 @@ Sprites are not thread safe. So lock them yourself if using threads.
 
 .. function:: collide_circle
 
-   | :sl:`collision detection between two sprites, using circles.`
+   | :sl:`Collision detection between two sprites, using circles.`
    | :sg:`collide_circle(left, right) -> bool`
 
    Tests for collision between two sprites, by testing to see if two circles
@@ -709,7 +746,7 @@ Sprites are not thread safe. So lock them yourself if using threads.
 
 .. function:: collide_circle_ratio
 
-   | :sl:`collision detection between two sprites, using circles scaled to a ratio.`
+   | :sl:`Collision detection between two sprites, using circles scaled to a ratio.`
    | :sg:`collide_circle_ratio(ratio) -> collided_callable`
 
    A callable class that checks for collisions between two sprites, using a
@@ -736,7 +773,7 @@ Sprites are not thread safe. So lock them yourself if using threads.
 
 .. function:: collide_mask
 
-   | :sl:`collision detection between two sprites, using masks.`
+   | :sl:`Collision detection between two sprites, using masks.`
    | :sg:`collide_mask(SpriteLeft, SpriteRight) -> point`
 
    Returns first point on the mask where the masks collided, or None if 
@@ -764,7 +801,7 @@ Sprites are not thread safe. So lock them yourself if using threads.
 
 .. function:: groupcollide
 
-   | :sl:`find all Sprites that collide between two Groups`
+   | :sl:`Find all sprites that collide between two groups.`
    | :sg:`groupcollide(group1, group2, dokill1, dokill2, collided = None) -> Sprite_dict`
 
    This will find collisions between all the Sprites in two groups.
@@ -787,7 +824,7 @@ Sprites are not thread safe. So lock them yourself if using threads.
 
 .. function:: spritecollideany
 
-   | :sl:`simple test if a Sprite intersects anything in a Group`
+   | :sl:`Simple test if a sprite intersects anything in a group.`
    | :sg:`spritecollideany(sprite, group, collided = None) -> Sprite` Collision with the returned sprite.
    | :sg:`spritecollideany(sprite, group, collided = None) -> None` No collision
 

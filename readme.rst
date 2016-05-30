@@ -10,6 +10,7 @@ About pygame
 
      http://www.pygame.org
 
+|TravisBuild|_ |AppVeyorBuild|_ |LaunchpadBuild|_ |PyPiVersion|_ |PyPiLicense|_ |Python2| |Python3|
 
 Installation
 ============
@@ -39,7 +40,7 @@ Help
 
      On the pygame website, there is also an online copy of this
      documentation. You should know that the online documentation stays
-     up to date with the development version of pygame in svn. This may
+     up to date with the development version of pygame in hg. This may
      be a bit newer than the version of pygame you are using.
 
      Best of all the examples directory has many playable small programs
@@ -67,10 +68,9 @@ Credits
 
      Richard Goedeken for his smoothscale function.
 
-     Ulf Ekström for his pixel perfect collision detection code.
+     Ulf EkstrÃ¶m for his pixel perfect collision detection code.
 
      Pete Shinners - orginal author.
-
 
      David Clark - for filling the right-hand-man position
 
@@ -95,7 +95,7 @@ Credits
 
      Thanks to those sending in patches and fixes: Niki Spahiev, Gordon
      Tyler, Nathaniel Pryce, Dave Wallace, John Popplewell, Michael Urman,
-     Andrew Straw, Michael Hudson, Ole Martin Bjoerndalen, Hervé Cauwelier,
+     Andrew Straw, Michael Hudson, Ole Martin Bjoerndalen, Herve Cauwelier,
      James Mazer, Lalo Martins, Timothy Stranex, Chad Lester, Matthias
      Spiller, Bo Jangeborg, Dmitry Borisov, Campbell Barton, Diego Essaya,
      Eyal Lotem, Regis Desgroppes, Emmanuel Hainry, Randy Kaelber
@@ -134,12 +134,12 @@ Dependencies
      depends on SDL_image, which also can use libjpeg and libpng. The
      transform module has an embedded version of SDL_rotozoom for its
      own rotozoom function. The surfarray module requires the python
-     Numeric package for its multidimensional numeric arrays.
+     numpy package for its multidimensional numeric arrays.
 
 Todo / Ideas (feel free to submit)
 ==================================
 
-       http://www.pygame.org/wiki/todo/
+       http://www.pygame.org/wiki/todo
 
 License
 =======
@@ -157,3 +157,27 @@ License
 
      The programs in the "examples" subdirectory are in the public
      domain.
+
+
+
+
+.. |TravisBuild| image:: https://travis-ci.org/illume/pygame.svg?branch=master
+.. _TravisBuild: https://travis-ci.org/illume/pygame
+
+.. |AppVeyorBuild| image:: https://ci.appveyor.com/api/projects/status/bvo1vn5vk83bsx67?svg=true
+.. _AppVeyorBuild: https://ci.appveyor.com/project/pygame/pygame
+
+.. |LaunchpadBuild| image:: http://pygame.org/images/launchpad_build.svg?svg=true
+.. _LaunchpadBuild: https://code.launchpad.net/~pygame/+recipe/pygame-daily
+
+.. |PyPiVersion| image:: http://img.shields.io/pypi/v/pygame.svg?v=1
+.. _PyPiVersion: https://pypi.python.org/pypi/pygame
+
+.. |PyPiLicense| image:: http://img.shields.io/pypi/l/pygame.svg?v=1
+.. _PyPiLicense: https://pypi.python.org/pypi/pygame
+
+.. |Python2| image:: http://img.shields.io/badge/python-2-blue.svg?v=1
+.. |Python3| image:: http://img.shields.io/badge/python-3-blue.svg?v=1
+
+
+

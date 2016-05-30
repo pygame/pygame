@@ -10,12 +10,11 @@ if __name__ == '__main__':
 else:
     is_pygame_pkg = __name__.startswith('pygame.tests.')
 
+import unittest
 if is_pygame_pkg:
     from pygame.tests import font_test
-    from pygame.tests.test_utils import unittest
 else:
     from test import font_test
-    from test.test_utils import unittest
 
 import pygame.ftfont
 

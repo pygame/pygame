@@ -10,14 +10,11 @@ if __name__ == '__main__':
 else:
     is_pygame_pkg = __name__.startswith('pygame.tests.')
 
-if is_pygame_pkg:
-    from pygame.tests.test_utils import test_not_implemented, unittest, \
-                                        geterror
-else:
-    from test.test_utils import test_not_implemented, unittest, geterror
+import unittest
 import pygame
 from pygame import font as pygame_font  # So font can be replaced with ftfont
 from pygame.compat import as_unicode, as_bytes, xrange_, filesystem_errors
+from pygame.compat import PY_MAJOR_VERSION
 
 UCS_4 = sys.maxunicode > 0xFFFF
 
@@ -83,17 +80,17 @@ class FontModuleTest( unittest.TestCase ):
 
         self.failUnless(fnts)
 
-        # strange python 2.x bug... if you assign to unicode, 
-        #   all sorts of weirdness happens.
-        if sys.version_info <= (3, 0, 0):
-            unicod = unicode
+        if (PY_MAJOR_VERSION >= 3):
+            # For Python 3.x, names will always be unicode strings.
+            name_types = (str,)
         else:
-            unicod = str
+            # For Python 2.x, names may be either unicode or ascii strings.
+            name_types = (str, unicode)
 
         for name in fnts:
             # note, on ubuntu 2.6 they are all unicode strings.
 
-            self.failUnless(isinstance(name, (str, unicod)))
+            self.failUnless(isinstance(name, name_types), name)
             self.failUnless(name.islower(), name)
             self.failUnless(name.isalnum(), name)
 
@@ -181,24 +178,29 @@ class FontTest(unittest.TestCase):
         pygame.display.update()
         self.assertEqual(tuple(screen.get_at((0,0)))[:3], (255, 255, 255))        
         self.assertEqual(tuple(screen.get_at(font_rect.topleft))[:3], (255, 255, 255))        
-        screen.fill((10, 10, 10))
-        font_surface = f.render("   bar", True, (0, 0, 0), None)
-        font_rect = font_surface.get_rect()
-        font_rect.topleft = rect.topleft
-        self.assertTrue(font_surface)
-        screen.blit(font_surface, font_rect, font_rect)
-        pygame.display.update()
-        self.assertEqual(tuple(screen.get_at((0,0)))[:3], (10, 10, 10))
-        self.assertEqual(tuple(screen.get_at(font_rect.topleft))[:3], (10, 10, 10))        
-        screen.fill((10, 10, 10))
-        font_surface = f.render("   bar", True, (0, 0, 0))
-        font_rect = font_surface.get_rect()
-        font_rect.topleft = rect.topleft
-        self.assertTrue(font_surface)
-        screen.blit(font_surface, font_rect, font_rect)
-        pygame.display.update(rect)
-        self.assertEqual(tuple(screen.get_at((0,0)))[:3], (10, 10, 10))
-        self.assertEqual(tuple(screen.get_at(font_rect.topleft))[:3], (10, 10, 10))
+        
+        # If we don't have a real display, don't do this test.
+        # Transparent background doesn't seem to work without a read video card.
+        if os.environ.get('SDL_VIDEODRIVER') != 'dummy':       
+            screen.fill((10, 10, 10))
+            font_surface = f.render("   bar", True, (0, 0, 0), None)
+            font_rect = font_surface.get_rect()
+            font_rect.topleft = rect.topleft
+            self.assertTrue(font_surface)
+            screen.blit(font_surface, font_rect, font_rect)
+            pygame.display.update()
+            self.assertEqual(tuple(screen.get_at((0,0)))[:3], (10, 10, 10))
+            self.assertEqual(tuple(screen.get_at(font_rect.topleft))[:3], (10, 10, 10))        
+            
+            screen.fill((10, 10, 10))
+            font_surface = f.render("   bar", True, (0, 0, 0))
+            font_rect = font_surface.get_rect()
+            font_rect.topleft = rect.topleft
+            self.assertTrue(font_surface)
+            screen.blit(font_surface, font_rect, font_rect)
+            pygame.display.update(rect)
+            self.assertEqual(tuple(screen.get_at((0,0)))[:3], (10, 10, 10))
+            self.assertEqual(tuple(screen.get_at(font_rect.topleft))[:3], (10, 10, 10))
 
 
 
@@ -465,11 +467,10 @@ class FontTypeTest( unittest.TestCase ):
         f = pygame_font.Font(pygame_font.get_default_font(), 20)
 
     def test_load_from_file_unicode(self):
-        base_dir = os.path.split(pygame.__file__)[0]
-        sep = os.path.sep
-        if sep == '\\':
-            sep = '\\\\'
-        font_path = base_dir + sep + pygame_font.get_default_font()
+        base_dir = os.path.dirname(pygame.__file__)
+        font_path = os.path.join(base_dir, pygame_font.get_default_font())
+        if os.path.sep == '\\':
+            font_path = font_path.replace('\\', '\\\\')
         ufont_path = as_unicode(font_path)
         f = pygame_font.Font(ufont_path, 20)
 

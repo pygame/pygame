@@ -26,10 +26,10 @@ else:
     is_pygame_pkg = __name__.startswith('pygame.tests.')
 
 if is_pygame_pkg:
-    from pygame.tests.test_utils.run_tests import run
+    from pygame.tests.test_utils.run_tests import run_and_exit
     from pygame.tests.test_utils.test_runner import opt_parser
 else:
-    from test.test_utils.run_tests import run
+    from test.test_utils.run_tests import run_and_exit
     from test.test_utils.test_runner import opt_parser
 
 if is_pygame_pkg:
@@ -58,15 +58,11 @@ all failing tests info in the form of a dict.
 
 opt_parser.add_option (
      "-d",  "--dump", action = 'store_true',
-     help   = "dump failures/errors as dict ready to eval" )
+     help   = "dump results as dict ready to eval" )
 
 opt_parser.add_option (
      "-F",  "--file",
-     help   = "dump failures/errors to a file" )
-
-opt_parser.add_option (
-     "-a",  "--all", action = 'store_true',
-     help   = "dump all results not just errors eg. -da" )
+     help   = "dump results to a file" )
 
 opt_parser.add_option (
      "-m",  "--multi_thread", metavar = 'THREADS', type = 'int',
@@ -89,6 +85,11 @@ opt_parser.add_option (
      "-I",  "--interactive", action = 'store_true',
      help   = "include tests requiring user input")
 
+opt_parser.add_option(
+    "-S",  "--seed", type = 'int',
+     help   = "Randomisation seed"
+)
+
 ###########################################################################
 # Set run() keyword arguements according to command line arguemnts.
 # args will be the test module list, passed as positional argumemts.
@@ -104,13 +105,10 @@ if options.dump:
     kwds['dump'] = True
 if options.file:
     kwds['file'] = options.file
-kwds['timings'] = options.timings
 if options.exclude:
     kwds['exclude'] = options.exclude
-if options.show_output:
-    kwds['show_output'] = True
-if options.all:
-    kwds['all'] = True
+if options.unbuffered:
+    kwds['unbuffered'] = True
 if options.randomize:
     kwds['randomize'] = True
 if options.seed is not None:
@@ -128,6 +126,6 @@ if options.interactive:
 
 ###########################################################################
 # Run the test suite.
-run(*args, **kwds)
+run_and_exit(*args, **kwds)
 
 

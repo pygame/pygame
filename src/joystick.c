@@ -99,7 +99,7 @@ joy_dealloc (PyObject* self)
 static PyObject*
 Joystick (PyObject* self, PyObject* args)
 {
-    int id;	
+    int id;
     if (!PyArg_ParseTuple (args, "i", &id)) {
         return NULL;
     }
@@ -187,7 +187,7 @@ joy_get_axis (PyObject* self, PyObject* args)
     int joy_id = PyJoystick_AsID (self);
     SDL_Joystick* joy = joystick_stickdata[joy_id];
     int axis, value;
-	
+
     if (!PyArg_ParseTuple (args, "i", &axis)) {
         return NULL;
     }
@@ -228,7 +228,7 @@ joy_get_button (PyObject* self, PyObject* args)
     int joy_id = PyJoystick_AsID (self);
     SDL_Joystick* joy = joystick_stickdata[joy_id];
     int _index, value;
-	
+
     if (!PyArg_ParseTuple (args, "i", &_index)) {
         return NULL;
     }
@@ -269,7 +269,7 @@ joy_get_ball (PyObject* self, PyObject* args)
     SDL_Joystick* joy = joystick_stickdata[joy_id];
     int _index, dx, dy;
     Uint32 value;
-	
+
     if (!PyArg_ParseTuple (args, "i", &_index)) {
         return NULL;
     }
@@ -346,7 +346,7 @@ joy_get_hat (PyObject* self, PyObject* args)
     else if (value & SDL_HAT_LEFT) {
         px = -1;
     }
-	
+
     return Py_BuildValue ("(ii)", px, py);
 }
 
@@ -404,7 +404,7 @@ static PyTypeObject PyJoystick_Type =
     0,                          /* tp_clear */
     0,                          /* tp_richcompare */
     0,                          /* tp_weaklistoffset */
-    0,	                        /* tp_iter */
+    0,                          /* tp_iter */
     0,                          /* tp_iternext */
     joy_methods,                /* tp_methods */
     0,                          /* tp_members */
@@ -415,8 +415,8 @@ static PyTypeObject PyJoystick_Type =
     0,                          /* tp_descr_set */
     0,                          /* tp_dictoffset */
     0,                          /* tp_init */
-    0,				/* tp_alloc */
-    0,			        /* tp_new */
+    0,                          /* tp_alloc */
+    0,                          /* tp_new */
 };
 
 static PyObject*
@@ -427,7 +427,7 @@ PyJoystick_New (int id)
     if (id < 0 || id >= JOYSTICK_MAXSTICKS || id >= SDL_NumJoysticks ()) {
         return RAISE (PyExc_SDLError, "Invalid joystick device number");
     }
-	
+
     joy = PyObject_NEW (PyJoystickObject, &PyJoystick_Type);
     if (!joy) {
         return NULL;

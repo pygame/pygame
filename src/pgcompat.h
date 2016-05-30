@@ -123,7 +123,7 @@
 
 #define MODINIT_ERROR MODINIT_RETURN (NULL)
 
-/* Module state. These macros are used to define per-module macros. 
+/* Module state. These macros are used to define per-module macros.
  * v - global state variable (Python 2.x)
  * s - global state structure (Python 3.x)
  */
@@ -163,12 +163,24 @@
 
 #define HAVE_OLD_BUFPROTO PY2
 
+#if !defined(PG_ENABLE_OLDBUF)  /* allow for command line override */
+#if HAVE_OLD_BUFPROTO
+#define PG_ENABLE_OLDBUF 1
+#else
+#define PG_ENABLE_OLDBUF 0
+#endif
+#endif
+
 #ifndef Py_TPFLAGS_HAVE_NEWBUFFER
 #define Py_TPFLAGS_HAVE_NEWBUFFER 0
 #endif
 
 #ifndef Py_TPFLAGS_HAVE_CLASS
 #define Py_TPFLAGS_HAVE_CLASS 0
+#endif
+
+#ifndef Py_TPFLAGS_CHECKTYPES
+#define Py_TPFLAGS_CHECKTYPES 0
 #endif
 
 #if PY_VERSION_HEX >= 0x03020000
@@ -178,6 +190,21 @@
 #define Slice_GET_INDICES_EX(slice, length, start, stop, step, slicelength) \
     PySlice_GetIndicesEx((PySliceObject *)(slice), length, \
                          start, stop, step, slicelength)
+#endif
+
+/* Python 2.4 (PEP 353) ssize_t */
+#if PY_VERSION_HEX < 0x02050000
+#define PyInt_AsSsize_t PyInt_AsLong
+#define PyInt_FromSsizt_t PyInt_FromLong
+#endif
+
+/* Support new buffer protocol? */
+#if !defined(PG_ENABLE_NEWBUF)  /* allow for command line override */
+#if HAVE_NEW_BUFPROTO && !defined(PYPY_VERSION)
+#define PG_ENABLE_NEWBUF 1
+#else
+#define PG_ENABLE_NEWBUF 0
+#endif
 #endif
 
 #endif /* #if !defined(PGCOMPAT_H) */

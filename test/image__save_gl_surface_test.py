@@ -1,6 +1,7 @@
+import os
+
 if __name__ == '__main__':
     import sys
-    import os
     pkg_dir = os.path.split(os.path.abspath(__file__))[0]
     parent_dir, pkg_name = os.path.split(pkg_dir)
     is_pygame_pkg = (pkg_name == 'tests' and
@@ -10,18 +11,17 @@ if __name__ == '__main__':
 else:
     is_pygame_pkg = __name__.startswith('pygame.tests.')
 
+import unittest
 if is_pygame_pkg:
     from pygame.tests import test_utils
-    from pygame.tests.test_utils import unittest
 else:
     from test import test_utils
-    from test.test_utils import unittest
-import pygame, os
+import pygame
 from pygame.locals import *
 
 class GL_ImageSave(unittest.TestCase):
     def test_image_save_works_with_opengl_surfaces(self):
-        "|tags:display,slow|"
+        "|tags:display,slow,opengl|"
 
         pygame.display.init()
         

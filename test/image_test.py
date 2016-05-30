@@ -10,12 +10,11 @@ if __name__ == '__main__':
 else:
     is_pygame_pkg = __name__.startswith('pygame.tests.')
 
+import unittest
 if is_pygame_pkg:
-    from pygame.tests.test_utils \
-         import test_not_implemented, example_path, unittest, png
+    from pygame.tests.test_utils import example_path, png
 else:
-    from test.test_utils \
-         import test_not_implemented, example_path, unittest, png
+    from test.test_utils import example_path, png
 import pygame, pygame.image, pygame.pkgdata
 from pygame.compat import xrange_, ord_
 
@@ -114,7 +113,58 @@ class ImageModuleTest( unittest.TestCase ):
         
         # surf = pygame.image.load(open(os.path.join("examples", "data", "alien1.jpg"), "rb"))
 
-    def testSavePNG(self):
+    def testSaveJPG(self):
+        """ JPG equivalent to issue #211 - color channel swapping
+
+        Make sure the SDL surface color masks represent the rgb memory format
+        required by the JPG library. The masks are machine endian dependent
+        """
+
+        from pygame import Color, Rect
+        
+        # The source image is a 2 by 2 square of four colors. Since JPEG is
+        # lossy, there can be color bleed. Make each color square 16 by 16,
+        # to avoid the significantly color value distorts found at color
+        # boundaries due to the compression value set by Pygame.
+        square_len = 16
+        sz = 2 * square_len, 2 * square_len
+
+        #  +---------------------------------+
+        #  | red            | green          |
+        #  |----------------+----------------|
+        #  | blue           | (255, 128, 64) |
+        #  +---------------------------------+
+        #
+        #  as (rect, color) pairs.
+        def as_rect(square_x, square_y):
+            return Rect(square_x * square_len, square_y * square_len,
+                        square_len, square_len)
+        squares = [(as_rect(0, 0), Color("red")),
+                   (as_rect(1, 0), Color("green")),
+                   (as_rect(0, 1), Color("blue")),
+                   (as_rect(1, 1), Color(255, 128, 64))]
+
+        # A surface format which is not directly usable with libjpeg.
+        surf = pygame.Surface(sz, 0, 32)
+        for rect, color in squares:
+            surf.fill(color, rect)
+
+        # Assume pygame.image.Load works correctly as it is handled by the
+        # third party SDL_image library.
+        f_path = tempfile.mktemp(suffix='.jpg')
+        pygame.image.save(surf, f_path)
+        jpg_surf = pygame.image.load(f_path)
+
+        # Allow for small differences in the restored colors.
+        def approx(c):
+            mask = 0xFC
+            return pygame.Color(c.r & mask, c.g & mask, c.b & mask)
+        offset = square_len // 2
+        for rect, color in squares:
+            posn = rect.move((offset, offset)).topleft
+            self.assertEqual(approx(jpg_surf.get_at(posn)), approx(color))
+        
+    def testSavePNG32(self):
         """ see if we can save a png with color values in the proper channels.
         """
         # Create a PNG file with known colors
@@ -134,6 +184,37 @@ class ImageModuleTest( unittest.TestCase ):
 
         # Read the PNG file and verify that pygame saved it correctly
         width, height, pixels, metadata = png.Reader(filename=f_path).asRGBA8()
+        pixels_as_tuples = []
+        for pixel in pixels:
+            pixels_as_tuples.append(tuple(pixel))
+
+        self.assertEquals(pixels_as_tuples[0], reddish_pixel)
+        self.assertEquals(pixels_as_tuples[1], greenish_pixel)
+        self.assertEquals(pixels_as_tuples[2], bluish_pixel)
+        self.assertEquals(pixels_as_tuples[3], greyish_pixel)
+
+        os.remove(f_path)
+
+    def testSavePNG24(self):
+        """ see if we can save a png with color values in the proper channels.
+        """
+        # Create a PNG file with known colors
+        reddish_pixel = (215, 0, 0)
+        greenish_pixel = (0, 225, 0)
+        bluish_pixel = (0, 0, 235)
+        greyish_pixel = (115, 125, 135)
+
+        surf = pygame.Surface((1, 4), 0, 24)
+        surf.set_at((0, 0), reddish_pixel)
+        surf.set_at((0, 1), greenish_pixel)
+        surf.set_at((0, 2), bluish_pixel)
+        surf.set_at((0, 3), greyish_pixel)
+
+        f_path = tempfile.mktemp(suffix='.png')
+        pygame.image.save(surf, f_path)
+
+        # Read the PNG file and verify that pygame saved it correctly
+        width, height, pixels, metadata = png.Reader(filename=f_path).asRGB8()
         pixels_as_tuples = []
         for pixel in pixels:
             pixels_as_tuples.append(tuple(pixel))

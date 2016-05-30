@@ -142,9 +142,9 @@ static PyObject* mask_overlap_mask(PyObject* self, PyObject* args)
         return NULL;
     }
     othermask = PyMask_AsBitmap(maskobj);
-    
+
     bitmask_overlap_mask(mask, othermask, output, x, y);
-    
+
     if(maskobj2)
         maskobj2->mask = output;
 
@@ -154,27 +154,27 @@ static PyObject* mask_overlap_mask(PyObject* self, PyObject* args)
 static PyObject* mask_fill(PyObject* self, PyObject* args)
 {
     bitmask_t *mask = PyMask_AsBitmap(self);
-    
+
     bitmask_fill(mask);
-        
+
     Py_RETURN_NONE;
 }
 
 static PyObject* mask_clear(PyObject* self, PyObject* args)
 {
     bitmask_t *mask = PyMask_AsBitmap(self);
-    
+
     bitmask_clear(mask);
-        
+
     Py_RETURN_NONE;
 }
 
 static PyObject* mask_invert(PyObject* self, PyObject* args)
 {
     bitmask_t *mask = PyMask_AsBitmap(self);
-    
+
     bitmask_invert(mask);
-        
+
     Py_RETURN_NONE;
 }
 
@@ -184,13 +184,13 @@ static PyObject* mask_scale(PyObject* self, PyObject* args)
     bitmask_t *input = PyMask_AsBitmap(self);
     bitmask_t *output;
     PyMaskObject *maskobj = PyObject_New(PyMaskObject, &PyMask_Type);
-    
+
     if(!PyArg_ParseTuple(args, "(ii)", &x, &y)) {
         return NULL;
     }
 
     output = bitmask_scale(input, x, y);
-    
+
     if(maskobj)
         maskobj->mask = output;
 
@@ -210,7 +210,7 @@ static PyObject* mask_draw(PyObject* self, PyObject* args)
     othermask = PyMask_AsBitmap(maskobj);
 
     bitmask_draw(mask, othermask, x, y);
-    
+
     Py_RETURN_NONE;
 }
 
@@ -227,14 +227,14 @@ static PyObject* mask_erase(PyObject* self, PyObject* args)
     othermask = PyMask_AsBitmap(maskobj);
 
     bitmask_erase(mask, othermask, x, y);
-    
+
     Py_RETURN_NONE;
 }
 
 static PyObject* mask_count(PyObject* self, PyObject* args)
 {
     bitmask_t *m = PyMask_AsBitmap(self);
-    
+
     return PyInt_FromLong(bitmask_count(m));
 }
 
@@ -246,7 +246,7 @@ static PyObject* mask_centroid(PyObject* self, PyObject* args)
     PyObject *xobj, *yobj;
 
     m10 = m01 = m00 = 0;
-    
+
     for (x = 0; x < mask->w; x++) {
         for (y = 0; y < mask->h; y++) {
             if (bitmask_getbit(mask, x, y)) {
@@ -256,7 +256,7 @@ static PyObject* mask_centroid(PyObject* self, PyObject* args)
             }
         }
     }
-    
+
     if (m00) {
         xobj = PyInt_FromLong(m10/m00);
         yobj = PyInt_FromLong(m01/m00);
@@ -264,7 +264,7 @@ static PyObject* mask_centroid(PyObject* self, PyObject* args)
         xobj = PyInt_FromLong(0);
         yobj = PyInt_FromLong(0);
     }
-    
+
     return Py_BuildValue("(NN)", xobj, yobj);
 }
 
@@ -276,7 +276,7 @@ static PyObject* mask_angle(PyObject* self, PyObject* args)
     double theta;
 
     m10 = m01 = m00 = m20 = m02 = m11 = 0;
-    
+
     for (x = 0; x < mask->w; x++) {
         for (y = 0; y < mask->h; y++) {
             if (bitmask_getbit(mask, x, y)) {
@@ -289,7 +289,7 @@ static PyObject* mask_angle(PyObject* self, PyObject* args)
             }
         }
     }
-    
+
     if (m00) {
         xc = m10/m00;
         yc = m01/m00;
@@ -303,32 +303,32 @@ static PyObject* mask_angle(PyObject* self, PyObject* args)
 static PyObject* mask_outline(PyObject* self, PyObject* args)
 {
     bitmask_t* c = PyMask_AsBitmap(self);
-    bitmask_t* m = bitmask_create(c->w + 2, c->h + 2); 
+    bitmask_t* m = bitmask_create(c->w + 2, c->h + 2);
     PyObject *plist, *value;
     int x, y, every, e, firstx, firsty, secx, secy, currx, curry, nextx, nexty, n;
     int a[14], b[14];
     a[0] = a[1] = a[7] = a[8] = a[9] = b[1] = b[2] = b[3] = b[9] = b[10] = b[11]= 1;
     a[2] = a[6] = a[10] = b[4] = b[0] = b[12] = b[8] = 0;
     a[3] = a[4] = a[5] = a[11] = a[12] = a[13] = b[5] = b[6] = b[7] = b[13] = -1;
-    
+
     plist = NULL;
     plist = PyList_New (0);
     if (!plist)
         return NULL;
-        
+
     every = 1;
     n = firstx = firsty = secx = x = 0;
 
     if(!PyArg_ParseTuple(args, "|i", &every)) {
         return NULL;
     }
-    
+
     /* by copying to a new, larger mask, we avoid having to check if we are at
        a border pixel every time.  */
     bitmask_draw(m, c, 1, 1);
-    
+
     e = every;
-    
+
     /* find the first set pixel in the mask */
     for (y = 1; y < m->h-1; y++) {
         for (x = 1; x < m->w-1; x++) {
@@ -344,15 +344,15 @@ static PyObject* mask_outline(PyObject* self, PyObject* args)
         if (bitmask_getbit(m, x, y))
             break;
     }
-    
-    
-    
+
+
+
     /* covers the mask having zero pixels or only the final pixel */
     if ((x == m->w-1) && (y == m->h-1)) {
         bitmask_free(m);
         return plist;
-    }        
-    
+    }
+
     /* check just the first pixel for neighbors */
     for (n = 0;n < 8;n++) {
         if (bitmask_getbit(m, x+a[n], y+b[n])) {
@@ -367,8 +367,8 @@ static PyObject* mask_outline(PyObject* self, PyObject* args)
             }
             break;
         }
-    }       
-    
+    }
+
     /* if there are no neighbors, return */
     if (!secx) {
         bitmask_free(m);
@@ -456,7 +456,7 @@ static PyObject* mask_from_surface(PyObject* self, PyObject* args)
     /* set threshold as 127 default argument. */
     threshold = 127;
 
-    /* get the surface from the passed in arguments. 
+    /* get the surface from the passed in arguments.
      *   surface, threshold
      */
 
@@ -491,7 +491,7 @@ static PyObject* mask_from_surface(PyObject* self, PyObject* args)
     for(y=0; y < surf->h; y++) {
         pixels = (Uint8 *) surf->pixels + y*surf->pitch;
         for(x=0; x < surf->w; x++) {
-            /* Get the color.  TODO: should use an inline helper 
+            /* Get the color.  TODO: should use an inline helper
              *   function for this common function. */
             switch (format->BytesPerPixel)
             {
@@ -552,17 +552,17 @@ static PyObject* mask_from_surface(PyObject* self, PyObject* args)
 
 /*
 
-palette_colors - this only affects surfaces with a palette 
-    if true we look at the colors from the palette, 
-    otherwise we threshold the pixel values.  This is useful if 
+palette_colors - this only affects surfaces with a palette
+    if true we look at the colors from the palette,
+    otherwise we threshold the pixel values.  This is useful if
     the surface is actually greyscale colors, and not palette colors.
 
 */
 
-void bitmask_threshold (bitmask_t *m, 
-                        SDL_Surface *surf, 
+void bitmask_threshold (bitmask_t *m,
+                        SDL_Surface *surf,
                         SDL_Surface *surf2,
-                        Uint32 color,  
+                        Uint32 color,
                         Uint32 threshold,
                         int palette_colors)
 {
@@ -680,11 +680,11 @@ void bitmask_threshold (bitmask_t *m,
                        actually using the palette.
                     */
                     if (  (abs( (the_color2) - (the_color)) < tr )  ) {
-                        
+
                         /* this pixel is within the threshold of othersurface. */
                         bitmask_setbit(m, x, y);
                     }
-                    
+
                 } else if ((abs((((the_color2 & rmask2) >> rshift2) << rloss2) - (((the_color & rmask) >> rshift) << rloss)) < tr) &
                     (abs((((the_color2 & gmask2) >> gshift2) << gloss2) - (((the_color & gmask) >> gshift) << gloss)) < tg) &
                     (abs((((the_color2 & bmask2) >> bshift2) << bloss2) - (((the_color & bmask) >> bshift) << bloss)) < tb)) {
@@ -1138,16 +1138,16 @@ static int get_connected_components(bitmask_t *mask, bitmask_t ***components, in
     /* allocate enough space for the maximum possible connected components */
     /* the union-find array. see wikipedia for info on union find */
     ufind = (unsigned int *) malloc(sizeof(int)*(w/2 + 1)*(h/2 + 1));
-    if(!ufind) { 
+    if(!ufind) {
         free(image);
-        return -2; 
+        return -2;
     }
 
     largest = (unsigned int *) malloc(sizeof(int)*(w/2 + 1)*(h/2 + 1));
-    if(!largest) { 
+    if(!largest) {
         free(image);
         free(ufind);
-        return -2; 
+        return -2;
     }
 
     /* do the initial labelling */
@@ -1186,11 +1186,11 @@ static int get_connected_components(bitmask_t *mask, bitmask_t ***components, in
 
     /* allocate space for the mask array */
     comps = (bitmask_t **) malloc(sizeof(bitmask_t *) * (relabel +1));
-    if(!comps) { 
+    if(!comps) {
         free(image);
         free(ufind);
         free(largest);
-        return -2; 
+        return -2;
     }
 
     /* create the empty masks */
@@ -1422,21 +1422,21 @@ static PyTypeObject PyMask_Type =
     0L,0L,0L,0L,
     DOC_PYGAMEMASKMASK,                 /* Documentation string */
     0,                                  /* tp_traverse */
-    0,				        /* tp_clear */
-    0,				        /* tp_richcompare */
+    0,                                  /* tp_clear */
+    0,                                  /* tp_richcompare */
     0,                                  /* tp_weaklistoffset */
-    0,				        /* tp_iter */
-    0,				        /* tp_iternext */
+    0,                                  /* tp_iter */
+    0,                                  /* tp_iternext */
     mask_methods,                       /* tp_methods */
     0,                                  /* tp_members */
     0,                                  /* tp_getset */
     0,                                  /* tp_base */
-    0,			                /* tp_dict */
+    0,                                  /* tp_dict */
     0,                                  /* tp_descr_get */
     0,                                  /* tp_descr_set */
-    0,					/* tp_dictoffset */
+    0,                                  /* tp_dictoffset */
     0,                                  /* tp_init */
-    0,					/* tp_alloc */
+    0,                                  /* tp_alloc */
     0,                                  /* tp_new */
 };
 
@@ -1496,7 +1496,7 @@ MODINIT_DEFINE (mask)
     import_pygame_base ();
     if (PyErr_Occurred ()) {
         MODINIT_ERROR;
-    } 
+    }
     import_pygame_color ();
     if (PyErr_Occurred ()) {
         MODINIT_ERROR;

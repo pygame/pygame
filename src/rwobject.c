@@ -214,7 +214,7 @@ RWopsEncodeString(PyObject *obj,
         Py_INCREF(obj);
         return obj;
     }
-    
+
     Py_RETURN_NONE;
 }
 
@@ -222,7 +222,7 @@ static PyObject*
 RWopsEncodeFilePath(PyObject *obj, PyObject *eclass)
 {
     PyObject *result = RWopsEncodeString(obj,
-                                         UNICODE_DEF_FS_CODEC, 
+                                         UNICODE_DEF_FS_CODEC,
                                          UNICODE_DEF_FS_ERROR,
                                          eclass);
     if (result == NULL || result == Py_None) {
@@ -256,16 +256,6 @@ RWopsFromFileObject(PyObject *obj)
     if (obj == NULL) {
         return (SDL_RWops *)RAISE(PyExc_TypeError, "Invalid filetype object");
     }
-#if PY2
-    if (PyFile_Check(obj))
-    {
-        rw = SDL_RWFromFP(PyFile_AsFile(obj), 0);
-        if (rw) {
-            return rw;
-        }
-        SDL_ClearError();
-    }
-#endif
     helper = PyMem_New(RWHelper, 1);
     if (helper == NULL) {
         return (SDL_RWops *)PyErr_NoMemory();
@@ -617,14 +607,14 @@ rwobject_encode_string(PyObject *self, PyObject *args, PyObject *keywds)
     PyObject *eclass = NULL;
     const char *encoding = NULL;
     const char *errors = NULL;
-    static char *kwids[] = {"obj", "encoding", "errors", "etype", NULL};  
+    static char *kwids[] = {"obj", "encoding", "errors", "etype", NULL};
 
     if (!PyArg_ParseTupleAndKeywords(args, keywds, "|OssO&", kwids,
                                      &obj, &encoding, &errors,
                                      &is_exception_class, &eclass)) {
         return NULL;
     }
-    
+
     if (obj == NULL) {
         RAISE(PyExc_SyntaxError, "Forwarded exception");
     }
@@ -636,13 +626,13 @@ rwobject_encode_file_path(PyObject *self, PyObject *args, PyObject *keywds)
 {
     PyObject *obj = NULL;
     PyObject *eclass = NULL;
-    static char *kwids[] = {"obj", "etype", NULL};  
+    static char *kwids[] = {"obj", "etype", NULL};
 
     if (!PyArg_ParseTupleAndKeywords(args, keywds, "|OO&", kwids,
                                      &obj, &is_exception_class, &eclass)) {
         return NULL;
     }
-    
+
     if (obj == NULL) {
         RAISE(PyExc_SyntaxError, "Forwarded exception");
     }
@@ -682,7 +672,7 @@ MODINIT_DEFINE (rwobject)
 #if PY3
     module = PyModule_Create (&_module);
 #else
-    module = Py_InitModule3 (MODPREFIX "rwobject", 
+    module = Py_InitModule3 (MODPREFIX "rwobject",
                              _rwobject_methods,
                              _rwobject_doc);
 #endif
@@ -702,7 +692,7 @@ MODINIT_DEFINE (rwobject)
     apiobj = encapsulate_api (c_api, "rwobject");
     if (apiobj == NULL) {
         DECREF_MOD (module);
-	MODINIT_ERROR;
+    MODINIT_ERROR;
     }
     ecode = PyDict_SetItemString (dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
     Py_DECREF (apiobj);

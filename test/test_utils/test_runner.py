@@ -1,9 +1,7 @@
-################################################################################
+import sys
+import os
 
 if __name__ == '__main__':
-    
-    import sys
-    import os
     pkg_dir = os.path.split(os.path.split(os.path.abspath(__file__))[0])[0]
     parent_dir, pkg_name = os.path.split(pkg_dir)
     is_pygame_pkg = (pkg_name == 'tests' and
@@ -13,32 +11,18 @@ if __name__ == '__main__':
 else:
     is_pygame_pkg = __name__.startswith('pygame.tests.')
 
-if is_pygame_pkg:
-    from pygame.tests import test_utils
-    from pygame.tests.test_utils \
-         import unittest, unittest_patch, import_submodule
-    from pygame.tests.test_utils.unittest_patch import StringIOContents
-else:
-    from test import test_utils
-    from test.test_utils \
-         import unittest, unittest_patch, import_submodule
-    from test.test_utils.unittest_patch import StringIOContents
+import unittest
+from .test_machinery import PygameTestLoader
 
-import sys
-import os
 import re
 try:
     import StringIO
 except ImportError:
     import io as StringIO
-import time
+
 import optparse
-from inspect import getdoc, getmembers, isclass
 from pprint import pformat
 
-# from safe_eval import safe_eval as eval
-
-################################################################################
 
 def prepare_test_env():
     test_subdir = os.path.split(os.path.split(os.path.abspath(__file__))[0])[0]
@@ -61,7 +45,7 @@ EXCLUDE_RE = re.compile("(%s,?\s*)+$" % (TAG_PAT,))
 
 def exclude_callback(option, opt, value, parser):
     if EXCLUDE_RE.match(value) is None:
-        raise opt_parser.OptionValueError("%s argument has invalid value" %
+        raise optparse.OptionValueError("%s argument has invalid value" %
                                           (opt,))
     parser.values.exclude = TAG_RE.findall(value)
 
@@ -77,11 +61,6 @@ opt_parser.add_option (
               " (default: use subprocesses)" )
 
 opt_parser.add_option (
-     "-T",  "--timings", type = 'int', default = 1, metavar = 'T',
-     help   = "get timings for individual tests.\n" 
-              "Run test T times, giving average time")
-
-opt_parser.add_option (
      "-e",  "--exclude",
      action = 'callback',
      type   = 'string',
@@ -89,16 +68,12 @@ opt_parser.add_option (
      callback = exclude_callback)
 
 opt_parser.add_option (
-     "-w",  "--show_output", action = 'store_true',
-     help   = "show silenced stderr/stdout on errors" )
+     "-v",  "--unbuffered", action = 'store_true',
+     help   = "Show stdout/stderr as tests run, rather than storing it and showing on failures" )
 
 opt_parser.add_option (
      "-r",  "--randomize", action = 'store_true',
      help   = "randomize order of tests" )
-
-opt_parser.add_option (
-     "-S",  "--seed", type = 'int',
-     help   = "seed randomizer" )
 
 ################################################################################
 # If an xxxx_test.py takes longer than TIME_OUT seconds it will be killed
@@ -122,7 +97,7 @@ subprocess completely failed with return code of %(return_code)s
 cmd:          %(cmd)s
 test_env:     %(test_env)s
 working_dir:  %(working_dir)s
-return (top 5 lines):
+return (first 10 and last 10 lines):
 %(raw_return)s
 
 """  # Leave that last empty line else build page regex won't match
@@ -153,7 +128,12 @@ def combine_results(all_results, t):
 
         if not output or (return_code and RAN_TESTS_DIV not in output):
             # would this effect the original dict? TODO
-            results['raw_return'] = ''.join(raw_return.splitlines(1)[:5])
+            output_lines = raw_return.splitlines()
+            if len(output_lines) > 20:
+                results['raw_return'] = '\n'.join(output_lines[:10] +
+                                                  ['...'] +
+                                                  output_lines[-10:]
+                                                 )
             failures.append( COMPLETE_FAILURE_TEMPLATE % results )
             all_dots += 'E'
             continue
@@ -183,7 +163,9 @@ def combine_results(all_results, t):
 ################################################################################
 
 TEST_RESULTS_START = "<--!! TEST RESULTS START HERE !!-->"
-TEST_RESULTS_RE = re.compile('%s\n(.*)' % TEST_RESULTS_START, re.DOTALL | re.M)
+TEST_RESULTS_END = "<--!! TEST RESULTS END HERE !!-->"
+_test_re_str = '%s\n(.*)%s' % (TEST_RESULTS_START, TEST_RESULTS_END)
+TEST_RESULTS_RE = re.compile(_test_re_str, re.DOTALL | re.M)
 
 def get_test_results(raw_return):
     test_results = TEST_RESULTS_RE.search(raw_return)
@@ -194,102 +176,37 @@ def get_test_results(raw_return):
             print ("BUGGY TEST RESULTS EVAL:\n %s" % test_results.group(1))
             raise
 
-################################################################################
-# ERRORS
-# TODO
-
-def make_complete_failure_error(result):
-    return (
-        "ERROR: all_tests_for (%s.AllTestCases)" % result['module'],
-        "Complete Failure (ret code: %s)" % result['return_code'],
-        result['test_file'], 
-        '1',
-    )
-    
-# For combined results, plural
-def test_failures(results):
-    errors = {}
-    total =  sum([v.get('num_tests', 0) for v in results.values()])
-    for module, result in results.items():
-        num_errors = (
-            len(result.get('failures', [])) + len(result.get('errors', []))
-        )
-        if num_errors is 0 and result.get('return_code'):
-            result.update(RESULTS_TEMPLATE)
-            result['errors'].append(make_complete_failure_error(result))
-            num_errors += 1
-            total += 1
-        if num_errors: errors.update({module:result})
-
-    return total, errors
-
-# def combined_errs(results):
-#     for result in results.values():
-#         combined_errs = result['errors'] + result['failures']
-#         for err in combined_errs:
-#             yield err
-
-################################################################################
-# For complete failures (+ namespace saving)
-
-def from_namespace(ns, template):
-    if isinstance(template, dict):
-        return dict([(i, ns.get(i, template[i])) for i in template])
-    return dict([(i, ns[i]) for i in template])
-
-RESULTS_TEMPLATE = {
-    'output'     :  '',
-    'num_tests'  :   0,
-    'failures'   :  [],
-    'errors'     :  [],
-    'tests'      :  {},
-}
 
 ################################################################################
 
-def run_test(module, **kwds):
+def run_test(module, incomplete=False, nosubprocess=False, randomize=False,
+             exclude=('interactive',), buffer=True):
     """Run a unit test module
-
-    Recognized keyword arguments:
-    incomplete, nosubprocess
-
     """
-    
-    option_incomplete = kwds.get('incomplete', False)
-    option_nosubprocess = kwds.get('nosubprocess', False)
-
     suite = unittest.TestSuite()
-    test_utils.fail_incomplete_tests = option_incomplete
 
-    m = import_submodule(module)
-    if m.unittest is not unittest:
-        raise ImportError(
-            "%s is not using correct unittest\n\n" % module +
-            "should be: %s\n is using: %s" % (unittest.__file__,
-                                              m.unittest.__file__)
-        )
-    
     print ('loading %s' % module)
 
-    test = unittest.defaultTestLoader.loadTestsFromName(module)
-    suite.addTest(test)
+    loader = PygameTestLoader(randomize_tests=randomize,
+                              include_incomplete=incomplete,
+                              exclude=exclude)
+    suite.addTest(loader.loadTestsFromName(module))
 
     output = StringIO.StringIO()
-    runner = unittest.TextTestRunner(stream=output)
-
+    runner = unittest.TextTestRunner(stream=output, buffer=buffer)
     results = runner.run(suite)
-    output  = StringIOContents(output)
 
-    num_tests = results.testsRun
-    failures  = results.failures
-    errors    = results.errors
-    tests     = results.tests
+    results = {module: {
+        'output': output.getvalue(),
+        'num_tests': results.testsRun,
+        'num_errors': len(results.errors),
+        'num_failures': len(results.failures),
+    }}
 
-    results   = {module:from_namespace(locals(), RESULTS_TEMPLATE)}
-
-    if not option_nosubprocess:
+    if not nosubprocess:
         print (TEST_RESULTS_START)
         print (pformat(results))
+        print (TEST_RESULTS_END)
     else:
         return results
 
@@ -297,12 +214,6 @@ def run_test(module, **kwds):
 
 if __name__ == '__main__':
     options, args = opt_parser.parse_args()
-    unittest_patch.patch(incomplete=options.incomplete,
-                         randomize=options.randomize,
-                         seed=options.seed,
-                         exclude=options.exclude,
-                         timings=options.timings,
-                         show_output=options.show_output)
     if not args:
         
         if is_pygame_pkg:
@@ -312,7 +223,11 @@ if __name__ == '__main__':
         sys.exit('No test module provided; consider using %s instead' % run_from)
     run_test(args[0],
              incomplete=options.incomplete,
-             nosubprocess=options.nosubprocess)
+             nosubprocess=options.nosubprocess,
+             randomize=options.randomize,
+             exclude=options.exclude,
+             buffer=(not options.unbuffered),
+            )
 
 ################################################################################
 

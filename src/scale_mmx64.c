@@ -1,7 +1,7 @@
 /*
   pygame - Python Game Library
   Copyright (C) 2000-2001  Pete Shinners
-  Copyright (C) 2007  Rene Dudfield, Richard Goedeken 
+  Copyright (C) 2007  Rene Dudfield, Richard Goedeken
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Library General Public
@@ -197,6 +197,7 @@ void
 filter_shrink_Y_MMX(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, int dstpitch, int srcheight, int dstheight)
 {
     Uint16 *templine;
+    long long srcdiff64, dstdiff64;
     int srcdiff = srcpitch - (width * 4);
     int dstdiff = dstpitch - (width * 4);
     int yspace = 0x4000 * srcheight / dstheight; /* must be > 1 */
@@ -207,8 +208,8 @@ filter_shrink_Y_MMX(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, int d
     templine = (Uint16 *) malloc(dstpitch * 2);
     if (templine == 0) return;
     memset(templine, 0, dstpitch * 2);
-    long long srcdiff64 = srcdiff;
-    long long dstdiff64 = dstdiff;
+    srcdiff64 = srcdiff;
+    dstdiff64 = dstdiff;
     asm __volatile__(" /* MMX code for Y-shrink area average filter */ "
         " movl             %5,      %%ecx;           " /* ecx == ycounter */
         " pxor          %%mm0,      %%mm0;           "
@@ -291,7 +292,7 @@ filter_shrink_Y_MMX(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, int d
         " jne              1b;                       "
         " emms;                                      "
         : "+r"(srcpix), "+r"(dstpix)    /* outputs */
-        : "m"(templine),"m"(srcheight), "m"(width),     "m"(yspace),  
+        : "m"(templine),"m"(srcheight), "m"(width),     "m"(yspace),
           "m"(yrecip),  "m"(srcdiff64), "m"(dstdiff64), "m"(One64)  /* input */
         : "%ecx","%edx","%rax"          /* clobbered */
         );
@@ -304,6 +305,7 @@ void
 filter_shrink_Y_SSE(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, int dstpitch, int srcheight, int dstheight)
 {
     Uint16 *templine;
+    long long srcdiff64, dstdiff64;
     int srcdiff = srcpitch - (width * 4);
     int dstdiff = dstpitch - (width * 4);
     int yspace = 0x4000 * srcheight / dstheight; /* must be > 1 */
@@ -314,8 +316,8 @@ filter_shrink_Y_SSE(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, int d
     templine = (Uint16 *) malloc(dstpitch * 2);
     if (templine == 0) return;
     memset(templine, 0, dstpitch * 2);
-    long long srcdiff64 = srcdiff;
-    long long dstdiff64 = dstdiff;
+    srcdiff64 = srcdiff;
+    dstdiff64 = dstdiff;
     asm __volatile__(" /* MMX code for Y-shrink area average filter */ "
         " movl             %5,      %%ecx;           " /* ecx == ycounter */
         " pxor          %%mm0,      %%mm0;           "
@@ -371,7 +373,7 @@ filter_shrink_Y_SSE(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, int d
         " jne              1b;                       "
         " emms;                                      "
         : "+r"(srcpix), "+r"(dstpix)    /* outputs */
-        : "m"(templine),"m"(srcheight), "m"(width),     "m"(yspace),  
+        : "m"(templine),"m"(srcheight), "m"(width),     "m"(yspace),
           "m"(yrecip),  "m"(srcdiff64), "m"(dstdiff64), "m"(One64)  /* input */
         : "%ecx","%edx","%rax"          /* clobbered */
         );
@@ -419,7 +421,7 @@ filter_expand_X_MMX(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int 
         Uint8 *srcrow0 = srcpix + y * srcpitch;
         Uint8 *dstrow = dstpix + y * dstpitch;
         int *xm0 = xmult0;
-		int *xm1 = xmult1;
+        int *xm1 = xmult1;
         int *x0 = xidx0;
         asm __volatile__( " /* MMX code for inner loop of X bilinear filter */ "
              " movl             %5,      %%ecx;           "
@@ -494,7 +496,7 @@ filter_expand_X_SSE(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int 
         Uint8 *srcrow0 = srcpix + y * srcpitch;
         Uint8 *dstrow = dstpix + y * dstpitch;
         int *xm0 = xmult0;
-		int *xm1 = xmult1;
+        int *xm1 = xmult1;
         int *x0 = xidx0;
         asm __volatile__( " /* MMX code for inner loop of X bilinear filter */ "
              " movl             %5,      %%ecx;           "

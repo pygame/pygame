@@ -3,17 +3,17 @@
 
     Copyright (C) 2002-2005 Ulf Ekstrom except for the bitcount
     function which is copyright (C) Donald W. Gillies, 1992.
-  
+
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Library General Public
     License as published by the Free Software Foundation; either
     version 2 of the License, or (at your option) any later version.
- 
+
     This library is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
     Library General Public License for more details.
- 
+
     You should have received a copy of the GNU Library General Public
     License along with this library; if not, write to the Free
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -76,33 +76,33 @@ unsigned int bitmask_count(bitmask_t *m);
 
 /* Returns nonzero if the bit at (x,y) is set.  Coordinates start at
    (0,0) */
-static INLINE int bitmask_getbit(const bitmask_t *m, int x, int y) 
-{ 
+static INLINE int bitmask_getbit(const bitmask_t *m, int x, int y)
+{
   return (m->bits[x/BITMASK_W_LEN*m->h + y] & BITMASK_N(x & BITMASK_W_MASK)) != 0;
 }
 
 /* Sets the bit at (x,y) */
 static INLINE void bitmask_setbit(bitmask_t *m, int x, int y)
-{ 
-  m->bits[x/BITMASK_W_LEN*m->h + y] |= BITMASK_N(x & BITMASK_W_MASK); 
+{
+  m->bits[x/BITMASK_W_LEN*m->h + y] |= BITMASK_N(x & BITMASK_W_MASK);
 }
 
 /* Clears the bit at (x,y) */
 static INLINE void bitmask_clearbit(bitmask_t *m, int x, int y)
-{ 
-  m->bits[x/BITMASK_W_LEN*m->h + y] &= ~BITMASK_N(x & BITMASK_W_MASK); 
+{
+  m->bits[x/BITMASK_W_LEN*m->h + y] &= ~BITMASK_N(x & BITMASK_W_MASK);
 }
 
-/* Returns nonzero if the masks overlap with the given offset. 
+/* Returns nonzero if the masks overlap with the given offset.
    The overlap tests uses the following offsets (which may be negative):
 
    +----+----------..
-   |A   | yoffset   
+   |A   | yoffset
    |  +-+----------..
-   +--|B        
-   |xoffset      
+   +--|B
+   |xoffset
    |  |
-   :  :  
+   :  :
 */
 int bitmask_overlap(const bitmask_t *a, const bitmask_t *b, int xoffset, int yoffset);
 
@@ -110,7 +110,7 @@ int bitmask_overlap(const bitmask_t *a, const bitmask_t *b, int xoffset, int yof
    x and y are given in the coordinates of mask a, and are untouched
    if there is no overlap. */
 int bitmask_overlap_pos(const bitmask_t *a, const bitmask_t *b,
-			int xoffset, int yoffset, int *x, int *y);
+                        int xoffset, int yoffset, int *x, int *y);
 
 /* Returns the number of overlapping 'pixels' */
 int bitmask_overlap_area(const bitmask_t *a, const bitmask_t *b, int xoffset, int yoffset);

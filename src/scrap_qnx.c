@@ -108,7 +108,7 @@ pygame_scrap_put (char *type, int srclen, char *src)
         PhClipHeader clheader = { Ph_CLIPBOARD_TYPE_TEXT, 0, NULL };
         int* cldata;
         int status;
-        
+
         cldata = (int *) _clipbuffer;
         *cldata = type;
         clheader.data = _clipbuffer;
@@ -116,7 +116,7 @@ pygame_scrap_put (char *type, int srclen, char *src)
             clheader.length = 65535; /* Maximum photon clipboard size. :( */
         else
             clheader.length = nulledlen;
-        
+
         status = PhClipboardCopy (InputGroup, 1, &clheader);
         if (status == -1)
         {
@@ -131,7 +131,7 @@ pygame_scrap_put (char *type, int srclen, char *src)
         PhClipboardHdr clheader = { Ph_CLIPBOARD_TYPE_TEXT, 0, NULL };
         int* cldata;
         int status;
-        
+
         cldata = (int *) _clipbuffer;
         *cldata = type;
         clheader.data = _clipbuffer;
@@ -185,9 +185,9 @@ pygame_get_scrap (char *type)
         void *clhandle;
         PhClipHeader *clheader;
         int *cldata;
-        
+
         clhandle = PhClipboardPasteStart (InputGroup);
-        
+
         if (clhandle)
         {
             clheader = PhClipboardPasteType (clhandle, Ph_CLIPBOARD_TYPE_TEXT);
@@ -196,7 +196,7 @@ pygame_get_scrap (char *type)
                 cldata = clheader->data;
                 if (*cldata == type)
                     retval = malloc (clheader->length + 1);
-                
+
                 if (retval)
                 {
                     memset (retval, 0, clheader->length + 1);
@@ -211,14 +211,14 @@ pygame_get_scrap (char *type)
         void* clhandle;
         PhClipboardHdr* clheader;
         int* cldata;
-        
+
         clheader = PhClipboardRead (InputGroup, Ph_CLIPBOARD_TYPE_TEXT);
         if (clheader)
         {
             cldata = clheader->data;
             if (*cldata == type)
                 retval = malloc (clheader->length + 1);
-            
+
             if (retval)
             {
                 memset (retval, 0, clheader->length + 1);

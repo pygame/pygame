@@ -122,7 +122,7 @@ object around the draw calls.
    | :sg:`aaline(Surface, color, startpos, endpos, blend=1) -> Rect`
 
    Draws an anti-aliased line on a surface. This will respect the clipping
-   rectangle. A bounding box of the affected area is returned returned as a
+   rectangle. A bounding box of the affected area is returned as a
    rectangle. If blend is true, the shades will be be blended with existing
    pixel shades instead of overwriting them. This function accepts floating
    point values for the end points.
@@ -135,8 +135,8 @@ object around the draw calls.
    | :sg:`aalines(Surface, color, closed, pointlist, blend=1) -> Rect`
 
    Draws a sequence on a surface. You must pass at least two points in the
-   sequence of points. The closed argument is a simple boolean and if true, a
-   line will be draw between the first and last points. The boolean blend
+   sequence of points. The closed argument is a simple Boolean and if true, a
+   line will be draw between the first and last points. The Boolean blend
    argument set to true will blend the shades with existing shades instead of
    overwriting them. This function accepts floating point values for the end
    points.
@@ -144,3 +144,12 @@ object around the draw calls.
    .. ## pygame.draw.aalines ##
 
 .. ## pygame.draw ##
+
+.. figure:: code_examples/draw_module_example.png
+   :scale: 50 %
+   :alt: draw module example
+
+   Example code for draw module.
+   
+.. literalinclude:: code_examples/draw_module_example.py
+   

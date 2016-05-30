@@ -89,10 +89,47 @@ _PGFT_Font_IsFixedWidth(FreeTypeInstance *ft, PgFontObject *fontobj)
     FT_Face font = _PGFT_GetFont(ft, fontobj);
 
     if (!font) {
-        RAISE(PyExc_RuntimeError, _PGFT_GetError(ft));
+        RAISE(PyExc_SDLError, _PGFT_GetError(ft));
         return -1;
     }
-    return FT_IS_FIXED_WIDTH(font);
+    return FT_IS_FIXED_WIDTH(font) ? 1 : 0;
+}
+
+int
+_PGFT_Font_NumFixedSizes(FreeTypeInstance *ft, PgFontObject *fontobj)
+{
+    FT_Face font = _PGFT_GetFont(ft, fontobj);
+
+    if (!font) {
+        RAISE(PyExc_SDLError, _PGFT_GetError(ft));
+        return -1;
+    }
+    return FT_HAS_FIXED_SIZES(font) ? font->num_fixed_sizes : 0;
+}
+
+int
+_PGFT_Font_GetAvailableSize(FreeTypeInstance *ft, PgFontObject *fontobj,
+                            unsigned n, long *size_p,
+                            long *height_p, long *width_p,
+                            double *x_ppem_p, double *y_ppem_p)
+{
+    FT_Face font = _PGFT_GetFont(ft, fontobj);
+    FT_Bitmap_Size *bitmap_size_p;
+
+    if (!font) {
+        RAISE(PyExc_SDLError, _PGFT_GetError(ft));
+        return -1;
+    }
+    if (!FT_HAS_FIXED_SIZES(font) || n > font->num_fixed_sizes) /* cond. or */ {
+        return 0;
+    }
+    bitmap_size_p = font->available_sizes + n;
+    *size_p = (long)FX6_TRUNC(FX6_ROUND(bitmap_size_p->size));
+    *height_p = (long)bitmap_size_p->height;
+    *width_p = (long)bitmap_size_p->width;
+    *x_ppem_p = FX6_TO_DBL(bitmap_size_p->x_ppem);
+    *y_ppem_p = FX6_TO_DBL(bitmap_size_p->y_ppem);
+    return 1;
 }
 
 const char *
@@ -102,10 +139,10 @@ _PGFT_Font_GetName(FreeTypeInstance *ft, PgFontObject *fontobj)
     font = _PGFT_GetFont(ft, fontobj);
 
     if (!font) {
-        RAISE(PyExc_RuntimeError, _PGFT_GetError(ft));
+        RAISE(PyExc_SDLError, _PGFT_GetError(ft));
         return 0;
     }
-    return font->family_name;
+    return font->family_name ? font->family_name : "";
 }
 
 /* All the font metric functions raise an exception and return 0 on an error.
@@ -117,7 +154,7 @@ _PGFT_Font_GetHeight(FreeTypeInstance *ft, PgFontObject *fontobj)
     FT_Face font = _PGFT_GetFont(ft, fontobj);
 
     if (!font) {
-        RAISE(PyExc_RuntimeError, _PGFT_GetError(ft));
+        RAISE(PyExc_SDLError, _PGFT_GetError(ft));
         return 0;
     }
     return (long)font->height;
@@ -125,12 +162,12 @@ _PGFT_Font_GetHeight(FreeTypeInstance *ft, PgFontObject *fontobj)
 
 long
 _PGFT_Font_GetHeightSized(FreeTypeInstance *ft, PgFontObject *fontobj,
-                          FT_UInt16 ptsize)
+                          Scale_t face_size)
 {
-    FT_Face font = _PGFT_GetFontSized(ft, fontobj, ptsize);
+    FT_Face font = _PGFT_GetFontSized(ft, fontobj, face_size);
 
     if (!font) {
-        RAISE(PyExc_RuntimeError, _PGFT_GetError(ft));
+        RAISE(PyExc_SDLError, _PGFT_GetError(ft));
         return 0;
     }
     return (long)FX6_TRUNC(FX6_CEIL(font->size->metrics.height));
@@ -142,7 +179,7 @@ _PGFT_Font_GetAscender(FreeTypeInstance *ft, PgFontObject *fontobj)
     FT_Face font = _PGFT_GetFont(ft, fontobj);
 
     if (!font) {
-        RAISE(PyExc_RuntimeError, _PGFT_GetError(ft));
+        RAISE(PyExc_SDLError, _PGFT_GetError(ft));
         return 0;
     }
     return (long)font->ascender;
@@ -150,12 +187,12 @@ _PGFT_Font_GetAscender(FreeTypeInstance *ft, PgFontObject *fontobj)
 
 long
 _PGFT_Font_GetAscenderSized(FreeTypeInstance *ft, PgFontObject *fontobj,
-                           FT_UInt16 ptsize)
+                            Scale_t face_size)
 {
-    FT_Face font = _PGFT_GetFontSized(ft, fontobj, ptsize);
+    FT_Face font = _PGFT_GetFontSized(ft, fontobj, face_size);
 
     if (!font) {
-        RAISE(PyExc_RuntimeError, _PGFT_GetError(ft));
+        RAISE(PyExc_SDLError, _PGFT_GetError(ft));
         return 0;
     }
     return (long)FX6_TRUNC(FX6_CEIL(font->size->metrics.ascender));
@@ -167,7 +204,7 @@ _PGFT_Font_GetDescender(FreeTypeInstance *ft, PgFontObject *fontobj)
     FT_Face font = _PGFT_GetFont(ft, fontobj);
 
     if (!font) {
-        RAISE(PyExc_RuntimeError, _PGFT_GetError(ft));
+        RAISE(PyExc_SDLError, _PGFT_GetError(ft));
         return 0;
     }
     return (long)font->descender;
@@ -175,12 +212,12 @@ _PGFT_Font_GetDescender(FreeTypeInstance *ft, PgFontObject *fontobj)
 
 long
 _PGFT_Font_GetDescenderSized(FreeTypeInstance *ft, PgFontObject *fontobj,
-                             FT_UInt16 ptsize)
+                             Scale_t face_size)
 {
-    FT_Face font = _PGFT_GetFontSized(ft, fontobj, ptsize);
+    FT_Face font = _PGFT_GetFontSized(ft, fontobj, face_size);
 
     if (!font) {
-        RAISE(PyExc_RuntimeError, _PGFT_GetError(ft));
+        RAISE(PyExc_SDLError, _PGFT_GetError(ft));
         return 0;
     }
     return (long)FX6_TRUNC(FX6_FLOOR(font->size->metrics.descender));
@@ -188,16 +225,16 @@ _PGFT_Font_GetDescenderSized(FreeTypeInstance *ft, PgFontObject *fontobj,
 
 long
 _PGFT_Font_GetGlyphHeightSized(FreeTypeInstance *ft, PgFontObject *fontobj,
-                               FT_UInt16 ptsize)
+                               Scale_t face_size)
 {
     /*
      * Based on the SDL_ttf height calculation.
      */
-    FT_Face font = _PGFT_GetFontSized(ft, fontobj, ptsize);
+    FT_Face font = _PGFT_GetFontSized(ft, fontobj, face_size);
     FT_Size_Metrics *metrics;
 
     if (!font) {
-        RAISE(PyExc_RuntimeError, _PGFT_GetError(ft));
+        RAISE(PyExc_SDLError, _PGFT_GetError(ft));
         return 0;
     }
     metrics = &font->size->metrics;
@@ -209,17 +246,15 @@ int
 _PGFT_GetTextRect(FreeTypeInstance *ft, PgFontObject *fontobj,
                   const FontRenderMode *mode, PGFT_String *text, SDL_Rect *r)
 {
-    FontText *font_text;
+    Layout *font_text;
     unsigned width;
     unsigned height;
     FT_Vector offset;
     FT_Pos underline_size;
     FT_Pos underline_top;
 
-    font_text = _PGFT_LoadFontText(ft, fontobj, mode, text);
-    if (!font_text) {
-        return -1;
-    }
+    font_text = _PGFT_LoadLayout(ft, fontobj, mode, text);
+    if (!font_text) goto error;
     _PGFT_GetRenderMetrics(mode, font_text, &width, &height, &offset,
                            &underline_size, &underline_top);
     r->x = -(Sint16)FX6_TRUNC(FX6_FLOOR(offset.x));
@@ -227,6 +262,9 @@ _PGFT_GetTextRect(FreeTypeInstance *ft, PgFontObject *fontobj,
     r->w = (Uint16)width;
     r->h = (Uint16)height;
     return 0;
+
+  error:
+    return -1;
 }
 
 
@@ -238,13 +276,30 @@ _PGFT_GetTextRect(FreeTypeInstance *ft, PgFontObject *fontobj,
 FT_Face
 _PGFT_GetFontSized(FreeTypeInstance *ft,
     PgFontObject *fontobj,
-    int font_size)
+    Scale_t face_size)
 {
     FT_Error error;
     FTC_ScalerRec scale;
     FT_Size _fts;
+    FT_Face font;
+    FT_Int i;
+    FT_Pos size;
 
-    _PGFT_BuildScaler(fontobj, &scale, font_size);
+    if (!fontobj->is_scalable && !face_size.y) {
+        font = _PGFT_GetFont(ft, fontobj);
+        if (!font) {
+            return 0;
+        }
+        size = FX6_ROUND(face_size.x);
+        for (i = 0; i < font->num_fixed_sizes; ++i) {
+            if (size == FX6_ROUND(font->available_sizes[i].size)) {
+                face_size.x = font->available_sizes[i].x_ppem;
+                face_size.y = font->available_sizes[i].y_ppem;
+                break;
+            }
+        }
+    }
+    _PGFT_BuildScaler(fontobj, &scale, face_size);
 
     error = FTC_Manager_LookupSize(ft->cache_manager,
         &scale, &_fts);
@@ -284,10 +339,11 @@ _PGFT_GetFont(FreeTypeInstance *ft, PgFontObject *fontobj)
  *
  *********************************************************/
 void
-_PGFT_BuildScaler(PgFontObject *fontobj, FTC_Scaler scale, int size)
+_PGFT_BuildScaler(PgFontObject *fontobj, FTC_Scaler scale, Scale_t face_size)
 {
     scale->face_id = (FTC_FaceID)(&fontobj->id);
-    scale->width = scale->height = (FT_UInt32)(size * 64);
+    scale->width = face_size.x;
+    scale->height = face_size.y ? face_size.y : face_size.x;
     scale->pixel = 0;
     scale->x_res = scale->y_res = fontobj->resolution;
 }
@@ -324,12 +380,15 @@ _PGFT_font_request(FTC_FaceID font_id, FT_Library library,
 
 static int init(FreeTypeInstance *ft, PgFontObject *fontobj)
 {
+    FT_Face font;
     fontobj->_internals = 0;
 
-    if (!_PGFT_GetFont(ft, fontobj)) {
+    font = _PGFT_GetFont(ft, fontobj);
+    if (!font) {
         RAISE(PyExc_IOError, _PGFT_GetError(ft));
         return -1;
     }
+    fontobj->is_scalable = FT_IS_SCALABLE(font) ? ~0 : 0;
 
     fontobj->_internals = _PGFT_malloc(sizeof(FontInternals));
     if (!fontobj->_internals) {
@@ -338,7 +397,7 @@ static int init(FreeTypeInstance *ft, PgFontObject *fontobj)
     }
     memset(fontobj->_internals, 0x0, sizeof(FontInternals));
 
-    if (_PGFT_FontTextInit(ft, fontobj)) {
+    if (_PGFT_LayoutInit(ft, fontobj)) {
         _PGFT_free(fontobj->_internals);
         fontobj->_internals = 0;
         return -1;
@@ -351,7 +410,7 @@ static void
 quit(PgFontObject *fontobj)
 {
     if (fontobj->_internals) {
-        _PGFT_FontTextFree(fontobj);
+        _PGFT_LayoutFree(fontobj);
         _PGFT_free(fontobj->_internals);
         fontobj->_internals = 0;
     }
@@ -473,7 +532,9 @@ _PGFT_Init(FreeTypeInstance **_instance, int cache_size)
         goto error_cleanup;
     }
 
-    memset(inst, 0, sizeof(FreeTypeInstance));
+    inst->ref_count = 1;
+    inst->cache_manager = 0;
+    inst->library = 0;
     inst->cache_size = cache_size;
 
     error = FT_Init_FreeType(&inst->library);
@@ -512,6 +573,9 @@ void
 _PGFT_Quit(FreeTypeInstance *ft)
 {
     if (!ft)
+        return;
+
+    if (--ft->ref_count != 0)
         return;
 
     if (ft->cache_manager)

@@ -42,7 +42,7 @@ class Font(_Font):
                 kwds['resolution'] = 1
         else:
             resolution = 0
-        super(Font, self).__init__(file, ptsize=size, resolution=resolution)
+        super(Font, self).__init__(file, size=size, resolution=resolution)
         self.strength = 1.0 / 12.0
         self.kerning = False
         self.origin = True

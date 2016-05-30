@@ -10,10 +10,11 @@ if __name__ == '__main__':
 else:
     is_pygame_pkg = __name__.startswith('pygame.tests.')
 
+import unittest
 if is_pygame_pkg:
-    from pygame.tests.test_utils import test_not_implemented, unittest, arrinter
+    from pygame.tests.test_utils import arrinter
 else:
-    from test.test_utils import test_not_implemented, unittest, arrinter
+    from test.test_utils import arrinter
 import pygame
 from pygame.compat import xrange_
 try:
@@ -84,7 +85,7 @@ class PixelArrayTypeTest (unittest.TestCase, TestMixin):
             del ar
             if sf.mustlock ():
                 self.assertFalse (sf.get_locked ())
- 
+
     def test_as_class (self):
         # Check general new-style class freatures.
         sf = pygame.Surface ((2, 3), 0, 32)
@@ -110,7 +111,7 @@ class PixelArrayTypeTest (unittest.TestCase, TestMixin):
         del ar
         gc.collect ()
         self.assertTrue (r() is None)
-        
+
     # Sequence interfaces
     def test_get_column (self):
         for bpp in (8, 16, 24, 32):
@@ -165,7 +166,7 @@ class PixelArrayTypeTest (unittest.TestCase, TestMixin):
                 self.assertEqual (ar2, mapped_fg_color_y,
                                   "ar[1][%i] == %i, mapped_fg_color_y == %i" %
                                   (y, ar2, mapped_fg_color_y))
-                
+
             sf.set_at ((1, 1), bg_color)
             for x in xrange_ (w):
                 ar2 = ar.__getitem__ (x).__getitem__ (1)
@@ -180,13 +181,13 @@ class PixelArrayTypeTest (unittest.TestCase, TestMixin):
 
             ar2 = ar.__getitem__ (0).__getitem__ (0)
             self.assertEqual (ar2, mapped_bg_color, "bpp = %i" % (bpp,))
-        
+
             ar2 = ar.__getitem__ (1).__getitem__ (0)
             self.assertEqual (ar2, mapped_fg_color_y, "bpp = %i" % (bpp,))
-            
+
             ar2 = ar.__getitem__ (-4).__getitem__ (1)
             self.assertEqual (ar2, mapped_fg_color_x, "bpp = %i" % (bpp,))
-        
+
             ar2 = ar.__getitem__ (-4).__getitem__ (5)
             self.assertEqual (ar2, mapped_bg_color, "bpp = %i" % (bpp,))
 
@@ -225,10 +226,10 @@ class PixelArrayTypeTest (unittest.TestCase, TestMixin):
 
             ar.__getitem__ (1).__setitem__ (1, (128, 128, 128))
             self.assertEqual (ar[1][1], sf.map_rgb ((128, 128, 128)))
-            
+
             ar.__getitem__(-1).__setitem__ (-1, (128, 128, 128))
             self.assertEqual (ar[9][19], sf.map_rgb ((128, 128, 128)))
-            
+
             ar.__getitem__ (-2).__setitem__ (-2, (128, 128, 128))
             self.assertEqual (ar[8][-2], sf.map_rgb ((128, 128, 128)))
 
@@ -246,15 +247,15 @@ class PixelArrayTypeTest (unittest.TestCase, TestMixin):
             ar.__setitem__ (2, (128, 128, 128))
             self.assertEqual (ar[2][0], sf.map_rgb ((128, 128, 128)))
             self.assertEqual (ar[2][1], sf.map_rgb ((128, 128, 128)))
-        
+
             ar.__setitem__ (-1, (0, 255, 255))
             self.assertEqual (ar[5][0], sf.map_rgb ((0, 255, 255)))
             self.assertEqual (ar[-1][1], sf.map_rgb ((0, 255, 255)))
-        
+
             ar.__setitem__ (-2, (255, 255, 0))
             self.assertEqual (ar[4][0], sf.map_rgb ((255, 255, 0)))
             self.assertEqual (ar[-2][1], sf.map_rgb ((255, 255, 0)))
-        
+
             # Test list assignment.
             ar.__setitem__ (0, [(255, 255, 255)] * 8)
             self.assertEqual (ar[0][0], sf.map_rgb ((255, 255, 255)))
@@ -266,7 +267,7 @@ class PixelArrayTypeTest (unittest.TestCase, TestMixin):
                                ((204, 0, 204), (17, 17, 17), (204, 0, 204),
                                 (17, 17, 17), (204, 0, 204), (17, 17, 17),
                                 (204, 0, 204), (17, 17, 17)))
-        
+
             # Test pixel array assignment.
             ar.__setitem__ (1, ar2.__getitem__ (3))
             self.assertEqual (ar[1][0], sf.map_rgb ((0, 255, 255)))
@@ -284,7 +285,7 @@ class PixelArrayTypeTest (unittest.TestCase, TestMixin):
             self.assertEqual (ar[0:0], None)
             self.assertEqual (ar[5:5], None)
             self.assertEqual (ar[9:9], None)
-        
+
             # Has to resolve to ar[7:8]
             self.assertEqual (len (ar[-3:-2]), 1)      # 2D
             self.assertEqual (len (ar[-3:-2][0]), 20)  # 1D
@@ -379,6 +380,22 @@ class PixelArrayTypeTest (unittest.TestCase, TestMixin):
             ar[:] = ar2[:]
             self.assertEqual (ar[0][0], val)
             self.assertEqual (ar[5][7], val)
+ 
+            # Ensure p1 ... pn are freed for array[...] = [p1, ..., pn]
+            # Bug fix: reference counting.
+            if hasattr(sys, 'getrefcount'):
+                class Int(int):
+                    """Unique int instances"""
+                    pass
+
+                sf = pygame.Surface ((5, 2), 0, 32)
+                ar = pygame.PixelArray (sf)
+                pixel_list = [Int(i) for i in range(ar.shape[0])]
+                refcnts_before = [sys.getrefcount (i) for i in pixel_list]
+                ar[...] = pixel_list
+                refcnts_after = [sys.getrefcount (i) for i in pixel_list]
+                gc.collect ()
+                self.assertEqual (refcnts_after, refcnts_before)
 
     def test_subscript (self):
         # By default we do not need to work with any special __***__
@@ -445,7 +462,7 @@ class PixelArrayTypeTest (unittest.TestCase, TestMixin):
             self.assertEqual (ar[2,::2][0], 2)
             self.assertEqual (ar[2,::2][1], 2)
             self.assertEqual (ar[2,::2][2], 2)
-            
+
             # Should create a 3x3 array of [0,2,4]
             ar2 = ar[::2,::2]
             self.assertEqual (len (ar2), 3)
@@ -511,11 +528,27 @@ class PixelArrayTypeTest (unittest.TestCase, TestMixin):
             self.assertEqual (ar2.shape, sf2.get_size ())
             sf2 = pygame.Surface ((7, 1), 0, 32)
             ar2 = pygame.PixelArray (sf2)
-            self.assertEqual (ar2.shape, sf2.get_size ()) 
+            self.assertEqual (ar2.shape, sf2.get_size ())
 
             # Array has a single ellipsis subscript: the identity operator
             ar2 = ar[...]
             self.assert_ (ar2 is ar)
+
+            # Ensure x and y are freed for p = array[x, y]
+            # Bug fix: reference counting
+            if hasattr(sys, 'getrefcount'):
+                class Int(int):
+                    """Unique int instances"""
+                    pass
+
+                sf = pygame.Surface ((2, 2), 0, 32)
+                ar = pygame.PixelArray (sf)
+                x, y = Int(0), Int(1)
+                rx_before, ry_before = sys.getrefcount (x), sys.getrefcount (y)
+                p = ar[x, y]
+                rx_after, ry_after = sys.getrefcount (x), sys.getrefcount (y)
+                self.assertEqual (rx_after, rx_before)
+                self.assertEqual (ry_after, ry_before)
 
     def test_ass_subscript (self):
         for bpp in (8, 16, 24, 32):
@@ -540,7 +573,23 @@ class PixelArrayTypeTest (unittest.TestCase, TestMixin):
             self.assertEqual (ar[0,0], sf.map_rgb ((0, 255, 0)))
             self.assertEqual (ar[1,0], sf.map_rgb ((0, 255, 0)))
             self.assertEqual (ar[-1,-1], sf.map_rgb ((0, 255, 0)))
-            
+
+            # Ensure x and y are freed for array[x, y] = p
+            # Bug fix: reference counting
+            if hasattr(sys, 'getrefcount'):
+                class Int(int):
+                    """Unique int instances"""
+                    pass
+
+                sf = pygame.Surface ((2, 2), 0, 32)
+                ar = pygame.PixelArray (sf)
+                x, y = Int(0), Int(1)
+                rx_before, ry_before = sys.getrefcount (x), sys.getrefcount (y)
+                ar[x, y] = 0
+                rx_after, ry_after = sys.getrefcount (x), sys.getrefcount (y)
+                self.assertEqual (rx_after, rx_before)
+                self.assertEqual (ry_after, ry_before)
+
     def test_pixels_field(self):
         for bpp in [1, 2, 3, 4]:
             sf = pygame.Surface ((11, 7), 0, bpp * 8)
@@ -655,7 +704,7 @@ class PixelArrayTypeTest (unittest.TestCase, TestMixin):
             self.assertEqual (ar[3][6], oval)
             self.assertEqual (ar[8][9], rval)
             self.assertEqual (ar[9][9], oval)
-            
+
             ar[::2].replace ((0, 0, 255), (255, 0, 0), weights=(10, 20, 50))
             self.assertEqual (ar[0][0], oval)
             self.assertEqual (ar[2][3], oval)
@@ -806,19 +855,19 @@ class PixelArrayTypeTest (unittest.TestCase, TestMixin):
                 ar[i % w, i // w] = i
             ar[:,:] = ar[::-1,:]
             for i in range (w * h):
-                self.assertEqual (ar[max_x - i % w, i // w], i) 
+                self.assertEqual (ar[max_x - i % w, i // w], i)
             ar = pygame.PixelArray (sf)
             for i in range (w * h):
                 ar[i % w, i // w] = i
             ar[:,:] = ar[:,::-1]
             for i in range (w * h):
-                self.assertEqual (ar[i % w, max_y - i // w ], i) 
+                self.assertEqual (ar[i % w, max_y - i // w ], i)
             ar = pygame.PixelArray (sf)
             for i in range(w * h):
                 ar[i % w, i // w] = i
             ar[:,:] = ar[::-1,::-1]
             for i in range (w * h):
-                self.assertEqual (ar[max_x - i % w, max_y - i // w], i) 
+                self.assertEqual (ar[max_x - i % w, max_y - i // w], i)
 
     def test_color_value (self):
         # Confirm that a PixelArray slice assignment distinguishes between
@@ -875,7 +924,7 @@ class PixelArrayTypeTest (unittest.TestCase, TestMixin):
         self.assertEqual (ar2D.shape, (1, w))
         for x in range (2):
             self.assertEqual (ar1D[x], ar2D[0, x])
- 
+
     def test_length_1_dimension_broadcast (self):
         w = 5
         sf = pygame.Surface ((w, w), 0, 32)
@@ -914,6 +963,16 @@ class PixelArrayTypeTest (unittest.TestCase, TestMixin):
         ar = pygame.PixelArray (sf)
         self.assertRaises (ValueError, ar.__setitem__, Ellipsis, ar[:, 0:2])
         self.assertRaises (ValueError, ar.__setitem__, Ellipsis, ar[0:2, :])
+
+    def test_repr (self):
+        # Python 3.x bug: the tp_repr slot function returned NULL instead
+        # of a Unicode string, triggering an exception.
+        sf = pygame.Surface ((3, 1), pygame.SRCALPHA, 16)
+        ar = pygame.PixelArray(sf)
+        ar[...] = 42
+        pixel = sf.get_at_mapped ((0, 0))
+        self.assertEqual(repr (ar),
+                         type (ar).__name__ + "([\n  [42, 42, 42]]\n)")
 
 class PixelArrayArrayInterfaceTest (unittest.TestCase, TestMixin):
     def test_basic (self):
@@ -956,15 +1015,20 @@ class PixelArrayArrayInterfaceTest (unittest.TestCase, TestMixin):
     def test_flags (self):
         aim = arrinter
         common_flags = (aim.PAI_NOTSWAPPED | aim.PAI_WRITEABLE |
-                        aim.PAI_ALIGNED | aim.PAI_FORTRAN)
+                        aim.PAI_ALIGNED)
         s = pygame.Surface ((10, 2), 0, 32)
         ar = pygame.PixelArray (s)
         ai = aim.ArrayInterface (ar)
-        self.assertEqual (ai.flags, common_flags | aim.PAI_CONTIGUOUS)
+        self.assertEqual (ai.flags, common_flags | aim.PAI_FORTRAN)
 
         ar2 = ar[::2,:]
         ai = aim.ArrayInterface (ar2)
         self.assertEqual (ai.flags, common_flags)
+
+        s = pygame.Surface ((8, 2), 0, 24)
+        ar = pygame.PixelArray (s)
+        ai = aim.ArrayInterface (ar)
+        self.assertEqual (ai.flags, common_flags | aim.PAI_FORTRAN)
 
         s = pygame.Surface ((7, 2), 0, 24)
         ar = pygame.PixelArray (s)
@@ -1032,6 +1096,252 @@ class PixelArrayArrayInterfaceTest (unittest.TestCase, TestMixin):
             sf2 = ar2.make_surface ()
             sf3 = pygame.pixelcopy.make_surface (ar2)
             self.assert_surfaces_equal (sf3, sf2)
+
+
+class PixelArrayNewBufferTest (unittest.TestCase, TestMixin):
+    if pygame.HAVE_NEWBUF:
+        def test_newbuf_2D (self):
+            self.NEWBUF_test_newbuf_2D ()
+        def test_newbuf_1D (self):
+            self.NEWBUF_test_newbuf_1D ()
+        if is_pygame_pkg:
+            from pygame.tests.test_utils import buftools
+        else:
+            from test.test_utils import buftools
+
+    bitsize_to_format = {8: 'B', 16: '=H', 24: '3x', 32: '=I'}
+
+    def NEWBUF_test_newbuf_2D (self):
+        buftools = self.buftools
+        Importer = buftools.Importer
+
+        for bit_size in [8, 16, 24, 32]:
+            s = pygame.Surface ((10, 2), 0, bit_size)
+            ar = pygame.PixelArray (s)
+            format = self.bitsize_to_format[bit_size]
+            itemsize = ar.itemsize
+            shape = ar.shape
+            w, h = shape
+            strides = ar.strides
+            length = w * h * itemsize
+            imp = Importer (ar, buftools.PyBUF_FULL)
+            self.assertTrue (imp.obj, ar)
+            self.assertEqual (imp.len, length)
+            self.assertEqual (imp.ndim, 2)
+            self.assertEqual (imp.itemsize, itemsize)
+            self.assertEqual (imp.format, format)
+            self.assertFalse (imp.readonly)
+            self.assertEqual (imp.shape, shape)
+            self.assertEqual (imp.strides, strides)
+            self.assertTrue (imp.suboffsets is None)
+            self.assertEqual (imp.buf, s._pixels_address)
+
+        s = pygame.Surface ((8, 16), 0, 32)
+        ar = pygame.PixelArray (s)
+        format = self.bitsize_to_format[s.get_bitsize ()]
+        itemsize = ar.itemsize
+        shape = ar.shape
+        w, h = shape
+        strides = ar.strides
+        length = w * h * itemsize
+        imp = Importer (ar, buftools.PyBUF_SIMPLE)
+        self.assertTrue (imp.obj, ar)
+        self.assertEqual (imp.len, length)
+        self.assertEqual (imp.ndim, 0)
+        self.assertEqual (imp.itemsize, itemsize)
+        self.assertTrue (imp.format is None)
+        self.assertFalse (imp.readonly)
+        self.assertTrue (imp.shape is None)
+        self.assertTrue (imp.strides is None)
+        self.assertTrue (imp.suboffsets is None)
+        self.assertEqual (imp.buf, s._pixels_address)
+        imp = Importer (ar, buftools.PyBUF_FORMAT)
+        self.assertEqual (imp.ndim, 0)
+        self.assertEqual (imp.format, format)
+        imp = Importer (ar, buftools.PyBUF_WRITABLE)
+        self.assertEqual (imp.ndim, 0)
+        self.assertTrue (imp.format is None)
+        imp = Importer (ar, buftools.PyBUF_F_CONTIGUOUS)
+        self.assertEqual (imp.ndim, 2)
+        self.assertTrue (imp.format is None)
+        self.assertEqual (imp.shape, shape)
+        self.assertEqual (imp.strides, strides)
+        imp = Importer (ar, buftools.PyBUF_ANY_CONTIGUOUS)
+        self.assertEqual (imp.ndim, 2)
+        self.assertTrue (imp.format is None)
+        self.assertEqual (imp.shape, shape)
+        self.assertEqual (imp.strides, strides)
+        self.assertRaises (BufferError, Importer, ar,
+                           buftools.PyBUF_C_CONTIGUOUS)
+        self.assertRaises (BufferError, Importer, ar, buftools.PyBUF_ND)
+
+        ar_sliced = ar[:,::2]
+        format = self.bitsize_to_format[s.get_bitsize ()]
+        itemsize = ar_sliced.itemsize
+        shape = ar_sliced.shape
+        w, h = shape
+        strides = ar_sliced.strides
+        length = w * h * itemsize
+        imp = Importer (ar_sliced, buftools.PyBUF_STRIDED)
+        self.assertEqual (imp.len, length)
+        self.assertEqual (imp.ndim, 2)
+        self.assertEqual (imp.itemsize, itemsize)
+        self.assertTrue (imp.format is None)
+        self.assertFalse (imp.readonly)
+        self.assertEqual (imp.shape, shape)
+        self.assertEqual (imp.strides, strides)
+        self.assertEqual (imp.buf, s._pixels_address)
+        self.assertRaises (BufferError, Importer, ar_sliced,
+                           buftools.PyBUF_SIMPLE)
+        self.assertRaises (BufferError, Importer, ar_sliced,
+                           buftools.PyBUF_ND)
+        self.assertRaises (BufferError, Importer, ar_sliced,
+                           buftools.PyBUF_C_CONTIGUOUS)
+        self.assertRaises (BufferError, Importer, ar_sliced,
+                           buftools.PyBUF_F_CONTIGUOUS)
+        self.assertRaises (BufferError, Importer, ar_sliced,
+                           buftools.PyBUF_ANY_CONTIGUOUS)
+
+        ar_sliced = ar[::2,:]
+        format = self.bitsize_to_format[s.get_bitsize ()]
+        itemsize = ar_sliced.itemsize
+        shape = ar_sliced.shape
+        w, h = shape
+        strides = ar_sliced.strides
+        length = w * h * itemsize
+        imp = Importer (ar_sliced, buftools.PyBUF_STRIDED)
+        self.assertEqual (imp.len, length)
+        self.assertEqual (imp.ndim, 2)
+        self.assertEqual (imp.itemsize, itemsize)
+        self.assertTrue (imp.format is None)
+        self.assertFalse (imp.readonly)
+        self.assertEqual (imp.shape, shape)
+        self.assertEqual (imp.strides, strides)
+        self.assertEqual (imp.buf, s._pixels_address)
+        self.assertRaises (BufferError, Importer, ar_sliced,
+                           buftools.PyBUF_SIMPLE)
+        self.assertRaises (BufferError, Importer, ar_sliced,
+                           buftools.PyBUF_ND)
+        self.assertRaises (BufferError, Importer, ar_sliced,
+                           buftools.PyBUF_C_CONTIGUOUS)
+        self.assertRaises (BufferError, Importer, ar_sliced,
+                           buftools.PyBUF_F_CONTIGUOUS)
+        self.assertRaises (BufferError, Importer, ar_sliced,
+                           buftools.PyBUF_ANY_CONTIGUOUS)
+
+        s2 = s.subsurface ((2, 3, 5, 7))
+        ar = pygame.PixelArray (s2)
+        format = self.bitsize_to_format[s.get_bitsize ()]
+        itemsize = ar.itemsize
+        shape = ar.shape
+        w, h = shape
+        strides = ar.strides
+        length = w * h * itemsize
+        imp = Importer (ar, buftools.PyBUF_STRIDES)
+        self.assertTrue (imp.obj, ar)
+        self.assertEqual (imp.len, length)
+        self.assertEqual (imp.ndim, 2)
+        self.assertEqual (imp.itemsize, itemsize)
+        self.assertTrue (imp.format is None)
+        self.assertFalse (imp.readonly)
+        self.assertEqual (imp.shape, shape)
+        self.assertEqual (imp.strides, strides)
+        self.assertTrue (imp.suboffsets is None)
+        self.assertEqual (imp.buf, s2._pixels_address)
+        self.assertRaises (BufferError, Importer, ar, buftools.PyBUF_SIMPLE)
+        self.assertRaises (BufferError, Importer, ar, buftools.PyBUF_FORMAT)
+        self.assertRaises (BufferError, Importer, ar, buftools.PyBUF_WRITABLE)
+        self.assertRaises (BufferError, Importer, ar, buftools.PyBUF_ND)
+        self.assertRaises (BufferError, Importer, ar,
+                           buftools.PyBUF_C_CONTIGUOUS)
+        self.assertRaises (BufferError, Importer, ar,
+                           buftools.PyBUF_F_CONTIGUOUS)
+        self.assertRaises (BufferError, Importer, ar,
+                           buftools.PyBUF_ANY_CONTIGUOUS)
+
+    def NEWBUF_test_newbuf_1D (self):
+        buftools = self.buftools
+        Importer = buftools.Importer
+
+        s = pygame.Surface ((2, 16), 0, 32)
+        ar_2D = pygame.PixelArray (s)
+        x = 0
+        ar = ar_2D[x]
+        format = self.bitsize_to_format[s.get_bitsize ()]
+        itemsize = ar.itemsize
+        shape = ar.shape
+        h = shape[0]
+        strides = ar.strides
+        length = h * itemsize
+        buf = s._pixels_address + x * itemsize
+        imp = Importer (ar, buftools.PyBUF_STRIDES)
+        self.assertTrue (imp.obj, ar)
+        self.assertEqual (imp.len, length)
+        self.assertEqual (imp.ndim, 1)
+        self.assertEqual (imp.itemsize, itemsize)
+        self.assertTrue (imp.format is None)
+        self.assertFalse (imp.readonly)
+        self.assertEqual (imp.shape, shape)
+        self.assertEqual (imp.strides, strides)
+        self.assertTrue (imp.suboffsets is None)
+        self.assertEqual (imp.buf, buf)
+        imp = Importer (ar, buftools.PyBUF_FULL)
+        self.assertEqual (imp.ndim, 1)
+        self.assertEqual (imp.format, format)
+        self.assertRaises (BufferError, Importer, ar,
+                           buftools.PyBUF_SIMPLE)
+        self.assertRaises (BufferError, Importer, ar,
+                           buftools.PyBUF_FORMAT)
+        self.assertRaises (BufferError, Importer, ar,
+                           buftools.PyBUF_WRITABLE)
+        self.assertRaises (BufferError, Importer, ar,
+                           buftools.PyBUF_ND)
+        self.assertRaises (BufferError, Importer, ar,
+                           buftools.PyBUF_C_CONTIGUOUS)
+        self.assertRaises (BufferError, Importer, ar,
+                           buftools.PyBUF_F_CONTIGUOUS)
+        self.assertRaises (BufferError, Importer, ar,
+                           buftools.PyBUF_ANY_CONTIGUOUS)
+        y = 10
+        ar = ar_2D[:,y]
+        shape = ar.shape
+        w = shape[0]
+        strides = ar.strides
+        length = w * itemsize
+        buf = s._pixels_address + y * s.get_pitch()
+        imp = Importer (ar, buftools.PyBUF_FULL)
+        self.assertEqual (imp.len, length)
+        self.assertEqual (imp.ndim, 1)
+        self.assertEqual (imp.itemsize, itemsize)
+        self.assertEqual (imp.format, format)
+        self.assertFalse (imp.readonly)
+        self.assertEqual (imp.shape, shape)
+        self.assertEqual (imp.strides, strides)
+        self.assertEqual (imp.buf, buf)
+        self.assertTrue (imp.suboffsets is None)
+        imp = Importer (ar, buftools.PyBUF_SIMPLE)
+        self.assertEqual (imp.len, length)
+        self.assertEqual (imp.ndim, 0)
+        self.assertEqual (imp.itemsize, itemsize)
+        self.assertTrue (imp.format is None)
+        self.assertFalse (imp.readonly)
+        self.assertTrue (imp.shape is None)
+        self.assertTrue (imp.strides is None)
+        imp = Importer (ar, buftools.PyBUF_ND)
+        self.assertEqual (imp.len, length)
+        self.assertEqual (imp.ndim, 1)
+        self.assertEqual (imp.itemsize, itemsize)
+        self.assertTrue (imp.format is None)
+        self.assertFalse (imp.readonly)
+        self.assertEqual (imp.shape, shape)
+        self.assertTrue (imp.strides is None)
+        imp = Importer (ar, buftools.PyBUF_C_CONTIGUOUS)
+        self.assertEqual (imp.ndim, 1)
+        imp = Importer (ar, buftools.PyBUF_F_CONTIGUOUS)
+        self.assertEqual (imp.ndim, 1)
+        imp = Importer (ar, buftools.PyBUF_ANY_CONTIGUOUS)
+        self.assertEqual (imp.ndim, 1)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -49,7 +49,7 @@ _RGBAFromColorObj (PyObject *obj, Uint8 rgba[4]) {
 static int
 _get_color_from_object(PyObject *val, SDL_PixelFormat *format, Uint32 *color)
 {
-    Uint8 rgba[4];
+    Uint8 rgba[] = {0, 0, 0, 0};
 
     if (!val) {
         return 0;
@@ -91,13 +91,16 @@ _get_color_from_object(PyObject *val, SDL_PixelFormat *format, Uint32 *color)
 static PyObject *
 _get_single_pixel(PyPixelArray *array, Uint32 x, Uint32 y)
 {
-    Uint8 *pixel_p = array->pixels + x * array->stride0 + y * array->stride1;
+    Uint8 *pixel_p = (array->pixels +
+                      x * array->strides[0] +
+                      y * array->strides[1]);
     SDL_Surface *surf = PySurface_AsSurface(array->surface);
     int bpp;
     Uint32 pixel;
 
     bpp = surf->format->BytesPerPixel;
 
+    /* Find the start of the pixel */
     switch (bpp) {
 
     case 1:
@@ -108,21 +111,20 @@ _get_single_pixel(PyPixelArray *array, Uint32 x, Uint32 y)
         break;
     case 3:
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
-        pixel = (pixel_p[0]) + (pixel_p[1] << 8) + (pixel_p[2] << 16);
+        pixel = ((Uint32)pixel_p[0] +
+      	         ((Uint32)pixel_p[1] << 8) +
+                 ((Uint32)pixel_p[2] << 16));
 #else
-        pixel = (pixel_p[2]) + (pixel_p[1] << 8) + (pixel_p[0] << 16);
+        pixel = ((Uint32)pixel_p[2] +
+                 ((Uint32)pixel_p[1] << 8) +
+                 ((Uint32)pixel_p[0] << 16));
 #endif
         break;
-    case 4:
+    default:  /* 4 */
+        assert(bpp == 4);
         pixel = *((Uint32 *)pixel_p);
-        break;
-    default: /* Should not get here. */
-        PyErr_Format(PyExc_SystemError,
-                     "Pygame internal error in _get_single_pixel: "
-                     "unexpected pixel size %i", bpp);
-        return 0;
     }
-    
+
     return PyInt_FromLong((long)pixel);
 }
 
@@ -135,10 +137,10 @@ _make_surface(PyPixelArray *array)
 {
     SDL_Surface *surf = PySurface_AsSurface(array->surface);
     int bpp;
-    Py_ssize_t dim0 = array->dim0;
-    Py_ssize_t dim1 = array->dim1 ? array->dim1 : 1;
-    Py_ssize_t stride0 = array->stride0;
-    Py_ssize_t stride1 = array->stride1;
+    Py_ssize_t dim0 = array->shape[0];
+    Py_ssize_t dim1 = array->shape[1] ? array->shape[1] : 1;
+    Py_ssize_t stride0 = array->strides[0];
+    Py_ssize_t stride1 = array->strides[1];
     PyObject *new_surface;
     SDL_Surface *temp_surf;
     SDL_Surface *new_surf;
@@ -158,13 +160,13 @@ _make_surface(PyPixelArray *array)
     /* Create the second surface. */
 
     temp_surf = SDL_CreateRGBSurface(surf->flags,
-				     (int)dim0,
-				     (int)dim1,
-				     bpp, 
-				     surf->format->Rmask,
-				     surf->format->Gmask,
-				     surf->format->Bmask,
-				     surf->format->Amask);
+                                     (int)dim0,
+                                     (int)dim1,
+                                     bpp,
+                                     surf->format->Rmask,
+                                     surf->format->Gmask,
+                                     surf->format->Bmask,
+                                     surf->format->Amask);
     if (!temp_surf) {
         return RAISE(PyExc_SDLError, SDL_GetError());
     }
@@ -263,18 +265,18 @@ _get_weights(PyObject *weights, float *wr, float *wg, float *wb)
 {
     int success = 1;
     float rgb[3] = { 0 };
-    
+
     if (!weights) {
         *wr = (float)WR_NTSC;
         *wg = (float)WG_NTSC;
         *wb = (float)WB_NTSC;
         return 1;
     }
-    
+
     if (!PySequence_Check(weights)) {
         PyErr_SetString(PyExc_TypeError, "weights must be a sequence");
         success = 0;
-    } 
+    }
     else if (PySequence_Size(weights) < 3) {
         PyErr_SetString(PyExc_TypeError,
             "weights must contain at least 3 values");
@@ -283,7 +285,7 @@ _get_weights(PyObject *weights, float *wr, float *wg, float *wb)
     else {
         PyObject *item;
         int i;
-        
+
         for (i = 0; i < 3; ++i) {
             item = PySequence_GetItem(weights, i);
             if (PyNumber_Check(item)) {
@@ -322,11 +324,11 @@ _get_weights(PyObject *weights, float *wr, float *wg, float *wb)
             }
         }
     }
-    
+
     if (success)
     {
         float sum = 0;
-        
+
         *wr = rgb[0];
         *wg = rgb[1];
         *wb = rgb[2];
@@ -342,7 +344,7 @@ _get_weights(PyObject *weights, float *wr, float *wg, float *wb)
         *wr = *wr / sum;
         *wg = *wg / sum;
         *wb = *wb / sum;
-        
+
         return success;
     }
     return 0;
@@ -356,10 +358,10 @@ _replace_color(PyPixelArray *array, PyObject *args, PyObject *kwds)
     PyObject *replcolor = 0;
     SDL_Surface *surf = PySurface_AsSurface(array->surface);
     SDL_PixelFormat *format;
-    Py_ssize_t dim0 = array->dim0;
-    Py_ssize_t dim1 = array->dim1;
-    Py_ssize_t stride0 = array->stride0;
-    Py_ssize_t stride1 = array->stride1;
+    Py_ssize_t dim0 = array->shape[0];
+    Py_ssize_t dim1 = array->shape[1];
+    Py_ssize_t stride0 = array->strides[0];
+    Py_ssize_t stride1 = array->strides[1];
     Uint8 *pixels = array->pixels;
     int bpp;
     Uint32 dcolor;
@@ -372,7 +374,7 @@ _replace_color(PyPixelArray *array, PyObject *args, PyObject *kwds)
     Py_ssize_t x;
     Py_ssize_t y;
     static char *keys[] = { "color", "repcolor", "distance", "weights", NULL };
-    
+
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "OO|fO", keys, &delcolor,
                                      &replcolor, &distance, &weights)) {
         return 0;
@@ -434,7 +436,7 @@ _replace_color(PyPixelArray *array, PyObject *args, PyObject *kwds)
     case 2:
     {
         Uint16 *px_p;
-	int ppa = (surf->flags & SDL_SRCALPHA && format->Amask);
+        int ppa = (surf->flags & SDL_SRCALPHA && format->Amask);
 
         for (y = 0; y < dim1; ++y) {
             pixel_p = pixelrow;
@@ -468,7 +470,7 @@ _replace_color(PyPixelArray *array, PyObject *args, PyObject *kwds)
         Uint32 Boffset = 2 - (format->Bshift >> 3);
 #endif
         Uint32 pxcolor;
-	int ppa = (surf->flags & SDL_SRCALPHA && format->Amask);
+        int ppa = (surf->flags & SDL_SRCALPHA && format->Amask);
 
         for (y = 0; y < dim1; ++y) {
             pixel_p = pixelrow;
@@ -499,7 +501,7 @@ _replace_color(PyPixelArray *array, PyObject *args, PyObject *kwds)
     default: /* case 4: */
     {
         Uint32 *px_p;
-	int ppa = (surf->flags & SDL_SRCALPHA && surf->format->Amask);
+        int ppa = (surf->flags & SDL_SRCALPHA && surf->format->Amask);
 
         for (y = 0; y < dim1; ++y) {
             pixel_p = pixelrow;
@@ -575,18 +577,18 @@ _extract_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
     }
 
     new_array = (PyPixelArray *)PyPixelArray_New(surface);
+    Py_DECREF(surface);
     if (!new_array) {
-        Py_DECREF(surface);
         return 0;
     }
 
     surf = PySurface_AsSurface(surface);
     format = surf->format;
     bpp = surf->format->BytesPerPixel;
-    dim0 = new_array->dim0;
-    dim1 = new_array->dim1;
-    stride0 = new_array->stride0;
-    stride1 = new_array->stride1;
+    dim0 = new_array->shape[0];
+    dim1 = new_array->shape[1];
+    stride0 = new_array->strides[0];
+    stride1 = new_array->strides[1];
     pixels = new_array->pixels;
 
     black = SDL_MapRGBA(format, 0, 0, 0, 255);
@@ -639,7 +641,7 @@ _extract_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
     case 2:
     {
         Uint16 *px_p;
-	int ppa = (surf->flags & SDL_SRCALPHA && format->Amask);
+    int ppa = (surf->flags & SDL_SRCALPHA && format->Amask);
 
         for (y = 0; y < dim1; ++y) {
             pixel_p = pixelrow;
@@ -682,7 +684,7 @@ _extract_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
         Uint8 black_g = (Uint8)(black >> 8);
         Uint8 black_b = (Uint8)black;
         Uint32 pxcolor;
-	int ppa = (surf->flags & SDL_SRCALPHA && format->Amask);
+    int ppa = (surf->flags & SDL_SRCALPHA && format->Amask);
 
         for (y = 0; y < dim1; ++y) {
             pixel_p = pixelrow;
@@ -723,7 +725,7 @@ _extract_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
     default: /* case 4: */
     {
         Uint32 *px_p;
-	int ppa = (surf->flags & SDL_SRCALPHA && surf->format->Amask);
+    int ppa = (surf->flags & SDL_SRCALPHA && surf->format->Amask);
 
         for (y = 0; y < dim1; ++y) {
             pixel_p = pixelrow;
@@ -757,8 +759,8 @@ _extract_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
 static PyObject *
 _compare(PyPixelArray *array, PyObject *args, PyObject *kwds)
 {
-    Py_ssize_t dim0 = array->dim0;
-    Py_ssize_t dim1 = array->dim1;
+    Py_ssize_t dim0 = array->shape[0];
+    Py_ssize_t dim1 = array->shape[1];
     SDL_Surface *surf = PySurface_AsSurface(array->surface);
     SDL_PixelFormat *format;
     PyPixelArray *other_array;
@@ -782,7 +784,6 @@ _compare(PyPixelArray *array, PyObject *args, PyObject *kwds)
     Py_ssize_t y;
     PyPixelArray *new_array;
     PyObject *new_surface;
-    SDL_Surface *new_surf;
     SDL_PixelFormat *new_format;
     Py_ssize_t stride0;
     Py_ssize_t stride1;
@@ -790,8 +791,8 @@ _compare(PyPixelArray *array, PyObject *args, PyObject *kwds)
 
     static char *keys[] = { "array", "distance", "weights", NULL };
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O!|fO", keys, 
-				     &PyPixelArray_Type, &other_array,
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O!|fO", keys,
+                                     &PyPixelArray_Type, &other_array,
                                      &distance, &weights)) {
         return 0;
     }
@@ -806,7 +807,7 @@ _compare(PyPixelArray *array, PyObject *args, PyObject *kwds)
         return 0;
     }
 
-    if (other_array->dim0 != dim0 || other_array->dim1 != dim1) {
+    if (other_array->shape[0] != dim0 || other_array->shape[1] != dim1) {
          /* Bounds do not match. */
         PyErr_SetString(PyExc_ValueError, "array sizes do not match");
         return 0;
@@ -824,8 +825,8 @@ _compare(PyPixelArray *array, PyObject *args, PyObject *kwds)
         return 0;
     }
 
-    other_stride0 = other_array->stride0;
-    other_stride1 = other_array->stride1;
+    other_stride0 = other_array->strides[0];
+    other_stride1 = other_array->strides[1];
     other_pixels = other_array->pixels;
 
     /* Create the b/w mask surface. */
@@ -835,15 +836,14 @@ _compare(PyPixelArray *array, PyObject *args, PyObject *kwds)
     }
 
     new_array = (PyPixelArray *)PyPixelArray_New(new_surface);
+    Py_DECREF(new_surface);
     if (!new_array) {
-        Py_DECREF(new_surface);
         return 0;
     }
 
-    new_surf = PySurface_AsSurface(new_surface);
     new_format = surf->format;
-    stride0 = new_array->stride0;
-    stride1 = new_array->stride1;
+    stride0 = new_array->strides[0];
+    stride1 = new_array->strides[1];
     pixels = new_array->pixels;
 
     black = SDL_MapRGBA(format, 0, 0, 0, 255);
@@ -897,7 +897,7 @@ _compare(PyPixelArray *array, PyObject *args, PyObject *kwds)
     {
         Uint16 *pixel_p;
         Uint16 *other_pixel_p;
-	int ppa = (surf->flags & SDL_SRCALPHA && format->Amask);
+        int ppa = (surf->flags & SDL_SRCALPHA && format->Amask);
         int other_ppa = (other_surf->flags & SDL_SRCALPHA &&
                          other_format->Amask);
 
@@ -1002,7 +1002,7 @@ _compare(PyPixelArray *array, PyObject *args, PyObject *kwds)
     {
         Uint32 *pixel_p;
         Uint32 *other_pixel_p;
-	int ppa = (surf->flags & SDL_SRCALPHA && surf->format->Amask);
+        int ppa = (surf->flags & SDL_SRCALPHA && surf->format->Amask);
         int other_ppa = (other_surf->flags & SDL_SRCALPHA &&
                          other_format->Amask);
 
@@ -1045,13 +1045,13 @@ static PyObject *
 _transpose(PyPixelArray *array)
 {
     SDL_Surface *surf = PySurface_AsSurface(array->surface);
-    Py_ssize_t dim0 = array->dim1 ? array->dim1 : 1;
-    Py_ssize_t dim1 = array->dim0;
+    Py_ssize_t dim0 = array->shape[1] ? array->shape[1] : 1;
+    Py_ssize_t dim1 = array->shape[0];
     Py_ssize_t stride0;
-    Py_ssize_t stride1 = array->stride0;
+    Py_ssize_t stride1 = array->strides[0];
 
-    stride0 = array->dim1 ?
-        array->stride1 : array->dim0 * surf->format->BytesPerPixel;
+    stride0 = array->shape[1] ?
+        array->strides[1] : array->shape[0] * surf->format->BytesPerPixel;
 
     return (PyObject *)_pxarray_new_internal(&PyPixelArray_Type,
                                              0, array, array->pixels,

@@ -13,9 +13,14 @@
    | :sg:`Color(rgbvalue) -> Color`
 
    The Color class represents ``RGBA`` color values using a value range of
-   0-255. It allows basic arithmetic operations to create new colors, supports
-   conversions to other color spaces such as ``HSV`` or ``HSL`` and lets you
-   adjust single color channels. Alpha defaults to 255 when not given.
+   0-255. It allows basic arithmetic operations — binary operations ``+``,
+   ``-``, ``*``, ``//``, ``%``, and unary operation ``~`` — to create
+   new colors, supports conversions to other color spaces such as ``HSV``
+   or ``HSL`` and lets you adjust single color channels.
+   Alpha defaults to 255 when not given.
+   The arithmetic operations and ``correct_gamma()`` method preserve subclasses.
+   For the binary operators, the class of the returned color is that of the
+   left hand color object of the operator.
 
    'rgbvalue' can be either a color name, an ``HTML`` color format string, a
    hex number string, or an integer pixel value. The ``HTML`` format is
@@ -26,6 +31,20 @@
    Color objects support equality comparison with other color objects and 3 or
    4 element tuples of integers (New in 1.9.0). There was a bug in pygame 1.8.1
    where the default alpha was 0, not 255 like previously.
+
+   Color objects export the C level array interface. The interface exports a
+   read-only one dimensional unsigned byte array of the same assigned length
+   as the color. For CPython 2.6 and later, the new buffer interface is also
+   exported, with the same characteristics as the array interface. New in
+   pygame 1.9.2.
+
+   The floor division, ``//``, and modulus, ``%``, operators do not raise
+   an exception for division by zero. Instead, if a color, or alpha, channel
+   in the right hand color is 0, then the result is 0. For example: ::
+
+       # These expressions are True
+       Color(255, 255, 255, 255) // Color(0, 64, 64, 64) == Color(0, 3, 3, 3)
+       Color(255, 255, 255, 255) % Color(64, 64, 64, 0) == Color(63, 63, 63, 0)
 
    New implementation of Color was done in pygame 1.8.1.
 
