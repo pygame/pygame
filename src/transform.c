@@ -2625,7 +2625,9 @@ surf_average_surfaces (PyObject* self, PyObject* arg)
 
 /* VS 2015 crashes when compiling this function, turning off optimisations to
  try to fix it */
+#if defined(_MSC_VER) && (_MSC_VER == 1900)
 #pragma optimize( "", off )
+#endif
 
 void average_color(SDL_Surface* surf, int x, int y, int width, int height, Uint8* r, Uint8* g, Uint8* b, Uint8* a) {
     Uint32 color, rmask, gmask, bmask, amask;
@@ -2737,7 +2739,9 @@ void average_color(SDL_Surface* surf, int x, int y, int width, int height, Uint8
 }
 
 /* Optimisation was only disabled for one function - see above */
+#if defined(_MSC_VER) && (_MSC_VER == 1900)
 #pragma optimize( "", on )
+#endif
 
 static PyObject* surf_average_color(PyObject* self, PyObject* arg)
 {
