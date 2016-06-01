@@ -2,11 +2,8 @@
 set -e -x
 
 bash /io/manylinux-build/enable-repoforge.sh
+bash /io/manylinux-build/install-sdl-libs.sh
 bash /io/manylinux-build/install-portmidi.sh
-
-# Install a system package required by our library
-yum install -y SDL-devel libpng-devel libjpeg-devel libX11-devel freetype-devel \
-                SDL_ttf-devel SDL_image-devel SDL_mixer-devel
 
 SUPPORTED_PYTHONS="cp27-cp27mu cp34-cp34m cp35-cp35m"
 
