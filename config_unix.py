@@ -146,6 +146,14 @@ sdl_lib_name = 'SDL'
 
 def main():
     print ('\nHunting dependencies...')
+
+    # On some distributions, such as Fedora, porttime is compiled into portmidi.
+    # On others, such as Debian, it is a separate library.
+    if os.environ.get('PORTMIDI_INC_PORTTIME', ''):
+        porttime_dep = Dependency('PORTTIME', 'porttime.h', 'libportmidi.so', ['portmidi'])
+    else:
+        porttime_dep = Dependency('PORTTIME', 'porttime.h', 'libporttime.so', ['porttime'])
+
     DEPS = [
         DependencyProg('SDL', 'SDL_CONFIG', 'sdl-config', '1.2', ['sdl']),
         Dependency('FONT', 'SDL_ttf.h', 'libSDL_ttf.so', ['SDL_ttf']),
@@ -155,7 +163,7 @@ def main():
         Dependency('JPEG', 'jpeglib.h', 'libjpeg', ['jpeg']),
         Dependency('SCRAP', '', 'libX11', ['X11']),
         Dependency('PORTMIDI', 'portmidi.h', 'libportmidi.so', ['portmidi']),
-        Dependency('PORTTIME', 'porttime.h', 'libporttime.so', ['porttime']),
+        porttime_dep,
         DependencyProg('FREETYPE', 'FREETYPE_CONFIG', 'freetype-config', '2.0', ['freetype'], '--ftversion'),
         #Dependency('GFX', 'SDL_gfxPrimitives.h', 'libSDL_gfx.so', ['SDL_gfx']),
     ]
