@@ -1,7 +1,8 @@
 """Enhanced Pygame module for loading and rendering computer fonts"""
 
+import sys
 from pygame._freetype import (
-   Font,
+   Font as _Font,
    STYLE_NORMAL, STYLE_OBLIQUE, STYLE_STRONG, STYLE_UNDERLINE, STYLE_WIDE,
    STYLE_DEFAULT,
    init, quit,
@@ -10,6 +11,7 @@ from pygame._freetype import (
    _PYGAME_C_API, __PYGAMEinit__,
    )
 from pygame.sysfont import match_font, get_fonts, SysFont as _SysFont
+from pygame import compat
 
 def SysFont(name, size, bold=0, italic=0, constructor=None):
     """pygame.ftfont.SysFont(name, size, bold=False, italic=False, constructor=None) -> Font
@@ -43,3 +45,16 @@ def SysFont(name, size, bold=0, italic=0, constructor=None):
     return _SysFont(name, size, bold, italic, constructor)
 
 
+class Font(_Font):
+    def __init__(self, file, *args, **kwargs):
+        if sys.platform == 'win32':
+            if isinstance(file, bytes):
+                # Windows paths are unicode...
+                enc = sys.getfilesystemencoding()
+                file = file.decode(enc, 'strict')
+            if isinstance(file, compat.unicode_):
+                # ...but we can't pass a unicode path to Freetype,
+                # so we'll open the file in Python and pass the handle instead.
+                file = open(file, 'rb')
+        
+        super(Font, self).__init__(file, *args, **kwargs)
