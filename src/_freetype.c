@@ -942,7 +942,7 @@ _ftfont_init(PgFontObject *self, PyObject *args, PyObject *kwds)
             self->path = Object_Unicode(original_file);
         }
         else {
-            self->path = PyUnicode_FromEncodedObject(file, "raw_unicode_escape",
+            self->path = PyUnicode_FromEncodedObject(file, UNICODE_DEF_FS_CODEC,
                                                      "replace");
         }
         if (!self->path) {
@@ -982,8 +982,8 @@ _ftfont_init(PgFontObject *self, PyObject *args, PyObject *kwds)
             self->path = Object_Unicode(path);
         }
         else if (Bytes_Check(path)) {
-            self->path = PyUnicode_FromEncodedObject(path,
-                                               "unicode_escape", "replace");
+            self->path = PyUnicode_FromEncodedObject(path, UNICODE_DEF_FS_CODEC,
+                                                     "replace");
         }
         else {
             self->path = Object_Unicode(path);
