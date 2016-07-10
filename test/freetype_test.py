@@ -133,7 +133,6 @@ class FreeTypeFontTest(unittest.TestCase):
         self.assert_(f.height > 0)
         self.assertRaises(IOError, f.__init__,
                           os.path.join(FONTDIR, 'nonexistant.ttf'))
-        self.assertRaises(RuntimeError, f.get_rect, 'a', size=24)
         
         # Test attribute preservation during reinitalization
         f = ft.Font(self._sans_path, size=24, ucs4=True)
