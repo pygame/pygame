@@ -15,7 +15,7 @@ from pygame.locals import *
 try:
     from OpenGL.GL import *
     from OpenGL.GLU import *
-except:
+except ImportError:
     print ('The GLCUBE example requires PyOpenGL')
     raise SystemExit
 
@@ -55,7 +55,7 @@ CUBE_EDGES = (
 
 def drawcube():
     "draw the cube"
-    allpoints = zip(CUBE_POINTS, CUBE_COLORS)
+    allpoints = list(zip(CUBE_POINTS, CUBE_COLORS))
 
     glBegin(GL_QUADS)
     for face in CUBE_QUAD_VERTS:
