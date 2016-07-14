@@ -14,6 +14,7 @@ sound stuff, that's an easy enough challenge for the reader :]"""
 import pygame, os
 from pygame.locals import *
 from math import sin
+import time
 
 main_dir = os.path.split(os.path.abspath(__file__))[0]
 
@@ -46,7 +47,7 @@ def main():
             if e.type in stopevents:
                 return
 
-        anim = anim + 0.2
+        anim = anim + 0.02
         for x in xblocks:
             xpos = (x + (sin(anim + x * .01) * 15)) + 20
             for y in yblocks:
@@ -54,6 +55,7 @@ def main():
                 screen.blit(bitmap, (x, y), (xpos, ypos, 20, 20))
 
         pygame.display.flip()
+        time.sleep(0.01)
 
 
 if __name__ == '__main__': main()
