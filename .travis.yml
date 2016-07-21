@@ -1,36 +1,97 @@
-# travisci continuous integration config file.
-
 language: python
-python:
-  #- "2.5"
-  #- "2.6"
-  - "2.7"
-  - "3.4"
-  - "3.5"
-# command to install
-install:
-#  - pip install . --use-mirrors
-#  - pip install -r requirements.txt --use-mirrors
-  - python config.py -auto
-  - python setup.py install -noheaders
 
-env:
-  - SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=disk
+# cache:
+#   directories:
+#     - $HOME/.cache/pip
+#     - $HOME/Library/Caches/Homebrew
+#     - $HOME/.ccache
+#     - $HOME/Library/Caches/pip
 
-# command to run tests
-script: 
-  - python -m pygame.tests.__main__ --exclude opengl
+matrix:
+  include:
+    - os: linux
+      sudo: required
+      python: 2.7
+    - os: linux
+      sudo: required
+      python: 3.4
+    - os: linux
+      sudo: required
+      python: 3.5
+    # Should only need one OSX build because older builds can work on newer machines ok.
+    #https://docs.travis-ci.com/user/osx-ci-environment/#OS-X-Version
+    # - os: osx
+    #   language: generic
+    #   env: PY_VERSION=3
+    #   osx_image: xcode7.3
+    #   # OS X 10.11
+    #   cache:
+    #     directories:
+    #       - $HOME/.cache/pip
+    # - os: osx
+    #   language: generic
+    #   env: PY_VERSION=2
+    #   osx_image: xcode7.3
+    #   # OS X 10.11
+    #   cache:
+    #     directories:
+    #       - $HOME/.cache/pip
+    # - os: osx
+    #   language: generic
+    #   env: PY_VERSION=3
+    #   osx_image: xcode7.1
+    #   # OS X 10.10
+    #   cache:
+    #     directories:
+    #       - $HOME/.cache/pip
+    # - os: osx
+    #   language: generic
+    #   env: PY_VERSION=2
+    #   osx_image: xcode7.1
+    #   # OS X 10.10
+    #   cache:
+    #     directories:
+    #       - $HOME/.cache/pip
+    - os: osx
+      language: generic
+      env:
+        - PY_VERSION=3
+        - MAKEFLAGS=-j8
+    - os: osx
+      language: generic
+      env:
+        - PY_VERSION=2
+        - MAKEFLAGS=-j8
+        # - MACOSX_DEPLOYMENT_TARGET=10.6
 
-
-# Here we install the ubuntu dependencies with apt-get.
 before_install:
-  - sudo apt-get update
-  - sudo apt-get install python-dev libsdl-image1.2-dev libsdl-mixer1.2-dev libsdl-ttf2.0-dev libsdl1.2-dev python-numpy libportmidi-dev libjpeg-dev libtiff4-dev libx11-6 libX11-dev xfonts-base xfonts-100dpi xfonts-75dpi xfonts-cyrillic
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then source .travis_osx_before_install.sh;  fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get update; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install python-dev libsdl-image1.2-dev libsdl-mixer1.2-dev libsdl-ttf2.0-dev libsdl1.2-dev python-numpy libportmidi-dev libjpeg-dev libtiff4-dev libx11-6 libX11-dev xfonts-base xfonts-100dpi xfonts-75dpi xfonts-cyrillic; fi
+install:
+  - "python .travis_osx_upload_whl.py --write-config"
+  - $(set | grep PYPI_ | python -c "import sys;print('\n'.join(['unset %s' % l.split('=')[0] for l in sys.stdin.readlines() if l.startswith('PYPI')]))")
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then source .travis_osx.sh; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then PYTHON_EXE=python PIP_CMD=pip; fi
+  - "$PIP_CMD install --upgrade setuptools pip"
+  - "$PIP_CMD install --upgrade numpy"
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then $PIP_CMD install delocate twine; fi
+  - "$PYTHON_EXE config.py -auto"
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then $PYTHON_EXE setup.py install -noheaders; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then source .travis_osx_install.sh; fi
+env:
+  global:
+    - SDL_VIDEODRIVER=dummy
+    - SDL_AUDIODRIVER=disk
+    - secure: "VSoeDwpTooSW8K+n2e+nhQOQGQT7PX9GVBF9SmADUIg0Gr5pR2MTlzyGms57tBIYqFndiuLhOXi5zkH2uhMW0mq2VEDRjY4EP12coMWOnwZsdF8Qoj8x39YPR6QSS28Op6g/DLT5DszchwBlpSXHUJEL0/2iw/5A4OnIF5tMcutpkzq+wX3B+WaTqUi9yffto9/LL9/PEUbED50U94ffguwpIMVBUoxvTNhHO1PJmJKGtP1D9PROapQTp+BjzRMfFwe+9WaYPTr2iG5XZ5cNewyQrPcFGdjXOlEGgS3xxIl25l/jHgUHNZKIOKka1h4gajPxNstjnrMkMNaKnGdFo/GwkqnD2igiVT+0oLekIJ0dkVmOecuJJWUVmwCj9xZc//wW1Xunua9zGXjOeSliArnFFoyq3Md1ktOcTOoaKlWM3+0rgNA/2miYzfyMWGuFUACiQ8+fA98j0I7BcLiiUKa1/pD1fLHUcKknrnSA/hPwRBnlmDGtM2FCZobi3jIltZnadkviCpLjSObq7fE59w/+K0fxZn4GKs/xpEtss7xXxs0CmyJwZ6WVxlZAObfUPiRIdj+tglnB31ZdTNWe+7cC9f8zaQYs8+iaiM6DWehOI1o80RcIAuiU10sba89gqSkn+eOfPvzwg4d/z/XJW05weEL18s4ZvYp+JuqhN2Y="
+    - secure: "EGrZt/2EGOAzwcI69la5RgJ1Fr8uXM0TYarCheBrDVwcESNXccH9myyflN97m/jDrdyJB2fmVgI2WDpFdvnpEXNC7+lTEhApgFx6L1TwE/s5Fj6Kd72cERcPmDwLwzQFChXl2kjPTgu/Qr2u2X3EYCfEd0jRf+TcdHasvOLeGuQu7l0cnyW6WK+xMhF1wV8O9F1IdggyeysYIpP/v8rCtmjd268AqploBJ3cM3qau1F9NYBCSUPhu9eZfB0JRhHzeFDbNxRJtG+WZjk2CuGi1W8BGM/CeJkM/3b7iHMEwCYd8JW4k8ZYLSrPUiHkKxSeL9R12+p9u6AHMlXfEfO96Nt8pQkhVP9BxH374RRvQsIl5OxACTAW9XEiqTP7aRXIBSOxX6p3DxUXl6Ogn0d9U5rIu4SUAiaWW9e0k+Oeo/H3OGuerFlBIh6rW4kzVZ7ftcqzVRz9QgnrSy2r93BYzTWwM3eifkFQwtgnBSvXxM151leHOJ9r3PAiRup7V90WZBD4zytQSMaOc+fcdIWscP88sPcLXZEb6n6y7Ja3t5ASO58dXLw9EvqS4CsRYI08ltH85L/cq37dKgpvu33lsx1ZDksiMKtZW7tXhV1DZ9thl1JH/3f9QLRFz+02mJ6FD4PCJRYQvDDs5J4j7rf76FUlcBr+9bAN0sRnPL6UOms="
+script:
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then $PYTHON_EXE -m pygame.tests.__main__ --exclude opengl --time_out 300 > /dev/null 2> /dev/null; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then $(set | grep PYPI_ | python -c "import sys;print('\n'.join(['unset %s' % l.split('=')[0] for l in sys.stdin.readlines() if l.startswith('PYPI')]))"); fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then $PYTHON_EXE -m pygame.tests.__main__ --exclude opengl --time_out 300; fi
 
-# Here we can notify the pygame irc chat.
+after_success:
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then source .travis_osx_after_success.sh; fi
 
-#notifications:
-#  irc:
-#    channels: "irc.freenode.org#pygame"
-#    on_success: change
-#    on_failure: change
+after_script:
+  - rm -f .travis_tmp
