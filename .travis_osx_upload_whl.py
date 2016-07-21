@@ -15,6 +15,9 @@ def write_config():
     # travis encrypt PYPI_USERNAME=super_secret --add
     # travis encrypt PYPI_PASSWD=super_secret --add
     """
+    if not os.environ.get('PYPI_USERNAME', None):
+        return
+
     username = os.environ['PYPI_USERNAME']
     password = os.environ['PYPI_PASSWD']
 
