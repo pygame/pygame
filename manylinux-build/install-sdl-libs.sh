@@ -19,7 +19,7 @@ sha512sum -c /io/manylinux-build/sdl.sha512
 # Build SDL
 tar xzf ${SDL}.tar.gz
 cd $SDL
-./configure
+./configure --enable-png --disable-png-shared --enable-jpg --disable-jpg-shared
 make
 make install
 cd ..
@@ -27,7 +27,7 @@ cd ..
 # Build SDL_image
 tar xzf ${IMG}.tar.gz
 cd $IMG
-./configure
+./configure --enable-png --disable-png-shared --enable-jpg --disable-jpg-shared
 make
 make install
 cd ..
