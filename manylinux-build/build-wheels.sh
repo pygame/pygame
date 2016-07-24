@@ -29,5 +29,5 @@ export SDL_VIDEODRIVER=dummy
 for PYVER in $SUPPORTED_PYTHONS; do
     PYBIN="/opt/python/${PYVER}/bin"
     ${PYBIN}/pip install pygame --no-index -f /io/manylinux-build/wheelhouse
-    (cd $HOME; ${PYBIN}/python -m pygame.tests)
+    (cd $HOME; ${PYBIN}/python -m pygame.tests --exclude opengl,music)
 done
