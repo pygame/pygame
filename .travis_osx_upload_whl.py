@@ -49,11 +49,14 @@ if b'UPLOAD' not in commit:
     sys.exit(0)
 
 # There should be exactly one .whl
-filename = glob.glob('dist/*.whl')[0]
+filenames = glob.glob('dist/*.whl')
 
 
 print('Calling twine to upload...')
 try:
-    subprocess.check_call(['twine', 'upload', '--config-file', 'pypirc', filename])
+    for filename in filenames:
+        cmd = ['twine', 'upload', '--config-file', 'pypirc', filename]
+        print(' '.join(cmd))
+        subprocess.check_call(cmd)
 finally:
     os.unlink('pypirc')
