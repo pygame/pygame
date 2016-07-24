@@ -1,10 +1,6 @@
 #################################### IMPORTS ###################################
 
 is_pygame_pkg = __name__.startswith('pygame.tests.')
-if is_pygame_pkg:
-    from pygame.tests.test_utils import unittest
-else:
-    from test.test_utils import unittest
 
 import tempfile, sys, pygame, time, os
 
@@ -43,16 +39,6 @@ def example_path(path):
 
 sys.path.insert(0, trunk_relative_path('.'))
 
-############################### INCOMPLETE TESTS ###############################
-# TODO: PHASE THIS OUT
-# Just prefix TODO test names with todo_. 
-# eg def todo_test_sanity__is_overrated(self): self.fail()
-# Change test loader to load test_ and todo_ TestCase callables as tests
-
-fail_incomplete_tests = 0
-
-def test_not_implemented():
-    return not fail_incomplete_tests
 
 ################################## TEMP FILES ##################################
 
@@ -205,12 +191,6 @@ def test():
         (1, 2), (0, 2),                         # br -> bl
         (0, 1)                                  # bl -> tl
     ]
-
-    if is_pygame_pkg:
-        module = 'pygame.tests.test_utils.unittest'
-    else:
-        module = 'test.test_utils.unittest'
-    assert import_submodule(module) is unittest
     
     print ('Tests: OK')
 

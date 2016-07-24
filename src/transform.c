@@ -2623,13 +2623,18 @@ surf_average_surfaces (PyObject* self, PyObject* arg)
     return ret;
 }
 
+/* VS 2015 crashes when compiling this function, turning off optimisations to
+ try to fix it */
+#if defined(_MSC_VER) && (_MSC_VER == 1900)
+#pragma optimize( "", off )
+#endif
 
 void average_color(SDL_Surface* surf, int x, int y, int width, int height, Uint8* r, Uint8* g, Uint8* b, Uint8* a) {
     Uint32 color, rmask, gmask, bmask, amask;
     Uint8 *pixels, *pix;
     unsigned int rtot, gtot, btot, atot, size, rshift, gshift, bshift, ashift;
     unsigned int rloss, gloss, bloss, aloss;
-    int row, col;
+    int row, col, width_and_x, height_and_y;
 
     SDL_PixelFormat *format;
 
@@ -2665,12 +2670,14 @@ void average_color(SDL_Surface* surf, int x, int y, int width, int height, Uint8
     }
 
     size = width*height;
+    width_and_x = width + x;
+    height_and_y = height + y;
 
     switch (format->BytesPerPixel) {
         case 1:
-            for (row = y; row < y+height; row++) {
+            for (row = y; row < height_and_y; row++) {
                 pixels = (Uint8 *) surf->pixels + row*surf->pitch + x;
-                for (col = x; col < x+width; col++) {
+                for (col = x; col < width_and_x; col++) {
                     color = (Uint32)*((Uint8 *) pixels);
                     rtot += ((color & rmask) >> rshift) << rloss;
                     gtot += ((color & gmask) >> gshift) << gloss;
@@ -2681,9 +2688,9 @@ void average_color(SDL_Surface* surf, int x, int y, int width, int height, Uint8
             }
             break;
         case 2:
-            for (row = y; row < y+height; row++) {
+            for (row = y; row < height_and_y; row++) {
                 pixels = (Uint8 *) surf->pixels + row*surf->pitch + x*2;
-                for (col = x; col < x+width; col++) {
+                for (col = x; col < width_and_x; col++) {
                     color = (Uint32)*((Uint16 *) pixels);
                     rtot += ((color & rmask) >> rshift) << rloss;
                     gtot += ((color & gmask) >> gshift) << gloss;
@@ -2694,9 +2701,9 @@ void average_color(SDL_Surface* surf, int x, int y, int width, int height, Uint8
             }
             break;
         case 3:
-            for (row = y; row < y+height; row++) {
+            for (row = y; row < height_and_y; row++) {
                 pixels = (Uint8 *) surf->pixels + row*surf->pitch + x*3;
-                for (col = x; col < x+width; col++) {
+                for (col = x; col < width_and_x; col++) {
                     pix = pixels;
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
                     color = (pix[0]) + (pix[1] << 8) + (pix[2] << 16);
@@ -2712,9 +2719,9 @@ void average_color(SDL_Surface* surf, int x, int y, int width, int height, Uint8
             }
             break;
         default:                  /* case 4: */
-            for (row = y; row < y+height; row++) {
+            for (row = y; row < height_and_y; row++) {
                 pixels = (Uint8 *) surf->pixels + row*surf->pitch + x*4;
-                for (col = x; col < x+width; col++) {
+                for (col = x; col < width_and_x; col++) {
                     color = *(Uint32 *)pixels;
                     rtot += ((color & rmask) >> rshift) << rloss;
                     gtot += ((color & gmask) >> gshift) << gloss;
@@ -2730,6 +2737,11 @@ void average_color(SDL_Surface* surf, int x, int y, int width, int height, Uint8
     *b = btot/size;
     *a = atot/size;
 }
+
+/* Optimisation was only disabled for one function - see above */
+#if defined(_MSC_VER) && (_MSC_VER == 1900)
+#pragma optimize( "", on )
+#endif
 
 static PyObject* surf_average_color(PyObject* self, PyObject* arg)
 {

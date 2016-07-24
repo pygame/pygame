@@ -10,11 +10,7 @@ if __name__ == '__main__':
 else:
     is_pygame_pkg = __name__.startswith('pygame.tests.')
 
-if is_pygame_pkg:
-    from pygame.tests.test_utils import test_not_implemented, unittest, \
-                                        geterror
-else:
-    from test.test_utils import test_not_implemented, unittest, geterror
+import unittest
 import pygame
 from pygame import font as pygame_font  # So font can be replaced with ftfont
 from pygame.compat import as_unicode, as_bytes, xrange_, filesystem_errors

@@ -164,20 +164,20 @@ License
 .. |TravisBuild| image:: https://travis-ci.org/illume/pygame.svg?branch=master
 .. _TravisBuild: https://travis-ci.org/illume/pygame
 
-.. |AppVeyorBuild| image:: https://ci.appveyor.com/api/projects/status/bvo1vn5vk83bsx67?svg=true
-.. _AppVeyorBuild: https://ci.appveyor.com/project/pygame/pygame
+.. |AppVeyorBuild| image:: https://ci.appveyor.com/api/projects/status/d9mypp9f4ubrmqf7?svg=true
+.. _AppVeyorBuild: https://ci.appveyor.com/project/pygame/pygame-temp-m8dun
 
 .. |LaunchpadBuild| image:: http://pygame.org/images/launchpad_build.svg?svg=true
 .. _LaunchpadBuild: https://code.launchpad.net/~pygame/+recipe/pygame-daily
 
-.. |PyPiVersion| image:: http://img.shields.io/pypi/v/pygame.svg?v=1
+.. |PyPiVersion| image:: https://img.shields.io/pypi/v/pygame.svg?v=1
 .. _PyPiVersion: https://pypi.python.org/pypi/pygame
 
-.. |PyPiLicense| image:: http://img.shields.io/pypi/l/pygame.svg?v=1
+.. |PyPiLicense| image:: https://img.shields.io/pypi/l/pygame.svg?v=1
 .. _PyPiLicense: https://pypi.python.org/pypi/pygame
 
-.. |Python2| image:: http://img.shields.io/badge/python-2-blue.svg?v=1
-.. |Python3| image:: http://img.shields.io/badge/python-3-blue.svg?v=1
+.. |Python2| image:: https://img.shields.io/badge/python-2-blue.svg?v=1
+.. |Python3| image:: https://img.shields.io/badge/python-3-blue.svg?v=1
 
 
 

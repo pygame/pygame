@@ -9,8 +9,7 @@
 | :sl:`pygame module for accessing surface pixel data using array interfaces`
 
 Functions to convert pixel data between pygame Surfaces and arrays. This module
-will only be functional when pygame can use the external Numpy or Numeric
-packages.
+will only be functional when pygame can use the external Numpy package.
 
 Every pixel is stored as a single integer value to represent the red, green,
 and blue colors. The 8bit images use a value that looks into a colormap. Pixels
@@ -22,32 +21,6 @@ Arrays that treat the pixels as a single integer are referred to as 2D arrays.
 This module can also separate the red, green, and blue color values into
 separate indices. These types of arrays are referred to as 3D arrays, and the
 last index is 0 for red, 1 for green, and 2 for blue.
-
-Supported array systems are
-
-::
-
-  numpy
-  numeric (deprecated; to be removed in Pygame 1.9.3.)
-
-The default will be numpy, if installed. Otherwise, Numeric will be set as
-default if installed, and a deprecation warning will be issued. If neither
-numpy nor Numeric are installed, the module will raise an ImportError.
-
-The array type to use can be changed at runtime using the use_arraytype ()
-method, which requires one of the above types as string.
-
-Note: numpy and Numeric are not completely compatible. Certain array
-manipulations, which work for one type, might behave differently or even
-completely break for the other.
-
-Additionally, in contrast to Numeric, numpy does use unsigned 16-bit integers.
-Images with 16-bit data will be treated as unsigned integers. Numeric instead
-uses signed integers for the representation, which is important to keep in
-mind, if you use the module's functions and wonder about the values.
-
-The support of numpy is new in Pygame 1.8. Official Numeric deprecation begins
-in Pygame 1.9.2.
 
 .. function:: array2d
 
@@ -252,17 +225,9 @@ in Pygame 1.9.2.
    | :sl:`Sets the array system to be used for surface arrays`
    | :sg:`use_arraytype (arraytype) -> None`
 
-   Uses the requested array type for the module functions. Currently supported
-   array types are:
-
-   ::
-
-     numeric (deprecated; will be removed in Pygame 1.9.3.)
-     numpy
-
-   If the requested type is not available, a ValueError will be raised.
-
-   New in pygame 1.8.
+   DEPRECATED: Uses the requested array type for the module functions.
+   The only supported arraytype is ``'numpy'``. Other values will raise
+   ValueError.
 
    .. ## pygame.surfarray.use_arraytype ##
 
@@ -271,7 +236,7 @@ in Pygame 1.9.2.
    | :sl:`Gets the currently active array type.`
    | :sg:`get_arraytype () -> str`
 
-   Returns the currently active array type. This will be a value of the
+   DEPRECATED: Returns the currently active array type. This will be a value of the
    ``get_arraytypes()`` tuple and indicates which type of array module is used
    for the array creation.
 
@@ -284,7 +249,7 @@ in Pygame 1.9.2.
    | :sl:`Gets the array system types currently supported.`
    | :sg:`get_arraytypes () -> tuple`
 
-   Checks, which array systems are available and returns them as a tuple of
+   DEPRECATED: Checks, which array systems are available and returns them as a tuple of
    strings. The values of the tuple can be used directly in the
    :func:`pygame.surfarray.use_arraytype` () method. If no supported array
    system could be found, None will be returned.

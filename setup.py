@@ -5,8 +5,6 @@
 #
 # To configure, compile, install, just run this script.
 
-from __future__ import with_statement
-
 DESCRIPTION = """Pygame is a Python wrapper module for the
 SDL multimedia library. It contains python functions and classes
 that will allow you to use SDL's support for playing cdroms,
@@ -16,7 +14,7 @@ EXTRAS = {}
 
 METADATA = {
     "name":             "pygame",
-    "version":          "1.9.2.dev1",
+    "version":          "1.9.2b6",
     "license":          "LGPL",
     "url":              "http://www.pygame.org",
     "author":           "Pete Shinners, Rene Dudfield, Marcus von Appen, Bob Pendleton, others...",
@@ -25,7 +23,7 @@ METADATA = {
     "long_description": DESCRIPTION,
 }
 
-import sys 
+import sys
 
 if not hasattr(sys, 'version_info') or sys.version_info < (2,3):
     raise SystemExit("Pygame requires Python version 2.3 or above.")
@@ -108,6 +106,7 @@ def add_datafiles(data_files, dest_dir, pattern):
 if "-setuptools" in sys.argv:
     from setuptools import setup, find_packages
     sys.argv.remove ("-setuptools")
+from setuptools import setup, find_packages
 
 
 # NOTE: the bdist_mpkg_support is for darwin.
@@ -126,7 +125,6 @@ else:
 
 #headers to install
 headers = glob.glob(os.path.join('src', '*.h'))
-headers.remove(os.path.join('src', 'numeric_arrayobject.h'))
 headers.remove(os.path.join('src', 'scale.h'))
 
 # option for not installing the headers.
@@ -163,9 +161,9 @@ except:
     pass
 
 # get compile info for all extensions
-try: 
+try:
     extensions = read_setup_file('Setup')
-except: 
+except:
     print ("""Error with the "Setup" file,
 perhaps make a clean copy from "Setup.in".""")
     raise
@@ -303,7 +301,7 @@ def write_version_module(pygame_version, revision):
         version_file.write('rev = "' + revision + '"\n')
 
 write_version_module(METADATA['version'], revision)
-              
+
 #required. This will be filled if doing a Windows build.
 cmdclass = {}
 
@@ -330,7 +328,7 @@ if sys.platform == 'win32':
                 distutils.cygwinccompiler.Mingw32 = distutils_mods.mingcomp
         except ImportError:
             pass
-        
+
     #add dependency DLLs to the project
     lib_dependencies = {}
     for e in extensions:
@@ -339,7 +337,7 @@ if sys.platform == 'win32':
 
     def dependencies(roots):
         """Return a set of dependencies for the list of library file roots
-        
+
         The return set is a dictionary keyed on library root name with values of 1.
         """
 
@@ -385,10 +383,10 @@ if sys.platform == 'win32':
             if e.name == 'base':
                 __sdl_lib_dir = e.library_dirs[0].replace('/', os.sep)
                 break
-        
+
         def run(self):
             """Extended to set MINGW_ROOT_DIRECTORY, PATH and LIBRARY_PATH"""
-            
+
             if self.compiler in mingw32_compilers:
                 # Add MinGW environment variables.
                 if 'MINGW_ROOT_DIRECTORY' not in os.environ:
@@ -466,7 +464,7 @@ class smart_install_data(install_data):
 
 cmdclass['install_data'] = smart_install_data
 
-            
+
 if "bdist_msi" in sys.argv:
     # if you are making an msi, we want it to overwrite files
     # we also want to include the repository revision in the file name
@@ -492,11 +490,11 @@ if "bdist_msi" in sys.argv:
 
             # Overwrite outdated files.
             fullname = self.distribution.get_fullname()
-            installer_name = self.get_installer_filename(fullname)           
+            installer_name = self.get_installer_filename(fullname)
             print ("changing %s to overwrite files on install" % installer_name)
             msilib.add_data(self.db, "Property", [("REINSTALLMODE", "amus")])
             self.db.Commit()
-    
+
         def get_installer_filename(self, fullname):
             if revision:
                 fullname += '-hg_' + revision
@@ -581,10 +579,10 @@ def remove_old_files():
 
     # try and figure out where we are installed.
 
-    #pygame could be installed in a weird location because of 
+    #pygame could be installed in a weird location because of
     #  setuptools or something else.  The only sane way seems to be by trying
     #  first to import it, and see where the imported one is.
-    # 
+    #
     # Otherwise we might delete some files from another installation.
     try:
         import pygame.base
@@ -604,7 +602,7 @@ def remove_old_files():
         base_file = glob.glob(os.path.join(data_path, "base*"))
         if not base_file:
             return
-        
+
         extension_ext = os.path.splitext(base_file[0])[1]
 
 
