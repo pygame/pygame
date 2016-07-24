@@ -23,8 +23,9 @@ import os
 
 class MixerMusicModuleTest(unittest.TestCase):
     def test_load(self):
+        "|tags:music|"
         # __doc__ (as of 2008-07-13) for pygame.mixer_music.load:
-        
+
           # pygame.mixer.music.load(filename): return None
           # Load a music file for playback
 
@@ -40,8 +41,8 @@ class MixerMusicModuleTest(unittest.TestCase):
             if os.sep == '\\':
                 path = path.replace('\\', '\\\\')
             umusfn = as_unicode(path)
-            bmusfn = filesystem_encode(umusfn) 
-    
+            bmusfn = filesystem_encode(umusfn)
+
             pygame.mixer.music.load(umusfn)
             pygame.mixer.music.load(bmusfn)
 
@@ -59,31 +60,31 @@ class MixerMusicModuleTest(unittest.TestCase):
           # This will load a music file and queue it. A queued music file will
           # begin as soon as the current music naturally ends. If the current
           # music is ever stopped or changed, the queued song will be lost.
-          # 
+          #
           # The following example will play music by Bach six times, then play
           # music by Mozart once:
-          # 
+          #
           #     pygame.mixer.music.load('bach.ogg')
           #     pygame.mixer.music.play(5)        # Plays six times, not five!
           #     pygame.mixer.music.queue('mozart.ogg')
 
-        self.fail() 
+        self.fail()
 
     def todo_test_stop(self):
 
         # __doc__ (as of 2008-08-02) for pygame.mixer_music.stop:
 
-          # Stops the music playback if it is currently playing. 
+          # Stops the music playback if it is currently playing.
 
-        self.fail() 
+        self.fail()
 
     def todo_test_rewind(self):
 
         # __doc__ (as of 2008-08-02) for pygame.mixer_music.rewind:
 
-          # Resets playback of the current music to the beginning. 
+          # Resets playback of the current music to the beginning.
 
-        self.fail() 
+        self.fail()
 
     def todo_test_get_pos(self):
 
@@ -93,9 +94,9 @@ class MixerMusicModuleTest(unittest.TestCase):
           # for. The returned time only represents how long the music has been
           # playing; it does not take into account any starting position
           # offsets.
-          # 
+          #
 
-        self.fail() 
+        self.fail()
 
     def todo_test_fadeout(self):
 
@@ -103,10 +104,10 @@ class MixerMusicModuleTest(unittest.TestCase):
 
           # This will stop the music playback after it has been faded out over
           # the specified time (measured in milliseconds).
-          # 
-          # Note, that this function blocks until the music has faded out. 
+          #
+          # Note, that this function blocks until the music has faded out.
 
-        self.fail() 
+        self.fail()
 
     def todo_test_play(self):
 
@@ -114,20 +115,20 @@ class MixerMusicModuleTest(unittest.TestCase):
 
           # This will play the loaded music stream. If the music is already
           # playing it will be restarted.
-          # 
+          #
           # The loops argument controls the number of repeats a music will play.
           # play(5) will cause the music to played once, then repeated five
           # times, for a total of six. If the loops is -1 then the music will
           # repeat indefinitely.
-          # 
+          #
           # The starting position argument controls where in the music the song
           # starts playing. The starting position is dependent on the format of
           # music playing. MP3 and OGG use the position as time (in seconds).
           # MOD music it is the pattern order number. Passing a startpos will
           # raise a NotImplementedError if it cannot set the start position
-          # 
+          #
 
-        self.fail() 
+        self.fail()
 
     def todo_test_load(self):
 
@@ -136,12 +137,12 @@ class MixerMusicModuleTest(unittest.TestCase):
           # This will load a music file and prepare it for playback. If a music
           # stream is already playing it will be stopped. This does not start
           # the music playing.
-          # 
+          #
           # Music can only be loaded from filenames, not python file objects
           # like the other pygame loading functions.
-          # 
+          #
 
-        self.fail() 
+        self.fail()
 
     def todo_test_get_volume(self):
 
@@ -149,9 +150,9 @@ class MixerMusicModuleTest(unittest.TestCase):
 
           # Returns the current volume for the mixer. The value will be between
           # 0.0 and 1.0.
-          # 
+          #
 
-        self.fail() 
+        self.fail()
 
     def todo_test_set_endevent(self):
 
@@ -160,13 +161,13 @@ class MixerMusicModuleTest(unittest.TestCase):
           # This causes Pygame to signal (by means of the event queue) when the
           # music is done playing. The argument determines the type of event
           # that will be queued.
-          # 
+          #
           # The event will be queued every time the music finishes, not just the
           # first time. To stop the event from being queued, call this method
           # with no argument.
-          # 
+          #
 
-        self.fail() 
+        self.fail()
 
     def todo_test_pause(self):
 
@@ -174,9 +175,9 @@ class MixerMusicModuleTest(unittest.TestCase):
 
           # Temporarily stop playback of the music stream. It can be resumed
           # with the pygame.mixer.music.unpause() function.
-          # 
+          #
 
-        self.fail() 
+        self.fail()
 
     def todo_test_get_busy(self):
 
@@ -184,9 +185,9 @@ class MixerMusicModuleTest(unittest.TestCase):
 
           # Returns True when the music stream is actively playing. When the
           # music is idle this returns False.
-          # 
+          #
 
-        self.fail() 
+        self.fail()
 
     def todo_test_get_endevent(self):
 
@@ -195,17 +196,17 @@ class MixerMusicModuleTest(unittest.TestCase):
           # Returns the event type to be sent every time the music finishes
           # playback. If there is no endevent the function returns
           # pygame.NOEVENT.
-          # 
+          #
 
-        self.fail() 
+        self.fail()
 
     def todo_test_unpause(self):
 
         # __doc__ (as of 2008-08-02) for pygame.mixer_music.unpause:
 
-          # This will resume the playback of a music stream after it has been paused. 
+          # This will resume the playback of a music stream after it has been paused.
 
-        self.fail() 
+        self.fail()
 
     def todo_test_set_volume(self):
 
@@ -213,9 +214,9 @@ class MixerMusicModuleTest(unittest.TestCase):
 
           # Set the volume of the music playback. The value argument is between
           # 0.0 and 1.0. When new music is loaded the volume is reset.
-          # 
+          #
 
-        self.fail() 
+        self.fail()
 
     def todo_test_set_pos(self):
 
@@ -226,9 +227,9 @@ class MixerMusicModuleTest(unittest.TestCase):
           # depends on the music format. Newer versions of SDL_mixer have better
           # positioning support than earlier. An SDLError is raised if a particular
           # format does not support positioning.
-          # 
+          #
 
-        self.fail() 
+        self.fail()
 
 if __name__ == '__main__':
     unittest.main()
