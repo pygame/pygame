@@ -27,7 +27,7 @@ cd ..
 # Build SDL_image
 tar xzf ${IMG}.tar.gz
 cd $IMG
-./configure
+./configure --disable-jpg-shared --disable-png-shared --disable-tif-shared --disable-webp-shared
 make
 make install
 cd ..
