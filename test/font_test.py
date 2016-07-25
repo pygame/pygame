@@ -30,177 +30,177 @@ def equal_images(s1, s2):
     return True
 
 
-class FontModuleTest( unittest.TestCase ):
-    def setUp(self):
-        pygame_font.init()
-
-    def tearDown(self):
-        pygame_font.quit()
-
-    def test_SysFont(self):
-        # Can only check that a font object is returned.
-        fonts = pygame_font.get_fonts()
-        o = pygame_font.SysFont(fonts[0], 20)
-        self.failUnless(isinstance(o, pygame_font.FontType))
-        o = pygame_font.SysFont(fonts[0], 20, italic=True)
-        self.failUnless(isinstance(o, pygame_font.FontType))
-        o = pygame_font.SysFont(fonts[0], 20, bold=True)
-        self.failUnless(isinstance(o, pygame_font.FontType))
-        o = pygame_font.SysFont('thisisnotafont', 20)
-        self.failUnless(isinstance(o, pygame_font.FontType))
-
-    def test_get_default_font(self):
-        self.failUnlessEqual(pygame_font.get_default_font(), 'freesansbold.ttf')
-
-    def test_get_fonts_returns_something(self):
-        fnts = pygame_font.get_fonts()
-        self.failUnless(fnts)
-
-
-    # to test if some files exist...
-    #def XXtest_has_file_osx_10_5_sdk(self):
-    #    import os
-    #    f = "/Developer/SDKs/MacOSX10.5.sdk/usr/X11/include/ft2build.h"
-    #    self.assertEqual(os.path.exists(f), True)
-
-    #def XXtest_has_file_osx_10_4_sdk(self):
-    #    import os
-    #    f = "/Developer/SDKs/MacOSX10.4u.sdk/usr/X11R6/include/ft2build.h"
-    #    self.assertEqual(os.path.exists(f), True)
-
-
-
-
-
-    def test_get_fonts(self):
-        fnts = pygame_font.get_fonts()
-        
-        if not fnts:
-            raise Exception(repr(fnts))
-
-        self.failUnless(fnts)
-
-        if (PY_MAJOR_VERSION >= 3):
-            # For Python 3.x, names will always be unicode strings.
-            name_types = (str,)
-        else:
-            # For Python 2.x, names may be either unicode or ascii strings.
-            name_types = (str, unicode)
-
-        for name in fnts:
-            # note, on ubuntu 2.6 they are all unicode strings.
-
-            self.failUnless(isinstance(name, name_types), name)
-            self.failUnless(name.islower(), name)
-            self.failUnless(name.isalnum(), name)
-
-    def test_get_init(self):
-        self.failUnless(pygame_font.get_init())
-        pygame_font.quit()
-        self.failIf(pygame_font.get_init())
-
-    def test_init(self):
-        pygame_font.init()
-
-    def test_match_font_all_exist(self):
-        fonts = pygame_font.get_fonts()
-
-        # Ensure all listed fonts are in fact available, and the returned file
-        # name is a full path.
-        for font in fonts:
-            path = pygame_font.match_font(font)
-            self.failIf(path is None)
-            self.failUnless(os.path.isabs(path))
-
-    def test_match_font_bold(self):
-
-        fonts = pygame_font.get_fonts()
- 
-        # Look for a bold font.
-        for font in fonts:
-            if pygame_font.match_font(font, bold=True) is not None:
-                break
-        else:
-            self.fail()
-
-    def test_match_font_italic(self):
-
-        fonts = pygame_font.get_fonts()
-
-        # Look for an italic font.
-        for font in fonts:
-            if pygame_font.match_font(font, italic=True) is not None:
-                break
-        else:
-            self.fail()
-
-
-    def test_match_font_comma_separated(self):
-
-        fonts = pygame_font.get_fonts()
-
-        # Check for not found.
-        self.failUnless(pygame_font.match_font('thisisnotafont') is None)
-
-        # Check comma separated list.
-        names = ','.join(['thisisnotafont', fonts[-1], 'anothernonfont'])
-        self.failIf(pygame_font.match_font(names) is None)
-        names = ','.join(['thisisnotafont1', 'thisisnotafont2', 'thisisnotafont3'])
-        self.failUnless(pygame_font.match_font(names) is None)
-
-
-
-    def test_quit(self):
-        pygame_font.quit()
-
-
-
-
-
-class FontTest(unittest.TestCase):
-    def setUp(self):
-        pygame_font.init()
-
-    def tearDown(self):
-        pygame_font.quit()
+# class FontModuleTest( unittest.TestCase ):
+#     def setUp(self):
+#         pygame_font.init()
+#
+#     def tearDown(self):
+#         pygame_font.quit()
+#
+#     def test_SysFont(self):
+#         # Can only check that a font object is returned.
+#         fonts = pygame_font.get_fonts()
+#         o = pygame_font.SysFont(fonts[0], 20)
+#         self.failUnless(isinstance(o, pygame_font.FontType))
+#         o = pygame_font.SysFont(fonts[0], 20, italic=True)
+#         self.failUnless(isinstance(o, pygame_font.FontType))
+#         o = pygame_font.SysFont(fonts[0], 20, bold=True)
+#         self.failUnless(isinstance(o, pygame_font.FontType))
+#         o = pygame_font.SysFont('thisisnotafont', 20)
+#         self.failUnless(isinstance(o, pygame_font.FontType))
+#
+#     def test_get_default_font(self):
+#         self.failUnlessEqual(pygame_font.get_default_font(), 'freesansbold.ttf')
+#
+#     def test_get_fonts_returns_something(self):
+#         fnts = pygame_font.get_fonts()
+#         self.failUnless(fnts)
+#
+#
+#     # to test if some files exist...
+#     #def XXtest_has_file_osx_10_5_sdk(self):
+#     #    import os
+#     #    f = "/Developer/SDKs/MacOSX10.5.sdk/usr/X11/include/ft2build.h"
+#     #    self.assertEqual(os.path.exists(f), True)
+#
+#     #def XXtest_has_file_osx_10_4_sdk(self):
+#     #    import os
+#     #    f = "/Developer/SDKs/MacOSX10.4u.sdk/usr/X11R6/include/ft2build.h"
+#     #    self.assertEqual(os.path.exists(f), True)
+#
+#
+#
+#
+#
+#     def test_get_fonts(self):
+#         fnts = pygame_font.get_fonts()
+#
+#         if not fnts:
+#             raise Exception(repr(fnts))
+#
+#         self.failUnless(fnts)
+#
+#         if (PY_MAJOR_VERSION >= 3):
+#             # For Python 3.x, names will always be unicode strings.
+#             name_types = (str,)
+#         else:
+#             # For Python 2.x, names may be either unicode or ascii strings.
+#             name_types = (str, unicode)
+#
+#         for name in fnts:
+#             # note, on ubuntu 2.6 they are all unicode strings.
+#
+#             self.failUnless(isinstance(name, name_types), name)
+#             self.failUnless(name.islower(), name)
+#             self.failUnless(name.isalnum(), name)
+#
+#     def test_get_init(self):
+#         self.failUnless(pygame_font.get_init())
+#         pygame_font.quit()
+#         self.failIf(pygame_font.get_init())
+#
+#     def test_init(self):
+#         pygame_font.init()
+#
+#     def test_match_font_all_exist(self):
+#         fonts = pygame_font.get_fonts()
+#
+#         # Ensure all listed fonts are in fact available, and the returned file
+#         # name is a full path.
+#         for font in fonts:
+#             path = pygame_font.match_font(font)
+#             self.failIf(path is None)
+#             self.failUnless(os.path.isabs(path))
+#
+#     def test_match_font_bold(self):
+#
+#         fonts = pygame_font.get_fonts()
+#
+#         # Look for a bold font.
+#         for font in fonts:
+#             if pygame_font.match_font(font, bold=True) is not None:
+#                 break
+#         else:
+#             self.fail()
+#
+#     def test_match_font_italic(self):
+#
+#         fonts = pygame_font.get_fonts()
+#
+#         # Look for an italic font.
+#         for font in fonts:
+#             if pygame_font.match_font(font, italic=True) is not None:
+#                 break
+#         else:
+#             self.fail()
+#
+#
+#     def test_match_font_comma_separated(self):
+#
+#         fonts = pygame_font.get_fonts()
+#
+#         # Check for not found.
+#         self.failUnless(pygame_font.match_font('thisisnotafont') is None)
+#
+#         # Check comma separated list.
+#         names = ','.join(['thisisnotafont', fonts[-1], 'anothernonfont'])
+#         self.failIf(pygame_font.match_font(names) is None)
+#         names = ','.join(['thisisnotafont1', 'thisisnotafont2', 'thisisnotafont3'])
+#         self.failUnless(pygame_font.match_font(names) is None)
+#
+#
+#
+#     def test_quit(self):
+#         pygame_font.quit()
+#
+#
 
 
-    def test_render_args(self):
-        screen = pygame.display.set_mode((600, 400))
-        rect = screen.get_rect()
-        f = pygame_font.Font(None, 20)
-        screen.fill((10, 10, 10))
-        font_surface = f.render("   bar", True, (0, 0, 0), (255, 255, 255))
-        font_rect = font_surface.get_rect()
-        font_rect.topleft = rect.topleft
-        self.assertTrue(font_surface)
-        screen.blit(font_surface, font_rect, font_rect)
-        pygame.display.update()
-        self.assertEqual(tuple(screen.get_at((0,0)))[:3], (255, 255, 255))        
-        self.assertEqual(tuple(screen.get_at(font_rect.topleft))[:3], (255, 255, 255))        
-        
-        # If we don't have a real display, don't do this test.
-        # Transparent background doesn't seem to work without a read video card.
-        if os.environ.get('SDL_VIDEODRIVER') != 'dummy':       
-            screen.fill((10, 10, 10))
-            font_surface = f.render("   bar", True, (0, 0, 0), None)
-            font_rect = font_surface.get_rect()
-            font_rect.topleft = rect.topleft
-            self.assertTrue(font_surface)
-            screen.blit(font_surface, font_rect, font_rect)
-            pygame.display.update()
-            self.assertEqual(tuple(screen.get_at((0,0)))[:3], (10, 10, 10))
-            self.assertEqual(tuple(screen.get_at(font_rect.topleft))[:3], (10, 10, 10))        
-            
-            screen.fill((10, 10, 10))
-            font_surface = f.render("   bar", True, (0, 0, 0))
-            font_rect = font_surface.get_rect()
-            font_rect.topleft = rect.topleft
-            self.assertTrue(font_surface)
-            screen.blit(font_surface, font_rect, font_rect)
-            pygame.display.update(rect)
-            self.assertEqual(tuple(screen.get_at((0,0)))[:3], (10, 10, 10))
-            self.assertEqual(tuple(screen.get_at(font_rect.topleft))[:3], (10, 10, 10))
+#
+# class FontTest(unittest.TestCase):
+#     def setUp(self):
+#         pygame_font.init()
+#
+#     def tearDown(self):
+#         pygame_font.quit()
+#
+#
+#     def test_render_args(self):
+#         screen = pygame.display.set_mode((600, 400))
+#         rect = screen.get_rect()
+#         f = pygame_font.Font(None, 20)
+#         screen.fill((10, 10, 10))
+#         font_surface = f.render("   bar", True, (0, 0, 0), (255, 255, 255))
+#         font_rect = font_surface.get_rect()
+#         font_rect.topleft = rect.topleft
+#         self.assertTrue(font_surface)
+#         screen.blit(font_surface, font_rect, font_rect)
+#         pygame.display.update()
+#         self.assertEqual(tuple(screen.get_at((0,0)))[:3], (255, 255, 255))
+#         self.assertEqual(tuple(screen.get_at(font_rect.topleft))[:3], (255, 255, 255))
+#
+#         # If we don't have a real display, don't do this test.
+#         # Transparent background doesn't seem to work without a read video card.
+#         if os.environ.get('SDL_VIDEODRIVER') != 'dummy':
+#             screen.fill((10, 10, 10))
+#             font_surface = f.render("   bar", True, (0, 0, 0), None)
+#             font_rect = font_surface.get_rect()
+#             font_rect.topleft = rect.topleft
+#             self.assertTrue(font_surface)
+#             screen.blit(font_surface, font_rect, font_rect)
+#             pygame.display.update()
+#             self.assertEqual(tuple(screen.get_at((0,0)))[:3], (10, 10, 10))
+#             self.assertEqual(tuple(screen.get_at(font_rect.topleft))[:3], (10, 10, 10))
+#
+#             screen.fill((10, 10, 10))
+#             font_surface = f.render("   bar", True, (0, 0, 0))
+#             font_rect = font_surface.get_rect()
+#             font_rect.topleft = rect.topleft
+#             self.assertTrue(font_surface)
+#             screen.blit(font_surface, font_rect, font_rect)
+#             pygame.display.update(rect)
+#             self.assertEqual(tuple(screen.get_at((0,0)))[:3], (10, 10, 10))
+#             self.assertEqual(tuple(screen.get_at(font_rect.topleft))[:3], (10, 10, 10))
 
 
 
@@ -251,7 +251,7 @@ class FontTypeTest( unittest.TestCase ):
     def test_metrics(self):
         # Ensure bytes decoding works correctly. Can only compare results
         # with unicode for now.
-        f = pygame_font.Font(None, 20);
+        f = pygame_font.Font(None, 20)
         um = f.metrics(as_unicode("."))
         bm = f.metrics(as_bytes("."))
         self.assert_(len(um) == 1)

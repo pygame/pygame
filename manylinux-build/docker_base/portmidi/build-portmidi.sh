@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e -x
 
-cd /pygame_base_build/
+cd /portmidi_build/
 
 SRC_ZIP="portmidi-src-217.zip"
 
