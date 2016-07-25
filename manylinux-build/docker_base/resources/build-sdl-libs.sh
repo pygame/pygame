@@ -1,8 +1,7 @@
 #!/bin/bash
 set -e -x
 
-yum install -y libpng-devel libjpeg-devel libX11-devel freetype-devel \
-                libogg-devel libvorbis-devel alsa-lib-devel mesa-libGLU-devel audiofile-devel
+cd /pygame_base_build/
 
 SDL="SDL-1.2.15"
 IMG="SDL_image-1.2.12"
@@ -14,12 +13,12 @@ curl -sL https://www.libsdl.org/release/${SDL}.tar.gz > ${SDL}.tar.gz
 curl -sL https://www.libsdl.org/projects/SDL_image/release/${IMG}.tar.gz > ${IMG}.tar.gz
 curl -sL https://www.libsdl.org/projects/SDL_ttf/release/${TTF}.tar.gz > ${TTF}.tar.gz
 curl -sL https://www.libsdl.org/projects/SDL_mixer/release/${MIX}.tar.gz > ${MIX}.tar.gz
-sha512sum -c /io/manylinux-build/sdl.sha512
+sha512sum -c sdl.sha512
 
 # Build SDL
 tar xzf ${SDL}.tar.gz
 cd $SDL
-./configure
+./configure --enable-png --disable-png-shared --enable-jpg --disable-jpg-shared
 make
 make install
 cd ..
@@ -27,7 +26,7 @@ cd ..
 # Build SDL_image
 tar xzf ${IMG}.tar.gz
 cd $IMG
-./configure --disable-jpg-shared --disable-png-shared --disable-tif-shared --disable-webp-shared
+./configure --enable-png --disable-png-shared --enable-jpg --disable-jpg-shared
 make
 make install
 cd ..

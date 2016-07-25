@@ -1,0 +1,24 @@
+FROM quay.io/pypa/manylinux1_i686
+
+# Set up repoforge
+COPY RPM-GPG-KEY.dag.txt /tmp/
+RUN rpm --import /tmp/RPM-GPG-KEY.dag.txt
+
+ENV RPMFORGE_FILE "rpmforge-release-0.5.3-1.el5.rf.i386.rpm"
+ADD "https://repoforge.cu.be/redhat/el5/en/i386/dag/RPMS/${RPMFORGE_FILE}" /tmp/${RPMFORGE_FILE}
+
+RUN rpm -i /tmp/${RPMFORGE_FILE}
+
+# Install SDL and portmidi dependencies
+RUN yum install -y libpng-devel libjpeg-devel libX11-devel freetype-devel \
+    libogg-devel libvorbis-devel alsa-lib-devel mesa-libGLU-devel audiofile-devel \
+    alsa-lib-devel java-1.7.0-openjdk-devel jpackage-utils
+# For some reason we have to explicity specify i386 for cmake, or it tries
+# and fails to install a 64-bit version.
+RUN yum install -y cmake.i386
+
+
+# Build and install SDL and portmidi
+ADD resources /pygame_base_build/
+RUN ["linux32", "bash", "/pygame_base_build/build-sdl-libs.sh"]
+RUN ["linux32", "bash", "/pygame_base_build/build-portmidi.sh"]

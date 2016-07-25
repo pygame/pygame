@@ -1,10 +1,6 @@
 #!/bin/bash
 set -e -x
 
-bash /io/manylinux-build/enable-repoforge.sh
-bash /io/manylinux-build/install-sdl-libs.sh
-bash /io/manylinux-build/install-portmidi.sh
-
 SUPPORTED_PYTHONS="cp27-cp27mu cp34-cp34m cp35-cp35m"
 
 export PORTMIDI_INC_PORTTIME=1
