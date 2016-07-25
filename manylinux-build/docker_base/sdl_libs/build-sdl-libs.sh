@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e -x
 
-cd /pygame_base_build/
+cd /sdl_build/
 
 SDL="SDL-1.2.15"
 IMG="SDL_image-1.2.12"

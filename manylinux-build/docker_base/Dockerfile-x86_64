@@ -10,11 +10,22 @@ ADD "https://repoforge.cu.be/redhat/el5/en/x86_64/dag/RPMS/${RPMFORGE_FILE}" /tm
 RUN rpm -i /tmp/${RPMFORGE_FILE}
 
 # Install SDL and portmidi dependencies
-RUN yum install -y libpng-devel libjpeg-devel libX11-devel freetype-devel \
+RUN yum install -y zlib-devel libjpeg-devel libX11-devel\
     libogg-devel libvorbis-devel alsa-lib-devel mesa-libGLU-devel audiofile-devel \
     cmake alsa-lib-devel java-1.7.0-openjdk-devel jpackage-utils
 
+# Build and install PNG
+ADD libpng /png_build/
+RUN ["bash", "/png_build/build-png.sh"]
+
+# Build and install freetype
+ADD freetype /freetype_build/
+RUN ["bash", "/freetype_build/build-freetype.sh"]
+
+# Build and install SDL
+ADD sdl_libs /sdl_build/
+RUN ["bash", "/sdl_build/build-sdl-libs.sh"]
+
 # Build and install SDL and portmidi
-ADD resources /pygame_base_build/
-RUN ["bash", "/pygame_base_build/build-sdl-libs.sh"]
-RUN ["bash", "/pygame_base_build/build-portmidi.sh"]
+ADD portmidi /portmidi_build/
+RUN ["bash", "/portmidi_build/build-portmidi.sh"]
