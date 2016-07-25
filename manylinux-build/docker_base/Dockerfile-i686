@@ -19,16 +19,16 @@ RUN yum install -y cmake.i386
 
 # Build and install PNG
 ADD libpng /png_build/
-RUN ["bash", "/png_build/build-png.sh"]
+RUN ["linux32", "bash", "/png_build/build-png.sh"]
 
 # Build and install freetype
 ADD freetype /freetype_build/
-RUN ["bash", "/freetype_build/build-freetype.sh"]
+RUN ["linux32", "bash", "/freetype_build/build-freetype.sh"]
 
 # Build and install SDL
 ADD sdl_libs /sdl_build/
-RUN ["bash", "/sdl_build/build-sdl-libs.sh"]
+RUN ["linux32", "bash", "/sdl_build/build-sdl-libs.sh"]
 
 # Build and install SDL and portmidi
 ADD portmidi /portmidi_build/
-RUN ["bash", "/portmidi_build/build-portmidi.sh"]
+RUN ["linux32", "bash", "/portmidi_build/build-portmidi.sh"]
