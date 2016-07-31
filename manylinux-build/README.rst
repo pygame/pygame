@@ -6,6 +6,7 @@ wheels that run on many different linux distros.
 * https://bitbucket.org/pygame/pygame/issues/295/build-linux-wheels-with-manylinux
 * https://github.com/pypa/auditwheel
 * https://www.python.org/dev/peps/pep-0513/
+* https://hub.docker.com/u/pygame/
 
 
 The basic idea is that we build the pygame dependencies, and then bundle them up in a .whl file.
@@ -66,8 +67,9 @@ These aren't meant to be copypasta'd in. Perhaps these can be worked into a scri
 
     cd /vagrant/manylinux-build
 
-    # To make the base docker images and push them to dockerhub do
-    # Note, that these have already been done, so only needed if rebuilding dependencies.
+    # To make the base docker images and push them to docker hub do these commands.
+    # Note, these have already been built, so only needed if rebuilding dependencies.
+    # https://hub.docker.com/u/pygame/
     #make base-images
     #make push
 
