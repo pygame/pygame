@@ -15,6 +15,8 @@ About pygame
 Installation
 ============
 
+     pip install pygame
+
      You should definitely begin by installing a binary package for your
      system. The binary packages usually come with or give the
      information needed for dependencies. Choose an appropriate
@@ -57,7 +59,7 @@ Credits
      Marcus Von Appen - many changes, and fixes, 1.7.1+ freebsd maintainer.
 
      Lenard Lindstrom - the 1.8+ windows maintainer, many changes, and fixes.
-     
+
      Brian Fisher - for svn auto builder, bug tracker and many contributions.
 
      Rene Dudfield - many changes, and fixes, 1.7+ release manager/maintainer.
@@ -99,22 +101,22 @@ Credits
      James Mazer, Lalo Martins, Timothy Stranex, Chad Lester, Matthias
      Spiller, Bo Jangeborg, Dmitry Borisov, Campbell Barton, Diego Essaya,
      Eyal Lotem, Regis Desgroppes, Emmanuel Hainry, Randy Kaelber
-     Matthew L Daniel, Nirav Patel, Forrest Voight, Charlie Nolan, 
+     Matthew L Daniel, Nirav Patel, Forrest Voight, Charlie Nolan,
      Frankie Robertson, John Krukoff, Lorenz Quack, Nick Irvine,
      Michael George, Saul Spatz, Thomas Ibbotson, Tom Rothamel, Evan Kroske,
      Cambell Barton.
 
      And our bug hunters above and beyond: Angus, Guillaume Proux, Frank
-     Raiser, Austin Henry, Kaweh Kazemi, Arturo Aldama, Mike Mulcheck, 
+     Raiser, Austin Henry, Kaweh Kazemi, Arturo Aldama, Mike Mulcheck,
      Michael Benfield, David Lau
 
      There's many more folks out there who've submitted helpful ideas, kept
      this project going, and basically made my life easer, Thanks!
 
      Many thank you's for people making documentation comments, and adding to the
-     pygame.org wiki.  
-   
-     Also many thanks for people creating games and putting them on the 
+     pygame.org wiki.
+
+     Also many thanks for people creating games and putting them on the
      pygame.org website for others to learn from and enjoy.
 
      Lots of thanks to James Paige for hosting the pygame bugzilla.
