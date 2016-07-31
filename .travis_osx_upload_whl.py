@@ -41,12 +41,14 @@ else:
     if '--no-config' not in sys.argv:
         write_config()
 
-
-commit = subprocess.check_output(['git', 'log', '-1'])
-print(commit)
-if b'UPLOAD' not in commit:
-    print('Not uploading')
-    sys.exit(0)
+# if --no-git we do not check with git if an upload is needed.
+do_git_check = '--no-git' not in sys.argv
+if do_git_check:
+    commit = subprocess.check_output(['git', 'log', '-1'])
+    print(commit)
+    if b'UPLOAD' not in commit:
+        print('Not uploading')
+        sys.exit(0)
 
 # There should be exactly one .whl
 filenames = glob.glob('dist/*.whl')
@@ -58,5 +60,7 @@ try:
         cmd = ['twine', 'upload', '--config-file', 'pypirc', filename]
         print(' '.join(cmd))
         subprocess.check_call(cmd)
+except:
+    print('is twine installed?')
 finally:
     os.unlink('pypirc')
