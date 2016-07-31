@@ -63,10 +63,18 @@ These aren't meant to be copypasta'd in. Perhaps these can be worked into a scri
     # now we can start docker. Should be started already.
     sudo service docker start
 
+
     cd /vagrant/manylinux-build
+
+    # To make the base docker images and push them to dockerhub do
+    # Note, that these have already been done, so only needed if rebuilding dependencies.
+    #make base-images
+    #make push
+
+    # We use the prebuilt docker images, which should be quicker.
     make
 
-    # Now perhaps the whl files build correctly.
+    # Now perhaps the whl files are built correctly.
     ls -la wheelhouse
 
     export SDL_AUDIODRIVER=disk
@@ -80,6 +88,7 @@ These aren't meant to be copypasta'd in. Perhaps these can be worked into a scri
 
     # Now upload all the linux wheels to pypi.
     # Make sure your PYPI vars are set. See .travis_osx_upload_whl.py
+    # Note you will need to increment the version in setup.py first.
     cd ..
     mkdir -p dist
     rm -f dist/*.whl
