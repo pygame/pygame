@@ -6,7 +6,7 @@ wheels-x64:
 wheels-x86:
 	docker run --rm -v ${REPO_ROOT}:/io pygame/manylinux1_base_i686 /io/manylinux-build/build-wheels.sh
 
-all: wheels-x64 wheels-x86
+wheels: wheels-x64 wheels-x86
 
 base-image-x64:
 	docker build -t pygame/manylinux1_base_x86_64 -f docker_base/Dockerfile-x86_64 docker_base
