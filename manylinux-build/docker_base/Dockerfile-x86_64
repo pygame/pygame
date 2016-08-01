@@ -12,15 +12,29 @@ RUN rpm -i /tmp/${RPMFORGE_FILE}
 # Install SDL and portmidi dependencies
 RUN yum install -y zlib-devel libjpeg-devel libX11-devel\
     libogg-devel libvorbis-devel alsa-lib-devel mesa-libGLU-devel audiofile-devel \
-    cmake alsa-lib-devel java-1.7.0-openjdk-devel jpackage-utils
+    cmake alsa-lib-devel java-1.7.0-openjdk-devel jpackage-utils libtiff-devel \
+    mikmod-devel smpeg-devel giflib-devel libsndfile-devel dbus-devel \
+    pulseaudio-libs-devel xz
 
 # Build and install PNG
 ADD libpng /png_build/
 RUN ["bash", "/png_build/build-png.sh"]
 
+# Build and install WEBP
+ADD libwebp /webp_build/
+RUN ["bash", "/webp_build/build-webp.sh"]
+
 # Build and install freetype
 ADD freetype /freetype_build/
 RUN ["bash", "/freetype_build/build-freetype.sh"]
+
+# Build and install fluidsynth
+ADD fluidsynth /fluidsynth_build/
+RUN ["bash", "/fluidsynth_build/build-fluidsynth.sh"]
+
+# Build and install flac
+ADD flac /flac_build/
+RUN ["bash", "/flac_build/build-flac.sh"]
 
 # Build and install SDL
 ADD sdl_libs /sdl_build/

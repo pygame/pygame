@@ -23,6 +23,9 @@ make
 make install
 cd ..
 
+# Link sdl-config into /usr/bin so that smpeg-config can find it
+ln -s /usr/local/bin/sdl-config /usr/bin/
+
 # Build SDL_image
 tar xzf ${IMG}.tar.gz
 cd $IMG
