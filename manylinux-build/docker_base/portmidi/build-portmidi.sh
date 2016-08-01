@@ -5,7 +5,7 @@ cd /portmidi_build/
 
 SRC_ZIP="portmidi-src-217.zip"
 
-curl -sL http://sourceforge.net/projects/portmedia/files/portmidi/217/${SRC_ZIP}/download > ${SRC_ZIP}
+curl -sL http://downloads.sourceforge.net/project/portmedia/portmidi/217/${SRC_ZIP} > ${SRC_ZIP}
 sha512sum -c portmidi.sha512
 unzip $SRC_ZIP
 
