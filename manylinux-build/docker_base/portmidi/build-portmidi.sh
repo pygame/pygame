@@ -24,6 +24,6 @@ ls ${JAVA_HOME}/jre/lib/$JRE_LIB_DIR/server
 
 cd portmidi/
 #cmake -DJAVA_JVM_LIBRARY=${JAVA_HOME}/jre/lib/${JRE_LIB_DIR}/server/libjvm.so .
-cmake .
+cmake -DCMAKE_BUILD_TYPE=Release .
 make
 make install
