@@ -1,16 +1,51 @@
+Manylinux wheels
+================
+
 This is for building linux binary wheels. So "pip install pygame" works on linux.
+
+The *manylinux1* tag (see `PEP 513 <https://www.python.org/dev/peps/pep-0513/>`__)
+refers to a specific set of core library minimum versions, which most recent
+desktop Linux distros have.
+To ensure that our libraries are ABI-compatible with these core libraries, we
+build on an old Linux distribution in a docker container.
 
 manylinux is an older linux with a fairly compatable ABI, so you can make linux binary
 wheels that run on many different linux distros.
 
 * https://bitbucket.org/pygame/pygame/issues/295/build-linux-wheels-with-manylinux
 * https://github.com/pypa/auditwheel
-* https://www.python.org/dev/peps/pep-0513/
+* https://github.com/pypa/manylinux
 * https://hub.docker.com/u/pygame/
 
-
 The basic idea is that we build the pygame dependencies, and then bundle them up in a .whl file.
-To do this we use docker containers so that the dependencies do not need to be built every time.
+We make base images containing the dependencies (but not pygame itself), so that
+we can rebuild pygame without building all the dependencies every time.
+
+This is easiest on a Linux machine with the Docker daemon running. To get the
+prebuilt base images with pygame dependencies::
+
+    make pull-x64    # 64 bit, or
+    make pull-x86    # 32 bit, or
+    make pull        # Both
+
+Then build the wheels::
+
+    make wheels-x64  # 64 bit, or
+    make wheels-x86  # 32 bit, or
+    make wheels      # both
+
+The wheels will be created in a directory called ``wheelhouse``.
+
+If you have changed the files in ``docker_base``, e.g. to add or update
+dependencies, you will need to rebuild the Docker base images::
+
+    make base-image-x64  # 64 bit, or
+    make base-image-x86  # 32 bit, or
+    make base-images     # both
+
+
+Virtual Machine
+---------------
 
 Below are instructions on using a vagrant virtual machine, so we can build the wheels from
 mac, windows or linux boxes.
@@ -46,11 +81,6 @@ These aren't meant to be copypasta'd in. Perhaps these can be worked into a scri
     # We should have been in our python package clone root directory before we ran vagrant ssh
     cd /vagrant
 
-    # install auditwheel to create the wheel.
-    # https://github.com/pypa/auditwheel
-    #sudo apt install python3-pip
-    #pip3 install auditwheel
-
     # We need to be able to run docker as the ubuntu user.
     sudo usermod -aG docker ubuntu
     sudo usermod -aG docker $USER
@@ -74,11 +104,12 @@ These aren't meant to be copypasta'd in. Perhaps these can be worked into a scri
     #make push
 
     # We use the prebuilt docker images, which should be quicker.
-    make
+    make wheels
 
-    # Now perhaps the whl files are built correctly.
+    # List the wheels we've built
     ls -la wheelhouse
 
+    # Testing
     export SDL_AUDIODRIVER=disk
     export SDL_VIDEODRIVER=dummy
 
