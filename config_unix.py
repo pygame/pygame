@@ -156,7 +156,8 @@ def main():
         portmidi_as_porttime = True
 
         if 'PORTMIDI_INC_PORTTIME' in os.environ:
-            portmidi_as_porttime = True == os.environ.get('PORTMIDI_INC_PORTTIME')
+            inc_porttime = os.environ.get('PORTMIDI_INC_PORTTIME')
+            portmidi_as_porttime = True if inc_porttime in ['1', 'True'] else False
         else:
             if os.path.exists('/etc/redhat-release'):
                 portmidi_as_porttime = True
