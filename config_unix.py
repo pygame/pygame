@@ -88,11 +88,11 @@ class Dependency:
         self.checklib = checklib
         self.checkhead = checkhead
         self.cflags = ''
-    
+
     def configure(self, incdirs, libdirs):
         incname = self.checkhead
         libnames = self.checklib, self.name.lower()
-        
+
         if incname:
             for dir in incdirs:
                 path = os.path.join(dir, incname)
@@ -123,7 +123,7 @@ class DependencyPython:
         self.ver = '0'
         self.module = module
         self.header = header
- 
+
     def configure(self, incdirs, libdirs):
         self.found = 1
         if self.module:
@@ -147,12 +147,28 @@ sdl_lib_name = 'SDL'
 def main():
     print ('\nHunting dependencies...')
 
-    # On some distributions, such as Fedora, porttime is compiled into portmidi.
-    # On others, such as Debian, it is a separate library.
-    if os.environ.get('PORTMIDI_INC_PORTTIME', ''):
-        porttime_dep = Dependency('PORTTIME', 'porttime.h', 'libportmidi.so', ['portmidi'])
-    else:
-        porttime_dep = Dependency('PORTTIME', 'porttime.h', 'libporttime.so', ['porttime'])
+    def get_porttime_dep():
+        """ returns the porttime Dependency
+
+        On some distributions, such as Fedora, porttime is compiled into portmidi.
+        On others, such as Debian, it is a separate library.
+        """
+        portmidi_as_porttime = True
+
+        if 'PORTMIDI_INC_PORTTIME' in os.environ:
+            portmidi_as_porttime = True == os.environ.get('PORTMIDI_INC_PORTTIME')
+        else:
+            if os.path.exists('/etc/redhat-release'):
+                portmidi_as_porttime = True
+            else:
+                portmidi_as_porttime = False
+
+        if portmidi_as_porttime:
+            return Dependency('PORTTIME', 'porttime.h', 'libportmidi.so', ['portmidi'])
+        else:
+            return Dependency('PORTTIME', 'porttime.h', 'libporttime.so', ['porttime'])
+
+    porttime_dep = get_porttime_dep()
 
     DEPS = [
         DependencyProg('SDL', 'SDL_CONFIG', 'sdl-config', '1.2', ['sdl']),
@@ -164,7 +180,8 @@ def main():
         Dependency('SCRAP', '', 'libX11', ['X11']),
         Dependency('PORTMIDI', 'portmidi.h', 'libportmidi.so', ['portmidi']),
         porttime_dep,
-        DependencyProg('FREETYPE', 'FREETYPE_CONFIG', 'freetype-config', '2.0', ['freetype'], '--ftversion'),
+        DependencyProg('FREETYPE', 'FREETYPE_CONFIG', 'freetype-config', '2.0',
+                       ['freetype'], '--ftversion'),
         #Dependency('GFX', 'SDL_gfxPrimitives.h', 'libSDL_gfx.so', ['SDL_gfx']),
     ]
     if not DEPS[0].found:
