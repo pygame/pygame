@@ -22,3 +22,6 @@ lib/version.py
 envdev*
 .virtualenv*
 manylinux-build/wheelhouse/
+anenv
+dist
+.vagrant
