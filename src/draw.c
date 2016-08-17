@@ -1526,6 +1526,23 @@ static void draw_fillpoly(SDL_Surface *dst, int *vx, int *vy, int n, Uint32 colo
                 y1 = vy[ind2];
                 x2 = vx[ind1];
                 x1 = vx[ind2];
+            } else if (miny == maxy) {
+                /* Special case: polygon only 1 pixel high. */
+                int j;
+                int minx, maxx;
+                
+                /* Determine X bounds */
+                minx = vx[0];
+                maxx = vx[0];
+                for (j=1; (j < n); j++) {
+                    minx = MIN(minx, vx[j]);
+                    maxx = MAX(maxx, vx[j]);
+                }
+
+                /* Just a line from minimum to maximum X */
+                polyints[ints++] = minx;
+                polyints[ints++] = maxx;
+                break;
             } else {
                 continue;
             }
