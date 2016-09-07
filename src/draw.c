@@ -33,6 +33,9 @@
 #define FRAC(z)    ((z) - trunc(z))
 #define INVFRAC(z) (1 - FRAC(z))
 
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+
 static int clip_and_draw_line(SDL_Surface* surf, SDL_Rect* rect, Uint32 color, int* pts);
 static int clip_and_draw_aaline(SDL_Surface* surf, SDL_Rect* rect, Uint32 color, float* pts, int blend);
 static int clip_and_draw_line_width(SDL_Surface* surf, SDL_Rect* rect, Uint32 color, int width, int* pts);
@@ -397,7 +400,8 @@ static PyObject* arc(PyObject* self, PyObject* arg)
     if ( width > rect->w / 2 || width > rect->h / 2 )
         return RAISE(PyExc_ValueError, "width greater than ellipse radius");
     if ( angle_stop < angle_start )
-        angle_stop += 360;
+        // Angle is in radians
+        angle_stop += 2*M_PI;
 
     if(!PySurface_Lock(surfobj)) return NULL;
 
