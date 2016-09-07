@@ -35,6 +35,7 @@
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
+#endif
 
 static int clip_and_draw_line(SDL_Surface* surf, SDL_Rect* rect, Uint32 color, int* pts);
 static int clip_and_draw_aaline(SDL_Surface* surf, SDL_Rect* rect, Uint32 color, float* pts, int blend);
