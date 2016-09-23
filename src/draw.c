@@ -33,6 +33,10 @@
 #define FRAC(z)    ((z) - trunc(z))
 #define INVFRAC(z) (1 - FRAC(z))
 
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
 static int clip_and_draw_line(SDL_Surface* surf, SDL_Rect* rect, Uint32 color, int* pts);
 static int clip_and_draw_aaline(SDL_Surface* surf, SDL_Rect* rect, Uint32 color, float* pts, int blend);
 static int clip_and_draw_line_width(SDL_Surface* surf, SDL_Rect* rect, Uint32 color, int width, int* pts);
@@ -397,7 +401,8 @@ static PyObject* arc(PyObject* self, PyObject* arg)
     if ( width > rect->w / 2 || width > rect->h / 2 )
         return RAISE(PyExc_ValueError, "width greater than ellipse radius");
     if ( angle_stop < angle_start )
-        angle_stop += 360;
+        // Angle is in radians
+        angle_stop += 2*M_PI;
 
     if(!PySurface_Lock(surfobj)) return NULL;
 
@@ -1526,6 +1531,23 @@ static void draw_fillpoly(SDL_Surface *dst, int *vx, int *vy, int n, Uint32 colo
                 y1 = vy[ind2];
                 x2 = vx[ind1];
                 x1 = vx[ind2];
+            } else if (miny == maxy) {
+                /* Special case: polygon only 1 pixel high. */
+                int j;
+                int minx, maxx;
+                
+                /* Determine X bounds */
+                minx = vx[0];
+                maxx = vx[0];
+                for (j=1; (j < n); j++) {
+                    minx = MIN(minx, vx[j]);
+                    maxx = MAX(maxx, vx[j]);
+                }
+
+                /* Just a line from minimum to maximum X */
+                polyints[ints++] = minx;
+                polyints[ints++] = maxx;
+                break;
             } else {
                 continue;
             }
