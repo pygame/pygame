@@ -48,6 +48,28 @@ class DrawModuleTest(unittest.TestCase):
         for pt in test_utils.rect_outer_bounds(rect):
             color_at_pt = self.surf.get_at(pt)
             self.assert_(color_at_pt != self.color)
+
+        #Issue #310: Cannot draw rectangles that are 1 pixel high
+        bgcolor = pygame.Color('black')
+        self.surf.fill(bgcolor)
+        hrect = pygame.Rect(1, 1, self.surf_w - 2, 1)
+        vrect = pygame.Rect(1, 3, 1, self.surf_h - 4)
+        drawn = draw.rect(self.surf, self.color, hrect, 0)
+        self.assert_(drawn == hrect)
+        x, y = hrect.topleft
+        w, h = hrect.size
+        self.assertEqual(self.surf.get_at((x - 1, y)), bgcolor)
+        self.assertEqual(self.surf.get_at((x + w, y)), bgcolor)
+        for i in range(x, x + w):
+            self.assertEqual(self.surf.get_at((i, y)), self.color)
+        drawn = draw.rect(self.surf, self.color, vrect, 0)
+        self.assertEqual(drawn, vrect)
+        x, y = vrect.topleft
+        w, h = vrect.size
+        self.assertEqual(self.surf.get_at((x, y - 1)), bgcolor)
+        self.assertEqual(self.surf.get_at((x, y + h)), bgcolor)
+        for i in range(y, y + h):
+            self.assertEqual(self.surf.get_at((x, i)), self.color)
     
     def test_rect__one_pixel_lines(self):
         # __doc__ (as of 2008-06-25) for pygame.draw.rect:
