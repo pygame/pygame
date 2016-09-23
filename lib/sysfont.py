@@ -178,7 +178,7 @@ def initsysfonts_unix(path="fc-list"):
                     bold = 'Bold' in style
                     italic = 'Italic' in style
                     oblique = 'Oblique' in style
-                    for name in family.split(','):
+                    for name in family.strip().split(','):
                         if name:
                             break
                     else:
