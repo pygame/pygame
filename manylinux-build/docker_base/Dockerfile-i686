@@ -1,0 +1,46 @@
+FROM quay.io/pypa/manylinux1_i686
+
+# Set up repoforge
+COPY RPM-GPG-KEY.dag.txt /tmp/
+RUN rpm --import /tmp/RPM-GPG-KEY.dag.txt
+
+ENV RPMFORGE_FILE "rpmforge-release-0.5.3-1.el5.rf.i386.rpm"
+ADD "https://repoforge.cu.be/redhat/el5/en/i386/dag/RPMS/${RPMFORGE_FILE}" /tmp/${RPMFORGE_FILE}
+
+RUN rpm -i /tmp/${RPMFORGE_FILE}
+
+# Install SDL and portmidi dependencies
+RUN linux32 yum install -y zlib-devel libjpeg-devel libX11-devel freetype-devel \
+    libogg-devel libvorbis-devel alsa-lib-devel mesa-libGLU-devel audiofile-devel \
+    alsa-lib-devel java-1.7.0-openjdk-devel jpackage-utils xz libtiff-devel \
+    giflib-devel mikmod-devel
+RUN linux32 yum install -y libsndfile-devel libsndfile smpeg-devel dbus-devel \
+    pulseaudio-libs-devel cmake
+
+# Build and install PNG
+ADD libpng /png_build/
+RUN ["linux32", "bash", "/png_build/build-png.sh"]
+
+# Build and install WEBP
+ADD libwebp /webp_build/
+RUN ["linux32", "bash", "/webp_build/build-webp.sh"]
+
+# Build and install freetype
+ADD freetype /freetype_build/
+RUN ["linux32", "bash", "/freetype_build/build-freetype.sh"]
+
+# Build and install fluidsynth
+ADD fluidsynth /fluidsynth_build/
+RUN ["linux32", "bash", "/fluidsynth_build/build-fluidsynth.sh"]
+
+# Build and install flac
+ADD flac /flac_build/
+RUN ["linux32", "bash", "/flac_build/build-flac.sh"]
+
+# Build and install SDL
+ADD sdl_libs /sdl_build/
+RUN ["linux32", "bash", "/sdl_build/build-sdl-libs.sh"]
+
+# Build and install SDL and portmidi
+ADD portmidi /portmidi_build/
+RUN ["linux32", "bash", "/portmidi_build/build-portmidi.sh"]
