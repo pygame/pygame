@@ -535,6 +535,10 @@ pre {
     padding-left: 15px;
 }
 
+div.highlight pre {
+    border: none;
+}
+
 .warning tt {
     background: #efc2c2;
 }
