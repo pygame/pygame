@@ -12,6 +12,7 @@ Pygame Front Page
    :hidden:
 
    ref/*
+   tut/*
    filepaths
 
 Documents
