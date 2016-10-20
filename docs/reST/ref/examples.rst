@@ -449,8 +449,9 @@ pygame much earlier.
    | :sg:`scroll.main(image_file=None) -> None`
 
    This example shows a scrollable image that has a zoom factor of eight. It
-   uses the :func:`Surface.scroll` function to shift the image on the display
-   surface. A clip rectangle protects a margin area. If called as a function,
+   uses the :meth:`Surface.scroll() <pygame.Surface.scroll>`
+   function to shift the image on the display surface.
+   A clip rectangle protects a margin area. If called as a function,
    the example accepts an optional image file path. If run as a program it
    takes an optional file path command line argument. If no file is provided a
    default image file is used.
