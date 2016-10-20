@@ -8,19 +8,20 @@
 
 | :sl:`Enhanced Pygame module for loading and rendering computer fonts`
 
-The :mod:`pygame.freetype` module is a replacement for :mod:`pygame.font`.
+The ``pygame.freetype`` module is a replacement for :mod:`pygame.font`.
 It has all of the functionality of the original, plus many new features.
 Yet is has absolutely no dependencies on the SDL_ttf library.
 It is implemented directly on the FreeType 2 library.
-The :mod:`pygame.freetype` module is not itself backward compatible with
+The ``pygame.freetype`` module is not itself backward compatible with
 :mod:`pygame.font`.
-Instead, use the :mod:`pygame.ftfont` module as a drop-in replacement
+Instead, use the ``pygame.ftfont`` module as a drop-in replacement
 for :mod:`pygame.font`.
 
 All font file formats supported by FreeType can be rendered by
-:mod:`pygame.freetype`, namely ``TTF``, Type1, ``CFF``, OpenType,
+``pygame.freetype``, namely ``TTF``, Type1, ``CFF``, OpenType,
 ``SFNT``, ``PCF``, ``FNT``, ``BDF``, ``PFR`` and Type42 fonts.
-All glyphs having UTF-32 code points are accessible (see :attr:`ucs4`).
+All glyphs having UTF-32 code points are accessible
+(see :attr:`Font.ucs4`).
 
 Most work on fonts is done using :class:`Font` instances.
 The module itself only has routines for initialization and creation
@@ -29,8 +30,7 @@ You can load fonts from the system using the :func:`SysFont` function.
 
 Extra support of bitmap fonts is available. Available bitmap sizes can
 be listed (see :meth:`Font.get_sizes`). For bitmap only fonts :class:`Font`
-can set the size for you
-(see the :ref:`Font class size argument <freetype-font-size-argument>`).
+can set the size for you (see the :attr:`Font.size` property).
 
 For now undefined character codes are replaced with the ``.notdef``
 (not defined) character.
@@ -42,22 +42,24 @@ passing None as the font name to the :class:`Font` constructor.
 Extra rendering features available to :class:`pygame.freetype.Font`
 are direct to surface rendering (see :meth:`Font.render_to`), character kerning
 (see :attr:`Font.kerning`), vertical layout (see :attr:`Font.vertical`),
-rotation of rendered text (see :attr:`rotation`), and the strong style
-(see :attr:`Font.strong`). Some properties are configurable, such as
+rotation of rendered text (see :attr:`Font.rotation`),
+and the strong style (see :attr:`Font.strong`).
+Some properties are configurable, such as
 strong style strength (see :attr:`Font.strength`) and underline positioning
-(see :attr:`underline_adjustment`). Text can be positioned by the upper
+(see :attr:`Font.underline_adjustment`). Text can be positioned by the upper
 right corner of the text box or by the text baseline (see :attr:`Font.origin`).
 Finally, a font's vertical and horizontal size can be adjusted separately
-(see :attr:`Font.size`). The :mod:`pygame.examples.freetype` example
-(:func:`pygame.examples.freetype_misc.main`) shows these features in use.
+(see :attr:`Font.size`).
+The :any:`pygame.examples.freetype_misc <pygame.examples.freetype_misc.main>`
+example shows these features in use.
 
-The Pygame package does not import :mod:`freetype` automatically when
+The Pygame package does not import ``freetype`` automatically when
 loaded. This module must be imported explicitly to be used. ::
 
    import pygame
    import pygame.freetype
 
-The :mod:`freetype` module is new in Pygame 1.9.2
+The ``freetype`` module is new in Pygame 1.9.2
 
 
 .. function:: get_error
@@ -75,7 +77,7 @@ The :mod:`freetype` module is new in Pygame 1.9.2
 
    Returns the version of the FreeType library in use by this module.
 
-   Note that the :mod:`freetype` module depends on the FreeType 2 library.
+   Note that the ``freetype`` module depends on the FreeType 2 library.
    It will not compile with the original FreeType 1.0. Hence, the first element
    of the tuple will always be "2".
 
@@ -85,11 +87,11 @@ The :mod:`freetype` module is new in Pygame 1.9.2
    | :sg:`init(cache_size=64, resolution=72)`
 
    This function initializes the underlying FreeType library and must be
-   called before trying to use any of the functionality of the :mod:`freetype`
+   called before trying to use any of the functionality of the ``freetype``
    module.
 
-   However, :meth:`pygame.init()` will automatically call this function
-   if the :mod:`freetype` module is already imported. It is safe to call this
+   However, :func:`pygame.init()` will automatically call this function
+   if the ``freetype`` module is already imported. It is safe to call this
    function more than once.
 
    Optionally, you may specify a default *cache_size* for the Glyph cache: the
@@ -121,7 +123,7 @@ The :mod:`freetype` module is new in Pygame 1.9.2
    | :sl:`Return the glyph case size`
    | :sg:`get_cache_size() -> long`
 
-   See :meth:`pygame.freetype.init()`.
+   See :func:`pygame.freetype.init()`.
 
 .. function:: get_default_resolution
 
@@ -183,7 +185,7 @@ The :mod:`freetype` module is new in Pygame 1.9.2
 
    The optional *resolution* argument sets the pixel size, in dots per inch,
    for use in scaling glyphs for this Font instance. If 0 then the default
-   module value, set by :meth:`freetype.init`, is used. The Font object's
+   module value, set by :func:`init`, is used. The Font object's
    resolution can only be changed by re-initializing the Font instance.
 
    The optional *ucs4* argument, an integer, sets the default text translation
@@ -242,8 +244,9 @@ The :mod:`freetype` module is new in Pygame 1.9.2
       relevant render properties, and for any optional argument not given,
       the default values set for the :class:`Font` instance are used.
 
-      Returns a :class:`Rect` instance containing the width and height
-      of the text's bounding box and the position of the text's origin.
+      Returns a :class:`Rect <pygame.Rect>` instance containing the
+      width and height of the text's bounding box and the position of the
+      text's origin.
       The origin is useful in aligning separately rendered pieces of text.
       It gives the baseline position and bearing at the start of the text.
       See the :meth:`render_to` method for an example.
@@ -251,7 +254,7 @@ The :mod:`freetype` module is new in Pygame 1.9.2
       If *text* is a char (byte) string, its encoding is assumed to be
       ``LATIN1``.
 
-      Optionally, *text* can be :const:`None`, which will return the bounding
+      Optionally, *text* can be ``None``, which will return the bounding
       rectangle for the text passed to a previous :meth:`get_rect`,
       :meth:`render`, :meth:`render_to`, :meth:`render_raw`, or
       :meth:`render_raw_to` call. See :meth:`render_to` for more
@@ -358,13 +361,14 @@ The :mod:`freetype` module is new in Pygame 1.9.2
       | :sl:`Return rendered text as a surface`
       | :sg:`render(text, fgcolor=None, bgcolor=None, style=STYLE_DEFAULT, rotation=0, size=0) -> (Surface, Rect)`
 
-      Returns a new :mod:`Surface`, with the text rendered to it
+      Returns a new :class:`Surface <pygame.Surface>`,
+      with the text rendered to it
       in the color given by 'fgcolor'. If no foreground color is given,
-      the default foreground color, :attr:`fgcolor` is used.
+      the default foreground color, :attr:`fgcolor <Font.fgcolor>` is used.
       If ``bgcolor`` is given, the surface
       will be filled with this color. When no background color is given,
       the surface background is transparent, zero alpha. Normally the returned
-      surface has a 32 bit pixel size. However, if ``bgcolor`` is :const:`None`
+      surface has a 32 bit pixel size. However, if ``bgcolor`` is ``None``
       and anti-aliasing is disabled a monochrome 8 bit colorkey surface,
       with colorkey set for the background color, is returned.
 
@@ -380,7 +384,7 @@ The :mod:`freetype` module is new in Pygame 1.9.2
       If *text* is a char (byte) string, then its encoding is assumed to be
       ``LATIN1``.
 
-      Optionally, *text* can be :const:`None`, which will render the text
+      Optionally, *text* can be ``None``, which will render the text
       passed to a previous :meth:`get_rect`, :meth:`render`, :meth:`render_to`,
       :meth:`render_raw`, or :meth:`render_raw_to` call.
       See :meth:`render_to` for details.
@@ -394,7 +398,8 @@ The :mod:`freetype` module is new in Pygame 1.9.2
       at position *dest*, a (x, y) surface coordinate pair.
       If either x or y is not an integer it is converted to one if possible.
       Any sequence where the first two items are x and y positional elements
-      is accepted, including a :class:`Rect` instance.  As with :meth:`render`,
+      is accepted, including a :class:`Rect <pygame.Rect>` instance.
+      As with :meth:`render`,
       optional *fgcolor*, *style*, *rotation*, and *size* argument are
       available.
 
@@ -407,10 +412,11 @@ The :mod:`freetype` module is new in Pygame 1.9.2
       The return value is a rectangle giving the size and position of the
       rendered text within the surface.
 
-      If an empty string is passed for text then the returned :class:`Rect`
-      is zero width and the height of the font. The rect will test False.
+      If an empty string is passed for text then the returned
+      :class:`Rect <pygame.Rect>` is zero width and the height of the font.
+      The rect will test False.
 
-      Optionally, *text* can be set :const:`None`, which will re-render text
+      Optionally, *text* can be set ``None``, which will re-render text
       passed to a previous :meth:`render_to`, :meth:`get_rect`, :meth:`render`,
       :meth:`render_raw`, or :meth:`render_raw_to` call. Primarily, this
       feature is an aid to using :meth:`render_to` in combination with
@@ -437,7 +443,7 @@ The :mod:`freetype` module is new in Pygame 1.9.2
 
       When :meth:`render_to` is called with the same
       font properties ― :attr:`size`, :attr:`style`, :attr:`strength`,
-      :attr:`wide`, :attr:`antialiase`, :attr:`vertical`, :attr:`rotation`,
+      :attr:`wide`, :attr:`antialiased`, :attr:`vertical`, :attr:`rotation`,
       :attr:`kerning`, and :attr:`use_bitmap_strikes` ― as :meth:`get_rect`,
       :meth:`render_to` will use the layout calculated by :meth:`get_rect`.
       Otherwise, :meth:`render_to` will recalculate the layout if called
@@ -463,8 +469,8 @@ The :mod:`freetype` module is new in Pygame 1.9.2
 
       Render to an array object exposing an array struct interface. The array
       must be two dimensional with integer items. The default *dest* value,
-      :const:`None`, is equivalent to position (0, 0). See :meth:`render_to`.
-      As with the other render methods, *text* can be :const:`None` to
+      ``None``, is equivalent to position (0, 0). See :meth:`render_to`.
+      As with the other render methods, *text* can be ``None`` to
       render a text string passed previously to another method.
 
    .. attribute:: style
@@ -474,7 +480,7 @@ The :mod:`freetype` module is new in Pygame 1.9.2
 
       Gets or sets the default style of the Font. This default style will be
       used for all text rendering and size calculations unless overridden
-      specifically in the :meth:`render` or :meth:`get_size` calls.
+      specifically a render or :meth:`get_rect` call.
       The style value may be a bit-wise OR of one or more of the following
       constants:
 
@@ -491,14 +497,14 @@ The :mod:`freetype` module is new in Pygame 1.9.2
       Optionally, the default style can be modified or obtained accessing the
       individual style attributes (underline, oblique, strong).
 
-      The :const:`STYLE_OBLIQUE` and :const:`STYLE_STRONG` styles are for
+      The ``STYLE_OBLIQUE`` and ``STYLE_STRONG`` styles are for
       scalable fonts only. An attempt to set either for a bitmap font raises
       an AttributeError. An attempt to set either for an inactive font,
-      as returned by :meth:`Font.__new__`, raises a RuntimeError.
+      as returned by ``Font.__new__()``, raises a RuntimeError.
 
-      Assigning :const:`STYLE_DEFAULT` to the :attr:`style` property leaves
+      Assigning ``STYLE_DEFAULT`` to the :attr:`style` property leaves
       the property unchanged, as this property defines the default.
-      The :attr:`style` property will never return :const:`STYLE_DEFAULT`.
+      The :attr:`style` property will never return ``STYLE_DEFAULT``.
 
    .. attribute:: underline
 
@@ -507,8 +513,8 @@ The :mod:`freetype` module is new in Pygame 1.9.2
 
       Gets or sets whether the font will be underlined when drawing text. This
       default style value will be used for all text rendering and size
-      calculations unless overridden specifically in the :meth:`render` or
-      :meth:`get_size` calls, via the 'style' parameter.
+      calculations unless overridden specifically in a render or
+      :meth:`get_rect` call, via the 'style' parameter.
 
    .. attribute:: strong
 
@@ -517,8 +523,8 @@ The :mod:`freetype` module is new in Pygame 1.9.2
 
       Gets or sets whether the font will be bold when drawing text. This
       default style value will be used for all text rendering and size
-      calculations unless overridden specifically in the :meth:`render` or
-      :meth:`get_size` calls, via the 'style' parameter.
+      calculations unless overridden specifically in a render or
+      :meth:`get_rect` call, via the 'style' parameter.
 
    .. attribute:: oblique
 
@@ -527,13 +533,13 @@ The :mod:`freetype` module is new in Pygame 1.9.2
 
       Gets or sets whether the font will be rendered as oblique. This
       default style value will be used for all text rendering and size
-      calculations unless overridden specifically in the :meth:`render` or
-      :meth:`get_size` calls, via the *style* parameter.
+      calculations unless overridden specifically in a render or
+      :meth:`get_rect` call, via the *style* parameter.
 
       The oblique style is only supported for scalable (outline) fonts.
       An attempt to set this style on a bitmap font will raise an
       AttributeError. If the font object is inactive, as returned by
-      :meth:`Font.__new__`, setting this property raises a RuntimeError.
+      ``Font.__new__()``, setting this property raises a RuntimeError.
 
    .. attribute:: wide
 
@@ -561,7 +567,7 @@ The :mod:`freetype` module is new in Pygame 1.9.2
       The strength style is only supported for scalable (outline) fonts.
       An attempt to set this property on a bitmap font will raise an
       AttributeError. If the font object is inactive, as returned by
-      :meth:`Font.__new__`, assignment to this property raises a RuntimeError.
+      ``Font.__new__()``, assignment to this property raises a RuntimeError.
 
    .. attribute:: underline_adjustment
 
@@ -580,7 +586,7 @@ The :mod:`freetype` module is new in Pygame 1.9.2
       | :sl:`Gets whether the font is fixed-width`
       | :sg:`fixed_width -> bool`
 
-      Read only. Returns :const:`True` if the font contains fixed-width
+      Read only. Returns ``True`` if the font contains fixed-width
       characters (for example Courier, Bitstream Vera Sans Mono, Andale Mono).
 
    .. attribute:: fixed_sizes
@@ -597,7 +603,7 @@ The :mod:`freetype` module is new in Pygame 1.9.2
       | :sl:`Gets whether the font is scalable`
       | :sg:`scalable -> bool`
 
-      Read only. Returns :const:`True` if the font contains outline glyphs.
+      Read only. Returns ``True`` if the font contains outline glyphs.
       If so, the point size is not limited to available bitmap sizes.
 
    .. attribute:: use_bitmap_strikes
@@ -607,8 +613,8 @@ The :mod:`freetype` module is new in Pygame 1.9.2
 
       Some scalable fonts include embedded bitmaps for particular point
       sizes. This property controls whether or not those bitmap strikes
-      are used. Set it :const:`False` to disable the loading of any bitmap
-      strike. Set it :const:`True`, the default, to permit bitmap strikes
+      are used. Set it ``False`` to disable the loading of any bitmap
+      strike. Set it ``True``, the default, to permit bitmap strikes
       for a nonrotated render with no style other than :attr:`wide` or
       :attr:`underline`. This property is ignored for bitmap fonts.
 
@@ -620,9 +626,9 @@ The :mod:`freetype` module is new in Pygame 1.9.2
       | :sg:`antialiased -> bool`
 
       Gets or sets the font's anti-aliasing mode. This defaults to
-      :const:`True` on all fonts, which are rendered with full 8 bit blending.
+      ``True`` on all fonts, which are rendered with full 8 bit blending.
 
-      Set to :const:`False` to do monochrome rendering. This should
+      Set to ``False`` to do monochrome rendering. This should
       provide a small speed gain and reduce cache memory size.
 
    .. attribute:: kerning
@@ -630,10 +636,10 @@ The :mod:`freetype` module is new in Pygame 1.9.2
       | :sl:`Character kerning mode`
       | :sg:`kerning -> bool`
 
-      Gets or sets the font's kerning mode. This defaults to :const:`False`
+      Gets or sets the font's kerning mode. This defaults to ``False``
       on all fonts, which will be rendered without kerning.
 
-      Set to :const:`True` to add kerning between character pairs, if supported
+      Set to ``True`` to add kerning between character pairs, if supported
       by the font, when positioning glyphs.
 
    .. attribute:: vertical
@@ -645,8 +651,8 @@ The :mod:`freetype` module is new in Pygame 1.9.2
       than horizontally. May be useful when rendering Kanji or some other
       vertical script.
 
-      Set to :const:`True` to switch to a vertical text layout. The default
-      is :const:`False`, place horizontally.
+      Set to ``True`` to switch to a vertical text layout. The default
+      is ``False``, place horizontally.
 
       Note that the :class:`Font` class does not automatically determine
       script orientation. Vertical layout must be selected explicitly.
@@ -672,7 +678,7 @@ The :mod:`freetype` module is new in Pygame 1.9.2
       Only scalable (outline) fonts can be rotated. An attempt to change
       the rotation of a bitmap font raises an AttributeError.
       An attempt to change the rotation of an inactive font instance, as
-      returned by :meth:`Font.__new__`, raises a RuntimeError.
+      returned by ``Font.__new__()``, raises a RuntimeError.
 
    .. attribute:: fgcolor
 
@@ -687,7 +693,7 @@ The :mod:`freetype` module is new in Pygame 1.9.2
       | :sl:`Font render to text origin mode`
       | :sg:`origin -> bool`
 
-      If set :const:`True`, :meth:`render_to` and :meth:`render_to_raw` will
+      If set ``True``, :meth:`render_to` and :meth:`render_raw_to` will
       take the *dest* position to be that of the text origin, as opposed to
       the top-left corner of the bounding box. See :meth:`get_rect` for
       details.
@@ -697,9 +703,9 @@ The :mod:`freetype` module is new in Pygame 1.9.2
       | :sl:`padded boundary mode`
       | :sg:`pad -> bool`
 
-      If set :const:`True`, then the text boundary rectangle will be inflated
-      to match that of :class:`font.Font`. Otherwise, the boundary rectangle
-      is just large enough for the text.
+      If set ``True``, then the text boundary rectangle will be inflated
+      to match that of :class:`font.Font <pygame.font.Font>`.
+      Otherwise, the boundary rectangle is just large enough for the text.
 
    .. attribute:: ucs4
 
@@ -713,7 +719,7 @@ The :mod:`freetype` module is new in Pygame 1.9.2
       interpreters built with a UCS-2 unicode type (on Windows, for instance).
       It also means character values within the UTF-16 surrogate area (0xD800
       to 0xDFFF) are considered part of a surrogate pair. A malformed surrogate
-      pair will raise a UnicodeEncodeError. Setting ucs4 :const:`True` turns
+      pair will raise a UnicodeEncodeError. Setting ucs4 ``True`` turns
       surrogate pair decoding off, allowing access the full UCS-4 character
       range to a Python interpreter built with four byte unicode character
       support.

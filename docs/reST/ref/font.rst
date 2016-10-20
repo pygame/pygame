@@ -23,9 +23,9 @@ function. There are a few other functions to help lookup the system fonts.
 Pygame comes with a builtin default font. This can always be accessed by
 passing None as the font name.
 
-To use the :mod:`pygame.freetype` based :mod:`pygame.ftfont` as
+To use the :mod:`pygame.freetype` based ``pygame.ftfont`` as
 :mod:`pygame.font` define the enviroment variable PYGAME_FREETYPE before the
-first import of :mod:`pygame`. :mod:`pygame.ftfont` is a :mod:`pygame.font`
+first import of :mod:`pygame`. Module ``pygame.ftfont`` is a :mod:`pygame.font`
 compatible module that passes all but one of the font module unit tests:
 it does not have the UCS-2 limitation of the SDL_ttf based font module, so
 fails to raise an exception for a code point greater than '\uFFFF'. If
