@@ -18,7 +18,7 @@ with nearly any type of gameplay. All this flexibility comes with a slight
 penalty, it needs a little understanding to properly use it. The
 :mod:`reference documentation <pygame.sprite>` for the sprite module can keep
 you running, but you'll probably need a bit more explanation of how to use
-:mod:pygame.sprite in your own game.
+``pygame.sprite`` in your own game.
 
 Several of the pygame examples (like "chimp" and "aliens") have been updated to
 use the sprite module. You may want to look into those first to see what this
@@ -67,22 +67,23 @@ The Sprite Class
 As mentioned before, the Sprite class is designed to be a base class for all
 your game objects. You cannot really use it on its own, as it only has several
 methods to help it work with the different ``Group`` classes. The sprite keeps
-track of which groups it belongs to. The class constructor (:func:`__init__
-<pygame.sprite.Sprite.__init__>` method) takes an argument of a ``Group`` (or
-list of ``Groups``) the ``Sprite`` instance should belong to. You can also
-change the ``Group`` membership for the ``Sprite`` with the :func:`add()
-<pygame.sprite.Sprite.add>` and :func:`remove() <pygame.sprite.Sprite.remove>`
-methods.  There is also a :func:`groups() <pygame.sprite.Sprite.groups>`
-method, which returns a list of the current groups containing the sprite.
+track of which groups it belongs to.
+The class constructor (``__init__`` method) takes an argument of a
+``Group`` (or list of ``Groups``) the ``Sprite`` instance should belong to.
+You can also change the ``Group`` membership for the ``Sprite`` with the
+:meth:`add() <pygame.sprite.Sprite.add>` and
+:meth:`remove() <pygame.sprite.Sprite.remove>` methods.
+there is also a :meth:`groups() <pygame.sprite.Sprite.groups>` method,
+which returns a list of the current groups containing the sprite.
 
 When using the your Sprite classes it's best to think of them as "valid" or
 "alive" when they are belonging to one or more ``Groups``. When you remove the
 instance from all groups pygame will clean up the object. (Unless you have your
-own references to the instance somewhere else.) The :func:`kill()
+own references to the instance somewhere else.) The :meth:`kill()
 <pygame.sprite.Sprite.kill>` method removes the sprite from all groups it
 belongs to. This will cleanly delete the sprite object. If you've put some
 little games together, you'll know sometimes cleanly deleting a game object can
-be tricky. The sprite also comes with an :func:`alive()
+be tricky. The sprite also comes with an :meth:`alive()
 <pygame.sprite.Sprite.alive>` method, which returns true if it is still a
 member of any groups.
 
@@ -91,27 +92,27 @@ The Group Class
 ---------------
 
 The ``Group`` class is just a simple container. Similar to the sprite, it has
-an :func:`add() <pygame.sprite.Group.add>` and :func:`remove()
+an :meth:`add() <pygame.sprite.Group.add>` and :meth:`remove()
 <pygame.sprite.Group.remove>` method which can change which sprites belong to
 the group. You also can pass a sprite or list of sprites to the constructor
-(:func:`__init__() <pygame.sprite.Group.__init__>` method) to create a ``Group``
-instance that contains some initial sprites.
+(``__init__()`` method) to create a ``Group`` instance that contains some
+initial sprites.
 
 
-The ``Group`` has a few other methods like :func:`empty()
+The ``Group`` has a few other methods like :meth:`empty()
 <pygame.sprite.Group.empty>` to remove all sprites from the group and
-:func:`copy() <pygame.sprite.Group.copy>` which will return a copy of the group
-with all the same members. Also the :func:`has() <pygame.sprite.Group.has>`
+:meth:`copy() <pygame.sprite.Group.copy>` which will return a copy of the group
+with all the same members. Also the :meth:`has() <pygame.sprite.Group.has>`
 method will quickly check if the ``Group`` contains a sprite or list of
 sprites.
  
-The other function you will use frequently is the :func:`sprites()
+The other function you will use frequently is the :meth:`sprites()
 <pygame.sprite.Group.sprites>` method. This returns an object that can be
 looped on to access every sprite the group contains.  Currently this is just a
 list of the sprites, but in later version of python this will likely use
 iterators for better performance.
  
-As a shortcut, the ``Group`` also has an :func:`update()
+As a shortcut, the ``Group`` also has an :meth:`update()
 <pygame.sprite.Group.update>` method, which will call an ``update()`` method on
 every sprite in the group. Passing the same arguments to each one. Usually in a
 game you need some function that updates the state of a game object. It's very

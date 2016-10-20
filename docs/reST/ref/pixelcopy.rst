@@ -8,11 +8,10 @@
 
 | :sl:`pygame module for general pixel array copying`
 
-The :mod:`pygame.pixelcopy` module contains functions for copying between
+The ``pygame.pixelcopy`` module contains functions for copying between
 surfaces and objects exporting an array structure interface. It is a backend
-for :mod:`pygame.surfarray`, adding NumPy support. But pixelcopy is more,
-general, and intended for direct use (see the
-:func:`pygame.examples.pixelcopy.main` example.
+for :mod:`pygame.surfarray`, adding NumPy support. But pixelcopy is more
+general, and intended for direct use.
 
 The array struct interface exposes an array's data in a standard way.
 It was introduced in NumPy. In Python 2.7 and above it is replaced by the
@@ -46,12 +45,14 @@ New in pygame 1.9.2.
    For the 'R', 'G', 'B', and 'A' copy kinds a single color component
    of the unmapped surface pixels are copied to the target 2D array.
    For kind 'A' and surfaces with source alpha (the surface was created with
-   the SRCALPHA flag), has a colorkey (set with :meth:`Surface.set_colorkey`),
-   or has a blanket alpha (set with :meth:`Surface.set_alpha`) then the
-   alpha values are those expected for a SDL surface. If a surface has
-   no explicit alpha value, then the target array is filled with the
-   value of the optional ``opaque`` surface_to_array argument (default
-   255: not transparent).
+   the SRCALPHA flag), has a colorkey
+   (set with :meth:`Surface.set_colorkey() <pygame.Surface.set_colorkey>`),
+   or has a blanket alpha
+   (set with :meth:`Surface.set_alpha() <pygame.Surface.set_alpha>`)
+   then the alpha values are those expected for a SDL surface.
+   If a surface has no explicit alpha value, then the target array
+   is filled with the value of the optional ``opaque`` surface_to_array
+   argument (default 255: not transparent).
 
    Copy kind 'C' is a special case for alpha copy of a source surface
    with colorkey. Unlike the 'A' color component copy, the ``clear``

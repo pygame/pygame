@@ -31,8 +31,9 @@ last index is 0 for red, 1 for green, and 2 for blue.
    will control the size of the integer values, and will work for any type of
    pixel format.
 
-   This function will temporarily lock the Surface as pixels are copied (see
-   the :func:`Surface.lock` - lock the Surface memory for pixel access method).
+   This function will temporarily lock the Surface as pixels are copied
+   (see the :meth:`pygame.Surface.lock` - lock the Surface memory for pixel
+   access method).
 
    .. ## pygame.surfarray.array2d ##
 
@@ -49,8 +50,8 @@ last index is 0 for red, 1 for green, and 2 for blue.
    depths can.
 
    The Surface this references will remain locked for the lifetime of the array
-   (see the :func:`Surface.lock` - lock the Surface memory for pixel access
-   method).
+   (see the :meth:`pygame.Surface.lock` - lock the Surface memory for pixel
+   access method).
 
    .. ## pygame.surfarray.pixels2d ##
 
@@ -64,7 +65,8 @@ last index is 0 for red, 1 for green, and 2 for blue.
    pixel format.
 
    This function will temporarily lock the Surface as pixels are copied (see
-   the :func:`Surface.lock` - lock the Surface memory for pixel access method).
+   the :meth:`pygame.Surface.lock` - lock the Surface memory for pixel
+   access method).
 
    .. ## pygame.surfarray.array3d ##
 
@@ -81,8 +83,8 @@ last index is 0 for red, 1 for green, and 2 for blue.
    pixel formats cannot be referenced.
 
    The Surface this references will remain locked for the lifetime of the array
-   (see the :func:`Surface.lock` - lock the Surface memory for pixel access
-   method).
+   (see the :meth:`pygame.Surface.lock` - lock the Surface memory for pixel
+   access method).
 
    .. ## pygame.surfarray.pixels3d ##
 
@@ -96,7 +98,8 @@ last index is 0 for red, 1 for green, and 2 for blue.
    pixel alpha will return an array with all opaque values.
 
    This function will temporarily lock the Surface as pixels are copied (see
-   the :func:`Surface.lock` - lock the Surface memory for pixel access method).
+   the :meth:`pygame.Surface.lock` - lock the Surface memory for pixel
+   access method).
 
    .. ## pygame.surfarray.array_alpha ##
 
