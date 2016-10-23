@@ -114,7 +114,8 @@ class DocumentTransformer(Visitor):
     def depart_desc(self, node):
         node['classes'].append('definition')
         node[0]['classes'].append('title')
-        add_toc(node, self.env)
+        if not node.attributes['noindex']:
+            add_toc(node, self.env)
 
     def visit_title(self, node):
         if isinstance(node.parent.parent, document):
