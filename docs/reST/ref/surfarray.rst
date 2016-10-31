@@ -27,9 +27,10 @@ last index is 0 for red, 1 for green, and 2 for blue.
    | :sl:`Copy pixels into a 2d array`
    | :sg:`array2d(Surface) -> array`
 
-   Copy the pixels from a Surface into a 2D array. The bit depth of the surface
-   will control the size of the integer values, and will work for any type of
-   pixel format.
+   Copy the :meth:`mapped <pygame.Surface.map_rgb>` (raw) pixels from a Surface
+   into a 2D array.
+   The bit depth of the surface will control the size of the integer values,
+   and will work for any type of pixel format.
 
    This function will temporarily lock the Surface as pixels are copied
    (see the :meth:`pygame.Surface.lock` - lock the Surface memory for pixel
