@@ -1,0 +1,492 @@
+<!--
+TUTORIAL:Introduction to the surfarray module
+--><html><head>
+
+<title>Pygame Tutorials - Surfarray Introduction</title>
+</head><body>
+ 
+<h1 align=center><font size=-1>Pygame Tutorials</font><br>Surfarray Introduction</h1>
+<h2 align=center>by Pete Shinners<br><font size=-1>pete@shinners.org</font></h2>
+<h3 align=center>Revision 1.9.2, Oct 27, 2016</h3>
+<br><br>
+
+
+<h2>Introduction</h2>
+
+This tutorial will attempt to introduce users to both NumPy and the pygame
+surfarray module. To beginners, the code that uses surfarray can be quite
+intimidating. But actually there are only a few concepts to understand and
+you will be up and running. Using the surfarray module, it becomes possible
+to perform pixel level operations from straight python code. The performance
+can become quite close to the level of doing the code in C.
+<br>&nbsp;<br>
+You may just want to jump down to the <i>"Examples"</i> section to get an
+idea of what is possible with this module, then start at the beginning here
+to work your way up.
+<br>&nbsp;<br>
+Now I won't try to fool you into thinking everything is very easy. To get
+more advanced effects by modifying pixel values is very tricky. Just mastering
+Numeric Python (SciPy's original array package was Numeric, the predecessor of NumPy)
+takes a lot of learning. In this tutorial I'll be sticking with
+the basics and using a lot of examples in an attempt to plant seeds of wisdom.
+After finishing the tutorial you should have a basic handle on how the surfarray
+works.
+
+
+<br>
+<h2>Numeric Python</h2>
+If you do not have the python NumPy
+package installed, you will need to do that now. You can download the package
+from the <a href="http://www.scipy.org/scipylib/download.html">
+NumPy Downloads Page</a>.  To make sure NumPy is working for you, you should
+get something like this from the interactive python prompt.
+<br><table bgcolor=#ddcc88><tr><td><pre>
+&gt;&gt;&gt; <b>from numpy import *</b>                    <i>#import NumPy</i>
+&gt;&gt;&gt; <b>a = array((1,2,3,4,5))</b>                 <i>#create an array</i>
+&gt;&gt;&gt; <b>a</b>                                      <i>#display the array</i>
+array([1, 2, 3, 4, 5])
+&gt;&gt;&gt; <b>a[2]</b>                                   <i>#index into the array</i>
+3
+&gt;&gt;&gt; <b>a*2</b>                                    <i>#new array with twiced values</i>
+array([ 2,  4,  6,  8, 10])
+</td></tr></table><br>
+
+As you can see, the NumPy module gives us a new data type, the <i>array</i>.
+This object holds an array of fixed size, and all values inside are of the same
+type. The arrays can also be multidimensional, which is how we will use them
+with images. There's a bit more to it than this, but it is enough to get us
+started.
+<br>&nbsp;<br>
+If you look at the last command above, you'll see that mathematical operations
+on NumPy arrays apply to all values in the array. This is called "elementwise
+operations". These arrays can also be sliced like normal lists. The slicing
+syntax is the same as used on standard python objects. <i>(so study up if you
+need to :] )</i>.
+Here are some more examples of working with arrays.
+
+<br><table bgcolor=#ddcc88><tr><td><pre>
+&gt;&gt;&gt; <b>len(a)</b>                                 <i>#get array size</i>
+5
+&gt;&gt;&gt; <b>a[2:]</b>                                  <i>#elements 2 and up</i>
+array([3, 4, 5])
+&gt;&gt;&gt; <b>a[:-2]</b>                                 <i>#all except last 2</i>
+array([1, 2, 3])
+&gt;&gt;&gt; <b>a[2:] + a[:-2]</b>                         <i>#add first and last</i>
+array([4, 6, 8])
+&gt;&gt;&gt; <b>array((1,2,3)) + array((3,4))</b>          <i>#add arrays of wrong sizes</i>
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: operands could not be broadcast together with shapes (3,) (2,) 
+</td></tr></table><br>
+
+We get an error on the last commend, because we try add together two arrays
+that are different sizes. In order for two arrays two operate with each other,
+including comparisons and assignment, they must have the same dimensions. It is
+very important to know that the new arrays created from slicing the original all
+reference the same values. So changing the values in a slice also changes the
+original values. It is important how this is done.
+<br><table bgcolor=#ddcc88><tr><td><pre>
+&gt;&gt;&gt; <b>a</b>                                      <i>#show our starting array</i>
+array([1, 2, 3, 4, 5])
+&gt;&gt;&gt; <b>aa = a[1:3]</b>                            <i>#slice middle 2 elements</i>
+&gt;&gt;&gt; <b>aa</b>                                     <i>#show the slice</i>
+array([2, 3])
+&gt;&gt;&gt; <b>aa[1] = 13</b>                             <i>#chance value in slice</i>
+&gt;&gt;&gt; <b>a</b>                                      <i>#show change in original</i>
+array([ 1, 2, 13,  4,  5])
+&gt;&gt;&gt; <b>aaa = array(a)</b>                         <i>#make copy of array</i>
+&gt;&gt;&gt; <b>aaa</b>                                    <i>#show copy</i>
+array([ 1, 2, 13,  4,  5])
+&gt;&gt;&gt; <b>aaa[1:4] = 0</b>                           <i>#set middle values to 0</i>
+&gt;&gt;&gt; <b>aaa</b>                                    <i>#show copy</i>
+array([1, 0, 0, 0, 5])
+&gt;&gt;&gt; <b>a</b>                                      <i>#show original again</i>
+array([ 1, 2, 13,  4,  5])
+</td></tr></table><br>
+
+
+Now we will look at small arrays with two
+dimensions. Don't be too worried, getting started it is the same as having a
+two dimensional tuple <i>(a tuple inside a tuple)</i>. Let's get started with
+two dimensional arrays.
+
+<br><table bgcolor=#ddcc88><tr><td><pre>
+&gt;&gt;&gt; <b>row1 = (1,2,3)</b>                         <i>#create a tuple of vals</i>
+&gt;&gt;&gt; <b>row2 = (3,4,5)</b>                         <i>#another tuple</i>
+&gt;&gt;&gt; <b>(row1,row2)</b>                            <i>#show as a 2D tuple</i>
+((1, 2, 3), (3, 4, 5))
+&gt;&gt;&gt; <b>b = array((row1, row2))</b>                <i>#create a 2D array</i>
+&gt;&gt;&gt; <b>b</b>                                      <i>#show the array</i>
+array([[1, 2, 3],
+       [3, 4, 5]])
+&gt;&gt;&gt; <b>array(((1,2),(3,4),(5,6)))</b>             <i>#show a new 2D array</i>
+array([[1, 2],
+       [3, 4],
+       [5, 6]])
+</td></tr></table><br>
+
+Now with this two
+dimensional array <i>(from now on as "2D")</i> we can index specific values
+and do slicing on both dimensions. Simply using a comma to separate the indices
+allows us to lookup/slice in multiple dimensions. Just using "<b>:</b>" as an
+index <i>(or not supplying enough indices)</i> gives us all the values in
+that dimension. Let's see how this works.
+
+<br><table bgcolor=#ddcc88><tr><td><pre>
+&gt;&gt;&gt; <b>b</b>                                      <i>#show our array from above</i>
+array([[1, 2, 3],
+       [3, 4, 5]])
+&gt;&gt;&gt; <b>b[0,1]</b>                                 <i>#index a single value</i>
+2
+&gt;&gt;&gt; <b>b[1,:]</b>                                 <i>#slice second row</i>
+array([3, 4, 5])
+&gt;&gt;&gt; <b>b[1]</b>                                   <i>#slice second row (same as above)</i>
+array([3, 4, 5])
+&gt;&gt;&gt; <b>b[:,2]</b>                                 <i>#slice last column</i>
+array([3, 5])
+&gt;&gt;&gt; <b>b[:,:2]</b>                                <i>#slice into a 2x2 array</i>
+array([[1, 2],
+       [3, 4]])
+</td></tr></table><br>
+
+Ok, stay with me here, this is about as hard as it gets. When using NumPy
+there is one more feature to slicing. Slicing arrays also allow you to specify
+a <i>slice increment</i>. The syntax for a slice with increment is 
+<b>start_index : end_index : increment</b>. 
+ 
+<br><table bgcolor=#ddcc88><tr><td><pre>
+&gt;&gt;&gt; <b>c = arange(10)</b>                         #like range, but makes an array
+&gt;&gt;&gt; <b>c</b>                                      #show the array
+array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+&gt;&gt;&gt; <b>c[1:6:2]</b>                               #slice odd values from 1 to 6
+array([1, 3, 5])
+&gt;&gt;&gt; <b>c[4::4]</b>                                #slice every 4th val starting at 4
+array([4, 8])
+&gt;&gt;&gt; <b>c[8:1:-1]</b>                              #slice 1 to 8, reversed
+array([8, 7, 6, 5, 4, 3, 2])
+</td></tr></table><br>
+
+Well that is it. There's enough information there to get you started using
+NumPy with the surfarray module. There's certainly a lot more to NumPy, but
+this is only an introduction. Besides, we want to get on to the fun stuff,
+correct?
+
+
+
+
+
+<br>&nbsp;<br>
+<h2>Import Surfarray</h2>
+
+In order to use the surfarray module we need to import it. Since both surfarray
+and NumPy are optional components for pygame, it is nice to make sure they
+import correctly before using them. In these examples I'm going to import
+NumPy into a variable named <i>N</i>. This will let you know which functions
+I'm using are from the NumPy package. <i>(and is a lot shorter than typing
+NumPy before each function)</i> 
+
+
+<br><table bgcolor=#ddcc88><tr><td><pre>
+try:
+    import numpy as N
+    import pygame.surfarray as surfarray
+except ImportError:
+    raise ImportError, "NumPy and Surfarray are required."
+</td></tr></table><br>
+
+<br>&nbsp;<br>
+<h2>Surfarray Introduction</h2>
+
+There are two main types of functions in surfarray. One set of functions for
+creating an array that is a copy of a surface pixel data. The other functions
+create a referenced copy of the array pixel data, so that changes to the array
+directly affect the original surface. There are other functions that allow you
+to access any per-pixel alpha values as arrays along with a few other helpful
+functions. We will look at these other functions later on.
+<br>&nbsp;<br>
+When working with these surface arrays, there are two ways of representing the
+pixel values. First, they can be represented as mapped integers. This type of
+array is a simple 2D array with a single integer representing the surface's
+mapped color value. This type of array is good for moving parts of an image
+around. The other type of array uses three RGB values to represent each pixel
+color. This type of array makes it extremely simple to do types of effects that
+change the color of each pixel. This type of array is also a little trickier to
+deal with, since it is essentially a 3D numeric array. Still, once you get your
+mind into the right mode, it is not much harder than using the normal 2D arrays.
+<br>&nbsp;<br>
+The NumPy module uses a machine's natural number types to represent the data
+values, so a NumPy array can consist of integers that are 8bits, 16bits, and 32bits.
+<i>(the arrays can also use other types like floats and doubles, but for our image
+manipulation we mainly need to worry about the integer types)</i>.
+Because of this limitation of integer sizes, you must take a little extra care
+that the type of arrays that reference pixel data can be properly mapped to a
+proper type of data. The functions create these arrays from surfaces are:
+<dl>
+<dt><b>surfarray.pixels2d(surface)</b></dt><dd>Creates a 2D array <i>(integer pixel
+values)</i> that reference the original surface data. This will work for all
+surface formats except 24bit.</dd>
+
+<dt><b>surfarray.array2d(surface)</b><dd></dd>Creates a 2D array <i>(integer pixel
+values)</i> that is copied from any type of surface.</dt>
+
+<dt><b>surfarray.pixels3d(surface)</b></dt><dd>Creates a 3D array <i>(RGB pixel
+values)</i> that reference the original surface data. This will only work
+on 24bit and 32bit surfaces that have RGB or BGR formatting.</dd>
+
+<dt><b>surfarray.array3d(surface)</b><dd></dd>Creates a 3D array <i>(RGB pixel
+values)</i> that is copied from any type of surface.</dt>
+
+</dl>
+Here is a small chart that might better illustrate what types of functions
+should be used on which surfaces. As you can see, both the arrayXD functions
+will work with any type of surface.
+<table bgcolor=#ddcc88 cellpadding=8 align=center>
+<tr align=center><td></td><th>32bit</th><th>24bit</th><th>16bit</th><th>8bit(c-map)</th></tr>
+<tr align=center><th>pixel2d</th><td>yes</td><td></td><td>yes</td><td>yes</td></tr>
+<tr align=center><th>array2d</th><td>yes</td><td>yes</td><td>yes</td><td>yes</td></tr>
+<tr align=center><th>pixel3d</th><td>yes</td><td>yes</td><td></td><td></td></tr>
+<tr align=center><th>array3d</th><td>yes</td><td>yes</td><td>yes</td><td>yes</td></tr>
+</table>
+
+
+<br>&nbsp;<br>
+<h2>Examples</h2>
+
+With this information, we are equipped to start trying things with surface
+arrays. The following are short little demonstrations that create a NumPy
+array and display them in pygame. These different tests are found in the
+<i>arraydemo.py</i> example. There is a simple function named <i>surfdemo_show</i>
+that displays an array on the screen.
+
+<br>&nbsp;<br><table border=1 cellpadding=5>
+
+<tr><td><img align=left src=allblack.png alt=allblack width=128 height=128>
+<table bgcolor=#ddcc88><tr><td><pre>
+allblack = N.zeros((128, 128))
+surfdemo_show(allblack, 'allblack')
+</td></tr></table>
+Our first example creates an all black array. Whenever you need
+to create a new numeric array of a specific size, it is best to use the
+<b>zeros</b> function. Here we create a 2D array of all zeros and display
+it.
+</td></tr>
+
+<tr><td><img align=left src=striped.png alt=striped width=128 height=128>
+<table bgcolor=#ddcc88><tr><td><pre>
+striped = N.zeros((128, 128, 3))
+striped[:] = (255, 0, 0)
+striped[:,::3] = (0, 255, 255)
+surfdemo_show(striped, 'striped')
+</td></tr></table>
+Here we are dealing with a 3D array. We start by creating an all red image.
+Then we slice out every third row and assign it to a blue/green color. As you
+can see, we can treat the 3D arrays almost exactly the same as 2D arrays, just
+be sure to assign them 3 values instead of a single mapped integer.
+</td></tr>
+
+<tr><td><img align=left src=rgbarray.png alt=rgbarray width=200 height=128>
+<table bgcolor=#ddcc88><tr><td><pre>
+imgsurface = pygame.image.load('surfarray.png')
+rgbarray = surfarray.array3d(imgsurface)
+surfdemo_show(rgbarray, 'rgbarray')
+</td></tr></table>
+Here we load an image with the image module, then convert it to a 3D
+array of integer RGB color elements. An RGB copy of a surface always
+has the colors arranged as a[r,c,0] for the red component,
+a[r,c,1] for the green component, and a[r,c,2] for blue. This can then
+be used without caring how the pixels of the actual surface are configured,
+unlike a 2D array which is a copy of the
+<a href="../../ref/surface.html#pygame.Surface.map_rgb">mapped</a>
+(raw) surface pixels.
+We will use this image in the rest of the samples.
+</td></tr>
+
+<tr><td><img align=left src=flipped.png alt=flipped width=200 height=128>
+<table bgcolor=#ddcc88><tr><td><pre>
+flipped = rgbarray[:,::-1]
+surfdemo_show(flipped, 'flipped')
+</td></tr></table>
+Here we flip the image vertically. All we need to do is take the original
+image array and slice it using a negative increment.
+</td></tr>
+
+<tr><td><img align=left src=scaledown.png alt=scaledown width=64 height=64>
+<table bgcolor=#ddcc88><tr><td><pre>
+scaledown = rgbarray[::2,::2]
+surfdemo_show(scaledown, 'scaledown')
+</td></tr></table>
+Based on the last example, scaling an image down is pretty logical. We just
+slice out all the pixels using an increment of 2 vertically and horizontally.
+</td></tr>
+
+
+<tr><td><img align=left src=scaleup.png alt=scaleup width=400 height=256>
+<table bgcolor=#ddcc88><tr><td><pre>
+shape = rgbarray.shape
+scaleup = N.zeros((shape[0]*2, shape[1]*2, shape[2]))
+scaleup[::2,::2,:] = rgbarray
+scaleup[1::2,::2,:] = rgbarray
+scaleup[:,1::2] = scaleup[:,::2]
+surfdemo_show(scaleup, 'scaleup')
+</td></tr></table>
+Scaling the image up is a little more work, but is similar to the previous
+scaling down, we do it all with slicing. First we create an array that is
+double the size of our original. First we copy the original array into every
+other pixel of the new array. Then we do it again for every other pixel doing
+the odd columns. At this point we have the image scaled properly going across,
+but every other row is black, so we simply need to copy each row to the one
+underneath it. Then we have an image doubled in size.
+</td></tr>
+
+
+<tr><td><img align=left src=redimg.png alt=redimg width=200 height=128>
+<table bgcolor=#ddcc88><tr><td><pre>
+redimg = N.array(rgbarray)
+redimg[:,:,1:] = 0
+surfdemo_show(redimg, 'redimg')
+</td></tr></table>
+Now we are using 3D arrays to change the colors. Here we
+set all the values in green and blue to zero.
+This leaves us with just the red channel.
+</td></tr>
+
+
+<tr><td><img align=left src=soften.png alt=soften width=200 height=128>
+<table bgcolor=#ddcc88><tr><td><pre>
+factor = N.array((8,), N.int32)
+soften = N.array(rgbarray, N.int32)
+soften[1:,:]  += rgbarray[:-1,:] * factor
+soften[:-1,:] += rgbarray[1:,:] * factor
+soften[:,1:]  += rgbarray[:,:-1] * factor
+soften[:,:-1] += rgbarray[:,1:] * factor
+soften //= 33
+surfdemo_show(soften, 'soften')
+</td></tr></table>
+Here we perform a 3x3 convolution filter that will soften our image.
+It looks like a lot of steps here, but what we are doing is shifting
+the image 1 pixel in each direction and adding them all together (with some
+multiplication for weighting). Then average all the values. It's no gaussian,
+but it's fast. One point with NumPy arrays, the precision of arithmetic
+operations is determined by the array with the largest data type.
+So if factor was not declared as a 1 element array of type numpy.int32,
+the multiplications would be performed using numpy.int8, the 8 bit integer
+type of each rgbarray element. This will cause value truncation. The soften
+array must also be declared to have a larger integer size than rgbarray to
+avoid truncation.
+</td></tr>
+
+
+<tr><td><img align=left src=xfade.png alt=xfade width=200 height=128>
+<table bgcolor=#ddcc88><tr><td><pre>
+src = N.array(rgbarray)
+dest = N.zeros(rgbarray.shape)
+dest[:] = 20, 50, 100
+diff = (dest - src) * 0.50
+xfade = src + diff.astype(N.uint)
+surfdemo_show(xfade, 'xfade')
+</td></tr></table>
+Lastly, we are cross fading between the original image and a solid blue-ish
+image. Not exciting, but the dest image could be anything, and changing the 0.50
+multiplier will let you choose any step in a linear crossfade between two images.
+</td></tr>
+</table><br>
+
+Hopefully by this point you are starting to see how surfarray can be used to
+perform special effects and transformations that are only possible at the pixel
+level. At the very least, you can use the surfarray to do a lot of Surface.set_at()
+Surface.get_at() type operations very quickly. But don't think you are finished
+yet, there is still much to learn.
+
+
+<br>&nbsp;<br>
+<h2>Surface Locking</h2>
+Like the rest of pygame, surfarray will lock any Surfaces it needs to
+automatically when accessing pixel data. There is one extra thing to be aware
+of though. When creating the <i>pixel</i> arrays, the original surface will
+be locked during the lifetime of that pixel array. This is important to remember.
+Be sure to <i>"del"</i> the pixel array or let it go out of scope <i>(ie, when
+the function returns, etc)</i>.
+<br>&nbsp;<br>
+Also be aware that you really don't want to be doing much <i>(if any)</i>
+direct pixel access on hardware surfaces <i>(HWSURFACE)</i>. This is because
+the actual surface data lives on the graphics card, and transferring pixel
+changes over the PCI/AGP bus is not fast.
+
+
+
+<br>&nbsp;<br>
+<h2>Transparency</h2>
+The surfarray module has several methods for accessing a Surface's alpha/colorkey
+values. None of the alpha functions are effected by overal transparency of a
+Surface, just the pixel alpha values. Here's the list of those functions.
+<dl>
+<dt><b>surfarray.pixels_alpha(surface)</b></dt><dd>Creates a 2D array <i>(integer
+pixel values)</i> that references the original surface alpha data. This will only
+work on 32bit images with an 8bit alpha component.</dd>
+
+<dt><b>surfarray.array_alpha(surface)</b><dd></dd>Creates a 2D array <i>(integer pixel
+values)</i> that is copied from any type of surface. If the surface has no alpha
+values, the array will be fully opaque values <i>(255)</i>.</dt>
+
+<dt><b>surfarray.array_colorkey(surface)</b><dd></dd>Creates a 2D array
+<i>(integer pixel values)</i> that is set to transparent <i>(0)</i> wherever
+that pixel color matches the Surface colorkey.</dt>
+
+</dl>
+
+
+<br>&nbsp;<br>
+<h2>Other Surfarray Functions</h2>
+There are only a few other functions available in surfarray. You can get a better
+list with more documentation on the
+<a href="../../ref/surfarray.html">surfarray reference page</a>.
+There is one very useful function though.
+<dl>
+<dt><b>surfarray.blit_array(surface, array)</b></dt><dd>This will transfer
+any type of 2D or 3D surface array onto a Surface of the same dimensions.
+This surfarray blit will generally be faster than assigning an array to a
+referenced pixel array. Still, it should not be as fast as normal Surface 
+blitting, since those are very optimized.
+</dd>
+</dl>
+
+
+
+<br>&nbsp;<br>
+<h2>More Advanced NumPy</h2>
+There's a couple last things you should know about NumPy arrays. When dealing
+with very large arrays, like the kind that are 640x480 big, there are some extra
+things you should be careful about. Mainly, while using the operators like + and
+* on the arrays makes them easy to use, it is also very expensive on big arrays.
+These operators must make new temporary copies of the array, that are then
+usually copied into another array. This can get very time consuming. Fortunately,
+all the NumPy operators come with special functions that can perform the 
+operation <i>"in place"</i>. For example, you would want to replace
+<b>screen[:] = screen + brightmap</b> with the much faster <b>add(screen, 
+brightmap, screen)</b>. Anyways, you'll want to read up on the NumPy UFunc
+documentation for more about this. It is important when dealing with the arrays.
+<br>&nbsp;<br>
+Another thing to be aware of when working with NumPy arrays is the datatype
+of the array. Some of the arrays (especially the mapped pixel type) often return
+arrays with an unsigned 8bit value. These arrays will easily overflow if you are
+not careful. NumPy will use the same coercion that you find in C programs, so
+mixing an operation with 8bit numbers and 32bit numbers will give a result as
+32bit numbers. You can convert the datatype of an array, but definitely be
+aware of what types of arrays you have, if NumPy gets in a situation where
+precision would be ruined, it will raise an exception.
+<br>&nbsp;<br>
+Lastly, be aware that when assigning values into the 3D arrays, they must be
+between 0 and 255, or you will get some undefined truncating.
+
+
+<br>&nbsp;<br>
+<h2>Graduation</h2>
+Well there you have it. My quick primer on Numeric Python and surfarray.
+Hopefully now you see what is possible, and even if you never use them for
+yourself, you do not have to be afraid when you see code that does. Look into
+the vgrade example for more numeric array action. There are also some <i>"flame"</i>
+demos floating around that use surfarray to create a realtime fire effect.
+<br>&nbsp;<br>
+Best of all, try some things on your own. Take it slow at first and build up,
+I've seen some great things with surfarray already like radial gradients and
+more. Good Luck.
