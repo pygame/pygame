@@ -29,7 +29,11 @@ ln -s /usr/local/bin/sdl-config /usr/bin/
 # Build SDL_image
 tar xzf ${IMG}.tar.gz
 cd $IMG
-./configure --enable-png --disable-png-shared --enable-jpg --disable-jpg-shared
+# The --disable-x-shared flags make it use standard dynamic linking rather than
+# dlopen-ing the library itself. This is important for when auditwheel moves
+# libraries into the wheel.
+./configure --enable-png --disable-png-shared --enable-jpg --disable-jpg-shared \
+        --enable-tif --disable-tif-shared --enable-webp --disable-webp-shared
 make
 make install
 cd ..
@@ -45,7 +49,14 @@ cd ..
 # Build SDL_mixer
 tar xzf ${MIX}.tar.gz
 cd $MIX
-./configure
+# The --disable-x-shared flags make it use standard dynamic linking rather than
+# dlopen-ing the library itself. This is important for when auditwheel moves
+# libraries into the wheel.
+./configure --enable-music-mod --disable-music-mod-shared \
+            --enable-music-fluidsynth --disable-music-fluidsynth-shared \
+            --enable-music-ogg  --disable-music-ogg-shared \
+            --enable-music-flac  --disable-music-flac-shared \
+            --enable-music-mp3  --disable-music-mp3-shared
 make
 make install
 cd ..
