@@ -95,3 +95,13 @@ after_success:
 
 after_script:
   - rm -f .travis_tmp
+
+deploy:
+  provider: releases
+  api_key:
+    secure: YKhjdG2ZXLOEq9AhZ7Ws3GmXt4eSXMubW9TpcNJctFH5nQ0As1t/jzwfXLl+PjfDctMDcUY2Yl/kBDs/mSPY5Tt12XhfgOEdOSTvPyMGoIK5a+3Zvb8votCvsm4u4wtjb53W1W4maeQfgtUgasxo3bYZf2TKyPKKtzbtwQUbWg0yGSGZ4fwrbLxrTnpXQeUdftKsB1cq1dk+15TvaFcoL2uStst/3BqwgCIlStMxr8PDZe+twtzg+zfPj4TVDYLSQQJ3kwjfHxsfxsM1P8FHDt//kn8a1d4NJuPg9gsHD3VhzP5I3WQLp4lHQLlJD7z+R9Qf/WpYEh2i7+L/fbeHyIJZ94xJPCUMfij4hVz3naHtcgoMc8gQvQZ9a/i7v8SwgLtbA8JtNUe21iGftdTFc5CKpXh4pWaRRgzVNnYf3WaUl65dsXmR5qgaW+tyaPtmx2kTM/Uk7rY069/OLHzSLAG8NmVkleoj2fa/FhXe9rcLzEOdNRUCctRqHWeNh71SgHGK2ri0rJ6pHbXZpVOkmvgsqSNr0Q/6Kx5dpd8kV/oDbIuKPBMWSqpFsSnXFsLlr/AdKh8Rg6AOvUQL7J2oJHj1aMfv8ow6PVYA+Kba0Ww4D42WUimzJxJ/CouDIQDApY4l/rc3+GzgS9UEphofxQd4EulhwhkTK9jIfEQcIGs=
+  file: dist/*
+  file_glob: true
+  on:
+    repo: takluyver/pygame
+    branch: ''
