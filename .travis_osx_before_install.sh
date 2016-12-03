@@ -4,6 +4,7 @@
 brew update
 brew unlink pkg-config
 brew install pkg-config
+brew link pkg-config
 brew unlink libpng
 brew unlink libtiff
 
@@ -37,12 +38,9 @@ brew install flac --universal --with-libogg
 brew install fluid-synth
 brew install libmikmod --universal
 brew install smpeg
-brew install portmidi
+brew install portmidi --universal
 brew install freetype --universal
 brew install sdl_ttf --universal
 
-# sdl_image with imageio disabled. There is a pull request here which is trying to do a similar thing.
-# https://github.com/Homebrew/homebrew-core/pull/739
-# brew install sdl_image --universal
-brew install https://raw.githubusercontent.com/illume/homebrew-core/master/Formula/sdl_image.rb --universal
-brew install sdl_mixer --universal --with-flac --with-fluid-synth --with-libmikmod --with-libvorbis --with-smpeg
+brew install sdl_image --universal
+brew install sdl_mixer --with-flac --with-fluid-synth --with-libmikmod --with-libvorbis --with-smpeg
