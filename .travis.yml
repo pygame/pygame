@@ -21,11 +21,13 @@ matrix:
     # Should only need one OSX build because older builds can work on newer machines ok.
     #https://docs.travis-ci.com/user/osx-ci-environment/#OS-X-Version
     - os: osx
+      osx_image: beta-xcode6.1
       language: generic
       env:
         - PY_VERSION=3
         - MAKEFLAGS=-j8
     - os: osx
+      osx_image: beta-xcode6.1
       language: generic
       env:
         - PY_VERSION=2
@@ -54,9 +56,8 @@ env:
     - secure: "VSoeDwpTooSW8K+n2e+nhQOQGQT7PX9GVBF9SmADUIg0Gr5pR2MTlzyGms57tBIYqFndiuLhOXi5zkH2uhMW0mq2VEDRjY4EP12coMWOnwZsdF8Qoj8x39YPR6QSS28Op6g/DLT5DszchwBlpSXHUJEL0/2iw/5A4OnIF5tMcutpkzq+wX3B+WaTqUi9yffto9/LL9/PEUbED50U94ffguwpIMVBUoxvTNhHO1PJmJKGtP1D9PROapQTp+BjzRMfFwe+9WaYPTr2iG5XZ5cNewyQrPcFGdjXOlEGgS3xxIl25l/jHgUHNZKIOKka1h4gajPxNstjnrMkMNaKnGdFo/GwkqnD2igiVT+0oLekIJ0dkVmOecuJJWUVmwCj9xZc//wW1Xunua9zGXjOeSliArnFFoyq3Md1ktOcTOoaKlWM3+0rgNA/2miYzfyMWGuFUACiQ8+fA98j0I7BcLiiUKa1/pD1fLHUcKknrnSA/hPwRBnlmDGtM2FCZobi3jIltZnadkviCpLjSObq7fE59w/+K0fxZn4GKs/xpEtss7xXxs0CmyJwZ6WVxlZAObfUPiRIdj+tglnB31ZdTNWe+7cC9f8zaQYs8+iaiM6DWehOI1o80RcIAuiU10sba89gqSkn+eOfPvzwg4d/z/XJW05weEL18s4ZvYp+JuqhN2Y="
     - secure: "EGrZt/2EGOAzwcI69la5RgJ1Fr8uXM0TYarCheBrDVwcESNXccH9myyflN97m/jDrdyJB2fmVgI2WDpFdvnpEXNC7+lTEhApgFx6L1TwE/s5Fj6Kd72cERcPmDwLwzQFChXl2kjPTgu/Qr2u2X3EYCfEd0jRf+TcdHasvOLeGuQu7l0cnyW6WK+xMhF1wV8O9F1IdggyeysYIpP/v8rCtmjd268AqploBJ3cM3qau1F9NYBCSUPhu9eZfB0JRhHzeFDbNxRJtG+WZjk2CuGi1W8BGM/CeJkM/3b7iHMEwCYd8JW4k8ZYLSrPUiHkKxSeL9R12+p9u6AHMlXfEfO96Nt8pQkhVP9BxH374RRvQsIl5OxACTAW9XEiqTP7aRXIBSOxX6p3DxUXl6Ogn0d9U5rIu4SUAiaWW9e0k+Oeo/H3OGuerFlBIh6rW4kzVZ7ftcqzVRz9QgnrSy2r93BYzTWwM3eifkFQwtgnBSvXxM151leHOJ9r3PAiRup7V90WZBD4zytQSMaOc+fcdIWscP88sPcLXZEb6n6y7Ja3t5ASO58dXLw9EvqS4CsRYI08ltH85L/cq37dKgpvu33lsx1ZDksiMKtZW7tXhV1DZ9thl1JH/3f9QLRFz+02mJ6FD4PCJRYQvDDs5J4j7rf76FUlcBr+9bAN0sRnPL6UOms="
 script:
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then $PYTHON_EXE -m pygame.tests.__main__ --exclude opengl --time_out 300 > /dev/null 2> /dev/null; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then $(set | grep PYPI_ | python -c "import sys;print('\n'.join(['unset %s' % l.split('=')[0] for l in sys.stdin.readlines() if l.startswith('PYPI')]))"); fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then $PYTHON_EXE -m pygame.tests.__main__ --exclude opengl --time_out 300; fi
+  - $PYTHON_EXE -m pygame.tests.__main__ --exclude opengl --time_out 300
 
 after_success:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then source .travis_osx_after_success.sh; fi
@@ -68,7 +69,7 @@ deploy:
   provider: releases
   api_key:
     secure: YKhjdG2ZXLOEq9AhZ7Ws3GmXt4eSXMubW9TpcNJctFH5nQ0As1t/jzwfXLl+PjfDctMDcUY2Yl/kBDs/mSPY5Tt12XhfgOEdOSTvPyMGoIK5a+3Zvb8votCvsm4u4wtjb53W1W4maeQfgtUgasxo3bYZf2TKyPKKtzbtwQUbWg0yGSGZ4fwrbLxrTnpXQeUdftKsB1cq1dk+15TvaFcoL2uStst/3BqwgCIlStMxr8PDZe+twtzg+zfPj4TVDYLSQQJ3kwjfHxsfxsM1P8FHDt//kn8a1d4NJuPg9gsHD3VhzP5I3WQLp4lHQLlJD7z+R9Qf/WpYEh2i7+L/fbeHyIJZ94xJPCUMfij4hVz3naHtcgoMc8gQvQZ9a/i7v8SwgLtbA8JtNUe21iGftdTFc5CKpXh4pWaRRgzVNnYf3WaUl65dsXmR5qgaW+tyaPtmx2kTM/Uk7rY069/OLHzSLAG8NmVkleoj2fa/FhXe9rcLzEOdNRUCctRqHWeNh71SgHGK2ri0rJ6pHbXZpVOkmvgsqSNr0Q/6Kx5dpd8kV/oDbIuKPBMWSqpFsSnXFsLlr/AdKh8Rg6AOvUQL7J2oJHj1aMfv8ow6PVYA+Kba0Ww4D42WUimzJxJ/CouDIQDApY4l/rc3+GzgS9UEphofxQd4EulhwhkTK9jIfEQcIGs=
-  file: dist/*
+  file: dist/*.whl
   file_glob: true
   skip_cleanup: true
   on:
