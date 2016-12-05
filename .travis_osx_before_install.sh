@@ -8,11 +8,8 @@ brew update
 echo -en 'travis_fold:end:brew.update\\r'
 export HOMEBREW_NO_AUTO_UPDATE=1
 
-brew unlink pkg-config
+brew uninstall --force --ignore-dependencies pkg-config
 brew install pkg-config
-brew link pkg-config
-brew unlink libpng
-brew unlink libtiff
 
 # brew install ccache
 # export PATH=/usr/local/opt/ccache/libexec:$PATH
