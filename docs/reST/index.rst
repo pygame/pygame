@@ -36,20 +36,20 @@ Documents
 Tutorials
 ---------
 
-`Introduction to Pygame`_
+:doc:`Introduction to Pygame <tut/PygameIntro>`
   An introduction to the basics of Pygame.
   This is written for users of Python and appeared in volume two of the Py magazine.
 
-`Import and Initialize`_
+:doc:`Import and Initialize <tut/ImportInit>`
   The beginning steps on importing and initializing Pygame.
   The Pygame package is made of several modules.
   Some modules are not included on all platforms.
 
-`How do I move an Image?`_
+:doc:`How do I move an Image? <tut/MoveIt>`
   A basic tutorial that covers the concepts behind 2D computer animation.
   Information about drawing and clearing objects to make them appear animated.
 
-`Chimp Tutorial, Line by Line`_
+:doc:`Chimp Tutorial, Line by Line <tut/ChimpLineByLine>`
   The pygame examples include a simple program with an interactive fist and a chimpanzee.
   This was inspired by the annoying flash banner of the early 2000's.
   This tutorial examines every line of code used in the example.
@@ -60,12 +60,12 @@ Tutorials
   The Sprite classes are a bit more advanced than the regular Pygame modules,
   and need more understanding to be properly used.
 
-`Surfarray Introduction`_
+:doc:`Surfarray Introduction <tut/SurfarrayIntro>`
   Pygame used the Numpy python module to allow efficient per pixel effects on images.
   Using the surfae arrays is an advanced feature that allows custom effects and filters.
   This also examines some of the simple effects from the Pygame example, arraydemo.py.
 
-`Camera Module Introduction`_
+:doc:`Camera Module Introduction <tut/CameraIntro>`
   Pygame, as of 1.9, has a camera module that allows you to capture images,
   watch live streams, and do some basic computer vision.
   This tutorial covers those use cases.
@@ -73,8 +73,11 @@ Tutorials
 :doc:`Newbie Guide <tut/newbieguide>`
   A list of thirteen helpful tips for people to get comfortable using Pygame.
 
-`Making Games Tutorial`_
+:doc:`Making Games Tutorial <tut/MakeGames>`
   A large tutorial that covers the bigger topics needed to create an entire game.
+
+:doc:`Display Modes <tut/DisplayModes>`
+  Getting a display surface for the screen.
 
 Reference
 ---------
@@ -182,21 +185,3 @@ Reference
 .. _File Path Function Arguments: filepaths.html
 
 .. _LGPL License: ../LGPL
-
-.. _Introduction to Pygame: tut/intro/intro.html
-
-.. _Import and Initialize: tut/ImportInit.html
-
-.. _How do I move an Image?: tut/MoveIt.html
-
-.. _Chimp Tutorial, Line by Line: tut/chimp/ChimpLineByLine.html
-
-.. _Sprite Module Introduction: tut/SpriteIntro.html
-
-.. _Surfarray Introduction: tut/surfarray/SurfarrayIntro.html
-
-.. _Camera Module Introduction: tut/camera/CameraIntro.html
-
-.. _Newbie Guide: tut/newbieguide.html
-
-.. _Making Games Tutorial: tut/tom/MakeGames.html

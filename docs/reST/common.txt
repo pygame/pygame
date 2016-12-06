@@ -9,3 +9,6 @@
 
 .. role:: sg(signature)
    :class: signature
+
+.. role:: small-heading
+   :class: small-heading

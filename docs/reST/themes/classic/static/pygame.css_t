@@ -98,6 +98,49 @@ span.linkdescr {
     padding: 1em 0 0 0;
 }
 
+/* -- tutorial page --------------------------------------------------------- */
+
+div.body table.docinfo {
+    font-size: 0.9em;
+    margin-left: 3em;
+}
+
+div.body table.docinfo th {
+    text-align: left;
+    font-weight: bolder;
+}
+
+div.body table.docinfo td {
+    padding-left: 1em;
+}
+
+div.body table.matrix th,
+div.body table.matrix td {
+    border-right: 0.1em solid black;
+}
+
+div.body table.matrix th:last-child, 
+div.body table.matrix td:last-child {
+    border-right-style: none;
+}
+
+div.body table.matrix th {
+    font-weight: bolder;
+}
+
+div.body table.matrix th.head {
+    text-align: center;
+    border-bottom: 0.2em double black;
+}
+
+div.body table.matrix td {
+    text-align: center;
+}
+
+div.body table.matrix th.stub {
+    text-align: left;
+}
+
 /* -- general index --------------------------------------------------------- */
 
 table.indextable td {
@@ -539,6 +582,12 @@ div.highlight pre {
     border: none;
 }
 
+table.highlighttable,
+table.highlighttable pre {
+    border: none;
+    background-color: #eeffcc;
+}
+
 .warning tt {
     background: #efc2c2;
 }
@@ -558,6 +607,97 @@ div.body > div.section > dl > dt.title {
     font-size: 120%;
     font-weight: bold;
     margin-bottom: 1em;
+}
+
+/* Visually separate an element from previous content in a section */
+div.body .leading {
+    margin-top: 0.5em;
+}
+
+/* Visually separate an element from following content in a section */
+div.body .trailing {
+    margin-bottom: 0.75em;
+}
+
+/* An element that spans the width of its section */
+div.body div.fullwidth div,
+div.body div.fullwidth img {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+div.body div.fullwidth p {
+    text-align: center;
+}
+
+/* A two column table with link, description pairs. */
+table.more-to-explore,
+table.more-to-explore th,
+table.more-to-explore td {
+    border: 0.2em double black;
+    border-collapse: collapse;
+    background-color: inherit;
+}
+
+table.more-to-explore caption {
+    text-align: left;
+    font-size: larger;
+    background-color: inherit;
+}
+
+table.more-to-explore th,
+table.more-to-explore td {
+    padding: 0.2em 2em 0.3em 0.5em;
+}
+
+/* */
+div.body p.small-heading {
+    margin-bottom: 0.2em;
+    font-size: small;
+}
+
+/* Inlined element float right */
+div.body div.inlined,
+div.body img.inlined-right {
+    display: inlined-right;
+    float: right;
+}
+
+/* */
+div.body .inset {
+    margin-left: 2em;
+}
+
+/* Code line reference text style */
+div.body span.codelineref {
+    text-decoration: underline;
+}
+
+/* Examples section: contains one or more example subsections */
+div.examples > div.example {
+    clear: both;
+    margin-top: 0.2em;
+    border: 0.1em solid teal;
+    padding: 0.2em;
+}
+
+div.example img {
+    float: left;
+    padding-right: 0.3em;
+    padding-bottom: 0.1em;
+    background-color: {{ theme_bgcolor }};
+}
+
+div.example p,
+div.example pre {
+    margin-top: 0;
+    margin-bottom: 0.4em;
+}
+
+div.example div.break {
+    clear: both;
+    height: 0;
 }
 
 /* -- tooltip style --------------------------------------------------------- */
