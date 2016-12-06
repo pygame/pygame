@@ -9,6 +9,7 @@ try:
     from sphinx.addnodes import module as section_prelude_end_class
 except ImportError:
     from sphinx.addnodes import index as section_prelude_end_class
+from sphinx.domains.python import PyClasslike
 
 from docutils.nodes import (section, literal, reference, paragraph, title,
                             document, Text, TextElement, inline,
@@ -22,12 +23,23 @@ DOT = as_unicode('.')
 SPACE = as_unicode(' ')
 EMDASH = as_unicode(r'\u2014')
 
+class PyGameClasslike(PyClasslike):
+    """
+    No signature prefix for classes.
+    """
+
+    def get_signature_prefix(self, sig):
+        return '' if self.objtype == 'class' else PyClasslike(self, sig)
+
 def setup(app): 
     # This extension uses indexer collected tables.
     app.setup_extension('ext.indexer')
 
     # Documents to leave untransformed by boilerplate
     app.add_config_value('boilerplate_skip_transform', [], '')
+
+    # Custom class directive signature
+    app.add_directive_to_domain('py', 'class', PyGameClasslike)
 
     # The stages of adding boilerplate markup.
     app.connect('doctree-resolved', transform_document)
