@@ -4,6 +4,515 @@
 # BREAK = change breaks existing code
 # BUG    = fixed a bug that was (or could have been) crashing
 
+
+[HG 3578:2b59043d4151] Aug 05, 2016
+    Manylinux wheel support. Binary wheels for linux.
+
+[HG 3548:2cee182f6ccf] Jul 21, 2016
+    Travisci config for OSX binary wheel building.
+
+[HG 3545:197a07b9fe49] Jul 14, 2016
+    Slow down the liquid example a bit
+    Minor fixes for glcube example
+
+[HG 3542:7b2c232deee4] Jul 10, 2016
+    Remove test for font object state after re-initing with nonexistant path.
+
+[HG 3540:287b8ed256bb] Jul 01, 2016
+    Open files using unicode paths on Windows
+
+[HG 3539:518bc4de88a6] Jul 01, 2016
+    Use filesystem encoding rather to decode paths rather than unicode_escape codec
+
+[HG 3537:8daaa6846e73] Jun 13, 2016
+    Allow for portmidi library to contain porttime, as on Fedora.
+
+[HG 3536:594db78c15c8] Jun 01, 2016
+    Only disable optimisations for msvc14
+
+[HG 3535:76a2ed848073] Jun 01, 2016
+    Try disabling optimisations for average_color function
+
+[HG 3522:a456af4b268f] Jun 01, 2016
+    Update appveyor link and badges in readme.rst
+
+[HG 3521:b6f7d0ebcc43] May 31, 2016
+    appveyor.yml edited online with Bitbucket
+
+[HG 3520:345a411689f6] May 31, 2016
+    Appveyor building of windows binary wheels.
+
+[HG 3497:52d5f9fca5d7] Sep 18, 2012
+    Ensure local directories are specified last for precedence for Unix
+
+[HG 3496:575c7a74d85a] May 17, 2016
+    Fix some command line option handling
+    Tidy up command line options for tests
+    Clean up some code we're no longer using
+    Restore non-zero exit code when tests fail
+    Remove unused test_not_implemented function
+    Remove pygame's copy of unittest, and monkeypatches for unittest
+    Use standard Python unittest module
+    Show end of failing test runner output as well as beginning
+
+[HG 3485:fba8622a39e8] May 17, 2016
+    Remove the very ancient numeric(pre numpy) support.
+
+[HG 3480:723e04797af4] Jun 07, 2014
+    fastevent corrected lock protection of all condition signaling
+
+[HG 3477:b5aaa063a03e] May 06, 2016
+    Exit with status 1 if sdl-config missing
+
+[HG 3476:f5c0e59c3397] May 06, 2016
+    Merge with avoid-internal-unittest
+
+[HG 3475:e926bc8c7d0e] May 06, 2016
+    Run the tests in a temporary working directory rather than the pygame package
+    Use correct import name of test runner module when installed
+    Run the subprocess test_runner by module name
+
+[HG 3471:60c959451153] Mar 05, 2016
+    Pull out ffmpeg and smpeg dependencies
+
+[HG 3469:58f7736edf45] Dec 16, 2014
+    Update docs with link to PEP 0440 version scheme standard.
+
+[HG 3464:5b28fbd5f717] May 05, 2016
+    Remove some references to numeric in overview docs
+    Remove numeric from array tests
+    Remove some more miscellaneous references to Numeric
+    Remove _numericsurfarray
+    Remove _numericsndarray
+
+[HG 3458:a46c0aeb905f] May 05, 2016
+    Setup/configure shouldn't prompt for input when non-interactive
+
+[HG 3456:a2d31e438e70] Dec 20, 2014
+    Use stdlib assertAlmostEqual instead of numpy's assert_almost_equal
+
+[HG 3455:e84e36098779] May 05, 2016
+    Add Python 3.5 to Travis
+
+[HG 3453:744e582a4ec2] Dec 16, 2014
+    On Travis-CI build for Python 2.7 and Python 3.4.
+
+[HG 3452:6ae6738583ba] May 04, 2016
+    Check lowercased fs encoding against lowercase constant
+
+[HG 3450:28ddc7a3196a] Mar 05, 2016
+    Allow running tests on Python 3.5
+
+[HG 3449:d61ea8eabd56] Dec 05, 2015
+    BUG: PixelArray memory leak when using multiple indexes
+
+[HG 3448:ba6678fd5412] Nov 28, 2015
+    For Surface, Rect, and Color types, resolve Issue #280
+
+[HG 3447:9e734fb59d01] Nov 28, 2015
+    BUG: pygame.Color('white') % pygame.Color('black') halts Python
+
+[HG 3445:5525f3e30956] Nov 25, 2015
+    Resolve Issue For Python 3.4, Color arithmetic does not argument type checking
+
+[HG 3444:96203be1d815] Nov 24, 2015
+    BUG: some_Rect.unionall_ip( [] ) returns a new Rect instead of None
+
+[HG 3443:cdb77d20ee8e] Nov 11, 2015
+    pygame.scrap on X11, fix copying into PRIMARY selection
+
+[HG 3442:30ee31659166] Oct 24, 2015
+    Weird English in colour key description
+
+[HG 3441:69f8bb62b679] Oct 24, 2015
+    PyColor OverflowError on HSVA with hue value of 360
+
+[HG 3440:572050f55835] Oct 22, 2015
+    on launchpad, getfilesystemencoding returns 'ANSI_X3.4-1968'.
+
+[HG 3439:d5552c9d653d] Sep 27, 2015
+    Added a build badge for launchpad.
+
+[HG 3438:8bdcd449963f] Sep 11, 2015
+    Correct AppVeyor build badge.
+
+[HG 3436:92167dd513cd] Sep 11, 2015
+    Adding pypi, and python2 + 3 badges to readme.
+
+[HG 3434:de10e1f00edc] Sep 10, 2015
+    Move the prebuilt build tools to their own pygame/build-external-dlls project
+
+[HG 3433:ea3b3bb8714a] Sep 07, 2015
+    remove some overlooked movie files
+
+[HG 3432:01a14aca0cf0] Sep 07, 2015
+    fix minor doc issues for playmus.py
+
+[HG 3431:f6f0834fd480] Sep 07, 2015
+    Add a music player example that used pygame.mixer.music
+
+[HG 3430:951fa2b681ce] Sep 07, 2015
+    Add a machine the suffix to the Windows prebuilt directory
+
+[HG 3429:b41bf2d9da56] Sep 07, 2015
+    Fix a Python 2/3 compatibility problem in a font_text.py unit test
+
+[HG 3428:e6b39ce99474] Sep 07, 2015
+    Remove (FILE *) sharing between rwobject C module and external libraries
+
+[HG 3427:d4ff4b9179f9] Sep 05, 2015
+    Link the travisci build badge to the build page.
+
+[HG 3425:faa5879a7e6b] Jul 19, 2015
+    Warn developers about automatic window stretching. Close issue #245.
+
+[HG 3424:e01d70daadb9] Jul 04, 2015
+    Do some freetype module cleanup.
+
+[HG 3423:6bd96b0a1b25] Jul 04, 2015
+    Remove two overlooked old doc pages
+
+[HG 3422:8b608af0f35d] Jul 03, 2015
+    Clarify documentation for a full SDL event queue: resolve Issue #168
+
+[HG 3421:e6a646891264] Jul 02, 2015
+    Remove Pygame's neglected, and broken, movie support: resolve Issue #238
+
+[HG 3420:db0804838ff0] Jun 29, 2015
+    Expand the docs for pygame.music.mixer.set_pos(): Resolve Issue #241
+
+[HG 3419:b0117d331d33] Jun 26, 2015
+    Fix Issue #246: Surface test fails on x86_64 Ubuntu
+
+[HG 3418:5b80352ee412] Jun 26, 2015
+    Reformat PySurface_Blit in surface.c debugging Issue #246
+
+[HG 3417:751b612df1d1] Jun 21, 2015
+    Fix a new buffer bug in the mixer module
+
+[HG 3416:5974ff8dae3c] May 02, 2015
+    Fix bug where pygame.color fails the unit test for x86-32 Linux
+
+[HG 3415:9ac6c2d577fc] May 02, 2015
+    Fix a bug in sysfont.py exposed by commit ae2e36d
+
+[HG 3414:dc57da440ac3] Apr 30, 2015
+    Decapitate zombie bug 52 (Motherhampster Bugzilla)
+
+[HG 3413:c95e75c79e21] Apr 29, 2015
+    A possible solution to Issue #131
+
+[HG 3412:ae2e36dc3f4c] Apr 27, 2015
+    Removed hard-coded font lists. They're not necessary,
+    and updating them every time that a new OS is released would be a burden.
+    Now, sysfont will depend on the registry (on Windows) or X11 fc-list (on any other OS)
+    to generate a system's font list.
+
+[HG 3411:7b227f4892f2] Apr 23, 2015
+    Reindent alphablit.c
+
+[HG 3410:c080fc971853] Apr 13, 2015
+    Close Issue #243, For a string with trailing spaces, freetype ignores the last space in boundary calculations
+
+[HG 3409:1418130101df] Apr 10, 2015
+    Close Issue #237, Memory overrun when text without descenders is rendered with underlining
+
+[HG 3408:128931b1d70f] Apr 07, 2015
+    Close Issue #242, freetype.Font.get_rect() ignores style defaults when the style argument is not given
+
+[HG 3403:db5966ca2b4d] Feb 15, 2015
+    Process lib/__init__.py with autopep8.
+
+[HG 3402:78fa571425e3] Feb 14, 2015
+    Replace try...except blocks with if...else blocks in lib/compat.py because they execute slightly more quickly.
+
+[HG 3400:21d229a4c181] Feb 07, 2015
+    remove some gcc 4.8.2 compiler warnings for imageext.c
+
+[HG 3399:3b3ba7749842] Jan 18, 2015
+    Close Issue #165, ResourceWarning: unclosed file for pygame_icon.bmp
+
+[HG 3398:727f7033ffe6] Jan 11, 2015
+    Close Issue #186, Test_freetype_Font_get_rect fails with freetype-2.5.1
+
+[HG 3397:ab487ab966a4] Jan 11, 2015
+    Make the pygame.freetype.init() cache_size argument actually work
+
+[HG 3396:5f22727d07e6] Jan 11, 2015
+    pygame.freetype.init() would crash on error
+
+[HG 3395:7213968d5e81] Dec 31, 2014
+    A fix for Issue 187: Pygame.tests.freetype_test segfaults on Python 3.4b1
+
+[HG 3393:b26e6d95fe72] Dec 29, 2014
+    Fix bug where PyBuffer_Release is called after a Python error is raised
+
+[HG 3392:b7609599015d] Dec 28, 2014
+    Include gcc libaries in the Pygame Windows install
+
+[HG 3390:9260d857774e] Dec 27, 2014
+    Color masks in jpeg save code on big endian fixed. Applies to issue #221;
+
+[HG 3389:e6407e81be55] Dec 23, 2014
+    Reconfigure the msys_build_deps.py build chain to link only to msvcrt.dll
+
+[HG 3388:08c495db0c53] Dec 22, 2014
+    Remove cross library FILE * dependencies in imageext.c
+
+[HG 3386:da5514cb5675] Dec 16, 2014
+    Fix for issue #230. Skip test_image_convert_bug_131 for headless tests.
+
+[HG 3384:b08471ecc2a0] Dec 15, 2014
+    Fix for issue 226, FontTest.test_render_args unit test fails on headless machine
+
+[HG 3382:64f9038c292d] Dec 17, 2014
+    Use UTF-8 filenames on Linux systems claiming that the filesystem encoding is
+
+[HG 3379:04d8563ce724] Dec 14, 2014
+    Fix issue 227. test_array_keyword in mixer_test.py fails when using disk as audio driver
+
+[HG 3376:f92be56108cb] Dec 14, 2014
+    Fix issue 225. test_set_grab_and_get_symmetric unit test fails on automated build bot without a display
+
+[HG 3371:8a7a6ce2a852] Dec 15, 2014
+    Update to only skip tests if we have a dummy video driver.
+
+[HG 3370:676f8d6cbb8a] Dec 15, 2014
+    Conditionally skip Freetype tests using subprocess_ignore
+
+[HG 3362:ca4834ff9372] Apr 22, 2014
+    Bug fix: Red and green channels inversion on AMD 64 (see issue #39).
+
+[HG 3361:e3ae850caa1e] Nov 03, 2014
+    fix issue 214, math.Vector2.rotate fails on certain inputs
+
+[HG 3353:567f3cc4f554] Sep 09, 2014
+    Pre-declare src/dstdiff64 variables--otherwise this module fails to compile using C90 mode in gcc
+
+[HG 3350:fd200cdb6897] Oct 12, 2014
+    Fix drawâ†”blit typo in the example code in MoveIt tutorial
+
+[HG 3349:823708f24a3a] Apr 28, 2014
+    Fix testcase failure when using Python's unittest module.
+
+[HG 3346:78ee68c7ede6] Jan 31, 2014
+    Fixes to always compile SCRAP on MacOSX.
+
+[HG 3345:ee208d86eb98] Jan 23, 2014
+    For issue #165, on quit tell it that the icon has not been set.
+
+[HG 3344:cd66fb7efeec] Jan 23, 2014
+    Added unit tests for pygame.math inplace operators.  Fixes #172
+
+[HG 3343:32919bdd25e9] Jan 22, 2014
+    Catch NotImplementedError when pkg_resources fails..  Fixes #184
+
+[HG 3342:6adea40ae4f7] Jan 21, 2014
+    Fix typo in doc index: closes issue #190
+
+[HG 3341:4ed9cb765867] Jan 16, 2014
+    A fix for the SysFont hang on OS X 10.9 mentioned in issue #179
+
+[HG 3340:90f8019b31d2] Nov 08, 2013
+    Add a pygame.freetype module code point unit test (closes Issue #75)
+
+[HG 3339:46ed0161021c] Nov 08, 2013
+    Finish freetype module doc page (towards Issue #75)
+
+[HG 3338:3299e2cc3c4c] Nov 05, 2013
+    fix problem in PixelArray with sequence item access
+
+[HG 3337:b59ccbbd4586] Nov 01, 2013
+    For BufferProxy old buffer support, handle (void *) better.
+
+[HG 3336:56e0eadfc267] Oct 28, 2013
+    Bug fix: Segfault on surface.get_bounding_rect(). Closes Issue #180
+
+[HG 3335:c80631c9c518] Oct 26, 2013
+    _freetype.c msvc compatibility for Issue #181
+
+[HG 3334:e352941a02d1] Oct 26, 2013
+    add a fgcolor property to freetype.Font (towards Issue #75)
+
+[HG 3333:e0a9058d639d] Oct 25, 2013
+    enable freetype.Font.get_rect() to reuse layouts with render methods (towards Issue #75)
+
+[HG 3332:bb1dac8cba21] Oct 21, 2013
+    for bitmap files freetype.Font uses first available size as default (towards Issue #75)
+
+[HG 3331:3c84a0ef193a] Oct 20, 2013
+    Use real fixed width font in test_freetype_Font_init (towards issue #75)
+
+[HG 3330:2e27cc842430] Oct 20, 2013
+    enable ucs4 unit tests for freetype.Font.get_rect() (towards Issue #75)
+
+[HG 3329:96fe757a54ce] Oct 20, 2013
+    allow (width, height) freetype.Font size values (towards Issue #75)
+
+[HG 3328:054dbe9b0457] Oct 20, 2013
+    handle size errors consistently for freetype.Font sized methods (toward Issue #75)
+
+[HG 3327:2bf12751af9c] Oct 19, 2013
+    changeset d2feb84c6b76 broke freetype_misc.py example, fix
+
+[HG 3326:419b0740d3df] Oct 18, 2013
+    error check pygame.freetype.Font scalable font properties (toward Issue #75)
+
+[HG 3325:25010374a4e4] Oct 17, 2013
+    SDL_SOUNDFONTS handling in base_test.py
+
+[HG 3324:d2feb84c6b76] Oct 17, 2013
+    improve pygame.freetype.Font text rotation handling (towards Issue #75)
+
+[HG 3323:b0f518dee138] Oct 17, 2013
+    improve pygame.freetype.Font font size handling (towards Issue #75)
+
+[HG 3322:8f252e8487ca] Oct 16, 2013
+    reduce pygame.freetype.Font.__init__ args (towards Issue #75)
+
+[HG 3321:0d2fb51b889b] Oct 15, 2013
+    add use_bitmap_strike property to pygame.freetype.Font (towards Issue #75)
+
+[HG 3320:2aa48db2cbcf] Oct 14, 2013
+    add bitmap size introspection to pygame.freetype.Font (toward Issue #75)
+
+[HG 3319:4459d217993f] Oct 11, 2013
+    some small document changes
+
+[HG 3318:9fd0e65e51c0] Oct 10, 2013
+    make setup.py work with Python 2.5 (again)
+
+[HG 3317:d739db5c3152] Oct 10, 2013
+    Make hg ignore /docs/_images
+
+[HG 3316:642e892bffeb] Oct 10, 2013
+    Add hg identifier to MSI installer filename
+
+[HG 3315:ea8244e1ad8f] Oct 10, 2013
+    Automatically generate the version module with setup.py
+
+[HG 3314:a6f89747b551] Oct 09, 2013
+    Remove some gcc compiler warnings for freetype module
+
+[HG 3313:1750c209cb17] Oct 09, 2013
+    Fix reference counting problems with array interface
+
+[HG 3312:1092594179b4] Oct 06, 2013
+    Fix some CPyChecker warnings for pixelcopy (toward issue #171)
+
+[HG 3311:91ac7a674af5] Oct 06, 2013
+    Fix some CPyChecker warnings for pixelarray (toward issue #171)
+
+[HG 3310:9e222e19d04f] Oct 03, 2013
+    Start of 1.9.2 alpha releases
+
+[HG 3309:6edd09029351] Oct 02, 2013
+    Fix some CPyChecker detected bugs in imageext.c and font.c
+
+[HG 3308:12de2da43ecb] Sep 30, 2013
+    Better document EventType properties: closes issue #166
+
+[HG 3307:bf49fd02a920] Sep 28, 2013
+    Font issue for mac on PPC, Address issue #177 (untested)
+
+[HG 3306:c4a65a9b8049] Sep 26, 2013
+    merge in Mac specific fixes
+
+[HG 3304:1e135264f0ab, 3303:9ccc6160cc6d, 3302:b51cd33153a7] Sep 20, 2013
+    Fix bug introduced into little-endian code in changeset b51cd33153a7
+    Big-endian fixes to pygame.PixelArray
+    Big-endian fixes for pygame.Surface
+
+[HG 3301:c86a02a3a516] Sep 16, 2013
+    Some big-endian fixes (ppc)
+
+[HG 3300:f97ba2662193] Sep 10, 2013
+    Add c_ssize_t to ctypes module if not already present
+
+[HG 3299:82f658d7596b] Sep 26, 2013
+    Another bug fix towards issue #175
+
+[HG 3298:746036fc6f60] Sep 26, 2013
+    Fix bug in PyPixelArray tp_new function where weakrefs C field is clobbered
+
+[HG 3297:610dbf3cd11d] Sep 21, 2013
+    Possible fix for issue #175, uncomfirmed
+
+[HG 3296:8c69d1a163a5] Sep 21, 2013
+    Bug fix of pygame.PixelArray involving returned repr string
+
+[HG 3295:b6e948d2e8e3] Sep 10, 2013
+    Make the Surface.get_at_mapped method value consistent with Surface.map_rgb
+
+[HG 3294:e5f2ccbf7965, 3293:9cac2ec83346] Sep 10, 2013
+    Fix for font error on x86_64
+
+[HG 3292:851743cb4c5a] Aug 19, 2013
+    Fix memory overrun bug with pygame.freetype.render_raw()
+
+[HG 3291:35b62579fd70] Aug 13, 2013
+    A patch for issue #172 from Lorenz Quack for inplace operators in Math.Vector2.
+
+[HG 3290:62f61425b394] Jul 28, 2013
+    Fix pygame.pixelcopy function problems with big-endian processors
+
+[HG 3289:c780a5d7db49] Jul 28, 2013
+    Allow switching the byte order of a Python int to big or little endian
+
+[HG 3288:927d431d16fc] Jul 28, 2013
+    Add an Array test type to pygame.tests.test_utils.arrinter
+
+[HG 3286:52175e810e1c] Jul 13, 2013
+    Bring in corrections to assert statements
+
+[HG 3285:ac4f6f62660e] Jul 10, 2013
+    Correct faulty assertions added to the C code in changeset 67f1c85 and later
+
+[HG 3284:9b8c3950b131] Jul 10, 2013
+    Tiny typo fix for weird endian machines.
+
+[HG 3283:11e8afc09495] Jul 02, 2013
+    Refactor the casting between the C (Py_buffer *) and (Pg_buffer *) types
+
+[HG 3282:5e00ad848732] Jul 02, 2013
+    Remove unused Pg_buffer_d typedef
+
+[HG 3281:23f848d95c8b] Jun 29, 2013
+    Clean up white space in C source files
+
+[HG 3280:8610c95e23e2] Jun 28, 2013
+    Add class pygame.BufferProxy to Pygame's public Python API
+
+[HG 3279:5435417840f7] Jun 15, 2013
+    Restore the Surface.get_view() method
+
+[HG 3278:0cac3d110a96] Jun 14, 2013
+    fix a new buffer format bug involving an item count of 1: Part 2
+
+[HG 3277:0a029b48c303] Jun 14, 2013
+    Extend buftools.Exporter to allow an arbitrary format when an itemsize is given
+
+[HG 3276:e452a8d244b9] Jun 14, 2013
+    Enhance buftools.Exporter to support negative strides
+
+[HG 3275:888562b53dfa] Jun 12, 2013
+    replace another ambiguous switch statement default clause
+
+[HG 3274:35c6f1cb33b5] Jun 11, 2013
+    replace ambiguous switch statement default clauses with specific comments
+
+[HG 3273:9b76f5fe1984] Jun 11, 2013
+    Fix Python 3.x compatibility issue introduced in changeset f7a9049e3b31
+
+[HG 3272:f7a9049e3b31] Jun 08, 2013
+    Fix handling of new buffer format verification in base.c
+
+[HG 3271:8e732f6e912d] Jun 08, 2013
+    verify pygame.tests.test_utils.buftools.Exporter supports boolean arrays
+
+[HG 3270:0ecf23052547] Jun 08, 2013
+    fix a new buffer format bug involving an item count of 1
+
 [HG 962e528796ab] May 26, 2013
     Add full Python new buffer protocol support to Pygame 1.9.2. In addition
     Python level array interface support is added to several Pygame objects
@@ -34,14 +543,14 @@
     implements the high level classes used in the actual unit tests. Also,
     a new class in pygame.tests.test_utils.arrinter exports a C level
     array interface from the Python level.
-    
+
 [SVN 3062] Mar 30, 2011
     Port scrap module to Python 3.x (merge with branches/port_scrap_py3).
     Accidently committed in rev 3061.
 
 [SVN 3057-3061]
     Update Pygame Event type to have mutable attributes as per feature request
-    62 on Motherhamster's Bugzilla 
+    62 on Motherhamster's Bugzilla
 
 [SVN 3006] Feb 24, 2011
     [BUG] Fix hanging pointer problem in color.c.
@@ -95,7 +604,7 @@
     Fix freetype.c build bug involving PyFREETYPE_C_API not defined.
 
 [SVN 2952-2954] Jan 05, 2011
-    [bug] GroupSingle memory leak posted in mailing list by Tobias Steinrücken.
+    [bug] GroupSingle memory leak posted in mailing list by Tobias SteinrÃ¼cken.
 
 [SVN 2951] Nov 14, 2010
     Reenable the camera module for linux.
@@ -188,7 +697,7 @@
 [SVN 2828-2845] July 10-28, 2010
     Update Windows dependency build chain to build the latest versions of the libraries.
     Uses MinGW gcc 4.5.0 and Msys 1.0.11. Dependencies can now be built with Python 3.1.
-    
+
 [SVN 2824-2825] June 9-10, 2010
     Update ffmpeg building with msys on Windows.
 
@@ -219,7 +728,7 @@
     [BUG] Add set_pos method to pygame.music.mixer that calls Mix_SetMusicPosition
       SDL_mixer function. As per the feature request by Mark Reed on the
       mailing list (16/05/10).
-        
+
 [SVN 2808] May 24, 2010
     [BUG] Fixes bug in pygame.draw.line where the wrong rectangle was returned
       for a line with width > 1 and the end point y value less than the
@@ -238,7 +747,7 @@
 
 [SVN 2516] July 16, 2009
     Pygame dependency build now replaces the configure
-    generated SDL_config.py, which MSVC can not use,  with 
+    generated SDL_config.py, which MSVC can not use,  with
     SDL_config_win32.py
 
 [SVN 2515] July 15, 2009
@@ -256,7 +765,7 @@
     [BUG] python3.1 support for OSX.
 
 [SVN 2486-2488] July 8, 2009
-    [BUG] 64bit issues with Surface.get_masks and UintFromObj. 
+    [BUG] 64bit issues with Surface.get_masks and UintFromObj.
         thanks Lorenz Quack!
     [BUG] Color slicing works with python3 now too.
 
@@ -265,12 +774,12 @@
 
 [SVN 2472] July 6, 2009
     [BUG]Fixed some failing tests for Color and LONG_MAX on 64bit python.
-    From Campbell Barton.FloatFromObj speedup. 
+    From Campbell Barton.FloatFromObj speedup.
       register_quit cleanup.
       PyErr_Format used in CheckSDLVersions.
 
 [SVN 2454] July 2, 2009
-    [BUG] Patch to work around cpu detection bugs in SDL 64bit from Lenard.  
+    [BUG] Patch to work around cpu detection bugs in SDL 64bit from Lenard.
       Thanks to Lorenz for bug hunting.
 
 [SVN 2380-2381] Jun 19, 2009
@@ -326,10 +835,10 @@
 [SVN 2248-2261] May 26, 2009
     Disable debug printing for Windows build of portmidi.
     Symbian Launcher:
-      - Removed unneeded buffer to save memory   
-      - Removed fade from slide animations to improve performance   
-      - Increased heap size to 100k,4Mb   
-      - Don't byte compile regular scripts so they can be easily edited.    
+      - Removed unneeded buffer to save memory
+      - Removed fade from slide animations to improve performance
+      - Increased heap size to 100k,4Mb
+      - Don't byte compile regular scripts so they can be easily edited.
     Symbian other:
       - The pygame library is now zipped as well for better performance.
     Removed color.py warning from Symbian. It is used as wrapper for the
@@ -510,7 +1019,7 @@
     [BUG] SDL_gfx used WIN32 macro instead of _WIN32 to detected Windows.
 
 [SVN 2040] Apr 24, 2009
-    SDL_gfx module officially added to Pygame. 
+    SDL_gfx module officially added to Pygame.
 
 [SVN 2024] Apr 18, 2009
     A quick fix for jpeg saving not checking color order in 24 bit surfaces
@@ -824,7 +1333,7 @@ Dec 05, 2008
 
 Aug 30, 2008
     [BUG] Fixed CREATE_PIXEL macro's use of Aloss
-    which was making surface.fill with surfaces with no alpha go green 
+    which was making surface.fill with surfaces with no alpha go green
 
 
 release_1_8_1release
@@ -864,7 +1373,7 @@ Jun 16, 2008
     locks.
     [BUG] Fixed Surface.get_locked() bug for Surfaces which do not
       require locking, but have third-party locks attached.
-    
+
 Jun 13, 2008
     [BUG] Fixed bug with mixer.get_init() Thanks Frankie Robertson!
     [BUG] Fixed long alpha overflow bug in Surface.set_alpha().
@@ -880,14 +1389,14 @@ May 24, 2008
     New Color class for color management.
 
 Apr 30, 2008
-    updates to the sprite.py collision functions that update them to match 
-        the modules coding style, include appropriate comments, and are 
-        about 20% faster. It also includes a collide_circle_ratio function 
-        for completeness, and perhaps most importantly, fixes a bug in 
+    updates to the sprite.py collision functions that update them to match
+        the modules coding style, include appropriate comments, and are
+        about 20% faster. It also includes a collide_circle_ratio function
+        for completeness, and perhaps most importantly, fixes a bug in
         colide_mask which kept it from working correctly.  Also added unittests
         for the collision functions.  Thanks John Krukoff!
 
-    [BUG] sound crackles on windows; restored chunk size 
+    [BUG] sound crackles on windows; restored chunk size
         calculation to pre 1143
 
     Added \#!/usr/bin/env python to the top of examples that didn't have it.
@@ -899,7 +1408,7 @@ Apr 13, 2008
 Apr 12, 2008
     [BUG] Fixed png saving, and saving jpeg with capital letter extensions
         Thanks Nick Irvine!
-        
+
 Apr 11, 2008
     New PixelArray.compare() method to compare two PixelArrays.
 
@@ -933,10 +1442,10 @@ Mar 18, 2008
 Mar 16, 2008
     the play functions of mixer.Channel and mixer.Sound both now take keyword
       arguments, and accept a fade_ms argument that makes the sound fade in
-    
+
 Mar 9, 2008
     pygame.display.set_mode() will now respect the screen resolution settings
-      for the width or height set to 0 as supported by SDL >= 1.2.10. 
+      for the width or height set to 0 as supported by SDL >= 1.2.10.
       Thanks Lorenz Quack!
 
 Mar 5, 2008
@@ -944,29 +1453,29 @@ Mar 5, 2008
         they do not seem to be thread safe.
 
     [BUG] A work around for 8 bit samples being stereo reversed with SDL_mixer.
-        Also check the return value of Mix_SetPanning, and raise an 
+        Also check the return value of Mix_SetPanning, and raise an
         error on volume errors.
 
-    [BUG] Changed default chunk size for pygame.mixer to 1024*3.  Which is 
-        the magic number which stops scratchy sounds on most systems.  
-        However it does make sounds a bit laggier... it's best provided as 
+    [BUG] Changed default chunk size for pygame.mixer to 1024*3.  Which is
+        the magic number which stops scratchy sounds on most systems.
+        However it does make sounds a bit laggier... it's best provided as
         a config item for users.
 
     Updated pygame.display.update() to release the GIL whilst doing things,
         so other threads can do things whilst it's updating the screen.
 
     Some comments to help Mac OSX people installing, and compiling pygame.
-        About bdist_mpkg in setup, and also fixed an exception message 
+        About bdist_mpkg in setup, and also fixed an exception message
         to be nicer about requiring pyobjc.
 
 Mar 3, 2008
-    [BUG] Fixed up pygame.mask.from_surface, got color key, and perpixel alpha 
+    [BUG] Fixed up pygame.mask.from_surface, got color key, and perpixel alpha
         modes reversed.
 
-    Also added better test to the mask test.  
+    Also added better test to the mask test.
         Also it wasn't testing pygame.mask.from_surface at all!
 
-    Added pygame.sprite.collide_mask to join the mask_* collision functions.  
+    Added pygame.sprite.collide_mask to join the mask_* collision functions.
         Started adding test for pygame.sprite.spritecollide.
 
 
@@ -986,7 +1495,7 @@ Feb 11, 2008
     An example of using pygame with no windowing system.  Useful for webserver
       scripts, or for little utilities.
 
-    Updated mac_scrap to pass some tests, and raise NotImplementedError 
+    Updated mac_scrap to pass some tests, and raise NotImplementedError
       otherwise.
 
     Further Windows build updates:
@@ -1042,8 +1551,8 @@ Sep 1, 2007
      BufferProxy - which is a buffer interface only class.  Thanks Marcus!
 
 Aug 23, 2007
-    pygame.image.tostring changes from Brian Fisher. 
-      RGBA_PREMULT & ARGB_PREMULT type to image.tostring (a very 
+    pygame.image.tostring changes from Brian Fisher.
+      RGBA_PREMULT & ARGB_PREMULT type to image.tostring (a very
       nice thing for getting images into OpenGL)
 
 Aug 22, 2007
@@ -1052,9 +1561,9 @@ Aug 22, 2007
         Thanks Lenard Lindstrom and Brian Fisher.
 
 Aug 15, 2007
-    The sprite module has had some big changes from DR0ID.  It now has a 
+    The sprite module has had some big changes from DR0ID.  It now has a
      LayeredUpdates, and LayeredDirty groups.  For using layers when
-     rendering the sprites.  LayeredDirty is an alternative to 
+     rendering the sprites.  LayeredDirty is an alternative to
      RenderUpdates that automatically finds the best display method
      (either full screen updates, or dirty rect updates).  It's faster
      if you have sprites that don't move.  Thanks DR0ID!
@@ -1078,7 +1587,7 @@ May 30, 2007
       Thanks piman!
     surface.fill() now takes the same BLEND_ADD BLEND_SUB etc flags that
       surface.blit() takes.  Which makes fade to white, and fade to black
-      type operates simple and fast.  Thanks Marcus!!  
+      type operates simple and fast.  Thanks Marcus!!
     Added the GL_SWAP_CONTROL constant from SDL.  Thanks Eyal Lotem!
     Added the new blitters from Marcus.  These speed up the blend functions
       and the alpha blit function.
@@ -1087,7 +1596,7 @@ May 30, 2007
 
 May 9, 2007
     Windows image copy/paste is working for scrap.
-    Adding bitmask code from Ulf Ekström - for pixelperfect collision.
+    Adding bitmask code from Ulf EkstrÃ¶m - for pixelperfect collision.
       Still need to get unittest, documentation and some more methods added.
       There's a unittest with some problems checked in.
 
@@ -1164,8 +1673,8 @@ March 1, 2006
     A cursors.py example from Kamilche.  Thanks!
 
 February 11, 2006
-    Changed the behaviour of Clock.tick to use SDL_Delay instead of a busy 
-      loop.  Added a tick_busy_loop which uses the old behaviour.  This 
+    Changed the behaviour of Clock.tick to use SDL_Delay instead of a busy
+      loop.  Added a tick_busy_loop which uses the old behaviour.  This
       is more consistent with what people think Clock.tick() will do.
       That is, not use 100% cpu to get more accurate timing.
     testsprite.py example, which is based off the testsprite.c in SDL
@@ -1201,14 +1710,14 @@ September 1, 2005
 
 release_1_7_1release
 August 15, 2005
-    Fix to make Chinese fonts work better on windows.  
+    Fix to make Chinese fonts work better on windows.
       From retsyo  AT  eyou  Dot  com.
     Fix for Channel.set_volume() to not use panning if seting overall volume.
     Made setup put in missing files into the source distribution.
     Fix for fastevents example on linux.
 
 August 10, 2005
-    Fix for overlay.c to compile in windows.  
+    Fix for overlay.c to compile in windows.
     Fixed some warnings for font, and rotozoom with gcc4.
     Added an example for fastevents.
     Fix for config_unix.py with wrong paths for /usr/local
@@ -1426,7 +1935,7 @@ August 20, 2002
     fix rectstyle arguments
 
 August 15, 2002
-    Hervé Cauwelier's fix for xbm cursors without spaces
+    HervÃ© Cauwelier's fix for xbm cursors without spaces
 
 Auguest 14, 2002
     switched to FSF's FreeSansBold default font
@@ -1976,6 +2485,3 @@ Nov 11, 2000
 Nov 10, 2000
     Committed to CVS
     Added pygame.display.get_driver()
-
-
-

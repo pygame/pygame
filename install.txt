@@ -4,11 +4,17 @@ Python can be built from source, but the easiest way is to get a
 binary package for your type of system and version of Python. This
 document will give you information on either type of installation.
 
+pip install pygame
+
+pip
+Pip is the python package manager. There are tens of thousands of
+different modules available via the package index. Including pygame.
+This is the recommended method of installation on all platforms.
+
 Windows Binary Installer
-This is probably the most popular method of installation. If you are
-running on windows, it is highly recommended you use this form of
-installing. The installers come with with nearly everything you need
-and have an easy point and click installers.
+This is a very popular method of installation. The installers come
+with nearly everything you need and have an easy point
+and click installers.
 
 The first thing you will need is an installation of Python. Python
 binary installers make it easy to get this done. Pygame binaries
@@ -141,5 +147,5 @@ Mac OS X Compiling Info
 Up to date instructions for compiling on Mac OS X can be found here:
 http://pygame.org/wiki/MacCompile
 Reply
-		
+
 Forward
