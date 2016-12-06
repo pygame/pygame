@@ -18,7 +18,7 @@ def Run():
                         '-b', 'html',
                         '-d', rst_doctree_dir,
                         '-D', 'headers_dest=%s' % (c_header_dir,),
-                        '-D', 'headers_mkdir=0',
+                        '-D', 'headers_mkdirs=0',
                         rst_source_dir,
                         html_dir,])
 
