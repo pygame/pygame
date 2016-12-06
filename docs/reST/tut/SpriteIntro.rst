@@ -1,7 +1,12 @@
 .. TUTORIAL:Sprite Module Introduction
 
-Pygame Tutorials - Sprite Module Introduction
-*********************************************
+*************************************************
+  Pygame Tutorials - Sprite Module Introduction
+*************************************************
+
+
+Sprite Module Introduction
+==========================
 
 by Pete Shinners <pete@shinners.org>
 
