@@ -1,0 +1,114 @@
+
+Hopefully by this point you are starting to see how surfarray can be used to
+perform special effects and transformations that are only possible at the pixel
+level. At the very least, you can use the surfarray to do a lot of Surface.set_at()
+Surface.get_at() type operations very quickly. But don't think you are finished
+yet, there is still much to learn.
+
+
+
+Surface Locking
+===============
+
+Like the rest of pygame, surfarray will lock any Surfaces it needs to
+automatically when accessing pixel data. There is one extra thing to be aware
+of though. When creating the *pixel* arrays, the original surface will
+be locked during the lifetime of that pixel array. This is important to remember.
+Be sure to *"del"* the pixel array or let it go out of scope *(ie, when the function returns, etc)*.
+
+Also be aware that you really don't want to be doing much *(if any)*
+direct pixel access on hardware surfaces *(HWSURFACE)*. This is because
+the actual surface data lives on the graphics card, and transferring pixel
+changes over the PCI/AGP bus is not fast.
+
+
+
+
+Transparency
+============
+
+.. comment out
+   The surfarray module has several methods for accessing a Surface's alpha/colorkey
+   values. None of the alpha functions are effected by overal transparency of a
+   Surface, just the pixel alpha values. Here's the list of those functions.
+   <dl>
+   <dt>``surfarray.pixels_alpha(surface)``</dt><dd>Creates a 2D array *(integer pixel values)* that references the original surface alpha data. This will only
+   work on 32bit images with an 8bit alpha component.</dd>
+   
+   <dt>``surfarray.array_alpha(surface)``<dd></dd>Creates a 2D array *(integer pixel values)* that is copied from any type of surface. If the surface has no alpha
+   values, the array will be fully opaque values *(255)*.</dt>
+   
+   <dt>``surfarray.array_colorkey(surface)``<dd></dd>Creates a 2D array
+   *(integer pixel values)* that is set to transparent *(0)* wherever
+   that pixel color matches the Surface colorkey.</dt>
+   
+   </dl>
+   
+   
+
+Other Surfarray Functions
+=========================
+
+.. comment out
+   There are only a few other functions available in surfarray.
+   You can get a better list with more documentation on the
+   :mod:`surfarray reference page <pygame.surfarray>`.
+   There is one very useful function though.
+   <dl>
+   <dt>``surfarray.blit_array(surface, array)``</dt><dd>This will transfer
+   any type of 2D or 3D surface array onto a Surface of the same dimensions.
+   This surfarray blit will generally be faster than assigning an array to a
+   referenced pixel array. Still, it should not be as fast as normal Surface
+   blitting, since those are very optimized.
+   </dd>
+   </dl>
+
+
+
+
+More Advanced NumPy
+=====================
+
+There's a couple last things you should know about NumPy arrays. When dealing
+with very large arrays, like the kind that are 640x480 big, there are some extra
+things you should be careful about. Mainly, while using the operators like + and
+* on the arrays makes them easy to use, it is also very expensive on big arrays.
+These operators must make new temporary copies of the array, that are then
+usually copied into another array. This can get very time consuming. Fortunately,
+all the NumPy operators come with special functions that can perform the
+operation *"in place"*. For example, you would want to replace
+``screen[:] = screen + brightmap`` with the much faster
+``add(screen, brightmap, screen)``.
+Anyways, you'll want to read up on the NumPy UFunc
+documentation for more about this. It is important when dealing with the arrays.
+
+When dealing with the 16bit pixel arrays, NumPy doesn't offer an unsigned 16bit
+datatype, so some values will be treated as signed. Hopefully this does not
+present a problem.
+
+Another thing to be aware of when working with NumPy arrays is the datatype
+of the array. Some of the arrays (especially the mapped pixel type) often return
+arrays with an unsigned 8bit value. These arrays will easily overflow if you are
+not careful. NumPy will use the same coercion that you find in C programs, so
+mixing an operation with 8bit numbers and 32bit numbers will give a result as
+32bit numbers. You can convert the datatype of an array, but definitely be
+aware of what types of arrays you have, if NumPy gets in a situation where
+precision would be ruined, it will raise an exception.
+
+Lastly, be aware that when assigning values into the 3D arrays, they must be
+between 0 and 255, or you will get some undefined truncating.
+
+
+
+Graduation
+==========
+
+Well there you have it. My quick primer on Numeric Python and surfarray.
+Hopefully now you see what is possible, and even if you never use them for
+yourself, you do not have to be afraid when you see code that does. Look into
+the vgrade example for more numeric array action. There are also some *"flame"*
+demos floating around that use surfarray to create a realtime fire effect.
+
+Best of all, try some things on your own. Take it slow at first and build up,
+I've seen some great things with surfarray already like radial gradients and
+more. Good Luck.
