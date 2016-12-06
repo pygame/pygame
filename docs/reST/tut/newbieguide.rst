@@ -1,7 +1,14 @@
 .. TUTORIAL:David Clark's Newbie Guide To Pygame
 
+**************************
+  Newbie Guide to Pygame
+**************************
+
+.. title:: A Newbie Guide to pygame
+
+
 A Newbie Guide to pygame
-************************
+========================
 
 or **Things I learned by trial and error so you don't have to,**
 
