@@ -553,6 +553,13 @@ ul.simple {
     margin-bottom: 1em;
 }
 
+/* Top level section title format */
+div.body > div.section > dl > dt.title {
+    font-size: 120%;
+    font-weight: bold;
+    margin-bottom: 1em;
+}
+
 /* -- tooltip style --------------------------------------------------------- */
 
 a.tooltip {

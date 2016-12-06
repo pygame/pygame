@@ -44,15 +44,8 @@
   </div>
 {%- endmacro %}
 
-{#- Add one more div level
- #}
 {%- block body %}
-  <div class="sectionwrapper">
-    {%- if pagename != 'index' %}
-    <h1>{{ title }}</h1>
-    {%- endif %}
 {%-   block section %}{% endblock %}
-  </div>
 {%- endblock %}
 
 
