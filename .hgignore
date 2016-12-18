@@ -25,3 +25,4 @@ manylinux-build/wheelhouse/
 anenv
 dist
 .vagrant
+*.egg-info/
