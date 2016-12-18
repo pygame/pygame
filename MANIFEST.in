@@ -1,4 +1,4 @@
-include Setup.in Setup_Darwin.in Setup_Unix.in Setup_Win_Common.in *.py WHATSNEW readme.rst install.html readme.html LGPL
+include Setup.in Setup_Darwin.in Setup_Unix.in Setup_Win_Common.in *.py WHATSNEW readme.rst install.html readme.html LGPL version.py.in
 
 recursive-include docs *
 recursive-include lib *
