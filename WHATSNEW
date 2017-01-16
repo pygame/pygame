@@ -5,6 +5,21 @@
 # BUG    = fixed a bug that was (or could have been) crashing
 
 
+[HG 3623:096eec484a72] Jan 08, 2017
+    Build newer versions of libogg and libvorbis into Linux base images
+
+[HG 3619:48b78eed3d5d] Jan 01, 2017
+    Add Python 3.6 to Appveyor build
+
+[HG 3618:8316c8995b14] Jan 01, 2017
+    Add Python 3.6 for manylinux build
+
+[HG 3617:d9be8e370bc3] Dec 29, 2017
+    Add Python 3.6 (Linux) on Travis
+
+[HG 3615:a7661dbc576c] Dec 18, 2017
+    Include version.py.in in sdist
+
 [HG 3578:2b59043d4151] Aug 05, 2016
     Manylinux wheel support. Binary wheels for linux.
 
