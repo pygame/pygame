@@ -2512,7 +2512,7 @@ This implementation of the Wu antialiasing code is based on Mike Abrash's
 DDJ article which was reprinted as Chapter 42 of his Graphics Programming
 Black Book, but has been optimized to work with SDL and utilizes 32-bit
 fixed-point arithmetic by A. Schiffler. The endpoint control allows the
-supression to draw the last pixel useful for rendering continous aa-lines
+supression to draw the last pixel useful for rendering continuous aa-lines
 with alpha<255.
 
 \param dst The surface to draw on.
@@ -6031,7 +6031,7 @@ int characterRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, char c, Uint8 r, Uint8 
 /*!
 \brief Draw a string in the currently set font.
 
-The spacing between consequtive characters in the string is the fixed number of pixels 
+The spacing between consecutive characters in the string is the fixed number of pixels
 of the character width of the current global font.
 
 \param dst The surface to draw on.

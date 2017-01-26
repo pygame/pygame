@@ -62,7 +62,7 @@ configured.
    | :sg:`get_pos() -> (x, y)`
 
    Returns the ``X`` and ``Y`` position of the mouse cursor. The position is
-   relative the the top-left corner of the display. The cursor position can be
+   relative the top-left corner of the display. The cursor position can be
    located outside of the display window, but is always constrained to the
    screen.
 
