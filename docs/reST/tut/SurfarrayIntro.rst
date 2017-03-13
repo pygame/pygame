@@ -15,7 +15,7 @@ Surfarray Introduction
 
 :Author: Pete Shinners
 :Contact: pete@shinners.org
-:Revision: 1.9.2, Oct 32, 2016
+:Revision: 1.9.3, 2016-10-21? (Updated 2017-03-13)
 
 
 Introduction
@@ -67,7 +67,7 @@ with images. There's a bit more to it than this, but it is enough to get us
 started.
 
 If you look at the last command above, you'll see that mathematical operations
-on NumPy arrays apply to all values in the array. This is called "elementwise
+on NumPy arrays apply to all values in the array. This is called "element-wise
 operations". These arrays can also be sliced like normal lists. The slicing
 syntax is the same as used on standard python objects.
 *(so study up if you need to :] )*.
@@ -210,7 +210,7 @@ deal with, since it is essentially a 3D numeric array. Still, once you get your
 mind into the right mode, it is not much harder than using the normal 2D arrays.
 
 The NumPy module uses a machine's natural number types to represent the data
-values, so a NumPy array can consist of integers that are 8bits, 16bits, and 32bits.
+values, so a NumPy array can consist of integers that are 8-bits, 16-bits, and 32-bits.
 *(the arrays can also use other types like floats and doubles, but for our image
 manipulation we mainly need to worry about the integer types)*.
 Because of this limitation of integer sizes, you must take a little extra care
@@ -221,7 +221,7 @@ proper type of data. The functions create these arrays from surfaces are:
    :noindex:
 
    Creates a 2D array *(integer pixel values)* that reference the original surface data.
-   This will work for all surface formats except 24bit.
+   This will work for all surface formats except 24-bit.
 
 .. function:: array2d(surface)
    :noindex:
@@ -232,7 +232,7 @@ proper type of data. The functions create these arrays from surfaces are:
    :noindex:
 
    Creates a 3D array *(RGB pixel values)* that reference the original surface data.
-   This will only work on 24bit and 32bit surfaces that have RGB or BGR formatting.
+   This will only work on 24-bit and 32-bit surfaces that have RGB or BGR formatting.
 
 .. function:: array3d(surface)
    :noindex:
@@ -245,7 +245,7 @@ will work with any type of surface.
 
 .. csv-table::
    :class: matrix
-   :header: , "32bit", "24bit", "16bit", "8bit(c-map)"
+   :header: , "32-bit", "24-bit", "16-bit", "8-bit(c-map)"
    :widths: 15, 15, 15, 15, 15
    :stub-columns: 1
 
@@ -431,7 +431,7 @@ that displays an array on the screen.
       Here we perform a 3x3 convolution filter that will soften our image.
       It looks like a lot of steps here, but what we are doing is shifting
       the image 1 pixel in each direction and adding them all together (with some
-      multiplication for weighting). Then average all the values. It's no gaussian,
+      multiplication for weighting). Then average all the values. It's no Gaussian,
       but it's fast. One point with NumPy arrays, the precision of arithmetic
       operations is determined by the array with the largest data type.
       So if factor was not declared as a 1 element array of type numpy.int32,
@@ -459,7 +459,7 @@ that displays an array on the screen.
         xfade = src + diff.astype(N.uint)
         surfdemo_show(xfade, 'xfade')
 
-      Lastly, we are cross fading between the original image and a solid blue-ish
+      Lastly, we are cross fading between the original image and a solid bluish
       image. Not exciting, but the dest image could be anything, and changing the 0.50
       multiplier will let you choose any step in a linear crossfade between two images.
 
@@ -494,7 +494,7 @@ Transparency
 ------------
 
 The surfarray module has several methods for accessing a Surface's alpha/colorkey
-values. None of the alpha functions are effected by overal transparency of a
+values. None of the alpha functions are affected by overall transparency of a
 Surface, just the pixel alpha values. Here's the list of those functions.
 
 .. function:: pixels_alpha(surface)
@@ -502,7 +502,7 @@ Surface, just the pixel alpha values. Here's the list of those functions.
 
    Creates a 2D array *(integer pixel values)* that references the original
    surface alpha data.
-   This will only work on 32bit images with an 8bit alpha component.
+   This will only work on 32-bit images with an 8-bit alpha component.
 
 .. function:: array_alpha(surface)
    :noindex:
@@ -551,16 +551,16 @@ all the NumPy operators come with special functions that can perform the
 operation *"in place"*. For example, you would want to replace
 ``screen[:] = screen + brightmap`` with the much faster
 ``add(screen, brightmap, screen)``.
-Anyways, you'll want to read up on the NumPy UFunc
+Anyway, you'll want to read up on the NumPy UFunc
 documentation for more about this.
 It is important when dealing with the arrays.
 
 Another thing to be aware of when working with NumPy arrays is the datatype
 of the array. Some of the arrays (especially the mapped pixel type) often return
-arrays with an unsigned 8bit value. These arrays will easily overflow if you are
+arrays with an unsigned 8-bit value. These arrays will easily overflow if you are
 not careful. NumPy will use the same coercion that you find in C programs, so
-mixing an operation with 8bit numbers and 32bit numbers will give a result as
-32bit numbers. You can convert the datatype of an array, but definitely be
+mixing an operation with 8-bit numbers and 32-bit numbers will give a result as
+32-bit numbers. You can convert the datatype of an array, but definitely be
 aware of what types of arrays you have, if NumPy gets in a situation where
 precision would be ruined, it will raise an exception.
 

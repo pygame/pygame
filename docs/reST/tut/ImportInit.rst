@@ -13,7 +13,7 @@ Import and Initialize
 
 :Author: Pete Shinners
 :Contact: pete@shinners.org
-:Revision: 1.0, January 28th, 2002 (Updated October 20, 2016)
+:Revision: 1.1, 2002-01-28 (Updated 2016-10-20, 2017-03-13)
 
 
 Getting pygame imported and initialized is a very simple process. It is also
@@ -74,4 +74,4 @@ Quit
 
 Modules that are initialized also usually have a quit() function that will clean up.
 There is no need to explicitly call these, as pygame will cleanly quit all the
-initilized modules when python finishes.
+initialized modules when python finishes.

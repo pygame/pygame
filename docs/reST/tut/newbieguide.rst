@@ -19,13 +19,13 @@ or **How I learned to stop worrying and love the blit.**
 Pygame_ is a python wrapper for SDL_, written by Pete Shinners.  What this
 means is that, using pygame, you can write games or other multimedia
 applications in Python that will run unaltered on any of SDL's supported
-platforms (Windows, Unix, Mac, beOS and others).
+platforms (Windows, Unix, Mac, BeOS and others).
 
 Pygame may be easy to learn, but the world of graphics programming can be
 pretty confusing to the newcomer.  I wrote this to try to distill the practical
 knowledge I've gained over the past year or so of working with pygame, and it's
-predecessor, pySDL.  I've tried to rank these suggestions in order of
-importance, but how relevent any particular hint is will depend on your own
+predecessor, PySDL.  I've tried to rank these suggestions in order of
+importance, but how relevant any particular hint is will depend on your own
 background and the details of your project.
 
 
@@ -44,7 +44,7 @@ numbers and characters; know how to convert between the two.  Get to the point
 where the syntax for using lists and dictionaries is second-nature -- you don't
 want to have to run to the documentation every time you need to slice a list or
 sort a set of keys.  Resist the temptation to run to a mailing list,
-comp.lang.python, or irc when you run into trouble.  Instead, fire up the
+comp.lang.python, or IRC when you run into trouble.  Instead, fire up the
 interpreter and play with the problem for a few hours.  Print out the `Python
 2.0 Quick Reference`_ and keep it by your computer.
 
@@ -91,12 +91,12 @@ Use surface.convert().
 ----------------------
 
 When I first read the documentation for ``surface.convert()``, I didn't think
-it was something I had to worry about. 'I only use pngs, therefore everything I
+it was something I had to worry about. 'I only use PNGs, therefore everything I
 do will be in the same format. So I don't need ``convert()``';. It turns out I
 was very, very wrong.
 
-The 'format' that ``convert()`` refers to isn't the *file* format (ie png,
-jpeg, gif), it's what's called the 'pixel format'.  This refers to the
+The 'format' that ``convert()`` refers to isn't the *file* format (ie PNG,
+JPEG, GIF), it's what's called the 'pixel format'.  This refers to the
 particular way that a surface records individual colors in a specific pixel.
 If the surface format isn't the same as the display format, SDL will have to
 convert it on-the-fly for every blit -- a fairly time-consuming process.  Don't
@@ -134,7 +134,7 @@ of calling this function:
 
 
  * ``pygame.display.update()`` -- This updates the whole window (or the whole screen for fullscreen displays).
- * ``pygame.display.flip()`` -- This does the same thing, and will also do the right thing if you're using ``doublebuffered`` hardware acceleration, which you're not, so on to...
+ * ``pygame.display.flip()`` -- This does the same thing, and will also do the right thing if you're using ``double-buffered`` hardware acceleration, which you're not, so on to...
  * ``pygame.display.update(a rectangle or some list of rectangles)`` -- This updates just the rectangular areas of the screen you specify.
 
 
@@ -159,7 +159,7 @@ for a moving sprite, I:
  * Append the sprite's new location to my dirty_rects list.
  * Call ``display.update(dirty_rects)``
 
-The difference in speed is astonishing. Consider that Solarwolf_ has dozens of
+The difference in speed is astonishing. Consider that SolarWolf_ has dozens of
 constantly moving sprites updating smoothly, and still has enough time left
 over to display a parallax starfield in the background, and update that too.
 
@@ -279,7 +279,7 @@ way you do it in pygame, it's probably going to be too slow. For most games,
 it's probably better just to do 'sub-rect collision' -- create a rect for each
 sprite that's a little smaller than the actual image, and use that for
 collisions instead. It will be much faster, and in most cases the player won't
-notice the inprecision.
+notice the imprecision.
 
 
 Managing the event subsystem.
@@ -335,7 +335,7 @@ get them all.
 A note about ``event.poll()`` vs. ``wait()`` -- ``poll()`` may seem better,
 since it doesn't block your program from doing anything while it's waiting for
 input -- ``wait()`` suspends the program until an event is received.
-However, ``poll()`` will consume 100% of available cpu time while it runs,
+However, ``poll()`` will consume 100% of available CPU time while it runs,
 and it will fill the event queue with ``NOEVENTS``.  Use ``set_blocked()`` to
 select just those event types you're interested in -- your queue will be much
 more manageable.
@@ -351,7 +351,7 @@ in a certain image are transparent instead of whatever color they happen to be.
 These transparent pixels are not blitted when the rest of the image is blitted,
 and so don't obscure the background.  This is how we make sprites that aren't
 rectangular in shape.  Simply call ``surface.set_colorkey(color)``, where
-color is a rgb tuple -- say (0,0,0). This would make every pixel in the source
+color is an RGB tuple -- say (0,0,0). This would make every pixel in the source
 image transparent instead of black.
 
 'Alpha' is different, and it comes in two flavors. 'Image alpha' applies to the
@@ -384,7 +384,7 @@ good that if your code is still slow, and you've done the things I've mentioned
 above, then the problem lies in the way you're addressing your data in python.
 Certain idioms are just going to be slow in python no matter what you do.
 Luckily, python is a very clear language -- if a piece of code looks awkward or
-unweildy, chances are its speed can be improved, too.  Read over `Python
+unwieldy, chances are its speed can be improved, too.  Read over `Python
 Performance Tips`_ for some great advice on how you can improve the speed of
 your code.  That said, premature optimisation is the root of all evil; if it's
 just not fast enough, don't torture the code trying to make it faster.  Some
@@ -403,5 +403,5 @@ the author of Twitch, an entirely average pygame arcade game.*
 .. _Pygame: http://www.pygame.org/
 .. _SDL: http://libsdl.org
 .. _Python 2.0 Quick Reference: http://www.brunningonline.net/simon/python/quick-ref2_0.html
-.. _Solarwolf: http://shredwheat.zopesite.com/solarwolf
-.. _Python Performance Tips: http://musi-cal.mojam.com/~skip/python/fastpython.html
+.. _SolarWolf: http://pygame.org/shredwheat/solarwolf/index.shtml
+.. _Python Performance Tips: http://www-rohan.sdsu.edu/~gawron/compling/course_core/python_intro/intro_lecture_files/fastpython.html

@@ -14,10 +14,10 @@ Sprite Module Introduction
 
 :Author: Pete Shinners
 :Contact: pete@shinners.org
-:Revision: 1.1, April 12th, 2002
+:Revision: 1.2, 2002-04-12 (Updated 2017-03-13)
 
 Pygame version 1.3 comes with a new module, ``pygame.sprite``. This module is
-written in python and includes some higher level classes to manage your game
+written in Python and includes some higher-level classes to manage your game
 objects. By using this module to its full potential, you can easily manage and
 draw your game objects. The sprite classes are very optimized, so it's likely
 your game will run faster with the sprite module than without.
@@ -36,7 +36,7 @@ tutorial, which may help get more an understanding of programming with python
 and pygame.
 
 Note that this introduction will assume you have a bit of experience
-programming with python, and are somewhat framiliar with the different parts of
+programming with python, and are somewhat familiar with the different parts of
 creating a simple game.  In this tutorial the word "reference" is occasionally
 used.  This represents a python variable. Variables in python are references,
 so you can have several variables all pointing to the same object.
@@ -221,7 +221,7 @@ sprite module.
 
   :class:`RenderUpdates <pygame.sprite.RenderUpdates>`
 
-    This is the cadillac of rendering ``Groups``. It is inherited from
+    This is the Cadillac of rendering ``Groups``. It is inherited from
     ``RenderClear``, but changes the ``draw()`` method to also return a list of
     pygame ``Rects``, which represent all the areas on screen that have been
     changed.
@@ -266,7 +266,7 @@ Combine this with the fact that is properly handles deleted objects and this is
 one powerful ``Group`` class. If you've written a game that manages the changed
 rectangles for the objects in a game, you know this the cause for a lot of
 messy code in your game. Especially once you start to throw in objects that can
-be deleted at anytime. All this work is reduced down to a ``clear()`` and
+be deleted at any time. All this work is reduced down to a ``clear()`` and
 ``draw()`` method with this monster class. Plus with the overlap checking, it
 is likely faster than if you did it yourself.
 
@@ -412,5 +412,5 @@ both look similar, this is the most flexible way to "see" the difference.)
 
 You should through the code for the sprite module. While the code is a bit
 "tuned", it's got enough comments to help you follow along.  There's even a
-todo section in the source if you feel like contributing.
+TODO section in the source if you feel like contributing.
 

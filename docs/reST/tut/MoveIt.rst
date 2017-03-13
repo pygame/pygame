@@ -13,7 +13,7 @@ Help! How Do I Move An Image?
 
 :Author: Pete Shinners
 :Contact: pete@shinners.org
-:Revision: 1.2, August 20, 2002 (Updated October 20, 2016)
+:Revision: 1.3, 2002-08-20 (Updated 2016-10-20, 2017-03-13)
 
 
 Many people new to programming and graphics have a hard time figuring
@@ -35,23 +35,23 @@ these pixels is by calling the blit() function. This copies the pixels
 from   one image onto another.
 
 This is the first thing to understand. When you blit an image onto the
-screen,  you are simply changing the color of the pixels on the screen.
-Pixels  aren't  added or moved, we just change the colors of the pixels aready
-on  the screen. These images you blit to the screen are also Surfaces in
-pygame,  but they are in no way connected to the display Surface. When they
+screen, you are simply changing the color of the pixels on the screen.
+Pixels aren't added or moved, we just change the colors of the pixels already
+on the screen. These images you blit to the screen are also Surfaces in
+pygame, but they are in no way connected to the display Surface. When they
 are blitted  to the screen they are copied into the display, but you still
 have a unique  copy of the original.
 
 With this brief description. Perhaps you can already understand what
-is  needed to "move" an image. We don't actually move anything at all. We
-simply  blit the image in a new position. But before we draw the image in
-the new  position, we'll need to "erase" the old one. Otherwise the image
+is needed to "move" an image. We don't actually move anything at all. We
+simply blit the image in a new position. But before we draw the image in
+the new position, we'll need to "erase" the old one. Otherwise the image
 will be visible in two places on the screen. By rapidly erasing the image
 and redrawing it in a new place, we achieve the "illusion" of movement.
 
 Through the rest of this tutorial we will break this process down into
-simpler  steps. Even explaining the best ways to have multiple images moving
-around  the screen. You probably already have questions. Like, how do we
+simpler steps. Even explaining the best ways to have multiple images moving
+around the screen. You probably already have questions. Like, how do we
 "erase" the image before drawing it in a new position? Perhaps you're still
 totally lost? Well hopefully the rest of this tutorial can straighten things
 out for you.
@@ -113,8 +113,8 @@ the  value of playerpos, and draw him on the screen again. ::
   [1, 1, 8, 8, 2, 1]
 
 
-Whoops. Now we can see two heros. One in the old position, and one
-in  his new position. This is exactly the reason we need to "erase" the hero
+Whoops. Now we can see two heroes. One in the old position, and one
+in his new position. This is exactly the reason we need to "erase" the hero
 in his old position before we draw him in the new position. To erase him,
 we need to change that value in the list back to what it was before the hero
 was there. That means we need to keep track of the values on the screen before
@@ -187,7 +187,7 @@ Definition: "blit"
 In the next sections we will transform our program from using lists to
 using real graphics on the screen. When displaying the graphics we will
 use the term **blit** frequently. If you are new to doing graphics
-work, you are probably unframiliar with this common term.
+work, you are probably unfamiliar with this common term.
 
 BLIT: Basically, blit means to copy graphics from one image
 to another. A more formal definition is to copy an array of data
@@ -200,7 +200,7 @@ but they are talking about the same thing. It is basically copying
 memory from one place to another. Actually, it is a bit more advanced than
 straight copying of memory, since it needs to handle things like pixel
 formats, clipping, and scanline pitches. Advanced blitters can also
-handle things like transparancy and other special effects.
+handle things like transparency and other special effects.
 
 
 Going From The List To The Screen
@@ -310,7 +310,7 @@ the screen. Based on what we already now know, this should look pretty simple. :
 There you have it. This is all the code that is needed to smoothly animate
 an object across the screen. We can even use a pretty background character.
 Another benefit of doing the background this way, the image for the player
-can have transparancy or cutout sections and it will still draw correctly
+can have transparency or cutout sections and it will still draw correctly
 over the background (a free bonus).
 
 We also throw in a call to pygame.time.delay() at the end of our loop above.
@@ -322,7 +322,7 @@ So, What Next?
 --------------
 
 Well there we have it. Hopefully this article has done everything it promised
-to do. But, at this point the code really isn't ready for the next bestselling
+to do. But, at this point the code really isn't ready for the next best-selling
 game. How do we easily have multiple moving objects? What exactly are those
 mysterious functions like load_player_image()? We also need a way to get simple
 user input, and loop for more than 100 frames. We'll take the example we
@@ -358,7 +358,7 @@ will properly clean up the Surface we end up not using.
 The other mystery function we saw in the above example was create_screen().
 In pygame it is simple to create a new window for graphics. The code to create
 a 640x480 surface is below. By passing no other arguments, pygame will just
-pick the best colordepth and pixel format for us. ::
+pick the best color depth and pixel format for us. ::
 
   >>> screen = pygame.display.set_mode((640, 480))
 
@@ -366,7 +366,7 @@ pick the best colordepth and pixel format for us. ::
 Handling Some Input
 -------------------
 
-We desparately need to change the main loop to look for any user input, (like
+We desperately need to change the main loop to look for any user input, (like
 when the user closes the window). We need to add "event handling" to our
 program. All graphical programs use this Event Based design. The program
 gets events like "keyboard pressed" or "mouse moved" from the computer. Then
@@ -461,8 +461,8 @@ Take a look at the code and play with it, run it, learn it.
 
 Things you may want to work on is maybe having more than one type of object.
 Finding a way to cleanly "delete" objects when you don't want to show them
-anymore. Also updating the display.update() call to pass a list of the areas
-onscreen that have changed.
+any more. Also updating the display.update() call to pass a list of the areas
+on-screen that have changed.
 
 There are also other tutorials and examples in pygame that cover these
 issues. So when you're ready to keep learning, keep on reading. :-)
