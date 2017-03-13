@@ -51,7 +51,7 @@ Tutorials
 
 :doc:`Chimp Tutorial, Line by Line <tut/ChimpLineByLine>`
   The pygame examples include a simple program with an interactive fist and a chimpanzee.
-  This was inspired by the annoying flash banner of the early 2000's.
+  This was inspired by the annoying flash banner of the early 2000s.
   This tutorial examines every line of code used in the example.
 
 :doc:`Sprite Module Introduction <tut/SpriteIntro>`
@@ -61,9 +61,9 @@ Tutorials
   and need more understanding to be properly used.
 
 :doc:`Surfarray Introduction <tut/SurfarrayIntro>`
-  Pygame used the Numpy python module to allow efficient per pixel effects on images.
-  Using the surfae arrays is an advanced feature that allows custom effects and filters.
-  This also examines some of the simple effects from the Pygame example, arraydemo.py.
+  Pygame used the NumPy python module to allow efficient per pixel effects on images.
+  Using the surface arrays is an advanced feature that allows custom effects and filters.
+  This also examines some of the simple effects from the pygame example, arraydemo.py.
 
 :doc:`Camera Module Introduction <tut/CameraIntro>`
   Pygame, as of 1.9, has a camera module that allows you to capture images,
@@ -71,7 +71,7 @@ Tutorials
   This tutorial covers those use cases.
 
 :doc:`Newbie Guide <tut/newbieguide>`
-  A list of thirteen helpful tips for people to get comfortable using Pygame.
+  A list of thirteen helpful tips for people to get comfortable using pygame.
 
 :doc:`Making Games Tutorial <tut/MakeGames>`
   A large tutorial that covers the bigger topics needed to create an entire game.
@@ -83,7 +83,7 @@ Reference
 ---------
 
 :ref:`genindex`
-  A list of all functions, classes, and methods in the Pygame package.
+  A list of all functions, classes, and methods in the pygame package.
 
 :doc:`ref/bufferproxy`
   An array protocol view of surface pixels
@@ -107,10 +107,10 @@ Reference
   Manage the incoming events from various input devices and the windowing platform.
 
 :doc:`ref/examples`
-  Various programs demonstrating the use of individual pyame modules.
+  Various programs demonstrating the use of individual pygame modules.
 
 :doc:`ref/font`
-  Loading and rendering Truetype fonts.
+  Loading and rendering TrueType fonts.
 
 :doc:`ref/freetype`
   Enhanced Pygame module for loading and rendering font faces.
@@ -178,9 +178,9 @@ Reference
 :ref:`search`
   Search Pygame documents by keyword.
 
-.. _Readme: ../readme.html
+.. _Readme: ../wiki/about
 
-.. _Install: ../install.html
+.. _Install: ../wiki/GettingStarted#Pygame%20Installation
 
 .. _File Path Function Arguments: filepaths.html
 
