@@ -12,7 +12,7 @@ Pygame offers control over the system hardware cursor. Pygame only supports
 black and white cursors for the system. You control the cursor with functions
 inside :mod:`pygame.mouse`.
 
-This cursors module contains functions for loading and unencoding various
+This cursors module contains functions for loading and decoding various
 cursor formats. These allow you to easily store your cursors in external files
 or directly as encoded python strings.
 
@@ -105,19 +105,19 @@ The following strings can be converted into cursor bitmaps with
 
 .. function:: load_xbm
 
-   | :sl:`load cursor data from an xbm file`
+   | :sl:`load cursor data from an XBM file`
    | :sg:`load_xbm(cursorfile) -> cursor_args`
    | :sg:`load_xbm(cursorfile, maskfile) -> cursor_args`
 
    This loads cursors for a simple subset of ``XBM`` files. ``XBM`` files are
-   traditionally used to store cursors on unix systems, they are an ascii
+   traditionally used to store cursors on UNIX systems, they are an ASCII
    format used to represent simple images.
 
    Sometimes the black and white color values will be split into two separate
    ``XBM`` files. You can pass a second maskfile argument to load the two
    images into a single cursor.
 
-   The cursorfile and maskfile arguments can either be filenames or filelike
+   The cursorfile and maskfile arguments can either be filenames or file-like
    object with the readlines method.
 
    The return value cursor_args can be passed directly to the

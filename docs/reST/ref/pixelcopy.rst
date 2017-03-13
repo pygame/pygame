@@ -18,7 +18,7 @@ It was introduced in NumPy. In Python 2.7 and above it is replaced by the
 new buffer protocol, though the buffer protocol is still a work in progress.
 The array struct interface, on the other hand, is stable and works with earlier
 Python versions. So for now the array struct interface is the predominate way
-Pygame handles array introspection.
+pygame handles array introspection.
 
 New in pygame 1.9.2.
 
@@ -82,7 +82,7 @@ New in pygame 1.9.2.
    | :sg:`map_array(<array>, <array>, <surface>) -> None`
 
    Map an array of color element values - (w, h, ..., 3) - to an array of
-   pixels - (w, h) according to the format of <<urface>.
+   pixels - (w, h) according to the format of <surface>.
 
    .. ## pygame.pixelcopy.map_array ##
 

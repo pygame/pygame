@@ -9,7 +9,7 @@
 | :sl:`pygame module for audio cdrom control`
 
 The cdrom module manages the ``CD`` and ``DVD`` drives on a computer. It can
-also control the playback of audio cd's. This module needs to be initialized
+also control the playback of audio CDs. This module needs to be initialized
 before it can do anything. Each ``CD`` object you create represents a cdrom
 drive and must also be initialized individually before it can do most things.
 
@@ -265,7 +265,7 @@ drive and must also be initialized individually before it can do most things.
    .. method:: get_all
 
       | :sl:`get all track information`
-      | :sg:`get_all() -> [(audio, start, end, lenth), ...]`
+      | :sg:`get_all() -> [(audio, start, end, length), ...]`
 
       Return a list with information for every track on the cdrom. The
       information consists of a tuple with four values. The audio value is True

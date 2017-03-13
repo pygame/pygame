@@ -38,8 +38,8 @@ commands inside the python interpreter.
    >>> pygame.examples.scaletest.__file__
    '/usr/lib/python2.6/site-packages/pygame/examples/scaletest.py'
 
-On each OS and version of python the location will be slightly different.
-For example on windows it might be in 'C:/Python26/Lib/site-packages/pygame/examples/'
+On each OS and version of Python the location will be slightly different.
+For example on Windows it might be in 'C:/Python26/Lib/site-packages/pygame/examples/'
 On Mac OS X it might be in '/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/pygame/examples/'
 
 
@@ -131,7 +131,7 @@ pygame much earlier.
 
 .. function:: freetype_misc.main
 
-   | :sl:`run a freetype rendering example`
+   | :sl:`run a FreeType rendering example`
    | :sg:`freetype_misc.main() -> None`
 
    A showcase of rendering features the :class:`pygame.freetype.Font`
@@ -205,7 +205,7 @@ pygame much earlier.
 
    Uses sndarray and NumPy to create offset faded copies of the
    original sound. Currently it just uses hardcoded values for the number of
-   echos and the delay. Easy for you to recreate as needed.
+   echoes and the delay. Easy for you to recreate as needed.
 
    The ``arraytype`` parameter is deprecated; passing any value besides 'numpy'
    will raise ValueError.
@@ -275,7 +275,7 @@ pygame much earlier.
        use_alpha - use alpha blending
        flags - additional display mode flags
 
-   Like the ``testsprite.c`` that comes with sdl, this pygame version shows
+   Like the ``testsprite.c`` that comes with SDL, this pygame version shows
    lots of sprites moving around.
 
    If run as a stand-alone program then no command line arguments are taken.
@@ -300,7 +300,7 @@ pygame much earlier.
    Thumbnail generation with scaling is an example of what you can do with
    pygame.
 
-   ``NOTE``: the pygame scale function uses mmx/sse if available, and can be
+   ``NOTE``: the pygame scale function uses MMX/SSE if available, and can be
    run in multiple threads.
 
    If ``headless_no_windows_needed.py`` is run as a program it takes the
@@ -327,9 +327,9 @@ pygame much earlier.
    So far it looks like normal :mod:`pygame.event` is faster by up to two
    times. So maybe fastevent isn't fast at all.
 
-   Tested on windowsXP sp2 athlon, and freebsd.
+   Tested on Windows XP SP2 Athlon, and FreeBSD.
 
-   However... on my debian duron 850 machine fastevents is faster.
+   However... on my Debian Duron 850 machine fastevents is faster.
 
    .. ## pygame.examples.fastevents.main ##
 
@@ -338,7 +338,7 @@ pygame much earlier.
    | :sl:`play a .pgm video using overlays`
    | :sg:`overlay.main(fname) -> None`
 
-   Play the .pgm video fila a path fname.
+   Play the .pgm video file given by a path fname.
 
    If run as a program ``overlay.py`` takes the file name as a command line
    argument.

@@ -18,7 +18,7 @@ events contain a button attribute representing which button was pressed. The
 mouse wheel will generate ``pygame.MOUSEBUTTONDOWN`` and 
 ``pygame.MOUSEBUTTONUP`` events when rolled. The button will be set to 4 
 when the wheel is rolled up, and to button 5 when the wheel is rolled down. 
-Anytime the mouse is moved it generates a ``pygame.MOUSEMOTION`` event. The 
+Whenever the mouse is moved it generates a ``pygame.MOUSEMOTION`` event. The 
 mouse movement is broken into small and accurate motion events. As the mouse 
 is moving many motion events will be placed on the queue. Mouse motion events 
 that are not properly cleaned from the event queue are the primary reason the 
@@ -48,7 +48,7 @@ configured.
    to see if they are ``MOUSEBUTTONDOWN``, ``MOUSEBUTTONUP``, or
    ``MOUSEMOTION``.
 
-   Note, that on ``X11`` some XServers use middle button emulation. When you
+   Note, that on ``X11`` some X servers use middle button emulation. When you
    click both buttons 1 and 3 at the same time a 2 button event can be emitted.
 
    Note, remember to call ``pygame.event.get()`` before this function.
@@ -128,7 +128,7 @@ configured.
    bitmap using the given bitmask arrays. The size is a sequence containing the
    cursor width and height. Hotspot is a sequence containing the cursor hotspot
    position. xormasks is a sequence of bytes containing the cursor xor data
-   masks. Lastly is andmasks, a sequence of bytes containting the cursor
+   masks. Lastly is andmasks, a sequence of bytes containing the cursor
    bitmask data.
 
    Width must be a multiple of 8, and the mask arrays must be the correct size

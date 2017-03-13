@@ -9,10 +9,10 @@
 | :sl:`pygame module for accessing surface pixel data using array interfaces`
 
 Functions to convert pixel data between pygame Surfaces and arrays. This module
-will only be functional when pygame can use the external Numpy package.
+will only be functional when pygame can use the external NumPy package.
 
 Every pixel is stored as a single integer value to represent the red, green,
-and blue colors. The 8bit images use a value that looks into a colormap. Pixels
+and blue colors. The 8-bit images use a value that looks into a colormap. Pixels
 with higher depth use a bit packing process to place three or four values into
 a single number.
 
@@ -174,7 +174,7 @@ last index is 0 for red, 1 for green, and 2 for blue.
    | :sg:`array_colorkey(Surface) -> array`
 
    Create a new array with the colorkey transparency value from each pixel. If
-   the pixel matches the colorkey it will be fully tranparent; otherwise it
+   the pixel matches the colorkey it will be fully transparent; otherwise it
    will be fully opaque.
 
    This will work on any type of Surface format. If the image has no colorkey a
@@ -191,10 +191,10 @@ last index is 0 for red, 1 for green, and 2 for blue.
 
    Create a new Surface that best resembles the data and format on the array.
    The array can be 2D or 3D with any sized integer values. Function
-   make_surface uses the array struct interface to aquire array properties,
+   make_surface uses the array struct interface to acquire array properties,
    so is not limited to just NumPy arrays. See :mod:`pygame.pixelcopy`.
 
-   New in Pygame 1.9.2: array struct interface support.
+   New in pygame 1.9.2: array struct interface support.
 
    .. ## pygame.surfarray.make_surface ##
 
@@ -206,7 +206,7 @@ last index is 0 for red, 1 for green, and 2 for blue.
    Directly copy values from an array into a Surface. This is faster than
    converting the array into a Surface and blitting. The array must be the same
    dimensions as the Surface and will completely replace all pixel values. Only
-   integer, ascii character and record arrays are accepted.
+   integer, ASCII character and record arrays are accepted.
 
    This function will temporarily lock the Surface as the new values are
    copied.
@@ -219,7 +219,7 @@ last index is 0 for red, 1 for green, and 2 for blue.
    | :sg:`map_array(Surface, array3d) -> array2d`
 
    Convert a 3D array into a 2D array. This will use the given Surface format
-   to control the conversion. Palette surface formats are supported for numpy
+   to control the conversion. Palette surface formats are supported for NumPy
    arrays.
 
    .. ## pygame.surfarray.map_array ##

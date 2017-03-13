@@ -8,8 +8,8 @@
 
 | :sl:`pygame module for vector classes`
 
-!!!EXPERIMENTAL!!! Note: This Modul is still in development and the ``API``
-might change. Please report bug and suggestions to pygame-users@seul.org
+!!!EXPERIMENTAL!!! Note: This module is still in development and the ``API``
+might change. Please report bugs and suggestions to pygame-users@seul.org.
 
 The pygame math module currently provides Vector classes in two and three
 dimensions, Vector2 and Vector3 respectively.
@@ -21,7 +21,7 @@ In addition vec*vec will perform a scalar-product (a.k.a. dot-product). If you
 want to multiply every element from vector v with every element from vector w
 you can use the elementwise method: ``v.elementwise()`` ``\*`` w
 
-New in Pygame 1.10
+New in pygame 1.10
 
 .. function:: enable_swizzling
 
@@ -71,10 +71,10 @@ New in Pygame 1.10
 
    .. method:: length
 
-      | :sl:`returns the euclidic length of the vector.`
+      | :sl:`returns the Euclidian length of the vector.`
       | :sg:`length() -> float`
 
-      calculates the euclidic length of the vector which follows from the
+      calculates the Euclidean length of the vector which follows from the
       Pythagorean theorem: ``vec.length()`` ==
       ``math.sqrt(vec.x**2 + vec.y**2)``
 
@@ -82,10 +82,10 @@ New in Pygame 1.10
 
    .. method:: length_squared
 
-      | :sl:`returns the squared euclidic length of the vector.`
+      | :sl:`returns the squared Euclidean length of the vector.`
       | :sg:`length_squared() -> float`
 
-      calculates the euclidic length of the vector which follows from the
+      calculates the Euclidean length of the vector which follows from the
       Pythagorean theorem: ``vec.length_squared()`` == vec.x**2 + vec.y**2 This
       is faster than ``vec.length()`` because it avoids the square root.
 
@@ -154,14 +154,14 @@ New in Pygame 1.10
 
    .. method:: distance_to
 
-      | :sl:`calculates the euclidic distance to a given vector.`
+      | :sl:`calculates the Euclidean distance to a given vector.`
       | :sg:`distance_to(Vector2) -> float`
 
       .. ## Vector2.distance_to ##
 
    .. method:: distance_squared_to
 
-      | :sl:`calculates the squared euclidic distance to a given vector.`
+      | :sl:`calculates the squared Euclidean distance to a given vector.`
       | :sg:`distance_squared_to(Vector2) -> float`
 
       .. ## Vector2.distance_squared_to ##
@@ -193,8 +193,8 @@ New in Pygame 1.10
 
    .. method:: elementwise
 
-      | :sl:`The next operation will be performed elementwize.`
-      | :sg:`elementwise() -> VectorElementwizeProxy`
+      | :sl:`The next operation will be performed elementwise.`
+      | :sg:`elementwise() -> VectorElementwiseProxy`
 
       Applies the following operation to each element of the vector.
 
@@ -279,10 +279,10 @@ New in Pygame 1.10
 
    .. method:: length
 
-      | :sl:`returns the euclidic length of the vector.`
+      | :sl:`returns the Euclidean length of the vector.`
       | :sg:`length() -> float`
 
-      calculates the euclidic length of the vector which follows from the
+      calculates the Euclidean length of the vector which follows from the
       Pythagorean theorem: ``vec.length()`` ==
       ``math.sqrt(vec.x**2 + vec.y**2 + vec.z**2)``
 
@@ -290,10 +290,10 @@ New in Pygame 1.10
 
    .. method:: length_squared
 
-      | :sl:`returns the squared euclidic length of the vector.`
+      | :sl:`returns the squared Euclidean length of the vector.`
       | :sg:`length_squared() -> float`
 
-      calculates the euclidic length of the vector which follows from the
+      calculates the Euclidean length of the vector which follows from the
       Pythagorean theorem: ``vec.length_squared()`` == vec.x**2 + vec.y**2 +
       vec.z**2 This is faster than ``vec.length()`` because it avoids the
       square root.
@@ -363,14 +363,14 @@ New in Pygame 1.10
 
    .. method:: distance_to
 
-      | :sl:`calculates the euclidic distance to a given vector.`
+      | :sl:`calculates the Euclidean distance to a given vector.`
       | :sg:`distance_to(Vector3) -> float`
 
       .. ## Vector3.distance_to ##
 
    .. method:: distance_squared_to
 
-      | :sl:`calculates the squared euclidic distance to a given vector.`
+      | :sl:`calculates the squared Euclidean distance to a given vector.`
       | :sg:`distance_squared_to(Vector3) -> float`
 
       .. ## Vector3.distance_squared_to ##
@@ -402,8 +402,8 @@ New in Pygame 1.10
 
    .. method:: elementwise
 
-      | :sl:`The next operation will be performed elementwize.`
-      | :sg:`elementwise() -> VectorElementwizeProxy`
+      | :sl:`The next operation will be performed elementwise.`
+      | :sg:`elementwise() -> VectorElementwiseProxy`
 
       Applies the following operation to each element of the vector.
 

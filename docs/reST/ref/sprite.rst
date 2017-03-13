@@ -10,7 +10,7 @@
 
 This module contains several simple classes to be used within games. There is
 the main Sprite class and several Group classes that contain Sprites. The use
-of these classes is entirely optional when using Pygame. The classes are fairly
+of these classes is entirely optional when using pygame. The classes are fairly
 lightweight and only provide a starting place for the code that is common to
 most games.
 
@@ -163,7 +163,7 @@ Sprites are not thread safe. So lock them yourself if using threads.
        if set to 1, it is repainted and then set to 0 again
        if set to 2 then it is always dirty ( repainted each frame,
        flag is not reset)
-       0 means that it is not dirty and therefor not repainted again
+       0 means that it is not dirty and therefore not repainted again
 
    blendmode = 0
 
@@ -466,7 +466,7 @@ Sprites are not thread safe. So lock them yourself if using threads.
 
    .. method:: layers
 
-      | :sl:`returns a list of layers defined (unique), sorted from botton up.`
+      | :sl:`returns a list of layers defined (unique), sorted from bottom up.`
       | :sg:`layers() -> layers`
 
       .. ## LayeredUpdates.layers ##
@@ -575,7 +575,7 @@ Sprites are not thread safe. So lock them yourself if using threads.
 
        _use_update: True/False   default is False
        _default_layer: default layer where sprites without a layer are added.
-       _time_threshold: treshold time for switching between dirty rect mode
+       _time_threshold: threshold time for switching between dirty rect mode
            and fullscreen mode, defaults to 1000./80  == 1000./fps
 
    New in pygame 1.8.0
@@ -602,7 +602,7 @@ Sprites are not thread safe. So lock them yourself if using threads.
       | :sl:`repaints the given area`
       | :sg:`repaint_rect(screen_rect) -> None`
 
-      screen_rect is in screencoordinates.
+      screen_rect is in screen coordinates.
 
       .. ## LayeredDirty.repaint_rect ##
 
@@ -631,11 +631,11 @@ Sprites are not thread safe. So lock them yourself if using threads.
 
    .. method:: set_timing_treshold
 
-      | :sl:`sets the treshold in milliseconds`
+      | :sl:`sets the threshold in milliseconds`
       | :sg:`set_timing_treshold(time_ms) -> None`
 
       Default is 1000./80 where 80 is the fps I want to switch to full screen
-      mode.
+      mode.  This method's name is a typo and should be fixed.
 
       .. ## LayeredDirty.set_timing_treshold ##
 
@@ -779,7 +779,7 @@ Sprites are not thread safe. So lock them yourself if using threads.
    Returns first point on the mask where the masks collided, or None if 
    there was no collision.
 
-   Tests for collision between two sprites, by testing if thier bitmasks
+   Tests for collision between two sprites, by testing if their bitmasks
    overlap. If the sprites have a "mask" attribute, that is used as the mask,
    otherwise a mask is created from the sprite image. Intended to be passed as
    a collided callback function to the \*collide functions. Sprites must have a

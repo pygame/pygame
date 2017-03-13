@@ -8,8 +8,8 @@
 
 | :sl:`pygame module for accessing sound sample data`
 
-Functions to convert between numpy arrays and Sound objects. This
-module will only be available when pygame can use the external numpy
+Functions to convert between NumPy arrays and Sound objects. This
+module will only be available when pygame can use the external NumPy
 package.
 
 Sound data is made of thousands of samples per second, and each sample is the
