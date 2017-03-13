@@ -10,7 +10,7 @@
 
 Pygame currently supports only Linux and v4l2 cameras.
 
-EXPERIMENTAL!: This api may change or disappear in later pygame releases. If
+EXPERIMENTAL!: This API may change or disappear in later pygame releases. If
 you use this, your code will very likely break with the next pygame release.
 
 The Bayer to ``RGB`` function is based on:
@@ -160,8 +160,8 @@ New in pygame 1.9.0.
       | :sg:`get_image(Surface = None) -> Surface`
 
       Pulls an image off of the buffer as an ``RGB`` Surface. It can optionally
-      reuse an existing Surface to save time. The bit depth of the surface is
-      either 24bits or the same as the optionally supplied Surface.
+      reuse an existing Surface to save time. The bit-depth of the surface is
+      either 24 bits or the same as the optionally supplied Surface.
 
       .. ## Camera.get_image ##
 

@@ -4,9 +4,9 @@
 ======================
 
 .. module:: pygame.freetype
-   :synopsis: Enhanced Pygame module for loading and rendering computer fonts
+   :synopsis: Enhanced pygame module for loading and rendering computer fonts
 
-| :sl:`Enhanced Pygame module for loading and rendering computer fonts`
+| :sl:`Enhanced pygame module for loading and rendering computer fonts`
 
 The ``pygame.freetype`` module is a replacement for :mod:`pygame.font`.
 It has all of the functionality of the original, plus many new features.
@@ -36,7 +36,7 @@ For now undefined character codes are replaced with the ``.notdef``
 (not defined) character.
 How undefined codes are handled may become configurable in a future release.
 
-Pygame comes with a builtin default font. This can always be accessed by
+Pygame comes with a built-in default font. This can always be accessed by
 passing None as the font name to the :class:`Font` constructor.
 
 Extra rendering features available to :class:`pygame.freetype.Font`
@@ -53,13 +53,13 @@ Finally, a font's vertical and horizontal size can be adjusted separately
 The :any:`pygame.examples.freetype_misc <pygame.examples.freetype_misc.main>`
 example shows these features in use.
 
-The Pygame package does not import ``freetype`` automatically when
+The pygame package does not import ``freetype`` automatically when
 loaded. This module must be imported explicitly to be used. ::
 
    import pygame
    import pygame.freetype
 
-The ``freetype`` module is new in Pygame 1.9.2
+The ``freetype`` module is new in pygame 1.9.2
 
 
 .. function:: get_error
@@ -131,7 +131,7 @@ The ``freetype`` module is new in Pygame 1.9.2
    | :sg:`get_default_resolution() -> long`
 
    Returns the default pixel size, in dots per inch, for the module.
-   The default is 72dpi.
+   The default is 72 DPI.
 
 .. function:: set_default_resolution
 
@@ -139,7 +139,7 @@ The ``freetype`` module is new in Pygame 1.9.2
    | :sg:`set_default_resolution([resolution])`
 
    Set the default pixel size, in dots per inch, for the module. If the
-   optional argument is omitted or zero the resolution is reset to 72dpi.
+   optional argument is omitted or zero the resolution is reset to 72 DPI.
 
 .. function:: SysFont
 
@@ -148,7 +148,7 @@ The ``freetype`` module is new in Pygame 1.9.2
 
    Return a new Font object that is loaded from the system fonts. The font will
    match the requested *bold* and *italic* flags. If a suitable system font
-   is not found the default, Pygame, is returned instead. The font *name*
+   is not found, a default, Pygame, is returned instead. The font *name*
    can be a comma separated list of font names to search for.
 
 .. function:: get_default_font
@@ -156,7 +156,7 @@ The ``freetype`` module is new in Pygame 1.9.2
    | :sl:`Get the filename of the default font`
    | :sg:`get_default_font() -> string`
 
-   Return the filename of the default Pygame font. This is not the full path
+   Return the filename of the default pygame font. This is not the full path
    to the file. The file is usually in the same directory as the font module,
    but can also be bundled in a separate archive.
 
@@ -166,7 +166,7 @@ The ``freetype`` module is new in Pygame 1.9.2
    | :sg:`Font(file, size=0, font_index=0, resolution=0, ucs4=False) -> Font`
 
    Argument *file* can be either a string representing the font's filename, a
-   file-like object containing the font, or None; if None, the default,
+   file-like object containing the font, or None; if None, a default,
    Pygame, font is used.
 
    .. _freetype-font-size-argument:
@@ -615,7 +615,7 @@ The ``freetype`` module is new in Pygame 1.9.2
       sizes. This property controls whether or not those bitmap strikes
       are used. Set it ``False`` to disable the loading of any bitmap
       strike. Set it ``True``, the default, to permit bitmap strikes
-      for a nonrotated render with no style other than :attr:`wide` or
+      for a non-rotated render with no style other than :attr:`wide` or
       :attr:`underline`. This property is ignored for bitmap fonts.
 
       See also :attr:`fixed_sizes` and :meth:`get_sizes`.
@@ -716,12 +716,12 @@ The ``freetype`` module is new in Pygame 1.9.2
       freetype module performs UTF-16 surrogate pair decoding on Unicode text.
       This allows 32-bit escape sequences ('\Uxxxxxxxx') between 0x10000 and
       0x10FFFF to represent their corresponding UTF-32 code points on Python
-      interpreters built with a UCS-2 unicode type (on Windows, for instance).
+      interpreters built with a UCS-2 Unicode type (on Windows, for instance).
       It also means character values within the UTF-16 surrogate area (0xD800
       to 0xDFFF) are considered part of a surrogate pair. A malformed surrogate
       pair will raise a UnicodeEncodeError. Setting ucs4 ``True`` turns
       surrogate pair decoding off, allowing access the full UCS-4 character
-      range to a Python interpreter built with four byte unicode character
+      range to a Python interpreter built with four-byte Unicode character
       support.
 
    .. attribute:: resolution

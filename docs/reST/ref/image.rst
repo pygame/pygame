@@ -15,7 +15,7 @@ Note that there is no Image class; an image is loaded as a Surface object. The
 Surface class allows manipulation (drawing lines, setting pixels, capturing
 regions, etc.).
 
-The image module is a required dependency of Pygame, but it only optionally
+The image module is a required dependency of pygame, but it only optionally
 supports any extended file formats. By default it can only load uncompressed
 ``BMP`` images. When built with full image support, the ``pygame.image.load()``
 function can support the following formats.
@@ -24,7 +24,7 @@ function can support the following formats.
 
    * ``PNG``
 
-   * ``GIF`` (non animated)
+   * ``GIF`` (non-animated)
 
    * ``BMP``
 
@@ -73,13 +73,13 @@ following formats.
    ``Surface.convert()`` with no arguments, to create a copy that will draw
    more quickly on the screen.
 
-   For alpha transparency, like in .png images use the ``convert_alpha()``
+   For alpha transparency, like in .png images, use the ``convert_alpha()``
    method after loading so that the image has per pixel transparency.
 
    Pygame may not always be built to support all image formats. At minimum it
    will support uncompressed ``BMP``. If ``pygame.image.get_extended()``
-   returns 'True', you should be able to load most images (including png, jpg
-   and gif).
+   returns 'True', you should be able to load most images (including PNG, JPG
+   and GIF).
 
    You should use ``os.path.join()`` for compatibility.
 
@@ -124,23 +124,23 @@ following formats.
    the flipped argument, the string buffer will be vertically flipped.
 
    The format argument is a string of one of the following values. Note that
-   only 8bit Surfaces can use the "P" format. The other formats will work for
+   only 8-bit Surfaces can use the "P" format. The other formats will work for
    any Surface. Also note that other Python image packages support more formats
-   than Pygame.
+   than pygame.
 
-      * ``P``, 8bit palettized Surfaces
+      * ``P``, 8-bit palettized Surfaces
 
-      * ``RGB``, 24bit image
+      * ``RGB``, 24-bit image
 
-      * ``RGBX``, 32bit image with unused space
+      * ``RGBX``, 32-bit image with unused space
 
-      * ``RGBA``, 32bit image with an alpha channel
+      * ``RGBA``, 32-bit image with an alpha channel
 
-      * ``ARGB``, 32bit image with alpha channel first
+      * ``ARGB``, 32-bit image with alpha channel first
 
-      * ``RGBA_PREMULT``, 32bit image with colors scaled by alpha channel
+      * ``RGBA_PREMULT``, 32-bit image with colors scaled by alpha channel
 
-      * ``ARGB_PREMULT``, 32bit image with colors scaled by alpha channel, alpha channel first
+      * ``ARGB_PREMULT``, 32-bit image with colors scaled by alpha channel, alpha channel first
 
    .. ## pygame.image.tostring ##
 
@@ -157,7 +157,7 @@ following formats.
    string buffer. Otherwise an exception will be raised.
 
    See the ``pygame.image.frombuffer()`` method for a potentially faster way to
-   transfer images into Pygame.
+   transfer images into pygame.
 
    .. ## pygame.image.fromstring ##
 

@@ -469,7 +469,7 @@ change the default buffer by calling :func:`pygame.mixer.pre_init` before
       | :sl:`check if the channel is active`
       | :sg:`get_busy() -> bool`
 
-      Returns true if the channel is activily mixing sound. If the channel is
+      Returns true if the channel is actively mixing sound. If the channel is
       idle this returns False.
 
       .. ## Channel.get_busy ##

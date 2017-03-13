@@ -14,7 +14,7 @@ devices. It can also list midi devices on the system.
 Including real midi devices, and virtual ones.
 
 It uses the portmidi library. Is portable to which ever platforms portmidi
-supports (currently windows, ``OSX``, and linux).
+supports (currently Windows, ``OSX``, and Linux).
 
 This uses pyportmidi for now, but may use its own bindings at some point in the
 future. The pyportmidi bindings are included with pygame.
@@ -161,7 +161,7 @@ New in pygame 1.9.0.
            write([[[status <,data1><,data2><,data3>],timestamp],
                   [[status <,data1><,data2><,data3>],timestamp],...])
 
-      <<ata> fields are optional example: choose program change 1 at time 20000
+      <data> fields are optional example: choose program change 1 at time 20000
       and send note 65 with velocity 100 500 ms later.
 
       ::
@@ -216,12 +216,12 @@ New in pygame 1.9.0.
       | :sl:`writes a timestamped system-exclusive midi message.`
       | :sg:`write_sys_ex(when, msg) -> None`
 
-      msg - can be a \*list* or a \*string* when - a timestamp in miliseconds
+      msg - can be a \*list* or a \*string* when - a timestamp in milliseconds
       example:
 
       ::
 
-        (assuming o is an onput MIDI stream)
+        (assuming o is an output MIDI stream)
           o.write_sys_ex(0,'\xF0\x7D\x10\x11\x12\x13\xF7')
         is equivalent to
           o.write_sys_ex(pygame.midi.time(),
@@ -246,7 +246,7 @@ New in pygame 1.9.0.
    | :sg:`get_default_input_id() -> default_id`
 
    Return the default device ``ID`` or -1 if there are no devices. The result
-   can be passed to the Input()/Ouput() class.
+   can be passed to the Input()/Output() class.
 
    On the ``PC``, the user can specify a default device by setting an
    environment variable. For example, to use device #1.
@@ -303,7 +303,7 @@ New in pygame 1.9.0.
    | :sg:`get_default_output_id() -> default_id`
 
    Return the default device ``ID`` or -1 if there are no devices. The result
-   can be passed to the Input()/Ouput() class.
+   can be passed to the Input()/Output() class.
 
    On the ``PC``, the user can specify a default device by setting an
    environment variable. For example, to use device #1.

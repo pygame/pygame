@@ -60,7 +60,7 @@
    array of height 1 is broadcast over the target's columns, and is equivalent
    to assigning a 1D PixelArray.
 
-   Subscipt slices can also be used to assign to a rectangular subview of
+   Subscript slices can also be used to assign to a rectangular subview of
    the target PixelArray.
 
    ::
@@ -79,7 +79,7 @@
      pxarray[::2] = (0, 0, 0)                  # Same as [::2, :]
 
    During its lifetime, the PixelArray locks the surface, thus you explicitly
-   have to delete it once its not used anymore and the surface should perform
+   have to delete it once its not used any more and the surface should perform
    operations in the same scope. A simple ``:`` slice index for the column can
    be omitted.
 
@@ -93,7 +93,7 @@
    from the source to the destinations format. The red, green, and blue
    color elements of each pixel are shifted to match the format of the
    target surface. For all other pixel sizes no such remapping occurs.
-   This should change in later Pygame releases, where format conversions
+   This should change in later pygame releases, where format conversions
    are performed for all pixel sizes. To avoid code breakage when full mapped
    copying is implemented it is suggested PixelArray to PixelArray copies be
    only between surfaces of identical format.
@@ -104,7 +104,7 @@
     - transpose method
     - broadcasting for a length 1 dimension
 
-   Changed in pyame 1.9.2
+   Changed in pygame 1.9.2
 
     - A 2D PixelArray can have a length 1 dimension.
       Only an integer index on a 2D PixelArray returns a 1D array.
@@ -203,7 +203,7 @@
       Replaces the pixels with the passed color in the PixelArray by changing
       them them to the passed replacement color.
 
-      It uses a simple weighted euclidian distance formula to calculate the
+      It uses a simple weighted Euclidean distance formula to calculate the
       distance between the colors. The distance space ranges from 0.0 to 1.0
       and is used as threshold for the color detection. This causes the
       replacement to take pixels with a similar, but not exactly identical
@@ -225,7 +225,7 @@
       non-matching pixels are changed to black. This returns a new PixelArray
       with the black/white color mask.
 
-      It uses a simple weighted euclidian distance formula to calculate the
+      It uses a simple weighted Eucldian distance formula to calculate the
       distance between the colors. The distance space ranges from 0.0 to 1.0
       and is used as threshold for the color detection. This causes the
       extraction to take pixels with a similar, but not exactly identical
@@ -243,12 +243,12 @@
       Compares the contents of the PixelArray with those from the passed
       PixelArray. It returns a new PixelArray with a black/white color mask
       that indicates the differences (white) of both arrays. Both PixelArray
-      objects must have indentical bit depths and dimensions.
+      objects must have identical bit depths and dimensions.
 
-      It uses a simple weighted euclidian distance formula to calculate the
+      It uses a simple weighted Eucledian distance formula to calculate the
       distance between the colors. The distance space ranges from 0.0 to 1.0
       and is used as threshold for the color detection. This causes the
-      comparision to mark pixels with a similar, but not exactly identical
+      comparison to mark pixels with a similar, but not exactly identical
       color, as black.
 
       New in pygame 1.8.1.

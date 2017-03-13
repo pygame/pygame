@@ -12,12 +12,12 @@
    | :sl:`pygame object to export a surface buffer through an array protocol`
    | :sg:`BufferProxy(<parent>) -> BufferProxy`
 
-   :class:`BufferProxy` is a Pygame support type, designed as the return value
+   :class:`BufferProxy` is a pygame support type, designed as the return value
    of the :meth:`Surface.get_buffer` and :meth:`Surface.get_view` methods.
    For all Python versions a :class:`BufferProxy` object exports a C struct
    and Python level array interface on behalf of its parent object's buffer.
    For CPython 2.6 and later a new buffer interface is also exported.
-   In Pygame, :class:`BufferProxy` is key to implementing the
+   In pygame, :class:`BufferProxy` is key to implementing the
    :mod:`pygame.surfarray` module.
 
    :class:`BufferProxy` instances can be created directly from Python code,
@@ -69,7 +69,7 @@
    The BufferProxy class supports subclassing, instance variables, and weak
    references.
 
-   New in Pygame 1.8.0, extended in Pygame 1.9.2
+   New in pygame 1.8.0, extended in pygame 1.9.2
 
    .. attribute:: parent
 

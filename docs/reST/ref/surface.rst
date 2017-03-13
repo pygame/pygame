@@ -12,8 +12,8 @@
    | :sg:`Surface((width, height), flags=0, Surface) -> Surface`
 
    A pygame Surface is used to represent any image. The Surface has a fixed
-   resolution and pixel format. Surfaces with 8bit pixels use a color palette
-   to map to 24bit color.
+   resolution and pixel format. Surfaces with 8-bit pixels use a color palette
+   to map to 24-bit color.
 
    Call ``pygame.Surface()`` to create a new image object. The Surface will be
    cleared to all black. The only required arguments are the sizes. With no
@@ -42,7 +42,7 @@
    acceleration when possible, otherwise they will use highly optimized
    software blitting methods.
 
-   There are three types of transparency supported in Pygame: colorkeys,
+   There are three types of transparency supported in pygame: colorkeys,
    surface alphas, and pixel alphas. Surface alphas can be mixed with
    colorkeys, but an image with per pixel alphas cannot use the other modes.
    Colorkey transparency makes a single color value transparent. Any pixels
@@ -218,7 +218,7 @@
       contained by the Surface clip area. It is safe to have dx and dy values
       that exceed the surface size.
 
-      New in Pygame 1.9
+      New in pygame 1.9
 
       .. ## Surface.scroll ##
 
@@ -298,7 +298,7 @@
       need the Surface to be locked.
 
       Surfaces should not remain locked for more than necessary. A locked
-      Surface can often not be displayed or managed by Pygame.
+      Surface can often not be displayed or managed by pygame.
 
       Not all Surfaces require locking. The ``Surface.mustlock()`` method can
       determine if it is actually required. There is no performance penalty for
@@ -320,7 +320,7 @@
       | :sg:`unlock() -> None`
 
       Unlock the Surface pixel data after it has been locked. The unlocked
-      Surface can once again be drawn and managed by Pygame. See the
+      Surface can once again be drawn and managed by pygame. See the
       ``Surface.lock()`` documentation for more details.
 
       All pygame functions will automatically lock and unlock the Surface data
@@ -399,7 +399,7 @@
 
       Set the ``RGBA`` or mapped integer color value for a single pixel. If the
       Surface does not have per pixel alphas, the alpha value is ignored.
-      Settting pixels outside the Surface area or outside the Surface clipping
+      Setting pixels outside the Surface area or outside the Surface clipping
       will have no effect.
 
       Getting and setting pixels one at a time is generally too slow to be used
@@ -417,7 +417,7 @@
       Return the integer value of the given pixel. If the pixel position is
       outside the area of the Surface an IndexError exception will be raised.
 
-      This method is intended for Pygame unit testing. It unlikely has any use
+      This method is intended for pygame unit testing. It unlikely has any use
       in an application.
 
       This function will temporarily lock and unlock the Surface as needed.
@@ -428,11 +428,11 @@
 
    .. method:: get_palette
 
-      | :sl:`get the color index palette for an 8bit Surface`
+      | :sl:`get the color index palette for an 8-bit Surface`
       | :sg:`get_palette() -> [RGB, RGB, RGB, ...]`
 
       Return a list of up to 256 color elements that represent the indexed
-      colors used in an 8bit Surface. The returned list is a copy of the
+      colors used in an 8-bit Surface. The returned list is a copy of the
       palette, and changes will have no effect on the Surface.
 
       Returning a list of ``Color(with length 3)`` instances instead of tuples,
@@ -455,26 +455,26 @@
 
    .. method:: set_palette
 
-      | :sl:`set the color palette for an 8bit Surface`
+      | :sl:`set the color palette for an 8-bit Surface`
       | :sg:`set_palette([RGB, RGB, RGB, ...]) -> None`
 
-      Set the full palette for an 8bit Surface. This will replace the colors in
+      Set the full palette for an 8-bit Surface. This will replace the colors in
       the existing palette. A partial palette can be passed and only the first
       colors in the original palette will be changed.
 
-      This function has no effect on a Surface with more than 8bits per pixel.
+      This function has no effect on a Surface with more than 8-bits per pixel.
 
       .. ## Surface.set_palette ##
 
    .. method:: set_palette_at
 
-      | :sl:`set the color for a single index in an 8bit Surface palette`
+      | :sl:`set the color for a single index in an 8-bit Surface palette`
       | :sg:`set_palette_at(index, RGB) -> None`
 
       Set the palette value for a single entry in a Surface palette. The index
       should be a value from 0 to 255.
 
-      This function has no effect on a Surface with more than 8bits per pixel.
+      This function has no effect on a Surface with more than 8-bits per pixel.
 
       .. ## Surface.set_palette_at ##
 
@@ -485,7 +485,7 @@
 
       Convert an ``RGBA`` color into the mapped integer value for this Surface.
       The returned integer will contain no more bits than the bit depth of the
-      Surface. Mapped color values are not often used inside Pygame, but can be
+      Surface. Mapped color values are not often used inside pygame, but can be
       passed to most functions that require a Surface and a color.
 
       See the Surface object documentation for more information about colors
@@ -499,7 +499,7 @@
       | :sg:`unmap_rgb(mapped_int) -> Color`
 
       Convert an mapped integer color into the ``RGB`` color components for
-      this Surface. Mapped color values are not often used inside Pygame, but
+      this Surface. Mapped color values are not often used inside pygame, but
       can be passed to most functions that require a Surface and a color.
 
       See the Surface object documentation for more information about colors
@@ -717,7 +717,7 @@
       in video memory are not always linearly packed. Subsurfaces will also
       have a larger pitch than their real width.
 
-      This value is not needed for normal Pygame usage.
+      This value is not needed for normal pygame usage.
 
       .. ## Surface.get_pitch ##
 
@@ -728,7 +728,7 @@
 
       Returns the bitmasks used to isolate each color in a mapped integer.
 
-      This value is not needed for normal Pygame usage.
+      This value is not needed for normal pygame usage.
 
       .. ## Surface.get_masks ##
 
@@ -737,7 +737,7 @@
       | :sl:`set the bitmasks needed to convert between a color and a mapped integer`
       | :sg:`set_masks((r,g,b,a)) -> None`
 
-      This is not needed for normal Pygame usage. New in pygame 1.8.1
+      This is not needed for normal pygame usage. New in pygame 1.8.1
 
       .. ## Surface.set_masks ##
 
@@ -749,7 +749,7 @@
       Returns the pixel shifts need to convert between each color and a mapped
       integer.
 
-      This value is not needed for normal Pygame usage.
+      This value is not needed for normal pygame usage.
 
       .. ## Surface.get_shifts ##
 
@@ -758,7 +758,7 @@
       | :sl:`sets the bit shifts needed to convert between a color and a mapped integer`
       | :sg:`set_shifts((r,g,b,a)) -> None`
 
-      This is not needed for normal Pygame usage. New in pygame 1.8.1
+      This is not needed for normal pygame usage. New in pygame 1.8.1
 
       .. ## Surface.set_shifts ##
 
@@ -770,7 +770,7 @@
       Return the least significant number of bits stripped from each color in a
       mapped integer.
 
-      This value is not needed for normal Pygame usage.
+      This value is not needed for normal pygame usage.
 
       .. ## Surface.get_losses ##
 
@@ -814,9 +814,9 @@
       pixels. A ValueError is raised if the surface pixels are discontinuous.
       
       '2' returns a (surface-width, surface-height) array of raw pixels.
-      The pixels are surface bytesized unsigned integers. The pixel format is
+      The pixels are surface-bytesize-d unsigned integers. The pixel format is
       surface specific. The 3 byte unsigned integers of 24 bit surfaces are
-      unlikely accepted by anything other than other Pygame functions.
+      unlikely accepted by anything other than other pygame functions.
 
       '3' returns a (surface-width, surface-height, 3) array of ``RGB`` color
       components. Each of the red, green, and blue components are unsigned
@@ -835,7 +835,7 @@
       interface accesses, the surface remains locked until the BufferProxy
       object is released.
 
-      New in Pygame 1.9.2.
+      New in pygame 1.9.2.
 
    .. method:: get_buffer
 
@@ -851,7 +851,7 @@
       This method implicitly locks the Surface. The lock will be released when
       the returned BufferProxy object is garbage collected.
 
-      New in Pygame 1.8.
+      New in pygame 1.8.
 
       .. ## Surface.get_buffer ##
 
@@ -862,6 +862,6 @@
 
       The starting address of the surface's raw pixel bytes.
 
-      New in Pygame 1.9.2
+      New in pygame 1.9.2
 
    .. ## pygame.Surface ##

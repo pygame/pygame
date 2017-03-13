@@ -8,7 +8,7 @@
 
 | :sl:`pygame module for image masks.`
 
-Useful for fast pixel perfect collision detection. A Mask uses 1bit per pixel
+Useful for fast pixel perfect collision detection. A mask uses 1 bit per-pixel
 to store which parts collide.
 
 New in pygame 1.8.
@@ -24,7 +24,7 @@ New in pygame 1.8.
    The alpha of each pixel is checked to see if it is greater than the given
    threshold.
 
-   If the Surface is color keyed, then threshold is not used.
+   If the Surface is color-keyed, then threshold is not used.
 
    .. ## pygame.mask.from_surface ##
 
@@ -33,7 +33,7 @@ New in pygame 1.8.
    | :sl:`Creates a mask by thresholding Surfaces`
    | :sg:`from_threshold(Surface, color, threshold = (0,0,0,255), othersurface = None, palette_colors = 1) -> Mask`
 
-   This is a more featureful method of getting a Mask from a Surface. If
+   This is a more-featureful method of getting a Mask from a Surface. If
    supplied with only one Surface, all pixels within the threshold of the
    supplied color are set in the Mask. If given the optional othersurface, all
    pixels in Surface that are within the threshold of the corresponding pixel

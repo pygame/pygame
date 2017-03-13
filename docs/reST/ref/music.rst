@@ -149,7 +149,7 @@ can crash the program, ``e.g``. Debian Linux. Consider using ``OGG`` instead.
    Function :func:`set_pos` calls underlining SDL_mixer function
    ``Mix_SetMusicPosition``.
 
-   New in Pygame 1.9.2
+   New in pygame 1.9.2
 
    .. ## pygame.mixer.music.set_pos ##
 
@@ -190,7 +190,7 @@ can crash the program, ``e.g``. Debian Linux. Consider using ``OGG`` instead.
    | :sg:`set_endevent() -> None`
    | :sg:`set_endevent(type) -> None`
 
-   This causes Pygame to signal (by means of the event queue) when the music is
+   This causes pygame to signal (by means of the event queue) when the music is
    done playing. The argument determines the type of event that will be queued.
 
    The event will be queued every time the music finishes, not just the first

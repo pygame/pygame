@@ -35,7 +35,7 @@ automatically switch to operate on the new display.
 
 When the display mode is set, several events are placed on the pygame event
 queue. ``pygame.QUIT`` is sent when the user has requested the program to
-shutdown. The window will receive ``pygame.ACTIVEEVENT`` events as the display
+shut down. The window will receive ``pygame.ACTIVEEVENT`` events as the display
 gains and loses input focus. If the display is set with the
 ``pygame.RESIZABLE`` flag, ``pygame.VIDEORESIZE`` events will be sent when the
 user adjusts the window dimensions. Hardware displays that draw direct to the
@@ -144,7 +144,7 @@ required).
       pygame.FULLSCREEN    create a fullscreen display
       pygame.DOUBLEBUF     recommended for HWSURFACE or OPENGL
       pygame.HWSURFACE     hardware accelerated, only in FULLSCREEN
-      pygame.OPENGL        create an OpenGL renderable display
+      pygame.OPENGL        create an OpenGL-renderable display
       pygame.RESIZABLE     display window should be sizeable
       pygame.NOFRAME       display window will have no border or controls
 
@@ -247,7 +247,7 @@ required).
      blit_hw_A:  True if hardware Surface pixel alpha blitting is accelerated
      blit_sw:    True if software Surface blitting is accelerated
      blit_sw_CC: True if software Surface colorkey blitting is accelerated
-     blit_sw_A:  True if software Surface pixel alpha blitting is acclerated
+     blit_sw_A:  True if software Surface pixel alpha blitting is accelerated
      current_h, current_h:  Width and height of the current video mode, or of the
        desktop mode if called before the display.set_mode is called.
        (current_h, current_w are available since SDL 1.2.10, and pygame 1.8.0)
@@ -324,7 +324,7 @@ required).
 
    When calling ``pygame.display.set_mode()`` with the ``pygame.OPENGL`` flag,
    Pygame automatically handles setting the OpenGL attributes like color and
-   doublebuffering. OpenGL offers several other attributes you may want control
+   double-buffering. OpenGL offers several other attributes you may want control
    over. Pass one of these attributes as the flag, and its appropriate value.
    This must be called before ``pygame.display.set_mode()``
 
@@ -370,7 +370,7 @@ required).
    | :sg:`toggle_fullscreen() -> bool`
 
    Switches the display window between windowed and fullscreen modes. This
-   function only works under the unix x11 video driver. For most situations it
+   function only works under the UNIX X11 video driver. For most situations it
    is better to call ``pygame.display.set_mode()`` with new display flags.
 
    .. ## pygame.display.toggle_fullscreen ##
@@ -446,7 +446,7 @@ required).
    | :sl:`Set the display color palette for indexed displays`
    | :sg:`set_palette(palette=None) -> None`
 
-   This will change the video display color palette for 8bit displays. This
+   This will change the video display color palette for 8-bit displays. This
    does not change the palette for the actual display Surface, only the palette
    that is used to display the Surface. If no palette argument is passed, the
    system default palette will be restored. The palette is a sequence of
