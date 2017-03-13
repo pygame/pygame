@@ -14,7 +14,7 @@ Line By Line Chimp
 
 :Author: Pete Shinners
 :Contact: pete@shinners.org
-:Revision: 2.2, June 17, 2004 (Updated October 21, 2016)
+:Revision: 2.3, 2004-06-17 (Updated 2016-10-21, 2017-03-13)
 
 .. toctree::
    :hidden:
@@ -28,7 +28,7 @@ Introduction
 In the *pygame* examples there is a simple example named, "chimp".
 This example simulates a punchable monkey moving around a small screen with
 promises of riches and reward. The example itself is very simple, and a
-bit thin on errorchecking code. This example program demonstrates many of
+bit thin on error-checking code. This example program demonstrates many of
 pygame's abilities, like creating a graphics window, loading images and sound
 files, rendering TTF text, and basic event and mouse handling.
 
@@ -42,7 +42,7 @@ This tutorial will go through the code block by block. Explaining how
 the  code works. There will also be mention of how the code could be improved
 and what errorchecking could help out.
 
-This is an exellent tutorial for people getting their first look at
+This is an excellent tutorial for people getting their first look at
 the  *pygame* code. Once *pygame* is fully installed, you can find
 and run the chimp demo for yourself in the examples directory.
 
@@ -284,7 +284,7 @@ makes the monkey look like he's turning the direction he is moving.
 The spin method is called when the monkey is currently "dizzy". The dizzy
 attribute is used to store the current amount of rotation. When the monkey
 has rotated all the way around (360 degrees) it resets the monkey image
-back  to the original unrotated version. Before calling the transform.rotate
+back to the original, non-rotated version. Before calling the transform.rotate
 function,  you'll see the code makes a local reference to the function simply
 named "rotate". There is no need to do that for this example, it is just
 done here to keep the following line's length a little shorter. Note that
@@ -349,8 +349,8 @@ window. Note the extra call to convert() after creating the Surface. The
 convert with no arguments will make sure our background is the same format
 as the display window, which will give us the fastest results.
 
-We also fill the entire background with a solid white-ish color. Fill
-takes  an RGB triplet as the color argument.
+We also fill the entire background with a solid whitish color. Fill
+takes an RGB triplet as the color argument.
 
 
 Put Text On The Background, Centered
@@ -371,7 +371,7 @@ must  create the font object and render it into a new surface. We then find
 the  center of that new surface and blit (paste) it onto the background.
 
 The font is created with the font module's Font() constructor. Usually
-you will pass the name of a truetype font file to this function, but we
+you will pass the name of a TrueType font file to this function, but we
 can  also pass None, which will use a default font. The Font constructor
 also needs to know the size of font we want to create.
 
@@ -405,7 +405,7 @@ Normally, a display must be updated in areas that have changed for them
 to  be visible to the user. With double buffered displays the display must
 be  swapped (or flipped) for the changes to become visible. In this case
 the flip() function works nicely because it simply handles the entire window
-area and handles both singlebuffered and doublebufferes surfaces.
+area and handles both single- and double-buffered surfaces.
 
 
 Prepare Game Object
