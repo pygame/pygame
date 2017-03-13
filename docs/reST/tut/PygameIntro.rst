@@ -16,13 +16,13 @@ Python Pygame Introduction
 :Contact: pete@shinners.org
 
 
-This article is an introduction to the `Pygame library <http://www.pygame.org>`_
-for `Python programmers <http://www.python.org>`_.
-The original version appeared in the `Py Zine <http://www.pyzine.com/>`_,
+This article is an introduction to the `pygame library <http://www.pygame.org>`_
+for `Python programmers <https://www.python.org/>`_.
+The original version appeared in the `Py Zine <http://pyzine.com/?p=18>`_,
 volume 1 issue 3. This version contains minor revisions, to
-create an all around better article. Pygame is a Python extension
+create an all-around better article. Pygame is a Python extension
 library that wraps the `SDL <http://www.libsdl.org>`_ library
-and it's helpers.
+and its helpers.
 
 
 HISTORY
@@ -31,14 +31,14 @@ HISTORY
 Pygame started in the summer of 2000. Being a C programmer of many
 years, I discovered both Python and SDL at about the same time. You are
 already familiar with Python, which was at version 1.5.2. You may need
-an introduction to SDL, which is the Simple Directmedia Library.&nbsp;
+an introduction to SDL, which is the Simple DirectMedia Layer.
 Created by Sam Lantinga, SDL is a cross-platform C library for
 controlling multimedia, comparable to DirectX. It has been used for
 hundreds commercial and open source games. I was impressed at how clean
 and straightforward both projects were and it wasn't long before I
 realized mixing Python and SDL was an interesting proposal.
 
-I discovered a small project already underway with exactly the same
+I discovered a small project already under-way with exactly the same
 idea, PySDL. Created by Mark Baker, PySDL was a straightforward
 implementation of SDL as a Python extension. The interface was cleaner
 than a generic SWIG wrapping, but I felt it forced a "C style" of code.
@@ -48,7 +48,7 @@ own.
 I wanted to put together a project that really took advantage of
 Python. My goal was to make it easy to do the simple things, and
 straightforward to do the difficult things. Pygame was started in
-October, 2000. Six months later Pygame version 1.0 was released.
+October, 2000. Six months later pygame version 1.0 was released.
 
 
 TASTE
@@ -56,7 +56,7 @@ TASTE
 
 
 I find the best way to understand a new library is to jump straight
-into an example. In the early days of Pygame, I created a bouncing ball
+into an example. In the early days of pygame, I created a bouncing ball
 animation with 7 lines of code. Let's take a look at a friendlier
 version of that same thing. This should be simple enough to follow
 along, and a complete breakdown follows.
@@ -94,9 +94,9 @@ along, and a complete breakdown follows.
        pygame.display.flip()
 
 This is as simple as you can get for a bouncing animation.
-First we see importing and initializing Pygame is nothing noteworthy.
+First we see importing and initializing pygame is nothing noteworthy.
 The ``import pygame`` imports the package with all the available
-Pygame modules.
+pygame modules.
 The call to ``pygame.init()`` initializes each of these modules.
 
 On :clr:`line 8` we create a
@@ -124,9 +124,9 @@ At this point, :clr:`line 13`,
 our program is initialized and ready to run. Inside an infinite loop we
 check for user input, move the ball, and then draw the ball. If you are
 familiar with GUI programming, you have had experience with events and
-event loops. In Pygame this is no different,
+event loops. In pygame this is no different,
 we check if a *QUIT* event has happened. If so we
-simply exit the program, Pygame will ensure everything is cleanly
+simply exit the program, pygame will ensure everything is cleanly
 shutdown.
 
 It is time to update our position for the ball.
@@ -162,18 +162,18 @@ become visible. This buffering makes sure we only see completely drawn
 frames on the screen. Without it, the user would see the half completed
 parts of the screen as they are being created.
 
-That concludes this short introduction to Pygame. Pygame also has
+That concludes this short introduction to pygame. Pygame also has
 modules to do things like input handling for the keyboard, mouse, and
 joystick. It can mix audio and decode streaming music.
 With the *Surfaces* you can draw simple
 shapes, rotate, scale, the picture. Even manipulate the pixels of
 an image in realtime as numpy arrays.
 Pygame also has the ability to act as a
-cross platform display layer for PyOpenGL. Most of the Pygame modules
+cross platform display layer for PyOpenGL. Most of the pygame modules
 are written in C, few are actually done in Python.
 
-The Pygame website has full reference documentation for every Pygame
-function and tutorials for all ranges of users. The Pygame source comes
+The pygame website has full reference documentation for every pygame
+function and tutorials for all ranges of users. The pygame source comes
 with many examples of things like monkey punching and UFO shooting.
 
 
@@ -206,7 +206,7 @@ Severance: Blade of Darkness. Using their own custom 3D engine, the
 rest of the game is written with Python. The game is a bloody action
 3rd person perspective fighter. You control medieval warriors into
 intricate decapitating combination attacks while exploring dungeons and
-castles. You can download third party addons for this game, and find
+castles. You can download third party add-ons for this game, and find
 they are nothing more than Python source files.
 
 More recently, Python has been used a variety of games like Freedom
@@ -225,7 +225,7 @@ running at 200 frames per second, you realize that Python and games can
 work together.
 
 It is impressive how well both Python and SDL work on multiple
-platforms. For example, in May of 2001 I released my own full Pygame
+platforms. For example, in May of 2001 I released my own full pygame
 project, SolarWolf, an arcade style action game. One thing that has
 surprised me is that one year later there has been no need for any
 patches, bug fixes, or updates. The game was developed entirely on
@@ -242,9 +242,9 @@ unplayable speeds. While SDL is not suitable all types of games,
 remember companies like Loki have used SDL to run a wide variety of
 retail quality titles.
 
-Pygame is faily low level when it comes to writing games. You'll
+Pygame is fairly low-level when it comes to writing games. You'll
 quickly find yourself needing to wrap common functions into your own
-game environment. The great thing abuot this is there is nothing inside
+game environment. The great thing about this is there is nothing inside
 pygame to get in your way. Your program is in full control of
 everything. The side effect of that is you will find yourself borrowing
 a lot of code to get a more advanced framework put together. You'll
@@ -257,7 +257,7 @@ CLOSING
 Developing games is very rewarding, there is something exciting about
 being able to see and interact with the code you've written. Pygame
 currently has almost 30 other projects using it. Several of them are
-ready to play now. You may be surprised to visit the Pygame website,
+ready to play now. You may be surprised to visit the pygame website,
 and see what other users have been able to do with Python.
 
 One thing that has caught my attention is the amount of people coming
@@ -265,13 +265,13 @@ to Python for the first time to try game development. I can see why
 games are a draw for new programmers, but it can be difficult since
 creating games requires a firmer understanding of the language. I've
 tried to support this group of users by writing many examples and
-Pygame tutorials for people new to these concepts.
+pygame tutorials for people new to these concepts.
 
 In the end, my advice is to keep it simple. I cannot stress this
 enough. If you are planning to create your first game, there is a&nbsp;
 lot to learn. Even a simpler game will challenge your designs, and
 complex games don't necessarily mean fun games. When you understand
-Python, you can use Pygame to create a simple game in only one or two
+Python, you can use pygame to create a simple game in only one or two
 weeks. From there you'll need a surprising amount of time needed to add
 the polish to make that into a full presentable game.
 
@@ -287,7 +287,7 @@ Pygame Modules Overview
    :mod:`display <pygame.display>`, "control the display window or screen"
    :mod:`draw <pygame.draw>`, "draw simple shapes onto a Surface"
    :mod:`event <pygame.event>`, "manage events and the event queue"
-   :mod:`font <pygame.font>`, "create and render Truetype fonts"
+   :mod:`font <pygame.font>`, "create and render TrueType fonts"
    :mod:`image <pygame.image>`, "save and load images"
    :mod:`joystick <pygame.joystick>`, "manage joystick devices"
    :mod:`key <pygame.key>`, "manage the keyboard"

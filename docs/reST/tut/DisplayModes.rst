@@ -14,7 +14,7 @@ Setting Display Modes
 
 :Author: Pete Shinners
 :Contact: pete@shinners.org
-:Revision: 1.1, May 21, 2002 (Updated October 18, 2016)
+:Revision: 1.2, 2002-05-21 (Updated 2016-10-18, 2017-03-13)
 
 
 Introduction
@@ -55,7 +55,7 @@ Setting Basics
 --------------
 
 The first thing to learn about is how to actually set the current display mode.
-The display mode may be set at anytime after the :mod:`pygame.display`
+The display mode may be set at any time after the :mod:`pygame.display`
 module has been initialized.
 If you have previously set the display mode,
 setting it again will change the current mode.
@@ -185,16 +185,16 @@ They should help you get an idea of how to go about setting your display mode. :
   >>> #give me the best depth with a 640 x 480 windowed display
   >>> pygame.display.set_mode((640, 480))
 
-  >>> #give me the biggest 16bit display available
+  >>> #give me the biggest 16-bit display available
   >>> modes = pygame.display.list_modes(16)
   >>> if not modes:
-  ...     print '16bit not supported'
+  ...     print '16-bit not supported'
   ... else:
   ...     print 'Found Resolution:', modes[0]
   ...     pygame.display.set_mode(modes[0], FULLSCREEN, 16)
 
-  >>> #need an 8bit surface, nothing else will do
+  >>> #need an 8-bit surface, nothing else will do
   >>> if pygame.display.mode_ok((800, 600), 0, 8) != 8:
-  ...     print 'Can only work with an 8bit display, sorry'
+  ...     print 'Can only work with an 8-bit display, sorry'
   ... else:
   ...     pygame.display.set_mode((800, 600), 0, 8)
