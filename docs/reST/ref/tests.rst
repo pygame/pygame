@@ -19,27 +19,27 @@ Command line option --help displays a usage message. Available options
 correspond to the :func:`pygame.tests.run` arguments.
 
 The xxxx_test submodules of the tests package are unit test suites for
-individual parts of Pygame. Each can also be run as a main program. This is
+individual parts of pygame. Each can also be run as a main program. This is
 useful if the test, such as cdrom_test, is interactive.
 
-For Pygame development the test suite can be run from a Pygame distribution
+For pygame development the test suite can be run from a pygame distribution
 root directory. Program ``run_tests.py`` is provided for convenience, though
 test/go.py can be run directly.
 
 Module level tags control which modules are included in a unit test run. Tags
-are assigned to a unit test module with a corresponding <<ame>_tags.py module.
+are assigned to a unit test module with a corresponding <name>_tags.py module.
 The tags module has the global __tags__, a list of tag names. For example,
 ``cdrom_test.py`` has a tag file ``cdrom_tags.py`` containing a tags list that
 has the 'interactive' string. The 'interactive' tag indicates ``cdrom_test.py``
 expects user input. It is excluded from a ``run_tests.py`` or
 ``pygame.tests.go`` run. Two other tags that are excluded are 'ignore' and
 'subprocess_ignore'. These two tags indicate unit tests that will not run on a
-particular platform, or for which no corresponding Pygame module is available.
+particular platform, or for which no corresponding pygame module is available.
 The test runner will list each excluded module along with the tag responsible.
 
 .. function:: run
 
-   | :sl:`Run the Pygame unit test suite`
+   | :sl:`Run the pygame unit test suite`
    | :sg:`run(*args, **kwds) -> tuple`
 
    Positional arguments (optional):
@@ -71,7 +71,7 @@ The test runner will list each excluded module along with the tag responsible.
                   killing a test (default 30)
        fake - if provided, the name of the fake tests package in the
               run_tests__tests subpackage to run instead of the normal
-              Pygame tests
+              pygame tests
        python - the path to a python executable to run subprocessed tests
                 (default sys.executable)
 
@@ -83,7 +83,7 @@ The test runner will list each excluded module along with the tag responsible.
        The dictionary is empty if no errors were recorded.
 
    By default individual test modules are run in separate subprocesses. This
-   recreates normal Pygame usage where ``pygame.init()`` and ``pygame.quit()``
+   recreates normal pygame usage where ``pygame.init()`` and ``pygame.quit()``
    are called only once per program execution, and avoids unfortunate
    interactions between test modules. Also, a time limit is placed on test
    execution, so frozen tests are killed when there time allotment expired. Use

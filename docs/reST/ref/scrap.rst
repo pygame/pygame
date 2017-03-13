@@ -8,7 +8,7 @@
 
 | :sl:`pygame module for clipboard support.`
 
-EXPERIMENTAL!: meaning this api may change, or dissapear in later pygame
+EXPERIMENTAL!: meaning this API may change, or disappear in later pygame
 releases. If you use this, your code will break with the next pygame release.
 
 The scrap module is for getting and putting stuff from the clipboard. So you

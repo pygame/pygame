@@ -24,7 +24,7 @@
 
    'rgbvalue' can be either a color name, an ``HTML`` color format string, a
    hex number string, or an integer pixel value. The ``HTML`` format is
-   '#rrggbbaa', where rr, gg, bb, and aa are 2 digit hex numbers. The alpha aa
+   '#rrggbbaa', where rr, gg, bb, and aa are 2-character hex numbers. The alpha aa
    is optional. A hex number string has the form '0xrrggbbaa', where aa is
    optional.
 

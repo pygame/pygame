@@ -12,17 +12,17 @@ This module contains functions for dealing with the keyboard.
 
 The event queue gets ``pygame.KEYDOWN`` and ``pygame.KEYUP`` events when the
 keyboard buttons are pressed and released. Both events have a key attribute
-that is a integer id representing every key on the keyboard.
+that is a integer ID representing every key on the keyboard.
 
-The ``pygame.KEYDOWN`` event has an additional attributes unicode, and
-scancode. unicode represents a single character string that is the fully
+The ``pygame.KEYDOWN`` event has additional attributes ``unicode`` and
+``scancode``. ``unicode`` represents a single character string that is the fully
 translated character entered. This takes into account the shift and composition
-keys. scancode represents the platform specific key code. This could be
+keys. ``scancode`` represents the platform-specific key code. This could be
 different from keyboard to keyboard, but is useful for key selection of weird
 keys like the multimedia keys.
 
 There are many keyboard constants, they are used to represent keys on the
-keyboard. The following is a list of all keyboard constants
+keyboard. The following is a list of all keyboard constants:
 
 ::
 
@@ -144,14 +144,14 @@ keyboard. The following is a list of all keyboard constants
       K_SCROLLOCK           scrollock
       K_RSHIFT              right shift
       K_LSHIFT              left shift
-      K_RCTRL               right ctrl
-      K_LCTRL               left ctrl
+      K_RCTRL               right control
+      K_LCTRL               left control
       K_RALT                right alt
       K_LALT                left alt
       K_RMETA               right meta
       K_LMETA               left meta
-      K_LSUPER              left windows key
-      K_RSUPER              right windows key
+      K_LSUPER              left Windows key
+      K_RSUPER              right Windows key
       K_MODE                mode shift
       K_HELP                help
       K_PRINT               print screen
@@ -159,10 +159,10 @@ keyboard. The following is a list of all keyboard constants
       K_BREAK               break
       K_MENU                menu
       K_POWER               power
-      K_EURO                euro
+      K_EURO                Euro
 
-The keyboard also has a list of modifier states that can be assembled bit
-bitwise ORing them together.
+The keyboard also has a list of modifier states that can be assembled by
+bitwise-ORing them together.
 
 ::
 

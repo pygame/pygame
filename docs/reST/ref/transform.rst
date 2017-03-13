@@ -14,7 +14,7 @@ results.
 
 Some of the transforms are considered destructive. These means every time they
 are performed they lose pixel data. Common examples of this are resizing and
-rotating. For this reason, it is better to retransform the original surface
+rotating. For this reason, it is better to re-transform the original surface
 than to keep transforming an image multiple times. (For example, suppose you
 are animating a bouncing spring which expands and contracts. If you applied the
 size changes incrementally to the previous images, you would lose detail.
@@ -26,7 +26,7 @@ Instead, always begin with the original image and scale to the desired size.)
    | :sg:`flip(Surface, xbool, ybool) -> Surface`
 
    This can flip a Surface either vertically, horizontally, or both. Flipping a
-   Surface is nondestructive and returns a new Surface with the same
+   Surface is non-destructive and returns a new Surface with the same
    dimensions.
 
    .. ## pygame.transform.flip ##
@@ -103,7 +103,7 @@ Instead, always begin with the original image and scale to the desired size.)
    Uses one of two different algorithms for scaling each dimension of the input
    surface as required. For shrinkage, the output pixels are area averages of
    the colors they cover. For expansion, a bilinear filter is used. For the
-   amd64 and i686 architectures, optimized ``MMX`` routines are included and
+   x86-64 and i686 architectures, optimized ``MMX`` routines are included and
    will run much faster than other machine types. The size is a 2 number
    sequence for (width, height). This function only works for 24-bit or 32-bit
    surfaces. An exception will be thrown if the input surface bit depth is less
@@ -122,7 +122,7 @@ Instead, always begin with the original image and scale to the desired size.)
    If no acceleration is available then "GENERIC" is returned. For a x86
    processor the level of acceleration to use is determined at runtime.
 
-   This function is provided for Pygame testing and debugging.
+   This function is provided for pygame testing and debugging.
 
    .. ## pygame.transform.get_smoothscale_backend ##
 
@@ -136,8 +136,8 @@ Instead, always begin with the original image and scale to the desired size.)
    ``SSE`` extensions as well. A value error is raised if type is not
    recognized or not supported by the current processor.
 
-   This function is provided for Pygame testing and debugging. If smoothscale
-   causes an invalid instruction error then it is a Pygame/SDL bug that should
+   This function is provided for pygame testing and debugging. If smoothscale
+   causes an invalid instruction error then it is a pygame/SDL bug that should
    be reported. Use this function as a temporary fix only.
 
    .. ## pygame.transform.set_smoothscale_backend ##

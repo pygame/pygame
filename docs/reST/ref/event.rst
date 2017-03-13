@@ -308,7 +308,7 @@ type and have identical attribute values. Inequality checks also work.
       `KEYDOWN` event. The `dict` attribute is a synonym, for backward
       compatibility.
 
-   Mutable attributes are new to Pygame 1.9.2.
+   Mutable attributes are new to pygame 1.9.2.
 
    .. ## pygame.event.Event ##
 

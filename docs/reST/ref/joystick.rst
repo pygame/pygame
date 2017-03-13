@@ -96,7 +96,7 @@ So call one of pygame.event.get, pygame.event.wait, or pygame.event.pump regular
    and values for those Joystick objects will be shared.
 
    The Joystick object allows you to get information about the types of
-   controls on a joystick device. Once the device is initialized the Pygame
+   controls on a joystick device. Once the device is initialized the pygame
    event queue will start receiving events about its input.
 
    You can call the ``Joystick.get_name()`` and ``Joystick.get_id()`` functions
@@ -108,7 +108,7 @@ So call one of pygame.event.get, pygame.event.wait, or pygame.event.pump regular
       | :sg:`init() -> None`
 
       The Joystick must be initialized to get most of the information about the
-      controls. While the Joystick is initialized the Pygame event queue will
+      controls. While the Joystick is initialized the pygame event queue will
       receive events from the Joystick input.
 
       It is safe to call this more than once.
@@ -120,7 +120,7 @@ So call one of pygame.event.get, pygame.event.wait, or pygame.event.pump regular
       | :sl:`uninitialize the Joystick`
       | :sg:`quit() -> None`
 
-      This will unitialize a Joystick. After this the Pygame event queue will
+      This will uninitialize a Joystick. After this the pygame event queue will
       no longer receive events from the device.
 
       It is safe to call this more than once.

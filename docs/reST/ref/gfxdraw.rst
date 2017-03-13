@@ -8,7 +8,7 @@
 
 | :sl:`pygame module for drawing shapes`
 
-EXPERIMENTAL!: meaning this api may change, or dissapear in later pygame
+EXPERIMENTAL!: meaning this API may change, or disappear in later pygame
 releases. If you use this, your code will break with the next pygame release.
 
 Draw several shapes to a surface.
@@ -21,7 +21,7 @@ For all functions the arguments are strictly positional. Only integers are
 accepted for coordinates and radii.
 
 For functions like rectangle that accept a rect argument any (x, y, w, h)
-sequence is accepted, though :mod:`pygame.Rect` instances are prefered. Note
+sequence is accepted, though :mod:`pygame.Rect` instances are preferred. Note
 that for a :mod:`pygame.Rect` the drawing will not include
 ``Rect.bottomright``. The right and bottom attributes of a Rect lie one pixel
 outside of the Rect's boarder.
@@ -169,7 +169,7 @@ New in pygame 1.9.0.
    | :sl:`draw a filled ellipse`
    | :sg:`filled_ellipse(surface, x, y, rx, ry, color) -> None`
 
-   Draws a filled ellipse onto a surface.  So the inside of the elipse will 
+   Draws a filled ellipse onto a surface.  So the inside of the ellipse will 
    be filled with the given color.
 
    .. ## pygame.gfxdraw.filled_ellipse ##
@@ -254,10 +254,10 @@ New in pygame 1.9.0.
 
 .. function:: bezier
 
-   | :sl:`draw a bezier curve`
+   | :sl:`draw a Bézier curve`
    | :sg:`bezier(surface, points, steps, color) -> None`
 
-   Draws a bezier onto a surface.
+   Draws a Bézier curve onto a surface.
 
    .. ## pygame.gfxdraw.bezier ##
 

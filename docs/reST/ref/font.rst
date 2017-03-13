@@ -24,7 +24,7 @@ Pygame comes with a builtin default font. This can always be accessed by
 passing None as the font name.
 
 To use the :mod:`pygame.freetype` based ``pygame.ftfont`` as
-:mod:`pygame.font` define the enviroment variable PYGAME_FREETYPE before the
+:mod:`pygame.font` define the environment variable PYGAME_FREETYPE before the
 first import of :mod:`pygame`. Module ``pygame.ftfont`` is a :mod:`pygame.font`
 compatible module that passes all but one of the font module unit tests:
 it does not have the UCS-2 limitation of the SDL_ttf based font module, so
@@ -117,7 +117,7 @@ loaded instead.
 
    Return a new Font object that is loaded from the system fonts. The font will
    match the requested bold and italic flags. If a suitable system font is not
-   found this will fallback on loading the default pygame font. The font name
+   found this will fall back on loading the default pygame font. The font name
    can be a comma separated list of font names to look for.
 
    .. ## pygame.font.SysFont ##
@@ -129,7 +129,7 @@ loaded instead.
    | :sg:`Font(object, size) -> Font`
 
    Load a new font from a given filename or a python file object. The size is
-   the height of the font in pixels. If the filename is None the Pygame default
+   the height of the font in pixels. If the filename is None the pygame default
    font will be loaded. If a font cannot be loaded from the arguments given an
    exception will be raised. Once the font is created the size cannot be
    changed.
@@ -144,7 +144,7 @@ loaded instead.
       | :sl:`draw text on a new Surface`
       | :sg:`render(text, antialias, color, background=None) -> Surface`
 
-      This creates a new Surface with the specified text rendered on it. Pygame
+      This creates a new Surface with the specified text rendered on it. pygame
       provides no way to directly draw text on an existing Surface: instead you
       must use ``Font.render()`` to create an image (Surface) of the text, then
       blit this image onto another Surface.
@@ -167,7 +167,7 @@ loaded instead.
       Depending on the type of background and antialiasing used, this returns
       different types of Surfaces. For performance reasons, it is good to know
       what type of image will be used. If antialiasing is not used, the return
-      image will always be an 8bit image with a two color palette. If the
+      image will always be an 8-bit image with a two-color palette. If the
       background is transparent a colorkey will be set. Antialiased images are
       rendered to 24-bit ``RGB`` images. If the background is transparent a
       pixel alpha will be included.
@@ -257,7 +257,7 @@ loaded instead.
 
    .. method:: metrics
 
-      | :sl:`Gets the metrics for each character in the pased string.`
+      | :sl:`Gets the metrics for each character in the passed string.`
       | :sg:`metrics(text) -> list`
 
       The list contains tuples for each character, which contain the minimum

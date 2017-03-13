@@ -17,7 +17,7 @@
    Rects can also be created from python objects that are already a Rect or
    have an attribute named "rect".
 
-   Any Pygame function that requires a Rect argument also accepts any of these
+   Any pygame function that requires a Rect argument also accepts any of these
    values to construct a Rect. This makes it easier to create Rects on the fly
    as arguments to functions.
 
@@ -71,7 +71,7 @@
    will recognize this and return instances of the subclass.
    However, the subclass's ``__init__()`` method is not called,
    and ``__new__()`` is assumed to take no arguments. So these methods should be
-   overridden if any extra attributes need to be copied. New in Pygame 1.9.2.
+   overridden if any extra attributes need to be copied. New in pygame 1.9.2.
 
    .. method:: copy
 

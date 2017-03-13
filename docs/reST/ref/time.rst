@@ -17,7 +17,7 @@ resolution, in milliseconds, is given in the ``TIMER_RESOLUTION`` constant.
    | :sl:`get the time in milliseconds`
    | :sg:`get_ticks() -> milliseconds`
 
-   Return the number of millisconds since ``pygame.init()`` was called. Before
+   Return the number of milliseconds since ``pygame.init()`` was called. Before
    pygame is initialized this will always be 0.
 
    .. ## pygame.time.get_ticks ##
@@ -89,8 +89,8 @@ resolution, in milliseconds, is given in the ``TIMER_RESOLUTION`` constant.
       than 40 frames per second.
 
       Note that this function uses SDL_Delay function which is not accurate on
-      every platform, but does not use much cpu. Use tick_busy_loop if you want
-      an accurate timer, and don't mind chewing cpu.
+      every platform, but does not use much CPU. Use tick_busy_loop if you want
+      an accurate timer, and don't mind chewing CPU.
 
       .. ## Clock.tick ##
 
@@ -110,7 +110,7 @@ resolution, in milliseconds, is given in the ``TIMER_RESOLUTION`` constant.
       more than 40 frames per second.
 
       Note that this function uses :func:`pygame.time.delay`, which uses lots
-      of cpu in a busy loop to make sure that timing is more acurate.
+      of CPU in a busy loop to make sure that timing is more accurate.
 
       New in pygame 1.8.0.
 
@@ -121,9 +121,8 @@ resolution, in milliseconds, is given in the ``TIMER_RESOLUTION`` constant.
       | :sl:`time used in the previous tick`
       | :sg:`get_time() -> milliseconds`
 
-      Returns the parameter passed to the last call to ``Clock.tick()``. It is
-      the number of milliseconds passed between the previous two calls to
-      ``Pygame.tick()``.
+      The number of milliseconds that passed between the previous two calls to
+      ``Clock.tick()``.
 
       .. ## Clock.get_time ##
 
@@ -132,7 +131,7 @@ resolution, in milliseconds, is given in the ``TIMER_RESOLUTION`` constant.
       | :sl:`actual time used in the previous tick`
       | :sg:`get_rawtime() -> milliseconds`
 
-      Similar to ``Clock.get_time()``, but this does not include any time used
+      Similar to ``Clock.get_time()``, but does not include any time used
       while ``Clock.tick()`` was delaying to limit the framerate.
 
       .. ## Clock.get_rawtime ##

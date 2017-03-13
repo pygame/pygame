@@ -38,7 +38,7 @@
       | :sg:`display((y, u, v)) -> None`
       | :sg:`display() -> None`
 
-      Display the yuv data in SDL's overlay planes. The y, u, and v arguments
+      Display the YUV data in SDL's overlay planes. The y, u, and v arguments
       are strings of binary data. The data must be in the correct format used
       to create the Overlay.
 

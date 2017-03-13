@@ -10,7 +10,7 @@
 
 The pygame package represents the top-level package for others to use. Pygame
 itself is broken into many submodules, but this does not affect programs that
-use Pygame.
+use pygame.
 
 As a convenience, most of the top-level variables in pygame have been placed
 inside a module named 'pygame.locals'. This is meant to be used with 'from
@@ -18,7 +18,7 @@ inside a module named 'pygame.locals'. This is meant to be used with 'from
 
 When you 'import pygame' all available pygame submodules are automatically
 imported. Be aware that some of the pygame modules are considered "optional",
-and may not be available. In that case, Pygame will provide a placeholder
+and may not be available. In that case, pygame will provide a placeholder
 object instead of the module, which can be used to test for availability.
 
 .. function:: init
@@ -26,14 +26,14 @@ object instead of the module, which can be used to test for availability.
    | :sl:`initialize all imported pygame modules`
    | :sg:`init() -> (numpass, numfail)`
 
-   Initialize all imported Pygame modules. No exceptions will be raised if a
+   Initialize all imported pygame modules. No exceptions will be raised if a
    module fails, but the total number if successful and failed inits will be
    returned as a tuple. You can always initialize individual modules manually,
    but :func:`pygame.init` is a convenient way to get everything started. The
    ``init()`` functions for individual modules will raise exceptions when they
    fail.
 
-   You may want to initalise the different modules seperately to speed up your
+   You may want to initialize the different modules separately to speed up your
    program or to not use things your game does not.
 
    It is safe to call this ``init()`` more than once: repeated calls will have
@@ -100,7 +100,7 @@ object instead of the module, which can be used to test for availability.
 
    Returns the three version numbers of the ``SDL`` library. This version is
    built at compile time. It can be used to detect which features may not be
-   available through Pygame.
+   available through pygame.
 
    get_sdl_version is new in pygame 1.7.0
 
@@ -131,10 +131,10 @@ object instead of the module, which can be used to test for availability.
 
 .. function:: encode_string
 
-   | :sl:`Encode a unicode or bytes object`
+   | :sl:`Encode a Unicode or bytes object`
    | :sg:`encode_string([obj [, encoding [, errors [, etype]]]]) -> bytes or None`
 
-   obj: If unicode, encode; if bytes, return unaltered; if anything else,
+   obj: If Unicode, encode; if bytes, return unaltered; if anything else,
    return None; if not given, raise SyntaxError.
 
    encoding (string): If present, encoding to use. The default is
@@ -151,27 +151,27 @@ object instead of the module, which can be used to test for availability.
    This function is used in encoding file paths. Keyword arguments are
    supported.
 
-   Added in Pygame 1.9.2 (primarily for use in unit tests)
+   Added in pygame 1.9.2 (primarily for use in unit tests)
 
    .. ## pygame.encode_string ##
 
 .. function:: encode_file_path
 
-   | :sl:`Encode a unicode or bytes object as a file system path`
+   | :sl:`Encode a Unicode or bytes object as a file system path`
    | :sg:`encode_file_path([obj [, etype]]) -> bytes or None`
 
-   obj: If unicode, encode; if bytes, return unaltered; if anything else,
+   obj: If Unicode, encode; if bytes, return unaltered; if anything else,
    return None; if not given, raise SyntaxError.
 
    etype (exception type): If given, the exception type to raise for an
    encoding error. The default is UnicodeEncodeError, as returned by
    ``PyUnicode_AsEncodedString()``.
 
-   This function is used to encode file paths in Pygame. Encoding is to the
+   This function is used to encode file paths in pygame. Encoding is to the
    codec as returned by ``sys.getfilesystemencoding()``. Keyword arguments are
    supported.
 
-   Added in Pygame 1.9.2 (primarily for use in unit tests)
+   Added in pygame 1.9.2 (primarily for use in unit tests)
 
    .. ## pygame.encode_file_path ##
 
@@ -202,13 +202,13 @@ variables to check with version of pygame has been imported.
    | :sg:`vernum = (1, 5, 3)`
 
    This variable for the version can easily be compared with other version
-   numbers of the same format. An example of checking Pygame version numbers
+   numbers of the same format. An example of checking pygame version numbers
    would look like this:
 
    ::
 
        if pygame.version.vernum < (1, 5):
-           print 'Warning, older version of Pygame (%s)' %  pygame.version.ver
+           print 'Warning, older version of pygame (%s)' %  pygame.version.ver
            disable_advanced_features = True
 
    .. ## pygame.version.vernum ##
@@ -221,7 +221,7 @@ variables to check with version of pygame has been imported.
    The Mercurial node identifier of the repository checkout from which this
    package was built. If the identifier ends with a plus sign '+' then the
    package contains uncommitted changes. Please include this revision number
-   in bug reports, especially for non-release Pygame builds.
+   in bug reports, especially for non-release pygame builds.
 
 .. ## pygame.version ##
 
