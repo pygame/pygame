@@ -15,7 +15,6 @@ Surfarray Introduction
 
 :Author: Pete Shinners
 :Contact: pete@shinners.org
-:Revision: 1.9.3, 2016-10-21? (Updated 2017-03-13)
 
 
 Introduction

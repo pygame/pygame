@@ -14,7 +14,6 @@ Setting Display Modes
 
 :Author: Pete Shinners
 :Contact: pete@shinners.org
-:Revision: 1.2, 2002-05-21 (Updated 2016-10-18, 2017-03-13)
 
 
 Introduction
