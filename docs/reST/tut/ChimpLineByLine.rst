@@ -14,7 +14,6 @@ Line By Line Chimp
 
 :Author: Pete Shinners
 :Contact: pete@shinners.org
-:Revision: 2.3, 2004-06-17 (Updated 2016-10-21, 2017-03-13)
 
 .. toctree::
    :hidden:

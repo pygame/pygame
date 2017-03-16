@@ -14,7 +14,6 @@ Sprite Module Introduction
 
 :Author: Pete Shinners
 :Contact: pete@shinners.org
-:Revision: 1.2, 2002-04-12 (Updated 2017-03-13)
 
 Pygame version 1.3 comes with a new module, ``pygame.sprite``. This module is
 written in Python and includes some higher-level classes to manage your game

@@ -14,7 +14,6 @@ Camera Module Introduction
 
 :Author: by Nirav Patel
 :Contact: nrp@eclecti.cc
-:Revision: 1.0, May 25th, 2009 (Updated October 21, 2016)
 
 
 Pygame 1.9 comes with support for interfacing cameras, allowing you to capture

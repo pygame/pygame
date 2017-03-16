@@ -13,7 +13,6 @@ Help! How Do I Move An Image?
 
 :Author: Pete Shinners
 :Contact: pete@shinners.org
-:Revision: 1.3, 2002-08-20 (Updated 2016-10-20, 2017-03-13)
 
 
 Many people new to programming and graphics have a hard time figuring

@@ -13,7 +13,6 @@ Import and Initialize
 
 :Author: Pete Shinners
 :Contact: pete@shinners.org
-:Revision: 1.1, 2002-01-28 (Updated 2016-10-20, 2017-03-13)
 
 
 Getting pygame imported and initialized is a very simple process. It is also
