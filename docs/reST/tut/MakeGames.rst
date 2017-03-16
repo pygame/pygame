@@ -3,27 +3,12 @@
 .. include:: common.txt
 
 ****************************
-  Making games with Pygame
+  Making Games With Pygame
 ****************************
 
 
-Making games with Pygame
+Making Games With Pygame
 ========================
-
-.. csv-table:: Revision History
-   :widths: 45, 10, 35
-
-   "Revision 1.2.1", "", "13th March 2017"
-   "Miscellaneous cleanup", "", ""
-   "Revision 1.2", "", "6th November 2016"
-   "Switch to reStructuredText and Sphinx", "", ""
-   "Revision 1.1", "", "5th March 2003"
-   "Corrections, included full code in 6.3", "", ""
-   "Revision 1.0", "", "2nd March 2003"
-   "First release", "", ""
-
-Notionally, the most current version of this document will always be found at
-http://tom.acrewoods.net/writing/pygame.  However, this link appears to be defunct.
 
 .. toctree::
    :hidden:

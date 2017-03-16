@@ -225,7 +225,7 @@
       non-matching pixels are changed to black. This returns a new PixelArray
       with the black/white color mask.
 
-      It uses a simple weighted Eucldian distance formula to calculate the
+      It uses a simple weighted Euclidean distance formula to calculate the
       distance between the colors. The distance space ranges from 0.0 to 1.0
       and is used as threshold for the color detection. This causes the
       extraction to take pixels with a similar, but not exactly identical
@@ -245,7 +245,7 @@
       that indicates the differences (white) of both arrays. Both PixelArray
       objects must have identical bit depths and dimensions.
 
-      It uses a simple weighted Eucledian distance formula to calculate the
+      It uses a simple weighted Euclidean distance formula to calculate the
       distance between the colors. The distance space ranges from 0.0 to 1.0
       and is used as threshold for the color detection. This causes the
       comparison to mark pixels with a similar, but not exactly identical
