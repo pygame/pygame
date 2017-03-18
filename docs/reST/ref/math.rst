@@ -21,7 +21,7 @@ In addition vec*vec will perform a scalar-product (a.k.a. dot-product). If you
 want to multiply every element from vector v with every element from vector w
 you can use the elementwise method: ``v.elementwise()`` ``\*`` w
 
-New in pygame 1.10
+New in pygame 1.9.2pre.
 
 .. function:: enable_swizzling
 
