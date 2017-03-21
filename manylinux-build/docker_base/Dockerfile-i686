@@ -11,8 +11,8 @@ RUN rpm -i /tmp/${RPMFORGE_FILE}
 
 # Install SDL and portmidi dependencies
 RUN linux32 yum install -y zlib-devel libjpeg-devel libX11-devel freetype-devel \
-    alsa-lib-devel mesa-libGLU-devel audiofile-devel \
-    alsa-lib-devel java-1.7.0-openjdk-devel jpackage-utils xz libtiff-devel \
+    mesa-libGLU-devel audiofile-devel \
+    java-1.7.0-openjdk-devel jpackage-utils xz libtiff-devel \
     giflib-devel mikmod-devel
 RUN linux32 yum install -y libsndfile-devel libsndfile smpeg-devel dbus-devel \
     pulseaudio-libs-devel cmake
@@ -28,6 +28,13 @@ RUN ["linux32", "bash", "/webp_build/build-webp.sh"]
 # Build and install freetype
 ADD freetype /freetype_build/
 RUN ["linux32", "bash", "/freetype_build/build-freetype.sh"]
+
+# Build and install ALSA library
+ADD alsa /alsa_build/
+RUN ["linux32", "bash", "/alsa_build/build-alsa.sh"]
+# Replace yum-installed libasound with the one we just compiled.
+RUN ["rm", "/lib/libasound.so.2.0.0"]
+RUN ["ln", "-s", "/usr/lib/libasound.so.2.0.0", "/lib/"]
 
 # Build and install fluidsynth
 ADD fluidsynth /fluidsynth_build/
