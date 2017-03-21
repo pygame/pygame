@@ -13,6 +13,10 @@ except NameError:
 configcommand = os.environ.get('SDL_CONFIG', 'sdl-config',)
 configcommand = configcommand + ' --version --cflags --libs'
 localbase = os.environ.get('LOCALBASE', '')
+if os.environ.get('PYGAME_EXTRA_BASE', ''):
+    extrabases = os.environ['PYGAME_EXTRA_BASE'].split(':')
+else:
+    extrabases = []
 
 #these get prefixes with '/usr' and '/usr/local' or the $LOCALBASE
 origincdirs = ['/include', '/include/SDL', '/include/SDL']
@@ -190,6 +194,9 @@ def main():
 
     incdirs = []
     libdirs = []
+    for extrabase in extrabases:
+        incdirs = [extrabase + d for d in origincdirs]
+        libdirs = [extrabase + d for d in origlibdirs]
     incdirs += ["/usr"+d for d in origincdirs]
     libdirs += ["/usr"+d for d in origlibdirs]
     incdirs += ["/usr/local"+d for d in origincdirs]
