@@ -31,7 +31,7 @@
 
 #define DOC_FONTSETITALIC "set_italic(bool) -> None\nenable fake rendering of italic text"
 
-#define DOC_FONTMETRICS "metrics(text) -> list\nGets the metrics for each character in the pased string."
+#define DOC_FONTMETRICS "metrics(text) -> list\nGets the metrics for each character in the passed string."
 
 #define DOC_FONTGETITALIC "get_italic() -> bool\ncheck if the text will be rendered italic"
 
@@ -115,7 +115,7 @@ enable fake rendering of italic text
 
 pygame.font.Font.metrics
  metrics(text) -> list
-Gets the metrics for each character in the pased string.
+Gets the metrics for each character in the passed string.
 
 pygame.font.Font.get_italic
  get_italic() -> bool

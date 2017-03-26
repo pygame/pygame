@@ -1,5 +1,5 @@
 /* Auto generated file: with makeref.py .  Docs go in src/ *.doc . */
-#define DOC_PYGAMEFREETYPE "Enhanced Pygame module for loading and rendering computer fonts"
+#define DOC_PYGAMEFREETYPE "Enhanced pygame module for loading and rendering computer fonts"
 
 #define DOC_PYGAMEFREETYPEGETERROR "get_error() -> str\nReturn the latest FreeType error"
 
@@ -104,7 +104,7 @@
 /*
 
 pygame.freetype
-Enhanced Pygame module for loading and rendering computer fonts
+Enhanced pygame module for loading and rendering computer fonts
 
 pygame.freetype.get_error
  get_error() -> str
