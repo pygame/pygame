@@ -31,7 +31,7 @@ class PyGameClasslike(PyClasslike):
     def get_signature_prefix(self, sig):
         return '' if self.objtype == 'class' else PyClasslike(self, sig)
 
-def setup(app): 
+def setup(app):
     # This extension uses indexer collected tables.
     app.setup_extension('ext.indexer')
 
@@ -64,7 +64,7 @@ class TocRef(reference):
 def visit_toc_ref(self, node):
     self.visit_reference(node)
 
-def depart_toc_ref(self, node):    
+def depart_toc_ref(self, node):
     self.depart_reference(node)
 
 def visit_toc_ref_html(self, node):
@@ -109,7 +109,7 @@ def transform_document(app, doctree, docname):
 class DocumentTransformer(Visitor):
     _key_re = r'(?P<key>[a-zA-Z_][a-zA-Z0-9_]*(\.[a-zA-Z_][a-zA-Z0-9_]*)*)'
     key_pat = re.compile(_key_re)
-    
+
     def __init__(self, app, document_node):
         super(DocumentTransformer, self).__init__(app, document_node)
         self.module_stack = deque()
@@ -187,7 +187,7 @@ def get_target_summary(reference_node, env):
         return get_descinfo_refid(reference_node['refid'], env)['summary']
     except KeyError:
         raise GetError("reference has no refid")
-    
+
 def add_toc(desc_node, env, section_node=None):
     """Add a table of contents to a desc node"""
 
@@ -207,7 +207,7 @@ def add_toc(desc_node, env, section_node=None):
 
 def build_toc(descinfo, env):
     """Return a desc table of contents node tree"""
-    
+
     separator = EMDASH
     child_ids = descinfo['children']
     if not child_ids:
@@ -272,4 +272,27 @@ def inject_template_globals(app, pagename, templatename, context, doctree):
         sections = []
     else:
         sections = sorted(sections, key=lowercase_name)
+
+    # Sort them in this existing order.
+    existing_order = ['Color', 'cursors', 'display', 'draw', 'event',
+                      'font', 'image', 'joystick',
+                      'key', 'locals', 'mask', 'mixer', 'mouse', 'music',
+                      'pygame', 'Rect', 'Surface', 'sprite', 'time',
+                      'transform', 'BufferProxy', 'freetype', 'gfxdraw',
+                      'midi', 'Overlay', 'PixelArray', 'pixelcopy', 'sndarray',
+                      'surfarray']
+    existing_order = ['pygame.' + x for x in existing_order]
+
+    def sort_by_order(sequence, existing_order):
+        return existing_order + [x for x in sequence
+                                 if x not in existing_order]
+
+    full_name_section = dict([(x['fullname'], x) for x in sections])
+    full_names = [x['fullname'] for x in sections]
+    sorted_names = sort_by_order(full_names, existing_order)
+
+    sections = [full_name_section[name]
+                for name in sorted_names
+                if name in full_name_section]
+
     context['pyg_sections'] = sections
