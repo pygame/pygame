@@ -13,7 +13,7 @@
 
 #define DOC_PYGAMEEXAMPLESFONTYMAIN "fonty.main() -> None\nrun a font rendering example"
 
-#define DOC_PYGAMEEXAMPLESFREETYPEMISCMAIN "freetype_misc.main() -> None\nrun a freetype rendering example"
+#define DOC_PYGAMEEXAMPLESFREETYPEMISCMAIN "freetype_misc.main() -> None\nrun a FreeType rendering example"
 
 #define DOC_PYGAMEEXAMPLESVGRADEMAIN "vgrade.main() -> None\ndisplay a vertical gradient"
 
@@ -94,7 +94,7 @@ run a font rendering example
 
 pygame.examples.freetype_misc.main
  freetype_misc.main() -> None
-run a freetype rendering example
+run a FreeType rendering example
 
 pygame.examples.vgrade.main
  vgrade.main() -> None

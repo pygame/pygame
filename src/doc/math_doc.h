@@ -11,9 +11,9 @@
 
 #define DOC_VECTOR2CROSS "cross(Vector2) -> float\ncalculates the cross- or vector-product"
 
-#define DOC_VECTOR2LENGTH "length() -> float\nreturns the euclidic length of the vector."
+#define DOC_VECTOR2LENGTH "length() -> float\nreturns the Euclidian length of the vector."
 
-#define DOC_VECTOR2LENGTHSQUARED "length_squared() -> float\nreturns the squared euclidic length of the vector."
+#define DOC_VECTOR2LENGTHSQUARED "length_squared() -> float\nreturns the squared Euclidean length of the vector."
 
 #define DOC_VECTOR2NORMALIZE "normalize() -> Vector2\nreturns a vector with the same direction but length 1."
 
@@ -27,15 +27,15 @@
 
 #define DOC_VECTOR2REFLECTIP "reflect_ip(Vector2) -> None\nreflect the vector of a given normal in place."
 
-#define DOC_VECTOR2DISTANCETO "distance_to(Vector2) -> float\ncalculates the euclidic distance to a given vector."
+#define DOC_VECTOR2DISTANCETO "distance_to(Vector2) -> float\ncalculates the Euclidean distance to a given vector."
 
-#define DOC_VECTOR2DISTANCESQUAREDTO "distance_squared_to(Vector2) -> float\ncalculates the squared euclidic distance to a given vector."
+#define DOC_VECTOR2DISTANCESQUAREDTO "distance_squared_to(Vector2) -> float\ncalculates the squared Euclidean distance to a given vector."
 
 #define DOC_VECTOR2LERP "lerp(Vector2, float) -> Vector2\nreturns a linear interpolation to the given vector."
 
 #define DOC_VECTOR2SLERP "slerp(Vector2, float) -> Vector2\nreturns a spherical interpolation to the given vector."
 
-#define DOC_VECTOR2ELEMENTWISE "elementwise() -> VectorElementwizeProxy\nThe next operation will be performed elementwize."
+#define DOC_VECTOR2ELEMENTWISE "elementwise() -> VectorElementwiseProxy\nThe next operation will be performed elementwise."
 
 #define DOC_VECTOR2ROTATE "rotate(float) -> Vector2\nrotates a vector by a given angle in degrees."
 
@@ -53,9 +53,9 @@
 
 #define DOC_VECTOR3CROSS "cross(Vector3) -> float\ncalculates the cross- or vector-product"
 
-#define DOC_VECTOR3LENGTH "length() -> float\nreturns the euclidic length of the vector."
+#define DOC_VECTOR3LENGTH "length() -> float\nreturns the Euclidean length of the vector."
 
-#define DOC_VECTOR3LENGTHSQUARED "length_squared() -> float\nreturns the squared euclidic length of the vector."
+#define DOC_VECTOR3LENGTHSQUARED "length_squared() -> float\nreturns the squared Euclidean length of the vector."
 
 #define DOC_VECTOR3NORMALIZE "normalize() -> Vector3\nreturns a vector with the same direction but length 1."
 
@@ -69,15 +69,15 @@
 
 #define DOC_VECTOR3REFLECTIP "reflect_ip(Vector3) -> None\nreflect the vector of a given normal in place."
 
-#define DOC_VECTOR3DISTANCETO "distance_to(Vector3) -> float\ncalculates the euclidic distance to a given vector."
+#define DOC_VECTOR3DISTANCETO "distance_to(Vector3) -> float\ncalculates the Euclidean distance to a given vector."
 
-#define DOC_VECTOR3DISTANCESQUAREDTO "distance_squared_to(Vector3) -> float\ncalculates the squared euclidic distance to a given vector."
+#define DOC_VECTOR3DISTANCESQUAREDTO "distance_squared_to(Vector3) -> float\ncalculates the squared Euclidean distance to a given vector."
 
 #define DOC_VECTOR3LERP "lerp(Vector3, float) -> Vector3\nreturns a linear interpolation to the given vector."
 
 #define DOC_VECTOR3SLERP "slerp(Vector3, float) -> Vector3\nreturns a spherical interpolation to the given vector."
 
-#define DOC_VECTOR3ELEMENTWISE "elementwise() -> VectorElementwizeProxy\nThe next operation will be performed elementwize."
+#define DOC_VECTOR3ELEMENTWISE "elementwise() -> VectorElementwiseProxy\nThe next operation will be performed elementwise."
 
 #define DOC_VECTOR3ROTATE "rotate(Vector3, float) -> Vector3\nrotates a vector by a given angle in degrees."
 
@@ -135,11 +135,11 @@ calculates the cross- or vector-product
 
 pygame.math.Vector2.length
  length() -> float
-returns the euclidic length of the vector.
+returns the Euclidian length of the vector.
 
 pygame.math.Vector2.length_squared
  length_squared() -> float
-returns the squared euclidic length of the vector.
+returns the squared Euclidean length of the vector.
 
 pygame.math.Vector2.normalize
  normalize() -> Vector2
@@ -167,11 +167,11 @@ reflect the vector of a given normal in place.
 
 pygame.math.Vector2.distance_to
  distance_to(Vector2) -> float
-calculates the euclidic distance to a given vector.
+calculates the Euclidean distance to a given vector.
 
 pygame.math.Vector2.distance_squared_to
  distance_squared_to(Vector2) -> float
-calculates the squared euclidic distance to a given vector.
+calculates the squared Euclidean distance to a given vector.
 
 pygame.math.Vector2.lerp
  lerp(Vector2, float) -> Vector2
@@ -182,8 +182,8 @@ pygame.math.Vector2.slerp
 returns a spherical interpolation to the given vector.
 
 pygame.math.Vector2.elementwise
- elementwise() -> VectorElementwizeProxy
-The next operation will be performed elementwize.
+ elementwise() -> VectorElementwiseProxy
+The next operation will be performed elementwise.
 
 pygame.math.Vector2.rotate
  rotate(float) -> Vector2
@@ -222,11 +222,11 @@ calculates the cross- or vector-product
 
 pygame.math.Vector3.length
  length() -> float
-returns the euclidic length of the vector.
+returns the Euclidean length of the vector.
 
 pygame.math.Vector3.length_squared
  length_squared() -> float
-returns the squared euclidic length of the vector.
+returns the squared Euclidean length of the vector.
 
 pygame.math.Vector3.normalize
  normalize() -> Vector3
@@ -254,11 +254,11 @@ reflect the vector of a given normal in place.
 
 pygame.math.Vector3.distance_to
  distance_to(Vector3) -> float
-calculates the euclidic distance to a given vector.
+calculates the Euclidean distance to a given vector.
 
 pygame.math.Vector3.distance_squared_to
  distance_squared_to(Vector3) -> float
-calculates the squared euclidic distance to a given vector.
+calculates the squared Euclidean distance to a given vector.
 
 pygame.math.Vector3.lerp
  lerp(Vector3, float) -> Vector3
@@ -269,8 +269,8 @@ pygame.math.Vector3.slerp
 returns a spherical interpolation to the given vector.
 
 pygame.math.Vector3.elementwise
- elementwise() -> VectorElementwizeProxy
-The next operation will be performed elementwize.
+ elementwise() -> VectorElementwiseProxy
+The next operation will be performed elementwise.
 
 pygame.math.Vector3.rotate
  rotate(Vector3, float) -> Vector3
