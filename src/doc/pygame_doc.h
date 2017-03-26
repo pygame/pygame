@@ -17,9 +17,9 @@
 
 #define DOC_PYGAMEREGISTERQUIT "register_quit(callable) -> None\nregister a function to be called when pygame quits"
 
-#define DOC_PYGAMEENCODESTRING "encode_string([obj [, encoding [, errors [, etype]]]]) -> bytes or None\nEncode a unicode or bytes object"
+#define DOC_PYGAMEENCODESTRING "encode_string([obj [, encoding [, errors [, etype]]]]) -> bytes or None\nEncode a Unicode or bytes object"
 
-#define DOC_PYGAMEENCODEFILEPATH "encode_file_path([obj [, etype]]) -> bytes or None\nEncode a unicode or bytes object as a file system path"
+#define DOC_PYGAMEENCODEFILEPATH "encode_file_path([obj [, etype]]) -> bytes or None\nEncode a Unicode or bytes object as a file system path"
 
 #define DOC_PYGAMEVERSION "small module containing version information"
 
@@ -72,11 +72,11 @@ register a function to be called when pygame quits
 
 pygame.encode_string
  encode_string([obj [, encoding [, errors [, etype]]]]) -> bytes or None
-Encode a unicode or bytes object
+Encode a Unicode or bytes object
 
 pygame.encode_file_path
  encode_file_path([obj [, etype]]) -> bytes or None
-Encode a unicode or bytes object as a file system path
+Encode a Unicode or bytes object as a file system path
 
 pygame.version
 small module containing version information

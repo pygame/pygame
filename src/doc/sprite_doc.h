@@ -61,7 +61,7 @@
 
 #define DOC_LAYEREDUPDATESREMOVESPRITESOFLAYER "remove_sprites_of_layer(layer_nr) -> sprites\nremoves all sprites from a layer and returns them as a list."
 
-#define DOC_LAYEREDUPDATESLAYERS "layers() -> layers\nreturns a list of layers defined (unique), sorted from botton up."
+#define DOC_LAYEREDUPDATESLAYERS "layers() -> layers\nreturns a list of layers defined (unique), sorted from bottom up."
 
 #define DOC_LAYEREDUPDATESCHANGELAYER "change_layer(sprite, new_layer) -> None\nchanges the layer of the sprite"
 
@@ -95,7 +95,7 @@
 
 #define DOC_LAYEREDDIRTYCHANGELAYER "change_layer(sprite, new_layer) -> None\nchanges the layer of the sprite"
 
-#define DOC_LAYEREDDIRTYSETTIMINGTRESHOLD "set_timing_treshold(time_ms) -> None\nsets the treshold in milliseconds"
+#define DOC_LAYEREDDIRTYSETTIMINGTRESHOLD "set_timing_treshold(time_ms) -> None\nsets the threshold in milliseconds"
 
 #define DOC_PYGAMESPRITEGROUPSINGLE "GroupSingle(sprite=None) -> GroupSingle\nGroup container that holds a single sprite."
 
@@ -244,7 +244,7 @@ removes all sprites from a layer and returns them as a list.
 
 pygame.sprite.LayeredUpdates.layers
  layers() -> layers
-returns a list of layers defined (unique), sorted from botton up.
+returns a list of layers defined (unique), sorted from bottom up.
 
 pygame.sprite.LayeredUpdates.change_layer
  change_layer(sprite, new_layer) -> None
@@ -312,7 +312,7 @@ changes the layer of the sprite
 
 pygame.sprite.LayeredDirty.set_timing_treshold
  set_timing_treshold(time_ms) -> None
-sets the treshold in milliseconds
+sets the threshold in milliseconds
 
 pygame.sprite.GroupSingle
  GroupSingle(sprite=None) -> GroupSingle

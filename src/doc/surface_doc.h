@@ -37,13 +37,13 @@
 
 #define DOC_SURFACEGETATMAPPED "get_at_mapped((x, y)) -> Color\nget the mapped color value at a single pixel"
 
-#define DOC_SURFACEGETPALETTE "get_palette() -> [RGB, RGB, RGB, ...]\nget the color index palette for an 8bit Surface"
+#define DOC_SURFACEGETPALETTE "get_palette() -> [RGB, RGB, RGB, ...]\nget the color index palette for an 8-bit Surface"
 
 #define DOC_SURFACEGETPALETTEAT "get_palette_at(index) -> RGB\nget the color for a single entry in a palette"
 
-#define DOC_SURFACESETPALETTE "set_palette([RGB, RGB, RGB, ...]) -> None\nset the color palette for an 8bit Surface"
+#define DOC_SURFACESETPALETTE "set_palette([RGB, RGB, RGB, ...]) -> None\nset the color palette for an 8-bit Surface"
 
-#define DOC_SURFACESETPALETTEAT "set_palette_at(index, RGB) -> None\nset the color for a single index in an 8bit Surface palette"
+#define DOC_SURFACESETPALETTEAT "set_palette_at(index, RGB) -> None\nset the color for a single index in an 8-bit Surface palette"
 
 #define DOC_SURFACEMAPRGB "map_rgb(Color) -> mapped_int\nconvert a color into a mapped color value"
 
@@ -188,7 +188,7 @@ get the mapped color value at a single pixel
 
 pygame.Surface.get_palette
  get_palette() -> [RGB, RGB, RGB, ...]
-get the color index palette for an 8bit Surface
+get the color index palette for an 8-bit Surface
 
 pygame.Surface.get_palette_at
  get_palette_at(index) -> RGB
@@ -196,11 +196,11 @@ get the color for a single entry in a palette
 
 pygame.Surface.set_palette
  set_palette([RGB, RGB, RGB, ...]) -> None
-set the color palette for an 8bit Surface
+set the color palette for an 8-bit Surface
 
 pygame.Surface.set_palette_at
  set_palette_at(index, RGB) -> None
-set the color for a single index in an 8bit Surface palette
+set the color for a single index in an 8-bit Surface palette
 
 pygame.Surface.map_rgb
  map_rgb(Color) -> mapped_int
