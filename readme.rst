@@ -17,6 +17,9 @@ Installation
 
      pip install pygame
 
+     See https://www.pygame.org/wiki/GettingStarted for up to date
+     install instructions.
+
      You should definitely begin by installing a binary package for your
      system. The binary packages usually come with or give the
      information needed for dependencies. Choose an appropriate
@@ -28,8 +31,6 @@ Installation
      that is done run the "setup.py" script which will attempt to
      auto-configure, build, and install pygame.
 
-     Much more information about installing and compiling is available
-     in the install.html file.
 
 Help
 ====
@@ -163,11 +164,11 @@ License
 
 
 
-.. |TravisBuild| image:: https://travis-ci.org/illume/pygame.svg?branch=master
-.. _TravisBuild: https://travis-ci.org/illume/pygame
+.. |TravisBuild| image:: https://travis-ci.org/pygame/pygame.svg?branch=master
+.. _TravisBuild: https://travis-ci.org/pygame/pygame
 
-.. |AppVeyorBuild| image:: https://ci.appveyor.com/api/projects/status/d9mypp9f4ubrmqf7?svg=true
-.. _AppVeyorBuild: https://ci.appveyor.com/project/pygame/pygame-temp-m8dun
+.. |AppVeyorBuild| image:: https://ci.appveyor.com/api/projects/status/x4074ybuobsh4myx/branch/master?svg=true
+.. _AppVeyorBuild: https://ci.appveyor.com/project/pygame/pygame
 
 .. |LaunchpadBuild| image:: http://pygame.org/images/launchpad_build.svg?svg=true
 .. _LaunchpadBuild: https://code.launchpad.net/~pygame/+recipe/pygame-daily
@@ -180,6 +181,3 @@ License
 
 .. |Python2| image:: https://img.shields.io/badge/python-2-blue.svg?v=1
 .. |Python3| image:: https://img.shields.io/badge/python-3-blue.svg?v=1
-
-
-
