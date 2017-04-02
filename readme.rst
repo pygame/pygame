@@ -10,7 +10,7 @@ About pygame
 
      http://www.pygame.org
 
-|TravisBuild|_ |AppVeyorBuild|_ |LaunchpadBuild|_ |PyPiVersion|_ |PyPiLicense|_ |Python2| |Python3|
+|TravisBuild|_ |AppVeyorBuild|_ |LaunchpadBuild|_ |PyPiVersion|_ |PyPiLicense|_  |Coverity|_ |Python2| |Python3|
 
 Installation
 ============
@@ -178,6 +178,9 @@ License
 
 .. |PyPiLicense| image:: https://img.shields.io/pypi/l/pygame.svg?v=1
 .. _PyPiLicense: https://pypi.python.org/pypi/pygame
+
+.. |Coverity| image:: https://scan.coverity.com/projects/12288/badge.svg
+.. _Coverity: https://scan.coverity.com/projects/pygame
 
 .. |Python2| image:: https://img.shields.io/badge/python-2-blue.svg?v=1
 .. |Python3| image:: https://img.shields.io/badge/python-3-blue.svg?v=1
