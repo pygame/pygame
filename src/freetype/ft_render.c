@@ -419,7 +419,6 @@ SDL_Surface *_PGFT_Render_NewSurface(FreeTypeInstance *ft,
     SDL_Surface *surface = 0;
     int bits_per_pixel =
         (bgcolor || mode->render_flags & FT_RFLAG_ANTIALIAS) ? 32 : 8;
-    FT_UInt32 surface_flags = SDL_SWSURFACE;
 
     FontSurface font_surf;
     Layout *font_text;
@@ -501,7 +500,7 @@ SDL_Surface *_PGFT_Render_NewSurface(FreeTypeInstance *ft,
         SDL_FillRect(surface, 0, fillcolor);
     }
     else {
-        SDL_Palette* palette = SDL_AllocPalette(2);
+        SDL_Palette* palette = surface->format->palette;
         SDL_Color colors[2];
 
         if (!palette) {
@@ -517,20 +516,18 @@ SDL_Surface *_PGFT_Render_NewSurface(FreeTypeInstance *ft,
         colors[0].g = ~colors[1].g;
         colors[0].b = ~colors[1].b;
         colors[0].a = SDL_ALPHA_OPAQUE;
-        if (SDL_SetPaletteColors(palette, colors, 0, 2) || /*conditional ||*/
-            SDL_SetSurfacePalette(surface, palette)) {
-            SDL_ClearError();
-            PyErr_SetString(PyExc_SystemError,
-                            "Pygame bug in _PGFT_Render_NewSurface: "
-                            "SDL_SetColors failed");
-            SDL_FreePalette(palette);
+        if (SDL_SetPaletteColors(palette, colors, 0, 2)) {
+            PyErr_Format(PyExc_SystemError,
+                         "Pygame bug in _PGFT_Render_NewSurface: %.200s",
+                         SDL_GetError());
             SDL_FreeSurface(surface);
             return 0;
         }
-        SDL_FreePalette(palette);
-        SDL_SetColorKey(surface, SDL_SRCCOLORKEY, (FT_UInt32)0);
+        SDL_SetColorKey(surface, SDL_TRUE, (FT_UInt32)0);
         if (fgcolor->a != SDL_ALPHA_OPAQUE) {
             SDL_SetSurfaceAlphaMod(surface, fgcolor->a);
+#warning SRCALPHA flag problem here. Blend mode not set to SDL_BLENDMODE_BLEND.
+#warning Probably should keep flags in PgFontObject.
         }
         fgcolor = &mono_fgcolor;
         bgcolor = &mono_bgcolor;
