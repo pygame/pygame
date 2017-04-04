@@ -48,10 +48,11 @@ static struct PyModuleDef _module = {
     DOC_PYGAMEDISPLAY,
     sizeof(_DisplayState),
     _display_methods,
+#warning At some point should add GC slot functions.
     NULL, NULL, NULL, NULL
 };
 
-#define DISPLAY_MOD_STATE(mod) ((_FreeTypeState*)PyModule_GetState(mod))
+#define DISPLAY_MOD_STATE(mod) ((_DisplayState*)PyModule_GetState(mod))
 #define DISPLAY_STATE \
     DISPLAY_MOD_STATE(PyState_FindModule(&_module))
 
@@ -67,6 +68,7 @@ static _DisplayState _modstate;
 static PyTypeObject PyVidInfo_Type;
 static PyObject* PyVidInfo_New (const SDL_VideoInfo* info);
 #endif
+static SDL_Window* Py_GetDefaultWindow (void);
 
 #if (!defined(darwin))
 static char* icon_defaultname = "pygame_icon.bmp";
@@ -378,6 +380,12 @@ PyVidInfo_New (const SDL_VideoInfo* i)
     return (PyObject*)info;
 }
 #endif /* May or may not get ported stuff. */
+
+static SDL_Window*
+Py_GetDefaultWindow (void)
+{
+    return DISPLAY_STATE->global_window.win;
+}
 
 /* display functions */
 static PyObject*
@@ -1239,15 +1247,11 @@ static PyMethodDef _display_methods[] =
 MODINIT_DEFINE (display)
 {
     PyObject* module;
-#if 0
     PyObject* dict;
     PyObject* apiobj;
-#endif
     _DisplayState* state;
-#if 0
     int ecode;
     static void* c_api[PYGAMEAPI_DISPLAY_NUMSLOTS];
-#endif
 
     /* imported needed apis; Do this first so if there is an error
        the module is not loaded.
@@ -1290,12 +1294,15 @@ MODINIT_DEFINE (display)
     state->gamma_ramp = NULL;
     state->global_window.win = NULL;
     state->global_window.ren = NULL;
-#if 0
     dict = PyModule_GetDict (module);
 
     /* export the c api */
+#if 0
     c_api[0] = &PyVidInfo_Type;
     c_api[1] = PyVidInfo_New;
+#endif
+    assert(PYGAMEAPI_DISPLAY_NUMSLOTS == 1);
+    c_api[0] = Py_GetDefaultWindow;
     apiobj = encapsulate_api (c_api, "display");
     if (apiobj == NULL) {
         DECREF_MOD (module);
@@ -1307,6 +1314,5 @@ MODINIT_DEFINE (display)
         DECREF_MOD (module);
         MODINIT_ERROR;
     }
-#endif
     MODINIT_RETURN (module);
 }

@@ -96,6 +96,37 @@ void* _alloca(size_t size);
 #define PyCapsule_CheckExact(obj) PyCObject_Check(obj)
 #endif
 
+/* Pygame event codes. Use SDL 1.2 event categories.
+ */
+typedef enum {
+    PGE_NOEVENT = 0,
+    PGE_ACTIVEEVENT,
+    PGE_KEYDOWN,
+    PGE_KEYUP,
+    PGE_MOUSEMOTION,
+    PGE_MOUSEBUTTONDOWN,
+    PGE_MOUSEBUTTONUP,
+    PGE_JOYAXISMOTION,
+    PGE_JOYBALLMOTION,
+    PGE_JOYHATMOTION,
+    PGE_JOYBUTTONDOWN,
+    PGE_JOYBUTTONUP,
+    PGE_VIDEORESIZE,
+    PGE_VIDEOEXPOSE,
+    PGE_QUIT,
+    PGE_SYSWMEVENT,
+    PGE_USEREVENT,
+    /* SDL 1.2 allowed for 8 user defined events. */
+    PGE_NUMEVENTS = PGE_USEREVENT + 8,
+    PGE_OTHEREVENT /* Any unmapped SDL 2 event */
+} PygameEventCode;
+
+typedef enum {
+    PGE_APPFOCUSMOUSE,
+    PGE_APPINPUTFOCUS,
+    PGE_APPACTIVE
+} PygameAppCode;
+
 /* Pygame uses Py_buffer (PEP 3118) to exchange array information internally;
  * define here as needed.
  */
@@ -434,9 +465,14 @@ typedef struct {
      PyGAME_C_API[PYGAMEAPI_DISPLAY_FIRSTSLOT + 1])
 #define import_pygame_display() IMPORT_PYGAME_MODULE(display, DISPLAY)
 #endif
-#else
-#define PYGAMEAPI_DISPLAY_NUMSLOTS 0
 #endif /* Display info stuff that may or may not be ported. */
+#define PYGAMEAPI_DISPLAY_NUMSLOTS 1
+#ifndef PYGAMEAPI_DISPLAY_INTERNAL
+#define Py_GetDefaultWindow                             \
+    (*(SDL_Window*(*)(void))                                \
+     PyGAME_C_API[PYGAMEAPI_DISPLAY_FIRSTSLOT + 0])
+#define import_pygame_display() IMPORT_PYGAME_MODULE(display, DISPLAY)
+#endif
 
 /* SURFACE */
 #define PYGAMEAPI_SURFACE_FIRSTSLOT                             \

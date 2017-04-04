@@ -30,9 +30,74 @@
 
 #include "structmember.h"
 
+#include <limits.h>
+
+/* SDL2 to Pygame event mapping
+ *
+ * Pygame events are based on SDL 1.2 events. Actual Pygame event type
+ * integer values differ from the integer values of corresponding
+ * SDL 2 event types.
+ *
+ *  Pygame                SDL2
+ *
+ *  PGE_NOEVENT           No corresponding event type
+ *  PGE_ACTIVEEVENT       SDL_WINDOWEVENT_ENTER
+ *                        SDL_WINDOWEVENT_LEAVE
+ *                        SDL_WINDOWEVENT_FOCUS_GAIN
+ *                        SDL_WINDOWEVENT_FOCUS_LOST
+ *                        SDL_WINDOWEVENT_MINIMIZED
+ *                        SDL_WINDOWEVENT_RETORED
+ *  PGE_KEYDOWN           SDL_KEYDOWN
+ *  PGE_KEYUP             SDL_KEYUP
+ *  PGE_MOUSEMOTION       SDL_MOUSEMOTION
+ *  PGE_MOUSEBUTTONDOWN   SDL_MOUSEBUTTONDOWN
+ *  PGE_MOUSEBUTTONUP     SDL_MOUSEBUTTONUP
+ *  PGE_JOYAXISMOTION     SDL_JOYAXISMOTION
+ *  PGE_JOYBALLMOTION     SDL_JOYBALLMOTION
+ *  PGE_JOYHATMOTION      SDL_JOYHATMOTION
+ *  PGE_JOYBUTTONDOWN     SDL_JOYBUTTONDOWN
+ *  PGE_JOYBUTTONUP       SDL_JOYBUTTONUP
+ *  PGE_VIDEORESIZE       SDL_WINDOWEVENT_RESIZED
+ *  PGE_VIDEOEXPOSE       SDL_WINDOWEVENT_EXPOSED
+ *  PGE_QUIT              SDL_QUIT
+ *  PGE_SYSWMEVENT        SDL_SYSWMEVENT
+ *  pge_userevent         first_user_event
+ *  PGE_NUMEVENTS         last_user_event + 1
+ *  PGE_OTHEREVENT        any other event
+ */
+
 // FIXME: The system message code is only tested on windows, so only
 //          include it there for now.
-#include <SDL_syswm.h>
+/* #include <SDL_syswm.h> */
+
+/* Internal module instance state.
+ */
+typedef struct _event_state_s {
+    int first_user_event;
+    int last_user_event;
+} _EventState;
+
+#if PY3
+static struct PyModuleDef _module = {
+    PyModuleDef_HEAD_INIT,
+    "event",
+    DOC_PYGAMEEVENT,
+    sizeof(_EventState),
+    _event_methods,
+    NULL, NULL, NULL, NULL
+};
+
+#define EVENT_MOD_STATE(mod) ((_EventState*)PyModule_GetState(mod))
+#define EVENT_STATE \
+    EVENT_MOD_STATE(PyState_FindModule(&_module))
+
+#else
+static _EventState _modstate;
+
+#define EVENT_MOD_STATE(mod) (&_modstate)
+#define EVENT_STATE EVENT_MOD_STATE(0)
+
+#endif
 
 /*this user event object is for safely passing
  *objects through the event queue.
@@ -48,6 +113,129 @@ typedef struct UserEventObject
 } UserEventObject;
 
 static UserEventObject* user_event_objects = NULL;
+
+static int
+get_sdl_event_code (const PyEventObject* e, const _EventState* mod_state)
+{
+    PyObject* dict = e->dict;
+    PyObject* sdl_type = NULL;
+    Py_ssize_t c = 0;
+    int type = mod_state->last_user_event + 1;
+
+    if (!dict)
+        goto finished;
+    sdl_type = PyDict_GetItemString (dict, "sdl2_type");
+    if (!sdl_type)
+        goto finished;
+    if (!PyNumber_Check (sdl_type))
+        goto finished;
+    c = PyNumber_AsSsize_t (sdl_type, NULL);
+    if (c > mod_state->last_user_event || c < INT_MIN)
+        goto finished;
+    type = (int)c;
+
+finished:
+    return type;
+}
+
+static int
+sdl_to_pg (const SDL_Event* e, const _EventState* mod_state)
+{
+    switch (e->type) {
+
+    case SDL_WINDOWEVENT:
+        switch (e->window.event) {
+
+        case SDL_WINDOWEVENT_ENTER:
+        case SDL_WINDOWEVENT_LEAVE:
+        case SDL_WINDOWEVENT_FOCUS_GAINED:
+        case SDL_WINDOWEVENT_FOCUS_LOST:
+        case SDL_WINDOWEVENT_MINIMIZED:
+        case SDL_WINDOWEVENT_RESTORED:
+            return PGE_ACTIVEEVENT;
+        case SDL_WINDOWEVENT_RESIZED:
+            return PGE_VIDEORESIZE;
+        case SDL_WINDOWEVENT_EXPOSED:
+            return PGE_VIDEOEXPOSE;
+        default:
+            break;
+        }
+        break;
+    case SDL_KEYDOWN:
+        return PGE_KEYDOWN;
+    case SDL_KEYUP:
+        return PGE_KEYUP;
+    case SDL_MOUSEMOTION:
+        return PGE_MOUSEMOTION;
+    case SDL_MOUSEBUTTONDOWN:
+        return PGE_MOUSEBUTTONDOWN;
+    case SDL_MOUSEBUTTONUP:
+        return PGE_MOUSEBUTTONUP;
+    case SDL_JOYAXISMOTION:
+        return PGE_JOYAXISMOTION;
+    case SDL_JOYBALLMOTION:
+        return PGE_JOYBALLMOTION;
+    case SDL_JOYHATMOTION:
+        return PGE_JOYHATMOTION;
+    case SDL_JOYBUTTONDOWN:
+        return PGE_JOYBUTTONDOWN;
+    case SDL_JOYBUTTONUP:
+        return PGE_JOYBUTTONUP;
+    case SDL_QUIT:
+        return PGE_QUIT;
+    case SDL_SYSWMEVENT:
+        return PGE_SYSWMEVENT;
+    default: /* User events and others */
+        if (e->type >= mod_state->first_user_event &&
+            e->type <= mod_state->last_user_event)
+            return e->type - mod_state->first_user_event + PGE_USEREVENT;
+    }
+
+    return PGE_OTHEREVENT;
+}
+
+static int
+pg_to_sdl (const PyEventObject* e, const _EventState* mod_state)
+{
+    int pge_type = e->type;
+
+    switch (pge_type) {
+
+    case PGE_ACTIVEEVENT:
+    case PGE_VIDEOEXPOSE:
+    case PGE_VIDEORESIZE:
+        return SDL_WINDOWEVENT;
+    case PGE_KEYDOWN:
+        return SDL_KEYDOWN;
+    case PGE_KEYUP:
+        return SDL_KEYUP;
+    case PGE_MOUSEMOTION:
+        return SDL_MOUSEMOTION;
+    case PGE_MOUSEBUTTONDOWN:
+        return SDL_MOUSEBUTTONDOWN;
+    case PGE_MOUSEBUTTONUP:
+        return SDL_MOUSEBUTTONUP;
+    case PGE_JOYAXISMOTION:
+        return SDL_JOYAXISMOTION;
+    case PGE_JOYBALLMOTION:
+        return SDL_JOYBALLMOTION;
+    case PGE_JOYHATMOTION:
+        return SDL_JOYHATMOTION;
+    case PGE_JOYBUTTONDOWN:
+        return SDL_JOYBUTTONDOWN;
+    case PGE_JOYBUTTONUP:
+        return SDL_JOYBUTTONUP;
+    case PGE_QUIT:
+        return SDL_QUIT;
+    case PGE_SYSWMEVENT:
+        return SDL_SYSWMEVENT;
+    case PGE_OTHEREVENT:
+        return get_sdl_event_code (e, mod_state);
+    default:
+        assert (pge_type >= PGE_USEREVENT && pge_type < PGE_NUMEVENTS);
+        return pge_type - PGE_USEREVENT + mod_state->first_user_event;
+    }
+}
 
 /*must pass dictionary as this object*/
 static UserEventObject*
@@ -132,44 +320,44 @@ static PyObject* PyEvent_New2 (int, PyObject*);
 #define PyEvent_Check(x) ((x)->ob_type == &PyEvent_Type)
 
 static char*
-name_from_eventtype (int type)
+name_from_eventtype (int pge_type)
 {
-    switch (type)
+    switch (pge_type)
     {
-    case SDL_ACTIVEEVENT:
+    case PGE_ACTIVEEVENT:
         return "ActiveEvent";
-    case SDL_KEYDOWN:
+    case PGE_KEYDOWN:
         return "KeyDown";
-    case SDL_KEYUP:
+    case PGE_KEYUP:
         return "KeyUp";
-    case SDL_MOUSEMOTION:
+    case PGE_MOUSEMOTION:
         return "MouseMotion";
-    case SDL_MOUSEBUTTONDOWN:
+    case PGE_MOUSEBUTTONDOWN:
         return "MouseButtonDown";
-    case SDL_MOUSEBUTTONUP:
+    case PGE_MOUSEBUTTONUP:
         return "MouseButtonUp";
-    case SDL_JOYAXISMOTION:
+    case PGE_JOYAXISMOTION:
         return "JoyAxisMotion";
-    case SDL_JOYBALLMOTION:
+    case PGE_JOYBALLMOTION:
         return "JoyBallMotion";
-    case SDL_JOYHATMOTION:
+    case PGE_JOYHATMOTION:
         return "JoyHatMotion";
-    case SDL_JOYBUTTONUP:
+    case PGE_JOYBUTTONUP:
         return "JoyButtonUp";
-    case SDL_JOYBUTTONDOWN:
+    case PGE_JOYBUTTONDOWN:
         return "JoyButtonDown";
-    case SDL_QUIT:
+    case PGE_QUIT:
         return "Quit";
-    case SDL_SYSWMEVENT:
+    case PGE_SYSWMEVENT:
         return "SysWMEvent";
-    case SDL_VIDEORESIZE:
+    case PGE_VIDEORESIZE:
         return "VideoResize";
-    case SDL_VIDEOEXPOSE:
+    case PGE_VIDEOEXPOSE:
         return "VideoExpose";
-    case SDL_NOEVENT:
+    case PGE_NOEVENT:
         return "NoEvent";
     }
-    if (type >= SDL_USEREVENT && type < SDL_NUMEVENTS)
+    if (pge_type >= PGE_USEREVENT && pge_type < PGE_NUMEVENTS)
         return "UserEvent";
     return "Unknown";
 }
@@ -242,11 +430,31 @@ our_empty_ustr (void)
 
 #endif /* Py_USING_UNICODE */
 
+/* Convert a KEYDOWN event to a Python unicode string */
 static PyObject*
-dict_from_event (SDL_Event* event)
+key_to_unicode (const SDL_Keysym* key)
+{
+    static const SDL_Keymod ModMask = ~KMOD_SHIFT;
+    SDL_Keycode c = key->sym;
+    SDL_Keymod m = key->mod;
+
+    if (c & 0x40000000)
+        return our_empty_ustr ();
+    if (m & ModMask)
+        return our_empty_ustr ();
+    if (m & KMOD_SHIFT)
+        c = Py_UNICODE_TOUPPER (c);
+    return our_unichr (c);
+}
+
+static PyObject*
+dict_from_event (SDL_Event* event, const _EventState* mod_state)
 {
     PyObject *dict=NULL, *tuple, *obj;
     int hx, hy;
+    int pge_type = sdl_to_pg(event, mod_state);
+    int gain = 0;
+    int state = 0;
 
     /*check if it is an event the user posted*/
     if (event->user.code == USEROBJECT_CHECK1
@@ -259,23 +467,53 @@ dict_from_event (SDL_Event* event)
 
     if (!(dict = PyDict_New ()))
         return NULL;
-    switch (event->type)
+    insobj (dict, "sdl2_type", PyInt_FromLong (event->type));
+    if (event->type == SDL_WINDOWEVENT)
+        insobj (dict,
+                "window_id",
+                PyInt_FromLong (event->window.windowID));
+    switch (pge_type)
     {
-    case SDL_ACTIVEEVENT:
-        insobj (dict, "gain", PyInt_FromLong (event->active.gain));
-        insobj (dict, "state", PyInt_FromLong (event->active.state));
+    case PGE_ACTIVEEVENT:
+        switch (event->window.event) {
+
+        case SDL_WINDOWEVENT_ENTER:
+            gain = 1;
+            state = PGE_APPFOCUSMOUSE;
+            break;
+        case SDL_WINDOWEVENT_LEAVE:
+            gain = 0;
+            state = PGE_APPFOCUSMOUSE;
+            break;
+        case SDL_WINDOWEVENT_FOCUS_GAINED:
+            gain = 1;
+            state = PGE_APPINPUTFOCUS;
+            break;
+        case SDL_WINDOWEVENT_FOCUS_LOST:
+            gain = 0;
+            state = PGE_APPINPUTFOCUS;
+            break;
+        case SDL_WINDOWEVENT_MINIMIZED:
+            gain = 0;
+            state = PGE_APPACTIVE;
+            break;
+        default:
+            assert (event->window.event == SDL_WINDOWEVENT_RESTORED);
+            gain = 1;
+            state = PGE_APPACTIVE;
+        }
+        insobj (dict, "gain", PyInt_FromLong (gain));
+        insobj (dict, "state", PyInt_FromLong (state));
         break;
-    case SDL_KEYDOWN:
-        if (event->key.keysym.unicode)
-            insobj (dict, "unicode", our_unichr (event->key.keysym.unicode));
-        else
-            insobj (dict, "unicode", our_empty_ustr ());
-    case SDL_KEYUP:
+    case PGE_KEYDOWN:
+        insobj (dict, "unicode", key_to_unicode (&event->key.keysym));
+        /* fall through */
+    case PGE_KEYUP:
         insobj (dict, "key", PyInt_FromLong (event->key.keysym.sym));
         insobj (dict, "mod", PyInt_FromLong (event->key.keysym.mod));
         insobj (dict, "scancode", PyInt_FromLong (event->key.keysym.scancode));
         break;
-    case SDL_MOUSEMOTION:
+    case PGE_MOUSEMOTION:
         obj = Py_BuildValue ("(ii)", event->motion.x, event->motion.y);
         insobj (dict, "pos", obj);
         obj = Py_BuildValue ("(ii)", event->motion.xrel, event->motion.yrel);
@@ -294,24 +532,24 @@ dict_from_event (SDL_Event* event)
             insobj (dict, "buttons", tuple);
         }
         break;
-    case SDL_MOUSEBUTTONDOWN:
-    case SDL_MOUSEBUTTONUP:
+    case PGE_MOUSEBUTTONDOWN:
+    case PGE_MOUSEBUTTONUP:
         obj = Py_BuildValue ("(ii)", event->button.x, event->button.y);
         insobj (dict, "pos", obj);
         insobj (dict, "button", PyInt_FromLong (event->button.button));
         break;
-    case SDL_JOYAXISMOTION:
+    case PGE_JOYAXISMOTION:
         insobj (dict, "joy", PyInt_FromLong (event->jaxis.which));
         insobj (dict, "axis", PyInt_FromLong (event->jaxis.axis));
         insobj (dict, "value", PyFloat_FromDouble (event->jaxis.value/32767.0));
         break;
-    case SDL_JOYBALLMOTION:
+    case PGE_JOYBALLMOTION:
         insobj (dict, "joy", PyInt_FromLong (event->jball.which));
         insobj (dict, "ball", PyInt_FromLong (event->jball.ball));
         obj = Py_BuildValue ("(ii)", event->jball.xrel, event->jball.yrel);
         insobj (dict, "rel", obj);
         break;
-    case SDL_JOYHATMOTION:
+    case PGE_JOYHATMOTION:
         insobj (dict, "joy", PyInt_FromLong (event->jhat.which));
         insobj (dict, "hat", PyInt_FromLong (event->jhat.hat));
         hx = hy = 0;
@@ -325,18 +563,20 @@ dict_from_event (SDL_Event* event)
             hx = -1;
         insobj (dict, "value", Py_BuildValue ("(ii)", hx, hy));
         break;
-    case SDL_JOYBUTTONUP:
-    case SDL_JOYBUTTONDOWN:
+    case PGE_JOYBUTTONUP:
+    case PGE_JOYBUTTONDOWN:
         insobj (dict, "joy", PyInt_FromLong (event->jbutton.which));
         insobj (dict, "button", PyInt_FromLong (event->jbutton.button));
         break;
-    case SDL_VIDEORESIZE:
-        obj = Py_BuildValue ("(ii)", event->resize.w, event->resize.h);
+    case PGE_VIDEORESIZE:
+        obj = Py_BuildValue ("(ii)",
+                             event->window.data1,
+                             event->window.data2);
         insobj (dict, "size", obj);
-        insobj (dict, "w", PyInt_FromLong (event->resize.w));
-        insobj (dict, "h", PyInt_FromLong (event->resize.h));
+        insobj (dict, "w", PyInt_FromLong (event->resize.data1));
+        insobj (dict, "h", PyInt_FromLong (event->resize.data2));
         break;
-    case SDL_SYSWMEVENT:
+    case PGE_SYSWMEVENT:
 #ifdef WIN32
         insobj (dict, "hwnd", PyInt_FromLong ((long)(event-> syswm.msg->hwnd)));
         insobj (dict, "msg", PyInt_FromLong (event-> syswm.msg->msg));
@@ -348,7 +588,7 @@ dict_from_event (SDL_Event* event)
          */
 #if (defined(unix) || defined(__unix__) || defined(_AIX)        \
      || defined(__OpenBSD__)) &&                                \
-    (defined(SDL_VIDEO_DRIVER_X11) && !defined(__CYGWIN32__) &&         \
+    (defined(PGE_VIDEO_DRIVER_X11) && !defined(__CYGWIN32__) &&         \
      !defined(ENABLE_NANOX) && !defined(__QNXNTO__))
 
         //printf("asdf :%d:", event->syswm.msg->event.xevent.type);
@@ -358,14 +598,16 @@ dict_from_event (SDL_Event* event)
 #endif
 
         break;
-/* SDL_VIDEOEXPOSE and SDL_QUIT have no attributes */
+        /* PGE_OTHEREVENT, PGE_VIDEOEXPOSE, and PGE_QUIT
+         * have no event type specific attributes
+         */
     }
-    if (event->type == SDL_USEREVENT && event->user.code == 0x1000) {
+    if (event->type == PGE_USEREVENT && event->user.code == 0x1000) {
         insobj (dict, "filename", Text_FromUTF8 (event->user.data1));
         free(event->user.data1);
         event->user.data1 = NULL;
     }
-    if (event->type >= SDL_USEREVENT && event->type < SDL_NUMEVENTS)
+    if (event->type >= PGE_USEREVENT && event->type < PGE_NUMEVENTS)
         insobj (dict, "code", PyInt_FromLong (event->user.code));
 
     return dict;
@@ -426,7 +668,7 @@ event_str (PyObject* self)
 static int
 event_nonzero (PyEventObject *self)
 {
-    return self->type != SDL_NOEVENT;
+    return self->type != PGE_NOEVENT;
 }
 
 static PyNumberMethods event_as_number = {
@@ -555,6 +797,7 @@ static PyTypeObject PyEvent_Type =
 static PyObject*
 PyEvent_New (SDL_Event* event)
 {
+    const _EventState* mod_state = EVENT_STATE;
     PyEventObject* e;
     e = PyObject_NEW (PyEventObject, &PyEvent_Type);
     if(!e)
@@ -562,12 +805,12 @@ PyEvent_New (SDL_Event* event)
 
     if (event)
     {
-        e->type = event->type;
-        e->dict = dict_from_event (event);
+        e->type = sdl_to_pg (event, mod_state);
+        e->dict = dict_from_event (event, mod_state);
     }
     else
     {
-        e->type = SDL_NOEVENT;
+        e->type = PGE_NOEVENT;
         e->dict = PyDict_New ();
     }
     return (PyObject*)e;
@@ -634,14 +877,19 @@ static PyObject*
 set_grab (PyObject* self, PyObject* arg)
 {
     int doit;
+    SDL_Window* win = NULL;
     if (!PyArg_ParseTuple (arg, "i", &doit))
         return NULL;
     VIDEO_INIT_CHECK ();
 
-    if (doit)
-        SDL_WM_GrabInput (SDL_GRAB_ON);
-    else
-        SDL_WM_GrabInput (SDL_GRAB_OFF);
+    win = Py_GetDefaultWindow ();
+    if (win)
+    {
+        if (doit)
+            SDL_SetWindowGrab (win, SDL_TRUE);
+        else
+            SDL_SetWindowGrab (win, SDL_FALSE);
+    }
 
     Py_RETURN_NONE;
 }
@@ -649,11 +897,14 @@ set_grab (PyObject* self, PyObject* arg)
 static PyObject*
 get_grab (PyObject* self, PyObject* arg)
 {
-    int mode;
+    SDL_Window* win;
+    SDL_bool mode = SDL_FALSE;
 
     VIDEO_INIT_CHECK ();
-    mode = SDL_WM_GrabInput (SDL_GRAB_QUERY);
-    return PyInt_FromLong (mode == SDL_GRAB_ON);
+    win = Py_GetDefaultWindow ();
+    if (win)
+        mode = SDL_GetWindowGrab (win);
+    return PyInt_FromLong (mode);
 }
 
 static PyObject*
@@ -697,6 +948,8 @@ pygame_poll (PyObject* self, PyObject* args)
 static PyObject*
 event_clear (PyObject* self, PyObject* args)
 {
+#error Continue here by updating SDL_PeepEvents calls
+#error See the migration guide.
     SDL_Event event;
     int mask = 0;
     int loop, num;
@@ -852,18 +1105,21 @@ event_peek (PyObject* self, PyObject* args)
 static PyObject*
 event_post (PyObject* self, PyObject* args)
 {
+    const _EventState* mod_state = EVENT_MOD_STATE (self);
     PyEventObject* e;
     SDL_Event event;
     int isblocked = 0;
+    int sdl_type;
 
     if (!PyArg_ParseTuple (args, "O!", &PyEvent_Type, &e))
         return NULL;
 
     VIDEO_INIT_CHECK ();
 
+    sdl_type = pg_to_sdl (e, mod_state);
 
     /* see if the event is blocked before posting it. */
-        isblocked = SDL_EventState (e->type, SDL_QUERY) == SDL_IGNORE;
+    isblocked = SDL_EventState (sdl_type, SDL_QUERY) == SDL_IGNORE;
 
     if (isblocked) {
         /* event is blocked, so we do not post it. */
@@ -882,7 +1138,7 @@ event_post (PyObject* self, PyObject* args)
 static int
 CheckEventInRange(int evt)
 {
-    return evt >= 0 && evt < SDL_NUMEVENTS;
+    return evt >= 0 && evt < PGE_NUMEVENTS;
 }
 
 static PyObject*
@@ -1033,21 +1289,15 @@ MODINIT_DEFINE (event)
     int ecode;
     static void* c_api[PYGAMEAPI_EVENT_NUMSLOTS];
 
-#if PY3
-    static struct PyModuleDef _module = {
-        PyModuleDef_HEAD_INIT,
-        "event",
-        DOC_PYGAMEEVENT,
-        -1,
-        _event_methods,
-        NULL, NULL, NULL, NULL
-    };
-#endif
-
     /* imported needed apis; Do this first so if there is an error
        the module is not loaded.
     */
     import_pygame_base ();
+    if (PyErr_Occurred ()) {
+        MODINIT_ERROR;
+    }
+
+    import_pygame_display ();
     if (PyErr_Occurred ()) {
         MODINIT_ERROR;
     }
@@ -1071,6 +1321,7 @@ MODINIT_DEFINE (event)
         MODINIT_ERROR;
     }
 
+#error fill in _EventState struct here.
     /* export the c api */
     c_api[0] = &PyEvent_Type;
     c_api[1] = PyEvent_New;
