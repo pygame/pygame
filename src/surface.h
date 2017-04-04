@@ -100,7 +100,7 @@
     sr = _fmt->palette->colors[*((Uint8 *) (_src))].r; \
     sg = _fmt->palette->colors[*((Uint8 *) (_src))].g; \
     sb = _fmt->palette->colors[*((Uint8 *) (_src))].b; \
-    sa = 255;
+    sa = _fmt->palette->colors[*((Uint8 *) (_src))].a;
 
 
 

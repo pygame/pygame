@@ -8,9 +8,9 @@
 
 #--StartConfig
 SDL = -I/usr/include -D_REENTRANT -lSDL2
-FONT = -lSDL_ttf
-IMAGE = -lSDL_image
-MIXER = -lSDL_mixer
+FONT = -lSDL2_ttf
+IMAGE = -lSDL2_image
+MIXER = -lSDL2_mixer
 PNG = -lpng
 JPEG = -ljpeg
 SCRAP = -lX11
@@ -44,7 +44,6 @@ _freetype src/freetype/ft_cache.c src/freetype/ft_wrap.c src/freetype/ft_render.
 #SDL as a dependency. these should not be altered
 
 base src/base.c $(SDL) $(DEBUG)
-#cdrom src/cdrom.c $(SDL) $(DEBUG)
 color src/color.c $(SDL) $(DEBUG)
 constants src/constants.c $(SDL) $(DEBUG)
 display src/display.c $(SDL) $(DEBUG)
