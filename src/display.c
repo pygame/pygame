@@ -597,9 +597,12 @@ set_mode (PyObject* self, PyObject* arg)
             sdl_flags |= SDL_WINDOW_BORDERLESS;
         if (flags & PGS_RESIZABLE)
             sdl_flags |= SDL_WINDOW_RESIZABLE;
-#warning Only use SDL_WINDOW_SHOWN when window not hidden.
-        if (!sdl_flags)
-            sdl_flags = SDL_WINDOW_SHOWN;
+        if (flags & PGS_SHOWN)
+            sdl_flags |= SDL_WINDOW_SHOWN;
+        if (flags & PGS_HIDDEN)
+            sdl_flags |= SDL_WINDOWEVENT_HIDDEN;
+        if (!(sdl_flags & SDL_WINDOWEVENT_HIDDEN))
+            sdl_flags |= SDL_WINDOW_SHOWN;
         win = SDL_CreateWindow (title,
                                 SDL_WINDOWPOS_UNDEFINED,
                                 SDL_WINDOWPOS_UNDEFINED,

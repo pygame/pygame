@@ -252,6 +252,8 @@ typedef enum {
     PGS_OPENGLBLIT    = 0x0000000A,
     PGS_RESIZABLE     = 0x00000010,
     PGS_NOFRAME       = 0x00000020,
+    PGS_SHOWN         = 0x00000040,  /* Added from SDL 2 */
+    PGS_HIDDEN        = 0x00000080,  /* Added from SDL 2 */
 
     PGS_HWACCEL       = 0x00000100,
     PGS_SRCCOLORKEY   = 0x00001000,
