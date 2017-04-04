@@ -29,9 +29,10 @@
 #undef _POSIX_C_SOURCE
 #endif
 
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include "pygame.h"
 
+/* Blend modes */
 #define PYGAME_BLEND_ADD  0x1
 #define PYGAME_BLEND_SUB  0x2
 #define PYGAME_BLEND_MULT 0x3

@@ -387,6 +387,12 @@ Py_GetDefaultWindow (void)
     return DISPLAY_STATE->global_window.win;
 }
 
+static SDL_Surface*
+Py_GetDefaultWindowSurface (void)
+{
+    return DISPLAY_STATE->surface;
+}
+
 /* display functions */
 static PyObject*
 get_driver (PyObject* self)
@@ -549,7 +555,7 @@ set_mode (PyObject* self, PyObject* arg)
     SDL_Window* win = state->global_window.win;
     SDL_Surface* surf = NULL;
     int depth = 0;
-    int flags = SDL_SWSURFACE;
+    int flags = 0;
     int w = 0;
     int h = 0;
     char *title = state->title;
@@ -595,11 +601,19 @@ set_mode (PyObject* self, PyObject* arg)
     }
     else
     {
-        flags &= SDL_WINDOW_OPENGL;
+        Uint32 sdl_flags = 0;
+        if (flags & PGS_FULLSCREEN)
+            sdl_flags |= SDL_WINDOW_FULLSCREEN;
+        if (flags & PGS_OPENGL)
+            sdl_flags |= SDL_WINDOW_OPENGL;
+        if (flags & PGS_NOFRAME)
+            sdl_flags |= SDL_WINDOW_BORDERLESS;
+        if (flags & PGS_RESIZABLE)
+            sdl_flags |= SDL_WINDOW_RESIZABLE;
         win = SDL_CreateWindow (title, w, h,
                                 SDL_WINDOWPOS_UNDEFINED,
                                 SDL_WINDOWPOS_UNDEFINED,
-                                flags);
+                                sdl_flags);
         if (!win)
             return RAISE (PyExc_SDLError, SDL_GetError ());
 
@@ -653,7 +667,7 @@ set_mode (PyObject* self, PyObject* arg)
         PySurface_AsSurface (state->surface) = surf;
     else
     {
-        state->surface = PySurface_New (surf);
+        state->surface = PySurface_NewNoOwn (surf);
         if (!state->surface)
         {
             SDL_DestroyWindow (win);
@@ -1303,6 +1317,7 @@ MODINIT_DEFINE (display)
 #endif
     assert(PYGAMEAPI_DISPLAY_NUMSLOTS == 1);
     c_api[0] = Py_GetDefaultWindow;
+    c_api[1] = Py_GetDefaultWindowSurface;
     apiobj = encapsulate_api (c_api, "display");
     if (apiobj == NULL) {
         DECREF_MOD (module);

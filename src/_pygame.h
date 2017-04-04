@@ -127,6 +127,29 @@ typedef enum {
     PGE_APPACTIVE
 } PygameAppCode;
 
+/* Surface flags: based on SDL 1.2 flags */
+typedef enum {
+    PGS_SWSURFACE     = 0x00000000,
+    PGS_HWSURFACE     = 0x00000001,
+    PGS_ASYNCBLIT     = 0x00000004,
+
+    PGS_ANYFORMAT     = 0x10000000,
+    PGS_HWPALETTE     = 0x20000000,
+    PGS_DOUBLEBUF     = 0x40000000,
+    PGS_FULLSCREEN    = 0x80000000,
+    PGS_OPENGL        = 0x00000002,
+    PGS_OPENGLBLIT    = 0x0000000A,
+    PGS_RESIZABLE     = 0x00000010,
+    PGS_NOFRAME       = 0x00000020,
+
+    PGS_HWACCEL       = 0x00000100,
+    PGS_SRCCOLORKEY   = 0x00001000,
+    PGS_RLEACCELOK    = 0x00002000,
+    PGS_RLEACCEL      = 0x00004000,
+    PGS_SRCALPHA      = 0x00010000,
+    PGS_PREALLOC      = 0x01000000
+} PygameSurfaceFlags;
+
 /* Pygame uses Py_buffer (PEP 3118) to exchange array information internally;
  * define here as needed.
  */
@@ -231,7 +254,7 @@ typedef struct pg_bufferinfo_s {
 #define IMPPREFIX "pygame_"
 #endif
 
-#include <SDL2/SDL.h>
+#include <SDL.h>
 
 /* macros used throughout the source */
 #define RAISE(x,y) (PyErr_SetString((x), (y)), (PyObject*)NULL)
@@ -466,11 +489,14 @@ typedef struct {
 #define import_pygame_display() IMPORT_PYGAME_MODULE(display, DISPLAY)
 #endif
 #endif /* Display info stuff that may or may not be ported. */
-#define PYGAMEAPI_DISPLAY_NUMSLOTS 1
+#define PYGAMEAPI_DISPLAY_NUMSLOTS 2
 #ifndef PYGAMEAPI_DISPLAY_INTERNAL
 #define Py_GetDefaultWindow                             \
-    (*(SDL_Window*(*)(void))                                \
+    (*(SDL_Window*(*)(void))                            \
      PyGAME_C_API[PYGAMEAPI_DISPLAY_FIRSTSLOT + 0])
+#define Py_GetDefaultWindowSurface                      \
+    (*(SDL_Surface*(*)(void))                           \
+     PyGAME_C_API[PYGAMEAPI_DISPLAY_FIRSTSLOT + 1])
 #define import_pygame_display() IMPORT_PYGAME_MODULE(display, DISPLAY)
 #endif
 
@@ -481,6 +507,7 @@ typedef struct {
 typedef struct {
     PyObject_HEAD
     SDL_Surface* surf;
+    int owner;
     struct SubSurface_Data* subsurface;  /*ptr to subsurface data (if a
                                           * subsurface)*/
     PyObject *weakreflist;
@@ -494,8 +521,8 @@ typedef struct {
      PyGAME_C_API[PYGAMEAPI_SURFACE_FIRSTSLOT + 0])
 #define PySurface_Type                                                  \
     (*(PyTypeObject*)PyGAME_C_API[PYGAMEAPI_SURFACE_FIRSTSLOT + 0])
-#define PySurface_New                                                   \
-    (*(PyObject*(*)(SDL_Surface*))                                      \
+#define PgSurface_New                                                   \
+    (*(PyObject*(*)(SDL_Surface*, int))                                 \
      PyGAME_C_API[PYGAMEAPI_SURFACE_FIRSTSLOT + 1])
 #define PySurface_Blit                                                  \
     (*(int(*)(PyObject*,PyObject*,SDL_Rect*,SDL_Rect*,int))             \
@@ -506,6 +533,9 @@ typedef struct {
     if (PyErr_Occurred() != NULL) break;                               \
     IMPORT_PYGAME_MODULE(surflock, SURFLOCK);                          \
     } while (0)
+
+#define PySurface_New(surface) PgSurface_New((surface), 1)
+#define PySurface_NewNoOwn(surface) PgSurface_New((surface), 0)
 #endif
 
 

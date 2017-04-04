@@ -38,8 +38,9 @@ typedef struct
     int              d_skip;
     SDL_PixelFormat *src;
     SDL_PixelFormat *dst;
-    Uint32           src_flags;
-    Uint32           dst_flags;
+    Uint8            src_blanket_alpha;
+    int              src_has_colorkey;
+    Uint32           src_colorkey;
 } SDL_BlitInfo;
 
 static void alphablit_alpha (SDL_BlitInfo * info);
@@ -104,20 +105,20 @@ SoftBlitPyGame (SDL_Surface * src, SDL_Rect * srcrect, SDL_Surface * dst,
         /* Set up the blit information */
         info.width = srcrect->w;
         info.height = srcrect->h;
-        info.s_pixels = (Uint8 *) src->pixels + src->offset +
+        info.s_pixels = (Uint8 *) src->pixels +
             (Uint16) srcrect->y * src->pitch +
             (Uint16) srcrect->x * src->format->BytesPerPixel;
         info.s_pxskip = src->format->BytesPerPixel;
         info.s_skip = src->pitch - info.width * src->format->BytesPerPixel;
-        info.d_pixels = (Uint8 *) dst->pixels + dst->offset +
+        info.d_pixels = (Uint8 *) dst->pixels +
             (Uint16) dstrect->y * dst->pitch +
             (Uint16) dstrect->x * dst->format->BytesPerPixel;
         info.d_pxskip = dst->format->BytesPerPixel;
         info.d_skip = dst->pitch - info.width * dst->format->BytesPerPixel;
         info.src = src->format;
         info.dst = dst->format;
-        info.src_flags = src->flags;
-        info.dst_flags = dst->flags;
+        SDL_GetSurfaceAlphaMod (src, &info.src_blanket_alpha);
+        info.src_has_colorkey = SDL_GetColorKey (src, &info.src_colorkey) != 0;
 
         if (info.d_pixels > info.s_pixels)
         {
@@ -150,9 +151,9 @@ SoftBlitPyGame (SDL_Surface * src, SDL_Rect * srcrect, SDL_Surface * dst,
         {
         case 0:
         {
-            if (src->flags & SDL_SRCALPHA && src->format->Amask)
+            if (SDL_ISPIXELFORMAT_ALPHA (src->format->format))
                 alphablit_alpha (&info);
-            else if (src->flags & SDL_SRCCOLORKEY)
+            else if (info.src_has_colorkey)
                 alphablit_colorkey (&info);
             else
                 alphablit_solid (&info);
@@ -264,8 +265,8 @@ blit_blend_rgba_add (SDL_BlitInfo * info)
     Uint8           dR, dG, dB, dA, sR, sG, sB, sA;
     Uint32          pixel;
     Uint32          tmp;
-    int             srcppa = (info->src_flags & SDL_SRCALPHA && srcfmt->Amask);
-    int             dstppa = (info->dst_flags & SDL_SRCALPHA && dstfmt->Amask);
+    int             srcppa = SDL_ISPIXELFORMAT_ALPHA (srcfmt->format);
+    int             dstppa = SDL_ISPIXELFORMAT_ALPHA (dstfmt->format);
 
     if (!dstppa)
     {
@@ -278,7 +279,7 @@ blit_blend_rgba_add (SDL_BlitInfo * info)
         srcfmt->Gmask == dstfmt->Gmask &&
         srcfmt->Bmask == dstfmt->Bmask &&
         srcfmt->Amask == dstfmt->Amask &&
-        info->src_flags & SDL_SRCALPHA)
+        srcppa)
     {
         int incr = srcpxskip > 0 ? 1 : -1;
         if (incr < 0)
@@ -404,8 +405,8 @@ blit_blend_rgba_sub (SDL_BlitInfo * info)
     Uint8           dR, dG, dB, dA, sR, sG, sB, sA;
     Uint32          pixel;
     Sint32          tmp2;
-    int             srcppa = (info->src_flags & SDL_SRCALPHA && srcfmt->Amask);
-    int             dstppa = (info->dst_flags & SDL_SRCALPHA && dstfmt->Amask);
+    int             srcppa = SDL_ISPIXELFORMAT_ALPHA (srcfmt->format);
+    int             dstppa = SDL_ISPIXELFORMAT_ALPHA (dstfmt->format);
 
     if (!dstppa)
     {
@@ -418,7 +419,7 @@ blit_blend_rgba_sub (SDL_BlitInfo * info)
         srcfmt->Gmask == dstfmt->Gmask &&
         srcfmt->Bmask == dstfmt->Bmask &&
         srcfmt->Amask == dstfmt->Amask &&
-        info->src_flags & SDL_SRCALPHA)
+        srcppa)
     {
         int incr = srcpxskip > 0 ? 1 : -1;
         if (incr < 0)
@@ -544,8 +545,8 @@ blit_blend_rgba_mul (SDL_BlitInfo * info)
     Uint8           dR, dG, dB, dA, sR, sG, sB, sA;
     Uint32          pixel;
     Uint32          tmp;
-    int             srcppa = (info->src_flags & SDL_SRCALPHA && srcfmt->Amask);
-    int             dstppa = (info->dst_flags & SDL_SRCALPHA && dstfmt->Amask);
+    int             srcppa = SDL_ISPIXELFORMAT_ALPHA (srcfmt->format);
+    int             dstppa = SDL_ISPIXELFORMAT_ALPHA (dstfmt->format);
 
     if (!dstppa)
     {
@@ -558,7 +559,7 @@ blit_blend_rgba_mul (SDL_BlitInfo * info)
         srcfmt->Gmask == dstfmt->Gmask &&
         srcfmt->Bmask == dstfmt->Bmask &&
         srcfmt->Amask == dstfmt->Amask &&
-        info->src_flags & SDL_SRCALPHA)
+        srcppa)
     {
         int incr = srcpxskip > 0 ? 1 : -1;
         if (incr < 0)
@@ -683,8 +684,8 @@ blit_blend_rgba_min (SDL_BlitInfo * info)
     int             dstbpp = dstfmt->BytesPerPixel;
     Uint8           dR, dG, dB, dA, sR, sG, sB, sA;
     Uint32          pixel;
-    int             srcppa = (info->src_flags & SDL_SRCALPHA && srcfmt->Amask);
-    int             dstppa = (info->dst_flags & SDL_SRCALPHA && dstfmt->Amask);
+    int             srcppa = SDL_ISPIXELFORMAT_ALPHA (srcfmt->format);
+    int             dstppa = SDL_ISPIXELFORMAT_ALPHA (dstfmt->format);
 
     if (!dstppa)
     {
@@ -697,7 +698,7 @@ blit_blend_rgba_min (SDL_BlitInfo * info)
         srcfmt->Gmask == dstfmt->Gmask &&
         srcfmt->Bmask == dstfmt->Bmask &&
         srcfmt->Amask == dstfmt->Amask &&
-        info->src_flags & SDL_SRCALPHA)
+        srcppa)
     {
         int incr = srcpxskip > 0 ? 1 : -1;
         if (incr < 0)
@@ -822,8 +823,8 @@ blit_blend_rgba_max (SDL_BlitInfo * info)
     int             dstbpp = dstfmt->BytesPerPixel;
     Uint8           dR, dG, dB, dA, sR, sG, sB, sA;
     Uint32          pixel;
-    int             srcppa = (info->src_flags & SDL_SRCALPHA && srcfmt->Amask);
-    int             dstppa = (info->dst_flags & SDL_SRCALPHA && dstfmt->Amask);
+    int             srcppa = SDL_ISPIXELFORMAT_ALPHA (srcfmt->format);
+    int             dstppa = SDL_ISPIXELFORMAT_ALPHA (dstfmt->format);
 
     if (!dstppa)
     {
@@ -836,7 +837,7 @@ blit_blend_rgba_max (SDL_BlitInfo * info)
         srcfmt->Gmask == dstfmt->Gmask &&
         srcfmt->Bmask == dstfmt->Bmask &&
         srcfmt->Amask == dstfmt->Amask &&
-        info->src_flags & SDL_SRCALPHA)
+        srcppa)
     {
         int incr = srcpxskip > 0 ? 1 : -1;
         if (incr < 0)
@@ -961,8 +962,8 @@ blit_blend_premultiplied (SDL_BlitInfo * info)
     int             dstbpp = dstfmt->BytesPerPixel;
     Uint8           dR, dG, dB, dA, sR, sG, sB, sA;
     Uint32          pixel;
-    int             srcppa = (info->src_flags & SDL_SRCALPHA && srcfmt->Amask);
-    int             dstppa = (info->dst_flags & SDL_SRCALPHA && dstfmt->Amask);
+    int             srcppa = SDL_ISPIXELFORMAT_ALPHA (srcfmt->format);
+    int             dstppa = SDL_ISPIXELFORMAT_ALPHA (dstfmt->format);
     int tmp;
 
     /*
@@ -1084,10 +1085,10 @@ blit_blend_add (SDL_BlitInfo * info)
     Uint8           dR, dG, dB, dA, sR, sG, sB, sA;
     Uint32          pixel;
     Uint32          tmp;
-    int             srcppa = (info->src_flags & SDL_SRCALPHA && srcfmt->Amask);
-    int             dstppa = (info->dst_flags & SDL_SRCALPHA && dstfmt->Amask);
+    int             srcppa = SDL_ISPIXELFORMAT_ALPHA (srcfmt->format);
+    int             dstppa = SDL_ISPIXELFORMAT_ALPHA (dstfmt->format);
 
-    if (srcbpp >= 3 && dstbpp >= 3 && !(info->src_flags & SDL_SRCALPHA))
+    if (srcbpp >= 3 && dstbpp >= 3 && !srcppa)
     {
         size_t srcoffsetR, srcoffsetG, srcoffsetB;
         size_t dstoffsetR, dstoffsetG, dstoffsetB;
@@ -1271,10 +1272,10 @@ blit_blend_sub (SDL_BlitInfo * info)
     Uint8           dR, dG, dB, dA, sR, sG, sB, sA;
     Uint32          pixel;
     Sint32          tmp2;
-    int             srcppa = (info->src_flags & SDL_SRCALPHA && srcfmt->Amask);
-    int             dstppa = (info->dst_flags & SDL_SRCALPHA && dstfmt->Amask);
+    int             srcppa = SDL_ISPIXELFORMAT_ALPHA (srcfmt->format);
+    int             dstppa = SDL_ISPIXELFORMAT_ALPHA (dstfmt->format);
 
-    if (srcbpp >= 3 && dstbpp >= 3 && !(info->src_flags & SDL_SRCALPHA))
+    if (srcbpp >= 3 && dstbpp >= 3 && !srcppa)
     {
         size_t srcoffsetR, srcoffsetG, srcoffsetB;
         size_t dstoffsetR, dstoffsetG, dstoffsetB;
@@ -1458,10 +1459,10 @@ blit_blend_mul (SDL_BlitInfo * info)
     Uint8           dR, dG, dB, dA, sR, sG, sB, sA;
     Uint32          pixel;
     Uint32          tmp;
-    int             srcppa = (info->src_flags & SDL_SRCALPHA && srcfmt->Amask);
-    int             dstppa = (info->dst_flags & SDL_SRCALPHA && dstfmt->Amask);
+    int             srcppa = SDL_ISPIXELFORMAT_ALPHA (srcfmt->format);
+    int             dstppa = SDL_ISPIXELFORMAT_ALPHA (dstfmt->format);
 
-    if (srcbpp >= 3 && dstbpp >= 3 && !(info->src_flags & SDL_SRCALPHA))
+    if (srcbpp >= 3 && dstbpp >= 3 && !srcppa)
     {
         size_t srcoffsetR, srcoffsetG, srcoffsetB;
         size_t dstoffsetR, dstoffsetG, dstoffsetB;
@@ -1647,10 +1648,10 @@ blit_blend_min (SDL_BlitInfo * info)
     int             dstbpp = dstfmt->BytesPerPixel;
     Uint8           dR, dG, dB, dA, sR, sG, sB, sA;
     Uint32          pixel;
-    int             srcppa = (info->src_flags & SDL_SRCALPHA && srcfmt->Amask);
-    int             dstppa = (info->dst_flags & SDL_SRCALPHA && dstfmt->Amask);
+    int             srcppa = SDL_ISPIXELFORMAT_ALPHA (srcfmt->format);
+    int             dstppa = SDL_ISPIXELFORMAT_ALPHA (dstfmt->format);
 
-    if (srcbpp >= 3 && dstbpp >= 3 && !(info->src_flags & SDL_SRCALPHA))
+    if (srcbpp >= 3 && dstbpp >= 3 && !srcppa)
     {
         size_t srcoffsetR, srcoffsetG, srcoffsetB;
         size_t dstoffsetR, dstoffsetG, dstoffsetB;
@@ -1839,10 +1840,10 @@ blit_blend_max (SDL_BlitInfo * info)
     int             dstbpp = dstfmt->BytesPerPixel;
     Uint8           dR, dG, dB, dA, sR, sG, sB, sA;
     Uint32          pixel;
-    int             srcppa = (info->src_flags & SDL_SRCALPHA && srcfmt->Amask);
-    int             dstppa = (info->dst_flags & SDL_SRCALPHA && dstfmt->Amask);
+    int             srcppa = SDL_ISPIXELFORMAT_ALPHA (srcfmt->format);
+    int             dstppa = SDL_ISPIXELFORMAT_ALPHA (dstfmt->format);
 
-    if (srcbpp >= 3 && dstbpp >= 3 && !(info->src_flags & SDL_SRCALPHA))
+    if (srcbpp >= 3 && dstbpp >= 3 && !srcppa)
     {
         size_t srcoffsetR, srcoffsetG, srcoffsetB;
         size_t dstoffsetR, dstoffsetG, dstoffsetB;
@@ -2064,8 +2065,8 @@ alphablit_alpha (SDL_BlitInfo * info)
     int             dstbpp = dstfmt->BytesPerPixel;
     int             dR, dG, dB, dA, sR, sG, sB, sA;
     Uint32          pixel;
-    int             srcppa = (info->src_flags & SDL_SRCALPHA && srcfmt->Amask);
-    int             dstppa = (info->dst_flags & SDL_SRCALPHA && dstfmt->Amask);
+    int             srcppa = SDL_ISPIXELFORMAT_ALPHA (srcfmt->format);
+    int             dstppa = SDL_ISPIXELFORMAT_ALPHA (dstfmt->format);
 
     /*
        printf ("Alpha blit with %d and %d\n", srcbpp, dstbpp);
@@ -2169,16 +2170,17 @@ alphablit_colorkey (SDL_BlitInfo * info)
     int             srcbpp = srcfmt->BytesPerPixel;
     int             dstbpp = dstfmt->BytesPerPixel;
     int             dR, dG, dB, dA, sR, sG, sB, sA;
-    int             alpha = srcfmt->alpha;
-    Uint32          colorkey = srcfmt->colorkey;
+    int             alpha = info->src_blanket_alpha;
+    Uint32          colorkey = info->src_colorkey;
     Uint32          pixel;
-    int             srcppa = (info->src_flags & SDL_SRCALPHA && srcfmt->Amask);
-    int             dstppa = (info->dst_flags & SDL_SRCALPHA && dstfmt->Amask);
+    int             srcppa = SDL_ISPIXELFORMAT_ALPHA (srcfmt->format);
+    int             dstppa = SDL_ISPIXELFORMAT_ALPHA (dstfmt->format);
 
     /*
        printf ("Colorkey blit with %d and %d\n", srcbpp, dstbpp);
        */
 
+    assert (info->src_has_colorkey);
     if (srcbpp == 1)
     {
         if (dstbpp == 1)
@@ -2308,10 +2310,10 @@ alphablit_solid (SDL_BlitInfo * info)
     int             srcbpp = srcfmt->BytesPerPixel;
     int             dstbpp = dstfmt->BytesPerPixel;
     int             dR, dG, dB, dA, sR, sG, sB, sA;
-    int             alpha = srcfmt->alpha;
+    int             alpha = info->src_blanket_alpha;
     int             pixel;
-    int             srcppa = (info->src_flags & SDL_SRCALPHA && srcfmt->Amask);
-    int             dstppa = (info->dst_flags & SDL_SRCALPHA && dstfmt->Amask);
+    int             srcppa = SDL_ISPIXELFORMAT_ALPHA (srcfmt->format);
+    int             dstppa = SDL_ISPIXELFORMAT_ALPHA (dstfmt->format);
 
     /*
        printf ("Solid blit with %d and %d\n", srcbpp, dstbpp);
