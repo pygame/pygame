@@ -989,6 +989,11 @@ surf_set_palette (PyObject *self, PyObject *args)
         colors[i].r = (unsigned char) rgba[0];
         colors[i].g = (unsigned char) rgba[1];
         colors[i].b = (unsigned char) rgba[2];
+        /* Preserve palette alphas. Normally, a palette entry has alpha 255.
+         * If, however, colorkey is set, the corresponding palette entry has
+         * 0 alpha.
+         */
+        colors[i].a = (unsigned char) old_colors[i].a;
     }
 
     ecode = SDL_SetPaletteColors (pal, colors, 0, len);

@@ -256,16 +256,24 @@ class SurfaceTypeTest(unittest.TestCase):
 
         # __doc__ (as of 2008-06-25) for pygame.surface.Surface.get_alpha:
 
-          # Surface.get_alpha(): return int_value or None
+          # Surface.get_alpha(): return int_value
           # get the current Surface transparency value
 
-        s1 = pygame.Surface((32,32), pygame.SRCALPHA, 32)
-        self.assert_(s1.get_alpha() == 255)
+        s1 = pygame.Surface((32, 32), 0, 32)
+        self.assertEqual(s1.get_alpha(), 255)
 
         for alpha in (0, 32, 127, 255):
             s1.set_alpha(alpha)
             for t in range(4): s1.set_alpha(s1.get_alpha())
-            self.assert_(s1.get_alpha() == alpha)
+            self.assertEqual(s1.get_alpha(), alpha)
+
+        s2 = pygame.Surface((32, 32), pygame.SRCALPHA, 32)
+        self.assertEqual(s2.get_alpha(), 255)
+
+        for alpha in (0, 32, 127, 255):
+            s2.set_alpha(alpha)
+            for t in range(4): s2.set_alpha(s1.get_alpha())
+            self.assertEqual(s1.get_alpha(), 255)
 
     ########################################################################
 
@@ -685,8 +693,10 @@ class SurfaceTypeTest(unittest.TestCase):
         im  = pygame.image.load(example_path(os.path.join("data", "city.png")))
         im2 = pygame.image.load(example_path(os.path.join("data", "brick.png")))
 
-        self.assertEquals( im.get_palette(),  ((0, 0, 0, 255), (255, 255, 255, 255)) )
-        self.assertEquals( im2.get_palette(), ((0, 0, 0, 255), (0, 0, 0, 255)) )
+        self.assertEquals( im.get_palette(),  ((0, 0, 0, 255), (255, 255, 255, 
+255)) )
+        self.assertEquals( im2.get_palette(), ((0, 0, 0, 255), (0, 0, 0, 255)) 
+)
 
         self.assertEqual(repr(im.convert(32)),  '<Surface(24x24x32 SW)>')
         self.assertEqual(repr(im2.convert(32)), '<Surface(469x137x32 SW)>')
@@ -695,11 +705,6 @@ class SurfaceTypeTest(unittest.TestCase):
         im3 = im.convert(8)
         self.assertEqual(repr(im3), '<Surface(24x24x8 SW)>')
         self.assertEqual(im3.get_palette(), im.get_palette())
-
-        # It is still an error when the target format really does have
-        # an empty palette (all the entries are black).
-        self.assertRaises(pygame.error, im2.convert, 8)
-        self.assertEqual(pygame.get_error(), "Empty destination palette")
 
     def todo_test_convert(self):
 
@@ -1071,21 +1076,29 @@ class SurfaceTypeTest(unittest.TestCase):
           # transparent and 255 is fully opaque. If None is passed for the alpha
           # value, then the Surface alpha will be disabled.
           #
-          # This value is different than the per pixel Surface alpha. If the
-          # Surface format contains per pixel alphas, then this alpha value will
-          # be ignored. If the Surface contains per pixel alphas, setting the
-          # alpha value to None will disable the per pixel transparency.
+          # This value is different than the per pixel Surface alpha. For a surface
+          # with per pixel alpha, blanket alpha is ignored and ``None`` is returned.
           #
           # The optional flags argument can be set to pygame.RLEACCEL to provide
           # better performance on non accelerated displays. An RLEACCEL Surface
           # will be slower to modify, but quicker to blit as a source.
           #
 
-        s = pygame.Surface((1,1), SRCALHPA, 32)
-        s.fill((1, 2, 3, 4))
+        # No per pixel alpha
+        s = pygame.Surface((1, 1), 0, 32)
+        self.assertEqual(s.get_alpha(), 255)
+        s.set_alpha(12)
+        self.assertEqual(s.get_alpha(), 12)
         s.set_alpha(None)
-        self.failUnlessEqual(s.get_at((0, 0)), (1, 2, 3, 255))
-        self.fail()
+        self.assertEqual(s.get_alpha(), 255)
+
+        # Per pixel alpha
+        s = pygame.Surface((1, 1), 0, 32)
+        self.assertEqual(s.get_alpha(), 255)
+        s.set_alpha(12)
+        self.assertEqual(s.get_alpha(), 255)
+        s.set_alpha(None)
+        self.assertEqual(s.get_alpha(), 255)
 
     def test_set_palette(self):
         palette = [pygame.Color(i, i, i) for i in range(256)]
@@ -1538,11 +1551,6 @@ class SurfaceGetBufferTest (unittest.TestCase):
         masks = [0xff00, 0xff0000, 0xff000000, 0]
         self._check_interface_3D(pygame.Surface(sz, 0, 32, masks))
 
-        # Unsupported RGB byte orders
-        masks = [0xff00, 0xff, 0xff0000, 0]
-        self.assertRaises(ValueError,
-                          pygame.Surface(sz, 0, 24, masks).get_view, '3')
-
     def test_array_interface_alpha(self):
         for shifts in [[0, 8, 16, 24], [8, 16, 24, 0],
                        [24, 16, 8, 0], [16, 8, 0, 24]]:
@@ -1974,7 +1982,7 @@ class SurfaceBlendTest (unittest.TestCase):
         src = self._make_src_surface(32)
         masks = src.get_masks()
         dst = pygame.Surface(src.get_size(), 0, 32,
-                             [masks[1], masks[2], masks[0], masks[3]])
+                             [masks[2], masks[1], masks[0], masks[3]])
         for blend_name, dst_color, op in blend:
             p = []
             for src_color in self._test_palette:
@@ -2065,7 +2073,7 @@ class SurfaceBlendTest (unittest.TestCase):
         src = self._make_src_surface(32, srcalpha=True)
         masks = src.get_masks()
         dst = pygame.Surface(src.get_size(), SRCALPHA, 32,
-                             (masks[1], masks[2], masks[3], masks[0]))
+                             (masks[2], masks[1], masks[0], masks[3]))
         for blend_name, dst_color, op in blend:
             p = [tuple([op(dst_color[i], src_color[i]) for i in range(4)])
                  for src_color in self._test_palette]
@@ -2131,21 +2139,6 @@ class SurfaceBlendTest (unittest.TestCase):
         subsurf.fill(red, (0, 8, 10, 1), pygame.BLEND_RGB_ADD)
         self.assertEqual(surf.get_at((0, 0)), black)
         self.assertEqual(surf.get_at((0, 9)), black)
-
-
-
-
-    def test_GET_PIXELVALS(self):
-        # surface.h GET_PIXELVALS bug regarding whether of not
-        # a surface has per-pixel alpha. Looking at the Amask
-        # is not enough. The surface's SRCALPHA flag must also
-        # be considered. Fix rev. 1923.
-        src = self._make_surface(32, srcalpha=True)
-        src.fill((0, 0, 0, 128))
-        src.set_alpha(None)  # Clear SRCALPHA flag.
-        dst = self._make_surface(32, srcalpha=True)
-        dst.blit(src, (0, 0), special_flags=BLEND_RGBA_ADD)
-        self.failUnlessEqual(dst.get_at((0, 0)), (0, 0, 0, 255))
 
     def test_fill_blend(self):
         destinations = [self._make_surface(8),
