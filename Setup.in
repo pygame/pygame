@@ -66,5 +66,5 @@ transform src/transform.c src/rotozoom.c src/scale2x.c src/scale_mmx.c $(SDL) $(
 bufferproxy src/bufferproxy.c $(SDL) $(DEBUG)
 #pixelarray src/pixelarray.c $(SDL) $(DEBUG)
 math src/math.c $(SDL) $(DEBUG)
-#pixelcopy src/pixelcopy.c $(SDL) $(DEBUG)
+pixelcopy src/pixelcopy.c $(SDL) $(DEBUG)
 newbuffer src/newbuffer.c $(DEBUG)
