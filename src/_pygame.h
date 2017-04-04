@@ -200,7 +200,7 @@ typedef struct pg_bufferinfo_s {
 #define IMPPREFIX "pygame_"
 #endif
 
-#include <SDL.h>
+#include <SDL2/SDL.h>
 
 /* macros used throughout the source */
 #define RAISE(x,y) (PyErr_SetString((x), (y)), (PyObject*)NULL)
@@ -414,6 +414,7 @@ typedef struct {
 /* DISPLAY */
 #define PYGAMEAPI_DISPLAY_FIRSTSLOT \
     (PYGAMEAPI_JOYSTICK_FIRSTSLOT + PYGAMEAPI_JOYSTICK_NUMSLOTS)
+#if 0
 #define PYGAMEAPI_DISPLAY_NUMSLOTS 2
 typedef struct {
     PyObject_HEAD
@@ -433,7 +434,9 @@ typedef struct {
      PyGAME_C_API[PYGAMEAPI_DISPLAY_FIRSTSLOT + 1])
 #define import_pygame_display() IMPORT_PYGAME_MODULE(display, DISPLAY)
 #endif
-
+#else
+#define PYGAMEAPI_DISPLAY_NUMSLOTS 0
+#endif /* Display info stuff that may or may not be ported. */
 
 /* SURFACE */
 #define PYGAMEAPI_SURFACE_FIRSTSLOT                             \

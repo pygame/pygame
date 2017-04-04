@@ -202,19 +202,19 @@ static int
 CheckSDLVersions (void) /*compare compiled to linked*/
 {
     SDL_version compiled;
-    const SDL_version* linked;
+    SDL_version linked;
     SDL_VERSION (&compiled);
-    linked = SDL_Linked_Version ();
+    SDL_GetVersion (&linked);
 
     /*only check the major and minor version numbers.
       we will relax any differences in 'patch' version.*/
 
-    if (compiled.major != linked->major || compiled.minor != linked->minor)
+    if (compiled.major != linked.major || compiled.minor != linked.minor)
     {
         PyErr_Format(PyExc_RuntimeError,
                      "SDL compiled with version %d.%d.%d, linked to %d.%d.%d",
                      compiled.major, compiled.minor, compiled.patch,
-                     linked->major, linked->minor, linked->patch);
+                     linked.major, linked.minor, linked.patch);
         return 0;
     }
     return 1;
@@ -327,10 +327,10 @@ atexit_quit (void)
 static PyObject*
 get_sdl_version (PyObject* self)
 {
-    const SDL_version *v;
+    SDL_version v;
 
-    v = SDL_Linked_Version ();
-    return Py_BuildValue ("iii", v->major, v->minor, v->patch);
+    SDL_GetVersion (&v);
+    return Py_BuildValue ("iii", v.major, v.minor, v.patch);
 }
 
 static PyObject*
@@ -594,7 +594,7 @@ PyGame_Video_AutoInit (void)
         status = SDL_InitSubSystem (SDL_INIT_VIDEO);
         if (status)
             return 0;
-        SDL_EnableUNICODE (1);
+
         /*we special case the video quit to last now*/
         /*PyGame_RegisterQuit(PyGame_Video_AutoQuit);*/
     }
