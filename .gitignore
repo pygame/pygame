@@ -1,0 +1,38 @@
+# Pygame build process: config.py setup.py
+/Setup
+*.pyc
+/build/
+/lib/version.py
+
+# Windows prebuilt external libraries
+/prebuilt-x??
+
+# Sphinx generated files: makeref.py
+/docs/\.buildinfo
+/docs/objects.inv
+/docs/doctrees/
+/docs/_sources/
+/docs/_static/
+/docs/_images/
+/docs/genindex.html
+/docs/search.html
+/docs/searchindex.js
+/docs/tut/
+/docs/filepaths.html
+/docs/index.html
+/docs/ref/*.html
+
+# Emacs temporary files
+*~
+
+# VIM temporary files
+*.swp
+
+# Other
+envdev*
+.virtualenv*
+/manylinux-build/wheelhouse/
+anenv
+dist
+.vagrant
+*.egg-info/
