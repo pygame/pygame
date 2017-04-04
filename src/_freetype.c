@@ -2028,6 +2028,10 @@ _ftfont_render_to(PgFontObject *self, PyObject *args, PyObject *kwds)
         goto error;
 
     surface = PySurface_AsSurface(surface_obj);
+    if (!surface) {
+        PyErr_SetString(PyExc_SDLError, "display Surface quit");
+        goto error;
+    }
     if (_PGFT_Render_ExistingSurface(self->freetype, self,
                                      &render, text, surface,
                                      xpos, ypos, &fg_color,

@@ -1398,6 +1398,18 @@ class FreeTypeFontTest(unittest.TestCase):
                 self.assertEqual(getrefcount(o[i]), 2,
                                  "refcount fail for item %d" % i)
 
+    def test_display_surface_quit(self):
+        """Font.render_to() on a closed display surface"""
+
+        # The Font.render_to() method checks that PySurfaceObject.surf is NULL
+        # and raise a exception if it is. This fixes a bug in Pygame revision
+        # 0600ea4f1cfb and earlier where Pygame segfaults instead.
+        null_surface = pygame.Surface.__new__(pygame.Surface)
+        f = self._TEST_FONTS['sans']
+        self.assertRaises(pygame.error, f.render_to,
+                          null_surface, (0, 0), "Crash!", size=12)
+
+
 class FreeTypeTest(unittest.TestCase):
 
     def test_resolution(self):
