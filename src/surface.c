@@ -1389,37 +1389,6 @@ surf_convert (PyObject *self, PyObject *args)
 static PyObject*
 surf_convert_alpha (PyObject *self, PyObject *args)
 {
-#if 0
-    SDL_Surface *surf = PySurface_AsSurface (self);
-    PyObject *final;
-    PySurfaceObject *srcsurf = NULL;
-    SDL_Surface *newsurf, *src;
-
-    if (!SDL_WasInit (SDL_INIT_VIDEO))
-        return RAISE (PyExc_SDLError,
-                      "cannot convert without pygame.display initialized");
-
-    if (!PyArg_ParseTuple (args, "|O!", &PySurface_Type, &srcsurf))
-        return NULL;
-
-    PySurface_Prep (self);
-    if (srcsurf) {
-        /*
-         * hmm, we have to figure this out, not all depths have good
-         * support for alpha
-         */
-        src = PySurface_AsSurface (srcsurf);
-        newsurf = SDL_DisplayFormatAlpha (surf);
-    }
-    else
-        newsurf = SDL_DisplayFormatAlpha (surf);
-    PySurface_Unprep (self);
-
-    final = surf_subtype_new (Py_TYPE (self), newsurf);
-    if (!final)
-        SDL_FreeSurface (newsurf);
-    return final;
-#endif
     return RAISE (PyExc_NotImplementedError, "Surface.convert_alpha");
 }
 

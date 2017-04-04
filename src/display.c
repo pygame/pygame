@@ -57,11 +57,6 @@ static _DisplayState _modstate;
 
 #endif
 
-#if 0
-static PyTypeObject PyVidInfo_Type;
-static PyObject* PyVidInfo_New (const SDL_VideoInfo* info);
-#endif
-
 #if (!defined(darwin))
 static char* icon_defaultname = "pygame_icon.bmp";
 static char* pkgdatamodule_name = "pygame.pkgdata";
@@ -223,151 +218,6 @@ get_active (PyObject* self)
     return PyInt_FromLong ((flags & SDL_WINDOW_SHOWN) != 0);
 }
 
-#if 0
-/* vidinfo object */
-static void
-vidinfo_dealloc (PyObject* self)
-{
-    PyObject_DEL (self);
-}
-
-static PyObject*
-vidinfo_getattr (PyObject *self, char *name)
-{
-    SDL_VideoInfo* info = &((PyVidInfoObject*) self)->info;
-
-    int current_w = -1;
-    int current_h = -1;
-
-    SDL_version versioninfo;
-    SDL_VERSION (&versioninfo);
-
-    if (versioninfo.major >= 1 && versioninfo.minor >= 2
-        && versioninfo.patch >= 10 )
-    {
-        current_w = info->current_w;
-        current_h = info->current_h;
-    }
-
-    if (!strcmp (name, "hw"))
-        return PyInt_FromLong (info->hw_available);
-    else if (!strcmp (name, "wm"))
-        return PyInt_FromLong (info->wm_available);
-    else if (!strcmp (name, "blit_hw"))
-        return PyInt_FromLong (info->blit_hw);
-    else if (!strcmp (name, "blit_hw_CC"))
-        return PyInt_FromLong (info->blit_hw_CC);
-    else if (!strcmp (name, "blit_hw_A"))
-        return PyInt_FromLong (info->blit_hw_A);
-    else if (!strcmp (name, "blit_sw"))
-        return PyInt_FromLong (info->blit_hw);
-    else if (!strcmp (name, "blit_sw_CC"))
-        return PyInt_FromLong (info->blit_hw_CC);
-    else if (!strcmp (name, "blit_sw_A"))
-        return PyInt_FromLong (info->blit_hw_A);
-    else if (!strcmp (name, "blit_fill"))
-        return PyInt_FromLong (info->blit_fill);
-    else if (!strcmp (name, "video_mem"))
-        return PyInt_FromLong (info->video_mem);
-    else if (!strcmp (name, "bitsize"))
-        return PyInt_FromLong (info->vfmt->BitsPerPixel);
-    else if (!strcmp (name, "bytesize"))
-        return PyInt_FromLong (info->vfmt->BytesPerPixel);
-    else if (!strcmp (name, "masks"))
-        return Py_BuildValue ("(iiii)", info->vfmt->Rmask, info->vfmt->Gmask,
-                              info->vfmt->Bmask, info->vfmt->Amask);
-    else if (!strcmp (name, "shifts"))
-        return Py_BuildValue ("(iiii)", info->vfmt->Rshift, info->vfmt->Gshift,
-                              info->vfmt->Bshift, info->vfmt->Ashift);
-    else if (!strcmp (name, "losses"))
-        return Py_BuildValue ("(iiii)", info->vfmt->Rloss, info->vfmt->Gloss,
-                              info->vfmt->Bloss, info->vfmt->Aloss);
-    else if (!strcmp (name, "current_h"))
-        return PyInt_FromLong (current_h);
-    else if (!strcmp (name, "current_w"))
-        return PyInt_FromLong (current_w);
-
-    return RAISE (PyExc_AttributeError, "does not exist in vidinfo");
-}
-
-PyObject*
-vidinfo_str (PyObject* self)
-{
-    char str[1024];
-    int current_w = -1;
-    int current_h = -1;
-    SDL_VideoInfo* info = &((PyVidInfoObject*) self)->info;
-
-    SDL_version versioninfo;
-    SDL_VERSION (&versioninfo);
-
-    if(versioninfo.major >= 1 && versioninfo.minor >= 2
-       && versioninfo.patch >= 10 )
-    {
-        current_w = info->current_w;
-        current_h = info->current_h;
-    }
-
-    sprintf (str, "<VideoInfo(hw = %d, wm = %d,video_mem = %d\n"
-             "         blit_hw = %d, blit_hw_CC = %d, blit_hw_A = %d,\n"
-             "         blit_sw = %d, blit_sw_CC = %d, blit_sw_A = %d,\n"
-             "         bitsize  = %d, bytesize = %d,\n"
-             "         masks =  (%d, %d, %d, %d),\n"
-             "         shifts = (%d, %d, %d, %d),\n"
-             "         losses =  (%d, %d, %d, %d),\n"
-             "         current_w = %d, current_h = %d\n"
-             ">\n",
-             info->hw_available, info->wm_available, info->video_mem,
-             info->blit_hw, info->blit_hw_CC, info->blit_hw_A,
-             info->blit_sw, info->blit_sw_CC, info->blit_sw_A,
-             info->vfmt->BitsPerPixel, info->vfmt->BytesPerPixel,
-             info->vfmt->Rmask, info->vfmt->Gmask, info->vfmt->Bmask,
-             info->vfmt->Amask,
-             info->vfmt->Rshift, info->vfmt->Gshift, info->vfmt->Bshift,
-             info->vfmt->Ashift,
-             info->vfmt->Rloss, info->vfmt->Gloss, info->vfmt->Bloss,
-             info->vfmt->Aloss,
-             current_w, current_h);
-    return Text_FromUTF8 (str);
-}
-
-static PyTypeObject PyVidInfo_Type =
-{
-    TYPE_HEAD (NULL, 0)
-    "VidInfo",               /*name*/
-    sizeof(PyVidInfoObject), /*basic size*/
-    0,                       /*itemsize*/
-    vidinfo_dealloc,         /*dealloc*/
-    0,                       /*print*/
-    vidinfo_getattr,         /*getattr*/
-    NULL,                    /*setattr*/
-    NULL,                    /*compare*/
-    vidinfo_str,             /*repr*/
-    NULL,                    /*as_number*/
-    NULL,                    /*as_sequence*/
-    NULL,                    /*as_mapping*/
-    (hashfunc)NULL,          /*hash*/
-    (ternaryfunc)NULL,       /*call*/
-    (reprfunc)NULL,          /*str*/
-};
-
-static PyObject*
-PyVidInfo_New (const SDL_VideoInfo* i)
-{
-    PyVidInfoObject* info;
-
-    if (!i)
-        return RAISE (PyExc_SDLError, SDL_GetError ());
-
-    info = PyObject_NEW (PyVidInfoObject, &PyVidInfo_Type);
-    if (!info)
-        return NULL;
-
-    memcpy (&info->info, i, sizeof (SDL_VideoInfo));
-    return (PyObject*)info;
-}
-#endif /* May or may not get ported stuff. */
-
 /* display functions */
 static PyObject*
 get_driver (PyObject* self)
@@ -381,98 +231,6 @@ get_driver (PyObject* self)
         Py_RETURN_NONE;
     return Text_FromUTF8 (name);
 }
-
-#if 0
-static PyObject*
-get_wm_info (PyObject* self)
-{
-    PyObject *dict;
-    PyObject *tmp;
-    SDL_SysWMinfo info;
-
-    VIDEO_INIT_CHECK ();
-
-    SDL_VERSION (&(info.version))
-    dict = PyDict_New ();
-    if (!dict || !SDL_GetWMInfo (&info))
-        return dict;
-
-/*scary #ifdef's match SDL_syswm.h*/
-#if (defined(unix) || defined(__unix__) ||              \
-     defined(_AIX) || defined(__OpenBSD__)) &&          \
-    (defined(SDL_VIDEO_DRIVER_X11) && !defined(__CYGWIN32__) && \
-     !defined(ENABLE_NANOX) && !defined(__QNXNTO__))
-
-    tmp = PyInt_FromLong (info.info.x11.window);
-    PyDict_SetItemString (dict, "window", tmp);
-    Py_DECREF (tmp);
-
-    tmp = PyCapsule_New (info.info.x11.display, "display", NULL);
-    PyDict_SetItemString (dict, "display", tmp);
-    Py_DECREF (tmp);
-
-    tmp = PyCapsule_New (info.info.x11.lock_func, "lock_func", NULL);
-    PyDict_SetItemString (dict, "lock_func", tmp);
-    Py_DECREF (tmp);
-
-    tmp = PyCapsule_New (info.info.x11.unlock_func, "unlock_func", NULL);
-    PyDict_SetItemString (dict, "unlock_func", tmp);
-    Py_DECREF (tmp);
-
-    tmp = PyInt_FromLong (info.info.x11.fswindow);
-    PyDict_SetItemString (dict, "fswindow", tmp);
-    Py_DECREF (tmp);
-
-    tmp = PyInt_FromLong (info.info.x11.wmwindow);
-    PyDict_SetItemString (dict, "wmwindow", tmp);
-    Py_DECREF (tmp);
-
-#elif defined(ENABLE_NANOX)
-    tmp = PyInt_FromLong (info.window);
-    PyDict_SetItemString (dict, "window", tmp);
-    Py_DECREF (tmp);
-#elif defined(WIN32)
-    tmp = PyInt_FromLong ((long)info.window);
-    PyDict_SetItemString (dict, "window", tmp);
-    Py_DECREF (tmp);
-
-    tmp = PyInt_FromLong ((long)info.hglrc);
-    PyDict_SetItemString (dict, "hglrc", tmp);
-    Py_DECREF (tmp);
-#elif defined(__riscos__)
-    tmp = PyInt_FromLong (info.window);
-    PyDict_SetItemString (dict, "window", tmp);
-    Py_DECREF (tmp);
-
-    tmp = PyInt_FromLong (info.wimpVersion);
-    PyDict_SetItemString (dict, "wimpVersion", tmp);
-    Py_DECREF (tmp);
-
-    tmp = PyInt_FromLong (info.taskHandle);
-    PyDict_SetItemString (dict, "taskHandle", tmp);
-    Py_DECREF (tmp);
-#elif (defined(__APPLE__) && defined(__MACH__))
-    /* do nothing. */
-#else
-    tmp = PyInt_FromLong (info.data);
-    PyDict_SetItemString (dict, "data", tmp);
-    Py_DECREF (tmp);
-#endif
-
-    return dict;
-}
-
-static PyObject*
-Info (PyObject* self)
-{
-    const SDL_VideoInfo* info;
-
-    VIDEO_INIT_CHECK ();
-
-    info = SDL_GetVideoInfo ();
-    return PyVidInfo_New (info);
-}
-#endif /* May or may not get ported stuff. */
 
 static PyObject*
 get_surface (PyObject* self)
@@ -679,66 +437,12 @@ set_mode (PyObject* self, PyObject* arg)
 static PyObject*
 mode_ok (PyObject* self, PyObject* args)
 {
-#if 0
-    int depth = 0;
-    int w, h;
-    int flags = SDL_SWSURFACE;
-
-    VIDEO_INIT_CHECK ();
-
-    if (!PyArg_ParseTuple (args, "(ii)|ii", &w, &h, &flags, &depth))
-        return NULL;
-#error Reimplement
-    if (!depth)
-        depth = SDL_GetVideoInfo ()->vfmt->BitsPerPixel;
-
-    return PyInt_FromLong (SDL_VideoModeOK (w, h, depth, flags));
-#endif
     return PyInt_FromLong ((long)0);
 }
 
 static PyObject*
 list_modes (PyObject* self, PyObject* args)
 {
-#if 0
-#error Reimplement
-    SDL_PixelFormat format;
-    SDL_Rect** rects;
-    int flags=SDL_FULLSCREEN;
-    PyObject *list, *size;
-
-    format.BitsPerPixel = 0;
-    if (PyTuple_Size (args)!=0
-        && !PyArg_ParseTuple (args, "|bi", &format.BitsPerPixel, &flags))
-        return NULL;
-
-    VIDEO_INIT_CHECK ();
-
-    if (!format.BitsPerPixel)
-        format.BitsPerPixel = SDL_GetVideoInfo ()->vfmt->BitsPerPixel;
-
-    rects = SDL_ListModes (&format, flags);
-
-    if(rects == (SDL_Rect**)-1)
-        return PyInt_FromLong (-1);
-
-    if(!(list = PyList_New (0)))
-        return NULL;
-    if (!rects)
-        return list;
-
-    for (; *rects; ++rects)
-    {
-        if (!(size = Py_BuildValue ("(ii)", (*rects)->w, (*rects)->h)))
-        {
-            Py_DECREF (list);
-            return NULL;
-        }
-        PyList_Append (list, size);
-        Py_DECREF (size);
-    }
-    return list;
-#endif
     Py_RETURN_NONE;
 }
 
@@ -1218,11 +922,6 @@ static PyMethodDef _display_methods[] =
 /*    { "set_driver", set_driver, 1, doc_set_driver },*/
     { "get_driver", (PyCFunction) get_driver, METH_NOARGS,
       DOC_PYGAMEDISPLAYGETDRIVER },
-#if 0
-    { "get_wm_info", (PyCFunction) get_wm_info, METH_NOARGS,
-      DOC_PYGAMEDISPLAYGETWMINFO },
-    { "Info", (PyCFunction) Info, METH_NOARGS, DOC_PYGAMEDISPLAYINFO },
-#endif
     { "get_surface", (PyCFunction) get_surface, METH_NOARGS,
       DOC_PYGAMEDISPLAYGETSURFACE },
 
@@ -1261,12 +960,6 @@ MODINIT_DEFINE (display)
 {
     PyObject* module;
     _DisplayState* state;
-#if 0
-    PyObject* dict;
-    PyObject* apiobj;
-    int ecode;
-    static void* c_api[PYGAMEAPI_DISPLAY_NUMSLOTS];
-#endif
 
     /* imported needed apis; Do this first so if there is an error
        the module is not loaded.
@@ -1284,13 +977,6 @@ MODINIT_DEFINE (display)
         MODINIT_ERROR;
     }
 
-#if 0
-    /* type preparation */
-    if (PyType_Ready (&PyVidInfo_Type) < 0) {
-        MODINIT_ERROR;
-    }
-#endif
-
     /* create the module */
 #if PY3
     module = PyModule_Create (&_module);
@@ -1306,23 +992,5 @@ MODINIT_DEFINE (display)
     state->title = NULL;
     state->icon = NULL;
     state->gamma_ramp = NULL;
-#if 0
-    dict = PyModule_GetDict (module);
-
-    /* export the c api */
-    c_api[0] = &PyVidInfo_Type;
-    c_api[1] = PyVidInfo_New;
-    apiobj = encapsulate_api (c_api, "display");
-    if (apiobj == NULL) {
-        DECREF_MOD (module);
-        MODINIT_ERROR;
-    }
-    ecode = PyDict_SetItemString (dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
-    Py_DECREF (apiobj);
-    if (ecode) {
-        DECREF_MOD (module);
-        MODINIT_ERROR;
-    }
-#endif
     MODINIT_RETURN (module);
 }

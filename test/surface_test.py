@@ -260,7 +260,7 @@ class SurfaceTypeTest(unittest.TestCase):
           # get the current Surface transparency value
 
         s1 = pygame.Surface((32, 32), 0, 32)
-        self.assertEqual(s1.get_alpha(), 255)
+        self.assertEqual(s1.get_alpha(), None)
 
         for alpha in (0, 32, 127, 255):
             s1.set_alpha(alpha)

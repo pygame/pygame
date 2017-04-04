@@ -491,27 +491,6 @@ typedef struct {
 /* DISPLAY */
 #define PYGAMEAPI_DISPLAY_FIRSTSLOT \
     (PYGAMEAPI_JOYSTICK_FIRSTSLOT + PYGAMEAPI_JOYSTICK_NUMSLOTS)
-#if 0
-#define PYGAMEAPI_DISPLAY_NUMSLOTS 2
-typedef struct {
-    PyObject_HEAD
-    SDL_VideoInfo info;
-} PyVidInfoObject;
-
-#define PyVidInfo_AsVidInfo(x) (((PyVidInfoObject*)x)->info)
-#ifndef PYGAMEAPI_DISPLAY_INTERNAL
-#define PyVidInfo_Check(x)                                              \
-    ((x)->ob_type == (PyTypeObject*)                                    \
-     PyGAME_C_API[PYGAMEAPI_DISPLAY_FIRSTSLOT + 0])
-
-#define PyVidInfo_Type                                                  \
-    (*(PyTypeObject*)PyGAME_C_API[PYGAMEAPI_DISPLAY_FIRSTSLOT + 0])
-#define PyVidInfo_New                                   \
-    (*(PyObject*(*)(SDL_VideoInfo*))                    \
-     PyGAME_C_API[PYGAMEAPI_DISPLAY_FIRSTSLOT + 1])
-#define import_pygame_display() IMPORT_PYGAME_MODULE(display, DISPLAY)
-#endif
-#endif /* Display info stuff that may or may not be ported. */
 #define PYGAMEAPI_DISPLAY_NUMSLOTS 0
 
 /* SURFACE */
