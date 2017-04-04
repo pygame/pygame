@@ -26,7 +26,7 @@ DEBUG =
 #dependencies for, just comment them out
 
 imageext src/imageext.c $(SDL) $(IMAGE) $(PNG) $(JPEG) $(DEBUG)
-#font src/font.c $(SDL) $(FONT) $(DEBUG)
+font src/font.c $(SDL) $(FONT) $(DEBUG)
 mixer src/mixer.c $(SDL) $(MIXER) $(DEBUG)
 mixer_music src/music.c $(SDL) $(MIXER) $(DEBUG)
 #scrap src/scrap.c $(SDL) $(SCRAP) $(DEBUG)

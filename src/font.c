@@ -333,28 +333,28 @@ font_render(PyObject* self, PyObject* args)
     foreg.r = rgba[0];
     foreg.g = rgba[1];
     foreg.b = rgba[2];
-    foreg.unused = 0;
+    foreg.a = SDL_ALPHA_OPAQUE;
     if (bg_rgba_obj != NULL) {
         if (!RGBAFromColorObj(bg_rgba_obj, rgba)) {
             bg_rgba_obj = NULL;
             backg.r = 0;
             backg.g = 0;
             backg.b = 0;
-            backg.unused = 0;
+            backg.a = SDL_ALPHA_OPAQUE;
         }
         else
         {
             backg.r = rgba[0];
             backg.g = rgba[1];
             backg.b = rgba[2];
-            backg.unused = 0;
+            backg.a = SDL_ALPHA_OPAQUE;
         }
     }
     else {
         backg.r = 0;
         backg.g = 0;
         backg.b = 0;
-        backg.unused = 0;
+        backg.a = SDL_ALPHA_OPAQUE;
     }
 
     just_return = PyObject_Not(text);
