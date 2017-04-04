@@ -29,7 +29,7 @@
 #undef _POSIX_C_SOURCE
 #endif
 
-#include <SDL.h>
+#include <SDL2/SDL.h>
 #include "pygame.h"
 
 #define PYGAME_BLEND_ADD  0x1

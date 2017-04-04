@@ -53,18 +53,17 @@ typedef struct
 static const char default_encoding[] = "unicode_escape";
 static const char default_errors[] = "backslashreplace";
 
-static Sint64 rw_size (SDL_RWops*);
-static Sint64 rw_seek (SDL_RWops*, Sint64, int);
-static size_t rw_read (SDL_RWops*, void*, size_t, size_t);
-static size_t rw_write (SDL_RWops*, const void*, size_t, size_t);
-static int rw_close (SDL_RWops*);
+static int rw_seek (SDL_RWops* context, int offset, int whence);
+static int rw_read (SDL_RWops* context, void* ptr, int size, int maxnum);
+static int rw_write (SDL_RWops* context, const void* ptr, int size, int maxnum);
+static int rw_close (SDL_RWops* context);
 
 #ifdef WITH_THREAD
-static Sint64 rw_size_th (SDL_RWops*);
-static Sint64 rw_seek_th (SDL_RWops*, Sint64, int);
-static size_t rw_read_th (SDL_RWops*, void*, size_t, size_t);
-static size_t rw_write_th (SDL_RWops*, const void*, size_t, size_t);
-static int rw_close_th (SDL_RWops*);
+static int rw_seek_th (SDL_RWops* context, int offset, int whence);
+static int rw_read_th (SDL_RWops* context, void* ptr, int size, int maxnum);
+static int rw_write_th (SDL_RWops* context, const void* ptr, int size,
+                        int maxnum);
+static int rw_close_th (SDL_RWops* context);
 #endif
 
 static int
@@ -268,7 +267,6 @@ RWopsFromFileObject(PyObject *obj)
     }
     fetch_object_methods(helper, obj);
     rw->hidden.unknown.data1 = (void *)helper;
-    rw->size = rw_size;
     rw->seek = rw_seek;
     rw->read = rw_read;
     rw->write = rw_write;
@@ -306,75 +304,13 @@ RWopsCheckObject (SDL_RWops* rw)
     return rw->close == rw_close;
 }
 
-static Sint64
-rw_size (SDL_RWops* context)
-{
-    RWHelper* helper = (RWHelper*) context->hidden.unknown.data1;
-    PyObject *pos = NULL;
-    PyObject *tmp = NULL;
-    Sint64 size;
-    Sint64 retval = -1;
 
-    if (!helper->seek || !helper->tell)
-        return retval;
-
-    /* Current file position; need to restore it later.
-     */
-    pos = PyObject_CallFunction (helper->tell, NULL);
-    if (!pos) {
-        PyErr_Print ();
-        goto end;
-    }
-
-    /* Relocate to end of file.
-     */
-    tmp = PyObject_CallFunction (helper->seek, "ii", 0, SEEK_END);
-    if (!tmp) {
-        PyErr_Print ();
-        goto end;
-    }
-    Py_DECREF (tmp);
-
-    /* Record file size.
-     */
-    tmp = PyObject_CallFunction (helper->tell, NULL);
-    if (!tmp) {
-        PyErr_Print ();
-        goto end;
-    }
-    size = PyInt_AsLong (tmp);
-    if (size == -1 && PyErr_Occurred () != NULL) {
-        PyErr_Print ();
-        goto end;
-    }
-    Py_DECREF (tmp);
-    
-    /* Return to original position.
-     */
-    tmp = PyObject_CallFunctionObjArgs (helper->seek, pos, NULL);
-    if (!tmp) {
-        PyErr_Print ();
-        goto end;
-    }
-
-    /* Success.
-     */
-    retval = size;
-
-end:
-    /* Cleanup.
-     */
-    Py_XDECREF (pos);
-    Py_XDECREF (tmp);
-    return retval;
-}
-
-static Sint64
-rw_seek (SDL_RWops* context, Sint64 offset, int whence)
+static int
+rw_seek (SDL_RWops* context, int offset, int whence)
 {
     RWHelper* helper = (RWHelper*) context->hidden.unknown.data1;
     PyObject* result;
-    Sint64 retval;
+    int retval;
 
     if (!helper->seek || !helper->tell)
         return -1;
@@ -397,12 +333,12 @@ rw_seek (SDL_RWops* context, Sint64 offset, int whence)
     return retval;
 }
 
-static size_t
-rw_read (SDL_RWops* context, void* ptr, size_t size, size_t maxnum)
+static int
+rw_read (SDL_RWops* context, void* ptr, int size, int maxnum)
 {
     RWHelper* helper = (RWHelper*) context->hidden.unknown.data1;
     PyObject* result;
-    size_t retval;
+    int retval;
 
     if (!helper->read)
         return -1;
@@ -425,8 +361,8 @@ rw_read (SDL_RWops* context, void* ptr, size_t size, size_t maxnum)
     return retval;
 }
 
-static size_t
-rw_write (SDL_RWops* context, const void* ptr, size_t size, size_t num)
+static int
+rw_write (SDL_RWops* context, const void* ptr, int size, int num)
 {
     RWHelper* helper = (RWHelper*) context->hidden.unknown.data1;
     PyObject* result;
@@ -492,7 +428,6 @@ RWopsFromFileObjectThreaded(PyObject *obj)
     }
     fetch_object_methods(helper, obj);
     rw->hidden.unknown.data1 = (void *)helper;
-    rw->size = rw_size_th;
     rw->seek = rw_seek_th;
     rw->read = rw_read_th;
     rw->write = rw_write_th;
@@ -515,79 +450,12 @@ RWopsCheckObjectThreaded (SDL_RWops* rw)
 }
 
 #ifdef WITH_THREAD
-static Sint64
-rw_size_th (SDL_RWops* context)
-{
-    RWHelper* helper = (RWHelper*) context->hidden.unknown.data1;
-    PyObject *pos = NULL;
-    PyObject *tmp = NULL;
-    Sint64 size;
-    Sint64 retval = -1;
-    PyGILState_STATE state;
-
-    if (!helper->seek || !helper->tell)
-        return retval;
-
-    state = PyGILState_Ensure ();
-
-    /* Current file position; need to restore it later.
-     */
-    pos = PyObject_CallFunction (helper->tell, NULL);
-    if (!pos) {
-        PyErr_Print ();
-        goto end;
-    }
-
-    /* Relocate to end of file.
-     */
-    tmp = PyObject_CallFunction (helper->seek, "ii", 0, SEEK_END);
-    if (!tmp) {
-        PyErr_Print ();
-        goto end;
-    }
-    Py_DECREF (tmp);
-
-    /* Record file size.
-     */
-    tmp = PyObject_CallFunction (helper->tell, NULL);
-    if (!tmp) {
-        PyErr_Print ();
-        goto end;
-    }
-    size = PyInt_AsLong (tmp);
-    if (size == -1 && PyErr_Occurred () != NULL) {
-        PyErr_Print ();
-        goto end;
-    }
-    Py_DECREF (tmp);
-    
-    /* Return to original position.
-     */
-    tmp = PyObject_CallFunctionObjArgs (helper->seek, pos, NULL);
-    if (!tmp) {
-        PyErr_Print ();
-        goto end;
-    }
-
-    /* Success.
-     */
-    retval = size;
-
-end:
-    /* Cleanup.
-     */
-    Py_XDECREF (pos);
-    Py_XDECREF (tmp);
-    PyGILState_Release(state);
-    return retval;
-}
-
-static Sint64
-rw_seek_th (SDL_RWops* context, Sint64 offset, int whence)
+static int
+rw_seek_th (SDL_RWops* context, int offset, int whence)
 {
     RWHelper* helper = (RWHelper*) context->hidden.unknown.data1;
     PyObject* result;
-    Sint64 retval;
+    int retval;
     PyGILState_STATE state;
 
 
@@ -625,12 +493,12 @@ end:
     return retval;
 }
 
-static size_t
-rw_read_th (SDL_RWops* context, void* ptr, size_t size, size_t maxnum)
+static int
+rw_read_th (SDL_RWops* context, void* ptr, int size, int maxnum)
 {
     RWHelper* helper = (RWHelper*) context->hidden.unknown.data1;
     PyObject* result;
-    size_t retval;
+    int retval;
     PyGILState_STATE state;
 
     if (!helper->read)
@@ -666,12 +534,12 @@ end:
     return retval;
 }
 
-static size_t
-rw_write_th (SDL_RWops* context, const void* ptr, size_t size, size_t num)
+static int
+rw_write_th (SDL_RWops* context, const void* ptr, int size, int num)
 {
     RWHelper* helper = (RWHelper*) context->hidden.unknown.data1;
     PyObject* result;
-    size_t retval;
+    int retval;
     PyGILState_STATE state;
 
     if (!helper->write)
