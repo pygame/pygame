@@ -152,11 +152,6 @@ except (ImportError, IOError):
     math = MissingModule("math", geterror(), 1)
 
 try:
-    import pygame.cdrom
-except (ImportError, IOError):
-    cdrom = MissingModule("cdrom", geterror(), 1)
-
-try:
     import pygame.cursors
 except (ImportError, IOError):
     cursors = MissingModule("cursors", geterror(), 1)

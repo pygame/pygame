@@ -424,7 +424,7 @@ static int PyEvent_FillUserEvent (PyEventObject *e, SDL_Event *event)
     if (!userobj)
         return -1;
 
-    event->type = e->type;
+    event->type = Py_PGEventTypeToSDL (e->type);
     event->user.code = USEROBJECT_CHECK1;
     event->user.data1 = (void*)USEROBJECT_CHECK2;
     event->user.data2 = userobj;
@@ -1060,31 +1060,28 @@ pygame_poll (PyObject* self, PyObject* args)
 }
 
 static int
-PG_PeepEvents (SDL_Event* events,
-               int numevents,
-               SDL_eventaction action,
-               Uint32 mask)
+PG_PeepEvent (SDL_Event* event,
+              SDL_eventaction action,
+              Uint32 mask)
 {
     int n;
-    int tally;
     int type;
     Uint32 sdl_type;
 
-    for (type = 1, tally = 0, n = 0;
-         tally < numevents && type != PGE_NUMEVENTS;
-         ++type, tally += n, n = 0) {
-        if (((Uint32)1 << type) & mask) {
+    for (type = 1; type != PGE_NUMEVENTS; ++type)
+    {
+        if ((((Uint32)1) << type) & mask)
+        {
             sdl_type = Py_PGEventTypeToSDL (type);
             if (sdl_type != PGE_NON_SDL_EVENT)
-                n = SDL_PeepEvents (events,
-                                    numevents,
-                                    action,
-                                    sdl_type, sdl_type);
-            if (n == -1)
-                return -1;
+            {
+                n = SDL_PeepEvents (event, 1, action, sdl_type, sdl_type);
+                if (n != 0)
+                    return n;
+            }
         }
     }
-    return tally;
+    return 0;
 }
 
 static PyObject*
@@ -1127,7 +1124,7 @@ event_clear (PyObject* self, PyObject* args)
 
     SDL_PumpEvents ();
 
-    while (PG_PeepEvents (&event, 1, SDL_GETEVENT, mask) == 1)
+    while (PG_PeepEvent (&event, SDL_GETEVENT, mask) == 1)
     {}
 
     Py_RETURN_NONE;
@@ -1177,7 +1174,7 @@ event_get (PyObject* self, PyObject* args)
 
     SDL_PumpEvents ();
 
-    while (PG_PeepEvents (&event, 1, SDL_GETEVENT, mask) == 1)
+    while (PG_PeepEvent (&event, SDL_GETEVENT, mask) == 1)
     {
         e = PyEvent_New (&event);
         if (!e)
@@ -1235,7 +1232,7 @@ event_peek (PyObject* self, PyObject* args)
     }
 
     SDL_PumpEvents ();
-    result = PG_PeepEvents (&event, 1, SDL_PEEKEVENT, mask);
+    result = PG_PeepEvent (&event, SDL_PEEKEVENT, mask);
 
     if (noargs)
         return PyEvent_New (&event);
@@ -1447,11 +1444,6 @@ MODINIT_DEFINE (event)
         MODINIT_ERROR;
     }
 
-    import_pygame_display ();
-    if (PyErr_Occurred ()) {
-        MODINIT_ERROR;
-    }
-
     /* type preparation */
     if (PyType_Ready (&PyEvent_Type) < 0) {
         MODINIT_ERROR;
@@ -1471,8 +1463,8 @@ MODINIT_DEFINE (event)
         MODINIT_ERROR;
     }
 
-    if (first_user_event != PGE_NON_SDL_EVENT) {
-        int numevents = PGE_NUMEVENTS - PGE_USEREVENT + 1;
+    if (first_user_event == PGE_NON_SDL_EVENT) {
+        int numevents = PGE_NUMEVENTS - PGE_USEREVENT;
         first_user_event = SDL_RegisterEvents (numevents);
         if (first_user_event != PGE_NON_SDL_EVENT) {
             last_user_event = first_user_event + numevents - 1;

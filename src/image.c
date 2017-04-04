@@ -1141,7 +1141,9 @@ SaveTGA_RW (SDL_Surface *surface, SDL_RWops *out, int rle)
     struct TGAheader h;
     int srcbpp;
     unsigned surf_flags;
-    unsigned surf_alpha;
+    Uint8 surf_alpha;
+    int have_surf_colorkey = 0;
+    Uint32 surf_colorkey;
     Uint32 rmask, gmask, bmask, amask;
     SDL_Rect r;
     int bpp;
@@ -1161,6 +1163,7 @@ SaveTGA_RW (SDL_Surface *surface, SDL_RWops *out, int rle)
     {
         h.has_cmap = 1;
         h.type = TGA_TYPE_INDEXED;
+#error Migrate this. How are indexed surface colorkeys handled anyway?
         if (surface->flags & SDL_SRCCOLORKEY)
         {
             ckey = surface->format->colorkey;
@@ -1249,12 +1252,11 @@ SaveTGA_RW (SDL_Surface *surface, SDL_RWops *out, int rle)
 
     /* Temporarily remove colourkey and alpha from surface so copies are
        opaque */
-    surf_flags = surface->flags & (SDL_SRCALPHA | SDL_SRCCOLORKEY);
-    surf_alpha = surface->format->alpha;
-    if (surf_flags & SDL_SRCALPHA)
-        SDL_SetAlpha (surface, 0, 255);
-    if (surf_flags & SDL_SRCCOLORKEY)
-        SDL_SetColorKey (surface, 0, surface->format->colorkey);
+    SDL_GetSurfaceAlphaMod (surface, &surf_alpha);
+    SDL_SetSurfaceAlphaMod (surface, SDL_ALPHA_OPAQUE);
+    have_surf_colorkey = (SDL_GetColorKey (surface, &surf_colorkey) == 0);
+    if (have_surf_colorkey)
+        SDL_SetColorKey (surface, SDL_FALSE, surf_colorkey);
 
     r.x = 0;
     r.w = surface->w;
@@ -1280,10 +1282,9 @@ SaveTGA_RW (SDL_Surface *surface, SDL_RWops *out, int rle)
     }
 
     /* restore flags */
-    if (surf_flags & SDL_SRCALPHA)
-        SDL_SetAlpha (surface, SDL_SRCALPHA, (Uint8)surf_alpha);
-    if (surf_flags & SDL_SRCCOLORKEY)
-        SDL_SetColorKey (surface, SDL_SRCCOLORKEY, surface->format->colorkey);
+    SDL_SetSurfaceAlphaMod (surface, surf_alpha);
+    if (have_surf_colorkey)
+        SDL_SetColorKey (surface, SDL_TRUE, surf_colorkey);
 
 error:
     free (rlebuf);

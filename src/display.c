@@ -28,14 +28,7 @@
 #include "pgcompat.h"
 #include "doc/display_doc.h"
 
-typedef struct _window_state_s {
-    SDL_Window* win;
-    SDL_Renderer* ren;
-} _WindowState;
-
 typedef struct _display_state_s {
-    _WindowState global_window;
-    PyObject* surface;
     char* title;
     PyObject* icon;
     Uint16 *gamma_ramp;
@@ -68,7 +61,6 @@ static _DisplayState _modstate;
 static PyTypeObject PyVidInfo_Type;
 static PyObject* PyVidInfo_New (const SDL_VideoInfo* info);
 #endif
-static SDL_Window* Py_GetDefaultWindow (void);
 
 #if (!defined(darwin))
 static char* icon_defaultname = "pygame_icon.bmp";
@@ -166,14 +158,12 @@ display_resource_end:
 static void
 display_autoquit (void)
 {
-#warning DISPLAY_STATE: Does this really work in autoquit?
-    _DisplayState* state = DISPLAY_STATE;
-
-    if (state->surface)
+    if (Py_GetDefaultWindowSurface ())
     {
-        PySurface_AsSurface (state->surface) = NULL;
-        Py_DECREF (state->surface);
-        state->surface = NULL;
+#warning DISPLAY_STATE: Does this really work in autoquit?
+        _DisplayState* state = DISPLAY_STATE;
+
+        Py_SetDefaultWindowSurface (NULL);
 
         if (state->title)
         {
@@ -188,9 +178,7 @@ display_autoquit (void)
             free (state->gamma_ramp);
         state->gamma_ramp = NULL;
 
-        if (state->global_window.win)
-            SDL_DestroyWindow (state->global_window.win);
-        state->global_window.win = NULL;
+        Py_SetDefaultWindow (NULL);
     }
 }
 
@@ -230,8 +218,7 @@ get_init (PyObject* self)
 static PyObject*
 get_active (PyObject* self)
 {
-    _DisplayState* state = DISPLAY_MOD_STATE (self);
-    Uint32 flags = SDL_GetWindowFlags (state->global_window.win);
+    Uint32 flags = SDL_GetWindowFlags (Py_GetDefaultWindow ());
 
     return PyInt_FromLong ((flags & SDL_WINDOW_SHOWN) != 0);
 }
@@ -381,22 +368,6 @@ PyVidInfo_New (const SDL_VideoInfo* i)
 }
 #endif /* May or may not get ported stuff. */
 
-static SDL_Window*
-Py_GetDefaultWindow (void)
-{
-    return DISPLAY_STATE->global_window.win;
-}
-
-static SDL_Surface*
-Py_GetDefaultWindowSurface (void)
-{
-    PyObject* surfobj = DISPLAY_STATE->surface;
-
-    if (!surfobj)
-        return NULL;
-    return PySurface_AsSurface (surfobj);
-}
-
 /* display functions */
 static PyObject*
 get_driver (PyObject* self)
@@ -506,7 +477,7 @@ Info (PyObject* self)
 static PyObject*
 get_surface (PyObject* self)
 {
-    PyObject* surface = DISPLAY_MOD_STATE(self)->surface;
+    PyObject* surface = Py_GetDefaultWindowSurface ();
 
     if (!surface)
         Py_RETURN_NONE;
@@ -556,7 +527,8 @@ set_mode (PyObject* self, PyObject* arg)
     static const char* const DefaultTitle = "pygame window";
 
     _DisplayState* state = DISPLAY_MOD_STATE (self);
-    SDL_Window* win = state->global_window.win;
+    SDL_Window* win = Py_GetDefaultWindow ();
+    PyObject* surface = Py_GetDefaultWindowSurface ();
     SDL_Surface* surf = NULL;
     int depth = 0;
     int flags = 0;
@@ -595,16 +567,27 @@ set_mode (PyObject* self, PyObject* arg)
         if (!state->title)
             return PyErr_NoMemory ();
         strcpy (state->title, DefaultTitle);
+        title = state->title;
     }
 
     if (win)
     {
+        /*change existing window*/
         SDL_SetWindowTitle (win, title);
         SDL_SetWindowSize (win, w, h);
 #warning Add mode stuff.
+        surf = SDL_GetWindowSurface (win);
+        if (!surf) {
+            PyErr_SetString (PyExc_SDLError, SDL_GetError ());
+            Py_SetDefaultWindow (NULL);
+            return NULL;
+        }
+        assert (surface);
+        PySurface_AsSurface (surface) = surf;
     }
     else
     {
+        /*open window*/
         Uint32 sdl_flags = 0;
         if (flags & PGS_FULLSCREEN)
             sdl_flags |= SDL_WINDOW_FULLSCREEN;
@@ -614,9 +597,14 @@ set_mode (PyObject* self, PyObject* arg)
             sdl_flags |= SDL_WINDOW_BORDERLESS;
         if (flags & PGS_RESIZABLE)
             sdl_flags |= SDL_WINDOW_RESIZABLE;
-        win = SDL_CreateWindow (title, w, h,
+#warning Only use SDL_WINDOW_SHOWN when window not hidden.
+        if (!sdl_flags)
+            sdl_flags = SDL_WINDOW_SHOWN;
+        win = SDL_CreateWindow (title,
                                 SDL_WINDOWPOS_UNDEFINED,
                                 SDL_WINDOWPOS_UNDEFINED,
+                                w,
+                                h,
                                 sdl_flags);
         if (!win)
             return RAISE (PyExc_SDLError, SDL_GetError ());
@@ -639,48 +627,50 @@ set_mode (PyObject* self, PyObject* arg)
                 return NULL;
             }
         }
-    }
-
-    surf = SDL_GetWindowSurface (win);
-    if (!surf)
-    {
-        SDL_DestroyWindow (win);
-        return RAISE (PyExc_SDLError, SDL_GetError ());
- #if !defined(darwin)
-        if (!state->icon)
+        surf = SDL_GetWindowSurface (win);
+        if (!surf)
         {
-            state->icon = display_resource (icon_defaultname);
-            if (!state->icon)
-                PyErr_Clear ();
-            else
-            {
-                SDL_SetColorKey (PySurface_AsSurface (state->icon),
-                                 SDL_TRUE,
-                                 0);
-            }
+            PyErr_SetString (PyExc_SDLError, SDL_GetError ());
+            SDL_DestroyWindow (win);
+            return NULL;
         }
-        if (state->icon)
-            SDL_SetWindowIcon (win, PySurface_AsSurface (state->icon));
-#endif
-   }
-    
-    /*probably won't do much, but can't hurt, and might help*/
-    SDL_PumpEvents ();
-
-    if (state->surface)
-        PySurface_AsSurface (state->surface) = surf;
-    else
-    {
-        state->surface = PySurface_NewNoOwn (surf);
-        if (!state->surface)
+        surface = PySurface_NewNoOwn (surf);
+        if (!surface)
         {
             SDL_DestroyWindow (win);
             return 0;
         }
+
+        /*no errors; make the window available*/
+        Py_SetDefaultWindow (win);
+        Py_SetDefaultWindowSurface (surface);
+        Py_DECREF (surface);
     }
 
-    state->global_window.win = win;
-    return state->surface;
+#if !defined(darwin)
+    /*set the window icon*/
+    if (!state->icon)
+    {
+        state->icon = display_resource (icon_defaultname);
+        if (!state->icon)
+            PyErr_Clear ();
+        else
+        {
+            SDL_SetColorKey (PySurface_AsSurface (state->icon),
+                             SDL_TRUE,
+                             0);
+        }
+    }
+    if (state->icon)
+        SDL_SetWindowIcon (win, PySurface_AsSurface (state->icon));
+#endif
+
+    /*probably won't do much, but can't hurt, and might help*/
+    SDL_PumpEvents ();
+
+    /*return the window's surface (screen)*/
+    Py_INCREF (surface);
+    return surface;
 }
 
 static PyObject*
@@ -752,7 +742,7 @@ list_modes (PyObject* self, PyObject* args)
 static PyObject*
 flip (PyObject* self)
 {
-    SDL_Window* win = DISPLAY_MOD_STATE (self)->global_window.win;
+    SDL_Window* win = Py_GetDefaultWindow ();
     int status = 0;
 
     VIDEO_INIT_CHECK ();
@@ -793,7 +783,7 @@ screencroprect (GAME_Rect* r, int w, int h, SDL_Rect* cur)
 static PyObject*
 update (PyObject* self, PyObject* arg)
 {
-    SDL_Window* win = DISPLAY_MOD_STATE (self)->global_window.win;
+    SDL_Window* win = Py_GetDefaultWindow ();
     GAME_Rect *gr, temp = { 0 };
     int wide, high;
     PyObject* obj;
@@ -901,8 +891,7 @@ update (PyObject* self, PyObject* arg)
 static PyObject*
 set_palette (PyObject* self, PyObject* args)
 {
-    _DisplayState* state = DISPLAY_MOD_STATE (self);
-    PyObject* surface = NULL;
+    PyObject* surface = Py_GetDefaultWindowSurface ();
     SDL_Surface* surf;
     SDL_Palette* pal;
     SDL_Color* colors;
@@ -913,10 +902,9 @@ set_palette (PyObject* self, PyObject* args)
     VIDEO_INIT_CHECK ();
     if (!PyArg_ParseTuple (args, "|O", &list))
         return NULL;
-    Py_XINCREF (state->surface);
-    surface = state->surface;
     if (!surface)
         return RAISE (PyExc_SDLError, "No display mode is set");
+    Py_INCREF (surface);
     surf = PySurface_AsSurface (surface);
     pal = surf->format->palette;
     if (surf->format->BytesPerPixel != 1 || !pal)
@@ -1000,6 +988,7 @@ static PyObject*
 set_gamma (PyObject* self, PyObject* arg)
 {
     _DisplayState* state = DISPLAY_MOD_STATE (self);
+    SDL_Window* win = Py_GetDefaultWindow ();
     float r, g, b;
     Uint16* gamma_ramp;
     int result = 0;
@@ -1018,9 +1007,9 @@ set_gamma (PyObject* self, PyObject* arg)
     SDL_CalculateGammaRamp (r, gamma_ramp);
     SDL_CalculateGammaRamp (g, gamma_ramp + 256);
     SDL_CalculateGammaRamp (b, gamma_ramp + 256);
-    if (state->global_window.win)
+    if (win)
     {
-        result = SDL_SetWindowGammaRamp (state->global_window.win,
+        result = SDL_SetWindowGammaRamp (win,
                                          gamma_ramp,
                                          gamma_ramp + 256,
                                          gamma_ramp + 512);
@@ -1083,6 +1072,7 @@ static PyObject*
 set_gamma_ramp (PyObject* self, PyObject* arg)
 {
     _DisplayState* state = DISPLAY_MOD_STATE (self);
+    SDL_Window* win = Py_GetDefaultWindow ();
     Uint16* gamma_ramp = (Uint16 *) malloc ((3 * 256) * sizeof (Uint16));
     Uint16 *r, *g, *b;
     int result;
@@ -1105,9 +1095,9 @@ set_gamma_ramp (PyObject* self, PyObject* arg)
 
     VIDEO_INIT_CHECK ();
 
-    if (state->global_window.win)
+    if (win)
     {
-        result = SDL_SetWindowGammaRamp (state->global_window.win,
+        result = SDL_SetWindowGammaRamp (win,
                                          gamma_ramp,
                                          gamma_ramp + 256,
                                          gamma_ramp + 512);
@@ -1131,6 +1121,7 @@ static PyObject*
 set_caption (PyObject* self, PyObject* arg)
 {
     _DisplayState* state = DISPLAY_MOD_STATE (self);
+    SDL_Window* win = Py_GetDefaultWindow ();
     char *title, *icontitle=NULL;
 
     if (!PyArg_ParseTuple (arg, "s|s", &title, &icontitle))
@@ -1142,8 +1133,8 @@ set_caption (PyObject* self, PyObject* arg)
     if (!state->title)
         return PyErr_NoMemory ();
     strcpy (state->title, title);
-    if (state->global_window.win) 
-        SDL_SetWindowTitle (state->global_window.win, title);
+    if (win) 
+        SDL_SetWindowTitle (win, title);
     Py_RETURN_NONE;
 }
 
@@ -1151,7 +1142,7 @@ static PyObject*
 get_caption (PyObject* self)
 {
     _DisplayState* state = DISPLAY_MOD_STATE (self);
-    SDL_Window* win = state->global_window.win;
+    SDL_Window* win = Py_GetDefaultWindow ();
     const char* title = win ? SDL_GetWindowTitle (win) : state->title;
 
     if (title && title[0]) /* Conditional && */
@@ -1164,6 +1155,7 @@ static PyObject*
 set_icon (PyObject* self, PyObject* arg)
 {
     _DisplayState* state = DISPLAY_MOD_STATE (self);
+    SDL_Window* win = Py_GetDefaultWindow ();
     PyObject* surface;
     if (!PyArg_ParseTuple (arg, "O!", &PySurface_Type, &surface))
         return NULL;
@@ -1173,9 +1165,8 @@ set_icon (PyObject* self, PyObject* arg)
     Py_INCREF (surface);
     Py_XDECREF (state->icon);
     state->icon = surface;
-    if (state->global_window.win)
-        SDL_SetWindowIcon (state->global_window.win,
-                           PySurface_AsSurface (surface));
+    if (win)
+        SDL_SetWindowIcon (win, PySurface_AsSurface (surface));
 #endif
     Py_RETURN_NONE;
 }
@@ -1183,7 +1174,7 @@ set_icon (PyObject* self, PyObject* arg)
 static PyObject*
 iconify (PyObject* self)
 {
-    SDL_Window* win = DISPLAY_MOD_STATE (self)->global_window.win;
+    SDL_Window* win = Py_GetDefaultWindow ();
 
     VIDEO_INIT_CHECK ();
     if (!win)
@@ -1195,7 +1186,7 @@ iconify (PyObject* self)
 static PyObject*
 toggle_fullscreen (PyObject* self)
 {
-    SDL_Window* win = DISPLAY_MOD_STATE (self)->global_window.win;
+    SDL_Window* win = Py_GetDefaultWindow ();
     int result;
 
     VIDEO_INIT_CHECK ();
@@ -1265,11 +1256,13 @@ static PyMethodDef _display_methods[] =
 MODINIT_DEFINE (display)
 {
     PyObject* module;
+    _DisplayState* state;
+#if 0
     PyObject* dict;
     PyObject* apiobj;
-    _DisplayState* state;
     int ecode;
     static void* c_api[PYGAMEAPI_DISPLAY_NUMSLOTS];
+#endif
 
     /* imported needed apis; Do this first so if there is an error
        the module is not loaded.
@@ -1306,22 +1299,15 @@ MODINIT_DEFINE (display)
         MODINIT_ERROR;
     }
     state = DISPLAY_MOD_STATE (module);
-    state->surface = NULL;
     state->title = NULL;
     state->icon = NULL;
     state->gamma_ramp = NULL;
-    state->global_window.win = NULL;
-    state->global_window.ren = NULL;
+#if 0
     dict = PyModule_GetDict (module);
 
     /* export the c api */
-#if 0
     c_api[0] = &PyVidInfo_Type;
     c_api[1] = PyVidInfo_New;
-#endif
-    assert(PYGAMEAPI_DISPLAY_NUMSLOTS == 1);
-    c_api[0] = Py_GetDefaultWindow;
-    c_api[1] = Py_GetDefaultWindowSurface;
     apiobj = encapsulate_api (c_api, "display");
     if (apiobj == NULL) {
         DECREF_MOD (module);
@@ -1333,5 +1319,6 @@ MODINIT_DEFINE (display)
         DECREF_MOD (module);
         MODINIT_ERROR;
     }
+#endif
     MODINIT_RETURN (module);
 }

@@ -92,12 +92,12 @@ class EventModuleTest(unittest.TestCase):
 
     def test_set_blocked(self):
         # __doc__ (as of 2008-06-25) for pygame.event.set_blocked:
-    
+
           # pygame.event.set_blocked(type): return None
           # pygame.event.set_blocked(typelist): return None
           # pygame.event.set_blocked(None): return None
           # control which events are allowed on the queue
-        
+
         pygame.event.set_blocked(2)
 
         self.assert_(pygame.event.get_blocked(2))
@@ -106,9 +106,9 @@ class EventModuleTest(unittest.TestCase):
 
         events = pygame.event.get()
         should_be_blocked = [e for e in events if e.type == 2]
-        
+
         self.assertEquals(should_be_blocked, [])
-                
+
     def test_post__and_poll(self):
         # __doc__ (as of 2008-06-25) for pygame.event.post:
 
@@ -123,7 +123,7 @@ class EventModuleTest(unittest.TestCase):
         self.assertEquals (
             e1.attr1, posted_event.attr1, race_condition_notification
         )
-        
+
         # fuzzing event types
         for i in range(1, 11):
             pygame.event.post(pygame.event.Event(i))
@@ -162,9 +162,21 @@ class EventModuleTest(unittest.TestCase):
           # pygame.event.clear(typelist): return None
           # remove all events from the queue
 
-        for _ in range(1, 11):
+        import pygame as p
+        types = [p.ACTIVEEVENT,
+                 p.KEYDOWN,
+                 p.KEYUP,
+                 p.MOUSEMOTION,
+                 p.MOUSEBUTTONDOWN,
+                 p.MOUSEBUTTONUP,
+                 p.JOYAXISMOTION,
+                 p.JOYBALLMOTION,
+                 p.JOYHATMOTION,
+                 p.JOYBUTTONDOWN]
+
+        for _ in types:
             pygame.event.post(pygame.event.Event(_))
-        
+
         self.assert_(pygame.event.poll())  # there are some events on queue
 
         pygame.event.clear()
@@ -178,8 +190,9 @@ class EventModuleTest(unittest.TestCase):
           # pygame.event.event_name(type): return string
           # get the string name from and event id
 
-        self.assertEquals(pygame.event.event_name(2), "KeyDown")
-        self.assertEquals(pygame.event.event_name(24), "UserEvent")
+        from pygame import KEYDOWN, NUMEVENTS
+        self.assertEquals(pygame.event.event_name(KEYDOWN), "KeyDown")
+        self.assertEquals(pygame.event.event_name(NUMEVENTS - 1), "UserEvent")
 
     def test_wait(self):
         # __doc__ (as of 2008-06-25) for pygame.event.wait:
@@ -187,9 +200,10 @@ class EventModuleTest(unittest.TestCase):
           # pygame.event.wait(): return Event
           # wait for a single event from the queue
 
-        pygame.event.post ( pygame.event.Event(2) )
+        from pygame import KEYDOWN
+        pygame.event.post ( pygame.event.Event(KEYDOWN) )
         self.assert_(pygame.event.wait())
-        
+
     def test_peek(self):
 
         # __doc__ (as of 2008-06-25) for pygame.event.peek:
@@ -198,7 +212,8 @@ class EventModuleTest(unittest.TestCase):
           # pygame.event.peek(typelist): return bool
           # test if event types are waiting on the queue
 
-        event_types = [2, 3, 4]
+        from pygame import KEYDOWN, KEYUP, MOUSEMOTION
+        event_types = [KEYDOWN, KEYUP, MOUSEMOTION]
 
         for event_type in event_types:
             pygame.event.post (
@@ -216,17 +231,18 @@ class EventModuleTest(unittest.TestCase):
           # pygame.event.set_allowed(None): return None
           # control which events are allowed on the queue
 
-        pygame.event.set_blocked(2)
-        self.assert_(pygame.event.get_blocked(2))
-        pygame.event.set_allowed(2)
-        self.assert_(not pygame.event.get_blocked(2))
+        from pygame import KEYDOWN
+        pygame.event.set_blocked(KEYDOWN)
+        self.assert_(pygame.event.get_blocked(KEYDOWN))
+        pygame.event.set_allowed(KEYDOWN)
+        self.assert_(not pygame.event.get_blocked(KEYDOWN))
 
     def test_pump(self):
         # __doc__ (as of 2008-06-25) for pygame.event.pump:
 
           # pygame.event.pump(): return None
           # internally process pygame event handlers
-        
+
         # see it doesn't cause an error
         pygame.event.pump()
 
@@ -247,10 +263,11 @@ class EventModuleTest(unittest.TestCase):
         self.assert_(not pygame.event.get_grab())
 
     def test_event_equality(self):
-        a = pygame.event.Event(1, a=1)
-        b = pygame.event.Event(1, a=1)
-        c = pygame.event.Event(2, a=1)
-        d = pygame.event.Event(1, a=2)
+        from pygame import ACTIVEEVENT, KEYDOWN
+        a = pygame.event.Event(ACTIVEEVENT, a=ACTIVEEVENT)
+        b = pygame.event.Event(ACTIVEEVENT, a=ACTIVEEVENT)
+        c = pygame.event.Event(KEYDOWN, a=ACTIVEEVENT)
+        d = pygame.event.Event(ACTIVEEVENT, a=KEYDOWN)
 
         self.failUnless(a == a)
         self.failIf(a != a)
@@ -260,7 +277,7 @@ class EventModuleTest(unittest.TestCase):
         self.failIf(a == c)
         self.failUnless(a != d)
         self.failIf(a == d)
-        
+
     def todo_test_get_blocked(self):
 
         # __doc__ (as of 2008-08-02) for pygame.event.get_blocked:

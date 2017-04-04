@@ -82,6 +82,8 @@ static PyObject* PgExc_BufferError = NULL;
 /* Only one instance of the state per process. */
 static PyObject* quitfunctions = NULL;
 static int sdl_was_init = 0;
+SDL_Window* default_window = NULL;
+PyObject* default_screen = NULL;
 
 static void install_parachute (void);
 static void uninstall_parachute (void);
@@ -138,6 +140,10 @@ static PyObject* _data_as_tuple (PyArrayInterface*);
 static PyObject* get_array_interface (PyObject*, PyObject*);
 static void _release_buffer_array (Py_buffer*);
 static void _release_buffer_generic (Py_buffer*);
+static SDL_Window* Py_GetDefaultWindow (void);
+static void Py_SetDefaultWindow (SDL_Window*);
+static PyObject* Py_GetDefaultWindowSurface (void);
+static void Py_SetDefaultWindowSurface (PyObject*);
 
 #if PY_VERSION_HEX < 0x02060000
 static int
@@ -1877,6 +1883,45 @@ _pytypestr_as_format (PyObject* sp, char* format, Py_ssize_t* itemsize_p)
 }
 
 
+/*Default window (display)*/
+static SDL_Window*
+Py_GetDefaultWindow (void)
+{
+    return default_window;
+}
+
+static void
+Py_SetDefaultWindow (SDL_Window* win)
+{
+    /*Allows a window to be replaced by itself*/
+    if (win == default_window)
+        return;
+    if (default_window)
+        SDL_DestroyWindow (default_window);
+    default_window = win;
+}
+
+static PyObject*
+Py_GetDefaultWindowSurface (void)
+{
+    /*return a borrowed reference*/
+    return default_screen;
+}
+
+static void
+Py_SetDefaultWindowSurface (PyObject* screen)
+{
+    /*a screen surface can be replaced with itself*/
+    if (screen == default_screen)
+        return;
+    Py_XINCREF (screen);
+    if (default_screen) {
+        PySurface_AsSurface (default_screen) = NULL;
+        Py_DECREF (default_screen);
+    }
+    default_screen = screen;
+}
+
 /*error signal handlers (replacing SDL parachute)*/
 static void
 pygame_parachute (int sig)
@@ -2103,7 +2148,7 @@ MODINIT_DEFINE(base)
     }
 
     /* export the c api */
-#if PYGAMEAPI_BASE_NUMSLOTS != 19
+#if PYGAMEAPI_BASE_NUMSLOTS != 23
 #error export slot count mismatch
 #endif
     c_api[0] = PyExc_SDLError;
@@ -2125,6 +2170,10 @@ MODINIT_DEFINE(base)
     c_api[16] = PgBuffer_Release;
     c_api[17] = PgDict_AsBuffer;
     c_api[18] = PgExc_BufferError;
+    c_api[19] = Py_GetDefaultWindow;
+    c_api[20] = Py_SetDefaultWindow;
+    c_api[21] = Py_GetDefaultWindowSurface;
+    c_api[22] = Py_SetDefaultWindowSurface;
     apiobj = encapsulate_api (c_api, "base");
     if (apiobj == NULL) {
         Py_XDECREF (atexit_register);

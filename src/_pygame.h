@@ -315,7 +315,7 @@ typedef getcharbufferproc charbufferproc;
 #define VIEW_F_ORDER       4
 
 #define PYGAMEAPI_BASE_FIRSTSLOT 0
-#define PYGAMEAPI_BASE_NUMSLOTS 19
+#define PYGAMEAPI_BASE_NUMSLOTS 23
 #ifndef PYGAMEAPI_BASE_INTERNAL
 #define PyExc_SDLError ((PyObject*)PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT])
 
@@ -379,6 +379,22 @@ typedef getcharbufferproc charbufferproc;
 
 #define PgExc_BufferError                                               \
     ((PyObject*)PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 18])
+
+#define Py_GetDefaultWindow                                             \
+    (*(SDL_Window*(*)(void))                                            \
+     PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 19])
+
+#define Py_SetDefaultWindow                                             \
+    (*(void(*)(SDL_Window*))                                            \
+     PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 20])
+
+#define Py_GetDefaultWindowSurface                                      \
+    (*(PyObject*(*)(void))                                              \
+     PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 21])
+
+#define Py_SetDefaultWindowSurface                                      \
+    (*(void(*)(PyObject*))                                              \
+     PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 22])
 
 #define import_pygame_base() IMPORT_PYGAME_MODULE(base, BASE)
 #endif
@@ -489,16 +505,7 @@ typedef struct {
 #define import_pygame_display() IMPORT_PYGAME_MODULE(display, DISPLAY)
 #endif
 #endif /* Display info stuff that may or may not be ported. */
-#define PYGAMEAPI_DISPLAY_NUMSLOTS 2
-#ifndef PYGAMEAPI_DISPLAY_INTERNAL
-#define Py_GetDefaultWindow                             \
-    (*(SDL_Window*(*)(void))                            \
-     PyGAME_C_API[PYGAMEAPI_DISPLAY_FIRSTSLOT + 0])
-#define Py_GetDefaultWindowSurface                      \
-    (*(SDL_Surface*(*)(void))                           \
-     PyGAME_C_API[PYGAMEAPI_DISPLAY_FIRSTSLOT + 1])
-#define import_pygame_display() IMPORT_PYGAME_MODULE(display, DISPLAY)
-#endif
+#define PYGAMEAPI_DISPLAY_NUMSLOTS 0
 
 /* SURFACE */
 #define PYGAMEAPI_SURFACE_FIRSTSLOT                             \
