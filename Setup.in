@@ -59,7 +59,7 @@ surflock src/surflock.c $(SDL) $(DEBUG)
 time src/time.c $(SDL) $(DEBUG)
 joystick src/joystick.c $(SDL) $(DEBUG)
 #draw src/draw.c $(SDL) $(DEBUG)
-#image src/image.c $(SDL) $(DEBUG)
+image src/image.c $(SDL) $(DEBUG)
 #overlay src/overlay.c $(SDL) $(DEBUG)
 #transform src/transform.c src/rotozoom.c src/scale2x.c src/scale_mmx.c $(SDL) $(DEBUG) -D_NO_MMX_FOR_X86_64
 #mask src/mask.c src/bitmask.c $(SDL) $(DEBUG)

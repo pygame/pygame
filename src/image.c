@@ -27,7 +27,6 @@
 #include "pygame.h"
 #include "pgcompat.h"
 #include "doc/image_doc.h"
-#include "pgopengl.h"
 
 struct _module_state {
     int is_extended;
@@ -42,7 +41,6 @@ static struct _module_state _state = { 0 };
 
 static int SaveTGA (SDL_Surface *surface, const char *file, int rle);
 static int SaveTGA_RW (SDL_Surface *surface, SDL_RWops *out, int rle);
-static SDL_Surface* opengltosdl (void);
 
 #define DATAROW(data, row, width, height, flipped)               \
     ((flipped) ? (((char*) data) + (height - row - 1) * width) : \
@@ -100,75 +98,6 @@ image_load_basic(PyObject *self, PyObject *arg)
 }
 
 
-static SDL_Surface*
-opengltosdl ()
-{
-    /*we need to get ahold of the pyopengl glReadPixels function*/
-    /*we use pyopengl's so we don't need to link with opengl at compiletime*/
-    SDL_Surface *surf = NULL;
-    Uint32 rmask, gmask, bmask;
-    int i;
-    unsigned char *pixels = NULL;
-
-    GL_glReadPixels_Func p_glReadPixels = NULL;
-
-    p_glReadPixels = (GL_glReadPixels_Func) SDL_GL_GetProcAddress("glReadPixels");
-
-    surf = SDL_GetVideoSurface ();
-
-    if(!surf) {
-        RAISE (PyExc_RuntimeError, "Cannot get video surface.");
-        return NULL;
-    }
-
-
-    if(!p_glReadPixels) {
-        RAISE (PyExc_RuntimeError, "Cannot find glReadPixels function.");
-        return NULL;
-    }
-
-    /*
-    GL_UNSIGNED_BYTE = 5121
-    GL_RGB = 6407
-    */
-
-    pixels = (unsigned char*) malloc(surf->w * surf->h * 3);
-
-    if(!pixels) {
-        RAISE (PyExc_MemoryError, "Cannot allocate enough memory for pixels.");
-        return NULL;
-    }
-    //p_glReadPixels(0, 0, surf->w, surf->h, 6407, 5121, pixels);
-    //glReadPixels(0, 0, surf->w, surf->h, 0x1907, 0x1401, pixels);
-    p_glReadPixels(0, 0, surf->w, surf->h, 0x1907, 0x1401, pixels);
-
-    if (SDL_BYTEORDER == SDL_LIL_ENDIAN) {
-        rmask=0x000000FF;
-        gmask=0x0000FF00;
-        bmask=0x00FF0000;
-    } else {
-        rmask=0x00FF0000;
-        gmask=0x0000FF00;
-        bmask=0x000000FF;
-    }
-    surf = SDL_CreateRGBSurface (SDL_SWSURFACE, surf->w, surf->h, 24,
-                                 rmask, gmask, bmask, 0);
-    if (!surf) {
-        free(pixels);
-        RAISE (PyExc_SDLError, SDL_GetError ());
-        return NULL;
-    }
-
-    for (i = 0; i < surf->h; ++i) {
-        memcpy (((char *) surf->pixels) + surf->pitch * i,
-                pixels + 3 * surf->w * (surf->h - i - 1), surf->w * 3);
-    }
-
-
-    free(pixels);
-    return surf;
-}
-
 PyObject*
 image_save(PyObject *self, PyObject *arg)
 {
@@ -185,15 +114,7 @@ image_save(PyObject *self, PyObject *arg)
     }
 
     surf = PySurface_AsSurface(surfobj);
-    if (surf->flags & SDL_OPENGL) {
-        temp = surf = opengltosdl();
-        if (surf == NULL) {
-            return NULL;
-        }
-    }
-    else {
-        PySurface_Prep(surfobj);
-    }
+    PySurface_Prep(surfobj);
 
     oencoded = RWopsEncodeFilePath(obj, PyExc_SDLError);
     if (oencoded == Py_None) {
@@ -312,19 +233,14 @@ image_tostring (PyObject* self, PyObject* arg)
     Py_ssize_t len;
     Uint32 Rmask, Gmask, Bmask, Amask, Rshift, Gshift, Bshift, Ashift, Rloss,
         Gloss, Bloss, Aloss;
-    int hascolorkey, colorkey;
+    int hascolorkey;
+    Uint32 colorkey;
     Uint32 alpha;
 
     if (!PyArg_ParseTuple (arg, "O!s|i", &PySurface_Type, &surfobj, &format,
                            &flipped))
         return NULL;
     surf = PySurface_AsSurface (surfobj);
-    if (surf->flags & SDL_OPENGL)
-    {
-        temp = surf = opengltosdl ();
-        if (!surf)
-            return NULL;
-    }
 
     Rmask = surf->format->Rmask;
     Gmask = surf->format->Gmask;
@@ -338,8 +254,7 @@ image_tostring (PyObject* self, PyObject* arg)
     Gloss = surf->format->Gloss;
     Bloss = surf->format->Bloss;
     Aloss = surf->format->Aloss;
-    hascolorkey = (surf->flags & SDL_SRCCOLORKEY) && !Amask;
-    colorkey = surf->format->colorkey;
+    hascolorkey = (SDL_GetColorKey (surf, &colorkey) == 0);
 
     if (!strcmp (format, "P"))
     {
@@ -1137,10 +1052,8 @@ SaveTGA_RW (SDL_Surface *surface, SDL_RWops *out, int rle)
 {
     SDL_Surface *linebuf = NULL;
     int alpha = 0;
-    int ckey = -1;
     struct TGAheader h;
     int srcbpp;
-    unsigned surf_flags;
     Uint8 surf_alpha;
     int have_surf_colorkey = 0;
     Uint32 surf_colorkey;
@@ -1159,16 +1072,15 @@ SaveTGA_RW (SDL_Surface *surface, SDL_RWops *out, int rle)
         return -1;
     }
 
+    SDL_GetSurfaceAlphaMod (surface, &surf_alpha);
+    have_surf_colorkey = (SDL_GetColorKey (surface, &surf_colorkey) == 0);
+
     if (srcbpp == 8)
     {
         h.has_cmap = 1;
         h.type = TGA_TYPE_INDEXED;
-#error Migrate this. How are indexed surface colorkeys handled anyway?
-        if (surface->flags & SDL_SRCCOLORKEY)
-        {
-            ckey = surface->format->colorkey;
+        if (have_surf_colorkey)
             h.cmap_bits = 32;
-        }
         else
             h.cmap_bits = 24;
         SETLE16 (h.cmap_len, surface->format->palette->ncolors);
@@ -1227,7 +1139,7 @@ SaveTGA_RW (SDL_Surface *surface, SDL_RWops *out, int rle)
             entry[0] = pal->colors[i].b;
             entry[1] = pal->colors[i].g;
             entry[2] = pal->colors[i].r;
-            entry[3] = (i == ckey) ? 0 : 0xff;
+            entry[3] = (i == surf_colorkey) ? 0 : 0xff;
             if (!SDL_RWwrite (out, entry, h.cmap_bits >> 3, 1))
                 return -1;
         }
@@ -1238,8 +1150,9 @@ SaveTGA_RW (SDL_Surface *surface, SDL_RWops *out, int rle)
     if (!linebuf)
         return -1;
     if (h.has_cmap)
-        SDL_SetColors (linebuf, surface->format->palette->colors, 0,
-                       surface->format->palette->ncolors);
+        SDL_SetPaletteColors (linebuf->format->palette,
+                              surface->format->palette->colors,
+                              0, surface->format->palette->ncolors);
     if (rle)
     {
         rlebuf = malloc (bpp * surface->w + 1 + surface->w / TGA_RLE_MAX);
@@ -1252,9 +1165,7 @@ SaveTGA_RW (SDL_Surface *surface, SDL_RWops *out, int rle)
 
     /* Temporarily remove colourkey and alpha from surface so copies are
        opaque */
-    SDL_GetSurfaceAlphaMod (surface, &surf_alpha);
     SDL_SetSurfaceAlphaMod (surface, SDL_ALPHA_OPAQUE);
-    have_surf_colorkey = (SDL_GetColorKey (surface, &surf_colorkey) == 0);
     if (have_surf_colorkey)
         SDL_SetColorKey (surface, SDL_FALSE, surf_colorkey);
 
