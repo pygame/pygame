@@ -577,7 +577,7 @@ SDL_Surface *rotozoomSurface(SDL_Surface * src, double angle,
         /*
          * Turn on source-alpha support
          */
-        SDL_SetAlpha(rz_dst, SDL_SRCALPHA, 255);
+        SDL_SetSurfaceAlphaMod(rz_dst, SDL_ALPHA_OPAQUE);
         /*
          * Unlock source surface
          */
@@ -623,7 +623,7 @@ SDL_Surface *rotozoomSurface(SDL_Surface * src, double angle,
         /*
          * Turn on source-alpha support
          */
-        SDL_SetAlpha(rz_dst, SDL_SRCALPHA, 255);
+        SDL_SetSurfaceAlphaMod(rz_dst, SDL_ALPHA_OPAQUE);
         /*
          * Unlock source surface
          */
