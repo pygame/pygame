@@ -96,60 +96,6 @@ void* _alloca(size_t size);
 #define PyCapsule_CheckExact(obj) PyCObject_Check(obj)
 #endif
 
-/* Pygame event codes. Use SDL 1.2 event categories.
- */
-typedef enum {
-    PGE_NOEVENT = 0,
-    PGE_ACTIVEEVENT,
-    PGE_KEYDOWN,
-    PGE_KEYUP,
-    PGE_MOUSEMOTION,
-    PGE_MOUSEBUTTONDOWN,
-    PGE_MOUSEBUTTONUP,
-    PGE_JOYAXISMOTION,
-    PGE_JOYBALLMOTION,
-    PGE_JOYHATMOTION,
-    PGE_JOYBUTTONDOWN,
-    PGE_JOYBUTTONUP,
-    PGE_VIDEORESIZE,
-    PGE_VIDEOEXPOSE,
-    PGE_QUIT,
-    PGE_SYSWMEVENT,
-    PGE_USEREVENT,
-    /* SDL 1.2 allowed for 8 user defined events. */
-    PGE_NUMEVENTS = PGE_USEREVENT + 8,
-    PGE_OTHEREVENT /* Any unmapped SDL 2 event */
-} PygameEventCode;
-
-typedef enum {
-    PGE_APPFOCUSMOUSE,
-    PGE_APPINPUTFOCUS,
-    PGE_APPACTIVE
-} PygameAppCode;
-
-/* Surface flags: based on SDL 1.2 flags */
-typedef enum {
-    PGS_SWSURFACE     = 0x00000000,
-    PGS_HWSURFACE     = 0x00000001,
-    PGS_ASYNCBLIT     = 0x00000004,
-
-    PGS_ANYFORMAT     = 0x10000000,
-    PGS_HWPALETTE     = 0x20000000,
-    PGS_DOUBLEBUF     = 0x40000000,
-    PGS_FULLSCREEN    = 0x80000000,
-    PGS_OPENGL        = 0x00000002,
-    PGS_OPENGLBLIT    = 0x0000000A,
-    PGS_RESIZABLE     = 0x00000010,
-    PGS_NOFRAME       = 0x00000020,
-
-    PGS_HWACCEL       = 0x00000100,
-    PGS_SRCCOLORKEY   = 0x00001000,
-    PGS_RLEACCELOK    = 0x00002000,
-    PGS_RLEACCEL      = 0x00004000,
-    PGS_SRCALPHA      = 0x00010000,
-    PGS_PREALLOC      = 0x01000000
-} PygameSurfaceFlags;
-
 /* Pygame uses Py_buffer (PEP 3118) to exchange array information internally;
  * define here as needed.
  */
@@ -255,6 +201,65 @@ typedef struct pg_bufferinfo_s {
 #endif
 
 #include <SDL.h>
+
+/* SDL 1.2 constants removed from SDL 2 */
+typedef enum {
+    SDL_HWSURFACE = 0,
+    SDL_RESIZABLE = SDL_WINDOW_RESIZABLE,
+    SDL_ASYNCBLIT = 0,
+    SDL_OPENGL = SDL_WINDOW_OPENGL,
+    SDL_OPENGLBLIT = 0,
+    SDL_ANYFORMAT = 0,
+    SDL_HWPALETTE = 0,
+    SDL_DOUBLEBUF = 0,
+    SDL_FULLSCREEN = SDL_WINDOW_FULLSCREEN,
+    SDL_HWACCEL = 0,
+    SDL_SRCCOLORKEY = 0,
+    SDL_RLEACCELOK = 0,
+    SDL_SRCALPHA = 0,
+    SDL_NOFRAME = SDL_WINDOW_BORDERLESS,
+    SDL_GL_SWAP_CONTROL = 0,
+    TIMER_RESOLUTION = 0
+} PygameVideoFlags;
+
+typedef enum {
+    SDL_NOEVENT = 0,
+    SDL_ACTIVEEVENT = SDL_WINDOWEVENT,
+    /* SDL 1.2 allowed for 8 user defined events. */
+    SDL_NUMEVENTS = SDL_USEREVENT + 8,
+    SDL_VIDEORESIZE = SDL_NUMEVENTS,
+    SDL_VIDEOEXPOSE,
+    PGE_EVENTEND
+} PygameEventCode;
+
+typedef enum {
+    SDL_APPFOCUSMOUSE,
+    SDL_APPINPUTFOCUS,
+    SDL_APPACTIVE
+} PygameAppCode;
+
+/* Surface flags: based on SDL 1.2 flags */
+typedef enum {
+    PGS_SWSURFACE     = 0x00000000,
+    PGS_HWSURFACE     = 0x00000001,
+    PGS_ASYNCBLIT     = 0x00000004,
+
+    PGS_ANYFORMAT     = 0x10000000,
+    PGS_HWPALETTE     = 0x20000000,
+    PGS_DOUBLEBUF     = 0x40000000,
+    PGS_FULLSCREEN    = 0x80000000,
+    PGS_OPENGL        = 0x00000002,
+    PGS_OPENGLBLIT    = 0x0000000A,
+    PGS_RESIZABLE     = 0x00000010,
+    PGS_NOFRAME       = 0x00000020,
+
+    PGS_HWACCEL       = 0x00000100,
+    PGS_SRCCOLORKEY   = 0x00001000,
+    PGS_RLEACCELOK    = 0x00002000,
+    PGS_RLEACCEL      = 0x00004000,
+    PGS_SRCALPHA      = 0x00010000,
+    PGS_PREALLOC      = 0x01000000
+} PygameSurfaceFlags;
 
 /* macros used throughout the source */
 #define RAISE(x,y) (PyErr_SetString((x), (y)), (PyObject*)NULL)
