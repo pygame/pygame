@@ -19,8 +19,9 @@ else:
     extrabases = []
 
 #these get prefixes with '/usr' and '/usr/local' or the $LOCALBASE
-origincdirs = ['/include', '/include/SDL', '/include/SDL']
-origlibdirs = ['/lib','/lib64','/X11R6/lib']
+origincdirs = ['/include', '/include/SDL2']
+origlibdirs = ['/lib','/lib64','/X11R6/lib',
+               '/lib/i386-linux-gnu', '/lib/x86_64-linux-gnu']
 if 'ORIGLIBDIRS' in os.environ and os.environ['ORIGLIBDIRS'] != "":
     origlibdirs = os.environ['ORIGLIBDIRS'].split(":")
 
@@ -176,10 +177,10 @@ def main():
     porttime_dep = get_porttime_dep()
 
     DEPS = [
-        DependencyProg('SDL', 'SDL_CONFIG', 'sdl-config', '1.2', ['sdl']),
-        Dependency('FONT', 'SDL_ttf.h', 'libSDL_ttf.so', ['SDL_ttf']),
-        Dependency('IMAGE', 'SDL_image.h', 'libSDL_image.so', ['SDL_image']),
-        Dependency('MIXER', 'SDL_mixer.h', 'libSDL_mixer.so', ['SDL_mixer']),
+        DependencyProg('SDL', 'SDL_CONFIG', 'sdl2-config', '2.0', ['sdl']),
+        Dependency('FONT', 'SDL_ttf.h', 'libSDL2_ttf.so', ['SDL2_ttf']),
+        Dependency('IMAGE', 'SDL_image.h', 'libSDL2_image.so', ['SDL2_image']),
+        Dependency('MIXER', 'SDL_mixer.h', 'libSDL2_mixer.so', ['SDL2_mixer']),
         Dependency('PNG', 'png.h', 'libpng', ['png']),
         Dependency('JPEG', 'jpeglib.h', 'libjpeg', ['jpeg']),
         Dependency('SCRAP', '', 'libX11', ['X11']),
@@ -187,7 +188,7 @@ def main():
         porttime_dep,
         DependencyProg('FREETYPE', 'FREETYPE_CONFIG', 'freetype-config', '2.0',
                        ['freetype'], '--ftversion'),
-        #Dependency('GFX', 'SDL_gfxPrimitives.h', 'libSDL_gfx.so', ['SDL_gfx']),
+        #Dependency('GFX', 'SDL_gfxPrimitives.h', 'libSDL2_gfx.so', ['SDL2_gfx']),
     ]
     if not DEPS[0].found:
         sys.exit('Unable to run "sdl-config". Please make sure a development version of SDL is installed.')
