@@ -70,34 +70,11 @@
 //          include it there for now.
 /* #include <SDL_syswm.h> */
 
-/* Internal module instance state.
+/* Range allocated for user events.
  */
-typedef struct _event_state_s {
-    int first_user_event;
-    int last_user_event;
-} _EventState;
-
-#if PY3
-static struct PyModuleDef _module = {
-    PyModuleDef_HEAD_INIT,
-    "event",
-    DOC_PYGAMEEVENT,
-    sizeof(_EventState),
-    _event_methods,
-    NULL, NULL, NULL, NULL
-};
-
-#define EVENT_MOD_STATE(mod) ((_EventState*)PyModule_GetState(mod))
-#define EVENT_STATE \
-    EVENT_MOD_STATE(PyState_FindModule(&_module))
-
-#else
-static _EventState _modstate;
-
-#define EVENT_MOD_STATE(mod) (&_modstate)
-#define EVENT_STATE EVENT_MOD_STATE(0)
-
-#endif
+#define PGE_NON_SDL_EVENT ((SDL_EventType)-1)
+static SDL_EventType first_user_event = PGE_NON_SDL_EVENT;
+static SDL_EventType last_user_event = PGE_NON_SDL_EVENT;
 
 /*this user event object is for safely passing
  *objects through the event queue.
@@ -114,13 +91,145 @@ typedef struct UserEventObject
 
 static UserEventObject* user_event_objects = NULL;
 
+#define PGE_ALLEVENTS ((Uint32)-1)
+#define PGE_EVENTMASK(T) (1 << (T))
+
+/* Key repeat handling; taken from SDL 1.2.15 source code in SDL_keyboard.c
+ */
+typedef struct {
+    int delay;
+    int interval;
+    int firsttime;
+    int timestamp;
+} KeyRepeat;
+static KeyRepeat repeat;
+
 static int
-get_sdl_event_code (const PyEventObject* e, const _EventState* mod_state)
+Py_EnableKeyRepeat (int delay, int interval)
+{
+    if (delay < 0 || interval < 0)
+    {
+        SDL_SetError ("Negative key repeat value");
+        return -1;
+    }
+    repeat.delay = delay;
+    repeat.interval = interval;
+    repeat.firsttime = 0;
+    repeat.timestamp = 0;
+    return 0;
+}
+
+static void
+Py_GetKeyRepeat (int *delay, int *interval)
+{
+    *delay = repeat.delay;
+    *interval = repeat.interval;
+}
+
+static int
+Py_WaitEvent (SDL_Event *e)
+{
+    /* This function requires the GIL, but releases it during the wait.
+     */
+    KeyRepeat r = repeat;
+    SDL_bool repeat_enabled = r.delay > 0 || r.interval > 0;
+    int rcode = -1;
+       
+    Py_BEGIN_ALLOW_THREADS;
+    while (SDL_WaitEvent (e) == 0)
+    {
+        if (e->type == SDL_KEYDOWN)
+        {
+            if (e->key.repeat)
+            {
+                if (!repeat_enabled)
+                    continue;
+                if (r.firsttime)
+                {
+                    if (r.timestamp - e->key.timestamp < r.delay)
+                        continue;
+                    r.firsttime = 0;
+                    r.timestamp = e->key.timestamp;
+                }
+                else if (e->key.timestamp - r.timestamp < r.interval)
+                    continue;
+                else
+                    r.timestamp = e->key.timestamp;
+            }
+            else if (repeat_enabled)
+            {
+                r.firsttime = 1;
+                r.timestamp = e->key.timestamp;
+            }
+        }
+
+        /* The loop only gets here if an event is to be returned.
+         * Otherwise the loop was continued or an error occured.
+         */
+        rcode = 0;
+        break;
+    }
+    Py_END_ALLOW_THREADS;
+    repeat.firsttime = r.firsttime;
+    repeat.timestamp = r.timestamp;
+
+    return rcode;
+}
+
+static int
+Py_PollEvent (SDL_Event* e)
+{   
+    SDL_bool repeat_enabled = repeat.delay > 0 || repeat.interval > 0;
+    int rcode = 0;
+       
+    while (SDL_PollEvent (e) != 0)
+    {
+        if (e->type == SDL_KEYDOWN)
+        {
+            if (e->key.repeat)
+            {
+                if (!repeat_enabled)
+                    continue;
+                if (repeat.firsttime)
+                {
+                    if ((repeat.timestamp - e->key.timestamp) <
+                        repeat.delay)
+                        continue;
+                    repeat.firsttime = 0;
+                    repeat.timestamp = e->key.timestamp;
+                }
+                else if ((e->key.timestamp - repeat.timestamp) <
+                         repeat.interval)
+                    continue;
+                else
+                    repeat.timestamp = e->key.timestamp;
+            }
+            else if (repeat_enabled)
+            {
+                repeat.firsttime = 1;
+                repeat.timestamp = e->key.timestamp;
+            }
+        }
+
+        /* The loop only gets here if an event is to be returned.
+         * Otherwise the loop was continued or an error occured.
+         */
+        rcode = 1;
+        break;
+    }
+
+    return rcode;
+}
+
+/* SDL2 <=> Pygame event code translation
+ */
+static int
+get_sdl_event_code (const PyEventObject* e)
 {
     PyObject* dict = e->dict;
     PyObject* sdl_type = NULL;
     Py_ssize_t c = 0;
-    int type = mod_state->last_user_event + 1;
+    int type = last_user_event + 1;
 
     if (!dict)
         goto finished;
@@ -130,7 +239,7 @@ get_sdl_event_code (const PyEventObject* e, const _EventState* mod_state)
     if (!PyNumber_Check (sdl_type))
         goto finished;
     c = PyNumber_AsSsize_t (sdl_type, NULL);
-    if (c > mod_state->last_user_event || c < INT_MIN)
+    if (c > last_user_event || c < INT_MIN)
         goto finished;
     type = (int)c;
 
@@ -139,7 +248,7 @@ finished:
 }
 
 static int
-sdl_to_pg (const SDL_Event* e, const _EventState* mod_state)
+sdl_to_pg (const SDL_Event* e)
 {
     switch (e->type) {
 
@@ -186,19 +295,17 @@ sdl_to_pg (const SDL_Event* e, const _EventState* mod_state)
     case SDL_SYSWMEVENT:
         return PGE_SYSWMEVENT;
     default: /* User events and others */
-        if (e->type >= mod_state->first_user_event &&
-            e->type <= mod_state->last_user_event)
-            return e->type - mod_state->first_user_event + PGE_USEREVENT;
+        if (e->type >= first_user_event &&
+            e->type <= last_user_event)
+            return e->type - first_user_event + PGE_USEREVENT;
     }
 
     return PGE_OTHEREVENT;
 }
 
-static int
-pg_to_sdl (const PyEventObject* e, const _EventState* mod_state)
+static SDL_EventType
+pg_type_to_sdl (int pge_type)
 {
-    int pge_type = e->type;
-
     switch (pge_type) {
 
     case PGE_ACTIVEEVENT:
@@ -229,12 +336,22 @@ pg_to_sdl (const PyEventObject* e, const _EventState* mod_state)
         return SDL_QUIT;
     case PGE_SYSWMEVENT:
         return SDL_SYSWMEVENT;
-    case PGE_OTHEREVENT:
-        return get_sdl_event_code (e, mod_state);
     default:
-        assert (pge_type >= PGE_USEREVENT && pge_type < PGE_NUMEVENTS);
-        return pge_type - PGE_USEREVENT + mod_state->first_user_event;
+        if (pge_type >= PGE_USEREVENT && pge_type < PGE_NUMEVENTS)
+            return pge_type - PGE_USEREVENT + first_user_event;
     }
+    return PGE_NON_SDL_EVENT;
+
+}
+
+static int
+pg_to_sdl (const PyEventObject* e)
+{
+    int pge_type = e->type;
+
+    if (pge_type == PGE_OTHEREVENT)
+        return get_sdl_event_code (e);
+    return pg_type_to_sdl (pge_type);
 }
 
 /*must pass dictionary as this object*/
@@ -448,11 +565,11 @@ key_to_unicode (const SDL_Keysym* key)
 }
 
 static PyObject*
-dict_from_event (SDL_Event* event, const _EventState* mod_state)
+dict_from_event (SDL_Event* event)
 {
     PyObject *dict=NULL, *tuple, *obj;
     int hx, hy;
-    int pge_type = sdl_to_pg(event, mod_state);
+    int pge_type = sdl_to_pg (event);
     int gain = 0;
     int state = 0;
 
@@ -573,8 +690,8 @@ dict_from_event (SDL_Event* event, const _EventState* mod_state)
                              event->window.data1,
                              event->window.data2);
         insobj (dict, "size", obj);
-        insobj (dict, "w", PyInt_FromLong (event->resize.data1));
-        insobj (dict, "h", PyInt_FromLong (event->resize.data2));
+        insobj (dict, "w", PyInt_FromLong (event->window.data1));
+        insobj (dict, "h", PyInt_FromLong (event->window.data2));
         break;
     case PGE_SYSWMEVENT:
 #ifdef WIN32
@@ -797,7 +914,6 @@ static PyTypeObject PyEvent_Type =
 static PyObject*
 PyEvent_New (SDL_Event* event)
 {
-    const _EventState* mod_state = EVENT_STATE;
     PyEventObject* e;
     e = PyObject_NEW (PyEventObject, &PyEvent_Type);
     if(!e)
@@ -805,8 +921,8 @@ PyEvent_New (SDL_Event* event)
 
     if (event)
     {
-        e->type = sdl_to_pg (event, mod_state);
-        e->dict = dict_from_event (event, mod_state);
+        e->type = sdl_to_pg (event);
+        e->dict = dict_from_event (event);
     }
     else
     {
@@ -923,9 +1039,7 @@ pygame_wait (PyObject* self, PyObject* args)
 
     VIDEO_INIT_CHECK ();
 
-    Py_BEGIN_ALLOW_THREADS;
-    status = SDL_WaitEvent (&event);
-    Py_END_ALLOW_THREADS;
+    status = Py_WaitEvent (&event);
 
     if (!status)
         return RAISE (PyExc_SDLError, SDL_GetError ());
@@ -940,18 +1054,44 @@ pygame_poll (PyObject* self, PyObject* args)
 
     VIDEO_INIT_CHECK ();
 
-    if (SDL_PollEvent (&event))
+    if (Py_PollEvent (&event))
         return PyEvent_New (&event);
     return PyEvent_New (NULL);
+}
+
+static int
+PG_PeepEvents (SDL_Event* events,
+               int numevents,
+               SDL_eventaction action,
+               Uint32 mask)
+{
+    int n;
+    int tally;
+    int type;
+    Uint32 sdl_type;
+
+    for (type = 1, tally = 0, n = 0;
+         tally < numevents && type != PGE_NUMEVENTS;
+         ++type, tally += n, n = 0) {
+        if (((Uint32)1 << type) & mask) {
+            sdl_type = pg_type_to_sdl (type);
+            if (sdl_type != PGE_NON_SDL_EVENT)
+                n = SDL_PeepEvents (events,
+                                    numevents,
+                                    action,
+                                    sdl_type, sdl_type);
+            if (n == -1)
+                return -1;
+        }
+    }
+    return tally;
 }
 
 static PyObject*
 event_clear (PyObject* self, PyObject* args)
 {
-#error Continue here by updating SDL_PeepEvents calls
-#error See the migration guide.
     SDL_Event event;
-    int mask = 0;
+    Uint32 mask = 0;
     int loop, num;
     PyObject* type;
     int val;
@@ -962,7 +1102,7 @@ event_clear (PyObject* self, PyObject* args)
     VIDEO_INIT_CHECK ();
 
     if (PyTuple_Size (args) == 0)
-        mask = SDL_ALLEVENTS;
+        mask = PGE_ALLEVENTS;
     else
     {
         type = PyTuple_GET_ITEM (args, 0);
@@ -975,11 +1115,11 @@ event_clear (PyObject* self, PyObject* args)
                     return RAISE
                         (PyExc_TypeError,
                          "type sequence must contain valid event types");
-                mask |= SDL_EVENTMASK (val);
+                mask |= PGE_EVENTMASK (val);
             }
         }
         else if (IntFromObj (type, &val))
-            mask = SDL_EVENTMASK (val);
+            mask = PGE_EVENTMASK (val);
         else
             return RAISE (PyExc_TypeError,
                           "get type must be numeric or a sequence");
@@ -987,7 +1127,7 @@ event_clear (PyObject* self, PyObject* args)
 
     SDL_PumpEvents ();
 
-    while (SDL_PeepEvents (&event, 1, SDL_GETEVENT, mask) == 1)
+    while (PG_PeepEvents (&event, 1, SDL_GETEVENT, mask) == 1)
     {}
 
     Py_RETURN_NONE;
@@ -997,7 +1137,7 @@ static PyObject*
 event_get (PyObject* self, PyObject* args)
 {
     SDL_Event event;
-    int mask = 0;
+    Uint32 mask = 0;
     int loop, num;
     PyObject* type, *list, *e;
     int val;
@@ -1008,7 +1148,7 @@ event_get (PyObject* self, PyObject* args)
     VIDEO_INIT_CHECK ();
 
     if (PyTuple_Size (args) == 0)
-        mask = SDL_ALLEVENTS;
+        mask = PGE_ALLEVENTS;
     else
     {
         type = PyTuple_GET_ITEM (args, 0);
@@ -1021,11 +1161,11 @@ event_get (PyObject* self, PyObject* args)
                     return RAISE
                         (PyExc_TypeError,
                          "type sequence must contain valid event types");
-                mask |= SDL_EVENTMASK (val);
+                mask |= PGE_EVENTMASK (val);
             }
         }
         else if (IntFromObj (type, &val))
-            mask = SDL_EVENTMASK (val);
+            mask = PGE_EVENTMASK (val);
         else
             return RAISE (PyExc_TypeError,
                           "get type must be numeric or a sequence");
@@ -1037,7 +1177,7 @@ event_get (PyObject* self, PyObject* args)
 
     SDL_PumpEvents ();
 
-    while (SDL_PeepEvents (&event, 1, SDL_GETEVENT, mask) == 1)
+    while (PG_PeepEvents (&event, 1, SDL_GETEVENT, mask) == 1)
     {
         e = PyEvent_New (&event);
         if (!e)
@@ -1057,7 +1197,7 @@ event_peek (PyObject* self, PyObject* args)
 {
     SDL_Event event;
     int result;
-    int mask = 0;
+    Uint32 mask = 0;
     int loop, num, noargs=0;
     PyObject* type;
     int val;
@@ -1069,7 +1209,7 @@ event_peek (PyObject* self, PyObject* args)
 
     if (PyTuple_Size (args) == 0)
     {
-        mask = SDL_ALLEVENTS;
+        mask = PGE_ALLEVENTS;
         noargs=1;
     }
     else
@@ -1084,18 +1224,18 @@ event_peek (PyObject* self, PyObject* args)
                     return RAISE
                         (PyExc_TypeError,
                          "type sequence must contain valid event types");
-                mask |= SDL_EVENTMASK (val);
+                mask |= PGE_EVENTMASK (val);
             }
         }
         else if (IntFromObj (type, &val))
-            mask = SDL_EVENTMASK (val);
+            mask = PGE_EVENTMASK (val);
         else
             return RAISE (PyExc_TypeError,
                           "peek type must be numeric or a sequence");
     }
 
     SDL_PumpEvents ();
-    result = SDL_PeepEvents (&event, 1, SDL_PEEKEVENT, mask);
+    result = PG_PeepEvents (&event, 1, SDL_PEEKEVENT, mask);
 
     if (noargs)
         return PyEvent_New (&event);
@@ -1105,7 +1245,6 @@ event_peek (PyObject* self, PyObject* args)
 static PyObject*
 event_post (PyObject* self, PyObject* args)
 {
-    const _EventState* mod_state = EVENT_MOD_STATE (self);
     PyEventObject* e;
     SDL_Event event;
     int isblocked = 0;
@@ -1116,7 +1255,7 @@ event_post (PyObject* self, PyObject* args)
 
     VIDEO_INIT_CHECK ();
 
-    sdl_type = pg_to_sdl (e, mod_state);
+    sdl_type = pg_to_sdl (e);
 
     /* see if the event is blocked before posting it. */
     isblocked = SDL_EventState (sdl_type, SDL_QUERY) == SDL_IGNORE;
@@ -1129,7 +1268,7 @@ event_post (PyObject* self, PyObject* args)
     if (PyEvent_FillUserEvent (e, &event))
         return NULL;
 
-    if (SDL_PushEvent (&event) == -1)
+    if (!SDL_PushEvent (&event))
         return RAISE (PyExc_SDLError, "Event queue full");
 
     Py_RETURN_NONE;
@@ -1283,6 +1422,17 @@ static PyMethodDef _event_methods[] =
     { NULL, NULL, 0, NULL }
 };
 
+#if PY3
+static struct PyModuleDef _module = {
+    PyModuleDef_HEAD_INIT,
+    "event",
+    DOC_PYGAMEEVENT,
+    0,
+    _event_methods,
+    NULL, NULL, NULL, NULL
+};
+#endif
+
 MODINIT_DEFINE (event)
 {
     PyObject *module, *dict, *apiobj;
@@ -1321,12 +1471,20 @@ MODINIT_DEFINE (event)
         MODINIT_ERROR;
     }
 
-#error fill in _EventState struct here.
+    if (first_user_event != PGE_NON_SDL_EVENT) {
+        int numevents = PGE_NUMEVENTS - PGE_USEREVENT + 1;
+        first_user_event = SDL_RegisterEvents (numevents);
+        if (first_user_event != PGE_NON_SDL_EVENT) {
+            last_user_event = first_user_event + numevents - 1;
+        }
+    }
     /* export the c api */
     c_api[0] = &PyEvent_Type;
     c_api[1] = PyEvent_New;
     c_api[2] = PyEvent_New2;
     c_api[3] = PyEvent_FillUserEvent;
+    c_api[4] = Py_EnableKeyRepeat;
+    c_api[5] = Py_GetKeyRepeat;
     apiobj = encapsulate_api (c_api, "event");
     if (apiobj == NULL) {
         DECREF_MOD (module);

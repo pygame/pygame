@@ -41,7 +41,7 @@ key_set_repeat (PyObject* self, PyObject* args)
     if (delay && !interval)
         interval = delay;
 
-    if (SDL_EnableKeyRepeat (delay, interval) == -1)
+    if (Py_EnableKeyRepeat (delay, interval) == -1)
         return RAISE (PyExc_SDLError, SDL_GetError ());
 
     Py_RETURN_NONE;
@@ -56,7 +56,7 @@ key_get_repeat (PyObject* self, PyObject* args)
 
     VIDEO_INIT_CHECK ();
 #if SDL_VERSION_ATLEAST(1, 2, 10)
-    SDL_GetKeyRepeat (&delay, &interval);
+    Py_GetKeyRepeat (&delay, &interval);
     return Py_BuildValue ("(ii)", delay, interval);
 #else
     Py_RETURN_NONE;
@@ -81,7 +81,7 @@ key_get_pressed (PyObject* self)
 
     VIDEO_INIT_CHECK ();
 
-    key_state = SDL_GetKeyState (&num_keys);
+    key_state = SDL_GetKeyboardState (&num_keys);
 
     if (!key_state || !num_keys)
         Py_RETURN_NONE;
@@ -141,7 +141,7 @@ key_get_focused (PyObject* self)
 {
     VIDEO_INIT_CHECK ();
 
-    return PyInt_FromLong ((SDL_GetAppState () & SDL_APPINPUTFOCUS) != 0);
+    return PyInt_FromLong (SDL_GetKeyboardFocus () != NULL);
 }
 
 static PyMethodDef _key_methods[] =
@@ -179,6 +179,11 @@ MODINIT_DEFINE (key)
        the module is not loaded.
     */
     import_pygame_base ();
+    if (PyErr_Occurred ()) {
+        MODINIT_ERROR;
+    }
+
+    import_pygame_event ();
     if (PyErr_Occurred ()) {
         MODINIT_ERROR;
     }

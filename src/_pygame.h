@@ -561,7 +561,7 @@ typedef struct
 /* EVENT */
 #define PYGAMEAPI_EVENT_FIRSTSLOT                                       \
     (PYGAMEAPI_SURFLOCK_FIRSTSLOT + PYGAMEAPI_SURFLOCK_NUMSLOTS)
-#define PYGAMEAPI_EVENT_NUMSLOTS 4
+#define PYGAMEAPI_EVENT_NUMSLOTS 6
 
 typedef struct {
     PyObject_HEAD
@@ -581,6 +581,10 @@ typedef struct {
 #define PyEvent_FillUserEvent                           \
     (*(int (*)(PyEventObject*, SDL_Event*))             \
      PyGAME_C_API[PYGAMEAPI_EVENT_FIRSTSLOT + 3])
+#define Py_EnableKeyRepeat                              \
+    (*(int (*)(int, int))PyGAME_C_API[PYGAMEAPI_EVENT_FIRSTSLOT + 4])
+#define Py_GetKeyRepeat                                 \
+    (*(void (*)(int*, int*))PyGAME_C_API[PYGAMEAPI_EVENT_FIRSTSLOT + 5])
 #define import_pygame_event() IMPORT_PYGAME_MODULE(event, EVENT)
 #endif
 
