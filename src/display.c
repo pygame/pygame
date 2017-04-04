@@ -390,7 +390,11 @@ Py_GetDefaultWindow (void)
 static SDL_Surface*
 Py_GetDefaultWindowSurface (void)
 {
-    return DISPLAY_STATE->surface;
+    PyObject* surfobj = DISPLAY_STATE->surface;
+
+    if (!surfobj)
+        return NULL;
+    return PySurface_AsSurface (surfobj);
 }
 
 /* display functions */

@@ -248,7 +248,7 @@ finished:
 }
 
 static int
-sdl_to_pg (const SDL_Event* e)
+Py_SDLEventTypeToPG (const SDL_Event* e)
 {
     switch (e->type) {
 
@@ -304,7 +304,7 @@ sdl_to_pg (const SDL_Event* e)
 }
 
 static SDL_EventType
-pg_type_to_sdl (int pge_type)
+Py_PGEventTypeToSDL (int pge_type)
 {
     switch (pge_type) {
 
@@ -345,13 +345,13 @@ pg_type_to_sdl (int pge_type)
 }
 
 static int
-pg_to_sdl (const PyEventObject* e)
+sdl_type_of_event (const PyEventObject* e)
 {
     int pge_type = e->type;
 
     if (pge_type == PGE_OTHEREVENT)
         return get_sdl_event_code (e);
-    return pg_type_to_sdl (pge_type);
+    return Py_PGEventTypeToSDL (pge_type);
 }
 
 /*must pass dictionary as this object*/
@@ -569,7 +569,7 @@ dict_from_event (SDL_Event* event)
 {
     PyObject *dict=NULL, *tuple, *obj;
     int hx, hy;
-    int pge_type = sdl_to_pg (event);
+    int pge_type = Py_SDLEventTypeToPG (event);
     int gain = 0;
     int state = 0;
 
@@ -921,7 +921,7 @@ PyEvent_New (SDL_Event* event)
 
     if (event)
     {
-        e->type = sdl_to_pg (event);
+        e->type = Py_SDLEventTypeToPG (event);
         e->dict = dict_from_event (event);
     }
     else
@@ -1074,7 +1074,7 @@ PG_PeepEvents (SDL_Event* events,
          tally < numevents && type != PGE_NUMEVENTS;
          ++type, tally += n, n = 0) {
         if (((Uint32)1 << type) & mask) {
-            sdl_type = pg_type_to_sdl (type);
+            sdl_type = Py_PGEventTypeToSDL (type);
             if (sdl_type != PGE_NON_SDL_EVENT)
                 n = SDL_PeepEvents (events,
                                     numevents,
@@ -1255,7 +1255,7 @@ event_post (PyObject* self, PyObject* args)
 
     VIDEO_INIT_CHECK ();
 
-    sdl_type = pg_to_sdl (e);
+    sdl_type = sdl_type_of_event (e);
 
     /* see if the event is blocked before posting it. */
     isblocked = SDL_EventState (sdl_type, SDL_QUERY) == SDL_IGNORE;
@@ -1485,6 +1485,8 @@ MODINIT_DEFINE (event)
     c_api[3] = PyEvent_FillUserEvent;
     c_api[4] = Py_EnableKeyRepeat;
     c_api[5] = Py_GetKeyRepeat;
+    c_api[6] = Py_SDLEventTypeToPG;
+    c_api[7] = Py_PGEventTypeToSDL;
     apiobj = encapsulate_api (c_api, "event");
     if (apiobj == NULL) {
         DECREF_MOD (module);

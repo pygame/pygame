@@ -24,8 +24,9 @@
 #include "pgcompat.h"
 #include "doc/time_doc.h"
 
+#define NUMEVENTS (SDL_USEREVENT + PGE_NUMEVENTS - PGE_USEREVENT + 1)
 #define WORST_CLOCK_ACCURACY 12
-static SDL_TimerID event_timers[SDL_NUMEVENTS] = {NULL};
+static SDL_TimerID event_timers[NUMEVENTS] = {0};
 
 static Uint32
 timer_callback (Uint32 interval, void* param)
@@ -147,19 +148,22 @@ time_set_timer (PyObject* self, PyObject* arg)
 {
     SDL_TimerID newtimer;
     int ticks = 0;
-    intptr_t event = SDL_NOEVENT;
-    if (!PyArg_ParseTuple (arg, "ii", &event, &ticks))
+    int pge_event = PGE_NOEVENT;
+    SDL_EventType event;
+    if (!PyArg_ParseTuple (arg, "ii", &pge_event, &ticks))
         return NULL;
 
-    if (event <= SDL_NOEVENT || event >= SDL_NUMEVENTS)
+    if (pge_event <= PGE_NOEVENT || pge_event >= PGE_NUMEVENTS)
         return RAISE (PyExc_ValueError,
                       "Event id must be between NOEVENT(0) and NUMEVENTS(32)");
+
+    event = Py_PGEventTypeToSDL (pge_event);
 
     /*stop original timer*/
     if (event_timers[event])
     {
         SDL_RemoveTimer (event_timers[event]);
-        event_timers[event] = NULL;
+        event_timers[event] = 0;
     }
 
     if (ticks <= 0)
@@ -429,6 +433,11 @@ MODINIT_DEFINE (time)
        the module is there is an error the module is not loaded.
     */
     import_pygame_base ();
+    if (PyErr_Occurred ()) {
+        MODINIT_ERROR;
+    }
+
+    import_pygame_event ();
     if (PyErr_Occurred ()) {
         MODINIT_ERROR;
     }

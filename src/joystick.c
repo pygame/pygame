@@ -165,6 +165,7 @@ joy_get_name (PyObject* self)
     int joy_id = PyJoystick_AsID (self);
     JOYSTICK_INIT_CHECK ();
     return Text_FromUTF8 (SDL_JoystickName (joy_id));
+#error integer to pointer warning above
 }
 
 static PyObject*
