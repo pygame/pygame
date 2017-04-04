@@ -155,6 +155,16 @@ image_load_ext(PyObject *self, PyObject *arg)
     if (surf == NULL) {
         return RAISE(PyExc_SDLError, IMG_GetError());
     }
+    /* For indexed surfaces, stick with opaque palette color alphas */
+    if (SDL_ISPIXELFORMAT_INDEXED(surf->format->format)) {
+        SDL_Color *colors = surf->format->palette->colors;
+        size_t ncolors = surf->format->palette->ncolors;
+        size_t i;
+
+        for (i = 0; i < ncolors; ++i) {
+            colors[i].a = SDL_ALPHA_OPAQUE;
+        }
+    }
     final = PySurface_New(surf);
     if (final == NULL) {
         SDL_FreeSurface(surf);

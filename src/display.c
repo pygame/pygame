@@ -961,6 +961,7 @@ set_palette (PyObject* self, PyObject* args)
         colors[i].r = (unsigned char)r;
         colors[i].g = (unsigned char)g;
         colors[i].b = (unsigned char)b;
+        colors[i].a = SDL_ALPHA_OPAQUE;
 
         Py_DECREF (item);
     }

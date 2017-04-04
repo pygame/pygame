@@ -512,9 +512,11 @@ SDL_Surface *_PGFT_Render_NewSurface(FreeTypeInstance *ft,
         colors[1].r = fgcolor->r;  /* Foreground */
         colors[1].g = fgcolor->g;
         colors[1].b = fgcolor->b;
+        colors[1].a = SDL_ALPHA_OPAQUE;
         colors[0].r = ~colors[1].r;  /* Background */
         colors[0].g = ~colors[1].g;
         colors[0].b = ~colors[1].b;
+        colors[0].a = SDL_ALPHA_OPAQUE;
         if (SDL_SetPaletteColors(palette, colors, 0, 2) || /*conditional ||*/
             SDL_SetSurfacePalette(surface, palette)) {
             SDL_ClearError();
