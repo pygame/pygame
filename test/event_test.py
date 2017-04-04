@@ -258,6 +258,11 @@ class EventModuleTest(unittest.TestCase):
             return
 
         pygame.event.set_grab(True)
+        self.assert_(not pygame.event.get_grab())
+        pygame.event.set_grab(False)
+        self.assert_(not pygame.event.get_grab())
+        pygame.display.set_mode((200, 100), pygame.HIDDEN)
+        pygame.event.set_grab(True)
         self.assert_(pygame.event.get_grab())
         pygame.event.set_grab(False)
         self.assert_(not pygame.event.get_grab())

@@ -24,9 +24,51 @@
 #include "pgcompat.h"
 #include "doc/time_doc.h"
 
-#define NUMEVENTS (SDL_USEREVENT + PGE_NUMEVENTS - PGE_USEREVENT + 1)
+#define NUMEVENTS (16 + (SDL_NUMEVENTS - SDL_USEREVENT))
 #define WORST_CLOCK_ACCURACY 12
 static SDL_TimerID event_timers[NUMEVENTS] = {0};
+
+static size_t
+enumerate_event (Uint32 type)
+{
+    assert (NUMEVENTS == 1 + 15 + (SDL_NUMEVENTS - SDL_USEREVENT));
+    switch (type) {
+
+    case SDL_ACTIVEEVENT:
+        return 1;
+    case SDL_KEYDOWN:
+        return 2;
+    case SDL_KEYUP:
+        return 3;
+    case SDL_MOUSEMOTION:
+        return 4;
+    case SDL_MOUSEBUTTONDOWN:
+        return 5;
+    case SDL_MOUSEBUTTONUP:
+        return 6;
+    case SDL_JOYAXISMOTION:
+        return 7;
+    case SDL_JOYBALLMOTION:
+        return 8;
+    case SDL_JOYHATMOTION:
+        return 9;
+    case SDL_JOYBUTTONDOWN:
+        return 10;
+    case SDL_JOYBUTTONUP:
+        return 11;
+    case SDL_VIDEORESIZE:
+        return 12;
+    case SDL_VIDEOEXPOSE:
+        return 13;
+    case SDL_QUIT:
+        return 14;
+    case SDL_SYSWMEVENT:
+        return 15;
+    }
+    if (type >= SDL_USEREVENT && type < SDL_NUMEVENTS)
+        return type - SDL_USEREVENT + 16;
+    return 0;
+}
 
 static Uint32
 timer_callback (Uint32 interval, void* param)
@@ -148,19 +190,17 @@ time_set_timer (PyObject* self, PyObject* arg)
 {
     SDL_TimerID newtimer;
     int ticks = 0;
-    int pge_event = PGE_NOEVENT;
     SDL_EventType event;
-    if (!PyArg_ParseTuple (arg, "ii", &pge_event, &ticks))
+    size_t index;
+    if (!PyArg_ParseTuple (arg, "ii", &event, &ticks))
         return NULL;
 
-    if (pge_event <= PGE_NOEVENT || pge_event >= PGE_NUMEVENTS)
-        return RAISE (PyExc_ValueError,
-                      "Event id must be between NOEVENT(0) and NUMEVENTS(32)");
-
-    event = Py_PGEventTypeToSDL (pge_event);
+    index = enumerate_event (event);
+    if (index == 0)
+        return RAISE (PyExc_ValueError, "Unrecognized event type");
 
     /*stop original timer*/
-    if (event_timers[event])
+    if (event_timers[index])
     {
         SDL_RemoveTimer (event_timers[event]);
         event_timers[event] = 0;
@@ -179,7 +219,7 @@ time_set_timer (PyObject* self, PyObject* arg)
     newtimer = SDL_AddTimer (ticks, timer_callback, (void*) event);
     if (!newtimer)
         return RAISE (PyExc_SDLError, SDL_GetError ());
-    event_timers[event] = newtimer;
+    event_timers[index] = newtimer;
 
     Py_RETURN_NONE;
 }

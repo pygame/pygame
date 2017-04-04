@@ -30,9 +30,12 @@
 
 #include "structmember.h"
 
+/*only register one block of user events.*/
+static int have_registered_events = 0;
+
 // FIXME: The system message code is only tested on windows, so only
 //          include it there for now.
-/* #include <SDL_syswm.h> */
+#include <SDL_syswm.h>
 
 /*this user event object is for safely passing
  *objects through the event queue.
@@ -48,6 +51,56 @@ typedef struct UserEventObject
 } UserEventObject;
 
 static UserEventObject* user_event_objects = NULL;
+
+/*SDL 2 to SDL 1.2 event mapping and SDL 1.2 key repeat emulation*/
+static int
+event_filter (void* _, SDL_Event* event)
+{
+    /* This event filter alters events inplace.
+     */
+    Uint32 type = event->type;
+
+    if (type == SDL_WINDOWEVENT)
+    {
+        switch (event->window.event)
+        {
+        case SDL_WINDOWEVENT_RESIZED:
+            event->type = SDL_VIDEORESIZE;
+            break;
+        case SDL_WINDOWEVENT_EXPOSED:
+            event->type = SDL_VIDEOEXPOSE;
+            break;
+        case SDL_WINDOWEVENT_ENTER:
+        case SDL_WINDOWEVENT_LEAVE:
+        case SDL_WINDOWEVENT_FOCUS_GAINED:
+        case SDL_WINDOWEVENT_FOCUS_LOST:
+        case SDL_WINDOWEVENT_MINIMIZED:
+        case SDL_WINDOWEVENT_RESTORED:
+            event->type = SDL_ACTIVEEVENT;
+            break;
+        default:
+            /*ignore other SDL_WINDOWEVENTs for now.*/
+            return 0;
+        }
+    }
+#warning Add key repeat here. Add event blocking here.
+    return 1;
+}
+
+static int
+Py_EnableKeyRepeat (int delay, int interval)
+{
+#warning Add code;
+    return 0;
+}
+
+static void
+Py_GetKeyRepeat (int* delay, int* interval)
+{
+#warning Add code;
+    *delay = 0;
+    *interval = 0;
+}
 
 /*must pass dictionary as this object*/
 static UserEventObject*
@@ -264,6 +317,8 @@ dict_from_event (SDL_Event* event)
 {
     PyObject *dict=NULL, *tuple, *obj;
     int hx, hy;
+    long gain;
+    long state;
 
     /*check if it is an event the user posted*/
     if (event->user.code == USEROBJECT_CHECK1
@@ -278,33 +333,33 @@ dict_from_event (SDL_Event* event)
         return NULL;
     switch (event->type)
     {
-    case SDL_WINDOWEVENT:
+    case SDL_ACTIVEEVENT:
         switch (event->window.event) {
 
         case SDL_WINDOWEVENT_ENTER:
             gain = 1;
-            state = PGE_APPFOCUSMOUSE;
+            state = (long)SDL_APPFOCUSMOUSE;
             break;
         case SDL_WINDOWEVENT_LEAVE:
             gain = 0;
-            state = PGE_APPFOCUSMOUSE;
+            state = (long)SDL_APPFOCUSMOUSE;
             break;
         case SDL_WINDOWEVENT_FOCUS_GAINED:
             gain = 1;
-            state = PGE_APPINPUTFOCUS;
+            state = (long)SDL_APPINPUTFOCUS;
             break;
         case SDL_WINDOWEVENT_FOCUS_LOST:
             gain = 0;
-            state = PGE_APPINPUTFOCUS;
+            state = (long)SDL_APPINPUTFOCUS;
             break;
         case SDL_WINDOWEVENT_MINIMIZED:
             gain = 0;
-            state = PGE_APPACTIVE;
+            state = (long)SDL_APPACTIVE;
             break;
         default:
             assert (event->window.event == SDL_WINDOWEVENT_RESTORED);
             gain = 1;
-            state = PGE_APPACTIVE;
+            state = (long)SDL_APPACTIVE;
         }
         insobj (dict, "gain", PyInt_FromLong (gain));
         insobj (dict, "state", PyInt_FromLong (state));
@@ -313,9 +368,9 @@ dict_from_event (SDL_Event* event)
         insobj (dict, "unicode", key_to_unicode (&event->key.keysym));
         /* fall through */
     case SDL_KEYUP:
-        insobj (dict, "key", PyInt_FromLong (event->key.keysym.sym));
+        insobj (dict, "key", PyInt_FromLong (event->key.keysym.scancode));
         insobj (dict, "mod", PyInt_FromLong (event->key.keysym.mod));
-        insobj (dict, "scancode", PyInt_FromLong (event->key.keysym.scancode));
+        insobj (dict, "symbol", PyInt_FromLong (event->key.keysym.sym));
         break;
     case SDL_MOUSEMOTION:
         obj = Py_BuildValue ("(ii)", event->motion.x, event->motion.y);
@@ -372,12 +427,11 @@ dict_from_event (SDL_Event* event)
         insobj (dict, "joy", PyInt_FromLong (event->jbutton.which));
         insobj (dict, "button", PyInt_FromLong (event->jbutton.button));
         break;
-#error move to SDL_WINDOWEVENT
     case SDL_VIDEORESIZE:
-        obj = Py_BuildValue ("(ii)", event->resize.w, event->resize.h);
+        obj = Py_BuildValue ("(ii)", event->window.data1, event->window.data2);
         insobj (dict, "size", obj);
-        insobj (dict, "w", PyInt_FromLong (event->resize.w));
-        insobj (dict, "h", PyInt_FromLong (event->resize.h));
+        insobj (dict, "w", PyInt_FromLong (event->window.data1));
+        insobj (dict, "h", PyInt_FromLong (event->window.data2));
         break;
     case SDL_SYSWMEVENT:
 #ifdef WIN32
@@ -391,13 +445,16 @@ dict_from_event (SDL_Event* event)
          */
 #if (defined(unix) || defined(__unix__) || defined(_AIX)        \
      || defined(__OpenBSD__)) &&                                \
-    (defined(SDL_VIDEO_DRIVER_X11) && !defined(__CYGWIN32__) &&         \
+    (defined(SDL_VIDEO_DRIVER_X11) && !defined(__CYGWIN32__) && \
      !defined(ENABLE_NANOX) && !defined(__QNXNTO__))
 
         //printf("asdf :%d:", event->syswm.msg->event.xevent.type);
-        insobj (dict,  "event",
-               Bytes_FromStringAndSize
-                ((char*) & (event->syswm.msg->event.xevent), sizeof (XEvent)));
+        if (event->syswm.msg->subsystem == SDL_SYSWM_X11)
+        {
+            XEvent* xevent = (XEvent*) & event->syswm.msg->msg.x11.event;
+            obj = Bytes_FromStringAndSize ((char*) xevent, sizeof (XEvent));
+            insobj (dict, "event", obj);
+        }
 #endif
 
         break;
@@ -745,6 +802,144 @@ pygame_poll (PyObject* self, PyObject* args)
     return PyEvent_New (NULL);
 }
 
+/* The following three functions are quick and dirty; replace */
+#warning temporary code
+#define SDL_EVENTMASK(e) (mask_event (e))
+static const Uint32 SDL_ALLEVENTS = (Uint32)-1;
+
+static Uint32
+mask_event (Uint32 event)
+{
+    switch (event) {
+
+    case SDL_ACTIVEEVENT:
+        return 1;
+    case SDL_KEYDOWN:
+        return 2;
+    case SDL_KEYUP:
+        return 4;
+    case SDL_MOUSEMOTION:
+        return 8;
+    case SDL_MOUSEBUTTONDOWN:
+        return 16;
+    case SDL_MOUSEBUTTONUP:
+        return 32;
+    case SDL_JOYAXISMOTION:
+        return 64;
+    case SDL_JOYBALLMOTION:
+        return 128;
+    case SDL_JOYHATMOTION:
+        return 256;
+    case SDL_JOYBUTTONDOWN:
+        return 512;
+    case SDL_JOYBUTTONUP:
+        return 1024;
+    case SDL_VIDEORESIZE:
+        return 2048;
+    case SDL_VIDEOEXPOSE:
+        return 4096;
+    case SDL_QUIT:
+        return 8192;
+    case SDL_SYSWMEVENT:
+        return 16384;
+    case SDL_USEREVENT:
+        return 32768;
+    case (SDL_USEREVENT + 1):
+        return 65536;
+    case (SDL_USEREVENT + 2):
+        return 131072;
+    case (SDL_USEREVENT + 3):
+        return 262144;
+    case (SDL_USEREVENT + 4):
+        return 524288;
+    case (SDL_USEREVENT + 5):
+        return 1048576;
+    case (SDL_USEREVENT + 6):
+        return 2097152;
+    case (SDL_USEREVENT + 7):
+        return 4194304;
+    }
+    return 0;
+}
+
+static Uint32
+unmask_event (Uint32 bit)
+{
+    switch (bit) {
+
+    case 1:
+        return SDL_ACTIVEEVENT;
+    case 2:
+        return SDL_KEYDOWN;
+    case 4:
+        return SDL_KEYUP;
+    case 8:
+        return SDL_MOUSEMOTION;
+    case 16:
+        return SDL_MOUSEBUTTONDOWN;
+    case 32:
+        return SDL_MOUSEBUTTONUP;
+    case 64:
+        return SDL_JOYAXISMOTION;
+    case 128:
+        return SDL_JOYBALLMOTION;
+    case 256:
+        return SDL_JOYHATMOTION;
+    case 512:
+        return SDL_JOYBUTTONDOWN;
+    case 1024:
+        return SDL_JOYBUTTONUP;
+    case 2048:
+        return SDL_VIDEORESIZE;
+    case 4096:
+        return SDL_VIDEOEXPOSE;
+    case 8192:
+        return SDL_QUIT;
+    case 16384:
+        return SDL_SYSWMEVENT;
+    case 32768:
+        return SDL_USEREVENT;
+    case 65536:
+        return (SDL_USEREVENT + 1);
+    case 131072:
+        return (SDL_USEREVENT + 2);
+    case 262144:
+        return (SDL_USEREVENT + 3);
+    case 524288:
+        return (SDL_USEREVENT + 4);
+    case 1048576:
+        return (SDL_USEREVENT + 5);
+    case 2097152:
+        return (SDL_USEREVENT + 6);
+    case 4194304:
+        return (SDL_USEREVENT + 7);
+    }
+    return SDL_NOEVENT;
+}
+
+static int
+PG_PeepEvent (SDL_Event* event,
+              SDL_eventaction action,
+              Uint32 mask)
+{
+    Uint32 bit;
+    Uint32 type;
+
+    for (bit = 1; bit != 0; bit <<= 1)
+    {
+        if (mask & bit)
+        {
+            type = unmask_event (bit);
+            if (type != SDL_NOEVENT)
+            {
+                if (SDL_PeepEvents (event, 1, action, type, type) == 1)
+                    return 1;
+            }
+        }
+    }
+    return 0;
+}
+
 static PyObject*
 event_clear (PyObject* self, PyObject* args)
 {
@@ -785,7 +980,7 @@ event_clear (PyObject* self, PyObject* args)
 
     SDL_PumpEvents ();
 
-    while (SDL_PeepEvents (&event, 1, SDL_GETEVENT, mask) == 1)
+    while (PG_PeepEvent (&event, SDL_GETEVENT, mask) == 1)
     {}
 
     Py_RETURN_NONE;
@@ -835,7 +1030,7 @@ event_get (PyObject* self, PyObject* args)
 
     SDL_PumpEvents ();
 
-    while (SDL_PeepEvents (&event, 1, SDL_GETEVENT, mask) == 1)
+    while (PG_PeepEvent (&event, SDL_GETEVENT, mask) == 1)
     {
         e = PyEvent_New (&event);
         if (!e)
@@ -893,7 +1088,7 @@ event_peek (PyObject* self, PyObject* args)
     }
 
     SDL_PumpEvents ();
-    result = SDL_PeepEvents (&event, 1, SDL_PEEKEVENT, mask);
+    result = PG_PeepEvent (&event, SDL_PEEKEVENT, mask);
 
     if (noargs)
         return PyEvent_New (&event);
@@ -1122,14 +1317,29 @@ MODINIT_DEFINE (event)
         MODINIT_ERROR;
     }
 
-    if (first_user_event == PGE_NON_SDL_EVENT) {
-        int numevents = PGE_NUMEVENTS - PGE_USEREVENT;
-        first_user_event = SDL_RegisterEvents (numevents);
-        if (first_user_event != PGE_NON_SDL_EVENT) {
-            last_user_event = first_user_event + numevents - 1;
+    if (!have_registered_events) {
+        int numevents = SDL_NUMEVENTS - SDL_USEREVENT;
+        Uint32 user_event = SDL_RegisterEvents (numevents);
+
+        if (user_event == (Uint32)-1) {
+            PyErr_SetString (PyExc_SDLError,
+                             "unable to register user events");
+            DECREF_MOD (module);
+            MODINIT_ERROR;
         }
+        if (user_event != SDL_USEREVENT) {
+            PyErr_SetString (PyExc_ImportError,
+                             "Unable to create another module instance");
+            DECREF_MOD (module);
+            MODINIT_ERROR;
+        }
+        have_registered_events = 1;
     }
+
+    SDL_SetEventFilter (event_filter, NULL);
+
     /* export the c api */
+    assert (PYGAMEAPI_EVENT_NUMSLOTS == 6);
     c_api[0] = &PyEvent_Type;
     c_api[1] = PyEvent_New;
     c_api[2] = PyEvent_New2;

@@ -223,11 +223,11 @@ typedef enum {
 } PygameVideoFlags;
 
 typedef enum {
-    SDL_NOEVENT = 0,
-    SDL_ACTIVEEVENT = SDL_WINDOWEVENT,
+    SDL_NOEVENT = (Uint32)-1,
     /* SDL 1.2 allowed for 8 user defined events. */
     SDL_NUMEVENTS = SDL_USEREVENT + 8,
-    SDL_VIDEORESIZE = SDL_NUMEVENTS,
+    SDL_ACTIVEEVENT = SDL_NUMEVENTS,
+    SDL_VIDEORESIZE,
     SDL_VIDEOEXPOSE,
     PGE_EVENTEND
 } PygameEventCode;
@@ -603,7 +603,7 @@ typedef struct
 /* EVENT */
 #define PYGAMEAPI_EVENT_FIRSTSLOT                                       \
     (PYGAMEAPI_SURFLOCK_FIRSTSLOT + PYGAMEAPI_SURFLOCK_NUMSLOTS)
-#define PYGAMEAPI_EVENT_NUMSLOTS 8
+#define PYGAMEAPI_EVENT_NUMSLOTS 6
 
 typedef struct {
     PyObject_HEAD
@@ -628,10 +628,6 @@ typedef struct {
 #define Py_GetKeyRepeat                                 \
     (*(void (*)(int*, int*))PyGAME_C_API[PYGAMEAPI_EVENT_FIRSTSLOT + 5])
 #define import_pygame_event() IMPORT_PYGAME_MODULE(event, EVENT)
-#define Py_SDLEventTypeToPG                             \
-    (*(int (*)(const SDL_Event*)) PyGAME_C_API[PYGAMEAPI_EVENT_FIRSTSLOT + 6])
-#define Py_PGEventTypeToSDL                             \
-    (*(int (*)(int)) PyGAME_C_API[PYGAMEAPI_EVENT_FIRSTSLOT + 7])
 #endif
 
 
