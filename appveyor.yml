@@ -73,4 +73,7 @@ test_script:
 artifacts:
   - path: dist\*
 
-
+# Do not building this (SDL2_patches) Git branch for now.
+branches:
+    except:
+        - SDL2_patches
