@@ -82,8 +82,10 @@ static PyObject* PgExc_BufferError = NULL;
 /* Only one instance of the state per process. */
 static PyObject* quitfunctions = NULL;
 static int sdl_was_init = 0;
+#ifdef SDL2
 SDL_Window* default_window = NULL;
 PyObject* default_screen = NULL;
+#endif /* SDL2 */
 
 static void install_parachute (void);
 static void uninstall_parachute (void);
@@ -140,10 +142,12 @@ static PyObject* _data_as_tuple (PyArrayInterface*);
 static PyObject* get_array_interface (PyObject*, PyObject*);
 static void _release_buffer_array (Py_buffer*);
 static void _release_buffer_generic (Py_buffer*);
+#ifdef SDL2
 static SDL_Window* Py_GetDefaultWindow (void);
 static void Py_SetDefaultWindow (SDL_Window*);
 static PyObject* Py_GetDefaultWindowSurface (void);
 static void Py_SetDefaultWindowSurface (PyObject*);
+#endif /* SDL2 */
 
 #if PY_VERSION_HEX < 0x02060000
 static int
@@ -208,19 +212,35 @@ static int
 CheckSDLVersions (void) /*compare compiled to linked*/
 {
     SDL_version compiled;
+#ifndef SDL2
+    const SDL_version* linked;
+#else /* SDL2 */
     SDL_version linked;
+#endif /* SDL2 */
     SDL_VERSION (&compiled);
+#ifndef SDL2
+    linked = SDL_Linked_Version ();
+#else /* SDL2 */
     SDL_GetVersion (&linked);
+#endif /* SDL2 */
 
     /*only check the major and minor version numbers.
       we will relax any differences in 'patch' version.*/
 
+#ifndef SDL2
+    if (compiled.major != linked->major || compiled.minor != linked->minor)
+#else /* SDL2 */
     if (compiled.major != linked.major || compiled.minor != linked.minor)
+#endif /* SDL2 */
     {
         PyErr_Format(PyExc_RuntimeError,
                      "SDL compiled with version %d.%d.%d, linked to %d.%d.%d",
                      compiled.major, compiled.minor, compiled.patch,
+#ifndef SDL2
+                     linked->major, linked->minor, linked->patch);
+#else /* SDL2 */
                      linked.major, linked.minor, linked.patch);
+#endif /* SDL2 */
         return 0;
     }
     return 1;
@@ -333,10 +353,19 @@ atexit_quit (void)
 static PyObject*
 get_sdl_version (PyObject* self)
 {
+#ifndef SDL2
+    const SDL_version *v;
+#else /* SDL2 */
     SDL_version v;
+#endif /* SDL2 */
 
+#ifndef SDL2
+    v = SDL_Linked_Version ();
+    return Py_BuildValue ("iii", v->major, v->minor, v->patch);
+#else /* SDL2 */
     SDL_GetVersion (&v);
     return Py_BuildValue ("iii", v.major, v.minor, v.patch);
+#endif /* SDL2 */
 }
 
 static PyObject*
@@ -600,7 +629,11 @@ PyGame_Video_AutoInit (void)
         status = SDL_InitSubSystem (SDL_INIT_VIDEO);
         if (status)
             return 0;
+#ifndef SDL2
+        SDL_EnableUNICODE (1);
+#else /* SDL2 */
 
+#endif /* SDL2 */
         /*we special case the video quit to last now*/
         /*PyGame_RegisterQuit(PyGame_Video_AutoQuit);*/
     }
@@ -1883,6 +1916,7 @@ _pytypestr_as_format (PyObject* sp, char* format, Py_ssize_t* itemsize_p)
 }
 
 
+#ifdef SDL2
 /*Default window (display)*/
 static SDL_Window*
 Py_GetDefaultWindow (void)
@@ -1922,6 +1956,7 @@ Py_SetDefaultWindowSurface (PyObject* screen)
     default_screen = screen;
 }
 
+#endif /* SDL2 */
 /*error signal handlers (replacing SDL parachute)*/
 static void
 pygame_parachute (int sig)
@@ -2148,9 +2183,15 @@ MODINIT_DEFINE(base)
     }
 
     /* export the c api */
+#ifndef SDL2
+#if PYGAMEAPI_BASE_NUMSLOTS != 19
+#error export slot count mismatch
+#endif
+#else /* SDL2 */
 #if PYGAMEAPI_BASE_NUMSLOTS != 23
 #error export slot count mismatch
 #endif
+#endif /* SDL2 */
     c_api[0] = PyExc_SDLError;
     c_api[1] = PyGame_RegisterQuit;
     c_api[2] = IntFromObj;
@@ -2170,10 +2211,12 @@ MODINIT_DEFINE(base)
     c_api[16] = PgBuffer_Release;
     c_api[17] = PgDict_AsBuffer;
     c_api[18] = PgExc_BufferError;
+#ifdef SDL2
     c_api[19] = Py_GetDefaultWindow;
     c_api[20] = Py_SetDefaultWindow;
     c_api[21] = Py_GetDefaultWindowSurface;
     c_api[22] = Py_SetDefaultWindowSurface;
+#endif /* SDL2 */
     apiobj = encapsulate_api (c_api, "base");
     if (apiobj == NULL) {
         Py_XDECREF (atexit_register);

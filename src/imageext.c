@@ -260,8 +260,14 @@ SavePNG (SDL_Surface *surface, const char *file)
     int r, i;
     int alpha = 0;
 
+#ifndef SDL2
+    unsigned surf_flags;
+    unsigned surf_alpha;
+    unsigned surf_colorkey;
+#else /* SDL2 */
     Uint8 surf_alpha = 255;
     Uint32 surf_colorkey;
+#endif /* SDL2 */
 
     ss_rows = 0;
     ss_size = 0;
@@ -273,7 +279,11 @@ SavePNG (SDL_Surface *surface, const char *file)
     if (surface->format->Amask)
     {
         alpha = 1;
+#ifndef SDL2
+        ss_surface = SDL_CreateRGBSurface (SDL_SWSURFACE|SDL_SRCALPHA,
+#else /* SDL2 */
         ss_surface = SDL_CreateRGBSurface (0,
+#endif /* SDL2 */
                                            ss_w, ss_h, 32,
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
                                            0xff000000, 0xff0000, 0xff00, 0xff
@@ -284,7 +294,11 @@ SavePNG (SDL_Surface *surface, const char *file)
     }
     else
     {
+#ifndef SDL2
+        ss_surface = SDL_CreateRGBSurface (SDL_SWSURFACE,
+#else /* SDL2 */
         ss_surface = SDL_CreateRGBSurface (0,
+#endif /* SDL2 */
                                            ss_w, ss_h, 24,
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
                                            0xff0000, 0xff00, 0xff, 0
@@ -297,6 +311,17 @@ SavePNG (SDL_Surface *surface, const char *file)
     if (ss_surface == NULL)
         return -1;
 
+#ifndef SDL2
+    surf_flags = surface->flags & (SDL_SRCALPHA | SDL_SRCCOLORKEY);
+    surf_alpha = surface->format->alpha;
+    surf_colorkey = surface->format->colorkey;
+
+    if (surf_flags & SDL_SRCALPHA)
+        SDL_SetAlpha (surface, 0, 255);
+    if (surf_flags & SDL_SRCCOLORKEY)
+        SDL_SetColorKey (surface, 0, surface->format->colorkey);
+
+#endif /* ! SDL2 */
     ss_rect.x = 0;
     ss_rect.y = 0;
     ss_rect.w = ss_w;
@@ -310,10 +335,17 @@ SavePNG (SDL_Surface *surface, const char *file)
         if (ss_rows == NULL)
             return -1;
     }
+#ifndef SDL2
+    if (surf_flags & SDL_SRCALPHA)
+        SDL_SetAlpha (surface, SDL_SRCALPHA, (Uint8)surf_alpha);
+    if (surf_flags & SDL_SRCCOLORKEY)
+        SDL_SetColorKey (surface, SDL_SRCCOLORKEY, surf_colorkey);
+#else /* SDL2 */
     if (SDL_GetColorKey (surface, &surf_colorkey) == 0)
         SDL_SetColorKey (ss_surface, SDL_TRUE, surf_colorkey);
     SDL_GetSurfaceAlphaMod (surface, &surf_alpha);
     SDL_SetSurfaceAlphaMod (surface, surf_alpha); 
+#endif /* SDL2 */
 
     for (i = 0; i < ss_h; i++)
     {
@@ -534,7 +566,11 @@ int SaveJPEG (SDL_Surface *surface, const char *file) {
        So no conversion is needed.  24bit, RGB
     */
 
+#ifndef SDL2
+    if((surface->format->BytesPerPixel == 3) && !(surface->flags & SDL_SRCALPHA) && (surface->format->Rmask == RED_MASK)) {
+#else /* SDL2 */
     if (surface->format->format == SDL_PIXELFORMAT_RGB24) {
+#endif /* SDL2 */
         /*
            printf("not creating...\n");
         */
@@ -550,7 +586,11 @@ int SaveJPEG (SDL_Surface *surface, const char *file) {
          */
 
 
+#ifndef SDL2
+        ss_surface = SDL_CreateRGBSurface (SDL_SWSURFACE,
+#else /* SDL2 */
         ss_surface = SDL_CreateRGBSurface (0,
+#endif /* SDL2 */
                                            ss_w, ss_h, pixel_bits,
                                            RED_MASK, GREEN_MASK, BLUE_MASK, 0);
         if (ss_surface == NULL) {
@@ -597,6 +637,75 @@ int SaveJPEG (SDL_Surface *surface, const char *file) {
 
 #endif /* end if JPEGLIB_H */
 
+#ifndef SDL2
+/* NOTE XX HACK TODO FIXME: this opengltosdl is also in image.c
+   need to share it between both.
+*/
+
+
+static SDL_Surface*
+opengltosdl (void)
+{
+    /*we need to get ahold of the pyopengl glReadPixels function*/
+    /*we use pyopengl's so we don't need to link with opengl at compiletime*/
+    SDL_Surface *surf = NULL;
+    Uint32 rmask, gmask, bmask;
+    int i;
+    unsigned char *pixels = NULL;
+
+    GL_glReadPixels_Func p_glReadPixels= NULL;
+
+    p_glReadPixels = (GL_glReadPixels_Func) SDL_GL_GetProcAddress("glReadPixels");
+
+    surf = SDL_GetVideoSurface ();
+
+    if(!surf) {
+        RAISE (PyExc_RuntimeError, "Cannot get video surface.");
+        return NULL;
+    }
+    if(!p_glReadPixels) {
+        RAISE (PyExc_RuntimeError, "Cannot find glReadPixels function.");
+        return NULL;
+    }
+
+    pixels = (unsigned char*) malloc(surf->w * surf->h * 3);
+
+    if(!pixels) {
+        RAISE (PyExc_MemoryError, "Cannot allocate enough memory for pixels.");
+        return NULL;
+    }
+
+    /* GL_RGB, GL_UNSIGNED_BYTE */
+    p_glReadPixels(0, 0, surf->w, surf->h, 0x1907, 0x1401, pixels);
+
+    if (SDL_BYTEORDER == SDL_LIL_ENDIAN) {
+        rmask=0x000000FF;
+        gmask=0x0000FF00;
+        bmask=0x00FF0000;
+    } else {
+        rmask=0x00FF0000;
+        gmask=0x0000FF00;
+        bmask=0x000000FF;
+    }
+    surf = SDL_CreateRGBSurface (SDL_SWSURFACE, surf->w, surf->h, 24,
+                                 rmask, gmask, bmask, 0);
+    if (!surf) {
+        free(pixels);
+        RAISE (PyExc_SDLError, SDL_GetError ());
+        return NULL;
+    }
+
+    for (i = 0; i < surf->h; ++i) {
+        memcpy (((char *) surf->pixels) + surf->pitch * i,
+                pixels + 3 * surf->w * (surf->h - i - 1), surf->w * 3);
+    }
+
+
+    free(pixels);
+    return surf;
+}
+
+#endif /* ! SDL2 */
 
 static PyObject*
 image_save_ext(PyObject *self, PyObject *arg)
@@ -613,7 +722,19 @@ image_save_ext(PyObject *self, PyObject *arg)
     }
 
     surf = PySurface_AsSurface(surfobj);
+#ifndef SDL2
+    if (surf->flags & SDL_OPENGL) {
+        temp = surf = opengltosdl();
+        if (surf == NULL) {
+            return NULL;
+        }
+    }
+    else {
+        PySurface_Prep(surfobj);
+    }
+#else /* SDL2 */
     PySurface_Prep(surfobj);
+#endif /* SDL2 */
 
     oencoded = RWopsEncodeFilePath(obj, PyExc_SDLError);
     if (oencoded == Py_None) {

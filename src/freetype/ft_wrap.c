@@ -480,7 +480,13 @@ _PGFT_TryLoadFont_RWops(FreeTypeInstance *ft, PgFontObject *fontobj,
     stream->read = RWops_read;
     stream->descriptor.pointer = src;
     stream->pos = (unsigned long)position;
+#ifndef SDL2
+    SDL_RWseek(src, 0, SEEK_END);
+    stream->size = (unsigned long)(SDL_RWtell(src) - position);
+    SDL_RWseek(src, position, SEEK_SET);
+#else /* SDL2 */
     stream->size = (unsigned long)(SDL_RWsize(src));
+#endif /* SDL2 */
 
     fontobj->id.font_index = (FT_Long) font_index;
     fontobj->id.open_args.flags = FT_OPEN_STREAM;

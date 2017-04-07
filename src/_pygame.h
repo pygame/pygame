@@ -202,6 +202,7 @@ typedef struct pg_bufferinfo_s {
 
 #include <SDL.h>
 
+#ifdef SDL2
 /* SDL 1.2 constants removed from SDL 2 */
 typedef enum {
     SDL_HWSURFACE = 0,
@@ -263,6 +264,7 @@ typedef enum {
     PGS_PREALLOC      = 0x01000000
 } PygameSurfaceFlags;
 
+#endif /* SDL2 */
 /* macros used throughout the source */
 #define RAISE(x,y) (PyErr_SetString((x), (y)), (PyObject*)NULL)
 
@@ -322,7 +324,11 @@ typedef getcharbufferproc charbufferproc;
 #define VIEW_F_ORDER       4
 
 #define PYGAMEAPI_BASE_FIRSTSLOT 0
+#ifndef SDL2
+#define PYGAMEAPI_BASE_NUMSLOTS 19
+#else /* SDL2 */
 #define PYGAMEAPI_BASE_NUMSLOTS 23
+#endif /* SDL2 */
 #ifndef PYGAMEAPI_BASE_INTERNAL
 #define PyExc_SDLError ((PyObject*)PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT])
 
@@ -387,6 +393,7 @@ typedef getcharbufferproc charbufferproc;
 #define PgExc_BufferError                                               \
     ((PyObject*)PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 18])
 
+#ifdef SDL2
 #define Py_GetDefaultWindow                                             \
     (*(SDL_Window*(*)(void))                                            \
      PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 19])
@@ -403,6 +410,7 @@ typedef getcharbufferproc charbufferproc;
     (*(void(*)(PyObject*))                                              \
      PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 22])
 
+#endif /* SDL2 */
 #define import_pygame_base() IMPORT_PYGAME_MODULE(base, BASE)
 #endif
 
@@ -491,7 +499,30 @@ typedef struct {
 /* DISPLAY */
 #define PYGAMEAPI_DISPLAY_FIRSTSLOT \
     (PYGAMEAPI_JOYSTICK_FIRSTSLOT + PYGAMEAPI_JOYSTICK_NUMSLOTS)
+#ifndef SDL2
+#define PYGAMEAPI_DISPLAY_NUMSLOTS 2
+typedef struct {
+    PyObject_HEAD
+    SDL_VideoInfo info;
+} PyVidInfoObject;
+
+#define PyVidInfo_AsVidInfo(x) (((PyVidInfoObject*)x)->info)
+#ifndef PYGAMEAPI_DISPLAY_INTERNAL
+#define PyVidInfo_Check(x)                                              \
+    ((x)->ob_type == (PyTypeObject*)                                    \
+     PyGAME_C_API[PYGAMEAPI_DISPLAY_FIRSTSLOT + 0])
+
+#define PyVidInfo_Type                                                  \
+    (*(PyTypeObject*)PyGAME_C_API[PYGAMEAPI_DISPLAY_FIRSTSLOT + 0])
+#define PyVidInfo_New                                   \
+    (*(PyObject*(*)(SDL_VideoInfo*))                    \
+     PyGAME_C_API[PYGAMEAPI_DISPLAY_FIRSTSLOT + 1])
+#define import_pygame_display() IMPORT_PYGAME_MODULE(display, DISPLAY)
+#endif
+
+#else /* SDL2 */
 #define PYGAMEAPI_DISPLAY_NUMSLOTS 0
+#endif /* SDL2 */
 
 /* SURFACE */
 #define PYGAMEAPI_SURFACE_FIRSTSLOT                             \
@@ -500,7 +531,9 @@ typedef struct {
 typedef struct {
     PyObject_HEAD
     SDL_Surface* surf;
+#ifdef SDL2
     int owner;
+#endif /* SDL2 */
     struct SubSurface_Data* subsurface;  /*ptr to subsurface data (if a
                                           * subsurface)*/
     PyObject *weakreflist;
@@ -514,9 +547,15 @@ typedef struct {
      PyGAME_C_API[PYGAMEAPI_SURFACE_FIRSTSLOT + 0])
 #define PySurface_Type                                                  \
     (*(PyTypeObject*)PyGAME_C_API[PYGAMEAPI_SURFACE_FIRSTSLOT + 0])
+#ifndef SDL2
+#define PySurface_New                                                   \
+    (*(PyObject*(*)(SDL_Surface*))                                      \
+     PyGAME_C_API[PYGAMEAPI_SURFACE_FIRSTSLOT + 1])
+#else /* SDL2 */
 #define PgSurface_New                                                   \
     (*(PyObject*(*)(SDL_Surface*, int))                                 \
      PyGAME_C_API[PYGAMEAPI_SURFACE_FIRSTSLOT + 1])
+#endif /* SDL2 */
 #define PySurface_Blit                                                  \
     (*(int(*)(PyObject*,PyObject*,SDL_Rect*,SDL_Rect*,int))             \
      PyGAME_C_API[PYGAMEAPI_SURFACE_FIRSTSLOT + 2])
@@ -527,8 +566,11 @@ typedef struct {
     IMPORT_PYGAME_MODULE(surflock, SURFLOCK);                          \
     } while (0)
 
+#ifdef SDL2
 #define PySurface_New(surface) PgSurface_New((surface), 1)
 #define PySurface_NewNoOwn(surface) PgSurface_New((surface), 0)
+#endif /* SDL2 */
+
 #endif
 
 
@@ -584,7 +626,11 @@ typedef struct
 /* EVENT */
 #define PYGAMEAPI_EVENT_FIRSTSLOT                                       \
     (PYGAMEAPI_SURFLOCK_FIRSTSLOT + PYGAMEAPI_SURFLOCK_NUMSLOTS)
+#ifndef SDL2
+#define PYGAMEAPI_EVENT_NUMSLOTS 4
+#else /* SDL2 */
 #define PYGAMEAPI_EVENT_NUMSLOTS 6
+#endif /* SDL2 */
 
 typedef struct {
     PyObject_HEAD
@@ -604,10 +650,12 @@ typedef struct {
 #define PyEvent_FillUserEvent                           \
     (*(int (*)(PyEventObject*, SDL_Event*))             \
      PyGAME_C_API[PYGAMEAPI_EVENT_FIRSTSLOT + 3])
+#ifdef SDL2
 #define Py_EnableKeyRepeat                              \
     (*(int (*)(int, int))PyGAME_C_API[PYGAMEAPI_EVENT_FIRSTSLOT + 4])
 #define Py_GetKeyRepeat                                 \
     (*(void (*)(int*, int*))PyGAME_C_API[PYGAMEAPI_EVENT_FIRSTSLOT + 5])
+#endif /* SDL2 */
 #define import_pygame_event() IMPORT_PYGAME_MODULE(event, EVENT)
 #endif
 

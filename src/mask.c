@@ -450,7 +450,9 @@ static PyObject* mask_from_surface(PyObject* self, PyObject* args)
 
     SDL_PixelFormat *format;
     Uint32 color, amask;
+#ifdef SDL2
     Uint32 colorkey;
+#endif /* SDL2 */
     Uint8 *pix;
     Uint8 a;
 
@@ -487,7 +489,11 @@ static PyObject* mask_from_surface(PyObject* self, PyObject* args)
     amask = format->Amask;
     ashift = format->Ashift;
     aloss = format->Aloss;
+#ifndef SDL2
+    usethresh = !(surf->flags & SDL_SRCCOLORKEY);
+#else /* SDL2 */
     usethresh = (SDL_GetColorKey(surf, &colorkey) == -1);
+#endif /* SDL2 */
 
     for(y=0; y < surf->h; y++) {
         pixels = (Uint8 *) surf->pixels + y*surf->pitch;
@@ -507,7 +513,15 @@ static PyObject* mask_from_surface(PyObject* self, PyObject* args)
                 case 3:
                     pix = ((Uint8 *) pixels);
                     pixels += 3;
+#ifndef SDL2
+                #if SDL_BYTEORDER == SDL_LIL_ENDIAN
+                    color = (pix[0]) + (pix[1] << 8) + (pix[2] << 16);
+                #else
                     color = (pix[2]) + (pix[1] << 8) + (pix[0] << 16);
+                #endif
+#else /* SDL2 */
+                    color = (pix[2]) + (pix[1] << 8) + (pix[0] << 16);
+#endif /* SDL2 */
                     break;
                 default:                  /* case 4: */
                     color = *((Uint32 *) pixels);
@@ -524,7 +538,11 @@ static PyObject* mask_from_surface(PyObject* self, PyObject* args)
                 }
             } else {
                 /*  test against the colour key. */
+#ifndef SDL2
+                if (format->colorkey != color) {
+#else /* SDL2 */
                 if (colorkey != color) {
+#endif /* SDL2 */
                     bitmask_setbit(mask, x, y);
                 }
             }
@@ -633,7 +651,15 @@ void bitmask_threshold (bitmask_t *m,
             case 3:
                 pix = ((Uint8 *) pixels);
                 pixels += 3;
+#ifndef SDL2
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+                the_color = (pix[0]) + (pix[1] << 8) + (pix[2] << 16);
+#else
                 the_color = (pix[2]) + (pix[1] << 8) + (pix[0] << 16);
+#endif
+#else /* SDL2 */
+                the_color = (pix[2]) + (pix[1] << 8) + (pix[0] << 16);
+#endif /* ! SDL2 */
                 break;
             default:                  /* case 4: */
                 the_color = *((Uint32 *) pixels);
@@ -654,7 +680,15 @@ void bitmask_threshold (bitmask_t *m,
                     case 3:
                         pix = ((Uint8 *) pixels2);
                         pixels2 += 3;
+#ifndef SDL2
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+                        the_color2 = (pix[0]) + (pix[1] << 8) + (pix[2] << 16);
+#else
                         the_color2 = (pix[2]) + (pix[1] << 8) + (pix[0] << 16);
+#endif
+#else /* SDL2 */
+                        the_color2 = (pix[2]) + (pix[1] << 8) + (pix[0] << 16);
+#endif /* SDL2 */
                         break;
                     default:                  /* case 4: */
                         the_color2 = *((Uint32 *) pixels2);

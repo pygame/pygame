@@ -78,8 +78,10 @@ static SDL_Surface*
 newsurf_fromsurf (SDL_Surface* surf, int width, int height)
 {
     SDL_Surface* newsurf;
+#ifdef SDL2
     Uint32 colorkey;
     Uint8 alpha;
+#endif /* SDL2 */
     int result;
 
     if (surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4)
@@ -95,6 +97,20 @@ newsurf_fromsurf (SDL_Surface* surf, int width, int height)
         return (SDL_Surface*) (RAISE (PyExc_SDLError, SDL_GetError ()));
 
     /* Copy palette, colorkey, etc info */
+#ifndef SDL2
+    if (surf->format->BytesPerPixel==1 && surf->format->palette)
+        SDL_SetColors (newsurf, surf->format->palette->colors, 0,
+                       surf->format->palette->ncolors);
+    if (surf->flags & SDL_SRCCOLORKEY)
+        SDL_SetColorKey (newsurf, (surf->flags&SDL_RLEACCEL) | SDL_SRCCOLORKEY,
+                         surf->format->colorkey);
+
+    if (surf->flags&SDL_SRCALPHA)
+    {
+        result = SDL_SetAlpha (newsurf, surf->flags, surf->format->alpha);
+        if (result == -1)
+            return (SDL_Surface*) (RAISE (PyExc_SDLError, SDL_GetError ()));
+#else /* SDL2 */
     if (SDL_ISPIXELFORMAT_INDEXED (surf->format->format))
     {
         if (SDL_SetPaletteColors (newsurf->format->palette,
@@ -124,6 +140,7 @@ newsurf_fromsurf (SDL_Surface* surf, int width, int height)
         PyErr_SetString (PyExc_SDLError, SDL_GetError ());
         SDL_FreeSurface (newsurf);
         return NULL;
+#endif /* SDL2 */
     }
     return newsurf;
 }
@@ -666,7 +683,13 @@ surf_rotate (PyObject* self, PyObject* arg)
         return NULL;
 
     /* get the background color */
+#ifndef SDL2
+    if (surf->flags & SDL_SRCCOLORKEY)
+        bgcolor = surf->format->colorkey;
+    else
+#else /* SDL2 */
     if (SDL_GetColorKey (surf, &bgcolor) != 0)
+#endif /* SDL2 */
     {
         SDL_LockSurface (surf);
         switch (surf->format->BytesPerPixel)

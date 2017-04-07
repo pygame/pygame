@@ -1248,9 +1248,7 @@ class FreeTypeFontTest(unittest.TestCase):
         self.assertTrue(metrics[0] is None)
         self.assertTrue(isinstance(metrics[1], tuple))
 
-##    def test_issue_144(self):
-        # Apparently SDL 2.0 lacks the size limitations of SDL 1.2.
-    def ignore_test_issue_144(self):
+    def test_issue_144(self):
         """Issue #144: unable to render text"""
 
         # The bug came in two parts. The first was a convertion bug from

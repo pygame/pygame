@@ -22,10 +22,16 @@
 
 #include <stddef.h>
 #include "pygame.h"
+#ifdef SDL2
 #include "palette.h"
+#endif /* SDL2 */
 #include "pgcompat.h"
 #include "doc/pixelcopy_doc.h"
+#ifndef SDL2
+#include <SDL_byteorder.h>
+#else /* SDL2 */
 #include <SDL_endian.h>
+#endif /* SDL2 */
 
 typedef enum {
     VIEWKIND_RED,
@@ -254,6 +260,9 @@ _copy_colorplane(Py_buffer *view_p,
 {
     SDL_PixelFormat *format = surf->format;
     int pixelsize = surf->format->BytesPerPixel;
+#ifndef SDL2
+    Uint32 flags = surf->flags;
+#endif /* ! SDL2 */
     int intsize = (int)view_p->itemsize;
     char *src = (char *)surf->pixels;
     char *dst = (char *)view_p->buf;
@@ -313,8 +322,13 @@ _copy_colorplane(Py_buffer *view_p,
         dz_dst = -1;
     }
 #endif
+#ifndef SDL2
+    if (view_kind == VIEWKIND_COLORKEY && flags & SDL_SRCCOLORKEY) {
+        colorkey = format->colorkey;
+#else /* SDL2 */
     if (view_kind == VIEWKIND_COLORKEY &&
         SDL_GetColorKey(surf, &colorkey) == 0) {
+#endif /* SDL2 */
         for (x = 0; x < w; ++x) {
             for (y = 0; y < h; ++y) {
                 for (z = 0; z < pixelsize; ++z) {
@@ -329,8 +343,12 @@ _copy_colorplane(Py_buffer *view_p,
         }
     }
     else if ((view_kind != VIEWKIND_COLORKEY) &&
+#ifndef SDL2
+             (view_kind != VIEWKIND_ALPHA || flags & SDL_SRCALPHA)) {
+#else /* SDL2 */
              (view_kind != VIEWKIND_ALPHA ||
               SDL_ISPIXELFORMAT_ALPHA(format->format))) {
+#endif /* SDL2 */
         for (x = 0; x < w; ++x) {
             for (y = 0; y < h; ++y) {
                 for (z = 0; z < pixelsize; ++z) {
@@ -1136,9 +1154,15 @@ make_surface (PyObject* self, PyObject* arg)
 
     if (view_p->ndim == 2) {
         bitsperpixel = 8;
+#ifndef SDL2
+        rmask = 0xFF >> 6 << 5;
+        gmask = 0xFF >> 5 << 2;
+        bmask = 0xFF >> 6;
+#else /* SDL2 */
         rmask = 0;
         gmask = 0;
         bmask = 0;
+#endif /* SDL2 */
     }
     else {
         bitsperpixel = 32;
@@ -1154,6 +1178,7 @@ make_surface (PyObject* self, PyObject* arg)
     if (!surf) {
         PgBuffer_Release(&pg_view);
         return RAISE(PyExc_SDLError, SDL_GetError());
+#ifdef SDL2
     }
     if (SDL_ISPIXELFORMAT_INDEXED (surf->format->format)) {
         /* Give the surface something other than an all white palette.
@@ -1166,6 +1191,7 @@ make_surface (PyObject* self, PyObject* arg)
             SDL_FreeSurface (surf);
             return 0;
         }
+#endif /* SDL2 */
     }
     surfobj = PySurface_New(surf);
     if (!surfobj) {

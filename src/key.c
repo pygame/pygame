@@ -41,7 +41,11 @@ key_set_repeat (PyObject* self, PyObject* args)
     if (delay && !interval)
         interval = delay;
 
+#ifndef SDL2
+    if (SDL_EnableKeyRepeat (delay, interval) == -1)
+#else /* SDL2 */
     if (Py_EnableKeyRepeat (delay, interval) == -1)
+#endif /* SDL2 */
         return RAISE (PyExc_SDLError, SDL_GetError ());
 
     Py_RETURN_NONE;
@@ -56,7 +60,11 @@ key_get_repeat (PyObject* self, PyObject* args)
 
     VIDEO_INIT_CHECK ();
 #if SDL_VERSION_ATLEAST(1, 2, 10)
+#ifndef SDL2
+    SDL_GetKeyRepeat (&delay, &interval);
+#else /* SDL2 */
     Py_GetKeyRepeat (&delay, &interval);
+#endif /* SDL2 */
     return Py_BuildValue ("(ii)", delay, interval);
 #else
     Py_RETURN_NONE;
@@ -81,7 +89,11 @@ key_get_pressed (PyObject* self)
 
     VIDEO_INIT_CHECK ();
 
+#ifndef SDL2
+    key_state = SDL_GetKeyState (&num_keys);
+#else /* SDL2 */
     key_state = SDL_GetKeyboardState (&num_keys);
+#endif /* SDL2 */
 
     if (!key_state || !num_keys)
         Py_RETURN_NONE;
@@ -141,7 +153,11 @@ key_get_focused (PyObject* self)
 {
     VIDEO_INIT_CHECK ();
 
+#ifndef SDL2
+    return PyInt_FromLong ((SDL_GetAppState () & SDL_APPINPUTFOCUS) != 0);
+#else /* SDL2 */
     return PyInt_FromLong (SDL_GetKeyboardFocus () != NULL);
+#endif /* SDL2 */
 }
 
 static PyMethodDef _key_methods[] =
@@ -179,11 +195,13 @@ MODINIT_DEFINE (key)
        the module is not loaded.
     */
     import_pygame_base ();
+#ifdef SDL2
     if (PyErr_Occurred ()) {
         MODINIT_ERROR;
     }
 
     import_pygame_event ();
+#endif /* SDL2 */
     if (PyErr_Occurred ()) {
         MODINIT_ERROR;
     }

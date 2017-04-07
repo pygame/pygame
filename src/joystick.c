@@ -164,7 +164,11 @@ joy_get_name (PyObject* self)
 {
     int joy_id = PyJoystick_AsID (self);
     JOYSTICK_INIT_CHECK ();
+#ifndef SDL2
+    return Text_FromUTF8 (SDL_JoystickName (joy_id));
+#else /* SDL2 */
     return Text_FromUTF8 (SDL_JoystickNameForIndex (joy_id));
+#endif /* SDL2 */
 }
 
 static PyObject*

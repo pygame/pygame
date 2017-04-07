@@ -32,7 +32,9 @@
 #include <SDL.h>
 #include "pygame.h"
 
+#ifdef SDL2
 /* Blend modes */
+#endif /* SDL2 */
 #define PYGAME_BLEND_ADD  0x1
 #define PYGAME_BLEND_SUB  0x2
 #define PYGAME_BLEND_MULT 0x3
@@ -96,11 +98,19 @@
         _sA = 255;                                                    \
     }
 
+#ifndef SDL2
+#define GET_PIXELVALS_1(sr, sg, sb, sa, _src, _fmt)    \
+    sr = _fmt->palette->colors[*((Uint8 *) (_src))].r; \
+    sg = _fmt->palette->colors[*((Uint8 *) (_src))].g; \
+    sb = _fmt->palette->colors[*((Uint8 *) (_src))].b; \
+    sa = 255;
+#else /* SDL2 */
 #define GET_PIXELVALS_1(sr, sg, sb, sa, _src, _fmt)    \
     sr = _fmt->palette->colors[*((Uint8 *) (_src))].r; \
     sg = _fmt->palette->colors[*((Uint8 *) (_src))].g; \
     sb = _fmt->palette->colors[*((Uint8 *) (_src))].b; \
     sa = _fmt->palette->colors[*((Uint8 *) (_src))].a;
+#endif /* SDL2 */
 
 
 

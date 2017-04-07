@@ -308,7 +308,11 @@ music_load(PyObject *self, PyObject *args)
             return NULL;
         }
         Py_BEGIN_ALLOW_THREADS
+#ifndef SDL2
+        new_music = Mix_LoadMUS_RW(rw);
+#else /* SDL2 */
         new_music = Mix_LoadMUS_RW(rw, SDL_TRUE);
+#endif /* SDL2 */
         Py_END_ALLOW_THREADS
 #else
         return RAISE (PyExc_NotImplementedError,
@@ -372,7 +376,11 @@ music_queue(PyObject *self, PyObject *args)
             return NULL;
         }
         Py_BEGIN_ALLOW_THREADS
+#ifndef SDL2
+        queue_music = Mix_LoadMUS_RW(rw);
+#else /* SDL2 */
         queue_music = Mix_LoadMUS_RW(rw, SDL_TRUE);
+#endif /* SDL2 */
         Py_END_ALLOW_THREADS
 #else
         return RAISE (PyExc_NotImplementedError,

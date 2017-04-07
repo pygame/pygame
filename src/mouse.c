@@ -38,7 +38,11 @@ mouse_set_pos (PyObject* self, PyObject* args)
 
     VIDEO_INIT_CHECK ();
 
+#ifndef SDL2
+    SDL_WarpMouse ((Uint16)x, (Uint16)y);
+#else /* SDL2 */
     SDL_WarpMouseInWindow (NULL, (Uint16)x, (Uint16)y);
+#endif /* SDL2 */
     Py_RETURN_NONE;
 }
 
@@ -100,7 +104,11 @@ static PyObject*
 mouse_get_focused (PyObject* self)
 {
     VIDEO_INIT_CHECK ();
+#ifndef SDL2
+    return PyInt_FromLong ((SDL_GetAppState () & SDL_APPMOUSEFOCUS) != 0);
+#else /* SDL2 */
     return PyInt_FromLong (SDL_GetMouseFocus () != NULL);
+#endif /* SDL2 */
 }
 
 static PyObject*
@@ -168,7 +176,9 @@ interror:
     return RAISE (PyExc_TypeError, "Invalid number in mask array");
 }
 
+#ifdef SDL2
 #if 0
+#endif /* SDL2 */
 static PyObject*
 mouse_get_cursor (PyObject* self)
 {
@@ -206,7 +216,9 @@ mouse_get_cursor (PyObject* self)
 
     return Py_BuildValue ("((ii)(ii)NN)", w, h, spotx, spoty, xordata, anddata);
 }
+#ifdef SDL2
 #endif /* This is probably going away. */
+#endif /* SDL2 */
 
 static PyMethodDef _mouse_methods[] =
 {
@@ -222,10 +234,14 @@ static PyMethodDef _mouse_methods[] =
     { "get_focused", (PyCFunction) mouse_get_focused, METH_VARARGS,
       DOC_PYGAMEMOUSEGETFOCUSED },
     { "set_cursor", mouse_set_cursor, METH_VARARGS, DOC_PYGAMEMOUSESETCURSOR },
+#ifdef SDL2
 #if 0
+#endif /* SDL2 */
     { "get_cursor", (PyCFunction) mouse_get_cursor, METH_VARARGS,
       DOC_PYGAMEMOUSEGETCURSOR },
+#ifdef SDL2
 #endif
+#endif /* SDL2 */
 
     { NULL, NULL, 0, NULL }
 };
