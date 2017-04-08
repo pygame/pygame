@@ -32,9 +32,7 @@
 #include <SDL.h>
 #include "pygame.h"
 
-#ifdef SDL2
 /* Blend modes */
-#endif /* SDL2 */
 #define PYGAME_BLEND_ADD  0x1
 #define PYGAME_BLEND_SUB  0x2
 #define PYGAME_BLEND_MULT 0x3
