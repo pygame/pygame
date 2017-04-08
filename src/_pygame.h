@@ -281,7 +281,7 @@ typedef getcharbufferproc charbufferproc;
     (*(int(*)(PyObject*, float*))PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 5])
 
 #define FloatFromObjIndex                                               \
-    (*(float(*)(PyObject*, int, float*))                                \
+    (*(int(*)(PyObject*, int, float*))                                \
      PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 6])
 
 #define TwoFloatsFromObj                                \
