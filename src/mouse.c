@@ -176,9 +176,7 @@ interror:
     return RAISE (PyExc_TypeError, "Invalid number in mask array");
 }
 
-#ifdef SDL2
-#if 0
-#endif /* SDL2 */
+#ifndef SDL2
 static PyObject*
 mouse_get_cursor (PyObject* self)
 {
@@ -216,9 +214,7 @@ mouse_get_cursor (PyObject* self)
 
     return Py_BuildValue ("((ii)(ii)NN)", w, h, spotx, spoty, xordata, anddata);
 }
-#ifdef SDL2
-#endif /* This is probably going away. */
-#endif /* SDL2 */
+#endif /* ! SDL2 */
 
 static PyMethodDef _mouse_methods[] =
 {
@@ -234,14 +230,10 @@ static PyMethodDef _mouse_methods[] =
     { "get_focused", (PyCFunction) mouse_get_focused, METH_VARARGS,
       DOC_PYGAMEMOUSEGETFOCUSED },
     { "set_cursor", mouse_set_cursor, METH_VARARGS, DOC_PYGAMEMOUSESETCURSOR },
-#ifdef SDL2
-#if 0
-#endif /* SDL2 */
+#ifndef SDL2
     { "get_cursor", (PyCFunction) mouse_get_cursor, METH_VARARGS,
       DOC_PYGAMEMOUSEGETCURSOR },
-#ifdef SDL2
-#endif
-#endif /* SDL2 */
+#endif /* ! SDL2 */
 
     { NULL, NULL, 0, NULL }
 };
