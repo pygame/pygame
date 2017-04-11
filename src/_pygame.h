@@ -202,6 +202,20 @@ typedef struct pg_bufferinfo_s {
 
 #include <SDL.h>
 
+/* Pygame's SDL version macros:
+ *   SDL2 is defined if at least SDL 2.0.0 (DEPRECATED)
+ *   IS_SDLv1 is 1 if SDL 1.x.x, 0 otherwise
+ *   IS_SDLv2 is 1 if at least SDL 2.0.0, 0 otherwise
+ */
+#if (SDL_VERSION_ATLEAST(2, 0, 0))
+#define SDL2
+#define IS_SDLv1 0
+#define IS_SDLv2 1
+#else
+#define IS_SDLv1 1
+#define IS_SDLv2 0
+#endif
+
 #ifdef SDL2
 /* SDL 1.2 constants removed from SDL 2 */
 typedef enum {

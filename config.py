@@ -166,10 +166,6 @@ def main():
             shutil.rmtree('build', 0)
 
     deps = CFG.main(**kwds)
-    if SDL2:
-        e = deps[0]
-        assert(e.name == 'SDL')
-        e.cflags += ' -DSDL2'
     if deps:
         basepath = None
         for d in deps:
