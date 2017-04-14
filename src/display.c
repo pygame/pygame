@@ -887,45 +887,50 @@ list_modes (PyObject* self, PyObject* args)
 }
 
 static PyObject*
-flip (PyObject* self)
+gm_flip (PyObject* self)
 {
-#ifndef SDL2
-    SDL_Surface* screen;
-#else /* SDL2 */
+#ifdef SDL2
     SDL_Window* win = Py_GetDefaultWindow ();
-#endif /* SDL2 */
     int status = 0;
 
     VIDEO_INIT_CHECK ();
 
-#ifndef SDL2
-    screen = SDL_GetVideoSurface ();
-    if (!screen)
-#else /* SDL2 */
     if (!win)
-#endif /* SDL2 */
         return RAISE (PyExc_SDLError, "Display mode not set");
 
     Py_BEGIN_ALLOW_THREADS;
-#ifndef SDL2
-    if (screen->flags & SDL_OPENGL)
-        SDL_GL_SwapBuffers ();
-#else /* SDL2 */
     if (SDL_GetWindowFlags (win) & SDL_WINDOW_OPENGL)
         SDL_GL_SwapWindow (win);
-#endif /* SDL2 */
     else
-#ifndef SDL2
-        status = SDL_Flip (screen) == -1;
-#else /* SDL2 */
         status = SDL_UpdateWindowSurface (win) == -1;
-#endif /* SDL2 */
     Py_END_ALLOW_THREADS;
 
     if (status == -1)
         return RAISE (PyExc_SDLError, SDL_GetError ());
     Py_RETURN_NONE;
+#else
+    SDL_Surface* screen;
+    int status = 0;
+
+    VIDEO_INIT_CHECK ();
+
+    screen = SDL_GetVideoSurface ();
+    if (!screen)
+        return RAISE (PyExc_SDLError, "Display mode not set");
+
+    Py_BEGIN_ALLOW_THREADS;
+    if (screen->flags & SDL_OPENGL)
+        SDL_GL_SwapBuffers ();
+    else
+        status = SDL_Flip (screen) == -1;
+    Py_END_ALLOW_THREADS;
+
+    if (status == -1)
+        return RAISE (PyExc_SDLError, SDL_GetError ());
+    Py_RETURN_NONE;
+#endif
 }
+
 
 /*BAD things happen when out-of-bound rects go to updaterect*/
 static SDL_Rect*
@@ -1567,7 +1572,7 @@ static PyMethodDef _display_methods[] =
     { "mode_ok", mode_ok, METH_VARARGS, DOC_PYGAMEDISPLAYMODEOK },
     { "list_modes", list_modes, METH_VARARGS, DOC_PYGAMEDISPLAYLISTMODES },
 
-    { "flip", (PyCFunction) flip, METH_NOARGS, DOC_PYGAMEDISPLAYFLIP },
+    { "flip", (PyCFunction) gm_flip, METH_NOARGS, DOC_PYGAMEDISPLAYFLIP },
     { "update", update, METH_VARARGS, DOC_PYGAMEDISPLAYUPDATE },
 
     { "set_palette", set_palette, METH_VARARGS, DOC_PYGAMEDISPLAYSETPALETTE },
