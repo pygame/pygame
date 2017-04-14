@@ -47,6 +47,8 @@ static PyObject* DisplaySurfaceObject = NULL;
 static int icon_was_set = 0;
 #else /* SDL2 */
 #if PY3
+static PyMethodDef _display_methods[];
+
 static struct PyModuleDef _module = {
     PyModuleDef_HEAD_INIT,
     "display",
@@ -1421,7 +1423,7 @@ set_caption (PyObject* self, PyObject* arg)
     if (!state->title)
         return PyErr_NoMemory ();
     strcpy (state->title, title);
-    if (win) 
+    if (win)
         SDL_SetWindowTitle (win, title);
 #endif /* SDL2 */
     Py_RETURN_NONE;
