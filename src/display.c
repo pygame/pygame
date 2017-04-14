@@ -166,50 +166,42 @@ display_resource_end:
 
 /* init routines */
 static void
-display_autoquit (void)
+gm_display_autoquit (void)
 {
-#ifndef SDL2
-    if (DisplaySurfaceObject)
-#else /* SDL2 */
-    if (Py_GetDefaultWindowSurface ())
-#endif /* SDL2 */
-    {
-#ifndef SDL2
-        PySurface_AsSurface (DisplaySurfaceObject) = NULL;
-        Py_DECREF (DisplaySurfaceObject);
-        DisplaySurfaceObject = NULL;
-#else /* SDL2 */
-#warning DISPLAY_STATE: Does this really work in autoquit?
+#ifdef SDL2
+    if (Py_GetDefaultWindowSurface ()) {
+#warning TODO DISPLAY_STATE: Does this really work in autoquit?
         _DisplayState* state = DISPLAY_STATE;
 
-        Py_SetDefaultWindowSurface (NULL);
-#endif /* SDL2 */
+        Py_SetDefaultWindowSurface(NULL);
 
-#ifndef SDL2
-        icon_was_set = 0;
-#else /* SDL2 */
-        if (state->title)
-        {
+        if (state->title) {
             free (state->title);
             state->title = NULL;
         }
 
-        Py_XDECREF (state->icon);
+        Py_XDECREF(state->icon);
         state->icon = NULL;
 
         if (state->gamma_ramp)
             free (state->gamma_ramp);
         state->gamma_ramp = NULL;
 
-        Py_SetDefaultWindow (NULL);
-#endif /* SDL2 */
+        Py_SetDefaultWindow(NULL);
+#else
+    if (DisplaySurfaceObject) {
+        PySurface_AsSurface(DisplaySurfaceObject) = NULL;
+        Py_DECREF(DisplaySurfaceObject);
+        DisplaySurfaceObject = NULL;
+        icon_was_set = 0;
     }
+#endif
 }
 
 static PyObject*
 display_autoinit (PyObject* self, PyObject* arg)
 {
-    PyGame_RegisterQuit (display_autoquit);
+    PyGame_RegisterQuit (gm_display_autoquit);
     return PyInt_FromLong (1);
 }
 
@@ -217,8 +209,7 @@ static PyObject*
 quit (PyObject* self, PyObject* arg)
 {
     PyGame_Video_AutoQuit ();
-    display_autoquit ();
-
+    gm_display_autoquit ();
     Py_RETURN_NONE;
 }
 
@@ -229,7 +220,6 @@ init (PyObject* self)
         return RAISE (PyExc_SDLError, SDL_GetError ());
     if (!display_autoinit (NULL, NULL))
         return NULL;
-
     Py_RETURN_NONE;
 }
 
@@ -890,17 +880,17 @@ static PyObject*
 gm_flip (PyObject* self)
 {
 #ifdef SDL2
-    SDL_Window* win = Py_GetDefaultWindow ();
+    SDL_Window* win = Py_GetDefaultWindow();
     int status = 0;
 
-    VIDEO_INIT_CHECK ();
+    VIDEO_INIT_CHECK();
 
     if (!win)
         return RAISE (PyExc_SDLError, "Display mode not set");
 
     Py_BEGIN_ALLOW_THREADS;
-    if (SDL_GetWindowFlags (win) & SDL_WINDOW_OPENGL)
-        SDL_GL_SwapWindow (win);
+    if (SDL_GetWindowFlags(win) & SDL_WINDOW_OPENGL)
+        SDL_GL_SwapWindow(win);
     else
         status = SDL_UpdateWindowSurface (win) == -1;
     Py_END_ALLOW_THREADS;
@@ -912,21 +902,21 @@ gm_flip (PyObject* self)
     SDL_Surface* screen;
     int status = 0;
 
-    VIDEO_INIT_CHECK ();
+    VIDEO_INIT_CHECK();
 
-    screen = SDL_GetVideoSurface ();
+    screen = SDL_GetVideoSurface();
     if (!screen)
         return RAISE (PyExc_SDLError, "Display mode not set");
 
     Py_BEGIN_ALLOW_THREADS;
     if (screen->flags & SDL_OPENGL)
-        SDL_GL_SwapBuffers ();
+        SDL_GL_SwapBuffers();
     else
-        status = SDL_Flip (screen) == -1;
+        status = SDL_Flip(screen) == -1;
     Py_END_ALLOW_THREADS;
 
     if (status == -1)
-        return RAISE (PyExc_SDLError, SDL_GetError ());
+        return RAISE(PyExc_SDLError, SDL_GetError());
     Py_RETURN_NONE;
 #endif
 }
