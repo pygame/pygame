@@ -47,6 +47,8 @@ static PyObject* DisplaySurfaceObject = NULL;
 static int icon_was_set = 0;
 #else /* SDL2 */
 #if PY3
+static PyMethodDef _display_methods[];
+
 static struct PyModuleDef _module = {
     PyModuleDef_HEAD_INIT,
     "display",
@@ -164,50 +166,42 @@ display_resource_end:
 
 /* init routines */
 static void
-display_autoquit (void)
+gm_display_autoquit (void)
 {
-#ifndef SDL2
-    if (DisplaySurfaceObject)
-#else /* SDL2 */
-    if (Py_GetDefaultWindowSurface ())
-#endif /* SDL2 */
-    {
-#ifndef SDL2
-        PySurface_AsSurface (DisplaySurfaceObject) = NULL;
-        Py_DECREF (DisplaySurfaceObject);
-        DisplaySurfaceObject = NULL;
-#else /* SDL2 */
-#warning DISPLAY_STATE: Does this really work in autoquit?
+#ifdef SDL2
+    if (Py_GetDefaultWindowSurface ()) {
+#warning TODO DISPLAY_STATE: Does this really work in autoquit?
         _DisplayState* state = DISPLAY_STATE;
 
-        Py_SetDefaultWindowSurface (NULL);
-#endif /* SDL2 */
+        Py_SetDefaultWindowSurface(NULL);
 
-#ifndef SDL2
-        icon_was_set = 0;
-#else /* SDL2 */
-        if (state->title)
-        {
+        if (state->title) {
             free (state->title);
             state->title = NULL;
         }
 
-        Py_XDECREF (state->icon);
+        Py_XDECREF(state->icon);
         state->icon = NULL;
 
         if (state->gamma_ramp)
             free (state->gamma_ramp);
         state->gamma_ramp = NULL;
 
-        Py_SetDefaultWindow (NULL);
-#endif /* SDL2 */
+        Py_SetDefaultWindow(NULL);
+#else
+    if (DisplaySurfaceObject) {
+        PySurface_AsSurface(DisplaySurfaceObject) = NULL;
+        Py_DECREF(DisplaySurfaceObject);
+        DisplaySurfaceObject = NULL;
+        icon_was_set = 0;
     }
+#endif
 }
 
 static PyObject*
 display_autoinit (PyObject* self, PyObject* arg)
 {
-    PyGame_RegisterQuit (display_autoquit);
+    PyGame_RegisterQuit (gm_display_autoquit);
     return PyInt_FromLong (1);
 }
 
@@ -215,8 +209,7 @@ static PyObject*
 quit (PyObject* self, PyObject* arg)
 {
     PyGame_Video_AutoQuit ();
-    display_autoquit ();
-
+    gm_display_autoquit ();
     Py_RETURN_NONE;
 }
 
@@ -227,7 +220,6 @@ init (PyObject* self)
         return RAISE (PyExc_SDLError, SDL_GetError ());
     if (!display_autoinit (NULL, NULL))
         return NULL;
-
     Py_RETURN_NONE;
 }
 
@@ -885,45 +877,50 @@ list_modes (PyObject* self, PyObject* args)
 }
 
 static PyObject*
-flip (PyObject* self)
+gm_flip (PyObject* self)
 {
-#ifndef SDL2
-    SDL_Surface* screen;
-#else /* SDL2 */
-    SDL_Window* win = Py_GetDefaultWindow ();
-#endif /* SDL2 */
+#ifdef SDL2
+    SDL_Window* win = Py_GetDefaultWindow();
     int status = 0;
 
-    VIDEO_INIT_CHECK ();
+    VIDEO_INIT_CHECK();
 
-#ifndef SDL2
-    screen = SDL_GetVideoSurface ();
-    if (!screen)
-#else /* SDL2 */
     if (!win)
-#endif /* SDL2 */
         return RAISE (PyExc_SDLError, "Display mode not set");
 
     Py_BEGIN_ALLOW_THREADS;
-#ifndef SDL2
-    if (screen->flags & SDL_OPENGL)
-        SDL_GL_SwapBuffers ();
-#else /* SDL2 */
-    if (SDL_GetWindowFlags (win) & SDL_WINDOW_OPENGL)
-        SDL_GL_SwapWindow (win);
-#endif /* SDL2 */
+    if (SDL_GetWindowFlags(win) & SDL_WINDOW_OPENGL)
+        SDL_GL_SwapWindow(win);
     else
-#ifndef SDL2
-        status = SDL_Flip (screen) == -1;
-#else /* SDL2 */
         status = SDL_UpdateWindowSurface (win) == -1;
-#endif /* SDL2 */
     Py_END_ALLOW_THREADS;
 
     if (status == -1)
         return RAISE (PyExc_SDLError, SDL_GetError ());
     Py_RETURN_NONE;
+#else
+    SDL_Surface* screen;
+    int status = 0;
+
+    VIDEO_INIT_CHECK();
+
+    screen = SDL_GetVideoSurface();
+    if (!screen)
+        return RAISE (PyExc_SDLError, "Display mode not set");
+
+    Py_BEGIN_ALLOW_THREADS;
+    if (screen->flags & SDL_OPENGL)
+        SDL_GL_SwapBuffers();
+    else
+        status = SDL_Flip(screen) == -1;
+    Py_END_ALLOW_THREADS;
+
+    if (status == -1)
+        return RAISE(PyExc_SDLError, SDL_GetError());
+    Py_RETURN_NONE;
+#endif
 }
+
 
 /*BAD things happen when out-of-bound rects go to updaterect*/
 static SDL_Rect*
@@ -1421,7 +1418,7 @@ set_caption (PyObject* self, PyObject* arg)
     if (!state->title)
         return PyErr_NoMemory ();
     strcpy (state->title, title);
-    if (win) 
+    if (win)
         SDL_SetWindowTitle (win, title);
 #endif /* SDL2 */
     Py_RETURN_NONE;
@@ -1565,7 +1562,7 @@ static PyMethodDef _display_methods[] =
     { "mode_ok", mode_ok, METH_VARARGS, DOC_PYGAMEDISPLAYMODEOK },
     { "list_modes", list_modes, METH_VARARGS, DOC_PYGAMEDISPLAYLISTMODES },
 
-    { "flip", (PyCFunction) flip, METH_NOARGS, DOC_PYGAMEDISPLAYFLIP },
+    { "flip", (PyCFunction) gm_flip, METH_NOARGS, DOC_PYGAMEDISPLAYFLIP },
     { "update", update, METH_VARARGS, DOC_PYGAMEDISPLAYUPDATE },
 
     { "set_palette", set_palette, METH_VARARGS, DOC_PYGAMEDISPLAYSETPALETTE },
