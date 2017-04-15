@@ -188,6 +188,7 @@ gm_display_autoquit (void)
         state->gamma_ramp = NULL;
 
         Py_SetDefaultWindow(NULL);
+    }
 #else
     if (DisplaySurfaceObject) {
         PySurface_AsSurface(DisplaySurfaceObject) = NULL;
