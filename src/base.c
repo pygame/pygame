@@ -579,7 +579,7 @@ set_error (PyObject *s, PyObject *args)
     if (!PyArg_ParseTuple (args, "s", &errstring))
         return NULL;
 
-    SDL_SetError(errstring);
+    SDL_SetError("%s", errstring);
 
     Py_RETURN_NONE;
 }
