@@ -27,38 +27,24 @@
 #include "pygame.h"
 #include "pgcompat.h"
 #include "doc/display_doc.h"
+
 #ifndef SDL2
 #include <SDL_syswm.h>
-#endif /* ! SDL2 */
 
-#ifdef SDL2
-typedef struct _display_state_s {
-    char* title;
-    PyObject* icon;
-    Uint16 *gamma_ramp;
-} _DisplayState;
-#endif /* SDL2 */
-
-#ifndef SDL2
 static PyTypeObject PyVidInfo_Type;
 static PyObject* PyVidInfo_New (const SDL_VideoInfo* info);
 static void do_set_icon (PyObject *surface);
 static PyObject* DisplaySurfaceObject = NULL;
 static int icon_was_set = 0;
 #else /* SDL2 */
+
+typedef struct _display_state_s {
+    char* title;
+    PyObject* icon;
+    Uint16 *gamma_ramp;
+} _DisplayState;
+
 #if PY3
-static PyMethodDef _display_methods[];
-
-static struct PyModuleDef _module = {
-    PyModuleDef_HEAD_INIT,
-    "display",
-    DOC_PYGAMEDISPLAY,
-    sizeof(_DisplayState),
-    _display_methods,
-#warning At some point should add GC slot functions.
-    NULL, NULL, NULL, NULL
-};
-
 #define DISPLAY_MOD_STATE(mod) ((_DisplayState*)PyModule_GetState(mod))
 #define DISPLAY_STATE \
     DISPLAY_MOD_STATE(PyState_FindModule(&_module))
@@ -1588,10 +1574,20 @@ static PyMethodDef _display_methods[] =
     { NULL, NULL, 0, NULL }
 };
 
-
 #ifdef SDL2
-
+#if PY3
+static struct PyModuleDef _module = {
+    PyModuleDef_HEAD_INIT,
+    "display",
+    DOC_PYGAMEDISPLAY,
+    sizeof(_DisplayState),
+    _display_methods,
+#warning At some point should add GC slot functions.
+    NULL, NULL, NULL, NULL
+};
+#endif
 #endif /* SDL2 */
+
 MODINIT_DEFINE (display)
 {
 #ifndef SDL2
