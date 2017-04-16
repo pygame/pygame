@@ -338,11 +338,11 @@ typedef getcharbufferproc charbufferproc;
 #define VIEW_F_ORDER       4
 
 #define PYGAMEAPI_BASE_FIRSTSLOT 0
-#ifndef SDL2
+#if IS_SDLv1
 #define PYGAMEAPI_BASE_NUMSLOTS 19
-#else /* SDL2 */
+#else /* IS_SDLv2 */
 #define PYGAMEAPI_BASE_NUMSLOTS 23
-#endif /* SDL2 */
+#endif /* IS_SDLv2 */
 #ifndef PYGAMEAPI_BASE_INTERNAL
 #define PyExc_SDLError ((PyObject*)PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT])
 
@@ -407,7 +407,7 @@ typedef getcharbufferproc charbufferproc;
 #define PgExc_BufferError                                               \
     ((PyObject*)PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 18])
 
-#ifdef SDL2
+#if IS_SDLv2
 #define Py_GetDefaultWindow                                             \
     (*(SDL_Window*(*)(void))                                            \
      PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 19])
@@ -424,7 +424,8 @@ typedef getcharbufferproc charbufferproc;
     (*(void(*)(PyObject*))                                              \
      PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 22])
 
-#endif /* SDL2 */
+#endif /* IS_SDLv2 */
+
 #define import_pygame_base() IMPORT_PYGAME_MODULE(base, BASE)
 #endif
 
