@@ -307,8 +307,7 @@ pg_vidinfo_str (PyObject* self)
     SDL_VERSION (&versioninfo);
 
     if(versioninfo.major >= 1 && versioninfo.minor >= 2
-       && versioninfo.patch >= 10 )
-    {
+       && versioninfo.patch >= 10 ) {
         current_w = info->current_w;
         current_h = info->current_h;
     }
@@ -360,14 +359,11 @@ static PyObject*
 pgVidInfo_New (const SDL_VideoInfo* i)
 {
     PyVidInfoObject* info;
-
     if (!i)
         return RAISE (PyExc_SDLError, SDL_GetError ());
-
     info = PyObject_NEW (PyVidInfoObject, &pgVidInfo_Type);
     if (!info)
         return NULL;
-
     memcpy (&info->info, i, sizeof (SDL_VideoInfo));
     return (PyObject*)info;
 }
@@ -910,72 +906,70 @@ pg_screencroprect (GAME_Rect* r, int w, int h, SDL_Rect* cur)
 static PyObject*
 pg_update (PyObject* self, PyObject* arg)
 {
-#ifndef SDL2
+#ifdef SDL2
+    SDL_Window* win = Py_GetDefaultWindow();
+#else
     SDL_Surface* screen;
-#else /* SDL2 */
-    SDL_Window* win = Py_GetDefaultWindow ();
-#endif /* SDL2 */
+#endif
     GAME_Rect *gr, temp = { 0 };
     int wide, high;
     PyObject* obj;
 
     VIDEO_INIT_CHECK ();
 
-#ifndef SDL2
-    screen = SDL_GetVideoSurface ();
+#ifdef SDL2
+    if (!win)
+        return RAISE(PyExc_SDLError, "Display mode not set");
+    SDL_GetWindowSize(win, &wide, &high);
+    if (SDL_GetWindowFlags(win) & SDL_WINDOW_OPENGL)
+        return RAISE (PyExc_SDLError, "Cannot update an OPENGL display");
+#else
+    screen = SDL_GetVideoSurface();
     if (!screen)
-        return RAISE (PyExc_SDLError, SDL_GetError ());
+        return RAISE(PyExc_SDLError, SDL_GetError ());
     wide = screen->w;
     high = screen->h;
     if (screen->flags & SDL_OPENGL)
-#else /* SDL2 */
-    if (!win)
-        return RAISE (PyExc_SDLError, "Display mode not set");
-    SDL_GetWindowSize (win, &wide, &high);
-    if (SDL_GetWindowFlags (win) & SDL_WINDOW_OPENGL)
-#endif /* SDL2 */
-        return RAISE (PyExc_SDLError, "Cannot update an OPENGL display");
+        return RAISE(PyExc_SDLError, "Cannot update an OPENGL display");
+#endif
 
     /*determine type of argument we got*/
-    if (PyTuple_Size (arg) == 0)
-    {
-#ifndef SDL2
-        SDL_UpdateRect (screen, 0, 0, 0, 0);
-#else /* SDL2 */
-        SDL_UpdateWindowSurface (win);
-#endif /* SDL2 */
+    if (PyTuple_Size (arg) == 0) {
+
+#ifdef SDL2
+        SDL_UpdateWindowSurface(win);
+#else
+        SDL_UpdateRect(screen, 0, 0, 0, 0);
+#endif
+
         Py_RETURN_NONE;
-    }
-    else
-    {
+    } else {
         obj = PyTuple_GET_ITEM (arg, 0);
         if (obj == Py_None)
             gr = &temp;
-        else
-        {
+        else {
             gr = GameRect_FromObject (arg, &temp);
             if (!gr)
                 PyErr_Clear ();
-            else if (gr != &temp)
-            {
+            else if (gr != &temp) {
                 memcpy (&temp, gr, sizeof (temp));
                 gr = &temp;
             }
         }
     }
 
-    if (gr)
-    {
+    if (gr) {
         SDL_Rect sdlr;
+
+#ifdef SDL2
         if (pg_screencroprect (gr, wide, high, &sdlr))
-#ifndef SDL2
-            SDL_UpdateRect (screen, sdlr.x, sdlr.y, sdlr.w, sdlr.h);
-#else /* SDL2 */
             SDL_UpdateWindowSurfaceRects (win, &sdlr, 1);
-#endif /* SDL2 */
-    }
-    else
-    {
+#else
+        if (pg_screencroprect (gr, wide, high, &sdlr))
+            SDL_UpdateRect (screen, sdlr.x, sdlr.y, sdlr.w, sdlr.h);
+#endif
+
+    } else {
         PyObject* seq;
         PyObject* r;
         int loop, num, count;
@@ -995,21 +989,18 @@ pg_update (PyObject* self, PyObject* arg)
         if (!rects)
             return NULL;
         count = 0;
-        for (loop = 0; loop < num; ++loop)
-        {
+        for (loop = 0; loop < num; ++loop) {
             SDL_Rect* cur_rect = (rects + count);
 
             /*get rect from the sequence*/
             r = PySequence_GetItem (seq, loop);
-            if (r == Py_None)
-            {
+            if (r == Py_None) {
                 Py_DECREF(r);
                 continue;
             }
             gr = GameRect_FromObject (r, &temp);
             Py_XDECREF (r);
-            if (!gr)
-            {
+            if (!gr) {
                 PyMem_Free ((char*)rects);
                 return RAISE (PyExc_ValueError,
                               "update_rects requires a single list of rects");
@@ -1183,56 +1174,49 @@ pg_set_palette (PyObject* self, PyObject* args)
 static PyObject*
 pg_set_gamma (PyObject* self, PyObject* arg)
 {
-#ifdef SDL2
-    _DisplayState* state = DISPLAY_MOD_STATE (self);
-    SDL_Window* win = Py_GetDefaultWindow ();
-#endif /* SDL2 */
     float r, g, b;
-#ifndef SDL2
-    int result;
-#else /* SDL2 */
-    Uint16* gamma_ramp;
     int result = 0;
-#endif /* SDL2 */
+
+#ifdef SDL2
+    _DisplayState* state = DISPLAY_MOD_STATE(self);
+    SDL_Window* win = Py_GetDefaultWindow();
+    Uint16* gamma_ramp;
+#endif
 
     if (!PyArg_ParseTuple (arg, "f|ff", &r, &g, &b))
         return NULL;
     if (PyTuple_Size (arg) == 1)
         g = b = r;
-
     VIDEO_INIT_CHECK ();
 
-#ifndef SDL2
-    result = SDL_SetGamma (r, g, b);
-#else /* SDL2 */
-    gamma_ramp = (Uint16 *) malloc ((3 * 256) * sizeof (Uint16));
+#ifdef SDL2
+    gamma_ramp = (Uint16 *) malloc((3 * 256) * sizeof(Uint16));
     if (!gamma_ramp)
-        return PyErr_NoMemory ();
-
-    SDL_CalculateGammaRamp (r, gamma_ramp);
-    SDL_CalculateGammaRamp (g, gamma_ramp + 256);
-    SDL_CalculateGammaRamp (b, gamma_ramp + 256);
-    if (win)
-    {
-        result = SDL_SetWindowGammaRamp (win,
-                                         gamma_ramp,
-                                         gamma_ramp + 256,
-                                         gamma_ramp + 512);
-        if (result)
-        {
+        return PyErr_NoMemory();
+    SDL_CalculateGammaRamp(r, gamma_ramp);
+    SDL_CalculateGammaRamp(g, gamma_ramp + 256);
+    SDL_CalculateGammaRamp(b, gamma_ramp + 256);
+    if (win) {
+        result = SDL_SetWindowGammaRamp(win,
+                                        gamma_ramp,
+                                        gamma_ramp + 256,
+                                        gamma_ramp + 512);
+        if (result) {
             /* Discard a possibly faulty gamma ramp */
-            free (gamma_ramp);
+            free(gamma_ramp);
             gamma_ramp = NULL;
         }
     }
-    if (gamma_ramp)
-    {
+    if (gamma_ramp) {
         if (state->gamma_ramp)
-            free (state->gamma_ramp);
+            free(state->gamma_ramp);
         state->gamma_ramp = gamma_ramp;
     }
-#endif /* SDL2 */
-    return PyInt_FromLong (result == 0);
+#else
+    result = SDL_SetGamma(r, g, b);
+#endif
+
+    return PyInt_FromLong(result == 0);
 }
 
 static int
