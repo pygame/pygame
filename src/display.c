@@ -1174,14 +1174,12 @@ pg_set_palette (PyObject* self, PyObject* args)
 static PyObject*
 pg_set_gamma (PyObject* self, PyObject* arg)
 {
+#ifdef SDL2
     float r, g, b;
     int result = 0;
-
-#ifdef SDL2
     _DisplayState* state = DISPLAY_MOD_STATE(self);
     SDL_Window* win = Py_GetDefaultWindow();
     Uint16* gamma_ramp;
-#endif
 
     if (!PyArg_ParseTuple (arg, "f|ff", &r, &g, &b))
         return NULL;
@@ -1189,7 +1187,6 @@ pg_set_gamma (PyObject* self, PyObject* arg)
         g = b = r;
     VIDEO_INIT_CHECK ();
 
-#ifdef SDL2
     gamma_ramp = (Uint16 *) malloc((3 * 256) * sizeof(Uint16));
     if (!gamma_ramp)
         return PyErr_NoMemory();
@@ -1212,11 +1209,18 @@ pg_set_gamma (PyObject* self, PyObject* arg)
             free(state->gamma_ramp);
         state->gamma_ramp = gamma_ramp;
     }
-#else
-    result = SDL_SetGamma(r, g, b);
-#endif
-
     return PyInt_FromLong(result == 0);
+#else
+    float r, g, b;
+    int result = 0;
+    if (!PyArg_ParseTuple (arg, "f|ff", &r, &g, &b))
+        return NULL;
+    if (PyTuple_Size (arg) == 1)
+        g = b = r;
+    VIDEO_INIT_CHECK ();
+    result = SDL_SetGamma(r, g, b);
+    return PyInt_FromLong(result == 0);
+#endif
 }
 
 static int
