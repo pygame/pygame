@@ -1377,6 +1377,7 @@ pg_get_caption (PyObject* self)
 #endif
 }
 
+
 #ifndef SDL2
 static void
 pg_do_set_icon (PyObject *surface)
@@ -1391,78 +1392,81 @@ static PyObject*
 pg_set_icon (PyObject* self, PyObject* arg)
 {
 #ifdef SDL2
-    _DisplayState* state = DISPLAY_MOD_STATE (self);
-    SDL_Window* win = Py_GetDefaultWindow ();
-#endif /* SDL2 */
+    _DisplayState* state = DISPLAY_MOD_STATE(self);
+    SDL_Window* win = Py_GetDefaultWindow();
     PyObject* surface;
-    if (!PyArg_ParseTuple (arg, "O!", &PySurface_Type, &surface))
+    if (!PyArg_ParseTuple(arg, "O!", &PySurface_Type, &surface))
         return NULL;
-    if (!PyGame_Video_AutoInit ())
-        return RAISE (PyExc_SDLError, SDL_GetError ());
-#ifndef SDL2
-    pg_do_set_icon (surface);
-#else /* SDL2 */
+    if (!PyGame_Video_AutoInit())
+        return RAISE(PyExc_SDLError, SDL_GetError());
 #if (!defined(darwin))
-    Py_INCREF (surface);
-    Py_XDECREF (state->icon);
+    Py_INCREF(surface);
+    Py_XDECREF(state->icon);
     state->icon = surface;
     if (win)
-        SDL_SetWindowIcon (win, PySurface_AsSurface (surface));
+        SDL_SetWindowIcon(win, PySurface_AsSurface(surface));
 #endif
-#endif /* SDL2 */
     Py_RETURN_NONE;
+#else
+    PyObject* surface;
+    if (!PyArg_ParseTuple(arg, "O!", &PySurface_Type, &surface))
+        return NULL;
+    if (!PyGame_Video_AutoInit())
+        return RAISE(PyExc_SDLError, SDL_GetError());
+    pg_do_set_icon(surface);
+    Py_RETURN_NONE;
+#endif
 }
 
 static PyObject*
 pg_iconify (PyObject* self)
 {
-#ifndef SDL2
-    int result;
-#else /* SDL2 */
-    SDL_Window* win = Py_GetDefaultWindow ();
-#endif /* SDL2 */
-
-    VIDEO_INIT_CHECK ();
-#ifndef SDL2
-    result = SDL_WM_IconifyWindow ();
-    return PyInt_FromLong (result != 0);
-#else /* SDL2 */
+#ifdef SDL2
+    SDL_Window* win = Py_GetDefaultWindow();
+    VIDEO_INIT_CHECK();
     if (!win)
         return RAISE (PyExc_SDLError, "No open window");
-    SDL_MinimizeWindow (win);
-    Py_RETURN_NONE;
-#endif /* SDL2 */
+    SDL_MinimizeWindow(win);
+#warning "Does this send the app an SDL_ActiveEvent loss event?";
+    return PyInt_FromLong(1);
+#else
+    int result;
+    VIDEO_INIT_CHECK();
+    result = SDL_WM_IconifyWindow();
+
+    /* If the application is running in a window managed environment SDL attempts to
+       iconify/minimise it. If SDL_WM_IconifyWindow is successful, the application will
+       receive a SDL_APPACTIVE loss event (see SDL_ActiveEvent).
+    */
+    return PyInt_FromLong(result != 0);
+#endif
 }
 
 static PyObject*
 pg_toggle_fullscreen (PyObject* self)
 {
-#ifndef SDL2
-    SDL_Surface* screen;
-#else /* SDL2 */
-    SDL_Window* win = Py_GetDefaultWindow ();
-#endif /* SDL2 */
+#ifdef SDL2
+    SDL_Window* win = Py_GetDefaultWindow();
     int result;
-
-    VIDEO_INIT_CHECK ();
-#ifndef SDL2
-    screen = SDL_GetVideoSurface ();
-    if (!screen)
-        return RAISE (PyExc_SDLError, SDL_GetError ());
-#else /* SDL2 */
+    VIDEO_INIT_CHECK();
     if (!win)
         return RAISE (PyExc_SDLError, "No open window");
-#endif /* SDL2 */
-
-#ifndef SDL2
-    result = SDL_WM_ToggleFullScreen (screen);
-#else /* SDL2 */
-    if (SDL_GetWindowFlags (win) & SDL_WINDOW_FULLSCREEN)
-        result = SDL_SetWindowFullscreen (win, SDL_WINDOW_FULLSCREEN);
+    if (SDL_GetWindowFlags(win) & SDL_WINDOW_FULLSCREEN)
+        result = SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN);
     else
-        result = SDL_SetWindowFullscreen (win, 0);
-#endif /* SDL2 */
+        result = SDL_SetWindowFullscreen(win, 0);
     return PyInt_FromLong (result != 0);
+#else
+    SDL_Surface* screen;
+    int result;
+    VIDEO_INIT_CHECK();
+    screen = SDL_GetVideoSurface();
+    if (!screen)
+        return RAISE(PyExc_SDLError, SDL_GetError());
+
+    result = SDL_WM_ToggleFullScreen(screen);
+    return PyInt_FromLong(result != 0);
+#endif
 }
 
 static PyMethodDef _pg_display_methods[] =
