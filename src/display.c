@@ -1310,78 +1310,71 @@ pg_set_gamma_ramp (PyObject* self, PyObject* arg)
         free(g);
         return NULL;
     }
-    if(!PyArg_ParseTuple (arg, "O&O&O&",
-                          pg_convert_to_uint16, r,
-                          pg_convert_to_uint16, g,
-                          pg_convert_to_uint16, b)) {
+    if(!PyArg_ParseTuple(arg, "O&O&O&",
+                         pg_convert_to_uint16, r,
+                         pg_convert_to_uint16, g,
+                         pg_convert_to_uint16, b)) {
         free(r);
         free(g);
         free(b);
         return NULL;
     }
     VIDEO_INIT_CHECK ();
-    result = SDL_SetGammaRamp (r, g, b);
-    free ((char*)r);
-    free ((char*)g);
-    free ((char*)b);
-    return PyInt_FromLong (result == 0);
+    result = SDL_SetGammaRamp(r, g, b);
+    free((char*)r);
+    free((char*)g);
+    free((char*)b);
+    return PyInt_FromLong(result == 0);
 #endif
 }
 
 static PyObject*
 pg_set_caption (PyObject* self, PyObject* arg)
 {
-#ifndef SDL2
-    char* title, *icontitle=NULL;
-#else /* SDL2 */
-    _DisplayState* state = DISPLAY_MOD_STATE (self);
-    SDL_Window* win = Py_GetDefaultWindow ();
+#ifdef SDL2
+    _DisplayState* state = DISPLAY_MOD_STATE(self);
+    SDL_Window* win = Py_GetDefaultWindow();
     char *title, *icontitle=NULL;
-#endif /* SDL2 */
-
     if (!PyArg_ParseTuple (arg, "s|s", &title, &icontitle))
         return NULL;
-
-#ifndef SDL2
+    if (state->title)
+        free(state->title);
+    state->title = (char *)malloc((strlen(title) + 1) * sizeof(char *));
+    if (!state->title)
+        return PyErr_NoMemory();
+    strcpy(state->title, title);
+    if (win)
+        SDL_SetWindowTitle(win, title);
+    Py_RETURN_NONE;
+#else
+    char* title, *icontitle=NULL;
+    if (!PyArg_ParseTuple(arg, "s|s", &title, &icontitle))
+        return NULL;
     if (!icontitle)
         icontitle = title;
-
-    SDL_WM_SetCaption (title, icontitle);
-#else /* SDL2 */
-    if (state->title)
-        free (state->title);
-    state->title = (char *)malloc ((strlen(title) + 1) * sizeof(char *));
-    if (!state->title)
-        return PyErr_NoMemory ();
-    strcpy (state->title, title);
-    if (win)
-        SDL_SetWindowTitle (win, title);
-#endif /* SDL2 */
+    SDL_WM_SetCaption(title, icontitle);
     Py_RETURN_NONE;
+#endif
 }
 
 static PyObject*
 pg_get_caption (PyObject* self)
 {
-#ifndef SDL2
-    char* title, *icontitle;
+#ifdef SDL2
+    _DisplayState* state = DISPLAY_MOD_STATE(self);
+    SDL_Window* win = Py_GetDefaultWindow();
+    const char* title = win ? SDL_GetWindowTitle(win) : state->title;
 
-    SDL_WM_GetCaption (&title, &icontitle);
-#else /* SDL2 */
-    _DisplayState* state = DISPLAY_MOD_STATE (self);
-    SDL_Window* win = Py_GetDefaultWindow ();
-    const char* title = win ? SDL_GetWindowTitle (win) : state->title;
-#endif /* SDL2 */
-
-#ifndef SDL2
-    if (title && *title)
-        return Py_BuildValue ("(ss)", title, icontitle);
-#else /* SDL2 */
     if (title && title[0]) /* Conditional && */
         return Py_BuildValue ("(ss)", title, title);
-#endif /* SDL2 */
-
     return Py_BuildValue ("()");
+#else
+    char* title, *icontitle;
+    SDL_WM_GetCaption(&title, &icontitle);
+    if (title && *title)
+        return Py_BuildValue("(ss)", title, icontitle);
+    return Py_BuildValue("()");
+#endif
 }
 
 #ifndef SDL2
@@ -1392,8 +1385,8 @@ pg_do_set_icon (PyObject *surface)
     SDL_WM_SetIcon (surf, NULL);
     icon_was_set = 1;
 }
-
 #endif /* ! SDL2 */
+
 static PyObject*
 pg_set_icon (PyObject* self, PyObject* arg)
 {
