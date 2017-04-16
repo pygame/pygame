@@ -29,13 +29,14 @@
 #include "doc/display_doc.h"
 
 #ifndef SDL2
-#include <SDL_syswm.h>
 
+#include <SDL_syswm.h>
 static PyTypeObject pgVidInfo_Type;
 static PyObject* pgVidInfo_New (const SDL_VideoInfo* info);
 static void pg_do_set_icon (PyObject *surface);
 static PyObject* DisplaySurfaceObject = NULL;
 static int icon_was_set = 0;
+
 #else /* SDL2 */
 
 typedef struct _display_state_s {
@@ -45,17 +46,16 @@ typedef struct _display_state_s {
 } _DisplayState;
 
 #if PY3
+static struct PyModuleDef _module;
 #define DISPLAY_MOD_STATE(mod) ((_DisplayState*)PyModule_GetState(mod))
 #define DISPLAY_STATE \
     DISPLAY_MOD_STATE(PyState_FindModule(&_module))
-
-#else
+#else /* PY3 */
 static _DisplayState _modstate;
-
 #define DISPLAY_MOD_STATE(mod) (&_modstate)
 #define DISPLAY_STATE DISPLAY_MOD_STATE(0)
+#endif /* PY3 */
 
-#endif
 #endif /* SDL2 */
 
 #if (!defined(darwin))
@@ -156,7 +156,6 @@ pg_display_autoquit (void)
 {
 #ifdef SDL2
     if (Py_GetDefaultWindowSurface ()) {
-#warning TODO DISPLAY_STATE: Does this really work in autoquit?
         _DisplayState* state = DISPLAY_STATE;
 
         Py_SetDefaultWindowSurface(NULL);
@@ -228,6 +227,7 @@ pg_get_active (PyObject* self)
 }
 
 /* vidinfo object */
+#ifndef SDL2
 static void
 pg_vidinfo_dealloc (PyObject* self)
 {
@@ -370,25 +370,6 @@ pgVidInfo_New (const SDL_VideoInfo* i)
     return (PyObject*)info;
 }
 
-/* display functions */
-static PyObject*
-pg_get_driver (PyObject* self)
-{
-#ifdef SDL2
-    const char* name = NULL;
-    name = SDL_GetCurrentVideoDriver ();
-    if (!name)
-        Py_RETURN_NONE;
-    return Text_FromUTF8(name);
-#else
-    char buf[256];
-    VIDEO_INIT_CHECK ();
-    if (!SDL_VideoDriverName(buf, sizeof(buf)))
-        Py_RETURN_NONE;
-    return Text_FromUTF8(buf);
-#endif
-}
-
 static PyObject*
 pg_get_wm_info (PyObject* self)
 {
@@ -475,6 +456,26 @@ pgInfo (PyObject* self)
     VIDEO_INIT_CHECK();
     info = SDL_GetVideoInfo();
     return pgVidInfo_New(info);
+}
+#endif /* not SDL2 */
+
+/* display functions */
+static PyObject*
+pg_get_driver (PyObject* self)
+{
+#ifdef SDL2
+    const char* name = NULL;
+    name = SDL_GetCurrentVideoDriver ();
+    if (!name)
+        Py_RETURN_NONE;
+    return Text_FromUTF8(name);
+#else
+    char buf[256];
+    VIDEO_INIT_CHECK ();
+    if (!SDL_VideoDriverName(buf, sizeof(buf)))
+        Py_RETURN_NONE;
+    return Text_FromUTF8(buf);
+#endif
 }
 
 static PyObject*
