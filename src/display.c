@@ -1254,90 +1254,78 @@ pg_convert_to_uint16 (PyObject* python_array, Uint16* c_uint16_array)
     return 1;
 }
 
-
 static PyObject*
 pg_set_gamma_ramp (PyObject* self, PyObject* arg)
 {
 #ifdef SDL2
     _DisplayState* state = DISPLAY_MOD_STATE (self);
-    SDL_Window* win = Py_GetDefaultWindow ();
-    Uint16* gamma_ramp = (Uint16 *) malloc ((3 * 256) * sizeof (Uint16));
-#endif /* SDL2 */
+    SDL_Window* win = Py_GetDefaultWindow();
+    Uint16* gamma_ramp = (Uint16 *) malloc((3 * 256) * sizeof(Uint16));
     Uint16 *r, *g, *b;
     int result;
-
-#ifndef SDL2
-    r = (Uint16 *) malloc (256 * sizeof (Uint16));
-    if (!r)
-        return NULL;
-    g = (Uint16 *) malloc (256 * sizeof (Uint16));
-    if (!g)
-    {
-        free (r);
-        return NULL;
-    }
-    b = (Uint16 *) malloc (256 * sizeof (Uint16));
-    if (!b)
-    {
-        free (r);
-        free (g);
-        return NULL;
-    }
-#else /* SDL2 */
     if (!gamma_ramp)
-        return PyErr_NoMemory ();
-
+        return PyErr_NoMemory();
     r = gamma_ramp;
     g = gamma_ramp + 256;
     b = gamma_ramp + 512;
-#endif /* SDL2 */
-
-    if(!PyArg_ParseTuple (arg, "O&O&O&",
-                          pg_convert_to_uint16, r,
-                          pg_convert_to_uint16, g,
-                          pg_convert_to_uint16, b))
-    {
-#ifndef SDL2
-        free (r);
-        free (g);
-        free (b);
-#else /* SDL2 */
-        free (gamma_ramp);
-#endif /* SDL2 */
+    if(!PyArg_ParseTuple(arg, "O&O&O&",
+                         pg_convert_to_uint16, r,
+                         pg_convert_to_uint16, g,
+                         pg_convert_to_uint16, b)) {
+        free(gamma_ramp);
         return NULL;
     }
-
     VIDEO_INIT_CHECK ();
-
-#ifndef SDL2
-    result = SDL_SetGammaRamp (r, g, b);
-
-    free ((char*)r);
-    free ((char*)g);
-    free ((char*)b);
-
-#else /* SDL2 */
-    if (win)
-    {
-        result = SDL_SetWindowGammaRamp (win,
-                                         gamma_ramp,
-                                         gamma_ramp + 256,
-                                         gamma_ramp + 512);
-        if (result)
-        {
+    if (win) {
+        result = SDL_SetWindowGammaRamp(win,
+                                        gamma_ramp,
+                                        gamma_ramp + 256,
+                                        gamma_ramp + 512);
+        if (result) {
             /* Discard a possibly faulty gamma ramp */
-            free (gamma_ramp);
+            free(gamma_ramp);
             gamma_ramp = NULL;
         }
     }
-    if (gamma_ramp)
-    {
+    if (gamma_ramp) {
         if (state->gamma_ramp)
-            free (state->gamma_ramp);
+            free(state->gamma_ramp);
         state->gamma_ramp = gamma_ramp;
     }
-#endif /* SDL2 */
     return PyInt_FromLong (result == 0);
+#else
+    Uint16 *r, *g, *b;
+    int result;
+    r = (Uint16 *) malloc(256 * sizeof(Uint16));
+    if (!r)
+        return NULL;
+    g = (Uint16 *) malloc(256 * sizeof(Uint16));
+    if (!g) {
+        free(r);
+        return NULL;
+    }
+    b = (Uint16 *) malloc(256 * sizeof(Uint16));
+    if (!b) {
+        free(r);
+        free(g);
+        return NULL;
+    }
+    if(!PyArg_ParseTuple (arg, "O&O&O&",
+                          pg_convert_to_uint16, r,
+                          pg_convert_to_uint16, g,
+                          pg_convert_to_uint16, b)) {
+        free(r);
+        free(g);
+        free(b);
+        return NULL;
+    }
+    VIDEO_INIT_CHECK ();
+    result = SDL_SetGammaRamp (r, g, b);
+    free ((char*)r);
+    free ((char*)g);
+    free ((char*)b);
+    return PyInt_FromLong (result == 0);
+#endif
 }
 
 static PyObject*
