@@ -34,7 +34,7 @@
 static PyTypeObject pgVidInfo_Type;
 static PyObject* pgVidInfo_New (const SDL_VideoInfo* info);
 static void pg_do_set_icon (PyObject *surface);
-static PyObject* DisplaySurfaceObject = NULL;
+static PyObject* pgDisplaySurfaceObject = NULL;
 static int icon_was_set = 0;
 
 #else /* SDL2 */
@@ -175,10 +175,10 @@ pg_display_autoquit (void)
         Py_SetDefaultWindow(NULL);
     }
 #else
-    if (DisplaySurfaceObject) {
-        PySurface_AsSurface(DisplaySurfaceObject) = NULL;
-        Py_DECREF(DisplaySurfaceObject);
-        DisplaySurfaceObject = NULL;
+    if (pgDisplaySurfaceObject) {
+        PySurface_AsSurface(pgDisplaySurfaceObject) = NULL;
+        Py_DECREF(pgDisplaySurfaceObject);
+        pgDisplaySurfaceObject = NULL;
         icon_was_set = 0;
     }
 #endif
@@ -227,7 +227,9 @@ pg_get_active (PyObject* self)
 }
 
 /* vidinfo object */
-#ifndef SDL2
+#ifdef SDL2
+#warning "The vidinfo object is not used in SDL2 so far."
+#else
 static void
 pg_vidinfo_dealloc (PyObject* self)
 {
@@ -457,7 +459,7 @@ pgInfo (PyObject* self)
     info = SDL_GetVideoInfo();
     return pgVidInfo_New(info);
 }
-#endif /* not SDL2 */
+#endif /* pgInfo stuff is not defined in SDL2 */
 
 /* display functions */
 static PyObject*
@@ -488,10 +490,10 @@ pg_get_surface (PyObject* self)
     Py_INCREF (surface);
     return surface;
 #else
-    if (!DisplaySurfaceObject)
+    if (!pgDisplaySurfaceObject)
         Py_RETURN_NONE;
-    Py_INCREF (DisplaySurfaceObject);
-    return DisplaySurfaceObject;
+    Py_INCREF (pgDisplaySurfaceObject);
+    return pgDisplaySurfaceObject;
 #endif
 }
 
@@ -713,10 +715,10 @@ pg_set_mode (PyObject* self, PyObject* arg)
 #endif /* SDL2 */
 
 #ifndef SDL2
-    if (DisplaySurfaceObject)
-        ((PySurfaceObject*) DisplaySurfaceObject)->surf = surf;
+    if (pgDisplaySurfaceObject)
+        ((PySurfaceObject*) pgDisplaySurfaceObject)->surf = surf;
     else
-        DisplaySurfaceObject = PySurface_New (surf);
+        pgDisplaySurfaceObject = PySurface_New (surf);
 #else /* SDL2 */
         /*no errors; make the window available*/
         Py_SetDefaultWindow (win);
@@ -762,8 +764,8 @@ pg_set_mode (PyObject* self, PyObject* arg)
 #endif /* SDL2 */
 #endif
 #ifndef SDL2
-    Py_INCREF (DisplaySurfaceObject);
-    return DisplaySurfaceObject;
+    Py_INCREF (pgDisplaySurfaceObject);
+    return pgDisplaySurfaceObject;
 #else /* SDL2 */
 
     /*probably won't do much, but can't hurt, and might help*/
@@ -799,7 +801,10 @@ pg_mode_ok (PyObject* self, PyObject* args)
 static PyObject*
 pg_list_modes (PyObject* self, PyObject* args)
 {
-#ifndef SDL2
+#ifdef SDL2
+#warning "implement pg_list_modes for SDL2"
+    Py_RETURN_NONE;
+#else
     SDL_PixelFormat format;
     SDL_Rect** rects;
     int flags=SDL_FULLSCREEN;
@@ -836,9 +841,7 @@ pg_list_modes (PyObject* self, PyObject* args)
         Py_DECREF (size);
     }
     return list;
-#else /* SDL2 */
-    Py_RETURN_NONE;
-#endif /* SDL2 */
+#endif
 }
 
 static PyObject*
@@ -885,7 +888,6 @@ pg_flip (PyObject* self)
     Py_RETURN_NONE;
 #endif
 }
-
 
 /*BAD things happen when out-of-bound rects go to updaterect*/
 static SDL_Rect*
@@ -1243,21 +1245,19 @@ pg_convert_to_uint16 (PyObject* python_array, Uint16* c_uint16_array)
         RAISE(PyExc_RuntimeError, "Memory not allocated for c_uint16_array.");
         return 0;
     }
-
     if (!PySequence_Check (python_array)) {
         RAISE(PyExc_TypeError, "Array must be sequence type");
         return 0;
     }
-
     if (PySequence_Size (python_array) != 256) {
         RAISE(PyExc_ValueError, "gamma ramp must be 256 elements long");
         return 0;
     }
     for (i = 0; i < 256; i++) {
         item = PySequence_GetItem (python_array, i);
-        if(!PyInt_Check (item)) {
-            RAISE (PyExc_ValueError,
-                   "gamma ramp must contain integer elements");
+        if(!PyInt_Check(item)) {
+            RAISE(PyExc_ValueError,
+                  "gamma ramp must contain integer elements");
             return 0;
         }
         c_uint16_array[i] = (Uint16)PyInt_AsLong(item);
@@ -1496,7 +1496,7 @@ pg_toggle_fullscreen (PyObject* self)
     return PyInt_FromLong (result != 0);
 }
 
-static PyMethodDef _display_methods[] =
+static PyMethodDef _pg_display_methods[] =
 {
     { "__PYGAMEinit__", pg_display_autoinit, 1,
       "auto initialize function for display." },
@@ -1554,7 +1554,7 @@ static struct PyModuleDef _module = {
     "display",
     DOC_PYGAMEDISPLAY,
     sizeof(_DisplayState),
-    _display_methods,
+    _pg_display_methods,
 #warning At some point should add GC slot functions.
     NULL, NULL, NULL, NULL
 };
@@ -1563,25 +1563,25 @@ static struct PyModuleDef _module = {
 
 MODINIT_DEFINE (display)
 {
-#ifndef SDL2
+#ifdef SDL2
+    PyObject* module;
+    _DisplayState* state;
+#else
     PyObject *module, *dict, *apiobj;
     int ecode;
     static void* c_api[PYGAMEAPI_DISPLAY_NUMSLOTS];
-
 #if PY3
     static struct PyModuleDef _module = {
         PyModuleDef_HEAD_INIT,
         "display",
         DOC_PYGAMEDISPLAY,
         -1,
-        _display_methods,
+        _pg_display_methods,
         NULL, NULL, NULL, NULL
     };
+#endif /* PY3 */
 #endif
-#else /* SDL2 */
-    PyObject* module;
-    _DisplayState* state;
-#endif /* SDL2 */
+
 
     /* imported needed apis; Do this first so if there is an error
        the module is not loaded.
@@ -1604,14 +1604,15 @@ MODINIT_DEFINE (display)
     if (PyType_Ready (&pgVidInfo_Type) < 0) {
         MODINIT_ERROR;
     }
-
 #endif /* ! SDL2 */
+
+
     /* create the module */
 #if PY3
     module = PyModule_Create (&_module);
 #else
     module = Py_InitModule3 (MODPREFIX "display",
-                             _display_methods,
+                             _pg_display_methods,
                              DOC_PYGAMEDISPLAY);
 #endif
     if (module == NULL) {
