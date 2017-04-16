@@ -213,20 +213,20 @@ pg_init (PyObject* self)
 static PyObject*
 pg_get_init (PyObject* self)
 {
-    return PyInt_FromLong(SDL_WasInit (SDL_INIT_VIDEO) != 0);
+    return PyInt_FromLong(SDL_WasInit(SDL_INIT_VIDEO) != 0);
 }
 
 static PyObject*
 pg_get_active (PyObject* self)
 {
-#ifndef SDL2
-    return PyInt_FromLong ((SDL_GetAppState () & SDL_APPACTIVE) != 0);
-}
-#else /* SDL2 */
+#ifdef SDL2
     Uint32 flags = SDL_GetWindowFlags (Py_GetDefaultWindow ());
-#endif /* SDL2 */
+    return PyInt_FromLong ((flags & SDL_WINDOW_SHOWN) != 0);
+#else
+    return PyInt_FromLong ((SDL_GetAppState() & SDL_APPACTIVE) != 0);
+#endif
+}
 
-#ifndef SDL2
 /* vidinfo object */
 static void
 pg_vidinfo_dealloc (PyObject* self)
@@ -368,32 +368,25 @@ pgVidInfo_New (const SDL_VideoInfo* i)
 
     memcpy (&info->info, i, sizeof (SDL_VideoInfo));
     return (PyObject*)info;
-#else /* SDL2 */
-    return PyInt_FromLong ((flags & SDL_WINDOW_SHOWN) != 0);
-#endif /* SDL2 */
 }
 
 /* display functions */
 static PyObject*
 pg_get_driver (PyObject* self)
 {
-#ifndef SDL2
-    char buf[256];
-#else /* SDL2 */
+#ifdef SDL2
     const char* name = NULL;
-#endif /* SDL2 */
-
-    VIDEO_INIT_CHECK ();
-
-#ifndef SDL2
-    if (!SDL_VideoDriverName (buf, sizeof (buf)))
-#else /* SDL2 */
     name = SDL_GetCurrentVideoDriver ();
     if (!name)
-#endif /* SDL2 */
         Py_RETURN_NONE;
-#ifndef SDL2
-    return Text_FromUTF8 (buf);
+    return Text_FromUTF8(name);
+#else
+    char buf[256];
+    VIDEO_INIT_CHECK ();
+    if (!SDL_VideoDriverName(buf, sizeof(buf)))
+        Py_RETURN_NONE;
+    return Text_FromUTF8(buf);
+#endif
 }
 
 static PyObject*
@@ -479,52 +472,40 @@ static PyObject*
 pgInfo (PyObject* self)
 {
     const SDL_VideoInfo* info;
-
-    VIDEO_INIT_CHECK ();
-
-    info = SDL_GetVideoInfo ();
-    return pgVidInfo_New (info);
-#else /* SDL2 */
-    return Text_FromUTF8 (name);
-#endif /* SDL2 */
+    VIDEO_INIT_CHECK();
+    info = SDL_GetVideoInfo();
+    return pgVidInfo_New(info);
 }
 
 static PyObject*
 pg_get_surface (PyObject* self)
 {
-#ifndef SDL2
-    if (!DisplaySurfaceObject)
-#else /* SDL2 */
-    PyObject* surface = Py_GetDefaultWindowSurface ();
-
+#ifdef SDL2
+    PyObject* surface = Py_GetDefaultWindowSurface();
     if (!surface)
-#endif /* SDL2 */
         Py_RETURN_NONE;
-
-#ifndef SDL2
-    Py_INCREF (DisplaySurfaceObject);
-    return DisplaySurfaceObject;
-#else /* SDL2 */
     Py_INCREF (surface);
     return surface;
-#endif /* SDL2 */
+#else
+    if (!DisplaySurfaceObject)
+        Py_RETURN_NONE;
+    Py_INCREF (DisplaySurfaceObject);
+    return DisplaySurfaceObject;
+#endif
 }
 
 static PyObject*
 pg_gl_set_attribute (PyObject* self, PyObject* arg)
 {
     int flag, value, result;
-
-    VIDEO_INIT_CHECK ();
-
-    if (!PyArg_ParseTuple (arg, "ii", &flag, &value))
+    VIDEO_INIT_CHECK();
+    if (!PyArg_ParseTuple(arg, "ii", &flag, &value))
         return NULL;
     if (flag == -1) /*an undefined/unsupported val, ignore*/
         Py_RETURN_NONE;
-
-    result = SDL_GL_SetAttribute (flag, value);
+    result = SDL_GL_SetAttribute(flag, value);
     if (result == -1)
-        return RAISE (PyExc_SDLError, SDL_GetError());
+        return RAISE(PyExc_SDLError, SDL_GetError());
     Py_RETURN_NONE;
 }
 
@@ -532,16 +513,12 @@ static PyObject*
 pg_gl_get_attribute (PyObject* self, PyObject* arg)
 {
     int flag, value, result;
-
-    VIDEO_INIT_CHECK ();
-
+    VIDEO_INIT_CHECK();
     if (!PyArg_ParseTuple (arg, "i", &flag))
         return NULL;
-
-    result = SDL_GL_GetAttribute (flag, &value);
+    result = SDL_GL_GetAttribute(flag, &value);
     if (result == -1)
-        return RAISE (PyExc_SDLError, SDL_GetError ());
-
+        return RAISE (PyExc_SDLError, SDL_GetError());
     return PyInt_FromLong (value);
 }
 
