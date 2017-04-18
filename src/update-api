@@ -1,0 +1,5 @@
+#!/bin/sh
+
+echo "Updating $1 (backup to $1.backup)"
+sed --in-place=.backup -f update-api.sed $1
+echo Done

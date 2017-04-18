@@ -1,3 +1,4 @@
+#include "api_transition.h"
 /*
     pygame - Python Game Library
     Copyright (C) 2000-2001  Pete Shinners
@@ -322,15 +323,15 @@ typedef getcharbufferproc charbufferproc;
 /* test sdl initializations */
 #define VIDEO_INIT_CHECK()                                              \
     if(!SDL_WasInit(SDL_INIT_VIDEO))                                    \
-        return RAISE(PyExc_SDLError, "video system not initialized")
+        return RAISE(pgExc_SDLError, "video system not initialized")
 
 #define CDROM_INIT_CHECK()                                              \
     if(!SDL_WasInit(SDL_INIT_CDROM))                                    \
-        return RAISE(PyExc_SDLError, "cdrom system not initialized")
+        return RAISE(pgExc_SDLError, "cdrom system not initialized")
 
 #define JOYSTICK_INIT_CHECK()                                           \
     if(!SDL_WasInit(SDL_INIT_JOYSTICK))                                 \
-        return RAISE(PyExc_SDLError, "joystick system not initialized")
+        return RAISE(pgExc_SDLError, "joystick system not initialized")
 
 /* BASE */
 #define VIEW_CONTIGUOUS    1
@@ -344,83 +345,83 @@ typedef getcharbufferproc charbufferproc;
 #define PYGAMEAPI_BASE_NUMSLOTS 23
 #endif /* IS_SDLv2 */
 #ifndef PYGAMEAPI_BASE_INTERNAL
-#define PyExc_SDLError ((PyObject*)PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT])
+#define pgExc_SDLError ((PyObject*)PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT])
 
-#define PyGame_RegisterQuit                                             \
+#define pg_RegisterQuit                                             \
     (*(void(*)(void(*)(void)))PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 1])
 
-#define IntFromObj                                                      \
+#define pg_IntFromObj                                                      \
     (*(int(*)(PyObject*, int*))PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 2])
 
-#define IntFromObjIndex                                                 \
+#define pg_IntFromObjIndex                                                 \
     (*(int(*)(PyObject*, int, int*))PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 3])
 
-#define TwoIntsFromObj                                                  \
+#define pg_TwoIntsFromObj                                                  \
     (*(int(*)(PyObject*, int*, int*))PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 4])
 
-#define FloatFromObj                                                    \
+#define pg_FloatFromObj                                                    \
     (*(int(*)(PyObject*, float*))PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 5])
 
-#define FloatFromObjIndex                                               \
+#define pg_FloatFromObjIndex                                               \
     (*(int(*)(PyObject*, int, float*))                                \
      PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 6])
 
-#define TwoFloatsFromObj                                \
+#define pg_TwoFloatsFromObj                                \
     (*(int(*)(PyObject*, float*, float*))               \
      PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 7])
 
-#define UintFromObj                                                     \
+#define pg_UintFromObj                                                     \
     (*(int(*)(PyObject*, Uint32*))PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 8])
 
-#define UintFromObjIndex                                                \
+#define pg_UintFromObjIndex                                                \
     (*(int(*)(PyObject*, int, Uint32*))                                 \
      PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 9])
 
-#define PyGame_Video_AutoQuit                                           \
+#define pgVideo_AutoQuit                                           \
     (*(void(*)(void))PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 10])
 
-#define PyGame_Video_AutoInit                                           \
+#define pgVideo_AutoInit                                           \
     (*(int(*)(void))PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 11])
 
-#define RGBAFromObj                                                     \
+#define pg_RGBAFromObj                                                     \
     (*(int(*)(PyObject*, Uint8*))PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 12])
 
-#define PgBuffer_AsArrayInterface                                       \
+#define pgBuffer_AsArrayInterface                                       \
     (*(PyObject*(*)(Py_buffer*)) PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 13])
 
-#define PgBuffer_AsArrayStruct                                          \
+#define pgBuffer_AsArrayStruct                                          \
     (*(PyObject*(*)(Py_buffer*))                                        \
      PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 14])
 
-#define PgObject_GetBuffer                                              \
+#define pgObject_GetBuffer                                              \
     (*(int(*)(PyObject*, Pg_buffer*, int))                              \
      PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 15])
 
-#define PgBuffer_Release                                                \
+#define pgBuffer_Release                                                \
     (*(void(*)(Pg_buffer*))                                             \
      PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 16])
 
-#define PgDict_AsBuffer                                                 \
+#define pgDict_AsBuffer                                                 \
     (*(int(*)(Pg_buffer*, PyObject*, int))                              \
      PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 17])
 
-#define PgExc_BufferError                                               \
+#define pgExc_BufferError                                               \
     ((PyObject*)PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 18])
 
 #if IS_SDLv2
-#define Py_GetDefaultWindow                                             \
+#define pg_GetDefaultWindow                                             \
     (*(SDL_Window*(*)(void))                                            \
      PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 19])
 
-#define Py_SetDefaultWindow                                             \
+#define pg_SetDefaultWindow                                             \
     (*(void(*)(SDL_Window*))                                            \
      PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 20])
 
-#define Py_GetDefaultWindowSurface                                      \
+#define pg_GetDefaultWindowSurface                                      \
     (*(PyObject*(*)(void))                                              \
      PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 21])
 
-#define Py_SetDefaultWindowSurface                                      \
+#define pg_SetDefaultWindowSurface                                      \
     (*(void(*)(PyObject*))                                              \
      PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 22])
 
