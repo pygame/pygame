@@ -9,6 +9,7 @@
 #   s/IntFromObj\(\|Index\)/pg_IntFromObj\1/g
 
 # base.c
+s/Pg_buffer/pg_buffer/g
 s/PyExc_SDLError/pgExc_SDLError/g
 s/PyGame_RegisterQuit/pg_RegisterQuit/g
 s/IntFromObj\(\|Index\)/pg_IntFromObj\1/g

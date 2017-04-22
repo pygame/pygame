@@ -149,7 +149,7 @@ typedef int (*getbufferproc)(PyObject *, Py_buffer *, int);
 typedef void (*releasebufferproc)(Py_buffer *);
 #endif /* #if !defined(PyBUF_SIMPLE) */
 
-/* Flag indicating a Pg_buffer; used for assertions within callbacks */
+/* Flag indicating a pg_buffer; used for assertions within callbacks */
 #ifndef NDEBUG
 #define PyBUF_PYGAME 0x4000
 #endif
@@ -168,7 +168,7 @@ typedef struct pg_bufferinfo_s {
     Py_buffer view;
     PyObject *consumer;                   /* Input: Borrowed reference */
     pybuffer_releaseproc release_buffer;
-} Pg_buffer;
+} pg_buffer;
 
 /* Operating system specific adjustments
  */
@@ -394,15 +394,15 @@ typedef getcharbufferproc charbufferproc;
      PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 14])
 
 #define pgObject_GetBuffer                                              \
-    (*(int(*)(PyObject*, Pg_buffer*, int))                              \
+    (*(int(*)(PyObject*, pg_buffer*, int))                              \
      PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 15])
 
 #define pgBuffer_Release                                                \
-    (*(void(*)(Pg_buffer*))                                             \
+    (*(void(*)(pg_buffer*))                                             \
      PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 16])
 
 #define pgDict_AsBuffer                                                 \
-    (*(int(*)(Pg_buffer*, PyObject*, int))                              \
+    (*(int(*)(pg_buffer*, PyObject*, int))                              \
      PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 17])
 
 #define pgExc_BufferError                                               \

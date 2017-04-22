@@ -1,3 +1,4 @@
+#define Pg_buffer pg_buffer
 #define PyExc_SDLError pgExc_SDLError
 #define PyGame_RegisterQuit pg_RegisterQuit
 #define IntFromObj pg_IntFromObj

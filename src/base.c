@@ -98,10 +98,10 @@ static PyObject* pgArrayStruct_AsDict(PyArrayInterface*);
 static PyObject* pgBuffer_AsArrayInterface(Py_buffer*);
 static PyObject* pgBuffer_AsArrayStruct(Py_buffer*);
 static int _pg_buffer_is_byteswapped(Py_buffer*);
-static void pgBuffer_Release(Pg_buffer*);
-static int pgObject_GetBuffer(PyObject*, Pg_buffer*, int);
+static void pgBuffer_Release(pg_buffer*);
+static int pgObject_GetBuffer(PyObject*, pg_buffer*, int);
 static int pgGetArrayInterface(PyObject**, PyObject*);
-static int pgArrayStruct_AsBuffer(Pg_buffer*,
+static int pgArrayStruct_AsBuffer(pg_buffer*,
                                   PyObject*,
                                   PyArrayInterface*,
                                   int);
@@ -110,7 +110,7 @@ static int _pg_arraystruct_as_buffer(Py_buffer*,
                                      PyArrayInterface*,
                                      int);
 static int _pg_arraystruct_to_format(char*, PyArrayInterface*, int);
-static int pgDict_AsBuffer(Pg_buffer*, PyObject*, int);
+static int pgDict_AsBuffer(pg_buffer*, PyObject*, int);
 static int _pg_shape_check(PyObject*);
 static int _pg_typestr_check(PyObject*);
 static int _pg_strides_check(PyObject*);
@@ -1044,7 +1044,7 @@ pg_get_array_interface(PyObject* self, PyObject* arg)
 }
 
 static int
-pgObject_GetBuffer(PyObject* obj, Pg_buffer* pg_view_p, int flags)
+pgObject_GetBuffer(PyObject* obj, pg_buffer* pg_view_p, int flags)
 {
     Py_buffer* view_p = (Py_buffer*)pg_view_p;
     PyObject* cobj = 0;
@@ -1057,7 +1057,7 @@ pgObject_GetBuffer(PyObject* obj, Pg_buffer* pg_view_p, int flags)
     view_p->len = 0;
 
 #ifndef NDEBUG
-    /* Allow a callback to assert that it recieved a Pg_buffer,
+    /* Allow a callback to assert that it recieved a pg_buffer,
        not a Py_buffer */
     flags |= PyBUF_PYGAME;
 #endif
@@ -1181,7 +1181,7 @@ pgObject_GetBuffer(PyObject* obj, Pg_buffer* pg_view_p, int flags)
 }
 
 static void
-pgBuffer_Release(Pg_buffer* pg_view_p)
+pgBuffer_Release(pg_buffer* pg_view_p)
 {
     assert(pg_view_p && pg_view_p->release_buffer);
     pg_view_p->release_buffer((Py_buffer*)pg_view_p);
@@ -1247,7 +1247,7 @@ pgGetArrayInterface(PyObject **dict, PyObject *obj)
 }
 
 static int
-pgArrayStruct_AsBuffer(Pg_buffer* pg_view_p, PyObject* cobj,
+pgArrayStruct_AsBuffer(pg_buffer* pg_view_p, PyObject* cobj,
                        PyArrayInterface* inter_p, int flags)
 {
     pg_view_p->release_buffer = _pg_release_buffer_array;
@@ -1490,7 +1490,7 @@ static int _pg_arraystruct_to_format(char* format,
 }
 
 static int
-pgDict_AsBuffer(Pg_buffer* pg_view_p, PyObject* dict, int flags)
+pgDict_AsBuffer(pg_buffer* pg_view_p, PyObject* dict, int flags)
 {
     PyObject* shape = PyDict_GetItemString(dict, "shape");
     PyObject* typestr = PyDict_GetItemString(dict, "typestr");
