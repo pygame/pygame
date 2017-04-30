@@ -669,6 +669,60 @@ class RectTypeTest( unittest.TestCase ):
         c = r.copy()
         self.failUnlessEqual(c, r)
         
+        
+    def test_subscript(self):
+        r = Rect(1, 2, 3, 4)
+        self.assertEqual(r[0], 1)
+        self.assertEqual(r[1], 2)
+        self.assertEqual(r[2], 3)
+        self.assertEqual(r[3], 4)
+        self.assertEqual(r[-1], 4)
+        self.assertEqual(r[-2], 3)
+        self.assertEqual(r[-4], 1)
+        self.assertRaises(IndexError, r.__getitem__, 5)
+        self.assertRaises(IndexError, r.__getitem__, -5)
+        self.assertEqual(r[0:2], [1, 2])
+        self.assertEqual(r[0:4], [1, 2, 3, 4])
+        self.assertEqual(r[0:-1], [1, 2, 3])
+        self.assertEqual(r[:], [1, 2, 3, 4])
+        self.assertEqual(r[...], [1, 2, 3, 4])
+        self.assertEqual(r[0:4:2], [1, 3])
+        self.assertEqual(r[0:4:3], [1, 4])
+        self.assertEqual(r[3::-1], [4, 3, 2, 1])
+        self.assertRaises(TypeError, r.__getitem__, None)
+
+    def test_ass_subscript(self):
+        r = Rect(0, 0, 0, 0)
+        r[...] = 1, 2, 3, 4
+        self.assertEqual(r, [1, 2, 3, 4])
+        self.assertRaises(TypeError, r.__setitem__, None, 0)
+        self.assertEqual(r, [1, 2, 3, 4])
+        self.assertRaises(TypeError, r.__setitem__, 0, '')
+        self.assertEqual(r, [1, 2, 3, 4])
+        self.assertRaises(IndexError, r.__setitem__, 4, 0)
+        self.assertEqual(r, [1, 2, 3, 4])
+        self.assertRaises(IndexError, r.__setitem__, -5, 0)
+        self.assertEqual(r, [1, 2, 3, 4])
+        r[0] = 10
+        self.assertEqual(r, [10, 2, 3, 4])
+        r[3] = 40
+        self.assertEqual(r, [10, 2, 3, 40])
+        r[-1] = 400
+        self.assertEqual(r, [10, 2, 3, 400])
+        r[-4] = 100
+        self.assertEqual(r, [100, 2, 3, 400])
+        r[1:3] = 0
+        self.assertEqual(r, [100, 0, 0, 400])
+        r[...] = 0
+        self.assertEqual(r, [0, 0, 0, 0])
+        r[:] = 9
+        self.assertEqual(r, [9, 9, 9, 9])
+        r[:] = 11, 12, 13, 14
+        self.assertEqual(r, [11, 12, 13, 14])
+        r[::-1] = r
+        self.assertEqual(r, [14, 13, 12, 11])
+
+
 class SubclassTest(unittest.TestCase):
     class MyRect(Rect):
         def __init__(self, *args, **kwds):
