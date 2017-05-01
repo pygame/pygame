@@ -1,32 +1,42 @@
 # sed Pygame C API update script
 #
-# When adding new entries, watch out for identifiers like
-# IntFromObjIndex and IntFromObj. If they are added as separate
-# sed commands, then for the longer identifier there will be
-# two matches and the prefix gets added twice (eg pg_pg_).
-# Either use just the shorter pattern or combine like this:
+# Substitution entries have this form:
 #
-#   s/IntFromObj\(\|Index\)/pg_IntFromObj\1/g
+#    s/\(\W\)original\(\W\)/\1replacement\2/g
+#
+# The bracketing \(\W\) prevents multiple matches for a particular identifier.
+# Otherwise, identifiers like 'IntFromObj' might end up as 'pg_pg_IntFromObj'.
 
 # base.c
-s/Pg_buffer/pg_buffer/g
-s/PyExc_SDLError/pgExc_SDLError/g
-s/PyGame_RegisterQuit/pg_RegisterQuit/g
-s/IntFromObj\(\|Index\)/pg_IntFromObj\1/g
-s/TwoIntsFromObj/pg_TwoIntsFromObj/g
-s/FloatFromObj\(\|Index\)/pg_FloatFromObj\1/g
-s/TwoFloatsFromObj/pg_TwoFloatsFromObj/g
-s/UintFromObj\(\|Index\)/pg_UintFromObj\1/g
-s/PyGame_Video_AutoQuit/pgVideo_AutoQuit/g
-s/PyGame_Video_AutoInit/pgVideo_AutoInit/g
-s/RGBAFromObj/pg_RGBAFromObj/g
-s/PgBuffer_AsArrayInterface/pgBuffer_AsArrayInterface/g
-s/PgBuffer_AsArrayStruct/pgBuffer_AsArrayStruct/g
-s/PgObject_GetBuffer/pgObject_GetBuffer/g
-s/PgBuffer_Release/pgBuffer_Release/g
-s/PgDict_AsBuffer/pgDict_AsBuffer/g
-s/PgExc_BufferError/pgExc_BufferError/g
-s/Py_GetDefaultWindow/pg_GetDefaultWindow/g
-s/Py_SetDefaultWindow/pg_SetDefaultWindow/g
-s/Py_GetDefaultWindowSurface/pg_GetDefaultWindowSurface/g
-s/Py_SetDefaultWindowSurface/pg_SetDefaultWindowSurface/g
+s/\(\W\)Pg_buffer\(\W\)/\1pg_buffer\2/g
+s/\(\W\)PyExc_SDLError\(\W\)/\1pgExc_SDLError\2/g
+s/\(\W\)PyGame_RegisterQuit\(\W\)/\1pg_RegisterQuit\2/g
+s/\(\W\)IntFromObj\(\W\)/\1pg_IntFromObj\2/g
+s/\(\W\)IntFromObjIndex\(\W\)/\1pg_IntFromObjIndex\2/g
+s/\(\W\)TwoIntsFromObj\(\W\)/\1pg_TwoIntsFromObj\2/g
+s/\(\W\)FloatFromObj\(\W\)/\1pg_FloatFromObj\2/g
+s/\(\W\)FloatFromObjIndex\(\W\)/\1pg_FloatFromObjIndex\2/g
+s/\(\W\)TwoFloatsFromObj\(\W\)/\1pg_TwoFloatsFromObj\2/g
+s/\(\W\)UintFromObj\(\W\)/\1pg_UintFromObj\2/g
+s/\(\W\)UintFromObjIndex\(\W\)/\1pg_UintFromObjIndex\2/g
+s/\(\W\)PyGame_Video_AutoQuit\(\W\)/\1pgVideo_AutoQuit\2/g
+s/\(\W\)PyGame_Video_AutoInit\(\W\)/\1pgVideo_AutoInit\2/g
+s/\(\W\)RGBAFromObj\(\W\)/\1pg_RGBAFromObj\2/g
+s/\(\W\)PgBuffer_AsArrayInterface\(\W\)/\1pgBuffer_AsArrayInterface\2/g
+s/\(\W\)PgBuffer_AsArrayStruct\(\W\)/\1pgBuffer_AsArrayStruct\2/g
+s/\(\W\)PgObject_GetBuffer\(\W\)/\1pgObject_GetBuffer\2/g
+s/\(\W\)PgBuffer_Release\(\W\)/\1pgBuffer_Release\2/g
+s/\(\W\)PgDict_AsBuffer\(\W\)/\1pgDict_AsBuffer\2/g
+s/\(\W\)PgExc_BufferError\(\W\)/\1pgExc_BufferError\2/g
+s/\(\W\)Py_GetDefaultWindow\(\W\)/\1pg_GetDefaultWindow\2/g
+s/\(\W\)Py_SetDefaultWindow\(\W\)/\1pg_SetDefaultWindow\2/g
+s/\(\W\)Py_GetDefaultWindowSurface\(\W\)/\1pg_GetDefaultWindowSurface\2/g
+s/\(\W\)Py_SetDefaultWindowSurface\(\W\)/\1pg_SetDefaultWindowSurface\2/g
+
+# rect.c
+s/\(\W\)PyRectObject\(\W\)/\1pgRectObject\2/g
+s/\(\W\)PyRect_AsRect\(\W\)/\1pgRect_AsRect\2/g
+s/\(\W\)PyRect_Type\(\W\)/\1pgRect_Type\2/g
+s/\(\W\)PyRect_New\(\W\)/\1pgRect_New\2/g
+s/\(\W\)PyRect_New4\(\W\)/\1pgRect_New4\2/g
+s/\(\W\)GameRect_FromObject\(\W\)/\1pgRect_FromObject\2/g

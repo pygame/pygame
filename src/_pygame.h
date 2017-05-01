@@ -445,18 +445,18 @@ typedef struct {
     PyObject_HEAD
     GAME_Rect r;
     PyObject *weakreflist;
-} PyRectObject;
+} pgRectObject;
 
-#define PyRect_AsRect(x) (((PyRectObject*)x)->r)
+#define pgRect_AsRect(x) (((pgRectObject*)x)->r)
 #ifndef PYGAMEAPI_RECT_INTERNAL
 #define PyRect_Check(x) \
     ((x)->ob_type == (PyTypeObject*)PyGAME_C_API[PYGAMEAPI_RECT_FIRSTSLOT + 0])
-#define PyRect_Type (*(PyTypeObject*)PyGAME_C_API[PYGAMEAPI_RECT_FIRSTSLOT + 0])
-#define PyRect_New                                                      \
+#define pgRect_Type (*(PyTypeObject*)PyGAME_C_API[PYGAMEAPI_RECT_FIRSTSLOT + 0])
+#define pgRect_New                                                      \
     (*(PyObject*(*)(SDL_Rect*))PyGAME_C_API[PYGAMEAPI_RECT_FIRSTSLOT + 1])
-#define PyRect_New4                                                     \
+#define pgRect_New4                                                     \
     (*(PyObject*(*)(int,int,int,int))PyGAME_C_API[PYGAMEAPI_RECT_FIRSTSLOT + 2])
-#define GameRect_FromObject                                             \
+#define pgRect_FromObject                                             \
     (*(GAME_Rect*(*)(PyObject*, GAME_Rect*))                            \
      PyGAME_C_API[PYGAMEAPI_RECT_FIRSTSLOT + 3])
 
