@@ -40,3 +40,12 @@ s/\(\W\)PyRect_Type\(\W\)/\1pgRect_Type\2/g
 s/\(\W\)PyRect_New\(\W\)/\1pgRect_New\2/g
 s/\(\W\)PyRect_New4\(\W\)/\1pgRect_New4\2/g
 s/\(\W\)GameRect_FromObject\(\W\)/\1pgRect_FromObject\2/g
+
+# rwobject.c
+s/\(\W\)RWopsFromObject\(\W\)/\1pgRWopsFromObject\2/g
+s/\(\W\)RWopsCheckObject\(\W\)/\1pgRWopsCheckObject\2/g
+s/\(\W\)RWopsFromFileObjectThreaded\(\W\)/\1pgRWopsFromFileObjectThreaded\2/g
+s/\(\W\)RWopsCheckObjectThreaded\(\W\)/\1pgRWopsCheckObjectThreaded\2/g
+s/\(\W\)RWopsEncodeFilePath\(\W\)/\1pgRWopsEncodeFilePath\2/g
+s/\(\W\)RWopsEncodeString\(\W\)/\1pgRWopsEncodeString\2/g
+s/\(\W\)RWopsFromFileObject\(\W\)/\1pgRWopsFromFileObject\2/g

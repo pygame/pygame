@@ -682,21 +682,21 @@ typedef struct {
     (PYGAMEAPI_EVENT_FIRSTSLOT + PYGAMEAPI_EVENT_NUMSLOTS)
 #define PYGAMEAPI_RWOBJECT_NUMSLOTS 7
 #ifndef PYGAMEAPI_RWOBJECT_INTERNAL
-#define RWopsFromObject \
+#define pgRWopsFromObject \
     (*(SDL_RWops*(*)(PyObject*))PyGAME_C_API[PYGAMEAPI_RWOBJECT_FIRSTSLOT + 0])
-#define RWopsCheckObject                                               \
+#define pgRWopsCheckObject                                               \
     (*(int(*)(SDL_RWops*))PyGAME_C_API[PYGAMEAPI_RWOBJECT_FIRSTSLOT + 1])
-#define RWopsFromFileObjectThreaded                                         \
+#define pgRWopsFromFileObjectThreaded                                         \
     (*(SDL_RWops*(*)(PyObject*))PyGAME_C_API[PYGAMEAPI_RWOBJECT_FIRSTSLOT + 2])
-#define RWopsCheckObjectThreaded                                        \
+#define pgRWopsCheckObjectThreaded                                        \
     (*(int(*)(SDL_RWops*))PyGAME_C_API[PYGAMEAPI_RWOBJECT_FIRSTSLOT + 3])
-#define RWopsEncodeFilePath \
+#define pgRWopsEncodeFilePath \
     (*(PyObject*(*)(PyObject*, PyObject*)) \
         PyGAME_C_API[PYGAMEAPI_RWOBJECT_FIRSTSLOT + 4])
-#define RWopsEncodeString \
+#define pgRWopsEncodeString \
     (*(PyObject*(*)(PyObject*, const char*, const char*, PyObject*)) \
         PyGAME_C_API[PYGAMEAPI_RWOBJECT_FIRSTSLOT + 5])
-#define RWopsFromFileObject                                         \
+#define pgRWopsFromFileObject                                         \
     (*(SDL_RWops*(*)(PyObject*))PyGAME_C_API[PYGAMEAPI_RWOBJECT_FIRSTSLOT + 6])
 #define import_pygame_rwobject() IMPORT_PYGAME_MODULE(rwobject, RWOBJECT)
 
