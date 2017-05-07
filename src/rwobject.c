@@ -42,33 +42,33 @@ typedef struct {
 static const char pg_default_encoding[] = "unicode_escape";
 static const char pg_default_errors[] = "backslashreplace";
 
-#ifndef SDL2
+#if IS_SDLv1
 static int _pg_rw_seek(SDL_RWops *, int, int);
 static int _pg_rw_read(SDL_RWops *, void *, int, int);
 static int _pg_rw_write(SDL_RWops *, const void *, int, int);
 static int _pg_rw_close(SDL_RWops *);
-#else /* SDL2 */
+
+#ifdef WITH_THREAD
+static int _pg_rw_seek_th(SDL_RWops *, int, int);
+static int _pg_rw_read_th(SDL_RWops *, void *, int, int);
+static int _pg_rw_write_th(SDL_RWops *, const void *, int, int);
+static int _pg_rw_close_th(SDL_RWops *);
+#endif
+#else /* IS_SDLv2 */
 static Sint64 _pg_rw_size(SDL_RWops *);
 static Sint64 _pg_rw_seek(SDL_RWops *, Sint64, int);
 static size_t _pg_rw_read(SDL_RWops *, void *, size_t, size_t);
 static size_t _pg_rw_write(SDL_RWops *, const void *, size_t, size_t);
 static int _pg_rw_close(SDL_RWops *);
-#endif /* SDL2 */
 
 #ifdef WITH_THREAD
-#ifndef SDL2
-static int _pg_rw_seek_th(SDL_RWops *, int, int);
-static int _pg_rw_read_th(SDL_RWops *, void *, int, int);
-static int _pg_rw_write_th(SDL_RWops *, const void *, int, int);
-static int _pg_rw_close_th(SDL_RWops *);
-#else /* SDL2 */
 static Sint64 _pg_rw_size_th(SDL_RWops *);
 static Sint64 _pg_rw_seek_th(SDL_RWops *, Sint64, int);
 static size_t _pg_rw_read_th(SDL_RWops *, void *, size_t, size_t);
 static size_t _pg_rw_write_th(SDL_RWops *, const void *, size_t, size_t);
 static int _pg_rw_close_th(SDL_RWops *);
-#endif /* SDL2 */
 #endif
+#endif /* IS_SDLv2 */
 
 static int
 _pg_is_exception_class(PyObject *obj, void **optr)
@@ -262,9 +262,9 @@ pgRWopsFromFileObject(PyObject *obj)
     }
     fetch_object_methods(helper, obj);
     rw->hidden.unknown.data1 = (void *)helper;
-#ifdef SDL2
+#if IS_SDLv2
     rw->size = _pg_rw_size;
-#endif /* SDL2 */
+#endif /* IS_SDLv2 */
     rw->seek = _pg_rw_seek;
     rw->read = _pg_rw_read;
     rw->write = _pg_rw_write;
@@ -302,7 +302,7 @@ pgRWopsCheckObject(SDL_RWops *rw)
     return rw->close == _pg_rw_close;
 }
 
-#ifdef SDL2
+#if IS_SDLv2
 static Sint64
 _pg_rw_size(SDL_RWops *context)
 {
@@ -311,12 +311,7 @@ _pg_rw_size(SDL_RWops *context)
     PyObject *tmp = NULL;
     Sint64 size;
     Sint64 retval = -1;
-#endif /* SDL2 */
 
-#ifndef SDL2
-static int
-_pg_rw_seek(SDL_RWops *context, int offset, int whence)
-#else /* SDL2 */
     if (!helper->seek || !helper->tell)
         return retval;
 
@@ -370,18 +365,23 @@ end:
     Py_XDECREF(tmp);
     return retval;
 }
+#endif /* IS_SDLv2 */
 
-static Sint64
-_pg_rw_seek(SDL_RWops *context, Sint64 offset, int whence)
-#endif /* SDL2 */
+#if IS_SDLv1
+static int
+_pg_rw_seek(SDL_RWops *context, int offset, int whence)
 {
     pgRWHelper *helper = (pgRWHelper *) context->hidden.unknown.data1;
     PyObject *result;
-#ifndef SDL2
     int retval;
-#else /* SDL2 */
+#else /* IS_SDLv2 */ 
+static Sint64
+_pg_rw_seek(SDL_RWops *context, Sint64 offset, int whence)
+{
+    pgRWHelper *helper = (pgRWHelper *) context->hidden.unknown.data1;
+    PyObject *result;
     Sint64 retval;
-#endif /* SDL2 */
+#endif
 
     if (!helper->seek || !helper->tell)
         return -1;
@@ -404,21 +404,21 @@ _pg_rw_seek(SDL_RWops *context, Sint64 offset, int whence)
     return retval;
 }
 
-#ifndef SDL2
+#if IS_SDLv1
 static int
 _pg_rw_read(SDL_RWops *context, void *ptr, int size, int maxnum)
-#else /* SDL2 */
-static size_t
-_pg_rw_read(SDL_RWops *context, void *ptr, size_t size, size_t maxnum)
-#endif /* SDL2 */
 {
     pgRWHelper *helper = (pgRWHelper *) context->hidden.unknown.data1;
     PyObject *result;
-#ifndef SDL2
     int retval;
-#else /* SDL2 */
+#else /* IS_SDLv2 */
+static size_t
+_pg_rw_read(SDL_RWops *context, void *ptr, size_t size, size_t maxnum)
+{
+    pgRWHelper *helper = (pgRWHelper *) context->hidden.unknown.data1;
+    PyObject *result;
     size_t retval;
-#endif /* SDL2 */
+#endif /* IS_SDLv2 */
 
     if (!helper->read)
         return -1;
@@ -440,13 +440,13 @@ _pg_rw_read(SDL_RWops *context, void *ptr, size_t size, size_t maxnum)
     return retval;
 }
 
-#ifndef SDL2
+#if IS_SDLv1
 static int
 _pg_rw_write(SDL_RWops *context, const void *ptr, int size, int num)
-#else /* SDL2 */
+#else /* IS_SDLv2 */
 static size_t
 _pg_rw_write(SDL_RWops *context, const void *ptr, size_t size, size_t num)
-#endif /* SDL2 */
+#endif /* IS_SDLv2 */
 {
     pgRWHelper *helper = (pgRWHelper *) context->hidden.unknown.data1;
     PyObject *result;
@@ -511,9 +511,9 @@ pgRWopsFromFileObjectThreaded(PyObject *obj)
     }
     fetch_object_methods(helper, obj);
     rw->hidden.unknown.data1 = (void *)helper;
-#ifdef SDL2
+#if IS_SDLv2
     rw->size = _pg_rw_size_th;
-#endif /* SDL2 */
+#endif /* IS_SDLv2 */
     rw->seek = _pg_rw_seek_th;
     rw->read = _pg_rw_read_th;
     rw->write = _pg_rw_write_th;
@@ -536,10 +536,7 @@ pgRWopsCheckObjectThreaded(SDL_RWops *rw)
 }
 
 #ifdef WITH_THREAD
-#ifndef SDL2
-static int
-_pg_rw_seek_th(SDL_RWops *context, int offset, int whence)
-#else /* SDL2 */
+#if IS_SDLv2
 static Sint64
 _pg_rw_size_th(SDL_RWops *context)
 {
@@ -606,18 +603,23 @@ end:
     PyGILState_Release(state);
     return retval;
 }
+#endif /* IS_SDLv2 */
 
-static Sint64
-_pg_rw_seek_th(SDL_RWops *context, Sint64 offset, int whence)
-#endif /* SDL2 */
+#if IS_SDLv1
+static int
+_pg_rw_seek_th(SDL_RWops *context, int offset, int whence)
 {
     pgRWHelper *helper = (pgRWHelper *) context->hidden.unknown.data1;
     PyObject *result;
-#ifndef SDL2
     int retval;
-#else /* SDL2 */
+#else /* IS_SDLv2 */
+static Sint64
+_pg_rw_seek_th(SDL_RWops *context, Sint64 offset, int whence)
+{
+    pgRWHelper *helper = (pgRWHelper *) context->hidden.unknown.data1;
+    PyObject *result;
     Sint64 retval;
-#endif /* SDL2 */
+#endif /* IS_SDLv2 */
     PyGILState_STATE state;
 
 
@@ -653,21 +655,21 @@ end:
     return retval;
 }
 
-#ifndef SDL2
+#if IS_SDLv1
 static int
 _pg_rw_read_th(SDL_RWops *context, void *ptr, int size, int maxnum)
-#else /* SDL2 */
-static size_t
-_pg_rw_read_th(SDL_RWops *context, void *ptr, size_t size, size_t maxnum)
-#endif /* SDL2 */
 {
     pgRWHelper *helper = (pgRWHelper *) context->hidden.unknown.data1;
     PyObject *result;
-#ifndef SDL2
     int retval;
-#else /* SDL2 */
+#else /* IS_SDLv2 */
+static size_t
+_pg_rw_read_th(SDL_RWops *context, void *ptr, size_t size, size_t maxnum)
+{
+    pgRWHelper *helper = (pgRWHelper *) context->hidden.unknown.data1;
+    PyObject *result;
     size_t retval;
-#endif /* SDL2 */
+#endif /* IS_SDLv2 */
     PyGILState_STATE state;
 
     if (!helper->read)
@@ -701,21 +703,21 @@ end:
     return retval;
 }
 
-#ifndef SDL2
+#if IS_SDLv1
 static int
 _pg_rw_write_th(SDL_RWops *context, const void *ptr, int size, int num)
-#else /* SDL2 */
-static size_t
-_pg_rw_write_th(SDL_RWops *context, const void *ptr, size_t size, size_t num)
-#endif /* SDL2 */
 {
     pgRWHelper *helper = (pgRWHelper *) context->hidden.unknown.data1;
     PyObject *result;
-#ifndef SDL2
     int retval;
-#else /* SDL2 */
+#else /* IS_SDLv2 */
+static size_t
+_pg_rw_write_th(SDL_RWops *context, const void *ptr, size_t size, size_t num)
+{
+    pgRWHelper *helper = (pgRWHelper *) context->hidden.unknown.data1;
+    PyObject *result;
     size_t retval;
-#endif /* SDL2 */
+#endif /* IS_SDLv2 */
     PyGILState_STATE state;
 
     if (!helper->write)
