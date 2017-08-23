@@ -24,13 +24,13 @@ matrix:
     # Should only need one OSX build because older builds can work on newer machines ok.
     #https://docs.travis-ci.com/user/osx-ci-environment/#OS-X-Version
     - os: osx
-      osx_image: beta-xcode6.1
+      osx_image: xcode6.4
       language: generic
       env:
         - PY_VERSION=3
         - MAKEFLAGS=-j8
     - os: osx
-      osx_image: beta-xcode6.1
+      osx_image: xcode6.4
       language: generic
       env:
         - PY_VERSION=2
