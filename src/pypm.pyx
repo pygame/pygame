@@ -690,7 +690,7 @@ cdef class Input:
 
         events = []
         if num_events >= 1:
-            for ev_no in range(num_events):
+            for ev_no in range(<int>num_events):
                 events.append(
                     [
                         [
