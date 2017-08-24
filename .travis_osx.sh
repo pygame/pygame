@@ -4,7 +4,7 @@ set -e
 git clone https://github.com/MacPython/terryfy.git
 cd terryfy
 # Work with a specific commit
-git checkout 07480be3e0b3490495cb8a9629e55be54c3adac3
+git checkout 703737bd7be3a5d388146d5a95241ec2a17a4b2c
 cd ..
 source terryfy/travis_tools.sh
 get_python_environment homebrew $PY_VERSION $(pwd)/_test_env
