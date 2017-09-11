@@ -4020,7 +4020,7 @@ int aaellipseColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, 
 	Sint16 x1,y1,x2,y2;
 	int i;
 	int a2, b2, ds, dt, dxt, t, s, d;
-	Sint16 xp, yp, xs, ys, dyt, od, xx, yy, xc2, yc2;
+	Sint16 xp, yp, xs, ys, dyt, xx, yy, xc2, yc2;
 	float cp;
 	double sab;
 	Uint8 weight, iweight;
@@ -4089,8 +4089,7 @@ int aaellipseColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, 
 	yc2 = 2 * y;
 
 	sab = sqrt((double)(a2 + b2));
-	od = (Sint16)lrint(sab*0.01) + 1; /* introduce some overdraw */
-	dxt = (Sint16)lrint((double)a2 / sab); //+ od;
+	dxt = (Sint16)lrint((double)a2 / sab);
 
 	t = 0;
 	s = -2 * a2 * ry;
@@ -4172,8 +4171,7 @@ int aaellipseColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, 
 	}
 
 	/* Replaces original approximation code dyt = abs(yp - yc); */
-	dyt = (Sint16)lrint((double)b2 / sab );  // + od;
-    //dyt = abs(yp - yc2);
+	dyt = (Sint16)lrint((double)b2 / sab );
 
 	for (i = 1; i <= dyt; i++) {
 		yp++;
