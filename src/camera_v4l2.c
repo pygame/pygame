@@ -233,6 +233,25 @@ int v4l2_process_image (PyCameraObject* self, const void *image,
                 return 0;
             }
             break;
+    case V4L2_PIX_FMT_UYVY:	    /* FIXME: wrong, just copied from V4L2_PIX_FMT_YUYV above */
+            if (buffer_size >= self->size * 2) {
+                switch (self->color_out) {
+                    case YUV_OUT:
+                        yuyv_to_yuv(image, surf->pixels, self->size, surf->format);
+                        break;
+                    case RGB_OUT:
+                        yuyv_to_rgb(image, surf->pixels, self->size, surf->format);
+                        break;
+                    case HSV_OUT:
+                        yuyv_to_rgb(image, surf->pixels, self->size, surf->format);
+                        rgb_to_hsv(surf->pixels, surf->pixels, self->size, V4L2_PIX_FMT_YUYV, surf->format);
+                        break;
+                }
+            } else {
+                SDL_UnlockSurface (surf);
+                return 0;
+            }
+            break;
         case V4L2_PIX_FMT_SBGGR8:
             if (buffer_size >= self->size) {
                 switch (self->color_out) {
@@ -524,6 +543,8 @@ int v4l2_init_device (PyCameraObject* self)
                 self->pixelformat = V4L2_PIX_FMT_YUYV;
             } else if (v4l2_pixelformat(self->fd, &fmt, V4L2_PIX_FMT_YUV420)) {
                 self->pixelformat = V4L2_PIX_FMT_YUV420;
+            } else if (v4l2_pixelformat(self->fd, &fmt, V4L2_PIX_FMT_UYVY)) {
+                self->pixelformat = V4L2_PIX_FMT_UYVY;
             } else if (v4l2_pixelformat(self->fd, &fmt, V4L2_PIX_FMT_RGB24)) {
                 self->pixelformat = V4L2_PIX_FMT_RGB24;
             } else if (v4l2_pixelformat(self->fd, &fmt, V4L2_PIX_FMT_RGB444)) {
