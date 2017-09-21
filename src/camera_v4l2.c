@@ -568,6 +568,8 @@ int v4l2_init_device (PyCameraObject* self)
                 self->pixelformat = V4L2_PIX_FMT_SBGGR8;
             } else if (v4l2_pixelformat(self->fd, &fmt, V4L2_PIX_FMT_YUV420)) {
                 self->pixelformat = V4L2_PIX_FMT_YUV420;
+            } else if (v4l2_pixelformat(self->fd, &fmt, V4L2_PIX_FMT_UYVY)) {
+                self->pixelformat = V4L2_PIX_FMT_UYVY;
             } else {
                 PyErr_Format(PyExc_SystemError,
                            "ioctl(VIDIOC_S_FMT) failure: no supported formats");
