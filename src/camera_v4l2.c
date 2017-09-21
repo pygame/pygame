@@ -233,17 +233,17 @@ int v4l2_process_image (PyCameraObject* self, const void *image,
                 return 0;
             }
             break;
-    case V4L2_PIX_FMT_UYVY:	    /* FIXME: wrong, just copied from V4L2_PIX_FMT_YUYV above */
+    case V4L2_PIX_FMT_UYVY:
             if (buffer_size >= self->size * 2) {
                 switch (self->color_out) {
                     case YUV_OUT:
-                        yuyv_to_yuv(image, surf->pixels, self->size, surf->format);
+                        uyvy_to_yuv(image, surf->pixels, self->size, surf->format);
                         break;
                     case RGB_OUT:
-                        yuyv_to_rgb(image, surf->pixels, self->size, surf->format);
+                        uyvy_to_rgb(image, surf->pixels, self->size, surf->format);
                         break;
                     case HSV_OUT:
-                        yuyv_to_rgb(image, surf->pixels, self->size, surf->format);
+                        uyvy_to_rgb(image, surf->pixels, self->size, surf->format);
                         rgb_to_hsv(surf->pixels, surf->pixels, self->size, V4L2_PIX_FMT_YUYV, surf->format);
                         break;
                 }
