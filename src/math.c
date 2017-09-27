@@ -801,7 +801,6 @@ vector_GetSlice(PyVector *self, Py_ssize_t ilow, Py_ssize_t ihigh)
     /* some code was taken from the CPython source listobject.c */
     PyListObject *slice;
     Py_ssize_t i, len;
-    PyObject **dest;
 
     /* make sure boundaries are sane */
     if (ilow < 0)
@@ -819,7 +818,7 @@ vector_GetSlice(PyVector *self, Py_ssize_t ilow, Py_ssize_t ihigh)
         return NULL;
 
     for (i = 0; i < len; i++) {
-        PyList_SET_ITEM(dest, i, PyFloat_FromDouble(self->coords[ilow + i]));
+        PyList_SET_ITEM(slice, i, PyFloat_FromDouble(self->coords[ilow + i]));
     }
     return (PyObject *)slice;
 }
@@ -897,7 +896,6 @@ vector_subscript (PyVector *self, PyObject *key)
         Py_ssize_t start, stop, step, slicelength, cur;
         PyObject *result;
         PyObject *it;
-        PyObject **dest;
 
         if (PySlice_GetIndicesEx ((PySliceObject*)key, self->dim,
                  &start, &stop, &step, &slicelength) < 0) {
@@ -921,7 +919,7 @@ vector_subscript (PyVector *self, PyObject *key)
                     Py_DECREF (result);
                     return NULL;
                 }
-                PyList_SET_ITEM(dest, i, it);
+                PyList_SET_ITEM(result, i, it);
             }
             return result;
         }
