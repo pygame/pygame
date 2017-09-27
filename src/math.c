@@ -818,9 +818,8 @@ vector_GetSlice(PyVector *self, Py_ssize_t ilow, Py_ssize_t ihigh)
     if (slice == NULL)
         return NULL;
 
-    dest = slice->ob_item;
     for (i = 0; i < len; i++) {
-        dest[i] = PyFloat_FromDouble(self->coords[ilow + i]);
+        PyList_SET_ITEM(dest, i, PyFloat_FromDouble(self->coords[ilow + i]));
     }
     return (PyObject *)slice;
 }
@@ -916,14 +915,13 @@ vector_subscript (PyVector *self, PyObject *key)
             if (!result)
                 return NULL;
 
-            dest = ((PyListObject *)result)->ob_item;
             for (cur = start, i = 0; i < slicelength; cur += step, i++) {
                 it = PyFloat_FromDouble (self->coords[cur]);
                 if (it == NULL) {
                     Py_DECREF (result);
                     return NULL;
                 }
-                dest[i] = it;
+                PyList_SET_ITEM(dest, i, it);
             }
             return result;
         }
