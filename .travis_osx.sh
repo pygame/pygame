@@ -1,6 +1,10 @@
 #!/bin/bash
 
 set -e
+
+# Circumvent https://github.com/direnv/direnv/issues/210
+shell_session_update() { :; }
+
 git clone https://github.com/MacPython/terryfy.git
 cd terryfy
 # Work with a specific commit
