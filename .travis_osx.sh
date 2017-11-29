@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+set -ex
 
 # Circumvent https://github.com/direnv/direnv/issues/210
 shell_session_update() { :; }
