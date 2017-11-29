@@ -4,6 +4,7 @@
 set -e
 
 echo -en 'travis_fold:start:brew.update\\r'
+echo "Updating Homebrew listings..."
 brew update
 echo -en 'travis_fold:end:brew.update\\r'
 export HOMEBREW_NO_AUTO_UPDATE=1
@@ -16,8 +17,10 @@ brew install pkg-config
 
 if [[ ${BUILD_UNIVERSAL} == "1" ]]; then
   UNIVERSAL_FLAG='--universal'
+  echo "Using --universal option for builds"
 else
   UNIVERSAL_FLAG=''
+  echo "Not using --universal option for builds"
 fi
 
 brew uninstall --force --ignore-dependencies sdl
