@@ -34,7 +34,7 @@ already familiar with Python, which was at version 1.5.2. You may need
 an introduction to SDL, which is the Simple DirectMedia Layer.
 Created by Sam Lantinga, SDL is a cross-platform C library for
 controlling multimedia, comparable to DirectX. It has been used for
-hundreds commercial and open source games. I was impressed at how clean
+hundreds of commercial and open source games. I was impressed at how clean
 and straightforward both projects were and it wasn't long before I
 realized mixing Python and SDL was an interesting proposal.
 
@@ -140,8 +140,8 @@ the the screen by filling it with a black RGB color. If you have never
 worked with animations this may seem strange. You may be asking "Why do
 we need to erase anything, why don't we just move the ball on the
 screen?" That is not quite the way computer animation works. Animation
-is nothing more than a series of single images, when displayed in
-sequence does a very good job of fooling the human eye into seeing
+is nothing more than a series of single images, which when displayed in
+sequence do a very good job of fooling the human eye into seeing
 motion. The screen is just a single image that the user sees. If we did
 not take the time to erase the ball from the screen, we would actually
 see a "trail" of the ball as we continuously draw the ball in its new
@@ -166,7 +166,7 @@ That concludes this short introduction to pygame. Pygame also has
 modules to do things like input handling for the keyboard, mouse, and
 joystick. It can mix audio and decode streaming music.
 With the *Surfaces* you can draw simple
-shapes, rotate, scale, the picture. Even manipulate the pixels of
+shapes, rotate and scale the picture, and even manipulate the pixels of
 an image in realtime as numpy arrays.
 Pygame also has the ability to act as a
 cross platform display layer for PyOpenGL. Most of the pygame modules
@@ -196,7 +196,7 @@ Over the past several years there has been an interesting trend in game developm
 the move towards higher level languages. Usually a game is split into
 two major parts. The game engine, which must be as fast as possible,
 and the game logic, which makes the engine actually do something. It
-wasn't long ago when the engine of game was written in assembly, with
+wasn't long ago when the engine of a game was written in assembly, with
 portions written in C. Nowadays, C has moved to the game engine, while
 often the game itself is written in higher level scripting languages.
 Games like Quake3 and Unreal run these scripts as portable bytecode.
@@ -209,7 +209,7 @@ intricate decapitating combination attacks while exploring dungeons and
 castles. You can download third party add-ons for this game, and find
 they are nothing more than Python source files.
 
-More recently, Python has been used a variety of games like Freedom
+More recently, Python has been used in a variety of games like Freedom
 Force, and Humungous' Backyard Sports Series.
 
 .. image:: intro_freedom.jpg
@@ -238,7 +238,7 @@ results from software rendering. Hardware support is not available on
 all platforms. When a game gets more complex, it often must commit to
 one or the other. SDL has some other design limitations, things like
 full screen scrolling graphics can quickly bring your game down to
-unplayable speeds. While SDL is not suitable all types of games,
+unplayable speeds. While SDL is not suitable for all types of games,
 remember companies like Loki have used SDL to run a wide variety of
 retail quality titles.
 
@@ -268,11 +268,11 @@ tried to support this group of users by writing many examples and
 pygame tutorials for people new to these concepts.
 
 In the end, my advice is to keep it simple. I cannot stress this
-enough. If you are planning to create your first game, there is a&nbsp;
+enough. If you are planning to create your first game, there is a
 lot to learn. Even a simpler game will challenge your designs, and
 complex games don't necessarily mean fun games. When you understand
 Python, you can use pygame to create a simple game in only one or two
-weeks. From there you'll need a surprising amount of time needed to add
+weeks. From there you'll need a surprising amount of time to add
 the polish to make that into a full presentable game.
 
 Pygame Modules Overview
