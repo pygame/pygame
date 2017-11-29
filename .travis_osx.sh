@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -ex
+set -e
 
 # Work around https://github.com/travis-ci/travis-ci/issues/8703 :-@
 # Travis overrides cd to do something with Ruby. Revert to the default.
