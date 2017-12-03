@@ -939,6 +939,142 @@ void yuyv_to_yuv (const void* src, void* dst, int length, SDL_PixelFormat* forma
     }
 }
 
+/* cribbed from above, but modified for uyvy ordering */
+void uyvy_to_rgb (const void* src, void* dst, int length, SDL_PixelFormat* format) {
+    Uint8 *s, *d8;
+    Uint16 *d16;
+    Uint32 *d32;
+    int i;
+    int r1, g1, b1, r2, b2, g2;
+    int rshift, gshift, bshift, rloss, gloss, bloss, y1, y2, u, v, u1, rg, v1;
+
+    rshift = format->Rshift;
+    gshift = format->Gshift;
+    bshift = format->Bshift;
+    rloss = format->Rloss;
+    gloss = format->Gloss;
+    bloss = format->Bloss;
+
+    d8 = (Uint8 *) dst;
+    d16 = (Uint16 *) dst;
+    d32 = (Uint32 *) dst;
+    i = length >> 1;
+    s = (Uint8 *) src;
+
+    /* yuyv packs 2 pixels into every 4 bytes, sharing the u and v color
+       terms between the 2, with each pixel having a unique y luminance term.
+       Thus, we will operate on 2 pixels at a time. */
+    while (i--) {
+        u = *s++;
+        y1 = *s++;
+        v = *s++;
+        y2 = *s++;
+
+        /* The lines from here to the switch statement are from libv4l */
+        u1 = (((u - 128) << 7) +  (u - 128)) >> 6;
+        rg = (((u - 128) << 1) +  (u - 128) + ((v - 128) << 2) +
+          ((v - 128) << 1)) >> 3;
+        v1 = (((v - 128) << 1) +  (v - 128)) >> 1;
+
+        r1 = SAT2(y1 + v1);
+        g1 = SAT2(y1 - rg);
+        b1 = SAT2(y1 + u1);
+
+        r2 = SAT2(y2 + v1);
+        g2 = SAT2(y2 - rg);
+        b2 = SAT2(y2 + u1);
+
+        /* choose the right pixel packing for the destination surface depth */
+        switch (format->BytesPerPixel) {
+            case 1:
+               *d8++ = ((r1 >> rloss) << rshift) | ((g1 >> gloss) << gshift) | ((b1 >> bloss) << bshift);
+               *d8++ = ((r2 >> rloss) << rshift) | ((g2 >> gloss) << gshift) | ((b2 >> bloss) << bshift);
+               break;
+            case 2:
+               *d16++ = ((r1 >> rloss) << rshift) | ((g1 >> gloss) << gshift) | ((b1 >> bloss) << bshift);
+               *d16++ = ((r2 >> rloss) << rshift) | ((g2 >> gloss) << gshift) | ((b2 >> bloss) << bshift);
+               break;
+            case 3:
+               *d8++ = b1;
+               *d8++ = g1;
+               *d8++ = r1;
+               *d8++ = b2;
+               *d8++ = g2;
+               *d8++ = r2;
+               break;
+            default:
+               *d32++ = ((r1 >> rloss) << rshift) | ((g1 >> gloss) << gshift) | ((b1 >> bloss) << bshift);
+               *d32++ = ((r2 >> rloss) << rshift) | ((g2 >> gloss) << gshift) | ((b2 >> bloss) << bshift);
+               break;
+        }
+    }
+}
+/* turn uyvy into packed yuv. */
+void uyvy_to_yuv (const void* src, void* dst, int length, SDL_PixelFormat* format) {
+    Uint8 *s, *d8;
+    Uint8 y1, u, y2, v;
+    Uint16 *d16;
+    Uint32 *d32;
+    int i = length >> 1;
+    int rshift, gshift, bshift, rloss, gloss, bloss;
+
+    rshift = format->Rshift;
+    gshift = format->Gshift;
+    bshift = format->Bshift;
+    rloss = format->Rloss;
+    gloss = format->Gloss;
+    bloss = format->Bloss;
+    s = (Uint8 *) src;
+
+    switch (format->BytesPerPixel) {
+        case 1:
+            d8 = (Uint8 *) dst;
+            while (i--) {
+                u = *s++;
+                y1 = *s++;
+                v = *s++;
+                y2 = *s++;
+                *d8++ = ((y1 >> rloss) << rshift) | ((u >> gloss) << gshift) | ((v >> bloss) << bshift);
+                *d8++ = ((y2 >> rloss) << rshift) | ((u >> gloss) << gshift) | ((v >> bloss) << bshift);
+            }
+            break;
+        case 2:
+            d16 = (Uint16 *) dst;
+            while (i--) {
+                u = *s++;
+                y1 = *s++;
+                v = *s++;
+                y2 = *s++;
+                *d16++ = ((y1 >> rloss) << rshift) | ((u >> gloss) << gshift) | ((v >> bloss) << bshift);
+                *d16++ = ((y2 >> rloss) << rshift) | ((u >> gloss) << gshift) | ((v >> bloss) << bshift);
+            }
+            break;
+        case 3:
+            d8 = (Uint8 *) dst;
+            while (i--) {
+                *d8++ = *(s+2); /* v */
+                *d8++ = *s; /* u */
+                *d8++ = *(s+1); /* y1 */
+                *d8++ = *(s+2); /* v */
+                *d8++ = *s; /* u */
+                *d8++ = *(s+3); /* y2 */
+                s += 4;
+            }
+            break;
+        default:
+            d32 = (Uint32 *) dst;
+            while (i--) {
+                y1 = *s++;
+                u = *s++;
+                y2 = *s++;
+                v = *s++;
+                *d32++ = ((y1 >> rloss) << rshift) | ((u >> gloss) << gshift) | ((v >> bloss) << bshift);
+                *d32++ = ((y2 >> rloss) << rshift) | ((u >> gloss) << gshift) | ((v >> bloss) << bshift);
+            }
+            break;
+    }
+}
+
 /* Converts from 8 bit Bayer (BA81) to rgb24 (RGB3), based on:
  * Sonix SN9C101 based webcam basic I/F routines
  * Copyright (C) 2004 Takafumi Mizuno <taka-qce@ls-a.jp>
