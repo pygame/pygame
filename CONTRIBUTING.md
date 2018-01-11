@@ -14,7 +14,7 @@ If this is your first open source project then you will find more useful informa
 
 ---
 
-## Find Issues
+## Find issues
 
 For finding issues use the issue-tracker of this repository. Use filter for find for instance recently updated issues.  
 
