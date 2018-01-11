@@ -13,3 +13,14 @@ If this is your first open source project then you will find more useful informa
 ## Find Issues
 
 For finding issues use the issue-tracker of this repository. Use filter for find for instance recently updated issues.  
+
+## Make a pull request
+
+If you want added some documentation or fixes some problems then do this:
+  * Fork the repository.
+  * Clone the repository of your own machine.
+  * If you has forked the repository then create a own branch. 
+    * Called Fix_XXXX . **XXXX** is the identifier of the problem or simple documentation if you has added some 
+      documentation.
+  * Then add your changed or new files. Either over the web interface or over git.
+  * Finaliy make a pull request. 
