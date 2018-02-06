@@ -110,7 +110,8 @@
 
       Returns a new rectangle with the size changed by the given offset. The
       rectangle remains centered around its current center. Negative values
-      will shrink the rectangle.
+      will shrink the rectangle. Note, uses integers, if the offset given is
+      too small(< 2 > -2), center will be off.
 
       .. ## Rect.inflate ##
 
