@@ -163,11 +163,11 @@ License
 
 
 
-.. |TravisBuild| image:: https://travis-ci.org/illume/pygame.svg?branch=master
-.. _TravisBuild: https://travis-ci.org/illume/pygame
+.. |TravisBuild| image:: https://travis-ci.org/pygame/pygame.svg?branch=master
+.. _TravisBuild: https://travis-ci.org/pygame/pygame
 
-.. |AppVeyorBuild| image:: https://ci.appveyor.com/api/projects/status/d9mypp9f4ubrmqf7?svg=true
-.. _AppVeyorBuild: https://ci.appveyor.com/project/pygame/pygame-temp-m8dun
+.. |AppVeyorBuild| image:: https://ci.appveyor.com/api/projects/status/x4074ybuobsh4myx?svg=true
+.. _AppVeyorBuild: https://ci.appveyor.com/project/pygame/pygame
 
 .. |LaunchpadBuild| image:: http://pygame.org/images/launchpad_build.svg?svg=true
 .. _LaunchpadBuild: https://code.launchpad.net/~pygame/+recipe/pygame-daily
