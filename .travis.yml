@@ -21,6 +21,9 @@ matrix:
     - os: linux
       sudo: required
       python: 3.6
+    - os: linux
+      sudo: required
+      python: 3.7-dev
     # Should only need one OSX build because older builds can work on newer machines ok.
     #https://docs.travis-ci.com/user/osx-ci-environment/#OS-X-Version
     - os: osx
