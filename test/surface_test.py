@@ -30,6 +30,7 @@ from pygame.locals import *
 from pygame.compat import xrange_, as_bytes, as_unicode
 from pygame.bufferproxy import BufferProxy
 
+import platform
 import gc
 import weakref
 import ctypes
@@ -2292,6 +2293,10 @@ class SurfaceSelfBlitTest(unittest.TestCase):
     def test_colorkey(self):
         # Check a workaround for an SDL 1.2.13 surface self-blit problem
         # (MotherHamster Bugzilla bug 19).
+
+        if 'ppc64le' in platform.uname():
+            # skip https://github.com/pygame/pygame/issues/370#issuecomment-364625291
+            return
         pygame.display.set_mode((100, 50))  # Needed for 8bit surface
         bitsizes = [8, 16, 24, 32]
         for bitsize in bitsizes:
@@ -2313,6 +2318,10 @@ class SurfaceSelfBlitTest(unittest.TestCase):
     def test_blanket_alpha(self):
         # Check a workaround for an SDL 1.2.13 surface self-blit problem
         # (MotherHamster Bugzilla bug 19).
+        if 'ppc64le' in platform.uname():
+            # skip https://github.com/pygame/pygame/issues/370#issuecomment-364625291
+            return
+
         pygame.display.set_mode((100, 50))  # Needed for 8bit surface
         bitsizes = [8, 16, 24, 32]
         for bitsize in bitsizes:
