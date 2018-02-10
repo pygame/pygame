@@ -1316,7 +1316,7 @@ surf_convert (PyObject *self, PyObject *args)
             format.BytesPerPixel = (bpp + 7) / 8;
             if (format.BitsPerPixel > 8)
                 /* Allow a 8 bit source surface with an empty palette to be
-                 * converted to a format without a palette (Issue #131). 
+                 * converted to a format without a palette (Issue #131).
                  * If the target format has a non-NULL palette pointer then
                  * SDL_ConvertSurface checks that the palette is not empty--
                  * that at least one entry is not black.
@@ -2045,10 +2045,6 @@ surf_get_bounding_rect (PyObject *self, PyObject *args, PyObject *kwargs)
     }
 
     pixels = (Uint8 *) surf->pixels;
-    if (SDL_BYTEORDER == SDL_BIG_ENDIAN) {
-        pixels += format->BytesPerPixel - sizeof (Uint32);
-    }
-
     min_y = 0;
     min_x = 0;
     max_x = surf->w;
