@@ -1905,6 +1905,8 @@ static PyObject *
 vector2_cross(PyVector *self, PyObject *other)
 {
     double other_coords[2];
+    if (self == other)
+        return PyFloat_FromDouble(0.0);
 
     if (!PyVectorCompatible_Check(other, self->dim)) {
         PyErr_SetString(PyExc_TypeError, "cannot calculate cross Product");
