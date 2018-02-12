@@ -24,6 +24,10 @@ matrix:
     - os: linux
       sudo: required
       python: 3.7-dev
+    - os: linux
+      sudo: required
+      python: pypy
+
     # Should only need one OSX build because older builds can work on newer machines ok.
     #https://docs.travis-ci.com/user/osx-ci-environment/#OS-X-Version
     - os: osx
@@ -39,6 +43,9 @@ matrix:
         - PY_VERSION=2
         - MAKEFLAGS=-j8
         # - MACOSX_DEPLOYMENT_TARGET=10.6
+
+  allow_failures:
+  - python: pypy
 
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then source .travis_osx_before_install.sh;  fi
