@@ -61,9 +61,9 @@ __theclasses__ = ["Input", "Output"]
 def init():
     """initialize the midi module
     pygame.midi.init(): return None
-    
+
     Call the initialisation function before using the midi module.
-    
+
     It is safe to call this more than once.
     """
     global _init, _pypm
@@ -113,19 +113,19 @@ def get_count():
 def get_default_input_id():
     """gets default input device number
     pygame.midi.get_default_input_id(): return default_id
-    
-    
+
+
     Return the default device ID or -1 if there are no devices.
     The result can be passed to the Input()/Ouput() class.
-    
+
     On the PC, the user can specify a default device by
     setting an environment variable. For example, to use device #1.
-    
+
         set PM_RECOMMENDED_INPUT_DEVICE=1
-    
+
     The user should first determine the available device ID by using
     the supplied application "testin" or "testout".
-    
+
     In general, the registry is a better place for this kind of info,
     and with USB devices that can come and go, using integers is not
     very reliable for device identification. Under Windows, if
@@ -139,7 +139,7 @@ def get_default_input_id():
     in the registry is "USB", and device 1 is named
     "In USB MidiSport 1x1", then that will be the default
     input because it contains the string "USB".
-    
+
     In addition to the name, get_device_info() returns "interf", which
     is the interface name. (The "interface" is the underlying software
     system or API used by PortMidi to access devices. Examples are
@@ -152,7 +152,7 @@ def get_default_input_id():
     In this case, the string before the comma must be a substring of
     the "interf" string, and the string after the space must be a
     substring of the "name" name string in order to match the device.
-    
+
     Note: in the current release, the default is simply the first device
     (the input or output device with the lowest PmDeviceID).
     """
@@ -164,19 +164,19 @@ def get_default_input_id():
 def get_default_output_id():
     """gets default output device number
     pygame.midi.get_default_output_id(): return default_id
-    
-    
+
+
     Return the default device ID or -1 if there are no devices.
     The result can be passed to the Input()/Ouput() class.
-    
+
     On the PC, the user can specify a default device by
     setting an environment variable. For example, to use device #1.
-    
+
         set PM_RECOMMENDED_OUTPUT_DEVICE=1
-    
+
     The user should first determine the available device ID by using
     the supplied application "testin" or "testout".
-    
+
     In general, the registry is a better place for this kind of info,
     and with USB devices that can come and go, using integers is not
     very reliable for device identification. Under Windows, if
@@ -190,7 +190,7 @@ def get_default_output_id():
     in the registry is "USB", and device 1 is named
     "In USB MidiSport 1x1", then that will be the default
     input because it contains the string "USB".
-    
+
     In addition to the name, get_device_info() returns "interf", which
     is the interface name. (The "interface" is the underlying software
     system or API used by PortMidi to access devices. Examples are
@@ -203,7 +203,7 @@ def get_default_output_id():
     In this case, the string before the comma must be a substring of
     the "interf" string, and the string after the space must be a
     substring of the "name" name string in order to match the device.
-    
+
     Note: in the current release, the default is simply the first device
     (the input or output device with the lowest PmDeviceID).
     """
@@ -213,7 +213,7 @@ def get_default_output_id():
 
 def get_device_info(an_id):
     """ returns information about a midi device
-    pygame.midi.get_device_info(an_id): return (interf, name, input, output, opened) 
+    pygame.midi.get_device_info(an_id): return (interf, name, input, output, opened)
 
     interf - a text string describing the device interface, eg 'ALSA'.
     name - a text string for the name of the device, eg 'Midi Through Port-0'
@@ -224,7 +224,7 @@ def get_device_info(an_id):
     If the id is out of range, the function returns None.
     """
     _check_init()
-    return _pypm.GetDeviceInfo(an_id) 
+    return _pypm.GetDeviceInfo(an_id)
 
 
 class Input(object):
@@ -232,20 +232,20 @@ class Input(object):
     Input(device_id)
     Input(device_id, buffer_size)
 
-    buffer_size -the number of input events to be buffered waiting to 
-      be read using Input.read() 
+    buffer_size - the number of input events to be buffered waiting to
+      be read using Input.read()
     """
 
     def __init__(self, device_id, buffer_size=4096):
         """
-        The buffer_size specifies the number of input events to be buffered 
+        The buffer_size specifies the number of input events to be buffered
         waiting to be read using Input.read().
         """
         _check_init()
- 
+
         if device_id == -1:
             raise MidiException("Device id is -1, not a valid output id.  -1 usually means there were no default Output devices.")
-            
+
         try:
             r = get_device_info(device_id)
         except TypeError:
@@ -253,7 +253,7 @@ class Input(object):
         except OverflowError:
             raise OverflowError("long int too large to convert to int")
 
-        # and now some nasty looking error checking, to provide nice error 
+        # and now some nasty looking error checking, to provide nice error
         #   messages to the kind, lovely, midi using people of whereever.
         if r:
             interf, name, input, output, opened = r
@@ -335,23 +335,23 @@ class Output(object):
     Output(device_id, buffer_size = 4096)
     Output(device_id, latency, buffer_size)
 
-    The buffer_size specifies the number of output events to be 
-    buffered waiting for output.  (In some cases -- see below -- 
-    PortMidi does not buffer output at all and merely passes data 
+    The buffer_size specifies the number of output events to be
+    buffered waiting for output.  (In some cases -- see below --
+    PortMidi does not buffer output at all and merely passes data
     to a lower-level API, in which case buffersize is ignored.)
 
     latency is the delay in milliseconds applied to timestamps to determine
-    when the output should actually occur. (If latency is < 0, 0 is 
+    when the output should actually occur. (If latency is < 0, 0 is
     assumed.)
 
     If latency is zero, timestamps are ignored and all output is delivered
     immediately. If latency is greater than zero, output is delayed until
-    the message timestamp plus the latency. (NOTE: time is measured 
-    relative to the time source indicated by time_proc. Timestamps are 
-    absolute, not relative delays or offsets.) In some cases, PortMidi 
-    can obtain better timing than your application by passing timestamps 
-    along to the device driver or hardware. Latency may also help you 
-    to synchronize midi data to audio data by matching midi latency to 
+    the message timestamp plus the latency. (NOTE: time is measured
+    relative to the time source indicated by time_proc. Timestamps are
+    absolute, not relative delays or offsets.) In some cases, PortMidi
+    can obtain better timing than your application by passing timestamps
+    along to the device driver or hardware. Latency may also help you
+    to synchronize midi data to audio data by matching midi latency to
     the audio buffer latency.
 
     """
@@ -362,32 +362,32 @@ class Output(object):
         Output(device_id, buffer_size = 4096)
         Output(device_id, latency, buffer_size)
 
-        The buffer_size specifies the number of output events to be 
-        buffered waiting for output.  (In some cases -- see below -- 
-        PortMidi does not buffer output at all and merely passes data 
+        The buffer_size specifies the number of output events to be
+        buffered waiting for output.  (In some cases -- see below --
+        PortMidi does not buffer output at all and merely passes data
         to a lower-level API, in which case buffersize is ignored.)
 
         latency is the delay in milliseconds applied to timestamps to determine
-        when the output should actually occur. (If latency is < 0, 0 is 
+        when the output should actually occur. (If latency is < 0, 0 is
         assumed.)
 
         If latency is zero, timestamps are ignored and all output is delivered
         immediately. If latency is greater than zero, output is delayed until
-        the message timestamp plus the latency. (NOTE: time is measured 
-        relative to the time source indicated by time_proc. Timestamps are 
-        absolute, not relative delays or offsets.) In some cases, PortMidi 
-        can obtain better timing than your application by passing timestamps 
-        along to the device driver or hardware. Latency may also help you 
-        to synchronize midi data to audio data by matching midi latency to 
+        the message timestamp plus the latency. (NOTE: time is measured
+        relative to the time source indicated by time_proc. Timestamps are
+        absolute, not relative delays or offsets.) In some cases, PortMidi
+        can obtain better timing than your application by passing timestamps
+        along to the device driver or hardware. Latency may also help you
+        to synchronize midi data to audio data by matching midi latency to
         the audio buffer latency.
         """
-     
+
         _check_init()
         self._aborted = 0
 
         if device_id == -1:
             raise MidiException("Device id is -1, not a valid output id.  -1 usually means there were no default Output devices.")
-            
+
         try:
             r = get_device_info(device_id)
         except TypeError:
@@ -395,7 +395,7 @@ class Output(object):
         except OverflowError:
             raise OverflowError("long int too large to convert to int")
 
-        # and now some nasty looking error checking, to provide nice error 
+        # and now some nasty looking error checking, to provide nice error
         #   messages to the kind, lovely, midi using people of whereever.
         if r:
             interf, name, input, output, opened = r
@@ -472,7 +472,7 @@ class Output(object):
                write([[[0xc0,0,0],20000]]) is equivalent to
                write([[[0xc0],20000]])
 
-        Can send up to 1024 elements in your data list, otherwise an 
+        Can send up to 1024 elements in your data list, otherwise an
          IndexError exception is raised.
         """
         _check_init()
@@ -480,8 +480,7 @@ class Output(object):
 
         self._output.Write(data)
 
-
-    def write_short(self, status, data1 = 0, data2 = 0):
+    def write_short(self, status, data1=0, data2=0):
         """write_short(status <, data1><, data2>)
         Output.write_short(status)
         Output.write_short(status, data1 = 0, data2 = 0)
@@ -500,7 +499,6 @@ class Output(object):
         self._check_open()
         self._output.WriteShort(status, data1, data2)
 
-
     def write_sys_ex(self, when, msg):
         """writes a timestamped system-exclusive midi message.
         Output.write_sys_ex(when, msg)
@@ -518,42 +516,44 @@ class Output(object):
         self._check_open()
         self._output.WriteSysEx(when, msg)
 
-
-    def note_on(self, note, velocity=None, channel = 0):
+    def note_on(self, note, velocity, channel=0):
         """turns a midi note on.  Note must be off.
-        Output.note_on(note, velocity=None, channel = 0)
+        Output.note_on(note, velocity, channel=0)
+
+        note is an integer from 0 to 127
+        velocity is an integer from 0 to 127
+        channel is an integer from 0 to 15
 
         Turn a note on in the output stream.  The note must already
         be off for this to work correctly.
         """
-        if velocity is None:
-            velocity = 0
-
         if not (0 <= channel <= 15):
             raise ValueError("Channel not between 0 and 15.")
 
-        self.write_short(0x90+channel, note, velocity)
+        self.write_short(0x90 + channel, note, velocity)
 
-    def note_off(self, note, velocity=None, channel = 0):
+    def note_off(self, note, velocity=0, channel=0):
         """turns a midi note off.  Note must be on.
-        Output.note_off(note, velocity=None, channel = 0)
+        Output.note_off(note, velocity=0, channel=0)
+
+        note is an integer from 0 to 127
+        velocity is an integer from 0 to 127 (release velocity)
+        channel is an integer from 0 to 15
 
         Turn a note off in the output stream.  The note must already
         be on for this to work correctly.
         """
-        if velocity is None:
-            velocity = 0
-
         if not (0 <= channel <= 15):
             raise ValueError("Channel not between 0 and 15.")
 
         self.write_short(0x80 + channel, note, velocity)
 
 
-    def set_instrument(self, instrument_id, channel = 0):
-        """select an instrument, with a value between 0 and 127
-        Output.set_instrument(instrument_id, channel = 0)
+    def set_instrument(self, instrument_id, channel=0):
+        """select an instrument for a channel, with a value between 0 and 127
+        Output.set_instrument(instrument_id, channel=0)
 
+        Also called "patch change" or "program change".
         """
         if not (0 <= instrument_id <= 127):
             raise ValueError("Undefined instrument id: %d" % instrument_id)
@@ -561,7 +561,49 @@ class Output(object):
         if not (0 <= channel <= 15):
             raise ValueError("Channel not between 0 and 15.")
 
-        self.write_short(0xc0+channel, instrument_id)
+        self.write_short(0xc0 + channel, instrument_id)
+
+    def pitch_bend(self, value=0, channel=0):
+        """modify the pitch of a channel.
+        Output.pitch_bend(value=0, channel=0)
+
+        Adjust the pitch of a channel.  The value is a signed integer
+        from -8192 to +8191.  For example, 0 means "no change", +4096 is
+        typically a semitone higher, and -8192 is 1 whole tone lower (though
+        the musical range corresponding to the pitch bend range can also be
+        changed in some synthesizers).
+
+        If no value is given, the pitch bend is returned to "no change".
+        """
+        if not (0 <= channel <= 15):
+            raise ValueError("Channel not between 0 and 15.")
+
+        if not (-8192 <= value <= 8191):
+            raise ValueError("Pitch bend value must be between "
+                             "-8192 and +8191, not %d." % value)
+
+        # "The 14 bit value of the pitch bend is defined so that a value of
+        # 0x2000 is the center corresponding to the normal pitch of the note
+        # (no pitch change)." so value=0 should send 0x2000
+        value = value + 0x2000
+        LSB = value & 0x7f  # keep least 7 bits
+        MSB = value >> 7
+        self.write_short(0xe0 + channel, LSB, MSB)
+
+
+
+"""
+MIDI commands
+
+   0x80     Note Off    (note_off)
+   0x90     Note On     (note_on)
+   0xA0     Aftertouch
+   0xB0     Continuous controller
+   0xC0     Patch change    (set_instrument?)
+   0xD0     Channel Pressure
+   0xE0     Pitch bend
+   0xF0     (non-musical commands)
+"""
 
 
 
