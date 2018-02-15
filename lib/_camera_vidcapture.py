@@ -1,4 +1,10 @@
+"""Camera implementation using the videocapture module for windows.
 
+http://videocapture.sourceforge.net/
+
+Binary windows wheels:
+  https://www.lfd.uci.edu/~gohlke/pythonlibs/#videocapture
+"""
 import pygame
 
 def list_cameras():
@@ -96,37 +102,23 @@ class Camera:
         """
         abuffer, width, height = self.get_buffer()
         if abuffer:
-            if 1:
-                surf = pygame.image.frombuffer(abuffer, (width, height), "RGB")
+            surf = pygame.image.frombuffer(abuffer, (width, height), "RGB")
 
-                # swap it from a BGR surface to an RGB surface.
-                r,g,b,a = surf.get_masks()
-                surf.set_masks((b,g,r,a))
+            # swap it from a BGR surface to an RGB surface.
+            r,g,b,a = surf.get_masks()
+            surf.set_masks((b,g,r,a))
 
-                r,g,b,a = surf.get_shifts()
-                surf.set_shifts((b,g,r,a))
+            r,g,b,a = surf.get_shifts()
+            surf.set_shifts((b,g,r,a))
 
-                surf = pygame.transform.flip(surf, 0,1)
+            surf = pygame.transform.flip(surf, 0,1)
 
-                # if there is a destination surface given, we blit onto that.
-                if dest_surf:
-                    dest_surf.blit(surf, (0,0))
-                else:
-                    dest_surf = surf
-                return dest_surf
-
+            # if there is a destination surface given, we blit onto that.
+            if dest_surf:
+                dest_surf.blit(surf, (0,0))
             else:
-
-                # Need to flip the image.
-                surf = pygame.image.fromstring(abuffer, (width, height), "RGB", 1)
-                # swap it from a BGR surface to an RGB surface.
-                r,g,b,a = surf.get_masks()
-                surf.set_masks((b,g,r,a))
-
-                r,g,b,a = surf.get_shifts()
-                surf.set_shifts((b,g,r,a))
-            return surf
-
+                dest_surf = surf
+            return dest_surf
 
 if __name__ == "__main__":
     import pygame.examples.camera
@@ -134,5 +126,3 @@ if __name__ == "__main__":
     pygame.camera.Camera = Camera
     pygame.camera.list_cameras = list_cameras
     pygame.examples.camera.main()
-
-
