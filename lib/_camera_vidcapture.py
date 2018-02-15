@@ -1,4 +1,4 @@
-"""Camera implementation using the videocapture module for windows.
+"""pygame.camera.Camera implementation using the videocapture module for windows.
 
 http://videocapture.sourceforge.net/
 
@@ -8,6 +8,10 @@ Binary windows wheels:
 import pygame
 
 def list_cameras():
+    """Always only lists one camera.
+
+    Functionality not supported in videocapture module.
+    """
     return [0]
 
     # this just cycles through all the cameras trying to open them
@@ -21,7 +25,6 @@ def list_cameras():
 
     return cameras
 
-
 def init():
     global vidcap
     try:
@@ -34,7 +37,6 @@ def quit():
     global vidcap
     pass
     del vidcap
-
 
 
 class Camera:
@@ -84,17 +86,20 @@ class Camera:
         return self.dev.getbuffer()
 
     def start(self):
+        """ Not implemented.
         """
-        """
+
     def set_controls(self, **kwargs):
-        """
+        """ Not implemented.
         """
 
     def stop(self):
-        """
+        """ Not implemented.
         """
 
     def get_image(self, dest_surf = None):
+        """
+        """
         return self.get_surface(dest_surf)
 
     def get_surface(self, dest_surf = None):
