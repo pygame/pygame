@@ -515,11 +515,19 @@ static PyObject* circle(PyObject* self, PyObject* arg)
 
     if(!PySurface_Lock(surfobj)) return NULL;
 
-    if(!width)
+    if(!width) {
         draw_fillellipse(surf, (Sint16)posx, (Sint16)posy, (Sint16)radius, (Sint16)radius, color);
-    else
-        for(loop=0; loop<width; ++loop)
+    } else {
+        for(loop=0; loop<width; ++loop) {
             draw_ellipse(surf, posx, posy, radius-loop, radius-loop, color);
+            /* To avoid moiré pattern. Don't do an extra one on the outer ellipse.
+               We draw another ellipse offset by a pixel, over drawing the missed
+               spots in the filled circle caused by which pixels are filled.
+            */
+            if (width > 1 && loop > 0)
+                draw_ellipse(surf, posx+1, posy, radius-loop, radius-loop, color);
+        }
+    }
 
     if(!PySurface_Unlock(surfobj)) return NULL;
 
@@ -1535,7 +1543,7 @@ static void draw_fillpoly(SDL_Surface *dst, int *vx, int *vy, int n, Uint32 colo
                 /* Special case: polygon only 1 pixel high. */
                 int j;
                 int minx, maxx;
-                
+
                 /* Determine X bounds */
                 minx = vx[0];
                 maxx = vx[0];
