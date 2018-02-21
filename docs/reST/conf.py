@@ -213,3 +213,5 @@ headers_mkdirs = True
 # Suffix to add for header file names before the '.h' extension
 # (default: no suffix).
 headers_filename_sfx = '_doc'
+
+smartquotes = False

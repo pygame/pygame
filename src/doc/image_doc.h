@@ -1,7 +1,7 @@
 /* Auto generated file: with makeref.py .  Docs go in src/ *.doc . */
 #define DOC_PYGAMEIMAGE "pygame module for image transfer"
 
-#define DOC_PYGAMEIMAGELOAD "load(filename) -> Surface\nload(fileobj, namehint=”“) -> Surface\nload new image from a file"
+#define DOC_PYGAMEIMAGELOAD "load(filename) -> Surface\nload(fileobj, namehint="") -> Surface\nload new image from a file"
 
 #define DOC_PYGAMEIMAGESAVE "save(Surface, filename) -> None\nsave an image to disk"
 
@@ -24,7 +24,7 @@ pygame module for image transfer
 
 pygame.image.load
  load(filename) -> Surface
- load(fileobj, namehint=”“) -> Surface
+ load(fileobj, namehint="") -> Surface
 load new image from a file
 
 pygame.image.save
