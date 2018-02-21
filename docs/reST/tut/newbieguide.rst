@@ -400,8 +400,8 @@ Now, go write that game!
 Repository, a showcase for community-submitted python game code.  He is also
 the author of Twitch, an entirely average pygame arcade game.*
 
-.. _Pygame: http://www.pygame.org/
+.. _Pygame: https://www.pygame.org/
 .. _SDL: http://libsdl.org
 .. _Python 2.0 Quick Reference: http://www.brunningonline.net/simon/python/quick-ref2_0.html
-.. _SolarWolf: http://pygame.org/shredwheat/solarwolf/index.shtml
+.. _SolarWolf: https://www.pygame.org/shredwheat/solarwolf/index.shtml
 .. _Python Performance Tips: http://www-rohan.sdsu.edu/~gawron/compling/course_core/python_intro/intro_lecture_files/fastpython.html
