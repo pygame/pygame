@@ -8,7 +8,7 @@ About pygame
      requires the Python language and SDL multimedia library. It can
      also make use of several other popular libraries.
 
-     http://www.pygame.org
+     https://www.pygame.org
 
 |TravisBuild|_ |AppVeyorBuild|_ |LaunchpadBuild|_ |PyPiVersion|_ |PyPiLicense|_ |Python2| |Python3|
 
@@ -21,7 +21,7 @@ Installation
      system. The binary packages usually come with or give the
      information needed for dependencies. Choose an appropriate
      installer for your system and version of python from the pygame
-     downloads page. http://www.pygame.org/download.shtml
+     downloads page. https://www.pygame.org/download.shtml
 
      Installing from source is fairly automated. The most work will
      involve compiling and installing all the pygame dependencies. Once
@@ -138,10 +138,10 @@ Dependencies
      own rotozoom function. The surfarray module requires the python
      numpy package for its multidimensional numeric arrays.
 
-Todo / Ideas (feel free to submit)
-==================================
+Contribute
+==========
 
-       http://www.pygame.org/wiki/todo
+     https://www.pygame.org/wiki/Contribute
 
 License
 =======
@@ -149,7 +149,7 @@ License
      This library is distributed under GNU LGPL version 2.1, which can
      be found in the file "doc/LGPL". I reserve the right to place
      future versions of this library under a different license.
-     http://www.gnu.org/copyleft/lesser.html
+     https://www.gnu.org/copyleft/lesser.html
 
      This basically means you can use pygame in any project you want,
      but if you make any changes or additions to pygame itself, those
@@ -169,7 +169,7 @@ License
 .. |AppVeyorBuild| image:: https://ci.appveyor.com/api/projects/status/x4074ybuobsh4myx?svg=true
 .. _AppVeyorBuild: https://ci.appveyor.com/project/pygame/pygame
 
-.. |LaunchpadBuild| image:: http://pygame.org/images/launchpad_build.svg?svg=true
+.. |LaunchpadBuild| image:: https://www.pygame.org/images/launchpad_build.svg?svg=true
 .. _LaunchpadBuild: https://code.launchpad.net/~pygame/+recipe/pygame-daily
 
 .. |PyPiVersion| image:: https://img.shields.io/pypi/v/pygame.svg?v=1
