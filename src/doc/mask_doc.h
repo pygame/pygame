@@ -15,7 +15,7 @@
 
 #define DOC_MASKOVERLAP "overlap(othermask, offset) -> x,y\nReturns the point of intersection if the masks overlap with the given offset - or None if it does not overlap."
 
-#define DOC_MASKOVERLAPAREA "overlap_area(othermask, offset) -> numpixels\nReturns the number of overlapping 'pixels'."
+#define DOC_MASKOVERLAPAREA "overlap_area(othermask, offset) -> numpixels\nReturns the number of overlapping ‘pixels’."
 
 #define DOC_MASKOVERLAPMASK "overlap_mask(othermask, offset) -> Mask\nReturns a mask of the overlapping pixels"
 
@@ -37,7 +37,7 @@
 
 #define DOC_MASKANGLE "angle() -> theta\nReturns the orientation of the pixels"
 
-#define DOC_MASKOUTLINE "outline(every = 1) -> [(x,y), (x,y) ...]\nlist of points outlining an object"
+#define DOC_MASKOUTLINE "outline(every = 1) -> [(x,y), (x,y) …]\nlist of points outlining an object"
 
 #define DOC_MASKCONVOLVE "convolve(othermask, outputmask = None, offset = (0,0)) -> Mask\nReturn the convolution of self with another mask."
 
@@ -86,7 +86,7 @@ Returns the point of intersection if the masks overlap with the given offset - o
 
 pygame.mask.Mask.overlap_area
  overlap_area(othermask, offset) -> numpixels
-Returns the number of overlapping 'pixels'.
+Returns the number of overlapping ‘pixels’.
 
 pygame.mask.Mask.overlap_mask
  overlap_mask(othermask, offset) -> Mask
@@ -129,7 +129,7 @@ pygame.mask.Mask.angle
 Returns the orientation of the pixels
 
 pygame.mask.Mask.outline
- outline(every = 1) -> [(x,y), (x,y) ...]
+ outline(every = 1) -> [(x,y), (x,y) …]
 list of points outlining an object
 
 pygame.mask.Mask.convolve

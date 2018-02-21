@@ -13,9 +13,9 @@
 
 #define DOC_PYGAMETRANSFORMSMOOTHSCALE "smoothscale(Surface, (width, height), DestSurface = None) -> Surface\nscale a surface to an arbitrary size smoothly"
 
-#define DOC_PYGAMETRANSFORMGETSMOOTHSCALEBACKEND "get_smoothscale_backend() -> String\nreturn smoothscale filter version in use: 'GENERIC', 'MMX', or 'SSE'"
+#define DOC_PYGAMETRANSFORMGETSMOOTHSCALEBACKEND "get_smoothscale_backend() -> String\nreturn smoothscale filter version in use: ‘GENERIC’, ‘MMX’, or ‘SSE’"
 
-#define DOC_PYGAMETRANSFORMSETSMOOTHSCALEBACKEND "set_smoothscale_backend(type) -> None\nset smoothscale filter version to one of: 'GENERIC', 'MMX', or 'SSE'"
+#define DOC_PYGAMETRANSFORMSETSMOOTHSCALEBACKEND "set_smoothscale_backend(type) -> None\nset smoothscale filter version to one of: ‘GENERIC’, ‘MMX’, or ‘SSE’"
 
 #define DOC_PYGAMETRANSFORMCHOP "chop(Surface, rect) -> Surface\ngets a copy of an image with an interior area removed"
 
@@ -62,11 +62,11 @@ scale a surface to an arbitrary size smoothly
 
 pygame.transform.get_smoothscale_backend
  get_smoothscale_backend() -> String
-return smoothscale filter version in use: 'GENERIC', 'MMX', or 'SSE'
+return smoothscale filter version in use: ‘GENERIC’, ‘MMX’, or ‘SSE’
 
 pygame.transform.set_smoothscale_backend
  set_smoothscale_backend(type) -> None
-set smoothscale filter version to one of: 'GENERIC', 'MMX', or 'SSE'
+set smoothscale filter version to one of: ‘GENERIC’, ‘MMX’, or ‘SSE’
 
 pygame.transform.chop
  chop(Surface, rect) -> Surface

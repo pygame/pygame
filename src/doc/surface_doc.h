@@ -37,11 +37,11 @@
 
 #define DOC_SURFACEGETATMAPPED "get_at_mapped((x, y)) -> Color\nget the mapped color value at a single pixel"
 
-#define DOC_SURFACEGETPALETTE "get_palette() -> [RGB, RGB, RGB, ...]\nget the color index palette for an 8-bit Surface"
+#define DOC_SURFACEGETPALETTE "get_palette() -> [RGB, RGB, RGB, …]\nget the color index palette for an 8-bit Surface"
 
 #define DOC_SURFACEGETPALETTEAT "get_palette_at(index) -> RGB\nget the color for a single entry in a palette"
 
-#define DOC_SURFACESETPALETTE "set_palette([RGB, RGB, RGB, ...]) -> None\nset the color palette for an 8-bit Surface"
+#define DOC_SURFACESETPALETTE "set_palette([RGB, RGB, RGB, …]) -> None\nset the color palette for an 8-bit Surface"
 
 #define DOC_SURFACESETPALETTEAT "set_palette_at(index, RGB) -> None\nset the color for a single index in an 8-bit Surface palette"
 
@@ -91,7 +91,7 @@
 
 #define DOC_SURFACEGETBOUNDINGRECT "get_bounding_rect(min_alpha = 1) -> Rect\nfind the smallest rect containing data"
 
-#define DOC_SURFACEGETVIEW "get_view(<kind>='2') -> BufferProxy\nreturn a buffer view of the Surface's pixels."
+#define DOC_SURFACEGETVIEW "get_view(<kind>=‘2’) -> BufferProxy\nreturn a buffer view of the Surface’s pixels."
 
 #define DOC_SURFACEGETBUFFER "get_buffer() -> BufferProxy\nacquires a buffer object for the pixels of the Surface."
 
@@ -187,7 +187,7 @@ pygame.Surface.get_at_mapped
 get the mapped color value at a single pixel
 
 pygame.Surface.get_palette
- get_palette() -> [RGB, RGB, RGB, ...]
+ get_palette() -> [RGB, RGB, RGB, …]
 get the color index palette for an 8-bit Surface
 
 pygame.Surface.get_palette_at
@@ -195,7 +195,7 @@ pygame.Surface.get_palette_at
 get the color for a single entry in a palette
 
 pygame.Surface.set_palette
- set_palette([RGB, RGB, RGB, ...]) -> None
+ set_palette([RGB, RGB, RGB, …]) -> None
 set the color palette for an 8-bit Surface
 
 pygame.Surface.set_palette_at
@@ -296,8 +296,8 @@ pygame.Surface.get_bounding_rect
 find the smallest rect containing data
 
 pygame.Surface.get_view
- get_view(<kind>='2') -> BufferProxy
-return a buffer view of the Surface's pixels.
+ get_view(<kind>=‘2’) -> BufferProxy
+return a buffer view of the Surface’s pixels.
 
 pygame.Surface.get_buffer
  get_buffer() -> BufferProxy

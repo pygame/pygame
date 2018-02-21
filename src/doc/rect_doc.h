@@ -41,7 +41,7 @@
 
 #define DOC_RECTCOLLIDEDICT "collidedict(dict) -> (key, value)\ntest if one rectangle in a dictionary intersects"
 
-#define DOC_RECTCOLLIDEDICTALL "collidedictall(dict) -> [(key, value), ...]\ntest if all rectangles in a dictionary intersect"
+#define DOC_RECTCOLLIDEDICTALL "collidedictall(dict) -> [(key, value), …]\ntest if all rectangles in a dictionary intersect"
 
 
 
@@ -137,7 +137,7 @@ pygame.Rect.collidedict
 test if one rectangle in a dictionary intersects
 
 pygame.Rect.collidedictall
- collidedictall(dict) -> [(key, value), ...]
+ collidedictall(dict) -> [(key, value), …]
 test if all rectangles in a dictionary intersect
 
 */
