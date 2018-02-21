@@ -51,7 +51,7 @@
 
 #define DOC_PYGAMEEXAMPLESSCALETESTMAIN "scaletest.main(imagefile, convert_alpha=False, run_speed_test=True) -> None\ninteractively scale an image using smoothscale"
 
-#define DOC_PYGAMEEXAMPLESMIDIMAIN "midi.main(mode=’output’, device_id=None) -> None\nrun a midi example"
+#define DOC_PYGAMEEXAMPLESMIDIMAIN "midi.main(mode='output', device_id=None) -> None\nrun a midi example"
 
 #define DOC_PYGAMEEXAMPLESSCROLLMAIN "scroll.main(image_file=None) -> None\nrun a Surface.scroll example that shows a magnified image"
 
@@ -169,7 +169,7 @@ pygame.examples.scaletest.main
 interactively scale an image using smoothscale
 
 pygame.examples.midi.main
- midi.main(mode=’output’, device_id=None) -> None
+ midi.main(mode='output', device_id=None) -> None
 run a midi example
 
 pygame.examples.scroll.main

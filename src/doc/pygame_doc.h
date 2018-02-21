@@ -23,11 +23,11 @@
 
 #define DOC_PYGAMEVERSION "small module containing version information"
 
-#define DOC_PYGAMEVERSIONVER "ver = ‘1.2’\nversion number as a string"
+#define DOC_PYGAMEVERSIONVER "ver = '1.2'\nversion number as a string"
 
 #define DOC_PYGAMEVERSIONVERNUM "vernum = (1, 5, 3)\ntupled integers of the version"
 
-#define DOC_PYGAMEVERSIONREV "rev = ‘a6f89747b551+’\nrepository revision of the build"
+#define DOC_PYGAMEVERSIONREV "rev = 'a6f89747b551+'\nrepository revision of the build"
 
 
 
@@ -82,7 +82,7 @@ pygame.version
 small module containing version information
 
 pygame.version.ver
- ver = ‘1.2’
+ ver = '1.2'
 version number as a string
 
 pygame.version.vernum
@@ -90,7 +90,7 @@ pygame.version.vernum
 tupled integers of the version
 
 pygame.version.rev
- rev = ‘a6f89747b551+’
+ rev = 'a6f89747b551+'
 repository revision of the build
 
 */

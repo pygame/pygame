@@ -7,9 +7,9 @@
 
 #define DOC_PIXELARRAYNDIM "ndim -> int\nReturns the number of dimensions."
 
-#define DOC_PIXELARRAYSHAPE "shape -> tuple of int’s\nReturns the array size."
+#define DOC_PIXELARRAYSHAPE "shape -> tuple of int's\nReturns the array size."
 
-#define DOC_PIXELARRAYSTRIDES "strides -> tuple of int’s\nReturns byte offsets for each array dimension."
+#define DOC_PIXELARRAYSTRIDES "strides -> tuple of int's\nReturns byte offsets for each array dimension."
 
 #define DOC_PIXELARRAYMAKESURFACE "make_surface() -> Surface\nCreates a new Surface from the current PixelArray."
 
@@ -44,11 +44,11 @@ pygame.PixelArray.ndim
 Returns the number of dimensions.
 
 pygame.PixelArray.shape
- shape -> tuple of int’s
+ shape -> tuple of int's
 Returns the array size.
 
 pygame.PixelArray.strides
- strides -> tuple of int’s
+ strides -> tuple of int's
 Returns byte offsets for each array dimension.
 
 pygame.PixelArray.make_surface

@@ -31,7 +31,7 @@
 
 #define DOC_FONTGETRECT "get_rect(text, style=STYLE_DEFAULT, rotation=0, size=0) -> rect\nReturn the size and offset of rendered text"
 
-#define DOC_FONTGETMETRICS "get_metrics(text, size=0) -> [(…), …]\nReturn the glyph metrics for the given text"
+#define DOC_FONTGETMETRICS "get_metrics(text, size=0) -> [(...), ...]\nReturn the glyph metrics for the given text"
 
 #define DOC_FONTHEIGHT "height -> int\nThe unscaled height of the font in font units"
 
@@ -47,7 +47,7 @@
 
 #define DOC_FONTGETSIZEDGLYPHHEIGHT "get_sized_glyph_height(<size>=0) -> int\nThe scaled bounding box height of the font in pixels"
 
-#define DOC_FONTGETSIZES "get_sizes() -> [(int, int, int, float, float), …]\nget_sizes() -> []\nreturn the available sizes of embedded bitmaps"
+#define DOC_FONTGETSIZES "get_sizes() -> [(int, int, int, float, float), ...]\nget_sizes() -> []\nreturn the available sizes of embedded bitmaps"
 
 #define DOC_FONTRENDER "render(text, fgcolor=None, bgcolor=None, style=STYLE_DEFAULT, rotation=0, size=0) -> (Surface, Rect)\nReturn rendered text as a surface"
 
@@ -57,15 +57,15 @@
 
 #define DOC_FONTRENDERRAWTO "render_raw_to(array, text, dest=None, style=STYLE_DEFAULT, rotation=0, size=0, invert=False) -> (int, int)\nRender text into an array of ints"
 
-#define DOC_FONTSTYLE "style -> int\nThe font’s style flags"
+#define DOC_FONTSTYLE "style -> int\nThe font's style flags"
 
-#define DOC_FONTUNDERLINE "underline -> bool\nThe state of the font’s underline style flag"
+#define DOC_FONTUNDERLINE "underline -> bool\nThe state of the font's underline style flag"
 
-#define DOC_FONTSTRONG "strong -> bool\nThe state of the font’s strong style flag"
+#define DOC_FONTSTRONG "strong -> bool\nThe state of the font's strong style flag"
 
-#define DOC_FONTOBLIQUE "oblique -> bool\nThe state of the font’s oblique style flag"
+#define DOC_FONTOBLIQUE "oblique -> bool\nThe state of the font's oblique style flag"
 
-#define DOC_FONTWIDE "wide -> bool\nThe state of the font’s wide style flag"
+#define DOC_FONTWIDE "wide -> bool\nThe state of the font's wide style flag"
 
 #define DOC_FONTSTRENGTH "strength -> float\nThe strength associated with the strong or wide font styles"
 
@@ -168,7 +168,7 @@ pygame.freetype.Font.get_rect
 Return the size and offset of rendered text
 
 pygame.freetype.Font.get_metrics
- get_metrics(text, size=0) -> [(…), …]
+ get_metrics(text, size=0) -> [(...), ...]
 Return the glyph metrics for the given text
 
 pygame.freetype.Font.height
@@ -200,7 +200,7 @@ pygame.freetype.Font.get_sized_glyph_height
 The scaled bounding box height of the font in pixels
 
 pygame.freetype.Font.get_sizes
- get_sizes() -> [(int, int, int, float, float), …]
+ get_sizes() -> [(int, int, int, float, float), ...]
  get_sizes() -> []
 return the available sizes of embedded bitmaps
 
@@ -222,23 +222,23 @@ Render text into an array of ints
 
 pygame.freetype.Font.style
  style -> int
-The font’s style flags
+The font's style flags
 
 pygame.freetype.Font.underline
  underline -> bool
-The state of the font’s underline style flag
+The state of the font's underline style flag
 
 pygame.freetype.Font.strong
  strong -> bool
-The state of the font’s strong style flag
+The state of the font's strong style flag
 
 pygame.freetype.Font.oblique
  oblique -> bool
-The state of the font’s oblique style flag
+The state of the font's oblique style flag
 
 pygame.freetype.Font.wide
  wide -> bool
-The state of the font’s wide style flag
+The state of the font's wide style flag
 
 pygame.freetype.Font.strength
  strength -> float
