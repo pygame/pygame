@@ -17,9 +17,12 @@ def iterpath(path):
 
 pkg_dir = os.path.dirname(os.path.abspath(__file__))
 main_page = os.path.join(pkg_dir, 'index.html')
-url_path = quote('/'.join(iterpath(main_page)))
-drive, rest = os.path.splitdrive(__file__)
-if drive:
-    url_path = "%s/%s" % (drive, url_path)
-url = urlunparse(('file', '', url_path, '', '', ''))
+if os.path.exists(main_page):
+    url_path = quote('/'.join(iterpath(main_page)))
+    drive, rest = os.path.splitdrive(__file__)
+    if drive:
+        url_path = "%s/%s" % (drive, url_path)
+    url = urlunparse(('file', '', url_path, '', '', ''))
+else:
+    url = "https://www.pygame.org/docs/"
 webbrowser.open(url)
