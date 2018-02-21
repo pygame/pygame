@@ -5,7 +5,7 @@
 
 #define DOC_INPUTCLOSE "close() -> None\ncloses a midi stream, flushing any pending buffers."
 
-#define DOC_INPUTPOLL "poll() -> Bool\nreturns true if there's data, or false if not."
+#define DOC_INPUTPOLL "poll() -> Bool\nreturns true if there’s data, or false if not."
 
 #define DOC_INPUTREAD "read(num_events) -> midi_event_list\nreads num_events midi events from the buffer."
 
@@ -39,7 +39,7 @@
 
 #define DOC_PYGAMEMIDIINIT "init() -> None\ninitialize the midi module"
 
-#define DOC_PYGAMEMIDIMIDIS2EVENTS "midis2events(midis, device_id) -> [Event, ...]\nconverts midi events to pygame events"
+#define DOC_PYGAMEMIDIMIDIS2EVENTS "midis2events(midis, device_id) -> [Event, …]\nconverts midi events to pygame events"
 
 #define DOC_PYGAMEMIDIQUIT "quit() -> None\nuninitialize the midi module"
 
@@ -65,7 +65,7 @@ closes a midi stream, flushing any pending buffers.
 
 pygame.midi.Input.poll
  poll() -> Bool
-returns true if there's data, or false if not.
+returns true if there’s data, or false if not.
 
 pygame.midi.Input.read
  read(num_events) -> midi_event_list
@@ -136,7 +136,7 @@ pygame.midi.init
 initialize the midi module
 
 pygame.midi.midis2events
- midis2events(midis, device_id) -> [Event, ...]
+ midis2events(midis, device_id) -> [Event, …]
 converts midi events to pygame events
 
 pygame.midi.quit

@@ -43,7 +43,7 @@
 
 #define DOC_CDGETTRACKAUDIO "get_track_audio(track) -> bool\ntrue if the cdrom track has audio data"
 
-#define DOC_CDGETALL "get_all() -> [(audio, start, end, length), ...]\nget all track information"
+#define DOC_CDGETALL "get_all() -> [(audio, start, end, length), …]\nget all track information"
 
 #define DOC_CDGETTRACKSTART "get_track_start(track) -> seconds\nstart time of a cdrom track"
 
@@ -143,7 +143,7 @@ pygame.cdrom.CD.get_track_audio
 true if the cdrom track has audio data
 
 pygame.cdrom.CD.get_all
- get_all() -> [(audio, start, end, length), ...]
+ get_all() -> [(audio, start, end, length), …]
 get all track information
 
 pygame.cdrom.CD.get_track_start
