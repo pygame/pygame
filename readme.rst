@@ -10,7 +10,7 @@ About pygame
 
      https://www.pygame.org
 
-|TravisBuild|_ |AppVeyorBuild|_ |LaunchpadBuild|_ |PyPiVersion|_ |PyPiLicense|_ |Python2| |Python3| |GithubCommits|
+|TravisBuild|_ |AppVeyorBuild|_ |LaunchpadBuild|_ |PyPiVersion|_ |PyPiLicense|_ |Python2| |Python3| |GithubCommits|_
 
 Installation
 ============
