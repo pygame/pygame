@@ -42,7 +42,7 @@ class Vector2TypeTest(unittest.TestCase):
     def tearDown(self):
         pygame.math.disable_swizzling()
 
-        
+
     def testConstructionDefault(self):
         v = Vector2()
         self.assertEqual(v.x, 0.)
@@ -84,7 +84,7 @@ class Vector2TypeTest(unittest.TestCase):
             v.x = "spam"
         self.assertRaises(TypeError, assign_nonfloat)
 
-        
+
     def testSequence(self):
         v = Vector2(1.2, 3.4)
         Vector2()[:]
@@ -236,7 +236,7 @@ class Vector2TypeTest(unittest.TestCase):
         self.assertEqual(v.x, -self.v1.x)
         self.assertEqual(v.y, -self.v1.y)
         self.assertNotEqual(id(v), id(self.v1))
-        
+
     def testCompare(self):
         int_vec = Vector2(3, -2)
         flt_vec = Vector2(3.0, -2.0)
@@ -257,7 +257,7 @@ class Vector2TypeTest(unittest.TestCase):
     def testStr(self):
         v = Vector2(1.2, 3.4)
         self.assertEqual(str(v), "[1.2, 3.4]")
-        
+
     def testRepr(self):
         v = Vector2(1.2, 3.4)
         self.assertEqual(v.__repr__(), "<Vector2(1.2, 3.4)>")
@@ -285,7 +285,7 @@ class Vector2TypeTest(unittest.TestCase):
         for val in self.v1:
             self.assertEqual(val, self.v1[idx])
             idx += 1
-        
+
     def test_rotate(self):
         v1 = Vector2(1, 0)
         v2 = v1.rotate(90)
@@ -329,7 +329,7 @@ class Vector2TypeTest(unittest.TestCase):
         # v2 is paralell to v1
         self.assertAlmostEqual(self.v1.x * v.y - self.v1.y * v.x, 0.)
         self.assertRaises(ValueError, lambda : self.zeroVec.normalize())
-        
+
     def test_normalize_ip(self):
         v = +self.v1
         # v has length != 1 before normalizing
@@ -348,7 +348,7 @@ class Vector2TypeTest(unittest.TestCase):
         self.assertEqual(v.is_normalized(), True)
         self.assertEqual(self.e2.is_normalized(), True)
         self.assertEqual(self.zeroVec.is_normalized(), False)
-        
+
     def test_cross(self):
         self.assertEqual(self.v1.cross(self.v2),
                          self.v1.x * self.v2.y - self.v1.y * self.v2.x)
@@ -389,7 +389,7 @@ class Vector2TypeTest(unittest.TestCase):
         self.assertEqual(Vector2(3, 4).length(), 5)
         self.assertEqual(Vector2(-3, 4).length(), 5)
         self.assertEqual(self.zeroVec.length(), 0)
-        
+
     def test_length_squared(self):
         self.assertEqual(Vector2(3, 4).length_squared(), 25)
         self.assertEqual(Vector2(-3, 4).length_squared(), 25)
@@ -402,7 +402,7 @@ class Vector2TypeTest(unittest.TestCase):
         self.assertEqual(v.reflect(3*n), v.reflect(n))
         self.assertEqual(v.reflect(-v), -v)
         self.assertRaises(ValueError, lambda : v.reflect(self.zeroVec))
-        
+
     def test_reflect_ip(self):
         v1 = Vector2(1, -1)
         v2 = Vector2(v1)
@@ -434,7 +434,7 @@ class Vector2TypeTest(unittest.TestCase):
         self.assertEqual(self.v1.distance_squared_to(self.v1), 0)
         self.assertEqual(self.v1.distance_squared_to(self.v2),
                          self.v2.distance_squared_to(self.v1))
-        
+
     def testSwizzle(self):
         self.assertEquals(hasattr(pygame.math, "enable_swizzling"), True)
         self.assertEquals(hasattr(pygame.math, "disable_swizzling"), True)
@@ -679,7 +679,7 @@ class Vector2TypeTest(unittest.TestCase):
             self.assertAlmostEqual(u.length(), 1)
             self.assertAlmostEqual(v1.angle_to(u), i * angle_step)
         self.assertEqual(u, v2)
-        
+
         v1 = Vector2(100, 0)
         v2 = Vector2(0, 10)
         radial_factor = v2.length() / v1.length()
@@ -693,7 +693,7 @@ class Vector2TypeTest(unittest.TestCase):
     def test_lerp(self):
         """TODO"""
         pass
-        
+
     def test_polar(self):
         v = Vector2()
         v.from_polar(self.v1.as_polar())
@@ -735,7 +735,7 @@ class Vector3TypeTest(unittest.TestCase):
 #        self.s2 = random()
         self.s1 = 5.6
         self.s2 = 7.8
-        
+
     def testConstructionDefault(self):
         v = Vector3()
         self.assertEqual(v.x, 0.)
@@ -961,7 +961,7 @@ class Vector3TypeTest(unittest.TestCase):
         self.assertEqual(v.y, -self.v1.y)
         self.assertEqual(v.z, -self.v1.z)
         self.assertNotEqual(id(v), id(self.v1))
-        
+
     def testCompare(self):
         int_vec = Vector3(3, -2, 13)
         flt_vec = Vector3(3.0, -2.0, 13.)
@@ -982,7 +982,7 @@ class Vector3TypeTest(unittest.TestCase):
     def testStr(self):
         v = Vector3(1.2, 3.4, 5.6)
         self.assertEqual(str(v), "[1.2, 3.4, 5.6]")
-        
+
     def testRepr(self):
         v = Vector3(1.2, 3.4, -9.6)
         self.assertEqual(v.__repr__(), "<Vector3(1.2, 3.4, -9.6)>")
@@ -1011,7 +1011,7 @@ class Vector3TypeTest(unittest.TestCase):
         for val in self.v1:
             self.assertEqual(val, self.v1[idx])
             idx += 1
-        
+
     def test_rotate(self):
         v1 = Vector3(1, 0, 0)
         axis = Vector3(0, 1, 0)
@@ -1187,7 +1187,7 @@ class Vector3TypeTest(unittest.TestCase):
                  (self.v1.x * v.y - self.v1.y * v.x) ** 2)
         self.assertAlmostEqual(cross, 0.)
         self.assertRaises(ValueError, lambda : self.zeroVec.normalize())
-        
+
     def test_normalize_ip(self):
         v = +self.v1
         # v has length != 1 before normalizing
@@ -1209,7 +1209,7 @@ class Vector3TypeTest(unittest.TestCase):
         self.assertEqual(v.is_normalized(), True)
         self.assertEqual(self.e2.is_normalized(), True)
         self.assertEqual(self.zeroVec.is_normalized(), False)
-        
+
     def test_cross(self):
         def cross(a, b):
             return Vector3(a[1] * b[2] - a[2] * b[1],
@@ -1253,7 +1253,7 @@ class Vector3TypeTest(unittest.TestCase):
         self.assertEqual(Vector3(3, 4, 5).length(), math.sqrt(3 * 3 + 4 * 4 + 5 * 5))
         self.assertEqual(Vector3(-3, 4, 5).length(), math.sqrt(-3 * -3 + 4 * 4 + 5 * 5))
         self.assertEqual(self.zeroVec.length(), 0)
-        
+
     def test_length_squared(self):
         self.assertEqual(Vector3(3, 4, 5).length_squared(), 3 * 3 + 4 * 4 + 5 * 5)
         self.assertEqual(Vector3(-3, 4, 5).length_squared(), -3 * -3 + 4 * 4 + 5 * 5)
@@ -1266,7 +1266,7 @@ class Vector3TypeTest(unittest.TestCase):
         self.assertEqual(v.reflect(3*n), v.reflect(n))
         self.assertEqual(v.reflect(-v), -v)
         self.assertRaises(ValueError, lambda : v.reflect(self.zeroVec))
-        
+
     def test_reflect_ip(self):
         v1 = Vector3(1, -1, 1)
         v2 = Vector3(v1)
@@ -1298,14 +1298,14 @@ class Vector3TypeTest(unittest.TestCase):
         self.assertEqual(self.v1.distance_squared_to(self.v1), 0)
         self.assertEqual(self.v1.distance_squared_to(self.v2),
                          self.v2.distance_squared_to(self.v1))
-        
+
     def testSwizzle(self):
         self.assertEquals(hasattr(pygame.math, "enable_swizzling"), True)
         self.assertEquals(hasattr(pygame.math, "disable_swizzling"), True)
         # swizzling disabled by default
         self.assertRaises(AttributeError, lambda : self.v1.yx)
         pygame.math.enable_swizzling()
-        
+
         self.assertEqual(self.v1.yxz, (self.v1.y, self.v1.x, self.v1.z))
         self.assertEqual(self.v1.xxyyzzxyz, (self.v1.x, self.v1.x, self.v1.y,
                                              self.v1.y, self.v1.z, self.v1.z,
@@ -1452,8 +1452,8 @@ class Vector3TypeTest(unittest.TestCase):
         self.assertRaises(ZeroDivisionError, lambda : 2 / self.zeroVec.elementwise())
         self.assertRaises(ZeroDivisionError, lambda : 2 // self.zeroVec.elementwise())
         self.assertRaises(ZeroDivisionError, lambda : 2 % self.zeroVec.elementwise())
-        
-        
+
+
     def test_slerp(self):
         self.assertRaises(ValueError, lambda : self.zeroVec.slerp(self.v1, .5))
         self.assertRaises(ValueError, lambda : self.v1.slerp(self.zeroVec, .5))
@@ -1465,7 +1465,7 @@ class Vector3TypeTest(unittest.TestCase):
             self.assertAlmostEqual(u.length(), 1)
             self.assertAlmostEqual(self.e1.angle_to(u), i * angle_step)
         self.assertEqual(u, self.e2)
-        
+
         v1 = Vector3(100, 0, 0)
         v2 = Vector3(0, 10, 7)
         radial_factor = v2.length() / v1.length()
@@ -1496,7 +1496,7 @@ class Vector3TypeTest(unittest.TestCase):
         self.assertRaises(TypeError, lambda : v.from_spherical(1, 2, 3))
         v.from_spherical((.5, 90, 90))
         self.assertEqual(v, .5 * self.e2)
-        
+
     def test_inplace_operators(self):
 
         v = Vector3(1,1,1)
@@ -1516,8 +1516,12 @@ class Vector3TypeTest(unittest.TestCase):
         v += (1,1,1)
         self.assertEqual(v, (4.0,4.0,4.0))
 
-
-
+    def test_pickle(self):
+        import pickle
+        v2 = Vector2(1, 2)
+        v3 = Vector3(1, 2, 3)
+        self.assertEqual(pickle.loads(pickle.dumps(v2)), v2)
+        self.assertEqual(pickle.loads(pickle.dumps(v3)), v3)
 
 
 

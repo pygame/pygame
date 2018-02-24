@@ -1905,7 +1905,7 @@ static PyObject *
 vector2_cross(PyVector *self, PyObject *other)
 {
     double other_coords[2];
-    if (self == other)
+    if (self == (PyVector *)other)
         return PyFloat_FromDouble(0.0);
 
     if (!PyVectorCompatible_Check(other, self->dim)) {
@@ -1962,6 +1962,18 @@ vector2_from_polar(PyVector *self, PyObject *args)
     self->coords[1] = r * sin(phi);
 
     Py_RETURN_NONE;
+}
+static PyObject*
+vector_getsafepickle (PyRectObject *self, void *closure)
+{
+    Py_RETURN_TRUE;
+}
+/* for pickling */
+static PyObject*
+vector2_reduce (PyObject* oself)
+{
+    PyVector* self = (PyVector*)oself;
+    return Py_BuildValue ("(O(dd))", oself->ob_type, self->coords[0], self->coords[1]);
 }
 
 
@@ -2026,10 +2038,11 @@ static PyMethodDef vector2_methods[] = {
     {"from_polar", (PyCFunction)vector2_from_polar, METH_VARARGS,
      DOC_VECTOR2FROMPOLAR
     },
+    { "__safe_for_unpickling__", (PyCFunction)vector_getsafepickle, METH_NOARGS, NULL },
+    { "__reduce__", (PyCFunction) vector2_reduce, METH_NOARGS, NULL },
 
     {NULL}  /* Sentinel */
 };
-
 
 static PyGetSetDef vector2_getsets[] = {
     { "x", (getter)vector_getx, (setter)vector_setx, NULL, NULL },
@@ -2615,6 +2628,17 @@ vector3_from_spherical(PyVector *self, PyObject *args)
     Py_RETURN_NONE;
 }
 
+/* For pickling. */
+static PyObject*
+vector3_reduce (PyObject* oself)
+{
+    PyVector* self = (PyVector*)oself;
+    return Py_BuildValue ("(O(ddd))", oself->ob_type,
+        self->coords[0],
+        self->coords[1],
+        self->coords[2]);
+}
+
 static PyMethodDef vector3_methods[] = {
     {"length", (PyCFunction)vector_length, METH_NOARGS,
      DOC_VECTOR3LENGTH
@@ -2694,6 +2718,8 @@ static PyMethodDef vector3_methods[] = {
     {"from_spherical", (PyCFunction)vector3_from_spherical, METH_VARARGS,
      DOC_VECTOR3FROMSPHERICAL
     },
+    { "__safe_for_unpickling__", (PyCFunction)vector_getsafepickle, METH_NOARGS, NULL },
+    { "__reduce__", (PyCFunction) vector3_reduce, METH_NOARGS, NULL },
 
     {NULL}  /* Sentinel */
 };
