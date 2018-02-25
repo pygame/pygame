@@ -1518,67 +1518,63 @@ vector_getAttr_swizzle(PyVector *self, PyObject *attr_name)
 {
     double *coords;
     Py_ssize_t i, idx, len;
-    PyObject *err_type, *err_value, *err_traceback;
     PyObject *attr_unicode = NULL;
     Py_UNICODE *attr = NULL;
-    PyObject *res = PyObject_GenericGetAttr((PyObject*)self, attr_name);
-    /* if normal lookup failed try to swizzle */
-    if (swizzling_enabled &&
-        PyErr_Occurred() && PyErr_ExceptionMatches(PyExc_AttributeError)) {
-        /* fetch the error so it can be restored in case swizzling fails */
-        PyErr_Fetch(&err_type, &err_value, &err_traceback);
-        len = PySequence_Length(attr_name);
-        if (len < 0)
-            goto swizzle_failed;
-        coords = self->coords;
-        attr_unicode = PyUnicode_FromObject(attr_name);
-        if (attr_unicode == NULL)
-            goto swizzle_failed;
-        attr = PyUnicode_AsUnicode(attr_unicode);
-        if (attr == NULL)
-            goto internal_error;
-        if (len == 2 || len == 3) {
-            res = (PyObject*)PyVector_NEW((int)len);
-        } else {
-            /* More than 3, we return a tuple. */
-            res = (PyObject*)PyTuple_New(len);
-        }
-        if (res == NULL)
-            goto internal_error;
-        for (i = 0; i < len; i++) {
-            switch (attr[i]) {
-            case 'x':
-            case 'y':
-            case 'z':
-                idx = attr[i] - 'x';
-                break;
-            case 'w':
-                idx = 3;
-                break;
-            default:
-                goto swizzle_failed;
-            }
-            if (len == 2 || len == 3) {
-                ((PyVector*)res)->coords[i] = coords[idx];
-            }
-            else if (idx < self->dim) {
-                if (PyTuple_SetItem(res, i, PyFloat_FromDouble(coords[idx])) != 0)
-                    goto internal_error;
-            }
-            else {
-                goto swizzle_failed;
-            }
-        }
-        /* swizzling succeeded! clear the error and return result */
-        PyErr_Clear();
-        Py_DECREF(attr_unicode);
+    PyObject *res = NULL;
+
+    len = PySequence_Length(attr_name);
+
+    if (len == 1) {
+        return PyObject_GenericGetAttr((PyObject*)self, attr_name);
     }
+
+    if (len < 0)
+        goto swizzle_failed;
+    coords = self->coords;
+    attr_unicode = PyUnicode_FromObject(attr_name);
+    if (attr_unicode == NULL)
+        goto swizzle_failed;
+    attr = PyUnicode_AsUnicode(attr_unicode);
+    if (attr == NULL)
+        goto internal_error;
+    if (len == 2 || len == 3) {
+        res = (PyObject*)PyVector_NEW((int)len);
+    } else {
+        /* More than 3, we return a tuple. */
+        res = (PyObject*)PyTuple_New(len);
+    }
+    if (res == NULL)
+        goto internal_error;
+    for (i = 0; i < len; i++) {
+        switch (attr[i]) {
+        case 'x':
+        case 'y':
+        case 'z':
+            idx = attr[i] - 'x';
+            break;
+        case 'w':
+            idx = 3;
+            break;
+        default:
+            goto swizzle_failed;
+        }
+        if (len == 2 || len == 3) {
+            ((PyVector*)res)->coords[i] = coords[idx];
+        }
+        else if (idx < self->dim) {
+            if (PyTuple_SetItem(res, i, PyFloat_FromDouble(coords[idx])) != 0)
+                goto internal_error;
+        }
+        else {
+            goto swizzle_failed;
+        }
+    }
+    /* swizzling succeeded! */
+    Py_DECREF(attr_unicode);
     return res;
 
-    /* swizzling failed! restore the exception from PyObject_GenericGetAttr,
-     * clean up and return NULL */
+    /* swizzling failed! clean up and return NULL */
 swizzle_failed:
-    PyErr_Restore(err_type, err_value, err_traceback);
 internal_error:
     Py_XDECREF(res);
     Py_XDECREF(attr_unicode);
