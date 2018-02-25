@@ -437,8 +437,8 @@ class Vector2TypeTest(unittest.TestCase):
                          self.v2.distance_squared_to(self.v1))
 
     def test_swizzle(self):
-        self.assertEquals(hasattr(pygame.math, "enable_swizzling"), True)
-        self.assertEquals(hasattr(pygame.math, "disable_swizzling"), True)
+        self.assertEqual(hasattr(pygame.math, "enable_swizzling"), True)
+        self.assertEqual(hasattr(pygame.math, "disable_swizzling"), True)
         # swizzling not disabled by default
         pygame.math.disable_swizzling()
         self.assertRaises(AttributeError, lambda : self.v1.yx)
@@ -1310,8 +1310,8 @@ class Vector3TypeTest(unittest.TestCase):
                          self.v2.distance_squared_to(self.v1))
 
     def test_swizzle(self):
-        self.assertEquals(hasattr(pygame.math, "enable_swizzling"), True)
-        self.assertEquals(hasattr(pygame.math, "disable_swizzling"), True)
+        self.assertEqual(hasattr(pygame.math, "enable_swizzling"), True)
+        self.assertEqual(hasattr(pygame.math, "disable_swizzling"), True)
         # swizzling enabled by default
         pygame.math.disable_swizzling()
         self.assertRaises(AttributeError, lambda : self.v1.yx)
@@ -1352,13 +1352,11 @@ class Vector3TypeTest(unittest.TestCase):
         self.assertEqual(type(self.v1.xyxy), tuple)
         self.assertEqual(type(self.v1.xyxyx), tuple)
 
-
     def test_dir_works(self):
         # not every single one of the attributes...
         attributes = set(['lerp', 'normalize', 'normalize_ip', 'reflect', 'slerp', 'x', 'y'])
         # check if this selection of attributes are all there.
         self.assertTrue(attributes.issubset(set(dir(self.v1))))
-
 
     def test_elementwise(self):
         # behaviour for "elementwise op scalar"
