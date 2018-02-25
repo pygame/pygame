@@ -701,8 +701,14 @@ class Vector2TypeTest(unittest.TestCase):
         self.assertRaises(ValueError, lambda : v1.slerp(-v1, 0.5))
 
     def test_lerp(self):
-        """TODO"""
-        pass
+        v1 = Vector2(0, 0)
+        v2 = Vector2(10, 10)
+        self.assertEqual(v1.lerp(v2, 0.5), (5, 5))
+        self.assertRaises(ValueError, lambda : v1.lerp(v2, 2.5))
+
+        v1 = Vector2(-10, -5)
+        v2 = Vector2(10, 10)
+        self.assertEqual(v1.lerp(v2, 0.5), (0, 2.5))
 
     def test_polar(self):
         v = Vector2()
@@ -1502,8 +1508,14 @@ class Vector3TypeTest(unittest.TestCase):
         self.assertRaises(ValueError, lambda : v1.slerp(-v1, 0.5))
 
     def test_lerp(self):
-        """TODO"""
-        pass
+        v1 = Vector3(0, 0, 0)
+        v2 = Vector3(10, 10, 10)
+        self.assertEqual(v1.lerp(v2, 0.5), (5, 5, 5))
+        self.assertRaises(ValueError, lambda : v1.lerp(v2, 2.5))
+
+        v1 = Vector3(-10, -5, -20)
+        v2 = Vector3(10, 10, -20)
+        self.assertEqual(v1.lerp(v2, 0.5), (0, 2.5, -20))
 
     def test_spherical(self):
         v = Vector3()
