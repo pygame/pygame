@@ -21,27 +21,8 @@ In addition vec*vec will perform a scalar-product (a.k.a. dot-product). If you
 want to multiply every element from vector v with every element from vector w
 you can use the elementwise method: ``v.elementwise()`` ``\*`` w
 
-New in pygame 1.9.2pre.
+New in pygame 1.9.2pre. 1.9.4 removed experimental notice.
 
-.. function:: enable_swizzling
-
-   | :sl:`globally enables swizzling for vectors.`
-   | :sg:`enable_swizzling() -> None`
-
-   Enables swizzling for all vectors until ``disable_swizzling()`` is called.
-   By default swizzling is disabled.
-
-   .. ## pygame.math.enable_swizzling ##
-
-.. function:: disable_swizzling
-
-   | :sl:`globally disables swizzling for vectors.`
-   | :sg:`disable_swizzling() -> None`
-
-   Disables swizzling for all vectors until ``enable_swizzling()`` is called.
-   By default swizzling is disabled.
-
-   .. ## pygame.math.disable_swizzling ##
 
 .. class:: Vector2
 
@@ -521,5 +502,26 @@ New in pygame 1.9.2pre.
    .. ##  ##
 
    .. ## pygame.math.Vector3 ##
+
+
+.. function:: enable_swizzling
+
+   | :sl:`globally enables swizzling for vectors.`
+   | :sg:`enable_swizzling() -> None`
+
+   Enables swizzling for all vectors until ``disable_swizzling()`` is called.
+   By default swizzling is disabled.
+
+   .. ## pygame.math.enable_swizzling ##
+
+.. function:: disable_swizzling
+
+   | :sl:`globally disables swizzling for vectors.`
+   | :sg:`disable_swizzling() -> None`
+
+   Disables swizzling for all vectors until ``enable_swizzling()`` is called.
+   By default swizzling is disabled.
+
+   .. ## pygame.math.disable_swizzling ##
 
 .. ## pygame.math ##
