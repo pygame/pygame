@@ -8,9 +8,6 @@
 
 | :sl:`pygame module for vector classes`
 
-!!!EXPERIMENTAL!!! Note: This module is still in development and the ``API``
-might change. Please report bugs and suggestions to pygame-users@seul.org.
-
 The pygame math module currently provides Vector classes in two and three
 dimensions, Vector2 and Vector3 respectively.
 
@@ -509,6 +506,8 @@ New in pygame 1.9.2pre. 1.9.4 removed experimental notice.
    | :sl:`globally enables swizzling for vectors.`
    | :sg:`enable_swizzling() -> None`
 
+   DEPRECATED: Not needed anymore. Will be removed in a later version.
+
    Enables swizzling for all vectors until ``disable_swizzling()`` is called.
    By default swizzling is disabled.
 
@@ -518,6 +517,8 @@ New in pygame 1.9.2pre. 1.9.4 removed experimental notice.
 
    | :sl:`globally disables swizzling for vectors.`
    | :sg:`disable_swizzling() -> None`
+
+   DEPRECATED: Not needed anymore. Will be removed in a later version.
 
    Disables swizzling for all vectors until ``enable_swizzling()`` is called.
    By default swizzling is disabled.
