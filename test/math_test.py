@@ -436,7 +436,7 @@ class Vector2TypeTest(unittest.TestCase):
         self.assertEqual(self.v1.distance_squared_to(self.v2),
                          self.v2.distance_squared_to(self.v1))
 
-    def testSwizzle(self):
+    def test_swizzle(self):
         self.assertEquals(hasattr(pygame.math, "enable_swizzling"), True)
         self.assertEquals(hasattr(pygame.math, "disable_swizzling"), True)
         # swizzling not disabled by default
@@ -464,6 +464,14 @@ class Vector2TypeTest(unittest.TestCase):
         def unicodeAttribute():
             getattr(Vector2(), "ä")
         self.assertRaises(AttributeError, unicodeAttribute)
+
+    def test_swizzle_return_types(self):
+        self.assertEqual(type(self.v1.x), float)
+        self.assertEqual(type(self.v1.xy), Vector2)
+        self.assertEqual(type(self.v1.xyx), Vector3)
+        # but we don't have vector4 or above... so tuple.
+        self.assertEqual(type(self.v1.xyxy), tuple)
+        self.assertEqual(type(self.v1.xyxyx), tuple)
 
     def test_elementwise(self):
         # behaviour for "elementwise op scalar"
@@ -1301,7 +1309,7 @@ class Vector3TypeTest(unittest.TestCase):
         self.assertEqual(self.v1.distance_squared_to(self.v2),
                          self.v2.distance_squared_to(self.v1))
 
-    def testSwizzle(self):
+    def test_swizzle(self):
         self.assertEquals(hasattr(pygame.math, "enable_swizzling"), True)
         self.assertEquals(hasattr(pygame.math, "disable_swizzling"), True)
         # swizzling enabled by default
@@ -1335,6 +1343,14 @@ class Vector3TypeTest(unittest.TestCase):
         def invalidAssignment():
             Vector3().xy = 3
         self.assertRaises(TypeError, invalidAssignment)
+
+    def test_swizzle_return_types(self):
+        self.assertEqual(type(self.v1.x), float)
+        self.assertEqual(type(self.v1.xy), Vector2)
+        self.assertEqual(type(self.v1.xyz), Vector3)
+        # but we don't have vector4 or above... so tuple.
+        self.assertEqual(type(self.v1.xyxy), tuple)
+        self.assertEqual(type(self.v1.xyxyx), tuple)
 
     def test_elementwise(self):
         # behaviour for "elementwise op scalar"

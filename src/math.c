@@ -1537,7 +1537,12 @@ vector_getAttr_swizzle(PyVector *self, PyObject *attr_name)
         attr = PyUnicode_AsUnicode(attr_unicode);
         if (attr == NULL)
             goto internal_error;
-        res = (PyObject*)PyTuple_New(len);
+        if (len == 2 || len == 3) {
+            res = (PyObject*)PyVector_NEW((int)len);
+        } else {
+            /* More than 3, we return a tuple. */
+            res = (PyObject*)PyTuple_New(len);
+        }
         if (res == NULL)
             goto internal_error;
         for (i = 0; i < len; i++) {
@@ -1553,7 +1558,10 @@ vector_getAttr_swizzle(PyVector *self, PyObject *attr_name)
             default:
                 goto swizzle_failed;
             }
-            if (idx < self->dim) {
+            if (len == 2 || len == 3) {
+                ((PyVector*)res)->coords[i] = coords[idx];
+            }
+            else if (idx < self->dim) {
                 if (PyTuple_SetItem(res, i, PyFloat_FromDouble(coords[idx])) != 0)
                     goto internal_error;
             }
