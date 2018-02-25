@@ -228,7 +228,7 @@ static int vector_elementwiseproxy_nonzero(vector_elementwiseproxy *self);
 static PyObject *vector_elementwise(PyVector *vec);
 
 
-static int swizzling_enabled = 0;
+static int swizzling_enabled = 1;
 
 
 /********************************
