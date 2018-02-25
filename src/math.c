@@ -1589,7 +1589,7 @@ vector_setAttr_swizzle(PyVector *self, PyObject *attr_name, PyObject *val)
     int i;
 
     /* if swizzling is disabled always default to generic implementation */
-    if (!swizzling_enabled)
+    if (!swizzling_enabled || len == 1)
         return PyObject_GenericSetAttr((PyObject*)self, attr_name, val);
 
     /* if swizzling is enabled first try swizzle */
