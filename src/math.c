@@ -1524,7 +1524,7 @@ vector_getAttr_swizzle(PyVector *self, PyObject *attr_name)
 
     len = PySequence_Length(attr_name);
 
-    if (len == 1) {
+    if (len == 1 || !swizzling_enabled) {
         return PyObject_GenericGetAttr((PyObject*)self, attr_name);
     }
 
@@ -1575,11 +1575,15 @@ vector_getAttr_swizzle(PyVector *self, PyObject *attr_name)
 
     /* swizzling failed! clean up and return NULL */
 swizzle_failed:
+    Py_XDECREF(res);
+    Py_XDECREF(attr_unicode);
+    return PyObject_GenericGetAttr((PyObject*)self, attr_name);
 internal_error:
     Py_XDECREF(res);
     Py_XDECREF(attr_unicode);
     return NULL;
 }
+
 
 static int
 vector_setAttr_swizzle(PyVector *self, PyObject *attr_name, PyObject *val)

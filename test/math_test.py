@@ -1352,6 +1352,14 @@ class Vector3TypeTest(unittest.TestCase):
         self.assertEqual(type(self.v1.xyxy), tuple)
         self.assertEqual(type(self.v1.xyxyx), tuple)
 
+
+    def test_dir_works(self):
+        # not every single one of the attributes...
+        attributes = set(['lerp', 'normalize', 'normalize_ip', 'reflect', 'slerp', 'x', 'y'])
+        # check if this selection of attributes are all there.
+        self.assertTrue(attributes.issubset(set(dir(self.v1))))
+
+
     def test_elementwise(self):
         # behaviour for "elementwise op scalar"
         self.assertEqual(self.v1.elementwise() + self.s1,
