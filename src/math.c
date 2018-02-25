@@ -1538,10 +1538,10 @@ vector_getAttr_swizzle(PyVector *self, PyObject *attr_name)
     if (attr == NULL)
         goto internal_error;
     /* If we are not a swizzle, go straight to GenericGetAttr. */
-    if ((attr[i] != 'x') &&
-        (attr[i] != 'y') &&
-        (attr[i] != 'z') &&
-        (attr[i] != 'w')) {
+    if ((attr[0] != 'x') &&
+        (attr[0] != 'y') &&
+        (attr[0] != 'z') &&
+        (attr[0] != 'w')) {
         goto swizzle_failed;
     }
 
