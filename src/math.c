@@ -1537,6 +1537,14 @@ vector_getAttr_swizzle(PyVector *self, PyObject *attr_name)
     attr = PyUnicode_AsUnicode(attr_unicode);
     if (attr == NULL)
         goto internal_error;
+    /* If we are not a swizzle, go straight to GenericGetAttr. */
+    if ((attr[i] != 'x') &&
+        (attr[i] != 'y') &&
+        (attr[i] != 'z') &&
+        (attr[i] != 'w')) {
+        goto swizzle_failed;
+    }
+
     if (len == 2 || len == 3) {
         res = (PyObject*)PyVector_NEW((int)len);
     } else {
