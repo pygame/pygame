@@ -1,10 +1,6 @@
 /* Auto generated file: with makeref.py .  Docs go in src/ *.doc . */
 #define DOC_PYGAMEMATH "pygame module for vector classes"
 
-#define DOC_PYGAMEMATHENABLESWIZZLING "enable_swizzling() -> None\nglobally enables swizzling for vectors."
-
-#define DOC_PYGAMEMATHDISABLESWIZZLING "disable_swizzling() -> None\nglobally disables swizzling for vectors."
-
 #define DOC_PYGAMEMATHVECTOR2 "Vector2() -> Vector2\nVector2(Vector2) -> Vector2\nVector2(x, y) -> Vector2\nVector2((x, y)) -> Vector2\na 2-Dimensional Vector"
 
 #define DOC_VECTOR2DOT "dot(Vector2) -> float\ncalculates the dot- or scalar-product with the other vector"
@@ -101,6 +97,10 @@
 
 #define DOC_VECTOR3FROMSPHERICAL "from_spherical((r, theta, phi)) -> None\nSets x, y and z from a spherical coordinates 3-tuple."
 
+#define DOC_PYGAMEMATHENABLESWIZZLING "enable_swizzling() -> None\nglobally enables swizzling for vectors."
+
+#define DOC_PYGAMEMATHDISABLESWIZZLING "disable_swizzling() -> None\nglobally disables swizzling for vectors."
+
 
 
 /* Docs in a comment... slightly easier to read. */
@@ -109,14 +109,6 @@
 
 pygame.math
 pygame module for vector classes
-
-pygame.math.enable_swizzling
- enable_swizzling() -> None
-globally enables swizzling for vectors.
-
-pygame.math.disable_swizzling
- disable_swizzling() -> None
-globally disables swizzling for vectors.
 
 pygame.math.Vector2
  Vector2() -> Vector2
@@ -315,5 +307,13 @@ returns a tuple with radial distance, inclination and azimuthal angle.
 pygame.math.Vector3.from_spherical
  from_spherical((r, theta, phi)) -> None
 Sets x, y and z from a spherical coordinates 3-tuple.
+
+pygame.math.enable_swizzling
+ enable_swizzling() -> None
+globally enables swizzling for vectors.
+
+pygame.math.disable_swizzling
+ disable_swizzling() -> None
+globally disables swizzling for vectors.
 
 */
