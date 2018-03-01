@@ -1772,14 +1772,40 @@ static int get_threshold (SDL_Surface *destsurf, SDL_Surface *surf,
 }
 
 
+/*
+        # dest_surf                  # Surface we are changing. See 'set_behavior'.
+        #                            # None - if counting (set_behavior is 0), don't need 'dest_surf'.
+        # surf                       # Surface we are looking at.
+        # search_color               # Color we are searching for.
+        # threshold = (0,0,0,0)      # Within this distance from search_color (or search_surf).
+        # set_color = (0,0,0,0)      # color we set.
+        # set_behavior = 1           # 1 - pixels in dest_surface will be changed to 'set_color'.
+        #                            # 0 - we do not change 'dest_surf', just count. Make dest_surf=None.
+        #                            # 2 - pixels set in 'dest_surf' will be from 'surface'.
+        # search_surf = None         # None - search against 'search_color' instead.
+        #                            # Surface - look at the color in here rather than 'search_color'.
+        # inverse_set = False        # False - pixels outside of threshold are changed.
+        #                            # True - pixels within threshold are changed.
+*/
 
-
-static PyObject* surf_threshold(PyObject* self, PyObject* arg)
+static PyObject* surf_threshold(PyObject* self, PyObject* arg, PyObject *kwds)
 {
     PyObject *surfobj, *surfobj2 = NULL, *surfobj3 = NULL;
     SDL_Surface* surf = NULL, *destsurf = NULL, *surf2 = NULL;
     int bpp, change_return = 1, inverse = 0;
     int num_threshold_pixels = 0;
+
+    static char *kwlist[] =  {
+        "dest_surf",
+        "surf",
+        "search_color",
+        "threshold",
+        "set_color",
+        "set_behavior",
+        "search_surf",
+        "inverse_set",
+        0
+    };
 
     PyObject *rgba_obj_color;
     PyObject *rgba_obj_threshold = NULL;
@@ -1799,6 +1825,16 @@ static PyObject* surf_threshold(PyObject* self, PyObject* arg)
                            &change_return,
                            &PySurface_Type, &surfobj3, &inverse))
         return NULL;
+
+
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|iO&O&", kwlist,
+                                     &textobj, &style,
+                                     obj_to_rotation, (void *)&rotation,
+                                     obj_to_scale, (void *)&face_size))
+        goto error;
+
+
 
 
     destsurf = PySurface_AsSurface (surfobj);
