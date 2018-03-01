@@ -257,6 +257,45 @@ class TransformModuleTest( unittest.TestCase ):
             self.assertEqual(dest_surface.get_at(pt), change_color)
 
 
+    def test_threshold_inverse_set(self):
+        """ changes the pixels within the threshold, and outside.
+        """
+        _surf = pygame.Surface((32, 32), pygame.SRCALPHA, 32)
+
+        dest_surf = _surf                  # surface we are changing.
+        surf = _surf                       # surface we are looking at
+        search_color = (55, 55, 55, 255)   # color we are searching for.
+        threshold = (0, 0, 0, 0)           # within this distance from search_color.
+        set_color = (5, 5, 5, 255)         # color we set.
+        set_behavior = 1                   # pixels in dest_surface will be changed to color.
+        search_surf = None                 # we are not comparing colors against a second surface.
+        inverse_set = True                 # pixels within threshold are changed to 'set_color'
+
+        # fill the surface with colors we are not looking for.
+        surf.fill((10, 10, 10, 255))
+        # set 2 pixels to the color we are searching for.
+        surf.set_at((0, 0), set_color)
+        surf.set_at((12, 5), set_color)
+
+        num_threshold_pixels = pygame.transform.threshold(
+            surf,
+            dest_surf,
+            search_color,
+            threshold,
+            set_color,
+            set_behavior,
+            search_surf,
+            inverse_set)
+
+        self.assertEqual(num_threshold_pixels, 2)
+        # only two pixels changed to diff_color.
+        self.assertEqual(surface.get_at((0, 0)), set_color)
+        self.assertEqual(surface.get_at((12, 5)), set_color)
+
+        # other pixels should be the same as they were before.
+        self.assertEqual(surface.get_at((2, 2)), (10, 10, 10, 255))
+
+
 
 #XXX
     def test_threshold_non_src_alpha(self):
