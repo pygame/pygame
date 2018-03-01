@@ -199,6 +199,24 @@ Instead, always begin with the original image and scale to the desired size.)
 
 .. function:: threshold
 
+
+   TODO: new names and a better explanation.
+        # dest_surf                  # Surface we are changing. See 'set_behavior'.
+        #                            # None - if counting (set_behavior is 0), don't need 'dest_surf'.
+        # surf                       # Surface we are looking at.
+        # search_color               # Color we are searching for.
+        # threshold = (0,0,0,0)      # Within this distance from search_color (or search_surf).
+        # set_color = (0,0,0,0)      # color we set.
+        # set_behavior = 1           # 1 - pixels in dest_surface will be changed to 'set_color'.
+        #                            # 0 - we do not change 'dest_surf', just count. Make dest_surf=None.
+        #                            # 2 - pixels set in 'dest_surf' will be from 'surface'.
+        # search_surf = None         # None - search against 'search_color' instead.
+        #                            # Surface - look at the color in here rather than 'search_color'.
+        # inverse_set = False        # False - pixels outside of threshold are changed.
+        #                            # True - pixels within threshold are changed.
+
+
+
    | :sl:`finds which, and how many pixels in a surface are within a threshold of a color.`
    | :sg:`threshold(DestSurface, Surface, color, threshold = (0,0,0,0), diff_color = (0,0,0,0), change_return = 1, Surface = None, inverse = False) -> num_threshold_pixels`
 
