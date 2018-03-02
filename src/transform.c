@@ -1775,21 +1775,31 @@ static int get_threshold (SDL_Surface *destsurf, SDL_Surface *surf,
 static PyObject *
 surf_threshold(PyObject *self, PyObject *args, PyObject *kwds)
 {
-    PyObject *dest_surf_obj, *surfobj2 = NULL, *surfobj3 = NULL;
-    SDL_Surface* surf = NULL, *dest_surf = NULL, *surf2 = NULL;
-    int bpp, change_return = 1, inverse = 0;
-    int num_threshold_pixels = 0;
+    PyObject *dest_surf_obj;
+    SDL_Surface *dest_surf = NULL;
 
-    PyObject *rgba_obj_color;
-    PyObject *rgba_obj_threshold = NULL;
-    PyObject *rgba_obj_diff_color = NULL;
-    Uint8 rgba_color[4];
+    PyObject *surf_obj = NULL;
+    SDL_Surface *surf = NULL;
+
+    PyObject *search_color_obj;
+    PyObject *threshold_obj = NULL;
+    PyObject *set_color_obj = NULL;
+    int set_behavior = 1;
+    int inverse = 0;
+    PyObject *search_surf_obj = NULL;
+    SDL_Surface *search_surf = NULL;
+
+    Uint8 rgba_search_color[4];
     Uint8 rgba_threshold[4] = {0, 0, 0, 255};
     Uint8 rgba_diff_color[4] = {0, 0, 0, 255};
 
-    Uint32 color;
+    Uint32 color_search_color;
     Uint32 color_threshold;
-    Uint32 color_diff_color;
+    Uint32 color_set_color;
+
+    int bpp;
+    int num_threshold_pixels = 0;
+
 
     /*
     https://www.pygame.org/docs/ref/transform.html#pygame.transform.threshold
@@ -1831,48 +1841,48 @@ surf_threshold(PyObject *self, PyObject *args, PyObject *kwds)
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "O!O!O|OOiOi", kwlist,
         /* required */
         &PySurface_Type, &dest_surf_obj,   /* O! python object from c type  */
-        &PySurface_Type, &surfobj2,        /* O! python object from c type */
-        &rgba_obj_color,                   /* O| python object. All after | optional. */
+        &PySurface_Type, &surf_obj,        /* O! python object from c type */
+        &search_color_obj,                 /* O| python object. All after | optional. */
         /* optional */
-        &rgba_obj_threshold,               /* O  python object. */
-        &rgba_obj_diff_color,              /* O  python object. */
-        &change_return,                    /* i  plain python int. */
-        &surfobj3,                         /* O python object. */
+        &threshold_obj,                    /* O  python object. */
+        &set_color_obj,                    /* O  python object. */
+        &set_behavior,                     /* i  plain python int. */
+        &search_surf_obj,                  /* O python object. */
         &inverse))                         /* i  plain python int. */
         return NULL;
 
     dest_surf = PySurface_AsSurface (dest_surf_obj);
-    surf = PySurface_AsSurface (surfobj2);
+    surf = PySurface_AsSurface (surf_obj);
     printf("surf\n");
 
-    if (surfobj3 && PySurface_Check(surfobj3)) {
-        printf("if surfobj3 true\n");
-        surf2 = PySurface_AsSurface(surfobj3);
+    if (search_surf_obj && PySurface_Check(search_surf_obj)) {
+        printf("if search_surf_obj true\n");
+        search_surf = PySurface_AsSurface(search_surf_obj);
     }
 
     printf("surf\n");
 
-    if (PyInt_Check (rgba_obj_color)) {
-        color = (Uint32) PyInt_AsLong (rgba_obj_color);
-    } else if (PyLong_Check (rgba_obj_color)) {
-        color = (Uint32) PyLong_AsUnsignedLong (rgba_obj_color);
+    if (PyInt_Check (search_color_obj)) {
+        color_search_color = (Uint32) PyInt_AsLong (search_color_obj);
+    } else if (PyLong_Check (search_color_obj)) {
+        color_search_color = (Uint32) PyLong_AsUnsignedLong (search_color_obj);
     }
-    else if (RGBAFromColorObj (rgba_obj_color, rgba_color)) {
-        color = SDL_MapRGBA (surf->format, rgba_color[0], rgba_color[1],
-            rgba_color[2], rgba_color[3]);
+    else if (RGBAFromColorObj (search_color_obj, rgba_search_color)) {
+        color_search_color = SDL_MapRGBA (surf->format, rgba_search_color[0], rgba_search_color[1],
+            rgba_search_color[2], rgba_search_color[3]);
     } else {
         return RAISE (PyExc_TypeError, "invalid color argument");
     }
-    printf("surf2\n");
+    printf("search_surf\n");
 
-    if(rgba_obj_threshold) {
+    if(threshold_obj) {
 
-        if (PyInt_Check (rgba_obj_threshold))
-            color_threshold = (Uint32) PyInt_AsLong (rgba_obj_threshold);
-        else if (PyLong_Check (rgba_obj_threshold))
+        if (PyInt_Check (threshold_obj))
+            color_threshold = (Uint32) PyInt_AsLong (threshold_obj);
+        else if (PyLong_Check (threshold_obj))
             color_threshold = (Uint32) PyLong_AsUnsignedLong
-                (rgba_obj_threshold);
-        else if (RGBAFromColorObj (rgba_obj_threshold, rgba_threshold))
+                (threshold_obj);
+        else if (RGBAFromColorObj (threshold_obj, rgba_threshold))
             color_threshold = SDL_MapRGBA (surf->format,
                                            rgba_threshold[0],
                                            rgba_threshold[1],
@@ -1890,15 +1900,15 @@ surf_threshold(PyObject *self, PyObject *args, PyObject *kwds)
     }
     printf("surf3\n");
 
-    if(rgba_obj_diff_color) {
+    if(set_color_obj) {
 
-        if (PyInt_Check (rgba_obj_diff_color))
-            color_diff_color = (Uint32) PyInt_AsLong (rgba_obj_diff_color);
-        else if (PyLong_Check (rgba_obj_diff_color))
-            color_diff_color = (Uint32) PyLong_AsUnsignedLong
-                (rgba_obj_diff_color);
-        else if (RGBAFromColorObj (rgba_obj_diff_color, rgba_diff_color))
-            color_diff_color = SDL_MapRGBA (surf->format,
+        if (PyInt_Check (set_color_obj))
+            color_set_color = (Uint32) PyInt_AsLong (set_color_obj);
+        else if (PyLong_Check (set_color_obj))
+            color_set_color = (Uint32) PyLong_AsUnsignedLong
+                (set_color_obj);
+        else if (RGBAFromColorObj (set_color_obj, rgba_diff_color))
+            color_set_color = SDL_MapRGBA (surf->format,
                                             rgba_diff_color[0],
                                             rgba_diff_color[1],
                                             rgba_diff_color[2],
@@ -1906,7 +1916,7 @@ surf_threshold(PyObject *self, PyObject *args, PyObject *kwds)
         else
             return RAISE (PyExc_TypeError, "invalid diff_color argument");
     } else {
-        color_diff_color = SDL_MapRGBA (surf->format,
+        color_set_color = SDL_MapRGBA (surf->format,
                                         rgba_diff_color[0],
                                         rgba_diff_color[1],
                                         rgba_diff_color[2],
@@ -1917,34 +1927,34 @@ surf_threshold(PyObject *self, PyObject *args, PyObject *kwds)
     bpp = surf->format->BytesPerPixel;
 
     PySurface_Lock(dest_surf_obj);
-    PySurface_Lock(surfobj2);
+    PySurface_Lock(surf_obj);
     printf("surf5\n");
 
-    if(surfobj3) {
-        PySurface_Lock(surfobj3);
+    if(search_surf_obj) {
+        PySurface_Lock(search_surf_obj);
     }
     printf("surf5.1\n");
     Py_BEGIN_ALLOW_THREADS;
 
     printf("surf6\n");
 
-    num_threshold_pixels = get_threshold (dest_surf,
-                                          surf,
-                                          surf2,
-                                          color,
-                                          color_threshold,
-                                          color_diff_color,
-                                          change_return,
-                                          inverse);
+    num_threshold_pixels = get_threshold(dest_surf,
+                                         surf,
+                                         search_surf,
+                                         color_search_color,
+                                         color_threshold,
+                                         color_set_color,
+                                         set_behavior,
+                                         inverse);
 
     printf("surf7\n");
 
     Py_END_ALLOW_THREADS;
 
     PySurface_Unlock(dest_surf_obj);
-    PySurface_Unlock(surfobj2);
-    if(surfobj3 && PySurface_Check(surfobj3)) {
-        PySurface_Unlock(surfobj3);
+    PySurface_Unlock(surf_obj);
+    if(search_surf_obj && PySurface_Check(search_surf_obj)) {
+        PySurface_Unlock(search_surf_obj);
     }
 
     printf("surf8\n");
