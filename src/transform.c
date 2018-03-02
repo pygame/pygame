@@ -1771,6 +1771,39 @@ static int get_threshold (SDL_Surface *destsurf, SDL_Surface *surf,
     return similar;
 }
 
+/* Returns 0 if ok, and sets color to the color.
+   -1 means error.
+*/
+int
+_color_from_obj(
+    PyObject *color_obj,
+    SDL_PixelFormat *format,
+    Uint8 rgba_default[4],
+    Uint32 *color)
+{
+    if(color_obj) {
+        if (PyInt_Check (color_obj))
+            *color = (Uint32) PyInt_AsLong (color_obj);
+        else if (PyLong_Check (color_obj))
+            *color = (Uint32) PyLong_AsUnsignedLong(color_obj);
+        else if (RGBAFromColorObj (color_obj, rgba_default))
+            *color = SDL_MapRGBA(format,
+                                 rgba_default[0],
+                                 rgba_default[1],
+                                 rgba_default[2],
+                                 rgba_default[3]);
+        else
+            return -1;
+    } else {
+        *color = SDL_MapRGBA (format,
+                              rgba_default[0],
+                              rgba_default[1],
+                              rgba_default[2],
+                              rgba_default[3]);
+    }
+    return 0;
+}
+
 
 static PyObject *
 surf_threshold(PyObject *self, PyObject *args, PyObject *kwds)
@@ -1875,29 +1908,11 @@ surf_threshold(PyObject *self, PyObject *args, PyObject *kwds)
     }
     printf("search_surf\n");
 
-    if(threshold_obj) {
 
-        if (PyInt_Check (threshold_obj))
-            color_threshold = (Uint32) PyInt_AsLong (threshold_obj);
-        else if (PyLong_Check (threshold_obj))
-            color_threshold = (Uint32) PyLong_AsUnsignedLong
-                (threshold_obj);
-        else if (RGBAFromColorObj (threshold_obj, rgba_threshold))
-            color_threshold = SDL_MapRGBA (surf->format,
-                                           rgba_threshold[0],
-                                           rgba_threshold[1],
-                                           rgba_threshold[2],
-                                           rgba_threshold[3]);
-        else
-            return RAISE (PyExc_TypeError, "invalid threshold argument");
+    if (_color_from_obj(threshold_obj, surf->format, rgba_threshold, &color_threshold))
+        return RAISE (PyExc_TypeError, "invalid threshold argument");
 
-    } else {
-        color_threshold = SDL_MapRGBA (surf->format,
-                                       rgba_threshold[0],
-                                       rgba_threshold[1],
-                                       rgba_threshold[2],
-                                       rgba_threshold[3]);
-    }
+
     printf("surf3\n");
 
     if(set_color_obj) {
