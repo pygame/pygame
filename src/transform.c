@@ -1793,30 +1793,32 @@ surf_threshold(PyObject *self, PyObject *args, PyObject *kwds)
 
     /*
     https://www.pygame.org/docs/ref/transform.html#pygame.transform.threshold
-
-    dest_surf             # Surface we are changing. See 'set_behavior'.
-                          # None - if counting (set_behavior is 0), don't need 'dest_surf'.
-    surf                  # Surface we are looking at.
-    search_color          # Color we are searching for.
-    threshold = (0,0,0,0) # Within this distance from search_color (or search_surf).
-    set_color = (0,0,0,0) # color we set.
-    set_behavior = 1      # 1 - pixels in dest_surface will be changed to 'set_color'.
-                          # 0 - we do not change 'dest_surf', just count. Make dest_surf=None.
-                          # 2 - pixels set in 'dest_surf' will be from 'surface'.
-    search_surf = None    # None - search against 'search_color' instead.
-                          # Surface - look at the color in here rather than 'search_color'.
-    inverse_set = False   # False - pixels outside of threshold are changed.
-                          # True - pixels within threshold are changed.
     */
     static char *kwlist[] =  {
-        "dest_surf",
-        "surf",
-        "search_color",
-        "threshold",
-        "set_color",
-        "set_behavior",
-        "search_surf",
-        "inverse_set",
+        "dest_surf",    /* Surface we are changing. See 'set_behavior'.
+                             None - if counting (set_behavior is 0),
+                                    don't need 'dest_surf'. */
+        "surf",         /* Surface we are looking at. */
+        "search_color", /* Color we are searching for. */
+        "threshold",    /* =(0,0,0,0)  Within this distance from
+                                       search_color (or search_surf). */
+        "set_color",    /* =(0,0,0,0)  Color we set. */
+        "set_behavior", /* =1 What and where we set pixels (if at all)
+                             1 - pixels in dest_surface will be changed
+                                 to 'set_color'.
+                             0 - we do not change 'dest_surf', just count.
+                                 Make dest_surf=None.
+                             2 - pixels set in 'dest_surf' will be from 'surface'.
+                        */
+        "search_surf",  /* =None If set, compare to this surface.
+                             None - search against 'search_color' instead.
+                             Surface - look at the color in here rather
+                                       than 'search_color'.
+                        */
+        "inverse_set",  /* =False.
+                             False - pixels outside of threshold are changed.
+                             True - pixels within threshold are changed.
+                        */
         0
     };
 
