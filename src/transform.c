@@ -1826,7 +1826,7 @@ surf_threshold(PyObject *self, PyObject *args, PyObject *kwds)
     https://docs.python.org/3/c-api/arg.html#parsing-arguments
     */
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O!O!O|OOiO!i", kwlist,
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O!O!O|OOiOi", kwlist,
         /* required */
         &PySurface_Type, &dest_surf_obj,   /* O! python object from c type  */
         &PySurface_Type, &surfobj2,        /* O! python object from c type */
@@ -1835,14 +1835,17 @@ surf_threshold(PyObject *self, PyObject *args, PyObject *kwds)
         &rgba_obj_threshold,               /* O  python object. */
         &rgba_obj_diff_color,              /* O  python object. */
         &change_return,                    /* i  plain python int. */
-        &PySurface_Type, &surfobj3,        /* O! python object from c type */
+        &surfobj3,                         /* O python object. */
         &inverse))                         /* i  plain python int. */
         return NULL;
 
     dest_surf = PySurface_AsSurface (dest_surf_obj);
     surf = PySurface_AsSurface (surfobj2);
-    if(surfobj3) {
-        surf2 = PySurface_AsSurface (surfobj3);
+    printf("surf\n");
+
+    if (surfobj3 && PySurface_Check(surfobj3)) {
+        printf("if surfobj3 true\n");
+        surf2 = PySurface_AsSurface(surfobj3);
     }
 
     printf("surf\n");
@@ -1938,7 +1941,7 @@ surf_threshold(PyObject *self, PyObject *args, PyObject *kwds)
 
     PySurface_Unlock(dest_surf_obj);
     PySurface_Unlock(surfobj2);
-    if(surfobj3) {
+    if(surfobj3 && PySurface_Check(surfobj3)) {
         PySurface_Unlock(surfobj3);
     }
 

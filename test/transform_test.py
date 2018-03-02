@@ -260,26 +260,39 @@ class TransformModuleTest( unittest.TestCase ):
     def test_threshold_inverse_set(self):
         """ changes the pixels within the threshold, and outside.
         """
-        _surf = pygame.Surface((32, 32), pygame.SRCALPHA, 32)
+        surf_size = (32, 32)
+        _dest_surf = pygame.Surface(surf_size, pygame.SRCALPHA, 32)
+        _surf = pygame.Surface(surf_size, pygame.SRCALPHA, 32)
 
-        dest_surf = _surf                  # surface we are changing.
+        dest_surf = _dest_surf             # surface we are changing.
         surf = _surf                       # surface we are looking at
         search_color = (55, 55, 55, 255)   # color we are searching for.
         threshold = (0, 0, 0, 0)           # within this distance from search_color.
         set_color = (5, 5, 5, 255)         # color we set.
         set_behavior = 1                   # pixels in dest_surface will be changed to color.
         search_surf = None                 # we are not comparing colors against a second surface.
-        inverse_set = True                 # pixels within threshold are changed to 'set_color'
+        inverse_set = 1                    # pixels within threshold are changed to 'set_color'
+
+
+        original_color = (10, 10, 10, 255)
+        # raise ValueError('asdf')
 
         # fill the surface with colors we are not looking for.
-        surf.fill((10, 10, 10, 255))
+        surf.fill(original_color)
         # set 2 pixels to the color we are searching for.
-        surf.set_at((0, 0), set_color)
-        surf.set_at((12, 5), set_color)
+        surf.set_at((0, 0), search_color)
+        surf.set_at((12, 5), search_color)
 
+        dest_surf.fill(original_color)
+        # set 2 pixels to the color we are searching for.
+        dest_surf.set_at((0, 0), search_color)
+        dest_surf.set_at((12, 5), search_color)
+
+
+        print("test_threshold_inverse_set")
         num_threshold_pixels = pygame.transform.threshold(
-            surf,
             dest_surf,
+            surf,
             search_color,
             threshold,
             set_color,
@@ -287,13 +300,16 @@ class TransformModuleTest( unittest.TestCase ):
             search_surf,
             inverse_set)
 
-        self.assertEqual(num_threshold_pixels, 2)
+        # 32x32 -> 1024. 1022 are within the threshold. 2 are not.
+        num_pixels_within = (32 * 32) - 2
+        self.assertEqual(num_threshold_pixels, num_pixels_within)
         # only two pixels changed to diff_color.
-        self.assertEqual(surface.get_at((0, 0)), set_color)
-        self.assertEqual(surface.get_at((12, 5)), set_color)
+        self.assertEqual(dest_surf.get_at((0, 0)), set_color)
+        self.assertEqual(dest_surf.get_at((12, 5)), set_color)
 
         # other pixels should be the same as they were before.
-        self.assertEqual(surface.get_at((2, 2)), (10, 10, 10, 255))
+        # We just check one other pixel, not all of them.
+        self.assertEqual(dest_surf.get_at((2, 2)), original_color)
 
 
 
