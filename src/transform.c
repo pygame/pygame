@@ -1772,40 +1772,13 @@ static int get_threshold (SDL_Surface *destsurf, SDL_Surface *surf,
 }
 
 
-/*
-        # dest_surf                  # Surface we are changing. See 'set_behavior'.
-        #                            # None - if counting (set_behavior is 0), don't need 'dest_surf'.
-        # surf                       # Surface we are looking at.
-        # search_color               # Color we are searching for.
-        # threshold = (0,0,0,0)      # Within this distance from search_color (or search_surf).
-        # set_color = (0,0,0,0)      # color we set.
-        # set_behavior = 1           # 1 - pixels in dest_surface will be changed to 'set_color'.
-        #                            # 0 - we do not change 'dest_surf', just count. Make dest_surf=None.
-        #                            # 2 - pixels set in 'dest_surf' will be from 'surface'.
-        # search_surf = None         # None - search against 'search_color' instead.
-        #                            # Surface - look at the color in here rather than 'search_color'.
-        # inverse_set = False        # False - pixels outside of threshold are changed.
-        #                            # True - pixels within threshold are changed.
-*/
-
-static PyObject* surf_threshold(PyObject* self, PyObject* arg, PyObject *kwds)
+static PyObject *
+surf_threshold(PyObject *self, PyObject *args, PyObject *kwds)
 {
-    PyObject *surfobj, *surfobj2 = NULL, *surfobj3 = NULL;
-    SDL_Surface* surf = NULL, *destsurf = NULL, *surf2 = NULL;
+    PyObject *dest_surf_obj, *surfobj2 = NULL, *surfobj3 = NULL;
+    SDL_Surface* surf = NULL, *dest_surf = NULL, *surf2 = NULL;
     int bpp, change_return = 1, inverse = 0;
     int num_threshold_pixels = 0;
-
-    static char *kwlist[] =  {
-        "dest_surf",
-        "surf",
-        "search_color",
-        "threshold",
-        "set_color",
-        "set_behavior",
-        "search_surf",
-        "inverse_set",
-        0
-    };
 
     PyObject *rgba_obj_color;
     PyObject *rgba_obj_threshold = NULL;
@@ -1818,32 +1791,61 @@ static PyObject* surf_threshold(PyObject* self, PyObject* arg, PyObject *kwds)
     Uint32 color_threshold;
     Uint32 color_diff_color;
 
-    /*get all the arguments*/
-    if (!PyArg_ParseTuple (arg, "O!O!O|OOiO!i", &PySurface_Type, &surfobj,
-                           &PySurface_Type, &surfobj2,
-                           &rgba_obj_color,  &rgba_obj_threshold, &rgba_obj_diff_color,
-                           &change_return,
-                           &PySurface_Type, &surfobj3, &inverse))
+    /*
+    https://www.pygame.org/docs/ref/transform.html#pygame.transform.threshold
+
+    dest_surf             # Surface we are changing. See 'set_behavior'.
+                          # None - if counting (set_behavior is 0), don't need 'dest_surf'.
+    surf                  # Surface we are looking at.
+    search_color          # Color we are searching for.
+    threshold = (0,0,0,0) # Within this distance from search_color (or search_surf).
+    set_color = (0,0,0,0) # color we set.
+    set_behavior = 1      # 1 - pixels in dest_surface will be changed to 'set_color'.
+                          # 0 - we do not change 'dest_surf', just count. Make dest_surf=None.
+                          # 2 - pixels set in 'dest_surf' will be from 'surface'.
+    search_surf = None    # None - search against 'search_color' instead.
+                          # Surface - look at the color in here rather than 'search_color'.
+    inverse_set = False   # False - pixels outside of threshold are changed.
+                          # True - pixels within threshold are changed.
+    */
+    static char *kwlist[] =  {
+        "dest_surf",
+        "surf",
+        "search_color",
+        "threshold",
+        "set_color",
+        "set_behavior",
+        "search_surf",
+        "inverse_set",
+        0
+    };
+
+    /* Get all the arguments into our variables.
+
+    https://docs.python.org/3/c-api/arg.html#c.PyArg_ParseTupleAndKeywords
+    https://docs.python.org/3/c-api/arg.html#parsing-arguments
+    */
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O!O!O|OOiO!i", kwlist,
+        /* required */
+        &PySurface_Type, &dest_surf_obj,   /* O! python object from c type  */
+        &PySurface_Type, &surfobj2,        /* O! python object from c type */
+        &rgba_obj_color,                   /* O| python object. All after | optional. */
+        /* optional */
+        &rgba_obj_threshold,               /* O  python object. */
+        &rgba_obj_diff_color,              /* O  python object. */
+        &change_return,                    /* i  plain python int. */
+        &PySurface_Type, &surfobj3,        /* O! python object from c type */
+        &inverse))                         /* i  plain python int. */
         return NULL;
 
-
-
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|iO&O&", kwlist,
-                                     &textobj, &style,
-                                     obj_to_rotation, (void *)&rotation,
-                                     obj_to_scale, (void *)&face_size))
-        goto error;
-
-
-
-
-    destsurf = PySurface_AsSurface (surfobj);
+    dest_surf = PySurface_AsSurface (dest_surf_obj);
     surf = PySurface_AsSurface (surfobj2);
     if(surfobj3) {
         surf2 = PySurface_AsSurface (surfobj3);
     }
 
-
+    printf("surf\n");
 
     if (PyInt_Check (rgba_obj_color)) {
         color = (Uint32) PyInt_AsLong (rgba_obj_color);
@@ -1856,6 +1858,7 @@ static PyObject* surf_threshold(PyObject* self, PyObject* arg, PyObject *kwds)
     } else {
         return RAISE (PyExc_TypeError, "invalid color argument");
     }
+    printf("surf2\n");
 
     if(rgba_obj_threshold) {
 
@@ -1880,6 +1883,7 @@ static PyObject* surf_threshold(PyObject* self, PyObject* arg, PyObject *kwds)
                                        rgba_threshold[2],
                                        rgba_threshold[3]);
     }
+    printf("surf3\n");
 
     if(rgba_obj_diff_color) {
 
@@ -1903,19 +1907,23 @@ static PyObject* surf_threshold(PyObject* self, PyObject* arg, PyObject *kwds)
                                         rgba_diff_color[2],
                                         rgba_diff_color[3]);
     }
+    printf("surf4\n");
 
     bpp = surf->format->BytesPerPixel;
 
-    PySurface_Lock(surfobj);
+    PySurface_Lock(dest_surf_obj);
     PySurface_Lock(surfobj2);
+    printf("surf5\n");
 
     if(surfobj3) {
         PySurface_Lock(surfobj3);
     }
+    printf("surf5.1\n");
     Py_BEGIN_ALLOW_THREADS;
 
+    printf("surf6\n");
 
-    num_threshold_pixels = get_threshold (destsurf,
+    num_threshold_pixels = get_threshold (dest_surf,
                                           surf,
                                           surf2,
                                           color,
@@ -1924,15 +1932,17 @@ static PyObject* surf_threshold(PyObject* self, PyObject* arg, PyObject *kwds)
                                           change_return,
                                           inverse);
 
+    printf("surf7\n");
 
     Py_END_ALLOW_THREADS;
 
-    PySurface_Unlock(surfobj);
+    PySurface_Unlock(dest_surf_obj);
     PySurface_Unlock(surfobj2);
     if(surfobj3) {
         PySurface_Unlock(surfobj3);
     }
 
+    printf("surf8\n");
     return PyInt_FromLong (num_threshold_pixels);
 }
 
@@ -2829,7 +2839,12 @@ static PyMethodDef _transform_methods[] =
     { "set_smoothscale_backend", (PyCFunction) surf_set_smoothscale_backend,
           METH_VARARGS | METH_KEYWORDS,
           DOC_PYGAMETRANSFORMSETSMOOTHSCALEBACKEND },
-    { "threshold", surf_threshold, METH_VARARGS, DOC_PYGAMETRANSFORMTHRESHOLD },
+    {
+        "threshold",
+        (PyCFunction) surf_threshold,
+        METH_VARARGS | METH_KEYWORDS,
+        DOC_PYGAMETRANSFORMTHRESHOLD
+    },
     { "laplacian", surf_laplacian, METH_VARARGS, DOC_PYGAMETRANSFORMTHRESHOLD },
     { "average_surfaces", surf_average_surfaces, METH_VARARGS, DOC_PYGAMETRANSFORMAVERAGESURFACES },
     { "average_color", surf_average_color, METH_VARARGS, DOC_PYGAMETRANSFORMAVERAGECOLOR },
