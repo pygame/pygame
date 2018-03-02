@@ -257,6 +257,38 @@ class TransformModuleTest( unittest.TestCase ):
             self.assertEqual(dest_surface.get_at(pt), change_color)
 
 
+    def test_threshold_count(self):
+        """ counts the colors, and not changes them.
+        """
+        surf_size = (32, 32)
+        surf = pygame.Surface(surf_size, pygame.SRCALPHA, 32)
+        search_color = (55, 55, 55, 255)
+        original_color = (10, 10, 10, 255)
+
+        surf.fill(original_color)
+        # set 2 pixels to the color we are searching for.
+        surf.set_at((0, 0), search_color)
+        surf.set_at((12, 5), search_color)
+
+        self.assertRaises(TypeError, pygame.transform.threshold,
+            None,
+            surf,
+            search_color)
+
+        # num_threshold_pixels = pygame.transform.threshold(
+        #     None,
+        #     surf,
+        #     search_color)
+
+        # # 32x32 -> 1024. 1022 are within the threshold. 2 are not.
+        # num_pixels_within = (32 * 32) - 2
+        # self.assertEqual(num_threshold_pixels, num_pixels_within)
+        # # no pixels changed.
+        # self.assertEqual(dest_surf.get_at((0, 0)), original_color)
+        # self.assertEqual(dest_surf.get_at((12, 5)), original_color)
+        # self.assertEqual(dest_surf.get_at((2, 2)), original_color)
+
+
     def test_threshold_inverse_set(self):
         """ changes the pixels within the threshold, and outside.
         """
