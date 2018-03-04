@@ -1546,6 +1546,9 @@ get_threshold (
     Uint8 dr, dg, db, da;
     Uint8 tr, tg, tb, ta;
 
+    Uint8 r2, g2, b2, a2;
+    int within_threshold;
+
     similar = 0;
     pixels = (Uint8 *) surf->pixels;
     format = surf->format;
@@ -1559,13 +1562,19 @@ get_threshold (
     gloss = format->Gloss;
     bloss = format->Bloss;
 
+
+    printf("inverse_set:%i\n", inverse_set);
+
     if (set_behavior) {
         sdlrect.x = sdlrect.y = 0;
         sdlrect.w = dest_surf->w;
         sdlrect.h = dest_surf->h;
         destpixels = (Uint8 *) dest_surf->pixels;
         destformat = dest_surf->format;
-        result = SDL_FillRect(dest_surf, &sdlrect, color_set_color);
+        // result = SDL_FillRect(dest_surf, &sdlrect, color_set_color);
+        if (!search_surf) {
+            result = SDL_FillRect(dest_surf, &sdlrect, color_set_color);
+        }
     } else { /* make gcc stop complaining */
         destpixels = NULL;
         destformat = NULL;
@@ -1591,15 +1600,16 @@ get_threshold (
         pixels2 = NULL;
     }
 
+
     SDL_GetRGBA (color_search_color, format, &r, &g, &b, &a);
     SDL_GetRGBA (color_threshold, format, &tr, &tg, &tb, &ta);
     SDL_GetRGBA (color_set_color, format, &dr, &dg, &db, &da);
 
     for(y=0; y < surf->h; y++) {
         pixels = (Uint8 *) surf->pixels + y*surf->pitch;
-        if (search_surf) {
+        if (search_surf)
             pixels2 = (Uint8 *) search_surf->pixels + y*search_surf->pitch;
-        }
+
         for(x=0; x < surf->w; x++) {
             /* the_color = surf->get_at(x,y) */
             switch (format->BytesPerPixel)
@@ -1652,41 +1662,63 @@ get_threshold (
                     break;
                 }
 
-                if (((abs((((the_color2 & rmask2) >> rshift2) << rloss2) - (((the_color & rmask) >> rshift) << rloss)) <= tr) &
-                     (abs((((the_color2 & gmask2) >> gshift2) << gloss2) - (((the_color & gmask) >> gshift) << gloss)) <= tg) &
-                     (abs((((the_color2 & bmask2) >> bshift2) << bloss2) - (((the_color & bmask) >> bshift) << bloss)) <= tb))
-                    ^ inverse_set) {
+                /* search_surf(the_color2) is within threshold of surf(the_color) */
+                r2 = (((the_color2 & rmask2) >> rshift2) << rloss2);
+                g2 = (((the_color2 & gmask2) >> gshift2) << gloss2);
+                b2 = (((the_color2 & bmask2) >> bshift2) << bloss2);
+
+                r = (((the_color & rmask) >> rshift) << rloss);
+                g = (((the_color & gmask) >> gshift) << gloss);
+                b = (((the_color & bmask) >> bshift) << bloss);
+                within_threshold = (
+                    (abs((int)r2 - (int)r) <= tr) &&
+                    (abs((int)g2 - (int)g) <= tg) &&
+                    (abs((int)b2 - (int)b) <= tb)
+                );
+
+                if (within_threshold)
+                    similar++;
+
+                // printf("within_threshold&&inverse_set%i:\n", within_threshold && inverse_set);
+
+                /* should we change the pixel? */
+                if ((within_threshold && inverse_set) || (!within_threshold)) {
+
+                    printf("doing some setting\n");
+
                     /* this pixel is within the color_threshold of the pixel in the
                        other surface. */
                     if (set_behavior == 2) {
-                        /* change the pixel to the color from the first surface.  */
+                        printf("set_behavior == 2\n");
+                        /* change the pixel to the color from the search_surf.  */
 
-                        /* dest_surf->set_at((x,y), the_color) */
+                        /* dest_surf->set_at((x,y), the_color2) */
                         switch (destformat->BytesPerPixel) {
                         case 1:
-                            *((Uint8 *) destpixels + y * dest_surf->pitch + x) = (Uint8) the_color;
+                            *((Uint8 *) destpixels + y * dest_surf->pitch + x) = (Uint8) the_color2;
                             break;
                         case 2:
-                            *((Uint16 *) (destpixels + y * dest_surf->pitch) + x) = (Uint16) the_color;
+                            *((Uint16 *) (destpixels + y * dest_surf->pitch) + x) = (Uint16) the_color2;
                             break;
                         case 3:
                             byte_buf = (Uint8 *) (destpixels + y * dest_surf->pitch) + x * 3;
 #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
-                            *(byte_buf + (destformat->Rshift >> 3)) = (Uint8) (the_color >> 16);
-                            *(byte_buf + (destformat->Gshift >> 3)) = (Uint8) (the_color >> 8);
-                            *(byte_buf + (destformat->Bshift >> 3)) = (Uint8) the_color;
+                            *(byte_buf + (destformat->Rshift >> 3)) = (Uint8) (the_color2 >> 16);
+                            *(byte_buf + (destformat->Gshift >> 3)) = (Uint8) (the_color2 >> 8);
+                            *(byte_buf + (destformat->Bshift >> 3)) = (Uint8) the_color2;
 #else
-                            *(byte_buf + 2 - (destformat->Rshift >> 3)) = (Uint8) (the_color >> 16);
-                            *(byte_buf + 2 - (destformat->Gshift >> 3)) = (Uint8) (the_color >> 8);
-                            *(byte_buf + 2 - (destformat->Bshift >> 3)) = (Uint8) the_color;
+                            *(byte_buf + 2 - (destformat->Rshift >> 3)) = (Uint8) (the_color2 >> 16);
+                            *(byte_buf + 2 - (destformat->Gshift >> 3)) = (Uint8) (the_color2 >> 8);
+                            *(byte_buf + 2 - (destformat->Bshift >> 3)) = (Uint8) the_color2;
 #endif
                             break;
                         default:                  /* case 4: */
-                            *((Uint32 *) (destpixels + y * dest_surf->pitch) + x) = the_color;
+                            *((Uint32 *) (destpixels + y * dest_surf->pitch) + x) = the_color2;
                             break;
                         }
                     }
                     else if (set_behavior == 1) {
+                        printf("set_behavior == 1\n");
                         /* change the pixel to color_set_color.  */
                         /* dest_surf->set_at((x,y), color_set_color) */
                         switch (destformat->BytesPerPixel) {
@@ -1713,14 +1745,14 @@ get_threshold (
                             break;
                         }
                     }
-
-                    similar++;
                 }
-
             } else if (((abs((((the_color & rmask) >> rshift) << rloss) - r) <= tr) &
                         (abs((((the_color & gmask) >> gshift) << gloss) - g) <= tg) &
                         (abs((((the_color & bmask) >> bshift) << bloss) - b) <= tb))
                        ^ inverse_set) {
+
+
+                printf("Comparing the color_threshold against the color\n");
 
                 /* Comparing the color_threshold against the color. */
 
@@ -1859,6 +1891,8 @@ surf_threshold(PyObject *self, PyObject *args, PyObject *kwds)
 
     /*
     https://www.pygame.org/docs/ref/transform.html#pygame.transform.threshold
+
+    Returns the number of pixels within the threshold.
     */
     static char *kwlist[] =  {
         "dest_surf",    /* Surface we are changing. See 'set_behavior'.
