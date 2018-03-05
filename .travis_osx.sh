@@ -6,10 +6,10 @@ set -e
 # Travis overrides cd to do something with Ruby. Revert to the default.
 unset -f cd
 
-git clone https://github.com/MacPython/terryfy.git
+git clone https://github.com/illume/terryfy.git
 cd terryfy
 # Work with a specific commit
-git checkout 703737bd7be3a5d388146d5a95241ec2a17a4b2c
+#git checkout 703737bd7be3a5d388146d5a95241ec2a17a4b2c
 cd ..
 source terryfy/travis_tools.sh
 
