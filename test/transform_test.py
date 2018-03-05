@@ -200,7 +200,6 @@ class TransformModuleTest( unittest.TestCase ):
         self.assertEqual(w*h, pixels_within_threshold)
 
 
-
     def test_threshold_dest_surf_not_change(self):
         """ the pixels within the threshold.
 
@@ -223,12 +222,9 @@ class TransformModuleTest( unittest.TestCase ):
         search_surf.fill(threshold_color)
         dest_surf.fill(original_dest_color)
 
-        dest_rect = dest_surf.get_rect()
-
         # set_behavior=1, set dest_surface from set_color.
         # all within threshold of third_surface, so no color is set.
 
-        print('test_threshold_dest_surf_not_change')
         THRESHOLD_BEHAVIOR_FROM_SEARCH_COLOR = 1
         pixels_within_threshold = pygame.transform.threshold(
             dest_surf=dest_surf,
@@ -256,29 +252,43 @@ class TransformModuleTest( unittest.TestCase ):
             self.assertEqual(dest_surf.get_at(pt), original_dest_color)
 
 
+    def test_threshold_dest_surf_all_changed(self):
+        """ Lowering the threshold, expecting changed surface
+        """
 
-        ################################################################
-        # Lowering the threshold, expecting changed surface
+        (w, h) = size = (32, 32)
+        threshold = (20, 20, 20, 20)
+        original_color = (25, 25, 25, 25)
+        original_dest_color = (65, 65, 65, 55)
+        threshold_color = (10, 10, 10, 10)
+        set_color = (255, 10, 10, 10)
+
+        surf = pygame.Surface(size, pygame.SRCALPHA, 32)
+        dest_surf = pygame.Surface(size, pygame.SRCALPHA, 32)
+        search_surf = pygame.Surface(size, pygame.SRCALPHA, 32)
+
+        surf.fill(original_color)
+        search_surf.fill(threshold_color)
+        dest_surf.fill(original_dest_color)
+
+        THRESHOLD_BEHAVIOR_FROM_SEARCH_COLOR = 1
         pixels_within_threshold = pygame.transform.threshold (
             dest_surf,
             surf,
             search_color=None,
             set_color=set_color,
-            set_behavior=1,
+            set_behavior=THRESHOLD_BEHAVIOR_FROM_SEARCH_COLOR,
             search_surf=search_surf,
         )
 
-        # Return, of pixels within threshold is correct
         self.assertEqual(0, pixels_within_threshold)
 
-        # Size of dest surface is correct
         dest_rect = dest_surf.get_rect()
         dest_size = dest_rect.size
         self.assertEqual(size, dest_size)
 
         # The color is the set_color specified for every pixel As all
         # pixels are not within threshold
-
         for pt in test_utils.rect_area_pts(dest_rect):
             self.assertEqual(dest_surf.get_at(pt), set_color)
 
@@ -401,7 +411,7 @@ class TransformModuleTest( unittest.TestCase ):
 
 
     def test_threshold_inverse_set(self):
-        """ changes the pixels within the threshold, and outside.
+        """ changes the pixels within the threshold, and not outside.
         """
         surf_size = (32, 32)
         _dest_surf = pygame.Surface(surf_size, pygame.SRCALPHA, 32)
@@ -412,15 +422,10 @@ class TransformModuleTest( unittest.TestCase ):
         search_color = (55, 55, 55, 255)   # color we are searching for.
         threshold = (0, 0, 0, 0)           # within this distance from search_color.
         set_color = (5, 5, 5, 255)         # color we set.
-        set_behavior = 1                   # pixels in dest_surface will be changed to color.
-        search_surf = None                 # we are not comparing colors against a second surface.
         inverse_set = 1                    # pixels within threshold are changed to 'set_color'
 
 
         original_color = (10, 10, 10, 255)
-        # raise ValueError('asdf')
-
-        # fill the surface with colors we are not looking for.
         surf.fill(original_color)
         # set 2 pixels to the color we are searching for.
         surf.set_at((0, 0), search_color)
@@ -433,15 +438,15 @@ class TransformModuleTest( unittest.TestCase ):
 
 
         print("test_threshold_inverse_set")
+        THRESHOLD_BEHAVIOR_FROM_SEARCH_COLOR = 1
         num_threshold_pixels = pygame.transform.threshold(
             dest_surf,
             surf,
-            search_color,
-            threshold,
-            set_color,
-            set_behavior,
-            search_surf,
-            inverse_set)
+            search_color=search_color,
+            threshold=threshold,
+            set_color=set_color,
+            set_behavior=THRESHOLD_BEHAVIOR_FROM_SEARCH_COLOR,
+            inverse_set=1)
 
         # 32x32 -> 1024. 1022 are within the threshold. 2 are not.
         num_pixels_within = (32 * 32) - 2
