@@ -146,70 +146,111 @@ __version__ = ver
 
 # next, the "standard" modules
 # we still allow them to be missing for stripped down pygame distributions
+_import_failed = False
 try:
     import pygame.math
 except (ImportError, IOError):
+    _import_failed = geterror()
+if _import_failed:
+    # jedi is confused by assignment inside exception handlers.
     math = MissingModule("math", geterror(), 1)
 
+_import_failed = False
 try:
     import pygame.cdrom
 except (ImportError, IOError):
+    _import_failed = geterror()
+if _import_failed:
     cdrom = MissingModule("cdrom", geterror(), 1)
 
+_import_failed = False
 try:
     import pygame.cursors
 except (ImportError, IOError):
+    _import_failed = geterror()
+if _import_failed:
     cursors = MissingModule("cursors", geterror(), 1)
 
+_import_failed = False
 try:
     import pygame.display
 except (ImportError, IOError):
+    _import_failed = geterror()
+if _import_failed:
     display = MissingModule("display", geterror(), 1)
 
+_import_failed = False
 try:
     import pygame.draw
 except (ImportError, IOError):
-    draw = MissingModule("draw", geterror(), 1)
+    _import_failed = geterror()
+if _import_failed:
+    draw = MissingModule("draw", _import_failed, 1)
 
+
+_import_failed = False
 try:
     import pygame.event
 except (ImportError, IOError):
+    _import_failed = geterror()
+if _import_failed:
     event = MissingModule("event", geterror(), 1)
 
+_import_failed = False
 try:
     import pygame.image
 except (ImportError, IOError):
+    _import_failed = geterror()
+if _import_failed:
     image = MissingModule("image", geterror(), 1)
 
+_import_failed = False
 try:
     import pygame.joystick
 except (ImportError, IOError):
+    _import_failed = geterror()
+if _import_failed:
     joystick = MissingModule("joystick", geterror(), 1)
 
+_import_failed = False
 try:
     import pygame.key
 except (ImportError, IOError):
+    _import_failed = geterror()
+if _import_failed:
     key = MissingModule("key", geterror(), 1)
 
+_import_failed = False
 try:
     import pygame.mouse
 except (ImportError, IOError):
+    _import_failed = geterror()
+if _import_failed:
     mouse = MissingModule("mouse", geterror(), 1)
 
+_import_failed = False
 try:
     import pygame.sprite
 except (ImportError, IOError):
+    _import_failed = geterror()
+if _import_failed:
     sprite = MissingModule("sprite", geterror(), 1)
 
 
+_import_failed = False
 try:
     import pygame.threads
 except (ImportError, IOError):
+    _import_failed = geterror()
+if _import_failed:
     threads = MissingModule("threads", geterror(), 1)
 
+_import_failed = False
 try:
     import pygame.pixelcopy
 except (ImportError, IOError):
+    _import_failed = geterror()
+if _import_failed:
     pixelcopy = MissingModule("pixelcopy", geterror(), 1)
 
 
@@ -267,38 +308,57 @@ def warn_unwanted_files():
 # warn_unwanted_files()
 
 
+_import_failed = False
 try:
     from pygame.surface import *
 except (ImportError, IOError):
+    _import_failed = geterror()
+if _import_failed:
     Surface = lambda: Missing_Function
 
 
+_import_failed = False
 try:
     import pygame.mask
     from pygame.mask import Mask
 except (ImportError, IOError):
+    _import_failed = geterror()
+if _import_failed:
     Mask = lambda: Missing_Function
 
+_import_failed = False
 try:
     from pygame.pixelarray import *
 except (ImportError, IOError):
+    _import_failed = geterror()
+if _import_failed:
     PixelArray = lambda: Missing_Function
 
+_import_failed = False
 try:
     from pygame.overlay import *
 except (ImportError, IOError):
+    _import_failed = geterror()
+if _import_failed:
     Overlay = lambda: Missing_Function
 
+_import_failed = False
 try:
     import pygame.time
 except (ImportError, IOError):
+    _import_failed = geterror()
+if _import_failed:
     time = MissingModule("time", geterror(), 1)
 
+_import_failed = False
 try:
     import pygame.transform
 except (ImportError, IOError):
+    _import_failed = geterror()
+if _import_failed:
     transform = MissingModule("transform", geterror(), 1)
 
+_import_failed = False
 # lastly, the "optional" pygame modules
 if 'PYGAME_FREETYPE' in os.environ:
     try:
@@ -313,48 +373,71 @@ try:
     pygame.font.get_fonts = pygame.sysfont.get_fonts
     pygame.font.match_font = pygame.sysfont.match_font
 except (ImportError, IOError):
+    _import_failed = geterror()
+if _import_failed:
     font = MissingModule("font", geterror(), 0)
 
+_import_failed = False
 # try and load pygame.mixer_music before mixer, for py2app...
 try:
     import pygame.mixer_music
     #del pygame.mixer_music
     #print ("NOTE2: failed importing pygame.mixer_music in lib/__init__.py")
 except (ImportError, IOError):
+    _import_failed = geterror()
+if _import_failed:
     pass
 
+_import_failed = False
 try:
     import pygame.mixer
 except (ImportError, IOError):
+    _import_failed = geterror()
+if _import_failed:
     mixer = MissingModule("mixer", geterror(), 0)
 
+_import_failed = False
 try:
     import pygame.movie
 except (ImportError, IOError):
+    _import_failed = geterror()
+if _import_failed:
     movie = MissingModule("movie", geterror(), 0)
 
 # try: import pygame.movieext
 # except (ImportError,IOError):movieext=MissingModule("movieext",
 # geterror(), 0)
 
+_import_failed = False
 try:
     import pygame.scrap
 except (ImportError, IOError):
+    _import_failed = geterror()
+if _import_failed:
     scrap = MissingModule("scrap", geterror(), 0)
 
+_import_failed = False
 try:
     import pygame.surfarray
 except (ImportError, IOError):
+    _import_failed = geterror()
+if _import_failed:
     surfarray = MissingModule("surfarray", geterror(), 0)
 
+_import_failed = False
 try:
     import pygame.sndarray
 except (ImportError, IOError):
+    _import_failed = geterror()
+if _import_failed:
     sndarray = MissingModule("sndarray", geterror(), 0)
 
+_import_failed = False
 try:
     import pygame.fastevent
 except (ImportError, IOError):
+    _import_failed = geterror()
+if _import_failed:
     fastevent = MissingModule("fastevent", geterror(), 0)
 
 # there's also a couple "internal" modules not needed
@@ -406,4 +489,4 @@ copy_reg.pickle(Color, __color_reduce, __color_constructor)
 
 
 # cleanup namespace
-del pygame, os, sys, surflock, MissingModule, copy_reg, geterror, PY_MAJOR_VERSION
+del pygame, os, sys, surflock, MissingModule, copy_reg, geterror, PY_MAJOR_VERSION, _import_failed
