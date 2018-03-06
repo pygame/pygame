@@ -371,8 +371,8 @@ class TransformModuleTest( unittest.TestCase ):
 
         # We look to see if colors in search_surf are in surf.
         num_threshold_pixels = pygame.transform.threshold(
-            dest_surf,
-            surf,
+            dest_surf=dest_surf,
+            surf=surf,
             search_color=None,
             set_color=None,
             set_behavior=THRESHOLD_BEHAVIOR_FROM_SEARCH_SURF,

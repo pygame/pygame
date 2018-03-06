@@ -199,53 +199,67 @@ Instead, always begin with the original image and scale to the desired size.)
 
 .. function:: threshold
 
+   | :sl:`finds which, and how many pixels in a surface are within a threshold of a 'search_color' or a 'search_surf'.`
+   | :sg:`threshold(dest_surf, surf, search_color, threshold=(0,0,0,0), set_color=(0,0,0,0), set_behavior=1, search_surf=None, inverse_set=False) -> num_threshold_pixels`
 
-   TODO: new names and a better explanation.
-        # dest_surf                  # Surface we are changing. See 'set_behavior'.
-        #                            # None - if counting (set_behavior is 0), don't need 'dest_surf'.
-        # surf                       # Surface we are looking at.
-        # search_color               # Color we are searching for.
-        # threshold = (0,0,0,0)      # Within this distance from search_color (or search_surf).
-        # set_color = (0,0,0,0)      # color we set.
-        # set_behavior = 1           # 1 - pixels in dest_surface will be changed to 'set_color'.
-        #                            # 0 - we do not change 'dest_surf', just count. Make dest_surf=None.
-        #                            # 2 - pixels set in 'dest_surf' will be from 'surface'.
-        # search_surf = None         # None - search against 'search_color' instead.
-        #                            # Surface - look at the color in here rather than 'search_color'.
-        # inverse_set = False        # False - pixels outside of threshold are changed.
-        #                            # True - pixels within threshold are changed.
+   This versatile function can be used for find colors in a 'surf' close to a 'search_color'
+   or close to colors in a separate 'search_surf'.
 
+   It can also be used to transfer pixels into a 'dest_surf' that match or don't match.
 
+   By default it sets pixels in the 'dest_surf' where all of the pixels NOT within the
+   threshold are changed to set_color. If inverse_set is optionally set to True,
+   the pixels that ARE within the threshold are changed to set_color.
 
-   | :sl:`finds which, and how many pixels in a surface are within a threshold of a color.`
-   | :sg:`threshold(DestSurface, Surface, color, threshold = (0,0,0,0), diff_color = (0,0,0,0), change_return = 1, Surface = None, inverse = False) -> num_threshold_pixels`
+   If the optional 'search_surf' surface is given, it is used to threshold against
+   rather than the specified 'set_color'. That is, it will find each pixel in the
+   'surf' that is within the 'threshold' of the pixel at the same coordinates
+   of the 'search_surf'.
 
-   Finds which, and how many pixels in a surface are within a threshold of a
-   color.
+   :param dest_surf: Surface we are changing. See 'set_behavior'.
+    Should be None if counting (set_behavior is 0).
+   :type dest_surf: pygame.Surface or None
 
-   It can set the destination surface where all of the pixels not within the
-   threshold are changed to diff_color. If inverse is optionally set to True,
-   the pixels that are within the threshold are instead changed to diff_color.
+   :param pygame.Surface surf: Surface we are looking at.
 
-   If the optional second surface is given, it is used to threshold against
-   rather than the specified color. That is, it will find each pixel in the
-   first Surface that is within the threshold of the pixel at the same
-   coordinates of the second Surface.
+   :param pygame.Color search_color: Color we are searching for.
 
-   If change_return is set to 0, it can be used to just count the number of
-   pixels within the threshold if you set
+   :param pygame.Color threshold: Within this distance from search_color (or search_surf).
+     You can use a threshold of (r,g,b,a) where the r,g,b can have different
+     thresholds. So you could use an r threshold of 40 and a blue threshold of 2
+     if you like.
 
-   If change_return is set to 1, the pixels set in DestSurface will be those
-   from the color.
+   :param set_color: Color we set in dest_surf.
+   :type set_color: pygame.Color or None
 
-   If change_return is set to 2, the pixels set in DestSurface will be those
-   from the first Surface.
+   :param int set_behavior:
+    - set_behavior=1 (default). Pixels in dest_surface will be changed to 'set_color'.
+    - set_behavior=0 we do not change 'dest_surf', just count. Make dest_surf=None.
+    - set_behavior=2 pixels set in 'dest_surf' will be from 'surf'.
 
-   You can use a threshold of (r,g,b,a) where the r,g,b can have different
-   thresholds. So you could use an r threshold of 40 and a blue threshold of 2
-   if you like.
+   :param search_surf:
+    - search_surf=None (default). Search against 'search_color' instead.
+    - search_surf=Surface. Look at the color in 'search_surf' rather than using 'search_color'.
+   :type search_surf: pygame.Surface or None
+
+   :param bool inverse_set:
+     - False, default. Pixels outside of threshold are changed.
+     - True, Pixels within threshold are changed.
+
+   :rtype: int
+   :returns: The number of pixels that are within the 'threshold' in 'surf'
+     compared to either 'search_color' or `search_surf`.
+
+   :Examples:
+
+   See the threshold tests for a full of examples: https://github.com/pygame/pygame/blob/master/test/transform_test.py
+
+   .. literalinclude:: ../../../test/transform_test.py
+      :pyobject: TransformModuleTest.test_threshold_dest_surf_not_change
+
 
    New in pygame 1.8
+   1.9.4 fixed a lot of bugs and added keyword arguments. Test your code.
 
    .. ## pygame.transform.threshold ##
 
