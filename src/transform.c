@@ -1881,6 +1881,13 @@ surf_threshold(PyObject *self, PyObject *args, PyObject *kwds)
             return RAISE (PyExc_TypeError, "invalid set_color argument");
     }
 
+    if (dest_surf && surf && (surf->h != dest_surf->h || surf->w != dest_surf->w)) {
+        return RAISE (PyExc_TypeError, "surf and dest_surf not the same size");
+    }
+    if (search_surf && surf && (surf->h != search_surf->h || surf->w != search_surf->w)) {
+        return RAISE (PyExc_TypeError, "surf and search_surf not the same size");
+    }
+
     if (dest_surf)
         PySurface_Lock(dest_surf_obj);
     PySurface_Lock(surf_obj);
