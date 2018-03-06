@@ -1524,6 +1524,48 @@ surf_set_smoothscale_backend (PyObject *self, PyObject *args, PyObject *kwds)
 
  */
 
+/* For iterating over pixels in a Surface.
+the_color is set.
+pixels is advanced by one pixel.
+
+_get_color_move_pixels(surf->format->BytesPerPixel, pixels, &the_color) {
+
+ */
+void
+_get_color_move_pixels(
+    Uint8 bpp,
+    Uint8 *pixels,
+    Uint32 *the_color
+) {
+    Uint8 *pix;
+
+    switch (bpp)
+    {
+    case 1:
+        *the_color = (Uint32)*((Uint8 *) pixels);
+        pixels++;
+        break;
+    case 2:
+        *the_color = (Uint32)*((Uint16 *) pixels);
+        pixels += 2;
+        break;
+    case 3:
+        pix = ((Uint8 *) pixels);
+        pixels += 3;
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+        *the_color = (pix[0]) + (pix[1] << 8) + (pix[2] << 16);
+#else
+        *the_color = (pix[2]) + (pix[1] << 8) + (pix[0] << 16);
+#endif
+        break;
+    default:                  /* case 4: */
+        *the_color = *((Uint32 *) pixels);
+        pixels += 4;
+        break;
+    }
+}
+
+
 static int
 get_threshold (
     SDL_Surface *dest_surf,
@@ -1543,6 +1585,7 @@ get_threshold (
     Uint32 the_color, the_color2, rmask, gmask, bmask, rmask2, gmask2, bmask2;
     Uint8 *pix, *byte_buf;
     Uint8 r, g, b, a;
+    Uint8 surf_r, surf_g, surf_b;
     Uint8 dr, dg, db, da;
     Uint8 tr, tg, tb, ta;
 
@@ -1611,71 +1654,26 @@ get_threshold (
             pixels2 = (Uint8 *) search_surf->pixels + y*search_surf->pitch;
 
         for(x=0; x < surf->w; x++) {
-            /* the_color = surf->get_at(x,y) */
-            switch (format->BytesPerPixel)
-            {
-            case 1:
-                the_color = (Uint32)*((Uint8 *) pixels);
-                pixels++;
-                break;
-            case 2:
-                the_color = (Uint32)*((Uint16 *) pixels);
-                pixels += 2;
-                break;
-            case 3:
-                pix = ((Uint8 *) pixels);
-                pixels += 3;
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
-                the_color = (pix[0]) + (pix[1] << 8) + (pix[2] << 16);
-#else
-                the_color = (pix[2]) + (pix[1] << 8) + (pix[0] << 16);
-#endif
-                break;
-            default:                  /* case 4: */
-                the_color = *((Uint32 *) pixels);
-                pixels += 4;
-                break;
-            }
+            /* the_color = surf->get_at(x,y)
+               pixels++;
+            */
+            _get_color_move_pixels(surf->format->BytesPerPixel, pixels, &the_color);
 
             if (search_surf) {
-                switch (format2->BytesPerPixel) {
-                case 1:
-                    the_color2 = (Uint32)*((Uint8 *) pixels2);
-                    pixels2++;
-                    break;
-                case 2:
-                    the_color2 = (Uint32)*((Uint16 *) pixels2);
-                    pixels2 += 2;
-                    break;
-                case 3:
-                    pix = ((Uint8 *) pixels2);
-                    pixels2 += 3;
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
-                    the_color2 = (pix[0]) + (pix[1] << 8) + (pix[2] << 16);
-#else
-                    the_color2 = (pix[2]) + (pix[1] << 8) + (pix[0] << 16);
-#endif
-                    break;
-                default:                  /* case 4: */
-                    the_color2 = *((Uint32 *) pixels2);
-                    pixels2 += 4;
-                    break;
-                }
+                SDL_GetRGB(the_color, surf->format, &surf_r, &surf_g, &surf_b);
+
+                /*the_color2 = search_surf->get_at(x,y)
+                pixels2++;
+                */
+                _get_color_move_pixels(search_surf->format->BytesPerPixel, pixels2, &the_color2);
+                SDL_GetRGB(the_color2, search_surf->format, &r2, &g2, &b2);
 
                 /* search_surf(the_color2) is within threshold of surf(the_color) */
-                r2 = (((the_color2 & rmask2) >> rshift2) << rloss2);
-                g2 = (((the_color2 & gmask2) >> gshift2) << gloss2);
-                b2 = (((the_color2 & bmask2) >> bshift2) << bloss2);
-
-                r = (((the_color & rmask) >> rshift) << rloss);
-                g = (((the_color & gmask) >> gshift) << gloss);
-                b = (((the_color & bmask) >> bshift) << bloss);
                 within_threshold = (
-                    (abs((int)r2 - (int)r) <= tr) &&
-                    (abs((int)g2 - (int)g) <= tg) &&
-                    (abs((int)b2 - (int)b) <= tb)
+                    (abs((int)r2 - (int)surf_r) <= tr) &&
+                    (abs((int)g2 - (int)surf_g) <= tg) &&
+                    (abs((int)b2 - (int)surf_b) <= tb)
                 );
-
                 if (within_threshold)
                     similar++;
 
