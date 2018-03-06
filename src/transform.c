@@ -1529,24 +1529,11 @@ surf_set_smoothscale_backend (PyObject *self, PyObject *args, PyObject *kwds)
 #endif
 
 
-/*
-    num_threshold_pixels = get_threshold(dest_surf,
-                                         surf,
-                                         color_search_color,
-                                         color_threshold,
-                                         color_set_color,
-                                         set_behavior,
-                                         search_surf,
-                                         inverse_set);
+/* _get_color_move_pixels is for iterating over pixels in a Surface.
 
- */
-
-/* For iterating over pixels in a Surface.
-the_color is set.
-pixels is advanced by one pixel.
-
-_get_color_move_pixels(surf->format->BytesPerPixel, pixels, &the_color) {
-
+    bpp - bytes per pixel
+    the_color - is set for that pixel
+    pixels - pointer is advanced by one pixel.
  */
 static PG_INLINE void
 _get_color_move_pixels(
@@ -1582,10 +1569,14 @@ _get_color_move_pixels(
     }
 }
 
-/*
-_set_at_pixels(x, y, pixels, surf->format, surf->pitch, the_color)
+/* _set_at_pixels sets the pixel to the_color.
 
- */
+    x - x pos in the SDL_Surface pixels.
+    y - y pos in the SDL_Surface pixels.
+    format - of the SDL_Surface pixels.
+    pitch - of the SDL_Surface.
+    the_color - to set in the pixels at this position.
+*/
 static PG_INLINE void
 _set_at_pixels(
     int x,
@@ -1640,7 +1631,7 @@ get_threshold (
     Uint8 *pixels, *destpixels = NULL, *pixels2 = NULL;
     SDL_Rect sdlrect;
     SDL_PixelFormat *format, *destformat = NULL;
-    Uint32 the_color, the_color2;
+    Uint32 the_color, the_color2, dest_set_color;
     Uint8 search_color_r, search_color_g, search_color_b;
     Uint8 surf_r, surf_g, surf_b;
     Uint8 threshold_r, threshold_g, threshold_b;
@@ -1653,17 +1644,9 @@ get_threshold (
     format = surf->format;
 
     if (set_behavior) {
-        sdlrect.x = sdlrect.y = 0;
-        sdlrect.w = dest_surf->w;
-        sdlrect.h = dest_surf->h;
         destpixels = (Uint8 *) dest_surf->pixels;
         destformat = dest_surf->format;
-        // result = SDL_FillRect(dest_surf, &sdlrect, color_set_color);
-        if (!search_surf) {
-            result = SDL_FillRect(dest_surf, &sdlrect, color_set_color);
-        }
     }
-
     if (search_surf) {
         pixels2 = (Uint8 *) search_surf->pixels;
     }
@@ -1687,7 +1670,6 @@ get_threshold (
             SDL_GetRGB(the_color, surf->format, &surf_r, &surf_g, &surf_b);
 
             if (search_surf) {
-
                 /* Get search_surf.color */
                 _get_color_move_pixels(search_surf->format->BytesPerPixel,
                     pixels2,
@@ -1701,54 +1683,31 @@ get_threshold (
                     (abs((int)search_surf_g - (int)surf_g) <= threshold_g) &&
                     (abs((int)search_surf_b - (int)surf_b) <= threshold_b)
                 );
-                if (within_threshold)
-                    similar++;
-
-                if ((within_threshold && inverse_set) || (!within_threshold)) {
-
-                    /* this pixel is within the color_threshold of the pixel in the
-                       other surface. */
-                    if (set_behavior == 2) {
-                        _set_at_pixels(x, y, destpixels,
-                            dest_surf->format,
-                            dest_surf->pitch,
-                            the_color2);
-                    }
-                    else if (set_behavior == 1) {
-                        _set_at_pixels(x, y, destpixels, dest_surf->format,
-                            dest_surf->pitch,
-                            color_set_color);
-                    }
-                }
+                dest_set_color = ((set_behavior == 2) ? the_color2 : color_set_color);
             } else {
-
                 /* search_color within threshold of surf.the_color */
                 within_threshold = (
                     (abs((int)search_color_r - (int)surf_r) <= threshold_r) &&
                     (abs((int)search_color_g - (int)surf_g) <= threshold_g) &&
                     (abs((int)search_color_b - (int)surf_b) <= threshold_b)
                 );
-                if (within_threshold)
-                    similar++;
-                if ((within_threshold && inverse_set) || (!within_threshold)) {
-                    if (set_behavior == 2) {
-                        _set_at_pixels(x, y, destpixels, dest_surf->format,
-                            dest_surf->pitch,
-                            the_color);
-                    }
-                    else if (set_behavior == 1) {
-                        _set_at_pixels(x, y, destpixels, dest_surf->format,
-                            dest_surf->pitch,
-                            color_set_color);
-                    }
-                }
+                dest_set_color = ((set_behavior == 2) ? the_color : color_set_color);
+            }
+
+            if (within_threshold)
+                similar++;
+            if (set_behavior && ((within_threshold && inverse_set) || (!within_threshold))) {
+                _set_at_pixels(x, y, destpixels,
+                    dest_surf->format,
+                    dest_surf->pitch,
+                    dest_set_color);
             }
         }
     }
     return similar;
 }
 
-/* Gets a color from a python object.
+/* _color_from_obj gets a color from a python object.
 
 Returns 0 if ok, and sets color to the color.
    -1 means error.
