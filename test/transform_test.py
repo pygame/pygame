@@ -686,15 +686,16 @@ class TransformModuleTest( unittest.TestCase ):
         if 1:
             # only one pixel should not be changed.
             s1.fill((40, 40, 40))
-            s2.fill((255, 255, 255))
-            s1.set_at( (0,0), (170, 170, 170) )
+            s1.set_at((0, 0), (170, 170, 170))
+            THRESHOLD_BEHAVIOR_COUNT = 0
+
             num_threshold_pixels = threshold(
                 dest_surf=None,
                 surf=s1,
                 search_color=(30, 30, 30),
                 threshold=(11, 11, 11),
                 set_color=None,
-                set_behavior=0)
+                set_behavior=THRESHOLD_BEHAVIOR_COUNT)
 
             #num_threshold_pixels = threshold(s2, s1, (30,30,30))
             self.assertEqual(num_threshold_pixels, (s1.get_height() * s1.get_width()) -1)
@@ -708,26 +709,26 @@ class TransformModuleTest( unittest.TestCase ):
             s2.fill((255,255,255))
             s3.fill((255,255,255))
             s1.set_at( (0,0), (170, 170, 170) )
-            num_threshold_pixels = threshold(s3, s1, (254,254,254), (1,1,1),
-                                             (44,44,44,255), False)
+            num_threshold_pixels = threshold(None, s1, (254,254,254), (1,1,1),
+                                             None, THRESHOLD_BEHAVIOR_COUNT)
             self.assertEqual(num_threshold_pixels, (s1.get_height() * s1.get_width()) -1)
 
 
             # compare the two surfaces.  Should be all but one matching.
-            num_threshold_pixels = threshold(s3, s1, None, (1,1,1),
-                                             (44,44,44,255), False, s2)
+            num_threshold_pixels = threshold(None, s1, None, (1,1,1),
+                                             None, THRESHOLD_BEHAVIOR_COUNT, s2)
             self.assertEqual(num_threshold_pixels, (s1.get_height() * s1.get_width()) -1)
 
 
             # within (0,0,0) threshold?  Should match no pixels.
-            num_threshold_pixels = threshold(s3, s1, (253,253,253), (0,0,0),
-                                             (44,44,44,255), False)
+            num_threshold_pixels = threshold(None, s1, (253,253,253), (0,0,0),
+                                             None, THRESHOLD_BEHAVIOR_COUNT)
             self.assertEqual(num_threshold_pixels, 0)
 
 
             # other surface within (0,0,0) threshold?  Should match no pixels.
-            num_threshold_pixels = threshold(s3, s1, None, (0,0,0),
-                                             (44,44,44,255), False, s2)
+            num_threshold_pixels = threshold(None, s1, None, (0,0,0),
+                                             None, THRESHOLD_BEHAVIOR_COUNT, s2)
             self.assertEqual(num_threshold_pixels, 0)
 
 

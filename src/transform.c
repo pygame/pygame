@@ -1535,38 +1535,36 @@ surf_set_smoothscale_backend (PyObject *self, PyObject *args, PyObject *kwds)
     the_color - is set for that pixel
     pixels - pointer is advanced by one pixel.
  */
-static PG_INLINE void
+static PG_INLINE Uint8 *
 _get_color_move_pixels(
     Uint8 bpp,
     Uint8 *pixels,
     Uint32 *the_color
 ) {
     Uint8 *pix;
+    // printf("bpp:%i, pixels:%p\n", bpp, pixels);
 
     switch (bpp)
     {
     case 1:
         *the_color = (Uint32)*((Uint8 *) pixels);
-        pixels++;
-        break;
+        return pixels + 1;
     case 2:
         *the_color = (Uint32)*((Uint16 *) pixels);
-        pixels += 2;
-        break;
+        return pixels + 2;
     case 3:
         pix = ((Uint8 *) pixels);
-        pixels += 3;
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
         *the_color = (pix[0]) + (pix[1] << 8) + (pix[2] << 16);
 #else
         *the_color = (pix[2]) + (pix[1] << 8) + (pix[0] << 16);
 #endif
-        break;
+        return pixels + 3;
     default:                  /* case 4: */
         *the_color = *((Uint32 *) pixels);
-        pixels += 4;
-        break;
+        return pixels + 4;
     }
+    // printf("---bpp:%i, pixels:%p\n", bpp, pixels);
 }
 
 /* _set_at_pixels sets the pixel to the_color.
@@ -1666,12 +1664,12 @@ get_threshold (
             pixels2 = (Uint8 *) search_surf->pixels + y*search_surf->pitch;
 
         for(x=0; x < surf->w; x++) {
-            _get_color_move_pixels(surf->format->BytesPerPixel, pixels, &the_color);
+            pixels = _get_color_move_pixels(surf->format->BytesPerPixel, pixels, &the_color);
             SDL_GetRGB(the_color, surf->format, &surf_r, &surf_g, &surf_b);
 
             if (search_surf) {
                 /* Get search_surf.color */
-                _get_color_move_pixels(search_surf->format->BytesPerPixel,
+                pixels2 = _get_color_move_pixels(search_surf->format->BytesPerPixel,
                     pixels2,
                     &the_color2);
                 SDL_GetRGB(the_color2, search_surf->format,
@@ -1686,6 +1684,7 @@ get_threshold (
                 dest_set_color = ((set_behavior == 2) ? the_color2 : color_set_color);
             } else {
                 /* search_color within threshold of surf.the_color */
+                // printf("rgb: %i,%i,%i\n", surf_r, surf_g, surf_b);
                 within_threshold = (
                     (abs((int)search_color_r - (int)surf_r) <= threshold_r) &&
                     (abs((int)search_color_g - (int)surf_g) <= threshold_g) &&
