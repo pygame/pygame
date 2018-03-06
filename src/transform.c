@@ -1512,6 +1512,23 @@ surf_set_smoothscale_backend (PyObject *self, PyObject *args, PyObject *kwds)
 #endif /* defined(SCALE_MMX_SUPPORT) */
 }
 
+
+
+#ifndef PG_INLINE
+  #if defined(__clang__)
+    #define PG_INLINE __inline__ __attribute__ ((__unused__))
+  #elif defined(__GNUC__)
+    #define PG_INLINE __inline__
+  #elif defined(_MSC_VER)
+    #define PG_INLINE __inline
+  #elif defined (__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
+    #define PG_INLINE inline
+  #else
+    #define PG_INLINE
+  #endif
+#endif
+
+
 /*
     num_threshold_pixels = get_threshold(dest_surf,
                                          surf,
@@ -1531,7 +1548,7 @@ pixels is advanced by one pixel.
 _get_color_move_pixels(surf->format->BytesPerPixel, pixels, &the_color) {
 
  */
-void
+static PG_INLINE void
 _get_color_move_pixels(
     Uint8 bpp,
     Uint8 *pixels,
@@ -1569,7 +1586,7 @@ _get_color_move_pixels(
 _set_at_pixels(x, y, pixels, surf->format, surf->pitch, the_color)
 
  */
-void
+static PG_INLINE void
 _set_at_pixels(
     int x,
     int y,
