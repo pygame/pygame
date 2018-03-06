@@ -1619,35 +1619,21 @@ get_threshold (
     SDL_Surface *search_surf,
     int inverse_set)
 {
-    int x, y, result, similar, rshift, gshift, bshift, rshift2, gshift2, bshift2;
-    int rloss, gloss, bloss, rloss2, gloss2, bloss2;
-    Uint8 *pixels, *destpixels, *pixels2;
+    int x, y, result, similar;
+    Uint8 *pixels, *destpixels = NULL, *pixels2 = NULL;
     SDL_Rect sdlrect;
-    SDL_PixelFormat *format, *destformat, *format2;
-    Uint32 the_color, the_color2, rmask, gmask, bmask, rmask2, gmask2, bmask2;
-    Uint8 search_color_r, search_color_g, search_color_b, search_color_a;
+    SDL_PixelFormat *format, *destformat = NULL;
+    Uint32 the_color, the_color2;
+    Uint8 search_color_r, search_color_g, search_color_b;
     Uint8 surf_r, surf_g, surf_b;
-    Uint8 dr, dg, db, da;
-    Uint8 tr, tg, tb, ta;
-
+    Uint8 threshold_r, threshold_g, threshold_b;
     Uint8 search_surf_r, search_surf_g, search_surf_b;
+
     int within_threshold;
 
     similar = 0;
     pixels = (Uint8 *) surf->pixels;
     format = surf->format;
-    rmask = format->Rmask;
-    gmask = format->Gmask;
-    bmask = format->Bmask;
-    rshift = format->Rshift;
-    gshift = format->Gshift;
-    bshift = format->Bshift;
-    rloss = format->Rloss;
-    gloss = format->Gloss;
-    bloss = format->Bloss;
-
-
-    printf("inverse_set:%i\n", inverse_set);
 
     if (set_behavior) {
         sdlrect.x = sdlrect.y = 0;
@@ -1659,34 +1645,20 @@ get_threshold (
         if (!search_surf) {
             result = SDL_FillRect(dest_surf, &sdlrect, color_set_color);
         }
-    } else { /* make gcc stop complaining */
-        destpixels = NULL;
-        destformat = NULL;
     }
 
     if (search_surf) {
-        format2 = search_surf->format;
-        rmask2 = format2->Rmask;
-        gmask2 = format2->Gmask;
-        bmask2 = format2->Bmask;
-        rshift2 = format2->Rshift;
-        gshift2 = format2->Gshift;
-        bshift2 = format2->Bshift;
-        rloss2 = format2->Rloss;
-        gloss2 = format2->Gloss;
-        bloss2 = format2->Bloss;
         pixels2 = (Uint8 *) search_surf->pixels;
-    } else { /* make gcc stop complaining */
-        rmask2 = gmask2 = bmask2 = 0;
-        rshift2 = gshift2 = bshift2 = 0;
-        rloss2 = gloss2 = bloss2 = 0;
-        format2 = NULL;
-        pixels2 = NULL;
     }
 
-    SDL_GetRGBA (color_search_color, format, &search_color_r, &search_color_g, &search_color_b, &search_color_a);
-    SDL_GetRGBA (color_threshold, format, &tr, &tg, &tb, &ta);
-    SDL_GetRGBA (color_set_color, format, &dr, &dg, &db, &da);
+    SDL_GetRGB(color_search_color, format,
+        &search_color_r,
+        &search_color_g,
+        &search_color_b);
+    SDL_GetRGB(color_threshold, format,
+        &threshold_r,
+        &threshold_g,
+        &threshold_b);
 
     for(y=0; y < surf->h; y++) {
         pixels = (Uint8 *) surf->pixels + y*surf->pitch;
@@ -1695,10 +1667,11 @@ get_threshold (
 
         for(x=0; x < surf->w; x++) {
             _get_color_move_pixels(surf->format->BytesPerPixel, pixels, &the_color);
+            SDL_GetRGB(the_color, surf->format, &surf_r, &surf_g, &surf_b);
 
             if (search_surf) {
-                SDL_GetRGB(the_color, surf->format, &surf_r, &surf_g, &surf_b);
 
+                /* Get search_surf.color */
                 _get_color_move_pixels(search_surf->format->BytesPerPixel,
                     pixels2,
                     &the_color2);
@@ -1707,58 +1680,51 @@ get_threshold (
 
                 /* search_surf(the_color2) is within threshold of surf(the_color) */
                 within_threshold = (
-                    (abs((int)search_surf_r - (int)surf_r) <= tr) &&
-                    (abs((int)search_surf_g - (int)surf_g) <= tg) &&
-                    (abs((int)search_surf_b - (int)surf_b) <= tb)
+                    (abs((int)search_surf_r - (int)surf_r) <= threshold_r) &&
+                    (abs((int)search_surf_g - (int)surf_g) <= threshold_g) &&
+                    (abs((int)search_surf_b - (int)surf_b) <= threshold_b)
                 );
                 if (within_threshold)
                     similar++;
 
-                // printf("within_threshold&&inverse_set%i:\n", within_threshold && inverse_set);
-
-                /* should we change the pixel? */
                 if ((within_threshold && inverse_set) || (!within_threshold)) {
-
-                    printf("doing some setting\n");
 
                     /* this pixel is within the color_threshold of the pixel in the
                        other surface. */
                     if (set_behavior == 2) {
-                        printf("set_behavior == 2\n");
                         _set_at_pixels(x, y, destpixels,
                             dest_surf->format,
                             dest_surf->pitch,
                             the_color2);
                     }
                     else if (set_behavior == 1) {
-                        printf("set_behavior == 1\n");
                         _set_at_pixels(x, y, destpixels, dest_surf->format,
                             dest_surf->pitch,
                             color_set_color);
                     }
                 }
-            } else if (((abs((((the_color & rmask) >> rshift) << rloss) - search_color_r) <= tr) &
-                        (abs((((the_color & gmask) >> gshift) << gloss) - search_color_g) <= tg) &
-                        (abs((((the_color & bmask) >> bshift) << bloss) - search_color_b) <= tb))
-                       ^ inverse_set) {
+            } else {
 
-                printf("Comparing the color_threshold against the color\n");
-
-                /* Comparing the color_threshold against the color. */
-
-                /* this pixel is within the color_threshold. */
-                if (set_behavior == 2) {
-                    _set_at_pixels(x, y, destpixels, dest_surf->format,
-                        dest_surf->pitch,
-                        the_color);
+                /* search_color within threshold of surf.the_color */
+                within_threshold = (
+                    (abs((int)search_color_r - (int)surf_r) <= threshold_r) &&
+                    (abs((int)search_color_g - (int)surf_g) <= threshold_g) &&
+                    (abs((int)search_color_b - (int)surf_b) <= threshold_b)
+                );
+                if (within_threshold)
+                    similar++;
+                if ((within_threshold && inverse_set) || (!within_threshold)) {
+                    if (set_behavior == 2) {
+                        _set_at_pixels(x, y, destpixels, dest_surf->format,
+                            dest_surf->pitch,
+                            the_color);
+                    }
+                    else if (set_behavior == 1) {
+                        _set_at_pixels(x, y, destpixels, dest_surf->format,
+                            dest_surf->pitch,
+                            color_set_color);
+                    }
                 }
-                else if (set_behavior == 1) {
-                    _set_at_pixels(x, y, destpixels, dest_surf->format,
-                        dest_surf->pitch,
-                        color_set_color);
-                }
-
-                similar++;
             }
         }
     }
