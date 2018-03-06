@@ -43,7 +43,7 @@ def show_image(s, images = []):
                     screen.blit(s, (0,0))
                     pygame.display.flip()
                     pygame.event.pump()
-                else:
+                elif e.key in [K_ESCAPE]:
                     going = False
     pygame.display.quit()
     pygame.display.init()
@@ -175,10 +175,12 @@ class TransformModuleTest( unittest.TestCase ):
         # All pixels for color should be within threshold
         #
         pixels_within_threshold = pygame.transform.threshold (
-            dest_surface, original_surface, threshold_color,
-            threshold,
-            0, # diff_color
-            0  # change_return
+            dest_surf=None,
+            surf=original_surface,
+            search_color=threshold_color,
+            threshold=threshold,
+            set_color=None,
+            set_behavior=0
         )
 
         self.assertEqual(w*h, pixels_within_threshold)
@@ -189,13 +191,13 @@ class TransformModuleTest( unittest.TestCase ):
         # all within threshold
 
         pixels_within_threshold = pygame.transform.threshold (
-            dest_surface,
-            original_surface,
-            None,                            # color (would fail if honored)
-            threshold,
-            0,                                              # diff_color
-            0,                                           # change_return
-            third_surface,
+            dest_surf=None,
+            surf=original_surface,
+            search_color=None,
+            threshold=threshold,
+            set_color=None,
+            set_behavior=0,
+            search_surf=third_surface,
         )
         self.assertEqual(w*h, pixels_within_threshold)
 
@@ -387,6 +389,7 @@ class TransformModuleTest( unittest.TestCase ):
             dest_surf,
             surf,
             search_color=None,
+            set_color=None,
             set_behavior=THRESHOLD_BEHAVIOR_FROM_SEARCH_SURF,
             search_surf=search_surf)
 
@@ -400,6 +403,7 @@ class TransformModuleTest( unittest.TestCase ):
             dest_surf,
             surf,
             search_color=None,
+            set_color=None,
             set_behavior=THRESHOLD_BEHAVIOR_FROM_SEARCH_SURF,
             search_surf=search_surf,
             inverse_set=True)
@@ -421,7 +425,7 @@ class TransformModuleTest( unittest.TestCase ):
         surf = _surf                       # surface we are looking at
         search_color = (55, 55, 55, 255)   # color we are searching for.
         threshold = (0, 0, 0, 0)           # within this distance from search_color.
-        set_color = (5, 5, 5, 255)         # color we set.
+        set_color = (245, 245, 245, 255)         # color we set.
         inverse_set = 1                    # pixels within threshold are changed to 'set_color'
 
 
@@ -437,7 +441,6 @@ class TransformModuleTest( unittest.TestCase ):
         dest_surf.set_at((12, 5), search_color)
 
 
-        print("test_threshold_inverse_set")
         THRESHOLD_BEHAVIOR_FROM_SEARCH_COLOR = 1
         num_threshold_pixels = pygame.transform.threshold(
             dest_surf,
@@ -448,12 +451,11 @@ class TransformModuleTest( unittest.TestCase ):
             set_behavior=THRESHOLD_BEHAVIOR_FROM_SEARCH_COLOR,
             inverse_set=1)
 
-        # 32x32 -> 1024. 1022 are within the threshold. 2 are not.
-        num_pixels_within = (32 * 32) - 2
-        self.assertEqual(num_threshold_pixels, num_pixels_within)
+        self.assertEqual(num_threshold_pixels, 2)
         # only two pixels changed to diff_color.
         self.assertEqual(dest_surf.get_at((0, 0)), set_color)
         self.assertEqual(dest_surf.get_at((12, 5)), set_color)
+
 
         # other pixels should be the same as they were before.
         # We just check one other pixel, not all of them.
@@ -469,66 +471,50 @@ class TransformModuleTest( unittest.TestCase ):
         s2 = pygame.Surface((10,10))
         s3 = pygame.Surface((10,10))
         s4 = pygame.Surface((10,10))
-        result = pygame.Surface((10,10))
-        x = s1.fill((0,0,0))
+
+        x = s1.fill((0, 0, 0))
+        s1.set_at((0,0), (32, 20, 0 ))
+
         x = s2.fill((0,20,0))
         x = s3.fill((0,0,0))
         x = s4.fill((0,0,0))
-        s1.set_at((0,0), (32, 20, 0 ))
         s2.set_at((0,0), (33, 21, 0 ))
         s2.set_at((3,0), (63, 61, 0 ))
         s3.set_at((0,0), (112, 31, 0 ))
         s4.set_at((0,0), (11, 31, 0 ))
         s4.set_at((1,1), (12, 31, 0 ))
 
-        self.assertEqual( s1.get_at((0,0)), (32, 20, 0, 255) )
-        self.assertEqual( s2.get_at((0,0)), (33, 21, 0, 255) )
-        self.assertEqual( (0,0), (s1.get_flags(), s2.get_flags()))
+        self.assertEqual(s1.get_at((0,0)), (32, 20, 0, 255))
+        self.assertEqual(s2.get_at((0,0)), (33, 21, 0, 255))
+        self.assertEqual((0, 0), (s1.get_flags(), s2.get_flags()))
 
 
 
-        #All one hundred of the pixels should be within the threshold.
+        similar_color = (255, 255, 255, 255)
+        diff_color = (222, 0, 0, 255)
+        threshold_color = (20, 20, 20, 255)
 
-        #>>> object_tracking.diff_image(result, s1, s2, threshold = 20)
-        #100
+        THRESHOLD_BEHAVIOR_FROM_SEARCH_COLOR = 1
+        num_threshold_pixels = pygame.transform.threshold(
+            dest_surf=result,
+            surf=s1,
+            search_color=similar_color,
+            threshold=threshold_color,
+            set_color=diff_color,
+            set_behavior=THRESHOLD_BEHAVIOR_FROM_SEARCH_COLOR)
+        self.assertEqual(num_threshold_pixels, 0)
 
-        similar_color = (255, 255, 255,255)
-        diff_color=(222,0,0,255)
-        threshold_color = (20,20,20,255)
-
-        rr = pygame.transform.threshold(result,
-            s1,
-            similar_color,
-            threshold_color,
-            diff_color,
-            1)
-        self.assertEqual(rr, 99)
-
-        self.assertEqual( result.get_at((0,0)), (255,255,255, 255) )
-
-
-
-        rr = pygame.transform.threshold(result, s1, similar_color,
-                threshold_color, diff_color, 2, s2)
-        self.assertEqual(rr, 99)
-
-        self.assertEqual( result.get_at((0,0)), (32, 20, 0, 255) )
+        num_threshold_pixels = pygame.transform.threshold(
+            dest_surf=result,
+            surf=s1,
+            search_color=(40, 40, 0),
+            threshold=threshold_color,
+            set_color=diff_color,
+            set_behavior=THRESHOLD_BEHAVIOR_FROM_SEARCH_COLOR)
+        self.assertEqual(num_threshold_pixels, 1)
 
 
-
-
-        # this is within the threshold,
-        #     so the color is copied from the s1 surface.
-        self.assertEqual( result.get_at((1,0)), (0, 0, 0, 255) )
-
-        # this color was not in the threshold so it has been set to diff_color
-        self.assertEqual( result.get_at((3,0)), (222, 0, 0, 255) )
-
-
-
-
-
-
+        self.assertEqual(result.get_at((0,0)), diff_color)
 
 
     def test_threshold__uneven_colors(self):
@@ -552,10 +538,12 @@ class TransformModuleTest( unittest.TestCase ):
             threshold[pos] = 50
 
             pixels_within_threshold = pygame.transform.threshold (
-                dest_surface, original_surface, threshold_color,
+                None,
+                original_surface,
+                threshold_color,
                 threshold,
-                0, # diff_color
-                0  # change_return
+                set_color=None,
+                set_behavior=0
             )
 
             self.assertEqual(w*h, pixels_within_threshold)
@@ -875,7 +863,7 @@ class TransformModuleTest( unittest.TestCase ):
             s = pygame.transform.rotate(s,rotation)
 
         for pt, color in gradient:
-            self.assert_(s.get_at(pt) == color)
+            self.assertTrue(s.get_at(pt) == color)
 
     def test_scale2x(self):
 
@@ -890,11 +878,11 @@ class TransformModuleTest( unittest.TestCase ):
         # s.set_at((0,0), (20, 20, 20, 255))
 
         s2 = pygame.transform.scale2x(s)
-        self.assertEquals(s2.get_rect().size, (64, 64))
+        self.assertEqual(s2.get_rect().size, (64, 64))
 
     def test_get_smoothscale_backend(self):
         filter_type = pygame.transform.get_smoothscale_backend()
-        self.failUnless(filter_type in ['GENERIC', 'MMX', 'SSE'])
+        self.assertTrue(filter_type in ['GENERIC', 'MMX', 'SSE'])
         # It would be nice to test if a non-generic type corresponds to an x86
         # processor. But there is no simple test for this. platform.machine()
         # returns process version specific information, like 'i686'.
@@ -904,30 +892,30 @@ class TransformModuleTest( unittest.TestCase ):
         original_type = pygame.transform.get_smoothscale_backend()
         pygame.transform.set_smoothscale_backend('GENERIC')
         filter_type = pygame.transform.get_smoothscale_backend()
-        self.failUnlessEqual(filter_type, 'GENERIC')
+        self.assertEqual(filter_type, 'GENERIC')
         # All machines should allow returning to original value.
         # Also check that keyword argument works.
         pygame.transform.set_smoothscale_backend(type=original_type)
         # Something invalid.
         def change():
             pygame.transform.set_smoothscale_backend('mmx')
-        self.failUnlessRaises(ValueError, change)
+        self.assertRaises(ValueError, change)
         # Invalid argument keyword.
         def change():
             pygame.transform.set_smoothscale_backend(t='GENERIC')
-        self.failUnlessRaises(TypeError, change)
+        self.assertRaises(TypeError, change)
         # Invalid argument type.
         def change():
             pygame.transform.set_smoothscale_backend(1)
-        self.failUnlessRaises(TypeError, change)
+        self.assertRaises(TypeError, change)
         # Unsupported type, if possible.
         if original_type != 'SSE':
             def change():
                 pygame.transform.set_smoothscale_backend('SSE')
-            self.failUnlessRaises(ValueError, change)
+            self.assertRaises(ValueError, change)
         # Should be back where we started.
         filter_type = pygame.transform.get_smoothscale_backend()
-        self.failUnlessEqual(filter_type, original_type)
+        self.assertEqual(filter_type, original_type)
 
     def todo_test_chop(self):
 
