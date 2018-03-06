@@ -208,7 +208,6 @@ class TransformModuleTest( unittest.TestCase ):
         All pixels not within threshold are changed to set_color.
         So there should be none changed in this test.
         """
-
         (w, h) = size = (32, 32)
         threshold = (20, 20, 20, 20)
         original_color = (25, 25, 25, 25)
@@ -253,7 +252,6 @@ class TransformModuleTest( unittest.TestCase ):
             self.assertNotEqual(dest_surf.get_at(pt), set_color)
             self.assertEqual(dest_surf.get_at(pt), original_dest_color)
 
-
     def test_threshold_dest_surf_all_changed(self):
         """ Lowering the threshold, expecting changed surface
         """
@@ -294,7 +292,6 @@ class TransformModuleTest( unittest.TestCase ):
         for pt in test_utils.rect_area_pts(dest_rect):
             self.assertEqual(dest_surf.get_at(pt), set_color)
 
-
     def test_threshold_count(self):
         """ counts the colors, and not changes them.
         """
@@ -323,26 +320,13 @@ class TransformModuleTest( unittest.TestCase ):
             search_color,
             set_behavior=THRESHOLD_BEHAVIOR_FROM_SEARCH_SURF)
 
-        #TODO: FIXME: segfaults.
-        if 0:
-            THRESHOLD_BEHAVIOR_COUNT = 0
-            num_threshold_pixels = pygame.transform.threshold(
-                None,
-                surf,
-                search_color,
-                set_behavior=THRESHOLD_BEHAVIOR_COUNT)
-
-
-            # # 32x32 -> 1024. 1022 are within the threshold. 2 are not.
-            num_pixels_within = (32 * 32) - 2
-            self.assertEqual(num_threshold_pixels, num_pixels_within)
-
-
-
-        # # no pixels changed.
-        # self.assertEqual(dest_surf.get_at((0, 0)), original_color)
-        # self.assertEqual(dest_surf.get_at((12, 5)), original_color)
-        # self.assertEqual(dest_surf.get_at((2, 2)), original_color)
+        THRESHOLD_BEHAVIOR_COUNT = 0
+        num_threshold_pixels = pygame.transform.threshold(
+            dest_surf=None,
+            surf=surf,
+            search_color=search_color,
+            set_behavior=THRESHOLD_BEHAVIOR_COUNT)
+        self.assertEqual(num_threshold_pixels, 2)
 
     def test_threshold_search_surf(self):
         surf_size = (32, 32)

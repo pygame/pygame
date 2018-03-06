@@ -1695,7 +1695,7 @@ get_threshold (
 
             if (within_threshold)
                 similar++;
-            if (set_behavior && ((within_threshold && inverse_set) || (!within_threshold))) {
+            if (set_behavior && ((within_threshold && inverse_set) || (!within_threshold && !inverse_set))) {
                 _set_at_pixels(x, y, destpixels,
                     dest_surf->format,
                     dest_surf->pitch,
