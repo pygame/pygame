@@ -1565,6 +1565,48 @@ _get_color_move_pixels(
     }
 }
 
+/*
+_set_at_pixels(x, y, pixels, surf->format, surf->pitch, the_color)
+
+ */
+void
+_set_at_pixels(
+    int x,
+    int y,
+    Uint8 *pixels,
+    SDL_PixelFormat* format,
+    int surf_pitch,
+    Uint32 the_color
+) {
+    Uint8 *byte_buf;
+
+    switch (format->BytesPerPixel) {
+    case 1:
+        *((Uint8 *) pixels + y * surf_pitch + x) = (Uint8) the_color;
+        break;
+    case 2:
+        *((Uint16 *) (pixels + y * surf_pitch) + x) = (Uint16) the_color;
+        break;
+    case 3:
+        byte_buf = (Uint8 *) (pixels + y * surf_pitch) + x * 3;
+#if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
+        *(byte_buf + (format->Rshift >> 3)) = (Uint8) (the_color >> 16);
+        *(byte_buf + (format->Gshift >> 3)) = (Uint8) (the_color >> 8);
+        *(byte_buf + (format->Bshift >> 3)) = (Uint8) the_color;
+#else
+        *(byte_buf + 2 - (format->Rshift >> 3)) = (Uint8) (the_color >> 16);
+        *(byte_buf + 2 - (format->Gshift >> 3)) = (Uint8) (the_color >> 8);
+        *(byte_buf + 2 - (format->Bshift >> 3)) = (Uint8) the_color;
+#endif
+        break;
+    default:                  /* case 4: */
+        *((Uint32 *) (pixels + y * surf_pitch) + x) = the_color;
+        break;
+    }
+}
+
+
+
 
 static int
 get_threshold (
@@ -1583,7 +1625,6 @@ get_threshold (
     SDL_Rect sdlrect;
     SDL_PixelFormat *format, *destformat, *format2;
     Uint32 the_color, the_color2, rmask, gmask, bmask, rmask2, gmask2, bmask2;
-    Uint8 *byte_buf;
     Uint8 search_color_r, search_color_g, search_color_b, search_color_a;
     Uint8 surf_r, surf_g, surf_b;
     Uint8 dr, dg, db, da;
@@ -1653,19 +1694,16 @@ get_threshold (
             pixels2 = (Uint8 *) search_surf->pixels + y*search_surf->pitch;
 
         for(x=0; x < surf->w; x++) {
-            /* the_color = surf->get_at(x,y)
-               pixels++;
-            */
             _get_color_move_pixels(surf->format->BytesPerPixel, pixels, &the_color);
 
             if (search_surf) {
                 SDL_GetRGB(the_color, surf->format, &surf_r, &surf_g, &surf_b);
 
-                /*the_color2 = search_surf->get_at(x,y)
-                pixels2++;
-                */
-                _get_color_move_pixels(search_surf->format->BytesPerPixel, pixels2, &the_color2);
-                SDL_GetRGB(the_color2, search_surf->format, &search_surf_r, &search_surf_g, &search_surf_b);
+                _get_color_move_pixels(search_surf->format->BytesPerPixel,
+                    pixels2,
+                    &the_color2);
+                SDL_GetRGB(the_color2, search_surf->format,
+                    &search_surf_r, &search_surf_g, &search_surf_b);
 
                 /* search_surf(the_color2) is within threshold of surf(the_color) */
                 within_threshold = (
@@ -1687,60 +1725,16 @@ get_threshold (
                        other surface. */
                     if (set_behavior == 2) {
                         printf("set_behavior == 2\n");
-                        /* change the pixel to the color from the search_surf.  */
-
-                        /* dest_surf->set_at((x,y), the_color2) */
-                        switch (destformat->BytesPerPixel) {
-                        case 1:
-                            *((Uint8 *) destpixels + y * dest_surf->pitch + x) = (Uint8) the_color2;
-                            break;
-                        case 2:
-                            *((Uint16 *) (destpixels + y * dest_surf->pitch) + x) = (Uint16) the_color2;
-                            break;
-                        case 3:
-                            byte_buf = (Uint8 *) (destpixels + y * dest_surf->pitch) + x * 3;
-#if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
-                            *(byte_buf + (destformat->Rshift >> 3)) = (Uint8) (the_color2 >> 16);
-                            *(byte_buf + (destformat->Gshift >> 3)) = (Uint8) (the_color2 >> 8);
-                            *(byte_buf + (destformat->Bshift >> 3)) = (Uint8) the_color2;
-#else
-                            *(byte_buf + 2 - (destformat->Rshift >> 3)) = (Uint8) (the_color2 >> 16);
-                            *(byte_buf + 2 - (destformat->Gshift >> 3)) = (Uint8) (the_color2 >> 8);
-                            *(byte_buf + 2 - (destformat->Bshift >> 3)) = (Uint8) the_color2;
-#endif
-                            break;
-                        default:                  /* case 4: */
-                            *((Uint32 *) (destpixels + y * dest_surf->pitch) + x) = the_color2;
-                            break;
-                        }
+                        _set_at_pixels(x, y, destpixels,
+                            dest_surf->format,
+                            dest_surf->pitch,
+                            the_color2);
                     }
                     else if (set_behavior == 1) {
                         printf("set_behavior == 1\n");
-                        /* change the pixel to color_set_color.  */
-                        /* dest_surf->set_at((x,y), color_set_color) */
-                        switch (destformat->BytesPerPixel) {
-                        case 1:
-                            *((Uint8 *) destpixels + y * dest_surf->pitch + x) = (Uint8) color_set_color;
-                            break;
-                        case 2:
-                            *((Uint16 *) (destpixels + y * dest_surf->pitch) + x) = (Uint16) color_set_color;
-                            break;
-                        case 3:
-                            byte_buf = (Uint8 *) (destpixels + y * dest_surf->pitch) + x * 3;
-#if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
-                            *(byte_buf + (destformat->Rshift >> 3)) = (Uint8) (color_set_color >> 16);
-                            *(byte_buf + (destformat->Gshift >> 3)) = (Uint8) (color_set_color >> 8);
-                            *(byte_buf + (destformat->Bshift >> 3)) = (Uint8) color_set_color;
-#else
-                            *(byte_buf + 2 - (destformat->Rshift >> 3)) = (Uint8) (color_set_color >> 16);
-                            *(byte_buf + 2 - (destformat->Gshift >> 3)) = (Uint8) (color_set_color >> 8);
-                            *(byte_buf + 2 - (destformat->Bshift >> 3)) = (Uint8) color_set_color;
-#endif
-                            break;
-                        default:                  /* case 4: */
-                            *((Uint32 *) (destpixels + y * dest_surf->pitch) + x) = color_set_color;
-                            break;
-                        }
+                        _set_at_pixels(x, y, destpixels, dest_surf->format,
+                            dest_surf->pitch,
+                            color_set_color);
                     }
                 }
             } else if (((abs((((the_color & rmask) >> rshift) << rloss) - search_color_r) <= tr) &
@@ -1748,67 +1742,20 @@ get_threshold (
                         (abs((((the_color & bmask) >> bshift) << bloss) - search_color_b) <= tb))
                        ^ inverse_set) {
 
-
                 printf("Comparing the color_threshold against the color\n");
 
                 /* Comparing the color_threshold against the color. */
 
                 /* this pixel is within the color_threshold. */
                 if (set_behavior == 2) {
-                    /* dest_surf->set_at((x,y), the_color) */
-                    switch (destformat->BytesPerPixel)
-                    {
-                    case 1:
-                        *((Uint8 *) destpixels + y * dest_surf->pitch + x) = (Uint8) the_color;
-                        break;
-                    case 2:
-                        *((Uint16 *) (destpixels + y * dest_surf->pitch) + x) = (Uint16) the_color;
-                        break;
-                    case 3:
-                        byte_buf = (Uint8 *) (destpixels + y * dest_surf->pitch) + x * 3;
-#if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
-                        *(byte_buf + (destformat->Rshift >> 3)) = (Uint8) (the_color >> 16);
-                        *(byte_buf + (destformat->Gshift >> 3)) = (Uint8) (the_color >> 8);
-                        *(byte_buf + (destformat->Bshift >> 3)) = (Uint8) the_color;
-#else
-                        *(byte_buf + 2 - (destformat->Rshift >> 3)) = (Uint8) (the_color >> 16);
-                        *(byte_buf + 2 - (destformat->Gshift >> 3)) = (Uint8) (the_color >> 8);
-                        *(byte_buf + 2 - (destformat->Bshift >> 3)) = (Uint8) the_color;
-#endif
-                        break;
-                    default:                  /* case 4: */
-                        *((Uint32 *) (destpixels + y * dest_surf->pitch) + x) = the_color;
-                        break;
-                    }
+                    _set_at_pixels(x, y, destpixels, dest_surf->format,
+                        dest_surf->pitch,
+                        the_color);
                 }
                 else if (set_behavior == 1) {
-
-                    /* change the pixel to color_set_color.  */
-                    /* dest_surf->set_at((x,y), color_set_color) */
-                    switch (destformat->BytesPerPixel)
-                    {
-                    case 1:
-                        *((Uint8 *) destpixels + y * dest_surf->pitch + x) = (Uint8) color_set_color;
-                        break;
-                    case 2:
-                        *((Uint16 *) (destpixels + y * dest_surf->pitch) + x) = (Uint16) color_set_color;
-                        break;
-                    case 3:
-                        byte_buf = (Uint8 *) (destpixels + y * dest_surf->pitch) + x * 3;
-#if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
-                        *(byte_buf + (destformat->Rshift >> 3)) = (Uint8) (color_set_color >> 16);
-                        *(byte_buf + (destformat->Gshift >> 3)) = (Uint8) (color_set_color >> 8);
-                        *(byte_buf + (destformat->Bshift >> 3)) = (Uint8) color_set_color;
-#else
-                        *(byte_buf + 2 - (destformat->Rshift >> 3)) = (Uint8) (color_set_color >> 16);
-                        *(byte_buf + 2 - (destformat->Gshift >> 3)) = (Uint8) (color_set_color >> 8);
-                        *(byte_buf + 2 - (destformat->Bshift >> 3)) = (Uint8) color_set_color;
-#endif
-                        break;
-                    default:                  /* case 4: */
-                        *((Uint32 *) (destpixels + y * dest_surf->pitch) + x) = color_set_color;
-                        break;
-                    }
+                    _set_at_pixels(x, y, destpixels, dest_surf->format,
+                        dest_surf->pitch,
+                        color_set_color);
                 }
 
                 similar++;
