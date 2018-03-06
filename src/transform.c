@@ -1583,13 +1583,13 @@ get_threshold (
     SDL_Rect sdlrect;
     SDL_PixelFormat *format, *destformat, *format2;
     Uint32 the_color, the_color2, rmask, gmask, bmask, rmask2, gmask2, bmask2;
-    Uint8 *pix, *byte_buf;
-    Uint8 r, g, b, a;
+    Uint8 *byte_buf;
+    Uint8 search_color_r, search_color_g, search_color_b, search_color_a;
     Uint8 surf_r, surf_g, surf_b;
     Uint8 dr, dg, db, da;
     Uint8 tr, tg, tb, ta;
 
-    Uint8 r2, g2, b2, a2;
+    Uint8 search_surf_r, search_surf_g, search_surf_b;
     int within_threshold;
 
     similar = 0;
@@ -1643,8 +1643,7 @@ get_threshold (
         pixels2 = NULL;
     }
 
-
-    SDL_GetRGBA (color_search_color, format, &r, &g, &b, &a);
+    SDL_GetRGBA (color_search_color, format, &search_color_r, &search_color_g, &search_color_b, &search_color_a);
     SDL_GetRGBA (color_threshold, format, &tr, &tg, &tb, &ta);
     SDL_GetRGBA (color_set_color, format, &dr, &dg, &db, &da);
 
@@ -1666,13 +1665,13 @@ get_threshold (
                 pixels2++;
                 */
                 _get_color_move_pixels(search_surf->format->BytesPerPixel, pixels2, &the_color2);
-                SDL_GetRGB(the_color2, search_surf->format, &r2, &g2, &b2);
+                SDL_GetRGB(the_color2, search_surf->format, &search_surf_r, &search_surf_g, &search_surf_b);
 
                 /* search_surf(the_color2) is within threshold of surf(the_color) */
                 within_threshold = (
-                    (abs((int)r2 - (int)surf_r) <= tr) &&
-                    (abs((int)g2 - (int)surf_g) <= tg) &&
-                    (abs((int)b2 - (int)surf_b) <= tb)
+                    (abs((int)search_surf_r - (int)surf_r) <= tr) &&
+                    (abs((int)search_surf_g - (int)surf_g) <= tg) &&
+                    (abs((int)search_surf_b - (int)surf_b) <= tb)
                 );
                 if (within_threshold)
                     similar++;
@@ -1744,9 +1743,9 @@ get_threshold (
                         }
                     }
                 }
-            } else if (((abs((((the_color & rmask) >> rshift) << rloss) - r) <= tr) &
-                        (abs((((the_color & gmask) >> gshift) << gloss) - g) <= tg) &
-                        (abs((((the_color & bmask) >> bshift) << bloss) - b) <= tb))
+            } else if (((abs((((the_color & rmask) >> rshift) << rloss) - search_color_r) <= tr) &
+                        (abs((((the_color & gmask) >> gshift) << gloss) - search_color_g) <= tg) &
+                        (abs((((the_color & bmask) >> bshift) << bloss) - search_color_b) <= tb))
                        ^ inverse_set) {
 
 
