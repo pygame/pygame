@@ -263,11 +263,9 @@ _InstallNSApplication(PyObject* self, PyObject* arg)
         NSImage *icon_img = [[NSImage alloc] initWithData:image_data];
         if (icon_img != NULL)
         {
-            printf("icon_img\n");
             [NSApp setApplicationIconImage:icon_img];
         }
     }
-
 
 	Py_RETURN_TRUE;
 }
