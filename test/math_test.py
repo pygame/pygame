@@ -54,6 +54,16 @@ class Vector2TypeTest(unittest.TestCase):
         self.assertEqual(v.x, 1.)
         self.assertEqual(v.y, 1.)
 
+    def testConstructionScalarKeywords(self):
+        v = Vector2(x=1)
+        self.assertEqual(v.x, 1.)
+        self.assertEqual(v.y, 1.)
+
+    def testConstructionKeywords(self):
+        v = Vector2(x=1, y=2)
+        self.assertEqual(v.x, 1.)
+        self.assertEqual(v.y, 2.)
+
     def testConstructionXY(self):
         v = Vector2(1.2, 3.4)
         self.assertEqual(v.x, 1.2)
@@ -793,9 +803,25 @@ class Vector3TypeTest(unittest.TestCase):
         self.assertEqual(v.y, 1.)
         self.assertEqual(v.z, 1.)
 
+    def testConstructionScalarKeywords(self):
+        v = Vector3(x=1)
+        self.assertEqual(v.x, 1.)
+        self.assertEqual(v.y, 1.)
+        self.assertEqual(v.z, 1.)
+
+    def testConstructionKeywords(self):
+        v = Vector3(x=1, y=2, z=3)
+        self.assertEqual(v.x, 1.)
+        self.assertEqual(v.y, 2.)
+        self.assertEqual(v.z, 3.)
+
     def testConstructionMissing(self):
         def assign_missing_value():
             v = Vector3(1, 2)
+        self.assertRaises(ValueError, assign_missing_value)
+
+        def assign_missing_value():
+            v = Vector3(x=1, y=2)
         self.assertRaises(ValueError, assign_missing_value)
 
     def testAttributAccess(self):

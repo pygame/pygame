@@ -1783,7 +1783,10 @@ static int
 vector2_init(PyVector *self, PyObject *args, PyObject *kwds)
 {
     PyObject *xOrSequence=NULL, *y=NULL;
-    if (!PyArg_ParseTuple (args, "|OO:Vector2", &xOrSequence, &y))
+    static char *kwlist[] = {"x", "y", NULL};
+
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OO:Vector2", kwlist,
+                                      &xOrSequence, &y))
         return -1;
 
     if (xOrSequence) {
@@ -2197,15 +2200,11 @@ static int
 vector3_init(PyVector *self, PyObject *args, PyObject *kwds)
 {
     PyObject *xOrSequence=NULL, *y=NULL, *z=NULL;
-    // static char *kwlist[] = {"x", "y", "z", NULL};
+    static char *kwlist[] = {"x", "y", "z", NULL};
 
-    // if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOO:Vector3", kwlist,
-    //                                   &xOrSequence, &y, &z))
-    //     return -1;
-
-    if (!PyArg_ParseTuple (args, "|OOO:Vector3", &xOrSequence, &y, &z))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOO:Vector3", kwlist,
+                                      &xOrSequence, &y, &z))
         return -1;
-
 
     if (xOrSequence) {
         if (RealNumber_Check(xOrSequence)) {
