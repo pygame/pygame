@@ -22,6 +22,7 @@ New in pygame 1.9.2pre.
 1.9.4 removed experimental notice.
 1.9.4 changed constructors to require 2, or 3 elements rather than assigning 0 default.
 1.9.4 allowed scalar construction like GLSL Vector2(2) == Vector2(2.0, 2.0)
+1.9.4 pygame.math required import. more convienient pygame.Vector2 and pygame.Vector3.
 
 .. class:: Vector2
 
