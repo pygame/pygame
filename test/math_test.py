@@ -796,7 +796,7 @@ class Vector3TypeTest(unittest.TestCase):
     def testConstructionMissing(self):
         def assign_missing_value():
             v = Vector3(1, 2)
-        self.assertRaises(TypeError, assign_missing_value)
+        self.assertRaises(ValueError, assign_missing_value)
 
     def testAttributAccess(self):
         tmp = self.v1.x
@@ -1075,7 +1075,7 @@ class Vector3TypeTest(unittest.TestCase):
                          Vector3(0, 1, 0))
 
     def test_rotate_ip(self):
-        v = Vector3(1, 0)
+        v = Vector3(1, 0, 0)
         axis = Vector3(0, 1, 0)
         self.assertEqual(v.rotate_ip(90, axis), None)
         self.assertEqual(v.x, 0)
