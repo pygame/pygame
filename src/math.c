@@ -1777,19 +1777,23 @@ vector2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 }
 
 
+
+
 static int
 vector2_init(PyVector *self, PyObject *args, PyObject *kwds)
 {
     PyObject *xOrSequence=NULL, *y=NULL;
-    static char *kwlist[] = {"x", "y", NULL};
-
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OO:Vector2", kwlist,
-                                      &xOrSequence, &y))
+    if (!PyArg_ParseTuple (args, "|OO:Vector2", &xOrSequence, &y))
         return -1;
 
     if (xOrSequence) {
         if (RealNumber_Check(xOrSequence)) {
             self->coords[0] = PyFloat_AsDouble(xOrSequence);
+            /* scalar constructor. */
+            if (y == NULL) {
+                self->coords[1] = self->coords[0];
+                return 0;
+            }
         }
         else if (PyVectorCompatible_Check (xOrSequence, self->dim)) {
             if (!PySequence_AsVectorCoords(xOrSequence, self->coords, 2))
@@ -1821,6 +1825,10 @@ vector2_init(PyVector *self, PyObject *args, PyObject *kwds)
     }
     else {
         self->coords[0] = 0.;
+        if (y == NULL) {
+            self->coords[1] = 0.;
+            return 0;
+        }
     }
 
     if (y) {
@@ -1832,7 +1840,7 @@ vector2_init(PyVector *self, PyObject *args, PyObject *kwds)
         }
     }
     else {
-        self->coords[1] = 0.;
+        goto error;
     }
     /* success initialization */
     return 0;
@@ -2189,15 +2197,26 @@ static int
 vector3_init(PyVector *self, PyObject *args, PyObject *kwds)
 {
     PyObject *xOrSequence=NULL, *y=NULL, *z=NULL;
-    static char *kwlist[] = {"x", "y", "z", NULL};
+    // static char *kwlist[] = {"x", "y", "z", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOO:Vector3", kwlist,
-                                      &xOrSequence, &y, &z))
+    // if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOO:Vector3", kwlist,
+    //                                   &xOrSequence, &y, &z))
+    //     return -1;
+
+    if (!PyArg_ParseTuple (args, "|OOO:Vector3", &xOrSequence, &y, &z))
         return -1;
+
 
     if (xOrSequence) {
         if (RealNumber_Check(xOrSequence)) {
             self->coords[0] = PyFloat_AsDouble(xOrSequence);
+            /* scalar constructor. */
+            if (y == NULL && z == NULL) {
+                self->coords[1] = self->coords[0];
+                self->coords[2] = self->coords[0];
+                return 0;
+            }
+
         }
         else if (PyVectorCompatible_Check(xOrSequence, self->dim)) {
             if (!PySequence_AsVectorCoords(xOrSequence, self->coords, 3))
@@ -2229,30 +2248,21 @@ vector3_init(PyVector *self, PyObject *args, PyObject *kwds)
     }
     else {
         self->coords[0] = 0.;
-    }
-
-    if (y) {
-        if (RealNumber_Check(y)) {
-            self->coords[1] = PyFloat_AsDouble(y);
-        }
-        else {
-            goto error;
-        }
-    }
-    else {
         self->coords[1] = 0.;
+        self->coords[2] = 0.;
+        return 0;
     }
-
-    if (z) {
-        if (RealNumber_Check(z)) {
+    if (y && !z) {
+        goto error;
+    }
+    else if (y && z) {
+        if (RealNumber_Check(y) && RealNumber_Check(z)) {
+            self->coords[1] = PyFloat_AsDouble(y);
             self->coords[2] = PyFloat_AsDouble(z);
         }
         else {
             goto error;
         }
-    }
-    else {
-        self->coords[2] = 0.;
     }
     /* success initialization */
     return 0;
