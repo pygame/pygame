@@ -2681,6 +2681,12 @@ static PyMethodDef vector3_methods[] = {
     {"length_squared", (PyCFunction)vector_length_squared, METH_NOARGS,
      DOC_VECTOR3LENGTHSQUARED
     },
+    {"magnitude", (PyCFunction)vector_length, METH_NOARGS,
+     DOC_VECTOR3MAGNIDUDE
+    },
+    {"magnitude_squared", (PyCFunction)vector_length_squared, METH_NOARGS,
+     DOC_VECTOR3MAGNIDUDESQUARED
+    },
     {"rotate", (PyCFunction)vector3_rotate, METH_VARARGS,
      DOC_VECTOR3ROTATE
     },
