@@ -74,6 +74,9 @@ static PyObject* aaline(PyObject* self, PyObject* arg)
     if(surf->format->BytesPerPixel !=3 && surf->format->BytesPerPixel != 4)
         return RAISE(PyExc_ValueError, "unsupported bit depth for aaline draw (supports 32 & 24 bit)");
 
+    if (!surf->format->Amask)
+        return RAISE(PyExc_ValueError, "aaline draw needs an alpha surface");
+
     if(RGBAFromColorObj(colorobj, rgba))
         color = SDL_MapRGBA(surf->format, rgba[0], rgba[1], rgba[2], rgba[3]);
     else
