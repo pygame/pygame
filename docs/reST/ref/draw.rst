@@ -127,8 +127,6 @@ object around the draw calls.
    pixel shades instead of overwriting them. This function accepts floating
    point values for the end points.
 
-   Requires a surface with alpha transparency.
-
    .. ## pygame.draw.aaline ##
 
 .. function:: aalines
@@ -142,8 +140,6 @@ object around the draw calls.
    argument set to true will blend the shades with existing shades instead of
    overwriting them. This function accepts floating point values for the end
    points.
-
-   Requires a surface with alpha transparency.
 
    .. ## pygame.draw.aalines ##
 
