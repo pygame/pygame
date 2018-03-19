@@ -197,7 +197,7 @@ class BufferProxyTest(unittest.TestCase):
         self.assertTrue(weak_before() is not None)
         self.assertTrue(weak_after() is not None)
         v = None
-        gc.collect()
+        [gc.collect() for x in range(4)]
         self.assertTrue(weak_v() is None)
         self.assertTrue(weak_p() is None)
         self.assertTrue(weak_a() is None)
@@ -481,7 +481,7 @@ class BufferProxyLegacyTest(unittest.TestCase):
             bp = BufferProxy({'typestr': '|u1',
                               'shape': (sizeof(buf),),
                               'data': (addressof(buf), True)})
-            self.assertRaises(BufferError, bp.write, '123'.encode('latin_1'))
+            self.assertRaises(pygame.BufferError, bp.write, '123'.encode('latin_1'))
         finally:
             # Make sure bp is garbage collected before buf
             bp = None

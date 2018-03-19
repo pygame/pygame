@@ -91,6 +91,9 @@ _get_color_from_object(PyObject *val, SDL_PixelFormat *format, Uint32 *color)
 static PyObject *
 _get_single_pixel(PyPixelArray *array, Uint32 x, Uint32 y)
 {
+    if(array->surface == NULL) {
+        return RAISE(PyExc_ValueError, "Operation on closed PixelArray.");
+    }
     Uint8 *pixel_p = (array->pixels +
                       x * array->strides[0] +
                       y * array->strides[1]);
@@ -135,6 +138,9 @@ _get_single_pixel(PyPixelArray *array, Uint32 x, Uint32 y)
 static PyObject *
 _make_surface(PyPixelArray *array)
 {
+    if(array->surface == NULL) {
+        return RAISE(PyExc_ValueError, "Operation on closed PixelArray.");
+    }
     SDL_Surface *surf = PySurface_AsSurface(array->surface);
     int bpp;
     Py_ssize_t dim0 = array->shape[0];
@@ -353,6 +359,9 @@ _get_weights(PyObject *weights, float *wr, float *wg, float *wb)
 static PyObject *
 _replace_color(PyPixelArray *array, PyObject *args, PyObject *kwds)
 {
+    if(array->surface == NULL) {
+        return RAISE(PyExc_ValueError, "Operation on closed PixelArray.");
+    }
     PyObject *weights = 0;
     PyObject *delcolor = 0;
     PyObject *replcolor = 0;
@@ -532,6 +541,9 @@ _replace_color(PyPixelArray *array, PyObject *args, PyObject *kwds)
 static PyObject*
 _extract_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
 {
+    if(array->surface == NULL) {
+        return RAISE(PyExc_ValueError, "Operation on closed PixelArray.");
+    }
     PyObject *weights = 0;
     PyObject *excolor = 0;
     int bpp;
@@ -759,6 +771,9 @@ _extract_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
 static PyObject *
 _compare(PyPixelArray *array, PyObject *args, PyObject *kwds)
 {
+    if(array->surface == NULL) {
+        return RAISE(PyExc_ValueError, "Operation on closed PixelArray.");
+    }
     Py_ssize_t dim0 = array->shape[0];
     Py_ssize_t dim1 = array->shape[1];
     SDL_Surface *surf = PySurface_AsSurface(array->surface);
@@ -1057,3 +1072,25 @@ _transpose(PyPixelArray *array)
                                              0, array, array->pixels,
                                              dim0, dim1, stride0, stride1);
 }
+
+/* For cleaning up the array, and for the context manager.
+See:
+https://docs.python.org/3/reference/datamodel.html#with-statement-context-managers
+*/
+static PyObject *
+_close_array(PyPixelArray *array) {
+    _cleanup_array(array);
+    Py_RETURN_NONE;
+}
+
+static PyObject *
+_enter_context(PyPixelArray *array) {
+    return (PyObject *)array;
+}
+
+static PyObject *
+_exit_context(PyPixelArray *array, PyObject *args, PyObject *kwds) {
+    _cleanup_array(array);
+    Py_RETURN_NONE;
+}
+
