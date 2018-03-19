@@ -150,6 +150,6 @@ object around the draw calls.
    :alt: draw module example
 
    Example code for draw module.
-   
+
 .. literalinclude:: code_examples/draw_module_example.py
-   
+
