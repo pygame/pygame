@@ -12,9 +12,15 @@ else:
 
 import unittest
 if is_pygame_pkg:
-    from pygame.tests.test_utils import arrinter
+    try:
+        from pygame.tests.test_utils import arrinter
+    except NameError:
+        pass
 else:
-    from test.test_utils import arrinter
+    try:
+        from test.test_utils import arrinter
+    except NameError:
+        pass
 import pygame
 from pygame.locals import *
 
@@ -23,6 +29,9 @@ from pygame.pixelcopy import (surface_to_array, map_array, array_to_surface,
                                make_surface)
 
 import ctypes
+import platform
+IS_PYPY = 'PyPy' == platform.python_implementation()
+
 
 def unsigned32(i):
     """cast signed 32 bit integer to an unsigned integer"""
@@ -129,6 +138,8 @@ class PixelcopyModuleTest (unittest.TestCase):
                                      "%s != %s: bpp: %i" %
                                      (dp, sp, surf.get_bitsize()))
 
+        if IS_PYPY:
+            return
         # Swapped endian destination array
         pai_flags = arrinter.PAI_ALIGNED | arrinter.PAI_WRITEABLE
         for surf in self.sources:
@@ -147,7 +158,7 @@ class PixelcopyModuleTest (unittest.TestCase):
                                      (dp, sp, itemsize,
                                       surf.get_flags(), surf.get_bitsize(),
                                       posn))
-                
+
     def test_surface_to_array_3d(self):
         self.iter_surface_to_array_3d((0xff, 0xff00, 0xff0000, 0))
         self.iter_surface_to_array_3d((0xff0000, 0xff00, 0xff, 0))

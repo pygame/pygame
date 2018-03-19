@@ -853,6 +853,11 @@ class ColorTypeTest (unittest.TestCase):
 # only available if ctypes module is also available
 
     def test_arraystruct(self):
+        import platform
+        IS_PYPY = 'PyPy' == platform.python_implementation()
+        if IS_PYPY:
+            return
+
         import pygame.tests.test_utils.arrinter as ai
         import ctypes as ct
 

@@ -273,8 +273,8 @@ class MixerModuleTest(unittest.TestCase):
     def test_array_keyword(self):
         # If we don't have a real sound card don't do this test because it will fail.
         if os.environ.get('SDL_AUDIODRIVER') == 'disk':
-            return        
-        
+            return
+
         try:
             from numpy import (array, arange, zeros,
                                int8, uint8,
@@ -511,6 +511,25 @@ class MixerModuleTest(unittest.TestCase):
                               buftools.PyBUF_F_CONTIGUOUS)
 
     def test_get_raw(self):
+
+        mixer.init()
+        try:
+            samples = as_bytes('abcdefgh') # keep byte size a multiple of 4
+            snd = mixer.Sound(buffer=samples)
+            raw = snd.get_raw()
+            self.assertTrue(isinstance(raw, bytes_))
+            self.assertEqual(raw, samples)
+        finally:
+            mixer.quit()
+
+    def test_get_raw_more(self):
+        """ test the array interface a bit better.
+        """
+        import platform
+        IS_PYPY = 'PyPy' == platform.python_implementation()
+
+        if IS_PYPY:
+            return
         from ctypes import pythonapi, c_void_p, py_object
 
         try:
