@@ -18,13 +18,18 @@ In addition vec*vec will perform a scalar-product (a.k.a. dot-product). If you
 want to multiply every element from vector v with every element from vector w
 you can use the elementwise method: ``v.elementwise()`` ``\*`` w
 
-New in pygame 1.9.2pre. 1.9.4 removed experimental notice.
-
+New in pygame 1.9.2pre.
+1.9.4 removed experimental notice.
+1.9.4 changed constructors to require 2, or 3 elements rather than assigning 0 default.
+1.9.4 allowed scalar construction like GLSL Vector2(2) == Vector2(2.0, 2.0)
+1.9.4 pygame.math required import. more convienient pygame.Vector2 and pygame.Vector3.
 
 .. class:: Vector2
 
    | :sl:`a 2-Dimensional Vector`
    | :sg:`Vector2() -> Vector2`
+   | :sg:`Vector2(int) -> Vector2`
+   | :sg:`Vector2(float) -> Vector2`
    | :sg:`Vector2(Vector2) -> Vector2`
    | :sg:`Vector2(x, y) -> Vector2`
    | :sg:`Vector2((x, y)) -> Vector2`
@@ -47,9 +52,30 @@ New in pygame 1.9.2pre. 1.9.4 removed experimental notice.
 
       .. ## Vector2.cross ##
 
+   .. method:: magnitude
+
+      | :sl:`returns the Euclidean magnitude of the vector.`
+      | :sg:`magnitude() -> float`
+
+      calculates the magnitude of the vector which follows from the
+      theorem: ``vec.magnitude()`` == ``math.sqrt(vec.x**2 + vec.y**2)``
+
+      .. ## Vector2.magnitude ##
+
+   .. method:: magnitude_squared
+
+      | :sl:`returns the squared magnitude of the vector.`
+      | :sg:`magnitude_squared() -> float`
+
+      calculates the magnitude of the vector which follows from the
+      theorem: ``vec.magnitude_squared()`` == vec.x**2 + vec.y**2 This
+      is faster than ``vec.magnitude()`` because it avoids the square root.
+
+      .. ## Vector2.magnitude_squared ##
+
    .. method:: length
 
-      | :sl:`returns the Euclidian length of the vector.`
+      | :sl:`returns the Euclidean length of the vector.`
       | :sg:`length() -> float`
 
       calculates the Euclidean length of the vector which follows from the
@@ -233,6 +259,8 @@ New in pygame 1.9.2pre. 1.9.4 removed experimental notice.
 
    | :sl:`a 3-Dimensional Vector`
    | :sg:`Vector3() -> Vector3`
+   | :sg:`Vector3(int) -> Vector2`
+   | :sg:`Vector3(float) -> Vector2`
    | :sg:`Vector3(Vector3) -> Vector3`
    | :sg:`Vector3(x, y, z) -> Vector3`
    | :sg:`Vector3((x, y, z)) -> Vector3`
@@ -254,6 +282,28 @@ New in pygame 1.9.2pre. 1.9.4 removed experimental notice.
       calculates the cross-product.
 
       .. ## Vector3.cross ##
+
+   .. method:: magnitude
+
+      | :sl:`returns the Euclidean magnitude of the vector.`
+      | :sg:`magnitude() -> float`
+
+      calculates the magnitude of the vector which follows from the
+      theorem: ``vec.magnitude()`` == ``math.sqrt(vec.x**2 + vec.y**2 + vec.z**2)``
+
+      .. ## Vector3.magnitude ##
+
+   .. method:: magnitude_squared
+
+      | :sl:`returns the squared Euclidean magnitude of the vector.`
+      | :sg:`magnitude_squared() -> float`
+
+      calculates the magnitude of the vector which follows from the
+      theorem: ``vec.magnitude_squared()`` == vec.x**2 + vec.y**2 +
+      vec.z**2 This is faster than ``vec.magnitude()`` because it avoids the
+      square root.
+
+      .. ## Vector3.magnitude_squared ##
 
    .. method:: length
 

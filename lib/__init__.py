@@ -141,20 +141,14 @@ import pygame.color
 Color = color.Color
 import pygame.bufferproxy
 BufferProxy = bufferproxy.BufferProxy
+import pygame.math
+Vector2 = pygame.math.Vector2
+Vector3 = pygame.math.Vector3
 
 __version__ = ver
 
 # next, the "standard" modules
 # we still allow them to be missing for stripped down pygame distributions
-_import_failed = False
-try:
-    import pygame.math
-except (ImportError, IOError):
-    _import_failed = geterror()
-if _import_failed:
-    # jedi is confused by assignment inside exception handlers.
-    math = MissingModule("math", geterror(), 1)
-
 _import_failed = False
 try:
     import pygame.cdrom

@@ -49,6 +49,21 @@ class Vector2TypeTest(unittest.TestCase):
         self.assertEqual(v.x, 0.)
         self.assertEqual(v.y, 0.)
 
+    def testConstructionScalar(self):
+        v = Vector2(1)
+        self.assertEqual(v.x, 1.)
+        self.assertEqual(v.y, 1.)
+
+    def testConstructionScalarKeywords(self):
+        v = Vector2(x=1)
+        self.assertEqual(v.x, 1.)
+        self.assertEqual(v.y, 1.)
+
+    def testConstructionKeywords(self):
+        v = Vector2(x=1, y=2)
+        self.assertEqual(v.x, 1.)
+        self.assertEqual(v.y, 2.)
+
     def testConstructionXY(self):
         v = Vector2(1.2, 3.4)
         self.assertEqual(v.x, 1.2)
@@ -758,7 +773,6 @@ class Vector3TypeTest(unittest.TestCase):
         self.assertEqual(v.y, 0.)
         self.assertEqual(v.z, 0.)
 
-
     def testConstructionXYZ(self):
         v = Vector3(1.2, 3.4, 9.6)
         self.assertEqual(v.x, 1.2)
@@ -782,6 +796,33 @@ class Vector3TypeTest(unittest.TestCase):
         self.assertEqual(v.x, 1.2)
         self.assertEqual(v.y, 3.4)
         self.assertEqual(v.z, -9.6)
+
+    def testConstructionScalar(self):
+        v = Vector3(1)
+        self.assertEqual(v.x, 1.)
+        self.assertEqual(v.y, 1.)
+        self.assertEqual(v.z, 1.)
+
+    def testConstructionScalarKeywords(self):
+        v = Vector3(x=1)
+        self.assertEqual(v.x, 1.)
+        self.assertEqual(v.y, 1.)
+        self.assertEqual(v.z, 1.)
+
+    def testConstructionKeywords(self):
+        v = Vector3(x=1, y=2, z=3)
+        self.assertEqual(v.x, 1.)
+        self.assertEqual(v.y, 2.)
+        self.assertEqual(v.z, 3.)
+
+    def testConstructionMissing(self):
+        def assign_missing_value():
+            v = Vector3(1, 2)
+        self.assertRaises(ValueError, assign_missing_value)
+
+        def assign_missing_value():
+            v = Vector3(x=1, y=2)
+        self.assertRaises(ValueError, assign_missing_value)
 
     def testAttributAccess(self):
         tmp = self.v1.x
@@ -1060,7 +1101,7 @@ class Vector3TypeTest(unittest.TestCase):
                          Vector3(0, 1, 0))
 
     def test_rotate_ip(self):
-        v = Vector3(1, 0)
+        v = Vector3(1, 0, 0)
         axis = Vector3(0, 1, 0)
         self.assertEqual(v.rotate_ip(90, axis), None)
         self.assertEqual(v.x, 0)
