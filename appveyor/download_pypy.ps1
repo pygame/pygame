@@ -31,7 +31,8 @@ function DownloadPyPy($which_pypy) {
 
 
 function main ($pypy_version) {
-   DownloadPyPy $pypy_version
+   DownloadPyPy "pypy2-v5.10.0-win32"
+   & DownloadPyPy "pypy3-v5.10.1-win32"
 }
 
 main $pypy_version
