@@ -1,5 +1,5 @@
-// For downloading windows prebuilt dependencies.
-//   powershell appveyor\install.ps1
+# For downloading windows prebuilt dependencies.
+#   powershell appveyor\install.ps1
 
 function DownloadPrebuilt () {
     $webclient = New-Object System.Net.WebClient
