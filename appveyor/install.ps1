@@ -1,7 +1,5 @@
-function InstallPackage ($python_home, $pkg) {
-    $pip_path = $python_home + "/Scripts/pip.exe"
-    & $pip_path install $pkg
-}
+// For downloading windows prebuilt dependencies.
+//   powershell appveyor\install.ps1
 
 function DownloadPrebuilt () {
     $webclient = New-Object System.Net.WebClient
@@ -40,39 +38,9 @@ function DownloadPrebuilt () {
    & 7z x $prebuilt_zip
 }
 
-// TODO: a better powershell dev would make this function reusable.
-//       add sha or even md5 checksum verification.
-function DownloadPyPy($which_pypy) {
-    $webclient = New-Object System.Net.WebClient
-
-    $which_pypy_zip = $which_pypy + ".zip"
-    $download_url = "https://bitbucket.org/pypy/pypy/downloads/" + $which_pypy + ".zip"
-
-    $filepath = "$env:appveyor_build_folder\" + $which_pypy + ".zip"
-
-    Write-Host "Downloading" $filepath "from" $download_url
-    $retry_attempts = 3
-    for($i=0; $i -lt $retry_attempts; $i++){
-        try {
-            $webclient.DownloadFile($download_url, $filepath)
-            break
-        }
-        Catch [Exception]{
-            Start-Sleep 1
-        }
-   }
-   Write-Host "File saved at" $filepath
-
-   & 7z x $which_pypy_zip
-   $env:path = "$env:appveyor_build_folder\$which_pypy;$env:path"
-}
-
 
 function main () {
-    DownloadPyPy "pypy2-v5.10.0-win32"
-    & DownloadPyPy "pypy3-v5.10.1-win32"
-    & InstallPackage $env:PYTHON wheel
-    & DownloadPrebuilt
+    DownloadPrebuilt
 }
 
 main

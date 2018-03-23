@@ -1,3 +1,6 @@
+// For downloading pypy or pypy3.
+// powershell appveyor\\download_pypy.ps1 -pypy_version pypy2-v5.10.0-win32
+//
 // TODO: a better powershell dev would:
 //         - make this function reusable.
 //         - add sha or even md5 checksum verification.
