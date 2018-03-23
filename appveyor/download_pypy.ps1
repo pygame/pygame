@@ -31,10 +31,7 @@ function DownloadPyPy($which_pypy) {
 
 
 function main ($pypy_version) {
-    Write-Host "pypy_version" $pypy_version
-	if ($pypy_version) {
-	    DownloadPyPy $pypy_version
-	}
+   DownloadPyPy $pypy_version
 }
 
 main $pypy_version
