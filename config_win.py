@@ -44,7 +44,7 @@ class Dependency(object):
         self.libs = libs
         self.found = False
         self.cflags = ''
-                 
+
     def hunt(self):
         parent = os.path.abspath('..')
         for p in huntpaths:
@@ -104,7 +104,7 @@ class DependencyPython(object):
         self.ver = '0'
         self.module = module
         self.header = header
- 
+
     def configure(self):
         self.found = True
         if self.module:
@@ -168,7 +168,7 @@ class DependencyWin(object):
         self.libs = []
         self.found = True
         self.cflags = cflags
-        
+
     def configure(self):
         pass
 
@@ -186,7 +186,7 @@ class DependencyGroup(object):
 
     def add_win(self, name, cflags):
         self.dependencies.append(DependencyWin(name, cflags))
-                                 
+
     def add_dll(self, dll_regex, lib=None, wildcards=None, libs=None, link_lib=None):
         link = None
         if link_lib is not None:
@@ -233,6 +233,10 @@ for d in get_definitions():
 
 def setup_prebuilt(prebuilt_dir):
     setup = open('Setup', 'w')
+    is_pypy = '__pypy__' in sys.builtin_module_names
+    import platform
+    is_python3 = platform.python_version().startswith('3')
+
     try:
         try:
             setup_win_in = open(os.path.join(prebuilt_dir, 'Setup_Win.in'))
@@ -245,6 +249,9 @@ def setup_prebuilt(prebuilt_dir):
         try:
             do_copy = True
             for line in setup_in:
+                if is_pypy and is_python3:
+                    if line.startswith('_freetype'):
+                        continue
                 if line.startswith('#--StartConfig'):
                     do_copy = False
                     setup.write(setup_win_in.read())
@@ -281,7 +288,7 @@ def main():
             raise SystemExit()
 
     global DEPS
-    
+
     DEPS.configure()
     return list(DEPS)
 
