@@ -1,32 +1,37 @@
-# How I can contribute?
+# How to contribute?
 
-If this is your first open source project then you will find more useful informations right [here](https://github.com/collections/choosing-projects)
-
----
-
-## Todo
-
-* In this project exists a demand an documentations. For instance you can document parts of this project. 
-* Open issues can be a good first contribution. What can you do?
-    * If you find an issue that reports a bug. You can tried to reproduces the error and to document the steps.
-      In fact with this procedure you can isolates the bug in certain projects parts/files. Finaly you can fixes the bug.  
-      If you can't fixed the bug you can delievers valuable information for others to fixes the bug.
+Pygame welcomes contributions from the community; however, it is a big and complex project that will require a little bit of time to become familiar with. If you are new to open source contribution, you may want to read the following useful information [here](https://github.com/collections/choosing-projects)
 
 ---
 
-## Find issues
+## Priorities:
 
-For finding issues use the issue-tracker of this repository. Use filter for find for instance recently updated issues.  
+### Documentation:
+
+* Documentating the API is very important to the project; contributing to pygame documentation can be a very good entry point to get acquainted with the project, understand the code, and gear up to further contributions.
+
+### Open Issues:
+
+* Open issues are a great source of ideas to contribute to pygame.
+    * If you find an issue that reports a problem. You can try to reproduce the error, and document the steps. This process helps locate and isolate the bug in certain parts of the code, or files of the project; this reveals valuable information for you, or others to fix it.
+    * Issues triage, and allocation of tags will help all contributors.
 
 ---
 
-## Make a pull request
+## Report issues:
 
-If you want added some documentation or fixes some problems then do this:
+For reporting issues, bugs, or problems, use the issue-tracker. Please, first check previous issues using filter, to avoid duplicated reports.  
+
+---
+
+## How to make a pull request
+
+If you have added to, or modified the code, or the documentation, or fixed a problem, make a pull request:
   * Fork the repository.
   * Clone the repository of your own machine.
-  * If you has forked the repository then create a own branch. 
-    * Called Fix_XXXX . **XXXX** is the identifier of the problem or simple documentation if you has added some 
-      documentation.
-  * Then add your changed or new files. Either over the web interface or over git.
-  * Finaliy make a pull request. 
+  * Create a new branch, and name it as follows:
+      * `Fix_XXXX`, where **XXXX** is the identifier of the problem 
+      * `Doc_XXXX`, where **XXXX** is a simple descriptor of the addition to the documentation.
+  * Commit your changes. 
+  * Push.
+  * Make a pull request. 
