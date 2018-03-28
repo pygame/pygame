@@ -6,6 +6,13 @@ set -e
 # Travis overrides cd to do something with Ruby. Revert to the default.
 unset -f cd
 
+if [[ "$PY_VERSION" == "pypy2" ]] || [[ "$PY_VERSION" == "pypy3" ]]; then
+	brew install $PY_VERSION
+	export PYTHON_EXE=$PY_VERSION
+	export PIP_CMD=$PY_VERSION -m pip
+else
+
+
 git clone https://github.com/illume/terryfy.git
 cd terryfy
 # Work with a specific commit
@@ -19,3 +26,7 @@ if [[ "$PY_VERSION" == "2" ]]; then
 fi
 
 get_python_environment homebrew $PY_VERSION $(pwd)/_test_env
+
+
+fi
+
