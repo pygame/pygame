@@ -36,6 +36,15 @@ static PyTypeObject PyRect_Type;
 static PyObject* rect_new (PyTypeObject *type, PyObject *args, PyObject *kwds);
 static int rect_init (PyRectObject *self, PyObject *args, PyObject *kwds);
 
+
+/* We store some rect objects which have been allocated already.
+   Mostly to work around an old pypy cpyext performance issue.
+*/
+const int PG_RECT_FREELIST_MAX = 8192*6;
+static PyRectObject *pg_rect_freelist[PG_RECT_FREELIST_MAX];
+int pg_rect_freelist_num = -1;
+
+
 PyObject*
 rect_subtype_new4 (PyTypeObject *type, int x, int y, int w, int h)
 {
@@ -49,6 +58,50 @@ rect_subtype_new4 (PyTypeObject *type, int x, int y, int w, int h)
         rect->r.h = h;
     }
     return (PyObject*)rect;
+}
+
+static PyObject*
+rect_new (PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    PyRectObject *self;
+
+    if (pg_rect_freelist_num > -1) {
+        self = pg_rect_freelist[pg_rect_freelist_num];
+        Py_INCREF(self);
+        /* This is so that pypy garbage collector thinks it is a new obj
+           TODO: May be a hack. Is a hack.
+           See https://github.com/pygame/pygame/issues/430
+        */
+#ifdef PYPY_VERSION
+        ((PyObject*)(self))->ob_pypy_link = 0;
+#endif
+        pg_rect_freelist_num--;
+    } else {
+        self = (PyRectObject *)type->tp_alloc (type, 0);
+    }
+
+    if (self)
+    {
+        self->r.x = self->r.y = 0;
+        self->r.w = self->r.h = 0;
+        self->weakreflist = NULL;
+    }
+    return (PyObject*)self;
+}
+
+/* object type functions */
+static void
+rect_dealloc (PyRectObject *self)
+{
+    if (self->weakreflist)
+        PyObject_ClearWeakRefs ((PyObject*)self);
+
+    if (pg_rect_freelist_num < PG_RECT_FREELIST_MAX) {
+        pg_rect_freelist_num++;
+        pg_rect_freelist[pg_rect_freelist_num] = self;
+    } else {
+        Py_TYPE(self)->tp_free ((PyObject*)self);
+    }
 }
 
 GAME_Rect*
@@ -1118,15 +1171,6 @@ static PyNumberMethods rect_as_number =
     (unaryfunc)NULL,          /*float*/
 };
 
-/* object type functions */
-static void
-rect_dealloc (PyRectObject *self)
-{
-    if (self->weakreflist)
-        PyObject_ClearWeakRefs ((PyObject*)self);
-    Py_TYPE(self)->tp_free ((PyObject*)self);
-}
-
 static PyObject*
 rect_repr (PyRectObject *self)
 {
@@ -1649,19 +1693,6 @@ static PyTypeObject PyRect_Type =
     rect_new,                           /* tp_new */
 };
 
-static PyObject*
-rect_new (PyTypeObject *type, PyObject *args, PyObject *kwds)
-{
-    PyRectObject *self;
-    self = (PyRectObject *)type->tp_alloc (type, 0);
-    if (self)
-    {
-        self->r.x = self->r.y = 0;
-        self->r.w = self->r.h = 0;
-        self->weakreflist = NULL;
-    }
-    return (PyObject*)self;
-}
 
 static int
 rect_init (PyRectObject *self, PyObject *args, PyObject *kwds)
