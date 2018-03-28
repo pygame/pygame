@@ -1200,8 +1200,8 @@ _arraystruct_as_buffer (Py_buffer* view_p, PyObject* cobj,
                         PyArrayInterface* inter_p, int flags)
 {
     ViewInternals* internal_p;
-    ssize_t sz = (sizeof (ViewInternals) +
-                  (2 * inter_p->nd - 1) * sizeof (Py_ssize_t));
+    Py_ssize_t sz = (sizeof (ViewInternals) +
+                    (2 * inter_p->nd - 1) * sizeof (Py_ssize_t));
     int readonly = inter_p->flags & PAI_WRITEABLE ? 0 : 1;
     Py_ssize_t i;
 
@@ -1574,7 +1574,7 @@ _pyvalues_as_buffer(Py_buffer* view_p, int flags,
 {
     Py_ssize_t ndim = PyTuple_GET_SIZE (pyshape);
     ViewInternals* internal_p;
-    ssize_t sz;
+    Py_ssize_t sz;
     int i;
 
     assert (ndim > 0);

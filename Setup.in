@@ -19,7 +19,7 @@ PORTTIME = -lporttime
 FREETYPE = -lfreetype
 #--EndConfig
 
-DEBUG = 
+DEBUG =
 
 #the following modules are optional. you will want to compile
 #everything you can, but you can ignore ones you don't have
@@ -32,8 +32,8 @@ mixer_music src/music.c $(SDL) $(MIXER) $(DEBUG)
 scrap src/scrap.c $(SDL) $(SCRAP) $(DEBUG)
 pypm src/pypm.c $(SDL) $(PORTMIDI) $(PORTTIME) $(DEBUG)
 
-GFX = src/SDL_gfx/SDL_gfxPrimitives.c 
-#GFX = src/SDL_gfx/SDL_gfxBlitFunc.c src/SDL_gfx/SDL_gfxPrimitives.c 
+GFX = src/SDL_gfx/SDL_gfxPrimitives.c
+#GFX = src/SDL_gfx/SDL_gfxBlitFunc.c src/SDL_gfx/SDL_gfxPrimitives.c
 gfxdraw src/gfxdraw.c $(SDL) $(GFX) $(DEBUG)
 
 #optional freetype module (do not break in multiple lines

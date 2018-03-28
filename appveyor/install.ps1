@@ -1,7 +1,5 @@
-function InstallPackage ($python_home, $pkg) {
-    $pip_path = $python_home + "/Scripts/pip.exe"
-    & $pip_path install $pkg
-}
+# For downloading windows prebuilt dependencies.
+#   powershell appveyor\install.ps1
 
 function DownloadPrebuilt () {
     $webclient = New-Object System.Net.WebClient
@@ -42,8 +40,7 @@ function DownloadPrebuilt () {
 
 
 function main () {
-    InstallPackage $env:PYTHON wheel
-    & DownloadPrebuilt
+    DownloadPrebuilt
 }
 
 main

@@ -30,6 +30,9 @@ import os
 # Choose Windows display driver
 if os.name == 'nt':
 
+    #pypy does not find the dlls, so we add package folder to PATH.
+    pygame_dir = os.path.split(__file__)[0]
+    os.environ['PATH'] = os.environ['PATH'] + ';' + pygame_dir
     # Respect existing SDL_VIDEODRIVER setting if it has been set
     if 'SDL_VIDEODRIVER' not in os.environ:
 

@@ -11,35 +11,39 @@ environment:
     SDL_AUDIODRIVER: "disk"
 
   matrix:
-    - PYTHON: "C:\\Python27"
+    - PYTHON: "pypy.exe"
+      PYTHON_VERSION: "2.7.13"
+      PYTHON_ARCH: "32"
+      PYPY_VERSION: "pypy2-v5.10.0-win32"
+      PYPY_DOWNLOAD: "powershell appveyor\\download_pypy.ps1"
+
+    - PYTHON: "pypy3.exe"
+      PYTHON_VERSION: "2.7.13"
+      PYTHON_ARCH: "32"
+      PYPY_VERSION: "pypy3-v5.10.1-win32"
+      PYPY_DOWNLOAD: "powershell appveyor\\download_pypy.ps1"
+
+    - PYTHON: "C:\\Python27\\python"
       PYTHON_VERSION: "2.7.13"
       PYTHON_ARCH: "32"
 
-    - PYTHON: "C:\\Python34"
-      PYTHON_VERSION: "3.4.4"
-      PYTHON_ARCH: "32"
-
-    - PYTHON: "C:\\Python35"
+    - PYTHON: "C:\\Python35\\python"
       PYTHON_VERSION: "3.5.2"
       PYTHON_ARCH: "32"
 
-    - PYTHON: "C:\\Python36"
+    - PYTHON: "C:\\Python36\\python"
       PYTHON_VERSION: "3.6.0"
       PYTHON_ARCH: "32"
 
-    - PYTHON: "C:\\Python27-x64"
+    - PYTHON: "C:\\Python27-x64\\python"
       PYTHON_VERSION: "2.7.13"
       PYTHON_ARCH: "64"
 
-    - PYTHON: "C:\\Python34-x64"
-      PYTHON_VERSION: "3.4.4"
-      PYTHON_ARCH: "64"
-
-    - PYTHON: "C:\\Python35-x64"
+    - PYTHON: "C:\\Python35-x64\\python"
       PYTHON_VERSION: "3.5.2"
       PYTHON_ARCH: "64"
 
-    - PYTHON: "C:\\Python36-x64"
+    - PYTHON: "C:\\Python36-x64\\python"
       PYTHON_VERSION: "3.6.0"
       PYTHON_ARCH: "64"
 
@@ -48,15 +52,18 @@ init:
 
 install:
   - "powershell appveyor\\install.ps1"
+  - "%PYPY_DOWNLOAD%"
   - "set HOME=%APPVEYOR_BUILD_FOLDER%"
-  - "%PYTHON%/python -m pip install -U pip"  # Upgrade pip
-  - "%WITH_COMPILER% %PYTHON%/python config.py -auto"
-  - "%WITH_COMPILER% %PYTHON%/python setup.py build"
-  - "%WITH_COMPILER% %PYTHON%/python setup.py -setuptools %DISTRIBUTIONS%"
+  - "set PATH=%PATH%;%APPVEYOR_BUILD_FOLDER%\\%PYPY_VERSION%"
+  - "%PYTHON% -m ensurepip"
+  - "%PYTHON% -m pip install -U wheel pip"
+  - "%WITH_COMPILER% %PYTHON% config.py -auto"
+  - "%WITH_COMPILER% %PYTHON% setup.py build"
+  - "%WITH_COMPILER% %PYTHON% setup.py -setuptools %DISTRIBUTIONS%"
   - ps: "ls dist"
 
   # Install the wheel to test it
-  - "%PYTHON%/python -m pip install --ignore-installed --pre --no-index --find-links dist/ pygame"
+  - "%PYTHON% -m pip install --ignore-installed --pre --no-index --find-links dist/ pygame"
 
 # Appveyor's build step is specific to .NET projects, so we build in the
 # install step instead.
@@ -65,12 +72,12 @@ build: off
 test_script:
   - "mkdir empty_folder"
   - "cd empty_folder"
-  - "%PYTHON%/python -m pygame.tests --exclude opengl"
+  - "%PYTHON% -m pygame.tests --exclude opengl"
 
   # Move back to the project folder
   - "cd .."
 
 artifacts:
-  - path: dist\*
+  - path: 'dist\*'
 
 
