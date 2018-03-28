@@ -572,17 +572,18 @@ _pxarray_get_pixelsaddress(PyPixelArray *self, void *closure)
 static int
 _pxarray_getbuffer(PyPixelArray *self, Py_buffer *view_p, int flags)
 {
+    Py_ssize_t itemsize;
+    int ndim = self->shape[1] ? 2 : 1;
+    Py_ssize_t *shape = 0;
+    Py_ssize_t *strides = 0;
+    Py_ssize_t len;
+
     if (self->surface == NULL) {
         PyErr_SetString(PyExc_ValueError, "Operation on closed PixelArray.");
         return -1;
     }
 
-    Py_ssize_t itemsize =
-        PySurface_AsSurface(self->surface)->format->BytesPerPixel;
-    int ndim = self->shape[1] ? 2 : 1;
-    Py_ssize_t *shape = 0;
-    Py_ssize_t *strides = 0;
-    Py_ssize_t len;
+    itemsize = PySurface_AsSurface(self->surface)->format->BytesPerPixel;
 
     len = self->shape[0] * (ndim == 2 ? self->shape[1] : 1) * itemsize;
     view_p->obj = 0;
@@ -679,11 +680,7 @@ _pxarray_getbuffer(PyPixelArray *self, Py_buffer *view_p, int flags)
 static PyObject *
 _pxarray_repr(PyPixelArray *array)
 {
-    if(array->surface == NULL) {
-        return RAISE(PyExc_ValueError, "Operation on closed PixelArray.");
-    }
-
-    SDL_Surface *surf = PySurface_AsSurface(array->surface);
+    SDL_Surface *surf;
     PyObject *string;
     int bpp;
     Uint8 *pixels = array->pixels;
@@ -698,6 +695,11 @@ _pxarray_repr(PyPixelArray *array)
     Uint8 *pixelrow;
     Uint8 *pixel_p;
 
+    if(array->surface == NULL) {
+        return RAISE(PyExc_ValueError, "Operation on closed PixelArray.");
+    }
+
+    surf = PySurface_AsSurface(array->surface);
     bpp = surf->format->BytesPerPixel;
 
     string = Text_FromUTF8 ("PixelArray(");
@@ -840,9 +842,6 @@ _pxarray_subscript_internal(PyPixelArray *array,
                             Py_ssize_t ystop,
                             Py_ssize_t ystep)
 {
-    if(array->surface == NULL) {
-        return RAISE(PyExc_ValueError, "Operation on closed PixelArray.");
-    }
     /* Special case: if xstep or ystep are zero, then the corresponding
      * dimension is removed. If both are zero, then a single integer
      * pixel value is returned.
@@ -856,6 +855,10 @@ _pxarray_subscript_internal(PyPixelArray *array,
     Py_ssize_t absystep = ABS(ystep);
     Py_ssize_t dx = xstop - xstart;
     Py_ssize_t dy = ystop - ystart;
+
+    if(array->surface == NULL) {
+        return RAISE(PyExc_ValueError, "Operation on closed PixelArray.");
+    }
 
     if (!array->shape[1]) {
         ystart = 0;
@@ -953,12 +956,7 @@ _array_assign_array(PyPixelArray *array,
                     Py_ssize_t low, Py_ssize_t high,
                     PyPixelArray *val)
 {
-    if(array->surface == NULL) {
-        PyErr_SetString(PyExc_ValueError, "Operation on closed PixelArray.");
-        return -1;
-    }
-
-    SDL_Surface *surf = PySurface_AsSurface(array->surface);
+    SDL_Surface *surf;
     Py_ssize_t dim0 = ABS(high - low);
     Py_ssize_t dim1 = array->shape[1];
     Py_ssize_t stride0 = high >= low ? array->strides[0] : -array->strides[0];
@@ -970,7 +968,7 @@ _array_assign_array(PyPixelArray *array,
     Py_ssize_t val_stride0 = val->strides[0];
     Py_ssize_t val_stride1 = val->strides[1];
     Uint8 *val_pixels = val->pixels;
-    SDL_Surface *val_surf = PySurface_AsSurface(val->surface);
+    SDL_Surface *val_surf;
     int val_bpp;
     Uint8 *pixelrow;
     Uint8 *pixel_p;
@@ -980,6 +978,14 @@ _array_assign_array(PyPixelArray *array,
     Py_ssize_t x;
     Py_ssize_t y;
     int sizes_match = 0;
+
+    if(array->surface == NULL) {
+        PyErr_SetString(PyExc_ValueError, "Operation on closed PixelArray.");
+        return -1;
+    }
+
+    surf = PySurface_AsSurface(array->surface);
+    val_surf = PySurface_AsSurface(val->surface);
 
     /* Broadcast length 1 val dimensions.*/
     if (val_dim0 == 1) {
