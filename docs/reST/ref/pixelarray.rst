@@ -71,7 +71,7 @@
      otherarray = pxarray[::2, ::2]
 
    Subscript slices can also be used to do fast rectangular pixel manipulations
-   instead of iterating over the x or y axis. The 
+   instead of iterating over the x or y axis. The
 
    ::
 
@@ -79,9 +79,11 @@
      pxarray[::2] = (0, 0, 0)                  # Same as [::2, :]
 
    During its lifetime, the PixelArray locks the surface, thus you explicitly
-   have to delete it once its not used any more and the surface should perform
-   operations in the same scope. A simple ``:`` slice index for the column can
-   be omitted.
+   have to close() it once its not used any more and the surface should perform
+   operations in the same scope. It is best to use it as a context manager
+   using the with PixelArray(surf) as pixel_array: style. So it works on pypy too.
+
+   A simple ``:`` slice index for the column can be omitted.
 
    ::
 
@@ -97,6 +99,12 @@
    are performed for all pixel sizes. To avoid code breakage when full mapped
    copying is implemented it is suggested PixelArray to PixelArray copies be
    only between surfaces of identical format.
+
+   New in pygame 1.9.4
+
+    - close() method was added. For explicitly cleaning up.
+    - being able to use PixelArray as a context manager for cleanup.
+    - both of these are useful for when working without reference counting (pypy).
 
    New in pygame 1.9.2
 
@@ -126,6 +134,8 @@
    .. versionadded: 1.9.2
       Array struct interface
 
+   .. versionadded: 1.9.4
+      Methods :meth:`close`
 
    .. attribute:: surface
 
@@ -174,7 +184,7 @@
       multiplied by the corresponding index it gives the offset
       of that index from the start of the array. A stride is negative
       for an array that has is inverted (has a negative step).
- 
+
       New in pygame 1.9.2
 
    .. method:: make_surface
@@ -268,5 +278,18 @@
       New in pygame 1.9.2
 
       .. ## PixelArray.transpose ##
+
+   .. method:: close
+
+      | :sl:`Closes the PixelArray, and releases Surface lock.`
+      | :sg:`transpose() -> PixelArray`
+
+      This method is for explicitly closing the PixelArray, and releasing
+      a lock on the Suface.
+
+      New in pygame 1.9.4
+
+      .. ## PixelArray.close ##
+
 
    .. ## pygame.PixelArray ##
