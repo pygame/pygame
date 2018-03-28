@@ -91,15 +91,20 @@ _get_color_from_object(PyObject *val, SDL_PixelFormat *format, Uint32 *color)
 static PyObject *
 _get_single_pixel(PyPixelArray *array, Uint32 x, Uint32 y)
 {
+    Uint8 *pixel_p;
+    SDL_Surface *surf;
+    int bpp;
+    Uint32 pixel;
+
     if(array->surface == NULL) {
         return RAISE(PyExc_ValueError, "Operation on closed PixelArray.");
     }
-    Uint8 *pixel_p = (array->pixels +
-                      x * array->strides[0] +
-                      y * array->strides[1]);
-    SDL_Surface *surf = PySurface_AsSurface(array->surface);
-    int bpp;
-    Uint32 pixel;
+
+    pixel_p = (array->pixels +
+               x * array->strides[0] +
+               y * array->strides[1]);
+    surf = PySurface_AsSurface(array->surface);
+
 
     bpp = surf->format->BytesPerPixel;
 
@@ -138,10 +143,7 @@ _get_single_pixel(PyPixelArray *array, Uint32 x, Uint32 y)
 static PyObject *
 _make_surface(PyPixelArray *array)
 {
-    if(array->surface == NULL) {
-        return RAISE(PyExc_ValueError, "Operation on closed PixelArray.");
-    }
-    SDL_Surface *surf = PySurface_AsSurface(array->surface);
+    SDL_Surface *surf;
     int bpp;
     Py_ssize_t dim0 = array->shape[0];
     Py_ssize_t dim1 = array->shape[1] ? array->shape[1] : 1;
@@ -161,6 +163,11 @@ _make_surface(PyPixelArray *array)
     Uint8 *new_pixelrow;
     Uint8 *new_pixel_p;
 
+    if(array->surface == NULL) {
+        return RAISE(PyExc_ValueError, "Operation on closed PixelArray.");
+    }
+
+    surf = PySurface_AsSurface(array->surface);
     bpp = surf->format->BytesPerPixel;
 
     /* Create the second surface. */
@@ -359,13 +366,10 @@ _get_weights(PyObject *weights, float *wr, float *wg, float *wb)
 static PyObject *
 _replace_color(PyPixelArray *array, PyObject *args, PyObject *kwds)
 {
-    if(array->surface == NULL) {
-        return RAISE(PyExc_ValueError, "Operation on closed PixelArray.");
-    }
     PyObject *weights = 0;
     PyObject *delcolor = 0;
     PyObject *replcolor = 0;
-    SDL_Surface *surf = PySurface_AsSurface(array->surface);
+    SDL_Surface *surf;
     SDL_PixelFormat *format;
     Py_ssize_t dim0 = array->shape[0];
     Py_ssize_t dim1 = array->shape[1];
@@ -383,6 +387,11 @@ _replace_color(PyPixelArray *array, PyObject *args, PyObject *kwds)
     Py_ssize_t x;
     Py_ssize_t y;
     static char *keys[] = { "color", "repcolor", "distance", "weights", NULL };
+
+    if(array->surface == NULL) {
+        return RAISE(PyExc_ValueError, "Operation on closed PixelArray.");
+    }
+    surf = PySurface_AsSurface(array->surface);
 
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "OO|fO", keys, &delcolor,
                                      &replcolor, &distance, &weights)) {
@@ -541,9 +550,6 @@ _replace_color(PyPixelArray *array, PyObject *args, PyObject *kwds)
 static PyObject*
 _extract_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
 {
-    if(array->surface == NULL) {
-        return RAISE(PyExc_ValueError, "Operation on closed PixelArray.");
-    }
     PyObject *weights = 0;
     PyObject *excolor = 0;
     int bpp;
@@ -567,6 +573,10 @@ _extract_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
     Py_ssize_t stride1;
     Uint8 *pixels;
     static char *keys[] = { "color", "distance", "weights", NULL };
+
+    if(array->surface == NULL) {
+        return RAISE(PyExc_ValueError, "Operation on closed PixelArray.");
+    }
 
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|fO", keys, &excolor,
                                      &distance, &weights)) {
@@ -771,12 +781,9 @@ _extract_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
 static PyObject *
 _compare(PyPixelArray *array, PyObject *args, PyObject *kwds)
 {
-    if(array->surface == NULL) {
-        return RAISE(PyExc_ValueError, "Operation on closed PixelArray.");
-    }
     Py_ssize_t dim0 = array->shape[0];
     Py_ssize_t dim1 = array->shape[1];
-    SDL_Surface *surf = PySurface_AsSurface(array->surface);
+    SDL_Surface *surf;
     SDL_PixelFormat *format;
     PyPixelArray *other_array;
     PyObject *weights = 0;
@@ -805,6 +812,11 @@ _compare(PyPixelArray *array, PyObject *args, PyObject *kwds)
     Uint8 *pixels;
 
     static char *keys[] = { "array", "distance", "weights", NULL };
+
+    if(array->surface == NULL) {
+        return RAISE(PyExc_ValueError, "Operation on closed PixelArray.");
+    }
+    surf = PySurface_AsSurface(array->surface);
 
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "O!|fO", keys,
                                      &PyPixelArray_Type, &other_array,
