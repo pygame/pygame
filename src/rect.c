@@ -40,7 +40,7 @@ static int rect_init (PyRectObject *self, PyObject *args, PyObject *kwds);
 /* We store some rect objects which have been allocated already.
    Mostly to work around an old pypy cpyext performance issue.
 */
-const int PG_RECT_FREELIST_MAX = 8192*6;
+#define PG_RECT_FREELIST_MAX 49152
 static PyRectObject *pg_rect_freelist[PG_RECT_FREELIST_MAX];
 int pg_rect_freelist_num = -1;
 
