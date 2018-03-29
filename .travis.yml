@@ -63,6 +63,8 @@ matrix:
 
   allow_failures:
   - python: pypy
+  - env: PY_VERSION=pypy2
+  - env: PY_VERSION=pypy3
 
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then source .travis_osx_before_install.sh;  fi
