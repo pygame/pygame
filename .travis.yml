@@ -58,13 +58,12 @@ matrix:
         # - MACOSX_DEPLOYMENT_TARGET=10.6
 
 
-
-
-
   allow_failures:
     - python: pypy
     - os: osx
-      env: PY_VERSION=pypy2 PY_VERSION=pypy3
+      env: PY_VERSION=pypy2
+    - os: osx
+      env: PY_VERSION=pypy3
 
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then source .travis_osx_before_install.sh;  fi
