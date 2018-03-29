@@ -62,9 +62,9 @@ matrix:
 
 
   allow_failures:
-  - python: pypy
-  - env: PY_VERSION=pypy2
-  - env: PY_VERSION=pypy3
+    - python: pypy
+    - os: osx
+      env: PY_VERSION=pypy2 PY_VERSION=pypy3
 
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then source .travis_osx_before_install.sh;  fi
@@ -81,7 +81,7 @@ install:
   - $(set | grep PYPI_ | python -c "import sys;print('\n'.join(['unset %s' % l.split('=')[0] for l in sys.stdin.readlines() if l.startswith('PYPI')]))")
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then source .travis_osx.sh; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then PYTHON_EXE=python PIP_CMD=pip; fi
-  - "$PIP_CMD install --upgrade setuptools pip"
+  - "$PIP_CMD install --upgrade pip"
   - "$PIP_CMD install --upgrade numpy"
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then $PIP_CMD install delocate twine; fi
   - "$PYTHON_EXE config.py -auto"
