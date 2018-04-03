@@ -40,9 +40,12 @@ static int rect_init (PyRectObject *self, PyObject *args, PyObject *kwds);
 /* We store some rect objects which have been allocated already.
    Mostly to work around an old pypy cpyext performance issue.
 */
-const int PG_RECT_FREELIST_MAX = 8192*6;
-static PyRectObject *pg_rect_freelist[PG_RECT_FREELIST_MAX];
+#ifdef PYPY_VERSION
+#define PG_RECT_NUM 49152
+const int PG_RECT_FREELIST_MAX = PG_RECT_NUM;
+static PyRectObject *pg_rect_freelist[PG_RECT_NUM];
 int pg_rect_freelist_num = -1;
+#endif
 
 
 PyObject*
@@ -65,6 +68,7 @@ rect_new (PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     PyRectObject *self;
 
+#ifdef PYPY_VERSION
     if (pg_rect_freelist_num > -1) {
         self = pg_rect_freelist[pg_rect_freelist_num];
         Py_INCREF(self);
@@ -72,13 +76,14 @@ rect_new (PyTypeObject *type, PyObject *args, PyObject *kwds)
            TODO: May be a hack. Is a hack.
            See https://github.com/pygame/pygame/issues/430
         */
-#ifdef PYPY_VERSION
         ((PyObject*)(self))->ob_pypy_link = 0;
-#endif
         pg_rect_freelist_num--;
     } else {
         self = (PyRectObject *)type->tp_alloc (type, 0);
     }
+#else
+    self = (PyRectObject *)type->tp_alloc (type, 0);
+#endif
 
     if (self)
     {
@@ -96,12 +101,16 @@ rect_dealloc (PyRectObject *self)
     if (self->weakreflist)
         PyObject_ClearWeakRefs ((PyObject*)self);
 
+#ifdef PYPY_VERSION
     if (pg_rect_freelist_num < PG_RECT_FREELIST_MAX) {
         pg_rect_freelist_num++;
         pg_rect_freelist[pg_rect_freelist_num] = self;
     } else {
         Py_TYPE(self)->tp_free ((PyObject*)self);
     }
+#else
+    Py_TYPE(self)->tp_free ((PyObject*)self);
+#endif
 }
 
 GAME_Rect*
