@@ -91,14 +91,16 @@ class BlitTest( unittest.TestCase ):
 
     def test_blits(self):
 
-        dst = pygame.Surface((100, 10), SRCALPHA, 32)
+        NUM_SURFS = 255
+        PRINT_TIMING = 0
+        dst = pygame.Surface((NUM_SURFS * 10, 10), SRCALPHA, 32)
         dst.fill((230, 230, 230))
 
         blit_list = []
-        for i in range(10):
+        for i in range(NUM_SURFS):
             dest = (i * 10, 0)
             surf = pygame.Surface((10, 10), SRCALPHA, 32)
-            color = (i * 10, i * 10, i * 10)
+            color = (i * 1, i * 1, i * 1)
             surf.fill(color)
             blit_list.append((surf, dest))
 
@@ -106,14 +108,54 @@ class BlitTest( unittest.TestCase ):
             for surface, dest in blit_list:
                 dst.blit(surface, dest)
 
-        #dst.blits(blit_list)
-        blits(blit_list)
+        from time import time
+        t0 = time()
+        results = blits(blit_list)
+        t1 = time()
+        if PRINT_TIMING:
+            print("python blits: %s" % (t1-t0))
+
+        dst.fill((230, 230, 230))
+        t0 = time()
+        results = dst.blits(blit_list)
+        t1 = time()
+        if PRINT_TIMING:
+            print("Surface.blits :%s" % (t1-t0))
+
 
         # check if we blit all the different colors in the correct spots.
-        for i in range(10):
-            color = (i * 10, i * 10, i * 10)
+        for i in range(NUM_SURFS):
+            color = (i * 1, i * 1, i * 1)
             self.assertEqual(dst.get_at((i * 10, 0)), color)
             self.assertEqual(dst.get_at(((i * 10) + 5, 5)), color)
+
+        self.assertEqual(len(results), NUM_SURFS)
+
+        t0 = time()
+        results = dst.blits(blit_list, doreturn = 0)
+        t1 = time()
+        if PRINT_TIMING:
+            print("Surface.blits doreturn=0: %s" % (t1-t0))
+
+        self.assertEqual(results, None)
+
+
+    def test_blits_not_sequence(self):
+        dst = pygame.Surface((100, 10), SRCALPHA, 32)
+        self.assertRaises(ValueError, dst.blits, None)
+
+    def test_blits_wrong_length(self):
+        dst = pygame.Surface((100, 10), SRCALPHA, 32)
+        self.assertRaises(ValueError, dst.blits, [pygame.Surface((10, 10), SRCALPHA, 32)])
+
+    def test_blits_bad_surf_args(self):
+        dst = pygame.Surface((100, 10), SRCALPHA, 32)
+        self.assertRaises(TypeError, dst.blits, [(None, None)])
+
+    def test_blits_bad_dest(self):
+        dst = pygame.Surface((100, 10), SRCALPHA, 32)
+        self.assertRaises(TypeError, dst.blits, [(pygame.Surface((10, 10), SRCALPHA, 32), None)])
+
 
 
 if __name__ == '__main__':

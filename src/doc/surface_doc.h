@@ -3,6 +3,8 @@
 
 #define DOC_SURFACEBLIT "blit(source, dest, area=None, special_flags = 0) -> Rect\ndraw one image onto another"
 
+#define DOC_SURFACEBLITS "blit((source, dest), ...)) -> (Rect, ...)\nblit((source, dest, area), ...)) -> (Rect, ...)\nblit((source, dest, area, special_flags), ...)) -> (Rect, ...)\ndraw many images onto another"
+
 #define DOC_SURFACECONVERT "convert(Surface) -> Surface\nconvert(depth, flags=0) -> Surface\nconvert(masks, flags=0) -> Surface\nconvert() -> Surface\nchange the pixel format of an image"
 
 #define DOC_SURFACECONVERTALPHA "convert_alpha(Surface) -> Surface\nconvert_alpha() -> Surface\nchange the pixel format of an image including per pixel alphas"
@@ -111,6 +113,12 @@ pygame object for representing images
 pygame.Surface.blit
  blit(source, dest, area=None, special_flags = 0) -> Rect
 draw one image onto another
+
+pygame.Surface.blits
+ blit((source, dest), ...)) -> (Rect, ...)
+ blit((source, dest, area), ...)) -> (Rect, ...)
+ blit((source, dest, area, special_flags), ...)) -> (Rect, ...)
+draw many images onto another
 
 pygame.Surface.convert
  convert(Surface) -> Surface

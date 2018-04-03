@@ -121,6 +121,22 @@
 
       .. ## Surface.blit ##
 
+   .. method:: blits
+
+      | :sl:`draw many images onto another`
+      | :sg:`blit((source, dest), ...)) -> (Rect, ...)`
+      | :sg:`blit((source, dest, area), ...)) -> (Rect, ...)`
+      | :sg:`blit((source, dest, area, special_flags), ...)) -> (Rect, ...)`
+
+      Draws many surfaces onto this Surface. It takes a sequence as input,
+      with each of the elements corresponding to the ones of ``Surface.blit()``.
+      It needs at minimum a sequence of (source, dest).
+
+      New in pygame 1.9.4.
+
+      .. ## Surface.blits ##
+
+
    .. method:: convert
 
       | :sl:`change the pixel format of an image`
@@ -795,7 +811,7 @@
       | :sg:`get_view(<kind>='2') -> BufferProxy`
 
       Return an object which exports a surface's internal pixel buffer as
-      a C level array struct, Python level array interface or a C level 
+      a C level array struct, Python level array interface or a C level
       buffer interface. The pixel buffer is writeable. The new buffer protocol
       is supported for Python 2.6 and up in CPython. The old buffer protocol
       is also supported for Python 2.x. The old buffer data is in one segment
@@ -809,10 +825,10 @@
       '0' returns a contiguous unstructured bytes view. No surface shape
       information is given. A ValueError is raised if the surface's pixels
       are discontinuous.
-      
+
       '1' returns a (surface-width * surface-height) array of continuous
       pixels. A ValueError is raised if the surface pixels are discontinuous.
-      
+
       '2' returns a (surface-width, surface-height) array of raw pixels.
       The pixels are surface-bytesize-d unsigned integers. The pixel format is
       surface specific. The 3 byte unsigned integers of 24 bit surfaces are
