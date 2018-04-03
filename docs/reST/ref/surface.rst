@@ -124,13 +124,21 @@
    .. method:: blits
 
       | :sl:`draw many images onto another`
-      | :sg:`blit((source, dest), ...)) -> (Rect, ...)`
-      | :sg:`blit((source, dest, area), ...)) -> (Rect, ...)`
-      | :sg:`blit((source, dest, area, special_flags), ...)) -> (Rect, ...)`
+      | :sg:`blits(blit_sequence=(source, dest), ...), doreturn=1) -> (Rect, ...)`
+      | :sg:`blits((source, dest, area), ...)) -> (Rect, ...)`
+      | :sg:`blits((source, dest, area, special_flags), ...)) -> (Rect, ...)`
 
       Draws many surfaces onto this Surface. It takes a sequence as input,
       with each of the elements corresponding to the ones of ``Surface.blit()``.
       It needs at minimum a sequence of (source, dest).
+
+      :param blit_sequence: a sequence of surfaces, and arguments to blit them.
+       They correspond to the ``Surface.blit()`` arguments.
+
+      :param doreturn: if true, we return otherwise return None.
+
+      :returns: a list of rects of the areas changed.
+       If doreturn is false, returns None.
 
       New in pygame 1.9.4.
 
