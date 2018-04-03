@@ -88,6 +88,16 @@ class BlitTest( unittest.TestCase ):
         self.assertEqual(s.get_at((0,0))[0], 0 )
 
 
+    def make_blit_list(self, num_surfs):
+
+        blit_list = []
+        for i in range(num_surfs):
+            dest = (i * 10, 0)
+            surf = pygame.Surface((10, 10), SRCALPHA, 32)
+            color = (i * 1, i * 1, i * 1)
+            surf.fill(color)
+            blit_list.append((surf, dest))
+        return blit_list
 
     def test_blits(self):
 
@@ -95,14 +105,7 @@ class BlitTest( unittest.TestCase ):
         PRINT_TIMING = 0
         dst = pygame.Surface((NUM_SURFS * 10, 10), SRCALPHA, 32)
         dst.fill((230, 230, 230))
-
-        blit_list = []
-        for i in range(NUM_SURFS):
-            dest = (i * 10, 0)
-            surf = pygame.Surface((10, 10), SRCALPHA, 32)
-            color = (i * 1, i * 1, i * 1)
-            surf.fill(color)
-            blit_list.append((surf, dest))
+        blit_list = self.make_blit_list(NUM_SURFS)
 
         def blits(blit_list):
             for surface, dest in blit_list:
@@ -136,8 +139,14 @@ class BlitTest( unittest.TestCase ):
         t1 = time()
         if PRINT_TIMING:
             print("Surface.blits doreturn=0: %s" % (t1-t0))
-
         self.assertEqual(results, None)
+
+
+        t0 = time()
+        results = dst.blits(((surf, dest) for surf, dest in blit_list))
+        t1 = time()
+        if PRINT_TIMING:
+            print("Surface.blits generator: %s" % (t1-t0))
 
 
     def test_blits_not_sequence(self):

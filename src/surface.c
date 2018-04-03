@@ -1596,7 +1596,7 @@ surf_blit (PyObject *self, PyObject *args, PyObject *keywds)
 }
 
 
-#define BLITS_ERR_SEQUENCE 1
+#define BLITS_ERR_SEQUENCE_REQUIRED 1
 #define BLITS_ERR_DISPLAY_SURF_QUIT 2
 #define BLITS_ERR_SEQUENCE_SURF 3
 #define BLITS_ERR_NO_OPENGL_SURF 4
@@ -1637,8 +1637,8 @@ surf_blits (PyObject *self, PyObject *args, PyObject *keywds)
         if (!ret)
             return NULL;
     }
-    if (!PySequence_Check(blitsequence)) {
-        bliterrornum = BLITS_ERR_SEQUENCE;
+    if (!PyIter_Check(blitsequence) && !PySequence_Check(blitsequence)) {
+        bliterrornum = BLITS_ERR_SEQUENCE_REQUIRED;
         goto bliterror;
     }
     iterator = PyObject_GetIter(blitsequence);
@@ -1647,14 +1647,14 @@ surf_blits (PyObject *self, PyObject *args, PyObject *keywds)
     }
 
     while ((item = PyIter_Next(iterator))) {
-        if (PySequence_Check (item)) {
-            itemlength = PySequence_Length (item);
+        if (PySequence_Check(item)) {
+            itemlength = PySequence_Length(item);
             if (itemlength > 4 || itemlength < 2) {
-                bliterrornum = BLITS_ERR_SEQUENCE;
+                bliterrornum = BLITS_ERR_SEQUENCE_REQUIRED;
                 goto bliterror;
             }
         } else {
-            bliterrornum = BLITS_ERR_SEQUENCE;
+            bliterrornum = BLITS_ERR_SEQUENCE_REQUIRED;
             goto bliterror;
         }
         bliterrornum = 0;
@@ -1665,21 +1665,21 @@ surf_blits (PyObject *self, PyObject *args, PyObject *keywds)
         the_args = 0;
         if (itemlength >= 2) {
             /* (Surface, dest) */
-            srcobject = PySequence_GetItem (item, 0);
-            argpos = PySequence_GetItem (item, 1);
+            srcobject = PySequence_GetItem(item, 0);
+            argpos = PySequence_GetItem(item, 1);
         }
         if (itemlength == 3) {
             /* (Surface, dest, area) */
-            argrect = PySequence_GetItem (item, 3);
+            argrect = PySequence_GetItem(item, 3);
         }
         if (itemlength == 4) {
             /* (Surface, dest, area, special_flags) */
-            special_flags = PySequence_GetItem (item, 4);
+            special_flags = PySequence_GetItem(item, 4);
         }
         Py_DECREF(item);
 
 
-        src = PySurface_AsSurface (srcobject);
+        src = PySurface_AsSurface(srcobject);
         if (!dest) {
             bliterrornum = BLITS_ERR_DISPLAY_SURF_QUIT;
             goto bliterror;
@@ -1774,7 +1774,7 @@ bliterror:
 
     switch (bliterrornum)
     {
-    case BLITS_ERR_SEQUENCE:
+    case BLITS_ERR_SEQUENCE_REQUIRED:
         return RAISE (PyExc_ValueError, "blit_sequence should be iterator of (Surface, dest)");
     case BLITS_ERR_DISPLAY_SURF_QUIT:
         return RAISE (PyExc_SDLError, "display Surface quit");
