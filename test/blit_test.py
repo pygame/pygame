@@ -89,5 +89,32 @@ class BlitTest( unittest.TestCase ):
 
 
 
+    def test_blits(self):
+
+        dst = pygame.Surface((100, 10), SRCALPHA, 32)
+        dst.fill((230, 230, 230))
+
+        blit_list = []
+        for i in range(10):
+            dest = (i * 10, 0)
+            surf = pygame.Surface((10, 10), SRCALPHA, 32)
+            color = (i * 10, i * 10, i * 10)
+            surf.fill(color)
+            blit_list.append((surf, dest))
+
+        def blits(blit_list):
+            for surface, dest in blit_list:
+                dst.blit(surface, dest)
+
+        #dst.blits(blit_list)
+        blits(blit_list)
+
+        # check if we blit all the different colors in the correct spots.
+        for i in range(10):
+            color = (i * 10, i * 10, i * 10)
+            self.assertEqual(dst.get_at((i * 10, 0)), color)
+            self.assertEqual(dst.get_at(((i * 10) + 5, 5)), color)
+
+
 if __name__ == '__main__':
     unittest.main()
