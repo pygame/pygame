@@ -92,6 +92,7 @@ static PyObject *surf_convert_alpha (PyObject *self, PyObject *args);
 static PyObject *surf_set_clip (PyObject *self, PyObject *args);
 static PyObject *surf_get_clip (PyObject *self);
 static PyObject *surf_blit (PyObject *self, PyObject *args, PyObject *keywds);
+static PyObject *surf_blits (PyObject *self, PyObject *args, PyObject *keywds);
 static PyObject *surf_fill (PyObject *self, PyObject *args, PyObject *keywds);
 static PyObject *surf_scroll (PyObject *self,
                               PyObject *args, PyObject *keywds);
@@ -190,6 +191,8 @@ static struct PyMethodDef surface_methods[] = {
       DOC_SURFACEFILL },
     { "blit", (PyCFunction) surf_blit, METH_VARARGS | METH_KEYWORDS,
       DOC_SURFACEBLIT },
+    { "blits", (PyCFunction) surf_blits, METH_VARARGS | METH_KEYWORDS,
+      DOC_SURFACEBLITS },
 
     { "scroll", (PyCFunction) surf_scroll, METH_VARARGS | METH_KEYWORDS,
       DOC_SURFACESCROLL },
@@ -1591,6 +1594,212 @@ surf_blit (PyObject *self, PyObject *args, PyObject *keywds)
 
     return PyRect_New (&dest_rect);
 }
+
+
+#define BLITS_ERR_SEQUENCE_REQUIRED 1
+#define BLITS_ERR_DISPLAY_SURF_QUIT 2
+#define BLITS_ERR_SEQUENCE_SURF 3
+#define BLITS_ERR_NO_OPENGL_SURF 4
+#define BLITS_ERR_INVALID_DESTINATION 5
+#define BLITS_ERR_INVALID_RECT_STYLE 6
+#define BLITS_ERR_MUST_ASSIGN_NUMERIC 7
+#define BLITS_ERR_BLIT_FAIL 8
+
+
+static PyObject*
+surf_blits (PyObject *self, PyObject *args, PyObject *keywds)
+{
+    SDL_Surface *src, *dest = PySurface_AsSurface (self);
+    GAME_Rect *src_rect, temp;
+    PyObject *srcobject = NULL, *argpos = NULL, *argrect = NULL;
+    int dx, dy, result;
+    SDL_Rect dest_rect, sdlsrc_rect;
+    int sx, sy;
+    int the_args = 0;
+
+
+    PyObject *blitsequence = NULL;
+    PyObject *iterator = NULL;
+    PyObject *item = NULL;
+    PyObject *special_flags = NULL;
+    PyObject* ret = NULL;
+    PyObject* retrect = NULL;
+    int itemlength;
+    int doreturn = 1;
+    int bliterrornum = 0;
+    static char *kwids[] = {"blit_sequence", "doreturn", NULL};
+    if (!PyArg_ParseTupleAndKeywords (args, keywds, "O|i", kwids,
+                                      &blitsequence, &doreturn))
+        return NULL;
+
+    if (doreturn) {
+        ret = PyList_New(0);
+        if (!ret)
+            return NULL;
+    }
+    if (!PyIter_Check(blitsequence) && !PySequence_Check(blitsequence)) {
+        bliterrornum = BLITS_ERR_SEQUENCE_REQUIRED;
+        goto bliterror;
+    }
+    iterator = PyObject_GetIter(blitsequence);
+    if (!iterator) {
+        return NULL;
+    }
+
+    while ((item = PyIter_Next(iterator))) {
+        if (PySequence_Check(item)) {
+            itemlength = PySequence_Length(item);
+            if (itemlength > 4 || itemlength < 2) {
+                bliterrornum = BLITS_ERR_SEQUENCE_REQUIRED;
+                goto bliterror;
+            }
+        } else {
+            bliterrornum = BLITS_ERR_SEQUENCE_REQUIRED;
+            goto bliterror;
+        }
+        bliterrornum = 0;
+        srcobject = NULL;
+        argpos = NULL;
+        argrect = NULL;
+        special_flags = NULL;
+        the_args = 0;
+        if (itemlength >= 2) {
+            /* (Surface, dest) */
+            srcobject = PySequence_GetItem(item, 0);
+            argpos = PySequence_GetItem(item, 1);
+        }
+        if (itemlength == 3) {
+            /* (Surface, dest, area) */
+            argrect = PySequence_GetItem(item, 3);
+        }
+        if (itemlength == 4) {
+            /* (Surface, dest, area, special_flags) */
+            special_flags = PySequence_GetItem(item, 4);
+        }
+        Py_DECREF(item);
+
+
+        src = PySurface_AsSurface(srcobject);
+        if (!dest) {
+            bliterrornum = BLITS_ERR_DISPLAY_SURF_QUIT;
+            goto bliterror;
+        }
+        if (!src) {
+            bliterrornum = BLITS_ERR_SEQUENCE_SURF;
+            goto bliterror;
+        }
+
+        if (dest->flags & SDL_OPENGL &&
+            !(dest->flags & (SDL_OPENGLBLIT & ~SDL_OPENGL))) {
+            bliterrornum = BLITS_ERR_NO_OPENGL_SURF;
+            goto bliterror;
+        }
+
+        if ((src_rect = GameRect_FromObject (argpos, &temp))) {
+            dx = src_rect->x;
+            dy = src_rect->y;
+        }
+        else if (TwoIntsFromObj (argpos, &sx, &sy)) {
+            dx = sx;
+            dy = sy;
+        } else {
+            bliterrornum = BLITS_ERR_INVALID_DESTINATION;
+            goto bliterror;
+        }
+        if (argrect && argrect != Py_None) {
+            if (!(src_rect = GameRect_FromObject (argrect, &temp))) {
+                bliterrornum = BLITS_ERR_INVALID_RECT_STYLE;
+                goto bliterror;
+            }
+        }
+        else {
+            temp.x = temp.y = 0;
+            temp.w = src->w;
+            temp.h = src->h;
+            src_rect = &temp;
+        }
+
+        dest_rect.x = (short) dx;
+        dest_rect.y = (short) dy;
+        dest_rect.w = (unsigned short) src_rect->w;
+        dest_rect.h = (unsigned short) src_rect->h;
+        sdlsrc_rect.x = (short) src_rect->x;
+        sdlsrc_rect.y = (short) src_rect->y;
+        sdlsrc_rect.w = (unsigned short) src_rect->w;
+        sdlsrc_rect.h = (unsigned short) src_rect->h;
+
+        if (special_flags) {
+            if (!IntFromObj (special_flags, &the_args)) {
+                bliterrornum = BLITS_ERR_MUST_ASSIGN_NUMERIC;
+                goto bliterror;
+            }
+        }
+
+        Py_DECREF(srcobject);
+        Py_DECREF(argpos);
+        Py_XDECREF(argrect);
+        Py_XDECREF(special_flags);
+
+        result = PySurface_Blit(self, srcobject, &dest_rect, &sdlsrc_rect,
+                                the_args);
+        if (result != 0) {
+            bliterrornum = BLITS_ERR_BLIT_FAIL;
+            goto bliterror;
+        }
+
+        if (doreturn) {
+            retrect = NULL;
+            retrect = PyRect_New(&dest_rect);
+            PyList_Append(ret, retrect);
+            Py_DECREF(retrect);
+        }
+    }
+
+    Py_DECREF(iterator);
+
+    if (doreturn) {
+        return ret;
+    } else {
+        Py_RETURN_NONE;
+    }
+
+
+bliterror:
+    Py_XDECREF(srcobject);
+    Py_XDECREF(argpos);
+    Py_XDECREF(argrect);
+    Py_XDECREF(special_flags);
+    Py_XDECREF(iterator);
+    Py_XDECREF(item);
+
+    switch (bliterrornum)
+    {
+    case BLITS_ERR_SEQUENCE_REQUIRED:
+        return RAISE (PyExc_ValueError, "blit_sequence should be iterator of (Surface, dest)");
+    case BLITS_ERR_DISPLAY_SURF_QUIT:
+        return RAISE (PyExc_SDLError, "display Surface quit");
+    case BLITS_ERR_SEQUENCE_SURF:
+        return RAISE (PyExc_TypeError, "First element of blit_list needs to be Surface.");
+    case BLITS_ERR_NO_OPENGL_SURF:
+        return RAISE (PyExc_SDLError,
+                      "Cannot blit to OPENGL Surfaces (OPENGLBLIT is ok)");
+    case BLITS_ERR_INVALID_DESTINATION:
+        return RAISE (PyExc_TypeError, "invalid destination position for blit");
+    case BLITS_ERR_INVALID_RECT_STYLE:
+        return RAISE (PyExc_TypeError, "Invalid rectstyle argument");
+    case BLITS_ERR_MUST_ASSIGN_NUMERIC:
+        return RAISE (PyExc_TypeError, "Must assign numeric values");
+    case BLITS_ERR_BLIT_FAIL:
+        return RAISE (PyExc_TypeError, "Blit failed");
+    default:
+        return RAISE (PyExc_TypeError, "Unknown error");
+    }
+}
+
+
+
+
+
 
 static PyObject*
 surf_scroll (PyObject *self, PyObject *args, PyObject *keywds)
