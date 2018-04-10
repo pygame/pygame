@@ -185,8 +185,10 @@ def main():
         Dependency('SCRAP', '', 'libX11', ['X11']),
         Dependency('PORTMIDI', 'portmidi.h', 'libportmidi.so', ['portmidi']),
         porttime_dep,
-        DependencyProg('FREETYPE', 'FREETYPE_CONFIG', 'freetype-config', '2.0',
-                       ['freetype'], '--ftversion'),
+        # DependencyProg('FREETYPE', 'FREETYPE_CONFIG', 'freetype-config', '2.0',
+        #                ['freetype'], '--ftversion'),
+        DependencyProg('FREETYPE', 'FREETYPE_CONFIG', 'pkg-config freetype2', '2.0',
+                       ['freetype2'], '--modversion'),
         #Dependency('GFX', 'SDL_gfxPrimitives.h', 'libSDL_gfx.so', ['SDL_gfx']),
     ]
     if not DEPS[0].found:
