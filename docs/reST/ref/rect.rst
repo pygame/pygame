@@ -286,7 +286,7 @@
       | :sg:`collidedictall(dict) -> [(key, value), ...]`
 
       Returns a list of all the key and value pairs that intersect with the
-      Rect. If no collisions are found an empty dictionary is returned.
+      Rect. If no collisions are found an empty list is returned.
 
       Rect objects are not hashable and cannot be used as keys in a dictionary,
       only as values.
