@@ -10,5 +10,6 @@
 #include "base_api_transition.h"
 #include "rect_api_transition.h"
 #include "rwobject_api_transition.h"
+#include "color_api_transition.h"
 
 #endif
