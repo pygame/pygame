@@ -1,0 +1,3 @@
+#define pgSubSurface_Data SubSurface_Data
+#define pgSurfaceObject PySurfaceObject
+#define pgSurface_AsSurface PySurface_AsSurface

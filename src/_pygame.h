@@ -607,33 +607,33 @@ typedef struct
     PyObject *surface;
     PyObject *lockobj;
     PyObject *weakrefs;
-} PyLifetimeLock;
+} pgLifetimeLockObject;
 
 #ifndef PYGAMEAPI_SURFLOCK_INTERNAL
-#define PyLifetimeLock_Check(x)                         \
+#define pgLifetimeLock_Check(x)                         \
     ((x)->ob_type == (PyTypeObject*)                    \
         PyGAME_C_API[PYGAMEAPI_SURFLOCK_FIRSTSLOT + 0])
-#define PySurface_Prep(x)                                               \
-    if(((PySurfaceObject*)x)->subsurface)                               \
+#define pgSurface_Prep(x)                                               \
+    if(((pgSurfaceObject*)x)->subsurface)                               \
         (*(*(void(*)(PyObject*))                                        \
            PyGAME_C_API[PYGAMEAPI_SURFLOCK_FIRSTSLOT + 1]))(x)
 
-#define PySurface_Unprep(x)                                             \
-    if(((PySurfaceObject*)x)->subsurface)                               \
+#define pgSurface_Unprep(x)                                             \
+    if(((pgSurfaceObject*)x)->subsurface)                               \
         (*(*(void(*)(PyObject*))                                        \
            PyGAME_C_API[PYGAMEAPI_SURFLOCK_FIRSTSLOT + 2]))(x)
 
-#define PySurface_Lock                                                  \
+#define pgSurface_Lock                                                  \
     (*(int(*)(PyObject*))PyGAME_C_API[PYGAMEAPI_SURFLOCK_FIRSTSLOT + 3])
-#define PySurface_Unlock                                                \
+#define pgSurface_Unlock                                                \
     (*(int(*)(PyObject*))PyGAME_C_API[PYGAMEAPI_SURFLOCK_FIRSTSLOT + 4])
-#define PySurface_LockBy                                                \
+#define pgSurface_LockBy                                                \
     (*(int(*)(PyObject*,PyObject*))                                     \
         PyGAME_C_API[PYGAMEAPI_SURFLOCK_FIRSTSLOT + 5])
-#define PySurface_UnlockBy                                              \
+#define pgSurface_UnlockBy                                              \
     (*(int(*)(PyObject*,PyObject*))                                     \
         PyGAME_C_API[PYGAMEAPI_SURFLOCK_FIRSTSLOT + 6])
-#define PySurface_LockLifetime                                          \
+#define pgSurface_LockLifetime                                          \
     (*(PyObject*(*)(PyObject*,PyObject*))                               \
         PyGAME_C_API[PYGAMEAPI_SURFLOCK_FIRSTSLOT + 7])
 #endif
