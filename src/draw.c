@@ -515,11 +515,19 @@ static PyObject* circle(PyObject* self, PyObject* arg)
 
     if(!PySurface_Lock(surfobj)) return NULL;
 
-    if(!width)
+    if(!width) {
         draw_fillellipse(surf, (Sint16)posx, (Sint16)posy, (Sint16)radius, (Sint16)radius, color);
-    else
-        for(loop=0; loop<width; ++loop)
+    } else {
+        for(loop=0; loop<width; ++loop) {
             draw_ellipse(surf, posx, posy, radius-loop, radius-loop, color);
+            /* To avoid moiré pattern. Don't do an extra one on the outer ellipse.
+               We draw another ellipse offset by a pixel, over drawing the missed
+               spots in the filled circle caused by which pixels are filled.
+            */
+            if (width > 1 && loop > 0)
+                draw_ellipse(surf, posx+1, posy, radius-loop, radius-loop, color);
+        }
+    }
 
     if(!PySurface_Unlock(surfobj)) return NULL;
 
@@ -924,19 +932,18 @@ static int set_at(SDL_Surface* surf, int x, int y, Uint32 color)
     return 1;
 }
 
-
 #define DRAWPIX32(pixel,colorptr,br,blend) \
-    if(SDL_BYTEORDER == SDL_BIG_ENDIAN) color <<= 8; \
-    if(blend) { \
-        int x; \
-        float nbr = 1.0-br; \
-        x = colorptr[0]*br+pixel[0]*nbr; \
-        pixel[0]= (x>254) ? 255: x; \
-        x = colorptr[1]*br+pixel[1]*nbr; \
-        pixel[1]= (x>254) ? 255: x; \
-        x = colorptr[2]*br+pixel[2]*nbr; \
-        pixel[2]= (x>254) ? 255: x; \
-        if(hasalpha) pixel[3] = pixel[0]+(br*255) - (pixel[3]*br); \
+    if (blend) { \
+        SDL_GetRGBA(*pixel, surf->format, &pixel_r, &pixel_g, &pixel_b, &pixel_a); \
+        tmp_r = color_r * br + pixel_r * nbr; \
+        tmp_g = color_g * br + pixel_g * nbr; \
+        tmp_b = color_b * br + pixel_b * nbr; \
+        tmp_a = color_a * br + pixel_a * nbr; \
+        *((Uint32*)pixel) = SDL_MapRGBA(surf->format, \
+            (Uint8)((tmp_r>254) ? 255: tmp_r), \
+            (Uint8)((tmp_g>254) ? 255: tmp_g), \
+            (Uint8)((tmp_b>254) ? 255: tmp_b), \
+            (Uint8)((tmp_a>254) ? 255: tmp_a)); \
     } else { \
         pixel[0]=(Uint8)(colorptr[0]*br); \
         pixel[1]=(Uint8)(colorptr[1]*br); \
@@ -952,11 +959,23 @@ static void drawaaline(SDL_Surface* surf, Uint32 color, float x1, float y1, floa
     float swaptmp;
     int x, y, ix1, ix2, iy1, iy2;
     int pixx, pixy;
+
+    /* for D-RAWPIX32 */
+    int tmp_r, tmp_g, tmp_b, tmp_a;
+    float nbr = 0.0f;
+    Uint8 pixel_r, pixel_g, pixel_b, pixel_a;
+    Uint8 color_r, color_g, color_b, color_a;
+
     Uint8* pixel;
     Uint8* pm = (Uint8*)surf->pixels;
     Uint8* colorptr = (Uint8*)&color;
     const int hasalpha = surf->format->Amask;
 
+    if (hasalpha) {
+        SDL_GetRGBA(color, surf->format, &color_r, &color_g, &color_b, &color_a);
+    } else {
+        SDL_GetRGB(color, surf->format, &color_r, &color_g, &color_b);
+    }
     pixx = surf->format->BytesPerPixel;
     pixy = surf->pitch;
 
@@ -1535,7 +1554,7 @@ static void draw_fillpoly(SDL_Surface *dst, int *vx, int *vy, int n, Uint32 colo
                 /* Special case: polygon only 1 pixel high. */
                 int j;
                 int minx, maxx;
-                
+
                 /* Determine X bounds */
                 minx = vx[0];
                 maxx = vx[0];

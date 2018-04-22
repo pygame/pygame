@@ -16,7 +16,7 @@ METADATA = {
     "name":             "pygame",
     "version":          "1.9.4.dev0",
     "license":          "LGPL",
-    "url":              "http://www.pygame.org",
+    "url":              "https://www.pygame.org",
     "author":           "Pete Shinners, Rene Dudfield, Marcus von Appen, Bob Pendleton, others...",
     "author_email":     "pygame@seul.org",
     "description":      "Python Game Development",
@@ -560,6 +560,7 @@ PACKAGEDATA = {
        "headers":     headers,
        "ext_modules": extensions,
        "data_files":  data_files,
+       "zip_safe":  False,
 }
 PACKAGEDATA.update(METADATA)
 PACKAGEDATA.update(EXTRAS)

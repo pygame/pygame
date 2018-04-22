@@ -150,6 +150,8 @@ void rgb_to_hsv (const void* src, void* dst, int length,
                  unsigned long source, SDL_PixelFormat* format);
 void yuyv_to_rgb (const void* src, void* dst, int length, SDL_PixelFormat* format);
 void yuyv_to_yuv (const void* src, void* dst, int length, SDL_PixelFormat* format);
+void uyvy_to_rgb (const void* src, void* dst, int length, SDL_PixelFormat* format);
+void uyvy_to_yuv (const void* src, void* dst, int length, SDL_PixelFormat* format);
 void sbggr8_to_rgb (const void* src, void* dst, int width, int height,
                     SDL_PixelFormat* format);
 void yuv420_to_rgb (const void* src, void* dst, int width, int height,

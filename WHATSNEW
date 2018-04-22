@@ -4,6 +4,46 @@
 # BREAK = change breaks existing code
 # BUG    = fixed a bug that was (or could have been) crashing
 
+[1.9.4] Apr 13, 2018
+
+Thanks to:
+Adam Di Carlo (@adicarlo) | Christian Bender (@christianbender) | Don Kirkby (@donkirkby) | endolith (@endolith) | hjpotter92 (@hjpotter92) | Ian Mallett (@imallett) | Lenard Lindstrom (@llindstrom) | Mathias Weber (@mweb) | Raymon Skjørten Hansen (@raymonshansen) | René Dudfield (@illume) | Stefan Bethge (@kjyv) | Stuart Axon (@stuaxo) | Thomas Kluyver (@takluyver)
+
+#443 In set_error get_error tests ignore first error. Could be anything.
+#442 Freetype requires pkg-config instead of freetype-config now.
+#439 Surface.blits
+#435 Adding pypy builds for Mac on travis.
+#432 Appveyor pypy and pypy3 windows 32bit.
+#431 Implement object alloc caching for rect.c to improve on pypy.
+#427 PixelArray.close(), with PixelArray(surf) as px, context manager.
+#426 Skip tests that rely on arrinter and pythonapi on pypy.
+#420 pypy didn't like tp_dictoffset hack in events. Make our own setter, getter.
+#418 draw.aaline should work with ARGB surfaces (like on mac).
+#416 Vector cleanup
+#415 So virtualenv gets a focused window on Mac too.
+#414 Mac Travis homebrew fix
+#413 Jedi confused by pygame imports. Make it happy.
+#408 pygame.transform.threshold tests, keyword arguments, docs.
+#403 pygame.math.Vector2/3 not experimental
+#398 Clean up _camera_vidcapture.py unused code, and document a bit.
+#394 Add pitch bend to MIDI library
+#392 Add pypy builder to travis ci, and allow it to fail.
+#391 ppc64le and other Debian fixes
+#389 pygame.draw.circle with a thickness had a weird moiré pattern.
+#387 test python 3.7 on travis CI.
+#386 python 3.7 fixes.
+#384 pygame.display doc fixes.
+#381 import rect.inflate docs.
+#363 Fix several typos, and improve grammar in the introduction.
+#361 Add unit test for some key functions.
+#360 update math.c for pypy.
+#357 add UYVY support for better linux camera support.
+#356 Fix aaellipse artifacts
+703350f68182641fe72ef1f41d81998fb6d4b385 Update Rect slicing for Python 3
+6d0e97a38b5d2d549f1fee8b912a072731ea33bb bug fix for freetype.Font.render_to()
+#78 Add environment PYGAME_EXTRA_BASE to add an extra base directory to the start of the search path.
+#77 Build alsa libs ourselves for manylinux builds.
+#76 Docs fixup.
 
 [HG 3623:096eec484a72] Jan 08, 2017
     Build newer versions of libogg and libvorbis into Linux base images

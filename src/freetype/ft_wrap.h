@@ -73,7 +73,7 @@ typedef FT_UInt GlyphIndex_t;
 /**********************************************************
  * Internal data structures
  **********************************************************/
- 
+
 /* FreeTypeInstance: the global freetype 2 library state.
  *
  * Instances of this struct are created by _PGFT_Init, and
@@ -85,7 +85,7 @@ typedef FT_UInt GlyphIndex_t;
  * zero.
  */
 typedef struct freetypeinstance_ {
-    ssize_t ref_count;
+    Py_ssize_t ref_count;
 
     /* Internal */
     FT_Library library;

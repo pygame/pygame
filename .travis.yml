@@ -21,32 +21,66 @@ matrix:
     - os: linux
       sudo: required
       python: 3.6
+    - os: linux
+      sudo: required
+      python: 3.7-dev
+    - os: linux
+      sudo: required
+      python: pypy
+
     # Should only need one OSX build because older builds can work on newer machines ok.
     #https://docs.travis-ci.com/user/osx-ci-environment/#OS-X-Version
     - os: osx
-      osx_image: beta-xcode6.1
+      osx_image: xcode7.3
       language: generic
       env:
         - PY_VERSION=3
         - MAKEFLAGS=-j8
     - os: osx
-      osx_image: beta-xcode6.1
+      osx_image: xcode7.3
       language: generic
       env:
         - PY_VERSION=2
         - MAKEFLAGS=-j8
         # - MACOSX_DEPLOYMENT_TARGET=10.6
+    - os: osx
+      osx_image: xcode7.3
+      language: generic
+      env:
+        - PY_VERSION=pypy3
+        - MAKEFLAGS=-j8
+    - os: osx
+      osx_image: xcode7.3
+      language: generic
+      env:
+        - PY_VERSION=pypy2
+        - MAKEFLAGS=-j8
+        # - MACOSX_DEPLOYMENT_TARGET=10.6
+
+
+  allow_failures:
+    - python: pypy
+    - os: osx
+      env: PY_VERSION=pypy2
+    - os: osx
+      env: PY_VERSION=pypy3
 
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then source .travis_osx_before_install.sh;  fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get update; fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install python-dev libsdl-image1.2-dev libsdl-mixer1.2-dev libsdl-ttf2.0-dev libsdl1.2-dev python-numpy libportmidi-dev libjpeg-dev libtiff4-dev libx11-6 libX11-dev xfonts-base xfonts-100dpi xfonts-75dpi xfonts-cyrillic; fi
+  - |
+    if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+      sudo apt-get update
+      sudo apt-get install python-dev libsdl-image1.2-dev libsdl-mixer1.2-dev \
+        libsdl-ttf2.0-dev libsdl1.2-dev python-numpy libportmidi-dev libjpeg-dev \
+        libtiff4-dev libx11-6 libx11-dev xfonts-base xfonts-100dpi xfonts-75dpi \
+        xfonts-cyrillic fluid-soundfont-gm musescore-soundfont-gm
+    fi
 install:
   - "python .travis_osx_upload_whl.py --write-config"
   - $(set | grep PYPI_ | python -c "import sys;print('\n'.join(['unset %s' % l.split('=')[0] for l in sys.stdin.readlines() if l.startswith('PYPI')]))")
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then source .travis_osx.sh; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then PYTHON_EXE=python PIP_CMD=pip; fi
-  - "$PIP_CMD install --upgrade setuptools pip"
+  - "$PIP_CMD install --upgrade pip"
   - "$PIP_CMD install --upgrade numpy"
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then $PIP_CMD install delocate twine; fi
   - "$PYTHON_EXE config.py -auto"

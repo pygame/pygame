@@ -110,7 +110,8 @@
 
       Returns a new rectangle with the size changed by the given offset. The
       rectangle remains centered around its current center. Negative values
-      will shrink the rectangle.
+      will shrink the rectangle. Note, uses integers, if the offset given is
+      too small(< 2 > -2), center will be off.
 
       .. ## Rect.inflate ##
 
@@ -285,7 +286,7 @@
       | :sg:`collidedictall(dict) -> [(key, value), ...]`
 
       Returns a list of all the key and value pairs that intersect with the
-      Rect. If no collisions are found an empty dictionary is returned.
+      Rect. If no collisions are found an empty list is returned.
 
       Rect objects are not hashable and cannot be used as keys in a dictionary,
       only as values.

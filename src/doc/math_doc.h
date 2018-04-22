@@ -1,17 +1,17 @@
 /* Auto generated file: with makeref.py .  Docs go in src/ *.doc . */
 #define DOC_PYGAMEMATH "pygame module for vector classes"
 
-#define DOC_PYGAMEMATHENABLESWIZZLING "enable_swizzling() -> None\nglobally enables swizzling for vectors."
-
-#define DOC_PYGAMEMATHDISABLESWIZZLING "disable_swizzling() -> None\nglobally disables swizzling for vectors."
-
-#define DOC_PYGAMEMATHVECTOR2 "Vector2() -> Vector2\nVector2(Vector2) -> Vector2\nVector2(x, y) -> Vector2\nVector2((x, y)) -> Vector2\na 2-Dimensional Vector"
+#define DOC_PYGAMEMATHVECTOR2 "Vector2() -> Vector2\nVector2(int) -> Vector2\nVector2(float) -> Vector2\nVector2(Vector2) -> Vector2\nVector2(x, y) -> Vector2\nVector2((x, y)) -> Vector2\na 2-Dimensional Vector"
 
 #define DOC_VECTOR2DOT "dot(Vector2) -> float\ncalculates the dot- or scalar-product with the other vector"
 
 #define DOC_VECTOR2CROSS "cross(Vector2) -> float\ncalculates the cross- or vector-product"
 
-#define DOC_VECTOR2LENGTH "length() -> float\nreturns the Euclidian length of the vector."
+#define DOC_VECTOR2MAGNITUDE "magnitude() -> float\nreturns the Euclidean magnitude of the vector."
+
+#define DOC_VECTOR2MAGNITUDESQUARED "magnitude_squared() -> float\nreturns the squared magnitude of the vector."
+
+#define DOC_VECTOR2LENGTH "length() -> float\nreturns the Euclidean length of the vector."
 
 #define DOC_VECTOR2LENGTHSQUARED "length_squared() -> float\nreturns the squared Euclidean length of the vector."
 
@@ -47,11 +47,15 @@
 
 #define DOC_VECTOR2FROMPOLAR "from_polar((r, phi)) -> None\nSets x and y from a polar coordinates tuple."
 
-#define DOC_PYGAMEMATHVECTOR3 "Vector3() -> Vector3\nVector3(Vector3) -> Vector3\nVector3(x, y, z) -> Vector3\nVector3((x, y, z)) -> Vector3\na 3-Dimensional Vector"
+#define DOC_PYGAMEMATHVECTOR3 "Vector3() -> Vector3\nVector3(int) -> Vector2\nVector3(float) -> Vector2\nVector3(Vector3) -> Vector3\nVector3(x, y, z) -> Vector3\nVector3((x, y, z)) -> Vector3\na 3-Dimensional Vector"
 
 #define DOC_VECTOR3DOT "dot(Vector3) -> float\ncalculates the dot- or scalar-product with the other vector"
 
 #define DOC_VECTOR3CROSS "cross(Vector3) -> float\ncalculates the cross- or vector-product"
+
+#define DOC_VECTOR3MAGNITUDE "magnitude() -> float\nreturns the Euclidean magnitude of the vector."
+
+#define DOC_VECTOR3MAGNITUDESQUARED "magnitude_squared() -> float\nreturns the squared Euclidean magnitude of the vector."
 
 #define DOC_VECTOR3LENGTH "length() -> float\nreturns the Euclidean length of the vector."
 
@@ -101,6 +105,10 @@
 
 #define DOC_VECTOR3FROMSPHERICAL "from_spherical((r, theta, phi)) -> None\nSets x, y and z from a spherical coordinates 3-tuple."
 
+#define DOC_PYGAMEMATHENABLESWIZZLING "enable_swizzling() -> None\nglobally enables swizzling for vectors."
+
+#define DOC_PYGAMEMATHDISABLESWIZZLING "disable_swizzling() -> None\nglobally disables swizzling for vectors."
+
 
 
 /* Docs in a comment... slightly easier to read. */
@@ -110,16 +118,10 @@
 pygame.math
 pygame module for vector classes
 
-pygame.math.enable_swizzling
- enable_swizzling() -> None
-globally enables swizzling for vectors.
-
-pygame.math.disable_swizzling
- disable_swizzling() -> None
-globally disables swizzling for vectors.
-
 pygame.math.Vector2
  Vector2() -> Vector2
+ Vector2(int) -> Vector2
+ Vector2(float) -> Vector2
  Vector2(Vector2) -> Vector2
  Vector2(x, y) -> Vector2
  Vector2((x, y)) -> Vector2
@@ -133,9 +135,17 @@ pygame.math.Vector2.cross
  cross(Vector2) -> float
 calculates the cross- or vector-product
 
+pygame.math.Vector2.magnitude
+ magnitude() -> float
+returns the Euclidean magnitude of the vector.
+
+pygame.math.Vector2.magnitude_squared
+ magnitude_squared() -> float
+returns the squared magnitude of the vector.
+
 pygame.math.Vector2.length
  length() -> float
-returns the Euclidian length of the vector.
+returns the Euclidean length of the vector.
 
 pygame.math.Vector2.length_squared
  length_squared() -> float
@@ -207,6 +217,8 @@ Sets x and y from a polar coordinates tuple.
 
 pygame.math.Vector3
  Vector3() -> Vector3
+ Vector3(int) -> Vector2
+ Vector3(float) -> Vector2
  Vector3(Vector3) -> Vector3
  Vector3(x, y, z) -> Vector3
  Vector3((x, y, z)) -> Vector3
@@ -219,6 +231,14 @@ calculates the dot- or scalar-product with the other vector
 pygame.math.Vector3.cross
  cross(Vector3) -> float
 calculates the cross- or vector-product
+
+pygame.math.Vector3.magnitude
+ magnitude() -> float
+returns the Euclidean magnitude of the vector.
+
+pygame.math.Vector3.magnitude_squared
+ magnitude_squared() -> float
+returns the squared Euclidean magnitude of the vector.
 
 pygame.math.Vector3.length
  length() -> float
@@ -315,5 +335,13 @@ returns a tuple with radial distance, inclination and azimuthal angle.
 pygame.math.Vector3.from_spherical
  from_spherical((r, theta, phi)) -> None
 Sets x, y and z from a spherical coordinates 3-tuple.
+
+pygame.math.enable_swizzling
+ enable_swizzling() -> None
+globally enables swizzling for vectors.
+
+pygame.math.disable_swizzling
+ disable_swizzling() -> None
+globally disables swizzling for vectors.
 
 */

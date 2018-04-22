@@ -6,6 +6,9 @@ import sys
 import ctypes
 import weakref
 import gc
+import platform
+IS_PYPY = 'PyPy' == platform.python_implementation()
+
 if __name__ == '__main__':
     pkg_dir = os.path.split(os.path.abspath(__file__))[0]
     parent_dir, pkg_name = os.path.split(pkg_dir)
@@ -18,9 +21,15 @@ else:
 
 import unittest
 if is_pygame_pkg:
-    from pygame.tests.test_utils import arrinter
+    try:
+        from pygame.tests.test_utils import arrinter
+    except NameError:
+        pass
 else:
-    from test.test_utils import arrinter
+    try:
+        from test.test_utils import arrinter
+    except NameError:
+        pass
 
 import pygame
 try:
@@ -133,7 +142,7 @@ class FreeTypeFontTest(unittest.TestCase):
         self.assert_(f.height > 0)
         self.assertRaises(IOError, f.__init__,
                           os.path.join(FONTDIR, 'nonexistant.ttf'))
-        
+
         # Test attribute preservation during reinitalization
         f = ft.Font(self._sans_path, size=24, ucs4=True)
         self.assertEqual(f.name, 'Liberation Sans')
@@ -180,7 +189,7 @@ class FreeTypeFontTest(unittest.TestCase):
         self.assertRaises(RuntimeError, lambda : nullfont().fixed_width)
 
     def test_freetype_Font_fixed_sizes(self):
-        
+
         f = self._TEST_FONTS['sans']
         self.assertEqual(f.fixed_sizes, 0)
         f = self._TEST_FONTS['bmp-8-75dpi']
@@ -435,7 +444,7 @@ class FreeTypeFontTest(unittest.TestCase):
         finally:
             ufont.ucs4 = False
         self.assertNotEqual(rect_utf16, rect_utf32);
-        
+
         self.assertRaises(RuntimeError,
                           nullfont().get_rect, 'a', size=24)
 
@@ -458,7 +467,7 @@ class FreeTypeFontTest(unittest.TestCase):
         self.assertEqual(f.height, 1100)
 
         self.assertRaises(RuntimeError, lambda : nullfont().height)
-        
+
 
     def test_freetype_Font_name(self):
 
@@ -580,7 +589,7 @@ class FreeTypeFontTest(unittest.TestCase):
         rcopy = rrect.copy()
         rcopy.topleft = (32, 32)
         self.assertTrue(surf.get_rect().contains(rcopy))
-        
+
         rect = pygame.Rect(20, 20, 2, 2)
         rrect = font.render_to(surf, rect, 'FoobarBax', color, None, size=24)
         self.assertEqual(rrect.top, rrect.height)
@@ -598,11 +607,11 @@ class FreeTypeFontTest(unittest.TestCase):
                           "not a surface", "text", color)
         self.assertRaises(TypeError, font.render_to,
                           pygame.Surface, "text", color)
-                          
+
         # invalid dest test
         for dest in [None, 0, 'a', 'ab',
                      (), (1,), ('a', 2), (1, 'a'), (1+2j, 2), (1, 1+2j),
-                     (1, int), (int, 1)]: 
+                     (1, int), (int, 1)]:
             self.assertRaises(TypeError, font.render,
                               surf, dest, 'foobar', color, size=24)
 
@@ -661,7 +670,7 @@ class FreeTypeFontTest(unittest.TestCase):
             self.assertNotEqual(rend1[1], rend2[1])
         finally:
             font2.ucs4 = ucs4
-            
+
         # malformed surrogate pairs
         self.assertRaises(UnicodeEncodeError, font.render,
                           as_unicode(r'\uD80C'), color, size=24)
@@ -836,9 +845,9 @@ class FreeTypeFontTest(unittest.TestCase):
             font.antialiased = save_antialiased
 
     def test_freetype_Font_render_raw(self):
-    
+
         font = self._TEST_FONTS['sans']
-        
+
         text = "abc"
         size = font.get_rect(text, size=24).size
         rend = font.render_raw(text, size=24)
@@ -853,12 +862,12 @@ class FreeTypeFontTest(unittest.TestCase):
         self.assertTrue(isinstance(w, int))
         self.assertEqual(s, size)
         self.assertEqual(len(r), w * h)
-        
+
         r, (w, h) = font.render_raw('', size=24)
         self.assertEqual(w, 0)
         self.assertEqual(h, font.height)
         self.assertEqual(len(r), 0)
-        
+
         # bug with decenders: this would crash
         rend = font.render_raw('render_raw', size=24)
 
@@ -959,10 +968,15 @@ class FreeTypeFontTest(unittest.TestCase):
         get_rect = f.get_rect(text)
         f.vertical = True
         get_rect_vert = f.get_rect(text)
+
         self.assertTrue(get_rect_vert.width < get_rect.width)
         self.assertTrue(get_rect_vert.height > get_rect.height)
         f.vertical = False
         render_to_surf = pygame.Surface(get_rect.size, pygame.SRCALPHA, 32)
+
+        if IS_PYPY:
+            return
+
         arr = arrinter.Array(get_rect.size, 'u', 1)
         render = f.render(text, (0, 0, 0))
         render_to = f.render_to(render_to_surf, (0, 0), text, (0, 0, 0))
@@ -983,6 +997,17 @@ class FreeTypeFontTest(unittest.TestCase):
         self.assertEqual(px, render_raw[0])
         sz = f.render_raw_to(arr, None)
         self.assertEqual(sz, render_raw_to)
+
+    def test_freetype_Font_text_is_None(self):
+        f = ft.Font(self._sans_path, 36)
+        f.style = ft.STYLE_NORMAL
+        f.rotation = 0
+        text = 'ABCD'
+
+        # reference values
+        get_rect = f.get_rect(text)
+        f.vertical = True
+        get_rect_vert = f.get_rect(text)
 
         # vertical: trigger glyph positioning.
         f.vertical = True
@@ -1272,7 +1297,7 @@ class FreeTypeFontTest(unittest.TestCase):
         # get_rect() should calculate the text boundary to reflect text style,
         # such as underline. Instead, it ignores the style settings for the
         # Font object when the style argument is omitted.
-        # 
+        #
         # When the style argument is not given, freetype.get_rect() uses
         # unstyled text when calculating the boundary rectangle. This is
         # because _ftfont_getrect(), in _freetype.c, set the default
@@ -1372,7 +1397,10 @@ class FreeTypeFontTest(unittest.TestCase):
 
         n = len(refs)
         self.assertTrue(n > 0)
-        gc.collect()
+
+        # for pypy we garbage collection twice.
+        for i in range(2):
+            gc.collect()
         for i in range(n):
             self.assertTrue(refs[i]() is None, "ref %d not collected" % i)
 

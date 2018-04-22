@@ -79,7 +79,7 @@ class DependencyPython:
         self.ver = '0'
         self.module = module
         self.header = header
- 
+
     def configure(self, incdirs, libdirs):
         self.found = 1
         if self.module:
@@ -102,7 +102,7 @@ DEPS = [
     [DependencyProg('SDL', 'SDL_CONFIG', 'sdl-config', '1.2', ['sdl']),
          FrameworkDependency('SDL', 'SDL.h', 'libSDL', 'SDL')],
     [Dependency('FONT', ['SDL_ttf.h', 'SDL/SDL_ttf.h'], 'libSDL_ttf', ['SDL_ttf']),
-         FrameworkDependency('FONT', 'SDL_ttf.h', 'libSDL_ttf', 'SDL_ttf')],     
+         FrameworkDependency('FONT', 'SDL_ttf.h', 'libSDL_ttf', 'SDL_ttf')],
     [Dependency('IMAGE', ['SDL_image.h', 'SDL/SDL_image.h'], 'libSDL_image', ['SDL_image']),
          FrameworkDependency('IMAGE', 'SDL_image.h', 'libSDL_image', 'SDL_image')],
     [Dependency('MIXER', ['SDL_mixer.h', 'SDL/SDL_mixer.h'], 'libSDL_mixer', ['SDL_mixer']),
@@ -113,8 +113,10 @@ DEPS = [
     Dependency('JPEG', 'jpeglib.h', 'libjpeg', ['jpeg']),
     Dependency('PORTMIDI', 'portmidi.h', 'libportmidi', ['portmidi']),
     #DependencyProg('FREETYPE', 'FREETYPE_CONFIG', '/usr/X11R6/bin/freetype-config', '2.0',
-    DependencyProg('FREETYPE', 'FREETYPE_CONFIG', 'freetype-config', '2.0',
-                   ['freetype'], '--ftversion'),
+    # DependencyProg('FREETYPE', 'FREETYPE_CONFIG', 'freetype-config', '2.0',
+    #                ['freetype'], '--ftversion'),
+    DependencyProg('FREETYPE', 'FREETYPE_CONFIG', 'pkg-config freetype2', '2.0',
+                   ['freetype2'], '--modversion'),
     # Scrap is included in sdlmain_osx, there is nothing to look at.
     # Dependency('SCRAP', '','',[]),
 ]
@@ -148,7 +150,7 @@ def main():
                     break
             if not found:
                 DEPS[DEPS.index(d)] = d[0]
-    
+
     DEPS[0].cflags = '-Ddarwin '+ DEPS[0].cflags
     return DEPS
 

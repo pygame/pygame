@@ -149,14 +149,14 @@ required).
       pygame.NOFRAME       display window will have no border or controls
 
    For example:
-    
+
    ::
-    
+
         # Open a window on the screen
         screen_width=700
         screen_height=400
         screen=pygame.display.set_mode([screen_width,screen_height])
-    
+
    .. ## pygame.display.set_mode ##
 
 .. function:: get_surface
@@ -248,7 +248,7 @@ required).
      blit_sw:    True if software Surface blitting is accelerated
      blit_sw_CC: True if software Surface colorkey blitting is accelerated
      blit_sw_A:  True if software Surface pixel alpha blitting is accelerated
-     current_h, current_h:  Width and height of the current video mode, or of the
+     current_h, current_w:  Height and width of the current video mode, or of the
        desktop mode if called before the display.set_mode is called.
        (current_h, current_w are available since SDL 1.2.10, and pygame 1.8.0)
        They are -1 on error, or if an old SDL is being used.

@@ -21,6 +21,8 @@
 
 #define DOC_PIXELARRAYTRANSPOSE "transpose() -> PixelArray\nExchanges the x and y axis."
 
+#define DOC_PIXELARRAYCLOSE "transpose() -> PixelArray\nCloses the PixelArray, and releases Surface lock."
+
 
 
 /* Docs in a comment... slightly easier to read. */
@@ -70,5 +72,9 @@ Compares the PixelArray with another one.
 pygame.PixelArray.transpose
  transpose() -> PixelArray
 Exchanges the x and y axis.
+
+pygame.PixelArray.close
+ transpose() -> PixelArray
+Closes the PixelArray, and releases Surface lock.
 
 */

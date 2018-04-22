@@ -139,6 +139,25 @@ array_is_contiguous(PyPixelArray *ap, char fortran)
     return 0;
 }
 
+void
+_cleanup_array(PyPixelArray *array) {
+    PyObject_GC_UnTrack(array);
+    if (array->parent) {
+        Py_DECREF(array->parent);
+    }
+    else {
+        PySurface_UnlockBy(array->surface, (PyObject *)array);
+    }
+    Py_DECREF(array->surface);
+    Py_XDECREF(array->dict);
+
+    /* We check other operations,
+       and raise ValueError if surface is NULL.
+    */
+    array->surface = NULL;
+}
+
+
 #include "pixelarray_methods.c"
 
 /**
@@ -152,6 +171,12 @@ static PyMethodDef _pxarray_methods[] =
       DOC_PIXELARRAYEXTRACT },
     { "make_surface", (PyCFunction)_make_surface, METH_NOARGS,
       DOC_PIXELARRAYMAKESURFACE },
+    { "close", (PyCFunction)_close_array, METH_NOARGS,
+      DOC_PIXELARRAYCLOSE },
+    { "__enter__", (PyCFunction)_enter_context, METH_NOARGS,
+      DOC_PIXELARRAYCLOSE },
+    { "__exit__", (PyCFunction)_exit_context, METH_VARARGS | METH_KEYWORDS,
+      DOC_PIXELARRAYEXTRACT },
     { "replace", (PyCFunction)_replace_color, METH_VARARGS | METH_KEYWORDS,
       DOC_PIXELARRAYREPLACE },
     { "transpose", (PyCFunction)_transpose, METH_NOARGS,
@@ -395,18 +420,12 @@ _pxarray_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static void
 _pxarray_dealloc(PyPixelArray *self)
 {
-    if (self->weakrefs) {
-        PyObject_ClearWeakRefs((PyObject *)self);
+    if (self->surface) {
+        if (self->weakrefs) {
+            PyObject_ClearWeakRefs((PyObject *)self);
+        }
+        _cleanup_array(self);
     }
-    PyObject_GC_UnTrack(self);
-    if (self->parent) {
-        Py_DECREF(self->parent);
-    }
-    else {
-        PySurface_UnlockBy(self->surface, (PyObject *)self);
-    }
-    Py_DECREF(self->surface);
-    Py_XDECREF(self->dict);
     Py_TYPE(self)->tp_free((PyObject *)self);
 }
 
@@ -553,12 +572,18 @@ _pxarray_get_pixelsaddress(PyPixelArray *self, void *closure)
 static int
 _pxarray_getbuffer(PyPixelArray *self, Py_buffer *view_p, int flags)
 {
-    Py_ssize_t itemsize =
-        PySurface_AsSurface(self->surface)->format->BytesPerPixel;
+    Py_ssize_t itemsize;
     int ndim = self->shape[1] ? 2 : 1;
     Py_ssize_t *shape = 0;
     Py_ssize_t *strides = 0;
     Py_ssize_t len;
+
+    if (self->surface == NULL) {
+        PyErr_SetString(PyExc_ValueError, "Operation on closed PixelArray.");
+        return -1;
+    }
+
+    itemsize = PySurface_AsSurface(self->surface)->format->BytesPerPixel;
 
     len = self->shape[0] * (ndim == 2 ? self->shape[1] : 1) * itemsize;
     view_p->obj = 0;
@@ -655,7 +680,7 @@ _pxarray_getbuffer(PyPixelArray *self, Py_buffer *view_p, int flags)
 static PyObject *
 _pxarray_repr(PyPixelArray *array)
 {
-    SDL_Surface *surf = PySurface_AsSurface(array->surface);
+    SDL_Surface *surf;
     PyObject *string;
     int bpp;
     Uint8 *pixels = array->pixels;
@@ -670,6 +695,11 @@ _pxarray_repr(PyPixelArray *array)
     Uint8 *pixelrow;
     Uint8 *pixel_p;
 
+    if(array->surface == NULL) {
+        return RAISE(PyExc_ValueError, "Operation on closed PixelArray.");
+    }
+
+    surf = PySurface_AsSurface(array->surface);
     bpp = surf->format->BytesPerPixel;
 
     string = Text_FromUTF8 ("PixelArray(");
@@ -826,6 +856,10 @@ _pxarray_subscript_internal(PyPixelArray *array,
     Py_ssize_t dx = xstop - xstart;
     Py_ssize_t dy = ystop - ystart;
 
+    if(array->surface == NULL) {
+        return RAISE(PyExc_ValueError, "Operation on closed PixelArray.");
+    }
+
     if (!array->shape[1]) {
         ystart = 0;
         ystop = 1;
@@ -867,6 +901,9 @@ static PyObject *
 _array_slice_internal(PyPixelArray *array,
                       Py_ssize_t start, Py_ssize_t end, Py_ssize_t step)
 {
+    if(array->surface == NULL) {
+        return RAISE(PyExc_ValueError, "Operation on closed PixelArray.");
+    }
     if (end == start) {
         return RAISE(PyExc_IndexError, "array size must not be 0");
     }
@@ -897,6 +934,10 @@ _pxarray_length(PyPixelArray *array)
 static PyObject *
 _pxarray_item(PyPixelArray *array, Py_ssize_t index)
 {
+    if(array->surface == NULL) {
+        PyErr_SetString(PyExc_ValueError, "Operation on closed PixelArray.");
+        return RAISE(PyExc_ValueError, "Operation on closed PixelArray.");
+    }
     if (index < 0) {
         index = array->shape[0] - index;
         if (index < 0) {
@@ -915,7 +956,7 @@ _array_assign_array(PyPixelArray *array,
                     Py_ssize_t low, Py_ssize_t high,
                     PyPixelArray *val)
 {
-    SDL_Surface *surf = PySurface_AsSurface(array->surface);
+    SDL_Surface *surf;
     Py_ssize_t dim0 = ABS(high - low);
     Py_ssize_t dim1 = array->shape[1];
     Py_ssize_t stride0 = high >= low ? array->strides[0] : -array->strides[0];
@@ -927,7 +968,7 @@ _array_assign_array(PyPixelArray *array,
     Py_ssize_t val_stride0 = val->strides[0];
     Py_ssize_t val_stride1 = val->strides[1];
     Uint8 *val_pixels = val->pixels;
-    SDL_Surface *val_surf = PySurface_AsSurface(val->surface);
+    SDL_Surface *val_surf;
     int val_bpp;
     Uint8 *pixelrow;
     Uint8 *pixel_p;
@@ -937,6 +978,14 @@ _array_assign_array(PyPixelArray *array,
     Py_ssize_t x;
     Py_ssize_t y;
     int sizes_match = 0;
+
+    if(array->surface == NULL) {
+        PyErr_SetString(PyExc_ValueError, "Operation on closed PixelArray.");
+        return -1;
+    }
+
+    surf = PySurface_AsSurface(array->surface);
+    val_surf = PySurface_AsSurface(val->surface);
 
     /* Broadcast length 1 val dimensions.*/
     if (val_dim0 == 1) {

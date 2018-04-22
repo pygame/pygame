@@ -43,7 +43,7 @@ def show_image(s, images = []):
                     screen.blit(s, (0,0))
                     pygame.display.flip()
                     pygame.event.pump()
-                else:
+                elif e.key in [K_ESCAPE]:
                     going = False
     pygame.display.quit()
     pygame.display.init()
@@ -90,10 +90,6 @@ def threshold(return_surf, surf, color, threshold = (0,0,0), diff_color = (0,0,0
 
 
 class TransformModuleTest( unittest.TestCase ):
-    #class TransformModuleTest( object ):
-
-    #def assertEqual(self, x,x2):
-    #    print x,x2
 
     def test_scale__alpha( self ):
         """ see if set_alpha information is kept.
@@ -109,7 +105,6 @@ class TransformModuleTest( unittest.TestCase ):
         s3 = s.copy()
         self.assertEqual(s.get_alpha(),s3.get_alpha())
         self.assertEqual(s.get_alpha(),s2.get_alpha())
-
 
     def test_scale__destination( self ):
         """ see if the destination surface can be passed in to use.
@@ -135,7 +130,6 @@ class TransformModuleTest( unittest.TestCase ):
 
             # the wrong size surface is past in.  Should raise an error.
             self.assertRaises(ValueError, pygame.transform.smoothscale, s, (33,64), s3)
-
 
     def test_threshold__honors_third_surface(self):
         # __doc__ for threshold as of Tue 07/15/2008
@@ -175,10 +169,12 @@ class TransformModuleTest( unittest.TestCase ):
         # All pixels for color should be within threshold
         #
         pixels_within_threshold = pygame.transform.threshold (
-            dest_surface, original_surface, threshold_color,
-            threshold,
-            0, # diff_color
-            0  # change_return
+            dest_surf=None,
+            surf=original_surface,
+            search_color=threshold_color,
+            threshold=threshold,
+            set_color=None,
+            set_behavior=0
         )
 
         self.assertEqual(w*h, pixels_within_threshold)
@@ -189,37 +185,56 @@ class TransformModuleTest( unittest.TestCase ):
         # all within threshold
 
         pixels_within_threshold = pygame.transform.threshold (
-            dest_surface,
-            original_surface,
-            0,                            # color (would fail if honored)
-            threshold,
-            0,                                              # diff_color
-            0,                                           # change_return
-            third_surface,
+            dest_surf=None,
+            surf=original_surface,
+            search_color=None,
+            threshold=threshold,
+            set_color=None,
+            set_behavior=0,
+            search_surf=third_surface,
         )
         self.assertEqual(w*h, pixels_within_threshold)
 
+    def test_threshold_dest_surf_not_change(self):
+        """ the pixels within the threshold.
 
-        ################################################################
-        # Change dest_surface on return (not expected)
+        All pixels not within threshold are changed to set_color.
+        So there should be none changed in this test.
+        """
+        (w, h) = size = (32, 32)
+        threshold = (20, 20, 20, 20)
+        original_color = (25, 25, 25, 25)
+        original_dest_color = (65, 65, 65, 55)
+        threshold_color = (10, 10, 10, 10)
+        set_color = (255, 10, 10, 10)
 
-        change_color = (255, 10, 10, 10)
+        surf = pygame.Surface(size, pygame.SRCALPHA, 32)
+        dest_surf = pygame.Surface(size, pygame.SRCALPHA, 32)
+        search_surf = pygame.Surface(size, pygame.SRCALPHA, 32)
 
-        pixels_within_threshold = pygame.transform.threshold (
-            dest_surface,
-            original_surface,
-            0,                                           # color
-            threshold,
-            change_color,                                # diff_color
-            1,                                           # change_return
-            third_surface,
+        surf.fill(original_color)
+        search_surf.fill(threshold_color)
+        dest_surf.fill(original_dest_color)
+
+        # set_behavior=1, set dest_surface from set_color.
+        # all within threshold of third_surface, so no color is set.
+
+        THRESHOLD_BEHAVIOR_FROM_SEARCH_COLOR = 1
+        pixels_within_threshold = pygame.transform.threshold(
+            dest_surf=dest_surf,
+            surf=surf,
+            search_color=None,
+            threshold=threshold,
+            set_color=set_color,
+            set_behavior=THRESHOLD_BEHAVIOR_FROM_SEARCH_COLOR,
+            search_surf=search_surf,
         )
 
-        # Return, of pixels within threshold is correct
+        # # Return, of pixels within threshold is correct
         self.assertEqual(w*h, pixels_within_threshold)
 
-        # Size of dest surface is correct
-        dest_rect = dest_surface.get_rect()
+        # # Size of dest surface is correct
+        dest_rect = dest_surf.get_rect()
         dest_size = dest_rect.size
         self.assertEqual(size, dest_size)
 
@@ -227,36 +242,203 @@ class TransformModuleTest( unittest.TestCase ):
         # pixels are within threshold
 
         for pt in test_utils.rect_area_pts(dest_rect):
-            self.assert_(dest_surface.get_at(pt) != change_color)
+            self.assertNotEqual(dest_surf.get_at(pt), set_color)
+            self.assertEqual(dest_surf.get_at(pt), original_dest_color)
 
-        ################################################################
-        # Lowering the threshold, expecting changed surface
+    def test_threshold_dest_surf_all_changed(self):
+        """ Lowering the threshold, expecting changed surface
+        """
 
+        (w, h) = size = (32, 32)
+        threshold = (20, 20, 20, 20)
+        original_color = (25, 25, 25, 25)
+        original_dest_color = (65, 65, 65, 55)
+        threshold_color = (10, 10, 10, 10)
+        set_color = (255, 10, 10, 10)
+
+        surf = pygame.Surface(size, pygame.SRCALPHA, 32)
+        dest_surf = pygame.Surface(size, pygame.SRCALPHA, 32)
+        search_surf = pygame.Surface(size, pygame.SRCALPHA, 32)
+
+        surf.fill(original_color)
+        search_surf.fill(threshold_color)
+        dest_surf.fill(original_dest_color)
+
+        THRESHOLD_BEHAVIOR_FROM_SEARCH_COLOR = 1
         pixels_within_threshold = pygame.transform.threshold (
-            dest_surface,
-            original_surface,
-            0,                                           # color
-            0,                                           # threshold
-            change_color,                                # diff_color
-            1,                                           # change_return
-            third_surface,
+            dest_surf,
+            surf,
+            search_color=None,
+            set_color=set_color,
+            set_behavior=THRESHOLD_BEHAVIOR_FROM_SEARCH_COLOR,
+            search_surf=search_surf,
         )
 
-        # Return, of pixels within threshold is correct
         self.assertEqual(0, pixels_within_threshold)
 
-        # Size of dest surface is correct
-        dest_rect = dest_surface.get_rect()
+        dest_rect = dest_surf.get_rect()
         dest_size = dest_rect.size
         self.assertEqual(size, dest_size)
 
-        # The color is the change_color specified for every pixel As all
+        # The color is the set_color specified for every pixel As all
         # pixels are not within threshold
-
         for pt in test_utils.rect_area_pts(dest_rect):
-            self.assertEqual(dest_surface.get_at(pt), change_color)
+            self.assertEqual(dest_surf.get_at(pt), set_color)
+
+    def test_threshold_count(self):
+        """ counts the colors, and not changes them.
+        """
+        surf_size = (32, 32)
+        surf = pygame.Surface(surf_size, pygame.SRCALPHA, 32)
+        search_surf = pygame.Surface(surf_size, pygame.SRCALPHA, 32)
+        search_color = (55, 55, 55, 255)
+        original_color = (10, 10, 10, 255)
+
+        surf.fill(original_color)
+        # set 2 pixels to the color we are searching for.
+        surf.set_at((0, 0), search_color)
+        surf.set_at((12, 5), search_color)
+
+        # There is no destination surface, but we ask to change it.
+        #   This should be an error.
+        self.assertRaises(TypeError, pygame.transform.threshold,
+            None,
+            surf,
+            search_color)
+        # from pygame.transform import THRESHOLD_BEHAVIOR_COUNT
+        THRESHOLD_BEHAVIOR_FROM_SEARCH_SURF = 2
+        self.assertRaises(TypeError, pygame.transform.threshold,
+            None,
+            surf,
+            search_color,
+            set_behavior=THRESHOLD_BEHAVIOR_FROM_SEARCH_SURF)
+
+        THRESHOLD_BEHAVIOR_COUNT = 0
+        num_threshold_pixels = pygame.transform.threshold(
+            dest_surf=None,
+            surf=surf,
+            search_color=search_color,
+            set_behavior=THRESHOLD_BEHAVIOR_COUNT)
+        self.assertEqual(num_threshold_pixels, 2)
+
+    def test_threshold_search_surf(self):
+        surf_size = (32, 32)
+        surf = pygame.Surface(surf_size, pygame.SRCALPHA, 32)
+        search_surf = pygame.Surface(surf_size, pygame.SRCALPHA, 32)
+        dest_surf = pygame.Surface(surf_size, pygame.SRCALPHA, 32)
+
+        original_color = (10, 10, 10, 255)
+        search_color = (55, 55, 55, 255)
+
+        surf.fill(original_color)
+        dest_surf.fill(original_color)
+        # set 2 pixels to the color we are searching for.
+        surf.set_at((0, 0), search_color)
+        surf.set_at((12, 5), search_color)
+
+        search_surf.fill(search_color)
+
+        # We look in the other surface for matching colors.
+        #  Change it in dest_surf
+        THRESHOLD_BEHAVIOR_FROM_SEARCH_SURF = 2
+
+        # TypeError: if search_surf is used, search_color should be None
+        self.assertRaises(TypeError, pygame.transform.threshold,
+            dest_surf,
+            surf,
+            search_color,
+            set_behavior=THRESHOLD_BEHAVIOR_FROM_SEARCH_SURF,
+            search_surf=search_surf)
+
+        # surf, dest_surf, and search_surf should all be the same size.
+        # Check surface sizes are the same size.
+        different_sized_surf = pygame.Surface((22, 33), pygame.SRCALPHA, 32)
+        self.assertRaises(TypeError, pygame.transform.threshold,
+            different_sized_surf,
+            surf,
+            search_color=None,
+            set_color=None,
+            set_behavior=THRESHOLD_BEHAVIOR_FROM_SEARCH_SURF,
+            search_surf=search_surf)
+
+        self.assertRaises(TypeError, pygame.transform.threshold,
+            dest_surf,
+            surf,
+            search_color=None,
+            set_color=None,
+            set_behavior=THRESHOLD_BEHAVIOR_FROM_SEARCH_SURF,
+            search_surf=different_sized_surf)
+
+        # We look to see if colors in search_surf are in surf.
+        num_threshold_pixels = pygame.transform.threshold(
+            dest_surf=dest_surf,
+            surf=surf,
+            search_color=None,
+            set_color=None,
+            set_behavior=THRESHOLD_BEHAVIOR_FROM_SEARCH_SURF,
+            search_surf=search_surf)
+
+        num_pixels_within = 2
+        self.assertEqual(num_threshold_pixels, num_pixels_within)
+
+        dest_surf.fill(original_color)
+        num_threshold_pixels = pygame.transform.threshold(
+            dest_surf,
+            surf,
+            search_color=None,
+            set_color=None,
+            set_behavior=THRESHOLD_BEHAVIOR_FROM_SEARCH_SURF,
+            search_surf=search_surf,
+            inverse_set=True)
+
+        self.assertEqual(num_threshold_pixels, 2)
+
+    def test_threshold_inverse_set(self):
+        """ changes the pixels within the threshold, and not outside.
+        """
+        surf_size = (32, 32)
+        _dest_surf = pygame.Surface(surf_size, pygame.SRCALPHA, 32)
+        _surf = pygame.Surface(surf_size, pygame.SRCALPHA, 32)
+
+        dest_surf = _dest_surf             # surface we are changing.
+        surf = _surf                       # surface we are looking at
+        search_color = (55, 55, 55, 255)   # color we are searching for.
+        threshold = (0, 0, 0, 0)           # within this distance from search_color.
+        set_color = (245, 245, 245, 255)         # color we set.
+        inverse_set = 1                    # pixels within threshold are changed to 'set_color'
 
 
+        original_color = (10, 10, 10, 255)
+        surf.fill(original_color)
+        # set 2 pixels to the color we are searching for.
+        surf.set_at((0, 0), search_color)
+        surf.set_at((12, 5), search_color)
+
+        dest_surf.fill(original_color)
+        # set 2 pixels to the color we are searching for.
+        dest_surf.set_at((0, 0), search_color)
+        dest_surf.set_at((12, 5), search_color)
+
+
+        THRESHOLD_BEHAVIOR_FROM_SEARCH_COLOR = 1
+        num_threshold_pixels = pygame.transform.threshold(
+            dest_surf,
+            surf,
+            search_color=search_color,
+            threshold=threshold,
+            set_color=set_color,
+            set_behavior=THRESHOLD_BEHAVIOR_FROM_SEARCH_COLOR,
+            inverse_set=1)
+
+        self.assertEqual(num_threshold_pixels, 2)
+        # only two pixels changed to diff_color.
+        self.assertEqual(dest_surf.get_at((0, 0)), set_color)
+        self.assertEqual(dest_surf.get_at((12, 5)), set_color)
+
+
+        # other pixels should be the same as they were before.
+        # We just check one other pixel, not all of them.
+        self.assertEqual(dest_surf.get_at((2, 2)), original_color)
 
 #XXX
     def test_threshold_non_src_alpha(self):
@@ -266,61 +448,50 @@ class TransformModuleTest( unittest.TestCase ):
         s2 = pygame.Surface((10,10))
         s3 = pygame.Surface((10,10))
         s4 = pygame.Surface((10,10))
-        result = pygame.Surface((10,10))
-        x = s1.fill((0,0,0))
+
+        x = s1.fill((0, 0, 0))
+        s1.set_at((0,0), (32, 20, 0 ))
+
         x = s2.fill((0,20,0))
         x = s3.fill((0,0,0))
         x = s4.fill((0,0,0))
-        s1.set_at((0,0), (32, 20, 0 ))
         s2.set_at((0,0), (33, 21, 0 ))
         s2.set_at((3,0), (63, 61, 0 ))
         s3.set_at((0,0), (112, 31, 0 ))
         s4.set_at((0,0), (11, 31, 0 ))
         s4.set_at((1,1), (12, 31, 0 ))
 
-        self.assertEqual( s1.get_at((0,0)), (32, 20, 0, 255) )
-        self.assertEqual( s2.get_at((0,0)), (33, 21, 0, 255) )
-        self.assertEqual( (0,0), (s1.get_flags(), s2.get_flags()))
+        self.assertEqual(s1.get_at((0,0)), (32, 20, 0, 255))
+        self.assertEqual(s2.get_at((0,0)), (33, 21, 0, 255))
+        self.assertEqual((0, 0), (s1.get_flags(), s2.get_flags()))
 
 
 
-        #All one hundred of the pixels should be within the threshold.
+        similar_color = (255, 255, 255, 255)
+        diff_color = (222, 0, 0, 255)
+        threshold_color = (20, 20, 20, 255)
 
-        #>>> object_tracking.diff_image(result, s1, s2, threshold = 20)
-        #100
+        THRESHOLD_BEHAVIOR_FROM_SEARCH_COLOR = 1
+        num_threshold_pixels = pygame.transform.threshold(
+            dest_surf=result,
+            surf=s1,
+            search_color=similar_color,
+            threshold=threshold_color,
+            set_color=diff_color,
+            set_behavior=THRESHOLD_BEHAVIOR_FROM_SEARCH_COLOR)
+        self.assertEqual(num_threshold_pixels, 0)
 
-        similar_color = (255, 255, 255,255)
-        diff_color=(222,0,0,255)
-        threshold_color = (20,20,20,255)
-
-        rr = pygame.transform.threshold(result, s1, similar_color, threshold_color, diff_color, 1, s2)
-        self.assertEqual(rr, 99)
-
-        self.assertEqual( result.get_at((0,0)), (255,255,255, 255) )
-
-
-
-        rr = pygame.transform.threshold(result, s1, similar_color,
-                threshold_color, diff_color, 2, s2)
-        self.assertEqual(rr, 99)
-
-        self.assertEqual( result.get_at((0,0)), (32, 20, 0, 255) )
-
-
-
-
-        # this is within the threshold,
-        #     so the color is copied from the s1 surface.
-        self.assertEqual( result.get_at((1,0)), (0, 0, 0, 255) )
-
-        # this color was not in the threshold so it has been set to diff_color
-        self.assertEqual( result.get_at((3,0)), (222, 0, 0, 255) )
+        num_threshold_pixels = pygame.transform.threshold(
+            dest_surf=result,
+            surf=s1,
+            search_color=(40, 40, 0),
+            threshold=threshold_color,
+            set_color=diff_color,
+            set_behavior=THRESHOLD_BEHAVIOR_FROM_SEARCH_COLOR)
+        self.assertEqual(num_threshold_pixels, 1)
 
 
-
-
-
-
+        self.assertEqual(result.get_at((0,0)), diff_color)
 
 
     def test_threshold__uneven_colors(self):
@@ -344,91 +515,153 @@ class TransformModuleTest( unittest.TestCase ):
             threshold[pos] = 50
 
             pixels_within_threshold = pygame.transform.threshold (
-                dest_surface, original_surface, threshold_color,
+                None,
+                original_surface,
+                threshold_color,
                 threshold,
-                0, # diff_color
-                0  # change_return
+                set_color=None,
+                set_behavior=0
             )
 
             self.assertEqual(w*h, pixels_within_threshold)
 
         ################################################################
 
+    def test_threshold_set_behavior2(self):
+        """ raises an error when set_behavior=2 and set_color is not None.
+        """
+        from pygame.transform import threshold
+        s1 = pygame.Surface((32,32), SRCALPHA, 32)
+        s2 = pygame.Surface((32,32), SRCALPHA, 32)
+        THRESHOLD_BEHAVIOR_FROM_SEARCH_SURF = 2
+        self.assertRaises(TypeError, threshold,
+            dest_surf=s2,
+            surf=s1,
+            search_color=(30, 30, 30),
+            threshold=(11, 11, 11),
+            set_color=(255, 0, 0),
+            set_behavior=THRESHOLD_BEHAVIOR_FROM_SEARCH_SURF)
+
+    def test_threshold_set_behavior0(self):
+        """ raises an error when set_behavior=1
+                and set_color is not None,
+                and dest_surf is not None.
+        """
+        from pygame.transform import threshold
+        s1 = pygame.Surface((32,32), SRCALPHA, 32)
+        s2 = pygame.Surface((32,32), SRCALPHA, 32)
+        THRESHOLD_BEHAVIOR_COUNT = 0
+
+        self.assertRaises(TypeError, threshold,
+            dest_surf=None,
+            surf=s2,
+            search_color=(30, 30, 30),
+            threshold=(11, 11, 11),
+            set_color=(0, 0, 0),
+            set_behavior=THRESHOLD_BEHAVIOR_COUNT)
+
+        self.assertRaises(TypeError, threshold,
+            dest_surf=s1,
+            surf=s2,
+            search_color=(30, 30, 30),
+            threshold=(11, 11, 11),
+            set_color=None,
+            set_behavior=THRESHOLD_BEHAVIOR_COUNT)
+
+        threshold(
+            dest_surf=None,
+            surf=s2,
+            search_color=(30, 30, 30),
+            threshold=(11, 11, 11),
+            set_color=None,
+            set_behavior=THRESHOLD_BEHAVIOR_COUNT)
+
+
+    def test_threshold_from_surface(self):
+        """ Set similar pixels in 'dest_surf' to color in the 'surf'.
+        """
+        from pygame.transform import threshold
+
+        surf = pygame.Surface((32,32), SRCALPHA, 32)
+        dest_surf = pygame.Surface((32,32), SRCALPHA, 32)
+        surf_color = (40, 40, 40, 255)
+        dest_color = (255, 255, 255)
+        surf.fill(surf_color)
+        dest_surf.fill(dest_color)
+        THRESHOLD_BEHAVIOR_FROM_SEARCH_SURF = 2
+
+        num_threshold_pixels = threshold(
+            dest_surf=dest_surf,
+            surf=surf,
+            search_color=(30, 30, 30),
+            threshold=(11, 11, 11),
+            set_color=None,
+            set_behavior=THRESHOLD_BEHAVIOR_FROM_SEARCH_SURF,
+            inverse_set=1)
+
+        self.assertEqual(num_threshold_pixels, dest_surf.get_height() * dest_surf.get_width())
+        self.assertEqual(dest_surf.get_at((0, 0)), surf_color)
+
+
     def test_threshold__surface(self):
         """
         """
-
-        #pygame.transform.threshold(DestSurface, Surface, color, threshold = (0,0,0,0), diff_color = (0,0,0,0), change_return = True): return num_threshold_pixels
-        threshold = pygame.transform.threshold
+        from pygame.transform import threshold
 
         s1 = pygame.Surface((32,32), SRCALPHA, 32)
         s2 = pygame.Surface((32,32), SRCALPHA, 32)
         s3 = pygame.Surface((1,1), SRCALPHA, 32)
+        THRESHOLD_BEHAVIOR_FROM_SEARCH_SURF = 2
 
-        s1.fill((40,40,40))
-        s2.fill((255,255,255))
+        # if 1:
+        #     # only one pixel should not be changed.
+        #     s1.fill((40,40,40))
+        #     s2.fill((255,255,255))
+        #     s1.set_at( (0,0), (170, 170, 170) )
+        #     # set the similar pixels in destination surface to the color
+        #     #     in the first surface.
+        #     num_threshold_pixels = threshold(
+        #         dest_surf=s2,
+        #         surf=s1,
+        #         search_color=(30,30,30),
+        #         threshold=(11,11,11),
+        #         set_color=None,
+        #         set_behavior=THRESHOLD_BEHAVIOR_FROM_SEARCH_SURF)
 
-
-
-
-        dest_surface = s2
-        surface1 = s1
-        color = (30,30,30)
-        the_threshold = (11,11,11)
-        diff_color = (255,0,0)
-        change_return = 2
-
-        # set the similar pixels in destination surface to the color
-        #     in the first surface.
-        num_threshold_pixels = threshold(dest_surface, surface1, color,
-                                         the_threshold, diff_color,
-                                         change_return)
-
-        #num_threshold_pixels = threshold(s2, s1, (30,30,30))
-        self.assertEqual(num_threshold_pixels, s1.get_height() * s1.get_width())
-        self.assertEqual(s2.get_at((0,0)), (40, 40, 40, 255))
-
+        #     #num_threshold_pixels = threshold(s2, s1, (30,30,30))
+        #     self.assertEqual(num_threshold_pixels, (s1.get_height() * s1.get_width()) -1)
+        #     self.assertEqual(s2.get_at((0,0)), (0,0,0, 255))
+        #     self.assertEqual(s2.get_at((0,1)), (40, 40, 40, 255))
+        #     self.assertEqual(s2.get_at((17,1)), (40, 40, 40, 255))
 
 
+        # # abs(40 - 255) < 100
+        # #(abs(c1[0] - r) < tr)
 
+        # if 1:
+        #     s1.fill((160,160,160))
+        #     s2.fill((255,255,255))
+        #     num_threshold_pixels = threshold(s2, s1, (255,255,255), (100,100,100), (0,0,0), True)
 
-        if 1:
-
-            # only one pixel should not be changed.
-            s1.fill((40,40,40))
-            s2.fill((255,255,255))
-            s1.set_at( (0,0), (170, 170, 170) )
-            # set the similar pixels in destination surface to the color
-            #     in the first surface.
-            num_threshold_pixels = threshold(s2, s1, (30,30,30), (11,11,11),
-                                             (0,0,0), 2)
-
-            #num_threshold_pixels = threshold(s2, s1, (30,30,30))
-            self.assertEqual(num_threshold_pixels, (s1.get_height() * s1.get_width()) -1)
-            self.assertEqual(s2.get_at((0,0)), (0,0,0, 255))
-            self.assertEqual(s2.get_at((0,1)), (40, 40, 40, 255))
-            self.assertEqual(s2.get_at((17,1)), (40, 40, 40, 255))
-
-
-        # abs(40 - 255) < 100
-        #(abs(c1[0] - r) < tr)
-
-        if 1:
-            s1.fill((160,160,160))
-            s2.fill((255,255,255))
-            num_threshold_pixels = threshold(s2, s1, (255,255,255), (100,100,100), (0,0,0), True)
-
-            self.assertEqual(num_threshold_pixels, (s1.get_height() * s1.get_width()))
+        #     self.assertEqual(num_threshold_pixels, (s1.get_height() * s1.get_width()))
 
 
 
 
         if 1:
             # only one pixel should not be changed.
-            s1.fill((40,40,40))
-            s2.fill((255,255,255))
-            s1.set_at( (0,0), (170, 170, 170) )
-            num_threshold_pixels = threshold(s3, s1, (30,30,30), (11,11,11), (0,0,0), False)
+            s1.fill((40, 40, 40))
+            s1.set_at((0, 0), (170, 170, 170))
+            THRESHOLD_BEHAVIOR_COUNT = 0
+
+            num_threshold_pixels = threshold(
+                dest_surf=None,
+                surf=s1,
+                search_color=(30, 30, 30),
+                threshold=(11, 11, 11),
+                set_color=None,
+                set_behavior=THRESHOLD_BEHAVIOR_COUNT)
+
             #num_threshold_pixels = threshold(s2, s1, (30,30,30))
             self.assertEqual(num_threshold_pixels, (s1.get_height() * s1.get_width()) -1)
 
@@ -441,26 +674,26 @@ class TransformModuleTest( unittest.TestCase ):
             s2.fill((255,255,255))
             s3.fill((255,255,255))
             s1.set_at( (0,0), (170, 170, 170) )
-            num_threshold_pixels = threshold(s3, s1, (254,254,254), (1,1,1),
-                                             (44,44,44,255), False)
+            num_threshold_pixels = threshold(None, s1, (254,254,254), (1,1,1),
+                                             None, THRESHOLD_BEHAVIOR_COUNT)
             self.assertEqual(num_threshold_pixels, (s1.get_height() * s1.get_width()) -1)
 
 
             # compare the two surfaces.  Should be all but one matching.
-            num_threshold_pixels = threshold(s3, s1, 0, (1,1,1),
-                                             (44,44,44,255), False, s2)
+            num_threshold_pixels = threshold(None, s1, None, (1,1,1),
+                                             None, THRESHOLD_BEHAVIOR_COUNT, s2)
             self.assertEqual(num_threshold_pixels, (s1.get_height() * s1.get_width()) -1)
 
 
             # within (0,0,0) threshold?  Should match no pixels.
-            num_threshold_pixels = threshold(s3, s1, (253,253,253), (0,0,0),
-                                             (44,44,44,255), False)
+            num_threshold_pixels = threshold(None, s1, (253,253,253), (0,0,0),
+                                             None, THRESHOLD_BEHAVIOR_COUNT)
             self.assertEqual(num_threshold_pixels, 0)
 
 
             # other surface within (0,0,0) threshold?  Should match no pixels.
-            num_threshold_pixels = threshold(s3, s1, 0, (0,0,0),
-                                             (44,44,44,255), False, s2)
+            num_threshold_pixels = threshold(None, s1, None, (0,0,0),
+                                             None, THRESHOLD_BEHAVIOR_COUNT, s2)
             self.assertEqual(num_threshold_pixels, 0)
 
 
@@ -607,7 +840,7 @@ class TransformModuleTest( unittest.TestCase ):
             s = pygame.transform.rotate(s,rotation)
 
         for pt, color in gradient:
-            self.assert_(s.get_at(pt) == color)
+            self.assertTrue(s.get_at(pt) == color)
 
     def test_scale2x(self):
 
@@ -622,11 +855,11 @@ class TransformModuleTest( unittest.TestCase ):
         # s.set_at((0,0), (20, 20, 20, 255))
 
         s2 = pygame.transform.scale2x(s)
-        self.assertEquals(s2.get_rect().size, (64, 64))
+        self.assertEqual(s2.get_rect().size, (64, 64))
 
     def test_get_smoothscale_backend(self):
         filter_type = pygame.transform.get_smoothscale_backend()
-        self.failUnless(filter_type in ['GENERIC', 'MMX', 'SSE'])
+        self.assertTrue(filter_type in ['GENERIC', 'MMX', 'SSE'])
         # It would be nice to test if a non-generic type corresponds to an x86
         # processor. But there is no simple test for this. platform.machine()
         # returns process version specific information, like 'i686'.
@@ -636,30 +869,30 @@ class TransformModuleTest( unittest.TestCase ):
         original_type = pygame.transform.get_smoothscale_backend()
         pygame.transform.set_smoothscale_backend('GENERIC')
         filter_type = pygame.transform.get_smoothscale_backend()
-        self.failUnlessEqual(filter_type, 'GENERIC')
+        self.assertEqual(filter_type, 'GENERIC')
         # All machines should allow returning to original value.
         # Also check that keyword argument works.
         pygame.transform.set_smoothscale_backend(type=original_type)
         # Something invalid.
         def change():
             pygame.transform.set_smoothscale_backend('mmx')
-        self.failUnlessRaises(ValueError, change)
+        self.assertRaises(ValueError, change)
         # Invalid argument keyword.
         def change():
             pygame.transform.set_smoothscale_backend(t='GENERIC')
-        self.failUnlessRaises(TypeError, change)
+        self.assertRaises(TypeError, change)
         # Invalid argument type.
         def change():
             pygame.transform.set_smoothscale_backend(1)
-        self.failUnlessRaises(TypeError, change)
+        self.assertRaises(TypeError, change)
         # Unsupported type, if possible.
         if original_type != 'SSE':
             def change():
                 pygame.transform.set_smoothscale_backend('SSE')
-            self.failUnlessRaises(ValueError, change)
+            self.assertRaises(ValueError, change)
         # Should be back where we started.
         filter_type = pygame.transform.get_smoothscale_backend()
-        self.failUnlessEqual(filter_type, original_type)
+        self.assertEqual(filter_type, original_type)
 
     def todo_test_chop(self):
 

@@ -1,4 +1,14 @@
 import sys
+import platform
+try:
+    reduce
+except NameError:
+    from functools import reduce
+import operator
+import weakref
+import gc
+
+
 if __name__ == '__main__':
     import os
     pkg_dir = os.path.split(os.path.abspath(__file__))[0]
@@ -12,20 +22,21 @@ else:
 
 import unittest
 if is_pygame_pkg:
-    from pygame.tests.test_utils import arrinter
+    try:
+        from pygame.tests.test_utils import arrinter
+    except NameError:
+        pass
 else:
-    from test.test_utils import arrinter
+    try:
+        from test.test_utils import arrinter
+    except NameError:
+        pass
 import pygame
 from pygame.compat import xrange_
-try:
-    reduce
-except NameError:
-    from functools import reduce
-import operator
-import weakref
-import gc
 
 PY3 = sys.version_info >= (3, 0, 0)
+IS_PYPY = 'PyPy' == platform.python_implementation()
+
 
 class TestMixin (object):
     def assert_surfaces_equal (self, s1, s2):
@@ -53,7 +64,7 @@ class PixelArrayTypeTest (unittest.TestCase, TestMixin):
         self.assertRaises (TypeError, ar.compare, sf2)
         ar2 = pygame.PixelArray (sf2)
         ar3 = ar.compare (ar2)
-        self.assert_ (isinstance (ar3, pygame.PixelArray))
+        self.assertTrue(isinstance (ar3, pygame.PixelArray))
         self.assertEqual (ar3.shape, size)
         sf2.fill (pygame.Color ('white'))
         self.assert_surfaces_equal (sf2, ar3.surface)
@@ -68,6 +79,44 @@ class PixelArrayTypeTest (unittest.TestCase, TestMixin):
 
         # FINISH ME!
         # Test other bit depths, slices, and distance != 0.
+
+    def test_close(self):
+        """ does not crash when it is deleted.
+        """
+        s = pygame.Surface((10,10))
+        a = pygame.PixelArray(s)
+        a.close()
+        del a
+
+    def test_close_raises(self):
+        """ when you try to do an operation after it is closed.
+        """
+        s = pygame.Surface((10,10))
+        a = pygame.PixelArray(s)
+        a.close()
+        def do_operation():
+            a[:]
+        self.assertRaises (ValueError, do_operation)
+
+        def do_operation2():
+            a[:] = 1
+        self.assertRaises (ValueError, do_operation2)
+
+        def do_operation3():
+            a.make_surface()
+        self.assertRaises (ValueError, do_operation3)
+
+        def do_operation4():
+            for x in a:
+                pass
+        self.assertRaises (ValueError, do_operation4)
+
+    def test_context_manager(self):
+        """ closes properly.
+        """
+        s = pygame.Surface((10,10))
+        with pygame.PixelArray(s) as a:
+            a[:]
 
     def test_pixel_array (self):
         for bpp in (8, 16, 24, 32):
@@ -93,7 +142,6 @@ class PixelArrayTypeTest (unittest.TestCase, TestMixin):
         self.assertRaises (AttributeError, getattr, ar, 'nonnative')
         ar.nonnative = 'value'
         self.assertEqual (ar.nonnative, 'value')
-        self.assertTrue ('nonnative' in ar.__dict__)
         r = weakref.ref (ar)
         self.assertTrue (r() is ar)
         del ar
@@ -320,10 +368,10 @@ class PixelArrayTypeTest (unittest.TestCase, TestMixin):
 
     def test_get_surface (self):
         for bpp in (8, 16, 24, 32):
-            sf = pygame.Surface ((10, 20), 0, bpp)
-            sf.fill ((0, 0, 0))
-            ar = pygame.PixelArray (sf)
-            self.assert_ (ar.surface is sf)
+            sf = pygame.Surface((10, 20), 0, bpp)
+            sf.fill((0, 0, 0))
+            ar = pygame.PixelArray(sf)
+            self.assertTrue(ar.surface is sf)
 
     def test_set_slice (self):
         for bpp in (8, 16, 24, 32):
@@ -380,7 +428,7 @@ class PixelArrayTypeTest (unittest.TestCase, TestMixin):
             ar[:] = ar2[:]
             self.assertEqual (ar[0][0], val)
             self.assertEqual (ar[5][7], val)
- 
+
             # Ensure p1 ... pn are freed for array[...] = [p1, ..., pn]
             # Bug fix: reference counting.
             if hasattr(sys, 'getrefcount'):
@@ -532,7 +580,7 @@ class PixelArrayTypeTest (unittest.TestCase, TestMixin):
 
             # Array has a single ellipsis subscript: the identity operator
             ar2 = ar[...]
-            self.assert_ (ar2 is ar)
+            self.assertTrue(ar2 is ar)
 
             # Ensure x and y are freed for p = array[x, y]
             # Bug fix: reference counting
@@ -979,6 +1027,9 @@ class PixelArrayArrayInterfaceTest (unittest.TestCase, TestMixin):
         # Check unchanging fields.
         sf = pygame.Surface ((2, 2), 0, 32)
         ar = pygame.PixelArray (sf)
+        if IS_PYPY:
+            return
+
         ai = arrinter.ArrayInterface (ar)
         self.assertEqual (ai.two, 2)
         self.assertEqual (ai.typekind, 'u')
@@ -986,6 +1037,9 @@ class PixelArrayArrayInterfaceTest (unittest.TestCase, TestMixin):
         self.assertEqual (ai.data, ar._pixels_address)
 
     def test_shape (self):
+        if IS_PYPY:
+            return
+
         for shape in [[4, 16], [5, 13]]:
             w, h = shape
             sf = pygame.Surface (shape, 0, 32)
@@ -1005,6 +1059,8 @@ class PixelArrayArrayInterfaceTest (unittest.TestCase, TestMixin):
             self.assertEqual (ai_shape, [w, h2])
 
     def test_itemsize (self):
+        if IS_PYPY:
+            return
         for bytes_per_pixel in range(1, 5):
             bits_per_pixel = 8 * bytes_per_pixel
             sf = pygame.Surface ((2, 2), 0, bits_per_pixel)
@@ -1013,6 +1069,8 @@ class PixelArrayArrayInterfaceTest (unittest.TestCase, TestMixin):
             self.assertEqual (ai.itemsize, bytes_per_pixel)
 
     def test_flags (self):
+        if IS_PYPY:
+            return
         aim = arrinter
         common_flags = (aim.PAI_NOTSWAPPED | aim.PAI_WRITEABLE |
                         aim.PAI_ALIGNED)

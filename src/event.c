@@ -524,6 +524,47 @@ event_dealloc (PyObject* self)
     PyObject_DEL (self);
 }
 
+#ifdef PYPY_VERSION
+/* Because pypy does not work with the __dict__ tp_dictoffset. */
+PyObject* pg_EventGetAttr(PyObject *o, PyObject *attr_name) {
+    /* Try e->dict first, if not try the generic attribute. */
+    PyObject* result = PyDict_GetItem(((PyEventObject*)o)->dict, attr_name);
+    if (!result) {
+        return PyObject_GenericGetAttr(o, attr_name);
+    }
+    return result;
+}
+
+int pg_EventSetAttr(PyObject *o, PyObject *name, PyObject *value) {
+    /* if the variable is in the dict, deal with it there.
+       else if it's a normal attribute set it there.
+       else if it's not an attribute, or in the dict, set it in the dict.
+    */
+    int dictResult;
+    int setInDict = 0;
+    PyObject* result = PyDict_GetItem(((PyEventObject*)o)->dict, name);
+
+    if (result) {
+        setInDict = 1;
+    } else {
+        result = PyObject_GenericGetAttr(o, name);
+        if (!result) {
+            setInDict = 1;
+        }
+    }
+
+    if (setInDict) {
+        dictResult = PyDict_SetItem(((PyEventObject*)o)->dict, name, value);
+        if (dictResult) {
+            return -1;
+        }
+        return 0;
+    } else {
+        return PyObject_GenericSetAttr(o, name, value);
+    }
+}
+#endif
+
 PyObject*
 event_str (PyObject* self)
 {
@@ -667,8 +708,13 @@ static PyTypeObject PyEvent_Type =
     (hashfunc)NULL,                  /*hash*/
     (ternaryfunc)NULL,               /*call*/
     (reprfunc)NULL,                  /*str*/
+#ifdef PYPY_VERSION
+    pg_EventGetAttr,                 /* tp_getattro */
+    pg_EventSetAttr,                 /* tp_setattro */
+#else
     PyObject_GenericGetAttr,         /* tp_getattro */
     PyObject_GenericSetAttr,         /* tp_setattro */
+#endif
     0,                               /* tp_as_buffer */
 #if PY3
     0,
@@ -752,8 +798,9 @@ Event (PyObject* self, PyObject* arg, PyObject* keywords)
     {
         PyObject *key, *value;
         Py_ssize_t pos  = 0;
-        while (PyDict_Next (keywords, &pos, &key, &value))
+        while (PyDict_Next (keywords, &pos, &key, &value)) {
             PyDict_SetItem (dict, key, value);
+        }
     }
 
     event = PyEvent_New2 (type, dict);

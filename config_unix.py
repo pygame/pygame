@@ -204,8 +204,10 @@ def main(SDL2=False):
         Dependency('SCRAP', '', 'libX11', ['X11']),
         Dependency('PORTMIDI', 'portmidi.h', 'libportmidi.so', ['portmidi']),
         porttime_dep,
-        DependencyProg('FREETYPE', 'FREETYPE_CONFIG', 'freetype-config', '2.0',
-                       ['freetype'], '--ftversion'),
+        # DependencyProg('FREETYPE', 'FREETYPE_CONFIG', 'freetype-config', '2.0',
+        #                ['freetype'], '--ftversion'),
+        DependencyProg('FREETYPE', 'FREETYPE_CONFIG', 'pkg-config freetype2', '2.0',
+                       ['freetype2'], '--modversion'),
         ])
     if not DEPS[0].found:
         sys.exit('Unable to run "sdl-config". Please make sure a development version of SDL is installed.')
