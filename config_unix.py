@@ -206,7 +206,7 @@ def main(SDL2=False):
         porttime_dep,
         # DependencyProg('FREETYPE', 'FREETYPE_CONFIG', 'freetype-config', '2.0',
         #                ['freetype'], '--ftversion'),
-        DependencyProg('FREETYPE', 'FREETYPE_CONFIG', 'pkg-config freetype2', '2.0',
+        DependencyProg('FREETYPE', 'FREETYPE_CONFIG', 'pkg-config freetype2', '',
                        ['freetype2'], '--modversion'),
         ])
     if not DEPS[0].found:
