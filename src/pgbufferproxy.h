@@ -36,12 +36,12 @@ typedef PyObject *(*_pgbufproxy_new_t)(PyObject *, getbufferproc);
 typedef PyObject *(*_pgbufproxy_get_obj_t)(PyObject *);
 typedef int (*_pgbufproxy_trip_t)(PyObject *);
 
-#define PgBufproxy_Type (*(PyTypeObject*)PgBUFPROXY_C_API[0])
-#define PgBufproxy_New (*(_pgbufproxy_new_t)PgBUFPROXY_C_API[1])
-#define PgBufproxy_GetParent \
+#define pgBufproxy_Type (*(PyTypeObject*)PgBUFPROXY_C_API[0])
+#define pgBufproxy_New (*(_pgbufproxy_new_t)PgBUFPROXY_C_API[1])
+#define pgBufproxy_GetParent \
     (*(_pgbufproxy_get_obj_t)PgBUFPROXY_C_API[2])
-#define PgBufproxy_Trip (*(_pgbufproxy_trip_t)PgBUFPROXY_C_API[3])
-#define PgBufproxy_Check(x) ((x)->ob_type == (PgBufproxy_Type))
+#define pgBufproxy_Trip (*(_pgbufproxy_trip_t)PgBUFPROXY_C_API[3])
+#define pgBufproxy_Check(x) ((x)->ob_type == (pgBufproxy_Type))
 #define import_pygame_bufferproxy() \
     _IMPORT_PYGAME_MODULE(bufferproxy, BUFPROXY, PgBUFPROXY_C_API)
 

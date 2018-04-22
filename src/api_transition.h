@@ -12,6 +12,7 @@
 #include "rwobject_api_transition.h"
 #include "color_api_transition.h"
 #include "surflock_api_transition.h"
+#include "bufferproxy_api_transition.h"
 #include "surface_api_transition.h"
 
 #endif
