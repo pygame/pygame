@@ -489,3 +489,7 @@ copy_reg.pickle(Color, __color_reduce, __color_constructor)
 
 # cleanup namespace
 del pygame, os, sys, surflock, MissingModule, copy_reg, geterror, PY_MAJOR_VERSION, _import_failed
+
+# Thanks for supporting pygame. Without support now, there won't be pygame later.
+print('pygame %s' % ver)
+print('Hello from the pygame community. https://www.pygame.org/contribute.html')
