@@ -564,7 +564,40 @@ PACKAGEDATA = {
 }
 PACKAGEDATA.update(METADATA)
 PACKAGEDATA.update(EXTRAS)
-setup(**PACKAGEDATA)
+
+
+def compilation_help():
+    """ On failure point people to a web page for help.
+    """
+    import platform
+    the_system = platform.system()
+    if hasattr(platform, 'linux_distribution'):
+        distro = platform.linux_distribution()
+        if distro[0] == 'Ubuntu':
+            the_system = 'Ubuntu'
+        elif distro[0] == 'Ubuntu':
+            the_system = 'Debian'
+
+    help_urls = {
+        'Linux': 'https://www.pygame.org/wiki/Compilation',
+        'Ubuntu': 'https://www.pygame.org/wiki/CompileUbuntu',
+        'Debian': 'https://www.pygame.org/wiki/CompileDebian',
+        'Windows': 'https://www.pygame.org/wiki/CompileWindows',
+        'Darwin': 'https://www.pygame.org/wiki/MacCompile',
+    }
+
+    default = 'https://www.pygame.org/wiki/Compilation'
+    url = help_urls.get(platform.system(), default)
+
+    print ('---')
+    print ('For help with compilation see: %s' % url)
+    print ('---')
+
+try:
+    setup(**PACKAGEDATA)
+except:
+    compilation_help()
+    raise
 
 
 def remove_old_files():
