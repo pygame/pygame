@@ -1,3 +1,4 @@
+#define PyRect_Check pgRect_Check
 #define PyRectObject pgRectObject
 #define PyRect_AsRect pgRect_AsRect
 #define PyRect_Type pgRect_Type

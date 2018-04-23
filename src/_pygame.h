@@ -449,7 +449,7 @@ typedef struct {
 
 #define pgRect_AsRect(x) (((pgRectObject*)x)->r)
 #ifndef PYGAMEAPI_RECT_INTERNAL
-#define PyRect_Check(x) \
+#define pgRect_Check(x) \
     ((x)->ob_type == (PyTypeObject*)PyGAME_C_API[PYGAMEAPI_RECT_FIRSTSLOT + 0])
 #define pgRect_Type (*(PyTypeObject*)PyGAME_C_API[PYGAMEAPI_RECT_FIRSTSLOT + 0])
 #define pgRect_New                                                      \
@@ -550,29 +550,29 @@ typedef struct {
 #ifdef SDL2
     int owner;
 #endif /* SDL2 */
-    struct SubSurface_Data* subsurface;  /*ptr to subsurface data (if a
+    struct pgSubSurface_Data* subsurface;  /*ptr to subsurface data (if a
                                           * subsurface)*/
     PyObject *weakreflist;
     PyObject *locklist;
     PyObject *dependency;
-} PySurfaceObject;
-#define PySurface_AsSurface(x) (((PySurfaceObject*)x)->surf)
+} pgSurfaceObject;
+#define pgSurface_AsSurface(x) (((pgSurfaceObject*)x)->surf)
 #ifndef PYGAMEAPI_SURFACE_INTERNAL
-#define PySurface_Check(x)                                              \
+#define pgSurface_Check(x)                                              \
     ((x)->ob_type == (PyTypeObject*)                                    \
      PyGAME_C_API[PYGAMEAPI_SURFACE_FIRSTSLOT + 0])
-#define PySurface_Type                                                  \
+#define pgSurface_Type                                                  \
     (*(PyTypeObject*)PyGAME_C_API[PYGAMEAPI_SURFACE_FIRSTSLOT + 0])
-#ifndef SDL2
-#define PySurface_New                                                   \
+#if IS_SDLv1
+#define pgSurface_New                                                   \
     (*(PyObject*(*)(SDL_Surface*))                                      \
      PyGAME_C_API[PYGAMEAPI_SURFACE_FIRSTSLOT + 1])
-#else /* SDL2 */
-#define PgSurface_New                                                   \
+#else /* IS_SDLv2 */
+#define pgSurface_New2                                                  \
     (*(PyObject*(*)(SDL_Surface*, int))                                 \
      PyGAME_C_API[PYGAMEAPI_SURFACE_FIRSTSLOT + 1])
-#endif /* SDL2 */
-#define PySurface_Blit                                                  \
+#endif /* IS_SDLv2 */
+#define pgSurface_Blit                                                  \
     (*(int(*)(PyObject*,PyObject*,SDL_Rect*,SDL_Rect*,int))             \
      PyGAME_C_API[PYGAMEAPI_SURFACE_FIRSTSLOT + 2])
 
@@ -582,10 +582,10 @@ typedef struct {
     IMPORT_PYGAME_MODULE(surflock, SURFLOCK);                          \
     } while (0)
 
-#ifdef SDL2
-#define PySurface_New(surface) PgSurface_New((surface), 1)
-#define PySurface_NewNoOwn(surface) PgSurface_New((surface), 0)
-#endif /* SDL2 */
+#if IS_SDLv2
+#define pgSurface_New(surface) pgSurface_New2((surface), 1)
+#define pgSurface_NewNoOwn(surface) pgSurface_New2((surface), 0)
+#endif /* IS_SDLv2 */
 
 #endif
 
@@ -594,7 +594,7 @@ typedef struct {
 #define PYGAMEAPI_SURFLOCK_FIRSTSLOT                            \
     (PYGAMEAPI_SURFACE_FIRSTSLOT + PYGAMEAPI_SURFACE_NUMSLOTS)
 #define PYGAMEAPI_SURFLOCK_NUMSLOTS 8
-struct SubSurface_Data
+struct pgSubSurface_Data
 {
     PyObject* owner;
     int pixeloffset;
