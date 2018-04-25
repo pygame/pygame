@@ -652,24 +652,24 @@ typedef struct {
     PyObject_HEAD
     int type;
     PyObject* dict;
-} PyEventObject;
+} pgEventObject;
 
 #ifndef PYGAMEAPI_EVENT_INTERNAL
-#define PyEvent_Check(x)                                                \
+#define pgEvent_Check(x)                                                \
     ((x)->ob_type == (PyTypeObject*)PyGAME_C_API[PYGAMEAPI_EVENT_FIRSTSLOT + 0])
-#define PyEvent_Type \
+#define pgEvent_Type \
     (*(PyTypeObject*)PyGAME_C_API[PYGAMEAPI_EVENT_FIRSTSLOT + 0])
-#define PyEvent_New \
+#define pgEvent_New \
     (*(PyObject*(*)(SDL_Event*))PyGAME_C_API[PYGAMEAPI_EVENT_FIRSTSLOT + 1])
-#define PyEvent_New2                                                    \
+#define pgEvent_New2                                                    \
     (*(PyObject*(*)(int, PyObject*))PyGAME_C_API[PYGAMEAPI_EVENT_FIRSTSLOT + 2])
-#define PyEvent_FillUserEvent                           \
+#define pgEvent_FillUserEvent                           \
     (*(int (*)(PyEventObject*, SDL_Event*))             \
      PyGAME_C_API[PYGAMEAPI_EVENT_FIRSTSLOT + 3])
 #ifdef SDL2
-#define Py_EnableKeyRepeat                              \
+#define pg_EnableKeyRepeat                              \
     (*(int (*)(int, int))PyGAME_C_API[PYGAMEAPI_EVENT_FIRSTSLOT + 4])
-#define Py_GetKeyRepeat                                 \
+#define pg_GetKeyRepeat                                 \
     (*(void (*)(int*, int*))PyGAME_C_API[PYGAMEAPI_EVENT_FIRSTSLOT + 5])
 #endif /* SDL2 */
 #define import_pygame_event() IMPORT_PYGAME_MODULE(event, EVENT)

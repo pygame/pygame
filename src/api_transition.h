@@ -14,5 +14,6 @@
 #include "surflock_api_transition.h"
 #include "bufferproxy_api_transition.h"
 #include "surface_api_transition.h"
+#include "event_api_transition.h"
 
 #endif
