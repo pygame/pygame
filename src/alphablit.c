@@ -38,14 +38,14 @@ typedef struct
     int              d_skip;
     SDL_PixelFormat *src;
     SDL_PixelFormat *dst;
-#ifndef SDL2
+#if IS_SDLv1
     Uint32           src_flags;
     Uint32           dst_flags;
-#else /* SDL2 */
+#else /* IS_SDLv2 */
     Uint8            src_blanket_alpha;
     int              src_has_colorkey;
     Uint32           src_colorkey;
-#endif /* SDL2 */
+#endif /* IS_SDLv2 */
 } SDL_BlitInfo;
 
 static void alphablit_alpha (SDL_BlitInfo * info);
@@ -110,33 +110,36 @@ SoftBlitPyGame (SDL_Surface * src, SDL_Rect * srcrect, SDL_Surface * dst,
         /* Set up the blit information */
         info.width = srcrect->w;
         info.height = srcrect->h;
-#ifndef SDL2
+#if IS_SDLv1
         info.s_pixels = (Uint8 *) src->pixels + src->offset +
-#else /* SDL2 */
-        info.s_pixels = (Uint8 *) src->pixels +
-#endif /* SDL2 */
             (Uint16) srcrect->y * src->pitch +
             (Uint16) srcrect->x * src->format->BytesPerPixel;
         info.s_pxskip = src->format->BytesPerPixel;
         info.s_skip = src->pitch - info.width * src->format->BytesPerPixel;
-#ifndef SDL2
         info.d_pixels = (Uint8 *) dst->pixels + dst->offset +
-#else /* SDL2 */
-        info.d_pixels = (Uint8 *) dst->pixels +
-#endif /* SDL2 */
             (Uint16) dstrect->y * dst->pitch +
             (Uint16) dstrect->x * dst->format->BytesPerPixel;
+#else /* IS_SDLv2 */
+        info.s_pixels = (Uint8 *) src->pixels +
+            (Uint16) srcrect->y * src->pitch +
+            (Uint16) srcrect->x * src->format->BytesPerPixel;
+        info.s_pxskip = src->format->BytesPerPixel;
+        info.s_skip = src->pitch - info.width * src->format->BytesPerPixel;
+        info.d_pixels = (Uint8 *) dst->pixels +
+            (Uint16) dstrect->y * dst->pitch +
+            (Uint16) dstrect->x * dst->format->BytesPerPixel;
+#endif /* IS_SDLv2 */
         info.d_pxskip = dst->format->BytesPerPixel;
         info.d_skip = dst->pitch - info.width * dst->format->BytesPerPixel;
         info.src = src->format;
         info.dst = dst->format;
-#ifndef SDL2
+#if IS_SDLv1
         info.src_flags = src->flags;
         info.dst_flags = dst->flags;
-#else /* SDL2 */
+#else /* IS_SDLv2 */
         SDL_GetSurfaceAlphaMod (src, &info.src_blanket_alpha);
         info.src_has_colorkey = SDL_GetColorKey (src, &info.src_colorkey) == 0;
-#endif /* SDL2 */
+#endif /* IS_SDLv2 */
 
         if (info.d_pixels > info.s_pixels)
         {
@@ -169,21 +172,23 @@ SoftBlitPyGame (SDL_Surface * src, SDL_Rect * srcrect, SDL_Surface * dst,
         {
         case 0:
         {
-#ifndef SDL2
+#if IS_SDLv1
             if (src->flags & SDL_SRCALPHA && src->format->Amask)
-#else /* SDL2 */
-            if (SDL_ISPIXELFORMAT_ALPHA (src->format->format))
-#endif /* SDL2 */
                 alphablit_alpha (&info);
-#ifndef SDL2
             else if (src->flags & SDL_SRCCOLORKEY)
-#else /* SDL2 */
-            else if (info.src_has_colorkey)
-#endif /* SDL2 */
                 alphablit_colorkey (&info);
             else
                 alphablit_solid (&info);
             break;
+#else /* IS_SDLv2 */
+            if (SDL_ISPIXELFORMAT_ALPHA (src->format->format))
+                alphablit_alpha (&info);
+            else if (info.src_has_colorkey)
+                alphablit_colorkey (&info);
+            else
+                alphablit_solid (&info);
+            break;
+#endif /* IS_SDLv2 */
         }
         case PYGAME_BLEND_ADD:
         {
@@ -291,13 +296,13 @@ blit_blend_rgba_add (SDL_BlitInfo * info)
     Uint8           dR, dG, dB, dA, sR, sG, sB, sA;
     Uint32          pixel;
     Uint32          tmp;
-#ifndef SDL2
+#if IS_SDLv1
     int             srcppa = (info->src_flags & SDL_SRCALPHA && srcfmt->Amask);
     int             dstppa = (info->dst_flags & SDL_SRCALPHA && dstfmt->Amask);
-#else /* SDL2 */
+#else /* IS_SDLv2 */
     int             srcppa = SDL_ISPIXELFORMAT_ALPHA (srcfmt->format);
     int             dstppa = SDL_ISPIXELFORMAT_ALPHA (dstfmt->format);
-#endif /* SDL2 */
+#endif /* IS_SDLv2 */
 
     if (!dstppa)
     {
@@ -305,16 +310,21 @@ blit_blend_rgba_add (SDL_BlitInfo * info)
         return;
     }
 
+#if IS_SDLv1
     if (srcbpp == 4 && dstbpp == 4 &&
         srcfmt->Rmask == dstfmt->Rmask &&
         srcfmt->Gmask == dstfmt->Gmask &&
         srcfmt->Bmask == dstfmt->Bmask &&
         srcfmt->Amask == dstfmt->Amask &&
-#ifndef SDL2
         info->src_flags & SDL_SRCALPHA)
-#else /* SDL2 */
+#else /* IS_SDLv2 */
+    if (srcbpp == 4 && dstbpp == 4 &&
+        srcfmt->Rmask == dstfmt->Rmask &&
+        srcfmt->Gmask == dstfmt->Gmask &&
+        srcfmt->Bmask == dstfmt->Bmask &&
+        srcfmt->Amask == dstfmt->Amask &&
         srcppa)
-#endif /* SDL2 */
+#endif /* IS_SDLv2 */
     {
         int incr = srcpxskip > 0 ? 1 : -1;
         if (incr < 0)
@@ -363,7 +373,6 @@ blit_blend_rgba_add (SDL_BlitInfo * info)
         {
             while (height--)
             {
-#ifndef SDL2
                 LOOP_UNROLLED4(
                 {
                     GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
@@ -374,18 +383,6 @@ blit_blend_rgba_add (SDL_BlitInfo * info)
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#else /* SDL2 */
-                LOOP_UNROLLED4(
-                {
-                    GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
-                    GET_PIXEL (pixel, dstbpp, dst);
-                    SDL_GetRGBA (pixel, dstfmt, &dR, &dG, &dB, &dA);
-                    BLEND_RGBA_ADD (tmp, sR, sG, sB, sA, dR, dG, dB, dA);
-                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
-                    src += srcpxskip;
-                    dst += dstpxskip;
-                }, n, width);
-#endif /* SDL2 */
                 src += srcskip;
                 dst += dstskip;
             }
@@ -397,7 +394,6 @@ blit_blend_rgba_add (SDL_BlitInfo * info)
         {
             while (height--)
             {
-#ifndef SDL2
                 LOOP_UNROLLED4(
                 {
                     GET_PIXEL(pixel, srcbpp, src);
@@ -408,18 +404,6 @@ blit_blend_rgba_add (SDL_BlitInfo * info)
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#else /* SDL2 */
-                LOOP_UNROLLED4(
-                {
-                    GET_PIXEL(pixel, srcbpp, src);
-                    SDL_GetRGBA (pixel, srcfmt, &sR, &sG, &sB, &sA);
-                    GET_PIXELVALS_1(dR, dG, dB, dA, dst, dstfmt);
-                    BLEND_RGBA_ADD (tmp, sR, sG, sB, sA, dR, dG, dB, dA);
-                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
-                    src += srcpxskip;
-                    dst += dstpxskip;
-                }, n, width);
-#endif /* SDL2 */
                 src += srcskip;
                 dst += dstskip;
             }
@@ -429,7 +413,6 @@ blit_blend_rgba_add (SDL_BlitInfo * info)
         {
             while (height--)
             {
-#ifndef SDL2
                 LOOP_UNROLLED4(
                 {
                     GET_PIXEL(pixel, srcbpp, src);
@@ -441,19 +424,6 @@ blit_blend_rgba_add (SDL_BlitInfo * info)
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#else /* SDL2 */
-                LOOP_UNROLLED4(
-                {
-                    GET_PIXEL(pixel, srcbpp, src);
-                    SDL_GetRGBA (pixel, srcfmt, &sR, &sG, &sB, &sA);
-                    GET_PIXEL (pixel, dstbpp, dst);
-                    SDL_GetRGBA (pixel, dstfmt, &dR, &dG, &dB, &dA);
-                    BLEND_RGBA_ADD (tmp, sR, sG, sB, sA, dR, dG, dB, dA);
-                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
-                    src += srcpxskip;
-                    dst += dstpxskip;
-                }, n, width);
-#endif /* SDL2 */
                 src += srcskip;
                 dst += dstskip;
             }
@@ -480,13 +450,13 @@ blit_blend_rgba_sub (SDL_BlitInfo * info)
     Uint8           dR, dG, dB, dA, sR, sG, sB, sA;
     Uint32          pixel;
     Sint32          tmp2;
-#ifndef SDL2
+#if IS_SDLv1
     int             srcppa = (info->src_flags & SDL_SRCALPHA && srcfmt->Amask);
     int             dstppa = (info->dst_flags & SDL_SRCALPHA && dstfmt->Amask);
-#else /* SDL2 */
+#else /* IS_SDLv2 */
     int             srcppa = SDL_ISPIXELFORMAT_ALPHA (srcfmt->format);
     int             dstppa = SDL_ISPIXELFORMAT_ALPHA (dstfmt->format);
-#endif /* SDL2 */
+#endif /* IS_SDLv2 */
 
     if (!dstppa)
     {
@@ -494,16 +464,21 @@ blit_blend_rgba_sub (SDL_BlitInfo * info)
         return;
     }
 
+#if IS_SDLv1
     if (srcbpp == 4 && dstbpp == 4 &&
         srcfmt->Rmask == dstfmt->Rmask &&
         srcfmt->Gmask == dstfmt->Gmask &&
         srcfmt->Bmask == dstfmt->Bmask &&
         srcfmt->Amask == dstfmt->Amask &&
-#ifndef SDL2
         info->src_flags & SDL_SRCALPHA)
-#else /* SDL2 */
+#else /* IS_SDLv2 */
+    if (srcbpp == 4 && dstbpp == 4 &&
+        srcfmt->Rmask == dstfmt->Rmask &&
+        srcfmt->Gmask == dstfmt->Gmask &&
+        srcfmt->Bmask == dstfmt->Bmask &&
+        srcfmt->Amask == dstfmt->Amask &&
         srcppa)
-#endif /* SDL2 */
+#endif /* IS_SDLv2 */
     {
         int incr = srcpxskip > 0 ? 1 : -1;
         if (incr < 0)
@@ -552,7 +527,6 @@ blit_blend_rgba_sub (SDL_BlitInfo * info)
         {
             while (height--)
             {
-#ifndef SDL2
                 LOOP_UNROLLED4(
                 {
                     GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
@@ -563,18 +537,6 @@ blit_blend_rgba_sub (SDL_BlitInfo * info)
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#else /* SDL2 */
-                LOOP_UNROLLED4(
-                {
-                    GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
-                    GET_PIXEL (pixel, dstbpp, dst);
-                    SDL_GetRGBA (pixel, dstfmt, &dR, &dG, &dB, &dA);
-                    BLEND_RGBA_SUB (tmp2, sR, sG, sB, sA, dR, dG, dB, dA);
-                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
-                    src += srcpxskip;
-                    dst += dstpxskip;
-                }, n, width);
-#endif /* SDL2 */
                 src += srcskip;
                 dst += dstskip;
             }
@@ -586,7 +548,6 @@ blit_blend_rgba_sub (SDL_BlitInfo * info)
         {
             while (height--)
             {
-#ifndef SDL2
                 LOOP_UNROLLED4(
                 {
                     GET_PIXEL(pixel, srcbpp, src);
@@ -597,18 +558,6 @@ blit_blend_rgba_sub (SDL_BlitInfo * info)
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#else /* SDL2 */
-                LOOP_UNROLLED4(
-                {
-                    GET_PIXEL(pixel, srcbpp, src);
-                    SDL_GetRGBA (pixel, srcfmt, &sR, &sG, &sB, &sA);
-                    GET_PIXELVALS_1(dR, dG, dB, dA, dst, dstfmt);
-                    BLEND_RGBA_SUB (tmp2, sR, sG, sB, sA, dR, dG, dB, dA);
-                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
-                    src += srcpxskip;
-                    dst += dstpxskip;
-                }, n, width);
-#endif /* SDL2 */
                 src += srcskip;
                 dst += dstskip;
             }
@@ -618,7 +567,6 @@ blit_blend_rgba_sub (SDL_BlitInfo * info)
         {
             while (height--)
             {
-#ifndef SDL2
                 LOOP_UNROLLED4(
                 {
                     GET_PIXEL(pixel, srcbpp, src);
@@ -630,19 +578,6 @@ blit_blend_rgba_sub (SDL_BlitInfo * info)
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#else /* SDL2 */
-                LOOP_UNROLLED4(
-                {
-                    GET_PIXEL(pixel, srcbpp, src);
-                    SDL_GetRGBA (pixel, srcfmt, &sR, &sG, &sB, &sA);
-                    GET_PIXEL (pixel, dstbpp, dst);
-                    SDL_GetRGBA (pixel, dstfmt, &dR, &dG, &dB, &dA);
-                    BLEND_RGBA_SUB (tmp2, sR, sG, sB, sA, dR, dG, dB, dA);
-                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
-                    src += srcpxskip;
-                    dst += dstpxskip;
-                }, n, width);
-#endif /* SDL2 */
                 src += srcskip;
                 dst += dstskip;
             }
@@ -669,13 +604,13 @@ blit_blend_rgba_mul (SDL_BlitInfo * info)
     Uint8           dR, dG, dB, dA, sR, sG, sB, sA;
     Uint32          pixel;
     Uint32          tmp;
-#ifndef SDL2
+#if IS_SDLv1
     int             srcppa = (info->src_flags & SDL_SRCALPHA && srcfmt->Amask);
     int             dstppa = (info->dst_flags & SDL_SRCALPHA && dstfmt->Amask);
-#else /* SDL2 */
+#else /* IS_SDLv2 */
     int             srcppa = SDL_ISPIXELFORMAT_ALPHA (srcfmt->format);
     int             dstppa = SDL_ISPIXELFORMAT_ALPHA (dstfmt->format);
-#endif /* SDL2 */
+#endif /* IS_SDLv2 */
 
     if (!dstppa)
     {
@@ -688,11 +623,11 @@ blit_blend_rgba_mul (SDL_BlitInfo * info)
         srcfmt->Gmask == dstfmt->Gmask &&
         srcfmt->Bmask == dstfmt->Bmask &&
         srcfmt->Amask == dstfmt->Amask &&
-#ifndef SDL2
+#if IS_SDLv1
         info->src_flags & SDL_SRCALPHA)
-#else /* SDL2 */
+#else /* IS_SDLv2 */
         srcppa)
-#endif /* SDL2 */
+#endif /* IS_SDLv2 */
     {
         int incr = srcpxskip > 0 ? 1 : -1;
         if (incr < 0)
@@ -741,7 +676,6 @@ blit_blend_rgba_mul (SDL_BlitInfo * info)
         {
             while (height--)
             {
-#ifndef SDL2
                 LOOP_UNROLLED4(
                 {
                     GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
@@ -752,18 +686,6 @@ blit_blend_rgba_mul (SDL_BlitInfo * info)
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#else /* SDL2 */
-                LOOP_UNROLLED4(
-                {
-                    GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
-                    GET_PIXEL (pixel, dstbpp, dst);
-                    SDL_GetRGBA (pixel, dstfmt, &dR, &dG, &dB, &dA);
-                    BLEND_RGBA_MULT (sR, sG, sB, sA, dR, dG, dB, dA);
-                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
-                    src += srcpxskip;
-                    dst += dstpxskip;
-                }, n, width);
-#endif /* SDL2 */
                 src += srcskip;
                 dst += dstskip;
             }
@@ -775,7 +697,6 @@ blit_blend_rgba_mul (SDL_BlitInfo * info)
         {
             while (height--)
             {
-#ifndef SDL2
                 LOOP_UNROLLED4(
                 {
                     GET_PIXEL(pixel, srcbpp, src);
@@ -786,18 +707,6 @@ blit_blend_rgba_mul (SDL_BlitInfo * info)
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#else /* SDL2 */
-                LOOP_UNROLLED4(
-                {
-                    GET_PIXEL(pixel, srcbpp, src);
-                    SDL_GetRGBA (pixel, srcfmt, &sR, &sG, &sB, &sA);
-                    GET_PIXELVALS_1(dR, dG, dB, dA, dst, dstfmt);
-                    BLEND_RGBA_MULT (sR, sG, sB, sA, dR, dG, dB, dA);
-                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
-                    src += srcpxskip;
-                    dst += dstpxskip;
-                }, n, width);
-#endif /* SDL2 */
                 src += srcskip;
                 dst += dstskip;
             }
@@ -807,7 +716,6 @@ blit_blend_rgba_mul (SDL_BlitInfo * info)
         {
             while (height--)
             {
-#ifndef SDL2
                 LOOP_UNROLLED4(
                 {
                     GET_PIXEL(pixel, srcbpp, src);
@@ -819,19 +727,6 @@ blit_blend_rgba_mul (SDL_BlitInfo * info)
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#else /* SDL2 */
-                LOOP_UNROLLED4(
-                {
-                    GET_PIXEL(pixel, srcbpp, src);
-                    SDL_GetRGBA (pixel, srcfmt, &sR, &sG, &sB, &sA);
-                    GET_PIXEL (pixel, dstbpp, dst);
-                    SDL_GetRGBA (pixel, dstfmt, &dR, &dG, &dB, &dA);
-                    BLEND_RGBA_MULT (sR, sG, sB, sA, dR, dG, dB, dA);
-                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
-                    src += srcpxskip;
-                    dst += dstpxskip;
-                }, n, width);
-#endif /* SDL2 */
                 src += srcskip;
                 dst += dstskip;
             }
@@ -857,13 +752,13 @@ blit_blend_rgba_min (SDL_BlitInfo * info)
     int             dstbpp = dstfmt->BytesPerPixel;
     Uint8           dR, dG, dB, dA, sR, sG, sB, sA;
     Uint32          pixel;
-#ifndef SDL2
+#if IS_SDLv1
     int             srcppa = (info->src_flags & SDL_SRCALPHA && srcfmt->Amask);
     int             dstppa = (info->dst_flags & SDL_SRCALPHA && dstfmt->Amask);
-#else /* SDL2 */
+#else /* IS_SDLv2 */
     int             srcppa = SDL_ISPIXELFORMAT_ALPHA (srcfmt->format);
     int             dstppa = SDL_ISPIXELFORMAT_ALPHA (dstfmt->format);
-#endif /* SDL2 */
+#endif /* IS_SDLv2 */
 
     if (!dstppa)
     {
@@ -876,11 +771,11 @@ blit_blend_rgba_min (SDL_BlitInfo * info)
         srcfmt->Gmask == dstfmt->Gmask &&
         srcfmt->Bmask == dstfmt->Bmask &&
         srcfmt->Amask == dstfmt->Amask &&
-#ifndef SDL2
+#if IS_SDLv1
         info->src_flags & SDL_SRCALPHA)
-#else /* SDL2 */
+#else /* IS_SDLv2 */
         srcppa)
-#endif /* SDL2 */
+#endif /* IS_SDLv2 */
     {
         int incr = srcpxskip > 0 ? 1 : -1;
         if (incr < 0)
@@ -929,7 +824,6 @@ blit_blend_rgba_min (SDL_BlitInfo * info)
         {
             while (height--)
             {
-#ifndef SDL2
                 LOOP_UNROLLED4(
                 {
                     GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
@@ -940,18 +834,6 @@ blit_blend_rgba_min (SDL_BlitInfo * info)
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#else /* SDL2 */
-                LOOP_UNROLLED4(
-                {
-                    GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
-                    GET_PIXEL (pixel, dstbpp, dst);
-                    SDL_GetRGBA (pixel, dstfmt, &dR, &dG, &dB, &dA);
-                    BLEND_RGBA_MIN (sR, sG, sB, sA, dR, dG, dB, dA);
-                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
-                    src += srcpxskip;
-                    dst += dstpxskip;
-                }, n, width);
-#endif /* SDL2 */
                 src += srcskip;
                 dst += dstskip;
             }
@@ -963,7 +845,6 @@ blit_blend_rgba_min (SDL_BlitInfo * info)
         {
             while (height--)
             {
-#ifndef SDL2
                 LOOP_UNROLLED4(
                 {
                     GET_PIXEL(pixel, srcbpp, src);
@@ -974,18 +855,6 @@ blit_blend_rgba_min (SDL_BlitInfo * info)
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#else /* SDL2 */
-                LOOP_UNROLLED4(
-                {
-                    GET_PIXEL(pixel, srcbpp, src);
-                    SDL_GetRGBA (pixel, srcfmt, &sR, &sG, &sB, &sA);
-                    GET_PIXELVALS_1(dR, dG, dB, dA, dst, dstfmt);
-                    BLEND_RGBA_MIN (sR, sG, sB, sA, dR, dG, dB, dA);
-                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
-                    src += srcpxskip;
-                    dst += dstpxskip;
-                }, n, width);
-#endif /* SDL2 */
                 src += srcskip;
                 dst += dstskip;
             }
@@ -995,7 +864,6 @@ blit_blend_rgba_min (SDL_BlitInfo * info)
         {
             while (height--)
             {
-#ifndef SDL2
                 LOOP_UNROLLED4(
                 {
                     GET_PIXEL(pixel, srcbpp, src);
@@ -1007,19 +875,6 @@ blit_blend_rgba_min (SDL_BlitInfo * info)
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#else /* SDL2 */
-                LOOP_UNROLLED4(
-                {
-                    GET_PIXEL(pixel, srcbpp, src);
-                    SDL_GetRGBA (pixel, srcfmt, &sR, &sG, &sB, &sA);
-                    GET_PIXEL (pixel, dstbpp, dst);
-                    SDL_GetRGBA (pixel, dstfmt, &dR, &dG, &dB, &dA);
-                    BLEND_RGBA_MIN (sR, sG, sB, sA, dR, dG, dB, dA);
-                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
-                    src += srcpxskip;
-                    dst += dstpxskip;
-                }, n, width);
-#endif /* SDL2 */
                 src += srcskip;
                 dst += dstskip;
             }
@@ -1045,13 +900,13 @@ blit_blend_rgba_max (SDL_BlitInfo * info)
     int             dstbpp = dstfmt->BytesPerPixel;
     Uint8           dR, dG, dB, dA, sR, sG, sB, sA;
     Uint32          pixel;
-#ifndef SDL2
+#if IS_SDLv1
     int             srcppa = (info->src_flags & SDL_SRCALPHA && srcfmt->Amask);
     int             dstppa = (info->dst_flags & SDL_SRCALPHA && dstfmt->Amask);
-#else /* SDL2 */
+#else /* IS_SDLv2 */
     int             srcppa = SDL_ISPIXELFORMAT_ALPHA (srcfmt->format);
     int             dstppa = SDL_ISPIXELFORMAT_ALPHA (dstfmt->format);
-#endif /* SDL2 */
+#endif /* IS_SDLv2 */
 
     if (!dstppa)
     {
@@ -1064,11 +919,11 @@ blit_blend_rgba_max (SDL_BlitInfo * info)
         srcfmt->Gmask == dstfmt->Gmask &&
         srcfmt->Bmask == dstfmt->Bmask &&
         srcfmt->Amask == dstfmt->Amask &&
-#ifndef SDL2
+#if IS_SDLv1
         info->src_flags & SDL_SRCALPHA)
-#else /* SDL2 */
+#else /* IS_SDLv2 */
         srcppa)
-#endif /* SDL2 */
+#endif /* IS_SDLv2 */
     {
         int incr = srcpxskip > 0 ? 1 : -1;
         if (incr < 0)
@@ -1117,7 +972,6 @@ blit_blend_rgba_max (SDL_BlitInfo * info)
         {
             while (height--)
             {
-#ifndef SDL2
                 LOOP_UNROLLED4(
                 {
                     GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
@@ -1128,18 +982,6 @@ blit_blend_rgba_max (SDL_BlitInfo * info)
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#else /* SDL2 */
-                LOOP_UNROLLED4(
-                {
-                    GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
-                    GET_PIXEL (pixel, dstbpp, dst);
-                    SDL_GetRGBA (pixel, dstfmt, &dR, &dG, &dB, &dA);
-                    BLEND_RGBA_MAX (sR, sG, sB, sA, dR, dG, dB, dA);
-                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
-                    src += srcpxskip;
-                    dst += dstpxskip;
-                }, n, width);
-#endif /* SDL2 */
                 src += srcskip;
                 dst += dstskip;
             }
@@ -1151,7 +993,6 @@ blit_blend_rgba_max (SDL_BlitInfo * info)
         {
             while (height--)
             {
-#ifndef SDL2
                 LOOP_UNROLLED4(
                 {
                     GET_PIXEL(pixel, srcbpp, src);
@@ -1162,18 +1003,6 @@ blit_blend_rgba_max (SDL_BlitInfo * info)
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#else /* SDL2 */
-                LOOP_UNROLLED4(
-                {
-                    GET_PIXEL(pixel, srcbpp, src);
-                    SDL_GetRGBA (pixel, srcfmt, &sR, &sG, &sB, &sA);
-                    GET_PIXELVALS_1(dR, dG, dB, dA, dst, dstfmt);
-                    BLEND_RGBA_MAX (sR, sG, sB, sA, dR, dG, dB, dA);
-                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
-                    src += srcpxskip;
-                    dst += dstpxskip;
-                }, n, width);
-#endif /* SDL2 */
                 src += srcskip;
                 dst += dstskip;
             }
@@ -1183,7 +1012,6 @@ blit_blend_rgba_max (SDL_BlitInfo * info)
         {
             while (height--)
             {
-#ifndef SDL2
                 LOOP_UNROLLED4(
                 {
                     GET_PIXEL(pixel, srcbpp, src);
@@ -1195,19 +1023,6 @@ blit_blend_rgba_max (SDL_BlitInfo * info)
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#else /* SDL2 */
-                LOOP_UNROLLED4(
-                {
-                    GET_PIXEL(pixel, srcbpp, src);
-                    SDL_GetRGBA (pixel, srcfmt, &sR, &sG, &sB, &sA);
-                    GET_PIXEL (pixel, dstbpp, dst);
-                    SDL_GetRGBA (pixel, dstfmt, &dR, &dG, &dB, &dA);
-                    BLEND_RGBA_MAX (sR, sG, sB, sA, dR, dG, dB, dA);
-                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
-                    src += srcpxskip;
-                    dst += dstpxskip;
-                }, n, width);
-#endif /* SDL2 */
                 src += srcskip;
                 dst += dstskip;
             }
@@ -1233,10 +1048,10 @@ blit_blend_premultiplied (SDL_BlitInfo * info)
     int             dstbpp = dstfmt->BytesPerPixel;
     Uint8           dR, dG, dB, dA, sR, sG, sB, sA;
     Uint32          pixel;
-#ifndef SDL2
+#if IS_SDLv1
     int             srcppa = (info->src_flags & SDL_SRCALPHA && srcfmt->Amask);
     int             dstppa = (info->dst_flags & SDL_SRCALPHA && dstfmt->Amask);
-#endif /* ! SDL2 */
+#endif /* IS_SDLv1 */
     int tmp;
 
     /*
@@ -1266,7 +1081,6 @@ blit_blend_premultiplied (SDL_BlitInfo * info)
         {
             while (height--)
             {
-#ifndef SDL2
                 LOOP_UNROLLED4(
                 {
                     GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
@@ -1277,18 +1091,6 @@ blit_blend_premultiplied (SDL_BlitInfo * info)
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#else /* SDL2 */
-                LOOP_UNROLLED4(
-                {
-                    GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
-                    GET_PIXEL (pixel, dstbpp, dst);
-                    SDL_GetRGBA (pixel, dstfmt, &dR, &dG, &dB, &dA);
-                    ALPHA_BLEND_PREMULTIPLIED (tmp, sR, sG, sB, sA, dR, dG, dB, dA);
-                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
-                    src += srcpxskip;
-                    dst += dstpxskip;
-                }, n, width);
-#endif /* SDL2 */
                 src += srcskip;
                 dst += dstskip;
             }
@@ -1300,7 +1102,6 @@ blit_blend_premultiplied (SDL_BlitInfo * info)
         {
             while (height--)
             {
-#ifndef SDL2
                 LOOP_UNROLLED4(
                 {
                     GET_PIXEL(pixel, srcbpp, src);
@@ -1311,18 +1112,6 @@ blit_blend_premultiplied (SDL_BlitInfo * info)
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#else /* SDL2 */
-                LOOP_UNROLLED4(
-                {
-                    GET_PIXEL(pixel, srcbpp, src);
-                    SDL_GetRGBA (pixel, srcfmt, &sR, &sG, &sB, &sA);
-                    GET_PIXELVALS_1(dR, dG, dB, dA, dst, dstfmt);
-                    ALPHA_BLEND_PREMULTIPLIED (tmp, sR, sG, sB, sA, dR, dG, dB, dA);
-                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
-                    src += srcpxskip;
-                    dst += dstpxskip;
-                }, n, width);
-#endif /* SDL2 */
                 src += srcskip;
                 dst += dstskip;
             }
@@ -1332,7 +1121,6 @@ blit_blend_premultiplied (SDL_BlitInfo * info)
         {
             while (height--)
             {
-#ifndef SDL2
                 LOOP_UNROLLED4(
                 {
                     GET_PIXEL(pixel, srcbpp, src);
@@ -1344,19 +1132,6 @@ blit_blend_premultiplied (SDL_BlitInfo * info)
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#else /* SDL2 */
-                LOOP_UNROLLED4(
-                {
-                    GET_PIXEL(pixel, srcbpp, src);
-                    SDL_GetRGBA (pixel, srcfmt, &sR, &sG, &sB, &sA);
-                    GET_PIXEL (pixel, dstbpp, dst);
-                    SDL_GetRGBA (pixel, dstfmt, &dR, &dG, &dB, &dA);
-                    ALPHA_BLEND_PREMULTIPLIED (tmp, sR, sG, sB, sA, dR, dG, dB, dA);
-                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
-                    src += srcpxskip;
-                    dst += dstpxskip;
-                }, n, width);
-#endif /* SDL2 */
                 src += srcskip;
                 dst += dstskip;
             }
@@ -1398,18 +1173,18 @@ blit_blend_add (SDL_BlitInfo * info)
     Uint8           dR, dG, dB, dA, sR, sG, sB, sA;
     Uint32          pixel;
     Uint32          tmp;
-#ifndef SDL2
+#if IS_SDLv1
     int             srcppa = (info->src_flags & SDL_SRCALPHA && srcfmt->Amask);
     int             dstppa = (info->dst_flags & SDL_SRCALPHA && dstfmt->Amask);
-#else /* SDL2 */
+#else /* IS_SDLv2 */
     int             srcppa = SDL_ISPIXELFORMAT_ALPHA (srcfmt->format);
-#endif /* SDL2 */
+#endif /* IS_SDLv2 */
 
-#ifndef SDL2
+#if IS_SDLv1
     if (srcbpp >= 3 && dstbpp >= 3 && !(info->src_flags & SDL_SRCALPHA))
-#else /* SDL2 */
+#else /* IS_SDLv2 */
     if (srcbpp >= 3 && dstbpp >= 3 && !srcppa)
-#endif /* SDL2 */
+#endif /* IS_SDLv2 */
     {
         size_t srcoffsetR, srcoffsetG, srcoffsetB;
         size_t dstoffsetR, dstoffsetG, dstoffsetB;
@@ -1454,27 +1229,15 @@ blit_blend_add (SDL_BlitInfo * info)
         {
             while (height--)
             {
-#ifndef SDL2
                 LOOP_UNROLLED4(
                 {
                     GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
                     GET_PIXELVALS_1(dR, dG, dB, dA, dst, dstfmt);
                     BLEND_ADD (tmp, sR, sG, sB, sA, dR, dG, dB, dA);
-                    *dst = (Uint8) SDL_MapRGB (dstfmt, dR, dG, dB);
+                    SET_PIXELVAL (dst, dstfmt, dR, dG, dB, dA);
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#else /* SDL2 */
-                LOOP_UNROLLED4(
-                {
-                    GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
-                    GET_PIXELVALS_1(dR, dG, dB, dA, dst, dstfmt);
-                    BLEND_ADD (tmp, sR, sG, sB, sA, dR, dG, dB, dA);
-                    *dst = (Uint8) SDL_MapRGBA (dstfmt, dR, dG, dB, dA);
-                    src += srcpxskip;
-                    dst += dstpxskip;
-                }, n, width);
-#endif /* SDL2 */
                 src += srcskip;
                 dst += dstskip;
             }
@@ -1485,7 +1248,6 @@ blit_blend_add (SDL_BlitInfo * info)
             SET_OFFSETS_24 (offsetR, offsetG, offsetB, dstfmt);
             while (height--)
             {
-#ifndef SDL2
                 LOOP_UNROLLED4(
                 {
                     GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
@@ -1498,20 +1260,6 @@ blit_blend_add (SDL_BlitInfo * info)
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#else /* SDL2 */
-                LOOP_UNROLLED4(
-                {
-                    GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
-                    GET_PIXEL (pixel, dstbpp, dst);
-                    SDL_GetRGBA (pixel, dstfmt, &dR, &dG, &dB, &dA);
-                    BLEND_ADD (tmp, sR, sG, sB, sA, dR, dG, dB, dA);
-                    dst[offsetR] = dR;
-                    dst[offsetG] = dG;
-                    dst[offsetB] = dB;
-                    src += srcpxskip;
-                    dst += dstpxskip;
-                }, n, width);
-#endif /* SDL2 */
                 src += srcskip;
                 dst += dstskip;
             }
@@ -1520,7 +1268,6 @@ blit_blend_add (SDL_BlitInfo * info)
         {
             while (height--)
             {
-#ifndef SDL2
                 LOOP_UNROLLED4(
                 {
                     GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
@@ -1531,18 +1278,6 @@ blit_blend_add (SDL_BlitInfo * info)
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#else /* SDL2 */
-                LOOP_UNROLLED4(
-                {
-                    GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
-                    GET_PIXEL (pixel, dstbpp, dst);
-                    SDL_GetRGBA (pixel, dstfmt, &dR, &dG, &dB, &dA);
-                    BLEND_ADD (tmp, sR, sG, sB, sA, dR, dG, dB, dA);
-                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
-                    src += srcpxskip;
-                    dst += dstpxskip;
-                }, n, width);
-#endif /* SDL2 */
                 src += srcskip;
                 dst += dstskip;
             }
@@ -1554,29 +1289,16 @@ blit_blend_add (SDL_BlitInfo * info)
         {
             while (height--)
             {
-#ifndef SDL2
                 LOOP_UNROLLED4(
                 {
                     GET_PIXEL(pixel, srcbpp, src);
                     GET_PIXELVALS (sR, sG, sB, sA, pixel, srcfmt, srcppa);
                     GET_PIXELVALS_1(dR, dG, dB, dA, dst, dstfmt);
                     BLEND_ADD (tmp, sR, sG, sB, sA, dR, dG, dB, dA);
-                    *dst = (Uint8) SDL_MapRGB (dstfmt, dR, dG, dB);
+                    SET_PIXELVAL(dst, dstfmt, dR, dG, dB, dA);
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#else /* SDL2 */
-                LOOP_UNROLLED4(
-                {
-                    GET_PIXEL(pixel, srcbpp, src);
-                    SDL_GetRGBA (pixel, srcfmt, &sR, &sG, &sB, &sA);
-                    GET_PIXELVALS_1(dR, dG, dB, dA, dst, dstfmt);
-                    BLEND_ADD (tmp, sR, sG, sB, sA, dR, dG, dB, dA);
-                    *dst = (Uint8) SDL_MapRGBA (dstfmt, dR, dG, dB, dA);
-                    src += srcpxskip;
-                    dst += dstpxskip;
-                }, n, width);
-#endif /* SDL2 */
                 src += srcskip;
                 dst += dstskip;
             }
@@ -1588,7 +1310,6 @@ blit_blend_add (SDL_BlitInfo * info)
             SET_OFFSETS_24 (offsetR, offsetG, offsetB, dstfmt);
             while (height--)
             {
-#ifndef SDL2
                 LOOP_UNROLLED4(
                 {
                     GET_PIXEL(pixel, srcbpp, src);
@@ -1602,21 +1323,6 @@ blit_blend_add (SDL_BlitInfo * info)
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#else /* SDL2 */
-                LOOP_UNROLLED4(
-                {
-                    GET_PIXEL(pixel, srcbpp, src);
-                    SDL_GetRGBA (pixel, srcfmt, &sR, &sG, &sB, &sA);
-                    GET_PIXEL (pixel, dstbpp, dst);
-                    SDL_GetRGBA (pixel, dstfmt, &dR, &dG, &dB, &dA);
-                    BLEND_ADD (tmp, sR, sG, sB, sA, dR, dG, dB, dA);
-                    dst[offsetR] = dR;
-                    dst[offsetG] = dG;
-                    dst[offsetB] = dB;
-                    src += srcpxskip;
-                    dst += dstpxskip;
-                }, n, width);
-#endif /* SDL2 */
                 src += srcskip;
                 dst += dstskip;
             }
@@ -1625,7 +1331,6 @@ blit_blend_add (SDL_BlitInfo * info)
         {
             while (height--)
             {
-#ifndef SDL2
                 LOOP_UNROLLED4(
                 {
                     GET_PIXEL(pixel, srcbpp, src);
@@ -1637,19 +1342,6 @@ blit_blend_add (SDL_BlitInfo * info)
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#else /* SDL2 */
-                LOOP_UNROLLED4(
-                {
-                    GET_PIXEL(pixel, srcbpp, src);
-                    SDL_GetRGBA (pixel, srcfmt, &sR, &sG, &sB, &sA);
-                    GET_PIXEL (pixel, dstbpp, dst);
-                    SDL_GetRGBA (pixel, dstfmt, &dR, &dG, &dB, &dA);
-                    BLEND_ADD (tmp, sR, sG, sB, sA, dR, dG, dB, dA);
-                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
-                    src += srcpxskip;
-                    dst += dstpxskip;
-                }, n, width);
-#endif /* SDL2 */
                 src += srcskip;
                 dst += dstskip;
             }
@@ -1676,18 +1368,18 @@ blit_blend_sub (SDL_BlitInfo * info)
     Uint8           dR, dG, dB, dA, sR, sG, sB, sA;
     Uint32          pixel;
     Sint32          tmp2;
-#ifndef SDL2
+#if IS_SDLv1
     int             srcppa = (info->src_flags & SDL_SRCALPHA && srcfmt->Amask);
     int             dstppa = (info->dst_flags & SDL_SRCALPHA && dstfmt->Amask);
-#else /* SDL2 */
+#else /* IS_SDLv2 */
     int             srcppa = SDL_ISPIXELFORMAT_ALPHA (srcfmt->format);
-#endif /* SDL2 */
+#endif /* IS_SDLv2 */
 
-#ifndef SDL2
+#if IS_SDLv1
     if (srcbpp >= 3 && dstbpp >= 3 && !(info->src_flags & SDL_SRCALPHA))
-#else /* SDL2 */
+#else /* IS_SDLv2 */
     if (srcbpp >= 3 && dstbpp >= 3 && !srcppa)
-#endif /* SDL2 */
+#endif /* IS_SDLv2 */
     {
         size_t srcoffsetR, srcoffsetG, srcoffsetB;
         size_t dstoffsetR, dstoffsetG, dstoffsetB;
@@ -1732,27 +1424,15 @@ blit_blend_sub (SDL_BlitInfo * info)
         {
             while (height--)
             {
-#ifndef SDL2
                 LOOP_UNROLLED4(
                 {
                     GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
                     GET_PIXELVALS_1(dR, dG, dB, dA, dst, dstfmt);
                     BLEND_SUB (tmp2, sR, sG, sB, sA, dR, dG, dB, dA);
-                    *dst = (Uint8) SDL_MapRGB (dstfmt, dR, dG, dB);
+                    SET_PIXELVAL(dst, dstfmt, dR, dG, dB, dA);
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#else /* SDL2 */
-                LOOP_UNROLLED4(
-                {
-                    GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
-                    GET_PIXELVALS_1(dR, dG, dB, dA, dst, dstfmt);
-                    BLEND_SUB (tmp2, sR, sG, sB, sA, dR, dG, dB, dA);
-                    *dst = (Uint8) SDL_MapRGBA (dstfmt, dR, dG, dB, dA);
-                    src += srcpxskip;
-                    dst += dstpxskip;
-                }, n, width);
-#endif /* SDL2 */
                 src += srcskip;
                 dst += dstskip;
             }
@@ -1763,7 +1443,6 @@ blit_blend_sub (SDL_BlitInfo * info)
             SET_OFFSETS_24 (offsetR, offsetG, offsetB, dstfmt);
             while (height--)
             {
-#ifndef SDL2
                 LOOP_UNROLLED4(
                 {
                     GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
@@ -1776,20 +1455,6 @@ blit_blend_sub (SDL_BlitInfo * info)
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#else /* SDL2 */
-                LOOP_UNROLLED4(
-                {
-                    GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
-                    GET_PIXEL (pixel, dstbpp, dst);
-                    SDL_GetRGBA (pixel, dstfmt, &dR, &dG, &dB, &dA);
-                    BLEND_SUB (tmp2, sR, sG, sB, sA, dR, dG, dB, dA);
-                    dst[offsetR] = dR;
-                    dst[offsetG] = dG;
-                    dst[offsetB] = dB;
-                    src += srcpxskip;
-                    dst += dstpxskip;
-                }, n, width);
-#endif /* SDL2 */
                 src += srcskip;
                 dst += dstskip;
             }
@@ -1798,7 +1463,6 @@ blit_blend_sub (SDL_BlitInfo * info)
         {
             while (height--)
             {
-#ifndef SDL2
                 LOOP_UNROLLED4(
                 {
                     GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
@@ -1809,18 +1473,6 @@ blit_blend_sub (SDL_BlitInfo * info)
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#else /* SDL2 */
-                LOOP_UNROLLED4(
-                {
-                    GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
-                    GET_PIXEL (pixel, dstbpp, dst);
-                    SDL_GetRGBA (pixel, dstfmt, &dR, &dG, &dB, &dA);
-                    BLEND_SUB (tmp2, sR, sG, sB, sA, dR, dG, dB, dA);
-                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
-                    src += srcpxskip;
-                    dst += dstpxskip;
-                }, n, width);
-#endif /* SDL2 */
                 src += srcskip;
                 dst += dstskip;
             }
@@ -1832,29 +1484,16 @@ blit_blend_sub (SDL_BlitInfo * info)
         {
             while (height--)
             {
-#ifndef SDL2
                 LOOP_UNROLLED4(
                 {
                     GET_PIXEL(pixel, srcbpp, src);
                     GET_PIXELVALS (sR, sG, sB, sA, pixel, srcfmt, srcppa);
                     GET_PIXELVALS_1(dR, dG, dB, dA, dst, dstfmt);
                     BLEND_SUB (tmp2, sR, sG, sB, sA, dR, dG, dB, dA);
-                    *dst = (Uint8) SDL_MapRGB (dstfmt, dR, dG, dB);
+                    SET_PIXELVAL(dst, dstfmt, dR, dG, dB, dA);
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#else /* SDL2 */
-                LOOP_UNROLLED4(
-                {
-                    GET_PIXEL(pixel, srcbpp, src);
-                    SDL_GetRGBA (pixel, srcfmt, &sR, &sG, &sB, &sA);
-                    GET_PIXELVALS_1(dR, dG, dB, dA, dst, dstfmt);
-                    BLEND_SUB (tmp2, sR, sG, sB, sA, dR, dG, dB, dA);
-                    *dst = (Uint8) SDL_MapRGBA (dstfmt, dR, dG, dB, dA);
-                    src += srcpxskip;
-                    dst += dstpxskip;
-                }, n, width);
-#endif /* SDL2 */
                 src += srcskip;
                 dst += dstskip;
             }
@@ -1866,7 +1505,6 @@ blit_blend_sub (SDL_BlitInfo * info)
             SET_OFFSETS_24 (offsetR, offsetG, offsetB, dstfmt);
             while (height--)
             {
-#ifndef SDL2
                 LOOP_UNROLLED4(
                 {
                     GET_PIXEL(pixel, srcbpp, src);
@@ -1880,21 +1518,6 @@ blit_blend_sub (SDL_BlitInfo * info)
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#else /* SDL2 */
-                LOOP_UNROLLED4(
-                {
-                    GET_PIXEL(pixel, srcbpp, src);
-                    SDL_GetRGBA (pixel, srcfmt, &sR, &sG, &sB, &sA);
-                    GET_PIXEL (pixel, dstbpp, dst);
-                    SDL_GetRGBA (pixel, dstfmt, &dR, &dG, &dB, &dA);
-                    BLEND_SUB (tmp2, sR, sG, sB, sA, dR, dG, dB, dA);
-                    dst[offsetR] = dR;
-                    dst[offsetG] = dG;
-                    dst[offsetB] = dB;
-                    src += srcpxskip;
-                    dst += dstpxskip;
-                }, n, width);
-#endif /* SDL2 */
                 src += srcskip;
                 dst += dstskip;
             }
@@ -1903,7 +1526,6 @@ blit_blend_sub (SDL_BlitInfo * info)
         {
             while (height--)
             {
-#ifndef SDL2
                 LOOP_UNROLLED4(
                 {
                     GET_PIXEL(pixel, srcbpp, src);
@@ -1915,19 +1537,6 @@ blit_blend_sub (SDL_BlitInfo * info)
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#else /* SDL2 */
-                LOOP_UNROLLED4(
-                {
-                    GET_PIXEL(pixel, srcbpp, src);
-                    SDL_GetRGBA (pixel, srcfmt, &sR, &sG, &sB, &sA);
-                    GET_PIXEL (pixel, dstbpp, dst);
-                    SDL_GetRGBA (pixel, dstfmt, &dR, &dG, &dB, &dA);
-                    BLEND_SUB (tmp2, sR, sG, sB, sA, dR, dG, dB, dA);
-                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
-                    src += srcpxskip;
-                    dst += dstpxskip;
-                }, n, width);
-#endif /* SDL2 */
                 src += srcskip;
                 dst += dstskip;
             }
@@ -1954,18 +1563,18 @@ blit_blend_mul (SDL_BlitInfo * info)
     Uint8           dR, dG, dB, dA, sR, sG, sB, sA;
     Uint32          pixel;
     Uint32          tmp;
-#ifndef SDL2
+#if IS_SDLv1
     int             srcppa = (info->src_flags & SDL_SRCALPHA && srcfmt->Amask);
     int             dstppa = (info->dst_flags & SDL_SRCALPHA && dstfmt->Amask);
-#else /* SDL2 */
+#else /* IS_SDLv2 */
     int             srcppa = SDL_ISPIXELFORMAT_ALPHA (srcfmt->format);
-#endif /* SDL2 */
+#endif /* IS_SDLv2 */
 
-#ifndef SDL2
+#if IS_SDLv1
     if (srcbpp >= 3 && dstbpp >= 3 && !(info->src_flags & SDL_SRCALPHA))
-#else /* SDL2 */
+#else /* IS_SDLv2 */
     if (srcbpp >= 3 && dstbpp >= 3 && !srcppa)
-#endif /* SDL2 */
+#endif /* IS_SDLv2 */
     {
         size_t srcoffsetR, srcoffsetG, srcoffsetB;
         size_t dstoffsetR, dstoffsetG, dstoffsetB;
@@ -2013,27 +1622,15 @@ blit_blend_mul (SDL_BlitInfo * info)
         {
             while (height--)
             {
-#ifndef SDL2
                 LOOP_UNROLLED4(
                 {
                     GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
                     GET_PIXELVALS_1(dR, dG, dB, dA, dst, dstfmt);
                     BLEND_MULT (sR, sG, sB, sA, dR, dG, dB, dA);
-                    *dst = (Uint8) SDL_MapRGB (dstfmt, dR, dG, dB);
+                    SET_PIXELVAL(dst, dstfmt, dR, dG, dB, dA);
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#else /* SDL2 */
-                LOOP_UNROLLED4(
-                {
-                    GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
-                    GET_PIXELVALS_1(dR, dG, dB, dA, dst, dstfmt);
-                    BLEND_MULT (sR, sG, sB, sA, dR, dG, dB, dA);
-                    *dst = (Uint8) SDL_MapRGBA (dstfmt, dR, dG, dB, dA);
-                    src += srcpxskip;
-                    dst += dstpxskip;
-                }, n, width);
-#endif /* SDL2 */
                 src += srcskip;
                 dst += dstskip;
             }
@@ -2044,7 +1641,6 @@ blit_blend_mul (SDL_BlitInfo * info)
             SET_OFFSETS_24 (offsetR, offsetG, offsetB, dstfmt);
             while (height--)
             {
-#ifndef SDL2
                 LOOP_UNROLLED4(
                 {
                     GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
@@ -2057,20 +1653,6 @@ blit_blend_mul (SDL_BlitInfo * info)
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#else /* SDL2 */
-                LOOP_UNROLLED4(
-                {
-                    GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
-                    GET_PIXEL (pixel, dstbpp, dst);
-                    SDL_GetRGBA (pixel, dstfmt, &dR, &dG, &dB, &dA);
-                    BLEND_MULT (sR, sG, sB, sA, dR, dG, dB, dA);
-                    dst[offsetR] = dR;
-                    dst[offsetG] = dG;
-                    dst[offsetB] = dB;
-                    src += srcpxskip;
-                    dst += dstpxskip;
-                }, n, width);
-#endif /* SDL2 */
                 src += srcskip;
                 dst += dstskip;
             }
@@ -2079,7 +1661,6 @@ blit_blend_mul (SDL_BlitInfo * info)
         {
             while (height--)
             {
-#ifndef SDL2
                 LOOP_UNROLLED4(
                 {
                     GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
@@ -2090,18 +1671,6 @@ blit_blend_mul (SDL_BlitInfo * info)
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#else /* SDL2 */
-                LOOP_UNROLLED4(
-                {
-                    GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
-                    GET_PIXEL (pixel, dstbpp, dst);
-                    SDL_GetRGBA (pixel, dstfmt, &dR, &dG, &dB, &dA);
-                    BLEND_MULT (sR, sG, sB, sA, dR, dG, dB, dA);
-                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
-                    src += srcpxskip;
-                    dst += dstpxskip;
-                }, n, width);
-#endif /* SDL2 */
                 src += srcskip;
                 dst += dstskip;
             }
@@ -2113,29 +1682,17 @@ blit_blend_mul (SDL_BlitInfo * info)
         {
             while (height--)
             {
-#ifndef SDL2
                 LOOP_UNROLLED4(
                 {
                     GET_PIXEL(pixel, srcbpp, src);
                     GET_PIXELVALS (sR, sG, sB, sA, pixel, srcfmt, srcppa);
                     GET_PIXELVALS_1(dR, dG, dB, dA, dst, dstfmt);
                     BLEND_MULT (sR, sG, sB, sA, dR, dG, dB, dA);
+                    SET_PIXELVAL(dst, dstfmt, dR, dG, dB, dA);
                     *dst = (Uint8) SDL_MapRGB (dstfmt, dR, dG, dB);
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#else /* SDL2 */
-                LOOP_UNROLLED4(
-                {
-                    GET_PIXEL(pixel, srcbpp, src);
-                    SDL_GetRGBA (pixel, srcfmt, &sR, &sG, &sB, &sA);
-                    GET_PIXELVALS_1(dR, dG, dB, dA, dst, dstfmt);
-                    BLEND_MULT (sR, sG, sB, sA, dR, dG, dB, dA);
-                    *dst = (Uint8) SDL_MapRGBA (dstfmt, dR, dG, dB, dA);
-                    src += srcpxskip;
-                    dst += dstpxskip;
-                }, n, width);
-#endif /* SDL2 */
                 src += srcskip;
                 dst += dstskip;
             }
@@ -2147,7 +1704,6 @@ blit_blend_mul (SDL_BlitInfo * info)
             SET_OFFSETS_24 (offsetR, offsetG, offsetB, dstfmt);
             while (height--)
             {
-#ifndef SDL2
                 LOOP_UNROLLED4(
                 {
                     GET_PIXEL(pixel, srcbpp, src);
@@ -2161,21 +1717,6 @@ blit_blend_mul (SDL_BlitInfo * info)
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#else /* SDL2 */
-                LOOP_UNROLLED4(
-                {
-                    GET_PIXEL(pixel, srcbpp, src);
-                    SDL_GetRGBA (pixel, srcfmt, &sR, &sG, &sB, &sA);
-                    GET_PIXEL (pixel, dstbpp, dst);
-                    SDL_GetRGBA (pixel, dstfmt, &dR, &dG, &dB, &dA);
-                    BLEND_MULT (sR, sG, sB, sA, dR, dG, dB, dA);
-                    dst[offsetR] = dR;
-                    dst[offsetG] = dG;
-                    dst[offsetB] = dB;
-                    src += srcpxskip;
-                    dst += dstpxskip;
-                }, n, width);
-#endif /* SDL2 */
                 src += srcskip;
                 dst += dstskip;
             }
@@ -2184,7 +1725,6 @@ blit_blend_mul (SDL_BlitInfo * info)
         {
             while (height--)
             {
-#ifndef SDL2
                 LOOP_UNROLLED4(
                 {
                     GET_PIXEL(pixel, srcbpp, src);
@@ -2196,19 +1736,6 @@ blit_blend_mul (SDL_BlitInfo * info)
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#else /* SDL2 */
-                LOOP_UNROLLED4(
-                {
-                    GET_PIXEL(pixel, srcbpp, src);
-                    SDL_GetRGBA (pixel, srcfmt, &sR, &sG, &sB, &sA);
-                    GET_PIXEL (pixel, dstbpp, dst);
-                    SDL_GetRGBA (pixel, dstfmt, &dR, &dG, &dB, &dA);
-                    BLEND_MULT (sR, sG, sB, sA, dR, dG, dB, dA);
-                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
-                    src += srcpxskip;
-                    dst += dstpxskip;
-                }, n, width);
-#endif /* SDL2 */
                 src += srcskip;
                 dst += dstskip;
             }
@@ -2234,18 +1761,18 @@ blit_blend_min (SDL_BlitInfo * info)
     int             dstbpp = dstfmt->BytesPerPixel;
     Uint8           dR, dG, dB, dA, sR, sG, sB, sA;
     Uint32          pixel;
-#ifndef SDL2
+#if IS_SDLv1
     int             srcppa = (info->src_flags & SDL_SRCALPHA && srcfmt->Amask);
     int             dstppa = (info->dst_flags & SDL_SRCALPHA && dstfmt->Amask);
-#else /* SDL2 */
+#else /* IS_SDLv2 */
     int             srcppa = SDL_ISPIXELFORMAT_ALPHA (srcfmt->format);
-#endif /* SDL2 */
+#endif /* IS_SDLv2 */
 
-#ifndef SDL2
+#if IS_SDLv1
     if (srcbpp >= 3 && dstbpp >= 3 && !(info->src_flags & SDL_SRCALPHA))
-#else /* SDL2 */
+#else /* IS_SDLv2 */
     if (srcbpp >= 3 && dstbpp >= 3 && !srcppa)
-#endif /* SDL2 */
+#endif /* IS_SDLv2 */
     {
         size_t srcoffsetR, srcoffsetG, srcoffsetB;
         size_t dstoffsetR, dstoffsetG, dstoffsetB;
@@ -2296,27 +1823,15 @@ blit_blend_min (SDL_BlitInfo * info)
         {
             while (height--)
             {
-#ifndef SDL2
                 LOOP_UNROLLED4(
                 {
                     GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
                     GET_PIXELVALS_1(dR, dG, dB, dA, dst, dstfmt);
                     BLEND_MIN (sR, sG, sB, sA, dR, dG, dB, dA);
-                    *dst = (Uint8) SDL_MapRGB (dstfmt, dR, dG, dB);
+                    SET_PIXELVAL(dst, dstfmt, dR, dG, dB, dA);
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#else /* SDL2 */
-                LOOP_UNROLLED4(
-                {
-                    GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
-                    GET_PIXELVALS_1(dR, dG, dB, dA, dst, dstfmt);
-                    BLEND_MIN (sR, sG, sB, sA, dR, dG, dB, dA);
-                    *dst = (Uint8) SDL_MapRGBA (dstfmt, dR, dG, dB, dA);
-                    src += srcpxskip;
-                    dst += dstpxskip;
-                }, n, width);
-#endif /* SDL2 */
                 src += srcskip;
                 dst += dstskip;
             }
@@ -2327,7 +1842,6 @@ blit_blend_min (SDL_BlitInfo * info)
             SET_OFFSETS_24 (offsetR, offsetG, offsetB, dstfmt);
             while (height--)
             {
-#ifndef SDL2
                 LOOP_UNROLLED4(
                 {
                     GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
@@ -2340,20 +1854,6 @@ blit_blend_min (SDL_BlitInfo * info)
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#else /* SDL2 */
-                LOOP_UNROLLED4(
-                {
-                    GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
-                    GET_PIXEL (pixel, dstbpp, dst);
-                    SDL_GetRGBA (pixel, dstfmt, &dR, &dG, &dB, &dA);
-                    BLEND_MIN (sR, sG, sB, sA, dR, dG, dB, dA);
-                    dst[offsetR] = dR;
-                    dst[offsetG] = dG;
-                    dst[offsetB] = dB;
-                    src += srcpxskip;
-                    dst += dstpxskip;
-                }, n, width);
-#endif /* SDL2 */
                 src += srcskip;
                 dst += dstskip;
             }
@@ -2362,7 +1862,6 @@ blit_blend_min (SDL_BlitInfo * info)
         {
             while (height--)
             {
-#ifndef SDL2
                 LOOP_UNROLLED4(
                 {
                     GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
@@ -2373,18 +1872,6 @@ blit_blend_min (SDL_BlitInfo * info)
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#else /* SDL2 */
-                LOOP_UNROLLED4(
-                {
-                    GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
-                    GET_PIXEL (pixel, dstbpp, dst);
-                    SDL_GetRGBA (pixel, dstfmt, &dR, &dG, &dB, &dA);
-                    BLEND_MIN (sR, sG, sB, sA, dR, dG, dB, dA);
-                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
-                    src += srcpxskip;
-                    dst += dstpxskip;
-                }, n, width);
-#endif /* SDL2 */
                 src += srcskip;
                 dst += dstskip;
             }
@@ -2396,7 +1883,6 @@ blit_blend_min (SDL_BlitInfo * info)
         {
             while (height--)
             {
-#ifndef SDL2
                 LOOP_UNROLLED4(
                 {
                     GET_PIXEL(pixel, srcbpp, src);
@@ -2407,18 +1893,6 @@ blit_blend_min (SDL_BlitInfo * info)
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#else /* SDL2 */
-                LOOP_UNROLLED4(
-                {
-                    GET_PIXEL(pixel, srcbpp, src);
-                    SDL_GetRGBA (pixel, srcfmt, &sR, &sG, &sB, &sA);
-                    GET_PIXELVALS_1(dR, dG, dB, dA, dst, dstfmt);
-                    BLEND_MIN (sR, sG, sB, sA, dR, dG, dB, dA);
-                    *dst = (Uint8) SDL_MapRGBA (dstfmt, dR, dG, dB, dA);
-                    src += srcpxskip;
-                    dst += dstpxskip;
-                }, n, width);
-#endif /* SDL2 */
                 src += srcskip;
                 dst += dstskip;
             }
@@ -2430,7 +1904,6 @@ blit_blend_min (SDL_BlitInfo * info)
             SET_OFFSETS_24 (offsetR, offsetG, offsetB, dstfmt);
             while (height--)
             {
-#ifndef SDL2
                 LOOP_UNROLLED4(
                 {
                     GET_PIXEL(pixel, srcbpp, src);
@@ -2444,21 +1917,6 @@ blit_blend_min (SDL_BlitInfo * info)
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#else /* SDL2 */
-                LOOP_UNROLLED4(
-                {
-                    GET_PIXEL(pixel, srcbpp, src);
-                    SDL_GetRGBA (pixel, srcfmt, &sR, &sG, &sB, &sA);
-                    GET_PIXEL (pixel, dstbpp, dst);
-                    SDL_GetRGBA (pixel, dstfmt, &dR, &dG, &dB, &dA);
-                    BLEND_MIN (sR, sG, sB, sA, dR, dG, dB, dA);
-                    dst[offsetR] = dR;
-                    dst[offsetG] = dG;
-                    dst[offsetB] = dB;
-                    src += srcpxskip;
-                    dst += dstpxskip;
-                }, n, width);
-#endif /* SDL2 */
                 src += srcskip;
                 dst += dstskip;
             }
@@ -2467,7 +1925,6 @@ blit_blend_min (SDL_BlitInfo * info)
         {
             while (height--)
             {
-#ifndef SDL2
                 LOOP_UNROLLED4(
                 {
                     GET_PIXEL(pixel, srcbpp, src);
@@ -2479,19 +1936,6 @@ blit_blend_min (SDL_BlitInfo * info)
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#else /* SDL2 */
-                LOOP_UNROLLED4(
-                {
-                    GET_PIXEL(pixel, srcbpp, src);
-                    SDL_GetRGBA (pixel, srcfmt, &sR, &sG, &sB, &sA);
-                    GET_PIXEL (pixel, dstbpp, dst);
-                    SDL_GetRGBA (pixel, dstfmt, &dR, &dG, &dB, &dA);
-                    BLEND_MIN (sR, sG, sB, sA, dR, dG, dB, dA);
-                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
-                    src += srcpxskip;
-                    dst += dstpxskip;
-                }, n, width);
-#endif /* SDL2 */
                 src += srcskip;
                 dst += dstskip;
             }
@@ -2517,18 +1961,18 @@ blit_blend_max (SDL_BlitInfo * info)
     int             dstbpp = dstfmt->BytesPerPixel;
     Uint8           dR, dG, dB, dA, sR, sG, sB, sA;
     Uint32          pixel;
-#ifndef SDL2
+#if IS_SDLv1
     int             srcppa = (info->src_flags & SDL_SRCALPHA && srcfmt->Amask);
     int             dstppa = (info->dst_flags & SDL_SRCALPHA && dstfmt->Amask);
-#else /* SDL2 */
+#else /* IS_SDLv2 */
     int             srcppa = SDL_ISPIXELFORMAT_ALPHA (srcfmt->format);
-#endif /* SDL2 */
+#endif /* IS_SDLv2 */
 
-#ifndef SDL2
+#if IS_SDLv1
     if (srcbpp >= 3 && dstbpp >= 3 && !(info->src_flags & SDL_SRCALPHA))
-#else /* SDL2 */
+#else /* IS_SDLv2 */
     if (srcbpp >= 3 && dstbpp >= 3 && !srcppa)
-#endif /* SDL2 */
+#endif /* IS_SDLv2 */
     {
         size_t srcoffsetR, srcoffsetG, srcoffsetB;
         size_t dstoffsetR, dstoffsetG, dstoffsetB;
@@ -2579,27 +2023,15 @@ blit_blend_max (SDL_BlitInfo * info)
         {
             while (height--)
             {
-#ifndef SDL2
                 LOOP_UNROLLED4(
                 {
                     GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
                     GET_PIXELVALS_1(dR, dG, dB, dA, dst, dstfmt);
                     BLEND_MAX (sR, sG, sB, sA, dR, dG, dB, dA);
-                    *dst = (Uint8) SDL_MapRGB (dstfmt, dR, dG, dB);
+                    SET_PIXELVAL(dst, dstfmt, dR, dG, dB, dA);
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#else /* SDL2 */
-                LOOP_UNROLLED4(
-                {
-                    GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
-                    GET_PIXELVALS_1(dR, dG, dB, dA, dst, dstfmt);
-                    BLEND_MAX (sR, sG, sB, sA, dR, dG, dB, dA);
-                    *dst = (Uint8) SDL_MapRGBA (dstfmt, dR, dG, dB, dA);
-                    src += srcpxskip;
-                    dst += dstpxskip;
-                }, n, width);
-#endif /* SDL2 */
                 src += srcskip;
                 dst += dstskip;
             }
@@ -2610,7 +2042,6 @@ blit_blend_max (SDL_BlitInfo * info)
             SET_OFFSETS_24 (offsetR, offsetG, offsetB, dstfmt);
             while (height--)
             {
-#ifndef SDL2
                 LOOP_UNROLLED4(
                 {
                     GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
@@ -2623,20 +2054,6 @@ blit_blend_max (SDL_BlitInfo * info)
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#else /* SDL2 */
-                LOOP_UNROLLED4(
-                {
-                    GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
-                    GET_PIXEL (pixel, dstbpp, dst);
-                    SDL_GetRGBA (pixel, dstfmt, &dR, &dG, &dB, &dA);
-                    BLEND_MAX (sR, sG, sB, sA, dR, dG, dB, dA);
-                    dst[offsetR] = dR;
-                    dst[offsetG] = dG;
-                    dst[offsetB] = dB;
-                    src += srcpxskip;
-                    dst += dstpxskip;
-                }, n, width);
-#endif /* SDL2 */
                 src += srcskip;
                 dst += dstskip;
             }
@@ -2645,7 +2062,6 @@ blit_blend_max (SDL_BlitInfo * info)
         {
             while (height--)
             {
-#ifndef SDL2
                 LOOP_UNROLLED4(
                 {
                     GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
@@ -2656,18 +2072,6 @@ blit_blend_max (SDL_BlitInfo * info)
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#else /* SDL2 */
-                LOOP_UNROLLED4(
-                {
-                    GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
-                    GET_PIXEL (pixel, dstbpp, dst);
-                    SDL_GetRGBA (pixel, dstfmt, &dR, &dG, &dB, &dA);
-                    BLEND_MAX (sR, sG, sB, sA, dR, dG, dB, dA);
-                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
-                    src += srcpxskip;
-                    dst += dstpxskip;
-                }, n, width);
-#endif /* SDL2 */
                 src += srcskip;
                 dst += dstskip;
             }
@@ -2679,29 +2083,16 @@ blit_blend_max (SDL_BlitInfo * info)
         {
             while (height--)
             {
-#ifndef SDL2
                 LOOP_UNROLLED4(
                 {
                     GET_PIXEL(pixel, srcbpp, src);
                     GET_PIXELVALS (sR, sG, sB, sA, pixel, srcfmt, srcppa);
                     GET_PIXELVALS_1(dR, dG, dB, dA, dst, dstfmt);
                     BLEND_MAX (sR, sG, sB, sA, dR, dG, dB, dA);
-                    *dst = (Uint8) SDL_MapRGB (dstfmt, dR, dG, dB);
+                    SET_PIXELVAL(dst, dstfmt, dR, dG, dB, dA);
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#else /* SDL2 */
-                LOOP_UNROLLED4(
-                {
-                    GET_PIXEL(pixel, srcbpp, src);
-                    SDL_GetRGBA (pixel, srcfmt, &sR, &sG, &sB, &sA);
-                    GET_PIXELVALS_1(dR, dG, dB, dA, dst, dstfmt);
-                    BLEND_MAX (sR, sG, sB, sA, dR, dG, dB, dA);
-                    *dst = (Uint8) SDL_MapRGBA (dstfmt, dR, dG, dB, dA);
-                    src += srcpxskip;
-                    dst += dstpxskip;
-                }, n, width);
-#endif /* SDL2 */
                 src += srcskip;
                 dst += dstskip;
             }
@@ -2713,7 +2104,6 @@ blit_blend_max (SDL_BlitInfo * info)
             SET_OFFSETS_24 (offsetR, offsetG, offsetB, dstfmt);
             while (height--)
             {
-#ifndef SDL2
                 LOOP_UNROLLED4(
                 {
                     GET_PIXEL(pixel, srcbpp, src);
@@ -2727,21 +2117,6 @@ blit_blend_max (SDL_BlitInfo * info)
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#else /* SDL2 */
-                LOOP_UNROLLED4(
-                {
-                    GET_PIXEL(pixel, srcbpp, src);
-                    SDL_GetRGBA (pixel, srcfmt, &sR, &sG, &sB, &sA);
-                    GET_PIXEL (pixel, dstbpp, dst);
-                    SDL_GetRGBA (pixel, dstfmt, &dR, &dG, &dB, &dA);
-                    BLEND_MAX (sR, sG, sB, sA, dR, dG, dB, dA);
-                    dst[offsetR] = dR;
-                    dst[offsetG] = dG;
-                    dst[offsetB] = dB;
-                    src += srcpxskip;
-                    dst += dstpxskip;
-                }, n, width);
-#endif /* SDL2 */
                 src += srcskip;
                 dst += dstskip;
             }
@@ -2750,7 +2125,6 @@ blit_blend_max (SDL_BlitInfo * info)
         {
             while (height--)
             {
-#ifndef SDL2
                 LOOP_UNROLLED4(
                 {
                     GET_PIXEL(pixel, srcbpp, src);
@@ -2762,19 +2136,6 @@ blit_blend_max (SDL_BlitInfo * info)
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#else /* SDL2 */
-                LOOP_UNROLLED4(
-                {
-                    GET_PIXEL(pixel, srcbpp, src);
-                    SDL_GetRGBA (pixel, srcfmt, &sR, &sG, &sB, &sA);
-                    GET_PIXEL (pixel, dstbpp, dst);
-                    SDL_GetRGBA (pixel, dstfmt, &dR, &dG, &dB, &dA);
-                    BLEND_MAX (sR, sG, sB, sA, dR, dG, dB, dA);
-                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
-                    src += srcpxskip;
-                    dst += dstpxskip;
-                }, n, width);
-#endif /* SDL2 */
                 src += srcskip;
                 dst += dstskip;
             }
@@ -2831,17 +2192,17 @@ alphablit_alpha (SDL_BlitInfo * info)
     SDL_PixelFormat *dstfmt = info->dst;
     int             srcbpp = srcfmt->BytesPerPixel;
     int             dstbpp = dstfmt->BytesPerPixel;
-#ifndef SDL2
+#if IS_SDLv1
     int             dR, dG, dB, dA, sR, sG, sB, sA;
-#else /* SDL2 */
+#else /* IS_SDLv2 */
     Uint8           dR, dG, dB, dA, sR, sG, sB, sA;
     int             dRi, dGi, dBi, dAi, sRi, sGi, sBi, sAi;
-#endif /* SDL2 */
+#endif /* IS_SDLv2 */
     Uint32          pixel;
-#ifndef SDL2
+#if IS_SDLv1
     int             srcppa = (info->src_flags & SDL_SRCALPHA && srcfmt->Amask);
     int             dstppa = (info->dst_flags & SDL_SRCALPHA && dstfmt->Amask);
-#endif /* ! SDL2 */
+#endif /* IS_SDLv1 */
 
     /*
        printf ("Alpha blit with %d and %d\n", srcbpp, dstbpp);
@@ -2853,7 +2214,7 @@ alphablit_alpha (SDL_BlitInfo * info)
         {
             while (height--)
             {
-#ifndef SDL2
+#if IS_SDLv1
                 LOOP_UNROLLED4(
                 {
                     GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
@@ -2863,7 +2224,7 @@ alphablit_alpha (SDL_BlitInfo * info)
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#else /* SDL2 */
+#else /* IS_SDLv2 */
                 LOOP_UNROLLED4(
                 {
                     GET_PIXELVALS_1(sRi, sGi, sBi, sAi, src, srcfmt);
@@ -2873,7 +2234,7 @@ alphablit_alpha (SDL_BlitInfo * info)
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#endif /* SDL2 */
+#endif /* IS_SDLv2 */
                 src += srcskip;
                 dst += dstskip;
             }
@@ -2882,7 +2243,7 @@ alphablit_alpha (SDL_BlitInfo * info)
         {
             while (height--)
             {
-#ifndef SDL2
+#if IS_SDLv1
                 LOOP_UNROLLED4(
                 {
                     GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
@@ -2893,7 +2254,7 @@ alphablit_alpha (SDL_BlitInfo * info)
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#else /* SDL2 */
+#else /* IS_SDLv2 */
                 LOOP_UNROLLED4(
                 {
                     GET_PIXELVALS_1(sRi, sGi, sBi, sAi, src, srcfmt);
@@ -2908,7 +2269,7 @@ alphablit_alpha (SDL_BlitInfo * info)
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#endif /* SDL2 */
+#endif /* IS_SDLv2 */
                 src += srcskip;
                 dst += dstskip;
             }
@@ -2920,7 +2281,7 @@ alphablit_alpha (SDL_BlitInfo * info)
         {
             while (height--)
             {
-#ifndef SDL2
+#if IS_SDLv1
                 LOOP_UNROLLED4(
                 {
                     GET_PIXEL(pixel, srcbpp, src);
@@ -2931,7 +2292,7 @@ alphablit_alpha (SDL_BlitInfo * info)
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#else /* SDL2 */
+#else /* IS_SDLv2 */
                 LOOP_UNROLLED4(
                 {
                     GET_PIXEL(pixel, srcbpp, src);
@@ -2942,7 +2303,7 @@ alphablit_alpha (SDL_BlitInfo * info)
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#endif /* SDL2 */
+#endif /* IS_SDLv2 */
                 src += srcskip;
                 dst += dstskip;
             }
@@ -2952,7 +2313,7 @@ alphablit_alpha (SDL_BlitInfo * info)
         {
             while (height--)
             {
-#ifndef SDL2
+#if IS_SDLv1
                 LOOP_UNROLLED4(
                 {
                     GET_PIXEL(pixel, srcbpp, src);
@@ -2964,7 +2325,7 @@ alphablit_alpha (SDL_BlitInfo * info)
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#else /* SDL2 */
+#else /* IS_SDLv2 */
                 LOOP_UNROLLED4(
                 {
                     GET_PIXEL(pixel, srcbpp, src);
@@ -2980,7 +2341,7 @@ alphablit_alpha (SDL_BlitInfo * info)
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#endif /* SDL2 */
+#endif /* IS_SDLv2 */
                 src += srcskip;
                 dst += dstskip;
             }
@@ -3004,36 +2365,36 @@ alphablit_colorkey (SDL_BlitInfo * info)
     SDL_PixelFormat *dstfmt = info->dst;
     int             srcbpp = srcfmt->BytesPerPixel;
     int             dstbpp = dstfmt->BytesPerPixel;
-#ifndef SDL2
+#if IS_SDLv1
     int             dR, dG, dB, dA, sR, sG, sB, sA;
     int             alpha = srcfmt->alpha;
     Uint32          colorkey = srcfmt->colorkey;
-#else /* SDL2 */
+#else /* IS_SDLv2 */
     Uint8           dR, dG, dB, dA, sR, sG, sB, sA;
     int             dRi, dGi, dBi, dAi, sRi, sGi, sBi, sAi;
     int             alpha = info->src_blanket_alpha;
     Uint32          colorkey = info->src_colorkey;
-#endif /* SDL2 */
+#endif /* IS_SDLv2 */
     Uint32          pixel;
-#ifndef SDL2
+#if IS_SDLv1
     int             srcppa = (info->src_flags & SDL_SRCALPHA && srcfmt->Amask);
     int             dstppa = (info->dst_flags & SDL_SRCALPHA && dstfmt->Amask);
-#endif /* ! SDL2 */
+#endif /* IS_SDLv1 */
 
     /*
        printf ("Colorkey blit with %d and %d\n", srcbpp, dstbpp);
        */
 
-#ifdef SDL2
+#if IS_SDLv2
     assert (info->src_has_colorkey);
-#endif /* SDL2 */
+#endif /* IS_SDLv2 */
     if (srcbpp == 1)
     {
         if (dstbpp == 1)
         {
             while (height--)
             {
-#ifndef SDL2
+#if IS_SDLv1
                 LOOP_UNROLLED4(
                 {
                     GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
@@ -3044,7 +2405,7 @@ alphablit_colorkey (SDL_BlitInfo * info)
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#else /* SDL2 */
+#else /* IS_SDLv2 */
                 LOOP_UNROLLED4(
                 {
                     GET_PIXELVALS_1(sRi, sGi, sBi, sAi, src, srcfmt);
@@ -3055,7 +2416,7 @@ alphablit_colorkey (SDL_BlitInfo * info)
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#endif /* SDL2 */
+#endif /* IS_SDLv2 */
                 src += srcskip;
                 dst += dstskip;
             }
@@ -3064,7 +2425,7 @@ alphablit_colorkey (SDL_BlitInfo * info)
         {
             while (height--)
             {
-#ifndef SDL2
+#if IS_SDLv1
                 LOOP_UNROLLED4(
                 {
                     GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
@@ -3076,7 +2437,7 @@ alphablit_colorkey (SDL_BlitInfo * info)
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#else /* SDL2 */
+#else /* IS_SDLv2 */
                 LOOP_UNROLLED4(
                 {
                     GET_PIXELVALS_1(sRi, sGi, sBi, sAi, src, srcfmt);
@@ -3092,7 +2453,7 @@ alphablit_colorkey (SDL_BlitInfo * info)
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#endif /* SDL2 */
+#endif /* IS_SDLv2 */
                 src += srcskip;
                 dst += dstskip;
             }
@@ -3104,7 +2465,7 @@ alphablit_colorkey (SDL_BlitInfo * info)
         {
             while (height--)
             {
-#ifndef SDL2
+#if IS_SDLv1
                 LOOP_UNROLLED4(
                 {
                     GET_PIXEL(pixel, srcbpp, src);
@@ -3116,7 +2477,7 @@ alphablit_colorkey (SDL_BlitInfo * info)
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#else /* SDL2 */
+#else /* IS_SDLv2 */
                 LOOP_UNROLLED4(
                 {
                     GET_PIXEL(pixel, srcbpp, src);
@@ -3128,7 +2489,7 @@ alphablit_colorkey (SDL_BlitInfo * info)
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#endif /* SDL2 */
+#endif /* IS_SDLv2 */
                 src += srcskip;
                 dst += dstskip;
             }
@@ -3143,7 +2504,7 @@ alphablit_colorkey (SDL_BlitInfo * info)
             SET_OFFSETS_24 (offsetR, offsetG, offsetB, dstfmt);
             while (height--)
             {
-#ifndef SDL2
+#if IS_SDLv1
                 LOOP_UNROLLED4(
                 {
                     GET_PIXEL(pixel, srcbpp, src);
@@ -3158,7 +2519,7 @@ alphablit_colorkey (SDL_BlitInfo * info)
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#else /* SDL2 */
+#else /* IS_SDLv2 */
                 LOOP_UNROLLED4(
                 {
                     GET_PIXEL(pixel, srcbpp, src);
@@ -3177,7 +2538,7 @@ alphablit_colorkey (SDL_BlitInfo * info)
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#endif /* SDL2 */
+#endif /* IS_SDLv2 */
                 src += srcskip;
                 dst += dstskip;
             }
@@ -3186,7 +2547,7 @@ alphablit_colorkey (SDL_BlitInfo * info)
         {
             while (height--)
             {
-#ifndef SDL2
+#if IS_SDLv1
                 LOOP_UNROLLED4(
                 {
                     GET_PIXEL(pixel, srcbpp, src);
@@ -3199,7 +2560,7 @@ alphablit_colorkey (SDL_BlitInfo * info)
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#else /* SDL2 */
+#else /* IS_SDLv2 */
                 LOOP_UNROLLED4(
                 {
                     GET_PIXEL(pixel, srcbpp, src);
@@ -3216,7 +2577,7 @@ alphablit_colorkey (SDL_BlitInfo * info)
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#endif /* SDL2 */
+#endif /* IS_SDLv2 */
                 src += srcskip;
                 dst += dstskip;
             }
@@ -3240,19 +2601,19 @@ alphablit_solid (SDL_BlitInfo * info)
     SDL_PixelFormat *dstfmt = info->dst;
     int             srcbpp = srcfmt->BytesPerPixel;
     int             dstbpp = dstfmt->BytesPerPixel;
-#ifndef SDL2
+#if IS_SDLv1
     int             dR, dG, dB, dA, sR, sG, sB, sA;
     int             alpha = srcfmt->alpha;
-#else /* SDL2 */
+#else /* IS_SDLv2 */
     Uint8           dR, dG, dB, dA, sR, sG, sB, sA;
     int             dRi, dGi, dBi, dAi, sRi, sGi, sBi;
     int             alpha = info->src_blanket_alpha;
-#endif /* SDL2 */
+#endif /* IS_SDLv2 */
     int             pixel;
-#ifndef SDL2
+#if IS_SDLv1
     int             srcppa = (info->src_flags & SDL_SRCALPHA && srcfmt->Amask);
     int             dstppa = (info->dst_flags & SDL_SRCALPHA && dstfmt->Amask);
-#endif /* ! SDL2 */
+#endif /* IS_SDLv1 */
 
     /*
        printf ("Solid blit with %d and %d\n", srcbpp, dstbpp);
@@ -3264,7 +2625,7 @@ alphablit_solid (SDL_BlitInfo * info)
         {
             while (height--)
             {
-#ifndef SDL2
+#if IS_SDLv1
                 LOOP_UNROLLED4(
                 {
                     GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
@@ -3274,7 +2635,7 @@ alphablit_solid (SDL_BlitInfo * info)
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#else /* SDL2 */
+#else /* IS_SDLv2 */
                 LOOP_UNROLLED4(
                 {
                     GET_PIXELVALS_1(sRi, sGi, sBi, dAi, src, srcfmt);
@@ -3284,7 +2645,7 @@ alphablit_solid (SDL_BlitInfo * info)
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#endif /* SDL2 */
+#endif /* IS_SDLv2 */
                 src += srcskip;
                 dst += dstskip;
             }
@@ -3293,7 +2654,7 @@ alphablit_solid (SDL_BlitInfo * info)
         {
             while (height--)
             {
-#ifndef SDL2
+#if IS_SDLv1
                 LOOP_UNROLLED4(
                 {
                     GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
@@ -3304,7 +2665,7 @@ alphablit_solid (SDL_BlitInfo * info)
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#else /* SDL2 */
+#else /* IS_SDLv2 */
                 LOOP_UNROLLED4(
                 {
                     GET_PIXELVALS_1(sRi, sGi, sBi, dAi, src, srcfmt);
@@ -3319,7 +2680,7 @@ alphablit_solid (SDL_BlitInfo * info)
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#endif /* SDL2 */
+#endif /* IS_SDLv2 */
                 src += srcskip;
                 dst += dstskip;
             }
@@ -3331,7 +2692,7 @@ alphablit_solid (SDL_BlitInfo * info)
         {
             while (height--)
             {
-#ifndef SDL2
+#if IS_SDLv1
                 LOOP_UNROLLED4(
                 {
                     GET_PIXEL(pixel, srcbpp, src);
@@ -3342,7 +2703,7 @@ alphablit_solid (SDL_BlitInfo * info)
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#else /* SDL2 */
+#else /* IS_SDLv2 */
                 LOOP_UNROLLED4(
                 {
                     GET_PIXEL(pixel, srcbpp, src);
@@ -3353,7 +2714,7 @@ alphablit_solid (SDL_BlitInfo * info)
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#endif /* SDL2 */
+#endif /* IS_SDLv2 */
                 src += srcskip;
                 dst += dstskip;
             }
@@ -3368,7 +2729,7 @@ alphablit_solid (SDL_BlitInfo * info)
             SET_OFFSETS_24 (offsetR, offsetG, offsetB, dstfmt);
             while (height--)
             {
-#ifndef SDL2
+#if IS_SDLv1
                 LOOP_UNROLLED4(
                 {
                     GET_PIXEL(pixel, srcbpp, src);
@@ -3382,7 +2743,7 @@ alphablit_solid (SDL_BlitInfo * info)
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#else /* SDL2 */
+#else /* IS_SDLv2 */
                 LOOP_UNROLLED4(
                 {
                     GET_PIXEL(pixel, srcbpp, src);
@@ -3400,7 +2761,7 @@ alphablit_solid (SDL_BlitInfo * info)
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
-#endif /* SDL2 */
+#endif /* IS_SDLv2 */
                 src += srcskip;
                 dst += dstskip;
             }
@@ -3409,7 +2770,7 @@ alphablit_solid (SDL_BlitInfo * info)
         {
             while (height--)
             {
-#ifndef SDL2
+#if IS_SDLv1
                 LOOP_UNROLLED4(
                 {
                     GET_PIXEL(pixel, srcbpp, src);
@@ -3421,7 +2782,7 @@ alphablit_solid (SDL_BlitInfo * info)
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n ,width);
-#else /* SDL2 */
+#else /* IS_SDLv2 */
                 LOOP_UNROLLED4(
                 {
                     GET_PIXEL(pixel, srcbpp, src);
@@ -3437,7 +2798,7 @@ alphablit_solid (SDL_BlitInfo * info)
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n ,width);
-#endif /* SDL2 */
+#endif /* IS_SDLv2 */
                 src += srcskip;
                 dst += dstskip;
             }
