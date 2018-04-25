@@ -49,3 +49,46 @@ s/\(\W\)RWopsCheckObjectThreaded\(\W\)/\1pgRWopsCheckObjectThreaded\2/g
 s/\(\W\)RWopsEncodeFilePath\(\W\)/\1pgRWopsEncodeFilePath\2/g
 s/\(\W\)RWopsEncodeString\(\W\)/\1pgRWopsEncodeString\2/g
 s/\(\W\)RWopsFromFileObject\(\W\)/\1pgRWopsFromFileObject\2/g
+
+# color.c
+s/\(\W\)PyColor_Type\(\W\)/\1pgColor_Type\2/g
+s/\(\W\)PyColor_New\(\W\)/\1pgColor_New\2/g
+s/\(\W\)RGBAFromColorObj\(\W\)/\1pg_RGBAFromColorObj\2/g
+s/\(\W\)PyColor_NewLength\(\W\)/\1pgColor_NewLength\2/g
+
+# bufferproxy.c
+s/\(\W\)PgBufproxy_Type\(\W\)/\1pgBufproxy_Type\2/g
+s/\(\W\)PgBufproxy_New\(\W\)/\1pgBufproxy_New\2/g
+s/\(\W\)PgBufproxy_GetParent\(\W\)/\1pgBufproxy_GetParent\2/g
+s/\(\W\)PgBufproxy_Trip\(\W\)/\1pgBufproxy_Trip\2/g
+s/\(\W\)PgBufproxy_Check\(\W\)/\1pgBufproxy_Check\2/g
+
+# surflock.c
+s/\(\W\)PyLifetimeLock\(\W\)/\1pgLifetimeLockObject\2/g
+s/\(\W\)PyLifetimeLock_Check\(\W\)/\1pgLifetimeLock_Check\2/g
+s/\(\W\)PySurface_Prep\(\W\)/\1pgSurface_Prep\2/g
+s/\(\W\)PySurface_Unprep\(\W\)/\1pgSurface_Unprep\2/g
+s/\(\W\)PySurface_Lock\(\W\)/\1pgSurface_Lock\2/g
+s/\(\W\)PySurface_Unlock\(\W\)/\1pgSurface_Unlock\2/g
+s/\(\W\)PySurface_LockBy\(\W\)/\1pgSurface_LockBy\2/g
+s/\(\W\)PySurface_UnlockBy\(\W\)/\1pgSurface_UnlockBy\2/g
+s/\(\W\)PySurface_LockLifetime\(\W\)/\1pgSurface_LockLifetime\2/g
+
+# surface.c
+s/\(\W\)PySurfaceObject\(\W\)/\1pgSurfaceObject\2/g
+s/\(\W\)PySurface_Type\(\W\)/\1pgSurface_Type\2/g
+s/\(\W\)PySurface_New\(\W\)/\1pgSurface_New\2/g
+s/\(\W\)PySurface_NewNoOwn\(\W\)/\1pgSurface_NewNoOwn\2/g
+s/\(\W\)PySurface_Check\(\W\)/\1pgSurface_Check\2/g
+s/\(\W\)PySurface_AsSurface\(\W\)/\1pgSurface_AsSurface\2/g
+s/\(\W\)PySurface_Blit\(\W\)/\1pgSurface_Blit\2/g
+
+# event.c
+s/\(\W\)PyEventObject\(\W\)/\1pgEventObject\2/g
+s/\(\W\)PyEvent_Check\(\W\)/\1pgEvent_Check\2/g
+s/\(\W\)PyEvent_Type\(\W\)/\1pgEvent_Type\2/g
+s/\(\W\)PyEvent_New\(\W\)/\1pgEvent_New\2/g
+s/\(\W\)PyEvent_New2\(\W\)/\1pgEvent_New2\2/g
+s/\(\W\)PyEvent_FillUserEvent\(\W\)/\1pgEvent_FillUserEvent\2/g
+s/\(\W\)Py_EnableKeyRepeat\(\W\)/\1pg_EnableKeyRepeat\2/g
+s/\(\W\)Py_GetKeyRepeat\(\W\)/\1pg_GetKeyRepeat\2/g

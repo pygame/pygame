@@ -230,7 +230,7 @@ pgSurface_LockLifetime(PyObject *surfobj, PyObject *lockobj)
 {
     pgLifetimeLockObject *life;
     if (surfobj == NULL) {
-        return RAISE(PyExc_SDLError, SDL_GetError());
+        return RAISE(pgExc_SDLError, SDL_GetError());
     }
 
     life = PyObject_NEW(pgLifetimeLockObject, &pgLifetimeLock_Type);

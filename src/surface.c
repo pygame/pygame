@@ -461,8 +461,8 @@ surface_init (pgSurfaceObject *self, PyObject *args, PyObject *kwds)
        return -1;
 
     if (PySequence_Check (size) && (length = PySequence_Length (size)) == 2) {
-        if ( (!IntFromObjIndex (size, 0, &width)) ||
-             (!IntFromObjIndex (size, 1, &height)) ) {
+        if ( (!pg_IntFromObjIndex (size, 0, &width)) ||
+             (!pg_IntFromObjIndex (size, 1, &height)) ) {
             RAISE (PyExc_ValueError, "size needs to be (int width, int height)");
             return -1;
         }
@@ -488,7 +488,7 @@ surface_init (pgSurfaceObject *self, PyObject *args, PyObject *kwds)
             RAISE (PyExc_ValueError, "cannot pass surface for depth and color masks");
             return -1;
         }
-        if (!IntFromObj (depth, &bpp)) {
+        if (!pg_IntFromObj (depth, &bpp)) {
             RAISE (PyExc_ValueError, "invalid bits per pixel depth argument");
             return -1;
         }
@@ -496,16 +496,16 @@ surface_init (pgSurfaceObject *self, PyObject *args, PyObject *kwds)
             RAISE (PyExc_ValueError, "masks argument must be sequence of four numbers");
             return -1;
         }
-        if (!UintFromObjIndex (masks, 0, &Rmask) ||
-            !UintFromObjIndex (masks, 1, &Gmask) ||
-            !UintFromObjIndex (masks, 2, &Bmask) ||
-            !UintFromObjIndex (masks, 3, &Amask)) {
+        if (!pg_UintFromObjIndex (masks, 0, &Rmask) ||
+            !pg_UintFromObjIndex (masks, 1, &Gmask) ||
+            !pg_UintFromObjIndex (masks, 2, &Bmask) ||
+            !pg_UintFromObjIndex (masks, 3, &Amask)) {
             RAISE (PyExc_ValueError, "invalid mask values in masks sequence");
             return -1;
         }
     }
     else if (depth && PyNumber_Check (depth)) { /* use default masks */
-        if (!IntFromObj (depth, &bpp)) {
+        if (!pg_IntFromObj (depth, &bpp)) {
             RAISE (PyExc_ValueError, "invalid bits per pixel depth argument");
             return -1;
         }
@@ -585,8 +585,8 @@ surface_init (pgSurfaceObject *self, PyObject *args, PyObject *kwds)
         else if (SDL_WasInit (SDL_INIT_VIDEO))
             pix = SDL_GetVideoInfo ()->vfmt;
 #else /* IS_SDLv2 */
-        else if (Py_GetDefaultWindowSurface ())
-            pix = pgSurface_AsSurface (Py_GetDefaultWindowSurface ())->format;
+        else if (pg_GetDefaultWindowSurface ())
+            pix = pgSurface_AsSurface (pg_GetDefaultWindowSurface ())->format;
 #endif /* IS_SDLv2 */
         else {
             pix = &default_format;
@@ -800,7 +800,7 @@ surf_get_at (PyObject *self, PyObject *args)
 #if IS_SDLv1
     SDL_GetRGBA (color, format, rgba, rgba+1, rgba+2, rgba+3);
 #endif /* IS_SDLv1 */
-    return PyColor_New (rgba);
+    return pgColor_New (rgba);
 }
 
 static PyObject*
@@ -844,7 +844,7 @@ surf_set_at (PyObject *self, PyObject *args)
         if (PyErr_Occurred () && (Sint32) color == -1)
             return RAISE (PyExc_TypeError, "invalid color argument");
     }
-    else if (RGBAFromColorObj (rgba_obj, rgba))
+    else if (pg_RGBAFromColorObj (rgba_obj, rgba))
         color = SDL_MapRGBA (surf->format, rgba[0], rgba[1], rgba[2], rgba[3]);
     else
         return RAISE (PyExc_TypeError, "invalid color argument");
@@ -947,7 +947,7 @@ surf_map_rgb (PyObject *self, PyObject *args)
     Uint8 rgba[4];
     int color;
 
-    if (!RGBAFromColorObj (args, rgba))
+    if (!pg_RGBAFromColorObj (args, rgba))
         return RAISE (PyExc_TypeError, "Invalid RGBA argument");
     if (!surf)
         return RAISE (pgExc_SDLError, "display Surface quit");
@@ -982,7 +982,7 @@ surf_unmap_rgb (PyObject *self, PyObject *arg)
     }
 #endif /* IS_SDLv2 */
 
-    return PyColor_New (rgba);
+    return pgColor_New (rgba);
 }
 
 static PyObject*
@@ -1066,7 +1066,7 @@ surf_get_palette (PyObject *self)
         rgba[0] = c->r;
         rgba[1] = c->g;
         rgba[2] = c->b;
-        color = PyColor_NewLength (rgba, 3);
+        color = pgColor_NewLength (rgba, 3);
 
         if (!color) {
             Py_DECREF (list);
@@ -1103,7 +1103,7 @@ surf_get_palette_at (PyObject * self, PyObject * args)
     rgba[2] = c->b;
     rgba[3] = 255;
 
-    return PyColor_NewLength (rgba, 3);
+    return pgColor_NewLength (rgba, 3);
 }
 
 static PyObject*
@@ -1165,7 +1165,7 @@ surf_set_palette (PyObject *self, PyObject *args)
     for (i = 0; i < len; i++) {
         item = PySequence_GetItem (list, i);
 
-        ecode = RGBAFromObj (item, rgba);
+        ecode = pg_RGBAFromObj (item, rgba);
         Py_DECREF (item);
         if (!ecode) {
 #if IS_SDLv1
@@ -1219,7 +1219,7 @@ surf_set_palette_at (PyObject *self, PyObject *args)
     if (!surf)
         return RAISE (pgExc_SDLError, "display Surface quit");
 
-    if (!RGBAFromObj (color_obj, rgba)) {
+    if (!pg_RGBAFromObj (color_obj, rgba)) {
         return RAISE (PyExc_ValueError,
                       "takes a sequence of integers of RGB for argument 2");
     }
@@ -1293,7 +1293,7 @@ surf_set_colorkey (PyObject *self, PyObject *args)
             if (PyErr_Occurred () && (Sint32) color == -1)
                 return RAISE (PyExc_TypeError, "invalid color argument");
         }
-        else if (RGBAFromColorObj (rgba_obj, rgba)) {
+        else if (pg_RGBAFromColorObj (rgba_obj, rgba)) {
 #if IS_SDLv1
             color = SDL_MapRGBA (surf->format, rgba[0], rgba[1], rgba[2],
                 rgba[3]);
@@ -1573,7 +1573,7 @@ surf_convert (PyObject *self, PyObject *args)
             SDL_PixelFormat format;
 
             memcpy (&format, surf->format, sizeof (format));
-            if (IntFromObj (argobject, &bpp)) {
+            if (pg_IntFromObj (argobject, &bpp)) {
                 Uint32 Rmask, Gmask, Bmask, Amask;
 
 #if IS_SDLv1
@@ -1651,10 +1651,10 @@ surf_convert (PyObject *self, PyObject *args)
                      PySequence_Size (argobject) == 4) {
                 Uint32 mask;
 
-                if (!UintFromObjIndex (argobject, 0, &format.Rmask) ||
-                    !UintFromObjIndex (argobject, 1, &format.Gmask) ||
-                    !UintFromObjIndex (argobject, 2, &format.Bmask) ||
-                    !UintFromObjIndex (argobject, 3, &format.Amask))   {
+                if (!pg_UintFromObjIndex (argobject, 0, &format.Rmask) ||
+                    !pg_UintFromObjIndex (argobject, 1, &format.Gmask) ||
+                    !pg_UintFromObjIndex (argobject, 2, &format.Bmask) ||
+                    !pg_UintFromObjIndex (argobject, 3, &format.Amask))   {
                     pgSurface_Unprep (self);
                     return RAISE (PyExc_ValueError,
                                   "invalid color masks given");
@@ -1699,7 +1699,7 @@ surf_convert (PyObject *self, PyObject *args)
     }
 #else /* IS_SDLv2 */
     else {
-        PyObject* screen = Py_GetDefaultWindowSurface ();
+        PyObject* screen = pg_GetDefaultWindowSurface ();
 
         if (screen) {
             SDL_Surface* screen_surf = pgSurface_AsSurface (screen);
@@ -1776,7 +1776,7 @@ surf_set_clip (PyObject *self, PyObject *args)
             result = SDL_SetClipRect (surf, NULL);
         }
         else {
-            rect = GameRect_FromObject (args, &temp);
+            rect = pgRect_FromObject (args, &temp);
             if (!rect)
                 return RAISE (PyExc_ValueError, "invalid rectstyle object");
             sdlrect.x = rect->x;
@@ -1837,7 +1837,7 @@ surf_fill (PyObject *self, PyObject *args, PyObject *keywds)
         color = (Uint32) PyInt_AsLong (rgba_obj);
     else if (PyLong_Check (rgba_obj))
         color = (Uint32) PyLong_AsUnsignedLong (rgba_obj);
-    else if (RGBAFromColorObj (rgba_obj, rgba))
+    else if (pg_RGBAFromColorObj (rgba_obj, rgba))
         color = SDL_MapRGBA (surf->format, rgba[0], rgba[1], rgba[2], rgba[3]);
     else
         return RAISE (PyExc_TypeError, "invalid color argument");
@@ -1848,7 +1848,7 @@ surf_fill (PyObject *self, PyObject *args, PyObject *keywds)
         temp.w = surf->w;
         temp.h = surf->h;
     }
-    else if (!(rect = GameRect_FromObject (r, &temp)))
+    else if (!(rect = pgRect_FromObject (r, &temp)))
         return RAISE (PyExc_ValueError, "invalid rectstyle object");
 
     /* we need a fresh copy so our Rect values don't get munged */
@@ -1936,11 +1936,11 @@ surf_blit (PyObject *self, PyObject *args, PyObject *keywds)
                       "Cannot blit to OPENGL Surfaces (OPENGLBLIT is ok)");
 #endif /* IS_SDLv1 */
 
-    if ((src_rect = GameRect_FromObject (argpos, &temp))) {
+    if ((src_rect = pgRect_FromObject (argpos, &temp))) {
         dx = src_rect->x;
         dy = src_rect->y;
     }
-    else if (TwoIntsFromObj (argpos, &sx, &sy)) {
+    else if (pg_TwoIntsFromObj (argpos, &sx, &sy)) {
         dx = sx;
         dy = sy;
     }
@@ -1948,7 +1948,7 @@ surf_blit (PyObject *self, PyObject *args, PyObject *keywds)
         return RAISE (PyExc_TypeError, "invalid destination position for blit");
 
     if (argrect && argrect != Py_None) {
-        if (!(src_rect = GameRect_FromObject (argrect, &temp)))
+        if (!(src_rect = pgRect_FromObject (argrect, &temp)))
             return RAISE (PyExc_TypeError, "Invalid rectstyle argument");
     }
     else {
@@ -2078,11 +2078,11 @@ surf_blits (PyObject *self, PyObject *args, PyObject *keywds)
             goto bliterror;
         }
 
-        if ((src_rect = GameRect_FromObject (argpos, &temp))) {
+        if ((src_rect = pgRect_FromObject (argpos, &temp))) {
             dx = src_rect->x;
             dy = src_rect->y;
         }
-        else if (TwoIntsFromObj (argpos, &sx, &sy)) {
+        else if (pg_TwoIntsFromObj (argpos, &sx, &sy)) {
             dx = sx;
             dy = sy;
         } else {
@@ -2090,7 +2090,7 @@ surf_blits (PyObject *self, PyObject *args, PyObject *keywds)
             goto bliterror;
         }
         if (argrect && argrect != Py_None) {
-            if (!(src_rect = GameRect_FromObject (argrect, &temp))) {
+            if (!(src_rect = pgRect_FromObject (argrect, &temp))) {
                 bliterrornum = BLITS_ERR_INVALID_RECT_STYLE;
                 goto bliterror;
             }
@@ -2112,7 +2112,7 @@ surf_blits (PyObject *self, PyObject *args, PyObject *keywds)
         sdlsrc_rect.h = (unsigned short) src_rect->h;
 
         if (special_flags) {
-            if (!IntFromObj (special_flags, &the_args)) {
+            if (!pg_IntFromObj (special_flags, &the_args)) {
                 bliterrornum = BLITS_ERR_MUST_ASSIGN_NUMERIC;
                 goto bliterror;
             }
@@ -2508,7 +2508,7 @@ surf_subsurface (PyObject *self, PyObject *args)
 #endif /* IS_SDLv1 */
 
     format = surf->format;
-    if (!(rect = GameRect_FromObject (args, &temp)))
+    if (!(rect = pgRect_FromObject (args, &temp)))
         return RAISE (PyExc_ValueError, "invalid rectstyle argument");
     if (rect->x < 0 || rect->y < 0 || rect->x + rect->w > surf->w
         || rect->y + rect->h > surf->h)

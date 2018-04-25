@@ -58,12 +58,12 @@
 typedef struct pgBufproxyObject_s {
     PyObject_HEAD
     PyObject *obj;                             /* Wrapped object (parent)     */
-    Pg_buffer *pg_view_p;                      /* For array interface export  */
+    pg_buffer *pg_view_p;                      /* For array interface export  */
 #if PG_ENABLE_OLDBUF
     Py_ssize_t segcount;                       /* bf_getsegcount return value */
     Py_ssize_t seglen;                         /* bf_getsegcount len argument */
 #endif
-    getbufferproc get_buffer;                  /* Pg_buffer get callback      */
+    getbufferproc get_buffer;                  /* pg_buffer get callback      */
     PyObject *dict;                            /* Allow arbitrary attributes  */
     PyObject *weakrefs;                        /* Reference cycles can happen */
 } pgBufproxyObject;
@@ -137,7 +137,7 @@ PyBuffer_IsContiguous(Py_buffer *view, char fort)
 static int
 _get_buffer_from_dict(PyObject *dict, Py_buffer *view_p, int flags) {
     PyObject *obj;
-    Pg_buffer *pg_dict_view_p;
+    pg_buffer *pg_dict_view_p;
     Py_buffer *dict_view_p;
     PyObject *py_callback;
     PyObject *py_rval;
@@ -145,13 +145,13 @@ _get_buffer_from_dict(PyObject *dict, Py_buffer *view_p, int flags) {
     assert(dict && PyDict_Check(dict));
     assert(view_p);
     view_p->obj = 0;
-    pg_dict_view_p = PyMem_New(Pg_buffer, 1);
+    pg_dict_view_p = PyMem_New(pg_buffer, 1);
     if (!pg_dict_view_p) {
         PyErr_NoMemory();
         return -1;
     }
-    pg_dict_view_p->consumer = ((Pg_buffer *)view_p)->consumer;
-    if (PgDict_AsBuffer(pg_dict_view_p, dict, flags)) {
+    pg_dict_view_p->consumer = ((pg_buffer *)view_p)->consumer;
+    if (pgDict_AsBuffer(pg_dict_view_p, dict, flags)) {
         PyMem_Free(pg_dict_view_p);
         return -1;
     }
@@ -186,7 +186,7 @@ _get_buffer_from_dict(PyObject *dict, Py_buffer *view_p, int flags) {
     view_p->strides = dict_view_p->strides;
     view_p->suboffsets = dict_view_p->suboffsets;
     view_p->internal = pg_dict_view_p;
-    ((Pg_buffer *)view_p)->release_buffer = _release_buffer_from_dict;
+    ((pg_buffer *)view_p)->release_buffer = _release_buffer_from_dict;
     return 0;
 }
 
@@ -217,7 +217,7 @@ _release_buffer_from_dict(Py_buffer *view_p)
         }
         Py_DECREF(py_callback);
     }
-    pgBuffer_Release((Pg_buffer *)dict_view_p);
+    pgBuffer_Release((pg_buffer *)dict_view_p);
     PyMem_Free(dict_view_p);
     view_p->obj = 0;
     Py_DECREF(obj);
@@ -246,10 +246,10 @@ _proxy_subtype_new(PyTypeObject *type,
 
 static Py_buffer *
 _proxy_get_view(pgBufproxyObject *proxy) {
-    Pg_buffer *pg_view_p = proxy->pg_view_p;
+    pg_buffer *pg_view_p = proxy->pg_view_p;
 
     if (!pg_view_p) {
-        pg_view_p = PyMem_New(Pg_buffer, 1);
+        pg_view_p = PyMem_New(pg_buffer, 1);
         if (!pg_view_p) {
             PyErr_NoMemory();
             return 0;
@@ -269,7 +269,7 @@ _proxy_get_view(pgBufproxyObject *proxy) {
 
 static void
 _proxy_release_view(pgBufproxyObject *proxy) {
-    Pg_buffer *pg_view_p = proxy->pg_view_p;
+    pg_buffer *pg_view_p = proxy->pg_view_p;
 
     if (pg_view_p) {
         proxy->pg_view_p = 0;
@@ -281,7 +281,7 @@ _proxy_release_view(pgBufproxyObject *proxy) {
 static int
 _proxy_zombie_get_buffer(PyObject *obj, Py_buffer *view_p, int flags)
 {
-    PyObject *proxy = ((Pg_buffer *)view_p)->consumer;
+    PyObject *proxy = ((pg_buffer *)view_p)->consumer;
 
     view_p->obj = 0;
     PyErr_Format (PyExc_RuntimeError,
@@ -299,7 +299,7 @@ static PyObject *
 proxy_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     PyObject *obj = 0;
-    getbufferproc get_buffer = (getbufferproc)PgObject_GetBuffer;
+    getbufferproc get_buffer = (getbufferproc)pgObject_GetBuffer;
 
     if (!PyArg_ParseTuple(args, "O:Bufproxy", &obj)) {
         return 0;
@@ -551,7 +551,7 @@ static PyGetSetDef proxy_getsets[] =
 static int
 proxy_getbuffer(pgBufproxyObject *self, Py_buffer *view_p, int flags)
 {
-    Py_buffer *obj_view_p = PyMem_Malloc(sizeof (Pg_buffer));
+    Py_buffer *obj_view_p = PyMem_Malloc(sizeof (pg_buffer));
 
 #ifndef NDEBUG
     flags |= PyBUF_PYGAME;
@@ -561,7 +561,7 @@ proxy_getbuffer(pgBufproxyObject *self, Py_buffer *view_p, int flags)
         PyErr_NoMemory();
         return -1;
     }
-    ((Pg_buffer *)obj_view_p)->consumer = (PyObject *)self;
+    ((pg_buffer *)obj_view_p)->consumer = (PyObject *)self;
     if (self->get_buffer(self->obj, obj_view_p, flags)) {
         PyMem_Free(obj_view_p);
         return -1;
@@ -584,7 +584,7 @@ proxy_getbuffer(pgBufproxyObject *self, Py_buffer *view_p, int flags)
 static void
 proxy_releasebuffer(pgBufproxyObject *self, Py_buffer *view_p)
 {
-    pgBuffer_Release((Pg_buffer *)view_p->internal);
+    pgBuffer_Release((pg_buffer *)view_p->internal);
     PyMem_Free(view_p->internal);
 }
 
@@ -885,7 +885,7 @@ pgBufproxy_New(PyObject *obj, getbufferproc get_buffer)
                             "required: both NULL instead");
             return 0;
         }
-        get_buffer = (getbufferproc)PgObject_GetBuffer;
+        get_buffer = (getbufferproc)pgObject_GetBuffer;
     }
     return _proxy_subtype_new(&pgBufproxy_Type, obj, get_buffer);
 }

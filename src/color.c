@@ -587,7 +587,7 @@ _coerce_obj(PyObject *obj, Uint8 rgba[])
         return 1;
     }
     else if (PyType_IsSubtype(obj->ob_type, &PyTuple_Type)) {
-        if (RGBAFromObj(obj, rgba)) {
+        if (pg_RGBAFromObj(obj, rgba)) {
             return 1;
         }
         else if (PyErr_Occurred()) {
@@ -681,7 +681,7 @@ _color_init(pgColorObject *self, PyObject *args, PyObject *kwds)
                 break;
             }
         }
-        else if (!RGBAFromObj(color, rgba)) {
+        else if (!pg_RGBAFromObj(color, rgba)) {
             RAISE(PyExc_ValueError, "invalid color");
             return -1;
         }
@@ -695,7 +695,7 @@ _color_init(pgColorObject *self, PyObject *args, PyObject *kwds)
             rgba[2] = (Uint8) (color >> 8);
             rgba[3] = (Uint8) color;
         }
-        else if (!RGBAFromObj(obj, rgba)) {
+        else if (!pg_RGBAFromObj(obj, rgba)) {
             RAISE(PyExc_ValueError, "invalid argument");
             return -1;
         }
@@ -1423,7 +1423,7 @@ _color_get_arraystruct(pgColorObject *color, void *closure)
     if (_color_getbuffer(color, &view, PyBUF_FULL_RO)) {
         return 0;
     }
-    capsule = PgBuffer_AsArrayStruct(&view);
+    capsule = pgBuffer_AsArrayStruct(&view);
     Py_DECREF(color);
     return capsule;
 }
@@ -1921,7 +1921,7 @@ _color_getbuffer(pgColorObject *color, Py_buffer *view, int flags)
     static char format[] = "B";
 
     if (PyBUF_HAS_FLAG(flags, PyBUF_WRITABLE)) {
-        PyErr_SetString(PgExc_BufferError, "color buffer is read-only");
+        PyErr_SetString(pgExc_BufferError, "color buffer is read-only");
         return -1;
     }
     view->buf = color->data;
@@ -1989,7 +1989,7 @@ pg_RGBAFromColorObj(PyObject *color, Uint8 rgba[])
     }
 
     /* Default action */
-    return RGBAFromObj(color, rgba);
+    return pg_RGBAFromObj(color, rgba);
 }
 
 /*DOC*/ static char _color_doc[] =
