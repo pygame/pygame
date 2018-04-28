@@ -15,5 +15,6 @@
 #include "bufferproxy_api_transition.h"
 #include "surface_api_transition.h"
 #include "event_api_transition.h"
+#include "display_api_transition.h"
 
 #endif

@@ -92,3 +92,10 @@ s/\(\W\)PyEvent_New2\(\W\)/\1pgEvent_New2\2/g
 s/\(\W\)PyEvent_FillUserEvent\(\W\)/\1pgEvent_FillUserEvent\2/g
 s/\(\W\)Py_EnableKeyRepeat\(\W\)/\1pg_EnableKeyRepeat\2/g
 s/\(\W\)Py_GetKeyRepeat\(\W\)/\1pg_GetKeyRepeat\2/g
+
+# display.c
+s/\(\W\)PyVidInfoObject\(\W\)/\1pgVidInfoObject\2/g
+s/\(\W\)PyVidInfo_Type\(\W\)/\1pgVidInfo_Type\2/g
+s/\(\W\)PyVidInfo_New\(\W\)/\1pgVidInfo_New\2/g
+s/\(\W\)PyVidInfo_AsVidInfo\(\W\)/\1pgVidInfo_AsVidInfo\2/g
+s/\(\W\)PyVidInfo_Check\(\W\)/\1pgVidInfo_Check\2/g

@@ -520,17 +520,17 @@ typedef struct {
 typedef struct {
     PyObject_HEAD
     SDL_VideoInfo info;
-} PyVidInfoObject;
+} pgVidInfoObject;
 
-#define PyVidInfo_AsVidInfo(x) (((PyVidInfoObject*)x)->info)
+#define pgVidInfo_AsVidInfo(x) (((pgVidInfoObject*)x)->info)
 #ifndef PYGAMEAPI_DISPLAY_INTERNAL
-#define PyVidInfo_Check(x)                                              \
+#define pgVidInfo_Check(x)                                              \
     ((x)->ob_type == (PyTypeObject*)                                    \
      PyGAME_C_API[PYGAMEAPI_DISPLAY_FIRSTSLOT + 0])
 
-#define PyVidInfo_Type                                                  \
+#define pgVidInfo_Type                                                  \
     (*(PyTypeObject*)PyGAME_C_API[PYGAMEAPI_DISPLAY_FIRSTSLOT + 0])
-#define PyVidInfo_New                                   \
+#define pgVidInfo_New                                   \
     (*(PyObject*(*)(SDL_VideoInfo*))                    \
      PyGAME_C_API[PYGAMEAPI_DISPLAY_FIRSTSLOT + 1])
 #define import_pygame_display() IMPORT_PYGAME_MODULE(display, DISPLAY)
