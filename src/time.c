@@ -24,19 +24,21 @@
 #include "pgcompat.h"
 #include "doc/time_doc.h"
 
-#ifdef SDL2
-#define NUMEVENTS (16 + (SDL_NUMEVENTS - SDL_USEREVENT))
-#endif /* SDL2 */
 #define WORST_CLOCK_ACCURACY 12
-#ifndef SDL2
-static SDL_TimerID event_timers[SDL_NUMEVENTS] = {NULL};
-#else /* SDL2 */
-static SDL_TimerID event_timers[NUMEVENTS] = {0};
 
+#if IS_SDLv2
+#define pgNUMEVENTS (16 + (SDL_NUMEVENTS - SDL_USEREVENT))
+#else /* IS_SDLv1 */
+#define pgNUMEVENTS SDL_NUMEVENTS
+#endif /* IS_SDLv1 */
+
+static SDL_TimerID event_timers[pgNUMEVENTS] = {NULL};
+
+#if IS_SDLv2
 static size_t
 enumerate_event (Uint32 type)
 {
-    assert (NUMEVENTS == 1 + 15 + (SDL_NUMEVENTS - SDL_USEREVENT));
+    assert (pgNUMEVENTS == 1 + 15 + (SDL_NUMEVENTS - SDL_USEREVENT));
     switch (type) {
 
     case SDL_ACTIVEEVENT:
@@ -74,7 +76,7 @@ enumerate_event (Uint32 type)
         return type - SDL_USEREVENT + 16;
     return 0;
 }
-#endif /* SDL2 */
+#endif /* IS_SDLv2 */
 
 static Uint32
 timer_callback (Uint32 interval, void* param)
@@ -100,7 +102,7 @@ accurate_delay (int ticks)
     {
         if (SDL_InitSubSystem (SDL_INIT_TIMER))
         {
-            RAISE (PyExc_SDLError, SDL_GetError ());
+            RAISE (pgExc_SDLError, SDL_GetError ());
             return -1;
         }
     }
@@ -174,7 +176,7 @@ time_wait (PyObject* self, PyObject* arg)
     {
         if (SDL_InitSubSystem (SDL_INIT_TIMER))
         {
-            RAISE (PyExc_SDLError, SDL_GetError ());
+            RAISE (pgExc_SDLError, SDL_GetError ());
             return NULL;
         }
     }
@@ -191,43 +193,26 @@ time_wait (PyObject* self, PyObject* arg)
     return PyInt_FromLong (SDL_GetTicks () - start);
 }
 
+#if IS_SDLv2
 static PyObject*
 time_set_timer (PyObject* self, PyObject* arg)
 {
     SDL_TimerID newtimer;
     int ticks = 0;
-#ifndef SDL2
-    intptr_t event = SDL_NOEVENT;
-#else /* SDL2 */
     SDL_EventType event;
     size_t index;
-#endif /* SDL2 */
     if (!PyArg_ParseTuple (arg, "ii", &event, &ticks))
         return NULL;
 
-#ifndef SDL2
-    if (event <= SDL_NOEVENT || event >= SDL_NUMEVENTS)
-        return RAISE (PyExc_ValueError,
-                      "Event id must be between NOEVENT(0) and NUMEVENTS(32)");
-#else /* SDL2 */
     index = enumerate_event (event);
     if (index == 0)
         return RAISE (PyExc_ValueError, "Unrecognized event type");
-#endif /* SDL2 */
 
     /*stop original timer*/
-#ifndef SDL2
-    if (event_timers[event])
-#else /* SDL2 */
     if (event_timers[index])
-#endif /* SDL2 */
     {
         SDL_RemoveTimer (event_timers[event]);
-#ifndef SDL2
-        event_timers[event] = NULL;
-#else /* SDL2 */
         event_timers[event] = 0;
-#endif /* SDL2 */
     }
 
     if (ticks <= 0)
@@ -237,20 +222,55 @@ time_set_timer (PyObject* self, PyObject* arg)
     if (!SDL_WasInit (SDL_INIT_TIMER))
     {
         if (SDL_InitSubSystem (SDL_INIT_TIMER))
-            return RAISE (PyExc_SDLError, SDL_GetError ());
+            return RAISE (pgExc_SDLError, SDL_GetError ());
     }
 
     newtimer = SDL_AddTimer (ticks, timer_callback, (void*) event);
     if (!newtimer)
-        return RAISE (PyExc_SDLError, SDL_GetError ());
-#ifndef SDL2
-    event_timers[event] = newtimer;
-#else /* SDL2 */
+        return RAISE (pgExc_SDLError, SDL_GetError ());
     event_timers[index] = newtimer;
-#endif /* SDL2 */
 
     Py_RETURN_NONE;
 }
+#else /* IS_SDLv1 */
+static PyObject*
+time_set_timer (PyObject* self, PyObject* arg)
+{
+    SDL_TimerID newtimer;
+    int ticks = 0;
+    intptr_t event = SDL_NOEVENT;
+    if (!PyArg_ParseTuple (arg, "ii", &event, &ticks))
+        return NULL;
+
+    if (event <= SDL_NOEVENT || event >= SDL_NUMEVENTS)
+        return RAISE (PyExc_ValueError,
+                      "Event id must be between NOEVENT(0) and NUMEVENTS(32)");
+
+    /*stop original timer*/
+    if (event_timers[event])
+    {
+        SDL_RemoveTimer (event_timers[event]);
+        event_timers[event] = NULL;
+    }
+
+    if (ticks <= 0)
+        Py_RETURN_NONE;
+
+    /*just doublecheck that timer is initialized*/
+    if (!SDL_WasInit (SDL_INIT_TIMER))
+    {
+        if (SDL_InitSubSystem (SDL_INIT_TIMER))
+            return RAISE (pgExc_SDLError, SDL_GetError ());
+    }
+
+    newtimer = SDL_AddTimer (ticks, timer_callback, (void*) event);
+    if (!newtimer)
+        return RAISE (pgExc_SDLError, SDL_GetError ());
+    event_timers[event] = newtimer;
+
+    Py_RETURN_NONE;
+}
+#endif /* IS_SDLv1 */
 
 /*clock object interface*/
 typedef struct
@@ -285,7 +305,7 @@ clock_tick_base(PyObject* self, PyObject* arg, int use_accurate_delay)
         {
             if (SDL_InitSubSystem (SDL_INIT_TIMER))
             {
-                RAISE (PyExc_SDLError, SDL_GetError ());
+                RAISE (pgExc_SDLError, SDL_GetError ());
                 return NULL;
             }
         }
@@ -452,7 +472,7 @@ ClockInit (PyObject* self)
     if (!SDL_WasInit (SDL_INIT_TIMER))
     {
         if (SDL_InitSubSystem (SDL_INIT_TIMER))
-            return RAISE (PyExc_SDLError, SDL_GetError ());
+            return RAISE (pgExc_SDLError, SDL_GetError ());
     }
 
     _clock->fps_tick = 0;
@@ -501,16 +521,15 @@ MODINIT_DEFINE (time)
        the module is there is an error the module is not loaded.
     */
     import_pygame_base ();
-#ifdef SDL2
     if (PyErr_Occurred ()) {
         MODINIT_ERROR;
     }
-
+#if IS_SDLv2
     import_pygame_event ();
-#endif /* SDL2 */
     if (PyErr_Occurred ()) {
         MODINIT_ERROR;
     }
+#endif /* IS_SDLv2 */
 
     /* type preparation */
     if (PyType_Ready (&PyClock_Type) < 0) {
