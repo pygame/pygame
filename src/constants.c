@@ -25,21 +25,11 @@
 #include "scrap.h"
 
 /* macros used to create each constant */
-#ifdef SDL2
+#if IS_SDLv2
 #define STRINGIFY(x) #x
-#endif /* SDL2 */
 #define ADD_ERROR { DECREF_MOD (module); MODINIT_ERROR; }
-#ifndef SDL2
-#define DEC_CONST(x) \
-    if (PyModule_AddIntConstant(module, #x, (int) SDL_##x)) ADD_ERROR
-#define DEC_CONSTK(x) \
-    if (PyModule_AddIntConstant(module, #x, (int) SDL##x)) ADD_ERROR
-#define DEC_CONSTN(x) \
-    if (PyModule_AddIntConstant(module, #x, (int) x)) ADD_ERROR
-#endif /* ! SDL2 */
 #define DEC_CONSTS(x,y) \
     if (PyModule_AddIntConstant(module, #x, (int) y)) ADD_ERROR
-#ifdef SDL2
 #define DEC_CONST(x) DEC_CONSTS(x, SDL_##x)
 #define DEC_CONSTKS(x,y) DEC_CONSTS(K_##x, SDL_SCANCODE_##y)
 #define DEC_CONSTK(x) DEC_CONSTKS(x, x)
@@ -47,7 +37,20 @@
 #define DEC_CONSTKSYM(x) DEC_CONSTKSYMS(x, x)
 #define DEC_CONSTN(x) DEC_CONSTS(x, x)
 #define DEC_CONSTSF(x) DEC_CONSTS(x, PGS_##x)
-#endif /* SDL2 */
+
+#else /* IS_SDLv1 */
+#define ADD_ERROR { DECREF_MOD(module); MODINIT_ERROR; }
+#define DEC_CONST(x) \
+    if (PyModule_AddIntConstant(module, #x, (int) SDL_##x)) ADD_ERROR
+#define DEC_CONSTK(x) \
+    if (PyModule_AddIntConstant(module, #x, (int) SDL##x)) ADD_ERROR
+#define DEC_CONSTN(x) \
+    if (PyModule_AddIntConstant(module, #x, (int) x)) ADD_ERROR
+#define DEC_CONSTS(x,y) \
+    if (PyModule_AddIntConstant(module, #x, (int) y)) ADD_ERROR
+
+#endif /* IS_SDLv1 */
+
 
 #define ADD_STRING_CONST(x) \
     if (PyModule_AddStringConstant(module, #x, x)) ADD_ERROR
@@ -65,8 +68,6 @@ MODINIT_DEFINE(constants)
 {
     PyObject* module;
 
-
-
 #if PY3
     static struct PyModuleDef _module = {
         PyModuleDef_HEAD_INIT,
@@ -78,15 +79,12 @@ MODINIT_DEFINE(constants)
     };
 #endif
 
-
-
-
 #if PY3
-    module = PyModule_Create (&_module);
+    module = PyModule_Create(&_module);
 #else
-    module = Py_InitModule3 (MODPREFIX "constants",
-                             _constant_methods,
-                             _constants_doc);
+    module = Py_InitModule3(MODPREFIX "constants",
+                            _constant_methods,
+                            _constants_doc);
 #endif
     if (module == NULL) {
         MODINIT_ERROR;
@@ -95,7 +93,7 @@ MODINIT_DEFINE(constants)
     DEC_CONST (LIL_ENDIAN);
     DEC_CONST (BIG_ENDIAN);
 
-#ifndef SDL2
+#if IS_SDLv1
     DEC_CONST(YV12_OVERLAY);
     DEC_CONST(IYUV_OVERLAY);
     DEC_CONST(YUY2_OVERLAY);
@@ -119,7 +117,7 @@ MODINIT_DEFINE(constants)
     DEC_CONST(SRCALPHA);
     DEC_CONST(PREALLOC);
     DEC_CONST(NOFRAME);
-#else /* SDL2 */
+#else /* IS_SDLv2 */
     DEC_CONSTSF(SWSURFACE);
     DEC_CONSTSF(HWSURFACE);
     DEC_CONSTSF(RESIZABLE);
@@ -139,7 +137,7 @@ MODINIT_DEFINE(constants)
     DEC_CONSTSF(NOFRAME);
     DEC_CONSTSF(SHOWN);
     DEC_CONSTSF(HIDDEN);
-#endif /* SDL2 */
+#endif /* IS_SDLv2 */
 
     DEC_CONST(GL_RED_SIZE);
     DEC_CONST(GL_GREEN_SIZE);
@@ -154,13 +152,13 @@ MODINIT_DEFINE(constants)
     DEC_CONST(GL_ACCUM_BLUE_SIZE);
     DEC_CONST(GL_ACCUM_ALPHA_SIZE);
 
-#ifdef SDL2
+#if IS_SDLv2
     DEC_CONST(BLENDMODE_NONE);
     DEC_CONST(BLENDMODE_BLEND);
     DEC_CONST(BLENDMODE_ADD);
     DEC_CONST(BLENDMODE_MOD);
 
-#endif /* SDL2 */
+#endif /* IS_SDLv2 */
 #if SDL_VERSION_ATLEAST(1, 2, 5)
     DEC_CONST(GL_STEREO);
 #else
@@ -193,9 +191,6 @@ MODINIT_DEFINE(constants)
     PyModule_AddIntConstant(module, "BUTTON_X2", -1);
 #endif
 
-
-
-
     DEC_CONSTN(TIMER_RESOLUTION);
 
     DEC_CONSTN(AUDIO_U8);
@@ -221,9 +216,9 @@ MODINIT_DEFINE(constants)
     PyModule_AddIntConstant(module, "SCRAP_CLIPBOARD", 0);
     PyModule_AddIntConstant(module, "SCRAP_SELECTION", 1);
 
+
 /* BLEND_ADD is an alias for BLEND_RGB_ADD
 */
-
 #define PYGAME_BLEND_RGB_ADD  0x1
 #define PYGAME_BLEND_RGB_SUB  0x2
 #define PYGAME_BLEND_RGB_MULT 0x3
@@ -265,12 +260,8 @@ MODINIT_DEFINE(constants)
     DEC_CONSTS(BLEND_PREMULTIPLIED,  PYGAME_BLEND_PREMULTIPLIED);
 
 
-#ifndef SDL2
-
-#else /* SDL2 */
     /* Event types
     */
-#endif /* SDL2 */
     DEC_CONST(NOEVENT);
     DEC_CONST(ACTIVEEVENT);
     DEC_CONST(KEYDOWN);
@@ -300,7 +291,7 @@ MODINIT_DEFINE(constants)
     DEC_CONST(HAT_LEFT);
     DEC_CONST(HAT_LEFTUP);
 
-#ifndef SDL2
+#if IS_SDLv1
     DEC_CONSTK(K_UNKNOWN);
     DEC_CONSTK(K_FIRST);
     DEC_CONSTK(K_BACKSPACE);
@@ -440,8 +431,8 @@ MODINIT_DEFINE(constants)
     DEC_CONSTK(K_POWER);
     DEC_CONSTK(K_EURO);
     DEC_CONSTK(K_LAST);
-#else /* SDL2 */
-    /* Keyboard scan codes: Pygame K_ constants 
+#else /* IS_SDLv2 */
+    /* Keyboard scan codes: Pygame K_ constants
      */
     DEC_CONSTK(UNKNOWN);
     DEC_CONSTK(BACKSPACE);
@@ -760,12 +751,10 @@ MODINIT_DEFINE(constants)
     DEC_CONSTKSYM(CURRENCYUNIT);
     DEC_CONSTKSYM(CURRENCYSUBUNIT);
     DEC_CONSTKSYMS(EURO, CURRENCYUNIT);
-#endif /* SDL2 */
+#endif /* IS_SDLv2 */
 
-#ifdef SDL2
     /* Keyboard key modifiers: Pygame KMOD_ constants.
      */
-#endif /* SDL2 */
     DEC_CONSTN(KMOD_NONE);
     DEC_CONSTN(KMOD_LSHIFT);
     DEC_CONSTN(KMOD_RSHIFT);
@@ -773,15 +762,15 @@ MODINIT_DEFINE(constants)
     DEC_CONSTN(KMOD_RCTRL);
     DEC_CONSTN(KMOD_LALT);
     DEC_CONSTN(KMOD_RALT);
-#ifndef SDL2
+#if IS_SDLv1
     DEC_CONSTN(KMOD_LMETA);
     DEC_CONSTN(KMOD_RMETA);
-#else /* SDL2 */
+#else /* IS_SDLv2 */
     DEC_CONSTN(KMOD_LGUI);
     DEC_CONSTS(KMOD_LMETA, KMOD_LGUI);
     DEC_CONSTN(KMOD_RGUI);
     DEC_CONSTS(KMOD_RMETA, KMOD_RGUI);
-#endif /* SDL2 */
+#endif /* IS_SDLv2 */
     DEC_CONSTN(KMOD_NUM);
     DEC_CONSTN(KMOD_CAPS);
     DEC_CONSTN(KMOD_MODE);
@@ -789,20 +778,19 @@ MODINIT_DEFINE(constants)
     DEC_CONSTN(KMOD_CTRL);
     DEC_CONSTN(KMOD_SHIFT);
     DEC_CONSTN(KMOD_ALT);
-#ifndef SDL2
+#if IS_SDLv1
     DEC_CONSTN(KMOD_META);
-#else /* SDL2 */
+#else /* IS_SDLv2 */
     DEC_CONSTN(KMOD_GUI);
     DEC_CONSTS(KMOD_META, KMOD_GUI);
 
     DEC_CONST(APPFOCUSMOUSE);
     DEC_CONST(APPINPUTFOCUS);
     DEC_CONST(APPACTIVE);
-#endif /* SDL2 */
+#endif /* IS_SDLv2 */
 
 #define PYGAME_USEREVENT_DROPFILE  0x1000
     DEC_CONSTS(USEREVENT_DROPFILE, PYGAME_USEREVENT_DROPFILE);
 
-    MODINIT_RETURN (module);
-
+    MODINIT_RETURN(module);
 }
