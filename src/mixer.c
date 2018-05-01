@@ -268,7 +268,7 @@ endsound_callback (int channel)
 }
 
 static void
-autoquit(void)
+pgMixer_AutoQuit(void)
 {
     int i;
     if (SDL_WasInit (SDL_INIT_AUDIO))
@@ -364,7 +364,7 @@ _init (int freq, int size, int stereo, int chunk)
 
     if (!SDL_WasInit (SDL_INIT_AUDIO))
     {
-        pg_RegisterQuit (autoquit);
+        pg_RegisterQuit (pgMixer_AutoQuit);
 
         if (!channeldata) /*should always be null*/
         {
@@ -415,7 +415,7 @@ _init (int freq, int size, int stereo, int chunk)
 }
 
 static PyObject*
-autoinit (PyObject* self, PyObject* arg)
+pgMixer_AutoInit (PyObject* self, PyObject* arg)
 {
     int freq = 0, size = 0, stereo = 0, chunk = 0;
 
@@ -428,7 +428,7 @@ autoinit (PyObject* self, PyObject* arg)
 static PyObject*
 quit (PyObject* self)
 {
-    autoquit ();
+    pgMixer_AutoQuit ();
     Py_RETURN_NONE;
 }
 
@@ -504,7 +504,7 @@ pre_init (PyObject* self, PyObject* args, PyObject* keywds)
 /* sound object methods */
 
 static PyObject*
-snd_play (PyObject* self, PyObject* args, PyObject* kwargs)
+pgSound_Play (PyObject* self, PyObject* args, PyObject* kwargs)
 {
     Mix_Chunk* chunk = pgSound_AsChunk (self);
     int channelnum = -1;
@@ -670,7 +670,7 @@ snd_get_samples_address(PyObject *self, PyObject *closure)
 
 PyMethodDef sound_methods[] =
 {
-    { "play", (PyCFunction) snd_play, METH_VARARGS | METH_KEYWORDS,
+    { "play", (PyCFunction) pgSound_Play, METH_VARARGS | METH_KEYWORDS,
       DOC_SOUNDPLAY },
     { "get_num_channels", (PyCFunction) snd_get_num_channels, METH_NOARGS,
       DOC_SOUNDGETNUMCHANNELS },
@@ -1694,7 +1694,8 @@ sound_init(PyObject *self, PyObject *arg, PyObject *kwarg)
 
 static PyMethodDef _mixer_methods[] =
 {
-    { "__PYGAMEinit__", autoinit, METH_VARARGS, "auto initialize for mixer" },
+    { "__PYGAMEinit__", pgMixer_AutoInit, METH_VARARGS,
+      "auto initialize for mixer" },
     { "init", (PyCFunction) init, METH_VARARGS | METH_KEYWORDS,
       DOC_PYGAMEMIXERINIT },
     { "quit", (PyCFunction) quit, METH_NOARGS, DOC_PYGAMEMIXERQUIT },
@@ -1828,11 +1829,11 @@ MODINIT_DEFINE (mixer)
     /* export the c api */
     c_api[0] = &pgSound_Type;
     c_api[1] = pgSound_New;
-    c_api[2] = snd_play;
+    c_api[2] = pgSound_Play;
     c_api[3] = &pgChannel_Type;
     c_api[4] = pgChannel_New;
-    c_api[5] = autoinit;
-    c_api[6] = autoquit;
+    c_api[5] = pgMixer_AutoInit;
+    c_api[6] = pgMixer_AutoQuit;
     apiobj = encapsulate_api (c_api, "mixer");
     if (apiobj == NULL) {
         DECREF_MOD (module);
