@@ -28,7 +28,7 @@
 /* test mixer initializations */
 #define MIXER_INIT_CHECK() \
     if(!SDL_WasInit(SDL_INIT_AUDIO)) \
-        return RAISE(PyExc_SDLError, "mixer system not initialized")
+        return RAISE(pgExc_SDLError, "mixer system not initialized")
 
 
 
@@ -39,28 +39,28 @@ typedef struct {
   Mix_Chunk *chunk;
   Uint8 *mem;
   PyObject *weakreflist;
-} PySoundObject;
+} pgSoundObject;
 typedef struct {
   PyObject_HEAD
   int chan;
-} PyChannelObject;
-#define PySound_AsChunk(x) (((PySoundObject*)x)->chunk)
-#define PyChannel_AsInt(x) (((PyChannelObject*)x)->chan)
+} pgChannelObject;
+#define pgSound_AsChunk(x) (((pgSoundObject*)x)->chunk)
+#define pgChannel_AsInt(x) (((pgChannelObject*)x)->chan)
 
 #ifndef PYGAMEAPI_MIXER_INTERNAL
-#define PySound_Check(x) ((x)->ob_type == (PyTypeObject*)PyMIXER_C_API[0])
-#define PySound_Type (*(PyTypeObject*)PyMIXER_C_API[0])
-#define PySound_New (*(PyObject*(*)(Mix_Chunk*))PyMIXER_C_API[1])
-#define PySound_Play (*(PyObject*(*)(PyObject*, PyObject*))PyMIXER_C_API[2])
-#define PyChannel_Check(x) ((x)->ob_type == (PyTypeObject*)PyMIXER_C_API[3])
-#define PyChannel_Type (*(PyTypeObject*)PyMIXER_C_API[3])
-#define PyChannel_New (*(PyObject*(*)(int))PyMIXER_C_API[4])
-#define PyMixer_AutoInit (*(PyObject*(*)(PyObject*, PyObject*))PyMIXER_C_API[5])
-#define PyMixer_AutoQuit (*(void(*)(void))PyMIXER_C_API[6])
+#define pgSound_Check(x) ((x)->ob_type == (PyTypeObject*)pgMIXER_C_API[0])
+#define pgSound_Type (*(PyTypeObject*)pgMIXER_C_API[0])
+#define pgSound_New (*(PyObject*(*)(Mix_Chunk*))pgMIXER_C_API[1])
+#define pgSound_Play (*(PyObject*(*)(PyObject*, PyObject*))pgMIXER_C_API[2])
+#define pgChannel_Check(x) ((x)->ob_type == (PyTypeObject*)pgMIXER_C_API[3])
+#define pgChannel_Type (*(PyTypeObject*)pgMIXER_C_API[3])
+#define pgChannel_New (*(PyObject*(*)(int))pgMIXER_C_API[4])
+#define pgMixer_AutoInit (*(PyObject*(*)(PyObject*, PyObject*))pgMIXER_C_API[5])
+#define pgMixer_AutoQuit (*(void(*)(void))pgMIXER_C_API[6])
 
 #define import_pygame_mixer() \
-    _IMPORT_PYGAME_MODULE(mixer, MIXER, PyMIXER_C_API)
+    _IMPORT_PYGAME_MODULE(mixer, MIXER, pgMIXER_C_API)
 
-static void* PyMIXER_C_API[PYGAMEAPI_MIXER_NUMSLOTS] = {NULL};
+static void* pgMIXER_C_API[PYGAMEAPI_MIXER_NUMSLOTS] = {NULL};
 #endif
 

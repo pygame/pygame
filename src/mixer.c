@@ -63,12 +63,12 @@ const PG_sample_format_t PG_SAMPLE_CHAR_SIGN = (char)0xff > 0 ? 0 : 0x10000u;
 #define PYGAME_MIXER_DEFAULT_CHANNELS 2
 #define PYGAME_MIXER_DEFAULT_CHUNKSIZE 4096
 
-static PyTypeObject PySound_Type;
-static PyTypeObject PyChannel_Type;
-static PyObject* PySound_New (Mix_Chunk*);
-static PyObject* PyChannel_New (int);
-#define PySound_Check(x) (Py_TYPE(x) == &PySound_Type)
-#define PyChannel_Check(x) (Py_TYPE(x) == &PyChannel_Type)
+static PyTypeObject pgSound_Type;
+static PyTypeObject pgChannel_Type;
+static PyObject* pgSound_New (Mix_Chunk*);
+static PyObject* pgChannel_New (int);
+#define pgSound_Check(x) (Py_TYPE(x) == &pgSound_Type)
+#define pgChannel_Check(x) (Py_TYPE(x) == &pgChannel_Type)
 
 static int snd_getbuffer (PyObject*, Py_buffer*, int);
 static void snd_releasebuffer (PyObject*, Py_buffer*);
@@ -251,7 +251,7 @@ endsound_callback (int channel)
     if (channeldata[channel].queue)
     {
         int channelnum;
-        Mix_Chunk* sound = PySound_AsChunk (channeldata[channel].queue);
+        Mix_Chunk* sound = pgSound_AsChunk (channeldata[channel].queue);
         Py_XDECREF (channeldata[channel].sound);
         channeldata[channel].sound = channeldata[channel].queue;
         channeldata[channel].queue = NULL;
@@ -364,7 +364,7 @@ _init (int freq, int size, int stereo, int chunk)
 
     if (!SDL_WasInit (SDL_INIT_AUDIO))
     {
-        PyGame_RegisterQuit (autoquit);
+        pg_RegisterQuit (autoquit);
 
         if (!channeldata) /*should always be null*/
         {
@@ -402,7 +402,7 @@ _init (int freq, int size, int stereo, int chunk)
         if(fmt == AUDIO_U8) {
             if(!Mix_SetReverseStereo(MIX_CHANNEL_POST, 1)) {
                 /* We do nothing... because might as well just let it go ahead. */
-                /* return RAISE (PyExc_SDLError, Mix_GetError());
+                /* return RAISE (pgExc_SDLError, Mix_GetError());
                 */
             }
         }
@@ -450,7 +450,7 @@ init (PyObject* self, PyObject* args, PyObject* keywds)
     value = PyObject_IsTrue (result);
     Py_DECREF (result);
     if (!value)
-        return RAISE (PyExc_SDLError, SDL_GetError());
+        return RAISE (pgExc_SDLError, SDL_GetError());
 
     Py_RETURN_NONE;
 }
@@ -506,7 +506,7 @@ pre_init (PyObject* self, PyObject* args, PyObject* keywds)
 static PyObject*
 snd_play (PyObject* self, PyObject* args, PyObject* kwargs)
 {
-    Mix_Chunk* chunk = PySound_AsChunk (self);
+    Mix_Chunk* chunk = pgSound_AsChunk (self);
     int channelnum = -1;
     int loops = 0, playtime = -1, fade_ms = 0;
 
@@ -535,13 +535,13 @@ snd_play (PyObject* self, PyObject* args, PyObject* kwargs)
     Mix_Volume (channelnum, 128);
 
     Mix_GroupChannel (channelnum, (intptr_t)chunk);
-    return PyChannel_New (channelnum);
+    return pgChannel_New (channelnum);
 }
 
 static PyObject*
 snd_get_num_channels (PyObject* self)
 {
-    Mix_Chunk* chunk = PySound_AsChunk (self);
+    Mix_Chunk* chunk = pgSound_AsChunk (self);
     MIXER_INIT_CHECK ();
     return PyInt_FromLong (Mix_GroupCount ((intptr_t)chunk));
 }
@@ -549,7 +549,7 @@ snd_get_num_channels (PyObject* self)
 static PyObject*
 snd_fadeout (PyObject* self, PyObject* args)
 {
-    Mix_Chunk* chunk = PySound_AsChunk (self);
+    Mix_Chunk* chunk = pgSound_AsChunk (self);
     int _time;
     if (!PyArg_ParseTuple (args, "i", &_time))
         return NULL;
@@ -563,7 +563,7 @@ snd_fadeout (PyObject* self, PyObject* args)
 static PyObject*
 snd_stop (PyObject* self)
 {
-    Mix_Chunk* chunk = PySound_AsChunk (self);
+    Mix_Chunk* chunk = pgSound_AsChunk (self);
     MIXER_INIT_CHECK ();
     Mix_HaltGroup ((intptr_t)chunk);
     Py_RETURN_NONE;
@@ -572,7 +572,7 @@ snd_stop (PyObject* self)
 static PyObject*
 snd_set_volume (PyObject* self, PyObject* args)
 {
-    Mix_Chunk* chunk = PySound_AsChunk (self);
+    Mix_Chunk* chunk = pgSound_AsChunk (self);
     float volume;
 
     if (!PyArg_ParseTuple (args, "f", &volume))
@@ -587,7 +587,7 @@ snd_set_volume (PyObject* self, PyObject* args)
 static PyObject*
 snd_get_volume (PyObject* self)
 {
-    Mix_Chunk* chunk = PySound_AsChunk (self);
+    Mix_Chunk* chunk = pgSound_AsChunk (self);
     int volume;
     MIXER_INIT_CHECK ();
 
@@ -598,7 +598,7 @@ snd_get_volume (PyObject* self)
 static PyObject*
 snd_get_length (PyObject* self)
 {
-    Mix_Chunk* chunk = PySound_AsChunk (self);
+    Mix_Chunk* chunk = pgSound_AsChunk (self);
     int freq, channels, mixerbytes, numsamples;
     Uint16 format;
     MIXER_INIT_CHECK ();
@@ -616,7 +616,7 @@ snd_get_length (PyObject* self)
 static PyObject*
 snd_get_raw (PyObject* self)
 {
-    Mix_Chunk* chunk = PySound_AsChunk (self);
+    Mix_Chunk* chunk = pgSound_AsChunk (self);
 
     MIXER_INIT_CHECK ();
 
@@ -633,7 +633,7 @@ snd_get_arraystruct (PyObject* self, void* closure)
     if (snd_getbuffer (self, &view, PyBUF_RECORDS)) {
         return 0;
     }
-    cobj = PgBuffer_AsArrayStruct (&view);
+    cobj = pgBuffer_AsArrayStruct (&view);
     snd_releasebuffer (view.obj, &view);
     Py_XDECREF (view.obj);
     return cobj;
@@ -648,7 +648,7 @@ snd_get_arrayinterface (PyObject* self, void* closure)
     if (snd_getbuffer (self, &view, PyBUF_RECORDS)) {
         return 0;
     }
-    dict = PgBuffer_AsArrayInterface (&view);
+    dict = pgBuffer_AsArrayInterface (&view);
     snd_releasebuffer (self, &view);
     Py_DECREF(self);
     return dict;
@@ -657,7 +657,7 @@ snd_get_arrayinterface (PyObject* self, void* closure)
 static PyObject *
 snd_get_samples_address(PyObject *self, PyObject *closure)
 {
-    Mix_Chunk *chunk = PySound_AsChunk(self);
+    Mix_Chunk *chunk = pgSound_AsChunk(self);
 
     MIXER_INIT_CHECK();
 
@@ -741,7 +741,7 @@ snd_buffer_iteminfo(char **format, Py_ssize_t *itemsize, int *channels)
 static int
 snd_getbuffer(PyObject *obj, Py_buffer *view, int flags)
 {
-    Mix_Chunk *chunk = PySound_AsChunk(obj);
+    Mix_Chunk *chunk = pgSound_AsChunk(obj);
     int channels;
     char *format;
     int ndim = 0;
@@ -756,7 +756,7 @@ snd_getbuffer(PyObject *obj, Py_buffer *view, int flags)
     }
     if (channels != 1 &&
         PyBUF_HAS_FLAG (flags, PyBUF_F_CONTIGUOUS)) {
-        PyErr_SetString(PgExc_BufferError,
+        PyErr_SetString(pgExc_BufferError,
                         "polyphonic sound is not Fortran contiguous");
         return -1;
     }
@@ -822,9 +822,9 @@ static PyBufferProcs sound_as_buffer[] =
 
 /*sound object internals*/
 static void
-sound_dealloc (PySoundObject* self)
+sound_dealloc (pgSoundObject* self)
 {
-    Mix_Chunk* chunk = PySound_AsChunk ((PyObject*)self);
+    Mix_Chunk* chunk = pgSound_AsChunk ((PyObject*)self);
     if (chunk)
         Mix_FreeChunk (chunk);
     if (self->mem)
@@ -834,11 +834,11 @@ sound_dealloc (PySoundObject* self)
     Py_TYPE(self)->tp_free ((PyObject*)self);
 }
 
-static PyTypeObject PySound_Type =
+static PyTypeObject pgSound_Type =
 {
     TYPE_HEAD (NULL, 0)
     "Sound",
-    sizeof(PySoundObject),
+    sizeof(pgSoundObject),
     0,
     (destructor)sound_dealloc,
     0,
@@ -861,7 +861,7 @@ static PyTypeObject PySound_Type =
     0,                          /* tp_traverse */
     0,                          /* tp_clear */
     0,                          /* tp_richcompare */
-    offsetof(PySoundObject, weakreflist),
+    offsetof(pgSoundObject, weakreflist),
                                 /* tp_weaklistoffset */
     0,                          /* tp_iter */
     0,                          /* tp_iternext */
@@ -884,16 +884,16 @@ static PyTypeObject PySound_Type =
 static PyObject*
 chan_play (PyObject* self, PyObject* args, PyObject* kwargs)
 {
-    int channelnum = PyChannel_AsInt (self);
+    int channelnum = pgChannel_AsInt (self);
     PyObject* sound;
     Mix_Chunk* chunk;
     int loops = 0, playtime = -1, fade_ms = 0;
 
     char *kwids[] = { "Sound", "loops", "maxtime", "fade_ms", NULL };
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O!|iii", kwids, &PySound_Type, &sound,
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O!|iii", kwids, &pgSound_Type, &sound,
                                      &loops, &playtime, &fade_ms))
        return NULL;
-    chunk = PySound_AsChunk (sound);
+    chunk = pgSound_AsChunk (sound);
 
     if (fade_ms > 0)
     {
@@ -917,13 +917,13 @@ chan_play (PyObject* self, PyObject* args, PyObject* kwargs)
 static PyObject*
 chan_queue (PyObject* self, PyObject* args)
 {
-    int channelnum = PyChannel_AsInt (self);
+    int channelnum = pgChannel_AsInt (self);
     PyObject* sound;
     Mix_Chunk* chunk;
 
-    if (!PyArg_ParseTuple (args, "O!", &PySound_Type, &sound))
+    if (!PyArg_ParseTuple (args, "O!", &pgSound_Type, &sound))
         return NULL;
-    chunk = PySound_AsChunk (sound);
+    chunk = pgSound_AsChunk (sound);
 
     if (!channeldata[channelnum].sound) /*nothing playing*/
     {
@@ -946,7 +946,7 @@ chan_queue (PyObject* self, PyObject* args)
 static PyObject*
 chan_get_busy (PyObject* self)
 {
-    int channelnum = PyChannel_AsInt (self);
+    int channelnum = pgChannel_AsInt (self);
     MIXER_INIT_CHECK ();
 
     return PyInt_FromLong (Mix_Playing (channelnum));
@@ -955,7 +955,7 @@ chan_get_busy (PyObject* self)
 static PyObject*
 chan_fadeout (PyObject* self, PyObject* args)
 {
-    int channelnum = PyChannel_AsInt (self);
+    int channelnum = pgChannel_AsInt (self);
     int _time;
     if (!PyArg_ParseTuple (args, "i", &_time))
         return NULL;
@@ -969,7 +969,7 @@ chan_fadeout (PyObject* self, PyObject* args)
 static PyObject*
 chan_stop (PyObject* self)
 {
-    int channelnum = PyChannel_AsInt (self);
+    int channelnum = pgChannel_AsInt (self);
     MIXER_INIT_CHECK ();
 
     Mix_HaltChannel (channelnum);
@@ -979,7 +979,7 @@ chan_stop (PyObject* self)
 static PyObject*
 chan_pause (PyObject* self)
 {
-    int channelnum = PyChannel_AsInt (self);
+    int channelnum = pgChannel_AsInt (self);
     MIXER_INIT_CHECK ();
 
     Mix_Pause (channelnum);
@@ -989,7 +989,7 @@ chan_pause (PyObject* self)
 static PyObject*
 chan_unpause (PyObject* self)
 {
-    int channelnum = PyChannel_AsInt (self);
+    int channelnum = pgChannel_AsInt (self);
     MIXER_INIT_CHECK ();
 
     Mix_Resume (channelnum);
@@ -999,7 +999,7 @@ chan_unpause (PyObject* self)
 static PyObject*
 chan_set_volume (PyObject* self, PyObject* args)
 {
-    int channelnum = PyChannel_AsInt (self);
+    int channelnum = pgChannel_AsInt (self);
     float volume, stereovolume=-1.11f;
 #ifdef Py_DEBUG
     int result;
@@ -1022,7 +1022,7 @@ chan_set_volume (PyObject* self, PyObject* args)
         right = 255;
 
         if(!Mix_SetPanning(channelnum, left, right)) {
-            return RAISE (PyExc_SDLError, Mix_GetError());
+            return RAISE (pgExc_SDLError, Mix_GetError());
         }
     }
     else
@@ -1036,7 +1036,7 @@ chan_set_volume (PyObject* self, PyObject* args)
         */
 
         if(!Mix_SetPanning(channelnum, left, right)) {
-            return RAISE (PyExc_SDLError, Mix_GetError());
+            return RAISE (pgExc_SDLError, Mix_GetError());
         }
 
         volume = 1.0f;
@@ -1056,7 +1056,7 @@ chan_set_volume (PyObject* self, PyObject* args)
 static PyObject*
 chan_get_volume (PyObject* self)
 {
-    int channelnum = PyChannel_AsInt (self);
+    int channelnum = pgChannel_AsInt (self);
     int volume;
 
     MIXER_INIT_CHECK ();
@@ -1069,7 +1069,7 @@ chan_get_volume (PyObject* self)
 static PyObject*
 chan_get_sound (PyObject* self)
 {
-    int channelnum = PyChannel_AsInt (self);
+    int channelnum = pgChannel_AsInt (self);
     PyObject* sound;
 
     sound = channeldata[channelnum].sound;
@@ -1083,7 +1083,7 @@ chan_get_sound (PyObject* self)
 static PyObject*
 chan_get_queue(PyObject* self)
 {
-    int channelnum = PyChannel_AsInt (self);
+    int channelnum = pgChannel_AsInt (self);
     PyObject* sound;
 
     sound = channeldata[channelnum].queue;
@@ -1097,7 +1097,7 @@ chan_get_queue(PyObject* self)
 static PyObject*
 chan_set_endevent (PyObject* self, PyObject* args)
 {
-    int channelnum = PyChannel_AsInt (self);
+    int channelnum = pgChannel_AsInt (self);
     int event = SDL_NOEVENT;
 
     if (!PyArg_ParseTuple (args, "|i", &event))
@@ -1110,7 +1110,7 @@ chan_set_endevent (PyObject* self, PyObject* args)
 static PyObject*
 chan_get_endevent (PyObject* self)
 {
-    int channelnum = PyChannel_AsInt (self);
+    int channelnum = pgChannel_AsInt (self);
 
     return PyInt_FromLong (channeldata[channelnum].endevent);
 }
@@ -1151,11 +1151,11 @@ static void channel_dealloc (PyObject* self)
 }
 
 
-static PyTypeObject PyChannel_Type =
+static PyTypeObject pgChannel_Type =
 {
     TYPE_HEAD (NULL, 0)
     "Channel",                  /* name */
-    sizeof(PyChannelObject),    /* basic size */
+    sizeof(pgChannelObject),    /* basic size */
     0,                          /* itemsize */
     channel_dealloc,            /* dealloc */
     0,                          /* print */
@@ -1257,7 +1257,7 @@ Channel (PyObject* self, PyObject* args)
         return NULL;
 
     MIXER_INIT_CHECK ();
-    return PyChannel_New (chan);
+    return pgChannel_New (chan);
 }
 
 
@@ -1277,7 +1277,7 @@ mixer_find_channel (PyObject* self, PyObject* args)
             Py_RETURN_NONE;
         chan = Mix_GroupOldest (-1);
     }
-    return PyChannel_New (chan);
+    return pgChannel_New (chan);
 }
 
 static PyObject*
@@ -1360,7 +1360,7 @@ _chunk_from_array(void *buf, PG_sample_format_t view_format, int ndim,
     Py_ssize_t loop1, loop2, step1, step2, length, length2=0;
 
     if (!Mix_QuerySpec(&freq, &format, &channels)) {
-        RAISE(PyExc_SDLError, "Mixer not initialized");
+        RAISE(pgExc_SDLError, "Mixer not initialized");
         return -1;
     }
 
@@ -1504,8 +1504,8 @@ sound_init(PyObject *self, PyObject *arg, PyObject *kwarg)
     Mix_Chunk *chunk = NULL;
     Uint8 *mem = NULL;
 
-    ((PySoundObject *)self)->chunk = NULL;
-    ((PySoundObject *)self)->mem = NULL;
+    ((pgSoundObject *)self)->chunk = NULL;
+    ((pgSoundObject *)self)->mem = NULL;
 
     /* Process arguments, returning cleaner error messages than
        PyArg_ParseTupleAndKeywords would.
@@ -1539,7 +1539,7 @@ sound_init(PyObject *self, PyObject *arg, PyObject *kwarg)
             if (keys == NULL) {
                 return -1;
             }
-            kencoded = RWopsEncodeString(PyList_GET_ITEM(keys, 0),
+            kencoded = pgRWopsEncodeString(PyList_GET_ITEM(keys, 0),
                                          NULL, NULL, NULL);
             Py_DECREF(keys);
             if (kencoded == NULL) {
@@ -1563,14 +1563,14 @@ sound_init(PyObject *self, PyObject *arg, PyObject *kwarg)
     }
 
     if (file != NULL) {
-        rw = RWopsFromObject(file);
+        rw = pgRWopsFromObject(file);
         if (rw == NULL) {
-            /* RWopsFromObject only raises critical Python exceptions,
+            /* pgRWopsFromObject only raises critical Python exceptions,
                so automatically pass them on.
             */
             return -1;
         }
-        if (RWopsCheckObject(rw)) {
+        if (pgRWopsCheckObject(rw)) {
             chunk = Mix_LoadWAV_RW(rw, 1);
         }
         else {
@@ -1579,13 +1579,13 @@ sound_init(PyObject *self, PyObject *arg, PyObject *kwarg)
             Py_END_ALLOW_THREADS;
         }
         if (chunk == NULL && obj == NULL) {
-            obj = RWopsEncodeString(file, NULL, NULL, NULL);
+            obj = pgRWopsEncodeString(file, NULL, NULL, NULL);
             if (obj != NULL) {
                 if (obj == Py_None) {
-                    RAISE(PyExc_SDLError, SDL_GetError());
+                    RAISE(pgExc_SDLError, SDL_GetError());
                 }
                 else {
-                    PyErr_Format(PyExc_SDLError,
+                    PyErr_Format(pgExc_SDLError,
                                  "Unable to open file '%s'",
                                  Bytes_AS_STRING(obj));
                 }
@@ -1623,7 +1623,7 @@ sound_init(PyObject *self, PyObject *arg, PyObject *kwarg)
             if (rcode) {
                 return -1;
             }
-            ((PySoundObject *)self)->mem = mem;
+            ((pgSoundObject *)self)->mem = mem;
         }
     }
 #endif
@@ -1648,24 +1648,24 @@ sound_init(PyObject *self, PyObject *arg, PyObject *kwarg)
             if (_chunk_from_buf(buf, buflen, &chunk, &mem)) {
                 return -1;
             }
-            ((PySoundObject *)self)->mem = mem;
+            ((pgSoundObject *)self)->mem = mem;
         }
     }
 #endif
 
     if (array != NULL) {
-        Pg_buffer pg_view;
+        pg_buffer pg_view;
         PG_sample_format_t view_format;
         int rcode;
 
         pg_view.view.itemsize = 0;
         pg_view.view.obj = 0;
-        if (PgObject_GetBuffer(array, &pg_view, PyBUF_FORMAT | PyBUF_ND)) {
+        if (pgObject_GetBuffer(array, &pg_view, PyBUF_FORMAT | PyBUF_ND)) {
             return -1;
         }
         view_format = _format_view_to_audio((Py_buffer *)&pg_view);
         if (!view_format) {
-            PgBuffer_Release(&pg_view);
+            pgBuffer_Release(&pg_view);
             return -1;
         }
         rcode = _chunk_from_array(pg_view.view.buf,
@@ -1674,11 +1674,11 @@ sound_init(PyObject *self, PyObject *arg, PyObject *kwarg)
                                   pg_view.view.shape,
                                   pg_view.view.strides,
                                   &chunk, &mem);
-        PgBuffer_Release(&pg_view);
+        pgBuffer_Release(&pg_view);
         if (rcode) {
             return -1;
         }
-        ((PySoundObject *)self)->mem = mem;
+        ((pgSoundObject *)self)->mem = mem;
     }
 
     if (chunk == NULL) {
@@ -1688,7 +1688,7 @@ sound_init(PyObject *self, PyObject *arg, PyObject *kwarg)
         return -1;
     }
 
-    ((PySoundObject *)self)->chunk = chunk;
+    ((pgSoundObject *)self)->chunk = chunk;
     return 0;
 }
 
@@ -1724,12 +1724,12 @@ static PyMethodDef _mixer_methods[] =
 static PyObject*
 PySound_New (Mix_Chunk* chunk)
 {
-    PySoundObject* soundobj;
+    pgSoundObject* soundobj;
 
     if (!chunk)
         return RAISE (PyExc_RuntimeError, "unable to create sound.");
 
-    soundobj = (PySoundObject *)PySound_Type.tp_new (&PySound_Type, NULL, NULL);
+    soundobj = (pgSoundObject *)pgSound_Type.tp_new (&pgSound_Type, NULL, NULL);
     if (soundobj)
     {
         soundobj->mem = NULL;
@@ -1742,12 +1742,12 @@ PySound_New (Mix_Chunk* chunk)
 static PyObject*
 PyChannel_New (int channelnum)
 {
-    PyChannelObject* chanobj;
+    pgChannelObject* chanobj;
 
     if (channelnum < 0 || channelnum >= Mix_GroupCount (-1))
         return RAISE (PyExc_IndexError, "invalid channel index");
 
-    chanobj = PyObject_NEW (PyChannelObject, &PyChannel_Type);
+    chanobj = PyObject_NEW (pgChannelObject, &pgChannel_Type);
     if (!chanobj)
         return NULL;
 
@@ -1787,15 +1787,15 @@ MODINIT_DEFINE (mixer)
     }
 
     /* type preparation */
-    if (PyType_Ready (&PySound_Type) < 0) {
+    if (PyType_Ready (&pgSound_Type) < 0) {
         MODINIT_ERROR;
     }
-    if (PyType_Ready (&PyChannel_Type) < 0) {
+    if (PyType_Ready (&pgChannel_Type) < 0) {
         MODINIT_ERROR;
     }
 
     /* create the module */
-    PySound_Type.tp_new = &PyType_GenericNew;
+    pgSound_Type.tp_new = &PyType_GenericNew;
 #if PY3
     module = PyModule_Create (&_module);
 #else
@@ -1808,29 +1808,29 @@ MODINIT_DEFINE (mixer)
 
     if (PyDict_SetItemString (dict,
                               "Sound",
-                              (PyObject *)&PySound_Type) < 0) {
+                              (PyObject *)&pgSound_Type) < 0) {
         DECREF_MOD (module);
         MODINIT_ERROR;
     }
     if (PyDict_SetItemString (dict,
                               "SoundType",
-                              (PyObject *)&PySound_Type) < 0) {
+                              (PyObject *)&pgSound_Type) < 0) {
         DECREF_MOD (module);
         MODINIT_ERROR;
     }
     if (PyDict_SetItemString (dict,
                               "ChannelType",
-                              (PyObject *)&PyChannel_Type) < 0) {
+                              (PyObject *)&pgChannel_Type) < 0) {
         DECREF_MOD (module);
         MODINIT_ERROR;
     }
 
     /* export the c api */
-    c_api[0] = &PySound_Type;
-    c_api[1] = PySound_New;
+    c_api[0] = &pgSound_Type;
+    c_api[1] = pgSound_New;
     c_api[2] = snd_play;
-    c_api[3] = &PyChannel_Type;
-    c_api[4] = PyChannel_New;
+    c_api[3] = &pgChannel_Type;
+    c_api[4] = pgChannel_New;
     c_api[5] = autoinit;
     c_api[6] = autoquit;
     apiobj = encapsulate_api (c_api, "mixer");

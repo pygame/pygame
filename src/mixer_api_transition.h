@@ -1,0 +1,13 @@
+#define PySoundObject pgSoundObject
+#define PyChannelObject pgChannelObject
+#define PySound_AsChunk pgSound_AsChunk
+#define PyChannel_AsInt pgChannel_AsInt
+#define PySound_Check pgSound_Check
+#define PySound_Type pgSound_Type
+#define PySound_New pgSound_New
+#define PySound_Play pgSound_Play
+#define PyChannel_Check pgChannel_Check
+#define PyChannel_Type pgChannel_Type
+#define PyChannel_New pgChannel_New
+#define PyMixer_AutoInit pgMixer_AutoInit
+#define PyMixer_AutoQuit pgMixer_AutoQuit

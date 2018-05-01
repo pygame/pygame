@@ -99,3 +99,18 @@ s/\(\W\)PyVidInfo_Type\(\W\)/\1pgVidInfo_Type\2/g
 s/\(\W\)PyVidInfo_New\(\W\)/\1pgVidInfo_New\2/g
 s/\(\W\)PyVidInfo_AsVidInfo\(\W\)/\1pgVidInfo_AsVidInfo\2/g
 s/\(\W\)PyVidInfo_Check\(\W\)/\1pgVidInfo_Check\2/g
+
+# mixer.c
+s/\(\W\)PySoundObject\(\W\)/\1pgSoundObject\2/g
+s/\(\W\)PyChannelObject\(\W\)/\1pgChannelObject\2/g
+s/\(\W\)PySound_AsChunk\(\W\)/\1pgSound_AsChunk\2/g
+s/\(\W\)PyChannel_AsInt\(\W\)/\1pgChannel_AsInt\2/g
+s/\(\W\)PySound_Check\(\W\)/\1pgSound_Check\2/g
+s/\(\W\)PySound_Type\(\W\)/\1pgSound_Type\2/g
+s/\(\W\)PySound_New\(\W\)/\1pgSound_New\2/g
+s/\(\W\)PySound_Play\(\W\)/\1pgSound_Play\2/g
+s/\(\W\)PyChannel_Check\(\W\)/\1pgChannel_Check\2/g
+s/\(\W\)PyChannel_Type\(\W\)/\1pgChannel_Type\2/g
+s/\(\W\)PyChannel_New\(\W\)/\1pgChannel_New\2/g
+s/\(\W\)PyMixer_AutoInit\(\W\)/\1pgMixer_AutoInit\2/g
+s/\(\W\)PyMixer_AutoQuit\(\W\)/\1pgMixer_AutoQuit\2/g
