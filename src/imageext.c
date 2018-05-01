@@ -85,7 +85,7 @@ image_load_ext(PyObject *self, PyObject *arg)
         return NULL;
     }
 
-    oencoded = RWopsEncodeFilePath(obj, PyExc_SDLError);
+    oencoded = pgRWopsEncodeFilePath(obj, pgExc_SDLError);
     if (oencoded == NULL) {
         return NULL;
     }
@@ -112,7 +112,7 @@ image_load_ext(PyObject *self, PyObject *arg)
         if (name == NULL) {
             oname = PyObject_GetAttrString(obj, "name");
             if (oname != NULL) {
-                oencoded = RWopsEncodeFilePath(oname, NULL);
+                oencoded = pgRWopsEncodeFilePath(oname, NULL);
                 Py_DECREF(oname);
                 if (oencoded == NULL) {
                     return NULL;
@@ -125,7 +125,7 @@ image_load_ext(PyObject *self, PyObject *arg)
                 PyErr_Clear();
             }
         }
-        rw = RWopsFromFileObject(obj);
+        rw = pgRWopsFromFileObject(obj);
         if (rw == NULL) {
             Py_XDECREF(oencoded);
             return NULL;
@@ -141,7 +141,7 @@ image_load_ext(PyObject *self, PyObject *arg)
             strcpy(ext, cext);
         }
         Py_XDECREF(oencoded);
-        if (RWopsCheckObject(rw)) {
+        if (pgRWopsCheckObject(rw)) {
             surf = IMG_LoadTyped_RW(rw, 1, ext);
         }
         else {
@@ -153,9 +153,9 @@ image_load_ext(PyObject *self, PyObject *arg)
     }
 
     if (surf == NULL) {
-        return RAISE(PyExc_SDLError, IMG_GetError());
+        return RAISE(pgExc_SDLError, IMG_GetError());
     }
-    final = PySurface_New(surf);
+    final = pgSurface_New(surf);
     if (final == NULL) {
         SDL_FreeSurface(surf);
     }
@@ -260,14 +260,14 @@ SavePNG (SDL_Surface *surface, const char *file)
     int r, i;
     int alpha = 0;
 
-#ifndef SDL2
+#if IS_SDLv1
     unsigned surf_flags;
     unsigned surf_alpha;
     unsigned surf_colorkey;
-#else /* SDL2 */
+#else /* IS_SDLv2 */
     Uint8 surf_alpha = 255;
     Uint32 surf_colorkey;
-#endif /* SDL2 */
+#endif /* IS_SDLv2 */
 
     ss_rows = 0;
     ss_size = 0;
@@ -276,14 +276,11 @@ SavePNG (SDL_Surface *surface, const char *file)
     ss_w = surface->w;
     ss_h = surface->h;
 
+#if IS_SDLv1
     if (surface->format->Amask)
     {
         alpha = 1;
-#ifndef SDL2
         ss_surface = SDL_CreateRGBSurface (SDL_SWSURFACE|SDL_SRCALPHA,
-#else /* SDL2 */
-        ss_surface = SDL_CreateRGBSurface (0,
-#endif /* SDL2 */
                                            ss_w, ss_h, 32,
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
                                            0xff000000, 0xff0000, 0xff00, 0xff
@@ -294,11 +291,7 @@ SavePNG (SDL_Surface *surface, const char *file)
     }
     else
     {
-#ifndef SDL2
         ss_surface = SDL_CreateRGBSurface (SDL_SWSURFACE,
-#else /* SDL2 */
-        ss_surface = SDL_CreateRGBSurface (0,
-#endif /* SDL2 */
                                            ss_w, ss_h, 24,
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
                                            0xff0000, 0xff00, 0xff, 0
@@ -307,11 +300,36 @@ SavePNG (SDL_Surface *surface, const char *file)
 #endif
         );
     }
+#else /* IS_SDLv2 */
+    if (surface->format->Amask)
+    {
+        alpha = 1;
+        ss_surface = SDL_CreateRGBSurface (0,
+                                           ss_w, ss_h, 32,
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+                                           0xff000000, 0xff0000, 0xff00, 0xff
+#else
+                                           0xff, 0xff00, 0xff0000, 0xff000000
+#endif
+        );
+    }
+    else
+    {
+        ss_surface = SDL_CreateRGBSurface (0,
+                                           ss_w, ss_h, 24,
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+                                           0xff0000, 0xff00, 0xff, 0
+#else
+                                           0xff, 0xff00, 0xff0000, 0
+#endif
+        );
+    }
+#endif /* IS_SDLv2 */
 
     if (ss_surface == NULL)
         return -1;
 
-#ifndef SDL2
+#if IS_SDLv1
     surf_flags = surface->flags & (SDL_SRCALPHA | SDL_SRCCOLORKEY);
     surf_alpha = surface->format->alpha;
     surf_colorkey = surface->format->colorkey;
@@ -320,8 +338,8 @@ SavePNG (SDL_Surface *surface, const char *file)
         SDL_SetAlpha (surface, 0, 255);
     if (surf_flags & SDL_SRCCOLORKEY)
         SDL_SetColorKey (surface, 0, surface->format->colorkey);
+#endif /* IS_SDLv1 */
 
-#endif /* ! SDL2 */
     ss_rect.x = 0;
     ss_rect.y = 0;
     ss_rect.w = ss_w;
@@ -335,17 +353,17 @@ SavePNG (SDL_Surface *surface, const char *file)
         if (ss_rows == NULL)
             return -1;
     }
-#ifndef SDL2
+#if IS_SDLv1
     if (surf_flags & SDL_SRCALPHA)
         SDL_SetAlpha (surface, SDL_SRCALPHA, (Uint8)surf_alpha);
     if (surf_flags & SDL_SRCCOLORKEY)
         SDL_SetColorKey (surface, SDL_SRCCOLORKEY, surf_colorkey);
-#else /* SDL2 */
+#else /* IS_SDLv2 */
     if (SDL_GetColorKey (surface, &surf_colorkey) == 0)
         SDL_SetColorKey (ss_surface, SDL_TRUE, surf_colorkey);
     SDL_GetSurfaceAlphaMod (surface, &surf_alpha);
     SDL_SetSurfaceAlphaMod (surface, surf_alpha); 
-#endif /* SDL2 */
+#endif /* IS_SDLv2 */
 
     for (i = 0; i < ss_h; i++)
     {
@@ -566,18 +584,26 @@ int SaveJPEG (SDL_Surface *surface, const char *file) {
        So no conversion is needed.  24bit, RGB
     */
 
-#ifndef SDL2
+#if IS_SDLv1
     if((surface->format->BytesPerPixel == 3) && !(surface->flags & SDL_SRCALPHA) && (surface->format->Rmask == RED_MASK)) {
-#else /* SDL2 */
-    if (surface->format->format == SDL_PIXELFORMAT_RGB24) {
-#endif /* SDL2 */
         /*
            printf("not creating...\n");
         */
         ss_surface = surface;
 
         free_ss_surface = 0;
-    } else {
+    }
+#else /* IS_SDLv2 */
+    if (surface->format->format == SDL_PIXELFORMAT_RGB24) {
+        /*
+           printf("not creating...\n");
+        */
+        ss_surface = surface;
+
+        free_ss_surface = 0;
+    }
+#endif /* IS_SDLv2 */
+    else {
         /*
         printf("creating...\n");
         */
@@ -586,13 +612,15 @@ int SaveJPEG (SDL_Surface *surface, const char *file) {
          */
 
 
-#ifndef SDL2
+#if IS_SDLv1
         ss_surface = SDL_CreateRGBSurface (SDL_SWSURFACE,
-#else /* SDL2 */
-        ss_surface = SDL_CreateRGBSurface (0,
-#endif /* SDL2 */
                                            ss_w, ss_h, pixel_bits,
                                            RED_MASK, GREEN_MASK, BLUE_MASK, 0);
+#else /* IS_SDLv2 */
+        ss_surface = SDL_CreateRGBSurface (0,
+                                           ss_w, ss_h, pixel_bits,
+                                           RED_MASK, GREEN_MASK, BLUE_MASK, 0);
+#endif /* IS_SDLv2 */
         if (ss_surface == NULL) {
             return -1;
         }
@@ -637,7 +665,7 @@ int SaveJPEG (SDL_Surface *surface, const char *file) {
 
 #endif /* end if JPEGLIB_H */
 
-#ifndef SDL2
+#if IS_SDLv1
 /* NOTE XX HACK TODO FIXME: this opengltosdl is also in image.c
    need to share it between both.
 */
@@ -691,7 +719,7 @@ opengltosdl (void)
                                  rmask, gmask, bmask, 0);
     if (!surf) {
         free(pixels);
-        RAISE (PyExc_SDLError, SDL_GetError ());
+        RAISE (pgExc_SDLError, SDL_GetError ());
         return NULL;
     }
 
@@ -705,7 +733,7 @@ opengltosdl (void)
     return surf;
 }
 
-#endif /* ! SDL2 */
+#endif /* IS_SDLv1 */
 
 static PyObject*
 image_save_ext(PyObject *self, PyObject *arg)
@@ -717,12 +745,12 @@ image_save_ext(PyObject *self, PyObject *arg)
     SDL_Surface *temp = NULL;
     int result = 1;
 
-    if (!PyArg_ParseTuple(arg, "O!O", &PySurface_Type, &surfobj, &obj)) {
+    if (!PyArg_ParseTuple(arg, "O!O", &pgSurface_Type, &surfobj, &obj)) {
         return NULL;
     }
 
-    surf = PySurface_AsSurface(surfobj);
-#ifndef SDL2
+    surf = pgSurface_AsSurface(surfobj);
+#if IS_SDLv1
     if (surf->flags & SDL_OPENGL) {
         temp = surf = opengltosdl();
         if (surf == NULL) {
@@ -730,13 +758,13 @@ image_save_ext(PyObject *self, PyObject *arg)
         }
     }
     else {
-        PySurface_Prep(surfobj);
+        pgSurface_Prep(surfobj);
     }
-#else /* SDL2 */
-    PySurface_Prep(surfobj);
-#endif /* SDL2 */
+#else /* IS_SDLv2 */
+    pgSurface_Prep(surfobj);
+#endif /* IS_SDLv2 */
 
-    oencoded = RWopsEncodeFilePath(obj, PyExc_SDLError);
+    oencoded = pgRWopsEncodeFilePath(obj, pgExc_SDLError);
     if (oencoded == Py_None) {
         PyErr_Format(PyExc_TypeError,
                      "Expected a string for the file argument: got %.1024s",
@@ -765,7 +793,7 @@ image_save_ext(PyObject *self, PyObject *arg)
             Py_END_ALLOW_THREADS;
             */
 #else
-            RAISE(PyExc_SDLError, "No support for jpg compiled in.");
+            RAISE(pgExc_SDLError, "No support for jpg compiled in.");
             result = -2;
 #endif
 
@@ -779,7 +807,7 @@ image_save_ext(PyObject *self, PyObject *arg)
             result = SavePNG(surf, name);
             /*Py_END_ALLOW_THREADS; */
 #else
-            RAISE(PyExc_SDLError, "No support for png compiled in.");
+            RAISE(pgExc_SDLError, "No support for png compiled in.");
             result = -2;
 #endif
         }
@@ -792,7 +820,7 @@ image_save_ext(PyObject *self, PyObject *arg)
         SDL_FreeSurface(temp);
     }
     else {
-        PySurface_Unprep(surfobj);
+        pgSurface_Unprep(surfobj);
     }
 
     Py_XDECREF(oencoded);
@@ -802,10 +830,10 @@ image_save_ext(PyObject *self, PyObject *arg)
     }
     if (result == -1) {
         /* SDL error: translate to Python error */
-        return RAISE(PyExc_SDLError, SDL_GetError());
+        return RAISE(pgExc_SDLError, SDL_GetError());
     }
     if (result == 1) {
-        return RAISE(PyExc_SDLError, "Unrecognized image type");
+        return RAISE(pgExc_SDLError, "Unrecognized image type");
     }
 
     Py_RETURN_NONE;
