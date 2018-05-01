@@ -1722,7 +1722,7 @@ static PyMethodDef _mixer_methods[] =
 };
 
 static PyObject*
-PySound_New (Mix_Chunk* chunk)
+pgSound_New (Mix_Chunk* chunk)
 {
     pgSoundObject* soundobj;
 
@@ -1740,7 +1740,7 @@ PySound_New (Mix_Chunk* chunk)
 }
 
 static PyObject*
-PyChannel_New (int channelnum)
+pgChannel_New (int channelnum)
 {
     pgChannelObject* chanobj;
 
