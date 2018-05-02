@@ -472,14 +472,14 @@ typedef struct {
 typedef struct {
     PyObject_HEAD
     int id;
-} PyCDObject;
+} pgCDObject;
 
-#define PyCD_AsID(x) (((PyCDObject*)x)->id)
+#define pgCD_AsID(x) (((pgCDObject*)x)->id)
 #ifndef PYGAMEAPI_CDROM_INTERNAL
-#define PyCD_Check(x)                                                   \
+#define pgCD_Check(x)                                                   \
     ((x)->ob_type == (PyTypeObject*)PyGAME_C_API[PYGAMEAPI_CDROM_FIRSTSLOT + 0])
-#define PyCD_Type (*(PyTypeObject*)PyGAME_C_API[PYGAMEAPI_CDROM_FIRSTSLOT + 0])
-#define PyCD_New                                                        \
+#define pgCD_Type (*(PyTypeObject*)PyGAME_C_API[PYGAMEAPI_CDROM_FIRSTSLOT + 0])
+#define pgCD_New                                                        \
     (*(PyObject*(*)(int))PyGAME_C_API[PYGAMEAPI_CDROM_FIRSTSLOT + 1])
 
 #define import_pygame_cd() IMPORT_PYGAME_MODULE(cdrom, CDROM)

@@ -114,3 +114,10 @@ s/\(\W\)PyChannel_Type\(\W\)/\1pgChannel_Type\2/g
 s/\(\W\)PyChannel_New\(\W\)/\1pgChannel_New\2/g
 s/\(\W\)PyMixer_AutoInit\(\W\)/\1pgMixer_AutoInit\2/g
 s/\(\W\)PyMixer_AutoQuit\(\W\)/\1pgMixer_AutoQuit\2/g
+
+# cdrom.c
+s/\(\W\)PyCDObject\(\W\)/\1pgCDObject\2/g
+s/\(\W\)PyCD_AsID\(\W\)/\1pgCD_AsID\2/g
+s/\(\W\)PyCD_Check\(\W\)/\1pgCD_Check\2/g
+s/\(\W\)PyCD_Type\(\W\)/\1pgCD_Type\2/g
+s/\(\W\)PyCD_New\(\W\)/\1pgCD_New\2/g
