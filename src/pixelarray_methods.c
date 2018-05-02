@@ -32,12 +32,12 @@
 #define WG_NTSC 0.587
 #define WB_NTSC 0.114
 
-/* Modified RGBAFromColorObj that only accepts pygame.Color or tuple objects.
+/* Modified pg_RGBAFromColorObj that only accepts pygame.Color or tuple objects.
  */
 static int
 _RGBAFromColorObj (PyObject *obj, Uint8 rgba[4]) {
-    if (PyObject_IsInstance (obj, &PyColor_Type) || PyTuple_Check (obj)) {
-        return RGBAFromColorObj (obj, rgba);
+    if (PyObject_IsInstance (obj, &pgColor_Type) || PyTuple_Check (obj)) {
+        return pg_RGBAFromColorObj (obj, rgba);
     }
     PyErr_SetString(PyExc_ValueError, "invalid color argument");
     return 0;
@@ -89,7 +89,7 @@ _get_color_from_object(PyObject *val, SDL_PixelFormat *format, Uint32 *color)
  * array.
  */
 static PyObject *
-_get_single_pixel(PyPixelArray *array, Uint32 x, Uint32 y)
+_get_single_pixel(pgPixelArrayObject *array, Uint32 x, Uint32 y)
 {
     Uint8 *pixel_p;
     SDL_Surface *surf;
@@ -103,7 +103,7 @@ _get_single_pixel(PyPixelArray *array, Uint32 x, Uint32 y)
     pixel_p = (array->pixels +
                x * array->strides[0] +
                y * array->strides[1]);
-    surf = PySurface_AsSurface(array->surface);
+    surf = pgSurface_AsSurface(array->surface);
 
 
     bpp = surf->format->BytesPerPixel;
@@ -141,7 +141,7 @@ _get_single_pixel(PyPixelArray *array, Uint32 x, Uint32 y)
  * size, etc.
  */
 static PyObject *
-_make_surface(PyPixelArray *array)
+_make_surface(pgPixelArrayObject *array)
 {
     SDL_Surface *surf;
     int bpp;
@@ -167,7 +167,7 @@ _make_surface(PyPixelArray *array)
         return RAISE(PyExc_ValueError, "Operation on closed PixelArray.");
     }
 
-    surf = PySurface_AsSurface(array->surface);
+    surf = pgSurface_AsSurface(array->surface);
     bpp = surf->format->BytesPerPixel;
 
     /* Create the second surface. */
@@ -175,27 +175,27 @@ _make_surface(PyPixelArray *array)
     temp_surf = SDL_CreateRGBSurface(surf->flags,
                                      (int)dim0,
                                      (int)dim1,
-#ifndef SDL2
+#if IS_SDLv1
                                      bpp,
-#else /* SDL2 */
+#else /* IS_SDLv2 */
                                      surf->format->BitsPerPixel,
-#endif /* SDL2 */
+#endif /* IS_SDLv2 */
                                      surf->format->Rmask,
                                      surf->format->Gmask,
                                      surf->format->Bmask,
                                      surf->format->Amask);
     if (!temp_surf) {
-        return RAISE(PyExc_SDLError, SDL_GetError());
+        return RAISE(pgExc_SDLError, SDL_GetError());
     }
 
     /* Guarantee an identical format. */
     new_surf = SDL_ConvertSurface(temp_surf, surf->format, surf->flags);
     SDL_FreeSurface(temp_surf);
     if (!new_surf) {
-        return RAISE(PyExc_SDLError, SDL_GetError());
+        return RAISE(pgExc_SDLError, SDL_GetError());
     }
 
-    new_surface = PySurface_New(new_surf);
+    new_surface = pgSurface_New(new_surf);
     if (!new_surface) {
         SDL_FreeSurface(new_surf);
         return 0;
@@ -368,7 +368,7 @@ _get_weights(PyObject *weights, float *wr, float *wg, float *wb)
 }
 
 static PyObject *
-_replace_color(PyPixelArray *array, PyObject *args, PyObject *kwds)
+_replace_color(pgPixelArrayObject *array, PyObject *args, PyObject *kwds)
 {
     PyObject *weights = 0;
     PyObject *delcolor = 0;
@@ -395,7 +395,7 @@ _replace_color(PyPixelArray *array, PyObject *args, PyObject *kwds)
     if(array->surface == NULL) {
         return RAISE(PyExc_ValueError, "Operation on closed PixelArray.");
     }
-    surf = PySurface_AsSurface(array->surface);
+    surf = pgSurface_AsSurface(array->surface);
 
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "OO|fO", keys, &delcolor,
                                      &replcolor, &distance, &weights)) {
@@ -552,7 +552,7 @@ _replace_color(PyPixelArray *array, PyObject *args, PyObject *kwds)
 }
 
 static PyObject*
-_extract_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
+_extract_color (pgPixelArrayObject *array, PyObject *args, PyObject *kwds)
 {
     PyObject *weights = 0;
     PyObject *excolor = 0;
@@ -570,7 +570,7 @@ _extract_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
     PyObject *surface;
     SDL_Surface *surf;
     SDL_PixelFormat *format;
-    PyPixelArray *new_array;
+    pgPixelArrayObject *new_array;
     Py_ssize_t dim0;
     Py_ssize_t dim1;
     Py_ssize_t stride0;
@@ -602,13 +602,13 @@ _extract_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
         return 0;
     }
 
-    new_array = (PyPixelArray *)PyPixelArray_New(surface);
+    new_array = (pgPixelArrayObject *)pgPixelArray_New(surface);
     Py_DECREF(surface);
     if (!new_array) {
         return 0;
     }
 
-    surf = PySurface_AsSurface(surface);
+    surf = pgSurface_AsSurface(surface);
     format = surf->format;
     bpp = surf->format->BytesPerPixel;
     dim0 = new_array->shape[0];
@@ -783,13 +783,13 @@ _extract_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
 }
 
 static PyObject *
-_compare(PyPixelArray *array, PyObject *args, PyObject *kwds)
+_compare(pgPixelArrayObject *array, PyObject *args, PyObject *kwds)
 {
     Py_ssize_t dim0 = array->shape[0];
     Py_ssize_t dim1 = array->shape[1];
     SDL_Surface *surf;
     SDL_PixelFormat *format;
-    PyPixelArray *other_array;
+    pgPixelArrayObject *other_array;
     PyObject *weights = 0;
     SDL_Surface *other_surf;
     SDL_PixelFormat *other_format;
@@ -808,7 +808,7 @@ _compare(PyPixelArray *array, PyObject *args, PyObject *kwds)
     float wr, wg, wb;
     Py_ssize_t x;
     Py_ssize_t y;
-    PyPixelArray *new_array;
+    pgPixelArrayObject *new_array;
     PyObject *new_surface;
     SDL_PixelFormat *new_format;
     Py_ssize_t stride0;
@@ -820,10 +820,10 @@ _compare(PyPixelArray *array, PyObject *args, PyObject *kwds)
     if(array->surface == NULL) {
         return RAISE(PyExc_ValueError, "Operation on closed PixelArray.");
     }
-    surf = PySurface_AsSurface(array->surface);
+    surf = pgSurface_AsSurface(array->surface);
 
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "O!|fO", keys,
-                                     &PyPixelArray_Type, &other_array,
+                                     &pgPixelArray_Type, &other_array,
                                      &distance, &weights)) {
         return 0;
     }
@@ -846,7 +846,7 @@ _compare(PyPixelArray *array, PyObject *args, PyObject *kwds)
 
     format = surf->format;
     bpp = surf->format->BytesPerPixel;
-    other_surf = PySurface_AsSurface(other_array->surface);
+    other_surf = pgSurface_AsSurface(other_array->surface);
     other_format = other_surf->format;
 
     if (other_format->BytesPerPixel != bpp) {
@@ -866,7 +866,7 @@ _compare(PyPixelArray *array, PyObject *args, PyObject *kwds)
         return 0;
     }
 
-    new_array = (PyPixelArray *)PyPixelArray_New(new_surface);
+    new_array = (pgPixelArrayObject *)pgPixelArray_New(new_surface);
     Py_DECREF(new_surface);
     if (!new_array) {
         return 0;
@@ -1073,9 +1073,9 @@ _compare(PyPixelArray *array, PyObject *args, PyObject *kwds)
 }
 
 static PyObject *
-_transpose(PyPixelArray *array)
+_transpose(pgPixelArrayObject *array)
 {
-    SDL_Surface *surf = PySurface_AsSurface(array->surface);
+    SDL_Surface *surf = pgSurface_AsSurface(array->surface);
     Py_ssize_t dim0 = array->shape[1] ? array->shape[1] : 1;
     Py_ssize_t dim1 = array->shape[0];
     Py_ssize_t stride0;
@@ -1084,7 +1084,7 @@ _transpose(PyPixelArray *array)
     stride0 = array->shape[1] ?
         array->strides[1] : array->shape[0] * surf->format->BytesPerPixel;
 
-    return (PyObject *)_pxarray_new_internal(&PyPixelArray_Type,
+    return (PyObject *)_pxarray_new_internal(&pgPixelArray_Type,
                                              0, array, array->pixels,
                                              dim0, dim1, stride0, stride1);
 }
@@ -1094,18 +1094,18 @@ See:
 https://docs.python.org/3/reference/datamodel.html#with-statement-context-managers
 */
 static PyObject *
-_close_array(PyPixelArray *array) {
+_close_array(pgPixelArrayObject *array) {
     _cleanup_array(array);
     Py_RETURN_NONE;
 }
 
 static PyObject *
-_enter_context(PyPixelArray *array) {
+_enter_context(pgPixelArrayObject *array) {
     return (PyObject *)array;
 }
 
 static PyObject *
-_exit_context(PyPixelArray *array, PyObject *args, PyObject *kwds) {
+_exit_context(pgPixelArrayObject *array, PyObject *args, PyObject *kwds) {
     _cleanup_array(array);
     Py_RETURN_NONE;
 }

@@ -121,3 +121,8 @@ s/\(\W\)PyCD_AsID\(\W\)/\1pgCD_AsID\2/g
 s/\(\W\)PyCD_Check\(\W\)/\1pgCD_Check\2/g
 s/\(\W\)PyCD_Type\(\W\)/\1pgCD_Type\2/g
 s/\(\W\)PyCD_New\(\W\)/\1pgCD_New\2/g
+
+# pixelarray.c
+s/\(\W\)PyPixelArray_Type\(\W\)/\1pgPixelArray_Type\2/g
+s/\(\W\)PyPixelArray_New\(\W\)/\1pgPixelArray_New\2/g
+s/\(\W\)PyPixelArray\(\W\)/\1pgPixelArrayObject\2/g
