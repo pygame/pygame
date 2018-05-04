@@ -126,3 +126,11 @@ s/\(\W\)PyCD_New\(\W\)/\1pgCD_New\2/g
 s/\(\W\)PyPixelArray_Type\(\W\)/\1pgPixelArray_Type\2/g
 s/\(\W\)PyPixelArray_New\(\W\)/\1pgPixelArray_New\2/g
 s/\(\W\)PyPixelArray\(\W\)/\1pgPixelArrayObject\2/g
+
+# _freetype.c
+s/\(\W\)PgFontObject\(\W\)/\1pgFontObject\2/g
+s/\(\W\)PgFont_Check\(\W\)/\1pgFont_Check\2/g
+s/\(\W\)PgFont_Type\(\W\)/\1pgFont_Type\2/g
+s/\(\W\)PgFont_New\(\W\)/\1pgFont_New\2/g
+s/\(\W\)PgFontId\(\W\)/\1pgFontId\2/g
+s/\(\W\)PgFont_IS_ALIVE\(\W\)/\1pgFont_IS_ALIVE\2/g
