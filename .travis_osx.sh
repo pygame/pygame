@@ -14,6 +14,7 @@ else
 
 
 git clone https://github.com/illume/terryfy.git
+# git clone https://github.com/MacPython/terryfy.git
 cd terryfy
 # Work with a specific commit
 #git checkout 703737bd7be3a5d388146d5a95241ec2a17a4b2c

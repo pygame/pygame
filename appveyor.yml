@@ -11,17 +11,17 @@ environment:
     SDL_AUDIODRIVER: "disk"
 
   matrix:
-    - PYTHON: "pypy.exe"
-      PYTHON_VERSION: "2.7.13"
-      PYTHON_ARCH: "32"
-      PYPY_VERSION: "pypy2-v5.10.0-win32"
-      PYPY_DOWNLOAD: "powershell appveyor\\download_pypy.ps1"
+    # - PYTHON: "pypy.exe"
+    #   PYTHON_VERSION: "2.7.13"
+    #   PYTHON_ARCH: "32"
+    #   PYPY_VERSION: "pypy2-v5.10.0-win32"
+    #   PYPY_DOWNLOAD: "powershell appveyor\\download_pypy.ps1"
 
-    - PYTHON: "pypy3.exe"
-      PYTHON_VERSION: "2.7.13"
-      PYTHON_ARCH: "32"
-      PYPY_VERSION: "pypy3-v5.10.1-win32"
-      PYPY_DOWNLOAD: "powershell appveyor\\download_pypy.ps1"
+    # - PYTHON: "pypy3.exe"
+    #   PYTHON_VERSION: "2.7.13"
+    #   PYTHON_ARCH: "32"
+    #   PYPY_VERSION: "pypy3-v5.10.1-win32"
+    #   PYPY_DOWNLOAD: "powershell appveyor\\download_pypy.ps1"
 
     - PYTHON: "C:\\Python27\\python"
       PYTHON_VERSION: "2.7.13"
