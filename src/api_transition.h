@@ -17,5 +17,6 @@
 #include "event_api_transition.h"
 #include "display_api_transition.h"
 #include "mixer_api_transition.h"
+#include "joystick_api_transition.h"
 
 #endif

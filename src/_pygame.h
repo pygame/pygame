@@ -494,18 +494,18 @@ typedef struct {
 typedef struct {
     PyObject_HEAD
     int id;
-} PyJoystickObject;
+} pgJoystickObject;
 
-#define PyJoystick_AsID(x) (((PyJoystickObject*)x)->id)
+#define pgJoystick_AsID(x) (((pgJoystickObject*)x)->id)
 
 #ifndef PYGAMEAPI_JOYSTICK_INTERNAL
-#define PyJoystick_Check(x)                                             \
+#define pgJoystick_Check(x)                                             \
     ((x)->ob_type == (PyTypeObject*)                                    \
      PyGAME_C_API[PYGAMEAPI_JOYSTICK_FIRSTSLOT + 0])
 
-#define PyJoystick_Type                                                 \
+#define pgJoystick_Type                                                 \
     (*(PyTypeObject*)PyGAME_C_API[PYGAMEAPI_JOYSTICK_FIRSTSLOT + 0])
-#define PyJoystick_New                                                  \
+#define pgJoystick_New                                                  \
     (*(PyObject*(*)(int))PyGAME_C_API[PYGAMEAPI_JOYSTICK_FIRSTSLOT + 1])
 
 #define import_pygame_joystick() IMPORT_PYGAME_MODULE(joystick, JOYSTICK)
