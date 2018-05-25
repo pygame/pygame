@@ -116,7 +116,7 @@ int v4l2_set_control (int fd, int id, int value)
 
 /* returns a string of the buffer from the camera */
 /* TODO: fold this into the regular read_frame. lots of duplicate code */
-PyObject* v4l2_read_raw (PyCameraObject* self)
+PyObject* v4l2_read_raw (pgCameraObject* self)
 {
     struct v4l2_buffer buf;
     PyObject* raw;
@@ -168,7 +168,7 @@ int v4l2_xioctl (int fd, int request, void *arg)
    desired output format.  Note that some of the less common conversions are
    currently two step processes. */
 /* TODO: Write single step conversions where they may actually be useful */
-int v4l2_process_image (PyCameraObject* self, const void *image,
+int v4l2_process_image (pgCameraObject* self, const void *image,
                                unsigned int buffer_size, SDL_Surface* surf)
 {
 
@@ -300,7 +300,7 @@ int v4l2_process_image (PyCameraObject* self, const void *image,
 /* FIXME: There needs to be a better way to implement non-blocking frame
    grabbing than only doing a get_image if query_image returns true. Many
    cameras will always return false, and will only respond to blocking calls. */
-int v4l2_query_buffer (PyCameraObject* self)
+int v4l2_query_buffer (pgCameraObject* self)
 {
     int i;
 
@@ -328,7 +328,7 @@ int v4l2_query_buffer (PyCameraObject* self)
     return 0;
 }
 
-int v4l2_read_frame (PyCameraObject* self, SDL_Surface* surf)
+int v4l2_read_frame (pgCameraObject* self, SDL_Surface* surf)
 {
     struct v4l2_buffer buf;
 
@@ -359,7 +359,7 @@ int v4l2_read_frame (PyCameraObject* self, SDL_Surface* surf)
     return 1;
 }
 
-int v4l2_stop_capturing (PyCameraObject* self)
+int v4l2_stop_capturing (pgCameraObject* self)
 {
     enum v4l2_buf_type type;
 
@@ -374,7 +374,7 @@ int v4l2_stop_capturing (PyCameraObject* self)
     return 1;
 }
 
-int v4l2_start_capturing (PyCameraObject* self)
+int v4l2_start_capturing (pgCameraObject* self)
 {
     unsigned int i;
     enum v4l2_buf_type type;
@@ -406,7 +406,7 @@ int v4l2_start_capturing (PyCameraObject* self)
     return 1;
 }
 
-int v4l2_uninit_device (PyCameraObject* self)
+int v4l2_uninit_device (pgCameraObject* self)
 {
     unsigned int i;
 
@@ -423,7 +423,7 @@ int v4l2_uninit_device (PyCameraObject* self)
     return 1;
 }
 
-int v4l2_init_mmap (PyCameraObject* self)
+int v4l2_init_mmap (pgCameraObject* self)
 {
     struct v4l2_requestbuffers req;
 
@@ -495,7 +495,7 @@ int v4l2_init_mmap (PyCameraObject* self)
     return 1;
 }
 
-int v4l2_init_device (PyCameraObject* self)
+int v4l2_init_device (pgCameraObject* self)
 {
     struct v4l2_capability cap;
     struct v4l2_format fmt;
@@ -597,7 +597,7 @@ int v4l2_init_device (PyCameraObject* self)
     return 1;
 }
 
-int v4l2_close_device (PyCameraObject* self)
+int v4l2_close_device (pgCameraObject* self)
 {
     if (self->fd==-1)
         return 1;
@@ -612,7 +612,7 @@ int v4l2_close_device (PyCameraObject* self)
     return 1;
 }
 
-int v4l2_open_device (PyCameraObject* self)
+int v4l2_open_device (pgCameraObject* self)
 {
     struct stat st;
 

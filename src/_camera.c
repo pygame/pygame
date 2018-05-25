@@ -48,14 +48,14 @@
 /* functions available to pygame users */
 PyObject* surf_colorspace (PyObject* self, PyObject* arg);
 PyObject* list_cameras (PyObject* self, PyObject* arg);
-PyObject* camera_start (PyCameraObject* self);
-PyObject* camera_stop (PyCameraObject* self);
-PyObject* camera_get_controls (PyCameraObject* self);
-PyObject* camera_set_controls (PyCameraObject* self, PyObject* arg, PyObject *kwds);
-PyObject* camera_get_size (PyCameraObject* self);
-PyObject* camera_query_image (PyCameraObject* self);
-PyObject* camera_get_image (PyCameraObject* self, PyObject* arg);
-PyObject* camera_get_raw(PyCameraObject* self);
+PyObject* camera_start (pgCameraObject* self);
+PyObject* camera_stop (pgCameraObject* self);
+PyObject* camera_get_controls (pgCameraObject* self);
+PyObject* camera_set_controls (pgCameraObject* self, PyObject* arg, PyObject *kwds);
+PyObject* camera_get_size (pgCameraObject* self);
+PyObject* camera_query_image (pgCameraObject* self);
+PyObject* camera_get_image (pgCameraObject* self, PyObject* arg);
+PyObject* camera_get_raw(pgCameraObject* self);
 
 /*
  * Functions available to pygame users.  The idea is to make these as simple as
@@ -74,8 +74,8 @@ PyObject* surf_colorspace (PyObject* self, PyObject* arg) {
     surfobj2 = NULL;
 
     /*get all the arguments*/
-    if (!PyArg_ParseTuple (arg, "O!s|O!", &PySurface_Type, &surfobj,
-                           &color, &PySurface_Type, &surfobj2))
+    if (!PyArg_ParseTuple (arg, "O!s|O!", &pgSurface_Type, &surfobj,
+                           &color, &pgSurface_Type, &surfobj2))
         return NULL;
 
     if (!strcmp(color, "YUV")) {
@@ -86,7 +86,7 @@ PyObject* surf_colorspace (PyObject* self, PyObject* arg) {
         return RAISE (PyExc_ValueError, "Incorrect colorspace value");
     }
 
-    surf = PySurface_AsSurface (surfobj);
+    surf = pgSurface_AsSurface (surfobj);
 
     if (!surfobj2) {
         newsurf = SDL_CreateRGBSurface (0, surf->w, surf->h,
@@ -96,7 +96,7 @@ PyObject* surf_colorspace (PyObject* self, PyObject* arg) {
             return NULL;
         }
     } else {
-        newsurf = PySurface_AsSurface (surfobj2);
+        newsurf = pgSurface_AsSurface (surfobj2);
     }
 
     /* check to see if the size is the same. */
@@ -109,13 +109,13 @@ PyObject* surf_colorspace (PyObject* self, PyObject* arg) {
         return RAISE (PyExc_ValueError, "Surfaces not the same depth");
 
     SDL_LockSurface (newsurf);
-    PySurface_Lock (surfobj);
+    pgSurface_Lock (surfobj);
 
     Py_BEGIN_ALLOW_THREADS;
     colorspace (surf, newsurf, cspace);
     Py_END_ALLOW_THREADS;
 
-    PySurface_Unlock (surfobj);
+    pgSurface_Unlock (surfobj);
     SDL_UnlockSurface (newsurf);
 
     if (surfobj2)
@@ -124,7 +124,7 @@ PyObject* surf_colorspace (PyObject* self, PyObject* arg) {
         return surfobj2;
     }
     else
-        return PySurface_New (newsurf);
+        return pgSurface_New (newsurf);
 }
 
 /* list_cameras() - lists cameras available on the computer */
@@ -162,7 +162,7 @@ PyObject* list_cameras (PyObject* self, PyObject* arg) {
 }
 
 /* start() - opens, inits, and starts capturing on the camera */
-PyObject* camera_start (PyCameraObject* self) {
+PyObject* camera_start (pgCameraObject* self) {
 #if defined(__unix__)
     if (v4l2_open_device(self) == 0) {
         v4l2_close_device(self);
@@ -188,7 +188,7 @@ PyObject* camera_start (PyCameraObject* self) {
 }
 
 /* stop() - stops capturing, uninits, and closes the camera */
-PyObject* camera_stop (PyCameraObject* self) {
+PyObject* camera_stop (pgCameraObject* self) {
 #if defined(__unix__)
     if (v4l2_stop_capturing(self) == 0)
         return NULL;
@@ -207,7 +207,7 @@ PyObject* camera_stop (PyCameraObject* self) {
 
 /* get_controls() - gets current values of user controls */
 /* TODO: Support brightness, contrast, and other common controls */
-PyObject* camera_get_controls (PyCameraObject* self) {
+PyObject* camera_get_controls (pgCameraObject* self) {
 #if defined(__unix__)
     int value;
     if (v4l2_get_control(self->fd, V4L2_CID_HFLIP, &value))
@@ -227,7 +227,7 @@ PyObject* camera_get_controls (PyCameraObject* self) {
 }
 
 /* set_controls() - changes camera settings if supported by the camera */
-PyObject* camera_set_controls (PyCameraObject* self, PyObject* arg, PyObject *kwds) {
+PyObject* camera_set_controls (pgCameraObject* self, PyObject* arg, PyObject *kwds) {
 #if defined(__unix__)
     int hflip = 0, vflip = 0, brightness = 0;
     char *kwids[] = {"hflip", "vflip", "brightness", NULL};
@@ -273,7 +273,7 @@ PyObject* camera_set_controls (PyCameraObject* self, PyObject* arg, PyObject *kw
 }
 
 /* get_size() - returns the dimensions of the images being recorded */
-PyObject* camera_get_size (PyCameraObject* self) {
+PyObject* camera_get_size (pgCameraObject* self) {
 #if defined(__unix__)
     return Py_BuildValue ("(ii)", self->width, self->height);
 #elif defined(PYGAME_MAC_CAMERA_OLD)
@@ -283,7 +283,7 @@ PyObject* camera_get_size (PyCameraObject* self) {
 }
 
 /* query_image() - checks if a frame is ready */
-PyObject* camera_query_image(PyCameraObject* self) {
+PyObject* camera_query_image(pgCameraObject* self) {
 #if defined(__unix__)
     return PyBool_FromLong(v4l2_query_buffer(self));
 #endif
@@ -292,19 +292,19 @@ PyObject* camera_query_image(PyCameraObject* self) {
 
 /* get_image() - returns an RGB Surface */
 /* code to reuse Surface from René Dudfield */
-PyObject* camera_get_image (PyCameraObject* self, PyObject* arg) {
+PyObject* camera_get_image (pgCameraObject* self, PyObject* arg) {
 #if defined(__unix__)
     SDL_Surface* surf = NULL;
     PyObject *surfobj = NULL;
 
-    if (!PyArg_ParseTuple (arg, "|O!", &PySurface_Type, &surfobj))
+    if (!PyArg_ParseTuple (arg, "|O!", &pgSurface_Type, &surfobj))
         return NULL;
 
     if (!surfobj) {
         surf = SDL_CreateRGBSurface (0, self->width, self->height, 24, 0xFF<<16,
                                  0xFF<<8, 0xFF, 0);
     } else {
-        surf = PySurface_AsSurface (surfobj);
+        surf = pgSurface_AsSurface (surfobj);
     }
 
     if (!surf)
@@ -327,13 +327,13 @@ PyObject* camera_get_image (PyCameraObject* self, PyObject* arg) {
         Py_INCREF (surfobj);
         return surfobj;
     } else {
-        return PySurface_New (surf);
+        return pgSurface_New (surf);
     }
 #elif defined(PYGAME_MAC_CAMERA_OLD)
         SDL_Surface* surf = NULL;
         PyObject *surfobj = NULL;
 
-        if (!PyArg_ParseTuple (arg, "|O!", &PySurface_Type, &surfobj))
+        if (!PyArg_ParseTuple (arg, "|O!", &pgSurface_Type, &surfobj))
             return NULL;
 
         if (!surfobj) {
@@ -348,7 +348,7 @@ PyObject* camera_get_image (PyCameraObject* self, PyObject* arg) {
                 0);
 
         } else {
-            surf = PySurface_AsSurface(surfobj);
+            surf = pgSurface_AsSurface(surfobj);
         }
 
         if (!surf)
@@ -371,14 +371,14 @@ PyObject* camera_get_image (PyCameraObject* self, PyObject* arg) {
             Py_INCREF (surfobj);
             return surfobj;
         } else {
-            return PySurface_New (surf);
+            return pgSurface_New (surf);
         }
 #endif
     Py_RETURN_NONE;
 }
 
 /* get_raw() - returns an unmodified image as a string from the buffer */
-PyObject* camera_get_raw(PyCameraObject* self) {
+PyObject* camera_get_raw(pgCameraObject* self) {
 #if defined(__unix__)
     return v4l2_read_raw(self);
 #elif defined(PYGAME_MAC_CAMERA_OLD)
@@ -1514,7 +1514,7 @@ PyMethodDef cameraobj_builtins[] = {
 };
 
 void camera_dealloc (PyObject* self) {
-    free(((PyCameraObject*) self)->device_name);
+    free(((pgCameraObject*) self)->device_name);
     PyObject_DEL (self);
 }
 /*
@@ -1522,10 +1522,10 @@ PyObject* camera_getattr(PyObject* self, char* attrname) {
     return Py_FindMethod(cameraobj_builtins, self, attrname);
 }
 */
-PyTypeObject PyCamera_Type = {
+PyTypeObject pgCamera_Type = {
     TYPE_HEAD (NULL, 0)
     "Camera",
-    sizeof(PyCameraObject),
+    sizeof(pgCameraObject),
     0,
     camera_dealloc,
     0,
@@ -1560,12 +1560,12 @@ PyTypeObject PyCamera_Type = {
     0,                          /* tp_new */
 };
 
-PyObject* Camera (PyCameraObject* self, PyObject* arg) {
+PyObject* Camera (pgCameraObject* self, PyObject* arg) {
 # if defined(__unix__)
     int w, h;
     char* dev_name = NULL;
     char* color = NULL;
-    PyCameraObject *cameraobj;
+    pgCameraObject *cameraobj;
 
     w = DEFAULT_WIDTH;
     h = DEFAULT_HEIGHT;
@@ -1573,7 +1573,7 @@ PyObject* Camera (PyCameraObject* self, PyObject* arg) {
     if (!PyArg_ParseTuple(arg, "s|(ii)s", &dev_name, &w, &h, &color))
         return NULL;
 
-    cameraobj = PyObject_NEW (PyCameraObject, &PyCamera_Type);
+    cameraobj = PyObject_NEW (pgCameraObject, &pgCamera_Type);
 
     if (cameraobj) {
         cameraobj->device_name = (char*) malloc((strlen(dev_name)+1)*sizeof(char));
@@ -1608,7 +1608,7 @@ PyObject* Camera (PyCameraObject* self, PyObject* arg) {
     int w, h;
     char* dev_name = NULL;
     char* color = NULL;
-    PyCameraObject *cameraobj;
+    pgCameraObject *cameraobj;
 
     w = DEFAULT_WIDTH;
     h = DEFAULT_HEIGHT;
@@ -1616,7 +1616,7 @@ PyObject* Camera (PyCameraObject* self, PyObject* arg) {
     if (!PyArg_ParseTuple(arg, "s|(ii)s", &dev_name, &w, &h, &color))
         return NULL;
 
-    cameraobj = PyObject_NEW (PyCameraObject, &PyCamera_Type);
+    cameraobj = PyObject_NEW (pgCameraObject, &pgCamera_Type);
 
     if (cameraobj) {
         cameraobj->device_name = (char*) malloc((strlen(dev_name)+1)*sizeof(char));
@@ -1683,9 +1683,9 @@ MODINIT_DEFINE (_camera) {
     }
 
     /* type preparation */
-    //PyType_Init(PyCamera_Type);
-    PyCamera_Type.tp_new = PyType_GenericNew;
-    if (PyType_Ready (&PyCamera_Type) < 0)
+    //PyType_Init(pgCamera_Type);
+    pgCamera_Type.tp_new = PyType_GenericNew;
+    if (PyType_Ready (&pgCamera_Type) < 0)
     {
         MODINIT_ERROR;
     }
@@ -1697,8 +1697,8 @@ MODINIT_DEFINE (_camera) {
     module = Py_InitModule3("_camera", camera_builtins, DOC_PYGAMECAMERA);
 #endif
 
-    Py_INCREF(&PyCamera_Type);
-    PyModule_AddObject(module, "CameraType", (PyObject *)&PyCamera_Type);
+    Py_INCREF(&pgCamera_Type);
+    PyModule_AddObject(module, "CameraType", (PyObject *)&pgCamera_Type);
 
     MODINIT_RETURN(module);
 }
