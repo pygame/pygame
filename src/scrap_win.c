@@ -179,7 +179,7 @@ pygame_scrap_lost (void)
 {
     if (!pygame_scrap_initialized ())
     {
-        PyErr_SetString (PyExc_SDLError, "scrap system not initialized.");
+        PyErr_SetString (pgExc_SDLError, "scrap system not initialized.");
         return 0;
     }
     return (GetClipboardOwner () != SDL_Window);
@@ -194,7 +194,7 @@ pygame_scrap_put (char *type, int srclen, char *src)
 
     if (!pygame_scrap_initialized ())
     {
-        PyErr_SetString (PyExc_SDLError, "scrap system not initialized.");
+        PyErr_SetString (pgExc_SDLError, "scrap system not initialized.");
         return 0;
     }
 
@@ -248,7 +248,7 @@ pygame_scrap_get (char *type, unsigned long *count)
 
     if (!pygame_scrap_initialized ())
     {
-        PyErr_SetString (PyExc_SDLError, "scrap system not initialized.");
+        PyErr_SetString (pgExc_SDLError, "scrap system not initialized.");
         return NULL;
     }
 
