@@ -1,4 +1,3 @@
-#include "api_transition.h"
 /*
     pygame - Python Game Library
     Copyright (C) 2000-2001  Pete Shinners
@@ -204,12 +203,10 @@ typedef struct pg_bufferinfo_s {
 #include <SDL.h>
 
 /* Pygame's SDL version macros:
- *   SDL2 is defined if at least SDL 2.0.0 (DEPRECATED)
  *   IS_SDLv1 is 1 if SDL 1.x.x, 0 otherwise
  *   IS_SDLv2 is 1 if at least SDL 2.0.0, 0 otherwise
  */
 #if (SDL_VERSION_ATLEAST(2, 0, 0))
-#define SDL2
 #define IS_SDLv1 0
 #define IS_SDLv2 1
 #else
@@ -217,7 +214,7 @@ typedef struct pg_bufferinfo_s {
 #define IS_SDLv2 0
 #endif
 
-#ifdef SDL2
+#if IS_SDLv2
 /* SDL 1.2 constants removed from SDL 2 */
 typedef enum {
     SDL_HWSURFACE = 0,
@@ -279,7 +276,7 @@ typedef enum {
     PGS_PREALLOC      = 0x01000000
 } PygameSurfaceFlags;
 
-#endif /* SDL2 */
+#endif /* IS_SDLv2 */
 /* macros used throughout the source */
 #define RAISE(x,y) (PyErr_SetString((x), (y)), (PyObject*)NULL)
 
@@ -515,7 +512,7 @@ typedef struct {
 /* DISPLAY */
 #define PYGAMEAPI_DISPLAY_FIRSTSLOT \
     (PYGAMEAPI_JOYSTICK_FIRSTSLOT + PYGAMEAPI_JOYSTICK_NUMSLOTS)
-#ifndef SDL2
+#if IS_SDLv1
 #define PYGAMEAPI_DISPLAY_NUMSLOTS 2
 typedef struct {
     PyObject_HEAD
@@ -536,9 +533,9 @@ typedef struct {
 #define import_pygame_display() IMPORT_PYGAME_MODULE(display, DISPLAY)
 #endif
 
-#else /* SDL2 */
+#else /* IS_SDLv2 */
 #define PYGAMEAPI_DISPLAY_NUMSLOTS 0
-#endif /* SDL2 */
+#endif /* IS_SDLv2 */
 
 /* SURFACE */
 #define PYGAMEAPI_SURFACE_FIRSTSLOT                             \
@@ -547,9 +544,9 @@ typedef struct {
 typedef struct {
     PyObject_HEAD
     SDL_Surface* surf;
-#ifdef SDL2
+#if IS_SDLv2
     int owner;
-#endif /* SDL2 */
+#endif /* IS_SDLv2 */
     struct pgSubSurface_Data* subsurface;  /*ptr to subsurface data (if a
                                           * subsurface)*/
     PyObject *weakreflist;
@@ -642,11 +639,11 @@ typedef struct
 /* EVENT */
 #define PYGAMEAPI_EVENT_FIRSTSLOT                                       \
     (PYGAMEAPI_SURFLOCK_FIRSTSLOT + PYGAMEAPI_SURFLOCK_NUMSLOTS)
-#ifndef SDL2
+#if IS_SDLv1
 #define PYGAMEAPI_EVENT_NUMSLOTS 4
-#else /* SDL2 */
+#else /* IS_SDLv2 */
 #define PYGAMEAPI_EVENT_NUMSLOTS 6
-#endif /* SDL2 */
+#endif /* IS_SDLv2 */
 
 typedef struct {
     PyObject_HEAD
@@ -664,14 +661,14 @@ typedef struct {
 #define pgEvent_New2                                                    \
     (*(PyObject*(*)(int, PyObject*))PyGAME_C_API[PYGAMEAPI_EVENT_FIRSTSLOT + 2])
 #define pgEvent_FillUserEvent                           \
-    (*(int (*)(PyEventObject*, SDL_Event*))             \
+    (*(int (*)(pgEventObject*, SDL_Event*))             \
      PyGAME_C_API[PYGAMEAPI_EVENT_FIRSTSLOT + 3])
-#ifdef SDL2
+#if IS_SDLv2
 #define pg_EnableKeyRepeat                              \
     (*(int (*)(int, int))PyGAME_C_API[PYGAMEAPI_EVENT_FIRSTSLOT + 4])
 #define pg_GetKeyRepeat                                 \
     (*(void (*)(int*, int*))PyGAME_C_API[PYGAMEAPI_EVENT_FIRSTSLOT + 5])
-#endif /* SDL2 */
+#endif /* IS_SDLv2 */
 #define import_pygame_event() IMPORT_PYGAME_MODULE(event, EVENT)
 #endif
 

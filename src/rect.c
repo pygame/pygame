@@ -42,7 +42,7 @@ static int pg_rect_init(pgRectObject *, PyObject *, PyObject *);
 #ifdef PYPY_VERSION
 #define PG_RECT_NUM 49152
 const int PG_RECT_FREELIST_MAX = PG_RECT_NUM;
-static PyRectObject *pg_rect_freelist[PG_RECT_NUM];
+static pgRectObject *pg_rect_freelist[PG_RECT_NUM];
 int pg_rect_freelist_num = -1;
 #endif
 
@@ -78,10 +78,10 @@ pg_rect_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         pg_rect_freelist_num--;
     }
     else {
-        self = (PyRectObject *)type->tp_alloc(type, 0);
+        self = (pgRectObject *)type->tp_alloc(type, 0);
     }
 #else
-    self = (PyRectObject *)type->tp_alloc(type, 0);
+    self = (pgRectObject *)type->tp_alloc(type, 0);
 #endif
 
     if (self != NULL) {
@@ -94,7 +94,7 @@ pg_rect_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 /* object type functions */
 static void
-pg_rect_dealloc(PyRectObject *self)
+pg_rect_dealloc(pgRectObject *self)
 {
     if (self->weakreflist != NULL) {
         PyObject_ClearWeakRefs((PyObject *)self);
@@ -875,7 +875,7 @@ pg_rect_length(PyObject *_self)
 }
 
 static PyObject*
-pg_rect_item(PyRectObject *self, Py_ssize_t i)
+pg_rect_item(pgRectObject *self, Py_ssize_t i)
 {
     int* data = (int*)&self->r;
 
@@ -891,7 +891,7 @@ pg_rect_item(PyRectObject *self, Py_ssize_t i)
 }
 
 static int
-pg_rect_ass_item(PyRectObject *self, Py_ssize_t i, PyObject *v)
+pg_rect_ass_item(pgRectObject *self, Py_ssize_t i, PyObject *v)
 {
     int val;
     int* data = (int*)&self->r;
@@ -925,7 +925,7 @@ static PySequenceMethods pg_rect_as_sequence =
 };
 
 static PyObject *
-pg_rect_subscript(PyRectObject *self, PyObject *op)
+pg_rect_subscript(pgRectObject *self, PyObject *op)
 {
     int *data = (int *)&self->r;
 
@@ -982,7 +982,7 @@ pg_rect_subscript(PyRectObject *self, PyObject *op)
 }
 
 static int
-pg_rect_ass_subscript(PyRectObject *self, PyObject *op, PyObject *value)
+pg_rect_ass_subscript(pgRectObject *self, PyObject *op, PyObject *value)
 {
     if (PyIndex_Check(op)) {
         PyObject *index;
@@ -999,14 +999,14 @@ pg_rect_ass_subscript(PyRectObject *self, PyObject *op, PyObject *value)
     else if (op == Py_Ellipsis) {
         int val;
 
-        if (IntFromObj(value, &val)) {
+        if (pg_IntFromObj(value, &val)) {
             self->r.x = val;
             self->r.y = val;
             self->r.w = val;
             self->r.h = val;
         }
-        else if (PyObject_IsInstance(value, (PyObject *)&PyRect_Type)) {
-            PyRectObject *rect = (PyRectObject *)value;
+        else if (PyObject_IsInstance(value, (PyObject *)&pgRect_Type)) {
+            pgRectObject *rect = (pgRectObject *)value;
 
             self->r.x = rect->r.x;
             self->r.y = rect->r.y;
@@ -1024,7 +1024,7 @@ pg_rect_ass_subscript(PyRectObject *self, PyObject *op, PyObject *value)
             }
             for (i = 0; i < 4; ++i) {
                 item = PySequence_ITEM(value, i);
-                if (!IntFromObj(item, values + i)) {
+                if (!pg_IntFromObj(item, values + i)) {
                     PyErr_Format(PyExc_TypeError,
                                  "Expected an integer between %d and %d",
                                  INT_MIN, INT_MAX);
@@ -1059,7 +1059,7 @@ pg_rect_ass_subscript(PyRectObject *self, PyObject *op, PyObject *value)
             return -1;
         }
 #endif
-        if (IntFromObj(value, &val)) {
+        if (pg_IntFromObj(value, &val)) {
             for (i = 0; i < slicelen; ++i) {
                 data[start + step * i] = val;
             }
@@ -1078,7 +1078,7 @@ pg_rect_ass_subscript(PyRectObject *self, PyObject *op, PyObject *value)
             }
             for (i = 0; i < slicelen; ++i) {
                 item = PySequence_ITEM(value, i);
-                if (!IntFromObj(item, values + i)) {
+                if (!pg_IntFromObj(item, values + i)) {
                     PyErr_Format(PyExc_TypeError,
                                  "Expected an integer between %d and %d",
                                  INT_MIN, INT_MAX);

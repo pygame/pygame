@@ -1,7 +1,0 @@
-#define PySurfaceObject pgSurfaceObject
-#define PySurface_Type pgSurface_Type
-#define PySurface_New pgSurface_New
-#define PySurface_NewNoOwn pgSurface_NewNoOwn
-#define PySurface_Check pgSurface_Check
-#define PySurface_AsSurface pgSurface_AsSurface
-#define PySurface_Blit pgSurface_Blit

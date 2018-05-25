@@ -1,9 +1,0 @@
-#define PyLifetimeLock pgLifetimeLockObject
-#define PyLifetimeLock_Check pgLifetimeLock_Check
-#define PySurface_Prep pgSurface_Prep
-#define PySurface_Unprep pgSurface_Unprep
-#define PySurface_Lock pgSurface_Lock
-#define PySurface_Unlock pgSurface_Unlock
-#define PySurface_LockBy pgSurface_LockBy
-#define PySurface_UnlockBy pgSurface_UnlockBy
-#define PySurface_LockLifetime pgSurface_LockLifetime

@@ -1,5 +1,0 @@
-#define PyJoystickObject pgJoystickObject
-#define PyJoystick_AsID pgJoystick_AsID
-#define PyJoystick_Check pgJoystick_Check
-#define PyJoystick_Type pgJoystick_Type
-#define PyJoystick_New pgJoystick_New

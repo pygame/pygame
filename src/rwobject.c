@@ -148,9 +148,9 @@ fetch_object_methods(pgRWHelper *helper, PyObject *obj)
 
 static PyObject *
 pgRWopsEncodeString(PyObject *obj,
-                  const char *encoding,
-                  const char *errors,
-                  PyObject *eclass)
+                    const char *encoding,
+                    const char *errors,
+                    PyObject *eclass)
 {
     PyObject *oencoded;
     PyObject *exc_type;
@@ -200,7 +200,7 @@ pgRWopsEncodeString(PyObject *obj,
                  errors == pg_default_errors        ) {
             /* The default encoding and error handling should not fail */
             return RAISE(PyExc_SystemError,
-                         "Pygame bug (in RWopsEncodeString):"
+                         "Pygame bug (in pgRWopsEncodeString):"
                          " unexpected encoding error");
         }
         PyErr_Clear();
@@ -216,17 +216,17 @@ pgRWopsEncodeString(PyObject *obj,
 static PyObject *
 pgRWopsEncodeFilePath(PyObject *obj, PyObject *eclass)
 {
-    PyObject *result = RWopsEncodeString(obj,
-                                         UNICODE_DEF_FS_CODEC,
-                                         UNICODE_DEF_FS_ERROR,
-                                         eclass);
+    PyObject *result = pgRWopsEncodeString(obj,
+                                           UNICODE_DEF_FS_CODEC,
+                                           UNICODE_DEF_FS_ERROR,
+                                           eclass);
     if (result == NULL || result == Py_None) {
         return result;
     }
     if ((size_t)Bytes_GET_SIZE(result) != strlen(Bytes_AS_STRING(result))) {
         if (eclass != NULL) {
             Py_DECREF(result);
-            result = RWopsEncodeString(obj, NULL, NULL, NULL);
+            result = pgRWopsEncodeString(obj, NULL, NULL, NULL);
             if (result == NULL) {
                 return NULL;
             }
@@ -280,7 +280,7 @@ pgRWopsFromObject(PyObject *obj)
     SDL_RWops *rw = NULL;
 
     if (obj != NULL) {
-        oencoded = RWopsEncodeFilePath(obj, NULL);
+        oencoded = pgRWopsEncodeFilePath(obj, NULL);
         if (oencoded == NULL) {
             return NULL;
         }
@@ -293,7 +293,7 @@ pgRWopsFromObject(PyObject *obj)
         }
         SDL_ClearError();
     }
-    return RWopsFromFileObject(obj);
+    return pgRWopsFromFileObject(obj);
 }
 
 static int
@@ -793,7 +793,7 @@ pg_encode_string(PyObject *self, PyObject *args, PyObject *keywds)
     if (obj == NULL) {
         RAISE(PyExc_SyntaxError, "Forwarded exception");
     }
-    return RWopsEncodeString(obj, encoding, errors, eclass);
+    return pgRWopsEncodeString(obj, encoding, errors, eclass);
 }
 
 static PyObject *
@@ -812,7 +812,7 @@ pg_encode_file_path(PyObject *self, PyObject *args, PyObject *keywds)
     if (obj == NULL) {
         RAISE(PyExc_SyntaxError, "Forwarded exception");
     }
-    return RWopsEncodeFilePath(obj, eclass);
+    return pgRWopsEncodeFilePath(obj, eclass);
 }
 
 static PyMethodDef _pg_module_methods[] =

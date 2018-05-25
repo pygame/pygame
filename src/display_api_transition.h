@@ -1,5 +1,0 @@
-#define PyVidInfoObject pgVidInfoObject
-#define PyVidInfo_Type pgVidInfo_Type
-#define PyVidInfo_New pgVidInfo_New
-#define PyVidInfo_AsVidInfo pgVidInfo_AsVidInfo
-#define PyVidInfo_Check pgVidInfo_Check
