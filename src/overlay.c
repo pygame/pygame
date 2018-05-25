@@ -49,7 +49,7 @@ Overlay_SetLocation (PyGameOverlay *self, PyObject *args)
 {
     GAME_Rect *rect, temp;
 
-    rect = GameRect_FromObject (args, &temp);
+    rect = pgRect_FromObject (args, &temp);
     if (!rect)
         return RAISE (PyExc_TypeError, "Invalid rectstyle argument");
 
@@ -138,12 +138,12 @@ Overlay_New (PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (!SDL_WasInit (SDL_INIT_VIDEO))
         return RAISE
-            (PyExc_SDLError,
+            (pgExc_SDLError,
              "cannot create overlay without pygame.display initialized");
 
     screen = SDL_GetVideoSurface ();
     if (!screen)
-        return RAISE (PyExc_SDLError, "Display mode not set");
+        return RAISE (pgExc_SDLError, "Display mode not set");
 
     // Create new Overlay object
     self= (PyGameOverlay *)type->tp_alloc (type, 0);
@@ -153,7 +153,7 @@ Overlay_New (PyTypeObject *type, PyObject *args, PyObject *kwds)
     // Create layer with desired format
     self->cOverlay = SDL_CreateYUVOverlay (w, h, pixelformat, screen);
     if (!self->cOverlay)
-        return RAISE (PyExc_SDLError, "Cannot create overlay");
+        return RAISE (pgExc_SDLError, "Cannot create overlay");
 
     self->cRect.x= 0;
     self->cRect.y= 0;
