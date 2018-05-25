@@ -134,21 +134,21 @@ _gfx_pixelcolor (PyObject *self, PyObject* args)
     if (!PyArg_ParseTuple (args, "OhhO:pixel", &surface, &x, &y, &color))
         return NULL;
 
-    if (!PySurface_Check (surface))
+    if (!pgSurface_Check (surface))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    if (!RGBAFromObj (color, rgba))
+    if (!pg_RGBAFromObj (color, rgba))
     {
         PyErr_SetString (PyExc_TypeError, "invalid color argument");
         return NULL;
     }
 
-    if (pixelRGBA (PySurface_AsSurface (surface), x, y,
+    if (pixelRGBA (pgSurface_AsSurface (surface), x, y,
                    rgba[0], rgba[1], rgba[2], rgba[3]) == -1)
     {
-        PyErr_SetString (PyExc_SDLError, SDL_GetError ());
+        PyErr_SetString (pgExc_SDLError, SDL_GetError ());
         return NULL;
     }
     Py_RETURN_NONE;
@@ -166,21 +166,21 @@ _gfx_hlinecolor (PyObject *self, PyObject* args)
     if (!PyArg_ParseTuple (args, "OhhhO:hline", &surface, &x1, &x2, &y, &color))
         return NULL;
 
-    if (!PySurface_Check (surface))
+    if (!pgSurface_Check (surface))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    if (!RGBAFromObj (color, rgba))
+    if (!pg_RGBAFromObj (color, rgba))
     {
         PyErr_SetString (PyExc_TypeError, "invalid color argument");
         return NULL;
     }
 
-    if (hlineRGBA (PySurface_AsSurface (surface), x1, x2, y,
+    if (hlineRGBA (pgSurface_AsSurface (surface), x1, x2, y,
                    rgba[0], rgba[1], rgba[2], rgba[3]) == -1)
     {
-        PyErr_SetString (PyExc_SDLError, SDL_GetError ());
+        PyErr_SetString (pgExc_SDLError, SDL_GetError ());
         return NULL;
     }
     Py_RETURN_NONE;
@@ -199,21 +199,21 @@ _gfx_vlinecolor (PyObject *self, PyObject* args)
             &color))
         return NULL;
 
-    if (!PySurface_Check (surface))
+    if (!pgSurface_Check (surface))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    if (!RGBAFromObj (color, rgba))
+    if (!pg_RGBAFromObj (color, rgba))
     {
         PyErr_SetString (PyExc_TypeError, "invalid color argument");
         return NULL;
     }
 
-    if (vlineRGBA (PySurface_AsSurface (surface), x, _y1, y2,
+    if (vlineRGBA (pgSurface_AsSurface (surface), x, _y1, y2,
                    rgba[0], rgba[1], rgba[2], rgba[3]) == -1)
     {
-        PyErr_SetString (PyExc_SDLError, SDL_GetError ());
+        PyErr_SetString (pgExc_SDLError, SDL_GetError ());
         return NULL;
     }
     Py_RETURN_NONE;
@@ -233,16 +233,16 @@ _gfx_rectanglecolor (PyObject *self, PyObject* args)
         return NULL;
     }
 
-    if (!PySurface_Check (surface)) {
+    if (!pgSurface_Check (surface)) {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    sdlrect = GameRect_FromObject (rect, &temprect);
+    sdlrect = pgRect_FromObject (rect, &temprect);
     if (sdlrect == NULL) {
         return NULL;
     }
 
-    if (!RGBAFromObj (color, rgba)) {
+    if (!pg_RGBAFromObj (color, rgba)) {
         PyErr_SetString (PyExc_TypeError, "invalid color argument");
         return NULL;
     }
@@ -252,10 +252,10 @@ _gfx_rectanglecolor (PyObject *self, PyObject* args)
     x2 = (Sint16) (sdlrect->x + sdlrect->w - 1);
     y2 = (Sint16) (sdlrect->y + sdlrect->h - 1);
 
-    if (rectangleRGBA (PySurface_AsSurface (surface), x1, _y1, x2, y2,
+    if (rectangleRGBA (pgSurface_AsSurface (surface), x1, _y1, x2, y2,
                        rgba[0], rgba[1], rgba[2], rgba[3]) ==
         -1) {
-        PyErr_SetString (PyExc_SDLError, SDL_GetError ());
+        PyErr_SetString (pgExc_SDLError, SDL_GetError ());
         return NULL;
     }
     Py_RETURN_NONE;
@@ -275,15 +275,15 @@ _gfx_boxcolor (PyObject *self, PyObject* args)
         return NULL;
     }
 
-    if (!PySurface_Check (surface)) {
+    if (!pgSurface_Check (surface)) {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    sdlrect = GameRect_FromObject (rect, &temprect);
+    sdlrect = pgRect_FromObject (rect, &temprect);
     if (sdlrect == NULL) {
         return NULL;
     }
-    if (!RGBAFromObj (color, rgba)) {
+    if (!pg_RGBAFromObj (color, rgba)) {
         PyErr_SetString (PyExc_TypeError, "invalid color argument");
         return NULL;
     }
@@ -293,10 +293,10 @@ _gfx_boxcolor (PyObject *self, PyObject* args)
     x2 = (Sint16) (sdlrect->x + sdlrect->w - 1);
     y2 = (Sint16) (sdlrect->y + sdlrect->h - 1);
 
-    if (boxRGBA (PySurface_AsSurface (surface), x1, _y1, x2, y2,
+    if (boxRGBA (pgSurface_AsSurface (surface), x1, _y1, x2, y2,
                  rgba[0], rgba[1], rgba[2], rgba[3]) ==
         -1) {
-        PyErr_SetString (PyExc_SDLError, SDL_GetError ());
+        PyErr_SetString (pgExc_SDLError, SDL_GetError ());
         return NULL;
     }
     Py_RETURN_NONE;
@@ -315,21 +315,21 @@ _gfx_linecolor (PyObject *self, PyObject* args)
             &color))
         return NULL;
 
-    if (!PySurface_Check (surface))
+    if (!pgSurface_Check (surface))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    if (!RGBAFromObj (color, rgba))
+    if (!pg_RGBAFromObj (color, rgba))
     {
         PyErr_SetString (PyExc_TypeError, "invalid color argument");
         return NULL;
     }
 
-    if (lineRGBA (PySurface_AsSurface (surface), x1, _y1, x2, y2,
+    if (lineRGBA (pgSurface_AsSurface (surface), x1, _y1, x2, y2,
                   rgba[0], rgba[1], rgba[2], rgba[3]) == -1)
     {
-        PyErr_SetString (PyExc_SDLError, SDL_GetError ());
+        PyErr_SetString (pgExc_SDLError, SDL_GetError ());
         return NULL;
     }
     Py_RETURN_NONE;
@@ -347,21 +347,21 @@ _gfx_circlecolor (PyObject *self, PyObject* args)
     if (!PyArg_ParseTuple (args, "OhhhO:circle", &surface, &x, &y, &r, &color))
         return NULL;
 
-    if (!PySurface_Check (surface))
+    if (!pgSurface_Check (surface))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    if (!RGBAFromObj (color, rgba))
+    if (!pg_RGBAFromObj (color, rgba))
     {
         PyErr_SetString (PyExc_TypeError, "invalid color argument");
         return NULL;
     }
 
-    if (circleRGBA (PySurface_AsSurface (surface), x, y, r,
+    if (circleRGBA (pgSurface_AsSurface (surface), x, y, r,
                     rgba[0], rgba[1], rgba[2], rgba[3]) == -1)
     {
-        PyErr_SetString (PyExc_SDLError, SDL_GetError ());
+        PyErr_SetString (pgExc_SDLError, SDL_GetError ());
         return NULL;
     }
     Py_RETURN_NONE;
@@ -380,21 +380,21 @@ _gfx_arccolor (PyObject *self, PyObject* args)
             &start, &end, &color))
         return NULL;
 
-    if (!PySurface_Check (surface))
+    if (!pgSurface_Check (surface))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    if (!RGBAFromObj (color, rgba))
+    if (!pg_RGBAFromObj (color, rgba))
     {
         PyErr_SetString (PyExc_TypeError, "invalid color argument");
         return NULL;
     }
 
-    if (arcRGBA (PySurface_AsSurface (surface), x, y, r, start, end,
+    if (arcRGBA (pgSurface_AsSurface (surface), x, y, r, start, end,
                  rgba[0], rgba[1], rgba[2], rgba[3]) == -1)
     {
-        PyErr_SetString (PyExc_SDLError, SDL_GetError ());
+        PyErr_SetString (pgExc_SDLError, SDL_GetError ());
         return NULL;
     }
     Py_RETURN_NONE;
@@ -413,21 +413,21 @@ _gfx_aacirclecolor (PyObject *self, PyObject* args)
             &color))
         return NULL;
 
-    if (!PySurface_Check (surface))
+    if (!pgSurface_Check (surface))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    if (!RGBAFromObj (color, rgba))
+    if (!pg_RGBAFromObj (color, rgba))
     {
         PyErr_SetString (PyExc_TypeError, "invalid color argument");
         return NULL;
     }
 
-    if (aacircleRGBA (PySurface_AsSurface (surface), x, y, r,
+    if (aacircleRGBA (pgSurface_AsSurface (surface), x, y, r,
                       rgba[0], rgba[1], rgba[2], rgba[3]) == -1)
     {
-        PyErr_SetString (PyExc_SDLError, SDL_GetError ());
+        PyErr_SetString (pgExc_SDLError, SDL_GetError ());
         return NULL;
     }
     Py_RETURN_NONE;
@@ -446,21 +446,21 @@ _gfx_filledcirclecolor (PyObject *self, PyObject* args)
             &color))
         return NULL;
 
-    if (!PySurface_Check (surface))
+    if (!pgSurface_Check (surface))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    if (!RGBAFromObj (color, rgba))
+    if (!pg_RGBAFromObj (color, rgba))
     {
         PyErr_SetString (PyExc_TypeError, "invalid color argument");
         return NULL;
     }
 
-    if (filledCircleRGBA (PySurface_AsSurface (surface), x, y, r,
+    if (filledCircleRGBA (pgSurface_AsSurface (surface), x, y, r,
                           rgba[0], rgba[1], rgba[2], rgba[3]) == -1)
     {
-        PyErr_SetString (PyExc_SDLError, SDL_GetError ());
+        PyErr_SetString (pgExc_SDLError, SDL_GetError ());
         return NULL;
     }
     Py_RETURN_NONE;
@@ -479,21 +479,21 @@ _gfx_ellipsecolor (PyObject *self, PyObject* args)
             &color))
         return NULL;
 
-    if (!PySurface_Check (surface))
+    if (!pgSurface_Check (surface))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    if (!RGBAFromObj (color, rgba))
+    if (!pg_RGBAFromObj (color, rgba))
     {
         PyErr_SetString (PyExc_TypeError, "invalid color argument");
         return NULL;
     }
 
-    if (ellipseRGBA (PySurface_AsSurface (surface), x, y, rx, ry,
+    if (ellipseRGBA (pgSurface_AsSurface (surface), x, y, rx, ry,
                      rgba[0], rgba[1], rgba[2], rgba[3]) == -1)
     {
-        PyErr_SetString (PyExc_SDLError, SDL_GetError ());
+        PyErr_SetString (pgExc_SDLError, SDL_GetError ());
         return NULL;
     }
     Py_RETURN_NONE;
@@ -512,21 +512,21 @@ _gfx_aaellipsecolor (PyObject *self, PyObject* args)
             &color))
         return NULL;
 
-    if (!PySurface_Check (surface))
+    if (!pgSurface_Check (surface))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    if (!RGBAFromObj (color, rgba))
+    if (!pg_RGBAFromObj (color, rgba))
     {
         PyErr_SetString (PyExc_TypeError, "invalid color argument");
         return NULL;
     }
 
-    if (aaellipseRGBA (PySurface_AsSurface (surface), x, y, rx, ry,
+    if (aaellipseRGBA (pgSurface_AsSurface (surface), x, y, rx, ry,
                        rgba[0], rgba[1], rgba[2], rgba[3]) == -1)
     {
-        PyErr_SetString (PyExc_SDLError, SDL_GetError ());
+        PyErr_SetString (pgExc_SDLError, SDL_GetError ());
         return NULL;
     }
     Py_RETURN_NONE;
@@ -545,22 +545,22 @@ _gfx_filledellipsecolor (PyObject *self, PyObject* args)
             &rx, &ry, &color))
         return NULL;
 
-    if (!PySurface_Check (surface))
+    if (!pgSurface_Check (surface))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    if (!RGBAFromObj (color, rgba))
+    if (!pg_RGBAFromObj (color, rgba))
     {
         PyErr_SetString (PyExc_TypeError, "invalid color argument");
         return NULL;
     }
 
-    if (filledEllipseRGBA (PySurface_AsSurface (surface), x, y, rx, ry,
+    if (filledEllipseRGBA (pgSurface_AsSurface (surface), x, y, rx, ry,
                            rgba[0], rgba[1], rgba[2], rgba[3]) ==
         -1)
     {
-        PyErr_SetString (PyExc_SDLError, SDL_GetError ());
+        PyErr_SetString (pgExc_SDLError, SDL_GetError ());
         return NULL;
     }
     Py_RETURN_NONE;
@@ -579,21 +579,21 @@ _gfx_piecolor (PyObject *self, PyObject* args)
             &start, &end, &color))
         return NULL;
 
-    if (!PySurface_Check (surface))
+    if (!pgSurface_Check (surface))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    if (!RGBAFromObj (color, rgba))
+    if (!pg_RGBAFromObj (color, rgba))
     {
         PyErr_SetString (PyExc_TypeError, "invalid color argument");
         return NULL;
     }
 
-    if (pieRGBA (PySurface_AsSurface (surface), x, y, r, start, end,
+    if (pieRGBA (pgSurface_AsSurface (surface), x, y, r, start, end,
                  rgba[0], rgba[1], rgba[2], rgba[3]) == -1)
     {
-        PyErr_SetString (PyExc_SDLError, SDL_GetError ());
+        PyErr_SetString (pgExc_SDLError, SDL_GetError ());
         return NULL;
     }
     Py_RETURN_NONE;
@@ -612,22 +612,22 @@ _gfx_trigoncolor (PyObject *self, PyObject* args)
             &y2, &x3, &y3, &color))
         return NULL;
 
-    if (!PySurface_Check (surface))
+    if (!pgSurface_Check (surface))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    if (!RGBAFromObj (color, rgba))
+    if (!pg_RGBAFromObj (color, rgba))
     {
         PyErr_SetString (PyExc_TypeError, "invalid color argument");
         return NULL;
     }
 
-    if (trigonRGBA (PySurface_AsSurface (surface), x1, _y1, x2, y2, x3, y3,
+    if (trigonRGBA (pgSurface_AsSurface (surface), x1, _y1, x2, y2, x3, y3,
                     rgba[0], rgba[1], rgba[2], rgba[3])
         == -1)
     {
-        PyErr_SetString (PyExc_SDLError, SDL_GetError ());
+        PyErr_SetString (pgExc_SDLError, SDL_GetError ());
         return NULL;
     }
     Py_RETURN_NONE;
@@ -646,21 +646,21 @@ _gfx_aatrigoncolor (PyObject *self, PyObject* args)
             &y2, &x3, &y3, &color))
         return NULL;
 
-    if (!PySurface_Check (surface))
+    if (!pgSurface_Check (surface))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    if (!RGBAFromObj (color, rgba))
+    if (!pg_RGBAFromObj (color, rgba))
     {
         PyErr_SetString (PyExc_TypeError, "invalid color argument");
         return NULL;
     }
 
-    if (aatrigonRGBA (PySurface_AsSurface (surface), x1, _y1, x2, y2, x3, y3,
+    if (aatrigonRGBA (pgSurface_AsSurface (surface), x1, _y1, x2, y2, x3, y3,
                       rgba[0], rgba[1], rgba[2], rgba[3]) == -1)
     {
-        PyErr_SetString (PyExc_SDLError, SDL_GetError ());
+        PyErr_SetString (pgExc_SDLError, SDL_GetError ());
         return NULL;
     }
     Py_RETURN_NONE;
@@ -679,21 +679,21 @@ _gfx_filledtrigoncolor (PyObject *self, PyObject* args)
             &x2, &y2, &x3, &y3, &color))
         return NULL;
 
-    if (!PySurface_Check (surface))
+    if (!pgSurface_Check (surface))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    if (!RGBAFromObj (color, rgba))
+    if (!pg_RGBAFromObj (color, rgba))
     {
         PyErr_SetString (PyExc_TypeError, "invalid color argument");
         return NULL;
     }
 
-    if (filledTrigonRGBA (PySurface_AsSurface (surface), x1, _y1, x2, y2,
+    if (filledTrigonRGBA (pgSurface_AsSurface (surface), x1, _y1, x2, y2,
                           x3, y3, rgba[0], rgba[1], rgba[2], rgba[3]) == -1)
     {
-        PyErr_SetString (PyExc_SDLError, SDL_GetError ());
+        PyErr_SetString (pgExc_SDLError, SDL_GetError ());
         return NULL;
     }
     Py_RETURN_NONE;
@@ -713,12 +713,12 @@ _gfx_polygoncolor (PyObject *self, PyObject* args)
     if (!PyArg_ParseTuple (args, "OOO:polygon", &surface, &points, &color))
         return NULL;
 
-    if (!PySurface_Check (surface))
+    if (!pgSurface_Check (surface))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    if (!RGBAFromObj (color, rgba))
+    if (!pg_RGBAFromObj (color, rgba))
     {
         PyErr_SetString (PyExc_TypeError, "invalid color argument");
         return NULL;
@@ -771,7 +771,7 @@ _gfx_polygoncolor (PyObject *self, PyObject* args)
     }
 
     Py_BEGIN_ALLOW_THREADS;
-    ret = polygonRGBA (PySurface_AsSurface (surface), vx, vy, (int)count,
+    ret = polygonRGBA (pgSurface_AsSurface (surface), vx, vy, (int)count,
                        rgba[0], rgba[1], rgba[2], rgba[3]);
     Py_END_ALLOW_THREADS;
 
@@ -780,7 +780,7 @@ _gfx_polygoncolor (PyObject *self, PyObject* args)
 
     if (ret == -1)
     {
-        PyErr_SetString (PyExc_SDLError, SDL_GetError ());
+        PyErr_SetString (pgExc_SDLError, SDL_GetError ());
         return NULL;
     }
     Py_RETURN_NONE;
@@ -800,12 +800,12 @@ _gfx_aapolygoncolor (PyObject *self, PyObject* args)
     if (!PyArg_ParseTuple (args, "OOO:aapolygon", &surface, &points, &color))
         return NULL;
 
-    if (!PySurface_Check (surface))
+    if (!pgSurface_Check (surface))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    if (!RGBAFromObj (color, rgba))
+    if (!pg_RGBAFromObj (color, rgba))
     {
         PyErr_SetString (PyExc_TypeError, "invalid color argument");
         return NULL;
@@ -858,7 +858,7 @@ _gfx_aapolygoncolor (PyObject *self, PyObject* args)
     }
 
     Py_BEGIN_ALLOW_THREADS;
-    ret = aapolygonRGBA (PySurface_AsSurface (surface), vx, vy, (int)count,
+    ret = aapolygonRGBA (pgSurface_AsSurface (surface), vx, vy, (int)count,
                          rgba[0], rgba[1], rgba[2], rgba[3]);
     Py_END_ALLOW_THREADS;
 
@@ -867,7 +867,7 @@ _gfx_aapolygoncolor (PyObject *self, PyObject* args)
 
     if (ret == -1)
     {
-        PyErr_SetString (PyExc_SDLError, SDL_GetError ());
+        PyErr_SetString (pgExc_SDLError, SDL_GetError ());
         return NULL;
     }
     Py_RETURN_NONE;
@@ -888,12 +888,12 @@ _gfx_filledpolygoncolor (PyObject *self, PyObject* args)
             &color))
         return NULL;
 
-    if (!PySurface_Check (surface))
+    if (!pgSurface_Check (surface))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    if (!RGBAFromObj (color, rgba))
+    if (!pg_RGBAFromObj (color, rgba))
     {
         PyErr_SetString (PyExc_TypeError, "invalid color argument");
         return NULL;
@@ -946,7 +946,7 @@ _gfx_filledpolygoncolor (PyObject *self, PyObject* args)
     }
 
     Py_BEGIN_ALLOW_THREADS;
-    ret = filledPolygonRGBA (PySurface_AsSurface (surface), vx, vy,
+    ret = filledPolygonRGBA (pgSurface_AsSurface (surface), vx, vy,
                              (int)count, rgba[0], rgba[1], rgba[2], rgba[3]);
     Py_END_ALLOW_THREADS;
 
@@ -955,7 +955,7 @@ _gfx_filledpolygoncolor (PyObject *self, PyObject* args)
 
     if (ret == -1)
     {
-        PyErr_SetString (PyExc_SDLError, SDL_GetError ());
+        PyErr_SetString (pgExc_SDLError, SDL_GetError ());
         return NULL;
     }
     Py_RETURN_NONE;
@@ -976,18 +976,18 @@ _gfx_texturedpolygon (PyObject *self, PyObject* args)
             &texture, &tdx, &tdy))
         return NULL;
 
-    if (!PySurface_Check (surface))
+    if (!pgSurface_Check (surface))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    s_surface = PySurface_AsSurface (surface);
-    if (!PySurface_Check (texture))
+    s_surface = pgSurface_AsSurface (surface);
+    if (!pgSurface_Check (texture))
     {
         PyErr_SetString (PyExc_TypeError, "texture must be a Surface");
         return NULL;
     }
-    s_texture = PySurface_AsSurface (texture);
+    s_texture = pgSurface_AsSurface (texture);
     if (!PySequence_Check (points))
     {
         PyErr_SetString (PyExc_TypeError, "points must be a sequence");
@@ -1052,7 +1052,7 @@ _gfx_texturedpolygon (PyObject *self, PyObject* args)
 
     if (ret == -1)
     {
-        PyErr_SetString (PyExc_SDLError, SDL_GetError ());
+        PyErr_SetString (pgExc_SDLError, SDL_GetError ());
         return NULL;
     }
     Py_RETURN_NONE;
@@ -1074,12 +1074,12 @@ _gfx_beziercolor (PyObject *self, PyObject* args)
             &color))
         return NULL;
 
-    if (!PySurface_Check (surface))
+    if (!pgSurface_Check (surface))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    if (!RGBAFromObj (color, rgba))
+    if (!pg_RGBAFromObj (color, rgba))
     {
         PyErr_SetString (PyExc_TypeError, "invalid color argument");
         return NULL;
@@ -1133,7 +1133,7 @@ _gfx_beziercolor (PyObject *self, PyObject* args)
     }
 
     Py_BEGIN_ALLOW_THREADS;
-    ret = bezierRGBA (PySurface_AsSurface (surface), vx, vy, (int)count,
+    ret = bezierRGBA (pgSurface_AsSurface (surface), vx, vy, (int)count,
                       steps, rgba[0], rgba[1], rgba[2], rgba[3]);
     Py_END_ALLOW_THREADS;
 
@@ -1142,7 +1142,7 @@ _gfx_beziercolor (PyObject *self, PyObject* args)
 
     if (ret == -1)
     {
-        PyErr_SetString (PyExc_SDLError, SDL_GetError ());
+        PyErr_SetString (pgExc_SDLError, SDL_GetError ());
         return NULL;
     }
     Py_RETURN_NONE;
