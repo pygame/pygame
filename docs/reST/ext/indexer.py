@@ -34,6 +34,7 @@ from ext.utils import (Visitor, get_fullname, get_refid, as_refid,
 
 from collections import deque
 
+import os.path
 
 MODULE_ID_PREFIX = as_unicode(r'module-')
 
@@ -86,6 +87,23 @@ class CollectInfo(Visitor):
             self.env.pyg_descinfo_tbl
         except AttributeError:
             self.env.pyg_descinfo_tbl = {}
+
+    def visit_document(self, node):
+        # Only index pygame Python API documents, found in the docs/reST/ref
+        # subdirectory. Thus the tutorials and the C API documents are skipped.
+        source = node['source']
+        head, file_name = os.path.split(source)
+        if not file_name:
+            raise self.skip_node
+        head, dir_name = os.path.split(head)
+        if dir_name != 'ref':
+            raise self.skip_node
+        head, dir_name = os.path.split(head)
+        if dir_name != 'reST':
+            raise self.skip_node
+        head, dir_name = os.path.split(head)
+        if dir_name != 'docs':
+            raise self.skip_node
 
     def visit_section(self, node):
         if not node['names']:
