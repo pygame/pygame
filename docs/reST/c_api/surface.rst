@@ -18,7 +18,7 @@ Header file: src/pygame.h
 
    A :py:class:`pygame.Surface` instance.
 
-.. c:var:: pgSurface_Type
+.. c:var:: PyTypeObject *pgSurface_Type
 
    The :py:class:`pygame.Surface` Python type.
 
