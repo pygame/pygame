@@ -251,12 +251,14 @@ add_datafiles(data_files, 'pygame/examples',
 add_datafiles(data_files, 'pygame/docs',
               ['docs',
                   ['*.html',             # Navigation and help pages
-                   '*.gif',              # Pygame logos
+                   '*.gif',              # pygame logos
                    '*.js',               # For doc search
-                   ['ref',               # Pygame reference
+                   ['ref',               # pygame reference
                        ['*.html',        # Reference pages
                         '*.js',          # Comments script
                         '*.json']],      # Comment data
+                   ['c_api',             # pygame C API
+                       ['*.html']],
                    ['tut',               # Tutorials
                        ['*.html',
                         ['tom',
