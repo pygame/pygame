@@ -59,14 +59,17 @@ brew install fluid-synth
 brew install libmikmod ${UNIVERSAL_FLAG}
 brew install smpeg
 
-# seems portmidi added python in homebrew, which is broken with our travis python builds on mac.
-#brew install portmidi ${UNIVERSAL_FLAG}
-
-brew install https://gist.githubusercontent.com/illume/08f9d3ca872dc2b61d80f665602233fd/raw/0fbfd6657da24c419d23a6678b5715a18cd6560a/portmidi.rb
+# Because portmidi hates us... and installs python2, which messes homebrew up.
+# So we install portmidi from our own formula.
+brew tap pygame/portmidi
+brew install pygame/portmidi/portmidi ${UNIVERSAL_FLAG}
 
 brew install freetype ${UNIVERSAL_FLAG}
 brew install sdl_ttf ${UNIVERSAL_FLAG}
 brew install sdl_image ${UNIVERSAL_FLAG}
 brew install sdl_mixer ${UNIVERSAL_FLAG} --with-flac --with-fluid-synth --with-libmikmod --with-libvorbis --with-smpeg
+
+brew install https://gist.githubusercontent.com/illume/08f9d3ca872dc2b61d80f665602233fd/raw/0fbfd6657da24c419d23a6678b5715a18cd6560a/portmidi.rb
+
 
 echo "finished .travis_osx_before_install.sh"
