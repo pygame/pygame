@@ -23,6 +23,8 @@ METADATA = {
     "long_description": DESCRIPTION,
 }
 
+import sys
+
 def compilation_help():
     """ On failure point people to a web page for help.
     """
@@ -47,6 +49,10 @@ def compilation_help():
     default = 'https://www.pygame.org/wiki/Compilation'
     url = help_urls.get(platform.system(), default)
 
+    is_pypy = '__pypy__' in sys.builtin_module_names
+    if is_pypy:
+        url += '\n    https://www.pygame.org/wiki/CompilePyPy'
+
     print ('---')
     print ('For help with compilation see:')
     print ('    %s' % url)
@@ -55,7 +61,6 @@ def compilation_help():
     print ('---')
 
 
-import sys
 
 if not hasattr(sys, 'version_info') or sys.version_info < (2,3):
     compilation_help()
