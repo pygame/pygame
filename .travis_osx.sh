@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# Order the osx scripts are run.
+	# .travis_osx_before_install.sh
+	# .travis_osx.sh
+	# .travis_osx_install.sh
+	# .travis_osx_after_success.sh
+	# .travis_osx_rename_whl.py
+	# .travis_osx_upload_whl.py --no-config
+
 set -e
 
 # Work around https://github.com/travis-ci/travis-ci/issues/8703 :-@
