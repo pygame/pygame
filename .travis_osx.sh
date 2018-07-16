@@ -37,4 +37,16 @@ fi
 get_python_environment homebrew $PY_VERSION $(pwd)/_test_env
 
 
+# try and install an old python3.6 formula
+if [[ "$PY_VERSION_" == "3.6" ]]; then
+	brew uninstall python --force --ignore-dependencies
+	brew tap pygame/portmidi
+	brew install pygame/portmidi/python
+	export PYTHON_EXE=python3.6
+	export PIP_CMD="python3.6 -m pip"
+fi
+
+
+
+
 fi
