@@ -54,23 +54,28 @@ mac, windows or linux boxes.
 These aren't meant to be copypasta'd in. Perhaps these can be worked into a script later::
 
     # You should be in the base of the pygame repo when you run all this.
+    $ pwd
+    /home/jblogs/pygame
 
     # Download many megabytes of ubuntu.
+    mkdir vagrant.xenial64
+    cd vagrant.xenial64
     vagrant init ubuntu/xenial64
+
+    # edit your Vagrantfile to add /vagrant_pygame synced folder.
+    # You pygame folder is next to your vagrant
+    config.vm.synced_folder "../pygame", "/vagrant_pygame"
+
+    # now start vagrant.
     vagrant up
     vagrant ssh
 
     # now we are on the vagrant ubuntu host
     # We set up docker following these instructions for ubuntu-xenial
-    # https://docs.docker.com/engine/installation/linux/ubuntulinux/
-    sudo apt-get install apt-transport-https ca-certificates
-    sudo apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D
-    vi /etc/apt/sources.list.d/docker.list
-    sudo vi /etc/apt/sources.list.d/docker.list
+    # https://docs.docker.com/install/linux/docker-ce/ubuntu/#install-docker-ce-1
     sudo apt-get update
-    sudo apt-get purge lxc-docker
-    apt-cache policy docker-engine
-    sudo apt-get install docker-engine
+    sudo apt-get remove docker docker-engine docker.io
+    sudo apt-get install apt-transport-https ca-certificates curl software-properties-common
 
     # Now edit /etc/hosts so it has a first line with the hostname ubuntu-xenial in it.
     # Otherwise docker does not start.
@@ -78,8 +83,20 @@ These aren't meant to be copypasta'd in. Perhaps these can be worked into a scri
     # makes a /etc/hosts.bak in case something breaks.
     sudo sed -i".bak" '/127.0.0.1 localhost/s/$/ ubuntu-xenial/' /etc/hosts
 
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+
+    sudo apt-get update
+
+    sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+
+    sudo apt-get install docker-ce
+
+    # check that it runs.
+    sudo docker run hello-world
+
+
     # We should have been in our python package clone root directory before we ran vagrant ssh
-    cd /vagrant
+    cd /vagrant_pygame
 
     # We need to be able to run docker as the ubuntu user.
     sudo usermod -aG docker ubuntu
@@ -95,7 +112,7 @@ These aren't meant to be copypasta'd in. Perhaps these can be worked into a scri
     sudo service docker start
 
 
-    cd /vagrant/manylinux-build
+    cd /vagrant_pygame/manylinux-build
 
     # To make the base docker images and push them to docker hub do these commands.
     # Note, these have already been built, so only needed if rebuilding dependencies.

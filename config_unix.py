@@ -175,6 +175,25 @@ def main():
 
     porttime_dep = get_porttime_dep()
 
+
+    def find_freetype():
+        """ modern freetype uses pkg-config. However, some older systems don't have that.
+        """
+        pkg_config = DependencyProg(
+            'FREETYPE', 'FREETYPE_CONFIG', 'pkg-config freetype2', '2.0',
+            ['freetype2'], '--modversion'
+        )
+        if pkg_config.found:
+            return pkg_config
+
+        freetype_config = DependencyProg(
+            'FREETYPE', 'FREETYPE_CONFIG', 'freetype-config', '2.0',
+            ['freetype'], '--ftversion'
+        )
+        if freetype_config.found:
+            return freetype_config
+        return pkg_config
+
     DEPS = [
         DependencyProg('SDL', 'SDL_CONFIG', 'sdl-config', '1.2', ['sdl']),
         Dependency('FONT', 'SDL_ttf.h', 'libSDL_ttf.so', ['SDL_ttf']),
@@ -185,10 +204,7 @@ def main():
         Dependency('SCRAP', '', 'libX11', ['X11']),
         Dependency('PORTMIDI', 'portmidi.h', 'libportmidi.so', ['portmidi']),
         porttime_dep,
-        # DependencyProg('FREETYPE', 'FREETYPE_CONFIG', 'freetype-config', '2.0',
-        #                ['freetype'], '--ftversion'),
-        DependencyProg('FREETYPE', 'FREETYPE_CONFIG', 'pkg-config freetype2', '2.0',
-                       ['freetype2'], '--modversion'),
+        find_freetype(),
         #Dependency('GFX', 'SDL_gfxPrimitives.h', 'libSDL_gfx.so', ['SDL_gfx']),
     ]
     if not DEPS[0].found:
