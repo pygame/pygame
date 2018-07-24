@@ -27,6 +27,10 @@ environment:
       PYTHON_VERSION: "2.7.13"
       PYTHON_ARCH: "32"
 
+    - PYTHON: "C:\\Python34\\python"
+      PYTHON_VERSION: "3.4.4"
+      PYTHON_ARCH: "32"
+
     - PYTHON: "C:\\Python35\\python"
       PYTHON_VERSION: "3.5.2"
       PYTHON_ARCH: "32"
@@ -41,6 +45,10 @@ environment:
 
     - PYTHON: "C:\\Python27-x64\\python"
       PYTHON_VERSION: "2.7.13"
+      PYTHON_ARCH: "64"
+
+    - PYTHON: "C:\\Python34-x64\\python"
+      PYTHON_VERSION: "3.4.4"
       PYTHON_ARCH: "64"
 
     - PYTHON: "C:\\Python35-x64\\python"
