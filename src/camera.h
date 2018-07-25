@@ -39,9 +39,8 @@
     /* on freebsd there is no asm/types */
     #ifdef linux
         #include <asm/types.h>          /* for videodev2.h */
+        #include <linux/videodev2.h>
     #endif
-
-    #include <linux/videodev2.h>
 #elif defined(__APPLE__)
     #include <AvailabilityMacros.h>
     /* We support OSX 10.6 and below. */
