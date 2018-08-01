@@ -3,12 +3,14 @@
 About pygame
 ============
 
-     Pygame is a cross-platfrom library designed to make it easy to
+     Pygame, the library is cross-platfrom and designed to make it easy to
      write multimedia software, such as games, in Python. Pygame
      requires the Python language and SDL multimedia library. It can
      also make use of several other popular libraries.
 
      https://www.pygame.org
+
+     We need your help to make pygame the best it can be! https://www.pygame.org/contribute.html
 
 |TravisBuild|_ |AppVeyorBuild|_ |LaunchpadBuild|_ |PyPiVersion|_ |PyPiLicense|_ |Python2| |Python3| |GithubCommits|_
 
@@ -29,7 +31,7 @@ Installation
      auto-configure, build, and install pygame.
 
      Much more information about installing and compiling is available
-     in the install.html file.
+     in the install.html file and at https://www.pygame.org/wiki/Compilation
 
 Help
 ====

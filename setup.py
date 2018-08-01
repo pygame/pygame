@@ -14,7 +14,7 @@ EXTRAS = {}
 
 METADATA = {
     "name":             "pygame",
-    "version":          "1.9.4.dev0",
+    "version":          "1.9.5.dev0",
     "license":          "LGPL",
     "url":              "https://www.pygame.org",
     "author":           "Pete Shinners, Rene Dudfield, Marcus von Appen, Bob Pendleton, others...",
@@ -25,7 +25,45 @@ METADATA = {
 
 import sys
 
+def compilation_help():
+    """ On failure point people to a web page for help.
+    """
+    import platform
+    the_system = platform.system()
+    if the_system == 'Linux':
+        if hasattr(platform, 'linux_distribution'):
+            distro = platform.linux_distribution()
+            if distro[0] == 'Ubuntu':
+                the_system = 'Ubuntu'
+            elif distro[0] == 'Debian':
+                the_system = 'Debian'
+
+    help_urls = {
+        'Linux': 'https://www.pygame.org/wiki/Compilation',
+        'Ubuntu': 'https://www.pygame.org/wiki/CompileUbuntu',
+        'Debian': 'https://www.pygame.org/wiki/CompileDebian',
+        'Windows': 'https://www.pygame.org/wiki/CompileWindows',
+        'Darwin': 'https://www.pygame.org/wiki/MacCompile',
+    }
+
+    default = 'https://www.pygame.org/wiki/Compilation'
+    url = help_urls.get(platform.system(), default)
+
+    is_pypy = '__pypy__' in sys.builtin_module_names
+    if is_pypy:
+        url += '\n    https://www.pygame.org/wiki/CompilePyPy'
+
+    print ('---')
+    print ('For help with compilation see:')
+    print ('    %s' % url)
+    print ('To contribute to pygame development see:')
+    print ('    https://www.pygame.org/contribute.html')
+    print ('---')
+
+
+
 if not hasattr(sys, 'version_info') or sys.version_info < (2,3):
+    compilation_help()
     raise SystemExit("Pygame requires Python version 2.3 or above.")
 
 #get us to the correct directory
@@ -166,6 +204,7 @@ try:
 except:
     print ("""Error with the "Setup" file,
 perhaps make a clean copy from "Setup.in".""")
+    compilation_help()
     raise
 
 
@@ -567,33 +606,6 @@ PACKAGEDATA = {
 PACKAGEDATA.update(METADATA)
 PACKAGEDATA.update(EXTRAS)
 
-
-def compilation_help():
-    """ On failure point people to a web page for help.
-    """
-    import platform
-    the_system = platform.system()
-    if hasattr(platform, 'linux_distribution'):
-        distro = platform.linux_distribution()
-        if distro[0] == 'Ubuntu':
-            the_system = 'Ubuntu'
-        elif distro[0] == 'Ubuntu':
-            the_system = 'Debian'
-
-    help_urls = {
-        'Linux': 'https://www.pygame.org/wiki/Compilation',
-        'Ubuntu': 'https://www.pygame.org/wiki/CompileUbuntu',
-        'Debian': 'https://www.pygame.org/wiki/CompileDebian',
-        'Windows': 'https://www.pygame.org/wiki/CompileWindows',
-        'Darwin': 'https://www.pygame.org/wiki/MacCompile',
-    }
-
-    default = 'https://www.pygame.org/wiki/Compilation'
-    url = help_urls.get(platform.system(), default)
-
-    print ('---')
-    print ('For help with compilation see: %s' % url)
-    print ('---')
 
 try:
     setup(**PACKAGEDATA)

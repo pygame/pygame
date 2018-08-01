@@ -11,20 +11,24 @@ environment:
     SDL_AUDIODRIVER: "disk"
 
   matrix:
-    - PYTHON: "pypy.exe"
-      PYTHON_VERSION: "2.7.13"
-      PYTHON_ARCH: "32"
-      PYPY_VERSION: "pypy2-v5.10.0-win32"
-      PYPY_DOWNLOAD: "powershell appveyor\\download_pypy.ps1"
+    # - PYTHON: "pypy.exe"
+    #   PYTHON_VERSION: "2.7.13"
+    #   PYTHON_ARCH: "32"
+    #   PYPY_VERSION: "pypy2-v5.10.0-win32"
+    #   PYPY_DOWNLOAD: "powershell appveyor\\download_pypy.ps1"
 
-    - PYTHON: "pypy3.exe"
-      PYTHON_VERSION: "2.7.13"
-      PYTHON_ARCH: "32"
-      PYPY_VERSION: "pypy3-v5.10.1-win32"
-      PYPY_DOWNLOAD: "powershell appveyor\\download_pypy.ps1"
+    # - PYTHON: "pypy3.exe"
+    #   PYTHON_VERSION: "2.7.13"
+    #   PYTHON_ARCH: "32"
+    #   PYPY_VERSION: "pypy3-v5.10.1-win32"
+    #   PYPY_DOWNLOAD: "powershell appveyor\\download_pypy.ps1"
 
     - PYTHON: "C:\\Python27\\python"
       PYTHON_VERSION: "2.7.13"
+      PYTHON_ARCH: "32"
+
+    - PYTHON: "C:\\Python34\\python"
+      PYTHON_VERSION: "3.4.4"
       PYTHON_ARCH: "32"
 
     - PYTHON: "C:\\Python35\\python"
@@ -35,8 +39,16 @@ environment:
       PYTHON_VERSION: "3.6.0"
       PYTHON_ARCH: "32"
 
+    - PYTHON: "C:\\Python37\\python"
+      PYTHON_VERSION: "3.7.0"
+      PYTHON_ARCH: "32"
+
     - PYTHON: "C:\\Python27-x64\\python"
       PYTHON_VERSION: "2.7.13"
+      PYTHON_ARCH: "64"
+
+    - PYTHON: "C:\\Python34-x64\\python"
+      PYTHON_VERSION: "3.4.4"
       PYTHON_ARCH: "64"
 
     - PYTHON: "C:\\Python35-x64\\python"
@@ -45,6 +57,10 @@ environment:
 
     - PYTHON: "C:\\Python36-x64\\python"
       PYTHON_VERSION: "3.6.0"
+      PYTHON_ARCH: "64"
+
+    - PYTHON: "C:\\Python37-x64\\python"
+      PYTHON_VERSION: "3.7.0"
       PYTHON_ARCH: "64"
 
 init:

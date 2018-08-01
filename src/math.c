@@ -899,12 +899,15 @@ vector_subscript (pgVector *self, PyObject *key)
 
 #if PY_VERSION_HEX >= 0x03020000
         if (PySlice_GetIndicesEx ((PyObject*)key,
-#else
-        if (PySlice_GetIndicesEx ((PySliceObject*)key,
-#endif
                  self->dim, &start, &stop, &step, &slicelength) < 0) {
             return NULL;
         }
+#else
+        if (PySlice_GetIndicesEx ((PySliceObject*)key,
+                 self->dim, &start, &stop, &step, &slicelength) < 0) {
+            return NULL;
+        }
+#endif
 
         if (slicelength <= 0) {
             return PyList_New(0);
@@ -962,12 +965,15 @@ vector_ass_subscript (pgVector *self, PyObject *key, PyObject *value)
 
 #if PY_VERSION_HEX >= 0x03020000
         if (PySlice_GetIndicesEx ((PyObject*)key,
-#else
-        if (PySlice_GetIndicesEx ((PySliceObject*)key,
-#endif
             self->dim, &start, &stop, &step, &slicelength) < 0) {
             return -1;
         }
+#else
+        if (PySlice_GetIndicesEx ((PySliceObject*)key,
+            self->dim, &start, &stop, &step, &slicelength) < 0) {
+            return -1;
+        }
+#endif
 
         if (step == 1)
             return vector_SetSlice(self, start, stop, value);

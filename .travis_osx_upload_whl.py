@@ -63,4 +63,7 @@ try:
 except:
     print('is twine installed?')
 finally:
-    os.unlink('pypirc')
+    try:
+        os.unlink('pypirc')
+    except:
+        print('issue unlinking pypirc file... probably ok?')

@@ -76,7 +76,7 @@ along, and a complete breakdown follows.
 
    screen = pygame.display.set_mode(size)
 
-   ball = pygame.image.load("ball.bmp")
+   ball = pygame.image.load("intro_ball.gif")
    ballrect = ball.get_rect()
 
    while 1:
@@ -111,7 +111,7 @@ do to this Surface will become visible on the monitor.
 
 At :clr:`line 10` we load
 our ball image. Pygame supports a variety of image formats through the
-SDL_image library, including JPG, PNG, TGA, and GIF.
+SDL_image library, including BMP, JPG, PNG, TGA, and GIF.
 The ``pygame.image.load()`` function
 returns us a Surface with the ball data. The Surface will keep any
 colorkey or alpha transparency from the file. After loading the ball

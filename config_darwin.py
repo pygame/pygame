@@ -98,6 +98,25 @@ class DependencyPython:
         else:
             print (self.name + '        '[len(self.name):] + ': not found')
 
+def find_freetype():
+    """ modern freetype uses pkg-config. However, some older systems don't have that.
+    """
+    pkg_config = DependencyProg(
+        'FREETYPE', 'FREETYPE_CONFIG', 'pkg-config freetype2', '2.0',
+        ['freetype2'], '--modversion'
+    )
+    if pkg_config.found:
+        return pkg_config
+
+    #DependencyProg('FREETYPE', 'FREETYPE_CONFIG', '/usr/X11R6/bin/freetype-config', '2.0',
+    freetype_config = DependencyProg(
+        'FREETYPE', 'FREETYPE_CONFIG', 'freetype-config', '2.0', ['freetype'], '--ftversion'
+    )
+    if freetype_config.found:
+        return freetype_config
+    return pkg_config
+
+
 DEPS = [
     [DependencyProg('SDL', 'SDL_CONFIG', 'sdl-config', '1.2', ['sdl']),
          FrameworkDependency('SDL', 'SDL.h', 'libSDL', 'SDL')],
@@ -112,11 +131,7 @@ DEPS = [
     Dependency('PNG', 'png.h', 'libpng', ['png']),
     Dependency('JPEG', 'jpeglib.h', 'libjpeg', ['jpeg']),
     Dependency('PORTMIDI', 'portmidi.h', 'libportmidi', ['portmidi']),
-    #DependencyProg('FREETYPE', 'FREETYPE_CONFIG', '/usr/X11R6/bin/freetype-config', '2.0',
-    # DependencyProg('FREETYPE', 'FREETYPE_CONFIG', 'freetype-config', '2.0',
-    #                ['freetype'], '--ftversion'),
-    DependencyProg('FREETYPE', 'FREETYPE_CONFIG', 'pkg-config freetype2', '2.0',
-                   ['freetype2'], '--modversion'),
+    find_freetype(),
     # Scrap is included in sdlmain_osx, there is nothing to look at.
     # Dependency('SCRAP', '','',[]),
 ]

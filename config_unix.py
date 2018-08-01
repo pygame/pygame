@@ -2,6 +2,7 @@
 
 import os, sys
 from glob import glob
+import platform
 from distutils.sysconfig import get_python_inc
 
 # Python 2.x/3.x compatibility
@@ -159,7 +160,7 @@ def main(SDL2=False):
     print ('\nHunting dependencies...')
 
     def get_porttime_dep():
-        """ returns the porttime Dependency
+        """ returns the porttime Dependency.
 
         On some distributions, such as Fedora, porttime is compiled into portmidi.
         On others, such as Debian, it is a separate library.
@@ -180,7 +181,23 @@ def main(SDL2=False):
         else:
             return Dependency('PORTTIME', 'porttime.h', 'libporttime.so', ['porttime'])
 
-    porttime_dep = get_porttime_dep()
+    def find_freetype():
+        """ modern freetype uses pkg-config. However, some older systems don't have that.
+        """
+        pkg_config = DependencyProg(
+            'FREETYPE', 'FREETYPE_CONFIG', 'pkg-config freetype2', '2.0',
+            ['freetype2'], '--modversion'
+        )
+        if pkg_config.found:
+            return pkg_config
+
+        freetype_config = DependencyProg(
+            'FREETYPE', 'FREETYPE_CONFIG', 'freetype-config', '2.0',
+            ['freetype'], '--ftversion'
+        )
+        if freetype_config.found:
+            return freetype_config
+        return pkg_config
 
     if SDL2:
         DEPS = [
@@ -202,13 +219,17 @@ def main(SDL2=False):
         Dependency('PNG', 'png.h', 'libpng', ['png']),
         Dependency('JPEG', 'jpeglib.h', 'libjpeg', ['jpeg']),
         Dependency('SCRAP', '', 'libX11', ['X11']),
-        Dependency('PORTMIDI', 'portmidi.h', 'libportmidi.so', ['portmidi']),
-        porttime_dep,
-        # DependencyProg('FREETYPE', 'FREETYPE_CONFIG', 'freetype-config', '2.0',
-        #                ['freetype'], '--ftversion'),
-        DependencyProg('FREETYPE', 'FREETYPE_CONFIG', 'pkg-config freetype2', '',
-                       ['freetype2'], '--modversion'),
-        ])
+        #Dependency('GFX', 'SDL_gfxPrimitives.h', 'libSDL_gfx.so', ['SDL_gfx']),
+    ])
+    is_freebsd = platform.system() == 'FreeBSD'
+    if not is_freebsd:
+        porttime_dep = get_porttime_dep()
+        DEPS.append(
+            Dependency('PORTMIDI', 'portmidi.h', 'libportmidi.so', ['portmidi'])
+        )
+        DEPS.append(porttime_dep)
+    DEPS.append(find_freetype())
+
     if not DEPS[0].found:
         sys.exit('Unable to run "sdl-config". Please make sure a development version of SDL is installed.')
 
