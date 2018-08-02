@@ -263,36 +263,36 @@ typedef struct {
 const char *_PGFT_GetError(FreeTypeInstance *);
 void _PGFT_Quit(FreeTypeInstance *);
 int _PGFT_Init(FreeTypeInstance **, int);
-long _PGFT_Font_GetAscender(FreeTypeInstance *, PgFontObject *);
-long _PGFT_Font_GetAscenderSized(FreeTypeInstance *, PgFontObject *,
+long _PGFT_Font_GetAscender(FreeTypeInstance *, pgFontObject *);
+long _PGFT_Font_GetAscenderSized(FreeTypeInstance *, pgFontObject *,
                                  Scale_t);
-long _PGFT_Font_GetDescender(FreeTypeInstance *, PgFontObject *);
-long _PGFT_Font_GetDescenderSized(FreeTypeInstance *, PgFontObject *,
+long _PGFT_Font_GetDescender(FreeTypeInstance *, pgFontObject *);
+long _PGFT_Font_GetDescenderSized(FreeTypeInstance *, pgFontObject *,
                                   Scale_t);
-long _PGFT_Font_GetHeight(FreeTypeInstance *, PgFontObject *);
-long _PGFT_Font_GetHeightSized(FreeTypeInstance *, PgFontObject *,
+long _PGFT_Font_GetHeight(FreeTypeInstance *, pgFontObject *);
+long _PGFT_Font_GetHeightSized(FreeTypeInstance *, pgFontObject *,
                                Scale_t);
-long _PGFT_Font_GetGlyphHeightSized(FreeTypeInstance *, PgFontObject *,
+long _PGFT_Font_GetGlyphHeightSized(FreeTypeInstance *, pgFontObject *,
                                     Scale_t);
-int _PGFT_Font_IsFixedWidth(FreeTypeInstance *, PgFontObject *);
-int _PGFT_Font_NumFixedSizes(FreeTypeInstance *, PgFontObject *);
-int _PGFT_Font_GetAvailableSize(FreeTypeInstance *, PgFontObject *, unsigned,
+int _PGFT_Font_IsFixedWidth(FreeTypeInstance *, pgFontObject *);
+int _PGFT_Font_NumFixedSizes(FreeTypeInstance *, pgFontObject *);
+int _PGFT_Font_GetAvailableSize(FreeTypeInstance *, pgFontObject *, unsigned,
                                 long *, long *, long *, double *, double *);
-const char *_PGFT_Font_GetName(FreeTypeInstance *, PgFontObject *);
+const char *_PGFT_Font_GetName(FreeTypeInstance *, pgFontObject *);
 int _PGFT_TryLoadFont_Filename(FreeTypeInstance *,
-                               PgFontObject *, const char *, long);
+                               pgFontObject *, const char *, long);
 #ifdef HAVE_PYGAME_SDL_RWOPS
 int _PGFT_TryLoadFont_RWops(FreeTypeInstance *,
-                            PgFontObject *, SDL_RWops *, long);
+                            pgFontObject *, SDL_RWops *, long);
 #endif
-void _PGFT_UnloadFont(FreeTypeInstance *, PgFontObject *);
+void _PGFT_UnloadFont(FreeTypeInstance *, pgFontObject *);
 
 
 /**************************************** Metrics management *****************/
-int _PGFT_GetTextRect(FreeTypeInstance *, PgFontObject *,
+int _PGFT_GetTextRect(FreeTypeInstance *, pgFontObject *,
                       const FontRenderMode *, PGFT_String *,
                       SDL_Rect *);
-int _PGFT_GetMetrics(FreeTypeInstance *, PgFontObject *,
+int _PGFT_GetMetrics(FreeTypeInstance *, pgFontObject *,
                      PGFT_char, const FontRenderMode *,
                      FT_UInt *, long *, long *, long *, long *,
                      double *, double *);
@@ -302,20 +302,20 @@ void _PGFT_GetRenderMetrics(const FontRenderMode *, Layout *,
 
 
 /**************************************** Rendering **************************/
-PyObject *_PGFT_Render_PixelArray(FreeTypeInstance *, PgFontObject *,
+PyObject *_PGFT_Render_PixelArray(FreeTypeInstance *, pgFontObject *,
                                   const FontRenderMode *,
                                   PGFT_String *, int, int *, int *);
-SDL_Surface *_PGFT_Render_NewSurface(FreeTypeInstance *, PgFontObject *,
+SDL_Surface *_PGFT_Render_NewSurface(FreeTypeInstance *, pgFontObject *,
                                      const FontRenderMode *, PGFT_String *,
                                      FontColor *, FontColor *, SDL_Rect *);
-int _PGFT_Render_ExistingSurface(FreeTypeInstance *, PgFontObject *,
+int _PGFT_Render_ExistingSurface(FreeTypeInstance *, pgFontObject *,
                                  const FontRenderMode *, PGFT_String *,
                                  SDL_Surface *, int, int,
                                  FontColor *, FontColor *, SDL_Rect *);
-int _PGFT_Render_Array(FreeTypeInstance *, PgFontObject *,
+int _PGFT_Render_Array(FreeTypeInstance *, pgFontObject *,
                        const FontRenderMode *, PyObject *,
                        PGFT_String *, int, int, int, SDL_Rect *);
-int _PGFT_BuildRenderMode(FreeTypeInstance *, PgFontObject *,
+int _PGFT_BuildRenderMode(FreeTypeInstance *, pgFontObject *,
                           FontRenderMode *, Scale_t, int, Angle_t);
 int _PGFT_CheckStyle(FT_UInt32);
 
@@ -368,9 +368,9 @@ void __render_glyph_MONO_as_INT(int, int, FontSurface *, const FT_Bitmap *,
 
 
 /**************************************** Layout management ******************/
-int _PGFT_LayoutInit(FreeTypeInstance *, PgFontObject *);
-void _PGFT_LayoutFree(PgFontObject *);
-Layout *_PGFT_LoadLayout(FreeTypeInstance *, PgFontObject *,
+int _PGFT_LayoutInit(FreeTypeInstance *, pgFontObject *);
+void _PGFT_LayoutFree(pgFontObject *);
+Layout *_PGFT_LoadLayout(FreeTypeInstance *, pgFontObject *,
                          const FontRenderMode *, PGFT_String *);
 int _PGFT_LoadGlyph(FontGlyph *, GlyphIndex_t, const FontRenderMode *, void *);
 
@@ -392,9 +392,9 @@ PGFT_String *_PGFT_EncodePyString(PyObject *, int);
 
 /**************************************** Internals **************************/
 void _PGFT_SetError(FreeTypeInstance *, const char *, FT_Error);
-FT_Face _PGFT_GetFont(FreeTypeInstance *, PgFontObject *);
-FT_Face _PGFT_GetFontSized(FreeTypeInstance *, PgFontObject *, Scale_t);
-void _PGFT_BuildScaler(PgFontObject *, FTC_Scaler, Scale_t);
+FT_Face _PGFT_GetFont(FreeTypeInstance *, pgFontObject *);
+FT_Face _PGFT_GetFontSized(FreeTypeInstance *, pgFontObject *, Scale_t);
+void _PGFT_BuildScaler(pgFontObject *, FTC_Scaler, Scale_t);
 #define _PGFT_malloc PyMem_Malloc
 #define _PGFT_free   PyMem_Free
 

@@ -124,6 +124,10 @@ def run(*args, **kwds):
     else:
         option_exclude += ('python3_ignore',)
 
+    if pygame.get_sdl_version() < (2, 0, 0):
+        option_exclude += ('SDL1_ignore',)
+    else:
+        option_exclude += ('SDL2_ignore',)
     main_dir, test_subdir, fake_test_subdir = prepare_test_env()
 
     ###########################################################################

@@ -25,6 +25,7 @@ try:
 except NameError:
     from pygame import BufferError
 
+
 class BufferProxyTest(unittest.TestCase):
     view_keywords = {'shape': (5, 4, 3),
                      'typestr': '|u1',
@@ -396,6 +397,7 @@ class BufferProxyTest(unittest.TestCase):
             seglen, segaddr = get_read_buffer(bf, i)
             self.assertEqual(segaddr, memaddr + i * 4)
             self.assertEqual(seglen, 4)
+
 
 class BufferProxyLegacyTest(unittest.TestCase):
     content = as_bytes('\x01\x00\x00\x02') * 12

@@ -95,5 +95,3 @@ test_script:
 
 artifacts:
   - path: 'dist\*'
-
-

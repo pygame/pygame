@@ -100,9 +100,9 @@ _scrap_init (PyObject *self, PyObject *args)
      * anything.
      */
     if (!SDL_GetVideoSurface())
-        return RAISE (PyExc_SDLError, "No display mode is set");
+        return RAISE (pgExc_SDLError, "No display mode is set");
     if (!pygame_scrap_init ())
-        return RAISE (PyExc_SDLError, SDL_GetError ());
+        return RAISE (pgExc_SDLError, SDL_GetError ());
 
     Py_RETURN_NONE;
 }
@@ -249,7 +249,7 @@ _scrap_put_scrap (PyObject* self, PyObject* args)
 
     /* Set it in the clipboard. */
     if (!pygame_scrap_put (scrap_type, scraplen, scrap))
-        return RAISE (PyExc_SDLError,
+        return RAISE (pgExc_SDLError,
                       "content could not be placed in clipboard.");
 
     /* Add or replace the set value. */

@@ -152,13 +152,15 @@ __version__ = ver
 
 # next, the "standard" modules
 # we still allow them to be missing for stripped down pygame distributions
-_import_failed = False
-try:
-    import pygame.cdrom
-except (ImportError, IOError):
-    _import_failed = geterror()
-if _import_failed:
-    cdrom = MissingModule("cdrom", geterror(), 1)
+if get_sdl_version() < (2, 0, 0):
+    # cdrom only available for SDL 1.2.X
+    _import_failed = False
+    try:
+        import pygame.cdrom
+    except (ImportError, IOError):
+        _import_failed = geterror()
+    if _import_failed:
+        cdrom = MissingModule("cdrom", geterror(), 1)
 
 _import_failed = False
 try:

@@ -34,7 +34,7 @@ static int FE_WasInit = 0;
     do                                                                  \
     {                                                                   \
         if (!FE_WasInit)                                                \
-            return RAISE(PyExc_SDLError,                                \
+            return RAISE(pgExc_SDLError,                                \
                          "fastevent system not initialized");           \
     }                                                                   \
     while (0)
@@ -61,15 +61,15 @@ fastevent_init (PyObject * self)
     VIDEO_INIT_CHECK ();
 
 #ifndef WITH_THREAD
-    return RAISE (PyExc_SDLError,
+    return RAISE (pgExc_SDLError,
                   "pygame.fastevent requires a threaded Python");
 #else
     if (!FE_WasInit)
     {
         if (FE_Init () == -1)
-            return RAISE (PyExc_SDLError, FE_GetError ());
+            return RAISE (pgExc_SDLError, FE_GetError ());
 
-        PyGame_RegisterQuit (fastevent_cleanup);
+        pg_RegisterQuit (fastevent_cleanup);
         FE_WasInit = 1;
     }
 
@@ -125,9 +125,9 @@ fastevent_wait (PyObject * self)
 
     /* FE_WaitEvent will block forever on error */
     if (!status)
-        return RAISE (PyExc_SDLError, "unexpected error in FE_WaitEvent!");
+        return RAISE (pgExc_SDLError, "unexpected error in FE_WaitEvent!");
 
-    return PyEvent_New (&event);
+    return pgEvent_New (&event);
 }
 
 /* DOC */ static char doc_poll[] =
@@ -147,11 +147,11 @@ fastevent_poll (PyObject * self)
 
     status = FE_PollEvent (&event);
     if (status == 1)
-        return PyEvent_New (&event);
+        return pgEvent_New (&event);
     else
     {
         /* Check for -1 */
-        return PyEvent_New (NULL);
+        return pgEvent_New (NULL);
     }
 }
 
@@ -180,7 +180,7 @@ fastevent_get (PyObject * self)
         status = FE_PollEvent (&event);
         if (status != 1)
             break;
-        e = PyEvent_New (&event);
+        e = pgEvent_New (&event);
         if (!e)
         {
             Py_DECREF (list);
@@ -217,15 +217,15 @@ fastevent_post (PyObject * self, PyObject * arg)
     SDL_Event     event;
     int           status;
 
-    if (!PyObject_IsInstance (arg, (PyObject *) &PyEvent_Type)) {
+    if (!PyObject_IsInstance (arg, (PyObject *) &pgEvent_Type)) {
         PyErr_Format (PyExc_TypeError, "argument 1 must be %s, not %s",
-                      PyEvent_Type.tp_name, Py_TYPE(arg)->tp_name);
+                      pgEvent_Type.tp_name, Py_TYPE(arg)->tp_name);
         return NULL;
     }
 
     FE_INIT_CHECK ();
 
-    if (PyEvent_FillUserEvent ((PyEventObject *) arg, &event))
+    if (pgEvent_FillUserEvent ((pgEventObject *) arg, &event))
         return NULL;
 
     Py_BEGIN_ALLOW_THREADS;
@@ -233,7 +233,7 @@ fastevent_post (PyObject * self, PyObject * arg)
     Py_END_ALLOW_THREADS;
 
     if (status != 1)
-        return RAISE (PyExc_SDLError, "Unexpected error in FE_PushEvent");
+        return RAISE (pgExc_SDLError, "Unexpected error in FE_PushEvent");
 
     Py_RETURN_NONE;
 }

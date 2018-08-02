@@ -28,129 +28,131 @@
 #include "pygame.h"
 #include "pgcompat.h"
 
-static int PySurface_Lock (PyObject* surfobj);
-static int PySurface_Unlock (PyObject* surfobj);
-static int PySurface_LockBy (PyObject* surfobj, PyObject* lockobj);
-static int PySurface_UnlockBy (PyObject* surfobj, PyObject* lockobj);
+static int pgSurface_Lock(PyObject *);
+static int pgSurface_Unlock(PyObject *);
+static int pgSurface_LockBy(PyObject *, PyObject *);
+static int pgSurface_UnlockBy(PyObject *, PyObject *);
 
-static void _lifelock_dealloc (PyObject* self);
+static void _lifelock_dealloc(PyObject *);
+
 
 static void
-PySurface_Prep (PyObject* surfobj)
+pgSurface_Prep(PyObject *surfobj)
 {
-    struct SubSurface_Data* data = ((PySurfaceObject*) surfobj)->subsurface;
-    if (data)
-    {
-        SDL_Surface* surf = PySurface_AsSurface (surfobj);
-        SDL_Surface* owner = PySurface_AsSurface (data->owner);
-        PySurface_LockBy (data->owner, surfobj);
-        surf->pixels = ((char*) owner->pixels) + data->pixeloffset;
+    struct pgSubSurface_Data *data = ((pgSurfaceObject *) surfobj)->subsurface;
+    if (data != NULL) {
+        SDL_Surface *surf = pgSurface_AsSurface(surfobj);
+        SDL_Surface *owner = pgSurface_AsSurface(data->owner);
+        pgSurface_LockBy(data->owner, surfobj);
+        surf->pixels = ((char *) owner->pixels) + data->pixeloffset;
     }
 }
 
 static void
-PySurface_Unprep (PyObject* surfobj)
+pgSurface_Unprep(PyObject *surfobj)
 {
-    struct SubSurface_Data* data = ((PySurfaceObject*) surfobj)->subsurface;
-    if (data)
-        PySurface_UnlockBy (data->owner, surfobj);
+    struct pgSubSurface_Data *data = ((pgSurfaceObject *) surfobj)->subsurface;
+    if (data != NULL) {
+        pgSurface_UnlockBy(data->owner, surfobj);
+    }
 }
 
 static int
-PySurface_Lock (PyObject* surfobj)
+pgSurface_Lock(PyObject *surfobj)
 {
-    return PySurface_LockBy (surfobj, surfobj);
+    return pgSurface_LockBy(surfobj, surfobj);
 }
 
 static int
-PySurface_Unlock (PyObject* surfobj)
+pgSurface_Unlock(PyObject *surfobj)
 {
-    return PySurface_UnlockBy (surfobj, surfobj);
+    return pgSurface_UnlockBy(surfobj, surfobj);
 }
 
 static int
-PySurface_LockBy (PyObject* surfobj, PyObject* lockobj)
+pgSurface_LockBy(PyObject *surfobj, PyObject *lockobj)
 {
     PyObject *ref;
-    PySurfaceObject* surf = (PySurfaceObject*) surfobj;
+    pgSurfaceObject *surf = (pgSurfaceObject*) surfobj;
 
-    if (!surf->locklist)
-    {
-        surf->locklist = PyList_New (0);
-        if (!surf->locklist)
+    if (surf->locklist == NULL) {
+        surf->locklist = PyList_New(0);
+        if (surf->locklist == NULL) {
             return 0;
+        }
     }
-    ref = PyWeakref_NewRef (lockobj, NULL);
-    if (!ref)
-        return 0;
-    if (ref == Py_None)
-    {
-        Py_DECREF (ref);
+    ref = PyWeakref_NewRef(lockobj, NULL);
+    if (ref == NULL) {
         return 0;
     }
-    PyList_Append (surf->locklist, ref);
-    Py_DECREF (ref);
+    if (ref == Py_None) {
+        Py_DECREF(ref);
+        return 0;
+    }
+    PyList_Append(surf->locklist, ref);
+    Py_DECREF(ref);
 
-    if (surf->subsurface)
-        PySurface_Prep (surfobj);
-    if (SDL_LockSurface (surf->surf) == -1)
-    {
-        PyErr_SetString (PyExc_RuntimeError, "error locking surface");
+    if (surf->subsurface != NULL) {
+        pgSurface_Prep(surfobj);
+    }
+    if (SDL_LockSurface(surf->surf) == -1) {
+        PyErr_SetString(PyExc_RuntimeError, "error locking surface");
         return 0;
     }
     return 1;
 }
 
 static int
-PySurface_UnlockBy (PyObject* surfobj, PyObject* lockobj)
+pgSurface_UnlockBy(PyObject *surfobj, PyObject *lockobj)
 {
-    PySurfaceObject* surf = (PySurfaceObject*) surfobj;
+    pgSurfaceObject *surf = (pgSurfaceObject *) surfobj;
     int found = 0;
     int noerror = 1;
 
-    if (surf->locklist)
-    {
+    if (surf->locklist != NULL) {
         PyObject *item, *ref;
-        Py_ssize_t len = PyList_Size (surf->locklist);
-        while (--len >= 0 && !found)
-        {
-            item = PyList_GetItem (surf->locklist, len);
-            ref = PyWeakref_GetObject (item);
-            if (ref == lockobj)
-            {
-                if (PySequence_DelItem (surf->locklist, len) == -1)
+        Py_ssize_t len = PyList_Size(surf->locklist);
+        while (--len >= 0 && !found) {
+            item = PyList_GetItem(surf->locklist, len);
+            ref = PyWeakref_GetObject(item);
+            if (ref == lockobj) {
+                if (PySequence_DelItem(surf->locklist, len) == -1) {
                     return 0;
-                else
+                }
+                else {
                     found = 1;
+                }
             }
         }
 
         /* Clear dead references */
-        len = PyList_Size (surf->locklist);
-        while (--len >= 0)
-        {
-            item = PyList_GetItem (surf->locklist, len);
-            ref = PyWeakref_GetObject (item);
-            if (ref == Py_None)
-            {
-                if (PySequence_DelItem (surf->locklist, len) == -1)
+        len = PyList_Size(surf->locklist);
+        while (--len >= 0) {
+            item = PyList_GetItem(surf->locklist, len);
+            ref = PyWeakref_GetObject(item);
+            if (ref == Py_None) {
+                if (PySequence_DelItem(surf->locklist, len) == -1) {
                     noerror = 0;
-                else
+                }
+                else {
                     found++;
+                }
             }
         }
     }
 
-    if (!found)
+    if (!found) {
         return noerror;
+    }
 
     /* Release all found locks. */
-    while (found > 0)
-    {
-        if (surf->surf != NULL)
-            SDL_UnlockSurface (surf->surf);
-        if (surf->subsurface)
-            PySurface_Unprep (surfobj);
+    while (found > 0) {
+        if (surf->surf != NULL) {
+            SDL_UnlockSurface(surf->surf);
+        }
+        if (surf->subsurface != NULL) {
+            pgSurface_Unprep(surfobj);
+        }
         found--;
     }
 
@@ -158,103 +160,105 @@ PySurface_UnlockBy (PyObject* surfobj, PyObject* lockobj)
 }
 
 
-static PyTypeObject PyLifetimeLock_Type =
+static PyTypeObject pgLifetimeLock_Type =
 {
-    TYPE_HEAD (NULL, 0)
-    "SurfLifeLock",             /*name*/
-    sizeof(PyLifetimeLock),     /*basic size*/
-    0,                          /* tp_itemsize */
-    _lifelock_dealloc,          /* tp_dealloc*/
-    0,                          /* tp_print */
-    0,                          /* tp_getattr */
-    0,                          /* tp_setattr */
-    0,                          /* tp_compare */
-    0,                          /* tp_repr */
-    0,                          /* tp_as_number */
-    0,                          /* tp_as_sequence */
-    0,                          /* tp_as_mapping */
-    0,                          /* tp_hash */
-    0,                          /* tp_call */
-    0,                          /* tp_str */
-    0,                          /* tp_getattro */
-    0,                          /* tp_setattro */
-    0,                          /* tp_as_buffer */
+    TYPE_HEAD(NULL, 0)
+    "SurfLifeLock",                              /* name */
+    sizeof(pgLifetimeLockObject),                /* basic size */
+    0,                                           /* tp_itemsize */
+    _lifelock_dealloc,                           /* tp_dealloc*/
+    NULL,                                        /* tp_print */
+    NULL,                                        /* tp_getattr */
+    NULL,                                        /* tp_setattr */
+    NULL,                                        /* tp_compare */
+    NULL,                                        /* tp_repr */
+    NULL,                                        /* tp_as_number */
+    NULL,                                        /* tp_as_sequence */
+    NULL,                                        /* tp_as_mapping */
+    NULL,                                        /* tp_hash */
+    NULL,                                        /* tp_call */
+    NULL,                                        /* tp_str */
+    NULL,                                        /* tp_getattro */
+    NULL,                                        /* tp_setattro */
+    NULL,                                        /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_WEAKREFS,
-    0,                          /* tp_doc */
-    0,                          /* tp_traverse */
-    0,                          /* tp_clear */
-    0,                          /* tp_richcompare */
-    offsetof (PyLifetimeLock, weakrefs),  /* tp_weaklistoffset */
-    0,                          /* tp_iter */
-    0,                          /* tp_iternext */
-    0,                          /* tp_methods */
-    0,                          /* tp_members */
-    0,                          /* tp_getset */
-    0,                          /* tp_base */
-    0,                          /* tp_dict */
-    0,                          /* tp_descr_get */
-    0,                          /* tp_descr_set */
-    0,                          /* tp_dictoffset */
-    0,                          /* tp_init */
-    0,                          /* tp_alloc */
-    0,                          /* tp_new */
-    0,                          /* tp_free */
-    0,                          /* tp_is_gc */
-    0,                          /* tp_bases */
-    0,                          /* tp_mro */
-    0,                          /* tp_cache */
-    0,                          /* tp_subclasses */
-    0,                          /* tp_weaklist */
-    0                           /* tp_del */
+    NULL,                                        /* tp_doc */
+    NULL,                                        /* tp_traverse */
+    NULL,                                        /* tp_clear */
+    NULL,                                        /* tp_richcompare */
+    offsetof(pgLifetimeLockObject, weakrefs),    /* tp_weaklistoffset */
+    NULL,                                        /* tp_iter */
+    NULL,                                        /* tp_iternext */
+    NULL,                                        /* tp_methods */
+    NULL,                                        /* tp_members */
+    NULL,                                        /* tp_getset */
+    NULL,                                        /* tp_base */
+    NULL,                                        /* tp_dict */
+    NULL,                                        /* tp_descr_get */
+    NULL,                                        /* tp_descr_set */
+    0,                                           /* tp_dictoffset */
+    NULL,                                        /* tp_init */
+    NULL,                                        /* tp_alloc */
+    NULL,                                        /* tp_new */
+    NULL,                                        /* tp_free */
+    NULL,                                        /* tp_is_gc */
+    NULL,                                        /* tp_bases */
+    NULL,                                        /* tp_mro */
+    NULL,                                        /* tp_cache */
+    NULL,                                        /* tp_subclasses */
+    NULL,                                        /* tp_weaklist */
+    NULL                                         /* tp_del */
 };
 
 /* lifetimelock object internals */
 static void
-_lifelock_dealloc (PyObject* self)
+_lifelock_dealloc(PyObject *self)
 {
-    PyLifetimeLock* lifelock = (PyLifetimeLock*) self;
+    pgLifetimeLockObject *lifelock = (pgLifetimeLockObject *) self;
 
-    if (lifelock->weakrefs)
-        PyObject_ClearWeakRefs (self);
+    if (lifelock->weakrefs != NULL) {
+        PyObject_ClearWeakRefs(self);
+    }
 
-    PySurface_UnlockBy (lifelock->surface, lifelock->lockobj);
-    Py_DECREF (lifelock->surface);
-    PyObject_DEL (self);
+    pgSurface_UnlockBy(lifelock->surface, lifelock->lockobj);
+    Py_DECREF(lifelock->surface);
+    PyObject_DEL(self);
 }
 
-static PyObject*
-PySurface_LockLifetime (PyObject* surfobj, PyObject *lockobj)
+static PyObject *
+pgSurface_LockLifetime(PyObject *surfobj, PyObject *lockobj)
 {
-    PyLifetimeLock* life;
-    if (!surfobj)
-        return RAISE (PyExc_SDLError, SDL_GetError ());
+    pgLifetimeLockObject *life;
+    if (surfobj == NULL) {
+        return RAISE(pgExc_SDLError, SDL_GetError());
+    }
 
-    life = PyObject_NEW (PyLifetimeLock, &PyLifetimeLock_Type);
-    if (life)
-    {
+    life = PyObject_NEW(pgLifetimeLockObject, &pgLifetimeLock_Type);
+    if (life != NULL) {
         life->surface = surfobj;
         life->lockobj = lockobj;
         life->weakrefs = NULL;
-        Py_INCREF (surfobj);
-        if (!PySurface_LockBy (surfobj, lockobj))
+        Py_INCREF(surfobj);
+        if (!pgSurface_LockBy(surfobj, lockobj)) {
             return NULL;
+        }
     }
-    return (PyObject*) life;
+    return (PyObject *) life;
 }
 
 static PyMethodDef _surflock_methods[] =
 {
-    { NULL, NULL, 0, NULL }
+    {NULL, NULL, 0, NULL}
 };
 
 /*DOC*/ static char _surflock_doc[] =
 /*DOC*/     "Surface locking support";
 
-MODINIT_DEFINE (surflock)
+MODINIT_DEFINE(surflock)
 {
     PyObject *module, *dict, *apiobj;
     int ecode;
-    static void* c_api[PYGAMEAPI_SURFLOCK_NUMSLOTS];
+    static void *c_api[PYGAMEAPI_SURFLOCK_NUMSLOTS];
 
 #if PY3
     static struct PyModuleDef _module = {
@@ -267,42 +271,42 @@ MODINIT_DEFINE (surflock)
     };
 #endif
 
-    if (PyType_Ready (&PyLifetimeLock_Type) < 0) {
+    if (PyType_Ready(&pgLifetimeLock_Type) < 0) {
         MODINIT_ERROR;
     }
 
     /* Create the module and add the functions */
 #if PY3
-    module = PyModule_Create (&_module);
+    module = PyModule_Create(&_module);
 #else
-    module = Py_InitModule3 (MODPREFIX "surflock",
-                             _surflock_methods,
-                             _surflock_doc);
+    module = Py_InitModule3(MODPREFIX "surflock",
+                            _surflock_methods,
+                            _surflock_doc);
 #endif
     if (module == NULL) {
         MODINIT_ERROR;
     }
-    dict = PyModule_GetDict (module);
+    dict = PyModule_GetDict(module);
 
     /* export the c api */
-    c_api[0] = &PyLifetimeLock_Type;
-    c_api[1] = PySurface_Prep;
-    c_api[2] = PySurface_Unprep;
-    c_api[3] = PySurface_Lock;
-    c_api[4] = PySurface_Unlock;
-    c_api[5] = PySurface_LockBy;
-    c_api[6] = PySurface_UnlockBy;
-    c_api[7] = PySurface_LockLifetime;
-    apiobj = encapsulate_api (c_api, "surflock");
+    c_api[0] = &pgLifetimeLock_Type;
+    c_api[1] = pgSurface_Prep;
+    c_api[2] = pgSurface_Unprep;
+    c_api[3] = pgSurface_Lock;
+    c_api[4] = pgSurface_Unlock;
+    c_api[5] = pgSurface_LockBy;
+    c_api[6] = pgSurface_UnlockBy;
+    c_api[7] = pgSurface_LockLifetime;
+    apiobj = encapsulate_api(c_api, "surflock");
     if (apiobj == NULL) {
-        DECREF_MOD (module);
+        DECREF_MOD(module);
         MODINIT_ERROR;
     }
-    ecode = PyDict_SetItemString (dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
-    Py_DECREF (apiobj);
+    ecode = PyDict_SetItemString(dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
+    Py_DECREF(apiobj);
     if (ecode) {
-        DECREF_MOD (module);
+        DECREF_MOD(module);
         MODINIT_ERROR;
     }
-    MODINIT_RETURN (module);
+    MODINIT_RETURN(module);
 }

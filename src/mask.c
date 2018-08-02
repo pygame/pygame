@@ -39,13 +39,13 @@
 #define M_PI 3.14159265358979323846
 #endif
 
-static PyTypeObject PyMask_Type;
+static PyTypeObject pgMask_Type;
 
 /* mask object methods */
 
 static PyObject* mask_get_size(PyObject* self, PyObject* args)
 {
-    bitmask_t *mask = PyMask_AsBitmap(self);
+    bitmask_t *mask = pgMask_AsBitmap(self);
 
     if(!PyArg_ParseTuple(args, ""))
         return NULL;
@@ -55,7 +55,7 @@ static PyObject* mask_get_size(PyObject* self, PyObject* args)
 
 static PyObject* mask_get_at(PyObject* self, PyObject* args)
 {
-    bitmask_t *mask = PyMask_AsBitmap(self);
+    bitmask_t *mask = pgMask_AsBitmap(self);
     int x, y, val;
 
     if(!PyArg_ParseTuple(args, "(ii)", &x, &y))
@@ -72,7 +72,7 @@ static PyObject* mask_get_at(PyObject* self, PyObject* args)
 
 static PyObject* mask_set_at(PyObject* self, PyObject* args)
 {
-    bitmask_t *mask = PyMask_AsBitmap(self);
+    bitmask_t *mask = pgMask_AsBitmap(self);
     int x, y, value = 1;
 
     if(!PyArg_ParseTuple(args, "(ii)|i", &x, &y, &value))
@@ -93,15 +93,15 @@ static PyObject* mask_set_at(PyObject* self, PyObject* args)
 
 static PyObject* mask_overlap(PyObject* self, PyObject* args)
 {
-    bitmask_t *mask = PyMask_AsBitmap(self);
+    bitmask_t *mask = pgMask_AsBitmap(self);
     bitmask_t *othermask;
     PyObject *maskobj;
     int x, y, val;
     int xp,yp;
 
-    if(!PyArg_ParseTuple(args, "O!(ii)", &PyMask_Type, &maskobj, &x, &y))
+    if(!PyArg_ParseTuple(args, "O!(ii)", &pgMask_Type, &maskobj, &x, &y))
             return NULL;
-    othermask = PyMask_AsBitmap(maskobj);
+    othermask = pgMask_AsBitmap(maskobj);
 
     val = bitmask_overlap_pos(mask, othermask, x, y, &xp, &yp);
     if (val) {
@@ -115,15 +115,15 @@ static PyObject* mask_overlap(PyObject* self, PyObject* args)
 
 static PyObject* mask_overlap_area(PyObject* self, PyObject* args)
 {
-    bitmask_t *mask = PyMask_AsBitmap(self);
+    bitmask_t *mask = pgMask_AsBitmap(self);
     bitmask_t *othermask;
     PyObject *maskobj;
     int x, y, val;
 
-    if(!PyArg_ParseTuple(args, "O!(ii)", &PyMask_Type, &maskobj, &x, &y)) {
+    if(!PyArg_ParseTuple(args, "O!(ii)", &pgMask_Type, &maskobj, &x, &y)) {
         return NULL;
     }
-    othermask = PyMask_AsBitmap(maskobj);
+    othermask = pgMask_AsBitmap(maskobj);
 
     val = bitmask_overlap_area(mask, othermask, x, y);
     return PyInt_FromLong(val);
@@ -132,16 +132,16 @@ static PyObject* mask_overlap_area(PyObject* self, PyObject* args)
 static PyObject* mask_overlap_mask(PyObject* self, PyObject* args)
 {
     int x, y;
-    bitmask_t *mask = PyMask_AsBitmap(self);
+    bitmask_t *mask = pgMask_AsBitmap(self);
     bitmask_t *output = bitmask_create(mask->w, mask->h);
     bitmask_t *othermask;
     PyObject *maskobj;
-    PyMaskObject *maskobj2 = PyObject_New(PyMaskObject, &PyMask_Type);
+    pgMaskObject *maskobj2 = PyObject_New(pgMaskObject, &pgMask_Type);
 
-    if(!PyArg_ParseTuple(args, "O!(ii)", &PyMask_Type, &maskobj, &x, &y)) {
+    if(!PyArg_ParseTuple(args, "O!(ii)", &pgMask_Type, &maskobj, &x, &y)) {
         return NULL;
     }
-    othermask = PyMask_AsBitmap(maskobj);
+    othermask = pgMask_AsBitmap(maskobj);
 
     bitmask_overlap_mask(mask, othermask, output, x, y);
 
@@ -153,7 +153,7 @@ static PyObject* mask_overlap_mask(PyObject* self, PyObject* args)
 
 static PyObject* mask_fill(PyObject* self, PyObject* args)
 {
-    bitmask_t *mask = PyMask_AsBitmap(self);
+    bitmask_t *mask = pgMask_AsBitmap(self);
 
     bitmask_fill(mask);
 
@@ -162,7 +162,7 @@ static PyObject* mask_fill(PyObject* self, PyObject* args)
 
 static PyObject* mask_clear(PyObject* self, PyObject* args)
 {
-    bitmask_t *mask = PyMask_AsBitmap(self);
+    bitmask_t *mask = pgMask_AsBitmap(self);
 
     bitmask_clear(mask);
 
@@ -171,7 +171,7 @@ static PyObject* mask_clear(PyObject* self, PyObject* args)
 
 static PyObject* mask_invert(PyObject* self, PyObject* args)
 {
-    bitmask_t *mask = PyMask_AsBitmap(self);
+    bitmask_t *mask = pgMask_AsBitmap(self);
 
     bitmask_invert(mask);
 
@@ -181,9 +181,9 @@ static PyObject* mask_invert(PyObject* self, PyObject* args)
 static PyObject* mask_scale(PyObject* self, PyObject* args)
 {
     int x, y;
-    bitmask_t *input = PyMask_AsBitmap(self);
+    bitmask_t *input = pgMask_AsBitmap(self);
     bitmask_t *output;
-    PyMaskObject *maskobj = PyObject_New(PyMaskObject, &PyMask_Type);
+    pgMaskObject *maskobj = PyObject_New(pgMaskObject, &pgMask_Type);
 
     if(!PyArg_ParseTuple(args, "(ii)", &x, &y)) {
         return NULL;
@@ -199,15 +199,15 @@ static PyObject* mask_scale(PyObject* self, PyObject* args)
 
 static PyObject* mask_draw(PyObject* self, PyObject* args)
 {
-    bitmask_t *mask = PyMask_AsBitmap(self);
+    bitmask_t *mask = pgMask_AsBitmap(self);
     bitmask_t *othermask;
     PyObject *maskobj;
     int x, y;
 
-    if(!PyArg_ParseTuple(args, "O!(ii)", &PyMask_Type, &maskobj, &x, &y)) {
+    if(!PyArg_ParseTuple(args, "O!(ii)", &pgMask_Type, &maskobj, &x, &y)) {
         return NULL;
     }
-    othermask = PyMask_AsBitmap(maskobj);
+    othermask = pgMask_AsBitmap(maskobj);
 
     bitmask_draw(mask, othermask, x, y);
 
@@ -216,15 +216,15 @@ static PyObject* mask_draw(PyObject* self, PyObject* args)
 
 static PyObject* mask_erase(PyObject* self, PyObject* args)
 {
-    bitmask_t *mask = PyMask_AsBitmap(self);
+    bitmask_t *mask = pgMask_AsBitmap(self);
     bitmask_t *othermask;
     PyObject *maskobj;
     int x, y;
 
-    if(!PyArg_ParseTuple(args, "O!(ii)", &PyMask_Type, &maskobj, &x, &y)) {
+    if(!PyArg_ParseTuple(args, "O!(ii)", &pgMask_Type, &maskobj, &x, &y)) {
         return NULL;
     }
-    othermask = PyMask_AsBitmap(maskobj);
+    othermask = pgMask_AsBitmap(maskobj);
 
     bitmask_erase(mask, othermask, x, y);
 
@@ -233,14 +233,14 @@ static PyObject* mask_erase(PyObject* self, PyObject* args)
 
 static PyObject* mask_count(PyObject* self, PyObject* args)
 {
-    bitmask_t *m = PyMask_AsBitmap(self);
+    bitmask_t *m = pgMask_AsBitmap(self);
 
     return PyInt_FromLong(bitmask_count(m));
 }
 
 static PyObject* mask_centroid(PyObject* self, PyObject* args)
 {
-    bitmask_t *mask = PyMask_AsBitmap(self);
+    bitmask_t *mask = pgMask_AsBitmap(self);
     int x, y;
     long int m10, m01, m00;
     PyObject *xobj, *yobj;
@@ -270,7 +270,7 @@ static PyObject* mask_centroid(PyObject* self, PyObject* args)
 
 static PyObject* mask_angle(PyObject* self, PyObject* args)
 {
-    bitmask_t *mask = PyMask_AsBitmap(self);
+    bitmask_t *mask = pgMask_AsBitmap(self);
     int x, y, xc, yc;
     long int m10, m01, m00, m20, m02, m11;
     double theta;
@@ -302,7 +302,7 @@ static PyObject* mask_angle(PyObject* self, PyObject* args)
 
 static PyObject* mask_outline(PyObject* self, PyObject* args)
 {
-    bitmask_t* c = PyMask_AsBitmap(self);
+    bitmask_t* c = pgMask_AsBitmap(self);
     bitmask_t* m = bitmask_create(c->w + 2, c->h + 2);
     PyObject *plist, *value;
     int x, y, every, e, firstx, firsty, secx, secy, currx, curry, nextx, nexty, n;
@@ -416,14 +416,14 @@ static PyObject* mask_convolve(PyObject* aobj, PyObject* args)
     bitmask_t    *a,    *b,    *o;
     int xoffset = 0, yoffset = 0;
 
-    if (!PyArg_ParseTuple (args, "O!|O(ii)", &PyMask_Type, &bobj, &oobj, &xoffset, &yoffset))
+    if (!PyArg_ParseTuple (args, "O!|O(ii)", &pgMask_Type, &bobj, &oobj, &xoffset, &yoffset))
         return NULL;
 
-    a = PyMask_AsBitmap(aobj);
-    b = PyMask_AsBitmap(bobj);
+    a = pgMask_AsBitmap(aobj);
+    b = pgMask_AsBitmap(bobj);
 
     if (oobj == Py_None) {
-        PyMaskObject *result = PyObject_New(PyMaskObject, &PyMask_Type);
+        pgMaskObject *result = PyObject_New(pgMaskObject, &pgMask_Type);
 
         result->mask = bitmask_create(a->w + b->w - 1, a->h + b->h - 1);
         oobj = (PyObject*) result;
@@ -431,7 +431,7 @@ static PyObject* mask_convolve(PyObject* aobj, PyObject* args)
     else
         Py_INCREF(oobj);
 
-    o = PyMask_AsBitmap(oobj);
+    o = pgMask_AsBitmap(oobj);
 
     bitmask_convolve(a, b, o, xoffset, yoffset);
     return oobj;
@@ -443,13 +443,16 @@ static PyObject* mask_from_surface(PyObject* self, PyObject* args)
     SDL_Surface* surf;
 
     PyObject* surfobj;
-    PyMaskObject *maskobj;
+    pgMaskObject *maskobj;
 
     int x, y, threshold, ashift, aloss, usethresh;
     Uint8 *pixels;
 
     SDL_PixelFormat *format;
     Uint32 color, amask;
+#if IS_SDLv2
+    Uint32 colorkey;
+#endif /* IS_SDLv2 */
     Uint8 *pix;
     Uint8 a;
 
@@ -460,14 +463,14 @@ static PyObject* mask_from_surface(PyObject* self, PyObject* args)
      *   surface, threshold
      */
 
-    if (!PyArg_ParseTuple (args, "O!|i", &PySurface_Type, &surfobj, &threshold)) {
+    if (!PyArg_ParseTuple (args, "O!|i", &pgSurface_Type, &surfobj, &threshold)) {
         return NULL;
     }
 
-    surf = PySurface_AsSurface(surfobj);
+    surf = pgSurface_AsSurface(surfobj);
 
     /* lock the surface, release the GIL. */
-    PySurface_Lock (surfobj);
+    pgSurface_Lock (surfobj);
 
     Py_BEGIN_ALLOW_THREADS;
 
@@ -486,7 +489,11 @@ static PyObject* mask_from_surface(PyObject* self, PyObject* args)
     amask = format->Amask;
     ashift = format->Ashift;
     aloss = format->Aloss;
+#if IS_SDLv1
     usethresh = !(surf->flags & SDL_SRCCOLORKEY);
+#else /* IS_SDLv2 */
+    usethresh = (SDL_GetColorKey(surf, &colorkey) == -1);
+#endif /* IS_SDLv2 */
 
     for(y=0; y < surf->h; y++) {
         pixels = (Uint8 *) surf->pixels + y*surf->pitch;
@@ -506,11 +513,15 @@ static PyObject* mask_from_surface(PyObject* self, PyObject* args)
                 case 3:
                     pix = ((Uint8 *) pixels);
                     pixels += 3;
+#if IS_SDLv1
                 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
                     color = (pix[0]) + (pix[1] << 8) + (pix[2] << 16);
                 #else
                     color = (pix[2]) + (pix[1] << 8) + (pix[0] << 16);
                 #endif
+#else /* IS_SDLv2 */
+                    color = (pix[2]) + (pix[1] << 8) + (pix[0] << 16);
+#endif /* IS_SDLv2 */
                     break;
                 default:                  /* case 4: */
                     color = *((Uint32 *) pixels);
@@ -527,7 +538,11 @@ static PyObject* mask_from_surface(PyObject* self, PyObject* args)
                 }
             } else {
                 /*  test against the colour key. */
+#if IS_SDLv1
                 if (format->colorkey != color) {
+#else /* IS_SDLv2 */
+                if (colorkey != color) {
+#endif /* IS_SDLv2 */
                     bitmask_setbit(mask, x, y);
                 }
             }
@@ -538,10 +553,10 @@ static PyObject* mask_from_surface(PyObject* self, PyObject* args)
 
     /* unlock the surface, release the GIL.
      */
-    PySurface_Unlock (surfobj);
+    pgSurface_Unlock (surfobj);
 
     /*create the new python object from mask*/
-    maskobj = PyObject_New(PyMaskObject, &PyMask_Type);
+    maskobj = PyObject_New(pgMaskObject, &pgMask_Type);
     if(maskobj)
         maskobj->mask = mask;
 
@@ -636,11 +651,15 @@ void bitmask_threshold (bitmask_t *m,
             case 3:
                 pix = ((Uint8 *) pixels);
                 pixels += 3;
+#if IS_SDLv1
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
                 the_color = (pix[0]) + (pix[1] << 8) + (pix[2] << 16);
 #else
                 the_color = (pix[2]) + (pix[1] << 8) + (pix[0] << 16);
 #endif
+#else /* IS_SDLv2 */
+                the_color = (pix[2]) + (pix[1] << 8) + (pix[0] << 16);
+#endif /* IS_SDLv2 */
                 break;
             default:                  /* case 4: */
                 the_color = *((Uint32 *) pixels);
@@ -661,11 +680,15 @@ void bitmask_threshold (bitmask_t *m,
                     case 3:
                         pix = ((Uint8 *) pixels2);
                         pixels2 += 3;
+#if IS_SDLv1
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
                         the_color2 = (pix[0]) + (pix[1] << 8) + (pix[2] << 16);
 #else
                         the_color2 = (pix[2]) + (pix[1] << 8) + (pix[0] << 16);
 #endif
+#else /* IS_SDLv2 */
+                        the_color2 = (pix[2]) + (pix[1] << 8) + (pix[0] << 16);
+#endif /* IS_SDLv2 */
                         break;
                     default:                  /* case 4: */
                         the_color2 = *((Uint32 *) pixels2);
@@ -709,7 +732,7 @@ void bitmask_threshold (bitmask_t *m,
 static PyObject* mask_from_threshold(PyObject* self, PyObject* args)
 {
     PyObject *surfobj, *surfobj2 = NULL;
-    PyMaskObject *maskobj;
+    pgMaskObject *maskobj;
     bitmask_t* m;
     SDL_Surface* surf = NULL, *surf2 = NULL;
     int bpp;
@@ -721,21 +744,21 @@ static PyObject* mask_from_threshold(PyObject* self, PyObject* args)
     int palette_colors = 1;
 
 
-    if (!PyArg_ParseTuple (args, "O!O|OO!i", &PySurface_Type, &surfobj,
+    if (!PyArg_ParseTuple (args, "O!O|OO!i", &pgSurface_Type, &surfobj,
                            &rgba_obj_color,  &rgba_obj_threshold,
-                           &PySurface_Type, &surfobj2, &palette_colors))
+                           &pgSurface_Type, &surfobj2, &palette_colors))
         return NULL;
 
-    surf = PySurface_AsSurface (surfobj);
+    surf = pgSurface_AsSurface (surfobj);
     if(surfobj2) {
-        surf2 = PySurface_AsSurface (surfobj2);
+        surf2 = pgSurface_AsSurface (surfobj2);
     }
 
     if (PyInt_Check (rgba_obj_color)) {
         color = (Uint32) PyInt_AsLong (rgba_obj_color);
     } else if (PyLong_Check (rgba_obj_color)) {
         color = (Uint32) PyLong_AsUnsignedLong (rgba_obj_color);
-    } else if (RGBAFromColorObj (rgba_obj_color, rgba_color)) {
+    } else if (pg_RGBAFromColorObj (rgba_obj_color, rgba_color)) {
         color = SDL_MapRGBA (surf->format, rgba_color[0], rgba_color[1],
             rgba_color[2], rgba_color[3]);
     } else {
@@ -748,7 +771,7 @@ static PyObject* mask_from_threshold(PyObject* self, PyObject* args)
         else if (PyLong_Check (rgba_obj_threshold))
             color_threshold = (Uint32) PyLong_AsUnsignedLong
                 (rgba_obj_threshold);
-        else if (RGBAFromColorObj (rgba_obj_threshold, rgba_threshold))
+        else if (pg_RGBAFromColorObj (rgba_obj_threshold, rgba_threshold))
             color_threshold = SDL_MapRGBA (surf->format, rgba_threshold[0], rgba_threshold[1], rgba_threshold[2], rgba_threshold[3]);
         else
             return RAISE (PyExc_TypeError, "invalid threshold argument");
@@ -759,21 +782,21 @@ static PyObject* mask_from_threshold(PyObject* self, PyObject* args)
     bpp = surf->format->BytesPerPixel;
     m = bitmask_create(surf->w, surf->h);
 
-    PySurface_Lock(surfobj);
+    pgSurface_Lock(surfobj);
     if(surfobj2) {
-        PySurface_Lock(surfobj2);
+        pgSurface_Lock(surfobj2);
     }
 
     Py_BEGIN_ALLOW_THREADS;
     bitmask_threshold (m, surf, surf2, color, color_threshold, palette_colors);
     Py_END_ALLOW_THREADS;
 
-    PySurface_Unlock(surfobj);
+    pgSurface_Unlock(surfobj);
     if(surfobj2) {
-        PySurface_Unlock(surfobj2);
+        pgSurface_Unlock(surfobj2);
     }
 
-    maskobj = PyObject_New(PyMaskObject, &PyMask_Type);
+    maskobj = PyObject_New(pgMaskObject, &pgMask_Type);
     if(maskobj)
         maskobj->mask = m;
 
@@ -1076,7 +1099,7 @@ static PyObject* mask_get_bounding_rects(PyObject* self, PyObject* args)
     PyObject* rect;
 
 
-    bitmask_t *mask = PyMask_AsBitmap(self);
+    bitmask_t *mask = pgMask_AsBitmap(self);
 
     ret = NULL;
     regions = NULL;
@@ -1103,7 +1126,7 @@ static PyObject* mask_get_bounding_rects(PyObject* self, PyObject* args)
     /* build a list of rects to return.  Starts at 1 because we never use 0. */
     for(i=1; i <= num_bounding_boxes; i++) {
         aregion = regions + i;
-        rect = PyRect_New4 ( aregion->x, aregion->y, aregion->w, aregion->h );
+        rect = pgRect_New4 ( aregion->x, aregion->y, aregion->w, aregion->h );
         PyList_Append (ret, rect);
         Py_DECREF (rect);
     }
@@ -1221,9 +1244,9 @@ static int get_connected_components(bitmask_t *mask, bitmask_t ***components, in
 static PyObject* mask_connected_components(PyObject* self, PyObject* args)
 {
     PyObject* ret;
-    PyMaskObject *maskobj;
+    pgMaskObject *maskobj;
     bitmask_t **components;
-    bitmask_t *mask = PyMask_AsBitmap(self);
+    bitmask_t *mask = pgMask_AsBitmap(self);
     int i, num_components, min;
 
     min = 0;
@@ -1245,7 +1268,7 @@ static PyObject* mask_connected_components(PyObject* self, PyObject* args)
         return NULL;
 
     for (i=1; i <= num_components; i++) {
-        maskobj = PyObject_New(PyMaskObject, &PyMask_Type);
+        maskobj = PyObject_New(pgMaskObject, &pgMask_Type);
         if(maskobj) {
             maskobj->mask = components[i];
             PyList_Append (ret, (PyObject *) maskobj);
@@ -1334,9 +1357,9 @@ static int largest_connected_comp(bitmask_t* input, bitmask_t* output, int ccx, 
 
 static PyObject* mask_connected_component(PyObject* self, PyObject* args)
 {
-    bitmask_t *input = PyMask_AsBitmap(self);
+    bitmask_t *input = pgMask_AsBitmap(self);
     bitmask_t *output = bitmask_create(input->w, input->h);
-    PyMaskObject *maskobj = PyObject_New(PyMaskObject, &PyMask_Type);
+    pgMaskObject *maskobj = PyObject_New(pgMaskObject, &pgMask_Type);
     int x, y;
 
     x = -1;
@@ -1394,18 +1417,18 @@ static PyMethodDef mask_methods[] =
 
 static void mask_dealloc(PyObject* self)
 {
-    bitmask_t *mask = PyMask_AsBitmap(self);
+    bitmask_t *mask = pgMask_AsBitmap(self);
     bitmask_free(mask);
     PyObject_DEL(self);
 }
 
 
 
-static PyTypeObject PyMask_Type =
+static PyTypeObject pgMask_Type =
 {
     TYPE_HEAD (NULL, 0)
     "pygame.mask.Mask",
-    sizeof(PyMaskObject),
+    sizeof(pgMaskObject),
     0,
     mask_dealloc,
     0,
@@ -1447,7 +1470,7 @@ static PyObject* Mask(PyObject* self, PyObject* args)
 {
     bitmask_t *mask;
     int w,h;
-    PyMaskObject *maskobj;
+    pgMaskObject *maskobj;
     if(!PyArg_ParseTuple(args, "(ii)", &w, &h))
         return NULL;
     mask = bitmask_create(w,h);
@@ -1456,7 +1479,7 @@ static PyObject* Mask(PyObject* self, PyObject* args)
       return NULL; /*RAISE(PyExc_Error, "cannot create bitmask");*/
 
         /*create the new python object from mask*/
-    maskobj = PyObject_New(PyMaskObject, &PyMask_Type);
+    maskobj = PyObject_New(pgMaskObject, &pgMask_Type);
     if(maskobj)
         maskobj->mask = mask;
     return (PyObject*)maskobj;
@@ -1511,7 +1534,7 @@ MODINIT_DEFINE (mask)
     }
 
     /* create the mask type */
-    if (PyType_Ready (&PyMask_Type) < 0) {
+    if (PyType_Ready (&pgMask_Type) < 0) {
         MODINIT_ERROR;
     }
 
@@ -1526,12 +1549,12 @@ MODINIT_DEFINE (mask)
     }
     dict = PyModule_GetDict(module);
     if (PyDict_SetItemString (dict, "MaskType",
-                              (PyObject *)&PyMask_Type) == -1) {
+                              (PyObject *)&pgMask_Type) == -1) {
         DECREF_MOD(module);
         MODINIT_ERROR;
     }
     /* export the c api */
-    c_api[0] = &PyMask_Type;
+    c_api[0] = &pgMask_Type;
     apiobj = encapsulate_api (c_api, "mask");
     if (apiobj == NULL) {
         DECREF_MOD (module);

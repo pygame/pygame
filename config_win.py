@@ -245,7 +245,7 @@ def setup_prebuilt(prebuilt_dir):
 
         # Copy Setup.in to Setup, replacing the BeginConfig/EndConfig
         # block with prebuilt\Setup_Win.in .
-        setup_in = open('Setup.in')
+        setup_in = open('Setup.SDL1.in')
         try:
             do_copy = True
             for line in setup_in:
@@ -274,7 +274,10 @@ def setup_prebuilt(prebuilt_dir):
         setup.close()
 
 
-def main():
+def main(SDL2=False):
+    if SDL2:
+        raise RuntimeError("SDL 2 is currently unsupported for Windows")
+
     prebuilt_dir = 'prebuilt-' + as_machine_type(get_ptr_size())
     if os.path.isdir(prebuilt_dir):
         if 'PYGAME_USE_PREBUILT' in os.environ:

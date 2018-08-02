@@ -32,6 +32,7 @@
 #include <SDL.h>
 #include "pygame.h"
 
+/* Blend modes */
 #define PYGAME_BLEND_ADD  0x1
 #define PYGAME_BLEND_SUB  0x2
 #define PYGAME_BLEND_MULT 0x3
@@ -78,6 +79,7 @@
     break;                                        \
     }
 
+#if IS_SDLv1
 #define GET_PIXELVALS(_sR, _sG, _sB, _sA, px, fmt, ppa)               \
     _sR = ((px & fmt->Rmask) >> fmt->Rshift);                         \
     _sR = (_sR << fmt->Rloss) + (_sR >> (8 - (fmt->Rloss << 1)));     \
@@ -100,6 +102,25 @@
     sg = _fmt->palette->colors[*((Uint8 *) (_src))].g; \
     sb = _fmt->palette->colors[*((Uint8 *) (_src))].b; \
     sa = 255;
+
+/* For 1 byte palette pixels */
+#define SET_PIXELVAL(px, fmt, _dR, _dG, _dB, _dA) \
+    *(px) = (Uint8) SDL_MapRGB(fmt, _dR, _dG, _dB)
+#else /* IS_SDLv2 */
+#define GET_PIXELVALS(_sR, _sG, _sB, _sA, px, fmt, ppa) \
+    SDL_GetRGBA(px, fmt, &(_sR), &(_sG), &(_sB), &(_sA))
+
+#define GET_PIXELVALS_1(sr, sg, sb, sa, _src, _fmt)    \
+    sr = _fmt->palette->colors[*((Uint8 *) (_src))].r; \
+    sg = _fmt->palette->colors[*((Uint8 *) (_src))].g; \
+    sb = _fmt->palette->colors[*((Uint8 *) (_src))].b; \
+    sa = _fmt->palette->colors[*((Uint8 *) (_src))].a;
+
+/* For 1 byte palette pixels */
+#define SET_PIXELVAL(px, fmt, _dR, _dG, _dB, _dA) \
+    *(px) = (Uint8) SDL_MapRGBA(fmt, _dR, _dG, _dB, _dA)
+#endif /* IS_SDLv2 */
+
 
 
 

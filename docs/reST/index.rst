@@ -13,6 +13,7 @@ Pygame Front Page
 
    ref/*
    tut/*
+   c_api
    filepaths
 
 Documents
@@ -174,6 +175,9 @@ Reference
 
 :doc:`ref/transform`
   Resize and move images.
+
+:doc:`pygame C API <c_api>`
+  The C api shared amongst pygame extension modules.
 
 :ref:`search`
   Search Pygame documents by keyword.

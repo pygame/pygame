@@ -27,7 +27,9 @@
 #include "pygame.h"
 #include "pgcompat.h"
 #include "doc/image_doc.h"
+#if IS_SDLv1
 #include "pgopengl.h"
+#endif /* IS_SDLv1 */
 
 struct _module_state {
     int is_extended;
@@ -42,7 +44,9 @@ static struct _module_state _state = { 0 };
 
 static int SaveTGA (SDL_Surface *surface, const char *file, int rle);
 static int SaveTGA_RW (SDL_Surface *surface, SDL_RWops *out, int rle);
+#if IS_SDLv1
 static SDL_Surface* opengltosdl (void);
+#endif /* IS_SDLv1 */
 
 #define DATAROW(data, row, width, height, flipped)               \
     ((flipped) ? (((char*) data) + (height - row - 1) * width) : \
@@ -62,7 +66,7 @@ image_load_basic(PyObject *self, PyObject *arg)
         return NULL;
     }
 
-    oencoded = RWopsEncodeFilePath(obj, PyExc_SDLError);
+    oencoded = pgRWopsEncodeFilePath(obj, pgExc_SDLError);
     if (oencoded == NULL) {
         return NULL;
     }
@@ -74,11 +78,11 @@ image_load_basic(PyObject *self, PyObject *arg)
     }
     else {
         Py_DECREF(oencoded);
-        rw = RWopsFromFileObject(obj);
+        rw = pgRWopsFromFileObject(obj);
         if (rw == NULL) {
             return NULL;
         }
-        if (RWopsCheckObject(rw)) {
+        if (pgRWopsCheckObject(rw)) {
             surf = SDL_LoadBMP_RW (rw, 1);
         }
         else {
@@ -89,10 +93,10 @@ image_load_basic(PyObject *self, PyObject *arg)
     }
 
     if (surf == NULL) {
-        return RAISE(PyExc_SDLError, SDL_GetError());
+        return RAISE(pgExc_SDLError, SDL_GetError());
     }
 
-    final = PySurface_New(surf);
+    final = pgSurface_New(surf);
     if (final == NULL) {
         SDL_FreeSurface(surf);
     }
@@ -100,6 +104,7 @@ image_load_basic(PyObject *self, PyObject *arg)
 }
 
 
+#if IS_SDLv1
 static SDL_Surface*
 opengltosdl ()
 {
@@ -155,7 +160,7 @@ opengltosdl ()
                                  rmask, gmask, bmask, 0);
     if (!surf) {
         free(pixels);
-        RAISE (PyExc_SDLError, SDL_GetError ());
+        RAISE (pgExc_SDLError, SDL_GetError ());
         return NULL;
     }
 
@@ -168,6 +173,7 @@ opengltosdl ()
     free(pixels);
     return surf;
 }
+#endif /* IS_SDLv1 */
 
 PyObject*
 image_save(PyObject *self, PyObject *arg)
@@ -180,11 +186,12 @@ image_save(PyObject *self, PyObject *arg)
     SDL_Surface *temp = NULL;
     int result = 1;
 
-    if (!PyArg_ParseTuple(arg, "O!O", &PySurface_Type, &surfobj, &obj)) {
+    if (!PyArg_ParseTuple(arg, "O!O", &pgSurface_Type, &surfobj, &obj)) {
         return NULL;
     }
 
-    surf = PySurface_AsSurface(surfobj);
+    surf = pgSurface_AsSurface(surfobj);
+#if IS_SDLv1
     if (surf->flags & SDL_OPENGL) {
         temp = surf = opengltosdl();
         if (surf == NULL) {
@@ -192,12 +199,15 @@ image_save(PyObject *self, PyObject *arg)
         }
     }
     else {
-        PySurface_Prep(surfobj);
+        pgSurface_Prep(surfobj);
     }
+#else /* IS_SDLv2 */
+    pgSurface_Prep(surfobj);
+#endif /* IS_SDLv2 */
 
-    oencoded = RWopsEncodeFilePath(obj, PyExc_SDLError);
+    oencoded = pgRWopsEncodeFilePath(obj, pgExc_SDLError);
     if (oencoded == Py_None) {
-        SDL_RWops *rw = RWopsFromFileObject(obj);
+        SDL_RWops *rw = pgRWopsFromFileObject(obj);
         if (rw != NULL) {
             result = SaveTGA_RW(surf, rw, 1);
         }
@@ -276,7 +286,7 @@ image_save(PyObject *self, PyObject *arg)
         SDL_FreeSurface (temp);
     }
     else {
-        PySurface_Unprep (surfobj);
+        pgSurface_Unprep (surfobj);
     }
 
     if (result == -2) {
@@ -285,11 +295,11 @@ image_save(PyObject *self, PyObject *arg)
     }
     if (result == -1) {
         /* SDL error: translate to Python error */
-        return RAISE(PyExc_SDLError, SDL_GetError());
+        return RAISE(pgExc_SDLError, SDL_GetError());
     }
     if (result == 1) {
         /* Should never get here */
-        return RAISE(PyExc_SDLError, "Unrecognized image type");
+        return RAISE(pgExc_SDLError, "Unrecognized image type");
     }
 
     Py_RETURN_NONE;
@@ -312,19 +322,26 @@ image_tostring (PyObject* self, PyObject* arg)
     Py_ssize_t len;
     Uint32 Rmask, Gmask, Bmask, Amask, Rshift, Gshift, Bshift, Ashift, Rloss,
         Gloss, Bloss, Aloss;
-    int hascolorkey, colorkey;
+    int hascolorkey;
+#if IS_SDLv1
+    int colorkey;
+#else /* IS_SDLv2 */
+    Uint32 colorkey;
+#endif /* IS_SDLv2 */
     Uint32 alpha;
 
-    if (!PyArg_ParseTuple (arg, "O!s|i", &PySurface_Type, &surfobj, &format,
+    if (!PyArg_ParseTuple (arg, "O!s|i", &pgSurface_Type, &surfobj, &format,
                            &flipped))
         return NULL;
-    surf = PySurface_AsSurface (surfobj);
+    surf = pgSurface_AsSurface (surfobj);
+#if IS_SDLv1
     if (surf->flags & SDL_OPENGL)
     {
         temp = surf = opengltosdl ();
         if (!surf)
             return NULL;
     }
+#endif /* IS_SDLv1 */
 
     Rmask = surf->format->Rmask;
     Gmask = surf->format->Gmask;
@@ -338,8 +355,12 @@ image_tostring (PyObject* self, PyObject* arg)
     Gloss = surf->format->Gloss;
     Bloss = surf->format->Bloss;
     Aloss = surf->format->Aloss;
+#if IS_SDLv1
     hascolorkey = (surf->flags & SDL_SRCCOLORKEY) && !Amask;
     colorkey = surf->format->colorkey;
+#else /* IS_SDLv2 */
+    hascolorkey = (SDL_GetColorKey (surf, &colorkey) == 0);
+#endif /* IS_SDLv2 */
 
     if (!strcmp (format, "P"))
     {
@@ -352,12 +373,12 @@ image_tostring (PyObject* self, PyObject* arg)
             return NULL;
         Bytes_AsStringAndSize (string, &data, &len);
 
-        PySurface_Lock (surfobj);
+        pgSurface_Lock (surfobj);
         pixels = (char*) surf->pixels;
         for (h = 0; h < surf->h; ++h)
             memcpy (DATAROW (data, h, surf->w, surf->h, flipped),
                     pixels + (h * surf->pitch), surf->w);
-        PySurface_Unlock (surfobj);
+        pgSurface_Unlock (surfobj);
     }
     else if (!strcmp (format, "RGB"))
     {
@@ -367,7 +388,7 @@ image_tostring (PyObject* self, PyObject* arg)
         Bytes_AsStringAndSize (string, &data, &len);
 
         if (!temp)
-            PySurface_Lock (surfobj);
+            pgSurface_Lock (surfobj);
         pixels = (char*) surf->pixels;
         switch (surf->format->BytesPerPixel)
         {
@@ -438,7 +459,7 @@ image_tostring (PyObject* self, PyObject* arg)
             break;
         }
         if (!temp)
-            PySurface_Unlock (surfobj);
+            pgSurface_Unlock (surfobj);
     }
     else if (!strcmp (format, "RGBX") || !strcmp (format, "RGBA"))
     {
@@ -450,7 +471,7 @@ image_tostring (PyObject* self, PyObject* arg)
             return NULL;
         Bytes_AsStringAndSize (string, &data, &len);
 
-        PySurface_Lock (surfobj);
+        pgSurface_Lock (surfobj);
         pixels = (char*) surf->pixels;
         switch (surf->format->BytesPerPixel)
         {
@@ -531,7 +552,7 @@ image_tostring (PyObject* self, PyObject* arg)
             }
             break;
         }
-        PySurface_Unlock (surfobj);
+        pgSurface_Unlock (surfobj);
     }
     else if (!strcmp (format, "ARGB"))
     {
@@ -542,7 +563,7 @@ image_tostring (PyObject* self, PyObject* arg)
             return NULL;
         Bytes_AsStringAndSize (string, &data, &len);
 
-        PySurface_Lock (surfobj);
+        pgSurface_Lock (surfobj);
         pixels = (char*) surf->pixels;
         switch (surf->format->BytesPerPixel)
         {
@@ -623,7 +644,7 @@ image_tostring (PyObject* self, PyObject* arg)
             }
             break;
         }
-        PySurface_Unlock (surfobj);
+        pgSurface_Unlock (surfobj);
     }
     else if (!strcmp (format, "RGBA_PREMULT"))
     {
@@ -639,7 +660,7 @@ image_tostring (PyObject* self, PyObject* arg)
             return NULL;
         Bytes_AsStringAndSize (string, &data, &len);
 
-        PySurface_Lock (surfobj);
+        pgSurface_Lock (surfobj);
         pixels = (char*) surf->pixels;
         switch (surf->format->BytesPerPixel)
         {
@@ -707,7 +728,7 @@ image_tostring (PyObject* self, PyObject* arg)
             }
             break;
         }
-        PySurface_Unlock (surfobj);
+        pgSurface_Unlock (surfobj);
     }
     else if (!strcmp (format, "ARGB_PREMULT"))
     {
@@ -723,7 +744,7 @@ image_tostring (PyObject* self, PyObject* arg)
             return NULL;
         Bytes_AsStringAndSize (string, &data, &len);
 
-        PySurface_Lock (surfobj);
+        pgSurface_Lock (surfobj);
         pixels = (char*) surf->pixels;
         switch (surf->format->BytesPerPixel)
         {
@@ -791,7 +812,7 @@ image_tostring (PyObject* self, PyObject* arg)
             }
             break;
         }
-        PySurface_Unlock (surfobj);
+        pgSurface_Unlock (surfobj);
     }
     else
     {
@@ -833,7 +854,7 @@ image_fromstring (PyObject* self, PyObject* arg)
 
         surf = SDL_CreateRGBSurface (0, w, h, 8, 0, 0, 0, 0);
         if (!surf)
-            return RAISE (PyExc_SDLError, SDL_GetError ());
+            return RAISE (pgExc_SDLError, SDL_GetError ());
         SDL_LockSurface (surf);
         for (looph = 0; looph < h; ++looph)
             memcpy(((char*) surf->pixels) + looph * surf->pitch,
@@ -848,7 +869,7 @@ image_fromstring (PyObject* self, PyObject* arg)
                  "String length does not equal format and resolution size");
         surf = SDL_CreateRGBSurface (0, w, h, 24, 0xFF<<16, 0xFF<<8, 0xFF, 0);
         if (!surf)
-            return RAISE (PyExc_SDLError, SDL_GetError ());
+            return RAISE (pgExc_SDLError, SDL_GetError ());
         SDL_LockSurface (surf);
         for (looph = 0; looph < h; ++looph)
         {
@@ -887,7 +908,7 @@ image_fromstring (PyObject* self, PyObject* arg)
                                      (alphamult ? 0xFF : 0));
 #endif
         if (!surf)
-            return RAISE (PyExc_SDLError, SDL_GetError ());
+            return RAISE (pgExc_SDLError, SDL_GetError ());
         SDL_LockSurface (surf);
         for (looph = 0; looph < h; ++looph)
         {
@@ -914,7 +935,7 @@ image_fromstring (PyObject* self, PyObject* arg)
                                      0xFF<<16, 0xFF<<8, 0xFF, 0xFF<<24);
 #endif
         if (!surf)
-            return RAISE (PyExc_SDLError, SDL_GetError ());
+            return RAISE (pgExc_SDLError, SDL_GetError ());
         SDL_LockSurface (surf);
         for (looph = 0; looph < h; ++looph)
         {
@@ -933,7 +954,7 @@ image_fromstring (PyObject* self, PyObject* arg)
 
     if (!surf)
         return NULL;
-    return PySurface_New (surf);
+    return pgSurface_New (surf);
 }
 
 PyObject*
@@ -1021,10 +1042,10 @@ image_frombuffer (PyObject* self, PyObject* arg)
         return RAISE(PyExc_ValueError, "Unrecognized type of format");
 
     if (!surf)
-        return RAISE (PyExc_SDLError, SDL_GetError ());
-    surfobj = PySurface_New (surf);
+        return RAISE (pgExc_SDLError, SDL_GetError ());
+    surfobj = pgSurface_New (surf);
     Py_INCREF (buffer);
-    ((PySurfaceObject*) surfobj)->dependency = buffer;
+    ((pgSurfaceObject*) surfobj)->dependency = buffer;
     return surfobj;
 }
 
@@ -1137,11 +1158,19 @@ SaveTGA_RW (SDL_Surface *surface, SDL_RWops *out, int rle)
 {
     SDL_Surface *linebuf = NULL;
     int alpha = 0;
+#if IS_SDLv1
     int ckey = -1;
+#endif /* IS_SDLv1 */
     struct TGAheader h;
     int srcbpp;
+#if IS_SDLv1
     unsigned surf_flags;
     unsigned surf_alpha;
+#else /* IS_SDLv2 */
+    Uint8 surf_alpha;
+    int have_surf_colorkey = 0;
+    Uint32 surf_colorkey;
+#endif /* IS_SDLv2 */
     Uint32 rmask, gmask, bmask, amask;
     SDL_Rect r;
     int bpp;
@@ -1157,15 +1186,25 @@ SaveTGA_RW (SDL_Surface *surface, SDL_RWops *out, int rle)
         return -1;
     }
 
+#if IS_SDLv2
+    SDL_GetSurfaceAlphaMod (surface, &surf_alpha);
+    have_surf_colorkey = (SDL_GetColorKey (surface, &surf_colorkey) == 0);
+#endif /* IS_SDLv2 */
+
     if (srcbpp == 8)
     {
         h.has_cmap = 1;
         h.type = TGA_TYPE_INDEXED;
+#if IS_SDLv1
         if (surface->flags & SDL_SRCCOLORKEY)
         {
             ckey = surface->format->colorkey;
             h.cmap_bits = 32;
         }
+#else /* IS_SDLv2 */
+        if (have_surf_colorkey)
+            h.cmap_bits = 32;
+#endif /* IS_SDLv2 */
         else
             h.cmap_bits = 24;
         SETLE16 (h.cmap_len, surface->format->palette->ncolors);
@@ -1224,7 +1263,11 @@ SaveTGA_RW (SDL_Surface *surface, SDL_RWops *out, int rle)
             entry[0] = pal->colors[i].b;
             entry[1] = pal->colors[i].g;
             entry[2] = pal->colors[i].r;
+#if IS_SDLv1
             entry[3] = (i == ckey) ? 0 : 0xff;
+#else /* IS_SDLv2 */
+            entry[3] = (i == surf_colorkey) ? 0 : 0xff;
+#endif /* IS_SDLv2 */
             if (!SDL_RWwrite (out, entry, h.cmap_bits >> 3, 1))
                 return -1;
         }
@@ -1235,8 +1278,14 @@ SaveTGA_RW (SDL_Surface *surface, SDL_RWops *out, int rle)
     if (!linebuf)
         return -1;
     if (h.has_cmap)
+#if IS_SDLv1
         SDL_SetColors (linebuf, surface->format->palette->colors, 0,
                        surface->format->palette->ncolors);
+#else /* IS_SDLv2 */
+        SDL_SetPaletteColors (linebuf->format->palette,
+                              surface->format->palette->colors,
+                              0, surface->format->palette->ncolors);
+#endif /* IS_SDLv2 */
     if (rle)
     {
         rlebuf = malloc (bpp * surface->w + 1 + surface->w / TGA_RLE_MAX);
@@ -1249,12 +1298,18 @@ SaveTGA_RW (SDL_Surface *surface, SDL_RWops *out, int rle)
 
     /* Temporarily remove colourkey and alpha from surface so copies are
        opaque */
+#if IS_SDLv1
     surf_flags = surface->flags & (SDL_SRCALPHA | SDL_SRCCOLORKEY);
     surf_alpha = surface->format->alpha;
     if (surf_flags & SDL_SRCALPHA)
         SDL_SetAlpha (surface, 0, 255);
     if (surf_flags & SDL_SRCCOLORKEY)
         SDL_SetColorKey (surface, 0, surface->format->colorkey);
+#else /* IS_SDLv2 */
+    SDL_SetSurfaceAlphaMod (surface, SDL_ALPHA_OPAQUE);
+    if (have_surf_colorkey)
+        SDL_SetColorKey (surface, SDL_FALSE, surf_colorkey);
+#endif /* IS_SDLv2 */
 
     r.x = 0;
     r.w = surface->w;
@@ -1280,10 +1335,16 @@ SaveTGA_RW (SDL_Surface *surface, SDL_RWops *out, int rle)
     }
 
     /* restore flags */
+#if IS_SDLv1
     if (surf_flags & SDL_SRCALPHA)
         SDL_SetAlpha (surface, SDL_SRCALPHA, (Uint8)surf_alpha);
     if (surf_flags & SDL_SRCCOLORKEY)
         SDL_SetColorKey (surface, SDL_SRCCOLORKEY, surface->format->colorkey);
+#else /* IS_SDLv2 */
+    SDL_SetSurfaceAlphaMod (surface, surf_alpha);
+    if (have_surf_colorkey)
+        SDL_SetColorKey (surface, SDL_TRUE, surf_colorkey);
+#endif /* IS_SDLv2 */
 
 error:
     free (rlebuf);

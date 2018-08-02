@@ -148,7 +148,7 @@ typedef int (*getbufferproc)(PyObject *, Py_buffer *, int);
 typedef void (*releasebufferproc)(Py_buffer *);
 #endif /* #if !defined(PyBUF_SIMPLE) */
 
-/* Flag indicating a Pg_buffer; used for assertions within callbacks */
+/* Flag indicating a pg_buffer; used for assertions within callbacks */
 #ifndef NDEBUG
 #define PyBUF_PYGAME 0x4000
 #endif
@@ -167,7 +167,7 @@ typedef struct pg_bufferinfo_s {
     Py_buffer view;
     PyObject *consumer;                   /* Input: Borrowed reference */
     pybuffer_releaseproc release_buffer;
-} Pg_buffer;
+} pg_buffer;
 
 /* Operating system specific adjustments
  */
@@ -202,6 +202,81 @@ typedef struct pg_bufferinfo_s {
 
 #include <SDL.h>
 
+/* Pygame's SDL version macros:
+ *   IS_SDLv1 is 1 if SDL 1.x.x, 0 otherwise
+ *   IS_SDLv2 is 1 if at least SDL 2.0.0, 0 otherwise
+ */
+#if (SDL_VERSION_ATLEAST(2, 0, 0))
+#define IS_SDLv1 0
+#define IS_SDLv2 1
+#else
+#define IS_SDLv1 1
+#define IS_SDLv2 0
+#endif
+
+#if IS_SDLv2
+/* SDL 1.2 constants removed from SDL 2 */
+typedef enum {
+    SDL_HWSURFACE = 0,
+    SDL_RESIZABLE = SDL_WINDOW_RESIZABLE,
+    SDL_ASYNCBLIT = 0,
+    SDL_OPENGL = SDL_WINDOW_OPENGL,
+    SDL_OPENGLBLIT = 0,
+    SDL_ANYFORMAT = 0,
+    SDL_HWPALETTE = 0,
+    SDL_DOUBLEBUF = 0,
+    SDL_FULLSCREEN = SDL_WINDOW_FULLSCREEN,
+    SDL_HWACCEL = 0,
+    SDL_SRCCOLORKEY = 0,
+    SDL_RLEACCELOK = 0,
+    SDL_SRCALPHA = 0,
+    SDL_NOFRAME = SDL_WINDOW_BORDERLESS,
+    SDL_GL_SWAP_CONTROL = 0,
+    TIMER_RESOLUTION = 0
+} PygameVideoFlags;
+
+typedef enum {
+    SDL_NOEVENT = (Uint32)-1,
+    /* SDL 1.2 allowed for 8 user defined events. */
+    SDL_NUMEVENTS = SDL_USEREVENT + 8,
+    SDL_ACTIVEEVENT = SDL_NUMEVENTS,
+    SDL_VIDEORESIZE,
+    SDL_VIDEOEXPOSE,
+    PGE_EVENTEND
+} PygameEventCode;
+
+typedef enum {
+    SDL_APPFOCUSMOUSE,
+    SDL_APPINPUTFOCUS,
+    SDL_APPACTIVE
+} PygameAppCode;
+
+/* Surface flags: based on SDL 1.2 flags */
+typedef enum {
+    PGS_SWSURFACE     = 0x00000000,
+    PGS_HWSURFACE     = 0x00000001,
+    PGS_ASYNCBLIT     = 0x00000004,
+
+    PGS_ANYFORMAT     = 0x10000000,
+    PGS_HWPALETTE     = 0x20000000,
+    PGS_DOUBLEBUF     = 0x40000000,
+    PGS_FULLSCREEN    = 0x80000000,
+    PGS_OPENGL        = 0x00000002,
+    PGS_OPENGLBLIT    = 0x0000000A,
+    PGS_RESIZABLE     = 0x00000010,
+    PGS_NOFRAME       = 0x00000020,
+    PGS_SHOWN         = 0x00000040,  /* Added from SDL 2 */
+    PGS_HIDDEN        = 0x00000080,  /* Added from SDL 2 */
+
+    PGS_HWACCEL       = 0x00000100,
+    PGS_SRCCOLORKEY   = 0x00001000,
+    PGS_RLEACCELOK    = 0x00002000,
+    PGS_RLEACCEL      = 0x00004000,
+    PGS_SRCALPHA      = 0x00010000,
+    PGS_PREALLOC      = 0x01000000
+} PygameSurfaceFlags;
+
+#endif /* IS_SDLv2 */
 /* macros used throughout the source */
 #define RAISE(x,y) (PyErr_SetString((x), (y)), (PyObject*)NULL)
 
@@ -245,15 +320,15 @@ typedef getcharbufferproc charbufferproc;
 /* test sdl initializations */
 #define VIDEO_INIT_CHECK()                                              \
     if(!SDL_WasInit(SDL_INIT_VIDEO))                                    \
-        return RAISE(PyExc_SDLError, "video system not initialized")
+        return RAISE(pgExc_SDLError, "video system not initialized")
 
 #define CDROM_INIT_CHECK()                                              \
     if(!SDL_WasInit(SDL_INIT_CDROM))                                    \
-        return RAISE(PyExc_SDLError, "cdrom system not initialized")
+        return RAISE(pgExc_SDLError, "cdrom system not initialized")
 
 #define JOYSTICK_INIT_CHECK()                                           \
     if(!SDL_WasInit(SDL_INIT_JOYSTICK))                                 \
-        return RAISE(PyExc_SDLError, "joystick system not initialized")
+        return RAISE(pgExc_SDLError, "joystick system not initialized")
 
 /* BASE */
 #define VIEW_CONTIGUOUS    1
@@ -261,70 +336,93 @@ typedef getcharbufferproc charbufferproc;
 #define VIEW_F_ORDER       4
 
 #define PYGAMEAPI_BASE_FIRSTSLOT 0
+#if IS_SDLv1
 #define PYGAMEAPI_BASE_NUMSLOTS 19
+#else /* IS_SDLv2 */
+#define PYGAMEAPI_BASE_NUMSLOTS 23
+#endif /* IS_SDLv2 */
 #ifndef PYGAMEAPI_BASE_INTERNAL
-#define PyExc_SDLError ((PyObject*)PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT])
+#define pgExc_SDLError ((PyObject*)PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT])
 
-#define PyGame_RegisterQuit                                             \
+#define pg_RegisterQuit                                             \
     (*(void(*)(void(*)(void)))PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 1])
 
-#define IntFromObj                                                      \
+#define pg_IntFromObj                                                      \
     (*(int(*)(PyObject*, int*))PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 2])
 
-#define IntFromObjIndex                                                 \
+#define pg_IntFromObjIndex                                                 \
     (*(int(*)(PyObject*, int, int*))PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 3])
 
-#define TwoIntsFromObj                                                  \
+#define pg_TwoIntsFromObj                                                  \
     (*(int(*)(PyObject*, int*, int*))PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 4])
 
-#define FloatFromObj                                                    \
+#define pg_FloatFromObj                                                    \
     (*(int(*)(PyObject*, float*))PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 5])
 
-#define FloatFromObjIndex                                               \
+#define pg_FloatFromObjIndex                                               \
     (*(int(*)(PyObject*, int, float*))                                \
      PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 6])
 
-#define TwoFloatsFromObj                                \
+#define pg_TwoFloatsFromObj                                \
     (*(int(*)(PyObject*, float*, float*))               \
      PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 7])
 
-#define UintFromObj                                                     \
+#define pg_UintFromObj                                                     \
     (*(int(*)(PyObject*, Uint32*))PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 8])
 
-#define UintFromObjIndex                                                \
+#define pg_UintFromObjIndex                                                \
     (*(int(*)(PyObject*, int, Uint32*))                                 \
      PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 9])
 
-#define PyGame_Video_AutoQuit                                           \
+#define pgVideo_AutoQuit                                           \
     (*(void(*)(void))PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 10])
 
-#define PyGame_Video_AutoInit                                           \
+#define pgVideo_AutoInit                                           \
     (*(int(*)(void))PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 11])
 
-#define RGBAFromObj                                                     \
+#define pg_RGBAFromObj                                                     \
     (*(int(*)(PyObject*, Uint8*))PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 12])
 
-#define PgBuffer_AsArrayInterface                                       \
+#define pgBuffer_AsArrayInterface                                       \
     (*(PyObject*(*)(Py_buffer*)) PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 13])
 
-#define PgBuffer_AsArrayStruct                                          \
+#define pgBuffer_AsArrayStruct                                          \
     (*(PyObject*(*)(Py_buffer*))                                        \
      PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 14])
 
-#define PgObject_GetBuffer                                              \
-    (*(int(*)(PyObject*, Pg_buffer*, int))                              \
+#define pgObject_GetBuffer                                              \
+    (*(int(*)(PyObject*, pg_buffer*, int))                              \
      PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 15])
 
-#define PgBuffer_Release                                                \
-    (*(void(*)(Pg_buffer*))                                             \
+#define pgBuffer_Release                                                \
+    (*(void(*)(pg_buffer*))                                             \
      PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 16])
 
-#define PgDict_AsBuffer                                                 \
-    (*(int(*)(Pg_buffer*, PyObject*, int))                              \
+#define pgDict_AsBuffer                                                 \
+    (*(int(*)(pg_buffer*, PyObject*, int))                              \
      PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 17])
 
-#define PgExc_BufferError                                               \
+#define pgExc_BufferError                                               \
     ((PyObject*)PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 18])
+
+#if IS_SDLv2
+#define pg_GetDefaultWindow                                             \
+    (*(SDL_Window*(*)(void))                                            \
+     PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 19])
+
+#define pg_SetDefaultWindow                                             \
+    (*(void(*)(SDL_Window*))                                            \
+     PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 20])
+
+#define pg_GetDefaultWindowSurface                                      \
+    (*(PyObject*(*)(void))                                              \
+     PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 21])
+
+#define pg_SetDefaultWindowSurface                                      \
+    (*(void(*)(PyObject*))                                              \
+     PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 22])
+
+#endif /* IS_SDLv2 */
 
 #define import_pygame_base() IMPORT_PYGAME_MODULE(base, BASE)
 #endif
@@ -344,18 +442,18 @@ typedef struct {
     PyObject_HEAD
     GAME_Rect r;
     PyObject *weakreflist;
-} PyRectObject;
+} pgRectObject;
 
-#define PyRect_AsRect(x) (((PyRectObject*)x)->r)
+#define pgRect_AsRect(x) (((pgRectObject*)x)->r)
 #ifndef PYGAMEAPI_RECT_INTERNAL
-#define PyRect_Check(x) \
+#define pgRect_Check(x) \
     ((x)->ob_type == (PyTypeObject*)PyGAME_C_API[PYGAMEAPI_RECT_FIRSTSLOT + 0])
-#define PyRect_Type (*(PyTypeObject*)PyGAME_C_API[PYGAMEAPI_RECT_FIRSTSLOT + 0])
-#define PyRect_New                                                      \
+#define pgRect_Type (*(PyTypeObject*)PyGAME_C_API[PYGAMEAPI_RECT_FIRSTSLOT + 0])
+#define pgRect_New                                                      \
     (*(PyObject*(*)(SDL_Rect*))PyGAME_C_API[PYGAMEAPI_RECT_FIRSTSLOT + 1])
-#define PyRect_New4                                                     \
+#define pgRect_New4                                                     \
     (*(PyObject*(*)(int,int,int,int))PyGAME_C_API[PYGAMEAPI_RECT_FIRSTSLOT + 2])
-#define GameRect_FromObject                                             \
+#define pgRect_FromObject                                             \
     (*(GAME_Rect*(*)(PyObject*, GAME_Rect*))                            \
      PyGAME_C_API[PYGAMEAPI_RECT_FIRSTSLOT + 3])
 
@@ -371,14 +469,14 @@ typedef struct {
 typedef struct {
     PyObject_HEAD
     int id;
-} PyCDObject;
+} pgCDObject;
 
-#define PyCD_AsID(x) (((PyCDObject*)x)->id)
+#define pgCD_AsID(x) (((pgCDObject*)x)->id)
 #ifndef PYGAMEAPI_CDROM_INTERNAL
-#define PyCD_Check(x)                                                   \
+#define pgCD_Check(x)                                                   \
     ((x)->ob_type == (PyTypeObject*)PyGAME_C_API[PYGAMEAPI_CDROM_FIRSTSLOT + 0])
-#define PyCD_Type (*(PyTypeObject*)PyGAME_C_API[PYGAMEAPI_CDROM_FIRSTSLOT + 0])
-#define PyCD_New                                                        \
+#define pgCD_Type (*(PyTypeObject*)PyGAME_C_API[PYGAMEAPI_CDROM_FIRSTSLOT + 0])
+#define pgCD_New                                                        \
     (*(PyObject*(*)(int))PyGAME_C_API[PYGAMEAPI_CDROM_FIRSTSLOT + 1])
 
 #define import_pygame_cd() IMPORT_PYGAME_MODULE(cdrom, CDROM)
@@ -393,18 +491,18 @@ typedef struct {
 typedef struct {
     PyObject_HEAD
     int id;
-} PyJoystickObject;
+} pgJoystickObject;
 
-#define PyJoystick_AsID(x) (((PyJoystickObject*)x)->id)
+#define pgJoystick_AsID(x) (((pgJoystickObject*)x)->id)
 
 #ifndef PYGAMEAPI_JOYSTICK_INTERNAL
-#define PyJoystick_Check(x)                                             \
+#define pgJoystick_Check(x)                                             \
     ((x)->ob_type == (PyTypeObject*)                                    \
      PyGAME_C_API[PYGAMEAPI_JOYSTICK_FIRSTSLOT + 0])
 
-#define PyJoystick_Type                                                 \
+#define pgJoystick_Type                                                 \
     (*(PyTypeObject*)PyGAME_C_API[PYGAMEAPI_JOYSTICK_FIRSTSLOT + 0])
-#define PyJoystick_New                                                  \
+#define pgJoystick_New                                                  \
     (*(PyObject*(*)(int))PyGAME_C_API[PYGAMEAPI_JOYSTICK_FIRSTSLOT + 1])
 
 #define import_pygame_joystick() IMPORT_PYGAME_MODULE(joystick, JOYSTICK)
@@ -414,26 +512,30 @@ typedef struct {
 /* DISPLAY */
 #define PYGAMEAPI_DISPLAY_FIRSTSLOT \
     (PYGAMEAPI_JOYSTICK_FIRSTSLOT + PYGAMEAPI_JOYSTICK_NUMSLOTS)
+#if IS_SDLv1
 #define PYGAMEAPI_DISPLAY_NUMSLOTS 2
 typedef struct {
     PyObject_HEAD
     SDL_VideoInfo info;
-} PyVidInfoObject;
+} pgVidInfoObject;
 
-#define PyVidInfo_AsVidInfo(x) (((PyVidInfoObject*)x)->info)
+#define pgVidInfo_AsVidInfo(x) (((pgVidInfoObject*)x)->info)
 #ifndef PYGAMEAPI_DISPLAY_INTERNAL
-#define PyVidInfo_Check(x)                                              \
+#define pgVidInfo_Check(x)                                              \
     ((x)->ob_type == (PyTypeObject*)                                    \
      PyGAME_C_API[PYGAMEAPI_DISPLAY_FIRSTSLOT + 0])
 
-#define PyVidInfo_Type                                                  \
+#define pgVidInfo_Type                                                  \
     (*(PyTypeObject*)PyGAME_C_API[PYGAMEAPI_DISPLAY_FIRSTSLOT + 0])
-#define PyVidInfo_New                                   \
+#define pgVidInfo_New                                   \
     (*(PyObject*(*)(SDL_VideoInfo*))                    \
      PyGAME_C_API[PYGAMEAPI_DISPLAY_FIRSTSLOT + 1])
 #define import_pygame_display() IMPORT_PYGAME_MODULE(display, DISPLAY)
 #endif
 
+#else /* IS_SDLv2 */
+#define PYGAMEAPI_DISPLAY_NUMSLOTS 0
+#endif /* IS_SDLv2 */
 
 /* SURFACE */
 #define PYGAMEAPI_SURFACE_FIRSTSLOT                             \
@@ -442,23 +544,32 @@ typedef struct {
 typedef struct {
     PyObject_HEAD
     SDL_Surface* surf;
-    struct SubSurface_Data* subsurface;  /*ptr to subsurface data (if a
+#if IS_SDLv2
+    int owner;
+#endif /* IS_SDLv2 */
+    struct pgSubSurface_Data* subsurface;  /*ptr to subsurface data (if a
                                           * subsurface)*/
     PyObject *weakreflist;
     PyObject *locklist;
     PyObject *dependency;
-} PySurfaceObject;
-#define PySurface_AsSurface(x) (((PySurfaceObject*)x)->surf)
+} pgSurfaceObject;
+#define pgSurface_AsSurface(x) (((pgSurfaceObject*)x)->surf)
 #ifndef PYGAMEAPI_SURFACE_INTERNAL
-#define PySurface_Check(x)                                              \
+#define pgSurface_Check(x)                                              \
     ((x)->ob_type == (PyTypeObject*)                                    \
      PyGAME_C_API[PYGAMEAPI_SURFACE_FIRSTSLOT + 0])
-#define PySurface_Type                                                  \
+#define pgSurface_Type                                                  \
     (*(PyTypeObject*)PyGAME_C_API[PYGAMEAPI_SURFACE_FIRSTSLOT + 0])
-#define PySurface_New                                                   \
+#if IS_SDLv1
+#define pgSurface_New                                                   \
     (*(PyObject*(*)(SDL_Surface*))                                      \
      PyGAME_C_API[PYGAMEAPI_SURFACE_FIRSTSLOT + 1])
-#define PySurface_Blit                                                  \
+#else /* IS_SDLv2 */
+#define pgSurface_New2                                                  \
+    (*(PyObject*(*)(SDL_Surface*, int))                                 \
+     PyGAME_C_API[PYGAMEAPI_SURFACE_FIRSTSLOT + 1])
+#endif /* IS_SDLv2 */
+#define pgSurface_Blit                                                  \
     (*(int(*)(PyObject*,PyObject*,SDL_Rect*,SDL_Rect*,int))             \
      PyGAME_C_API[PYGAMEAPI_SURFACE_FIRSTSLOT + 2])
 
@@ -467,6 +578,12 @@ typedef struct {
     if (PyErr_Occurred() != NULL) break;                               \
     IMPORT_PYGAME_MODULE(surflock, SURFLOCK);                          \
     } while (0)
+
+#if IS_SDLv2
+#define pgSurface_New(surface) pgSurface_New2((surface), 1)
+#define pgSurface_NewNoOwn(surface) pgSurface_New2((surface), 0)
+#endif /* IS_SDLv2 */
+
 #endif
 
 
@@ -474,7 +591,7 @@ typedef struct {
 #define PYGAMEAPI_SURFLOCK_FIRSTSLOT                            \
     (PYGAMEAPI_SURFACE_FIRSTSLOT + PYGAMEAPI_SURFACE_NUMSLOTS)
 #define PYGAMEAPI_SURFLOCK_NUMSLOTS 8
-struct SubSurface_Data
+struct pgSubSurface_Data
 {
     PyObject* owner;
     int pixeloffset;
@@ -487,33 +604,33 @@ typedef struct
     PyObject *surface;
     PyObject *lockobj;
     PyObject *weakrefs;
-} PyLifetimeLock;
+} pgLifetimeLockObject;
 
 #ifndef PYGAMEAPI_SURFLOCK_INTERNAL
-#define PyLifetimeLock_Check(x)                         \
+#define pgLifetimeLock_Check(x)                         \
     ((x)->ob_type == (PyTypeObject*)                    \
         PyGAME_C_API[PYGAMEAPI_SURFLOCK_FIRSTSLOT + 0])
-#define PySurface_Prep(x)                                               \
-    if(((PySurfaceObject*)x)->subsurface)                               \
+#define pgSurface_Prep(x)                                               \
+    if(((pgSurfaceObject*)x)->subsurface)                               \
         (*(*(void(*)(PyObject*))                                        \
            PyGAME_C_API[PYGAMEAPI_SURFLOCK_FIRSTSLOT + 1]))(x)
 
-#define PySurface_Unprep(x)                                             \
-    if(((PySurfaceObject*)x)->subsurface)                               \
+#define pgSurface_Unprep(x)                                             \
+    if(((pgSurfaceObject*)x)->subsurface)                               \
         (*(*(void(*)(PyObject*))                                        \
            PyGAME_C_API[PYGAMEAPI_SURFLOCK_FIRSTSLOT + 2]))(x)
 
-#define PySurface_Lock                                                  \
+#define pgSurface_Lock                                                  \
     (*(int(*)(PyObject*))PyGAME_C_API[PYGAMEAPI_SURFLOCK_FIRSTSLOT + 3])
-#define PySurface_Unlock                                                \
+#define pgSurface_Unlock                                                \
     (*(int(*)(PyObject*))PyGAME_C_API[PYGAMEAPI_SURFLOCK_FIRSTSLOT + 4])
-#define PySurface_LockBy                                                \
+#define pgSurface_LockBy                                                \
     (*(int(*)(PyObject*,PyObject*))                                     \
         PyGAME_C_API[PYGAMEAPI_SURFLOCK_FIRSTSLOT + 5])
-#define PySurface_UnlockBy                                              \
+#define pgSurface_UnlockBy                                              \
     (*(int(*)(PyObject*,PyObject*))                                     \
         PyGAME_C_API[PYGAMEAPI_SURFLOCK_FIRSTSLOT + 6])
-#define PySurface_LockLifetime                                          \
+#define pgSurface_LockLifetime                                          \
     (*(PyObject*(*)(PyObject*,PyObject*))                               \
         PyGAME_C_API[PYGAMEAPI_SURFLOCK_FIRSTSLOT + 7])
 #endif
@@ -522,26 +639,36 @@ typedef struct
 /* EVENT */
 #define PYGAMEAPI_EVENT_FIRSTSLOT                                       \
     (PYGAMEAPI_SURFLOCK_FIRSTSLOT + PYGAMEAPI_SURFLOCK_NUMSLOTS)
+#if IS_SDLv1
 #define PYGAMEAPI_EVENT_NUMSLOTS 4
+#else /* IS_SDLv2 */
+#define PYGAMEAPI_EVENT_NUMSLOTS 6
+#endif /* IS_SDLv2 */
 
 typedef struct {
     PyObject_HEAD
     int type;
     PyObject* dict;
-} PyEventObject;
+} pgEventObject;
 
 #ifndef PYGAMEAPI_EVENT_INTERNAL
-#define PyEvent_Check(x)                                                \
+#define pgEvent_Check(x)                                                \
     ((x)->ob_type == (PyTypeObject*)PyGAME_C_API[PYGAMEAPI_EVENT_FIRSTSLOT + 0])
-#define PyEvent_Type \
+#define pgEvent_Type \
     (*(PyTypeObject*)PyGAME_C_API[PYGAMEAPI_EVENT_FIRSTSLOT + 0])
-#define PyEvent_New \
+#define pgEvent_New \
     (*(PyObject*(*)(SDL_Event*))PyGAME_C_API[PYGAMEAPI_EVENT_FIRSTSLOT + 1])
-#define PyEvent_New2                                                    \
+#define pgEvent_New2                                                    \
     (*(PyObject*(*)(int, PyObject*))PyGAME_C_API[PYGAMEAPI_EVENT_FIRSTSLOT + 2])
-#define PyEvent_FillUserEvent                           \
-    (*(int (*)(PyEventObject*, SDL_Event*))             \
+#define pgEvent_FillUserEvent                           \
+    (*(int (*)(pgEventObject*, SDL_Event*))             \
      PyGAME_C_API[PYGAMEAPI_EVENT_FIRSTSLOT + 3])
+#if IS_SDLv2
+#define pg_EnableKeyRepeat                              \
+    (*(int (*)(int, int))PyGAME_C_API[PYGAMEAPI_EVENT_FIRSTSLOT + 4])
+#define pg_GetKeyRepeat                                 \
+    (*(void (*)(int*, int*))PyGAME_C_API[PYGAMEAPI_EVENT_FIRSTSLOT + 5])
+#endif /* IS_SDLv2 */
 #define import_pygame_event() IMPORT_PYGAME_MODULE(event, EVENT)
 #endif
 
@@ -552,21 +679,21 @@ typedef struct {
     (PYGAMEAPI_EVENT_FIRSTSLOT + PYGAMEAPI_EVENT_NUMSLOTS)
 #define PYGAMEAPI_RWOBJECT_NUMSLOTS 7
 #ifndef PYGAMEAPI_RWOBJECT_INTERNAL
-#define RWopsFromObject \
+#define pgRWopsFromObject \
     (*(SDL_RWops*(*)(PyObject*))PyGAME_C_API[PYGAMEAPI_RWOBJECT_FIRSTSLOT + 0])
-#define RWopsCheckObject                                               \
+#define pgRWopsCheckObject                                               \
     (*(int(*)(SDL_RWops*))PyGAME_C_API[PYGAMEAPI_RWOBJECT_FIRSTSLOT + 1])
-#define RWopsFromFileObjectThreaded                                         \
+#define pgRWopsFromFileObjectThreaded                                         \
     (*(SDL_RWops*(*)(PyObject*))PyGAME_C_API[PYGAMEAPI_RWOBJECT_FIRSTSLOT + 2])
-#define RWopsCheckObjectThreaded                                        \
+#define pgRWopsCheckObjectThreaded                                        \
     (*(int(*)(SDL_RWops*))PyGAME_C_API[PYGAMEAPI_RWOBJECT_FIRSTSLOT + 3])
-#define RWopsEncodeFilePath \
+#define pgRWopsEncodeFilePath \
     (*(PyObject*(*)(PyObject*, PyObject*)) \
         PyGAME_C_API[PYGAMEAPI_RWOBJECT_FIRSTSLOT + 4])
-#define RWopsEncodeString \
+#define pgRWopsEncodeString \
     (*(PyObject*(*)(PyObject*, const char*, const char*, PyObject*)) \
         PyGAME_C_API[PYGAMEAPI_RWOBJECT_FIRSTSLOT + 5])
-#define RWopsFromFileObject                                         \
+#define pgRWopsFromFileObject                                         \
     (*(SDL_RWops*(*)(PyObject*))PyGAME_C_API[PYGAMEAPI_RWOBJECT_FIRSTSLOT + 6])
 #define import_pygame_rwobject() IMPORT_PYGAME_MODULE(rwobject, RWOBJECT)
 
@@ -595,16 +722,16 @@ typedef struct {
     (PYGAMEAPI_PIXELARRAY_FIRSTSLOT + PYGAMEAPI_PIXELARRAY_NUMSLOTS)
 #define PYGAMEAPI_COLOR_NUMSLOTS 4
 #ifndef PYGAMEAPI_COLOR_INTERNAL
-#define PyColor_Check(x)                                                \
+#define pgColor_Check(x)                                                \
     ((x)->ob_type == (PyTypeObject*)                                    \
         PyGAME_C_API[PYGAMEAPI_COLOR_FIRSTSLOT + 0])
-#define PyColor_Type (*(PyObject *) PyGAME_C_API[PYGAMEAPI_COLOR_FIRSTSLOT])
-#define PyColor_New                                                     \
+#define pgColor_Type (*(PyObject *) PyGAME_C_API[PYGAMEAPI_COLOR_FIRSTSLOT])
+#define pgColor_New                                                     \
     (*(PyObject *(*)(Uint8*)) PyGAME_C_API[PYGAMEAPI_COLOR_FIRSTSLOT + 1])
-#define PyColor_NewLength                                               \
+#define pgColor_NewLength                                               \
     (*(PyObject *(*)(Uint8*, Uint8)) PyGAME_C_API[PYGAMEAPI_COLOR_FIRSTSLOT + 3])
 
-#define RGBAFromColorObj                                                \
+#define pg_RGBAFromColorObj                                                \
     (*(int(*)(PyObject*, Uint8*)) PyGAME_C_API[PYGAMEAPI_COLOR_FIRSTSLOT + 2])
 #define import_pygame_color() IMPORT_PYGAME_MODULE(color, COLOR)
 #endif /* PYGAMEAPI_COLOR_INTERNAL */
@@ -615,14 +742,14 @@ typedef struct {
     (PYGAMEAPI_COLOR_FIRSTSLOT + PYGAMEAPI_COLOR_NUMSLOTS)
 #define PYGAMEAPI_MATH_NUMSLOTS 2
 #ifndef PYGAMEAPI_MATH_INTERNAL
-#define PyVector2_Check(x)                                                \
+#define pgVector2_Check(x)                                                \
     ((x)->ob_type == (PyTypeObject*)                                    \
         PyGAME_C_API[PYGAMEAPI_MATH_FIRSTSLOT + 0])
-#define PyVector3_Check(x)                                                \
+#define pgVector3_Check(x)                                                \
     ((x)->ob_type == (PyTypeObject*)                                    \
         PyGAME_C_API[PYGAMEAPI_MATH_FIRSTSLOT + 1])
 /*
-#define PyVector2_New                                             \
+#define pgVector2_New                                             \
     (*(PyObject*(*)) PyGAME_C_API[PYGAMEAPI_MATH_FIRSTSLOT + 1])
 */
 #define import_pygame_math() IMPORT_PYGAME_MODULE(math, MATH)

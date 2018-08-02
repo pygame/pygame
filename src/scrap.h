@@ -54,7 +54,7 @@ typedef enum
  */
 #define PYGAME_SCRAP_INIT_CHECK() \
     if(!pygame_scrap_initialized()) \
-        return (PyErr_SetString (PyExc_SDLError, \
+        return (PyErr_SetString (pgExc_SDLError, \
                                  "scrap system not initialized."), NULL)
 
 /**

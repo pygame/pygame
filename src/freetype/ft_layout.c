@@ -87,7 +87,7 @@ static void fill_metrics(FontMetrics *, FT_Pos, FT_Pos,
                          FT_Vector *, FT_Vector *);
 static void fill_context(TextContext *,
                          const FreeTypeInstance *,
-                         const PgFontObject *,
+                         const pgFontObject *,
                          const FontRenderMode *,
                          const FT_Face);
 static int size_text(Layout *,
@@ -107,7 +107,7 @@ static void copy_mode(FontRenderMode *, const FontRenderMode *);
 
 
 int
-_PGFT_LayoutInit(FreeTypeInstance *ft, PgFontObject *fontobj)
+_PGFT_LayoutInit(FreeTypeInstance *ft, pgFontObject *fontobj)
 {
     Layout *ftext = &fontobj->_internals->active_text;
     FontCache *cache = &fontobj->_internals->glyph_cache;
@@ -124,7 +124,7 @@ _PGFT_LayoutInit(FreeTypeInstance *ft, PgFontObject *fontobj)
 }
 
 void
-_PGFT_LayoutFree(PgFontObject *fontobj)
+_PGFT_LayoutFree(pgFontObject *fontobj)
 {
     Layout *ftext = &(fontobj->_internals->active_text);
     FontCache *cache = &fontobj->_internals->glyph_cache;
@@ -137,7 +137,7 @@ _PGFT_LayoutFree(PgFontObject *fontobj)
 }
 
 Layout *
-_PGFT_LoadLayout(FreeTypeInstance *ft, PgFontObject *fontobj,
+_PGFT_LoadLayout(FreeTypeInstance *ft, pgFontObject *fontobj,
                  const FontRenderMode *mode, PGFT_String *text)
 {
     Layout *ftext = &fontobj->_internals->active_text;
@@ -151,7 +151,7 @@ _PGFT_LoadLayout(FreeTypeInstance *ft, PgFontObject *fontobj,
         copy_mode(&ftext->mode, mode);
         font = _PGFT_GetFontSized(ft, fontobj, mode->face_size);
         if (!font) {
-            PyErr_SetString(PyExc_SDLError, _PGFT_GetError(ft));
+            PyErr_SetString(pgExc_SDLError, _PGFT_GetError(ft));
             return 0;
         }
     }
@@ -228,7 +228,7 @@ size_text(Layout *ftext,
                                    &slots[length].kerning);
             if (error) {
                 _PGFT_SetError(ft, "Loading glyphs", error);
-                PyErr_SetString(PyExc_SDLError, _PGFT_GetError(ft));
+                PyErr_SetString(pgExc_SDLError, _PGFT_GetError(ft));
                 return -1;
             }
         }
@@ -265,7 +265,7 @@ load_glyphs(Layout *ftext, TextContext *context, FontCache *cache)
     for (i = 0; i < length; ++i) {
         glyph = _PGFT_Cache_FindGlyph(slot[i].id, mode, cache, context);
         if (!glyph) {
-            PyErr_Format(PyExc_SDLError, "Unable to load glyph for id %lu",
+            PyErr_Format(pgExc_SDLError, "Unable to load glyph for id %lu",
                          (unsigned long)slot[i].id);
             return -1;
         }
@@ -466,7 +466,7 @@ fill_text_bounding_box(Layout *ftext,
     ftext->advance.y = pen.y;
 }
 
-int _PGFT_GetMetrics(FreeTypeInstance *ft, PgFontObject *fontobj,
+int _PGFT_GetMetrics(FreeTypeInstance *ft, pgFontObject *fontobj,
                     PGFT_char character, const FontRenderMode *mode,
                     FT_UInt *gindex, long *minx, long *maxx,
                     long *miny, long *maxy,
@@ -665,7 +665,7 @@ cleanup:
 static void
 fill_context(TextContext *context,
              const FreeTypeInstance *ft,
-             const PgFontObject *fontobj,
+             const pgFontObject *fontobj,
              const FontRenderMode *mode,
              const FT_Face font)
 {

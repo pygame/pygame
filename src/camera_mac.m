@@ -100,7 +100,7 @@ char** mac_list_cameras(int* num_cameras) {
 }
 
 /* Open a Camera component. */
-int mac_open_device (PyCameraObject* self) {
+int mac_open_device (pgCameraObject* self) {
     OSErr theErr;
 
     // Initialize movie toolbox
@@ -124,7 +124,7 @@ int mac_open_device (PyCameraObject* self) {
 }
 
 /* Make the Camera object ready for capturing images. */
-int mac_init_device(PyCameraObject* self) {
+int mac_init_device(pgCameraObject* self) {
     OSErr theErr;
 
     if (self->color_out == YUV_OUT) {
@@ -237,7 +237,7 @@ int mac_init_device(PyCameraObject* self) {
 }
 
 /* Start Capturing */
-int mac_start_capturing(PyCameraObject* self) {
+int mac_start_capturing(pgCameraObject* self) {
     OSErr theErr;
     
     theErr = SGPrepare(self->component, true, false);
@@ -264,7 +264,7 @@ int mac_start_capturing(PyCameraObject* self) {
 }
 
 /* Close the camera component, and stop the image capturing if necessary. */
-int mac_close_device (PyCameraObject* self) {
+int mac_close_device (pgCameraObject* self) {
     ComponentResult theErr;
     
     // Stop recording
@@ -295,7 +295,7 @@ int mac_close_device (PyCameraObject* self) {
 }
 
 /* Stop capturing. */
-int mac_stop_capturing (PyCameraObject* self) {
+int mac_stop_capturing (pgCameraObject* self) {
     OSErr theErr = SGStop(self->component);
     if (theErr != noErr) {
         PyErr_Format(PyExc_SystemError,
@@ -306,7 +306,7 @@ int mac_stop_capturing (PyCameraObject* self) {
 }
 
 /* Read a frame, and put the raw data into a python string. */
-PyObject *mac_read_raw(PyCameraObject *self) {
+PyObject *mac_read_raw(pgCameraObject *self) {
     if (self->gworld == NULL) {
         PyErr_Format(PyExc_SystemError,
         "Cannot set convert gworld to surface because gworls is 0");
@@ -326,7 +326,7 @@ PyObject *mac_read_raw(PyCameraObject *self) {
 }
 
 /* Read a frame from the camera and copy it to a surface. */
-int mac_read_frame(PyCameraObject* self, SDL_Surface* surf) {
+int mac_read_frame(pgCameraObject* self, SDL_Surface* surf) {
     if (mac_camera_idle(self) != 0) {
         return mac_process_image(self, self->pixels.start, self->pixels.length, surf);
     } else {
@@ -336,7 +336,7 @@ int mac_read_frame(PyCameraObject* self, SDL_Surface* surf) {
 
 // TODO sometimes it is posible to directly grab the image in the desired pixel format,
 // but this format needs to be known at the beginning of the initiation of the camera.
-int mac_process_image(PyCameraObject* self, const void *image, unsigned int buffer_size, SDL_Surface* surf) {
+int mac_process_image(pgCameraObject* self, const void *image, unsigned int buffer_size, SDL_Surface* surf) {
     if (!surf)
         return 0;
     
@@ -406,7 +406,7 @@ int mac_process_image(PyCameraObject* self, const void *image, unsigned int buff
 }
 
 /* Put the camera in idle mode. */
-int mac_camera_idle(PyCameraObject* self) {
+int mac_camera_idle(pgCameraObject* self) {
     OSErr theErr = SGIdle(self->component);
     if (theErr != noErr) {
         PyErr_Format(PyExc_SystemError, "SGIdle failed");

@@ -111,7 +111,7 @@ music_play (PyObject* self, PyObject* args, PyObject *keywds)
 
     MIXER_INIT_CHECK ();
     if (!current_music)
-        return RAISE (PyExc_SDLError, "music not loaded");
+        return RAISE (pgExc_SDLError, "music not loaded");
 
     Mix_HookMusicFinished (endmusic_callback);
     Mix_SetPostMix (mixmusic_callback, NULL);
@@ -134,7 +134,7 @@ music_play (PyObject* self, PyObject* args, PyObject *keywds)
     Py_END_ALLOW_THREADS
 #endif
     if (val == -1)
-        return RAISE (PyExc_SDLError, SDL_GetError ());
+        return RAISE (pgExc_SDLError, SDL_GetError ());
 
     Py_RETURN_NONE;
 }
@@ -243,7 +243,7 @@ music_set_pos (PyObject* self, PyObject* arg)
 
     if (Mix_SetMusicPosition (pos) == -1)
     {
-        return RAISE (PyExc_SDLError, "set_pos unsupported for this codec");
+        return RAISE (pgExc_SDLError, "set_pos unsupported for this codec");
     }
     Py_RETURN_NONE;
 }
@@ -299,16 +299,20 @@ music_load(PyObject *self, PyObject *args)
 
     MIXER_INIT_CHECK();
 
-    oencoded = RWopsEncodeFilePath(obj, PyExc_SDLError);
+    oencoded = pgRWopsEncodeFilePath(obj, pgExc_SDLError);
     if (oencoded == Py_None) {
         Py_DECREF(oencoded);
 #if MIXMUSIC_HAVE_RWOPS
-        rw = RWopsFromFileObjectThreaded(obj);
+        rw = pgRWopsFromFileObjectThreaded(obj);
         if(rw == NULL) {
             return NULL;
         }
         Py_BEGIN_ALLOW_THREADS
+#if IS_SDLv1
         new_music = Mix_LoadMUS_RW(rw);
+#else /* IS_SDLv2 */
+        new_music = Mix_LoadMUS_RW(rw, SDL_TRUE);
+#endif /* IS_SDLv2 */
         Py_END_ALLOW_THREADS
 #else
         return RAISE (PyExc_NotImplementedError,
@@ -328,7 +332,7 @@ music_load(PyObject *self, PyObject *args)
     }
 
     if (new_music == NULL) {
-        return RAISE(PyExc_SDLError, SDL_GetError());
+        return RAISE(pgExc_SDLError, SDL_GetError());
     }
 
     Py_BEGIN_ALLOW_THREADS
@@ -363,16 +367,20 @@ music_queue(PyObject *self, PyObject *args)
 
     MIXER_INIT_CHECK();
 
-    oencoded = RWopsEncodeFilePath(obj, PyExc_SDLError);
+    oencoded = pgRWopsEncodeFilePath(obj, pgExc_SDLError);
     if (oencoded == Py_None) {
         Py_DECREF(oencoded);
 #if MIXMUSIC_HAVE_RWOPS
-        rw = RWopsFromFileObjectThreaded(obj);
+        rw = pgRWopsFromFileObjectThreaded(obj);
         if(rw == NULL) {
             return NULL;
         }
         Py_BEGIN_ALLOW_THREADS
+#if IS_SDLv1
         queue_music = Mix_LoadMUS_RW(rw);
+#else /* IS_SDLv2 */
+        queue_music = Mix_LoadMUS_RW(rw, SDL_TRUE);
+#endif /* IS_SDLv2 */
         Py_END_ALLOW_THREADS
 #else
         return RAISE (PyExc_NotImplementedError,
@@ -392,7 +400,7 @@ music_queue(PyObject *self, PyObject *args)
     }
 
     if (queue_music == NULL) {
-        return RAISE(PyExc_SDLError, SDL_GetError());
+        return RAISE(pgExc_SDLError, SDL_GetError());
     }
 
     Py_BEGIN_ALLOW_THREADS
@@ -457,7 +465,7 @@ MODINIT_DEFINE (mixer_music)
     };
 #endif
 
-    PyMIXER_C_API[0] = PyMIXER_C_API[0]; /*clean an unused warning*/
+    pgMIXER_C_API[0] = pgMIXER_C_API[0]; /*clean an unused warning*/
 
     /* imported needed apis; Do this first so if there is an error
        the module is not loaded.

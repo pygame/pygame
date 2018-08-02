@@ -93,17 +93,17 @@ _WMEnable(PyObject* self)
         	err = CPSSetFrontProcess(&psn);
         	if (err != 0)
         	{
-            	return RAISE (PyExc_SDLError, "CPSSetFrontProcess failed");
+            	return RAISE (pgExc_SDLError, "CPSSetFrontProcess failed");
         	}
         }
         else
         {
-        	return RAISE (PyExc_SDLError, "CPSEnableForegroundOperation failed");
+        	return RAISE (pgExc_SDLError, "CPSEnableForegroundOperation failed");
         }
     }
     else
     {
-    	return RAISE (PyExc_SDLError, "CPSGetCurrentProcess failed");
+    	return RAISE (pgExc_SDLError, "CPSGetCurrentProcess failed");
     }
 
     Py_RETURN_TRUE;

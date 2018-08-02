@@ -289,10 +289,8 @@
       is fully opaque. If None is passed for the alpha value, then the Surface
       alpha will be disabled.
 
-      This value is different than the per pixel Surface alpha. If the Surface
-      format contains per pixel alphas, then this alpha value will be ignored.
-      If the Surface contains per pixel alphas, setting the alpha value to None
-      will disable the per pixel transparency.
+      This value is different than the per pixel Surface alpha. For a surface
+      with per pixel alpha, blanket alpha is ignored and ``None`` is returned.
 
       The optional flags argument can be set to ``pygame.RLEACCEL`` to provide
       better performance on non accelerated displays. An ``RLEACCEL`` Surface
@@ -303,10 +301,9 @@
    .. method:: get_alpha
 
       | :sl:`get the current Surface transparency value`
-      | :sg:`get_alpha() -> int_value or None`
+      | :sg:`get_alpha() -> int_value`
 
-      Return the current alpha value for the Surface. If the alpha value is not
-      set then None is returned.
+      Return the current alpha value for the Surface.
 
       .. ## Surface.get_alpha ##
 

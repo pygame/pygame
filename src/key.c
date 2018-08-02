@@ -41,27 +41,40 @@ key_set_repeat (PyObject* self, PyObject* args)
     if (delay && !interval)
         interval = delay;
 
+#if IS_SDLv1
     if (SDL_EnableKeyRepeat (delay, interval) == -1)
-        return RAISE (PyExc_SDLError, SDL_GetError ());
+        return RAISE (pgExc_SDLError, SDL_GetError ());
+#else /* IS_SDLv2 */
+    if (pg_EnableKeyRepeat (delay, interval) == -1)
+        return RAISE (pgExc_SDLError, SDL_GetError ());
+#endif /* IS_SDLv2 */
 
     Py_RETURN_NONE;
 }
 
 
 
+#if SDL_VERSION_ATLEAST(1, 2, 10)
 static PyObject*
 key_get_repeat (PyObject* self, PyObject* args)
 {
     int delay = 0, interval = 0;
 
     VIDEO_INIT_CHECK ();
-#if SDL_VERSION_ATLEAST(1, 2, 10)
+#if IS_SDLv1
     SDL_GetKeyRepeat (&delay, &interval);
+#else /* IS_SDLv2 */
+    pg_GetKeyRepeat (&delay, &interval);
+#endif /* IS_SDLv2 */
     return Py_BuildValue ("(ii)", delay, interval);
-#else
-    Py_RETURN_NONE;
-#endif
 }
+#else /* not SDL_VERSION_ATLEAST(1, 2, 10) */
+static PyObject*
+key_get_repeat (PyObject* self, PyObject* args)
+{
+    Py_RETURN_NONE;
+}
+#endif /* not SDL_VERSION_ATLEAST(1, 2, 10) */
 
 
 
@@ -81,7 +94,11 @@ key_get_pressed (PyObject* self)
 
     VIDEO_INIT_CHECK ();
 
+#if IS_SDLv1
     key_state = SDL_GetKeyState (&num_keys);
+#else /* IS_SDLv2 */
+    key_state = SDL_GetKeyboardState (&num_keys);
+#endif /* IS_SDLv2 */
 
     if (!key_state || !num_keys)
         Py_RETURN_NONE;
@@ -141,7 +158,11 @@ key_get_focused (PyObject* self)
 {
     VIDEO_INIT_CHECK ();
 
+#if IS_SDLv1
     return PyInt_FromLong ((SDL_GetAppState () & SDL_APPINPUTFOCUS) != 0);
+#else /* IS_SDLv2 */
+    return PyInt_FromLong (SDL_GetKeyboardFocus () != NULL);
+#endif /* IS_SDLv2 */
 }
 
 static PyMethodDef _key_methods[] =
@@ -182,6 +203,12 @@ MODINIT_DEFINE (key)
     if (PyErr_Occurred ()) {
         MODINIT_ERROR;
     }
+#if IS_SDLv2
+    import_pygame_event ();
+    if (PyErr_Occurred ()) {
+        MODINIT_ERROR;
+    }
+#endif /* IS_SDLv2 */
 
     /* create the module */
 #if PY3

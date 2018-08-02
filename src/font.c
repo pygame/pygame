@@ -130,7 +130,7 @@ font_resource (const char *filename)
     }
 #endif
 
-    tmp = RWopsEncodeFilePath(result, NULL);
+    tmp = pgRWopsEncodeFilePath(result, NULL);
     if (tmp == NULL) {
         Py_DECREF(result);
         return NULL;
@@ -162,7 +162,7 @@ font_autoinit (PyObject* self)
 {
     if (!font_initialized)
     {
-        PyGame_RegisterQuit (font_autoquit);
+        pg_RegisterQuit (font_autoquit);
 
         if (TTF_Init ())
             return PyInt_FromLong (0);
@@ -192,7 +192,7 @@ fontmodule_init (PyObject* self)
     istrue = PyObject_IsTrue (result);
     Py_DECREF (result);
     if (!istrue)
-        return RAISE (PyExc_SDLError, SDL_GetError ());
+        return RAISE (pgExc_SDLError, SDL_GetError ());
     Py_RETURN_NONE;
 }
 
@@ -327,34 +327,50 @@ font_render(PyObject* self, PyObject* args)
         return NULL;
     }
 
-    if (!RGBAFromColorObj(fg_rgba_obj, rgba)) {
+    if (!pg_RGBAFromColorObj(fg_rgba_obj, rgba)) {
         return RAISE(PyExc_TypeError, "Invalid foreground RGBA argument");
     }
     foreg.r = rgba[0];
     foreg.g = rgba[1];
     foreg.b = rgba[2];
+#if IS_SDLv1
     foreg.unused = 0;
+#else /* IS_SDLv2 */
+    foreg.a = SDL_ALPHA_OPAQUE;
+#endif /* IS_SDLv2 */
     if (bg_rgba_obj != NULL) {
-        if (!RGBAFromColorObj(bg_rgba_obj, rgba)) {
+        if (!pg_RGBAFromColorObj(bg_rgba_obj, rgba)) {
             bg_rgba_obj = NULL;
             backg.r = 0;
             backg.g = 0;
             backg.b = 0;
+#if IS_SDLv1
             backg.unused = 0;
+#else /* IS_SDLv2 */
+            backg.a = SDL_ALPHA_OPAQUE;
+#endif /* IS_SDLv2 */
         }
         else
         {
             backg.r = rgba[0];
             backg.g = rgba[1];
             backg.b = rgba[2];
+#if IS_SDLv1
             backg.unused = 0;
+#else /* IS_SDLv2 */
+            backg.a = SDL_ALPHA_OPAQUE;
+#endif /* IS_SDLv2 */
         }
     }
     else {
         backg.r = 0;
         backg.g = 0;
         backg.b = 0;
+#if IS_SDLv1
         backg.unused = 0;
+#else /* IS_SDLv2 */
+        backg.a = SDL_ALPHA_OPAQUE;
+#endif /* IS_SDLv2 */
     }
 
     just_return = PyObject_Not(text);
@@ -369,7 +385,7 @@ font_render(PyObject* self, PyObject* args)
         surf = SDL_CreateRGBSurface(SDL_SWSURFACE, 1, height, 32,
                                     0xff<<16, 0xff<<8, 0xff, 0);
         if (surf == NULL) {
-            return RAISE(PyExc_SDLError, SDL_GetError());
+            return RAISE(pgExc_SDLError, SDL_GetError());
         }
         if (bg_rgba_obj != NULL) {
             Uint32 c = SDL_MapRGB(surf->format, backg.r, backg.g, backg.b);
@@ -434,7 +450,7 @@ font_render(PyObject* self, PyObject* args)
         return RAISE_TEXT_TYPE_ERROR();
     }
     if (surf == NULL) {
-        return RAISE(PyExc_SDLError, TTF_GetError());
+        return RAISE(pgExc_SDLError, TTF_GetError());
     }
     if (!aa && (bg_rgba_obj != NULL) && !just_return) {
         /* turn off transparancy */
@@ -443,7 +459,7 @@ font_render(PyObject* self, PyObject* args)
         surf->format->palette->colors[0].g = backg.g;
         surf->format->palette->colors[0].b = backg.b;
     }
-    final = PySurface_New(surf);
+    final = pgSurface_New(surf);
     if (final == NULL) {
         SDL_FreeSurface(surf);
     }
@@ -474,13 +490,13 @@ font_size(PyObject* self, PyObject* args)
         ecode = TTF_SizeUTF8(font, string, &w, &h);
         Py_DECREF(bytes);
         if (ecode) {
-            return RAISE (PyExc_SDLError, TTF_GetError());
+            return RAISE (pgExc_SDLError, TTF_GetError());
         }
     }
     else if (Bytes_Check(text)) {
         string = Bytes_AS_STRING(text);
         if (TTF_SizeText(font, string, &w, &h)) {
-            return RAISE (PyExc_SDLError, TTF_GetError());
+            return RAISE (pgExc_SDLError, TTF_GetError());
         }
     }
     else {
@@ -616,7 +632,7 @@ font_init(PyFontObject *self, PyObject *args, PyObject *kwds)
     }
 
     if (!font_initialized) {
-        RAISE(PyExc_SDLError, "font not initialized");
+        RAISE(pgExc_SDLError, "font not initialized");
         return -1;
     }
 
@@ -643,7 +659,7 @@ font_init(PyFontObject *self, PyObject *args, PyObject *kwds)
         }
     }
     else {
-        oencoded = RWopsEncodeFilePath(obj, NULL);
+        oencoded = pgRWopsEncodeFilePath(obj, NULL);
         if (oencoded == NULL) {
             goto error;
         }
@@ -699,13 +715,13 @@ font_init(PyFontObject *self, PyObject *args, PyObject *kwds)
     }
     if (font == NULL)  {
 #if FONT_HAVE_RWOPS
-        SDL_RWops *rw = RWopsFromFileObject(obj);
+        SDL_RWops *rw = pgRWopsFromFileObject(obj);
 
         if (rw == NULL) {
             goto error;
         }
 
-        if (RWopsCheckObject(rw)) {
+        if (pgRWopsCheckObject(rw)) {
             font = TTF_OpenFontIndexRW(rw, 1, fontsize, 0);
         }
         else {

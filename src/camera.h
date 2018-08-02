@@ -84,7 +84,7 @@ struct buffer {
 };
 
 #if defined(__unix__)
-typedef struct PyCameraObject {
+typedef struct pgCameraObject {
     PyObject_HEAD
     char* device_name;
     int camera_type;
@@ -99,9 +99,9 @@ typedef struct PyCameraObject {
     int vflip;
     int brightness;
     int fd;
-} PyCameraObject;
+} pgCameraObject;
 #elif defined(PYGAME_MAC_CAMERA_OLD)
-typedef struct PyCameraObject {
+typedef struct pgCameraObject {
     PyObject_HEAD
     char* device_name;              /* unieke name of the device */
     OSType pixelformat;
@@ -116,13 +116,13 @@ typedef struct PyCameraObject {
     short depth;
     struct buffer pixels;
     //struct buffer tmp_pixels        /* place where the flipped image in temporarly stored if hflip or vflip is true.*/
-} PyCameraObject;
+} pgCameraObject;
 
 #else
 /* generic definition.
 */
 
-typedef struct PyCameraObject {
+typedef struct pgCameraObject {
     PyObject_HEAD
     char* device_name;
     int camera_type;
@@ -137,7 +137,7 @@ typedef struct PyCameraObject {
     int vflip;
     int brightness;
     int fd;
-} PyCameraObject;
+} pgCameraObject;
 #endif
 
 /* internal functions for colorspace conversion */
@@ -164,36 +164,36 @@ void yuv420_to_yuv (const void* src, void* dst, int width, int height,
 char** v4l2_list_cameras (int* num_devices);
 int v4l2_get_control (int fd, int id, int *value);
 int v4l2_set_control (int fd, int id, int value);
-PyObject* v4l2_read_raw (PyCameraObject* self);
+PyObject* v4l2_read_raw (pgCameraObject* self);
 int v4l2_xioctl (int fd, int request, void *arg);
-int v4l2_process_image (PyCameraObject* self, const void *image,
+int v4l2_process_image (pgCameraObject* self, const void *image,
                                unsigned int buffer_size, SDL_Surface* surf);
-int v4l2_query_buffer (PyCameraObject* self);
-int v4l2_read_frame (PyCameraObject* self, SDL_Surface* surf);
-int v4l2_stop_capturing (PyCameraObject* self);
-int v4l2_start_capturing (PyCameraObject* self);
-int v4l2_uninit_device (PyCameraObject* self);
-int v4l2_init_mmap (PyCameraObject* self);
-int v4l2_init_device (PyCameraObject* self);
-int v4l2_close_device (PyCameraObject* self);
-int v4l2_open_device (PyCameraObject* self);
+int v4l2_query_buffer (pgCameraObject* self);
+int v4l2_read_frame (pgCameraObject* self, SDL_Surface* surf);
+int v4l2_stop_capturing (pgCameraObject* self);
+int v4l2_start_capturing (pgCameraObject* self);
+int v4l2_uninit_device (pgCameraObject* self);
+int v4l2_init_mmap (pgCameraObject* self);
+int v4l2_init_device (pgCameraObject* self);
+int v4l2_close_device (pgCameraObject* self);
+int v4l2_open_device (pgCameraObject* self);
 
 #elif defined(PYGAME_MAC_CAMERA_OLD)
 /* internal functions specific to mac */
 char** mac_list_cameras(int* num_devices);
-int mac_open_device (PyCameraObject* self);
-int mac_init_device(PyCameraObject* self);
-int mac_close_device (PyCameraObject* self);
-int mac_start_capturing(PyCameraObject* self);
-int mac_stop_capturing (PyCameraObject* self);
+int mac_open_device (pgCameraObject* self);
+int mac_init_device(pgCameraObject* self);
+int mac_close_device (pgCameraObject* self);
+int mac_start_capturing(pgCameraObject* self);
+int mac_stop_capturing (pgCameraObject* self);
 
-int mac_get_control(PyCameraObject* self, int id, int* value);
-int mac_set_control(PyCameraObject* self, int id, int value);
+int mac_get_control(pgCameraObject* self, int id, int* value);
+int mac_set_control(pgCameraObject* self, int id, int value);
 
-PyObject* mac_read_raw(PyCameraObject *self);
-int mac_read_frame(PyCameraObject* self, SDL_Surface* surf);
-int mac_camera_idle(PyCameraObject* self);
-int mac_copy_gworld_to_surface(PyCameraObject* self, SDL_Surface* surf);
+PyObject* mac_read_raw(pgCameraObject *self);
+int mac_read_frame(pgCameraObject* self, SDL_Surface* surf);
+int mac_camera_idle(pgCameraObject* self);
+int mac_copy_gworld_to_surface(pgCameraObject* self, SDL_Surface* surf);
 
 void flip_image(const void* image, void* flipped_image, int width, int height,
                 short depth, int hflip, int vflip);

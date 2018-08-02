@@ -123,6 +123,12 @@ class DocumentTransformer(Visitor):
         if node['ids'][0].startswith('module-'):
             transform_module_section(node, title_node, self.env)
 
+    def visit_desc(self, node):
+        # Only want to do special processing on pygame's Python api.
+        # Other stuff, like C code, get no special treatment.
+        if node['domain'] != 'py':
+            raise self.skip_node
+
     def depart_desc(self, node):
         node['classes'].append('definition')
         node[0]['classes'].append('title')

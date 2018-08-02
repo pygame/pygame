@@ -1,4 +1,5 @@
-__tags__ = []
+# For now the scrap module has not been updated for SDL 2
+__tags__ = ['SDL2_ignore']
 
 import sys
 

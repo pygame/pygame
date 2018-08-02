@@ -33,12 +33,16 @@ mouse_set_pos (PyObject* self, PyObject* args)
 {
     int x, y;
 
-    if (!TwoIntsFromObj (args, &x, &y))
+    if (!pg_TwoIntsFromObj (args, &x, &y))
         return RAISE (PyExc_TypeError, "invalid position argument for set_pos");
 
     VIDEO_INIT_CHECK ();
 
+#if IS_SDLv1
     SDL_WarpMouse ((Uint16)x, (Uint16)y);
+#else /* IS_SDLv2 */
+    SDL_WarpMouseInWindow (NULL, (Uint16)x, (Uint16)y);
+#endif /* IS_SDLv2 */
     Py_RETURN_NONE;
 }
 
@@ -100,7 +104,11 @@ static PyObject*
 mouse_get_focused (PyObject* self)
 {
     VIDEO_INIT_CHECK ();
+#if IS_SDLv1
     return PyInt_FromLong ((SDL_GetAppState () & SDL_APPMOUSEFOCUS) != 0);
+#else /* IS_SDLv2 */
+    return PyInt_FromLong (SDL_GetMouseFocus () != NULL);
+#endif /* IS_SDLv2 */
 }
 
 static PyObject*
@@ -137,10 +145,10 @@ mouse_set_cursor (PyObject* self, PyObject* args)
 
     for (loop = 0; loop < xorsize; ++loop)
     {
-        if (!IntFromObjIndex (xormask, loop, &val))
+        if (!pg_IntFromObjIndex (xormask, loop, &val))
             goto interror;
         xordata[loop] = (Uint8)val;
-        if (!IntFromObjIndex (andmask, loop, &val))
+        if (!pg_IntFromObjIndex (andmask, loop, &val))
             goto interror;
         anddata[loop] = (Uint8)val;
     }
@@ -152,7 +160,7 @@ mouse_set_cursor (PyObject* self, PyObject* args)
     anddata = NULL;
 
     if (!cursor)
-        return RAISE (PyExc_SDLError, SDL_GetError ());
+        return RAISE (pgExc_SDLError, SDL_GetError ());
 
     lastcursor = SDL_GetCursor ();
     SDL_SetCursor (cursor);
@@ -168,6 +176,7 @@ interror:
     return RAISE (PyExc_TypeError, "Invalid number in mask array");
 }
 
+#if IS_SDLv1
 static PyObject*
 mouse_get_cursor (PyObject* self)
 {
@@ -179,7 +188,7 @@ mouse_get_cursor (PyObject* self)
 
     cursor = SDL_GetCursor ();
     if (!cursor)
-        return RAISE (PyExc_SDLError, SDL_GetError ());
+        return RAISE (pgExc_SDLError, SDL_GetError ());
 
     w = cursor->area.w;
     h = cursor->area.h;
@@ -205,6 +214,7 @@ mouse_get_cursor (PyObject* self)
 
     return Py_BuildValue ("((ii)(ii)NN)", w, h, spotx, spoty, xordata, anddata);
 }
+#endif /* IS_SDLv1 */
 
 static PyMethodDef _mouse_methods[] =
 {
@@ -220,8 +230,10 @@ static PyMethodDef _mouse_methods[] =
     { "get_focused", (PyCFunction) mouse_get_focused, METH_VARARGS,
       DOC_PYGAMEMOUSEGETFOCUSED },
     { "set_cursor", mouse_set_cursor, METH_VARARGS, DOC_PYGAMEMOUSESETCURSOR },
+#if IS_SDLv1
     { "get_cursor", (PyCFunction) mouse_get_cursor, METH_VARARGS,
       DOC_PYGAMEMOUSEGETCURSOR },
+#endif /* IS_SDLv1 */
 
     { NULL, NULL, 0, NULL }
 };
