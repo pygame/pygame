@@ -119,8 +119,3 @@ deploy:
   on:
     condition: $TRAVIS_OS_NAME = osx
     tags: true
-
-# Do not building this (SDL2_patches) Git branch for now.
-branches:
-    except:
-        - SDL2_patches
