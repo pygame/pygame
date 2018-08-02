@@ -1978,7 +1978,7 @@ pg_SetDefaultWindowSurface(PyObject* screen)
     }
     Py_XINCREF(screen);
     if (pg_default_screen) {
-        PySurface_AsSurface(pg_default_screen) = NULL;
+        pgSurface_AsSurface(pg_default_screen) = NULL;
         Py_DECREF(pg_default_screen);
     }
     pg_default_screen = screen;
