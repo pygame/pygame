@@ -30,7 +30,7 @@
 /* test font initialization */
 #define FONT_INIT_CHECK() \
     if(!(*(int*)PyFONT_C_API[2])) \
-        return RAISE(PyExc_SDLError, "font system not initialized")
+        return RAISE(pgExc_SDLError, "font system not initialized")
 
 
 
