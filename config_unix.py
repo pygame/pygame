@@ -143,11 +143,11 @@ class DependencyPython:
 
 sdl_lib_name = 'SDL'
 
-def main(SDL2=False):
+def main(sdl2=False):
     global origincdirs, origlibdirs
 
     #these get prefixes with '/usr' and '/usr/local' or the $LOCALBASE
-    if SDL2:
+    if sdl2:
         origincdirs = ['/include', '/include/SDL2']
         origlibdirs = ['/lib','/lib64','/X11R6/lib',
                        '/lib/i386-linux-gnu', '/lib/x86_64-linux-gnu']
@@ -199,7 +199,7 @@ def main(SDL2=False):
             return freetype_config
         return pkg_config
 
-    if SDL2:
+    if sdl2:
         DEPS = [
             DependencyProg('SDL', 'SDL_CONFIG', 'sdl2-config', '2.0', ['sdl']),
             Dependency('FONT', 'SDL_ttf.h', 'libSDL2_ttf.so', ['SDL2_ttf']),
