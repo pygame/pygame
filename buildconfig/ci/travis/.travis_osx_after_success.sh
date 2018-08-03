@@ -11,6 +11,6 @@ $PYTHON_EXE setup.py bdist_wheel
 # It also rewrites the .so file linking options. https://pypi.python.org/pypi/delocate
 delocate-wheel -v dist/*.whl
 
-$PYTHON_EXE .travis_osx_rename_whl.py
+$PYTHON_EXE buildconfig/ci/travis/.travis_osx_rename_whl.py
 
-$PYTHON_EXE .travis_osx_upload_whl.py --no-config
+$PYTHON_EXE buildconfig/ci/travis/.travis_osx_upload_whl.py --no-config

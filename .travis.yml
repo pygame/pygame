@@ -73,7 +73,7 @@ matrix:
       env: PY_VERSION=pypy3
 
 before_install:
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then source .travis_osx_before_install.sh;  fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then source buildconfig/ci/travis/.travis_osx_before_install.sh;  fi
   - |
     if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
       sudo apt-get update
@@ -83,16 +83,16 @@ before_install:
         xfonts-cyrillic fluid-soundfont-gm musescore-soundfont-gm
     fi
 install:
-  - "python .travis_osx_upload_whl.py --write-config"
+  - "python buildconfig/ci/travis/.travis_osx_upload_whl.py --write-config"
   - $(set | grep PYPI_ | python -c "import sys;print('\n'.join(['unset %s' % l.split('=')[0] for l in sys.stdin.readlines() if l.startswith('PYPI')]))")
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then source .travis_osx.sh; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then source buildconfig/ci/travis/.travis_osx.sh; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then PYTHON_EXE=python PIP_CMD=pip; fi
   - "$PIP_CMD install --upgrade pip"
   - "$PIP_CMD install --upgrade numpy"
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then $PIP_CMD install delocate twine; fi
   - "$PYTHON_EXE config.py -auto"
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then $PYTHON_EXE setup.py install -noheaders; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then source .travis_osx_install.sh; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then source buildconfig/ci/travis/.travis_osx_install.sh; fi
 env:
   global:
     - SDL_VIDEODRIVER=dummy
@@ -104,7 +104,7 @@ script:
   - $PYTHON_EXE -m pygame.tests.__main__ --exclude opengl --time_out 300
 
 after_success:
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then source .travis_osx_after_success.sh; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then source buildconfig/ci/travis/.travis_osx_after_success.sh; fi
 
 after_script:
   - rm -f .travis_tmp

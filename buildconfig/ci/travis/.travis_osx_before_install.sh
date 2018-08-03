@@ -78,4 +78,4 @@ unset HOMEBREW_BUILD_BOTTLE
 unset HOMEBREW_BOTTLE_ARCH
 
 
-echo "finished .travis_osx_before_install.sh"
+echo "finished buildconfig/ci/travis/.travis_osx_before_install.sh"
