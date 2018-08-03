@@ -245,7 +245,7 @@ def setup_prebuilt(prebuilt_dir):
 
         # Copy Setup.in to Setup, replacing the BeginConfig/EndConfig
         # block with prebuilt\Setup_Win.in .
-        setup_in = open('Setup.SDL1.in')
+        setup_in = open(os.path.join('buildconfig', 'Setup.SDL1.in'))
         try:
             do_copy = True
             for line in setup_in:
