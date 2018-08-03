@@ -5,6 +5,8 @@ SUPPORTED_PYTHONS="cp27-cp27mu cp34-cp34m cp35-cp35m cp36-cp36m cp37-cp37m"
 
 export PORTMIDI_INC_PORTTIME=1
 
+ls -la /io
+
 # Compile wheels
 for PYVER in $SUPPORTED_PYTHONS; do
     rm -rf /io/Setup /io/build/
@@ -14,7 +16,7 @@ done
 
 # Bundle external shared libraries into the wheels
 for whl in wheelhouse/*.whl; do
-    auditwheel repair $whl -w /io/manylinux-build/wheelhouse/
+    auditwheel repair $whl -w /io/buildconfig/manylinux-build/wheelhouse/
 done
 
 # Dummy options for headless testing
@@ -24,6 +26,6 @@ export SDL_VIDEODRIVER=dummy
 # Install packages and test
 for PYVER in $SUPPORTED_PYTHONS; do
     PYBIN="/opt/python/${PYVER}/bin"
-    ${PYBIN}/pip install pygame --no-index -f /io/manylinux-build/wheelhouse
+    ${PYBIN}/pip install pygame --no-index -f /io/buildconfig/manylinux-build/wheelhouse
     (cd $HOME; ${PYBIN}/python -m pygame.tests --exclude opengl,music)
 done

@@ -112,7 +112,7 @@ These aren't meant to be copypasta'd in. Perhaps these can be worked into a scri
     sudo service docker start
 
 
-    cd /vagrant_pygame/manylinux-build
+    cd /vagrant_pygame/buildconfig/manylinux-build
 
     # To make the base docker images and push them to docker hub do these commands.
     # Note, these have already been built, so only needed if rebuilding dependencies.
@@ -142,7 +142,7 @@ These aren't meant to be copypasta'd in. Perhaps these can be worked into a scri
     cd ..
     mkdir -p dist
     rm -f dist/*.whl
-    cp manylinux-build/wheelhouse/*.whl dist/
+    cp buildconfig/manylinux-build/wheelhouse/*.whl dist/
 
     pip install twine
 

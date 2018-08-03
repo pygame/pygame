@@ -1,10 +1,10 @@
-REPO_ROOT = $(abspath ..)
+REPO_ROOT = $(abspath ../..)
 
 wheels-x64:
-	docker run --rm -v ${REPO_ROOT}:/io pygame/manylinux1_base_x86_64 /io/manylinux-build/build-wheels.sh
+	docker run --rm -v ${REPO_ROOT}:/io pygame/manylinux1_base_x86_64 /io/buildconfig/manylinux-build/build-wheels.sh
 
 wheels-x86:
-	docker run --rm -v ${REPO_ROOT}:/io pygame/manylinux1_base_i686 /io/manylinux-build/build-wheels.sh
+	docker run --rm -v ${REPO_ROOT}:/io pygame/manylinux1_base_i686 /io/buildconfig/manylinux-build/build-wheels.sh
 
 wheels: wheels-x64 wheels-x86
 
