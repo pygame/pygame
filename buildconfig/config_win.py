@@ -256,7 +256,7 @@ def setup_prebuilt(prebuilt_dir):
                     do_copy = False
                     setup.write(setup_win_in.read())
                     try:
-                        setup_win_common_in = open('Setup_Win_Common.in')
+                        setup_win_common_in = open(os.path.join('buildconfig', 'Setup_Win_Common.in'))
                     except:
                         pass
                     else:
@@ -274,8 +274,8 @@ def setup_prebuilt(prebuilt_dir):
         setup.close()
 
 
-def main(SDL2=False):
-    if SDL2:
+def main(sdl2=False):
+    if sdl2:
         raise RuntimeError("SDL 2 is currently unsupported for Windows")
 
     prebuilt_dir = 'prebuilt-' + as_machine_type(get_ptr_size())
