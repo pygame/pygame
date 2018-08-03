@@ -117,34 +117,54 @@ def find_freetype():
     return pkg_config
 
 
-DEPS = [
-    [DependencyProg('SDL', 'SDL_CONFIG', 'sdl-config', '1.2', ['sdl']),
-         FrameworkDependency('SDL', 'SDL.h', 'libSDL', 'SDL')],
-    [Dependency('FONT', ['SDL_ttf.h', 'SDL/SDL_ttf.h'], 'libSDL_ttf', ['SDL_ttf']),
-         FrameworkDependency('FONT', 'SDL_ttf.h', 'libSDL_ttf', 'SDL_ttf')],
-    [Dependency('IMAGE', ['SDL_image.h', 'SDL/SDL_image.h'], 'libSDL_image', ['SDL_image']),
-         FrameworkDependency('IMAGE', 'SDL_image.h', 'libSDL_image', 'SDL_image')],
-    [Dependency('MIXER', ['SDL_mixer.h', 'SDL/SDL_mixer.h'], 'libSDL_mixer', ['SDL_mixer']),
-         FrameworkDependency('MIXER', 'SDL_mixer.h', 'libSDL_mixer', 'SDL_mixer')],
-    FrameworkDependency('PORTTIME', 'CoreMidi.h', 'CoreMidi', 'CoreMIDI'),
-    FrameworkDependency('QUICKTIME', 'QuickTime.h', 'QuickTime', 'QuickTime'),
-    Dependency('PNG', 'png.h', 'libpng', ['png']),
-    Dependency('JPEG', 'jpeglib.h', 'libjpeg', ['jpeg']),
-    Dependency('PORTMIDI', 'portmidi.h', 'libportmidi', ['portmidi']),
-    find_freetype(),
-    # Scrap is included in sdlmain_osx, there is nothing to look at.
-    # Dependency('SCRAP', '','',[]),
-]
 
 
-def main():
-    global DEPS
+
+def main(sdl2=False):
+
+    if sdl2:
+        DEPS = [
+            [DependencyProg('SDL', 'SDL_CONFIG', 'sdl2-config', '2.0', ['sdl'])],
+            [Dependency('FONT', ['SDL_ttf.h', 'SDL2/SDL_ttf.h'], 'libSDL2_ttf', ['SDL2_ttf'])],
+            [Dependency('IMAGE', ['SDL_image.h', 'SDL2/SDL_image.h'], 'libSDL2_image', ['SDL2_image'])],
+            [Dependency('MIXER', ['SDL_mixer.h', 'SDL2/SDL_mixer.h'], 'libSDL2_mixer', ['SDL2_mixer'])],
+        ]
+    else:
+        DEPS = [
+            [DependencyProg('SDL', 'SDL_CONFIG', 'sdl-config', '1.2', ['sdl']),
+                 FrameworkDependency('SDL', 'SDL.h', 'libSDL', 'SDL')],
+            [Dependency('FONT', ['SDL_ttf.h', 'SDL/SDL_ttf.h'], 'libSDL_ttf', ['SDL_ttf']),
+                 FrameworkDependency('FONT', 'SDL_ttf.h', 'libSDL_ttf', 'SDL_ttf')],
+            [Dependency('IMAGE', ['SDL_image.h', 'SDL/SDL_image.h'], 'libSDL_image', ['SDL_image']),
+                 FrameworkDependency('IMAGE', 'SDL_image.h', 'libSDL_image', 'SDL_image')],
+            [Dependency('MIXER', ['SDL_mixer.h', 'SDL/SDL_mixer.h'], 'libSDL_mixer', ['SDL_mixer']),
+                 FrameworkDependency('MIXER', 'SDL_mixer.h', 'libSDL_mixer', 'SDL_mixer')],
+        ]
+
+
+    DEPS.extend([
+        FrameworkDependency('PORTTIME', 'CoreMidi.h', 'CoreMidi', 'CoreMIDI'),
+        FrameworkDependency('QUICKTIME', 'QuickTime.h', 'QuickTime', 'QuickTime'),
+        Dependency('PNG', 'png.h', 'libpng', ['png']),
+        Dependency('JPEG', 'jpeglib.h', 'libjpeg', ['jpeg']),
+        Dependency('PORTMIDI', 'portmidi.h', 'libportmidi', ['portmidi']),
+        find_freetype(),
+        # Scrap is included in sdlmain_osx, there is nothing to look at.
+        # Dependency('SCRAP', '','',[]),
+    ])
 
     print ('Hunting dependencies...')
-    incdirs = ['/usr/local/include', '/usr/local/include/SDL',
-               #'/usr/X11/include',
-               '/opt/local/include',
-               '/opt/local/include/freetype2/freetype']
+    incdirs = ['/usr/local/include']
+    if sdl2:
+        incdirs.append('/usr/local/include/SDL2')
+    else:
+        incdirs.append('/usr/local/include/SDL')
+
+    incdirs.extend([
+       #'/usr/X11/include',
+       '/opt/local/include',
+       '/opt/local/include/freetype2/freetype']
+    )
     #libdirs = ['/usr/local/lib', '/usr/X11/lib', '/opt/local/lib']
     libdirs = ['/usr/local/lib', '/opt/local/lib']
 
