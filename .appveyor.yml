@@ -4,7 +4,7 @@ environment:
     # SDK v7.0 MSVC Express 2008's SetEnv.cmd script will fail if the
     # /E:ON and /V:ON options are not enabled in the batch script intepreter
     # See: http://stackoverflow.com/a/13751649/163740
-    WITH_COMPILER: "cmd /E:ON /V:ON /C .\\appveyor\\run_with_compiler.cmd"
+    WITH_COMPILER: "cmd /E:ON /V:ON /C .\\buildconfig\\ci\\appveyor\\run_with_compiler.cmd"
     DISTRIBUTIONS: "bdist_wheel"
     PYGAME_USE_PREBUILT: "1"
     SDL_VIDEODRIVER: "dummy"
@@ -15,13 +15,13 @@ environment:
     #   PYTHON_VERSION: "2.7.13"
     #   PYTHON_ARCH: "32"
     #   PYPY_VERSION: "pypy2-v5.10.0-win32"
-    #   PYPY_DOWNLOAD: "powershell appveyor\\download_pypy.ps1"
+    #   PYPY_DOWNLOAD: "powershell buildconfig\\ci\\appveyor\\download_pypy.ps1"
 
     # - PYTHON: "pypy3.exe"
     #   PYTHON_VERSION: "2.7.13"
     #   PYTHON_ARCH: "32"
     #   PYPY_VERSION: "pypy3-v5.10.1-win32"
-    #   PYPY_DOWNLOAD: "powershell appveyor\\download_pypy.ps1"
+    #   PYPY_DOWNLOAD: "powershell buildconfig\\ci\\appveyor\\download_pypy.ps1"
 
     - PYTHON: "C:\\Python27\\python"
       PYTHON_VERSION: "2.7.13"
@@ -67,7 +67,7 @@ init:
   - "ECHO %PYTHON% %PYTHON_VERSION% %PYTHON_ARCH%"
 
 install:
-  - "powershell appveyor\\install.ps1"
+  - "powershell buildconfig\\ci\\appveyor\\install.ps1"
   - "%PYPY_DOWNLOAD%"
   - "set HOME=%APPVEYOR_BUILD_FOLDER%"
   - "set PATH=%PATH%;%APPVEYOR_BUILD_FOLDER%\\%PYPY_VERSION%"
