@@ -73,7 +73,7 @@ install:
   - "set PATH=%PATH%;%APPVEYOR_BUILD_FOLDER%\\%PYPY_VERSION%"
   - "%PYTHON% -m ensurepip"
   - "%PYTHON% -m pip install -U wheel pip"
-  - "%WITH_COMPILER% %PYTHON% config.py -auto"
+  - "%WITH_COMPILER% %PYTHON% buildconfig\\config.py -auto"
   - "%WITH_COMPILER% %PYTHON% setup.py build"
   - "%WITH_COMPILER% %PYTHON% setup.py -setuptools %DISTRIBUTIONS%"
   - ps: "ls dist"
