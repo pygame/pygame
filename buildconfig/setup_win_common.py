@@ -7,7 +7,8 @@
 Exports read and get_definitions.
 """
 
-path = 'Setup_Win_Common.in'
+import os
+PATH = os.path.join('buildconfig', 'Setup_Win_Common.in')
 
 class Definition(object):
     def __init__(self, name, value):
@@ -17,7 +18,7 @@ class Definition(object):
 def read():
     """Return the contents of the Windows Common Setup as a string"""
 
-    setup_in = open(path)
+    setup_in = open(PATH)
     try:
         return setup_in.read()
     finally:
@@ -29,8 +30,8 @@ def get_definitions():
     Each macro definition object has a 'name' and 'value' attribute.
     """
     import re
-    
-    setup_in = open(path)
+
+    setup_in = open(PATH)
     try:
         deps = []
         match = re.compile(r'([a-zA-Z0-9_]+) += +(.+)$').match
