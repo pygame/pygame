@@ -3,7 +3,10 @@
 # **** The search part is broken. For instance, the png Visual Studio project
 # places to dll in a directory not checked by this module.
 
-from setup_win_common import get_definitions
+try:
+    from setup_win_common import get_definitions
+except:
+    from buildconfig.setup_win_common import get_definitions
 
 import os, sys
 import re
