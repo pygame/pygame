@@ -151,17 +151,32 @@ def main(auto=False):
         # Note that msys builds supported for 2.6 and greater. Use prebuilt.
         (sys.version_info >= (2, 6) or not is_msys_mingw())):
         print_('Using WINDOWS configuration...\n')
-        import config_win as CFG
+        try:
+            import config_win as CFG
+        except:
+            import buildconfig.config_win as CFG
+
     elif sys.platform == 'win32':
         print_('Using WINDOWS mingw/msys configuration...\n')
-        import config_msys as CFG
+        try:
+            import config_msys as CFG
+        except:
+            import buildconfig.config_msys as CFG
     elif sys.platform == 'darwin':
         print_('Using Darwin configuration...\n')
-        import config_darwin as CFG
+        try:
+            import config_darwin as CFG
+        except:
+            import buildconfig.config_darwin as CFG
+
         additional_platform_setup = open(os.path.join(BASE_PATH, 'buildconfig', "Setup_Darwin.in"), "r").readlines()
     else:
         print_('Using UNIX configuration...\n')
-        import config_unix as CFG
+        try:
+            import config_unix as CFG
+        except:
+            import buildconfig.config_unix as CFG
+
         additional_platform_setup = open(os.path.join(BASE_PATH, 'buildconfig', "Setup_Unix.in"), "r").readlines()
 
     if os.path.isfile('Setup'):
