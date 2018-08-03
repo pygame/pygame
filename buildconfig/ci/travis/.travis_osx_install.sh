@@ -13,4 +13,4 @@ mv Setup.new Setup
 
 
 # Makes for i386 and x86_64. With older 'core2' cpus.
-HOMEBREW_BUILD_BOTTLE=1 HOMEBREW_BOTTLE_ARCH=core2 CXXFLAGS="-arch i386 -arch x86_64 -march=core2" CFLAGS="-arch i386 -arch x86_64 -march=core2" LDFLAGS="-arch i386 -arch x86_64" $PYTHON_EXE setup.py install -noheaders
+HOMEBREW_BUILD_BOTTLE=1 HOMEBREW_BOTTLE_ARCH=core2 CXXFLAGS="-arch i386 -arch x86_64 -march=core2" CFLAGS="-arch i386 -arch x86_64 -march=core2" LDFLAGS="-arch i386 -arch x86_64" $PYTHON_EXE setup.py install -noheaders -auto

@@ -90,8 +90,7 @@ install:
   - "$PIP_CMD install --upgrade pip"
   - "$PIP_CMD install --upgrade numpy"
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then $PIP_CMD install delocate twine; fi
-  - "$PYTHON_EXE buildconfig/config.py -auto"
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then $PYTHON_EXE setup.py install -noheaders; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then $PYTHON_EXE setup.py install -noheaders -auto; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then source buildconfig/ci/travis/.travis_osx_install.sh; fi
 env:
   global:

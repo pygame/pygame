@@ -87,6 +87,12 @@ if "-warnings" in sys.argv:
                        "-Wnested-externs -Wshadow -Wredundant-decls"
     sys.argv.remove ("-warnings")
 
+AUTO_CONFIG = False
+if '-auto' in sys.argv:
+    AUTO_CONFIG = True
+    sys.argv.remove('-auto')
+
+
 import os.path, glob, stat, shutil
 import distutils.sysconfig
 from distutils.core import setup, Extension, Command
@@ -171,9 +177,9 @@ if len(sys.argv) == 1 and sys.stdout.isatty():
 
 #make sure there is a Setup file
 if not os.path.isfile('Setup'):
-    print ('\n\nWARNING, No "Setup" File Exists, Running "config.py"')
+    print ('\n\nWARNING, No "Setup" File Exists, Running "buildconifg/config.py"')
     import buildconfig.config
-    buildconfig.config.main()
+    buildconfig.config.main(AUTO_CONFIG)
     print ('\nContinuing With "setup.py"')
 
 

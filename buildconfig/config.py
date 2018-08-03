@@ -138,7 +138,7 @@ def writesetupfile(deps, basepath, additional_lines, sdl2=False):
         if useit:
             newsetup.write(line)
 
-def main():
+def main(auto=False):
     additional_platform_setup = []
     sdl2 = "-sdl2" in sys.argv
     kwds = {}
@@ -162,9 +162,9 @@ def main():
         additional_platform_setup = open(os.path.join(BASE_PATH, 'buildconfig', "Setup_Unix.in"), "r").readlines()
 
     if os.path.isfile('Setup'):
-        if "-auto" in sys.argv or confirm('Backup existing "Setup" file', False):
+        if auto or confirm('Backup existing "Setup" file', False):
             shutil.copyfile(os.path.join(BASE_PATH, 'Setup'), os.path.join(BASE_PATH, 'Setup.bak'))
-    if not "-auto" in sys.argv and os.path.isdir(os.path.join(BASE_PATH, 'build')):
+    if not auto and os.path.isdir(os.path.join(BASE_PATH, 'build')):
         if confirm('Remove old build directory (force recompile)', False):
             shutil.rmtree(os.path.join(BASE_PATH, 'build'), 0)
 
@@ -179,5 +179,3 @@ the compiler flags in the "Setup" file.\n""")
     else:
         print_("""\nThere was an error creating the Setup file, check for errors
 or make a copy of "Setup.in" and edit by hand.""")
-
-if __name__ == '__main__': main()
