@@ -2,7 +2,7 @@
 /Setup
 *.pyc
 /build/
-/lib/version.py
+/src_py/version.py
 
 # Windows prebuilt external libraries
 /prebuilt-x??
