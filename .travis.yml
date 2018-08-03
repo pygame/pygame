@@ -37,12 +37,16 @@ matrix:
       env:
         - PY_VERSION=3
         - MAKEFLAGS=-j8
+        - HOMEBREW_BUILD_BOTTLE=1
+        - HOMEBREW_BOTTLE_ARCH=core2
     - os: osx
       osx_image: xcode7.3
       language: generic
       env:
         - PY_VERSION=2
         - MAKEFLAGS=-j8
+        - HOMEBREW_BUILD_BOTTLE=1
+        - HOMEBREW_BOTTLE_ARCH=core2
     - os: osx
       osx_image: xcode7.3
       language: generic
@@ -50,6 +54,8 @@ matrix:
         - PY_VERSION=3
         - PY_VERSION_=3.6
         - MAKEFLAGS=-j8
+        - HOMEBREW_BUILD_BOTTLE=1
+        - HOMEBREW_BOTTLE_ARCH=core2
     # - os: osx
     #   osx_image: xcode7.3
     #   language: generic
