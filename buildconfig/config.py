@@ -16,7 +16,10 @@ found: true if the dep is available
 cflags: extra compile flags
 """
 
-import msysio
+try:
+    import msysio
+except:
+    import buildconfig.msysio as msysio
 import sys, os, shutil
 
 BASE_PATH = '.'

@@ -3,7 +3,12 @@
 import os, sys, string
 from glob import glob
 from distutils.sysconfig import get_python_inc
-from config_unix import DependencyProg
+
+
+try:
+    from config_unix import DependencyProg
+except:
+    from buildconfig.config_unix import DependencyProg
 
 
 try:
