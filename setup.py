@@ -391,47 +391,6 @@ if sys.platform == 'win32':
                 __sdl_lib_dir = e.library_dirs[0].replace('/', os.sep)
                 break
 
-        def run(self):
-            """Extended to set MINGW_ROOT_DIRECTORY, PATH and LIBRARY_PATH"""
-
-            if self.compiler in mingw32_compilers:
-                # Add MinGW environment variables.
-                if 'MINGW_ROOT_DIRECTORY' not in os.environ:
-                    # Use MinGW setup conifiguration file if present.
-                    import mingwcfg
-                    try:
-                        mingw_root = mingwcfg.read()
-                    except IOError:
-                        raise RuntimeError(
-                            "mingw32: required environment variable"
-                            " MINGW_ROOT_DIRECTORY not set")
-                    os.environ['MINGW_ROOT_DIRECTORY'] = mingw_root
-                    path = os.environ['PATH']
-                    os.environ['PATH'] = ';'.join([os.path.join(mingw_root, 'bin'),
-                                                   path])
-                if sys.version_info >= (2, 6):
-                    # The Visual Studio 2008 C library is msvcr90.dll.
-                    c_runtime_path = os.path.join(self.__sdl_lib_dir, 'msvcr90')
-                elif sys.version_info >= (2, 4):
-                    # The Visual Studio 2003 C library is msvcr71.dll.
-                    c_runtime_path = os.path.join(self.__sdl_lib_dir, 'msvcr71')
-                else:
-                    # The Visual Studio 6.0 C library is msvcrt.dll,
-                    # the MinGW default.
-                    c_runtime_path = ''
-                if c_runtime_path and os.path.isdir(c_runtime_path):
-                    # Override the default msvcrt.dll linkage.
-                    os.environ['LIBRARY_PATH'] = c_runtime_path
-                elif not (c_runtime_path or
-                          glob.glob(os.path.join(self.__sdl_lib_dir,
-                                                 'msvcr*'))):
-                    pass
-                else:
-                    raise RuntimeError("The dependencies are linked to"
-                                       " the wrong C runtime for"
-                                       " Python %i.%i" %
-                                       sys.version_info[:2])
-            build_ext.run(self)
     cmdclass['build_ext'] = WinBuildExt
 
     # Add the precompiled smooth scale MMX functions to transform.
