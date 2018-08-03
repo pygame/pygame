@@ -143,7 +143,7 @@ Dependencies
 Contribute
 ==========
 
-     https://www.pygame.org/wiki/Contribute
+     https://www.pygame.org/contribute.html
 
 License
 =======

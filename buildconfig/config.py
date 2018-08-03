@@ -17,8 +17,10 @@ cflags: extra compile flags
 """
 
 import msysio
-import mingwcfg
 import sys, os, shutil
+
+BASE_PATH = '.'
+
 
 def print_(*args, **kwds):
     """Simular to the Python 3.0 print function"""
@@ -43,12 +45,13 @@ def is_msys_mingw():
     The user may prompted for confirmation so only call this function
     once.
     """
-    if msysio.is_msys():
-        return 1
-    if ('MINGW_ROOT_DIRECTORY' in os.environ or
-        os.path.isfile(mingwcfg.path)):
-        return confirm("Is this an mingw/msys build")
-    return 0
+    return False
+    # if msysio.is_msys():
+    #     return 1
+    # if ('MINGW_ROOT_DIRECTORY' in os.environ or
+    #     os.path.isfile(mingwcfg.path)):
+    #     return confirm("Is this an mingw/msys build")
+    # return 0
 
 def prepdep(dep, basepath):
     "add some vars to a dep"
@@ -87,10 +90,10 @@ def prepdep(dep, basepath):
 def writesetupfile(deps, basepath, additional_lines, sdl2=False):
     "create a modified copy of Setup.SDLx.in"
     if sdl2:
-        origsetup = open('Setup.SDL2.in', 'r')
+        origsetup = open(os.path.join(BASE_PATH, 'buildconfig', 'Setup.SDL2.in'), 'r')
     else:
-        origsetup = open('Setup.SDL1.in', 'r')
-    newsetup = open('Setup', 'w')
+        origsetup = open(os.path.join(BASE_PATH, 'buildconfig', 'Setup.SDL1.in'), 'r')
+    newsetup = open(os.path.join(BASE_PATH, 'Setup'), 'w')
     line = ''
     while line.find('#--StartConfig') == -1:
         newsetup.write(line)
@@ -152,18 +155,18 @@ def main():
     elif sys.platform == 'darwin':
         print_('Using Darwin configuration...\n')
         import config_darwin as CFG
-        additional_platform_setup = open("Setup_Darwin.in", "r").readlines()
+        additional_platform_setup = open(os.path.join(BASE_PATH, 'buildconfig', "Setup_Darwin.in"), "r").readlines()
     else:
         print_('Using UNIX configuration...\n')
         import config_unix as CFG
-        additional_platform_setup = open("Setup_Unix.in", "r").readlines()
+        additional_platform_setup = open(os.path.join(BASE_PATH, 'buildconfig', "Setup_Unix.in"), "r").readlines()
 
     if os.path.isfile('Setup'):
         if "-auto" in sys.argv or confirm('Backup existing "Setup" file', False):
-            shutil.copyfile('Setup', 'Setup.bak')
-    if not "-auto" in sys.argv and os.path.isdir('build'):
+            shutil.copyfile(os.path.join(BASE_PATH, 'Setup'), os.path.join(BASE_PATH, 'Setup.bak'))
+    if not "-auto" in sys.argv and os.path.isdir(os.path.join(BASE_PATH, 'build')):
         if confirm('Remove old build directory (force recompile)', False):
-            shutil.rmtree('build', 0)
+            shutil.rmtree(os.path.join(BASE_PATH, 'build'), 0)
 
     deps = CFG.main(**kwds)
     if deps:

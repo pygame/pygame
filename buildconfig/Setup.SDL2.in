@@ -25,44 +25,44 @@ DEBUG =
 #everything you can, but you can ignore ones you don't have
 #dependencies for, just comment them out
 
-imageext src/imageext.c $(SDL) $(IMAGE) $(PNG) $(JPEG) $(DEBUG)
-font src/font.c $(SDL) $(FONT) $(DEBUG)
-mixer src/mixer.c $(SDL) $(MIXER) $(DEBUG)
-mixer_music src/music.c $(SDL) $(MIXER) $(DEBUG)
-#scrap src/scrap.c $(SDL) $(SCRAP) $(DEBUG)
-pypm src/pypm.c $(SDL) $(PORTMIDI) $(PORTTIME) $(DEBUG)
+imageext src_c/imageext.c $(SDL) $(IMAGE) $(PNG) $(JPEG) $(DEBUG)
+font src_c/font.c $(SDL) $(FONT) $(DEBUG)
+mixer src_c/mixer.c $(SDL) $(MIXER) $(DEBUG)
+mixer_music src_c/music.c $(SDL) $(MIXER) $(DEBUG)
+#scrap src_c/scrap.c $(SDL) $(SCRAP) $(DEBUG)
+pypm src_c/pypm.c $(SDL) $(PORTMIDI) $(PORTTIME) $(DEBUG)
 
-#GFX = src/SDL_gfx/SDL_gfxPrimitives.c 
-#GFX = src/SDL_gfx/SDL_gfxBlitFunc.c src/SDL_gfx/SDL_gfxPrimitives.c 
-#gfxdraw src/gfxdraw.c $(SDL) $(GFX) $(DEBUG)
+#GFX = src_c/SDL_gfx/SDL_gfxPrimitives.c
+#GFX = src_c/SDL_gfx/SDL_gfxBlitFunc.c src_c/SDL_gfx/SDL_gfxPrimitives.c
+#gfxdraw src_c/gfxdraw.c $(SDL) $(GFX) $(DEBUG)
 
 #optional freetype module (do not break in multiple lines
 #or the configuration script will choke!)
-_freetype src/freetype/ft_cache.c src/freetype/ft_wrap.c src/freetype/ft_render.c  src/freetype/ft_render_cb.c src/freetype/ft_layout.c src/freetype/ft_unicode.c src/_freetype.c $(SDL) $(FREETYPE) $(DEBUG)
+_freetype src_c/freetype/ft_cache.c src_c/freetype/ft_wrap.c src_c/freetype/ft_render.c  src_c/freetype/ft_render_cb.c src_c/freetype/ft_layout.c src_c/freetype/ft_unicode.c src_c/_freetype.c $(SDL) $(FREETYPE) $(DEBUG)
 
 #these modules are required for pygame to run. they only require
 #SDL as a dependency. these should not be altered
 
-base src/base.c $(SDL) $(DEBUG)
-color src/color.c $(SDL) $(DEBUG)
-constants src/constants.c $(SDL) $(DEBUG)
-display src/display.c $(SDL) $(DEBUG)
-event src/event.c $(SDL) $(DEBUG)
-#fastevent src/fastevent.c src/fastevents.c $(SDL) $(DEBUG)
-key src/key.c $(SDL) $(DEBUG)
-mouse src/mouse.c $(SDL) $(DEBUG)
-rect src/rect.c $(SDL) $(DEBUG)
-rwobject src/rwobject.c $(SDL) $(DEBUG)
-surface src/surface.c src/alphablit.c src/surface_fill.c $(SDL) $(DEBUG)
-surflock src/surflock.c $(SDL) $(DEBUG)
-time src/time.c $(SDL) $(DEBUG)
-joystick src/joystick.c $(SDL) $(DEBUG)
-draw src/draw.c $(SDL) $(DEBUG)
-image src/image.c $(SDL) $(DEBUG)
-transform src/transform.c src/rotozoom.c src/scale2x.c src/scale_mmx.c $(SDL) $(DEBUG) -D_NO_MMX_FOR_X86_64
-mask src/mask.c src/bitmask.c $(SDL) $(DEBUG)
-bufferproxy src/bufferproxy.c $(SDL) $(DEBUG)
-pixelarray src/pixelarray.c $(SDL) $(DEBUG)
-math src/math.c $(SDL) $(DEBUG)
-pixelcopy src/pixelcopy.c $(SDL) $(DEBUG)
-newbuffer src/newbuffer.c $(DEBUG)
+base src_c/base.c $(SDL) $(DEBUG)
+color src_c/color.c $(SDL) $(DEBUG)
+constants src_c/constants.c $(SDL) $(DEBUG)
+display src_c/display.c $(SDL) $(DEBUG)
+event src_c/event.c $(SDL) $(DEBUG)
+#fastevent src_c/fastevent.c src_c/fastevents.c $(SDL) $(DEBUG)
+key src_c/key.c $(SDL) $(DEBUG)
+mouse src_c/mouse.c $(SDL) $(DEBUG)
+rect src_c/rect.c $(SDL) $(DEBUG)
+rwobject src_c/rwobject.c $(SDL) $(DEBUG)
+surface src_c/surface.c src_c/alphablit.c src_c/surface_fill.c $(SDL) $(DEBUG)
+surflock src_c/surflock.c $(SDL) $(DEBUG)
+time src_c/time.c $(SDL) $(DEBUG)
+joystick src_c/joystick.c $(SDL) $(DEBUG)
+draw src_c/draw.c $(SDL) $(DEBUG)
+image src_c/image.c $(SDL) $(DEBUG)
+transform src_c/transform.c src_c/rotozoom.c src_c/scale2x.c src_c/scale_mmx.c $(SDL) $(DEBUG) -D_NO_MMX_FOR_X86_64
+mask src_c/mask.c src_c/bitmask.c $(SDL) $(DEBUG)
+bufferproxy src_c/bufferproxy.c $(SDL) $(DEBUG)
+pixelarray src_c/pixelarray.c $(SDL) $(DEBUG)
+math src_c/math.c $(SDL) $(DEBUG)
+pixelcopy src_c/pixelcopy.c $(SDL) $(DEBUG)
+newbuffer src_c/newbuffer.c $(DEBUG)
