@@ -47,6 +47,9 @@ brew uninstall --force --ignore-dependencies smpeg
 brew uninstall --force --ignore-dependencies portmidi
 brew uninstall --force --ignore-dependencies freetype
 
+export HOMEBREW_BUILD_BOTTLE=1
+export HOMEBREW_BOTTLE_ARCH=core2
+
 brew install sdl ${UNIVERSAL_FLAG}
 brew install jpeg ${UNIVERSAL_FLAG}
 brew install libpng ${UNIVERSAL_FLAG}
@@ -70,6 +73,9 @@ brew install sdl_image ${UNIVERSAL_FLAG}
 brew install sdl_mixer ${UNIVERSAL_FLAG} --with-flac --with-fluid-synth --with-libmikmod --with-libvorbis --with-smpeg
 
 brew install https://gist.githubusercontent.com/illume/08f9d3ca872dc2b61d80f665602233fd/raw/0fbfd6657da24c419d23a6678b5715a18cd6560a/portmidi.rb
+
+unset HOMEBREW_BUILD_BOTTLE
+unset HOMEBREW_BOTTLE_ARCH
 
 
 echo "finished .travis_osx_before_install.sh"
