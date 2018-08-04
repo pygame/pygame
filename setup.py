@@ -496,6 +496,27 @@ class TestCommand(Command):
 
 cmdclass['test'] = TestCommand
 
+
+class DocsCommand(Command):
+    user_options = [ ]
+
+    def initialize_options(self):
+        self._dir = os.getcwd()
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        '''
+        runs the tests with default options.
+        '''
+        import subprocess
+        return subprocess.call([sys.executable, os.path.join('buildconfig', 'makeref.py')])
+
+cmdclass['docs'] = DocsCommand
+
+
+
 # Prune empty file lists.
 date_files = [(path, files) for path, files in data_files if files]
 

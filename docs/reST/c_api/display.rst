@@ -6,12 +6,12 @@
   API exported by pygame.display
 **********************************
 
-src/display.c
-=============
+src_c/display.c
+===============
 
 This is the :py:mod:`pygame.display` extension module.
 
-Header file: src/pygame.h
+Header file: src_c/pygame.h
 
 
 .. c:type:: pgVidInfoObject

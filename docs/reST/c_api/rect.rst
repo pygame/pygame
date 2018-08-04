@@ -6,12 +6,12 @@
   Class Rect API exported by pygame.rect
 ******************************************
 
-src/rect.c
-==========
+src_c/rect.c
+============
 
 This extension module defines Python type :py:class:`pygame.Rect`.
 
-Header file: src/pygame.h
+Header file: src_c/pygame.h
 
 .. c:type:: GAME_Rect
 

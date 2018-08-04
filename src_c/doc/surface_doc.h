@@ -21,7 +21,7 @@
 
 #define DOC_SURFACESETALPHA "set_alpha(value, flags=0) -> None\nset_alpha(None) -> None\nset the alpha value for the full Surface image"
 
-#define DOC_SURFACEGETALPHA "get_alpha() -> int_value or None\nget the current Surface transparency value"
+#define DOC_SURFACEGETALPHA "get_alpha() -> int_value\nget the current Surface transparency value"
 
 #define DOC_SURFACELOCK "lock() -> None\nlock the Surface memory for pixel access"
 
@@ -159,7 +159,7 @@ pygame.Surface.set_alpha
 set the alpha value for the full Surface image
 
 pygame.Surface.get_alpha
- get_alpha() -> int_value or None
+ get_alpha() -> int_value
 get the current Surface transparency value
 
 pygame.Surface.lock

@@ -6,13 +6,13 @@
   API exported by pygame.surflock
 ***********************************
 
-src/surflock.c
-==============
+src_c/surflock.c
+================
 
 This extension module implements SDL surface locking for the
 :py:class:`pygame.Surface` type.
 
-Header file: src/pygame.h
+Header file: src_c/pygame.h
 
 
 .. c:type:: pgLifetimeLockObject

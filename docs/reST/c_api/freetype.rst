@@ -6,12 +6,12 @@
   API exported by pygame._freetype
 ************************************
 
-src/_freetype.c
-===============
+src_c/_freetype.c
+=================
 
 This extension module defines Python type :py:class:`pygame.freetype.Font`.
 
-Header file: src/freetype.h
+Header file: src_c/freetype.h
 
 
 .. c:type:: pgFontObject

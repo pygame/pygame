@@ -6,13 +6,13 @@
   High level API exported by pygame.base
 ******************************************
 
-src/base.c
-==========
+src_c/base.c
+============
 
 This extension module defines general purpose routines for starting and stopping
 SDL as well as various conversion routines uses elsewhere in pygame.
 
-C header: src/pygame.h
+C header: src_c/pygame.h
 
 .. c:var:: PyObject* pgExc_SDLError
 
@@ -91,7 +91,7 @@ C header: src/pygame.h
    Convert the color represented by object *obj* into a red, green, blue, alpha
    length 4 C array *RGBA*.
    The object must be a length 3 or 4 sequence of numbers having values
-   between 0 and 255 inclusive. 
+   between 0 and 255 inclusive.
    For a length 3 sequence an alpha value of 255 is assumed.
    Return ``1`` on success, ``0`` otherwise.
    No Python exceptions are raised.
