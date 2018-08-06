@@ -56,9 +56,9 @@ opt_parser.add_option (
      help   = "fail incomplete tests" )
 
 opt_parser.add_option (
-     "-n",  "--nosubprocess", action = "store_true",
+     "-s",  "--usesubprocess", action = "store_true",
      help   = "run everything in a single process "
-              " (default: use subprocesses)" )
+              " (default: use no subprocesses)" )
 
 opt_parser.add_option (
      "-e",  "--exclude",
@@ -102,7 +102,7 @@ return (first 10 and last 10 lines):
 
 """  # Leave that last empty line else build page regex won't match
      # Text also needs to be vertically compressed
-    
+
 
 RAN_TESTS_DIV = (70 * "-") + "\nRan"
 
@@ -143,7 +143,7 @@ def combine_results(all_results, t):
 
         if 'E' in dots or 'F' in dots:
             failures.append( output[len(dots)+1:].split(RAN_TESTS_DIV)[0] )
-    
+
     total_fails, total_errors = map(all_dots.count, 'FE')
     total_tests = len(all_dots)
 
@@ -179,7 +179,7 @@ def get_test_results(raw_return):
 
 ################################################################################
 
-def run_test(module, incomplete=False, nosubprocess=False, randomize=False,
+def run_test(module, incomplete=False, usesubprocess=True, randomize=False,
              exclude=('interactive',), buffer=True):
     """Run a unit test module
     """
@@ -203,7 +203,7 @@ def run_test(module, incomplete=False, nosubprocess=False, randomize=False,
         'num_failures': len(results.failures),
     }}
 
-    if not nosubprocess:
+    if usesubprocess:
         print (TEST_RESULTS_START)
         print (pformat(results))
         print (TEST_RESULTS_END)
@@ -215,7 +215,7 @@ def run_test(module, incomplete=False, nosubprocess=False, randomize=False,
 if __name__ == '__main__':
     options, args = opt_parser.parse_args()
     if not args:
-        
+
         if is_pygame_pkg:
             run_from = 'pygame.tests.go'
         else:
@@ -223,7 +223,7 @@ if __name__ == '__main__':
         sys.exit('No test module provided; consider using %s instead' % run_from)
     run_test(args[0],
              incomplete=options.incomplete,
-             nosubprocess=options.nosubprocess,
+             usesubprocess=options.usesubprocess,
              randomize=options.randomize,
              exclude=options.exclude,
              buffer=(not options.unbuffered),

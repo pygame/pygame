@@ -14,7 +14,10 @@ class PygameTestLoader(unittest.TestLoader):
     def __init__(self, randomize_tests=False, include_incomplete=False,
                  exclude=('interactive',)):
         self.randomize_tests = randomize_tests
-        self.exclude = set(exclude)
+        if exclude is None:
+            self.exclude = set()
+        else:
+            self.exclude = set(exclude)
         if include_incomplete:
             self.testMethodPrefix = ('test', 'todo_')
 

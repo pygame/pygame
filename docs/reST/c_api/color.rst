@@ -6,12 +6,12 @@
   Class Color API exported by pygame.color
 ********************************************
 
-src/color.c
-===========
+src_c/color.c
+=============
 
 This extension module defines the Python type :py:class:`pygame.Color`.
 
-Header file: src/pygame.h
+Header file: src_c/pygame.h
 
 
 .. c:var:: PyTypeObject *pgColor_Type
@@ -42,4 +42,4 @@ Header file: src/pygame.h
    Return ``1`` on success, ``0`` otherwise.
    No Python exceptions are raised.
    This in an extension of :c:func:`pg_RGBAFromObj` optimized for pgColor_Type
-   instances. 
+   instances.

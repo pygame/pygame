@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 #
 # This is the distutils setup script for pygame.
-# Full instructions are in "install.txt" or "install.html"
+# Full instructions are in https://www.pygame.org/wiki/GettingStarted
 #
 # To configure, compile, install, just run this script.
+#     python setup.py install
 
 DESCRIPTION = """Pygame is a Python wrapper module for the
 SDL multimedia library. It contains python functions and classes
@@ -24,6 +25,7 @@ METADATA = {
 }
 
 import sys
+import os
 
 def compilation_help():
     """ On failure point people to a web page for help.
@@ -62,12 +64,11 @@ def compilation_help():
 
 
 
-if not hasattr(sys, 'version_info') or sys.version_info < (2,3):
+if not hasattr(sys, 'version_info') or sys.version_info < (2,7):
     compilation_help()
-    raise SystemExit("Pygame requires Python version 2.3 or above.")
+    raise SystemExit("Pygame requires Python version 2.7 or above.")
 
 #get us to the correct directory
-import os, sys
 path = os.path.split(os.path.abspath(sys.argv[0]))[0]
 os.chdir(path)
 #os.environ["CFLAGS"] = "-W -Wall -Wpointer-arith -Wcast-qual -Winline " + \
@@ -86,27 +87,21 @@ if "-warnings" in sys.argv:
                        "-Wnested-externs -Wshadow -Wredundant-decls"
     sys.argv.remove ("-warnings")
 
+AUTO_CONFIG = False
+if '-auto' in sys.argv:
+    AUTO_CONFIG = True
+    sys.argv.remove('-auto')
+
+
 import os.path, glob, stat, shutil
 import distutils.sysconfig
 from distutils.core import setup, Extension, Command
 from distutils.extension import read_setup_file
 from distutils.command.install_data import install_data
+from distutils.command.sdist import sdist
 
-# Retrieve the repository revision (HG node identifier), if possible.
-def get_hg_identifier():
-    from subprocess import Popen, PIPE
 
-    ident = ""
-    try:
-        p = Popen(['hg', 'identify', '-i'], stdout=PIPE, stderr=PIPE)
-        stdout, stderr = p.communicate()
-        if stdout and not stderr:
-            ident = stdout.decode('ascii').rstrip('\n')
-    except Exception:
-        pass
-    return ident
-
-revision = get_hg_identifier()
+revision = ''
 
 # Python 3.0 patch
 if sys.version_info[0:2] == (3, 0):
@@ -162,8 +157,8 @@ else:
     })
 
 #headers to install
-headers = glob.glob(os.path.join('src', '*.h'))
-headers.remove(os.path.join('src', 'scale.h'))
+headers = glob.glob(os.path.join('src_c', '*.h'))
+headers.remove(os.path.join('src_c', 'scale.h'))
 
 # option for not installing the headers.
 if "-noheaders" in sys.argv:
@@ -182,18 +177,20 @@ if len(sys.argv) == 1 and sys.stdout.isatty():
 
 
 #make sure there is a Setup file
-if not os.path.isfile('Setup'):
-    print ('\n\nWARNING, No "Setup" File Exists, Running "config.py"')
-    import config
-    config.main()
+if AUTO_CONFIG or not os.path.isfile('Setup'):
+    print ('\n\nWARNING, No "Setup" File Exists, Running "buildconifg/config.py"')
+    import buildconfig.config
+    buildconfig.config.main(AUTO_CONFIG)
+    if '-config' in sys.argv:
+        sys.exit(0)
     print ('\nContinuing With "setup.py"')
 
 
 try:
     s_mtime = os.stat("Setup")[stat.ST_MTIME]
-    sin_mtime = os.stat("Setup.in")[stat.ST_MTIME]
+    sin_mtime = os.stat(os.path.join('buildconfig', 'Setup.SDL1.in'))[stat.ST_MTIME]
     if sin_mtime > s_mtime:
-        print ('\n\nWARNING, "Setup.in" newer than "Setup",'
+        print ('\n\nWARNING, "buildconfig/Setup.SDL1.in" newer than "Setup",'
                'you might need to modify "Setup".')
 except:
     pass
@@ -233,7 +230,7 @@ if not enable_newbuf:
         del extensions[posn]
 
 # if not building font, try replacing with ftfont
-alternate_font = os.path.join('lib', 'font.py')
+alternate_font = os.path.join('src_py', 'font.py')
 if os.path.exists(alternate_font):
     os.remove(alternate_font)
 have_font = False
@@ -244,7 +241,7 @@ for e in extensions:
     if e.name == '_freetype':
         have_freetype = True
 if not have_font and have_freetype:
-    shutil.copyfile(os.path.join('lib', 'ftfont.py'), alternate_font)
+    shutil.copyfile(os.path.join('src_py', 'ftfont.py'), alternate_font)
 
 #extra files to install
 data_path = os.path.join(distutils.sysconfig.get_python_lib(), 'pygame')
@@ -252,12 +249,12 @@ pygame_data_files = []
 data_files = [('pygame', pygame_data_files)]
 
 #add files in distribution directory
-pygame_data_files.append('LGPL')
-pygame_data_files.append('readme.html')
-pygame_data_files.append('install.html')
+# pygame_data_files.append('LGPL')
+# pygame_data_files.append('readme.html')
+# pygame_data_files.append('install.html')
 
 #add non .py files in lib directory
-for f in glob.glob(os.path.join('lib', '*')):
+for f in glob.glob(os.path.join('src_py', '*')):
     if not f[-3:] == '.py' and not f[-4:] == '.doc' and os.path.isfile(f):
         pygame_data_files.append(f)
 
@@ -324,9 +321,9 @@ def parse_version(ver):
 
 def write_version_module(pygame_version, revision):
     vernum = parse_version(pygame_version)
-    with open('version.py.in', 'r') as header_file:
+    with open(os.path.join('buildconfig', 'version.py.in'), 'r') as header_file:
         header = header_file.read()
-    with open(os.path.join('lib', 'version.py'), 'w') as version_file:
+    with open(os.path.join('src_py', 'version.py'), 'w') as version_file:
         version_file.write(header)
         version_file.write('ver = "' + pygame_version + '"\n')
         version_file.write('vernum = ' + vernum + '\n')
@@ -341,25 +338,6 @@ cmdclass = {}
 if sys.platform == 'win32':
 
     from distutils.command.build_ext import build_ext
-    # mingw32distutils is optional. But we need the mingw32 compiler(s).
-    try:
-        # Allow the choice between Win32 GUI and console DLLs.
-        import mingw32distutils
-    except ImportError:
-        mingw32_compilers = ['ming32']
-    else:
-        mingw32_compilers = mingw32distutils.compilers
-    if sys.version_info < (2, 4):
-        try:
-            import config
-            # a separate method for finding dlls with mingw.
-            if config.is_msys_mingw():
-
-                # fix up the paths for msys compiling.
-                import distutils_mods
-                distutils.cygwinccompiler.Mingw32 = distutils_mods.mingcomp
-        except ImportError:
-            pass
 
     #add dependency DLLs to the project
     lib_dependencies = {}
@@ -416,47 +394,6 @@ if sys.platform == 'win32':
                 __sdl_lib_dir = e.library_dirs[0].replace('/', os.sep)
                 break
 
-        def run(self):
-            """Extended to set MINGW_ROOT_DIRECTORY, PATH and LIBRARY_PATH"""
-
-            if self.compiler in mingw32_compilers:
-                # Add MinGW environment variables.
-                if 'MINGW_ROOT_DIRECTORY' not in os.environ:
-                    # Use MinGW setup conifiguration file if present.
-                    import mingwcfg
-                    try:
-                        mingw_root = mingwcfg.read()
-                    except IOError:
-                        raise RuntimeError(
-                            "mingw32: required environment variable"
-                            " MINGW_ROOT_DIRECTORY not set")
-                    os.environ['MINGW_ROOT_DIRECTORY'] = mingw_root
-                    path = os.environ['PATH']
-                    os.environ['PATH'] = ';'.join([os.path.join(mingw_root, 'bin'),
-                                                   path])
-                if sys.version_info >= (2, 6):
-                    # The Visual Studio 2008 C library is msvcr90.dll.
-                    c_runtime_path = os.path.join(self.__sdl_lib_dir, 'msvcr90')
-                elif sys.version_info >= (2, 4):
-                    # The Visual Studio 2003 C library is msvcr71.dll.
-                    c_runtime_path = os.path.join(self.__sdl_lib_dir, 'msvcr71')
-                else:
-                    # The Visual Studio 6.0 C library is msvcrt.dll,
-                    # the MinGW default.
-                    c_runtime_path = ''
-                if c_runtime_path and os.path.isdir(c_runtime_path):
-                    # Override the default msvcrt.dll linkage.
-                    os.environ['LIBRARY_PATH'] = c_runtime_path
-                elif not (c_runtime_path or
-                          glob.glob(os.path.join(self.__sdl_lib_dir,
-                                                 'msvcr*'))):
-                    pass
-                else:
-                    raise RuntimeError("The dependencies are linked to"
-                                       " the wrong C runtime for"
-                                       " Python %i.%i" %
-                                       sys.version_info[:2])
-            build_ext.run(self)
     cmdclass['build_ext'] = WinBuildExt
 
     # Add the precompiled smooth scale MMX functions to transform.
@@ -465,10 +402,10 @@ if sys.platform == 'win32':
             if e.name == 'transform':
                 if '64 bit' in sys.version:
                     e.extra_objects.append(
-                        os.path.join('obj', 'win64', 'scale_mmx.obj'))
+                        os.path.join('buildconfig', 'obj', 'win64', 'scale_mmx.obj'))
                 else:
                     e.extra_objects.append(
-                        os.path.join('obj', 'win32', 'scale_mmx.obj'))
+                        os.path.join('buildconfig', 'obj', 'win32', 'scale_mmx.obj'))
                 for i in range(len(e.sources)):
                     if e.sources[i].endswith('scale_mmx.c'):
                         del e.sources[i]
@@ -495,6 +432,15 @@ class smart_install_data(install_data):
         return install_data.run(self)
 
 cmdclass['install_data'] = smart_install_data
+
+
+class OurSdist(sdist):
+    def initialize_options(self):
+        sdist.initialize_options(self)
+        # we do not want MANIFEST.in to appear in the root cluttering up things.
+        self.template = os.path.join('buildconfig', 'MANIFEST.in')
+
+cmdclass['sdist'] = OurSdist
 
 
 if "bdist_msi" in sys.argv:
@@ -556,9 +502,30 @@ class TestCommand(Command):
         runs the tests with default options.
         '''
         import subprocess
-        return subprocess.call([sys.executable, "run_tests.py"])
+        return subprocess.call([sys.executable, os.path.join('test', '__main__.py')])
 
 cmdclass['test'] = TestCommand
+
+
+class DocsCommand(Command):
+    user_options = [ ]
+
+    def initialize_options(self):
+        self._dir = os.getcwd()
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        '''
+        runs the tests with default options.
+        '''
+        import subprocess
+        return subprocess.call([sys.executable, os.path.join('buildconfig', 'makeref.py')])
+
+cmdclass['docs'] = DocsCommand
+
+
 
 # Prune empty file lists.
 date_files = [(path, files) for path, files in data_files if files]
@@ -592,9 +559,9 @@ PACKAGEDATA = {
                        'pygame.tests.run_tests__tests.everything',
                        'pygame.docs',
                        'pygame.examples'],
-       "package_dir": {'pygame': 'lib',
-                       'pygame.threads': 'lib/threads',
-                       'pygame.gp2x': 'lib/gp2x',
+       "package_dir": {'pygame': 'src_py',
+                       'pygame.threads': 'src_py/threads',
+                       'pygame.gp2x': 'src_py/gp2x',
                        'pygame.tests': 'test',
                        'pygame.docs': 'docs',
                        'pygame.examples': 'examples'},
@@ -696,6 +663,3 @@ if "install" in sys.argv:
         remove_old_files()
     except:
         pass
-
-
-

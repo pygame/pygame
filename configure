@@ -1,4 +1,0 @@
-#fake configure for pygame, to support the common
-# ./configure;make;make install
-
-python config.py -auto

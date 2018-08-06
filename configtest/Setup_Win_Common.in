@@ -1,2 +1,0 @@
-# Windows specific flags for Pygame modules.
-SCRAP = -luser32 -lgdi32

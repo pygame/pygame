@@ -6,12 +6,12 @@
   Class BufferProxy API exported by pgyame.bufferproxy
 ********************************************************
 
-src/bufferproxy.c
-=================
+src_c/bufferproxy.c
+===================
 
 This extension module defines Python type :py:class:`pygame.BufferProxy`.
 
-Header file: src/pgbufferproxy.h
+Header file: src_c/pgbufferproxy.h
 
 
 .. c:var:: PyTypeObject *pgBufproxy_Type

@@ -1,0 +1,17 @@
+include README.rst
+
+recursive-include buildconfig *
+recursive-include docs *
+recursive-include src_py *
+recursive-include src_c *
+recursive-include examples *
+recursive-include test *
+prune */CVS
+prune */*/CVS
+prune buildconfig/ci
+prune buildconfig/ci/*
+prune buildconfig/ci/*/*
+prune buildconfig/manylinux-build
+prune buildconfig/manylinux-build/*
+prune buildconfig/manylinux-build/*/*
+prune buildconfig/manylinux-build/*/*/*

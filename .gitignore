@@ -2,7 +2,7 @@
 /Setup
 *.pyc
 /build/
-/lib/version.py
+/src_py/version.py
 
 # Windows prebuilt external libraries
 /prebuilt-x??
@@ -31,7 +31,7 @@
 # Other
 envdev*
 .virtualenv*
-/manylinux-build/wheelhouse/
+buildconfig/manylinux-build/wheelhouse/
 anenv
 dist
 .vagrant

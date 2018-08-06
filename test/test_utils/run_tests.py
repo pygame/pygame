@@ -39,7 +39,7 @@ def run(*args, **kwds):
 
     Keyword arguments:
     incomplete - fail incomplete tests (default False)
-    nosubprocess - run all test suites in the current process
+    usesubprocess - run all test suites in the current process
                    (default False, use separate subprocesses)
     dump - dump failures/errors as dict ready to eval (default False)
     file - if provided, the name of a file into which to dump failures/errors
@@ -99,9 +99,9 @@ def run(*args, **kwds):
     if was_run:
         raise RuntimeError("run() was already called this session")
     was_run = True
-                           
+
     options = kwds.copy()
-    option_nosubprocess = options.get('nosubprocess', False)
+    option_usesubprocess = options.get('usesubprocess', False)
     option_dump = options.pop('dump', False)
     option_file = options.pop('file', None)
     option_randomize = options.get('randomize', False)
@@ -115,7 +115,7 @@ def run(*args, **kwds):
 
     if not option_interactive and 'interactive' not in option_exclude:
         option_exclude += ('interactive',)
-    if not option_nosubprocess and 'subprocess_ignore' not in option_exclude:
+    if option_usesubprocess and 'subprocess_ignore' not in option_exclude:
         option_exclude += ('subprocess_ignore',)
     elif 'ignore' not in option_exclude:
         option_exclude += ('ignore',)
@@ -139,7 +139,7 @@ def run(*args, **kwds):
     test_mods_pkg_name = test_pkg_name
 
     working_dir_temp = tempfile.mkdtemp()
-    
+
     if option_fake is not None:
         test_mods_pkg_name = '.'.join([test_mods_pkg_name,
                                        'run_tests__tests',
@@ -215,7 +215,7 @@ def run(*args, **kwds):
     ###########################################################################
     # Single process mode
 
-    if option_nosubprocess:
+    if not option_usesubprocess:
         options['exclude'] = option_exclude
         t = time.time()
         for module in test_modules:
@@ -295,7 +295,7 @@ def run(*args, **kwds):
     meta['total_failures'] = n_failures
     results.update(meta_results)
 
-    if option_nosubprocess:
+    if not option_usesubprocess:
         assert total == untrusty_total
 
     if not option_dump:
@@ -332,7 +332,7 @@ def count_results(results):
 
 def run_and_exit(*args, **kwargs):
     """Run the tests, and if there are failures, exit with a return code of 1.
-    
+
     This is needed for various buildbots to recognise that the tests have
     failed.
     """

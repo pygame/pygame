@@ -1,7 +1,0 @@
-#!/bin/sh
-ARGS="$@"
-if [ "$ARGS" = '--version --cflags --libs' ]; then
-  echo '1.2.13'
-  echo '-I./SDL/include -DSDL_MACRO=1 -Wl,sdl_1,sdl_2'
-  echo '-L./SDL/lib -lSDL'
-fi

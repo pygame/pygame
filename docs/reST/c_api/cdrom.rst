@@ -6,12 +6,12 @@
   API exported by pygame.cdrom
 ********************************
 
-src/cdrom.c
-===========
+src_c/cdrom.c
+=============
 
 The :py:mod:`pygame.cdrom` extension module. Only available for SDL 1.
 
-Header file: src/pygame.h
+Header file: src_c/pygame.h
 
 
 .. c:type:: pgCDObject

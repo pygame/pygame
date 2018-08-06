@@ -1,0 +1,2 @@
+#This file defines platform specific modules for linux
+_camera src_c/_camera.c src_c/camera_v4l2.c $(SDL) $(DEBUG)

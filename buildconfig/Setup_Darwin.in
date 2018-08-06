@@ -1,0 +1,4 @@
+#This file defines platform specific modules for mac os x
+SCRAP =
+sdlmain_osx src_c/sdlmain_osx.m $(SDL) $(DEBUG)
+#_camera src_c/_camera.c src/camera_mac.m $(SDL) $(DEBUG)

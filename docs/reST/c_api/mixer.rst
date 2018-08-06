@@ -6,13 +6,13 @@
   API exported by pygame.mixer
 ********************************
 
-src/mixer.c
-===========
+src_c/mixer.c
+=============
 
 Python types and module startup/shutdown functions defined in the
 :py:mod:`pygame.mixer` extension module.
 
-Header file: src/mixer.h
+Header file: src_c/mixer.h
 
 
 .. c:type:: pgSoundObject
