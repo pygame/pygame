@@ -98,6 +98,7 @@ import distutils.sysconfig
 from distutils.core import setup, Extension, Command
 from distutils.extension import read_setup_file
 from distutils.command.install_data import install_data
+from distutils.command.sdist import sdist
 
 
 revision = ''
@@ -433,6 +434,15 @@ class smart_install_data(install_data):
 cmdclass['install_data'] = smart_install_data
 
 
+class OurSdist(sdist):
+    def initialize_options(self):
+        sdist.initialize_options(self)
+        # we do not want MANIFEST.in to appear in the root cluttering up things.
+        self.template = os.path.join('buildconfig', 'MANIFEST.in')
+
+cmdclass['sdist'] = OurSdist
+
+
 if "bdist_msi" in sys.argv:
     # if you are making an msi, we want it to overwrite files
     # we also want to include the repository revision in the file name
@@ -653,6 +663,3 @@ if "install" in sys.argv:
         remove_old_files()
     except:
         pass
-
-
-

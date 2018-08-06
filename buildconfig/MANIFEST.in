@@ -1,9 +1,17 @@
-include Setup.in Setup_Darwin.in Setup_Unix.in Setup_Win_Common.in *.py WHATSNEW readme.rst install.html readme.html LGPL version.py.in
+include README.rst
 
+recursive-include buildconfig *
 recursive-include docs *
-recursive-include lib *
-recursive-include src *
+recursive-include src_py *
+recursive-include src_c *
 recursive-include examples *
 recursive-include test *
 prune */CVS
 prune */*/CVS
+prune buildconfig/ci
+prune buildconfig/ci/*
+prune buildconfig/ci/*/*
+prune buildconfig/manylinux-build
+prune buildconfig/manylinux-build/*
+prune buildconfig/manylinux-build/*/*
+prune buildconfig/manylinux-build/*/*/*
