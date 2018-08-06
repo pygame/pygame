@@ -31,7 +31,7 @@
 # Other
 envdev*
 .virtualenv*
-/manylinux-build/wheelhouse/
+buildconfig/manylinux-build/wheelhouse/
 anenv
 dist
 .vagrant
