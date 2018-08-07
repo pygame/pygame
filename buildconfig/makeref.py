@@ -21,7 +21,7 @@ def Run():
                             '-D', 'headers_mkdirs=0',
                             rst_source_dir,
                             html_dir,]).returncode
-    except FileNotFoundError:
+    except:
         print('---')
         print('Have you installed sphinx?')
         print('---')
