@@ -1308,10 +1308,6 @@ class SurfaceTypeTest(unittest.TestCase):
         surf.scroll(dx=-3, dy=-3)
         self.failUnlessEqual(surf.get_at((0, 0)), spot_color)
 
-    def test_zero_surface_transform(self):
-        tmp_surface = pygame.transform.scale(pygame.Surface((128, 128)), (0, 0))
-        tmp_surface = pygame.transform.scale(tmp_surface, (128, 128))
-
 class SurfaceSubtypeTest (unittest.TestCase):
     """Issue #280: Methods that return a new Surface preserve subclasses"""
 
