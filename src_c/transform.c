@@ -547,7 +547,7 @@ surf_scale (PyObject* self, PyObject* arg)
         return RAISE (PyExc_ValueError,
                       "Source and destination surfaces need the same format.");
 
-    if (width && height)
+    if ((width && height) && (surf->w && surf->h))
     {
         SDL_LockSurface (newsurf);
         pgSurface_Lock (surfobj);

@@ -131,6 +131,12 @@ class TransformModuleTest( unittest.TestCase ):
             # the wrong size surface is past in.  Should raise an error.
             self.assertRaises(ValueError, pygame.transform.smoothscale, s, (33,64), s3)
 
+    def test_scale__zero_surface_transform(self):
+        tmp_surface = pygame.transform.scale(pygame.Surface((128, 128)), (0, 0))
+        self.assertEqual(tmp_surface.get_size(), (0, 0))
+        tmp_surface = pygame.transform.scale(tmp_surface, (128, 128))
+        self.assertEqual(tmp_surface.get_size(), (128, 128))
+
     def test_threshold__honors_third_surface(self):
         # __doc__ for threshold as of Tue 07/15/2008
 
