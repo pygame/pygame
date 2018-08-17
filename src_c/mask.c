@@ -189,6 +189,9 @@ static PyObject* mask_scale(PyObject* self, PyObject* args)
         return NULL;
     }
 
+    if (x < 0 || y < 0) {
+        return RAISE (PyExc_ValueError, "Cannot scale mask to negative size");
+    }
     output = bitmask_scale(input, x, y);
 
     if(maskobj)
@@ -466,6 +469,11 @@ static PyObject* mask_from_surface(PyObject* self, PyObject* args)
     if (!PyArg_ParseTuple (args, "O!|i", &pgSurface_Type, &surfobj, &threshold)) {
         return NULL;
     }
+
+    if (surf->w < 0 || surf->h < 0) {
+        return RAISE (PyExc_ValueError, "Cannot create mask with negative size");
+    }
+
 
     surf = pgSurface_AsSurface(surfobj);
 

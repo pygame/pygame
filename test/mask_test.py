@@ -386,6 +386,16 @@ class MaskTypeTest( unittest.TestCase ):
         #TODO: this should really make one bounding rect.
         #self.assertEquals(repr(r), "[<rect(0, 0, 5, 2)>]")
 
+    def test_negative_size_mask(self):
+        mask = pygame.Mask((100, 100))
+        with self.assertRaises(ValueError):
+            mask.scale((-1, -1))
+        with self.assertRaises(ValueError):
+            mask.scale((-1, 10))
+        with self.assertRaises(ValueError):
+            mask.scale((10, -1))
+
+
 class MaskModuleTest(unittest.TestCase):
     def test_from_surface(self):
         """  Does the mask.from_surface() work correctly?
@@ -421,12 +431,6 @@ class MaskModuleTest(unittest.TestCase):
 
         #TODO: test a color key surface.
 
-
-
-
-
-
-
     def test_from_threshold(self):
         """ Does mask.from_threshold() work correctly?
         """
@@ -451,6 +455,17 @@ class MaskModuleTest(unittest.TestCase):
 
             self.assertEqual(mask.count(), 100)
             self.assertEqual(mask.get_bounding_rects(), [pygame.Rect((40,40,10,10))])
+
+    def test_zero_size_from_surface(self):
+        zero_w_mask = pygame.mask.from_surface(pygame.Surface((0, 100)))
+        self.assertEqual(zero_w_mask.get_size(), (0, 100))
+
+        zero_h_mask = pygame.mask.from_surface(pygame.Surface((100, 0)))
+        self.assertEqual(zero_h_mask.get_size(), (100, 0))
+
+        zero_mask = pygame.mask.from_surface(pygame.Surface((0, 0)))
+        self.assertEqual(zero_mask.get_size(), (0, 0))
+
 
 
 
