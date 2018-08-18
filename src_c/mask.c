@@ -470,12 +470,12 @@ static PyObject* mask_from_surface(PyObject* self, PyObject* args)
         return NULL;
     }
 
+
+    surf = pgSurface_AsSurface(surfobj);
+
     if (surf->w < 0 || surf->h < 0) {
         return RAISE (PyExc_ValueError, "Cannot create mask with negative size");
     }
-
-
-    surf = pgSurface_AsSurface(surfobj);
 
     /* lock the surface, release the GIL. */
     pgSurface_Lock (surfobj);
