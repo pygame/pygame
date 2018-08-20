@@ -977,11 +977,6 @@ bitmask_t *bitmask_scale(const bitmask_t *m, int w, int h)
     return 0;
   }
 
-  if (!m->w || !m->h || !w || !h) {
-    nm = bitmask_create(0, 0);
-    return nm;
-  }
-
   nm = bitmask_create(w,h);
 
   if (!nm)

@@ -529,10 +529,8 @@ class MaskModuleTest(unittest.TestCase):
 
         for size in sizes:
             mask = pygame.mask.Mask(size)
-            mask.scale((2, 3))
-            # currently size doesn't change (0, 100) remains (0, 100) and not (0, 200)
-            # is this correct?
-            self.assertEqual(mask.get_size(), size)
+            mask2 = mask.scale((2, 3))
+            self.assertEqual(mask2.get_size(), (2, 3))
 
     def test_zero_mask_draw(self):
         sizes = ((100, 0), (0, 100), (0, 0))
