@@ -189,6 +189,9 @@ static PyObject* mask_scale(PyObject* self, PyObject* args)
         return NULL;
     }
 
+    if (x < 0 || y < 0) {
+        return RAISE (PyExc_ValueError, "Cannot scale mask to negative size");
+    }
     output = bitmask_scale(input, x, y);
 
     if(maskobj)
@@ -467,7 +470,12 @@ static PyObject* mask_from_surface(PyObject* self, PyObject* args)
         return NULL;
     }
 
+
     surf = pgSurface_AsSurface(surfobj);
+
+    if (surf->w < 0 || surf->h < 0) {
+        return RAISE (PyExc_ValueError, "Cannot create mask with negative size");
+    }
 
     /* lock the surface, release the GIL. */
     pgSurface_Lock (surfobj);
@@ -1012,6 +1020,10 @@ static int get_bounding_rects(bitmask_t *input, int *num_bounding_boxes, GAME_Re
     w = input->w;
     h = input->h;
 
+    if (!w || !h) {
+        ret_rects = rects;
+        return 0;
+    }
     /* a temporary image to assign labels to each bit of the mask */
     image = (unsigned int *) malloc(sizeof(int)*w*h);
     if(!image) { return -2; }

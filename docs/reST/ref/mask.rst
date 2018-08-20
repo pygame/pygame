@@ -13,6 +13,8 @@ to store which parts collide.
 
 New in pygame 1.8.
 
+Starting from pygame 1.9.5 masks with width or height 0 are supported.
+
 .. function:: from_surface
 
    | :sl:`Returns a Mask from the given surface.`

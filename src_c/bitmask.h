@@ -54,7 +54,7 @@ typedef struct bitmask
 } bitmask_t;
 
 /* Creates a bitmask of width w and height h, where
-   w and h must both be greater than 0.
+   w and h must both be greater than or equal to 0.
    The mask is automatically cleared when created.
  */
 bitmask_t *bitmask_create(int w, int h);

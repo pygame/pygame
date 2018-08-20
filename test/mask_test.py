@@ -386,6 +386,16 @@ class MaskTypeTest( unittest.TestCase ):
         #TODO: this should really make one bounding rect.
         #self.assertEquals(repr(r), "[<rect(0, 0, 5, 2)>]")
 
+    def test_negative_size_mask(self):
+        mask = pygame.Mask((100, 100))
+        with self.assertRaises(ValueError):
+            mask.scale((-1, -1))
+        with self.assertRaises(ValueError):
+            mask.scale((-1, 10))
+        with self.assertRaises(ValueError):
+            mask.scale((10, -1))
+
+
 class MaskModuleTest(unittest.TestCase):
     def test_from_surface(self):
         """  Does the mask.from_surface() work correctly?
@@ -421,12 +431,6 @@ class MaskModuleTest(unittest.TestCase):
 
         #TODO: test a color key surface.
 
-
-
-
-
-
-
     def test_from_threshold(self):
         """ Does mask.from_threshold() work correctly?
         """
@@ -437,6 +441,8 @@ class MaskModuleTest(unittest.TestCase):
             surf = pygame.surface.Surface((70,70), 0, i)
             surf.fill((100,50,200),(20,20,20,20))
             mask = pygame.mask.from_threshold(surf,(100,50,200,255),(10,10,10,255))
+
+            rects = mask.get_bounding_rects()
 
             self.assertEqual(mask.count(), 400)
             self.assertEqual(mask.get_bounding_rects(), [pygame.Rect((20,20,20,20))])
@@ -452,10 +458,165 @@ class MaskModuleTest(unittest.TestCase):
             self.assertEqual(mask.count(), 100)
             self.assertEqual(mask.get_bounding_rects(), [pygame.Rect((40,40,10,10))])
 
+    def test_zero_mask(self):
+        mask = pygame.mask.Mask((0, 0))
+        self.assertEqual(mask.get_size(), (0, 0))
 
+        mask = pygame.mask.Mask((100, 0))
+        self.assertEqual(mask.get_size(), (100, 0))
+
+        mask = pygame.mask.Mask((0, 100))
+        self.assertEqual(mask.get_size(), (0, 100))
+
+    def test_zero_mask_overlap(self):
+        sizes = ((100, 0), (0, 100), (0, 0))
+
+        for size in sizes:
+            mask = pygame.mask.Mask(size)
+            mask2 = pygame.mask.Mask((100, 100))
+            self.assertEqual(mask.overlap(mask2, (0, 0)), None)
+            self.assertEqual(mask2.overlap(mask, (0, 0)), None)
+
+    def test_zero_mask_overlap_area(self):
+        sizes = ((100, 0), (0, 100), (0, 0))
+
+        for size in sizes:
+            mask = pygame.mask.Mask(size)
+            mask2 = pygame.mask.Mask((100, 100))
+            self.assertEqual(mask.overlap_area(mask2, (0, 0)), 0)
+            self.assertEqual(mask2.overlap_area(mask, (0, 0)), 0)
+
+
+    def test_zero_mask_overlap_mask(self):
+        sizes = ((100, 0), (0, 100), (0, 0))
+
+        for size in sizes:
+            mask = pygame.mask.Mask(size)
+            mask2 = pygame.mask.Mask((100, 100))
+
+            overlap_mask = mask.overlap_mask(mask2, (0, 0))
+            overlap_mask2 = mask2.overlap_mask(mask, (0, 0))
+
+            self.assertEqual(mask.get_size(), overlap_mask.get_size())
+            self.assertEqual(mask2.get_size(), overlap_mask2.get_size())
+
+    def test_zero_mask_fill(self):
+        sizes = ((100, 0), (0, 100), (0, 0))
+
+        for size in sizes:
+            mask = pygame.mask.Mask(size)
+            mask.fill()
+            self.assertEqual(mask.count(), 0)
+
+    def test_zero_mask_clear(self):
+        sizes = ((100, 0), (0, 100), (0, 0))
+
+        for size in sizes:
+            mask = pygame.mask.Mask(size)
+            mask.clear()
+            self.assertEqual(mask.count(), 0)
+
+    def test_zero_mask_flip(self):
+        sizes = ((100, 0), (0, 100), (0, 0))
+
+        for size in sizes:
+            mask = pygame.mask.Mask(size)
+            mask.invert()
+            self.assertEqual(mask.count(), 0)
+
+    def test_zero_mask_scale(self):
+        sizes = ((100, 0), (0, 100), (0, 0))
+
+        for size in sizes:
+            mask = pygame.mask.Mask(size)
+            mask2 = mask.scale((2, 3))
+            self.assertEqual(mask2.get_size(), (2, 3))
+
+    def test_zero_mask_draw(self):
+        sizes = ((100, 0), (0, 100), (0, 0))
+
+        for size in sizes:
+            mask = pygame.mask.Mask(size)
+            mask2 = pygame.mask.Mask((100, 100))
+            mask2.fill()
+            before = [mask2.get_at((x, y)) for x in range(100) for y in range(100)]
+            mask.draw(mask2, (0, 0))
+            after = [mask2.get_at((x, y)) for x in range(100) for y in range(100)]
+            self.assertEqual(before, after)
+
+    def test_zero_mask_erase(self):
+        sizes = ((100, 0), (0, 100), (0, 0))
+
+        for size in sizes:
+            mask = pygame.mask.Mask(size)
+            mask2 = pygame.mask.Mask((100, 100))
+            mask2.fill()
+            before = [mask2.get_at((x, y)) for x in range(100) for y in range(100)]
+            mask.erase(mask2, (0, 0))
+            after = [mask2.get_at((x, y)) for x in range(100) for y in range(100)]
+            self.assertEqual(before, after)
+
+    def test_zero_mask_count(self):
+        sizes = ((100, 0), (0, 100), (0, 0))
+
+        for size in sizes:
+            mask = pygame.mask.Mask(size)
+            mask.fill()
+            self.assertEqual(mask.count(), 0)
+
+    def test_zero_mask_centroid(self):
+        sizes = ((100, 0), (0, 100), (0, 0))
+
+        for size in sizes:
+            mask = pygame.mask.Mask(size)
+            self.assertEqual(mask.centroid(), (0, 0))
+
+    def test_zero_mask_angle(self):
+        sizes = ((100, 0), (0, 100), (0, 0))
+
+        for size in sizes:
+            mask = pygame.mask.Mask(size)
+            self.assertEqual(mask.angle(), 0.0)
+
+    def test_zero_size_from_surface(self):
+        zero_w_mask = pygame.mask.from_surface(pygame.Surface((0, 100)))
+        self.assertEqual(zero_w_mask.get_size(), (0, 100))
+
+        zero_h_mask = pygame.mask.from_surface(pygame.Surface((100, 0)))
+        self.assertEqual(zero_h_mask.get_size(), (100, 0))
+
+        zero_mask = pygame.mask.from_surface(pygame.Surface((0, 0)))
+        self.assertEqual(zero_mask.get_size(), (0, 0))
+
+    def test_zero_size_from_threshold(self):
+        a = [16, 24, 32]
+        sizes = ((100, 0), (0, 100), (0, 0))
+
+        for size in sizes:
+            for i in a:
+                surf = pygame.surface.Surface(size, 0, i)
+                surf.fill((100, 50, 200), (20, 20, 20, 20))
+                mask = pygame.mask.from_threshold(surf, (100, 50, 200, 255), (10, 10, 10, 255))
+
+                self.assertEqual(mask.count(), 0)
+
+                rects = mask.get_bounding_rects()
+                self.assertEqual(rects, [])
+
+            for i in a:
+                surf = pygame.surface.Surface(size, 0, i)
+                surf2 = pygame.surface.Surface(size, 0, i)
+                surf.fill((100, 100, 100))
+                surf2.fill((150, 150, 150))
+                surf2.fill((100, 100, 100), (40, 40, 10, 10))
+                mask = pygame.mask.from_threshold(surf, (0, 0, 0, 0), (10, 10, 10, 255), surf2)
+
+                self.assertEqual(mask.count(), 0)
+
+                rects = mask.get_bounding_rects()
+                self.assertEqual(rects, [])
 
 if __name__ == '__main__':
-
     if 1:
         unittest.main()
     else:
