@@ -1020,6 +1020,10 @@ static int get_bounding_rects(bitmask_t *input, int *num_bounding_boxes, GAME_Re
     w = input->w;
     h = input->h;
 
+    if (!w || !h) {
+        ret_rects = rects;
+        return 0;
+    }
     /* a temporary image to assign labels to each bit of the mask */
     image = (unsigned int *) malloc(sizeof(int)*w*h);
     if(!image) { return -2; }

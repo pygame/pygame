@@ -174,7 +174,11 @@ unsigned int bitmask_count(bitmask_t *m)
     BITMASK_W *pixels;
     unsigned int tot = 0;
 
-    for (pixels=m->bits; pixels<(m->bits+m->h*((m->w-1)/BITMASK_W_LEN + 1)); pixels++) {
+    if (!m->w || !m->h) {
+        return tot;
+    }
+
+    for (pixels=m->bits; pixels < (m->bits + m->h * ((m->w - 1) / BITMASK_W_LEN + 1)); pixels++) {
         tot += bitcount(*pixels);
     }
 
