@@ -228,7 +228,8 @@ class DrawModuleTest(unittest.TestCase):
         self.fail() 
 
     def test_ellipse(self):
-
+        """ |tags: ignore| 
+        """
         # __doc__ (as of 2008-08-02) for pygame.draw.ellipse:
 
           # pygame.draw.ellipse(Surface, color, Rect, width=0): return Rect
