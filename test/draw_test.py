@@ -240,21 +240,48 @@ class DrawModuleTest(unittest.TestCase):
           # filled.
           # 
 
-        surface = pygame.display.set_mode((201, 401))
+        sizes = [(4, 4), (5, 4), (4, 5), (5, 5)]
+        color = (1, 13, 24, 255)
 
-        height = surface.get_height()
-    
-        background_color = (0, 0, 0, 255)
-        rectangle_even = (0, 0, 200, 200)
-        rectangle_odd = (0, 201, 201, 201)
+        for size in sizes:
+            surface = pygame.display.set_mode(size)
+            height = surface.get_height()
+            width = surface.get_width()
 
-        draw.ellipse(surface, self.color, rectangle_odd)
-        draw.ellipse(surface, self.color, rectangle_even)
+            draw.ellipse(surface, color, (0, 0, height, width))
 
-        colors = [surface.get_at((200, x)) for x in range(height)]
-    
-        self.assertFalse(colors.count(background_color) == len(colors))
+            # Get all positions of the surface's borders
+            border_top = []
+            border_left = []
+            border_right = []
+            border_bottom = []
+            for x in range(width):
+                for y in range(height):
+                    try:
+                        surface.get_at((x, y - 1))
+                    except IndexError:
+                        border_top.append((x, y))
 
+                    try:
+                        surface.get_at((x - 1, y))
+                    except IndexError:
+                        border_left.append((x, y))
+
+                    try:
+                        surface.get_at((x + 1, y))
+                    except IndexError:
+                        border_right.append((x, y))
+
+                    try:
+                        surface.get_at((x, y + 1))
+                    except IndexError:
+                        border_bottom.append((x, y))
+
+            # For each of the four borders check if it contains the color
+            borders = [border_top, border_left, border_right, border_bottom]
+            for border in borders:
+                colors = [surface.get_at(position) for position in border]
+                self.assertTrue(color in colors)
 
     def todo_test_lines(self):
 
