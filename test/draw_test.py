@@ -162,6 +162,40 @@ class DrawModuleTest(unittest.TestCase):
             h = abs(p2[1] - p1[1]) + 1 + yinc * (line_width - 1)
             msg += ", %s" % (rec,)
             self.assert_(rec == (rx, ry, w, h), msg)
+
+    def test_line_for_gaps(self):
+        """ |tags: ignore|
+        """
+        # __doc__ (as of 2008-06-25) for pygame.draw.line:
+
+          # pygame.draw.line(Surface, color, start_pos, end_pos, width=1): return Rect
+          # draw a straight line segment
+
+        # This checks bug Thick Line Bug #448
+
+        width = 200
+        height = 200
+        surf = pygame.Surface((width, height), pygame.SRCALPHA)
+
+        def white_surrounded_pixels(x, y):
+            offsets = [(1, 0), (0, 1), (-1, 0), (0, -1)]
+            WHITE = (255, 255, 255, 255)
+            return len([1 for dx, dy in offsets
+                        if surf.get_at((x+dx, y+dy)) == WHITE])
+
+        def check_white_line(start, end):
+            surf.fill((0, 0, 0))
+            pygame.draw.line(surf, (255, 255, 255), start, end, 30)
+
+            BLACK = (0, 0, 0, 255)
+            for x in range(1, width-1):
+                for y in range(1, height-1):
+                    if surf.get_at((x, y)) == BLACK:
+                        self.assertTrue(white_surrounded_pixels(x, y) < 3)
+
+        check_white_line((50, 50), (140, 0))
+        check_white_line((50, 50), (0, 120))
+        check_white_line((50, 50), (199, 198))
         
     def todo_test_aaline(self):
 
