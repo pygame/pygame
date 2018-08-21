@@ -227,7 +227,7 @@ class DrawModuleTest(unittest.TestCase):
 
         self.fail() 
 
-    def todo_test_ellipse(self):
+    def test_ellipse(self):
 
         # __doc__ (as of 2008-08-02) for pygame.draw.ellipse:
 
@@ -240,7 +240,21 @@ class DrawModuleTest(unittest.TestCase):
           # filled.
           # 
 
-        self.fail() 
+        surface = pygame.display.set_mode((201, 401))
+
+        height = surface.get_height()
+    
+        background_color = (0, 0, 0, 255)
+        rectangle_even = (0, 0, 200, 200)
+        rectangle_odd = (0, 201, 201, 201)
+
+        draw.ellipse(surface, self.color, rectangle_odd)
+        draw.ellipse(surface, self.color, rectangle_even)
+
+        colors = [surface.get_at((200, x)) for x in range(height)]
+    
+        self.assertFalse(colors.count(background_color) == len(colors))
+
 
     def todo_test_lines(self):
 
