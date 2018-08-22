@@ -1,16 +1,7 @@
 import sys
 import os
-if __name__ == '__main__':
-    pkg_dir = os.path.split(os.path.abspath(__file__))[0]
-    parent_dir, pkg_name = os.path.split(pkg_dir)
-    is_pygame_pkg = (pkg_name == 'tests' and
-                     os.path.split(parent_dir)[1] == 'pygame')
-    if not is_pygame_pkg:
-        sys.path.insert(0, parent_dir)
-else:
-    is_pygame_pkg = __name__.startswith('pygame.tests.')
-
 import unittest
+
 import pygame
 from pygame import font as pygame_font  # So font can be replaced with ftfont
 from pygame.compat import as_unicode, as_bytes, xrange_, filesystem_errors
