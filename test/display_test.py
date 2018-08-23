@@ -42,7 +42,7 @@ class DisplayModuleTest( unittest.TestCase ):
         #   segfault was probably caused by another tests need 
         #   for a "clean slate"
         
-            """
+        """
     #0  0x08103b7c in PyFrame_New ()
     #1  0x080bd666 in PyEval_EvalCodeEx ()
     #2  0x08105202 in PyFunction_SetClosure ()
@@ -55,7 +55,7 @@ class DisplayModuleTest( unittest.TestCase ):
     #9  0xb7e04eb0 in __libc_start_main () from /lib/tls/libc.so.6
     #10 0x08054e31 in _start ()
 
-            """
+        """
 
     def todo_test_Info(self):
 
