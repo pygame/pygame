@@ -459,6 +459,8 @@ class MaskModuleTest(unittest.TestCase):
             self.assertEqual(mask.get_bounding_rects(), [pygame.Rect((40,40,10,10))])
 
     def test_overlap_mask(self):
+        """ |tags: ignore| """ 
+
         mask = pygame.mask.Mask((50, 50))
         mask.fill()
         mask2 = pygame.mask.Mask((300, 10))
