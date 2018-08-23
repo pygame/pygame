@@ -185,81 +185,58 @@ class MixerModuleTest(unittest.TestCase):
             self.assertEqual(get_bytes(mixer.Sound(file=uwave_path)), snd_bytes)
             self.assertEqual(get_bytes(mixer.Sound(uwave_path)), snd_bytes)
             arg_emsg = 'Sound takes either 1 positional or 1 keyword argument'
-            try:
+
+            with self.assertRaises(TypeError) as cm:
                 mixer.Sound()
-            except TypeError:
-                self.assertEqual(str(geterror()), arg_emsg)
-            else:
-                self.fail("no exception")
-            try:
+                self.assertEqual(cm.exception, arg_emsg)
+            with self.assertRaises(TypeError) as cm:
                 mixer.Sound(wave_path, buffer=sample)
-            except TypeError:
-                self.assertEqual(str(geterror()), arg_emsg)
-            else:
-                self.fail("no exception")
-            try:
+                self.assertEqual(cm.exception, arg_emsg)
+            with self.assertRaises(TypeError) as cm:
                 mixer.Sound(sample, file=wave_path)
-            except TypeError:
-                self.assertEqual(str(geterror()), arg_emsg)
-            else:
-                self.fail("no exception")
-            try:
+                self.assertEqual(cm.exception, arg_emsg)
+            with self.assertRaises(TypeError) as cm:
                 mixer.Sound(buffer=sample, file=wave_path)
-            except TypeError:
-                self.assertEqual(str(geterror()), arg_emsg)
-            else:
-                self.fail("no exception")
-            try:
+                self.assertEqual(cm.exception, arg_emsg)
+
+            with self.assertRaises(TypeError) as cm:
                 mixer.Sound(foobar=sample)
-            except TypeError:
-                emsg = "Unrecognized keyword argument 'foobar'"
-                self.assertEqual(str(geterror()), emsg)
-            else:
-                self.fail("no exception")
+                self.assertEqual(cm.exception,
+                                 "Unrecognized keyword argument 'foobar'")
+
             snd = mixer.Sound(wave_path, **{})
             self.assertEqual(get_bytes(snd), snd_bytes)
             snd = mixer.Sound(*[], **{'file': wave_path})
-            try:
-               snd = mixer.Sound([])
-            except TypeError:
+
+            with self.assertRaises(TypeError) as cm:
+                mixer.Sound([])
                 emsg = 'Unrecognized argument (type list)'
-                self.assertEqual(str(geterror()), emsg)
-            else:
-                self.fail("no exception")
-            try:
+                self.assertEqual(cm.exception, emsg)
+
+            with self.assertRaises(TypeError) as cm:
                 snd = mixer.Sound(buffer=[])
-            except TypeError:
                 emsg = 'Expected object with buffer interface: got a list'
-                self.assertEqual(str(geterror()), emsg)
-            else:
-                self.fail("no exception")
+                self.assertEqual(cm.exception, emsg)
+
             ufake_path = unicode_('12345678')
             self.assertRaises(pygame.error, mixer.Sound, ufake_path)
-            try:
+
+            with self.assertRaises(TypeError) as cm:
                 mixer.Sound(buffer=unicode_('something'))
-            except TypeError:
                 emsg = 'Unicode object not allowed as buffer object'
-                self.assertEqual(str(geterror()), emsg)
-            else:
-                self.fail("no exception")
+                self.assertEqual(cm.exception, emsg)
             self.assertEqual(get_bytes(mixer.Sound(buffer=sample)), sample)
             self.assertEqual(get_bytes(mixer.Sound(sample)), sample)
             self.assertEqual(get_bytes(mixer.Sound(file=bwave_path)), snd_bytes)
             self.assertEqual(get_bytes(mixer.Sound(bwave_path)), snd_bytes)
 
             snd = mixer.Sound(wave_path)
-            try:
+            with self.assertRaises(TypeError) as cm:
                 mixer.Sound(wave_path, array=snd)
-            except TypeError:
-                self.assertEqual(str(geterror()), arg_emsg)
-            else:
-                self.fail("no exception")
-            try:
+                self.assertEqual(cm.exception, arg_emsg)
+            with self.assertRaises(TypeError) as cm:
                 mixer.Sound(buffer=sample, array=snd)
-            except TypeError:
-                self.assertEqual(str(geterror()), arg_emsg)
-            else:
-                self.fail("no exception")
+                self.assertEqual(cm.exception, arg_emsg)
             snd2 = mixer.Sound(array=snd)
             self.assertEqual(snd.get_raw(), snd2.get_raw())
 
