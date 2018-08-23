@@ -35,9 +35,9 @@ class CompatModuleTest(unittest.TestCase):
         self.failUnless(isinstance(compat.ord_(compat.bytes_(1)[0]), int))
         
     def test_bytes_(self):
-        self.failIf(compat.bytes_ is compat.unicode_)
+        self.assertFalse(compat.bytes_ is compat.unicode_)
         self.failUnless(hasattr(compat.bytes_, 'capitalize'))
-        self.failIf(hasattr(compat.bytes_, 'isdecimal'))
+        self.assertFalse(hasattr(compat.bytes_, 'isdecimal'))
         
     def test_unicode_(self):
         self.failUnless(hasattr(compat.unicode_(), 'isdecimal'))
@@ -55,7 +55,7 @@ class CompatModuleTest(unittest.TestCase):
             self.failUnlessEqual(str(e), msg)
 
     def test_xrange_(self):
-        self.failIf(isinstance(compat.xrange_(2), list))
+        self.assertFalse(isinstance(compat.xrange_(2), list))
         
     def test_unichr_(self):
         ordval = 86

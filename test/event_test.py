@@ -257,13 +257,13 @@ class EventModuleTest(unittest.TestCase):
         d = pygame.event.Event(1, a=2)
 
         self.failUnless(a == a)
-        self.failIf(a != a)
+        self.assertFalse(a != a)
         self.failUnless(a == b)
-        self.failIf(a != b)
+        self.assertFalse(a != b)
         self.failUnless(a !=  c)
-        self.failIf(a == c)
+        self.assertFalse(a == c)
         self.failUnless(a != d)
-        self.failIf(a == d)
+        self.assertFalse(a == d)
 
     def todo_test_get_blocked(self):
 
