@@ -458,6 +458,23 @@ class MaskModuleTest(unittest.TestCase):
             self.assertEqual(mask.count(), 100)
             self.assertEqual(mask.get_bounding_rects(), [pygame.Rect((40,40,10,10))])
 
+    def test_overlap_mask(self):
+        """ |tags: ignore| """ 
+
+        mask = pygame.mask.Mask((50, 50))
+        mask.fill()
+        mask2 = pygame.mask.Mask((300, 10))
+        mask2.fill()
+        mask3 = mask.overlap_mask(mask2, (-1, 0))
+
+        for i in range(50):
+            for j in range(10):
+                self.assertEqual(mask3.get_at((i, j)), 1)
+        
+        for i in range(50):
+            for j in range(11, 50): 
+                self.assertEqual(mask3.get_at((i, j)), 0)
+
     def test_zero_mask(self):
         mask = pygame.mask.Mask((0, 0))
         self.assertEqual(mask.get_size(), (0, 0))
