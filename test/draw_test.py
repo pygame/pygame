@@ -243,46 +243,47 @@ class DrawModuleTest(unittest.TestCase):
 
         sizes = [(4, 4), (5, 4), (4, 5), (5, 5)]
         color = (1, 13, 24, 255)
+    
+        for width, height in sizes:
+            for border_width in (0, 1):
+                surface = pygame.Surface((width, height))
 
-        for size in sizes:
-            surface = pygame.display.set_mode(size)
-            height = surface.get_height()
-            width = surface.get_width()
+                print(f"({width}, {height})")
+                draw.ellipse(
+                    surface, color, (0, 0, height, width), border_width)
 
-            draw.ellipse(surface, color, (0, 0, height, width))
+                # Get all positions of the surface's borders
+                border_top = []
+                border_left = []
+                border_right = []
+                border_bottom = []
+                for x in range(width):
+                    for y in range(height):
+                        try:
+                            surface.get_at((x, y - 1))
+                        except IndexError:
+                            border_top.append((x, y))
 
-            # Get all positions of the surface's borders
-            border_top = []
-            border_left = []
-            border_right = []
-            border_bottom = []
-            for x in range(width):
-                for y in range(height):
-                    try:
-                        surface.get_at((x, y - 1))
-                    except IndexError:
-                        border_top.append((x, y))
+                        try:
+                            surface.get_at((x - 1, y))
+                        except IndexError:
+                            border_left.append((x, y))
 
-                    try:
-                        surface.get_at((x - 1, y))
-                    except IndexError:
-                        border_left.append((x, y))
+                        try:
+                            surface.get_at((x + 1, y))
+                        except IndexError:
+                            border_right.append((x, y))
 
-                    try:
-                        surface.get_at((x + 1, y))
-                    except IndexError:
-                        border_right.append((x, y))
+                        try:
+                            surface.get_at((x, y + 1))
+                        except IndexError:
+                            border_bottom.append((x, y))
 
-                    try:
-                        surface.get_at((x, y + 1))
-                    except IndexError:
-                        border_bottom.append((x, y))
-
-            # For each of the four borders check if it contains the color
-            borders = [border_top, border_left, border_right, border_bottom]
-            for border in borders:
-                colors = [surface.get_at(position) for position in border]
-                self.assertTrue(color in colors)
+                # For each of the four borders check if it contains the color
+                borders = [border_top, border_left, border_right, border_bottom]
+                for border in borders:
+                    colors = [surface.get_at(position) for position in border]
+                    self.assertTrue(color in colors)
 
     def todo_test_lines(self):
 
