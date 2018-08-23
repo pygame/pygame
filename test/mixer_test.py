@@ -31,6 +31,7 @@ BUFFERS     = [3024]
 ############################## MODULE LEVEL TESTS ##############################
 
 class MixerModuleTest(unittest.TestCase):
+
     def test_init__keyword_args(self):
         # Fails on a Mac; probably older SDL_mixer
 ## Probably don't need to be so exhaustive. Besides being slow the repeated
@@ -47,7 +48,7 @@ class MixerModuleTest(unittest.TestCase):
 
             mixer_conf = mixer.get_init()
 
-            self.assertEquals(
+            self.assertEqual(
                 # Not all "sizes" are supported on all systems.
                 (mixer_conf[0], abs(mixer_conf[1]), mixer_conf[2]),
                 (kw_conf['frequency'],
@@ -73,7 +74,7 @@ class MixerModuleTest(unittest.TestCase):
 
             mixer_conf = mixer.get_init()
 
-            self.assertEquals(
+            self.assertEqual(
                 # Not all "sizes" are supported on all systems.
                 (mixer_conf[0], abs(mixer_conf[1]), mixer_conf[2]),
                 (kw_conf['frequency'],
@@ -90,7 +91,7 @@ class MixerModuleTest(unittest.TestCase):
         mixer.pre_init(0, 0, 0)       # Should reset to default values
         mixer.init()
         try:
-            self.failUnlessEqual(mixer.get_init(), (22050, -16, 2))
+            self.assertEqual(mixer.get_init(), (22050, -16, 2))
         finally:
             mixer.quit()
 
@@ -100,7 +101,7 @@ class MixerModuleTest(unittest.TestCase):
         mixer.pre_init(44100, 8, 1)  # None default values
         mixer.init(0, 0, 0)
         try:
-            self.failUnlessEqual(mixer.get_init(), (44100, 8, 1))
+            self.assertEqual(mixer.get_init(), (44100, 8, 1))
         finally:
             mixer.quit()
             mixer.pre_init(0, 0, 0, 0)
@@ -137,26 +138,23 @@ class MixerModuleTest(unittest.TestCase):
 
             if init_conf != mixer_conf:
                 continue
-            self.assertEquals(init_conf, mixer_conf)
+            self.assertEqual(init_conf, mixer_conf)
 
     def test_get_init__returns_None_if_mixer_not_initialized(self):
-        self.assert_(mixer.get_init() is None)
+        self.assertIsNone(mixer.get_init())
 
     def test_get_num_channels__defaults_eight_after_init(self):
         mixer.init()
-
-        num_channels = mixer.get_num_channels()
-
-        self.assert_(num_channels == 8)
-
+        self.assertEqual(mixer.get_num_channels(), 8)
         mixer.quit()
 
     def test_set_num_channels(self):
         mixer.init()
 
-        for i in xrange_(1, mixer.get_num_channels() + 1):
+        default_num_channels = mixer.get_num_channels()
+        for i in xrange_(1, default_num_channels + 1):
             mixer.set_num_channels(i)
-            self.assert_(mixer.get_num_channels() == i)
+            self.assertEqual(mixer.get_num_channels(), i)
 
         mixer.quit()
 
@@ -167,9 +165,7 @@ class MixerModuleTest(unittest.TestCase):
         mixer.init()
         mixer.quit()
 
-        self.assertRaises (
-            pygame.error, mixer.get_num_channels,
-        )
+        self.assertRaises(pygame.error, mixer.get_num_channels)
 
     def test_sound_args(self):
         def get_bytes(snd):
@@ -182,12 +178,12 @@ class MixerModuleTest(unittest.TestCase):
             uwave_path = unicode_(wave_path)
             bwave_path = uwave_path.encode(sys.getfilesystemencoding())
             snd = mixer.Sound(file=wave_path)
-            self.assert_(snd.get_length() > 0.5)
+            self.assertTrue(snd.get_length() > 0.5)
             snd_bytes = get_bytes(snd)
-            self.assert_(len(snd_bytes) > 1000)
-            self.assert_(get_bytes(mixer.Sound(wave_path)) == snd_bytes)
-            self.assert_(get_bytes(mixer.Sound(file=uwave_path)) == snd_bytes)
-            self.assert_(get_bytes(mixer.Sound(uwave_path)) == snd_bytes)
+            self.assertTrue(len(snd_bytes) > 1000)
+            self.assertEqual(get_bytes(mixer.Sound(wave_path)), snd_bytes)
+            self.assertEqual(get_bytes(mixer.Sound(file=uwave_path)), snd_bytes)
+            self.assertEqual(get_bytes(mixer.Sound(uwave_path)), snd_bytes)
             arg_emsg = 'Sound takes either 1 positional or 1 keyword argument'
             try:
                 mixer.Sound()
@@ -358,7 +354,7 @@ class MixerModuleTest(unittest.TestCase):
         if lshift >= 0:
             # This is asymmetric with respect to downcasting.
             a3 <<= lshift
-        self.assert_(all_(a2 == a3),
+        self.assertTrue(all_(a2 == a3),
                      "Format %i, dtype %s" % (format, a.dtype))
 
     def _test_array_interface_fail(self, a):
