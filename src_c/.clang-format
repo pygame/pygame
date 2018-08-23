@@ -1,5 +1,7 @@
 # PEP 7
 BasedOnStyle: Google
+AllowShortLoopsOnASingleLine: false
+AllowShortIfStatementsOnASingleLine: false
 AlwaysBreakAfterReturnType: All
 AlignAfterOpenBracket: Align
 BreakBeforeBraces: Stroustrup
