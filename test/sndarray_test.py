@@ -11,35 +11,22 @@ else:
     is_pygame_pkg = __name__.startswith('pygame.tests.')
 
 import unittest
+
+from numpy import int8, int16, uint8, uint16, array, alltrue
+
 import pygame
 from pygame.compat import as_bytes
-
 import pygame.sndarray
-from numpy import \
-     int8, int16, uint8, uint16, array, alltrue
-arraytype = "numpy"
 
 
 class SndarrayTest (unittest.TestCase):
-    if arraytype:
-        array_dtypes = {8: uint8, -8: int8, 16: uint16, -16: int16}
+    array_dtypes = {8: uint8, -8: int8, 16: uint16, -16: int16}
 
     def _assert_compatible(self, arr, size):
         dtype = self.array_dtypes[size]
-        if arraytype == 'numpy':
-            self.failUnlessEqual(arr.dtype, dtype)
-        else:
-            self.failUnlessEqual(arr.typecode(), dtype)
-
-    def test_import(self):
-        'does it import'
-        if not arraytype:
-            self.fail("no array package installed")
-        import pygame.sndarray
+        self.assertEqual(arr.dtype, dtype)
 
     def test_array(self):
-        if not arraytype:
-            self.fail("no array package installed")
 
         def check_array(size, channels, test_data):
             try:
@@ -74,18 +61,12 @@ class SndarrayTest (unittest.TestCase):
                              [0x7fff, 0], [0, 0x7fff]])
 
     def test_get_arraytype(self):
-        if not arraytype:
-            self.fail("no array package installed")
-
         self.failUnless((pygame.sndarray.get_arraytype() in
                          ['numpy']),
                         ("unknown array type %s" %
                          pygame.sndarray.get_arraytype()))
 
     def test_get_arraytypes(self):
-        if not arraytype:
-            self.fail("no array package installed")
-
         arraytypes = pygame.sndarray.get_arraytypes()
         self.failUnless('numpy' in arraytypes)
 
@@ -94,8 +75,6 @@ class SndarrayTest (unittest.TestCase):
                             "unknown array type %s" % atype)
 
     def test_make_sound(self):
-        if not arraytype:
-            self.fail("no array package installed")
 
         def check_sound(size, channels, test_data):
             try:
@@ -129,8 +108,6 @@ class SndarrayTest (unittest.TestCase):
                              [0x7fff, 0], [0, 0x7fff]])
 
     def test_samples(self):
-        if not arraytype:
-            self.fail("no array package installed")
 
         null_byte = as_bytes('\x00')
         def check_sample(size, channels, test_data):
@@ -172,14 +149,12 @@ class SndarrayTest (unittest.TestCase):
                              [0x7fff, 0], [0, 0x7fff]])
 
     def test_use_arraytype(self):
-        if not arraytype:
-            self.fail("no array package installed")
 
         def do_use_arraytype(atype):
             pygame.sndarray.use_arraytype(atype)
 
         pygame.sndarray.use_arraytype('numpy')
-        self.failUnlessEqual(pygame.sndarray.get_arraytype(), 'numpy')
+        self.assertEqual(pygame.sndarray.get_arraytype(), 'numpy')
 
         self.failUnlessRaises(ValueError, do_use_arraytype, 'not an option')
 

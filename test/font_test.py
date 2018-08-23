@@ -102,7 +102,7 @@ if not IS_PYPY: #TODO: pypy skip known failure.
         def test_get_init(self):
             self.failUnless(pygame_font.get_init())
             pygame_font.quit()
-            self.failIf(pygame_font.get_init())
+            self.assertFalse(pygame_font.get_init())
 
         def test_init(self):
             pygame_font.init()
@@ -114,7 +114,7 @@ if not IS_PYPY: #TODO: pypy skip known failure.
             # name is a full path.
             for font in fonts:
                 path = pygame_font.match_font(font)
-                self.failIf(path is None)
+                self.assertFalse(path is None)
                 self.failUnless(os.path.isabs(path))
 
         def test_match_font_bold(self):
@@ -149,7 +149,7 @@ if not IS_PYPY: #TODO: pypy skip known failure.
 
             # Check comma separated list.
             names = ','.join(['thisisnotafont', fonts[-1], 'anothernonfont'])
-            self.failIf(pygame_font.match_font(names) is None)
+            self.assertFalse(pygame_font.match_font(names) is None)
             names = ','.join(['thisisnotafont1', 'thisisnotafont2', 'thisisnotafont3'])
             self.failUnless(pygame_font.match_font(names) is None)
 
@@ -402,27 +402,27 @@ if not IS_PYPY: #TODO: pypy skip known failure.
 
         def test_set_bold(self):
             f = pygame_font.Font(None, 20)
-            self.failIf(f.get_bold())
+            self.assertFalse(f.get_bold())
             f.set_bold(True)
             self.failUnless(f.get_bold())
             f.set_bold(False)
-            self.failIf(f.get_bold())
+            self.assertFalse(f.get_bold())
 
         def test_set_italic(self):
             f = pygame_font.Font(None, 20)
-            self.failIf(f.get_italic())
+            self.assertFalse(f.get_italic())
             f.set_italic(True)
             self.failUnless(f.get_italic())
             f.set_italic(False)
-            self.failIf(f.get_italic())
+            self.assertFalse(f.get_italic())
 
         def test_set_underline(self):
             f = pygame_font.Font(None, 20)
-            self.failIf(f.get_underline())
+            self.assertFalse(f.get_underline())
             f.set_underline(True)
             self.failUnless(f.get_underline())
             f.set_underline(False)
-            self.failIf(f.get_underline())
+            self.assertFalse(f.get_underline())
 
         def test_size(self):
             f = pygame_font.Font(None, 20)
