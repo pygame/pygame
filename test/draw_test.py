@@ -248,7 +248,6 @@ class DrawModuleTest(unittest.TestCase):
             for border_width in (0, 1):
                 surface = pygame.Surface((width, height))
 
-                print(f"({width}, {height})")
                 draw.ellipse(
                     surface, color, (0, 0, height, width), border_width)
 
