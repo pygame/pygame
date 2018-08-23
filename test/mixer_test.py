@@ -90,7 +90,7 @@ class MixerModuleTest(unittest.TestCase):
         mixer.pre_init(0, 0, 0)       # Should reset to default values
         mixer.init()
         try:
-            self.failUnlessEqual(mixer.get_init(), (22050, -16, 2))
+            self.assertEqual(mixer.get_init(), (22050, -16, 2))
         finally:
             mixer.quit()
 
@@ -100,7 +100,7 @@ class MixerModuleTest(unittest.TestCase):
         mixer.pre_init(44100, 8, 1)  # None default values
         mixer.init(0, 0, 0)
         try:
-            self.failUnlessEqual(mixer.get_init(), (44100, 8, 1))
+            self.assertEqual(mixer.get_init(), (44100, 8, 1))
         finally:
             mixer.quit()
             mixer.pre_init(0, 0, 0, 0)

@@ -60,7 +60,7 @@ class GfxdrawDefaultTest( unittest.TestCase ):
         fail_msg = ("%s != %s at %s, bitsize: %i, flags: %i, masks: %s" %
                     (sc, color, posn, surf.get_bitsize(), surf.get_flags(),
                      surf.get_masks()))
-        self.failUnlessEqual(sc, color, fail_msg)
+        self.assertEqual(sc, color, fail_msg)
 
     def check_not_at(self, surf, posn, color):
         sc = surf.get_at(posn)
