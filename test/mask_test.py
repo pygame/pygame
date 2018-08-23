@@ -1,15 +1,3 @@
-if __name__ == '__main__':
-    import sys
-    import os
-    pkg_dir = os.path.split(os.path.abspath(__file__))[0]
-    parent_dir, pkg_name = os.path.split(pkg_dir)
-    is_pygame_pkg = (pkg_name == 'tests' and
-                     os.path.split(parent_dir)[1] == 'pygame')
-    if not is_pygame_pkg:
-        sys.path.insert(0, parent_dir)
-else:
-    is_pygame_pkg = __name__.startswith('pygame.tests.')
-
 import unittest
 import pygame
 import pygame.mask
@@ -57,10 +45,10 @@ class MaskTypeTest( unittest.TestCase ):
 
           # Mask.get_at((x,y)) -> int
           # Returns nonzero if the bit at (x,y) is set.
-          # 
-          # Coordinates start at (0,0) is top left - just like Surfaces. 
+          #
+          # Coordinates start at (0,0) is top left - just like Surfaces.
 
-        self.fail() 
+        self.fail()
 
     def todo_test_get_size(self):
 
@@ -69,7 +57,7 @@ class MaskTypeTest( unittest.TestCase ):
           # Mask.get_size() -> width,height
           # Returns the size of the mask.
 
-        self.fail() 
+        self.fail()
 
     def todo_test_overlap(self):
 
@@ -79,7 +67,7 @@ class MaskTypeTest( unittest.TestCase ):
           # Returns the point of intersection if the masks overlap with the
           # given offset - or None if it does not overlap.
 
-          # The overlap tests uses the following offsets (which may be negative): 
+          # The overlap tests uses the following offsets (which may be negative):
           #    +----+----------..
           #    |A   | yoffset
           #    |  +-+----------..
@@ -88,7 +76,7 @@ class MaskTypeTest( unittest.TestCase ):
           #    |  |
           #    :  :
 
-        self.fail() 
+        self.fail()
 
     def todo_test_overlap_area(self):
 
@@ -96,12 +84,12 @@ class MaskTypeTest( unittest.TestCase ):
 
           # Mask.overlap_area(othermask, offset) -> numpixels
           # Returns the number of overlapping 'pixels'.
-          # 
+          #
           # You can see how many pixels overlap with the other mask given.  This
           # can be used to see in which direction things collide, or to see how
           # much the two masks collide.
 
-        self.fail() 
+        self.fail()
 
     def todo_test_set_at(self):
 
@@ -110,8 +98,8 @@ class MaskTypeTest( unittest.TestCase ):
           # Mask.set_at((x,y),value)
           # Sets the position in the mask given by x and y.
 
-        self.fail() 
-    
+        self.fail()
+
     def test_mask_access( self ):
         """ do the set_at, and get_at parts work correctly?
         """
@@ -131,48 +119,48 @@ class MaskTypeTest( unittest.TestCase ):
         self.assertRaises(IndexError, lambda : m.set_at((-1,0), 1) )
         self.assertRaises(IndexError, lambda : m.set_at((10,0), 1) )
         self.assertRaises(IndexError, lambda : m.set_at((0,10), 1) )
-        
+
     def test_drawing(self):
         """ Test fill, clear, invert, draw, erase
         """
-        
+
         m = pygame.Mask((100,100))
         self.assertEqual(m.count(), 0)
-        
+
         m.fill()
         self.assertEqual(m.count(), 10000)
-        
+
         m2 = pygame.Mask((10,10))
         m2.fill()
         m.erase(m2, (50,50))
         self.assertEqual(m.count(), 9900)
-        
+
         m.invert()
         self.assertEqual(m.count(), 100)
-        
+
         m.draw(m2, (0,0))
-        self.assertEqual(m.count(), 200)    
-        
+        self.assertEqual(m.count(), 200)
+
         m.clear()
         self.assertEqual(m.count(), 0)
-        
+
     def test_outline(self):
         """
         """
-    
+
         m = pygame.Mask((20,20))
         self.assertEqual(m.outline(), [])
-        
+
         m.set_at((10,10), 1)
         self.assertEqual(m.outline(), [(10,10)])
-        
+
         m.set_at((10,12), 1)
         self.assertEqual(m.outline(10), [(10,10)])
-        
+
         m.set_at((11,11), 1)
         self.assertEqual(m.outline(), [(10,10), (11,11), (10,12), (11,11), (10,10)])
         self.assertEqual(m.outline(2), [(10,10), (10,12), (10,10)])
-        
+
         #TODO: Test more corner case outlines.
 
     def test_convolve__size(self):
@@ -234,17 +222,17 @@ class MaskTypeTest( unittest.TestCase ):
             for j in range(conv.get_size()[1]):
                 self.assertEquals(conv.get_at((i,j)) == 0, m1.overlap(m2, (i - 99, j - 99)) is None)
 
-        
+
     def test_connected_components(self):
         """
         """
-        
+
         m = pygame.Mask((10,10))
         self.assertEquals(repr(m.connected_components()), "[]")
-        
+
         comp = m.connected_component()
         self.assertEquals(m.count(), comp.count())
-        
+
         m.set_at((0,0), 1)
         m.set_at((1,1), 1)
         comp = m.connected_component()
@@ -256,7 +244,7 @@ class MaskTypeTest( unittest.TestCase ):
         self.assertEquals(comps1[0].count(), 2)
         self.assertEquals(comps2[0].count(), 2)
         self.assertEquals(repr(comps3), "[]")
-        
+
         m.set_at((9, 9), 1)
         comp = m.connected_component()
         comp1 = m.connected_component((1, 1))
@@ -272,7 +260,7 @@ class MaskTypeTest( unittest.TestCase ):
         self.assertEquals(len(comps1), 2)
         self.assertEquals(len(comps2), 1)
         self.assertEquals(len(comps3), 0)
-        
+
 
     def test_get_bounding_rects(self):
         """
@@ -286,13 +274,13 @@ class MaskTypeTest( unittest.TestCase ):
 
         m.set_at((0,3), 1)
         m.set_at((3,3), 1)
-        
+
         r = m.get_bounding_rects()
-        
+
         self.assertEquals(repr(r), "[<rect(0, 0, 2, 2)>, <rect(0, 3, 1, 1)>, <rect(3, 3, 1, 1)>]")
-        
-        
-        
+
+
+
 
 
         #1100
@@ -307,11 +295,11 @@ class MaskTypeTest( unittest.TestCase ):
         m.set_at((1,1), 1)
         m.set_at((2,1), 1)
         m.set_at((3,1), 1)
- 
+
         r = m.get_bounding_rects()
         self.assertEquals(repr(r), "[<rect(0, 0, 4, 2)>]")
 
-        
+
         #00100
         #01110
         #00100
@@ -381,7 +369,7 @@ class MaskTypeTest( unittest.TestCase ):
         m.set_at((2,1), 1)
         m.set_at((3,1), 1)
         m.set_at((3,1), 1)
- 
+
         r = m.get_bounding_rects()
         #TODO: this should really make one bounding rect.
         #self.assertEquals(repr(r), "[<rect(0, 0, 5, 2)>]")
@@ -459,7 +447,7 @@ class MaskModuleTest(unittest.TestCase):
             self.assertEqual(mask.get_bounding_rects(), [pygame.Rect((40,40,10,10))])
 
     def test_overlap_mask(self):
-        """ |tags: ignore| """ 
+        """ |tags: ignore| """
 
         mask = pygame.mask.Mask((50, 50))
         mask.fill()
@@ -470,9 +458,9 @@ class MaskModuleTest(unittest.TestCase):
         for i in range(50):
             for j in range(10):
                 self.assertEqual(mask3.get_at((i, j)), 1)
-        
+
         for i in range(50):
-            for j in range(11, 50): 
+            for j in range(11, 50):
                 self.assertEqual(mask3.get_at((i, j)), 0)
 
     def test_zero_mask(self):

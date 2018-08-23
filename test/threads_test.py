@@ -1,17 +1,3 @@
-#################################### IMPORTS ###################################
-
-if __name__ == '__main__':
-    import sys
-    import os
-    pkg_dir = os.path.split(os.path.abspath(__file__))[0]
-    parent_dir, pkg_name = os.path.split(pkg_dir)
-    is_pygame_pkg = (pkg_name == 'tests' and
-                     os.path.split(parent_dir)[1] == 'pygame')
-    if not is_pygame_pkg:
-        sys.path.insert(0, parent_dir)
-else:
-    is_pygame_pkg = __name__.startswith('pygame.tests.')
-
 import unittest
 from pygame.threads import FuncResult, tmap, WorkerQueue, Empty, STOP
 from pygame import threads
@@ -19,16 +5,15 @@ from pygame.compat import xrange_
 
 import time
 
-################################################################################
 
 class WorkerQueueTypeTest(unittest.TestCase):
     def test_usage_with_different_functions(self):
         def f(x):
             return x+1
-        
+
         def f2(x):
             return x+2
-        
+
         wq = WorkerQueue()
         fr = FuncResult(f)
         fr2 = FuncResult(f2)
@@ -53,18 +38,18 @@ class WorkerQueueTypeTest(unittest.TestCase):
         # __doc__ (as of 2008-06-28) for pygame.threads.WorkerQueue.stop:
 
           # Stops the WorkerQueue, waits for all of the threads to finish up.
-          #         
-        
+          #
+
         wq = WorkerQueue()
-        
+
         self.assert_(len(wq.pool) > 0)
         for t in wq.pool: self.assert_(t.isAlive())
-        
+
         for i in xrange_(200): wq.do(lambda x: x+1, i)
-        
+
         wq.stop()
         for t in wq.pool: self.assert_(not t.isAlive())
-        
+
         self.assert_(wq.queue.get() is STOP)
 
     def todo_test_threadloop(self):
@@ -82,7 +67,7 @@ class WorkerQueueTypeTest(unittest.TestCase):
           # waits until all tasks are complete.
 
         wq = WorkerQueue()
-        
+
         for i in xrange_(2000): wq.do(lambda x: x+1, i)
         wq.wait()
 
@@ -142,7 +127,7 @@ class ThreadsModuleTest(unittest.TestCase):
           #                 is passed in, then the num_workers arg is ignored.
           # worker_queue - you can optionally pass in an existing WorkerQueue.
           # wait - True means that the results are returned when everything is finished.
-          #        False means that we return the [worker_queue, results] right away instead. 
+          #        False means that we return the [worker_queue, results] right away instead.
           #        results, is returned as a list of FuncResult instances.
           # stop_on_error -
 
@@ -152,25 +137,25 @@ class ThreadsModuleTest(unittest.TestCase):
         mapped = list(map(func, data))
 
         self.assertEqual(tmapped, mapped)
-        
+
     def test_tmap__None_func_and_multiple_sequences(self):
         return     #TODO
-        
+
         """ Using a None as func and multiple seqences """
 
         res =  tmap(None, [1,2,3,4])
 
         res2 = tmap(None, [1,2,3,4], [22, 33, 44, 55])
-        
+
         res3 = tmap(None, [1,2,3,4], [22, 33, 44, 55, 66])
-        
+
         res4 = tmap(None, [1,2,3,4,5], [22, 33, 44, 55])
-        
+
         self.assertEqual([1, 2, 3, 4], res)
         self.assertEqual([(1, 22), (2, 33), (3, 44), (4, 55)], res2)
         self.assertEqual([(1, 22), (2, 33), (3, 44), (4, 55), (None, 66)], res3)
         self.assertEqual([(1, 22), (2, 33), (3, 44), (4, 55), (5,None)], res4)
-        
+
     def test_tmap__wait(self):
         r = range(1000)
         wq, results = tmap(lambda x:x, r, num_workers = 5, wait=False)
@@ -181,12 +166,12 @@ class ThreadsModuleTest(unittest.TestCase):
     def test_FuncResult(self):
         # as of 2008-06-28
         # FuncResult(f, callback = None, errback = None)
-        
+
         # Used for wrapping up a function call so that the results are stored
         #      inside the instances result attribute.
-        
-        
-        #     f - is the function we that we call 
+
+
+        #     f - is the function we that we call
         #         callback(result) - this is called when the function(f) returns
         #         errback(exception) - this is called when the function(f) raises
         #                                an exception.
@@ -195,10 +180,10 @@ class ThreadsModuleTest(unittest.TestCase):
         fr = FuncResult(lambda x:x+1)
         fr(2)
         self.assertEqual(fr.result, 3)
-        
+
         # Exceptions are store in exception attribute
         self.assert_(fr.exception is None,  "when no exception raised")
-        
+
         exception = ValueError('rast')
         def x(sdf):
             raise exception

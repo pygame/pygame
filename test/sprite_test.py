@@ -1,23 +1,9 @@
 #################################### IMPORTS ###################################
 # -*- encoding: utf-8 -*-
 
-if __name__ == '__main__':
-    import sys
-    import os
-    pkg_dir = os.path.split(os.path.abspath(__file__))[0]
-    parent_dir, pkg_name = os.path.split(pkg_dir)
-    is_pygame_pkg = (pkg_name == 'tests' and
-                     os.path.split(parent_dir)[1] == 'pygame')
-    if not is_pygame_pkg:
-        sys.path.insert(0, parent_dir)
-else:
-    is_pygame_pkg = __name__.startswith('pygame.tests.')
 
 import unittest
-if is_pygame_pkg:
-    from pygame.tests.test_utils import unordered_equality
-else:
-    from test.test_utils import unordered_equality
+from pygame.tests.test_utils import unordered_equality
 import pygame
 from pygame import sprite
 
@@ -940,7 +926,7 @@ class SpriteBase:
 
         for g in self.groups:
             self.sprite.add_internal(g)
-            
+
         for g in self.groups:
             self.assert_(g in self.sprite.groups())
 
@@ -951,7 +937,7 @@ class SpriteBase:
 
         for g in self.groups:
             self.sprite.remove_internal(g)
-            
+
         for g in self.groups:
             self.assertFalse(g in self.sprite.groups())
 
@@ -1042,16 +1028,16 @@ class SingleGroupBugsTest(unittest.TestCase):
     def test_memoryleak_bug(self):
         # For memoryleak bug posted to mailing list by Tobias Steinrücken on 16/11/10.
         # Fixed in revision 2953.
-        
+
         import weakref
         import gc
-        
+
         class MySprite(sprite.Sprite):
             def __init__(self, *args, **kwargs):
                 sprite.Sprite.__init__(self, *args, **kwargs)
                 self.image = pygame.Surface( (2, 4), 0, 24 )
                 self.rect = self.image.get_rect()
-                
+
         g = sprite.GroupSingle()
         screen = pygame.Surface((4, 8), 0, 24)
         s = MySprite()
@@ -1065,7 +1051,7 @@ class SingleGroupBugsTest(unittest.TestCase):
         g.sprite = MySprite()
         gc.collect()
         self.assert_(r() is None)
-        
+
 ################################################################################
 
 if __name__ == '__main__':

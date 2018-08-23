@@ -1,26 +1,12 @@
-if __name__ == '__main__':
-    import sys
-    import os
-    pkg_dir = os.path.split(os.path.abspath(__file__))[0]
-    parent_dir, pkg_name = os.path.split(pkg_dir)
-    is_pygame_pkg = (pkg_name == 'tests' and
-                     os.path.split(parent_dir)[1] == 'pygame')
-    if not is_pygame_pkg:
-        sys.path.insert(0, parent_dir)
-else:
-    is_pygame_pkg = __name__.startswith('pygame.tests.')
-
+import array
+import os
+import tempfile
 import unittest
-if is_pygame_pkg:
-    from pygame.tests.test_utils import example_path, png
-else:
-    from test.test_utils import example_path, png
+
+from pygame.tests.test_utils import example_path, png
 import pygame, pygame.image, pygame.pkgdata
 from pygame.compat import xrange_, ord_
 
-import os
-import array
-import tempfile
 
 def test_magic(f, magic_hex):
     """ tests a given file to see if the magic hex matches.

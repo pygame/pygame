@@ -1,14 +1,4 @@
 import sys
-if __name__ == '__main__':
-    import os
-    pkg_dir = os.path.split(os.path.abspath(__file__))[0]
-    parent_dir, pkg_name = os.path.split(pkg_dir)
-    is_pygame_pkg = (pkg_name == 'tests' and
-                     os.path.split(parent_dir)[1] == 'pygame')
-    if not is_pygame_pkg:
-        sys.path.insert(0, parent_dir)
-else:
-    is_pygame_pkg = __name__.startswith('pygame.tests.')
 
 import unittest
 from pygame import compat
@@ -33,12 +23,12 @@ class CompatModuleTest(unittest.TestCase):
 
     def test_ord_(self):
         self.failUnless(isinstance(compat.ord_(compat.bytes_(1)[0]), int))
-        
+
     def test_bytes_(self):
         self.assertFalse(compat.bytes_ is compat.unicode_)
         self.failUnless(hasattr(compat.bytes_, 'capitalize'))
         self.assertFalse(hasattr(compat.bytes_, 'isdecimal'))
-        
+
     def test_unicode_(self):
         self.failUnless(hasattr(compat.unicode_(), 'isdecimal'))
 
@@ -56,7 +46,7 @@ class CompatModuleTest(unittest.TestCase):
 
     def test_xrange_(self):
         self.assertFalse(isinstance(compat.xrange_(2), list))
-        
+
     def test_unichr_(self):
         ordval = 86
         c = compat.unichr_(ordval)
@@ -76,7 +66,7 @@ class CompatModuleTest(unittest.TestCase):
         b2 = StringIO(b1).read()
         self.failUnless(isinstance(b2, str))
         self.assertEqual(b2, b1)
-    
+
     def test_raw_input_(self):
         StringIO = compat.get_StringIO()
         msg = 'success'
@@ -92,6 +82,6 @@ class CompatModuleTest(unittest.TestCase):
         upath = compat.as_unicode(r"ab\u212Acd")
         self.assertEqual(compat.filesystem_encode(upath),
                          encode_file_path(upath))
-        
+
 if __name__ == '__main__':
     unittest.main()

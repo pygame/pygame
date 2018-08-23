@@ -1,31 +1,15 @@
-if __name__ == '__main__':
-    import sys
-    import os
-    pkg_dir = os.path.split(os.path.abspath(__file__))[0]
-    parent_dir, pkg_name = os.path.split(pkg_dir)
-    is_pygame_pkg = (pkg_name == 'tests' and
-                     os.path.split(parent_dir)[1] == 'pygame')
-    if not is_pygame_pkg:
-        sys.path.insert(0, parent_dir)
-else:
-    is_pygame_pkg = __name__.startswith('pygame.tests.')
-
 import unittest
+import os
+import sys
+import time
+
 import pygame
 import pygame.midi
 import pygame.compat
 from pygame.locals import *
 
 
-import os
-import sys
-import time
-
-
-
-
-
-class MidiTest( unittest.TestCase ):            
+class MidiTest( unittest.TestCase ):
 
     def todo_test_poll(self):
 
@@ -33,10 +17,10 @@ class MidiTest( unittest.TestCase ):
 
           # returns true if there's data, or false if not.
           # Input.poll(): return Bool
-          # 
+          #
           # raises a MidiException on error.
 
-        self.fail() 
+        self.fail()
 
     def todo_test_read(self):
 
@@ -44,12 +28,12 @@ class MidiTest( unittest.TestCase ):
 
           # reads num_events midi events from the buffer.
           # Input.read(num_events): return midi_event_list
-          # 
+          #
           # Reads from the Input buffer and gives back midi events.
           # [[[status,data1,data2,data3],timestamp],
           #  [[status,data1,data2,data3],timestamp],...]
 
-        self.fail() 
+        self.fail()
 
     def test_MidiException(self):
 
@@ -60,7 +44,7 @@ class MidiTest( unittest.TestCase ):
 
         self.assertRaises(pygame.midi.MidiException, raiseit)
         try:
-            raise pygame.midi.MidiException(0) 
+            raise pygame.midi.MidiException(0)
         except pygame.midi.MidiException:
             e = pygame.compat.geterror()
             self.assertEqual(e.parameter, 0)
@@ -74,7 +58,7 @@ class MidiTest( unittest.TestCase ):
 
           # turns a midi note off.  Note must be on.
           # Output.note_off(note, velocity=None, channel = 0)
-          # 
+          #
           # Turn a note off in the output stream.  The note must already
           # be on for this to work correctly.
 
@@ -94,7 +78,7 @@ class MidiTest( unittest.TestCase ):
 
           # turns a midi note on.  Note must be off.
           # Output.note_on(note, velocity=None, channel = 0)
-          # 
+          #
           # Turn a note on in the output stream.  The note must already
           # be off for this to work correctly.
 
@@ -112,7 +96,7 @@ class MidiTest( unittest.TestCase ):
           # Select an instrument, with a value between 0 and 127.
           # Output.set_instrument(instrument_id, channel = 0)
 
-        self.fail() 
+        self.fail()
 
     def todo_test_write(self):
 
@@ -120,7 +104,7 @@ class MidiTest( unittest.TestCase ):
 
           # writes a list of midi data to the Output.
           # Output.write(data)
-          # 
+          #
           # writes series of MIDI information in the form of a list:
           #      write([[[status <,data1><,data2><,data3>],timestamp],
           #             [[status <,data1><,data2><,data3>],timestamp],...])
@@ -135,11 +119,11 @@ class MidiTest( unittest.TestCase ):
           #   3. understanding optional data fields:
           #        write([[[0xc0,0,0],20000]]) is equivalent to
           #        write([[[0xc0],20000]])
-          # 
-          # Can send up to 1024 elements in your data list, otherwise an 
+          #
+          # Can send up to 1024 elements in your data list, otherwise an
           #  IndexError exception is raised.
 
-        self.fail() 
+        self.fail()
 
     def test_write_short(self):
         """|tags: interactive|
@@ -149,7 +133,7 @@ class MidiTest( unittest.TestCase ):
           # write_short(status <, data1><, data2>)
           # Output.write_short(status)
           # Output.write_short(status, data1 = 0, data2 = 0)
-          # 
+          #
           # output MIDI information of 3 bytes or less.
           # data fields are optional
           # status byte could be:
@@ -215,9 +199,9 @@ class MidiTest( unittest.TestCase ):
 
           # writes a timestamped system-exclusive midi message.
           # Output.write_sys_ex(when, msg)
-          # 
+          #
           # write_sys_ex(<timestamp>,<msg>)
-          # 
+          #
           # msg - can be a *list* or a *string*
           # example:
           #   (assuming o is an onput MIDI stream)
@@ -226,7 +210,7 @@ class MidiTest( unittest.TestCase ):
           #     o.write_sys_ex(pygame.midi.Time,
           #                    [0xF0,0x7D,0x10,0x11,0x12,0x13,0xF7])
 
-        self.fail() 
+        self.fail()
 
 
     def tearDown(self):
@@ -241,8 +225,8 @@ class MidiTest( unittest.TestCase ):
 
           # gets the number of devices.
           # pygame.midi.get_count(): return num_devices
-          # 
-          # 
+          #
+          #
           # Device ids range from 0 to get_count() -1
 
         c = pygame.midi.get_count()
@@ -257,19 +241,19 @@ class MidiTest( unittest.TestCase ):
 
           # gets the device number of the default input device.
           # pygame.midi.get_default_input_device_id(): return default_id
-          # 
-          # 
+          #
+          #
           # Return the default device ID or -1 if there are no devices.
           # The result can be passed to the Input()/Ouput() class.
-          # 
+          #
           # On the PC, the user can specify a default device by
           # setting an environment variable. For example, to use device #1.
-          # 
+          #
           #     set PM_RECOMMENDED_INPUT_DEVICE=1
-          # 
+          #
           # The user should first determine the available device ID by using
           # the supplied application "testin" or "testout".
-          # 
+          #
           # In general, the registry is a better place for this kind of info,
           # and with USB devices that can come and go, using integers is not
           # very reliable for device identification. Under Windows, if
@@ -283,7 +267,7 @@ class MidiTest( unittest.TestCase ):
           # in the registry is "USB", and device 1 is named
           # "In USB MidiSport 1x1", then that will be the default
           # input because it contains the string "USB".
-          # 
+          #
           # In addition to the name, get_device_info() returns "interf", which
           # is the interface name. (The "interface" is the underlying software
           #     system or API used by PortMidi to access devices. Examples are
@@ -296,7 +280,7 @@ class MidiTest( unittest.TestCase ):
           # In this case, the string before the comma must be a substring of
           # the "interf" string, and the string after the space must be a
           # substring of the "name" name string in order to match the device.
-          # 
+          #
           # Note: in the current release, the default is simply the first device
           #     (the input or output device with the lowest PmDeviceID).
 
@@ -313,19 +297,19 @@ class MidiTest( unittest.TestCase ):
 
           # get the device number of the default output device.
           # pygame.midi.get_default_output_device_id(): return default_id
-          # 
-          # 
+          #
+          #
           # Return the default device ID or -1 if there are no devices.
           # The result can be passed to the Input()/Ouput() class.
-          # 
+          #
           # On the PC, the user can specify a default device by
           # setting an environment variable. For example, to use device #1.
-          # 
+          #
           #     set PM_RECOMMENDED_OUTPUT_DEVICE=1
-          # 
+          #
           # The user should first determine the available device ID by using
           # the supplied application "testin" or "testout".
-          # 
+          #
           # In general, the registry is a better place for this kind of info,
           # and with USB devices that can come and go, using integers is not
           # very reliable for device identification. Under Windows, if
@@ -339,7 +323,7 @@ class MidiTest( unittest.TestCase ):
           # in the registry is "USB", and device 1 is named
           # "In USB MidiSport 1x1", then that will be the default
           # input because it contains the string "USB".
-          # 
+          #
           # In addition to the name, get_device_info() returns "interf", which
           # is the interface name. (The "interface" is the underlying software
           #     system or API used by PortMidi to access devices. Examples are
@@ -352,7 +336,7 @@ class MidiTest( unittest.TestCase ):
           # In this case, the string before the comma must be a substring of
           # the "interf" string, and the string after the space must be a
           # substring of the "name" name string in order to match the device.
-          # 
+          #
           # Note: in the current release, the default is simply the first device
           #     (the input or output device with the lowest PmDeviceID).
 
@@ -410,9 +394,9 @@ class MidiTest( unittest.TestCase ):
 
           # initialize the midi module
           # pygame.midi.init(): return None
-          # 
+          #
           # Call the initialisation function before using the midi module.
-          # 
+          #
           # It is safe to call this more than once.
         pygame.midi.quit()
         self.assertRaises(RuntimeError, pygame.midi.get_count)
@@ -430,10 +414,10 @@ class MidiTest( unittest.TestCase ):
 
           # converts midi events to pygame events
           # pygame.midi.midis2events(midis, device_id): return [Event, ...]
-          # 
+          #
           # Takes a sequence of midi events and returns list of pygame events.
 
-        self.fail() 
+        self.fail()
 
     def test_quit(self):
 
@@ -441,10 +425,10 @@ class MidiTest( unittest.TestCase ):
 
           # uninitialize the midi module
           # pygame.midi.quit(): return None
-          # 
-          # 
+          #
+          #
           # Called automatically atexit if you don't call it.
-          # 
+          #
           # It is safe to call this function more than once.
 
 
@@ -470,6 +454,6 @@ class MidiTest( unittest.TestCase ):
         self.failUnless(t >= 0 and t < 100)
 
 
- 
+
 if __name__ == '__main__':
     unittest.main()
