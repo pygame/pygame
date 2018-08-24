@@ -329,7 +329,7 @@ if not IS_PYPY: #TODO: pypy skip known failure.
                 for arr, palette in arrays3d:
                     surf.fill((0, 0, 0, 0))
                     if bitsize == 8:
-                        self.failUnlessRaises(ValueError, do_blit, surf, arr)
+                        self.assertRaises(ValueError, do_blit, surf, arr)
                     else:
                         pygame.surfarray.blit_array(surf, arr)
                         self._assert_surface(surf, palette)
@@ -350,8 +350,8 @@ if not IS_PYPY: #TODO: pypy skip known failure.
                             pygame.surfarray.blit_array(surf, arr.astype(dtype))
                             self._assert_surface(surf)
                         else:
-                            self.failUnlessRaises(ValueError, do_blit,
-                                                  surf, self._make_array2d(dtype))
+                            self.assertRaises(ValueError, do_blit,
+                                              surf, self._make_array2d(dtype))
 
             # Check alpha for 2D arrays
             surf = self._make_surface(16, srcalpha=True)
@@ -395,20 +395,20 @@ if not IS_PYPY: #TODO: pypy skip known failure.
             # Invalid arrays
             surf = pygame.Surface((1,1), 0, 32)
             t = 'abcd'
-            self.failUnlessRaises(ValueError, do_blit, surf, t)
+            self.assertRaises(ValueError, do_blit, surf, t)
 
             surf_size = self.surf_size
             surf = pygame.Surface(surf_size, 0, 32)
             arr = zeros([surf_size[0], surf_size[1] + 1, 3], uint32)
-            self.failUnlessRaises(ValueError, do_blit, surf, arr)
+            self.assertRaises(ValueError, do_blit, surf, arr)
             arr = zeros([surf_size[0] + 1, surf_size[1], 3], uint32)
-            self.failUnlessRaises(ValueError, do_blit, surf, arr)
+            self.assertRaises(ValueError, do_blit, surf, arr)
 
             surf = pygame.Surface((1, 4), 0, 32)
             arr = zeros((4,), uint32)
-            self.failUnlessRaises(ValueError, do_blit, surf, arr)
+            self.assertRaises(ValueError, do_blit, surf, arr)
             arr.shape = (1, 1, 1, 4)
-            self.failUnlessRaises(ValueError, do_blit, surf, arr)
+            self.assertRaises(ValueError, do_blit, surf, arr)
 
             # Issue #81: round from float to int
             try:
@@ -507,9 +507,9 @@ if not IS_PYPY: #TODO: pypy skip known failure.
                                           surf.get_bitsize(), surf.get_flags()))
 
             # Exception checks
-            self.failUnlessRaises(ValueError, pygame.surfarray.map_array,
-                                  self._make_surface(32),
-                                  self._make_array2d(uint8))
+            self.assertRaises(ValueError, pygame.surfarray.map_array,
+                              self._make_surface(32),
+                              self._make_array2d(uint8))
 
         def test_pixels2d(self):
             if not arraytype:
@@ -532,9 +532,9 @@ if not IS_PYPY: #TODO: pypy skip known failure.
                 self._assert_surface(surf)
 
             # Error checks
-            self.failUnlessRaises(ValueError,
-                                  pygame.surfarray.pixels2d,
-                                  self._make_surface(24))
+            self.assertRaises(ValueError,
+                              pygame.surfarray.pixels2d,
+                              self._make_surface(24))
 
         def test_pixels3d(self):
             if not arraytype:
@@ -566,12 +566,12 @@ if not IS_PYPY: #TODO: pypy skip known failure.
             def do_pixels3d(surf):
                 pygame.surfarray.pixels3d(surf)
 
-            self.failUnlessRaises(ValueError,
-                                  do_pixels3d,
-                                  self._make_surface(8))
-            self.failUnlessRaises(ValueError,
-                                  do_pixels3d,
-                                  self._make_surface(16))
+            self.assertRaises(ValueError,
+                              do_pixels3d,
+                              self._make_surface(8))
+            self.assertRaises(ValueError,
+                              do_pixels3d,
+                              self._make_surface(16))
 
         def test_pixels_alpha(self):
             if not arraytype:
@@ -617,8 +617,8 @@ if not IS_PYPY: #TODO: pypy skip known failure.
                        (32, False)]
 
             for bitsize, srcalpha in targets:
-                self.failUnlessRaises(ValueError, do_pixels_alpha,
-                                      self._make_surface(bitsize, srcalpha))
+                self.assertRaises(ValueError, do_pixels_alpha,
+                                  self._make_surface(bitsize, srcalpha))
 
         def test_pixels_red(self):
             self._test_pixels_rgb('red', 0)
@@ -666,8 +666,8 @@ if not IS_PYPY: #TODO: pypy skip known failure.
                        (16, True)]
 
             for bitsize, srcalpha in targets:
-                self.failUnlessRaises(ValueError, pixels_rgb,
-                                      self._make_surface(bitsize, srcalpha))
+                self.assertRaises(ValueError, pixels_rgb,
+                                  self._make_surface(bitsize, srcalpha))
 
         def test_use_arraytype(self):
             if not arraytype:
@@ -679,7 +679,7 @@ if not IS_PYPY: #TODO: pypy skip known failure.
             pygame.surfarray.use_arraytype('numpy')
             self.failUnlessEqual(pygame.surfarray.get_arraytype(), 'numpy')
 
-            self.failUnlessRaises(ValueError, do_use_arraytype, 'not an option')
+            self.assertRaises(ValueError, do_use_arraytype, 'not an option')
 
         def test_surf_lock (self):
             if not arraytype:
