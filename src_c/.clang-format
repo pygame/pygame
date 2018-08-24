@@ -1,0 +1,17 @@
+# PEP 7
+BasedOnStyle: Google
+AllowShortLoopsOnASingleLine: false
+AllowShortIfStatementsOnASingleLine: false
+AlwaysBreakAfterReturnType: All
+AlignAfterOpenBracket: Align
+BreakBeforeBraces: Stroustrup
+ColumnLimit: 79
+DerivePointerAlignment: false
+IndentWidth: 4
+Language: Cpp
+PointerAlignment: Right
+ReflowComments: true
+SpaceBeforeParens: ControlStatements
+SpacesInParentheses: false
+TabWidth: 4
+UseTab: Never

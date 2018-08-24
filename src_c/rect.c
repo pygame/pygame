@@ -25,16 +25,20 @@
  */
 #define PYGAMEAPI_RECT_INTERNAL
 #include "pygame.h"
+
 #include "doc/rect_doc.h"
+
 #include "structmember.h"
+
 #include "pgcompat.h"
+
 #include <limits.h>
 
 static PyTypeObject pgRect_Type;
 #define pgRect_Check(x) ((x)->ob_type == &pgRect_Type)
 
-static int pg_rect_init(pgRectObject *, PyObject *, PyObject *);
-
+static int
+pg_rect_init(pgRectObject *, PyObject *, PyObject *);
 
 /* We store some rect objects which have been allocated already.
    Mostly to work around an old pypy cpyext performance issue.
@@ -45,7 +49,6 @@ const int PG_RECT_FREELIST_MAX = PG_RECT_NUM;
 static pgRectObject *pg_rect_freelist[PG_RECT_NUM];
 int pg_rect_freelist_num = -1;
 #endif
-
 
 static PyObject *
 _pg_rect_subtype_new4(PyTypeObject *type, int x, int y, int w, int h)
@@ -58,7 +61,7 @@ _pg_rect_subtype_new4(PyTypeObject *type, int x, int y, int w, int h)
         rect->r.w = w;
         rect->r.h = h;
     }
-    return (PyObject*)rect;
+    return (PyObject *)rect;
 }
 
 static PyObject *
@@ -120,7 +123,7 @@ pgRect_FromObject(PyObject *obj, GAME_Rect *temp)
     int length;
 
     if (pgRect_Check(obj)) {
-        return &((pgRectObject*) obj)->r;
+        return &((pgRectObject *)obj)->r;
     }
     if (PySequence_Check(obj) && (length = PySequence_Length(obj)) > 0) {
         if (length == 4) {
@@ -144,7 +147,8 @@ pgRect_FromObject(PyObject *obj, GAME_Rect *temp)
         }
         if (length == 2) {
             PyObject *sub = PySequence_GetItem(obj, 0);
-            if (!sub || !PySequence_Check(sub) || PySequence_Length(sub) != 2) {
+            if (!sub || !PySequence_Check(sub) ||
+                PySequence_Length(sub) != 2) {
                 Py_XDECREF(sub);
                 return NULL;
             }
@@ -161,8 +165,7 @@ pgRect_FromObject(PyObject *obj, GAME_Rect *temp)
             Py_DECREF(sub);
 
             sub = PySequence_GetItem(obj, 1);
-            if (sub == NULL ||
-                !PySequence_Check(sub) ||
+            if (sub == NULL || !PySequence_Check(sub) ||
                 PySequence_Length(sub) != 2) {
                 Py_XDECREF(sub);
                 return NULL;
@@ -181,7 +184,7 @@ pgRect_FromObject(PyObject *obj, GAME_Rect *temp)
             return temp;
         }
         if (PyTuple_Check(obj) && length == 1) /*looks like an arg?*/ {
-            PyObject* sub = PyTuple_GET_ITEM(obj, 0);
+            PyObject *sub = PyTuple_GET_ITEM(obj, 0);
             if (sub) {
                 return pgRect_FromObject(sub, temp);
             }
@@ -208,7 +211,7 @@ pgRect_FromObject(PyObject *obj, GAME_Rect *temp)
 }
 
 static PyObject *
-pgRect_New(SDL_Rect* r)
+pgRect_New(SDL_Rect *r)
 {
     return _pg_rect_subtype_new4(&pgRect_Type, r->x, r->y, r->w, r->h);
 }
@@ -222,10 +225,10 @@ pgRect_New4(int x, int y, int w, int h)
 static int
 _pg_do_rects_intersect(GAME_Rect *A, GAME_Rect *B)
 {
-    //A.topleft < B.bottomright &&
-    //A.bottomright > B.topleft
-    return (A->x < B->x + B->w && A->y < B->y + B->h &&
-            A->x + A->w > B->x && A->y + A->h > B->y);
+    // A.topleft < B.bottomright &&
+    // A.bottomright > B.topleft
+    return (A->x < B->x + B->w && A->y < B->y + B->h && A->x + A->w > B->x &&
+            A->y + A->h > B->y);
 }
 
 static PyObject *
@@ -244,7 +247,7 @@ pg_rect_normalize(pgRectObject *self)
 }
 
 static PyObject *
-pg_rect_move(pgRectObject *self, PyObject* args)
+pg_rect_move(pgRectObject *self, PyObject *args)
 {
     int x, y;
 
@@ -252,13 +255,12 @@ pg_rect_move(pgRectObject *self, PyObject* args)
         return RAISE(PyExc_TypeError, "argument must contain two numbers");
     }
 
-    return _pg_rect_subtype_new4(Py_TYPE(self),
-                                 self->r.x + x, self->r.y + y,
+    return _pg_rect_subtype_new4(Py_TYPE(self), self->r.x + x, self->r.y + y,
                                  self->r.w, self->r.h);
 }
 
 static PyObject *
-pg_rect_move_ip(pgRectObject *self, PyObject* args)
+pg_rect_move_ip(pgRectObject *self, PyObject *args)
 {
     int x, y;
 
@@ -272,7 +274,7 @@ pg_rect_move_ip(pgRectObject *self, PyObject* args)
 }
 
 static PyObject *
-pg_rect_inflate(pgRectObject *self, PyObject* args)
+pg_rect_inflate(pgRectObject *self, PyObject *args)
 {
     int x, y;
 
@@ -280,13 +282,13 @@ pg_rect_inflate(pgRectObject *self, PyObject* args)
         return RAISE(PyExc_TypeError, "argument must contain two numbers");
     }
 
-    return _pg_rect_subtype_new4(Py_TYPE(self),
-                                 self->r.x - x / 2, self->r.y - y / 2,
-                                 self->r.w + x, self->r.h + y);
+    return _pg_rect_subtype_new4(Py_TYPE(self), self->r.x - x / 2,
+                                 self->r.y - y / 2, self->r.w + x,
+                                 self->r.h + y);
 }
 
 static PyObject *
-pg_rect_inflate_ip(pgRectObject *self, PyObject* args)
+pg_rect_inflate_ip(pgRectObject *self, PyObject *args)
 {
     int x, y;
 
@@ -301,7 +303,7 @@ pg_rect_inflate_ip(pgRectObject *self, PyObject* args)
 }
 
 static PyObject *
-pg_rect_union(pgRectObject *self, PyObject* args)
+pg_rect_union(pgRectObject *self, PyObject *args)
 {
     GAME_Rect *argrect, temp;
     int x, y, w, h;
@@ -317,12 +319,12 @@ pg_rect_union(pgRectObject *self, PyObject* args)
 }
 
 static PyObject *
-pg_rect_union_ip(pgRectObject *self, PyObject* args)
+pg_rect_union_ip(pgRectObject *self, PyObject *args)
 {
     GAME_Rect *argrect, temp;
     int x, y, w, h;
 
-    if(!(argrect = pgRect_FromObject(args, &temp)))
+    if (!(argrect = pgRect_FromObject(args, &temp)))
         return RAISE(PyExc_TypeError, "Argument must be rect style object");
 
     x = MIN(self->r.x, argrect->x);
@@ -337,11 +339,11 @@ pg_rect_union_ip(pgRectObject *self, PyObject* args)
 }
 
 static PyObject *
-pg_rect_unionall(pgRectObject *self, PyObject* args)
+pg_rect_unionall(pgRectObject *self, PyObject *args)
 {
     GAME_Rect *argrect, temp;
     int loop, size;
-    PyObject* list, *obj;
+    PyObject *list, *obj;
     int t, l, b, r;
 
     if (!PyArg_ParseTuple(args, "O", &list)) {
@@ -363,14 +365,12 @@ pg_rect_unionall(pgRectObject *self, PyObject* args)
             return NULL;
         }
         /*Empty list: nothing to be done.*/
-        return _pg_rect_subtype_new4(Py_TYPE(self), l, t, r-l, b-t);
+        return _pg_rect_subtype_new4(Py_TYPE(self), l, t, r - l, b - t);
     }
 
-    for (loop = 0; loop < size; ++loop)
-    {
+    for (loop = 0; loop < size; ++loop) {
         obj = PySequence_GetItem(list, loop);
-        if(!obj || !(argrect = pgRect_FromObject(obj, &temp)))
-        {
+        if (!obj || !(argrect = pgRect_FromObject(obj, &temp))) {
             RAISE(PyExc_TypeError,
                   "Argument must be a sequence of rectstyle objects.");
             Py_XDECREF(obj);
@@ -382,15 +382,15 @@ pg_rect_unionall(pgRectObject *self, PyObject* args)
         b = MAX(b, argrect->y + argrect->h);
         Py_DECREF(obj);
     }
-    return _pg_rect_subtype_new4(Py_TYPE(self), l, t, r-l, b-t);
+    return _pg_rect_subtype_new4(Py_TYPE(self), l, t, r - l, b - t);
 }
 
 static PyObject *
-pg_rect_unionall_ip(pgRectObject *self, PyObject* args)
+pg_rect_unionall_ip(pgRectObject *self, PyObject *args)
 {
     GAME_Rect *argrect, temp;
     int loop, size;
-    PyObject* list, *obj;
+    PyObject *list, *obj;
     int t, l, b, r;
 
     if (!PyArg_ParseTuple(args, "O", &list)) {
@@ -416,8 +416,7 @@ pg_rect_unionall_ip(pgRectObject *self, PyObject* args)
         Py_RETURN_NONE;
     }
 
-    for (loop = 0; loop < size; ++loop)
-    {
+    for (loop = 0; loop < size; ++loop) {
         obj = PySequence_GetItem(list, loop);
         if (!obj || !(argrect = pgRect_FromObject(obj, &temp))) {
             RAISE(PyExc_TypeError,
@@ -440,7 +439,7 @@ pg_rect_unionall_ip(pgRectObject *self, PyObject* args)
 }
 
 static PyObject *
-pg_rect_collidepoint(pgRectObject *self, PyObject* args)
+pg_rect_collidepoint(pgRectObject *self, PyObject *args)
 {
     int x, y;
     int inside;
@@ -449,14 +448,14 @@ pg_rect_collidepoint(pgRectObject *self, PyObject* args)
         return RAISE(PyExc_TypeError, "argument must contain two numbers");
     }
 
-    inside = x >= self->r.x && x < self->r.x + self->r.w &&
-        y >= self->r.y && y < self->r.y + self->r.h;
+    inside = x >= self->r.x && x < self->r.x + self->r.w && y >= self->r.y &&
+             y < self->r.y + self->r.h;
 
     return PyInt_FromLong(inside);
 }
 
 static PyObject *
-pg_rect_colliderect(pgRectObject *self, PyObject* args)
+pg_rect_colliderect(pgRectObject *self, PyObject *args)
 {
     GAME_Rect *argrect, temp;
 
@@ -467,12 +466,12 @@ pg_rect_colliderect(pgRectObject *self, PyObject* args)
 }
 
 static PyObject *
-pg_rect_collidelist(pgRectObject *self, PyObject* args)
+pg_rect_collidelist(pgRectObject *self, PyObject *args)
 {
     GAME_Rect *argrect, temp;
     int loop, size;
-    PyObject* list, *obj;
-    PyObject* ret = NULL;
+    PyObject *list, *obj;
+    PyObject *ret = NULL;
 
     if (!PyArg_ParseTuple(args, "O", &list)) {
         return NULL;
@@ -484,8 +483,7 @@ pg_rect_collidelist(pgRectObject *self, PyObject* args)
     }
 
     size = PySequence_Length(list); /*warning, size could be -1 on error?*/
-    for (loop = 0; loop < size; ++loop)
-    {
+    for (loop = 0; loop < size; ++loop) {
         obj = PySequence_GetItem(list, loop);
         if (!obj || !(argrect = pgRect_FromObject(obj, &temp))) {
             RAISE(PyExc_TypeError,
@@ -508,12 +506,12 @@ pg_rect_collidelist(pgRectObject *self, PyObject* args)
 }
 
 static PyObject *
-pg_rect_collidelistall(pgRectObject *self, PyObject* args)
+pg_rect_collidelistall(pgRectObject *self, PyObject *args)
 {
     GAME_Rect *argrect, temp;
     int loop, size;
-    PyObject* list, *obj;
-    PyObject* ret = NULL;
+    PyObject *list, *obj;
+    PyObject *ret = NULL;
 
     if (!PyArg_ParseTuple(args, "O", &list)) {
         return NULL;
@@ -530,12 +528,10 @@ pg_rect_collidelistall(pgRectObject *self, PyObject* args)
     }
 
     size = PySequence_Length(list); /*warning, size could be -1?*/
-    for (loop = 0; loop < size; ++loop)
-    {
+    for (loop = 0; loop < size; ++loop) {
         obj = PySequence_GetItem(list, loop);
 
-        if(!obj || !(argrect = pgRect_FromObject(obj, &temp)))
-        {
+        if (!obj || !(argrect = pgRect_FromObject(obj, &temp))) {
             Py_XDECREF(obj);
             Py_DECREF(ret);
             return RAISE(PyExc_TypeError,
@@ -543,7 +539,7 @@ pg_rect_collidelistall(pgRectObject *self, PyObject* args)
         }
 
         if (_pg_do_rects_intersect(&self->r, argrect)) {
-            PyObject* num = PyInt_FromLong(loop);
+            PyObject *num = PyInt_FromLong(loop);
             if (!num) {
                 Py_DECREF(obj);
                 return NULL;
@@ -558,13 +554,13 @@ pg_rect_collidelistall(pgRectObject *self, PyObject* args)
 }
 
 static PyObject *
-pg_rect_collidedict(pgRectObject* self, PyObject* args)
+pg_rect_collidedict(pgRectObject *self, PyObject *args)
 {
     GAME_Rect *argrect, temp;
-    Py_ssize_t loop=0;
-    Py_ssize_t values=0;
-    PyObject* dict, *key, *val;
-    PyObject* ret = NULL;
+    Py_ssize_t loop = 0;
+    Py_ssize_t values = 0;
+    PyObject *dict, *key, *val;
+    PyObject *ret = NULL;
 
     if (!PyArg_ParseTuple(args, "O|i", &dict, &values)) {
         return NULL;
@@ -574,22 +570,21 @@ pg_rect_collidedict(pgRectObject* self, PyObject* args)
                      "Argument must be a dict with rectstyle keys.");
     }
 
-    while (PyDict_Next(dict, &loop, &key, &val))
-    {
-        if(values) {
+    while (PyDict_Next(dict, &loop, &key, &val)) {
+        if (values) {
             if (!(argrect = pgRect_FromObject(val, &temp))) {
                 RAISE(PyExc_TypeError,
                       "Argument must be a dict with rectstyle values.");
                 break;
             }
-        } else {
+        }
+        else {
             if (!(argrect = pgRect_FromObject(key, &temp))) {
                 RAISE(PyExc_TypeError,
                       "Argument must be a dict with rectstyle keys.");
                 break;
             }
         }
-
 
         if (_pg_do_rects_intersect(&self->r, argrect)) {
             ret = Py_BuildValue("(OO)", key, val);
@@ -604,15 +599,15 @@ pg_rect_collidedict(pgRectObject* self, PyObject* args)
 }
 
 static PyObject *
-pg_rect_collidedictall(pgRectObject *self, PyObject* args)
+pg_rect_collidedictall(pgRectObject *self, PyObject *args)
 {
     GAME_Rect *argrect, temp;
-    Py_ssize_t loop=0;
+    Py_ssize_t loop = 0;
     /* should we use values or keys? */
-    Py_ssize_t values=0;
+    Py_ssize_t values = 0;
 
-    PyObject* dict, *key, *val;
-    PyObject* ret = NULL;
+    PyObject *dict, *key, *val;
+    PyObject *ret = NULL;
 
     if (!PyArg_ParseTuple(args, "O|i", &dict, &values)) {
         return NULL;
@@ -623,18 +618,18 @@ pg_rect_collidedictall(pgRectObject *self, PyObject* args)
     }
 
     ret = PyList_New(0);
-    if(!ret)
+    if (!ret)
         return NULL;
 
-    while (PyDict_Next(dict, &loop, &key, &val))
-    {
+    while (PyDict_Next(dict, &loop, &key, &val)) {
         if (values) {
             if (!(argrect = pgRect_FromObject(val, &temp))) {
                 Py_DECREF(ret);
                 return RAISE(PyExc_TypeError,
                              "Argument must be a dict with rectstyle values.");
             }
-        } else {
+        }
+        else {
             if (!(argrect = pgRect_FromObject(key, &temp))) {
                 Py_DECREF(ret);
                 return RAISE(PyExc_TypeError,
@@ -643,8 +638,8 @@ pg_rect_collidedictall(pgRectObject *self, PyObject* args)
         }
 
         if (_pg_do_rects_intersect(&self->r, argrect)) {
-            PyObject* num = Py_BuildValue("(OO)", key, val);
-            if(!num)
+            PyObject *num = Py_BuildValue("(OO)", key, val);
+            if (!num)
                 return NULL;
             PyList_Append(ret, num);
             Py_DECREF(num);
@@ -655,7 +650,7 @@ pg_rect_collidedictall(pgRectObject *self, PyObject* args)
 }
 
 static PyObject *
-pg_rect_clip(pgRectObject *self, PyObject* args)
+pg_rect_clip(pgRectObject *self, PyObject *args)
 {
     GAME_Rect *A, *B, temp;
     int x, y, w, h;
@@ -708,7 +703,7 @@ nointersect:
 }
 
 static PyObject *
-pg_rect_contains(pgRectObject *self, PyObject* args)
+pg_rect_contains(pgRectObject *self, PyObject *args)
 {
     int contained;
     GAME_Rect *argrect, temp;
@@ -718,16 +713,16 @@ pg_rect_contains(pgRectObject *self, PyObject* args)
     }
 
     contained = (self->r.x <= argrect->x) && (self->r.y <= argrect->y) &&
-        (self->r.x + self->r.w >= argrect->x + argrect->w) &&
-        (self->r.y + self->r.h >= argrect->y + argrect->h) &&
-        (self->r.x + self->r.w > argrect->x) &&
-        (self->r.y + self->r.h > argrect->y);
+                (self->r.x + self->r.w >= argrect->x + argrect->w) &&
+                (self->r.y + self->r.h >= argrect->y + argrect->h) &&
+                (self->r.x + self->r.w > argrect->x) &&
+                (self->r.y + self->r.h > argrect->y);
 
     return PyInt_FromLong(contained);
 }
 
 static PyObject *
-pg_rect_clamp(pgRectObject *self, PyObject* args)
+pg_rect_clamp(pgRectObject *self, PyObject *args)
 {
     GAME_Rect *argrect, temp;
     int x, y;
@@ -760,7 +755,7 @@ pg_rect_clamp(pgRectObject *self, PyObject* args)
 }
 
 static PyObject *
-pg_rect_fit(pgRectObject *self, PyObject* args)
+pg_rect_fit(pgRectObject *self, PyObject *args)
 {
     GAME_Rect *argrect, temp;
     int w, h, x, y;
@@ -770,21 +765,21 @@ pg_rect_fit(pgRectObject *self, PyObject* args)
         return RAISE(PyExc_TypeError, "Argument must be rect style object");
     }
 
-    xratio = (float) self->r.w / (float) argrect->w;
-    yratio = (float) self->r.h / (float) argrect->h;
+    xratio = (float)self->r.w / (float)argrect->w;
+    yratio = (float)self->r.h / (float)argrect->h;
     maxratio = (xratio > yratio) ? xratio : yratio;
 
-    w = (int) (self->r.w / maxratio);
-    h = (int) (self->r.h / maxratio);
+    w = (int)(self->r.w / maxratio);
+    h = (int)(self->r.h / maxratio);
 
-    x = argrect->x + (argrect->w - w)/2;
-    y = argrect->y + (argrect->h - h)/2;
+    x = argrect->x + (argrect->w - w) / 2;
+    y = argrect->y + (argrect->h - h) / 2;
 
     return _pg_rect_subtype_new4(Py_TYPE(self), x, y, w, h);
 }
 
 static PyObject *
-pg_rect_clamp_ip(pgRectObject *self, PyObject* args)
+pg_rect_clamp_ip(pgRectObject *self, PyObject *args)
 {
     GAME_Rect *argrect, temp;
     int x, y;
@@ -822,49 +817,54 @@ pg_rect_clamp_ip(pgRectObject *self, PyObject* args)
 static PyObject *
 pg_rect_reduce(pgRectObject *self)
 {
-    return Py_BuildValue("(O(iiii))", Py_TYPE(self),
-                          (int)self->r.x, (int)self->r.y,
-                          (int)self->r.w, (int)self->r.h);
+    return Py_BuildValue("(O(iiii))", Py_TYPE(self), (int)self->r.x,
+                         (int)self->r.y, (int)self->r.w, (int)self->r.h);
 }
 
 /* for copy module */
 static PyObject *
 pg_rect_copy(pgRectObject *self)
 {
-    return _pg_rect_subtype_new4(Py_TYPE(self),
-                                 self->r.x, self->r.y, self->r.w, self->r.h);
+    return _pg_rect_subtype_new4(Py_TYPE(self), self->r.x, self->r.y,
+                                 self->r.w, self->r.h);
 }
 
-static struct PyMethodDef pg_rect_methods[] =
-{
-    { "normalize", (PyCFunction)pg_rect_normalize, METH_NOARGS,
-      DOC_RECTNORMALIZE },
-    { "clip", (PyCFunction)pg_rect_clip, METH_VARARGS, DOC_RECTCLIP},
-    { "clamp", (PyCFunction)pg_rect_clamp, METH_VARARGS, DOC_RECTCLAMP},
-    { "clamp_ip", (PyCFunction)pg_rect_clamp_ip, METH_VARARGS, DOC_RECTCLAMPIP},
-    { "copy", (PyCFunction) pg_rect_copy, METH_NOARGS, DOC_RECTCOPY},
-    { "fit", (PyCFunction)pg_rect_fit, METH_VARARGS, DOC_RECTFIT},
-    { "move", (PyCFunction)pg_rect_move, METH_VARARGS, DOC_RECTMOVE},
-    { "inflate",  (PyCFunction)pg_rect_inflate, METH_VARARGS, DOC_RECTINFLATE},
-    { "union",  (PyCFunction)pg_rect_union, METH_VARARGS, DOC_RECTUNION},
-    { "unionall",  (PyCFunction)pg_rect_unionall, METH_VARARGS, DOC_RECTUNIONALL},
-    { "move_ip",  (PyCFunction)pg_rect_move_ip, METH_VARARGS, DOC_RECTMOVEIP},
-    { "inflate_ip", (PyCFunction)pg_rect_inflate_ip, METH_VARARGS, DOC_RECTINFLATEIP},
-    { "union_ip", (PyCFunction)pg_rect_union_ip, METH_VARARGS, DOC_RECTUNIONIP},
-    { "unionall_ip", (PyCFunction)pg_rect_unionall_ip, METH_VARARGS, DOC_RECTUNIONALLIP},
-    { "collidepoint", (PyCFunction)pg_rect_collidepoint, METH_VARARGS, DOC_RECTCOLLIDEPOINT},
-    { "colliderect", (PyCFunction)pg_rect_colliderect, METH_VARARGS, DOC_RECTCOLLIDERECT},
-    { "collidelist", (PyCFunction)pg_rect_collidelist, METH_VARARGS, DOC_RECTCOLLIDELIST},
-    { "collidelistall", (PyCFunction)pg_rect_collidelistall, METH_VARARGS,
-      DOC_RECTCOLLIDELISTALL},
-    { "collidedict", (PyCFunction)pg_rect_collidedict, METH_VARARGS, DOC_RECTCOLLIDEDICT},
-    { "collidedictall", (PyCFunction)pg_rect_collidedictall, METH_VARARGS,
-      DOC_RECTCOLLIDEDICTALL},
-    { "contains", (PyCFunction)pg_rect_contains, METH_VARARGS, DOC_RECTCONTAINS},
-    { "__reduce__", (PyCFunction)pg_rect_reduce, METH_NOARGS, NULL},
-    { "__copy__", (PyCFunction)pg_rect_copy, METH_NOARGS, NULL},
-    { NULL, NULL, 0, NULL }
-};
+static struct PyMethodDef pg_rect_methods[] = {
+    {"normalize", (PyCFunction)pg_rect_normalize, METH_NOARGS,
+     DOC_RECTNORMALIZE},
+    {"clip", (PyCFunction)pg_rect_clip, METH_VARARGS, DOC_RECTCLIP},
+    {"clamp", (PyCFunction)pg_rect_clamp, METH_VARARGS, DOC_RECTCLAMP},
+    {"clamp_ip", (PyCFunction)pg_rect_clamp_ip, METH_VARARGS, DOC_RECTCLAMPIP},
+    {"copy", (PyCFunction)pg_rect_copy, METH_NOARGS, DOC_RECTCOPY},
+    {"fit", (PyCFunction)pg_rect_fit, METH_VARARGS, DOC_RECTFIT},
+    {"move", (PyCFunction)pg_rect_move, METH_VARARGS, DOC_RECTMOVE},
+    {"inflate", (PyCFunction)pg_rect_inflate, METH_VARARGS, DOC_RECTINFLATE},
+    {"union", (PyCFunction)pg_rect_union, METH_VARARGS, DOC_RECTUNION},
+    {"unionall", (PyCFunction)pg_rect_unionall, METH_VARARGS,
+     DOC_RECTUNIONALL},
+    {"move_ip", (PyCFunction)pg_rect_move_ip, METH_VARARGS, DOC_RECTMOVEIP},
+    {"inflate_ip", (PyCFunction)pg_rect_inflate_ip, METH_VARARGS,
+     DOC_RECTINFLATEIP},
+    {"union_ip", (PyCFunction)pg_rect_union_ip, METH_VARARGS, DOC_RECTUNIONIP},
+    {"unionall_ip", (PyCFunction)pg_rect_unionall_ip, METH_VARARGS,
+     DOC_RECTUNIONALLIP},
+    {"collidepoint", (PyCFunction)pg_rect_collidepoint, METH_VARARGS,
+     DOC_RECTCOLLIDEPOINT},
+    {"colliderect", (PyCFunction)pg_rect_colliderect, METH_VARARGS,
+     DOC_RECTCOLLIDERECT},
+    {"collidelist", (PyCFunction)pg_rect_collidelist, METH_VARARGS,
+     DOC_RECTCOLLIDELIST},
+    {"collidelistall", (PyCFunction)pg_rect_collidelistall, METH_VARARGS,
+     DOC_RECTCOLLIDELISTALL},
+    {"collidedict", (PyCFunction)pg_rect_collidedict, METH_VARARGS,
+     DOC_RECTCOLLIDEDICT},
+    {"collidedictall", (PyCFunction)pg_rect_collidedictall, METH_VARARGS,
+     DOC_RECTCOLLIDEDICTALL},
+    {"contains", (PyCFunction)pg_rect_contains, METH_VARARGS,
+     DOC_RECTCONTAINS},
+    {"__reduce__", (PyCFunction)pg_rect_reduce, METH_NOARGS, NULL},
+    {"__copy__", (PyCFunction)pg_rect_copy, METH_NOARGS, NULL},
+    {NULL, NULL, 0, NULL}};
 
 /* sequence functions */
 
@@ -874,17 +874,17 @@ pg_rect_length(PyObject *_self)
     return 4;
 }
 
-static PyObject*
+static PyObject *
 pg_rect_item(pgRectObject *self, Py_ssize_t i)
 {
-    int* data = (int*)&self->r;
+    int *data = (int *)&self->r;
 
     if (i < 0 || i > 3) {
         if (i > -5 && i < 0) {
             i += 4;
         }
         else {
-            return RAISE (PyExc_IndexError, "Invalid rect Index");
+            return RAISE(PyExc_IndexError, "Invalid rect Index");
         }
     }
     return PyInt_FromLong(data[i]);
@@ -894,14 +894,14 @@ static int
 pg_rect_ass_item(pgRectObject *self, Py_ssize_t i, PyObject *v)
 {
     int val;
-    int* data = (int*)&self->r;
+    int *data = (int *)&self->r;
 
     if (i < 0 || i > 3) {
         if (i > -5 && i < 0) {
             i += 4;
         }
         else {
-            RAISE (PyExc_IndexError, "Invalid rect Index");
+            RAISE(PyExc_IndexError, "Invalid rect Index");
             return -1;
         }
     }
@@ -913,15 +913,14 @@ pg_rect_ass_item(pgRectObject *self, Py_ssize_t i, PyObject *v)
     return 0;
 }
 
-static PySequenceMethods pg_rect_as_sequence =
-{
-    pg_rect_length,                     /*length*/
-    NULL,                               /*concat*/
-    NULL,                               /*repeat*/
-    (ssizeargfunc)pg_rect_item,         /*item*/
-    NULL,                               /*slice*/
-    (ssizeobjargproc)pg_rect_ass_item,  /*ass_item*/
-    NULL,                               /*ass_slice*/
+static PySequenceMethods pg_rect_as_sequence = {
+    pg_rect_length,                    /*length*/
+    NULL,                              /*concat*/
+    NULL,                              /*repeat*/
+    (ssizeargfunc)pg_rect_item,        /*item*/
+    NULL,                              /*slice*/
+    (ssizeobjargproc)pg_rect_ass_item, /*ass_item*/
+    NULL,                              /*ass_slice*/
 };
 
 static PyObject *
@@ -957,8 +956,8 @@ pg_rect_subscript(pgRectObject *self, PyObject *op)
             return NULL;
         }
 #else
-        if (PySlice_GetIndicesEx((PySliceObject *)op, 4,
-                                 &start, &stop, &step, &slicelen)) {
+        if (PySlice_GetIndicesEx((PySliceObject *)op, 4, &start, &stop, &step,
+                                 &slicelen)) {
             return NULL;
         }
 #endif
@@ -1054,8 +1053,8 @@ pg_rect_ass_subscript(pgRectObject *self, PyObject *op, PyObject *value)
             return -1;
         }
 #else
-        if (PySlice_GetIndicesEx((PySliceObject *)op, 4,
-                                  &start, &stop, &step, &slicelen)) {
+        if (PySlice_GetIndicesEx((PySliceObject *)op, 4, &start, &stop, &step,
+                                 &slicelen)) {
             return -1;
         }
 #endif
@@ -1071,8 +1070,7 @@ pg_rect_ass_subscript(pgRectObject *self, PyObject *op, PyObject *value)
             Py_ssize_t size = PySequence_Size(value);
 
             if (size != slicelen) {
-                PyErr_Format(PyExc_TypeError,
-                             "Expected a length %zd sequence",
+                PyErr_Format(PyExc_TypeError, "Expected a length %zd sequence",
                              slicelen);
                 return -1;
             }
@@ -1100,8 +1098,7 @@ pg_rect_ass_subscript(pgRectObject *self, PyObject *op, PyObject *value)
     return 0;
 }
 
-static PyMappingMethods pg_rect_as_mapping =
-{
+static PyMappingMethods pg_rect_as_mapping = {
     (lenfunc)pg_rect_length,             /*mp_length*/
     (binaryfunc)pg_rect_subscript,       /*mp_subscript*/
     (objobjargproc)pg_rect_ass_subscript /*mp_ass_subscript*/
@@ -1116,11 +1113,11 @@ pg_rect_bool(pgRectObject *self)
 
 #if !PY3
 static int
-pg_rect_coerce(PyObject** o1, PyObject** o2)
+pg_rect_coerce(PyObject **o1, PyObject **o2)
 {
-    PyObject* new1;
-    PyObject* new2;
-    GAME_Rect* r, temp;
+    PyObject *new1;
+    PyObject *new2;
+    GAME_Rect *r, temp;
 
     if (pgRect_Check(*o1)) {
         new1 = *o1;
@@ -1137,8 +1134,7 @@ pg_rect_coerce(PyObject** o1, PyObject** o2)
     }
     else if ((r = pgRect_FromObject(*o2, &temp)))
         new2 = pgRect_New4(r->x, r->y, r->w, r->h);
-    else
-    {
+    else {
         Py_DECREF(new1);
         return 1;
     }
@@ -1149,35 +1145,34 @@ pg_rect_coerce(PyObject** o1, PyObject** o2)
 }
 #endif
 
-static PyNumberMethods pg_rect_as_number =
-{
-    (binaryfunc)NULL,         /*add*/
-    (binaryfunc)NULL,         /*subtract*/
-    (binaryfunc)NULL,         /*multiply*/
+static PyNumberMethods pg_rect_as_number = {
+    (binaryfunc)NULL, /*add*/
+    (binaryfunc)NULL, /*subtract*/
+    (binaryfunc)NULL, /*multiply*/
 #if !PY3
-    (binaryfunc)NULL,         /*divide*/
+    (binaryfunc)NULL, /*divide*/
 #endif
-    (binaryfunc)NULL,         /*remainder*/
-    (binaryfunc)NULL,         /*divmod*/
-    (ternaryfunc)NULL,        /*power*/
-    (unaryfunc)NULL,          /*negative*/
-    (unaryfunc)NULL,          /*pos*/
-    (unaryfunc)NULL,          /*abs*/
-    (inquiry)pg_rect_bool,    /*nonzero / bool*/
-    (unaryfunc)NULL,          /*invert*/
-    (binaryfunc)NULL,         /*lshift*/
-    (binaryfunc)NULL,         /*rshift*/
-    (binaryfunc)NULL,         /*and*/
-    (binaryfunc)NULL,         /*xor*/
-    (binaryfunc)NULL,         /*or*/
+    (binaryfunc)NULL,      /*remainder*/
+    (binaryfunc)NULL,      /*divmod*/
+    (ternaryfunc)NULL,     /*power*/
+    (unaryfunc)NULL,       /*negative*/
+    (unaryfunc)NULL,       /*pos*/
+    (unaryfunc)NULL,       /*abs*/
+    (inquiry)pg_rect_bool, /*nonzero / bool*/
+    (unaryfunc)NULL,       /*invert*/
+    (binaryfunc)NULL,      /*lshift*/
+    (binaryfunc)NULL,      /*rshift*/
+    (binaryfunc)NULL,      /*and*/
+    (binaryfunc)NULL,      /*xor*/
+    (binaryfunc)NULL,      /*or*/
 #if !PY3
     (coercion)pg_rect_coerce, /*coerce*/
 #endif
-    (unaryfunc)NULL,          /*int*/
+    (unaryfunc)NULL, /*int*/
 #if !PY3
-    (unaryfunc)NULL,          /*long*/
+    (unaryfunc)NULL, /*long*/
 #endif
-    (unaryfunc)NULL,          /*float*/
+    (unaryfunc)NULL, /*float*/
 };
 
 static PyObject *
@@ -1185,8 +1180,8 @@ pg_rect_repr(pgRectObject *self)
 {
     char string[256];
 
-    sprintf(string, "<rect(%d, %d, %d, %d)>", self->r.x, self->r.y,
-             self->r.w, self->r.h);
+    sprintf(string, "<rect(%d, %d, %d, %d)>", self->r.x, self->r.y, self->r.w,
+            self->r.h);
     return Text_FromUTF8(string);
 }
 
@@ -1227,22 +1222,21 @@ pg_rect_richcompare(PyObject *o1, PyObject *o2, int opid)
         cmp = 0;
     }
 
-    switch (opid)
-    {
-    case Py_LT:
-        return PyBool_FromLong(cmp < 0);
-    case Py_LE:
-        return PyBool_FromLong(cmp <= 0);
-    case Py_EQ:
-        return PyBool_FromLong(cmp == 0);
-    case Py_NE:
-        return PyBool_FromLong(cmp != 0);
-    case Py_GT:
-        return PyBool_FromLong(cmp > 0);
-    case Py_GE:
-        return PyBool_FromLong(cmp >= 0);
-    default:
-        break;
+    switch (opid) {
+        case Py_LT:
+            return PyBool_FromLong(cmp < 0);
+        case Py_LE:
+            return PyBool_FromLong(cmp <= 0);
+        case Py_EQ:
+            return PyBool_FromLong(cmp == 0);
+        case Py_NE:
+            return PyBool_FromLong(cmp != 0);
+        case Py_GT:
+            return PyBool_FromLong(cmp > 0);
+        case Py_GE:
+            return PyBool_FromLong(cmp >= 0);
+        default:
+            break;
     }
 
 Unimplemented:
@@ -1258,7 +1252,7 @@ pg_rect_getwidth(pgRectObject *self, void *closure)
 }
 
 static int
-pg_rect_setwidth(pgRectObject *self, PyObject* value, void *closure)
+pg_rect_setwidth(pgRectObject *self, PyObject *value, void *closure)
 {
     int val1;
 
@@ -1277,7 +1271,7 @@ pg_rect_getheight(pgRectObject *self, void *closure)
 }
 
 static int
-pg_rect_setheight(pgRectObject *self, PyObject* value, void *closure)
+pg_rect_setheight(pgRectObject *self, PyObject *value, void *closure)
 {
     int val1;
 
@@ -1297,7 +1291,7 @@ pg_rect_gettop(pgRectObject *self, void *closure)
 }
 
 static int
-pg_rect_settop(pgRectObject *self, PyObject* value, void *closure)
+pg_rect_settop(pgRectObject *self, PyObject *value, void *closure)
 {
     int val1;
 
@@ -1317,7 +1311,7 @@ pg_rect_getleft(pgRectObject *self, void *closure)
 }
 
 static int
-pg_rect_setleft(pgRectObject *self, PyObject* value, void *closure)
+pg_rect_setleft(pgRectObject *self, PyObject *value, void *closure)
 {
     int val1;
 
@@ -1337,7 +1331,7 @@ pg_rect_getright(pgRectObject *self, void *closure)
 }
 
 static int
-pg_rect_setright(pgRectObject *self, PyObject* value, void *closure)
+pg_rect_setright(pgRectObject *self, PyObject *value, void *closure)
 {
     int val1;
 
@@ -1345,7 +1339,7 @@ pg_rect_setright(pgRectObject *self, PyObject* value, void *closure)
         RAISE(PyExc_TypeError, "invalid rect assignment");
         return -1;
     }
-    self->r.x = val1-self->r.w;
+    self->r.x = val1 - self->r.w;
     return 0;
 }
 
@@ -1357,7 +1351,7 @@ pg_rect_getbottom(pgRectObject *self, void *closure)
 }
 
 static int
-pg_rect_setbottom(pgRectObject *self, PyObject* value, void *closure)
+pg_rect_setbottom(pgRectObject *self, PyObject *value, void *closure)
 {
     int val1;
 
@@ -1365,7 +1359,7 @@ pg_rect_setbottom(pgRectObject *self, PyObject* value, void *closure)
         RAISE(PyExc_TypeError, "invalid rect assignment");
         return -1;
     }
-    self->r.y = val1-self->r.h;
+    self->r.y = val1 - self->r.h;
     return 0;
 }
 
@@ -1377,7 +1371,7 @@ pg_rect_getcenterx(pgRectObject *self, void *closure)
 }
 
 static int
-pg_rect_setcenterx(pgRectObject *self, PyObject* value, void *closure)
+pg_rect_setcenterx(pgRectObject *self, PyObject *value, void *closure)
 {
     int val1;
 
@@ -1397,7 +1391,7 @@ pg_rect_getcentery(pgRectObject *self, void *closure)
 }
 
 static int
-pg_rect_setcentery(pgRectObject *self, PyObject* value, void *closure)
+pg_rect_setcentery(pgRectObject *self, PyObject *value, void *closure)
 {
     int val1;
 
@@ -1417,7 +1411,7 @@ pg_rect_gettopleft(pgRectObject *self, void *closure)
 }
 
 static int
-pg_rect_settopleft(pgRectObject *self, PyObject* value, void *closure)
+pg_rect_settopleft(pgRectObject *self, PyObject *value, void *closure)
 {
     int val1, val2;
 
@@ -1434,11 +1428,11 @@ pg_rect_settopleft(pgRectObject *self, PyObject* value, void *closure)
 static PyObject *
 pg_rect_gettopright(pgRectObject *self, void *closure)
 {
-    return Py_BuildValue("(ii)", self->r.x+self->r.w, self->r.y);
+    return Py_BuildValue("(ii)", self->r.x + self->r.w, self->r.y);
 }
 
 static int
-pg_rect_settopright(pgRectObject *self, PyObject* value, void *closure)
+pg_rect_settopright(pgRectObject *self, PyObject *value, void *closure)
 {
     int val1, val2;
 
@@ -1446,7 +1440,7 @@ pg_rect_settopright(pgRectObject *self, PyObject* value, void *closure)
         RAISE(PyExc_TypeError, "invalid rect assignment");
         return -1;
     }
-    self->r.x = val1-self->r.w;
+    self->r.x = val1 - self->r.w;
     self->r.y = val2;
     return 0;
 }
@@ -1455,11 +1449,11 @@ pg_rect_settopright(pgRectObject *self, PyObject* value, void *closure)
 static PyObject *
 pg_rect_getbottomleft(pgRectObject *self, void *closure)
 {
-    return Py_BuildValue("(ii)", self->r.x, self->r.y+self->r.h);
+    return Py_BuildValue("(ii)", self->r.x, self->r.y + self->r.h);
 }
 
 static int
-pg_rect_setbottomleft(pgRectObject *self, PyObject* value, void *closure)
+pg_rect_setbottomleft(pgRectObject *self, PyObject *value, void *closure)
 {
     int val1, val2;
 
@@ -1468,7 +1462,7 @@ pg_rect_setbottomleft(pgRectObject *self, PyObject* value, void *closure)
         return -1;
     }
     self->r.x = val1;
-    self->r.y = val2-self->r.h;
+    self->r.y = val2 - self->r.h;
     return 0;
 }
 
@@ -1476,11 +1470,11 @@ pg_rect_setbottomleft(pgRectObject *self, PyObject* value, void *closure)
 static PyObject *
 pg_rect_getbottomright(pgRectObject *self, void *closure)
 {
-    return Py_BuildValue("(ii)", self->r.x+self->r.w, self->r.y+self->r.h);
+    return Py_BuildValue("(ii)", self->r.x + self->r.w, self->r.y + self->r.h);
 }
 
 static int
-pg_rect_setbottomright(pgRectObject *self, PyObject* value, void *closure)
+pg_rect_setbottomright(pgRectObject *self, PyObject *value, void *closure)
 {
     int val1, val2;
 
@@ -1488,8 +1482,8 @@ pg_rect_setbottomright(pgRectObject *self, PyObject* value, void *closure)
         RAISE(PyExc_TypeError, "invalid rect assignment");
         return -1;
     }
-    self->r.x = val1-self->r.w;
-    self->r.y = val2-self->r.h;
+    self->r.x = val1 - self->r.w;
+    self->r.y = val2 - self->r.h;
     return 0;
 }
 
@@ -1501,7 +1495,7 @@ pg_rect_getmidtop(pgRectObject *self, void *closure)
 }
 
 static int
-pg_rect_setmidtop(pgRectObject *self, PyObject* value, void *closure)
+pg_rect_setmidtop(pgRectObject *self, PyObject *value, void *closure)
 {
     int val1, val2;
 
@@ -1518,11 +1512,11 @@ pg_rect_setmidtop(pgRectObject *self, PyObject* value, void *closure)
 static PyObject *
 pg_rect_getmidleft(pgRectObject *self, void *closure)
 {
-    return Py_BuildValue("(ii)", self->r.x, self->r.y+(self->r.h>>1));
+    return Py_BuildValue("(ii)", self->r.x, self->r.y + (self->r.h >> 1));
 }
 
 static int
-pg_rect_setmidleft(pgRectObject *self, PyObject* value, void *closure)
+pg_rect_setmidleft(pgRectObject *self, PyObject *value, void *closure)
 {
     int val1, val2;
 
@@ -1540,11 +1534,11 @@ static PyObject *
 pg_rect_getmidbottom(pgRectObject *self, void *closure)
 {
     return Py_BuildValue("(ii)", self->r.x + (self->r.w >> 1),
-                          self->r.y + self->r.h);
+                         self->r.y + self->r.h);
 }
 
 static int
-pg_rect_setmidbottom(pgRectObject *self, PyObject* value, void *closure)
+pg_rect_setmidbottom(pgRectObject *self, PyObject *value, void *closure)
 {
     int val1, val2;
 
@@ -1562,11 +1556,11 @@ static PyObject *
 pg_rect_getmidright(pgRectObject *self, void *closure)
 {
     return Py_BuildValue("(ii)", self->r.x + self->r.w,
-                          self->r.y + (self->r.h >> 1));
+                         self->r.y + (self->r.h >> 1));
 }
 
 static int
-pg_rect_setmidright(pgRectObject *self, PyObject* value, void *closure)
+pg_rect_setmidright(pgRectObject *self, PyObject *value, void *closure)
 {
     int val1, val2;
 
@@ -1575,7 +1569,7 @@ pg_rect_setmidright(pgRectObject *self, PyObject* value, void *closure)
         return -1;
     }
     self->r.x = val1 - self->r.w;
-    self->r.y += val2 -(self->r.y + (self->r.h >> 1));
+    self->r.y += val2 - (self->r.y + (self->r.h >> 1));
     return 0;
 }
 
@@ -1584,11 +1578,11 @@ static PyObject *
 pg_rect_getcenter(pgRectObject *self, void *closure)
 {
     return Py_BuildValue("(ii)", self->r.x + (self->r.w >> 1),
-                          self->r.y + (self->r.h >> 1));
+                         self->r.y + (self->r.h >> 1));
 }
 
 static int
-pg_rect_setcenter(pgRectObject *self, PyObject* value, void *closure)
+pg_rect_setcenter(pgRectObject *self, PyObject *value, void *closure)
 {
     int val1, val2;
 
@@ -1609,7 +1603,7 @@ pg_rect_getsize(pgRectObject *self, void *closure)
 }
 
 static int
-pg_rect_setsize(pgRectObject *self, PyObject* value, void *closure)
+pg_rect_setsize(pgRectObject *self, PyObject *value, void *closure)
 {
     int val1, val2;
 
@@ -1629,79 +1623,85 @@ pg_rect_getsafepickle(pgRectObject *self, void *closure)
 }
 
 static PyGetSetDef pg_rect_getsets[] = {
-    { "x", (getter)pg_rect_getleft, (setter)pg_rect_setleft, NULL, NULL },
-    { "y", (getter)pg_rect_gettop, (setter)pg_rect_settop, NULL, NULL },
-    { "w", (getter)pg_rect_getwidth, (setter)pg_rect_setwidth, NULL, NULL },
-    { "h", (getter)pg_rect_getheight, (setter)pg_rect_setheight, NULL, NULL },
-    { "width", (getter)pg_rect_getwidth, (setter)pg_rect_setwidth, NULL, NULL },
-    { "height", (getter)pg_rect_getheight, (setter)pg_rect_setheight, NULL, NULL },
-    { "top", (getter)pg_rect_gettop, (setter)pg_rect_settop, NULL, NULL },
-    { "left", (getter)pg_rect_getleft, (setter)pg_rect_setleft, NULL, NULL },
-    { "bottom", (getter)pg_rect_getbottom, (setter)pg_rect_setbottom, NULL, NULL },
-    { "right", (getter)pg_rect_getright, (setter)pg_rect_setright, NULL, NULL },
-    { "centerx", (getter)pg_rect_getcenterx, (setter)pg_rect_setcenterx, NULL, NULL },
-    { "centery", (getter)pg_rect_getcentery, (setter)pg_rect_setcentery, NULL, NULL },
-    { "topleft", (getter)pg_rect_gettopleft, (setter)pg_rect_settopleft, NULL, NULL },
-    { "topright", (getter)pg_rect_gettopright, (setter)pg_rect_settopright, NULL,
-     NULL },
-    { "bottomleft", (getter)pg_rect_getbottomleft, (setter)pg_rect_setbottomleft,
-      NULL, NULL },
-    { "bottomright", (getter)pg_rect_getbottomright, (setter)pg_rect_setbottomright,
-      NULL, NULL },
-    { "midtop", (getter)pg_rect_getmidtop, (setter)pg_rect_setmidtop, NULL, NULL },
-    { "midleft", (getter)pg_rect_getmidleft, (setter)pg_rect_setmidleft, NULL, NULL },
-    { "midbottom", (getter)pg_rect_getmidbottom, (setter)pg_rect_setmidbottom, NULL,
-      NULL },
-    { "midright", (getter)pg_rect_getmidright, (setter)pg_rect_setmidright, NULL,
-      NULL },
-    { "size", (getter)pg_rect_getsize, (setter)pg_rect_setsize, NULL, NULL },
-    { "center", (getter)pg_rect_getcenter, (setter)pg_rect_setcenter, NULL, NULL },
+    {"x", (getter)pg_rect_getleft, (setter)pg_rect_setleft, NULL, NULL},
+    {"y", (getter)pg_rect_gettop, (setter)pg_rect_settop, NULL, NULL},
+    {"w", (getter)pg_rect_getwidth, (setter)pg_rect_setwidth, NULL, NULL},
+    {"h", (getter)pg_rect_getheight, (setter)pg_rect_setheight, NULL, NULL},
+    {"width", (getter)pg_rect_getwidth, (setter)pg_rect_setwidth, NULL, NULL},
+    {"height", (getter)pg_rect_getheight, (setter)pg_rect_setheight, NULL,
+     NULL},
+    {"top", (getter)pg_rect_gettop, (setter)pg_rect_settop, NULL, NULL},
+    {"left", (getter)pg_rect_getleft, (setter)pg_rect_setleft, NULL, NULL},
+    {"bottom", (getter)pg_rect_getbottom, (setter)pg_rect_setbottom, NULL,
+     NULL},
+    {"right", (getter)pg_rect_getright, (setter)pg_rect_setright, NULL, NULL},
+    {"centerx", (getter)pg_rect_getcenterx, (setter)pg_rect_setcenterx, NULL,
+     NULL},
+    {"centery", (getter)pg_rect_getcentery, (setter)pg_rect_setcentery, NULL,
+     NULL},
+    {"topleft", (getter)pg_rect_gettopleft, (setter)pg_rect_settopleft, NULL,
+     NULL},
+    {"topright", (getter)pg_rect_gettopright, (setter)pg_rect_settopright,
+     NULL, NULL},
+    {"bottomleft", (getter)pg_rect_getbottomleft,
+     (setter)pg_rect_setbottomleft, NULL, NULL},
+    {"bottomright", (getter)pg_rect_getbottomright,
+     (setter)pg_rect_setbottomright, NULL, NULL},
+    {"midtop", (getter)pg_rect_getmidtop, (setter)pg_rect_setmidtop, NULL,
+     NULL},
+    {"midleft", (getter)pg_rect_getmidleft, (setter)pg_rect_setmidleft, NULL,
+     NULL},
+    {"midbottom", (getter)pg_rect_getmidbottom, (setter)pg_rect_setmidbottom,
+     NULL, NULL},
+    {"midright", (getter)pg_rect_getmidright, (setter)pg_rect_setmidright,
+     NULL, NULL},
+    {"size", (getter)pg_rect_getsize, (setter)pg_rect_setsize, NULL, NULL},
+    {"center", (getter)pg_rect_getcenter, (setter)pg_rect_setcenter, NULL,
+     NULL},
 
-    { "__safe_for_unpickling__", (getter)pg_rect_getsafepickle, NULL, NULL, NULL },
-    { NULL, 0, NULL, NULL, NULL }  /* Sentinel */
+    {"__safe_for_unpickling__", (getter)pg_rect_getsafepickle, NULL, NULL,
+     NULL},
+    {NULL, 0, NULL, NULL, NULL} /* Sentinel */
 };
 
-static PyTypeObject pgRect_Type =
-{
-    TYPE_HEAD(NULL, 0)
-    "pygame.Rect",                      /*name*/
-    sizeof(pgRectObject),               /*basicsize*/
-    0,                                  /*itemsize*/
+static PyTypeObject pgRect_Type = {
+    TYPE_HEAD(NULL, 0) "pygame.Rect", /*name*/
+    sizeof(pgRectObject),             /*basicsize*/
+    0,                                /*itemsize*/
     /* methods */
-    (destructor)pg_rect_dealloc,        /*dealloc*/
-    (printfunc)NULL,                    /*print*/
-    NULL,                               /*getattr*/
-    NULL,                               /*setattr*/
-    NULL,                               /*compare/reserved*/
-    (reprfunc)pg_rect_repr,             /*repr*/
-    &pg_rect_as_number,                 /*as_number*/
-    &pg_rect_as_sequence,               /*as_sequence*/
-    &pg_rect_as_mapping,                /*as_mapping*/
-    (hashfunc)NULL,                     /*hash*/
-    (ternaryfunc)NULL,                  /*call*/
-    (reprfunc)pg_rect_str,              /*str*/
+    (destructor)pg_rect_dealloc, /*dealloc*/
+    (printfunc)NULL,             /*print*/
+    NULL,                        /*getattr*/
+    NULL,                        /*setattr*/
+    NULL,                        /*compare/reserved*/
+    (reprfunc)pg_rect_repr,      /*repr*/
+    &pg_rect_as_number,          /*as_number*/
+    &pg_rect_as_sequence,        /*as_sequence*/
+    &pg_rect_as_mapping,         /*as_mapping*/
+    (hashfunc)NULL,              /*hash*/
+    (ternaryfunc)NULL,           /*call*/
+    (reprfunc)pg_rect_str,       /*str*/
 
     /* Space for future expansion */
-    0L,0L,0L,
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags */
-    DOC_PYGAMERECT,                     /* Documentation string */
-    NULL,                               /* tp_traverse */
-    NULL,                               /* tp_clear */
-    (richcmpfunc)pg_rect_richcompare,     /* tp_richcompare */
-    offsetof(pgRectObject, weakreflist),  /* tp_weaklistoffset */
-    NULL,                               /* tp_iter */
-    NULL,                               /* tp_iternext */
-    pg_rect_methods,                    /* tp_methods */
-    NULL,                               /* tp_members */
-    pg_rect_getsets,                    /* tp_getset */
-    NULL,                               /* tp_base */
-    NULL,                               /* tp_dict */
-    NULL,                               /* tp_descr_get */
-    NULL,                               /* tp_descr_set */
-    0,                                  /* tp_dictoffset */
-    (initproc)pg_rect_init,             /* tp_init */
-    NULL,                               /* tp_alloc */
-    pg_rect_new,                        /* tp_new */
+    0L, 0L, 0L, Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags */
+    DOC_PYGAMERECT,                      /* Documentation string */
+    NULL,                                /* tp_traverse */
+    NULL,                                /* tp_clear */
+    (richcmpfunc)pg_rect_richcompare,    /* tp_richcompare */
+    offsetof(pgRectObject, weakreflist), /* tp_weaklistoffset */
+    NULL,                                /* tp_iter */
+    NULL,                                /* tp_iternext */
+    pg_rect_methods,                     /* tp_methods */
+    NULL,                                /* tp_members */
+    pg_rect_getsets,                     /* tp_getset */
+    NULL,                                /* tp_base */
+    NULL,                                /* tp_dict */
+    NULL,                                /* tp_descr_get */
+    NULL,                                /* tp_descr_set */
+    0,                                   /* tp_dictoffset */
+    (initproc)pg_rect_init,              /* tp_init */
+    NULL,                                /* tp_alloc */
+    pg_rect_new,                         /* tp_new */
 };
 
 static int
@@ -1721,29 +1721,27 @@ pg_rect_init(pgRectObject *self, PyObject *args, PyObject *kwds)
     return 0;
 }
 
-static PyMethodDef _pg_module_methods[] =
-{
-    {NULL, NULL, 0, NULL}
-};
+static PyMethodDef _pg_module_methods[] = {{NULL, NULL, 0, NULL}};
 
 /*DOC*/ static char _pg_module_doc[] =
-/*DOC*/    "Module for the rectangle object\n";
+    /*DOC*/ "Module for the rectangle object\n";
 
 MODINIT_DEFINE(rect)
 {
     PyObject *module, *dict, *apiobj;
     int ecode;
-    static void* c_api[PYGAMEAPI_RECT_NUMSLOTS];
+    static void *c_api[PYGAMEAPI_RECT_NUMSLOTS];
 
 #if PY3
-    static struct PyModuleDef _module = {
-        PyModuleDef_HEAD_INIT,
-        "rect",
-        _pg_module_doc,
-        -1,
-        _pg_module_methods,
-        NULL, NULL, NULL, NULL
-    };
+    static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
+                                         "rect",
+                                         _pg_module_doc,
+                                         -1,
+                                         _pg_module_methods,
+                                         NULL,
+                                         NULL,
+                                         NULL,
+                                         NULL};
 #endif
 
     /* import needed apis; Do this first so if there is an error
@@ -1762,9 +1760,8 @@ MODINIT_DEFINE(rect)
 #if PY3
     module = PyModule_Create(&_module);
 #else
-    module = Py_InitModule3(MODPREFIX "rect",
-                            _pg_module_methods,
-                            _pg_module_doc);
+    module =
+        Py_InitModule3(MODPREFIX "rect", _pg_module_methods, _pg_module_doc);
 #endif
     if (module == NULL) {
         MODINIT_ERROR;

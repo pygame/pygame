@@ -25,33 +25,39 @@
  *  internal surface locking support for python objects
  */
 #define PYGAMEAPI_SURFLOCK_INTERNAL
+
 #include "pygame.h"
+
 #include "pgcompat.h"
 
-static int pgSurface_Lock(PyObject *);
-static int pgSurface_Unlock(PyObject *);
-static int pgSurface_LockBy(PyObject *, PyObject *);
-static int pgSurface_UnlockBy(PyObject *, PyObject *);
+static int
+pgSurface_Lock(PyObject *);
+static int
+pgSurface_Unlock(PyObject *);
+static int
+pgSurface_LockBy(PyObject *, PyObject *);
+static int
+pgSurface_UnlockBy(PyObject *, PyObject *);
 
-static void _lifelock_dealloc(PyObject *);
-
+static void
+_lifelock_dealloc(PyObject *);
 
 static void
 pgSurface_Prep(PyObject *surfobj)
 {
-    struct pgSubSurface_Data *data = ((pgSurfaceObject *) surfobj)->subsurface;
+    struct pgSubSurface_Data *data = ((pgSurfaceObject *)surfobj)->subsurface;
     if (data != NULL) {
         SDL_Surface *surf = pgSurface_AsSurface(surfobj);
         SDL_Surface *owner = pgSurface_AsSurface(data->owner);
         pgSurface_LockBy(data->owner, surfobj);
-        surf->pixels = ((char *) owner->pixels) + data->pixeloffset;
+        surf->pixels = ((char *)owner->pixels) + data->pixeloffset;
     }
 }
 
 static void
 pgSurface_Unprep(PyObject *surfobj)
 {
-    struct pgSubSurface_Data *data = ((pgSurfaceObject *) surfobj)->subsurface;
+    struct pgSubSurface_Data *data = ((pgSurfaceObject *)surfobj)->subsurface;
     if (data != NULL) {
         pgSurface_UnlockBy(data->owner, surfobj);
     }
@@ -73,7 +79,7 @@ static int
 pgSurface_LockBy(PyObject *surfobj, PyObject *lockobj)
 {
     PyObject *ref;
-    pgSurfaceObject *surf = (pgSurfaceObject*) surfobj;
+    pgSurfaceObject *surf = (pgSurfaceObject *)surfobj;
 
     if (surf->locklist == NULL) {
         surf->locklist = PyList_New(0);
@@ -105,7 +111,7 @@ pgSurface_LockBy(PyObject *surfobj, PyObject *lockobj)
 static int
 pgSurface_UnlockBy(PyObject *surfobj, PyObject *lockobj)
 {
-    pgSurfaceObject *surf = (pgSurfaceObject *) surfobj;
+    pgSurfaceObject *surf = (pgSurfaceObject *)surfobj;
     int found = 0;
     int noerror = 1;
 
@@ -159,62 +165,59 @@ pgSurface_UnlockBy(PyObject *surfobj, PyObject *lockobj)
     return noerror;
 }
 
-
-static PyTypeObject pgLifetimeLock_Type =
-{
-    TYPE_HEAD(NULL, 0)
-    "SurfLifeLock",                              /* name */
-    sizeof(pgLifetimeLockObject),                /* basic size */
-    0,                                           /* tp_itemsize */
-    _lifelock_dealloc,                           /* tp_dealloc*/
-    NULL,                                        /* tp_print */
-    NULL,                                        /* tp_getattr */
-    NULL,                                        /* tp_setattr */
-    NULL,                                        /* tp_compare */
-    NULL,                                        /* tp_repr */
-    NULL,                                        /* tp_as_number */
-    NULL,                                        /* tp_as_sequence */
-    NULL,                                        /* tp_as_mapping */
-    NULL,                                        /* tp_hash */
-    NULL,                                        /* tp_call */
-    NULL,                                        /* tp_str */
-    NULL,                                        /* tp_getattro */
-    NULL,                                        /* tp_setattro */
-    NULL,                                        /* tp_as_buffer */
+static PyTypeObject pgLifetimeLock_Type = {
+    TYPE_HEAD(NULL, 0) "SurfLifeLock", /* name */
+    sizeof(pgLifetimeLockObject),      /* basic size */
+    0,                                 /* tp_itemsize */
+    _lifelock_dealloc,                 /* tp_dealloc*/
+    NULL,                              /* tp_print */
+    NULL,                              /* tp_getattr */
+    NULL,                              /* tp_setattr */
+    NULL,                              /* tp_compare */
+    NULL,                              /* tp_repr */
+    NULL,                              /* tp_as_number */
+    NULL,                              /* tp_as_sequence */
+    NULL,                              /* tp_as_mapping */
+    NULL,                              /* tp_hash */
+    NULL,                              /* tp_call */
+    NULL,                              /* tp_str */
+    NULL,                              /* tp_getattro */
+    NULL,                              /* tp_setattro */
+    NULL,                              /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_WEAKREFS,
-    NULL,                                        /* tp_doc */
-    NULL,                                        /* tp_traverse */
-    NULL,                                        /* tp_clear */
-    NULL,                                        /* tp_richcompare */
-    offsetof(pgLifetimeLockObject, weakrefs),    /* tp_weaklistoffset */
-    NULL,                                        /* tp_iter */
-    NULL,                                        /* tp_iternext */
-    NULL,                                        /* tp_methods */
-    NULL,                                        /* tp_members */
-    NULL,                                        /* tp_getset */
-    NULL,                                        /* tp_base */
-    NULL,                                        /* tp_dict */
-    NULL,                                        /* tp_descr_get */
-    NULL,                                        /* tp_descr_set */
-    0,                                           /* tp_dictoffset */
-    NULL,                                        /* tp_init */
-    NULL,                                        /* tp_alloc */
-    NULL,                                        /* tp_new */
-    NULL,                                        /* tp_free */
-    NULL,                                        /* tp_is_gc */
-    NULL,                                        /* tp_bases */
-    NULL,                                        /* tp_mro */
-    NULL,                                        /* tp_cache */
-    NULL,                                        /* tp_subclasses */
-    NULL,                                        /* tp_weaklist */
-    NULL                                         /* tp_del */
+    NULL,                                     /* tp_doc */
+    NULL,                                     /* tp_traverse */
+    NULL,                                     /* tp_clear */
+    NULL,                                     /* tp_richcompare */
+    offsetof(pgLifetimeLockObject, weakrefs), /* tp_weaklistoffset */
+    NULL,                                     /* tp_iter */
+    NULL,                                     /* tp_iternext */
+    NULL,                                     /* tp_methods */
+    NULL,                                     /* tp_members */
+    NULL,                                     /* tp_getset */
+    NULL,                                     /* tp_base */
+    NULL,                                     /* tp_dict */
+    NULL,                                     /* tp_descr_get */
+    NULL,                                     /* tp_descr_set */
+    0,                                        /* tp_dictoffset */
+    NULL,                                     /* tp_init */
+    NULL,                                     /* tp_alloc */
+    NULL,                                     /* tp_new */
+    NULL,                                     /* tp_free */
+    NULL,                                     /* tp_is_gc */
+    NULL,                                     /* tp_bases */
+    NULL,                                     /* tp_mro */
+    NULL,                                     /* tp_cache */
+    NULL,                                     /* tp_subclasses */
+    NULL,                                     /* tp_weaklist */
+    NULL                                      /* tp_del */
 };
 
 /* lifetimelock object internals */
 static void
 _lifelock_dealloc(PyObject *self)
 {
-    pgLifetimeLockObject *lifelock = (pgLifetimeLockObject *) self;
+    pgLifetimeLockObject *lifelock = (pgLifetimeLockObject *)self;
 
     if (lifelock->weakrefs != NULL) {
         PyObject_ClearWeakRefs(self);
@@ -243,16 +246,13 @@ pgSurface_LockLifetime(PyObject *surfobj, PyObject *lockobj)
             return NULL;
         }
     }
-    return (PyObject *) life;
+    return (PyObject *)life;
 }
 
-static PyMethodDef _surflock_methods[] =
-{
-    {NULL, NULL, 0, NULL}
-};
+static PyMethodDef _surflock_methods[] = {{NULL, NULL, 0, NULL}};
 
 /*DOC*/ static char _surflock_doc[] =
-/*DOC*/     "Surface locking support";
+    /*DOC*/ "Surface locking support";
 
 MODINIT_DEFINE(surflock)
 {
@@ -261,14 +261,15 @@ MODINIT_DEFINE(surflock)
     static void *c_api[PYGAMEAPI_SURFLOCK_NUMSLOTS];
 
 #if PY3
-    static struct PyModuleDef _module = {
-        PyModuleDef_HEAD_INIT,
-        "surflock",
-        _surflock_doc,
-        -1,
-        _surflock_methods,
-        NULL, NULL, NULL, NULL
-    };
+    static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
+                                         "surflock",
+                                         _surflock_doc,
+                                         -1,
+                                         _surflock_methods,
+                                         NULL,
+                                         NULL,
+                                         NULL,
+                                         NULL};
 #endif
 
     if (PyType_Ready(&pgLifetimeLock_Type) < 0) {
@@ -279,9 +280,8 @@ MODINIT_DEFINE(surflock)
 #if PY3
     module = PyModule_Create(&_module);
 #else
-    module = Py_InitModule3(MODPREFIX "surflock",
-                            _surflock_methods,
-                            _surflock_doc);
+    module =
+        Py_InitModule3(MODPREFIX "surflock", _surflock_methods, _surflock_doc);
 #endif
     if (module == NULL) {
         MODINIT_ERROR;

@@ -19,64 +19,64 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-static PyObject*
-mac_scrap_call (char *name, PyObject *args)
+static PyObject *
+mac_scrap_call(char *name, PyObject *args)
 {
     static PyObject *mac_scrap_module = NULL;
     PyObject *method;
     PyObject *result;
 
     if (!mac_scrap_module)
-        mac_scrap_module = PyImport_ImportModule ("pygame.sdlmain_osx");
+        mac_scrap_module = PyImport_ImportModule("pygame.sdlmain_osx");
     if (!mac_scrap_module)
         return NULL;
 
-    method = PyObject_GetAttrString (mac_scrap_module, name);
+    method = PyObject_GetAttrString(mac_scrap_module, name);
     if (!method)
         return NULL;
-    result = PyObject_CallObject (method, args);
-    Py_DECREF (method);
+    result = PyObject_CallObject(method, args);
+    Py_DECREF(method);
     return result;
 }
 
-static PyObject*
-_scrap_init (PyObject *self, PyObject *args)
+static PyObject *
+_scrap_init(PyObject *self, PyObject *args)
 {
-    return mac_scrap_call ("ScrapInit", args);
+    return mac_scrap_call("ScrapInit", args);
 }
 
-static PyObject*
-_scrap_get_scrap (PyObject *self, PyObject *args)
+static PyObject *
+_scrap_get_scrap(PyObject *self, PyObject *args)
 {
-    return mac_scrap_call ("ScrapGet", args);
+    return mac_scrap_call("ScrapGet", args);
 }
 
-static PyObject*
-_scrap_put_scrap (PyObject *self, PyObject *args)
+static PyObject *
+_scrap_put_scrap(PyObject *self, PyObject *args)
 {
-    return mac_scrap_call ("ScrapPut", args);
+    return mac_scrap_call("ScrapPut", args);
 }
 
-static PyObject*
-_scrap_lost_scrap (PyObject *self, PyObject *args)
+static PyObject *
+_scrap_lost_scrap(PyObject *self, PyObject *args)
 {
-    return mac_scrap_call ("ScrapLost", args);
+    return mac_scrap_call("ScrapLost", args);
 }
 
-static PyObject*
-_scrap_get_types (PyObject *self, PyObject *args)
+static PyObject *
+_scrap_get_types(PyObject *self, PyObject *args)
 {
-    return mac_scrap_call ("ScrapGetTypes", args);
+    return mac_scrap_call("ScrapGetTypes", args);
 }
 
-static PyObject*
-_scrap_contains (PyObject *self, PyObject *args)
+static PyObject *
+_scrap_contains(PyObject *self, PyObject *args)
 {
-    return mac_scrap_call ("ScrapContains", args);
+    return mac_scrap_call("ScrapContains", args);
 }
 
-static PyObject*
-_scrap_set_mode (PyObject *self, PyObject *args)
+static PyObject *
+_scrap_set_mode(PyObject *self, PyObject *args)
 {
-    return mac_scrap_call ("ScrapSetMode", args);
+    return mac_scrap_call("ScrapSetMode", args);
 }

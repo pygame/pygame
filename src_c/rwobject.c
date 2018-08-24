@@ -26,7 +26,9 @@
 #define NO_PYGAME_C_API
 #define PYGAMEAPI_RWOBJECT_INTERNAL
 #include "pygame.h"
+
 #include "pgcompat.h"
+
 #include "doc/pygame_doc.h"
 
 typedef struct {
@@ -43,30 +45,48 @@ static const char pg_default_encoding[] = "unicode_escape";
 static const char pg_default_errors[] = "backslashreplace";
 
 #if IS_SDLv1
-static int _pg_rw_seek(SDL_RWops *, int, int);
-static int _pg_rw_read(SDL_RWops *, void *, int, int);
-static int _pg_rw_write(SDL_RWops *, const void *, int, int);
-static int _pg_rw_close(SDL_RWops *);
+static int
+_pg_rw_seek(SDL_RWops *, int, int);
+static int
+_pg_rw_read(SDL_RWops *, void *, int, int);
+static int
+_pg_rw_write(SDL_RWops *, const void *, int, int);
+static int
+_pg_rw_close(SDL_RWops *);
 
 #ifdef WITH_THREAD
-static int _pg_rw_seek_th(SDL_RWops *, int, int);
-static int _pg_rw_read_th(SDL_RWops *, void *, int, int);
-static int _pg_rw_write_th(SDL_RWops *, const void *, int, int);
-static int _pg_rw_close_th(SDL_RWops *);
+static int
+_pg_rw_seek_th(SDL_RWops *, int, int);
+static int
+_pg_rw_read_th(SDL_RWops *, void *, int, int);
+static int
+_pg_rw_write_th(SDL_RWops *, const void *, int, int);
+static int
+_pg_rw_close_th(SDL_RWops *);
 #endif
 #else /* IS_SDLv2 */
-static Sint64 _pg_rw_size(SDL_RWops *);
-static Sint64 _pg_rw_seek(SDL_RWops *, Sint64, int);
-static size_t _pg_rw_read(SDL_RWops *, void *, size_t, size_t);
-static size_t _pg_rw_write(SDL_RWops *, const void *, size_t, size_t);
-static int _pg_rw_close(SDL_RWops *);
+static Sint64
+_pg_rw_size(SDL_RWops *);
+static Sint64
+_pg_rw_seek(SDL_RWops *, Sint64, int);
+static size_t
+_pg_rw_read(SDL_RWops *, void *, size_t, size_t);
+static size_t
+_pg_rw_write(SDL_RWops *, const void *, size_t, size_t);
+static int
+_pg_rw_close(SDL_RWops *);
 
 #ifdef WITH_THREAD
-static Sint64 _pg_rw_size_th(SDL_RWops *);
-static Sint64 _pg_rw_seek_th(SDL_RWops *, Sint64, int);
-static size_t _pg_rw_read_th(SDL_RWops *, void *, size_t, size_t);
-static size_t _pg_rw_write_th(SDL_RWops *, const void *, size_t, size_t);
-static int _pg_rw_close_th(SDL_RWops *);
+static Sint64
+_pg_rw_size_th(SDL_RWops *);
+static Sint64
+_pg_rw_seek_th(SDL_RWops *, Sint64, int);
+static size_t
+_pg_rw_read_th(SDL_RWops *, void *, size_t, size_t);
+static size_t
+_pg_rw_write_th(SDL_RWops *, const void *, size_t, size_t);
+static int
+_pg_rw_close_th(SDL_RWops *);
 #endif
 #endif /* IS_SDLv2 */
 
@@ -111,7 +131,7 @@ fetch_object_methods(pgRWHelper *helper, PyObject *obj)
 
     if (PyObject_HasAttrString(obj, "read")) {
         helper->read = PyObject_GetAttrString(obj, "read");
-        if(helper->read && !PyCallable_Check(helper->read)) {
+        if (helper->read && !PyCallable_Check(helper->read)) {
             Py_DECREF(helper->read);
             helper->read = NULL;
         }
@@ -137,7 +157,7 @@ fetch_object_methods(pgRWHelper *helper, PyObject *obj)
             helper->tell = NULL;
         }
     }
-    if(PyObject_HasAttrString(obj, "close")) {
+    if (PyObject_HasAttrString(obj, "close")) {
         helper->close = PyObject_GetAttrString(obj, "close");
         if (helper->close && !PyCallable_Check(helper->close)) {
             Py_DECREF(helper->close);
@@ -147,9 +167,7 @@ fetch_object_methods(pgRWHelper *helper, PyObject *obj)
 }
 
 static PyObject *
-pgRWopsEncodeString(PyObject *obj,
-                    const char *encoding,
-                    const char *errors,
+pgRWopsEncodeString(PyObject *obj, const char *encoding, const char *errors,
                     PyObject *eclass)
 {
     PyObject *oencoded;
@@ -183,8 +201,7 @@ pgRWopsEncodeString(PyObject *obj,
             Py_DECREF(exc_type);
             Py_XDECREF(exc_trace);
             if (exc_value == NULL) {
-                PyErr_SetString(eclass,
-                                "Unicode encoding error");
+                PyErr_SetString(eclass, "Unicode encoding error");
             }
             else {
                 str = PyObject_Str(exc_value);
@@ -197,7 +214,7 @@ pgRWopsEncodeString(PyObject *obj,
             return NULL;
         }
         else if (encoding == pg_default_encoding &&
-                 errors == pg_default_errors        ) {
+                 errors == pg_default_errors) {
             /* The default encoding and error handling should not fail */
             return RAISE(PyExc_SystemError,
                          "Pygame bug (in pgRWopsEncodeString):"
@@ -216,10 +233,8 @@ pgRWopsEncodeString(PyObject *obj,
 static PyObject *
 pgRWopsEncodeFilePath(PyObject *obj, PyObject *eclass)
 {
-    PyObject *result = pgRWopsEncodeString(obj,
-                                           UNICODE_DEF_FS_CODEC,
-                                           UNICODE_DEF_FS_ERROR,
-                                           eclass);
+    PyObject *result = pgRWopsEncodeString(obj, UNICODE_DEF_FS_CODEC,
+                                           UNICODE_DEF_FS_ERROR, eclass);
     if (result == NULL || result == Py_None) {
         return result;
     }
@@ -306,7 +321,7 @@ pgRWopsCheckObject(SDL_RWops *rw)
 static Sint64
 _pg_rw_size(SDL_RWops *context)
 {
-    pgRWHelper *helper = (pgRWHelper *) context->hidden.unknown.data1;
+    pgRWHelper *helper = (pgRWHelper *)context->hidden.unknown.data1;
     PyObject *pos = NULL;
     PyObject *tmp = NULL;
     Sint64 size;
@@ -371,14 +386,14 @@ end:
 static int
 _pg_rw_seek(SDL_RWops *context, int offset, int whence)
 {
-    pgRWHelper *helper = (pgRWHelper *) context->hidden.unknown.data1;
+    pgRWHelper *helper = (pgRWHelper *)context->hidden.unknown.data1;
     PyObject *result;
     int retval;
-#else /* IS_SDLv2 */ 
+#else /* IS_SDLv2 */
 static Sint64
 _pg_rw_seek(SDL_RWops *context, Sint64 offset, int whence)
 {
-    pgRWHelper *helper = (pgRWHelper *) context->hidden.unknown.data1;
+    pgRWHelper *helper = (pgRWHelper *)context->hidden.unknown.data1;
     PyObject *result;
     Sint64 retval;
 #endif
@@ -408,14 +423,14 @@ _pg_rw_seek(SDL_RWops *context, Sint64 offset, int whence)
 static int
 _pg_rw_read(SDL_RWops *context, void *ptr, int size, int maxnum)
 {
-    pgRWHelper *helper = (pgRWHelper *) context->hidden.unknown.data1;
+    pgRWHelper *helper = (pgRWHelper *)context->hidden.unknown.data1;
     PyObject *result;
     int retval;
-#else /* IS_SDLv2 */
+#else  /* IS_SDLv2 */
 static size_t
 _pg_rw_read(SDL_RWops *context, void *ptr, size_t size, size_t maxnum)
 {
-    pgRWHelper *helper = (pgRWHelper *) context->hidden.unknown.data1;
+    pgRWHelper *helper = (pgRWHelper *)context->hidden.unknown.data1;
     PyObject *result;
     size_t retval;
 #endif /* IS_SDLv2 */
@@ -443,19 +458,19 @@ _pg_rw_read(SDL_RWops *context, void *ptr, size_t size, size_t maxnum)
 #if IS_SDLv1
 static int
 _pg_rw_write(SDL_RWops *context, const void *ptr, int size, int num)
-#else /* IS_SDLv2 */
+#else  /* IS_SDLv2 */
 static size_t
 _pg_rw_write(SDL_RWops *context, const void *ptr, size_t size, size_t num)
 #endif /* IS_SDLv2 */
 {
-    pgRWHelper *helper = (pgRWHelper *) context->hidden.unknown.data1;
+    pgRWHelper *helper = (pgRWHelper *)context->hidden.unknown.data1;
     PyObject *result;
 
     if (!helper->write)
         return -1;
 
     result = PyObject_CallFunction(helper->write, "s#", ptr, size * num);
-    if(!result)
+    if (!result)
         return -1;
 
     Py_DECREF(result);
@@ -465,7 +480,7 @@ _pg_rw_write(SDL_RWops *context, const void *ptr, size_t size, size_t num)
 static int
 _pg_rw_close(SDL_RWops *context)
 {
-    pgRWHelper *helper = (pgRWHelper *) context->hidden.unknown.data1;
+    pgRWHelper *helper = (pgRWHelper *)context->hidden.unknown.data1;
     PyObject *result;
     int retval = 0;
 
@@ -540,7 +555,7 @@ pgRWopsCheckObjectThreaded(SDL_RWops *rw)
 static Sint64
 _pg_rw_size_th(SDL_RWops *context)
 {
-    pgRWHelper *helper = (pgRWHelper *) context->hidden.unknown.data1;
+    pgRWHelper *helper = (pgRWHelper *)context->hidden.unknown.data1;
     PyObject *pos = NULL;
     PyObject *tmp = NULL;
     Sint64 size;
@@ -609,29 +624,29 @@ end:
 static int
 _pg_rw_seek_th(SDL_RWops *context, int offset, int whence)
 {
-    pgRWHelper *helper = (pgRWHelper *) context->hidden.unknown.data1;
+    pgRWHelper *helper = (pgRWHelper *)context->hidden.unknown.data1;
     PyObject *result;
     int retval;
-#else /* IS_SDLv2 */
+#else  /* IS_SDLv2 */
 static Sint64
 _pg_rw_seek_th(SDL_RWops *context, Sint64 offset, int whence)
 {
-    pgRWHelper *helper = (pgRWHelper *) context->hidden.unknown.data1;
+    pgRWHelper *helper = (pgRWHelper *)context->hidden.unknown.data1;
     PyObject *result;
     Sint64 retval;
 #endif /* IS_SDLv2 */
     PyGILState_STATE state;
-
 
     if (!helper->seek || !helper->tell)
         return -1;
 
     state = PyGILState_Ensure();
 
-    if (!(offset == 0 && whence == SEEK_CUR)) /* being seek'd, not just tell'd */
+    if (!(offset == 0 &&
+          whence == SEEK_CUR)) /* being seek'd, not just tell'd */
     {
         result = PyObject_CallFunction(helper->seek, "ii", offset, whence);
-        if(!result) {
+        if (!result) {
             PyErr_Print();
             retval = -1;
             goto end;
@@ -659,14 +674,14 @@ end:
 static int
 _pg_rw_read_th(SDL_RWops *context, void *ptr, int size, int maxnum)
 {
-    pgRWHelper *helper = (pgRWHelper *) context->hidden.unknown.data1;
+    pgRWHelper *helper = (pgRWHelper *)context->hidden.unknown.data1;
     PyObject *result;
     int retval;
-#else /* IS_SDLv2 */
+#else  /* IS_SDLv2 */
 static size_t
 _pg_rw_read_th(SDL_RWops *context, void *ptr, size_t size, size_t maxnum)
 {
-    pgRWHelper *helper = (pgRWHelper *) context->hidden.unknown.data1;
+    pgRWHelper *helper = (pgRWHelper *)context->hidden.unknown.data1;
     PyObject *result;
     size_t retval;
 #endif /* IS_SDLv2 */
@@ -707,14 +722,14 @@ end:
 static int
 _pg_rw_write_th(SDL_RWops *context, const void *ptr, int size, int num)
 {
-    pgRWHelper *helper = (pgRWHelper *) context->hidden.unknown.data1;
+    pgRWHelper *helper = (pgRWHelper *)context->hidden.unknown.data1;
     PyObject *result;
     int retval;
-#else /* IS_SDLv2 */
+#else  /* IS_SDLv2 */
 static size_t
 _pg_rw_write_th(SDL_RWops *context, const void *ptr, size_t size, size_t num)
 {
-    pgRWHelper *helper = (pgRWHelper *) context->hidden.unknown.data1;
+    pgRWHelper *helper = (pgRWHelper *)context->hidden.unknown.data1;
     PyObject *result;
     size_t retval;
 #endif /* IS_SDLv2 */
@@ -744,7 +759,7 @@ end:
 static int
 _pg_rw_close_th(SDL_RWops *context)
 {
-    pgRWHelper *helper = (pgRWHelper *) context->hidden.unknown.data1;
+    pgRWHelper *helper = (pgRWHelper *)context->hidden.unknown.data1;
     PyObject *result;
     int retval = 0;
     PyGILState_STATE state;
@@ -784,8 +799,8 @@ pg_encode_string(PyObject *self, PyObject *args, PyObject *keywds)
     const char *errors = NULL;
     static char *kwids[] = {"obj", "encoding", "errors", "etype", NULL};
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "|OssO&", kwids,
-                                     &obj, &encoding, &errors,
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "|OssO&", kwids, &obj,
+                                     &encoding, &errors,
                                      &_pg_is_exception_class, &eclass)) {
         return NULL;
     }
@@ -803,8 +818,7 @@ pg_encode_file_path(PyObject *self, PyObject *args, PyObject *keywds)
     PyObject *eclass = NULL;
     static char *kwids[] = {"obj", "etype", NULL};
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "|OO&",
-                                     kwids, &obj,
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "|OO&", kwids, &obj,
                                      &_pg_is_exception_class, &eclass)) {
         return NULL;
     }
@@ -815,17 +829,15 @@ pg_encode_file_path(PyObject *self, PyObject *args, PyObject *keywds)
     return pgRWopsEncodeFilePath(obj, eclass);
 }
 
-static PyMethodDef _pg_module_methods[] =
-{
-    { "encode_string", (PyCFunction)pg_encode_string,
-      METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEENCODESTRING },
-    { "encode_file_path", (PyCFunction)pg_encode_file_path,
-      METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEENCODEFILEPATH },
-    { NULL, NULL, 0, NULL }
-};
+static PyMethodDef _pg_module_methods[] = {
+    {"encode_string", (PyCFunction)pg_encode_string,
+     METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEENCODESTRING},
+    {"encode_file_path", (PyCFunction)pg_encode_file_path,
+     METH_VARARGS | METH_KEYWORDS, DOC_PYGAMEENCODEFILEPATH},
+    {NULL, NULL, 0, NULL}};
 
 /*DOC*/ static char _pg_module_doc[] =
-/*DOC*/    "SDL_RWops support";
+    /*DOC*/ "SDL_RWops support";
 
 MODINIT_DEFINE(rwobject)
 {
@@ -834,22 +846,22 @@ MODINIT_DEFINE(rwobject)
     static void *c_api[PYGAMEAPI_RWOBJECT_NUMSLOTS];
 
 #if PY3
-    static struct PyModuleDef _module = {
-        PyModuleDef_HEAD_INIT,
-        "rwobject",
-        _pg_module_doc,
-        -1,
-        _pg_module_methods,
-        NULL, NULL, NULL, NULL
-    };
+    static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
+                                         "rwobject",
+                                         _pg_module_doc,
+                                         -1,
+                                         _pg_module_methods,
+                                         NULL,
+                                         NULL,
+                                         NULL,
+                                         NULL};
 #endif
 
     /* Create the module and add the functions */
 #if PY3
     module = PyModule_Create(&_module);
 #else
-    module = Py_InitModule3(MODPREFIX "rwobject",
-                            _pg_module_methods,
+    module = Py_InitModule3(MODPREFIX "rwobject", _pg_module_methods,
                             _pg_module_doc);
 #endif
     if (module == NULL) {
@@ -868,7 +880,7 @@ MODINIT_DEFINE(rwobject)
     apiobj = encapsulate_api(c_api, "rwobject");
     if (apiobj == NULL) {
         DECREF_MOD(module);
-    MODINIT_ERROR;
+        MODINIT_ERROR;
     }
     ecode = PyDict_SetItemString(dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
     Py_DECREF(apiobj);
