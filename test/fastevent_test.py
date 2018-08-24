@@ -7,6 +7,7 @@ from pygame.compat import geterror
 ################################################################################
 
 class FasteventModuleTest(unittest.TestCase):
+
     def setUp(self):
         pygame.display.init()
         fastevent.init()
@@ -87,7 +88,7 @@ class FasteventModuleTest(unittest.TestCase):
             e = geterror()
             msg = ("argument 1 must be %s, not %s" %
                    (fastevent.Event.__name__, type(1).__name__))
-            self.failUnlessEqual(str(e), msg)
+            self.assertEqual(str(e), msg)
         else:
             self.fail()
 

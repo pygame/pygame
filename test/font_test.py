@@ -46,7 +46,7 @@ if not IS_PYPY: #TODO: pypy skip known failure.
             self.failUnless(isinstance(o, pygame_font.FontType))
 
         def test_get_default_font(self):
-            self.failUnlessEqual(pygame_font.get_default_font(), 'freesansbold.ttf')
+            self.assertEqual(pygame_font.get_default_font(), 'freesansbold.ttf')
 
         def test_get_fonts_returns_something(self):
             fnts = pygame_font.get_fonts()
@@ -316,7 +316,7 @@ if not IS_PYPY: #TODO: pypy skip known failure.
                               1, False, [0, 0, 0], [255, 255, 255])
             # is background transparent for antialiasing?
             s = f.render(".", True, [255, 255, 255])
-            self.failUnlessEqual(s.get_at((0, 0))[3], 0)
+            self.assertEqual(s.get_at((0, 0))[3], 0)
             # is Unicode and bytes encoding correct?
             # Cannot really test if the correct characters are rendered, but
             # at least can assert the encodings differ.
