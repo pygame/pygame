@@ -1,15 +1,3 @@
-if __name__ == '__main__':
-    import sys
-    import os
-    pkg_dir = os.path.split(os.path.abspath(__file__))[0]
-    parent_dir, pkg_name = os.path.split(pkg_dir)
-    is_pygame_pkg = (pkg_name == 'tests' and
-                     os.path.split(parent_dir)[1] == 'pygame')
-    if not is_pygame_pkg:
-        sys.path.insert(0, parent_dir)
-else:
-    is_pygame_pkg = __name__.startswith('pygame.tests.')
-
 import unittest
 import pygame
 import pygame.key
@@ -32,13 +20,13 @@ class KeyModuleTest(unittest.TestCase):
 
           # pygame.key.get_focused(): return bool
           # true if the display is receiving keyboard input from the system
-          # 
+          #
           # This is true when the display window has keyboard focus from the
           # system. If the display needs to ensure it does not lose keyboard
           # focus, it can use pygame.event.set_grab() to grab all input.
-          # 
+          #
 
-        self.fail() 
+        self.fail()
 
     def todo_test_get_pressed(self):
 
@@ -46,11 +34,11 @@ class KeyModuleTest(unittest.TestCase):
 
           # pygame.key.get_pressed(): return bools
           # get the state of all keyboard buttons
-          # 
+          #
           # Returns a sequence of boolean values representing the state of every
           # key on the keyboard. Use the key constant values to index the array.
           # A True value means the that button is pressed.
-          # 
+          #
           # Getting the list of pushed buttons with this function is not the
           # proper way to handle text entry from the user. You have no way to
           # know the order of keys pressed, and rapidly pushed keys can be
@@ -58,9 +46,9 @@ class KeyModuleTest(unittest.TestCase):
           # There is also no way to translate these pushed keys into a fully
           # translated character value. See the pygame.KEYDOWN events on the
           # event queue for this functionality.
-          # 
+          #
 
-        self.fail() 
+        self.fail()
 
     def test_name(self):
         self.assertEqual(pygame.key.name(pygame.K_RETURN), "return")

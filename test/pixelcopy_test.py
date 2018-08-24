@@ -1,35 +1,18 @@
-if __name__ == '__main__':
-    import sys
-    import os
-    pkg_dir = os.path.split(os.path.abspath(__file__))[0]
-    parent_dir, pkg_name = os.path.split(pkg_dir)
-    is_pygame_pkg = (pkg_name == 'tests' and
-                     os.path.split(parent_dir)[1] == 'pygame')
-    if not is_pygame_pkg:
-        sys.path.insert(0, parent_dir)
-else:
-    is_pygame_pkg = __name__.startswith('pygame.tests.')
-
-import unittest
-if is_pygame_pkg:
-    try:
-        from pygame.tests.test_utils import arrinter
-    except NameError:
-        pass
-else:
-    try:
-        from test.test_utils import arrinter
-    except NameError:
-        pass
-import pygame
-from pygame.locals import *
-
-
-from pygame.pixelcopy import (surface_to_array, map_array, array_to_surface,
-                               make_surface)
-
 import ctypes
 import platform
+import unittest
+
+try:
+    from pygame.tests.test_utils import arrinter
+except NameError:
+    pass
+import pygame
+from pygame.locals import *
+from pygame.pixelcopy import (
+    surface_to_array, map_array, array_to_surface,
+    make_surface
+)
+
 IS_PYPY = 'PyPy' == platform.python_implementation()
 
 
@@ -561,10 +544,7 @@ class PixelCopyTestWithArray(unittest.TestCase):
 
 class PixelCopyTestWithArray(unittest.TestCase):
     try:
-        if is_pygame_pkg:
-            from pygame.tests.test_utils import buftools
-        else:
-            from test.test_utils import buftools
+        from pygame.tests.test_utils import buftools
     except ImportError:
         pass
     else:

@@ -1,15 +1,4 @@
 import sys
-if __name__ == '__main__':
-    import os
-    pkg_dir = os.path.split(os.path.abspath(__file__))[0]
-    parent_dir, pkg_name = os.path.split(pkg_dir)
-    is_pygame_pkg = (pkg_name == 'tests' and
-                     os.path.split(parent_dir)[1] == 'pygame')
-    if not is_pygame_pkg:
-        sys.path.insert(0, parent_dir)
-else:
-    is_pygame_pkg = __name__.startswith('pygame.tests.')
-
 import unittest
 
 from pygame import encode_string, encode_file_path
@@ -21,23 +10,23 @@ class RWopsEncodeStringTest(unittest.TestCase):
 
     def test_obj_None(self):
         self.assert_(encode_string(None) is None)
-    
+
     def test_returns_bytes(self):
         u = as_unicode(r"Hello")
         self.assert_(isinstance(encode_string(u), bytes_))
-    
+
     def test_obj_bytes(self):
         b = as_bytes("encyclop\xE6dia")
         self.assert_(encode_string(b, 'ascii', 'strict') is b)
-        
+
     def test_encode_unicode(self):
         u = as_unicode(r"\u00DEe Olde Komp\u00FCter Shoppe")
         b = u.encode('utf-8')
         self.assertEqual(encode_string(u, 'utf-8'), b)
-        
+
     def test_error_fowarding(self):
         self.assertRaises(SyntaxError, encode_string)
-        
+
     def test_errors(self):
         s = r"abc\u0109defg\u011Dh\u0125ij\u0135klmnoprs\u015Dtu\u016Dvz"
         u = as_unicode(s)
@@ -50,7 +39,7 @@ class RWopsEncodeStringTest(unittest.TestCase):
 
     def test_check_defaults(self):
         u = as_unicode(r"a\u01F7b")
-        b = u.encode("unicode_escape", "backslashreplace") 
+        b = u.encode("unicode_escape", "backslashreplace")
         self.assert_(encode_string(u) == b)
 
     def test_etype(self):
@@ -78,7 +67,7 @@ class RWopsEncodeStringTest(unittest.TestCase):
             self.assertEqual(getrefcount(bpath), before)
             bpath = encode_string(upath)
             self.assertEqual(getrefcount(bpath), before)
-            
+
     def test_smp(self):
         utf_8 = as_bytes("a\xF0\x93\x82\xA7b")
         u = as_unicode(r"a\U000130A7b")
@@ -96,7 +85,7 @@ class RWopsEncodeFilePathTest(unittest.TestCase):
     def test_encoding(self):
         u = as_unicode(r"Hello")
         self.assert_(isinstance(encode_file_path(u), bytes_))
-    
+
     def test_error_fowarding(self):
         self.assertRaises(SyntaxError, encode_file_path)
 
@@ -107,6 +96,6 @@ class RWopsEncodeFilePathTest(unittest.TestCase):
     def test_etype(self):
         b = as_bytes("a\x00b\x00c")
         self.assertRaises(TypeError, encode_file_path, b, TypeError)
-                                   
+
 if __name__ == '__main__':
     unittest.main()
