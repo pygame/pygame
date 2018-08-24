@@ -1,23 +1,24 @@
 import unittest
 import pygame, pygame.transform
 
-class DisplayModuleTest( unittest.TestCase ):
-    def test_update( self ):
+class DisplayModuleTest(unittest.TestCase):
+
+    def test_update(self):
         """ see if pygame.display.update takes rects with negative values.
             "|Tags:display|"
         """
 
         pygame.init()
-        screen = pygame.display.set_mode((100,100))
-        screen.fill((55,55,55))
+        screen = pygame.display.set_mode((100, 100))
+        screen.fill((55, 55, 55))
 
-        r1 = pygame.Rect(0,0,100,100)
+        r1 = pygame.Rect(0, 0, 100, 100)
         pygame.display.update(r1)
 
-        r2 = pygame.Rect(-10,0,100,100)
+        r2 = pygame.Rect(-10, 0, 100, 100)
         pygame.display.update(r2)
 
-        r3 = pygame.Rect(-10,0,-100,-100)
+        r3 = pygame.Rect(-10, 0, -100, -100)
         pygame.display.update(r3)
 
         # NOTE: if I don't call pygame.quit there is a segfault.  hrmm.
