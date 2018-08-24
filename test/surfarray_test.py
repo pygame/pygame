@@ -223,7 +223,7 @@ if not IS_PYPY: #TODO: pypy skip known failure.
                 surf.set_alpha(0)
                 arr = pygame.surfarray.array_alpha(surf)
                 if surf.get_masks()[3]:
-                    self.failIf(alltrue(arr == 255),
+                    self.assertFalse(alltrue(arr == 255),
                                 "bitsize: %i, flags: %i" %
                                 (surf.get_bitsize(), surf.get_flags()))
                 else:
@@ -520,14 +520,14 @@ if not IS_PYPY: #TODO: pypy skip known failure.
                        self._make_surface(32, srcalpha=True)]
 
             for surf in sources:
-                self.failIf(surf.get_locked())
+                self.assertFalse(surf.get_locked())
                 arr = pygame.surfarray.pixels2d(surf)
                 self.failUnless(surf.get_locked())
                 self._fill_array2d(arr, surf)
                 surf.unlock()
                 self.failUnless(surf.get_locked())
                 del arr
-                self.failIf(surf.get_locked())
+                self.assertFalse(surf.get_locked())
                 self.failUnlessEqual(surf.get_locks(), ())
                 self._assert_surface(surf)
 
@@ -544,14 +544,14 @@ if not IS_PYPY: #TODO: pypy skip known failure.
                        self._make_surface(32)]
 
             for surf in sources:
-                self.failIf(surf.get_locked())
+                self.assertFalse(surf.get_locked())
                 arr = pygame.surfarray.pixels3d(surf)
                 self.failUnless(surf.get_locked())
                 self._fill_array3d(arr)
                 surf.unlock()
                 self.failUnless(surf.get_locked())
                 del arr
-                self.failIf(surf.get_locked())
+                self.assertFalse(surf.get_locked())
                 self.failUnlessEqual(surf.get_locks(), ())
                 self._assert_surface(surf)
 
@@ -586,7 +586,7 @@ if not IS_PYPY: #TODO: pypy skip known failure.
 
             surf = self._make_src_surface(32, srcalpha=True, palette=palette)
 
-            self.failIf(surf.get_locked())
+            self.assertFalse(surf.get_locked())
             arr = pygame.surfarray.pixels_alpha(surf)
             self.failUnless(surf.get_locked())
             surf.unlock()
@@ -603,7 +603,7 @@ if not IS_PYPY: #TODO: pypy skip known failure.
                                      "posn: (%i, %i)" % (x, y))
 
             del arr
-            self.failIf(surf.get_locked())
+            self.assertFalse(surf.get_locked())
             self.failUnlessEqual(surf.get_locks(), ())
 
             # Check exceptions.
@@ -647,7 +647,7 @@ if not IS_PYPY: #TODO: pypy skip known failure.
             surf32a = self._make_src_surface(32, srcalpha=True, palette=palette)
 
             for surf in [surf24, surf32, surf32a]:
-                self.failIf(surf.get_locked())
+                self.assertFalse(surf.get_locked())
                 arr = pixels_rgb(surf)
                 self.failUnless(surf.get_locked())
                 surf.unlock()
@@ -657,7 +657,7 @@ if not IS_PYPY: #TODO: pypy skip known failure.
                     self.failUnlessEqual(arr[x, y], plane[i])
 
                 del arr
-                self.failIf(surf.get_locked())
+                self.assertFalse(surf.get_locked())
                 self.failUnlessEqual(surf.get_locks(), ())
 
             # Check exceptions.

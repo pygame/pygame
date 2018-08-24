@@ -1,18 +1,6 @@
 # Two unit tests fail! Disable to allow automated builds to continue.
 __tags__ = ('ignore', 'subprocess_ignore')
 
-if __name__ == '__main__':
-    import sys
-    import os
-    pkg_dir = os.path.split(os.path.abspath(__file__))[0]
-    parent_dir, pkg_name = os.path.split(pkg_dir)
-    is_pygame_pkg = (pkg_name == 'tests' and
-                     os.path.split(parent_dir)[1] == 'pygame')
-    if not is_pygame_pkg:
-        sys.path.insert(0, parent_dir)
-else:
-    is_pygame_pkg = __name__.startswith('pygame.tests.')
-
 import unittest
 import pygame
 import pygame.gfxdraw
@@ -37,6 +25,7 @@ def intensity(c, i):
             g + ((255 - g) * (255 - i)) // 127,
             b + ((255 - b) * (255 - i)) // 127)
 
+
 class GfxdrawDefaultTest( unittest.TestCase ):
 
     is_started = False
@@ -59,14 +48,14 @@ class GfxdrawDefaultTest( unittest.TestCase ):
         fail_msg = ("%s != %s at %s, bitsize: %i, flags: %i, masks: %s" %
                     (sc, color, posn, surf.get_bitsize(), surf.get_flags(),
                      surf.get_masks()))
-        self.failUnlessEqual(sc, color, fail_msg)
+        self.assertEqual(sc, color, fail_msg)
 
     def check_not_at(self, surf, posn, color):
         sc = surf.get_at(posn)
         fail_msg = ("%s != %s at %s, bitsize: %i, flags: %i, masks: %s" %
                     (sc, color, posn, surf.get_bitsize(), surf.get_flags(),
                      surf.get_masks()))
-        self.failIfEqual(sc, color, fail_msg)
+        self.assertNotEqual(sc, color, fail_msg)
 
     def setUp(self):
         Surface = pygame.Surface

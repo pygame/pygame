@@ -5,16 +5,6 @@ import gc
 import ctypes
 import unittest
 
-if __name__ == '__main__':
-    import os
-    pkg_dir = os.path.split(os.path.abspath(__file__))[0]
-    parent_dir, pkg_name = os.path.split(pkg_dir)
-    is_pygame_pkg = (pkg_name == 'tests' and
-                     os.path.split(parent_dir)[1] == 'pygame')
-    if not is_pygame_pkg:
-        sys.path.insert(0, parent_dir)
-else:
-    is_pygame_pkg = __name__.startswith('pygame.tests.')
 
 import pygame
 from pygame.bufferproxy import BufferProxy
@@ -258,10 +248,7 @@ class BufferProxyTest(unittest.TestCase):
     if pygame.HAVE_NEWBUF:
         def test_newbuf(self):
             self.NEWBUF_test_newbuf()
-        if is_pygame_pkg:
-            from pygame.tests.test_utils import buftools
-        else:
-            from test.test_utils import buftools
+        from pygame.tests.test_utils import buftools
 
     def NEWBUF_test_newbuf(self):
         from ctypes import string_at
